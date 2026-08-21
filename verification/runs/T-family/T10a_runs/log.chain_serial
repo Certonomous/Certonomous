@@ -1,0 +1,40 @@
+2026-08-21T21:27:08Z chain: launching S_c
+LAUNCH  S_c: guards G1 G2 G3 passed; wrapper pid=440090
+2026-08-21T21:27:39Z chain: S_c status: rc=0 wall=1 checkMesh_rc=0 case=S_c end=2026-08-21T21:27:10Z pid=440090
+2026-08-21T21:27:39Z chain: launching S_m
+LAUNCH  S_m: guards G1 G2 G3 passed; wrapper pid=445175
+2026-08-21T21:28:39Z chain: S_m status: rc=0 wall=48 checkMesh_rc=0 case=S_m end=2026-08-21T21:28:28Z pid=445175
+2026-08-21T21:28:39Z chain: launching S_f
+LAUNCH  S_f: guards G1 G2 G3 passed; wrapper pid=447810
+2026-08-21T21:43:10Z chain: S_f status: rc=0 wall=863 checkMesh_rc=0 case=S_f end=2026-08-21T21:43:04Z pid=447810
+2026-08-21T21:43:10Z chain: launching S_C1
+LAUNCH  S_C1: guards G1 G2 G3 passed; wrapper pid=459040
+2026-08-21T21:57:40Z chain: S_C1 status: rc=0 wall=865 checkMesh_rc=0 case=S_C1 end=2026-08-21T21:57:36Z pid=459040
+2026-08-21T21:57:40Z chain: launching S_f_q
+LAUNCH  S_f_q: guards G1 G2 G3 passed; wrapper pid=468672
+2026-08-21T22:12:11Z chain: S_f_q status: rc=0 wall=858 checkMesh_rc=0 case=S_f_q end=2026-08-21T22:12:00Z pid=468672
+2026-08-21T22:12:11Z chain: launching S_f_s
+LAUNCH  S_f_s: guards G1 G2 G3 passed; wrapper pid=478246
+2026-08-21T22:26:41Z chain: S_f_s status: rc=0 wall=863 checkMesh_rc=0 case=S_f_s end=2026-08-21T22:26:35Z pid=478246
+2026-08-21T22:26:41Z chain: launching B_c
+LAUNCH  B_c: guards G1 G2 G3 passed; wrapper pid=490525
+2026-08-21T22:27:12Z chain: B_c status: rc=0 wall=1 checkMesh_rc=0 case=B_c end=2026-08-21T22:26:44Z pid=490525
+2026-08-21T22:27:12Z chain: launching B_m
+LAUNCH  B_m: guards G1 G2 G3 passed; wrapper pid=492072
+2026-08-21T22:27:42Z chain: B_m status: rc=0 wall=13 checkMesh_rc=0 case=B_m end=2026-08-21T22:27:26Z pid=492072
+2026-08-21T22:27:42Z chain: launching B_f
+LAUNCH  B_f: guards G1 G2 G3 passed; wrapper pid=493641
+2026-08-21T22:34:43Z chain: B_f status: rc=0 wall=389 checkMesh_rc=0 case=B_f end=2026-08-21T22:34:13Z pid=493641
+2026-08-21T22:34:43Z chain: launching B_C3
+LAUNCH  B_C3: guards G1 G2 G3 passed; wrapper pid=499452
+2026-08-21T22:41:13Z chain: B_C3 status: rc=0 wall=368 checkMesh_rc=0 case=B_C3 end=2026-08-21T22:40:52Z pid=499452
+2026-08-21T22:41:13Z chain: launching B_f_q
+LAUNCH  B_f_q: guards G1 G2 G3 passed; wrapper pid=505972
+2026-08-21T22:49:14Z chain: B_f_q status: rc=0 wall=474 checkMesh_rc=0 case=B_f_q end=2026-08-21T22:49:09Z pid=505972
+2026-08-21T22:49:14Z chain: launching B_f_s
+LAUNCH  B_f_s: guards G1 G2 G3 passed; wrapper pid=510118
+2026-08-21T22:57:44Z chain: B_f_s status: rc=0 wall=495 checkMesh_rc=0 case=B_f_s end=2026-08-21T22:57:30Z pid=510118
+2026-08-21T22:57:44Z chain: launching H_2d
+LAUNCH  H_2d: guards G1 G2 G3 passed; wrapper pid=514523
+2026-08-21T22:58:15Z chain: H_2d status: rc=0 wall=0 checkMesh_rc=0 case=H_2d end=2026-08-21T22:57:46Z pid=514523
+2026-08-21T22:58:15Z chain: ALL 13 T10a CASES HAVE STATUS

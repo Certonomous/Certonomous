@@ -883,41 +883,13 @@ def main():
     ctl = out["controls"]
 
     def plant_against(name, tag, value, against, must="FAIL", note=""):
-        # [Charter 2d.1 repair, 2026-08-21, after first compute, disclosed with
-        #  the pre-repair file and stdout preserved beside this one
-        #  (analyse_t10a.py.pre_repair_2026-08-21, analyse_t10a.out) and
-        #  quantified in T10a_RESULTS.md.  Two changes, both in the CONTROL
-        #  report only -- every graded row is computed and printed before the
-        #  first call lands here, so neither can move a graded number:
-        #  (i) a zero referent (C2b opposite-only: a box wall whose opposite
-        #      face sits at its own temperature exchanges exactly 0.0) divided
-        #      by zero and crashed the run; the deviation against a zero
-        #      referent is UNDEFINED and is now printed as such -- a
-        #      resolves-or-refuses path, no number to tune;
-        #  (ii) a must-FAIL control on a row that armed no band (NOT A RESULT
-        #      triple) cannot be evaluated at all; the pre-repair code printed
-        #      NOT MET, which asserts an evaluation that never happened.  The
-        #      honest label is UNMEASURED (cannot fire: no band armed;
-        #      Charter 2c boundary clause 1), and only such controls change
-        #      label -- an armed band still returns MET or NOT MET exactly as
-        #      before.]
         b = band_of(tag)
-        dev = (100.0 * abs(value - against) / abs(against)) if against != 0.0 else None
-        if must != "FAIL":
-            met = None
-        elif b is None:
-            met = "UNMEASURED"
-        else:
-            met = dev is not None and dev > b
+        dev = 100.0 * abs(value - against) / abs(against)
+        met = (b is not None and dev > b) if must == "FAIL" else None
         ctl.append(dict(control=name, row=tag, value=value, graded_against=against,
                         deviation_pct=dev, band_pct=b, must=must, met=met, note=note))
-        dev_s = f"{dev:.2f} %" if dev is not None else "UNDEFINED (zero referent)"
-        lab = ("MET (fails, as it must)" if met is True else
-               "NOT MET" if met is False else
-               "UNMEASURED (cannot fire: no band armed; Charter 2c boundary 1)"
-               if met == "UNMEASURED" else "reported")
-        print(f"  {name:28s} {tag}: {value:.4f} vs {against:.4f} -> {dev_s} vs band {b}"
-              f"  -> {lab}")
+        print(f"  {name:28s} {tag}: {value:.4f} vs {against:.4f} -> {dev:.2f} % vs band {b}"
+              f"  -> {'MET (fails, as it must)' if met else ('NOT MET' if met is False else 'reported')}")
 
     q1f = M["S_f"]["patches"]["inner"]["q_leaving"]
     plant_against("C1_black_body", "S0", q1f, ref["C1_black"])
@@ -935,11 +907,11 @@ def main():
                departure_from_S_f_pct=repro, band_pct=b0, reproduces_S_f=reproduces,
                deviation_from_black_pct=dev_black, lands_in_band_on_black=(b0 is not None and dev_black <= b0),
                deviation_from_grey_pct=dev_grey, must="FAIL against grey; NOT reproduce S_f",
-               met=("UNMEASURED" if b0 is None else (dev_grey > b0 and not reproduces)))
+               met=(b0 is not None and dev_grey > b0 and not reproduces))
     ctl.append(c1l)
     print(f"  C1_live_S_C1: eps = 1 run gives {q1c1:.4f}; S_f gave {q1f:.4f} ({repro:.2f} % apart, band {b0});"
           f" vs black {ref['C1_black']:.3f}: {dev_black:.3f} %; vs grey: {dev_grey:.2f} %"
-          f"  -> {'MET' if c1l['met'] is True else 'UNMEASURED (cannot fire: no band armed; Charter 2c boundary 1)' if c1l['met'] == 'UNMEASURED' else 'NOT MET'}"
+          f"  -> {'MET' if c1l['met'] else 'NOT MET'}"
           + ("  ** S_C1 REPRODUCES S_f: EMISSIVITY DICTIONARY NOT READ -- SPHERE ROWS VOID, BLOCKED **"
              if reproduces else ""))
     blocked = reproduces
@@ -978,12 +950,10 @@ def main():
     rows = out["rows"]
     n = {v: sum(1 for r in rows if r["verdict"] == v) for v in (PASS, GATE_FAIL, NOT_A_RESULT, GATE_REACHED)}
     unmet = [c for c in ctl if c.get("met") is False]
-    unmeasured = [c for c in ctl if c.get("met") == "UNMEASURED"]
     print(f"\n{'-' * 70}")
     print(f"  {len(rows)} registered rows: {n[PASS]} PASS, {n[GATE_FAIL]} GATE FAIL, "
           f"{n[NOT_A_RESULT]} NOT A RESULT, {n[GATE_REACHED]} GATE REACHED (reported, not graded)")
-    print(f"  {len(ctl)} control rows, {len(unmet)} NOT MET, {len(unmeasured)} UNMEASURED "
-          f"(no band armed on a NOT A RESULT row; Charter 2c boundary 1)"
+    print(f"  {len(ctl)} control rows, {len(unmet)} NOT MET"
           + ("" if not unmet else " -- the rung is unsound: " + ", ".join(f"{c['control']}/{c.get('row')}" for c in unmet)))
     if blocked:
         print("  RUNG BLOCKED: the emissivity dictionary is not read (C1-live); sphere rows are VOID")

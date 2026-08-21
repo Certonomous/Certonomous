@@ -1,0 +1,230 @@
+re-deriving the references (exact_t10a.py) ...
+  sigma used by the solver (etc/controlDict): 5.670408558e-08
+
+measuring S_c ...
+  time 20, 2400 cells; convergence CONVERGED (max change 0.000e+00 of scale 3320 between ('15', '20'))
+  planted-zero control: recovered 0.0012339999998403073
+  inner    n   600  A 0.03124683  q_leaving    3316.249996  T 600.0  eps 0.6  rowsum max defect 4.776e-03
+  outer    n   600  A 0.12498733  q_leaving    -906.022345  T 300.0  eps 0.4  rowsum max defect 4.773e-02
+  closure raw 4.436e-02  from-F 4.436e-02  excess 6.939e-17 (tol 0.01)  reciprocity max defect 3.126e-19  python-vs-solver max rel 2.465e-15
+  faceting deficit inner -5.382e-03 outer -5.382e-03
+  log: {'generator': 'viewFactorsGen', 'coarse_faces': '1200', 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+measuring S_m ...
+  time 20, 9216 cells; convergence CONVERGED (max change 0.000e+00 of scale 3318 between ('15', '20'))
+  planted-zero control: recovered 0.0012339999998403073
+  inner    n  1536  A 0.03134971  q_leaving    3316.978697  T 600.0  eps 0.6  rowsum max defect 3.005e-03
+  outer    n  1536  A 0.12539885  q_leaving    -905.069399  T 300.0  eps 0.4  rowsum max defect 4.274e-02
+  closure raw 4.372e-02  from-F 4.372e-02  excess 1.249e-16 (tol 0.01)  reciprocity max defect 1.222e-19  python-vs-solver max rel 3.974e-15
+  faceting deficit inner -2.108e-03 outer -2.108e-03
+  log: {'generator': 'viewFactorsGen', 'coarse_faces': '3072', 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+measuring S_f ...
+  time 20, 40560 cells; convergence CONVERGED (max change 0.000e+00 of scale 3321 between ('15', '20'))
+  planted-zero control: recovered 0.0012339999998403073
+  inner    n  4056  A 0.03139083  q_leaving    3320.340752  T 600.0  eps 0.6  rowsum max defect 1.145e-03
+  outer    n  4056  A 0.12556331  q_leaving    -902.808211  T 300.0  eps 0.4  rowsum max defect 4.474e-02
+  closure raw 4.197e-02  from-F 4.197e-02  excess 1.318e-16 (tol 0.01)  reciprocity max defect 6.475e-20  python-vs-solver max rel 8.217e-15
+  faceting deficit inner -7.989e-04 outer -7.989e-04
+  log: {'generator': 'viewFactorsGen', 'coarse_faces': '8112', 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+measuring S_C1 ...
+  time 20, 40560 cells; convergence CONVERGED (max change 0.000e+00 of scale 6889 between ('15', '20'))
+  planted-zero control: recovered 0.0012340000002950546
+  inner    n  4056  A 0.03139083  q_leaving    6889.183495  T 600.0  eps 1.0  rowsum max defect 1.145e-03
+  outer    n  4056  A 0.12556331  q_leaving   -1741.908642  T 300.0  eps 1.0  rowsum max defect 4.474e-02
+  closure raw 5.662e-03  from-F 5.662e-03  excess 6.505e-17 (tol 0.01)  reciprocity max defect 6.475e-20  python-vs-solver max rel 4.092e-15
+  faceting deficit inner -7.989e-04 outer -7.989e-04
+  log: {'generator': 'viewFactorsGen', 'coarse_faces': '8112', 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+measuring S_f_q ...
+  time 20, 40560 cells; convergence CONVERGED (max change 0.000e+00 of scale 3321 between ('15', '20'))
+  planted-zero control: recovered 0.0012339999998403073
+  inner    n  4056  A 0.03139083  q_leaving    3320.339326  T 600.0  eps 0.6  rowsum max defect 1.145e-03
+  outer    n  4056  A 0.12556331  q_leaving    -902.809795  T 300.0  eps 0.4  rowsum max defect 4.484e-02
+  closure raw 4.197e-02  from-F 4.197e-02  excess 7.633e-17 (tol 0.01)  reciprocity max defect 6.475e-20  python-vs-solver max rel 7.258e-15
+  faceting deficit inner -7.989e-04 outer -7.989e-04
+  log: {'generator': 'viewFactorsGen', 'coarse_faces': '8112', 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+measuring S_f_s ...
+  time 20, 40560 cells; convergence CONVERGED (max change 0.000e+00 of scale 3398 between ('15', '20'))
+  planted-zero control: recovered 0.0012339999998403073
+  inner    n  4056  A 0.03139083  q_leaving    3397.663515  T 600.0  eps 0.6  rowsum max defect 1.145e-03
+  outer    n  4056  A 0.12556331  q_leaving    -817.848317  T 300.0  eps 0.4  rowsum max defect 4.474e-02
+  closure raw 1.893e-02  from-F 4.197e-02  excess 2.303e-02 (tol 0.01)  reciprocity max defect 6.475e-20  python-vs-solver max rel 2.663e-02  -> VOID
+  faceting deficit inner -7.989e-04 outer -7.989e-04
+  log: {'generator': 'viewFactorsGen', 'coarse_faces': '8112', 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+measuring B_c ...
+  time 20, 2048 cells; convergence CONVERGED (max change 0.000e+00 of scale 6578 between ('15', '20'))
+  planted-zero control: recovered 0.0012340000002950546
+  floor    n   256  A 1.00000000  q_leaving    6480.760108  T 600.0  eps 1.0  rowsum max defect 1.929e-02
+  ceiling  n   256  A 1.00000000  q_leaving   -3275.664195  T 300.0  eps 1.0  rowsum max defect 1.929e-02
+  x0       n   128  A 0.50000000  q_leaving   -1269.196506  T 400.0  eps 1.0  rowsum max defect 1.943e-02
+  x1       n   128  A 0.50000000  q_leaving   -1269.196506  T 400.0  eps 1.0  rowsum max defect 1.943e-02
+  y0       n   128  A 0.50000000  q_leaving   -1980.140054  T 350.0  eps 1.0  rowsum max defect 1.943e-02
+  y1       n   128  A 0.50000000  q_leaving   -1980.140054  T 350.0  eps 1.0  rowsum max defect 1.943e-02
+  closure raw 3.402e-03  from-F 3.402e-03  excess 5.712e-16 (tol 0.01)  reciprocity max defect 8.267e-19  python-vs-solver max rel 3.872e-15
+  log: {'generator': 'viewFactorsGen', 'coarse_faces': '1024', 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+measuring B_m ...
+  time 20, 8788 cells; convergence CONVERGED (max change 0.000e+00 of scale 6580 between ('15', '20'))
+  planted-zero control: recovered 0.0012340000002950546
+  floor    n   676  A 1.00000000  q_leaving    6482.287424  T 600.0  eps 1.0  rowsum max defect 1.913e-02
+  ceiling  n   676  A 1.00000000  q_leaving   -3271.619602  T 300.0  eps 1.0  rowsum max defect 3.907e-02
+  x0       n   338  A 0.50000000  q_leaving   -1264.163771  T 400.0  eps 1.0  rowsum max defect 1.919e-02
+  x1       n   338  A 0.50000000  q_leaving   -1264.163771  T 400.0  eps 1.0  rowsum max defect 1.919e-02
+  y0       n   338  A 0.50000000  q_leaving   -1974.800564  T 350.0  eps 1.0  rowsum max defect 1.919e-02
+  y1       n   338  A 0.50000000  q_leaving   -1974.800564  T 350.0  eps 1.0  rowsum max defect 1.919e-02
+  closure raw 2.178e-03  from-F 2.178e-03  excess 7.537e-16 (tol 0.01)  reciprocity max defect 8.337e-16  python-vs-solver max rel 5.667e-15
+  log: {'generator': 'viewFactorsGen', 'coarse_faces': '2704', 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+measuring B_f ...
+  time 20, 37044 cells; convergence CONVERGED (max change 0.000e+00 of scale 6581 between ('15', '20'))
+  planted-zero control: recovered 0.0012340000002950546
+  floor    n  1764  A 1.00000000  q_leaving    6483.263010  T 600.0  eps 1.0  rowsum max defect 1.909e-02
+  ceiling  n  1764  A 1.00000000  q_leaving   -3269.602153  T 300.0  eps 1.0  rowsum max defect 3.037e-02
+  x0       n   882  A 0.50000000  q_leaving   -1260.761299  T 400.0  eps 1.0  rowsum max defect 1.911e-02
+  x1       n   882  A 0.50000000  q_leaving   -1260.825301  T 400.0  eps 1.0  rowsum max defect 2.083e-02
+  y0       n   882  A 0.50000000  q_leaving   -1971.177941  T 350.0  eps 1.0  rowsum max defect 1.911e-02
+  y1       n   882  A 0.50000000  q_leaving   -1971.177941  T 350.0  eps 1.0  rowsum max defect 1.911e-02
+  closure raw 1.410e-03  from-F 1.410e-03  excess 1.518e-17 (tol 0.01)  reciprocity max defect 2.227e-14  python-vs-solver max rel 1.050e-14
+  log: {'generator': 'viewFactorsGen', 'coarse_faces': '7056', 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+measuring B_C3 ...
+  time 20, 37044 cells; convergence CONVERGED (max change 0.000e+00 of scale 13.95 between ('15', '20'))
+  planted-zero control: recovered 0.0012340000000001794
+  floor    n  1764  A 1.00000000  q_leaving      -0.696055  T 300.0  eps 1.0  rowsum max defect 1.909e-02
+  ceiling  n  1764  A 1.00000000  q_leaving      -2.244105  T 300.0  eps 1.0  rowsum max defect 3.037e-02
+  x0       n   882  A 0.50000000  q_leaving      -0.976915  T 300.0  eps 1.0  rowsum max defect 1.911e-02
+  x1       n   882  A 0.50000000  q_leaving      -0.997166  T 300.0  eps 1.0  rowsum max defect 2.083e-02
+  y0       n   882  A 0.50000000  q_leaving      -0.976915  T 300.0  eps 1.0  rowsum max defect 1.911e-02
+  y1       n   882  A 0.50000000  q_leaving      -0.976915  T 300.0  eps 1.0  rowsum max defect 1.911e-02
+  closure raw 1.000e+00  from-F 1.000e+00  excess 0.000e+00 (tol 0.01)  reciprocity max defect 2.227e-14  python-vs-solver max rel 3.178e-13
+  log: {'generator': 'viewFactorsGen', 'coarse_faces': '7056', 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+measuring B_f_q ...
+  time 20, 37044 cells; convergence CONVERGED (max change 0.000e+00 of scale 6581 between ('15', '20'))
+  planted-zero control: recovered 0.0012340000002950546
+  floor    n  1764  A 1.00000000  q_leaving    6483.242984  T 600.0  eps 1.0  rowsum max defect 1.928e-02
+  ceiling  n  1764  A 1.00000000  q_leaving   -3269.622179  T 300.0  eps 1.0  rowsum max defect 3.037e-02
+  x0       n   882  A 0.50000000  q_leaving   -1260.836429  T 400.0  eps 1.0  rowsum max defect 1.930e-02
+  x1       n   882  A 0.50000000  q_leaving   -1260.900430  T 400.0  eps 1.0  rowsum max defect 2.083e-02
+  y0       n   882  A 0.50000000  q_leaving   -1971.258166  T 350.0  eps 1.0  rowsum max defect 1.930e-02
+  y1       n   882  A 0.50000000  q_leaving   -1971.258166  T 350.0  eps 1.0  rowsum max defect 1.930e-02
+  closure raw 1.425e-03  from-F 1.425e-03  excess 2.862e-17 (tol 0.01)  reciprocity max defect 2.227e-14  python-vs-solver max rel 1.050e-14
+  log: {'generator': 'viewFactorsGen', 'coarse_faces': '7056', 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+measuring B_f_s ...
+  time 20, 37044 cells; convergence CONVERGED (max change 0.000e+00 of scale 6581 between ('15', '20'))
+  planted-zero control: recovered 0.0012340000002950546
+  floor    n  1764  A 1.00000000  q_leaving    6484.650960  T 600.0  eps 1.0  rowsum max defect 1.909e-02
+  ceiling  n  1764  A 1.00000000  q_leaving   -3252.299399  T 300.0  eps 1.0  rowsum max defect 3.037e-02
+  x0       n   882  A 0.50000000  q_leaving   -1255.120332  T 400.0  eps 1.0  rowsum max defect 1.911e-02
+  x1       n   882  A 0.50000000  q_leaving   -1255.084538  T 400.0  eps 1.0  rowsum max defect 2.083e-02
+  y0       n   882  A 0.50000000  q_leaving   -1965.265410  T 350.0  eps 1.0  rowsum max defect 1.911e-02
+  y1       n   882  A 0.50000000  q_leaving   -1965.265410  T 350.0  eps 1.0  rowsum max defect 1.911e-02
+  closure raw 9.249e-04  from-F 1.410e-03  excess 4.853e-04 (tol 0.01)  reciprocity max defect 2.227e-14  python-vs-solver max rel 1.972e-02
+  log: {'generator': 'viewFactorsGen', 'coarse_faces': '7056', 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+measuring H_2d ...
+  time 20, 512 cells; convergence CONVERGED (max change 0.000e+00 of scale 6599 between ('15', '20'))
+  planted-zero control: recovered 0.0012340000002950546
+  floor    n    32  A 0.05000000  q_leaving    6517.192015  T 600.0  eps 1.0  rowsum max defect 2.700e-02
+  ceiling  n    32  A 0.05000000  q_leaving   -4573.389029  T 300.0  eps 1.0  rowsum max defect 2.700e-02
+  x0       n    16  A 0.02500000  q_leaving   -1833.219559  T 400.0  eps 1.0  rowsum max defect 3.312e-02
+  x1       n    16  A 0.02500000  q_leaving   -1833.219559  T 400.0  eps 1.0  rowsum max defect 3.312e-02
+  closure raw 8.557e-03  from-F 8.557e-03  excess 5.551e-17 (tol 0.01)  reciprocity max defect 2.777e-18  python-vs-solver max rel 5.513e-16
+  log: {'generator': 'createViewFactors', 'coarse_faces': None, 'smoothing_avg_delta': None, 'smoothing_max_delta': None, 'radiation_model': 'viewFactor'}
+
+----------------------------------------------------------------------
+registered rows
+
+### S0  inner sphere net leaving flux [W/m2]   reference 3374.471705
+    c  3316.24999569   (S_c)
+    m  3316.97869745   (S_m)
+    f  3320.34075190   (S_f)
+    GaussQuadTol 0.001 twin 3320.33932603   smoothing-true twin 3397.66351468
+    S0: NOT A RESULT -- grid triple is DIVERGENT; no band is armed
+    grid triple: {'state': 'DIVERGENT', 'order': -3.2532577724471805}
+
+### S1  outer sphere net leaving flux [W/m2]   reference -843.617926
+    c  -906.02234527   (S_c)
+    m  -905.06939905   (S_m)
+    f  -902.80821132   (S_f)
+    GaussQuadTol 0.001 twin -902.80979460   smoothing-true twin -817.84831739
+    S1: NOT A RESULT -- grid triple is DIVERGENT; no band is armed
+    grid triple: {'state': 'DIVERGENT', 'order': -1.8384688467545367}
+
+### B0  box floor net leaving flux [W/m2]   reference 6484.920941
+    c  6480.76010752   (B_c)
+    m  6482.28742364   (B_m)
+    f  6483.26301020   (B_f)
+    GaussQuadTol 0.001 twin 6483.24298404   smoothing-true twin 6484.65096021
+    B0: value 6483.263010 vs 6484.920941: deviation 0.02557 %, band (GCI, p = 0.954) 0.03326 %  -> PASS
+    grid triple: {'state': 'CONVERGING', 'order': 0.9536700993208824, 'GCI_pct': 0.033259961780482704, 'richardson': 6481.537945560429}
+
+### B1  box ceiling net leaving flux [W/m2]   reference -3265.532221
+    c  -3275.66419498   (B_c)
+    m  -3271.61960159   (B_m)
+    f  -3269.60215315   (B_f)
+    GaussQuadTol 0.001 twin -3269.62217932   smoothing-true twin -3252.29939884
+    B1: value -3269.602153 vs -3265.532221: deviation 0.12463 %, band (GCI, p = 1.480) 0.07676 %  -> GATE FAIL
+    grid triple: {'state': 'CONVERGING', 'order': 1.479876791054698, 'GCI_pct': 0.07676003829220036, 'richardson': -3271.6099514453667}
+
+### B2  box x-walls net leaving flux, mean of both [W/m2]   reference -1254.691645
+    c  -1269.19650595   (B_c)
+    m  -1264.16377070   (B_m)
+    f  -1260.79330010   (B_f)
+    GaussQuadTol 0.001 twin -1260.86842963   smoothing-true twin -1255.10243495
+    B2: value -1260.793300 vs -1254.691645: deviation 0.48631 %, band (GCI, p = 0.853) 0.67756 %  -> PASS
+    pair symmetry guard (finest): -1260.761299 / -1260.825301, rel 5.08e-05
+    grid triple: {'state': 'CONVERGING', 'order': 0.8529960637012206, 'GCI_pct': 0.6775588725095711, 'richardson': -1267.627393598505}
+
+### B3  box y-walls net leaving flux, mean of both [W/m2]   reference -1964.697075
+    c  -1980.14005422   (B_c)
+    m  -1974.80056369   (B_m)
+    f  -1971.17794065   (B_f)
+    GaussQuadTol 0.001 twin -1971.25816629   smoothing-true twin -1965.26541036
+    B3: value -1971.177941 vs -1964.697075: deviation 0.32987 %, band (GCI, p = 0.825) 0.48472 %  -> PASS
+    pair symmetry guard (finest): -1971.177941 / -1971.177941, rel 3.18e-12
+    grid triple: {'state': 'CONVERGING', 'order': 0.8253806077112493, 'GCI_pct': 0.4847230772690715, 'richardson': -1978.821744151365}
+
+----------------------------------------------------------------------
+controls (each MUST fail if the rung is sound)
+  C1_black_body                S0: 3320.3408 vs 6889.5464 -> 51.81 % vs band None  -> UNMEASURED (cannot fire: no band armed; Charter 2c boundary 1)
+  C2_parallel_plate            S0: 3320.3408 vs 2175.6462 -> 52.61 % vs band None  -> UNMEASURED (cannot fire: no band armed; Charter 2c boundary 1)
+  C2_parallel_plate            S1: -902.8082 vs -2175.6462 -> 58.50 % vs band None  -> UNMEASURED (cannot fire: no band armed; Charter 2c boundary 1)
+  C1_live_S_C1: eps = 1 run gives 6889.1835; S_f gave 3320.3408 (107.48 % apart, band None); vs black 6889.546: 0.005 %; vs grey: 104.16 %  -> UNMEASURED (cannot fire: no band armed; Charter 2c boundary 1)
+  C2_cube_matrix               B0: 6483.2630 vs 6335.8516 -> 2.33 % vs band 0.033259961780482704  -> MET (fails, as it must)
+  C2b_opposite_only            B0: 6483.2630 vs 6889.5464 -> 5.90 % vs band 0.033259961780482704  -> reported
+  C2_cube_matrix               B1: -3269.6022 vs -1930.3977 -> 69.37 % vs band 0.07676003829220036  -> MET (fails, as it must)
+  C2b_opposite_only            B1: -3269.6022 vs -6889.5464 -> 52.54 % vs band 0.07676003829220036  -> reported
+  C2_cube_matrix               B2: -1260.7933 vs -740.8592 -> 70.18 % vs band 0.6775588725095711  -> MET (fails, as it must)
+  C2b_opposite_only            B2: -1260.7933 vs 0.0000 -> UNDEFINED (zero referent) vs band 0.6775588725095711  -> reported
+  C2_cube_matrix               B3: -1971.1779 vs -1461.8677 -> 34.84 % vs band 0.4847230772690715  -> MET (fails, as it must)
+  C2b_opposite_only            B3: -1971.1779 vs 0.0000 -> UNDEFINED (zero referent) vs band 0.4847230772690715  -> reported
+  C3a_radiation_off_zero       S0: 0.0000 vs 3374.4717 -> 100.00 % vs band None  -> UNMEASURED (cannot fire: no band armed; Charter 2c boundary 1)
+  C3a_radiation_off_zero       S1: 0.0000 vs -843.6179 -> 100.00 % vs band None  -> UNMEASURED (cannot fire: no band armed; Charter 2c boundary 1)
+  C3a_radiation_off_zero       B0: 0.0000 vs 6484.9209 -> 100.00 % vs band 0.033259961780482704  -> MET (fails, as it must)
+  C3a_radiation_off_zero       B1: 0.0000 vs -3265.5322 -> 100.00 % vs band 0.07676003829220036  -> MET (fails, as it must)
+  C3a_radiation_off_zero       B2: 0.0000 vs -1254.6916 -> 100.00 % vs band 0.6775588725095711  -> MET (fails, as it must)
+  C3a_radiation_off_zero       B3: 0.0000 vs -1964.6971 -> 100.00 % vs band 0.4847230772690715  -> MET (fails, as it must)
+  C3b_uniform_box_solved       B0: -0.6961 vs 6484.9209 -> 100.01 % vs band 0.033259961780482704  -> MET (fails, as it must)
+  C3b_uniform_box_solved       B1: -2.2441 vs -3265.5322 -> 99.93 % vs band 0.07676003829220036  -> MET (fails, as it must)
+  C3b_uniform_box_solved       B2: -0.9870 vs -1254.6916 -> 99.92 % vs band 0.6775588725095711  -> MET (fails, as it must)
+  C3b_uniform_box_solved       B3: -0.9769 vs -1964.6971 -> 99.95 % vs band 0.4847230772690715  -> MET (fails, as it must)
+  B_C3 max |qr| over every face: 1.395e+01 W/m2 (must be zero to round-off)
+
+----------------------------------------------------------------------
+T10a-3 Hottel 2D rectangle (REPORTED ONLY, identity under Charter 2a, not counted)
+  floor    6517.192015 vs 6510.513314: 1.03e-01 %
+  ceiling  -4573.389029 vs -4637.006925: 1.37e+00 %
+  x0       -1833.219559 vs -1873.506388: 2.15e+00 %
+  x1       -1833.219559 vs -1873.506388: 2.15e+00 %
+
+----------------------------------------------------------------------
+  6 registered rows: 3 PASS, 1 GATE FAIL, 2 NOT A RESULT, 0 GATE REACHED (reported, not graded)
+  22 control rows, 0 NOT MET, 6 UNMEASURED (no band armed on a NOT A RESULT row; Charter 2c boundary 1)
+  VOID runs (closure guard): ['S_f_s']
+  GRADES NO PARTICIPATING MEDIUM, NO SPECTRAL EFFECT, NO CONVECTION AND NO CONJUGATE COUPLING.
