@@ -640,7 +640,7 @@ otherwise.
 |---|---|
 | §3 baseline | `_common/trainmean_baseline.py` -> `trainmean_baseline.json`. Nothing is fitted; re-running reproduces it. **Automatic: no.** A reviewer checks the baseline column is present. |
 | §5(a) distance statistic | Computed and tabled by both landed `RESULTS.md` files. **No script enforces its presence.** |
-| §5(b) basis rank | Measured per case as `basis_rank_mean` in `/home/ubuntu/closure-data/kaandorp_tbrf/results.json`. **No script enforces its presence, and the pooled 3.24 figure quoted in three records has a dangling provenance pointer — see §5(b).** |
+| §5(b) basis rank | Measured per case as `basis_rank_mean` in `/home/ubuntu/closure-data/kaandorp_tbrf/results.json`. **No script enforces its presence, and the pooled 3.24 figure quoted in three records has a dangling provenance pointer — see §5(b).** — updated 2026-08-21: `_common/features/FS2_DEGENERACY_REPORT.md` §4 (commit 8a380cb9) now supplies the standing per-family rank measurement. |
 | §10 disjointness | **Yes** — assertions in the case code, and `sdk/scripts/closure_in_sample_gate.py` for the benchmark-leakage half, which returned `PASS` before and after each SpaRTA rung. |
 | §12 vocabulary | **Nothing.** A grep for the six tokens across `cases/RANS_LES_closure_models/**/RESULTS.md` would catch a stray word and does not exist. **Proposed, not built.** |
 | §15 corpus | **Yes, partly** — `MANIFEST.md` is script-regenerated, and the `uniq -w64 -d` duplicate sweep is one line. Title verification is manual by construction. |

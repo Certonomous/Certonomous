@@ -96,7 +96,7 @@ explanation is always the more available one. Two supporting habits: register th
 threshold *before* seeing the ceiling number, so the gate cannot be argued away
 afterwards; and find an independent control that isolates the harness - here, the
 lab's own W2 campaign putting `b^Delta` **and** `R` through the *same solver* to
-reach `eps(U)/eps(U_0) = 0.0017`, which proves the path is sound and the `b`-only
+reach the published `eps(U)/eps(U_0)` = 0.00165 (the lab's own W2 measurement: 0.003331, clearing the registered < 0.005 band) [dated correction 2026-08-21: originally quoted '0.0017' as the lab's own number], which proves the path is sound and the `b`-only
 configuration is what fails.
 
 The finding that survives is sharper than the one the lane set out to get: an

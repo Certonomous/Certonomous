@@ -51,7 +51,7 @@ exactly what it claims to the *anisotropy*; it is the *velocity* that degrades.
 
 **Cross-check that isolates the cause.** The same solver, the same injection
 path, with **both** corrections (`b^Delta` **and** `R`) reaches
-`eps(U)/eps(U_0)` = **0.0017** on PH10595 in the lab's own W2 campaign
+`eps(U)/eps(U_0)` = **0.003331** on PH10595 (the published value is 0.00165; both clear the registered band) [dated correction 2026-08-21: this line originally quoted 0.0017, the published value rounded, as the lab's own] in the lab's own W2 campaign
 (`verification/campaign/W2_SPARTA_FROZEN_CBFS.md`). The path is sound. What
 fails is the **`b`-only** configuration — which is the configuration a model that
 predicts only `b_ij` can supply. Schmelzer et al. carry `R` for this reason;

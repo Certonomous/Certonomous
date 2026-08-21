@@ -120,9 +120,10 @@ true anisotropy.**
 | **`L_ml_s0/1/2`** | **0.0415 / 0.0422 / 0.0418** | **3.022** |
 | `L_truth` | 0.1179 | 9.088 |
 
-The ML field is **16% better than NULL** in `U_rms` and closer to the LES
+The ML field is **16% better than NULL** in `U_rms` but FARTHER from the LES
 reattachment (error 1.148 against NULL's 0.820 — NULL undershoots, ML undershoots
-slightly more), while the **exact** anisotropy is **137% worse** and puts
+slightly more) [dated correction 2026-08-21: this sentence originally read "closer to the LES
+reattachment", contradicting its own numbers], while the **exact** anisotropy is **137% worse** and puts
 reattachment at 9.088 against a truth of 4.170.
 
 A *less accurate* `b` produced a *better* velocity field than the exact one. That
@@ -208,7 +209,7 @@ never approached. Nothing was killed by hand.
 ## 10. What this result cannot see
 
 * **It cannot say the injection path is wrong in general.** The same solver with
-  **both** corrections reaches `eps(U)/eps(U_0) = 0.0017` on PH10595
+  **both** corrections reaches the published `eps(U)/eps(U_0) = 0.00165` (lab W2 measurement 0.003331) [dated correction 2026-08-21: originally quoted 0.0017 as the lab's own] on PH10595
   (`verification/campaign/W2_SPARTA_FROZEN_CBFS.md`). What fails is `b`-only
   injection, which is all a `b_ij`-predicting model can supply.
 * **Neither arm is deployable.** Arm S freezes `k` at a value that is itself

@@ -175,3 +175,9 @@ completing arm S, and the reduction is reported.
   remains untested a-posteriori in both lanes.
 * **`CBFS13700` is in-sample** for this forest; only the two ducts are held out.
 * **No uncertainty band on the truth.**
+
+---
+DATED CORRECTION, 2026-08-21 (appended; frozen text above unedited): line ~113 quotes
+`eps(U)/eps(U_0) = 0.0017` as if it were the lab's own W2 number. 0.0017 is Schmelzer's published
+0.00165 rounded; the lab's own W2 measurement is 0.003331 (volume-weighted 0.001253), which clears
+the registered < 0.005 band. No gate in this preregistration depended on the misquoted value.

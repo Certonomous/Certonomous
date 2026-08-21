@@ -61,7 +61,7 @@ factor of **23** (0.5833 -> 0.0251 on the duct) while `U_rms` **worsens by
 57-63%**.
 
 The control that isolates it: the same solver and the same injection path, given
-**both** corrections (`b^Delta` and `R`), reaches `eps(U)/eps(U_0) = 0.0017` on
+**both** corrections (`b^Delta` and `R`), reaches the published `eps(U)/eps(U_0)` = 0.00165 on (the lab's own W2 measurement: 0.003331; still ~300x) [dated correction 2026-08-21: originally quoted '0.0017' as the lab's own number] -
 PH10595 (`verification/campaign/W2_SPARTA_FROZEN_CBFS.md`). The path is sound;
 the `b`-only configuration is what fails - and `b`-only is all a model that
 predicts `b_ij` alone can supply. **Any a-posteriori plan for a `b_ij`-only
