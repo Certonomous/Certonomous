@@ -1,6 +1,6 @@
 # Certonomous DAFoam Charter
 
-Version 1.0a, dated 2026-08-21. Governs every discrete-adjoint CFD result this lab produces
+Version 1.0b, dated 2026-08-21. Governs every discrete-adjoint CFD result this lab produces
 with DAFoam, IDWarp, pyGeo, pyOptSparse and the OpenFOAM builds under them: gradient
 verification, adjoint linear-solver failures, patched-toolchain rebuilds, mesh-warp
 derivatives, decomposition effects, and any optimisation driven by one of those gradients.
@@ -414,8 +414,10 @@ record that files is breaking this clause.**
 > **A DAFoam lesson is drafted to the scratchpad and the supervisor appends it to `docs/LESSONS.md`;
 > no lane appends to that file itself. The next number is derived with the period-anchored regex the
 > file mandates, never by incrementing a remembered maximum. A numerics fact goes to
-> `docs/NUMERICS_KNOWLEDGE.md` as the next `N-B` entry, **inserted at the end of the existing N-B
-> block**, because an append at end-of-file lands inside a different, unnumbered section.**
+> `docs/NUMERICS_KNOWLEDGE.md` as the next **`N-D`** entry — the DAFoam family — appended at the
+> end of the existing `N-D` block. `N-D` exists because this lane's first five facts were filed as
+> `N-B21..N-B25` and collided within the hour with a concurrent closure-team append of the same
+> numbers.**
 
 **Measured 2026-08-21** (`docs/dafoam/PRIOR_WORK_INVENTORY.md` §4.0). `LESSONS.md` holds **185 lesson
 blocks spanning 184 distinct numbers**: **L-52 does not exist**, **L-43 is duplicated**, and the file
@@ -596,4 +598,5 @@ throughout.
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-08-21 | First issue. Written after three weeks of DAFoam ladder work produced the step-size defence bought after publication (§3, `A_stepsize_study.md`), the retracted A5 clearance and its 160× seed effect (§2, §5), the A4 decomposition split of 8.95 % against 0.00054 % (§5), the 47-iteration IPOPT run with no convergence statement (§9), the `docker commit` image whose scratch tree is gone (§6), the hump run ended by a `docker stop` on a shared box and reported as a boundary (§7), and four prepared upstream defect reports of which **none has been filed** (§10). Clauses cite `cases/dafoam/` records and `docs/dafoam/PRIOR_WORK_INVENTORY.md` throughout; no `LESSONS.md` number is cited because **no DAFoam lesson has yet been filed — the next is L-186** (§11), and a clause without a lesson number says so. Records one conflict it does not settle: the five-token verdict lists at `VERIFICATION_CHARTER.md:95-96` and `REPORTING_CHARTER.md:210-211` (§14.1, **PROPOSAL**). Updates `docs/charters/README.md` §1 from eleven to twelve (§14.2). |
-| 1.0a | 2026-08-21 | **Editorial amendment to §11, additive, no clause weakened.** Adds the re-derivation block: the `L-` and `N-B` figures in §11 are a dated reading, not the rule, and the rule is the two `grep` commands run immediately before appending. Earned the same day: the closure team committed **L-186** while this charter was being written, so this lane's first lesson became **L-187**, and this lane's numerics entries **N-B21 to N-B25** were inserted at the end of the `N-B` block (before the unnumbered closure-repro section) rather than at end-of-file. Recorded here rather than by editing §11's prose, because the prose was correct when written. |
+| 1.0b | 2026-08-21 | **§11 opens the `N-D` family, additive, no clause weakened.** This lane's numerics facts were filed as `N-B21..N-B25` and **the closure team committed its own `N-B22..N-B25` at 17:52 the same day (`79a73944`)**, so two disjoint sets of facts carried four identical ids. Resolution, touching only this lane's lines: the five entries are renumbered **`N-D1..N-D5`** in place, with a dated note above `N-D1`; no closure-team text was edited and their `N-B22..N-B25` stand. **The next DAFoam numerics fact is `N-D6`, re-derived with `grep -o 'N-D[0-9]*\.' docs/NUMERICS_KNOWLEDGE.md | tail -1`.** The incident is the clause's own warning arriving inside the hour it was written: a shared append-only file with one number space and several concurrent writers will collide, and a per-team prefix is the only thing that prevents it. |
+| 1.0a | 2026-08-21 | **Editorial amendment to §11, additive, no clause weakened.** Adds the re-derivation block: the `L-` and `N-B` figures in §11 are a dated reading, not the rule, and the rule is the two `grep` commands run immediately before appending. Earned the same day: the closure team committed **L-186** while this charter was being written, so this lane's first lesson became **L-187**, and this lane's numerics entries were filed at the end of the `N-B` block (before the unnumbered closure-repro section) rather than at end-of-file. Recorded here rather than by editing §11's prose, because the prose was correct when written. |

@@ -128,7 +128,7 @@ Full text and provenance: `docs/charters/DAFOAM_CHARTER.md`.
 | 8 | Verdicts are exactly `PASS`, `GATE REACHED`, `GATE FAIL`, `NOT A RESULT`, `BLOCKED`, `PENDING`, only against a **registered** falsifier. |
 | 9 | **An optimiser stopped by a wall clock or an iteration cap is GATE REACHED or NOT A RESULT, never PASS.** FD check at the **final design point** is mandatory. |
 | 10 | **Upstream filing is Sanaa's alone.** Defect notes are filing-ready and marked NOT FILED on their first screen. |
-| 11 | Lessons and numerics ids are **re-derived by command immediately before appending, never quoted from a document** — other teams commit concurrently. Numerics facts go at the **end of the N-B block, not the end of the file**. This lane filed **L-187 to L-194** and **N-B21 to N-B25** on 2026-08-21. |
+| 11 | Lessons and numerics ids are **re-derived by command immediately before appending, never quoted from a document** — other teams commit concurrently. Numerics facts go at the **end of the N-B block, not the end of the file**. This lane filed **L-187 to L-194** and **N-D1 to N-D5** on 2026-08-21 — the `N-D` family exists because `N-B21..25` collided with a concurrent closure-team append the same hour. |
 | 12 | **Every run discloses its cost** in core-minutes and dollars from its own ledger, the prediction is made first and the miss reported as a miss, and anything over \$25 is listed for Sanaa rather than run. |
 
 ---

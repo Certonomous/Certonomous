@@ -2248,7 +2248,11 @@ none. Fix adopted: the masks are returned as `valid_les_only` and `valid` from
 `_common/score_prediction.py`, and every file that quotes a cell count now names
 the mask. **A bare cell count is not a specification.**
 
-**N-B21. A DAFoam discrete adjoint that returns `KSPConvergedReason -9` at iteration 0
+**N-D = DAFoam-team numerics facts, opened 2026-08-21** after N-B21..N-B25 collided
+with a concurrent closure-team append (commit `79a73944`); numbers are re-derived at
+filing time, never carried in a document.
+
+**N-D1. A DAFoam discrete adjoint that returns `KSPConvergedReason -9` at iteration 0
 is an exact zero pivot in the ASM sub-block ILU, and no shift catches it.** Measured on
 a 21,000-cell wall-resolved separated `kOmegaSST` case (CBFS) and a 51,626-cell one (NASA
 hump). `dRdWTPC` is 210,592 x 210,592 with **13,710,468** nonzeros, **zero** zero-rows,
@@ -2266,7 +2270,7 @@ returns `-9`: **fill adds fill, not pivoting**. Switching the sub-block PC to co
 gives `PetscConvergedReason: 2` in **667** iterations. The `-9` persists at **np = 1**, so
 it is not a decomposition effect.
 
-**N-B22. Complete-LU sub-blocks cost 24-28x the matrix's own nonzeros, and for a
+**N-D2. Complete-LU sub-blocks cost 24-28x the matrix's own nonzeros, and for a
 21,000-cell adjoint that is 9.044 GiB, not the 22 GiB that had been assumed.** Offline,
 `nnz(L+U)` for the whole 210,592² operator measures **3.22e+08 to 3.90e+08** against the
 matrix's 13,710,468 — the ratio quoted as *"roughly 3 GB on a 21,000-cell case"*. In-solver
@@ -2279,7 +2283,7 @@ never measured what they used, so 22 GiB had been carried as if it were a requir
 was 9.786 GiB and belonged to another lane.** Cost of the converged adjoint: **272 s at
 np = 4** against a control that fails in 82 s — about **3.3x the wall time of failing**.
 
-**N-B23. On this stack the finite-difference plateau is a per-component property, and the
+**N-D3. On this stack the finite-difference plateau is a per-component property, and the
 vector norm can dip where no component supports it.** A 4,032-cell case, 8 FFD shape design
 variables, central differences, one step varying: full-vector relative error reads
 **94.95 / 52.88 / 17.64 / 12.27 / 11.52 / 11.43 / 10.47 / 8.94 / 4.28 / 9.83 %** at
@@ -2293,7 +2297,7 @@ own the disagreement: three per-cell probes read **25.9 / 32.0 / 32.2 %** at
 `primalMinResTol 1e-6` and **0.032 %** at 1e-8, a systematic `fd/adj ~ 0.7` that no step
 sweep would have diagnosed.
 
-**N-B24. A tightly-coupled MPI job pinned to a `cpuset` degrades 21.5x under unpinned
+**N-D4. A tightly-coupled MPI job pinned to a `cpuset` degrades 21.5x under unpinned
 co-tenants, and the degradation is entirely in the clock.** Measured this session: a 4-rank
 DAFoam `run_model` whose registered basis is **71 s** took **1,529 s** while the host
 carried 20-25 unpinned `simpleFoam` processes from another family at load average 11-12,
@@ -2307,7 +2311,7 @@ in core-minutes from a *quiet-box* basis and record the overrun, and **never rea
 a block-buffered redirected log** — the same run looked ~400x slow by line-growth and was
 21.5x slow by its own wall time.
 
-**N-B25. Three DAFoam images on this box report identical version strings and differ only
+**N-D5. Three DAFoam images on this box report identical version strings and differ only
 in one file; the md5 is the identity.** All report DAFoam **5.0.0**, OpenFOAM **v2506**,
 PETSc **3.15.5**, IDWarp **2.6.2**. `src/adjoint/DALinearEqn/DALinearEqn.C`:
 stock `f6a89e33b0f4772a0563cb0c8633ac48`, **507** lines, 0 `DAFOAM_SUBPC_TYPE`;

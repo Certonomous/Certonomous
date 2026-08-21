@@ -36,8 +36,8 @@ no frozen record was edited.**
 | **N1** — serial (task 3 ii) | `dafoam/opt-packages:latest` | 1 | none | `-9` persists at np=1 | `Total iterations: 0. PetscConvergedReason: -9.`, residual `7.091589775454e-04` | **BLOCKED** (prediction met) |
 | **K** — runtime `-sub_pc_type lu` (task 3 i) | `dafoam-kspopts:v1` | 4 | `PETSC_OPTIONS="-sub_pc_type lu -ksp_view"` | **not reachable** → `-9`, and `-ksp_view` shows the sub-PC still `type: ilu` | `Total iterations: 0. PetscConvergedReason: -9.`, residual `7.091590452305e-04`; **`PC Object: (sub_) … type: ilu`** in the dump | **BLOCKED** (prediction met, on both halves) |
 | **Pβ** — the gradient | `dafoam-subpclu:v2` | 4 | `DAFOAM_SUBPC_TYPE=lu`, beta DV (21,000) | `reason 2`, 667, `OBJ = 1.5279278906359758e-02`, `‖g‖ = 1.4558046603e-05`, `max = 1.916019e-06` | `Total iterations: 667. PetscConvergedReason: 2.`; **`OBJ varianceU: 1.5279278906359758e-02`** and **`GRAD n=21000 norm=1.4558046603e-05 min=-4.694367e-07 max=1.916019e-06`** — every printed digit as archived | **PASS** |
-| **FD re-anchor** — 7 primal-only points | `dafoam-subpclu:v2` | 4 | beta DV, central h = 0.05 | each objective **bit-identical** to the W4 archive; rel. err < 1 %, zero sign flips | *see §4* | *see §4* |
-| **2c** — trivial baseline | `dafoam-subpclu:v2` | 4 | FD at h = 0.5 | rel. err **> 2 %**, FAILS the < 1 % bar | *see §4* | *see §4* |
+| **FD re-anchor** — 7 primal-only points | `dafoam-subpclu:v2` | 4 | beta DV, central h = 0.05 | each objective **bit-identical** to the W4 archive; rel. err < 1 %, zero sign flips | 7/7 bit-identical; **0.0854 % / 0.0589 % / 0.1989 %**, zero flips | **PASS** (Addendum 2) |
+| **2c** — trivial baseline | `dafoam-subpclu:v2` | 4 | FD at h = 0.5 | rel. err **> 2 %**, FAILS the < 1 % bar | **5.3686 %**, 62.9x the graded step | **FAIL, as designed** (Addendum 2) |
 
 **The two rows that matter, stated as R11 requires them:**
 
@@ -121,7 +121,7 @@ answers task 3(ii) outright.
 **The answer to task 3(ii), in one sentence: yes, the `-9` persists in serial on the shipped
 image, so the blocker is not the decomposition.**
 
-## 4. The FD re-anchor and the Charter-2c trivial baseline — **PENDING**
+## 4. The FD re-anchor and the Charter-2c trivial baseline — **PENDING at writing; see Addendum 2, where both land**
 
 **Verdict: `PENDING`.** Not a failure and not a pass — *"a registered criterion's control has
 not landed"* (`CLOSURE_MODELLING_CHARTER.md` §12). The nine registered primal-only runs (the
@@ -465,3 +465,104 @@ load guard, so it yields to the box rather than competing with it, and it writes
 `ledger.csv` rows as each point ends. `analyse_fd_full.py` in the run root reads the nine logs
 and prints the bit-identity table, the three registered probes against their archived
 comparisons, and the wrong-step baseline with its ratio to the h = 0.05 error.
+
+---
+
+## Addendum 2, 2026-08-21 18:01 UTC — the FD re-anchor landed: **PASS**, and the trivial baseline **FAILS** as registered
+
+**Append-only. Sections 1 to 9 and Addendum 1 are unchanged.** `chain3.sh` completed at
+**2026-08-21T18:01:19Z**. All nine registered primal-only points returned `rc=0`. **§1's FD row
+and 2c row move from `PENDING` to the verdicts below.**
+
+### B1. All seven registered objectives are bit-identical to the W4 archive
+
+`analyse_fd_full.py`, reading the nine logs; **`==` on the float, not a tolerance**:
+
+| point | measured 2026-08-21, `dafoam-subpclu:v2` | W4 archive 2026-08-04, `dafoam-subpclu:v1` | bit-identical |
+|---|---|---|---|
+| base, β = 1 | `1.5279278906359758e-02` | `1.5279278906359758e-02` | **True** |
+| c5491 +0.05 | `1.5279373803317450e-02` | `1.5279373803317450e-02` | **True** |
+| c5491 −0.05 | `1.5279182364838354e-02` | `1.5279182364838354e-02` | **True** |
+| c6740 +0.05 | `1.5279362927411692e-02` | `1.5279362927411692e-02` | **True** |
+| c6740 −0.05 | `1.5279194963172154e-02` | `1.5279194963172154e-02` | **True** |
+| c12486 +0.05 | `1.5279352617835092e-02` | `1.5279352617835092e-02` | **True** |
+| c12486 −0.05 | `1.5279205377666813e-02` | `1.5279205377666813e-02` | **True** |
+
+**Seven for seven.** The pre-registration predicted bit-identity on the ground that the FD points
+are primal-only `run_model` calls and the sub-PC patch touches only `createMLRKSP`. **The
+prediction held on every point**, so the rebuild changed nothing in the primal — which is the
+only outcome under which the re-anchor is a re-anchor rather than a new measurement.
+
+### B2. The three registered probes reproduce their archived relative errors exactly
+
+Central differences, h = 0.05, convention `|g_adjoint − J_fd| / |J_fd|`, bar **< 1 %** with zero
+sign flips, all fixed in the pre-registration before any arm ran:
+
+| DV index | central FD, today | adjoint `g[i]` | rel. err today | archived rel. err | sign flip | verdict |
+|---|---|---|---|---|---|---|
+| **5491** | `1.914384790951268e-06` | `1.916018813330411e-06` | **0.0854 %** | 0.0854 % | none | **PASS** |
+| **6740** | `1.679642395377434e-06` | `1.678653382470567e-06` | **0.0589 %** | 0.0589 % | none | **PASS** |
+| **12486** | `1.472401682783148e-06` | `1.469472928907444e-06` | **0.1989 %** | 0.1989 % | none | **PASS** |
+
+**Every printed digit of every FD estimate matches the 2026-08-04 value**, because both sides of
+each difference are bit-identical and the arithmetic is the same. **The FD gate re-anchors on the
+rebuilt image: `PASS`.**
+
+### B3. The Charter-2c trivial baseline **FAILS**, which is what makes the PASS above count
+
+Registered before its own run: cell 5491 at **h = 0.5**, ten times the registered step,
+**predicted > 2 %**, i.e. a clear FAIL of the < 1 % bar the real probes meet.
+
+| row | h | central FD | adjoint `g[5491]` | rel. err | registered prediction | verdict |
+|---|---|---|---|---|---|---|
+| **GRADE** | 0.05 | `1.914384790951268e-06` | `1.916018813330411e-06` | **0.0854 %** | < 1 % | **PASS** |
+| **TRIVIAL BASELINE** | 0.5 | `1.818396152156870e-06` | `1.916018813330411e-06` | **5.3686 %** | **> 2 %** | **FAIL, as predicted** |
+
+**The wrong step is 62.9x worse than the right one, and it fails the bar the right one passes.**
+The gate separates a correct derivative from a deliberately mis-stepped one, so under
+`VERIFICATION_CHARTER.md` §2c the arm-P/Pβ FD verdict is **DISCRIMINATING and may be counted
+toward the hypothesis**. Had the wrong step also passed, §2c required the FD verdict to be
+withdrawn, and the pre-registration said so in advance.
+
+Two details worth keeping. The measured 5.3686 % is **below** the ~100x the O(h²) truncation
+argument predicts from 0.0854 % — nonlinearity in β at ±0.5 partly cancels the growth, and the
+prediction was registered as *"> 2 %"* rather than *"~8.5 %"* precisely because the quadratic
+extrapolation is not trustworthy over a decade. **The registered band was met; the mechanism
+sketch behind it was optimistic, and both are reported.** And the wrong-step FD keeps the correct
+**sign** — a step-size control is not a sign-flip control, and the two are separate rows.
+
+### B4. §1's verdict table, updated
+
+| arm | predicted | measured | verdict |
+|---|---|---|---|
+| **FD re-anchor**, 7 points | objectives bit-identical; rel. err < 1 %; zero sign flips | 7/7 bit-identical; **0.0854 % / 0.0589 % / 0.1989 %**; zero flips | **PASS** |
+| **2c trivial baseline**, h = 0.5 | rel. err > 2 %, FAILS the < 1 % bar | **5.3686 %**, 62.9x the graded step's error | **FAIL, as designed — the gate discriminates** |
+
+**B3's two-row verdict is unchanged and is now complete on both sides:** shipped **BLOCKED**;
+patched (`dafoam-subpclu:v2`, `DAFOAM_SUBPC_TYPE=lu`) **PASS** — `reason 2`, 667 iterations, a
+bit-identical 21,000-component gradient, and an FD gate that re-anchors and discriminates.
+
+### B5. Final cost, and the overrun localised to one run
+
+| group | runs | core-min | note |
+|---|---|---|---|
+| graded arms S, R, P, K, N1, K2, Pβ | 7 | **93.48** | §6 |
+| FD sweep, all 9 points | 9 | **141.13** | of which **`fd_base` alone is 101.93** |
+| FD sweep excluding `fd_base` | 8 | **39.20** | **4.9 core-min per point, against a registered 4.7** |
+| **total, `ledger.csv`** | **16** | **234.61** | **3.91 core-h = \$0.2006** |
+| *arm S attempt 1, harness-stopped (estimate)* | — | *~39.5* | waste, outside `ledger.csv` |
+
+**Addendum 1's predicted ~816 core-min overrun did not happen.** Contention cleared during the
+sweep and the remaining eight points ran at **4.9 core-min each against a registered 4.7 — a 4 %
+miss**. The entire overrun is one run: `fd_base` at 101.93 against 4.7, **21.5x**, and it is the
+one that overlapped the T-family's peak. **Registered total for the whole item was ~104 core-min;
+measured 234.61, of which 97.2 is that single contended run.** Against a quiet box the item costs
+what it said it would.
+
+**Peak RSS, per named container** (`logs/mem_watch.log`, 5 s cadence): arm Pβ's adjoint
+**9.044 GiB**; every one of the nine FD points **1.445–1.482 GiB**. The maximum in the same log,
+**9.786 GiB**, belongs to `p2a6_stock` — **Lane A's container, not this lane's**.
+
+**Numerics filed from this item:** `docs/NUMERICS_KNOWLEDGE.md` **N-D1..N-D5** (the DAFoam
+family, opened after `N-B21..25` collided with a concurrent closure-team append the same hour);
+lessons **L-187..L-194** in `docs/LESSONS.md`.
