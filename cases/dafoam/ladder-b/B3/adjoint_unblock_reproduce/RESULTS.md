@@ -368,9 +368,9 @@ tightly-coupled 4-rank MPI job degrades far more than linearly under that becaus
 spin-waits. **Arm Pβ therefore took 414 s against a registered 246 s. Its iteration count,
 objective and gradient are unaffected and bit-identical**; only the clock moved. **The same interference is why the FD sweep is `PENDING`.** By 17:37 UTC the host carried
 **19 unpinned `simpleFoam` processes** belonging to the T-family, and the first FD point was
-advancing at **4 SIMPLE iterations per minute against the 26 per second the same case reaches
-on a quiet box** — a factor of roughly 400, while `docker stats` reported the container at
-**300 % CPU**. Those two facts together identify the mechanism: the ranks are *spinning*, not
+running far below its registered wall while `docker stats` reported the container at **300 %
+CPU**. **See the addendum: the degradation factor is measured at 21.5x, and the ~400x first
+written here was an artefact of reading a rate off a block-buffered log.** Those two facts together identify the mechanism: the ranks are *spinning*, not
 computing. Open MPI busy-waits in `MPI_Wait`, so a rank descheduled by an unpinned co-tenant
 stalls the other three at full apparent CPU, and a GAMG pressure solve issues on the order of a
 hundred global reductions per SIMPLE iteration. **A 4-rank DAFoam job pinned to a `cpuset` that
@@ -404,3 +404,64 @@ Sanaa's call alone.
 *Nothing in this file was filed, sent, uploaded, registered or pushed. No frozen record was
 edited. Every container was foreground and `timeout`-bounded; no background solver process was
 started and nothing needed killing.*
+
+---
+
+## Addendum, 2026-08-21 ~17:50 UTC — the first FD point landed, and it corrects §8
+
+**Appended, not rewritten.** Sections 1 to 9 above are unchanged. This addendum records what
+arrived after they were written and **corrects one number in §8 that was wrong**.
+
+### A1. `fd_base` completed, and the primal is bit-identical on the rebuilt image
+
+```
+== DONE fd_base rc=0 wall=1529s core_min=101.93 OBJ varianceU: 1.5279278906359758e-02
+```
+
+| quantity | measured 2026-08-21, `dafoam-subpclu:v2` | W4 archive 2026-08-04, `dafoam-subpclu:v1` | identical? |
+|---|---|---|---|
+| base objective, β = 1, `run_model` | `1.5279278906359758e-02` | `1.5279278906359758e-02` | **yes, all 17 digits** |
+
+**This is the FD gate's base point, and it reproduces bit-identically from a rebuilt image
+seventeen days later.** Together with arm Pβ's bit-identical objective and gradient, both sides
+of the anchor are now confirmed on `v2`; what remains outstanding is the six perturbed points
+and the two Charter-2c wrong-step points. **The FD row of §1's verdict table stays `PENDING`
+until those land** — a re-anchor is a table, not a base point.
+
+### A2. Correction to §8: the slowdown is **21.5x, not ~400x**
+
+**§8's "roughly 400" is withdrawn and replaced by a measured 21.5.** The 400 figure was derived
+from counting solver lines appearing in the redirected log over a wall-clock window, and that
+count is not a rate: `Info` output through `docker run > file` is block-buffered, so the log
+lags the solver in bursts and a short-window line count under-reads the true rate badly.
+**The honest measurement is the completed run's own wall time:**
+
+| quantity | value |
+|---|---|
+| `fd_base` wall, under load | **1,529 s** |
+| registered basis (W4's own FD points, quiet box) | **71 s** |
+| **measured degradation factor** | **21.5x** |
+| primal iterations completed | 1,580, the same count as every other np = 4 arm |
+| billed | **101.93 core-min** against a registered 4.7 |
+
+**The mechanism in §8 stands — Open MPI spin-waits, unpinned co-tenants deschedule ranks, and
+`--cpuset-cpus` reserves nothing — but its magnitude was overstated by a factor of nearly 20,
+and the error came from trusting a buffered log as a clock.** That is worth more as a lesson
+than the original claim was: **a rate read from a redirected log is not a measurement; the
+completed run's wall time is.**
+
+### A3. What this changes about the sweep, and the honest cost position
+
+At 1,529 s per point the eight remaining points bill roughly **816 core-min**, taking the FD
+sweep to **~918 core-min against a registered 42.6** — a **21.5x overrun**, matching the
+degradation factor exactly, because the iteration counts are unchanged and only the clock moved.
+**\$0.78 at \$0.0513/core-hour**, so it stays three orders under the \$25 ceiling, and the chain
+is bounded and self-terminating. **It is recorded here as an overrun rather than discovered in
+the ledger**, which is the whole of `COMPUTE_BUDGET_CHARTER.md`'s cost-honesty rule; and the
+cheaper course remains the one §4 prices — **42.6 core-min on a quiet box.**
+
+**The chain was not stopped.** Every point is `timeout 2100`-bounded and preceded by a bounded
+load guard, so it yields to the box rather than competing with it, and it writes its own
+`ledger.csv` rows as each point ends. `analyse_fd_full.py` in the run root reads the nine logs
+and prints the bit-identity table, the three registered probes against their archived
+comparisons, and the wrong-step baseline with its ratio to the h = 0.05 error.
