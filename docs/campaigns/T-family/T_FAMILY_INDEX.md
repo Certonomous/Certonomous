@@ -36,7 +36,7 @@ can be built the moment compute is free.**
 | **T1c** | laminar pipe, `Nu` 3.657 / 48/11, `f·Re` 64 | **EXACT** | **REPORTED — GATE FAIL**, 3 of 4 rows pass |
 | **T1b** | turbulent pipe vs Dittus–Boelter + Gnielinski | **FORMULA** | **PASS ×4 as returned by the frozen comparator, every grid triple DIVERGENT or STAGNANT** — D440, `T1b_RESULTS.md` |
 | **T1a** | turbulent flat plate (= K0e) | ACQUIRE *(obtained)* | **BLOCKED** — reference held, but **no band can be armed from one correlation** |
-| **T9a** | 1D composite wall, fin efficiency | **EXACT** | **BUILDABLE NOW** — nothing to obtain |
+| **T9a** | 1D composite wall, fin efficiency | **EXACT** | **REPORTED — GATE FAIL**, 2 of 3 graded rows pass (interface 1 fails by 2.4 mK against a 0.9 mK GCI band), 2 fin rows GATE REACHED below the 0.025 % O(Bi) floor, 4 controls MET — D442, `T9a_RESULTS.md` |
 | **T10a** | view-factor enclosures vs analytic S2S | **EXACT** | **BUILDABLE NOW** — nothing to obtain |
 | **T2** | tube bank vs Zukauskas | FORMULA | needs the correlation's **stated validity range** cited, not just its algebra |
 | **T3** | heated backward-facing step, Vogel & Eaton 1985 | ACQUIRE | **not in the library** |

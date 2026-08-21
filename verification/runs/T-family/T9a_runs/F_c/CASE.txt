@@ -1,0 +1,19 @@
+case              F_c
+rung              T9a (composite wall + fin efficiency, EXACT tier)
+kind              fin
+solver            laplacianFoam (ESI v2606), steadyState ddt
+endTime           1000
+writeInterval     100  (strictly less than endTime, L-140)
+residualControl   none (L-141; convergence from written checkpoints)
+k                 200.0 W/mK
+t                 0.002 m
+L                 0.05 m
+h                 50.0 W/m2K  (both faces, mixed/Robin)
+mesh              50 x 10  dx = 1.000000e-03  dy = 2.000000e-04
+d_wall            1.0000000000e-04 m
+valueFraction     2.499937501562e-05
+T_base            350.0 K
+T_inf             300.0 K
+reference_eta     0.8332367
+reference_tip     0.7523781
+model_error_floor 0.025 %  (O(Bi), Bi = 0.00025)

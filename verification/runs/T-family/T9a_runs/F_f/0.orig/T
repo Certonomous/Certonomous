@@ -1,0 +1,21 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      T;
+}
+
+// Robin condition -k dT/dn = h (T_face - T_inf) as a mixed patch:
+//   valueFraction = 1/(1 + k/(h d)),  d = 3.8461538462e-05 m  (half the y spacing)
+dimensions      [0 0 0 1 0 0 0];
+internalField   uniform 350;
+boundaryField
+{
+    base         { type fixedValue; value uniform 350; }
+    tip          { type zeroGradient; }
+    top          { type mixed; refValue uniform 300; refGradient uniform 0; valueFraction uniform 9.615292160652e-06; value uniform 300; }
+    bottom       { type mixed; refValue uniform 300; refGradient uniform 0; valueFraction uniform 9.615292160652e-06; value uniform 300; }
+    frontAndBack { type empty; }
+}
