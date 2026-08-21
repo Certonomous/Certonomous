@@ -297,3 +297,40 @@ process was ever killed.
   away from the shipped `U_rms`, which is drift of the shipped field under 30,000
   further iterations rather than a correction effect (its `div(U)` is 9.6e-18 and
   its `k` moves 0.1 %). It is recorded as a failed gate, not explained away.
+
+---
+
+## ADDENDUM — 2026-08-21, completion status of the PENDING rows
+
+**Nothing in this addendum can move a verdict, and the reason is structural, not
+optimistic.** H0 is decided on the `TRUTH` configuration of T1, which was complete
+before §1 was written; it failed on T2 as well; and H1-H3 are NOT A RESULT by the
+registered clause regardless of what any remaining ML row says. The addendum
+exists so the record shows what ran and what did not, not to change a grade.
+
+**Completed and already tabulated in §2:** all seven `AR_1_Ret_360` rows, plus
+`AR_3_Ret_360` `NULL`, `TRUTH` and `MEANB` — **10 of the 19 registered
+configurations**, plus the two post-hoc `TRUTH+R` diagnostics.
+
+**Still outstanding:** `AR_3_Ret_360` `ML0/1/2` and all six `CBFS13700` rows.
+They are outstanding for an operational reason with no scientific content: this
+lane's driver process was terminated three times by session-level interruption
+(twice by the credit limit, once by session teardown), and each restart resumed
+from the last completed row through the driver's own resume logic rather than
+re-solving. The driver has been relaunched detached (`setsid`) and the rows will
+land in `/home/ubuntu/closure-data/aposteriori/kaandorp/results.json`; a further
+dated addendum can append them without touching §1-§10.
+
+**What the outstanding rows would add, stated so their absence is legible:**
+
+* `AR_3_Ret_360` ML seeds would give a second case's `k/k_base` for the ML arm.
+  The T1 value is 0.197 and the T2 `TRUTH` value is 0.359; the mechanism in §4 is
+  already established on both cases by their `TRUTH` and `MEANB` rows.
+* The `CBFS13700` registered rows would give `x_reatt` under a b-only injection.
+  The post-hoc `TRUTH+R` row already reports `x_reatt` = **4.384** against the LES
+  4.241 and SST 5.891, and the b-only `TRUTH` rows on both ducts already show the
+  ceiling inverted, so the CBFS b-only rows are expected to confirm rather than
+  test.
+
+**Compute unchanged in kind:** the outstanding rows add at most ~3 core-hours to
+the ~1.5 already charged, against a lane cap of 15.
