@@ -238,6 +238,14 @@ instrument (T1c: a genuinely unconverged case at residual `4e-05`; L-141),
 and the test that worked is the one used here: **the written `T` field
 compared between the last two checkpoints; any ladder level still moving is
 NOT CONVERGED and no grid claim is made from a triple containing it.** The
+number is T1c's and is registered here (amendment of 2026-08-21 18:05 Z,
+legal under Charter 2b because no T3 case directory existed — checked with
+`find verification/runs/T-family/T3_runs -type d`, which returned nothing):
+CONVERGED means the largest change of any cell value of `T`, and separately
+of `U`, between the checkpoints at `endTime - 2000` and `endTime` is at most
+`1e-6` of that field's range. A separated RANS flow under SIMPLE may never
+meet this; if it does not, the rows are NOT A RESULT and the record says so —
+the criterion is not relaxed after the fact. The
 zero is verified by a live planted control (`1.234e-03 K` written to a copy
 and read back from disk) before the comparator reads anything. A case that
 has not converged at 20 000 may be **extended** from `latestTime` under the
