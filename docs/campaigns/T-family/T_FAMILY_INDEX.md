@@ -34,7 +34,7 @@ can be built the moment compute is free.**
 | rung | subject | reference tier | state |
 | --- | --- | --- | --- |
 | **T1c** | laminar pipe, `Nu` 3.657 / 48/11, `f·Re` 64 | **EXACT** | **REPORTED — GATE FAIL**, 3 of 4 rows pass |
-| **T1b** | turbulent pipe vs Dittus–Boelter + Gnielinski | **FORMULA** | **RUNNING**, 19 cases, comparator frozen |
+| **T1b** | turbulent pipe vs Dittus–Boelter + Gnielinski | **FORMULA** | **PASS ×4 as returned by the frozen comparator, every grid triple DIVERGENT or STAGNANT** — D440, `T1b_RESULTS.md` |
 | **T1a** | turbulent flat plate (= K0e) | ACQUIRE *(obtained)* | **BLOCKED** — reference held, but **no band can be armed from one correlation** |
 | **T9a** | 1D composite wall, fin efficiency | **EXACT** | **BUILDABLE NOW** — nothing to obtain |
 | **T10a** | view-factor enclosures vs analytic S2S | **EXACT** | **BUILDABLE NOW** — nothing to obtain |
