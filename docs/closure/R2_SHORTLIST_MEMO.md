@@ -283,3 +283,20 @@ are not interchangeable.)*
 ---
 
 **R3 is Sanaa's decision; this memo ranks, it does not choose.**
+
+---
+
+# R3 DECISION — recorded 2026-08-21
+
+**Sanaa ruled R3 on 2026-08-21, in this session, on this memo: the class is
+SPARTA-CLASS** (algebraic corrections `b^Δ` and `kDeficit`/`R` inside the
+transport equations, one model applied uniformly). Her words, verbatim:
+"R3: Sparta". In the same message she approved R4 ("R4 approved"), supplied the
+two shelf-D primary sources (Emory 2013 published article; Iaccarino 2017
+accepted manuscript — on disk, title-verified, MANIFEST Addendum 3), and granted
+permission to pull anything needed from public repositories. GPU-blocked
+reproductions remain BLOCKED until the AWS quota appeal resolves; they are shelf
+work, not on the ladder.
+
+This section is a decision record appended to a delivered memo; the memo's
+§1–§final text above is unchanged.

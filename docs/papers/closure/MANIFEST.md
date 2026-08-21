@@ -324,3 +324,9 @@ and both changed conclusions in documents already written (LESSONS L-163).
 
 Hashes, page counts and printed titles in §§1-3 come from that pass and were **not hand-edited**.
 The citation, shelf, DOI and note columns are editorial and are hand-maintained.
+
+## Addendum 3, 2026-08-21 — Sanaa's MIT pull (origin/main c99bce64)
+| Paper | Filename | Verified |
+|---|---|---|
+| Emory, Larsson & Iaccarino 2013, Phys. Fluids 25:110822 | Emory2013_structural_uncertainty_rans.pdf | title page below |
+| Iaccarino, Mishra & Ghili 2017, PRF 2:024605 (accepted ms) | Iaccarino2017_eigenspace_perturbations.pdf | title page below |
