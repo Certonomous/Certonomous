@@ -39,9 +39,9 @@ can be built the moment compute is free.**
 | **T9a** | 1D composite wall, fin efficiency | **EXACT** | **REPORTED — GATE FAIL**, 2 of 3 graded rows pass (interface 1 fails by 2.4 mK against a 0.9 mK GCI band), 2 fin rows GATE REACHED below the 0.025 % O(Bi) floor, 4 controls MET — D442, `T9a_RESULTS.md` |
 | **T10a** | view-factor enclosures vs analytic S2S | **EXACT** | **BUILDABLE NOW** — nothing to obtain |
 | **T2** | tube bank vs Zukauskas | FORMULA | needs the correlation's **stated validity range** cited, not just its algebra |
-| **T3** | heated backward-facing step, Vogel & Eaton 1985 | ACQUIRE | **not in the library** |
-| **T4** | impinging jet, Martin lineage + jet data | ACQUIRE | **not in the library** |
-| **T5** | heated cube(s), Meinders & Hanjalic | ACQUIRE | **not in the library**; also 3D, likely **over $25** |
+| **T3** | heated backward-facing step, Vogel & Eaton 1985 | ACQUIRE | **RUNNING 2026-08-21** — primary NOT OBTAINED (ASME closed; every open archive checked and named in `T3_PREREGISTRATION.md` §2), gate rows BLOCKED by construction; design frozen, comparator frozen at 628ef452 with the binding triple gate, 8 cases solving; open secondary (Smirnov 2016, CC-BY) digitised as REPORT-ONLY referent |
+| **T4** | impinging jet, Martin lineage + jet data | ACQUIRE *(partial 2026-08-21)* | **OPEN**: ERCOFTAC case025 tabulated `Nu(r/D)` at `Re` 23k/70k, `H/D` 2/6 (kept in `reference-data/ercoftac_case025/`, one mislabeled header noted) + Martin correlation with stated validity from an open NREL report; **the Nu uncertainty is second-hand (2.4 %, KB Wiki quoting Baughn & Shimizu)** — graded rows need the closed ASME primaries; report-only enabled today |
+| **T5** | heated cube(s), Meinders & Hanjalic | ACQUIRE *(obtained 2026-08-21)* | **PRIMARY HELD**: Meinders 1998 TU Delft thesis, OPEN, title-page verified, sha256 36c89a54…, stated uncertainty 5 % mid-face / 10 % edges in local `h`; data are digitisable figures, no tabulated appendix; single cube `Re_H` 2500–5000, matrix 2380–5280 — spend approved 2026-08-21; 3D cost to be registered before build |
 | **T6** | Rayleigh–Bénard `Nu`–`Ra` scaling | ACQUIRE | 3–4 decades of published scaling data; **transient, far over $25** |
 | **T7** | mixed-convection regime map | ACQUIRE | generalises K0d; per-run cheap, **aggregate may exceed $25** |
 | **T8** | buoyant plume, stratified room | ACQUIRE + partial EXACT | **plume entrainment theory (Morton–Taylor–Turner) is closed form**; the room data is not |

@@ -98,6 +98,8 @@ temperature variance — is named and NOT built.**
 | Ampofo & Karayiannis 2003, square cavity | READ IN FULL; Fig. 11 digitised (D417) with +/- 0.15 |
 | Betts & Bokhari, ERCOFTAC Case 079 | primary data files, 22 kept |
 | de Vahl Davis | reference values in the K0c gate |
+| Meinders 1998 TU Delft thesis (added 2026-08-21, T-family) | OPEN primary for the heated-cube class; title-page verified; stated 5 %/10 % uncertainty in local h |
+| ERCOFTAC case025 impinging jet (added 2026-08-21, T-family) | primary data files, 88 kept incl. 4 Nusselt tables; flow uncertainties stated, Nu uncertainty second-hand only |
 
 | **NOT OBTAINED** | Blocks |
 | --- | --- |
@@ -105,7 +107,7 @@ temperature variance — is named and NOT built.**
 | **Blay, Mergui & Niculae 1992** | **all of K0d — the entire mixed-convection class** |
 | **Schwenke 1975** | the Annex 20 nonisothermal case |
 | **Vogel & Eaton 1985** | heated backward-facing step; regime match unverified |
-| **Any forced-convection heat-transfer reference** | **there is none in the library at all** |
+| **Any forced-convection heat-transfer reference** | **there is none in the library at all** [SUPERSEDED 2026-08-21: the Meinders thesis, the case025 Nusselt files and a digitised Smirnov 2016 secondary for Vogel & Eaton now exist in the library; the Vogel & Eaton primary itself remains NOT OBTAINED] |
 
 **That last row is the structural gap.** A search of every paper sidecar for
 Stanton number, Colburn analogy or Reynolds analogy returns essentially nothing.
