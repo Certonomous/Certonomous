@@ -1,0 +1,27 @@
+case              R_100k_x
+rung              T1b (fully developed turbulent pipe, two-correlation band)
+model             kOmegaSST
+wall_treatment    resolved
+target_yplus      0.390625
+D                 0.2 m
+L                 20.0 m  (100 D)
+nu                1.5e-05 m2/s
+Pr                0.71
+Prt               0.85
+Re                100000
+U                 7.5 m/s
+Mach_approx       0.0219
+T_in              300.0 K
+dTdn_wall         50.0 K/m
+mesh              205 radial x 1024 axial
+first_cell        3.294769e-05 m
+cell_ratio        1.020412
+expansion         61.6946
+u_tau_estimate    0.355677 m/s
+stations          60.0, 70.0, 80.0 D
+endTime           80000
+writeInterval     2000
+level             x (fourth level, wall-refined)
+ladder_for        R_100k_{m,f,x} under T1b_L4_AMENDMENT.md; R_100k_{c,m,f} as frozen
+refinement_ratio  radial 1.6016, axial 1.6000, cell-count sqrt 1.6008 (gci uses 1.6)
+built_by          build_t1b_L4.py calling build_t1b.build() with END_TIME set to 80000 for this call
