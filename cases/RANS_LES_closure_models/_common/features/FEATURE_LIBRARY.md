@@ -45,6 +45,18 @@ Block D also uses the Durbin-bounded scale and is **unbounded** - `|lam3|` reach
 and `|lam5|` 1.5e14 on this data. That is recorded in `FS2_DEGENERACY_REPORT.md` sec. 5;
 it makes block D dominant in any unstandardised distance metric.
 
+## Wall distance: recomputed, and validated
+
+`q1_wallRe` needs a wall distance. The 29 parametric hills and the NASA hump ship
+`walldist`; the ducts, `PHLL10595` and `CBFS13700` do not. `wall_distance.py` recomputes it
+for every case as the nearest distance from each cell centre to any face centre on a patch
+of type `wall`, read from `constant/polyMesh`.
+
+**Validated against a shipped field** on `alpha_05_4071_2024` (a hill that ships `walldist`):
+**median relative difference 1.1e-14**, **p95 3.1e-3**, **relative L2 2.2e-3**. It is exact in
+the median and departs only in the near-wall cells where a face-centre distance is a lower
+bound on the true normal distance. `q1` saturates at 2, which bounds the consequence.
+
 ## Invariance, measured not asserted
 
 Charter section 6 check on `CBFS13700`: Galilean boost and rigid rotation applied to the
