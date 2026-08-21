@@ -1,0 +1,20 @@
+case     heatedWall cell      design topWall cell   step x up   step x dn      design min y-cell @y  nCells cm_rc   aspect nonOrth  checkMesh verdict
+R_c        1.121324e-04  1.1213e-04 1.121324e-04  1.1400e-03  1.1400e-03  1.1400e-03  1.899439e-01   36000     -    687.6    0.00  Mesh OK.
+           cell-to-cell: y_low 1.101564  y_up 1.115533  x_up 1.043486  x_down 1.013439   largest cells: y_low 1.854e-03  y_up 7.972e-03  x_up 7.711e-02  x_down 1.624e-02
+R_m        7.008276e-05  7.0083e-05 7.008276e-05  1.1400e-03  1.1400e-03  1.1400e-03  3.796496e-02   92160     -    599.7    0.00  Mesh OK.
+           cell-to-cell: y_low 1.061743  y_up 1.070273  x_up 1.022947  x_down 1.006179   largest cells: y_low 1.171e-03  y_up 5.056e-03  x_up 4.203e-02  x_down 8.134e-03
+R_f        4.380172e-05  4.3802e-05 4.380172e-05  1.1400e-03  1.1400e-03  1.1400e-03  3.797810e-02  235520     -    508.2    0.00  Mesh OK.
+           cell-to-cell: y_low 1.037787  y_up 1.043417  x_up 1.011722  x_down 1.002384   largest cells: y_low 7.340e-04  y_up 3.204e-03  x_up 2.226e-02  x_down 3.848e-03
+P_m        7.008276e-05  7.0083e-05 7.008276e-05  1.1400e-03  1.1400e-03  1.1400e-03  3.796496e-02   92160     -    599.7    0.00  Mesh OK.
+           cell-to-cell: y_low 1.061743  y_up 1.070273  x_up 1.022947  x_down 1.006179   largest cells: y_low 1.171e-03  y_up 5.056e-03  x_up 4.203e-02  x_down 8.134e-03
+C_lam_m    7.008276e-05  7.0083e-05 7.008276e-05  1.1400e-03  1.1400e-03  1.1400e-03  3.796496e-02   92160     -    599.7    0.00  Mesh OK.
+           cell-to-cell: y_low 1.061743  y_up 1.070273  x_up 1.022947  x_down 1.006179   largest cells: y_low 1.171e-03  y_up 5.056e-03  x_up 4.203e-02  x_down 8.134e-03
+W_m        2.102483e-03  2.1025e-03 2.102483e-03  1.1400e-03  1.1400e-03  1.1400e-03  1.889488e-01   28160     -     20.0    0.00  Mesh OK.
+           cell-to-cell: y_low 1.034541  y_up 1.033875  x_up 1.022947  x_down 1.006179   largest cells: y_low 2.667e-03  y_up 4.524e-03  x_up 4.203e-02  x_down 8.134e-03
+D_m        7.008276e-05  7.0083e-05 7.008276e-05  1.1400e-03  1.1400e-03  1.1400e-03  3.796496e-02   79360     -    266.5    0.00  Mesh OK.
+           cell-to-cell: y_low 1.061743  y_up 1.070273  x_up 1.048535  x_down 1.006179   largest cells: y_low 1.171e-03  y_up 5.056e-03  x_up 1.868e-02  x_down 8.134e-03
+O_m        7.008276e-05  7.0083e-05 7.008276e-05  1.1400e-03  1.1400e-03  1.1400e-03  3.796496e-02  128000     -    599.7    0.00  Mesh OK.
+           cell-to-cell: y_low 1.061743  y_up 1.070273  x_up 1.022947  x_down 1.004112   largest cells: y_low 1.171e-03  y_up 5.056e-03  x_up 4.203e-02  x_down 8.138e-03
+
+MESH CHECK PASSED for all 8 cases: wall cells and step x-cells are the design values and the smallest in their direction; halves geometric; blocks conformal
+check rc=0

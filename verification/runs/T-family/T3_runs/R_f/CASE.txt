@@ -1,0 +1,38 @@
+case              R_f
+rung              T3 (heated backward-facing step, Vogel and Eaton 1985 conditions)
+level             f
+arm               ladder
+model             kOmegaSST
+wall_treatment    resolved
+target_yplus      0.625
+H                 0.038 m
+nu                1.5e-05 m2/s
+Pr                0.71
+Prt               0.85
+Re_target         28000
+U_in              10.35 m/s
+T_in              300.0 K
+dTdn_wall         10000.0 K/m
+L_up_H            48
+L_down_H          30
+nx_up             256
+nx_down           512
+ny_low            154
+ny_up             204
+first_cell_wall   4.380172e-05 m
+first_cell_x_step 1.140000e-03 m
+endTime           20000
+writeInterval     2000
+nCells_design     235520
+predicted_core_s  11776
+r_y_low           1.0377865584  (cell-to-cell, B2 y, each half of 77 cells)
+r_y_up            1.0434170823  (cell-to-cell, B1/B3 y, each half of 102 cells)
+r_x_up            1.0117222114  (cell-to-cell, B1 x, growing away from the step)
+r_x_down          1.0023835498  (cell-to-cell, B2/B3 x, growing downstream)
+grading_y_low     16.75757379  (written as (0.5 0.5 R) (0.5 0.5 1/R))
+grading_y_up      73.15637756  (written as (0.5 0.5 R) (0.5 0.5 1/R))
+grading_x_up      0.05121208015  (written ratio, BELOW one: fine cell at the step, L-142)
+grading_x_down    3.375504144  (written ratio, fine cell at the step)
+u_tau_estimate    0.428065 m/s  (U_ref 11.0526, Cf 0.003)
+k_in              0.0642735
+omega_in          43.50245
