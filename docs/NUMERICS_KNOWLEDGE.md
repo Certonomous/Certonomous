@@ -2248,6 +2248,79 @@ none. Fix adopted: the masks are returned as `valid_les_only` and `valid` from
 `_common/score_prediction.py`, and every file that quotes a cell count now names
 the mask. **A bare cell count is not a specification.**
 
+**N-B21. A DAFoam discrete adjoint that returns `KSPConvergedReason -9` at iteration 0
+is an exact zero pivot in the ASM sub-block ILU, and no shift catches it.** Measured on
+a 21,000-cell wall-resolved separated `kOmegaSST` case (CBFS) and a 51,626-cell one (NASA
+hump). `dRdWTPC` is 210,592 x 210,592 with **13,710,468** nonzeros, **zero** zero-rows,
+zero zero-columns and zero zero-diagonal entries; `‖b‖₂ = 7.091590452305e-04`, equal to the
+printed iteration-0 GMRES residual to all 13 digits because `KSPSetNormType` is
+`KSP_NORM_UNPRECONDITIONED`. `scipy.sparse.linalg.spilu` returns **`Factor is exactly
+singular`** at every drop tolerance swept (1e-2/fill 3, 1e-3/fill 5, 1e-4/fill 5,
+1e-5/fill 10); `splu` — complete, with partial pivoting — **solves at every pivot
+threshold** (`‖Ax−b‖/‖b‖` = 2.3769e-10 / 6.4063e-12 / 2.535461e-12). Diagonal magnitude
+spread is **8.67 decades**, against **14.17** for a transonic family that fails differently,
+so a conditioning story does not explain it. **The failure is factor growth, not a small
+pivot**, which is why `MAT_SHIFT_NONZERO` is already on and insufficient, why raising the
+zero-pivot threshold six decades to 1e-8 still returns `-9`, and why `pcFillLevel` 4 also
+returns `-9`: **fill adds fill, not pivoting**. Switching the sub-block PC to complete LU
+gives `PetscConvergedReason: 2` in **667** iterations. The `-9` persists at **np = 1**, so
+it is not a decomposition effect.
+
+**N-B22. Complete-LU sub-blocks cost 24-28x the matrix's own nonzeros, and for a
+21,000-cell adjoint that is 9.044 GiB, not the 22 GiB that had been assumed.** Offline,
+`nnz(L+U)` for the whole 210,592² operator measures **3.22e+08 to 3.90e+08** against the
+matrix's 13,710,468 — the ratio quoted as *"roughly 3 GB on a 21,000-cell case"*. In-solver
+at np = 4 with `DAFOAM_SUBPC_TYPE=lu`, the measured **peak RSS is 9.044 GiB** for a
+21,000-design-variable `compute_totals` (primal + one adjoint), inside a **12 GiB**
+container cap, sampled at 5 s by `docker stats`; a primal-only `run_model` on the same case
+peaks at **1.444 GiB**. The earlier runs of this configuration were given a 22 GiB cap and
+never measured what they used, so 22 GiB had been carried as if it were a requirement.
+**On a shared box `docker stats` reports every container: the raw maximum in the same log
+was 9.786 GiB and belonged to another lane.** Cost of the converged adjoint: **272 s at
+np = 4** against a control that fails in 82 s — about **3.3x the wall time of failing**.
+
+**N-B23. On this stack the finite-difference plateau is a per-component property, and the
+vector norm can dip where no component supports it.** A 4,032-cell case, 8 FFD shape design
+variables, central differences, one step varying: full-vector relative error reads
+**94.95 / 52.88 / 17.64 / 12.27 / 11.52 / 11.43 / 10.47 / 8.94 / 4.28 / 9.83 %** at
+1e-8 / 1e-7 / 1e-6 / 1e-5 / 1e-4 / 1e-3 / 5e-3 / 1e-2 / 2e-2 / 3e-2, and the **primal fails
+to converge at 5e-2 and 1e-1**. The 4.28 % point at 2e-2 is a single unstable component
+crossing, not a minimum. Excluding the three flagged components: **dead flat at 2.5-3.0 %
+from 1e-4 to 3e-2, cosine 0.99998**. One component carries **82.7 %** of the squared-error
+norm at the original step. Registered wrong-step control on the same case: **132.75 %** at
+1e-8 where the graded step reads 0.038 %. And a loose primal tolerance, not the step, can
+own the disagreement: three per-cell probes read **25.9 / 32.0 / 32.2 %** at
+`primalMinResTol 1e-6` and **0.032 %** at 1e-8, a systematic `fd/adj ~ 0.7` that no step
+sweep would have diagnosed.
+
+**N-B24. A tightly-coupled MPI job pinned to a `cpuset` degrades 21.5x under unpinned
+co-tenants, and the degradation is entirely in the clock.** Measured this session: a 4-rank
+DAFoam `run_model` whose registered basis is **71 s** took **1,529 s** while the host
+carried 20-25 unpinned `simpleFoam` processes from another family at load average 11-12,
+with `docker stats` reporting the container at **300 % CPU** throughout. Iteration count
+(1,580), objective (`1.5279278906359758e-02`, bit-identical to the archive) and every
+residual digit were unaffected. Mechanism: Open MPI spin-waits, so a rank descheduled by a
+co-tenant stalls the others at full apparent CPU, and a GAMG pressure solve issues on the
+order of a hundred global reductions per SIMPLE iteration. **`--cpuset-cpus` constrains
+where a container's threads may run, not who else may run there.** Two corollaries: budget
+in core-minutes from a *quiet-box* basis and record the overrun, and **never read a rate off
+a block-buffered redirected log** — the same run looked ~400x slow by line-growth and was
+21.5x slow by its own wall time.
+
+**N-B25. Three DAFoam images on this box report identical version strings and differ only
+in one file; the md5 is the identity.** All report DAFoam **5.0.0**, OpenFOAM **v2506**,
+PETSc **3.15.5**, IDWarp **2.6.2**. `src/adjoint/DALinearEqn/DALinearEqn.C`:
+stock `f6a89e33b0f4772a0563cb0c8633ac48`, **507** lines, 0 `DAFOAM_SUBPC_TYPE`;
+`subpclu:v1` `89e71ca2db5d80c06b1eda070ffc7a1b`, **526**, 3; `kspopts:v1`
+`96f5762819e33efbdaad34181a214082`, **534**, 3, `KSPSetFromOptions` moved from line 138 to
+**351**; `subpclu:v2` `5b3159f88dbefcf7c52bd888401d097f`, **539**, 4. The patched IDWarp is
+worse: it is **not in any image**, is injected by bind-mount and `PYTHONPATH`, changes the
+reverse derivative by seven orders of magnitude, and **still reports `2.6.2`** — its
+`libidwarp.so` is `85f59e87253e0a71a813f64ca6e4c425` against stock
+`f0fcb488e0e98156575cd19548e91663`, **both 491,344 bytes**. Match a number to a build by
+hash and image ID, never by a version string, and note that `strcmp(env, "lu")` is an exact
+match so `LU`, `Lu`, `lu ` or `superlu` run stock silently — assert the banner in the log.
+
 
 ## Closure-modelling numerics from the Kaandorp 2020 TBRF reproduction — appended 2026-08-20 (CLOSURE-REPRO, reviewed by supervisor)
 
@@ -2399,3 +2472,80 @@ trick — accumulating `A_i = That_i^T That_i` and `c_i = That_i^T bhat_i` once 
 sample and taking a cumulative sum over the feature-sorted order — makes an exact
 brute-force split search cheaper than the paper's Brent 1-D search and removes the
 paper's own 150-sample fallback threshold entirely.
+
+
+## A-posteriori propagation of a b-only correction — appended 2026-08-21 (Lane B, reviewed by supervisor)
+
+**N-B22. Injecting an anisotropy made the duct solve converge ~60x faster in
+iterations, and that is not evidence of accuracy.** Same solver, same mesh, same
+start field, same stopping rule (all of U, p, k, omega initial residuals < 1e-6),
+`AR_1_Ret_360` (3,025 cells):
+
+| configuration | iterations to the same stopping rule | wall s |
+|---|---|---|
+| NULL (zero correction) | **> 30,000** (still running at cap check) | -- |
+| TRUTH (`b_LES - b_RANS`) | **528** | 7 |
+| MEAN (constant tensor) | 1,427 | 17 |
+| ML seed 0 / 1 / 2 | **523 / 527 / 522** | 8 / 8 / 7 |
+
+Mechanism, and the reason it is not a quality signal: a linear eddy-viscosity
+model produces a secondary flow that is identically zero to machine precision
+(`BASELINES.md` sec. 4), so in the NULL run OpenFOAM normalises the cross-plane
+momentum residuals by a field of magnitude ~1e-16 and the normalised `Uy`/`Uz`
+residuals sit at O(0.3) with nothing to converge *to*. Any non-zero `bijDelta`
+gives the cross-plane equations a real source, a real scale, and therefore a
+real residual that can fall below 1e-6.
+
+**What cannot be concluded:** that the corrected model is better conditioned, more
+accurate, or cheaper in general. TRUTH and ML converge in nearly the same number
+of iterations (528 vs 523) while being very different fields, so iteration count
+here measures *whether the residual normaliser is non-degenerate*, not solution
+quality. Report iteration counts per configuration, and never let "converged
+faster" stand in for "converged to something better" - the `U_rms` column is the
+only one that answers that.
+
+**N-B23. Quote both comparators for an a-posteriori row: the shipped baseline and
+your own zero-correction run.** They are not the same number. The shipped duct
+fields stopped on a `residualControl` listing only `k` and `omega`
+(`k 5e-6; omega 1e-10;`), leaving streamwise momentum at an initial residual of
+1.6e-3 (`AR_1_Ret_360`) and 9.3e-4 (`AR_3_Ret_360`) - one to three orders short of
+the 1e-6 used for every configuration here. Scoring an injected run against the
+shipped field silently credits (or debits) the model with the benchmark's own
+convergence gap. Fix: run NULL under the identical solver, mesh copy and stopping
+rule, use it as the comparator, and report `NULL - BASE` once as a named quantity.
+
+**N-B24. Injecting an anisotropy correction with no k-correction collapses the
+transported turbulent kinetic energy, and the velocity field gets worse even when
+the anisotropy is exactly right.** Measured, `kOmegaSSTCorrected` with
+`bijDelta = b_LES - b_RANS` and `kDeficit = 0`:
+
+| Case | `k` mean, baseline SST | `k` mean, truth-injected | ratio to baseline | ratio to `k_LES` |
+|---|---|---|---|---|
+| `AR_1_Ret_360` (duct) | 26.68 | **8.74** | **0.33** | 0.20 |
+| `CBFS13700` | 0.00302 | 0.00275 | 0.91 | 0.68 |
+
+Mechanism: the model realises `tau = 2k(b_lin + b^Delta)` with `k` from the
+current iterate, and the `k`-equation production is
+`P_k = -2k(b_lin + b^Delta):grad(U)`. Injecting `b^Delta` changes production with
+nothing to balance it, so `k` finds a new and much lower equilibrium; the
+realised stress is then scaled by that factor no matter how good `b^Delta` is.
+Consequence measured on all three cases: `b_rms` against the LES improves by a
+factor of **23** (0.5833 -> 0.0251 on the duct) while `U_rms` **worsens by
+57-63%**.
+
+The control that isolates it: the same solver and the same injection path, given
+**both** corrections (`b^Delta` and `R`), reaches `eps(U)/eps(U_0) = 0.0017` on
+PH10595 (`verification/campaign/W2_SPARTA_FROZEN_CBFS.md`). The path is sound;
+the `b`-only configuration is what fails - and `b`-only is all a model that
+predicts `b_ij` alone can supply. **Any a-posteriori plan for a `b_ij`-only
+closure must either carry a k-correction or freeze `k`, and must say which.**
+
+**N-B25. The duct secondary flow is recovered from a structural zero, and that is
+independent of the velocity getting worse.** Injecting `b^Delta` moves the duct
+in-plane velocity from **0.0000%** of bulk (machine zero, as a linear
+eddy-viscosity model requires) to **0.365%** with the true anisotropy and
+**0.330-0.356%** with the learned one, against a DNS **1.508%** - about 24% of
+the true magnitude, from nothing. Reported because it is the one thing in this
+lane that worked exactly as the literature promises, and because it shows the
+injection path is wired correctly: a bug would not produce a physically-shaped
+secondary flow of the right sign and order.

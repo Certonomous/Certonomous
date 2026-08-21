@@ -8311,3 +8311,243 @@ The rule, applied from that hour:
   document.
 - **The scratchpad is for one agent's own intermediates** - extracted text, run logs, a JSON it
   will read back in the same task - and nothing a second agent, or a later session, will need.
+
+## L-187. A guarded branch in a differentiated routine can return an exactly zero derivative at the only state you ever evaluate at
+
+2026-08-21, DAFoam team, Ladder A. IDWarp's `getRotationMatrix3d` guards a removable coordinate
+singularity at `src/utils/vectorUtils.f90:58` with `tol = 1.4901161193847656e-08`, which is
+`sqrt(eps)`. Tapenade's reverse mode, at `src/adjoint/outputReverse/vectorUtils_b.f90:123-128`,
+takes that branch and zeroes `magv2b`, `axisb` and `axismagb` — so `dMi/dnormals = 0` **exactly**.
+At an undeformed baseline `axisMag = sqrt(1e-30) = 1e-15 < tol`, so **branch 0 is guaranteed at
+every non-corner surface node**, which is precisely the state every `check_totals` and every
+design iteration 0 evaluates at. A1's aggregate gradient error is **11.4274 %** with component
+idx6 sign-flipped at **640 %**; with the four-line analytic limit restored in the generated code,
+**0.03796 %** and no flip. The upstream issue this answers, `mdolab/idwarp#57`, has been open
+since 2021-07-14 with a `bug` label applied eight seconds after creation and **zero comments in
+five years**.
+
+Three transferable parts. **A guard that is numerically harmless in the primal can be fatal in
+the derivative**: the primal is bit-identical either way (md5 `8fafe12f848af490a5041c865112b5fb`,
+max difference 0.0), so no primal test can find this. **The failure hides at the baseline**, the
+one point every verification harness evaluates, so it looks like a modelling error rather than a
+branch. And **the repair belongs in the generated file, not the source**: patching
+`vectorUtils.f90` would change the primal's floating-point path, so a proof-of-concept required
+to leave the primal bit-identical must edit the Tapenade output — which is why the fix is a
+patch and not a pull request. Ask of any differentiated code: *which branch does the baseline
+take, and what does the reverse sweep do inside it?*
+
+## L-188. A converged Krylov solve is a statement about the solver, not about the operator it solved
+
+2026-08-21, DAFoam team, Ladder A rung A4. The Ahmed-body adjoint at np=4 under DAFoam's default
+`scotch` decomposition finishes at `PetscConvergedReason: 2`, true residual **1.7e-07**, and
+returns a gradient **8.95 %** from its own decomposition's finite difference. The same case, same
+mesh, same design variable, decomposed `simple` 4x1x1, returns **0.00054 %**. The operator the
+parallel reverse tape applies is not the transpose Jacobian: the mapped `scotch` adjoint vector
+under the serial operator leaves a cross-residual of **328.8x ‖b‖**, against an np=1 floor of
+1.141e-04. The effect is np-dependent — np=2 **0.26 %**, np=3 **6.05 %** — and the intuitive
+hanging-node explanation is refuted backwards: `scotch` cuts **4 of 456** refinement-interface
+faces and `simple` cuts **68**, and the 68-cut arm is the clean one.
+
+Transferable: **convergence and correctness are different gates, and an iterative solver reports
+only the first.** Any parallel adjoint number carries its decomposition method and subdivision in
+the same table as the number, and a finite-difference reference measured at one rank count is not
+a reference for another — this lab has a stored FD reference for one component that is
+np=4-specific and was very nearly quoted as the case's. Verify serial first, then parallel, and
+report both.
+
+## L-189. The remedy a library hard-codes over is unreachable from its own options channel, and the log will not tell you
+
+2026-08-21, DAFoam team, Ladder B rung B3. A wall-resolved separated case returns PETSc
+`KSPConvergedReason = -9` at iteration 0 because the ASM sub-block **incomplete** factorization
+hits an exact zero pivot; the same assembled matrix factors and solves under a complete LU with
+pivoting at every pivot threshold. PETSc's own developers prescribe `-sub_pc_type lu` for exactly
+this signature. It cannot be reached. `DALinearEqn.C` calls `KSPSetFromOptions` and then
+overrides `-ksp_type`, `-pc_type` and `-sub_pc_type` at thirteen later call sites, and the
+sub-block loop runs **after** `KSPSetUp` has applied the `sub_`-prefixed options, so last write
+wins. Measured on a build that relocates `KSPSetFromOptions` to the end of the routine
+specifically to let runtime options through: `-sub_pc_type lu` on the command line, and
+**`PC Object: (sub_) … type: ilu`** in the same run's own `-ksp_view` dump. No "unused option"
+warning, because the option *was* consumed — and then overwritten. Serial does not help either:
+np=1 returns the same `-9`, matching an offline `scipy.sparse.linalg.spilu` result on the
+assembled whole matrix with no MPI in the loop.
+
+Transferable, and it is a diagnosability lesson rather than a numerics one: **a user who
+diagnoses their own problem correctly still cannot act on the diagnosis, and nothing in the log
+says so.** The library's own `printInfo` echoes the values it was *configured* with, so it
+reports a solver that did not run. When a documented remedy appears to do nothing, dump the
+effective object — `-ksp_view`, `PCView`, `KSPGetType`/`PCGetType` after the options call — and
+compare it against what you asked for. An upstream fix that only relocates the options call
+**would look like a fix and would not be one**.
+
+## L-190. A finite-difference plateau is a per-component property, and a gate without a wrong-step control is not a gate
+
+2026-08-21, DAFoam team. Twelve invocations on a 4,032-cell case, one step varying and nothing
+else, gave a full-vector error against step of **94.95 / 52.88 / 17.64 / 12.27 / 11.52 / 11.43 /
+10.47 / 8.94 / 4.28 / 9.83 %** from 1e-8 to 3e-2, with the primal itself failing at 5e-2 and
+1e-1. The 4.28 % dip is not a minimum: it is one component whose estimate is sign-flipped and
+unstable at every other step, crossing the adjoint's magnitude once on its way to +110 %.
+Excluding the three flagged components the curve is **dead flat at 2.5-3.0 % from 1e-4 to 3e-2**,
+cosine 0.99998. Separately, the same lane's registered wrong-step control — the identical probe
+at a step deliberately an order out — returns **132.75 %** where the real probe returns 0.038 %,
+and a neighbouring gate scored on the *baseline* gradient alone, an array with no result in it,
+returned **35.38 %** against the hypothesis's achieved 26.86 %: the trivial baseline beat the
+hypothesis.
+
+Three transferable parts. **Read the plateau per component**, because a vector norm can dip for
+reasons no component supports. **Run the sweep at the tolerance the graded run uses**: at a loose
+primal tolerance the same three probes missed by a systematic `fd/adj ~ 0.7` — 25.9 / 32.0 /
+32.2 % — and one pair re-run two decades tighter went **25.9 % -> 0.032 %**, so the step was
+never the problem. And **register the wrong-step control before its own run**, because a gate
+that returns the same verdict for the hypothesis and for a deliberately broken version of it is
+reporting, not measuring.
+
+## L-191. Predict the memory envelope before the adjoint launches, and name the container the number came from
+
+2026-08-21, DAFoam team. A 579,072-cell adjoint was graded **BLOCKED** from a prediction of
+**94.7-116.0 GiB against a 30 GiB box** rather than from an out-of-memory death — the verdict
+cost nothing and is more informative than an OOM would have been, because it also names the
+independent conditioning blocker beside it. The opposite error is on the same record: a smaller
+adjoint that works at 63,920 cells and fails at 79,560 **with over 4 GB of headroom unused** is
+bound by convergence, not RAM, and a hardware recommendation was once made in the wrong
+direction on that confusion. And a run ended by a `docker stop` on a shared box at
+`MemAvailable` 1.62 GB was reported as a boundary until the record was corrected: **no PETSc
+memory error was ever on that run's log**, and the causal claim was withdrawn.
+
+A fourth part, learned today and cheap to repeat: the measured peak for a 21,000-cell
+complete-LU adjoint is **9.044 GiB**, comfortably inside a 12 GiB cap — against a **22 GiB** cap
+that earlier runs were given and that had been carried ever since as if it were a requirement.
+Nobody had measured it. **And the raw maximum in the same watcher log was 9.786 GiB, which
+belonged to a different lane's container**: `docker stats` reports every container on the box,
+so a peak-RSS figure is a claim about a *named* container or it is not a measurement.
+
+## L-192. An optimiser that stops on a wall clock or an iteration cap has not converged, whatever its objective did
+
+2026-08-21, DAFoam team, Ladder A rung A2. A real IPOPT 3.13.5 / MUMPS / limited-memory-BFGS run
+completed **47 of a possible 100 major iterations inside a 60-minute box** and reduced drag
+**28.275488 %** at matched lift. The extracted history is sound and its primary source is hashed.
+What the log does not contain is a result: `converged_to_optimizer_tolerance: false`,
+`convergence_statement_in_log: null`, and IPOPT prints no EXIT line anywhere — *"the table simply
+stops after iteration 47."* The lab's standing picture had recorded that no optimiser had ever
+run; the true statement is the weaker and more useful one, that **no optimiser run has ever
+converged**.
+
+Transferable, and it generalises past optimisers: a solver's iteration cap is a budget, not a
+settle criterion, and the two are recorded differently or the ladder inherits a guess as a
+measurement. A time-boxed optimisation is graded on its registered intermediate threshold, never
+on the size of the improvement it happened to reach. **And verify the gradient at the design
+point the optimiser stopped at, not only at the baseline** — the two AD defects this lane has
+characterised behave differently at and away from the undeformed state, so a baseline
+verification says nothing about iteration 47.
+
+## L-193. When a session is stopped mid-task, the pre-registration is what makes the work resumable — and an uncommitted results file is what makes it verifiable
+
+2026-08-21, DAFoam team, both lanes. Two lanes were stopped mid-run. What survived was: a
+committed pre-registration fixing every arm's prediction *before* its run, a run root outside the
+repository holding `ledger.csv`, per-arm logs and staged case directories, and a partial results
+file that had deliberately **not** been committed because its numbers were not yet checked
+against the logs. A fresh lane picked all of it up, re-derived every carried figure at a stated
+`path:line`, found one real error — a provenance list crediting three arms where five had the
+property — corrected it, re-ran the two unfinished arms exactly as registered, and completed the
+record. **Zero scientific loss**, and no argument about what had been predicted, because the
+predictions were on disk and frozen.
+
+Two transferable parts. **The pre-registration is the handoff document**: it is the only artefact
+that survives a stop with its meaning intact, since anything written after the numbers are seen
+can be argued with. And **holding a partial result out of the index is a feature, not
+untidiness** — the commit that preserved the frozen predictions said so in its own message, and
+it is what let the next lane treat every number as unverified until it had checked it. Also
+worth carrying: name a re-run's superseded log rather than overwriting it
+(`*_attempt1_HARNESS_KILLED.log`), so the waste stays inside the cost figure.
+
+## L-194. A rate read off a redirected log is not a measurement; the completed run's wall time is
+
+2026-08-21, DAFoam team, Ladder B. A four-rank solve on a contended box appeared, from counting
+solver lines that reached its redirected log over a wall-clock window, to be running about
+**400x** slower than its registered basis. That figure was written into a results section and
+then corrected within the hour: the run completed, and its own wall time gives **1,529 s against
+a registered 71 s — a factor of 21.5**. Output through `docker run > file` is block-buffered, so
+the log lags the solver in bursts and a short-window line count under-reads the true rate badly.
+The mechanism behind the real slowdown stands and is worth its own note — Open MPI spin-waits, so
+one rank descheduled by an unpinned co-tenant stalls the other three at full apparent CPU, and
+**`--cpuset-cpus` constrains where a container's threads may run, not who else may run there** —
+but its size was overstated by a factor of nearly twenty.
+
+Transferable: when you need a rate, take it from a completed run, from the application's own
+internal clock, or from `/proc/<pid>` counters — never from the growth of a buffered stream. And
+when a degradation figure is load-bearing in a record, say which of those three it came from.
+
+## L-195. Report the comparator you can defend, not the one that is lying around
+
+The obvious comparator for an a-posteriori closure test is the benchmark's own
+shipped baseline field. Measured here, that field is not converged to the
+standard the test itself uses: restarting it with zero corrections gives an
+initial streamwise-momentum residual of **1.6e-3** on `AR_1_Ret_360` and
+**9.3e-4** on `AR_3_Ret_360`, because those cases stopped on a `residualControl`
+listing only `k` and `omega` (`k 5e-6; omega 1e-10;`) and never constrained `U`
+or `p` at all.
+
+Scoring an injected run against that field silently credits or debits the model
+with the benchmark's own convergence gap. The fix is one extra run: a NULL
+configuration with zero corrections under the **identical** solver, mesh copy,
+stopping rule and iteration cap, used as the comparator, with `NULL - BASE`
+reported once as a named quantity so the gap is visible rather than absorbed.
+
+The generalisation: **before using a published or shipped field as a baseline,
+restart it under your own stopping rule and read the first residual.** It costs
+one iteration to find out whether the number you are about to compare against
+means what you think it means.
+
+## L-196. A gate that contains no solve cannot be invalidated by a convergence argument
+
+Mid-task a reviewer warned that a gate of the form "zero-correction re-solve vs
+the shipped field, rel-L2 < 1e-10" would fail spuriously, because the shipped
+fields are not converged to 1e-10 — a correct warning, and one that had already
+bitten the parallel lane.
+
+It did not apply. The gate under review was **pure algebra on the injected
+field**: reconstruct `b_total = b_RANS + bijDelta` from the shipped `nu_t`, `k`,
+`S` and check it equals the model's own prediction. No solver, no iteration, no
+sensitivity to convergence at all. It passed at **1.24e-16**.
+
+Two things worth carrying. First, when a review lands, check whether it describes
+the artefact you actually built before acting on it; adopting a correction to a
+different design would have meant reporting a non-existent defect. Second — and
+this is why the exchange was still worth having — the reviewer's *additional*
+gates were genuinely better than mine at what they tested (that the corrected
+solver is inert at zero correction, verified here as **bit-identical** over 200
+iterations), so the right response was to keep my gate, adopt theirs, and say
+plainly which tested what.
+
+## L-197. Register a ceiling configuration, or your model will be blamed for the injection path
+
+This lane set out to test whether a random forest's a-priori anisotropy gain
+(`b_rms` 0.4138 -> 0.2213, a clean PASS) survives being solved. The
+preregistration required a **TRUTH** configuration alongside it: inject the
+*exact* anisotropy `b_LES - b_RANS` and see what the solver does with a perfect
+prediction. It also registered, in advance, that a TRUTH row failing to cut
+`U_rms` by 50% makes the case NOT A RESULT, and that a TRUTH row *worse* than the
+baseline voids every ML row.
+
+Both fired. Injecting the true anisotropy made `U_rms` **57-63% worse** on all
+three cases. Without that configuration the ML rows - `U_rms` up 57-63%, `b_rms`
+down by a factor of 5 - would have read as a devastating verdict on the model.
+The model was never the problem: with `kDeficit = 0`, transported `k` collapses
+to a third of baseline, so the realised stress `2k(b_lin + b^Delta)` is wrong by
+that factor however good `b^Delta` is.
+
+The general shape: **when you test a component through a pipeline, put the
+pipeline's own perfect-input case in the preregistration as a gate, not as a
+nicety.** It costs one extra run. Without it you cannot tell "the model is bad"
+from "the harness cannot express what the model produces", and the first
+explanation is always the more available one. Two supporting habits: register the
+threshold *before* seeing the ceiling number, so the gate cannot be argued away
+afterwards; and find an independent control that isolates the harness - here, the
+lab's own W2 campaign putting `b^Delta` **and** `R` through the *same solver* to
+reach `eps(U)/eps(U_0) = 0.0017`, which proves the path is sound and the `b`-only
+configuration is what fails.
+
+The finding that survives is sharper than the one the lane set out to get: an
+a-priori `b_ij` score bounds nothing about the solved field, and a closure that
+predicts `b_ij` alone cannot be propagated without either a k-correction or a
+frozen `k`. That is a statement about a whole class of data-driven closures, and
+it came from the control, not the treatment.

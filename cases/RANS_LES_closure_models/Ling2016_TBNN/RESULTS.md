@@ -68,7 +68,7 @@ the results are regenerated, not because anything is outstanding.
 | Piece | Status |
 |---|---|
 | TBNN seeds 0-4 | **all complete**; predictions at `/home/ubuntu/closure-data/tbnn/ckpt/pred_TBNN_s{0..4}.npy` |
-| Plain-MLP control | **4 distinct seeds converged and scored** on the TEST set from their final prediction fields (sec. 4b); a 5th is training. Seeds 0-2 were run twice, in two independent processes, and came out bit-identical |
+| Plain-MLP control | **all 5 seeds converged and scored** on the TEST set from their final prediction fields (sec. 4b). Seeds 0-2 were run twice, in two independent processes, and came out bit-identical |
 | TBRF sibling comparator (secs. 7b, 7b-i) | **all 6 forests complete**: three 5-invariant seeds and three 17-feature seeds |
 
 Everything is bounded and restart-safe: a hard cap of 400 epochs, a wall-clock
@@ -81,29 +81,41 @@ process needs to be killed.** Exact resume commands:
 cd /home/ubuntu/Certonomous/cases/RANS_LES_closure_models/Ling2016_TBNN
 /home/ubuntu/closure-venv/bin/python train_tbnn.py --seeds 0 1 2 3 4
 
-# isolated MLP control, 3 seeds (checkpoints: /home/ubuntu/closure-data/tbnn/ckpt_mlponly/)
-cd /tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad
-OMP_NUM_THREADS=4 /home/ubuntu/closure-venv/bin/python mlp_only.py --seeds 0 1 2
+# isolated MLP control (checkpoints: /home/ubuntu/closure-data/tbnn/ckpt_mlponly/)
+# NOTE: mlp_only.py lived in the session scratchpad, which was cleared by an
+# unrelated workstream. It was a copy of train_tbnn.py with three lines changed:
+#   CKPT -> /home/ubuntu/closure-data/tbnn/ckpt_mlponly
+#   the (tag, Model, lr) tuple reduced to (("MLP", PlainMLP, LR_MLP),)
+#   WALL_LIMIT_S 3*3600 -> 5*3600
+# It is NOT recreated here, because the main sweep below already produced five
+# MLP seeds in its own directory and those are the numbers section 4b reports.
+# Re-deriving it is three edits to train_tbnn.py if an isolated arm is wanted again.
 
 # TBRF sibling comparator (checkpoints: /home/ubuntu/closure-data/tbrf/*.pkl, per 10 trees)
 cd /home/ubuntu/Certonomous/cases/RANS_LES_closure_models/Kaandorp2020_TBRF
 OMP_NUM_THREADS=6 /home/ubuntu/closure-venv/bin/python run_tbrf.py
 
-# then regenerate the tables in sections 4, 6, 7b, 7b-i and 10:
-/home/ubuntu/closure-venv/bin/python \
-  /tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/an_tbnn.py
-/home/ubuntu/closure-venv/bin/python \
-  /tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/an_tbrf.py
+# then regenerate the tables in sections 4, 4b, 6, 7b, 7b-i and 10:
+cd /home/ubuntu/Certonomous/cases/RANS_LES_closure_models/Ling2016_TBNN
+/home/ubuntu/closure-venv/bin/python analyse_tbnn.py   # -> /home/ubuntu/closure-data/tbnn_analysis.json
+/home/ubuntu/closure-venv/bin/python analyse_tbrf.py   # -> /home/ubuntu/closure-data/tbrf_analysis.json
 ```
+
+`analyse_tbnn.py` and `analyse_tbrf.py` were **recreated in this directory on
+2026-08-21** after the session scratchpad that held them was cleared by an
+unrelated workstream. Behaviour is unchanged and their output reproduces the
+tables below; only the output path moved, from the scratchpad to
+`/home/ubuntu/closure-data/`. `mlp_only.py` was **not** recreated - see the
+comment in the block above for exactly what it was, and why it is not needed.
 
 Each resumes from checkpoints and skips completed work. Note that `mlp_only.py`
 writes into a **separate** checkpoint directory from `train_tbnn.py`, deliberately,
 so the two MLP arms cannot overwrite each other.
 
-**Every pre-registered criterion is decided** (sec. 4b): 5 TBNN seeds, 4 distinct
-plain-MLP seeds, 6 tensor-basis forests. **One job is still running** — the main
-sweep's fifth and last MLP seed, at epoch 50 of <= 400, bounded by a 3-hour
-self-timeout from its 20:47 launch. It cannot change the verdict. The verdict was
+**Every pre-registered criterion is decided and every run has finished** (sec. 4b):
+5 TBNN seeds, 5 plain-MLP seeds, 6 tensor-basis forests. **Tables refreshed
+2026-08-21** by re-running `analyse_tbnn.py` after the fifth MLP seed landed;
+the verdict is unchanged. The verdict was
 unchanged at each stage it could have been called — a mid-run MLP checkpoint at
 epoch 300, seed 0 alone, and all three converged seeds all give the same ordering
 and the same answer, because criterion (iii) is failed on the pooled metric by
@@ -172,19 +184,20 @@ train-mean constant (B3, `BASELINES.md` sec. 6.4) on **7 of 8** - the same 7.
 ## 4b. Criterion (iii): the TBNN against Ling's own control
 
 The plain MLP (10 x 10, same five invariants, no tensor basis — Ling 2016 p. 6)
-was trained on the **identical** split. **Four distinct seeds have converged**, so
-both models carry their own seed spread.
+was trained on the **identical** split. **All five seeds have converged**, matching
+the TBNN's five, so both models carry their own seed spread over the same number
+of runs.
 
-| Case | TBNN (5 seeds) | TBNN spread | MLP (4 seeds) | MLP spread | TBNN advantage | beyond the LARGER spread? |
+| Case | TBNN (5 seeds) | TBNN spread | MLP (5 seeds) | MLP spread | TBNN advantage | beyond the LARGER spread? |
 |---|---|---|---|---|---|---|
-| `AR_14_Ret_180` | 0.1105 | 0.0071 | 0.1377 | 0.0237 | 0.0272 | yes |
-| `AR_1_Ret_360` | 0.1222 | 0.0053 | 0.1812 | 0.0128 | 0.0590 | yes |
-| `AR_3_Ret_360` | 0.1229 | 0.0078 | 0.1707 | 0.0130 | 0.0479 | yes |
-| `NASA_2DWMH` | 1.48e+07 | 3.71e+07 | 0.4182 | 0.1729 | 1.48e+07 WORSE | n/a |
-| `alpha_05_4071_2024` | 0.1881 | 0.0029 | 0.1977 | 0.0050 | 0.0095 | yes |
-| `alpha_05_4071_4048` | 0.2364 | 0.0038 | 0.2501 | 0.0086 | 0.0137 | yes |
+| `AR_14_Ret_180` | 0.1105 | 0.0071 | 0.1378 | 0.0237 | 0.0273 | yes |
+| `AR_1_Ret_360` | 0.1222 | 0.0053 | 0.1811 | 0.0130 | 0.0589 | yes |
+| `AR_3_Ret_360` | 0.1229 | 0.0078 | 0.1707 | 0.0132 | 0.0478 | yes |
+| `NASA_2DWMH` | 1.48e+07 | 3.71e+07 | 0.4073 | 0.1730 | 1.48e+07 WORSE | n/a |
+| `alpha_05_4071_2024` | 0.1881 | 0.0029 | 0.1971 | 0.0045 | 0.0090 | yes |
+| `alpha_05_4071_4048` | 0.2364 | 0.0038 | 0.2503 | 0.0086 | 0.0139 | yes |
 | `alpha_15_13929_2024` | 0.2257 | 0.0090 | 0.2310 | 0.0050 | 0.0053 | no |
-| `alpha_15_13929_4048` | 0.1362 | 0.0038 | 0.1546 | 0.0087 | 0.0184 | yes |
+| `alpha_15_13929_4048` | 0.1362 | 0.0038 | 0.1548 | 0.0087 | 0.0186 | yes |
 
 The "beyond spread" column uses the **larger** of the two models' spreads, which
 is the conservative choice.
@@ -205,19 +218,20 @@ arms comparable rather than merely similar.
   inside the spread (advantage 0.0053 against a TBNN spread of 0.0090). On this
   reading the invariance embedding earns its keep and criterion (iii) is met.
 * **Pooled over the whole test set, which is what was registered:** TBNN
-  **8.56e+06** against MLP **0.2502 / 0.3328 / 0.2765 / 0.2636** (4 seeds, mean
-  0.2808). The TBNN's pooled error is entirely `NASA_2DWMH` (1.48e+07 against the
-  MLP's 0.4182), so it is worse by seven orders of magnitude and (iii) fails.
+  **8.56e+06** against MLP **0.2501 / 0.3328 / 0.2764 / 0.2635 / 0.2561** (5 seeds,
+  mean 0.2758). The TBNN's pooled error is entirely `NASA_2DWMH` (1.48e+07 against
+  the MLP's 0.4073), so it is worse by seven orders of magnitude and (iii) fails.
 
 **The pooled reading governs.** It is what the preregistration says, and it is the
 one less favourable to the model. Both are printed so no reader has to take my
 word for which was chosen.
 
 **Realisability, the same comparison:** TBNN **6.5–15.3%** of test cells
-non-realisable across 5 seeds; converged MLP **0.89% / 2.29% / 2.49% / 2.66%**
-across 4 seeds (mean 2.08%); truth **0.79%**; SST **0.10%**. The unconstrained
-network stays within **1.1x–3.4x** of the truth's own violation rate; the
-tensor-basis network is **8x–19x** worse than it. The two ranges do not overlap. The unconstrained network — which has no mechanism
+non-realisable across 5 seeds; converged MLP **0.88% / 2.27% / 2.45% / 2.66% /
+1.05%** across 5 seeds (mean 1.86%); truth **0.79%**; SST **0.10%**. The
+unconstrained network stays within **1.1x–3.4x** of the truth's own violation
+rate; the tensor-basis network is **8x–19x** worse than it. The two ranges do not
+overlap. The unconstrained network — which has no mechanism
 enforcing anything — stays an order of magnitude closer to physically admissible
 states than the network built around an exactly-invariant tensor basis. The basis
 constrains the *form* of `b` and nothing about its *magnitude*, and on this
@@ -260,7 +274,7 @@ sec. 5 requires:
 | **TBNN, seeds 0/1/2/3/4** | **15.34% / 9.84% / 6.47% / 14.79% / 9.10%** |
 | tensor-basis RF, 5 invariants, 3 seeds | 10.16% / 11.36% / 10.55% |
 | tensor-basis RF, 17 features, 3 seeds | 9.66% / 9.27% / 9.74% |
-| **plain MLP (no tensor basis), 4 converged seeds** | **0.89% / 2.29% / 2.49% / 2.66%** |
+| **plain MLP (no tensor basis), 5 converged seeds** | **0.88% / 2.27% / 2.45% / 2.66% / 1.05%** |
 | Wu 2018 random forest, same split (sibling directory) | 1.54-1.60% |
 | the LES/DNS **truth** itself | **0.79%** |
 | k-omega SST | 0.10% (all of it on the hump) |
