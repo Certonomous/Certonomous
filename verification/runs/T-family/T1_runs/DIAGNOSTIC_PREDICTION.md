@@ -633,3 +633,179 @@ it lands elsewhere, that form is dropped without a replacement being fitted to
 the same four points again.
 
 **Still diagnostic, still ungraded, and no T1c verdict can move on it.**
+
+---
+
+# RESULTS OF THE PARABOLIC-INLET TEST, 2026-08-21
+
+Six cases, `D_Ts_Re25_P_c/m/f` and `L_Ts_P_c/m/f`, built by `build_d_ts_p.py`
+from the frozen `build_t1c.py` generators: `polyMesh/points`, `faces`,
+`owner`, `neighbour` and `boundary` are **byte-identical** to the slug-inlet
+cases (`cmp`), radial spacing uniform to 2e-15 from the points, 4000 / 10240 /
+26112 cells, R_wall = 0.0099904822 from the points, and a recursive diff against
+the slug case shows **only `0.orig/U` and `0/U` differ**. The inlet is a
+`fixedValue nonuniform List<vector>` with U_x = s·2U_b·(1 − (r_c/R_wall)²) at
+each inlet face centroid read from the mesh, s the single scalar that makes the
+discrete flow rate equal U_b·A_inlet exactly (s − 1 = −4.2e-4 / −1.6e-4 /
+−6.4e-5 on c/m/f; the flow rate was exact on the slug inlet, so flow-rate-exact
+is the like-for-like choice; re-read from disk, the flow rate matches to 0
+relative). No runtime-compiled code.
+
+Instrument: `analyse_dts_p.py`, reusing `analyse_dts.py`'s machinery on the two
+new ladders, sha256 `caec3804…a74615`. **One disclosed amendment before any
+answer existed**: at 21:11:40Z on 2026-08-20, with no `STATUS` or `DONE` file
+for any `_P_` case (checked and recorded in its docstring), the "unchanged
+within its own GCI band" criterion was changed from the slug GCI alone to
+**max(slug GCI, parabolic GCI, station-corrected slug band)**, because the
+Re = 25 slug GCI of 0.0022 % is the station-mismatch artefact recorded in the
+addendum above (corrected order 2.25 → band 0.0249 %; Re = 100 corrected
+0.0240 %, below its raw 0.0301 %). All three bands are printed beside every
+difference. Pre-amendment hash `568f09e0…47df19`.
+
+## Completion, convergence, and proof that the lever worked
+
+All six met the strict rule and got markers; all six are **bit-identical
+between 28000 and 30000** with every planted 1.234e-03 K control recovered;
+none is discarded (driving fractions 0.130–0.152, floor 0.10). At the station
+the centreline cell carries **U_cl/U_b = 1.99887 (Re 25) and 1.99886 (Re 100)
+against 1.99966 for the exact parabola at that cell** — −0.04 % — where the
+slug cases had 1.9942 and 1.9963; the maximum deviation of the whole profile
+from the parabola at the station is 7.9e-4 (rms 2.9e-4). In the inlet-adjacent
+column the centreline reads +0.27 % above the parabola on the fine mesh
+(+0.84 % coarse): the face-centroid list relaxes into the discrete parabola
+over the first cells. Disclosed; it is gone by the station.
+
+## The measurement, same stations, same estimator, same reference
+
+| Re | inlet | Nu coarse | Nu medium | Nu fine | p | GCI | Richardson | **h→0 excess** | fine excess |
+| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 25 | slug | 3.681432 | 3.675830 | 3.675264 | 4.88 | 0.0022 % | 3.675328 | +0.5068 % | +0.5051 % |
+| 25 | **parabolic** | 3.678705 | 3.673683 | 3.672582 | 3.23 | 0.0105 % | 3.672891 | **+0.4402 %** | +0.4318 % |
+| 100 | slug | 3.664111 | 3.661183 | 3.659958 | 1.85 | 0.0301 % | 3.660840 | +0.1106 % | +0.0865 % |
+| 100 | **parabolic** | 3.662825 | 3.659835 | 3.658649 | 1.97 | 0.0267 % | 3.659429 | **+0.0721 %** | +0.0507 % |
+
+`f·Re` is unchanged at 63.9203 / 63.9688 / 63.9877 on every ladder. The Re = 25
+parabolic order of 3.23 carries the same station-mismatch caveat as the slug
+4.88 and is not believed; the Richardson value is within 3e-4 of the fine value.
+
+| | slug | parabolic | change | bands: slug GCI / parabolic GCI / corrected slug | band used | change ÷ band |
+| --- | ---: | ---: | ---: | --- | ---: | ---: |
+| Re = 25 h→0 excess | +0.5068 % | +0.4402 % | **−0.0666 pp** | 0.0022 / 0.0105 / 0.0249 % | 0.0249 % | **2.67** |
+| Re = 100 h→0 excess | +0.1106 % | +0.0721 % | **−0.0386 pp** | 0.0301 / 0.0267 / 0.0240 % | 0.0301 % | **1.28** |
+| Re 25 − Re 100 | +0.3962 pp | +0.3681 pp | −0.0281 pp | combined 0.0551 pp | | 0.51 |
+
+## The registered predictions, taken literally
+
+- **(1) "thermal Pe term, non-hydrodynamic floor: both stay, each within its
+  own band, difference near 0.40 pp" — NOT met.** Both excesses moved by more
+  than their bands (2.67× and 1.28×).
+- **(2) "hydrodynamic Pe term: Re 25 falls towards Re 100, the difference
+  shrinks to well under 0.40 pp" — NOT met.** The difference went 0.396 →
+  0.368 pp, a change of 0.028 pp inside the 0.055 pp resolution of the
+  comparison. **The Péclet-dependent part of the excess is not hydrodynamic.**
+- **(3) "hydrodynamic floor: Re 100 falls from +0.11 % towards the Graetz
+  residual" — MET in direction, not in full.** The Re = 100 excess fell from
+  +0.1106 to +0.0721 %, closing **36.5 % of the gap** to the +0.0051 % Graetz
+  residual. About a third of the floor was the slug inlet's hydrodynamic
+  development; **two-thirds of it is not.** The Re = 25 point fell by a
+  comparable amount (−0.067 pp against −0.039 pp, the 0.028 pp difference inside
+  resolution), which is what a common floor shift looks like.
+- **Falsifier "both move by less than their bands → hydrodynamics refuted for
+  both" did not fire.**
+- **Falsifier "post-hoc floor + B/Pe² lands the parabolic Re 25 at +0.507 %;
+  elsewhere → the form is dropped" FIRED.** Measured **+0.4402 %**, 0.067 pp
+  from the prediction against a parabolic GCI of 0.0105 %. **The floor + 1/Pe²
+  form is dropped**, and per the clause no replacement is fitted to the same
+  points.
+
+## What else the test showed, reported
+
+- **The decline of Nu along x was mostly hydrodynamic.** Across the admissible
+  window the fine-level excess now drops 0.151 pp at Re 25 (slug 0.315) and
+  **0.041 pp at Re 100 (slug 0.145) — within 0.007 pp of the 0.034 pp the
+  Graetz curve predicts.** At Re = 100 with a parabolic inlet, the x-dependence
+  is thermal entry and nothing else. At Re = 25 the 0.151 pp that remains is
+  five times Graetz and is Péclet-dependent: **the entry region at low Pe is
+  longer than Graetz says**, which is what axial conduction does to a thermal
+  entry.
+- **Heat balance**, from the mesh as before (face geometry VALID on all six):
+
+| case | closure residual | Q_inlet,cond / Q_wall | slug closure | slug Q_inlet,cond / Q_wall |
+| --- | ---: | ---: | ---: | ---: |
+| `D_Ts_Re25_P_c` | +2.6e-10 | −13.55 % | +2.3e-10 | −14.01 % |
+| `D_Ts_Re25_P_m` | +5.8e-10 | −16.92 % | +5.3e-10 | −16.91 % |
+| `D_Ts_Re25_P_f` | +1.4e-09 | −20.48 % | +1.2e-09 | −19.80 % |
+| `L_Ts_P_c` | −8.9e-14 | −2.55 % | −8.6e-13 | −2.33 % |
+| `L_Ts_P_m` | +5.9e-10 | −3.38 % | +5.4e-10 | −2.98 % |
+| `L_Ts_P_f` | +1.4e-09 | −4.38 % | +1.3e-09 | −3.70 % |
+
+  Every case closes to 1.4e-09 or better; mass flux in and out agree to 1e-14.
+  The inlet-plane conduction flux is unchanged in size and still grows with
+  refinement: **the corner singularity is a property of the thermal inlet
+  condition and did not care about the velocity profile.**
+
+## Standing after this test
+
+- Of the slug-inlet constant-Ts excess, **the Péclet-dependent part (+0.37 pp
+  between Re 25 and Re 100) is thermal**: it survived the removal of all
+  hydrodynamic development. **Axial conduction remains the only named
+  candidate for it, still not demonstrated**, and its form is not
+  floor + 1/Pe² (dropped above).
+- **Of the Re-independent floor, about a third was the slug inlet** and is now
+  gone; **+0.072 % (h→0) remains at Re = 100 with a parabolic inlet**, fourteen
+  times the Graetz residual, unexplained.
+- **No T1c verdict moves.** For the record and not as a grade: even with the
+  parabolic inlet the fine-level Re = 100 deviation is 0.0507 % against a GCI
+  band of 0.0267 %, so a graded row would still GATE FAIL on the slug inlet's
+  removal alone.
+
+## What this test cannot see
+
+1. **Corner versus pipe.** Developed-flow axial conduction and the inlet-corner
+   conduction flux are both thermal and both Péclet-dependent; removing the
+   velocity development separates neither from the other. Only an unheated
+   upstream section can.
+2. **The remaining two-thirds of the floor.**
+3. **Its own inlet's discretisation**: the face-centroid list with its
+   flow-rate scale s and the +0.27 % first-column overshoot are inside the
+   ladder and are extrapolated away only as far as the ladder's order is real —
+   and at Re = 25 the order is a station artefact at both inlets.
+4. **Anything graded.**
+
+## Cost
+
+Six serial solves, 17 729 s of wall = **4.92 core-hours, $0.25** at
+$0.0513/core-hour — on a box shared with another team's training jobs
+(load 33 on 16 cores), so the CPU time was 10 195 s = 2.83 core-hours; the
+wall figure is the one billed.
+
+---
+
+# NEXT TEST, REGISTERED BEFORE IT IS BUILT, 2026-08-21
+
+**An unheated upstream section**: `D_Ts_Re25_U` and `L_Ts_U` ladders with the
+parabolic inlet moved to x = −10 D, the wall **adiabatic** for −10 D < x < 0 and
+at 310 K for x > 0, T_in = 300 K at the upstream inlet, stations unchanged
+(measured from x = 0). The 300 K / 310 K corner no longer exists; whatever
+conducts upstream does so into fluid, as in the extended-Graetz configuration
+of the literature. Six cases, about 5 core-hours at the longer domain.
+
+**REGISTERED PREDICTIONS, h→0 against h→0 at the same stations:**
+
+- **If the Péclet-dependent term is the inlet-corner flux**, the Re 25 − Re 100
+  difference collapses from +0.37 pp towards the combined bands (about
+  0.05 pp), and the conduction through the x = 0 plane becomes
+  mesh-independent across c/m/f.
+- **If it is developed-flow axial conduction**, the difference persists within
+  the combined bands of +0.37 pp, and the conduction through the x = 0 plane
+  is mesh-independent as well — the corner was the only mesh-dependent thing.
+- **If the remaining Re = 100 floor (+0.072 %) does not move** by more than its
+  band, it is not an entrance effect of any kind, hydrodynamic or thermal.
+
+**Falsifying outcomes, registered now:** if the difference persists AND the
+x = 0 conduction flux stays mesh-dependent, the corner hypothesis survives in a
+form this design cannot kill and the line is reported as unresolved. If the
+difference persists, the comparison value for developed-flow axial conduction
+at Pe = 17.75 and 71 is to be **obtained from a cited extended-Graetz source
+and checked against its own asymptotes before use** — never recalled. **Still
+diagnostic, still ungraded, and no T1c verdict can move on it.**
