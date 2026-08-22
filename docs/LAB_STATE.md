@@ -223,15 +223,33 @@ pointed at the helper** — that edit is the guide owner's, not this lane's. The
 R4 lane's two amendment candidates remain for the **next** preregistration and
 are deliberately not in the frozen file: §6 registers **no threshold on
 realisability**, and the continuity gate's `1e-4` is **dimensional**.
+**The R4 boundary report and the decision memo are landed**:
+`cases/RANS_LES_closure_models/R4_sparta_build/RESULTS.md` **§11** (the claim
+half of the boundary — what R4 established, what it did not, and the five
+clauses of the frozen closing sec. 9 graded, including the measured correction
+to sec. 2.1's premise: the exact duct degeneracy is a property of the baseline
+RANS field and is **absent** on the frozen field the regression fits, rank
+**3.000 → 3.965**, which does not move the registered exclusion but falsifies
+its stated justification), and **`docs/closure/R5_DECISION_MEMO.md`** — four
+costed options for Sanaa. Zero compute; nothing submitted, uploaded, filed or
+registered.
 
 **On Sanaa's desk:** R6's internal-scoring phrasing (doctrine open action 4).
 **And now R4's:** the SpaRTA-class build ladder has returned a **GATE FAIL with
 a working ceiling**, which is a decision point rather than a retry — whether to
 re-preregister the `b^Delta` amplitude control (a realisability constraint, or
 the paper's `xi`, as a *registered* part of the model rather than an ungraded
-diagnostic), or to re-open R2's ranking. **The Repo 2 release and the zero-shot
-scoring call remain hers alone; this lane ran neither and prepared no
-submission.**
+diagnostic), or to re-open R2's ranking. **The options are now written up,
+costed from R4's own measured rates, in `docs/closure/R5_DECISION_MEMO.md`** —
+(A) `b^Delta` amplitude control **3.63 core-h / $0.186**; (A′) the same control
+on the **pair** **5.37 core-h / $0.275**; (B1) FIML-C **0.61 core-h pilot**,
+**621.6 core-h** at full build, above Charter §18's 487; (B2) TBNN + `R` head
+**20.90 core-h / $1.072** plus an unestimated head; (C) fix the `omega` source
+and complete the 15 hills **0.184 core-h / $0.009**; (D) bank the harness result
+**0 core-h**. The memo carries a **recommendation** (C then A′), marked as one.
+**The choice is hers, re-opening R2 is a re-opening of R3 (Charter §22.7), and
+the Repo 2 release and the zero-shot scoring call remain hers alone; this lane
+ran neither and prepared no submission.**
 
 **Blocked:** R6, on Sanaa's internal-scoring phrasing. Kaandorp
 `AR_3_Ret_360__ML0/1/2`, on the missing `AR_3_Ret_360` case in
@@ -265,7 +283,7 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T20:21Z by the DAFoam supervisor (Fable), replacing the harness
+*Refreshed 2026-08-22T20:24Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
 > **Correction, 2026-08-22 20:15Z, by the section's owner.** Earlier revisions of this section
@@ -279,6 +297,8 @@ build's third-party first fill. Live reading: `git log`, `docker ps`, `docker in
 
 | sha | committed (UTC) | what |
 |---|---|---|
+| `088e052f` | 2026-08-22 20:24Z | **`DAFOAM_CHARTER.md` v1.0b → v1.0c**, additive: §13 gains a dated note and a **PROPOSAL** — §13 audits the charter's clauses for enforceability, nothing audits a *pre-registration's* own registered thresholds, and A3 rung 2 proved a prereg can invent a guard nothing can execute. Left a PROPOSAL, not a clause: making it binding is Sanaa's call. Plus **L-241** (a ratio of two rounded percentages is not the ratio of the quantities) |
+| `0f56460d` | 2026-08-22 20:23Z | *A3 rung-2 correction* (lane): published ratio **9.22× → 9.2084×**, formed from printed percentages instead of raw values; quote-and-strike per L-32, no verdict, band, gate, prediction score or cost moved |
 | `92185911` | 2026-08-22 20:20Z | supervisor append for the A3 verdict: **L-239** (a registered stop with nothing wired to trigger it is not a guard), **D462**, **N-D18**, `LADDER_A_STATUS` addendum splitting row 12 and striking the file's own "every measured A/B pair improves" reading |
 | `27ce5799` | 2026-08-22 20:18Z | *A3 rung-2 patched-IDWarp arm — RESULTS*: **PASS**, and the **first measured A/B pair where the rotation patch degrades** a gradient the shipped toolchain already had right. 85.950 core-min / $0.0735 of a 120 ceiling; 12 HIT / 5 MISS; self-reported guard breach at §9.1 |
 | `baf4e68e` | 2026-08-22 20:09Z | *A6 N=16 remaining five components — pre-registration* (Lane D), committed before launch; freeze verified blob-for-blob. Steps derived mechanically from the stored \|J\| so every registered step predicts clearance ≥ 5; the prereg's own void condition fired on a `run_arm.sh` md5 mismatch, so the trivial baseline is **re-bought** rather than declined: 11 entries, 23 primals, 40.3 core-min predicted against a 60 ceiling |
@@ -346,6 +366,8 @@ A2 per-component extraction shows the third near-zero sign-flip-under-a-passing-
 `A5_ubend_internal.md:194-196` (in-band set {1,2,16,24,25} vs measured {1,2,24,25,26});
 `A2/grading_confirmation/RESULTS.md` §1 ("no sign flip anywhere in A2") falsified at
 PATCHED idx46.
+
+**Charter:** `DAFOAM_CHARTER.md` **v1.0c** (2026-08-22) — the §13 enforceability PROPOSAL is unratified and awaits Sanaa.
 
 **Images:** `dafoam-idwarp-rot:v1` (only image carrying the rotation patch, md5
 `85f59e87…`), `dafoam-subpclu:v2` (PCLU), `dafoam-kspopts:v1`, `dafoam-team:v1`
