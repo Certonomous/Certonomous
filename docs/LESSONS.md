@@ -9258,3 +9258,61 @@ A charter ruling (section 5(b)) declared the figure **3.24** — the mean per-ce
 **The rule.** Before writing "source not on disk", "does not exist" or "does not resolve" about a cited path, run **`ls` on the path itself** — not `git ls-files`, not `git log -S`, not a grep of the tree. `git log -S` cannot find a number that was never committed, and a repo with untracked working directories full of run artefacts (this one) will produce that false negative routinely. The two questions "is it in git?" and "is it on disk?" have different answers here and only the second one is about whether the number has a source.
 
 **Second-order, and the reason this cost more than a `ls`:** the number really did have two statistics behind one label, which is what made the "unsourced" story plausible. 3.24 is a **pooled-sample** mean over 5,000 randomly drawn training cells (`run_tbrf.py`, `np.random.default_rng(0)`, deterministic and regenerable), pulled down by the duct family; the **case-mean** statistic is 3.738, and `_common/features/FS2_DEGENERACY_REPORT.md` sec. 4 measured it fresh and reasonably reported that it "does not reproduce 3.24". Both numbers are right. The defect was one label over two statistics plus an uncommitted source — not a fabricated figure — and the fix is to name the statistic beside the number, which `docs/NUMERICS_KNOWLEDGE.md` N-B10 and the inventory now do. **Never delete a number to resolve a provenance doubt; find which of the two it was.**
+
+## L-226. Teams were killed at every compaction and re-briefed by hand, and a hand-written brief is checked against nothing
+
+2026-08-22. Five standing teams ran this lab, and every one of them died at each
+compaction, session switch, crashed terminal and hit context limit. **Nothing about
+a live agent is persisted** — not its brief, not what it had read, not the four
+personal checks it owed, not the fact that it had twelve solvers running. So
+re-forming the lab meant a human writing five briefs from memory, every time.
+
+**The failure is not that the briefs were bad. It is that nothing could tell.** A
+solve is checked by a gate, a claim by an artifact, a docket row by the
+reconciliation script. A hand-written brief is checked against nothing at all, so
+each retelling could silently drop a charter clause, a rung's real verdict, or a
+running job, and the loss left no trace anywhere. Measured on the day the harness
+was built, from records rather than memory: the closure line had **six rungs with
+no verdict** (R4, R5, R6, FS3, FS4, FS6), DAFoam had an **A3 patched arm that the
+record itself calls "not clean-by-omission"**, and T1b carried **four PASS rows
+sitting on grid triples that were every one DIVERGENT or STAGNANT**. Not one of
+those is the kind of thing a brief written from memory reliably carries, and all
+three change what the next session should do first.
+
+**The repair, and the shape of it is the transferable part: split identity from
+situation.**
+
+- **What is STABLE about a team goes in a generated definition** — mandate,
+  charter, reading list, folder scope, the four checks it may not delegate, its
+  duties. `harness/teams.yaml` is the data; `.claude/agents/*.md` is the output;
+  `generate_agents.py --check` is the regression test. Identity that lives in a
+  brief rots at the first retelling.
+- **What CHANGES goes on one board** — `docs/LAB_STATE.md`: last commit, live jobs
+  with pid and cwd and ETA, rungs lacking verdicts, next actions, the owner's desk,
+  blocked items. Updated **at every commit and every verdict**, never at the end of
+  a turn, because the end of a turn may never arrive.
+- **Re-formation is one command** that reads the board and hands each supervisor
+  its own section verbatim. Nobody composes a brief.
+
+**What this does NOT do, stated because the temptation is to claim it.** It does
+not make teams survive. Nothing in the tooling can; the death is unavoidable and
+the harness is entirely about the cost and fidelity of coming back. Any supervisor
+that has not written its section since its last verdict still loses that verdict at
+the next death — which is exactly why the duty is "at every commit and every
+verdict" and not "before you finish".
+
+**A second-order rule the build itself produced.** Every uncertain line on the
+board is marked `VERIFY`, and both entry points (`/form-teams`, `/lab-state`) take a
+live reading — `git log`, `ps aux`, `readlink /proc/<pid>/cwd` — and rule that **the
+reading beats the board**. A persisted board is a new thing that can be confidently
+wrong, and it inherits none of the checking a gate has. That is a real cost of this
+repair and it is paid deliberately: a wrong line that is visible and dated is worth
+more than a right line that lives only in somebody's context window.
+
+**Corroboration that the problem is live, from the build itself:** HEAD moved
+**six times in the two hours** this harness was assembled, by four different lanes,
+and the docket and lesson numbers this commit claims had to be re-derived at commit
+time because `D449-D451` and `L-224` were taken by a peer mid-build. A brief written
+at the start of that window would have been wrong by the end of it. Related: L-186
+(the scratchpad is not a handoff channel), L-223 (a stale `read-tree` reverts a
+peer silently), L-41 (fleet agents are invisible to `pgrep`).

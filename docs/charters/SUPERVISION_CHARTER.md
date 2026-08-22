@@ -1,6 +1,6 @@
 # Certonomous Supervision Charter
 
-Version 1.3, dated 2026-08-17. Governs who supervises what, which checks a
+Version 1.4, dated 2026-08-22. Governs who supervises what, which checks a
 supervisor performs with their own eyes, and which model each kind of agent
 runs on. It binds the fleet's org chart the way the case-selection charter
 binds the queue: the structure holds when nobody is watching, and a check that
@@ -402,3 +402,115 @@ figures describe the versions and the dates they name.
 1. §3a's rule turns on the three words *withdrawn, retracted, superseded*, and `scripts/withdrawal_sweep.py` gates on exactly those three. Altering the framing would change the set the sweep matches.
 2. §5 and §5a name the principal eleven times, and every one of those names decides whose ruling settles an open question or which order governs today. A role noun would not carry the same answer while two humans give instructions to this lab, so the names were left in place.
 3. §5a(e) records which model drafted the amendment and in what order. That is process narrative by shape and evidence by function: it is what shows the disputed clause was not used to adjudicate the dispute about itself.
+---
+
+## 8. Team formation is the harness's, and the board is the handoff (added 2026-08-22, Sanaa's harness order)
+
+**A standing team is re-formed from disk, never from memory. The roster lives in
+`harness/teams.yaml`, the definitions it generates live in `.claude/agents/`, the
+lab's situation lives in `docs/LAB_STATE.md`, and a supervisor updates its own
+section of that board AT EVERY COMMIT AND AT EVERY VERDICT. A brief written by
+hand is not team formation and does not discharge this clause.**
+
+**The incident that forced it.** Agent teams do not survive a compaction, a
+session switch, a crashed terminal or a hit context limit. Nothing about a live
+agent is persisted: not its brief, not what it had read, not what it was part-way
+through. Re-forming the lab therefore meant a human writing five briefs from
+memory, every time, and each retelling silently dropped something — a charter
+clause, a rung's real verdict, the fact that a solver was still running. The drift
+was invisible because a hand-written brief is checked against nothing. This clause
+does not make teams survive; **nothing in the tooling can.** It makes re-formation
+one command and, through the board, lossless.
+
+**What is required.**
+
+1. **Formation is `/form-teams`**, which reads `docs/LAB_STATE.md` and spawns every
+   standing supervisor in one parallel call, handing each its own board section and
+   the standing directives **verbatim**. A supervisor briefed any other way is
+   briefed from memory, which is the failure this clause exists to end.
+2. **The board is the only handoff channel between sessions.** The session
+   scratchpad is not (L-186). What is not on the board is lost.
+3. **The board is updated at every commit and at every verdict**, not at the end of
+   a turn — the end of a turn may never arrive. Each section carries: last commit,
+   live jobs with pid, cwd and ETA, rungs lacking verdicts, next actions, what is on
+   the owner's desk, and what is blocked. **Anything the writer did not confirm is
+   marked `VERIFY`.** A confident wrong line on the board is worse than a blank one.
+4. **The roster is data.** `.claude/agents/*.md` are generated output and are not
+   hand-edited; `python3 harness/generate_agents.py --check` is the regression test
+   and fails on drift, on an orphaned agent file, and on frontmatter that does not
+   parse.
+5. **A live reading outranks the board.** `/form-teams` and `/lab-state` both take
+   one (`git log`, `ps aux`, `readlink /proc/<pid>/cwd`), and where the two
+   disagree the reading wins and the correction goes to the supervisor who owns
+   that section — not to whoever noticed.
+
+**§5's model designation is what the harness encodes.** The five supervisors are
+generated with `model: fable` because §5 says so in terms; the worker type,
+`lab-lane`, inherits nothing and is pinned to Opus as a solver agent. The `tools`
+key is deliberately omitted from every generated definition, which is how all tools
+are granted — an explicit list drops the agent-spawning tool, and that failure
+presents not as an error but as a supervisor quietly doing the family's own work,
+which §2 forbids.
+
+**Two things this clause ADDS rather than records, named so nobody reads them back
+as the owner's standing policy.**
+
+- **A lane cap: at most three lanes live per supervisor.** No numeric cap existed
+  in this charter before today. It is written into every generated definition and
+  **checked by nobody**, so by this directory's own standard it is a preference
+  until something enforces it. Its nearest existing cognate is
+  `ESCALATION_CHARTER.md` §9 rule 4 — *prefer resuming the incumbent over spawning
+  a rival* — which is a reason and not a number.
+- **Five teams against §2's four families.** The roster splits *cases and
+  campaigns* into `heat-transfer` and `cfd`, and maps *infrastructure and
+  standards* onto `verification`. §2 states plainly that **adding or merging a
+  family is the owner's, not an argument**, so this is recorded as an OPERATIONAL
+  SPLIT of the four for dispatch purposes and **not** as a redefinition of them.
+  The four families stand as §2 lists them until she rules otherwise.
+
+**Enforcement.** `harness/generate_agents.py --check` gates the roster's
+round-trip. **Nothing gates the board's freshness, the lane cap, or the update
+duty** — the same honest gap §7 already states about the four personal checks. What
+the harness guarantees is that every supervisor is *told*, every time, without a
+human remembering to.
+
+---
+
+## Amendment record, continued: version 1.4 (2026-08-22)
+
+**Version 1.4, dated 2026-08-22. One clause added, §8, recording the team harness
+as the law of team formation and the `docs/LAB_STATE.md` update duty, measured at
+frame `f0e33aee`.**
+
+| what the amendment did | figure |
+| --- | --- |
+| clauses added | 1 (§8) |
+| clauses altered, widened or narrowed | 0 |
+| rules ADDED that are not the owner's prior instruction, and say so inline | 2 (the lane cap; the five-team operational split) |
+| lines whose number changed above this section | 0 |
+| content changes above this section | 1 (line 3's version and date) |
+
+**No existing clause was added to, removed, widened or narrowed, and no modal,
+scope or tense inside a clause was altered.** §2's four families are untouched and
+still read as the owner set them; §5's model designation is untouched and is
+quoted rather than restated; §3's four personal checks are untouched and are
+carried verbatim into every generated supervisor definition.
+
+**The clause is filed at the foot, and the line numbering above it was held fixed
+on purpose** — for the reason v1.3's record already gives: other records cite this
+directory by line and one of those citations sits inside an executable check. The
+only content change above this section is line 3's version and date, verified by
+comparing `grep -n '^## '` either side of the edit and by asserting the file's line
+count was unchanged by the version edit.
+
+**What was opened and left alone.**
+1. **§2's family list.** The harness runs five teams and §2 names four. Redrawing
+   that boundary is the owner's one-line order, so §2 was not edited; §8 records the
+   split as operational and points at §2 as the standing definition.
+2. **§5's struck third sentence.** §5a leaves the Opus clause open and hers. The
+   harness pins `lab-lane` to Opus as a *solver* agent under §5's second sentence,
+   which is in force, and takes no position on the struck third.
+3. **§7's enforcement gap.** It was tempting to claim the harness closes it. It
+   does not — it distributes the rules reliably, which is a different thing — and
+   §8's enforcement paragraph says so rather than letting the new machinery read as
+   a check.

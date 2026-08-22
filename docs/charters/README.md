@@ -94,6 +94,37 @@ and date, verified by `diff` and by comparing `grep -n "^## "` either side of th
 file by line and one of those citations sits inside an executable check. The v1.10 amendment
 row is at the foot for the same reason, and says so.
 
+**Dated note, 2026-08-22 (third entry, same day) — still twelve charters, and the
+amendment is to the org chart rather than to a result: `SUPERVISION_CHARTER.md` is
+at v1.4.** `ls docs/charters/*_CHARTER.md | wc -l` returns **12**, pasted from the
+command; no charter was added and row 9's one line is unchanged. New clause **§8** —
+*team formation is the harness's, and the board is the handoff* — is **appended at
+the foot**, recording `harness/teams.yaml` and the generated `.claude/agents/` as
+the law of team formation, and the **`docs/LAB_STATE.md` update duty at every commit
+and every verdict**. **Additive; no existing clause altered, and no line number above
+the new clause moved** — the only content change above it is line 3's version and
+date, asserted by diffing `grep -n '^## '` either side of the edit.
+
+**The reason it is a charter matter and not a practice note.** Teams were being
+killed at every compaction and re-briefed by hand, and a hand-written brief is
+checked against nothing, so the drift was invisible. That is a decision this
+directory's own test can point at and say "that broke it": a supervisor briefed from
+memory has not been formed under §8.
+
+**Two things in the new clause are the lab's inventions and say so inline, which is
+what §3's PROPOSAL discipline asks for even though neither carries the marker.** A
+**lane cap of three** — no numeric cap existed in that charter before, and nothing
+enforces this one, so it is a preference by this directory's own standard. And a
+**five-team roster against §2's four families** — recorded as an operational split
+for dispatch, explicitly **not** a redefinition, because §2 states that adding or
+merging a family is the owner's. The four families stand as §2 lists them.
+
+**Bookkeeping worth stating rather than fixing quietly:** this is the third
+same-day note on 2026-08-22 and the second charter to move today, after
+`VERIFICATION_CHARTER.md` v1.10. The two earlier notes are two lanes of one
+directive (H-7); this one is unrelated to that directive and is recorded separately
+so the date does not imply a common cause.
+
 ---
 
 ## 2. How to read one
