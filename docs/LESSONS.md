@@ -9575,3 +9575,34 @@ to the next lane unchanged.
 ### L-241 - CORRECTION (2026-08-22, supervisor, on the lane's own objection)
 
 L-241's closing sentence reads as though independent recomputation caught **both** of the A3 lane's wrong numbers that day. It caught one. The **9.22×** was arithmetic on rounded inputs, and recomputing from raw values is exactly the L-241 rule. The **P16 cold-start band** was a wrong *model* of what the quantity measures — the continuity error was believed to be a function of the initial field and mesh, and is in fact evaluated after the first pressure solve and therefore decomposition-dependent (N-D12). No recomputation of the lane's own number would have found that; what found it was the measurement landing outside a registered band and the lane having to say why. Two mechanisms, two defences: **recompute derived figures from raw values** (this lesson) and **register a band and explain every miss** (prediction-first). Read L-241 as covering the first only, or the second will slip through it.
+
+## L-242. A trivial baseline at a deliberately wrong step is not merely inaccurate — it is irreproducible in magnitude AND sign, and it takes two draws to show it
+
+**The rule.** Register the Charter-§2c/§4 trivial baseline **per item**, and buy it, rather than
+citing a prior item's number for the same probe on the same case. The second draw costs ~2 primals
+and converts the claim from *"the harness can return a large number"* into *"the harness returns a
+**random** number when the step is wrong"* — which is the claim the clause actually needs. Where an
+item does decline the re-buy, register the decline **conditionally**, with an assertable condition
+(harness md5s, case identity, image identity) and the registered consequence that a mismatch voids
+the decline.
+
+**Why.** A single large error from a wrong step is consistent with two different worlds: a broken
+harness, or a genuinely large derivative the good steps got wrong. Two draws of **opposite sign**
+from the identical configuration are consistent with only one. The arithmetic is the tell: at
+`s = 1e-8`, central FD divides by `2e-8`, so the solve-to-solve noise alone (`δ_repeat` = 2.2104e-06,
+N-D15) manufactures a spurious derivative of order **1.1e+02** — of arbitrary sign.
+
+**The incident.** A6 CRM N=16, 41,760 cells, np=1, `dafoam-idwarp-rot:v1`, 2026-08-22. The
+`rung_n16_fixed_reference` item bought `patchV` idx1 at `step = 1e-8` and read
+**+152.94101058174746** against an adjoint of `+9.01684e-03` — 99.9941%, registered as > 50%, HIT.
+The `rung_n16_remaining_components` item **declined to re-buy it by name**, conditionally on the
+harness md5s matching. `gen_arm.py` matched byte-for-byte; `run_arm.sh` could not, because it
+hard-codes its own run root — **two lines, the run-root path and the container name**. The registered
+void condition fired **before launch**, the baseline was re-bought, and it returned
+**−28.746957145275864**: **100.031% and the sign reversed.** Same case, image, driver, DV, step and
+objective; two runs; answers differing by a factor of 5.3 and in sign. **The condition nobody
+expected to fire produced strictly better evidence than the decline would have.** (`9d5029e8` §4.3,
+§9 Amendment 1.)
+
+**Corollary.** An md5 condition on a helper script that legitimately must differ per run root will
+fire every time. That is not a defect in the condition — write it anyway, and let it buy the control.

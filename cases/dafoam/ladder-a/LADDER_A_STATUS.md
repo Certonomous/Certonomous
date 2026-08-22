@@ -197,3 +197,15 @@ has been measured improves"* — was true of A1, A2 and A5 and is **not** true o
 measured pair that **degrades** (N-D18). The line is left in place, unedited, and struck here.
 **Reading 2 gains a fifth confirming case:** the FD column is bit-identical across images on every
 A/B pair measured to date, A3 rung 2 included.
+
+**Addendum row 37, added 2026-08-22 by the supervisor — the A6 N=16 table is complete.**
+
+| # | case | scope | toolchain | np / cells | **verdict** | headline number (exact) | record |
+|---|---|---|---|---|---|---|---|
+| 37 | **A6** rung **N=16**, all nine components | gradient, fixed FD reference | **PATCHED** | 1 / 41,760 | **8 of 9 GRADED — aggregate PASS at 1.0432%**, `twist` idx6 **NOT A RESULT** (flagged by name) | `patchV`0 **0.569%**, `patchV`1 0.940%, `twist`0 1.706%, `twist`1 **1.359%**, `twist`2 **1.733%**, `twist`3 1.817%, `twist`4 **1.032%**, `twist`5 **0.389%**; zero sign flips. The five bought here read **57.62 / 67.93 / 57.06 / 90.17 / 82.79%** at the predecessor's noise-dominated step — the adjoint never moved | `A6/rung_n16_remaining_components/RESULTS.md` |
+
+**Row 28 (N=29) is superseded in its reasoning but not in its verdict: N=29 remains NOT RUN.** The
+gate's two readings are registered and **the choice between them is Sanaa's** (D464): charter-verbatim
+→ NOT MET (one flagged component, unreachable by any FD arm on this rung); subset-complete → GATE
+REACHED. The gap is one component and one unbought ~5 core-min arm. Cost of this item: **39.15
+core-min = $0.0335**, 34.8% under a 60 ceiling, zero waste, nine registered predictions all HIT.

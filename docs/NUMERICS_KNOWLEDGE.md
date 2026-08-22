@@ -3393,3 +3393,61 @@ A6's N=16 rung — two cases, two meshes, agreeing to three significant figures.
 where the shipped gradient is already correct to ~1 part in 5,800, there is no error for the patch
 to remove and its own approximation dominates. Adoption of a patched toolchain is therefore
 **case-dependent, not global** — and that is an owner's decision, not a lane's.
+
+**N-D19. A6 N=16's nine-component gradient table is complete: eight graded at 1.0432%, one structurally ungradeable**
+
+
+Measured 2026-08-22, `dafoam-idwarp-rot:v1`, 41,760 cells, np=1, `endTime 1000`,
+`primalMinResTolDiff 1.0e4`, `primalMinIters 1000`, `printInterval 10`, central FD, `η = 1.0910e-05`,
+clearance `C = |J|·2s/η`, graded only where `C ≥ 5` at the graded step and the two registered steps
+agree within 10%.
+
+| DV, idx | adjoint | FD (graded step) | rel err | `C` | plateau |
+|---|---|---|---|---|---|
+| `patchV` 0 | `+7.334000e-04` | `+7.375983890e-04` @ 3e-1 | 0.569% | 40.56× | 0.59% |
+| `patchV` 1 | `+9.016840e-03` | `+8.932878291e-03` @ 3e-2 | 0.940% | 49.13× | 0.58% |
+| `twist` 0 | `-2.100900e-03` | `-2.137369846e-03` @ 1e-1 | 1.706% | 39.18× | 4.17% |
+| `twist` 1 | `-1.750730e-03` | `-1.774854641e-03` @ 1e-1 | 1.359% | 32.54× | 0.37% |
+| `twist` 2 | `-1.469450e-03` | `-1.444417199e-03` @ 1e-1 | 1.733% | 26.48× | 3.65% |
+| `twist` 3 | `-1.010980e-03` | `-9.929378034e-04` @ 1e-1 | 1.817% | 18.20× | 0.78% |
+| `twist` 4 | `-6.277000e-04` | `-6.212861219e-04` @ 1e-1 | 1.032% | 11.39× | 2.31% |
+| `twist` 5 | `-3.797300e-04` | `-3.782595043e-04` @ 2e-1 | 0.389% | 13.87× | 2.83% |
+| **`twist` 6** | `-1.361900e-04` | **none at any feasible step** | — | max **2.42×** | **83.53%** |
+
+**Vector-relative error `‖J_an − J_fd‖ / ‖J_fd‖` over the eight graded = 1.0432%, zero sign flips**;
+the three previously-verified components alone reproduce the published **1.0099%**; the same eight
+read at their lower registered step give **1.2921%**. `twist` idx6 is flagged and excluded by name —
+`|J|` = 1.362e-04 is too small for any feasible step to lift over the floor, and the only remaining
+lever is `η` itself. The predecessor's readings at the noise-dominated `1e-3` were **82.786%,
+3.290%, 340.703%, 57.618%, 67.927%, 159.347%, 57.061%, 90.166%, 105.256%**. The adjoint never moved.
+(`cases/dafoam/ladder-a/A6/rung_n16_remaining_components/RESULTS.md`, 39.15 core-min.)
+
+**N-D20. A clearance bar is a floor, not a target — a component just above `C = 5` is marginal even when its plateau passes**
+
+
+Across the five A6 N=16 components graded 2026-08-22, **every one improved as clearance rose**, and
+the two whose lower step sat nearest the `C ≥ 5` bar improved the most: `twist` idx5 went **3.316%
+at C 6.74× → 0.389% at C 13.87×** (8.5× better), `twist` idx2 **5.588% at C 7.65× → 1.733% at
+C 26.48×** (3.2× better), against `twist` idx1's **0.996% at C 9.73× → 1.359% at C 32.54×** (flat).
+**Clearing `C ≥ 5` makes a component gradeable; it does not make it converged.** The pre-registration
+had attributed `twist` idx5's expected error to **truncation** at its larger step and widened its
+band to 15% for that reason; the measurement shows the opposite — it was still **noise**-limited at
+the smaller step. The prediction HIT and its stated mechanism was wrong, which is recorded as a
+defect in the reasoning. **Read a component within ~2× of the bar as marginal and report its value at
+both steps.**
+
+**N-D21. FD steps can be sized mechanically from the stored `|J|` and `η` before the run, and the proxy predicted the measured clearance to within 8% on ten of ten**
+
+
+A6 N=16, 2026-08-22, first use. Rule, registered before any value existed: per component, `s_lo` =
+smallest rung of a fixed ladder with predicted `C = |J_adj|·2s/η ≥ 5`; `s_hi` = smallest rung at ratio
+≥ 2; graded step is the higher-clearance one, **never selected on agreement**. It chose four different
+pairs across five components spanning **4.6×** in `|J|` — `{3e-2,1e-1}`, `{3e-2,1e-1}`, `{5e-2,1e-1}`,
+`{1e-1,2e-1}`, `{1e-1,3e-1}` — which no single hand-picked pair could have covered. **All ten
+registered steps cleared `C ≥ 5` on the measurement** (smallest 5.83× against a predicted 5.75×),
+**all five plateaued** (worst 3.65% against a registered 10%), **none was flagged**.
+**The limitation, stated because it is the rule's own blind spot:** it sizes the step from
+`|J_adj|` — the quantity under test. Here the adjoint proved right, so the proxy was good; on a rung
+where the adjoint is wrong by an order of magnitude the rule would register steps that cannot grade.
+**That failure mode is unmeasured.**
+

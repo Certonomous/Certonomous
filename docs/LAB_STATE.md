@@ -288,7 +288,7 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T20:30Z by the DAFoam supervisor (Fable), replacing the harness
+*Refreshed 2026-08-22T21:01Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
 > **Correction, 2026-08-22 20:15Z, by the section's owner.** Earlier revisions of this section
@@ -302,6 +302,9 @@ build's third-party first fill. Live reading: `git log`, `docker ps`, `docker in
 
 | sha | committed (UTC) | what |
 |---|---|---|
+| *(this commit)* | 2026-08-22 | supervisor append for the A6 completion: **L-242, N-D19..N-D21, D464** (all through `append_record.py`, reconciliation PASS first), `LADDER_A_STATUS` row 37 |
+| `9d5029e8` | 2026-08-22 | *A6 N=16 remaining five components — RESULTS*: **8 of 9 graded, aggregate 1.0432%, zero sign flips**, `twist` idx6 flagged by name. Nine predictions, **nine HIT**. 39.15 core-min / $0.0335 of a 60 ceiling, zero waste. Re-bought trivial baseline returned **−28.75 against the prior run's +152.94** — a wrong-step probe is irreproducible **in sign** |
+| `baf4e68e` | 2026-08-22 | *A6 N=16 remaining five components — pre-registration*, committed before launch, freeze verified twice |
 | `da475770` | 2026-08-22 20:26Z | L-241 CORRECTION appended **through `scripts/append_record.py`** (first DAFoam use; reconciliation PASS before the edit): recomputation catches arithmetic on rounded inputs, not a wrong model of a quantity — the lane's two errors had different mechanisms. **Disclosure:** `088e052f` appended L-241 by `cat >>` minutes after `0286bb2a` made the helper mandatory; verified after the fact as a byte-pure append (0 deletions) |
 | `088e052f` | 2026-08-22 20:24Z | **`DAFOAM_CHARTER.md` v1.0b → v1.0c**, additive: §13 gains a dated note and a **PROPOSAL** — §13 audits the charter's clauses for enforceability, nothing audits a *pre-registration's* own registered thresholds, and A3 rung 2 proved a prereg can invent a guard nothing can execute. Left a PROPOSAL, not a clause: making it binding is Sanaa's call. Plus **L-241** (a ratio of two rounded percentages is not the ratio of the quantities) |
 | `0f56460d` | 2026-08-22 20:23Z | *A3 rung-2 correction* (lane): published ratio **9.22× → 9.2084×**, formed from printed percentages instead of raw values; quote-and-strike per L-32, no verdict, band, gate, prediction score or cost moved |
@@ -338,7 +341,7 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 | item | state |
 |---|---|
 | **A3 patched column** | **rung 2 MEASURED — PASS** (row 12); **rungs 1, 3 and the 399,360 campaign stay PENDING** (row 12b). The patch **degrades** both warp-crossing rows here against a bit-identical FD reference — first such case on the ladder (N-D18) |
-| **A6 N=16, the other 5 of 9 components** | **NOT MEASURED** — 3 of 9 now verified (PASS 1.0099 %), 1 provably FD-ungradeable (`twist` idx6), 5 untouched at 57-90 %. **This is the critical path**: one 21-primal `fdsub` arm, ~37 core-min / $0.032, decides whether Sanaa's **N=29 gate** can be met. N=29 stays **NOT RUN** |
+| **A6 N=16** | **COMPLETE at 8 of 9** — aggregate **1.0432 % PASS**, zero flips, `twist` idx6 flagged by name and structurally ungradeable at any feasible step. **N=29 stays NOT RUN**: the gate has two registered readings (charter-verbatim NOT MET / subset-complete GATE REACHED) and **choosing between them is Sanaa's**, D464 |
 | **ADF primal non-reproduction** | **defect candidate prepared** (`757eccf0`, D460, N-D16): NOT FILED and NOT FILING-READY on two named blockers — the full 63-search/10-venue sweep (0 compute) and sweep 1 (~5 core-min), which decides whether the class is *conditioning/diagnosability* or *AD correctness*. Sweep found **no prior art**. Characterisation arms approved in principle, held until the box frees |
 | **A4** | **complete** — the 2×3 table has no assumed cells (status addendum rows 31-33) |
 | **A2 `CD/shape` PATCHED** | aggregate 0.0506 % PASS now carries a **per-component sign flip (idx46)** — under the band ("ANY sign flip ⇒ FAIL") the row needs the per-component caveat A5 idx16 got; supervisor to record in `LADDER_A_STATUS` addendum + docket. Whether adjoint or FD artefact: NOT established (a sweep costs 207-238 core-min on A2; not bought) |
@@ -351,13 +354,15 @@ with the idx46 caveat above, optimisation NOT A RESULT; A3 primal GATE REACHED, 
 A4 PASS / PASS on both the optimisation and the endpoint gradient (patch immaterial; CD −7.478 %); A5 GATE FAIL / PASS;
 A6 BLOCKED (full) — N=16 GATE FAIL (shipped, superseded reference) / **PASS on the 3-component graded subset with a fixed reference** (patched). B2 PASS; B3 BLOCKED / PASS.
 
-**Next actions:** (1) A6: buy the remaining-5-component arm when the box frees (~37 core-min) — it is the N=29 gate; A6 Stage 2 only if its
+**Next actions:** (1) A6 is closed at 8 of 9; the only open A6 lever is `useMeanStates` (~5 core-min), which is on Sanaa's desk; A6 Stage 2 only if its
 registered gate passes. (2) Resolve the A3 np=4 launch: pre-compute amendment to np=1
 twins if the T-family holds the box past the poll window. (3) Supervisor docs commit per
 verdict: `LADDER_A_STATUS` dated addendum, L-225+ (re-derive), D453+ (re-derive), N-D8+.
 (4) Then: B3 decomposition RSS watcher re-run (cheap), W4 M1+M2 (40 core-min).
 
-**On Sanaa's desk (new, 2026-08-22):** **R11 adoption evidence is now two-sided.** Every prior A/B pair argued for adopting the patched toolchain; A3 rung 2 is the first measured case arguing against it for a specific case class, so adoption is **case-dependent, not global** — her call, not a lane's. Also: `dafoam-idwarp-rot:v1` is now validated at np>1 (all four ranks loaded the patched `.so` through `-x PYTHONPATH`), closing `patched_build/idwarp_rot/BUILD.md` §6's mixed-stack risk.
+**On Sanaa's desk (new, 2026-08-22):** **Which reading of the N=29 gate governs** — charter-verbatim (NOT MET, and no FD arm on this rung can ever meet it) or subset-complete (GATE REACHED). The gap is one component, closable only by `useMeanStates: True` + `fieldAverage`, **~5 core-min / $0.004**, unbought. Two decisions, both hers: which reading, and whether to buy the closing arm.
+
+**On Sanaa's desk (also new):** **R11 adoption evidence is now two-sided.** Every prior A/B pair argued for adopting the patched toolchain; A3 rung 2 is the first measured case arguing against it for a specific case class, so adoption is **case-dependent, not global** — her call, not a lane's. Also: `dafoam-idwarp-rot:v1` is now validated at np>1 (all four ranks loaded the patched `.so` through `-x PYTHONPATH`), closing `patched_build/idwarp_rot/BUILD.md` §6's mixed-stack risk.
 
 **On Sanaa's desk (ruling requested):** the DAFoam launch-gate **MemAvailable floor 12 GiB** — a registered gate threshold, so it stays at 12 until she rules (chief, 2026-08-22). Lane B's measured case for lowering it to **6 GiB for primal-only arms**: the 12 was calibrated on a 9.787 GiB adjoint; the largest peak RSS in the whole A6 fixed-reference item was **1.252 GiB**, and the floor cost **28 min of wall** waiting under another team's `viewFactorsGen` (up to 17.2 GiB). Not lowered by any agent.
 
