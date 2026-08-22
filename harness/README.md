@@ -104,6 +104,44 @@ The hook is a reminder, not the mechanism. The rule in `CLAUDE.md` is the
 mechanism, because it is loaded into context whereas a hook's stdout may only
 reach the terminal.
 
+## 4b. The session log
+
+Every session start appends one JSON object to
+`/home/ubuntu/harness-state/sessions/YYYY-MM.jsonl`, written by
+`scripts/session_log.py hook` (which is also what prints the start-up banner, so
+the printing and the logging cannot drift apart). Each record carries: the start
+`source` (`startup` / `resume` / `clear` / `compact`), the session id, HEAD and
+its subject, the agent files present, every team's board stamp and writer, the
+`check_harness.py` exit code with its stale sections, the shared index's staged
+deletion count, and every live solver with pid, cwd and cpu seconds.
+
+`/form-teams` then appends a `formation` record saying whether the five
+supervisors actually spawned. **A `session_start` row with no `formation` row
+after it means the teams were never formed in that session** — which is the
+single thing this log exists to make visible, because it is otherwise invisible.
+
+    python3 scripts/session_log.py show -n 20      # human readable
+    python3 scripts/session_log.py show --json     # raw records
+
+It lives outside the repository because every concurrent session writes it and
+committing it would collide constantly; it lives under `/home/ubuntu/harness-state/`
+rather than a scratchpad because scratchpads get wiped (L-186) and a log that
+does not outlive its session is not a log. `2026-08.selftest.jsonl` holds the
+records from building and testing the logger and is not session traffic.
+
+**Nothing in the logger may break a session start.** Every probe is wrapped, the
+banner prints on any failure, and the exit code is always 0 — tested against an
+absent payload, malformed JSON on stdin, and an unwritable log directory. A
+telemetry bug that stopped the lab opening would be worse than the blindness it
+fixes.
+
+**The solver probe was wrong on its first run and the fix is worth keeping.** It
+matched `ps -o comm`, which truncates at 15 characters, so
+`buoyantBoussinesqSimpleFoam` arrived as `buoyantBoussine`, matched nothing, and
+the log reported **zero solvers while twelve were running**. It now reads
+`/proc/<pid>/cmdline` directly. That is the lab's own planted-zero rule in a new
+place: a reader that has not been shown able to see a non-zero is not evidence.
+
 ## 5. Known limits, stated plainly
 
 - **Compaction and session switch still kill live agents.** The harness makes

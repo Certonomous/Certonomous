@@ -242,7 +242,7 @@ and the binding artifact is `scripts/check_filing.py` (`--selftest` on any rule 
 | Certificates, monitors, credibility | `verification/{certificates,monitor,credibility}/` |
 | Papers | `docs/papers/<topic>/author_year_identifier.pdf` **plus a matching `.txt` sidecar** |
 | Scripts | `scripts/`, as `lower_snake.{py,sh}`; failures in `NOT_PASSING_REGISTER.md` |
-| Team harness | `harness/` (roster + generator), `.claude/agents/`, `.claude/skills/` |
+| Team harness | `harness/` (roster+generator), `.claude/agents/`, `.claude/skills/`, `scripts/check_harness.py`; session log `/home/ubuntu/harness-state/sessions/` |
 | Session handoff | `docs/LAB_STATE.md` — the only one |
 
 Data too large for git lives outside it — `/home/ubuntu/{closure-data,

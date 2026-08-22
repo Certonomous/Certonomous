@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'cd \"$CLAUDE_PROJECT_DIR\" && head -40 docs/LAB_STATE.md 2>/dev/null || echo \"docs/LAB_STATE.md NOT FOUND\"; echo; echo \"TEAMS NOT FORMED — run /form-teams\"'",
-            "timeout": 15
+            "command": "sh -c 'cd \"$CLAUDE_PROJECT_DIR\" && exec python3 scripts/session_log.py hook'",
+            "timeout": 30
           }
         ]
       }

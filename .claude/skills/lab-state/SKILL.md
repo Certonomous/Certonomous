@@ -35,6 +35,18 @@ grep -E '^endTime' "$(readlink /proc/$P/cwd)"/system/controlDict 2>/dev/null
 
 **Never touch a running solver.** This skill reads; it does not manage.
 
+## 2b. Read the session log
+
+```bash
+python3 scripts/session_log.py show -n 20
+```
+
+Each session start records HEAD, agent files present, per-team board stamps, the
+`check_harness.py` result, and every live solver with pid and cwd. `formation`
+rows record whether teams actually formed. If a session opened and no `formation`
+row follows its `START` row, **the teams were never formed in that session** —
+say so, because nothing else will.
+
 ## 3. Report
 
 Print the board, then a short reconciliation:

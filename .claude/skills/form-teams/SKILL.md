@@ -77,6 +77,26 @@ A worked brief:
 > This session: resume the next actions on your board. Report on every commit and
 > every verdict.
 
+## 2b. Record the outcome in the session log
+
+**Do this whether formation worked or not** — a formation that silently did not
+happen is the thing the log exists to catch.
+
+```bash
+# all five away:
+python3 scripts/session_log.py event formation --ok \
+  --detail "5 supervisors spawned: closure,dafoam,heat-transfer,cfd,verification"
+
+# any of them refused to spawn:
+python3 scripts/session_log.py event formation --fail \
+  --detail "Agent type not found: <name> — session predates the agent files, restart needed"
+```
+
+Read the log any time with `python3 scripts/session_log.py show -n 20`, or
+`--json` for the raw records. It lives at
+`/home/ubuntu/harness-state/sessions/YYYY-MM.jsonl`, outside the repository
+because every concurrent session writes it.
+
 ## 3. Report the roster to Sanaa
 
 Once the five are away, tell her plainly:
