@@ -127,55 +127,69 @@ destroys R4 and the hump gate. Inspect, never revert.
 
 ## dafoam
 
-**Last commit:** `a5605f54` — *dafoam team: A3 rung2 patched-IDWarp arm —
-pre-registration* (2026-08-22 18:03Z). This is current HEAD.
+*Refreshed 2026-08-22T18:20Z by the DAFoam supervisor (Fable), replacing the harness
+build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
-**Live jobs:** none on the box as of 18:05Z.
+**Last commits (newest first):**
+
+| sha | committed (UTC) | what |
+|---|---|---|
+| `79679a84` | 2026-08-22 18:10Z | *A2 per-component table* — zero compute. **PATCHED `CD/shape` carries a sign flip at idx46** (analytic `+2.27367571e-06` vs FD `-2.52460969e-06`) that `A2/grading_confirmation/RESULTS.md` §1 says does not exist; SHIPPED `CD/shape` has 7/96 components beyond 15 % (worst idx18 `-360.75 %`) under a 1.71 % aggregate. All published aggregates reproduce to 7-8 s.f. Log-integrity defect: MPI ranks splice `check_totals` arrays mid-number on one stdout; 1 of 4 printed CD copies usable, 0 of 4 CL copies |
+| `8028d9ab` | 2026-08-22 18:09Z | *A6 N=16 fixed FD reference — pre-registration*: two stages on `dafoam-idwarp-rot:v1`, np=1; P1 predicts the 1e-8 primal gate FAILS at 6000 iters (residual flat from iter 100); forward-AD reachability probed (`libDASolverADF.so` carries `DARhoSimpleCFoam`, 28 symbols); 74.0 core-min registered, 120 ceiling |
+| `a5605f54` | 2026-08-22 18:03Z | *A3 rung2 patched-IDWarp arm — pre-registration* (np=4, 42,120 cells, ceiling 120 core-min); staged and pre-flighted (0.200 core-min), **holding at its launch gate** (load ≤ 8 never met; min seen 20.40) |
+| `804c3fd8` | 2026-08-21 | Phase 3B (final): ILU-shift class measured dead, `dafoam-team:v1` built and gated, B3 free of the decomposition defect |
+
+**Live jobs (reading 18:17Z; both np=1, `--cpus=1`, launched under a disclosed
+launch-condition amendment because the T-family holds 12 of 16 cores until
+2026-08-23..26):**
+
+| container | host pid | run root / cwd | item | ETA |
+|---|---|---|---|---|
+| `p3a6_s1b` | 802799 | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/s1b` | A6 N=16 fixed reference, Stage 1 (primal-convergence gate + forward-AD probes), `--memory=12g` | Stage 1 ~20-40 min; Stage 2 contingent, ~1.5 h |
+| `p3a4_opt` | 796052 | `/home/ubuntu/certonomous-runs/P3-a4-opt-shipped/opt` | A4 shipped-image optimisation twin + endpoint FD, `--memory=8g`, prereg **VERIFY** committed — not yet seen in `git log` | ~15-25 min |
+| *(none)* | — | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/` | A3 rung-2 patched arm, np=4 — **driver polling, nothing launched**; window expires ~19:47Z | blocked by load |
 
 **Rungs lacking verdicts:**
 
 | item | state |
 |---|---|
-| **A3 patched arm** | **PENDING everywhere** — no patched-IDWarp arm was ever run on A3 at any mesh size. The record says explicitly this is *"not clean-by-omission"*. A rung-2 pre-registration landed at HEAD; the run has not happened |
-| **A6 N=29** | **NOT RUN, gate not met**, zero compute. The record says *"fixing the reference, not enlarging the mesh, is the next step"* — **unregistered** |
-| **B3 FD re-anchor + 2c wrong-step baseline** | **PENDING**, priced at 42.6 core-min, unbought |
-| **B3 Stage 4** (the inversion the rung exists for) | **BLOCKED by construction** until the fix ships upstream or Sanaa adopts a forked toolchain |
-| **W4 / NASA hump adjoint** | **uncharacterised.** Headline 3 withdrawn as a causal claim — the run ended by `docker stop`, and `ConvergedReason` appears **zero times** in the log. M1+M2 at 40 core-min are the decisive-cheapest repair and are **unbought** |
-| **A4 two-row gap** | the 1.10% PASS is at the *undeformed* baseline and NOT MEASURED patched; the 0.4936% PASS is at the *optimised* design and NOT MEASURED shipped. **Neither row is a shipped-vs-patched comparison** — which is what the charter's bright line requires |
+| **A3 patched column** | **PENDING at every size.** Prereg at `a5605f54` is np=4 and cannot launch while the box is saturated (np=4 MPI measured 18-21x inflation under contention). Decision pending: re-register at np=1 (shipped + patched twins) by pre-compute amendment, or hold |
+| **A6 N=16 adjoint correctness** | **PENDING** — Stage 1 live. Prior verdict GATE FAIL both images on a noise-dominated FD reference (floor 4.5e-3, 8/9 components below it). N=29 stays NOT RUN (gate not met) |
+| **A4 shipped column at the optimised design** | **PENDING** — live |
+| **A2 `CD/shape` PATCHED** | aggregate 0.0506 % PASS now carries a **per-component sign flip (idx46)** — under the band ("ANY sign flip ⇒ FAIL") the row needs the per-component caveat A5 idx16 got; supervisor to record in `LADDER_A_STATUS` addendum + docket. Whether adjoint or FD artefact: NOT established (a sweep costs 207-238 core-min on A2; not bought) |
+| **B3 Stage 4** | **BLOCKED by construction** — Sanaa's fork-adoption call. The rebuild rows are final: BLOCKED (shipped) / PASS (`subpclu:v2`, 667 iters, FD 0.085/0.059/0.199 %, decomposition G1-G3 PASS) |
+| **W4 / NASA hump adjoint** | uncharacterised; M1+M2 at 40 core-min unbought |
+| **B3 decomposition peak RSS** | NOT MEASURED (no 5 s watcher on that chain) |
 
-**Two-row verdicts standing** (shipped / patched): A1 GATE FAIL / **PASS**;
-A2 PASS / PASS, but its **optimisation is NOT A RESULT** (IPOPT 47 of ~100 majors,
-no EXIT line); A3 primal GATE REACHED, adjoint BLOCKED / **PENDING**;
-A4 PASS / **PASS — the lab's first optimisation to pass** (`Optimal Solution
-Found.`, CD −7.478%, 13.150 core-min, $0.0112); A5 GATE FAIL / **PASS**;
-A6 BLOCKED / **GATE FAIL on both images**. B2 **PASS**; B3 **BLOCKED / PASS**;
-S1 G1 PASS, G2 FAIL.
+**Two-row verdicts standing** (shipped / patched): A1 GATE FAIL / PASS; A2 PASS / PASS
+with the idx46 caveat above, optimisation NOT A RESULT; A3 primal GATE REACHED, adjoint
+BLOCKED (399k) — sweep rungs 1-2 PASS, rung 3 GATE FAIL (conditioning) / PENDING;
+A4 PASS / PASS (first passing optimisation, CD −7.478 %); A5 GATE FAIL / PASS;
+A6 BLOCKED (full) — N=16 GATE FAIL / GATE FAIL (reference). B2 PASS; B3 BLOCKED / PASS.
 
-**Next actions:** run the A3 rung-2 patched arm now that its prereg is committed.
-Buy the B3 FD re-anchor (42.6 core-min) and W4's M1+M2 (40 core-min) — both are
-cheap and both close an uncharacterised claim.
+**Next actions:** (1) grade A4 twin and A6 Stage 1 as they land; A6 Stage 2 only if its
+registered gate passes. (2) Resolve the A3 np=4 launch: pre-compute amendment to np=1
+twins if the T-family holds the box past the poll window. (3) Supervisor docs commit per
+verdict: `LADDER_A_STATUS` dated addendum, L-225+ (re-derive), D453+ (re-derive), N-D8+.
+(4) Then: B3 decomposition RSS watcher re-run (cheap), W4 M1+M2 (40 core-min).
 
-**On Sanaa's desk:** four upstream defect classes — **D-A/D-A2, D-B/D-B2, D-C,
-D-E**, every one *"Status: NOT FILED ANYWHERE"*. 63 recorded searches across 10
-venues answer novelty; only her filing decision is open. Also: whether to adopt a
-forked toolchain, which is what unblocks B3 Stage 4.
+**On Sanaa's desk:** four upstream defect drafts, all **NOT FILED** (D-A/D-A2 IDWarp
+rotation; D-B/D-B2 decomposition + limiter; D-C ksp options override; D-E ILU exact zero
+pivot) — filing is hers alone. Fork-adoption decision for B3 Stage 4. Note for her: the
+A2 per-component extraction shows the third near-zero sign-flip-under-a-passing-norm
+(A1 idx6, A5 idx16, A2 idx46) — a class, not an incident.
 
-**Blocked:** B3 Stage 4 (above). D-B's stock-tutorial reproducer NOT DONE;
-mechanism-to-a-line NOT DONE.
+**⚠ Integrity flags on frozen records, none quoted from:**
+`A1_naca0012_incompressible.md:167-172` (refuted mechanism, zero strike);
+`A5_ubend_internal.md:194-196` (in-band set {1,2,16,24,25} vs measured {1,2,24,25,26});
+`A2/grading_confirmation/RESULTS.md` §1 ("no sign flip anywhere in A2") falsified at
+PATCHED idx46.
 
-**⚠ Two integrity flags on frozen records, neither quoted from:**
-`A1_naca0012_incompressible.md:167-172` names a refuted mechanism with zero
-strike; `A5_ubend_internal.md:194-196` names the in-band set as {1,2,16,24,25}
-where the measured np=4 membership is {1,2,24,25,26}.
-
-**⚠ Scope carve-out:** the F6 series under `cases/dafoam/` is plain `simpleFoam`
-with **no adjoint anywhere** — 88% of the 6.7 GB tree by size, records in
-`verification/campaign/`. Not DAFoam work.
-
-**Images:** `dafoam-team:v1` (`0b3c94c33a15`) carries both patches, built from one
-committed Dockerfile, both smoke gates PASS. It ends `USER dafoamuser`, so
-bind-mounted staged cases need `--user root`. *The hash is the identity; the
-version string is not.*
+**Images:** `dafoam-idwarp-rot:v1` (only image carrying the rotation patch, md5
+`85f59e87…`), `dafoam-subpclu:v2` (PCLU), `dafoam-kspopts:v1`, `dafoam-team:v1`
+(`0b3c94c33a15`, both patches, ends `USER dafoamuser` → `--user root` for bind mounts).
+*The hash is the identity; the version string is not.* F6 series under `cases/dafoam/`
+is plain `simpleFoam`, not DAFoam work.
 
 ---
 
