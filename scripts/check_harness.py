@@ -32,7 +32,10 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LABSTATE = os.path.join(REPO, "docs", "LAB_STATE.md")
-STAMP_RE = re.compile(r"^\*\*Section last written:\*\*\s*(\S+?)\.?\s*$", re.M)
+# `**Section last written:** <iso> by <who>.`  The `by <who>` half is optional in
+# the pattern but not in practice: a stamp with no writer names nobody to chase.
+STAMP_RE = re.compile(
+    r"^\*\*Section last written:\*\*\s*(\S+?)(?:\s+by\s+(.*?))?\s*$", re.M)
 
 FAILS, WARNS = [], []
 
@@ -127,7 +130,10 @@ def check_freshness(cfg, secs):
         if not m:
             fail(team, "no '**Section last written:**' stamp")
             continue
-        stamp = m.group(1)
+        stamp = m.group(1).rstrip(".")
+        who = (m.group(2) or "").rstrip(".").strip() or None
+        if who is None:
+            warn(team, "stamp names no writer ('by <who>' missing)")
         when = parse_iso(stamp)
         if when is None:
             if stamp.lower().startswith("never"):
@@ -138,13 +144,13 @@ def check_freshness(cfg, secs):
         paths = t.get("scope_paths") or []
         last = git("log", "-1", "--format=%cI", "--", *paths) if paths else ""
         if not last:
-            ok(team, "stamped %s; no commits in its scope to compare" % stamp)
+            ok(team, "stamped %s by %s; no commits in scope to compare" % (stamp, who))
             continue
         lt = parse_iso(last)
         if lt is not None and lt > when:
-            warn(team, "STALE -- territory committed %s, section stamped %s" % (last, stamp))
+            warn(team, "STALE -- territory committed %s, section stamped %s by %s" % (last, stamp, who))
         else:
-            ok(team, "stamped %s, not older than its last commit (%s)" % (stamp, last))
+            ok(team, "stamped %s by %s, not older than its last commit (%s)" % (stamp, who, last))
 
 
 def main():
