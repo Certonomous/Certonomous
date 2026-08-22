@@ -411,7 +411,7 @@ turns on exactly this.
 | **T1a** turbulent flat plate | **BLOCKED** — reference held, but no band can be armed from one correlation |
 | **T3** heated BFS (the spine's first rung) | **NOT A RESULT 4/4** — gates (1)/(2) of prereg §7.1: no case at 1e-6, triples DIVERGENT/OSCILLATORY. Primary (Vogel & Eaton 1985) **NOT OBTAINED** — necessary, not sufficient, and **not today's binding constraint; the ladder is.** **ext1 running** (D452), 8 extensions, critical path `R_f` ETA **2026-08-25T14:54Z**; a still-non-CONVERGING triple stays NOT A RESULT |
 | **T9a** composite wall / fin (EXACT) | **GATE FAIL** — 2 of 3 graded rows pass; interface 1 misses by **2.4 mK** against a 0.92 mK GCI band; 2 fin rows GATE REACHED below the 0.025% O(Bi) floor; 4 controls MET (D442). **T9a-D interface diagnosis arm REPORTED 2026-08-22 (D454, L-227)** — the interface scheme is the whole of the 2.41 mK: `Gauss harmonic` removes it to round-off at every level (A1 PASS, drop 8.15e+08) while a fourth level leaves the triple STAGNANT and a band armed there would be 11× too wide; C1 GATE FAIL, the error **grew** 27–31× at 40× contrast. `gate_t9a.json` unchanged, no T9a row moved; T9a's own verdict stays GATE FAIL. `T9aD_RESULTS.md`, committed as `06410acd` |
-| **T10a** view-factor enclosures (EXACT) | **GATE FAIL** — 3 of 4 box rows PASS, ceiling fails 0.125% against a 0.077% band; **both sphere rows NOT A RESULT** on DIVERGENT triples; outer-sphere row-sum defect 4.3–4.8%, non-converging under fixed quadrature; 12 controls MET, 6 UNMEASURED (D447). **T10a-R ceiling refinement arm IN FLIGHT** |
+| **T10a** view-factor enclosures (EXACT) | **GATE FAIL** — 3 of 4 box rows PASS, ceiling fails 0.125% against a 0.077% band; **both sphere rows NOT A RESULT** on DIVERGENT triples; outer-sphere row-sum defect 4.3–4.8%, non-converging under fixed quadrature; 12 controls MET, 6 UNMEASURED (D447). **T10a-R ceiling refinement arm IN FLIGHT.** **T10a-VF view-factor characterisation arm (H-3b) REPORTED 2026-08-22 (D457, L-231)** — the defect is a `viewFactorsGen` utility defect with a closed form: the 2LI coincident-edge singularity is regularised as `r -> alpha*\|s_i\|`, exact only at `alpha = exp(-3/2) = 0.223130` against the shipped `0.21`, giving `e(alpha) = -(2 ln alpha + 3)/(4 pi) = +0.0096524` per mutually-visible edge-sharing neighbour with **no `h` in it** (concave `n_ev`=4 -> +3.86 % at every resolution; convex -> 0). Sign corrected: the row sums are an **EXCESS**, not a deficit. 5 PASS / 4 GATE FAIL / 1 REPORTED; **no T10a row moved**; upstream candidate #4 drafted **NOT FILED**. `T10aVF_RESULTS.md` |
 | **T4** impinging jet | **half-open** — ERCOFTAC case025 held, Martin correlation held, but Nu uncertainty is **second-hand** (2.4%, KB Wiki quoting Baughn & Shimizu). Report-only enabled; graded rows need the closed ASME primaries |
 | **T5** heated cubes (the rack physic) | **PRIMARY HELD** — Meinders 1998 TU Delft thesis, open, title-page verified, sha256 `36c89a54…`, stated uncertainty 5% mid-face / 10% edges. **Pre-registration draft WRITTEN 2026-08-22, unfrozen**; primary stays **HELD** and the graded rows wait on it. Cost registration rides with the draft. **`T5_PREREGISTRATION_DRAFT.md` written 2026-08-22 (unfrozen, 12 INTERPRETATIONs on Sanaa's desk)**: `Re_H` 4440, conjugate `chtMultiRegionSimpleFoam`, ladder 5.4e4 / 2.2e5 / 9.0e5 cells, cost **3.72–7.16 USD** under two rate models; **G4 recirculation REPORTED only** (thesis states no uncertainty); **inlet-T class needs the matrix chapters (separate rung)** |
 | **T2, T6, T7, T8, T9b/c, T10b, T11, T12, T13** | not started. T6/T12/T13 and likely T7, T9c are **over $25** |
@@ -433,7 +433,8 @@ trees in `verification/runs/F14-cooling-ladder/`):
 refinement arm — **T10a-R in flight**. 2. T9a interface diagnosis, one change per
 run — **T9a-D REPORTED 2026-08-22 (D454, L-227)**; the successor is a re-graded T9a
 under a new pre-registration with `Gauss harmonic`. 3. T10a view-factor quadrature characterisation —
-prereg not yet written. Then T5 — **prereg draft written 2026-08-22 (unfrozen)**, primary held.
+**T10a-VF REPORTED 2026-08-22 (D457, L-231)**; the blocker before any filing is a
+novelty search, and the agglomeration question is open. Then T5 — **prereg draft written 2026-08-22 (unfrozen)**, primary held.
 
 **On Sanaa's desk** (T-family lane, 2026-08-22):
 
@@ -448,6 +449,11 @@ prereg not yet written. Then T5 — **prereg draft written 2026-08-22 (unfrozen)
   are live (see the pid table above) and were not stopped on this lane's own
   authority.
 - **T10a's view-factor defect as upstream candidate #4** — filing is hers alone.
+  Draft written and **NOT FILED** (`docs/upstream/T10a_viewFactorsGen_rowsum_NOT_FILED.md`);
+  it is **not submission-ready**: no novelty search has been done, and candidates #1–#3
+  each carry one.
+- **`docs/upstream/UPSTREAM_QUEUE.md` created; #4 numbering conflicts with LAB_STATE's
+  four DAFoam drafts — Sanaa's call.**
 - **K2a (rack row module) awaits her approval.**
 
 **Blocked:** T1a (no band from one correlation); T3's graded rows on the missing

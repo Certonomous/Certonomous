@@ -1,0 +1,2388 @@
+[
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S1_SPH_L1",
+  "nFaces": 768,
+  "rowsInF": 768,
+  "patches": {
+   "inner": {
+    "nRows": 384,
+    "meanRowSum": 0.9893824000479033,
+    "minRowSum": 0.9788242777678179,
+    "maxRowSum": 0.9918285381760004,
+    "medRowSum": 0.9909021836840833,
+    "meanExcess": -0.010617599952096657,
+    "maxExcess": -0.008171461823999637,
+    "meanExcessPct": -1.0617599952096657,
+    "maxExcessPct": -0.8171461823999637,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 90.6875,
+    "cross": {
+     "outer": 0.9893824000478962
+    }
+   },
+   "outer": {
+    "nRows": 384,
+    "meanRowSum": 1.0340923128763317,
+    "minRowSum": 1.0270817490333561,
+    "maxRowSum": 1.0407153099865956,
+    "medRowSum": 1.033444423493936,
+    "meanExcess": 0.03409231287633174,
+    "maxExcess": 0.04071530998659556,
+    "meanExcessPct": 3.4092312876331743,
+    "maxExcessPct": 4.071530998659556,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.04991800554475372,
+    "meanVisible": 375.9375,
+    "cross": {
+     "inner": 0.24744205607038508,
+     "outer": 0.7866502568059747
+    },
+    "excess_per_edge_pair": 0.008523078219082936,
+    "excess_over_predicted": 0.8830019476466231,
+    "predicted_excess": 0.03860955569485954
+   }
+  },
+  "meta": {
+   "name": "S1_SPH_L1",
+   "geom": "SPH",
+   "params": {
+    "nr": 4,
+    "N": 8
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 768
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S1_SPH_L1_afix",
+  "nFaces": 768,
+  "rowsInF": 768,
+  "patches": {
+   "inner": {
+    "nRows": 384,
+    "meanRowSum": 0.9893824000479033,
+    "minRowSum": 0.9788242777678179,
+    "maxRowSum": 0.9918285381760004,
+    "medRowSum": 0.9909021836840833,
+    "meanExcess": -0.010617599952096657,
+    "maxExcess": -0.008171461823999637,
+    "meanExcessPct": -1.0617599952096657,
+    "maxExcessPct": -0.8171461823999637,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 90.6875,
+    "cross": {
+     "outer": 0.9893824000478962
+    }
+   },
+   "outer": {
+    "nRows": 384,
+    "meanRowSum": 0.994786933617091,
+    "minRowSum": 0.9884664783309371,
+    "maxRowSum": 1.0017907312108292,
+    "medRowSum": 0.9946715617612708,
+    "meanExcess": -0.005213066382908971,
+    "maxExcess": 0.0017907312108291773,
+    "meanExcessPct": -0.5213066382908971,
+    "maxExcessPct": 0.17907312108291773,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.010612626285513037,
+    "meanVisible": 375.9375,
+    "cross": {
+     "inner": 0.24744205607038508,
+     "outer": 0.7473448775467256
+    },
+    "excess_per_edge_pair": -0.0013032665957272427,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   }
+  },
+  "meta": {
+   "name": "S1_SPH_L1_afix",
+   "geom": "SPH",
+   "params": {
+    "nr": 4,
+    "N": 8
+   },
+   "alpha": 0.22313016014842982,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 768
+  },
+  "alpha": 0.22313016014842982,
+  "e_alpha_pred": -0.0
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S1_SPH_L2",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 1.0030814436063156,
+    "minRowSum": 1.0007469209044386,
+    "maxRowSum": 1.0048224251937201,
+    "medRowSum": 1.0032347774105563,
+    "meanExcess": 0.0030814436063155703,
+    "maxExcess": 0.004822425193720115,
+    "meanExcessPct": 0.30814436063155703,
+    "maxExcessPct": 0.48224251937201146,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 1.0030814436062925
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 1.040255155223205,
+    "minRowSum": 1.036839103818832,
+    "maxRowSum": 1.044022424312327,
+    "medRowSum": 1.0406829599523695,
+    "meanExcess": 0.04025515522320511,
+    "maxExcess": 0.04402242431232706,
+    "meanExcessPct": 4.025515522320511,
+    "maxExcessPct": 4.402242431232706,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.04422231265191986,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2507703696233051,
+     "outer": 0.7894847855999285
+    },
+    "excess_per_edge_pair": 0.010063788805801277,
+    "excess_over_predicted": 1.0426215608734566,
+    "predicted_excess": 0.03860955569485954
+   }
+  },
+  "meta": {
+   "name": "S1_SPH_L2",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S1_SPH_L2_afix",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 1.0030814436063156,
+    "minRowSum": 1.0007469209044386,
+    "maxRowSum": 1.0048224251937201,
+    "medRowSum": 1.0032347774105563,
+    "meanExcess": 0.0030814436063155703,
+    "maxExcess": 0.004822425193720115,
+    "meanExcessPct": 0.30814436063155703,
+    "maxExcessPct": 0.48224251937201146,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 1.0030814436062925
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 1.000994384240685,
+    "minRowSum": 0.997966917499252,
+    "maxRowSum": 1.0048992281997817,
+    "medRowSum": 1.0011970738116371,
+    "meanExcess": 0.0009943842406849868,
+    "maxExcess": 0.004899228199781724,
+    "meanExcessPct": 0.09943842406849868,
+    "maxExcessPct": 0.48992281997817244,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.004961541669401914,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2507703696233051,
+     "outer": 0.7502240146174062
+    },
+    "excess_per_edge_pair": 0.0002485960601712467,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   }
+  },
+  "meta": {
+   "name": "S1_SPH_L2_afix",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.22313016014842982,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.22313016014842982,
+  "e_alpha_pred": -0.0
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S1_SPH_L3",
+  "nFaces": 3072,
+  "rowsInF": 3072,
+  "patches": {
+   "inner": {
+    "nRows": 1536,
+    "meanRowSum": 1.0019403897250958,
+    "minRowSum": 1.0010278711829328,
+    "maxRowSum": 1.003004949080125,
+    "medRowSum": 1.0019048169069662,
+    "meanExcess": 0.0019403897250958035,
+    "maxExcess": 0.0030049490801249412,
+    "meanExcessPct": 0.19403897250958035,
+    "maxExcessPct": 0.3004949080124941,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 376.4947916666667,
+    "cross": {
+     "outer": 1.0019403897250967
+    }
+   },
+   "outer": {
+    "nRows": 1536,
+    "meanRowSum": 1.0403450358027064,
+    "minRowSum": 1.0367063219037127,
+    "maxRowSum": 1.0427404898548882,
+    "medRowSum": 1.0402714500629153,
+    "meanExcess": 0.04034503580270643,
+    "maxExcess": 0.04274048985488821,
+    "meanExcessPct": 4.034503580270643,
+    "maxExcessPct": 4.274048985488821,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.04224719589356219,
+    "meanVisible": 1527.9322916666667,
+    "cross": {
+     "inner": 0.250477993206117,
+     "outer": 0.7898670425966156
+    },
+    "excess_per_edge_pair": 0.010086258950676608,
+    "excess_over_predicted": 1.0449494969992092,
+    "predicted_excess": 0.03860955569485954
+   }
+  },
+  "meta": {
+   "name": "S1_SPH_L3",
+   "geom": "SPH",
+   "params": {
+    "nr": 8,
+    "N": 16
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 3072
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S1_SPH_L3_afix",
+  "nFaces": 3072,
+  "rowsInF": 3072,
+  "patches": {
+   "inner": {
+    "nRows": 1536,
+    "meanRowSum": 1.0019403897250958,
+    "minRowSum": 1.0010278711829328,
+    "maxRowSum": 1.003004949080125,
+    "medRowSum": 1.0019048169069662,
+    "meanExcess": 0.0019403897250958035,
+    "maxExcess": 0.0030049490801249412,
+    "meanExcessPct": 0.19403897250958035,
+    "maxExcessPct": 0.3004949080124941,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 376.4947916666667,
+    "cross": {
+     "outer": 1.0019403897250967
+    }
+   },
+   "outer": {
+    "nRows": 1536,
+    "meanRowSum": 1.0010892647939342,
+    "minRowSum": 0.9978576631984891,
+    "maxRowSum": 1.004022474592391,
+    "medRowSum": 1.0012994794335086,
+    "meanExcess": 0.0010892647939342304,
+    "maxExcess": 0.004022474592390912,
+    "meanExcessPct": 0.10892647939342304,
+    "maxExcessPct": 0.4022474592390912,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.002991424884783394,
+    "meanVisible": 1527.9322916666667,
+    "cross": {
+     "inner": 0.250477993206117,
+     "outer": 0.7506112715878394
+    },
+    "excess_per_edge_pair": 0.0002723161984835576,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   }
+  },
+  "meta": {
+   "name": "S1_SPH_L3_afix",
+   "geom": "SPH",
+   "params": {
+    "nr": 8,
+    "N": 16
+   },
+   "alpha": 0.22313016014842982,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 3072
+  },
+  "alpha": 0.22313016014842982,
+  "e_alpha_pred": -0.0
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S1_SPH_L4",
+  "nFaces": 4800,
+  "rowsInF": 4800,
+  "patches": {
+   "inner": {
+    "nRows": 2400,
+    "meanRowSum": 1.001277237233349,
+    "minRowSum": 1.000849668533186,
+    "maxRowSum": 1.0019095089063959,
+    "medRowSum": 1.0012181785290504,
+    "meanExcess": 0.001277237233348938,
+    "maxExcess": 0.0019095089063958515,
+    "meanExcessPct": 0.1277237233348938,
+    "maxExcessPct": 0.19095089063958515,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 593.7433333333333,
+    "cross": {
+     "outer": 1.001277237233352
+    }
+   },
+   "outer": {
+    "nRows": 2400,
+    "meanRowSum": 1.0395529562424557,
+    "minRowSum": 1.0372199990314195,
+    "maxRowSum": 1.0432244362232104,
+    "medRowSum": 1.0395814369528344,
+    "meanExcess": 0.039552956242455695,
+    "maxExcess": 0.04322443622321037,
+    "meanExcessPct": 3.9552956242455695,
+    "maxExcessPct": 4.322443622321037,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.04132729317375123,
+    "meanVisible": 2392.766666666667,
+    "cross": {
+     "inner": 0.250312819998624,
+     "outer": 0.7892401362435416
+    },
+    "excess_per_edge_pair": 0.009888239060613924,
+    "excess_over_predicted": 1.0244343797958224,
+    "predicted_excess": 0.03860955569485954
+   }
+  },
+  "meta": {
+   "name": "S1_SPH_L4",
+   "geom": "SPH",
+   "params": {
+    "nr": 10,
+    "N": 20
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 4800
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S1_SPH_L4_afix",
+  "nFaces": 4800,
+  "rowsInF": 4800,
+  "patches": {
+   "inner": {
+    "nRows": 2400,
+    "meanRowSum": 1.001277237233349,
+    "minRowSum": 1.000849668533186,
+    "maxRowSum": 1.0019095089063959,
+    "medRowSum": 1.0012181785290504,
+    "meanExcess": 0.001277237233348938,
+    "maxExcess": 0.0019095089063958515,
+    "meanExcessPct": 0.1277237233348938,
+    "maxExcessPct": 0.19095089063958515,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 593.7433333333333,
+    "cross": {
+     "outer": 1.001277237233352
+    }
+   },
+   "outer": {
+    "nRows": 2400,
+    "meanRowSum": 1.0003063897361257,
+    "minRowSum": 0.9980638334858343,
+    "maxRowSum": 1.0033368292426736,
+    "medRowSum": 0.9999835582692187,
+    "meanExcess": 0.00030638973612573395,
+    "maxExcess": 0.0033368292426736446,
+    "meanExcessPct": 0.030638973612573395,
+    "maxExcessPct": 0.33368292426736446,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.0020807266674194727,
+    "meanVisible": 2392.766666666667,
+    "cross": {
+     "inner": 0.250312819998624,
+     "outer": 0.7499935697372028
+    },
+    "excess_per_edge_pair": 7.659743403143349e-05,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   }
+  },
+  "meta": {
+   "name": "S1_SPH_L4_afix",
+   "geom": "SPH",
+   "params": {
+    "nr": 10,
+    "N": 20
+   },
+   "alpha": 0.22313016014842982,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 4800
+  },
+  "alpha": 0.22313016014842982,
+  "e_alpha_pred": -0.0
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S2_BALL_c",
+  "nFaces": 384,
+  "rowsInF": 384,
+  "patches": {
+   "outer": {
+    "nRows": 384,
+    "meanRowSum": 1.043948363839297,
+    "minRowSum": 1.0435544758561928,
+    "maxRowSum": 1.0460559053464398,
+    "medRowSum": 1.0436500769733612,
+    "meanExcess": 0.04394836383929701,
+    "maxExcess": 0.046055905346439774,
+    "meanExcessPct": 4.394836383929701,
+    "maxExcessPct": 4.605590534643977,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.04991800554475372,
+    "meanVisible": 383.0,
+    "cross": {
+     "outer": 1.043948363839343
+    },
+    "excess_per_edge_pair": 0.010987090959824253,
+    "excess_over_predicted": 1.1382768604391964,
+    "predicted_excess": 0.03860955569485954
+   }
+  },
+  "meta": {
+   "name": "S2_BALL_c",
+   "geom": "BALL",
+   "params": {
+    "nr": 4,
+    "N": 8
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 384
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S2_BALL_f",
+  "nFaces": 1536,
+  "rowsInF": 1536,
+  "patches": {
+   "outer": {
+    "nRows": 1536,
+    "meanRowSum": 1.0405624682197188,
+    "minRowSum": 1.040034394029678,
+    "maxRowSum": 1.043856864235938,
+    "medRowSum": 1.0402868742898526,
+    "meanExcess": 0.04056246821971876,
+    "maxExcess": 0.04385686423593804,
+    "meanExcessPct": 4.056246821971876,
+    "maxExcessPct": 4.385686423593804,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.04224719589356219,
+    "meanVisible": 1535.0,
+    "cross": {
+     "outer": 1.040562468219679
+    },
+    "excess_per_edge_pair": 0.01014061705492969,
+    "excess_over_predicted": 1.0505810670367084,
+    "predicted_excess": 0.03860955569485954
+   }
+  },
+  "meta": {
+   "name": "S2_BALL_f",
+   "geom": "BALL",
+   "params": {
+    "nr": 8,
+    "N": 16
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1536
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S2_BALL_f_afix",
+  "nFaces": 1536,
+  "rowsInF": 1536,
+  "patches": {
+   "outer": {
+    "nRows": 1536,
+    "meanRowSum": 1.0013066972109381,
+    "minRowSum": 1.0008758784238574,
+    "maxRowSum": 1.0014267201570233,
+    "medRowSum": 1.0013331807970238,
+    "meanExcess": 0.0013066972109381236,
+    "maxExcess": 0.0014267201570232757,
+    "meanExcessPct": 0.13066972109381236,
+    "maxExcessPct": 0.14267201570232757,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.002991424884783394,
+    "meanVisible": 1535.0,
+    "cross": {
+     "outer": 1.0013066972108995
+    },
+    "excess_per_edge_pair": 0.0003266743027345309,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   }
+  },
+  "meta": {
+   "name": "S2_BALL_f_afix",
+   "geom": "BALL",
+   "params": {
+    "nr": 8,
+    "N": 16
+   },
+   "alpha": 0.22313016014842982,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1536
+  },
+  "alpha": 0.22313016014842982,
+  "e_alpha_pred": -0.0
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S2_BOX_c",
+  "nFaces": 384,
+  "rowsInF": 384,
+  "patches": {
+   "floor": {
+    "nRows": 64,
+    "meanRowSum": 1.007258837524234,
+    "minRowSum": 1.0018906766024278,
+    "maxRowSum": 1.0198679948475482,
+    "medRowSum": 1.0050563397048047,
+    "meanExcess": 0.007258837524233952,
+    "maxExcess": 0.019867994847548198,
+    "meanExcessPct": 0.7258837524233952,
+    "maxExcessPct": 1.9867994847548198,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.5,
+    "meanF_on_edge_nbrs": 0.10484512642086077,
+    "meanVisible": 320.0,
+    "cross": {
+     "ceiling": 0.2007722693283374,
+     "x0": 0.20162164204897554,
+     "x1": 0.20162164204897404,
+     "y0": 0.20162164204897542,
+     "y1": 0.20162164204897534
+    },
+    "excess_per_edge_pair": 0.014517675048467904,
+    "excess_over_predicted": 1.5040499469307056,
+    "predicted_excess": 0.004826194461857443
+   },
+   "ceiling": {
+    "nRows": 64,
+    "meanRowSum": 1.007258837524234,
+    "minRowSum": 1.001890676602428,
+    "maxRowSum": 1.0198679948475484,
+    "medRowSum": 1.0050563397048047,
+    "meanExcess": 0.007258837524233952,
+    "maxExcess": 0.01986799484754842,
+    "meanExcessPct": 0.7258837524233952,
+    "maxExcessPct": 1.986799484754842,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.5,
+    "meanF_on_edge_nbrs": 0.10484512642086077,
+    "meanVisible": 320.0,
+    "cross": {
+     "floor": 0.2007722693283374,
+     "x0": 0.20162164204897556,
+     "x1": 0.2016216420489741,
+     "y0": 0.20162164204897542,
+     "y1": 0.20162164204897526
+    },
+    "excess_per_edge_pair": 0.014517675048467904,
+    "excess_over_predicted": 1.5040499469307056,
+    "predicted_excess": 0.004826194461857443
+   },
+   "x0": {
+    "nRows": 64,
+    "meanRowSum": 1.0072588375242346,
+    "minRowSum": 1.0018906766024283,
+    "maxRowSum": 1.0198679948475486,
+    "medRowSum": 1.0050563397048051,
+    "meanExcess": 0.007258837524234618,
+    "maxExcess": 0.019867994847548642,
+    "meanExcessPct": 0.7258837524234618,
+    "maxExcessPct": 1.9867994847548642,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.5,
+    "meanF_on_edge_nbrs": 0.10484512642086077,
+    "meanVisible": 320.0,
+    "cross": {
+     "floor": 0.20162164204897556,
+     "ceiling": 0.20162164204897406,
+     "x1": 0.2007722693283374,
+     "y0": 0.20162164204897537,
+     "y1": 0.2016216420489753
+    },
+    "excess_per_edge_pair": 0.014517675048469236,
+    "excess_over_predicted": 1.5040499469308437,
+    "predicted_excess": 0.004826194461857443
+   },
+   "x1": {
+    "nRows": 64,
+    "meanRowSum": 1.0072588375242344,
+    "minRowSum": 1.0018906766024278,
+    "maxRowSum": 1.0198679948475484,
+    "medRowSum": 1.0050563397048053,
+    "meanExcess": 0.007258837524234396,
+    "maxExcess": 0.01986799484754842,
+    "meanExcessPct": 0.7258837524234396,
+    "maxExcessPct": 1.986799484754842,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.5,
+    "meanF_on_edge_nbrs": 0.10484512642086077,
+    "meanVisible": 320.0,
+    "cross": {
+     "floor": 0.2016216420489756,
+     "ceiling": 0.20162164204897406,
+     "x0": 0.2007722693283374,
+     "y0": 0.2016216420489754,
+     "y1": 0.20162164204897529
+    },
+    "excess_per_edge_pair": 0.014517675048468792,
+    "excess_over_predicted": 1.5040499469307975,
+    "predicted_excess": 0.004826194461857443
+   },
+   "y0": {
+    "nRows": 64,
+    "meanRowSum": 1.007258837524235,
+    "minRowSum": 1.001890676602428,
+    "maxRowSum": 1.0198679948475486,
+    "medRowSum": 1.0050563397048065,
+    "meanExcess": 0.007258837524235062,
+    "maxExcess": 0.019867994847548642,
+    "meanExcessPct": 0.7258837524235062,
+    "maxExcessPct": 1.9867994847548642,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.5,
+    "meanF_on_edge_nbrs": 0.10484512642086077,
+    "meanVisible": 320.0,
+    "cross": {
+     "floor": 0.20162164204897542,
+     "ceiling": 0.20162164204897534,
+     "x0": 0.20162164204897554,
+     "x1": 0.2016216420489741,
+     "y1": 0.2007722693283374
+    },
+    "excess_per_edge_pair": 0.014517675048470124,
+    "excess_over_predicted": 1.5040499469309356,
+    "predicted_excess": 0.004826194461857443
+   },
+   "y1": {
+    "nRows": 64,
+    "meanRowSum": 1.007258837524235,
+    "minRowSum": 1.0018906766024278,
+    "maxRowSum": 1.0198679948475489,
+    "medRowSum": 1.0050563397048062,
+    "meanExcess": 0.007258837524235062,
+    "maxExcess": 0.019867994847548864,
+    "meanExcessPct": 0.7258837524235062,
+    "maxExcessPct": 1.9867994847548864,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.5,
+    "meanF_on_edge_nbrs": 0.10484512642086077,
+    "meanVisible": 320.0,
+    "cross": {
+     "floor": 0.20162164204897542,
+     "ceiling": 0.20162164204897526,
+     "x0": 0.20162164204897556,
+     "x1": 0.20162164204897406,
+     "y0": 0.2007722693283374
+    },
+    "excess_per_edge_pair": 0.014517675048470124,
+    "excess_over_predicted": 1.5040499469309356,
+    "predicted_excess": 0.004826194461857443
+   }
+  },
+  "meta": {
+   "name": "S2_BOX_c",
+   "geom": "BOX",
+   "params": {
+    "N": 8
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 384
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S2_BOX_f",
+  "nFaces": 1536,
+  "rowsInF": 1536,
+  "patches": {
+   "floor": {
+    "nRows": 256,
+    "meanRowSum": 1.00375534330596,
+    "minRowSum": 1.0006216832580852,
+    "maxRowSum": 1.0192336705922123,
+    "medRowSum": 1.0019406089088394,
+    "meanExcess": 0.003755343305960057,
+    "maxExcess": 0.01923367059221226,
+    "meanExcessPct": 0.3755343305960057,
+    "maxExcessPct": 1.923367059221226,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05242256321043039,
+    "meanVisible": 1280.0,
+    "cross": {
+     "ceiling": 0.20006060219102556,
+     "x0": 0.20092368527873178,
+     "x1": 0.2009236852787236,
+     "y0": 0.20092368527872467,
+     "y1": 0.20092368527872395
+    },
+    "excess_per_edge_pair": 0.015021373223840229,
+    "excess_over_predicted": 1.5562337305881162,
+    "predicted_excess": 0.0024130972309287214
+   },
+   "ceiling": {
+    "nRows": 256,
+    "meanRowSum": 1.0037553433059598,
+    "minRowSum": 1.0006216832580852,
+    "maxRowSum": 1.0192336705922118,
+    "medRowSum": 1.0019406089088392,
+    "meanExcess": 0.003755343305959835,
+    "maxExcess": 0.019233670592211816,
+    "meanExcessPct": 0.3755343305959835,
+    "maxExcessPct": 1.9233670592211816,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05242256321043039,
+    "meanVisible": 1280.0,
+    "cross": {
+     "floor": 0.20006060219102556,
+     "x0": 0.20092368527873172,
+     "x1": 0.20092368527872365,
+     "y0": 0.20092368527872462,
+     "y1": 0.200923685278724
+    },
+    "excess_per_edge_pair": 0.01502137322383934,
+    "excess_over_predicted": 1.5562337305880243,
+    "predicted_excess": 0.0024130972309287214
+   },
+   "x0": {
+    "nRows": 256,
+    "meanRowSum": 1.0037553433059598,
+    "minRowSum": 1.0006216832580848,
+    "maxRowSum": 1.0192336705922131,
+    "medRowSum": 1.00194060890884,
+    "meanExcess": 0.003755343305959835,
+    "maxExcess": 0.019233670592213148,
+    "meanExcessPct": 0.3755343305959835,
+    "maxExcessPct": 1.9233670592213148,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05242256321043039,
+    "meanVisible": 1280.0,
+    "cross": {
+     "floor": 0.2009236852787318,
+     "ceiling": 0.2009236852787236,
+     "x1": 0.20006060219102556,
+     "y0": 0.20092368527872445,
+     "y1": 0.20092368527872406
+    },
+    "excess_per_edge_pair": 0.01502137322383934,
+    "excess_over_predicted": 1.5562337305880243,
+    "predicted_excess": 0.0024130972309287214
+   },
+   "x1": {
+    "nRows": 256,
+    "meanRowSum": 1.0037553433059598,
+    "minRowSum": 1.0006216832580843,
+    "maxRowSum": 1.0192336705922127,
+    "medRowSum": 1.0019406089088398,
+    "meanExcess": 0.003755343305959835,
+    "maxExcess": 0.019233670592212704,
+    "meanExcessPct": 0.3755343305959835,
+    "maxExcessPct": 1.9233670592212704,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05242256321043039,
+    "meanVisible": 1280.0,
+    "cross": {
+     "floor": 0.2009236852787317,
+     "ceiling": 0.20092368527872365,
+     "x0": 0.20006060219102556,
+     "y0": 0.20092368527872456,
+     "y1": 0.200923685278724
+    },
+    "excess_per_edge_pair": 0.01502137322383934,
+    "excess_over_predicted": 1.5562337305880243,
+    "predicted_excess": 0.0024130972309287214
+   },
+   "y0": {
+    "nRows": 256,
+    "meanRowSum": 1.0037553433059592,
+    "minRowSum": 1.000621683258083,
+    "maxRowSum": 1.019233670592212,
+    "medRowSum": 1.0019406089088394,
+    "meanExcess": 0.003755343305959169,
+    "maxExcess": 0.019233670592212038,
+    "meanExcessPct": 0.3755343305959169,
+    "maxExcessPct": 1.9233670592212038,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05242256321043039,
+    "meanVisible": 1280.0,
+    "cross": {
+     "floor": 0.20092368527872465,
+     "ceiling": 0.20092368527872398,
+     "x0": 0.20092368527873172,
+     "x1": 0.2009236852787237,
+     "y1": 0.20006060219102556
+    },
+    "excess_per_edge_pair": 0.015021373223836676,
+    "excess_over_predicted": 1.5562337305877483,
+    "predicted_excess": 0.0024130972309287214
+   },
+   "y1": {
+    "nRows": 256,
+    "meanRowSum": 1.0037553433059592,
+    "minRowSum": 1.000621683258083,
+    "maxRowSum": 1.0192336705922123,
+    "medRowSum": 1.0019406089088394,
+    "meanExcess": 0.003755343305959169,
+    "maxExcess": 0.01923367059221226,
+    "meanExcessPct": 0.3755343305959169,
+    "maxExcessPct": 1.923367059221226,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05242256321043039,
+    "meanVisible": 1280.0,
+    "cross": {
+     "floor": 0.20092368527872465,
+     "ceiling": 0.20092368527872398,
+     "x0": 0.20092368527873164,
+     "x1": 0.20092368527872373,
+     "y0": 0.20006060219102556
+    },
+    "excess_per_edge_pair": 0.015021373223836676,
+    "excess_over_predicted": 1.5562337305877483,
+    "predicted_excess": 0.0024130972309287214
+   }
+  },
+  "meta": {
+   "name": "S2_BOX_f",
+   "geom": "BOX",
+   "params": {
+    "N": 16
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1536
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S2_BOX_f_afix",
+  "nFaces": 1536,
+  "rowsInF": 1536,
+  "patches": {
+   "floor": {
+    "nRows": 256,
+    "meanRowSum": 1.0013422460750314,
+    "minRowSum": 0.9999288927447816,
+    "maxRowSum": 1.0027693478673925,
+    "medRowSum": 1.0014475643146235,
+    "meanExcess": 0.001342246075031417,
+    "maxExcess": 0.0027693478673924687,
+    "meanExcessPct": 0.1342246075031417,
+    "maxExcessPct": 0.2769347867392469,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05000946597950171,
+    "meanVisible": 1280.0,
+    "cross": {
+     "ceiling": 0.20006060219102556,
+     "x0": 0.20032041097099984,
+     "x1": 0.20032041097099115,
+     "y0": 0.20032041097099262,
+     "y1": 0.20032041097099165
+    },
+    "excess_per_edge_pair": 0.005368984300125668,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   },
+   "ceiling": {
+    "nRows": 256,
+    "meanRowSum": 1.0013422460750314,
+    "minRowSum": 0.9999288927447814,
+    "maxRowSum": 1.0027693478673925,
+    "medRowSum": 1.0014475643146232,
+    "meanExcess": 0.001342246075031417,
+    "maxExcess": 0.0027693478673924687,
+    "meanExcessPct": 0.1342246075031417,
+    "maxExcessPct": 0.2769347867392469,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05000946597950171,
+    "meanVisible": 1280.0,
+    "cross": {
+     "floor": 0.20006060219102556,
+     "x0": 0.20032041097099984,
+     "x1": 0.2003204109709912,
+     "y0": 0.20032041097099254,
+     "y1": 0.20032041097099168
+    },
+    "excess_per_edge_pair": 0.005368984300125668,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   },
+   "x0": {
+    "nRows": 256,
+    "meanRowSum": 1.0013422460750316,
+    "minRowSum": 0.9999288927447824,
+    "maxRowSum": 1.0027693478673931,
+    "medRowSum": 1.0014475643146235,
+    "meanExcess": 0.001342246075031639,
+    "maxExcess": 0.002769347867393135,
+    "meanExcessPct": 0.1342246075031639,
+    "maxExcessPct": 0.2769347867393135,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05000946597950171,
+    "meanVisible": 1280.0,
+    "cross": {
+     "floor": 0.20032041097099987,
+     "ceiling": 0.20032041097099115,
+     "x1": 0.20006060219102556,
+     "y0": 0.20032041097099265,
+     "y1": 0.20032041097099174
+    },
+    "excess_per_edge_pair": 0.005368984300126556,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   },
+   "x1": {
+    "nRows": 256,
+    "meanRowSum": 1.0013422460750314,
+    "minRowSum": 0.9999288927447819,
+    "maxRowSum": 1.0027693478673922,
+    "medRowSum": 1.0014475643146235,
+    "meanExcess": 0.001342246075031417,
+    "maxExcess": 0.0027693478673922467,
+    "meanExcessPct": 0.1342246075031417,
+    "maxExcessPct": 0.27693478673922467,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05000946597950171,
+    "meanVisible": 1280.0,
+    "cross": {
+     "floor": 0.2003204109709998,
+     "ceiling": 0.2003204109709912,
+     "x0": 0.20006060219102556,
+     "y0": 0.20032041097099246,
+     "y1": 0.20032041097099165
+    },
+    "excess_per_edge_pair": 0.005368984300125668,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   },
+   "y0": {
+    "nRows": 256,
+    "meanRowSum": 1.001342246075031,
+    "minRowSum": 0.9999288927447824,
+    "maxRowSum": 1.0027693478673922,
+    "medRowSum": 1.0014475643146223,
+    "meanExcess": 0.0013422460750309728,
+    "maxExcess": 0.0027693478673922467,
+    "meanExcessPct": 0.13422460750309728,
+    "maxExcessPct": 0.27693478673922467,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05000946597950171,
+    "meanVisible": 1280.0,
+    "cross": {
+     "floor": 0.2003204109709926,
+     "ceiling": 0.20032041097099165,
+     "x0": 0.20032041097099976,
+     "x1": 0.20032041097099126,
+     "y1": 0.20006060219102556
+    },
+    "excess_per_edge_pair": 0.005368984300123891,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   },
+   "y1": {
+    "nRows": 256,
+    "meanRowSum": 1.001342246075031,
+    "minRowSum": 0.9999288927447821,
+    "maxRowSum": 1.002769347867392,
+    "medRowSum": 1.0014475643146223,
+    "meanExcess": 0.0013422460750309728,
+    "maxExcess": 0.0027693478673920247,
+    "meanExcessPct": 0.13422460750309728,
+    "maxExcessPct": 0.27693478673920247,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05000946597950171,
+    "meanVisible": 1280.0,
+    "cross": {
+     "floor": 0.20032041097099257,
+     "ceiling": 0.20032041097099165,
+     "x0": 0.20032041097099973,
+     "x1": 0.2003204109709913,
+     "y0": 0.20006060219102556
+    },
+    "excess_per_edge_pair": 0.005368984300123891,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   }
+  },
+  "meta": {
+   "name": "S2_BOX_f_afix",
+   "geom": "BOX",
+   "params": {
+    "N": 16
+   },
+   "alpha": 0.22313016014842982,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1536
+  },
+  "alpha": 0.22313016014842982,
+  "e_alpha_pred": -0.0
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S2_CYL_c",
+  "nFaces": 384,
+  "rowsInF": 384,
+  "patches": {
+   "side": {
+    "nRows": 256,
+    "meanRowSum": 1.0303025413311315,
+    "minRowSum": 1.0272118885976913,
+    "maxRowSum": 1.0416687158946494,
+    "medRowSum": 1.0290507619899996,
+    "meanExcess": 0.030302541331131527,
+    "maxExcess": 0.04166871589464938,
+    "meanExcessPct": 3.0302541331131527,
+    "maxExcessPct": 4.166871589464938,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 2.3359375,
+    "meanF_on_edge_nbrs": 0.06792944834864353,
+    "meanVisible": 376.6953125,
+    "cross": {
+     "side": 0.6147803248249406,
+     "ends": 0.41552221650616605
+    },
+    "excess_per_edge_pair": 0.012972325385902459,
+    "excess_over_predicted": 1.3439497194348278,
+    "predicted_excess": 0.02254737725149024
+   },
+   "ends": {
+    "nRows": 128,
+    "meanRowSum": 1.0099731854386005,
+    "minRowSum": 1.0022524206677632,
+    "maxRowSum": 1.039079529980938,
+    "medRowSum": 1.0091840424924075,
+    "meanExcess": 0.009973185438600485,
+    "maxExcess": 0.03907952998093811,
+    "meanExcessPct": 0.9973185438600485,
+    "maxExcessPct": 3.907952998093811,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.609375,
+    "meanF_on_edge_nbrs": 0.10920399408872704,
+    "meanVisible": 320.296875,
+    "cross": {
+     "side": 0.8412755455879133,
+     "ends": 0.16869763985069086
+    },
+    "excess_per_edge_pair": 0.016366253027446948,
+    "excess_over_predicted": 1.6955650209283235,
+    "predicted_excess": 0.005881924500388758
+   }
+  },
+  "meta": {
+   "name": "S2_CYL_c",
+   "geom": "CYL",
+   "params": {
+    "N": 8,
+    "Nz": 8
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 384
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S2_CYL_f",
+  "nFaces": 1536,
+  "rowsInF": 1536,
+  "patches": {
+   "side": {
+    "nRows": 1024,
+    "meanRowSum": 1.0275338425789515,
+    "minRowSum": 1.0250579909563304,
+    "maxRowSum": 1.0413678781489006,
+    "medRowSum": 1.0257937015770877,
+    "meanExcess": 0.02753384257895153,
+    "maxExcess": 0.04136787814890064,
+    "meanExcessPct": 2.753384257895153,
+    "maxExcessPct": 4.136787814890064,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 2.25390625,
+    "meanF_on_edge_nbrs": 0.04415461396435633,
+    "meanVisible": 1521.0341796875,
+    "cross": {
+     "side": 0.6121589282373338,
+     "ends": 0.4153749143416756
+    },
+    "excess_per_edge_pair": 0.012216054939708131,
+    "excess_over_predicted": 1.2655991212387425,
+    "predicted_excess": 0.021755579722591754
+   },
+   "ends": {
+    "nRows": 512,
+    "meanRowSum": 1.0047809563727088,
+    "minRowSum": 0.9999597242407522,
+    "maxRowSum": 1.0337320969550952,
+    "medRowSum": 1.0023948797250364,
+    "meanExcess": 0.004780956372708811,
+    "maxExcess": 0.03373209695509516,
+    "meanExcessPct": 0.4780956372708811,
+    "maxExcessPct": 3.373209695509516,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.055939634735339694,
+    "meanVisible": 1280.0390625,
+    "cross": {
+     "side": 0.8374767486082476,
+     "ends": 0.16730420776448096
+    },
+    "excess_per_edge_pair": 0.019123825490835245,
+    "excess_over_predicted": 1.9812531013799137,
+    "predicted_excess": 0.0024130972309287214
+   }
+  },
+  "meta": {
+   "name": "S2_CYL_f",
+   "geom": "CYL",
+   "params": {
+    "N": 16,
+    "Nz": 16
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1536
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S2_CYL_f_afix",
+  "nFaces": 1536,
+  "rowsInF": 1536,
+  "patches": {
+   "side": {
+    "nRows": 1024,
+    "meanRowSum": 1.0010201900937623,
+    "minRowSum": 0.9999990435288714,
+    "maxRowSum": 1.0018723218377303,
+    "medRowSum": 1.0010988314546707,
+    "meanExcess": 0.0010201900937623076,
+    "maxExcess": 0.0018723218377303397,
+    "meanExcessPct": 0.10201900937623076,
+    "maxExcessPct": 0.18723218377303397,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 2.25390625,
+    "meanF_on_edge_nbrs": 0.01764096147917064,
+    "meanVisible": 1521.0341796875,
+    "cross": {
+     "side": 0.5865925163044482,
+     "ends": 0.4144276737893454
+    },
+    "excess_per_edge_pair": 0.0004526320000054606,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   },
+   "ends": {
+    "nRows": 512,
+    "meanRowSum": 1.0006548473609147,
+    "minRowSum": 0.9418540930134945,
+    "maxRowSum": 1.0109566760272946,
+    "medRowSum": 1.0012322279895136,
+    "meanExcess": 0.000654847360914701,
+    "maxExcess": 0.010956676027294554,
+    "meanExcessPct": 0.0654847360914701,
+    "maxExcessPct": 1.0956676027294554,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05181352572354546,
+    "meanVisible": 1280.0390625,
+    "cross": {
+     "side": 0.833350639596453,
+     "ends": 0.16730420776448096
+    },
+    "excess_per_edge_pair": 0.002619389443658804,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   }
+  },
+  "meta": {
+   "name": "S2_CYL_f_afix",
+   "geom": "CYL",
+   "params": {
+    "N": 16,
+    "Nz": 16
+   },
+   "alpha": 0.22313016014842982,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1536
+  },
+  "alpha": 0.22313016014842982,
+  "e_alpha_pred": -0.0
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S2_SHELL_c",
+  "nFaces": 768,
+  "rowsInF": 768,
+  "patches": {
+   "inner": {
+    "nRows": 384,
+    "meanRowSum": 0.9969035295917373,
+    "minRowSum": 0.9961391459902469,
+    "maxRowSum": 0.9974334625153504,
+    "medRowSum": 0.9970142033570467,
+    "meanExcess": -0.0030964704082626637,
+    "maxExcess": -0.0025665374846496336,
+    "meanExcessPct": -0.3096470408262664,
+    "maxExcessPct": -0.25665374846496336,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 128.0,
+    "cross": {
+     "outer": 0.9969035295917009
+    }
+   },
+   "outer": {
+    "nRows": 384,
+    "meanRowSum": 0.9999481219379686,
+    "minRowSum": 0.9645477765013698,
+    "maxRowSum": 1.0328645042417088,
+    "medRowSum": 1.0013201578327722,
+    "meanExcess": -5.187806203144074e-05,
+    "maxExcess": 0.032864504241708836,
+    "meanExcessPct": -0.005187806203144074,
+    "maxExcessPct": 3.2864504241708836,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.5,
+    "meanF_on_edge_nbrs": 0.10484512642086084,
+    "meanVisible": 330.9791666666667,
+    "cross": {
+     "inner": 0.24922588239792534,
+     "outer": 0.7507222395400307
+    },
+    "excess_per_edge_pair": -0.00010375612406288148,
+    "excess_over_predicted": -0.010749268899429011,
+    "predicted_excess": 0.004826194461857443
+   }
+  },
+  "meta": {
+   "name": "S2_SHELL_c",
+   "geom": "SHELL",
+   "params": {
+    "nr": 4,
+    "N": 8
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 768
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S2_SHELL_f",
+  "nFaces": 3072,
+  "rowsInF": 3072,
+  "patches": {
+   "inner": {
+    "nRows": 1536,
+    "meanRowSum": 1.002315229776098,
+    "minRowSum": 1.0014416811412763,
+    "maxRowSum": 1.0040343227901267,
+    "medRowSum": 1.002245642216937,
+    "meanExcess": 0.0023152297760979934,
+    "maxExcess": 0.004034322790126721,
+    "meanExcessPct": 0.23152297760979934,
+    "maxExcessPct": 0.4034322790126721,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 512.0,
+    "cross": {
+     "outer": 1.0023152297757179
+    }
+   },
+   "outer": {
+    "nRows": 1536,
+    "meanRowSum": 1.006195824004018,
+    "minRowSum": 0.9953173774370214,
+    "maxRowSum": 1.0292628629255531,
+    "medRowSum": 1.006465536124816,
+    "meanExcess": 0.00619582400401808,
+    "maxExcess": 0.029262862925553135,
+    "meanExcessPct": 0.619582400401808,
+    "maxExcessPct": 2.9262862925553135,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05242256321043078,
+    "meanVisible": 1327.080078125,
+    "cross": {
+     "inner": 0.2505788074439295,
+     "outer": 0.7556170165602842
+    },
+    "excess_per_edge_pair": 0.02478329601607232,
+    "excess_over_predicted": 2.5675815812997773,
+    "predicted_excess": 0.0024130972309287214
+   }
+  },
+  "meta": {
+   "name": "S2_SHELL_f",
+   "geom": "SHELL",
+   "params": {
+    "nr": 8,
+    "N": 16
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 3072
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S2_SHELL_f_afix",
+  "nFaces": 3072,
+  "rowsInF": 3072,
+  "patches": {
+   "inner": {
+    "nRows": 1536,
+    "meanRowSum": 1.002315229776098,
+    "minRowSum": 1.0014416811412763,
+    "maxRowSum": 1.0040343227901267,
+    "medRowSum": 1.002245642216937,
+    "meanExcess": 0.0023152297760979934,
+    "maxExcess": 0.004034322790126721,
+    "meanExcessPct": 0.23152297760979934,
+    "maxExcessPct": 0.4034322790126721,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 512.0,
+    "cross": {
+     "outer": 1.0023152297757179
+    }
+   },
+   "outer": {
+    "nRows": 1536,
+    "meanRowSum": 1.0037827267730874,
+    "minRowSum": 0.9943936305698386,
+    "maxRowSum": 1.0292628629255531,
+    "medRowSum": 1.0029058648019256,
+    "meanExcess": 0.0037827267730874414,
+    "maxExcess": 0.029262862925553135,
+    "meanExcessPct": 0.37827267730874414,
+    "maxExcessPct": 2.9262862925553135,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.25,
+    "meanF_on_edge_nbrs": 0.05000946597950174,
+    "meanVisible": 1327.080078125,
+    "cross": {
+     "inner": 0.2505788074439295,
+     "outer": 0.7532039193293585
+    },
+    "excess_per_edge_pair": 0.015130907092349766,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   }
+  },
+  "meta": {
+   "name": "S2_SHELL_f_afix",
+   "geom": "SHELL",
+   "params": {
+    "nr": 8,
+    "N": 16
+   },
+   "alpha": 0.22313016014842982,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 3072
+  },
+  "alpha": 0.22313016014842982,
+  "e_alpha_pred": -0.0
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_agglom_10",
+  "nFaces": 1728,
+  "rowsInF": 15,
+  "patches": {
+   "inner": {
+    "nRows": 15,
+    "meanRowSum": 0.869167962515231,
+    "minRowSum": 0.4628351330206673,
+    "maxRowSum": 1.177237076562899,
+    "medRowSum": 0.8903759826762684,
+    "meanExcess": -0.13083203748476901,
+    "maxExcess": 0.177237076562899,
+    "meanExcessPct": -13.083203748476901,
+    "maxExcessPct": 17.7237076562899,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.4,
+    "meanF_on_edge_nbrs": 0.09931569898319091,
+    "meanVisible": 2.4,
+    "cross": {
+     "inner": 0.869167962515231
+    },
+    "excess_per_edge_pair": -0.32708009371192254,
+    "excess_over_predicted": -33.88592153682512,
+    "predicted_excess": 0.003860955569485954
+   }
+  },
+  "meta": {
+   "name": "S3_agglom_10",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 10,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_agglom_10_afix",
+  "nFaces": 1728,
+  "rowsInF": 15,
+  "patches": {
+   "inner": {
+    "nRows": 15,
+    "meanRowSum": 0.869167962515231,
+    "minRowSum": 0.4628351330206673,
+    "maxRowSum": 1.177237076562899,
+    "medRowSum": 0.8903759826762684,
+    "meanExcess": -0.13083203748476901,
+    "maxExcess": 0.177237076562899,
+    "meanExcessPct": -13.083203748476901,
+    "maxExcessPct": 17.7237076562899,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.4,
+    "meanF_on_edge_nbrs": 0.09931569898319091,
+    "meanVisible": 2.4,
+    "cross": {
+     "inner": 0.869167962515231
+    },
+    "excess_per_edge_pair": -0.32708009371192254,
+    "excess_over_predicted": null,
+    "predicted_excess": -0.0
+   }
+  },
+  "meta": {
+   "name": "S3_agglom_10_afix",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.22313016014842982,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 10,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.22313016014842982,
+  "e_alpha_pred": -0.0
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_alpha_0p100",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 1.0030814436063156,
+    "minRowSum": 1.0007469209044386,
+    "maxRowSum": 1.0048224251937201,
+    "medRowSum": 1.0032347774105563,
+    "meanExcess": 0.0030814436063155703,
+    "maxExcess": 0.004822425193720115,
+    "meanExcessPct": 0.30814436063155703,
+    "maxExcessPct": 0.48224251937201146,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 1.0030814436062925
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 1.5212611291344147,
+    "minRowSum": 1.509879518079152,
+    "maxRowSum": 1.5622080108694052,
+    "medRowSum": 1.5176406463876357,
+    "meanExcess": 0.5212611291344147,
+    "maxExcess": 0.5622080108694052,
+    "meanExcessPct": 52.12611291344147,
+    "maxExcessPct": 56.22080108694052,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.5252282865631356,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2507703696233051,
+     "outer": 1.2704907595111326
+    },
+    "excess_per_edge_pair": 0.13031528228360367,
+    "excess_over_predicted": 1.020197202879488,
+    "predicted_excess": 0.5109415392074833
+   }
+  },
+  "meta": {
+   "name": "S3_alpha_0p100",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.1,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.1,
+  "e_alpha_pred": 0.12773538480187083
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_alpha_0p150",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 1.0030814436063156,
+    "minRowSum": 1.0007469209044386,
+    "maxRowSum": 1.0048224251937201,
+    "medRowSum": 1.0032347774105563,
+    "meanExcess": 0.0030814436063155703,
+    "maxExcess": 0.004822425193720115,
+    "meanExcessPct": 0.30814436063155703,
+    "maxExcessPct": 0.48224251937201146,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 1.0030814436062925
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 1.258622989151372,
+    "minRowSum": 1.2517448262956128,
+    "maxRowSum": 1.277292311002024,
+    "medRowSum": 1.257313610553872,
+    "meanExcess": 0.25862298915137205,
+    "maxExcess": 0.277292311002024,
+    "meanExcessPct": 25.862298915137206,
+    "maxExcessPct": 27.7292311002024,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.2625901465800875,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2507703696233051,
+     "outer": 1.0078526195280963
+    },
+    "excess_per_edge_pair": 0.06465574728784301,
+    "excess_over_predicted": 1.0229755661892268,
+    "predicted_excess": 0.2528144343806671
+   }
+  },
+  "meta": {
+   "name": "S3_alpha_0p150",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.15,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.15,
+  "e_alpha_pred": 0.06320360859516677
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_alpha_0p200",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 1.0030814436063156,
+    "minRowSum": 1.0007469209044386,
+    "maxRowSum": 1.0048224251937201,
+    "medRowSum": 1.0032347774105563,
+    "meanExcess": 0.0030814436063155703,
+    "maxExcess": 0.004822425193720115,
+    "meanExcessPct": 0.30814436063155703,
+    "maxExcessPct": 0.48224251937201146,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 1.0030814436062925
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 1.0718490354784895,
+    "minRowSum": 1.0679007999749042,
+    "maxRowSum": 1.0758479148535178,
+    "medRowSum": 1.0722410787527346,
+    "meanExcess": 0.07184903547848953,
+    "maxExcess": 0.07584791485351783,
+    "meanExcessPct": 7.184903547848953,
+    "maxExcessPct": 7.584791485351783,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.0758161929072088,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2507703696233051,
+     "outer": 0.8210786658552154
+    },
+    "excess_per_edge_pair": 0.017962258869622383,
+    "excess_over_predicted": 1.0312715082291803,
+    "predicted_excess": 0.06967033890218022
+   }
+  },
+  "meta": {
+   "name": "S3_alpha_0p200",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.2,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.2,
+  "e_alpha_pred": 0.017417584725545054
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_alpha_0p220",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 1.0030814436063156,
+    "minRowSum": 1.0007469209044386,
+    "maxRowSum": 1.0048224251937201,
+    "medRowSum": 1.0032347774105563,
+    "meanExcess": 0.0030814436063155703,
+    "maxExcess": 0.004822425193720115,
+    "meanExcessPct": 0.30814436063155703,
+    "maxExcessPct": 0.48224251937201146,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 1.0030814436062925
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 1.010142063074718,
+    "minRowSum": 1.007222671584483,
+    "maxRowSum": 1.014012873308059,
+    "medRowSum": 1.0103972577443288,
+    "meanExcess": 0.010142063074717989,
+    "maxExcess": 0.014012873308058893,
+    "meanExcessPct": 1.0142063074717989,
+    "maxExcessPct": 1.4012873308058893,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.014109220503437199,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2507703696233051,
+     "outer": 0.7593716934514471
+    },
+    "excess_per_edge_pair": 0.002535515768679497,
+    "excess_over_predicted": 1.1276484232376298,
+    "predicted_excess": 0.008993993930837739
+   }
+  },
+  "meta": {
+   "name": "S3_alpha_0p220",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.22,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.22,
+  "e_alpha_pred": 0.0022484984827094347
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_alpha_0p250",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 1.0030814436063156,
+    "minRowSum": 1.0007469209044386,
+    "maxRowSum": 1.0048224251937201,
+    "medRowSum": 1.0032347774105563,
+    "meanExcess": 0.0030814436063155703,
+    "maxExcess": 0.004822425193720115,
+    "meanExcessPct": 0.30814436063155703,
+    "maxExcessPct": 0.48224251937201146,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 1.0030814436062925
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 0.9273640289455739,
+    "minRowSum": 0.919060907833097,
+    "maxRowSum": 0.9315489697599258,
+    "medRowSum": 0.9276986062814881,
+    "meanExcess": -0.0726359710544261,
+    "maxExcess": -0.06845103024007415,
+    "meanExcessPct": -7.26359710544261,
+    "maxExcessPct": -6.845103024007415,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": -0.06866881362571228,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2507703696233051,
+     "outer": 0.676593659322272
+    },
+    "excess_per_edge_pair": -0.018158992763606524,
+    "excess_over_predicted": 1.0034358686975537,
+    "predicted_excess": -0.07238725794076567
+   }
+  },
+  "meta": {
+   "name": "S3_alpha_0p250",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.25,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.25,
+  "e_alpha_pred": -0.018096814485191418
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_alpha_0p300",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 1.0030814436063156,
+    "minRowSum": 1.0007469209044386,
+    "maxRowSum": 1.0048224251937201,
+    "medRowSum": 1.0032347774105563,
+    "meanExcess": 0.0030814436063155703,
+    "maxExcess": 0.004822425193720115,
+    "meanExcessPct": 0.30814436063155703,
+    "maxExcessPct": 0.48224251937201146,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 1.0030814436062925
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 0.809431807468098,
+    "minRowSum": 0.791072545683743,
+    "maxRowSum": 0.8149939174003477,
+    "medRowSum": 0.8098885344308323,
+    "meanExcess": -0.19056819253190205,
+    "maxExcess": -0.18500608259965234,
+    "meanExcessPct": -19.056819253190206,
+    "maxExcessPct": -18.500608259965233,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": -0.186601035103182,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2507703696233051,
+     "outer": 0.5586614378448002
+    },
+    "excess_per_edge_pair": -0.04764204813297551,
+    "excess_over_predicted": 1.0112037718407543,
+    "predicted_excess": -0.188456765924636
+   }
+  },
+  "meta": {
+   "name": "S3_alpha_0p300",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.3,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.3,
+  "e_alpha_pred": -0.047114191481159
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_dist_1",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 1.0030814436063156,
+    "minRowSum": 1.0007469209044386,
+    "maxRowSum": 1.0048224251937201,
+    "medRowSum": 1.0032347774105563,
+    "meanExcess": 0.0030814436063155703,
+    "maxExcess": 0.004822425193720115,
+    "meanExcessPct": 0.30814436063155703,
+    "maxExcessPct": 0.48224251937201146,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 1.0030814436062925
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 1.0012814874315192,
+    "minRowSum": 0.998466898105807,
+    "maxRowSum": 1.005116901512537,
+    "medRowSum": 1.0015212629212062,
+    "meanExcess": 0.0012814874315192348,
+    "maxExcess": 0.005116901512536964,
+    "meanExcessPct": 0.12814874315192348,
+    "maxExcessPct": 0.5116901512536964,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.004647555955312831,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2507703696233051,
+     "outer": 0.7505111178082527
+    },
+    "excess_per_edge_pair": 0.0003203718578798087,
+    "excess_over_predicted": 0.03319093961212953,
+    "predicted_excess": 0.03860955569485954
+   }
+  },
+  "meta": {
+   "name": "S3_dist_1",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 1.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_dist_100",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 0.9980115949546354,
+    "minRowSum": 0.9958839155195127,
+    "maxRowSum": 0.9989707982457795,
+    "medRowSum": 0.9983752117871244,
+    "meanExcess": -0.001988405045364572,
+    "maxExcess": -0.001029201754220499,
+    "meanExcessPct": -0.19884050453645719,
+    "maxExcessPct": -0.1029201754220499,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 0.9980115949546031
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 1.0373160755805197,
+    "minRowSum": 1.033400366333296,
+    "maxRowSum": 1.0413146220556186,
+    "medRowSum": 1.0378677246113983,
+    "meanExcess": 0.03731607558051975,
+    "maxExcess": 0.041314622055618644,
+    "meanExcessPct": 3.7316075580519747,
+    "maxExcessPct": 4.131462205561864,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.04422231265191986,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2495155641742885,
+     "outer": 0.7878005114062542
+    },
+    "excess_per_edge_pair": 0.009329018895129937,
+    "excess_over_predicted": 0.9664984460178078,
+    "predicted_excess": 0.03860955569485954
+   }
+  },
+  "meta": {
+   "name": "S3_dist_100",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 100.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_dist_4",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 1.0030814436063156,
+    "minRowSum": 1.0007469209044386,
+    "maxRowSum": 1.0048224251937201,
+    "medRowSum": 1.0032347774105563,
+    "meanExcess": 0.0030814436063155703,
+    "maxExcess": 0.004822425193720115,
+    "meanExcessPct": 0.30814436063155703,
+    "maxExcessPct": 0.48224251937201146,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 1.0030814436062925
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 1.0403901570888696,
+    "minRowSum": 1.0369709709255301,
+    "maxRowSum": 1.0441221911488945,
+    "medRowSum": 1.0408546655799975,
+    "meanExcess": 0.040390157088869616,
+    "maxExcess": 0.044122191148894485,
+    "meanExcessPct": 4.039015708886962,
+    "maxExcessPct": 4.4122191148894485,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.04422231265191986,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2507703696233051,
+     "outer": 0.7896197874656096
+    },
+    "excess_per_edge_pair": 0.010097539272217404,
+    "excess_over_predicted": 1.0461181529278034,
+    "predicted_excess": 0.03860955569485954
+   }
+  },
+  "meta": {
+   "name": "S3_dist_4",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 4.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_gauss_0p001",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 1.0030814436063156,
+    "minRowSum": 1.0007469209044386,
+    "maxRowSum": 1.0048224251937201,
+    "medRowSum": 1.0032347774105563,
+    "meanExcess": 0.0030814436063155703,
+    "maxExcess": 0.004822425193720115,
+    "meanExcessPct": 0.30814436063155703,
+    "maxExcessPct": 0.48224251937201146,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 1.0030814436062925
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 1.0402631591444278,
+    "minRowSum": 1.0368370647461864,
+    "maxRowSum": 1.0440219222297549,
+    "medRowSum": 1.0406819097437179,
+    "meanExcess": 0.040263159144427796,
+    "maxExcess": 0.04402192222975487,
+    "meanExcessPct": 4.02631591444278,
+    "maxExcessPct": 4.402192222975487,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.044230838284157144,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2507703696233051,
+     "outer": 0.7894927895211554
+    },
+    "excess_per_edge_pair": 0.010065789786106949,
+    "excess_over_predicted": 1.0428288650259814,
+    "predicted_excess": 0.03860955569485954
+   }
+  },
+  "meta": {
+   "name": "S3_gauss_0p001",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.001,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_gauss_1em06",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 1.0030814436063156,
+    "minRowSum": 1.0007469209044386,
+    "maxRowSum": 1.0048224251937201,
+    "medRowSum": 1.0032347774105563,
+    "meanExcess": 0.0030814436063155703,
+    "maxExcess": 0.004822425193720115,
+    "meanExcessPct": 0.30814436063155703,
+    "maxExcessPct": 0.48224251937201146,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 208.94444444444446,
+    "cross": {
+     "outer": 1.0030814436062925
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 1.040263193227528,
+    "minRowSum": 1.036837469399568,
+    "maxRowSum": 1.044021936925999,
+    "medRowSum": 1.0406820449241518,
+    "meanExcess": 0.040263193227527916,
+    "maxExcess": 0.044021936925999094,
+    "meanExcessPct": 4.026319322752792,
+    "maxExcessPct": 4.4021936925999094,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.044230838284157144,
+    "meanVisible": 855.4722222222222,
+    "cross": {
+     "inner": 0.2507703696233051,
+     "outer": 0.7894928236042477
+    },
+    "excess_per_edge_pair": 0.010065798306881979,
+    "excess_over_predicted": 1.0428297477893158,
+    "predicted_excess": 0.03860955569485954
+   }
+  },
+  "meta": {
+   "name": "S3_gauss_1em06",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 1e-06,
+   "distTol": 8.0,
+   "intTol": 0.01,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ },
+ {
+  "case": "/home/ubuntu/Certonomous/verification/runs/T-family/T10aVF_runs/cases/S3_intTol_1em4",
+  "nFaces": 1728,
+  "rowsInF": 1728,
+  "patches": {
+   "inner": {
+    "nRows": 864,
+    "meanRowSum": 0.16135954714099865,
+    "minRowSum": 0.0,
+    "maxRowSum": 1.000744621969691,
+    "medRowSum": 0.0,
+    "meanExcess": -0.8386404528590014,
+    "maxExcess": 0.0007446219696909395,
+    "meanExcessPct": -83.86404528590013,
+    "maxExcessPct": 0.07446219696909395,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 0.0,
+    "meanF_on_edge_nbrs": 0.0,
+    "meanVisible": 20.75,
+    "cross": {
+     "outer": 0.1613595471409994
+    }
+   },
+   "outer": {
+    "nRows": 864,
+    "meanRowSum": 0.8342474947502737,
+    "minRowSum": 0.8005857662082504,
+    "maxRowSum": 0.880563521478317,
+    "medRowSum": 0.830573362258385,
+    "meanExcess": -0.1657525052497263,
+    "maxExcess": -0.11943647852168304,
+    "meanExcessPct": -16.575250524972628,
+    "maxExcessPct": -11.943647852168304,
+    "meanEdgeNbrs": 4.0,
+    "meanEdgeNbrsVisible": 4.0,
+    "meanF_on_edge_nbrs": 0.04422231265191986,
+    "meanVisible": 667.2777777777778,
+    "cross": {
+     "inner": 0.04476270915039207,
+     "outer": 0.7894847855999285
+    },
+    "excess_per_edge_pair": -0.04143812631243157,
+    "excess_over_predicted": -4.293043581223974,
+    "predicted_excess": 0.03860955569485954
+   }
+  },
+  "meta": {
+   "name": "S3_intTol_1em4",
+   "geom": "SPH",
+   "params": {
+    "nr": 6,
+    "N": 12
+   },
+   "alpha": 0.21,
+   "GaussQuadTol": 0.01,
+   "distTol": 8.0,
+   "intTol": 0.0001,
+   "agglomeration": 0,
+   "nFacesExpected": 1728
+  },
+  "alpha": 0.21,
+  "e_alpha_pred": 0.009652388923714885
+ }
+]

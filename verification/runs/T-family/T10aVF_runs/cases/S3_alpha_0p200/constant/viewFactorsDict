@@ -1,0 +1,40 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      viewFactorsDict;
+    location    "constant";
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// viewFactorsGen (3D, 2AI/2LI).  The four quadrature keys the utility reads
+// with getOrDefault (viewFactorsGen.C:476-486) are written out explicitly so
+// that no case depends on a compiled-in default.
+writeViewFactorMatrix     true;
+writePatchViewFactors     false;
+dumpRays                  false;
+debug                     0;
+// AMENDMENT 2026-08-22 (post-freeze, disclosed in T10aVF_RESULTS): the frozen
+// builder wrote `maxDynListLength 200000;`, copied from the externalSolarLoad
+// tutorial.  That is a RESOURCE CEILING on the visible-pair list, not a
+// numerical parameter, and 200000 is far below the pair count of every case
+// here, so viewFactorsGen aborted at shootRays_CGAL.H:82 before computing
+// anything.  The key is now omitted entirely, so the compiled-in CGAL default
+// of 1e9 (shootRays_CGAL.H:4) applies -- which is exactly what T10a used, its
+// viewFactorsDict having never set the key.  A ceiling that is either hit
+// (abort, no output) or not hit (unchanged output) cannot alter a number.
+
+GaussQuadTol              0.01;
+distTol                   8;
+alpha                     0.20000000000000001;
+intTol                    0.01;
+
+// ************************************************************************* //

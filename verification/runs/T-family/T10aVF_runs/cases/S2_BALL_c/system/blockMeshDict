@@ -1,0 +1,92 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+    location    "system";
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale 1;
+
+geometry
+{
+    sphereOuter { type sphere; origin (0 0 0); radius 0.1; }
+}
+
+vertices
+(
+    (-0.02886751345948129 -0.02886751345948129 -0.02886751345948129)
+    (0.02886751345948129 -0.02886751345948129 -0.02886751345948129)
+    (0.02886751345948129 0.02886751345948129 -0.02886751345948129)
+    (-0.02886751345948129 0.02886751345948129 -0.02886751345948129)
+    (-0.02886751345948129 -0.02886751345948129 0.02886751345948129)
+    (0.02886751345948129 -0.02886751345948129 0.02886751345948129)
+    (0.02886751345948129 0.02886751345948129 0.02886751345948129)
+    (-0.02886751345948129 0.02886751345948129 0.02886751345948129)
+    project (-0.05773502691896258 -0.05773502691896258 -0.05773502691896258) (sphereOuter)
+    project (0.05773502691896258 -0.05773502691896258 -0.05773502691896258) (sphereOuter)
+    project (0.05773502691896258 0.05773502691896258 -0.05773502691896258) (sphereOuter)
+    project (-0.05773502691896258 0.05773502691896258 -0.05773502691896258) (sphereOuter)
+    project (-0.05773502691896258 -0.05773502691896258 0.05773502691896258) (sphereOuter)
+    project (0.05773502691896258 -0.05773502691896258 0.05773502691896258) (sphereOuter)
+    project (0.05773502691896258 0.05773502691896258 0.05773502691896258) (sphereOuter)
+    project (-0.05773502691896258 0.05773502691896258 0.05773502691896258) (sphereOuter)
+);
+
+blocks
+(
+    hex ( 8  0  3 11 12  4  7 15) (4 8 8) grading (1 1 1)
+    hex ( 1  9 10  2  5 13 14  6) (4 8 8) grading (1 1 1)
+    hex ( 8  9  1  0 12 13  5  4) (8 4 8) grading (1 1 1)
+    hex ( 3  2 10 11  7  6 14 15) (8 4 8) grading (1 1 1)
+    hex ( 8  9 10 11  0  1  2  3) (8 8 4) grading (1 1 1)
+    hex ( 4  5  6  7 12 13 14 15) (8 8 4) grading (1 1 1)
+    hex (0 1 2 3 4 5 6 7) (8 8 8) grading (1 1 1)
+);
+
+edges
+(
+    project 8 9 (sphereOuter)
+    project 10 11 (sphereOuter)
+    project 14 15 (sphereOuter)
+    project 12 13 (sphereOuter)
+    project 8 11 (sphereOuter)
+    project 9 10 (sphereOuter)
+    project 13 14 (sphereOuter)
+    project 12 15 (sphereOuter)
+    project 8 12 (sphereOuter)
+    project 9 13 (sphereOuter)
+    project 10 14 (sphereOuter)
+    project 11 15 (sphereOuter)
+);
+
+faces
+(
+    project (8 12 15 11) sphereOuter
+    project (9 10 14 13) sphereOuter
+    project (8 9 13 12) sphereOuter
+    project (11 15 14 10) sphereOuter
+    project (8 11 10 9) sphereOuter
+    project (12 13 14 15) sphereOuter
+);
+
+boundary
+(
+    outer
+    {
+        type wall;
+        inGroups (wall viewFactorWall);
+        faces ( (8 12 15 11) (9 10 14 13) (8 9 13 12) (11 15 14 10) (8 11 10 9) (12 13 14 15) );
+    }
+);
+
+mergePatchPairs ();

@@ -5,13 +5,17 @@
 #
 # Serial by construction: one utility at a time, at most MAXJOBS concurrent
 # cases (default 2), because the box is shared with other lanes' solvers.
-# no `set -u`: the openfoam2606 bashrc reads unset variables and aborts under it
-set -e
+# AMENDMENT 2026-08-22 (post-freeze, plumbing only, disclosed in T10aVF_RESULTS):
+# neither `set -u` nor `set -e` may be in force while the openfoam2606 bashrc is
+# sourced -- it reads unset variables and its config.sh/setup:209 pop_var_context
+# returns non-zero, which killed the frozen version at its first line of work.
+# Every utility call below already checks its own exit status explicitly, so the
+# change cannot alter, hide or select any measured number.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="${1:-$HERE/cases}"
 MAXJOBS="${MAXJOBS:-2}"
 
-. /usr/lib/openfoam/openfoam2606/etc/bashrc
+. /usr/lib/openfoam/openfoam2606/etc/bashrc 2>/dev/null || true
 export WM_NCOMPPROCS=1
 export OMP_NUM_THREADS=1
 

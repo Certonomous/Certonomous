@@ -67,12 +67,34 @@ def stream_list_list(path, cast):
             if line.strip() == "(":
                 break
         for _ in range(n):
+            # AMENDMENT 2026-08-22 (post-freeze, disclosed in T10aVF_RESULTS):
+            # OpenFOAM writes a SHORT inner list inline as `N(v1 v2 ... vN)` on
+            # one line (and an empty one as `0()`) instead of the block form the
+            # frozen parser assumed.  Cases whose visibility lists are short --
+            # the agglomerated pair, and the intTol=1e-4 case whose rays are too
+            # short to escape their own faces -- are written that way, and the
+            # frozen parser raised on them rather than mis-reading them.  Reading
+            # a format it previously refused cannot change a number it already
+            # read: every block-form case re-parses bit-identically.
             m = None
+            inline = None
             for line in fh:
                 s = line.strip()
                 if not s or s == "(":
                     continue
-                m = int(s); break
+                if "(" in s:
+                    k = s.index("(")
+                    m = int(s[:k])
+                    body = s[k + 1:s.rindex(")")].strip()
+                    inline = [cast(x) for x in body.split()] if body else []
+                else:
+                    m = int(s)
+                break
+            if inline is not None:
+                if len(inline) != m:
+                    raise RuntimeError("inline row length mismatch")
+                yield inline
+                continue
             for line in fh:
                 if line.strip() == "(":
                     break

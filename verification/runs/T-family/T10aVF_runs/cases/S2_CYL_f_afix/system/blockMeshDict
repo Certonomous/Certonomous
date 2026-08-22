@@ -1,0 +1,84 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+    location    "system";
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale 1;
+
+geometry
+{
+    cyl
+    {
+        type   cylinder;
+        point1 (0 0 -0.2);
+        point2 (0 0 0.4);
+        radius 0.1;
+    }
+}
+
+vertices
+(
+    project (-0.07071067811865475 -0.07071067811865475 0) (cyl)
+    project (0.07071067811865475 -0.07071067811865475 0) (cyl)
+    project (0.07071067811865475 0.07071067811865475 0) (cyl)
+    project (-0.07071067811865475 0.07071067811865475 0) (cyl)
+    project (-0.07071067811865475 -0.07071067811865475 0.2) (cyl)
+    project (0.07071067811865475 -0.07071067811865475 0.2) (cyl)
+    project (0.07071067811865475 0.07071067811865475 0.2) (cyl)
+    project (-0.07071067811865475 0.07071067811865475 0.2) (cyl)
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (16 16 16) grading (1 1 1)
+);
+
+edges
+(
+    project 0 1 (cyl)
+    project 1 2 (cyl)
+    project 2 3 (cyl)
+    project 3 0 (cyl)
+    project 4 5 (cyl)
+    project 5 6 (cyl)
+    project 6 7 (cyl)
+    project 7 4 (cyl)
+);
+
+faces
+(
+    project (0 1 5 4) cyl
+    project (1 2 6 5) cyl
+    project (2 3 7 6) cyl
+    project (3 0 4 7) cyl
+);
+
+boundary
+(
+    side
+    {
+        type wall;
+        inGroups (wall viewFactorWall);
+        faces ( (0 1 5 4) (1 2 6 5) (2 3 7 6) (3 0 4 7) );
+    }
+    ends
+    {
+        type wall;
+        inGroups (wall viewFactorWall);
+        faces ( (0 3 2 1) (4 5 6 7) );
+    }
+);
+
+mergePatchPairs ();

@@ -1,0 +1,23 @@
+#!/bin/sh
+# Minimal reproducer for the viewFactorsGen coincident-edge (`alpha`) defect.
+# Runs in well under two minutes on one core.  No solver is invoked.
+cd "$(dirname "$0")" || exit 1
+. "${WM_PROJECT_DIR:-/usr/lib/openfoam/openfoam2606}"/etc/bashrc 2>/dev/null
+
+for c in box box_alphafix sphere sphere_alphafix; do
+    ( cd "$c" || exit 1
+      rm -rf constant/polyMesh constant/F constant/globalFaceFaces constant/mapDist
+      blockMesh       > log.blockMesh 2>&1       || { echo "blockMesh FAILED in $c";       exit 1; }
+      viewFactorsGen  > log.viewFactorsGen 2>&1  || { echo "viewFactorsGen FAILED in $c";  exit 1; }
+    ) || exit 1
+done
+
+echo
+echo "======================================================================="
+echo " sum_j F_ij must be EXACTLY 1 for every face of a closed enclosure."
+echo "======================================================================="
+echo
+for c in box box_alphafix sphere sphere_alphafix; do
+    echo "--- $c"
+    python3 rowsum.py "$c"
+done

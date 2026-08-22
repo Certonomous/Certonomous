@@ -325,7 +325,15 @@ writeViewFactorMatrix     true;
 writePatchViewFactors     false;
 dumpRays                  false;
 debug                     0;
-maxDynListLength          200000;
+// AMENDMENT 2026-08-22 (post-freeze, disclosed in T10aVF_RESULTS): the frozen
+// builder wrote `maxDynListLength 200000;`, copied from the externalSolarLoad
+// tutorial.  That is a RESOURCE CEILING on the visible-pair list, not a
+// numerical parameter, and 200000 is far below the pair count of every case
+// here, so viewFactorsGen aborted at shootRays_CGAL.H:82 before computing
+// anything.  The key is now omitted entirely, so the compiled-in CGAL default
+// of 1e9 (shootRays_CGAL.H:4) applies -- which is exactly what T10a used, its
+// viewFactorsDict having never set the key.  A ceiling that is either hit
+// (abort, no output) or not hit (unchanged output) cannot alter a number.
 
 GaussQuadTol              {gauss:.12g};
 distTol                   {distTol:.12g};

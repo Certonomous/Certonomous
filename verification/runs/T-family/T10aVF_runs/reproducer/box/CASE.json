@@ -1,0 +1,13 @@
+{
+  "name": "box",
+  "geom": "BOX",
+  "params": {
+    "N": 16
+  },
+  "alpha": 0.21,
+  "GaussQuadTol": 0.01,
+  "distTol": 8.0,
+  "intTol": 0.01,
+  "agglomeration": 0,
+  "nFacesExpected": 1536
+}

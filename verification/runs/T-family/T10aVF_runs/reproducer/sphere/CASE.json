@@ -1,0 +1,14 @@
+{
+  "name": "sphere",
+  "geom": "SPH",
+  "params": {
+    "nr": 6,
+    "N": 12
+  },
+  "alpha": 0.21,
+  "GaussQuadTol": 0.01,
+  "distTol": 8.0,
+  "intTol": 0.01,
+  "agglomeration": 0,
+  "nFacesExpected": 1728
+}
