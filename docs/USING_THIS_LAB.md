@@ -822,6 +822,19 @@ staged ladder edit and a staged deletion of a grade record. The cleanup was
 removed**, and the other session's three entries were compared before and after
 and were byte-identical. Remove your own paths; leave everything else alone.
 
+**Forwarding note — appended 2026-08-22.** `D369`, `D463`, `L-240`,
+`scripts/append_record.py` and `scripts/check_record_reconciliation.py` all cite
+"§8.5" as the home of the **write-back rule for the append-only records**. That
+rule is not here: this section is the *untracking* case of the index-isolated
+form. **The write-back lives in §9 item 8**, and that is where the merge rule,
+`scripts/append_record.py`'s exit contract and the struck overwrite recipe now
+sit. The citations are left standing rather than rewritten, because each records
+where the rule was when the sentence carrying it was written; this note forwards
+them. The two sections share one instrument for one reason — *state the tree you
+intend to write instead of inheriting one* — and the append-only records need the
+same discipline applied to the **working tree**: rebuild it by **merge**, never
+by overwrite.
+
 ### 8.6 `git check-ignore` is silent about tracked files, which is the only kind you are asking about
 
 `git check-ignore` skips paths that are in the index. Asking it "does this
@@ -1004,6 +1017,11 @@ rows, so a pathspec commit at that moment would have landed two other agents'
 work under one message. The standing form instead:
 
 ```bash
+# 0. BEFORE you edit the record at all -- see "run the reconciliation check
+#    before you edit" below. It is a precondition, not a closing check.
+python3 scripts/check_docket_reconciliation.py          # docs/DOCKET.md
+python3 scripts/check_record_reconciliation.py          # LESSONS + NUMERICS
+
 EXPECTED_OLD=$(git rev-parse HEAD)          # read ONCE; this is the CAS token
 # Rebuild the blob as the PARENT's docket plus ONLY your own rows, selected by
 # row ID. Never copy the worktree file -- that is the capture you are avoiding.
@@ -1016,10 +1034,63 @@ TREE=$(git write-tree)
 NEW=$(git commit-tree $TREE -p $EXPECTED_OLD -F $D/msg.txt)
 unset GIT_INDEX_FILE
 git update-ref refs/heads/main $NEW $EXPECTED_OLD          # MANDATORY, never optional
-# AND THEN, once the CAS has succeeded, this step is part of the protocol:
-# write your row into the WORKTREE copy too, inserted in numeric order by ID.
-# The form above never touched the worktree file, so without this the two diverge.
+# AND THEN, once the CAS has succeeded, the WRITE-BACK. It is part of the
+# protocol, not an afterthought -- and it is a MERGE, never an overwrite.
+# Pass the SAME revision you passed to `commit-tree -p`, not a fresh HEAD.
+python3 scripts/append_record.py \
+  --path docs/DOCKET.md \
+  --rows $D/myrow.txt \
+  --rev  $EXPECTED_OLD \
+  --expect-first-id D<n>          # the id you allocated; asserted as max+1
 ```
+
+**The write-back is a MERGE, and `scripts/append_record.py` is the only form of
+it.** The helper rebuilds the worktree copy as **HEAD's blob + the worktree's own
+tail + your rows**, in that order — the tail first because it is somebody else's
+work that was already sitting there and an append-only record is chronological.
+It writes the working tree only; the private-index sequence, the CAS and the
+post-commit verification above remain yours. Its refusals are the point:
+
+| Exit | Meaning | What to do |
+|---|---|---|
+| `0` | merged and written (or `--dry-run`, and it would have been) | carry on |
+| `2` | **REFUSED**: the worktree disagrees with the committed blob **inside that blob's own bytes** — an edit or a truncation of content that is already committed. Nothing was written | **inspect, never revert** (§9 item 4, `ESCALATION_CHARTER.md` §3). The helper cannot know whose edit it is, so it stops rather than guessing |
+| `3` | **REFUSED**: the first appended id is not `max + 1` for **its own series**, read from that same committed blob — or it is not the `--expect-first-id` you declared | re-derive the id from the tail of the committed blob (§9 item 11's rule: the maximum existing number, never a count) |
+| `4` | UNKNOWN: unregistered path, unreadable revision, or the id pattern parsed zero ids | the file or the pattern changed shape; do not work around it |
+| `5` | a planted control in `--selftest` did not behave as required | |
+
+The id assertion is **series-aware**, because `docs/NUMERICS_KNOWLEDGE.md`
+numbers per lane — `N-B26` follows `N-B25` whatever `N-T` is up to. A tail that
+does not end in a newline is a partial line, somebody mid-edit: a separator is
+inserted and the fact is **reported, never silently fixed**. And a preserved tail
+is **not** permission to commit somebody else's bytes — the commit blob above is
+still HEAD's blob plus *your* rows alone.
+
+> ~~**Superseded 2026-08-22 — quoted, not deleted, per L-32.** The three lines
+> that stood here read:~~
+>
+> ```bash
+> # AND THEN, once the CAS has succeeded, this step is part of the protocol:
+> # write your row into the WORKTREE copy too, inserted in numeric order by ID.
+> # The form above never touched the worktree file, so without this the two diverge.
+> ```
+>
+> ~~"Write your row into the WORKTREE copy" was executed as a plain **overwrite**
+> of the worktree file with HEAD's blob plus the author's rows, and that destroys
+> whatever the worktree held beyond HEAD's blob.~~ **`D369`** records it doing
+> exactly that to `docs/LESSONS.md` at `12b7ed42` — `cmp` reported *"EOF on -
+> after byte 313171"*, and those trailing bytes are **not recoverable**. D369
+> stated the repair (*"The write-back must be a MERGE, not an overwrite … refuse
+> if the two disagree anywhere inside HEAD's own bytes"*) and filed it **OPEN**,
+> owed to this section. It then **fired a second time** at `D461` — the overwrite
+> form reissued verbatim, by the supervisor enforcing the protocol, and executed
+> on all three append-only records; disclosed as departure **D-13**. No loss was
+> detected, *and that is not the same as no loss*: every instrument used to
+> rule it out is an **ID-set check**, and D369's actual loss was bytes matching
+> no ID regex. Closed as executable law at **`0286bb2a`** — see **D463** and
+> **L-240**. The recipe above is retained because records cite this section, and
+> because **a repair that lives only in the prose of an incident report is a
+> description of one, not a repair** (L-240).
 
 **Why the compare-and-swap is not optional.** The commit was built with
 `$EXPECTED_OLD` as its only parent. If HEAD moved while you were building it, a
@@ -1046,17 +1117,50 @@ that edits the worktree copy and commits it **by pathspec**, the form still
 mandated for every other file and the one habit reaches for, silently reverts
 every private-index row landed since the worktree last matched HEAD.
 
-**So run the reconciliation check before you edit `docs/DOCKET.md` at all**, and
-read its output by direction, because the two directions mean opposite things:
+**So run the reconciliation check BEFORE you edit the record at all** — before,
+not after, because after the edit the two sides have already been merged and the
+check can no longer tell you which side an entry came from. This is a
+precondition of touching any of the three append-only records:
+
+```bash
+python3 scripts/check_docket_reconciliation.py      # docs/DOCKET.md
+python3 scripts/check_record_reconciliation.py      # LESSONS + NUMERICS (default)
+```
+
+Both carry the **same exit contract**, deliberately: `0` PASS (the id sets are
+equal), `1` entries in HEAD missing from the worktree (**write-back owed**), `2`
+entries in the worktree in no commit (**UNLANDED WORK**), `3` UNKNOWN (a side
+could not be read, or parsed to zero ids), `4` a duplicate id on either side.
+They compare **ID sets, never totals**, print the pattern they used on every run,
+and compare a **commit against the working tree** — never `git diff` without an
+explicit revision, because the shared `.git/index` is poisoned by any peer's
+`git add` (measured strictly stale here on 2026-08-22: 225 lessons against 237,
+44 numerics entries against 70).
+
+**Neither checker can see D369's actual loss.** No ID-set reconciliation can see
+content that matches no id pattern in either direction — an in-progress
+paragraph, a partial line, a trailing edit. That gap is closed by
+`scripts/append_record.py`'s merge, not by the checker; the two are
+complements, and **neither alone is sufficient**.
+
+Read the output by direction, because the two directions mean opposite things:
 
 | Diff direction | Meaning | Action |
 |---|---|---|
 | `< D<n>`: in HEAD, not in the worktree | a row landed by private index and never written back | **HEAD wins.** Insert it into the worktree in numeric order by ID. It is already committed and must not be committed again |
 | `> D<n>`: in the worktree, not in HEAD | **unlanded work**, somebody's finding living in no commit | land it by ID through the form above, never by copying the worktree file, and never by `git checkout --` |
 
-`scripts/check_docket_reconciliation.py` runs this. Treat the divergence as the
-**steady state of this file rather than as an incident**: it reappears every time
-anybody follows item 8 without the write-back step.
+`scripts/check_docket_reconciliation.py` runs this for the docket;
+`scripts/check_record_reconciliation.py` is its sibling for `docs/LESSONS.md` and
+`docs/NUMERICS_KNOWLEDGE.md` — the one D369 filed as **owed** and that did not
+exist until `0286bb2a` (D463). Treat the divergence as the **steady state of
+these files rather than as an incident**: it reappears every time anybody follows
+item 8 without the write-back step.
+
+Two real shapes in `docs/LESSONS.md` are **declared unmatchable rather than made
+to fit**, and an entry written under either is invisible to the checker:
+`## L-43, second corollary.` (matching it would make `L-43` a duplicate and fail
+every clean run) and `### L-63 — CORRECTION`.
 
 **And record the by-product, because somebody owns it.** An agent that declines
 to commit rather than capture leaves **orphaned rows**: text that lives in the
@@ -1339,7 +1443,31 @@ command grep -oE '^\| \*{0,2}D[0-9]+' docs/DOCKET.md \
 Do not hand-type the append. Write it with something that **asserts the ID is
 free at the moment of writing**, because checking and writing are two moments and
 four IDs have been allocated by another session in the ninety seconds between
-them.
+them. That something is `scripts/append_record.py`, which re-reads the maximum
+from the **same committed blob it merges onto** and refuses if your first row is
+not `max + 1` for its series:
+
+```bash
+python3 scripts/append_record.py \
+  --path docs/DOCKET.md \
+  --rows $D/myrow.txt \
+  --rev  $EXPECTED_OLD \
+  --expect-first-id D<n>
+```
+
+`--path` accepts `docs/DOCKET.md`, `docs/LESSONS.md` or
+`docs/NUMERICS_KNOWLEDGE.md` — the three registered records, each with its own id
+pattern. `--rev` must be the **same revision passed to `commit-tree -p`**, not a
+fresh `HEAD`: a peer landing between your `git show` and your write is precisely
+what capturing HEAD once prevents. **Exit `2`** is a refusal because the worktree
+disagrees with that blob inside the blob's own bytes — nothing is written,
+inspect it, never revert it. **Exit `3`** is a refusal because the first appended
+id is not `max + 1` for its series, or is not the `--expect-first-id` you
+declared. `--dry-run` reports and writes nothing; `--selftest` runs the planted
+controls. Full contract and the merge order: §9 item 8.
+
+**And run `scripts/check_docket_reconciliation.py` before you edit the docket at
+all** — before, not after (§9 item 8).
 
 **What a row must contain**, from the docket header and from what every good row
 in it does:
@@ -1425,11 +1553,13 @@ of mark in arms 3 and 4, which `git grep` never reaches at all.
 
 ### Step 6: file a docket row
 
+Run `scripts/check_docket_reconciliation.py` **before you edit the file at all**.
 Check the highest ID **first**, and check it in both frames, with the numeric sort
-of §11. Then write the row with something that asserts its own ID is free. A
-guarded append has fired in practice: between checking the highest ID and writing
-the row about ninety seconds later, another session appended four rows, and the
-assertion refused rather than producing a duplicate ID.
+of §11. Then write the row with `scripts/append_record.py`, which asserts its own
+ID is free against the committed blob it merges onto. A guarded append has fired
+in practice: between checking the highest ID and writing the row about ninety
+seconds later, another session appended four rows, and the assertion refused
+rather than producing a duplicate ID.
 
 ### Step 7: commit
 
@@ -1437,8 +1567,10 @@ assertion refused rather than producing a duplicate ID.
     git commit -F <msgfile> -- <the same paths>
     git log --oneline -1
 
-On `docs/DOCKET.md`, use the private-index form of §9 item 8 instead, and do the
-write-back.
+On `docs/DOCKET.md`, `docs/LESSONS.md` and `docs/NUMERICS_KNOWLEDGE.md`, use the
+private-index form of §9 item 8 instead — and do the write-back **through
+`scripts/append_record.py`**, which merges. Never by overwriting the worktree
+copy (D463, L-240).
 
 ---
 
@@ -1561,6 +1693,11 @@ commits landed while it was being written.
     `docs/DOCKET.md` §B before the agents exist** (§9 item 1).
 11. Before you run `pytest` by hand, purge `__pycache__` (§7). A green suite over
     stale bytecode is the cheapest wrong answer in this repository.
+12. Before you touch `docs/DOCKET.md`, `docs/LESSONS.md` or
+    `docs/NUMERICS_KNOWLEDGE.md`, run `scripts/check_docket_reconciliation.py`
+    and `scripts/check_record_reconciliation.py` — **before** the edit, not
+    after. Write the append with `scripts/append_record.py`, never by
+    overwriting the worktree copy (§9 item 8; D463, L-240).
 
 
 ---
