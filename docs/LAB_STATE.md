@@ -265,7 +265,7 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T23:20Z by the DAFoam supervisor (Fable), replacing the harness
+*Refreshed 2026-08-22T23:40Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
 **Last commits (newest first):**
@@ -293,6 +293,8 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 | container | host pid | run root / cwd | item | ETA |
 |---|---|---|---|---|
 | `p3a6_s1b` | 802799 | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/s1b` | A6 N=16 fixed reference, Stage 1 (primal-convergence gate + forward-AD probes), `--memory=12g` | Stage 1 ~20-40 min; Stage 2 contingent, ~1.5 h |
+| Lane D | **VERIFY** pid | `/home/ubuntu/certonomous-runs/P3-a6-n16-rem/` | A6 N=16 **remaining five components** (twist 1,2,4,5 + patchV 0), 21 primals, np=1 `--cpus=1`, ceiling 60 core-min; chief-approved, pre-registration required before launch; gate free_cores ≥ 1 and MemAvailable ≥ 12 GiB | prereg ~30 min, arm ~40-60 min contended |
+| Lane B | — | `cases/dafoam/DEFECT_CANDIDATE_adf_primal_nonreproduction.md` (to be written) | ADF primal non-reproduction **NOT FILED** draft + novelty sweep, zero compute | ~1 h |
 | *(armed, gated)* | — | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/{patched,wrongstep}` | A3 rung-2 arms **P-A** (patched, `fd3`, `timeout 1050`) and **P-B** (control, `fd1wrong`, `timeout 300`), np=4 `--cpus=4 --memory=12g`, detached and self-ledgering; shipped twin declined by name (frozen §3 departure 1). P29 registers 452-950 s wall / 30.1-63.3 core-min | **gate shut: free_cores 0** (11 buoyant + 3 new `simpleFoam` + 1 buoyantSimple + 1 python). Needs the A6 queue *and* the new `simpleFoam` to clear; 4 h bound |
 
 **Rungs lacking verdicts:**
@@ -319,6 +321,8 @@ registered gate passes. (2) Resolve the A3 np=4 launch: pre-compute amendment to
 twins if the T-family holds the box past the poll window. (3) Supervisor docs commit per
 verdict: `LADDER_A_STATUS` dated addendum, L-225+ (re-derive), D453+ (re-derive), N-D8+.
 (4) Then: B3 decomposition RSS watcher re-run (cheap), W4 M1+M2 (40 core-min).
+
+**On Sanaa's desk (ruling requested):** the DAFoam launch-gate **MemAvailable floor 12 GiB** — a registered gate threshold, so it stays at 12 until she rules (chief, 2026-08-22). Lane B's measured case for lowering it to **6 GiB for primal-only arms**: the 12 was calibrated on a 9.787 GiB adjoint; the largest peak RSS in the whole A6 fixed-reference item was **1.252 GiB**, and the floor cost **28 min of wall** waiting under another team's `viewFactorsGen` (up to 17.2 GiB). Not lowered by any agent.
 
 **On Sanaa's desk:** four upstream defect drafts, all **NOT FILED** (D-A/D-A2 IDWarp
 rotation; D-B/D-B2 decomposition + limiter; D-C ksp options override; D-E ILU exact zero
