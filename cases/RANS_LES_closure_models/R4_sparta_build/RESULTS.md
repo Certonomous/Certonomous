@@ -1001,3 +1001,33 @@ not wall.
 * `/home/ubuntu/closure-data/r4/dataset/<case>.npz` — the candidate library
 * `/home/ubuntu/closure-data/r4/aposteriori/<case>/<config>/` — 60 propagation cases
 * `/home/ubuntu/closure-data/r4/{ktest,ktest2,ktest3,ktestA,ktestB}/` — the five convergence diagnostics of sec. 2.3
+
+**D-13. The stage-(d) write-back to the three append-only records was an
+OVERWRITE, not a merge, and D369 names that as a defect.** `docs/DOCKET.md`,
+`docs/LESSONS.md` and `docs/NUMERICS_KNOWLEDGE.md` were rebuilt from
+`git show $H:<path>` plus this lane's rows and written into the working tree.
+D369 records that this exact step destroyed bytes once before, and requires a
+**merge**: rebuild from HEAD's blob plus your rows, then re-apply whatever the
+worktree held beyond it. That was not done. **CLAUDE.md rule 11 also requires
+`scripts/check_docket_reconciliation.py` to be run BEFORE editing the docket;
+it was run after.**
+
+What was checked afterwards, and what it can and cannot see:
+
+* `scripts/check_docket_reconciliation.py` — **PASS**, 496 committed rows
+  against 496 in the working copy, **identical ID sets**, under its own
+  recognition control.
+* The **shared index** holds **no** `L-`, `N-` or docket ID that `HEAD` lacks,
+  for any of the three files — it is strictly stale, 225 lessons against 237,
+  44 numerics entries against 70, 488 docket rows against 496 — which is the
+  direction CLAUDE.md rule 10 documents. There is therefore no evidence of
+  unlanded peer rows in the files that were overwritten.
+* Every `L-<n>` cited anywhere in the repository resolves to a heading, except
+  **L-1** and **L-52**, and `L-52` is documented in CLAUDE.md rule 11 as never
+  having existed. The only gaps are **L-52** and **N-B21**, and both are
+  present in `HEAD~1` as gaps, so both predate this commit.
+
+**What this cannot see, and it is D369's own point:** content that no ID regex
+matches — a partial row, an in-progress paragraph, a trailing edit — is
+invisible to every check above. **No loss was detected; that is not the same as
+no loss.** Recorded here rather than left to the next reader to wonder about.
