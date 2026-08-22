@@ -265,13 +265,14 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T22:05Z by the DAFoam supervisor (Fable), replacing the harness
+*Refreshed 2026-08-22T22:30Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
 **Last commits (newest first):**
 
 | sha | committed (UTC) | what |
 |---|---|---|
+| `674cab89` | 2026-08-22 ~22:20Z | *A3 rung-2 Amendment 2 v1.2* (lane): Amendment 1's np=1 configuration **withdrawn as refuted by its own measurement**; arms revert to the frozen §2 np=4 configuration; **no gate, threshold, cap or label altered** — only the launch condition, now `free_cores >= 4 AND MemAvailable >= 12 GiB` (free_cores = 16 − median-of-5 runnable count). Frozen body + Amendment 1 verified byte-identical through line 705 **by the supervisor personally**; script diff read as a diff by the supervisor: **68 insertions, 0 deletions, 0 modifications**, grading path untouched. Colouring cache `dRdWColoring_4.bin` md5 `a2e5f317…` proven identical to the graded stock arm's. Worst case 102.150 of the 120 ceiling **by construction** |
 | `3a06b371` | 2026-08-22 22:00Z | supervisor append for the A3 attempt: **L-232, D458, N-D11, N-D12**, `LADDER_A_STATUS` row-12 footnote. Row 12 stays **PENDING — NOT MEASURED**: the np=1 re-price was refuted by measurement (colouring 3.03× bigger at one rank), the arm stopped at 11.950 core-min rather than spend 70.0 on a timeout inside the colouring |
 | `972cb647` | 2026-08-22 ~20:00Z | *A6 N=16 fixed reference — interim RESULTS* (queue still running): forward-AD reachable and runs for the first time in the lab (`ADF-Deriv: -2.417e-05`), but **the ADF build does not reproduce the plain build's primal** on A6 N=16 (energy diverges at 8th s.f., GAMG 5 vs 7 sweeps, NaN by iteration 10; `libDASolverADF.so` md5-identical across images → shipped-toolchain finding, **new defect class candidate, characterisation owed**); `DASolver.C:188` can print 'satisfied the prescribed tolerance' on a reset `primalMaxRes` (diagnosability defect); FD gate passes for twist 0/3, patchV 1 at step 3e-2, twist idx6 never clears; 7.766 core-min so far of 120 |
 | `85397209` | 2026-08-22 19:20Z | supervisor docs commit for the A4 verdict and the A2 finding: **L-228..L-230, D455..D456, N-D8..N-D10**, `LADDER_A_STATUS` addendum rows 31-35, `INDEX` addendum (four new dirs). Board update missed in that commit, landed here |
@@ -291,7 +292,7 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 |---|---|---|---|---|
 | `p3a6_s1b` | 802799 | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/s1b` | A6 N=16 fixed reference, Stage 1 (primal-convergence gate + forward-AD probes), `--memory=12g` | Stage 1 ~20-40 min; Stage 2 contingent, ~1.5 h |
 | A6 queue | **VERIFY** pid | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/` | A6 fixed reference, **Stage 1 complete** (relay 21:05Z): P1+P2+P3 HIT — S1a at 6000 iters `primalMaxRes 5.6999e-06` (the 1e-8 gate FAILS as predicted: the primal is flat, not slow), solve-to-solve repeat δ `2.2104e-06`; forward-AD `nan` = P4a MISS; η re-read at printInterval 10 = `1.0910e-05` (21 % above the record's 9.00e-06), twist idx6 stays FLAGGED at 2.50× under the registered max rule; the two noise measures disagree 2.47× — disclosed as a sensitivity, not chosen. Spend 26.9/120 core-min. Stage 2 running: S2b-pV → S1e → S2b-tw, np=1 `--cpus=1` | ~40 min from 21:05Z, then grading + commit |
-| *(queued)* | — | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/` | A3 rung-2 patched arm **reverting to the frozen np=4 configuration** (patched arm only, warm `dRdWColoring_4.bin`, shipped twin declined by name); Amendment 2 alters no gate/threshold/cap/label; gate is **free cores ≥ 4**, not `load1`; total item spend capped at the registered 120 core-min (12.150 already spent) | launches when the A6 queue frees a core; ~37 core-min idle, more contended |
+| *(armed, gated)* | — | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/{patched,wrongstep}` | A3 rung-2 arms **P-A** (patched, `fd3`, `timeout 1050`) and **P-B** (control, `fd1wrong`, `timeout 300`), np=4 `--cpus=4 --memory=12g`, detached and self-ledgering; shipped twin declined by name (frozen §3 departure 1). P29 registers 452-950 s wall / 30.1-63.3 core-min | **gate shut: free_cores 0** (11 buoyant + 3 new `simpleFoam` + 1 buoyantSimple + 1 python). Needs the A6 queue *and* the new `simpleFoam` to clear; 4 h bound |
 
 **Rungs lacking verdicts:**
 
