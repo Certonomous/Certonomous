@@ -267,13 +267,14 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T19:25Z by the DAFoam supervisor (Fable), replacing the harness
+*Refreshed 2026-08-22T20:15Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
 **Last commits (newest first):**
 
 | sha | committed (UTC) | what |
 |---|---|---|
+| `972cb647` | 2026-08-22 ~20:00Z | *A6 N=16 fixed reference — interim RESULTS* (queue still running): forward-AD reachable and runs for the first time in the lab (`ADF-Deriv: -2.417e-05`), but **the ADF build does not reproduce the plain build's primal** on A6 N=16 (energy diverges at 8th s.f., GAMG 5 vs 7 sweeps, NaN by iteration 10; `libDASolverADF.so` md5-identical across images → shipped-toolchain finding, **new defect class candidate, characterisation owed**); `DASolver.C:188` can print 'satisfied the prescribed tolerance' on a reset `primalMaxRes` (diagnosability defect); FD gate passes for twist 0/3, patchV 1 at step 3e-2, twist idx6 never clears; 7.766 core-min so far of 120 |
 | `85397209` | 2026-08-22 19:20Z | supervisor docs commit for the A4 verdict and the A2 finding: **L-228..L-230, D455..D456, N-D8..N-D10**, `LADDER_A_STATUS` addendum rows 31-35, `INDEX` addendum (four new dirs). Board update missed in that commit, landed here |
 | `f9a59d47` | 2026-08-22 ~19:05Z | *A4 shipped-image optimisation twin — PASS, and the rotation patch did not matter to this optimisation*: 6 majors, CD −7.4775 %, endpoint 0.3112 % PASS, patched baseline 0.33929 % PASS; 13.616 core-min / $0.0116 |
 | `239a007f` | 2026-08-22 ~18:10Z | *A4 shipped-image optimisation twin — pre-registration* |
@@ -290,7 +291,8 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 | container | host pid | run root / cwd | item | ETA |
 |---|---|---|---|---|
 | `p3a6_s1b` | 802799 | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/s1b` | A6 N=16 fixed reference, Stage 1 (primal-convergence gate + forward-AD probes), `--memory=12g` | Stage 1 ~20-40 min; Stage 2 contingent, ~1.5 h |
-| *(none)* | — | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/np1_*` | A3 rung-2 twins, np=1 (amended) — **driver polling on memory, nothing launched** | launches when A6/A4 containers exit |
+| A6 queue | **VERIFY** pid | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/` | A6 fixed reference: S1a (6000-iter primal gate) → S1d → S2b-pV → S1e → S2b-tw, np=1 `--cpus=1` | ~1.5-2 h from 20:00Z |
+| A3 `np1_patched` | **VERIFY** pid | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/np1_patched` | A3 rung-2 patched arm, np=1, cap 4,200 s; contention ~2x on top of the serial factor — lane measuring the coloring rate, stops early if it projects past the cap (no self re-price) | ~1 h, at risk of cap | A3 rung-2 twins, np=1 (amended) — **driver polling on memory, nothing launched** | launches when A6/A4 containers exit |
 
 **Rungs lacking verdicts:**
 
