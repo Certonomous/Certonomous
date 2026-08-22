@@ -123,6 +123,27 @@ single thing this log exists to make visible, because it is otherwise invisible.
     python3 scripts/session_log.py show -n 20      # human readable
     python3 scripts/session_log.py show --json     # raw records
 
+**The board is read from `git show HEAD:docs/LAB_STATE.md`, not the worktree**, by
+both `check_harness.py` and the logger — under the shared-board rule no team writes
+the worktree copy, so it is nobody's output and drifts behind HEAD by design.
+`check_harness.py --worktree` restores the old behaviour for inspecting an
+uncommitted edit, and every log record names its `board_source`.
+
+### The freshness stamp
+
+Canonical form, one line, first thing in a team's section:
+
+    **Section last written:** 2026-08-22T20:34Z by closure-supervisor.
+
+The timestamp is an ISO instant (`...T18:05Z`, `...T18:05:33Z` or with an offset).
+**The parser is deliberately tolerant of anything after `by <who>`** — a trailing
+clause, a parenthetical, a semicolon and a note all parse, and a stamp whose
+timestamp will not parse is a WARN rather than a FAIL. That tolerance is not
+politeness: a strict version rejected the closure lane's stamp and the lane rewrote
+its board to suit the script, which is an instrument bending its subject.
+`python3 scripts/check_harness.py --selftest` holds the ten cases, negative controls
+included, and is the regression guard on both.
+
 It lives outside the repository because every concurrent session writes it and
 committing it would collide constantly; it lives under `/home/ubuntu/harness-state/`
 rather than a scratchpad because scratchpads get wiped (L-186) and a log that

@@ -97,6 +97,22 @@ Read the log any time with `python3 scripts/session_log.py show -n 20`, or
 `/home/ubuntu/harness-state/sessions/YYYY-MM.jsonl`, outside the repository
 because every concurrent session writes it.
 
+## 2c. The freshness stamp
+
+Each team section opens with one line, and its **timestamp** is the part that is
+parsed:
+
+    **Section last written:** 2026-08-22T20:34Z by closure-supervisor.
+
+Anything after `by <who>` is free text — a clause, a parenthetical, a note all
+parse fine, so never reword a section to satisfy the checker. If
+`scripts/check_harness.py` rejects a stamp you believe is correct, **that is a bug
+in the checker** and it should be reported, not worked around:
+`python3 scripts/check_harness.py --selftest` is the regression guard.
+
+The board is graded from `git show HEAD:docs/LAB_STATE.md`, never the worktree
+copy, because under the shared-board rule no team writes that file.
+
 ## 3. Report the roster to Sanaa
 
 Once the five are away, tell her plainly:

@@ -92,26 +92,48 @@ def probe_agents():
 
 
 def probe_board():
-    """Per-team freshness stamps, read straight off the board."""
+    """Per-team freshness stamps, read from HEAD -- not the worktree.
+
+    The shared-board rule (chief, 2026-08-22) is that no team writes the worktree
+    copy of docs/LAB_STATE.md: every board commit rebuilds from
+    `git show $H:docs/LAB_STATE.md` and stages its own section by cacheinfo. The
+    worktree copy is therefore nobody's output and drifts behind HEAD by design, so
+    logging it would record a file no team maintains. `board_source` says which was
+    read, because a record that does not name its source cannot be audited later.
+    """
     import re
-    p = os.path.join(REPO, "docs", "LAB_STATE.md")
-    out = {"board_present": os.path.exists(p), "sections": {}}
-    if not out["board_present"]:
-        return out
+    out = {"sections": {}}
+    rc, text, _ = run(["git", "show", "HEAD:docs/LAB_STATE.md"], timeout=15)
+    if rc == 0 and text:
+        out["board_source"] = "HEAD"
+        out["board_present"] = True
+    else:
+        p = os.path.join(REPO, "docs", "LAB_STATE.md")
+        out["board_source"] = "worktree (HEAD unavailable)"
+        out["board_present"] = os.path.exists(p)
+        if not out["board_present"]:
+            return out
+        try:
+            text = open(p).read()
+        except Exception as exc:
+            out["board_error"] = str(exc)
+            return out
     try:
-        text = open(p).read()
         out["board_lines"] = len(text.splitlines())
         parts = re.split(r"^## (.+)$", text, flags=re.M)
+        # Tolerant of any trailing prose after `by <who>` -- see
+        # scripts/check_harness.py --selftest for the cases this must accept.
         stamp_re = re.compile(
-            r"^\*\*Section last written:\*\*\s*(\S+?)(?:\s+by\s+(.*?))?\s*$", re.M)
+            r"^\*\*Section last written:\*\*[ \t]*(?P<when>\S+?)"
+            r"(?:[ \t]+by[ \t]+(?P<who>.*))?[ \t]*$", re.M)
         for i in range(1, len(parts), 2):
             head, body = parts[i].strip(), parts[i + 1]
             if head.startswith("CHIEF"):
                 continue
             m = stamp_re.search(body)
             out["sections"][head] = {
-                "stamp": m.group(1).rstrip(".") if m else None,
-                "by": (m.group(2) or "").rstrip(".").strip() if m else None,
+                "stamp": m.group("when").rstrip(".") if m else None,
+                "by": (m.group("who") or "").strip().rstrip(".").strip() if m else None,
             }
     except Exception as exc:
         out["board_error"] = str(exc)
@@ -234,9 +256,14 @@ def cmd_show(args):
     except Exception:
         print("no session log yet at %s" % LOGDIR)
         return 0
+    # ONLY the month logs. A plain `*.jsonl` glob also swallowed the archived
+    # `2026-08.selftest.jsonl` and replayed build-time test records as live session
+    # traffic -- which is the log lying about the thing it exists to witness.
+    import re as _re
+    month = _re.compile(r"^\d{4}-\d{2}\.jsonl$")
     lines = []
     for f in files:
-        if f.endswith(".jsonl"):
+        if month.match(f):
             with open(os.path.join(LOGDIR, f)) as fh:
                 lines += fh.readlines()
     lines = lines[-args.n:]
