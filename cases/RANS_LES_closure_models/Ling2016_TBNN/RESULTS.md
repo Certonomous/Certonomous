@@ -235,7 +235,7 @@ overlap. The unconstrained network — which has no mechanism
 enforcing anything — stays an order of magnitude closer to physically admissible
 states than the network built around an exactly-invariant tensor basis. The basis
 constrains the *form* of `b` and nothing about its *magnitude*, and on this
-benchmark the basis has numerical rank 3.24, so six or seven of the ten
+benchmark the basis has numerical rank 3-to-4, so six or seven of the ten
 coefficients are multiplying directions the training data cannot pin down
 (sec. 7, and `docs/closure/FOUNDATIONAL_MODELS_INVENTORY.md` sec. 6.5).
 
@@ -318,9 +318,9 @@ statistic identifies the failing case without being told which case failed.
 **(b) Basis degeneracy.** The RMS Frobenius norms of `T^(1..10)` over the training
 set span seven orders of magnitude
 (`15.4, 3.5e3, 1.0e3, 1.0e3, 2.0e2, 5.3e5, 8.4e7, 8.4e7, 4.9e7, 1.4e6`), and the
-**per-cell rank of the ten tensors is 3.24 on average, never above 5** on this
-benchmark - because every case is a statistically two-dimensional mean flow and
-Pope's basis collapses to three tensors in two dimensions [VERIFIED-PDF: Pope
+**per-cell rank of the ten tensors runs 3.006-3.987 by case mean, and never
+exceeds 5 in any cell** on this benchmark - because every case is a
+statistically two-dimensional mean flow and Pope's basis collapses to three tensors in two dimensions [VERIFIED-PDF: Pope
 1975, JFM 72(2), p. 335]. The network is therefore free to place large,
 mutually-cancelling coefficients on six or seven null directions. In-distribution
 they cancel. On the hump they do not. Measurement and full discussion:
@@ -423,7 +423,7 @@ and span a **factor of 3.5** on the hump (208.6 to 733.3). A model reproducible
 to three or four significant figures in-domain and to half an order of magnitude
 out-of-domain is not "slightly less accurate" outside its envelope; the
 coefficients doing the work out there are simply not determined by the training
-data. Same diagnosis as sec. 7: rank-3.24 basis, six or seven unidentifiable
+data. Same diagnosis as sec. 7: rank-3-to-4 basis, six or seven unidentifiable
 directions. Adding seeds *widened* the hump range (208.6-282.1 at two seeds,
 208.6-733.3 at three) — the out-of-domain prediction has no converged value to
 estimate.
@@ -519,3 +519,8 @@ this must pin the thread count.
   the sweep had the MLP *ahead* of the TBNN on validation (0.264 against 0.577).
   Two epochs prove nothing about converged performance, and the converged result
   is the opposite; it is kept here so the record shows what was seen and when.
+
+
+---
+
+**Provenance repair, 2026-08-21.** An earlier figure of "3.24 on average, never above 5" for the per-cell rank of Pope's ten-tensor basis was quoted here from `Kaandorp2020_TBRF/train_log.json`, **which does not exist** (charter section 5(b)). It has been replaced by a live re-measurement: per-cell rank of **3.006-3.987 by case mean** (mean of case means **3.738**), **never above 5 in any cell**, source `_common/features/FS2_DEGENERACY_REPORT.md` sec. 4 and `/home/ubuntu/closure-data/features/fs2_audit.json` -> `tensor_basis_rank`. 3.24 was a pooled-sample statistic over randomly drawn training cells, which the low-rank duct family pulls down; the case-mean statistic is 3.738. They are different statistics and are not interchangeable. **The bound that carries the argument is unchanged: never above 5, against a nominal basis size of 10.**

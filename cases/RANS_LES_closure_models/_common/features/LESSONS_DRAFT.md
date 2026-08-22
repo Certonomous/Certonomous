@@ -1,3 +1,4 @@
+<!-- ALL ENTRIES APPENDED to docs/LESSONS.md - do not pass this file to append_lessons.py again -->
 # Lessons draft — FS1/FS2 feature program. Supervisor renumbers and appends.
 
 Placeholders `L-TBD-F*`; final numbers assigned at commit time from the tail of

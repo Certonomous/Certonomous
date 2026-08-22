@@ -1,3 +1,4 @@
+<!-- ALL ENTRIES APPENDED to docs/LESSONS.md - do not pass this file to append_lessons.py again -->
 # Lesson drafts — Kaandorp2020_TBRF lane (a-priori + a-posteriori)
 
 Placeholders `L-TBD-K*` per the supervisor's numbering instruction; numbers are
@@ -182,3 +183,57 @@ The consequence for the record is small and specific: H5 is graded on the ducts
 and reported as **NOT MEASURABLE** on the step. The consequence for the next
 preregistration is that every registered tolerance now needs a line saying what
 was measured to justify it.
+
+---
+
+# SECTION C — from the Xiao2016 EnKF forward-model harness (`../../Xiao2016_EnKF/PREREGISTRATION.md` §7)
+
+## L-TBD-K8. Spend the harness before the ensemble: half a core-hour stopped a 17-to-161-core-hour run whose forward model could not carry the truth
+
+The Kaandorp a-posteriori lane learned that a propagation path must be tested
+against the *truth* before any model is graded — it ran nineteen configurations
+and only then discovered its ceiling was inverted. The next lane applied the
+lesson at the right end.
+
+Before freezing the Xiao 2016 ensemble-Kalman design, two gates were run on the
+forward model alone. **G0**, prescribing the baseline Reynolds stress, reproduced
+the shipped baseline `U_rms` to 1e-4 (0.15658 against 0.1565) — the model is
+identity-correct. **H0**, prescribing the LES *truth* stress, needed `U_rms` below
+0.036 and returned **0.29799** with a frozen baseline eddy viscosity and
+**3.8815** with the optimal linear projection, the outer loop diverging in both.
+
+Cost of finding out: **0.5 core-hours**. Cost of the ensemble it stopped:
+**17 to 161 core-hours**, and — worse — a posterior that would have looked like a
+result. The measured band mattered too: the honest costing was a *range* bounded
+by the registered per-member caps, not a single number, because member convergence
+was not guaranteed.
+
+**A harness gate is not overhead, it is the cheapest experiment in the lane.**
+Run the identity case and the truth case on the forward model before the design is
+frozen, and register the gate so the answer is binding either way.
+
+## L-TBD-K9. When the optimal fix makes it worse, the diagnostic is in how much of the domain it had to clip
+
+Wu, Sun, Xiao & Wang's conditioning fix — split `tau` into the part a nonnegative
+eddy viscosity can carry, treat that implicitly, leave an explicit remainder
+orthogonal to the strain — is the right instrument, and applying it made the
+harness **thirteen times worse** (`U_rms` 0.298 -> 3.88).
+
+The number that explains it is not the error, it is the clip count:
+`nu_t^L = -<tau_dev : S> / (2 <S:S>)` came out **negative in 1,872 cells and then
+in 7,337 — 47 % of the mesh** — as the outer loop progressed. Clipping at zero is
+required for stability, and it removes the implicit stabilisation *exactly where
+the true stress is least eddy-viscosity-like*, which on a separated hill is the
+shear layer that sets the whole solution.
+
+**Report the fraction of the domain a stabiliser had to clip, every time.** A
+projection that is optimal in a least-squares sense over the cells where it
+applies can be actively harmful once the cells where it does not apply are the
+ones that matter. The same rule caught the Durbin time-scale bound in the
+a-priori lane (active in 71.8 % of duct cells) and it catches this.
+
+**Corollary on scope.** The paper's `tauFoam` ran `Re_b` = 2800 on 1,500 cells;
+this attempt was `Re_H` = 10595 on 15,600. The gap is conditioning, not code —
+writing the missing solver would reproduce the divergence in C++ — and the
+cheapest next test is therefore the same harness at a lower Reynolds number, not
+a new implementation.
