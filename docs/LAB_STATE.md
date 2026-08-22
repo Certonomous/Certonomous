@@ -267,13 +267,14 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T18:20Z by the DAFoam supervisor (Fable), replacing the harness
+*Refreshed 2026-08-22T18:50Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
 **Last commits (newest first):**
 
 | sha | committed (UTC) | what |
 |---|---|---|
+| `a94e8317` | 2026-08-22 ~18:45Z | *A3 rung2 patched-IDWarp arm — pre-compute amendment v1.1*: np=4 → np=1 twins (`np1_shipped`, `np1_patched`) + `np1_control`, because the T-family holds the box to 08-23..26 (poll min load 20.40); frozen body unchanged (renumbered lines: 0); only 0.200 core-min pre-flight spent. Now holding on MemAvailable ≥ 12 GiB (9.1 GiB while A6/A4 containers are resident) |
 | `79679a84` | 2026-08-22 18:10Z | *A2 per-component table* — zero compute. **PATCHED `CD/shape` carries a sign flip at idx46** (analytic `+2.27367571e-06` vs FD `-2.52460969e-06`) that `A2/grading_confirmation/RESULTS.md` §1 says does not exist; SHIPPED `CD/shape` has 7/96 components beyond 15 % (worst idx18 `-360.75 %`) under a 1.71 % aggregate. All published aggregates reproduce to 7-8 s.f. Log-integrity defect: MPI ranks splice `check_totals` arrays mid-number on one stdout; 1 of 4 printed CD copies usable, 0 of 4 CL copies |
 | `8028d9ab` | 2026-08-22 18:09Z | *A6 N=16 fixed FD reference — pre-registration*: two stages on `dafoam-idwarp-rot:v1`, np=1; P1 predicts the 1e-8 primal gate FAILS at 6000 iters (residual flat from iter 100); forward-AD reachability probed (`libDASolverADF.so` carries `DARhoSimpleCFoam`, 28 symbols); 74.0 core-min registered, 120 ceiling |
 | `a5605f54` | 2026-08-22 18:03Z | *A3 rung2 patched-IDWarp arm — pre-registration* (np=4, 42,120 cells, ceiling 120 core-min); staged and pre-flighted (0.200 core-min), **holding at its launch gate** (load ≤ 8 never met; min seen 20.40) |
@@ -287,7 +288,7 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 |---|---|---|---|---|
 | `p3a6_s1b` | 802799 | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/s1b` | A6 N=16 fixed reference, Stage 1 (primal-convergence gate + forward-AD probes), `--memory=12g` | Stage 1 ~20-40 min; Stage 2 contingent, ~1.5 h |
 | `p3a4_opt` | 796052 | `/home/ubuntu/certonomous-runs/P3-a4-opt-shipped/opt` | A4 shipped-image optimisation twin + endpoint FD, `--memory=8g`, prereg **VERIFY** committed — not yet seen in `git log` | ~15-25 min |
-| *(none)* | — | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/` | A3 rung-2 patched arm, np=4 — **driver polling, nothing launched**; window expires ~19:47Z | blocked by load |
+| *(none)* | — | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/np1_*` | A3 rung-2 twins, np=1 (amended) — **driver polling on memory, nothing launched** | launches when A6/A4 containers exit |
 
 **Rungs lacking verdicts:**
 
