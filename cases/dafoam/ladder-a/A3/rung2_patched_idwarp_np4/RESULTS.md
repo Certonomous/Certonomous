@@ -7,7 +7,7 @@ filed, sent, uploaded or pushed. Filing stays NOT APPROVED and is Sanaa's alone.
 
 > **HEADLINE. The patched row PASSES — and the patch makes A3 worse.** Every row that crosses the
 > mesh-warp chain moves *away* from a fixed, independently measured FD reference: `shape[115]`
-> **0.0172% → 0.1586%** (9.22× worse), `twist[1]` **0.2740% → 0.9279%** (3.39× worse). `patchV`,
+> **0.0172% → 0.1586%** (~~9.22×~~ **9.208×** worse — *corrected, see Correction 1*), `twist[1]` **0.2740% → 0.9279%** (3.39× worse). `patchV`,
 > which does not cross the warp chain, is **bit-identical**. Both moved rows still sit inside the
 > 5% band, so the verdict is **PASS**, but this is the **first row on Ladder A where the rotation
 > patch degrades a gradient the shipped toolchain already got right** — and it is the answer to
@@ -104,7 +104,7 @@ Band (`../../A_stepsize_study.md:91-93`): PASS ≤5% with zero flagged component
 | `CD`/`twist[1]` | **SHIPPED-equiv ‡** | — (cited) | **0.2740%** | **PASS** |
 | `CD`/`twist[1]` | **PATCHED** | 0.05–2.0% | **0.9279%** — **3.39× worse than stock** | **PASS** |
 | `CD`/`shape[115]` | **SHIPPED-equiv ‡** | — (cited) | **0.0172%** | **PASS** |
-| `CD`/`shape[115]` | **PATCHED** | 0.001–1.5% | **0.1586%** — **9.22× worse than stock** | **PASS** |
+| `CD`/`shape[115]` | **PATCHED** | 0.001–1.5% | **0.1586%** — ~~9.22×~~ **9.208× worse than stock** (*Correction 1*) | **PASS** |
 | trivial baseline `patchV[1]` @1e-8 | PATCHED | delta below gate | **NOT EVALUABLE**, ratio **100.0293%**, sign-flipped | **NOT A RESULT — control behaved as designed** |
 
 **‡** the stock row is `dafoam-subpclu:v1` with `DAFOAM_SUBPC_TYPE` unset — *SHIPPED-equivalent, not
@@ -373,3 +373,37 @@ predicted to change no digit.
 | published case directories written into | **0** (staged copies throughout) |
 | `LESSONS.md` / `DOCKET.md` / `NUMERICS_KNOWLEDGE.md` / `INDEX.md` / `LADDER_A_STATUS.md` / charters edited | **0** — supervisor's appends |
 | filed upstream | **nothing** |
+
+
+---
+
+## Correction 1 — 2026-08-22, dated, quote-and-strike
+
+**What was written, in §Headline and §2:** *"`shape[115]` **0.0172% → 0.1586%** (9.22× worse)"*.
+
+**What is correct: 9.208×.** The original lines are struck in place above and are **not rewritten**;
+this note is the correction of record (L-32).
+
+**How the error was made, since that is the reusable part.** I formed the ratio by dividing the two
+*already-rounded 4-decimal percentages the log prints* — `0.1586 / 0.0172 = 9.2209` — instead of
+dividing the underlying quantities. Recomputed from the full-precision analytic and FD values, with
+the FD reference identical on both sides:
+
+| | value |
+|---|---|
+| `FD(h)` `shape[115]` (identical both images) | `-1.30078077925157e-01` |
+| stock analytic | `-1.30055677346768e-01` → rel err **0.01722087%** |
+| patched analytic | `-1.29871804107421e-01` → rel err **0.15857693%** |
+| **ratio** | **9.2084** |
+
+`twist[1]` was checked the same way and is unaffected: stock **0.27401084%**, patched
+**0.92785628%**, ratio **3.3862** — **3.39×** as published stands.
+
+**Provenance of the catch:** the DAFoam supervisor recomputed the headline from the raw analytic and
+FD values before recording D462/N-D18 and obtained **9.21×**. That disagreed with this file, so the
+quantity was recomputed here from full precision and the supervisor's figure is confirmed. **The
+board is right and this file was wrong.** No verdict, band, gate or cost figure is affected — the
+ratio is descriptive, both rel errs are unchanged, and `shape[115]` remains a **PASS** at 0.1586%.
+
+**The general rule this earns:** a ratio of two rounded percentages is not the ratio of the two
+quantities. Derived figures are computed from the underlying values, not from the printed summary.
