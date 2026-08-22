@@ -9515,3 +9515,51 @@ pass rule was revised once after its first run — departure D-5.
 **Why.** A pre-registration that states a floor reads as though the arm is guarded, which makes a breach look impossible rather than merely unobserved — nobody goes looking for it, and the absence of an alarm is mistaken for the absence of an event.
 
 **The incident.** A3 rung 2, 2026-08-22, **self-reported by the lane that caused it**. The item registered "host `MemAvailable` < 8 GiB → stop" and armed a **record-only** RSS watcher; nothing connected them and nothing polled the host figure live. The graded arm P-A drove host `MemAvailable` to **5.85 GiB** and held it below the registered floor for **82 of 156 samples (52.6 %)**, and the arm's own container was the cause — Pearson r(own RSS, host MemAvailable) = **−0.999** over 156 samples. No stop fired. The numbers survive on independent evidence (rc=0, no OOM, peak 9.263 of a 12 GiB cap, adjoint residual pairs and the whole FD column bit-identical to stock) and the floor is a **neighbourliness** guard rather than a validity one — no other team's process was killed — but the risk to the co-tenant T-family was real and self-created. This is `DAFOAM_CHARTER.md` §13's own admission — *"a clause nobody can fail is a preference"* — arriving **inside a pre-registration written under that charter**. It is recorded because the lane reported it against itself; a breach that surfaces only when its author volunteers it is exactly the kind this lab must not punish into silence.
+
+## L-240. The instruction was the defect, and the second time it fired it was issued by the person enforcing the rule
+
+`docs/USING_THIS_LAB.md` §8.5 tells an agent to rebuild an append-only file as
+HEAD's blob plus its own rows and then write that into the working tree. That
+last step is an overwrite. **D369** records it destroying bytes in
+`docs/LESSONS.md` at `12b7ed42` — `cmp` reported "EOF on - after byte 313171",
+the trailing bytes were unrecoverable — and closes with the repair stated
+exactly: *"The write-back must be a MERGE, not an overwrite … and refuse if the
+two disagree anywhere inside HEAD's own bytes."* It was filed **OPEN**.
+
+Four months of documents later it fired again. The supervisor coordinating the
+R4 closure lane issued the append instruction **in the overwrite form, verbatim**
+— *"build each file from `git show $H:<path>` plus your appended rows … and also
+write the result to the working tree"* — and the lane executed it on three
+append-only records at once. The same supervisor was, in the same message,
+enforcing the private-index protocol, the tail-derived numbering rule and the
+within-section edit rule. **Knowing the rule and issuing its violation are not
+in tension; they are the normal case**, because the overwrite form is the one
+that is written down, and the merge form existed only as a sentence inside the
+docket row about the last time it went wrong.
+
+Nothing was lost this time, as far as every instrument could see — the
+reconciliation script passed on identical ID sets, the shared index held no id
+that HEAD lacked, and the only numbering gaps predated the commit. That
+qualifier is the whole lesson. **D369's loss was bytes that matched no ID
+regex**, and every check listed above is an ID-set check. They were reporting on
+the one thing that could not have detected the fault they were being used to
+rule out. It was disclosed as departure D-13 rather than reported as a clean
+run.
+
+**A repair that lives in the prose of an incident report is not a repair; it is
+a description of one.** D369 said "the merge form is owed to §8.5" and named the
+missing sibling checker, and both stayed missing until the defect recurred.
+Sanaa's H-7 rule — a defect class that has bitten twice gets an assert at every
+call site, never a paragraph — applies to instructions as much as to code, and
+the assert here is executable: `scripts/append_record.py` merges, refuses when
+the worktree disagrees inside HEAD's own bytes, asserts the first id is `max + 1`
+for its own series read from that same blob, and ships a planted control that
+proves the merge preserves an id-less paragraph and that the overwrite form
+drops it — D369's invisible case, made visible. Its sibling
+`scripts/check_record_reconciliation.py` closes the `LESSONS.md` gap D369 filed
+as owed, and carries `NUMERICS_KNOWLEDGE.md` on the same shape.
+
+**When you catch an instruction that contradicts a standing rule, fix the
+instruction's mechanism, not the instance.** The lane that received this one
+could have merged by hand and moved on; the instruction would have been reissued
+to the next lane unchanged.

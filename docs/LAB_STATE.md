@@ -94,19 +94,17 @@ rung may take it).
 
 ## closure
 
-**Section last written:** 2026-08-22T20:22Z — R4 rows, live jobs, compute
-and next actions by the R4 BUILD lane; everything else as the closure-supervisor
-left it.
+**Section last written:** 2026-08-22T21:20Z — R4 rows and the D369
+closure by the R4 BUILD lane; everything else as the closure-supervisor left it.
 
-**Last commit:** R4 **stage (d)** — *the docket row, four lessons and nine
-numerics entries appended to the permanent records* (2026-08-22), carrying
-**D461**, **L-235–L-238** and **N-B26–N-B34**. Before it: `5b4bc833`
-(stage c, the a-posteriori table and the §6 verdicts), `73705d1f` (stage b, the
-discovered model), `b36daf06` (stage a, inventory and scripts — where
-`R4_sparta_build/` became tracked). After it, **stage (e)**: the four lessons
-were given the artefact citations they were missing, one stray draft id
-(`N-R4b`) was corrected to `N-B27`, and the three `*_DRAFT.md` files were
-stamped FILED so nothing appends them twice. **No number, gate or verdict moved.**
+**Last commit:** the **D369 write-back defect closed as executable law** —
+`scripts/append_record.py` (merge, refuse, max+1 assert, planted control) and
+`scripts/check_record_reconciliation.py` (the `LESSONS.md` sibling D369 filed as
+owed, extended to `NUMERICS_KNOWLEDGE.md`), carrying **D463** and **L-240**.
+Both records were appended **through the new helper**, its first real call site.
+Before it: `3f0f1537` (departure D-13, the disclosure that prompted this),
+`7965d08b` (stage d — D461, L-235–L-238, N-B26–N-B34), `5b4bc833` (stage c,
+the GATE FAIL), `73705d1f` (stage b), `b36daf06` (stage a).
 
 **Live jobs (R4 BUILD lane): one, and it is UNGRADED.**
 `AR_10_Ret_180/discovered_ronly` — the `b^Delta`-off diagnostic arm — under
@@ -216,15 +214,15 @@ Two additions from tonight, neither moving a verdict:
 | `a5126378` | Content-only restore of the **nine** `eda10f39` files that `c46309f5` silently reverted; every blob byte-identical, no number changed. The charter lane's two files left standing |
 | `eda10f39` | Closure reconcile: nine uncommitted closure edits closed out (`make_feature_library.py` regenerates `FEATURE_LIBRARY.md` byte-identically; `setup_case.py` L-221 pattern; four `LESSONS_DRAFT.md` banners; two `RESULTS.md` sweeps) and the **4.170 / 4.241 split ruled a read-off criterion, not a disagreement** |
 
-**Next actions:** none owned by the R4 build lane — it is closed. The two
-**amendment candidates it raised are for the NEXT preregistration and are
-deliberately not in the frozen file**: §6 registers **no threshold on
-realisability** (the omission Charter §4 exists to stop — it let a model leaving
-the realisable set on 19.1 % of `CBFS13700` cells reach propagation without
-failing on that axis), and the continuity gate's `1e-4` is **dimensional**, so
-it does not mean the same thing on a duct at 37.5 m/s on a 1 mm half-height as
-on a hill at 1 m/s. Both are recorded in `RESULTS.md` and in the docket row as
-candidates; every row was graded **as written**.
+**Next actions:** none owned by the R4 build lane — it is closed, and so is
+the D369 write-back defect (D463, L-240): `scripts/append_record.py` merges
+rather than overwrites and **refuses** when the worktree disagrees inside HEAD's
+own bytes, and `scripts/check_record_reconciliation.py` covers `LESSONS.md` and
+`NUMERICS_KNOWLEDGE.md`. **§8.5 still documents the overwrite form and should be
+pointed at the helper** — that edit is the guide owner's, not this lane's. The
+R4 lane's two amendment candidates remain for the **next** preregistration and
+are deliberately not in the frozen file: §6 registers **no threshold on
+realisability**, and the continuity gate's `1e-4` is **dimensional**.
 
 **On Sanaa's desk:** R6's internal-scoring phrasing (doctrine open action 4).
 **And now R4's:** the SpaRTA-class build ladder has returned a **GATE FAIL with
