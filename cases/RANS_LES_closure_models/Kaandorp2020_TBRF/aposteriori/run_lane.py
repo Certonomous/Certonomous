@@ -6,7 +6,7 @@ Bounded by construction: 30,000-iteration cap in controlDict, 3600 s timeout
 per solve, background log. No process needs killing.
 """
 from __future__ import annotations
-import os, re, sys, json, time, pickle, subprocess, shutil
+import os, re, sys, json, time, pickle, subprocess, shutil, traceback
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 import numpy as np
 
@@ -36,6 +36,15 @@ GATE = {"AR_1_Ret_360": dict(U_rms=0.1985, inplane_LES=1.508),
         "AR_3_Ret_360": dict(U_rms=0.1846, inplane_LES=1.411),
         "CBFS13700": dict(U_rms=0.0516, U_mae=0.0258, x_reatt_LES=4.241,
                           x_reatt_SST=5.891)}
+
+
+class RowBlocked(RuntimeError):
+    """A registered row cannot be built from what is on disk.
+
+    Raised, not swallowed: main() records the row as BLOCKED in results.json and
+    carries on with the rest of the plan, so one unbuildable row cannot take the
+    other registered rows down with it when the driver is running detached.
+    """
 
 
 class _Compat(pickle.Unpickler):
@@ -79,6 +88,11 @@ def feats():
 def ml_b(tag, seed):
     d = feats()
     names = [str(s) for s in d["names"]]
+    if tag not in names:
+        raise RowBlocked(
+            f"{tag} has no block in {os.path.join(DD, 'features_nodurbin.npz')}, "
+            f"which holds {len(names)} cases; the ML rows for {tag} cannot be "
+            f"built until that feature file is rebuilt to include it")
     m = np.nonzero(d["case_id"] == names.index(tag))[0]
     ck = _Compat(open(os.path.join(DD, "ckpt_nodurbin",
                                    f"FS15_full_seed{seed}.pkl"), "rb")).load()
@@ -294,17 +308,31 @@ def main():
         lg = os.path.join(cdir, "log.run")
         done = (os.path.exists(lg)
                 and "End" in open(lg, errors="replace").read()[-2000:])
-        if done:
-            t0 = latest_time_dir(CASES[tag][0])
-            case, nbad, nmask = cdir, -1, -1
-            r = dict(rc=0, wall_s=-1.0, resumed=True)
-        else:
-            b, nbad = target(tag, lab)
-            case, t0, nmask = build(tag, lab, b, ITER_CAP, 5000)
-            patch_fvsolution(case)
-            r = run_solver(case)
-        p = parse_log(case)
-        s = score(tag, case, int(t0) + ITER_CAP)
+        try:
+            if done:
+                t0 = latest_time_dir(CASES[tag][0])
+                case, nbad, nmask = cdir, -1, -1
+                r = dict(rc=0, wall_s=-1.0, resumed=True)
+            else:
+                b, nbad = target(tag, lab)
+                case, t0, nmask = build(tag, lab, b, ITER_CAP, 5000)
+                patch_fvsolution(case)
+                r = run_solver(case)
+            p = parse_log(case)
+            s = score(tag, case, int(t0) + ITER_CAP)
+        except Exception as exc:
+            # One unbuildable or unscorable row must not abort the plan: record
+            # it as BLOCKED, with the full traceback kept, and go on. No metric
+            # is written for it, so it can never be read as a result.
+            results["runs"][key] = dict(
+                case=cdir, label=lab, tag=tag, status="BLOCKED", rc=None,
+                scored=False, wall_s=round(time.time() - t0w, 1),
+                reason=f"{type(exc).__name__}: {exc}",
+                traceback=traceback.format_exc())
+            log(f"[run] {key:26s} BLOCKED - {type(exc).__name__}: {exc}")
+            json.dump(results, open(os.path.join(OUT, "results.json"), "w"),
+                      indent=1)
+            continue
         results["runs"][key] = dict(case=case, label=lab, tag=tag,
                                     n_target_nonfinite=nbad, n_kmask=nmask,
                                     **r, **p, **s)

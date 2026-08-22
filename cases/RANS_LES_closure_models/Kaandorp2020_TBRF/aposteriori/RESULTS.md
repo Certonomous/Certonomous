@@ -334,3 +334,87 @@ dated addendum can append them without touching §1-§10.
 
 **Compute unchanged in kind:** the outstanding rows add at most ~3 core-hours to
 the ~1.5 already charged, against a lane cap of 15.
+
+---
+
+## NOTE — 2026-08-22, closure follow-up lane: readiness and cost of the nine outstanding rows
+
+Read-only audit of what is on disk. **No solve was run, nothing was launched, and
+nothing below moves a verdict** — for the same structural reason the addendum
+above gives: H0 is decided on the `TRUTH` configuration and H1–H3 are NOT A RESULT
+by the registered clause, whatever these nine rows would say. §1–§10 and the
+addendum are untouched.
+
+### Readiness: none of the nine
+
+Against the strict completion rule (`rc = 0`, `End` in `log.run`, last written
+time directory equal to the `endTime`, fields newer than `0/`), **zero of the nine
+qualify — none of them has a case directory at all.** No
+`AR_3_Ret_360__ML{0,1,2}` and no `CBFS13700__{NULL,TRUTH,MEANB,ML0,ML1,ML2}`
+exists under `ROOT` (`/home/ubuntu/closure-data/aposteriori/kaandorp/`) or
+anywhere else on this host, and none appears in `results.json`, which still holds
+exactly the same **10** runs. Nothing has silently completed.
+
+### Three of the nine are BLOCKED, and the cause is not the operational one
+
+The addendum records the outstanding rows as an operational casualty and says the
+detached driver would land them. The driver **did** run detached, four times —
+`lane.log`, `lane2.log`, `lane3.log`, `lane4.log` in `ROOT`, the last three
+byte-identical — and each time it stopped at the same row, `AR_3_Ret_360__ML0`,
+with the same uncaught exception:
+
+```
+ValueError: 'AR_3_Ret_360' is not in list        (run_lane.py, ml_b)
+```
+
+`/home/ubuntu/closure-data/kaandorp_tbrf/features_nodurbin.npz` carries **27**
+cases and `AR_3_Ret_360` is **not** one of them (`AR_1_Ret_360` and `CBFS13700`
+both are). So:
+
+* **`AR_3_Ret_360` `ML0/1/2` — BLOCKED.** They cannot be built until that feature
+  file is rebuilt to include the case. This is a missing input, not a queue.
+* **The six `CBFS13700` rows — PENDING.** Their inputs are all present; they are
+  unrun only because they sit *after* the blocked row in the plan and the
+  exception aborted the whole loop before reaching them.
+
+**Driver repaired, NOT RUN.** `run_lane.py` now raises a named `RowBlocked` that
+says which case is missing from which file, and `main()` records a row it cannot
+build or score as `status: "BLOCKED"` in `results.json` — reason and traceback
+kept, no metric written, so it can never be read as a result — and continues with
+the rest of the plan. One unbuildable row can no longer take the other registered
+rows down with it. `py_compile` clean and the `RowBlocked` path exercised on its
+no-solve path; **no solver was started.**
+
+### Cost of the nine, if and when they are authorised
+
+All solves in this lane are **serial** (`simpleFoam -case .`, `nProcs : 1`,
+`OMP_NUM_THREADS=1`), so cores = 1 per run and core-hours = wall-hours. Rates are
+measured from the completed runs' own `log.run` `ExecutionTime`: `AR_1_Ret_360`
+(3,025 cells) 0.010814 s/iteration stock and 0.012296 s/iteration injected
+(**×1.137** for the injection); `AR_3_Ret_360` (8,748 cells) 0.035079 s/iteration
+stock; `CBFS13700` (21,000 cells) 0.069512 s/iteration injected, from
+`CBFS13700__TRUTHR`. Iterations are charged at the registered 30,000-iteration
+cap, which the `NULL` rows on both ducts and `AR_3_Ret_360__MEANB` all reached.
+Rate **$0.0513 / core-hour**.
+
+| row | status | cells | s/iteration | est. wall-h | cores | est. cost |
+|---|---|---|---|---|---|---|
+| `AR_3_Ret_360__ML0` | BLOCKED | 8,748 | 0.03989 | 0.332 | 1 | $0.0171 |
+| `AR_3_Ret_360__ML1` | BLOCKED | 8,748 | 0.03989 | 0.332 | 1 | $0.0171 |
+| `AR_3_Ret_360__ML2` | BLOCKED | 8,748 | 0.03989 | 0.332 | 1 | $0.0171 |
+| `CBFS13700__NULL` | PENDING | 21,000 | 0.06114 | 0.509 | 1 | $0.0261 |
+| `CBFS13700__TRUTH` | PENDING | 21,000 | 0.06951 | 0.579 | 1 | $0.0297 |
+| `CBFS13700__MEANB` | PENDING | 21,000 | 0.06951 | 0.579 | 1 | $0.0297 |
+| `CBFS13700__ML0` | PENDING | 21,000 | 0.06951 | 0.579 | 1 | $0.0297 |
+| `CBFS13700__ML1` | PENDING | 21,000 | 0.06951 | 0.579 | 1 | $0.0297 |
+| `CBFS13700__ML2` | PENDING | 21,000 | 0.06951 | 0.579 | 1 | $0.0297 |
+| **total** | | | | **4.40** | 1 | **$0.226** |
+
+**Hard upper bound $0.462.** Every solve is bounded by the `timeout 3600` in
+`run_solver` as well as by the 30,000-iteration `endTime`, so nine runs cannot
+exceed **9.0 core-hours** however badly they converge. The addendum's "at most ~3
+core-hours" is a little optimistic at the cap — **4.4** is the planning figure —
+but the lane cap of 15 is not at risk either way (≈1.5 charged + 4.4 = ≈5.9).
+
+**Not launched here, deliberately.** R4 holds top capacity priority and is live on
+this host.

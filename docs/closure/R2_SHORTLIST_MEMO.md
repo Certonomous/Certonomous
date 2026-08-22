@@ -73,6 +73,21 @@ TRUTH < ML < NULL; ranked by velocity it is **ML (0.0415) < NULL (0.0498) < TRUT
 learned field is **16% better than NULL** while the **exact** anisotropy is **137% worse**, and
 puts reattachment at **9.088** against an LES truth of **4.170**.
 
+> *[2026-08-22, note added by the closure follow-up lane; the memo's argument is unchanged.]*
+> *Both reattachment figures on the line above are read off as **row-`0` cell centres**, which is the
+> basis §4 of `aposteriori_frozenk/RESULTS.md` is graded on. The LES `x_reatt` **of record is 4.241**
+> — the value returned by the registered instrument
+> `_common/sst_baseline_metrics.py::hill_wall_metrics` (longest contiguous reversed-`U_x` run in the
+> wall-adjacent row, **linearly interpolated** to the sign change), registered in three frozen
+> `PREREGISTRATION.md` files and in `_common/BASELINES.md` §3. **4.170 is the same reattachment read
+> at cell resolution**, truncated to the last still-reversed cell and therefore low by
+> **0.435 of one cell** (last reversed centre 4.169625, next 4.333572, cell width 0.163947). Because
+> §4's arms and its truth are all on that one cell-centre basis, the ordering and the 16%/137%
+> comparison above are unaffected; the 4.170 here must **not** be differenced against 4.241, against
+> the Kaandorp lane's 4.384 or against SST's 5.891 without first being put on the interpolated basis.
+> Full derivation: `cases/RANS_LES_closure_models/Wu2018_PIML_RF/aposteriori_frozenk/RESULTS.md`,
+> § **RECONCILIATION — 2026-08-22**.*
+
 The literature says the same: **Duraisamy 2021 p. 10** — "successful a priori evaluation is neither
 a necessary nor a sufficient condition"; **Beck & Kurz 2021 p. 26** — a closure at **99.9%** a-priori
 cross-correlation whose "LES solution diverges strongly soon after".

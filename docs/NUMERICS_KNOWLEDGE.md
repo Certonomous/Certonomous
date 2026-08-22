@@ -2157,6 +2157,26 @@ case is a statistically 2-D mean flow and Pope states the basis collapses to
 three tensors in two dimensions [VERIFIED-PDF: Pope 1975, JFM 72(2), p. 335]. One
 line of numpy; it should be run before any tensor-basis reproduction.
 
+*[Provenance repaired 2026-08-22.]* **Source:
+`cases/RANS_LES_closure_models/Kaandorp2020_TBRF/train_log.json`**, keys
+`basis_rank_mean` = **3.2374** and `basis_rank_hist` =
+`[0, 0, 0, 3814, 1185, 1, 0, 0, 0, 0, 0]` - exactly the histogram above. **That
+file exists on disk but is untracked in git** (the whole `Kaandorp2020_TBRF/`
+directory is untracked, as `INCIDENT_tbrf_overwrite_2026-08-20.md` also records),
+which is why `git ls-files`, `git log -S` and every grep of the committed tree
+report the pointer as dead. It is not dead; it is uncommitted. It is written by
+`Kaandorp2020_TBRF/run_tbrf.py` (the block at lines 63-72) and is deterministic -
+`np.random.default_rng(0).choice(train_cells, 5000, replace=False)`, tolerance
+`1e-8 sigma_max` - and was produced by the same run as the TBRF checkpoints in
+`/home/ubuntu/closure-data/tbrf/` (both 2026-08-20 22:19-22:20), so the number is
+regenerable rather than merely remembered. **3.24 is a pooled-sample statistic**
+over 5,000 randomly drawn training cells, which the duct family (the lowest-rank
+cases) pulls down. The **case-mean** statistic is a different number, **3.738**
+(case means 3.006-3.987), measured independently in
+`cases/RANS_LES_closure_models/_common/features/FS2_DEGENERACY_REPORT.md` sec. 4.
+Both are computable and correct; they must not be quoted interchangeably. The
+bound both agree on, and the one that carries the argument, is **never above 5**.
+
 **N-B11. A constant tensor beats k-omega SST on the a-priori anisotropy metric,
 on all 8 strict TEST cases.** The mean `b_LES` over the 342,014 training cells,
 predicted everywhere with no inputs, gives `b_rms` 0.2258-0.4221 against SST's

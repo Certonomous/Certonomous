@@ -928,7 +928,8 @@ two-dimensional mean flow, so this is testable directly.
 
 Measured: for each cell, flatten `T^(1..10)` to a 10 x 9 matrix and count the
 singular values above `1e-8 sigma_max`. Over 5,000 random training cells
-(`cases/RANS_LES_closure_models/Kaandorp2020_TBRF/train_log.json`):
+(`cases/RANS_LES_closure_models/Kaandorp2020_TBRF/train_log.json`, keys
+`basis_rank_mean` = 3.2374 and `basis_rank_hist`):
 
 | rank | 3 | 4 | 5 | 6-10 |
 |---|---|---|---|---|
@@ -936,6 +937,21 @@ singular values above `1e-8 sigma_max`. Over 5,000 random training cells
 
 **Mean rank 3.24. Not one cell reached rank 6.** Three consequences that belong
 in this inventory rather than in a reproduction's appendix:
+
+> *[Provenance repaired 2026-08-22.]* The `train_log.json` cited above **exists on
+> disk and holds exactly this histogram**, but it is **untracked in git** - the
+> whole `Kaandorp2020_TBRF/` directory is - so `git ls-files`, `git log -S` and
+> every grep of the committed tree report the pointer as dead. It is not dead; it
+> is uncommitted. It is written deterministically by
+> `Kaandorp2020_TBRF/run_tbrf.py` (lines 63-72, `np.random.default_rng(0)`,
+> tolerance `1e-8 sigma_max`) by the same run that produced the TBRF checkpoints
+> in `/home/ubuntu/closure-data/tbrf/`, so 3.24 is regenerable. **It is a
+> pooled-sample statistic** over 5,000 randomly drawn training cells, pulled down
+> by the duct family; the **case-mean** statistic is the different number
+> **3.738** (case means 3.006-3.987), measured independently in
+> `cases/RANS_LES_closure_models/_common/features/FS2_DEGENERACY_REPORT.md`
+> sec. 4. Do not quote the two interchangeably. Both agree on the bound that
+> carries the argument: **never above 5**, against a nominal basis size of 10.
 
 1. **Every least-squares fit over the basis on this data is rank-deficient by six
    or seven.** A ridge parameter chosen for a well-conditioned basis - Kaandorp &
