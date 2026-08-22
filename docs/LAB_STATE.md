@@ -94,28 +94,33 @@ rung may take it).
 
 ## closure
 
-**Section last written:** 2026-08-22T20:05Z — R4/FS3/FS4 rows, live
-jobs and compute by the R4 BUILD lane; everything else as the
-closure-supervisor left it.
-by the R4 BUILD lane; everything else as the closure-supervisor left it.
+**Section last written:** 2026-08-22T20:40Z — R4 rows, live jobs, compute
+and next actions by the R4 BUILD lane; everything else as the closure-supervisor
+left it.
 
-**Last commit:** R4 stage (c) — *the a-posteriori verification table, the §6
-verdicts and the boundary report* (2026-08-22). Before it, `73705d1f` (stage b,
-the discovered model) and `b36daf06` (stage a, inventory and scripts).
+**Last commit:** R4 **stage (d)** — *the docket row, four lessons and nine
+numerics entries appended to the permanent records* (2026-08-22), carrying
+**D461**, **L-235–L-238** and **N-B26–N-B34**. Before it: `5b4bc833`
+(stage c, the a-posteriori table and the §6 verdicts), `73705d1f` (stage b, the
+discovered model), `b36daf06` (stage a, inventory and scripts — where
+`R4_sparta_build/` became tracked).
 
-**Live jobs (R4 BUILD lane):** **one**, and it is ungraded.
-`AR_10_Ret_180/discovered_ronly`, pid 875716's last child, cwd
-`/home/ubuntu/closure-data/r4/aposteriori/AR_10_Ret_180/discovered_ronly`, at
-~13,200 of its 20,000 endTime cap, ETA ~25 min, ~0.15 core-h. It is a
-**REPORTED-NOT-GRADED** diagnostic arm; **no gate, verdict or number in the R4
-verdict depends on it**, and it is bounded, checkpointed and resumable. Every
-other R4 run — 27 frozen extractions, 5 diagnostics, 59 of 60 propagations — is
-finished. **R4 no longer needs the cores.**
+**Live jobs (R4 BUILD lane): one, and it is UNGRADED.**
+`AR_10_Ret_180/discovered_ronly` — the `b^Delta`-off diagnostic arm — under
+driver pid `875716`, cwd
+`/home/ubuntu/closure-data/r4/aposteriori/AR_10_Ret_180/discovered_ronly`,
+~13,600 of its 20,000 `endTime` cap, **ETA ~20 min, ~0.13 core-h**. It is
+**REPORTED-NOT-GRADED**: no gate, verdict or number in the R4 record depends on
+it, and it is bounded, checkpointed and resumable. Every other R4 run — 27
+frozen extractions, 5 convergence diagnostics, 59 of 60 propagations — is
+finished. **R4 has released the cores; thermal priority restored.**
 
 **R4 compute, final:** **9.203 core-h / $0.472** — 0.244 frozen extraction and
-diagnostics, 0.524 FS3 (run twice, D-6), 8.435 propagation — against the
-preregistration's **12–20 core-h** estimate and **40 core-h** cap. 46 % of the
-upper estimate, 23 % of the cap.
+convergence diagnostics, 0.524 FS3 (run twice, departure D-6), 8.435
+propagation, each measured from its own recorded `wall_seconds` x 1 rank.
+Against the preregistration's **12–20 core-h** estimate and **40 core-h** cap:
+**46 % of the upper estimate, 23 % of the cap.** Bulk field data is not
+committed; its paths are listed in `RESULTS.md` §10.
 
 **The `ktest*` probes at `/home/ubuntu/closure-data/r4/` — mechanical reading,
 and the R4 lane's ruling, which is the one that governs.** The board's earlier
@@ -145,7 +150,7 @@ run to be.* Nothing on this board treats them as results.
 
 | rung | state |
 |---|---|
-| **R4** (SpaRTA build) | **VERDICT: GATE FAIL.** Both registered halves fired — a-priori **2 of 4** families against a bar of 3, and **all 12 symbolic propagations DIVERGE** (5–18 iterations, FPE in `updateCorrections`). **The registered NOT A RESULT branch did NOT fire**: the per-case frozen-field ceiling beats NULL by **60.2 %** on `CBFS13700` and **99.6 %** on `PHLL10595`, lands `CBFS13700` at **0.3975** against W2's independent **0.39753**, recovers the duct secondary vortex to 0.4–0.6 % of DNS where a linear EVM gives exactly zero, and recovers reattachment to 0.9–3.4 % of the LES. **The harness carries the truth; the model does not** — the first lane in this programme where that is the shape of the failure. `RESULTS.md` complete (10 sections, 12 dated departures), `MODEL.md` frozen, `LESSONS_DRAFT.md` (4), `NUMERICS_DRAFT.md` (9), `DOCKET_DRAFT.md` (1 row) |
+| **R4** (SpaRTA build) | **CLOSED — VERDICT: GATE FAIL**, docketed **D461**. Both registered halves fired: a-priori **2 of 4** families against a bar of 3, and **all 12 symbolic propagations DIVERGED** (5–18 iterations, FPE in `kOmegaSSTSparta::updateCorrections`, `Ubar` to 5.7e+69). **The registered NOT A RESULT branch did NOT fire** — the per-case frozen-field ceiling beats NULL by **60.2 %** on `CBFS13700` and **99.6 %** on `PHLL10595`, lands `CBFS13700` at **0.3975** against W2's independent **0.39753**, recovers the duct secondary vortex to 0.4–0.6 % of DNS where a linear EVM gives exactly zero, and reattachment to 0.9–3.4 % of the LES. **The harness carries the truth; the model does not** — the first lane in this programme where the failure has that shape. Records: `RESULTS.md` (10 sections, 12 dated departures), `MODEL.md`, **L-235–L-238**, **N-B26–N-B34** |
 | **R5** (round-5 diagnostics as build constraints) | **no verdict artefact.** Partly discharged by the FS2/FS5 report; the R4 prereg does not cite R5 by name |
 | **R6** (surfaces updated) | **NOT DONE.** "leaderboard" still appears in `web/closure.html` and `web/benchmarks.html`; **BLOCKED** on Sanaa approving the internal-scoring phrasing (doctrine open action 4) |
 | **FS3** (selection methods) | **DONE**, and the final reading is `artefacts/fs3.json` at commit (b). *(The board's 18:22Z observation was correct: `RESULTS.md` §0 had been written forward-looking, and it was rewritten to state only what is true at the commit carrying it. The pid live then produced a **withdrawn** fit; see D-6.)* All three registered methods ran at three seeds. **They disagree** — permutation importance is near-orthogonal to mutual information on three of four fits and anti-correlated on two, which §3 registers in advance as a finding. Planted-zero control **PASS** on both propagated term sets, **GATE FAIL** on `R`/T1–T4 |
@@ -208,22 +213,23 @@ Two additions from tonight, neither moving a verdict:
 | `a5126378` | Content-only restore of the **nine** `eda10f39` files that `c46309f5` silently reverted; every blob byte-identical, no number changed. The charter lane's two files left standing |
 | `eda10f39` | Closure reconcile: nine uncommitted closure edits closed out (`make_feature_library.py` regenerates `FEATURE_LIBRARY.md` byte-identically; `setup_case.py` L-221 pattern; four `LESSONS_DRAFT.md` banners; two `RESULTS.md` sweeps) and the **4.170 / 4.241 split ruled a read-off criterion, not a disagreement** |
 
-**Next actions:** append the R4 docket row and its four lessons at the tail
-numbers current at that moment (`DOCKET_DRAFT.md`, `LESSONS_DRAFT.md`,
-`NUMERICS_DRAFT.md`). Two amendment candidates for the **next** preregistration,
-neither applied to this one: §6 registers **no threshold on realisability**
-(the omission Charter §4 was written to stop, and it let a model violating on
-19.1 % of `CBFS13700` cells reach propagation without failing on that axis),
-and the continuity gate's `1e-4` is **dimensional**, so it does not mean the
-same thing on a duct at 37.5 m/s as on a hill at 1 m/s.
+**Next actions:** none owned by the R4 build lane — it is closed. The two
+**amendment candidates it raised are for the NEXT preregistration and are
+deliberately not in the frozen file**: §6 registers **no threshold on
+realisability** (the omission Charter §4 exists to stop — it let a model leaving
+the realisable set on 19.1 % of `CBFS13700` cells reach propagation without
+failing on that axis), and the continuity gate's `1e-4` is **dimensional**, so
+it does not mean the same thing on a duct at 37.5 m/s on a 1 mm half-height as
+on a hill at 1 m/s. Both are recorded in `RESULTS.md` and in the docket row as
+candidates; every row was graded **as written**.
 
 **On Sanaa's desk:** R6's internal-scoring phrasing (doctrine open action 4).
-**And now the R4 question:** the SpaRTA-class build ladder has returned a
-**GATE FAIL** with a working ceiling, which is a decision point, not a retry —
-whether to re-preregister the b^Delta amplitude control (realisability
-constraint, or the paper's `xi`, as a *registered* part of the model rather than
-a diagnostic), or to re-open R2's ranking. **The Repo 2 release and the
-zero-shot scoring call remain hers alone; this lane ran neither and prepared no
+**And now R4's:** the SpaRTA-class build ladder has returned a **GATE FAIL with
+a working ceiling**, which is a decision point rather than a retry — whether to
+re-preregister the `b^Delta` amplitude control (a realisability constraint, or
+the paper's `xi`, as a *registered* part of the model rather than an ungraded
+diagnostic), or to re-open R2's ranking. **The Repo 2 release and the zero-shot
+scoring call remain hers alone; this lane ran neither and prepared no
 submission.**
 
 **Blocked:** R6, on Sanaa's internal-scoring phrasing. Kaandorp
