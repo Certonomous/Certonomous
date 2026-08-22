@@ -574,3 +574,119 @@ with one differing line, a deleted temp-directory name; 6.60 core-seconds,
 
 **T9a's own verdict is unchanged: GATE FAIL on R1. This arm re-solved nothing
 and moved nothing.**
+
+---
+
+## Addendum (2026-08-22, supervisor) — ordering disclosure: pre-registration committed after first compute
+
+**This arm's pre-registration was committed to git AFTER its first solver ran.
+The rule requires the reverse. Nothing above moves; the gap is recorded here
+rather than left for someone else to find.**
+
+### A.1 The order, by timestamp
+
+| event | time (Z) | witness |
+| --- | --- | --- |
+| **freeze condition CHECKED** — comparator hashed, `D_*` tree confirmed empty | **17:58:41.441** | §5, pasted verbatim: `date -u` + `find … -name 'D_*' \| wc -l` → `0` |
+| first solver starts (serial chain) | 18:01:59.295 | `STATUS.*`, §5 |
+| `D_A_c/log.solve` last write | 18:02:00.028 | mtime |
+| chain finishes (`D_R_f` last) | 18:02:05.895 | `CHAIN_DONE_D` |
+| comparator tolerance repair | **18:03:05.456** | mtime of `analyse_t9aD.py` |
+| **pre-registration's FIRST commit `06410acd`** | **18:21:01** | `git show -s --format=%cI 06410acd` |
+
+**The interval.** The freeze check preceded the first solver by **+197.9 s**.
+The first commit of `T9aD_PREREGISTRATION.md` — `06410acd` — landed
+**19 min 01.7 s after the first solver started**, 18 min 55.1 s after the last
+one finished, and 22 min 19.6 s after the freeze condition was checked. The
+pre-registration was **written and frozen before compute and committed after
+it.**
+
+### A.2 What the rule says
+
+**CLAUDE.md standing rule 2** — "the gate, threshold, cap and label are
+committed **before** the solver starts." **`SUPERVISION_CHARTER.md` §3 check 4,
+"Pre-registration presence before compute"** — "No family compute launches
+without its pre-registration committed. The family supervisor checks the
+commit exists, not that somebody meant to write one." **Both were breached in
+the letter**: at 18:01:59 Z there was no commit to check, only a file on disk.
+
+### A.3 What the evidentiary content actually rests on
+
+**Not on git.** §2's own statement of the freeze is that *"the freeze is the
+document's entire evidentiary content: it proves the gate could not have been
+chosen to fit the answer."* Here that proof is carried by two things, both
+independent of the commit clock:
+
+1. **The on-disk sha256 of the frozen comparator, recorded in the
+   pre-registration before any case existed** —
+   `2d4ebb49…8d4a79e6`. The preserved pre-repair file
+   `analyse_t9aD.py.pre_tolerance_2026-08-22` hashes
+   `2d4ebb49354eff6a3e22aa5619e1058a9bdf8cb6bd1938603b98df718d4a79e6`
+   **today** — byte-identical to the hash registered at 17:58–17:59 Z. The
+   frozen instrument still exists, and it is provably the frozen one.
+2. **The timestamped freeze-condition CHECK**, not a freeze-condition
+   assertion: `date -u` and a `find` returning **zero** `D_*` directories,
+   pasted verbatim into §5 at 17:58:41.441 Z. There was no answer on disk to
+   tune the gate to, and that is demonstrated rather than claimed.
+
+**The committed text is the frozen text.** `T9aD_PREREGISTRATION.md` on disk
+hashes `36b3b426c903bbb40a80142a1f48203cfbed7fb652651d27235f2affa32be0ef`, and
+the blob committed at `06410acd`
+(`9a06a074…`, `git show 06410acd:…| sha256sum`) hashes **the same**. The late
+commit did not carry different text; it carried the same text late. **The gap
+is a gap in the git witness, not in the content.**
+
+### A.4 The comparator repair at 18:03:05 Z, re-checked by the supervisor
+
+§6 rules the tolerance repair under **Charter §2d's boundary clause 1** — a
+comparator that cannot run at all — and states §2d.1's repair exception is
+"not invoked and not needed". **That ruling stands and this addendum does not
+disturb it.** What is added here is the supervisor's independent finding that
+**even if §2d.1 were invoked, all four of its conditions hold**:
+
+| §2d.1 condition | as met here |
+| --- | --- |
+| (1) **demonstrable error**, not a preference | a single *relative* 1e-8 applied to constants **printed to six and five decimals**; `19.502682` vs the derived `19.502681618…` is a printed-decimal rounding at 1.96e-08. The frozen `analyse_t9a.py` uses 1e-6 for the same comparison and never fired |
+| (2) error established by an **instrument independent of the hypothesis** | the **number of printed decimal places in the registered constants** — a property of `T9aD_registered.json`'s transcription, which grades nothing and knows nothing about any T9a-D row |
+| (3) **disclosed, instrument named, movement quantified** | §6 in full, with both refusal messages verbatim; what moved is **nothing measured** — the check compares two derived/transcribed constants against each other. `gate_t9aD.json` reproduced after the repair with **exactly one differing line**, a deleted `mkdtemp` name |
+| (4) **pre-repair values preserved** | `analyse_t9aD.py.pre_tolerance_2026-08-22` sits beside the file that ran, hashing the registered frozen `2d4ebb49…8d4a79e6` |
+
+**SUPERVISION_CHARTER §3 check 1 — "code diffs on measurement scripts … read as
+a diff by the family supervisor before its output is believed" — is discharged
+here.** The supervisor ran `diff -u` between the preserved pre-repair file and
+the file that ran and read the result as a diff. It is **one contiguous hunk at
+`analyse_t9aD.py:311`**: the reference-rederivation refusal loop gains a
+per-constant `kind`/`tol` (`abs` 5e-7 for the two six-decimal 400× constants,
+`rel` 1e-9 for the full-precision 40× `T_i1`, `abs` 5e-6 for the five-decimal
+40× `q″`), the refusal message gains the error and the tolerance, and eleven
+comment lines record the reason. **No line outside that hunk changed. No
+measurement, row, band, threshold, reference or case is touched, and every
+printed value below the check is produced by byte-identical code.** The diff
+is consistent with §6's account of it.
+
+### A.5 What is at stake, stated rather than minimised
+
+**Compute: 6.60 core-seconds, 9.41e-05 USD** (§9, chain wall clock). That is
+the entire exposure — under a ten-thousandth of a dollar — and it is *not* the
+reason the breach is small. The breach is small because §A.3's two artifacts
+do the work git would have done. **A future arm without a pasted, timestamped
+freeze-condition check and a preserved frozen hash would have nothing but its
+own assertion, and the size of its compute bill would be irrelevant.**
+
+**No verdict, gate, threshold, cap, band or label in this document is altered
+by this addendum.** A1 PASS, A2 NOT A RESULT, B0 NOT A RESULT, B1 PASS, B2 NOT
+A RESULT, C1 GATE FAIL, C2 PASS stand as published, and T9a's own GATE FAIL on
+R1 is unchanged.
+
+### A.6 The rule forward
+
+> **Commit the pre-registration before launching what it registers, not after.**
+
+This is the same rule the T3 ext1 lane took forward after the same failure, and
+it is recorded there as **`T3_EXT1_AMENDMENT.md` §14.4**: *"the write-then-launch-then-commit
+order used here is defensible only because §1 happened to capture a timestamped
+negative precondition; a future addendum without that check would have nothing
+but its own assertion. The cost of committing first is one `git commit-tree`
+before the launcher runs."* **Two lanes in one day, the same ordering, the same
+escape hatch.** The escape hatch is a freeze-condition check that a lane may
+forget to paste; the rule is a commit that a launcher can be made to require.

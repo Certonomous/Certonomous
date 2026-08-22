@@ -411,7 +411,7 @@ turns on exactly this.
 | **T9a** composite wall / fin (EXACT) | **GATE FAIL** — 2 of 3 graded rows pass; interface 1 misses by **2.4 mK** against a 0.92 mK GCI band; 2 fin rows GATE REACHED below the 0.025% O(Bi) floor; 4 controls MET (D442). **T9a-D interface diagnosis arm REPORTED 2026-08-22 (D454, L-227)** — the interface scheme is the whole of the 2.41 mK: `Gauss harmonic` removes it to round-off at every level (A1 PASS, drop 8.15e+08) while a fourth level leaves the triple STAGNANT and a band armed there would be 11× too wide; C1 GATE FAIL, the error **grew** 27–31× at 40× contrast. `gate_t9a.json` unchanged, no T9a row moved; T9a's own verdict stays GATE FAIL. `T9aD_RESULTS.md`, committed as `06410acd` |
 | **T10a** view-factor enclosures (EXACT) | **GATE FAIL** — 3 of 4 box rows PASS, ceiling fails 0.125% against a 0.077% band; **both sphere rows NOT A RESULT** on DIVERGENT triples; outer-sphere row-sum defect 4.3–4.8%, non-converging under fixed quadrature; 12 controls MET, 6 UNMEASURED (D447). **T10a-R ceiling refinement arm IN FLIGHT** |
 | **T4** impinging jet | **half-open** — ERCOFTAC case025 held, Martin correlation held, but Nu uncertainty is **second-hand** (2.4%, KB Wiki quoting Baughn & Shimizu). Report-only enabled; graded rows need the closed ASME primaries |
-| **T5** heated cubes (the rack physic) | **PRIMARY HELD** — Meinders 1998 TU Delft thesis, open, title-page verified, sha256 `36c89a54…`, stated uncertainty 5% mid-face / 10% edges. **Pre-registration draft IN FLIGHT**; primary stays **HELD** and the graded rows wait on it. Cost registration rides with the draft |
+| **T5** heated cubes (the rack physic) | **PRIMARY HELD** — Meinders 1998 TU Delft thesis, open, title-page verified, sha256 `36c89a54…`, stated uncertainty 5% mid-face / 10% edges. **Pre-registration draft WRITTEN 2026-08-22, unfrozen**; primary stays **HELD** and the graded rows wait on it. Cost registration rides with the draft. **`T5_PREREGISTRATION_DRAFT.md` written 2026-08-22 (unfrozen, 12 INTERPRETATIONs on Sanaa's desk)**: `Re_H` 4440, conjugate `chtMultiRegionSimpleFoam`, ladder 5.4e4 / 2.2e5 / 9.0e5 cells, cost **3.72–7.16 USD** under two rate models; **G4 recirculation REPORTED only** (thesis states no uncertainty); **inlet-T class needs the matrix chapters (separate rung)** |
 | **T2, T6, T7, T8, T9b/c, T10b, T11, T12, T13** | not started. T6/T12/T13 and likely T7, T9c are **over $25** |
 
 **F14 / DC-cooling ladder** (records in `docs/campaigns/F14-cooling-ladder/`, run
@@ -431,7 +431,7 @@ trees in `verification/runs/F14-cooling-ladder/`):
 refinement arm — **T10a-R in flight**. 2. T9a interface diagnosis, one change per
 run — **T9a-D REPORTED 2026-08-22 (D454, L-227)**; the successor is a re-graded T9a
 under a new pre-registration with `Gauss harmonic`. 3. T10a view-factor quadrature characterisation —
-prereg not yet written. Then T5 — **prereg draft in flight**, primary held.
+prereg not yet written. Then T5 — **prereg draft written 2026-08-22 (unfrozen)**, primary held.
 
 **On Sanaa's desk** (T-family lane, 2026-08-22):
 
@@ -439,8 +439,8 @@ prereg not yet written. Then T5 — **prereg draft in flight**, primary held.
   and H-1 assumed it was; the figure is a **recollection, not a quote** and needs
   confirming before it is spent. Obtaining it is **necessary and not sufficient**
   for T3's graded rows; it is not today's binding constraint (the ladder is).
-- **T5 draft INTERPRETATIONs** — for her when written; the prereg draft is in
-  flight and the primary (Meinders 1998) stays HELD until she rules.
+- **T5 draft INTERPRETATIONs** — now written; the primary (Meinders 1998)
+  stays HELD until she rules. **`T5_PREREGISTRATION_DRAFT.md` written 2026-08-22 (unfrozen, 12 INTERPRETATIONs on Sanaa's desk)**: `Re_H` 4440, conjugate `chtMultiRegionSimpleFoam`, ladder 5.4e4 / 2.2e5 / 9.0e5 cells, cost **3.72–7.16 USD** under two rate models; **G4 recirculation REPORTED only** (thesis states no uncertainty); **inlet-T class needs the matrix chapters (separate rung)**.
 - **T1b L4 cost: 10.54 USD registered against ~5 USD approved — and the arms are
   running.** The overrun is on the record, not on the future; the four solvers
   are live (see the pid table above) and were not stopped on this lane's own
