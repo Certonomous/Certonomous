@@ -119,6 +119,10 @@ def main():
     # Re-measured here because the figure "3.24, never above 5" is quoted in
     # three records from a pointer (Kaandorp2020_TBRF/train_log.json) that does
     # not resolve. This is the live source.
+    # [2026-08-22: the file exists on disk and is now committed at this commit;
+    # it was untracked, so git-side lookups reported it absent -- see L-225.
+    # The FS2 sec. 4 re-sourcing stands; 3.24 is the pooled-sample rank
+    # statistic, 3.738 the case-mean.]
     DS = "/home/ubuntu/closure-data/tbnn/dataset.npz"
     if os.path.exists(DS):
         z = np.load(DS, allow_pickle=True)
