@@ -437,3 +437,269 @@ Sanaa formally adopting a forked toolchain, and it is her call, not a session's 
 This item edits no frozen file, and edits none of `docs/LESSONS.md`, `docs/DOCKET.md`,
 `docs/NUMERICS_KNOWLEDGE.md`, `cases/dafoam/INDEX.md`, `LADDER_A_STATUS.md` or any charter. Drafted
 text for those is delivered to the supervisor, who owns the append.
+
+---
+
+# AMENDMENT 1 — 2026-08-22, PRE-COMPUTE: the arms move to np = 1 twins
+
+**Version 1.1.** **Lines whose number changed above this section: 0.** This amendment is appended
+at the foot with `cat >>`; the frozen body of §1–§10 is untouched and was verified byte-identical to
+its committed blob `663c6aabf7cf012815d0f1a0fba684cb898610e5` immediately before this text was
+written. Nothing is filed, sent, uploaded or pushed. Filing stays NOT APPROVED and is Sanaa's alone.
+
+## A1.0 This amendment is legal because no compute has been spent on any arm
+
+CLAUDE.md rule 2 permits amendment **before first compute** and requires the condition and the check
+to be stated, naming the run directory that does not exist. Stated:
+
+* **No arm of this item has ever launched.** `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/`
+  contains the staged trees `patched/` and `wrongstep/`, and
+  `find … \( -name '*.log' -o -name 'processor*' \)` over both returns **nothing** but the copied-in
+  `log.checkMesh`. **The files `P3-a3-rung2-patched/patched.log` and
+  `P3-a3-rung2-patched/wrongstep.log` DO NOT EXIST**, no `processor*` directory exists in either
+  tree, and no `decomposePar.log` exists.
+* **The only compute this item has spent is 0.200 core-min** — a 3-second, 4-rank identity check
+  with **no solver, no case and no mesh** (`ledger.txt` line 1, `note=identity-only-no-solver`). It
+  started no OpenFOAM process and wrote nothing into any case directory.
+* **No gate, threshold, band, cap or label from §4–§6 is loosened by this amendment.** The grading
+  band, the evaluability and step-consistency gates, the verdict vocabulary, the two-row rule and the
+  $25 rule are carried through unchanged. The registered ceiling **rises from 90.0 to 120.0
+  core-min**, which is the ceiling the dispatching brief set for this item from the start and which
+  §8 sat below; it is re-derived from measurement in A1.4, not from convenience.
+
+## A1.1 The condition that forced it, and how it was checked
+
+The §7 launch condition — 1-minute load average ≤ 8 **and** MemAvailable ≥ 12 GiB — **was polled 12
+times and never met.** Poll log: `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/launch_condition.txt`.
+
+| | |
+|---|---|
+| polls | **12**, 18:07:13Z → 18:18:14Z |
+| **minimum `load1` observed** | **18.28** against a gate of 8 |
+| range | 18.28 – 26.17 |
+| MemAvailable | **20.96 – 23.57 GiB throughout — the memory limb never bound, on any poll** |
+
+**The load limb cannot clear, and this is read from the owning team's own record rather than
+assumed.** `docs/LAB_STATE.md` — which this lane does not edit — states at `:59-60` that lab-wide
+live compute is *"12 single-core solvers, all `buoyantBoussinesqSimpleFoam`, all owned by
+heat-transfer"*, and gives their ETAs at `:231-234`: three T1 runs at **~2026-08-26 06–08Z**, one
+(`R_10k_x`, endTime 20000) at **~2026-08-23 01:40Z**; and at `:249` the T3 ext1 critical path `R_f`
+at **2026-08-25T14:54Z**. Twelve single-core solvers on a 16-core box put `load1 ≥ 12` **by
+construction**, so a gate of 8 is unreachable for the next three to four days. **The T-family has
+priority and is not to be touched.**
+
+**Why the gate is replaced rather than relaxed, and the distinction matters.** Choosing a gate after
+seeing that it blocks you is the failure `DAFOAM_CHARTER.md` §8 names (*"a token chosen after the
+number is not a verdict"*). This amendment does not lower the number; it **changes the
+configuration** so that the resource the gate was proxying for is no longer contended. The old gate
+was a proxy for *"are there 4 free cores for a 4-rank MPI job"*. The arms now take **one** core.
+
+## A1.2 What changes: np = 4 → np = 1, and it moves the item toward the charter, not away
+
+| | registered (frozen §2) | amended |
+|---|---|---|
+| ranks | 4 | **1** |
+| container | `--cpus=4 --memory=12g` | **`--cpus=1 --memory=12g`** |
+| `decomposePar` | `-force` before each arm | **not run** — at 1 rank pyDAFoam reads the serial case directly; no `processor*` directory is created or read |
+| arms | PATCHED + control; shipped twin declined | **PATCHED np=1 + SHIPPED np=1 + control** — three arms |
+| shipped image | not run (§3 departure 1) | **`dafoam/opt-packages:latest`**, `libidwarp.so` md5 `f0fcb488e0e98156575cd19548e91663` |
+| launch condition | load1 ≤ 8 **and** MemAvailable ≥ 12 GiB | **MemAvailable ≥ 12 GiB only** (A1.5) |
+| ceiling | 90.0 core-min | **120.0 core-min** |
+
+**Three consequences, and two of them are improvements the np=4 plan could not buy.**
+
+1. **The shipped twin comes back, and it must.** `DAFOAM_CHARTER.md` §5 forbids carrying an FD
+   reference across np: *"A gradient verified at one np is a statement about that np and is never
+   carried to another."* The np=4 stock row (0.0077% / 0.2740% / 0.0172%) is therefore **a prior, not
+   a comparator**, for anything measured at np=1. Without a shipped np=1 arm the patched np=1 arm
+   would have **no valid stock comparator at all**, and the two things this item exists to measure —
+   the FD-invariance control of §5 P4 and the patch effect of §5 P9 — would both be unmeasurable.
+   §3 departure 1's reasoning was sound at np=4 and does not survive the move to np=1. **It is
+   hereby withdrawn**: the raw arrays in the rung-2 stock logs are np=4 arrays.
+2. **This closes the gap §9 item 5 admitted it could not close.** The frozen §9.5 records that the
+   cited stock row is `dafoam-subpclu:v1` with the env unset — *"SHIPPED-equivalent (‡), which is not
+   the same thing as `dafoam/opt-packages:latest`"*. The amended shipped arm runs **the literal
+   shipped image**. The ‡ caveat does not apply to the new row.
+3. **It is the configuration the charter asks for first.** `DAFOAM_CHARTER.md` §5: *"A new case's
+   first FD verification is run at np = 1 before any parallel figure is graded."* **A3 has never been
+   run at np=1 at any mesh size, on either image.** The np=4 rungs were graded without it.
+
+**Everything else in §2 is unchanged**: mesh, birth certificate, `daOptions`, `transonicPCOption 1`,
+`primalMinResTol 1e-8`, `pcFillLevel 0`, `gmresMaxIters 2000`, DV set, FD steps h=1e-2 / 2h=2e-2,
+`runScript_fd3p.py` and its three-insertion diff, cold-start proof, `-x PYTHONPATH`, record-only RSS
+watcher, per-arm ledger.
+
+**One new departure, disclosed.** There is **no `dRdWColoring_1.bin`** on disk — the cached coloring
+is `dRdWColoring_4.bin`, keyed to a 4-way partition and useless at 1 rank. **Arm N-P (first) computes
+the coloring fresh and pays for it; arms N-S and N-C reuse the `dRdWColoring_1.bin` it writes**, by
+copying that one file between staged trees. This is the same reuse the graded np=4 arms already
+relied on (they inherited `dRdWColoring_4.bin` from a different run entirely, the D3 Option-5 run),
+and it is legitimate across images because the coloring is computed by DAFoam from mesh connectivity
+with **no IDWarp in the chain** — the two images carry identical DAFoam 5.0.0. **The check is
+registered, not assumed:** both logs must print `Reading Coloring dRdWColoring_1` and the **same
+colour count**, and that assertion is prediction **P18b**.
+
+## A1.3 Predictions restated for np = 1. The np=4 numbers are a PRIOR, not a prediction
+
+Numbering continues from §5. Bands are wider than §5's because **np=1 is a configuration this case
+has never been run in**, and saying so is the point.
+
+> **P15 — provenance, all three arms. Band: exact.** Arm N-P and arm N-C print
+> `IDWARP_SO_MD5 = 85f59e87253e0a71a813f64ca6e4c425`; **arm N-S prints
+> `f0fcb488e0e98156575cd19548e91663`** and `IDWARP_IMPORTED_FROM:` a site-packages path. All three:
+> `transonicPCOption 1;` in the DAOption dump, **zero** sub-LU banners. At 1 rank the mixed-stack
+> risk of `BUILD.md` §6 cannot arise, and the np=4 forwarding was already proved by the 0.200
+> core-min pre-flight (all 4 ranks `85f59e87…`).
+> **Falsifier:** wrong md5 on any arm → that arm is void and stops.
+
+> **P16 — cold start. Band: agreement with `0.6833296303785072` to ≥ 10 significant figures, NOT to
+> all 16.** The 16-digit signature is an **np=4** artifact: it is a sum over the same cells but in a
+> different summation order, and serial-vs-4-way reduction order is not required to agree in the last
+> digits. Registering the exact-match band here would be carrying an np=4 number across np, which is
+> the very thing §5 of the charter forbids. `initRes ≈ 1` on all six fields is required exactly.
+> **Falsifier:** disagreement in the first 10 significant figures → the copy warm-started; void.
+
+> **P17 — the np=1 adjoint. Band: `PetscConvergedReason: 2`, iterations in `300 – 1400`.** Prior:
+> **987** at np=4 on this mesh. At 1 rank the ASM preconditioner has a single block, i.e. plain
+> ILU(0) on the whole matrix, which is normally better conditioned than a 4-block ASM — and the
+> ladder has a measured instance: A6's N=16 rung at **41,760 cells converged in 517 iterations at
+> np=1**, which `LADDER_A_STATUS.md` row 24 explicitly contrasts with *"A3 rung 2 needed 987 at the
+> same size"* at np=4. So fewer is expected and the band is asymmetric downward.
+> **Falsifier:** `reason -3` at the 2000 cap → np=1 conditioning is *worse* at this rung, which is a
+> new finding and its own escalation; the arm yields no analytic and is **NOT SCORED**, not failed.
+
+> **P18 — the two images give the same adjoint. Band: bit-identical.** Arms N-P and N-S must return
+> the same iteration count, the same reason and the same printed residual path, because the IDWarp
+> patch enters after the Krylov solve. This is now an identity check between **the literal shipped
+> image and the patched image**, which is stronger than the frozen P3 (which compared
+> `dafoam-subpclu:v1` against the patched image).
+> **P18b — coloring reuse. Band: exact.** Both logs print `Reading Coloring dRdWColoring_1` and the
+> **same colour count**; arm N-P's log additionally prints `Writing Colors to dRdWColoring_1`.
+> **Falsifier (either):** a difference → the images do not share a numeric path, or the reused
+> coloring is not the coloring the second arm would have computed; **stop and report**.
+
+> **P19 — THE CONTROL: the FD column must not move between the two np=1 arms. Band: bit-identical,
+> every printed digit** — both baselines, all 12 perturbed `CD` values, all 6 FD estimates, and the
+> drift. This is the §5 P4 control, now measured at a **single, matched np**, which is the only way
+> it is admissible.
+> **Falsifier:** any digit differing → the arms measure different functions; **stop and report.**
+
+> **P20 — selection. Band: `patchV[1]`, `twist[1]`, `shape[115]` on both arms**, as at np=4. **Named
+> alternative:** a moved argmax at np=1 is a finding (decomposition changing which component is
+> largest); the arm continues and the moved component is reported with its own numbers.
+
+> **P21 — `patchV` bit-identical between the two images. Band: exact.** It does not cross
+> `warpDeriv`. IG-2 evidence, **reported and not gated on**.
+
+> **P22 — SHIPPED np=1, three per-component relative errors. Band: `patchV[1]` 0 – 1%, `twist[1]`
+> 0 – 3%, `shape[115]` 0 – 3%; verdict predicted PASS, zero sign flips.** Prior at np=4: 0.0077% /
+> 0.2740% / 0.0172%. Bands are wider than the prior because A4 measured a **16,600×** spread between
+> two decompositions of one mesh, so np is not a free variable on this stack.
+
+> **P23 — PATCHED np=1, same three. Band: same as P22; verdict predicted PASS, zero sign flips.**
+> **Falsifier (both P22 and P23):** > 5% ⇒ CONDITIONAL; > 15% or any sign flip ⇒ GATE FAIL for that
+> row, and — for the patched arm moving *away* from a fixed FD reference the shipped arm matches —
+> escalation before any regrade.
+
+> **P24 — the patch effect, analytic vs analytic, and it is now a cleaner measurement than the frozen
+> P9 could have been. Band: `‖g_patched − g_stock‖₂ / ‖g_stock‖₂` over the full 120-component
+> `CD wrt shape` row in `0.005% – 5%`.** The frozen P9 would have compared a patched `fd3` row at
+> `primalMinResTol 1e-8` against a stock arm-A row at **1e-6** — two tolerances, a confound that
+> would have had to be disclosed. Both np=1 arms run `fd3` at 1e-8, so **the only difference between
+> the two vectors is the shared library.** Named alternative and the > 15% reading are carried
+> forward from §5 P9 unchanged, as is the `< 0.001%` NOT A RESULT (resolution-limited) branch.
+
+> **P25 — a free by-product, registered so it is not claimed as a discovery afterwards: A3's first
+> decomposition datum, ever. Band: `‖g_np1 − g_np4‖₂ / ‖g_np4‖₂` on the stock `CD wrt shape` row in
+> `0.001% – 20%`, reported with no gate on it.** `../grading_confirmation/RESULTS.md` §5.5 records
+> that *"the decomposition axis was never varied on A3"*. Comparing arm N-S against the archived np=4
+> stock row varies it for the first time. It is **not** a verdict — the two rows are different
+> configurations — and it is reported as evidence with its band, in the A1/§5 "unregistered bonus"
+> class.
+
+> **P26 — memory at 1 rank. Band: peak RSS `6.5 – 11.5 GiB` against the `12 GiB` cap; host
+> `MemAvailable` never below `8 GiB`.** Model, from this case's own family: `LADDER_A_STATUS.md`
+> row 7's serial fit predicts **66.0 – 93.6 GiB at 399,360 cells**, i.e. **0.169 – 0.240 MiB/cell**,
+> giving **6.95 – 9.87 GiB at 42,120 cells**. Cross-check: the np=4 **aggregate** record peak at this
+> exact member is 9,991.9 MiB = **9.76 GiB**, and the reverse sweep builds a mesh-sized
+> `d[R]/d[Xv]` block whether or not it is partitioned, so serial and 4-way aggregate should be close.
+> **Falsifier / stop rule (Charter §7), unchanged from §5 P10:** OOM, a watcher sample > 11.5 GiB, or
+> host `MemAvailable` < 8 GiB → **stopped by memory, NOT A RESULT about the patch, no cap raised, no
+> new budget.**
+
+> **P27 — the trivial baseline at np=1.** Design unchanged from §5 arm P-B: patched stack,
+> `patchV[1]` only, step **1e-8**, no adjoint. Band: `|CD(+h) − CD(−h)|` in `1.0e-10 – 2.5e-10`,
+> **four to five orders below the evaluability threshold**, so the rung's own gate returns **NOT
+> EVALUABLE** rather than a verdict — which is the discrimination it is bought for. **Disclosure:
+> the constant printed in the log line `FD1W evaluability threshold (10x drift 8.093e-07)` is the
+> np=4 drift and is a hard-coded reference only; the threshold actually graded against is recomputed
+> from arm N-P's OWN measured np=1 drift**, and both numbers are reported. P13's `> 20%` band, its
+> registered gray zone (a noise-dominated estimate is random, so a small percentage is luck and is
+> not evidence for 1e-8) and **the falsifier that withdraws the real arms' verdicts** all carry
+> forward unchanged. Licence check for reusing arm N-P's analytic: arm N-C's baseline CD must equal
+> arm N-P's **bit-identically**, else the control is NOT A RESULT rather than compared.
+
+> **P28 — clock inflation, stated in advance and reported measured.** Predicted wall inflation np=4 →
+> np=1 is **4.0× ideal, 4.0 – 5.0× with single-rank contention** on a box where the T-family holds 12
+> cores and two other lanes each hold one. Core-minutes are predicted to be roughly **conserved**
+> across the change, since core-min = cores × wall. The measured inflation is reported in
+> `RESULTS.md` against this band whether it lands or misses.
+
+## A1.4 Cost, re-derived from measurement before the runs
+
+**Measured bases, both from this exact mesh at np=4:** the `fd3` task ran in **452 s** wall × 4 =
+**30.13 core-min** with a warm coloring (`A3-rung2-n28-tpc1/.t0/.t1`); a **fresh** `dRdW` coloring
+pass cost **460.02 − 39.44 = 420.6 s** wall × 4 = **28.0 core-min**
+(`A3-onera-m6-sweep-n28_42120/run_opt5_onera_n28_42120.log:826,:885`). Core-minutes are conserved
+under the rank change (P28); wall is not.
+
+| arm | order | ranks | coloring | predicted wall | predicted core-min | `timeout` | worst case core-min |
+|---|---|---|---|---|---|---|---|
+| **N-P** PATCHED `fd3` | 1st | 1 | **computes it** | ~3,830 s | **63.8** | 4,200 s | 70.0 |
+| **N-S** SHIPPED `fd3` | 2nd | 1 | reuses | ~1,990 s | **33.1** | 2,400 s | 40.0 |
+| **N-C** control `fd1wrong` | 3rd | 1 | none | ~440 s | **7.3** | 540 s | 9.0 |
+| pre-flight (already spent) | — | 4 | — | 3 s | **0.200** | — | 0.200 |
+| **total** | | | | **~1 h 45 m sequential** | **104.4** | | **119.2** |
+| **REGISTERED CEILING** | | | | | | | **120.0** |
+
+Contention factor 1.1× is included in the predicted column. **The three timeouts sum to 119.2
+core-min, so the ceiling is reachable but not exceedable by construction**, exactly as §7 built it at
+np=4. At $0.0513/core-hour the ceiling is **$0.1026** and the prediction is **$0.0893**. **Nothing
+here approaches $25** — the worst case is **0.41%** of that bar.
+
+**Patched runs FIRST and that ordering is deliberate.** It is the row `LADDER_A_STATUS.md` row 12
+actually needs, so if the budget stops the item after one arm, the item still delivers what it was
+dispatched for rather than a stock row.
+
+**Registered decision rule, so no budget escape is decided in the moment:** if arm N-P expires on its
+`timeout`, **arms N-S and N-C are NOT launched**, the item reports what it has, and **no second
+budget is requested** (`COMPUTE_BUDGET_CHARTER.md`: a budget overrun stops the run; it does not get a
+new budget). If arm N-P succeeds but N-S expires, the control still runs and the patched row is
+reported with the stock comparator recorded as **PENDING**, never as absent.
+
+## A1.5 Launch condition, amended
+
+**MemAvailable ≥ 12 GiB**, checked immediately before each arm, polled every 60 s for at most 100
+minutes. **The load limb is removed**, and the rationale is registered rather than left implicit:
+
+1. Each arm is **one rank in a `--cpus=1` container** — one core of sixteen, inside the 4-core lane
+   cap and the 8-core team cap shared with two other lanes, both of which are currently holding one
+   container each.
+2. At `-np 1` there is **no MPI spin-wait**: the busy-wait progress engine that makes an oversubscribed
+   multi-rank job pathological on a loaded box has no peer to poll.
+3. Arms run **strictly sequentially** — never more than one container from this item at a time.
+
+**The cost of removing it is stated rather than hidden:** the arms will run against a loaded box, so
+**their wall clocks are contended and are not a clean cost basis for scaling** — the same disclosure
+A1's `RESULTS.md` §6 had to make. The measured inflation is reported against P28.
+
+## A1.6 What this amendment does NOT change
+
+§4's bands and gates; §6's outcome mapping; §9's eight "cannot see" limits, **except** item 5, which
+this amendment closes by running the literal shipped image, and item 2, which it partly addresses by
+producing A3's first decomposition datum (P25) while still not making a decomposition claim; §10's
+two-row rule, R11, and the standing statement that **nothing is filed, sent, uploaded or pushed, and
+filing stays NOT APPROVED and is Sanaa's alone.**
+
+**Verdict vocabulary unchanged:** PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING.
+**Three rows, and the shipped and patched rows are never merged.**
