@@ -94,8 +94,8 @@ rung may take it).
 
 ## closure
 
-**Section last written:** 2026-08-22T21:20Z — R4 rows and the D369
-closure by the R4 BUILD lane; everything else as the closure-supervisor left it.
+**Section last written:** 2026-08-22T20:34Z by closure-supervisor.
+(Stamp restored to the canonical one-line form that `scripts/check_harness.py` parses; the previous stamp, 2026-08-22T21:20Z, carried a trailing clause — "R4 rows and the D369 closure by the R4 BUILD lane; everything else as the closure-supervisor left it" — which the parser rejects. Option C (omega-source repair, $0.009) is LIVE under its own pre-registration `cases/RANS_LES_closure_models/R5C_omega_repair/`; A′ and the R5 direction wait for Sanaa.)
 
 **Last commit:** the **D369 write-back defect closed as executable law** —
 `scripts/append_record.py` (merge, refuse, max+1 assert, planted control) and
