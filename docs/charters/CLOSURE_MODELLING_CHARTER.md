@@ -1,6 +1,6 @@
 # Certonomous Closure Modelling Charter
 
-Version 1.1.1, dated 2026-08-21 (section 17 amended; see its dated note). Governs every data-driven turbulence closure this lab
+Version 1.1.2, dated 2026-08-22 (section 22.4 amended; see its dated note. Section 17 carries the v1.1.1 amendment of 2026-08-21). Governs every data-driven turbulence closure this lab
 trains, scores, reproduces or reports: RANS anisotropy models, field inversion, LES
 subgrid-scale models, wall models, differentiable and solver-in-the-loop training, and the
 uncertainty and aggregation methods filed beside them. It binds the four case directories
@@ -787,6 +787,31 @@ uncertainty envelope around any mixture.
 **FABLE's to select**, and is not selected. **Emory 2013 and Iaccarino 2017 are both PENDING-MIT**
 (`MANIFEST.md` §4), so this clause cannot yet be executed from a title-verified source.
 
+**Amended 2026-08-22 (v1.1.2) — the band contains shape or forcing and not both, and a band is not a correction.** Sanaa's institutionalization directive of 2026-08-22 required "the bands-vs-corrections caveat into the charters verbatim". Shelf D was executed on 2026-08-21 (`docs/DOCKET.md` **D446**; `docs/LESSONS.md` **L-218** through **L-221**; `cases/RANS_LES_closure_models/_common/uq_eigenspace/UQ_EIGENSPACE.md`), and what it measured now binds every prediction that ships a band under this clause. **The open action recorded above is closed by the same work and the paragraph is left standing rather than rewritten:** both sources are on disk and title-verified — Emory 2013 as the published *Phys. Fluids* article and Iaccarino 2017 as the accepted manuscript via CHORUS, supplied by Sanaa with `MANIFEST` Addendum 3 (D444) and read into `UQ_EIGENSPACE.md` §0 at equation level — so the clause is executable and has been executed once. The caveat, quoted verbatim from the two records that carry it:
+
+> **`docs/LESSONS.md`, L-220 — verbatim:**
+>
+> **Report envelope coverage on the forcing term as well as on the parameterised
+> quantity, and expect them to fail on different cases.** This also closes the loop
+> L-157 opened: Xiao's space excludes the truth because it never perturbs
+> orientation; the eigenspace envelope perturbs orientation and still misses the
+> truth's forcing in 2–7 % of cells because it never perturbs magnitude. **Neither
+> framework contains what it is meant to bound, and they fail on different axes.**
+>
+> **`docs/DOCKET.md`, D446 — verbatim:**
+>
+> Xiao's space misses the truth by never perturbing orientation; the eigenspace band misses the forcing by never perturbing magnitude.
+>
+> P-A4 falsified for the wrong reason and graded NOT A RESULT: velocity coverage 0.744 (predicted below 0.50) inside an envelope 1,344x the signal - an interval that wide contains the truth the way a blindfold contains the dartboard.
+
+**What the clause now requires. It is additive: §22.4's duty to ship a band is not weakened, and nothing above is changed.**
+
+1. **A band ships with the axis it cannot see, named.** A shelf-D eigenspace band perturbs shape and orientation only — Emory's eq. (4) keeps `k` outside the bracket — so a `k`-magnitude error, and with it the momentum forcing, is outside the envelope **by construction**. Any record quoting such a band states that where it quotes it, with the measured cost: production containment 0.9279 to 0.9433 on every hill and the curved step.
+2. **A band is not a correction.** `UQ_EIGENSPACE.md` opens with the line this rule is built on — *"Nothing is fitted. Nothing here is a model."* A band is a statement about what the model cannot see. It is never applied to a prediction, never subtracted from an error, and never quoted as the uncertainty of a model whose own correction acts on the axis the band does not perturb. Where a band and such a model are shown together, the overlap in what **neither** can see is stated (`R4_sparta_build/PREREGISTRATION.md` A2 states the same requirement for the R4 lane).
+3. **A band is reported with its width against the signal.** D446's P-A4 is the worked example: a velocity coverage of 0.744 inside an envelope **1,344x the mean velocity magnitude** is NOT A RESULT, and it is the width — not the coverage — that says so. A coverage fraction quoted without the width of the interval that achieved it does not satisfy §22.4.
+4. **The magnitude is a calibration and inherits its flow class** (L-219). Emory's O(0.5) is calibrated where the closure is qualitatively right; on the ducts the required `delta_B` measured **0.95 to 0.98**. A band quoting a literature magnitude on a flow class that literature did not calibrate on states the measured requirement beside it.
+
+
 ## 22.5 FS2 degeneracy audit and FS5 extrapolation-coverage check are standing gates
 
 > **FS2 — before any training, and per family: per-feature variance, range coverage and
@@ -870,5 +895,6 @@ Doctrine file: **Part 5**.
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1.2 | 2026-08-22 | Amends **§22.4** with the bands-vs-corrections caveat, quoted **verbatim** from `LESSONS.md` **L-220** and `DOCKET.md` **D446** as Sanaa's institutionalization directive of 2026-08-22 required, with four requirements attached: the unseen axis is named, a band is never applied as a correction, a band is reported with its width against the signal, and a literature perturbation magnitude carries the measured requirement for the flow class in hand. **Additive — no clause above is weakened.** Source measurements: `_common/uq_eigenspace/UQ_EIGENSPACE.md` §5 and §7, L-218 to L-221. *(Bookkeeping: v1.1.1 of 2026-08-21 — §17's drafting route — was recorded on the first line and in §17's own dated note and never given a row here; it is named in the version line rather than back-filled by this lane.)* |
 | 1.1 | 2026-08-20 | Adds **§22**, the binding half of Sanaa's closure-line restart ruling of 2026-08-18 (amended by her the same day, relayed by the coordinator 2026-08-20, recorded after Phases 1-4 closed at `b8ba7460`, `9e567786`, `20666e97`). Eight clauses: one model applied uniformly; corrections inside the solved equations; zero-shot transfer discipline; the shelf-D model-form band on every prediction; FS2 and FS5 as standing gates; per-model-class feature selection under a frozen protocol; R3 reserved to Sanaa; the two-repo content boundary and its release gate. **Additive — nothing in 1.0 was weakened**: §22.2 strengthens §7 from a reporting duty into a design constraint, and §22.5 adds two gates to §5. Old §22 and §23 renumbered to §23 and §24. Full ruling: `docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md`. |
 | 1.0 | 2026-08-20 | First issue. Written after Phase 1-2 of the closure programme produced the realisability-gate hole (§4), the invented falsifier (§11), the third duplicate SpaRTA task in nineteen days (§13) and the `tbrf.py` overwrite (§14). Clauses trace to `LESSONS.md` L-140, L-144, L-145, L-163, L-168, L-179, L-182 through L-185, to the title-verified corpus under `docs/papers/closure/`, and to the lab's own measurements in `_common/BASELINES.md` §6.4 and `Certonomous_closure_challenge/description/METHOD.md` §6. Records one gap in `FILING_CHARTER.md`'s enforcement (§21.1) and one stale count in `README.md` §1 (§21.2). |

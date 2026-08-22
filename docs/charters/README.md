@@ -64,6 +64,19 @@ charters`. That is where an amendment to this file now goes — the new charter
 carries it, and this section records it — and it is why the nine-to-ten step is
 still the finding and the eleven-to-twelve step is only bookkeeping.
 
+**Dated note, 2026-08-22 — no new charter, one amendment: `CLOSURE_MODELLING_CHARTER.md`
+is at v1.1.2.** `ls docs/charters/*_CHARTER.md | wc -l` returns **12**, pasted from the
+command; the count is unchanged and row 11's one line is unchanged. §22.4 (*every
+prediction ships the model-form band*) now carries the **bands-vs-corrections caveat,
+quoted verbatim** from `LESSONS.md` **L-220** and `DOCKET.md` **D446** — the eigenspace
+band contains shape or forcing and not both, and a band is never applied as a correction —
+on Sanaa's institutionalization directive of 2026-08-22. **Additive; no clause weakened.**
+The amendment is recorded three ways inside the charter, which is the convention this file
+asks for: the version line, a dated note at the foot of the amended section, and a row in
+its own `# 24. Amendment record`. **Bookkeeping worth stating rather than fixing quietly:**
+v1.1.1 (2026-08-21, §17) was recorded on the version line and in §17's note but never given
+a row in §24 — the v1.1.2 row names that gap instead of back-filling another lane's entry.
+
 ---
 
 ## 2. How to read one

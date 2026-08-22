@@ -1,4 +1,3 @@
-<!-- ALL ENTRIES APPENDED to docs/LESSONS.md - do not pass this file to append_lessons.py again -->
 # Lessons draft — frozen-k lane. Supervisor renumbers and appends.
 
 Placeholders `L-TBD-K*`; final numbers assigned at commit time from the tail of

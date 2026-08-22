@@ -1,4 +1,3 @@
-<!-- ALL ENTRIES APPENDED to docs/LESSONS.md - do not pass this file to append_lessons.py again -->
 # Lessons draft - Wu 2018 a-posteriori lane (Lane 2). Supervisor renumbers and appends.
 
 Headings are placeholders: final numbers are assigned by the supervisor at commit time from the tail of docs/LESSONS.md (the DAFoam team is appending the same day). Written in the repo, not the scratchpad: that

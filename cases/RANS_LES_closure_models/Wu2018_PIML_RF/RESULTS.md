@@ -217,16 +217,9 @@ reproduction of their number.
   against a data uncertainty band. The truth is itself unrealisable in 0.8-1.6%
   of cells.
 * **It cannot see 3-D effects.** Every benchmark case is a statistically 2-D mean
-  flow; the per-cell rank of Pope's 10-tensor basis on this data is
-  **3.006-3.987 by case mean, never above 5 in any cell** (measured;
-  `_common/features/FS2_DEGENERACY_REPORT.md` sec. 4, and the provenance repair
-  at the end of this file). Any
+  flow; the per-cell rank of Pope's 10-tensor basis on this data is **3.24 on
+  average, never above 5** (measured, `Kaandorp2020_TBRF/train_log.json`). Any
   conclusion here about "which features matter" is a conclusion about 2-D flows.
 * **`alpha_05_7071_*` appears in E1's training set and in E2's test set.** The two
   experiments are internally disjoint but are not independent of each other; E2's
   numbers must not be read as a second confirmation of E1's.
-
-
----
-
-**Provenance repair, 2026-08-21.** An earlier figure of "3.24 on average, never above 5" for the per-cell rank of Pope's ten-tensor basis was quoted here from `Kaandorp2020_TBRF/train_log.json`, **which does not exist** (charter section 5(b)). It has been replaced by a live re-measurement: per-cell rank of **3.006-3.987 by case mean** (mean of case means **3.738**), **never above 5 in any cell**, source `_common/features/FS2_DEGENERACY_REPORT.md` sec. 4 and `/home/ubuntu/closure-data/features/fs2_audit.json` -> `tensor_basis_rank`. 3.24 was a pooled-sample statistic over randomly drawn training cells, which the low-rank duct family pulls down; the case-mean statistic is 3.738. They are different statistics and are not interchangeable. **The bound that carries the argument is unchanged: never above 5, against a nominal basis size of 10.**

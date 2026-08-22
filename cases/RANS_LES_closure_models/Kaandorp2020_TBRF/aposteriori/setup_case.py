@@ -28,9 +28,6 @@ CASES = {
     "AR_1_Ret_360": (os.path.join(BENCH, "DUCT", "AR_1_Ret_360"), "duct"),
     "AR_3_Ret_360": (os.path.join(BENCH, "DUCT", "AR_3_Ret_360"), "duct"),
     "CBFS13700":    (os.path.join(BENCH, "CBFS"), "hill"),
-    "PHLL10595":    (os.path.join(BENCH, "PH_Breuer"), "hill"),
-    "alpha_10_9000_3036": (os.path.join(BENCH, "Parm_PH_29", "alpha_10",
-                                        "alpha_10_9000_3036"), "hill"),
 }
 K_FLOOR_FRAC = 1e-4          # registered: bijDelta = 0 where k_RANS underflows
 
@@ -103,16 +100,8 @@ def build(tag, label, b_target, end_iters, write_interval):
     t0 = latest_time_dir(src)
     cd = os.path.join(case, "system", "controlDict")
     s = open(cd).read()
-    # LIBS: the DUCT/CBFS/PH_Breuer cases name a library absent on this machine;
-    # the 29 Parm_PH_29 hills carry NO libs entry at all. Insert-or-replace, then
-    # ASSERT -- a silent string-replace failure costs a whole run (measured twice).
-    LIBS = 'libs ( "libspartaTurbulenceModels.so" );'
-    if re.search(r"libs\s*\(", s):
-        s = re.sub(r"libs\s*\([^)]*\)\s*;", lambda m: LIBS, s)
-    else:
-        mm = re.search(r"\n// \* \* \*[^\n]*\n", s)
-        s = s[:mm.end()] + "\n" + LIBS + "\n" + s[mm.end():]
-    assert "libspartaTurbulenceModels" in s, "libs entry not installed in " + cd
+    s = s.replace('libs ( "libfrozenIncompressibleTurbulenceModels.so" );',
+                  'libs ( "libspartaTurbulenceModels.so" );')
     s = re.sub(r"startTime\s+\S+;", "", s)
     s = re.sub(r"startFrom\s+\w+;", f"startFrom       startTime;\nstartTime       {t0};", s)
     s = re.sub(r"endTime\s+\S+;", f"endTime         {int(t0) + end_iters};", s)

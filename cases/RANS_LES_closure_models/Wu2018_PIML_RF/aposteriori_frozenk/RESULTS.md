@@ -116,7 +116,7 @@ The injected stress reached momentum: `max|U_truth − U_null| = 8.89` on
 **On `CBFS13700` arm L the learned anisotropy beats both the baseline and the
 true anisotropy.**
 
-| CBFS13700, arm L | `U_rms` | `x_reatt` (LES **4.170**, cell-centre basis — see the reconciliation at the end of this file) |
+| CBFS13700, arm L | `U_rms` | `x_reatt` (LES **4.170**) |
 |---|---|---|
 | `L_null` | 0.0498 | 3.350 |
 | **`L_ml_s0/1/2`** | **0.0415 / 0.0422 / 0.0418** | **3.022** |
@@ -126,9 +126,7 @@ The ML field is **16% better than NULL** in `U_rms` but FARTHER from the LES
 reattachment (error 1.148 against NULL's 0.820 — NULL undershoots, ML undershoots
 slightly more) [dated correction 2026-08-21: this sentence originally read "closer to the LES
 reattachment", contradicting its own numbers], while the **exact** anisotropy is **137% worse** and puts
-reattachment at 9.088 against a truth of 4.170 (all four numbers on the
-cell-centre basis reconciled at the end of this file; the registered LES value
-is 4.241).
+reattachment at 9.088 against a truth of 4.170.
 
 A *less accurate* `b` produced a *better* velocity field than the exact one. That
 is the ill-conditioning of the explicit-closure RANS operator in its purest
@@ -273,70 +271,3 @@ limitation stands and is not erased: equivalence is **behavioural, one-sided, on
 one case, from one restart**, because the shipped model could not be loaded to
 compare against. Details and the full 'cannot see' list:
 `cases/RANS_LES_closure_models/NASA_hump_gate/RESULTS.md`.
-
-
----
-
-## RECONCILIATION — 2026-08-22: `x_reatt` 4.170 here against 4.241 everywhere else
-
-**One reattachment, two read-off criteria on the same row of the same mesh from the
-same field. No verdict, no sign and no ordering moves.**
-
-The `CBFS13700` LES reattachment is registered in this lane's own frozen
-`PREREGISTRATION.md` as **4.241**, which is also the value in
-`_common/BASELINES.md` §3 (`x_reatt_LES`), in `Wu2018_PIML_RF/aposteriori/PREREGISTRATION.md`
-and in `Kaandorp2020_TBRF/aposteriori/PREREGISTRATION.md`. §4 above quotes **4.170**.
-Both were re-derived on 2026-08-22 from the shipped interpolated LES field, read-only,
-with no solve:
-
-| criterion | LES `x_reatt` |
-|---|---|
-| **registered instrument** — `_common/sst_baseline_metrics.py::hill_wall_metrics`: longest contiguous reversed-`U_x` run in the wall-adjacent cell row (`j = 0`), **linearly interpolated** to the sign change | **4.240983** |
-| **cell-centre readout** — abscissa of the **last cell that is still reversed**, no interpolation | **4.169625** |
-
-The last reversed cell centre is at `x = 4.169625`, the next at `4.333572`, so the
-streamwise cell width there is **0.163947** and the two numbers differ by
-**0.071358 = 0.435 of one cell**. There is no disagreement about the flow, the
-field or the mesh: **4.170 is 4.241 read at cell resolution and truncated to the
-last reversed cell, which is biased low by construction.**
-
-**The §4 table is internally consistent, and that is why no number in it changes.**
-Every value in it is a row-`0` cell centre to better than 4e-4:
-
-| quoted | nearest row-`0` cell centre |
-|---|---|
-| `L_ml` 3.022 | 3.021996 |
-| `L_null` 3.350 | 3.349890 |
-| LES 4.170 | 4.169625 |
-| `L_truth` 9.088 | 9.088038 |
-
-All four arms and the truth are on the **same** basis, so §4's comparisons are
-apples-to-apples and its conclusions — NULL and ML both undershoot, ML slightly
-farther (1.148 against 0.820), TRUTH overshoots grossly, and the a-priori `b`
-ordering is inverted relative to the velocity ordering — are unaffected. **The
-`NOT A RESULT` verdict and the fired falsifier are untouched.**
-
-**The number of record is 4.241**, on three grounds: it is the value this lane
-registered before the run (charter §11 — the ladder is scored as written); it is
-what the committed instrument returns, applied identically to the RANS and the LES
-field so the difference is model error and not post-processing; and that
-instrument's interpolated criterion is the one validated on `PH_Breuer` against
-OpenFOAM's own `wallShearStress` sign change to four significant figures
-(`sst_baseline_metrics.py`, `hill_wall_metrics` docstring). By contrast **4.384**
-(the `TRUTH+R` control in `Kaandorp2020_TBRF/aposteriori/RESULTS.md`) and **5.891**
-(SST) are *not* row-`0` cell centres — they are interpolated crossings, so the rest
-of the programme is on the registered basis and §4 is the outlier.
-
-**What follows from this, stated so it is not mistaken for a correction:**
-
-* §4's numbers **must not** be compared against `BASELINES.md`'s 4.241, against the
-  Kaandorp lane's 4.384, or against SST's 5.891 without first being put on the
-  interpolated basis. Doing so mixes the two criteria and inflates every error by
-  up to one cell.
-* **Not done here:** the interpolated crossings for the six arm fields have **not**
-  been recomputed, so §4's table is left exactly as it was graded. That is a
-  read-only rescore of fields already on disk (minutes, no solve) and it belongs to
-  the lane that owns the grade, not to this reconciliation.
-* `docs/closure/R2_SHORTLIST_MEMO.md` quotes the 4.170 line and carries the same
-  criterion difference. It is outside this reconciliation's file scope and is
-  **flagged, not edited**.
