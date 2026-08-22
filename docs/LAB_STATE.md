@@ -181,9 +181,30 @@ version string is not.*
 
 ## heat-transfer
 
-**Last commit:** `037abab8` — *T3 ext1: ladder extended from latestTime on
-convergence state alone (D452); 8 extensions running, R_f ETA 2026-08-25*
-(2026-08-22 18:03Z).
+### T-family (thermal) — refreshed 2026-08-22 by the T-family lane (supervisor)
+
+*This is the T-family (thermal) lane's section. Refreshed in place rather than
+duplicated: the board's convention is one section per team, and this team is the
+T-family/thermal one. Everything below replaces the harness build's first fill.*
+
+**Last commits (newest first):**
+
+| sha | committed (UTC) | what |
+|---|---|---|
+| `037abab8` | 2026-08-22T18:03:02Z | *T3 ext1: ladder extended from `latestTime` on convergence state alone (**D452**); 8 extensions running, `R_f` ETA 2026-08-25* — this commit is what put `T3_EXT1_AMENDMENT.md` on disk in git |
+| `fd831c11` | 2026-08-22T17:53:19Z | *Thermal Buildup Directive recorded; T3 NOT A RESULT 4/4; charter §2e; DC certificate template; libs helper+lint* (**D449–D451, L-224**) |
+| `89231930` | 2026-08-22T17:38:42Z | **merge** of `origin/main` — Sanaa's paper uploads `ddd2d75b`, `c99bce64`, `ad110f9d`; **no Vogel & Eaton among them** |
+
+**Ordering, disclosed not smoothed:** the eight T3 ext1 extensions launched at
+17:51:43–46Z, i.e. **11 min 19 s before** `037abab8` committed the amendment that
+registers them; and `fd831c11` (17:53:19Z) *cited* `T3_EXT1_AMENDMENT.md` in the
+directive and the T-family index for **9 min 43 s before** the file itself was
+committed. The pre-launch guarantee rests on the on-disk write order — §1's
+timestamped 17:41:39Z precondition check (no `log.solve.ext1` anywhere, rc = 2),
+§5's cost and §6's predictions, all written before launch — not on the commit
+time. Frozen-artifact sha256s were unchanged across the interval (7 of 8
+byte-identical; the 8th traced in §13 to another lane's commit, not this one).
+Full record: `T3_EXT1_AMENDMENT.md` **§14**.
 
 **Live jobs — 12 solvers, all this team's, all single-core
 `buoyantBoussinesqSimpleFoam`.** Reading taken 2026-08-22T18:05Z. **Do not touch
@@ -211,12 +232,12 @@ them.**
 | 763872 | `D_m` | 21364 | 28000 |
 | 764454 | `O_m` | 20458 | 46000 |
 
-`R_f` ETA **2026-08-25** per the commit message; the other seven ETAs are
-**VERIFY** — not computed at this writing. **Noted for the record:** these eight
-were launched ~17:51Z and `T3_EXT1_AMENDMENT.md` was committed at 18:03Z
-(`037abab8`), so for roughly twelve minutes the extensions ran ahead of their
-registered amendment. The amendment is now on disk and committed; the ordering is
-recorded rather than smoothed. **Note `R_10k_x` carries `endTime
+`R_f` is the critical path: ETA **2026-08-25T14:54Z** (amendment §10.4, 68.9 h
+≈ 2.9 days); the other seven finish earlier and their individual ETAs are
+**VERIFY** — not recomputed at this writing. The launched-before-committed
+ordering noted above is now written up in full as **§14 of the amendment**
+(appended 2026-08-22), with the rule the lane takes forward: commit the
+pre-registration before launching what it registers. **Note `R_10k_x` carries `endTime
 20000` where its three siblings carry 80000** — intended per the L4 design, or a
 mismatched triple? **VERIFY before the triple is graded**, because Roache gating
 turns on exactly this.
@@ -225,14 +246,14 @@ turns on exactly this.
 
 | rung | verdict |
 |---|---|
-| **T1c** laminar pipe (EXACT) | **GATE FAIL** — 1 of 4 graded rows failed; L4 row NOT A RESULT |
+| **T1c** laminar pipe (EXACT) | **GATE FAIL 3/4** — 3 of 4 graded rows pass, 1 fails; the L4 row is NOT A RESULT |
 | **T1b** turbulent pipe (FORMULA) | **PASS ×4 as returned by the frozen comparator — but every grid triple DIVERGENT or STAGNANT** (D440). Until the L4 arms land, the four Nu rows **carry no mesh-converged value** |
 | **T1a** turbulent flat plate | **BLOCKED** — reference held, but no band can be armed from one correlation |
-| **T3** heated BFS (the spine's first rung) | **NOT A RESULT 4/4** — gates (1)/(2) of prereg §7.1: no case at 1e-6, triples DIVERGENT/OSCILLATORY. Primary (Vogel & Eaton 1985) **NOT OBTAINED** — necessary, not sufficient, and **not today's binding constraint; the ladder is.** ext1 running |
-| **T9a** composite wall / fin (EXACT) | **GATE FAIL** — 2 of 3 graded rows pass; interface 1 misses by **2.4 mK** against a 0.92 mK GCI band; 2 fin rows GATE REACHED below the 0.025% O(Bi) floor; 4 controls MET (D442) |
-| **T10a** view-factor enclosures (EXACT) | **GATE FAIL** — 3 of 4 box rows PASS, ceiling fails 0.125% against a 0.077% band; **both sphere rows NOT A RESULT** on DIVERGENT triples; outer-sphere row-sum defect 4.3–4.8%, non-converging under fixed quadrature; 12 controls MET, 6 UNMEASURED (D447) |
-| **T4** impinging jet | **OPEN** — ERCOFTAC case025 held, Martin correlation held, but Nu uncertainty is **second-hand** (2.4%, KB Wiki quoting Baughn & Shimizu). Report-only enabled; graded rows need the closed ASME primaries |
-| **T5** heated cubes (the rack physic) | **PRIMARY HELD** — Meinders 1998 TU Delft thesis, open, title-page verified, sha256 `36c89a54…`, stated uncertainty 5% mid-face / 10% edges. **Cost registration pending, and it is next after the cheap arms** |
+| **T3** heated BFS (the spine's first rung) | **NOT A RESULT 4/4** — gates (1)/(2) of prereg §7.1: no case at 1e-6, triples DIVERGENT/OSCILLATORY. Primary (Vogel & Eaton 1985) **NOT OBTAINED** — necessary, not sufficient, and **not today's binding constraint; the ladder is.** **ext1 running** (D452), 8 extensions, critical path `R_f` ETA **2026-08-25T14:54Z**; a still-non-CONVERGING triple stays NOT A RESULT |
+| **T9a** composite wall / fin (EXACT) | **GATE FAIL** — 2 of 3 graded rows pass; interface 1 misses by **2.4 mK** against a 0.92 mK GCI band; 2 fin rows GATE REACHED below the 0.025% O(Bi) floor; 4 controls MET (D442). **T9a-D interface diagnosis arm IN FLIGHT** — one change per run is the registered constraint |
+| **T10a** view-factor enclosures (EXACT) | **GATE FAIL** — 3 of 4 box rows PASS, ceiling fails 0.125% against a 0.077% band; **both sphere rows NOT A RESULT** on DIVERGENT triples; outer-sphere row-sum defect 4.3–4.8%, non-converging under fixed quadrature; 12 controls MET, 6 UNMEASURED (D447). **T10a-R ceiling refinement arm IN FLIGHT** |
+| **T4** impinging jet | **half-open** — ERCOFTAC case025 held, Martin correlation held, but Nu uncertainty is **second-hand** (2.4%, KB Wiki quoting Baughn & Shimizu). Report-only enabled; graded rows need the closed ASME primaries |
+| **T5** heated cubes (the rack physic) | **PRIMARY HELD** — Meinders 1998 TU Delft thesis, open, title-page verified, sha256 `36c89a54…`, stated uncertainty 5% mid-face / 10% edges. **Pre-registration draft IN FLIGHT**; primary stays **HELD** and the graded rows wait on it. Cost registration rides with the draft |
 | **T2, T6, T7, T8, T9b/c, T10b, T11, T12, T13** | not started. T6/T12/T13 and likely T7, T9c are **over $25** |
 
 **F14 / DC-cooling ladder** (records in `docs/campaigns/F14-cooling-ladder/`, run
@@ -249,13 +270,24 @@ trees in `verification/runs/F14-cooling-ladder/`):
 | **K2e**, **KV1** | run trees present; **VERIFY** against their records |
 
 **Next actions** (the directive's own order, H-3a/H-4/H-3b): 1. T10a ceiling
-refinement arm — prereg not yet written. 2. T9a interface diagnosis, one change
-per run — prereg not yet written. 3. T10a view-factor quadrature characterisation.
-Then T5 cost registration.
+refinement arm — **T10a-R in flight**. 2. T9a interface diagnosis, one change per
+run — **T9a-D in flight**. 3. T10a view-factor quadrature characterisation —
+prereg not yet written. Then T5 — **prereg draft in flight**, primary held.
 
-**On Sanaa's desk:** T10a's view-factor defect as upstream candidate #4 — filing
-is hers alone. **K2a (rack row module) awaits her approval.** Vogel & Eaton (1985)
-is still not on disk and H-1 assumed it was.
+**On Sanaa's desk** (T-family lane, 2026-08-22):
+
+- **Vogel & Eaton (1985) purchase, ~25–40 USD** — the paper is still not on disk
+  and H-1 assumed it was; the figure is a **recollection, not a quote** and needs
+  confirming before it is spent. Obtaining it is **necessary and not sufficient**
+  for T3's graded rows; it is not today's binding constraint (the ladder is).
+- **T5 draft INTERPRETATIONs** — for her when written; the prereg draft is in
+  flight and the primary (Meinders 1998) stays HELD until she rules.
+- **T1b L4 cost: 10.54 USD registered against ~5 USD approved — and the arms are
+  running.** The overrun is on the record, not on the future; the four solvers
+  are live (see the pid table above) and were not stopped on this lane's own
+  authority.
+- **T10a's view-factor defect as upstream candidate #4** — filing is hers alone.
+- **K2a (rack row module) awaits her approval.**
 
 **Blocked:** T1a (no band from one correlation); T3's graded rows on the missing
 primary *in addition to* the ladder; T4's graded rows on closed ASME primaries.

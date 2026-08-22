@@ -1,5 +1,7 @@
 # T3 ext1: extension of the ladder from `latestTime`
 
+**Docket: D452.**
+
 **Dated addendum under Charter §2b clause 2. Written 2026-08-22, after first
 compute on T3.** It alters no gate, no threshold, no cap and no label. The
 original verdict — `PASS 0, GATE FAIL 0, NOT A RESULT 4, BLOCKED 0` from the
@@ -784,3 +786,84 @@ difference between the two hashes lies elsewhere in the file. It is recorded
 here because a frozen file's hash moved inside the window this addendum
 covers, and a hash that moves without explanation is worse than one that moves
 with one.
+
+---
+
+## 14. Ordering disclosure (appended 2026-08-22)
+
+**Docket: D452.** An audit of this lane asked, correctly, in what order the
+parts of this addendum came to exist — because an addendum that registers
+`endTime`s, a cost and a set of predictions is worth exactly as much as the
+guarantee that those were fixed *before* the thing they predict ran, and no
+more. What follows is that ordering, with the timestamps it can be checked
+against. It corrects nothing above; it discloses one gap the sections above
+did not state plainly, namely that **the extensions were launched before this
+file was committed to git.**
+
+### 14.1 The order, by timestamp
+
+| # | event | time (UTC) | evidence |
+|---|---|---|---|
+| 1 | upstream merge (Sanaa's paper uploads; no Vogel & Eaton) | `2026-08-22T17:38:42Z` | `git show -s --format=%cI 89231930` |
+| 2 | **Charter §2b clause 2 precondition checked** — no `log.solve.ext1` anywhere, rc = 2 | `2026-08-22T17:41:39Z` | §1 of this file, transcript of `date -u +%FT%TZ` |
+| 3 | **frozen-artifact sha256 taken (before)** | `2026-08-22T17:45:15Z` | §11, first table |
+| 4 | **`endTime`s (§3), cost (§5) and registered predictions (§6) written into this file** | between (2) and (5) | §3, §5, §6 — all three are headed *before launch* / *before any extension iterates* |
+| 5 | **launch of all eight extensions** | `2026-08-22T17:51:43Z` – `17:51:46Z` | `verification/runs/T-family/T3_runs/LAUNCH_EXT1.log`, restated row-by-row in §10.1 |
+| 6 | a **citation** of this file lands in git — `THERMAL_BUILDUP_DIRECTIVE.md` (lines 38, 55) and `T_FAMILY_INDEX.md` (lines 43, 84) name `T3_EXT1_AMENDMENT.md`, in commit `fd831c11` | `2026-08-22T17:53:19Z` | `git show -s --format=%cI fd831c11`; `git ls-tree fd831c11 docs/campaigns/T-family/T3_EXT1_AMENDMENT.md` returns **empty** |
+| 7 | **frozen-artifact sha256 re-taken (after)** | `2026-08-22T17:53:53Z` | §11, second table |
+| 8 | **this file committed**, docket row **D452** | `2026-08-22T18:03:02Z` | `git show -s --format=%cI 037abab8`; `git log --format=%cI -1 -- docs/campaigns/T-family/T3_EXT1_AMENDMENT.md` → same |
+
+### 14.2 What was fixed before launch, and what was not
+
+**Fixed before launch, on disk, in this file.** The eight `endTime`s (§3), the
+cost prediction of **USD 4.08 / 79.55 core-hours** (§5) and the registered
+predictions P1–P4 (§6) were written between the 17:41:39Z precondition check
+and the 17:51:43Z launch. The precondition check is the load-bearing one: it
+establishes that no `ext1` log existed anywhere at 17:41:39Z, so no `endTime`
+in §3 could have been chosen with an extension's output in view. §5 and §6
+are headed *"predicted **before launch**"* and *"written before any extension
+iterates"* respectively, and this section is the timestamp that backs those
+headings.
+
+**Not fixed before launch: the commit.** The file was committed at
+**18:03:02Z**, i.e. **after** the 17:51:43Z launch. The run therefore ran
+ahead of the committed amendment by **11 min 19 s** (first launch to commit;
+11 min 16 s from the last). For the same reason, the citation in (6) was on
+record **before the file it cites was**: `fd831c11` at 17:53:19Z names
+`T3_EXT1_AMENDMENT.md` in two tracked documents while `git ls-tree fd831c11`
+shows the path absent from that tree — an index/ledger pointer to an
+uncommitted file, standing for **9 min 43 s** until `037abab8` supplied it.
+
+### 14.3 Why this is disclosed rather than smoothed
+
+A pre-registration's whole claim is *this was written down before the outcome
+could be seen*. Git is the strongest available witness to that, and in this
+case git was not asked until eleven minutes after the solvers started. The
+on-disk write order (§1's 17:41:39Z check, §5's and §6's own headings) is the
+weaker witness that actually carries the claim here, and it is honest to say
+so rather than to let the commit time imply a discipline that was not
+exercised in the moment. Nothing above is rewritten to hide the gap; the gap
+is the record.
+
+**What the gap does not put at risk.** Between the 17:45:15Z *before* hashes
+and the 17:53:53Z *after* hashes — a window that fully contains the launch and
+extends past `fd831c11` — **seven of the eight frozen artifacts are
+byte-identical**, per the table already in §11: `build_t3.py`,
+`analyse_t3.py`, `mark_done_t3.py`, `run_one_t3.sh`, `launch_t3.sh`,
+`T3_PREREGISTRATION.md` and `T3_CONTRACT.md`. The eighth,
+`T3_RESULTS.md`, moved for a reason traced in §13 and not attributable to
+this lane: it was another lane's commit (`fd831c11`) bringing the working tree
+to committed text, and every figure this addendum draws from it was re-read
+from the current text and found identical. No gate, threshold, cap or label
+moved across the interval, and `gate_t3.json` was never touched. The frozen
+verdict restated in §7 — `PASS 0, GATE FAIL 0, NOT A RESULT 4, BLOCKED 0` —
+stands unaltered.
+
+### 14.4 The rule this lane takes forward
+
+**Commit the pre-registration or addendum before launching what it registers,
+not after.** The write-then-launch-then-commit order used here is defensible
+only because §1 happened to capture a timestamped negative precondition; a
+future addendum without that check would have nothing but its own assertion.
+The cost of committing first is one `git commit-tree` before the launcher
+runs.
