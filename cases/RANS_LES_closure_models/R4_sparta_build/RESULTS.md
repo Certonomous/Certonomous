@@ -860,6 +860,11 @@ Sanaa's alone.
 start and at every commit, and **was never edited**. `MODEL.md` was written
 before the propagation cases whose results are reported here were built.
 
+**Sec. 8 is the discipline half of the boundary only.** The claim half — what R4
+established, what it did not, and where the boundary of the claim lies, against
+the five clauses of `PREREGISTRATION.md`'s closing sec. 9 — is **sec. 11**, at
+the end of this file.
+
 ---
 
 ## 9. Departures from the preregistration — dated 2026-08-22
@@ -1031,3 +1036,278 @@ What was checked afterwards, and what it can and cannot see:
 matches — a partial row, an in-progress paragraph, a trailing edit — is
 invisible to every check above. **No loss was detected; that is not the same as
 no loss.** Recorded here rather than left to the next reader to wonder about.
+
+---
+
+## 11. THE BOUNDARY REPORT
+
+**Why this section exists, and where the frozen text put it.** `PREREGISTRATION.md`
+uses the phrase "boundary report" nowhere. Its **closing section is sec. 9, "What
+this lane cannot see"**, five clauses that name what a report of this lane must
+state it does not bear on; Charter §16 makes such a section mandatory and says
+what it is for. **The frozen text is silent on where a boundary report goes**, so
+this is written as a clearly headed section at the end of `RESULTS.md` and that
+choice is recorded here rather than inferred. It does not replace **sec. 8**,
+which discharges the zero-shot / prior-exposure / submissions / frozen-file half
+of the boundary and is not repeated; nor **sec. 7**, which discharges sec. 9's
+clauses 1, 3 and 5 and is not repeated. What follows is what those two do not
+already say: **what R4 established, what it did not establish, and where the
+boundary of the claim lies.**
+
+### 11.1 The five clauses of the frozen closing section, graded
+
+> *"**Nothing about generalisation.** Every number is a training-family number.
+> The a-posteriori gates test whether the discovered model *propagates*, not
+> whether it transfers."*
+
+**DISCHARGED — sec. 7, first bullet. Not repeated, and it held.** No TEST or
+validation case was opened; `r4_lib.assert_no_test_case` is called at the top of
+the case builder, the dataset assembler, the FS3 selector and both scorers.
+
+> *"**The duct family cannot exercise T4** (sec. 2.1), so a coefficient on T4
+> fitted with ducts in the training set is determined entirely by the separated
+> flows."*
+
+**MEASURED AND FALSE ON THE FIELD THIS LANE FITS — see 11.4.** The clause is true
+of the baseline RANS field and is not true of the frozen field the regression
+uses. It is the one clause of the frozen closing section that this lane's own
+measurement contradicts, and it is stated as a correction rather than left as a
+carried-forward limitation.
+
+> *"**`kOmegaSSTSparta` cannot propagate T4 at all** (sec. 1), so a model needing
+> it is testable only by the weaker static-field route."*
+
+**DISCHARGED — sec. 4.2 and sec. 7, fourth bullet. Not repeated.** The registered
+constraint cost nothing: the T1–T3 `b^Delta` fit has the **lower**
+leave-one-family-out error (**0.0156199** against **0.0158092**,
+`artefacts/fs3.json`), so no T4 model was propagated, no static-injection arm was
+run, and **this lane holds no measurement whatever of the weaker route.**
+
+> *"**A `b`-only correction has a ceiling this programme has already measured
+> twice** ... This lane fits **both** `b^Delta` **and** `R` precisely because of
+> that, but the risk that the pair is still not enough is real and is why sec. 6
+> registers a NOT A RESULT branch."*
+
+**PARTLY DISCHARGED, AND THE PART THAT IS NOT IS THE BOUNDARY — see 11.3.** The
+registered NOT A RESULT branch **did not fire**: the pair, taken *exactly*, is
+more than enough (11.2). What the lane could not test is the clause as written —
+whether the *discovered* pair is enough — because the discovered pair never
+produced a field to score.
+
+> *"**No uncertainty band on the truth**, and the two-dimensionality of every
+> training case bounds what any tensor-basis conclusion can mean."*
+
+**DISCHARGED — sec. 7, eighth and ninth bullets. Not repeated.** No band is
+quoted anywhere in this file, and Addendum A2's caveat is recorded in sec. 7 in
+the form the source states it.
+
+### 11.2 What R4 established — and it is a statement about the HARNESS
+
+Every number in this subsection is a **frozen-field ceiling** number: the
+correction fields are `bijDelta` and `kDeficit` **extracted from the LES/DNS
+truth** by `kOmegaSSTFrozen` and injected as static fields by
+`kOmegaSSTCorrected`. **The ceiling is an upper bound available only when the
+answer is already known.** It is not a model, it predicts nothing, and no
+sentence anywhere may present it as this lane's closure model.
+
+With that said, it is a real measurement and it is the first in this programme:
+
+* **It beats doing nothing by a wide margin.** `eps(U)_CEILING / eps(U)_NULL` =
+  **0.003523** on `PHLL10595` (**99.6 %** better than NULL) and **0.398057** on
+  `CBFS13700` (**60.2 %**), and reaches **0.000140** on `AR_5_Ret_180`
+  (**99.99 %**). It clears the registered 30 % bar on **all eleven** cases where
+  it converged (`artefacts/aposteriori.json`; table in sec. 5.2).
+* **It reproduces an independent record.** `CBFS13700`'s ceiling is **0.3975**
+  against the W2 campaign's independently obtained **0.39753** — four significant
+  figures from a rebuilt case, a rebuilt harness and a different session
+  (sec. 5.1; the W2 value is cited at `PREREGISTRATION.md` sec. 5 via
+  `../Schmelzer2020_SpaRTA/RESULTS.md`).
+* **It makes the structure a linear model cannot make.** Duct secondary flow, RMS
+  in-plane velocity as % of bulk: NULL gives **exactly 0.0000** on all four
+  aspect ratios; the ceiling gives **1.7522 / 1.6440 / 1.4574 / 1.2227** against
+  DNS **1.7630 / 1.6504 / 1.4622 / 1.2238** — **0.4–0.6 % of the DNS value**
+  (sec. 5.3; DNS from `../_common/BASELINES.md` sec. 4).
+* **It fixes the separation bubble.** Reattachment by the registered instrument
+  `../_common/sst_baseline_metrics.py::hill_wall_metrics`: the shipped baseline
+  over-predicts by **39–100 %**; the ceiling lands **within 0.9–3.4 %** of the LES
+  on all seven cases where it converged (sec. 5.3).
+* **The comparator is an identity, not an assumption.** `NULL − BASE` is
+  ≤ 1e−5 relative on the hills, `PHLL10595` and `CBFS13700` (sec. 5.2), so the
+  zero-correction path through `kOmegaSSTSparta` reproduces the shipped baseline.
+
+**The boundary of that claim, stated as plainly as it can be:** what is licensed
+is that **the extraction operator, the injection path, the comparators, the
+scorers and the completion rule together carry the truth from the LES into a
+re-solved RANS field.** That is a claim about **apparatus**. It licenses **no
+claim about a discovered model, about SpaRTA-class model discovery in general,
+about any test case, or about generalisation of any kind.**
+
+### 11.3 What R4 did NOT establish
+
+**(a) It did not establish a model.** The discovered model
+(`MODEL.md`: `R = 2k[1.261646 − 42.82548 I1 − 31.54762 I2 + 14.28260 I2²](T1:A)`,
+`b^Δ = −7.550380 T2 − 16.07578 I2 T2 + 5.039083 T3`) **diverged on all twelve
+training propagations**, at iterations **5 to 18**, every one with a
+floating-point exception inside `kOmegaSSTSparta::updateCorrections`
+(`artefacts/aposteriori.json`; sec. 5.1 and 5.4). It also missed the registered
+a-priori bar at **2 of 4** families against 3 (`artefacts/apriori.json`;
+sec. 4.5). **Both registered halves of the GATE FAIL fired independently.**
+
+**(b) It did not establish that the failure is an amplitude problem alone.** The
+a-priori cause is measured: the model's total anisotropy is outside the realisable
+set on **4.4–6.8 %** of every duct cell and on **19.1 %** of `CBFS13700`, with
+`max ||b^Δ||_F` reaching **7.559** on `alpha_10_12000_4048` and **5.948** on
+`CBFS13700`, where a realisable anisotropy is bounded near
+`sqrt(2/3) = 0.8165` (`artefacts/apriori_realisability.json`; sec. 4.6). The
+linear EVM violates on **no cell of any case**. But see 11.5: the two diagnostic
+arms show amplitude is *part* of it and not all of it.
+
+**(c) It did not establish anything about the 15 incomplete hills.** Only **12 of
+27** registered training cases reached COMPLETE under the strict completion rule
+(`artefacts/frozen_inventory.json`; sec. 2.2), so the hills family enters every
+fit through **six** members. Those six are **not a random sample** — they are the
+ones whose frozen `omega` equation happened not to go negative, which correlates
+with the flow, not with a coin (sec. 7). **Every coefficient in `MODEL.md` is
+fitted on that biased sample**, and whether the other fifteen would move them is
+unmeasured. Four repairs were tested and all four failed (sec. 2.3); raising the
+backstop from 5,000 to 20,000 reproduced `max rel domega = 0.105158858322751`
+**to fifteen significant figures**, which is a limit cycle and not slow
+convergence.
+
+**(d) It did not establish that the discovered `R` is safe anywhere.** See 11.5.
+
+**(e) It did not, and could not, establish anything about the eight scored cases.**
+No TEST or validation case was opened (sec. 8). No hump number exists for any
+class in this programme (`../../../docs/closure/R2_SHORTLIST_MEMO.md` §6).
+
+### 11.4 The measured correction to the preregistration's own premise
+
+`PREREGISTRATION.md` sec. 2.1 is the FS2 finding on which the registered `T4`/`I2`
+exclusion rests. **Its numbers reproduce exactly on the baseline RANS field** —
+`||T3+T4||/||T3||` median **2.7398e-17** against the registered **2.74e-17**, p99
+**6.4084e-16** against **6.41e-16**, max **7.0760e-15** against **7.08e-15**,
+`|I1+I2|/|I1|` median **0.000e+00**, per-cell rank **3.000** on all 2,209 cells of
+`AR_1_Ret_180`. That reproduction is what fixes the convention and proves this
+lane's `T4` is the preregistration's `T4`.
+
+**On the frozen fields the SpaRTA regression actually fits, the degeneracy is
+absent:** `||T3+T4||/||T3||` median **1.2779e-02**, p99 **4.6889e-01**,
+`|I1+I2|/|I1|` median **7.0405e-05**, and per-cell rank **3.965** — **2,132 of
+2,209 cells at rank 4**, not 3. Across all four training ducts on frozen fields
+the rank is **3.965, 3.977, 3.978, 3.977** (sec. 3.2;
+`artefacts/dataset_manifest.json`). A finite-difference gradient gives
+**3.966**, so the cause is not the gradient operator. The physical cause is
+stated in sec. 3.2: the exact cancellation is a property of a *linear-eddy-viscosity*
+duct mean flow, and the DNS mean flow has secondary motion.
+
+**What this moves and what it does not.** The registered exclusion is scoped —
+sec. 2.1 excludes `T4` and `I2` *"on any fit whose training set is **ducts
+only**"*. **This lane ran no ducts-only fit**, so nothing was excluded, both were
+retained, and the design condition number is reported per fit (sec. 4.2:
+**653.9** / **7.707** / **54.81** / **7.707**). **The rule is not amended and the
+verdict does not turn on it.** What the measurement falsifies is the rule's
+**stated justification** — that including both would be *"an exact collinearity"*.
+On frozen fields it is not exact. **A future lane applying sec. 2.1's exclusion to
+a ducts-only fit would be applying it for a reason that is false on the fields it
+would be fitting**, and that is the whole content of this subsection.
+
+### 11.5 What the two ungraded diagnostic arms bound
+
+`discovered_xi01` and `discovered_ronly` are **departure D-7**: unregistered,
+**REPORTED and NOT GRADED**, added after the registered arm diverged on all
+twelve cases. Neither can move a verdict and neither is a model. What they bound:
+
+**The paper's own remedy does not transfer.** Schmelzer et al. write that
+decreasing the `b^Delta` coefficients by `xi = 0.1` *"is sufficient to achieve
+convergence for the studied cases"* [preprint p. 13, PAPER-VERIFIED at
+`../../../docs/NUMERICS_KNOWLEDGE.md`]. Applied here it **converges on three of
+the four ducts** (`eps(U)/eps(U_0)` **0.8820**, **0.6784**, **0.7476**; the
+fourth reaches **1.0003**) and **still diverges on every hill, on `PHLL10595` and
+on `CBFS13700`**, at the same iteration counts as the unscaled model (5–17)
+(`artefacts/aposteriori.json`; sec. 5.1). **Boundary: scaling `b^Delta` down by a
+factor of ten is measured to be insufficient on every separated flow in the
+training set.** That is a measurement against the paper's sentence, on this
+model and these cases, and it is not a claim that the paper is wrong on its own.
+
+**And it recovers only a seventh of the structure.** At `xi = 0.1` the duct
+secondary flow is **0.1981 / 0.2767 / 0.2498 / 0.2137 %** of bulk against DNS
+**1.7630 / 1.6504 / 1.4622 / 1.2238** (sec. 5.3). A converged number from this
+arm is **not** a statement that the model works at that scaling.
+
+**`R` alone destabilises the separated flows, and this is the arm that bounds
+the most.** With `b^Delta` switched off entirely, the discovered `R` **still
+diverges on all six hills and on `CBFS13700`** (`sum local` reaching **9.8e+05**
+on `CBFS13700` after 163 iterations), survives to the 20,000 cap on the ducts at
+**0.79–0.95** of baseline error, and survives on `PHLL10595` at **49.18 times**
+the baseline error (sec. 5.1, 5.4). It also produces **exactly zero** duct
+secondary flow, as it must: `R` corrects the `k` budget and cannot make a
+secondary vortex (sec. 5.3).
+
+**The boundary this places on D443/D444.** The R3 decision rests in part on a
+measured **98.3 %** duct-error cut from `TRUTH + R` — `U_rms` **0.00341** against
+SST's **0.1985** on `AR_1_Ret_360` (`../../../docs/closure/R2_SHORTLIST_MEMO.md`
+§1 leg (iii); `../Wu2018_PIML_RF/aposteriori/RESULTS.md`). **That measurement is
+untouched and is not contradicted here.** What R4 adds is its boundary: it was
+obtained with the **exactly extracted** `R`. A **discovered, four-term symbolic**
+`R`, fitted on twelve training cases and cross-validated by family, **does not
+inherit that behaviour** — it diverges on the flows the exact one was never asked
+to carry alone. **`TRUTH + R` licenses a claim about `R` as a correction; it does
+not license a claim about a discovered `R` as a model.**
+
+**A consequence worth stating for whoever reads this next.** Any remedy aimed at
+`b^Delta` amplitude alone — a realisability constraint on `b^Delta`, or `xi` as a
+registered coefficient — is **already measured to be insufficient on the six
+hills and `CBFS13700`**, because `R`-only diverges there with `b^Delta`
+identically zero. This is not a recommendation; it is the reading of the R-only
+row, and the decision it bears on is not this lane's.
+
+### 11.6 Where the boundary of the claim lies — one paragraph
+
+**R4 established that this lab can carry the LES truth into a re-solved RANS
+field and measure what it buys.** It established that a SpaRTA-class `b^Delta`
+and `R` pair, taken exactly, cuts the velocity error by 60–99.99 %, makes the
+duct secondary vortex a linear model cannot make, and lands the separation bubble
+within 3.4 % of the LES. It established that the **particular** model discovered
+by the registered FS3/FS4 protocol on the **twelve** training cases that survived
+extraction **misses the a-priori bar and cannot be propagated at all** — its
+anisotropy leaves the realisable set on up to 19.1 % of a training case, and its
+`R` alone destabilises every separated flow in the set. **It established nothing
+about generalisation, nothing about any of the eight scored cases, nothing about
+SpaRTA-class discovery on a complete training set, and nothing about whether a
+differently constrained discovery would propagate.** The verdict **GATE FAIL** is
+a statement about the model. The absence of the **NOT A RESULT** branch is a
+statement about the harness. **They are different statements and neither carries
+the other.**
+
+### 11.7 Two amendment candidates for the NEXT preregistration — NOT applied here
+
+`PREREGISTRATION.md` is frozen and was never edited (sec. 8). These are carried
+forward for whoever writes the next one; **neither is applied to the frozen R4
+file and neither moves an R4 verdict, every one of which was graded as written.**
+
+1. **No realisability threshold is registered in sec. 6.** Sec. 6 requires
+   realisability of the total `tau` to be *reported* at `tol = 1e-6` beside the
+   truth's own rate, and registers **no bar** — so gate **G4** cannot fail
+   (sec. 6), and a model outside the realisable set on **19.1 %** of `CBFS13700`
+   cells reached propagation without failing on that axis.
+   **`CLOSURE_MODELLING_CHARTER.md` §4 exists precisely to stop that omission**,
+   after `Ling2016_TBNN` was on track for a PASS in the same configuration; it
+   supplies the wording to freeze — *"**NOT A RESULT** if the predicted `b` is
+   non-realisable in more than **3x** the truth's own violation fraction on the
+   same cells, or if `max ||b||_F` exceeds `sqrt(2/3)` by more than a factor of
+   **2**, regardless of RMSE."* **This preregistration repeated the omission.**
+2. **The continuity gate's `1e-4` is dimensional.** `sum local div(U)` carries
+   dimensions, and the ducts run at a bulk velocity of ~37.5 m/s on a 1 mm
+   half-height while the hills run at ~1 m/s, so one absolute threshold does not
+   mean the same thing on the two families. It is what makes `AR_1_Ret_180`'s
+   CEILING row **NOT CONVERGED** at **1.0628e−04** while every hill row passes at
+   ≤ 3.45e−07 (sec. 5.3, gate G3). **The row is graded as written** (Charter §11);
+   a non-dimensional form is a candidate for the next file, not a re-grade of
+   this one.
+
+**Where the decision goes.** The choice of what the closure line does next after a
+GATE FAIL whose ceiling works is **Sanaa's**, not this lane's, and the options
+are laid out with their costs, their pre-registration requirements and their
+failure modes in **`../../../docs/closure/R5_DECISION_MEMO.md`**. **Nothing was
+submitted, uploaded, filed, registered or sent by this lane; the Repo 2 release
+and the one pre-registered zero-shot scoring call remain Sanaa's alone.**
