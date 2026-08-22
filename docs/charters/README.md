@@ -77,6 +77,23 @@ its own `# 24. Amendment record`. **Bookkeeping worth stating rather than fixing
 v1.1.1 (2026-08-21, §17) was recorded on the version line and in §17's note but never given
 a row in §24 — the v1.1.2 row names that gap instead of back-filling another lane's entry.
 
+**Dated note, 2026-08-22 (second entry, same day) — the caveat's other half:
+`VERIFICATION_CHARTER.md` is at v1.10.** `ls docs/charters/*_CHARTER.md | wc -l` still
+returns **12**, pasted from the command; no charter was added and row 4's one line is
+unchanged. New clause **§2e** — *bands from a perturbation envelope (eigenspace, shelf D):
+what such a band may and may not contain* — is **appended at the foot** with `LESSONS.md`
+**L-219** and **L-220** quoted verbatim, on the same Sanaa directive of 2026-08-22
+(**H-7**), recorded at `docs/campaigns/T-family/THERMAL_BUILDUP_DIRECTIVE.md`. **The two
+notes on this date are two lanes of one directive and not a duplicate:** the closure charter
+took the *prediction* side (a band ships with every prediction and is never applied as a
+correction), this one takes the *grading* side (a band may not be armed on a row whose class
+and measured containment fraction are unstated). **Additive; no existing clause altered, and
+no line above the new clause moved** — the only content change above it is line 3's version
+and date, verified by `diff` and by comparing `grep -n "^## "` either side of the edit.
+**Filed at the foot rather than beside §2d for the reason §6b gives:** other records cite this
+file by line and one of those citations sits inside an executable check. The v1.10 amendment
+row is at the foot for the same reason, and says so.
+
 ---
 
 ## 2. How to read one

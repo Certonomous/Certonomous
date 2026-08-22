@@ -1,6 +1,6 @@
 # Certonomous Verification Charter
 
-Version 1.9, dated 2026-08-17. Defines what counts as done. It binds every
+Version 1.10, dated 2026-08-22. Defines what counts as done. It binds every
 solve, every gradient check, every ladder rung and every number that reaches a
 record, a certificate or a camera surface.
 
@@ -1969,3 +1969,130 @@ on may be repaired on the authority of the verdict it produces.**
 **Two of six frozen is the honest baseline this rule starts from**, and it is
 recorded here so that later compliance is measured against a number rather than
 an impression.
+
+---
+
+## 2e. Bands from a perturbation envelope (eigenspace, shelf D) — what such a band may and may not contain (added 2026-08-22, Sanaa's directive H-7)
+
+**Placed at the foot, and numbered 2e for where it belongs.** Section 6b's note
+above states the reason and this clause inherits it, as 2c, 2d and 2d.1 did:
+other records cite this file by line and one of those citations sits inside an
+executable check, so an amendment that inserted itself next to section 2d would
+have moved every cited line below it. **Lines whose number changed above this
+section: 0.** This clause is read with sections 2d and 6a and is filed beside
+them in every index.
+
+> **A band derived from an eigenspace/barycentric perturbation envelope may be
+> armed on a graded row only if the pre-registration states, per row, whether
+> the row's quantity is a Reynolds-stress SHAPE quantity or a FORCING/production-class
+> quantity, and cites the measured containment fraction for that class; an
+> envelope that perturbs eigenvalues only never perturbs `k` magnitude and may
+> not be used to band a quantity that depends on `k` magnitude.**
+
+**The caveat this clause institutionalises, quoted verbatim from
+`docs/LESSONS.md` rather than restated.** Sanaa's directive H-7 of 2026-08-22
+required the bands-vs-corrections caveat to enter the charters *verbatim*, and
+that is why the two lessons are reproduced here in full rather than summarised:
+a paraphrase of a containment fraction is a new number, and this charter forbids
+new numbers in a clause that governs bands.
+
+**L-219:**
+
+> Emory, Larsson & Iaccarino deduce the perturbation magnitude `B` from DNS by
+> minimising the barycentric distance to the perturbed state, and the values they
+> work with are O(0.5). Measured here as the per-cell **minimum `delta_B` that
+> contains the truth**, the eight training cases split into two families that do not
+> overlap:
+>
+> | family | median `delta_B` required |
+> |---|---|
+> | 2-D separated flows — five hills and the curved step | **0.31 to 0.54** |
+> | square and rectangular ducts | **0.95 to 0.98** |
+>
+> The hills sit exactly where the literature says. The ducts need essentially the
+> whole way to a corner of the triangle. The reason is not that the duct is harder
+> in degree: a linear eddy-viscosity model in a duct produces `b_23` and
+> `b_22 − b_33` **identically zero**, so its barycentric point is not displaced from
+> the truth, it is near the wrong vertex. The perturbation magnitude has nowhere to
+> go but 1.
+>
+> **An uncertainty magnitude is a calibration, and it inherits the flow class it was
+> calibrated on.** Quoting O(0.5) on a flow where the closure is structurally rather
+> than quantitatively wrong understates the band by a factor of two, and the
+> diagnostic that catches it — the required magnitude, per cell, in closed form — is
+> one line of algebra and no solves.
+
+**L-220:**
+
+> The eigenspace method parameterises the **shape and orientation** of the Reynolds
+> stress. Emory's eq. (4) keeps `k` outside the bracket, so magnitude is untouched
+> by construction. Both papers say so. What the measurement adds is which cases pay
+> for it, and the answer is an inversion:
+>
+> * **Shape** containment at `delta_B` = 1 is essentially complete everywhere
+>   (0.9949–1.0000) — but on the ducts it costs the whole triangle (D2).
+> * **Production** `P_k = -R_ij dU_i/dx_j` — the term through which the stress
+>   actually forces momentum — is contained in only **0.9279 to 0.9433 of cells on
+>   every hill and on the curved step**, while the two ducts clear 0.9998.
+>
+> So the cases whose *shape* is cheap to contain are the ones whose *forcing*
+> escapes, and vice versa. A single "does the envelope contain the truth?" answered
+> on `b` alone would have reported the hills as the easy family and been wrong about
+> the thing that matters to the solution.
+>
+> **Report envelope coverage on the forcing term as well as on the parameterised
+> quantity, and expect them to fail on different cases.** This also closes the loop
+> L-157 opened: Xiao's space excludes the truth because it never perturbs
+> orientation; the eigenspace envelope perturbs orientation and still misses the
+> truth's forcing in 2–7 % of cells because it never perturbs magnitude. **Neither
+> framework contains what it is meant to bound, and they fail on different axes.**
+>
+
+**What the two lessons jointly forbid, in the terms of the bright line above.**
+L-220 establishes that the envelope's own construction leaves `k` magnitude
+untouched — *"Emory's eq. (4) keeps `k` outside the bracket, so magnitude is
+untouched by construction"* — so containment measured on shape is not evidence
+of containment on forcing, and the measured fractions differ per class and per
+case family. L-219 establishes that the magnitude `B` is a **calibration** that
+inherits its flow class, so a band armed at a magnitude quoted from a different
+flow class is not a band at that confidence. **A row that cites neither its
+class nor its measured containment fraction has not armed a band; it has quoted
+one.**
+
+**What this clause does not do.** It does not forbid reporting an envelope's
+coverage on any quantity — reporting is always available under section 3.3. It
+does not convert a wide band into a pass, and it does not license widening a
+band because a row missed: section 2d.1's closing sentence still governs —
+**nothing a verdict depends on may be repaired on the authority of the verdict
+it produces.** And it says nothing about *corrections*: a data-driven correction
+and an uncertainty envelope are different objects, and the caveat is precisely
+that a band is not a correction and a correction is not a band.
+
+**First application: T4 impinging jet (H-5), where the registered question is
+whether eigenspace bands contain the documented stagnation-Nu bias; the
+pre-registration must classify `Nu_stag` as forcing-class.**
+
+**Lines whose number changed above this section: 0.**
+
+---
+
+## Amendment record, continued: version 1.10 (2026-08-22)
+
+**Appended here rather than inserted into the "Amendment record" section above,
+for the reason that section itself gives.** Inserting a row at line 1618 would
+have moved every line of sections 6b, 2c, 2d and 2d.1 below it, and each of
+those clauses carries the sentence *"Lines whose number changed above this
+section: 0"* — a sentence this amendment would have falsified for clause 2e in
+the same stroke. The entry is therefore recorded at the foot, and the version
+history above stands unedited.
+
+| version | date | what the amendment did | existing clauses altered | lines whose number changed above clause 2e |
+| --- | --- | --- | --- | --- |
+| **1.10** | **2026-08-22** | **Clause 2e added at the foot** — bands from an eigenspace/barycentric perturbation envelope, with the L-219 and L-220 caveat quoted verbatim, on Sanaa's directive H-7 | **none** | **0** |
+
+**Line 3 of this file is the only line above clause 2e whose CONTENT changed**,
+carrying the version and date from *1.9, dated 2026-08-17* to *1.10, dated
+2026-08-22*. Its line NUMBER is unchanged, no line was inserted or removed above
+the clause, and the line number of every `##` heading in the file is unchanged;
+both were verified by `diff` and by comparing `grep -n "^## "` either side of the
+edit.

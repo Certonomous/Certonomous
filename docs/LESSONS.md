@@ -9240,3 +9240,11 @@ git diff HEAD~1 HEAD --stat                         # verify after: ONLY your pa
 
 **The post-commit verification is the part that would have caught it**, because it is the
 only check that compares the new commit against what its parent actually was.
+
+## L-224. The libs lesson is now a helper and a linter, not a paragraph
+
+L-221 said an OpenFOAM `libs` entry must be inserted-with-assert; Sanaa's directive H-7 (2026-08-22) says the assert goes at every call site. Both now exist as code: `scripts/foam_libs.py` (`ensure_libs` merges to the union, writes, re-reads from DISK and asserts; depth-aware, so the 8–11 `functions{}` loaders in every F14 controlDict are never mistaken for the solver's library list) and `scripts/lint_foam_libs.py` (top-level libs entries ≤1 per controlDict; every build script read for libs writes; selftest plants the original defect in four forms and all four FAIL).
+
+**The rule: a `libs` write anywhere outside `ensure_libs` is a lint FAIL** — `printf`/`echo` with `>`/`>>`, `sed -i`, `re.sub`, `str.replace`, all of it. A wholesale template write is INFO, because there is no merge to get wrong.
+
+Found by this sweep: the T-family's 102 controlDicts carry no libs and need none (solvers link every required library — verified by ldd, every BC resolved); the one real unsafe site was K0cQ's builder (`verification/runs/F14-cooling-ladder/K0cQ_runs/build_cases.sh:59`), whose blind append was correct on six solved cases only by luck of the baselines; and the *canonical* closure idiom (`cases/RANS_LES_closure_models/Kaandorp2020_TBRF/aposteriori/setup_case.py:111`, `re.sub` without `count`) replaces every libs entry rather than one — the same defect wearing the assert that L-221 asked for. Reported to the closure supervisor, not edited.

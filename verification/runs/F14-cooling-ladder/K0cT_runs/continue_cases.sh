@@ -25,6 +25,18 @@ for case in "$@"; do
     sed -i "s/^startFrom       startTime;/startFrom       latestTime;/" "$case/system/controlDict"
     sed -i "s/^endTime         .*/endTime         $END;/" "$case/system/controlDict"
     sed -i "s/^writeInterval   .*/writeInterval   $END;/" "$case/system/controlDict"
+    # L-221 / H-7 post-check: `sed -i` reports success when it matched NOTHING,
+    # so an unchanged dictionary and a correctly-rewritten one are the same exit
+    # code.  Assert the resulting STATE on disk (not that sed "ran"): a second
+    # continuation legitimately finds startFrom already latestTime, so the test
+    # is what the file now SAYS, which is the thing the solver will read.
+    cd_="$case/system/controlDict"
+    grep -qE '^startFrom[[:space:]]+latestTime;' "$cd_" \
+        || { echo "REFUSE: startFrom is not latestTime in $cd_"; exit 2; }
+    grep -qE "^endTime[[:space:]]+$END;" "$cd_" \
+        || { echo "REFUSE: endTime is not $END in $cd_"; exit 2; }
+    grep -qE "^writeInterval[[:space:]]+$END;" "$cd_" \
+        || { echo "REFUSE: writeInterval is not $END in $cd_"; exit 2; }
     # DEFECT FOUND BY EXECUTION, 2026-08-18: the first version of this script
     # wrote every continuation to log.buoyantBoussinesqSimpleFoam.stage2, so a
     # SECOND continuation OVERWROTE the first one's log.  It happened on T_hi_c

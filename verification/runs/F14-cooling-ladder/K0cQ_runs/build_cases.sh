@@ -8,6 +8,8 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 LAD="$(cd "$HERE/.." && pwd)"
+ROOT="$(cd "$LAD/../../.." && pwd)"          # repo root, for scripts/foam_libs.py
+[ -f "$ROOT/scripts/foam_libs.py" ] || { echo "REFUSE: $ROOT/scripts/foam_libs.py is missing"; exit 2; }
 
 # case            baseline                        Ccr1
 CASES="
@@ -55,8 +57,16 @@ open(p,"w").write(s2)
 PY
     fi
 
-    # (2) library
-    printf '\nlibs ( "libkOmegaSSTQCRTurbulenceModels.so" );\n' >> "$dst/system/controlDict"
+    # (2) library.  L-221 / H-7: inserted-with-assert through the shared helper,
+    # NEVER a blind `>>` append.  The append this replaced was correct only
+    # because these baselines happen to carry no top-level libs entry; against a
+    # baseline that does, it silently produces TWO entries -- a duplicate
+    # dictionary key, not a longer list -- and the grep that guarded it passes
+    # anyway, because grep cannot tell one entry from two.  ensure_libs merges
+    # to the union, then RE-READS THE FILE FROM DISK and asserts.
+    python3 "$ROOT/scripts/foam_libs.py" ensure "$dst/system/controlDict" \
+        libkOmegaSSTQCRTurbulenceModels.so \
+        || { echo "REFUSE: libs insert failed in $dst/system/controlDict"; exit 2; }
 
     # (3) scheme for the QCR stress divergence
     python3 - "$dst/system/fvSchemes" <<'PY'
