@@ -141,8 +141,16 @@ clause, a parenthetical, a semicolon and a note all parse, and a stamp whose
 timestamp will not parse is a WARN rather than a FAIL. That tolerance is not
 politeness: a strict version rejected the closure lane's stamp and the lane rewrote
 its board to suit the script, which is an instrument bending its subject.
-`python3 scripts/check_harness.py --selftest` holds the ten cases, negative controls
+`python3 scripts/check_harness.py --selftest` holds the cases, negative controls
 included, and is the regression guard on both.
+
+**Freshness is graded commit-to-commit, not from the stamp.** The check compares the
+commit that last changed a team's section against the latest commit touching that
+team's `scope_paths` — both machine timestamps — and the hand-written stamp is only a
+10-minute-tolerance fallback for when the section's own commit cannot be determined.
+The stamp is typed at minute resolution moments before `commit-tree` runs, so a
+section stamped `20:55Z` that landed at `20:56:27` was reported STALE, systematically,
+for every team that correctly updated its board in the same commit as its work.
 
 It lives outside the repository because every concurrent session writes it and
 committing it would collide constantly; it lives under `/home/ubuntu/harness-state/`
