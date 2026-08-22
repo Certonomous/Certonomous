@@ -9407,6 +9407,11 @@ hills that genuinely converged bound `omega` **zero** times; the thirteen that
 hit the backstop bound it on **all 5000** iterations. The counter separates all
 three populations perfectly and costs nothing.
 
+**Source:** `cases/RANS_LES_closure_models/R4_sparta_build/RESULTS.md` §2.3, and
+`cases/RANS_LES_closure_models/R4_sparta_build/artefacts/frozen_inventory.json`,
+which carries `converged_at`, `bounding_omega` and the completion verdict for
+each of the 27 extractions.
+
 ---
 
 ## L-236. Put an arithmetic impossibility in your gate: it is the only check that caught a scrambled design matrix
@@ -9438,6 +9443,12 @@ Corollary, and it is the uncomfortable half: **three seeds agreeing is not
 evidence of correctness.** The scrambling was deterministic, so every seed
 scrambled identically and all three agreed to the last digit.
 
+**Source:** `cases/RANS_LES_closure_models/R4_sparta_build/RESULTS.md` §4.4 (how
+it was caught) and §4.5 (the gate that caught it); the withdrawn fit is retained,
+not deleted, at
+`cases/RANS_LES_closure_models/R4_sparta_build/artefacts/fs3_WITHDRAWN_scrambled_bDelta.json`.
+Disclosed as departure D-6.
+
 ---
 
 ## L-237. The exact degeneracy that justified an exclusion existed only in the field nobody was fitting
@@ -9462,6 +9473,11 @@ justified is not wrong here — it was scoped to a fit this lane never ran — b
 future lane applying it to a ducts-only frozen fit would be excluding two live
 directions for a collinearity that is not there.
 
+**Source:** `cases/RANS_LES_closure_models/R4_sparta_build/RESULTS.md` §3.2; the
+per-case numbers are in the `degeneracy` block of
+`cases/RANS_LES_closure_models/R4_sparta_build/artefacts/dataset_manifest.json`,
+and tabulated for both fields at `docs/NUMERICS_KNOWLEDGE.md` N-B30.
+
 ---
 
 ## L-238. A held-out family can tell you a selected term is worse than noise, and the selector cannot
@@ -9485,3 +9501,9 @@ useful output is not "the planted column was not selected"; it is the position
 of the planted column relative to the terms that *were*. Where a real term
 ranks below a planted one, the selection has found structure the held-out data
 does not support, and no amount of seed agreement will say so.
+
+**Source:** `cases/RANS_LES_closure_models/R4_sparta_build/RESULTS.md` §4.3; the
+control's own record, including each planted column's `mi_rank`, `perm_rank` and
+`enet_cv_optimum_coefficient` per fit and seed, is the `planted_zero_control`
+block of `cases/RANS_LES_closure_models/R4_sparta_build/artefacts/fs3.json`. The
+pass rule was revised once after its first run — departure D-5.

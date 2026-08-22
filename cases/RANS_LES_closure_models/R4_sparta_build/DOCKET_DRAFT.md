@@ -1,5 +1,9 @@
 # DOCKET_DRAFT — R4 SpaRTA-class build lane
 
+**FILED — DO NOT APPEND AGAIN.** This row was committed to `docs/DOCKET.md` as
+**D461** at `7965d08b` (2026-08-22), the number taken from the tail (D460) at
+commit time. This file is the draft of record, not a pending item.
+
 One row. The number is assigned by the supervisor at commit, **from the tail of
 `docs/DOCKET.md` — the maximum existing number, never a count** — re-derived in
 the same shell invocation as `commit-tree`, because peers commit constantly.

@@ -94,7 +94,7 @@ rung may take it).
 
 ## closure
 
-**Section last written:** 2026-08-22T20:40Z — R4 rows, live jobs, compute
+**Section last written:** 2026-08-22T20:22Z — R4 rows, live jobs, compute
 and next actions by the R4 BUILD lane; everything else as the closure-supervisor
 left it.
 
@@ -103,7 +103,10 @@ numerics entries appended to the permanent records* (2026-08-22), carrying
 **D461**, **L-235–L-238** and **N-B26–N-B34**. Before it: `5b4bc833`
 (stage c, the a-posteriori table and the §6 verdicts), `73705d1f` (stage b, the
 discovered model), `b36daf06` (stage a, inventory and scripts — where
-`R4_sparta_build/` became tracked).
+`R4_sparta_build/` became tracked). After it, **stage (e)**: the four lessons
+were given the artefact citations they were missing, one stray draft id
+(`N-R4b`) was corrected to `N-B27`, and the three `*_DRAFT.md` files were
+stamped FILED so nothing appends them twice. **No number, gate or verdict moved.**
 
 **Live jobs (R4 BUILD lane): one, and it is UNGRADED.**
 `AR_10_Ret_180/discovered_ronly` — the `b^Delta`-off diagnostic arm — under

@@ -1,5 +1,12 @@
 # NUMERICS_DRAFT — R4 SpaRTA-class build lane
 
+**FILED — DO NOT APPEND AGAIN.** These nine entries were committed to
+`docs/NUMERICS_KNOWLEDGE.md` as **N-B26 to N-B34** in the order below (the
+`N-R4a`..`N-R4i` labels here are the drafting placeholders), at `7965d08b`
+(2026-08-22). The scheme is the file's own: one letter per lane family,
+sequential within it, re-derived from the tail at commit — N-B is the closure
+series opened at N-B1 and standing at N-B25 when this lane committed.
+
 For `docs/NUMERICS_KNOWLEDGE.md`. Every entry is measured in this lane and cites
 the artefact it came from. Numbering is assigned by the supervisor at commit.
 

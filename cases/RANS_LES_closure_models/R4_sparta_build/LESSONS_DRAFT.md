@@ -1,5 +1,9 @@
 # LESSONS_DRAFT — R4 SpaRTA-class build lane
 
+**FILED — DO NOT APPEND AGAIN.** These four lessons were committed to
+`docs/LESSONS.md` as **L-235, L-236, L-237 and L-238** in the order below, at
+`7965d08b` (2026-08-22), the numbers taken from the tail (L-234) at commit time.
+
 Numbers are assigned by the supervisor at commit, **from the tail of
 `docs/LESSONS.md` — the maximum existing number, never a count**
 (`grep -oE '^## L-[0-9]+' docs/LESSONS.md | grep -oE '[0-9]+' | sort -n | tail -1`).

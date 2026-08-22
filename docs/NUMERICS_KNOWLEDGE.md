@@ -3318,7 +3318,7 @@ convection term — while `PHLL10595` uses `bounded Gauss linearUpwind grad(U)`,
 `CBFS13700` uses `Gauss linearUpwind grad(U)` and the ducts use
 `bounded Gauss linearUpwind limited`. The hills also declare `div(phi,epsilon)`,
 a k-epsilon leftover, which no `kOmegaSST` run reads. **Inserting the missing
-scheme does not by itself fix the frozen extraction** (N-R4b), so it is recorded
+scheme does not by itself fix the frozen extraction** (N-B27), so it is recorded
 as a defect in the shipped cases, not as the cause.
 
 **N-B29. Every one of the 21 hills carries cells with `k_LES <= 0`; no other
