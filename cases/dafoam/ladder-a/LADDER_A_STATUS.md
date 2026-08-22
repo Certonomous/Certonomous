@@ -158,3 +158,11 @@ Ladder B is a separate lane and a separate table; nothing here describes it.*
 Rows 3-4's "zero flagged components" and `A2/grading_confirmation/RESULTS.md` §1's "no sign flip
 anywhere in A2" are superseded by rows 34-35; the frozen files are not edited. Cost of the day's
 A4 item: **13.616 core-min = $0.0116** (34 % of a 40 ceiling); A2 item **$0.00**.
+
+**Footnote to row 12 (A3, patched column), added 2026-08-22 by the supervisor; the row is
+unchanged at PENDING — NOT MEASURED.** First attempt 2026-08-22
+(`A3/rung2_patched_idwarp_np4/PREREGISTRATION.md`, `a5605f54` + Amendment 1 `a94e8317`): the
+np=4 arms never launched (host core gate, min `load1` 18.28 over 12 polls); the np=1 arm was
+stopped inside the `dRdW` colouring on a measured projection. **12.150 core-min, $0.0104, no
+gradient.** The np=1 re-price is refuted by its own measurement (colouring 3.03× bigger at one
+rank — L-232, N-D11); the item reverts to the frozen np=4 configuration.

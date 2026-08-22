@@ -3205,3 +3205,25 @@ that are **DIVERGENT** (`p` = −0.219, −0.150, −0.059) or **STAGNANT**
 the coarse-to-fine drift (4.98 / 4.89 / 4.66 / 4.42 %)** — so each PASS is a
 statement about the finest mesh built, not about a limit
 (`T1b_RESULTS.md` §8). **A deviation smaller than the drift is the tell.**
+
+**N-D11. The `dRdW` colouring is structurally bigger at fewer ranks, and it is the term that
+decides whether a DAFoam adjoint arm fits its cap.** Measured 2026-08-22 on ONERA M6 rung 2,
+42,120 cells, `dafoam-idwarp-rot:v1`, against the archived np=4 run of the same mesh
+(`cases/dafoam/ladder-a/A3/rung2_patched_idwarp_np4/`). `nUniqueCols` **381,558 (np=1) vs
+125,870 (np=4) = 3.03×** on an identical matrix (`AllNonZeros` 0.99×); seconds per 100
+`ColorSweep` **42.91 vs 12.28 = 3.49×**; decoloured per sweep 397.4 vs 405.0 = **0.98×**, so
+per-sweep efficiency is unchanged and the cost is entirely the graph's size. The distance-2
+graph is built per partition, so at one rank it is global. Projected colouring cost at np=1:
+4,074 s CPU = 67.9 core-min idle / 138.6 contended, against 30.13 core-min measured at np=4 with
+a warm cache. `dRdWColoring_<nranks>.bin` is np-keyed, so the move also discards the cache.
+
+**N-D12. The pyDAFoam cold-start continuity signature is np-specific and must not be carried
+across decompositions.** ONERA M6 rung 2, 42,120 cells, 2026-08-22: `sum local` reads
+**0.6833296303785072** at np=4 (`scotch`) and **0.7019005906092856** at np=1, **+2.72 %** — a
+second-significant-figure difference between two provably cold starts. The cause is ordering:
+the quantity is evaluated *after* the first pressure solve, which is decomposition-dependent
+(`p` finalRes `0.07800447749249334` vs `0.08167211255002443`). **The np-invariant cold-start
+discriminator is `initRes ≈ 1`** — a warm start reads ~55× *below* it, not above. This puts
+`FAMILY_SUPERVISION_GUIDELINES.md` §8 item 2 (use the continuity signature to prove a cold
+start) in the same collision `DAFOAM_CHARTER.md` §5 already names for FD references: a
+signature is only a signature within one rank count.
