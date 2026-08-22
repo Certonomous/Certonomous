@@ -24,10 +24,10 @@ repeats them.
    a `GATE FAIL`. Open conflict on record: some ledger cells read bare `FAIL`
    (VERIFICATION v1.9 amendment item 1) — referred, unruled.
 
-2. **Prediction-first pre-registration, frozen by sha, before any run.** The
-   gate, the threshold, the cap and the label are committed **before** the solver
-   starts. The freeze is the entire evidentiary content of the document: it
-   proves the gate could not have been chosen to fit the answer.
+2. **Prediction-first pre-registration, frozen by sha, before any run.** The gate,
+   threshold, cap and label are committed **before** the solver starts. The freeze
+   is the document's entire evidentiary content: it proves the gate could not have
+   been chosen to fit the answer.
    - Before first compute, amendments are legal **and must state the condition
      and how it was checked** (name the run directory that does not exist).
    - After first compute gates are closed; changes land only as dated addenda that
@@ -46,13 +46,12 @@ repeats them.
    `plant_into_T()`, refusal ~:801), `T10a_runs/analyse_t10a.py:846`;
    `FILING_CHARTER.md` §5 for the principle.
 
-4. **Strict completion rule — a run is done only if all of it holds.**
-   `rc = 0`; an `End` line in the log; **last time == `endTime`**; the fields
-   present (`T U p_rgh alphat nut k omega` for the thermal family);
-   `ExecutionTime` count == `endTime`; and **every field at `endTime` NEWER than
-   the case's own `0/T`** — the **age guard**, because `0/T` is touched last at
-   launch and so dates the run allowed to produce the answer. A guard refuses a
-   case in which `0` or a numeric time directory already exists.
+4. **Strict completion rule — a run is done only if all of it holds.** `rc = 0`;
+   an `End` line; **last time == `endTime`**; fields present (`T U p_rgh alphat nut
+   k omega` for the thermal family); `ExecutionTime` count == `endTime`; and
+   **every field at `endTime` NEWER than the case's own `0/T`** — the **age
+   guard**, because `0/T` is touched last at launch and so dates the run allowed to
+   produce the answer. A guard refuses a case where `0` or a time dir already exists.
    *Provenance:* not a charter clause — `T1b_L4_AMENDMENT.md` §7,
    `mark_done_t1b_L4.py`, `mark_done_t3.py`, D438, L-143. Comparators **refuse
    (exit 2) rather than degrade**.
@@ -69,11 +68,10 @@ repeats them.
    `verification/runs/T-family/T1_runs/analyse_t1b_L4.py`.
 
 6. **Frozen files are never edited.** A departure is disclosed in a **dated
-   amendment** appended at the foot, with a version bump and the assertion
-   `lines whose number changed above this section: 0` — other records cite these
-   files by line and one citation sits inside an executable check.
-   *Provenance:* `SUPERVISION_CHARTER.md` v1.3 amendment record;
-   `VERIFICATION_CHARTER.md` §6b.
+   amendment** appended at the foot, with a version bump and the assertion `lines
+   whose number changed above this section: 0` — other records cite these files by
+   line and one citation sits inside an executable check.
+   *Provenance:* `SUPERVISION_CHARTER.md` amendment record; `VERIFICATION` §6b.
 
 7. **SUBMISSIONS PARKED.** Nothing is sent, emailed, filed, uploaded, registered,
    posted or commented outside this box, by any agent, ever — the closure-challenge
@@ -130,13 +128,13 @@ repeats them.
     *Provenance:* `ESCALATION_CHARTER.md` §9.6–§9.6c; `docs/USING_THIS_LAB.md`
     §8.5, §9; `cases/RANS_LES_closure_models/_common/commit_private.sh`.
 
-11. **Lesson and docket numbers are assigned at commit, from the tail — the
-    MAXIMUM EXISTING NUMBER, never a count.** Block count, distinct count and
-    highest number are three different figures (L-43 has two blocks, L-52 does not
-    exist). Re-derive with
+11. **Lesson and docket numbers are assigned at commit, from the tail — the MAXIMUM
+    EXISTING NUMBER, never a count.** Block count, distinct count and highest number
+    are three different figures (L-43 has two blocks, L-52 does not exist). Re-derive:
     `grep -oE '^## L-[0-9]+' docs/LESSONS.md | grep -oE '[0-9]+' | sort -n | tail -1`.
     `docs/DOCKET.md` diverges from HEAD by design under the private-index protocol —
-    run `scripts/check_docket_reconciliation.py` **before** editing it.
+    run `scripts/check_docket_reconciliation.py` **before** editing it. Peers commit
+    constantly: re-derive at commit time, in the same shell invocation.
 
 12. **Compute.** The unit is **core-minutes** (wall s × ranks ÷ 60), not wall time
     and not dollars. **Every run is costed in its pre-registration**; a proposal
@@ -157,15 +155,15 @@ repeats them.
 
 13. **The scratchpad is temp only and is never a handoff channel (L-186).** It was
     wiped three times in one day. A draft another agent must read lives under the
-    case directory it belongs to; tools the team depends on live in the
-    repository; **a repository document never cites a scratch path.**
+    case directory it belongs to; **a repository document never cites a scratch
+    path.**
 
-14. **`libs` entries are inserted with an assert, never replaced (L-221/L-222).**
-    A lesson is not applied until **every** call site asserts it.
+14. **`libs` entries are inserted with an assert, never replaced (L-221/L-222).** A
+    lesson is not applied until **every** call site asserts it.
 
-15. **Title-page verification of every retrieved paper (L-144).** A paper is
-    verified by its printed title page, never by its file type, its filename or
-    its hash. A manifest can be internally consistent and externally false.
+15. **Title-page verification of every retrieved paper (L-144).** Never by file
+    type, filename or hash. A manifest can be internally consistent and externally
+    false.
 
 ---
 
@@ -185,19 +183,16 @@ agent files.
 | `verification-supervisor` | verification | V&V standards, Roache/GCI gating, external verification suites, cross-team gate audits. `VERIFICATION_CHARTER.md`, `RESULT_PRIORITY_CHARTER.md`, `docs/papers/verification_validation/`, `docs/*_AUDIT.md`, `verification/certificates/`, `verification/credibility/` |
 
 Every supervisor spawns workers of one type: **`lab-lane`**. Supervisors run on
-**Fable** — `SUPERVISION_CHARTER.md` §5: *"Family supervisors and adversarial
-verifiers run on Fable."* Lanes run on **Opus**.
+**Fable** (`SUPERVISION_CHARTER.md` §5: *"Family supervisors and adversarial
+verifiers run on Fable."*); lanes run on **Opus**.
 
 **Supervisors supervise.** A supervisor does not run its family's solves, write its
 code or fetch its papers — those go to `lab-lane` agents. But the four §3 checks are
 done **personally and may never be delegated**: measurement-script diffs read as
 diffs; crash triage (a crash is a finding until triage says otherwise); big-claim
 verification before belief; pre-registration **committed** before compute. A relayed
-check is a summary, not a check.
-
-**At most 3 lanes live per supervisor.** *(New with this harness, 2026-08-22;
-no lane cap existed in `SUPERVISION_CHARTER.md` before. Cognate: `ESCALATION`
-§9 rule 4 — prefer resuming the incumbent over spawning a rival.)*
+check is a summary, not a check. **At most 3 lanes live per supervisor** *(new with
+this harness, `SUPERVISION_CHARTER.md` v1.4 §8; nothing enforces it)*.
 
 ---
 
@@ -223,8 +218,7 @@ monitoring, migrations. When Sanaa asks for commands to run or prompts to type, 
 
 **Reserved to Sanaa, and to no agent at any level:** every send (rule 7);
 scoring-call authorisation; cross-family arbitration; retiring a standard, a gate
-threshold or a charter clause; anything requiring root or an instance change;
-anything that leaves the box.
+threshold or a charter clause; root or an instance change; anything leaving the box.
 
 ---
 
@@ -239,7 +233,7 @@ and the binding artifact is `scripts/check_filing.py` (`--selftest` on any rule 
 | Lessons | `docs/LESSONS.md` — do not read cold; take the reading, see `docs/MEMORY_ARCHITECTURE.md` §5 |
 | Docket | `docs/DOCKET.md` (prose) and `demo-output/website/agenda/docket.json` (machine) |
 | Numerics facts | `docs/NUMERICS_KNOWLEDGE.md` (`N-*` families) |
-| Standards | `docs/standards/` — `MESH_STANDARD.md`, `MONITOR_STANDARD.md`, `INNOVATION_STANDARD.md` |
+| Standards | `docs/standards/` — `MESH_STANDARD.md` (quality gates), `MONITOR_STANDARD.md`, `INNOVATION_STANDARD.md`; `docs/MESH_STANDARD.md` is a **different** doc (grid families) |
 | Campaign prose | `docs/campaigns/<FAMILY>/`, named `<RUNG>_<PURPOSE>.md` (rung ids carry lowercase: `K0c`, `T1b`) |
 | Campaign grading records | `verification/campaign/` |
 | Pre-registrations | `verification/campaign/*_PREREGISTRATION.md`, or beside the case |
@@ -247,11 +241,10 @@ and the binding artifact is `scripts/check_filing.py` (`--selftest` on any rule 
 | Run outputs | `verification/runs/<CAMPAIGN>/` — **never beside the prose describing it** |
 | Certificates, monitors, credibility | `verification/{certificates,monitor,credibility}/` |
 | Papers | `docs/papers/<topic>/author_year_identifier.pdf` **plus a matching `.txt` sidecar** |
-| Scripts | `scripts/`, as `lower_snake.{py,sh}` |
-| Failures | `demo-output/website/campaign/NOT_PASSING_REGISTER.md` |
+| Scripts | `scripts/`, as `lower_snake.{py,sh}`; failures in `NOT_PASSING_REGISTER.md` |
 | Team harness | `harness/` (roster + generator), `.claude/agents/`, `.claude/skills/` |
 | Session handoff | `docs/LAB_STATE.md` — the only one |
 
-Data too large for git lives outside it — `/home/ubuntu/closure-data/`,
-`/home/ubuntu/closure-challenge-benchmark/`, `/home/ubuntu/certonomous-runs/`.
-Nothing is invisible merely because it is big; `docs/LOCATIONS.md` enumerates it.
+Data too large for git lives outside it — `/home/ubuntu/{closure-data,
+closure-challenge-benchmark,certonomous-runs}/`. Nothing is invisible merely
+because it is big; `docs/LOCATIONS.md` enumerates it.
