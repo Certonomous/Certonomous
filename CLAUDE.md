@@ -96,19 +96,17 @@ repeats them.
 
 10. **Git — the working tree is shared and an uncommitted change is somebody's
     unfinished work.**
-    - **NEVER a bare `git commit`** — it commits the whole shared index, which
-      routinely holds peers' staged work, stale in the reverting direction
-      (measured: would have reverted 402 lines across six files).
-    - **NEVER `git add -A`, `git add .`, `git add -A <path>`, `git commit -a`** —
-      the pathspec form looks targeted and is a directory sweep (L-12: 1,187 files,
-      25M insertions, twice).
+    - **NEVER a bare `git commit`** — it commits the whole shared index, which holds
+      peers' staged work, stale in the reverting direction (measured: would have
+      reverted 402 lines across six files).
+    - **NEVER `git add -A`, `git add .`, `git add -A <path>`, `git commit -a`** — the
+      pathspec form looks targeted and is a directory sweep (L-12: 1,187 files, 25M
+      insertions, twice).
     - **Never `git reset --hard`, `git stash`, `git checkout --`, `git clean`.** An
-      unexpected change is **inspected, never reverted**; clearing the shared index
-      is the chief's call.
-    - **Never touch the shared index.** Use the **private-index protocol**,
-      capturing HEAD **once** and using that one value for `read-tree`, for the
-      assertion and for `-p`, **all inside a single shell invocation** — a
-      background lane can move HEAD between two bash calls (L-223):
+      unexpected change is **inspected, never reverted**; the index is chief's call.
+    - **Never touch the shared index.** Use the **private-index protocol**, capturing
+      HEAD **once** for `read-tree`, the assertion and `-p`, **all in one shell
+      invocation** — a lane can move HEAD between two bash calls (L-223):
       ```bash
       export GIT_INDEX_FILE=<scratch>/idx && rm -f $GIT_INDEX_FILE
       H=$(git rev-parse HEAD); git read-tree $H
@@ -118,9 +116,9 @@ repeats them.
       git update-ref refs/heads/main $C $H              # CAS; retry on failure
       git diff HEAD~1 HEAD --stat                       # VERIFY after: only yours
       ```
-      The CAS proves the **parent** is current; it says nothing about the
-      **tree**. The post-commit verification is the check that catches a stale
-      `read-tree`, and it is not optional (L-223, `c46309f5` lost nine files).
+      The CAS proves the **parent** is current, nothing about the **tree**. The
+      post-commit verify catches a stale `read-tree` and is not optional (L-223,
+      `c46309f5` lost nine files).
     - **Commit per item**, and say in the message if you left foreign rows
       uncommitted so somebody can be dispatched to land them.
     *Provenance:* `ESCALATION_CHARTER.md` §9.6–§9.6c; `docs/USING_THIS_LAB.md`
@@ -134,24 +132,26 @@ repeats them.
     run `scripts/check_docket_reconciliation.py` **before** editing it. Peers commit
     constantly: re-derive at commit time, in the same shell invocation.
 
-12. **Compute.** The unit is **core-minutes** (wall s × ranks ÷ 60), not wall time
-    and not dollars. **Every run is costed in its pre-registration**; a proposal
-    with no cost is disqualified. A cost is never presented as measured unless a
-    record backs it. A budget overrun **stops the run**; it does not get a new
-    budget. Waste is reported, not absorbed; a spend figure states gross or cleaned
-    and names the rule (a ledger row over 3600 wall s is an infrastructure stall).
-    - Rate: **c7a.4xlarge at $0.0513/core-h** — **owner-stated by Sanaa,
-      2026-08-21/22, chief's session record.** The rate is corroborated in the repo
-      (`Xiao2016_EnKF/PREREGISTRATION.md:197`, `RESULTS.md:148`); the instance type
-      is not, and does not need to be. `COMPUTE_BUDGET_CHARTER.md` §5 records that
-      the box cannot read its own billing, so a cost from these is
-      **reported-by-owner, not measured**, and `cost_basis` says so.
-    - Runs **under $25 are pre-authorised** (owner-stated, same record). On
-      2026-08-21 Sanaa said *"all the teams have my approval for everything"*, so
-      larger runs are approved — **and are still costed in their pre-registration.**
-      A blanket approval is not a per-item reading of an item (rule 9).
-    - **No GPU.** The G-instance quota request was denied, **AWS case
-      178725840000468** (owner-stated, same record). GPU work is **`BLOCKED-GPU`**.
+12. **Compute.** The unit is **core-minutes** (wall s × ranks ÷ 60), not wall time and
+    not dollars. **Every run is costed in its pre-registration**; a proposal with no
+    cost is disqualified, and a cost is never called measured unless a record backs it.
+    An overrun **stops the run**; it does not get a new budget. Waste is reported, not
+    absorbed; a spend figure states gross or cleaned (a row over 3600 wall s is a stall).
+    - Rate: **c7a.4xlarge at $0.0513/core-h** — owner-stated 2026-08-21/22, and
+      corroborated at `Xiao2016_EnKF/PREREGISTRATION.md:197`. The box cannot read its
+      own billing (`COMPUTE_BUDGET_CHARTER.md` §5), so any cost from it is
+      **reported-by-owner, not measured**, and `cost_basis` must say so.
+    - Runs **under $25 are pre-authorised**; on 2026-08-21 Sanaa said *"all the teams
+      have my approval for everything"*, so larger CPU runs are approved — **and are
+      still costed in their pre-registration.** A blanket is not a per-item read (rule 9).
+    - **GPU: quota GRANTED, us-east-2, 8 vCPUs (All G and VT)** — AWS support
+      2026-08-22; their message and the request verbatim in
+      `docs/GPU_CAPABILITY_STATE.md`. **No GPU is attached to this box**; a GPU is a
+      SEPARATE instance, launched per run and **stopped when idle**. `BLOCKED-GPU` is
+      retired — use it only where capacity exists and a rung still cannot run. **GPU
+      spend is OUTSIDE the 2026-08-21 blanket**, which was given when none could
+      launch (rule 9): every GPU run carries its own `cost_basis` in GPU-hours priced
+      from the console, never from recall.
 
 13. **The scratchpad is temp only and is never a handoff channel (L-186).** It was
     wiped three times in one day. A draft another agent must read lives under the
