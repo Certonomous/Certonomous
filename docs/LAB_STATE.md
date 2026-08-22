@@ -94,31 +94,28 @@ rung may take it).
 
 ## closure
 
-**Section last written:** 2026-08-22T19:10Z — R4/FS3/FS4 rows and live jobs
+**Section last written:** 2026-08-22T20:05Z — R4/FS3/FS4 rows, live
+jobs and compute by the R4 BUILD lane; everything else as the
+closure-supervisor left it.
 by the R4 BUILD lane; everything else as the closure-supervisor left it.
 
-**Last commit:** `b36daf06` — *R4 SpaRTA build lane, stage (a): the inventory,
-the build and selection scripts, and the frozen-RANS targets* (2026-08-22
-18:21:14Z), which is where `R4_sparta_build/` became tracked and where R4's
-`RESULTS.md` was opened. Before it, `fd3aa735` (18:03Z). Section refreshed
-**2026-08-22T18:23Z**.
+**Last commit:** R4 stage (c) — *the a-posteriori verification table, the §6
+verdicts and the boundary report* (2026-08-22). Before it, `73705d1f` (stage b,
+the discovered model) and `b36daf06` (stage a, inventory and scripts).
 
-**Live jobs — the R4 BUILD lane, at 19:10Z.**
+**Live jobs (R4 BUILD lane):** **one**, and it is ungraded.
+`AR_10_Ret_180/discovered_ronly`, pid 875716's last child, cwd
+`/home/ubuntu/closure-data/r4/aposteriori/AR_10_Ret_180/discovered_ronly`, at
+~13,200 of its 20,000 endTime cap, ETA ~25 min, ~0.15 core-h. It is a
+**REPORTED-NOT-GRADED** diagnostic arm; **no gate, verdict or number in the R4
+verdict depends on it**, and it is bounded, checkpointed and resumable. Every
+other R4 run — 27 frozen extractions, 5 diagnostics, 59 of 60 propagations — is
+finished. **R4 no longer needs the cores.**
 
-| pid | what | cwd | ETA |
-|---|---|---|---|
-| `875716` | driver for **24 `simpleFoam` diagnostic propagations** — `discovered_xi01` (the paper's own `xi = 0.1` remedy) and `discovered_ronly` (`b^Delta` off) | `/home/ubuntu/closure-data/r4/aposteriori` | lane's estimate **3.7 core-h / $0.19**, ~60 min wall at 6 concurrent. **Both arms are REPORTED-NOT-GRADED**: they explain a registered GATE FAIL, they cannot move it |
-| `805854` | the NULL/CEILING driver, finishing its last rows | `R4_sparta_build` | ~22 of 24 done |
-
-**FS3 is finished** (`artefacts/fs3.json`, committed) and so are the 12
-`discovered` propagations — **all 12 DIVERGED**, in 4–15 s each, with a
-floating-point exception inside `kOmegaSSTSparta::updateCorrections` after the
-bulk velocity reached O(1e69).
-
-**R4 compute so far, the lane's own figure:** **4.06 core-h / $0.21** —
-0.244 frozen extraction and diagnostics, 0.60 FS3 (run twice, see D-6), 3.22
-propagation — against the preregistration's 12–20 core-h estimate and **40
-core-h cap**.
+**R4 compute, final:** **9.203 core-h / $0.472** — 0.244 frozen extraction and
+diagnostics, 0.524 FS3 (run twice, D-6), 8.435 propagation — against the
+preregistration's **12–20 core-h** estimate and **40 core-h** cap. 46 % of the
+upper estimate, 23 % of the cap.
 
 **The `ktest*` probes at `/home/ubuntu/closure-data/r4/` — mechanical reading,
 and the R4 lane's ruling, which is the one that governs.** The board's earlier
@@ -148,7 +145,7 @@ run to be.* Nothing on this board treats them as results.
 
 | rung | state |
 |---|---|
-| **R4** (SpaRTA build) | **R4 build lane LIVE, no overall verdict yet.** `PREREGISTRATION.md` sha256 `05844430…cbbe8` verified at lane start and at every commit, never edited. Targets **done** (12 of 27 COMPLETE, all four families, 15 hills diagnosed non-converging, §2.3). Model **frozen** (`MODEL.md`). **A-priori gate: GATE FAIL — 2 of 4 families beat the train-mean tensor against a registered bar of 3.** **All 12 `discovered` a-posteriori propagations DIVERGE**; §5's table and the §6 verdicts are the open item, with two diagnostic arms in flight. **Zero-shot boundary asserted in code**, not prose — `r4_lib.assert_no_test_case` raises on any TEST or validation member and is called at the top of the case builder, the dataset assembler, the FS3 selector and both scorers |
+| **R4** (SpaRTA build) | **VERDICT: GATE FAIL.** Both registered halves fired — a-priori **2 of 4** families against a bar of 3, and **all 12 symbolic propagations DIVERGE** (5–18 iterations, FPE in `updateCorrections`). **The registered NOT A RESULT branch did NOT fire**: the per-case frozen-field ceiling beats NULL by **60.2 %** on `CBFS13700` and **99.6 %** on `PHLL10595`, lands `CBFS13700` at **0.3975** against W2's independent **0.39753**, recovers the duct secondary vortex to 0.4–0.6 % of DNS where a linear EVM gives exactly zero, and recovers reattachment to 0.9–3.4 % of the LES. **The harness carries the truth; the model does not** — the first lane in this programme where that is the shape of the failure. `RESULTS.md` complete (10 sections, 12 dated departures), `MODEL.md` frozen, `LESSONS_DRAFT.md` (4), `NUMERICS_DRAFT.md` (9), `DOCKET_DRAFT.md` (1 row) |
 | **R5** (round-5 diagnostics as build constraints) | **no verdict artefact.** Partly discharged by the FS2/FS5 report; the R4 prereg does not cite R5 by name |
 | **R6** (surfaces updated) | **NOT DONE.** "leaderboard" still appears in `web/closure.html` and `web/benchmarks.html`; **BLOCKED** on Sanaa approving the internal-scoring phrasing (doctrine open action 4) |
 | **FS3** (selection methods) | **DONE**, and the final reading is `artefacts/fs3.json` at commit (b). *(The board's 18:22Z observation was correct: `RESULTS.md` §0 had been written forward-looking, and it was rewritten to state only what is true at the commit carrying it. The pid live then produced a **withdrawn** fit; see D-6.)* All three registered methods ran at three seeds. **They disagree** — permutation importance is near-orthogonal to mutual information on three of four fits and anti-correlated on two, which §3 registers in advance as a finding. Planted-zero control **PASS** on both propagated term sets, **GATE FAIL** on `R`/T1–T4 |
@@ -211,27 +208,23 @@ Two additions from tonight, neither moving a verdict:
 | `a5126378` | Content-only restore of the **nine** `eda10f39` files that `c46309f5` silently reverted; every blob byte-identical, no number changed. The charter lane's two files left standing |
 | `eda10f39` | Closure reconcile: nine uncommitted closure edits closed out (`make_feature_library.py` regenerates `FEATURE_LIBRARY.md` byte-identically; `setup_case.py` L-221 pattern; four `LESSONS_DRAFT.md` banners; two `RESULTS.md` sweeps) and the **4.170 / 4.241 split ruled a read-off criterion, not a disagreement** |
 
-**Next actions:**
+**Next actions:** append the R4 docket row and its four lessons at the tail
+numbers current at that moment (`DOCKET_DRAFT.md`, `LESSONS_DRAFT.md`,
+`NUMERICS_DRAFT.md`). Two amendment candidates for the **next** preregistration,
+neither applied to this one: §6 registers **no threshold on realisability**
+(the omission Charter §4 was written to stop, and it let a model violating on
+19.1 % of `CBFS13700` cells reach propagation without failing on that axis),
+and the continuity gate's `1e-4` is **dimensional**, so it does not mean the
+same thing on a duct at 37.5 m/s as on a hill at 1 m/s.
 
-| # | action | note |
-|---|---|---|
-| 1 | **Finish the R4 a-posteriori table and grade the §6 gates**, then the docket row and the lessons — the R4 lane's own next action, and the section is `RESULTS.md` §5/§6, currently unwritten | the lane is live; do not pre-empt it |
-| 2 | **R4 verification table + boundary report** — every arm through the strict completion rule row by row, and an explicit statement of the boundary between what this build lane produced and what it inherited (the FS1/FS2 feature record and the `sdk/openfoam/sparta/` solver are reused, and `verification/runs/R4_runs/` is a *different* campaign five days older, read and left untouched) | the `ktest*` rows above are the pattern |
-| 3 | **Resolve `MODEL.md`** — R4 `RESULTS.md` §0 cites it for the FS4 freeze and it does not exist on disk or in git. Either it is unwritten or it is untracked; L-225 says check the disk before calling a pointer dead, and the disk was checked | **VERIFY** |
-| 4 | **Kaandorp six `CBFS13700` rows, when load permits** — `NULL TRUTH MEANB ML0 ML1 ML2`, 3.40 core-hours, **$0.175** at $0.0513/core-h (nine-row figure $0.226; hard upper bound $0.462 for nine under `timeout 3600`). **Not launched: R4 holds first call on capacity**, and load average is 27.7 | serial, `nProcs : 1` |
-| 5 | **Rebuild `features_nodurbin.npz` to include `AR_3_Ret_360`** — the single missing input that makes the three `AR_3_Ret_360__ML*` rows BLOCKED rather than queued | unblocks 3 rows |
-| 6 | **Interpolated rescore of the six frozen-k §4 arm fields** — read-only, fields already on disk, minutes, no solve. It puts §4 on the registered interpolated basis so its numbers can be compared with 4.241/4.384/5.891. **Belongs to the lane that owns the grade**, not to the reconciliation that flagged it | explicitly left undone by `eda10f39` |
-| 7 | **Reconcile `docs/closure/README.md` §3** — it lists Ling2016 **PENDING**; `Ling2016_TBNN/RESULTS.md` reads **GATE REACHED** (with a 2026-08-20 correction note). The same README flags two further defects in that file: a stale §0 `GATE FAIL` line and a seed-count self-disagreement | one of the two must move |
-
-**On Sanaa's desk:**
-
-| item | why it is hers |
-|---|---|
-| **R6's internal-scoring phrasing** — approve it, or confirm leaderboard claims are dropped | doctrine open action **4**, owner **SANAA**. R6 is BLOCKED on it |
-| **The Repo 2 release** | doctrine open action **5**, owner **SANAA**. *"DO NOT create or push Repo 2"* — the doctrine records it and creates nothing. R4's `RESULTS.md` states in its own preamble that **this lane ran neither and prepared no submission** |
-| **The zero-shot scoring call** | scoring-call authorisation is reserved to Sanaa (lab constitution, FIRST-ACTION RULE). R4 prereg §0 carries the zero-shot discipline and a declared prior-exposure leakage risk; addendum A1 moves `NASA_2DWMH` to *checkable-at-the-scoring-call* |
-| **`CLOSURE_MODELLING_CHARTER.md` is now v1.1.2** — to note | `c46309f5`: §22.4 amendment, four additive requirements, no clause widened or narrowed. `ls docs/charters/*_CHARTER.md \| wc -l` still returns 12 |
-| **Three defects in `scripts/lint_foam_libs.py`, flagged to its owner, not repaired by this team** | (i) `--include-closure` does not widen the walk — it only lifts a skip for roots passed explicitly, so run bare it walks `verification/runs` only while printing `closure tree: INCLUDED`; (ii) it does not see the canonical asserted `re.sub` idiom as a write (`setup_case.py:109` reports *"libs mentioned, no write route matched"*, `frozen_R.py` is invisible); (iii) `scripts/foam_libs.py` was untracked at sweep time, so a closure builder importing it would break on checkout. Full text: `LIBS_ASSERT_SWEEP.md` §6 |
+**On Sanaa's desk:** R6's internal-scoring phrasing (doctrine open action 4).
+**And now the R4 question:** the SpaRTA-class build ladder has returned a
+**GATE FAIL** with a working ceiling, which is a decision point, not a retry —
+whether to re-preregister the b^Delta amplitude control (realisability
+constraint, or the paper's `xi`, as a *registered* part of the model rather than
+a diagnostic), or to re-open R2's ranking. **The Repo 2 release and the
+zero-shot scoring call remain hers alone; this lane ran neither and prepared no
+submission.**
 
 **Blocked:** R6, on Sanaa's internal-scoring phrasing. Kaandorp
 `AR_3_Ret_360__ML0/1/2`, on the missing `AR_3_Ret_360` case in

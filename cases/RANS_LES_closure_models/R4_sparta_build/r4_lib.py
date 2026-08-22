@@ -16,6 +16,9 @@ from __future__ import annotations
 import os
 import re
 import shutil
+import sys
+
+_REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
 BENCH = "/home/ubuntu/closure-challenge-benchmark"
 DATA = os.path.join(BENCH, "data")
@@ -108,6 +111,24 @@ def set_libs(control_dict_path, lib=SPARTA_LIB):
     s = open(control_dict_path).read()
     assert "libspartaTurbulenceModels" in s, (
         f"L-221: libs entry did not land in {control_dict_path}")
+    # Second, stronger assertion at the same call site, reusing the lab's
+    # shared depth-aware verifier (scripts/foam_libs.py, shipped 5162ec8e):
+    # it reads the bytes back from disk, ignores the 8-11 function-object
+    # `libs (...)` lines that live inside `functions { }`, and refuses a
+    # duplicate top-level entry -- the signature of a blind append.
+    #
+    # Its WRITER, ensure_libs, is deliberately NOT used here.  It MERGES, and
+    # the entry being replaced on the ducts, CBFS13700 and PHLL10595 names
+    # `libfrozenIncompressibleTurbulenceModels.so`, which exists nowhere on
+    # this machine (docs/closure/HUMP_BASELINE_EQUIVALENCE_NOTE.md).  Merging
+    # would carry that absent library into every case and ask the solver to
+    # load it.  This call site replaces it; the verification is shared.
+    try:
+        sys.path.insert(0, os.path.join(_REPO, "scripts"))
+        from foam_libs import assert_libs
+        assert_libs(control_dict_path, lib)
+    except ImportError:
+        pass          # the shared helper is optional; the assert above is not
     return s
 
 
