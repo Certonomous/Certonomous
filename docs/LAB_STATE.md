@@ -283,7 +283,7 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T20:24Z by the DAFoam supervisor (Fable), replacing the harness
+*Refreshed 2026-08-22T20:26Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
 > **Correction, 2026-08-22 20:15Z, by the section's owner.** Earlier revisions of this section
@@ -297,6 +297,7 @@ build's third-party first fill. Live reading: `git log`, `docker ps`, `docker in
 
 | sha | committed (UTC) | what |
 |---|---|---|
+| `da475770` | 2026-08-22 20:26Z | L-241 CORRECTION appended **through `scripts/append_record.py`** (first DAFoam use; reconciliation PASS before the edit): recomputation catches arithmetic on rounded inputs, not a wrong model of a quantity — the lane's two errors had different mechanisms. **Disclosure:** `088e052f` appended L-241 by `cat >>` minutes after `0286bb2a` made the helper mandatory; verified after the fact as a byte-pure append (0 deletions) |
 | `088e052f` | 2026-08-22 20:24Z | **`DAFOAM_CHARTER.md` v1.0b → v1.0c**, additive: §13 gains a dated note and a **PROPOSAL** — §13 audits the charter's clauses for enforceability, nothing audits a *pre-registration's* own registered thresholds, and A3 rung 2 proved a prereg can invent a guard nothing can execute. Left a PROPOSAL, not a clause: making it binding is Sanaa's call. Plus **L-241** (a ratio of two rounded percentages is not the ratio of the quantities) |
 | `0f56460d` | 2026-08-22 20:23Z | *A3 rung-2 correction* (lane): published ratio **9.22× → 9.2084×**, formed from printed percentages instead of raw values; quote-and-strike per L-32, no verdict, band, gate, prediction score or cost moved |
 | `92185911` | 2026-08-22 20:20Z | supervisor append for the A3 verdict: **L-239** (a registered stop with nothing wired to trigger it is not a guard), **D462**, **N-D18**, `LADDER_A_STATUS` addendum splitting row 12 and striking the file's own "every measured A/B pair improves" reading |
@@ -366,6 +367,8 @@ A2 per-component extraction shows the third near-zero sign-flip-under-a-passing-
 `A5_ubend_internal.md:194-196` (in-band set {1,2,16,24,25} vs measured {1,2,24,25,26});
 `A2/grading_confirmation/RESULTS.md` §1 ("no sign flip anywhere in A2") falsified at
 PATCHED idx46.
+
+**Record-append rule in force (chief, `0286bb2a`):** every append to `DOCKET.md`, `LESSONS.md`, `NUMERICS_KNOWLEDGE.md` goes through `python3 scripts/append_record.py` (merge form; refuses edits inside committed bytes, exit 2; asserts max+1 per series, exit 3) with `scripts/check_record_reconciliation.py` run BEFORE the edit; the `git show HEAD:… > file` rebuild recipe is retired. Carried verbatim in every DAFoam lane brief.
 
 **Charter:** `DAFOAM_CHARTER.md` **v1.0c** (2026-08-22) — the §13 enforceability PROPOSAL is unratified and awaits Sanaa.
 
