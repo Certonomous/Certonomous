@@ -265,13 +265,15 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T23:40Z by the DAFoam supervisor (Fable), replacing the harness
+*Refreshed 2026-08-23T00:05Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
 **Last commits (newest first):**
 
 | sha | committed (UTC) | what |
 |---|---|---|
+| `2216d5ea` | 2026-08-23 00:00Z | supervisor append: **L-234** (a novelty search needs a nonsense-token control — a pinned Discussions thread is returned for every query), **D460** (the ADF defect candidate and its sweep) |
+| `757eccf0` | 2026-08-22 ~23:50Z | *ADF primal non-reproduction prepared as a defect candidate* — `cases/dafoam/DEFECT_CANDIDATE_adf_primal_nonreproduction.md`, 329 lines, **NOT FILED ANYWHERE, AND NOT FILING-READY** in its opening lines; novelty sweep RUN (39 searches, 4 venues, read-only) — **no prior art**; class UNDETERMINED pending one 5-core-min arm |
 | `ff5d2327` | 2026-08-22 23:10Z | supervisor append for the A6 verdict: **L-233, D459, N-D13..N-D17**, `LADDER_A_STATUS` row 36. Claim verified by the supervisor personally against the arm logs before belief |
 | `66f42398` | 2026-08-22 ~22:50Z | *A6 N=16 fixed FD reference — RESULTS final*: **PASS on a 3-component graded subset, 1.0099 %, zero sign flips**; all three predecessor sign flips were FD noise; `twist` idx6 flagged and excluded; forward-AD reached for and found NOT AVAILABLE (nan) — 63.166 core-min / $0.0540 of a 120 ceiling |
 | `674cab89` | 2026-08-22 ~22:20Z | *A3 rung-2 Amendment 2 v1.2* (lane): Amendment 1's np=1 configuration **withdrawn as refuted by its own measurement**; arms revert to the frozen §2 np=4 configuration; **no gate, threshold, cap or label altered** — only the launch condition, now `free_cores >= 4 AND MemAvailable >= 12 GiB` (free_cores = 16 − median-of-5 runnable count). Frozen body + Amendment 1 verified byte-identical through line 705 **by the supervisor personally**; script diff read as a diff by the supervisor: **68 insertions, 0 deletions, 0 modifications**, grading path untouched. Colouring cache `dRdWColoring_4.bin` md5 `a2e5f317…` proven identical to the graded stock arm's. Worst case 102.150 of the 120 ceiling **by construction** |
@@ -294,7 +296,6 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 |---|---|---|---|---|
 | `p3a6_s1b` | 802799 | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/s1b` | A6 N=16 fixed reference, Stage 1 (primal-convergence gate + forward-AD probes), `--memory=12g` | Stage 1 ~20-40 min; Stage 2 contingent, ~1.5 h |
 | Lane D | **VERIFY** pid | `/home/ubuntu/certonomous-runs/P3-a6-n16-rem/` | A6 N=16 **remaining five components** (twist 1,2,4,5 + patchV 0), 21 primals, np=1 `--cpus=1`, ceiling 60 core-min; chief-approved, pre-registration required before launch; gate free_cores ≥ 1 and MemAvailable ≥ 12 GiB | prereg ~30 min, arm ~40-60 min contended |
-| Lane B | — | `cases/dafoam/DEFECT_CANDIDATE_adf_primal_nonreproduction.md` (to be written) | ADF primal non-reproduction **NOT FILED** draft + novelty sweep, zero compute | ~1 h |
 | *(armed, gated)* | — | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/{patched,wrongstep}` | A3 rung-2 arms **P-A** (patched, `fd3`, `timeout 1050`) and **P-B** (control, `fd1wrong`, `timeout 300`), np=4 `--cpus=4 --memory=12g`, detached and self-ledgering; shipped twin declined by name (frozen §3 departure 1). P29 registers 452-950 s wall / 30.1-63.3 core-min | **gate shut: free_cores 0** (11 buoyant + 3 new `simpleFoam` + 1 buoyantSimple + 1 python). Needs the A6 queue *and* the new `simpleFoam` to clear; 4 h bound |
 
 **Rungs lacking verdicts:**
@@ -303,7 +304,7 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 |---|---|
 | **A3 patched column** | **PENDING at every size** — one attempt made and recorded (D458): np=4 never launched (core gate), np=1 stopped inside the colouring on a measured projection. Reverting to np=4 with a free-cores gate. An np=1 arm at ~150 core-min was **declined**, not deferred |
 | **A6 N=16, the other 5 of 9 components** | **NOT MEASURED** — 3 of 9 now verified (PASS 1.0099 %), 1 provably FD-ungradeable (`twist` idx6), 5 untouched at 57-90 %. **This is the critical path**: one 21-primal `fdsub` arm, ~37 core-min / $0.032, decides whether Sanaa's **N=29 gate** can be met. N=29 stays **NOT RUN** |
-| **ADF primal non-reproduction** | **new defect-class candidate** (N-D16): forward-AD build diverges from the plain build cold and NaNs within 10 iterations; `libDASolverADF.so` md5-identical across images → shipped-toolchain. NOT FILED, **novelty not established**. Characterisation sweeps priced (~15 core-min) and held until the box frees |
+| **ADF primal non-reproduction** | **defect candidate prepared** (`757eccf0`, D460, N-D16): NOT FILED and NOT FILING-READY on two named blockers — the full 63-search/10-venue sweep (0 compute) and sweep 1 (~5 core-min), which decides whether the class is *conditioning/diagnosability* or *AD correctness*. Sweep found **no prior art**. Characterisation arms approved in principle, held until the box frees |
 | **A4** | **complete** — the 2×3 table has no assumed cells (status addendum rows 31-33) |
 | **A2 `CD/shape` PATCHED** | aggregate 0.0506 % PASS now carries a **per-component sign flip (idx46)** — under the band ("ANY sign flip ⇒ FAIL") the row needs the per-component caveat A5 idx16 got; supervisor to record in `LADDER_A_STATUS` addendum + docket. Whether adjoint or FD artefact: NOT established (a sweep costs 207-238 core-min on A2; not bought) |
 | **B3 Stage 4** | **BLOCKED by construction** — Sanaa's fork-adoption call. The rebuild rows are final: BLOCKED (shipped) / PASS (`subpclu:v2`, 667 iters, FD 0.085/0.059/0.199 %, decomposition G1-G3 PASS) |
@@ -324,7 +325,7 @@ verdict: `LADDER_A_STATUS` dated addendum, L-225+ (re-derive), D453+ (re-derive)
 
 **On Sanaa's desk (ruling requested):** the DAFoam launch-gate **MemAvailable floor 12 GiB** — a registered gate threshold, so it stays at 12 until she rules (chief, 2026-08-22). Lane B's measured case for lowering it to **6 GiB for primal-only arms**: the 12 was calibrated on a 9.787 GiB adjoint; the largest peak RSS in the whole A6 fixed-reference item was **1.252 GiB**, and the floor cost **28 min of wall** waiting under another team's `viewFactorsGen` (up to 17.2 GiB). Not lowered by any agent.
 
-**On Sanaa's desk:** four upstream defect drafts, all **NOT FILED** (D-A/D-A2 IDWarp
+**On Sanaa's desk:** now **five** upstream defect drafts — the four standing classes plus the ADF primal non-reproduction (`757eccf0`), which is a *candidate*, not filing-ready. Four upstream defect drafts, all **NOT FILED** (D-A/D-A2 IDWarp
 rotation; D-B/D-B2 decomposition + limiter; D-C ksp options override; D-E ILU exact zero
 pivot) — filing is hers alone. Fork-adoption decision for B3 Stage 4. Note for her: the
 A2 per-component extraction shows the third near-zero sign-flip-under-a-passing-norm
