@@ -71,46 +71,49 @@ rung may take it).
 
 ## closure
 
-**Last commit:** `fd3aa735` — *The train_log.json that three records called
-nonexistent is committed, and the five places that said so now carry a dated
-correction* (2026-08-22 18:03Z).
+**Last commit:** `PENDING` — *R4 SpaRTA build lane, stage (a): inventory, the
+build/selection scripts, and the frozen-RANS targets* (2026-08-22).
 
-**Live jobs:** none on the box under this team's name as of 18:05Z. Two
-`kCorrectiveFrozenFoam` R4 probes ran at `/home/ubuntu/closure-data/r4/ktestA` and
-`ktestB` at 17:49Z and have exited; `ktestB` wrote `rc=0`, an `End` line and a
-`5000/` time directory, `ktestA` wrote `rc=0` with no time directory beyond `0/`
-— **VERIFY** whether ktestA completed or the rc is stale, before either is used.
+**Live jobs (R4 BUILD lane):**
+- `fs3_select.py` pid 803458, cwd `cases/RANS_LES_closure_models/R4_sparta_build`,
+  ~20 min wall, ~0.35 core-h, $0.02 — FS3 selection over the four
+  (target × library) combinations, 3 seeds each.
+- 24 `simpleFoam` a-posteriori propagations (NULL + CEILING on the 12 complete
+  frozen cases), driver pid 805853, cwd `/home/ubuntu/closure-data/r4/aposteriori`,
+  estimated 4.0 core-h / $0.21, ETA ~60 min wall at 8 concurrent under load 27.
+- The 12 DISCOVERED propagations are queued behind the FS4 freeze,
+  estimated ~2 core-h.
+
+**R4 compute so far:** 0.244 core-h of solver time (27 frozen extractions +
+5 convergence diagnostics), $0.013, against the preregistration's 12–20 core-h
+estimate and 40 core-h cap.
 
 **Rungs lacking verdicts:**
 
 | rung | state |
 |---|---|
-| **R4** (SpaRTA build) | **OPEN, no verdict.** `cases/RANS_LES_closure_models/R4_sparta_build/PREREGISTRATION.md` exists (2026-08-21, D443) with code, **no `RESULTS.md`**, and the whole directory is **untracked in git** |
-| **R5** (round-5 diagnostics as build constraints) | **no verdict artefact.** Partly discharged by the FS2/FS5 report; the R4 prereg does not cite R5 by name |
-| **R6** (surfaces updated) | **NOT DONE.** "leaderboard" still appears in `web/closure.html` and `web/benchmarks.html`; blocked on Sanaa approving the internal-scoring phrasing |
-| **FS3** (selection methods) | **NOT RUN.** Registered in the R4 prereg §3 only |
-| **FS4** (joint iteration, features frozen before scoring) | **NOT RUN.** Registered in the R4 prereg §4 |
+| **R4** (SpaRTA build) | **RUNNING.** `RESULTS.md` open; step 1 (targets) done — **12 of 27 training cases COMPLETE** under the strict completion rule, all four families represented; steps 2–3 done; step 4 in flight. No verdict yet. |
+| **R5** (round-5 diagnostics as build constraints) | no verdict artefact |
+| **R6** (surfaces updated) | **NOT DONE**, blocked on Sanaa approving the internal-scoring phrasing |
+| **FS3** (selection methods) | **RUN.** Mutual information, permutation importance on a held-out family, and an elastic-net path under leave-one-family-out CV; three seeds; planted-zero control on every fit. |
+| **FS4** (joint iteration, features frozen before scoring) | **term sets frozen**, `MODEL.md`; no propagation verdict yet |
 | **FS6** (comparative feature document) | **NOT DONE.** No artefact exists |
 
-R1 closed (charter §22.1–22.5). R2 delivered (`R2_SHORTLIST_MEMO.md`; ranking
-inverts the doctrine's order — SpaRTA, FIML-C, TBNN). R3 decided by Sanaa.
-**FS1 done** (110 features, 40 cases, 641,652 cells). **FS2 and FS5 are STANDING
-GATES** — permanently re-armed, never closed.
+R1 closed (charter §22.1–22.5). R2 delivered (`R2_SHORTLIST_MEMO.md`). R3 decided
+by Sanaa. **FS1 done. FS2 and FS5 are STANDING GATES** — permanently re-armed.
 
-**Case verdicts on record:** Wu2018 a-priori **PASS** (7/8, loses `NASA_2DWMH`);
-Wu2018 aposteriori and aposteriori_frozenk both **NOT A RESULT** (ceiling gate
-failed, registered falsifier fired); Ling2016 **GATE REACHED** *(note:
-`docs/closure/README.md` §3 still lists it PENDING — a known, flagged
-disagreement)*; Kaandorp2020 **GATE FAIL** on all three preregistered claims,
-Table 4 **BLOCKED**; Schmelzer2020_SpaRTA **PASS**; Xiao2016_EnKF **BLOCKED** at
-the forward model; NASA_hump_gate **PASS** on the registered branch (B-G0a
-BLOCKED, B-G0b PASS).
+**Case verdicts on record:** unchanged — Wu2018 a-priori **PASS**; Wu2018
+aposteriori and aposteriori_frozenk **NOT A RESULT**; Ling2016 **GATE REACHED**
+*(`docs/closure/README.md` §3 still says PENDING — known, flagged)*; Kaandorp2020
+**GATE FAIL** ×3, Table 4 **BLOCKED**; Schmelzer2020_SpaRTA **PASS**;
+Xiao2016_EnKF **BLOCKED**; NASA_hump_gate **PASS** on the registered branch.
 
-**Next actions:** R4 has a prereg and no results — either run it or say why not.
-Get `R4_sparta_build/` and `NASA_hump_gate/` tracked. Reconcile the
-`docs/closure/README.md` §3 PENDING against Ling2016's GATE REACHED.
+**Next actions:** finish the R4 a-posteriori table and grade the §6 gates; then
+the docket row and lessons. `R4_sparta_build/` is tracked from this commit.
 
-**On Sanaa's desk:** R6's internal-scoring phrasing (doctrine open action 4).
+**On Sanaa's desk:** R6's internal-scoring phrasing (doctrine open action 4);
+**the Repo 2 release and the zero-shot scoring call — neither was run and no
+submission was prepared.**
 
 **Blocked:** R6 on the above.
 

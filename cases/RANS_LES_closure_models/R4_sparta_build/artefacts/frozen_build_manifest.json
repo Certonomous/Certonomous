@@ -1,0 +1,276 @@
+{
+ "n_cases": 27,
+ "out": "/home/ubuntu/closure-data/r4/frozen",
+ "cases": [
+  {
+   "case": "alpha_05_10071_3036",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_05/alpha_05_10071_3036",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_05_10071_3036",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_05_4071_3036",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_05/alpha_05_4071_3036",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_05_4071_3036",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_05_7071_2024",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_05/alpha_05_7071_2024",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_05_7071_2024",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_05_7071_3036",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_05/alpha_05_7071_3036",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_05_7071_3036",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_05_7071_4048",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_05/alpha_05_7071_4048",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_05_7071_4048",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_075",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_075/alpha_075",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_075",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_10_12000_2024",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_10/alpha_10_12000_2024",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_10_12000_2024",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_10_12000_3036",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_10/alpha_10_12000_3036",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_10_12000_3036",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_10_12000_4048",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_10/alpha_10_12000_4048",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_10_12000_4048",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_10_6000_2024",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_10/alpha_10_6000_2024",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_10_6000_2024",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_10_6000_3036",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_10/alpha_10_6000_3036",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_10_6000_3036",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_10_6000_4048",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_10/alpha_10_6000_4048",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_10_6000_4048",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_10_9000_2024",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_10/alpha_10_9000_2024",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_10_9000_2024",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_10_9000_3036",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_10/alpha_10_9000_3036",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_10_9000_3036",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_10_9000_4048",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_10/alpha_10_9000_4048",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_10_9000_4048",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_125",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_125/alpha_125",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_125",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_15_10929_2024",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_15/alpha_15_10929_2024",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_15_10929_2024",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_15_10929_3036",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_15/alpha_15_10929_3036",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_15_10929_3036",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_15_10929_4048",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_15/alpha_15_10929_4048",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_15_10929_4048",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_15_13929_3036",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_15/alpha_15_13929_3036",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_15_13929_3036",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "alpha_15_7929_3036",
+   "family": "hills",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/Parm_PH_29/alpha_15/alpha_15_7929_3036",
+   "baseline_time": "20000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/alpha_15_7929_3036",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "AR_1_Ret_180",
+   "family": "ducts",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/DUCT/AR_1_Ret_180",
+   "baseline_time": "334",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/AR_1_Ret_180",
+   "backstop": 5000,
+   "les_mode": "splice",
+   "owner_bytes": 40867
+  },
+  {
+   "case": "AR_3_Ret_180",
+   "family": "ducts",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/DUCT/AR_3_Ret_180",
+   "baseline_time": "1109",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/AR_3_Ret_180",
+   "backstop": 5000,
+   "les_mode": "splice",
+   "owner_bytes": 129701
+  },
+  {
+   "case": "AR_5_Ret_180",
+   "family": "ducts",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/DUCT/AR_5_Ret_180",
+   "baseline_time": "2428",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/AR_5_Ret_180",
+   "backstop": 5000,
+   "les_mode": "splice",
+   "owner_bytes": 222734
+  },
+  {
+   "case": "AR_10_Ret_180",
+   "family": "ducts",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/DUCT/AR_10_Ret_180",
+   "baseline_time": "5125",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/AR_10_Ret_180",
+   "backstop": 5000,
+   "les_mode": "splice",
+   "owner_bytes": 489224
+  },
+  {
+   "case": "PHLL10595",
+   "family": "PHLL10595",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/PH_Breuer",
+   "baseline_time": "10000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/PHLL10595",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 331807
+  },
+  {
+   "case": "CBFS13700",
+   "family": "CBFS13700",
+   "src": "/home/ubuntu/closure-challenge-benchmark/data/CBFS",
+   "baseline_time": "30000",
+   "dir": "/home/ubuntu/closure-data/r4/frozen/CBFS13700",
+   "backstop": 5000,
+   "les_mode": "retag",
+   "owner_bytes": 461621
+  }
+ ]
+}

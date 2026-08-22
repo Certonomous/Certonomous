@@ -1,0 +1,261 @@
+{
+ "inventory": [
+  {
+   "case": "alpha_05_10071_3036",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_05_4071_3036",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_05_7071_2024",
+   "family": "hills",
+   "complete": false,
+   "reason": "omega bounded on 1 iterations before the write (clipped, not settled)",
+   "converged_at": 51,
+   "R_drift_pct": 0.0,
+   "bounding_omega": 1
+  },
+  {
+   "case": "alpha_05_7071_3036",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_05_7071_4048",
+   "family": "hills",
+   "complete": false,
+   "reason": "omega bounded on 1 iterations before the write (clipped, not settled)",
+   "converged_at": 51,
+   "R_drift_pct": 0.0,
+   "bounding_omega": 1
+  },
+  {
+   "case": "alpha_075",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_10_12000_2024",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_10_12000_3036",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_10_12000_4048",
+   "family": "hills",
+   "complete": true,
+   "reason": "complete",
+   "converged_at": 1362,
+   "R_drift_pct": 9.61652892006217e-06,
+   "bounding_omega": 0
+  },
+  {
+   "case": "alpha_10_6000_2024",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_10_6000_3036",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_10_6000_4048",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_10_9000_2024",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_10_9000_3036",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_10_9000_4048",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_125",
+   "family": "hills",
+   "complete": true,
+   "reason": "complete",
+   "converged_at": 1391,
+   "R_drift_pct": 1.18393907279936e-05,
+   "bounding_omega": 0
+  },
+  {
+   "case": "alpha_15_10929_2024",
+   "family": "hills",
+   "complete": false,
+   "reason": "log says NOT CONVERGED (backstop cap reached)",
+   "converged_at": null,
+   "R_drift_pct": null,
+   "bounding_omega": null
+  },
+  {
+   "case": "alpha_15_10929_3036",
+   "family": "hills",
+   "complete": true,
+   "reason": "complete",
+   "converged_at": 1346,
+   "R_drift_pct": 8.92279912470018e-06,
+   "bounding_omega": 0
+  },
+  {
+   "case": "alpha_15_10929_4048",
+   "family": "hills",
+   "complete": true,
+   "reason": "complete",
+   "converged_at": 1382,
+   "R_drift_pct": 4.01850101540946e-06,
+   "bounding_omega": 0
+  },
+  {
+   "case": "alpha_15_13929_3036",
+   "family": "hills",
+   "complete": true,
+   "reason": "complete",
+   "converged_at": 1174,
+   "R_drift_pct": 7.76250414804951e-06,
+   "bounding_omega": 0
+  },
+  {
+   "case": "alpha_15_7929_3036",
+   "family": "hills",
+   "complete": true,
+   "reason": "complete",
+   "converged_at": 1625,
+   "R_drift_pct": 1.35691137433674e-05,
+   "bounding_omega": 0
+  },
+  {
+   "case": "AR_1_Ret_180",
+   "family": "ducts",
+   "complete": true,
+   "reason": "complete",
+   "converged_at": 133,
+   "R_drift_pct": 1.75850762699003e-06,
+   "bounding_omega": 0
+  },
+  {
+   "case": "AR_3_Ret_180",
+   "family": "ducts",
+   "complete": true,
+   "reason": "complete",
+   "converged_at": 392,
+   "R_drift_pct": 8.87738890058462e-05,
+   "bounding_omega": 0
+  },
+  {
+   "case": "AR_5_Ret_180",
+   "family": "ducts",
+   "complete": true,
+   "reason": "complete",
+   "converged_at": 694,
+   "R_drift_pct": 0.000160416089062432,
+   "bounding_omega": 0
+  },
+  {
+   "case": "AR_10_Ret_180",
+   "family": "ducts",
+   "complete": true,
+   "reason": "complete",
+   "converged_at": 1378,
+   "R_drift_pct": 0.000208613864960114,
+   "bounding_omega": 0
+  },
+  {
+   "case": "PHLL10595",
+   "family": "PHLL10595",
+   "complete": true,
+   "reason": "complete",
+   "converged_at": 1243,
+   "R_drift_pct": 9.9122951728579e-06,
+   "bounding_omega": 0
+  },
+  {
+   "case": "CBFS13700",
+   "family": "CBFS13700",
+   "complete": true,
+   "reason": "complete",
+   "converged_at": 295,
+   "R_drift_pct": 0.0,
+   "bounding_omega": 0
+  }
+ ],
+ "complete": [
+  "alpha_10_12000_4048",
+  "alpha_125",
+  "alpha_15_10929_3036",
+  "alpha_15_10929_4048",
+  "alpha_15_13929_3036",
+  "alpha_15_7929_3036",
+  "AR_1_Ret_180",
+  "AR_3_Ret_180",
+  "AR_5_Ret_180",
+  "AR_10_Ret_180",
+  "PHLL10595",
+  "CBFS13700"
+ ]
+}
