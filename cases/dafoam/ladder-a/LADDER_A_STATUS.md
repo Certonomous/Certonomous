@@ -178,3 +178,22 @@ frozen files are not edited; the analytic column is unchanged and provably so (o
 value per component reproduces the error at both steps). **Row 28 stands: N=29 remains NOT RUN, gate
 NOT MET** — a subset PASS is not a rung PASS while five of nine components sit unmeasured. Cost of
 the item: **63.166 core-min = $0.0540**.
+
+---
+
+## Addendum 2026-08-22 (supervisor) — row 12 splits, and one reading of this file is struck
+
+Row 12 as written spans *"A3 all rungs"* and quotes *"No patched-IDWarp arm was ever run on A3, at
+any mesh size."* **That sentence is now false, so the row cannot simply be flipped — it splits.**
+The original rows are not edited.
+
+| # | case | scope | toolchain | np / cells | **verdict** | headline number (exact) | record |
+|---|---|---|---|---|---|---|---|
+| 12 | **A3** sweep rung 2 | gradient | **PATCHED** | 4 / 42,120 | **PASS** | `patchV[1]` **0.0077 %** (analytic bit-identical to stock), `twist[1]` **0.2740 % → 0.9279 %**, `shape[115]` **0.0172 % → 0.1586 %** — the patch is applied and **every warp-crossing row gets worse**; patch effect **1.469586 %** in L2, 3 analytic sign flips (idx 12, 13, 24, no FD there) | `A3/rung2_patched_idwarp_np4/RESULTS.md` §2, §5 |
+| 12b | **A3** rungs 1, 3 and the 399,360 campaign | gradient | **PATCHED** | — | **PENDING — NOT MEASURED** | rung 2 is now measured; no patched arm exists at any other A3 size | same, §10.6 |
+
+**Reading 1 of this file is struck as falsified.** The sentence at line 67 — *"Every A/B pair that
+has been measured improves"* — was true of A1, A2 and A5 and is **not** true of A3 rung 2, the first
+measured pair that **degrades** (N-D18). The line is left in place, unedited, and struck here.
+**Reading 2 gains a fifth confirming case:** the FD column is bit-identical across images on every
+A/B pair measured to date, A3 rung 2 included.

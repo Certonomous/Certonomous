@@ -3376,3 +3376,20 @@ states.** An independent Python evaluation of the frozen term sets against
 relative L2 on `bijDelta` and **3.97e-12** on `kDeficit`, over all 12 cases —
 the ascii `writePrecision 15` round-trip floor.
 Source: `R4_sparta_build/artefacts/ic1_discovered.json`.
+
+**N-D18. The IDWarp `getRotationMatrix3d` patch is NOT monotonically beneficial: on a case where
+the shipped gradient is already right, it makes every warp-crossing row worse.** Measured
+2026-08-22 on ONERA M6 sweep rung 2 (42,120 cells, np=4 `scotch`, `DARhoSimpleCFoam`,
+`transonicPCOption 1`, `dafoam-idwarp-rot:v1` vs the archived SHIPPED-equivalent arm), against an
+FD reference that is **bit-identical between the two images**:
+`CD/shape[115]` **0.0172 % → 0.1586 %** (9.21×), `CD/twist[1]` **0.2740 % → 0.9279 %** (3.39×),
+while `CD/patchV[1]` — the one row that does **not** cross `warpDeriv` — is **bit-identical**
+(0.0077 % both, analytic `7.90292882576689e-03` unchanged to every digit). Patch effect on the
+full 120-component shape row: **1.469586 % in L2**, 120/120 components moved, with **three
+analytic-vs-analytic sign flips** (idx 12, 13, 24 — 0.097 %, 0.598 %, 0.120 % of the row's largest
+entry; no FD exists at those indices, so they carry no verdict). Compare A1/A2/A5, where the same
+patch removed **97–99.5 %** of the error. `CD/twist` moves **0.6593 %** here against **0.664 %** on
+A6's N=16 rung — two cases, two meshes, agreeing to three significant figures. **The reading:**
+where the shipped gradient is already correct to ~1 part in 5,800, there is no error for the patch
+to remove and its own approximation dominates. Adoption of a patched toolchain is therefore
+**case-dependent, not global** — and that is an owner's decision, not a lane's.
