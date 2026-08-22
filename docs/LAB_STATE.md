@@ -71,62 +71,163 @@ rung may take it).
 
 ## closure
 
-**Last commit:** `PENDING` — *R4 SpaRTA build lane, stage (a): inventory, the
-build/selection scripts, and the frozen-RANS targets* (2026-08-22).
+**Last commit:** `fd3aa735` — *The train_log.json that three records called
+nonexistent is committed, and the five places that said so now carry a dated
+correction* (2026-08-22 18:03Z). This section refreshed **2026-08-22T18:19Z**;
+repo HEAD at that moment was `b8647a74` (dafoam's section fill), so closure is
+six commits behind the tip and none of the intervening commits is this team's.
 
-**Live jobs (R4 BUILD lane):**
-- `fs3_select.py` pid 803458, cwd `cases/RANS_LES_closure_models/R4_sparta_build`,
-  ~20 min wall, ~0.35 core-h, $0.02 — FS3 selection over the four
-  (target × library) combinations, 3 seeds each.
-- 24 `simpleFoam` a-posteriori propagations (NULL + CEILING on the 12 complete
-  frozen cases), driver pid 805853, cwd `/home/ubuntu/closure-data/r4/aposteriori`,
-  estimated 4.0 core-h / $0.21, ETA ~60 min wall at 8 concurrent under load 27.
-- The 12 DISCOVERED propagations are queued behind the FS4 freeze,
-  estimated ~2 core-h.
+**Live jobs:** the **R4 build lane is LIVE** and owns everything closure has on
+the box — 9 processes, all read from `ps` and `/proc` at 18:19Z, no log states an
+ETA for any of them.
 
-**R4 compute so far:** 0.244 core-h of solver time (27 frozen extractions +
-5 convergence diagnostics), $0.013, against the preregistration's 12–20 core-h
-estimate and 40 core-h cap.
+| pid | what | cwd | started | ETA |
+|---|---|---|---|---|
+| `803458` | `closure-venv/bin/python fs3_select.py --cases <12 cases>` — **FS3 selection running**, detached (`ppid 1`), ~161 % CPU | `/home/ubuntu/Certonomous/cases/RANS_LES_closure_models/R4_sparta_build` | 18:16:45Z | **unknown** — no log line states one. `/home/ubuntu/closure-data/r4/fs3.log` holds one line, `[R/prop/seed 0] terms=['T1','I1*T1','I2*T1','I2^2*T1'] cv_mse=43.5533 PZ=PASS`; `fs3/fs3.json` (8,281 B, 18:16Z) does not parse as JSON — it is being written |
+| `805854` | `bash ./run_aposteriori.sh` — the a-posteriori driver | `R4_sparta_build` | 18:18Z (01:20 elapsed) | **unknown** |
+| `805886` `805899` `805901` `805902` `805907` `805911` `805941` | 7 × `simpleFoam`, one per arm | `/home/ubuntu/closure-data/r4/aposteriori/{AR_1,AR_3,AR_5,AR_10}_Ret_180/{null,ceiling}` | 18:17:04Z | **unknown** |
+| `809577` | `simpleFoam` | `/home/ubuntu/closure-data/r4/aposteriori/CBFS13700/ceiling` | 18:17:16Z | **unknown** |
+
+`/home/ubuntu/closure-data/r4/aposteriori/driver.log` holds one completed row,
+`[done rc=0 11s] AR_1_Ret_180/ceiling`; `build_manifest.json` covers 12 cases
+× {null, ceiling}. `frozen/` holds 27 case directories plus `inventory.json`,
+`build_manifest.json` and `driver.log`; the three spot-checked (`AR_1/3/10_Ret_180`)
+each carry `rc=0` and a written time directory.
+
+**The two R4 `kCorrectiveFrozenFoam` probes at `/home/ubuntu/closure-data/r4/`,
+against the strict completion rule.** Reported for the R4 lane; **this section
+decides nothing about them.** The board's earlier line — *"`ktestA` wrote `rc=0`
+with no time directory beyond `0/` — VERIFY"* — was read at 17:49Z and is now
+superseded: `ktestA` finished writing at 17:51:02Z.
+
+| check | `ktestA` | `ktestB` |
+|---|---|---|
+| `rc` file | present, `0` | present, `0` |
+| `End` line in `log.frozen` | yes (1), preceded by `ExecutionTime = 111.81 s` | yes (1), preceded by `ExecutionTime = 34.41 s` |
+| last time dir | `20000` | `5000` |
+| `endTime` in `system/controlDict` | `20000` | `5000` |
+| last time dir == `endTime` | **yes** | **yes** |
+| every field at `endTime` newer than `0/` | **yes** — `0/` written 17:49:14Z, all nine `20000/` fields 17:51:02Z | **yes** — `0/` written 17:49:14Z, all nine `5000/` fields 17:49:43Z |
+| fields at `endTime` | `U bijData bijDelta k kDeficit nut omega phi tauij` + `uniform/` | same nine + `uniform/` |
+| `ExecutionTime` count == `endTime` | **no — 1 line against 20000.** This solver writes one `ExecutionTime` and no `Time = ` lines at all; the iteration-count clause of the rule is a T-family log-format criterion and **does not transfer as written**. Flagged, not ruled |
+| same | **no — 1 line against 5000**, same reason |
+
+Every clause that applies is satisfied by both probes. Whether the
+`ExecutionTime`-count clause binds a `kCorrectiveFrozenFoam` log is **the R4
+lane's call, not this section's.**
 
 **Rungs lacking verdicts:**
 
 | rung | state |
 |---|---|
-| **R4** (SpaRTA build) | **RUNNING.** `RESULTS.md` open; step 1 (targets) done — **12 of 27 training cases COMPLETE** under the strict completion rule, all four families represented; steps 2–3 done; step 4 in flight. No verdict yet. |
-| **R5** (round-5 diagnostics as build constraints) | no verdict artefact |
-| **R6** (surfaces updated) | **NOT DONE**, blocked on Sanaa approving the internal-scoring phrasing |
-| **FS3** (selection methods) | **RUN.** Mutual information, permutation importance on a held-out family, and an elastic-net path under leave-one-family-out CV; three seeds; planted-zero control on every fit. |
-| **FS4** (joint iteration, features frozen before scoring) | **term sets frozen**, `MODEL.md`; no propagation verdict yet |
+| **R4** (SpaRTA build) | **R4 build lane LIVE, no verdict.** `cases/RANS_LES_closure_models/R4_sparta_build/PREREGISTRATION.md` exists (2026-08-21, D443, with a dated 2026-08-21 addendum A1/A2) and there is still **no `RESULTS.md`**. The lane has since written 10 more files there — `r4_lib.py`, `assemble_dataset.py`, `build_frozen_cases.py`, `build_aposteriori.py`, `fs3_select.py`, `score_apriori.py`, `score_aposteriori.py`, `run_frozen.sh`, `run_aposteriori.sh`, `__pycache__/` — **all still untracked** (`git ls-files … \| wc -l` → **0**; `git status --porcelain` → `?? R4_sparta_build/`) |
+| **R5** (round-5 diagnostics as build constraints) | **no verdict artefact.** Partly discharged by the FS2/FS5 report; the R4 prereg does not cite R5 by name |
+| **R6** (surfaces updated) | **NOT DONE.** "leaderboard" still appears in `web/closure.html` and `web/benchmarks.html`; **BLOCKED** on Sanaa approving the internal-scoring phrasing (doctrine open action 4) |
+| **FS3** (selection methods) | **FS3 selection RUNNING, no verdict.** Registered in R4 prereg §3 — mutual information, permutation importance, elastic-net path, leave-one-**family**-out CV, top-20 Spearman agreement reported as a number. `fs3_select.py` live since 18:16:45Z over 12 cases; first output line written, nothing graded |
+| **FS4** (joint iteration, features frozen before scoring) | **NOT RUN.** Registered in the R4 prereg §4 |
 | **FS6** (comparative feature document) | **NOT DONE.** No artefact exists |
 
-R1 closed (charter §22.1–22.5). R2 delivered (`R2_SHORTLIST_MEMO.md`). R3 decided
-by Sanaa. **FS1 done. FS2 and FS5 are STANDING GATES** — permanently re-armed.
+R1 closed (charter §22.1–22.5). R2 delivered (`R2_SHORTLIST_MEMO.md`; ranking
+inverts the doctrine's order — SpaRTA, FIML-C, TBNN). R3 decided by Sanaa.
+**FS1 done** (110 features, 40 cases, 641,652 cells). **FS2 and FS5 are STANDING
+GATES** — permanently re-armed, never closed.
 
-**Case verdicts on record:** unchanged — Wu2018 a-priori **PASS**; Wu2018
-aposteriori and aposteriori_frozenk **NOT A RESULT**; Ling2016 **GATE REACHED**
-*(`docs/closure/README.md` §3 still says PENDING — known, flagged)*; Kaandorp2020
-**GATE FAIL** ×3, Table 4 **BLOCKED**; Schmelzer2020_SpaRTA **PASS**;
-Xiao2016_EnKF **BLOCKED**; NASA_hump_gate **PASS** on the registered branch.
+**Case verdicts on record:** Wu2018 a-priori **PASS** (7/8, loses `NASA_2DWMH`);
+Wu2018 aposteriori and aposteriori_frozenk both **NOT A RESULT** (ceiling gate
+failed, registered falsifier fired); Ling2016 **GATE REACHED** *(note:
+`docs/closure/README.md` §3 still lists it PENDING — a known, flagged
+disagreement)*; Kaandorp2020 **GATE FAIL** on all three preregistered claims,
+Table 4 **BLOCKED**; Schmelzer2020_SpaRTA **PASS**; Xiao2016_EnKF **BLOCKED** at
+the forward model; NASA_hump_gate **PASS** on the registered branch (B-G0a
+BLOCKED, B-G0b PASS).
 
-**Next actions:** finish the R4 a-posteriori table and grade the §6 gates; then
-the docket row and lessons. `R4_sparta_build/` is tracked from this commit.
+Two additions, both from tonight and neither moving a verdict:
 
-**On Sanaa's desk:** R6's internal-scoring phrasing (doctrine open action 4);
-**the Repo 2 release and the zero-shot scoring call — neither was run and no
-submission was prepared.**
+- **`CBFS13700` LES `x_reatt`: the number of record is 4.241**, from the registered
+  instrument `_common/sst_baseline_metrics.py::hill_wall_metrics` (linearly
+  interpolated crossing, 4.240983). **4.170** (4.169625) is the *same*
+  reattachment read at cell-centre resolution — the last still-reversed cell in
+  row `j = 0` — low by **0.435 of one cell** (cell width 0.163947 there). Not a
+  disagreement: two read-off criteria. `Wu2018_PIML_RF/aposteriori_frozenk/
+  RESULTS.md` §4 is internally consistent because all four of its figures
+  (`L_ml` 3.022, `L_null` 3.350, LES 4.170, `L_truth` 9.088) are row-`0` cell
+  centres, so its `NOT A RESULT` verdict and fired falsifier stand untouched.
+  **4.170 must not be differenced against 4.241, 4.384 (Kaandorp `TRUTH+R`) or
+  5.891 (SST) without conversion** — those three are interpolated crossings.
+  Full reconciliation: that file's `## RECONCILIATION` section; the
+  `R2_SHORTLIST_MEMO.md` line carrying 4.170 was annotated at `074f60da` and the
+  memo's ordering and its 16 %/137 % comparison are unaffected.
+- **Kaandorp2020 outstanding rows: 3 BLOCKED, 6 PENDING** (dated NOTE in
+  `Kaandorp2020_TBRF/aposteriori/RESULTS.md`; §1–§10 and the 2026-08-21 addendum
+  untouched, no verdict moved). Zero of the nine qualifies under the strict
+  completion rule — **none of the nine has a case directory anywhere on this
+  host**, and `results.json` still holds the same 10 runs. `AR_3_Ret_360__ML0/1/2`
+  are **BLOCKED** on a missing input: `/home/ubuntu/closure-data/kaandorp_tbrf/
+  features_nodurbin.npz` carries 27 cases and `AR_3_Ret_360` is not one of them,
+  which killed the detached driver four times with `ValueError: 'AR_3_Ret_360' is
+  not in list`. The six `CBFS13700` rows (`NULL TRUTH MEANB ML0 ML1 ML2`) are
+  **PENDING** only because they sit after the blocked row and the exception
+  aborted the loop; every input they need is present. `run_lane.py` now raises a
+  named `RowBlocked` and records `status: "BLOCKED"` in `results.json` instead of
+  taking the loop down — **repaired, `py_compile` clean, NOT RUN.**
 
-**Blocked:** R6 on the above.
+**Commits tonight** (closure lane, in `git log` order, newest first):
 
-**⚠ Standing hazard in this tree.** Several paths are **staged as deleted while
-existing untracked on disk** — `NASA_hump_gate/`, `_common/uq_eigenspace/`,
-`docs/closure/HUMP_BASELINE_EQUIVALENCE_NOTE.md`, `LIBS_ASSERT_SWEEP.md` — residue
-of the `c46309f5` → `a5126378` stale-base episode (L-223). **The working-tree
-copies are the live ones.** A blind `git checkout`, `reset --hard` or `clean`
-destroys R4 and the hump gate. Inspect, never revert.
+| sha | one line |
+|---|---|
+| `fd3aa735` | `Kaandorp2020_TBRF/train_log.json` committed — the file three records called nonexistent was merely untracked; five records gain a dated correction. **Also corrects `074f60da`/L-225's overstatement that "the whole `Kaandorp2020_TBRF/` directory is untracked": 19 files there were tracked, and `train_log.json` was the only untracked non-`__pycache__` file at any depth.** No number changed |
+| `074f60da` | Follow-up, read-only: the `R2_SHORTLIST_MEMO.md` 4.170 line annotated; the "3.24" pointer found **on disk but untracked** (`basis_rank_mean = 3.2374`) and both records re-sourced with the *statistic* named (3.24 pooled-sample vs 3.738 case-mean); the nine Kaandorp rows costed and graded **3 BLOCKED / 6 PENDING**, $0.226 for all nine. Nothing launched |
+| `5162ec8e` | The libs lesson as law (`docs/closure/LIBS_ASSERT_SWEEP.md`): 92 mentions, 75 writes, **8 library-load call sites — 3 already asserted, 4 newly asserted, 1 superseded by a concurrent lane's helper, 67 template lines n-a**. `frozen_R.py:69` was carrying the **live** defect. L-222, L-223, D448. Zero compute |
+| `c46309f5` | `CLOSURE_MODELLING_CHARTER.md` **v1.1.1 → v1.1.2**: §22.4 gains the bands-vs-corrections caveat **verbatim** from L-220/D446, four additive requirements. *(This is the commit whose tree came from a stale `read-tree` — see `a5126378`.)* |
+| `a5126378` | Content-only restore of the **nine** `eda10f39` files that `c46309f5` silently reverted; every blob byte-identical, no number changed. The charter lane's two files left standing |
+| `eda10f39` | Closure reconcile: nine uncommitted closure edits closed out (`make_feature_library.py` regenerates `FEATURE_LIBRARY.md` byte-identically; `setup_case.py` L-221 pattern; four `LESSONS_DRAFT.md` banners; two `RESULTS.md` sweeps) and the **4.170 / 4.241 split ruled a read-off criterion, not a disagreement** |
 
-**Compute:** 487 core-hours pre-authorised (charter §18). Above it, stop and cost it.
+**Next actions:**
 
----
+| # | action | note |
+|---|---|---|
+| 1 | **R4 verification table + boundary report** — the lane is live and has no `RESULTS.md`. Every arm needs the strict completion rule applied row by row, and the report must state the boundary between what the build lane produced and what it inherited | the two `ktest` probes above are the first two rows |
+| 2 | **Get `R4_sparta_build/` tracked** — 11 files + `PREREGISTRATION.md`, `git ls-files` returns **0**. The 2026-08-20 `tbrf.py` overwrite is what untracked closure directories cost | do not sweep the directory; name the files |
+| 3 | **Kaandorp six `CBFS13700` rows, when load permits** — `NULL TRUTH MEANB ML0 ML1 ML2`, 3.40 core-hours, **$0.175** at $0.0513/core-h (the nine-row figure is $0.226; hard upper bound $0.462 for nine under `timeout 3600`). **Not launched: R4 holds first call on capacity** | serial, `nProcs : 1` |
+| 4 | **Rebuild `features_nodurbin.npz` to include `AR_3_Ret_360`** — this is the single missing input that makes the three `AR_3_Ret_360__ML*` rows BLOCKED rather than queued | unblocks 3 rows |
+| 5 | **Interpolated rescore of the six frozen-k §4 arm fields** — read-only, fields already on disk, minutes, no solve. It puts §4 on the registered interpolated basis so its numbers can be compared with 4.241/4.384/5.891. **Belongs to the lane that owns the grade**, not to the reconciliation that flagged it | explicitly left undone by `eda10f39` |
+| 6 | **Reconcile `docs/closure/README.md` §3** — it lists Ling2016 **PENDING**; `Ling2016_TBNN/RESULTS.md` reads **GATE REACHED** (with a 2026-08-20 correction note). The same README flags two further integrity defects in that file: a stale §0 `GATE FAIL` line and a seed-count self-disagreement | one of the two must move |
+
+**On Sanaa's desk:**
+
+| item | why it is hers |
+|---|---|
+| **R6's internal-scoring phrasing** — approve it, or confirm leaderboard claims are dropped | doctrine open action **4**, owner **SANAA**. R6 is BLOCKED on it |
+| **Repo 2 creation and every release into it** | doctrine open action **5**, owner **SANAA**. *"DO NOT create or push Repo 2"* — the doctrine records it and creates nothing |
+| **The zero-shot scoring call** | scoring-call authorisation is reserved to Sanaa (lab constitution, FIRST-ACTION RULE). R4 prereg §0 carries the zero-shot discipline and a declared prior-exposure leakage risk; addendum A1 moves `NASA_2DWMH` to *checkable-at-the-scoring-call* |
+| **`CLOSURE_MODELLING_CHARTER.md` is now v1.1.2** — to note | `c46309f5`: §22.4 amendment, four additive requirements, no clause widened or narrowed. `ls docs/charters/*_CHARTER.md \| wc -l` still returns 12 |
+| **Three defects in `scripts/lint_foam_libs.py`, flagged to its owner, not repaired by this team** | (i) `--include-closure` does not widen the walk — it only lifts a skip for roots passed explicitly, so run bare it walks `verification/runs` only while printing `closure tree: INCLUDED`; (ii) it does not see the canonical asserted `re.sub` idiom as a write (`setup_case.py:109` reports *"libs mentioned, no write route matched"*, `frozen_R.py` is invisible); (iii) `scripts/foam_libs.py` was untracked at sweep time, so a closure builder importing it would break on checkout. Full text: `LIBS_ASSERT_SWEEP.md` §6 |
+
+**Blocked:** R6, on Sanaa's internal-scoring phrasing. Kaandorp
+`AR_3_Ret_360__ML0/1/2`, on the missing `AR_3_Ret_360` case in
+`features_nodurbin.npz`. Xiao2016_EnKF, at the forward model. Kaandorp Table 4
+(BFS5100), no such case on disk.
+
+**⚠ Standing hazard in this tree — RE-READ 18:19Z, and it has mostly cleared.**
+Of the four paths the board listed as *staged deleted while existing untracked*
+(residue of the `c46309f5` → `a5126378` stale-base episode, L-223), **all four are
+now tracked and clean at HEAD**: `NASA_hump_gate/` (**4** files, identical in
+`git ls-files` and `git ls-tree HEAD`), `_common/uq_eigenspace/` (**4**),
+`docs/closure/HUMP_BASELINE_EQUIVALENCE_NOTE.md` (**1**),
+`docs/closure/LIBS_ASSERT_SWEEP.md` (**1**). `git status --porcelain` reports
+nothing against any of them. **The one live exposure left is
+`cases/RANS_LES_closure_models/R4_sparta_build/`, still wholly untracked** while
+the lane writes into it — a blind `git checkout`, `reset --hard`, `stash` or
+`clean` destroys R4's working code. Inspect, never revert. (Phantom `D ` entries
+elsewhere in `git status` are the shared index being stale, not deletions; the
+whole-tree `git status` also shows foreign `D `/` M` rows belonging to other
+teams — closure touched none of them.)
+
+**Compute:** 487 core-hours pre-authorised (charter §18). Above it, stop and cost
+it. Live under this team right now: 8 serial `simpleFoam` a-posteriori arms plus
+`fs3_select.py` (~1.6 cores observed) ≈ **9.6 cores**, ≈ **$0.49/h** at
+$0.0513/core-h — **reported-by-owner rate, not measured**, and the elapsed spend
+is not yet ledgered because the lane has written no `RESULTS.md`.
 
 ## dafoam
 
