@@ -267,13 +267,16 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T18:50Z by the DAFoam supervisor (Fable), replacing the harness
+*Refreshed 2026-08-22T19:25Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
 **Last commits (newest first):**
 
 | sha | committed (UTC) | what |
 |---|---|---|
+| `85397209` | 2026-08-22 19:20Z | supervisor docs commit for the A4 verdict and the A2 finding: **L-228..L-230, D455..D456, N-D8..N-D10**, `LADDER_A_STATUS` addendum rows 31-35, `INDEX` addendum (four new dirs). Board update missed in that commit, landed here |
+| `f9a59d47` | 2026-08-22 ~19:05Z | *A4 shipped-image optimisation twin — PASS, and the rotation patch did not matter to this optimisation*: 6 majors, CD −7.4775 %, endpoint 0.3112 % PASS, patched baseline 0.33929 % PASS; 13.616 core-min / $0.0116 |
+| `239a007f` | 2026-08-22 ~18:10Z | *A4 shipped-image optimisation twin — pre-registration* |
 | `a94e8317` | 2026-08-22 ~18:45Z | *A3 rung2 patched-IDWarp arm — pre-compute amendment v1.1*: np=4 → np=1 twins (`np1_shipped`, `np1_patched`) + `np1_control`, because the T-family holds the box to 08-23..26 (poll min load 20.40); frozen body unchanged (renumbered lines: 0); only 0.200 core-min pre-flight spent. Now holding on MemAvailable ≥ 12 GiB (9.1 GiB while A6/A4 containers are resident) |
 | `79679a84` | 2026-08-22 18:10Z | *A2 per-component table* — zero compute. **PATCHED `CD/shape` carries a sign flip at idx46** (analytic `+2.27367571e-06` vs FD `-2.52460969e-06`) that `A2/grading_confirmation/RESULTS.md` §1 says does not exist; SHIPPED `CD/shape` has 7/96 components beyond 15 % (worst idx18 `-360.75 %`) under a 1.71 % aggregate. All published aggregates reproduce to 7-8 s.f. Log-integrity defect: MPI ranks splice `check_totals` arrays mid-number on one stdout; 1 of 4 printed CD copies usable, 0 of 4 CL copies |
 | `8028d9ab` | 2026-08-22 18:09Z | *A6 N=16 fixed FD reference — pre-registration*: two stages on `dafoam-idwarp-rot:v1`, np=1; P1 predicts the 1e-8 primal gate FAILS at 6000 iters (residual flat from iter 100); forward-AD reachability probed (`libDASolverADF.so` carries `DARhoSimpleCFoam`, 28 symbols); 74.0 core-min registered, 120 ceiling |
@@ -287,7 +290,6 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 | container | host pid | run root / cwd | item | ETA |
 |---|---|---|---|---|
 | `p3a6_s1b` | 802799 | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/s1b` | A6 N=16 fixed reference, Stage 1 (primal-convergence gate + forward-AD probes), `--memory=12g` | Stage 1 ~20-40 min; Stage 2 contingent, ~1.5 h |
-| `p3a4_opt` | 796052 | `/home/ubuntu/certonomous-runs/P3-a4-opt-shipped/opt` | A4 shipped-image optimisation twin + endpoint FD, `--memory=8g`, prereg **VERIFY** committed — not yet seen in `git log` | ~15-25 min |
 | *(none)* | — | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/np1_*` | A3 rung-2 twins, np=1 (amended) — **driver polling on memory, nothing launched** | launches when A6/A4 containers exit |
 
 **Rungs lacking verdicts:**
@@ -296,7 +298,7 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 |---|---|
 | **A3 patched column** | **PENDING at every size.** Prereg at `a5605f54` is np=4 and cannot launch while the box is saturated (np=4 MPI measured 18-21x inflation under contention). Decision pending: re-register at np=1 (shipped + patched twins) by pre-compute amendment, or hold |
 | **A6 N=16 adjoint correctness** | **PENDING** — Stage 1 live. Prior verdict GATE FAIL both images on a noise-dominated FD reference (floor 4.5e-3, 8/9 components below it). N=29 stays NOT RUN (gate not met) |
-| **A4 shipped column at the optimised design** | **PENDING** — live |
+| **A4** | **complete** — the 2×3 table has no assumed cells (status addendum rows 31-33) |
 | **A2 `CD/shape` PATCHED** | aggregate 0.0506 % PASS now carries a **per-component sign flip (idx46)** — under the band ("ANY sign flip ⇒ FAIL") the row needs the per-component caveat A5 idx16 got; supervisor to record in `LADDER_A_STATUS` addendum + docket. Whether adjoint or FD artefact: NOT established (a sweep costs 207-238 core-min on A2; not bought) |
 | **B3 Stage 4** | **BLOCKED by construction** — Sanaa's fork-adoption call. The rebuild rows are final: BLOCKED (shipped) / PASS (`subpclu:v2`, 667 iters, FD 0.085/0.059/0.199 %, decomposition G1-G3 PASS) |
 | **W4 / NASA hump adjoint** | uncharacterised; M1+M2 at 40 core-min unbought |
@@ -305,10 +307,10 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 **Two-row verdicts standing** (shipped / patched): A1 GATE FAIL / PASS; A2 PASS / PASS
 with the idx46 caveat above, optimisation NOT A RESULT; A3 primal GATE REACHED, adjoint
 BLOCKED (399k) — sweep rungs 1-2 PASS, rung 3 GATE FAIL (conditioning) / PENDING;
-A4 PASS / PASS (first passing optimisation, CD −7.478 %); A5 GATE FAIL / PASS;
+A4 PASS / PASS on both the optimisation and the endpoint gradient (patch immaterial; CD −7.478 %); A5 GATE FAIL / PASS;
 A6 BLOCKED (full) — N=16 GATE FAIL / GATE FAIL (reference). B2 PASS; B3 BLOCKED / PASS.
 
-**Next actions:** (1) grade A4 twin and A6 Stage 1 as they land; A6 Stage 2 only if its
+**Next actions:** (1) grade A6 Stage 1 as it lands; A6 Stage 2 only if its
 registered gate passes. (2) Resolve the A3 np=4 launch: pre-compute amendment to np=1
 twins if the T-family holds the box past the poll window. (3) Supervisor docs commit per
 verdict: `LADDER_A_STATUS` dated addendum, L-225+ (re-derive), D453+ (re-derive), N-D8+.
