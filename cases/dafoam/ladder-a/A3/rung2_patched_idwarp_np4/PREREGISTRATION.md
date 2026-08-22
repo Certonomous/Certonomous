@@ -703,3 +703,169 @@ filing stays NOT APPROVED and is Sanaa's alone.**
 
 **Verdict vocabulary unchanged:** PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING.
 **Three rows, and the shipped and patched rows are never merged.**
+
+---
+
+# AMENDMENT 2 — 2026-08-22, POST-FIRST-COMPUTE: Amendment 1's np=1 configuration is WITHDRAWN as refuted by its own measurement
+
+**Version 1.2.** **Lines whose number changed above this section: 0.** Appended at the foot with
+`cat >>`; the frozen body §1–§10 and the whole of Amendment 1 are untouched and were verified
+byte-identical to their committed blobs immediately before this text was written. Nothing is filed,
+sent, uploaded or pushed. Filing stays NOT APPROVED and is Sanaa's alone.
+
+## A2.0 What this amendment may and may not do, stated first
+
+**The item is PAST FIRST COMPUTE.** Arm N-P ran for 717 s on 2026-08-22 between 18:51:53Z and
+19:03:50Z. Under CLAUDE.md rule 2 **gates are therefore closed**, and this amendment is a dated
+addendum that **cannot alter a gate, threshold, cap or label — and does not.**
+
+| | |
+|---|---|
+| grading band (§4) | **unchanged** |
+| evaluability + step-consistency gates (§4) | **unchanged** |
+| predictions **P1–P14** as frozen at `a5605f54` | **unchanged, unedited, and they are the ones that will be scored** |
+| verdict vocabulary, two-row rule, R11, $25 rule (§10) | **unchanged** |
+| per-arm `timeout` caps (§7): P-A **1050 s**, P-B **300 s** | **unchanged** |
+| registered ceiling | **unchanged at 120.0 core-min** (set by Amendment 1 §A1.0) |
+| §9's eight "cannot see" limits | **unchanged**, and item 5 is **re-opened** (see A2.4) |
+
+**The only thing this amendment changes is the launch condition**, plus the withdrawal of
+Amendment 1's rank change. Amendment 1 §A1.0 explicitly recorded that its ceiling rise to 120.0 was
+*"the ceiling the dispatching brief set for this item from the start"*; **no further rise is taken
+here and none is requested.**
+
+## A2.1 Amendment 1's np=1 configuration is withdrawn, and it is withdrawn by its own numbers
+
+Amendment 1 §A1.2 moved the arms to np=1 to escape a host gate. **Arm N-P measured that decision
+and refuted it.** The measurement, np=1 against the archived np=4 run on the *same mesh*:
+
+| quantity | np=4 (archived) | np=1 (measured, arm N-P) | ratio |
+|---|---|---|---|
+| `nUniqueCols` | 125,870 | **381,558** | **3.03×** |
+| `AllNonZeros` | 60,419,908 | 59,719,202 | **0.99×** — the same matrix |
+| uncoloured at sweep 0 | 279,767 | 381,045 | 1.36× |
+| seconds per 100 `ColorSweep` | 12.28 | **42.91** | **3.49×** |
+| decoloured per sweep | 405.0 | 397.4 | **0.98×** |
+
+`ColorSweep` stamps at np=1: **0 @ 193.22 s, 100 @ 236.67 s, 200 @ 279.58 s, 300 @ 321.95 s.**
+
+**Per-sweep efficiency is unchanged at 0.98×; there are simply three times as many colours to
+find.** The dRdW distance-2 colouring graph is **per-partition**, so at one rank it is global and
+the colouring *problem* is 3.03× bigger. This is structural, not contention and not noise.
+
+**Projection from those measured rates:** colouring completes at ~2,214 s CPU; the whole arm needs
+**4,074 s CPU** = 67.9 core-min on an idle box and ~8,314 s wall at the 49% CPU share actually
+observed. Against Amendment 1's own 4,200 s cap the run would have held only ~2,058 s CPU — **still
+inside the colouring, never reaching the adjoint** — and would have spent **70.0 core-min for no
+number.** Arm N-P was therefore **stopped deliberately at 11.950 core-min** on the measured
+projection (`FAMILY_SUPERVISION_GUIDELINES` §6 item 5, §9). **A stop is not a measurement**
+(`DAFOAM_CHARTER` §7): no conditioning, memory or gradient claim is drawn from it in any direction.
+
+**Amendment 1 also discarded the warm `dRdWColoring_4.bin`**, which is the second half of the
+error: at np=4 the colouring is not merely 3× cheaper, it is **free**, because the cache exists.
+
+> **The registered lesson of this amendment, written before the replacement arm runs:** a rank
+> change is not a cost-neutral way around a scheduling gate. Core-minutes are conserved under a
+> rank change **only for the solve**; the colouring is per-partition and its cache is np-keyed, so
+> fewer ranks make it bigger *and* throw the cache away.
+
+## A2.2 The arms revert to the frozen §2 np=4 configuration
+
+Everything reverts to §2 and §5 **exactly as frozen at `a5605f54`** — mesh, birth certificate,
+`daOptions`, `transonicPCOption 1`, `primalMinResTol 1e-8`, `pcFillLevel 0`, `gmresMaxIters 2000`,
+DV set, FD steps h=1e-2 / 2h=2e-2, `runScript_fd3p.py` and its three-insertion diff, `-x PYTHONPATH`,
+record-only RSS watcher, per-arm ledger, `--cpus=4 --memory=12g`, `decomposePar -force`.
+
+| arm | image | task | `timeout` (frozen §7) |
+|---|---|---|---|
+| **P-A** PATCHED | `dafoam-idwarp-rot:v1` | `fd3` | **1050 s** |
+| **P-B** trivial baseline (Charter §4) | `dafoam-idwarp-rot:v1` | `fd1wrong` | **300 s** |
+
+**The shipped twin `dafoam/opt-packages:latest` stays DECLINED BY NAME**, on the frozen §3
+departure 1 reasoning, which is valid again now that the arms are back at np=4: the rung-2 stock
+logs already carry the raw per-component `Jfor`/`Jfd` arrays (`fd3_run.log:821, :878-880,
+:1105-:3585, :3810-3811, :3813-3815`) and the full 120-component analytic `CD wrt shape` row
+(`tpc1_computetotals_attempt2.log:899-938`), **and those arrays are np=4 arrays, matched to these
+arms.** Amendment 1's withdrawal of departure 1 is itself withdrawn.
+
+**Colouring cache provenance, asserted before launch:** `patched/dRdWColoring_4.bin` md5
+**`a2e5f3172f3b889656e51b67ca4e55a6`**, byte-identical to
+`A3-rung2-n28-tpc1/dRdWColoring_4.bin` — *the very file the graded np=4 stock arms read*. The arms
+must print `Reading Coloring dRdWColoring_4` and **1315** colours.
+
+**Restaging obligation discharged:** `np1_patched/` was **deleted** (it was dirty — `0/` no longer
+matched `0.orig` and a `1000/` had been written, the `FAMILY_SUPERVISION_GUIDELINES` §8 warm-start
+hazard observed live). `np1_shipped/` and `np1_control/` were deleted unused. `patched/` and
+`wrongstep/` are verified cold: `0/` **byte-identical** to `0.orig`, no `processor*`, no logs.
+
+## A2.3 Launch condition — the only thing this amendment changes
+
+**FREE CORES ≥ 4**, replacing both the frozen §7 `load1 ≤ 8` limb and Amendment 1's
+MemAvailable-only condition. The memory limb is **retained**: **MemAvailable ≥ 12 GiB**.
+
+**The formula, stated in the record so it is not a judgement made later:**
+
+```
+busy       = median over 5 samples taken 2 s apart of ( `ps -eo state= | grep -c '^R'` − 1 )
+             ( the −1 removes the sampling `ps` itself; no arm of this item is running at gate time )
+free_cores = nproc − busy                     ( nproc = 16 )
+GATE       = free_cores ≥ 4  AND  MemAvailable ≥ 12 GiB
+```
+
+`busy` is a count of **runnable** threads, which is what a core-availability question actually asks;
+`load1` is an exponentially-damped average that on this box reads ≥ 12 by construction while the
+T-family holds 12 cores, and **it never measured the resource a `--cpus=4` container consumes.**
+That mismatch is the whole reason this item has now been gated three times. Bounded poll: every
+60 s, **up to 240 polls (4 h)**. Reading at filing: `busy` = **16**, **free_cores = 0** (11
+`buoyantBoussinesqSimpleFoam`, 3 `simpleFoam`, 1 `buoyantSimpleFoam`, 1 python), so the gate is
+**closed at filing** and is expected to open when Lane B's A6 queue retires.
+
+## A2.4 Contention inflation — registered in advance, reported measured
+
+The 452 s basis was measured on an **idle** box on 2026-08-10. The T-family's processes are
+**unpinned** and will share even when four cores are nominally free.
+
+> **P29 — expected wall inflation `1.0× – 2.1×` of the 452 s basis, i.e. wall `452 – 950 s`,
+> core-min `30.1 – 63.3`.** Point estimate ~700 s (1.55×) = 46.7 core-min. Anchor for the upper
+> end: arm N-P measured a **49% CPU share** on a box that was oversubscribed, i.e. a 2.04×
+> inflation, and that is the worst this arm should see with four cores actually free.
+> **The measured inflation is reported against this band whether it lands or misses.**
+> **Stop rule (same authority as arm N-P's stop):** if at any point the projection puts the arm
+> past its 1050 s `timeout` or past the item's remaining budget, **it is stopped and reported**,
+> not extended.
+
+**§9 item 5 is re-opened.** Amendment 1 claimed to close it by running the literal shipped image;
+that arm is withdrawn, so the cited stock row is once again `dafoam-subpclu:v1` with the env unset —
+**SHIPPED-equivalent (‡), not `dafoam/opt-packages:latest`**. §2's argument and prediction **P3**
+carry the comparability, and the ‡ caveat stays on the stock row.
+
+## A2.5 Budget: the 12.150 core-min already spent counts against the ceiling
+
+| | core-min |
+|---|---|
+| pre-flight identity check (spent) | 0.200 |
+| np=4 gate, 12 polls, nothing launched | 0.000 |
+| **arm N-P np=1, stopped early — WASTE, no number produced** | **11.950** |
+| **already spent** | **12.150** |
+| **remaining against the 120.0 ceiling** | **107.850** |
+| worst case of the two frozen timeouts (1050 + 300 s) × 4 / 60 | 90.000 |
+| **worst-case item total** | **102.150** |
+
+**HARD STOP: total item spend must stay ≤ 120.0 core-min.** The two unchanged timeouts make the
+worst case **102.150**, so the ceiling cannot be breached by construction, with 17.85 core-min of
+margin. Predicted total: 12.150 + 46.7 + 6.7 ≈ **65.6 core-min = $0.0561**. **Nothing here
+approaches $25** — the worst case is **0.35%** of that bar.
+
+**Registered decision rule, unchanged in spirit from §A1.4:** if arm P-A expires on its `timeout`,
+**arm P-B is not launched**, the item reports what it has, and **no second budget is requested.**
+
+## A2.6 What is scored
+
+**Predictions P1–P14, exactly as frozen at `a5605f54`, are the predictions this item is scored on.**
+P15–P28 belong to the withdrawn np=1 configuration and are scored **NOT APPLICABLE — CONFIGURATION
+WITHDRAWN**, except the three that were actually measured and which stand as measured:
+**P15 HIT**, **P16 MISS** (my band was mis-derived: the cold signature is np-specific), **P28 MISS**
+(core-minutes are not conserved across a rank change). **P29** above is new and is scored.
+
+`RESULTS.md` will cover **both attempts** — the np=1 stopped attempt in its own section, as a
+deliberate stop and not a measurement, and the np=4 graded arm.
