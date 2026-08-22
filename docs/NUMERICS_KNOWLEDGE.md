@@ -3227,3 +3227,53 @@ discriminator is `initRes ≈ 1`** — a warm start reads ~55× *below* it, not 
 `FAMILY_SUPERVISION_GUIDELINES.md` §8 item 2 (use the continuity signature to prove a cold
 start) in the same collision `DAFOAM_CHARTER.md` §5 already names for FD references: a
 signature is only a signature within one rank count.
+
+**N-D13. A peak-to-peak from three samples is a biased noise estimator, and DAFoam's
+`printInterval` hides the bias.** A6 N=16's FD noise floor rested on η = 9.00e-06 taken from
+**three** CD samples, because `printInterval` defaults to 100. At `printInterval` 10 — numerically
+inert, since `DASolver.C:124` calls `calcAllFunctions(printToScreen_)` every iteration and the flag
+gates only the `Info` output — the same 200-iteration window reads **1.0910e-05, 21 % larger**, and
+the floor at step 1e-3 moves `4.5043e-03` → `5.4550e-03`. The estimator cannot see excursions
+between samples and its bias grows as the sampling interval approaches the oscillation period.
+Every FD noise floor computed from a DAFoam log at default `printInterval` carries it; the fix costs
+nothing. (Measured 2026-08-22, `A6/rung_n16_fixed_reference/RESULTS.md`.)
+
+**N-D14. A6 N=16's primal is a residual limit cycle, and iteration count is the worst available
+lever on it.** `primalMaxRes` (`nuTilda initRes`) sits within ±4 % of 5.9e-06 from iteration 100 to
+1000 and reads **5.6999e-06 at 6000** — 6× the compute for a 3.5 % residual improvement, with
+"satisfied the prescribed tolerance" appearing **zero** times. The objective's peak-to-peak does not
+decay monotonically either: **1.0910e-05 (t=1000) → 1.7117e-05 (2000) → 1.2906e-05 (4000) →
+6.0874e-06 (6000)** — it rises 57 % before falling and ends only 1.8× better for 6× the cost.
+DAFoam's shipped `primalMinResTolDiff 1e2` guard correctly refuses the run at every iteration count,
+which is why the predecessor's inherited widening to 1e4 must not be carried forward silently.
+
+**N-D15. The FD instrument's solve-to-solve noise and the within-run wobble are different
+quantities, and they differed 2.47× here.** Two back-to-back `run_model` calls at an identical A6
+N=16 design point give CD `0.03506349413916734` and `0.035065704525484256`, δ_repeat =
+**2.2104e-06**, against a within-run 200-iteration peak-to-peak of **1.0910e-05**. Central FD
+differences two **solves**, not two points of one solve, and a warm restart lands near the same
+limit-cycle phase. Which one is the right denominator decides whether a marginal component is
+gradeable, so it is fixed in the pre-registration before the run, never after (L-233). The first call
+also reproduces the predecessor's cold baseline bit-for-bit across items, images and days.
+
+**N-D16. DAFoam's forward-AD build does not reproduce the plain build's primal on
+`DARhoSimpleCFoam`, and `libDASolverADF.so` is md5-identical across all this lab's images.** Cold,
+same mesh and `daOptions`: momentum `finalRes` bit-identical; `he` `finalRes` diverges at the 8th
+significant figure (`0.06128002514528321` plain vs `0.06128001402295498` ADF); the GAMG pressure
+solve stops at **5 sweeps instead of 7**; cumulative continuity is 10× worse
+(`-0.00504349133910657` vs `-0.05058272456310364`); CD at iteration 1 is 13.5 % low; every state is
+**NaN within 10 iterations**. Warm-started from a converged state it survives 13 iterations, during
+which the tangent converges **monotonically onto the adjoint to 0.600 %**, then diverges — so the
+failure is the ADF primal's stability, not the AD derivative machinery. md5
+`44538ed4ac157ecb5dbb6850cf4bde64` on both `dafoam/opt-packages:latest` and
+`dafoam-idwarp-rot:v1`: a **shipped-toolchain** property, measured on the patched row. Defect-class
+candidate, **NOT FILED**, novelty not established.
+
+**N-D17. A DAFoam primal can print "satisfied the prescribed tolerance" having satisfied nothing,
+and `-10000000000` is the tell.** `DASolver.C:188` exits on
+`(primalMaxRes < primalMinResTol) && (timeIndex > primalMinIters)`, with `primalMaxRes`
+re-initialised to `-1e10` at `DASolver.C:222` and `primalMinIters` defaulting to 1
+(`pyDAFoam.py:639`). Where `primalMaxRes` is not updated on the first step the guard reduces to the
+iteration counter and the run announces convergence at iteration 2, printing **"Minimal residual
+-10000000000 satisfied the prescribed tolerance 1e-08"**. Same diagnosability class as the prepared
+D-C; any A6-family arm must set `primalMinIters` to its `endTime` to avoid it.

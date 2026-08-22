@@ -166,3 +166,15 @@ np=4 arms never launched (host core gate, min `load1` 18.28 over 12 polls); the 
 stopped inside the `dRdW` colouring on a measured projection. **12.150 core-min, $0.0104, no
 gradient.** The np=1 re-price is refuted by its own measurement (colouring 3.03× bigger at one
 rank — L-232, N-D11); the item reverts to the frozen np=4 configuration.
+
+**Addendum row 36, added 2026-08-22 by the supervisor.**
+
+| # | case | scope | toolchain | np / cells | **verdict** | headline number (exact) | record |
+|---|---|---|---|---|---|---|---|
+| 36 | **A6** rung **N=16** | gradient, **fixed FD reference** | **PATCHED** | 1 / 41,760 | **PASS on a 3-component graded subset**; `twist` idx6 **NOT A RESULT** (flagged) | aggregate **1.0099 %**, zero sign flips: `patchV`1 **0.940 %**, `twist`0 **1.706 %**, `twist`3 **1.817 %** — against rows 25-26's 3.29 % / 341.51 % FLIP / 159.35 % FLIP. `twist`6 excluded by name (clearance 2.42×, plateau 83.53 %). Adjoint **verified on those three and no others**; 5 of 9 components never re-measured | `A6/rung_n16_fixed_reference/RESULTS.md` |
+
+Rows 25-26's three sign flips are **superseded as FD-reference artefacts, not adjoint defects** — the
+frozen files are not edited; the analytic column is unchanged and provably so (one fixed analytic
+value per component reproduces the error at both steps). **Row 28 stands: N=29 remains NOT RUN, gate
+NOT MET** — a subset PASS is not a rung PASS while five of nine components sit unmeasured. Cost of
+the item: **63.166 core-min = $0.0540**.
