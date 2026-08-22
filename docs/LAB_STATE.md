@@ -265,13 +265,15 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T22:30Z by the DAFoam supervisor (Fable), replacing the harness
+*Refreshed 2026-08-22T23:20Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
 **Last commits (newest first):**
 
 | sha | committed (UTC) | what |
 |---|---|---|
+| `ff5d2327` | 2026-08-22 23:10Z | supervisor append for the A6 verdict: **L-233, D459, N-D13..N-D17**, `LADDER_A_STATUS` row 36. Claim verified by the supervisor personally against the arm logs before belief |
+| `66f42398` | 2026-08-22 ~22:50Z | *A6 N=16 fixed FD reference — RESULTS final*: **PASS on a 3-component graded subset, 1.0099 %, zero sign flips**; all three predecessor sign flips were FD noise; `twist` idx6 flagged and excluded; forward-AD reached for and found NOT AVAILABLE (nan) — 63.166 core-min / $0.0540 of a 120 ceiling |
 | `674cab89` | 2026-08-22 ~22:20Z | *A3 rung-2 Amendment 2 v1.2* (lane): Amendment 1's np=1 configuration **withdrawn as refuted by its own measurement**; arms revert to the frozen §2 np=4 configuration; **no gate, threshold, cap or label altered** — only the launch condition, now `free_cores >= 4 AND MemAvailable >= 12 GiB` (free_cores = 16 − median-of-5 runnable count). Frozen body + Amendment 1 verified byte-identical through line 705 **by the supervisor personally**; script diff read as a diff by the supervisor: **68 insertions, 0 deletions, 0 modifications**, grading path untouched. Colouring cache `dRdWColoring_4.bin` md5 `a2e5f317…` proven identical to the graded stock arm's. Worst case 102.150 of the 120 ceiling **by construction** |
 | `3a06b371` | 2026-08-22 22:00Z | supervisor append for the A3 attempt: **L-232, D458, N-D11, N-D12**, `LADDER_A_STATUS` row-12 footnote. Row 12 stays **PENDING — NOT MEASURED**: the np=1 re-price was refuted by measurement (colouring 3.03× bigger at one rank), the arm stopped at 11.950 core-min rather than spend 70.0 on a timeout inside the colouring |
 | `972cb647` | 2026-08-22 ~20:00Z | *A6 N=16 fixed reference — interim RESULTS* (queue still running): forward-AD reachable and runs for the first time in the lab (`ADF-Deriv: -2.417e-05`), but **the ADF build does not reproduce the plain build's primal** on A6 N=16 (energy diverges at 8th s.f., GAMG 5 vs 7 sweeps, NaN by iteration 10; `libDASolverADF.so` md5-identical across images → shipped-toolchain finding, **new defect class candidate, characterisation owed**); `DASolver.C:188` can print 'satisfied the prescribed tolerance' on a reset `primalMaxRes` (diagnosability defect); FD gate passes for twist 0/3, patchV 1 at step 3e-2, twist idx6 never clears; 7.766 core-min so far of 120 |
@@ -291,7 +293,6 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 | container | host pid | run root / cwd | item | ETA |
 |---|---|---|---|---|
 | `p3a6_s1b` | 802799 | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/s1b` | A6 N=16 fixed reference, Stage 1 (primal-convergence gate + forward-AD probes), `--memory=12g` | Stage 1 ~20-40 min; Stage 2 contingent, ~1.5 h |
-| A6 queue | **VERIFY** pid | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/` | A6 fixed reference, **Stage 1 complete** (relay 21:05Z): P1+P2+P3 HIT — S1a at 6000 iters `primalMaxRes 5.6999e-06` (the 1e-8 gate FAILS as predicted: the primal is flat, not slow), solve-to-solve repeat δ `2.2104e-06`; forward-AD `nan` = P4a MISS; η re-read at printInterval 10 = `1.0910e-05` (21 % above the record's 9.00e-06), twist idx6 stays FLAGGED at 2.50× under the registered max rule; the two noise measures disagree 2.47× — disclosed as a sensitivity, not chosen. Spend 26.9/120 core-min. Stage 2 running: S2b-pV → S1e → S2b-tw, np=1 `--cpus=1` | ~40 min from 21:05Z, then grading + commit |
 | *(armed, gated)* | — | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/{patched,wrongstep}` | A3 rung-2 arms **P-A** (patched, `fd3`, `timeout 1050`) and **P-B** (control, `fd1wrong`, `timeout 300`), np=4 `--cpus=4 --memory=12g`, detached and self-ledgering; shipped twin declined by name (frozen §3 departure 1). P29 registers 452-950 s wall / 30.1-63.3 core-min | **gate shut: free_cores 0** (11 buoyant + 3 new `simpleFoam` + 1 buoyantSimple + 1 python). Needs the A6 queue *and* the new `simpleFoam` to clear; 4 h bound |
 
 **Rungs lacking verdicts:**
@@ -299,7 +300,8 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 | item | state |
 |---|---|
 | **A3 patched column** | **PENDING at every size** — one attempt made and recorded (D458): np=4 never launched (core gate), np=1 stopped inside the colouring on a measured projection. Reverting to np=4 with a free-cores gate. An np=1 arm at ~150 core-min was **declined**, not deferred |
-| **A6 N=16 adjoint correctness** | **PENDING** — Stage 1 live. Prior verdict GATE FAIL both images on a noise-dominated FD reference (floor 4.5e-3, 8/9 components below it). N=29 stays NOT RUN (gate not met) |
+| **A6 N=16, the other 5 of 9 components** | **NOT MEASURED** — 3 of 9 now verified (PASS 1.0099 %), 1 provably FD-ungradeable (`twist` idx6), 5 untouched at 57-90 %. **This is the critical path**: one 21-primal `fdsub` arm, ~37 core-min / $0.032, decides whether Sanaa's **N=29 gate** can be met. N=29 stays **NOT RUN** |
+| **ADF primal non-reproduction** | **new defect-class candidate** (N-D16): forward-AD build diverges from the plain build cold and NaNs within 10 iterations; `libDASolverADF.so` md5-identical across images → shipped-toolchain. NOT FILED, **novelty not established**. Characterisation sweeps priced (~15 core-min) and held until the box frees |
 | **A4** | **complete** — the 2×3 table has no assumed cells (status addendum rows 31-33) |
 | **A2 `CD/shape` PATCHED** | aggregate 0.0506 % PASS now carries a **per-component sign flip (idx46)** — under the band ("ANY sign flip ⇒ FAIL") the row needs the per-component caveat A5 idx16 got; supervisor to record in `LADDER_A_STATUS` addendum + docket. Whether adjoint or FD artefact: NOT established (a sweep costs 207-238 core-min on A2; not bought) |
 | **B3 Stage 4** | **BLOCKED by construction** — Sanaa's fork-adoption call. The rebuild rows are final: BLOCKED (shipped) / PASS (`subpclu:v2`, 667 iters, FD 0.085/0.059/0.199 %, decomposition G1-G3 PASS) |
@@ -310,9 +312,9 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 with the idx46 caveat above, optimisation NOT A RESULT; A3 primal GATE REACHED, adjoint
 BLOCKED (399k) — sweep rungs 1-2 PASS, rung 3 GATE FAIL (conditioning) / PENDING;
 A4 PASS / PASS on both the optimisation and the endpoint gradient (patch immaterial; CD −7.478 %); A5 GATE FAIL / PASS;
-A6 BLOCKED (full) — N=16 GATE FAIL / GATE FAIL (reference). B2 PASS; B3 BLOCKED / PASS.
+A6 BLOCKED (full) — N=16 GATE FAIL (shipped, superseded reference) / **PASS on the 3-component graded subset with a fixed reference** (patched). B2 PASS; B3 BLOCKED / PASS.
 
-**Next actions:** (1) grade A6 Stage 1 as it lands; A6 Stage 2 only if its
+**Next actions:** (1) A6: buy the remaining-5-component arm when the box frees (~37 core-min) — it is the N=29 gate; A6 Stage 2 only if its
 registered gate passes. (2) Resolve the A3 np=4 launch: pre-compute amendment to np=1
 twins if the T-family holds the box past the poll window. (3) Supervisor docs commit per
 verdict: `LADDER_A_STATUS` dated addendum, L-225+ (re-derive), D453+ (re-derive), N-D8+.
