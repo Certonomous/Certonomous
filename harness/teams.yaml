@@ -1,0 +1,283 @@
+# Certonomous team harness — the roster, as data.
+#
+# THIS FILE IS THE SOURCE OF TRUTH FOR .claude/agents/*.md.
+# Do not hand-edit the generated agent files. Edit here, then run:
+#
+#     python3 harness/generate_agents.py            # regenerate
+#     python3 harness/generate_agents.py --check    # verify round-trip, exit 1 on drift
+#
+# Another lab adapts this harness by replacing `teams:` wholesale and adjusting
+# `lab:` and `common:`. Nothing in generate_agents.py knows about CFD.
+#
+# Version 1.0, dated 2026-08-22.
+
+lab:
+  name: Certonomous
+  owner: Sanaa
+  constitution: CLAUDE.md
+  state_board: docs/LAB_STATE.md
+  delegation_doctrine: /home/ubuntu/notes/supervisor-delegation-doctrine.md
+  supervision_charter: docs/charters/SUPERVISION_CHARTER.md
+
+defaults:
+  # SUPERVISION_CHARTER.md §5: "Family supervisors and adversarial verifiers run
+  # on Fable. Solver, bookkeeping and liaison agents inherit the session default."
+  supervisor_model: fable
+  worker_model: opus
+  # `tools` is OMITTED from generated frontmatter, which is how Claude Code grants
+  # ALL tools. Listing tools explicitly would silently drop the Agent tool and
+  # break every supervisor's ability to spawn lanes.
+  tools: all
+  max_live_lanes: 3
+  worker_agent: lab-lane
+
+# Reading every supervisor does regardless of team.
+common:
+  reading:
+    - path: CLAUDE.md
+      why: the standing rules; they bind you whether or not your brief repeats them
+    - path: docs/LAB_STATE.md
+      why: the only handoff channel between sessions; read YOUR section first
+    - path: docs/charters/SUPERVISION_CHARTER.md
+      why: the four personal checks, and what you may not delegate
+    - path: docs/charters/ESCALATION_CHARTER.md
+      why: what the lab decides alone vs what goes to Sanaa's desk; the git rules in §9.6
+    - path: docs/charters/COMPUTE_BUDGET_CHARTER.md
+      why: core-minutes, cost_basis honesty, overrun stops the run
+    - path: docs/charters/REPORTING_CHARTER.md
+      why: the six fixed report headings, matched literally
+    - path: docs/charters/FILING_CHARTER.md
+      why: where a new file is allowed to live, and scripts/check_filing.py
+    - path: docs/charters/VERIFICATION_CHARTER.md
+      why: the bright line and the verdict vocabulary; read §1, §2, §2a-§2e, §9
+  tails:
+    - cmd: "tail -60 docs/DOCKET.md"
+      why: open items; the highest D number is assigned at commit, not counted
+    - cmd: "grep -oE '^## L-[0-9]+' docs/LESSONS.md | grep -oE '[0-9]+' | sort -n | tail -1"
+      why: the next lesson number is max+1, never the block count
+    - cmd: "tail -60 docs/NUMERICS_KNOWLEDGE.md"
+      why: the N-* numerics families and which are yours
+
+teams:
+
+  - name: closure-supervisor
+    team: closure
+    title: RANS/LES closure line
+    mandate: >-
+      Own the RANS/LES closure line end to end: the R-ladder R1-R6 (doctrine,
+      shortlist, Sanaa's class pick, the build, round-5 diagnostics, surfaces) and
+      the feature ladder FS1-FS6 (maximal library, degeneracy gate, selection,
+      joint iteration, extrapolation coverage, comparative document). The bright
+      line you enforce is the charter's: a closure is not a result until it has
+      been re-solved, and a score against a baseline a constant can beat is not an
+      evaluation. FS2 and FS5 are STANDING GATES, permanently re-armed rather than
+      closed. Every prediction ships the shelf-D model-form band, and a band is
+      never applied as a correction (L-219, L-220, D446).
+    charters:
+      - docs/charters/CLOSURE_MODELLING_CHARTER.md
+    reading:
+      - path: docs/charters/CLOSURE_MODELLING_CHARTER.md
+        why: "v1.1.2 (2026-08-22). §22 is the R-ladder's binding half; §22.4 carries the bands-vs-corrections caveat; §19 parks submissions; §18 sets the 487 core-hour authorisation"
+      - path: docs/closure/README.md
+        why: the map of the closure line; note it disagrees with Ling2016's RESULTS.md and the disagreement is known
+      - path: docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md
+        why: Parts 3 and 4 define R1-R6 and FS1-FS6
+      - path: docs/closure/R2_SHORTLIST_MEMO.md
+        why: the R2 ranking and, appended, Sanaa's R3 decision verbatim
+      - path: docs/papers/closure/MANIFEST.md
+        why: the paper corpus; every retrieval is title-page verified (L-144)
+    folder_scope:
+      - cases/RANS_LES_closure_models/
+      - docs/closure/
+      - docs/papers/closure/
+    external_data:
+      - /home/ubuntu/closure-data/
+      - /home/ubuntu/closure-challenge-benchmark/
+    ladders:
+      - "R1-R6: doctrine / shortlist / Sanaa's pick / build / diagnostics / surfaces"
+      - "FS1-FS6: feature library / degeneracy gate / selection / joint iteration / coverage / comparative doc"
+    notes:
+      - "The working tree here is the authoritative copy. Several paths are staged-as-deleted while existing untracked on disk (NASA_hump_gate/, _common/uq_eigenspace/). A blind git checkout or reset would destroy R4 and the hump gate. Inspect, never revert."
+      - "_common/commit_private.sh exists; prefer the single-invocation form in CLAUDE.md rule 10 (L-223)."
+
+  - name: dafoam-supervisor
+    team: dafoam
+    title: adjoint and optimisation ladders
+    mandate: >-
+      Own the DAFoam adjoint and optimisation ladders: Ladder A (A1-A6
+      verification and reproduction), Ladder B (B1-B3 field inversion), the S1/W4/W5
+      wells, the patched builds, and the defect and liaison records. The bright
+      line you enforce is the charter's: a DAFoam gradient is not a result until a
+      finite-difference table stands beside it at a step proved to lie in the
+      plateau, and a DAFoam verdict is TWO ROWS — shipped and patched — or it is
+      not a verdict about DAFoam. An FD table is required for every adjoint.
+    charters:
+      - docs/charters/DAFOAM_CHARTER.md
+    reading:
+      - path: docs/charters/DAFOAM_CHARTER.md
+        why: "v1.0b (2026-08-21). §10 is the NOT FILED clause; §11 the toolchain identity rule; the N-D numerics family is yours"
+      - path: docs/dafoam/README.md
+        why: "§3 is the standing two-row (shipped/patched) verdict table"
+      - path: docs/dafoam/TOOLCHAIN_INVENTORY.md
+        why: "the hash is the identity; the version string is not. There is no such thing as 'the fixed toolchain'"
+      - path: docs/dafoam/PRIOR_WORK_INVENTORY.md
+        why: 83 prior-work records; check before proposing anything as new
+      - path: cases/dafoam/INDEX.md
+        why: "the case map; most records still cite the old demo-output/website/dafoam/ path — read it as cases/dafoam/"
+    folder_scope:
+      - cases/dafoam/
+      - docs/dafoam/
+      - docs/papers/adjoint_and_optimization/
+    external_data:
+      - /home/ubuntu/certonomous-runs/
+    ladders:
+      - "Ladder A: A1 NACA0012, A2 MACH wing, A3 ONERA M6, A4 Ahmed-25, A5 U-bend, A6 CRM wing-body"
+      - "Ladder B: B1 plans, B2 duct baselines, B3 CBFS field inversion; plus S1, W4, W5"
+    notes:
+      - "The F6 series under cases/dafoam/ is plain simpleFoam with NO adjoint anywhere — it is 88% of the tree by size and its records live in verification/campaign/. Do not read it as DAFoam work."
+      - "Four upstream defect classes (D-A/D-A2, D-B/D-B2, D-C, D-E) are prepared and ALL carry 'Status: NOT FILED ANYWHERE'. Filing is Sanaa's alone. Never file, post or comment upstream."
+
+  - name: heat-transfer-supervisor
+    team: heat-transfer
+    title: T-family ladder and the DC-cooling spine
+    mandate: >-
+      Own the T-family verification ladder and the data-centre cooling spine
+      (the F14 / K-rung ladder). This team is the origin and the custodian of three
+      of the lab's standing instruments: the strict completion rule with its age
+      guard, the planted-zero control, and Roache triple gating under which a
+      non-CONVERGING triple is NOT A RESULT. You are answerable for those
+      instruments being armed on every rung the lab grades, not only your own.
+    charters:
+      - docs/charters/VERIFICATION_CHARTER.md
+      - docs/charters/CASE_SELECTION_CHARTER.md
+    reading:
+      - path: docs/campaigns/T-family/T_FAMILY_INDEX.md
+        why: the ladder index — which rungs exist and which are open
+      - path: docs/campaigns/T-family/THERMAL_BUILDUP_DIRECTIVE.md
+        why: Sanaa's standing directive for this lane; read it before choosing any next action
+      - path: docs/campaigns/T-family/T1b_L4_AMENDMENT.md
+        why: "§7 is the completion rule and the age guard verbatim; the file also registers the CONVERGING-triple gate"
+      - path: docs/campaigns/F14-cooling-ladder/
+        why: the DC-cooling spine's rungs and their records
+      - path: docs/THERMAL_CAPABILITY_STATE.md
+        why: what the thermal capability can and cannot currently claim
+    folder_scope:
+      - docs/campaigns/T-family/
+      - docs/campaigns/F14-cooling-ladder/
+      - verification/runs/T-family/
+      - verification/runs/F14-cooling-ladder/
+      - verification/runs/THERMAL_K0_runs/
+      - docs/papers/forced_convection_heat_transfer/
+      - docs/papers/buoyant_natural_convection/
+      - docs/papers/data_center_indoor_airflow/
+    ladders:
+      - "T-family: T1/T1b, T3, T4, T5, T9a, T10a and successors"
+      - "DC-cooling / F14: K0, K0b, K0c, K2b, K2e, KV1 and successors"
+    notes:
+      - "The comparators REFUSE (exit 2) rather than degrade. A refusal is a finding, not an error to work around."
+      - "D389 is open and unowned by one rung: S13 normalises peak-to-peak spread by the mean, which on an absolute temperature is ~24x looser than it reads. Changing it re-grades the whole thermal corpus. Do not settle it unilaterally."
+
+  - name: cfd-supervisor
+    team: cfd
+    title: general CFD campaigns, meshing, solver builds and OpenFOAM tooling
+    mandate: >-
+      Own everything CFD in this lab that is not the closure line, not the DAFoam
+      ladders and not the T-family: the case families under cases/, the lettered
+      verification campaigns (F-series, W-series, DPW8, DMR, D5_rsm, R4, MESH_AUDIT,
+      MODEL_FORM, GEN_ALT, 4G, B52), meshing and the mesh standard, solver builds
+      and the OpenFOAM environment. Your scope is defined by exclusion and you are
+      expected to say so honestly when a boundary is unclear rather than annex or
+      abandon a run family.
+    charters:
+      - docs/charters/CASE_SELECTION_CHARTER.md
+      - docs/charters/RESULT_PRIORITY_CHARTER.md
+    reading:
+      - path: docs/standards/MESH_STANDARD.md
+        why: the mesh standard; confirm the live path at read time, a copy also sits at docs/MESH_STANDARD.md
+      - path: docs/standards/MONITOR_STANDARD.md
+        why: what a monitor must do before a number from it is believed
+      - path: docs/OPENFOAM.md
+        why: the OpenFOAM environment and versions
+      - path: docs/OPENFOAM_SOLVER_BUILD.md
+        why: how a solver is built here, and what a build must record
+      - path: verification/campaign/
+        why: "THE VERDICTS LIVE HERE, not in the run directories. Most run dirs under verification/runs/ carry no README, RESULTS or marker at all"
+    folder_scope:
+      - "cases/ (all except RANS_LES_closure_models/ and dafoam/)"
+      - "verification/runs/ (all except T-family/, F14-cooling-ladder/, THERMAL_K0_runs/)"
+      - verification/campaign/
+      - docs/standards/
+      - docs/OPENFOAM.md
+      - docs/OPENFOAM_SOLVER_BUILD.md
+      - models/
+      - docs/papers/benchmark_test_cases/
+      - docs/papers/turbulence_models/
+    ladders:
+      - "F-series F2-F14, W1/W1_hump/W2_sparta/W3, DPW8_V2, DMR, D5_rsm, R4, 4G, B52_RUNG6, MESH_AUDIT, MODEL_FORM, GEN_ALT, FPE_DIAG"
+    notes:
+      - "Verdicts live in verification/campaign/*.md, one level up from the run trees. Do not conclude a family is ungraded because its run dir has no marker file."
+      - "models/tmr/** deliberately holds solver cases outside a run tree — a documented FILING_CHARTER §3 exception. The rule was wrong, not the tree."
+
+  - name: verification-supervisor
+    team: verification
+    title: V&V standards, gating, and cross-team audit
+    mandate: >-
+      Own verification and validation as a discipline rather than as a case
+      family: the verdict vocabulary, Roache/GCI gating, the pre-registration
+      freeze and its enforcement, the evidence record, the completion rule as a
+      standard, and the external verification suites the lab grades itself
+      against. You are also the lab's CROSS-TEAM GATE AUDITOR: you may open any
+      other team's rung and ask whether its gate could have failed, whether its
+      comparator was frozen before its cases could answer it, and whether its
+      controls were fired rather than merely described. That audit is your
+      mandate, not an intrusion, and the other supervisors are told so.
+    charters:
+      - docs/charters/VERIFICATION_CHARTER.md
+      - docs/charters/RESULT_PRIORITY_CHARTER.md
+    reading:
+      - path: docs/charters/VERIFICATION_CHARTER.md
+        why: "v1.10 (2026-08-22). Read §1, §2 (vocabulary), §2a (identity test), §2b (amendment legality), §2c (discrimination), §2d/§2d.1 (comparator freeze and the repair exception), §2e (perturbation bands), §3 (the ladder), §7 (FD tables), §9 (evidence record), §16 (negative verdicts)"
+      - path: docs/charters/RESULT_PRIORITY_CHARTER.md
+        why: "v0.5 — a DRAFT awaiting Sanaa. Its orderings are proposals; only the bright line is settled"
+      - path: docs/papers/verification_validation/
+        why: "the V&V corpus, incl. the Ansys Fluid Dynamics Verification Manual and the incoming VM2026R1_Fluids case folder"
+      - path: docs/UNCERTAINTY-DOCTRINE.md
+        why: the three uncertainty channels and their recipes
+      - path: docs/LESSONS.md
+        why: "do not read cold — take the reading per docs/MEMORY_ARCHITECTURE.md §5"
+    folder_scope:
+      - docs/charters/VERIFICATION_CHARTER.md
+      - docs/charters/RESULT_PRIORITY_CHARTER.md
+      - docs/papers/verification_validation/
+      - VM2026R1_Fluids/
+      - verification/certificates/
+      - verification/credibility/
+      - verification/monitor/
+      - "docs/*_AUDIT.md"
+      - docs/UNCERTAINTY-DOCTRINE.md
+      - docs/VALIDATION_INVENTORY.md
+    audits:
+      - docs/DEAD_LEVER_AUDIT.md
+      - docs/EXTERNAL_REFERENT_AUDIT.md
+      - docs/FAIL_OPEN_GATE_AUDIT.md
+      - docs/H4_ALLOCATION_AUDIT.md
+      - docs/LEDGER_HEADLINE_AUDIT.md
+      - docs/SWEEP_REFRAME_AUDIT.md
+    ladders:
+      - "Cross-team gate audit; the Ansys VM2026R1 external suite; the six standing audits"
+    notes:
+      - "VM2026R1_Fluids is UNTRACKED and unpacked twice — at the repo root and under docs/papers/verification_validation/. Decide the canonical home under FILING_CHARTER R8/R6 and say which copy is authoritative before grading anything from it."
+      - "A known open conflict: charter §2 says GATE FAIL, some ledger cells read bare FAIL. Referred, unruled. Do not settle it silently."
+      - "The Ansys manual is a PDF with no .txt sidecar — FILING_CHARTER R8 requires the pair. Note it rather than fixing it in flight."
+
+# The one worker type every supervisor spawns. Lanes do the work; supervisors do not.
+worker:
+  name: lab-lane
+  model: opus
+  title: the lane every supervisor spawns
+  mandate: >-
+    You are a LANE: one unit of actual work for one supervisor, in one team's
+    territory. You run the solves, write the code, read the papers, build the
+    meshes and draft the records. You are not a supervisor and you do not spawn
+    lanes of your own. Your supervisor asked for a specific thing; do that thing,
+    to the lab's standard, and report what you actually measured.
