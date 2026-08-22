@@ -9563,3 +9563,11 @@ as owed, and carries `NUMERICS_KNOWLEDGE.md` on the same shape.
 instruction's mechanism, not the instance.** The lane that received this one
 could have merged by hand and moved on; the instruction would have been reissued
 to the next lane unchanged.
+
+## L-241. A ratio of two rounded percentages is not the ratio of the two quantities — form every derived figure from the underlying values
+
+**The rule.** Any derived quantity — a ratio, a factor, a speedup, a "×N worse" — is computed from the **raw values**, never from the already-rounded figures a log or a table prints. If only rounded inputs are available, the derived figure carries the precision of the rounding and says so.
+
+**Why.** Rounding error that is invisible in an absolute figure is amplified by division: two 4-decimal percentages that are each correct to their last printed digit can produce a ratio wrong in its **third** significant figure, and the wrong ratio is then quoted as a headline.
+
+**The incident.** A3 rung 2, 2026-08-22. The lane formed `0.1586 / 0.0172 = 9.2209` from the log's printed percentages and published **9.22×**; the supervisor's independent recomputation from the raw analytic and FD values gave **9.2084×**, i.e. **9.21×**. Correction applied by **quote-and-strike per L-32** — both original occurrences struck in place, pointing at a dated correction that quotes the original wording verbatim (`0f56460d`). No verdict, band, gate, prediction score or cost figure moved: the two relative errors themselves were correct and the ratio was descriptive. **The general point is why it was caught:** this was the second wrong number from the same competent lane in one day (the first was a prediction band), and **both were caught only because somebody did the arithmetic again from the raw values instead of reading the summary table.** A supervisor's big-claim check is that recomputation, and it must not be delegated to a reading of the claimant's own table (`SUPERVISION_CHARTER.md` §3).
