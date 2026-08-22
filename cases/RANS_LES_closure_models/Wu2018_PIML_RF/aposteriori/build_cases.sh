@@ -68,7 +68,13 @@ if i>=0: s=s[:i]+'functions { }\n'
 
 if libs.strip(): s=s.rstrip()+"\n"+libs+"\n"
 open(p,"w").write(s)
+if libs.strip(): assert "libspartaTurbulenceModels" in open(p).read(), "libs insert failed: "+p
 PY
+    # L-221 law: a libs entry that fails to land leaves the STOCK model loaded
+    # and the solve returns an unperturbed field that looks like an answer.
+    if [ -n "$LIBS" ]; then
+      grep -q 'libspartaTurbulenceModels' "$D/system/controlDict" || { echo "libs insert failed: $D/system/controlDict" >&2; exit 1; }
+    fi
     # residualControl -> registered 1e-6 on all
     /home/ubuntu/closure-venv/bin/python - "$D/system/fvSolution" <<'PY'
 import sys,re

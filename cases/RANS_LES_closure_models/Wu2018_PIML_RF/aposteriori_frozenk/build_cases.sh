@@ -58,7 +58,14 @@ if i>=0: s=s[:i]+'functions { }\n'
 s=s.rstrip()+'\nlibs ( "libspartaTurbulenceModels.so" "libwu2018FrozenK.so" );\n'
 if 'purgeWrite' not in s: s=s.replace('writeInterval   1000;','writeInterval   1000;\npurgeWrite      2;')
 open(p,"w").write(s)
+w=open(p).read()
+assert "libspartaTurbulenceModels" in w and "libwu2018FrozenK" in w, "libs insert failed: "+p
 PY
+    # L-221 law: a libs entry that fails to land leaves the STOCK model loaded
+    # and the solve returns an unperturbed field that looks like an answer.
+    for L in libspartaTurbulenceModels libwu2018FrozenK; do
+      grep -q "$L" "$D/system/controlDict" || { echo "libs insert failed ($L): $D/system/controlDict" >&2; exit 1; }
+    done
     # k and omega are FROZEN -> excluded from the convergence criterion (prereg sec.7)
     /home/ubuntu/closure-venv/bin/python - "$D/system/fvSolution" <<'PY'
 import sys,re

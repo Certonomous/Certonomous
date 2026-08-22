@@ -46,6 +46,11 @@ RAS
 }
 EOF
 
+# L-221 law: the model named above lives in libspartaTurbulenceModels.so, and this
+# script INHERITS the libs entry from the source case rather than writing one. A
+# missing entry would leave the stock model loaded, so assert it is present.
+grep -q 'libspartaTurbulenceModels' "$DST/system/controlDict" || { echo "libs entry missing (kOmegaSSTSparta will not load): $DST/system/controlDict" >&2; exit 1; }
+
 # endTime / writeInterval
 sed -i "s/^endTime .*/endTime         $ENDT;/" "$DST/system/controlDict"
 sed -i "s/^writeInterval .*/writeInterval   $WINT;/" "$DST/system/controlDict"

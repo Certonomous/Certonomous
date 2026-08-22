@@ -9158,3 +9158,85 @@ no-op into a stack trace.
 sitting and add the assertion there, not a paragraph about it somewhere else.**
 The cost of the paragraph was two more wasted runs; the cost of the assertion was
 three lines.
+
+## L-222. A defect class that bit three call sites gets an assert at every call site, never a paragraph in a report
+
+**Sanaa, 2026-08-22, institutionalizing L-221:** *"the libs lesson as law — a defect
+class that bit three call sites gets an assert at every call site, never a paragraph in a
+report. Sweep for remaining unasserted call sites of the same libs defect."*
+
+**The law.** Every call site that writes or edits a `libs (...)` entry in an OpenFOAM
+`controlDict` **inserts (insert-or-replace)** and then **asserts** the library name is
+present in the written text — `assert "<lib>" in s, "libs insert failed: <path>"`, or in
+shell `grep -q '<lib>' <file> || { echo "libs insert failed: <file>" >&2; exit 1; }`.
+
+**The sweep, `docs/closure/LIBS_ASSERT_SWEEP.md`, over every `.py`/`.sh` under `cases/`
+and `verification/`:** 92 `libs` mentions, of which **75 actually write one**. They split
+into **8 library-load call sites** — the defect class — and **67 function-object template
+lines**, which are n-a because a wholesale template write has no merge to get wrong.
+
+| | count |
+|---|---|
+| library-load call sites found | **8** |
+| already asserted before the sweep | **3** (`setup_case.py`, `tau_forward.py`, `run_gate.py`) |
+| newly asserted here | **4** (`frozen_R.py`, both Wu2018 `build_cases.sh`, `setup_sparta_case.sh`) |
+| asserted by a concurrent lane's shared helper, mid-sweep | **1** (`K0cQ_runs/build_cases.sh`) |
+| n-a, function-object template lines | **67** across 25 scripts |
+| T-family (not this lane's tree) | **0 call sites** — those builders write `controlDict` wholesale with no `libs` line at all |
+
+**One of the four was a LIVE instance of the same defect, and it was measured rather than
+argued.** `Kaandorp2020_TBRF/aposteriori/frozen_R.py:69` carried the bare
+`str.replace('libs ( "libfrozenIncompressibleTurbulenceModels.so" );', …)` — the exact
+line L-221 was written about, in a file L-221's own sweep did not open. Replayed in a
+sandbox on the two real benchmark `controlDict`s: on the duct the repaired code is
+**byte-identical** to the old, and on a `Parm_PH_29` hill the old code produced **no
+sparta entry at all**. Every new assert was also run against a **sabotaged** copy and
+observed to fire.
+
+**The second finding is about the lesson, not the defect.** The same night, two lanes
+independently turned L-221 into law — this one with an assert in each file, another with
+a shared `scripts/foam_libs.py` helper and a `lint_foam_libs.py` that FAILs any `libs`
+write not routed through it. **Both are right, and the duplication is the cheapest
+possible outcome of a law that both lanes read the same way.** Two things worth carrying:
+a `grep -q` cannot tell one top-level `libs` entry from two (a duplicate dictionary key,
+which a blind `>>` append leaves behind), so a merging helper is the stronger mechanism;
+and a linter keyed to "writes not routed through the helper" **does not see** a
+`re.sub`-based insert-or-replace at all, so the mechanical check and the in-file assert
+cover different halves and neither is redundant.
+
+## L-223. A commit whose tree came from a stale `read-tree` but is parented on current HEAD reverts the intervening work silently, and the ref CAS passes
+
+**Committed at `c46309f5` tonight; the damage was caught and repaired by another lane at
+`a5126378`.** The private-index protocol was followed to the letter and still lost nine
+files. The sequence, and the gap is between the first line and the third:
+
+```
+git read-tree HEAD          # earlier bash call: HEAD was 31fd2268
+...                         # another lane commits eda10f39 (nine closure files)
+T=$(git write-tree)         # tree still says 31fd2268's content
+C=$(git commit-tree $T -p $(git rev-parse HEAD) -F msg)   # parent is eda10f39
+git update-ref refs/heads/main $C $(git rev-parse HEAD)   # CAS PASSES
+```
+
+**The compare-and-swap on the ref proves the PARENT is current. It says nothing about
+whether the TREE is.** A tree built from a stale `read-tree` and hung off a current
+parent is a valid commit that reverts everything committed in between — silently, with a
+clean exit and a message about something else entirely. `git diff-tree --stat HEAD $T`
+was run and printed only the two intended files, which is exactly the trap: **it was run
+against the stale HEAD the tree came from, not against the HEAD the commit was about to
+be parented on.**
+
+**The rule.** Capture HEAD **once**, into a variable, and use that one value for
+`read-tree`, for the `diff-tree` assertion and for `-p` — all inside a single shell
+invocation, because a background lane can move HEAD between two bash calls:
+
+```
+H=$(git rev-parse HEAD); git read-tree $H
+git update-index --add <explicit paths>
+T=$(git write-tree); git diff-tree --stat $H $T     # assert: ONLY your paths
+C=$(git commit-tree $T -p $H -F msg); git update-ref refs/heads/main $C $H
+git diff HEAD~1 HEAD --stat                         # verify after: ONLY your paths
+```
+
+**The post-commit verification is the part that would have caught it**, because it is the
+only check that compares the new commit against what its parent actually was.

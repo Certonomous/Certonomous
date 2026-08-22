@@ -66,8 +66,17 @@ def frozen(tag):
         + patch_bcs(case, 6))
     cd = os.path.join(case, "system", "controlDict")
     s = open(cd).read()
-    s = s.replace('libs ( "libfrozenIncompressibleTurbulenceModels.so" );',
-                  'libs ( "libspartaTurbulenceModels.so" );')
+    # LIBS (L-221): the DUCT/CBFS/PH_Breuer controlDicts name a library that is
+    # absent on this machine and the 29 Parm_PH_29 hills carry NO libs entry at
+    # all, so a plain str.replace no-ops SILENTLY and the solve runs without the
+    # model. Insert-or-replace, then ASSERT -- the idiom setup_case.build uses.
+    LIBS = 'libs ( "libspartaTurbulenceModels.so" );'
+    if re.search(r"libs\s*\(", s):
+        s = re.sub(r"libs\s*\([^)]*\)\s*;", lambda m: LIBS, s)
+    else:
+        mm = re.search(r"\n// \* \* \*[^\n]*\n", s)
+        s = s[:mm.end()] + "\n" + LIBS + "\n" + s[mm.end():]
+    assert "libspartaTurbulenceModels" in s, "libs insert failed: " + cd
     s = re.sub(r"startTime\s+\S+;", "", s)
     s = re.sub(r"startFrom\s+\w+;", f"startFrom       startTime;\nstartTime       {t0};", s)
     s = re.sub(r"endTime\s+\S+;", f"endTime         {int(t0) + 5000};", s)
