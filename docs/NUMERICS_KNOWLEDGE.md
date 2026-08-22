@@ -2954,3 +2954,254 @@ same-stack but self-certify only where the run printed the hash.
 solvers on 16 cores) a DAFoam np=1 container at `--cpus=1` runs **1.104×** slower on an identical
 work marker (`dRdWTPC: 800 of 1087`, 53.77 s vs 48.69 s). The 18–21× inflation measured on np=4
 arms is the Open-MPI spin-wait and does not exist at one rank.
+
+## T-family numerics, measured on this machine — appended 2026-08-22 (T-family lane, reviewed by supervisor)
+
+## N-T1. The shared `gci()` prints the Richardson extrapolate with the wrong sign on every row
+
+`analyse_t9a.gci()` forms `e21 = f_m − f_f` and returns
+`richardson = f_f + e21/(r^p − 1)`; Roache's extrapolate is
+`f_f + (f_f − f_m)/(r^p − 1)`. **The instrument that shows it grades nothing.**
+R0's triple falls monotonically **20.425588 → 20.069440 → 19.854991**, so its
+limit must lie below 19.854991 — and the comparator prints **20.179541**, above
+the fine value, back toward the coarse. With the sign corrected the five T9a
+extrapolates are **19.5304 W/m²** (+0.142 % from exact), **348.77941 K**
+(−1.68 mK), **300.02447 K** (+0.10 mK), **0.833179** (−0.0069 %) and
+**0.752394** (+0.0022 %) (`T9a_RESULTS.md` §8.1).
+
+**The `richardson` field is stored in the printed grid-triple dict and read by
+no verdict; the GCI uses `|e21|` and is unaffected**, so no published number
+moves either way. T9a-D's own selftest puts the two side by side on T9a's R0
+triple: frozen `analyse_t9a.gci()` **20.179541**, sign-correct instrument
+**19.530441**, **GCI band 2.0432503592470312 % — identical** in both
+(`T9aD_RESULTS.md` §7).
+
+**The repair is carried as a new instrument, not as an edit.** T10a inherited
+the shared `gci()` **unedited** and stores the corrected values alongside as
+`richardson_corrected` — landing at 6484.988 / −3267.594 / −1253.959 /
+−1963.534, within **0.001–0.063 %** of exact on all four box rows — while "the
+triple dict's `richardson` field carries the sign defect T9a §8.1 already
+recorded in the shared `gci()`, unedited, on no grading path"
+(`T10a_RESULTS.md` §1.1). `analyse_t9aD.py` carries **its own** sign-correct
+`gci()`, written before any `D_*` case existed, with the frozen
+`analyse_t9a.gci()` imported and **not called on any T9a-D row**; T10a-R
+declares the sign-corrected Richardson as **NEW INSTRUMENT 1**, graded on row
+RX5 against `[0, 0.100]` %. A repair cannot change a number a verdict depends
+on, so it belongs in the next comparator and not in the frozen one.
+
+## N-T2. A CONVERGING Roache triple can arm a band narrower than the finest level's actual error — and the same quantity's next triple arms one 11× too wide
+
+The Roache GCI reads the observed order from **successive differences**. When
+the level errors are ~first order **and slowing**, the differences fall faster
+than the errors, `p` reads high, and the band closes under the remaining error.
+Two independent instances, then the inverse.
+
+| triple | armed band | actual deviation of finest | observed `p` | level-error ratios | verdict |
+| --- | ---: | ---: | ---: | --- | --- |
+| T9a **R1**, interface-1 `T`, c/m/f | **0.92 mK** (0.000263 %) | **2.41 mK** (0.00069 %) | 1.738 | 1.63 then 1.38 | GATE FAIL, 2.63 bands outside |
+| T10a **B1**, box ceiling `q`, c/m/f | **0.07676 %** | **0.12463 %** (4.070 W/m²) | 1.480 | 1.66, 1.50 | GATE FAIL, 1.62 bands outside |
+| T9a-D **B0/B2**, same `T` as R1, m/f/x | *(none armed)* | **1.54 mK** | **0.130, STAGNANT** | 1.57 | **NOT A RESULT** |
+
+**T9a R1.** Interface-1 temperature moved 2.10 then 0.93 mK per refinement
+(ratio 2.264, `p` = 1.738), arming 0.92 mK, while against exact the three
+levels are off by **−5.43 / −3.33 / −2.41 mK** — shrinking at roughly first
+order and then slower, not at the `p` = 1.74 the differences imply
+(`T9a_RESULTS.md` §1.1). **T10a B1.** The ceiling triple moves 4.045 then
+2.017 W/m² (ratio 2.005, `p` = 1.480) and arms 0.077 %, while the level errors
+are **−10.13 / −6.09 / −4.07 W/m²** (ratios 1.66, 1.50), roughly first order
+(`T10a_RESULTS.md` §1.1).
+
+**And the fourth level makes the band worse, not better.** Adding level `x`
+(145 cells), the error continues down cleanly — `e1` goes
+−3.335 → −2.409 → **−1.538 mK**, ratios 1.384 then 1.566, still first order —
+but the successive *differences* are −0.926 then −0.871 mK, barely shrinking,
+so the m/f/x triple reads **`p` = 0.130, STAGNANT** and by the registered rule
+**no band may be armed**. Had one been armed anyway it would have been
+**17.21 mK against a 1.54 mK error: 11× too WIDE** (`T9aD_RESULTS.md` §2.2).
+
+**Same quantity, same solver, same error mechanism, same first-order error
+sequence** — −5.43 / −3.34 / −2.41 / −1.54 mK, ratios 1.63 / 1.38 / 1.57 —
+**and the band lands on opposite sides of the truth by an order of magnitude
+depending on which three of the four levels you feed it**: 2.6× too narrow on
+c/m/f, 11× too wide on m/f/x. The band is not measuring the error; it is
+measuring how the differences happen to sit. (T9a §1.1 prints the second level
+as −3.33 mK and T9a-D's four-level sequence as −3.34; the discrepancy is the
+last printed place and changes nothing.)
+
+## N-T3. `laplacian(DT,T) Gauss harmonic corrected` on a 1-D orthogonal mesh with the jump on a face is the exact series conductance, at any spacing ratio
+
+The corrected harmonic face conductance reduces to
+
+```
+k_f/d = 1 / ( dx_P/(2 k_P) + dx_N/(2 k_N) )
+```
+
+**which is the series resistance of the two half-cells, exactly, for any
+spacing ratio.** Measured: every harmonic level reproduces the closed form
+**to all nine printed digits, on the 35-cell coarse mesh included** —
+`D_A_c` (35 cells) returns `q″` **19.502681619** at **+0.0000000 %** and
+`T_i1` **348.781082399** at **+0.0000000** deviation. T9a-D's interface 2 does
+*not* have equal spacing either side at any level (`dx`
+**0.0019608 | 0.0015385** at level `f`) and is reproduced to round-off anyway;
+unequal spacing was flagged in pre-registration as a place a residual might
+survive, and it does not (`T9aD_RESULTS.md` §2.1).
+
+**What the arithmetic mean costs.** The frozen `Gauss linear` face conductivity
+at the 0.8 | 0.04 interface is the arithmetic **0.42 W/mK** against the series
+value **0.0762**, and at 0.04 | 16 it is **8.02** against **0.0798**. The
+resistance those two faces fail to charge, at level `f`:
+
+| contrast | interface 1 | interface 2 | total | fraction of `ΣR` | measured `q″` excess |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 400× | 2.090e-02 | 2.173e-02 | 4.263e-02 | **1.663 %** | **1.806 %** |
+| 40× | 4.150e-04 | 2.050e-03 | 2.465e-03 | **0.786 %** | **0.879 %** |
+
+**The mechanism predicts the measured flux excess to about 12 % of itself at
+both contrasts, from nothing but the two face conductivities.**
+
+**A flux-continuous interface-`T` reconstruction cancels most of it — but only
+where the contrast is large.** Reconstructing the interface temperature from
+flux continuity rather than reading the face value:
+
+| contrast | before | after | error cancelled | weight on the high-`k` cell |
+| --- | ---: | ---: | ---: | ---: |
+| 400× | −22.02 mK | **−2.41 mK** | **89.1 %** | **95.3 %** |
+| 40× | −87.57 mK | **−64.99 mK** | **25.8 %** | **67.1 %** |
+
+At a 400× contrast the reconstruction is 95 % determined by the high-`k` cell
+and **cancels 89 % of the flux error**; at 40× the weights even out and the
+cancellation **collapses from 89 % to 26 %**. Reducing the contrast 400× → 40×
+therefore *grew* the R1 error by 27–31× (−5.43 / −3.34 / −2.41 mK →
+−168.06 / −104.16 / −64.99 mK), the opposite of what the directive predicted:
+the relative flux error did fall, but only by **2.05×, not 10×**
+(1.806 % → 0.879 %), because at 400× the two interfaces contribute the missing
+resistance almost equally (49 % / 51 %) while at 40× interface 2 is **still a
+40× jump** and supplies **83.2 %** of the deficit.
+
+## N-T4. `viewFactorsGen`'s row-sum defect on the enclosing sphere does not refine with the mesh, and it is not a quadrature-tolerance artefact
+
+Measured at build under held-fixed quadrature settings, the **outer-sphere raw
+row-sum defect is 4.77 / 4.27 / 4.47 % at c/m/f** — a defect that does not
+shrink with the mesh — while over the same ladder the **inner-sphere rows
+converge, 0.48 → 0.30 → 0.11 %**, and the faceting deficit converges O(h²)
+(**−0.538 → −0.211 → −0.080 %**) (`T10a_RESULTS.md` §1.1). A ladder in which
+the geometric error terms shrink while the dominant matrix defect stays fixed
+produces exactly what was observed: **both sphere triples DIVERGENT** — S0's
+successive differences +0.729 then +3.362 W/m², S1's +0.953 then +2.261 — no
+band armed, **NOT A RESULT**, with the finest levels at **−1.60 %** (inner) and
+**+7.02 %** (outer) from exact.
+
+**The attribution lever fires cleanly.** The comparator's own radiosity solve on
+the written `F` **reproduces the solver to ≤ 8.2e-15** on every sphere case:
+Python-on-`F` == solver != exact means **the view factors are wrong, not the
+assembly**.
+
+**And it is not the quadrature tolerance.** A `GaussQuadTol` 0.001 twin — ten
+times tighter — **moves every row by at most 0.006 %**, orders below every
+armed band, so the registered quadrature-floor gate fired nowhere.
+
+**The cleanest single number is the control that was registered as zero.** The
+solved **uniform-300 K box** was registered as "every flux 0 by symmetry"; the
+solver returns **max |qr| = 13.95 W/m² against σT⁴ = 459.3 W/m² — 3.0 %**,
+which is the raw row-sum defect of the written `F` (**1.9–3.0 %** on those
+patches) passing straight through, since a uniform enclosure's `qr` is
+`(Σ_j F_ij − 1)·σT⁴` per face. The control is MET regardless, and the figure
+independently confirms that the graded rows' errors live in the view-factor
+matrix.
+
+The dedicated characterisation arm **T10a-VF is in progress** and nothing from
+it is folded in here; every number above is T10a's own.
+
+## N-T5. Serial `buoyantBoussinesqSimpleFoam` throughput on this box falls ~4.9× with cell count, against a planning figure that assumed 19 %
+
+`nProcs = 1` on every case, serial, with the box shared with the DAFoam and
+closure teams throughout, so wall includes contention and is an upper bound on
+solver time (`T3_RESULTS.md` §9):
+
+| case | cells | cell-it/core-s |
+| --- | ---: | ---: |
+| W_m | 28 160 | **3.78e5** |
+| R_c | 36 000 | 2.20e5 |
+| C_lam_m | 92 160 | 1.79e5 |
+| D_m | 79 360 | 1.50e5 |
+| R_m | 92 160 | 1.16e5 |
+| P_m | 92 160 | 1.16e5 |
+| O_m | 128 000 | 9.56e4 |
+| R_f | 235 520 | **7.73e4** |
+
+**Throughput falls by 4.9× from the smallest case to the largest — far more
+than the "about 19 % slower above 100 k cells" the plan allowed for.** The
+correct planning model for a 2D turbulent case on this box is not a constant
+rate but one that degrades steeply with cell count, most likely on cache
+residency. `R_f` was expected to take 3.3 h uncontended or ~6.7 h at the
+smoke-test rate, and took **16.9 h**; the rung as a whole spent
+**145 157 core-seconds = 40.3214 core-hours = 2.0685 USD**, **3.71×** its own
+prediction and 8.3 % of the 25 USD ceiling. **Fitting the two endpoints gives
+`rate ∝ N^(−0.747)`**, carried forward as Model A,
+`rate = 7.73e4 (N/2.355e5)^(−0.747)` (`T5_PREREGISTRATION_DRAFT.md` §11).
+
+**The extension re-measured itself against those rates and came in 1.36× over.**
+`T3_EXT1_AMENDMENT.md` §10: revised cost from measured rate **108.3 core-hours
+= USD 5.56** against the §5 prediction of **79.55 core-h / USD 4.08** — well
+inside both the 10× stop threshold and the binding remaining-ceiling stop.
+Every case ran **15–41 % slower than predicted**, and the amendment names the
+contention: the closure team's `fs3_select.py` at **~291 % CPU, about 3 cores**,
+so **12 + 3 ≈ 15 of 16 cores committed**. The eight extension solvers were
+nonetheless each holding **95–97.5 % of a core** — not starved. The slowdown is
+memory-bandwidth and cache contention, and its signature is that the
+degradation is **worst on the largest mesh** (`R_f`, 235 520 cells, **1.41×**)
+and **mildest on the smallest** (`D_m`, 79 360 cells, **1.15×**) — the same
+mechanism §9 found, not a scheduling problem.
+
+## N-T6. Iterative non-convergence and energy imbalance are one quantity, and the exception has a mechanism
+
+Over the **five DECAYING cases** of T3 the least-squares fit is
+
+> `imbalance % = 10^7.982 × (T residual)^1.308`,  **`R² = 0.986`**
+
+across three decades of residual and 2.6 decades of imbalance, with `R_f`
+(`3.984e−06`, **8.2340 %**) the top point and on the line
+(`T3_EXT1_AMENDMENT.md` §4).
+
+**The two low-level STALLED cases sit far below that line**: the fit predicts
+30 % for `R_c` (observed **0.074 %**, **400× below**) and 0.88 % for `W_m`
+(observed **0.0082 %**, **107× below**). That separation is the finding, and
+the mechanism is storage. A steady energy balance assumes no storage term; a
+case whose residual is *marching one way* still has one — the field is
+systematically accumulating enthalpy — and the budget fails to close in
+proportion. A case in a *stationary limit cycle* oscillates about a fixed mean
+and carries **no net storage**, so its budget closes even though its residual is
+large: `R_c`'s `T` residual (**1.059e−05**) is **2.7× larger than `R_f`'s** and
+yet it closes **111× better**.
+
+**Residual magnitude alone does not predict imbalance; residual magnitude in a
+case that is still moving does, at `R²` = 0.986.** Report only: `R_f`'s 8.23 %
+is consistent with non-convergence and is not evidence of a mesh,
+discretisation or boundary-condition fault on the fine level.
+
+## N-T7. A CONVERGING triple is a step-ratio test, and a fine-level deviation smaller than the coarse-to-fine drift is a passing value on a divergent triple
+
+**The rule, stated as a step ratio.** A CONVERGING `(m, f, x)` triple requires
+`p >= 0.5`, i.e. **the x-to-f step has fallen to at most `1.6^-0.5 = 0.79` of
+the f-to-m step**; it does **not** mean a limit has been reached
+(`T1b_L4_AMENDMENT.md` §3.3 and the amendment rule). With the step repeated
+exactly, `e32/e21 = 1`, `p = 0.000`, and `gci()` classes that DIVERGENT. The
+amendment turned that into four pre-registered thresholds — `Nu_x <= 32.24` at
+1e4 (step `<= 0.62`), `<= 73.86` at 3e4 (`<= 1.38`), `<= 189.08` at 1e5
+(`<= 3.31`), `<= 456.76` at 3e5 (`<= 7.51`) — and predicted **NO at all four
+Reynolds numbers**, because **no `Re` had yet shown a step ratio below 0.995**
+(ratios 1.108, 1.073, 1.028, 0.995) and the step tracks the first-cell `y+` of
+the low-`Re` `kOmegaSST` wall treatment (**1.53 → 0.97 → 0.61 → 0.39** across
+the four levels) rather than an asymptotic range.
+
+**Why that matters, from attempt 2's own rows.** Every `Nu` row PASSED —
+31.619 against 30.907 (**2.305 %** inside 2.844 %), 72.480 against 73.684
+(**1.635 %** inside 3.885 %), 185.771 against 190.398 (**2.430 %** inside
+5.334 %), 449.255 against 456.723 (**1.635 %** inside 5.749 %) — on triples
+that are **DIVERGENT** (`p` = −0.219, −0.150, −0.059) or **STAGNANT**
+(`p` = +0.010). `Nu` rises by a near-constant step per 1.6× refinement at every
+`Re` (**+0.71 / +0.79, +1.63 / +1.75, +4.08 / +4.19, +9.54 / +9.49**), and
+**the fine deviations (2.305 / 1.635 / 2.430 / 1.635 %) are all smaller than
+the coarse-to-fine drift (4.98 / 4.89 / 4.66 / 4.42 %)** — so each PASS is a
+statement about the finest mesh built, not about a limit
+(`T1b_RESULTS.md` §8). **A deviation smaller than the drift is the tell.**
