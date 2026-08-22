@@ -1,0 +1,457 @@
+{
+ "Fs": 1.25,
+ "H_A": {
+  "drop_factor": [
+   Infinity,
+   1047696484.4464285,
+   815054193.2692307
+  ],
+  "e1_mK": [
+   0.0,
+   -3.183231456205249e-09,
+   -2.9558577807620168e-09
+  ]
+ },
+ "H_B": {
+  "T_i1": [
+   348.777747338424,
+   348.7786732145509,
+   348.7795440254137
+  ],
+  "e1_mK": [
+   -3.3350604058455247,
+   -2.4091842789175644,
+   -1.5383734161105167
+  ],
+  "e1_ratios": [
+   1.3843110446262552,
+   1.5660594844447628
+  ],
+  "forbidden_band_mK": 17.213927211845622,
+  "n_cells": 145,
+  "triple": {
+   "order": 0.13045782174782716,
+   "state": "STAGNANT"
+  }
+ },
+ "H_C": {
+  "base_e1_pct_of_drop": [
+   -0.44554198566126163,
+   -0.27360835569556685,
+   -0.197649478242397
+  ],
+  "e1_mK": [
+   -168.06266351852628,
+   -104.15820699842016,
+   -64.99407775731925
+  ],
+  "e1_pct_of_drop": [
+   -1.6873491417260038,
+   -1.0457483982641385,
+   -0.6525405406834852
+  ],
+  "e1_ratios": [
+   1.6135326093034168,
+   1.6025799671677083
+  ],
+  "layer1_drop_40": 9.9601593625498,
+  "layer1_drop_400": 1.2189176011701608,
+  "shrink_factor": [
+   0.03231407601266234,
+   0.03201918026388559,
+   0.037067750817439
+  ]
+ },
+ "arm": "T9a-D",
+ "baseline_e1_mK": [
+  -5.430789683828152,
+  -3.3350604058455247,
+  -2.4091842789175644
+ ],
+ "baseline_read": {
+  "c": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.775651609146,
+   "T_i2": 300.0229993844026,
+   "heat_balance_closure": 2.1372197623901014e-11,
+   "n_cells": 35,
+   "q": 20.42558753033517,
+   "q_cold": 20.42558753055344,
+   "q_hot": 20.4255875301169,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "f": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.7786732145509,
+   "T_i2": 300.02387174218796,
+   "heat_balance_closure": 1.1429383173411244e-10,
+   "n_cells": 90,
+   "q": 19.854990714112837,
+   "q_cold": 19.85499071524749,
+   "q_hot": 19.854990712978186,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "m": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.777747338424,
+   "T_i2": 300.0235315248449,
+   "heat_balance_closure": 4.357090269764729e-11,
+   "n_cells": 56,
+   "q": 20.06944025663026,
+   "q_cold": 20.06944025706748,
+   "q_hot": 20.069440256193037,
+   "thickness": 0.17,
+   "time": "1000"
+  }
+ },
+ "cases": {
+  "D_A_c": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.7810823988298,
+   "T_i2": 300.02437835202346,
+   "heat_balance_closure": 1.8652825506218286e-11,
+   "n_cells": 35,
+   "q": 19.50268161890562,
+   "q_cold": 19.502681619087507,
+   "q_hot": 19.502681618723727,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "D_A_f": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.78108239882687,
+   "T_i2": 300.0243783520253,
+   "heat_balance_closure": 4.360966663233149e-11,
+   "n_cells": 90,
+   "q": 19.502681619207195,
+   "q_cold": 19.502681619632448,
+   "q_hot": 19.502681618781942,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "D_A_m": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.78108239882664,
+   "T_i2": 300.0243783520241,
+   "heat_balance_closure": 6.035503830009751e-12,
+   "n_cells": 56,
+   "q": 19.502681618848055,
+   "q_cold": 19.50268161890691,
+   "q_hot": 19.5026816187892,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "D_B_x": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.7795440254137,
+   "T_i2": 300.0240682040245,
+   "heat_balance_closure": 1.70368188846337e-10,
+   "n_cells": 145,
+   "q": 19.720387601729293,
+   "q_cold": 19.720387603409158,
+   "q_hot": 19.72038760004943,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "D_C_c": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 339.87177797393167,
+   "T_i2": 300.1849123460737,
+   "heat_balance_closure": 3.3478473048217365e-12,
+   "n_cells": 35,
+   "q": 162.95686835264854,
+   "q_cold": 162.9568683529213,
+   "q_hot": 162.95686835237575,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "D_C_f": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 339.9748465596929,
+   "T_i2": 300.1938175073949,
+   "heat_balance_closure": 3.195866622531996e-12,
+   "n_cells": 90,
+   "q": 160.7636682179059,
+   "q_cold": 160.7636682181628,
+   "q_hot": 160.763668217649,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "D_C_m": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 339.9356824304518,
+   "T_i2": 300.19034632182826,
+   "heat_balance_closure": 7.8109936231133e-12,
+   "n_cells": 56,
+   "q": 161.5901580510743,
+   "q_cold": 161.59015805170537,
+   "q_hot": 161.5901580504432,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "D_R_f": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.7786732145509,
+   "T_i2": 300.02387174218796,
+   "heat_balance_closure": 1.1429383173411244e-10,
+   "n_cells": 90,
+   "q": 19.854990714112837,
+   "q_cold": 19.85499071524749,
+   "q_hot": 19.854990712978186,
+   "thickness": 0.17,
+   "time": "1000"
+  }
+ },
+ "collapse_floor_mK": 0.001,
+ "emulator_identity": {
+  "D_A_c": {
+   "diff_K": -5.684341886080801e-13,
+   "predicted_T_i1": 348.7810823988304,
+   "solved_T_i1": 348.7810823988298
+  },
+  "D_A_f": {
+   "diff_K": -4.831690603168681e-12,
+   "predicted_T_i1": 348.7810823988317,
+   "solved_T_i1": 348.78108239882687
+  },
+  "D_A_m": {
+   "diff_K": -4.831690603168681e-12,
+   "predicted_T_i1": 348.7810823988315,
+   "solved_T_i1": 348.78108239882664
+  },
+  "D_B_x": {
+   "diff_K": 1.9383605831535533e-11,
+   "predicted_T_i1": 348.77954402539433,
+   "solved_T_i1": 348.7795440254137
+  },
+  "D_C_c": {
+   "diff_K": 1.6484591469634324e-12,
+   "predicted_T_i1": 339.87177797393,
+   "solved_T_i1": 339.87177797393167
+  },
+  "D_C_f": {
+   "diff_K": -1.2846612662542611e-11,
+   "predicted_T_i1": 339.9748465597057,
+   "solved_T_i1": 339.9748465596929
+  },
+  "D_C_m": {
+   "diff_K": -3.467448550509289e-12,
+   "predicted_T_i1": 339.93568243045524,
+   "solved_T_i1": 339.9356824304518
+  },
+  "D_R_f": {
+   "diff_K": -3.524291969370097e-12,
+   "predicted_T_i1": 348.77867321455443,
+   "solved_T_i1": 348.7786732145509
+  }
+ },
+ "exact": {
+  "contrast_40": {
+   "T_i1": 340.0398406374502,
+   "T_i2": 300.199203187251,
+   "q": 159.3625498007968,
+   "sum_R": 0.31375
+  },
+  "contrast_400": {
+   "T_i1": 348.7810823988298,
+   "T_i2": 300.0243783520234,
+   "q": 19.502681618722573,
+   "sum_R": 2.56375
+  }
+ },
+ "hashes": {
+  "T9aD_registered.json": "4d6f482eed39ffbda1c5e76ea1e520c21e41d78e529ed8745613a8607b3e8637",
+  "T9a_registered.json": "66b03c7de15ceeba500dded8c496346023053ed2d0746de8749c324e1edb40ed",
+  "analyse_t9a.py": "dd2d6bf0ac690fdcca90719cb6586168763d311ea3b5a7ad937fdf054ecac9da",
+  "analyse_t9aD.py": "8e57aacaa6920259d77ae873fe8bf04dbc55ac8629c9678d1685a7946ccaee68",
+  "exact_t9a.py": "d3f2558c1471ab3debd6e2804f58552e27b5708e18b81d219a2fe6d017d3d0b8"
+ },
+ "iterative_convergence": {
+  "D_A_c": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.9366162847391,
+   "max_change": 0.0,
+   "relative": 0.0,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  },
+  "D_A_f": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.97562164797648,
+   "max_change": 0.0,
+   "relative": 0.0,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  },
+  "D_A_m": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.960385177961825,
+   "max_change": 0.0,
+   "relative": 0.0,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  },
+  "D_B_x": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.98474017626177,
+   "max_change": 0.0,
+   "relative": 0.0,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  },
+  "D_C_c": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.47039017785471,
+   "max_change": 0.0,
+   "relative": 0.0,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  },
+  "D_C_f": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.799045414727914,
+   "max_change": 0.0,
+   "relative": 0.0,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  },
+  "D_C_m": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.67176999145994,
+   "max_change": 0.0,
+   "relative": 0.0,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  },
+  "D_R_f": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.97518126160867,
+   "max_change": 0.0,
+   "relative": 0.0,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  }
+ },
+ "planted_zero": {
+  "case": "D_C_f",
+  "planted_K": 0.001234,
+  "recovered": true,
+  "recovered_max_change": 0.0012340000000108375,
+  "scratch": "/tmp/t9aD_planted_x2zy2gc6/D_C_f",
+  "state": "NOT_CONVERGED"
+ },
+ "r": 1.6,
+ "replica_control": {
+  "case": "D_R_f",
+  "dT_i1": 0.0,
+  "dT_i2": 0.0,
+  "dq": 0.0,
+  "reproduces": true
+ },
+ "rows": [
+  {
+   "claim": "Directive H-4 as issued: under a harmonic interface scheme the R1 level error drops by more than a factor 3 at EVERY level.",
+   "detail": "drop factors inf, 1.048e+09, 8.151e+08; threshold min > 3.0",
+   "registered_prediction": null,
+   "row": "A1",
+   "verdict": "PASS"
+  },
+  {
+   "claim": "Directive H-4 as issued: under a harmonic interface scheme the R1 error becomes ~second order, successive |e1| ratios ~2.56 (= 1.6^2).",
+   "detail": "collapse floor 0.001 mK fired; |e1| = [0.0, 3.183231456205249e-09, 2.9558577807620168e-09]",
+   "registered_prediction": "THIS ARM'S OWN ARITHMETIC PREDICTS A2 IS UNTESTABLE. predict_t9aD.py, run before any D_* case existed, returns |e1| = 5.684e-10 / 1.648e-9 / 1.876e-9 mK under harmonic (drop factors 9.55e9 / 2.02e9 / 1.28e9) -- the collapse floor, so A2 is predicted NOT A RESULT and the directive's ~2.56 expectation is predicted unmeasurable rather than wrong. Recorded here before the solve so that the escape cannot be read as one invented afterwards.",
+   "row": "A2",
+   "verdict": "NOT A RESULT"
+  },
+  {
+   "claim": "Directive H-4 as issued: the m/f/x triple reads p ~ 1.",
+   "detail": "triple is STAGNANT (p = 0.1305)",
+   "registered_prediction": "THIS ARM'S OWN ARITHMETIC PREDICTS B0 IS NOT A RESULT. predict_t9aD.py returns differences -0.92588 and -0.87081 mK across m -> f -> x, giving p = 0.130, i.e. STAGNANT. Registered before the solve.",
+   "row": "B0",
+   "verdict": "NOT A RESULT"
+  },
+  {
+   "claim": "The R1 LEVEL ERRORS against exact keep shrinking at roughly first order across m, f, x -- the pattern T9a section 1.1 recorded across c, m, f.",
+   "detail": "level-error ratios 1.384, 1.566; threshold [1.25, 2.05]",
+   "registered_prediction": null,
+   "row": "B1",
+   "verdict": "PASS"
+  },
+  {
+   "claim": "Directive H-4 as issued: the GCI band armed on the fourth level still fails to cover the true error -- the GCI-smaller-than-error pattern persists.",
+   "detail": "triple is STAGNANT; band forbidden",
+   "error_x_mK": -1.5383734161105167,
+   "forbidden_band_mK": 17.213927211845622,
+   "registered_prediction": "predict_t9aD.py returns a STAGNANT triple, so B2 is predicted NOT A RESULT. Had the band been armed anyway it would have been 17.21 mK against a 1.54 mK error -- a band 11x too WIDE, the opposite defect to R1's. Recorded before the solve; it is not a verdict and is reported only as what the forbidden arming would have produced.",
+   "row": "B2",
+   "verdict": "NOT A RESULT"
+  },
+  {
+   "claim": "Directive H-4 as issued: with the contrast reduced 400x -> 40x the first-order R1 error scales roughly with the contrast ratio, i.e. shrinks by about 10x.",
+   "detail": "shrink factors 0.03231, 0.03202, 0.03707; threshold all in [3, 30]  (the error GREW)",
+   "registered_prediction": "THIS ARM'S OWN ARITHMETIC PREDICTS C1 GATE FAILS AND FAILS IN THE OPPOSITE DIRECTION. predict_t9aD.py returns |e1| = 168.06 / 104.16 / 64.99 mK at 40x against 5.43 / 3.34 / 2.41 mK at 400x: shrink factors 0.032 / 0.032 / 0.037, i.e. the error GROWS by 27-31x when the contrast is reduced. Registered before the solve.",
+   "row": "C1",
+   "verdict": "GATE FAIL"
+  },
+  {
+   "claim": "At 40x the R1 error is still first order in dx.",
+   "detail": "level-error ratios 1.614, 1.603; threshold [1.25, 2.05]",
+   "registered_prediction": null,
+   "row": "C2",
+   "verdict": "PASS"
+  }
+ ],
+ "schemes_read_back": {
+  "D_A_c": "Gauss harmonic corrected",
+  "D_A_f": "Gauss harmonic corrected",
+  "D_A_m": "Gauss harmonic corrected",
+  "D_B_x": "Gauss linear corrected",
+  "D_C_c": "Gauss linear corrected",
+  "D_C_f": "Gauss linear corrected",
+  "D_C_m": "Gauss linear corrected",
+  "D_R_f": "Gauss linear corrected"
+ },
+ "tally": {
+  "GATE_FAIL": 1,
+  "NOT_A_RESULT": 3,
+  "PASS": 3
+ },
+ "unconverged": []
+}

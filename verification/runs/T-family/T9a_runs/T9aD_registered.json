@@ -1,0 +1,351 @@
+{
+  "arm": "T9a-D",
+  "parent_rung": "T9a",
+  "kind": "DIAGNOSIS ARM -- grades nothing against the T9a band",
+  "source": "docs/campaigns/T-family/T9aD_PREREGISTRATION.md",
+  "directive": "Sanaa H-4: T9a's 2.4 mK interface miss: diagnosis arm (interface scheme vs mesh vs property jump), one change per run.",
+  "armed_before_any_D_case": true,
+  "written": "2026-08-22",
+  "verdict_vocabulary": [
+    "PASS",
+    "GATE REACHED",
+    "GATE FAIL",
+    "NOT A RESULT",
+    "BLOCKED",
+    "PENDING"
+  ],
+  "what_this_arm_may_not_do": [
+    "It may not re-solve, re-grade or move any T9a row. The T9a baseline numbers used here are READ from gate_t9a.json, never recomputed by a solver.",
+    "It may not repair the frozen comparator. analyse_t9aD.py is a NEW instrument with its own sign-correct GCI; analyse_t9a.py is imported unmodified and its own gci() is not called on any T9a-D row.",
+    "It may not arm a band against the T9a registered references and call it a T9a verdict. Every T9a-D verdict is against a prediction registered in this file with an explicit numeric threshold."
+  ],
+  "baseline_read_not_resolved": {
+    "file": "gate_t9a.json",
+    "cases": [
+      "W_c",
+      "W_m",
+      "W_f"
+    ],
+    "R1_level_errors_mK": [
+      -5.4308,
+      -3.3351,
+      -2.4092
+    ],
+    "R1_error_ratios": [
+      1.628,
+      1.384
+    ],
+    "R1_finest_error_mK": -2.4092,
+    "R1_frozen_band_mK": 0.92,
+    "R0_finest_q_excess_pct": 1.806
+  },
+  "grid": {
+    "r": 1.6,
+    "Fs": 1.25,
+    "rule": "three levels at nominal ratio 1.6; Roache GCI at Fs = 1.25 on the finest of the triple. A triple that is OSCILLATORY, STAGNANT (p < 0.5) or DIVERGENT (p <= 0) arms no band and the row that depends on it is NOT A RESULT. This rule is inherited verbatim from T9a and applies to every T9a-D triple."
+  },
+  "wall_frozen": {
+    "layers": [
+      {
+        "L": 0.05,
+        "k": 0.8
+      },
+      {
+        "L": 0.1,
+        "k": 0.04
+      },
+      {
+        "L": 0.02,
+        "k": 16.0
+      }
+    ],
+    "T_hot": 350.0,
+    "T_cold": 300.0,
+    "contrast": 400.0,
+    "interfaces_x": [
+      0.05,
+      0.15
+    ],
+    "total_thickness": 0.17
+  },
+  "wall_H_C": {
+    "layers": [
+      {
+        "L": 0.05,
+        "k": 0.8
+      },
+      {
+        "L": 0.1,
+        "k": 0.4
+      },
+      {
+        "L": 0.02,
+        "k": 16.0
+      }
+    ],
+    "T_hot": 350.0,
+    "T_cold": 300.0,
+    "contrast": 40.0,
+    "interfaces_x": [
+      0.05,
+      0.15
+    ],
+    "total_thickness": 0.17,
+    "only_change": "layer 2 conductivity 0.04 -> 0.4 W/mK. Geometry, temperatures, mesh ladder, solver, schemes, endTime, writeInterval, fvSolution all identical to the frozen wall cases.",
+    "exact_reevaluated_by": "exact_t9a.py, imported unmodified, with WALL_LAYERS overridden IN MEMORY; both of its independent routes (series resistance; harmonic-face FV solve) are run and must agree or the comparator refuses.",
+    "sum_R": 0.31375,
+    "q": 159.36255,
+    "T_i1": 340.0398406374502,
+    "T_i2": 300.1992031872509
+  },
+  "ladder": {
+    "c": [
+      10,
+      20,
+      5
+    ],
+    "m": [
+      16,
+      32,
+      8
+    ],
+    "f": [
+      26,
+      51,
+      13
+    ],
+    "x": [
+      42,
+      82,
+      21
+    ],
+    "x_note": "x = f * 1.6 with T1c integer rounding (26->42, 51->82, 13->21); 145 cells; realised ratios 1.6154 / 1.6078 / 1.6154, nominal 1.6 used in the GCI exactly as T9a does."
+  },
+  "cases": {
+    "D_A_c": {
+      "hypothesis": "H-A",
+      "kind": "wall",
+      "cells_per_layer": [
+        10,
+        20,
+        5
+      ],
+      "scheme": "Gauss harmonic corrected",
+      "k2": 0.04
+    },
+    "D_A_m": {
+      "hypothesis": "H-A",
+      "kind": "wall",
+      "cells_per_layer": [
+        16,
+        32,
+        8
+      ],
+      "scheme": "Gauss harmonic corrected",
+      "k2": 0.04
+    },
+    "D_A_f": {
+      "hypothesis": "H-A",
+      "kind": "wall",
+      "cells_per_layer": [
+        26,
+        51,
+        13
+      ],
+      "scheme": "Gauss harmonic corrected",
+      "k2": 0.04
+    },
+    "D_B_x": {
+      "hypothesis": "H-B",
+      "kind": "wall",
+      "cells_per_layer": [
+        42,
+        82,
+        21
+      ],
+      "scheme": "Gauss linear corrected",
+      "k2": 0.04
+    },
+    "D_C_c": {
+      "hypothesis": "H-C",
+      "kind": "wall",
+      "cells_per_layer": [
+        10,
+        20,
+        5
+      ],
+      "scheme": "Gauss linear corrected",
+      "k2": 0.4
+    },
+    "D_C_m": {
+      "hypothesis": "H-C",
+      "kind": "wall",
+      "cells_per_layer": [
+        16,
+        32,
+        8
+      ],
+      "scheme": "Gauss linear corrected",
+      "k2": 0.4
+    },
+    "D_C_f": {
+      "hypothesis": "H-C",
+      "kind": "wall",
+      "cells_per_layer": [
+        26,
+        51,
+        13
+      ],
+      "scheme": "Gauss linear corrected",
+      "k2": 0.4
+    },
+    "D_R_f": {
+      "hypothesis": "CONTROL-R",
+      "kind": "wall",
+      "cells_per_layer": [
+        26,
+        51,
+        13
+      ],
+      "scheme": "Gauss linear corrected",
+      "k2": 0.04
+    }
+  },
+  "one_change_per_run": "D_A_* change the laplacian(DT,T) interpolation and nothing else. D_B_x changes the mesh level and nothing else. D_C_* change layer 2's conductivity and nothing else. No case changes two things.",
+  "collapse_floor_mK": 0.001,
+  "collapse_floor_rule": "An order or ratio read from level errors that are all smaller than 0.001 mK (1 microkelvin, 2400x below the 2.41 mK being diagnosed) measures round-off, not order. Any row whose reading depends on such ratios is NOT A RESULT (reported, not graded). Registered before any D_* case exists because the arm's own registered arithmetic (predict_t9aD.py) predicts H-A will fire it.",
+  "rows": {
+    "A1": {
+      "hypothesis": "H-A",
+      "claim": "Directive H-4 as issued: under a harmonic interface scheme the R1 level error drops by more than a factor 3 at EVERY level.",
+      "quantity": "drop_k = |e1_frozen(level k)| / |e1_harmonic(level k)| for k in {c, m, f}, e1 = T_i1(measured) - T_i1(exact)",
+      "threshold": "PASS if min(drop_c, drop_m, drop_f) > 3.0; GATE FAIL otherwise",
+      "falsifier": "any level whose |e1| under harmonic is more than one third of its frozen-scheme |e1|",
+      "identity_test": {
+        "what_makes_it_fail": "a harmonic face conductivity that leaves the interface error where it was, i.e. the scheme is not the mechanism",
+        "could_a_wrong_treatment_pass": "yes, one way: a case that silently ignored the fvSchemes entry and re-solved something else could produce any number. This is why D_A_* are gated on the fvSchemes text being read back from the case at analysis time, on q'' and T_i2 being reported beside T_i1, and on the frozen mesh checks (interface faces at x = 0.05 / 0.15, per-cell DT against the layer map) being re-run. A treatment that got the interface right for the wrong reason cannot be excluded by this row alone, which is why A1 is a diagnosis and not a rung verdict."
+      }
+    },
+    "A2": {
+      "hypothesis": "H-A",
+      "claim": "Directive H-4 as issued: under a harmonic interface scheme the R1 error becomes ~second order, successive |e1| ratios ~2.56 (= 1.6^2).",
+      "quantity": "ratios |e1_c|/|e1_m| and |e1_m|/|e1_f| under harmonic",
+      "threshold": "PASS if both ratios lie in [2.0, 3.3]; GATE FAIL otherwise; NOT A RESULT if the collapse floor fires (all three |e1| < 0.001 mK)",
+      "falsifier": "either ratio outside [2.0, 3.3] with the errors above the collapse floor",
+      "registered_disagreement": "THIS ARM'S OWN ARITHMETIC PREDICTS A2 IS UNTESTABLE. predict_t9aD.py, run before any D_* case existed, returns |e1| = 5.684e-10 / 1.648e-9 / 1.876e-9 mK under harmonic (drop factors 9.55e9 / 2.02e9 / 1.28e9) -- the collapse floor, so A2 is predicted NOT A RESULT and the directive's ~2.56 expectation is predicted unmeasurable rather than wrong. Recorded here before the solve so that the escape cannot be read as one invented afterwards.",
+      "identity_test": {
+        "what_makes_it_fail": "ratios outside the second-order window on errors that are still large enough to carry an order",
+        "could_a_wrong_treatment_pass": "yes: a ratio taken on round-off can land anywhere including inside [2.0, 3.3]. That is exactly what the collapse floor exists to stop, and it is registered with a number rather than left to judgement."
+      }
+    },
+    "B0": {
+      "hypothesis": "H-B",
+      "claim": "Directive H-4 as issued: the m/f/x triple reads p ~ 1.",
+      "quantity": "the Roache observed order p of the m/f/x T_i1 triple, from successive DIFFERENCES, the frozen convention",
+      "threshold": "PASS if the triple is CONVERGING and p in [0.7, 1.4]; GATE FAIL if CONVERGING and p outside; NOT A RESULT if the triple is OSCILLATORY, STAGNANT or DIVERGENT",
+      "falsifier": "p outside [0.7, 1.4] on a CONVERGING triple",
+      "registered_disagreement": "THIS ARM'S OWN ARITHMETIC PREDICTS B0 IS NOT A RESULT. predict_t9aD.py returns differences -0.92588 and -0.87081 mK across m -> f -> x, giving p = 0.130, i.e. STAGNANT. Registered before the solve.",
+      "identity_test": {
+        "what_makes_it_fail": "a fourth level whose difference from the third is not consistent with a first-order approach",
+        "could_a_wrong_treatment_pass": "no known way: p is read from three independently solved levels, and a solver that got the interface right would move the differences, not merely their ratio. The row is nonetheless a diagnosis: p is a property of the triple, not of the physics, and B1 is reported beside it for that reason."
+      }
+    },
+    "B1": {
+      "hypothesis": "H-B",
+      "claim": "The R1 LEVEL ERRORS against exact keep shrinking at roughly first order across m, f, x -- the pattern T9a section 1.1 recorded across c, m, f.",
+      "quantity": "successive ratios |e1_m|/|e1_f| and |e1_f|/|e1_x|",
+      "threshold": "PASS if both ratios lie in [1.25, 2.05] (first order at r = 1.6 is 1.60; the window is 1.6 with a factor 1.28 either side, the same span T9a's observed 1.63 / 1.38 spread over); GATE FAIL otherwise",
+      "falsifier": "either ratio outside [1.25, 2.05]",
+      "not_independent": "this quantity is measured against the exact reference and is therefore NOT an instrument independent of the hypothesis (Charter 2d.1 condition 2). It grades a registered prediction of this diagnosis arm and grounds no repair to anything.",
+      "identity_test": {
+        "what_makes_it_fail": "errors that stop shrinking (ratio -> 1) or that collapse (ratio >> 2)",
+        "could_a_wrong_treatment_pass": "yes: any error mechanism that happens to be first order in dx reproduces this ratio, including ones that have nothing to do with the interface. B1 therefore establishes the ORDER of the residual error and not its cause; the cause is what A1 and C1 separate."
+      }
+    },
+    "B2": {
+      "hypothesis": "H-B",
+      "claim": "Directive H-4 as issued: the GCI band armed on the fourth level still fails to cover the true error -- the GCI-smaller-than-error pattern persists.",
+      "quantity": "band_x (Roache GCI, Fs 1.25, on level x of the m/f/x triple) versus |e1_x|",
+      "threshold": "PASS if band_x < |e1_x|; GATE FAIL if band_x >= |e1_x|; NOT A RESULT if the m/f/x triple is not CONVERGING, because a band armed on a non-converging triple is one the registered rule forbids arming",
+      "falsifier": "a band that covers the error",
+      "registered_disagreement": "predict_t9aD.py returns a STAGNANT triple, so B2 is predicted NOT A RESULT. Had the band been armed anyway it would have been 17.21 mK against a 1.54 mK error -- a band 11x too WIDE, the opposite defect to R1's. Recorded before the solve; it is not a verdict and is reported only as what the forbidden arming would have produced.",
+      "identity_test": {
+        "what_makes_it_fail": "a band that covers the error at the fourth level",
+        "could_a_wrong_treatment_pass": "yes: a band can cover an error by being large for a bad reason (a stagnant triple inflates the GCI without any improvement in the answer), which is why the triple-state rule sits upstream of this row and can void it."
+      }
+    },
+    "C1": {
+      "hypothesis": "H-C",
+      "claim": "Directive H-4 as issued: with the contrast reduced 400x -> 40x the first-order R1 error scales roughly with the contrast ratio, i.e. shrinks by about 10x.",
+      "quantity": "shrink_k = |e1_400x(level k)| / |e1_40x(level k)| for k in {c, m, f}",
+      "threshold": "PASS if all three shrink factors lie in [3, 30] (order of magnitude around the contrast ratio 10); GATE FAIL otherwise",
+      "falsifier": "any level whose shrink factor is below 3 -- including the case where the error GROWS, which is a shrink factor below 1",
+      "scale_note": "the comparison is in millikelvin and is scale-free because the driving potential T_hot - T_cold = 50 K is identical in both arms. It is reported additionally as a fraction of the layer-1 temperature drop, which is NOT identical between the arms (1.2189 K at 400x, 9.9602 K at 40x), so that the reader can see both denominators. The verdict is on the millikelvin figure, registered here.",
+      "registered_disagreement": "THIS ARM'S OWN ARITHMETIC PREDICTS C1 GATE FAILS AND FAILS IN THE OPPOSITE DIRECTION. predict_t9aD.py returns |e1| = 168.06 / 104.16 / 64.99 mK at 40x against 5.43 / 3.34 / 2.41 mK at 400x: shrink factors 0.032 / 0.032 / 0.037, i.e. the error GROWS by 27-31x when the contrast is reduced. Registered before the solve.",
+      "identity_test": {
+        "what_makes_it_fail": "an error that does not track the contrast, in either direction",
+        "could_a_wrong_treatment_pass": "yes: a solver whose interface treatment was wrong in some contrast-independent way would show a shrink factor near 1, which fails; but a solver wrong in a way that happens to scale with contrast would pass while being wrong about the mechanism. C1 is therefore paired with C2, which asks whether the error at 40x is still first order, and with A1, which removes the scheme rather than weakening it."
+      }
+    },
+    "C2": {
+      "hypothesis": "H-C",
+      "claim": "At 40x the R1 error is still first order in dx.",
+      "quantity": "successive ratios |e1_c|/|e1_m| and |e1_m|/|e1_f| at 40x",
+      "threshold": "PASS if both ratios lie in [1.25, 2.05]; GATE FAIL otherwise",
+      "falsifier": "either ratio outside [1.25, 2.05]",
+      "identity_test": {
+        "what_makes_it_fail": "errors at 40x that converge at second order or stop converging",
+        "could_a_wrong_treatment_pass": "yes, for the same reason as B1: first order in dx is a common signature and does not by itself name a cause."
+      }
+    }
+  },
+  "reported_not_graded": {
+    "q_and_T_i2": "every D_* case reports q'', T_i1 and T_i2 with its own exact reference; only the T_i1 rows above carry verdicts",
+    "emulator_identity": "predict_t9aD.py reproduces the three published frozen T9a wall levels to 4.55e-12 K and is compared against every D_* case as well. THIS IS AN IDENTITY (Charter 2a): the emulator and laplacianFoam solve the same discrete equations, so agreement is arithmetic and not evidence. It is REPORTED and NEVER GATED. It is retained because it dates the predictions and because a disagreement would be a real finding about one of the two.",
+    "heat_balance": "|q_hot - q_cold| / q_mean per case, a near-identity on a 1-D wall, reported and not gated",
+    "iterative_convergence": "last two written checkpoints (L-141), with a live planted-zero control"
+  },
+  "planted_zero_control": {
+    "what": "+1.234e-03 K planted into one cell of the 900/T checkpoint of a SCRATCH COPY of D_C_f, outside the run tree",
+    "must": "the convergence reader must return max_change = 1.234e-03 K and state NOT_CONVERGED",
+    "why": "L-141: a zero needs a live planted control; every D_* wall case is expected to report max_change 0.0 exactly, as the frozen wall cases did, and a reader that cannot see a planted number would report that same zero while broken"
+  },
+  "controls_inherited": "the T9a controls C1/C2/C3 are NOT re-run. They graded T9a's rows and this arm grades none of them. The trivial-baseline question they answer (Charter 2c) is answered for the wall geometry by W_C3, already MET and on disk.",
+  "solver": {
+    "application": "laplacianFoam (ESI v2606), identical to T9a",
+    "endTime": 1000,
+    "writeInterval": 100,
+    "purgeWrite": 2,
+    "residualControl": "absent (L-141)",
+    "scheme_risk": "if laplacian(DT,T) Gauss harmonic corrected is refused by ESI v2606, the exact error text is recorded and H-A is marked BLOCKED. It is not replaced by an improvised equivalent. Read from the installed source before registration: harmonic is registered as a scalar surfaceInterpolationScheme (harmonic.C addMeshConstructorToTable) and interpolates as 1/reverseLinear(1/gamma) (harmonic.H); its weights() is NotImplemented, so a context calling weights() rather than interpolate() would abort. Whether the Gauss laplacian calls interpolate() is settled by running it, not by this note."
+  },
+  "cost": {
+    "cores": "<= 3 of 16; the chain is SERIAL, one laplacianFoam process at a time, nProcs 1; 12 cores are carrying other lanes' solvers and none of them is touched",
+    "usd_per_core_hour": 0.0513,
+    "basis": "T9a solved 7 cases in 8.18 core-seconds total; its four wall cases (35, 56, 90, 90 cells) took 0.09 / 0.10 / 0.09 / 0.10 s wall and 0.05 / 0.05 / 0.06 / 0.06 s solver",
+    "predicted_cells": {
+      "D_A_c": 35,
+      "D_A_m": 56,
+      "D_A_f": 90,
+      "D_B_x": 145,
+      "D_C_c": 35,
+      "D_C_m": 56,
+      "D_C_f": 90,
+      "D_R_f": 90
+    },
+    "predicted_core_seconds": 1.2,
+    "predicted_usd": 1.71e-05,
+    "prediction_note": "eight wall cases at <= 0.15 s each including checkMesh; D_B_x is the largest at 145 cells, still 23x smaller than T9a's largest fin case which took 5.85 s. 1.2 core-seconds is the honest ceiling, not a point estimate."
+  },
+  "control_R": {
+    "what": "REPLICA CONTROL. D_R_f is the frozen W_f rebuilt by the NEW builder with NOTHING changed: same mesh level f, same k, same scheme (written as an explicit laplacian(DT,T) Gauss linear corrected entry, which is what the frozen cases' 'default Gauss linear corrected' already selects).",
+    "why": "without it, any difference in D_B_x or D_C_* could be the new builder rather than the registered change. This case makes the builder itself a controlled variable.",
+    "must": "reproduce gate_t9a.json's W_f T_i1, T_i2 and q'' to 1e-9 K / 1e-7 W/m2",
+    "verdict_rule": "PASS if it reproduces within that tolerance; if it does NOT, EVERY T9a-D row becomes NOT A RESULT, because the arm's single-change claim would be false. Registered as a refusal in the comparator.",
+    "identity_test": {
+      "what_makes_it_fail": "a builder that writes a different mesh, a different DT map, a different boundary condition or a different scheme than the frozen builder did",
+      "could_a_wrong_treatment_pass": "yes, in one sense: it is a near-IDENTITY, since it is meant to reproduce a number bit for bit. It is therefore not evidence about the physics and is never counted as one of the seven graded rows. It is a REFUSAL CONDITION on the arm, which is what a control that cannot fail informatively should be."
+    }
+  },
+  "amendment_2026-08-22": "D_R_f (replica control) added AFTER the comparator was written and hashed and BEFORE any compute. Legal under Charter 2b(1): amendments are legal while there is no answer to tune to, and the condition must be CHECKED and stated, not asserted. Checked: `find verification/runs/T-family/T9a_runs -name 'D_*'` returned 0 lines at 2026-08-22T17:58:41.441Z and again after this amendment. The amendment ADDS a control and a refusal condition; it changes no threshold, no row, no band and no reference. The comparator was re-hashed after the change it required and the new hash recorded in the pre-registration beside the first."
+}

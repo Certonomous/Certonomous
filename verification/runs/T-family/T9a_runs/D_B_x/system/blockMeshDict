@@ -1,0 +1,49 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      blockMeshDict;
+}
+
+scale 1;
+
+vertices
+(
+    (0 0 0)
+    (0 0.01 0)
+    (0 0.01 0.01)
+    (0 0 0.01)
+    (0.05 0 0)
+    (0.05 0.01 0)
+    (0.05 0.01 0.01)
+    (0.05 0 0.01)
+    (0.15 0 0)
+    (0.15 0.01 0)
+    (0.15 0.01 0.01)
+    (0.15 0 0.01)
+    (0.17 0 0)
+    (0.17 0.01 0)
+    (0.17 0.01 0.01)
+    (0.17 0 0.01)
+);
+
+blocks
+(
+    hex (0 4 5 1 3 7 6 2) (42 1 1) simpleGrading (1 1 1)
+    hex (4 8 9 5 7 11 10 6) (82 1 1) simpleGrading (1 1 1)
+    hex (8 12 13 9 11 15 14 10) (21 1 1) simpleGrading (1 1 1)
+);
+
+edges ();
+
+boundary
+(
+    hot     { type wall;  faces ( (0 3 2 1) ); }
+    cold    { type wall;  faces ( (12 13 14 15) ); }
+    sidesY  { type empty; faces ( (0 4 7 3) (1 2 6 5) (4 8 11 7) (5 6 10 9) (8 12 15 11) (9 10 14 13) ); }
+    sidesZ  { type empty; faces ( (0 1 5 4) (3 7 6 2) (4 5 9 8) (7 11 10 6) (8 9 13 12) (11 15 14 10) ); }
+);
+
+mergePatchPairs ();
