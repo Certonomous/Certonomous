@@ -18,6 +18,7 @@ the Agent tool and break every supervisor's ability to spawn lanes.
 import argparse
 import json
 import os
+import re
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -352,6 +353,125 @@ def assert_parses(name, content):
     return None
 
 
+# ---------------------------------------------------------------------------
+# Prose surfaces. The roster is data in teams.yaml and prose in three other
+# places, so a team could be half-added: `--check` caught an orphaned agent file
+# but never a team missing from the constitution, the form-teams table or the
+# board. These render those surfaces from the same YAML and gate them.
+# ---------------------------------------------------------------------------
+
+MARK_BEGIN = "<!-- BEGIN GENERATED %s (harness/generate_agents.py from harness/teams.yaml) -->"
+MARK_END = "<!-- END GENERATED %s -->"
+
+CLAUDE_MD = os.path.join(REPO, "CLAUDE.md")
+FORMTEAMS_MD = os.path.join(REPO, ".claude", "skills", "form-teams", "SKILL.md")
+LABSTATE_MD = os.path.join(REPO, "docs", "LAB_STATE.md")
+
+STAMP_RE = re.compile(r"^\*\*Section last written:\*\* (\S+) by (.+?)\.?$", re.M)
+
+
+def render_roster_table(cfg):
+    rows = ["| Agent (`subagent_type`) | Team | Territory |", "|---|---|---|"]
+    for t in cfg["teams"]:
+        rows.append("| `%s` | %s | %s |" % (t["name"], t["team"], t["territory"].strip()))
+    return "\n".join(rows)
+
+
+def render_formteams_table(cfg):
+    rows = ["| `subagent_type` | Board section to pass |", "|---|---|"]
+    for t in cfg["teams"]:
+        rows.append("| `%s` | `## %s` |" % (t["name"], t["team"]))
+    return "\n".join(rows)
+
+
+PROSE = [
+    (lambda: CLAUDE_MD, "roster", render_roster_table),
+    (lambda: FORMTEAMS_MD, "formteams", render_formteams_table),
+]
+
+
+def sync_prose(cfg, check):
+    """Fill each marked region from the YAML. Returns a list of drift messages."""
+    drift = []
+    for getpath, key, render in PROSE:
+        path = getpath()
+        rel = os.path.relpath(path, REPO)
+        if not os.path.exists(path):
+            drift.append("%s: missing" % rel)
+            continue
+        with open(path) as fh:
+            text = fh.read()
+        b, e = MARK_BEGIN % key, MARK_END % key
+        if b not in text or e not in text:
+            drift.append("%s: no '%s' generated region (markers absent)" % (rel, key))
+            continue
+        pre, rest = text.split(b, 1)
+        _, post = rest.split(e, 1)
+        want = pre + b + "\n" + render(cfg) + "\n" + e + post
+        if want == text:
+            print("  ok    %s [%s]" % (rel, key))
+        elif check:
+            drift.append("%s: '%s' region does not match teams.yaml" % (rel, key))
+            print("  DRIFT %s [%s]" % (rel, key))
+        else:
+            with open(path, "w") as fh:
+                fh.write(want)
+            print("  write %s [%s]" % (rel, key))
+    return drift
+
+
+def check_labstate_sections(cfg, check):
+    """Every team needs a `## <team>` section on the board, carrying a freshness
+    stamp. Content is NEVER rewritten -- sections belong to their supervisors and
+    one may be mid-write. A missing section gets a skeleton; that is all."""
+    drift = []
+    if not os.path.exists(LABSTATE_MD):
+        return ["docs/LAB_STATE.md: missing"]
+    with open(LABSTATE_MD) as fh:
+        text = fh.read()
+    heads = re.findall(r"^## (.+)$", text, re.M)
+    for t in cfg["teams"]:
+        if t["team"] in heads:
+            print("  ok    docs/LAB_STATE.md [## %s]" % t["team"])
+            continue
+        drift.append("docs/LAB_STATE.md: no '## %s' section" % t["team"])
+        if check:
+            print("  DRIFT docs/LAB_STATE.md [## %s missing]" % t["team"])
+        else:
+            text = text.rstrip("\n") + SECTION_SKELETON % {
+                "team": t["team"], "agent": t["name"]}
+            with open(LABSTATE_MD, "w") as fh:
+                fh.write(text)
+            print("  write docs/LAB_STATE.md [## %s skeleton]" % t["team"])
+            drift.pop()
+    return drift
+
+
+SECTION_SKELETON = """
+
+---
+
+## %(team)s
+
+**Section last written:** never by nobody.
+
+**Last commit:** VERIFY.
+
+**Live jobs:** VERIFY.
+
+**Rungs lacking verdicts:** VERIFY.
+
+**Next actions:** VERIFY.
+
+**On Sanaa's desk:** VERIFY.
+
+**Blocked:** VERIFY.
+
+*Skeleton created by harness/generate_agents.py. `%(agent)s` owns this section and
+fills it at its next commit or verdict.*
+"""
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument(
@@ -397,6 +517,10 @@ def main():
         if name.endswith(".md") and name not in known:
             drift.append(name)
             print("  ORPHAN %s (no entry in teams.yaml)" % name)
+
+    # The three prose surfaces that carry the roster outside the YAML.
+    drift += sync_prose(cfg, args.check)
+    drift += check_labstate_sections(cfg, args.check)
 
     if args.check:
         if drift:

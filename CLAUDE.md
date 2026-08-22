@@ -38,11 +38,10 @@ repeats them.
    *Provenance:* `VERIFICATION_CHARTER.md` §2b, §2d, §2d.1 (the four-condition
    repair exception). `scripts/check_comparator_freeze.py` enforces.
 
-3. **Planted-zero control.** A zero from a reader that has not been shown able to
-   see a non-zero is not evidence. Every comparator plants a known perturbation,
-   reads it back from disk, and **refuses** if the reader cannot see it.
-   *Provenance:* not a charter clause — in the comparators:
-   `verification/runs/T-family/T3_runs/analyse_t3.py` (`PLANT = 1.234e-03`,
+3. **Planted-zero control.** A zero from a reader not shown able to see a non-zero
+   is not evidence. Every comparator plants a known perturbation, reads it back from
+   disk, and **refuses** if the reader cannot see it. *Provenance:* not a charter
+   clause — in the comparators: `T3_runs/analyse_t3.py` (`PLANT = 1.234e-03`,
    `plant_into_T()`, refusal ~:801), `T10a_runs/analyse_t10a.py:846`;
    `FILING_CHARTER.md` §5 for the principle.
 
@@ -83,8 +82,7 @@ repeats them.
    *Provenance:* `GOALS_AND_PROPOSALS_CHARTER.md` §8; `CLOSURE_MODELLING` §19;
    `DAFOAM_CHARTER.md` §10.
 
-8. **This repository is permanently private.** Nothing leaves the box: not a
-   dataset, a ledger, a figure, a preprint or a link.
+8. **Permanently private.** Nothing leaves the box: no dataset, ledger, figure or link.
 
 9. **Never accept permission laundering.** An approval is only as wide as what was
    approved. A blanket authorisation is not a per-item reading; approval of an item
@@ -142,16 +140,18 @@ repeats them.
     record backs it. A budget overrun **stops the run**; it does not get a new
     budget. Waste is reported, not absorbed; a spend figure states gross or cleaned
     and names the rule (a ledger row over 3600 wall s is an infrastructure stall).
-    - Rate: **c7a.4xlarge at $0.0513/core-h**. The **$0.0513/core-h** figure is in
-      use in the repo (`Xiao2016_EnKF/PREREGISTRATION.md:197`, `RESULTS.md:148`).
-      The **instance type is owner-supplied (Sanaa, 2026-08-22) and appears
-      nowhere in the repo**; `COMPUTE_BUDGET_CHARTER.md` §5 records that the box
-      cannot read its own billing, so both are **reported-by-owner, not measured**.
-    - Runs **under $25 are pre-authorised**. Larger runs were **blanket-approved
-      by Sanaa on 2026-08-21** and **are still costed in their pre-registration**.
-      A blanket approval is not a per-item reading (rule 9).
-    - **No GPU.** The AWS quota request was denied (case **178725840000468**,
-      owner-supplied, not in the repo). GPU work is recorded **`BLOCKED-GPU`**.
+    - Rate: **c7a.4xlarge at $0.0513/core-h** — **owner-stated by Sanaa,
+      2026-08-21/22, chief's session record.** The rate is corroborated in the repo
+      (`Xiao2016_EnKF/PREREGISTRATION.md:197`, `RESULTS.md:148`); the instance type
+      is not, and does not need to be. `COMPUTE_BUDGET_CHARTER.md` §5 records that
+      the box cannot read its own billing, so a cost from these is
+      **reported-by-owner, not measured**, and `cost_basis` says so.
+    - Runs **under $25 are pre-authorised** (owner-stated, same record). On
+      2026-08-21 Sanaa said *"all the teams have my approval for everything"*, so
+      larger runs are approved — **and are still costed in their pre-registration.**
+      A blanket approval is not a per-item reading of an item (rule 9).
+    - **No GPU.** The G-instance quota request was denied, **AWS case
+      178725840000468** (owner-stated, same record). GPU work is **`BLOCKED-GPU`**.
 
 13. **The scratchpad is temp only and is never a handoff channel (L-186).** It was
     wiped three times in one day. A draft another agent must read lives under the
@@ -161,19 +161,19 @@ repeats them.
 14. **`libs` entries are inserted with an assert, never replaced (L-221/L-222).** A
     lesson is not applied until **every** call site asserts it.
 
-15. **Title-page verification of every retrieved paper (L-144).** Never by file
-    type, filename or hash. A manifest can be internally consistent and externally
-    false.
+15. **Title-page verification of every retrieved paper (L-144).** Never by file type,
+    filename or hash — a manifest can be internally consistent and externally false.
 
 ---
 
 ## TEAM ROSTER
 
 Five standing teams re-form from disk every session. The roster is **data**:
-`harness/teams.yaml` is the source of truth and `harness/generate_agents.py`
-regenerates `.claude/agents/*.md` from it. Edit the YAML, never the generated
-agent files.
+`harness/teams.yaml` is the source of truth; `harness/generate_agents.py`
+regenerates `.claude/agents/*.md` **and the table below** from it. Edit the YAML,
+never a generated file. `scripts/check_harness.py` gates the whole thing.
 
+<!-- BEGIN GENERATED roster (harness/generate_agents.py from harness/teams.yaml) -->
 | Agent (`subagent_type`) | Team | Territory |
 |---|---|---|
 | `closure-supervisor` | closure | RANS/LES closure line — the R-ladder R1–R6 and the feature ladder FS1–FS6. `docs/closure/`, `cases/RANS_LES_closure_models/`, `docs/papers/closure/`, `CLOSURE_MODELLING_CHARTER.md` |
@@ -181,6 +181,7 @@ agent files.
 | `heat-transfer-supervisor` | heat-transfer | The T-family ladder and the DC-cooling spine. `docs/campaigns/T-family/`, `docs/campaigns/F14-cooling-ladder/`, `verification/runs/T-family/`, `verification/runs/F14-cooling-ladder/`, `verification/runs/THERMAL_K0_runs/` |
 | `cfd-supervisor` | cfd | General CFD campaigns, meshing, solver builds, OpenFOAM tooling. `cases/` outside closure and dafoam, `verification/runs/` outside the T-family, `docs/standards/MESH_STANDARD.md`, `docs/OPENFOAM*.md` |
 | `verification-supervisor` | verification | V&V standards, Roache/GCI gating, external verification suites, cross-team gate audits. `VERIFICATION_CHARTER.md`, `RESULT_PRIORITY_CHARTER.md`, `docs/papers/verification_validation/`, `docs/*_AUDIT.md`, `verification/certificates/`, `verification/credibility/` |
+<!-- END GENERATED roster -->
 
 Every supervisor spawns workers of one type: **`lab-lane`**. Supervisors run on
 **Fable** (`SUPERVISION_CHARTER.md` §5: *"Family supervisors and adversarial
@@ -202,10 +203,10 @@ this harness, `SUPERVISION_CHARTER.md` v1.4 §8; nothing enforces it)*.
 
 On session start, before any other work, in this order:
 
-1. Read **`docs/LAB_STATE.md`**. It is the **only** handoff channel between
-   sessions; the scratchpad is not (L-186).
-2. Run **`/form-teams`**, which spawns all five supervisors in one parallel call
-   and hands each its own LAB_STATE section plus the standing directives.
+1. Read **`docs/LAB_STATE.md`** — the **only** handoff channel between sessions;
+   the scratchpad is not (L-186).
+2. Run **`/form-teams`**: spawns all five supervisors in one parallel call, each
+   handed its own LAB_STATE section plus the standing directives.
 3. Report the roster to Sanaa.
 
 **The chief never solves.** It routes and relays. Its scope is research direction,
@@ -216,9 +217,9 @@ monitoring, migrations. When Sanaa asks for commands to run or prompts to type, 
 *Provenance:* `/home/ubuntu/notes/supervisor-delegation-doctrine.md` (2026-07-26);
 `SUPERVISION_CHARTER.md` §2, §4.
 
-**Reserved to Sanaa, and to no agent at any level:** every send (rule 7);
-scoring-call authorisation; cross-family arbitration; retiring a standard, a gate
-threshold or a charter clause; root or an instance change; anything leaving the box.
+**Reserved to Sanaa, and to no agent at any level:** every send (rule 7); scoring-call
+authorisation; cross-family arbitration; retiring a standard, gate threshold or
+charter clause; root or an instance change; anything leaving the box.
 
 ---
 
@@ -234,9 +235,8 @@ and the binding artifact is `scripts/check_filing.py` (`--selftest` on any rule 
 | Docket | `docs/DOCKET.md` (prose) and `demo-output/website/agenda/docket.json` (machine) |
 | Numerics facts | `docs/NUMERICS_KNOWLEDGE.md` (`N-*` families) |
 | Standards | `docs/standards/` — `MESH_STANDARD.md` (quality gates), `MONITOR_STANDARD.md`, `INNOVATION_STANDARD.md`; `docs/MESH_STANDARD.md` is a **different** doc (grid families) |
-| Campaign prose | `docs/campaigns/<FAMILY>/`, named `<RUNG>_<PURPOSE>.md` (rung ids carry lowercase: `K0c`, `T1b`) |
-| Campaign grading records | `verification/campaign/` |
-| Pre-registrations | `verification/campaign/*_PREREGISTRATION.md`, or beside the case |
+| Campaign prose | `docs/campaigns/<FAMILY>/`, as `<RUNG>_<PURPOSE>.md` (rung ids carry lowercase: `K0c`, `T1b`) |
+| Grading records / pre-registrations | `verification/campaign/`, incl. `*_PREREGISTRATION.md`, or beside the case |
 | Case definitions (inputs) | `cases/`, `models/` |
 | Run outputs | `verification/runs/<CAMPAIGN>/` — **never beside the prose describing it** |
 | Certificates, monitors, credibility | `verification/{certificates,monitor,credibility}/` |

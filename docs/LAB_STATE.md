@@ -21,6 +21,9 @@ turn, because the end of a turn may never arrive.
   beside it (`git log`, `ps aux`, `readlink /proc/<pid>/cwd`) and **the reading
   wins**. A correction belongs to the supervisor who owns the section, not to
   whoever noticed.
+- Every team section carries a **`**Section last written:**` stamp**. `scripts/check_harness.py`
+  flags a section older than its own territory — the team committed and did not
+  update its board, which is exactly the L-226 failure.
 - Verdict vocabulary only: **PASS / GATE REACHED / GATE FAIL / NOT A RESULT /
   BLOCKED / PENDING.**
 
@@ -53,11 +56,11 @@ to Sanaa. Sends are reserved to Sanaa.
 | **R4 approved** | Sanaa said *"R4 approved"* in the same message | same | **APPROVED**; R4 build **OPEN, no verdict** |
 | **R4's CPU-minutes have first call on capacity** | named in the thermal directive's own header | Sanaa 2026-08-22 | **IN FORCE** |
 | **SUBMISSIONS PARKED** | Nothing is sent, filed, uploaded, registered or posted anywhere. Sending is Sanaa's alone | Katie 2026-08-07; `GOALS_AND_PROPOSALS` §8, `CLOSURE_MODELLING` §19, `DAFOAM` §10 | **IN FORCE**, indefinitely |
-| **Blanket compute approval** | Runs above the $25 pre-authorisation are blanket-approved, **and are still costed in their pre-registration** | Sanaa 2026-08-21 (owner-supplied; not found in the repo — **VERIFY**) | **IN FORCE** |
-| **No GPU** | AWS quota denied, case 178725840000468. GPU work is recorded **BLOCKED-GPU** | owner-supplied; case number and the token `BLOCKED-GPU` appear **nowhere in the repo** — **VERIFY** | **IN FORCE** |
+| **Blanket compute approval** | Runs above the $25 pre-authorisation are blanket-approved, **and are still costed in their pre-registration** | Sanaa 2026-08-21, *"all the teams have my approval for everything"* — **owner-stated, chief's session record** | **IN FORCE** |
+| **No GPU** | AWS quota denied, case 178725840000468. GPU work is recorded **BLOCKED-GPU** | **Owner-stated, chief's session record** (2026-08-21/22). The token `BLOCKED-GPU` is new vocabulary and appears nowhere else in the repo yet | **IN FORCE** |
 
 **Lab-wide live compute:** 12 single-core solvers, all `buoyantBoussinesqSimpleFoam`,
-all owned by heat-transfer. At $0.0513/core-h that is **~$0.62/h** while all 12
+all owned by heat-transfer. At $0.0513/core-h that is **~$0.62/h** (c7a.4xlarge at $0.0513/core-h, owner-stated) while all 12
 run. No other team has anything on the box.
 
 **On Sanaa's desk, aggregated:** the T10a view-factor defect as upstream candidate
@@ -67,9 +70,31 @@ run. No other team has anything on the box.
 D389 S13 normalisation question (re-grades the whole thermal corpus; no single
 rung may take it).
 
+**Chief's rulings, 2026-08-22 (harness session).**
+
+- **D-1 RESOLVED.** The stale shared git index (176 staged deletions, including all
+  14 harness files) was cleared by the chief with `git read-tree HEAD` under Sanaa's
+  standing approval. **Index clean, working tree untouched.** The loaded gun is
+  unloaded; the lesson stands — never a bare `git commit`, always the private index.
+- **D-2 RESOLVED.** The four compute facts are **owner-stated by Sanaa,
+  2026-08-21/22, chief's session record**: c7a.4xlarge at $0.0513/core-h; runs
+  under $25 pre-authorised; *"all the teams have my approval for everything"*
+  (2026-08-21); AWS case **178725840000468** for the G-instance quota. VERIFY is
+  dropped on these four and on nothing else.
+- **D-3 … D-6 are with Sanaa and no agent acts on them.** D-3 lane cap, D-4 the
+  five-team split, D-5 `GATE FAIL` vs bare `FAIL`, D-6 the VM2026R1 canonical home.
+- **D-6, board note — DO NOT TOUCH EITHER COPY.** `VM2026R1_Fluids/` at the repo
+  root holds **123 files, 2.5 GB** (Fluent / CFX / Forte archives). A second copy is
+  **being scp'd into `docs/papers/verification_validation/` right now** — 10 files so
+  far, **transfer in progress**. Nothing is graded from either, nothing is tracked,
+  and neither is moved, deleted or reorganised until Sanaa rules and the transfer
+  finishes. A half-copied tree read as a corpus is a measurement of nothing.
+
 ---
 
 ## closure
+
+**Section last written:** 2026-08-22T18:22Z by closure-supervisor.
 
 **Last commit:** `b36daf06` — *R4 SpaRTA build lane, stage (a): the inventory,
 the build and selection scripts, and the frozen-RANS targets* (2026-08-22
@@ -240,6 +265,8 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 ## dafoam
 
+**Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
+
 *Refreshed 2026-08-22T18:20Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
@@ -307,6 +334,8 @@ is plain `simpleFoam`, not DAFoam work.
 ---
 
 ## heat-transfer
+
+**Section last written:** 2026-08-22T18:22Z by heat-transfer-supervisor.
 
 ### T-family (thermal) — refreshed 2026-08-22 by the T-family lane (supervisor)
 
@@ -430,6 +459,8 @@ thirty, KV1's three). **No single rung may take that decision.** Owner: chief.
 
 ## cfd
 
+**Section last written:** 2026-08-22T18:05Z by harness-build (FIRST FILL — not yet written by its owner).
+
 **Last commit:** `cc4f1a64` — *Twenty-six dead paper paths in forty files…*
 (2026-08-18 17:54Z). **This lane has been idle four days** while the other four
 committed today.
@@ -493,6 +524,8 @@ documented `FILING_CHARTER` §3 exception: *the rule was wrong, not the tree.*
 ---
 
 ## verification
+
+**Section last written:** 2026-08-22T18:05Z by harness-build (FIRST FILL — not yet written by its owner).
 
 **Last commit:** `fd831c11` — *T-family: Thermal Buildup Directive recorded; T3
 NOT A RESULT 4/4; charter 2e; DC certificate template; libs helper+lint

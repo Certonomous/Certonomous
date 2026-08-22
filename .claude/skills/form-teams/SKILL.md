@@ -37,6 +37,7 @@ supervisor who owns that section; the board is theirs to write.
 Issue a single message containing **five Agent tool calls**, so they run
 concurrently. The `subagent_type` is the agent's name:
 
+<!-- BEGIN GENERATED formteams (harness/generate_agents.py from harness/teams.yaml) -->
 | `subagent_type` | Board section to pass |
 |---|---|
 | `closure-supervisor` | `## closure` |
@@ -44,6 +45,7 @@ concurrently. The `subagent_type` is the agent's name:
 | `heat-transfer-supervisor` | `## heat-transfer` |
 | `cfd-supervisor` | `## cfd` |
 | `verification-supervisor` | `## verification` |
+<!-- END GENERATED formteams -->
 
 Each supervisor's charter, reading list, folder scope, delegation rules, board
 duty and reporting contract are **already in its own definition file** — do not
@@ -91,6 +93,27 @@ direction, trust verification, dispatch or synthesis goes to a designated agent
 even when she does not say so. If she asks for commands to run or prompts to
 type, spawn a `lab-lane` as liaison to compose that answer — you do not write it
 yourself.
+
+## If a `subagent_type` is not found — read this before concluding anything is broken
+
+**Agent definitions are read when a session starts.** A session that began before
+`.claude/agents/*.md` was written, or before a team was added to
+`harness/teams.yaml` and regenerated, **cannot see those agents**, and the spawn
+fails with *"Agent type 'x-supervisor' not found"* listing only the built-ins.
+
+**This is a session-age problem, not a broken definition.** Measured 2026-08-22: the
+harness was built mid-session and every supervisor was unspawnable from that same
+session, while the files on disk were correct and round-tripped.
+
+What to do, in order:
+
+1. Run `python3 harness/generate_agents.py --check` and `python3
+   scripts/check_harness.py`. If both pass, the files are right.
+2. **Tell Sanaa the session needs restarting**, and say why in one line: the agent
+   definitions post-date this session. A fresh session picks them up.
+3. **Do not hand-write briefs to work around it**, and do not fall back to
+   `general-purpose` agents pretending to be supervisors. That is precisely the
+   failure this harness exists to end (L-226), and it would look like it worked.
 
 ## Notes
 

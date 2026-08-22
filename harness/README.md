@@ -111,6 +111,14 @@ reach the terminal.
   survive. Any supervisor that has not written its section since its last verdict
   loses that verdict on the next death — which is why the duty is "at every
   commit and every verdict", not "at the end".
+- **Agents are loaded at session start, so the harness cannot install itself into
+  the session that builds it.** Adding a team, or landing the harness at all, does
+  not make those agents spawnable until a NEW session starts; the spawn fails with
+  *"Agent type not found"*. **Measured 2026-08-22:** every supervisor was
+  unspawnable from the session that wrote it, with correct files on disk. This is
+  the harness's sharpest operational edge and `form-teams` now handles it
+  explicitly. It also means **`--check` passing is not proof the agents load** —
+  it proves the files are well-formed, which is a weaker claim.
 - **The board is hand-maintained and can lie.** `/form-teams` and `/lab-state`
   both take a live reading beside it for that reason, and both rule that the
   reading wins. Uncertain entries are marked `VERIFY`.
@@ -159,10 +167,15 @@ Then:
 3. Add the row to the TEAM ROSTER table in `CLAUDE.md`.
 4. `python3 harness/generate_agents.py && python3 harness/generate_agents.py --check`
 
-Steps 1–3 are not generated, and that is a gap worth naming: the roster is data in
-one place and prose in three others, so a new team can be half-added. `--check`
-catches an orphaned agent file; it does not catch a team missing from the board or
-from the skill. A future version should generate those three surfaces too.
+**Steps 1–3 used to be manual, and that gap is now closed.** The roster was data in
+one place and prose in three others, so a new team could be half-added: `--check`
+caught an orphaned agent file but never a team missing from the constitution, the
+`form-teams` table or the board. The generator now owns the CLAUDE.md roster table
+and the form-teams table as marked regions (`<!-- BEGIN GENERATED ... -->`), and
+creates a skeleton board section for any team that lacks one — **never overwriting
+an existing section, because sections belong to their supervisors and one may be
+mid-write.** So in practice adding a team is: edit `teams.yaml`, run the generator,
+run `scripts/check_harness.py`, then **restart the session** so the new agent loads.
 
 What another lab must supply for itself, because it is not portable: the standing
 rules in `CLAUDE.md` (they encode this lab's specific failures), the charter

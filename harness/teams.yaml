@@ -63,6 +63,13 @@ teams:
   - name: closure-supervisor
     team: closure
     title: RANS/LES closure line
+    territory: >-
+      RANS/LES closure line — the R-ladder R1–R6 and the feature ladder FS1–FS6. `docs/closure/`, `cases/RANS_LES_closure_models/`, `docs/papers/closure/`, `CLOSURE_MODELLING_CHARTER.md`
+    scope_paths:
+      - cases/RANS_LES_closure_models
+      - docs/closure
+      - docs/papers/closure
+      - docs/charters/CLOSURE_MODELLING_CHARTER.md
     mandate: >-
       Own the RANS/LES closure line end to end: the R-ladder R1-R6 (doctrine,
       shortlist, Sanaa's class pick, the build, round-5 diagnostics, surfaces) and
@@ -103,6 +110,13 @@ teams:
   - name: dafoam-supervisor
     team: dafoam
     title: adjoint and optimisation ladders
+    territory: >-
+      Adjoint and optimisation ladders A1–A6, B1–B3, S1, W4, W5. `cases/dafoam/`, `docs/dafoam/`, `DAFOAM_CHARTER.md`
+    scope_paths:
+      - cases/dafoam
+      - docs/dafoam
+      - docs/papers/adjoint_and_optimization
+      - docs/charters/DAFOAM_CHARTER.md
     mandate: >-
       Own the DAFoam adjoint and optimisation ladders: Ladder A (A1-A6
       verification and reproduction), Ladder B (B1-B3 field inversion), the S1/W4/W5
@@ -140,6 +154,14 @@ teams:
   - name: heat-transfer-supervisor
     team: heat-transfer
     title: T-family ladder and the DC-cooling spine
+    territory: >-
+      The T-family ladder and the DC-cooling spine. `docs/campaigns/T-family/`, `docs/campaigns/F14-cooling-ladder/`, `verification/runs/T-family/`, `verification/runs/F14-cooling-ladder/`, `verification/runs/THERMAL_K0_runs/`
+    scope_paths:
+      - docs/campaigns/T-family
+      - docs/campaigns/F14-cooling-ladder
+      - verification/runs/T-family
+      - verification/runs/F14-cooling-ladder
+      - verification/runs/THERMAL_K0_runs
     mandate: >-
       Own the T-family verification ladder and the data-centre cooling spine
       (the F14 / K-rung ladder). This team is the origin and the custodian of three
@@ -180,6 +202,21 @@ teams:
   - name: cfd-supervisor
     team: cfd
     title: general CFD campaigns, meshing, solver builds and OpenFOAM tooling
+    territory: >-
+      General CFD campaigns, meshing, solver builds, OpenFOAM tooling. `cases/` outside closure and dafoam, `verification/runs/` outside the T-family, `docs/standards/MESH_STANDARD.md`, `docs/OPENFOAM*.md`
+    scope_paths:
+      - cases/tmr
+      - cases/hlpw6
+      - cases/valve
+      - cases/unsteady-cylinder
+      - cases/committee-grids
+      - cases/mega-batch
+      - cases/demo-surfaces
+      - docs/standards
+      - docs/OPENFOAM.md
+      - docs/OPENFOAM_SOLVER_BUILD.md
+      - verification/campaign
+      - models
     mandate: >-
       Own everything CFD in this lab that is not the closure line, not the DAFoam
       ladders and not the T-family: the case families under cases/, the lettered
@@ -221,6 +258,17 @@ teams:
   - name: verification-supervisor
     team: verification
     title: V&V standards, gating, and cross-team audit
+    territory: >-
+      V&V standards, Roache/GCI gating, external verification suites, cross-team gate audits. `VERIFICATION_CHARTER.md`, `RESULT_PRIORITY_CHARTER.md`, `docs/papers/verification_validation/`, `docs/*_AUDIT.md`, `verification/certificates/`, `verification/credibility/`
+    scope_paths:
+      - docs/charters/VERIFICATION_CHARTER.md
+      - docs/charters/RESULT_PRIORITY_CHARTER.md
+      - docs/papers/verification_validation
+      - verification/certificates
+      - verification/credibility
+      - verification/monitor
+      - docs/UNCERTAINTY-DOCTRINE.md
+      - docs/VALIDATION_INVENTORY.md
     mandate: >-
       Own verification and validation as a discipline rather than as a case
       family: the verdict vocabulary, Roache/GCI gating, the pre-registration
