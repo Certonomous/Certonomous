@@ -142,3 +142,19 @@ used 47.9%) and 60 core-min (A4, used 21.9%); **neither was reached and no arm w
 
 *Last updated 2026-08-21 ~19:10Z. Rows 7, 15, 16, 17, 18, 24, 25, 26, 27 and 28 are new today.
 Ladder B is a separate lane and a separate table; nothing here describes it.*
+
+---
+
+## Addendum 2026-08-22 (supervisor) — rows added by the day's items; the table above is not edited
+
+| # | case | scope | toolchain | np / cells | **verdict** | headline number (exact) | record |
+|---|---|---|---|---|---|---|---|
+| 31 | **A4** Ahmed body | **optimisation** | SHIPPED | 1 / 2,777 | **PASS** | `EXIT: Optimal Solution Found.`, **6 majors**, NLP error `6.9114020645938298e-08` < 1e-6; CD `0.1529738469354696` → `0.14153518384107486`, **−7.4775 %**; same optimum as row 15 to 7 s.f. | `A4/shipped_optimisation_np1/RESULTS.md` §1-2 |
+| 32 | **A4** Ahmed body | gradient **@ the optimised design** | SHIPPED | 1 / 2,777 | **PASS** | **0.3112 %** (`3.111803e-03`; AN `0.21410204`, FD `0.21477037`), zero flips. Not a toolchain comparison against row 16: analytic gradients agree to 3.9e-06, the FD references differ by 1.83e-03 (L-229) | §3 |
+| 33 | **A4** Ahmed body | gradient @ baseline | **PATCHED** (image, hash-certified) | 1 / 2,777 | **PASS** | **0.33929 %** (`3.392911e-03`; AN `0.24149949`, FD `0.24232166`), zero flips — fills row 14's "not the graded configuration" gap | §4 |
+| 34 | **A2** MACH wing | gradient, **per-component** | SHIPPED | 4 / 38,304 | **PASS (aggregate) — 7 of 96 CD components beyond 15 %** | CD idx18 **−360.75 %**, idx46 −326.14 %; CL idx15 −80.20 %; zero flips | `A2/per_component_table/RESULTS.md` |
+| 35 | **A2** MACH wing | gradient, **per-component** | **PATCHED †** | 4 / 38,304 | **PASS (aggregate) with a per-component caveat — 1 sign flip, CD idx46** | AN `+2.27367571e-06` vs FD `−2.52460969e-06`; CL 96/96 within 5 % | same, §3.2 |
+
+Rows 3-4's "zero flagged components" and `A2/grading_confirmation/RESULTS.md` §1's "no sign flip
+anywhere in A2" are superseded by rows 34-35; the frozen files are not edited. Cost of the day's
+A4 item: **13.616 core-min = $0.0116** (34 % of a 40 ceiling); A2 item **$0.00**.

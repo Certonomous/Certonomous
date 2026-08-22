@@ -236,3 +236,14 @@ ladder-a/ladder-b roots so no citation breaks.
 **Two things this index deliberately does not do:** it does not propose moving any
 existing directory, and it does not rename any file. Both are supervisor calls, and the
 family's own §7 hygiene rule makes a half-applied rename worse than none.
+
+---
+
+## Addendum 2026-08-22 (supervisor) — directories created today, confirmed under the `<RUNG>/<run-slug>/` pair-file form
+
+| new directory | pair files | run tree (outside the repo) |
+|---|---|---|
+| `ladder-a/A3/rung2_patched_idwarp_np4/` | `PREREGISTRATION.md` (+ pre-compute Amendment 1 → np=1 twins) | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/` |
+| `ladder-a/A6/rung_n16_fixed_reference/` | `PREREGISTRATION.md` | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/` |
+| `ladder-a/A4/shipped_optimisation_np1/` | `PREREGISTRATION.md`, `RESULTS.md` | `/home/ubuntu/certonomous-runs/P3-a4-opt-shipped/` |
+| `ladder-a/A2/per_component_table/` | `RESULTS.md` (zero compute, no prereg) | `/home/ubuntu/certonomous-runs/P3-a2-percomponent/` |

@@ -2929,3 +2929,28 @@ because the primal stops on a **1e-06 residual tolerance**, not at a fixed point
 parallel reduction tree differs. That is ~3 decades below where the graded gradient rows sit
 and is reconvergence noise, not a finding — but it was registered as bit-identical, so it is
 recorded as **GATE FAIL and a missed prediction** rather than rewritten after the fact.
+
+**N-D8. A4 Ahmed body, np=1, `dCD/dshape`, the complete 2×3 table.** Measured 2026-08-22
+(`cases/dafoam/ladder-a/A4/shipped_optimisation_np1/RESULTS.md`). Baseline: **1.1032 %** shipped,
+**0.33929 %** patched (`3.392911e-03`, hash-certified on `dafoam-idwarp-rot:v1`). Optimised design
+(`shape = −0.05`): **0.3112 %** shipped, **0.4936 %** patched. The two endpoint *analytic* gradients
+are `0.21410204` / `0.21410121` — 3.9e-06 apart — while the two *FD references* differ by 1.83e-03;
+the endpoint rows are not a toolchain comparison (L-229). The rotation defect's effect on the
+analytic gradient falls from **1.85e-03 (0.766 %)** at `shape=0` to **8.3e-07 (0.00039 %)** at
+`shape=−0.05`, ≈2,000×: regime 1 decays with deformation, and regime 2 does not replace it above
+≈4e-06 relative on this DV. Also: at an active bound IPOPT's dual infeasibility is `∇f − z_L` and
+certifies convergence on a ~1 %-wrong gradient — convergence at a bound is a weak toolchain
+discriminator.
+
+**N-D9. A2 MACH wing, 96 shape DVs, what sits under the passing aggregates.** Zero compute,
+2026-08-22 (`cases/dafoam/ladder-a/A2/per_component_table/RESULTS.md`). Shipped `CD` 1.7138 %
+hides 7 components beyond 15 % (max −360.75 % at idx18); shipped `CL` 1.1652 % hides idx15 at
+−80.20 %; patched `CL` is 96/96 within 5 %; patched `CD` 0.0506 % carries one sign flip, idx46,
+`+2.27367571e-06` vs `−2.52460969e-06`. The bind-mounted `W5-patch/idwarp/libidwarp.so` is md5
+`85f59e87…`, the same binary `dafoam-idwarp-rot:v1` ships, so bind-mount-era patched rows are
+same-stack but self-certify only where the run printed the hash.
+
+**N-D10. Single-rank contention inflation on this box.** At host load ~20 (12 foreign single-rank
+solvers on 16 cores) a DAFoam np=1 container at `--cpus=1` runs **1.104×** slower on an identical
+work marker (`dRdWTPC: 800 of 1087`, 53.77 s vs 48.69 s). The 18–21× inflation measured on np=4
+arms is the Open-MPI spin-wait and does not exist at one rank.
