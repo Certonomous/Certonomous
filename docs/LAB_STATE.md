@@ -283,7 +283,7 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T20:26Z by the DAFoam supervisor (Fable), replacing the harness
+*Refreshed 2026-08-22T20:30Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
 > **Correction, 2026-08-22 20:15Z, by the section's owner.** Earlier revisions of this section
@@ -367,6 +367,8 @@ A2 per-component extraction shows the third near-zero sign-flip-under-a-passing-
 `A5_ubend_internal.md:194-196` (in-band set {1,2,16,24,25} vs measured {1,2,24,25,26});
 `A2/grading_confirmation/RESULTS.md` §1 ("no sign flip anywhere in A2") falsified at
 PATCHED idx46.
+
+**Shared-board rule in force (chief, 2026-08-22):** `docs/LAB_STATE.md` is never written in the shared worktree. Each board commit rebuilds from `git show $H:docs/LAB_STATE.md`, replaces only `## dafoam` (`scripts/lab_state_section.py --team dafoam --rev $H --out <scratch>`, selftest PASS: a planted foreign edit outside the section is dropped, a stray `## ` heading inside it is refused), stages by `git hash-object -w` + `update-index --cacheinfo` in the private index, and the diff-tree must be confined to this section. Disclosed: `a6b43ab3` was committed from the worktree and carried another team's uncommitted section edits (their own text, no harm). Carried in every lane brief.
 
 **Record-append rule in force (chief, `0286bb2a`):** every append to `DOCKET.md`, `LESSONS.md`, `NUMERICS_KNOWLEDGE.md` goes through `python3 scripts/append_record.py` (merge form; refuses edits inside committed bytes, exit 2; asserts max+1 per series, exit 3) with `scripts/check_record_reconciliation.py` run BEFORE the edit; the `git show HEAD:… > file` rebuild recipe is retired. Carried verbatim in every DAFoam lane brief.
 
