@@ -94,7 +94,8 @@ rung may take it).
 
 ## closure
 
-**Section last written:** 2026-08-22T18:22Z by closure-supervisor.
+**Section last written:** 2026-08-22T19:10Z — R4/FS3/FS4 rows and live jobs
+by the R4 BUILD lane; everything else as the closure-supervisor left it.
 
 **Last commit:** `b36daf06` — *R4 SpaRTA build lane, stage (a): the inventory,
 the build and selection scripts, and the frozen-RANS targets* (2026-08-22
@@ -102,25 +103,22 @@ the build and selection scripts, and the frozen-RANS targets* (2026-08-22
 `RESULTS.md` was opened. Before it, `fd3aa735` (18:03Z). Section refreshed
 **2026-08-22T18:23Z**.
 
-**Live jobs — the R4 build lane is LIVE and owns everything closure has on the
-box.** Read from `ps` and `/proc` at 18:22Z; the R4 lane's own estimates are
-marked as theirs.
+**Live jobs — the R4 BUILD lane, at 19:10Z.**
 
-| pid | what | cwd | started | ETA |
-|---|---|---|---|---|
-| `803458` | `closure-venv/bin/python fs3_select.py --cases <12>` — **FS3 selection running**, detached (`ppid 1`), ~108 % CPU | `cases/RANS_LES_closure_models/R4_sparta_build` | 18:16:45Z | **unknown from any log.** The lane records it as FS3 over four (target × library) combinations, 3 seeds each, ~0.35 core-h, $0.02 |
-| `805854` | `bash ./run_aposteriori.sh` (the lane names its driver `805853`, this pid's parent) | `R4_sparta_build` | 18:17Z | — |
-| `805886` `805899` `805901` `805902` `805907` `805911` `805941` `809577` | **8 concurrent `simpleFoam`** a-posteriori propagations | `/home/ubuntu/closure-data/r4/aposteriori/{AR_1,AR_3,AR_5,AR_10}_Ret_180/{null,ceiling}` and `CBFS13700/ceiling` | 18:17:04–18:17:16Z | lane's estimate: **24** propagations (NULL + CEILING on 12 complete frozen cases), **4.0 core-h / $0.21, ≈60 min wall** at 8 concurrent. The 12 DISCOVERED propagations are queued behind the FS4 freeze, ~2 core-h |
+| pid | what | cwd | ETA |
+|---|---|---|---|
+| `875716` | driver for **24 `simpleFoam` diagnostic propagations** — `discovered_xi01` (the paper's own `xi = 0.1` remedy) and `discovered_ronly` (`b^Delta` off) | `/home/ubuntu/closure-data/r4/aposteriori` | lane's estimate **3.7 core-h / $0.19**, ~60 min wall at 6 concurrent. **Both arms are REPORTED-NOT-GRADED**: they explain a registered GATE FAIL, they cannot move it |
+| `805854` | the NULL/CEILING driver, finishing its last rows | `R4_sparta_build` | ~22 of 24 done |
 
-`aposteriori/driver.log` holds one completed row, `[done rc=0 11s]
-AR_1_Ret_180/ceiling`. `fs3.log` holds one line, `[R/prop/seed 0]
-terms=['T1','I1*T1','I2*T1','I2^2*T1'] cv_mse=43.5533 PZ=PASS`; `fs3/fs3.json`
-did not parse as JSON at 18:19Z because it is being written. **Box load average
-27.7** at 18:23Z — the relevant number for anything queued behind R4.
+**FS3 is finished** (`artefacts/fs3.json`, committed) and so are the 12
+`discovered` propagations — **all 12 DIVERGED**, in 4–15 s each, with a
+floating-point exception inside `kOmegaSSTSparta::updateCorrections` after the
+bulk velocity reached O(1e69).
 
-**R4 compute so far, the lane's own figure:** **0.244 core-h** of solver time
-(27 frozen extractions + 5 convergence diagnostics), **$0.013**, against the
-preregistration's 12–20 core-h estimate and **40 core-h cap**.
+**R4 compute so far, the lane's own figure:** **4.06 core-h / $0.21** —
+0.244 frozen extraction and diagnostics, 0.60 FS3 (run twice, see D-6), 3.22
+propagation — against the preregistration's 12–20 core-h estimate and **40
+core-h cap**.
 
 **The `ktest*` probes at `/home/ubuntu/closure-data/r4/` — mechanical reading,
 and the R4 lane's ruling, which is the one that governs.** The board's earlier
@@ -150,11 +148,11 @@ run to be.* Nothing on this board treats them as results.
 
 | rung | state |
 |---|---|
-| **R4** (SpaRTA build) | **R4 build lane LIVE, no verdict.** `RESULTS.md` is open (12,639 B, `PREREGISTRATION.md` sha256 `05844430…cbbe8` verified against disk at lane start and again at commit, never edited). Step 1 (targets) **done, 12 of 27 training cases COMPLETE** under the strict completion rule, all four families represented, 15 hills diagnosed as non-converging (§2.3); steps 2–3 done; step 4 (a-posteriori propagation) **in flight**; §5 and §6 are not yet written. **Zero-shot boundary asserted in code**, not prose — `r4_lib.assert_no_test_case` raises on any TEST or validation member and is called at the top of the case builder, the dataset assembler, the FS3 selector and both scorers |
+| **R4** (SpaRTA build) | **R4 build lane LIVE, no overall verdict yet.** `PREREGISTRATION.md` sha256 `05844430…cbbe8` verified at lane start and at every commit, never edited. Targets **done** (12 of 27 COMPLETE, all four families, 15 hills diagnosed non-converging, §2.3). Model **frozen** (`MODEL.md`). **A-priori gate: GATE FAIL — 2 of 4 families beat the train-mean tensor against a registered bar of 3.** **All 12 `discovered` a-posteriori propagations DIVERGE**; §5's table and the §6 verdicts are the open item, with two diagnostic arms in flight. **Zero-shot boundary asserted in code**, not prose — `r4_lib.assert_no_test_case` raises on any TEST or validation member and is called at the top of the case builder, the dataset assembler, the FS3 selector and both scorers |
 | **R5** (round-5 diagnostics as build constraints) | **no verdict artefact.** Partly discharged by the FS2/FS5 report; the R4 prereg does not cite R5 by name |
 | **R6** (surfaces updated) | **NOT DONE.** "leaderboard" still appears in `web/closure.html` and `web/benchmarks.html`; **BLOCKED** on Sanaa approving the internal-scoring phrasing (doctrine open action 4) |
-| **FS3** (selection methods) | **FS3 selection running, no verdict.** Registered in R4 prereg §3 — mutual information, permutation importance on a held-out *family*, elastic-net path, leave-one-**family**-out CV, top-20 Spearman agreement reported as a number, planted-zero control on every fit. R4's `RESULTS.md` §0 records step 2 **done**, and `fs3_select.py` pid 803458 is nevertheless **still live at 18:22Z** over 12 cases. Both readings are recorded; **which one is final is the R4 lane's to say** |
-| **FS4** (joint iteration, features frozen before scoring) | **term sets frozen**, per R4 `RESULTS.md` §0, which cites **`MODEL.md`** — **VERIFY: no `MODEL.md` exists anywhere in the repo or under `/home/ubuntu/closure-data/r4/` at 18:23Z, and none was committed at `b36daf06`.** No propagation verdict yet |
+| **FS3** (selection methods) | **DONE**, and the final reading is `artefacts/fs3.json` at commit (b). *(The board's 18:22Z observation was correct: `RESULTS.md` §0 had been written forward-looking, and it was rewritten to state only what is true at the commit carrying it. The pid live then produced a **withdrawn** fit; see D-6.)* All three registered methods ran at three seeds. **They disagree** — permutation importance is near-orthogonal to mutual information on three of four fits and anti-correlated on two, which §3 registers in advance as a finding. Planted-zero control **PASS** on both propagated term sets, **GATE FAIL** on `R`/T1–T4 |
+| **FS4** (joint iteration, features frozen before scoring) | **DONE.** `MODEL.md` and `MODEL.json` exist and are committed at stage (b) — the board's VERIFY at 18:23Z was right that neither existed at `b36daf06`, and `RESULTS.md` §0 no longer cites an artefact before it is on disk. `R = 2k[1.261646 − 42.82548 I1 − 31.54762 I2 + 14.28260 I2²](T1:A)`, `b^Δ = −7.550380 T2 − 16.07578 I2 T2 + 5.039083 T3`; identical at seeds 0/1/2; IC1 solver-vs-Python agreement **3.97e−12** |
 | **FS6** (comparative feature document) | **NOT DONE.** No artefact exists |
 
 R1 closed (charter §22.1–22.5). R2 delivered (`R2_SHORTLIST_MEMO.md`; ranking

@@ -13,6 +13,7 @@ HERE=$(dirname "$(readlink -f "$0")")
 PY=/home/ubuntu/closure-venv/bin/python
 JOBS=${JOBS:-8}
 FORCE=${FORCE:-}
+FILTER=${FILTER:-}
 
 one() {
   local D="$ROOT/$1"
@@ -29,8 +30,11 @@ one() {
   echo "$(( $(date +%s) - t0 ))" > "$D/wall_seconds"
   echo "[done rc=$rc $(cat "$D/wall_seconds")s] $1"
 }
-export -f one; export ROOT HERE PY FORCE
+export -f one; export ROOT HERE PY FORCE FILTER
 
 cd "$ROOT"
-ls -d */*/ | sed 's:/$::' | xargs -P "$JOBS" -I{} bash -c 'one "$@"' _ {}
+# FILTER selects a subset of <case>/<config> directories (a grep -E pattern);
+# with no FILTER every configuration of every case is dispatched.
+ls -d */*/ | sed 's:/$::' | grep -E "${FILTER:-.}" \
+  | xargs -P "$JOBS" -I{} bash -c 'one "$@"' _ {}
 echo "ALL A-POSTERIORI RUNS DISPATCHED"

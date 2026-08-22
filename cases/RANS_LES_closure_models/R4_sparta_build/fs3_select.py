@@ -108,8 +108,16 @@ def load(cases_used):
                           rms_bDelta=float(np.sqrt((bDel[ok] ** 2).sum((1, 2)).mean())))
         Xr.append(CR[:, ok].T / sc)
         yr.append(kDef[ok] / sc)
-        Xb.append(CT[:, ok].reshape(CT.shape[0], -1, 9).transpose(1, 0, 2)
-                  .reshape(-1, CT.shape[0]))
+        # (M, N, 3, 3) -> (M, N*9) -> (N*9, M).  The row order is (cell, i, j),
+        # EXACTLY the order bDel[ok].reshape(-1) produces below, so candidate
+        # row r and target row r are the same tensor entry of the same cell.
+        # The earlier reshape-through-(N, M, 9) did NOT: it interleaved
+        # candidates with tensor components and built a design matrix whose rows
+        # mixed different cells.  Caught by the sec. 6 a-priori gate, which
+        # returned a model worse than predicting zero on its own training
+        # target -- arithmetically impossible for a least-squares fit, and so a
+        # bug rather than a result.
+        Xb.append(CT[:, ok].reshape(CT.shape[0], -1).T)
         yb.append(bDel[ok].reshape(-1))
         grp_r.append(np.full(int(ok.sum()), FAMILIES.index(fam)))
         grp_c.append(np.full(int(ok.sum()) * 9, FAMILIES.index(fam)))

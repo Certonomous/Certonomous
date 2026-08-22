@@ -1,0 +1,108 @@
+{
+ "gate": "PREREGISTRATION sec. 6 a-priori: discovered b^Delta below train-mean b_rms on >= 3 of 4 training families",
+ "families_beaten": 2,
+ "n_families": 4,
+ "verdict": "GATE FAIL",
+ "per_family": {
+  "hills": {
+   "n_cells": 93535,
+   "discovered": 0.22961543497283873,
+   "train_mean_lane": 0.25842960597156384,
+   "train_mean_shipped": 0.23755067278266168,
+   "linear_evm_reported_not_the_bar": 0.29786627199385046,
+   "zero": 0.3135061329576992,
+   "beats_train_mean_lane": true,
+   "beats_train_mean_shipped": true
+  },
+  "ducts": {
+   "n_cells": 41971,
+   "discovered": 0.4838972217049308,
+   "train_mean_lane": 0.36871342043860056,
+   "train_mean_shipped": 0.42341443845064886,
+   "linear_evm_reported_not_the_bar": 0.60093177880709,
+   "zero": 0.6071601725717838,
+   "beats_train_mean_lane": false,
+   "beats_train_mean_shipped": false
+  },
+  "PHLL10595": {
+   "n_cells": 15600,
+   "discovered": 0.21298174252548085,
+   "train_mean_lane": 0.25009805811420904,
+   "train_mean_shipped": 0.22342578443064112,
+   "linear_evm_reported_not_the_bar": 0.27918869465853485,
+   "zero": 0.2969927400457414,
+   "beats_train_mean_lane": true,
+   "beats_train_mean_shipped": true
+  },
+  "CBFS13700": {
+   "n_cells": 21000,
+   "discovered": 0.3763312196619291,
+   "train_mean_lane": 0.32765765929821505,
+   "train_mean_shipped": 0.33705002479163976,
+   "linear_evm_reported_not_the_bar": 0.3278120687741838,
+   "zero": 0.3533190541593932,
+   "beats_train_mean_lane": false,
+   "beats_train_mean_shipped": false
+  }
+ },
+ "train_mean_lane": [
+  [
+   0.22220047593403214,
+   -0.022974866493878036,
+   0.0036782541175003837
+  ],
+  [
+   -0.022974866493878036,
+   -0.1509639847083003,
+   -0.001241046321743851
+  ],
+  [
+   0.0036782541175003837,
+   -0.001241046321743851,
+   -0.07123649122573515
+  ]
+ ],
+ "train_mean_shipped": [
+  [
+   0.175565,
+   -0.038167,
+   0.001842
+  ],
+  [
+   -0.038167,
+   -0.147931,
+   -0.000625
+  ],
+  [
+   0.001842,
+   -0.000625,
+   -0.027617
+  ]
+ ],
+ "train_mean_shipped_source": "_common/trainmean_baseline.json (BASELINES.md sec. 6.4)",
+ "cases": [
+  "alpha_10_12000_4048",
+  "alpha_125",
+  "alpha_15_10929_3036",
+  "alpha_15_10929_4048",
+  "alpha_15_13929_3036",
+  "alpha_15_7929_3036",
+  "AR_1_Ret_180",
+  "AR_3_Ret_180",
+  "AR_5_Ret_180",
+  "AR_10_Ret_180",
+  "PHLL10595",
+  "CBFS13700"
+ ],
+ "planted_zero_reader_control": {
+  "field": "/home/ubuntu/closure-data/r4/frozen/alpha_10_12000_4048/1635/bijDelta",
+  "plant": 0.001234,
+  "n_moved": 15600,
+  "max_abs_error": 8.305907242371624e-11,
+  "tolerance": 4.9812302430988535e-09,
+  "field_max_abs": 2804183.33333333,
+  "median_recovery": 0.0012340000000000129,
+  "median_relative_error": 1.0436096431476471e-14,
+  "verdict": "PASS"
+ }
+}

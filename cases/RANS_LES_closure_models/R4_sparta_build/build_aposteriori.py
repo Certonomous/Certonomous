@@ -101,13 +101,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cases", required=True)
     ap.add_argument("--model", default="", help="MODEL.json from FS4")
-    ap.add_argument("--configs", default="null,ceiling,discovered")
+    ap.add_argument("--configs",
+                    default=("null,ceiling,discovered,discovered_xi01,"
+                             "discovered_ronly"))
     a = ap.parse_args()
     cases = a.cases.split(",")
     R.assert_no_test_case(cases)
     want = a.configs.split(",")
     model, rterms, bterms = None, [], []
-    if "discovered" in want:
+    if any(c.startswith("discovered") for c in want):
         model = json.load(open(a.model))
         rterms = [tuple(t) for t in model["R"]["terms"]]
         bterms = [tuple(t) for t in model["bDelta"]["terms"]]
@@ -119,8 +121,22 @@ def main():
     rec = []
     for case in cases:
         src, family = byname[case]
+        # Two REPORTED-NOT-GRADED diagnostic arms, added after the registered
+        # `discovered` arm returned a divergence on all 12 cases.  Neither can
+        # change a registered verdict; both exist to say WHY it diverged.
+        #   xi01  - the paper's own documented remedy, quoted in
+        #           NUMERICS_KNOWLEDGE.md: "if a model does not converge, we
+        #           further decrease the coefficients by a factor xi = 0.1, for
+        #           the model correcting b^Delta_ij only.  This ad-hoc
+        #           intervention is sufficient to achieve convergence for the
+        #           studied cases."  [Schmelzer et al. 2020, preprint p. 13]
+        #   ronly - b^Delta switched off entirely, R as frozen: isolates which
+        #           of the two corrections carries the divergence.
+        xterms = [(n, p, q, 0.1 * c) for (n, p, q, c) in bterms]
         for cfg, rt, bt in (("null", [], []), ("ceiling", None, None),
-                            ("discovered", rterms, bterms)):
+                            ("discovered", rterms, bterms),
+                            ("discovered_xi01", rterms, xterms),
+                            ("discovered_ronly", rterms, [])):
             if cfg not in want:
                 continue
             rec.append(build(case, src, family, cfg, rt or [], bt or []))

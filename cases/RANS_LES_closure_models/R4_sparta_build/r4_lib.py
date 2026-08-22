@@ -442,15 +442,32 @@ def planted_zero_reader_check(field_path, reader, scratch):
     d = b - a
     moved = d[np.abs(d) > 0]
     err = float(np.abs(moved - PLANT).max()) if moved.size else float("inf")
-    ok = moved.size > 0 and err < 1e-12
+    # The recovery tolerance must be double-precision aware, not absolute: the
+    # plant is recovered as (x + PLANT) - x, and where the field itself is
+    # O(1e5) -- which it is on the hills, whose k_LES <= 0 cells carry
+    # b^Delta ~ 3.5e4 -- the representable resolution at x is already
+    # ~1e-11, so an absolute 1e-12 bar would refuse a perfect reader on
+    # arithmetic grounds.  The bar is machine epsilon at the largest value in
+    # the field, floored at 1e-12, and the achieved value is reported either
+    # way.  The MEDIAN recovery is also required to match PLANT to 1e-9
+    # relative, so a reader that loses the plant on most cells cannot pass on
+    # a lenient maximum.
+    amax = float(np.abs(a).max())
+    tol = max(1e-12, 8.0 * np.finfo(float).eps * amax)
+    med = float(np.median(moved)) if moved.size else float("nan")
+    rel_med = abs(med / PLANT - 1.0) if moved.size else float("inf")
+    ok = moved.size > 0 and err <= tol and rel_med <= 1e-9
     print(f"[planted-zero reader control] {os.path.basename(field_path)}: "
           f"plant={PLANT:g} recovered on {moved.size} values, "
-          f"max|recovered-plant|={err:.3g} -> "
+          f"max|recovered-plant|={err:.3g} (tol {tol:.3g}, field max "
+          f"{amax:.3g}), median recovery {med:.12g} -> "
           f"{'PASS' if ok else 'REFUSED'}")
     if not ok:
         raise SystemExit(2)
     return dict(field=field_path, plant=PLANT, n_moved=int(moved.size),
-                max_abs_error=err, verdict="PASS")
+                max_abs_error=err, tolerance=tol, field_max_abs=amax,
+                median_recovery=med, median_relative_error=rel_med,
+                verdict="PASS")
 
 
 def solve_complete(case, required=("U", "p", "k", "omega", "nut")):

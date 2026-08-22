@@ -1,0 +1,266 @@
+{
+ "lane": "R4 SpaRTA-class build",
+ "frozen_at": "2026-08-22",
+ "preregistration_sha256": "058444309f87a9e1f6faccca2086bf16364df7a06bb7702d155c35b1fcacbbe8",
+ "training_cases": [
+  "alpha_10_12000_4048",
+  "alpha_125",
+  "alpha_15_10929_3036",
+  "alpha_15_10929_4048",
+  "alpha_15_13929_3036",
+  "alpha_15_7929_3036",
+  "AR_1_Ret_180",
+  "AR_3_Ret_180",
+  "AR_5_Ret_180",
+  "AR_10_Ret_180",
+  "PHLL10595",
+  "CBFS13700"
+ ],
+ "n_training_cells": 172106,
+ "families": [
+  "CBFS13700",
+  "PHLL10595",
+  "ducts",
+  "hills"
+ ],
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "R": {
+  "library": "prop",
+  "names": [
+   "T1",
+   "I1*T1",
+   "I2*T1",
+   "I2^2*T1"
+  ],
+  "terms": [
+   [
+    1,
+    0,
+    0,
+    1.2616460253299098
+   ],
+   [
+    1,
+    1,
+    0,
+    -42.82547649374752
+   ],
+   [
+    1,
+    0,
+    1,
+    -31.547617645529247
+   ],
+   [
+    1,
+    0,
+    2,
+    14.28260064019414
+   ]
+  ],
+  "lofo_cv_mse": 43.55325322008864,
+  "design_condition_number": 653.9327908584759,
+  "planted_zero_verdict": "PASS",
+  "seed_agreement": true,
+  "seed_coefficients": {
+   "0": {
+    "T1": 1.2616460253299098,
+    "I1*T1": -42.82547649374752,
+    "I2*T1": -31.547617645529247,
+    "I2^2*T1": 14.28260064019414
+   },
+   "1": {
+    "T1": 1.2616460253299098,
+    "I1*T1": -42.82547649374752,
+    "I2*T1": -31.547617645529247,
+    "I2^2*T1": 14.28260064019414
+   },
+   "2": {
+    "T1": 1.2616460253299098,
+    "I1*T1": -42.82547649374752,
+    "I2*T1": -31.547617645529247,
+    "I2^2*T1": 14.28260064019414
+   }
+  },
+  "spearman": {
+   "mi_vs_perm": 0.19248120300751878,
+   "mi_vs_enet": 0.675187969924812,
+   "perm_vs_enet": 0.060150375939849614
+  },
+  "uses_T4": false
+ },
+ "bDelta": {
+  "library": "prop",
+  "names": [
+   "T2",
+   "I2*T2",
+   "T3"
+  ],
+  "terms": [
+   [
+    2,
+    0,
+    0,
+    -7.5503796053081045
+   ],
+   [
+    2,
+    0,
+    1,
+    -16.075778926221602
+   ],
+   [
+    3,
+    0,
+    0,
+    5.039083085631707
+   ]
+  ],
+  "lofo_cv_mse": 0.01561990382453127,
+  "design_condition_number": 7.707131266823691,
+  "planted_zero_verdict": "PASS",
+  "seed_agreement": true,
+  "seed_coefficients": {
+   "0": {
+    "T2": -7.5503796053081045,
+    "I2*T2": -16.075778926221602,
+    "T3": 5.039083085631707
+   },
+   "1": {
+    "T2": -7.5503796053081045,
+    "I2*T2": -16.075778926221602,
+    "T3": 5.039083085631707
+   },
+   "2": {
+    "T2": -7.5503796053081045,
+    "I2*T2": -16.075778926221602,
+    "T3": 5.039083085631707
+   }
+  },
+  "spearman": {
+   "mi_vs_perm": 0.11428571428571428,
+   "mi_vs_enet": 0.875187969924812,
+   "perm_vs_enet": 0.006015037593984962
+  },
+  "uses_T4": false
+ },
+ "registered_mixed_family_fit": {
+  "R": {
+   "library": "full",
+   "names": [
+    "T1",
+    "I1*T1",
+    "I2^2*T1"
+   ],
+   "terms": [
+    [
+     1,
+     0,
+     0,
+     1.2336136332411476
+    ],
+    [
+     1,
+     1,
+     0,
+     -10.550588287408289
+    ],
+    [
+     1,
+     0,
+     2,
+     11.807887340798297
+    ]
+   ],
+   "lofo_cv_mse": 43.66499796884584,
+   "design_condition_number": 54.81342491229508,
+   "planted_zero_verdict": "GATE FAIL",
+   "seed_agreement": true,
+   "seed_coefficients": {
+    "0": {
+     "T1": 1.2336136332411476,
+     "I1*T1": -10.550588287408289,
+     "I2^2*T1": 11.807887340798297
+    },
+    "1": {
+     "T1": 1.2336136332411476,
+     "I1*T1": -10.550588287408289,
+     "I2^2*T1": 11.807887340798297
+    },
+    "2": {
+     "T1": 1.2336136332411476,
+     "I1*T1": -10.550588287408289,
+     "I2^2*T1": 11.807887340798297
+    }
+   },
+   "spearman": {
+    "mi_vs_perm": -0.2834188034188034,
+    "mi_vs_enet": 0.619145299145299,
+    "perm_vs_enet": -0.1794871794871795
+   },
+   "uses_T4": false
+  },
+  "bDelta": {
+   "library": "full",
+   "names": [
+    "T2",
+    "I2*T2",
+    "T4"
+   ],
+   "terms": [
+    [
+     2,
+     0,
+     0,
+     -7.5503796053081045
+    ],
+    [
+     2,
+     0,
+     1,
+     -16.075778926221602
+    ],
+    [
+     4,
+     0,
+     0,
+     -6.727462361169801
+    ]
+   ],
+   "lofo_cv_mse": 0.01580917671925277,
+   "design_condition_number": 7.707131266823691,
+   "planted_zero_verdict": "PASS",
+   "seed_agreement": true,
+   "seed_coefficients": {
+    "0": {
+     "T2": -7.5503796053081045,
+     "I2*T2": -16.075778926221602,
+     "T4": -6.727462361169801
+    },
+    "1": {
+     "T2": -7.5503796053081045,
+     "I2*T2": -16.075778926221602,
+     "T4": -6.727462361169801
+    },
+    "2": {
+     "T2": -7.5503796053081045,
+     "I2*T2": -16.075778926221602,
+     "T4": -6.727462361169801
+    }
+   },
+   "spearman": {
+    "mi_vs_perm": -0.11931623931623932,
+    "mi_vs_enet": 0.604102564102564,
+    "perm_vs_enet": -0.1623931623931624
+   },
+   "uses_T4": true
+  }
+ },
+ "withdrawn": {
+  "note": "An earlier b^Delta fit, and the propagation arms built from it, were WITHDRAWN before any a-posteriori number was read: the tensor design matrix was stacked through an intermediate (cell, candidate, component) shape that mixed cells across rows. It was caught by the sec. 6 a-priori gate returning a model worse than predicting zero on its own training target, which a least-squares fit cannot be. Record: artefacts/fs3_WITHDRAWN_scrambled_bDelta.json. R was never affected and reproduces bit for bit across the fix."
+ }
+}
