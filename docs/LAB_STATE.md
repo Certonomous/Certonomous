@@ -265,7 +265,7 @@ Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T20:15Z by the DAFoam supervisor (Fable), replacing the harness
+*Refreshed 2026-08-22T21:10Z by the DAFoam supervisor (Fable), replacing the harness
 build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
 
 **Last commits (newest first):**
@@ -289,7 +289,7 @@ launch-condition amendment because the T-family holds 12 of 16 cores until
 | container | host pid | run root / cwd | item | ETA |
 |---|---|---|---|---|
 | `p3a6_s1b` | 802799 | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/s1b` | A6 N=16 fixed reference, Stage 1 (primal-convergence gate + forward-AD probes), `--memory=12g` | Stage 1 ~20-40 min; Stage 2 contingent, ~1.5 h |
-| A6 queue | **VERIFY** pid | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/` | A6 fixed reference: S1a (6000-iter primal gate) → S1d → S2b-pV → S1e → S2b-tw, np=1 `--cpus=1` | ~1.5-2 h from 20:00Z |
+| A6 queue | **VERIFY** pid | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/` | A6 fixed reference, **Stage 1 complete** (relay 21:05Z): P1+P2+P3 HIT — S1a at 6000 iters `primalMaxRes 5.6999e-06` (the 1e-8 gate FAILS as predicted: the primal is flat, not slow), solve-to-solve repeat δ `2.2104e-06`; forward-AD `nan` = P4a MISS; η re-read at printInterval 10 = `1.0910e-05` (21 % above the record's 9.00e-06), twist idx6 stays FLAGGED at 2.50× under the registered max rule; the two noise measures disagree 2.47× — disclosed as a sensitivity, not chosen. Spend 26.9/120 core-min. Stage 2 running: S2b-pV → S1e → S2b-tw, np=1 `--cpus=1` | ~40 min from 21:05Z, then grading + commit |
 | A3 `np1_patched` | **VERIFY** pid | `/home/ubuntu/certonomous-runs/P3-a3-rung2-patched/np1_patched` | A3 rung-2 patched arm, np=1, cap 4,200 s; contention ~2x on top of the serial factor — lane measuring the coloring rate, stops early if it projects past the cap (no self re-price) | ~1 h, at risk of cap | A3 rung-2 twins, np=1 (amended) — **driver polling on memory, nothing launched** | launches when A6/A4 containers exit |
 
 **Rungs lacking verdicts:**
