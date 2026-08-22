@@ -1,0 +1,94 @@
+{
+  "rung": "T10a-R",
+  "parent": "T10a",
+  "tier": "EXACT-tier follow-through (refinement arm); grades nothing against T10a's band",
+  "directive": "Sanaa H-3(a): T10a follow-through - the ceiling miss gets a refinement arm (discretization finding, cheap).",
+  "scope": "the BOX only (1 x 1 x 0.5 m, six black patches). No spheres. The sphere NOT A RESULT rows are H-3(b), a different arm.",
+  "verdict_vocabulary": ["PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING"],
+  "grid": {"Fs": 1.25, "r": 1.6},
+  "parent_levels": {
+    "B_c": {"N": 16, "faces": 1024, "cells": 2048, "q_ceiling": -3275.664},
+    "B_m": {"N": 26, "faces": 2704, "cells": 8788},
+    "B_f": {"N": 42, "faces": 7056, "cells": 37044}
+  },
+  "parent_published": {
+    "note": "T10a_RESULTS.md section 1, quoted for the record; every number the comparator grades is RE-MEASURED from the frozen T10a case trees at run time, never taken from this block.",
+    "B1_triple_c_m_f": [-3275.664, -3271.620, -3269.602153],
+    "B1_finest": -3269.602153,
+    "B1_exact_sigmaOF": -3265.532221,
+    "B1_deviation_pct": 0.12463,
+    "B1_band_pct": 0.07676,
+    "B1_observed_p": 1.480,
+    "B1_level_errors_W_m2": [-10.13, -6.09, -4.07],
+    "B1_level_error_ratios": [1.66, 1.50]
+  },
+  "cases": {
+    "R_x": {
+      "kind": "box", "N": 68, "faces": 18496, "cells": 157216,
+      "role": "arm R-x: fourth refinement level x beyond f, ratio 68/42 = 1.619048",
+      "T_uniform": null, "GaussQuadTol": 0.01, "distTol": 8, "smoothing": false,
+      "one_change_from": "B_f", "the_one_change": "N 42 -> 68 (mesh only)"
+    },
+    "R_q": {
+      "kind": "box", "N": 42, "faces": 7056, "cells": 37044,
+      "role": "arm R-q: f-level mesh, view-factor generator quadrature/method density raised (distTol 8 -> 80)",
+      "T_uniform": null, "GaussQuadTol": 0.01, "distTol": 80, "smoothing": false,
+      "one_change_from": "B_f", "the_one_change": "viewFactorsDict distTol 8 -> 80"
+    },
+    "R_s": {
+      "kind": "box", "N": 42, "faces": 7056, "cells": 37044,
+      "role": "arm R-s: f-level mesh, solver tolerance / iteration-count bundle tightened; schemes untouched",
+      "T_uniform": null, "GaussQuadTol": 0.01, "distTol": 8, "smoothing": false,
+      "tighten": true,
+      "one_change_from": "B_f",
+      "the_one_change": "fvSolution tolerances 1e-08 -> 1e-12, relTol 0.01/0.1 -> 0, nNonOrthogonalCorrectors 1 -> 3, controlDict endTime 20 -> 60 with writeInterval 15. fvSchemes byte-identical to B_f."
+    }
+  },
+  "rows": {
+    "RX1": {"arm": "R-x", "quantity": "B1 ceiling q deviation from exact at level x, per cent",
+            "predict_point": 0.083, "predict_interval": [0.070, 0.100],
+            "falsifier": "deviation >= 0.1100 % (error not shrinking as registered) or <= 0.060 % (falling faster than the registered first-order-like family)"},
+    "RX2": {"arm": "R-x", "quantity": "observed p of the m/f/x triple",
+            "predict_point": 1.15, "predict_interval": [0.80, 1.55],
+            "falsifier": "p > 2.00, or the triple is not CONVERGING (then NOT A RESULT, no verdict)"},
+    "RX3": {"arm": "R-x", "quantity": "does the level-x GCI band cover the level-x error? ratio deviation/band",
+            "predict_point": 2.0, "predict_interval": [1.0001, 1e9],
+            "falsifier": "deviation/band <= 1.0 (the band covers the error; the T10a/T9a band-smaller-than-error pattern does NOT persist)"},
+    "RX4": {"arm": "R-x", "quantity": "level-error ratio |e_f| / |e_x|",
+            "predict_point": 1.50, "predict_interval": [1.30, 1.70],
+            "falsifier": "outside [1.30, 1.70]"},
+    "RX5": {"arm": "R-x", "quantity": "sign-corrected Richardson from the m/f/x triple, per cent from exact",
+            "predict_point": 0.02, "predict_interval": [0.0, 0.100],
+            "falsifier": "> 0.100 % (worse than the c/m/f corrected Richardson T10a already recorded, 0.063 %)"},
+    "RQ1": {"arm": "R-q", "quantity": "B1 ceiling q move from B_f, per cent of B_f",
+            "predict_point": 0.0, "predict_interval": [0.0, 0.010],
+            "falsifier": "> 0.050 % (the ceiling miss IS a view-factor quadrature/method artefact)"},
+    "RQ2": {"arm": "R-q", "quantity": "B0/B2/B3 moves from B_f, per cent, reported beside RQ1",
+            "predict_point": 0.0, "predict_interval": [0.0, 0.010],
+            "falsifier": "any of the three > 0.050 %"},
+    "RS1": {"arm": "R-s", "quantity": "B1 ceiling q move from B_f, per cent of B_f",
+            "predict_point": 0.0, "predict_interval": [0.0, 0.005],
+            "falsifier": "> 0.005 %"},
+    "RS2": {"arm": "R-s", "quantity": "identity test (Charter 2a): max |qr(R_s) - qr(B_f)| over every radiating face, W/m2",
+            "predict_point": 0.0, "predict_interval": [0.0, 0.0],
+            "identity": true,
+            "precondition": "sha256(R_s/constant/F) == sha256(B_f/constant/F)",
+            "falsifier": "any nonzero difference, given the precondition holds"}
+  },
+  "instruments": {
+    "gci_shared": "analyse_t1c.gci, imported unedited (Fs 1.25, nominal r 1.6); the comparator refuses if Fs/r differ",
+    "gci_sign_corrected": "NEW INSTRUMENT, this arm's own: richardson_corrected = f_f + (f_f - f_m)/(r^p - 1) (Roache). The shared gci() returns f_f + (f_m - f_f)/(r^p - 1), the sign defect T9a section 8.1 recorded and left unedited because it sits on no grading path. This arm reports both, side by side, and grades nothing on either.",
+    "flux_extraction": "analyse_t10a.measure / row_value / iterative_convergence / planted_zero_control / mesh_patches, imported from the FROZEN analyse_t10a.py via a path shim (module HERE and REG['cases'] redirected); the frozen file is never edited",
+    "F_reader_lean": "NEW INSTRUMENT: read_F_stream + radiosity_lean, a line-streaming replacement for the frozen read_F/dense_F/radiosity_on_F whose peak memory is one dense n x n matrix. Registered validation: on B_m, B_f, R_q and R_s the lean path must reproduce the frozen path's rowsum/reciprocity/python-vs-solver numbers to <= 1e-12 relative, or the comparator REFUSES."
+  },
+  "planted_control_value": 0.001234,
+  "cost": {
+    "usd_per_core_hour": 0.0513,
+    "predicted_core_seconds": {"R_x": 7420, "R_q": 470, "R_s": 750},
+    "predicted_total_core_hours": 2.40,
+    "predicted_total_usd": 0.123,
+    "stop_threshold_multiple": 10,
+    "stop_threshold_core_hours": 24.0,
+    "cap_rule": "if the x level had been predicted above ~3 USD the ratio would have been cut to 1.26 (N=54); at 0.106 USD it was not"
+  }
+}

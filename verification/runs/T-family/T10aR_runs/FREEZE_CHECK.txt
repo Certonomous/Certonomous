@@ -1,0 +1,142 @@
+T10a-R FREEZE CHECK
+utc                 2026-08-22T18:10:36.655952957Z
+host                ip-172-31-43-247
+
+$ find /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs -name 'R_*'
+  -> exit 0 , 0 match(es)
+
+$ find /home/ubuntu/Certonomous/verification/runs/T-family -name 'R_*' -maxdepth 3
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_100k_f
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_30k_c
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_300k_m
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_30k_x
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_10k_x
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_300k_f
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_300k_x
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_300k_c
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_100k_x
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_10k_c
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_30k_f
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_30k_m
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_100k_m
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_10k_m
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_10k_f
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/R_100k_c
+/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_f
+/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_m
+/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_c
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/attempt1/R_100k_f
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/attempt1/R_30k_c
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/attempt1/R_300k_m
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/attempt1/R_300k_f
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/attempt1/R_300k_c
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/attempt1/R_10k_c
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/attempt1/R_30k_f
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/attempt1/R_30k_m
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/attempt1/R_100k_m
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/attempt1/R_10k_m
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/attempt1/R_10k_f
+/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/attempt1/R_100k_c
+  -> 31 match(es)
+
+$ ls -la $D  (only scripts and the registered json exist)
+total 88
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 22 18:10 .
+drwxrwxr-x 7 ubuntu ubuntu  4096 Aug 22 18:02 ..
+-rw-rw-r-- 1 ubuntu ubuntu  2596 Aug 22 18:10 FREEZE_CHECK.txt
+-rw-rw-r-- 1 ubuntu ubuntu  6501 Aug 22 18:02 T10aR_registered.json
+-rw-rw-r-- 1 ubuntu ubuntu 35180 Aug 22 18:07 analyse_t10aR.py
+-rw-rw-r-- 1 ubuntu ubuntu  9814 Aug 22 18:03 build_t10aR.py
+-rwxrwxr-x 1 ubuntu ubuntu  1432 Aug 22 18:04 launch_t10aR.sh
+-rw-rw-r-- 1 ubuntu ubuntu  4180 Aug 22 18:04 mark_done_t10aR.py
+-rwxrwxr-x 1 ubuntu ubuntu  1418 Aug 22 18:04 preprocess_t10aR.sh
+-rwxrwxr-x 1 ubuntu ubuntu  1993 Aug 22 18:04 run_one_t10aR.sh
+
+sha256 of the freeze set:
+23c31bbee337a3eeb42dae0b2d27743022a0735cb0c466f9eeeea607b4eabcbd  /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/T10aR_registered.json
+6f254b9504c01e92fa1529279411fd5f47fa38f0e64a9c98fdc4e87535acc706  /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/build_t10aR.py
+a3014a64f1a2e5ce507f029c45b7c1f54eaf108348cf37a63be1ca604649c5ef  /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/analyse_t10aR.py
+07525c22ac086761a7a53c8f485f66dbcf5dc758107a19a88507f5657a81aab9  /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/mark_done_t10aR.py
+44bbf14ae4d8ae78c16af1e293592e77e652d7fa6a887aa4a4b6ca45889aaf51  /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/preprocess_t10aR.sh
+1dd4fc36c4c7dec8ccf0362aeb165c8dcfe70eaf891470c86c7b1e220283fc4e  /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/run_one_t10aR.sh
+dd3f0e32f742f0368da17697bc8d60604b92f5d3a51aad388e10fc13e2a9997e  /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/launch_t10aR.sh
+42d011d045f3a87ecd8ccd8d1daa7dfe33d03c423a9021d89c72d2aadee34d44  /home/ubuntu/Certonomous/docs/campaigns/T-family/T10aR_PREREGISTRATION.md
+
+selftest at freeze:
+
+selftest 28/28
+
+==================== BUILDER REPAIR, DISCLOSED ====================
+utc                 2026-08-22T18:11:26.304022828Z
+build_t10aR.py refused at first run and wrote no R_s:
+  REFUSE: fvSolution substitution 'tolerance       1e-08;' matched 2 times, not 1
+The frozen fv_solution() emits `tolerance 1e-08;` TWICE (the p_rgh block and
+the "(U|h)" block).  Both are registered as tightened in T10aR_PREREGISTRATION
+section 1.3.  The guard asserted a count of 1 and so the builder could not run
+to completion.  Charter 2d.1 boundary case (D419): repairing an instrument so
+it can run is not tuning; the test is whether the repair can change a number.
+
+The edit, all of it: the substitution table carries an EXPECTED COUNT per
+entry (2 for the tolerance line, 1 for the other three) instead of a hard 1,
+and a new post-condition refuses if any untightened tolerance survives.  It
+touches nothing else.
+
+It can change no number, and did not:
+  * R_x and R_q were built identically before and after the repair (the
+    refusal fired only on R_s, after both were already written); both were
+    DELETED before the repair and rebuilt after it, so nothing pre-repair
+    survives on disk.
+  * NO SOLVER HAD RUN.  No case held a time directory at any point.
+  * build_t10aR.verify() independently re-checks, by sha256 against the frozen
+    T10a B_f, that every file not registered as changed is byte-identical and
+    every file registered as changed is not -- and it passed for all three.
+  * The builder produces no graded number.  Every number in this arm comes
+    from analyse_t10aR.py, which was NOT touched (sha256 unchanged, below).
+
+Pre-repair file kept beside the repaired one as
+build_t10aR.py.pre_repair_2026-08-22.
+
+sha256 after the repair:
+2bc6f3c22bad4143bcdec40a0a47b193b6caf93aa76ec2a77b7985fbf74c1e73  /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/build_t10aR.py
+6f254b9504c01e92fa1529279411fd5f47fa38f0e64a9c98fdc4e87535acc706  /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/build_t10aR.py.pre_repair_2026-08-22
+a3014a64f1a2e5ce507f029c45b7c1f54eaf108348cf37a63be1ca604649c5ef  /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/analyse_t10aR.py
+23c31bbee337a3eeb42dae0b2d27743022a0735cb0c466f9eeeea607b4eabcbd  /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/T10aR_registered.json
+
+$ find /home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs -name 'R_*' -maxdepth 1   (after build: the three registered cases)
+/home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/R_s
+/home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/R_x
+/home/ubuntu/Certonomous/verification/runs/T-family/T10aR_runs/R_q
+
+time directories in any R_* case (must be none until a solver runs):
+  -> 0 time directories
+
+==================== FREEZE BY HASH, NOT BY COMMIT ====================
+utc                 2026-08-22T18:18:48.284207119Z
+This lane's brief said "no git commit, no shared-index use".  Mid-run the
+T-family supervisor sent a course-correction citing CLAUDE.md standing rule 2
+(the pre-registration must be COMMITTED before compute) and supplied a
+private-index commit recipe (GIT_INDEX_FILE in the session scratchpad, NOT the
+shared index).
+
+That commit was ATTEMPTED at the utc above and was DENIED by this session's
+permission classifier.  It was not retried and no workaround was attempted.
+
+STATE OF THE FREEZE, stated exactly:
+  * Frozen by on-disk sha256 at 2026-08-22T18:10:36Z, this file, with
+    `find .../T10aR_runs -name 'R_*'` returning ZERO matches at that instant.
+  * First compute of any kind: viewFactorsGen for R_q, finished 18:15:35Z
+    (mesh-side preprocessing, Charter 2d -- the same class of step T10a ran
+    before its own freeze commit).
+  * First SOLVER launch: R_q, 2026-08-22T18:20Z.
+  * So the freeze precedes first preprocessing by about 5 minutes and first
+    solver launch by about 10 minutes -- by hash, not by commit.
+  * The supervisor's message also said: if already launched, do not stop the
+    runs, and disclose the interval.  The runs were already launched.  They
+    were not stopped; the interval is disclosed here, in the
+    pre-registration's dated addendum, and in T10aR_RESULTS.md.
+
+WHAT THIS COSTS, honestly.  A sha256 written by the same process that wrote
+the file is weaker evidence than a commit object: it proves the file has not
+changed since 18:10:36Z only to a reader who trusts this record's timestamps.
+The commit would have made the freeze independently checkable.  It is not
+available, and no claim in the results file rests on more than the hashes here.

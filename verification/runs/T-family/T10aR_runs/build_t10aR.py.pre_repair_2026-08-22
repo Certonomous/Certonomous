@@ -1,0 +1,206 @@
+#!/usr/bin/env python3
+"""
+T10a-R builder (refinement arm on T10a's B1 ceiling GATE FAIL).
+
+Writes R_x, R_q, R_s -- dictionaries and 0.orig fields only.  blockMesh /
+checkMesh / viewFactorsGen are run by run_one_t10aR.sh so their wall times are
+recorded per case (mesh-side preprocessing, Charter 2d); NO solver is run by
+anything in this file.
+
+EVERY dictionary is produced by the FROZEN build_t10a.py's own writers, which
+are imported, never copied and never edited.  Each case then applies exactly
+ONE registered change relative to the frozen B_f:
+
+  R_x  box_block_mesh(68) instead of box_block_mesh(42).  Nothing else.
+  R_q  viewFactorsDict distTol 8 -> 80.  Nothing else.
+  R_s  fvSolution tolerances/relTol/nNonOrth and controlDict endTime/
+       writeInterval tightened.  fvSchemes byte-identical to B_f.
+
+WHY distTol IS THE R-q KNOB (a correction to the directive's guess, recorded
+here before any solve).  The directive proposed nRayPerFace or "agglomeration
+off".  Neither exists on this path:
+  * viewFactorsGen.C v2606 reads exactly seven dictionary entries
+    (writeViewFactorMatrix, dumpRays, debug, GaussQuadTol, distTol, alpha,
+    intTol) -- lines 469..486.  nRayPerFace belongs to createViewFactors,
+    which T10a used only for the 2D reported-only H_2d row.
+  * agglomeration is ALREADY off: T10a INTERPRETATION 4 runs no
+    faceAgglomerate, finalAgglom is absent, one radiating face per mesh face.
+So the knob NOT yet varied, and the one that actually controls how the
+utility integrates a pair of faces, is distTol.  viewFactorsGen.C:967-1002:
+    dist = |Ci - Cj| / ((sqrt(Ai/pi) + sqrt(Aj/pi))/2)
+    dist > distTol  ->  2AI  (double AREA integral, one midpoint sample per
+                              face pair -- the cheap far-field formula)
+    else            ->  2LI  (double LINE integral along the four edge pairs,
+                              Gauss quadrature refined until GaussQuadTol)
+At N = 42 the face equivalent radius is 0.01343 m, so distTol 8 puts the 2AI
+threshold at 0.107 m: nearly every pair in a 1 x 1 x 0.5 m box is "far" and
+gets the midpoint formula.  distTol 80 moves the threshold to 1.074 m, past
+the box's 1.5 m diagonal for all but the longest pairs, so almost every pair
+is integrated by 2LI instead.  That is a genuine quadrature-density change and
+is the sharpest one this utility offers.  T10a already showed GaussQuadTol
+10x tighter moves <= 0.006 %; distTol is a different quantity and is varied by
+the same factor of 10 for comparability.
+
+WHY R-s IS A BUNDLE AND WHAT IT CANNOT REACH.  With
+`constantEmissivity true; useDirectSolver true;` the radiosity system is NOT
+solved iteratively at all: viewFactor.C:1008 calls LUsolve on a cached dense
+LU.  There is no radiosity tolerance and no radiosity iteration count to
+tighten -- the directive's "solver tolerance for the radiosity G to 1e-10"
+has no dictionary entry to land in on the registered path, and reaching one
+would require useDirectSolver false, which is a second change and a model
+path T10a explicitly did not grade (its section 9).  R-s therefore tightens
+every tolerance and iteration count that DOES exist on the registered path,
+as one registered bundle, listed exhaustively in T10aR_registered.json.  If
+the bundle moves nothing, the whole category is ruled out at once; if it moves
+something, a follow-up would have to bisect it, and that is stated in advance.
+"""
+import hashlib
+import json
+import os
+import re
+import shutil
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+T10A = os.path.join(os.path.dirname(HERE), "T10a_runs")
+sys.path.insert(0, T10A)
+import build_t10a as B                                    # noqa: E402  FROZEN
+
+REG = json.load(open(os.path.join(HERE, "T10aR_registered.json")))
+BX = B.BX
+
+
+def with_dist_tol(txt, dist_tol):
+    out, n = re.subn(r"(distTol\s+)8;", rf"\g<1>{dist_tol};", txt)
+    if n != 1:
+        raise SystemExit(f"REFUSE: distTol substitution matched {n} times, not 1")
+    return out
+
+
+def tightened_fv_solution():
+    """The R-s bundle.  Derived from the frozen fv_solution() by substitution so
+    that anything the frozen writer emits and this function does not name is
+    carried through unchanged."""
+    txt = B.fv_solution()
+    subs = [(r"tolerance       1e-08;", "tolerance       1e-12;"),
+            (r"relTol          0.01;", "relTol          0;"),
+            (r"relTol          0.1;", "relTol          0;"),
+            (r"nNonOrthogonalCorrectors 1;", "nNonOrthogonalCorrectors 3;")]
+    for pat, rep in subs:
+        txt, n = re.subn(re.escape(pat), rep, txt)
+        if n != 1:
+            raise SystemExit(f"REFUSE: fvSolution substitution {pat!r} matched {n} times, not 1")
+    return txt
+
+
+def tightened_control_dict():
+    txt = B.control_dict()
+    for pat, rep in ((r"endTime         20;", "endTime         60;"),
+                     (r"writeInterval   5;", "writeInterval   15;")):
+        txt, n = re.subn(re.escape(pat), rep, txt)
+        if n != 1:
+            raise SystemExit(f"REFUSE: controlDict substitution {pat!r} matched {n} times, not 1")
+    # L-140 must survive the change.
+    end = int(re.search(r"endTime\s+(\d+);", txt).group(1))
+    wi = int(re.search(r"writeInterval\s+(\d+);", txt).group(1))
+    assert wi < end and end % wi == 0 and end // wi >= 4, (end, wi)
+    return txt
+
+
+def build(name, c):
+    d = os.path.join(HERE, name)
+    if os.path.exists(d):
+        shutil.rmtree(d)
+    for sub in ("0.orig", "constant", "system"):
+        os.makedirs(os.path.join(d, sub))
+    w = lambda rel, txt: open(os.path.join(d, rel), "w").write(txt)
+    patches = [(p, BX["patches"][p]["T"], BX["eps"])
+               for p in ("floor", "ceiling", "x0", "x1", "y0", "y1")]
+    pn = [p for p, _, _ in patches]
+    tighten = bool(c.get("tighten"))
+
+    w("system/blockMeshDict", B.box_block_mesh(c["N"]))
+    w("system/controlDict", tightened_control_dict() if tighten else B.control_dict())
+    w("system/fvSchemes", B.fv_schemes())                  # NEVER varied
+    w("system/fvSolution", tightened_fv_solution() if tighten else B.fv_solution())
+    w("constant/g", B.gravity())
+    w("constant/thermophysicalProperties", B.thermo())
+    w("constant/turbulenceProperties", B.turbulence())
+    w("constant/radiationProperties", B.radiation_props(c["smoothing"]))
+    w("constant/boundaryRadiationProperties",
+      B.boundary_radiation([(p, e) for p, _, e in patches]))
+    vfd = B.view_factors_dict_gen(c["GaussQuadTol"])
+    if c["distTol"] != 8:
+        vfd = with_dist_tol(vfd, c["distTol"])
+    w("constant/viewFactorsDict", vfd)
+    w("0.orig/T", B.field_T([(p, t) for p, t, _ in patches]))
+    w("0.orig/U", B.field_U(pn))
+    w("0.orig/p_rgh", B.field_p_rgh(pn))
+    w("0.orig/p", B.field_p(pn))
+    w("0.orig/qr", B.field_qr(pn))
+    w("CASE.txt", "\n".join([
+        f"case              {name}",
+        "rung              T10a-R (refinement arm on T10a's B1 ceiling GATE FAIL)",
+        f"arm               {c['role']}",
+        f"one change from   {c['one_change_from']}: {c['the_one_change']}",
+        "solver            buoyantSimpleFoam (ESI v2606), laminar, g = (0 0 0), carrier fluid",
+        "generator         viewFactorsGen (preprocessing; wall time in BUILD.txt)",
+        f"Lx Ly Lz          {BX['Lx']} {BX['Ly']} {BX['Lz']} m",
+        f"N per m           {c['N']}",
+        f"registered_faces  {c['faces']}",
+        f"registered_cells  {c['cells']}",
+        f"GaussQuadTol      {c['GaussQuadTol']}",
+        f"distTol           {c['distTol']}",
+        f"smoothing         {c['smoothing']}",
+        f"tightened bundle  {tighten}",
+    ] + [f"patch             {p}: T = {t} K, emissivity = {e}" for p, t, e in patches]) + "\n")
+    return d
+
+
+def verify(name, c, d):
+    """Refuse a case that is not exactly what was registered."""
+    bf = os.path.join(T10A, "B_f")
+    sha = lambda p: hashlib.sha256(open(p, "rb").read()).hexdigest()
+    tighten = bool(c.get("tighten"))
+    # fvSchemes is byte-identical to B_f in EVERY arm.
+    if sha(os.path.join(d, "system/fvSchemes")) != sha(os.path.join(bf, "system/fvSchemes")):
+        raise SystemExit(f"REFUSE: {name} fvSchemes differs from B_f")
+    same = ["constant/radiationProperties", "constant/boundaryRadiationProperties",
+            "constant/thermophysicalProperties", "constant/turbulenceProperties",
+            "constant/g", "0.orig/T", "0.orig/U", "0.orig/p", "0.orig/p_rgh", "0.orig/qr"]
+    if not tighten:
+        same += ["system/controlDict", "system/fvSolution"]
+    if c["distTol"] == 8:
+        same += ["constant/viewFactorsDict"]
+    if c["N"] == 42:
+        same += ["system/blockMeshDict"]
+    for rel in same:
+        if sha(os.path.join(d, rel)) != sha(os.path.join(bf, rel)):
+            raise SystemExit(f"REFUSE: {name} {rel} differs from B_f but was registered identical")
+    changed = []
+    if c["N"] != 42:
+        changed.append("system/blockMeshDict")
+    if c["distTol"] != 8:
+        changed.append("constant/viewFactorsDict")
+    if tighten:
+        changed += ["system/controlDict", "system/fvSolution"]
+    for rel in changed:
+        if sha(os.path.join(d, rel)) == sha(os.path.join(bf, rel)):
+            raise SystemExit(f"REFUSE: {name} {rel} is identical to B_f but was registered CHANGED")
+    return changed
+
+
+def main():
+    print(f"T10a-R builder.  frozen build_t10a imported from {T10A}")
+    for name, c in REG["cases"].items():
+        d = build(name, c)
+        changed = verify(name, c, d)
+        print(f"  {name:5s} N={c['N']:3d} faces={c['faces']:6d} cells={c['cells']:7d} "
+              f"distTol={c['distTol']:3d}  ONE CHANGE -> {', '.join(changed)}")
+    print("every other dictionary and every 0.orig field verified byte-identical to "
+          "the frozen T10a B_f.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
