@@ -1,0 +1,34 @@
+R5C build log tails --- the full logs are at
+  /home/ubuntu/closure-data/r5c/build/log.wmake_libspartaFrozenV2
+  /home/ubuntu/closure-data/r5c/build/log.wmake_kCorrectiveFrozenFoamV2
+and are not committed (bulk).  Build host ip-172-31-43-247, OpenFOAM v2606,
+g++ 13.3.0, WM_OPTIONS linux64GccDPInt32Opt, 2026-08-22.
+
+R4's binaries were NOT rebuilt (PREREGISTRATION NR-2).  mtimes at the end of
+this lane's build, proving it:
+-rwxrwxr-x 1 ubuntu ubuntu  673856 2026-08-01 00:15 /home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/bin/kCorrectiveFrozenFoam
+-rwxrwxr-x 1 ubuntu ubuntu  674384 2026-08-22 20:48 /home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/bin/kCorrectiveFrozenFoamV2
+-rwxrwxr-x 1 ubuntu ubuntu 1402040 2026-08-22 20:47 /home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/lib/libspartaFrozenV2.so
+-rwxrwxr-x 1 ubuntu ubuntu 1574800 2026-08-01 01:09 /home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/lib/libspartaTurbulenceModels.so
+
+sha256 of the two new binaries:
+f083a86bc442fdad6dac93d4466b2a6bdda11cd99be94911e19199372a18de13  /home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/bin/kCorrectiveFrozenFoamV2
+32454cfce0c217c84232b58f08b8194d9b4298890dbd99f701c5ca5436c30c45  /home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/lib/libspartaFrozenV2.so
+
+=================== tail: wmake libso spartaFrozenV2 (rc=0) ===================
+wmake libso (spartaFrozenV2)
+Making dependencies: spartaFrozenV2.C
+g++ -std=c++17 -m64 -pthread -DOPENFOAM=2606 -DWM_DP -DWM_LABEL_SIZE=32 -Wall -Wextra -Wold-style-cast -Wnon-virtual-dtor -Wno-unused-parameter -Wno-invalid-offsetof -Wno-attributes -Wno-unknown-pragmas -O3  -DNoRepository -ftemplate-depth=1000  -I/usr/lib/openfoam/openfoam2606/src/TurbulenceModels/turbulenceModels/lnInclude -I/usr/lib/openfoam/openfoam2606/src/TurbulenceModels/incompressible/lnInclude -I/usr/lib/openfoam/openfoam2606/src/transportModels -I/usr/lib/openfoam/openfoam2606/src/transportModels/incompressible/singlePhaseTransportModel -I/usr/lib/openfoam/openfoam2606/src/finiteVolume/lnInclude -I/usr/lib/openfoam/openfoam2606/src/meshTools/lnInclude -iquote. -IlnInclude -I/usr/lib/openfoam/openfoam2606/src/OpenFOAM/lnInclude -I/usr/lib/openfoam/openfoam2606/src/OSspecific/POSIX/lnInclude   -fPIC -c spartaFrozenV2.C -o Make/linux64GccDPInt32Opt/spartaFrozenV2.o
+g++ -std=c++17 -m64 -pthread -DOPENFOAM=2606 -DWM_DP -DWM_LABEL_SIZE=32 -Wall -Wextra -Wold-style-cast -Wnon-virtual-dtor -Wno-unused-parameter -Wno-invalid-offsetof -Wno-attributes -Wno-unknown-pragmas -O3  -DNoRepository -ftemplate-depth=1000  -I/usr/lib/openfoam/openfoam2606/src/TurbulenceModels/turbulenceModels/lnInclude -I/usr/lib/openfoam/openfoam2606/src/TurbulenceModels/incompressible/lnInclude -I/usr/lib/openfoam/openfoam2606/src/transportModels -I/usr/lib/openfoam/openfoam2606/src/transportModels/incompressible/singlePhaseTransportModel -I/usr/lib/openfoam/openfoam2606/src/finiteVolume/lnInclude -I/usr/lib/openfoam/openfoam2606/src/meshTools/lnInclude -iquote. -IlnInclude -I/usr/lib/openfoam/openfoam2606/src/OpenFOAM/lnInclude -I/usr/lib/openfoam/openfoam2606/src/OSspecific/POSIX/lnInclude   -fPIC -shared -Xlinker --add-needed -Xlinker --no-as-needed  Make/linux64GccDPInt32Opt/spartaFrozenV2.o -L/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib \
+    -lincompressibleTurbulenceModels -lturbulenceModels -lincompressibleTransportModels -lfiniteVolume -lmeshTools  -o /home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/lib/libspartaFrozenV2.so
+
+============= tail: wmake kCorrectiveFrozenFoamV2 (rc=0) =====================
+Making dependencies: kCorrectiveFrozenFoamV2.C
+g++ -std=c++17 -m64 -pthread -DOPENFOAM=2606 -DWM_DP -DWM_LABEL_SIZE=32 -Wall -Wextra -Wold-style-cast -Wnon-virtual-dtor -Wno-unused-parameter -Wno-invalid-offsetof -Wno-attributes -Wno-unknown-pragmas -O3  -DNoRepository -ftemplate-depth=1000  -I../spartaFrozenV2 -I/usr/lib/openfoam/openfoam2606/src/TurbulenceModels/turbulenceModels/lnInclude -I/usr/lib/openfoam/openfoam2606/src/TurbulenceModels/incompressible/lnInclude -I/usr/lib/openfoam/openfoam2606/src/transportModels -I/usr/lib/openfoam/openfoam2606/src/transportModels/incompressible/singlePhaseTransportModel -I/usr/lib/openfoam/openfoam2606/src/finiteVolume/lnInclude -I/usr/lib/openfoam/openfoam2606/src/meshTools/lnInclude -iquote. -IlnInclude -I/usr/lib/openfoam/openfoam2606/src/OpenFOAM/lnInclude -I/usr/lib/openfoam/openfoam2606/src/OSspecific/POSIX/lnInclude   -fPIC -c kCorrectiveFrozenFoamV2.C -o Make/linux64GccDPInt32Opt/kCorrectiveFrozenFoamV2.o
+g++ -std=c++17 -m64 -pthread -DOPENFOAM=2606 -DWM_DP -DWM_LABEL_SIZE=32 -Wall -Wextra -Wold-style-cast -Wnon-virtual-dtor -Wno-unused-parameter -Wno-invalid-offsetof -Wno-attributes -Wno-unknown-pragmas -O3  -DNoRepository -ftemplate-depth=1000  -I../spartaFrozenV2 -I/usr/lib/openfoam/openfoam2606/src/TurbulenceModels/turbulenceModels/lnInclude -I/usr/lib/openfoam/openfoam2606/src/TurbulenceModels/incompressible/lnInclude -I/usr/lib/openfoam/openfoam2606/src/transportModels -I/usr/lib/openfoam/openfoam2606/src/transportModels/incompressible/singlePhaseTransportModel -I/usr/lib/openfoam/openfoam2606/src/finiteVolume/lnInclude -I/usr/lib/openfoam/openfoam2606/src/meshTools/lnInclude -iquote. -IlnInclude -I/usr/lib/openfoam/openfoam2606/src/OpenFOAM/lnInclude -I/usr/lib/openfoam/openfoam2606/src/OSspecific/POSIX/lnInclude   -fPIC -Xlinker --add-needed -Xlinker --no-as-needed  Make/linux64GccDPInt32Opt/kCorrectiveFrozenFoamV2.o -L/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib \
+    -L/home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/lib -lspartaFrozenV2 -lincompressibleTurbulenceModels -lturbulenceModels -lincompressibleTransportModels -lfiniteVolume -lmeshTools -lfvOptions -lOpenFOAM -ldl  \
+     -lm -o /home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/bin/kCorrectiveFrozenFoamV2
+
+Compiler diagnostics: zero errors, zero warnings in the final build of either
+target (the first attempt at the library failed on a missing dependent-name
+'template' keyword and was corrected before any case ran; see RESULTS.md).

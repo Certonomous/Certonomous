@@ -1,0 +1,18 @@
+EXE_INC = \
+    -I../spartaFrozenV2 \
+    -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
+    -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
+    -I$(LIB_SRC)/transportModels \
+    -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude
+
+EXE_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
+    -lspartaFrozenV2 \
+    -lincompressibleTurbulenceModels \
+    -lturbulenceModels \
+    -lincompressibleTransportModels \
+    -lfiniteVolume \
+    -lmeshTools \
+    -lfvOptions

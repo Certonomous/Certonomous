@@ -1,0 +1,3 @@
+spartaFrozenV2.C
+
+LIB = $(FOAM_USER_LIBBIN)/libspartaFrozenV2
