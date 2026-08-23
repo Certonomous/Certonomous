@@ -588,16 +588,19 @@ documented `FILING_CHARTER` §3 exception: *the rule was wrong, not the tree.*
 
 ## verification
 
-**Section last written:** 2026-08-23T19:38Z by verification-supervisor (first
-owner-written fill; supersedes the 2026-08-22 harness first fill, whose
-"rule on the VM2026R1 canonical home" next-action over-reached — D-6 is with
-Sanaa and neither copy is touched).
+**Section last written:** 2026-08-23T20:39Z by verification-supervisor —
+THIRD session, spawned by the chief at HEAD `b84c43d3`; session-2 lanes
+presumed dead. This commit was built from HEAD's blob via the private index,
+never through the shared worktree: at 20:37Z the worktree's `docs/LAB_STATE.md`
+was STALE in the reverting direction on closure's section (held superseded
+20:45Z text; HEAD carries their newer 20:35Z clock-note version + the D-14
+CLOSED block) and dafoam's (held 20:12Z session-2 text; HEAD carries 20:45Z
+session-3). Inspected, not reverted; flagged to the chief — the L-245 disease
+sitting armed in the tree for the next worktree-path committer.
 
-**Last commit:** this commit (CROSS_TEAM_GATE_AUDIT.md pass 1 + this board
-update). Before it: `090c070c` (lane) — Ansys manual `.txt` sidecar, R8 pair
-complete, L-144 title-page verified from the extracted text (*"Ansys Fluid
-Dynamics Verification Manual … Release 2026 R1, March 2026"*), 368,949 bytes,
-290 pages, clean; `50175beb` — L-245 filed; `6ae77c79` — LAB_STATE repair.
+**Last commit:** this commit (session-3 board correction + dispatch state).
+Session 2's record (audit passes 1–3, D-6 memo `6f1ff0ed`, sidecar `090c070c`,
+`50175beb`, `6ae77c79`) stands below unchanged.
 
 **Incident 2, on the record (2026-08-23 ~19:56Z):** commit `890bfa7f` reverted
 closure's 20:20Z section, cfd's 08ea9dbb correction and the chief's GPU-row
@@ -632,9 +635,26 @@ your 18:17Z text while git held 19:35Z is unestablished and flagged to you.
 The team has produced **no verdict-bearing commit yet**; the `fd831c11` line in
 the first fill was heat-transfer's commit, not this team's.
 
-**Live jobs:** none owned by this team. (Verified 2026-08-23T19:36Z by `ps aux`:
-4 `buoyantBoussinesqSimpleFoam` solvers live — pids 442445, 450274, 488219,
-757934 — all heat-transfer's; never touched.)
+**Live jobs:** no solver compute owned by this team. **Three lanes live**,
+dispatched 2026-08-23T20:33Z, the cap: (1) D471 freeze-checker repairs
+(per-comparator marker scoping, `cases/` population, sha-witness recognition,
+mtime-fallback/docstring agreement); (2) D472 verdict-cells control repairs
+(D356 landing control re-pointed to earliest-across-spellings — the
+implementation is the correct half; vacuous second control made able to fail);
+(3) D473 `check_registered_deliverables.py` per the frozen proposal spec.
+All three under the standing rule: the supervisor reads each diff personally
+before any re-run is believed; lanes told all outputs are CANDIDATE.
+**QUEUED for the first free slot (chief-routed 20:34Z):** `append_record.py`
+duplicate-id repair — closure's finding at `52e5de39`, D369-family third bite.
+Defect site read personally by this supervisor 20:36Z: the id assert derives
+max from HEAD's blob only (`scripts/append_record.py:315`, assert ~:334-338)
+while `merge()` deliberately preserves the worktree tail (`:176-179`), so a
+peer's unlanded `D<next>` row in the tail passes the assert and lands a
+duplicate. Repair spec: effective max over HEAD ids AND preserved-tail ids,
+refusal (not silent renumber) when the tail holds the would-be next id, planted
+peer-tail control + mutation evidence. Interim mitigation for tonight's
+appenders, relayed via chief: check the worktree tail for ids before trusting
+the helper's assert (rule 11 re-derive discipline is the behavioral half).
 
 **Charters owned:** `VERIFICATION_CHARTER.md` **v1.10, 2026-08-22** (§2e at the
 foot, H-7, L-219/L-220 verbatim, zero lines moved above — verified by reading
@@ -659,6 +679,13 @@ moved since.
 **Cross-team gate audit — standing mandate.** Targets, updated with the material
 new at HEAD `9e82321b` since the first fill:
 
+- **NEW (session 3, queued) — dafoam W4 M1+M2** (records `108a87e3`, verdicts
+  O0/M2/M1-D PASS, M1 PENDING, O3 BLOCKED): audit whether each PASS's gate was
+  frozen before its run could answer it and whether M1's PENDING is a queue
+  state, not a softened GATE FAIL (rule 1).
+- **NEW (session 3, queued) — heat-transfer T9aH chain** (`a66232c1`): fresh
+  verdict-bearing chain, not yet audited; standard pass — comparator freeze,
+  gate could-have-failed, controls fired not described.
 - **NEW — R5C** (`0ac76ec2`): closed GATE FAIL **by its own identity gate** —
   "the omega source is repaired in a copy, not in the solver R4's numbers came
   from." Audit: confirm the identity gate was pre-registered and the GATE FAIL
@@ -690,15 +717,13 @@ and sits beside D-6 material; goes in the D-6 prep note for Sanaa. Repo-wide
 `check_filing.py` reads FAIL: 28 violations (1 R1, 4 R5, 12 R8, 11 R9 — 11
 other PDFs lab-wide still lack sidecars), pre-existing, not this team's alone.
 
-**Next actions** (this session's five all DONE: sidecar `090c070c`; checker
-re-runs; six-audit re-sweep; audit passes 1–3; D-6 memo `6f1ff0ed`). For the
-next session, in order: (1) implement the two instrument repairs — D471
-(freeze-checker: per-comparator marker scoping, `cases/` population,
-sha-witness recognition) and D472 (verdict-cells landing controls) — lane
-implements, **supervisor reads the diffs before any re-run is believed**;
-(2) implement D473's `check_registered_deliverables.py` per the proposal spec
-(selftest → fire on R4 §7 → archive replay with published fire rate → Sanaa);
-(3) remaining audit targets: T1b after grading (~08-26), T10a's 6 UNMEASURED
+**Next actions** (session-3 state, 20:39Z): (1) D471 and (2) D472/D473 are
+**IN FLIGHT** as the three live lanes above — on each return, the supervisor's
+diff read, then belief or rejection, then docket closure of the entry;
+(1b) `append_record.py` repair dispatches on the first free slot (spec in Live
+jobs above; lesson row coordinated with closure so it lands once);
+(3) remaining audit targets: W4 M1+M2 and T9aH (queued above), T1b after
+grading (~08-26), T10a's 6 UNMEASURED
 controls, the 4 ungraded pooled `T1_runs` UNFROZEN rows, EXTERNAL_REFERENT's
 uncommitted screen (rebuild and commit the instrument, or strike the
 unreproducible bucket figures with a dated note); (4) grade heat-transfer's
