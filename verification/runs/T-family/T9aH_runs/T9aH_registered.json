@@ -1,0 +1,80 @@
+{
+ "rung": "T9aH",
+ "tier": "EXACT",
+ "source": "docs/campaigns/T-family/T9aH_PREREGISTRATION.md",
+ "source_commit": "0078fe9c25ac58e7ef1fda0cd97bab8884d4c5d2",
+ "source_sha256": "84af4208157418efcb41457f346e54a5f41e6360e5a5d7855bb8acd5ff629f0b",
+ "armed_before_any_case": true,
+ "written": "2026-08-23",
+ "governing_rule": "This file is a TRANSCRIPTION of section 4 of the pre-registration. Where it and the pre-registration disagree, THE PRE-REGISTRATION GOVERNS and analyse_t9aH.py refuses rather than grades. The instrument carries an independent hard-coded copy of every number below and refuses if the two transcriptions differ.",
+ "scheme": {
+  "harmonic": "Gauss harmonic corrected",
+  "linear": "Gauss linear corrected",
+  "entry": "laplacian(DT,T)",
+  "readback_rule": "read back off disk from each case's own system/fvSchemes; refuse on any mismatch (the frozen comparator never reads fvSchemes)"
+ },
+ "exact_references": {
+  "400x": {"k2": 0.04, "sum_R": 2.56375, "q": 19.502681618722573, "T_i1": 348.7810823988298, "T_i2": 300.0243783520234},
+  "40x": {"k2": 0.4, "sum_R": 0.31375, "q": 159.3625498007968, "T_i1": 340.0398406374502, "T_i2": 300.199203187251},
+  "4000x": {"k2": 0.004, "sum_R": 25.06375, "q": 1.9949129719216, "T_i1": 349.8753179392549, "T_i2": 300.0024936412149}
+ },
+ "rows": {
+  "H1": {"quantity": "wall T interface 1, all levels c/m/f, 400x", "kind": "abs_K", "tol": 1e-08, "levels": ["c", "m", "f"], "pass_if": "max |T_i1 - 348.7810823988298| <= 1.0e-08 K", "fail_if": "any level above it", "predicted": [0.0, 3.2e-12, 3.0e-12]},
+  "H2": {"quantity": "wall q'', all levels c/m/f, 400x", "kind": "rel", "tol": 1e-08, "levels": ["c", "m", "f"], "pass_if": "max |q - 19.502681618722573| / q_exact <= 1.0e-08", "fail_if": "any level above it", "predicted": 3e-11},
+  "H3": {"quantity": "wall T interface 2, all levels c/m/f, 400x", "kind": "abs_K", "tol": 1e-08, "levels": ["c", "m", "f"], "pass_if": "max |T_i2 - 300.0243783520234| <= 1.0e-08 K", "fail_if": "any level above it", "predicted": 0.0},
+  "H4": {"quantity": "wall T interface 1 at 40x contrast, case H40_f", "kind": "abs_K_and_drop", "tol": 1e-08, "min_drop": 1000000.0, "baseline_e1_mK": -64.99408, "baseline_source": "T9a_runs/gate_t9aD.json, case D_C_f, READ not re-solved", "pass_if": "|T_i1 - 340.0398406374502| <= 1.0e-08 K AND |e1(D_C_f)|/|e1(H40_f)| > 1.0e+06", "fail_if": "either fails"},
+  "H5": {"quantity": "wall T interface 1 and q'' at 4000x contrast, case H4000_f", "kind": "abs_K_and_rel", "tol": 1e-08, "tol_rel": 1e-08, "pass_if": "|T_i1 - 349.8753179392549| <= 1.0e-08 K AND |q - 1.9949129719216|/q_exact <= 1.0e-08", "fail_if": "either fails", "no_drop_claimed": true},
+  "H6": {"quantity": "fin eta and tip ratio vs T9a published, all levels", "kind": "abs", "tol": 1e-09, "baseline_source": "T9a_runs/gate_t9a.json, cases F_c/F_m/F_f, READ not re-solved", "pass_if": "max |x_T9aH - x_T9a| <= 1.0e-09 at every level, both quantities", "fail_if": "any above it", "specificity_row": true, "counted_toward_hypothesis": false, "why": "the fin k is uniform, so harmonic interpolation of a constant is that constant; agreement is arithmetic (Charter 2a). It is evidence about the BUILD and about the scheme's specificity, never that harmonic is correct."}
+ },
+ "controls": {
+  "HC1": {"realisation": "finest wall q'' against k_bar*dT/L, k_bar the arithmetic mean of the three k", "must": "FAIL H2's 1.0e-08 relative bar", "predicted_dev_pct": 98.8},
+  "HC2": {"realisation": "finest fin eta against eta = 1", "must": "FAIL H6's 1.0e-09 bar", "predicted_dev_pct": 16.68},
+  "HC3": {"realisation": "the SOLVED uniform solid W_C3 through the identical pipeline (Charter 2c trivial baseline)", "must": "FAIL H1, H2 and H3"},
+  "HC4": {"realisation": "RL_f -- same mesh, same k, Gauss linear: the hypothesis's registered null arm (Charter 2c)", "must": "FAIL H1, H2 and H3", "predicted_e1_K": -0.00240918, "consequence_if_not_met": "the discrimination set is EMPTY: H1, H2 and H3 are REPORTED and NOT COUNTED toward the hypothesis. This can only remove rows from the hypothesis's tally, never add one."}
+ },
+ "triple_state_rule": {
+  "frozen_rows": "FR0-FR4: STAGNANT (p<0.5), OSCILLATORY or DIVERGENT (p<=0) -> NOT A RESULT, no band armed, three values and the state printed beside it. EXACT -> the frozen rule's zero band, verdict as returned.",
+  "H_rows": "unaffected -- they carry no band and make no order claim; the triple state is printed beside every H row.",
+  "HC_controls": "unaffected -- absolute thresholds.",
+  "gci": "Fs = 1.25, nominal r = 1.6, frozen analyse_t9a.gci() only; never quoted on non-monotone values.",
+  "collapse_floor_K": 1e-06,
+  "collapse_floor_rel": 1e-06,
+  "collapse_rule": "if all three level errors of a quantity fall below its floor, no observed order, no Richardson extrapolate and no GCI derived from that triple is quoted anywhere in the rung's records. The floor governs only what the rung may SAY; it cannot turn a frozen verdict into anything else."
+ },
+ "refusals": {
+  "RC1_hashes": {"files": ["analyse_t9a.py", "exact_t9a.py", "T9a_registered.json", "check_t9a_mesh.py", "mark_done_t9a.py", "run_one_t9a.sh", "run_chain_t9a.sh"], "rule": "any mismatch refuses (exit 2)"},
+  "RC1b_t9a_readonly": {"gate_t9a.json": "7c4c6826283f98d31e0c313cd713412b969bb2a4486b78ea31617eb1b3a5f4f8", "gate_t9aD.json": "96e0dce0ea8b57c069aa0f48060ebc9605c0ee3314ba7abf228de6440dc19993", "rule": "T9a_runs is READ-ONLY for this rung; if either moved, every T9aH row is NOT A RESULT and the movement is reported"},
+  "RC2_scheme_readback": "laplacian(DT,T) must read Gauss harmonic corrected on the nine harmonic cases and Gauss linear corrected on RL_f; refuse otherwise",
+  "RC3_replica": {"case": "RL_f", "tol_K": 1e-09, "tol_q": 1e-07, "rule": "must reproduce gate_t9a.json's W_f T_i1, T_i2 and q''; otherwise EVERY T9aH row is NOT A RESULT"},
+  "RC4_completion": "mark_done_t9a.py's six tests including the age guard, applied to all ten cases; a case short of any clause gets no marker and the frozen comparator refuses the rung as PENDING",
+  "RC5_planted_convergence": {"plant_K": 0.001234, "cases": ["W_f", "H40_f"], "expect_max_change_K": 0.001234, "expect_state": "NOT_CONVERGED", "rule": "if the reader cannot see the plant, every row depending on a convergence zero is NOT A RESULT"},
+  "RC6_planted_measurement": {"plant_K": 0.001234, "case": "W_f", "cell": "the layer-1 cell adjacent to interface 1", "min_visible_shift_K": 1e-05, "expected_shift_K": 0.00118, "rule": "if T_i1 does not move, the near-zero H1/H2/H3 errors are not evidence and every H row is NOT A RESULT"}
+ },
+ "cases": {
+  "W_c": {"kind": "wall", "cells_per_layer": [10, 20, 5], "scheme": "harmonic", "k2": 0.04},
+  "W_m": {"kind": "wall", "cells_per_layer": [16, 32, 8], "scheme": "harmonic", "k2": 0.04},
+  "W_f": {"kind": "wall", "cells_per_layer": [26, 51, 13], "scheme": "harmonic", "k2": 0.04},
+  "W_C3": {"kind": "wall_uniform_control", "cells_per_layer": [26, 51, 13], "scheme": "harmonic", "k2": 0.04},
+  "F_c": {"kind": "fin", "nx": 50, "ny": 10, "scheme": "harmonic"},
+  "F_m": {"kind": "fin", "nx": 80, "ny": 16, "scheme": "harmonic"},
+  "F_f": {"kind": "fin", "nx": 128, "ny": 26, "scheme": "harmonic"},
+  "RL_f": {"kind": "wall", "cells_per_layer": [26, 51, 13], "scheme": "linear", "k2": 0.04, "role": "replica refusal + registered null arm"},
+  "H40_f": {"kind": "wall", "cells_per_layer": [26, 51, 13], "scheme": "harmonic", "k2": 0.4, "role": "contrast 40x"},
+  "H4000_f": {"kind": "wall", "cells_per_layer": [26, 51, 13], "scheme": "harmonic", "k2": 0.004, "role": "contrast 4000x"}
+ },
+ "cost": {
+  "unit": "core-minutes (wall s x ranks / 60)",
+  "ranks": 1,
+  "predicted_solver_chain_core_s": 12.5,
+  "predicted_total_core_s": 90.0,
+  "predicted_total_core_min": 1.5,
+  "predicted_total_usd": 0.00128,
+  "cap_core_s": 300.0,
+  "cap_core_min": 5.0,
+  "cap_usd": 0.004275,
+  "rate_usd_per_core_h": 0.0513,
+  "cost_basis": "reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER.md section 5: the box cannot read its own billing)",
+  "overrun_rule": "an overrun STOPS THE RUN; it does not get a new budget. On exceeding 300 core-seconds the chain is stopped, completed cases are reported with their verdicts, the remainder is PENDING, and the overrun is reported as waste."
+ },
+ "verdict_vocabulary": ["PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING"]
+}

@@ -617,3 +617,160 @@ document comes from a record already on disk (`T9a_RESULTS.md`,
 
 **Registered verdict vocabulary for every row above: PASS / GATE REACHED /
 GATE FAIL / NOT A RESULT / BLOCKED / PENDING, and nothing else.**
+
+---
+
+## Addendum A (2026-08-23) — steps 2 and 3 executed: the tree, the instruments, their hashes and their selftest
+
+**Lines whose number changed above this section: 0.** This addendum is appended
+at the foot; §§1–10 are byte-identical to the text committed at
+`0078fe9c25ac58e7ef1fda0cd97bab8884d4c5d2` (sha256
+`84af4208157418efcb41457f346e54a5f41e6360e5a5d7855bb8acd5ff629f0b`).
+
+**It alters no gate, no threshold, no band, no cap and no label.** Every number
+in §4, §5, §8 stands exactly as committed. **Nothing has been built and nothing
+has been run**: no case directory, no `blockMesh`, no `checkMesh`, no solver,
+zero core-seconds spent against the 300 core-second cap.
+
+Authorised by the heat-transfer supervisor to perform **steps 2 and 3 of §9
+only**, after the supervisor's own check of the committed pre-registration.
+**Steps 4 and 5 — the supervisor's personal read of `analyse_t9aH.py`, and
+launch — have not happened and are not this lane's to take.**
+
+### A.1 Step 2 — the run tree, and the copies verified against the committed blobs
+
+`verification/runs/T-family/T9aH_runs/` created. Copy hashes, compared file by
+file — the three grading-path files against the blobs at **`239ed2b8`**, the
+support files against **HEAD**:
+
+```
+2026-08-23T19:55:16.928Z
+--- copy vs 239ed2b8 committed blob (3 grading-path files) ---
+analyse_t9a.py         dd2d6bf0ac690fdcca90719cb6586168763d311ea3b5a7ad937fdf054ecac9da  IDENTICAL
+exact_t9a.py           d3f2558c1471ab3debd6e2804f58552e27b5708e18b81d219a2fe6d017d3d0b8  IDENTICAL
+T9a_registered.json    66b03c7de15ceeba500dded8c496346023053ed2d0746de8749c324e1edb40ed  IDENTICAL
+--- copy vs HEAD blob (4 support files) ---
+check_t9a_mesh.py      cb7fa05ab05d4751f0254419a199931f1d7cd7334d94075418ecad41c86688bc  IDENTICAL
+mark_done_t9a.py       0feff87e148e1f69436a39f505f8fa8f49273f4c4669b41ad5bd9f4c6a7da669  IDENTICAL
+run_one_t9a.sh         163c4345199cc8f2cfa1eb9406fedb8c44d3ff9f4d037f6b0d07eb495f8f2761  IDENTICAL
+run_chain_t9a.sh       cbf3b957f5cd7d7a18f799112ca7936b824c2e37532515447fca575634999e7d  IDENTICAL
+--- case directories in the new tree ---
+0
+```
+
+**AMENDMENT, made before any compute and with its condition checked, not
+asserted (Charter §2b(1)): an EIGHTH frozen file was copied.**
+`build_t9a.py`, sha256
+`516fee581ecfaa25ffddefbb286de6b78c13b7bb9e9b635581958e4e9a2659e9`, verified
+IDENTICAL to the blob at HEAD, copied at **2026-08-23T20:01:37.030Z** with the
+tree holding **0** case directories at that moment (the command and its output
+are in the commit that carries this addendum). **Why:** so that
+`build_t9aH.py` **overrides** the frozen builder rather than re-deriving it —
+re-deriving the mesh, fields and dictionaries would have made "the single change
+is the interface scheme" a claim about a script instead of a measurement.
+**It changes no gate, threshold, cap, band, reference or label**, and
+`analyse_t9aH.py` hashes it with the other seven.
+
+### A.2 Step 3 — the new files and their sha256, recorded before any case exists
+
+| file | sha256 | what it is |
+| --- | --- | --- |
+| **`analyse_t9aH.py`** | **`8107ed38578fcade0196c6458cb2e8e0f3d1af620c1a4d2c1dd444cea97f2870`** | **the NEW instrument — rows H1–H6, controls HC1–HC4. Arms no band, quotes no GCI. §1's box applies: read it as source and as a diff before believing its output.** |
+| **`build_t9aH.py`** | **`c7a742f298cbd6be95e2a5077afd3d66048c676c14503b2b6f84132d787104a4`** | NEW builder; imports the frozen `build_t9a` generators unmodified and changes only the scheme entry |
+| `run_chain_t9aH.sh` | `77c580255e1337b90cdaae6cafa1df6e04d018f64d1e47255e577f9eac39aade` | NEW chain for the three extra cases; invokes the byte-identical `run_one_t9a.sh` |
+| `T9aH_registered.json` | `2a5ee67c78ad572380b8eb2577b76b142868f3864ab07af9fd6966def30151b8` | the machine transcription of §4 |
+
+**The two transcriptions.** Every threshold now exists twice: in
+`T9aH_registered.json` and hard-coded in `analyse_t9aH.py`'s `REGH_CODE`. The
+instrument compares them at every run and at every selftest and **refuses
+rather than grades** on any disagreement — §1's rule that this document
+governs, made executable. The selftest proves it by feeding a **widened** H1
+threshold and confirming it is refused, not adopted.
+
+### A.3 The selftest — 53 checks, 0 failed, and it caught three of my own errors
+
+```
+selftest: 53 checks passed, 0 failed        (exit 0)
+```
+
+Forged inputs only: **no case, no mesh, no OpenFOAM, no solver.** The three
+checks the supervisor required are present and named in the output:
+
+| required check | how it is forged | result |
+| --- | --- | --- |
+| **planted measurement-path error invisible → refusal** | a plant that moves `T_i1` by **0.0 K**, and one that moves it by 1e-09 K | refusal fires on both; a 1.18e-03 K shift is accepted |
+| **HC4 null that MEETS H1 → empty-discrimination fires** | a forged null-arm error of 1e-12 K, and one meeting all three rows | HC4 NOT MET; the affected rows are marked **reported, not counted** |
+| **fvSchemes readback mismatch → refusal** | a case whose `laplacian(DT,T)` reads `Gauss linear` where harmonic is registered, and one with **no** explicit entry | refusal fires on both; the null arm's own linear entry is accepted as linear |
+
+Also exercised, each in **both** directions: the seven (now eight) frozen
+hashes; the transcription cross-check and its widened-threshold mutation; the
+exact references at all three contrasts through both frozen routes, with the
+`WALL_LAYERS` and `REG` restorations asserted; H1 at the T9a-D residuals, at the
+frozen linear residual, one level above the bar, and exactly at the bar; the
+frozen `gci()` over EXACT / OSCILLATORY / STAGNANT / DIVERGENT / first-order /
+second-order triples and over **T9a-D's own m/f/x triple, which still reads
+STAGNANT**; the collapse floor firing on harmonic residuals and not on T9a's
+linear errors; H4's two clauses including a corrupted-baseline case that fires
+the drop clause alone; the replica refusal; the builder's guard refusing a case
+that already holds a time directory; the round trip from what the builder writes
+to what the instrument reads back; and `T9a_runs/gate_t9a.json` and
+`gate_t9aD.json` still hashing what §6.1 registered.
+
+> **Three checks FAILED on the first run, and all three were defects in my own
+> forged fixtures, not in the frozen code. Recorded rather than tidied.**
+> (1) A boundary case forged as `348.7810823988298 + 1.0e-08` does not carry an
+> error of 1e-08 K — the nearest double sits **1.0000008e-08** away, above the
+> bar — so the row correctly GATE FAILED and the *test* was wrong; the boundary
+> is now forged where the error is exactly representable, and a second check
+> covers 10× the bar on the 348 K field. (2) My "STAGNANT" triple had
+> `e32/e21` = 0.05, i.e. `p` = −6.37, which the frozen classifier correctly
+> called **DIVERGENT**. (3) My "DIVERGENT" triple had opposite-signed
+> differences, which it correctly called **OSCILLATORY**. Each was diagnosed by
+> an independent calculation before anything was edited. **The frozen classifier
+> was right three times out of three and not one line of it moved.**
+
+### A.4 Two things found while writing the instrument, disclosed now rather than at grading time
+
+1. **H4's drop clause is not the binding one at the registered numbers.** A
+   drop below 1e+06 requires `|e1|` > 6.5e-08 K, which already fails H4's
+   1.0e-08 K absolute bar. **The absolute bar binds; the drop clause binds only
+   if the baseline read from `gate_t9aD.json` is not the registered
+   −64.99408 mK**, and it is therefore a cross-check on that read rather than an
+   independent falsifier. §4.4's threshold is **unchanged** — this is a
+   statement about which clause does the work, not a change to either. The
+   selftest includes a corrupted-baseline case in which the drop clause fires on
+   its own.
+2. **The registered consequence of an unmet HC4, made explicit.** §4.5 registers
+   that HC4 must fail; Charter §2c fixes what follows if it does not, and the
+   instrument implements exactly that: **any row whose threshold the null arm
+   also meets is REPORTED and NOT COUNTED toward the hypothesis.** This can only
+   **remove** rows from the hypothesis's tally, never add one, and it changes no
+   threshold.
+
+### A.5 The freeze condition, RE-CHECKED after every new file was written
+
+```
+$ date -u +%FT%T.%3NZ; find .../T9aH_runs -mindepth 1 -maxdepth 1 -type d | wc -l; ls .../T9aH_runs/0
+2026-08-23T20:02:53.680Z
+0
+ls: cannot access '.../T9aH_runs/0': No such file or directory
+rc=2
+```
+
+**The tree holds no case directory, no `0/`, no time directory and no mesh at
+the moment these hashes were taken and this addendum was written.** There is no
+answer on disk to tune any threshold to, and it is demonstrated rather than
+claimed — the artifact `T9aD_RESULTS.md` §A.3 identified as the thing that
+carries the evidentiary weight when the git clock does not.
+
+### A.6 What has NOT happened
+
+- **`analyse_t9aH.py` has not been read by the supervisor yet** (§9 step 4).
+  Until it has, **no H-row or HC-control output may be believed**, and none
+  exists.
+- **Nothing is built and nothing is run** (§9 step 5), and step 5 needs the
+  supervisor's explicit authorisation.
+- **No T9a file was written**, and `T9a_runs/gate_t9a.json` still hashes
+  `7c4c6826…b3a5f4f8`, `gate_t9aD.json` `96e0dce0…0dc19993` — asserted by the
+  selftest, twice.
+- **No other lane's process was touched.**

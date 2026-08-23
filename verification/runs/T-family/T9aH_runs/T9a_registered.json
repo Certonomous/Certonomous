@@ -1,0 +1,85 @@
+{
+  "rung": "T9a",
+  "tier": "EXACT",
+  "source": "docs/campaigns/T-family/T9a_PREREGISTRATION.md",
+  "armed_before_any_case": true,
+  "written": "2026-08-20",
+  "grid": {
+    "r": 1.6,
+    "Fs": 1.25,
+    "rule": "three mesh levels at nominal ratio 1.6, Roache GCI at Fs = 1.25 on the finest; an oscillatory, stagnant or divergent triple arms no band and the row is NOT A RESULT"
+  },
+  "verdict_vocabulary": ["PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING"],
+  "wall": {
+    "layers": [
+      {"L": 0.05, "k": 0.8},
+      {"L": 0.1, "k": 0.04},
+      {"L": 0.02, "k": 16.0}
+    ],
+    "T_hot": 350.0,
+    "T_cold": 300.0,
+    "total_thickness": 0.17,
+    "interfaces_x": [0.05, 0.15],
+    "sum_R": 2.56375,
+    "q": 19.502682,
+    "T_i1": 348.781082,
+    "T_i2": 300.024378,
+    "conductivity_contrast": 400.0
+  },
+  "fin": {
+    "k": 200.0,
+    "t": 0.002,
+    "L": 0.05,
+    "h": 50.0,
+    "m": 15.811388,
+    "mL": 0.790569,
+    "eta": 0.8332367,
+    "tip_ratio": 0.7523781,
+    "Bi": 0.00025,
+    "model_error_floor_pct": 0.025,
+    "floor_rule": "the fin equation is 1D and valid to O(Bi) = 0.025 %; if the armed GCI band on a fin row comes out below 0.025 % the row is REPORTED and NOT GRADED (verdict GATE REACHED), because below that the disagreement measures the fin equation's one-dimensionality, not this lab's solver",
+    "T_base": 350.0,
+    "T_inf": 300.0,
+    "temps_note": "T_base and T_inf are NOT fixed by the pre-registration, which registers only k, t, L, h and the dimensionless rows. They are chosen here, before any case exists; by linearity of the conduction problem both graded rows (eta and the tip excess-temperature ratio) are invariant to the choice."
+  },
+  "controls": {
+    "C1": {
+      "what": "wrong resistance rule: the finest composite-wall q'' graded against the ARITHMETIC MEAN conductivity, k_bar = (0.8 + 0.04 + 16.0)/3, i.e. q_C1 = k_bar * dT / L_total",
+      "must": "FAIL",
+      "realisation": "a grading control on the existing finest wall case, not a separate case; the pre-registration's own wording is 'graded against'"
+    },
+    "C2": {
+      "what": "perfect fin: the finest fin efficiency graded against eta = 1, the infinite-conductivity limit",
+      "must": "FAIL",
+      "realisation": "a grading control on the existing finest fin case"
+    },
+    "C3": {
+      "what": "trivial baseline (Charter 2c): a uniform-temperature solid",
+      "must": "FAIL",
+      "realisation": "wall: a SOLVED case W_C3 on the finest wall mesh with BOTH faces at 350 K, whose converged field is uniform; graded against the wall rows' registered references. fin: a SYNTHETIC uniform field at T_base evaluated through the identical measurement pipeline on the finest fin mesh (a solved uniform fin would need T_inf = T_base, which makes eta 0/0 and ungradeable), graded against the fin rows' registered references."
+    }
+  },
+  "cases": {
+    "W_c": {"kind": "wall", "cells_per_layer": [10, 20, 5]},
+    "W_m": {"kind": "wall", "cells_per_layer": [16, 32, 8]},
+    "W_f": {"kind": "wall", "cells_per_layer": [26, 51, 13]},
+    "W_C3": {"kind": "wall_uniform_control", "cells_per_layer": [26, 51, 13]},
+    "F_c": {"kind": "fin", "nx": 50, "ny": 10},
+    "F_m": {"kind": "fin", "nx": 80, "ny": 16},
+    "F_f": {"kind": "fin", "nx": 128, "ny": 26}
+  },
+  "solver": {
+    "application": "laplacianFoam",
+    "why": "the pre-registration names no solver; laplacianFoam is the simplest solver in ESI v2606 that answers the registered question (steady solid conduction), and its createFields.H reads DT as a volScalarField READ_IF_PRESENT, so the three-layer conductivity map is a nonuniform 0/DT field with the registered values, verified per cell by the comparator against cell-centre positions read from the mesh",
+    "interface_scheme_note": "laplacian(DT,T) is left at the default Gauss linear (arithmetic face interpolation of DT). The 400x contrast exists to expose arithmetic-mean interface treatments; the scheme is NOT tuned to harmonic to make the rung pass. Whatever error the default scheme commits at the two interface faces is what the GCI triple and the registered exact values grade.",
+    "robin_note": "the fin's Robin condition is an OpenFOAM 'mixed' patch with refValue = T_inf, refGradient = 0, valueFraction = 1/(1 + k/(h*d)) where d is the wall-normal distance from the first cell centre to the face; the comparator re-derives d from constant/polyMesh/points and REFUSES if the case's written valueFraction disagrees"
+  },
+  "measurement": {
+    "wall_q": "graded q'' is the mean of the hot-face and cold-face discrete boundary fluxes k*(T_face - T_cell)/d with d read from the mesh; both fluxes are reported and their relative difference is the heat-balance closure",
+    "wall_interface_T": "the flux-continuous face temperature (k_L/d_L*T_L + k_R/d_R*T_R)/(k_L/d_L + k_R/d_R) from the two cells adjacent to the interface face, with positions read from the mesh and k the registered layer conductivities (verified against the case's DT field)",
+    "fin_eta": "Q_base / (2 h L W (T_base - T_inf)) with Q_base the discrete conductive flux through the base patch and L, W read from the mesh",
+    "fin_tip_ratio": "(mean T over the tip cell column - T_inf)/(T_base - T_inf); the tip is zeroGradient so the face value equals the cell value",
+    "fin_heat_balance": "Q_base versus the summed convective flux h*(T_face - T_inf) over both Robin faces, T_face reconstructed from the written valueFraction",
+    "convergence": "iterative convergence judged by comparing the last two WRITTEN checkpoints of T (L-141), never by residualControl; writeInterval strictly less than endTime (L-140)"
+  }
+}
