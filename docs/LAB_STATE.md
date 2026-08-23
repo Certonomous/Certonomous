@@ -361,8 +361,9 @@ single rung may take it.
 bracket the DNS; *which* RSM is right is not settled), DMR, F2 (PASS banded), F3
 (PASS), F8 (**NO VERDICT — and that is the result**), F9 (PASS quasi-steady, gate 2
 stays FAIL vs Womersley), F11 (GATE REACHED), FPE_DIAG (SHARED-BY-CLASS, recorded
-only by citation from its successor prereg), GEN_ALT (GENERATOR-OWNED — campaign
-record landing this session), MESH_AUDIT, W1, W1_hump, W2_sparta, W3.
+only by citation from its successor prereg), GEN_ALT (GENERATOR-OWNED —
+campaign record `verification/campaign/GEN_ALT_generator_matrix.md`, commit
+`8974eb75`, 2026-08-23), MESH_AUDIT, W1, W1_hump, W2_sparta, W3.
 
 **⚠ Structural fact this team must know:** with five exceptions, the run dirs under
 `verification/runs/` carry **no README, RESULTS, PREREG or DONE marker at all**.
