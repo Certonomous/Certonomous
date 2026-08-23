@@ -513,11 +513,14 @@ new at HEAD `9e82321b` since the first fill:
 - T1b's four PASS rows on DIVERGENT/STAGNANT triples (D440) — still the
   sharpest live instance of the Roache rule; grading of the L4 re-run waits on
   three 80000-endTime siblings, ETA 2026-08-26.
-- T10a: 6 controls UNMEASURED; 2d.1 zero-referent repair disclosed.
-- A4's two rows measured at different design points — the shipped/patched
-  comparison has never actually been made.
-- Wu2018 aposteriori NOT A RESULT — check the fired falsifier was the
-  pre-registered one.
+- T10a: 6 controls UNMEASURED; 2d.1 zero-referent repair disclosed — still open.
+- A4 — **CLOSED, pass 2**: the 08-22 shipped-image twin made the like-for-like
+  comparison at both matched design points; target was stale.
+- Wu2018 frozen-k — **CLOSED, pass 2**: fired falsifier IS the §5-registered
+  one, verbatim; weakness named — prereg's first commit is the results commit
+  (`62f781d0`), freeze self-attested, no commit witness. Verdict stands.
+- A6 §6a caveat — **CLOSED, pass 2**: N-D21's limitation travels (in-table,
+  §7 lim. 8, priced UNPRICED). See `docs/CROSS_TEAM_GATE_AUDIT.md` pass 2.
 
 **Filing observation (lane, 2026-08-23):** the manual's basename
 `Ansys_Fluid_Dynamics_Verification_Manual.{pdf,txt}` violates R8's

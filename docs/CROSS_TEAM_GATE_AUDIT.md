@@ -75,3 +75,62 @@ Named so the next pass cannot quietly drop them
 
 **Cost of this pass:** zero core-minutes of solver compute; hashing and reads
 only.
+
+---
+
+## Audit pass 2 — 2026-08-23, verification-supervisor (same session as pass 1)
+
+**Targets:** three of pass 1 §3's open list, each closed by reading the record
+and the git chain personally.
+
+### 4. A6 N=16 (dafoam) — §6a caveat check: CLEARS
+
+The N-D21 limitation (the step-sizing proxy uses `|J_adj|`, the quantity under
+test) travels adequately: `A6/rung_n16_remaining_components/RESULTS.md` carries
+it in the grading table itself (per-component `C` at measured `|J_fd|` AND at
+the registered proxy, side by side), states it plainly at its §7 limitation 8
+("That failure mode is unmeasured and this record does not claim otherwise"),
+and prices the missing measurement as an UNPRICED future item in its own
+follow-up table. `LADDER_A_STATUS.md` row 37 names its referent ("gradient,
+fixed FD reference") and points at the record. On THIS rung the proxy was
+verified against the measured clearance (within 8% on ten of ten), so the
+limitation concerns a future rung, not this verdict. Nothing owed.
+
+### 5. Wu2018 aposteriori_frozenk (closure) — falsifier check: THE FIRED FALSIFIER IS THE REGISTERED ONE; one weakness named
+
+The RESULTS' fired falsifier is quoted from `PREREGISTRATION.md` §5 and matches
+the frozen file's own line verbatim ("if TRUTH still fails with `k` frozen, the
+`k`-collapse explanation of the prior lane's NOT A RESULT was incomplete").
+The later edit (`194f8670`) is a compliant dated correction appended at the
+foot, §5 untouched — verified by diff. **The weakness:** the pre-registration's
+FIRST commit is `62f781d0`, the same commit as the results — there is no commit
+witness that the prereg predates compute; "frozen before any solve, unedited"
+is self-attested. The NOT A RESULT stands (a falsifier firing against the
+lane's own prior explanation is the anti-tuned direction), and the finding is
+recorded as the reason the newer discipline — prereg committed ALONE before
+compute (R5C `f364cf2d`), or at minimum an on-disk sha witness with a
+zero-run-dirs check (T10a-R) — is the standard, not a nicety. Rung predates
+2026-08-22; no re-grade owed.
+
+### 6. A4 (dafoam) — design-point mismatch: RESOLVED by the 2026-08-22 twin
+
+Pass 1 §3 carried the first fill's target "A4's two rows are measured at
+different design points — the shipped/patched comparison has never actually
+been made." That was true of the original rows and is no longer true:
+`A4/shipped_optimisation_np1/RESULTS.md` (prereg committed BEFORE launch,
+`239a007f`; results `f9a59d47`) runs the shipped image through the same
+optimisation and compares like-for-like at BOTH matched points — at the
+optimum (final CD agreeing to 7 s.f., analytic gradients 3.9e-06 relative
+apart, the difference living in the path-dependent FD reference) and at the
+undeformed baseline (patched 0.33929% vs shipped 1.1032% on the same image
+family). Arm identity is asserted from inside the process (`IDWARP_SO_MD5`
+printed by the run, shipped `f0fcb488…` vs patched `85f59e87…`) — the
+lever-activity clause done properly. Target closed.
+
+### Still open after pass 2
+
+- **T1b L4** — after grading (three 80000-endTime siblings, ETA 2026-08-26).
+- **T10a's 6 UNMEASURED controls** — confirm each is labelled unmeasured on
+  every surface that cites the rung, per §9's `ran_before_found`.
+
+**Cost of this pass:** zero core-minutes of solver compute; reads and diffs only.
