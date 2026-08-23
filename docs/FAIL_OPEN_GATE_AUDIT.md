@@ -392,3 +392,157 @@ Stated rather than discovered later.
 - **Green here is not coverage.** It means no *flagged* site outside the fixed
   twelve was shown to publish a false verdict — a narrower statement than it
   looks.
+
+---
+
+## 7. RE-RUN, 2026-08-23 — the scan re-executed against the corpus as it now stands
+
+**Lines whose number changed above this section: 0.** Appended at the foot;
+nothing above was edited (rule 6).
+
+**Sweep date:** 2026-08-23, 19:47–19:52 UTC. **Executor:** `lab-lane`,
+verification team. **Compute: zero core-minutes.** **Read-and-record: no gate,
+script, test or verdict was modified by this pass**, and nothing below is a
+re-grading of any team's published result.
+
+### 7.1 The control, first, because it still gates everything after it
+
+```
+$ python3 scripts/fail_open_scan.py --control
+POSITIVE CONTROL  scripts/self_audit.py@038b36da::check_board_placement_words
+  line  1355  except OSError             writes=-              moves_verdict=-  FLAGGED
+  line  1362  except UnicodeDecodeError  writes=-              moves_verdict=-  FLAGGED
+  line  1373  except Exception           writes=['unreadable'] moves_verdict=-  FLAGGED
+  -> FLAGGED (3 of 3 shape site(s) in that function)
+
+NEGATIVE CONTROL  scripts/self_audit.py (working tree)::check_board_placement_words
+  -> the repaired handler records into a name the verdict consults: True
+
+CONTROL PASSED in both directions.                                    exit 0
+```
+
+**§6's named hazard did not fire.** That bullet warned that a repository move
+would break the control — which pins `scripts/self_audit.py` at `038b36da` —
+while the scan kept reporting negatives. The MOVE_MAP reorganisation has since
+halved the tracked-file count (20,562 → 9,767) and `scripts/self_audit.py`
+survived it at its path. **The control is still pointed at its real subject and
+still separates on-from-off.** Every number below is reported only because this
+ran first and passed.
+
+### 7.2 The counts, with frame and filter and commit
+
+**Frame:** `git ls-files '*.py'`, no `grep -r` anywhere (L-75). Taken while HEAD
+moved `c7dc6add` → `090c070c`; the scan stamped `090c070c`.
+
+| quantity | 2026-08-11 (`bfbf0523`, post-fix) | 2026-08-23 (`090c070c`) |
+|---|---|---|
+| tracked `.py` scanned (excluding `self_audit.py` and the scanner) | 481 | **688** |
+| `UNPARSED` | 0 | **1** |
+| fail-open **SHAPE** sites | 135 | **204** |
+| …in a function that emits a verdict at all | not published post-fix | **44** |
+| …**FLAGGED** | 20 | **38** |
+
+Including `scripts/self_audit.py` — which §6 says re-enters the population when
+V16 closes, and whose closure this pass could not establish — the same scan reads
+**689 files, 227 shape sites, 60 verdict-reaching, 51 flagged**, of which
+`self_audit.py` contributes **23 shape sites and 13 flags** (it carried 17 sites
+in 2026-08-11's out-of-scope note).
+
+**A FLAG IS STILL A CANDIDATE, NOT A DEFECT.** §1's rule is unchanged and it
+governs this section: **only injection settles one, and this pass injected
+nothing.** Reporting 38 as "38 fail-open gates" would be L-67 exactly.
+
+### 7.3 The 38, split by whether the audit of 2026-08-11 already saw them
+
+| bucket | sites |
+|---|---|
+| in a file that existed at `bfbf0523` — the already-adjudicated set carried forward | **19** |
+| in a file that did **not** exist at `bfbf0523` | **19** |
+
+The 19 old-file flags are §4's seven candidates and §5's thirteen clearances,
+at shifted line numbers (`tmr_verification.py:438`→`:450`,
+`adjoint_optimization.py:1428`→`:1439`, `nasa_hump.py:833`→`:845`, and so on),
+plus `sdk/chief_engineer/agenda.py:1292`, which is new code in an old file.
+**No site cleared in 2026-08-11's §5 has moved back into the flagged-and-unread
+bucket**, and none was re-injected here.
+
+Two of the 19 new-file flags are **relocations, not new sites**:
+`ops/laptop_bundle/replay_console.py:141` (was `scripts/laptop_bundle/…`) and
+`cases/dafoam/work/NACA0012_Airfoil_Incompressible/probeWallBranch.py:185` (was
+under `demo-output/`). Both were cleared in §5's Group 2 by an executed
+cold-cache injection; the code is unchanged and the clearance travels with it.
+**Genuinely new sites: 17.**
+
+### 7.4 New candidates, ranked — recorded, not settled
+
+**C8 — `cases/RANS_LES_closure_models/Kaandorp2020_TBRF/scoreboard.py:74`.** The
+whole of *"claim (i): FS-full vs FS-SRonly on the PRIMARY case AR_1_Ret_360"* is
+inside one `try:` whose only handler is `except IndexError: pass`. The two
+selectors it guards are `[m for m in r["runs"] if m.endswith("_full")][0]` and
+the `_SRonly` twin. If either list is empty the `[0]` raises, **the entire
+claim-(i) block prints nothing**, and the script continues to its `core_hours=`
+line and exits 0. A reader of that output meets a scoreboard with no claim-(i)
+section and **no sentence saying the section was skipped** — absence presented
+as though it were the whole output. This is the §5-header shape (*"a surface
+that could not be read is not a surface that agrees"*) applied to a closure
+scoreboard. **Not injected. Not fixed. Candidate.**
+
+**C9 — `verification/runs/F14-cooling-ladder/K0cT_runs/build_cases.py:177` and
+`K0cX_runs/build_cases.py:189`, `load_dat`.** Rows of a **measured** thermal
+profile that do not parse are dropped with `continue` and **no count is kept**;
+the only guard is `if len(xs) < 2: raise SystemExit("REFUSE: fewer than two
+usable rows…")`. The values returned feed `extrap()` and then
+`rubber_profile_expr()`, i.e. they become the piecewise-linear **patch boundary
+condition** of a K0c case whose verdict is published. A file that lost half its
+rows to a formatting change builds a coarser BC and says so nowhere. This is
+2026-08-11's candidate **C6** shape — but on a live boundary condition rather
+than a report table, which is a higher blast radius than C6 had. **Not injected.
+Not fixed. Candidate.**
+
+**Benign by argument, never fired at — 15 of the 17.** Eleven are the
+`latest_time`/`all_times` idiom (`float(dirname)` inside `try`, non-numeric
+entries skipped, then `raise SystemExit("REFUSE: no time directories…")` when
+the list is empty — **fails closed**) and the post-read `os.remove` of the
+`C`/`Cx`/`Cy`/`Cz` temporaries written by `postProcess -func writeCellCentres`
+(**cleanup after the value has been read**; the verdict cannot move). Four were
+read line-by-line for this section —
+`K0c_runs/analyse_k0c.py:265` and `:281`, `THERMAL_K0_runs/analyse.py:82`,
+`K2e_runs/analyse_k2e.py:117`. **The other eleven were classified from their
+handler context and NOT read in full, and none of the fifteen was injected.**
+Per §5's own three-group discipline these are **Group 3 — cleared by argument,
+never fired at — and that is weaker evidence than an executed injection.**
+
+**An instrument false positive, recorded so 38 is not read as 38 candidates.**
+`scripts/hand_carry.py:719` is flagged with `swallow_writes=['rc']` and
+`moves_verdict=[]`: the handler does `print(f"  FAIL: {exc}")`, sets `rc = FAIL`
+and continues — it moves the verdict **toward** failure. `rc` never appears in an
+`if` test, so step 3's guard-name computation cannot see it. This is §6's
+declared blind spot (*"verdict detection keys on vocabulary… a non-verdict named
+`result` is flagged"*) firing in the false-positive direction, and it means the
+38 contains at least one site that is the opposite of a fail-open.
+
+### 7.5 UNPARSED went 0 → 1, and the cause is a tracked file that is not on disk
+
+```
+UNPARSED: scripts/mutation_harness_known_test_names.py
+          FileNotFoundError: No such file or directory
+```
+
+The path is in `git ls-files` and absent from the working tree —
+`git status --porcelain` reports it ` D`, an **uncommitted worktree deletion**,
+alongside nine others. Per constitution rule 10 it was **inspected and not
+reverted**; the index is the chief's call. It is recorded here because §2's
+`UNPARSED` row exists precisely so a file the scan could not read is counted
+rather than absorbed, and this is the first time that row is non-zero.
+
+### 7.6 What this re-run did not cover
+
+- **Nothing was injected.** The 2026-08-11 pass settled two defects by injection;
+  this pass settled none, and every new row above is labelled candidate or
+  cleared-by-argument accordingly.
+- **`scripts/self_audit.py`'s 13 flags were not read.** Whether V16 has closed —
+  the condition §6 attaches to their re-entry — was not established here.
+- Every §6 limitation still holds unchanged: Python only; intraprocedural,
+  name-based dataflow; vocabulary-keyed verdict detection; syntactic swallows
+  only. **A cleared site is still not a proven-safe site**, and the 160 sites in
+  functions emitting no verdict rest on the same limitation.
