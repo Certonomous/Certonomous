@@ -243,7 +243,15 @@ def grade(before: str, after: str, team: str | None, repair: str | None,
 
     zero_verdict, zero_why = ledger.verdict_for(len(foreign))
 
-    if not split_sections(after) or list(split_sections(after)) == [PREAMBLE]:
+    if not changed:
+        # A commit that does not touch the board owes no trailer. Requiring one
+        # here made this check report UNKNOWN on every non-board commit in the
+        # repository -- caught by grading this module's own landing commit with
+        # it, which is why a check is run against real history and not only
+        # against its fixtures.
+        verdict, code, why = "PASS", EXIT_PASS, (
+            f"the commit does not change {BOARD_PATH}")
+    elif not split_sections(after) or list(split_sections(after)) == [PREAMBLE]:
         verdict, code, why = "UNKNOWN", EXIT_UNKNOWN, (
             f"{BOARD_PATH} parsed to zero `## ` sections -- the file changed "
             f"shape; do not work around it")
@@ -267,8 +275,7 @@ def grade(before: str, after: str, team: str | None, repair: str | None,
             "the accident it is excusing")
     elif not foreign:
         verdict, code, why = "PASS", EXIT_PASS, (
-            f"only `{team}`'s own section(s) changed"
-            if changed else f"the commit does not change {BOARD_PATH}")
+            f"only `{team}`'s own section(s) changed")
     elif repair:
         verdict, code, why = "PASS", EXIT_PASS, (
             f"foreign section(s) {', '.join(foreign)} changed, DECLARED as a "
@@ -341,6 +348,12 @@ def selftest() -> int:
 
     r = grade(board_a, board_a, "cfd", None, False)
     checks.append(("no board change at all -> PASS",
+                   r["exit"] == EXIT_PASS, f"exit {r['exit']}"))
+
+    # A commit that touches no board owes no trailer -- the regression that
+    # grading this module's own landing commit exposed.
+    r = grade(board_a, board_a, None, None, False)
+    checks.append(("no board change AND no trailer -> PASS, not UNKNOWN",
                    r["exit"] == EXIT_PASS, f"exit {r['exit']}"))
 
     # chief owns the preamble and the CHIEF section
