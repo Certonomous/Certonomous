@@ -631,9 +631,9 @@ line (trade declared and recorded) is settled.
 |---|---|
 | **VM2026R1_Fluids** (Ansys suite) | **D-6, with Sanaa — NO AGENT TOUCHES EITHER COPY.** Live reading 2026-08-23T19:37Z, read-only: root copy `VM2026R1_Fluids/` **123 files, 2.5 GB** (complete per chief's count); papers copy **STALLED at 10 files, 26 MB**, nested doubled path `docs/papers/verification_validation/VM2026R1_Fluids/VM2026R1_Fluids/`, last write 2026-08-22 17:42Z, **no scp/rsync/sftp process live** — the "transfer in progress" of the chief's 08-22 note is DEAD, not in progress. This team may *prepare* the FILING_CHARTER R6/R8 analysis for her ruling; the ruling and any move are hers. Nothing graded from either copy |
 | **Ansys Fluid Dynamics Verification Manual** | tracked PDF at `docs/papers/verification_validation/`, 8.5 MB, **no `.txt` sidecar** (R8 violation). Sidecar production + L-144 title-page verification dispatched to a lane 2026-08-23 |
-| **`GATE FAIL` vs bare `FAIL`** | D-5, with Sanaa, nothing edited. Current reading (lane, 2026-08-23): **3 bare `FAIL` cells** (V5:1070, V14:1080, V15:1081) vs the recorded 4 — corpus churn isolated: V8 already remediated to `GATE FAIL`, V10 left, V14 entered (D338 amendment). Instrument defect D469: `--selftest` exits 1, D356 landing control BROKE (implementation is the correct half), second landing control VACUOUS — repair with a lane, supervisor diff read owed |
-| **Comparator freeze audit** | RE-RUN 2026-08-23: **19 comparators — 7 FROZEN / 8 UNFROZEN / 4 AMENDED_AFTER** (baseline was 2 of 6). Baseline five match; K0cR flipped to AMENDED_AFTER — its `6d58d898` edit **read as a diff by the supervisor: display-only ("hollow pass" label condition), disclosed in K0cR §6, no violation**. `analyse_t9aD` UNFROZEN is commit-test-correct; rung sound (sha-witness freeze + 2d.1-compliant tolerance repair, all four conditions verified). Instrument owes three repairs (D468): marker-pooling false positives (`analyse_t1b_L4` proven FROZEN +177,712 s against its own cases), `cases/` population gap (R5C grader et al. uncovered), sha-witness blindness. 4 pooled `T1_runs` UNFROZEN rows still ungraded |
-| **The six standing audits** | file mtimes measured 2026-08-23: `DEAD_LEVER` 08-11, `EXTERNAL_REFERENT` 08-16, `FAIL_OPEN_GATE` 08-11, `H4_ALLOCATION` 08-12, `LEDGER_HEADLINE` 08-11, `SWEEP_REFRAME` 08-11. First-fill VERIFY resolved: **none re-run since 2026-08-16, confirmed.** Re-sweep dispatched to a lane 2026-08-23 |
+| **`GATE FAIL` vs bare `FAIL`** | D-5, with Sanaa, nothing edited. Current reading (lane, 2026-08-23): **3 bare `FAIL` cells** (V5:1070, V14:1080, V15:1081) vs the recorded 4 — corpus churn isolated: V8 already remediated to `GATE FAIL`, V10 left, V14 entered (D338 amendment). Instrument defect D472: `--selftest` exits 1, D356 landing control BROKE (implementation is the correct half), second landing control VACUOUS — repair with a lane, supervisor diff read owed |
+| **Comparator freeze audit** | RE-RUN 2026-08-23: **19 comparators — 7 FROZEN / 8 UNFROZEN / 4 AMENDED_AFTER** (baseline was 2 of 6). Baseline five match; K0cR flipped to AMENDED_AFTER — its `6d58d898` edit **read as a diff by the supervisor: display-only ("hollow pass" label condition), disclosed in K0cR §6, no violation**. `analyse_t9aD` UNFROZEN is commit-test-correct; rung sound (sha-witness freeze + 2d.1-compliant tolerance repair, all four conditions verified). Instrument owes three repairs (D471): marker-pooling false positives (`analyse_t1b_L4` proven FROZEN +177,712 s against its own cases), `cases/` population gap (R5C grader et al. uncovered), sha-witness blindness. 4 pooled `T1_runs` UNFROZEN rows still ungraded |
+| **The six standing audits** | **ALL SIX RE-RUN 2026-08-23** (lane; dated sections appended, committed per audit): SWEEP_REFRAME `c5a9d4c7`, FAIL_OPEN_GATE `f14fca9c` (2 new candidates: Kaandorp `scoreboard.py:74` claim-(i) block vanishes under `except IndexError: pass`; K0cT/K0cX `build_cases.py` drop unparseable measured-profile rows uncounted into a BC), DEAD_LEVER `876a9ec1` (**U-1 headline SUPERSEDED: 0-of-257 → 6-of-219** — six B3 logs carry `jacMatReOrdering rcm` configured AND read back active in `-ksp_view`; **supervisor-verified by own reads of arm_C and arm_K2 at the cited lines**; the ~8 core-min M-A purchase is MOOT; hump conclusions unchanged), H4_ALLOCATION `af16ceef` (**602 staged deletions in the shared index, 8 prunable worktrees into wiped scratchpad, 2 live sessions on one tree** — chief's territory, escalated; H4b PASS→FAIL: `heat-transfer` and `verification` have no guidelines doc), LEDGER_HEADLINE `69df4876` (8 of 9 falsifications still live), EXTERNAL_REFERENT `e3f3b521` (**the audit's own bucket figures are unreproducible — its screen script was never committed**; its 1,549 matches no reading of its own §2 rule; lesson candidate: an audit that freezes its instrument must commit it). Eight tracked planted-control artifacts absent from disk (K2bP heat-balance JSONs + `K1_STANDING_THERMAL_CHECKS.md`, cited by five docs incl. LESSONS) — probably D390 filing defect, bytes in HEAD, inspected not reverted |
 
 **Freshness flag:** `verification/certificates/`, `credibility/`, `monitor/`
 all last written 2026-08-16 19:03 (verified by `ls`); nothing this team owns has
@@ -673,25 +673,31 @@ and sits beside D-6 material; goes in the D-6 prep note for Sanaa. Repo-wide
 `check_filing.py` reads FAIL: 28 violations (1 R1, 4 R5, 12 R8, 11 R9 — 11
 other PDFs lab-wide still lack sidecars), pre-existing, not this team's alone.
 
-**Next actions:** (1) DONE — Ansys manual sidecar (`090c070c`);
-(2) lane: `check_comparator_freeze.py` re-run + `check_verdict_cells.py
---strict-fail` current count; (3) lane: six standing audits re-sweep with dated
-amendments; (4) DONE — cross-team gate audit of R5C and T10a-R, both SOUND, recorded in
-`docs/CROSS_TEAM_GATE_AUDIT.md` pass 1; next audit targets are that file's §3
-open list (A4, A6 surface-caveat, Wu2018 falsifier, T1b after 08-26, T10a
-controls); (5) prepare — not act on — the
-VM2026R1 R6/R8 filing analysis for Sanaa's D-6 ruling, including the dead
-partial transfer finding above.
+**Next actions** (this session's five all DONE: sidecar `090c070c`; checker
+re-runs; six-audit re-sweep; audit passes 1–3; D-6 memo `6f1ff0ed`). For the
+next session, in order: (1) implement the two instrument repairs — D471
+(freeze-checker: per-comparator marker scoping, `cases/` population,
+sha-witness recognition) and D472 (verdict-cells landing controls) — lane
+implements, **supervisor reads the diffs before any re-run is believed**;
+(2) implement D473's `check_registered_deliverables.py` per the proposal spec
+(selftest → fire on R4 §7 → archive replay with published fire rate → Sanaa);
+(3) remaining audit targets: T1b after grading (~08-26), T10a's 6 UNMEASURED
+controls, the 4 ungraded pooled `T1_runs` UNFROZEN rows, EXTERNAL_REFERENT's
+uncommitted screen (rebuild and commit the instrument, or strike the
+unreproducible bucket figures with a dated note); (4) grade heat-transfer's
+missing planted-control artifact question with them (D390 filing defect vs
+lost measurement); (5) sidecars for the 11 other PDFs lab-wide (offer to
+chief — other teams' papers).
 
 **Chief-routed item (2026-08-23), evaluated:** the R4 §7 registered-deliverable
 class ("promised artefact absent and undisclosed at close-out") gets an
 executable check — spec in `docs/REGISTERED_DELIVERABLES_CHECK_PROPOSAL.md`
-(D470; closure's own D467 records the R4 instance): declared-mode binding
+(D473; closure's own D467 records the R4 instance): declared-mode binding
 prospectively, heuristic report-only
 retrospectively, four planted controls, adoption gated on the §5 archive
-replay, must fire on R4 §7. Implementation dispatched to a lane; the binding
-charter clause is a DRAFT in the proposal's §3 for Sanaa. The R4 repair itself
-is closure's — not duplicated.
+replay, must fire on R4 §7. Implementation queued as next-session action (2);
+the binding charter clause is a DRAFT in the proposal's §3 for Sanaa. The R4
+repair itself is closure's — not duplicated.
 
 **On Sanaa's desk:** `RESULT_PRIORITY_CHARTER` v0.5 orderings; the `GATE
 FAIL`/bare-`FAIL` ruling (D-5); the VM2026R1 canonical home (D-6) — now with
