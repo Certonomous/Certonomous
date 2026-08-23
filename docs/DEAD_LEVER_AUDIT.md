@@ -458,3 +458,160 @@ Real, outside the declared scope, not actioned here:
 - **A scheme-echo gap with a known remedy.** Frontier item 2: the hump family
   predates the launcher lever echo, and the remedy already exists and is proven
   to work (F5c). A re-echo would need reruns and is not proposed.
+
+---
+
+## 9. RE-RUN, 2026-08-23 — U-1's headline has MOVED, and the archive settled it for free
+
+**Lines whose number changed above this section: 0.** Appended at the foot;
+nothing above was edited (rule 6). §4 U-1 stands as written and as dated.
+
+**Sweep date:** 2026-08-23, 19:44–20:05 UTC. **Executor:** `lab-lane`,
+verification team. **Compute: zero core-minutes.** Neither M-A nor M-B was
+purchased; **neither needed to be.** **Read-only, as §0 was** — nothing found
+here was fixed.
+
+**Frames, restated because both moved.**
+
+| frame | 2026-08-11 | 2026-08-23 |
+|---|---|---|
+| **T** (tracked, `git ls-files`) | 20,586 files, 366 `.md` | **9,767 files, 635 `.md`** |
+| **L** (`*.log` under `/home/ubuntu/certonomous-runs` **and** `/home/ubuntu/Certonomous`, `find` + `/usr/bin/grep -lIF`, no ignore rules) | 1,635 files | **1,350 files** |
+| tracked `.md` mentioning the hump | 106 of 366 | **172 of 635**, of which **48 added since 2026-08-11** |
+| logs in frame L newer than 2026-08-11 | — | **607** |
+
+**Frame L SHRANK, 1,635 → 1,350, and the reason is the MOVE_MAP reorganisation,
+not deletion of evidence.** Logs that were under the repo root moved out of the
+`*.log` reach of that path. **The denominators below are therefore not
+differenceable against 2026-08-11's** — but the finding that follows is a
+**positive existence claim**, which no denominator shrinkage can manufacture.
+
+---
+
+### 9.1 U-1 IS SUPERSEDED BY THE ARCHIVE. The `rcm` readback exists, six times.
+
+§4 U-1 published this, and it was correct on 2026-08-11:
+
+> | logs carrying **`rcm` requested and a readback** | **0** |
+
+Re-measured over frame L today, by the same method — `find` over both roots,
+`/usr/bin/grep -lIF`, never this shell's `grep`:
+
+| measurement | 2026-08-11 (1,635 logs) | 2026-08-23 (1,350 logs) |
+|---|---|---|
+| logs printing the requested `Mat ReOrdering:` | 386 | **324** |
+| …of which request `rcm` | 257 | **219** |
+| logs carrying a `-ksp_view` `matrix ordering:` readback | 8 | **14** |
+| logs carrying **both** a request and a readback | 3 | **9** |
+| logs carrying **`rcm` requested AND a readback** | **0** | **6** |
+
+The readback values across all 14: **11 `rcm`, 2 `natural`, 1 `nd`.**
+
+**The six, each with its three lines quoted.** All six carry the identical
+triple, and all six are B3 adjoint runs dated 2026-08-21 — after this audit:
+
+```
+B3-adjoint-unblock-reproduce/logs/arm_K2.log:513    jacMatReOrdering rcm;      <- dictionary echo
+                                        :12054   Mat ReOrdering: rcm          <- printInfo, REQUESTED value
+                                        :12087         matrix ordering: rcm   <- -ksp_view, EFFECTIVE value
+B3-ilu-shift-runtime/logs/arm_C.log      :513 / :12054 / :12087   identical
+B3-ilu-shift-runtime/logs/arm_L2.log     :513 / :12054 / :12087   identical
+B3-ilu-shift-runtime/logs/arm_SA8.log    :513 / :12054 / :12087   identical
+B3-ilu-shift-runtime/logs/arm_SA10.log   :513 / :12054 / :12087   identical
+B3-ilu-shift-runtime/logs/arm_ST.log     :513 / :12054 / :12087   identical
+```
+
+**The readback is inside the right object, and that was checked rather than
+assumed.** `arm_C.log:12061-12090` shows the `-ksp_view` dump immediately after
+`dRdWTPC: 424 of 425` and `Main iteration 0 KSP Residual norm` — so it is the
+**adjoint dRdWT** solve, not another PETSc object — and `matrix ordering: rcm`
+sits inside
+
+```
+PC Object: 4 MPI processes
+  type: asm
+  ...
+  PC Object: (sub_) 1 MPI processes
+    type: ilu
+      1 level of fill
+      matrix ordering: rcm          <- the ILU factorisation's ACTUAL ordering
+```
+
+i.e. inside the ILU sub-block PC's own factorisation record.
+
+**Why this discriminates where the three `natural` logs of 2026-08-11 did not.**
+U-1's closing sentence was: *"All three logs that carry both requested `natural`
+— which is also PETSc's own default ILU ordering, so even those three do not
+discriminate between 'the lever took' and 'the lever did nothing and the default
+matched it'."* **`rcm` is not the default.** A run that reads back `rcm` cannot
+have got there by default, so these six close exactly the gap the `natural`
+three could not.
+
+**What is now proven, stated narrowly.** The link from **DAFoam's
+`jacMatReOrdering rcm` key** to the **effective PETSc ILU ordering** is
+log-proven, in six archived runs, at the `-ksp_view` level. The CHIEF's
+2026-08-11 annotation to U-1 narrowed the claim to exactly this link — *"257 runs
+set the key; not one shows the ordering it asked for"* — and **that narrowed
+claim is what has now been answered.** On this evidence the lever is
+**ACTIVE-PROVEN** in the B3 family.
+
+**What is NOT proven, and this pass does not blur it.** The hump adjoint logs
+still contain the `printInfo` block and **no `-ksp_view` block at all**
+(§4's "Consequence for the hump"). **No hump run is among the six.** So `rcm` on
+the hump baseline and `natural` on rung 4 remain proven only at the
+dictionary-echo level, and the conclusion at
+`S1_FIML_FIELD_INVERSION.md:363` is unchanged by this section. What has changed
+is the **class-level** question: the printInfo line is no longer the only
+evidence available anywhere, and where a readback exists it agrees with the
+request.
+
+**M-A is moot and should not be bought.** §7 priced *"rerun the existing rung-4
+hump configuration with `-ksp_view` on … two arms … **~8 core-min**"* to settle
+U-1 at the class level. The B3 work bought the class-level answer incidentally,
+at zero marginal cost to this question. **A hump-specific `-ksp_view` arm would
+still be the only thing that proves the hump's own runs** — but the 257-runs-worth
+of class ambiguity M-A was justified by is gone.
+
+**FD-1's blast radius also narrows, and the evidence is in the same block.** The
+2026-08-11 argument (§4 U-1, §4 R-2) is that the `printInfo` block prints
+*requested* values, exhibited by `gateB.log:861-862` `Solver Type: gmres` /
+`GMRES Restart: 200` against `type: fgmres` / `restart=30` in the same run's
+`-ksp_view`. In `arm_C.log` the same block is **faithful on four levers at once**
+— `Solver Type: gmres` vs `type: gmres`; `GMRES Restart: 1000` vs `restart=1000`;
+`ASM Overlap: 1` vs `amount of overlap = 1`; `ILU PC Fill Level: 1` vs `1 level
+of fill` — in addition to the ordering. **This does not refute FD-1**, whose
+counter-example is a run carrying a `-ksp_options` override. It bounds it: absent
+an override, the block was faithful on every lever checkable in this run.
+**Recorded as a finding, not as a ruling** — FD-1 is `INSTRUMENT_INTEGRITY_
+2026-08-11.md`'s, and its owner grades it.
+
+---
+
+### 9.2 I-1 and the rest — not re-attempted, and saying so
+
+- **I-1** (the A3 stage-2 GAMG arm printing three ILU/ASM levers into a run
+  containing neither) was **not** re-derived. Its cited artifacts are still on
+  disk and `stage2_gamg.log` is one of the 9 logs carrying both a request and a
+  readback, but this pass did not re-count `type: asm` / `type: ilu` in it.
+- **U-2, U-3, R-1, R-2, R-3** were **not** re-attempted. Nothing in this pass
+  bears on them and none is withdrawn.
+- **The 48 new hump-mentioning tracked `.md`** — the closure `NASA_hump_gate`
+  and `Wu2018_PIML_RF` records, the B3 ladder, `HUMP_BASELINE_EQUIVALENCE_NOTE.md`
+  — were **enumerated and not swept.** §1's method (vocabulary mechanically
+  extracted from the configuration grammar, intersected with lever-citing
+  sentences, verdict taken from the runtime log) was **not** re-run over them.
+  Absence of a finding against those 48 is a statement about this pass's depth,
+  not about those documents, and it is the largest thing this re-run did not
+  reach.
+
+### 9.3 What this re-run did not reach
+
+1. **No hump conclusion was re-verified.** §3.1's 14 lever/conclusion pairs were
+   not re-checked; the §5 count of 17 ACTIVE-PROVEN pairs is not re-derived here.
+2. **The 607 logs new in frame L since 2026-08-11** were counted, and searched
+   only for the two ordering strings. No other lever vocabulary was run over them.
+3. **Frame L's own edges are unchanged** (§6 item 4): gzipped logs, `log.run`-named
+   logs and logs not matching `*.log` are still outside the 1,350. The six-log
+   finding is a lower bound on how many runs now carry the readback.
+4. **The in-container DAFoam build** is still not on this host, and this pass made
+   no claim about dead *code*.
