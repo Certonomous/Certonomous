@@ -599,3 +599,90 @@ cap, no label, no run script, no image, no `daOptions`, no decomposition — and
 identity gate **M0** is precisely what would catch it if it did.
 
 *End of Addendum 1. Nothing above this section was edited.*
+
+---
+
+## ADDENDUM 2 — 2026-08-23, dated correction: the staged mode was 775, not 755
+
+**Correction to Addendum 1, raised by the supervisor at crash triage and verified by this lane
+before being accepted.** A supervisor's message is not evidence; the numbers below were
+re-measured on the attempt-1 directories, which are still on disk.
+
+**This addendum alters no gate, no threshold, no band, no cap and no label**, and corrects no
+graded number — attempt 1 produced none.
+
+**lines whose number changed above this section: 0**
+
+### A2.1 Quote and strike (L-32: an unmarked stale figure is worse than a marked wrong one)
+
+Addendum 1 §A1.2 line 526 reads, and is **STRUCK**:
+
+> ~~| this item's staged arms — **the chain that failed** | **`drwxr-xr-x` (755)** | `cp` under this
+> lane's umask 022 |~~
+
+**Corrected, measured 2026-08-23:**
+
+| directory | measured mode | measured owner |
+|---|---|---|
+| attempt-1 staged arms `D_serial`, `D_simple2`, and the run root | **`775` (`drwxrwxr-x`)** | `ubuntu:ubuntu` |
+| graded arms, 2026-08-21 | **`777` (`drwxrwxrwx`)** | `ubuntu:ubuntu` |
+
+**Two errors, not one, and both were this lane's:**
+
+1. the mode was **775**, not 755;
+2. the umask is **`0002`**, not 022. Verified by an isolated reproduction rather than by recall:
+   `mkdir -m 777 src && cp -r src dst` under this shell yields `src` **777**, `dst` **775**.
+
+### A2.2 The mechanism is unchanged, and why
+
+`o+w` is absent in **both** 775 and 755, and that is the whole mechanism: the container runs as
+**uid 1002 / gid 1002 (`dafoamuser`)**, which matches **neither** the owner (uid 1000) **nor** the
+group (gid 1000) of `ubuntu:ubuntu`, so the **"other"** bits govern — `r-x`, no write. The
+`mkdir('reports')` therefore fails at 775 exactly as it fails at 755.
+
+**So the diagnosis, the paired mode controls and every verdict in Addendum 1 stand unchanged.**
+What does **not** stand is the reported number, and a record whose mechanism is right and whose
+measured value is wrong is still a record that misreports a measurement. **The lane reported a
+figure it had read correctly off `stat` output earlier in the same session and then transcribed
+from memory rather than from the reading** — which is the error the lab's standing rule against
+quoting from recall exists to prevent.
+
+*End of Addendum 2. Nothing above this section was edited.*
+
+---
+
+## ADDENDUM 3 — 2026-08-23, supervisor ruling on the §A1.5 proposed repair
+
+**This addendum alters no gate, no threshold, no band, no cap and no label.**
+
+**lines whose number changed above this section: 0**
+
+Ruling by this session's dafoam supervisor, after personal crash triage — not adopted from the
+lane's report. Verified independently before ruling: the ledger rows (`rc=1`/7 s, `rc=137`/302 s,
+20.13 core-min) against `chain_peakrss.out`; the paired control **physically on disk**
+(`triage/m777/reports` exists, `triage/m755/` is empty); the staged arm modes re-measured with
+`stat` at 20:3xZ — **775, `ubuntu:ubuntu`**, confirming Addendum 2's corrected figure and the
+`o+w` mechanism; the `mpirun` exit-1 tail of `D_serial.log`.
+
+**The re-run PROCEEDS under this registration (`d062aace`), not under a new one**, on the
+`VERIFICATION_CHARTER.md` §2d.1 four conditions, all met — and the repair sits *upstream* of the
+grading path (no graded number ever existed; the frozen grader refused, exit 2):
+
+1. it repairs a **demonstrable error** (both arms dead at `prob.setup`, before any solver work),
+   not a preference;
+2. the error was established by an instrument **independent of the hypothesis** — the m755/m777
+   paired `mkdir` control, which grades nothing and cannot know which direction moves a verdict;
+3. Addenda 1–2 disclose it, name the instrument, and quantify what moved (nothing graded moved;
+   staged modes 775 → 777);
+4. the pre-repair state is recorded in full beside this ruling (rc table, ledger, modes, spend).
+
+**Terms of the re-run, fixed here:** staged arm directories `chmod 777` to **match the graded
+2026-08-21 chain exactly** — a cleverer minimal-permission fix would introduce a new difference
+from the graded chain and is refused; everything else byte-identical to §2.4–§2.5 and relaunched
+per §9 from step 3; the §7 **"No retries"** clause stands for any *solve* failure in the re-run —
+this ruling spends the repair exception once, on a harness failure, and a second failure of any
+kind ends the item with the verdict it earned. Spend is charged against the **161.0 core-min
+remaining** of the registered 182.0 ceiling; the 21.0 core-min of attempt-1 waste stays charged
+and is not renamed.
+
+*End of Addendum 3. Nothing above this section was edited.*
