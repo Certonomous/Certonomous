@@ -624,9 +624,11 @@ documented `FILING_CHARTER` §3 exception: *the rule was wrong, not the tree.*
 
 ## verification
 
-**Section last written:** 2026-08-23T21:13Z+ by verification-supervisor
-(stamp from `date -u` read in the writing invocation — see the STAMP
-CORRECTION below). THIRD session. FOUR instruments BELIEVED after personal
+**Section last written:** 2026-08-23T21:18:00Z by verification-supervisor
+(stamp from `date -u` read in the committing invocation — see the STAMP
+CORRECTION below). THIRD session. Audit passes 4-5 and the ledger wiring all
+BELIEVED after the supervisor's own reads/re-derivations; only the D476
+audit lane remains out. FOUR instruments BELIEVED after personal
 reads: D471 (`95333148`), D472 (`8f94f170`), append_record (`9a17109f` —
 OWNERSHIP CONFIRMED to chief: my lane, my diff read), D473
 (`b2d9e7ce`+`dc1a2085`, full 1398-line script read). Cost-calibration
@@ -698,14 +700,50 @@ your 18:17Z text while git held 19:35Z is unestablished and flagged to you.
 The team has produced **no verdict-bearing commit yet**; the `fd831c11` line in
 the first fill was heat-transfer's commit, not this team's.
 
-**Live jobs:** no solver compute owned by this team. **Three lanes live**
-(the cap): (1) cross-team audit of dafoam W4 M1+M2 (dispatched ~21:20Z);
-(2) cross-team audit of heat-transfer T9aH (dispatched ~21:20Z);
-(3) COST_CALIBRATION wiring into `append_record.py` + the team's four C-rows
-(dispatched ~21:38Z under the chief's ruling that the 9a17109f owner takes
-the wiring in the same motion — one diff read will cover both; registry entry
-+ C-`<n>` id column per the parallel session's assessment).
-Supervisor reads every returning diff/record personally before belief.
+**Live jobs:** no solver compute owned by this team. **One lane live:** the
+D476 clip-repair audit (closure's adoption blocks on it; dispatched with the
+supervisor's two standards recommendations to carry verbatim).
+**RETURNED AND BELIEVED since the last stamp (each after the supervisor's own
+read/re-derivation):**
+- **Audit pass 4 — dafoam W4 M1+M2 (`c5cf3721`): SOUND WITH ONE DEFECT
+  FOUND.** Freeze verified by the supervisor's own hands: prereg one-commit
+  `c8254a4a` 19:33:04Z, disk sha == frozen blob `92a6831c…`, first compute
+  `o0.start` 19:40:18.97Z (+434 s). Two of 20 predictions missed and stayed
+  missed (anti-tuning evidence); M1 PENDING confirmed a queue state. **§14
+  defect, supervisor-re-derived at the artifacts:** M2 attempt 1 (300 s,
+  20.00 core-min, the load-bearing input to M1=PENDING) left no filesystem
+  trace — attempt 2 overwrote both logs at the same paths (`m2_mem.log`
+  first line START 19:50:45Z is attempt 2's; m2 log mtime 19:53:12Z). Remedy
+  recommended TO DAFOAM (theirs to accept/refuse): dated addendum labelling
+  row 3 a BOUND; second-order fix per-attempt log suffixes. No verdict
+  overturned.
+- **Audit pass 5 — heat-transfer T9aH (`074a82c1`): SOUND, two owed items,
+  neither touching a verdict.** Freeze verified by the supervisor's own
+  hands: prereg `0078fe9c` 19:52:16Z committed alone (619 lines); comparator
+  `T9aH_runs/analyse_t9aH.py` three-way blob equality `8107ed38…`
+  (1908bb7c == HEAD == disk, none the empty-input hash — a wrong-path first
+  probe returned e3b0c442… twice and was caught: equality of two failures is
+  not equality of blobs); first compute content-basis `W_c/log.blockMesh`
+  banner 20:13:03Z, comparator +469 s earlier. Owed, relayed to
+  heat-transfer: their COST_CALIBRATION row (comparison already complete in
+  their §9: 0.238x prediction), and HC1-HC3 recorded as bare `met: true`
+  without measured values (next-rung comparator item).
+- **COST_CALIBRATION wiring (`80a4d714` script, `a6ed127f` format amendment,
+  `46c5c873` rows): BELIEVED** — 109-line diff read personally, pure
+  addition; C-series pattern with both traps (hyphenated series `C-`; table
+  furniture negatives) visibility-asserted; selftest 0 failures, 2 mutation
+  classes each break it. **Deviation RATIFIED:** seeded rows were C-1..C-10
+  by the time the lane read the file (HEAD moved 4x); the team's rows landed
+  as **C-11..C-14** through the wired helper itself (`ID ASSERT ok: C-11 ==
+  max+1 over HEAD AND the preserved tail`, exit 0) — rule 11 re-derivation
+  exactly as written. All four rows honestly carry "no estimate made at
+  dispatch". The 47-lines-behind worktree hazard self-healed before the lane
+  touched the file (peer committed); the lane used the HEAD-blob route
+  regardless and improved it (worktree written only after CAS success).
+A consolidated supervisor-ratification note for passes 4-5 rides the D476
+section commit (the audit doc is append-only; this board is the belief record
+meanwhile). Supervisor reads every returning diff/record personally before
+belief.
 **Cost-calibration directive (Sanaa 2026-08-23, in force):** every process
 completion states predicted vs actual core-min (log-measured), derived
 dollars at the recorded rate, the ratio, and gap attribution with waste
@@ -764,13 +802,19 @@ moved since.
 **Cross-team gate audit — standing mandate.** Targets, updated with the material
 new at HEAD `9e82321b` since the first fill:
 
-- **NEW (session 3, queued) — dafoam W4 M1+M2** (records `108a87e3`, verdicts
-  O0/M2/M1-D PASS, M1 PENDING, O3 BLOCKED): audit whether each PASS's gate was
-  frozen before its run could answer it and whether M1's PENDING is a queue
-  state, not a softened GATE FAIL (rule 1).
-- **NEW (session 3, queued) — heat-transfer T9aH chain** (`a66232c1`): fresh
-  verdict-bearing chain, not yet audited; standard pass — comparator freeze,
-  gate could-have-failed, controls fired not described.
+- **W4 M1+M2 — AUDITED, pass 4 (`c5cf3721`), SOUND WITH ONE DEFECT FOUND,
+  believed after the supervisor's own re-derivation** (see Live jobs above;
+  §14 remedy with dafoam). Instrument finding carried to D471 residuals:
+  the freeze checker has ZERO coverage of W4's comparators — they live
+  outside the repo (`/home/ubuntu/certonomous-runs/…`) and are spelled
+  `analyze_*`/`pc_ladder.py`, missing both the population roots and the
+  grader patterns.
+- **T9aH — AUDITED, pass 5 (`074a82c1`), SOUND, believed after the
+  supervisor's own re-derivation** (two owed items with heat-transfer, see
+  Live jobs). Instrument finding for D471 residuals: marker mtimes on this
+  tree are a single-process batch write separable only sub-second; a
+  marker-based margin overstates by 1,444 s vs the content-basis log banner
+  — content-basis dating (log banners) beats marker mtimes where present.
 - **NEW — R5C** (`0ac76ec2`): closed GATE FAIL **by its own identity gate** —
   "the omega source is repaired in a copy, not in the solver R4's numbers came
   from." Audit: confirm the identity gate was pre-registered and the GATE FAIL
@@ -805,11 +849,12 @@ other PDFs lab-wide still lack sidecars), pre-existing, not this team's alone.
 **Next actions** (session-3 state, 21:13Z+): (1) D471, (2) D472, D473 and
 append_record all **DONE — believed** (docket rows carry the rulings; D473's
 adoption question is on Sanaa's desk with the replay numbers 11.4%/24.1%);
-IN FLIGHT: the two audit lanes (W4 M1+M2, T9aH) and the COST_CALIBRATION
-wiring (course-corrected mid-flight: the ledger worktree is 47 lines behind
-HEAD, L-223 shape — lane ordered to build every ledger edit from
-`git show HEAD:` in the commit invocation, insertions-only asserted) — each
-gets the supervisor's personal read on return;
+DONE since: audit passes 4-5 believed, ledger wiring believed, C-11..C-14
+landed (all detailed in Live jobs above); IN FLIGHT: the D476 audit lane
+only. D471 residual list grew two entries from the audits (outside-repo
+`analyze_*` comparators; content-basis dating beats marker mtimes) — a
+follow-up repair rung for the freeze checker is the natural next instrument
+item, offered to the docket after the D476 return;
 (1c) **D476 AUDIT — QUEUED, BLOCKS closure's adoption** (their prereg §7
 requires this team's audit; routed by chief): target `7e973ba8` vs prereg
 frozen `bf4956bc`; evidence
