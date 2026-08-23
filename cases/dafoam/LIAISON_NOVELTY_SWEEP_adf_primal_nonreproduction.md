@@ -437,3 +437,42 @@ it is the least-novel possible choice; and it is the fix the maintainer himself 
   `docs/LESSONS.md`, `docs/NUMERICS_KNOWLEDGE.md` or `docs/LAB_STATE.md`.**
 
 **Nothing in this file has been sent, filed, posted, uploaded or pushed. Filing is Sanaa's alone.**
+
+---
+
+## ADDENDUM 2026-08-23 — §0's "current-generation fork" claim is now verified from upstream source, not inferred
+
+*Appended, not rewritten. Nothing above this line changed; lines whose number changed above this
+section: 0. This addendum strengthens §0 and §2.9 and alters no disposition.*
+
+§0 and §2.9 assert that `DAFoam/OpenFOAM-AD` is the AD fork **DAFoam v5 migrated to**, and therefore
+the generation that produced the `libDASolverADF.so` D460 measured. When first written that rested
+on a **[via page summary]** line from a web search — the weakest tier in `LITERATURE_CHARTER` §3,
+and too weak to carry the headline of a sweep.
+
+It is now **verified at tier 2 of `PROBLEM_RESEARCH_PROTOCOL.md` §1 — upstream source, fetched
+raw**. `raw.githubusercontent.com/DAFoam/DAFoam.github.io/main/pages/mydoc/mydoc_installation_source.md`,
+fetched 2026-08-23, lines 317 and 360 **[verbatim]**:
+
+```
+There are three versions of OpenFOAM to compile: original, reverse-mode AD (ADR),
+and forward-mode AD (ADF).
+...
+wget https://github.com/DAFoam/OpenFOAM-AD/archive/refs/heads/v2506-ad.tar.gz -O OpenFOAM-AD.tgz
+```
+
+and lines 400 and 411, which build the forward variant from that same tree:
+
+```
+sed -i 's/export WM_AD_MODE=.*/export WM_AD_MODE=ADF/g' etc/bashrc
+./renameAD.sh platforms/linux*ADF --ADF --commit
+```
+
+**The branch is `v2506-ad`, and the lab's image carries OpenFOAM v2506** (`TOOLCHAIN_INVENTORY.md`
+§1). So the repository whose issue #2 reports *"both ADR and ADF flow solvers generate wrong
+results"* is not merely an adjacent fork — **it is the tree the ADF library under test was built
+from.** The prior-art finding of §0 and §5 stands on source, not on a search summary.
+
+**Still not established, and not claimed:** that the *deployed* `libDASolverADF.so`
+(md5 `44538ed4ac157ecb5dbb6850cf4bde64`) was built from this exact branch at this exact commit. That
+would need a build-provenance read inside the container, which no part of this sweep opened.
