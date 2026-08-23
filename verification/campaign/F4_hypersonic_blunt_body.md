@@ -349,3 +349,332 @@ Artifacts (this update): `demo-output/website/campaign/F4_runs/swbli_cylflare/wa
 **Rung reached: GATE (fine mesh), both primary gates, all three Mach numbers.**
 
 All code: `demo-output/website/campaign/F4_runs/{billig_theory.py, make_cylinder_case.py, run_cylinder_case.py, build_report.py}`. Machine-readable results: `F4_hypersonic_blunt_body.json` (per-case, all resolutions). Raw case directories under `F4_runs/cyl/M{6.0,7.0,8.0}/{coarse,medium,fine}/` (blockMeshDict, logs, `result.json` with full per-station/per-θ data).
+
+---
+
+## 8. The named next lever, read in source: directional flux reconstruction at a cell with two boundary faces (2026-08-23)
+
+**Appended, not edited.** Nothing above this line was changed. Lines whose number
+changed above this section: 0. This section is a **source read only — zero
+compute was spent, no solver was launched.** The lever read is the one §7's
+closing paragraph and `NOT_PASSING_REGISTER.md` (Group 3, "To resolve") both
+name: *what `rhoCentralFoam`'s directional flux reconstruction
+(`interpolate(..., pos/neg, ...)`, the `vanLeer`/`vanLeerV` limiters) does at a
+structured-mesh corner cell with two real boundary faces.* The hypothesis under
+test was that a one-sided or limiter-bypassing reconstruction at such a cell can
+manufacture a face state outside the physical bounds of the neighbouring cell
+states, and that the resulting non-physical density/pressure/energy is what
+SIGFPEs.
+
+### 8.1 The finding, stated first
+
+**The mechanism as hypothesised is ELIMINATED — mechanism #6 on this case's list —
+and the elimination is a code-path proof, not an experiment.** At a real
+(non-coupled) boundary face `rhoCentralFoam` performs **no reconstruction at
+all**: the face state is the boundary patch value verbatim, identically for the
+`pos` and the `neg` direction. Nothing is extrapolated, so nothing can be
+extrapolated outside the neighbouring cell states. The limiter bypass the
+hypothesis names is real in the letter and null in effect — a limiter value *is*
+computed for non-coupled boundary faces and is then **discarded** before the face
+state is formed. **The number of boundary faces a cell has never enters any of
+these code paths.**
+
+Two things the same read *did* produce, both of which are new and neither of
+which is among the five already eliminated:
+
+- **8.4 — a dissipation-coverage deficit.** Because the `pos` and `neg` states
+  are bit-identical at every real boundary face, the Kurganov–Tadmor upwind
+  dissipation term cancels **exactly** there. This is an algebraic identity, not
+  an approximation. A cell with two real boundary faces therefore carries half
+  the dissipative face coverage of a generic interior cell in this mesh.
+- **8.6 — the clamp values are cryogenic, not divergent.** The worst clamped
+  energies this record already quotes map, under the case's own exact `hConst`
+  inversion, to **T ≈ 19.95 K, 19.99 K and 3.04 K** — not to a blow-up. The
+  defect is a *cold* excursion, and at M = 7.05 it needs only a **2.7–3.5 %**
+  velocity inconsistency to produce one.
+
+### 8.2 The code path, traced end to end
+
+Installed tree read: `/usr/lib/openfoam/openfoam2606/`. Case schemes read:
+`verification/runs/F4_runs/swbli_cylflare/warmup20_bounded/system/fvSchemes`
+(`fluxScheme Kurganov`; `reconstruct(rho) vanLeer`, `reconstruct(U) vanLeerV`,
+`reconstruct(T) vanLeer`).
+
+1. `applications/solvers/compressible/rhoCentralFoam/rhoCentralFoam.C:102–119`
+   forms `rho_pos/rho_neg`, `rhoU_pos/rhoU_neg`, `rPsi_pos/rPsi_neg`,
+   `e_pos/e_neg`, and from them `U_pos/U_neg` (`:115–116`) and `p_pos/p_neg`
+   (`:118–119`). `cSf_pos/cSf_neg` follow at `:137–147`.
+2. Each call goes through
+   `applications/solvers/compressible/rhoCentralFoam/directionInterpolate.H:6–30`,
+   whose entire body is `fvc::interpolate(vf, dir, "reconstruct(<name>)")`
+   (`:15–23`) plus a rename (`:27`). It adds no boundary logic of its own.
+3. `dir` is `pos` or `neg`, uniform `+1` / `−1` surface fields —
+   `rhoCentralFoam/createFields.H:66–87`.
+4. The named scheme resolves to a `LimitedScheme`. Its limiter is computed in
+   `src/finiteVolume/interpolation/surfaceInterpolation/limitedSchemes/LimitedScheme/LimitedScheme.C`
+   — internal faces at `:66–81` using owner/neighbour values and gradients; the
+   boundary loop at `:85–133`, whose **non-coupled branch is `:129–132`,
+   `pLim = 1.0`**. So the hypothesis is right that no owner–neighbour gradient
+   exists at a boundary face and the limiter is not exercised there.
+5. That limiter becomes a weight in
+   `limitedSchemes/limitedSurfaceInterpolationScheme/limitedSurfaceInterpolationScheme.C:134–175`
+   — note `:156–172` **does** compute a weight for boundary faces, including
+   non-coupled ones.
+6. **The weight is then discarded.**
+   `surfaceInterpolation/surfaceInterpolationScheme/surfaceInterpolationScheme.C`
+   is where the face value is actually assembled. Internal faces:
+   `:270`, `sfi[fi] = Sfi[fi] & (lambda[fi]*(vfi[P[fi]] - vfi[N[fi]]) + vfi[N[fi]])`.
+   Boundary faces: the loop at `:278–299`, coupled branch `:284–293`, and the
+   **non-coupled branch at `:295–298`, `psf = pSf & vf.boundaryField()[pi];`** —
+   the patch value, with no weight, no limiter, no gradient and no direction
+   dependence. The two-weight overload behaves identically
+   (`:181–196`, non-coupled branch `:192–195`, `sfbf[pi] = vf.boundaryField()[pi];`).
+   `interpolate(vf, tlambdas)` routes here via `:309–318`.
+7. No explicit correction is added anywhere:
+   `surfaceInterpolationScheme.H:196–199` defines `corrected()` as `return false`
+   and `limitedSurfaceInterpolationScheme` does not override it, so the
+   `if (corrected())` branches at `:359–362` and `:419` are never taken for these
+   schemes.
+8. "Non-coupled" covers every patch in this case.
+   `src/finiteVolume/fields/fvPatchFields/fvPatchField/fvPatchField.H:201–204`
+   defines `coupled()` as `return false`; the only overrides to `true` in the
+   whole `fvPatchFields` tree are `coupledFvPatchField.H:153` and the
+   processor / cyclicAMI / cyclicACMI / calculatedProcessor family. `fixedValue`,
+   `zeroGradient`, `calculated`, `wall`, `empty` and **`wedge`** do not override
+   it. Case patches, from
+   `verification/runs/F4_runs/swbli_cylflare/warmup20_bounded/constant/polyMesh/boundary`:
+   `inlet`/`outlet`/`farfield` (`patch`), `wall` (`wall`), `axis` (`empty`,
+   **nFaces 0**), `frontWedge`/`backWedge` (`wedge`, 29,700 faces each). **All
+   seven are non-coupled.**
+
+**Conclusion of the trace:** at every face of every patch in this case,
+`rho_pos == rho_neg`, `rhoU_pos == rhoU_neg`, `rPsi_pos == rPsi_neg`,
+`e_pos == e_neg`, `c_pos == c_neg`, and hence `U_pos == U_neg` and
+`p_pos == p_neg`. There is no one-sided reconstruction to go wrong.
+
+### 8.3 What the boundary face state therefore is
+
+It is exactly the boundary condition's own value. It can be non-physical only if
+the boundary condition's value is already non-physical — and for a `zeroGradient`
+or `gradientEnergy` patch that value mirrors the adjacent cell. **A bad boundary
+face state on such a patch is a consequence of an already-bad cell, never the
+producer of one.** That is the whole of the elimination.
+
+### 8.4 The exact algebraic consequence — zero Kurganov dissipation at every real boundary face
+
+Writing `φ = U_b & Sf` and `C = c_b·|Sf|`, and substituting `X_pos = X_neg = X_b`
+into `rhoCentralFoam.C:149–179`: `ap = max(φ+C, 0)`, `am = min(φ−C, 0)`,
+`a_neg = 1 − a_pos`, `aSf = am·a_pos`, and after `:175–176`
+`aphiv_pos + aphiv_neg = a_pos·φ − aSf + a_neg·φ + aSf = φ`. Therefore
+
+- `:196` `phi = φ·rho_b`
+- `:198–203` `phiUp = φ·rhoU_b + p_b·Sf`
+- `:205–211` `phiEp = φ·(rho_b(e_b + ½|U_b|²) + p_b) + aSf·p_b − aSf·p_b = φ·(rhoE_b + p_b)`
+- `:255` `a_pos·U_pos + a_neg·U_neg = U_b`
+
+**Every `aSf` upwind-bias term cancels identically.** A real boundary face
+contributes a pure, undissipated central flux of the patch state. For a
+`fixedValue` supersonic inlet that is the correct and intended imposition of the
+BC and introduces no error of its own; on a `zeroGradient` patch it is a
+self-referential, undamped flux built from the cell's own state.
+
+**This is why eliminated mechanism #5 could not have discriminated anything.**
+Switching `farfield` from `zeroGradient` to `fixedValue` changes *which value*
+enters an undissipated flux; it restores **no** dissipation, because `pos == neg`
+holds for both patch types. #5's null result is fully consistent with the
+dissipation deficit still being live, and **#5 did not test it.**
+
+### 8.5 An artifact-backed geometric fact that the record had not connected
+
+`constant/polyMesh/sets/twoInternalFacesCells` exists, unchanged, in all four
+case directories under `verification/runs/F4_runs/swbli_cylflare/`. It contains
+**exactly four cells: `0, 29699, 13349, 13080`** — of 29,700. These are the four
+domain corners of the two-block topology (block A 120 axial × 110 radial = 13,200;
+block B 150 × 110 = 16,500; `make_swbli_case.py:73`, `"warmup": (120, 150, 110)`),
+with block A indexed axial-fastest so that cell index = `j_radial·120 + i_axial`:
+
+| cell | j, i | corner | named in this record as a persistent bound-firing site? |
+|---|---|---|---|
+| 0 | j=0, i=0 | inlet ∩ farfield | **yes** — §"The invariant corner cell", corrected mesh |
+| 13080 | j=109, i=0 | inlet ∩ wall | **yes** — §"Result — the case did NOT just have a single bad cell", original mesh |
+| 13349 | block B j=0, i=149 | outlet ∩ farfield | no |
+| 29699 | block B j=109, i=149 | outlet ∩ wall | no |
+
+The two remaining named sites are **not** corners but are in the same first cell
+column: `3960 = 33·120` and `6360 = 53·120`, both `i_axial = 0`. **All four cells
+this record ever named as persistently clamped are exact multiples of 120, i.e.
+all four sit in the inlet-adjacent cell column** — arithmetic anyone can redo, and
+it agrees independently with the x-coordinates the record already reports
+(`x ≈ 0.0003–0.00033 m` for every one of them).
+
+So the severity ordering the record observed matches the count of real boundary
+faces per cell: 2 faces (cells 0, 13080) worst; 1 face (cells 3960, 6360) next;
+0 faces unnamed. **But two boundary faces is not sufficient** — the two *outlet*
+corners have the same topology and were never flagged. What separates them is
+that the inlet corners' second face is a hard Dirichlet inlet while the outlet
+corners' faces are characteristically-correct supersonic `zeroGradient`
+extrapolations. The sharper statement is therefore: *a cell whose undissipated
+boundary faces include a fixedValue inlet.*
+
+**Honesty on this artifact:** the cellSet is **untracked in git** (`git ls-files`
+returns nothing for that directory) and carries no provenance note, and this
+record's own §"The invariant corner cell" already describes cell 0 as "a
+structured-mesh corner with two real boundary faces". It is therefore very
+likely a *derived* artifact of the earlier hypothesis, not independent
+confirmation of it. What is independent is that the bound guard found cells 0 and
+13080 **by energy**, not by topology.
+
+### 8.6 Re-reading the recorded SIGFPE signature — the excursions are cryogenic, not divergent
+
+From `rhoCentralFoamBounded_src/createFields.H:107–130`: `Cv = 1005 − 8314.47/28.9
+= 717.30208 J/(kg·K)`, `Tref = 298.15 K`, `TMin = 20 K`, so
+`eMin_bound = 717.30208 × (20 − 298.15) = −199,517.6 J/kg`. Inverting the worst
+clamped energies this record already reports:
+
+| reported worst `e` (J/kg) | where | implied T (K) |
+|---|---|---|
+| −199,551.388 | cell 0, LTS runs | **19.95** |
+| −199,524.67 … −199,524.86 | cell 0, real-time run | **19.990 … 19.990** |
+| −211,681.775 | second cluster | **3.04** |
+
+**None of these is a blow-up. They are cells cooled to a few kelvin.** Three
+consequences the record should carry:
+
+1. `TMin = 20 K` was chosen as "below the coldest physical state" with
+   `T∞ = 81.2 K`. Cells at 19.95 K are **0.05 K past an arbitrary threshold**.
+   The headline "≈30 % of the mesh is bounded" may therefore be counting a large
+   population sitting just barely below 20 K rather than a large population
+   diverging. **That is a materially different claim, and it is a zero-solver-cost
+   re-read of a `BOUND:` log to settle** — except that no such log survives (§8.8).
+2. The original SIGFPE is fully explained by this same cold excursion continuing
+   past `T = 0` with no bound in place: `libfluidThermophysicalModels.so` is
+   Sutherland's `mu = As·√T/(1 + Ts/T)` (the form is written out verbatim in
+   `verification/runs/F4_runs/make_swbli_case.py:52`), and `√T` of a negative
+   argument is the SIGFPE. The surviving crash log
+   (`demo-output/website/solve_registry/f4_swbli_warmup20_20260730T004453Z.log`)
+   localises it exactly: at `Time = 6.42e-07` the trace fires **after**
+   `diagonal: Solving for rhoE` and **before** the `smoothSolver: Solving for e`
+   line present in every healthy step — i.e. inside `rhoCentralFoam.C:265–267`,
+   `e = rhoE/rho − 0.5*magSqr(U); e.correctBoundaryConditions(); thermo.correct();`.
+   This confirms the record's §"Step 2" attribution from the log itself.
+3. **The case is severely cancellation-sensitive, and this is arithmetic, not
+   speculation.** At the reference station `U∞ = 1274 m/s` gives
+   `½|U|² = 811,538 J/kg` while `e∞ = Cv(81.2 − 298.15) = −155,619 J/kg`, so
+   `rhoE/rho = 655,919 J/kg` and **the kinetic term is 5.22× the magnitude of the
+   internal energy it is differenced against** at `:265`. Reaching T = 19.95 K
+   needs `rhoE/rho` low by 43,933 J/kg — **6.70 %** — or, equivalently, `|U|` high
+   by **34.5 m/s, 2.71 %**. Reaching T = 3.04 K needs **8.55 %**, or **44.0 m/s,
+   3.45 %**. No exotic mechanism is required: any few-percent inconsistency
+   between the momentum and the energy update lands as a wild temperature.
+
+   `rhoCentralFoam` has such an inconsistency by construction in its viscous
+   branch: `:236–245` applies a diffusion-only implicit correction to `U` and
+   then sets `rhoU = rho*U` (`:244`), while the `rhoE` equation (`:248–263`) was
+   advanced with `sigmaDotU` built from the **pre-correction** face velocities
+   `a_pos*U_pos + a_neg*U_neg` (`:255`). Line `:265` then subtracts the
+   **post-correction** `½|U|²`. The mismatch is O(ΔU·U) and is magnified 1274×
+   into the energy budget. **Whether it reaches the 2.7–3.5 % needed here is NOT
+   measured and is not claimed** — it is named as the arithmetically plausible
+   route and as the reason the discriminating test in §8.9 should instrument `U`
+   and `rho`, not only `e`.
+
+### 8.7 Does `rhoCentralFoamBounded`'s clamp already cover this?
+
+For the hypothesis as named the question is moot — that path is eliminated
+outright. For the mechanism in §8.4 the answer is **no, and the clamp actively
+masks it.** `boundE.H` clamps only `e`, and only at `:51`
+(`e = min(max(e, eMin_bound), eMax_bound)`), **after** `rhoE`, `rhoU` and `rho`
+have all been advanced and **after** the division at `:265`. It bounds nothing in
+`rho` and nothing in `U`. Since `e = rhoE/rho − ½|U|²`, a small or wrong `rho` and
+a wrong `U` both arrive at the clamp disguised as an energy excursion, and the
+guard's `Info` lines (`boundE.H:34–49`) report only `e`, its worst cell and the
+low-`e` bounding box. **The existing diagnostic cannot distinguish an energy
+defect from a density defect from a velocity defect.** That is a gap in the
+instrument, not in the record's honesty about it, and it is cheap to close.
+
+### 8.8 What could not be verified from this box
+
+- **The bounded runs' logs are not on disk anywhere in this repository.** A
+  targeted search of `verification/`, `demo-output/`, `cases/` and `docs/` for the
+  guard's own marker string (`BOUND: e`, `boundE.H:36,45`) returns nothing. The
+  bounded-cell fractions (4 %, 12 %, 17 %, ~22 %, ~30 %, ~32 %), the worst-`e`
+  values, and the clamped-region spatial extents that §§ above and
+  `NOT_PASSING_REGISTER.md` (Group 3) both rely on **currently cite artifacts that
+  are gone.** The `T` values in §8.6 are re-derived from numbers quoted in this
+  record's prose, not from a log. The only surviving F4 SWBLI solver log is the
+  original crash log named in §8.6(2), which *is* on disk (2,174,951 bytes).
+- Whether the §8.4 dissipation deficit actually produces the observed growth is
+  **not tested**. Nothing here was run.
+
+### 8.9 The cheapest discriminating test — costed, NOT run, NOT pre-registered
+
+Proposed to the cfd supervisor; a pre-registration is the supervisor's to freeze,
+and none exists, so **no compute may be spent on this until one does.**
+
+- **Step 0 (prerequisite, also the control arm).** Re-run
+  `warmup20_bounded_realtime` **unchanged** to re-create the missing `BOUND:` log
+  and recover the artifact behind the ~30 % figure, and add `rho`/`U`/`T`
+  min-max-and-cell reporting to `boundE.H` alongside the existing `e` report
+  (instrument-only, no physics change). Reference cost basis: that case's own
+  recorded complete run, `ExecutionTime = 279.93 s` single-core →
+  **4.67 core-min**.
+- **Step 1 (the discriminator).** A third solver variant differing from
+  `rhoCentralFoamBounded` by restoring an upwind bias **at non-coupled boundary
+  faces only**: after the `interpolate(..., pos, ...)` calls at
+  `rhoCentralFoam.C:102–113`, overwrite the non-coupled boundary patches of the
+  `_pos` fields with `patchInternalField()` while leaving the `_neg` fields at the
+  patch value, so `aSf·(X_pos − X_neg)` is no longer identically zero there.
+  Internal faces untouched — single variable. Compile only, then one run matched
+  to the control: **4.67 core-min**.
+- **Total: ≈ 9.4 core-min, single core; ≤ 12 core-min with slack.** At the
+  charter rate of $0.0513/core-h that is ≈ **$0.01** — `cost_basis`:
+  **reported-by-owner, not measured** (this box cannot read its own billing,
+  `COMPUTE_BUDGET_CHARTER.md` §5). Well inside the pre-authorised band, which is
+  not itself an authorisation to run (standing rule 9).
+- **Prediction that would make it discriminating, to be frozen before it runs:**
+  at the matched physical time `t ≈ 1.9e-05 s` already used to compare
+  mechanism #5, the bounded-cell fraction falls materially below the ~12 %
+  baseline **and** the growth flattens ⇒ the dissipation deficit is implicated;
+  the fraction stays at ~12 % and keeps growing ⇒ the deficit joins the eliminated
+  list as mechanism #7 and the §8.6(3) momentum/energy split becomes the leading
+  remaining candidate.
+- **A free, zero-solver-cost read to take first:** from the recovered Step-0 log,
+  the histogram of clamped `T` values. If the ~30 % population sits at
+  19.9–20.0 K it is a threshold artifact of `TMin = 20 K` and the "growing,
+  non-settling 30 %" framing needs restating; if it spreads down toward 3 K and
+  below it is a genuine divergence. **This changes what the case's headline number
+  means and costs nothing beyond Step 0.**
+
+θ = 32.5° / 35° remain held. Nothing in this section moves the gate case to the
+stock solver.
+
+### 8.10 Dated correction — the artifact paths above are stale (2026-08-23)
+
+Every artifact line in §§7–7a and the Summary above cites
+`demo-output/website/campaign/...`. **That directory does not exist.** It was
+removed by the 2026-08-18 reorganisation recorded in
+`docs/charters/FILING_CHARTER.md` (which collapsed a 4,924-file webroot to 10
+tracked files); `demo-output/website/` now holds only `latex/`,
+`motorbike-video/`, `solve_registry/` and `surfaces/`. The citations are corrected
+here rather than rewritten above, because this record is cited by
+`NOT_PASSING_REGISTER.md`, `CAMPAIGN_STATUS.md`, `DMR_PREREGISTRATION.md`,
+`DEAD_LEVER_AUDIT_2026-08-08.md`, `W3_DRAW_SCATTER_RULE_REPLAY_RESULTS.md`,
+`docs/LAB_STATE.md` and `docs/VALIDATION_INVENTORY.md`, and rule 6 forbids editing
+lines above an appended section. **Every target below was confirmed present on
+disk on 2026-08-23.**
+
+| cited above as | actually at |
+|---|---|
+| `demo-output/website/campaign/F4_hypersonic_blunt_body.md` | `verification/campaign/F4_hypersonic_blunt_body.md` (this file) |
+| `demo-output/website/campaign/NOT_PASSING_REGISTER.md` | `verification/campaign/NOT_PASSING_REGISTER.md` |
+| `demo-output/website/campaign/F4_runs/` | `verification/runs/F4_runs/` |
+| `.../F4_runs/swbli_cylflare/warmup20{,_bounded,_bounded_realtime,_bounded_farfield}` | `verification/runs/F4_runs/swbli_cylflare/warmup20{,_bounded,_bounded_realtime,_bounded_farfield}` |
+| `.../F4_runs/{make_swbli_case,build_inlet_profile,billig_theory,make_cylinder_case,run_cylinder_case,build_report}.py` | `verification/runs/F4_runs/` (all six present) |
+| `.../F4_runs/cyl/M{6.0,7.0,8.0}/{coarse,medium,fine}/` | `verification/runs/F4_runs/cyl/...` |
+| `F4_hypersonic_blunt_body.json` | `verification/campaign/F4_hypersonic_blunt_body.json` |
+| `$WM_PROJECT_USER_DIR/applications/solvers/compressible/rhoCentralFoamBounded` | still present at `/home/ubuntu/OpenFOAM/ubuntu-v2606/applications/solvers/compressible/rhoCentralFoamBounded`; the in-repo copy read for §8 is `verification/runs/F4_runs/swbli_cylflare/rhoCentralFoamBounded_src/` |
+
+The same stale prefix appears in `NOT_PASSING_REGISTER.md`'s Group 3 F4 entry and
+in its 2026-07-30 summary block. Not corrected here — that file is another team's
+record and a correction there is its own item.
+
