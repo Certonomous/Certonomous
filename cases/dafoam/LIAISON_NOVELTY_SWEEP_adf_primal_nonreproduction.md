@@ -476,3 +476,225 @@ from.** The prior-art finding of §0 and §5 stands on source, not on a search s
 **Still not established, and not claimed:** that the *deployed* `libDASolverADF.so`
 (md5 `44538ed4ac157ecb5dbb6850cf4bde64`) was built from this exact branch at this exact commit. That
 would need a build-provenance read inside the container, which no part of this sweep opened.
+
+---
+
+## ADDENDUM 2026-08-23 (second) — COMPLETION AUDIT of this sweep, five venue gaps found, four closed, and a NEW analogue prior-art item from mdolab's own tree
+
+*Appended at the foot, not rewritten. Nothing above this line changed; **lines whose number changed
+above this section: 0**. This addendum adds venues and searches. It **alters no disposition recorded
+above**: every §2 row, every count and §5's verdict stand exactly as written.*
+
+> **NOT FILED ANYWHERE. Nothing was posted, commented, opened, registered, uploaded or contacted.**
+> Every request recorded below is a `GET`. No account was touched, no form submitted. Filing is
+> **Sanaa's decision alone** (`CLAUDE.md` rule 7). Prepared by the DAFoam team, lab-lane,
+> 2026-08-23, 20:44–21:05 UTC, on the dafoam-supervisor's filing-readiness brief.
+
+### A1. The quota audit — the house standard is MET and EXCEEDED, and 0 searches are OWED
+
+Blocker 1's standard is the house protocol's **63 searches across 10 venues**
+(`LIAISON_NOVELTY_SWEEP_decomposition_defect.md` §1). Re-derived mechanically from this file, not
+taken from its own headline:
+
+| measure | value | how derived |
+|---|---|---|
+| individually tabulated query rows | **95** | `grep -oE '^\| [0-9]+ \|'` → #1…#95, **no gaps, no duplicates** (checked as a set against `range(1,96)`) |
+| prose-recorded searches | **6** | #96–#101, §2.13 closing paragraph — the authorship/verbatim confirmations and the full-body reads of `OpenFOAM-v1812-AD` #5, #9, #11, #13, #14, all itemised in §3 |
+| **total recorded searches** | **101** | 95 + 6 |
+| control rows | **5** | C1–C5 |
+| venues | **13** | `### 2.1`–`### 2.13` |
+
+**DONE = 101 of 101 claimed; OWED against the 63/10 quota = 0.** The claim in §1's opening paragraph
+is sustained on a mechanical re-count. **Caveat, stated because it is the honest one:** #96–#101 are
+recorded as prose, not as auditable table rows with a query string and a hit count, so they are
+weaker evidence than #1–#95. The count stands; six of its members are not independently re-runnable
+from this file.
+
+### A2. What the quota does NOT close — five substantive venue gaps found by this audit
+
+A count is not coverage. Auditing *which* venues were reached found five that were not:
+
+| gap | why it matters to D460 | disposition |
+|---|---|---|
+| **G1** the `DAFoam` org was **sampled, not enumerated** — §2.8/§2.9/§2.13 reached 7 repos | a defect report's novelty claim over an org must rest on the org, not on the repos someone thought of | **CLOSED** — org enumerated, 21 repos, all covered. §A3 |
+| **G2** mdolab's **differentiated-build** repos (`complexify`, `CMPLXFOIL`) were never searched | complex-step is the closest possible analogue to forward-AD: a differentiated build that must reproduce the plain build's primal | **CLOSED — and it produced the find of this addendum.** §A4 |
+| **G3** the **SU2 tracker** was never searched (§2.12 #88 covered only its literature) | SU2 is the other production AD-CFD code and uses the same CoDiPack | **CLOSED**, negative. §A5 |
+| **G4** **OpenFOAM's own upstream tracker** was never searched, in any form | D460 §3's mechanism is a claim about GAMG's value-dependent V-cycle stopping rule — an OpenFOAM behaviour, not a DAFoam one | **BLOCKED — venue not reachable from this box.** §A6 |
+| **G5** **non-English venues**, declared uncovered by this file's own §6.4 | DAFoam has a substantial Chinese-language user base | **CLOSED**, negative. §A7 |
+
+### A3. Venue 14 — the `DAFoam` organisation, ENUMERATED rather than sampled (REST, #102, #103)
+
+`api.github.com/orgs/DAFoam/repos` → **21 repositories**. §2.8, §2.9 and §2.13 covered **7** of them
+(`OpenFOAM-AD`, `OpenFOAM-v1812-AD`, `tutorials`, `DAFoam.github.io`, `workshops`, `test_of_ad`,
+`verifications`). The remaining **14 were never named**.
+
+| # | query | result | disposition |
+|---|---|---|---|
+| 102 | `orgs/DAFoam/repos` complete listing | **21 repos**; only 5 carry any open issue, and **all 5 were already covered** | the sampling was lucky, not sound |
+| 103 | complete all-states issue+PR listing of all **14** uncovered repos | **25 items total, every one closed**: `dafoam_mcp_server` 5, `user_guide_files` 4, `v3-pages` 4, `reg_test_files` 3, `mdo_agent_work` 2, `pvOptGUI_tutorials` 2, `validations` 5; **`HiSA4DAFoam_v1812`, `Hisa4DAFoam`, `cfmesh`, `docker`, `doxygen`, `files`, `v4-pages` = 0 items each** | **zero on point.** All 25 are documentation, packaging, tutorial or dependency-bump traffic |
+
+**The `DAFoam` organisation is now exhaustively covered, 21 of 21 repositories.** §5's verdict is
+unchanged; its foundation is now an enumeration instead of a sample.
+
+### A4. Venue 15 — mdolab's DIFFERENTIATED-BUILD repos, and **the new analogue prior art** (REST, #104–#109)
+
+`mdolab` holds **30** repositories; §2.1–§2.6 reached 5. Two of the remaining 25 are the closest
+analogue in existence to D460's question — **`complexify` and `CMPLXFOIL`, mdolab's complex-step
+differentiation tooling**, in which a *differentiated* build of a solver must reproduce the *plain*
+build's primal in its real part. Controls first (`CLAUDE.md` rule 3, L-234):
+
+| # | query | hits | disposition |
+|---|---|---|---|
+| C6 | `repo:mdolab/complexify zzzqqxnonsensetoken12345` | **0** | control — floor is 0 |
+| C7 | `repo:mdolab/CMPLXFOIL zzzqqxnonsensetoken12345` | **0** | control — floor is 0 |
+| C8 | `repo:mdolab/CMPLXFOIL complex` | **7** | **positive control — the reader can see a presence** |
+| 104 | `repo:mdolab/complexify` complete listing | 15 | numpy-2 / packaging maintenance. **#13 *Update abs complex safe routine for numpy2*** is an arithmetic-correctness item in the differentiated type — same class as CoDiPack #1 (§2.7 row 66), not on point |
+| 105 | `repo:mdolab/CMPLXFOIL derivative` | 4 | **#28 — read in full, below** |
+| 106 | `repo:mdolab/CMPLXFOIL NaN` | 1 | #31 — read in full, below |
+| 107 | `repo:mdolab/pygeo forward AD` | 1 | #56 (OpenVSP wrapper) — unrelated |
+| 108 | `repo:mdolab/pyhyp NaN` | 3 | #79, #80, #85 — mesh-generation segfaults, unrelated |
+| 109 | `repo:mdolab/baseclasses AD` | **0** | negative |
+
+#### **`mdolab/CMPLXFOIL` #28 — *"Match complex version convergence tolerances to real version"*** (#110, full-body read)
+
+2024-07-17, **merged**, author **`eytanadler`** (mdolab). **[verbatim, REST]**:
+
+> *"In some cases, the primal (real) version of XFOIL converges fine, but then the gradient
+> evaluation with the complex version does not converge. Optimizers very much dislike when the
+> primal succeeds and the gradient fails. Most just crash.*
+>
+> *One of the reasons I found for this happening is that **the tolerances of the real and complex
+> XFOIL versions do not match**. This PR fixes this problem. This does not solve all of the
+> situations where the primal succeeds and gradient fails, but it helps many of them."*
+
+**Why this matters, stated precisely.** This is **analogue prior art of the family, from mdolab's
+own tree** — the lab that authors DAFoam. It is a recorded instance of the exact shape D460
+measures: *a differentiated build of a solver failing to converge where the plain build converges*,
+with the identified lever being **the convergence/stopping tolerance, not the differentiated
+arithmetic**, and the accepted fix being to make the two builds' stopping rules agree.
+
+**It is on D460's CONDITIONING / DIAGNOSABILITY side.** D460 §3 infers that a value-dependent
+multigrid stopping rule turns an 8th-significant-figure AD difference into divergence; #28 is an
+independent, merged, maintainer-authored instance of a differentiated build diverging because its
+stopping rule did not match the plain build's. **It raises the prior on the conditioning branch and
+supplies the precedent for the remedy** (match the stopping rules across builds), which is the
+documentation-plus-warning ask §5a item 3 anticipates.
+
+**What it is NOT:** it is a different code (XFOIL, Fortran, **complex-step**, not OpenFOAM/CoDiPack
+forward-AD), a different equation set, and it reports a *gradient evaluation* failing rather than the
+primal *differing at the 8th digit*. **It is not prior art of D460's finding and it does not narrow
+§5's novelty statement any further.** It is a near-miss of the first rank and belongs in any filing.
+
+#### `mdolab/CMPLXFOIL` #31 — *"Tests fail when using new `ifx` compiler"* (#111, full-body read)
+
+2024-12-19, **OPEN**, 6 comments. The complex (differentiated) build's derivative tests fail under
+`ifx -O1`/`-O2` and pass under `-O0`, **identically across `-fp-model` `fast`, `precise` and
+`strict`** (measured table posted by `eirikurj`, 2025-01-14). Contributor `A-CGray` notes ifx's
+documented complex-number and default-NaN-checking differences from ifort.
+**Bearing on D460:** context, not prior art — direct evidence that a differentiated build's
+agreement with its plain counterpart is fragile to the *floating-point environment* and not only to
+the AD source transformation. It does **not** support either branch of §7's decision rule.
+
+### A5. Venue 16 — `su2code/SU2`, the other production CoDiPack AD-CFD code (REST, #112–#117)
+
+§2.12 #88 covered SU2's *literature*; its **tracker** was never searched. A forward-mode
+primal-reproduction defect in SU2 would be strong analogue evidence.
+
+| # | query | hits | disposition |
+|---|---|---|---|
+| C9 | `repo:su2code/SU2 zzzqqxnonsensetoken12345` | **0** | control — floor is 0 |
+| C10 | `repo:su2code/SU2 adjoint` | **339** | **positive control** |
+| 112 | `forward mode primal differs` | **0** | **clean negative** |
+| 113 | `direct differentiation NaN` | **0** | **clean negative** |
+| 114 | `AD build different result` | 25 | OR-match noise (`#877` rough-wall BC, `#948` PyAMG, `#2025` SU2_DOT_AD turbomachinery); **none reports an AD build's primal differing from the plain build's** |
+| 115 | `reproducib` | **0** | **clean negative** |
+| 116 | `CoDiPack multigrid` | 2 | #643, #648 — linear-algebra library discussions, unrelated |
+| 117 | `#2712` *Fix multigrid agglomeration* full-body read | — | 2026-01-18, author `bigfooted`: a Nishikawa–Diskin agglomeration **feature** PR. **Not AD-vs-plain. Unrelated.** |
+
+**SU2's tracker has never recorded a differentiated build failing to reproduce the plain build's
+primal.** This strengthens §5's novelty statement for the measurement.
+
+### A6. Venue 17 — OpenFOAM's OWN upstream tracker: **BLOCKED, and recorded as BLOCKED, not as a zero**
+
+D460 §3's mechanism is a claim about **GAMG**, which is OpenFOAM's, not DAFoam's. No part of the
+101-search sweep touched an OpenFOAM-native tracker. This audit tried, and **could not read it**:
+
+| # | attempt | result |
+|---|---|---|
+| 118 | `develop.openfoam.com/api/v4/...` (ESI GitLab REST), 7 queries incl. a nonsense control and a `GAMG` positive control | **HTTP 403, Cloudflare interstitial (`"Just a moment..."`, 5,530 B of HTML) on every request, including the bare project lookup.** No reading obtained |
+| 119 | the same tracker via the web-fetch tool, issue `#2054` | **HTTP 403 Forbidden** |
+| 120 | `bugs.openfoam.org` (Foundation Mantis) | HTTP 302; not pursued to a reading |
+
+**No count from this venue is recorded, in either direction.** `CLAUDE.md` rule 3 applies at venue
+level: a control that cannot be run is not a floor, and a venue that returns 403 to every request has
+not been shown able to return a presence. **Venue 17 is `BLOCKED`.** Closing it needs a route past
+Cloudflare — an escalation item, not a search.
+
+Two adjacent readings *were* obtained, by open web search, and are recorded at that weaker tier:
+
+- **ESI issue #2054, *"Question about GAMG solver strategy (only V cycles currently)"*** exists on
+  that tracker (title read from the search index; **body not read** — 403). Named so a future
+  attempt has a target.
+- OpenFOAM's own release notes state **[via search summary, tier 3]** that GPU/parallel operation
+  ordering *"is now non-deterministic and this will affect the truncation error, with noticeable
+  solution differences in some solver combinations."* **Adjacent, not prior art** — it concerns
+  operation ordering across ranks, where D460's arms are np = 1 and undecomposed. Recorded because a
+  maintainer may raise it, and because it shows the project already accepts that ordering-level
+  round-off produces visible solution differences.
+
+### A7. Venue 18 — non-English venues, this file's own §6.4 gap (WebSearch, #121–#123)
+
+Read under §1's rule: **counts here are meaningless; only on-point content counts.**
+
+| # | query | disposition |
+|---|---|---|
+| 121 | `DAFoam 前向自动微分 ADF 求解器 结果不一致 发散 NaN` | **No on-point page.** Returned generic Chinese AD tutorials (阿里云, 知乎), DAFoam's own docs and doxygen, and unrelated PyTorch-NaN posts — the engine answered the topic, exactly as C5 predicted |
+| 122 | `DAFoam useAD forward mode 算例 发散 GAMG 压力求解器 自动微分 编译 结果 不同` | **No on-point page.** Returned an AI-compiler AD tutorial, a Guangzhou-supercomputer OpenFOAM case list, `cfd-china.com` mesh-convergence threads and arXiv AD papers |
+| 123 | CFD-Online, DAFoam-specific forward-AD divergence (three passes) | **No on-point thread.** Surfaced only the 2019 *"Introducing DAFoam"* announcement, the generic *"Automatic Differentiation"* and *"Using Algorithmic Differentiation in OpenFoam"* threads §2.12 #87 already dispositioned |
+
+**§6.4's non-English gap is closed for Chinese-language surfaces and is negative.** It remains open
+for any venue this US-indexed engine does not reach, and for private lists, Slack and Discord.
+
+### A8. Two measured method traps, recorded because they invalidate evidence elsewhere
+
+1. **The web-search tool's `allowed_domains` restriction was NOT HONOURED**, twice, measured. A
+   search restricted to `develop.openfoam.com` returned ten `arxiv.org` PDFs; a search restricted to
+   `cfd-online.com` did the same. **Consequence: "I searched venue X" is not established by passing
+   X to the domain filter.** Every domain-restricted disposition in §A6 and §A7 is therefore recorded
+   as *"no page whose content is on point"* and never as venue coverage. This extends §1's WebSearch
+   trap from the *query* to the *venue restriction*.
+2. **The nonsense-token control fires on this surface too.** `zzzqqxnonsensetoken12345 solver issue`
+   restricted to `develop.openfoam.com` returned **ten topically-plausible OpenFOAM issue links**
+   (external-solver #27, #44, #33, #39; Development/openfoam #2340, #633). L-234's floor is not 1
+   here — it is *a full page of plausible results*, and no count from a web surface is readable.
+
+### A9. Running totals, and what this addendum does to §5 and to filing readiness
+
+| | before this addendum | added here | **total** |
+|---|---|---|---|
+| recorded searches | 101 | **26** (#102–#127 as numbered above, incl. 3 full-body reads and 3 BLOCKED attempts) | **127** |
+| controls | 5 | **6** (C6–C11) | **11** |
+| venues | 13 | **5** (14, 15, 16, 17, 18) | **18**, of which **17 read and 1 `BLOCKED`** |
+
+**§5's verdict is UNCHANGED and is not restated here.** `DAFoam/OpenFOAM-AD` #2 remains the prior
+art of the family; no prior report of D460's specific measurement exists in any of the 18 venues;
+the §8 `-1e10` false-convergence finding remains a clean zero everywhere, now including SU2,
+`complexify`, `CMPLXFOIL` and the 14 newly-enumerated `DAFoam` repos.
+
+**Filing readiness — assessment for the dafoam-supervisor, whose call this is:**
+
+1. **Blocker 1's quota is met** (127 ≥ 63 searches, 18 ≥ 10 venues) and the `DAFoam` org is now
+   enumerated rather than sampled.
+2. **§5a's four required D460 changes are unaffected** — this addendum adds no new required change
+   to items 1, 2 and 4. **Item 3, the filing tone, gains a second exhibit:** `CMPLXFOIL` #28 shows
+   mdolab has already met, accepted and fixed the "differentiated build will not converge where the
+   plain build does, and the stopping tolerance is the lever" shape in its own code. It belongs
+   beside `OpenFOAM-v1812-AD` #2's GAMG comment in §4's near-miss ranking, at rank 2 or 3.
+3. **One venue is `BLOCKED`** (§A6) and it is the one nearest D460's mechanism claim. Whether that
+   blocks filing is the supervisor's judgement, not this lane's.
+4. **Nothing here is a substitute for sweep 1.** The class question — conditioning vs AD correctness
+   — is decided by compute, and that compute is `BLOCKED` on the separate finding reported to the
+   supervisor against `d460_sweep1_solver_family/PREREGISTRATION.md` assertion A1-P.
+
+**Nothing in this addendum has been sent, filed, posted, uploaded, registered or pushed to any
+external service. The defect candidate remains NOT FILED. Filing is Sanaa's decision alone.**
