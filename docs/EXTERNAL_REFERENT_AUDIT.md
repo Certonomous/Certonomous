@@ -821,3 +821,189 @@ fetched, not a sentence copied.
 value of this audit is, and it is a far smaller, far more actionable finding
 than the 62.3% my own instrument first offered me — which is the result I would
 have shipped had I not been required to control it in both directions.
+
+---
+
+## 11. RE-RUN, 2026-08-23 — the population re-derived, one finding closed, and this audit's own screen is not on disk
+
+**Lines whose number changed above this section: 0.** Appended at the foot;
+nothing above was edited (rule 6). §10's verdict stands as dated.
+
+**Sweep date:** 2026-08-23, 19:45–20:30 UTC. **Executor:** `lab-lane`,
+verification team. **This section classifies and records. It repairs nothing**,
+per §0's rule, and it re-grades no verdict of any team.
+**Compute: zero core-minutes.**
+
+### 11.1 Control first — the section unit reproduces exactly, the bucket screen cannot be re-derived at all
+
+§2's population rule is stated precisely enough to re-implement, so it was, and
+run against the **audit's own commit `df4d4cbe`** before any current number was
+taken.
+
+| quantity | published §2/§3 | re-derived at `df4d4cbe` |
+|---|---|---|
+| tracked `*.md` | 367 | **368** |
+| **sections total** | 4,844 | **4,844 — exact** |
+| verification sections | 1,549 | see below |
+
+**The section unit is confirmed to the unit.** A heading-delimited split of the
+368 files returns **4,844**, the published figure on the nose — so the frame and
+the sectioning of this re-implementation are the audit's own, and any
+disagreement below is about the *qualification rule*, not about the population it
+is applied to.
+
+**The qualification rule as written does not return 1,549.** §2 says a section
+qualifies if it carries *"one of the … fixed verdict tokens … together with a
+number, or … a verification verb"*. Implemented literally — tokens
+case-**sensitive**, as the charter writes them — that selects **1,008**. Eight
+readings were tried:
+
+| reading | sections |
+|---|---|
+| tokens case-sensitive substring + number, or verb (**the rule as written**) | 1,008 |
+| tokens case-sensitive `\b`-bounded + number, or verb | 941 |
+| tokens case-sensitive + a ≥3-decimal number, or verb | 750 |
+| verbs only | 564 |
+| tokens case-sensitive + number only | 567 |
+| **tokens case-INSENSITIVE `\b`-bounded + number, or verb** | **1,567** |
+| tokens case-insensitive `\b`-bounded alone, or verb | 1,573 |
+| tokens case-insensitive substring alone | 1,554 |
+
+**The published 1,549 is matched by no reading, and bracketed closely by one:**
+case-insensitive word-bounded tokens **together with a number**, or a
+verification verb, gives **1,567 — Δ18, 1.2%**. That is almost certainly the
+screen that ran, and §2 simply does not state case-sensitivity. Under the
+case-**sensitive** reading the same rule is off by 35%.
+
+**And the residual 18 cannot be closed, because the instrument is not in the
+repository.** §3 says *"the screen is frozen at the version reported above"* —
+but frozen where? `git ls-files` carries no referent-screen script; `scripts/`
+holds `sweep.py`, `fail_open_scan.py` and `withdrawal_sweep.py` and nothing that
+implements this classifier. **Consequence, stated plainly: §3's four bucket
+figures — EXTERNAL 408 / 26.3%, SELF-REFERENTIAL 83 / 5.4%, BOTH 93 / 6.0%,
+UNDECLARED 965 / 62.3% — cannot be re-derived by anyone, now or later.** Neither
+can the 4-of-14 adjudication that scales onto 280 (90–560). This is the
+`LEDGER_HEADLINE_AUDIT.md` §4.1 defect in this document — *"its citation … points
+into an uncommitted tree"* — and it is the sharper form of it, because here the
+instrument was never committed at all. **Recorded against this audit, not against
+the corpus it audits.** §3's own instinct was right and insufficient: it
+published the number as an artifact and declined to promote it, but a figure
+nobody can re-run is not an artifact either.
+
+### 11.2 The population as it now stands, so the next re-run can diff it
+
+Frame: `git ls-files '*.md'`, section unit, the 1,567-reading of §2's rule.
+HEAD moved `c7dc6add` → `890bfa7f` while this ran.
+
+| quantity | 2026-08-11 (`df4d4cbe`) | 2026-08-23 |
+|---|---|---|
+| tracked `*.md` | 367 | **635** |
+| sections total | 4,844 | **9,497** |
+| **verification sections** | 1,549 | **3,152** |
+| documents carrying at least one | 297 | **552** |
+| tables whose **header row** carries a `reference` column (D-B6-8's metric) | 12 | **76, across 55 documents** |
+
+**Material added since 2026-08-11 and still tracked at HEAD: 173 documents,
+2,632 sections, 892 verification sections** — 304 `.md` were added in the window
+and 131 of them have since been moved or removed by the MOVE_MAP
+reorganisation, which is why the added-and-surviving figure is the one quoted.
+**None of the 892 was adjudicated by reading.** They are counted here so the next
+re-run has a denominator; a classification of them is the named next rung and is
+**not** performed. Absence of a finding against those 892 is a statement about
+this re-run's depth.
+
+**D-B6-8 has moved 6.3×, 12 → 76 header rows.** The docket item asked for the
+`reference` column to become mandatory so referent declaration is
+machine-checkable; the column has spread widely without a rule requiring it. That
+is progress on the mechanism and says nothing about whether the cells are filled
+correctly, which was not checked.
+
+### 11.3 §4.1 — RANK 1 IS SETTLED, and settled the way this audit asked
+
+The cylinder Strouhal finding — *"an external name over an unattributed
+constant"* — was actioned on **2026-08-18** and the record is
+`docs/DOCKET.md` D12. What was done:
+
+- **NACA Report 1191 was obtained and retained**, at
+  `docs/papers/roshko_1954_naca_tr_1191.{pdf,txt}`, SHA-256
+  `7f395ab8ba11f21007dc6f7a84504a2c7ce542c2ed54674d07540ce21db008b4`, 28 pages,
+  **title-page verified** (L-144), from NTRS `19930092207`.
+- **The verdict is NOT SUPPORTED.** The report's printed page 11 gives
+  `S = 0.212(1 − 21.2/R)` for `50 < R < 150`, so Re = 100 is in the stable range
+  and that form governs. The form the gate evaluates — `0.198(1 − 19.7/Re)` —
+  occurs in the report **in no range**.
+- **The zero was planted.** `grep -c '0\.198\|19\.7'` on the retained text
+  returns **0**; positive control `grep -c '21\.2\|0\.212'` on the same file
+  returns **8**. A reader-blindness explanation (a dead text layer) is excluded
+  by that control, exactly as constitution rule 3 requires.
+- **A third defect surfaced:** the NTRS link at
+  `cylinder_vortex_shedding.py:22` resolves to NACA Report **828** (cantilever
+  beam bending), not Roshko.
+- **It was NOT re-graded and NOT re-attributed**, on the stated ground that each
+  is a verdict change and each is the owner's. What landed instead is that the
+  nine-act table now carries the referent, its class and the band on **every**
+  row, and act 1's cell states its constants occur in no cited source.
+
+**This is §10's harder pair reduced to one.** §10 said §4.1 and §4.2 *"need a
+document fetched, not a sentence copied"*; the document was fetched, and the
+answer was that the referent does not support the number. The docket row **stays
+OPEN** because settlement requires the regrade nobody below the owner may make —
+which is the correct place for it to stop.
+
+**§4.2 (the Ahmed 0.285 extraction record) was not re-checked** and no claim is
+made about it here. **§5.1 (the CRM `VALIDATED` chip) is recorded as still live**
+at `docs/DOCKET.md` D14, which carries no resolution marker; that is a read of
+the docket row, not a re-derivation of the finding.
+
+### 11.4 A NEW finding of this audit's own class: cited referents that are not on disk
+
+L-74's question is *what was this checked against*. A referent that HEAD
+advertises and the disk does not hold fails that question in the most literal
+way, and `git status --porcelain` reports **10 tracked paths deleted in the
+working tree and not committed**. Two groups matter:
+
+**(a) `docs/campaigns/F14-cooling-ladder/K1_STANDING_THERMAL_CHECKS.md` — tracked,
+absent from the worktree, and cited by five documents:** `docs/LESSONS.md`,
+`docs/campaigns/F14-cooling-ladder/K0c_RESULTS.md`,
+`K2a_RACK_ROW_MODULE_SPEC.md`, that campaign's `README.md`, and
+`verification/campaign/MOVE_MAP_BATCH0_RULINGS_2026-08-17.md`. A reader following
+any of those five to the standing thermal checks finds nothing on disk.
+
+**(b) Eight planted-control artifacts under `K2b_runs/`:**
+`K2bP_C3_plant/HEATBALANCE_{400,800}.{json,txt}` and
+`K2bP_C3b_noplant/HEATBALANCE_{400,800}.{json,txt}` — tracked, absent from the
+worktree. `HEATBALANCE_{1000..5000}` survive in both twins. **The missing four
+iterations are exactly the ones backing `docs/DOCKET.md` D381's published
+recovery figures — 155.55 W at 400 and 315.57 W at 800** — and D381 is *"left
+standing rather than rewritten, per this file's append-only rule"*, so a reader
+who follows the superseded row to its artifact finds nothing.
+
+**The likeliest explanation is disclosed in the corpus itself and is benign**:
+D390 records that *"`heat_balance.py` audits invoked against time directories
+that did not exist yet left `HEATBALANCE_<t>.txt` reports carrying no ledger,
+**which were cleared and re-run rather than committed**"*. So this is very
+probably that deliberate clearing — **and the clearing was never committed**,
+which leaves HEAD advertising artifacts the disk does not hold.
+
+**Inspected and NOT reverted** (constitution rule 10); the index is the chief's
+call. Recorded as a finding for the owning team, with the note that the bytes are
+still recoverable from HEAD and that this is therefore a filing defect, not a
+lost measurement.
+
+### 11.5 What this re-run did not reach
+
+1. **None of the 892 new verification sections was adjudicated by reading.** The
+   population is counted; the classification is not attempted. This is the
+   largest thing not reached.
+2. **§3's screen was not rebuilt.** It could not be: its vocabulary lists are not
+   in the repository (§11.1). Rebuilding it from the prose description would be
+   a *different* instrument reporting under this document's numbers, which is the
+   error §3 stopped itself from committing.
+3. **§4.2, §4.3, §4.4, §4.5, §5.2 and §5.3 were not re-checked.** §5.1 was read
+   from its docket row only. Six of the seven live findings therefore carry no
+   2026-08-23 status.
+4. **§8's named frontier is untouched**, and §9's docket items other than D-B6-8
+   and D12 were not re-derived.
+5. Per §2.7's principle in the sibling sweep audit, **this section is now part of
+   the corpus it classifies**: it carries verdict tokens and numbers and will
+   qualify as a verification section in the next re-run's denominator.
