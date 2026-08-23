@@ -152,6 +152,22 @@ repeats them.
       spend is OUTSIDE the 2026-08-21 blanket**, which was given when none could
       launch (rule 9): every GPU run carries its own `cost_basis` in GPU-hours priced
       from the console, never from recall.
+    - **Estimate-versus-actual calibration at every process completion.** Sanaa's
+      directive, verbatim (2026-08-23): *"for all teams involved once a process is
+      completed, the estimated costs must be compared with the actual incurred
+      costs so we can improve the lab's estimates"*. Operationally: at every
+      process completion — a rung graded, a case closed, a curriculum item
+      finished — the team compares the pre-registered estimate against the actual
+      incurred cost. Actuals are stated in the lab's measured unit (core-minutes
+      from logs; GPU-hours for GPU runs); dollars are derived at the recorded
+      rate and labelled **derived, not measured** — the box cannot read its own
+      billing (`COMPUTE_BUDGET_CHARTER.md` §5). The comparison states the ratio
+      actual/predicted, attributes the gap (contention, waste, misprediction —
+      waste stays separately named per §6 of that charter, never absorbed into
+      the ratio), and lands as a row in the calibration ledger
+      **`docs/COST_CALIBRATION.md`**, under that file's append rules and the
+      rule-10 private-index protocol. A completion report without this
+      comparison is incomplete.
 
 13. **The scratchpad is temp only and is never a handoff channel (L-186).** It was
     wiped three times in one day. A draft another agent must read lives under the

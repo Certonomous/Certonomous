@@ -462,3 +462,36 @@ setting, is what keeps the screen clean.
 | standing conventions added | 1 |
 | clauses altered, widened or narrowed | 0 |
 | lines whose number changed above this section | 0 |
+
+## Amendment record, continued: estimate-versus-actual calibration (2026-08-23)
+
+**Dated addendum, 2026-08-23, appended at the foot; append-only. One standing
+convention added on the owner's directive. No clause above is altered, widened
+or narrowed; the header's version line is deliberately left untouched, because
+this addendum inserts nothing and edits nothing above itself.**
+
+Sanaa's directive, verbatim (2026-08-23): "for all teams involved once a
+process is completed, the estimated costs must be compared with the actual
+incurred costs so we can improve the lab's estimates"
+
+In force for every agent this charter binds, and recorded lab-wide as the
+calibration bullet of `CLAUDE.md` rule 12: at every process completion (a rung
+graded, a case closed, a curriculum item finished) the team compares the
+pre-registered estimate against the actual incurred cost. Actuals are stated
+in the lab's measured unit — core-minutes from logs, GPU-hours for GPU runs;
+dollars are derived at the recorded rate and labelled derived-not-measured,
+because the box cannot read its own billing (section 5 of this charter). The
+comparison states the ratio actual/predicted, attributes the gap (contention,
+waste, misprediction — waste stays separately named per section 6, never
+absorbed), and lands as a row in the calibration ledger
+**`docs/COST_CALIBRATION.md`**, whose header carries the append rules and the
+concurrent-append discipline. Section 7's closing sentence already named the
+estimate-versus-actual grading as an unenforced review discipline; this
+addendum gives that discipline its ledger and its trigger, and changes nothing
+about what section 7 says.
+
+| what the amendment did | figure |
+| --- | --- |
+| standing conventions added | 1 |
+| clauses altered, widened or narrowed | 0 |
+| lines whose number changed above this section | 0 |
