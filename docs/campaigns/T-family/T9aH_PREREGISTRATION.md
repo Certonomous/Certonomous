@@ -774,3 +774,48 @@ carries the evidentiary weight when the git clock does not.
   `7c4c6826…b3a5f4f8`, `gate_t9aD.json` `96e0dce0…0dc19993` — asserted by the
   selftest, twice.
 - **No other lane's process was touched.**
+
+### A.7 Dated note (2026-08-23, before any compute) — the flagged slip in A.3 item (2) was CHECKED and is NOT confirmed
+
+**The supervisor's step-4 read flagged A.3 item (2) as an inverted slip, on the
+reading that "a ratio of 0.05 gives `p` = +6.37 (CONVERGING)". That was checked
+before changing anything, and the check does not support it. A.3 item (2)
+stands as written. No line above this note is edited.**
+
+The failing fixture was `gci(2.05, 2.0, 1.0)`, so `e21 = f_m − f_f = 1.0` and
+`e32 = f_c − f_m = 0.05`, ratio **0.05**, and
+
+```
+p = ln(0.05)/ln(1.6) = -6.373849236784742      <- negative: ln of a number < 1
+frozen analyse_t9a.gci(2.05, 2.0, 1.0) -> {'state': 'DIVERGENT', 'order': -6.373849236784749}
+ratio 20.0 -> p = +6.373849236784742           <- the ratio that gives +6.37
+```
+
+**`p` = +6.37 corresponds to a ratio of 20, not 0.05.** And the second limb is
+the same inversion: `e32/e21` = 0.05 means the coarse→medium difference is 20×
+**smaller** than the medium→fine one, i.e. the differences **grow** under
+refinement — which is exactly why the frozen classifier calls it DIVERGENT, and
+exactly what A.3 item (2) says.
+
+**Nothing changes**: the shipped fixtures were already correct (the supervisor's
+own reading agrees), the frozen classifier is untouched, and no gate, threshold,
+band, cap or label is affected. This note exists because a record corrected on
+authority into an arithmetic error is worse than one left as it was, and the
+correction had to be answered rather than simply applied.
+
+### A.8 Dated note (2026-08-23, before any compute) — one further new file, for §6.6
+
+**`check_t9aH_mesh.py`** is added so that §6.6's registered mesh verification of
+the three extra cases can actually run: `analyse_t9aH.py` verifies geometry only
+through the frozen `measure_wall` refusals, and §6.6 registers that
+`check_t9a_mesh.check_wall` is driven **unmodified** over `RL_f`, `H40_f` and
+`H4000_f` (with the layer-`k` map overridden in memory and restored). It is the
+T9a-D precedent (`check_t9aD_mesh.py`), it **grades nothing** — its failure
+withdraws the run, not the hypothesis (Charter §2c GUARD row) — and it changes
+no gate, threshold, band, cap, reference or label.
+
+**It has NOT been read by the supervisor**, whose step-4 read covered
+`analyse_t9aH.py`, `build_t9aH.py` and `run_chain_t9aH.sh`. Its output is
+therefore reported as provenance and is not evidence for any row until it has
+been read. Written before any case directory existed; sha256 recorded in the
+commit that carries this note.
