@@ -96,194 +96,90 @@ rung may take it).
 **Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched
 ## closure
 
-**Section last written:** 2026-08-22T20:55Z by closure-supervisor.
-(Stamp restored to the canonical one-line form that `scripts/check_harness.py` parses; the previous stamp, 2026-08-22T21:20Z, carried a trailing clause — "R4 rows and the D369 closure by the R4 BUILD lane; everything else as the closure-supervisor left it" — which the parser rejects. Option C (omega-source repair, $0.009) is LIVE under its own pre-registration `cases/RANS_LES_closure_models/R5C_omega_repair/`; A′ and the R5 direction wait for Sanaa.)
+**Section last written:** 2026-08-23T19:35Z by closure-supervisor.
 
-**R5C (option C, omega-source repair) — LIVE, verdict PENDING; solver built, all 27 extractions RUN, grading next.** Chief-authorised known-bias repair inside pre-authorisation. Pre-registration frozen and committed ALONE before any repair code ran: `cases/RANS_LES_closure_models/R5C_omega_repair/PREREGISTRATION.md`, sha256 `a1cfae5a49c52dde…1277a`, commit `f364cf2d`. R4's frozen file (`058444…cbbe8`) untouched; R5C targets and R4 targets are registered as DIFFERENT quantities, never merged in any fit. Diagnosed cause, from `kOmegaSSTFrozen.C` source: `PkLim` cancels, so the frozen omega source is gamma/nu_t times the convection-minus-diffusion residual of the frozen `k` field — which has no sign — added fully explicitly while every other term is implicit; a large negative RHS with no matching diagonal sink gives omega<0 on the FIRST solve, matching R4's measured `bounding omega, min -193215225.4`, average -50081.6 on iteration one. None of R4's four failed repairs touches the sign-carrying term. Registered repair: Patankar split, negative part onto the diagonal as an omega-proportional sink, so the repaired operator keeps the LEGACY fixed point in exact arithmetic — the repair changes the path, not the answer. Gates: G0 planted-zero (PLANT=1.234e-03, three comparators, refusal → NOT A RESULT); G1 identity ≤1e-6 rel-L2 on the 12 R4-COMPLETE cases plus a switch-active control so a silent no-op cannot pass (the L-221 shape); G2 W2 byte-identical on a fresh copy, 14 of 14 sha256 field matches, no partial credit; G3 converged-not-clipped on five redundant criteria graded from a new per-ITERATION history; G4 completion PASS at ≥13 of 15. Cost registered 0.210 core-h = $0.0108, cap 1.0 core-h, overrun → BLOCKED. Nothing fitted, nothing propagated, no test or validation case opened. **Run state, 27 of 27 `rc = 0`:** `kOmegaSSTFrozenV2` + `kCorrectiveFrozenFoamV2` built into a NEW library (`libspartaFrozenV2.so`) — `libspartaTurbulenceModels.so` and `kCorrectiveFrozenFoam` were NOT rebuilt and their mtimes prove it (NR-2). Cases at `/home/ubuntu/closure-data/r5c/{frozen,w2_legacy}/`, driver pids `973121` and `987906`, both exited. Wall 660.9 s over ≤6 concurrent serial ranks; nothing reniced, thermal priority untouched. **G2 already reads 14 of 14 sha256 field matches against the W2 record at its own settle iterations 1492 and 354** — formal grading, with the planted-zero control first, lands with commit 3.
+**R5C (option C, omega-source repair) — CLOSED, VERDICT: GATE FAIL. D465, L-243,
+N-B35–N-B37, commit `0ac76ec2`.** Graded against the frozen pre-registration
+(sha256 `a1cfae5a…1277a`, committed alone at `f364cf2d`; re-hashed equal before
+grading) by the registered comparator `grade_r5c.py` (sha256 `58eb99…605e5`).
+Ladder as registered: **G0 planted-zero PASS** (plant seen to 2.4e-10 relative);
+**G2 W2 byte-identity PASS** (settle 1492/354, 14 of 14 sha256 — the V2 legacy
+branch IS R4's operator); **G1c switch-active PASS** (`nNegSourceCells` 476–2,274
+on all 27 — the negative source is universal, N-B35); **G1 GATE FAIL**
+(`kDeficit` rel L2 **1.1848e-04** on `alpha_10_12000_4048` against the
+registered `1e-6`; eleven of twelve R4 targets reproduce at the IDENTICAL settle
+iteration to 1e-7–1e-11); G3 10 of 27; G4 M=1 → GATE REACHED, **overridden** by
+G1 per §3.1. **Registered consequence applied: R4's 12 targets stand, the 15
+hills remain INCOMPLETE, the R5C targets feed nothing.** The finding under the
+verdict: the Patankar split removes the clipping (22 of 27 at zero
+`bound(omega)` events; 10 of the 15 hills COMPLETE under the strict rule) and
+the same damping makes the change-based settle criterion stop one target 37 %
+early — **a change criterion cannot tell convergence from damping (L-243)**; two
+registered criteria are measured miscalibrated and left standing as written
+(G1's tolerance derivation, G3(d)'s ratio — N-B37). The grading lane was killed
+by the session limit before commit 3; the supervisor re-ran the comparator end
+to end 2026-08-23 with **zero differences** (RESULTS.md D-4, which also
+discloses the comparator missing commit 2 and three promised artefact filenames
+folded into `r5c_grading.json`). Cost **0.140 core-h measured + ≤0.028 bounded
+= ≤$0.0086** against 0.210 registered, 1.0 cap. Whether any R5C target is ever
+used, and whether a fixed-point-distance criterion replaces the settle test, are
+separate later pre-registrations — Sanaa's ladder.
 
-**Last commit:** the **D369 write-back defect closed as executable law** —
-`scripts/append_record.py` (merge, refuse, max+1 assert, planted control) and
-`scripts/check_record_reconciliation.py` (the `LESSONS.md` sibling D369 filed as
-owed, extended to `NUMERICS_KNOWLEDGE.md`), carrying **D463** and **L-240**.
-Both records were appended **through the new helper**, its first real call site.
-Before it: `3f0f1537` (departure D-13, the disclosure that prompted this),
-`7965d08b` (stage d — D461, L-235–L-238, N-B26–N-B34), `5b4bc833` (stage c,
-the GATE FAIL), `73705d1f` (stage b), `b36daf06` (stage a).
+**GPU reproduction plan — DONE, on Sanaa's desk. Commit `9e82321b`.**
+`docs/closure/GPU_REPRODUCTION_PLAN.md` plus **five DRAFT pre-registrations,
+every one stamped DRAFT — NOT FILED, NOT LAUNCHED**, discharging the chief's
+2026-08-22 dispatch (`ff551ed5`). All five papers title-verified twice (killed
+lane 2026-08-22, supervisor re-verification against PDF hashes 2026-08-23,
+rule 15). Triage: **(1) Ling 2016** ready to sign — data local, CPU lane GATE
+REACHED, arms remove departure D3; 12–52 GPU-h cap 60 (~$10–$42, estimate —
+needs console confirmation) at
+`cases/RANS_LES_closure_models/Ling2016_TBNN/gpu/PREREGISTRATION_DRAFT.md`.
+**(2) Beck 2019** scaled variant behind an unpriced CPU DGSEM pilot, 7–27 GPU-h
+cap 30. **(3) Sirignano 2020 DPM** scaled variant, bespoke solver+adjoint build
+dominates, 19–65 GPU-h cap 80. **(4) Bae 2022** NOT a GPU item (paper's own
+O(1e3) CPU-h figure, ~$51 CPU) — recommend no GPU launch. **(5) Lozano-Durán
+2023** BLOCKED at the ~500-DNS database + proprietary charLES; as-published
+~900–1,700 L4 GPU-h — recommend no launch. Drafts 2–5 in
+`docs/closure/gpu_prereg_drafts/`. **No instance exists, none was created, no
+AWS call was made; every dollar figure is agent recall marked "estimate — needs
+console confirmation"; GPU spend is outside the CPU blanket (rule 12): per-item
+sign-off by Sanaa with a console-read `cost_basis`.**
 
-**Live jobs (R4 BUILD lane): one, and it is UNGRADED.**
-`AR_10_Ret_180/discovered_ronly` — the `b^Delta`-off diagnostic arm — under
-driver pid `875716`, cwd
-`/home/ubuntu/closure-data/r4/aposteriori/AR_10_Ret_180/discovered_ronly`,
-~13,600 of its 20,000 `endTime` cap, **ETA ~20 min, ~0.13 core-h**. It is
-**REPORTED-NOT-GRADED**: no gate, verdict or number in the R4 record depends on
-it, and it is bounded, checkpointed and resumable. Every other R4 run — 27
-frozen extractions, 5 convergence diagnostics, 59 of 60 propagations — is
-finished. **R4 has released the cores; thermal priority restored.**
+**Live jobs: none.** The R4 BUILD lane's last diagnostic
+(`AR_10_Ret_180/discovered_ronly`) finished — `rc=0`, `End` line, last time dir
+7500 — and remains **REPORTED-NOT-GRADED** exactly as the closed R4 ladder ruled
+(no gate, verdict or number depends on it). Box load is the T-family's.
 
-**R4 compute, final:** **9.203 core-h / $0.472** — 0.244 frozen extraction and
-convergence diagnostics, 0.524 FS3 (run twice, departure D-6), 8.435
-propagation, each measured from its own recorded `wall_seconds` x 1 rank.
-Against the preregistration's **12–20 core-h** estimate and **40 core-h** cap:
-**46 % of the upper estimate, 23 % of the cap.** Bulk field data is not
-committed; its paths are listed in `RESULTS.md` §10.
+**Rungs lacking verdicts:** unchanged from 2026-08-22 except R5C (now CLOSED,
+above): **R5** no verdict artefact; **R6** NOT DONE, BLOCKED on Sanaa's
+internal-scoring phrasing; **FS6** NOT DONE. R4 CLOSED GATE FAIL (D461). FS2/FS5
+standing gates. Case verdicts on record unchanged, plus **R5C: GATE FAIL**.
 
-**The `ktest*` probes at `/home/ubuntu/closure-data/r4/` — mechanical reading,
-and the R4 lane's ruling, which is the one that governs.** The board's earlier
-line (*"`ktestA` wrote `rc=0` with no time directory beyond `0/` — VERIFY"*) was
-a 17:49Z reading and is superseded: `ktestA` finished writing `20000/` at
-17:51:02Z.
+**Commits this session** (closure, newest first): `9e82321b` GPU plan + five
+drafts; `0ac76ec2` R5C commit 3 (verdict, comparator, grading JSON, D465,
+L-243, N-B35–37). Before them: `23b9d7ba` (R5C step 2, solver copy), `f364cf2d`
+(R5C prereg frozen alone). Both supervisor commits used the private-index
+protocol; the second's CAS correctly absorbed heat-transfer's intervening
+`cdb5cc0b` (D466/L-244 — id sequences interleaved cleanly).
 
-| check | `ktestA` | `ktestB` |
-|---|---|---|
-| `rc` | `0` | `0` |
-| `End` line in `log.frozen` | yes, after `ExecutionTime = 111.81 s` | yes, after `ExecutionTime = 34.41 s` |
-| last time dir / `endTime` in `system/controlDict` | `20000` / `20000` — **equal** | `5000` / `5000` — **equal** |
-| every field at `endTime` newer than `0/` | **yes**: `0/` 17:49:14Z, all nine `20000/` fields 17:51:02Z | **yes**: `0/` 17:49:14Z, all nine `5000/` fields 17:49:43Z |
-| fields at `endTime` | `U bijData bijDelta k kDeficit nut omega phi tauij` + `uniform/` | the same nine + `uniform/` |
-| `ExecutionTime` count == `endTime` | **no — 1 line against 20000.** `kCorrectiveFrozenFoam` writes one `ExecutionTime` and no `Time = ` lines at all; that clause is a T-family log-format criterion and does not transfer as written | **no — 1 against 5000**, same reason |
-| **the decisive line in the log** | `log.frozen:40480` — **`NOT CONVERGED: backstop cap reached at iteration 20000`** | `log.frozen:10180` — **`NOT CONVERGED: backstop cap reached at iteration 5000`** |
+**On Sanaa's desk (closure):** the five GPU drafts (§ above — signing any is
+hers; the plan's recommendation, marked as one: Ling first, none of 4–5);
+R5/A′ direction after R5C's GATE FAIL (`R5_DECISION_MEMO.md` options stand —
+option C is now measured: repair works, criterion does not); R6 phrasing
+(standing). **Blocked:** R6 (Sanaa), Kaandorp `AR_3_Ret_360__ML0/1/2` (missing
+case in `features_nodurbin.npz`), Xiao2016_EnKF (forward model), Kaandorp
+Table 4 (no BFS5100 on disk), Lozano-Durán 2023 training reproduction (data +
+charLES).
 
-**The R4 lane owns these and has ruled on them** (`R4_sparta_build/RESULTS.md`
-§1): all five probes (`ktest`, `ktest2`, `ktest3`, `ktestA`, `ktestB`) are **that
-lane's own convergence diagnostics, not target extractions**; `ktestA` and
-`ktestB` are **INCOMPLETE as frozen extractions** on the `NOT CONVERGED` line
-despite satisfying every mechanical clause, and **neither feeds any number in
-that file**. They are *measurements of non-convergence, which is what they were
-run to be.* Nothing on this board treats them as results.
+**⚠ Standing hazard unchanged:** the shared index is stale — `git status` shows
+phantom `D` rows for committed R5C files (L-223 shape, read from the other
+side). **Read tracked status with `git ls-tree -r HEAD <dir>`, never
+`git ls-files`; inspect, never revert; the index is chief's call.**
 
-**Rungs lacking verdicts:**
-
-| rung | state |
-|---|---|
-| **R4** (SpaRTA build) | **CLOSED — VERDICT: GATE FAIL**, docketed **D461**. Both registered halves fired: a-priori **2 of 4** families against a bar of 3, and **all 12 symbolic propagations DIVERGED** (5–18 iterations, FPE in `kOmegaSSTSparta::updateCorrections`, `Ubar` to 5.7e+69). **The registered NOT A RESULT branch did NOT fire** — the per-case frozen-field ceiling beats NULL by **60.2 %** on `CBFS13700` and **99.6 %** on `PHLL10595`, lands `CBFS13700` at **0.3975** against W2's independent **0.39753**, recovers the duct secondary vortex to 0.4–0.6 % of DNS where a linear EVM gives exactly zero, and reattachment to 0.9–3.4 % of the LES. **The harness carries the truth; the model does not** — the first lane in this programme where the failure has that shape. Records: `RESULTS.md` (10 sections, 13 dated departures), `MODEL.md`, **L-235–L-238**, **N-B26–N-B34** |
-| **R5** (round-5 diagnostics as build constraints) | **no verdict artefact.** Partly discharged by the FS2/FS5 report; the R4 prereg does not cite R5 by name |
-| **R5C** (omega-source repair, option C) | **LIVE, verdict PENDING.** Own frozen pre-registration `cases/RANS_LES_closure_models/R5C_omega_repair/PREREGISTRATION.md`, sha256 `a1cfae5a…1277a`, committed ALONE at `f364cf2d` before any repair code ran. Repaired operator built as a COPY (`kOmegaSSTFrozenV2`, `kCorrectiveFrozenFoamV2`, `libspartaFrozenV2.so`); R4's binaries untouched. All 27 re-extractions run, `rc = 0` on 27 of 27. Gates G0–G4 registered with thresholds; verdict at commit 3 |
-| **R6** (surfaces updated) | **NOT DONE.** "leaderboard" still appears in `web/closure.html` and `web/benchmarks.html`; **BLOCKED** on Sanaa approving the internal-scoring phrasing (doctrine open action 4) |
-| **FS3** (selection methods) | **DONE**, and the final reading is `artefacts/fs3.json` at commit (b). *(The board's 18:22Z observation was correct: `RESULTS.md` §0 had been written forward-looking, and it was rewritten to state only what is true at the commit carrying it. The pid live then produced a **withdrawn** fit; see D-6.)* All three registered methods ran at three seeds. **They disagree** — permutation importance is near-orthogonal to mutual information on three of four fits and anti-correlated on two, which §3 registers in advance as a finding. Planted-zero control **PASS** on both propagated term sets, **GATE FAIL** on `R`/T1–T4 |
-| **FS4** (joint iteration, features frozen before scoring) | **DONE.** `MODEL.md` and `MODEL.json` exist and are committed at stage (b) — the board's VERIFY at 18:23Z was right that neither existed at `b36daf06`, and `RESULTS.md` §0 no longer cites an artefact before it is on disk. `R = 2k[1.261646 − 42.82548 I1 − 31.54762 I2 + 14.28260 I2²](T1:A)`, `b^Δ = −7.550380 T2 − 16.07578 I2 T2 + 5.039083 T3`; identical at seeds 0/1/2; IC1 solver-vs-Python agreement **3.97e−12** |
-| **FS6** (comparative feature document) | **NOT DONE.** No artefact exists |
-
-R1 closed (charter §22.1–22.5). R2 delivered (`R2_SHORTLIST_MEMO.md`; ranking
-inverts the doctrine's order — SpaRTA, FIML-C, TBNN). R3 decided by Sanaa.
-**FS1 done** (110 features, 40 cases, 641,652 cells). **FS2 and FS5 are STANDING
-GATES** — permanently re-armed, never closed.
-
-**Case verdicts on record:** Wu2018 a-priori **PASS** (7/8, loses `NASA_2DWMH`);
-Wu2018 aposteriori and aposteriori_frozenk both **NOT A RESULT** (ceiling gate
-failed, registered falsifier fired); Ling2016 **GATE REACHED** *(note:
-`docs/closure/README.md` §3 still lists it PENDING — a known, flagged
-disagreement)*; Kaandorp2020 **GATE FAIL** on all three preregistered claims,
-Table 4 **BLOCKED**; Schmelzer2020_SpaRTA **PASS**; Xiao2016_EnKF **BLOCKED** at
-the forward model; NASA_hump_gate **PASS** on the registered branch (B-G0a
-BLOCKED, B-G0b PASS).
-
-Two additions from tonight, neither moving a verdict:
-
-- **`CBFS13700` LES `x_reatt`: the number of record is 4.241**, from the registered
-  instrument `_common/sst_baseline_metrics.py::hill_wall_metrics` (linearly
-  interpolated crossing, 4.240983). **4.170** (4.169625) is the *same*
-  reattachment read at cell-centre resolution — the last still-reversed cell in
-  row `j = 0` — low by **0.435 of one cell** (cell width 0.163947 there). Not a
-  disagreement: two read-off criteria. `Wu2018_PIML_RF/aposteriori_frozenk/
-  RESULTS.md` §4 is internally consistent because all four of its figures
-  (`L_ml` 3.022, `L_null` 3.350, LES 4.170, `L_truth` 9.088) are row-`0` cell
-  centres, so its `NOT A RESULT` verdict and fired falsifier stand untouched.
-  **4.170 must not be differenced against 4.241, 4.384 (Kaandorp `TRUTH+R`) or
-  5.891 (SST) without conversion** — those three are interpolated crossings.
-  Full text: that file's `## RECONCILIATION` section. The `R2_SHORTLIST_MEMO.md`
-  line carrying 4.170 was annotated at `074f60da`; the memo's ordering and its
-  16 %/137 % comparison are unaffected.
-- **Kaandorp2020 outstanding rows: 3 BLOCKED, 6 PENDING** (dated NOTE in
-  `Kaandorp2020_TBRF/aposteriori/RESULTS.md`; §1–§10 and the 2026-08-21 addendum
-  untouched, no verdict moved). Zero of the nine qualifies under the strict
-  completion rule — **none of the nine has a case directory anywhere on this
-  host**, and `results.json` still holds the same 10 runs. `AR_3_Ret_360__ML0/1/2`
-  are **BLOCKED** on a missing input: `/home/ubuntu/closure-data/kaandorp_tbrf/
-  features_nodurbin.npz` carries 27 cases and `AR_3_Ret_360` is not one of them,
-  which killed the detached driver four times with `ValueError: 'AR_3_Ret_360' is
-  not in list`. The six `CBFS13700` rows (`NULL TRUTH MEANB ML0 ML1 ML2`) are
-  **PENDING** only because they sit after the blocked row and the exception
-  aborted the loop; every input they need is present. `run_lane.py` now raises a
-  named `RowBlocked` and records `status: "BLOCKED"` in `results.json` instead of
-  taking the loop down — **repaired, `py_compile` clean, NOT RUN.**
-
-**Commits tonight** (closure lane, newest first):
-
-| sha | one line |
-|---|---|
-| `b36daf06` | **R4 stage (a):** `RESULTS.md` opened, `PREREGISTRATION.md` re-committed against its frozen sha256, three `artefacts/*.json` manifests and the nine build/selection/scoring scripts. **This is where `R4_sparta_build/` became tracked — 14 files.** No R4 verdict |
-| `fd3aa735` | `Kaandorp2020_TBRF/train_log.json` committed — the file three records called nonexistent was merely untracked; five records gain a dated correction. **Also corrects `074f60da`'s and L-225's overstatement that "the whole `Kaandorp2020_TBRF/` directory is untracked": 19 files there were already tracked, and `train_log.json` was the only untracked non-`__pycache__` file at any depth.** No number changed |
-| `074f60da` | Follow-up, read-only: the `R2_SHORTLIST_MEMO.md` 4.170 line annotated; the "3.24" pointer found **on disk but untracked** (`basis_rank_mean = 3.2374`) and both records re-sourced with the *statistic* named (3.24 pooled-sample vs 3.738 case-mean); the nine Kaandorp rows costed and graded **3 BLOCKED / 6 PENDING**, $0.226 for all nine. Nothing launched |
-| `5162ec8e` | The libs lesson as law (`docs/closure/LIBS_ASSERT_SWEEP.md`): 92 mentions, 75 writes, **8 library-load call sites — 3 already asserted, 4 newly asserted, 1 superseded by a concurrent lane's helper, 67 template lines n-a**. `frozen_R.py:69` was carrying the **live** defect. L-222, L-223, D448. Zero compute |
-| `c46309f5` | `CLOSURE_MODELLING_CHARTER.md` **v1.1.1 → v1.1.2**: §22.4 gains the bands-vs-corrections caveat **verbatim** from L-220/D446, four additive requirements, no clause widened or narrowed. *(This is the commit whose tree came from a stale `read-tree` — see `a5126378`.)* |
-| `a5126378` | Content-only restore of the **nine** `eda10f39` files that `c46309f5` silently reverted; every blob byte-identical, no number changed. The charter lane's two files left standing |
-| `eda10f39` | Closure reconcile: nine uncommitted closure edits closed out (`make_feature_library.py` regenerates `FEATURE_LIBRARY.md` byte-identically; `setup_case.py` L-221 pattern; four `LESSONS_DRAFT.md` banners; two `RESULTS.md` sweeps) and the **4.170 / 4.241 split ruled a read-off criterion, not a disagreement** |
-
-**Next actions:** none owned by the R4 build lane — it is closed, and so is
-the D369 write-back defect (D463, L-240): `scripts/append_record.py` merges
-rather than overwrites and **refuses** when the worktree disagrees inside HEAD's
-own bytes, and `scripts/check_record_reconciliation.py` covers `LESSONS.md` and
-`NUMERICS_KNOWLEDGE.md`. **§8.5 still documents the overwrite form and should be
-pointed at the helper** — that edit is the guide owner's, not this lane's. The
-R4 lane's two amendment candidates remain for the **next** preregistration and
-are deliberately not in the frozen file: §6 registers **no threshold on
-realisability**, and the continuity gate's `1e-4` is **dimensional**.
-**The R4 boundary report and the decision memo are landed**:
-`cases/RANS_LES_closure_models/R4_sparta_build/RESULTS.md` **§11** (the claim
-half of the boundary — what R4 established, what it did not, and the five
-clauses of the frozen closing sec. 9 graded, including the measured correction
-to sec. 2.1's premise: the exact duct degeneracy is a property of the baseline
-RANS field and is **absent** on the frozen field the regression fits, rank
-**3.000 → 3.965**, which does not move the registered exclusion but falsifies
-its stated justification), and **`docs/closure/R5_DECISION_MEMO.md`** — four
-costed options for Sanaa. Zero compute; nothing submitted, uploaded, filed or
-registered.
-
-**On Sanaa's desk:** R6's internal-scoring phrasing (doctrine open action 4).
-**And now R4's:** the SpaRTA-class build ladder has returned a **GATE FAIL with
-a working ceiling**, which is a decision point rather than a retry — whether to
-re-preregister the `b^Delta` amplitude control (a realisability constraint, or
-the paper's `xi`, as a *registered* part of the model rather than an ungraded
-diagnostic), or to re-open R2's ranking. **The options are now written up,
-costed from R4's own measured rates, in `docs/closure/R5_DECISION_MEMO.md`** —
-(A) `b^Delta` amplitude control **3.63 core-h / $0.186**; (A′) the same control
-on the **pair** **5.37 core-h / $0.275**; (B1) FIML-C **0.61 core-h pilot**,
-**621.6 core-h** at full build, above Charter §18's 487; (B2) TBNN + `R` head
-**20.90 core-h / $1.072** plus an unestimated head; (C) fix the `omega` source
-and complete the 15 hills **0.184 core-h / $0.009**; (D) bank the harness result
-**0 core-h**. The memo carries a **recommendation** (C then A′), marked as one.
-**The choice is hers, re-opening R2 is a re-opening of R3 (Charter §22.7), and
-the Repo 2 release and the zero-shot scoring call remain hers alone; this lane
-ran neither and prepared no submission.**
-
-**Blocked:** R6, on Sanaa's internal-scoring phrasing. Kaandorp
-`AR_3_Ret_360__ML0/1/2`, on the missing `AR_3_Ret_360` case in
-`features_nodurbin.npz`. Xiao2016_EnKF, at the forward model. Kaandorp Table 4
-(BFS5100), no such case on disk.
-
-**⚠ Standing hazard in this tree — RE-READ 18:23Z, and it has cleared.** All four
-paths the board listed as *staged deleted while existing untracked* (residue of
-the `c46309f5` → `a5126378` stale-base episode, L-223) are **tracked and present
-at HEAD**: `NASA_hump_gate/` **4** files, `_common/uq_eigenspace/` **4**,
-`docs/closure/HUMP_BASELINE_EQUIVALENCE_NOTE.md` **1**,
-`docs/closure/LIBS_ASSERT_SWEEP.md` **1**. `R4_sparta_build/` — the one remaining
-exposure as of 18:19Z — became tracked at `b36daf06`: **14 files at HEAD**
-(`PREREGISTRATION.md`, `RESULTS.md`, three `artefacts/*.json`, nine scripts).
-
-**Read tracked status with `git ls-tree -r HEAD <dir>`, not `git ls-files`.** The
-shared index is stale, so at 18:23Z `git ls-files R4_sparta_build \| wc -l`
-returns **0** and `git status` shows fourteen phantom `D ` rows plus a `??` on
-the directory — for files that are committed and on disk. `git ls-tree HEAD`
-returns 14. Same trap as L-223, read from the other side. A blind `git checkout`,
-`reset --hard`, `stash` or `clean` still destroys the R4 lane's live working
-files; inspect, never revert.
-
-**Compute:** 487 core-hours pre-authorised (charter §18). Above it, stop and cost
-it. R4's own cap is 40 core-h against a 12–20 core-h estimate, 0.244 core-h spent.
-Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
-(~1.1 cores observed) ≈ **9.1 cores** ≈ **$0.47/h** at $0.0513/core-h —
-**reported-by-owner rate, not measured.**
-
+**Compute:** 487 core-h pre-authorised (charter §18). This session's closure
+spend: **$0 new solver compute** — R5C's runs were the killed lane's (≤$0.0086
+total, under its cap); grading and drafting were zero-solve. Nothing live under
+this team.
 ## dafoam
 
 **Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
