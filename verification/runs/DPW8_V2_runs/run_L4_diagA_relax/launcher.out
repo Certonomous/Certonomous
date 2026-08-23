@@ -1,0 +1,5 @@
+[launcher] sourcing /usr/lib/openfoam/openfoam2606/etc/bashrc
+[launcher] simpleFoam resolves to: /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam
+[launcher] checkMesh
+[launcher] simpleFoam starting, cap 4450s
+[launcher] simpleFoam exited rc=136

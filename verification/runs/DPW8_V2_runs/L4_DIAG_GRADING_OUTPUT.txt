@@ -1,0 +1,53 @@
+==============================================================================
+POSITIVE CONTROL BLOCK (pre-registration section 5) -- standing rule 3
+A zero from a reader not shown able to see a non-zero is not evidence.
+==============================================================================
+C1  archived diverged L4 log  md5 OK
+    bounding k events found: 2 -> [(262, 2448938.729), (264, 2432568.241)]
+    C1 PASS -- reader demonstrably sees the known non-zero signature
+C2  healthy L3 log  md5 OK
+    bounding k events found: 0
+    C2 PASS -- this zero is admissible ONLY because C1 above returned 2 from the same function in this same invocation
+C3  archived diverged L4 coefficient.dat  md5 OK
+    header-identified column indices: {'Time': 0, 'Cd': 1, 'Cl': 4}
+    iter 201: Cd=-563.6550 Cl=-396.5607  (expected -563.6550 / -396.5607)
+    iter 401: Cd=-332.8891 Cl=-8.8679  (expected -332.8891 / -8.8679)
+    max|Cd| 100-600 = 779.795 at iter 105 (expected 779.795 at 105)
+    max|Cd| 300-600 = 431.226 (expected 431.226)
+    C3 PASS
+C4  avg y+ at Time 600: diverged L4 = 122.159 (expected 122.159), healthy L3 = 3.32571 (expected 3.3257)
+    C4 PASS
+
+==============================================================================
+ARM: run_L4_diagA_relax
+==============================================================================
+    completion clauses: rc_zero=False, End_line=False, last_time_is_endTime=False, ExecutionTime_count=False, time_dir_present=False, fields_present=False, age_guard=False
+  -> BLOCKED (pre-registration section 6: run did not complete). Not graded. A crash is a finding and goes to the supervisor for triage.
+==============================================================================
+ARM: run_L4_diagB_scheme
+==============================================================================
+    completion clauses: rc_zero=True, End_line=True, last_time_is_endTime=True, ExecutionTime_count=True, time_dir_present=True, fields_present=True, age_guard=True
+    age-guard margins vs 0/U (s): {'U': 1142.6, 'p': 1142.7, 'k': 1142.6, 'omega': 1142.7, 'nut': 1142.6}
+C5  arm's own max|Cd| (17520.5) exceeds the nominal plant; plant raised to -175205 per section 5
+C5  planted Cd = -175205 at iteration 350 (line index 362) into a scratch copy of run_L4_diagB_scheme's own file
+    read back: max|Cd| (100, 600) = 175205, max|Cd| (300, 600) = 175205, expected 175205 for both
+    C5 PASS -- reader demonstrably reads THIS arm's file
+    arm's real file unmodified (md5 5478d26600e67ec73c8d6d0d58845657 before and after)
+  B1  bounding k after iter 50: 1 (total in log: 1) -> FAIL
+      all events: [(136, 40040962.66)]
+  B2  max|Cd| 100-600 = 17520.5 at iter 105 (threshold < 30.0) -> FAIL
+  B3  max|Cd| 300-600 = 5359.82 at iter 303 (threshold < 5.0) -> FAIL
+  B4  avg y+ at Time 600 = 189.906 (threshold < 20.0) -> FAIL
+  -> NOT BOUNDED   (B1=False B2=False B3=False B4=False)
+      NOTE: BOUNDED / NOT BOUNDED are stability-indicator outcome labels,
+      NOT gate verdicts. L4 remains NOT GATED. No CL/Cd/Cp claim follows.
+      context (not a physics result): Cd(600)=-2107.3293884, Cl(600)=-1439.2329263
+
+==============================================================================
+DIAGNOSIS -- pre-registration section 7 outcome map
+==============================================================================
+  Arm A (relaxation only)      : BLOCKED
+  Arm B (momentum scheme only) : NOT BOUNDED
+  -> PENDING on the BLOCKED arm. A single BOUNDED arm plus a BLOCKED arm
+     licenses only that that one lever is sufficient; nothing about the other.
+OUTCOME_MAP_CELL: PENDING
