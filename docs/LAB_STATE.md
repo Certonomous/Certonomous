@@ -96,7 +96,7 @@ rung may take it).
 **Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched
 ## closure
 
-**Section last written:** 2026-08-23T20:20Z by closure-supervisor.
+**Section last written:** 2026-08-23T19:35Z by closure-supervisor.
 
 **R5C (option C, omega-source repair) — CLOSED, VERDICT: GATE FAIL. D465, L-243,
 N-B35–N-B37, commit `0ac76ec2`.** Graded against the frozen pre-registration
@@ -145,83 +145,41 @@ AWS call was made; every dollar figure is agent recall marked "estimate — need
 console confirmation"; GPU spend is outside the CPU blanket (rule 12): per-item
 sign-off by Sanaa with a console-read `cost_basis`.**
 
-**Live jobs: one solver + three lanes (at cap).** Kaandorp a-posteriori driver
-pid `1111229`, detached (`setsid`), cwd builds under
-`/home/ubuntu/closure-data/aposteriori/kaandorp/` (NOTE: driver logs and
-`results.json` live THERE, not in `kaandorp_tbrf/`, which holds
-features/checkpoints), log `lane5.log`, one serial core, hard-bounded 3600 s per
-solve. Launched 19:37:37Z after the lane re-hashed `PREREGISTRATION.md` and the
-repaired `run_lane.py` against HEAD blobs — completing the six `CBFS13700`
-PENDING rows of the registered table (~3.3 core-h ≈ $0.17 planning, ≤$0.31
-bound). Landed so far: `CBFS13700__NULL` rc=0 at 884 it / 69.3 s (`U_rms`
-0.05155 vs registered SST gate 0.0516); the three `AR_3_Ret_360__ML*` rows
-recorded **BLOCKED** with reason+traceback and NO metrics — the `074f60da`
-repair worked live (diff read by the supervisor before launch). Grading lane
-re-armed with a durable background monitor (its first watcher died with its
-turn — the L-186-adjacent dead-watcher tell). The `AR_10_Ret_180` diagnostic
-stays REPORTED-NOT-GRADED as the closed R4 ladder ruled.
+**Live jobs: none.** The R4 BUILD lane's last diagnostic
+(`AR_10_Ret_180/discovered_ronly`) finished — `rc=0`, `End` line, last time dir
+7500 — and remains **REPORTED-NOT-GRADED** exactly as the closed R4 ladder ruled
+(no gate, verdict or number depends on it). Box load is the T-family's.
 
-**Rungs, updated this session:** **FS6 DONE** — commit `9fb0891f`,
-`docs/closure/FS6_COMPARATIVE_FEATURE_DOCUMENT.md`, 34 of 35 corpus papers
-mined (Gatski 1996 excluded: scanned, no text layer), every title page
-re-verified (rule 15). **R5 discharged as a record** — commit `3a4f4bbb`,
-`docs/closure/R5_CONSTRAINTS_DISCHARGE_RECORD.md`: no verdict issued (R5 had no
-pre-registered gate); constraint 1 partly discharged, 2 partly discharged (FS5
-stays armed), 3 discharged-as-measurement. **R6** NOT DONE, BLOCKED on Sanaa's
-phrasing. R4 CLOSED GATE FAIL (D461); R5C CLOSED GATE FAIL (above). FS2/FS5
-standing gates. Case verdicts on record unchanged.
+**Rungs lacking verdicts:** unchanged from 2026-08-22 except R5C (now CLOSED,
+above): **R5** no verdict artefact; **R6** NOT DONE, BLOCKED on Sanaa's
+internal-scoring phrasing; **FS6** NOT DONE. R4 CLOSED GATE FAIL (D461). FS2/FS5
+standing gates. Case verdicts on record unchanged, plus **R5C: GATE FAIL**.
 
-**Supervisor-verified findings from the two documents (both verified by my own
-reads/arithmetic before belief):** (1) **R4's §7 registered deliverable
-`COVERAGE.md` was never delivered and the non-delivery never disclosed** among
-D-1..D-13 — registered at `R4_sparta_build/PREREGISTRATION.md:199-201` with the
-`:252/:261` amendment, zero hits on disk/HEAD/RESULTS.md. My ruling: FS5's
-per-build discharge for R4 WAS NOT MET; late delivery + departure D-14 addendum
-dispatched to the incumbent lane (in progress). (2) **R4 RESULTS.md:679/:1128
-"0.4–0.6 % of DNS" is wrong for three of four duct rows** — recomputed from the
-record's own table: 0.6126/0.3878/0.3283/0.0899 %, error in the ceiling's
-favour, no verdict moves (G5 has no registered bar); correction rides the same
-addendum. (3) **`FEATURE_LIBRARY.md` source-column defects** —
-`q7_viscRatio`/`q11_turbReynolds` cited to Kaandorp Table 1 p. 25, which I read:
-nine features, neither present; only printed source is Ling & Templeton 2015,
-**PENDING-MIT, not on disk** — two of 110 features have no on-disk printed
-source; `q10` mis-attributed (Wang 2017 Table 1 is the origin, Kaandorp
-reprints); Wu 2018 cites one page early. Generator repair
-(`make_feature_library.py`, source columns ONLY) dispatched to the FS6 lane;
-regeneration diff to be read by the supervisor before belief. (4) `q1_wallRe`
-is clipped at 2 (`FEATURE_LIBRARY.md:174`; `fs2_audit.json` max=p99=p50=2.0), so
-the FS5 coverage instrument is blind to excursions on that column — R4
-unaffected (does not use it); docket row dispatched.
-
-**Commits this session** (closure, newest first): `9fb0891f` FS6 document;
-`3a4f4bbb` R5 discharge record; earlier `9e82321b` GPU plan + five drafts;
-`0ac76ec2` R5C commit 3 (verdict, comparator, grading JSON, D465, L-243,
-N-B35–37); `23b9d7ba`, `f364cf2d` before them. Pending from live lanes: R4
-addendum (D-14 + corrections) + late `COVERAGE.md` + docket/lessons rows;
-feature-library generator repair; Kaandorp addendum after the driver exits.
+**Commits this session** (closure, newest first): `9e82321b` GPU plan + five
+drafts; `0ac76ec2` R5C commit 3 (verdict, comparator, grading JSON, D465,
+L-243, N-B35–37). Before them: `23b9d7ba` (R5C step 2, solver copy), `f364cf2d`
+(R5C prereg frozen alone). Both supervisor commits used the private-index
+protocol; the second's CAS correctly absorbed heat-transfer's intervening
+`cdb5cc0b` (D466/L-244 — id sequences interleaved cleanly).
 
 **On Sanaa's desk (closure):** the five GPU drafts (§ above — signing any is
 hers; the plan's recommendation, marked as one: Ling first, none of 4–5);
 R5/A′ direction after R5C's GATE FAIL (`R5_DECISION_MEMO.md` options stand —
 option C is now measured: repair works, criterion does not); R6 phrasing
-(standing); **NEW: Ling & Templeton 2015 acquisition** (PENDING-MIT — the
-un-owned origin of the scalar-marker feature bloodline; two FS1 features cite
-it as their only printed source). **Blocked:** R6 (Sanaa), Kaandorp
-`AR_3_Ret_360__ML0/1/2` (missing case in `features_nodurbin.npz`; re-recorded
-BLOCKED in `results.json` this pass with tracebacks, no metrics), Xiao2016_EnKF
-(forward model), Kaandorp Table 4 (no BFS5100 on disk), Lozano-Durán 2023
-training reproduction (data + charLES).
+(standing). **Blocked:** R6 (Sanaa), Kaandorp `AR_3_Ret_360__ML0/1/2` (missing
+case in `features_nodurbin.npz`), Xiao2016_EnKF (forward model), Kaandorp
+Table 4 (no BFS5100 on disk), Lozano-Durán 2023 training reproduction (data +
+charLES).
 
 **⚠ Standing hazard unchanged:** the shared index is stale — `git status` shows
 phantom `D` rows for committed R5C files (L-223 shape, read from the other
 side). **Read tracked status with `git ls-tree -r HEAD <dir>`, never
 `git ls-files`; inspect, never revert; the index is chief's call.**
 
-**Compute:** 487 core-h pre-authorised (charter §18). Live under this team: the
-Kaandorp driver, one serial core (~$0.05/h at the reported-by-owner
-$0.0513/core-h rate), planning ~3.3 core-h ≈ $0.17 for the six rows, hard bound
-≤$0.31 (3600 s/solve timeout), inside the lane's standing 15 core-h cap. All
-other lane work this session is zero-solve (documents, records, grading).
+**Compute:** 487 core-h pre-authorised (charter §18). This session's closure
+spend: **$0 new solver compute** — R5C's runs were the killed lane's (≤$0.0086
+total, under its cap); grading and drafting were zero-solve. Nothing live under
+this team.
 ## dafoam
 
 **Section last written:** 2026-08-23T19:35Z by dafoam-supervisor.
@@ -409,9 +367,7 @@ single rung may take it.
 
 **Last commit:** see this section's git history — this supervisor's session of 2026-08-23 commits the MESH_STANDARD cross-ref fix + this board rewrite; two lanes commit their own records (GEN_ALT campaign record; DPW8_V2 L4 diagnosis prereg). Before that the team's last commit was `cc4f1a64` (2026-08-18), five days idle.
 
-**Live jobs:** DPW8_V2 L4 diagnosis arms — **CORRECTION (~20:2xZ): the earlier "launching now" line was wrong.** The first launch authorization was mis-addressed to the GEN_ALT write-up lane, which correctly REFUSED under rule 9 (it never held the frozen plan) — supervisor's routing error, on the record. Authorization re-sent to the authoring lane of `99f939ee` with the frozen specifics restated verbatim; arms `run_L4_diagA_relax` (relaxation only) and `run_L4_diagB_scheme` (div(phi,U) linearUpwind→upwind only) are launching under that lane now, single core each, endTime 600, cap 75 core-min/arm; pids recorded here on its confirmation. Prereg frozen `99f939ee` (295 lines, blob sha256-verified vs disk by supervisor; personal check #4 done; Arm B re-specification ruled APPROVED after supervisor's own read of `run_L4_gate/system/fvSchemes` showed k/omega convection already upwind). Grading reader must be committed and its diff read by supervisor before any output is believed. Do not touch the 4 heat-transfer `buoyantBoussinesqSimpleFoam` solvers or closure's `simpleFoam` pid 1114301.
-
-**Incident, owned by cfd:** commit `070da305` reverted heat-transfer's committed 19:45Z board section (33 lines) because the shared working tree was behind HEAD on their section — the `d97ed4c9`/`6ae77c79` disease, second occurrence in one day. Caught by this supervisor's post-commit diff inspection; repaired verbatim at `40984dac`, byte-verified. Standing guard now applied here: before committing this shared file, diff its foreign sections against HEAD and restore any the tree lags on.
+**Live jobs:** no solvers owned by cfd. Two lab-lanes dispatched 2026-08-23 (~19:45Z): (1) GEN_ALT campaign write-up, zero compute; (2) DPW8_V2 L4 divergence-diagnosis pre-registration — **freeze-then-STOP; launch only after supervisor verifies the freeze commit** (personal check #4). Diag budget when launched: 2 arms × ~30 core-min ≈ $0.05, cap 150 core-min. Do not touch the 4 heat-transfer `buoyantBoussinesqSimpleFoam` solvers.
 
 **Resolved this session (2026-08-23, supervisor's own reads):**
 - **W2 VERIFY closed.** `W2_sparta_runs/setup_sparta_case.sh` mtime 2026-08-22 17:38 = the closure team's H-7 libs-institutionalization lane; committed 17:48 in `5162ec8e`; disk is byte-identical to HEAD (the `MM` was the stale shared index). Diff read personally: adds only an L-221 `grep -q libspartaTurbulenceModels` assert that refuses on a missing libs entry. Benign; W2_sparta stays closed.

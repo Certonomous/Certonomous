@@ -134,3 +134,73 @@ lever-activity clause done properly. Target closed.
   every surface that cites the rung, per §9's `ran_before_found`.
 
 **Cost of this pass:** zero core-minutes of solver compute; reads and diffs only.
+
+---
+
+## Audit pass 3 — 2026-08-23, verification-supervisor (same session): the freeze instrument re-run, and the two §3 personal checks it demanded
+
+A lane re-ran `scripts/check_comparator_freeze.py` over the current corpus:
+**19 comparators in scope (vs the §2d.1 baseline's 6); 7 FROZEN, 8 UNFROZEN,
+4 AMENDED_AFTER; selftest passes.** Of the baseline six, five classify exactly
+as the charter recorded; **K0cR flipped FROZEN → AMENDED_AFTER** because a
+second commit (`6d58d898`) exists that the baseline pass predated. The two
+findings below were checked by the supervisor personally, as diffs — not
+relayed.
+
+### 7. K0cR's post-marker comparator edit — READ AS A DIFF: display-only, disclosed, CLOSES CLEAN
+
+`git show 6d58d898 -- …/analyse_k0cr.py`: the whole change is the condition on
+the printed `"<- hollow pass, 2c"` annotation in the results table. Before, the
+label fired on `pass_carries_evidence == False`, which is false both for a
+hollow pass AND for a row SSG simply failed — so 20 of 26 plain failures were
+labelled hollow passes. After, it fires only on `in_band_ssg AND
+in_band_control`, the correct definition. No band, reference, row definition,
+verdict rule, tally or JSON field is touched; the edit is a §6 label repair at
+the source, in the honest direction (it removed overstated §2c hollowness).
+`K0cR_RESULTS.md` §6 disclosed it the day it was made: *"On the grading path:
+nothing. The change is one printed annotation."* The AMENDED_AFTER
+classification is technically correct and carries no violation.
+
+### 8. `analyse_t9aD` UNFROZEN — the classification is right on the commit test and the rung is still sound
+
+The instrument is right that the comparator's only commit (`06410acd`,
+18:21:01Z) postdates the tree's markers (18:02:17Z). The record already holds
+what the instrument cannot see: a **checked, not asserted** freeze condition
+(comparator sha'd `2d4ebb49…` at 17:58:41.441Z beside a
+zero-`D_*`-dirs `find`, pasted verbatim; first solver +197.9 s later), and a
+disclosed post-marker repair — the comparator REFUSED twice because a 1e-8
+*relative* tolerance was applied to constants *printed to six and five
+decimals* (rel 1.96e-08 = the rounding of the printed decimal). Repaired to
+half-a-unit-in-last-place; the full diff of frozen-vs-ran is reproduced in the
+run tree. 2d.1 audit: (1) demonstrable error — pure arithmetic; (2) found by
+the comparator's own refusal, an instrument that grades nothing; (3) disclosed
+and quantified; (4) pre-repair refusals quoted. **All four conditions hold.**
+
+### 9. The instrument itself now owes three repairs (docketed this session)
+
+1. **Unit-of-analysis defect, false positives:** `earliest_marker(tree)` pools
+   every marker in a directory against every comparator in it.
+   `T1_runs` pools 41 markers across ≥4 sub-campaigns; `analyse_t1b_L4.py` is
+   reported UNFROZEN by −175,109 s while against its own `R_*_x` cases it is
+   **FROZEN by +177,712 s** (proven by the lane; the false positive lands on
+   the comparator CLAUDE.md rule 5 cites as the Roache gating authority). Four
+   more pooled `T1_runs` UNFROZEN rows remain ungraded.
+2. **Population gap:** it walks only `verification/` — eleven graders under
+   `cases/` have zero freeze coverage, including R5C's `grade_r5c.py` (audited
+   by hand in pass 1), the TBNN/TBRF analysers and the R4 scorers.
+3. **It cannot see sha-witness freezes** (T9aD's kind) or marker files without
+   `finished_utc` (falls back to mtime against its own docstring's preference).
+
+**Verdict-cells reading, same lane:** current bare-`FAIL` count **3** (V5 line
+1070, V14 line 1080, V15 line 1081) vs the recorded 4 — corpus churn, not
+instrument change: V8's cell already reads charter-compliant `GATE FAIL` (D-5's
+remedy applied there), V10 left, V14 entered via a 2026-08-17 D338 amendment.
+Nothing edited; D-5 stays with Sanaa. **Instrument defect:** the D356 landing
+control is BROKE by a control/implementation mismatch where the implementation
+is the correct half (`_landed` takes the earliest add across spellings — the
+true landing; the control demands the latest — the move commit, exactly the
+re-dating `_history_spellings` prevents), the second landing control prints
+VACUOUS, and `--selftest` exits 1. The instrument's most subtle planted control
+currently provides no assurance. Docketed.
+
+**Cost:** zero solver core-minutes (lane: reads + checker executions only).
