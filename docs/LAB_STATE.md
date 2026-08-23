@@ -297,7 +297,7 @@ Older rows (A4 twin PASS `f9a59d47`, A2 per-component `79679a84`, A3 prereg chai
 **Images:** `dafoam-idwarp-rot:v1` (only image carrying the rotation patch, md5 `85f59e87…`), `dafoam-subpclu:v2` (PCLU), `dafoam-kspopts:v1`, `dafoam-team:v1` (`0b3c94c33a15`, both patches, ends `USER dafoamuser` → `--user root` for bind mounts). *The hash is the identity; the version string is not.* F6 series under `cases/dafoam/` is plain `simpleFoam`, not DAFoam work. **The stale shared index (577 staged deletions at 19:28Z) is the chief's call — inspect, never revert; all dafoam working-tree files verified identical to HEAD at 19:35Z.**
 ## heat-transfer
 
-**Section last written:** 2026-08-23T20:04Z by heat-transfer-supervisor
+**Section last written:** 2026-08-23T20:07Z by heat-transfer-supervisor
 (re-formed 2026-08-23 after the 2026-08-22 session limit).
 
 > **Timestamp correction, 2026-08-23 19:45Z, by the section's owner.** The
@@ -319,6 +319,21 @@ Older rows (A4 twin PASS `f9a59d47`, A2 per-component `79679a84`, A3 prereg chai
 > session holds:** T10a-R close, EXPERTISE_CURRICULUM, its board refreshes.
 > Neither session touches the other's items; next dispatches claim here
 > first.
+>
+> **Correction, 2026-08-23T20:07Z, by the section's owner.** `fe065ca6`'s commit message
+> and the first version of the directive block above claimed that commit
+> renumbered the duplicate expertise row to D471. It did not: the parallel
+> session had already repaired it to **D474** at `f3127b76` minutes
+> earlier, this session's guarded rename found no duplicate and correctly
+> did not run -- but a `;` in the invocation let the commit proceed anyway.
+> What `fe065ca6` actually changed in the docket is the landing of
+> **D471-D473**, three complete rows another session had written into the
+> shared worktree (+3 insertions, 0 deletions -- nothing overwritten).
+> Their author must NOT re-land them: verify content at HEAD and drop them
+> from any queue, exactly as this session did for D468-D470. Docket at
+> HEAD verified after: reconciliation PASS, no same-day duplicates (D8/
+> D19/D119/D167 are pre-existing legacy duplicates, on the record since
+> before `54f53bbb`, not touched).
 
 **NEW DIRECTIVE RECORDED (2026-08-23, via chief; written by the parallel
 team session at `450735c1`, merged here verbatim):** Sanaa: *"We can think
@@ -326,8 +341,8 @@ of many heat transfer advanced cases so the designated heat transfer team
 can run them and become even more of an expert."* Recorded in
 `docs/campaigns/T-family/EXPERTISE_CURRICULUM.md` (**PROPOSED -- awaiting
 her ratification; design only, NO compute launched under it; docket row
-renumbered **D471** in this commit, having landed as a duplicate `D468` in
-the collision**): twelve candidates E1-E12 ranked by DC-certificate
+**D474** -- it landed as a duplicate `D468` at `450735c1` and was repaired
+by its own author at `f3127b76` with a dated in-row correction**): twelve candidates E1-E12 ranked by DC-certificate
 leverage (H-6), tiered **behind the unchanged H-2 spine and H-5 order**
 with cumulative cost estimates ($86-227 + one uncosted capability build);
 pre-authorised-class vs NEEDS-COSTING marked per item; every validation
@@ -454,7 +469,7 @@ flight -> supervisor reads `analyse_t9aH.py` personally -> launch decision.
 6. F14 sweep DONE; owed follow-ups now docketed: D470's dated cost addendum
 to `K0cG_RESULTS.md`, D468's planted-perturbation arm if taken (own small
 prereg), D469's re-grade question (separate, separately pre-registered
-decision -- not taken unilaterally). 7. EXPERTISE_CURRICULUM (D471):
+decision -- not taken unilaterally). 7. EXPERTISE_CURRICULUM (D474):
 PROPOSED, awaiting Sanaa; nothing launched under it.
 
 **On Sanaa's desk** (carried, plus one new): Vogel & Eaton purchase
