@@ -9744,3 +9744,55 @@ producing step's own success) before `git hash-object`, and explicit `&&` chaini
 ## L-257. WebSearch `allowed_domains` is unreliably honoured — a domain-restricted search establishes nothing about the venue until every returned URL is read back in-domain, and the nonsense-token floor on GitLab-issue surfaces is a full page
 
 2026-08-23, dafoam team, from the D460 novelty-sweep completion audit (liaison addendum `73563d98`), verified by the supervisor with a controlled A/B before recording. The lane measured the violation twice: searches restricted to `develop.openfoam.com` and to `cfd-online.com` each returned ten `arxiv.org` PDFs. The supervisor then ran two searches minutes apart under the **identical** `allowed_domains: ["develop.openfoam.com"]`: the nonsense-token query (`zzzqqxnonsensetoken12345 solver issue`) returned **10/10 in-domain** — topically-plausible OpenFOAM GitLab issue links, extending L-234: the zero-floor on an issue-tracker surface is not 1 hit but a **full page of in-domain topical noise**; the real query (`GAMG convergence tolerance residual differs`) returned **10/10 `arxiv.org`** — the restriction wholly ignored. Same tool, same parameter, opposite behaviours, query-dependent, with both extremes measured. Binding consequences: (a) passing a domain to the filter is NOT searching that venue — every returned URL is verified against the intended venue before the search counts as a search of it; (b) an off-domain result set is a **no-op at that venue**, recorded in neither direction, never as a zero; (c) a venue zero counts only beside a same-session in-domain positive control on that venue; (d) any prior disposition in this lab resting on an unverified domain-restricted search is weaker than it reads and is re-audited before being cited. One asymmetric corollary: the A/B also proved WebSearch's index DOES reach `develop.openfoam.com` (ESI GitLab) even though direct fetch dies at a Cloudflare 403 — so that venue, recorded `BLOCKED` in the D460 sweep, admits a title-level search route, per-search in-domain-verified, with bodies still unreadable; weaker evidence than a read venue, honestly labelled, better than an unread one.
+
+## L-259. An adjudication that DELETES record bytes must first read every document that cites the artifact — not only the docket row that assigned the adjudication; and "recoverable from history" is weaker than "recoverable from HEAD" wherever a standing record points a reader at the path
+
+2026-08-23, heat-transfer, D477. The supervisor adjudicated eight tracked
+K2bP heat-balance artifacts as DELETE and executed it at `a311d872`, then
+reversed itself 40 minutes later at `0c742c66` when a delayed citer-sweep read
+the deleted bytes and found full ledgers in them. What made the wrong call
+available was the *reading surface*: the D477 row carried the D390 mechanism
+attribution — reports "carrying no ledger", written by audits aimed at time
+directories that never existed — and the adjudication was taken on that row.
+The row did not carry the counter-evidence, and the counter-evidence existed,
+committed, in a document the row itself cites two sentences earlier.
+`docs/EXTERNAL_REFERENT_AUDIT.md` section 11.4(b) states that these four
+iterations are **exactly** the ones backing D381's published recovery figures,
+155.55 W at 400 and 315.57 W at 800. They are: the plant/noplant pairs read
+-1.517859e+02 vs +3.764241e+00 W (difference 155.550141 W) and -3.072705e+02 vs
++8.296449e+00 W (difference 315.566949 W), each a full ledger with in/out terms,
+a mass-balance row and a tolerance verdict. So the D390 attribution was simply
+false of these eight files, and the row's "Referenced nowhere" was false too —
+the figures are cited at `K2b_PILOT_RESULTS.md` lines 386, 522 and 556, at
+`docs/LESSONS.md:5649`, and in the audit itself.
+
+The second half is the one that cost more than a wrong attribution. Audit
+11.4(b) ruled the *on-disk* clearing "a filing defect, not a lost measurement",
+and it ruled so **on a stated condition**: "the bytes are still recoverable from
+HEAD". A benign ruling that names its own condition is a live constraint on
+every later action, not a settled verdict — and the delete removed precisely the
+condition, converting a filing defect into a lost referent while every citing
+document went on pointing readers at the path. The delete's own defence, "bytes
+recoverable at every pre-deletion sha", is true and is not the same claim: a
+reader following `K2b_PILOT_RESULTS.md` to an artifact reaches HEAD, not the
+reflog, and history-recoverability rescues an archaeologist, not a reader.
+
+Binding practice, both clauses:
+**(1) Before deleting tracked bytes, grep the corpus twice** — once for the
+filename or path, and once for **the numbers the file contains**. The
+filename sweep alone would have missed this: the five citing documents cite the
+*values* (155.55, 315.57), not the `HEATBALANCE_400.txt` path. The content
+grep is the one that fires, and it is only possible if the bytes are read
+before they are destroyed — so **read the artifact you are about to delete**,
+which by itself refutes any "carries no ledger" attribution.
+**(2) Treat "recoverable from history" as strictly weaker than "recoverable
+from HEAD" whenever any standing record points a reader at the path**, and
+treat a conditional benign ruling as a condition to be preserved, not a
+clearance to be spent. Where a prior audit made its ruling conditional, the
+adjudication must quote that condition and say what happens to it.
+
+Scope honestly stated: the reversal restores HEAD only. The eight files are
+still absent from the working tree, `K1_STANDING_THERMAL_CHECKS.md` (tracked,
+cited by five documents) is still absent from it too, and who cleared the disk
+and why remains unanswered — the reversal repaired the adjudication, not the
+filing defect that provoked it.
