@@ -1,12 +1,16 @@
 # GPU capability state
 
-**Version 1.0, dated 2026-08-22.** What the lab is permitted to launch on a GPU,
-what it actually has, and what it could currently use one for. Companion to
-`docs/THERMAL_CAPABILITY_STATE.md`; the binding rule is `CLAUDE.md` rule 12.
+**Version 1.1, dated 2026-08-23** (v1.0 dated 2026-08-22; all v1.0 sections stand
+unedited — changes land only as the dated §8 below and this header). What the lab
+is permitted to launch on a GPU, what it actually has, and what it could currently
+use one for. Companion to `docs/THERMAL_CAPABILITY_STATE.md`; the binding rule is
+`CLAUDE.md` rule 12.
 
-**Headline: the quota is GRANTED and no GPU is attached to anything.** Approval
-removed a blocker. It did not deliver capacity, and nothing in the lab is running
-on a GPU today.
+**Headline: the quota is GRANTED and ~~no GPU is attached to anything~~
+*(superseded 2026-08-23 — see §8)* the fleet now includes one launched GPU
+instance (g6.xlarge, 1× NVIDIA L4), reachable from this box over SSH.** Still
+true and unchanged: **no GPU is attached to the c7a box itself**, and nothing in
+the lab is training on a GPU today — the console price check remains NOT DONE.
 
 ---
 
@@ -153,3 +157,50 @@ enough to matter and it runs against the lab's interest to leave it unstated.
 | GPU spend authority | **outside the 2026-08-21 blanket**; per-run `cost_basis` + Sanaa's rate and cap |
 | Console price check | **NOT DONE** — required before the first run |
 | First candidate rung | Ling2016 TBNN training — **not registered, not costed, not started** |
+
+## 8. First instance launched — 2026-08-23
+
+The §7 table above is a frozen v1.0 snapshot and is **not edited**; the rows it
+carries as "GPU attached: none" and "Instance launched: none" are **superseded by
+this section**. Every other §7 row stands, including **Console price check: NOT
+DONE**.
+
+Sanaa launched the lab's first GPU instance on 2026-08-23. Facts below are split
+by provenance, per the lab's honesty convention.
+
+**Metadata-verified** — read over SSH from this box on 2026-08-23 (IMDSv2
+instance metadata, `nvidia-smi`, `df`), not from recall:
+
+| item | value |
+|---|---|
+| instance type | `g6.xlarge` |
+| private IP | **172.31.44.162** — *canonical address*: persists across stop/start |
+| public IP | 3.16.124.210 — *ephemeral*: changes on stop/start; never record as canonical |
+| GPU | 1× NVIDIA L4, 23034 MiB |
+| driver | 595.91.07 |
+| root volume | 96G, 83G free |
+| AMI | Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.13 (Ubuntu 26.04), `ami-0dda0fd1cccbe2c28` |
+| region / AZ | us-east-2 / us-east-2c — same region as this box, per §3 |
+| SSH from this box | **verified 2026-08-23**: `ssh ubuntu@172.31.44.162` returns hostname `ip-172-31-44-162` and the L4 in `nvidia-smi -L`; alias `gpu1` added to this box's `~/.ssh/config` and verified |
+
+**Owner actions** — done by Sanaa in the console; reported, not independently
+verifiable from this box:
+
+| item | value |
+|---|---|
+| launch itself | performed by Sanaa, 2026-08-23 |
+| key pair | `certonomous` |
+| security group | `launch-wizard-3` |
+| login user | `ubuntu` |
+| key bridge | this box's `id_ed25519.pub` placed into the instance's `authorized_keys` by Sanaa (the successful SSH above corroborates that the bridge works, not who placed it) |
+
+**Still outstanding — console price.** Sanaa has **not yet provided the console
+$/hr** for `g6.xlarge`. The §6 arithmetic flag stands: no rate exists on the
+record, no cost may be quoted from recall, and **no run may be costed** until the
+console number is read and recorded.
+
+**Standing operational rule** (`CLAUDE.md` rule 12): **the instance is stopped
+when idle**, and **nothing trains** until the Ling2016 TBNN pre-registration
+carries the console price in its `cost_basis` and Sanaa's **per-item** sign-off —
+GPU spend sits outside the 2026-08-21 blanket, and reading that blanket onto
+GPU-hours would be permission laundering (rule 9).
