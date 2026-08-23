@@ -297,7 +297,7 @@ Older rows (A4 twin PASS `f9a59d47`, A2 per-component `79679a84`, A3 prereg chai
 **Images:** `dafoam-idwarp-rot:v1` (only image carrying the rotation patch, md5 `85f59e87…`), `dafoam-subpclu:v2` (PCLU), `dafoam-kspopts:v1`, `dafoam-team:v1` (`0b3c94c33a15`, both patches, ends `USER dafoamuser` → `--user root` for bind mounts). *The hash is the identity; the version string is not.* F6 series under `cases/dafoam/` is plain `simpleFoam`, not DAFoam work. **The stale shared index (577 staged deletions at 19:28Z) is the chief's call — inspect, never revert; all dafoam working-tree files verified identical to HEAD at 19:35Z.**
 ## heat-transfer
 
-**Section last written:** 2026-08-23T20:07Z by heat-transfer-supervisor
+**Section last written:** 2026-08-23T20:10Z by heat-transfer-supervisor
 (re-formed 2026-08-23 after the 2026-08-22 session limit).
 
 > **Timestamp correction, 2026-08-23 19:45Z, by the section's owner.** The
@@ -446,18 +446,27 @@ desk. K0c PASS, K0cS/T/X GATE FAIL, unchanged.
 | **KV1** | **GAP (D469)** -- freeze unprovable (all in `b8c398a4`); `sha256sum -c PREDICTIONS.sha256` FAILS on `build_kv1.py` (manifest hash matches NO committed version, ever); KV1a headline plant-recovery number cites no artifact; validated instrument changed post-close (D375) undisclosed in the record. The planted-zero/mutation harness itself is exemplary and fully backed |
 
 
-**Lanes live (1 of the cap of 3, this session):** the T9aH lane. Its
-pre-registration is committed (`0078fe9c`) and personally checked by this
-supervisor (freeze verified against the blob; all seven frozen-file hash
-anchors independently re-verified; sec-3 closed-form arithmetic spot-checked
-at all three contrasts; cap $4.28e-03 with overrun-stops-run). Lane
-authorized for its registered steps 2-3 ONLY (run tree + frozen copies
-re-hashed; `analyse_t9aH.py` + `build_t9aH.py` written, selftested,
-sha256'd in a committed dated addendum while the tree holds no case
-directory) and stops again before step 4 -- the supervisor's personal read
-of `analyse_t9aH.py` as source and as diff, then the launch decision. The
-F14 VERIFY sweep lane is COMPLETE (read-only, committed nothing); findings
-folded into the F14 table above and docketed D468-D470.
+**Lanes live (1 of the cap of 3, this session):** the T9aH lane, now
+EXECUTING step 5 under its registered cap. Chain of custody, all verified
+personally by this supervisor: prereg `0078fe9c` (checked before steps
+2-3); steps 2-3 at `1908bb7c` -- run tree, eight frozen copies re-hashed
+against the committed blobs, `analyse_t9aH.py` (sha `8107ed38...`) +
+`build_t9aH.py` (`c7a742f2...`) + chain + registered JSON, selftest 53/0,
+tree case-free at commit; prereg lines 1-619 hash to the `0078fe9c` blob
+exactly. **Step 4 DONE 2026-08-23T20:10Z: the supervisor read `analyse_t9aH.py` and
+`build_t9aH.py` in full as source, the chain against the frozen chain
+(differs only in case list + DONE name), and re-verified every quoted
+hash and the gate_t9a.json key assumptions. The `build_t9a.py`
+eighth-copy amendment is RULED SOUND (pre-compute, condition checked,
+nothing moved, RC3 proves builder equivalence). One prose slip in
+Addendum A.3 (ratio direction inverted in the note's wording; fixtures
+correct) -- lane instructed to append a dated one-line note only.**
+**Step 5 AUTHORIZED 2026-08-23T20:10Z**: build, two serial chains (1 core), mark, both
+comparators (frozen output published exactly as returned), cap 300
+core-s / $4.28e-03 with stop-on-overrun, results to
+`T9aH_RESULTS.md`. The F14 VERIFY sweep lane is COMPLETE (read-only,
+committed nothing); findings folded into the F14 table above and
+docketed D468-D470.
 
 **Next actions:** 1. L4 completion (watcher armed) → grade the four (m,f,x)
 triples. 2. T3 ext1 completion (`R_f`) → comparator re-run over all eight →
