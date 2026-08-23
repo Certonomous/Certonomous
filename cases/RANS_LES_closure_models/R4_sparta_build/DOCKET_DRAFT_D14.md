@@ -25,7 +25,7 @@
 
 ---
 
-## Why these rows are not in `docs/DOCKET.md`
+## Why these rows could not land at first — kept as written, in the present tense it was written in
 
 `scripts/append_record.py` **REFUSED**, twice, for two independent reasons.
 Both were reproduced with `--dry-run`; nothing was written and nothing was
@@ -85,7 +85,7 @@ this). Whether it earns an assert at the call site, per the standing rule that a
 twice-bitten defect class gets an assert rather than a paragraph, is the
 supervisor's call and not this lane's.
 
-## What must happen before these rows land
+## What had to happen before these rows could land — all three did
 
 1. The peer lands or abandons the unlanded `D471`–`D473` tail, and resolves the
    in-worktree `D471` duplicate.
@@ -97,6 +97,13 @@ supervisor's call and not this lane's.
    writing the maximum across `HEAD` and the worktree is **`D473`**, so the
    next free pair is **`D474` / `D475`** — *stated as the reading of the moment,
    not as an assignment.*
+
+**And it is worth keeping that it was the wrong reading an hour later.** The
+peer's landing moved the tail to **`D474`**, so the pair actually assigned was
+**`D475` / `D476`** — re-derived at commit time exactly as item 3 requires, and
+**not** taken from the number written above. That is the whole reason rule 11
+puts the derivation in the same shell invocation as `commit-tree`: a number
+correct when a file is written is not a number, it is a memory.
 
 ---
 
