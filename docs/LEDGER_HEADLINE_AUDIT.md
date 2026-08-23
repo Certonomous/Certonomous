@@ -526,3 +526,102 @@ subject is instruments that report clean without stating what they counted.
 
 *Compiled read-only. No instrument, script, test or record was modified; the ledger file was
 not touched. Nothing was sent, filed or uploaded.*
+
+---
+
+## 7. RE-RUN, 2026-08-23 — the audited document has not moved, and 8 of 9 falsifications are still on its face
+
+**Lines whose number changed above this section: 0.** Appended at the foot;
+nothing above was edited (rule 6).
+
+**Sweep date:** 2026-08-23, 19:50–20:20 UTC. **Executor:** `lab-lane`,
+verification team. **Read-and-record, as §0 was: the ledger was not touched, and
+no instrument, script, test or verdict was modified by this pass.** Zero
+core-minutes.
+
+### 7.1 The subject document is frozen — this is a measurement, not an assumption
+
+§4 item 1 of this audit is that *"any number taken over a working tree in this lab
+needs a commit sha beside it"*, so the first thing re-run is whether the graded
+tree moved at all.
+
+| quantity | value |
+|---|---|
+| commits touching `docs/INSTRUMENT_INTEGRITY_LEDGER.md`, **all time** | **2** |
+| lines at `c8d5eec4` (the audited commit) | 523 |
+| lines at HEAD | **523** |
+| working tree vs HEAD | **clean** (`git diff --stat HEAD` empty) |
+| SHA-256 at `c8d5eec4` | `ae1187a668e74aefd3d2e94867f8c32a79a4379f18c8e882d451e97a138790e5` |
+| SHA-256 at HEAD and on disk | `26fef8b7eb68fb637f5988f7803f5b57c1bc6c3ce16c31b45341ecf7dd4865b1` |
+
+**One commit has landed on the ledger since it was graded**, and it landed
+**after this audit closed**: `e613d34c`, 2026-08-11T03:55:27Z, against an audit
+window of 03:22–03:45. It changes **one line**, in place, in the right idiom —
+the `log_signatures.py` row's basis cell gains
+
+> *"**(2026-08-11: NOT "on production" — the primary post-wiring production
+> prediction was never scored, because no post-wiring production run existed; an
+> analogue family was scored in its place)**"*
+
+**That withdrawal is not one of this audit's nine.** It is an independent,
+self-found correction of the *"on production"* claim, and it is the shape §6 asks
+for: dated, appended into the cell, original struck rather than rewritten.
+
+**So the population is unchanged: the 42 headline-grade claims graded on
+2026-08-11 are, to the byte, the 42 on the page today. There are no new
+headline-grade claims in this document to test.** A re-run that manufactured
+some would be inventing a population, which is the error §4 item 1 exists to
+catch.
+
+### 7.2 The finding, and it is about what did *not* happen
+
+Four of the nine **FALSIFIED** headlines were checked for verbatim survival on
+the live file:
+
+| # | headline string | present at HEAD | struck or annotated |
+|---|---|---|---|
+| F1 | *"Two false greens were reproduced firsthand in this pass"* | **yes, 1 occurrence** | **no** |
+| F4 | *"16 self-audit checks and 15 standing instruments have never been shown to fire"* | **yes, 1 occurrence** | **no** |
+| F5 | *"32 of the 34 checks have no test at all"* | **yes, 1 occurrence** | **no** |
+| F6 | *"Eighteen checks are currently non-PASS"* | **yes, 1 occurrence** | **no** |
+
+A `grep -niE 'withdraw|falsified|corrected|superseded|struck'` over the whole file
+returns **6 lines**, and **none of them attaches to any of the nine**: five are
+subject matter (`check_withdrawn_numbers`, a superseded residual state, §5.3's
+own heading) and the sixth is `e613d34c`'s unrelated withdrawal.
+
+**F2 was already withdrawn at `50127731` before this audit ran.** So the honest
+statement is: **8 of the 9 falsifications this audit published on 2026-08-11 are
+still live on the ledger's face 12 days later, unstruck and unannotated**, while
+the same document's owner landed a different self-found withdrawal into it ten
+minutes after this audit closed. That is not a claim about anyone's diligence —
+this audit is filed and cited (`docs/DOCKET.md`, `docs/PRODUCT_LIST.md`,
+`verification/campaign/LADDER_V_V15_ROUND6.md`,
+`V15_ROUND5_NUMBER_RECONCILIATION.md`) — it is the measurement that the
+corrections have not reached the surface a reader meets. **Recorded as a finding.
+Nothing was corrected by this pass**, because §0's rule is read-and-record and
+because the ledger is not this lane's to edit.
+
+### 7.3 What this re-run did not do
+
+- **It did not extend the audit to a new subject document.** This audit's method
+  is *"test every headline in `docs/INSTRUMENT_INTEGRITY_LEDGER.md` against its
+  own body and against the artifacts"*. Applying L-68 to the ~300 markdown
+  documents that entered the corpus since 2026-08-11 is a **different audit with
+  a different population**, and inventing one under this document's heading would
+  be the frame error §4 item 1 records. It is named here as the obvious next
+  rung, not performed.
+- **The five remaining falsifications (F3, F7, F8, F9) were not re-checked for
+  verbatim survival** — only F1, F4, F5 and F6 were. F3's headline could not be
+  matched by its quoted string and was not pursued; that is a limit of this
+  re-run's depth, not evidence the line has changed.
+- **§5's four unestablished items were not re-attempted.** FP-7's nine archived
+  reports, §5.4's `transonicPCOption` population of 651, the uncommitted
+  `PASS 15 / WARN 8 / FAIL 8 / INFO 3` tree, and the membership of the four axes
+  are all still unfalsifiable or unlocated, and this pass adds nothing to them.
+- **§4 item 4's live control-shaped artifact** — `scratchpad/psshim/ps`, a planted
+  fake `ps` one `PATH` entry from any process-probing instrument — was **not**
+  re-checked for presence. Note that the scratchpad it lived in has since been
+  wiped at least once (see `docs/H4_ALLOCATION_AUDIT.md`'s 2026-08-23 re-run,
+  which finds eight `prunable` worktrees registered into that same path), so its
+  absence today would prove nothing about its disposal.
