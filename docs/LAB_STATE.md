@@ -96,306 +96,207 @@ rung may take it).
 **Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched
 ## closure
 
-**Section last written:** 2026-08-22T20:55Z by closure-supervisor.
-(Stamp restored to the canonical one-line form that `scripts/check_harness.py` parses; the previous stamp, 2026-08-22T21:20Z, carried a trailing clause — "R4 rows and the D369 closure by the R4 BUILD lane; everything else as the closure-supervisor left it" — which the parser rejects. Option C (omega-source repair, $0.009) is LIVE under its own pre-registration `cases/RANS_LES_closure_models/R5C_omega_repair/`; A′ and the R5 direction wait for Sanaa.)
+**Section last written:** 2026-08-23T20:45Z by closure-supervisor.
 
-**R5C (option C, omega-source repair) — LIVE, verdict PENDING; solver built, all 27 extractions RUN, grading next.** Chief-authorised known-bias repair inside pre-authorisation. Pre-registration frozen and committed ALONE before any repair code ran: `cases/RANS_LES_closure_models/R5C_omega_repair/PREREGISTRATION.md`, sha256 `a1cfae5a49c52dde…1277a`, commit `f364cf2d`. R4's frozen file (`058444…cbbe8`) untouched; R5C targets and R4 targets are registered as DIFFERENT quantities, never merged in any fit. Diagnosed cause, from `kOmegaSSTFrozen.C` source: `PkLim` cancels, so the frozen omega source is gamma/nu_t times the convection-minus-diffusion residual of the frozen `k` field — which has no sign — added fully explicitly while every other term is implicit; a large negative RHS with no matching diagonal sink gives omega<0 on the FIRST solve, matching R4's measured `bounding omega, min -193215225.4`, average -50081.6 on iteration one. None of R4's four failed repairs touches the sign-carrying term. Registered repair: Patankar split, negative part onto the diagonal as an omega-proportional sink, so the repaired operator keeps the LEGACY fixed point in exact arithmetic — the repair changes the path, not the answer. Gates: G0 planted-zero (PLANT=1.234e-03, three comparators, refusal → NOT A RESULT); G1 identity ≤1e-6 rel-L2 on the 12 R4-COMPLETE cases plus a switch-active control so a silent no-op cannot pass (the L-221 shape); G2 W2 byte-identical on a fresh copy, 14 of 14 sha256 field matches, no partial credit; G3 converged-not-clipped on five redundant criteria graded from a new per-ITERATION history; G4 completion PASS at ≥13 of 15. Cost registered 0.210 core-h = $0.0108, cap 1.0 core-h, overrun → BLOCKED. Nothing fitted, nothing propagated, no test or validation case opened. **Run state, 27 of 27 `rc = 0`:** `kOmegaSSTFrozenV2` + `kCorrectiveFrozenFoamV2` built into a NEW library (`libspartaFrozenV2.so`) — `libspartaTurbulenceModels.so` and `kCorrectiveFrozenFoam` were NOT rebuilt and their mtimes prove it (NR-2). Cases at `/home/ubuntu/closure-data/r5c/{frozen,w2_legacy}/`, driver pids `973121` and `987906`, both exited. Wall 660.9 s over ≤6 concurrent serial ranks; nothing reniced, thermal priority untouched. **G2 already reads 14 of 14 sha256 field matches against the W2 record at its own settle iterations 1492 and 354** — formal grading, with the planted-zero control first, lands with commit 3.
+**R5C (option C, omega-source repair) — CLOSED, VERDICT: GATE FAIL. D465, L-243,
+N-B35–N-B37, commit `0ac76ec2`.** Graded against the frozen pre-registration
+(sha256 `a1cfae5a…1277a`, committed alone at `f364cf2d`; re-hashed equal before
+grading) by the registered comparator `grade_r5c.py` (sha256 `58eb99…605e5`).
+Ladder as registered: **G0 planted-zero PASS** (plant seen to 2.4e-10 relative);
+**G2 W2 byte-identity PASS** (settle 1492/354, 14 of 14 sha256 — the V2 legacy
+branch IS R4's operator); **G1c switch-active PASS** (`nNegSourceCells` 476–2,274
+on all 27 — the negative source is universal, N-B35); **G1 GATE FAIL**
+(`kDeficit` rel L2 **1.1848e-04** on `alpha_10_12000_4048` against the
+registered `1e-6`; eleven of twelve R4 targets reproduce at the IDENTICAL settle
+iteration to 1e-7–1e-11); G3 10 of 27; G4 M=1 → GATE REACHED, **overridden** by
+G1 per §3.1. **Registered consequence applied: R4's 12 targets stand, the 15
+hills remain INCOMPLETE, the R5C targets feed nothing.** The finding under the
+verdict: the Patankar split removes the clipping (22 of 27 at zero
+`bound(omega)` events; 10 of the 15 hills COMPLETE under the strict rule) and
+the same damping makes the change-based settle criterion stop one target 37 %
+early — **a change criterion cannot tell convergence from damping (L-243)**; two
+registered criteria are measured miscalibrated and left standing as written
+(G1's tolerance derivation, G3(d)'s ratio — N-B37). The grading lane was killed
+by the session limit before commit 3; the supervisor re-ran the comparator end
+to end 2026-08-23 with **zero differences** (RESULTS.md D-4, which also
+discloses the comparator missing commit 2 and three promised artefact filenames
+folded into `r5c_grading.json`). Cost **0.140 core-h measured + ≤0.028 bounded
+= ≤$0.0086** against 0.210 registered, 1.0 cap. Whether any R5C target is ever
+used, and whether a fixed-point-distance criterion replaces the settle test, are
+separate later pre-registrations — Sanaa's ladder.
 
-**Last commit:** the **D369 write-back defect closed as executable law** —
-`scripts/append_record.py` (merge, refuse, max+1 assert, planted control) and
-`scripts/check_record_reconciliation.py` (the `LESSONS.md` sibling D369 filed as
-owed, extended to `NUMERICS_KNOWLEDGE.md`), carrying **D463** and **L-240**.
-Both records were appended **through the new helper**, its first real call site.
-Before it: `3f0f1537` (departure D-13, the disclosure that prompted this),
-`7965d08b` (stage d — D461, L-235–L-238, N-B26–N-B34), `5b4bc833` (stage c,
-the GATE FAIL), `73705d1f` (stage b), `b36daf06` (stage a).
+**GPU reproduction plan — DONE, on Sanaa's desk. Commit `9e82321b`.**
+`docs/closure/GPU_REPRODUCTION_PLAN.md` plus **five DRAFT pre-registrations,
+every one stamped DRAFT — NOT FILED, NOT LAUNCHED**, discharging the chief's
+2026-08-22 dispatch (`ff551ed5`). All five papers title-verified twice (killed
+lane 2026-08-22, supervisor re-verification against PDF hashes 2026-08-23,
+rule 15). Triage: **(1) Ling 2016** ready to sign — data local, CPU lane GATE
+REACHED, arms remove departure D3; 12–52 GPU-h cap 60 (~$10–$42, estimate —
+needs console confirmation) at
+`cases/RANS_LES_closure_models/Ling2016_TBNN/gpu/PREREGISTRATION_DRAFT.md`.
+**(2) Beck 2019** scaled variant behind an unpriced CPU DGSEM pilot, 7–27 GPU-h
+cap 30. **(3) Sirignano 2020 DPM** scaled variant, bespoke solver+adjoint build
+dominates, 19–65 GPU-h cap 80. **(4) Bae 2022** NOT a GPU item (paper's own
+O(1e3) CPU-h figure, ~$51 CPU) — recommend no GPU launch. **(5) Lozano-Durán
+2023** BLOCKED at the ~500-DNS database + proprietary charLES; as-published
+~900–1,700 L4 GPU-h — recommend no launch. Drafts 2–5 in
+`docs/closure/gpu_prereg_drafts/`. **No instance exists, none was created, no
+AWS call was made; every dollar figure is agent recall marked "estimate — needs
+console confirmation"; GPU spend is outside the CPU blanket (rule 12): per-item
+sign-off by Sanaa with a console-read `cost_basis`.**
 
-**Live jobs (R4 BUILD lane): one, and it is UNGRADED.**
-`AR_10_Ret_180/discovered_ronly` — the `b^Delta`-off diagnostic arm — under
-driver pid `875716`, cwd
-`/home/ubuntu/closure-data/r4/aposteriori/AR_10_Ret_180/discovered_ronly`,
-~13,600 of its 20,000 `endTime` cap, **ETA ~20 min, ~0.13 core-h**. It is
-**REPORTED-NOT-GRADED**: no gate, verdict or number in the R4 record depends on
-it, and it is bounded, checkpointed and resumable. Every other R4 run — 27
-frozen extractions, 5 convergence diagnostics, 59 of 60 propagations — is
-finished. **R4 has released the cores; thermal priority restored.**
+**Live jobs: one solver + three lanes (at cap).** Kaandorp a-posteriori driver
+pid `1111229`, detached (`setsid`), cwd builds under
+`/home/ubuntu/closure-data/aposteriori/kaandorp/` (NOTE: driver logs and
+`results.json` live THERE, not in `kaandorp_tbrf/`, which holds
+features/checkpoints), log `lane5.log`, one serial core, hard-bounded 3600 s per
+solve. Launched 19:37:37Z after the lane re-hashed `PREREGISTRATION.md` and the
+repaired `run_lane.py` against HEAD blobs — completing the six `CBFS13700`
+PENDING rows of the registered table (~3.3 core-h ≈ $0.17 planning, ≤$0.31
+bound). Landed so far: `CBFS13700__NULL` rc=0 at 884 it / 69.3 s (`U_rms`
+0.05155 vs registered SST gate 0.0516); the three `AR_3_Ret_360__ML*` rows
+recorded **BLOCKED** with reason+traceback and NO metrics — the `074f60da`
+repair worked live (diff read by the supervisor before launch). Grading lane
+re-armed with a durable background monitor (its first watcher died with its
+turn — the L-186-adjacent dead-watcher tell). The `AR_10_Ret_180` diagnostic
+stays REPORTED-NOT-GRADED as the closed R4 ladder ruled.
 
-**R4 compute, final:** **9.203 core-h / $0.472** — 0.244 frozen extraction and
-convergence diagnostics, 0.524 FS3 (run twice, departure D-6), 8.435
-propagation, each measured from its own recorded `wall_seconds` x 1 rank.
-Against the preregistration's **12–20 core-h** estimate and **40 core-h** cap:
-**46 % of the upper estimate, 23 % of the cap.** Bulk field data is not
-committed; its paths are listed in `RESULTS.md` §10.
+**Rungs, updated this session:** **FS6 DONE** — commit `9fb0891f`,
+`docs/closure/FS6_COMPARATIVE_FEATURE_DOCUMENT.md`, 34 of 35 corpus papers
+mined (Gatski 1996 excluded: scanned, no text layer), every title page
+re-verified (rule 15). **R5 discharged as a record** — commit `3a4f4bbb`,
+`docs/closure/R5_CONSTRAINTS_DISCHARGE_RECORD.md`: no verdict issued (R5 had no
+pre-registered gate); constraint 1 partly discharged, 2 partly discharged (FS5
+stays armed), 3 discharged-as-measurement. **R6** NOT DONE, BLOCKED on Sanaa's
+phrasing. R4 CLOSED GATE FAIL (D461); R5C CLOSED GATE FAIL (above). FS2/FS5
+standing gates. Case verdicts on record unchanged.
 
-**The `ktest*` probes at `/home/ubuntu/closure-data/r4/` — mechanical reading,
-and the R4 lane's ruling, which is the one that governs.** The board's earlier
-line (*"`ktestA` wrote `rc=0` with no time directory beyond `0/` — VERIFY"*) was
-a 17:49Z reading and is superseded: `ktestA` finished writing `20000/` at
-17:51:02Z.
+**Supervisor-verified findings from the two documents (both verified by my own
+reads/arithmetic before belief):** (1) **R4's §7 registered deliverable
+`COVERAGE.md` was never delivered and the non-delivery never disclosed** among
+D-1..D-13 — registered at `R4_sparta_build/PREREGISTRATION.md:199-201` with the
+`:252/:261` amendment, zero hits on disk/HEAD/RESULTS.md. My ruling: FS5's
+per-build discharge for R4 WAS NOT MET; late delivery + departure D-14 addendum
+dispatched to the incumbent lane (in progress). (2) **R4 RESULTS.md:679/:1128
+"0.4–0.6 % of DNS" is wrong for three of four duct rows** — recomputed from the
+record's own table: 0.6126/0.3878/0.3283/0.0899 %, error in the ceiling's
+favour, no verdict moves (G5 has no registered bar); correction rides the same
+addendum. (3) **`FEATURE_LIBRARY.md` source-column defects** —
+`q7_viscRatio`/`q11_turbReynolds` cited to Kaandorp Table 1 p. 25, which I read:
+nine features, neither present; only printed source is Ling & Templeton 2015,
+**PENDING-MIT, not on disk** — two of 110 features have no on-disk printed
+source; `q10` mis-attributed — its origin is Wang 2017 Table 1 and Kaandorp
+does NOT reprint it (the lane corrected the supervisor's brief on this point and
+was right: Kaandorp's nine scalars are Wang's ten minus curvature — verified by
+the supervisor against both sidecars); Wu 2018 cites one page early. Generator
+repair LANDED at `01430485` and **PASSED the supervisor's diff read**: every
+hunk touches only source strings/prose, and an independent strip-the-source-
+column diff of the 110-row table old-vs-new is IDENTICAL. Records at `e1f346ee`
+(**D467**, **L-246**, FS6 Addendum 1). (4) `q1_wallRe` is clipped at 2
+(`FEATURE_LIBRARY.md:178` after the +4-line shift at `01430485`;
+`fs2_audit.json` max=p99=p50=2.0), so the FS5 coverage instrument is blind to
+excursions on that column — R4 unaffected (does not use it); docket row filed
+under D467's umbrella. Known stale cite remaining:
+`R5_CONSTRAINTS_DISCHARGE_RECORD.md:301` still says `:174` — dated amendment
+queued to the incumbent R5 lane (named in D467).
 
-| check | `ktestA` | `ktestB` |
-|---|---|---|
-| `rc` | `0` | `0` |
-| `End` line in `log.frozen` | yes, after `ExecutionTime = 111.81 s` | yes, after `ExecutionTime = 34.41 s` |
-| last time dir / `endTime` in `system/controlDict` | `20000` / `20000` — **equal** | `5000` / `5000` — **equal** |
-| every field at `endTime` newer than `0/` | **yes**: `0/` 17:49:14Z, all nine `20000/` fields 17:51:02Z | **yes**: `0/` 17:49:14Z, all nine `5000/` fields 17:49:43Z |
-| fields at `endTime` | `U bijData bijDelta k kDeficit nut omega phi tauij` + `uniform/` | the same nine + `uniform/` |
-| `ExecutionTime` count == `endTime` | **no — 1 line against 20000.** `kCorrectiveFrozenFoam` writes one `ExecutionTime` and no `Time = ` lines at all; that clause is a T-family log-format criterion and does not transfer as written | **no — 1 against 5000**, same reason |
-| **the decisive line in the log** | `log.frozen:40480` — **`NOT CONVERGED: backstop cap reached at iteration 20000`** | `log.frozen:10180` — **`NOT CONVERGED: backstop cap reached at iteration 5000`** |
+**Commits this session** (closure, newest first): `e1f346ee` D467/L-246 + FS6
+Addendum 1; `01430485` feature-library source-column repair (supervisor
+diff-read PASS); `a1d5be72` board; `9fb0891f` FS6 document;
+`3a4f4bbb` R5 discharge record; earlier `9e82321b` GPU plan + five drafts;
+`0ac76ec2` R5C commit 3 (verdict, comparator, grading JSON, D465, L-243,
+N-B35–37); `23b9d7ba`, `f364cf2d` before them. Pending from live lanes: R4
+addendum (D-14 + corrections) + late `COVERAGE.md` + docket/lessons rows;
+feature-library generator repair; Kaandorp addendum after the driver exits.
 
-**The R4 lane owns these and has ruled on them** (`R4_sparta_build/RESULTS.md`
-§1): all five probes (`ktest`, `ktest2`, `ktest3`, `ktestA`, `ktestB`) are **that
-lane's own convergence diagnostics, not target extractions**; `ktestA` and
-`ktestB` are **INCOMPLETE as frozen extractions** on the `NOT CONVERGED` line
-despite satisfying every mechanical clause, and **neither feeds any number in
-that file**. They are *measurements of non-convergence, which is what they were
-run to be.* Nothing on this board treats them as results.
+**On Sanaa's desk (closure):** the five GPU drafts (§ above — signing any is
+hers; the plan's recommendation, marked as one: Ling first, none of 4–5);
+R5/A′ direction after R5C's GATE FAIL (`R5_DECISION_MEMO.md` options stand —
+option C is now measured: repair works, criterion does not); R6 phrasing
+(standing); **NEW: Ling & Templeton 2015 acquisition** (PENDING-MIT — the
+un-owned origin of the scalar-marker feature bloodline; two FS1 features cite
+it as their only printed source). **Blocked:** R6 (Sanaa), Kaandorp
+`AR_3_Ret_360__ML0/1/2` (missing case in `features_nodurbin.npz`; re-recorded
+BLOCKED in `results.json` this pass with tracebacks, no metrics), Xiao2016_EnKF
+(forward model), Kaandorp Table 4 (no BFS5100 on disk), Lozano-Durán 2023
+training reproduction (data + charLES).
 
-**Rungs lacking verdicts:**
+**⚠ Standing hazard unchanged:** the shared index is stale — `git status` shows
+phantom `D` rows for committed R5C files (L-223 shape, read from the other
+side). **Read tracked status with `git ls-tree -r HEAD <dir>`, never
+`git ls-files`; inspect, never revert; the index is chief's call.**
 
-| rung | state |
-|---|---|
-| **R4** (SpaRTA build) | **CLOSED — VERDICT: GATE FAIL**, docketed **D461**. Both registered halves fired: a-priori **2 of 4** families against a bar of 3, and **all 12 symbolic propagations DIVERGED** (5–18 iterations, FPE in `kOmegaSSTSparta::updateCorrections`, `Ubar` to 5.7e+69). **The registered NOT A RESULT branch did NOT fire** — the per-case frozen-field ceiling beats NULL by **60.2 %** on `CBFS13700` and **99.6 %** on `PHLL10595`, lands `CBFS13700` at **0.3975** against W2's independent **0.39753**, recovers the duct secondary vortex to 0.4–0.6 % of DNS where a linear EVM gives exactly zero, and reattachment to 0.9–3.4 % of the LES. **The harness carries the truth; the model does not** — the first lane in this programme where the failure has that shape. Records: `RESULTS.md` (10 sections, 13 dated departures), `MODEL.md`, **L-235–L-238**, **N-B26–N-B34** |
-| **R5** (round-5 diagnostics as build constraints) | **no verdict artefact.** Partly discharged by the FS2/FS5 report; the R4 prereg does not cite R5 by name |
-| **R5C** (omega-source repair, option C) | **LIVE, verdict PENDING.** Own frozen pre-registration `cases/RANS_LES_closure_models/R5C_omega_repair/PREREGISTRATION.md`, sha256 `a1cfae5a…1277a`, committed ALONE at `f364cf2d` before any repair code ran. Repaired operator built as a COPY (`kOmegaSSTFrozenV2`, `kCorrectiveFrozenFoamV2`, `libspartaFrozenV2.so`); R4's binaries untouched. All 27 re-extractions run, `rc = 0` on 27 of 27. Gates G0–G4 registered with thresholds; verdict at commit 3 |
-| **R6** (surfaces updated) | **NOT DONE.** "leaderboard" still appears in `web/closure.html` and `web/benchmarks.html`; **BLOCKED** on Sanaa approving the internal-scoring phrasing (doctrine open action 4) |
-| **FS3** (selection methods) | **DONE**, and the final reading is `artefacts/fs3.json` at commit (b). *(The board's 18:22Z observation was correct: `RESULTS.md` §0 had been written forward-looking, and it was rewritten to state only what is true at the commit carrying it. The pid live then produced a **withdrawn** fit; see D-6.)* All three registered methods ran at three seeds. **They disagree** — permutation importance is near-orthogonal to mutual information on three of four fits and anti-correlated on two, which §3 registers in advance as a finding. Planted-zero control **PASS** on both propagated term sets, **GATE FAIL** on `R`/T1–T4 |
-| **FS4** (joint iteration, features frozen before scoring) | **DONE.** `MODEL.md` and `MODEL.json` exist and are committed at stage (b) — the board's VERIFY at 18:23Z was right that neither existed at `b36daf06`, and `RESULTS.md` §0 no longer cites an artefact before it is on disk. `R = 2k[1.261646 − 42.82548 I1 − 31.54762 I2 + 14.28260 I2²](T1:A)`, `b^Δ = −7.550380 T2 − 16.07578 I2 T2 + 5.039083 T3`; identical at seeds 0/1/2; IC1 solver-vs-Python agreement **3.97e−12** |
-| **FS6** (comparative feature document) | **NOT DONE.** No artefact exists |
-
-R1 closed (charter §22.1–22.5). R2 delivered (`R2_SHORTLIST_MEMO.md`; ranking
-inverts the doctrine's order — SpaRTA, FIML-C, TBNN). R3 decided by Sanaa.
-**FS1 done** (110 features, 40 cases, 641,652 cells). **FS2 and FS5 are STANDING
-GATES** — permanently re-armed, never closed.
-
-**Case verdicts on record:** Wu2018 a-priori **PASS** (7/8, loses `NASA_2DWMH`);
-Wu2018 aposteriori and aposteriori_frozenk both **NOT A RESULT** (ceiling gate
-failed, registered falsifier fired); Ling2016 **GATE REACHED** *(note:
-`docs/closure/README.md` §3 still lists it PENDING — a known, flagged
-disagreement)*; Kaandorp2020 **GATE FAIL** on all three preregistered claims,
-Table 4 **BLOCKED**; Schmelzer2020_SpaRTA **PASS**; Xiao2016_EnKF **BLOCKED** at
-the forward model; NASA_hump_gate **PASS** on the registered branch (B-G0a
-BLOCKED, B-G0b PASS).
-
-Two additions from tonight, neither moving a verdict:
-
-- **`CBFS13700` LES `x_reatt`: the number of record is 4.241**, from the registered
-  instrument `_common/sst_baseline_metrics.py::hill_wall_metrics` (linearly
-  interpolated crossing, 4.240983). **4.170** (4.169625) is the *same*
-  reattachment read at cell-centre resolution — the last still-reversed cell in
-  row `j = 0` — low by **0.435 of one cell** (cell width 0.163947 there). Not a
-  disagreement: two read-off criteria. `Wu2018_PIML_RF/aposteriori_frozenk/
-  RESULTS.md` §4 is internally consistent because all four of its figures
-  (`L_ml` 3.022, `L_null` 3.350, LES 4.170, `L_truth` 9.088) are row-`0` cell
-  centres, so its `NOT A RESULT` verdict and fired falsifier stand untouched.
-  **4.170 must not be differenced against 4.241, 4.384 (Kaandorp `TRUTH+R`) or
-  5.891 (SST) without conversion** — those three are interpolated crossings.
-  Full text: that file's `## RECONCILIATION` section. The `R2_SHORTLIST_MEMO.md`
-  line carrying 4.170 was annotated at `074f60da`; the memo's ordering and its
-  16 %/137 % comparison are unaffected.
-- **Kaandorp2020 outstanding rows: 3 BLOCKED, 6 PENDING** (dated NOTE in
-  `Kaandorp2020_TBRF/aposteriori/RESULTS.md`; §1–§10 and the 2026-08-21 addendum
-  untouched, no verdict moved). Zero of the nine qualifies under the strict
-  completion rule — **none of the nine has a case directory anywhere on this
-  host**, and `results.json` still holds the same 10 runs. `AR_3_Ret_360__ML0/1/2`
-  are **BLOCKED** on a missing input: `/home/ubuntu/closure-data/kaandorp_tbrf/
-  features_nodurbin.npz` carries 27 cases and `AR_3_Ret_360` is not one of them,
-  which killed the detached driver four times with `ValueError: 'AR_3_Ret_360' is
-  not in list`. The six `CBFS13700` rows (`NULL TRUTH MEANB ML0 ML1 ML2`) are
-  **PENDING** only because they sit after the blocked row and the exception
-  aborted the loop; every input they need is present. `run_lane.py` now raises a
-  named `RowBlocked` and records `status: "BLOCKED"` in `results.json` instead of
-  taking the loop down — **repaired, `py_compile` clean, NOT RUN.**
-
-**Commits tonight** (closure lane, newest first):
-
-| sha | one line |
-|---|---|
-| `b36daf06` | **R4 stage (a):** `RESULTS.md` opened, `PREREGISTRATION.md` re-committed against its frozen sha256, three `artefacts/*.json` manifests and the nine build/selection/scoring scripts. **This is where `R4_sparta_build/` became tracked — 14 files.** No R4 verdict |
-| `fd3aa735` | `Kaandorp2020_TBRF/train_log.json` committed — the file three records called nonexistent was merely untracked; five records gain a dated correction. **Also corrects `074f60da`'s and L-225's overstatement that "the whole `Kaandorp2020_TBRF/` directory is untracked": 19 files there were already tracked, and `train_log.json` was the only untracked non-`__pycache__` file at any depth.** No number changed |
-| `074f60da` | Follow-up, read-only: the `R2_SHORTLIST_MEMO.md` 4.170 line annotated; the "3.24" pointer found **on disk but untracked** (`basis_rank_mean = 3.2374`) and both records re-sourced with the *statistic* named (3.24 pooled-sample vs 3.738 case-mean); the nine Kaandorp rows costed and graded **3 BLOCKED / 6 PENDING**, $0.226 for all nine. Nothing launched |
-| `5162ec8e` | The libs lesson as law (`docs/closure/LIBS_ASSERT_SWEEP.md`): 92 mentions, 75 writes, **8 library-load call sites — 3 already asserted, 4 newly asserted, 1 superseded by a concurrent lane's helper, 67 template lines n-a**. `frozen_R.py:69` was carrying the **live** defect. L-222, L-223, D448. Zero compute |
-| `c46309f5` | `CLOSURE_MODELLING_CHARTER.md` **v1.1.1 → v1.1.2**: §22.4 gains the bands-vs-corrections caveat **verbatim** from L-220/D446, four additive requirements, no clause widened or narrowed. *(This is the commit whose tree came from a stale `read-tree` — see `a5126378`.)* |
-| `a5126378` | Content-only restore of the **nine** `eda10f39` files that `c46309f5` silently reverted; every blob byte-identical, no number changed. The charter lane's two files left standing |
-| `eda10f39` | Closure reconcile: nine uncommitted closure edits closed out (`make_feature_library.py` regenerates `FEATURE_LIBRARY.md` byte-identically; `setup_case.py` L-221 pattern; four `LESSONS_DRAFT.md` banners; two `RESULTS.md` sweeps) and the **4.170 / 4.241 split ruled a read-off criterion, not a disagreement** |
-
-**Next actions:** none owned by the R4 build lane — it is closed, and so is
-the D369 write-back defect (D463, L-240): `scripts/append_record.py` merges
-rather than overwrites and **refuses** when the worktree disagrees inside HEAD's
-own bytes, and `scripts/check_record_reconciliation.py` covers `LESSONS.md` and
-`NUMERICS_KNOWLEDGE.md`. **§8.5 still documents the overwrite form and should be
-pointed at the helper** — that edit is the guide owner's, not this lane's. The
-R4 lane's two amendment candidates remain for the **next** preregistration and
-are deliberately not in the frozen file: §6 registers **no threshold on
-realisability**, and the continuity gate's `1e-4` is **dimensional**.
-**The R4 boundary report and the decision memo are landed**:
-`cases/RANS_LES_closure_models/R4_sparta_build/RESULTS.md` **§11** (the claim
-half of the boundary — what R4 established, what it did not, and the five
-clauses of the frozen closing sec. 9 graded, including the measured correction
-to sec. 2.1's premise: the exact duct degeneracy is a property of the baseline
-RANS field and is **absent** on the frozen field the regression fits, rank
-**3.000 → 3.965**, which does not move the registered exclusion but falsifies
-its stated justification), and **`docs/closure/R5_DECISION_MEMO.md`** — four
-costed options for Sanaa. Zero compute; nothing submitted, uploaded, filed or
-registered.
-
-**On Sanaa's desk:** R6's internal-scoring phrasing (doctrine open action 4).
-**And now R4's:** the SpaRTA-class build ladder has returned a **GATE FAIL with
-a working ceiling**, which is a decision point rather than a retry — whether to
-re-preregister the `b^Delta` amplitude control (a realisability constraint, or
-the paper's `xi`, as a *registered* part of the model rather than an ungraded
-diagnostic), or to re-open R2's ranking. **The options are now written up,
-costed from R4's own measured rates, in `docs/closure/R5_DECISION_MEMO.md`** —
-(A) `b^Delta` amplitude control **3.63 core-h / $0.186**; (A′) the same control
-on the **pair** **5.37 core-h / $0.275**; (B1) FIML-C **0.61 core-h pilot**,
-**621.6 core-h** at full build, above Charter §18's 487; (B2) TBNN + `R` head
-**20.90 core-h / $1.072** plus an unestimated head; (C) fix the `omega` source
-and complete the 15 hills **0.184 core-h / $0.009**; (D) bank the harness result
-**0 core-h**. The memo carries a **recommendation** (C then A′), marked as one.
-**The choice is hers, re-opening R2 is a re-opening of R3 (Charter §22.7), and
-the Repo 2 release and the zero-shot scoring call remain hers alone; this lane
-ran neither and prepared no submission.**
-
-**Blocked:** R6, on Sanaa's internal-scoring phrasing. Kaandorp
-`AR_3_Ret_360__ML0/1/2`, on the missing `AR_3_Ret_360` case in
-`features_nodurbin.npz`. Xiao2016_EnKF, at the forward model. Kaandorp Table 4
-(BFS5100), no such case on disk.
-
-**⚠ Standing hazard in this tree — RE-READ 18:23Z, and it has cleared.** All four
-paths the board listed as *staged deleted while existing untracked* (residue of
-the `c46309f5` → `a5126378` stale-base episode, L-223) are **tracked and present
-at HEAD**: `NASA_hump_gate/` **4** files, `_common/uq_eigenspace/` **4**,
-`docs/closure/HUMP_BASELINE_EQUIVALENCE_NOTE.md` **1**,
-`docs/closure/LIBS_ASSERT_SWEEP.md` **1**. `R4_sparta_build/` — the one remaining
-exposure as of 18:19Z — became tracked at `b36daf06`: **14 files at HEAD**
-(`PREREGISTRATION.md`, `RESULTS.md`, three `artefacts/*.json`, nine scripts).
-
-**Read tracked status with `git ls-tree -r HEAD <dir>`, not `git ls-files`.** The
-shared index is stale, so at 18:23Z `git ls-files R4_sparta_build \| wc -l`
-returns **0** and `git status` shows fourteen phantom `D ` rows plus a `??` on
-the directory — for files that are committed and on disk. `git ls-tree HEAD`
-returns 14. Same trap as L-223, read from the other side. A blind `git checkout`,
-`reset --hard`, `stash` or `clean` still destroys the R4 lane's live working
-files; inspect, never revert.
-
-**Compute:** 487 core-hours pre-authorised (charter §18). Above it, stop and cost
-it. R4's own cap is 40 core-h against a 12–20 core-h estimate, 0.244 core-h spent.
-Live under this team at 18:22Z: 8 serial `simpleFoam` arms + `fs3_select.py`
-(~1.1 cores observed) ≈ **9.1 cores** ≈ **$0.47/h** at $0.0513/core-h —
-**reported-by-owner rate, not measured.**
-
+**Compute:** 487 core-h pre-authorised (charter §18). Live under this team: the
+Kaandorp driver, one serial core (~$0.05/h at the reported-by-owner
+$0.0513/core-h rate), planning ~3.3 core-h ≈ $0.17 for the six rows, hard bound
+≤$0.31 (3600 s/solve timeout), inside the lane's standing 15 core-h cap. All
+other lane work this session is zero-solve (documents, records, grading).
 ## dafoam
 
-**Section last written:** 2026-08-22T18:17Z by dafoam-supervisor.
+**Section last written:** 2026-08-23T19:35Z by dafoam-supervisor.
 
-*Refreshed 2026-08-22T21:01Z by the DAFoam supervisor (Fable), replacing the harness
-build's third-party first fill. Live reading: `git log`, `docker ps`, `docker inspect`.*
+*Live reading at write time: `git log`, `docker ps -a` (no dafoam containers), `ps aux` (no dafoam processes), `date -u`. Every commit time below is `git show -s --format=%cd` output.*
 
-> **Correction, 2026-08-22 20:15Z, by the section's owner.** Earlier revisions of this section
-> carried "refreshed" times and per-commit times that I asserted rather than read — they ran
-> ahead of the box clock by up to four hours and one row was dated 2026-08-23. Every commit time
-> in the table below is now `git show -s --format=%cd` output, and the refresh stamp is `date -u`.
-> Nothing else in the section changed. The board is the handoff channel, so a wrong timestamp on
-> it is a defect in the same class as a wrong number in a record, not a cosmetic one.
+**⚠ TWO SESSIONS ARE WORKING THIS TERRITORY.** A second live session (pid 1100087, `claude --resume 64b13819`, started 19:04Z) committed `c8254a4a` — the **W4 M1+M2 pre-registration** — at 19:33:04Z today, four minutes after this session's chief took its live reading, with no docket claim. Its run root `/home/ubuntu/certonomous-runs/W4-m1m2-hump-conditioning/` exists (19:26Z); no container was live at 19:35Z. **Claim ledger, this session (19:35Z): W4 M1+M2 is THEIRS — this session will not touch it. This session claims: (a) ADF characterisation sweep 1 + full novelty sweep (D460 blockers), (b) B3 decomposition peak-RSS watcher re-run, (c) A3 rungs 1/3 patched-column pre-registrations.** Any other agent in this territory: read this block before dispatching.
 
 **Last commits (newest first):**
 
 | sha | committed (UTC) | what |
 |---|---|---|
-| *(this commit)* | 2026-08-22 | supervisor append for the A6 completion: **L-242, N-D19..N-D21, D464** (all through `append_record.py`, reconciliation PASS first), `LADDER_A_STATUS` row 37 |
-| `9d5029e8` | 2026-08-22 | *A6 N=16 remaining five components — RESULTS*: **8 of 9 graded, aggregate 1.0432%, zero sign flips**, `twist` idx6 flagged by name. Nine predictions, **nine HIT**. 39.15 core-min / $0.0335 of a 60 ceiling, zero waste. Re-bought trivial baseline returned **−28.75 against the prior run's +152.94** — a wrong-step probe is irreproducible **in sign** |
-| `baf4e68e` | 2026-08-22 | *A6 N=16 remaining five components — pre-registration*, committed before launch, freeze verified twice |
-| `da475770` | 2026-08-22 20:26Z | L-241 CORRECTION appended **through `scripts/append_record.py`** (first DAFoam use; reconciliation PASS before the edit): recomputation catches arithmetic on rounded inputs, not a wrong model of a quantity — the lane's two errors had different mechanisms. **Disclosure:** `088e052f` appended L-241 by `cat >>` minutes after `0286bb2a` made the helper mandatory; verified after the fact as a byte-pure append (0 deletions) |
-| `088e052f` | 2026-08-22 20:24Z | **`DAFOAM_CHARTER.md` v1.0b → v1.0c**, additive: §13 gains a dated note and a **PROPOSAL** — §13 audits the charter's clauses for enforceability, nothing audits a *pre-registration's* own registered thresholds, and A3 rung 2 proved a prereg can invent a guard nothing can execute. Left a PROPOSAL, not a clause: making it binding is Sanaa's call. Plus **L-241** (a ratio of two rounded percentages is not the ratio of the quantities) |
-| `0f56460d` | 2026-08-22 20:23Z | *A3 rung-2 correction* (lane): published ratio **9.22× → 9.2084×**, formed from printed percentages instead of raw values; quote-and-strike per L-32, no verdict, band, gate, prediction score or cost moved |
-| `92185911` | 2026-08-22 20:20Z | supervisor append for the A3 verdict: **L-239** (a registered stop with nothing wired to trigger it is not a guard), **D462**, **N-D18**, `LADDER_A_STATUS` addendum splitting row 12 and striking the file's own "every measured A/B pair improves" reading |
-| `27ce5799` | 2026-08-22 20:18Z | *A3 rung-2 patched-IDWarp arm — RESULTS*: **PASS**, and the **first measured A/B pair where the rotation patch degrades** a gradient the shipped toolchain already had right. 85.950 core-min / $0.0735 of a 120 ceiling; 12 HIT / 5 MISS; self-reported guard breach at §9.1 |
-| `baf4e68e` | 2026-08-22 20:09Z | *A6 N=16 remaining five components — pre-registration* (Lane D), committed before launch; freeze verified blob-for-blob. Steps derived mechanically from the stored \|J\| so every registered step predicts clearance ≥ 5; the prereg's own void condition fired on a `run_arm.sh` md5 mismatch, so the trivial baseline is **re-bought** rather than declined: 11 entries, 23 primals, 40.3 core-min predicted against a 60 ceiling |
-| `2216d5ea` | 2026-08-22 20:06Z | supervisor append: **L-234** (a novelty search needs a nonsense-token control — a pinned Discussions thread is returned for every query), **D460** (the ADF defect candidate and its sweep) |
-| `757eccf0` | 2026-08-22 20:04Z | *ADF primal non-reproduction prepared as a defect candidate* — `cases/dafoam/DEFECT_CANDIDATE_adf_primal_nonreproduction.md`, 329 lines, **NOT FILED ANYWHERE, AND NOT FILING-READY** in its opening lines; novelty sweep RUN (39 searches, 4 venues, read-only) — **no prior art**; class UNDETERMINED pending one 5-core-min arm |
-| `ff5d2327` | 2026-08-22 19:56Z | supervisor append for the A6 verdict: **L-233, D459, N-D13..N-D17**, `LADDER_A_STATUS` row 36. Claim verified by the supervisor personally against the arm logs before belief |
-| `66f42398` | 2026-08-22 19:52Z | *A6 N=16 fixed FD reference — RESULTS final*: **PASS on a 3-component graded subset, 1.0099 %, zero sign flips**; all three predecessor sign flips were FD noise; `twist` idx6 flagged and excluded; forward-AD reached for and found NOT AVAILABLE (nan) — 63.166 core-min / $0.0540 of a 120 ceiling |
-| `674cab89` | 2026-08-22 19:45Z | *A3 rung-2 Amendment 2 v1.2* (lane): Amendment 1's np=1 configuration **withdrawn as refuted by its own measurement**; arms revert to the frozen §2 np=4 configuration; **no gate, threshold, cap or label altered** — only the launch condition, now `free_cores >= 4 AND MemAvailable >= 12 GiB` (free_cores = 16 − median-of-5 runnable count). Frozen body + Amendment 1 verified byte-identical through line 705 **by the supervisor personally**; script diff read as a diff by the supervisor: **68 insertions, 0 deletions, 0 modifications**, grading path untouched. Colouring cache `dRdWColoring_4.bin` md5 `a2e5f317…` proven identical to the graded stock arm's. Worst case 102.150 of the 120 ceiling **by construction** |
-| `3a06b371` | 2026-08-22 19:43Z | supervisor append for the A3 attempt: **L-232, D458, N-D11, N-D12**, `LADDER_A_STATUS` row-12 footnote. Row 12 stays **PENDING — NOT MEASURED**: the np=1 re-price was refuted by measurement (colouring 3.03× bigger at one rank), the arm stopped at 11.950 core-min rather than spend 70.0 on a timeout inside the colouring |
-| `972cb647` | 2026-08-22 18:51Z | *A6 N=16 fixed reference — interim RESULTS* (queue still running): forward-AD reachable and runs for the first time in the lab (`ADF-Deriv: -2.417e-05`), but **the ADF build does not reproduce the plain build's primal** on A6 N=16 (energy diverges at 8th s.f., GAMG 5 vs 7 sweeps, NaN by iteration 10; `libDASolverADF.so` md5-identical across images → shipped-toolchain finding, **new defect class candidate, characterisation owed**); `DASolver.C:188` can print 'satisfied the prescribed tolerance' on a reset `primalMaxRes` (diagnosability defect); FD gate passes for twist 0/3, patchV 1 at step 3e-2, twist idx6 never clears; 7.766 core-min so far of 120 |
-| `85397209` | 2026-08-22 19:27Z | supervisor docs commit for the A4 verdict and the A2 finding: **L-228..L-230, D455..D456, N-D8..N-D10**, `LADDER_A_STATUS` addendum rows 31-35, `INDEX` addendum (four new dirs). Board update missed in that commit, landed here |
-| `f9a59d47` | 2026-08-22 18:30Z | *A4 shipped-image optimisation twin — PASS, and the rotation patch did not matter to this optimisation*: 6 majors, CD −7.4775 %, endpoint 0.3112 % PASS, patched baseline 0.33929 % PASS; 13.616 core-min / $0.0116 |
-| `239a007f` | 2026-08-22 18:01Z | *A4 shipped-image optimisation twin — pre-registration* |
-| `a94e8317` | 2026-08-22 18:23Z | *A3 rung2 patched-IDWarp arm — pre-compute amendment v1.1*: np=4 → np=1 twins (`np1_shipped`, `np1_patched`) + `np1_control`, because the T-family holds the box to 08-23..26 (poll min load 20.40); frozen body unchanged (renumbered lines: 0); only 0.200 core-min pre-flight spent. Now holding on MemAvailable ≥ 12 GiB (9.1 GiB while A6/A4 containers are resident) |
-| `79679a84` | 2026-08-22 18:10Z | *A2 per-component table* — zero compute. **PATCHED `CD/shape` carries a sign flip at idx46** (analytic `+2.27367571e-06` vs FD `-2.52460969e-06`) that `A2/grading_confirmation/RESULTS.md` §1 says does not exist; SHIPPED `CD/shape` has 7/96 components beyond 15 % (worst idx18 `-360.75 %`) under a 1.71 % aggregate. All published aggregates reproduce to 7-8 s.f. Log-integrity defect: MPI ranks splice `check_totals` arrays mid-number on one stdout; 1 of 4 printed CD copies usable, 0 of 4 CL copies |
-| `8028d9ab` | 2026-08-22 18:09Z | *A6 N=16 fixed FD reference — pre-registration*: two stages on `dafoam-idwarp-rot:v1`, np=1; P1 predicts the 1e-8 primal gate FAILS at 6000 iters (residual flat from iter 100); forward-AD reachability probed (`libDASolverADF.so` carries `DARhoSimpleCFoam`, 28 symbols); 74.0 core-min registered, 120 ceiling |
-| `a5605f54` | 2026-08-22 18:03Z | *A3 rung2 patched-IDWarp arm — pre-registration* (np=4, 42,120 cells, ceiling 120 core-min); staged and pre-flighted (0.200 core-min), **holding at its launch gate** (load ≤ 8 never met; min seen 20.40) |
-| `804c3fd8` | 2026-08-21 | Phase 3B (final): ILU-shift class measured dead, `dafoam-team:v1` built and gated, B3 free of the decomposition defect |
+| `c8254a4a` | 2026-08-23 19:33Z | **NOT THIS SESSION'S** — W4 M1+M2 prereg (`cases/dafoam/ladder-b/W4_M1M2_PREREGISTRATION.md`, 632 lines), committed before any compute by the second session. 40.0 core-min predicted, 60 ceiling, decision rule on the complete-vs-incomplete factorization axis registered |
+| `6c6de745` | 2026-08-22 21:01Z | supervisor append for the A6 close: **L-242** (a trivial baseline at a deliberately wrong step is irreproducible in magnitude AND sign: −28.75 vs +152.94 from identical configuration), **N-D19..N-D21**, **D464**, `LADDER_A_STATUS` **row 37**. All four aggregates recomputed independently by the supervisor before recording (8-graded 1.0432%, 3-subset reproduces 1.0099%, 5-bought 1.4185%, 9-folded 1.0440%) |
+| `4fd84e7b` | 2026-08-22 20:58Z | lane draft rows for the supervisor's append helper (A6 remaining-five) |
+| `9d5029e8` | 2026-08-22 20:57Z | *A6 N=16 remaining five components — RESULTS*: **PASS on the graded set of 8, aggregate 1.0432%, zero sign flips, every component ≤ 5%**; the five bought (twist 1,2,4,5 + patchV 0) fall from 57.62/67.93/57.06/90.17/82.79% at the predecessor's noise-dominated step to 1.359/1.733/1.032/0.389/0.569% at noise-sized steps — the adjoint never moved, only the reference. twist idx6 stays FLAGGED and excluded by name (clearance 2.42×, plateau 83.53%). 9 predictions, 9 HIT. **39.15 core-min / $0.0335** of a 60 ceiling |
+| `da475770` | 2026-08-22 20:26Z | L-241 CORRECTION via `scripts/append_record.py` (first DAFoam use) |
+| `088e052f` | 2026-08-22 20:24Z | **`DAFOAM_CHARTER.md` v1.0b → v1.0c** (§13 enforceability PROPOSAL, unratified) + L-241 |
+| `92185911` | 2026-08-22 20:20Z | supervisor append for the A3 rung-2 verdict: L-239, D462, N-D18, status row-12 split |
+| `27ce5799` | 2026-08-22 20:18Z | *A3 rung-2 patched-IDWarp arm — RESULTS*: **PASS, and the first measured A/B pair where the rotation patch degrades** a gradient the shipped toolchain had right. 85.950 core-min / $0.0735 |
+| `757eccf0` | 2026-08-22 20:04Z | ADF primal non-reproduction prepared as a defect candidate, **NOT FILED ANYWHERE, NOT FILING-READY** (D460) |
+| `66f42398` | 2026-08-22 19:52Z | *A6 N=16 fixed FD reference — RESULTS*: PASS on 3-component subset 1.0099%; forward-AD found NOT AVAILABLE (nan). 63.166 core-min / $0.0540 |
 
-**Live jobs (reading 18:17Z; both np=1, `--cpus=1`, launched under a disclosed
-launch-condition amendment because the T-family holds 12 of 16 cores until
-2026-08-23..26):**
+Older rows (A4 twin PASS `f9a59d47`, A2 per-component `79679a84`, A3 prereg chain, Phase 3B `804c3fd8`): see this section at `git show 6c6de745:docs/LAB_STATE.md` and `git log`.
 
-| container | host pid | run root / cwd | item | ETA |
-|---|---|---|---|---|
-| `p3a6_s1b` | 802799 | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/s1b` | A6 N=16 fixed reference, Stage 1 (primal-convergence gate + forward-AD probes), `--memory=12g` | Stage 1 ~20-40 min; Stage 2 contingent, ~1.5 h |
-| `p3a6rem_rem` | live | `/home/ubuntu/certonomous-runs/P3-a6-n16-rem/rem` | A6 N=16 **remaining five components** (twist 1,2,4,5 + patchV 0) + re-bought trivial baseline, np=1 `--cpus=1 --memory=12g`, `timeout 3600` (= the 60 core-min ceiling at one rank); launched 20:12Z on the second preflight poll (free_cores 3) | ~40 min |
+**Live jobs:** **none owned by this session.** The second session's W4 M1+M2 run had not launched a container as of 19:35Z; its prereg is committed and its run root staged. Box otherwise: 4 heat-transfer solvers, 12 cores free, load1 ~4.2.
 
 **Rungs lacking verdicts:**
 
 | item | state |
 |---|---|
-| **A3 patched column** | **rung 2 MEASURED — PASS** (row 12); **rungs 1, 3 and the 399,360 campaign stay PENDING** (row 12b). The patch **degrades** both warp-crossing rows here against a bit-identical FD reference — first such case on the ladder (N-D18) |
-| **A6 N=16** | **COMPLETE at 8 of 9** — aggregate **1.0432 % PASS**, zero flips, `twist` idx6 flagged by name and structurally ungradeable at any feasible step. **N=29 stays NOT RUN**: the gate has two registered readings (charter-verbatim NOT MET / subset-complete GATE REACHED) and **choosing between them is Sanaa's**, D464 |
-| **ADF primal non-reproduction** | **defect candidate prepared** (`757eccf0`, D460, N-D16): NOT FILED and NOT FILING-READY on two named blockers — the full 63-search/10-venue sweep (0 compute) and sweep 1 (~5 core-min), which decides whether the class is *conditioning/diagnosability* or *AD correctness*. Sweep found **no prior art**. Characterisation arms approved in principle, held until the box frees |
-| **A4** | **complete** — the 2×3 table has no assumed cells (status addendum rows 31-33) |
-| **A2 `CD/shape` PATCHED** | aggregate 0.0506 % PASS now carries a **per-component sign flip (idx46)** — under the band ("ANY sign flip ⇒ FAIL") the row needs the per-component caveat A5 idx16 got; supervisor to record in `LADDER_A_STATUS` addendum + docket. Whether adjoint or FD artefact: NOT established (a sweep costs 207-238 core-min on A2; not bought) |
-| **B3 Stage 4** | **BLOCKED by construction** — Sanaa's fork-adoption call. The rebuild rows are final: BLOCKED (shipped) / PASS (`subpclu:v2`, 667 iters, FD 0.085/0.059/0.199 %, decomposition G1-G3 PASS) |
-| **W4 / NASA hump adjoint** | uncharacterised; M1+M2 at 40 core-min unbought |
-| **B3 decomposition peak RSS** | NOT MEASURED (no 5 s watcher on that chain) |
+| **A6 N=16** | **COMPLETE at 8 of 9 — PASS, aggregate 1.0432%, zero sign flips** (status row 37). twist idx6 NOT A RESULT (FD-ungradeable at any step). **N=29 stays NOT RUN**; its gate has two registered readings — charter-verbatim NOT MET / subset-complete GATE REACHED — and **the choice is Sanaa's (D464)**, as is the ~5 core-min ninth-component arm |
+| **A3 patched column** | rung 2 MEASURED — PASS (row 12, degrades vs shipped, N-D18); **rungs 1, 3 and the 399,360 campaign PENDING (row 12b)** — claimed by this session for pre-registration |
+| **ADF primal non-reproduction (D460)** | defect candidate NOT FILING-READY on two named blockers: full 63-search/10-venue novelty sweep (0 compute) and characterisation sweep 1 (~5 core-min, decides conditioning/diagnosability vs AD correctness). Box now free — claimed by this session, lane dispatching |
+| **B3 decomposition peak RSS** | NOT MEASURED (no 5 s watcher on that chain) — claimed by this session, lane dispatching |
+| **W4 / NASA hump adjoint M1+M2** | **prereg committed `c8254a4a` by the second session — THEIRS.** This session does not touch it |
+| **A2 `CD/shape` PATCHED idx46** | caveat **RECORDED** — status rows 34-35 carry it; whether adjoint or FD artefact stays NOT established (sweep 207-238 core-min, not bought) |
+| **B3 Stage 4** | BLOCKED by construction — Sanaa's fork-adoption call |
 
-**Two-row verdicts standing** (shipped / patched): A1 GATE FAIL / PASS; A2 PASS / PASS
-with the idx46 caveat above, optimisation NOT A RESULT; A3 primal GATE REACHED, adjoint BLOCKED (399k) — sweep rungs 1-2 PASS, rung 3 GATE FAIL (conditioning) / **rung 2 PASS, other sizes PENDING**;
-A4 PASS / PASS on both the optimisation and the endpoint gradient (patch immaterial; CD −7.478 %); A5 GATE FAIL / PASS;
-A6 BLOCKED (full) — N=16 GATE FAIL (shipped, superseded reference) / **PASS on the 3-component graded subset with a fixed reference** (patched). B2 PASS; B3 BLOCKED / PASS.
+**Two-row verdicts standing** (shipped / patched): A1 GATE FAIL / PASS; A2 PASS / PASS with the idx46 per-component caveat (rows 34-35), optimisation NOT A RESULT; A3 primal GATE REACHED, adjoint BLOCKED (399k) — sweep rungs 1-2 PASS, rung 3 GATE FAIL (conditioning) / rung 2 PASS (degrades — N-D18), other sizes PENDING; A4 PASS / PASS (patch immaterial; CD −7.478 %); A5 GATE FAIL / PASS; A6 BLOCKED (full) — N=16 GATE FAIL (shipped, superseded reference) / **PASS at 8 of 9, aggregate 1.0432%, twist idx6 NOT A RESULT** (patched, fixed reference; rows 36-37). B2 PASS; B3 BLOCKED / PASS.
 
-**Next actions:** (1) A6 is closed at 8 of 9; the only open A6 lever is `useMeanStates` (~5 core-min), which is on Sanaa's desk; A6 Stage 2 only if its
-registered gate passes. (2) Resolve the A3 np=4 launch: pre-compute amendment to np=1
-twins if the T-family holds the box past the poll window. (3) Supervisor docs commit per
-verdict: `LADDER_A_STATUS` dated addendum, L-225+ (re-derive), D453+ (re-derive), N-D8+.
-(4) Then: B3 decomposition RSS watcher re-run (cheap), W4 M1+M2 (40 core-min).
+**Next actions:** (1) ADF characterisation sweep 1 + full novelty sweep — prereg committed before compute, ~5 core-min. (2) B3 decomposition RSS watcher re-run (cheap). (3) A3 rung-1 and rung-3 patched-column preregs (box has 12 free cores; np=4 launch gate now trivially met). (4) W4 — held, second session's item. (5) Supervisor docs commit per verdict as they land.
 
-**On Sanaa's desk (new, 2026-08-22):** **Which reading of the N=29 gate governs** — charter-verbatim (NOT MET, and no FD arm on this rung can ever meet it) or subset-complete (GATE REACHED). The gap is one component, closable only by `useMeanStates: True` + `fieldAverage`, **~5 core-min / $0.004**, unbought. Two decisions, both hers: which reading, and whether to buy the closing arm.
+**On Sanaa's desk:** **D464 — the N=29 gate reading** (charter-verbatim NOT MET vs subset-complete GATE REACHED; the gap is one ~5 core-min arm). **R11 adoption evidence is two-sided** — A3 rung 2 measured the patch degrading; adoption is case-dependent, her call. **MemAvailable floor 12 GiB** ruling (Lane B's measured case for 6 GiB on primal-only arms; not lowered by any agent). **Five upstream defect drafts, all NOT FILED** (D-A/D-A2, D-B/D-B2, D-C, D-E + the ADF candidate `757eccf0`) — filing is hers alone. **B3 Stage 4 fork-adoption.** The near-zero sign-flip-under-a-passing-norm class (A1 idx6, A5 idx16, A2 idx46). **`DAFOAM_CHARTER.md` §13 enforceability PROPOSAL** (v1.0c, unratified).
 
-**On Sanaa's desk (also new):** **R11 adoption evidence is now two-sided.** Every prior A/B pair argued for adopting the patched toolchain; A3 rung 2 is the first measured case arguing against it for a specific case class, so adoption is **case-dependent, not global** — her call, not a lane's. Also: `dafoam-idwarp-rot:v1` is now validated at np>1 (all four ranks loaded the patched `.so` through `-x PYTHONPATH`), closing `patched_build/idwarp_rot/BUILD.md` §6's mixed-stack risk.
+**Blocked:** B3 Stage 4 (Sanaa); A6 N=29 verdict wording (Sanaa, D464); A6 full-size rung (BLOCKED, unchanged); ADF filing readiness (the two blockers above, now in work).
 
-**On Sanaa's desk (ruling requested):** the DAFoam launch-gate **MemAvailable floor 12 GiB** — a registered gate threshold, so it stays at 12 until she rules (chief, 2026-08-22). Lane B's measured case for lowering it to **6 GiB for primal-only arms**: the 12 was calibrated on a 9.787 GiB adjoint; the largest peak RSS in the whole A6 fixed-reference item was **1.252 GiB**, and the floor cost **28 min of wall** waiting under another team's `viewFactorsGen` (up to 17.2 GiB). Not lowered by any agent.
+**⚠ Integrity flags on frozen records, none quoted from:** `A1_naca0012_incompressible.md:167-172` (refuted mechanism, zero strike); `A5_ubend_internal.md:194-196` (in-band set mismatch); `A2/grading_confirmation/RESULTS.md` §1 ("no sign flip anywhere in A2") falsified at PATCHED idx46.
 
-**On Sanaa's desk:** now **five** upstream defect drafts — the four standing classes plus the ADF primal non-reproduction (`757eccf0`), which is a *candidate*, not filing-ready. Four upstream defect drafts, all **NOT FILED** (D-A/D-A2 IDWarp
-rotation; D-B/D-B2 decomposition + limiter; D-C ksp options override; D-E ILU exact zero
-pivot) — filing is hers alone. Fork-adoption decision for B3 Stage 4. Note for her: the
-A2 per-component extraction shows the third near-zero sign-flip-under-a-passing-norm
-(A1 idx6, A5 idx16, A2 idx46) — a class, not an incident.
+**Shared-board rule in force (chief, 2026-08-22):** `docs/LAB_STATE.md` is never written in the shared worktree. Each board commit rebuilds from `git show $H:docs/LAB_STATE.md`, replaces only `## dafoam` (`scripts/lab_state_section.py --team dafoam --rev $H --out <scratch>`), stages by `git hash-object -w` + `update-index --cacheinfo` in the private index, and the diff-tree must be confined to this section. Carried in every lane brief.
 
-**⚠ Integrity flags on frozen records, none quoted from:**
-`A1_naca0012_incompressible.md:167-172` (refuted mechanism, zero strike);
-`A5_ubend_internal.md:194-196` (in-band set {1,2,16,24,25} vs measured {1,2,24,25,26});
-`A2/grading_confirmation/RESULTS.md` §1 ("no sign flip anywhere in A2") falsified at
-PATCHED idx46.
-
-**Shared-board rule in force (chief, 2026-08-22):** `docs/LAB_STATE.md` is never written in the shared worktree. Each board commit rebuilds from `git show $H:docs/LAB_STATE.md`, replaces only `## dafoam` (`scripts/lab_state_section.py --team dafoam --rev $H --out <scratch>`, selftest PASS: a planted foreign edit outside the section is dropped, a stray `## ` heading inside it is refused), stages by `git hash-object -w` + `update-index --cacheinfo` in the private index, and the diff-tree must be confined to this section. Disclosed: `a6b43ab3` was committed from the worktree and carried another team's uncommitted section edits (their own text, no harm). Carried in every lane brief.
-
-**Record-append rule in force (chief, `0286bb2a`):** every append to `DOCKET.md`, `LESSONS.md`, `NUMERICS_KNOWLEDGE.md` goes through `python3 scripts/append_record.py` (merge form; refuses edits inside committed bytes, exit 2; asserts max+1 per series, exit 3) with `scripts/check_record_reconciliation.py` run BEFORE the edit; the `git show HEAD:… > file` rebuild recipe is retired. Carried verbatim in every DAFoam lane brief.
+**Record-append rule in force (chief, `0286bb2a`):** every append to `DOCKET.md`, `LESSONS.md`, `NUMERICS_KNOWLEDGE.md` goes through `python3 scripts/append_record.py` (merge form) with `scripts/check_record_reconciliation.py` run BEFORE the edit. Carried verbatim in every DAFoam lane brief.
 
 **Charter:** `DAFOAM_CHARTER.md` **v1.0c** (2026-08-22) — the §13 enforceability PROPOSAL is unratified and awaits Sanaa.
 
-**Images:** `dafoam-idwarp-rot:v1` (only image carrying the rotation patch, md5
-`85f59e87…`), `dafoam-subpclu:v2` (PCLU), `dafoam-kspopts:v1`, `dafoam-team:v1`
-(`0b3c94c33a15`, both patches, ends `USER dafoamuser` → `--user root` for bind mounts).
-*The hash is the identity; the version string is not.* F6 series under `cases/dafoam/`
-is plain `simpleFoam`, not DAFoam work.
-
----
-
+**Images:** `dafoam-idwarp-rot:v1` (only image carrying the rotation patch, md5 `85f59e87…`), `dafoam-subpclu:v2` (PCLU), `dafoam-kspopts:v1`, `dafoam-team:v1` (`0b3c94c33a15`, both patches, ends `USER dafoamuser` → `--user root` for bind mounts). *The hash is the identity; the version string is not.* F6 series under `cases/dafoam/` is plain `simpleFoam`, not DAFoam work. **The stale shared index (577 staged deletions at 19:28Z) is the chief's call — inspect, never revert; all dafoam working-tree files verified identical to HEAD at 19:35Z.**
 ## heat-transfer
 
-**Section last written:** 2026-08-23T19:55Z by heat-transfer-supervisor
+**Section last written:** 2026-08-23T19:45Z by heat-transfer-supervisor
 (re-formed 2026-08-23 after the 2026-08-22 session limit).
+
+> **Timestamp correction, 2026-08-23 19:45Z, by the section's owner.** The
+> previous revision's stamp read 19:55Z but its commit (`cdb5cc0b`) is dated
+> 19:27:03Z -- the stamp was asserted, not read from the clock (the `bd3edfe8`
+> defect class; same disease the dafoam section corrected). Every time in this
+> revision is `date -u` output or a log line read at 19:42Z.
 
 ### T-family (thermal) — refreshed 2026-08-23 by the T-family supervisor
 
@@ -432,17 +333,34 @@ is plain `simpleFoam`, not DAFoam work.
   28000, O_m 46000). **`R_f` alive** (pid 757934) at 47 511/78 000 as of
   19:15Z, pacing at or ahead of the 2026-08-25T14:54Z ETA. Comparator re-runs
   only after all eight.
+- **Strict-rule verification of the eight finished runs (this supervisor,
+  19:34-19:42Z).** The seven finished T3 ext1 arms now carry DONE markers from
+  the frozen `mark_done_t3_ext1.py` (selftest 14/14 first, `__pycache__`
+  cleared; dry-run 7/7, then real run 7/7 PASS, ext1 included) -- the 7/8 line
+  above was a STATUS rc=0 read, not the six-test rule; this is the rule, age
+  guard included. `DONE.R_f` is ABSENT from disk though tracked in HEAD:
+  correct, refusing-direction state while its extension runs (removal not
+  witnessed by this session; consistent with the tool's registered behaviour);
+  the deletion is committed with this revision so the frozen comparator cannot
+  read a half-finished extension. `R_10k_x` re-verified independently:
+  `mark_done_t1b_L4.py` 1/4 PASS (three siblings correctly refuse, still
+  running), marker idempotent with `cdb5cc0b`'s. All six marking/grading
+  scripts hashed byte-identical to their HEAD blobs before any output was
+  believed. The seven `STATUS_EXT1.*` evidence files (previously untracked)
+  are committed with this revision.
 
 **Live jobs — 4 solvers, all this team's, all single-core
-`buoyantBoussinesqSimpleFoam`.** Reading taken 2026-08-23T19:15Z. **Do not
-touch them.**
+`buoyantBoussinesqSimpleFoam`.** Reading taken 2026-08-23T19:42Z (`ps`,
+`readlink /proc/<pid>/cwd`, last `Time =` line of each log). **Do not touch
+them.** The L4 completion watcher is pid 1102509 (30-min poll for the three
+STATUS files, deadline guard 2026-08-27).
 
 | pid | cwd | iteration / endTime | ETA |
 |---|---|---|---|
-| 442445 | `T1_runs/R_300k_x` | ~40 457 / 80 000 | ~2026-08-26 |
-| 450274 | `T1_runs/R_100k_x` | ~36 000 / 80 000 | ~2026-08-26 |
-| 488219 | `T1_runs/R_30k_x` | ~34 324 / 80 000 | ~2026-08-26 |
-| 757934 | `T3_runs/R_f` | 47 511 / 78 000 | ≤ 2026-08-25T14:54Z |
+| 442445 | `T1_runs/R_300k_x` | 41 245 / 80 000 | ~2026-08-26 |
+| 450274 | `T1_runs/R_100k_x` | 36 947 / 80 000 | ~2026-08-26 |
+| 488219 | `T1_runs/R_30k_x` | 34 835 / 80 000 | ~2026-08-26 |
+| 757934 | `T3_runs/R_f` | 48 083 / 78 000 | ≤ 2026-08-25T14:54Z |
 
 **Rung verdicts on record** (unchanged from 2026-08-22 except T10a's arm):
 
@@ -462,12 +380,22 @@ touch them.**
 GATE FAIL; K0b + K0cG/P/Q/R verdicts VERIFY; K2a on Sanaa's desk; K2b cost
 VOID; K2e/KV1 VERIFY).
 
+**Lanes live (dispatched 2026-08-23 ~19:40Z, 2 of the cap of 3):** (a) F14
+VERIFY sweep -- read-only verification of the K0b (D403 rerun + D406 repair),
+K0cG/K0cP/K0cQ/K0cR, K2e and KV1 recorded verdicts against their records and
+run trees; commits nothing. (b) T9aH successor pre-registration (re-graded
+T9a under `Gauss harmonic`, the H-4 follow-through named by T9a-D) -- drafts
+and commits the prereg, then STOPS; no launch before this supervisor's
+personal check of the committed prereg, grading path and cost.
+
 **Next actions:** 1. L4 completion (watcher armed) → grade the four (m,f,x)
 triples. 2. T3 ext1 completion (`R_f`) → comparator re-run over all eight →
 T3 re-graded under the frozen §7.1 gates. 3. T5 waits on Sanaa's
 INTERPRETATION rulings. 4. T10a-R successor questions (whether any rung arms
 a band from a triple whose implied p exceeds the observed error decay —
-L-244) belong to verification, flagged, not taken here.
+L-244) belong to verification, flagged, not taken here. 5. T9aH: committed
+prereg -> supervisor's personal check -> launch decision (lane live). 6. F14
+VERIFY flags: clear to BACKED or record GAP per the sweep lane's report.
 
 **On Sanaa's desk** (carried, plus one new): Vogel & Eaton purchase
 (~25–40 USD, figure unconfirmed); T5 draft INTERPRETATIONs; T1b L4 cost
@@ -486,59 +414,74 @@ looser than it reads; moves verdicts across K0c/K2e/KV1). Owner: chief. No
 single rung may take it.
 ## cfd
 
-**Section last written:** 2026-08-22T18:05Z by harness-build (FIRST FILL — not yet written by its owner).
+**Section last written:** 2026-08-23 by cfd-supervisor (first owner-written fill; replaces the harness first fill of 2026-08-22).
 
-**Last commit:** `cc4f1a64` — *Twenty-six dead paper paths in forty files…*
-(2026-08-18 17:54Z). **This lane has been idle four days** while the other four
-committed today.
+**Last commit:** see this section's git history — this supervisor's session of 2026-08-23 commits the MESH_STANDARD cross-ref fix + this board rewrite; two lanes commit their own records (GEN_ALT campaign record; DPW8_V2 L4 diagnosis prereg). Before that the team's last commit was `cc4f1a64` (2026-08-18), five days idle.
 
-**Live jobs:** none.
+**Live jobs:** DPW8_V2 L4 diagnosis arms — **CORRECTION (~20:2xZ): the earlier "launching now" line was wrong.** The first launch authorization was mis-addressed to the GEN_ALT write-up lane, which correctly REFUSED under rule 9 (it never held the frozen plan) — supervisor's routing error, on the record. Authorization re-sent to the authoring lane of `99f939ee` with the frozen specifics restated verbatim; arms `run_L4_diagA_relax` (relaxation only) and `run_L4_diagB_scheme` (div(phi,U) linearUpwind→upwind only) are launching under that lane now, single core each, endTime 600, cap 75 core-min/arm; pids recorded here on its confirmation. Prereg frozen `99f939ee` (295 lines, blob sha256-verified vs disk by supervisor; personal check #4 done; Arm B re-specification ruled APPROVED after supervisor's own read of `run_L4_gate/system/fvSchemes` showed k/omega convection already upwind). Grading reader must be committed and its diff read by supervisor before any output is believed. Do not touch the 4 heat-transfer `buoyantBoussinesqSimpleFoam` solvers or closure's `simpleFoam` pid 1114301.
 
-**Standards — and these are two documents, not two copies.** `docs/standards/MESH_STANDARD.md`
-(**v1.2, 2026-08-11**) carries the **quality gates**; `docs/MESH_STANDARD.md` carries
-the **grid families**. They are complementary and neither supersedes the other, so
-do not "reconcile" them into one. Read both. Also `docs/OPENFOAM.md` — **stale; it
-describes the phase-1 adapter** — and `docs/OPENFOAM_SOLVER_BUILD.md`.
+**Incident, owned by cfd:** commit `070da305` reverted heat-transfer's committed 19:45Z board section (33 lines) because the shared working tree was behind HEAD on their section — the `d97ed4c9`/`6ae77c79` disease, second occurrence in one day. Caught by this supervisor's post-commit diff inspection; repaired verbatim at `40984dac`, byte-verified. Standing guard now applied here: before committing this shared file, diff its foreign sections against HEAD and restore any the tree lags on.
 
-**Open run families (lacking verdicts):**
+**Resolved this session (2026-08-23, supervisor's own reads):**
+- **W2 VERIFY closed.** `W2_sparta_runs/setup_sparta_case.sh` mtime 2026-08-22 17:38 = the closure team's H-7 libs-institutionalization lane; committed 17:48 in `5162ec8e`; disk is byte-identical to HEAD (the `MM` was the stale shared index). Diff read personally: adds only an L-221 `grep -q libspartaTurbulenceModels` assert that refuses on a missing libs entry. Benign; W2_sparta stays closed.
+- **GEN_ALT is GRADED, not unwritten.** The prereg at `verification/runs/GEN_ALT_runs/GEN_ALT_PREREGISTRATION.md` carries a full scored Outcome (2026-08-08): verdict **GENERATOR-OWNED** per the pre-declared rule (blockMesh max-AR refinement factor ×0.945 vs pyHyp ×1.71 at matched counts; near-wall AR 37.4 vs 87.6-class; G1/G2 HELD, G3 refused by the born-clean gate at non-ortho 70.13/70.11 > 70 — no solve ever ran, by refusal, honestly). Freeze chain verified: prereg frozen `9c4fbef4` 23:16:04Z, outcome `41f0e1df` 23:19:01Z, moved in `a1fbe127`. Cost ≈0.4 core-min. What was missing was only the campaign-level record — lane dispatched to file it in `verification/campaign/`.
+- **DPW8_V2 L4 decided: DIAGNOSE, not abandoned.** The campaign record's §3-CORRECTION already establishes L4 **DIVERGED deterministically** (k blow-up from ~iter 14, reproduced bit-for-bit; mesh quality and aspect ratio ruled out; root cause open). Supervisor decision 2026-08-23: run the record's own cheapest decisive experiment — two short pre-registered arms, one change per run (Arm A relaxation only; Arm B turbulence-convection scheme only), positive-control-gated grading. The gate rung itself remains **NOT GATED** until the diagnosis lands; any repaired full L4 (and the §3b family-consistent linear-solver question) is a successor decision.
+- **MESH_STANDARD consistency check done (they were never to be merged).** `docs/standards/MESH_STANDARD.md` (v1.2, single-mesh quality gates + birth certificate + §7 marine) and `docs/MESH_STANDARD.md` (grid-family sizing/scatter) are complementary, both flag the name collision on their face, cross-refs sound, one-home-per-fact respected (§7.3). One staleness found and fixed this session: the family doc's header cited the companion as v1.0/2026-07-25 while its own Sources said v1.2 — header updated, no gate value touched.
 
-| family | why open |
+**Open run families — triaged 2026-08-23 (read-only lane sweep, supervisor spot-checked; the 2026-08-22 first-fill table had 3 rows WRONG and 5 PARTLY WRONG):**
+
+| family | actual state, from the records |
 |---|---|
-| **DPW8_V2** | *Status: SALVAGE.* L4 fine gate rung **INCOMPLETE — not gated**; `run_L4_gate.stdout.log` is **0 bytes**. Two lower rungs PASS |
-| **F5b** | the run dir is **exactly one file**, `run_pitch.py`. No case tree, no logs |
-| **F5c** | headline **withdrawn to *unmeasured***. The 1.313 H attributed to SIMPLEC was **RELAXATION** — misattributed. Chief-approved **Stage B was never run** |
-| **R4** (Ahmed turn) | *n = 2 of a planned 4*; leg-2: *"No SIGNAL/NOISE verdict is claimed."* Plus a withdrawal record. **Note: this R4 is the Ahmed-body draw series, NOT the closure team's R4 SpaRTA build** |
-| **GEN_ALT** | measured, never written up, and **no solve ever ran** — mesh only. Both meshes breach non-orthogonality (70.13 / 70.11 > 70) |
-| **F12** | pre-registration only; `F12_runs/` is just `reference/` |
-| **F7a re-gate** | spec frozen, unexecuted |
-| **MODEL_FORM successors** | three preregs, no results |
-| **mbc_retry, uq_batch** | *"Nothing here is graded."* |
-| **F4** | SWBLI θ=32.5°/35° gate cases *"NOT yet built or run"* |
-| **F5** | 1e5 and 1e6 ladder rungs have no run tree |
+| **DPW8_V2 L4** | DIVERGED, root cause open; diagnosis prereg in flight this session (see above). L1/L3 PASS stand |
+| **F5b** | Feasibility **PASS** on record (`F5bc_unsteady_statistics.md`); Physics and Gate rungs literally "[to be completed]" — **PENDING**, not ungraded. Run dir really is one file. Trap: `F5b_cylinder_re100_act.json` is a DIFFERENT case (Re=100 shedding act). Next rung ≈25–35 core-min |
+| **F5c** | Effectively closed: headline withdrawn to unmeasured; 1.313 H was RELAXATION (misattributed, `F5C_LEVER_ISOLATION_RESULTS.md`); **Stage B was NEVER chief-approved** ("Stage B NOT approved and not run", header of `F5C_STAGE_A_RESULTS.md`) and O3 firing makes it moot. First-fill's "chief-approved Stage B" was wrong. A3-vs-A4 disagreeing 4.224 H on a relaxation-only change is residual-free proof neither solve converged |
+| **R4 (Ahmed turn)** | First-fill row WRONG: leg 2 ran 2026-08-10, **n = 4 of 4** (`R4_AHMED_C3_LEG2_RESULTS.md`; B3 broad scatter R = 0.324 vs 0.28 bar, near miss; DISSOLVES confirmed). Turn **WITHDRAWN as a feature** (chief ruling `8f5bf878`, `R4_AHMED_TURN_WITHDRAWAL_2026-08-10.md`). No SIGNAL/NOISE verdict claimed — the c4 CI leg was deliberately not taken. Optional n=7 (~3.1 core-min/draw) needs chief's word. NOT the closure R4 SpaRTA build |
+| **F12** | Rule-12 defect **CLEARED 2026-08-23**: costed addendum committed `3f23c172` (chief-directed; supervisor verified the original 140 lines byte-identical, rule-6 assertion present). Five rungs ESTIMATED 383.5 core-min = $0.33 on the F2 same-solver analog, capped 1,300 core-min with the coarse rung as calibration (a 9.79× cross-solver spread vs the DPW8_V2 basis is real and unexplained — the medium cap deliberately stops the campaign if Basis B's rate is the true one). **F12 stays PENDING; the addendum authorizes no launch.** Implementation trap on record: `rae2822_case9.py` default timeout 7200 s would kill the fine rung (est. 13,118 s) — must be raised at build time, changes no gate |
+| **F7a re-gate** | Spec frozen AND **the gate verdict is already taken from tracked data: FAIL at +11.03% max deviation** (prereg §1's own words). What is unexecuted is the diagnostic list; cheapest is **R0, 0 core-min** (literature recovery, arXiv:2108.08769 front-extraction). R1a (760–1,520 core-min) recommended against by the record itself. Live unexplained: 23.3% code-to-code offset |
+| **MODEL_FORM successors** | First-fill row WRONG: all three preregs carry **executed outcome blocks** (FPE rescue 18.16 core-min; H ext 41.66; H hills 29.18). Verdicts are refusals by the n<3 rule ("containment REFUSED — no band exists at n = 1"). Substantive finding: a family-convergence wall on the hills. CLOSED as registered; row corrected |
+| **mbc_retry, uq_batch** | CONFIRMED — both self-labelled by their own 2026-08-18 READMEs: "Nothing here is graded." No action; any rung wanting either outcome re-runs it |
+| **F4** | θ=32.5°/35° gate cases still held — correct — but the row hid the work: Settles reference **overturned and replaced** with Kussoy & Horstman TM 101075, ±30% pass band pre-registered before the cases run; θ=20° warm-up SIGFPE with **5 mechanisms eliminated, root cause open** (`NOT_PASSING_REGISTER.md` Group 3); custom `rhoCentralFoamBounded` source at `verification/runs/F4_runs/swbli_cylflare/`. Named next lever, **zero compute**: source-read of `rhoCentralFoam` directional flux reconstruction at cells with two boundary faces |
+| **F5** | CONFIRMED and understated: no 1e5/1e6 trees; re10000 is **mesh-only**; and the ladder's own record says **"do not climb to Re 5000 or Re 10,000"** (2D wake tops the recirculation-bubble gate's applicability; 5.9–13.7 h/rung for a weaker gate). Informative next step per the record is the 3D rung. Zero-compute follow-up: Dong & Karniadakis literature access to upgrade Re 10k/2k bands |
 
 **Closed, verdicts on record:** 4G, B52_RUNG6 (REPRODUCE), D5_rsm (SSG and LRR
 bracket the DNS; *which* RSM is right is not settled), DMR, F2 (PASS banded), F3
 (PASS), F8 (**NO VERDICT — and that is the result**), F9 (PASS quasi-steady, gate 2
 stays FAIL vs Womersley), F11 (GATE REACHED), FPE_DIAG (SHARED-BY-CLASS, recorded
-only by citation from its successor prereg), MESH_AUDIT, W1, W1_hump, W2_sparta,
-W3.
+only by citation from its successor prereg), GEN_ALT (GENERATOR-OWNED —
+campaign record `verification/campaign/GEN_ALT_generator_matrix.md`, commit
+`8974eb75`, 2026-08-23), MESH_AUDIT, W1, W1_hump, W2_sparta, W3.
 
 **⚠ Structural fact this team must know:** with five exceptions, the run dirs under
 `verification/runs/` carry **no README, RESULTS, PREREG or DONE marker at all**.
 **The verdicts live one level up, in `verification/campaign/*.md`.** Do not
 conclude a family is ungraded because its run directory is bare.
 
-**Next actions:** reconcile the two MESH_STANDARD copies. Decide DPW8_V2 L4 —
-finish the gate rung or record it as abandoned with a reason. Write up GEN_ALT,
-which is measured and unpublished.
+**Standards — two documents, not two copies (do NOT merge):** `docs/standards/MESH_STANDARD.md`
+(v1.2) = quality gates; `docs/MESH_STANDARD.md` = grid families. Consistency
+verified 2026-08-23 (see above). `docs/OPENFOAM.md` — triaged 2026-08-23: the
+**v2606 claim is VALID** (`/usr/lib/openfoam/openfoam2606` is the only install);
+what is stale is the framing — it documents a WSL2/docker phase-1 adapter
+workflow on a native-Linux AWS box, and `sdk/docker/Dockerfile.openfoam-worker`
+**does not exist** though the doc gives a build command for it. Zero-compute fix
+pending: flag the container section, re-scope WSL as historical.
+`docs/OPENFOAM_SOLVER_BUILD.md`: two dead `demo-output/website/...` paths for
+`rhoCentralFoamBounded_src` **fixed this session** (source verified on disk at
+`verification/runs/F4_runs/swbli_cylflare/`).
 
-**On Sanaa's desk:** nothing currently.
+**Next actions:** (1) grade the DPW8_V2 L4 diagnosis arms when they complete,
+then decide the successor (family-consistent repaired L4, or record the family
+as stopping at L3 with the diagnosed cause). (2) F4 SIGFPE next lever — the
+zero-compute source-read of `rhoCentralFoam`'s directional flux reconstruction
+at double-boundary-face cells. (3) F7a R0 literature recovery, 0 core-min.
+(4) F12: costed addendum question to the chief — the prereg is disqualified as
+a proposal until priced (rule 12). (5) F5b physics rung (~25–35 core-min) as
+the next cheap compute candidate. (6) `docs/OPENFOAM.md` re-scope, zero
+compute. Same dead-path class as the fixed one persists in
+`F4_hypersonic_blunt_body.md`'s artifact lines — sweep candidate.
+
+**On Sanaa's desk:** nothing from cfd currently.
 
 **Blocked:** nothing currently identified.
-
-**⚠ VERIFY:** `verification/runs/W2_sparta_runs/setup_sparta_case.sh` has mtime
-**2026-08-22 17:38** and shows `MM` in git status — the only non-thermal file
-touched under `runs/` in three days. **Find out who did that before assigning W2.**
 
 **Case tree:** `cases/{committee-grids, demo-surfaces, hlpw6, mega-batch, tmr,
 unsteady-cylinder, valve}` is **dormant in git** — none is the subject of a recent
@@ -552,53 +495,134 @@ documented `FILING_CHARTER` §3 exception: *the rule was wrong, not the tree.*
 
 ## verification
 
-**Section last written:** 2026-08-22T18:05Z by harness-build (FIRST FILL — not yet written by its owner).
+**Section last written:** 2026-08-23T19:38Z by verification-supervisor (first
+owner-written fill; supersedes the 2026-08-22 harness first fill, whose
+"rule on the VM2026R1 canonical home" next-action over-reached — D-6 is with
+Sanaa and neither copy is touched).
 
-**Last commit:** `fd831c11` — *T-family: Thermal Buildup Directive recorded; T3
-NOT A RESULT 4/4; charter 2e; DC certificate template; libs helper+lint
-(D449-D451, L-224)* (2026-08-22 17:53Z).
+**Last commit:** this commit (CROSS_TEAM_GATE_AUDIT.md pass 1 + this board
+update). Before it: `090c070c` (lane) — Ansys manual `.txt` sidecar, R8 pair
+complete, L-144 title-page verified from the extracted text (*"Ansys Fluid
+Dynamics Verification Manual … Release 2026 R1, March 2026"*), 368,949 bytes,
+290 pages, clean; `50175beb` — L-245 filed; `6ae77c79` — LAB_STATE repair.
 
-**Live jobs:** none.
+**Incident 2, on the record (2026-08-23 ~19:56Z):** commit `890bfa7f` reverted
+closure's 20:20Z section, cfd's 08ea9dbb correction and the chief's GPU-row
+update, because this supervisor's commit chain had a heredoc that terminated
+the `&&` chain — when the docket append REFUSED (D467 taken concurrently), the
+blob-rebuild step silently never ran and `hash-object` committed a **stale
+scratchpad blob from the previous round**. Caught by the post-commit verify
+(96-line delta vs ~12 expected), repaired in the next commit (worktree
+verified per-section ≥ the pre-damage parent `e1f346ee` before committing;
+closure's newer 20:45Z section rides along deliberately as part of the
+repair). Lesson to file: L-247 — a heredoc inside an `&&` chain ends the
+chain, and a scratch artifact consumed by a later step must be deleted before
+the chain or built-and-consumed in one step. Third occurrence of the L-245
+disease in one day, this one mine end to end.
 
-**Charters owned:** `VERIFICATION_CHARTER.md` **v1.10, 2026-08-22** (§2e appended
-at the foot on Sanaa's H-7 directive, L-219/L-220 verbatim, zero lines moved
-above); `RESULT_PRIORITY_CHARTER.md` **v0.5 — a DRAFT**, whose orderings are
-proposals awaiting Sanaa's ruling.
+**Audit pass 1 recorded (`docs/CROSS_TEAM_GATE_AUDIT.md`, new, append-only):**
+**R5C — AUDIT: SOUND, GATE FAIL stands** (prereg sha `a1cfae5a…` re-hashed by
+the supervisor personally, equal; comparator disk == committed blob ==
+recorded sha; §2d disclosure-limb compliant per D-4(a); G1c lever-activity
+covers the no-op; planted controls fired with measured values).
+**T10a-R — AUDIT: SOUND WITH DISCLOSED DEVIATIONS, GATE FAIL 5/4/0 stands**
+(all five §1a byte-claims re-derived personally: 30,520-byte prefix property
+holds, ADDENDUM 2 tail sha `ab90298a…` matches, comparator `a3014a64…` disk ==
+blob; the two deviations were disclosed before this audit and carry the
+chief's ruling; ADDENDUM 2 commit stays on Sanaa's desk). Zero solver compute.
+**Incident on the record:** this team's first board commit `d97ed4c9` clobbered
+the dafoam board section in git because the shared working tree was stale on
+that file; caught by the non-optional post-commit verify, repaired forward the
+same minute, lesson L-245 filed. Dafoam team: your 19:35Z section (two-session
+claim ledger included) is intact at HEAD; how the working tree came to hold
+your 18:17Z text while git held 19:35Z is unestablished and flagged to you.
+The team has produced **no verdict-bearing commit yet**; the `fd831c11` line in
+the first fill was heat-transfer's commit, not this team's.
+
+**Live jobs:** none owned by this team. (Verified 2026-08-23T19:36Z by `ps aux`:
+4 `buoyantBoussinesqSimpleFoam` solvers live — pids 442445, 450274, 488219,
+757934 — all heat-transfer's; never touched.)
+
+**Charters owned:** `VERIFICATION_CHARTER.md` **v1.10, 2026-08-22** (§2e at the
+foot, H-7, L-219/L-220 verbatim, zero lines moved above — verified by reading
+the amendment record at the foot this session); `RESULT_PRIORITY_CHARTER.md`
+**v0.5 — a DRAFT**, orderings are proposals awaiting Sanaa; only §2's bright
+line (trade declared and recorded) is settled.
 
 **Open items:**
 
 | item | state |
 |---|---|
-| **VM2026R1_Fluids** (Ansys verification suite) | **UNTRACKED, and unpacked TWICE** — at the repo root `VM2026R1_Fluids/` and under `docs/papers/verification_validation/VM2026R1_Fluids/`, both mode 700, both dated 2026-08-22. Holds `VM2026R1_FLUENT_ARCHIVES` and `VM2026R1_CFX_ARCHIVES`. **Decide the canonical home under FILING_CHARTER R6/R8 and say which copy is authoritative before grading anything from it.** Nothing graded yet |
-| **Ansys Fluid Dynamics Verification Manual** | on disk at `docs/papers/verification_validation/`, 8.5 MB, **PDF with no `.txt` sidecar**. `FILING_CHARTER` R8 requires the pair — *a PDF and its sidecar always travel together* |
-| **`GATE FAIL` vs bare `FAIL`** | charter §2 says `GATE FAIL`; `scripts/check_verdict_cells.py --strict-fail` counted **4 ledger cells** reading bare `FAIL`. Both defensible, neither touched. **Referred for a ruling, unruled** |
-| **Comparator freeze audit** | `scripts/check_comparator_freeze.py` first pass found **two of six frozen** — *"the honest baseline this rule starts from."* The other four are unaudited since |
-| **The six standing audits** | `DEAD_LEVER`, `EXTERNAL_REFERENT`, `FAIL_OPEN_GATE`, `H4_ALLOCATION`, `LEDGER_HEADLINE`, `SWEEP_REFRAME`. None re-run since 2026-08-16 — **VERIFY** |
+| **VM2026R1_Fluids** (Ansys suite) | **D-6, with Sanaa — NO AGENT TOUCHES EITHER COPY.** Live reading 2026-08-23T19:37Z, read-only: root copy `VM2026R1_Fluids/` **123 files, 2.5 GB** (complete per chief's count); papers copy **STALLED at 10 files, 26 MB**, nested doubled path `docs/papers/verification_validation/VM2026R1_Fluids/VM2026R1_Fluids/`, last write 2026-08-22 17:42Z, **no scp/rsync/sftp process live** — the "transfer in progress" of the chief's 08-22 note is DEAD, not in progress. This team may *prepare* the FILING_CHARTER R6/R8 analysis for her ruling; the ruling and any move are hers. Nothing graded from either copy |
+| **Ansys Fluid Dynamics Verification Manual** | tracked PDF at `docs/papers/verification_validation/`, 8.5 MB, **no `.txt` sidecar** (R8 violation). Sidecar production + L-144 title-page verification dispatched to a lane 2026-08-23 |
+| **`GATE FAIL` vs bare `FAIL`** | D-5, with Sanaa, nothing edited. Current reading (lane, 2026-08-23): **3 bare `FAIL` cells** (V5:1070, V14:1080, V15:1081) vs the recorded 4 — corpus churn isolated: V8 already remediated to `GATE FAIL`, V10 left, V14 entered (D338 amendment). Instrument defect D469: `--selftest` exits 1, D356 landing control BROKE (implementation is the correct half), second landing control VACUOUS — repair with a lane, supervisor diff read owed |
+| **Comparator freeze audit** | RE-RUN 2026-08-23: **19 comparators — 7 FROZEN / 8 UNFROZEN / 4 AMENDED_AFTER** (baseline was 2 of 6). Baseline five match; K0cR flipped to AMENDED_AFTER — its `6d58d898` edit **read as a diff by the supervisor: display-only ("hollow pass" label condition), disclosed in K0cR §6, no violation**. `analyse_t9aD` UNFROZEN is commit-test-correct; rung sound (sha-witness freeze + 2d.1-compliant tolerance repair, all four conditions verified). Instrument owes three repairs (D468): marker-pooling false positives (`analyse_t1b_L4` proven FROZEN +177,712 s against its own cases), `cases/` population gap (R5C grader et al. uncovered), sha-witness blindness. 4 pooled `T1_runs` UNFROZEN rows still ungraded |
+| **The six standing audits** | file mtimes measured 2026-08-23: `DEAD_LEVER` 08-11, `EXTERNAL_REFERENT` 08-16, `FAIL_OPEN_GATE` 08-11, `H4_ALLOCATION` 08-12, `LEDGER_HEADLINE` 08-11, `SWEEP_REFRAME` 08-11. First-fill VERIFY resolved: **none re-run since 2026-08-16, confirmed.** Re-sweep dispatched to a lane 2026-08-23 |
 
-**Freshness flag:** nothing under `verification/campaign/`, `certificates/`,
-`credibility/` or `monitor/` has been written since **2026-08-18 17:40** — four
-days.
+**Freshness flag:** `verification/certificates/`, `credibility/`, `monitor/`
+all last written 2026-08-16 19:03 (verified by `ls`); nothing this team owns has
+moved since.
 
-**Cross-team gate audit — this team's standing mandate.** Open any other team's
-rung and ask: could this gate have failed (§2a identity test); was the comparator
-frozen before its cases could answer it (§2d); were the controls **fired** rather
-than described. Current highest-value targets, from the other four sections:
+**Cross-team gate audit — standing mandate.** Targets, updated with the material
+new at HEAD `9e82321b` since the first fill:
 
-- **T1b's four `PASS` rows sit on triples that are every one DIVERGENT or
-  STAGNANT** (D440). The rows are PASS as the frozen comparator returned them and
-  carry no mesh-converged value. That is the sharpest live instance of the rule
-  this team owns.
-- **T10a** has 6 controls **UNMEASURED** and a 2d.1 zero-referent repair disclosed.
-- **A4's two rows are measured at different design points** — so the shipped/patched
-  comparison the DAFoam charter's bright line requires has never actually been made.
-- **Wu2018 aposteriori** returned NOT A RESULT with the registered falsifier fired
-  — check the falsifier was the pre-registered one and not re-read after the fact.
+- **NEW — R5C** (`0ac76ec2`): closed GATE FAIL **by its own identity gate** —
+  "the omega source is repaired in a copy, not in the solver R4's numbers came
+  from." Audit: confirm the identity gate was pre-registered and the GATE FAIL
+  is the frozen comparator's own output, not a post-hoc reading.
+- **NEW — T10a-R** (`cdb5cc0b`): GATE FAIL 5/4/0, prereg ADDENDUM 2 disclosed
+  **unfrozen and uncommitted at grading** (chief's ruling; applied gates
+  byte-prefix-checked at 30,520 bytes against `7150182b`). Audit: §2d/§2b
+  legality of grading under an uncommitted addendum.
+- **NEW — A6 N=16** (`6c6de745`): 8 of 9; N-D21's step-sizing rule sizes steps
+  from `|J_adj|`, the quantity under test — self-referential failure mode
+  admitted unmeasured. Audit: is that caveat carried on the verdict surface.
+- T1b's four PASS rows on DIVERGENT/STAGNANT triples (D440) — still the
+  sharpest live instance of the Roache rule; grading of the L4 re-run waits on
+  three 80000-endTime siblings, ETA 2026-08-26.
+- T10a: 6 controls UNMEASURED; 2d.1 zero-referent repair disclosed — still open.
+- A4 — **CLOSED, pass 2**: the 08-22 shipped-image twin made the like-for-like
+  comparison at both matched design points; target was stale.
+- Wu2018 frozen-k — **CLOSED, pass 2**: fired falsifier IS the §5-registered
+  one, verbatim; weakness named — prereg's first commit is the results commit
+  (`62f781d0`), freeze self-attested, no commit witness. Verdict stands.
+- A6 §6a caveat — **CLOSED, pass 2**: N-D21's limitation travels (in-table,
+  §7 lim. 8, priced UNPRICED). See `docs/CROSS_TEAM_GATE_AUDIT.md` pass 2.
 
-**Next actions:** rule on the VM2026R1 canonical home and get it tracked or
-explicitly gitignored. Produce the missing `.txt` sidecar for the Ansys manual.
-Re-run `check_comparator_freeze.py` across all six.
+**Filing observation (lane, 2026-08-23):** the manual's basename
+`Ansys_Fluid_Dynamics_Verification_Manual.{pdf,txt}` violates R8's
+`author_year_identifier` pattern — now flagged twice by `check_filing.py`
+(both halves of the pair). NOT renamed: a tracked-file rename is coupled work
+and sits beside D-6 material; goes in the D-6 prep note for Sanaa. Repo-wide
+`check_filing.py` reads FAIL: 28 violations (1 R1, 4 R5, 12 R8, 11 R9 — 11
+other PDFs lab-wide still lack sidecars), pre-existing, not this team's alone.
 
-**On Sanaa's desk:** the `RESULT_PRIORITY_CHARTER` orderings (v0.5, *"still need to
-think abt how to go abt this"*); the `GATE FAIL`/`FAIL` vocabulary ruling.
+**Next actions:** (1) DONE — Ansys manual sidecar (`090c070c`);
+(2) lane: `check_comparator_freeze.py` re-run + `check_verdict_cells.py
+--strict-fail` current count; (3) lane: six standing audits re-sweep with dated
+amendments; (4) DONE — cross-team gate audit of R5C and T10a-R, both SOUND, recorded in
+`docs/CROSS_TEAM_GATE_AUDIT.md` pass 1; next audit targets are that file's §3
+open list (A4, A6 surface-caveat, Wu2018 falsifier, T1b after 08-26, T10a
+controls); (5) prepare — not act on — the
+VM2026R1 R6/R8 filing analysis for Sanaa's D-6 ruling, including the dead
+partial transfer finding above.
 
-**Blocked:** nothing currently identified.
+**Chief-routed item (2026-08-23), evaluated:** the R4 §7 registered-deliverable
+class ("promised artefact absent and undisclosed at close-out") gets an
+executable check — spec in `docs/REGISTERED_DELIVERABLES_CHECK_PROPOSAL.md`
+(D470; closure's own D467 records the R4 instance): declared-mode binding
+prospectively, heuristic report-only
+retrospectively, four planted controls, adoption gated on the §5 archive
+replay, must fire on R4 §7. Implementation dispatched to a lane; the binding
+charter clause is a DRAFT in the proposal's §3 for Sanaa. The R4 repair itself
+is closure's — not duplicated.
+
+**On Sanaa's desk:** `RESULT_PRIORITY_CHARTER` v0.5 orderings; the `GATE
+FAIL`/bare-`FAIL` ruling (D-5); the VM2026R1 canonical home (D-6) — now with
+the finding that the second copy's transfer is dead at 10/123 files, and with
+the prepared ruling memo **`docs/VM2026R1_FILING_ANALYSIS.md`** (three options,
+A recommended: outside-git home per the closure-data pattern + committed sha
+manifest; the manual-basename R8 rename rides along as §4). Analysis only —
+neither copy was touched.
+
+**Blocked:** VM2026R1 grading (blocked on D-6, Sanaa). Nothing else.
