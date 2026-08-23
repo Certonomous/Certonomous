@@ -269,3 +269,104 @@ reviewer's head.
 | coloring conflict abort | in-image `DAColoring/DAColoring.C:1021` |
 
 **Nothing in this file was sent anywhere. Filing is Sanaa's call alone.**
+
+---
+
+## ADDENDUM — 2026-08-23: the peak of §5 is now MEASURED, and this record's hedge is vindicated
+
+**This addendum alters no gate, no threshold, no band, no cap and no label of this item.** G1, G2
+and G3 stay `PASS`; G4 stays `GATE FAIL`; G5 stays `PASS`; B3 Stage 4 stays `BLOCKED` under R11.
+Nothing here re-grades the decomposition question, the gradients are not re-scored, and
+`analyse_decomp.py` was not re-run and is not in the grading path of the work reported below.
+
+**lines whose number changed above this section: 0**
+
+**This is a QUANTIFYING CONFIRMATION, not a correction.** Nothing in §5 of this file was wrong.
+
+### What this file said, verbatim
+
+> *"6.156 GiB is a `docker stats` sample taken during the linear solve, **not a true peak** — no
+> per-arm high-water mark was recorded, because the chain did not carry the 5 s memory watcher the
+> ILU-shift chain used. **The honest statement is that the cap was never approached at any moment
+> observed, not that the peak was 6.156 GiB.** That the arm registered as most likely to OOM
+> finished with `rc=0` in 1266 s is the load-bearing fact; the exact peak is **NOT MEASURED**."*
+> — §5 of this file, lines 129-134
+
+**That sentence hedged, and it hedged correctly.** It claimed only that the cap was never approached
+*at any moment observed*, and it explicitly refused to call 6.156 GiB a peak. The measurement below
+shows the hedge was the right call and that a reader who took 6.156 GiB *as* the peak would have
+been wrong by a wide margin.
+
+### What was measured, 2026-08-23
+
+The chain was re-run unchanged with a kernel-counter instrument attached, under the pre-registration
+at `cases/dafoam/ladder-b/B3/decomposition_peak_rss/PREREGISTRATION.md`, frozen at `d062aace`
+**before** any container of that item started.
+
+| arm | quantity | measured | instrument |
+|---|---|---|---|
+| **`D_serial`** (np=1) | cgroup v2 **`memory.peak`** | **11,954,151,424 B = 11.133 GiB** | kernel high-water of `memory.current`, monotone non-decreasing |
+| `D_serial` | peak tree RSS | **11.503 GiB** | sum of per-pid `VmRSS` over the container cgroup |
+| `D_simple2` (np=4) | `memory.peak` | 8,590,049,280 B = 8.000 GiB | as above |
+| `D_simple2` | peak tree RSS | 9.719 GiB | as above |
+
+**The 6.156 GiB figure in §5 was a FLOOR, and it undersampled the true peak of `D_serial` by
+1.81x** (11.133 / 6.156). On tree RSS the factor is 1.87x. The arm did not merely fail to approach
+its 12 GiB cap comfortably: **it reached 92.8 % of it, with 0.867 GiB of headroom.**
+
+### Why these numbers attach to THIS record's graded arms
+
+A memory number from a run that is not the graded run is a number about a different run. The re-run
+was therefore gated on reproducing this file's archived digits first, and it did:
+
+**M0 PASS — 18 of 18 identity checks true across both arms**: `PetscConvergedReason` 2; iteration
+counts **163** and **766**; the 16-digit `OBJ varianceU` values `1.5279275989724403e-02` and
+`1.5279278602317540e-02`; both full `GRAD n=21000 norm=… min=… max=…` lines; both iteration-0
+residuals; the `DAFOAM_SUBPC_TYPE=lu` sub-block-LU banner; the gradient artefact and its age guard.
+The decomposition was read back out of each arm's own directory after the run — `D_serial`
+`numberOfSubdomains 1`, `D_simple2` `method simple; n (4 1 1)` with four `processor*` dirs — so
+neither arm silently ran a different partitioning (the §6a trap of this file).
+
+**Same case, same image** (`dafoam-subpclu:v2`, ID `sha256:83526295…29d46`, in-image
+`DALinearEqn.C` md5 `5b3159f8…d097f`, both asserted before launch), same DV, same
+`compute_totals` task, same `--memory=12g` cap. The instrument was shown able to see a **2 GiB
+planted peak** before any graded arm ran, and it reads **one named container's cgroup only**.
+
+### One consequence for §5's own reasoning, stated because it runs against the later item's grain
+
+§5 of this file concluded **"The prediction missed high"** of the 10–14 GiB estimate it carried from
+`PREREGISTRATION.md:69`. **Both measured `D_serial` figures — 11.133 GiB and 11.503 GiB — fall
+inside 10–14 GiB.** That prediction did not miss. The measurement it was being judged against did.
+§5's diagnosis of *why* it should have missed (in-solver `PCLU` on one ASM block is not SuperLU's
+object; the 1000-vector GMRES basis was never allocated in full at 163 iterations) was reasoning
+built to explain a gap that the instrument had manufactured.
+
+**What survives of §5 unchanged:** that the arm finished `rc=0` in 1266 s is still the load-bearing
+fact, and the arm still did not OOM. **What does not survive:** any reading of 6.156 GiB as this
+arm's peak, and the finding that the 10–14 GiB prediction was wrong.
+
+### What is still NOT measured
+
+- **Every figure above is a peak under a 12 GiB cgroup cap.** A cap changes reclaim behaviour, so an
+  unconstrained peak is **not** derivable from 11.133 GiB and may be higher. Lifting the cap is a
+  **new registration with its own price** and is not proposed here.
+- **`D-scotch`'s true peak.** Not re-run; its 9.044 GiB stays a 5 s `docker stats` maximum — after
+  this measurement, known to be the weakest of the three arms' figures by a wider margin than
+  before.
+- **Nothing about the gradient's correctness.** §8 of this file stands: *"invariance is necessary,
+  never sufficient."*
+
+### Provenance
+
+| what | where |
+|---|---|
+| pre-registration, frozen before any compute | `../decomposition_peak_rss/PREREGISTRATION.md` (`d062aace`; Addenda `7a007d67`, `5edfe8c0`) |
+| results and the full graded table | `../decomposition_peak_rss/RESULTS.md` |
+| grader output (machine) | `/home/ubuntu/certonomous-runs/B3-decomposition-peakrss/peak_rss.json` |
+| planted-control record | `/home/ubuntu/certonomous-runs/B3-decomposition-peakrss/selftest/selftest_verdict.txt` |
+| watcher and solver logs | `/home/ubuntu/certonomous-runs/B3-decomposition-peakrss/logs/` |
+
+**Nothing in this addendum was sent, filed, uploaded, registered, posted or pushed anywhere. Filing
+is Sanaa's call alone.**
+
+*End of Addendum. Nothing above this section was edited.*
