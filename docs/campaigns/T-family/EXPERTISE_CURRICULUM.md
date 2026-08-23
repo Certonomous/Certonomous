@@ -1,9 +1,11 @@
 # T-family expertise curriculum — advanced heat-transfer cases
 
-**STATUS: PROPOSED — awaiting Sanaa's ratification. Nothing in this file is a
-pre-registration, nothing here authorises a run, and NO compute has been
-launched under it.** Recorded 2026-08-23 by the heat-transfer supervisor on
-the chief's relay of Sanaa's directive.
+**STATUS: RATIFIED 2026-08-23 (Amendment 1 at the foot; originally PROPOSED).
+The ratification is of the proposal AS WRITTEN — its own terms bind: nothing
+in this file is a pre-registration, no run starts without its own frozen,
+costed pre-registration, and the NEEDS-COSTING items still return to Sanaa
+costed before launch.** Recorded 2026-08-23 by the heat-transfer supervisor
+on the chief's relay of Sanaa's directive.
 
 ## The directive, verbatim
 
@@ -267,3 +269,57 @@ Every such use is PENDING Sanaa's VM2026R1 instructions.**
 order), `docs/product/DC_CERTIFICATE_TEMPLATE.md` (H-6 classes),
 `T1b_L4_AMENDMENT.md`/L-244 (triple gating carried into every candidate's
 gates), CLAUDE.md rules 2, 5, 9, 12, 15.*
+
+---
+
+## AMENDMENT 1, dated 2026-08-23 — RATIFIED by Sanaa
+
+**What changed above this section, stated exactly:** the 4-line PROPOSED
+STATUS block (lines 3–6) was replaced by a 6-line RATIFIED block (lines 3–8),
+shifting every subsequent line number by +2. Every candidate entry, tier
+table, cost figure and ratification-ask above is **byte-unchanged**. This
+file was PROPOSED, never frozen by sha, and no record cites it by line
+number; the standing zero-lines-moved assertion form applies to frozen
+files and is therefore not claimable here — the shift is disclosed instead.
+
+Sanaa's ratification, verbatim, relayed by the chief 2026-08-23:
+
+> "YOU have my approval also for the heat transfer and dafoam proposals. SO
+> heat transfer team can start working on their heat transfer tasks from the
+> proposal... Per usual, each team must formally update their respective .md
+> files accordingly with the knowledge, the lessons, the processes, the
+> summaries etc, and update the general lab's logic/knowledge and expertise
+> if there is new knowledge that the entire lab must have."
+
+**What the ratification is, read under rule 9 (an approval is only as wide as
+what was approved):**
+
+- It approves **this proposal as written**, including its own restraints: the
+  curriculum stays **behind the unchanged H-2 spine and H-5 order**; R4's
+  CPU-minutes keep first call on capacity; spine compute in flight (T3 ext1
+  `R_f`, T1b L4 siblings) keeps priority and curriculum runs fit around it.
+- **Pre-authorised-class items may proceed**, each under its own
+  prediction-first pre-registration, **frozen and committed before compute**
+  (the T10a-R lesson), costed at registration.
+- **E2, E3-b, E7-3D and E12-build remain NEEDS COSTING: ratification of a
+  document that says "needs approval" is not that approval.** Each returns to
+  Sanaa costed before launch.
+- Validation sources are adopted only after rule-15 title-page verification;
+  sources not on disk remain pulls on Sanaa's desk.
+- Her "per usual" clause is recorded as **binding on every item**: formal .md
+  updates (knowledge, lessons, processes, summaries) per item, and lab-wide
+  propagation (NUMERICS_KNOWLEDGE, standards, or charter/CLAUDE.md amendments
+  routed through the chief) whenever an item produces knowledge the whole lab
+  needs.
+
+**First item selected: E4 stage (a) — fan/air-mover boundary verification,
+exact operating-point class.** Selection logic, on this file's own terms: it
+is the only C-A item whose prerequisite line is met today (E1 waits on T5
+graded + K2a approval; E2 and E3-b are NEEDS COSTING; E3-a sits under E3's
+prerequisite line naming T11), it is the cheapest item on the board
+(estimate ≤ $1 against the ~$1–2 entry), and it is self-contained: stage (a)
+grades the `fanPressure` BC against a **registered polynomial fan curve**
+intersected with the **exact laminar duct resistance** — an EXACT-class
+verification needing no external document. Stage (b), validation against a
+manufacturer curve, needs the datasheet pull and **goes on Sanaa's desk**;
+it is not started by this amendment.
