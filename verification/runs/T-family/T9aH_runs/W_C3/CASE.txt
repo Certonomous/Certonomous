@@ -1,0 +1,14 @@
+case              W_C3
+rung              T9a (composite wall + fin efficiency, EXACT tier)
+kind              wall_uniform_control
+solver            laplacianFoam (ESI v2606), steadyState ddt
+endTime           1000
+writeInterval     100  (strictly less than endTime, L-140)
+residualControl   none (L-141; convergence from written checkpoints)
+layer_1           L = 0.05 m, k = 0.8 W/mK, 26 cells, dx = 1.923077e-03 m
+layer_2           L = 0.1 m, k = 0.04 W/mK, 51 cells, dx = 1.960784e-03 m
+layer_3           L = 0.02 m, k = 16.0 W/mK, 13 cells, dx = 1.538462e-03 m
+T_hot             350.0 K  (C3: BOTH faces)
+T_cold            350.0 K  (C3: BOTH faces)
+control           C3 trivial baseline -- uniform-temperature solid, MUST FAIL
+rung_override     T9aH: laplacian(DT,T) = Gauss harmonic corrected

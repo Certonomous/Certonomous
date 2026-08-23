@@ -1,0 +1,16 @@
+case              W_f
+rung              T9a (composite wall + fin efficiency, EXACT tier)
+kind              wall
+solver            laplacianFoam (ESI v2606), steadyState ddt
+endTime           1000
+writeInterval     100  (strictly less than endTime, L-140)
+residualControl   none (L-141; convergence from written checkpoints)
+layer_1           L = 0.05 m, k = 0.8 W/mK, 26 cells, dx = 1.923077e-03 m
+layer_2           L = 0.1 m, k = 0.04 W/mK, 51 cells, dx = 1.960784e-03 m
+layer_3           L = 0.02 m, k = 16.0 W/mK, 13 cells, dx = 1.538462e-03 m
+T_hot             350.0 K
+T_cold            300.0 K
+reference_q       19.502682 W/m2
+reference_T_i1    348.781082 K
+reference_T_i2    300.024378 K
+rung_override     T9aH: laplacian(DT,T) = Gauss harmonic corrected

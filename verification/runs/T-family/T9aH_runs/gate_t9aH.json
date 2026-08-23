@@ -1,0 +1,401 @@
+{
+ "cases": {
+  "F_c": {
+   "L": 0.05,
+   "Q_base": 0.20828638197991495,
+   "Q_conv": 0.20828638197103708,
+   "T_base": 350.0,
+   "T_inf": 300.0,
+   "W": 0.001,
+   "eta": 0.8331455279196598,
+   "heat_balance_closure": 4.262338505498425e-11,
+   "laplacian(DT,T)": "Gauss harmonic corrected",
+   "n_cells": 500,
+   "nx": 50,
+   "ny": 10,
+   "t_fin": 0.002,
+   "time": "1000",
+   "tip_ratio": 0.7523988460318947
+  },
+  "F_f": {
+   "L": 0.05,
+   "Q_base": 0.20829342640892495,
+   "Q_conv": 0.20829342640130233,
+   "T_base": 350.0,
+   "T_inf": 300.0,
+   "W": 0.001,
+   "eta": 0.8331737056356998,
+   "heat_balance_closure": 3.6595608824724855e-11,
+   "laplacian(DT,T)": "Gauss harmonic corrected",
+   "n_cells": 3328,
+   "nx": 128,
+   "ny": 26,
+   "t_fin": 0.002,
+   "time": "1000",
+   "tip_ratio": 0.7523951097500151
+  },
+  "F_m": {
+   "L": 0.05,
+   "Q_base": 0.20829144106131933,
+   "Q_conv": 0.2082914410438357,
+   "T_base": 350.0,
+   "T_inf": 300.0,
+   "W": 0.001,
+   "eta": 0.8331657642452773,
+   "heat_balance_closure": 8.393828171363139e-11,
+   "laplacian(DT,T)": "Gauss harmonic corrected",
+   "n_cells": 1280,
+   "nx": 80,
+   "ny": 16,
+   "t_fin": 0.002,
+   "time": "1000",
+   "tip_ratio": 0.752396160365115
+  },
+  "H4000_f": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 349.8753179392507,
+   "T_i2": 300.00249364121686,
+   "heat_balance_closure": 9.4868716927737e-11,
+   "laplacian(DT,T)": "Gauss harmonic corrected",
+   "n_cells": 90,
+   "q": 1.994912971898845,
+   "q_cold": 1.9949129718042176,
+   "q_hot": 1.9949129719934724,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "H40_f": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 340.0398406374477,
+   "T_i2": 300.1992031872529,
+   "heat_balance_closure": 5.381954082408787e-12,
+   "laplacian(DT,T)": "Gauss harmonic corrected",
+   "n_cells": 90,
+   "q": 159.36254980039354,
+   "q_cold": 159.36254979996468,
+   "q_hot": 159.36254980082236,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "RL_f": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.7786732145509,
+   "T_i2": 300.02387174218796,
+   "heat_balance_closure": 1.1429383173411244e-10,
+   "laplacian(DT,T)": "Gauss linear corrected",
+   "n_cells": 90,
+   "q": 19.854990714112837,
+   "q_cold": 19.85499071524749,
+   "q_hot": 19.854990712978186,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "W_C3": {
+   "T_cold": 350.0,
+   "T_hot": 350.0,
+   "T_i1": 349.9999999999982,
+   "T_i2": 350.00000000000335,
+   "heat_balance_closure": 1.9215686274509773,
+   "laplacian(DT,T)": "Gauss harmonic corrected",
+   "n_cells": 90,
+   "q": 2.411979949101712e-09,
+   "q_cold": 4.729372449219039e-09,
+   "q_hot": 9.458744898438456e-11,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "W_c": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.7810823988298,
+   "T_i2": 300.02437835202346,
+   "heat_balance_closure": 1.8652825506218286e-11,
+   "laplacian(DT,T)": "Gauss harmonic corrected",
+   "n_cells": 35,
+   "q": 19.50268161890562,
+   "q_cold": 19.502681619087507,
+   "q_hot": 19.502681618723727,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "W_f": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.78108239882687,
+   "T_i2": 300.0243783520253,
+   "heat_balance_closure": 4.360966663233149e-11,
+   "laplacian(DT,T)": "Gauss harmonic corrected",
+   "n_cells": 90,
+   "q": 19.502681619207195,
+   "q_cold": 19.502681619632448,
+   "q_hot": 19.502681618781942,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "W_m": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.78108239882664,
+   "T_i2": 300.0243783520241,
+   "heat_balance_closure": 6.035503830009751e-12,
+   "laplacian(DT,T)": "Gauss harmonic corrected",
+   "n_cells": 56,
+   "q": 19.502681618848055,
+   "q_cold": 19.50268161890691,
+   "q_hot": 19.5026816187892,
+   "thickness": 0.17,
+   "time": "1000"
+  }
+ },
+ "controls": [
+  {
+   "control": "HC1_arithmetic_mean_conductivity",
+   "met": true,
+   "must": "FAIL H2's bar"
+  },
+  {
+   "control": "HC2_perfect_fin",
+   "met": true,
+   "must": "FAIL H6's bar"
+  },
+  {
+   "control": "HC3_uniform_wall_solved_trivial_baseline",
+   "met": true,
+   "must": "FAIL H1, H2 and H3"
+  },
+  {
+   "control": "HC4_null_arm_RL_f_Gauss_linear",
+   "met": true,
+   "must": "FAIL H1, H2 and H3",
+   "null_errors": {
+    "H1": -0.0024091842789175644,
+    "H2": 0.01806464886613582,
+    "H3": -0.0005066098354404858
+   },
+   "rows_not_counted": []
+  }
+ ],
+ "exact_references": {
+  "4000x": {
+   "T_i1": 349.8753179392549,
+   "T_i2": 300.0024936412149,
+   "q": 1.9949129719216,
+   "sum_R": 25.06375
+  },
+  "400x": {
+   "T_i1": 348.7810823988298,
+   "T_i2": 300.0243783520234,
+   "q": 19.502681618722573,
+   "sum_R": 2.56375
+  },
+  "40x": {
+   "T_i1": 340.0398406374502,
+   "T_i2": 300.199203187251,
+   "q": 159.3625498007968,
+   "sum_R": 0.31375
+  }
+ },
+ "instrument": "analyse_t9aH.py (NEW -- read as source and as diff)",
+ "refusals": {
+  "RC3_replica": {
+   "T_i1": 0.0,
+   "T_i2": 0.0,
+   "q": 0.0
+  },
+  "RC5_planted_convergence_H40_f": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.80079681274901,
+   "max_change": 0.0012340000000108375,
+   "relative": 2.4778720000217615e-05,
+   "state": "NOT_CONVERGED",
+   "tol": 1e-06
+  },
+  "RC5_planted_convergence_W_f": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.97562164797648,
+   "max_change": 0.0012340000000108375,
+   "relative": 2.4692039024607158e-05,
+   "state": "NOT_CONVERGED",
+   "tol": 1e-06
+  },
+  "RC6_planted_measurement": {
+   "after": 348.78225871413395,
+   "before": 348.78108239882687,
+   "cell": 25,
+   "floor": 1e-05,
+   "shift": 0.0011763153070774024,
+   "x": 0.04903846153846154
+  },
+  "T9a_registered.json": "66b03c7de15ceeba500dded8c496346023053ed2d0746de8749c324e1edb40ed",
+  "T9a_runs/gate_t9a.json": "7c4c6826283f98d31e0c313cd713412b969bb2a4486b78ea31617eb1b3a5f4f8",
+  "T9a_runs/gate_t9aD.json": "96e0dce0ea8b57c069aa0f48060ebc9605c0ee3314ba7abf228de6440dc19993",
+  "analyse_t9a.py": "dd2d6bf0ac690fdcca90719cb6586168763d311ea3b5a7ad937fdf054ecac9da",
+  "build_t9a.py": "516fee581ecfaa25ffddefbb286de6b78c13b7bb9e9b635581958e4e9a2659e9",
+  "check_t9a_mesh.py": "cb7fa05ab05d4751f0254419a199931f1d7cd7334d94075418ecad41c86688bc",
+  "exact_t9a.py": "d3f2558c1471ab3debd6e2804f58552e27b5708e18b81d219a2fe6d017d3d0b8",
+  "mark_done_t9a.py": "0feff87e148e1f69436a39f505f8fa8f49273f4c4669b41ad5bd9f4c6a7da669",
+  "run_chain_t9a.sh": "cbf3b957f5cd7d7a18f799112ca7936b824c2e37532515447fca575634999e7d",
+  "run_one_t9a.sh": "163c4345199cc8f2cfa1eb9406fedb8c44d3ff9f4d037f6b0d07eb495f8f2761"
+ },
+ "rows": [
+  {
+   "collapse_floor_fired": true,
+   "errors": {
+    "c": 0.0,
+    "f": 2.9558577807620168e-12,
+    "m": 3.183231456205249e-12
+   },
+   "grid_triple_reported_never_graded": "OSCILLATORY",
+   "kind": "abs_K",
+   "levels": {
+    "c": 348.7810823988298,
+    "f": 348.78108239882687,
+    "m": 348.78108239882664
+   },
+   "order_quoted": false,
+   "quantity": "wall T interface 1 [K], 400x, every level",
+   "reference": 348.7810823988298,
+   "row": "H1",
+   "threshold": 1e-08,
+   "verdict": "PASS",
+   "worst": 3.183231456205249e-12,
+   "worst_level": "m"
+  },
+  {
+   "collapse_floor_fired": true,
+   "errors": {
+    "c": 9.38570758890478e-12,
+    "f": 2.484899921384454e-11,
+    "m": 6.434081711859108e-12
+   },
+   "grid_triple_reported_never_graded": "OSCILLATORY",
+   "kind": "rel",
+   "levels": {
+    "c": 19.50268161890562,
+    "f": 19.502681619207195,
+    "m": 19.502681618848055
+   },
+   "order_quoted": false,
+   "quantity": "wall q'' [W/m2], 400x, every level",
+   "reference": 19.502681618722573,
+   "row": "H2",
+   "threshold": 1e-08,
+   "verdict": "PASS",
+   "worst": 2.484899921384454e-11,
+   "worst_level": "f"
+  },
+  {
+   "collapse_floor_fired": true,
+   "errors": {
+    "c": 5.684341886080802e-14,
+    "f": 1.8758328224066645e-12,
+    "m": 6.821210263296962e-13
+   },
+   "grid_triple_reported_never_graded": "DIVERGENT",
+   "kind": "abs_K",
+   "levels": {
+    "c": 300.02437835202346,
+    "f": 300.0243783520253,
+    "m": 300.0243783520241
+   },
+   "order_quoted": false,
+   "quantity": "wall T interface 2 [K], 400x, every level",
+   "reference": 300.0243783520234,
+   "row": "H3",
+   "threshold": 1e-08,
+   "verdict": "PASS",
+   "worst": 1.8758328224066645e-12,
+   "worst_level": "f"
+  },
+  {
+   "abs_ok": true,
+   "baseline_error": 0.06499408,
+   "drop": 25986089707.85584,
+   "drop_ok": true,
+   "error": 2.5011104298755527e-12,
+   "min_drop": 1000000.0,
+   "quantity": "wall T interface 1 [K], 40x contrast",
+   "reference": 340.0398406374502,
+   "row": "H4",
+   "threshold": 1e-08,
+   "value": 340.0398406374477,
+   "verdict": "PASS"
+  },
+  {
+   "parts": [
+    {
+     "errors": {
+      "f": 4.206412995699793e-12
+     },
+     "kind": "abs_K",
+     "levels": {
+      "f": 349.8753179392507
+     },
+     "quantity": "wall T interface 1 [K], 4000x contrast",
+     "reference": 349.8753179392549,
+     "row": "H5a",
+     "threshold": 1e-08,
+     "verdict": "PASS",
+     "worst": 4.206412995699793e-12,
+     "worst_level": "f"
+    },
+    {
+     "errors": {
+      "f": 1.1406578348527318e-11
+     },
+     "kind": "rel",
+     "levels": {
+      "f": 1.994912971898845
+     },
+     "quantity": "wall q'' [W/m2], 4000x contrast",
+     "reference": 1.9949129719216,
+     "row": "H5b",
+     "threshold": 1e-08,
+     "verdict": "PASS",
+     "worst": 1.1406578348527318e-11,
+     "worst_level": "f"
+    }
+   ],
+   "quantity": "4000x contrast: T_i1 and q''",
+   "row": "H5",
+   "threshold": 1e-08,
+   "verdict": "PASS"
+  },
+  {
+   "counted_toward_hypothesis": false,
+   "errors": {
+    "c_eta": 0.0,
+    "c_tip_ratio": 0.0,
+    "f_eta": 0.0,
+    "f_tip_ratio": 0.0,
+    "m_eta": 0.0,
+    "m_tip_ratio": 0.0
+   },
+   "kind": "abs",
+   "levels": {
+    "c_eta": 0.8331455279196598,
+    "c_tip_ratio": 0.7523988460318947,
+    "f_eta": 0.8331737056356998,
+    "f_tip_ratio": 0.7523951097500151,
+    "m_eta": 0.8331657642452773,
+    "m_tip_ratio": 0.752396160365115
+   },
+   "quantity": "fin eta and tip ratio vs T9a published (SPECIFICITY, close to an identity, counted toward nothing)",
+   "reference": 0.0,
+   "row": "H6",
+   "threshold": 1e-09,
+   "verdict": "PASS",
+   "worst": 0.0,
+   "worst_level": "f_eta"
+  }
+ ]
+}

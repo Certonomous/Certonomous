@@ -1,0 +1,341 @@
+{
+ "Fs": 1.25,
+ "cases": {
+  "F_c": {
+   "L": 0.05,
+   "Q_base": 0.20828638197991495,
+   "Q_conv": 0.20828638197103708,
+   "T_base": 350.0,
+   "T_inf": 300.0,
+   "W": 0.001,
+   "eta": 0.8331455279196598,
+   "heat_balance_closure": 4.262338505498425e-11,
+   "n_cells": 500,
+   "nx": 50,
+   "ny": 10,
+   "t_fin": 0.002,
+   "time": "1000",
+   "tip_ratio": 0.7523988460318947
+  },
+  "F_f": {
+   "L": 0.05,
+   "Q_base": 0.20829342640892495,
+   "Q_conv": 0.20829342640130233,
+   "T_base": 350.0,
+   "T_inf": 300.0,
+   "W": 0.001,
+   "eta": 0.8331737056356998,
+   "heat_balance_closure": 3.6595608824724855e-11,
+   "n_cells": 3328,
+   "nx": 128,
+   "ny": 26,
+   "t_fin": 0.002,
+   "time": "1000",
+   "tip_ratio": 0.7523951097500151
+  },
+  "F_m": {
+   "L": 0.05,
+   "Q_base": 0.20829144106131933,
+   "Q_conv": 0.2082914410438357,
+   "T_base": 350.0,
+   "T_inf": 300.0,
+   "W": 0.001,
+   "eta": 0.8331657642452773,
+   "heat_balance_closure": 8.393828171363139e-11,
+   "n_cells": 1280,
+   "nx": 80,
+   "ny": 16,
+   "t_fin": 0.002,
+   "time": "1000",
+   "tip_ratio": 0.752396160365115
+  },
+  "W_C3": {
+   "T_cold": 350.0,
+   "T_hot": 350.0,
+   "T_i1": 349.9999999999982,
+   "T_i2": 350.00000000000335,
+   "heat_balance_closure": 1.9215686274509773,
+   "n_cells": 90,
+   "q": 2.411979949101712e-09,
+   "q_cold": 4.729372449219039e-09,
+   "q_hot": 9.458744898438456e-11,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "W_c": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.7810823988298,
+   "T_i2": 300.02437835202346,
+   "heat_balance_closure": 1.8652825506218286e-11,
+   "n_cells": 35,
+   "q": 19.50268161890562,
+   "q_cold": 19.502681619087507,
+   "q_hot": 19.502681618723727,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "W_f": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.78108239882687,
+   "T_i2": 300.0243783520253,
+   "heat_balance_closure": 4.360966663233149e-11,
+   "n_cells": 90,
+   "q": 19.502681619207195,
+   "q_cold": 19.502681619632448,
+   "q_hot": 19.502681618781942,
+   "thickness": 0.17,
+   "time": "1000"
+  },
+  "W_m": {
+   "T_cold": 300.0,
+   "T_hot": 350.0,
+   "T_i1": 348.78108239882664,
+   "T_i2": 300.0243783520241,
+   "heat_balance_closure": 6.035503830009751e-12,
+   "n_cells": 56,
+   "q": 19.502681618848055,
+   "q_cold": 19.50268161890691,
+   "q_hot": 19.5026816187892,
+   "thickness": 0.17,
+   "time": "1000"
+  }
+ },
+ "controls": [
+  {
+   "band_pct": null,
+   "control": "C1_arithmetic_mean_conductivity",
+   "deviation_pct": 98.81872118458483,
+   "graded_against": 1650.9803921568628,
+   "met": false,
+   "must": "FAIL -- the mean-k rule is off by orders of magnitude at a 400x contrast",
+   "value": 19.502681619207195
+  },
+  {
+   "band_pct": 0.0007695579145997664,
+   "control": "C2_perfect_fin",
+   "deviation_pct": 16.68262943643002,
+   "graded_against": 1.0,
+   "met": true,
+   "must": "FAIL -- eta = 1 is the infinite-conductivity limit, 20.0 % above the registered 0.8332 (measured from eta)",
+   "value": 0.8331737056356998
+  },
+  {
+   "control": "C3_uniform_wall_solved",
+   "met": false,
+   "must": "FAIL on every wall row -- a uniform-temperature solid carries no flux and the wrong interface temperatures",
+   "rows": [
+    {
+     "band_pct": null,
+     "deviation_pct": 99.99999998763258,
+     "fails": false,
+     "quantity": "q''",
+     "reference": 19.502682,
+     "value": 2.411979949101712e-09
+    },
+    {
+     "band_pct": null,
+     "deviation_pct": 0.3494793906276587,
+     "fails": false,
+     "quantity": "T_i1",
+     "reference": 348.781082,
+     "value": 349.9999999999982
+    },
+    {
+     "band_pct": null,
+     "deviation_pct": 16.657187103643736,
+     "fails": false,
+     "quantity": "T_i2",
+     "reference": 300.024378,
+     "value": 350.00000000000335
+    }
+   ]
+  },
+  {
+   "control": "C3_uniform_fin_synthetic",
+   "met": true,
+   "must": "FAIL on both fin rows -- a uniform field at T_base has zero base flux (eta = 0) and a tip ratio of 1",
+   "note": "synthetic because a solved uniform fin needs T_inf = T_base, which makes eta 0/0 and ungradeable",
+   "rows": [
+    {
+     "band_pct": 0.0007695579145997664,
+     "deviation_pct": 100.0,
+     "fails": true,
+     "quantity": "eta",
+     "reference": 0.8332367,
+     "value": 0.0
+    },
+    {
+     "band_pct": 0.00011215531036092926,
+     "deviation_pct": 32.9118962925687,
+     "fails": true,
+     "quantity": "tip",
+     "reference": 0.7523781,
+     "value": 0.9999999999999989
+    }
+   ]
+  }
+ ],
+ "iterative_convergence": {
+  "F_c": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 12.123588192416719,
+   "max_change": 1.6143530956469476e-11,
+   "relative": 1.3315802797200933e-12,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  },
+  "F_f": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 12.282303005733297,
+   "max_change": 3.376499080331996e-11,
+   "relative": 2.749076519896854e-12,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  },
+  "F_m": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 12.221389701366093,
+   "max_change": 2.1964297047816217e-10,
+   "relative": 1.797201266347073e-11,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  },
+  "W_C3": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 5.229594535194337e-12,
+   "max_change": 1.9326762412674725e-12,
+   "relative": 0.3695652173913043,
+   "state": "NOT_CONVERGED",
+   "tol": 1e-06
+  },
+  "W_c": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.9366162847391,
+   "max_change": 0.0,
+   "relative": 0.0,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  },
+  "W_f": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.97562164797648,
+   "max_change": 0.0,
+   "relative": 0.0,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  },
+  "W_m": {
+   "between": [
+    "900",
+    "1000"
+   ],
+   "field_range": 49.960385177961825,
+   "max_change": 0.0,
+   "relative": 0.0,
+   "state": "CONVERGED",
+   "tol": 1e-06
+  }
+ },
+ "model_error_floor_pct": 0.025,
+ "r": 1.6,
+ "rows": [
+  {
+   "convergence": "OSCILLATORY",
+   "levels": {
+    "c": 19.50268161890562,
+    "f": 19.502681619207195,
+    "m": 19.502681618848055
+   },
+   "quantity": "wall q'' [W/m2]",
+   "reference": 19.502682,
+   "row": "R0",
+   "value": 19.502681619207195,
+   "verdict": "NOT A RESULT",
+   "why": "grid triple is OSCILLATORY; no band can be armed"
+  },
+  {
+   "convergence": "OSCILLATORY",
+   "levels": {
+    "c": 348.7810823988298,
+    "f": 348.78108239882687,
+    "m": 348.78108239882664
+   },
+   "quantity": "wall interface T after layer 1 [K]",
+   "reference": 348.781082,
+   "row": "R1",
+   "value": 348.78108239882687,
+   "verdict": "NOT A RESULT",
+   "why": "grid triple is OSCILLATORY; no band can be armed"
+  },
+  {
+   "convergence": "DIVERGENT",
+   "levels": {
+    "c": 300.02437835202346,
+    "f": 300.0243783520253,
+    "m": 300.0243783520241
+   },
+   "quantity": "wall interface T after layer 2 [K]",
+   "reference": 300.024378,
+   "row": "R2",
+   "value": 300.0243783520253,
+   "verdict": "NOT A RESULT",
+   "why": "grid triple is DIVERGENT; no band can be armed"
+  },
+  {
+   "band_pct": 0.0007695579145997664,
+   "convergence": "CONVERGING",
+   "deviation_pct": 0.007560200396866763,
+   "graded": false,
+   "levels": {
+    "c": 0.8331455279196598,
+    "f": 0.8331737056356998,
+    "m": 0.8331657642452773
+   },
+   "order": 1.9901780603156476,
+   "quantity": "fin efficiency",
+   "reference": 0.8332367,
+   "row": "R3",
+   "value": 0.8331737056356998,
+   "verdict": "GATE REACHED",
+   "why": "the armed band 0.0008 % lies below the fin equation's own 0.025 % one-dimensionality error (registered 3.1); the row is REPORTED, NOT GRADED"
+  },
+  {
+   "band_pct": 0.00011215531036092926,
+   "convergence": "CONVERGING",
+   "deviation_pct": 0.002260798129964486,
+   "graded": false,
+   "levels": {
+    "c": 0.7523988460318947,
+    "f": 0.7523951097500151,
+    "m": 0.752396160365115
+   },
+   "order": 1.996906346447679,
+   "quantity": "fin tip excess-temperature ratio",
+   "reference": 0.7523781,
+   "row": "R4",
+   "value": 0.7523951097500151,
+   "verdict": "GATE REACHED",
+   "why": "the armed band 0.0001 % lies below the fin equation's own 0.025 % one-dimensionality error (registered 3.1); the row is REPORTED, NOT GRADED"
+  }
+ ]
+}
