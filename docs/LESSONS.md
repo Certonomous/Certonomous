@@ -9643,3 +9643,34 @@ a good initial guess to fail.
 **Where it fired.** `cases/RANS_LES_closure_models/R5C_omega_repair/RESULTS.md`
 §5–§6, graded by the frozen comparator against `PREREGISTRATION.md` — thresholds
 left standing as written, exclusions reported (rule 2). Docket D465.
+## L-244. A GCI band read from a pre-asymptotic triple can be smaller than the error it covers — and the cure is a fourth level, not a wider Fs: the implied order is the artefact and it collapses.
+
+**Where it fired.** T10a-R (docket D466), the refinement arm on T10a's B1
+ceiling GATE FAIL, graded 2026-08-23 by the frozen `analyse_t10aR.py` against
+predictions registered before any solve.
+
+**The pattern, now measured twice and resolved once.** On T10a B1 and T9a R1
+the c/m/f triple's successive differences implied an order (p 1.480, 1.738)
+faster than the actual level-error decay (~first order), so the Fs = 1.25 GCI
+armed a band smaller than the miss it was supposed to cover (0.077 % vs
+0.125 %; 0.92 mK vs 2.41 mK). T10a-R added the fourth level: the m/f/x triple
+is CONVERGING at **p 0.6850** — the implied 1.480 was the artefact — the band
+opens to 0.14724 % and **covers** the 0.07986 % error, dev/band 0.542, on
+every box row (0.54–0.75). The level-error ratio meanwhile stayed ~1.5
+(measured 1.5607), exactly the branch the pre-registration's §2.1 laid out in
+advance as "branch 1" of its own arithmetic tension.
+
+**The rule to carry.** When a triple's implied p exceeds the level-error decay
+rate visible against an exact or trusted reference, do not report the GCI as
+coverage — the band is a function of the implied order and the implied order
+is the thing in error. Buy the fourth level (here $0.11 predicted, $0.34 gross
+with contention) before arming any band from such a triple; and register the
+two-branch arithmetic (error-ratio-holds vs difference-ratio-holds) before the
+run, so the outcome discriminates rather than confirms.
+
+**Second finding in the same arm, same discipline.** The registered
+"quadrature is innocent" prediction (move ≤ 0.010 %) was falsified — 2AI
+midpoint → 2LI contour integration moved rows up to 0.17547 % toward exact —
+while the analyst's source-reading reservation, registered beside the
+prediction before the solve, was confirmed. Registering the reservation in
+advance is what made the miss a finding instead of a hindsight claim.
