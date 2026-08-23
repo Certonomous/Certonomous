@@ -130,8 +130,15 @@ def case_features(case, path, family):
     _b = lambda a, c: np.where(np.abs(a) + np.abs(c) > 1e-30,
                                a / np.maximum(np.abs(a) + np.abs(c), 1e-30), 0.0)
     tau_R = sym_to_full(d["tau_R"])
+    # D476/FS5: the wall-distance Reynolds number BEFORE the clip at 2.0. The
+    # feature q1_wallRe below is min(this, 2.0) -- one expression, so the
+    # diagnostic companion cannot drift from the feature it shadows. NaN
+    # handling is therefore identical by construction: both inherit dwall's
+    # NaN (np.minimum propagates it), so the clipped and unclipped columns are
+    # non-finite on exactly the same cells.
+    q1_wallRe_raw = np.sqrt(np.maximum(k, 0)) * dwall / (50.0 * nu)
     q = {
-        "q1_wallRe":        np.minimum(np.sqrt(np.maximum(k, 0)) * dwall / (50.0 * nu), 2.0),
+        "q1_wallRe":        np.minimum(q1_wallRe_raw, 2.0),
         "q2_turbIntensity": _b(k, 0.5 * (U ** 2).sum(1)),
         "q3_timeScaleRatio": _b(k / np.maximum(eps, 1e-30), 1.0 / np.maximum(nS, 1e-30)),
         "q4_pgradAlongStreamline": _b(np.einsum("ni,ni->n", U, gp),
@@ -159,8 +166,15 @@ def case_features(case, path, family):
     blocks.append(pope); names += ["lam1", "lam2", "lam3", "lam4", "lam5"]
 
     F = np.concatenate(blocks, axis=1).astype(np.float64)
-    return F, names, dict(n_cells=int(C.shape[0]), wall_patches=wp, nu=float(nu),
-                          family=family, time=t)
+
+    # DIAGNOSTICS (D476). Read by the FS5 coverage instrument only. These are
+    # NOT features: they never enter F, never enter the manifest's `features`,
+    # and nothing that selects or fits reads them.
+    diag = {"q1_wallRe_raw": q1_wallRe_raw}
+    D = np.stack(list(diag.values()), axis=1).astype(np.float64)
+    return F, names, D, list(diag.keys()), dict(
+        n_cells=int(C.shape[0]), wall_patches=wp, nu=float(nu),
+        family=family, time=t)
 
 
 def main():
@@ -177,18 +191,27 @@ def main():
         cases.append((c, pp, fam))
     meta = {}
     names = None
+    diag_names = None
     for c, p, fam in cases:
-        F, names, m = case_features(c, p, fam)
+        F, names, D, diag_names, m = case_features(c, p, fam)
         np.savez_compressed(os.path.join(OUT, f"{c}.npz"), F=F.astype(np.float32),
-                            names=np.array(names))
+                            names=np.array(names),
+                            D=D.astype(np.float32), diag_names=np.array(diag_names))
         m["n_features"] = F.shape[1]
         m["n_nonfinite"] = int((~np.isfinite(F)).sum())
+        m["n_diag_nonfinite"] = int((~np.isfinite(D)).sum())
         meta[c] = m
         print(f"[ok] {c:24s} {fam:12s} n={m['n_cells']:6d} F={F.shape} nonfinite={m['n_nonfinite']}", flush=True)
     json.dump({"features": names, "cases": meta,
-               "n_features": len(names)},
+               "n_features": len(names),
+               "diagnostics": diag_names,
+               "diagnostics_note":
+                   "D476/FS5. Arrays under the `D` key of each case .npz, named by "
+                   "`diag_names`. DIAGNOSTIC ONLY: not features, never in `features`, "
+                   "never in F, read by the FS5 coverage instrument alone."},
               open(os.path.join(OUT, "manifest.json"), "w"), indent=1)
     print(f"\n{len(names)} features x {len(cases)} cases -> {OUT}")
+    print(f"{len(diag_names)} diagnostics (not features): {diag_names}")
 
 
 if __name__ == "__main__":

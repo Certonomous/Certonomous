@@ -8,7 +8,7 @@ zero, and the feature-matrix numerical rank. Plus the tensor-basis per-cell rank
 No training. Reads the FS1 .npz files and the benchmark tensor basis.
 """
 from __future__ import annotations
-import json, os, sys
+import json, os, sys, tempfile
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -22,6 +22,15 @@ OUT_JSON = os.path.join(FEAT, "fs2_audit.json")
 ZERO_ABS = 1e-12          # |value| below this counts as algebraically zero
 ZERO_REL = 1e-12          # ... or below this fraction of the feature's own max
 RANK_RCOND = 1e-10        # SVD tolerance, relative to the largest singular value
+
+# ---- D476/FS5: the unclipped q1 companion -------------------------------
+# q1_wallRe is clipped at 2.0, and on this column the training maximum IS the
+# clip, so the FS5 above-max branch is structurally unreachable: it reports
+# "in range" by construction, not by measurement. The companion below is the
+# same quantity WITHOUT the clip -- a diagnostic that never enters F or the
+# manifest's `features`. See FS5_D476_CLIP_REPAIR_PREREGISTRATION.md.
+DIAG_COMPANION = "q1_wallRe_raw"
+PLANT_FACTOR = 1.5        # planted excursion, in multiples of the training max
 
 
 def load_all():
@@ -43,6 +52,149 @@ def rank_of(X):
     s = np.linalg.svd(Xs, compute_uv=False)
     tol = RANK_RCOND * s[0] if s[0] > 0 else 0.0
     return int((s > tol).sum()), s
+
+
+def case_npz(case):
+    return os.path.join(FEAT, f"{case}.npz")
+
+
+def read_companion(npz_path):
+    """The ONLY path by which the unclipped companion reaches this audit.
+
+    Returns the column as float64, or None if this .npz predates the D476
+    companion. The planted control below goes through this same function, from
+    disk, so what the control proves is what the audit actually uses.
+    """
+    z = np.load(npz_path, allow_pickle=True)
+    if "D" not in z.files or "diag_names" not in z.files:
+        return None
+    dn = [str(x) for x in z["diag_names"]]
+    if DIAG_COMPANION not in dn:
+        return None
+    return z["D"][:, dn.index(DIAG_COMPANION)].astype(np.float64)
+
+
+def companion_coverage(x, hi, span):
+    """Coverage of one case's companion column against the TRAINING companion
+    range. Non-finite cells are excluded and counted separately rather than
+    silently dropped."""
+    fin = np.isfinite(x)
+    v = x[fin]
+    above = v > hi
+    return {
+        "n_cells": int(x.size),
+        "n_cells_nonfinite": int((~fin).sum()),
+        "n_cells_above_training_max": int(above.sum()),
+        "frac_cells_above_training_max": float(above.mean()) if v.size else 0.0,
+        # negative means the case stays inside the training envelope
+        "worst_excursion_training_spans": float(((v - hi) / span).max()) if v.size else float("nan"),
+        "max": float(v.max()) if v.size else float("nan"),
+        "min": float(v.min()) if v.size else float("nan"),
+    }
+
+
+def planted_control(case, hi, span):
+    """Rule 3, on the companion reader.
+
+    Inject one value strictly above every training companion value into a COPY
+    of a TEST case's companion column, write it to disk, read it back through
+    read_companion() and score it with companion_coverage() -- the audit's own
+    path. The flagged count must rise by exactly one and the reported maximum
+    must be the planted value. If the reader cannot see the plant, this audit
+    REFUSES (exit 2): a zero from a reader not shown able to see a non-zero is
+    not evidence.
+    """
+    src = case_npz(case)
+    z = np.load(src, allow_pickle=True)
+    D = np.array(z["D"])
+    dn = [str(x) for x in z["diag_names"]]
+    j = dn.index(DIAG_COMPANION)
+
+    base = companion_coverage(read_companion(src), hi, span)
+    # plant into the SMALLEST finite cell, which is certainly not already
+    # flagged, so a working reader must show exactly one more flagged cell
+    col = D[:, j].astype(np.float64)
+    fin = np.where(np.isfinite(col))[0]
+    idx = int(fin[np.argmin(col[fin])])
+    plant = float(PLANT_FACTOR * hi)
+
+    with tempfile.TemporaryDirectory() as td:
+        D[idx, j] = plant
+        p = os.path.join(td, os.path.basename(src))
+        np.savez_compressed(p, F=z["F"], names=z["names"], D=D,
+                            diag_names=z["diag_names"])
+        got = read_companion(p)
+        seen = companion_coverage(got, hi, span) if got is not None else None
+
+    ok = (seen is not None
+          and seen["n_cells_above_training_max"] == base["n_cells_above_training_max"] + 1
+          and seen["max"] >= plant * (1.0 - 1e-5))
+    rec = {
+        "method": "one cell of a copy of the test case's companion column set to "
+                  f"{PLANT_FACTOR} x the training unclipped max, written to a "
+                  "temporary .npz and read back through read_companion() and "
+                  "companion_coverage() -- the same path the audit uses",
+        "case": case, "cell_index": idx, "planted_value": plant,
+        "training_max": float(hi),
+        "flagged_before": base["n_cells_above_training_max"],
+        "flagged_after": None if seen is None else seen["n_cells_above_training_max"],
+        "max_read_back": None if seen is None else seen["max"],
+        "verdict": "PASS" if ok else "GATE FAIL",
+    }
+    if not ok:
+        print("REFUSED (rule 3, planted control): the companion reader did not "
+              f"see a planted excursion of {plant:.6g} in {case} at cell {idx}. "
+              f"Flagged cells before {rec['flagged_before']}, after "
+              f"{rec['flagged_after']} (expected {base['n_cells_above_training_max'] + 1}), "
+              f"max read back {rec['max_read_back']}. A zero from this reader is "
+              "not evidence; no coverage number is emitted.", file=sys.stderr)
+        sys.exit(2)
+    return rec
+
+
+def companion_block(tr_cases, te_cases):
+    """The FS5 physical-envelope subsection (D476). Measures only; moves no
+    verdict."""
+    tr = [read_companion(case_npz(c)) for c in tr_cases]
+    te = [read_companion(case_npz(c)) for c in te_cases]
+    if any(v is None for v in tr + te):
+        missing = [c for c, v in zip(tr_cases + te_cases, tr + te) if v is None]
+        print("REFUSED: the unclipped q1 companion is absent from "
+              f"{len(missing)} case .npz file(s), e.g. {missing[:3]}. These "
+              "predate D476; re-run build_features.py. The FS5 companion "
+              "instrument does not degrade to silence.", file=sys.stderr)
+        sys.exit(2)
+
+    pooled_tr = np.concatenate(tr)
+    f = np.isfinite(pooled_tr)
+    v = pooled_tr[f]
+    lo, hi = float(v.min()), float(v.max())
+    span = max(hi - lo, 1e-30)
+    train = {
+        "n_cells": int(pooled_tr.size), "n_cells_nonfinite": int((~f).sum()),
+        "min": lo, "p50": float(np.percentile(v, 50)),
+        "p99": float(np.percentile(v, 99)), "max": hi, "span": span,
+    }
+    control = planted_control(sorted(te_cases)[0], hi, span)
+    per = {c: companion_coverage(x, hi, span) for c, x in zip(te_cases, te)}
+    return {
+        "label":
+            "PHYSICAL-ENVELOPE coverage, NOT input-space coverage. The MODEL "
+            "INPUT q1_wallRe remains clipped at 2.0 and therefore remains "
+            "trivially in-range on the above-max branch by construction -- "
+            "nothing here changes that, and no feature, no column of F and no "
+            "entry of the manifest's `features` is altered. The numbers below "
+            "are the UNCLIPPED companion "
+            f"`{DIAG_COMPANION}`, a diagnostic only, and they answer the "
+            "question FS5 exists to ask: did the PHYSICS leave the training "
+            "envelope. Measurement only -- no verdict moves from this block "
+            "(D476 chief clause); excursions on already-graded cases are "
+            "instrument information beside standing verdicts.",
+        "feature_shadowed": "q1_wallRe", "clip": 2.0,
+        "planted_control": control,
+        "training_unclipped": train,
+        "per_test_case": per,
+    }
 
 
 def main():
@@ -88,6 +240,14 @@ def main():
             "p01": float(np.percentile(v, 1)), "p50": float(np.percentile(v, 50)),
             "p99": float(np.percentile(v, 99)),
             "frac_below_1e-12_abs": float((np.abs(v) < ZERO_ABS).mean()),
+            # D476: hard-bound saturation. N-B38 recorded that whether other
+            # bounded features saturate was UNMEASURED; these two close it.
+            # A HARD bound shows frac_at_max well above 0. An asymptotically
+            # bounded `_b`-form feature that crowds its bound without touching
+            # it shows frac_at_max ~ 0 with p99 near the bound -- a different
+            # pattern, and reading it is an audit question, not a repair.
+            "frac_at_min": float((v == v.min()).mean()),
+            "frac_at_max": float((v == v.max()).mean()),
         }
 
     # ---- FS5 coverage: TEST cases against TRAINING cases
@@ -114,6 +274,8 @@ def main():
         }
     out["coverage"] = {"train_cases": sorted(tr_cases), "test_cases": sorted(te_cases),
                        "per_test_case": cov}
+    out["coverage"]["q1_wallRe_unclipped_companion"] = companion_block(
+        tr_cases, te_cases)
 
     # ---- charter section 5(b): per-cell rank of Pope's ten-tensor basis.
     # Re-measured here because the figure "3.24, never above 5" is quoted in
@@ -171,6 +333,24 @@ def main():
     for c, d in cov.items():
         print(f"  {c:22s} cells outside on >=1 feature: {d['frac_cells_any_feature_outside']*100:6.2f}% "
               f" features ever outside: {d['features_with_any_outside']:3d}/{nF}")
+
+    cb = out["coverage"]["q1_wallRe_unclipped_companion"]
+    t = cb["training_unclipped"]
+    print(f"\nFS5 PHYSICAL-ENVELOPE coverage, unclipped q1 companion "
+          f"({DIAG_COMPANION}); the model input q1_wallRe stays clipped at 2.0 "
+          f"and in-range by construction.")
+    print(f"  planted control: {cb['planted_control']['verdict']} "
+          f"(flagged {cb['planted_control']['flagged_before']} -> "
+          f"{cb['planted_control']['flagged_after']} on a planted "
+          f"{cb['planted_control']['planted_value']:.4g})")
+    print(f"  training unclipped: min {t['min']:.4g}  p50 {t['p50']:.4g}  "
+          f"p99 {t['p99']:.4g}  max {t['max']:.4g}")
+    for c in sorted(cb["per_test_case"]):
+        d = cb["per_test_case"][c]
+        print(f"  {c:22s} above training max: {d['frac_cells_above_training_max']*100:6.2f}% "
+              f"({d['n_cells_above_training_max']:6d} cells)  worst excursion "
+              f"{d['worst_excursion_training_spans']:+8.4f} training spans  "
+              f"case max {d['max']:.4g}")
 
 
 if __name__ == "__main__":

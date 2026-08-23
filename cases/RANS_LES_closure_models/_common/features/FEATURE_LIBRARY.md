@@ -203,3 +203,57 @@ cd cases/RANS_LES_closure_models/_common/features
 /home/ubuntu/closure-venv/bin/python make_fs2_report.py
 ```
 
+<!-- AMENDMENTS BELOW THIS MARKER ARE PRESERVED ACROSS REGENERATION (rule 6) -->
+
+## Amendment 1 - 2026-08-23 - the unclipped q1 companion (D476, FS5)
+
+**Document version 1.1.** The text above this section was unversioned and is
+version 1.0; it is untouched - **lines whose number changed above this section: 0**.
+
+Registered in `FS5_D476_CLIP_REPAIR_PREREGISTRATION.md`, frozen at commit
+`bf4956bc` (blob `8fac067c`).
+
+`build_features.py` now additionally computes, with **no clip**,
+
+    q1_wallRe_raw = sqrt(max(k, 0)) * d / (50 nu)
+
+and stores it in each case `.npz` under the key `D`, named by `diag_names` and
+declared in `manifest.json` under `diagnostics`.
+
+**It is a DIAGNOSTIC, not a feature, and it is NOT row 111.** This library is
+still **110 features**: `q1_wallRe_raw` never enters the matrix `F`, never
+enters the manifest's `features` list, and nothing that selects or fits reads
+it. Row 95 `q1_wallRe` is unchanged, clip and all - it is now written as
+`min(q1_wallRe_raw, 2)` off that same expression, so the companion cannot drift
+from the feature it shadows. That is a refactor, not a redefinition, and it was
+proved so: every case's `F` array and the `features` name list are
+sha256-byte-identical across the regeneration (gate A2, 40/40 cases).
+
+**Why it exists.** `q1_wallRe` is clipped at 2, and on this column the training
+maximum IS the clip, so the FS5 above-max coverage branch was structurally
+unreachable - it reported "in range" by construction rather than by measurement
+(D476, N-B38). The companion is read by `fs2_audit.py` alone and answers the
+question the clipped column cannot: did the PHYSICS leave the training
+envelope. First reading, in `fs2_audit.json` under
+`coverage.q1_wallRe_unclipped_companion`: training unclipped range
+3.68e-10 to 55.66 (p50 2.99, p99 32.88); `NASA_2DWMH` puts **9.60 %** of its
+cells (4,954 of 51,626) above that maximum, worst excursion **+5.11 training
+spans**, case maximum 340.1 - about 6.1x the training maximum. The other seven
+test cases stay inside. **No verdict moves from this**: it is instrument
+information reported beside the standing verdicts, per the chief's clause
+(pre-registration section 5).
+
+`fs2_audit.py` also now reports `frac_at_min` / `frac_at_max` per feature over
+the pooled 110 columns, closing the N-B38 note that whether other bounded
+features saturate was UNMEASURED.
+
+**Acceptance at the time of writing:** A1 **PASS**, A2 **PASS**, A4 **PASS**,
+A3 **GATE FAIL**. A3 asked that the regenerated `fs2_audit.json`, with the new
+keys stripped, be exactly identical to the previous one. Six values differ, all
+of them `singular_value_ratio_first_to_last`: that figure divides by a
+numerically-zero singular value of a rank-deficient matrix, so its value is
+rounding noise whose magnitude depends on the OpenBLAS thread count chosen at
+run time. Pinned to the thread count that produced the baseline, the stripped
+output is exactly identical, zero differences - so the D476 change alters no
+pre-existing audit value. The gate is recorded as failed and referred; it is
+not loosened, and no thread pinning has been adopted here.

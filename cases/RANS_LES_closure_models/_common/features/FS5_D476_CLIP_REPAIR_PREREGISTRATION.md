@@ -116,3 +116,32 @@ scan (§3.2.iii) measures hard-bound saturation only; asymptotically-bounded
 characterised by frac_at_max = 0 with p99 near the bound, and reading that
 pattern is the verification-supervisor's audit question, not a repair taken
 here.
+
+---
+
+## Addendum 1 - 2026-08-23, after implementation. Alters no gate.
+
+Version 1.1. The registered text above is untouched: **lines whose number
+changed above this section: 0**. No gate, threshold, cap or label is altered by
+this addendum; sections 4, 5 and 6 stand exactly as frozen at `bf4956bc`
+(blob `8fac067c`), against which the implementing lane hashed this file before
+touching any code.
+
+1. **Scope addition, one file beyond section 3.** `make_feature_library.py` was
+   also changed. `FEATURE_LIBRARY.md` is a generated file and its generator
+   rewrites it whole with mode `"w"`, so the section 3.3 amendment would have
+   been silently deleted by the next run of the reproduce block printed inside
+   `FEATURE_LIBRARY.md` itself. The generator now carries everything below a
+   marker line forward, asserted on both sides of the write and proven by a
+   byte-identical round trip. This adds no gate and changes no measurement.
+
+2. **Results and grading** are recorded in `FS5_D476_CLIP_REPAIR_RESULTS.md`
+   beside this file. Summary: **A1 PASS, A2 PASS, A4 PASS, A3 GATE FAIL.** The
+   A3 mismatch is six values of `singular_value_ratio_first_to_last`, a ratio
+   whose denominator is an analytically-zero singular value of a rank-deficient
+   matrix; it tracks the OpenBLAS thread count and is identical to the baseline
+   when pinned to the thread count that produced the baseline. The gate is
+   recorded as failed and referred to the verification-supervisor. It is not
+   loosened, and no thread pinning was adopted. Section 8 of the registered
+   text anticipated exactly this and ruled it a finding rather than a reason to
+   weaken A3; that ruling is followed.

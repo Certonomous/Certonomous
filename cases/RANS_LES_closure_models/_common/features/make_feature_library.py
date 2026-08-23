@@ -160,5 +160,20 @@ A("/home/ubuntu/closure-venv/bin/python make_feature_library.py")
 A("/home/ubuntu/closure-venv/bin/python make_fs2_report.py")
 A("```")
 A("")
-open(os.path.join(HERE, "FEATURE_LIBRARY.md"), "w").write("\n".join(L) + "\n")
-print(f"wrote FEATURE_LIBRARY.md ({len(L)+1} lines)")
+# Rule 6: dated amendments are appended to FEATURE_LIBRARY.md by hand and must
+# survive regeneration -- this generator opens the file "w", so without the
+# carry-forward below the very next run of the reproduce block printed above
+# would silently delete them. Everything from the marker onward is preserved.
+AMEND_MARK = "<!-- AMENDMENTS BELOW THIS MARKER ARE PRESERVED ACROSS REGENERATION (rule 6) -->"
+DST = os.path.join(HERE, "FEATURE_LIBRARY.md")
+carried = ""
+if os.path.exists(DST):
+    prev = open(DST).read()
+    if AMEND_MARK in prev:
+        carried = AMEND_MARK + prev.split(AMEND_MARK, 1)[1]
+        assert carried.strip() != AMEND_MARK, "rule 6: amendment marker found but nothing after it"
+open(DST, "w").write("\n".join(L) + "\n" + carried)
+if carried:
+    assert AMEND_MARK in open(DST).read(), "rule 6: amendments lost on write"
+print(f"wrote FEATURE_LIBRARY.md ({len(L)+1} lines"
+      f"{f' + {len(carried.splitlines())} carried amendment lines' if carried else ''})")
