@@ -350,3 +350,67 @@ are struck, never rewritten.
 ---
 
 **Nothing in this file has been sent, filed, posted, uploaded or pushed. Nothing has been launched.**
+
+---
+
+## AMENDMENT 1 — 2026-08-23, BEFORE FIRST COMPUTE
+
+**Condition, and how it was checked (`CLAUDE.md` rule 2).** This amendment is legal because **no
+compute has occurred against this pre-registration**. The check: the registered run root
+**`/home/ubuntu/certonomous-runs/D460-sweep1-solver-family` DOES NOT EXIST** — verified by
+`ls -d` at 2026-08-23T20:2x UTC, which returned `No such file or directory`, and re-verified in the
+same shell invocation as this amendment's commit. No arm directory, no log, no ledger and no
+container has been created. **It amends an assertion, not a gate, a threshold, a cap or a label** —
+§5's predictions, §6's gates, §7's decision rule and §9's ceiling are **unchanged**.
+
+*Appended at the foot, not rewritten. Lines whose number changed above this section: 0.*
+
+### 1a. §3a assertion A1 was wrong as written, and would have failed on a correct arm
+
+**A1 said** that `diff <arm>/runScript.py s1b/runScript.py` must be **empty** for ARM F-SM.
+
+**That is false, and the error is mine.** §3a also registers `printInterval 1` for both new arms,
+and `s1b` was generated **without** it — `s1b/runScript.py` carries `primalMinResTol`,
+`primalMinResTolDiff`, `useAD` and `primalMinIters` at lines 36–39 and no `printInterval` key at
+all. A correctly built F-SM arm therefore differs from `s1b` by **exactly one inserted line**, and
+A1 as written would have voided it.
+
+**A1 is replaced by:**
+
+- **A1-F (ARM F-SM):** `diff <run root>/fsm/runScript.py <P3>/s1b/runScript.py` contains
+  **exactly one added line**, and that line is `    "printInterval": 1,`. Any other difference
+  **VOIDS the arm.**
+- **A1-P (ARM P-SM):** the same diff contains **exactly** that one added line, **plus** the removal
+  of the `"useAD": {...}` dictionary line, **plus** the removal of the Edit-4 `add_dvgeo` block that
+  `gen_arm.py` inserts only when `useAD_dv` is set. Any other difference **VOIDS the arm.**
+
+A2 (fvSolution, five lines) and A3 (controlDict, empty) are **unchanged**.
+
+### 1b. Arm ordering is registered: the CONTROL runs first
+
+Not previously stated. **ARM P-SM is launched before ARM F-SM.** If the control fails §6a strict
+completion or trips G1 (`NaN_P == True`), the run **stops there** and the discriminator is not
+launched — §7 row 3 already makes the outcome `NOT A RESULT` regardless of what F-SM would do, so
+spending on F-SM would buy nothing. This lowers the expected spend and cannot affect any verdict.
+
+### 1c. Assertion A4's concrete form
+
+§4 registered the `libDASolverADF.so` md5 assertion without a path, because establishing the path
+requires opening a container and none was opened. Its concrete form is registered here as a
+**search**, not a guess:
+
+```
+find / -name 'libDASolverADF.so' -type f 2>/dev/null | xargs -r md5sum
+```
+
+run inside the container in the same `bash -lc` as the solve, with its output captured to the arm
+log. **ARM F-SM is VOID unless the log contains `44538ed4ac157ecb5dbb6850cf4bde64`.** If the `find`
+returns no file at all, that is itself a finding and the arm is VOID, not silently passed.
+
+### 1d. The launcher for this run root does not exist yet, and creating it is a pre-compute step
+
+`run_arm.sh` and `preflight.sh` live in `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/` with `BASE`
+hard-coded to that directory. Phase 2's first action is to copy them to the new run root with `BASE`
+retargeted and assertion A4 (§1c) added. **This is zero compute and happens before any
+`docker run`.** It is recorded here rather than discovered at launch, because a launcher edited
+after first compute would be an edit to the grading path.
