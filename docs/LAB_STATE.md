@@ -238,14 +238,8 @@ Older rows (A4 twin PASS `f9a59d47`, A2 per-component `79679a84`, A3 prereg chai
 **Images:** `dafoam-idwarp-rot:v1` (only image carrying the rotation patch, md5 `85f59e87…`), `dafoam-subpclu:v2` (PCLU), `dafoam-kspopts:v1`, `dafoam-team:v1` (`0b3c94c33a15`, both patches, ends `USER dafoamuser` → `--user root` for bind mounts). *The hash is the identity; the version string is not.* F6 series under `cases/dafoam/` is plain `simpleFoam`, not DAFoam work. **The stale shared index (577 staged deletions at 19:28Z) is the chief's call — inspect, never revert; all dafoam working-tree files verified identical to HEAD at 19:35Z.**
 ## heat-transfer
 
-**Section last written:** 2026-08-23T19:45Z by heat-transfer-supervisor
+**Section last written:** 2026-08-23T19:55Z by heat-transfer-supervisor
 (re-formed 2026-08-23 after the 2026-08-22 session limit).
-
-> **Timestamp correction, 2026-08-23 19:45Z, by the section's owner.** The
-> previous revision's stamp read 19:55Z but its commit (`cdb5cc0b`) is dated
-> 19:27:03Z -- the stamp was asserted, not read from the clock (the `bd3edfe8`
-> defect class; same disease the dafoam section corrected). Every time in this
-> revision is `date -u` output or a log line read at 19:42Z.
 
 ### T-family (thermal) — refreshed 2026-08-23 by the T-family supervisor
 
@@ -282,34 +276,17 @@ Older rows (A4 twin PASS `f9a59d47`, A2 per-component `79679a84`, A3 prereg chai
   28000, O_m 46000). **`R_f` alive** (pid 757934) at 47 511/78 000 as of
   19:15Z, pacing at or ahead of the 2026-08-25T14:54Z ETA. Comparator re-runs
   only after all eight.
-- **Strict-rule verification of the eight finished runs (this supervisor,
-  19:34-19:42Z).** The seven finished T3 ext1 arms now carry DONE markers from
-  the frozen `mark_done_t3_ext1.py` (selftest 14/14 first, `__pycache__`
-  cleared; dry-run 7/7, then real run 7/7 PASS, ext1 included) -- the 7/8 line
-  above was a STATUS rc=0 read, not the six-test rule; this is the rule, age
-  guard included. `DONE.R_f` is ABSENT from disk though tracked in HEAD:
-  correct, refusing-direction state while its extension runs (removal not
-  witnessed by this session; consistent with the tool's registered behaviour);
-  the deletion is committed with this revision so the frozen comparator cannot
-  read a half-finished extension. `R_10k_x` re-verified independently:
-  `mark_done_t1b_L4.py` 1/4 PASS (three siblings correctly refuse, still
-  running), marker idempotent with `cdb5cc0b`'s. All six marking/grading
-  scripts hashed byte-identical to their HEAD blobs before any output was
-  believed. The seven `STATUS_EXT1.*` evidence files (previously untracked)
-  are committed with this revision.
 
 **Live jobs — 4 solvers, all this team's, all single-core
-`buoyantBoussinesqSimpleFoam`.** Reading taken 2026-08-23T19:42Z (`ps`,
-`readlink /proc/<pid>/cwd`, last `Time =` line of each log). **Do not touch
-them.** The L4 completion watcher is pid 1102509 (30-min poll for the three
-STATUS files, deadline guard 2026-08-27).
+`buoyantBoussinesqSimpleFoam`.** Reading taken 2026-08-23T19:15Z. **Do not
+touch them.**
 
 | pid | cwd | iteration / endTime | ETA |
 |---|---|---|---|
-| 442445 | `T1_runs/R_300k_x` | 41 245 / 80 000 | ~2026-08-26 |
-| 450274 | `T1_runs/R_100k_x` | 36 947 / 80 000 | ~2026-08-26 |
-| 488219 | `T1_runs/R_30k_x` | 34 835 / 80 000 | ~2026-08-26 |
-| 757934 | `T3_runs/R_f` | 48 083 / 78 000 | ≤ 2026-08-25T14:54Z |
+| 442445 | `T1_runs/R_300k_x` | ~40 457 / 80 000 | ~2026-08-26 |
+| 450274 | `T1_runs/R_100k_x` | ~36 000 / 80 000 | ~2026-08-26 |
+| 488219 | `T1_runs/R_30k_x` | ~34 324 / 80 000 | ~2026-08-26 |
+| 757934 | `T3_runs/R_f` | 47 511 / 78 000 | ≤ 2026-08-25T14:54Z |
 
 **Rung verdicts on record** (unchanged from 2026-08-22 except T10a's arm):
 
@@ -329,22 +306,12 @@ STATUS files, deadline guard 2026-08-27).
 GATE FAIL; K0b + K0cG/P/Q/R verdicts VERIFY; K2a on Sanaa's desk; K2b cost
 VOID; K2e/KV1 VERIFY).
 
-**Lanes live (dispatched 2026-08-23 ~19:40Z, 2 of the cap of 3):** (a) F14
-VERIFY sweep -- read-only verification of the K0b (D403 rerun + D406 repair),
-K0cG/K0cP/K0cQ/K0cR, K2e and KV1 recorded verdicts against their records and
-run trees; commits nothing. (b) T9aH successor pre-registration (re-graded
-T9a under `Gauss harmonic`, the H-4 follow-through named by T9a-D) -- drafts
-and commits the prereg, then STOPS; no launch before this supervisor's
-personal check of the committed prereg, grading path and cost.
-
 **Next actions:** 1. L4 completion (watcher armed) → grade the four (m,f,x)
 triples. 2. T3 ext1 completion (`R_f`) → comparator re-run over all eight →
 T3 re-graded under the frozen §7.1 gates. 3. T5 waits on Sanaa's
 INTERPRETATION rulings. 4. T10a-R successor questions (whether any rung arms
 a band from a triple whose implied p exceeds the observed error decay —
-L-244) belong to verification, flagged, not taken here. 5. T9aH: committed
-prereg -> supervisor's personal check -> launch decision (lane live). 6. F14
-VERIFY flags: clear to BACKED or record GAP per the sweep lane's report.
+L-244) belong to verification, flagged, not taken here.
 
 **On Sanaa's desk** (carried, plus one new): Vogel & Eaton purchase
 (~25–40 USD, figure unconfirmed); T5 draft INTERPRETATIONs; T1b L4 cost
@@ -375,20 +342,20 @@ single rung may take it.
 - **DPW8_V2 L4 decided: DIAGNOSE, not abandoned.** The campaign record's §3-CORRECTION already establishes L4 **DIVERGED deterministically** (k blow-up from ~iter 14, reproduced bit-for-bit; mesh quality and aspect ratio ruled out; root cause open). Supervisor decision 2026-08-23: run the record's own cheapest decisive experiment — two short pre-registered arms, one change per run (Arm A relaxation only; Arm B turbulence-convection scheme only), positive-control-gated grading. The gate rung itself remains **NOT GATED** until the diagnosis lands; any repaired full L4 (and the §3b family-consistent linear-solver question) is a successor decision.
 - **MESH_STANDARD consistency check done (they were never to be merged).** `docs/standards/MESH_STANDARD.md` (v1.2, single-mesh quality gates + birth certificate + §7 marine) and `docs/MESH_STANDARD.md` (grid-family sizing/scatter) are complementary, both flag the name collision on their face, cross-refs sound, one-home-per-fact respected (§7.3). One staleness found and fixed this session: the family doc's header cited the companion as v1.0/2026-07-25 while its own Sources said v1.2 — header updated, no gate value touched.
 
-**Open run families (lacking verdicts):**
+**Open run families — triaged 2026-08-23 (read-only lane sweep, supervisor spot-checked; the 2026-08-22 first-fill table had 3 rows WRONG and 5 PARTLY WRONG):**
 
-| family | why open |
+| family | actual state, from the records |
 |---|---|
 | **DPW8_V2 L4** | DIVERGED, root cause open; diagnosis prereg in flight this session (see above). L1/L3 PASS stand |
-| **F5b** | run dir is exactly one file, `run_pitch.py`; no case tree, no logs *(VERIFY — carried from first fill, not re-read this session)* |
-| **F5c** | headline withdrawn to *unmeasured*; the 1.313 H attributed to SIMPLEC was RELAXATION — misattributed; chief-approved Stage B never run *(VERIFY)* |
-| **R4 (Ahmed turn)** | n = 2 of planned 4; leg-2 claims no SIGNAL/NOISE verdict; NOT the closure team's R4 SpaRTA build *(VERIFY)* |
-| **F12** | pre-registration only; `F12_runs/` is just `reference/` *(VERIFY)* |
-| **F7a re-gate** | spec frozen, unexecuted *(VERIFY)* |
-| **MODEL_FORM successors** | three preregs, no results *(VERIFY)* |
-| **mbc_retry, uq_batch** | "Nothing here is graded." *(VERIFY)* |
-| **F4** | SWBLI θ=32.5°/35° gate cases not yet built or run *(VERIFY)* |
-| **F5** | 1e5 and 1e6 ladder rungs have no run tree *(VERIFY)* |
+| **F5b** | Feasibility **PASS** on record (`F5bc_unsteady_statistics.md`); Physics and Gate rungs literally "[to be completed]" — **PENDING**, not ungraded. Run dir really is one file. Trap: `F5b_cylinder_re100_act.json` is a DIFFERENT case (Re=100 shedding act). Next rung ≈25–35 core-min |
+| **F5c** | Effectively closed: headline withdrawn to unmeasured; 1.313 H was RELAXATION (misattributed, `F5C_LEVER_ISOLATION_RESULTS.md`); **Stage B was NEVER chief-approved** ("Stage B NOT approved and not run", header of `F5C_STAGE_A_RESULTS.md`) and O3 firing makes it moot. First-fill's "chief-approved Stage B" was wrong. A3-vs-A4 disagreeing 4.224 H on a relaxation-only change is residual-free proof neither solve converged |
+| **R4 (Ahmed turn)** | First-fill row WRONG: leg 2 ran 2026-08-10, **n = 4 of 4** (`R4_AHMED_C3_LEG2_RESULTS.md`; B3 broad scatter R = 0.324 vs 0.28 bar, near miss; DISSOLVES confirmed). Turn **WITHDRAWN as a feature** (chief ruling `8f5bf878`, `R4_AHMED_TURN_WITHDRAWAL_2026-08-10.md`). No SIGNAL/NOISE verdict claimed — the c4 CI leg was deliberately not taken. Optional n=7 (~3.1 core-min/draw) needs chief's word. NOT the closure R4 SpaRTA build |
+| **F12** | CONFIRMED orphaned prereg (chief: "the standing IOU"); `F12_runs/` is `reference/` only. **Rule-12 defect: the prereg carries NO cost figure** — needs a costed addendum before it can be scheduled at all |
+| **F7a re-gate** | Spec frozen AND **the gate verdict is already taken from tracked data: FAIL at +11.03% max deviation** (prereg §1's own words). What is unexecuted is the diagnostic list; cheapest is **R0, 0 core-min** (literature recovery, arXiv:2108.08769 front-extraction). R1a (760–1,520 core-min) recommended against by the record itself. Live unexplained: 23.3% code-to-code offset |
+| **MODEL_FORM successors** | First-fill row WRONG: all three preregs carry **executed outcome blocks** (FPE rescue 18.16 core-min; H ext 41.66; H hills 29.18). Verdicts are refusals by the n<3 rule ("containment REFUSED — no band exists at n = 1"). Substantive finding: a family-convergence wall on the hills. CLOSED as registered; row corrected |
+| **mbc_retry, uq_batch** | CONFIRMED — both self-labelled by their own 2026-08-18 READMEs: "Nothing here is graded." No action; any rung wanting either outcome re-runs it |
+| **F4** | θ=32.5°/35° gate cases still held — correct — but the row hid the work: Settles reference **overturned and replaced** with Kussoy & Horstman TM 101075, ±30% pass band pre-registered before the cases run; θ=20° warm-up SIGFPE with **5 mechanisms eliminated, root cause open** (`NOT_PASSING_REGISTER.md` Group 3); custom `rhoCentralFoamBounded` source at `verification/runs/F4_runs/swbli_cylflare/`. Named next lever, **zero compute**: source-read of `rhoCentralFoam` directional flux reconstruction at cells with two boundary faces |
+| **F5** | CONFIRMED and understated: no 1e5/1e6 trees; re10000 is **mesh-only**; and the ladder's own record says **"do not climb to Re 5000 or Re 10,000"** (2D wake tops the recirculation-bubble gate's applicability; 5.9–13.7 h/rung for a weaker gate). Informative next step per the record is the 3D rung. Zero-compute follow-up: Dong & Karniadakis literature access to upgrade Re 10k/2k bands |
 
 **Closed, verdicts on record:** 4G, B52_RUNG6 (REPRODUCE), D5_rsm (SSG and LRR
 bracket the DNS; *which* RSM is right is not settled), DMR, F2 (PASS banded), F3
@@ -405,14 +372,26 @@ conclude a family is ungraded because its run directory is bare.
 
 **Standards — two documents, not two copies (do NOT merge):** `docs/standards/MESH_STANDARD.md`
 (v1.2) = quality gates; `docs/MESH_STANDARD.md` = grid families. Consistency
-verified 2026-08-23 (see above). `docs/OPENFOAM.md` — **stale; describes the
-phase-1 adapter** *(VERIFY, carried)* — and `docs/OPENFOAM_SOLVER_BUILD.md`.
+verified 2026-08-23 (see above). `docs/OPENFOAM.md` — triaged 2026-08-23: the
+**v2606 claim is VALID** (`/usr/lib/openfoam/openfoam2606` is the only install);
+what is stale is the framing — it documents a WSL2/docker phase-1 adapter
+workflow on a native-Linux AWS box, and `sdk/docker/Dockerfile.openfoam-worker`
+**does not exist** though the doc gives a build command for it. Zero-compute fix
+pending: flag the container section, re-scope WSL as historical.
+`docs/OPENFOAM_SOLVER_BUILD.md`: two dead `demo-output/website/...` paths for
+`rhoCentralFoamBounded_src` **fixed this session** (source verified on disk at
+`verification/runs/F4_runs/swbli_cylflare/`).
 
-**Next actions:** (1) grade the DPW8_V2 L4 diagnosis arms when they complete, then
-decide the successor (family-consistent repaired L4, or record the family as
-stopping at L3 with the diagnosed cause). (2) Verify-and-triage the *(VERIFY)*
-rows above, F5c Stage B and F12 first — both have frozen paper waiting on
-execution. (3) Then the F4 gate cases.
+**Next actions:** (1) grade the DPW8_V2 L4 diagnosis arms when they complete,
+then decide the successor (family-consistent repaired L4, or record the family
+as stopping at L3 with the diagnosed cause). (2) F4 SIGFPE next lever — the
+zero-compute source-read of `rhoCentralFoam`'s directional flux reconstruction
+at double-boundary-face cells. (3) F7a R0 literature recovery, 0 core-min.
+(4) F12: costed addendum question to the chief — the prereg is disqualified as
+a proposal until priced (rule 12). (5) F5b physics rung (~25–35 core-min) as
+the next cheap compute candidate. (6) `docs/OPENFOAM.md` re-scope, zero
+compute. Same dead-path class as the fixed one persists in
+`F4_hypersonic_blunt_body.md`'s artifact lines — sweep candidate.
 
 **On Sanaa's desk:** nothing from cfd currently.
 

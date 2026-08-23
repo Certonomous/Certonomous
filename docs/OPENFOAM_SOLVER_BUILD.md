@@ -15,7 +15,7 @@ That is `docs/OPENFOAM.md`, and nothing here is needed to run it.
 
 | Artifact | Kind | Source directory | Build command |
 |---|---|---|---|
-| `rhoCentralFoamBounded` | executable | `demo-output/website/campaign/F4_runs/swbli_cylflare/rhoCentralFoamBounded_src/` | `wmake` |
+| `rhoCentralFoamBounded` | executable | `verification/runs/F4_runs/swbli_cylflare/rhoCentralFoamBounded_src/` | `wmake` |
 | `libspartaTurbulenceModels.so` | library | `sdk/openfoam/sparta/spartaTurbulenceModels/` | `wmake libso` |
 | `libkOmegaSSTQCRTurbulenceModels.so` | library | `sdk/openfoam/qcr/kOmegaSSTQCR/` | `wmake libso` |
 | `kCorrectiveFrozenFoam` | executable | `sdk/openfoam/sparta/kCorrectiveFrozenFoam/` | `wmake` |
@@ -101,7 +101,7 @@ USERDIR="$HOME/OpenFOAM/ubuntu-v2606"
 
 # --- 1. rhoCentralFoamBounded ---------------------------------------------
 mkdir -p "$USERDIR/applications/solvers/compressible"
-cp -R "$REPO/demo-output/website/campaign/F4_runs/swbli_cylflare/rhoCentralFoamBounded_src" \
+cp -R "$REPO/verification/runs/F4_runs/swbli_cylflare/rhoCentralFoamBounded_src" \
       "$USERDIR/applications/solvers/compressible/rhoCentralFoamBounded"
 
 # --- 2. the sparta pair (siblings) and the QCR library --------------------
