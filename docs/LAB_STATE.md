@@ -469,9 +469,9 @@ single rung may take it.
 
 **Section last written:** 2026-08-23T20:55Z by cfd-supervisor (second owner session — the grading session; the session that authorized the arms died between their launch and their grading).
 
-**Last commit:** `3b9bcf31` (F7a R0 executed: paper + sidecar + §7 addendum + diagnostic reader, 6 paths, +2,692/-0), `ea204b3d` (D481 + L-255), `b8fe7eea` (DPW8_V2 L4 diagnosis results record + 22 run artifacts) — lane commits, post-commit-verified (only their paths). Board commit this session: see this section's git history.
+**Last commit:** `1135e3c5` (F4 §8 source-read, pure append +329), `3b9bcf31` (F7a R0: paper + sidecar + §7 addendum + diagnostic reader, 6 paths, +2,692/-0), `ca65745c` (board), `ea204b3d` (D481 + L-255), `b8fe7eea` (DPW8_V2 L4 diagnosis results record + 22 run artifacts) — post-commit-verified (only their paths).
 
-**Live jobs:** no cfd solver runs. One lane live: F4 SIGFPE zero-compute source-read (rhoCentralFoam directional flux reconstruction at double-boundary-face cells, vs `NOT_PASSING_REGISTER.md` Group 3). Do not touch the heat-transfer `buoyantBoussinesqSimpleFoam` solvers or closure's Kaandorp `simpleFoam` (driver spawns a fresh solver pid per row — never cite a stale pid; the prior board's "pid 1114301" was already dead at the chief's 20:26Z reading).
+**Live jobs:** no cfd solver runs. Two lanes live, both zero-compute: (a) `docs/OPENFOAM.md` re-scope (dated re-scope note, WSL section → HISTORICAL, nonexistent Dockerfile marked); (b) F4 step-0/1 pre-registration FREEZE at `verification/campaign/F4_SIGFPE_STEP01_PREREGISTRATION.md` — **freeze only, NOTHING LAUNCHED; supervisor launch authorization required after his read of the committed prereg and reader (checks #1/#4), est. ≈9.4 core-min ≤12 cap when it does run**. Do not touch the heat-transfer `buoyantBoussinesqSimpleFoam` solvers or closure's Kaandorp `simpleFoam` (driver spawns a fresh solver pid per row — never cite a stale pid; the prior board's "pid 1114301" was already dead at the chief's 20:26Z reading).
 
 **DPW8_V2 L4 diagnosis — GRADED this session, under prereg `99f939ee` (blob sha256 re-verified by this session's supervisor before grading; reader `analyse_l4_diag.py` committed pre-launch at `30d93a0c`, disk == blob, full diff read by supervisor).** The prior board's "launching now" line resolved TRUE: the authoring lane launched both arms 20:01Z and they completed (20:03Z / 20:20Z) before that session died. Controls C1–C5 all green (C5 plant auto-raised to −175205 per §5, read back exactly, real file md5 unchanged). Results record: `verification/campaign/DPW8_V2_L4_DIVERGENCE_DIAG_RESULTS.md` @ `b8fe7eea`; transcript `verification/runs/DPW8_V2_runs/L4_DIAG_GRADING_OUTPUT.txt`.
 - **Arm A (relaxation only): BLOCKED** (§6) — SIGFPE at iter 182/600, rc 136. Supervisor triage (personal check #2): launcher exonerated (bashrc sourced, correct binary, 4450 s cap untouched at 124.26 wall s); ZERO bounding-k lines; divergence proceeded to FP overflow in the U-equation smoother. Header-identified Cd/Cl at the last written row (iter 181) = 1.6026e+37 / 8.0168e+37 — the supervisor's own first read quoted ~1e35 from the wrong columns (the §2.1 CmRoll/CmYaw trap, caught by the filing lane; nothing turned on it). The crash is the phenomenon, not the toolchain; the frozen §6 label stays BLOCKED, no post-hoc relabelling.
@@ -502,7 +502,7 @@ single rung may take it.
 | **F7a re-gate** | **GATE FAIL stands untouched at +11.03% max** (graded vs Martin & Moyce at dy = a/128). **R0 EXECUTED 2026-08-23, 0 core-min, `3b9bcf31`** (§7 appended to `F7a_REGATE_SPEC.md`, rule-6 assertion held at 0 renumbered lines): the paper (arXiv:2108.08769 v1, Leakey/Glenis/Hewett, title-page verified) states NO front-extraction method; the prereg's fallback back-out shows a single fixed rule (α = 0.65 floor-row contour) collapses the mean code-to-code offset **+23.36% → +0.70%** (~97% of the mean), while shape survives at ±7.3% max — a definition-independent code-to-code difference of order ±7% remains at a/16. P5 struck in magnitude (bar now ≈7%, kept as a reading per L-76). R1a/R1b/R1c NOT authorized by the addendum; supervisor read of the new diagnostic reader PENDING (personal check #1) before its numbers are relayed further |
 | **MODEL_FORM successors** | First-fill row WRONG: all three preregs carry **executed outcome blocks** (FPE rescue 18.16 core-min; H ext 41.66; H hills 29.18). Verdicts are refusals by the n<3 rule ("containment REFUSED — no band exists at n = 1"). Substantive finding: a family-convergence wall on the hills. CLOSED as registered; row corrected |
 | **mbc_retry, uq_batch** | CONFIRMED — both self-labelled by their own 2026-08-18 READMEs: "Nothing here is graded." No action; any rung wanting either outcome re-runs it |
-| **F4** | θ=32.5°/35° gate cases still held — correct. Settles reference **overturned and replaced** with Kussoy & Horstman TM 101075, ±30% pass band pre-registered before the cases run; θ=20° warm-up SIGFPE with **5 mechanisms eliminated, root cause open** (`NOT_PASSING_REGISTER.md` Group 3); custom `rhoCentralFoamBounded` source at `verification/runs/F4_runs/swbli_cylflare/`. The named next lever (zero-compute flux-reconstruction source-read) is IN FLIGHT this session (lane live) |
+| **F4** | θ=32.5°/35° gate cases still held — correct. Settles reference replaced with Kussoy & Horstman TM 101075, ±30% band pre-registered. θ=20° SIGFPE: **mechanism #6 ELIMINATED 2026-08-23 by code-path proof (`1135e3c5`, §8 of the campaign record; supervisor verified the load-bearing source lines himself)** — no reconstruction exists at non-coupled boundary faces (`surfaceInterpolationScheme.C:295-298`), pos==neg there, so the hypothesized limiter-bypass spike cannot occur and the boundary-face count never enters the path. Two NEW live hypotheses from the same read: (a) exact cancellation of the Kurganov aSf dissipation at real boundary faces → undissipated central flux (also explains why mechanism #5's null discriminated nothing); worst cells all in the inlet-adjacent column (ids ≡ 0 mod 120); (b) the excursions are CRYOGENIC (T ≈ 20 K / 3 K vs TMin = 20 K), reachable by a 2.7–3.5% \|U\| error at M 7.05 — no exotic mechanism needed. **Records defect found: the bounded-run logs the record and Group 3 cite are GONE from disk** (the 4–32% bounded fractions currently cite artifacts that do not exist; only the original crash log survives). Step-0/1 discrimination prereg being frozen (see Live jobs); ≈9.4 core-min when authorized |
 | **F5** | CONFIRMED and understated: no 1e5/1e6 trees; re10000 is **mesh-only**; and the ladder's own record says **"do not climb to Re 5000 or Re 10,000"** (2D wake tops the recirculation-bubble gate's applicability; 5.9–13.7 h/rung for a weaker gate). Informative next step per the record is the 3D rung. Zero-compute follow-up: Dong & Karniadakis literature access to upgrade Re 10k/2k bands |
 
 **Closed, verdicts on record:** 4G, B52_RUNG6 (REPRODUCE), D5_rsm (SSG and LRR
@@ -530,15 +530,20 @@ pending: flag the container section, re-scope WSL as historical.
 `rhoCentralFoamBounded_src` **fixed 2026-08-23** (source verified on disk at
 `verification/runs/F4_runs/swbli_cylflare/`).
 
-**Next actions:** (1) collect and verify the F4 source-read lane's result.
-(2) supervisor diff-read of `verification/runs/F7_runs/r0_implied_front_definition.py`
-(new measurement script; its §7.3 numbers are not relayed beyond this board
-until read — personal check #1). (3) `docs/OPENFOAM.md` re-scope, zero
-compute. (4) F5b physics rung (~25–35 core-min) as the next cheap compute
-candidate — needs its own frozen prereg first. (5) D481 third-lever decision
-for DPW8_V2 L4 — chief/next session. (6) dead-path sweep: the
-`demo-output/website/...` stale-citation class persists in
-`F4_hypersonic_blunt_body.md`'s artifact lines and `mega-batch`'s driver.
+**Next actions:** (1) collect the two live lanes; supervisor read of the
+committed F4 step-0/1 prereg + reader (checks #1/#4) BEFORE any launch
+authorization. (2) supervisor diff-read of
+`verification/runs/F7_runs/r0_implied_front_definition.py` (new measurement
+script; its §7.3 numbers are not relayed beyond this board until read —
+personal check #1). (3) F5b physics rung (~25–35 core-min) as the next cheap
+compute candidate — needs its own frozen prereg first. (4) D481 third-lever
+decision for DPW8_V2 L4 — chief/next session. (5) dead-path sweep: the
+`demo-output/website/...` stale-citation class is corrected inside the F4
+record (§8.10, `1135e3c5`) but persists in `NOT_PASSING_REGISTER.md`'s F4
+entry (flagged, another record's item) and `mega-batch`'s driver. (6) the F4
+missing-logs records defect: decide whether Group 3's bounded-fraction figures
+need a VERIFY flag in `NOT_PASSING_REGISTER.md` until step 0 regenerates the
+evidence.
 
 **On Sanaa's desk:** nothing from cfd currently.
 
