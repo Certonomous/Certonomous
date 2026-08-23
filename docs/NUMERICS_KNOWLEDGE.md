@@ -3521,3 +3521,28 @@ from them.
 **73.83 s** and **73.71 s** with everything else held (W4 M1+M2, `64479072` §2). This is also why
 `W4_ADJOINT_PC_UNBLOCK.md` §5b.1's 11.7 core-min pre-solve price over-priced a stock arm by
 ~40 %: the price was measured with the LU factors in it.
+**N-B39. `singular_value_ratio_first_to_last` of a rank-deficient standardised
+feature matrix is BLAS-thread-dependent rounding noise — an exact-identity gate
+over it is meaningless without a pinned environment.** The FS2 audit publishes
+`s[0]/s[-1]` per family; on the rank-deficient matrices (POOLED rank 100/110,
+duct 96/110) `s[-1]` is analytically zero, so the figure reports the
+rounding-noise floor (~1e-15 relative to `s[0]` ≈ 7.5e2), not a property of the
+data. Measured under D476's gate A3 (`7e973ba8`): repeat runs are bit-identical
+— deterministic per environment — but the figure tracks `OPENBLAS_NUM_THREADS`.
+On `hump` with the matrix held fixed, `s[0]` agrees to 15 digits and the rank
+stays 100 at every thread count while the ratio spans 1.75e17→3.31e18;
+threads=4 reproduces the pre-D476 baseline exactly, threads=16 the new run.
+Every other audit value was exactly identical across the regeneration. A3
+stands **GATE FAIL**, unloosened; pinning was NOT adopted — converting a failed
+gate to a pass by changing how the instrument runs is unregistered
+pass-engineering. Referred to verification: whether `s[0]/s[-1]` of a singular
+matrix should be published at all (it is infinite in exact arithmetic;
+`s[0]/s[r-1]` over the retained rank measures something), and whether audit
+instruments should pin BLAS threads so exact-identity gates mean something on
+this box. Sibling closure of N-B38's "unmeasured" clause, same commit:
+`q1_wallRe` `frac_at_max` = **0.5784** over 641,652 pooled cells — the clip at
+2 is the MODAL value and the unclipped p50 (2.994) already exceeds it; only
+`I3_trW2__A/B` saturate otherwise (analytically −0.25, already flagged
+near-constant, not a discovery).
+Source: `cases/RANS_LES_closure_models/_common/features/FS5_D476_CLIP_REPAIR_RESULTS.md`;
+`/home/ubuntu/closure-data/D476_A3_triage/`; commit `7e973ba8`.
