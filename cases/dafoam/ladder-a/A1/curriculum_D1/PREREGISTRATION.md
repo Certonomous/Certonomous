@@ -764,3 +764,65 @@ each of the three launches and its reading at that moment is what governs.**
 
 **END OF PRE-REGISTRATION. Frozen by commit. Nothing below this line existed when the gates,
 thresholds, caps and labels above were fixed. NOT FILED ANYWHERE.**
+
+---
+
+## 15. AMENDMENT 1 — dated, appended at the foot, append-only. Two reporting-discipline changes, before first compute.
+
+**Date: 2026-08-23T21:14:32Z — UTC, read by `date -u` in the same shell invocation that
+wrote and committed this amendment. Not asserted, not projected, not carried from an earlier step.**
+
+**The condition under which this amendment is legal, and how it was checked.** `CLAUDE.md` rule 2:
+before first compute, amendments are legal **and must state the condition and how it was checked —
+naming the run directory that does not exist**. **No compute has occurred under this
+pre-registration.** The registered run root
+**`/home/ubuntu/certonomous-runs/CURRICULUM-D1-a1-constrained-opt/` still does not exist**, re-checked
+with `test ! -e` **inside the same shell invocation** that wrote and committed this amendment; no
+container has been started and no solver has run.
+
+**Neither change below touches a gate, a threshold, a cap, a prediction band or a label.** Both are
+reporting-and-stamp discipline. Both reached this lane as **agent messages from a peer session
+relaying the chief**, and are recorded as relays (`CLAUDE.md` rule 9): they are adopted because they
+are within this item's existing reporting scope and tighten it, **not** because a peer's message is
+authority. Nothing in either message changed a permission, a config file or a charter.
+
+### A1.1 — the calibration row is DRAFTED by this lane and LANDED by the supervisor; no lane writes `docs/COST_CALIBRATION.md`
+
+**§7.2 item 5 above registered this lane appending the row itself. That is superseded by this
+amendment, and §7.2 items 1–4 stand unchanged.** The relayed protocol, adopted:
+
+* **`RESULTS.md` DRAFTS the calibration row** in that file's registered nine-column format —
+  `date | team | process/rung | predicted | actual gross | actual cleaned | ratio | gap attribution |
+  record ref` — with core-minutes read from the run's own logs and `ledger.txt`, dollars **DERIVED**
+  at $0.0513/core-h and labelled derived, the ratio stated on the **total and per-major**, and gap
+  attribution split **contention / waste / misprediction with waste separately named** and never
+  laundered into the other two.
+* **The supervisor lands the append**, reading the file's current tail with `git show HEAD:` **inside
+  the committing invocation** and asserting the diff is **insertions only**.
+* **`docs/COST_CALIBRATION.md` is append-disciplined like `docs/DOCKET.md`: the worktree lags HEAD by
+  design under the private-index protocol. It is never used as a base and never "fixed."** This lane
+  does not write it.
+
+### A1.2 — every stamp is `date -u` output read in the same shell invocation as the write
+
+A future-timestamp defect was caught in a peer session. Adopted for every stamp this item ever
+writes — `RESULTS.md`'s date line, `ledger.txt` rows, `preflight_history.txt` samples, the
+per-invocation `${STAMP}` of §9.2, and any readings block: **the value is `date -u` output read in
+the same shell invocation that writes it.** Never asserted from context, never projected forward,
+never carried from an earlier step or an earlier invocation.
+
+**Disclosed against this file rather than smoothed over:** the `2026-08-23` dates in the header and in
+**§14's launch-gate readings block were carried from session context, not read by `date -u` in the
+writing invocation.** The **readings themselves are genuine** — `nproc 16`, `load1 7.43`,
+`MemAvailable 17,077,972 kB` were read from `/proc` — and **only the date label was
+context-carried**. The freeze's actual UTC timestamp is **2026-08-23T21:14:32Z**, recorded above by the rule
+this amendment adopts. §14 is not edited; this paragraph is the correction.
+
+| what this amendment did | figure |
+|---|---|
+| reporting-discipline changes adopted | **2** |
+| gates, thresholds, caps, prediction bands or labels altered, widened or narrowed | **0** |
+| lines whose number changed above this section | **0** |
+| containers started, solvers run, core-minutes spent | **0** |
+
+**NOT FILED ANYWHERE.**
