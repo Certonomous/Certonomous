@@ -1,0 +1,75 @@
+// F4 SIGFPE Step 0/1 grading-reader POSITIVE-CONTROL FIXTURE (control C1).
+//
+// Hand-written. This file is NOT solver output and must never be cited as a
+// measurement. It exists because standing rule 3 requires the clamp reader to
+// be shown able to see a known non-zero BEFORE any zero it reports is
+// admissible -- and no real `BOUND:` log survives anywhere on this box
+// (F4_hypersonic_blunt_body.md 8.8; re-verified 2026-08-23).
+//
+// Frozen with F4_SIGFPE_STEP01_PREREGISTRATION.md 6, control C1. The expected
+// values below are duplicated in analyse_f4_sigfpe_step01.py's EXPECTED_C1
+// table; the reader asserts the two agree, so editing one without the other is
+// a hard failure, not a silent drift.
+//
+// Expected, exactly:
+//   3 clamp events at t = 1e-08, 2e-08, 3e-08
+//   nLow             = 7, 55, 411
+//   worst e (J/kg)   = -199600.5, -201234.75, -211681.775
+//   worst cell       = 0, 3960, 13080
+//   implied T (worst)= 19.8844, 17.6061, 3.0417   (T = 298.15 + e/717.30208)
+//   histogram row sum == nLow at every event
+//   lowest occupied bin contains the worst cell's implied T at every event
+//
+// The line shapes below are exactly those emitted by
+// rhoCentralFoamBoundedDiag_src/boundE.H (prereg 4.2): the unmodified
+// "BOUND:" line from the published guard, plus the two added "BOUNDDIAG:" and
+// "BOUNDHIST:" lines. A reader that parses this fixture parses a real log.
+//
+// Histogram bin edges, in K, on the implied temperature T = Tref + e/Cv with
+// Cv = 717.30208 and Tref = 298.15 (createFields.H:110-123):
+//   b0 (-inf,0]  b1 (0,1]   b2 (1,2]     b3 (2,5]       b4 (5,10]
+//   b5 (10,15]   b6 (15,18] b7 (18,19]   b8 (19,19.5]   b9 (19.5,19.9]
+//   b10 (19.9,19.99]        b11 (19.99,20)
+
+Starting time loop
+
+Courant Number mean: 0.0412 max: 0.298
+deltaT = 1e-08
+Time = 1e-08
+
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+diagonal:  Solving for rhoUx, Initial residual = 0, Final residual = 0, No Iterations 0
+diagonal:  Solving for rhoE, Initial residual = 0, Final residual = 0, No Iterations 0
+BOUND: e below eMin in 7 cell(s) at Time = 1e-08, worst e = -199600.5 J/kg at cell 0 C = (0.00033 0.19949 0.00435) | low-e cell extent: x=[0.00033,0.00033] r=[0.1035,0.1995]
+BOUNDDIAG: t=1e-08 nLow=7 rhoLow=[0.0249,0.0253] magULow=[1271.4,1309.8] TprevLow=[80.1,82.4] worst: cell=0 rho=0.0251 magU=1308.9 Tprev=81.2 Timp=19.8844
+BOUNDHIST: t=1e-08 nLow=7 bins=0 0 0 0 0 0 0 0 0 1 4 2
+smoothSolver:  Solving for e, Initial residual = 1e-06, Final residual = 1e-09, No Iterations 1
+ExecutionTime = 1.42 s  ClockTime = 2 s
+
+Courant Number mean: 0.0418 max: 0.299
+deltaT = 1e-08
+Time = 2e-08
+
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+diagonal:  Solving for rhoUx, Initial residual = 0, Final residual = 0, No Iterations 0
+diagonal:  Solving for rhoE, Initial residual = 0, Final residual = 0, No Iterations 0
+BOUND: e below eMin in 55 cell(s) at Time = 2e-08, worst e = -201234.75 J/kg at cell 3960 C = (0.00033 0.12604 0.00275) | low-e cell extent: x=[0.00033,0.00051] r=[0.1035,0.2007]
+BOUNDDIAG: t=2e-08 nLow=55 rhoLow=[0.0231,0.0261] magULow=[1268.0,1341.2] TprevLow=[74.6,83.9] worst: cell=3960 rho=0.0238 magU=1339.7 Tprev=79.4 Timp=17.6061
+BOUNDHIST: t=2e-08 nLow=55 bins=0 0 0 0 0 0 3 6 11 14 13 8
+smoothSolver:  Solving for e, Initial residual = 3e-06, Final residual = 2e-09, No Iterations 1
+ExecutionTime = 2.81 s  ClockTime = 3 s
+
+Courant Number mean: 0.0421 max: 0.300
+deltaT = 1e-08
+Time = 3e-08
+
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+diagonal:  Solving for rhoUx, Initial residual = 0, Final residual = 0, No Iterations 0
+diagonal:  Solving for rhoE, Initial residual = 0, Final residual = 0, No Iterations 0
+BOUND: e below eMin in 411 cell(s) at Time = 3e-08, worst e = -211681.775 J/kg at cell 13080 C = (0.00033 0.10352 0.00226) | low-e cell extent: x=[0.00033,0.00104] r=[0.1035,0.2015]
+BOUNDDIAG: t=3e-08 nLow=411 rhoLow=[0.0198,0.0266] magULow=[1265.1,1398.4] TprevLow=[61.3,85.2] worst: cell=13080 rho=0.0203 magU=1396.9 Tprev=64.8 Timp=3.0417
+BOUNDHIST: t=3e-08 nLow=411 bins=0 0 0 3 5 9 17 34 61 98 121 63
+smoothSolver:  Solving for e, Initial residual = 9e-06, Final residual = 4e-09, No Iterations 1
+ExecutionTime = 4.19 s  ClockTime = 5 s
+
+End
