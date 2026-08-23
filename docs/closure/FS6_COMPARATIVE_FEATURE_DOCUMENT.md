@@ -468,3 +468,27 @@ citations). Recorded here for a future amendment of
 
 *End of FS6. This closes the last unstarted rung of the FS ladder as a
 document rung: no verdict is claimed, no gate graded, no compute spent.*
+
+---
+
+## Addendum 1, 2026-08-23 — §3.5 errata verified and repaired; Ling & Templeton 2015 acquisition stays on Sanaa's desk
+
+The §3.5 errata were independently verified by the closure supervisor (own
+grep of the Kaandorp sidecar: nine features, zero hits for a viscosity ratio
+or a turbulent Reynolds number) and repaired **at the generator**:
+`make_feature_library.py` edited and `FEATURE_LIBRARY.md` regenerated, commit
+`01430485`; docket **D467**, lesson **L-246**. The regeneration was asserted
+to move only source columns and source prose — all 110 rows'
+feature/definition/normaliser/G/R/dead columns byte-identical before and
+after. Known knock-on recorded in D467: the per-feature table shifted +4
+lines, so two pre-existing `FEATURE_LIBRARY.md:174` line cites
+(`docs/LAB_STATE.md:192`, `docs/closure/R5_CONSTRAINTS_DISCHARGE_RECORD.md:301`)
+now point 4 lines early; flagged to their owners, not edited here.
+
+**Ling & Templeton 2015 remains PENDING-MIT** (`MANIFEST.md` §4 row 6). It is
+the un-owned origin of the scalar-marker bloodline (§3.1) and, after this
+repair, the openly declared *only* printed source of `q7_viscRatio` and
+`q11_turbReynolds`. Its acquisition is an institutional-access decision that
+sits with Sanaa; nothing was fetched from any gated source by this lab.
+
+Lines whose number changed above this section: 0.
