@@ -499,7 +499,6 @@ ladder); T4 graded rows (ASME primaries).
 looser than it reads; moves verdicts across K0c/K2e/KV1). Owner: chief. No
 single rung may take it.
 ## cfd
-## cfd
 
 **Section last written:** 2026-08-23 by cfd-supervisor (first owner-written fill; replaces the harness first fill of 2026-08-22).
 
