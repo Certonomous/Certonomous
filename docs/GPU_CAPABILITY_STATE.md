@@ -204,3 +204,37 @@ when idle**, and **nothing trains** until the Ling2016 TBNN pre-registration
 carries the console price in its `cost_basis` and Sanaa's **per-item** sign-off —
 GPU spend sits outside the 2026-08-21 blanket, and reading that blanket onto
 GPU-hours would be permission laundering (rule 9).
+
+## 9. Price check CLOSED and cost approved — 2026-08-23
+
+**§7's "Console price check: NOT DONE" row and §8's "Still outstanding — console
+price" paragraph are superseded by this section.** Neither is edited.
+
+**The rate, from AWS's own published price list — not recall, not a screenshot:**
+
+| item | value |
+|---|---|
+| `g6.xlarge`, Linux, on-demand, us-east-2 | **$0.8048/hr** (payload string `"0.8048000000"`) |
+| `g6.2xlarge`, same feed | $0.9776/hr |
+| `g5.xlarge`, same feed | $1.0060/hr |
+| source URL | `https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/US%20East%20(Ohio)/Linux/index.json` — the feed backing `aws.amazon.com/ec2/pricing/on-demand` |
+| JSON path | `regions["US East (Ohio)"]["g6 xlarge US East Ohio Linux"].price`; entry fields `Instance Type: g6.xlarge`, `Operating System: Linux`, `Location: US East (Ohio)`; rateCode term `JRTCKXETXF` (the Price List API's OnDemand term code) |
+| retrieved | **2026-08-23 21:00:47 UTC**, by a closure lane, bare GET, no lab data in the request |
+| payload's own stamp | `hawkFilePublicationDate: 2026-08-21T02:02:57Z` |
+| provenance label | **published price list, retrieved 2026-08-23** — satisfies "never from recall"; the console itself remains Sanaa's to read and a console figure supersedes this one if they ever differ |
+
+The §6 arithmetic flag is resolved: the true rate ($0.8048/hr) sits where §6's
+recall put it (~$0.80), so the request's own $20–$60/month at 20–40 GPU-h/week
+was the optimistic reading, as §6 suspected.
+
+**Sanaa's GPU cost approval, verbatim (2026-08-23, chief's session record):**
+
+> regarding the GPU COST it's fine you have my approval.
+
+Recorded with the same provenance form as the four D-2 compute facts
+(owner-stated, chief's session record). Read together with §8 — Sanaa launched
+`gpu1` herself, an owner action — this approves **GPU cost** for the plan's
+ready item (Ling2016 TBNN, `GPU_REPRODUCTION_PLAN.md` §2 item 1) under that
+item's own registered cap. **It is not a physics-scope change**: the other four
+GPU items proceed only in the plan's own order and terms, each costed before it
+runs. An overrun still stops the run; it does not get a new budget.
