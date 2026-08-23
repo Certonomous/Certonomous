@@ -9606,3 +9606,40 @@ expected to fire produced strictly better evidence than the decline would have.*
 
 **Corollary.** An md5 condition on a helper script that legitimately must differ per run root will
 fire every time. That is not a defect in the condition — write it anyway, and let it buy the control.
+## L-243. A change-based settle criterion cannot tell convergence from damping — a more strongly damped iteration reaches the change bar earlier, further from the answer
+
+**The rule.** Never gate two operators' equivalence on their residuals or their
+settle behaviour; gate it on the **targets they write**, with a tolerance derived
+from a **field-space distance**, and treat any change to the iteration's damping
+as a change to where a change-based criterion stops. When a pre-registration
+derives a field-space tolerance from a linear-solver residual bound, it has
+conflated two different metrics, and the measurement will land wherever it lands
+— R5C registered `1e-6` from the `1e-8` residual tolerance and measured
+**1.1848e-04**.
+
+**Why.** A settle criterion of the form `initRes < a` AND `max|Δf|/max|f| < b`
+sustained N iterations measures **change**, and change bounds nothing about
+**distance to the fixed point**. R5C's Patankar split moves the negative source
+onto the diagonal, which is precisely a stronger damping of the outer iteration:
+`omega` stops going negative, and the same damping makes the change bar arrive
+sooner. On `alpha_10_12000_4048` the repaired run settled at iteration **853**
+against the legacy **1362** (−37 %) and stopped `1.18e-04` away in relative L2 —
+not flat, not clipped, not visibly wrong, simply short. Eleven of twelve cases
+settled at the **identical** iteration and agreed to 1e-7–1e-11: the fixed point
+is shared (confirmed, as registered); the stopping point is not. This is L-235
+one notch subtler — L-235: change cannot tell convergence from *clipping*; here:
+change cannot tell convergence from *damping*.
+
+**The corollary on ratio criteria.** R5C's G3(d) required
+`initRes(1)/initRes(convergedAt) ≥ 1e6` on the registered premise that runs
+start at O(1e-1). Measured: only 3 of 27 do; `initRes(1)` spans 4.7e-05–0.56
+because the initial condition is the baseline SST field, so `initRes(1)`
+measures **the quality of the initial guess**, and the criterion rejected R4's
+own W2-validated reference (`PHLL10595`, 9.167e5, 8.3 % short). A residual-fall
+*ratio* is an absolute bar divided by a number that is not about convergence.
+The absolute bar was already in the settle criterion; the ratio added a way for
+a good initial guess to fail.
+
+**Where it fired.** `cases/RANS_LES_closure_models/R5C_omega_repair/RESULTS.md`
+§5–§6, graded by the frozen comparator against `PREREGISTRATION.md` — thresholds
+left standing as written, exclusions reported (rule 2). Docket D465.

@@ -3451,3 +3451,32 @@ registered steps cleared `C ≥ 5` on the measurement** (smallest 5.83× against
 where the adjoint is wrong by an order of magnitude the rule would register steps that cannot grade.
 **That failure mode is unmeasured.**
 
+**N-B35. The negative frozen-`omega` source is universal, not a hill
+pathology.** With the R5C per-iteration counter live, `nNegSourceCells` reaches
+**476–2,274** cells on **all 27** training cases — including `PHLL10595` (476
+even on the converged legacy run) and `CBFS13700`, the two cases the W2 record
+validates. R4's clipping appeared only on hills because only there does the
+negative source meet `nut` at the `1e-12` floor (N-B27); the sign itself is
+everywhere.
+Source: `R5C_omega_repair/artefacts/r5c_grading.json` (G1c rows).
+
+**N-B36. The Patankar-split `omega` source shares the legacy fixed point in
+practice, and moves the stopping point where it damps.** Eleven of twelve
+R4-COMPLETE cases settle at the **identical** iteration under the split source
+and reproduce `kDeficit`/`bijDelta` to **1e-7–1e-11** relative L2; the twelfth
+(`alpha_10_12000_4048`) settles **37 % earlier** and lands **1.1848e-04** away
+— a broad drift (largest cell 0.08 % of the squared error), not a local defect.
+Clipping is removed on 22 of 27 (zero `bound(omega)` events; the five remaining
+clip 5–29 iterations against R4's 5,000), and 10 of R4's 15 INCOMPLETE hills
+become COMPLETE under the strict six-condition rule.
+Source: `R5C_omega_repair/RESULTS.md` §2, §5.
+
+**N-B37. `initRes(1)` on the frozen-`omega` extraction measures the initial
+guess, not the run.** The initial condition is the baseline SST `omega` field —
+a good guess on most cases — so `initRes(1)` spans **4.7e-05 – 0.56** with only
+**3 of 27** at O(1e-1), while `initRes(convergedAt)` is `1e-9`–`1e-13` on all
+27 (the settle criterion already enforces `< 1e-8`). A registered residual-fall
+ratio of `1e6` therefore rejected R4's own W2-validated `PHLL10595` at
+**9.167e5**. Any future fall criterion on this family must be absolute, or must
+bound distance to the fixed point directly.
+Source: `R5C_omega_repair/RESULTS.md` §6.2.
