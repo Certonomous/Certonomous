@@ -3505,3 +3505,19 @@ here. No R4 number is affected: `q1_wallRe` is not among the selected features
 of `MODEL.md`.
 Source: `/home/ubuntu/closure-data/features/fs2_audit.json` (key `per_feature`,
 `q1_wallRe`); `R4_sparta_build/COVERAGE.md` §6.
+**N-D22. The NASA hump assembled `dRdWTPC` (51,626 cells, 517,240 adjoint states) is structurally nonsingular but extreme in diagonal spread.** 33,662,810 nnz
+(65.08 per row); zero zero-rows, zero zero-cols, zero zero-diagonal entries; diagonal
+absolute spread **13.01 decades** against CBFS's 8.67 and the M6 family's 14.17. The `cfVar`
+adjoint RHS is nonzero on **2,165 of 517,240** entries (0.42 %), against CBFS `varianceU`'s
+29.92 %. `‖b‖₂ = 1.094138002900e+00`, equal to the solver's printed iteration-0 residual to 13
+digits — the dumped system is the real system (`PROOF.md:2717-2720`'s check, passed on the hump).
+From W4 M1+M2 (`64479072` §3a, §4; dump verified on disk at
+`W4-m1m2-hump-conditioning/hump_dump/`). The singular-or-not verdict itself is **PENDING**: these
+are operator statistics, not the registered `splu`/`spilu` instrument, and no verdict is drawn
+from them.
+
+**N-D23. The ASM sub-block complete-LU factorization costs ≈ 100 s wall at np=4 on the hump case.** A6 printed its iteration-0 residual at **174.97 s** with
+`DAFOAM_SUBPC_TYPE=lu`; the two 2026-08-23 stock arms printed the bit-identical residual at
+**73.83 s** and **73.71 s** with everything else held (W4 M1+M2, `64479072` §2). This is also why
+`W4_ADJOINT_PC_UNBLOCK.md` §5b.1's 11.7 core-min pre-solve price over-priced a stock arm by
+~40 %: the price was measured with the LU factors in it.

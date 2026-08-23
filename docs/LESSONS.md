@@ -9696,3 +9696,32 @@ advance is what made the miss a finding instead of a hindsight claim.
 ## L-249. An audit that freezes its instrument must commit it — an uncommitted screen makes the headline permanently unreproducible
 
 2026-08-23, verification team, from the EXTERNAL_REFERENT re-sweep (`e3f3b521`). The 2026-08-16 audit's section unit reproduces exactly (4,844 sections at `df4d4cbe`, on the nose) — but its bucket figures (26.3 / 5.4 / 6.0 / 62.3 % and the 280 (90–560) estimate) cannot be re-derived by anyone, because the referent-screen script that produced them was never committed: `git ls-files` carries no such script, and the published 1,549 verification-section count matches no reading of the audit's own §2 rule as written (the literal reading gives 1,008, the nearest gives 1,567). This is the ledger audit's citation-into-an-uncommitted-tree defect one step worse: there the artifact existed and the pointer dangled; here the instrument itself is gone, so the numbers are not wrong — they are unfalsifiable, which is worse. The rule: an audit or sweep that publishes a derived figure commits the script that derived it in the same commit as the figure, exactly as a comparator is frozen with its rung; a screen too ad hoc to commit is too ad hoc to headline. Repair for the standing instance: rebuild the screen, commit it, and re-derive the buckets — or strike the bucket figures with a dated note that names them unreproducible. Queued as a verification next action.
+## L-250. A per-stage timeout cap is both the bound on a hang and the size of the loss — set it to the smallest value that fits the predicted run, not the largest the budget allows.
+
+W4 M1+M2 (`64479072` §5a): M2 attempt 1 crashed in Python at ~20 s and `mpirun` then hung
+(`Forwarding signal 18 to job`, 1.13 GiB flat); the registered 300 s cap bounded the burn at
+20.00 core-min — the only reason it was not unbounded — but the stage was predicted at 150–260 s,
+so up to ~280 s of hang lived legally inside the cap, and that 20.00 core-min is exactly what
+defunded the item's decisive O2 stage (19.88 remaining vs the 25.0 floor). The cap worked as a
+guard and failed as a price. Register `timeout` at the predicted-run envelope plus a stated
+margin; the budget ceiling is a different number with a different job.
+
+## L-251. Copying a prior run's invocation is not copying its environment — a pre-registration that pins a container's uid pins the mount's directory mode in the same sentence.
+
+W4 M1+M2 (`64479072` §5a): A6's `-u 1002:1002` was carried forward; A6's `drwxrwxrwx` run root
+was not. OpenMDAO's `reports/` write then hit `PermissionError` on a `drwxrwxr-x` root and the
+stage died before the primal — 20.00 core-min under L-250's hang. Same family as
+`INSTRUMENT_INTEGRITY_LEDGER.md` A7/A8, both "Diagnosed (trivial)": a trivial class recurs until
+the prereg pins the environment (uid, mode, cwd expectations), not just the command line.
+
+## L-252. A session-shared scratchpad can hand a commit chain a stale artifact with the right filename — every staged file is asserted to have been produced by this chain, in this invocation.
+
+2026-08-23, dafoam board commit `4932a7c3` (disclosed by its author in `0d96119d`): the
+section-build step failed on the author's own wrong anchor string, the merge step then failed
+file-not-found — and the staging step found a STALE `LAB_STATE_merged.md` under the generic name
+it expected, left in a scratchpad shared by two sessions resuming the same session id, and
+committed it: four teams' board sections reverted for a two-commit window (healed by `537a52d5`'s
+independent rebuild). `set -e` did not stop the chain. L-186 said the scratchpad is never a
+handoff channel; the sharper corollary is that in shared temp, a generic filename IS an
+accidental handoff. Per-invocation unique filenames, `test -s` plus a provenance assert (the
+producing step's own success) before `git hash-object`, and explicit `&&` chaining — every time.
