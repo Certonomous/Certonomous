@@ -113,3 +113,119 @@ than on the field. **The stricter test was not ignored; it was located.**
 - **whether a fourth level would restore monotone behaviour for `kEpsilon`** —
   three levels can report that no asymptotic range has been reached, and cannot
   report that none exists.
+
+---
+
+## Addendum, 2026-08-23 — the cost this rung never recorded (D470)
+
+**lines whose number changed above this section: 0.** Nothing above is edited,
+struck or renumbered. This record carries no version line at HEAD, so no version
+bump applies and this addendum does not introduce one. **No gate, threshold, cap
+or label moves here** — K0cG grades nothing, and it still grades nothing. This
+addendum adds a cost record and discloses one evidentiary gap; it repairs
+neither the gap nor the overrun.
+
+### 1. The omission
+
+`K0cG_RESULTS.md` as written above reports **no cost at all** — no core-minute
+figure, no dollar figure, no cost basis. Rule 12 requires every run to be costed,
+and its pre-registration did cost it: `K0cG_PREREGISTRATION.md:93-94` registered
+**2.557 × (2170.42 + 3055.73) = 13 363 s = 222.7 core-minutes = 3.71 core-hours
+= $0.190**. The results record never reported against that estimate. Filed as
+**D470**.
+
+### 2. The graded run, attempt 2 — measured
+
+Derived here from the completion markers, not from any prior recollection:
+
+| artifact | field | value |
+|---|---|---|
+| `verification/runs/F14-cooling-ladder/K0cG_runs/DONE.S_KE_x` | `exec_seconds` | 11 105.06 |
+| `verification/runs/F14-cooling-ladder/K0cG_runs/DONE.S_SST_x` | `exec_seconds` | 6 930.36 |
+| `verification/runs/F14-cooling-ladder/K0cG_runs/ALL_DONE` | `markers` / `expected` | 2 / 2 |
+
+Both cases ran **serially**: `K0cG_runs/launch_all.sh:11` invokes
+`buoyantBoussinesqSimpleFoam` with no `mpirun` and no rank count, and neither
+case directory holds a `decomposeParDict`. **Ranks = 1**, so core-minutes are
+seconds ÷ 60.
+
+> **11 105.06 + 6 930.36 = 18 035.42 s = 300.59 core-minutes = 5.0098
+> core-hours = $0.257.**
+
+Against the registered 222.7 core-min / $0.190 this is a **1.35× overrun**
+(300.59 / 222.7 = 1.350). **The overrun was neither reported nor stopped.** Rule
+12 is explicit that an overrun stops the run and that waste is reported, not
+absorbed; neither happened, and this addendum records that failure rather than
+excusing it.
+
+`cost_basis`: **reported-by-owner rate, core-minutes derived from artifacts.**
+The $0.0513/core-h c7a.4xlarge rate is owner-stated and is **not measured on
+this box** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md`
+§5). The core-minute figure *is* derived from on-disk markers. The markers
+record `ExecutionTime`, not wall clock; the solve logs give `ClockTime` = 11 106
+and 6 931 s, so the wall-based figure is 300.62 core-min and the two agree to
+three decimal places in dollars. Nothing here turns on the choice.
+
+### 3. Attempt 1 — a lower bound, where the record said uncosted
+
+The attempt-1 crash (`K0cG_ATTEMPT1_LOSS.md`, D432: the host went down at
+03:53Z and every field was lost to a single scheduled write) **carries no cost
+figure, and no `COST.txt` survived anywhere under `K0cG_runs/`.** In that sense
+the waste is **UNCOSTED**, and D470 records the available ~219 core-min
+reconstruction as *arithmetic, not a record*.
+
+**One correction, offered as a lower bound and not as a settled figure.** The
+truncated solve logs were archived with their tails, and those tails still carry
+the solver's own last flushed `ExecutionTime`:
+
+| artifact | field | value |
+|---|---|---|
+| `K0cG_runs/CRASHED_ATTEMPT_1/S_KE_x/log.solve.tail` | last `ExecutionTime` | 6 068.61 s |
+| `K0cG_runs/CRASHED_ATTEMPT_1/S_KE_x/SOLVE_TRUNCATION.txt` | `iterations_reached` | 24 003 |
+| `K0cG_runs/CRASHED_ATTEMPT_1/S_SST_x/log.solve.tail` | last `ExecutionTime` | 6 068.69 s |
+| `K0cG_runs/CRASHED_ATTEMPT_1/S_SST_x/SOLVE_TRUNCATION.txt` | `iterations_reached` | 34 165 |
+
+> **6 068.61 + 6 068.69 = 12 137.30 s ≥ 202.29 core-minutes ≥ $0.173.**
+
+**Why this is a bound and not a measurement:** the logs were truncated
+mid-iteration by an unsignalled host stop, so the last flushed `ExecutionTime`
+is the last value that reached disk, not the last value the solver reached.
+The true attempt-1 spend is **at least** this and cannot be read from any
+surviving artifact. It is therefore **not** promoted to a measured cost, and the
+D470 characterisation of attempt-1 as uncosted stands for the exact figure.
+Both tails read within 0.08 s of each other, consistent with two concurrent
+solves killed at one instant — `SOLVE_TRUNCATION.txt` gives an identical
+`log_mtime_utc` of `2026-08-19T03:53:48Z` for both.
+
+**Campaign total, on that bound:** 300.59 + ≥202.29 = **≥502.88 core-minutes
+≥ $0.430**, or **≥2.26× the registered estimate**. The registered $0.190 covered
+one attempt of both cases; the rung was paid for twice and reported neither time.
+
+### 4. A gap noted here, and NOT repaired here
+
+**Section 5's convergence figures cite no artifact.** The `Nu` peak-to-peak
+spans of **0.0024 %** and **0.013 %**, the field movements of **0.170 K** and
+**0.060 K**, and the distances **152 mm** and **161 mm** appear in no file on
+disk. `K0cG_runs/gate_k0cg.json` was read for this addendum and holds only
+`Fs`, `cases`, `classification_source` and `quantities` — its `CONVERGING`
+states are the Roache **grid**-triple classifications behind sections 2 and 3,
+and its `Vpeak` / `uv_peak` entries are graded quantities; **neither is section
+5's iterative-convergence monitor**, and no script that would produce section 5
+is named anywhere in the record.
+
+The inputs to re-derive them do survive — `K0cG_runs/S_SST_x/postProcessing/`
+and `K0cG_runs/S_KE_x/postProcessing/` are both present. **Re-derivation was
+not performed and is not claimed.** Section 5's numbers stand exactly as
+written above, neither confirmed nor withdrawn by this addendum.
+
+### 5. What this addendum itself cannot see
+
+- **Every artifact cited above is UNTRACKED at the time of writing.** All three
+  completion markers and all four attempt-1 tails/truncation records exist on
+  disk but are not in git. A number whose artifact is not committed is one
+  wiped directory from being unciteable. Landing `K0cG_runs/` is a separate
+  item and was not done here.
+- The $0.0513/core-h rate is **reported-by-owner and unverifiable from this
+  box**; every dollar figure above inherits that.
+- Whether the 1.35× overrun would have been caught by a live budget guard, or
+  simply was not watched, is not recoverable from what is on disk.
