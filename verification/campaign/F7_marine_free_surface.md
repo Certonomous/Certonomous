@@ -908,3 +908,28 @@ agent's level, so the block stands.
 - Compute: 387.4 core-minutes across 15 cases; the single largest is
   `res32y256_base` at 1,902 s on 6 ranks (190.2 core-min), followed by
   `res64y128_base` at 645 s on 8 ranks (86.0 core-min).
+
+---
+
+## Pointer, 2026-08-23 — R1 Step 6's front-definition open item has been answered elsewhere
+
+**Dated pointer appended at the foot. Lines whose number changed above this
+section: 0.** Nothing above was edited and nothing above is restated here
+(docket C3: one home per fact).
+
+R1 Step 6 lists as still open: *"The reference simulation's own front definition
+is not stated in its text, so the code-to-code comparison carries an
+unquantified definition offset."* That item was executed on 2026-08-23 as **R0**
+of `F7a_REGATE_PREREGISTRATION.md` §5, at **0 core-min**. Its outcome — the
+paper searched in full, the definition confirmed absent from it, and the offset
+bounded by back-out from tracked fields — is recorded once, in
+**`verification/campaign/F7a_REGATE_SPEC.md` §7**. Read it there.
+
+The bullet above is left standing as written, per rule 2: originals are struck,
+never rewritten. It is **struck as an open item** and kept as the record of what
+was open on 2026-07-30.
+
+**GATE (a): FAIL is untouched by that work** — it is graded against the Martin &
+Moyce experiment at dy = a/128, not against the comparator's simulation curve at
+a/16. See `F7a_REGATE_SPEC.md` §7.5 for why that is a substantive statement
+rather than a disclaimer.

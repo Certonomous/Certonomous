@@ -641,3 +641,259 @@ independently and reproduced to 0.01 percentage points at every graded station.
 The §3 numbers stood. What changed was that the definition behind them stopped
 being prose that the code could quietly disagree with, and that the readings
 prior to §3 were struck as non-comparable rather than carried as a trend.
+
+---
+
+## 7. Addendum, 2026-08-23 — R0 executed: the comparator's front definition, recovered as far as it can be
+
+**Dated addendum appended at the foot. Lines whose number changed above this
+section: 0.** Nothing in §§1–6 was edited. This addendum alters no gate, no
+threshold, no cap, no station set, no axis and no label, and §2.6 is not
+invoked. **Spec version unchanged at v1.0**: §2 is untouched, and an addendum
+that records a diagnostic outcome is not a new version of the contract.
+
+**Cost: 0 core-min.** No solver, no mesh generation, no new field. Literature
+retrieval plus a reader over already-written, git-tracked fields — the same
+class of work as the §1 exhibit.
+
+### 7.1 The item, in its own words
+
+`F7a_REGATE_PREREGISTRATION.md` §5, row **R0**, verbatim:
+
+> *Comparator front-definition recovery* — read arXiv:2108.08769 and its
+> references for the extraction method behind the Fig. 7 simulation curve; if
+> unstated, contact-free bound it by re-deriving their curve's implied threshold
+> from our own field data
+
+priced at **0** core-min and recommended **BUY — Highest information per unit
+cost in the whole brief**. §4 of this spec ranked it above the two solver items:
+*"Item 3 outranks items 1 and 2 and should be executed before either is
+bought."* This addendum discharges it.
+
+### 7.2 First half — the paper does not state the method. Searched, not assumed.
+
+The preprint was retrieved and filed at
+`docs/papers/benchmark_test_cases/leakey_glenis_hewett_arxiv2021_variable_density_riemann.pdf`,
+with its `.txt` sidecar carrying a title-page verification per L-144: page 1 was
+rendered and read, giving *Riemann solvers and pressure gradients in
+Godunov-type schemes for variable density incompressible flows*, Shannon Leakey,
+Vassilis Glenis, Caspar J.M. Hewett, Newcastle University, arXiv:2108.08769v1,
+19 Aug 2021. It is the paper this campaign has been citing. The retrieved
+artifact is the **arXiv v1 preprint**; the CMAME 393:114763 (2022) version of
+record was not retrieved and nothing here has been checked against it.
+
+All 36 pages were searched. **The paper states no front-extraction method.** The
+only sentence in the document that touches how the plotted quantity was obtained
+is §3.3.2:
+
+> *"Figure 7 shows the post-processed results, where the column height and surge
+> front position have been normalised by dividing by a, and the time multiplied
+> by √(g/a)."*
+
+That is a normalisation, not a definition. There is no threshold, no contour
+level, no cell row, no interpolation rule, and no statement of which feature of
+the density field is called "the surge front position". R1 §6's open item — *"the
+reference simulation's own front definition is not stated in its text"* — is
+**confirmed against the full text**, not merely against a paraphrase.
+
+Four things the paper *does* supply that were not previously on this record, and
+that bear on the question:
+
+1. **They deliberately decline a contour.** §3.3.2: *"These snapshots explicitly
+   show the density field, rather than a contour to represent the free surface as
+   in [13, 14], meaning that the numerical diffusion is not hidden. Indeed, the
+   transition between water and air straddles several cells, and there is much
+   diffusion towards the end of the simulation when the surge front hits the far
+   wall."* They are explicit that their front is **smeared over several cells and
+   smears further with time**. This is the mechanism by which a front definition
+   can be worth a great deal on their mesh, stated by the authors themselves.
+2. **Their numerical parameters**, §3.3.2, none previously recorded here: two
+   pseudo-time Runge–Kutta stages, artificial-compressibility coefficient
+   β = 1100, convergence tolerances 0.01 on ρ, ρu, ρv and p, pseudo-time and
+   real-time Courant numbers both 0.45, minmod slope limiter on density and
+   velocity.
+3. **Fig. 7's layout is confirmed**, by rendering p. 30: **left column is
+   a = 2¼ in** (right is a = 4½ in), **top row is column height, bottom row is
+   surge front position**. The panel this lab digitised is the correct one.
+4. **The three scheme variants collapse.** Fig. 7 plots Bassi split-pressure
+   superbee, Osher split-pressure superbee and Bassi incompressible-limit
+   pressure, and the text says *"The Riemann solver and pressure gradient
+   calculation do not have much of an effect on the results."* So the digitised
+   curve is not sensitive to which variant was picked off the figure, and the
+   offset below cannot be blamed on that choice.
+
+**On the first half, R0 comes back empty**: the definition cannot be recovered
+from the paper. The pre-registration anticipated exactly this and named the
+fallback, which is executed next.
+
+### 7.3 Second half — the implied definition, backed out of our own tracked fields
+
+**Instrument:** `verification/runs/F7_runs/r0_implied_front_definition.py`,
+NOT-NORMATIVE and taking no verdict. **Output:**
+`verification/runs/F7_runs/F7a_R1/r0_implied_front_definition.json`. **Case:**
+`F7a_R1/res16_papermodel` — the comparator's physics, mesh and domain, the case
+§3.1 built its finding on. Column grouping at **6 dp**, not §2.1's 8, because
+§6.4 measured that 8 dp does not close the a/16 family at all; docket **G1c**
+carries that re-pin, and §6.4 records that 6 dp moves no verdict and no number.
+
+**Positive control, run before any back-out and refused-on-failure** (rule 3's
+principle: a reader not shown able to see the answer is not evidence). The
+script first re-derives §3.1's published `res16_papermodel` front under the §2
+definition. It reproduces all six published values — 7.104, 8.157, 9.388,
+10.714, 12.029, 14.235 — to **≤ 0.0004 in Z**. The reader is therefore known to
+be seeing the field before it is asked about a number the repo does not hold.
+
+**The test, stated so it cannot be gamed.** A front definition is *one fixed
+rule*; it cannot be re-chosen per station. So the question is not "does some
+definition fit station k" — at a/16 the readings span tens of points and
+something always fits — but **"is the implied definition the same at all six
+stations?"**
+
+**The implied definition is not constant. It drifts monotonically:**
+
+| T | Z_expt | Z_ours (§2, h\*=0.02a) | Z_comparator | gap in Z | gap % | gap in *their* cells | implied h\*/a | implied floor-row α |
+|---|---|---|---|---|---|---|---|---|
+| 3.90 | 6.00 | 7.104 | 5.793 | 1.311 | +22.6% | 21.0 | 0.0650 | 0.785 |
+| 4.49 | 7.00 | 8.157 | 6.697 | 1.459 | +21.8% | 23.3 | 0.0575 | 0.730 |
+| 5.17 | 8.00 | 9.388 | 7.667 | 1.721 | +22.4% | 27.5 | 0.0525 | 0.690 |
+| 5.91 | 9.00 | 10.714 | 8.729 | 1.985 | +22.7% | 31.8 | 0.0475 | 0.645 |
+| 6.70 | 10.00 | 12.029 | 9.753 | 2.276 | +23.3% | 36.4 | 0.0425 | 0.615 |
+| 7.72 | 11.00 | 14.235 | 11.186 | 3.048 | +27.3% | 48.8 | 0.0400 | 0.565 |
+| | | | | | **mean +23.36%** | | **0.065 → 0.040** | **0.785 → 0.565** |
+
+The re-derived mean offset, **+23.36%**, reproduces §3.1's recorded **+23.3%**
+to 0.1 percentage point, by an independently written reader interpolating the
+dense digitised series rather than reading §3.1's table. That is the second
+control.
+
+**What a single fixed definition achieves** — deviation of our front from the
+comparator's curve, all six graded stations, under one rule:
+
+| single fixed definition | mean | max\|d\| | station spread |
+|---|---|---|---|
+| **h\* = 0.02a — this spec's own pinned rule** | **+23.36%** | 27.25% | 5.46 pts |
+| h\* = 0.03a | +17.67% | 19.39% | 2.71 pts |
+| h\* = 0.04a | +6.21% | 13.00% | 13.96 pts |
+| h\* = 0.05a | −1.59% | 10.37% | 18.08 pts |
+| h\* = 0.0625a (one full floor cell) | −11.08% | 21.33% | 22.03 pts |
+| α = 0.50 contour on the floor row (no tuning) | +10.44% | 13.57% | 8.61 pts |
+| α = 0.60 contour on the floor row | +3.98% | 9.38% | 12.20 pts |
+| **α = 0.65 contour on the floor row — best found** | **+0.70%** | **7.31%** | 14.04 pts |
+| α = 0.70 contour on the floor row | −2.92% | 10.89% | 15.86 pts |
+| α = 0.50 contour one row up | −28.65% | 36.20% | 14.67 pts (4 stations only) |
+
+**Mechanism, so this is not left as a coincidence.** At a/16 the surge is a long
+shallow sheet: h(x) declines gradually over a hundred-plus columns, so the front
+level is a lever with enormous mechanical advantage. Moving h\* by *one cell's
+worth of water* — 0.02a → 0.0625a — moves the six-station mean by **34.4
+points**, roughly 32–48 of the comparator's own cells. This is the same
+resolution-dependence §1.4 measured on the *old* definition (48.0 points of
+spread at a/16, collapsing to 0.4 at a/64); §1.4's finding now has a second,
+independent instance against a simulation curve rather than against the
+experiment.
+
+### 7.4 THE ANSWER: R0 explains most of the offset — essentially all of its mean, and none of its shape
+
+**R0 EXPLAINS PART OF THE 23.3% CODE-TO-CODE OFFSET. The arithmetic closes on
+the mean and does not close on the shape.**
+
+- Under this spec's pinned definition the offset is **+23.36%** mean.
+- Under **one** ordinary fixed definition — a α = 0.65 contour on the
+  floor-adjacent row, a garden-variety smeared-interface rule requiring no
+  special pleading — it is **+0.70%** mean.
+- The front definition therefore accounts for **22.7 of the 23.4 percentage
+  points**, about **97% of the mean offset**. Even the wholly untuned α = 0.50
+  contour takes it from +23.4% to +10.4%.
+- **What does not close:** no definition in the sweep removes the
+  station-to-station tilt. The best-mean candidate still runs **+7.3% at
+  T = 3.90 to −6.7% at T = 7.72**, a 14.0-point spread, and the smallest max\|d\|
+  any candidate achieves is **7.31%**. Under a common definition our front
+  starts ahead of the comparator's and ends behind it — a difference in the
+  *shape* of Z(T), not an offset in it.
+
+So the honest sentence is: **the "~23% code-to-code gap that is not viscosity,
+not surface tension, not interface compression, not mesh, and not domain"
+recorded in §3.1 was, to ~97% of its mean, the front definition — the one
+remaining unmatched item §3.1 itself named. What survives it is a
+definition-independent code-to-code difference of order ±7% in Z at a/16.**
+
+**Six limitations, stated rather than smuggled past:**
+
+1. **This is a back-out, not a recovery.** It establishes which definition,
+   applied to *our* field, lands on *their* curve. It does not establish what
+   they did to theirs. Their density field is smeared by a Godunov-type scheme
+   with **no** interface-compression term; an α level on our MULES/PIMPLE field
+   is not their ρ level on theirs. The identification remains open, and only the
+   authors' own post-processing could close it — which rule 7 forbids seeking.
+2. **The comparator curve is a digitisation of a rendered figure** (§2.4's
+   standing limitation, unchanged). Interpolating the dense digitised series at
+   the six reference T gives values differing from §3.1's tabulated comparator
+   column by up to **0.093 in Z** (at T = 6.70); the mean offset agrees to
+   0.1 point, so no conclusion here turns on it.
+3. **One case, one mesh, a/16** — below §2.5's a/32 no-verdict floor. Nothing in
+   §7 is a verdict and §7 takes none.
+4. `--inviscid` sets ν = 1e-12 rather than solving genuinely inviscid equations;
+   §3.1's own caveat, unchanged.
+5. The candidate list is a sweep over two definition families (depth-integral
+   level, floor-row α level) plus row index. A definition outside those families
+   was not tested and could do better or worse.
+6. The retrieved paper is the arXiv **v1 preprint**; the CMAME version of record
+   was not read.
+
+### 7.5 The gate is untouched, and that is not a formality
+
+**GATE (a): FAIL — unchanged, at max deviation +11.03% at T = 7.72 against the
+declared 5% tolerance, on `res32y128_base`.** §7 moves nothing about it, and
+this is a substantive statement, not a disclaimer:
+
+- The gate is graded **against the Martin & Moyce experiment**, not against the
+  comparator's simulation curve. §7 concerns only the code-to-code comparison in
+  §3.1, which never decided the gate.
+- The gate is taken at **dy = a/128**. §7 is an a/16 diagnostic, and §1.4 already
+  measured the definition spread collapsing from 78.2 points at a/8 to **1.7 at
+  a/32 and 0.4 at a/64**. The definition lever §7 measures is a coarse-mesh
+  lever; at the verdict mesh it is worth well under a point.
+- §1.6's row stands verbatim: *"The ambiguity explains the gate's residual +8.2%
+  failure — **REFUTED.** At dy ≤ a/32 every reading lands +7.8% to +11.9%, all
+  FAIL."* §7 is fully consistent with it. A definition that is worth 23 points at
+  a/16 and 0.4 points at a/64 explains a code-to-code comparison on a coarse mesh
+  and explains nothing about a verdict taken on a fine one.
+- §2.6 is not invoked; no threshold, station set, axis or mesh was changed.
+
+### 7.6 What this does to the compute argument — recorded, not decided
+
+§4 and prereg §2 both rest on a premise that §7 has now moved, and the record
+should say so plainly rather than let the old sentence circulate:
+
+- §4's ranking — *"Item 3 outranks items 1 and 2 and should be executed before
+  either is bought"* — was **correct**, and is now **discharged** at the 0
+  core-min it was priced at.
+- §4's *reason*, that *"the unexplained 23% lies in the comparison basis"*, is
+  confirmed in direction and **superseded in magnitude**. It does lie in the
+  comparison basis; it was the front definition; it is now ~97% accounted for.
+- Prereg **P5** — *"Any run in this list changes the deviation by less than the
+  **23.3%** code-to-code offset already measured"* — was written against a
+  number that no longer stands as an unexplained offset. Read against what
+  survives, the bar is **≈ 7%**, not 23.3%. That is a materially weaker bar and
+  P5 is correspondingly easier to falsify. P5 is **not** rewritten here (rule 2:
+  after first compute, originals are struck, never rewritten) — it is recorded as
+  **struck in its stated magnitude and kept as a reading**, per L-76.
+- **This addendum does not authorise buying R1a, R1b or R1c**, and does not
+  recommend it either way. The premise that argued against them has weakened;
+  whether that changes the purchase is a campaign call above this addendum, and
+  the caps in prereg §4 are unchanged.
+
+### 7.7 Sources for §7
+
+- `docs/papers/benchmark_test_cases/leakey_glenis_hewett_arxiv2021_variable_density_riemann.pdf`
+  and its `.txt` sidecar — the paper, retrieved 2026-08-23, title-page verified
+  per L-144. Retrieval only; nothing left this box (rules 7, 8).
+- `verification/runs/F7_runs/r0_implied_front_definition.py` — the §7.3
+  instrument, NOT-NORMATIVE, with its positive control and its 6 dp grouping
+  disclosed in its own header.
+- `verification/runs/F7_runs/F7a_R1/r0_implied_front_definition.json` — every
+  number in §7.3, as written by that instrument.
+- `verification/runs/F7_runs/F7a_R1/res16_papermodel` — tracked fields, read, not
+  regenerated.
+- `verification/runs/F7_runs/fig7_digitised_R1.json` — the comparator curve, R1's
+  second digitisation, unchanged.

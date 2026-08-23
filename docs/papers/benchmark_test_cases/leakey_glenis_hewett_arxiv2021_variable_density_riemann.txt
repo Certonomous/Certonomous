@@ -1,0 +1,1507 @@
+================================================================================
+TITLE-PAGE VERIFICATION (CLAUDE.md rule 15 / L-144)
+Verified 2026-08-23 by a cfd-team lab-lane, by RENDERING PAGE 1 OF THIS PDF AS AN
+IMAGE AND READING IT. Not by filename, not by URL, not by hash, not by the text
+layer alone.
+
+WHAT WAS ACTUALLY SEEN ON PAGE 1
+  Title    : Riemann solvers and pressure gradients in Godunov-type schemes for
+             variable density incompressible flows
+  Authors  : Shannon Leakey, Vassilis Glenis (corresponding), Caspar J.M. Hewett
+  Affil.   : School of Engineering, Newcastle University, Newcastle upon Tyne,
+             United Kingdom
+  Emails   : s.c.leakey2@newcastle.ac.uk, vassilis.glenis@newcastle.ac.uk,
+             caspar.hewett@newcastle.ac.uk
+  arXiv    : arXiv:2108.08769v1 [physics.flu-dyn] 19 Aug 2021  (spine stamp)
+  Footer   : "Preprint submitted to Computer Methods in Applied Mechanics and
+             Engineering        August 20, 2021"
+  Keywords : artificial compressibility, variable density, density discontinuity,
+             pressure gradient, Godunov-type scheme, explicit
+  Abstract : opens "Variable density incompressible flows are governed by
+             parabolic equations. The artificial compressibility method makes
+             these equations hyperbolic-type..."
+
+MATCH AGAINST WHAT WAS EXPECTED. The F7a record cites this work as "Leakey,
+Glenis & Hewett, arXiv:2108.08769 / CMAME 393:114763 (2022)", the source of the
+Martin & Moyce (1952) dam-break reference points and of the code-to-code
+comparator curve. Title, all three authors and the arXiv id on the page match
+that citation. NO MISMATCH. Filed.
+
+RETRIEVED VERSION. This is arXiv v1 (19 Aug 2021), the preprint. The journal
+version of record is Computer Methods in Applied Mechanics and Engineering
+393:114763 (2022) and was NOT retrieved; nothing in this repo's F7a work has
+been checked against the published version, and section/figure numbers quoted
+from this file are the preprint's.
+
+PDF metadata, recorded as corroboration only and NOT as the verification:
+  Pages 36, letter, pdfTeX-1.40.21, created 2021-08-20 00:35:04 UTC.
+  /Title and /Author agree with the rendered page 1.
+
+PROVENANCE. Downloaded 2026-08-23 from https://arxiv.org/pdf/2108.08769 .
+Nothing was sent out of this box (CLAUDE.md rules 7 and 8); this was an inbound
+retrieval of a public preprint only.
+
+WHAT IT WAS FETCHED FOR. Item R0 of `verification/campaign/
+F7a_REGATE_PREREGISTRATION.md` §5: recover the front-extraction method behind
+this paper's Fig. 7 simulation curve. Outcome recorded in
+`verification/campaign/F7a_REGATE_SPEC.md` §7 (2026-08-23). Short answer: the
+paper does NOT state a front-extraction method anywhere in its 36 pages; the
+only relevant sentence is in §3.3.2, "Figure 7 shows the post-processed results,
+where the column height and surge front position have been normalised by
+dividing by a, and the time multiplied by sqrt(g/a)."
+
+FULL EXTRACTED TEXT FOLLOWS (pdftotext -layout).
+================================================================================
+
+                                                        Riemann solvers and pressure gradients in Godunov-type
+                                                           schemes for variable density incompressible flows
+
+                                                                      Shannon Leakey, Vassilis Glenis1 , Caspar J.M. Hewett
+                                                             School of Engineering, Newcastle University, Newcastle upon Tyne, United Kingdom
+arXiv:2108.08769v1 [physics.flu-dyn] 19 Aug 2021
+
+
+
+
+                                                   Abstract
+
+                                                   Variable density incompressible flows are governed by parabolic equations. The artificial
+                                                   compressibility method makes these equations hyperbolic-type, which means that they can
+                                                   be solved using techniques developed for compressible flows, such as Godunov-type schemes.
+                                                   While the artificial compressibility method is well-established, its application to variable
+                                                   density flows has been largely neglected in the literature. This paper harnesses recent
+                                                   advances in the wider field by applying a more robust Riemann solver and a more easily
+                                                   parallelisable time discretisation to the variable density equations than previously. We
+                                                   also develop a new method for calculating the pressure gradient as part of the second-
+                                                   order reconstruction step. Based on a rearrangement of the momentum equation and an
+                                                   exploitation of the other gradients and source terms, the new pressure gradient calculation
+                                                   automatically captures the pressure gradient discontinuity at the free surface. Benchmark
+                                                   tests demonstrate the improvements gained by this robust Riemann solver and new pressure
+                                                   gradient calculation.
+                                                   Keywords: artificial compressibility, variable density, density discontinuity, pressure
+                                                   gradient, Godunov-type scheme, explicit
+
+
+                                                   1. Introduction
+
+                                                      The Navier-Stokes equations do not include an equation for pressure. For incompressible
+                                                   flows, numerical methods must find a way around this problem to update the pressure field.
+                                                   One approach is artificial compressibility, which adds a pseudo-time derivative of pressure to
+
+
+                                                        Email addresses: s.c.leakey2@newcastle.ac.uk (Shannon Leakey),
+                                                   vassilis.glenis@newcastle.ac.uk (Vassilis Glenis), caspar.hewett@newcastle.ac.uk (Caspar J.M.
+                                                   Hewett)
+                                                      1 Corresponding author
+
+
+
+
+                                                   Preprint submitted to Computer Methods in Applied Mechanics and Engineering         August 20, 2021
+the incompressibility constraint. This makes the governing equations hyperbolic, allowing
+the solution to advance in pseudo-time until it converges, at which point the pseudo-time
+derivative disappears and the original equations are satisfied [1, 2, 3]. As the equations
+are hyperbolic, they can be solved with methods designed for compressible flows, such as
+Godunov-type schemes. Chorin [4] created artificial compressibility for steady-state cases,
+but it has since been generalised to transient cases using dual time stepping, that is, driving
+the solution to the incompressible limit at each time step.
+   Artificial compressibility has a key computational advantage compared to the most pop-
+ular option for pressure-velocity coupling, the predictor-corrector methods based on matrix
+inversion [5, 6]. The artificial compressibility method is easier to parallelise, especially if
+the pseudo-time stepping is explicit [7, 8, 9]. Even for implicit schemes, Hodges [10, p.5]
+notes more generally that artificial compressibility “replaces the global solution of an el-
+liptic matrix inversion with local hyperbolic wave propagation,” making it simpler, and
+therefore more efficient, for processors to communicate with each other. Consequently, the
+artificial compressibility method has much potential for application on modern hardware
+architectures [8, 9].
+   Despite this potential for parallelisation, the artificial compressibility method has not
+been thoroughly developed for free-surface flows [11], which are of much interest in engineer-
+ing. For example, waves on ship hulls [12], droplet splashes [13], and sloshing in containers
+[14] are all types of free-surface flows. In the artificial compressibility framework, researchers
+have modelled free-surface flows by coupling the artificial compressibility equations with the
+volume of fluid (VOF) equation [12, 13, 15, 16] and level-set equation [7]. However, the most
+developed method is to couple the equations with a transport equation for density, that is,
+to solve the variable-density artificial-compressibility equations, and to mark the location of
+the free surface by the density discontinuity. Kelecy and Pletcher [14] pioneered this method
+in a Godunov-type scheme, Qian et al. [17] added the Cartesian cut-cell technique to simu-
+late moving bodies, and Bassi et al. [18] used the method as part of a discontinuous Galerkin
+scheme, also deriving shock and rarefaction relations for the equations. Even though this
+is the most developed free-surface method in the artificial compressibility framework, these
+three papers [14, 17, 18] were spaced out over several decades. Before the method can
+be used practically and with confidence, it needs to be systematically explored, with ad-
+vances from the wider computational fluid dynamics (CFD) literature incorporated, and
+
+
+
+                                                2
+some specific problems solved.
+   In this study, we develop a Godunov-type scheme for the variable-density artificial-
+compressibility equations, as in [14, 17]. The scheme is general, theoretically suitable for
+viscous flows on 3D unstructured meshes. Here we implement it for inviscid flows on 2D
+Cartesian meshes, and demonstrate its effectiveness against four sets of benchmark tests.
+Before setting out the specific objectives of this study, first note that Godunov-type schemes
+calculate numerical fluxes at cell interfaces with Riemann solvers. One of the most com-
+mon methods to make Godunov-type schemes second-order accurate in space is MUSCL
+(Monotonic Upstream-centered Scheme for Conservation Laws) reconstruction [19]. The
+focus of this study is threefold: robust Riemann solvers, pressure gradients for MUSCL
+reconstruction, and ease of parallelisation.
+
+Riemann solvers. In the variable-density artificial-compressibility equations, the density
+discontinuity is marked by a contact wave. Consequently, the free surface can be captured
+by the contact wave in a Riemann solver, without resorting to surface-capturing or surface-
+tracking methods such as VOF. This means that the robustness of the Riemann solver
+is paramount. In this study, we apply for the first time the Osher Riemann solver of
+Dumbser and Toro [20] to the variable-density artificial-compressibility equations. The
+results are compared with the Riemann solver of Bassi et al. [18], exact under certain wave
+configurations, and the Roe Riemann solver implemented by Kelecy and Pletcher [14] and
+Qian et al. [17].
+
+Pressure gradients. Without special treatment, standard MUSCL reconstruction will not
+account for the impact of a density discontinuity on the pressure gradient. This can result in
+an imbalance of forces at the free surface and, in turn, either parasitic velocities [21, 22, 23]
+or erroneous compression at what should be the incompressible limit. As will be shown
+later, the compression can resemble Gibbs-type oscillations, but it is a distinct problem
+of its own that persists even with the most severe of limiters. For the variable-density
+artificial-compressibility equations, only Qian et al. [17] have addressed this problem and
+only in the hydrostatic case; they did not consider how there can still be a force imbalance in
+the absence of gravity. However, it has been investigated more comprehensively in the wider
+CFD literature, both for hydrostatic pressure [24, 25, 26, 27] and non-hydrostatic pressure
+[16, 28, 29, 30]. In this study, we introduce a new method for calculating the pressure
+
+
+                                               3
+gradient that has not been considered before either in the artificial compressibility literature
+or the more general CFD literature. Based on a rearrangement of the momentum equation
+and exploitation of the other total variation diminishing (TVD) gradients and source terms,
+it captures the pressure gradient discontinuity at the free surface automatically.
+
+Ease of parallelisation. Kelecy and Pletcher [14], Qian et al. [17], and Bassi et al. [18] all
+used implicit schemes. However, this fails to take advantage of one of the key advantages
+of artificial compressibility. If the pseudo-time stepping is explicit, then it is relatively easy
+to parallelise on modern hardware architectures [7, 8, 9]. In this study, we use the explicit
+Runge-Kutta scheme of Vermeire et al. [9] to advance in pseudo-time. This is a first for the
+variable-density artificial-compressibility equations.
+
+
+2. Numerical method
+
+2.1. Governing equations
+
+2.1.1. Artificial compressibility
+      Variable-density incompressible flows are governed by the conservative equations
+
+                                       ∂ρ
+                                          + ∇ · (ρu) = 0                                      (1)
+                                       ∂t
+                  ∂
+                     (ρu) + ∇ · (ρu ⊗ u) = −∇p + ∇ · µ ∇u + ∇uT + ρg
+                                                               
+                                                                                              (2)
+                  ∂t
+                                            ∇·u=0                                             (3)
+
+where t is (real-)time, ρ is density, u is velocity, p is pressure, µ is dynamic viscosity, and g
+is gravity [14, 17, 18]. Pseudo-time derivatives are added to all three equations (1)–(3) to
+get
+
+                                    ∂ρ ∂ρ
+                                       +    + ∇ · (ρu) = 0                                    (4)
+                                    ∂τ   ∂t
+             ∂        ∂
+                (ρu) + (ρu) + ∇ · (ρu ⊗ u) = −∇p + ∇ · µ ∇u + ∇uT + ρg
+                                                                 
+                                                                                              (5)
+             ∂τ       ∂t
+                                    1 ∂p
+                                         +∇·u=0                                               (6)
+                                    β ∂τ
+
+where τ is pseudo-time and β is the artificial compressibility coefficient.
+
+
+
+
+                                                4
+2.1.2. Compact form
+   The governing equations (4)–(6) can be written in the compact form
+
+                                     ∂Q      ∂Q
+                                        + IC    +∇·F=B                                  (7)
+                                     ∂τ      ∂t
+
+where the conservative state vector is
+                                                           
+                                                        ρ
+                                                    
+                                                    
+                                                 ρu 
+                                                    
+                                            Q =  ρv  ,                                (8)
+                                                    
+                                                    
+                                                    
+                                                 ρw 
+                                                    
+                                                 p/β
+
+the cancellation matrix [9] is
+                                                                 
+                                           1
+                                                                 
+                                                                 
+                                               1                 
+                                                                 
+                                     IC =                        ,                    (9)
+                                                                 
+                                                        1
+                                                                 
+                                                                 
+                                                            1    
+                                                                 
+                                                                 0
+
+the flux vectors are
+                                        F = Finv − Fvis                                (10)
+
+where the inviscid flux is
+                                                                       
+                                       ρu               ρv              ρw
+                                                      
+                               2                      
+                              ρu + p  ρuv   ρuw 
+                                                      
+                       Finv =  ρuv  , ρv 2 + p ,  ρvw                          (11)
+                                                      
+                                                      
+                               ρuw   ρvw  ρw2 + p
+                                                      
+                                                      
+                                  u           v          w
+
+and the viscous flux is
+                                                                            
+                                 0                      0                    0
+                                                             
+                          2µ ∂u       µ ∂u     ∂v  
+                                              + ∂x    µ ∂u  + ∂w
+                                                                  
+                     
+                           ∂x          ∂y               ∂z     ∂x  
+                                                               
+              Fvis = µ ∂u      ∂v  ,      ∂v      ∂v ∂w 
+                              +                       ,  µ    +        ,              (12)
+                     
+                          ∂y     ∂x     2µ  ∂y      ∂z        ∂y 
+                                                     
+                                                                    
+                      ∂u ∂w     ∂v ∂w  
+                                                           2µ ∂w
+                                                                      
+                      µ ∂z + ∂x  µ ∂z + ∂y               ∂z
+                                                                      
+                                                                
+                             0               0                0
+
+
+                                                    5
+and the body force source term is                    
+                                                  0
+                                                
+                                                
+                                            ρgx 
+                                                
+                                        B = ρgy  .                                    (13)
+                                                
+                                                
+                                                
+                                            ρgz 
+                                                
+                                              0
+
+2.1.3. Eigenstructure
+   The eigenstructure of the governing equations, that is, the eigenvalues and the right
+and left eigenvectors of the Jacobian, is important for developing a Godunov-type scheme.
+Without loss of generality, consider the x-direction inviscid fluxes Fx,inv . The Jacobian is
+                                                                  
+                                              0       1   0 0 0
+                                                                  
+                                           −u2
+                                                                  
+                                                     2u 0 0 β 
+                               ∂Fx,inv                            
+                        Ax =            =  −uv                                          (14)
+                                                                  
+                                                      v   u 0 0
+                                  ∂Q                              
+                                           −uw
+                                                                  
+                                                     w 0 u 0
+                                                                  
+                                            −u/ρ 1/ρ 0 0 0
+
+with eigenvalues
+
+                                      λ1 = λ2 = λ3 = u                                  (15)
+                                                 1
+                                        λ4,5 =     (u ± c)                              (16)
+                                                 2
+            p
+where c =       u2 + 4β/ρ. Note that this means u = λ4 + λ5 and c = λ4 − λ5 . So the right
+and left eigenvector matrices are
+                                                          
+                                 1 0 0      λ4        λ5
+                                                          
+                                                          
+                               u 0 0 uλ4 + β/ρ uλ5 + β/ρ
+                                                          
+                        Rx =  0 1 0                                                    (17)
+                                                          
+                                            vλ4      vλ5   
+                                                          
+                                                          
+                               0 0 1       wλ4      wλ5 
+                                                          
+                                 0 0 0     −λ5 /ρ   −λ4 /ρ
+                                                          
+                               1 + u2 ρ/β −ρu/β 0 0 −ρ
+                                                          
+                              2
+                                          −uvρ/β 1 0 −ρv 
+                                                           
+                              u vρ/β
+                                                          
+                      Lx =  u2 wρ/β      −uwρ/β 0 1 −ρw  .                            (18)
+                                                          
+                                                          
+                             −uλ4 ρ/βc λ4 ρ/βc 0 0 ρ/c 
+                                                          
+                                                          
+                                uλ5 ρ/βc −λ5 ρ/βc 0 0 −ρ/c
+
+
+                                              6
+It is also useful to define the matrix
+                                                                      
+                                      |λ |
+                                      1                               
+                                           |λ2 |
+                                                                      
+                                                                      
+                                                                      
+                             |Λx | =            |λ3 |                 .                (19)
+                                                                      
+                                                                      
+                                                       |λ4 |
+                                                                      
+                                                                      
+                                                                      
+                                                               |λ5 |
+
+2.2. Discretisation
+
+2.2.1. Finite volume method
+   For transient equations such as (7), artificial compressibility uses dual time stepping,
+that is, driving the solution to the incompressible limit each real-time step. To advance the
+variables in pseudo-time, we follow the discretisation method of Vermiere et al. [9], applying
+it to variable-density flows for the first time. Moving the real-time derivative to the right-
+hand side of the compact form (7), along with the fluxes and gravity source term, yields
+
+                                 ∂Q               ∂Q
+                                    = −∇ · F − IC    + B.                                (20)
+                                 ∂τ               ∂t
+Integrating over the computational cell Ω and applying Gauss’s theorem results in the semi-
+discretised equation
+
+                          ∂Qi     1 X              ∂Qi
+                              =−      Ff · Sf − IC     + Bi                              (21)
+                           ∂τ    |Ω|                ∂t
+                                           f ∈∂Ω
+
+where the subscript i denotes cell averages and the subscript f face averages. Integrating
+over the pseudo-time interval [τ0 , τ1 ] and applying the Fundamental Theorem of Calculus,
+we get                                                              
+                                Z τ1
+                                       − 1                 ∂Qi
+                                             X
+               Qm+1
+                i   = Qm
+                       i +                     Ff · Sf − IC     + Bi  dτ.               (22)
+                                 τ0      |Ω|                 ∂t
+                                               f ∈∂Ω
+
+This equation, still exact with no approximations, shows that the solution can march forward
+in pseudo-time with the real-time term IC · ∂Qi /∂t treated as a source term.
+
+
+2.2.2. Explicit Runge-Kutta pseudo-time stepping
+   The exact equation (22) is discretised in pseudo-time using Jameson’s [31] explicit Runge-
+Kutta multistage method, again as in Vermiere et al. [9]. Computationally, this means that
+there are three nested loops, as shown in Algorithm 1. The outer loop loops over real-time,
+
+
+                                                   7
+the middle loops over pseudo-time, and the inner loops over Runge-Kutta stages. Each real-
+time iteration involves enough pseudo-time iterations to get the solution to converge within
+a prescribed tolerance, and each pseudo-time iteration involves a set number of Runge-Kutta
+stages. The real-time derivative is updated every pseudo-time step, which takes care of the
+real-time stepping point-implicitly, while pseudo-time is dealt with explicitly.
+
+Algorithm 1 Three nested loops with the same array Q = [ρ, ρu, ρv, ρw, p/β] operated
+on throughout. Backward-Euler real-time derivative shown for illustration; higher-order
+methods require more real-time steps saved than Qn .
+ t←0
+  while t < tmax do                                                     . start real-time loop
+       n
+     Q ←Q
+     t ← t + ∆t
+     τ ←0
+     while residuals > tolerance do                                 . start pseudo-time loop
+             m
+           Q     ←Q
+           τ ← τ + ∆τ
+                                     n
+           real-time term ← IC Q−Q
+                                ∆t
+
+           body force ← ρg
+           for s = 1, ..., smax do                                 . start Runge-Kutta loop
+               calculate αs , αP I , Ff
+                                                                                  
+               Q ← Qm + ∆τ ααPsI − |Ω|  1
+                                          P
+                                           f F f · Sf − real-time term + body force
+           end for                                                   . end Runge-Kutta loop
+     end while                                                        . end pseudo-time loop
+  end while                                                              . end real-time loop
+
+
+   Formally, let Qn,m,s denote the conserved variables Q evaluated at the nth real-time
+step, the mth pseudo-time iteration and the sth stage in the Runge-Kutta scheme. The
+
+
+
+
+                                               8
+variables are advanced in pseudo-time using the update equation
+
+Qin+1,m+1,0 = Qn+1,m
+               i                                                                                     (23)
+
+Qn+1,m+1,s
+ i         = Qn+1,m+1,0
+              i
+                                                                                  
+                αs ∆τ  1    X                        ∂
+             +         −       Ffn+1,m+1,s−1 · Sf − IC (Qn+1,m+1,0 ) + Bin+1,m+1,0 
+                 αP I    |Ω|                          ∂t i
+                                    f ∈∂Ω
+
+                                                                                      for s = 1, ..., smax
+                                                                                                     (24)
+
+ Qn+1,m+1
+  i       = Qn+1,m+1,s
+             i
+                       max
+                                                                                                     (25)
+
+where αs is the Runge-Kutta coefficient. The last coefficient αsmax must be equal to 1 and,
+for second-order accuracy in time, the second-last coefficient αsmax −1 must be equal to 1/2.
+    The real-time derivative in (24) is given by the backward differencing scheme
+                                                     PM
+                     ∂  n+1,m+1,0  B0 Qn+1,m+1,0
+                                         i         + σ=0 Bσ+1 Qn−σ
+                                                               i
+                        Qi          =                                                                (26)
+                     ∂t                             ∆t
+
+where the coefficients Bσ are given in Table 1. Note that the first real-time derivative can
+only be Backward-Euler, the second real-time derivative Backward-Euler or BDF2, and so
+on. In any case, we only use Backward-Euler in this paper. The effect of having the first
+term on the right-hand side of (26) be Qin+1,m+1,0 and not Qn+1,m+1,s
+                                                            i         is remedied exactly
+with the “point-implicit scaling coefficient”
+
+                                                            ∆τ
+                                         αP I = 1 + B0 αS                                            (27)
+                                                            ∆t
+
+which comes from some rearranging and helps with stability when ∆τ /∆t is large [8, 9].
+Vermiere et al. [9] set αP I = 1 for constant density flows but, in the present study of variable
+density flows, it was vital for stability to use the correct value (27).
+
+
+Table 1: Backward differencing coefficients from Vermiere et al. [9, Table 1] with typo fixed according to
+the standard textbook [32, p.27].
+                                                   B0     B1     B2    B3
+                              Backward-Euler        1     −1     −      −
+                                                    3            1
+                              BDF2                  2     −2     2      −
+                                                    11           3
+                              BDF3                   6    −3     2     − 31
+
+
+
+                                                    9
+   An explicit scheme was chosen for pseudo-time because explicit schemes have numerical
+advantages compared to implicit schemes. Indeed, while implicit schemes are uncondition-
+ally stable, they are less accurate than explicit schemes when large time steps (or Courant
+numbers) are used [33]. Moreover, in implicit schemes it is impossible to determine in
+advance the upper limit of the Courant number before the accuracy starts to decrease [34].
+   The specific time discretisation chosen also has computational advantages. First, as the
+scheme is explicit in pseudo-time, it is easy to parallelise [8, 9]. Second, as it is point-
+implicit in real-time, large real-time steps are possible [8]. Third, the specific multistage
+Runge-Kutta method it uses has low memory requirements. Essentially, the same array
+Qn,m,s gets operated on through the real-time, pseudo-time, and Runge-Kutta loops. Only
+the initial Runge-Kutta stage (23) and the bracketed part of the update equation (24) for the
+latest iteration need to be stored [31, 35]. Consequently, there is potential for the method
+to be implemented very efficiently.
+
+2.2.3. Local pseudo-time steps
+   As the pseudo-time stepping is explicit, there is a stability restriction of
+                                            
+                                            
+                                            
+                                             1 if 1D
+                                            
+                                            
+                                  CFLτ ≤ 1 if 2D                                            (28)
+                                             2
+                                            
+                                            
+                                             1 if 3D
+                                            
+                                              4
+
+where CFLτ is the Courant number for pseudo-time. However, slightly smaller Courant
+numbers (smaller by around 0.1–0.5) may be required to account for the fact that the
+restriction is based on the last pseudo-time step and velocities may increase in the current
+pseudo-time step.
+   Using one global time step constrained by the most extreme restriction across the mesh
+will slow down convergence substantially. To see this, consider a variable-density case with
+a high density ratio, such as water and air. The acoustic wave speed will be much lower
+through the water than the air, and consequently pseudo-time convergence will be much
+slower in the water than the air [36]. Local pseudo-time stepping allows the water and air
+to converge at similar speeds while still meeting the stability restriction in each cell.
+   In the absence of viscosity, a stable local pseudo-time step can be given by
+                                                     |Ωi |
+                              ∆τi = CFLτ                                                    (29)
+                                           (Λ̂τ,x + Λ̂τ,y + Λ̂τ,z )i
+
+                                              10
+where
+
+                                              1
+                                       Λ̂τ,x =  (|u| + c)∆Ŝx                              (30)
+                                              2
+                                              1
+                                       Λ̂τ,y = (|v| + c)∆Ŝy                               (31)
+                                              2
+                                              1
+                                       Λ̂τ,z = (|w| + c)∆Ŝz                               (32)
+                                              2
+
+and
+
+                                                  1X
+                                        ∆Ŝx =       |Sx |f                                (33)
+                                                  2
+                                                       f
+                                                  1X
+                                        ∆Ŝy =       |Sy |f                                (34)
+                                                  2
+                                                       f
+                                                  1X
+                                        ∆Ŝz =       |Sz |f                                (35)
+                                                  2
+                                                       f
+
+define the spectral radii for the convective fluxes [35]. The division by two in (30)–(32) is
+because of the definition of λ4,5 , while the division by two in (33)–(35) is because ∆Ŝ is the
+projection of the entire computational cell Ω onto the relevant plane.
+
+2.2.4. Global real-time steps
+   As real-time is treated point-implicitly, there is no stability restriction as for pseudo-
+time. Nonetheless, it is useful to be able to set how relatively large the real-time steps are.
+So, the global real-time step can be given by
+                                                                             !
+                                                           |Ωi |
+                           ∆t = min CFLt                                                   (36)
+                                   i             (Λ̂t,x + Λ̂t,y + Λ̂t,z )i
+
+where CFLt is the Courant number for real-time,
+
+                                          Λ̂t,x = |u| · ∆Ŝx                               (37)
+
+                                          Λ̂t,y = |v| · ∆Ŝy                               (38)
+
+                                          Λ̂t,z = |w| · ∆Ŝz                               (39)
+
+and ∆Ŝx , ∆Ŝy , ∆Ŝz are as previously defined in (33)–(35).
+
+2.3. Reconstruction at cell interfaces
+
+   In this study, we use standard MUSCL reconstruction to find Riemann states of density
+and velocity at each cell interface, as in Kelecy and Pletcher [14] and Qian et al. [17].
+
+
+                                                  11
+However, special treatment is required to reconstruct pressure at the free surface as the
+density discontinuity induces a pressure gradient discontinuity. This section outlines the
+standard and pressure-specific approaches in turn.
+
+2.3.1. Standard method
+   The primitive variables W are reconstructed at the interface f between the cells i and
+j to give the left and right values
+
+                              WL = Wi + ∇Wi · (Wf − Wi )                                 (40)
+
+                              WR = Wj + ∇Wj · (Wf − Wj )                                 (41)
+
+where a TVD limiter must be applied to ∇W to avoid Gibbs-type oscillations. In the
+x-direction of a structured mesh, this reduces to
+                                                          
+                                       Wi+1 − Wi Wi − Wi−1
+                          ∇Wi = G                 ,                                      (42)
+                                          dx/2      dx/2
+
+where G is the limiter function. Unstructured meshes need a slightly different approach
+[37, 38], but that will not be considered further here. In this study, we use the k-limiter
+
+                     G(a, b) = s · max(0, min(k|b|, s · a), min(|b|, ks · a))            (43)
+
+                                           s = sgn(b)                                    (44)
+
+where k = 1 is the minmod limiter and k = 2 the superbee limiter [17]. This standard
+limiter is suitable for reconstructing the density and velocity.
+
+2.3.2. Pressure gradient
+   Using a standard limiter to reconstruct pressure can result in an imbalance of forces at
+the free surface and, in turn, either parasitic velocities [21, 22, 23] or compression at what
+should be the incompressible limit. Only Qian et al. [17] have addressed this problem for
+the variable-density artificial-compressibility equations, and only in the hydrostatic case.
+However, the problem persists in the absence of gravity. Both the hydrostatic and non-
+hydrostatic problems are considered below, before outlining a new method for calculating
+the pressure gradient based on a rearrangement of the momentum equation.
+
+Hydrostatic. First, consider a stationary column of air overlaying a stationary column of
+water under the influence of gravity. The momentum equation should settle to ∇p = ρg
+
+
+                                               12
+at the incompressible limit, that is, a hydrostatic pressure distribution. A scheme that can
+reproduce such a steady state (up to machine precision) is called well-balanced [25].
+   It is the free surface that complicates matters. The jump in density leads to a jump in ∇p
+which, if not calculated carefully, can lead to spurious or parasitic velocities [21, 22, 23]. In
+a Godunov-type scheme, the problem arises because the gradients calculated in the MUSCL
+reconstruction step indiscriminately include information from both sides of the free surface.
+No matter the order of interpolation or refinement of the grid, the MUSCL reconstruction
+phase will always have this problem, but the impact will be on a different scale [26]. Broadly,
+there are two ways to deal with this: either at the global level or the local level [24]. The
+global method removes hydrostatic pressure from the governing equations, while the local
+method involves including hydrostatic pressure in the reconstruction phase [17, 25, 26, 27].
+   In their local method, Qian et al. [17] split the full (dynamic) pressure gradient into
+hydrostatic and kinematic parts
+
+                                   ∇pdyn = ∇phyd + ∇pkin .                                  (45)
+
+For structured meshes, they first calculated the dynamic gradients ∇pdyn       dyn
+                                                                     i,L and ∇pi,R with
+
+one-sided differences. They then subtracted the hydrostatic gradients ∇phyd
+                                                                        i,L = (ρi−1 +
+
+ρi )g/2 and ∇phyd                                                dyn       dyn
+              i,R = (ρi + ρi+1 )g/2 from the dynamic gradients ∇pi,L and ∇pi,R to get the
+
+kinematic gradients ∇pkin       kin
+                      i,L and ∇pi,R . They then applied a standard limiter to the kinematic
+
+gradients ∇pkin       kin                                         kin
+            i,L and ∇pi,R to get the limited kinematic gradient ∇pi . Finally, they added
+
+the hydrostatic gradient ∇phyd
+                           i   = ρi g to the limited kinematic gradient ∇pkin
+                                                                          i   to get the
+limited dynamic pressure gradient ∇pdyn
+                                    i   . This method successfully resolves the pressure
+gradient discontinuity in the hydrostatic case, keeping the scheme well-balanced. However,
+as it is complicated to implement standard limiters on unstructured meshes [37, 38], it is even
+more complicated for this limiter. A more easily implementable limiter would be preferable
+for practical applications that require unstructured grids. Moreover, this limiter does not
+address non-hydrostatic pressure gradient discontinuities. Nonetheless, it was implemented
+in this paper for the purpose of comparison.
+
+Non-hydrostatic. There is still a pressure gradient discontinuity in the absence of gravity.
+Let us denote the jump in any variable x over the free surface by [x]. The kinematic
+boundary condition, given by [u] = 0, can be combined with the momentum equation to
+derive the dynamic boundary condition, given by [∇p/ρ] = 0 [16, 28, 29, 30]. Since [ρ] 6= 0,
+
+
+                                               13
+we must also have [∇p] 6= 0 to satisfy the dynamic boundary condition. Kruisbrink et al.
+[29] bypassed this problem by counteracting spurious forces with a quasi-buoyancy force,
+while Vukčević et al. [30] used the ghost fluid method to interpolate variables in a one-sided
+manner consistent with the dynamic boundary condition. The difficulty with these methods
+is that they require a method to detect the free surface, which is ambiguous in pseudo-time
+as the water is allowed to artificially compress. Alternatively, the pressure gradient can be
+normalised by the density [16, 28].
+
+New method. Here, we introduce a new method for calculating the pressure gradient. With-
+out loss of generality, consider the x-direction momentum equation in the absence of vis-
+cosity. Note that the pseudo-time derivatives disappear at the incompressible limit. The
+momentum equation can then be rearranged, giving
+                  ∂p    ∂       ∂           ∂          ∂
+                     = − (ρu) −    (ρu2 ) −    (ρuv) −    (ρuw) + ρgx .                    (46)
+                  ∂x    ∂t      ∂x          ∂y         ∂z
+All the terms on the right-hand side are known. First, the real-time derivative ∂(ρu)/∂t is
+already calculated as a source term. Second, the spatial derivatives can be expanded using
+the product and chain rules to get
+                               ∂            ∂         ∂
+                                 (ρu2 ) = u2 (ρ) + 2ρu (u)                                 (47)
+                              ∂x            ∂x        ∂x
+                         ∂              ∂        ∂        ∂
+                            (ρuv) = uv (ρ) + ρu (v) + ρv (u)                               (48)
+                         ∂y             ∂y       ∂y      ∂y
+                        ∂               ∂        ∂         ∂
+                           (ρuw) = uw (ρ) + ρu (w) + ρw (u)                                (49)
+                        ∂z              ∂z       ∂z        ∂z
+where the density and velocity are set explicitly, and the derivatives ∂/∂x, ∂/∂y, and ∂/∂z
+are given by the TVD gradients already calculated for the density and velocity.
+   This pressure gradient calculation takes advantage of the real-time source term to ensure
+that the TVD interpolation satisfies the differential form of the momentum equation at the
+incompressible limit. Moreover, when the velocity is zero, the momentum equation (46)
+reduces to
+                                           ∂p
+                                              = ρgx ,                                  (50)
+                                          ∂x
+that is, local hydrostatic reconstruction, and so the method is well-balanced. Furthermore,
+it is straightforward to implement on unstructured meshes, unlike the split limiter. Of
+course, it does not include the pseudo-time term as pseudo-time is explicit. However, as
+long as there is convergence over pseudo-time, it is the incompressible limit that matters
+rather than how the solution is reached.
+
+
+                                              14
+2.4. Flux calculation
+   The inviscid flux Finv is calculated with a Riemann solver. This study compares the
+Bassi, Roe, and Osher Riemann solvers. The viscous flux Fvis can be calculated easily using
+standard finite difference methods [13, 14], but the effect of viscosity is ignored in this paper
+as only convection-dominated flows are considered in the benchmark tests.
+   First note that, for cell faces with normal vectors pointing in any other direction than
+the x-axis, we use 3D rotation matrices to convert the Riemann problem to a x-direction
+Riemann problem as in [39]. At each face, the rotation matrix is given by
+                                                        
+                                   1
+                                                        
+                                                        
+                                      nx ny nz          
+                                                        
+                             R =  t1,x t1,y t1,z                                            (51)
+                                                        
+                                                         
+                                                        
+                                                        
+                                   t2,x t2,y t2,z       
+                                                        
+                                                        1
+
+where n is the unit normal face vector, and t1 and t2 are unit vectors tangential to n, making
+an orthonormal set {n, t1 , t2 }. Given any face vector n, there are infinite possibilities for t1
+and t2 —one possibility is given in Algorithm 2. The Riemann states are then QL = R · Qa
+and QR = R · Qb , assuming n points out of cell a and into cell b. After flux calculation, we
+use the inverse rotation matrices to transform the flux back to the original reference frame.
+As R is a rotation matrix, its inverse is R−1 = RT . Thus the flux is
+
+                                  Finv = RT · Fx,inv (R · Qa , R · Qb )                      (52)
+
+where Fx,inv (QL , QR ) is the Riemann solver for the x-direction inviscid fluxes.
+
+Algorithm 2 One possibility for calculating t1 and t2 from n.
+ if nx == 0 then
+      t1 ← (1, 0, 0)
+  else if ny == 0 then
+      t1 ← (0, 1, 0)
+  else
+      t1 ← √ 21         (ny , −nx , 0)
+              nx +n2y
+  end if
+  t2 ← n × t1
+
+
+
+                                                   15
+2.4.1. Bassi Riemann solver
+   Bassi et al. [18] assumed that the contact wave lies between the acoustic (shock and/or
+rarefaction) waves to derive the Riemann invariants and Rankine-Hugoniot conditions for the
+variable-density artificial-compressibility equations. They found that the equations have the
+unusual property of shocks and rarefactions travelling at the same speed, with the head and
+tail of the rarefaction coinciding, and the values of the conserved variables in the star region
+independent of the wave type. That is, shocks and rarefactions are equivalent, which means
+that the exact solution of the Riemann problem can be found non-iteratively. Consequently,
+using such an algorithm to calculate the numerical flux at cell interfaces (i.e. using an exact
+Riemann solver) is not as prohibitively expensive as for other governing equations.
+   The exact Riemann solver is as follows. Without loss of generality, for the x-split equa-
+tions, the left and right acoustic wave speeds are
+                                           1
+                                       SL =  (uL − cL )                                    (53)
+                                           2
+                                           1
+                                       SR = (uR + cR )                                     (54)
+                                           2
+regardless of whether they are shocks or rarefactions. In the star region, we have
+                                  pR − pL + ρR uR λ5,R − ρL uL λ4,L
+                           u∗ =                                                            (55)
+                                         ρR λ5,R − ρL λ4,L
+                                  p∗ = pR + ρR λ5,R (uR − u∗ )                             (56)
+                                              ρL λ4,L
+                                       ρ∗L =                                               (57)
+                                             u∗ − λ5,L
+                                              ρR λ5,R
+                                       ρ∗R =                                               (58)
+                                             u∗ − λ4,R
+again regardless of whether the acoustic waves are shocks or rarefactions, and the tangential
+velocities only change across the contact wave travelling with speed u∗ , that is,
+
+                                           v∗L = vL                                        (59)
+
+                                           v∗R = vR                                        (60)
+
+                                          w∗L = wL                                         (61)
+
+                                          w∗R = wR .                                       (62)
+
+The exact Riemann solver determines the location of the waves with respect to the τ -axis,
+and then substitutes the appropriate values of density, velocity, and pressure into the flux
+function Fx,inv .
+
+
+                                               16
+   As this exact solution is so simple, it has been used to calculate numerical fluxes in
+some discontinuous Galerkin models [18, 40]. However, Bassi et al. [18, Appendix B4] did
+acknowledge that it is possible for the contact wave to overtake the acoustic wave, meaning
+that the assumptions break down and the Riemann solver is no longer exact. Consequently,
+approximate Riemann solvers that do not make this assumption must be investigated as
+well.
+
+
+2.4.2. Roe Riemann solver
+   The Roe Riemann solver [41] is an approximate method that captures the contact wave.
+It is given by
+
+                            1                                                
+                 Fx,inv =      Fx,inv (QR ) + Fx,inv (QL ) − |Ãx | (QR − QL )            (63)
+                            2
+
+where
+                                       |Ãx | = R̃x |Λ̃x |L̃x                             (64)
+
+is evaluated at Q̃ and the tilde denotes the Roe average. Kelecy and Pletcher [14] and
+Qian et al. [17] used this Riemann solver for the variable-density artificial-compressibility
+equations, with the Roe averages
+
+                                                √
+                                           ρ̃ = ρL ρR                                     (65)
+                                          √         √
+                                             ρL uL + ρR uR
+                                     ũ =     √     √                                     (66)
+                                                ρL + ρR
+                                          √         √
+                                             ρL vL + ρR vR
+                                     ṽ =     √     √                                     (67)
+                                                ρL + ρR
+                                          √         √
+                                            ρL wL + ρR wR
+                                    w̃ =      √     √      .                              (68)
+                                                ρL + ρR
+
+Pressure does not appear in the eigenstructure so it does not need a Roe average. This
+Riemann solver has also been used for the artificial compressibility equations paired with
+VOF [12, 16].
+   Generally, the Roe Riemann solver should have an entropy fix to account for transonic
+rarefactions [2], but this was not considered by either Kelecy and Pletcher [14] or Qian et al.
+[17]. However, as mentioned above, the rarefaction fans for the variable-density artificial-
+compressibility equations have the strange property of the head and tail speeds coinciding
+[18]. Consequently, transonic rarefactions are impossible, and so an entropy fix is not needed.
+
+
+
+                                                17
+2.4.3. Osher Riemann solver
+   The Osher Riemann solver [42] is another approximate method that captures the contact
+wave. It is given by
+                                                                 Z QR          !
+                           1
+                  Fx,inv =      Fx,inv (QR ) + Fx,inv (QL ) −           |Ax | dQ          (69)
+                           2                                      QL
+
+
+where the integration path must be determined. Traditionally, the idea is to construct a
+path passing through each of the intermediate states in the wave structure, but this can
+be complicated. Dumbser and Toro [20] provide a simpler method that only requires the
+eigenstructure of the equations, and not the specific wave structure of the Riemann problem.
+They integrate along a straight line in phase space using three-point Gaussian quadrature
+                         Z QR                              3
+                                             1            X
+                                |Ax | dQ =     (QR − QL )     wj |Ax,j |                  (70)
+                          QL                 2            j=1
+
+where
+                                    |Ax,j | = Rx,j |Λx,j |Lx,j                            (71)
+
+is evaluated at                                             
+                                                  1
+                          Qj := QL + (QR − QL )     (ξj + 1)                  (72)
+                                                  2
+                                  p                    p
+with the integration points ξ1 = − 3/5, ξ2 = 0, ξ3 = 3/5 and corresponding weights
+w1 = 5/9, w2 = 8/9, w3 = 5/9. This simplification of the Osher Riemann solver has been
+shown to be robust for the Baer-Nunziato equations [20], the Euler equations [43], and
+the shallow water equations [44], all of which feature a contact wave. In this paper, we
+implement this Riemann solver for the variable-density artificial-compressibility equations
+for the first time.
+
+
+2.5. Boundary conditions
+
+   The boundary conditions are implemented with ghost cells, rather than prescribing the
+boundary flux directly. This means that the Riemann solver automatically calculates the
+correct flux. At walls, a zero-gradient condition is applied to density and a no-slip condition
+to velocity, although the effect of negating the tangential velocity will have no effect in the
+absence of viscosity.
+   Pressure, again, is not so simple. Consider the hydrostatic case, as in Figure 1. A zero-
+gradient condition naively applied to pressure, as in [13], will underestimate pressure at the
+
+
+                                                18
+                                     (a)         (b)             (c)              (d)
+
+
+                    internal
+                      cells
+
+
+
+                  boundary
+                    cells
+
+
+
+Figure 1: Options for setting pressure in the ghost cells, illustrated here for a hydrostatic case. From left to
+right: (a) reality, (b) zero-gradient boundary condition with local hydrostatic reconstruction, (c) linear or
+hydrostatic extrapolation boundary condition, (d) zero-gradient boundary condition with local hydrostatic
+reconstruction (reversed gravity).
+
+
+lower wall, meaning that there is not enough support for the fluid above [24], and so the
+solution will settle to the wrong value at the incompressible limit. One way to overcome
+this is to interpolate the pressure to the ghost cells, either linearly [15] or hydrostatically
+[17]. However, interpolation has disadvantages. First, it requires calculating the gradient
+twice: once for the MUSCL reconstruction and once for ghost cells. Second, for hydrostatic
+interpolation, while the normal velocity is indeed zero at the wall, it is not zero throughout
+the whole cell, and so the kinematic pressure gradient is ignored. In this paper, we use
+an alternative method, acceptable only when gravity forms part of the pressure gradient
+calculation in the MUSCL reconstruction stage, which is indeed the case for the split pressure
+[17] and new incompressible limit methods. The idea is to apply a zero-gradient condition
+to pressure but reverse the gravity direction in the ghost cells when calculating the pressure
+gradient. This automatically incorporates both the hydrostatic and kinematic pressure
+throughout the whole cell and means that the gradient only needs to be calculated once.
+
+
+3. Benchmark tests
+
+    The numerical method was implemented in Python for 2D Cartesian meshes. This
+implementation includes all three Riemann solvers outlined above: Bassi (Section 2.4.1),
+Roe (Section 2.4.2), and Osher (Section 2.4.3). It also includes five gradient calculations for
+the MUSCL reconstruction step: minmod and superbee (Section 2.3.1), hydrostatic splitting
+with minmod and superbee applied to the kinematic pressure (Section 2.3.2), and the new
+
+
+                                                       19
+pressure gradient method valid at the incompressible limit (Section 2.3.2). The following
+benchmark tests illustrate how different Riemann solvers and pressure gradients behave,
+as well as demonstrating the validity of the general method in modelling free-surface flow.
+Viscosity and turbulence are ignored throughout and the real-time backward differencing
+scheme, if used, is set to Backward-Euler. This allows the focus to be on the developments
+of this paper: Riemann solvers and pressure gradients.
+
+
+3.1. Riemann problems
+
+   To compare how the different Riemann solvers perform, five 1D Riemann problems were
+used as benchmark tests, as in Bassi et al. [18]. Table 2 shows the initial conditions, artificial
+compressibility parameter β, and the output pseudo-time τ for each Riemann problem. RP1
+is Elsworth and Toro’s [45] test for the constant-density artificial-compressibility equations,
+designed to assess the robustness of the Riemann solvers, even though smooth velocity and
+pressure fields are generally expected in the artificial compressibility method. RP2–RP4
+come from Toro [2]; RP2 assesses how the Riemann solvers deal with a large pressure jump,
+RP3 a stationary contact wave, and RP4 a slowly moving contact wave. RP5 is RP1 but
+with a large density jump, devised by Bassi et al. [18] to test how the Riemann solvers might
+perform at a free surface. Since all five Riemann problems involve a contact wave bounded
+by two acoustic waves, the exact solution (53)–(58) can be used to check the results.
+
+
+              Table 2: Initial conditions for Riemann problems, based on [18, Tables 3–4].
+
+                       ρL        ρR    uL     uR         pL    pR        β         τ
+                1   1.0          1.0   1.0    1.0        0.1   1.0      0.81    0.1
+                2   1.0          1.0   0.0    0.0 1000.0       0.01 1000.0      0.005
+                3   1.4          1.0   0.0    0.0        1.0   1.0      1.0     2.0
+                4   1.4          1.0   0.1    0.1        1.0   1.0      1.0     2.0
+                5   0.001 25     1.0   1.0    1.0        0.1   1.0      1.0     0.005
+
+
+   As the implementation is 2D, a mesh was created with 100 cells in the x-direction and
+one cell in the y-direction, with a zero-gradient boundary condition applied to all variables.
+There is no gravity term. For the pseudo-time stepping, which is explicit, three Runge-
+Kutta stages and a Courant number of 0.98 were used with global time stepping, while the
+real-time term was not activated. The minmod slope limiter was used for density, velocity,
+
+
+                                                    20
+and pressure. Minmod was used for pressure because the new method is not accurate
+in pseudo-time, only at the incompressible limit, and the split method is identical to the
+unsplit method in the absence of gravity. The only difference between the simulations was
+the Riemann solver.
+   As shown in Figure 2, all three Riemann solvers perform almost identically for RP1–RP4.
+RP5 is more extreme, involving a large density and pressure discontinuity, and it reveals the
+difference between the Riemann solvers. The Roe Riemann solver performs the worst out
+of the three. The Bassi Riemann solver, whose performance corresponds with the graphs
+in the original study [18, Figure 6], is not the best performing either. This is surprising as
+the numerical flux should be exact when the contact wave is bounded by the acoustic waves
+which, indeed, was never violated in this test. The Osher Riemann solver performs the best.
+The results suggest that the Roe Riemann solver should be avoided and, as the validity of
+the assumptions underpinning the Bassi Riemann solver cannot be guaranteed, the Osher
+Riemann solver provides a robust alternative.
+
+
+3.2. Hydrostatic pressure
+
+   To assess the well-balanced properties of the different pressure gradient calculations, a
+simple 1D hydrostatic problem was used as a benchmark test, as in Qian et al. [17]. The
+test involves a column of air (ρ = 1) overlaying a column of water (ρ = 1000) under the
+influence of gravity. The initial conditions are u = 0 and p = 0 everywhere, and the density
+and velocity values should not change but the pressure should settle to hydrostatic.
+   As the implementation is 2D, a mesh was created with 20 cells in the x-direction and one
+cell in the y-direction, with all four boundaries modelled as walls, and gravity of g = (9.81, 0).
+For pseudo-time, which is explicit, three Runge-Kutta stages and a Courant number of 0.98
+were used with local time stepping. The simulation was run for one real-time step of size
+∆t = 0.05 until the residuals for ρu were less than 1 × 10−5 . The Osher Riemann solver was
+used with the minmod limiter for density and velocity in all simulations. The value of the
+artificial compressibility coefficient was set to β = 2000—a smaller value led to instability
+in the split simulations, a problem acknowledged by Kelecy and Pletcher [14]. The only
+difference between the simulations was the pressure gradient calculation.
+   Figure 3 shows that limiters with no special treatment do not converge to the correct
+solution. The anomalies near the boundaries can be attributed to the reversed gravity
+
+
+
+                                               21
+Figure 2: Comparison of Riemann solvers in 1D Riemann problems.
+
+
+
+
+                              22
+in the ghost cells not having any effect for standard limiters, as discussed in Section 2.5.
+However, the spurious velocities near the free surface are precisely due to standard limiters
+including information from the other side of the free surface, as discussed in Section 2.3.2.
+In both cases, incorrect pressure gradients lead to incorrect densities or velocities, which is
+important to remember for the next benchmark test.
+   In contrast, the two split limiters and the new incompressible limit method converge
+to the correct solution. This demonstrates that special treatment is required to ensure a
+balance with the gravity source term, thereby eradicating spurious densities and velocities.
+
+
+3.3. Dam breaks
+
+   In dam breaks, a column of water is initially at rest behind an imaginary, infinitesimally
+narrow dam. The dam instantaneously disappears, and the column of water is free to flow.
+Dam break simulations are useful for testing the robustness of a free-surface method under
+extreme conditions, and their widespread use means that experimental data is available for
+validation.
+   In this study, we simulated a dam break in a small domain to examine pressure gradient
+calculations in detail, and then a much larger domain to test the method against the full
+range of Martin and Moyce’s [46] experimental data. In both cases, the initial conditions
+involved a high density ratio, ρ = 1 for air and ρ = 1000 for water, with u = 0 everywhere
+and, since the initial condition for pressure is somewhat arbitrary [14], p is set to zero
+everywhere initially. All four boundaries were modelled as walls, but this should not affect
+comparisons with the experimental data as water is much denser than the air [13, 14].
+Gravity was set to be g = (0, −9.81).
+
+
+3.3.1. Small domain (non-hydrostatic pressure)
+   The previous benchmark showed that split limiters are well-balanced under hydrostatic
+pressure, unlike standard limiters. However, recall from Section 2.3.2 that pressure gradient
+discontinuities occur even in the absence of gravity. While split limiters do not address
+this problem, the new incompressible limit method deals with it automatically. This was
+explored with the first real-time step of a dam break.
+   A mesh was created with 20 cells in both directions. The Osher Riemann solver was
+used with the minmod limiter for density and velocity in all simulations. For pseudo-time,
+which is explicit, three Runge-Kutta stages and a Courant number of 0.48 were used with
+
+
+                                              23
+Figure 3: Comparison of pressure gradient calculations in 1D hydrostatic test case.
+
+
+
+
+                                        24
+Figure 4: First real-time step of dam break (small domain) with new incompressible limit pressure gradient
+calculation.
+
+
+local time stepping. The simulations were run for one real-time step of size ∆t = 0.01
+until the residuals for ρu and ρv were smaller than 1 × 10−3 . The value of the artificial
+compressibility coefficient was set to β = 1100 as smaller values led to instability. The only
+difference between the simulations was the pressure gradient calculation.
+    Figure 4 shows the 2D fields in the first real-time step, and Figure 5 a cross-section along
+the lowest row of cells. As gravity does not act in the x-direction, the split and unsplit slope
+limiter calculations are the same in this direction. However, the split results are shown here
+because the unsplit results will be impacted by gravity in the y-direction, as illustrated in
+Figure 3 from the previous benchmark.
+    Consider Figure 5 and the pressure gradient just to the left of the density discontinuity
+at x = 0.4. The split limiters underestimate its magnitude, especially minmod. This is
+because information is taken from both sides of the free surface, but there should be a dis-
+continuity defined by the dynamic boundary condition [∇p/ρ] = 0. The new incompressible
+limit method performs better than the split limiters. In fact, it performs surprisingly well
+considering that it is not based on the value of pressure, only the other variables, TVD
+gradients, and source terms.
+    Now recall from the hydrostatic benchmark test that, the better the pressure gradient
+calculation at capturing the pressure gradient discontinuity, the smaller the errors in the
+density and velocity. Consider Figure 5 and the density just to the left of the density
+
+
+                                                   25
+Figure 5: Comparison of pressure gradient calculations in first real-time step of dam break (small domain),
+along the lowest cross-section parallel to the x-axis, which is not the direction of gravity.
+
+
+
+
+                                                      26
+discontinuity at x = 0.4. All three simulations seem to have converged to a solution with
+varying degrees of compression. While this compression resembles Gibbs-type oscillations
+in the density field, Figure 5 clearly shows that the minmod density limiter has fully limited
+the gradient to zero, and so the density limiter is not causing the problem. As the only
+difference between the simulations is the pressure gradient calculation, we must conclude
+that this is what is causing the problem. The better the method at capturing the pressure
+gradient discontinuity, the smaller the error. The standard limiters, due to their inability
+to capture the pressure gradient discontinuity, cause the largest errors. Even though the
+correct solution for the velocity field is unknown, we might similarly conclude that the
+pressure gradient is also causing the differences in the velocity values.
+
+3.3.2. Large domain (experimental data)
+   So far, the benchmark tests have not gone further than one real-time step. In this
+benchmark, we recreated Martin and Moyce’s [46] dam break experiments for square columns
+with dimension a = 2 14 inches = 0.05715 metres and a = 4 12 inches = 0.1143 metres. Kelecy
+and Pletcher [14] also used these data for the same equations, and Bhat and Mandal [13]
+used them for artificial compressibility coupled with VOF. However, both studies had a
+domain too small to cover the full temporal range of data, with Kelecy and Pletcher’s [14]
+domain having width 5a and height 1.25a. Here, we used a domain of width 15a and height
+1.25a, divided into 240 cells in the x-direction and 20 cells in the y-direction. This allowed
+the surge to propagate unimpeded until the end of the experiment.
+   The other parameters included two pseudo-time Runge-Kutta stages, an artificial com-
+pressibility coefficient of β = 1100, and convergence tolerances of 0.01 for ρ, ρu, ρv, and
+p. Both the pseudo-time and real-time Courant numbers were set to 0.45. The real-time
+Courant number was set this low not for stability (the real-time derivative is treated point-
+implicitly) but because it led to better convergence in pseudo-time. In all cases, the minmod
+slope limiter was used for density and velocity, but the Riemann solver and pressure gradi-
+ent calculations were changed. This was to determine if the variability experienced in the
+previous benchmarks is important in long simulations.
+   Figure 6 shows real-time snapshots of one simulation. They are similar to the results in
+[13, 14]. In particular, the difference between the density of the water and the density of the
+air induces a large horizontal pressure gradient, which causes a surge front to propagate out
+from the column of water, and a vortex to appear around the free surface. These snapshots
+
+
+                                              27
+explicitly show the density field, rather than a contour to represent the free surface as in
+[13, 14], meaning that the numerical diffusion is not hidden. Indeed, the transition between
+water and air straddles several cells, and there is much diffusion towards the end of the
+simulation when the surge front hits the far wall. This diffusion could be addressed with
+the slope modification method [12] or an interface compression term [15], which have both
+been implemented for artificial compressibility coupled with VOF previously.
+    Figure 7 shows the post-processed results, where the column height and surge front po-
+                                                                        p
+sition have been normalised by dividing by a, and the time multiplied by g/a. This allows
+the two experiments to be compared even though they are at different scales. The Riemann
+solver and pressure gradient calculation do not have much of an effect on the results, espe-
+cially for the a = 4 21 inches case, and the simulated values are close to the measured values.
+There are some differences between the simulations and observations, particularly in the
+surge front position towards the end of the a = 4 12 inches case, but it is impossible to know
+if these are due to the model or due to the data, which were collected 70 years ago. In any
+case, the results show that the method performs well under this extreme scenario, and the
+general outputs are not very sensitive to the Riemann solver or pressure gradient calculation.
+It is interesting to note that at no point was the wave ordering assumption behind the Bassi
+Riemann solver violated, which suggests it may also be acceptable for general use alongside
+the Osher Riemann solver. However, further investigations are needed to find out when the
+wave ordering assumption is broken, as acknowledged by Bassi et al. [18, Appendix B4].
+
+
+4. Conclusion
+
+   Only a few researchers [14, 17, 18] have investigated the variable-density artificial-
+compressibility equations previously, with their developments spaced out over several decades.
+This paper presented a Godunov-type scheme, taking advantage of recent advances in the
+wider field by applying a more robust Riemann solver [20] and a more easily parallelisable
+time discretisation [8, 9] to these equations for the first time. We also developed a new
+method for calculating the pressure gradient in the MUSCL reconstruction step. By us-
+ing the information already available from the TVD gradients and source terms, the new
+method automatically captures the pressure gradient discontinuity at the free surface. This
+pressure gradient method is applicable to any scheme with dual time stepping.
+
+
+
+                                              28
+Figure 6: Density in the dam break (large domain) with length scale a = 4 1/2 inches, the Bassi Riemann
+solver, and the incompressible limit pressure gradient calculation. Velocity shown once every nine cells for
+clarity.
+
+
+
+
+                                                    29
+Figure 7: Comparison of dam break (large domain) simulations with experimental data from Martin and
+Moyce [46]. Note that column height measurements do not exist for a = 4 1/2 in.
+
+
+
+
+                                                  30
+   Benchmark tests presented in this paper demonstrated the capabilities of the Godunov-
+type scheme. First, a battery of five Riemann problems showed that it can capture dis-
+continuities in the flow, and that the Osher Riemann solver provides a robust alternative
+to the Bassi Riemann solver. The Osher Riemann solver may be needed as the Bassi
+Riemann solver is only exact for certain wave configurations. Second, the new pressure
+gradient method has been shown to be well-balanced under hydrostatic cases, like split lim-
+iters. Third, the new pressure gradient method has been shown to capture non-hydrostatic
+density discontinuities, unlike split limiters. This suggests that the new pressure gradient
+method is preferable to existing options. Finally, Martin and Moyce’s [46] dam break ex-
+periments were successfully recreated. In particular, while Kelecy and Pletcher [14] only
+used a temporal subset of this experimental data, here an extended domain allowed the full
+propagation of the surge front to be assessed. This shows that the method is suitable for
+practical applications.
+   Moving forwards, current work is focused on implementing the scheme for unstructured
+3D meshes in parallel. This is largely a software development task as the method outlined
+in this paper is general apart from the standard and split slope limiters. The more general
+implementation will not only harness the ability of the finite volume method to deal with
+arbitrary cell shapes, but also the ability of the explicit pseudo-time stepping to be easily
+parallelised. This will allow the method to be applied in practical free-surface simulations,
+where there can be millions of finite volume cells in an assortment of shapes and sizes.
+
+
+Acknowledgements
+
+   This research was funded by the Engineering and Physical Sciences Research Council
+grant number EP/R51309X/1.
+
+
+References
+
+ [1] D. D. Drikakis, W. Rider, High-Resolution Methods for Incompressible and Low-Speed
+    Flows, Springer, New York, 2005. doi:10.1007/b137615.
+
+ [2] E. F. Toro, Riemann Solvers and Numerical Methods for Fluid Dynamics: A Practical
+    Introduction, Springer, New York, 2009. doi:10.1007/b79761.
+
+
+
+
+                                             31
+ [3] D. Kwak, C. Kiris, Computation of Viscous Incompressible Flows, Scientific computa-
+    tion, Springer, New York, 2011. doi:10.1007/978-94-007-0193-9.
+
+ [4] A. J. Chorin, A numerical method for solving incompressible viscous flow problems,
+    Journal of Computational Physics 135 (2) (1997) 118–125. doi:10.1006/jcph.1997.
+    5716.
+
+ [5] S. Patankar, D. Spalding, A calculation procedure for heat, mass and momentum trans-
+    fer in three-dimensional parabolic flows, International Journal of Heat and Mass Trans-
+    fer 15 (10) (1972) 1787–1806. doi:10.1016/0017-9310(72)90054-3.
+
+ [6] R. Issa, Solution of the implicitly discretised fluid flow equations by operator-splitting,
+    Journal of Computational Physics 62 (1) (1986) 40–65. doi:10.1016/0021-9991(86)
+    90099-9.
+
+ [7] R. Nourgaliev, T. Dinh, T. Theofanous, A pseudocompressibility method for the numer-
+    ical simulation of incompressible multifluid flows, International Journal of Multiphase
+    Flow 30 (7) (2004) 901–937. doi:10.1016/j.ijmultiphaseflow.2004.03.010.
+
+ [8] N. Loppi, High-order incompressible computational fluid dynamics on modern hardware
+    architectures, Ph.D. thesis, Imperial College London (2019). doi:10.25560/73888.
+
+ [9] B. Vermeire, N. Loppi, P. Vincent, Optimal Runge–Kutta schemes for pseudo time-
+    stepping with high-order unstructured methods, Journal of Computational Physics 383
+    (2019) 55–71. doi:10.1016/j.jcp.2019.01.003.
+
+[10] B. R. Hodges, An artificial compressibility method for 1D simulation of open-channel
+    and pressurized-pipe flow, Water 12 (6) (2020) 1727. doi:10.3390/w12061727.
+
+[11] E. Shapiro, D. Drikakis, Artificial compressibility, characteristics-based schemes for
+    variable density, incompressible, multi-species flows. Part I. Derivation of different for-
+    mulations and constant density limit, Journal of Computational Physics 210 (2) (2005)
+    584–607. doi:10.1016/j.jcp.2005.05.001.
+
+[12] D. Pan, C. Chang, The capturing of free surfaces in incompressible multi-fluid flows,
+    International Journal for Numerical Methods in Fluids 33 (2) (2000) 203–222. doi:
+    10.1002/(SICI)1097-0363(20000530)33:2<203::AID-FLD9>3.0.CO;2-F.
+
+
+
+                                              32
+[13] S. Bhat, J. C. Mandal, Contact preserving Riemann solver for incompressible two-
+    phase flows, Journal of Computational Physics 379 (2019) 173–191. doi:10.1016/j.
+    jcp.2018.10.039.
+
+[14] F. Kelecy, R. Pletcher, The development of a free surface capturing approach for mul-
+    tidimensional free surface flows in closed containers, Journal of Computational Physics
+    138 (2) (1997) 939–980. doi:10.1006/jcph.1997.5847.
+
+[15] S. Bhat, J. C. Mandal, Modified HLLC-VOF solver for incompressible two-phase fluid
+    flows (2019). arXiv:1911.11234.
+
+[16] D. Ntouras, G. Papadakis, A coupled artificial compressibility method for free surface
+    flows, Journal of Marine Science and Engineering 8 (8) (2020) 590. doi:10.3390/
+    jmse8080590.
+
+[17] L. Qian, D. M. Causon, C. G. Mingham, D. M. Ingram, A free-surface capturing
+    method for two fluid flows with moving bodies, Proceedings: Mathematical, Physical
+    and Engineering Sciences 462 (2065) (2006) 21–42. doi:10.1098/rspa.2005.1528.
+
+[18] F. Bassi, F. Massa, L. Botti, A. Colombo, Artificial compressibility Godunov fluxes
+    for variable density incompressible flows, Computers & Fluids 169 (2018) 186–200.
+    doi:10.1016/j.compfluid.2017.09.010.
+
+[19] B. van Leer, MUSCL, a new approach to numerical gas dynamics, in: Second European
+    Conference on Computational Physics, 1976.
+
+[20] M. Dumbser, E. Toro, A simple extension of the Osher Riemann solver to non-
+    conservative hyperbolic systems, Journal of Scientific Computing 48 (1) (2011) 70–88.
+    doi:10.1007/s10915-010-9400-3.
+
+[21] C. T. DeGroot, A. G. Straatman, A finite-volume model for fluid flow and nonequi-
+    librium heat transfer in conjugate fluid-porous domains using general unstructured
+    grids, Numerical Heat Transfer, Part B: Fundamentals 60 (4) (2011) 252–277. doi:
+    10.1080/10407790.2011.601180.
+
+[22] V. R. Efremov, A. S. Kozelkov, A. V. Kornev, A. A. Kurkin, V. V. Kurulin, D. Y.
+    Strelets, N. V. Tarasova, Method for taking into account gravity in free-surface flow sim-
+
+
+
+                                             33
+    ulation, Computational Mathematics and Mathematical Physics 57 (10) (2017) 1720–
+    1733. doi:10.1134/S0965542517100086.
+
+[23] M. R. Hashemi, P. B. Ryzhakov, R. Rossi, An enriched finite element/level-set method
+    for simulating two-phase incompressible fluid flows with surface tension, Computer
+    Methods in Applied Mechanics and Engineering 370 (2020) 113277. doi:10.1016/j.
+    cma.2020.113277.
+
+[24] M. Zingale, L. J. Dursi, J. ZuHone, A. C. Calder, B. Fryxell, T. Plewa, J. W. Tru-
+    ran, A. Caceres, K. Olson, P. M. Ricker, K. Riley, R. Rosner, A. Siegel, F. X. Timmes,
+    N. Vladimirova, Mapping initial hydrostatic models in Godunov codes, The Astrophys-
+    ical Journal Supplement Series 143 (2) (2002) 539–565. doi:10.1086/342754.
+
+[25] N. Botta, R. Klein, S. Langenberg, S. Lützenkirchen, Well balanced finite volume meth-
+    ods for nearly hydrostatic flows, Journal of Computational Physics 196 (2) (2004) 539–
+    565. doi:10.1016/j.jcp.2003.11.008.
+
+[26] G. Krause, Hydrostatic equilibrium preservation in MHD numerical simulation with
+    stratified atmospheres: Explicit Godunov-type schemes with MUSCL reconstruction,
+    Astronomy & Astrophysics 631 (2019) A68. doi:10.1051/0004-6361/201936387.
+
+[27] F. Fuchs, A. McMurry, S. Mishra, N. Risebro, K. Waagan, High order well-balanced
+    finite volume schemes for simulating wave propagation in stratified magnetic atmo-
+    spheres, Journal of Computational Physics 229 (11) (2010) 4033–4058. doi:10.1016/
+    j.jcp.2010.01.038.
+
+[28] P. Queutey, M. Visonneau, An interface capturing method for free-surface hydro-
+    dynamic flows, Computers & Fluids 36 (9) (2007) 1481–1510.            doi:10.1016/j.
+    compfluid.2006.11.007.
+
+[29] A. Kruisbrink, F. Pearce, T. Yue, H. Morvan, An SPH multi-fluid model based on quasi
+    buoyancy for interface stabilization up to high density ratios and realistic wave speed
+    ratios, International Journal for Numerical Methods in Fluids 87 (10) (2018) 487–507.
+    doi:10.1002/fld.4498.
+
+[30] V. Vukčević, J. Roenby, I. Gatin, H. Jasak, A sharp free surface finite volume method
+    applied to gravity wave flows (2018). arXiv:1804.01130.
+
+
+                                            34
+[31] A. Jameson, Time dependent calculations using multigrid, with applications to un-
+    steady flows past airfoils and wings, in: AIAA 10th Computational Fluid Dynamics
+    Conference, Fluid Dynamics and Co-located Conferences, American Institute of Aero-
+    nautics and Astronautics, 1991. doi:10.2514/6.1991-1596.
+
+[32] A. Iserles, A First Course in the Numerical Analysis of Differential Equations, 2nd
+    Edition, Cambridge Texts in Applied Mathematics, Cambridge University Press, 2008.
+    doi:10.1017/CBO9780511995569.
+
+[33] J. Fernández-Pato, M. Morales-Hernández, P. Garcı́a-Navarro, Implicit finite volume
+    simulation of 2D shallow water flows in flexible meshes, Computer Methods in Applied
+    Mechanics and Engineering 328 (2018) 1–25. doi:10.1016/j.cma.2017.08.050.
+
+[34] M. Morales-Hernández, M. Hubbard, P. Garcı́a-Navarro, A 2D extension of a large time
+    step explicit scheme (CFL>1) for unsteady problems with wet/dry boundaries, Journal
+    of Computational Physics 263 (2014) 303–327. doi:10.1016/j.jcp.2014.01.019.
+
+[35] J. Blazek, Computational Fluid Dynamics: Principles and Applications, 2nd Edition,
+    Elsevier, 2005. doi:10.1016/C2013-0-19038-1.
+
+[36] M. Pelanti, Low Mach number preconditioning techniques for Roe-type and HLLC-type
+    methods for a two-phase compressible flow model, Applied Mathematics and Compu-
+    tation 310 (2017) 112–133. doi:10.1016/j.amc.2017.04.014.
+
+[37] T. Barth, D. Jespersen, The design and application of upwind schemes on unstructured
+    meshes, in: 27th Aerospace Sciences Meeting, 1989. doi:10.2514/6.1989-366.
+
+[38] V. Venkatakrishnan, Convergence to steady state solutions of the Euler equations on
+    unstructured grids with limiters, Journal of Computational Physics 118 (1) (1995) 120–
+    130. doi:10.1006/jcph.1995.1084.
+
+[39] T. Tanaka, Finite volume TVD scheme on an unstructured grid system for three-
+    dimensional MHD simulation of inhomogeneous systems including strong background
+    potential fields, Journal of Computational Physics 111 (2) (1994) 381–389. doi:10.
+    1006/jcph.1994.1071.
+
+[40] J. Manzanero, G. Rubio, D. A. Kopriva, E. Ferrer, E. Valero, An entropy–stable discon-
+    tinuous Galerkin approximation for the incompressible Navier–Stokes equations with
+
+
+                                            35
+    variable density and artificial compressibility, Journal of Computational Physics 408
+    (2020) 109241. doi:10.1016/j.jcp.2020.109241.
+
+[41] P. Roe, Approximate Riemann solvers, parameter vectors, and difference schemes, Jour-
+    nal of Computational Physics 43 (2) (1981) 357–372. doi:10.1016/0021-9991(81)
+    90128-5.
+
+[42] S. Osher, F. Solomon, Upwind difference schemes for hyperbolic systems of conservation
+    laws, Mathematics of Computation 38 (158) (1982) 339–374. doi:10.2307/2007275.
+
+[43] B. J. Lee, E. F. Toro, C. E. Castro, N. Nikiforakis, Adaptive Osher-type scheme for
+    the Euler equations with highly nonlinear equations of state, Journal of Computational
+    Physics 246 (2013) 165–183. doi:10.1016/j.jcp.2013.03.046.
+
+[44] V. Glenis, V. Kutija, C. Kilsby, A fully hydrodynamic urban flood modelling system
+    representing buildings, green space and interventions, Environmental Modelling & Soft-
+    ware 109 (2018) 272–292. doi:10.1016/j.envsoft.2018.07.018.
+
+[45] D. T. Elsworth, E. F. Toro, Riemann solvers for solving the incompressible Navier-
+    Stokes equations using the artificial compressibility method, NASA STI/Recon Tech-
+    nical Report N (Jun. 1992).
+
+[46] J. C. Martin, W. J. Moyce, Part IV. An experimental study of the collapse of liquid
+    columns on a rigid horizontal plane, Philosophical Transactions of the Royal Society
+    of London. Series A, Mathematical and Physical Sciences 244 (882) (1952) 312–324.
+    doi:10.1098/rsta.1952.0006.
+
+
+
+
+                                            36
+
