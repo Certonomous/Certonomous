@@ -393,3 +393,21 @@ exists to remove. The identical case under `Gauss linear` misses that threshold
 by five orders of magnitude. **The 2.41 mK T9a interface miss is removed by the
 interface scheme, on this geometry and within the limits of §10, and by
 nothing else.**
+
+---
+
+**Supervisor close-out note, dated 2026-08-23 (appended after the grade landed
+at `359cccfb`).** Addendum A.8's outstanding condition is CLOSED:
+`check_t9aH_mesh.py` was read in full, as source, by the T-family supervisor.
+Ruled SOUND: the in-memory layer-k override deep-copies both frozen modules'
+REG layer lists before mutation, restores them in `finally`, and asserts the
+restoration on both; the frozen `T9a_registered.json` is never edited; the
+file grades nothing (Charter §2c guard — its failure withdraws the run, never
+the hypothesis) and discloses its one `postProcess -func writeCellCentres`
+invocation rather than folding it into "zero compute". Its rc=0 output
+(`ALL EXTRA T9aH MESHES VERIFIED`) is promoted from provenance to evidence.
+§8.2's ordering divergence is reviewed and ACCEPTED: the two Python geometry
+verifiers ran after the chains because the launching lane died at
+2026-08-23T20:14:05Z before running them; they grade nothing, and
+`checkMesh_rc=0` stands in all ten `STATUS.*` files, so no case was solved on
+an unchecked mesh. Lines whose number changed above this section: 0.
