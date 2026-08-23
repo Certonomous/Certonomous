@@ -96,11 +96,11 @@ rung may take it).
 **Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched
 ## closure
 
-**Section last written:** 2026-08-23T20:35Z by closure-supervisor. (Clock note:
-the previous stamp here read 20:45Z, yet `date -u` at this writing reads
-20:33Z — the prior stamp was ahead of the wall clock and is a mis-stamp, not
-evidence of a later session. Stamps in this section are taken from `date -u`
-at drafting.)
+**Section last written:** 2026-08-23T21:12Z by closure-supervisor, from `date -u`
+at drafting. (Clock pattern, relayed to the chief: two future stamps in one
+evening — this section's earlier 20:45Z written before a 20:33Z wall clock, and
+verification's D473 in-row stamp 21:35Z written before a 21:09Z wall clock.
+Systemic, not local; stamps not taken from `date -u` are drifting ahead.)
 
 **R5C (option C, omega-source repair) — CLOSED, VERDICT: GATE FAIL. D465, L-243,
 N-B35–N-B37, commit `0ac76ec2`.** Graded against the frozen pre-registration
@@ -173,13 +173,46 @@ hist [0,0,0,172106], cond p50/p99/max 20.81 / 1.634e4 / 4.430e7, ducts p99
 5.113e4, LOFO 0.0011 / 0.0905 / 0.0000 / 0.2238 % — all match COVERAGE.md and
 D475. Standing ruling restated: FS5's per-build discharge for R4 WAS NOT MET
 (D475); the late delivery discharges the deliverable, not the disclosure duty;
-FS5 stays armed. **Open decision, D476:** the q1_wallRe clip repair (unclipped
-companion column vs declared exemption) is owed before the next build and is
-NOT taken here — it changes a standing-gate instrument, so it routes through
-the chief, not a lane.
+FS5 stays armed.
 
-**Live jobs: the Kaandorp driver only; no lanes live** (the previous three died
-at the session limit with their work landed — verified above). Driver pid
+**D476 clip repair — CHIEF-DISPATCHED, IMPLEMENTED, A3 REFERRED; adoption
+BLOCKED on verification's audit.** The chief dispatched the standing-gate
+instrument change 2026-08-23; the supervisor's ruling: unclipped `q1_wallRe_raw`
+companion, audit-side, diagnostic only — never in `F`, never a feature.
+Pre-registration FROZEN at `bf4956bc` (blob `8fac067c`) before implementation;
+implemented by one lane at `7e973ba8`; **supervisor's personal diff read PASS**
+(all six files as diffs; frozen texts re-diffed against their blobs by my own
+hands; every headline number re-read from `fs2_audit.json` independently; the
+A3 mismatch scope confirmed by my own stripped comparison). Gates: **A1 PASS**
+(planted 83.4855 flagged 0→1; blinded readers exit 2), **A2 PASS** (40/40 `F`
+sha256 identical — the `min(raw,2)` refactor is bit-exact), **A4 PASS**
+(rule-6 form held), **A3 GATE FAIL** — six values, all
+`singular_value_ratio_first_to_last`, BLAS-thread-dependent rounding noise from
+dividing by an analytically-zero singular value (N-B39); recorded as failed,
+NOT loosened, no thread pinning adopted; **referred to verification-supervisor**
+(two standards questions: publish `s[0]/s[-1]` of a singular matrix at all?
+pin BLAS threads in audit instruments?). First reading: `NASA_2DWMH` 9.596 %
+of cells above the training unclipped max 55.657, worst +5.11 spans, case max
+340.1 (6.11×) — instrument information ONLY, no verdict moves (chief clause);
+seven other test cases inside. `q1_wallRe` frac_at_max **0.5784** — the clip
+is the modal value (N-B38 closed). Records: **D484**, **N-B39**, cost ledger
+row (0.75x cleaned/predicted, gross 2.5–3x = scope misprediction, zero waste).
+Per prereg §7 **no closure build relies on the amended instrument until the
+verification audit returns.**
+
+**Live jobs: the Kaandorp driver plus one lane.** The wait-and-grade lane owns
+the driver wait (dispatched after the chief's dead-watcher warning; currently
+parked on its own watcher between polls — resumable by message, and the
+incumbent for grading: no rival gets spawned). Its interim findings, both
+VERIFIED by my own reads: the `diverged=True` flag on every row is the trapFpe
+BANNER artifact (`run_lane.py:175` tests the banner; `summarise.py:29-31`
+guards correctly; zero `FOAM FATAL` in both CBFS logs; no verdict rests on it
+— rule-14 call-site repair queued post-campaign, the file is frozen
+mid-campaign), and the G0a byte-identity gate sits ~400× below its ascii
+`writePrecision 6` instrument floor (rel-L2 ~4e-8 vs registered 1e-10 —
+disclosed limitation for the addendum, gate unchanged, lane flagged it against
+its own favour). The D476 implementation lane is finished and reported.
+Driver pid
 `1111229`, detached (`setsid`), cwd builds under
 `/home/ubuntu/closure-data/aposteriori/kaandorp/` (driver log `lane5.log` and
 `results.json` live THERE, not in `kaandorp_tbrf/`). Rows landed this pass:
@@ -213,9 +246,17 @@ D369 family (D369, D461/D-13, the D468 duplicate); reported by the lane at
 `52e5de39` for judgement. My judgement: lesson-worthy and repair-worthy, but
 the helper is every team's instrument — chief dispatches.
 
-**Commits this session (supervisor):** this board write only — sha in the
-chief report. Lane commits verified and adopted above: `918e8fe7`, `9f0210dd`,
-`52e5de39`, `1632af6a`, `52373459`.
+**Commits this session (supervisor):** `8145f75d` board; `bf4956bc` D476
+prereg frozen; `8322a70f` N-B39 + cost ledger row; `2cfca52d` D484; this board
+write. Lane commits verified and adopted: `918e8fe7`, `9f0210dd`, `52e5de39`,
+`1632af6a`, `52373459` (previous fleet, D-14 thread) and `7e973ba8` (D476
+implementation, diff read PASS). NEXT ACTIONS: on driver exit, resume the
+wait-and-grade lane by message → grade the six rows, dated addendum, and the
+Kaandorp cost-calibration ledger row (Sanaa's 2026-08-23 directive, first
+applied to this close-out); await verification's A3 audit before anything
+relies on the amended FS5 instrument; GPU node gpu1 exists
+(`GPU_CAPABILITY_STATE.md` §8) but console price is NOT DONE — nothing costed,
+nothing launched, all five drafts stay on Sanaa's desk.
 
 **On Sanaa's desk (closure):** the five GPU drafts (§ above — signing any is
 hers; the plan's recommendation, marked as one: Ling first, none of 4–5);
@@ -239,10 +280,11 @@ forbidden. Read this section from HEAD, not the tree.
 
 **Compute:** 487 core-h pre-authorised (charter §18). Live: the Kaandorp
 driver, one serial core. Measured so far this pass: NULL 69.3 s + TRUTH
-1,701.6 s + MEANB in progress — ≈0.5 core-h of the ~3.3 core-h planning figure
+1,701.6 s + MEANB in progress — ≈0.5+ core-h of the ~3.3 core-h planning figure
 (≈$0.17; hard bound ≤$0.31 via the 3600 s/solve timeout, inside the lane's
-standing 15 core-h cap). Everything else this session is zero-solve
-(verification reads, board).
+standing 15 core-h cap). D476 spent ~10–12 core-min gross (3.0 registered
+scope; ledger row at `8322a70f`). Everything else this session is zero-solve
+(verification reads, records, board).
 ## dafoam
 
 **Section last written:** 2026-08-23T21:35Z by dafoam-supervisor (THIRD session, spawned ~20:28Z by the chief at HEAD `b84c43d3`).
