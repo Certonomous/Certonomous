@@ -330,59 +330,59 @@ looser than it reads; moves verdicts across K0c/K2e/KV1). Owner: chief. No
 single rung may take it.
 ## cfd
 
-**Section last written:** 2026-08-22T18:05Z by harness-build (FIRST FILL — not yet written by its owner).
+**Section last written:** 2026-08-23 by cfd-supervisor (first owner-written fill; replaces the harness first fill of 2026-08-22).
 
-**Last commit:** `cc4f1a64` — *Twenty-six dead paper paths in forty files…*
-(2026-08-18 17:54Z). **This lane has been idle four days** while the other four
-committed today.
+**Last commit:** see this section's git history — this supervisor's session of 2026-08-23 commits the MESH_STANDARD cross-ref fix + this board rewrite; two lanes commit their own records (GEN_ALT campaign record; DPW8_V2 L4 diagnosis prereg). Before that the team's last commit was `cc4f1a64` (2026-08-18), five days idle.
 
-**Live jobs:** none.
+**Live jobs:** no solvers owned by cfd. Two lab-lanes dispatched 2026-08-23 (~19:45Z): (1) GEN_ALT campaign write-up, zero compute; (2) DPW8_V2 L4 divergence-diagnosis pre-registration — **freeze-then-STOP; launch only after supervisor verifies the freeze commit** (personal check #4). Diag budget when launched: 2 arms × ~30 core-min ≈ $0.05, cap 150 core-min. Do not touch the 4 heat-transfer `buoyantBoussinesqSimpleFoam` solvers.
 
-**Standards — and these are two documents, not two copies.** `docs/standards/MESH_STANDARD.md`
-(**v1.2, 2026-08-11**) carries the **quality gates**; `docs/MESH_STANDARD.md` carries
-the **grid families**. They are complementary and neither supersedes the other, so
-do not "reconcile" them into one. Read both. Also `docs/OPENFOAM.md` — **stale; it
-describes the phase-1 adapter** — and `docs/OPENFOAM_SOLVER_BUILD.md`.
+**Resolved this session (2026-08-23, supervisor's own reads):**
+- **W2 VERIFY closed.** `W2_sparta_runs/setup_sparta_case.sh` mtime 2026-08-22 17:38 = the closure team's H-7 libs-institutionalization lane; committed 17:48 in `5162ec8e`; disk is byte-identical to HEAD (the `MM` was the stale shared index). Diff read personally: adds only an L-221 `grep -q libspartaTurbulenceModels` assert that refuses on a missing libs entry. Benign; W2_sparta stays closed.
+- **GEN_ALT is GRADED, not unwritten.** The prereg at `verification/runs/GEN_ALT_runs/GEN_ALT_PREREGISTRATION.md` carries a full scored Outcome (2026-08-08): verdict **GENERATOR-OWNED** per the pre-declared rule (blockMesh max-AR refinement factor ×0.945 vs pyHyp ×1.71 at matched counts; near-wall AR 37.4 vs 87.6-class; G1/G2 HELD, G3 refused by the born-clean gate at non-ortho 70.13/70.11 > 70 — no solve ever ran, by refusal, honestly). Freeze chain verified: prereg frozen `9c4fbef4` 23:16:04Z, outcome `41f0e1df` 23:19:01Z, moved in `a1fbe127`. Cost ≈0.4 core-min. What was missing was only the campaign-level record — lane dispatched to file it in `verification/campaign/`.
+- **DPW8_V2 L4 decided: DIAGNOSE, not abandoned.** The campaign record's §3-CORRECTION already establishes L4 **DIVERGED deterministically** (k blow-up from ~iter 14, reproduced bit-for-bit; mesh quality and aspect ratio ruled out; root cause open). Supervisor decision 2026-08-23: run the record's own cheapest decisive experiment — two short pre-registered arms, one change per run (Arm A relaxation only; Arm B turbulence-convection scheme only), positive-control-gated grading. The gate rung itself remains **NOT GATED** until the diagnosis lands; any repaired full L4 (and the §3b family-consistent linear-solver question) is a successor decision.
+- **MESH_STANDARD consistency check done (they were never to be merged).** `docs/standards/MESH_STANDARD.md` (v1.2, single-mesh quality gates + birth certificate + §7 marine) and `docs/MESH_STANDARD.md` (grid-family sizing/scatter) are complementary, both flag the name collision on their face, cross-refs sound, one-home-per-fact respected (§7.3). One staleness found and fixed this session: the family doc's header cited the companion as v1.0/2026-07-25 while its own Sources said v1.2 — header updated, no gate value touched.
 
 **Open run families (lacking verdicts):**
 
 | family | why open |
 |---|---|
-| **DPW8_V2** | *Status: SALVAGE.* L4 fine gate rung **INCOMPLETE — not gated**; `run_L4_gate.stdout.log` is **0 bytes**. Two lower rungs PASS |
-| **F5b** | the run dir is **exactly one file**, `run_pitch.py`. No case tree, no logs |
-| **F5c** | headline **withdrawn to *unmeasured***. The 1.313 H attributed to SIMPLEC was **RELAXATION** — misattributed. Chief-approved **Stage B was never run** |
-| **R4** (Ahmed turn) | *n = 2 of a planned 4*; leg-2: *"No SIGNAL/NOISE verdict is claimed."* Plus a withdrawal record. **Note: this R4 is the Ahmed-body draw series, NOT the closure team's R4 SpaRTA build** |
-| **GEN_ALT** | measured, never written up, and **no solve ever ran** — mesh only. Both meshes breach non-orthogonality (70.13 / 70.11 > 70) |
-| **F12** | pre-registration only; `F12_runs/` is just `reference/` |
-| **F7a re-gate** | spec frozen, unexecuted |
-| **MODEL_FORM successors** | three preregs, no results |
-| **mbc_retry, uq_batch** | *"Nothing here is graded."* |
-| **F4** | SWBLI θ=32.5°/35° gate cases *"NOT yet built or run"* |
-| **F5** | 1e5 and 1e6 ladder rungs have no run tree |
+| **DPW8_V2 L4** | DIVERGED, root cause open; diagnosis prereg in flight this session (see above). L1/L3 PASS stand |
+| **F5b** | run dir is exactly one file, `run_pitch.py`; no case tree, no logs *(VERIFY — carried from first fill, not re-read this session)* |
+| **F5c** | headline withdrawn to *unmeasured*; the 1.313 H attributed to SIMPLEC was RELAXATION — misattributed; chief-approved Stage B never run *(VERIFY)* |
+| **R4 (Ahmed turn)** | n = 2 of planned 4; leg-2 claims no SIGNAL/NOISE verdict; NOT the closure team's R4 SpaRTA build *(VERIFY)* |
+| **F12** | pre-registration only; `F12_runs/` is just `reference/` *(VERIFY)* |
+| **F7a re-gate** | spec frozen, unexecuted *(VERIFY)* |
+| **MODEL_FORM successors** | three preregs, no results *(VERIFY)* |
+| **mbc_retry, uq_batch** | "Nothing here is graded." *(VERIFY)* |
+| **F4** | SWBLI θ=32.5°/35° gate cases not yet built or run *(VERIFY)* |
+| **F5** | 1e5 and 1e6 ladder rungs have no run tree *(VERIFY)* |
 
 **Closed, verdicts on record:** 4G, B52_RUNG6 (REPRODUCE), D5_rsm (SSG and LRR
 bracket the DNS; *which* RSM is right is not settled), DMR, F2 (PASS banded), F3
 (PASS), F8 (**NO VERDICT — and that is the result**), F9 (PASS quasi-steady, gate 2
 stays FAIL vs Womersley), F11 (GATE REACHED), FPE_DIAG (SHARED-BY-CLASS, recorded
-only by citation from its successor prereg), MESH_AUDIT, W1, W1_hump, W2_sparta,
-W3.
+only by citation from its successor prereg), GEN_ALT (GENERATOR-OWNED — campaign
+record landing this session), MESH_AUDIT, W1, W1_hump, W2_sparta, W3.
 
 **⚠ Structural fact this team must know:** with five exceptions, the run dirs under
 `verification/runs/` carry **no README, RESULTS, PREREG or DONE marker at all**.
 **The verdicts live one level up, in `verification/campaign/*.md`.** Do not
 conclude a family is ungraded because its run directory is bare.
 
-**Next actions:** reconcile the two MESH_STANDARD copies. Decide DPW8_V2 L4 —
-finish the gate rung or record it as abandoned with a reason. Write up GEN_ALT,
-which is measured and unpublished.
+**Standards — two documents, not two copies (do NOT merge):** `docs/standards/MESH_STANDARD.md`
+(v1.2) = quality gates; `docs/MESH_STANDARD.md` = grid families. Consistency
+verified 2026-08-23 (see above). `docs/OPENFOAM.md` — **stale; describes the
+phase-1 adapter** *(VERIFY, carried)* — and `docs/OPENFOAM_SOLVER_BUILD.md`.
 
-**On Sanaa's desk:** nothing currently.
+**Next actions:** (1) grade the DPW8_V2 L4 diagnosis arms when they complete, then
+decide the successor (family-consistent repaired L4, or record the family as
+stopping at L3 with the diagnosed cause). (2) Verify-and-triage the *(VERIFY)*
+rows above, F5c Stage B and F12 first — both have frozen paper waiting on
+execution. (3) Then the F4 gate cases.
+
+**On Sanaa's desk:** nothing from cfd currently.
 
 **Blocked:** nothing currently identified.
-
-**⚠ VERIFY:** `verification/runs/W2_sparta_runs/setup_sparta_case.sh` has mtime
-**2026-08-22 17:38** and shows `MM` in git status — the only non-thermal file
-touched under `runs/` in three days. **Find out who did that before assigning W2.**
 
 **Case tree:** `cases/{committee-grids, demo-surfaces, hlpw6, mega-batch, tmr,
 unsteady-cylinder, valve}` is **dormant in git** — none is the subject of a recent
@@ -401,10 +401,16 @@ owner-written fill; supersedes the 2026-08-22 harness first fill, whose
 "rule on the VM2026R1 canonical home" next-action over-reached — D-6 is with
 Sanaa and neither copy is touched).
 
-**Last commit:** this section's own commit (see git log for
-`docs/LAB_STATE.md`, this session). The team has produced **no verdict-bearing
-commit yet**; the `fd831c11` line in the first fill was heat-transfer's commit,
-not this team's, and is corrected here.
+**Last commit:** `6ae77c79` — *LAB_STATE repair: d97ed4c9 carried a STALE
+dafoam section ... restored verbatim from 70c605f0* (2026-08-23 ~19:45Z).
+**Incident on the record:** this team's first board commit `d97ed4c9` clobbered
+the dafoam board section in git because the shared working tree was stale on
+that file; caught by the non-optional post-commit verify, repaired forward the
+same minute, lesson L-245 filed. Dafoam team: your 19:35Z section (two-session
+claim ledger included) is intact at HEAD; how the working tree came to hold
+your 18:17Z text while git held 19:35Z is unestablished and flagged to you.
+The team has produced **no verdict-bearing commit yet**; the `fd831c11` line in
+the first fill was heat-transfer's commit, not this team's.
 
 **Live jobs:** none owned by this team. (Verified 2026-08-23T19:36Z by `ps aux`:
 4 `buoyantBoussinesqSimpleFoam` solvers live — pids 442445, 450274, 488219,

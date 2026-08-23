@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-29
 **Status:** House practice for how a grid FAMILY is built and how its results are reported —
-distinct from `docs/standards/MESH_STANDARD.md` (v1.0, 2026-07-25), which governs single-mesh
+distinct from `docs/standards/MESH_STANDARD.md` (v1.2, 2026-08-11 — see that file's own version header for the current version), which governs single-mesh
 QUALITY gates (non-orthogonality, skewness, aspect ratio). That document says whether one mesh is
 admissible; this one says how a *sequence* of meshes should be sized relative to each other and how
 disagreement across a family (or across codes) should be reported. **Naming collision flagged, not
