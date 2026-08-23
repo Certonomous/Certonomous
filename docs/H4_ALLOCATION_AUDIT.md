@@ -405,3 +405,235 @@ No claim in this report converts an absence of evidence into a PASS; every
 zero above carries its stated positive control, and every UNKNOWN marks a
 question this grader could not settle by listing rather than being silently
 folded into a green verdict.
+
+---
+
+# RE-RUN, 2026-08-23 — by listing, against the live box
+
+**Lines whose number changed above this section: 0.** Appended at the foot;
+nothing above was edited (rule 6). The 2026-08-12 verdicts stand as dated.
+
+Executor: `lab-lane`, verification team. Re-run executed **2026-08-23T19:44:50Z**
+(`date -u` output, first command run) through **19:56Z**. All "right now" claims
+below are anchored to that window, per rule W-5; none is bare present-tense.
+**Zero core-minutes**; nothing was launched, edited or killed. Grader
+independence: this lane wrote none of the material graded below.
+
+---
+
+## H4a — ONE AGENT = ONE WORKTREE/SCRATCH — **STILL FAIL, and the shape has changed**
+
+**Command:** `git worktree list`. On 2026-08-12 this returned exactly one row.
+**Output at 19:53Z — nine rows:**
+
+```
+/home/ubuntu/Certonomous                                             a1d5be72 [main]
+/tmp/claude-1000/-home-ubuntu/64b13819-.../scratchpad/citsweep/a2    4afefe54 (detached HEAD) prunable
+/tmp/claude-1000/-home-ubuntu/64b13819-.../scratchpad/citsweep/a3    da95aec1 (detached HEAD) prunable
+/tmp/claude-1000/-home-ubuntu/64b13819-.../scratchpad/citsweep/b2    4afefe54 (detached HEAD) prunable
+/tmp/claude-1000/-home-ubuntu/64b13819-.../scratchpad/citsweep/b3    da95aec1 (detached HEAD) prunable
+/tmp/claude-1000/-home-ubuntu/64b13819-.../scratchpad/citsweep/clean 3af826ed (detached HEAD) prunable
+/tmp/claude-1000/-home-ubuntu/64b13819-.../scratchpad/citsweep/edited 3af826ed (detached HEAD) prunable
+/tmp/claude-1000/-home-ubuntu/64b13819-.../scratchpad/wt2            3af826ed (detached HEAD) prunable
+/tmp/claude-1000/-home-ubuntu/64b13819-.../scratchpad/wt3            da95aec1 (detached HEAD) prunable
+```
+
+**Eight registered worktrees point into a scratchpad, and all eight are marked
+`prunable` — the directories are gone.** This is **L-186 instantiated in git's
+own metadata**: the scratchpad was wiped, and the main repository's
+`.git/worktrees` still advertises eight checkouts that no longer exist. It is a
+different defect from 2026-08-12's (which was two sessions in one worktree, no
+isolation attempted); here isolation *was* attempted and was placed somewhere
+that does not survive.
+
+**Live-process check.** `ps -ef` at 19:53:16Z shows **two** top-level `claude`
+processes, both cwd-attached to `/home/ubuntu/Certonomous`:
+
+```
+PID 1100087  started 19:04  ppid 1100044  claude --resume 64b13819-ff95-4d4d-a50f-3720bab19084
+PID 1106475  started 19:28  ppid 1106463  claude
+```
+
+`64b13819` is the same session id that owns the eight prunable worktrees **and**
+that authored `docs/EXTERNAL_REFERENT_AUDIT.md` (that document's line 3 names it).
+This grader's own commands run as children of PID 1106475.
+
+**Verdict: FAIL, currently true at 2026-08-23T19:53Z.** One shared main worktree,
+two live top-level sessions attached to it, plus eight stale worktree
+registrations pointing at wiped scratch. The structural condition H4a recorded
+on 2026-08-12 is **unrepaired 11 days later**, and the mitigation attempted in
+the interval left residue rather than isolation.
+
+**Tracked-file collision — massively wider than 2026-08-12.** On 2026-08-12
+`git status --porcelain=v1` returned **one** row. At 19:53Z it returns **1,520**:
+
+| status code | rows | meaning |
+|---|---|---|
+| `??` | 819 | untracked |
+| `D ` | 602 | **staged deletions sitting in the shared index** |
+| ` M` | 66 | worktree-modified, unstaged |
+| `MM` | 22 | staged **and** further modified |
+| ` D` | 10 | worktree deletions, unstaged |
+| `RD` | 1 | renamed then deleted |
+
+**602 staged deletions and 22 `MM` rows are in the shared index right now.**
+Constitution rule 10 exists for exactly this state: a bare `git commit` here
+would commit 625 rows of somebody else's unfinished work. Recorded as a
+**finding, not repaired** — the index is the chief's call, and nothing here was
+reverted.
+
+---
+
+## H4b — SUPERVISION TREE MATCHES THE CHARTER — **one UNKNOWN resolved, one new FAIL**
+
+**"Every live agent has a family owner" was UNKNOWN on 2026-08-12 because no
+roster existed. A roster now exists**, and the question is checkable:
+
+```
+harness/teams.yaml                       (17,920 bytes, 2026-08-22 18:22)
+.claude/agents/cfd-supervisor.md  closure-supervisor.md  dafoam-supervisor.md
+                heat-transfer-supervisor.md  lab-lane.md  verification-supervisor.md
+```
+
+**Verdict: the UNKNOWN is resolved to a checkable state** — five standing teams
+declared as data, with `scripts/check_harness.py` gating them.
+
+**And that resolution turns 2026-08-12's H4b PASS into a FAIL by listing.** The
+guidelines check re-run:
+
+```
+find . -iname "*FAMILY_SUPERVISION*" -not -path "./.git/*"
+./docs/standards/INFRA_FAMILY_SUPERVISION_GUIDELINES.md
+./verification/campaign/CASES_FAMILY_SUPERVISION_GUIDELINES.md
+./cases/dafoam/FAMILY_SUPERVISION_GUIDELINES.md
+./research/closure/md/CLOSURE_FAMILY_SUPERVISION_GUIDELINES.md
+./research/closure/md/CLOSURE_FAMILY_SUPERVISION_REVIEW_2026-08-07.md
+```
+
+All five files survived the reorganisation, at new paths. But they are the
+guidelines of the **superseded four-family taxonomy** — DAFoam, Closure, Cases,
+Infrastructure. The live roster names **five teams**: closure, dafoam,
+heat-transfer, cfd, verification. **`heat-transfer` and `verification` have no
+guidelines document, and `cases`/`infrastructure` have one each for families that
+no longer appear in the roster.** §1's duty — *"issues family guidelines … in the
+family's own records"* — is unmet for two of five standing teams.
+
+**Verdict: FAIL on "a guidelines artifact exists per standing team", 3 of 5 at
+best** (and the three are matched by inference, since none names a roster team
+id). Content and currency of the five files were **not** audited — same scope
+boundary as 2026-08-12.
+
+---
+
+## H4c — COLLECTORS ARMED — **PASS on the counts, and a 12-day capture gap**
+
+Same commands, same directory (`demo-output/website/solve_registry`, which
+survived the reorg at its path):
+
+| quantity | 2026-08-12 | 2026-08-23 |
+|---|---|---|
+| files | 300 | **300** |
+| `*.done` | 142 | **142** |
+| `*.done.INTERRUPTED` | 4 | **4** |
+| `*.partial` | 0 | **0** |
+| zero-byte files | 9 | **9** |
+| zero-byte `*.done` | 0 | **0** |
+| zero-byte `*.log` | 5 | **5** |
+
+**Identical in every cell.** Positive control for the `.partial` zero, as before:
+the same `find` invocation returns 4, 142 and dozens when only the suffix
+changes, so the zero is a validated zero and not an unmeasured one.
+Independent `glob.glob` re-derivation of `*.done`: **142**, agreeing with `find`.
+
+**The 2026-08-12 live discrepancy is CLOSED — by disclosure, which is the right
+repair.** That pass found `PRODUCT_LIST.md` citing **146** in five places against
+a re-derived 142. Re-read today: the sites at `docs/PRODUCT_LIST.md:1534`,
+`:1571` and `:2996` each now carry a dated, in-place superseding note —
+*"[DENOMINATOR SUPERSEDED 2026-08-14, `8d977d23` — D52. The 146 and the 143 were
+CORRECT WHEN WRITTEN and are kept under L-76 rather than overwritten…]"* — which
+states the current 142, explains the four `.done.INTERRUPTED` renames, corrects
+the total to 147 records, and argues the severity is if anything understated.
+**Original struck, not rewritten. Verdict: resolved.**
+
+**Newest registry record by mtime — unchanged: `f6b3_relax{B,C,PC}_20260811T011859Z.log`,
+2026-08-11 ~01:2xZ. The registry has captured nothing in 12 days.** In the same
+window, `ps aux` at 19:53Z shows **four `buoyantBoussinesqSimpleFoam` processes
+running since Aug 21 and Aug 22** (2,784 / 2,783 / 2,727 / 1,528 CPU-minutes
+accumulated) plus a live `simpleFoam` under `/home/ubuntu/closure-data`. Whether
+`solve_registry` is still the collector of record, or has been superseded by
+`verification/runs/`, **cannot be settled by listing** and is reported as
+**UNKNOWN** rather than converted into either a PASS or a defect.
+
+**Orphan-process check.** No orphan: every solver process found is attached to a
+live parent shell. **The four `buoyantBoussinesqSimpleFoam` processes were
+observed and NOT touched**, per this re-run's standing constraint. Positive
+control for the method: the identical `ps aux | grep` pipeline, run for
+`python3` in the same batch, returned a non-zero count. **Validated non-zero;
+this is not a blind instrument.**
+
+---
+
+## H4d — METER / CONFIG — **tmux still down, config-dir finding changed**
+
+```
+tmux ls  →  error connecting to /tmp/tmux-1000/default (No such file or directory)
+```
+
+**Byte-identical error to 2026-08-12**, 11 days on. A specific absent-socket
+answer, not a hang, so the check is trustworthy; the tmux server has not been
+restarted since the 2026-08-12T15:35 idle-shutdown event that `025d59a6`
+documents.
+
+`CLAUDE_CONFIG_DIR` in this grader's environment reads **empty**, where the
+2026-08-12 grader read `/home/ubuntu/.claude-sanaa`. That is a change in
+environment between two agent lineages, not a proven misconfiguration —
+**UNKNOWN**, exactly as the cross-session config-dir question was in 2026-08-12.
+
+The weekly-limit corroboration question was **not** re-attempted; that UNKNOWN
+stands.
+
+---
+
+## H4e — MODEL-TO-TASK CONFORMANCE — **2026-08-12's finding is now doubly demonstrated**
+
+That pass found commit trailers uninformative for model attribution, because
+`Co-Authored-By: Claude Opus 5` is fixed harness boilerplate. Re-run:
+
+```
+git log -20 --format='%an'                    → 20 of 20:  Ubuntu
+git log -30 | grep -o "Co-Authored-By: [^<]*" → 28 of 28:  Claude Fable 5
+```
+
+**The boilerplate string itself has changed wholesale, from `Claude Opus 5` to
+`Claude Fable 5`, with no accompanying claim that every committing agent changed
+model.** `CLAUDE.md`'s roster in fact states the opposite arrangement —
+supervisors on Fable, lanes on Opus — so a trailer reading `Fable 5` on every
+one of 28 sampled commits cannot be tracking the model that ran. **2026-08-12's
+conclusion — there is no reliable per-commit model record in this repo — is not
+merely still true; the trailer flipping en masse is direct evidence for it.**
+This lane is itself an Opus lane whose commits will carry the Fable trailer.
+
+**Verdict: MIXED/UNKNOWN, unchanged**, on strengthened evidence.
+
+---
+
+## Re-run summary
+
+| item | 2026-08-12 | 2026-08-23 |
+|---|---|---|
+| H4a | **FAIL (currently true)** | **FAIL (currently true)** — 2 live sessions on 1 shared worktree, unrepaired; **+8 prunable worktrees registered into wiped scratch (L-186 in git metadata)**; `git status` 1 row → **1,520**, incl. 602 staged deletions in the shared index |
+| H4b | PASS (guidelines) / UNKNOWN (ownership) | **UNKNOWN → resolved** (roster exists: `harness/teams.yaml` + 6 agent files); **PASS → FAIL** on guidelines — 5 standing teams, and `heat-transfer` and `verification` have none |
+| H4c | PASS, live discrepancy found | **PASS**, all seven registry cells identical, validated zeros re-controlled; **the 146-vs-142 discrepancy is CLOSED by dated in-place disclosure (D52, `8d977d23`)**; **new UNKNOWN:** registry has captured nothing in 12 days while 4 solvers ran 2 days |
+| H4d | PASS (tmux) / UNKNOWN ×2 | **unchanged**; tmux still down with the identical error; `CLAUDE_CONFIG_DIR` empty in this lineage — UNKNOWN |
+| H4e | MIXED/UNKNOWN | **MIXED/UNKNOWN**, on stronger evidence — the trailer flipped `Opus 5` → `Fable 5` across 28 of 28 sampled commits |
+
+**Not reached by this re-run**, stated rather than discovered later: the historical
+2026-08-11→08-12 collision was not re-verified (it is settled and dated); no
+`/proc/<pid>/environ` comparison was made between the two live sessions; the
+content and currency of the five family-guidelines documents were not read; the
+weekly-limit corroboration question was not re-attempted; and no attempt was made
+to attribute any of the 1,520 dirty rows to an owning agent.
+
+**No claim in this re-run converts an absence of evidence into a PASS.** Every
+zero carries its positive control, every unmeasurable fact is UNKNOWN, and
+nothing on the box was modified, pruned, reverted or killed.
