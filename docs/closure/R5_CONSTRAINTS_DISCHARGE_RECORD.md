@@ -258,14 +258,28 @@ returns nothing on disk. (Planted control on the reader: the same `git ls-tree`
 sweep returns eight other paths matching "coverage", so the search is able to
 see a non-zero.) Further, **the strings `FS5` and `coverage` appear zero times
 in `R4_sparta_build/RESULTS.md`** — control: `FS2` appears 6 times in the same
-file by the same grep — and **none of the twelve departures D-1…D-12 (§9, lines
-870–970) discloses the non-delivery**, nor does §7 "What this lane cannot see"
-(lines 782–830), which is otherwise unusually complete. This is the one thing
+file by the same grep — and **none of the thirteen departures D-1…D-13
+discloses the non-delivery** (D-1…D-12 in §9, lines 870–970; **D-13 at line
+1010, at the foot of §10, not in §9** — corrected 2026-08-23, see the dated note
+at the foot of this file), nor does §7 "What this lane cannot see" (lines
+782–830), which is otherwise unusually complete. This is the one thing
 about the R4 record that a reader could not have learned from the R4 record.
 Charter §22.5 line 819 states the same duty in charter form — *"a coverage
 report ships with every model"*. **Whether that constitutes a §22.5 standing-gate
 failure is a grading call and is not made here**; the measured fact is stated
 and referred.
+
+**Resolved 2026-08-23, after this record was first committed.** The closure
+supervisor verified both findings personally and ruled: *"FS5's per-build
+discharge for R4 WAS NOT MET — the standing gate re-arms. The late delivery
+discharges the deliverable, not the disclosure duty, which stays on record as
+breached."* The deliverable now exists as
+`cases/RANS_LES_closure_models/R4_sparta_build/COVERAGE.md` (late delivery,
+2026-08-23), and the non-delivery is disclosed as **departure D-14** in
+`RESULTS.md` §12, a dated addendum that alters no line above it. **§3.4's status
+for constraint 2 is unchanged by that delivery** — a deliverable produced a day
+after the lane closed does not retroactively make the discharge timely, and the
+supervisor's ruling says so.
 
 **(ii) FS5's "declared factor" has never been declared.** The clause requires a
 factor declared *in advance*, with two permitted responses beyond it
@@ -475,7 +489,7 @@ things it could not see.
 | Constraint | Status | Citing artefacts | What is still open |
 |---|---|---|---|
 | **1. duct feature degeneracy** | **partly discharged** | `_common/features/FS2_DEGENERACY_REPORT.md` §1/§2/§4; `R4/PREREGISTRATION.md` §2.1, §2.2; `R4/RESULTS.md` §3.2, §11.4 | the ducts-only exclusion rests on a justification measured false on frozen fields; scoped so nothing has been decided on it; repair belongs in the next pre-registration |
-| **2. `Re_y` extrapolation trap** | **partly discharged; standing gate stays armed** | `FS2_DEGENERACY_REPORT.md` §6; `/home/ubuntu/closure-data/features/fs2_audit.json`; `R4/PREREGISTRATION.md` §2.3, §7; `R4/MODEL.md`; `R4/RESULTS.md` §7 | `COVERAGE.md` (prereg §7) never shipped and its absence is undisclosed; FS5's declared factor has never been declared; existing coverage is on a different feature set, training set and field; `q1_wallRe` is clipped at 2 where the trap lives |
+| **2. `Re_y` extrapolation trap** | **partly discharged; standing gate stays armed** | `FS2_DEGENERACY_REPORT.md` §6; `/home/ubuntu/closure-data/features/fs2_audit.json`; `R4/PREREGISTRATION.md` §2.3, §7; `R4/MODEL.md`; `R4/RESULTS.md` §7 `COVERAGE.md` (prereg §7) did not ship with the model and its absence went undisclosed — **delivered late 2026-08-23, disclosed as D-14; the disclosure duty stays breached and the standing gate re-arms** (foot note); FS5's declared factor has never been declared; the FS1-library coverage is on a different feature set, training set and field; `q1_wallRe` is clipped at 2 where the trap lives |
 | **3. vortex-structure failure** | **discharged as a measurement; partly discharged as a validation duty** | `R4/PREREGISTRATION.md` §6; `R4/RESULTS.md` §5.3, §6 (G5), §11.2 | no threshold registered, so G5 is "reported" and cannot fail; duct-only metric; a 0.4–0.6 % vs 0.09–0.61 % arithmetic discrepancy in the closed record |
 
 **Three things that would close, or move, each item — none of them this lane's
@@ -522,3 +536,38 @@ to authorise, and each costing compute that is not spent here:**
 
 **Compute:** 0 core-minutes. No solver, no fit, no field written. Artefact reads
 and text only.
+
+---
+
+## 8. Dated note, 2026-08-23 — corrections and follow-through after first commit
+
+This record was first committed at `3a4f4bbb`. Three changes since, each stated
+rather than folded in silently:
+
+1. **Correction: R4 has thirteen departures, not twelve.** §3.3(i) originally
+   read "the twelve departures D-1…D-12 (§9, lines 870–970)". D-1…D-12 are
+   indeed §9's, but a thirteenth, **D-13, sits at line 1010 at the foot of §10**,
+   outside the departures section. The claim it supports — that **no** departure
+   discloses the undelivered `COVERAGE.md` — is unaffected and was re-checked
+   against all thirteen. Corrected in place because the original was a
+   miscount, not a judgement; this note is the record of the change.
+2. **The undelivered deliverable was delivered, late.** See the inset in §3.3(i).
+   `COVERAGE.md` now exists beside `MODEL.md` with `artefacts/coverage.json` and
+   `make_coverage.py`; the non-delivery is disclosed as **D-14** in a dated
+   addendum at `RESULTS.md` §12 which alters no line above it. Headline numbers:
+   the selected tensor set `{T1, T2, T3}` is **rank 3 in 172,106 of 172,106
+   fitted cells** at a pooled per-cell `σ1/σ3` of **20.81 / 1.634e+04 /
+   4.430e+07** (p50 / p99 / max), and leave-one-family-out coverage on the six
+   selected columns loses only **0.0011 % / 0.0905 % / 0.0000 % / 0.2238 %** of
+   held-out cells — from which `COVERAGE.md` §2 draws the reading that **R4's
+   GATE FAIL was not a training-set coverage failure**.
+3. **No status in §6 moves.** The supervisor's ruling is that the late delivery
+   discharges the deliverable and **not** the disclosure duty, and that FS5's
+   per-build discharge for R4 **was not met** — the standing gate re-arms. A
+   record produced a day after a lane closed does not make that lane's discharge
+   timely, and none of §2.4, §3.4 or §4.4 is rewritten on account of it.
+
+**Still true of this record:** it grades nothing, invents no gate for R5, and
+takes no position on any option in `R5_DECISION_MEMO.md`. Its own compute
+remains 0 core-minutes; `COVERAGE.md`'s 30.6 core-seconds are costed in
+`COVERAGE.md` and in `RESULTS.md` §12.1, not here.

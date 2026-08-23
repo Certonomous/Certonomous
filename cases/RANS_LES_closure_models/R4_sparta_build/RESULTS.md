@@ -1311,3 +1311,151 @@ are laid out with their costs, their pre-registration requirements and their
 failure modes in **`../../../docs/closure/R5_DECISION_MEMO.md`**. **Nothing was
 submitted, uploaded, filed, registered or sent by this lane; the Repo 2 release
 and the one pre-registered zero-shot scoring call remain Sanaa's alone.**
+
+---
+
+# 12. ADDENDUM, dated 2026-08-23. Nothing above is altered.
+
+**Document version 1.0 → 1.1.** Version 1.0 is everything above this heading:
+**lines 1–1313**, git blob `90457f4f0d9eb8eba7f100025e1abab8d2c69df4`, sha256
+`3be9c6d55423c7e5e6c8151150dc070098626c099badb316740172518316c987`, as committed
+at `cb185d97`. **Lines whose number changed above this section: 0.** Nothing
+above was edited, struck through in place, or rewritten. Both items below quote
+the text they correct and correct it here; the originals stand where they are so
+that every existing citation into this file by line number still resolves.
+
+**Provenance of this addendum.** Both findings were made on 2026-08-23 by the R5
+discharge-record lane while verifying citations for
+`../../../docs/closure/R5_CONSTRAINTS_DISCHARGE_RECORD.md`, and **both were
+verified personally by the closure supervisor the same day** before being
+recorded here. Neither moves a verdict. **The verdict of this lane remains
+GATE FAIL** (sec. 0, sec. 6) and no gate, threshold, cap or label is altered,
+added or removed by anything below.
+
+## 12.1 D-14 — a registered deliverable was never delivered, and the non-delivery was never disclosed
+
+**D-14. `PREREGISTRATION.md` sec. 7 registered `COVERAGE.md` to ship with
+`MODEL.md`. It did not ship, and its absence appears in no departure and in no
+"cannot see" bullet.**
+
+Sec. 7 (lines 199–205 of the frozen file) registers, in full:
+
+> `COVERAGE.md` ships with `MODEL.md` and states: each selected feature's range
+> on each training family against the others; the pooled training range; and
+> **what a future test exposure must check** — for every selected term, the
+> fraction of test cells outside the training range, and the per-cell rank of the
+> selected tensor set on the test family. No test number is computed until the
+> scoring call.
+
+Addendum A1 of the same frozen file (lines 252–262) then confines its own
+consequence to that file — *"Consequence for this lane, and it is confined to
+`COVERAGE.md`"* — which makes sec. 7 the single place where the hump's move from
+BLOCKED to checkable was registered to land.
+
+**No such file was written by this lane.** It is absent from `HEAD` and from
+disk. Worse than the absence: the strings `FS5` and `coverage` appear **zero
+times anywhere in this document** (control on the reader: `FS2` appears six
+times in the same file under the same grep), **none of departures D-1 through
+D-13 discloses it, and it is not among the ten bullets of sec. 7 "What this lane
+cannot see"** — a section that otherwise records the unrun `b^Delta`
+static-injection arm, the missing shelf-D band, the absent realisability
+threshold and seven other gaps. **A lane that documented thirteen departures and
+ten blind spots did not notice that it owed a file.**
+
+This is disclosed now, in the only form available after the fact: as a departure
+recorded late, in a dated addendum, against a frozen registration that was never
+edited. **Late disclosure is not equivalent to disclosure at the time**, and
+this entry does not present it as such.
+
+**The deliverable is now delivered**, computed on the realised 12-case training
+set and the frozen fields the regression actually fitted:
+**`COVERAGE.md`** in this directory, with `artefacts/coverage.json` and the
+generator `make_coverage.py` (30.6 core-seconds, numpy reads only, no test case
+opened, zero-shot guard control-planted before use). Its headline numbers: the
+selected tensor set `{T1, T2, T3}` is **rank 3 in 172,106 of 172,106 fitted
+cells**, at a pooled per-cell `sigma1/sigma3` of **20.81 median / 1.634e+04 p99 /
+4.430e+07 max**; leave-one-family-out coverage on the six selected columns loses
+**0.0011 % / 0.0905 % / 0.0000 % / 0.2238 %** of held-out cells for hills /
+ducts / `PHLL10595` / `CBFS13700`. Its own reproduction of this lane's fit mask
+returns **172,106 of 172,171 cells, 65 dropped, all hills**, matching sec. 3.3
+independently.
+
+**The supervisor's ruling, quoted as such and not paraphrased:**
+
+> **FS5's per-build discharge for R4 WAS NOT MET — the standing gate re-arms.
+> The late delivery below discharges the deliverable, not the disclosure duty,
+> which stays on record as breached.**
+
+**A related finding, recorded because it bears on every future discharge of the
+same gate and on no verdict here.** FS5, as ruled into
+`../../../docs/charters/CLOSURE_MODELLING_CHARTER.md` sec. 22.5, turns on a
+factor **declared in advance**: *"Beyond a declared factor the response is
+retrain-coverage expansion, or explicit documented acceptance."* **That factor
+has never been declared by any build in this lab.** A repository sweep for the
+phrase returns exactly three hits —
+`../../../docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md`:252 and
+`CLOSURE_MODELLING_CHARTER.md`:822 and :827 — which are the three statements of
+the requirement and **no instance of it being met: stated three times, met zero
+times.** `COVERAGE.md` sec. 5 declines to invent one, because a threshold chosen
+after the coefficients exist and after the verdict is on the docket is exactly
+what pre-registration exists to prevent (`CLAUDE.md` rule 2). Declaring it is an
+act for the next pre-registration, before its compute.
+
+## 12.2 Correction of record — the duct vortex recovery is 0.09–0.61 %, not 0.4–0.6 %
+
+**The text corrected.** Two lines of version 1.0 state the same figure:
+
+* **lines 678–679**, sec. 5.3 (the figure itself is on line 679): *"The
+  frozen-field ceiling recovers it to **0.4–0.6 %** of the DNS value on every
+  aspect ratio."*
+* **line 1128**, sec. 11.2: *"against DNS 1.7630 / 1.6504 / 1.4622 / 1.2238 —
+  **0.4–0.6 % of the DNS value**"*
+
+**The correction.** Dividing this document's own table (sec. 5.3, lines
+671–675 — the numbers themselves are not in dispute and are not changed), the
+relative deficit of the ceiling against the DNS is:
+
+| case | DNS | CEILING | relative deficit |
+|---|---|---|---|
+| `AR_1_Ret_180` | 1.7630 | 1.7522 | **0.6126 %** |
+| `AR_3_Ret_180` | 1.6504 | 1.6440 | **0.3878 %** |
+| `AR_5_Ret_180` | 1.4622 | 1.4574 | **0.3283 %** |
+| `AR_10_Ret_180` | 1.2238 | 1.2227 | **0.0899 %** |
+
+**The range is 0.09–0.61 %, and the stated interval "0.4–0.6 %" is wrong for
+three of the four aspect ratios** — one above it and two below. **The error runs
+in the ceiling's favour**: on three cases the ceiling is *closer* to the DNS
+than version 1.0 claims, so the correction weakens no claim this lane made and
+strengthens none that mattered.
+
+**No verdict moves, and here is why, stated rather than assumed.** The registered
+gate on this axis is **G5** (sec. 6, line 753), which registers structure as a
+quantity to be **reported** and attaches **no bar** to it. With no bar, no value
+of this number can pass or fail, so a corrected value cannot change a verdict.
+The lane's **GATE FAIL** rests on **G1** (a-priori, 2 of 4 families against 3)
+and **G2** (the discovered model diverged on all twelve propagations), neither of
+which touches this figure; the **NOT A RESULT** branch turns on the ceiling
+beating NULL by 30 %, which is a velocity-error ratio and not a structure
+percentage. **Every one of those is unchanged.**
+
+**Recorded beside it, as an amendment candidate and not a re-grade:** that G5
+carries no threshold is the same defect sec. 11.7 item 1 records for **G4**
+(realisability), where this document writes *"so gate G4 cannot fail ... and a
+model outside the realisable set on 19.1 % of `CBFS13700` cells reached
+propagation without failing on that axis."* **The identical sentence is true of
+G5**, and sec. 11.7 did not say so. A structure threshold is a candidate for the
+next pre-registration — the number is not this lane's to pick, and picking one
+here would be the post-hoc gate that rule 2 forbids.
+
+## 12.3 What this addendum does not do
+
+* It does not edit, strike or renumber a single line above it.
+* It does not create, alter or remove any gate, threshold, cap or label, and it
+  does not touch `PREREGISTRATION.md`, which remains frozen at sha256
+  `058444309f87a9e1f6faccca2086bf16364df7a06bb7702d155c35b1fcacbbe8` and was
+  re-verified against disk while this addendum was written.
+* It does not re-run, re-fit or re-grade anything. `MODEL.md`'s FS4 freeze is
+  final and untouched; no solver ran for either item.
+* It does not advance, evaluate or rank any option in
+  `../../../docs/closure/R5_DECISION_MEMO.md`, which is Sanaa's.
+* Nothing was submitted, uploaded, filed, registered or sent.
