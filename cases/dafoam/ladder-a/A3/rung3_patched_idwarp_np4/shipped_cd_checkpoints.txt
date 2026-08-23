@@ -1,0 +1,19 @@
+# The SHIPPED-equivalent rung-3 CD adjoint residual path, transcribed verbatim from
+# /home/ubuntu/certonomous-runs/A3-rung3-n52/rung3_stage1.log lines 873-883, which is the run
+# LADDER_A_STATUS.md:35 row 11 grades GATE FAIL (4000 iterations, PetscConvergedReason -3,
+# 1.31x total residual reduction, memory comfortable at 11.65 of 22 GiB).
+#
+# Format: <iteration> <printed KSP residual norm>.  Compared as PRINTED STRINGS, digit for digit.
+# identity_stop.sh reads this file; it is frozen with the pre-registration and is part of the
+# grading path fixed at that commit.
+0 2.121343646203e-02
+100 1.758648818311e-02
+200 1.618871466028e-02
+300 1.618861640231e-02
+400 1.615428564220e-02
+500 1.615395949809e-02
+600 1.615266903444e-02
+700 1.615266448650e-02
+800 1.615249844486e-02
+900 1.615249565219e-02
+1000 1.615247229756e-02
