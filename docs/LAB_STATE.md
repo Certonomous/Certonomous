@@ -289,20 +289,42 @@ Older rows (A4 twin PASS `f9a59d47`, A2 per-component `79679a84`, A3 prereg chai
 **Images:** `dafoam-idwarp-rot:v1` (only image carrying the rotation patch, md5 `85f59e87…`), `dafoam-subpclu:v2` (PCLU), `dafoam-kspopts:v1`, `dafoam-team:v1` (`0b3c94c33a15`, both patches, ends `USER dafoamuser` → `--user root` for bind mounts). *The hash is the identity; the version string is not.* F6 series under `cases/dafoam/` is plain `simpleFoam`, not DAFoam work. **The stale shared index (577 staged deletions at 19:28Z) is the chief's call — inspect, never revert; all dafoam working-tree files verified identical to HEAD at 19:35Z.**
 ## heat-transfer
 
-**Section last written:** 2026-08-23T20:15Z by heat-transfer-supervisor
+**Section last written:** 2026-08-23T20:04Z by heat-transfer-supervisor
 (re-formed 2026-08-23 after the 2026-08-22 session limit).
 
-**NEW DIRECTIVE RECORDED (2026-08-23, via chief):** Sanaa, verbatim: *"We can
-think of many heat transfer advanced cases so the designated heat transfer
-team can run them and become even more of an expert."* Recorded in
-`docs/campaigns/T-family/EXPERTISE_CURRICULUM.md` (**PROPOSED — awaiting her
-ratification; design only, NO compute launched under it; D474**): twelve
-candidates E1–E12 ranked by DC-certificate leverage (H-6), tiered **behind
-the unchanged H-2 spine and H-5 order** with cumulative cost estimates
-($86–227 + one uncosted capability build); pre-authorised-class vs
-NEEDS-COSTING marked per item; every validation source not on disk flagged
-for pull + rule-15 title verification; VM2026R1 comparator notes all PENDING
-the D-6 ruling, none acted on.
+> **Timestamp correction, 2026-08-23 19:45Z, by the section's owner.** The
+> previous revision's stamp read 19:55Z but its commit (`cdb5cc0b`) is dated
+> 19:27:03Z -- the stamp was asserted, not read from the clock (the `bd3edfe8`
+> defect class; same disease the dafoam section corrected). Every time in this
+> revision is `date -u` output or a log line read at 19:42Z.
+
+> **Board-mechanism disclosure, 2026-08-23T20:04Z.** This section's `c7dc6add` revision
+> was reverted at `4932a7c3` (the worktree-behind-HEAD mechanism; chief has
+> a diagnosis dispatched) after `40984dac` had already repaired one earlier
+> revert. Restored here by MERGE: the `c7dc6add` content, this session's
+> F14/T9aH updates, and the parallel team session's `450735c1` directive
+> block below (its base was also stale). Nothing from either revision is
+> dropped. **TWO heat-transfer supervisor sessions are live** -- the
+> `cdb5cc0b`/`450735c1` session and this one. **Claim ledger, this
+> session:** T3/T1 strict-rule completion verification (`c7dc6add`), F14
+> VERIFY sweep + D468-D470, T9aH successor rung (lane live). **The parallel
+> session holds:** T10a-R close, EXPERTISE_CURRICULUM, its board refreshes.
+> Neither session touches the other's items; next dispatches claim here
+> first.
+
+**NEW DIRECTIVE RECORDED (2026-08-23, via chief; written by the parallel
+team session at `450735c1`, merged here verbatim):** Sanaa: *"We can think
+of many heat transfer advanced cases so the designated heat transfer team
+can run them and become even more of an expert."* Recorded in
+`docs/campaigns/T-family/EXPERTISE_CURRICULUM.md` (**PROPOSED -- awaiting
+her ratification; design only, NO compute launched under it; docket row
+renumbered **D471** in this commit, having landed as a duplicate `D468` in
+the collision**): twelve candidates E1-E12 ranked by DC-certificate
+leverage (H-6), tiered **behind the unchanged H-2 spine and H-5 order**
+with cumulative cost estimates ($86-227 + one uncosted capability build);
+pre-authorised-class vs NEEDS-COSTING marked per item; every validation
+source not on disk flagged for pull + rule-15 title verification; VM2026R1
+comparator notes all PENDING the D-6 ruling, none acted on.
 
 ### T-family (thermal) — refreshed 2026-08-23 by the T-family supervisor
 
@@ -339,17 +361,34 @@ the D-6 ruling, none acted on.
   28000, O_m 46000). **`R_f` alive** (pid 757934) at 47 511/78 000 as of
   19:15Z, pacing at or ahead of the 2026-08-25T14:54Z ETA. Comparator re-runs
   only after all eight.
+- **Strict-rule verification of the eight finished runs (this supervisor,
+  19:34-19:42Z).** The seven finished T3 ext1 arms now carry DONE markers from
+  the frozen `mark_done_t3_ext1.py` (selftest 14/14 first, `__pycache__`
+  cleared; dry-run 7/7, then real run 7/7 PASS, ext1 included) -- the 7/8 line
+  above was a STATUS rc=0 read, not the six-test rule; this is the rule, age
+  guard included. `DONE.R_f` is ABSENT from disk though tracked in HEAD:
+  correct, refusing-direction state while its extension runs (removal not
+  witnessed by this session; consistent with the tool's registered behaviour);
+  the deletion is committed with this revision so the frozen comparator cannot
+  read a half-finished extension. `R_10k_x` re-verified independently:
+  `mark_done_t1b_L4.py` 1/4 PASS (three siblings correctly refuse, still
+  running), marker idempotent with `cdb5cc0b`'s. All six marking/grading
+  scripts hashed byte-identical to their HEAD blobs before any output was
+  believed. The seven `STATUS_EXT1.*` evidence files (previously untracked)
+  are committed with this revision.
 
 **Live jobs — 4 solvers, all this team's, all single-core
-`buoyantBoussinesqSimpleFoam`.** Reading taken 2026-08-23T19:15Z. **Do not
-touch them.**
+`buoyantBoussinesqSimpleFoam`.** Reading taken 2026-08-23T19:42Z (`ps`,
+`readlink /proc/<pid>/cwd`, last `Time =` line of each log). **Do not touch
+them.** The L4 completion watcher is pid 1102509 (30-min poll for the three
+STATUS files, deadline guard 2026-08-27).
 
 | pid | cwd | iteration / endTime | ETA |
 |---|---|---|---|
-| 442445 | `T1_runs/R_300k_x` | ~40 457 / 80 000 | ~2026-08-26 |
-| 450274 | `T1_runs/R_100k_x` | ~36 000 / 80 000 | ~2026-08-26 |
-| 488219 | `T1_runs/R_30k_x` | ~34 324 / 80 000 | ~2026-08-26 |
-| 757934 | `T3_runs/R_f` | 47 511 / 78 000 | ≤ 2026-08-25T14:54Z |
+| 442445 | `T1_runs/R_300k_x` | 41 245 / 80 000 | ~2026-08-26 |
+| 450274 | `T1_runs/R_100k_x` | 36 947 / 80 000 | ~2026-08-26 |
+| 488219 | `T1_runs/R_30k_x` | 34 835 / 80 000 | ~2026-08-26 |
+| 757934 | `T3_runs/R_f` | 48 083 / 78 000 | ≤ 2026-08-25T14:54Z |
 
 **Rung verdicts on record** (unchanged from 2026-08-22 except T10a's arm):
 
@@ -365,16 +404,50 @@ touch them.**
 | **T5** | PRIMARY HELD; prereg draft written 2026-08-22, unfrozen, 12 INTERPRETATIONs on Sanaa's desk |
 | **T2, T6–T8, T9b/c, T10b, T11–T13** | not started; T6/T12/T13 and likely T7, T9c over $25 |
 
-**F14 / DC-cooling ladder:** unchanged from 2026-08-22 (K0c PASS; K0cS/T/X
-GATE FAIL; K0b + K0cG/P/Q/R verdicts VERIFY; K2a on Sanaa's desk; K2b cost
-VOID; K2e/KV1 VERIFY).
+**F14 / DC-cooling ladder -- the VERIFY flags are cleared by the 2026-08-23
+read-only sweep** (lane report; supervisor personally re-read the two
+disclosed measurement-script diffs -- K0cR display-label-only, D375
+`heat_balance.py` deletion-scope-only -- before belief). K2b skipped (cost
+VOID stands; re-cost before any successor cites it). K2a still on Sanaa's
+desk. K0c PASS, K0cS/T/X GATE FAIL, unchanged.
+
+| rung | sweep finding |
+|---|---|
+| **K0b** D403 rerun | **BACKED** -- V1/V2 PASS, V3 GATE FAIL as recorded; prereg before results; 6/6 scripts byte-identical to HEAD; no plant, but the same reader returned -4.490 % on L128a in the same run (live non-zero) |
+| **K0b** D406 repair | **BACKED** -- W1-W4 PASS as recorded; 6/6 byte-identical; the record's two in-file hashes hold at the results commit `f279aac5` (rung copies changed later by D407/D410; frozen run-tree copies untouched) |
+| **K0cG** | **GAP (D470)** -- no cost recorded anywhere; DONE markers give 300.59 core-min = $0.257 vs $0.190 registered (1.35x, unreported); attempt-1 waste uncosted; results sec-5 convergence figures cite no artifact. Gate JSON, ordering, byte-identity all hold |
+| **K0cP** | recorded outcome token `FORM` (pre-registered map, outside the fixed vocabulary -- feeds the referred conflict) + one bare FAIL; otherwise clean: ordering 30 s, artifacts to the digit, cost checks out, 4/4 byte-identical |
+| **K0cQ** | **GAP (D468)** -- the load-bearing null has no planted control: `control_delta()` runs only on the `Ccr1=0` controls, so the reader of the headline zero was never shown able to see a non-zero on this data; results :162-163 makes the forbidden inference. Token `SMALL` outside vocabulary. Everything else backed |
+| **K0cR** | recorded token `WORSE` outside vocabulary + two bare FAILs; comparator edit disclosed and display-only (diff read personally by the supervisor); artifacts to the digit; cost checks out |
+| **K2e** | **GAP (D469)** -- freeze unprovable: prereg + results + all 30 cases first landed together in `b845b603`; archive tree defeats the age guard (uniform mtimes, no `0/`); no DONE markers or rc. Numbers cite live artifacts; cost honestly itemised incl. waste; no fixed-vocabulary verdict at all |
+| **KV1** | **GAP (D469)** -- freeze unprovable (all in `b8c398a4`); `sha256sum -c PREDICTIONS.sha256` FAILS on `build_kv1.py` (manifest hash matches NO committed version, ever); KV1a headline plant-recovery number cites no artifact; validated instrument changed post-close (D375) undisclosed in the record. The planted-zero/mutation harness itself is exemplary and fully backed |
+
+
+**Lanes live (1 of the cap of 3, this session):** the T9aH lane. Its
+pre-registration is committed (`0078fe9c`) and personally checked by this
+supervisor (freeze verified against the blob; all seven frozen-file hash
+anchors independently re-verified; sec-3 closed-form arithmetic spot-checked
+at all three contrasts; cap $4.28e-03 with overrun-stops-run). Lane
+authorized for its registered steps 2-3 ONLY (run tree + frozen copies
+re-hashed; `analyse_t9aH.py` + `build_t9aH.py` written, selftested,
+sha256'd in a committed dated addendum while the tree holds no case
+directory) and stops again before step 4 -- the supervisor's personal read
+of `analyse_t9aH.py` as source and as diff, then the launch decision. The
+F14 VERIFY sweep lane is COMPLETE (read-only, committed nothing); findings
+folded into the F14 table above and docketed D468-D470.
 
 **Next actions:** 1. L4 completion (watcher armed) → grade the four (m,f,x)
 triples. 2. T3 ext1 completion (`R_f`) → comparator re-run over all eight →
 T3 re-graded under the frozen §7.1 gates. 3. T5 waits on Sanaa's
 INTERPRETATION rulings. 4. T10a-R successor questions (whether any rung arms
 a band from a triple whose implied p exceeds the observed error decay —
-L-244) belong to verification, flagged, not taken here.
+L-244) belong to verification, flagged, not taken here. 5. T9aH: steps 2-3 in
+flight -> supervisor reads `analyse_t9aH.py` personally -> launch decision.
+6. F14 sweep DONE; owed follow-ups now docketed: D470's dated cost addendum
+to `K0cG_RESULTS.md`, D468's planted-perturbation arm if taken (own small
+prereg), D469's re-grade question (separate, separately pre-registered
+decision -- not taken unilaterally). 7. EXPERTISE_CURRICULUM (D471):
+PROPOSED, awaiting Sanaa; nothing launched under it.
 
 **On Sanaa's desk** (carried, plus one new): Vogel & Eaton purchase
 (~25–40 USD, figure unconfirmed); T5 draft INTERPRETATIONs; T1b L4 cost
@@ -391,6 +464,7 @@ ladder); T4 graded rows (ASME primaries).
 **⚠ D389 open and deliberately unrepaired** (S13 mean-normalisation, ~24×
 looser than it reads; moves verdicts across K0c/K2e/KV1). Owner: chief. No
 single rung may take it.
+## cfd
 ## cfd
 
 **Section last written:** 2026-08-23 by cfd-supervisor (first owner-written fill; replaces the harness first fill of 2026-08-22).
