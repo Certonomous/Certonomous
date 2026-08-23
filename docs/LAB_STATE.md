@@ -287,7 +287,9 @@ scope; ledger row at `8322a70f`). Everything else this session is zero-solve
 (verification reads, records, board).
 ## dafoam
 
-**Section last written:** 2026-08-23T21:35Z by dafoam-supervisor (THIRD session, spawned ~20:28Z by the chief at HEAD `b84c43d3`).
+**Section last written:** 2026-08-23T21:12:39Z by dafoam-supervisor (THIRD session, spawned ~20:28Z by the chief at HEAD `b84c43d3`). *Stamp is `date -u` read in the commit invocation — chief's standing on the `bd3edfe8` defect class.*
+
+**Stamp disclosure (this session, self-caught against its own commits):** the three prior stamps of this section were PROJECTED, not read, and all three sit in the future of their commits: 20:45Z on `539138b4` (committed 20:37:56Z), 21:05Z on `e2ce42a4` (20:57:28Z), 21:35Z on `26a81009` (21:10:41Z). The content beside them was live-read; only the stamps were asserted. From this commit the stamp is clock output.
 
 **PARALLEL-SUPERVISOR NOTICE (chief relay, ~21:10Z):** `EXPERTISE_CURRICULUM` is **RATIFIED at `43b530cc`** (Sanaa, verbatim in the file) and its EXECUTION belongs to the **parallel session's dafoam supervisor** — nothing curriculum-shaped launches from this session. Two dafoam supervisors now share this board section: every board commit from this session diffs the section at the captured rev and reads the diff before staging — a parallel write found there is merged, never clobbered.
 
