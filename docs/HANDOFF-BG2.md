@@ -1,5 +1,23 @@
 # BG-2 handoff — website pipeline (branch `feat/website-pipeline`)
 
+> ## RE-SCOPE NOTE — 2026-08-23 (zero compute)
+>
+> **Demo-era handoff from the Windows + WSL2 phase. This box is not that
+> machine, and the launch command below must not be run as written.** The
+> pipeline record (module, ledger, counts, treaty) is unchanged and still
+> stands; only the *run instructions* are stale. Verified on this box
+> 2026-08-23: native Linux, Ubuntu 24.04.4, kernel `7.0.0-1010-aws`; `wsl` is
+> not on `PATH`, there is no `/mnt/c`, and PowerShell is absent — so
+> `New-Item …/STOP` (line ~34) is a PowerShell command with no interpreter
+> here; the native equivalent is `touch`. OpenFOAM v2606 is dpkg-installed at
+> `/usr/lib/openfoam/openfoam2606` and VSPAERO is native at
+> `/usr/local/bin/vspaero` (`VSPAERO v.7.2.2`), so **neither run prefix needs a
+> `wsl` shim**: `OPENFOAM_RUN_PREFIX="openfoam2606"` and `OPENVSP_RUN_PREFIX`
+> unset, matching `scripts/demo_servers.sh:36` and `ops/aws/provision.sh`
+> Phase 7. The "WSL `study-*` dirs" (lines ~21, ~141) are directories on the
+> Windows-phase machine and do not exist here. Same fix class as
+> `docs/OPENFOAM.md` (commit `7a96cf54`). Nothing deleted.
+
 Overnight work on the website deliverables (NIGHT ORDERS section W + coordinator
 v2/v3/v4.1 amendments). Everything below is real evaluations, honestly labelled.
 
@@ -22,6 +40,10 @@ A durable, resumable runner streaming REAL evaluations into a JSONL ledger.
   per-solve to bound disk.
 
 **How it's running:** launched in the background from `sdk/` with
+*(2026-08-23: the two `wsl -d Ubuntu` prefixes below are HISTORICAL — Windows-host
+instructions, not runnable on this native-Linux box. Native form: drop the shim to
+`OPENFOAM_RUN_PREFIX="openfoam2606"` and leave `OPENVSP_RUN_PREFIX` unset. Retained
+verbatim as the Windows-phase record; see the re-scope note at the top.)*
 ```
 OPENFOAM_RUN_PREFIX="wsl -d Ubuntu -- openfoam2606" OPENVSP_RUN_PREFIX="wsl -d Ubuntu --" \
   python -u -m workflows.mega_batch \

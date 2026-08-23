@@ -1,5 +1,56 @@
 # Certonomous — session handoff
 
+> ## RE-SCOPE NOTE — 2026-08-23 (zero compute)
+>
+> **This is a demo-era handoff, written on a Windows host that drove OpenFOAM
+> and VSPAERO through WSL2. This box is not that machine.** The record of what
+> was built and decided is unchanged and still stands; the *run instructions*
+> are the stale part. **Do not execute a `wsl -d Ubuntu …` or `powershell …`
+> command from this file** — re-scoped in the same pattern as
+> `docs/OPENFOAM.md` (commit `7a96cf54`), which carries the fuller version of
+> the same facts.
+>
+> **Verified on this box, 2026-08-23:**
+>
+> - **Host:** native Linux — Ubuntu 24.04.4 LTS, kernel `7.0.0-1010-aws`, one
+>   AWS instance. `wsl` is not on `PATH`, there is no `/mnt/c`, and no
+>   PowerShell (`pwsh`/`powershell.exe` absent).
+> - **OpenFOAM:** v2606, dpkg-installed at `/usr/lib/openfoam/openfoam2606`
+>   (`dpkg -S …/etc/bashrc` → `openfoam2606-common`); launcher
+>   `/usr/bin/openfoam2606`. The Bash tool runs **non-login** shells, so the
+>   binaries are not on `PATH` — source
+>   `/usr/lib/openfoam/openfoam2606/etc/bashrc` **in the same shell invocation
+>   as the launch**, or use `openfoam2606 -c '<cmds>'`.
+> - **VSPAERO:** native at `/usr/local/bin/vspaero`, banner
+>   `VSPAERO v.7.2.2` (read 2026-08-23); OpenVSP under `/opt/OpenVSP`. **No
+>   launcher prefix is needed here** — `OPENVSP_RUN_PREFIX` is left unset, and
+>   `ops/aws/provision.sh` (Phase 7) sets only
+>   `OPENFOAM_RUN_PREFIX="openfoam2606"`, commenting "native Linux: no WSL
+>   prefixes needed". `scripts/demo_servers.sh:36` already defaults the same way.
+>
+> **What is historical below, marked in place rather than deleted** (line
+> numbers are as they stood before this note was inserted):
+>
+> 1. **:24** — "START DETACHED (powershell Start-Process)" is the Windows
+>    server pattern. The native launcher on this box is
+>    `scripts/demo_servers.sh`.
+> 2. **:58–61** — VSPAERO behind `OPENVSP_RUN_PREFIX="wsl -d Ubuntu --"`.
+>    Historical; VSPAERO is native here (above).
+> 3. **:97** — the `Run:` line, annotated in place below.
+> 4. **:208–224** — the whole "Machine / environment" section, annotated at its
+>    heading below.
+> 5. **:392–399** — the OpenVSP `BLOCKED` entry's unblock path ("install Python
+>    3.11 or 3.12 in WSL") is WSL-specific and inapplicable. On this box the
+>    system interpreter is already Python 3.12.3 and the `vspaero` binary
+>    exists natively; `import openvsp` still fails in that interpreter
+>    (checked 2026-08-23), so the *module* half of that entry is untested here,
+>    not resolved.
+> 6. **:450** — the memory note name `openfoam-wsl-environment` records the
+>    WSL-phase environment.
+>
+> Nothing here asserts a capability that was not checked on disk on the date
+> given. Nothing is deleted, so the Windows-phase record survives intact.
+
 ## ROUND 2 + UQ PROGRAM EXECUTED (2026-07-23 afternoon) — all merged, 206 green
 
 - Round-2 feedback: geometry fills the stage; plots legible (scrolling column);
@@ -94,7 +145,12 @@ Sanaa's numbered GUI feedback, implemented and screenshot-verified:
   `sanaamouzahir/Jango-AGI` is being deleted by Sanaa (leave-fork-network → delete).
 - **Push is gated in this environment** — commit locally in small labeled
   increments; Sanaa pushes (`git push origin main`).
-- **Run:** `cd sdk && CHIEF_ADAPTER=openfoam OPENFOAM_RUN_PREFIX="wsl -d Ubuntu -- openfoam2606" python -m chief_engineer.server`, port 8765. GUI at `/`. Screenshot with headless Chrome; `?forcelaunch=1` previews launched layout, `?present=1` presentation, `?view=ask|credentials`, `?mission=<id>` replays.
+- **Run:** *(2026-08-23: HISTORICAL — the `wsl -d Ubuntu --` prefix is a
+  Windows-host instruction and does not apply on this native-Linux box; see the
+  re-scope note at the top. The native form drops the prefix to bare
+  `OPENFOAM_RUN_PREFIX="openfoam2606"`, as `scripts/demo_servers.sh:36` and
+  `ops/aws/provision.sh` Phase 7 already do. Retained verbatim as the
+  Windows-phase record.)* `cd sdk && CHIEF_ADAPTER=openfoam OPENFOAM_RUN_PREFIX="wsl -d Ubuntu -- openfoam2606" python -m chief_engineer.server`, port 8765. GUI at `/`. Screenshot with headless Chrome; `?forcelaunch=1` previews launched layout, `?present=1` presentation, `?view=ask|credentials`, `?mission=<id>` replays.
 - **Discipline (non-negotiable):** real solves only (script the PATH never the
   RESULTS); human language on camera (display titles, no file paths / dotted event
   names / tool-vendor names — method language); honesty caps sacred (TREND ONLY
@@ -205,7 +261,19 @@ toward a YC demo video.
 - No code-facing language on screen: no file paths, no lesson IDs, no "L-001".
   Citations render as human display titles (`chief_engineer/citations.py`).
 
-## Machine / environment (also in memory: openfoam-wsl-environment)
+## Machine / environment (also in memory: openfoam-wsl-environment) — HISTORICAL, NOT THIS BOX (2026-08-23)
+
+> **This whole section describes the Windows + WSL2 machine and does not apply
+> here.** This box is native Linux (Ubuntu 24.04.4, kernel `7.0.0-1010-aws`);
+> `wsl` is not on `PATH`, there is no `/mnt/c`, no Windows Python and no
+> Chrome under `C:/Program Files`. The **v2606 version claim still holds** —
+> the same v2606 is dpkg-installed at `/usr/lib/openfoam/openfoam2606` — only
+> the *WSL invocation* and the *`foam` user* convention are historical; runs
+> here are launched by sourcing that install's `etc/bashrc` in the same shell
+> invocation (see the re-scope note at the top of this file, and
+> `docs/OPENFOAM.md`). The "WSL gotchas" below are real lessons about the
+> `wsl.exe` argument layer and cannot be reproduced or re-hit on this box.
+> Retained verbatim as the Windows-phase record.
 
 - OpenFOAM v2606 in WSL2 Ubuntu. Invoke: `wsl -d Ubuntu -u foam -- openfoam2606 <tool>`.
   Run cases as user **foam**, never root (dynamicCode refuses root).

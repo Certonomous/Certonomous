@@ -4,7 +4,38 @@ Every number, envelope, and field on screen comes from a real evaluation on this
 machine. The PATH is scripted (pinned geometries, cached meshes); the RESULTS are
 never. Human/method language on camera — no file paths, no tool or vendor names.
 
-**Start the lab** (one terminal, left running the whole demo):
+> ## RE-SCOPE NOTE — 2026-08-23 (zero compute)
+>
+> **This runbook was written for the demo-day machine: a Windows host driving
+> OpenFOAM and VSPAERO through WSL2. This box is not that machine.** The act
+> structure, discipline and expectations below are unchanged and still stand;
+> the *commands* are the stale part. Verified on this box 2026-08-23: native
+> Linux (Ubuntu 24.04.4, kernel `7.0.0-1010-aws`); no PowerShell
+> (`pwsh`/`powershell.exe` absent), so the `$env:` assignments below **cannot
+> execute here**, and `wsl` is not on `PATH`, so every `wsl -d Ubuntu …`
+> preflight row is unrunnable as written. OpenFOAM v2606 is dpkg-installed at
+> `/usr/lib/openfoam/openfoam2606` and VSPAERO is native at
+> `/usr/local/bin/vspaero` (`VSPAERO v.7.2.2`), so both tools are present —
+> only the *invocation* changes. Native equivalents:
+>
+> ```bash
+> cd sdk
+> CHIEF_ADAPTER=openfoam OPENFOAM_RUN_PREFIX=openfoam2606 \
+>   python -m chief_engineer.server        # OPENVSP_RUN_PREFIX: leave unset
+> ```
+>
+> (`scripts/demo_servers.sh` is the maintained launcher and already defaults
+> `OPENFOAM_RUN_PREFIX` to `openfoam2606` at line 36; `ops/aws/provision.sh`
+> Phase 7 sets the same and comments "native Linux: no WSL prefixes needed".)
+> Preflight equivalents: `openfoam2606 -c 'simpleFoam -help' | head -3`;
+> `vspaero | head -1`; `pgrep -c -f '[c]ertonomous' || echo 0`; and
+> `ss -lnt | grep :8765` in place of the Windows `netstat -ano` row. Same fix
+> class as `docs/OPENFOAM.md` (commit `7a96cf54`). Nothing deleted — the
+> PowerShell/WSL forms are kept verbatim as the demo-day record.
+
+**Start the lab** (one terminal, left running the whole demo)
+— *PowerShell form, HISTORICAL; use the native equivalent in the re-scope note
+above*:
 
 ```
 cd sdk
@@ -24,6 +55,11 @@ capture).
 ---
 
 ## Preflight checklist (T-30)
+
+*(2026-08-23: the `wsl -d Ubuntu …` and `netstat -ano` rows below are the
+Windows-phase forms and do not run on this box; their native equivalents are
+listed in the re-scope note at the top. The **checks themselves** — OpenFOAM
+reachable, VSPAERO reachable, no stray load, ports clear — all still apply.)*
 
 | Check | Command / action | Expect |
 |---|---|---|

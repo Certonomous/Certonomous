@@ -1,5 +1,20 @@
 # HANDOFF — RACE-GUI (feat/race-gui)
 
+> ## RE-SCOPE NOTE — 2026-08-23 (zero compute)
+>
+> **Demo-era handoff from the Windows + WSL2 phase; this box is not that
+> machine.** The GUI/act record below is unchanged and still stands. The only
+> stale part is the "Run / verify" block (line ~95): its
+> `OPENFOAM_RUN_PREFIX="wsl -d Ubuntu -- openfoam2606"` and
+> `OPENVSP_RUN_PREFIX="wsl -d Ubuntu --"` are **Windows-host instructions and
+> are not runnable here** — verified 2026-08-23, this is native Linux (Ubuntu
+> 24.04.4, kernel `7.0.0-1010-aws`), `wsl` is not on `PATH`. Native form:
+> `OPENFOAM_RUN_PREFIX="openfoam2606"` (v2606 is dpkg-installed at
+> `/usr/lib/openfoam/openfoam2606`) and `OPENVSP_RUN_PREFIX` unset (VSPAERO is
+> native at `/usr/local/bin/vspaero`, `VSPAERO v.7.2.2`) — the same defaults
+> `scripts/demo_servers.sh:36` and `ops/aws/provision.sh` Phase 7 already use.
+> Same fix class as `docs/OPENFOAM.md` (commit `7a96cf54`). Nothing deleted.
+
 ## Status: race is a real in-GUI act; capture kit generalized to all five videos
 
 The race is no longer a still-only benchmark — it is a routed mission with a
@@ -88,7 +103,12 @@ run. The fuller 8-sample benchmark (21.5× / 29.8× under load) stays in
   mesh cache first) and `--video airplane` (B-52 cold snapped mesh ≈ 8 min —
   run if the night allows).
 
-## Run / verify
+## Run / verify — HISTORICAL PREFIXES, NOT THIS BOX (2026-08-23)
+
+> The two `wsl -d Ubuntu` prefixes below are Windows-phase instructions; drop
+> both on this box (`OPENFOAM_RUN_PREFIX="openfoam2606"`, `OPENVSP_RUN_PREFIX`
+> unset). Everything else in the block — ports, `RACE_MC_SAMPLES`, the capture
+> and unittest lines — is unaffected. See the re-scope note at the top.
 
 ```
 cd sdk
