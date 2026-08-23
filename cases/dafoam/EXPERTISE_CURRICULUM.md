@@ -1,10 +1,10 @@
 # DAFoam expertise curriculum — advanced optimization cases, tiered
 
-**Status: PROPOSED — awaiting Sanaa's ratification. NOT ADOPTED. NO COMPUTE HAS BEEN
-LAUNCHED, STAGED, QUEUED OR COSTED-AS-SPENT UNDER THIS DOCUMENT.** Every item here that
-is ever run gets its own frozen, prediction-first pre-registration with its own cost
-prediction before any solver starts (`CLAUDE.md` rules 2 and 12); nothing below
-substitutes for that. **Nothing is filed, sent, uploaded or posted anywhere**
+**Status: RATIFIED 2026-08-23 (see §7 — including the sequencing disclosure and the
+conservative reading that binds it). Superseded stamp: PROPOSED (`a721ea6b`).** Every
+item here that is ever run gets its own frozen, prediction-first pre-registration with
+its own cost prediction before any solver starts (`CLAUDE.md` rules 2 and 12); nothing
+below substitutes for that. **Nothing is filed, sent, uploaded or posted anywhere**
 (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10).
 
 **The directive, verbatim (Sanaa, 2026-08-23, relayed by the chief):**
@@ -159,10 +159,51 @@ optimization expertise never detaches from verification discipline.
 - W4 M1+M2 (in flight under `c8254a4a`) is prior work, not a curriculum item; its M3–M8
   successors remain gated exactly as `W4_M1M2_PREREGISTRATION.md` §10 registers them.
 
-## 6. Ratification asks on Sanaa's desk
+## 6. Ratification asks on Sanaa's desk — ANSWERED, see §7
+
+*(Original asks, retained unedited below the ratification that answered them.)*
 
 1. The candidate set D1–D16 and the tier order (or her re-ordering).
 2. Tier 1 as the starting block (three items, ≈ $0.24 total).
 3. The three cheap capability probes (D10, D11, D12 reachability, ≤15 core-min total)
    — probes only, each under its own mini-prereg.
 4. Tier 6: whether any instance/GPU item is opened for costing at all.
+
+---
+
+## 7. RATIFICATION — 2026-08-23, Sanaa, verbatim via the chief's session record
+
+> YOU have my approval also for the heat transfer and dafoam proposals. SO... dafoam
+> team can start working on their dafoam tasks from the dafoam proposal. Per usual,
+> each team must formally update their respective .md files accordingly with the
+> knowledge, the lessons, the processes, the summaries etc, and update the general
+> lab's logic/knowledge and expertise if there is new knowledge that the entire lab
+> must have.
+
+**Sequencing disclosure, recorded before execution and never to be smoothed over:**
+the approval was relayed without confirmation that Sanaa had read the committed text.
+This document was committed PROPOSED at `a721ea6b` shortly *before* the relay arrived,
+and her words name "the dafoam proposal" generically. **The approval is therefore read
+conservatively (`CLAUDE.md` rule 9 — an approval is only as wide as what was
+approved):**
+
+1. It authorizes **starting execution** of this curriculum in the recommended
+   sequence, with every item under its own frozen, costed pre-registration, and only
+   **pre-authorised-class items (<$25) run on it**.
+2. It is **NOT** read as: a per-item cost reading (rule 9 — the blanket is not one);
+   approval of Tier 6 (instances/GPU stay NEEDS COSTING + her explicit per-item
+   approval, GPU outside the 2026-08-21 blanket); the D464 **N=29 gate reading** (the
+   chief's relay states this explicitly — N=29-gated arms stay parked); or approval of
+   anything a future prereg finds unusual — **anything unusual, above pre-authorised
+   cost, or outside these pages goes back to Sanaa costed, not read into the blanket.**
+3. Her standing requirement binds every executed item: **formal .md updates**
+   (knowledge, lessons, processes, summaries — this lab's per-verdict records
+   discipline: `LADDER_A_STATUS`/case records per item, L/N-D/D rows via
+   `append_record.py`), and **lab-wide propagation** of any knowledge the entire lab
+   must have, routed through the chief for `CLAUDE.md`/charter-level changes.
+
+**Execution state ledger (append rows here as items start and close):**
+
+| date | item | state | record |
+|---|---|---|---|
+| 2026-08-23 | **D1** NACA0012 lift-constrained drag min (Tier 1) | prereg dispatched (Lane Y), phase-split — no compute until the supervisor verifies the freeze | this row; prereg path registered in it when committed |
