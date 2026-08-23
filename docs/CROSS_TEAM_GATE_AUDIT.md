@@ -738,3 +738,373 @@ evidence.**
 
 **Cost of this pass:** zero solver core-minutes. Reads, hashes and arithmetic
 only.
+
+---
+
+## Audit pass 6 — 2026-08-23, verification LANE (CANDIDATE, not the supervisor's own read)
+
+**Lines whose number changed above this section: 0.** This section is appended
+at the foot of an append-only file. The base for this edit was taken from
+`git show HEAD:docs/CROSS_TEAM_GATE_AUDIT.md`, never from the worktree (L-253),
+and the two were verified byte-identical (`cmp` rc=0, 740 lines each) before the
+append, so no peer's uncommitted work was overwritten.
+
+**This pass was run by a `lab-lane`, not by the verification supervisor
+personally.** `SUPERVISION_CHARTER.md` §3 is explicit that a relayed check is a
+summary and not a check, so **every finding below is CANDIDATE until the
+verification supervisor re-derives it.** Each finding names the artifact it was
+read from. The lane was **read-only toward closure's territory** throughout:
+nothing under `cases/RANS_LES_closure_models/` or `/home/ubuntu/closure-data/`
+was written, no closure comparator was re-executed, and no case was touched.
+
+**Target:** closure's **FS5/D476 clip repair** — the unclipped `q1_wallRe`
+companion. Pre-registration frozen at `bf4956bc` (2026-08-23T20:40:34Z),
+implemented and graded at `7e973ba8` (21:01:08Z). Reported verdicts **A1 PASS,
+A2 PASS, A4 PASS, A3 GATE FAIL** (referred, not loosened).
+Records: `cases/RANS_LES_closure_models/_common/features/FS5_D476_CLIP_REPAIR_PREREGISTRATION.md`,
+`…/FS5_D476_CLIP_REPAIR_RESULTS.md`, triage `/home/ubuntu/closure-data/D476_A3_triage/`,
+pre-repair state and before-hashes `/home/ubuntu/closure-data/features_backup_pre_D476/`.
+**This audit is the one prereg §7 blocks closure's adoption on.**
+
+### 25. Comparator freeze (§2b, §2d) — RE-DERIVED, AND IT HOLDS
+
+| check | finding |
+|---|---|
+| Prereg committed **alone**, before implementation | **YES.** `bf4956bc`, 2026-08-23T20:40:34Z, **one file, 118 insertions, nothing else in the commit**. |
+| Frozen blob == the blob the record claims | **YES.** `git rev-parse bf4956bc:<prereg>` = **`8fac067cf4a2c19a205df529db6c79bd48e31f3d`**, exactly the value `FS5_D476_CLIP_REPAIR_RESULTS.md:4` claims for it. |
+| Gates/thresholds/caps unmoved since freeze | **YES, by byte comparison, not by trust.** The whole 118-line freeze blob is byte-identical (`cmp` rc=0) to the **first 118 lines** of the 147-line file at HEAD. So §4's four gates, §6's 2–6 core-min estimate and 0.5 core-h cap, and every label are exactly as frozen. |
+| History of the prereg path | **Exactly two commits**: `bf4956bc` (the freeze) and `7e973ba8` (+29 appended lines = Addendum 1). Disk == HEAD == `7e973ba8` blob = `6110dbe01ae089e5d115e5b7d8d971c08cbad3b2`. No third edit anywhere. |
+
+**Freeze-before-evidence, re-derived from filesystem mtimes.** The earliest
+A1–A4 evidence artifact anywhere on disk is
+`features_backup_pre_D476/A2_before.json`, mtime **2026-08-23 20:43:16.227Z** —
+**162 s AFTER** the freeze commit. The whole chain then runs in the registered
+order: `build_features.py` edited **20:45:41.365Z** (145 s *after* the
+before-hashes were taken, which is what makes A2 non-circular); first
+regenerated `.npz` **20:46:56**, last **20:48:03**, `manifest.json`
+**20:48:04.035**; `fs2_audit.py` edited **20:50:15.780**; delivered
+`fs2_audit.json` **20:57:38.307**. Nothing that answers a gate predates the
+freeze.
+
+**One artifact legitimately predates the freeze and is not a violation.** The
+A3 "old" side, `features_backup_pre_D476/fs2_audit.json`, is dated
+**2026-08-21 18:01:25Z**, two days before. It is the pre-repair baseline the
+gate compares *against*, not evidence produced under the pre-registration. Its
+code-fairness is separately established in §27.
+
+### 26. Could each PASS gate have failed — and the tautology hunt
+
+**No tautological gate was found among A1, A2 and A4.** Each is named below with
+the way it could have gone the other way.
+
+**A2 — model-facing identity. PASS, re-derived independently: 40/40, zero
+mismatches.** Registered criterion: for every case, sha256 of the `F` array and
+of the `names` list byte-identical before vs after regeneration; one mismatch →
+GATE FAIL and STOP. This lane wrote its **own** hasher (array content: dtype,
+shape, C-order bytes — not the `.npz` container) and re-derived from the two
+directories on disk:
+
+- **40/40 cases** `F` sha256 identical; **40/40** per-case `names` sha256
+  identical; **0** dtype or shape changes.
+- Manifest `features` name-list sha256
+  **`3a6ea49ad8d20b00090479ab77cc7419189a9a7554009be5a8c340f04e943512`** on
+  **both** sides — the value `FS5_D476_CLIP_REPAIR_RESULTS.md:74` claims.
+- `.npz` keys `['F','names']` → `['D','F','diag_names','names']`, as recorded.
+- Closure's own recorded hashes are re-derivable, not asserted: `A2_before.json`
+  reproduces **40/40** from the backup `.npz`, `A2_after.json` **40/40** from the
+  live `.npz`.
+
+*Could it have failed?* **Yes, three ways.** (i) The gate re-ran the entire
+110-column build from raw OpenFOAM fields for all 40 cases, so nondeterminism
+anywhere in that pipeline would have surfaced. (ii) The graded column was
+genuinely refactored — `build_features.py:134` went from
+`np.minimum(np.sqrt(np.maximum(k, 0)) * dwall / (50.0 * nu), 2.0)` to
+`np.minimum(q1_wallRe_raw, 2.0)` with the subexpression hoisted, and `F` is cast
+float64 → float32 on save. (iii) The before-hashes provably predate the code
+edit by **145 s** (§25), so the comparison is not against something the edit
+produced. Margin: **exact identity — the gate has no band to hide in.**
+
+**A1 — planted control. PASS, and the evidence is a disk artifact, not a
+transcription.** The control is wired *inside* `companion_block()` in
+`fs2_audit.py` and runs before any coverage number is emitted, so its record
+sits in the delivered `fs2_audit.json` under
+`coverage.q1_wallRe_unclipped_companion.planted_control`. Read back by this
+lane:
+
+| field | value |
+|---|---|
+| case / cell | `AR_14_Ret_180`, cell index **31818** |
+| planted value | **83.48553657531738** = 1.5 × training max **55.65702438354492** (this lane's arithmetic reproduces it exactly) |
+| flagged cells | **0 → 1** |
+| max read back | **83.48553466796875** |
+| verdict | **PASS** |
+
+The read-back sits **1.9e-06 absolute / 2.3e-08 relative** below the plant —
+the float32 round trip of the `D` array; the registered acceptance is
+`max_read_back >= plant × (1 − 1e-5)`, i.e. a tolerance **400×** the observed
+slack, stated in code rather than in prose.
+
+**This lane re-derived the plant TARGET independently from the case `.npz`**:
+the smallest finite cell of `AR_14_Ret_180`'s `q1_wallRe_raw` column is index
+**31818**, value **4.181547e-10** — so the code's stated choice ("plant into the
+smallest finite cell, which is certainly not already flagged") is the cell
+actually used, and `flagged_before` = 0 is a measured baseline, not an
+assumption. Case cells **31819**, case max **3.60705**, both matching §7's
+table.
+
+*Could it have failed?* **Yes, and the failure path was exercised** — see §28.
+
+**A4 — frozen-file form. PASS, verified by byte comparison.** Pre-amendment
+blob `62733e3bc5eb8105d9678c5cc868422fd7b3faf7`, **205 lines / 16,477 B**;
+post blob `f05124c9e5923a195cf30f9ed0b71bb0e87ebcb4`, **259 lines / 19,598 B**,
+equal to the on-disk hash. `cmp` of the pre-blob against the **first 16,477
+bytes** of the post-blob: **rc=0, strict byte prefix**. `**Document version
+1.1**` at line 210; `lines whose number changed above this section: 0` at line
+211. 54 lines added — the 54 the record claims are carried.
+
+*Could it have failed?* **Yes, and by the exact mechanism §6 of the results
+discloses**: `FEATURE_LIBRARY.md` is generated by a writer that opens it `"w"`,
+so an amendment appended before the generator was fixed would have been silently
+deleted by the next run of the reproduce block printed inside the file itself.
+
+### 27. A3 GATE FAIL — the frozen comparator's own output, not loosened, and the diagnosis is artifact-backed on its load-bearing limb
+
+**The failure is re-derived here with the verification team's OWN comparator.**
+This lane wrote an independent stripper/differ (same registered semantics —
+strip `frac_at_min`, `frac_at_max`, `q1_wallRe_unclipped_companion`; different
+code from closure's `a3_audit_identity.py`) and ran it over the JSONs on disk:
+
+| comparison | canonical-text identity of the stripped objects | leaf differences |
+|---|---|---|
+| OLD vs **delivered** `features/fs2_audit.json` | **False** | **6** |
+| OLD vs `D476_A3_triage/fs2_audit_rep2.json` (repeat, unpinned) | **False** | **6**, same values |
+| OLD vs `D476_A3_triage/fs2_audit_pinned4.json` (`OPENBLAS_NUM_THREADS=4`) | **True** | **0** |
+
+All six differing leaves are `per_family.<family>.singular_value_ratio_first_to_last`
+— **the distinct differing leaf-name set has exactly one member** — and every
+value reproduces `FS5_D476_CLIP_REPAIR_RESULTS.md` §4's table to every printed
+digit (POOLED `3.283683756107853e+17`→`2.3283210207745232e+17`; cbfs
+`1.9974553177957281e+18`→`2.460895918948894e+17`; duct
+`1.1668277550363688e+33`→`2.1724294644486465e+33`; hill
+`2.181588325970533e+17`→`6.432994908028177e+17`; hill_breuer
+`2.2260848443269914e+17`→`9.627266059057542e+17`; hump
+`2.849150482633467e+18`→`2.0245029833104083e+17`).
+
+**The gate does not pass vacuously.** In all three files the additions the gate
+strips are genuinely present: saturation statistics on **110/110** features and
+the companion block present. A stripped comparison that stripped everything
+would be a tautology; this one is not.
+
+**NOT LOOSENED — verified, not accepted.** §4's A3 text at HEAD is inside the
+118-line byte-identical prefix (§25), so the criterion still reads *"exactly
+identical. Mismatch → GATE FAIL and STOP; a nondeterminism finding is reported,
+not absorbed."* **No threshold moved after first compute.** The delivered
+`fs2_audit.json` is the **unpinned** run; the pinned run is retained as labelled
+diagnostic evidence only.
+
+**The strongest single fact in this chain, and it predates the number.** The
+frozen §8, committed 20 minutes before any code was touched, pre-committed the
+handling: *"if it fails, that is a finding under A3, not a reason to weaken
+A3."* The failure mode was named and its treatment fixed **before the answer
+existed** — which is the entire evidentiary content of a freeze.
+
+**Is the BLAS-thread diagnosis artifact-backed or asserted?** Split verdict —
+**the load-bearing limb is artifact-backed; three prose rows are not.**
+
+*Artifact-backed, re-derived here:*
+
+1. **The controlled pinned-vs-unpinned pair.** `pinned4` and the delivered run
+   are the same amended code on the same regenerated inputs, differing only in
+   the pinning, and they move **exactly those six values and nothing else**
+   (0 differences vs 6). That is a controlled demonstration on disk.
+2. **Determinism per environment.** `rep2` reproduces the delivered six values
+   exactly — the figure is not stochastic.
+3. **Baseline code-fairness, read as a diff by this lane.** The only commit
+   touching `fs2_audit.py` between the baseline write (2026-08-21 18:01:25Z) and
+   the repair is `fd3aa735`: **4 insertions, 0 deletions, all four inside a `#`
+   comment block.** No computation changed.
+4. **The rank deficiency that makes `s[-1]` analytically zero**, from the
+   delivered JSON: POOLED **100/110**, cbfs 100/110, hill 100/110, hill_breuer
+   100/110, hump 100/110, **duct 96/110**. Every family is rank-deficient.
+
+*Not artifact-backed, named plainly:*
+
+5. **Three of the five thread-sweep rows rest on prose only.** `a3_diagnose.py`
+   prints to stdout and **no stdout was preserved** — the triage directory holds
+   the script but no log. Two rows *are* independently corroborated by preserved
+   JSON: **threads=4 → `2.849150482633467e+18`, exactly the pre-D476 baseline
+   hump value**, and **threads=16 → `2.0245029833104083e+17`, exactly the
+   delivered value.** The **threads = 1, 2 and 8** rows are transcribed figures
+   with no surviving artifact.
+6. **`fs2_audit.json` records no BLAS implementation, thread count or numpy
+   version.** Its top-level keys are exactly `coverage, families, n_features,
+   per_family, per_feature, rank_rcond, tensor_basis_rank, zero_abs, zero_test`.
+   So the label "the delivered run was 16 threads" is an **inference** from the
+   sweep, not a recorded fact. The controlled pair in item 1 does not depend on
+   that inference; only the specific number does.
+
+**Corroboration this lane adds, unprompted.** `duct`'s ratio is
+**2.1724e+33** against `s[0]` ≈ 7.5e+02, implying `s[-1]/s[0]` ≈ **3.5e-31** —
+roughly **eighteen orders of magnitude below double-precision epsilon**. A
+denominator that small is not a small singular value; it is a cancellation
+artifact of the SVD. Independent arithmetic support for recommendation (a) in
+§30.
+
+### 28. Controls — each one claimed, checked for execution with a measured value
+
+| control | executed? | measured value, and where it lives |
+|---|---|---|
+| **Rule-3 planted control on the companion reader** | **YES, on disk** | The full record in §26 (cell 31818, 83.48553657531738, flagged 0→1, max read back 83.48553466796875). It is not an add-on script: `companion_block()` calls `planted_control()` **before it emits any coverage number** and `sys.exit(2)` on failure, so no coverage figure can be published by a reader that has not just been shown able to see a plant. |
+| **Absent-companion refusal** | **wired, did not fire** | `companion_block()` exits 2 if the companion is missing from **any** case `.npz`, rather than degrading to silence — the failure mode being repaired. Verified as a `sys.exit(2)` in the code; a refusal that does not fire leaves no positive artifact, and this lane did not provoke it. |
+| **A1 refusal-path mutation proof** (control rc 0, `clipped_reader` rc 2, `ignores_disk` rc 2) | **run, but its output was not captured** | `a1_refusal_proof.py` is preserved and was read by this lane. The mutations are genuine — `clipped_reader` re-applies `np.minimum(…, 2.0)`, i.e. **the D476 defect itself**; `ignores_disk` caches by basename so the re-read never happens — subprocesses are used so the exit status is the real one, and `__pycache__` is cleared before every mutant (the stale-bytecode inversion trap). **But no stdout was saved to any file**, so §2's rc table is transcribed prose. This lane did **not** re-run it: read-only toward closure. |
+| **A2 before-hashes** | **YES, on disk** | `features_backup_pre_D476/A2_before.json` (12,461 B, 20:43:16.227Z) and `D476_A3_triage/A2_after.json` (13,541 B); both re-derived **40/40** by this lane from the `.npz` themselves. |
+
+### 29. Verdict vocabulary, and the legality of the one amendment
+
+- **Vocabulary is CLEAN.** Verdict cells across the pre-registration, the
+  results, Addendum 1 and `FEATURE_LIBRARY.md` Amendment 1 are `PASS` ×3
+  (A1/A2/A4) and `GATE FAIL` ×1 (A3); the planted-control record's own
+  `verdict` field carries `PASS`. **No bare `FAIL` cell, no synonym, no hedged
+  label.** The tokens "GATE FAIL and STOP" in §4 are criterion prose, not cells.
+- **Exactly one amendment: Addendum 1**, appended at `7e973ba8`, i.e. **after**
+  first compute. §2d permits this only as a dated addendum that alters no gate,
+  threshold, cap or label, with originals struck rather than rewritten.
+  **Verified by byte comparison rather than by its own assertion**: the 118-line
+  freeze blob is byte-identical to the first 118 lines at HEAD, so nothing above
+  the addendum moved. Its self-assertion `lines whose number changed above this
+  section: 0` is therefore **VERIFIED, not accepted**. **LEGAL under §2d.**
+- **The scope addition is a disclosed deviation, correctly handled.** The frozen
+  §3 lists four files; a fifth, `make_feature_library.py`, was changed. It is
+  disclosed in Addendum 1 item 1 and results §6 with the reason — a *generated*
+  file whose `"w"` generator would erase a rule-6 amendment — and proven by a
+  byte-identical round trip. It adds no gate and grades nothing.
+
+### 30. The verification supervisor's two standards rulings, recorded verbatim
+
+These are the supervisor's own words on the two questions closure referred, and
+are recorded here as **recommendations**. Binding adoption of either is Sanaa's.
+
+> (a) `s[0]/s[-1]` of an analytically singular matrix is not a publishable
+> number — it measures BLAS rounding, not the matrix; publish rank + smallest
+> singular value against the registered rtol, print the ratio only when `s[-1]`
+> clears that tolerance, else label it "unbounded (analytically singular)".
+
+> (b) Any gate whose pass criterion is exact identity of RECOMPUTED
+> floating-point quantities must pin threads (`OMP_NUM_THREADS=1` or recorded
+> fixed N) and record the BLAS implementation; the stronger rule is to gate on
+> STORED primary bytes (sha256 of saved matrices), which needs no pinning.
+
+This lane's measurements bear on both and are offered as supporting evidence,
+not as a ruling: `duct`'s `s[-1]/s[0]` ≈ 3.5e-31 (§27) for (a); the absence of
+any BLAS, thread-count or numpy field in `fs2_audit.json` (§27 item 6) for (b).
+Note also that **gate A2 is already the (b)-preferred form** — it hashes stored
+primary bytes and needed no pinning, and it is the gate that came out clean.
+
+### 31. Residual hazards — candidate items, none of which moves a verdict
+
+1. **The grading record does not cite the triage directory.** §2's rc table and
+   §4.1's thread sweep are read from artifacts under
+   `/home/ubuntu/closure-data/D476_A3_triage/`, and that string appears **nowhere**
+   in `FS5_D476_CLIP_REPAIR_RESULTS.md` or the pre-registration. It *is* cited in
+   `docs/LAB_STATE.md:817`, `docs/NUMERICS_KNOWLEDGE.md:3548` and
+   `docs/DOCKET.md:849`. **A reader holding only the grading record cannot find
+   the evidence it grades from.** Cheapest repair: one dated line in the results.
+2. **The triage directory carries a copy signature and its mtimes date
+   nothing.** All eight files have mtime == ctime inside
+   `21:01:32.859738`–`21:01:32.865102` — an ~5.4 ms batch write, **24 s AFTER
+   the commit at 21:01:08Z that reports their contents**. They are a `cp`
+   (no `-p`) of the working set, correctly rescued out of a scratch location that
+   L-186 says gets wiped — but **no timestamp inside that directory dates any
+   run.** All the timing evidence in §25 rests on `features/` and
+   `features_backup_pre_D476/`, which do carry live mtimes.
+3. **`make_feature_library.py`'s carry-forward is guarded only when the marker
+   is already present.** It asserts on both sides of the write, but under
+   `if AMEND_MARK in prev:` — so a future hand-written amendment placed
+   **without** the marker is silently dropped, which is the exact failure mode §6
+   repairs. Amendment 1 does sit below the marker (line 206 of 259), so nothing
+   is at risk today. A one-line strengthening (assert the marker is present
+   whenever the destination is longer than the generated text) closes it.
+   Candidate repair, not a defect in this grade.
+4. **A presentation nit in results §8.** The sentence says "Three features have
+   `frac_at_max` above 0.1 %" above a **four-row** table; the fourth,
+   `q4_pgradAlongStreamline` at `frac_at_max` = **0.0006** (0.06 %), is below the
+   stated threshold and is not marked as such. Re-read from the delivered JSON by
+   this lane; the "three above 0.1 %" count is itself correct.
+5. **No environment provenance in `fs2_audit.json`** — §27 item 6.
+
+### 32. Cost calibration (rule 12) — present and complete on the auditee's side
+
+`FS5_D476_CLIP_REPAIR_RESULTS.md` §9 states predicted **against** actual:
+registered **2–6 core-min**, cap **0.5 core-h = 30 core-min**; measured
+registered scope **~3.0 core-min** (73.44 s build wall + 105.81 measured audit
+CPU-s); total gross **~10–12 core-min**; **no overrun**. `cost_basis` correctly
+declares that the CPU-uncaptured runs are **estimated** from the one measured
+~3× CPU-to-wall ratio and that dollar figures would be reported-by-owner. A
+ledger row exists: **`docs/COST_CALIBRATION.md` row C-6** — ratio **0.75×**
+cleaned/predicted against the 4 core-min midpoint, gross/predicted **2.5–3×**,
+attribution *"misprediction of scope"*, zero waste, zero contention.
+**Present and sufficient; nothing is owed on this question.**
+
+### 33. Verdict, and what closure's adoption may rest on
+
+**AUDIT: SOUND WITH DISCLOSED DEVIATIONS** (CANDIDATE — the verification
+supervisor's own read governs).
+
+| target | verdict as reported | AUDIT (CANDIDATE) |
+|---|---|---|
+| **A1** planted control | PASS | **SOUND** — record on disk in the delivered audit JSON; the plant target (cell 31818) independently re-derived; the control gates the emission of every coverage number |
+| **A2** model-facing identity | PASS | **SOUND** — 40/40 `F` and 40/40 `names` re-derived by this lane's own hasher, 0 mismatches; before-hashes provably predate the code edit by 145 s; non-tautological three ways |
+| **A4** frozen-file form | PASS | **SOUND** — strict byte prefix proven by `cmp` (rc=0, 16,477 B), version 1.1, renumbering assertion verified |
+| **A3** audit identity up to addition | GATE FAIL | **SOUND, and correctly handled** — re-derived with this team's own comparator (6 leaves, one leaf-name); not vacuous (110/110 additions present); **not loosened** (criterion byte-identical to the freeze); referral recorded; the frozen §8 pre-committed the handling before the number existed |
+| the BLAS-thread diagnosis | asserted as cause | **SOUND on the controlled limb** (pinned vs unpinned: 0 vs 6 differences, code-fair baseline read as a diff) — **three of five sweep rows are prose without an artifact**, and no environment provenance is recorded (§27, §31) |
+| the scope addition (`make_feature_library.py`) | disclosed in Addendum 1 | **DISCLOSED DEVIATION, legal** under §2d — gate-neutral, reason given, proven by round trip |
+
+**On closure's adoption block (prereg §7): on this lane's evidence the block
+CAN be lifted, subject to the supervisor's own read.** §7 blocks adoption on
+this team's audit of the diff as a cross-team gate-instrument change. The
+instrument's model-facing surface is proven untouched (A2, re-derived 40/40
+here); its new reader is under a live planted control that refuses rather than
+degrades (measured, on disk); and the one failed gate is failed on a statistic
+that (i) the amendment did not introduce, (ii) the amendment provably did not
+move — the pinned comparison returns **0** differences — and (iii) reports BLAS
+rounding rather than any property of the feature library. **Adoption of the
+companion diagnostic is therefore not gated by A3.**
+
+**What must NOT ride on that lift, stated so it cannot be read wider than it
+is:** `singular_value_ratio_first_to_last` itself, whose publication is the open
+standards question in §30(a); and **A3's status, which stays GATE FAIL** until a
+registered decision changes the instrument or the statistic. Lifting the
+adoption block is not a re-grade of A3, and no standing verdict moves — the
+chief's no-retroactive-regrade clause quoted in the frozen §5 stands.
+
+### 34. What this lane could NOT establish, named plainly
+
+- **The supervisor's §3 check-1 personal diff read of the six changed files.**
+  `docs/DOCKET.md:849` attests it in detail (all six read as diffs, the frozen
+  text re-diffed by hand, the A3 mismatch scope confirmed by the supervisor's
+  own stripped comparison). A personal read leaves no artifact by construction;
+  **taken as attested, not verified.**
+- **The threads = 1, 2 and 8 rows of the §4.1 sweep** — no surviving stdout
+  (§27 item 5). The claim they support is separately established by the pinned
+  pair, so nothing load-bearing rests on them, but they are not evidence.
+- **That the delivered run ran at 16 threads specifically** — inferred from the
+  sweep, not recorded anywhere in the artifact (§27 item 6).
+- **The `_b`-form crowding pattern** the results §8 leaves open (frac_at_max = 0
+  with p99 near the bound). This lane read the saturation columns and confirms
+  they do not resolve it; resolving it is a new measurement, not an audit act,
+  and none was taken.
+- **No closure comparator was re-executed.** Every gate above was re-derived by
+  **independent code over the values the instruments wrote to disk**, plus one
+  independent re-read of the raw `.npz`. That tests the grading arithmetic, the
+  thresholds and — via the `.npz` re-read — the A2 hashes and the A1 plant
+  target. It does **not** test the field-reading front of `build_features.py`;
+  that is covered instead by A2's own bit-identity across a full regeneration.
+
+**Cost of this pass:** zero solver core-minutes. One compute step — the A2
+re-derivation over 80 `.npz` arrays — measured by `/usr/bin/time` at **7.12 s
+wall / 7.68 CPU-s single core = 0.128 core-minutes**, against this lane's own
+pre-stated prediction of **3–6 core-minutes**: **ratio ≈ 0.032× of the low
+end**, i.e. this lane **over-predicted by roughly 30×**; attribution:
+mispricing compressed `.npz` reads at their full uncompressed size. Everything
+else was reads, `git` hashes and JSON arithmetic. Nothing under
+`cases/RANS_LES_closure_models/` or `/home/ubuntu/closure-data/` was written.
