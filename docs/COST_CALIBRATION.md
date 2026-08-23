@@ -37,6 +37,20 @@ the 2026-08-23 amendment at the foot of
    verify). Peers commit constantly; a row built against a stale read of this
    file is re-derived, not forced.
 
+**Divergence-by-design — the docket precedent (`CLAUDE.md` rule 11).** The
+worktree copy of this file routinely diverges from HEAD and is never "fixed",
+synced, or used as a base: private-index commits land rows at HEAD without
+writing the worktree, and the worktree may carry a peer's unlanded tail rows,
+which `scripts/append_record.py` preserves by design. `git status` and
+`git diff HEAD` read this file against the stale shared index and report
+phantom whole-file deletions — that output is not evidence about content
+(measured 2026-08-23: a staged-deletion reading of every line while all rows
+stood intact at HEAD). Rows are built FROM
+`git show HEAD:docs/COST_CALIBRATION.md`, re-derived at commit time in the
+commit's own shell invocation, landed under rule 10's private-index protocol,
+and every landing is asserted insertions-only post-commit with each existing
+row byte-identical.
+
 **Format amendment — 2026-08-23: row ids.** Ruled by the chief on
 2026-08-23, riding the `9a17109f` close-out of `scripts/append_record.py`.
 **Exactly one change:** a leading `id` column was added to the table header
