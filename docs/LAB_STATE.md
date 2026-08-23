@@ -96,7 +96,11 @@ rung may take it).
 **Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched
 ## closure
 
-**Section last written:** 2026-08-23T20:45Z by closure-supervisor.
+**Section last written:** 2026-08-23T20:35Z by closure-supervisor. (Clock note:
+the previous stamp here read 20:45Z, yet `date -u` at this writing reads
+20:33Z — the prior stamp was ahead of the wall clock and is a mis-stamp, not
+evidence of a later session. Stamps in this section are taken from `date -u`
+at drafting.)
 
 **R5C (option C, omega-source repair) — CLOSED, VERDICT: GATE FAIL. D465, L-243,
 N-B35–N-B37, commit `0ac76ec2`.** Graded against the frozen pre-registration
@@ -145,92 +149,100 @@ AWS call was made; every dollar figure is agent recall marked "estimate — need
 console confirmation"; GPU spend is outside the CPU blanket (rule 12): per-item
 sign-off by Sanaa with a console-read `cost_basis`.**
 
-**Live jobs: one solver + three lanes (at cap).** Kaandorp a-posteriori driver
-pid `1111229`, detached (`setsid`), cwd builds under
-`/home/ubuntu/closure-data/aposteriori/kaandorp/` (NOTE: driver logs and
-`results.json` live THERE, not in `kaandorp_tbrf/`, which holds
-features/checkpoints), log `lane5.log`, one serial core, hard-bounded 3600 s per
-solve. Launched 19:37:37Z after the lane re-hashed `PREREGISTRATION.md` and the
-repaired `run_lane.py` against HEAD blobs — completing the six `CBFS13700`
-PENDING rows of the registered table (~3.3 core-h ≈ $0.17 planning, ≤$0.31
-bound). Landed so far: `CBFS13700__NULL` rc=0 at 884 it / 69.3 s (`U_rms`
-0.05155 vs registered SST gate 0.0516); the three `AR_3_Ret_360__ML*` rows
-recorded **BLOCKED** with reason+traceback and NO metrics — the `074f60da`
-repair worked live (diff read by the supervisor before launch). Grading lane
-re-armed with a durable background monitor (its first watcher died with its
-turn — the L-186-adjacent dead-watcher tell). The `AR_10_Ret_180` diagnostic
-stays REPORTED-NOT-GRADED as the closed R4 ladder ruled.
+**D-14 thread CLOSED — the dead lanes landed everything before the session
+limit killed them, and the supervisor verified before believing (2026-08-23,
+this session).** Five lane commits: `918e8fe7` (R4 RESULTS.md D-14 dated
+addendum, v1.0→1.1, + the 0.09–0.61 % duct-vortex correction of record + late
+`COVERAGE.md` + `make_coverage.py` + `artefacts/coverage.json`); `9f0210dd`
+(R5 record + COVERAGE.md dated amendments for the FEATURE_LIBRARY `:174`→`:178`
+cite drift — with the lane's own correction that the row is NOT byte-identical
+across the move: `01430485` also changed its Wu cite p. 9→p. 10, which neither
+record relies on; the old `:301` stale-cite item is RESOLVED, the citing line
+now `:315`); `52e5de39` (L-248 close-out-grep lesson, N-B38
+clip-blinds-coverage); `1632af6a` (docket rows D475/D476 land after a peer's
+renumber cleared both blockers); `52373459` (draft headings to past tense).
+Supervisor's personal checks, done not relayed: **`make_coverage.py` read in
+full — PASS** (fit mask reproduces `fs3_select.py:89-90`; zero-shot guard
+planted via `guard_is_armed()` with a known TEST case, list-typed call sites so
+the string-iterable trap cannot pass silently; rank by SVD at the registered
+rtol; LOFO on the fit's own folds; no test case opened, no test number
+computed); **RESULTS.md frozen body independently diffed** — lines 1–1313 at
+HEAD byte-identical to v1.0 at `918e8fe7^`; **coverage numbers re-read from
+`coverage.json`, not the commit message** — 172,106 fitted / 65 dropped, rank
+hist [0,0,0,172106], cond p50/p99/max 20.81 / 1.634e4 / 4.430e7, ducts p99
+5.113e4, LOFO 0.0011 / 0.0905 / 0.0000 / 0.2238 % — all match COVERAGE.md and
+D475. Standing ruling restated: FS5's per-build discharge for R4 WAS NOT MET
+(D475); the late delivery discharges the deliverable, not the disclosure duty;
+FS5 stays armed. **Open decision, D476:** the q1_wallRe clip repair (unclipped
+companion column vs declared exemption) is owed before the next build and is
+NOT taken here — it changes a standing-gate instrument, so it routes through
+the chief, not a lane.
 
-**Rungs, updated this session:** **FS6 DONE** — commit `9fb0891f`,
-`docs/closure/FS6_COMPARATIVE_FEATURE_DOCUMENT.md`, 34 of 35 corpus papers
-mined (Gatski 1996 excluded: scanned, no text layer), every title page
-re-verified (rule 15). **R5 discharged as a record** — commit `3a4f4bbb`,
-`docs/closure/R5_CONSTRAINTS_DISCHARGE_RECORD.md`: no verdict issued (R5 had no
-pre-registered gate); constraint 1 partly discharged, 2 partly discharged (FS5
-stays armed), 3 discharged-as-measurement. **R6** NOT DONE, BLOCKED on Sanaa's
-phrasing. R4 CLOSED GATE FAIL (D461); R5C CLOSED GATE FAIL (above). FS2/FS5
-standing gates. Case verdicts on record unchanged.
+**Live jobs: the Kaandorp driver only; no lanes live** (the previous three died
+at the session limit with their work landed — verified above). Driver pid
+`1111229`, detached (`setsid`), cwd builds under
+`/home/ubuntu/closure-data/aposteriori/kaandorp/` (driver log `lane5.log` and
+`results.json` live THERE, not in `kaandorp_tbrf/`). Rows landed this pass:
+`CBFS13700__NULL` rc=0, 884 it / 69.3 s, U_rms 0.05155 (registered SST gate
+0.0516); `CBFS13700__TRUTH` rc=0, 30000 it / 1701.6 s, U_rms 0.08413,
+conv=None — no verdict read from it here, grading belongs to the addendum lane
+against the frozen table; `AR_3_Ret_360__ML0/1/2` recorded BLOCKED with
+tracebacks and NO metrics (the `074f60da` repair working live).
+`CBFS13700__MEANB` running since 20:07Z (solver pid 1161379 under the 3600 s
+timeout). **Supervisor's own background monitor armed 20:33Z this session**
+(notifies on driver exit; the prior lane's watcher died with its lane —
+L-186-adjacent dead-watcher tell). NEXT ACTION on exit: one lab-lane grades the
+completed six-row table against the frozen pre-registration and writes the
+Kaandorp addendum with the measured cost. The `AR_10_Ret_180` diagnostic stays
+REPORTED-NOT-GRADED as the closed R4 ladder ruled.
 
-**Supervisor-verified findings from the two documents (both verified by my own
-reads/arithmetic before belief):** (1) **R4's §7 registered deliverable
-`COVERAGE.md` was never delivered and the non-delivery never disclosed** among
-D-1..D-13 — registered at `R4_sparta_build/PREREGISTRATION.md:199-201` with the
-`:252/:261` amendment, zero hits on disk/HEAD/RESULTS.md. My ruling: FS5's
-per-build discharge for R4 WAS NOT MET; late delivery + departure D-14 addendum
-dispatched to the incumbent lane (in progress). (2) **R4 RESULTS.md:679/:1128
-"0.4–0.6 % of DNS" is wrong for three of four duct rows** — recomputed from the
-record's own table: 0.6126/0.3878/0.3283/0.0899 %, error in the ceiling's
-favour, no verdict moves (G5 has no registered bar); correction rides the same
-addendum. (3) **`FEATURE_LIBRARY.md` source-column defects** —
-`q7_viscRatio`/`q11_turbReynolds` cited to Kaandorp Table 1 p. 25, which I read:
-nine features, neither present; only printed source is Ling & Templeton 2015,
-**PENDING-MIT, not on disk** — two of 110 features have no on-disk printed
-source; `q10` mis-attributed — its origin is Wang 2017 Table 1 and Kaandorp
-does NOT reprint it (the lane corrected the supervisor's brief on this point and
-was right: Kaandorp's nine scalars are Wang's ten minus curvature — verified by
-the supervisor against both sidecars); Wu 2018 cites one page early. Generator
-repair LANDED at `01430485` and **PASSED the supervisor's diff read**: every
-hunk touches only source strings/prose, and an independent strip-the-source-
-column diff of the 110-row table old-vs-new is IDENTICAL. Records at `e1f346ee`
-(**D467**, **L-246**, FS6 Addendum 1). (4) `q1_wallRe` is clipped at 2
-(`FEATURE_LIBRARY.md:178` after the +4-line shift at `01430485`;
-`fs2_audit.json` max=p99=p50=2.0), so the FS5 coverage instrument is blind to
-excursions on that column — R4 unaffected (does not use it); docket row filed
-under D467's umbrella. Known stale cite remaining:
-`R5_CONSTRAINTS_DISCHARGE_RECORD.md:301` still says `:174` — dated amendment
-queued to the incumbent R5 lane (named in D467).
+**Rungs:** FS6 DONE (`9fb0891f`, + Addendum 1 at `e1f346ee`); R5 discharged as
+a record (`3a4f4bbb`, amended `9f0210dd`); R6 NOT DONE, BLOCKED on Sanaa's
+phrasing; R4 CLOSED GATE FAIL (D461; RESULTS.md now v1.1 with D-14); R5C CLOSED
+GATE FAIL (above). FS2/FS5 standing gates, both armed; FS5 additionally carries
+D476's open instrument decision. Case verdicts on record unchanged. Last
+session's four supervisor-verified findings all carry their records now:
+D467/L-246 + FS6 Addendum 1 (`e1f346ee`), the `01430485` generator repair
+(diff-read PASS), D475/L-248, D476/N-B38.
 
-**Commits this session** (closure, newest first): `e1f346ee` D467/L-246 + FS6
-Addendum 1; `01430485` feature-library source-column repair (supervisor
-diff-read PASS); `a1d5be72` board; `9fb0891f` FS6 document;
-`3a4f4bbb` R5 discharge record; earlier `9e82321b` GPU plan + five drafts;
-`0ac76ec2` R5C commit 3 (verdict, comparator, grading JSON, D465, L-243,
-N-B35–37); `23b9d7ba`, `f364cf2d` before them. Pending from live lanes: R4
-addendum (D-14 + corrections) + late `COVERAGE.md` + docket/lessons rows;
-feature-library generator repair; Kaandorp addendum after the driver exits.
+**Relayed to the chief this session (shared tooling, not closure's to fix):**
+`scripts/append_record.py` preserves the worktree tail AHEAD of appended rows
+while asserting the id against HEAD only — when a peer's unlanded tail holds
+the very next id, the helper itself manufactures a duplicate. Third bite of the
+D369 family (D369, D461/D-13, the D468 duplicate); reported by the lane at
+`52e5de39` for judgement. My judgement: lesson-worthy and repair-worthy, but
+the helper is every team's instrument — chief dispatches.
+
+**Commits this session (supervisor):** this board write only — sha in the
+chief report. Lane commits verified and adopted above: `918e8fe7`, `9f0210dd`,
+`52e5de39`, `1632af6a`, `52373459`.
 
 **On Sanaa's desk (closure):** the five GPU drafts (§ above — signing any is
 hers; the plan's recommendation, marked as one: Ling first, none of 4–5);
 R5/A′ direction after R5C's GATE FAIL (`R5_DECISION_MEMO.md` options stand —
 option C is now measured: repair works, criterion does not); R6 phrasing
-(standing); **NEW: Ling & Templeton 2015 acquisition** (PENDING-MIT — the
-un-owned origin of the scalar-marker feature bloodline; two FS1 features cite
-it as their only printed source). **Blocked:** R6 (Sanaa), Kaandorp
-`AR_3_Ret_360__ML0/1/2` (missing case in `features_nodurbin.npz`; re-recorded
-BLOCKED in `results.json` this pass with tracebacks, no metrics), Xiao2016_EnKF
+(standing); Ling & Templeton 2015 acquisition (PENDING-MIT — the un-owned
+origin of the scalar-marker feature bloodline; two FS1 features cite it as
+their only printed source). **Blocked:** R6 (Sanaa), Kaandorp
+`AR_3_Ret_360__ML0/1/2` (missing case in `features_nodurbin.npz`), Xiao2016_EnKF
 (forward model), Kaandorp Table 4 (no BFS5100 on disk), Lozano-Durán 2023
 training reproduction (data + charLES).
 
-**⚠ Standing hazard unchanged:** the shared index is stale — `git status` shows
-phantom `D` rows for committed R5C files (L-223 shape, read from the other
-side). **Read tracked status with `git ls-tree -r HEAD <dir>`, never
-`git ls-files`; inspect, never revert; the index is chief's call.**
+**⚠ Standing hazards:** (1) the shared index remains stale — `git status`
+still shows phantom staged rows, including deletions in foreign territory.
+Read tracked status with `git ls-tree -r HEAD <dir>`; inspect, never revert;
+the index is chief's call. (2) **L-253 disclosure:** this section was committed
+blob-based from `git show HEAD:` — the WORKTREE copy of `## closure` now lags
+HEAD by design and was deliberately NOT fast-forwarded, because uncommitted
+foreign edits sit elsewhere in the worktree file and a whole-file write is
+forbidden. Read this section from HEAD, not the tree.
 
-**Compute:** 487 core-h pre-authorised (charter §18). Live under this team: the
-Kaandorp driver, one serial core (~$0.05/h at the reported-by-owner
-$0.0513/core-h rate), planning ~3.3 core-h ≈ $0.17 for the six rows, hard bound
-≤$0.31 (3600 s/solve timeout), inside the lane's standing 15 core-h cap. All
-other lane work this session is zero-solve (documents, records, grading).
+**Compute:** 487 core-h pre-authorised (charter §18). Live: the Kaandorp
+driver, one serial core. Measured so far this pass: NULL 69.3 s + TRUTH
+1,701.6 s + MEANB in progress — ≈0.5 core-h of the ~3.3 core-h planning figure
+(≈$0.17; hard bound ≤$0.31 via the 3600 s/solve timeout, inside the lane's
+standing 15 core-h cap). Everything else this session is zero-solve
+(verification reads, board).
 ## dafoam
 
 **Section last written:** 2026-08-23T20:35Z by dafoam-supervisor.
