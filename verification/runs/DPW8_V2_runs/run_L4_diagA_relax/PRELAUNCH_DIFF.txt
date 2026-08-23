@@ -1,0 +1,28 @@
+PRELAUNCH DIFF ASSERTION -- run_L4_diagA_relax
+generated: Sun Aug 23 19:56:10 UTC 2026
+baseline : verification/runs/DPW8_V2_runs/run_L4_gate (evidence, read-only)
+prereg   : verification/campaign/DPW8_V2_L4_DIVERGENCE_DIAG_PREREGISTRATION.md @ 99f939ee (blob 55001f3a)
+
+--- diff -r 0/  (MUST be empty) ---
+(empty: identical)
+
+--- diff -r constant/  (MUST be empty) ---
+(empty: identical)
+
+--- diff -r system/  (MUST be exactly the declared lever + endTime) ---
+diff -r run_L4_gate/system/controlDict run_L4_diagA_relax/system/controlDict
+13c13
+< endTime         3000;
+---
+> endTime         600;
+diff -r run_L4_gate/system/fvSolution run_L4_diagA_relax/system/fvSolution
+41,42c41,42
+<     fields    { p 0.25; }
+<     equations { U 0.6; k 0.6; omega 0.6; }
+---
+>     fields    { p 0.15; }
+>     equations { U 0.3; k 0.3; omega 0.3; }
+
+--- files in system/ differing ---
+Files run_L4_gate/system/controlDict and run_L4_diagA_relax/system/controlDict differ
+Files run_L4_gate/system/fvSolution and run_L4_diagA_relax/system/fvSolution differ

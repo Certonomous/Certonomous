@@ -1,0 +1,26 @@
+PRELAUNCH DIFF ASSERTION -- run_L4_diagB_scheme
+generated: Sun Aug 23 19:56:10 UTC 2026
+baseline : verification/runs/DPW8_V2_runs/run_L4_gate (evidence, read-only)
+prereg   : verification/campaign/DPW8_V2_L4_DIVERGENCE_DIAG_PREREGISTRATION.md @ 99f939ee (blob 55001f3a)
+
+--- diff -r 0/  (MUST be empty) ---
+(empty: identical)
+
+--- diff -r constant/  (MUST be empty) ---
+(empty: identical)
+
+--- diff -r system/  (MUST be exactly the declared lever + endTime) ---
+diff -r run_L4_gate/system/controlDict run_L4_diagB_scheme/system/controlDict
+13c13
+< endTime         3000;
+---
+> endTime         600;
+diff -r run_L4_gate/system/fvSchemes run_L4_diagB_scheme/system/fvSchemes
+17c17
+<     div(phi,U)                      bounded Gauss linearUpwind grad(U);
+---
+>     div(phi,U)                      bounded Gauss upwind;
+
+--- files in system/ differing ---
+Files run_L4_gate/system/controlDict and run_L4_diagB_scheme/system/controlDict differ
+Files run_L4_gate/system/fvSchemes and run_L4_diagB_scheme/system/fvSchemes differ
