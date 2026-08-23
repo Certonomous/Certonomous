@@ -191,6 +191,23 @@ The original rows are not edited.
 |---|---|---|---|---|---|---|---|
 | 12 | **A3** sweep rung 2 | gradient | **PATCHED** | 4 / 42,120 | **PASS** | `patchV[1]` **0.0077 %** (analytic bit-identical to stock), `twist[1]` **0.2740 % → 0.9279 %**, `shape[115]` **0.0172 % → 0.1586 %** — the patch is applied and **every warp-crossing row gets worse**; patch effect **1.469586 %** in L2, 3 analytic sign flips (idx 12, 13, 24, no FD there) | `A3/rung2_patched_idwarp_np4/RESULTS.md` §2, §5 |
 | 12b | **A3** rungs 1, 3 and the 399,360 campaign | gradient | **PATCHED** | — | **PENDING — NOT MEASURED** | rung 2 is now measured; no patched arm exists at any other A3 size | same, §10.6 |
+| 12c | **A3** sweep rung 1 | gradient | **PATCHED** | 4 / 21,840 | **PASS** (per-component rule) **/ FAIL pending investigation** (aggregate band) — **DUAL READING, NOT FINAL UNTIL SANAA RULES** | `patchV[1]` **0.1816 %**, analytic bit-identical to shipped; **`shape[115]` 0.9273 % → 0.3826 %, i.e. 2.42× BETTER** — **the identical unchanged library that made this row 9.2084× worse at rung 2 makes it better at rung 1**, because the shipped signed error `analytic − FD` is `+2.2401e-05` at rung 2 and `-1.141009e-03` at rung 1; patch effect **0.940327 %** in L2, 120 of 120 components differing, **0** analytic sign flips; `twist[1]` and `shape[5]` **FLAGGED before the run**, **NOT A RESULT** in the FD column on every arm | `A3/rung1_patched_idwarp_np4/RESULTS.md` §1–§3 |
+| 12d | **A3** sweep rung 3 | adjoint | **PATCHED** | 4 / 79,560 | **NOT A RESULT — stopped by memory** | killed at **85 s of a 2600 s budget** by its own registered guard on the **HOST FLOOR** limb (`MemAvailable 7.3944 GiB < 8.0`, 3 consecutive samples) while its **own** RSS sat at **9.202 of 15.0 GiB** — the arm did not exceed its budget, the box did. **0 of 11 identity checkpoints reached**, no adjoint, no gradient, **no claim in any direction**; cap not raised, no second budget. Re-registration proposed | `A3/rung3_patched_idwarp_np4/RESULTS.md` §1–§3 |
+
+**Row 12b is superseded in part, and not edited.** Its **rung-1** cell is answered by row **12c**
+and its **rung-3** cell by row **12d**. Its **399,360-cell** cell stands unchanged at
+**PENDING — NOT MEASURED**, BLOCKED for reasons neither item touches.
+
+**Two findings from those items are ROUTED, not actioned here, and no row above is edited for
+them.** (a) The fresh literal-`dafoam/opt-packages:latest` arm at rung 1 reproduced the archived
+SHIPPED-equivalent ‡ row **bit-for-bit** — analytic, FD, baselines and drift. That ‡ equivalence
+assertion carries every SHIPPED-equivalent row on this ladder (rows 9–11 among them) and **had
+never been tested directly at any A3 rung**; it is now tested at one, and **row 9's grade is left
+exactly as it is** (R11: a patched number never moves a shipped grade, and this is a shipped-column
+finding for the supervisor to route). (b) At rung 3 the registered launch gate's memory limb
+(**16 GiB**) is arithmetically incapable of protecting the registered neighbourliness floor
+(**8 GiB**) for an arm peaking at **≥ 9.2 GiB**: `16.0 − 9.2 = 6.8 < 8.0`. **Both numbers are
+frozen and neither was changed.**
 
 **Reading 1 of this file is struck as falsified.** The sentence at line 67 — *"Every A/B pair that
 has been measured improves"* — was true of A1, A2 and A5 and is **not** true of A3 rung 2, the first
