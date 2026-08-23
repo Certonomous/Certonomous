@@ -561,9 +561,9 @@ documented `FILING_CHARTER` §3 exception: *the rule was wrong, not the tree.*
 
 ## verification
 
-**Section last written:** 2026-08-23T20:39Z by verification-supervisor —
-THIRD session, spawned by the chief at HEAD `b84c43d3`; session-2 lanes
-presumed dead. This commit was built from HEAD's blob via the private index,
+**Section last written:** 2026-08-23T20:56Z by verification-supervisor —
+THIRD session. D471 repair BELIEVED at this commit (diff read personally,
+ruling below); D472/D473/append_record lanes live. This commit was built from HEAD's blob via the private index,
 never through the shared worktree: at 20:37Z the worktree's `docs/LAB_STATE.md`
 was STALE in the reverting direction on closure's section (held superseded
 20:45Z text; HEAD carries their newer 20:35Z clock-note version + the D-14
@@ -608,26 +608,24 @@ your 18:17Z text while git held 19:35Z is unestablished and flagged to you.
 The team has produced **no verdict-bearing commit yet**; the `fd831c11` line in
 the first fill was heat-transfer's commit, not this team's.
 
-**Live jobs:** no solver compute owned by this team. **Three lanes live**,
-dispatched 2026-08-23T20:33Z, the cap: (1) D471 freeze-checker repairs
-(per-comparator marker scoping, `cases/` population, sha-witness recognition,
-mtime-fallback/docstring agreement); (2) D472 verdict-cells control repairs
-(D356 landing control re-pointed to earliest-across-spellings — the
-implementation is the correct half; vacuous second control made able to fail);
-(3) D473 `check_registered_deliverables.py` per the frozen proposal spec.
-All three under the standing rule: the supervisor reads each diff personally
-before any re-run is believed; lanes told all outputs are CANDIDATE.
-**QUEUED for the first free slot (chief-routed 20:34Z):** `append_record.py`
-duplicate-id repair — closure's finding at `52e5de39`, D369-family third bite.
-Defect site read personally by this supervisor 20:36Z: the id assert derives
-max from HEAD's blob only (`scripts/append_record.py:315`, assert ~:334-338)
-while `merge()` deliberately preserves the worktree tail (`:176-179`), so a
-peer's unlanded `D<next>` row in the tail passes the assert and lands a
-duplicate. Repair spec: effective max over HEAD ids AND preserved-tail ids,
-refusal (not silent renumber) when the tail holds the would-be next id, planted
-peer-tail control + mutation evidence. Interim mitigation for tonight's
-appenders, relayed via chief: check the worktree tail for ids before trusting
-the helper's assert (rule 11 re-derive discipline is the behavioral half).
+**Live jobs:** no solver compute owned by this team. **Three lanes live**
+(the cap): (1) D472 verdict-cells control repairs (dispatched 20:33Z);
+(2) D473 `check_registered_deliverables.py` build (dispatched 20:33Z);
+(3) `append_record.py` duplicate-id repair (dispatched 20:44Z into the slot
+the D471 lane freed; chief-routed, closure's finding at `52e5de39`,
+D369-family third bite — defect site read personally 20:36Z: id assert derives
+max from HEAD's blob only at `append_record.py:315`/`:334-338` while `merge()`
+preserves the worktree tail at `:176-179`; repair = combined max over HEAD +
+tail ids, refusal not renumber, planted peer-tail control). All under the
+standing rule: supervisor reads each diff personally before belief; all lane
+outputs CANDIDATE until then. Interim mitigation for tonight's appenders,
+relayed via chief: check the worktree tail for ids before trusting the
+helper's assert.
+**D471 lane RETURNED 20:52Z, repair BELIEVED 20:56Z** after the supervisor's
+own 857-line diff read of `95333148` and source-verification of the escalated
+t1b_L4 scope call (see the freeze-audit row below and the docket's D471
+closure note). Selftest 24 controls / 0 failures; five mutation classes each
+driven to failure; disk sha == committed blob, verified.
 
 **Charters owned:** `VERIFICATION_CHARTER.md` **v1.10, 2026-08-22** (§2e at the
 foot, H-7, L-219/L-220 verbatim, zero lines moved above — verified by reading
@@ -642,7 +640,7 @@ line (trade declared and recorded) is settled.
 | **VM2026R1_Fluids** (Ansys suite) | **D-6, with Sanaa — NO AGENT TOUCHES EITHER COPY.** Live reading 2026-08-23T19:37Z, read-only: root copy `VM2026R1_Fluids/` **123 files, 2.5 GB** (complete per chief's count); papers copy **STALLED at 10 files, 26 MB**, nested doubled path `docs/papers/verification_validation/VM2026R1_Fluids/VM2026R1_Fluids/`, last write 2026-08-22 17:42Z, **no scp/rsync/sftp process live** — the "transfer in progress" of the chief's 08-22 note is DEAD, not in progress. This team may *prepare* the FILING_CHARTER R6/R8 analysis for her ruling; the ruling and any move are hers. Nothing graded from either copy |
 | **Ansys Fluid Dynamics Verification Manual** | tracked PDF at `docs/papers/verification_validation/`, 8.5 MB, **no `.txt` sidecar** (R8 violation). Sidecar production + L-144 title-page verification dispatched to a lane 2026-08-23 |
 | **`GATE FAIL` vs bare `FAIL`** | D-5, with Sanaa, nothing edited. Current reading (lane, 2026-08-23): **3 bare `FAIL` cells** (V5:1070, V14:1080, V15:1081) vs the recorded 4 — corpus churn isolated: V8 already remediated to `GATE FAIL`, V10 left, V14 entered (D338 amendment). Instrument defect D472: `--selftest` exits 1, D356 landing control BROKE (implementation is the correct half), second landing control VACUOUS — repair with a lane, supervisor diff read owed |
-| **Comparator freeze audit** | RE-RUN 2026-08-23: **19 comparators — 7 FROZEN / 8 UNFROZEN / 4 AMENDED_AFTER** (baseline was 2 of 6). Baseline five match; K0cR flipped to AMENDED_AFTER — its `6d58d898` edit **read as a diff by the supervisor: display-only ("hollow pass" label condition), disclosed in K0cR §6, no violation**. `analyse_t9aD` UNFROZEN is commit-test-correct; rung sound (sha-witness freeze + 2d.1-compliant tolerance repair, all four conditions verified). Instrument owes three repairs (D471): marker-pooling false positives (`analyse_t1b_L4` proven FROZEN +177,712 s against its own cases), `cases/` population gap (R5C grader et al. uncovered), sha-witness blindness. 4 pooled `T1_runs` UNFROZEN rows still ungraded |
+| **Comparator freeze audit** | **INSTRUMENT REPAIRED AND BELIEVED 2026-08-23T20:56Z** (D471, lane `95333148`; supervisor's own 857-line diff read; selftest 24/0; 5 mutation classes proven able to fire). Believed instrument reading: **45 graders — 10 FROZEN / 7 UNFROZEN / 2 AMENDED_AFTER / 4 AMBIGUOUS-SCOPE / 22 NO-MARKERS / 0 FROZEN-SHA-WITNESS** (pre-repair live baseline was 21 rows 9/8/4; docket's 19-row 7/8/4 predates two comparators). Changes: `analyse_t1b` UNFROZEN→FROZEN (+163,554 s — mtime-based, the table's weakest number); K0b pair AMENDED_AFTER→AMBIGUOUS-SCOPE (phase markers `DONE.analyse`/`DONE.build_and_run` were never case-freeze statements — two verdicts honestly removed). **Supervisor ruling: the docket's `+177,712 s FROZEN` for `analyse_t1b_L4` is STRUCK as non-reproduced** — it implied an `R_*_x`-only scope; the source (`:62-63`, `:170-172`, `verdict_amended(nu_m,nu_f,nu_x,…)`) requires and consumes c/m/f, so the defensible scope reads UNFROZEN −5,904 s on the commit test; §2b/§2d legality is governed by the L4 amendment's own disclosure, feeds the T1b audit (~08-26). `analyse_t9aD` UNFROZEN re-confirmed independently: its sha witness (`gate_t9aD.json`) entered at `06410acd`, same commit as the comparator, 19 min AFTER the D_* markers — cannot rescue. Standing facts surfaced: **87 of 156 markers repo-wide carry no `finished_utc`; 15 in T1_runs share one mtime to the second (copy signature)** — heat-transfer's territory, relayed via chief; `--strict-markers` mode exists and refuses (exit 2) on all 9 mtime-dated T-family rows. 12 graders under `cases/` are NO-MARKERS (zero `DONE.*` anywhere under `cases/`) — coverage gain is the reporting, not new verdicts |
 | **The six standing audits** | **ALL SIX RE-RUN 2026-08-23** (lane; dated sections appended, committed per audit): SWEEP_REFRAME `c5a9d4c7`, FAIL_OPEN_GATE `f14fca9c` (2 new candidates: Kaandorp `scoreboard.py:74` claim-(i) block vanishes under `except IndexError: pass`; K0cT/K0cX `build_cases.py` drop unparseable measured-profile rows uncounted into a BC), DEAD_LEVER `876a9ec1` (**U-1 headline SUPERSEDED: 0-of-257 → 6-of-219** — six B3 logs carry `jacMatReOrdering rcm` configured AND read back active in `-ksp_view`; **supervisor-verified by own reads of arm_C and arm_K2 at the cited lines**; the ~8 core-min M-A purchase is MOOT; hump conclusions unchanged), H4_ALLOCATION `af16ceef` (**602 staged deletions in the shared index, 8 prunable worktrees into wiped scratchpad, 2 live sessions on one tree** — chief's territory, escalated; H4b PASS→FAIL: `heat-transfer` and `verification` have no guidelines doc), LEDGER_HEADLINE `69df4876` (8 of 9 falsifications still live), EXTERNAL_REFERENT `e3f3b521` (**the audit's own bucket figures are unreproducible — its screen script was never committed**; its 1,549 matches no reading of its own §2 rule; lesson candidate: an audit that freezes its instrument must commit it). Eight tracked planted-control artifacts absent from disk (K2bP heat-balance JSONs + `K1_STANDING_THERMAL_CHECKS.md`, cited by five docs incl. LESSONS) — probably D390 filing defect, bytes in HEAD, inspected not reverted |
 
 **Freshness flag:** `verification/certificates/`, `credibility/`, `monitor/`
@@ -690,11 +688,11 @@ and sits beside D-6 material; goes in the D-6 prep note for Sanaa. Repo-wide
 `check_filing.py` reads FAIL: 28 violations (1 R1, 4 R5, 12 R8, 11 R9 — 11
 other PDFs lab-wide still lack sidecars), pre-existing, not this team's alone.
 
-**Next actions** (session-3 state, 20:39Z): (1) D471 and (2) D472/D473 are
-**IN FLIGHT** as the three live lanes above — on each return, the supervisor's
-diff read, then belief or rejection, then docket closure of the entry;
-(1b) `append_record.py` repair dispatches on the first free slot (spec in Live
-jobs above; lesson row coordinated with closure so it lands once);
+**Next actions** (session-3 state, 20:56Z): (1) D471 **DONE — believed,
+docket note landed this commit**; (2) D472/D473/append_record **IN FLIGHT** —
+on each return, the supervisor's diff read, then belief or rejection, then
+docket closure of the entry (lesson row for append_record coordinated with
+closure so it lands once);
 (3) remaining audit targets: W4 M1+M2 and T9aH (queued above), T1b after
 grading (~08-26), T10a's 6 UNMEASURED
 controls, the 4 ungraded pooled `T1_runs` UNFROZEN rows, EXTERNAL_REFERENT's
