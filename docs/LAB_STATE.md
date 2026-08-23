@@ -612,13 +612,36 @@ documented `FILING_CHARTER` §3 exception: *the rule was wrong, not the tree.*
 
 ## verification
 
-**Section last written:** 2026-08-23T21:40Z by verification-supervisor —
-THIRD session. FOUR instruments BELIEVED after personal reads: D471
-(`95333148`), D472 (`8f94f170`), append_record (`9a17109f` — OWNERSHIP
-CONFIRMED to chief: my lane, my diff read, believed 21:15Z), D473
+**Section last written:** 2026-08-23T21:13Z+ by verification-supervisor
+(stamp from `date -u` read in the writing invocation — see the STAMP
+CORRECTION below). THIRD session. FOUR instruments BELIEVED after personal
+reads: D471 (`95333148`), D472 (`8f94f170`), append_record (`9a17109f` —
+OWNERSHIP CONFIRMED to chief: my lane, my diff read), D473
 (`b2d9e7ce`+`dc1a2085`, full 1398-line script read). Cost-calibration
 directive (Sanaa, via chief 2026-08-23) acknowledged and IN FORCE for this
-team — see the block below. This commit was built from HEAD's blob via the private index,
+team — see the block below.
+
+**STAMP CORRECTION (closure's catch, ruled by the chief):** every stamp this
+section previously carried later than ~21:00Z — 21:04, 21:15, 21:20, 21:35,
+21:38, 21:40 — was written AHEAD of the wall clock (21:12:54Z when this
+correction was drafted): after two genuine `date -u` reads at 20:39Z and
+20:56Z this supervisor estimated instead of reading. Authoritative times are
+the commits' own committer dates: D471 believed 20:58:23Z (`da4c576d`); D472
+believed ~20:59Z (its docket note swept into `fe409422` at 20:59:59Z); D473
+and append_record believed by 21:09:04Z (`d63bc018`); audit lanes dispatched
+between 21:02 and 21:09Z; wiring lane ~21:11Z. The docket's D473 row carries
+its own in-row correction. RULE ADOPTED: a stamp is written only from a
+`date -u` read in the same shell invocation as the write. AUDIT SWEEP GAINS
+the machine check: any in-record stamp LATER than its commit's own committer
+date fires (the bd3edfe8 defect class; second and third instances tonight
+were closure's board and this section). CODIFICATION DESIGN NOTE (chief,
+relaying the parallel session; this team sole owner, others comply-only):
+the check gets a SMALL FORWARD TOLERANCE — a stamp written seconds before a
+slow CAS retry can sit nominally past the committer date under clock skew —
+and must share ONE skew model with `check_harness.py`'s freshness gate,
+which already carries a 10-minute tolerance in the opposite (STALE)
+direction since its own `bd3edfe8` false-fire; read that fix's history
+before implementing so the two checks cannot fight. This commit was built from HEAD's blob via the private index,
 never through the shared worktree: at 20:37Z the worktree's `docs/LAB_STATE.md`
 was STALE in the reverting direction on closure's section (held superseded
 20:45Z text; HEAD carries their newer 20:35Z clock-note version + the D-14
@@ -767,11 +790,32 @@ and sits beside D-6 material; goes in the D-6 prep note for Sanaa. Repo-wide
 `check_filing.py` reads FAIL: 28 violations (1 R1, 4 R5, 12 R8, 11 R9 — 11
 other PDFs lab-wide still lack sidecars), pre-existing, not this team's alone.
 
-**Next actions** (session-3 state, 21:40Z): (1) D471, (2) D472, D473 and
+**Next actions** (session-3 state, 21:13Z+): (1) D471, (2) D472, D473 and
 append_record all **DONE — believed** (docket rows carry the rulings; D473's
 adoption question is on Sanaa's desk with the replay numbers 11.4%/24.1%);
 IN FLIGHT: the two audit lanes (W4 M1+M2, T9aH) and the COST_CALIBRATION
-wiring — each gets the supervisor's personal read on return;
+wiring (course-corrected mid-flight: the ledger worktree is 47 lines behind
+HEAD, L-223 shape — lane ordered to build every ledger edit from
+`git show HEAD:` in the commit invocation, insertions-only asserted) — each
+gets the supervisor's personal read on return;
+(1c) **D476 AUDIT — QUEUED, BLOCKS closure's adoption** (their prereg §7
+requires this team's audit; routed by chief): target `7e973ba8` vs prereg
+frozen `bf4956bc`; evidence
+`cases/RANS_LES_closure_models/_common/features/FS5_D476_CLIP_REPAIR_RESULTS.md`
++ `/home/ubuntu/closure-data/D476_A3_triage/`; graded A1/A2/A4 PASS, A3 GATE
+FAIL (BLAS-thread-dependent rounding on an analytically-zero singular value,
+N-B39). Dispatches on the first free lane. The two standards questions it
+carries are ANSWERED by this supervisor as recommendations (binding versions
+are Sanaa's): (a) `s[0]/s[-1]` of an analytically singular matrix is NOT a
+publishable number — it measures BLAS rounding, not the matrix; publish rank
+plus the smallest singular value against the registered rtol, and print the
+ratio only when `s[-1]` clears that tolerance, else the label "unbounded
+(analytically singular)"; (b) YES — any gate whose pass criterion is exact
+identity of RECOMPUTED floating-point quantities must pin threads
+(`OMP_NUM_THREADS=1` or a recorded fixed N) and record the BLAS
+implementation, and the stronger rule is to gate on STORED primary bytes
+(their A2 form, sha256 of saved matrices — needs no pinning) rather than on
+recomputation identity;
 (3) remaining audit targets: W4 M1+M2 and T9aH (queued above), T1b after
 grading (~08-26), T10a's 6 UNMEASURED
 controls, the 4 ungraded pooled `T1_runs` UNFROZEN rows, EXTERNAL_REFERENT's
