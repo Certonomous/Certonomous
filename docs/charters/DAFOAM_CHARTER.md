@@ -620,3 +620,34 @@ throughout.
 | 1.0c | 2026-08-22 | **§13 gains a dated note and a PROPOSAL, additive; no clause weakened, no threshold moved, no verdict affected.** §13 audits this charter's clauses for enforceability; nothing audits a *pre-registration's* own registered thresholds, and A3 rung 2 proved a prereg can invent an unenforceable guard that no existing check covers — a registered 8 GiB host-memory floor, a record-only watcher, nothing connecting them, breached for 52.6 % of the graded arm by the arm's own container with no stop firing (L-239, D462, `27ce5799`). Recorded as a **PROPOSAL** rather than a clause because making it one adds an obligation to every future pre-registration, which is the owner's decision and not a supervisor's. Surfaced by the lane that caused the breach, in a report whose headline was good news. |
 | 1.0b | 2026-08-21 | **§11 opens the `N-D` family, additive, no clause weakened.** This lane's numerics facts were filed as `N-B21..N-B25` and **the closure team committed its own `N-B22..N-B25` at 17:52 the same day (`79a73944`)**, so two disjoint sets of facts carried four identical ids. Resolution, touching only this lane's lines: the five entries are renumbered **`N-D1..N-D5`** in place, with a dated note above `N-D1`; no closure-team text was edited and their `N-B22..N-B25` stand. **The next DAFoam numerics fact is `N-D6`, re-derived with `grep -o 'N-D[0-9]*\.' docs/NUMERICS_KNOWLEDGE.md | tail -1`.** The incident is the clause's own warning arriving inside the hour it was written: a shared append-only file with one number space and several concurrent writers will collide, and a per-team prefix is the only thing that prevents it. |
 | 1.0a | 2026-08-21 | **Editorial amendment to §11, additive, no clause weakened.** Adds the re-derivation block: the `L-` and `N-B` figures in §11 are a dated reading, not the rule, and the rule is the two `grep` commands run immediately before appending. Earned the same day: the closure team committed **L-186** while this charter was being written, so this lane's first lesson became **L-187**, and this lane's numerics entries were filed at the end of the `N-B` block (before the unnumbered closure-repro section) rather than at end-of-file. Recorded here rather than by editing §11's prose, because the prose was correct when written. |
+
+# 17. Amendment record, continued: silent-background convention (2026-08-23)
+
+**Dated addendum, 2026-08-23, appended at the foot; append-only. One standing
+convention added on the owner's directive. No clause above is altered, widened
+or narrowed; no line above this section changed number; the header's version
+line is deliberately left untouched, because this addendum inserts nothing and
+edits nothing above itself.**
+
+Sanaa's directive, verbatim (2026-08-23): "There needs to be added to all
+the .md convention files that all agents must always act in a silent way on
+the background without showing bash or ssh on the screen, the screen must
+always remain clean with only discussion and results."
+
+In force for every agent this charter binds, and recorded lab-wide as
+`CLAUDE.md` rule 16: all heavy work (bash, ssh, compute, file surgery) runs
+inside background lanes or subagents, never as top-level tool calls in the
+user-facing session when avoidable; user-facing reports carry discussion,
+numbers and verdicts only, never pasted terminal output, raw logs or command
+transcripts (quote the specific value with its artifact path, not the dump it
+came from); supervisors enforce this on their lanes, condensing a transcript
+before relay rather than forwarding it raw. Honest caveat: the Claude Code UI
+renders whatever tool calls the top-level session makes, so the convention is
+kept by pushing work into background agents; that delegation, not a display
+setting, is what keeps the screen clean.
+
+| what the amendment did | figure |
+| --- | --- |
+| standing conventions added | 1 |
+| clauses altered, widened or narrowed | 0 |
+| lines whose number changed above this section | 0 |

@@ -898,3 +898,34 @@ Doctrine file: **Part 5**.
 | 1.1.2 | 2026-08-22 | Amends **§22.4** with the bands-vs-corrections caveat, quoted **verbatim** from `LESSONS.md` **L-220** and `DOCKET.md` **D446** as Sanaa's institutionalization directive of 2026-08-22 required, with four requirements attached: the unseen axis is named, a band is never applied as a correction, a band is reported with its width against the signal, and a literature perturbation magnitude carries the measured requirement for the flow class in hand. **Additive — no clause above is weakened.** Source measurements: `_common/uq_eigenspace/UQ_EIGENSPACE.md` §5 and §7, L-218 to L-221. *(Bookkeeping: v1.1.1 of 2026-08-21 — §17's drafting route — was recorded on the first line and in §17's own dated note and never given a row here; it is named in the version line rather than back-filled by this lane.)* |
 | 1.1 | 2026-08-20 | Adds **§22**, the binding half of Sanaa's closure-line restart ruling of 2026-08-18 (amended by her the same day, relayed by the coordinator 2026-08-20, recorded after Phases 1-4 closed at `b8ba7460`, `9e567786`, `20666e97`). Eight clauses: one model applied uniformly; corrections inside the solved equations; zero-shot transfer discipline; the shelf-D model-form band on every prediction; FS2 and FS5 as standing gates; per-model-class feature selection under a frozen protocol; R3 reserved to Sanaa; the two-repo content boundary and its release gate. **Additive — nothing in 1.0 was weakened**: §22.2 strengthens §7 from a reporting duty into a design constraint, and §22.5 adds two gates to §5. Old §22 and §23 renumbered to §23 and §24. Full ruling: `docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md`. |
 | 1.0 | 2026-08-20 | First issue. Written after Phase 1-2 of the closure programme produced the realisability-gate hole (§4), the invented falsifier (§11), the third duplicate SpaRTA task in nineteen days (§13) and the `tbrf.py` overwrite (§14). Clauses trace to `LESSONS.md` L-140, L-144, L-145, L-163, L-168, L-179, L-182 through L-185, to the title-verified corpus under `docs/papers/closure/`, and to the lab's own measurements in `_common/BASELINES.md` §6.4 and `Certonomous_closure_challenge/description/METHOD.md` §6. Records one gap in `FILING_CHARTER.md`'s enforcement (§21.1) and one stale count in `README.md` §1 (§21.2). |
+
+# 25. Amendment record, continued: silent-background convention (2026-08-23)
+
+**Dated addendum, 2026-08-23, appended at the foot; append-only. One standing
+convention added on the owner's directive. No clause above is altered, widened
+or narrowed; no line above this section changed number; the header's version
+line is deliberately left untouched, because this addendum inserts nothing and
+edits nothing above itself.**
+
+Sanaa's directive, verbatim (2026-08-23): "There needs to be added to all
+the .md convention files that all agents must always act in a silent way on
+the background without showing bash or ssh on the screen, the screen must
+always remain clean with only discussion and results."
+
+In force for every agent this charter binds, and recorded lab-wide as
+`CLAUDE.md` rule 16: all heavy work (bash, ssh, compute, file surgery) runs
+inside background lanes or subagents, never as top-level tool calls in the
+user-facing session when avoidable; user-facing reports carry discussion,
+numbers and verdicts only, never pasted terminal output, raw logs or command
+transcripts (quote the specific value with its artifact path, not the dump it
+came from); supervisors enforce this on their lanes, condensing a transcript
+before relay rather than forwarding it raw. Honest caveat: the Claude Code UI
+renders whatever tool calls the top-level session makes, so the convention is
+kept by pushing work into background agents; that delegation, not a display
+setting, is what keeps the screen clean.
+
+| what the amendment did | figure |
+| --- | --- |
+| standing conventions added | 1 |
+| clauses altered, widened or narrowed | 0 |
+| lines whose number changed above this section | 0 |

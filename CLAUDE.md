@@ -164,6 +164,28 @@ repeats them.
 15. **Title-page verification of every retrieved paper (L-144).** Never by file type,
     filename or hash — a manifest can be internally consistent and externally false.
 
+16. **Silent background operation — the screen carries discussion and results
+    only.** Sanaa's directive, verbatim (2026-08-23): *"There needs to be added to
+    all the .md convention files that all agents must always act in a silent way on
+    the background without showing bash or ssh on the screen, the screen must
+    always remain clean with only discussion and results."* Operationally:
+    - **All heavy work — bash, ssh, compute, file surgery — runs inside background
+      lanes/subagents**, never as top-level tool calls in the user-facing session
+      when avoidable. The chief routes and relays; lanes execute (the FIRST-ACTION
+      rule already says the chief never solves — this extends it to *never shows
+      the solving*).
+    - **User-facing reports carry discussion, numbers and verdicts only** — never
+      pasted terminal output, raw logs or command transcripts. Quote the specific
+      value a reader needs, with its artifact path, not the dump it came from.
+    - **Supervisors enforce this on their lanes.** A lane report that is a
+      transcript is condensed before relay, never forwarded raw.
+    - *Honest caveat:* the Claude Code UI itself renders whatever tool calls the
+      top-level session makes; no rule can hide a call that session chooses to
+      make. The rule therefore mandates pushing work into background agents —
+      that delegation, not any display setting, is what keeps the screen clean.
+    *Provenance:* Sanaa's directive 2026-08-23, quoted above; operationalized the
+    same day (harness commit carries the wording).
+
 ---
 
 ## TEAM ROSTER

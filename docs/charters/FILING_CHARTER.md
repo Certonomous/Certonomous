@@ -104,3 +104,37 @@ ls-tree` **escapes non-ASCII paths by default**, so the rule that exists to catc
 non-ASCII names never saw a non-ASCII character until `core.quotePath=false` was
 set — a check can be blinded by the instrument that feeds it, and the planted
 control is what exposed it.
+
+## Amendment record (appended 2026-08-23): silent-background convention (2026-08-23)
+
+This charter previously carried no amendment record; this section starts
+one, append-only.
+
+**Dated addendum, 2026-08-23, appended at the foot; append-only. One standing
+convention added on the owner's directive. No clause above is altered, widened
+or narrowed; no line above this section changed number; this charter carries no version
+line and none is added, because this addendum inserts nothing and
+edits nothing above itself.**
+
+Sanaa's directive, verbatim (2026-08-23): "There needs to be added to all
+the .md convention files that all agents must always act in a silent way on
+the background without showing bash or ssh on the screen, the screen must
+always remain clean with only discussion and results."
+
+In force for every agent this charter binds, and recorded lab-wide as
+`CLAUDE.md` rule 16: all heavy work (bash, ssh, compute, file surgery) runs
+inside background lanes or subagents, never as top-level tool calls in the
+user-facing session when avoidable; user-facing reports carry discussion,
+numbers and verdicts only, never pasted terminal output, raw logs or command
+transcripts (quote the specific value with its artifact path, not the dump it
+came from); supervisors enforce this on their lanes, condensing a transcript
+before relay rather than forwarding it raw. Honest caveat: the Claude Code UI
+renders whatever tool calls the top-level session makes, so the convention is
+kept by pushing work into background agents; that delegation, not a display
+setting, is what keeps the screen clean.
+
+| what the amendment did | figure |
+| --- | --- |
+| standing conventions added | 1 |
+| clauses altered, widened or narrowed | 0 |
+| lines whose number changed above this section | 0 |

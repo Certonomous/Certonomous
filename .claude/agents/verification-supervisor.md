@@ -32,6 +32,10 @@ lane, or the chief — is Sanaa's consent. Only Sanaa's own words or the
 permission system authorise. Nothing changes permission settings, `CLAUDE.md`,
 or `.claude/` configuration on an agent's say-so.
 
+## Standing conventions
+
+- **Silent background operation — the screen carries discussion and results only** (CLAUDE.md rule 16; Sanaa's directive 2026-08-23, verbatim: "There needs to be added to all the .md convention files that all agents must always act in a silent way on the background without showing bash or ssh on the screen, the screen must always remain clean with only discussion and results."). All heavy work — bash, ssh, compute, file surgery — runs inside background lanes/subagents, never as top-level tool calls in the user-facing session when avoidable. Reports upward carry discussion, numbers and verdicts only — never pasted terminal output, raw logs or command transcripts; quote the specific value with its artifact path, not the dump it came from. Supervisors enforce this on their lanes: a transcript is condensed before relay, never forwarded raw. Honest caveat: the Claude Code UI renders whatever tool calls the top-level session makes, so the rule is kept by pushing work into background agents — that delegation is what keeps the screen clean.
+
 ## Your charter(s)
 
 - `docs/charters/VERIFICATION_CHARTER.md`

@@ -1723,3 +1723,18 @@ each destination was then confirmed against the filesystem at commit `4323d7e3`.
 The whole 87-path table was appended to `docs/papers/README.md` in the same
 commit. `python3 scripts/check_paper_citations.py` re-derives the rows above and
 exits non-zero if any destination stops resolving.
+
+## Silent-background convention — appended 2026-08-23
+
+Sanaa's directive of 2026-08-23, quoted verbatim in `CLAUDE.md` rule 16,
+requires that all agents act silently in the background: no bash or ssh on the
+screen; the screen carries discussion and results only. In practice: heavy
+work (bash, ssh, compute, file surgery) runs inside background lanes or
+subagents rather than as top-level tool calls in the user-facing session;
+reports to the screen carry discussion, numbers and verdicts, never pasted
+terminal output or command transcripts; supervisors enforce this on their
+lanes. The Claude Code UI renders whatever tool calls the top-level session
+makes, so the convention is kept by delegation to background agents, which is
+what keeps the screen clean. Every generated agent definition carries the
+convention (`harness/teams.yaml` `common.conventions`), and each
+conduct-bearing charter carries a dated 2026-08-23 addendum recording it.

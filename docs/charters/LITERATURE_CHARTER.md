@@ -306,3 +306,34 @@ figures describe the versions and the dates they name.
 
 **What was opened and left alone.**
 1. The measured counts for this file at frame `101079fd` stood at 0 em dashes, 0 en dashes, 0 personal names as actors and 0 sites of the framing this standard removes, so the amendment reached the version line and stopped there.
+
+## Amendment record, continued: silent-background convention (2026-08-23)
+
+**Dated addendum, 2026-08-23, appended at the foot; append-only. One standing
+convention added on the owner's directive. No clause above is altered, widened
+or narrowed; no line above this section changed number; the header's version
+line is deliberately left untouched, because this addendum inserts nothing and
+edits nothing above itself.**
+
+Sanaa's directive, verbatim (2026-08-23): "There needs to be added to all
+the .md convention files that all agents must always act in a silent way on
+the background without showing bash or ssh on the screen, the screen must
+always remain clean with only discussion and results."
+
+In force for every agent this charter binds, and recorded lab-wide as
+`CLAUDE.md` rule 16: all heavy work (bash, ssh, compute, file surgery) runs
+inside background lanes or subagents, never as top-level tool calls in the
+user-facing session when avoidable; user-facing reports carry discussion,
+numbers and verdicts only, never pasted terminal output, raw logs or command
+transcripts (quote the specific value with its artifact path, not the dump it
+came from); supervisors enforce this on their lanes, condensing a transcript
+before relay rather than forwarding it raw. Honest caveat: the Claude Code UI
+renders whatever tool calls the top-level session makes, so the convention is
+kept by pushing work into background agents; that delegation, not a display
+setting, is what keeps the screen clean.
+
+| what the amendment did | figure |
+| --- | --- |
+| standing conventions added | 1 |
+| clauses altered, widened or narrowed | 0 |
+| lines whose number changed above this section | 0 |
