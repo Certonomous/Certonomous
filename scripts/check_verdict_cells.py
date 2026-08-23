@@ -53,9 +53,12 @@ worse than one that names it.
 from __future__ import annotations
 
 import argparse
+import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -567,6 +570,64 @@ def check(strict_fail: bool, ledger_text: str | None = None) -> list[Row]:
     return rows
 
 
+# Three timestamps for the planted history below. Chosen far apart and in
+# ascending order so that no coincidence between an ADD, a MOVE and an EDIT can
+# make a wrong reduction rule look right -- the coincidence that made the
+# corpus-side landing control vacuous is exactly what this must not reproduce.
+PLANT_ADD_CT = 1600000000   # the true landing, at the ORIGINAL spelling
+PLANT_MOVE_CT = 1700000000  # the rename: an ADD at the NEW spelling (R21 class)
+PLANT_EDIT_CT = 1800000000  # a later amendment: last-touch (D356 class)
+
+
+def plant_moved_history(root: Path) -> tuple[str, str]:
+    """Build a throwaway repo whose one record was ADDED, MOVED, then EDITED.
+
+    A landing reader that has never been shown a history in which the earliest
+    add and the latest add DIFFER has not been shown able to see the re-dating
+    defect at all -- it is the planted-zero rule applied to a timestamp. The
+    corpus can supply such a history only by accident (it does today, because
+    R21 moved these records), so the discriminating case is MANUFACTURED here
+    and the control no longer depends on the corpus keeping it.
+
+    Returns the two spellings, relative to `root`.
+    """
+    old_rel, new_rel = "legacy/GRADE.md", "successor/GRADE.md"
+    env = dict(os.environ)
+    env.update({
+        # Neutralise every ambient config: a global hooksPath or a template dir
+        # must not be able to reach into a control.
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "GIT_CONFIG_SYSTEM": os.devnull,
+        "GIT_AUTHOR_NAME": "plant", "GIT_AUTHOR_EMAIL": "plant@invalid",
+        "GIT_COMMITTER_NAME": "plant", "GIT_COMMITTER_EMAIL": "plant@invalid",
+    })
+
+    def git(*args: str, when: int | None = None) -> None:
+        e = dict(env)
+        if when is not None:
+            # %ct, which `_landed` reads, is the COMMITTER date.
+            e["GIT_AUTHOR_DATE"] = e["GIT_COMMITTER_DATE"] = f"{when} +0000"
+        r = subprocess.run(["git", *args], cwd=root, env=e,
+                           capture_output=True, text=True, timeout=60)
+        if r.returncode:
+            raise RuntimeError(f"git {' '.join(args)} -> rc={r.returncode}")
+
+    (root / "legacy").mkdir(parents=True, exist_ok=True)
+    (root / old_rel).write_text("**Verdict: `PASS`.**\n")
+    git("init", "-q")
+    git("add", "--", old_rel)
+    git("commit", "-q", "-m", "add the grade", when=PLANT_ADD_CT)
+
+    (root / "successor").mkdir(parents=True, exist_ok=True)
+    git("mv", old_rel, new_rel)
+    git("commit", "-q", "-m", "move the grade (R21 class)", when=PLANT_MOVE_CT)
+
+    (root / new_rel).write_text("**Verdict: `PASS`.** (label amended)\n")
+    git("add", "--", new_rel)
+    git("commit", "-q", "-m", "amend the grade (D356 class)", when=PLANT_EDIT_CT)
+    return old_rel, new_rel
+
+
 def selftest() -> int:
     """Plant each defect class and require the checker to fire on it.
 
@@ -642,12 +703,69 @@ def selftest() -> int:
               f"-> {got}")
         failures += 0 if ok else 1
 
-    # Recognition control for _landed (D356). A control that merely proves
-    # `_landed` returns a number earns nothing -- the OLD reader returned a
-    # number too, and the wrong one. This control is only meaningful on a record
-    # that was ADDED once and EDITED later, so it asserts that such a record
-    # exists before believing the comparison: an amended grade must report its
-    # ADD time and must NOT report its last-touch time.
+    # Recognition controls for _landed. A control that merely proves `_landed`
+    # returns a number earns nothing -- the OLD reader returned a number too,
+    # and the wrong one. TWO defect classes must be discriminated and they pull
+    # in OPPOSITE directions:
+    #
+    #   D356  re-dating by AMENDMENT  reads the last touch instead of the add.
+    #   R21   re-dating by MOVE       reads the add at the NEW spelling, because
+    #                                 `git log --diff-filter=A` reports a rename
+    #                                 as an add there.
+    #
+    # `_landed`'s rule -- the EARLIEST ADD ACROSS SPELLINGS -- is the only one
+    # that survives both, and it is the correct one: for
+    # LADDER_V_V12_V13_V14_GRADE it returns 2026-08-15T21:00:12, matching the
+    # record's own filename date. The control written here previously POOLED the
+    # adds and demanded the LATEST, i.e. the move commit -- it demanded exactly
+    # the defect `_history_spellings` exists to prevent. With one spelling the
+    # two rules coincided and the disagreement was invisible; R21 broke the
+    # coincidence and the control started failing a correct implementation. The
+    # CONTROL was the wrong half. Both halves now state the same rule.
+    #
+    # (1) THE PLANTED HISTORY. Manufactured, so the discriminating case cannot
+    #     be lost to corpus churn, and so a wrong rule has a wrong answer
+    #     available to give: earliest add, latest add and last touch are three
+    #     different planted timestamps.
+    n_planted = 1
+    plant_root = Path(tempfile.mkdtemp(prefix="check_verdict_cells_landing_")).resolve()
+    saved_repo, saved_spellings = REPO, _history_spellings
+    try:
+        old_rel, new_rel = plant_moved_history(plant_root)
+        # CURRENT SPELLING FIRST, exactly as `_history_spellings` orders them
+        # (`out = [str(p)]`, then the map's alternates). Ordering is not
+        # cosmetic: a reduction that takes `adds[0]` rather than the minimum
+        # is a live defect class, and a plant that happened to list the oldest
+        # spelling first would let it through.
+        both = [str(plant_root / new_rel), str(plant_root / old_rel)]
+        globals()["REPO"] = plant_root
+        globals()["_history_spellings"] = lambda _p: both
+        try:
+            got = _landed(plant_root / new_rel)
+        finally:
+            globals()["REPO"] = saved_repo
+            globals()["_history_spellings"] = saved_spellings
+        ok = got == PLANT_ADD_CT
+        tell = {PLANT_MOVE_CT: " -- reads the MOVE commit (R21 re-dating)",
+                PLANT_EDIT_CT: " -- reads the last EDIT (D356 re-dating)"}
+        print(f"  {'HELD   ' if ok else 'BROKE  '} landing control "
+              f"{'planted moved+amended history':<38} "
+              f"-> add={PLANT_ADD_CT} move={PLANT_MOVE_CT} "
+              f"edit={PLANT_EDIT_CT} _landed={got}"
+              f"{'' if ok else tell.get(got, ' -- reads none of the three planted commits')}")
+        failures += 0 if ok else 1
+    except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
+        # A control that cannot be built is a FAILURE, never a skip. Switching
+        # itself off quietly is the disease, not the remedy.
+        globals()["REPO"] = saved_repo
+        globals()["_history_spellings"] = saved_spellings
+        print(f"  BROKE   landing control {'planted moved+amended history':<38} "
+              f"-> could not build the planted history: {exc}")
+        failures += 1
+    finally:
+        shutil.rmtree(plant_root, ignore_errors=True)
+
+    # (2) THE CORPUS CONTROLS. Same rule, asserted against real records.
     n_landing = 0
     for name in ("LADDER_V_V6_V10_REGRADE_2026-08-15.md",
                  "LADDER_V_V12_V13_V14_GRADE_2026-08-15.md"):
@@ -656,36 +774,51 @@ def selftest() -> int:
         # literal path made this control print `SKIP ... no history` the moment
         # R21 moved the record -- a control switching itself off in the batch
         # that made it necessary.
-        add, last = [], []
+        adds, lasts = [], []
         for spelling in _history_spellings(p):
-            add += subprocess.run(["git", "log", "--diff-filter=A",
-                                   "--format=%ct", "--", spelling], cwd=REPO,
-                                  capture_output=True, text=True).stdout.split()
+            out = subprocess.run(["git", "log", "--diff-filter=A",
+                                  "--format=%ct", "--", spelling], cwd=REPO,
+                                 capture_output=True, text=True).stdout.split()
+            if out:
+                adds.append(int(out[-1]))   # earliest ADD at THIS spelling
             one = subprocess.run(["git", "log", "-1", "--format=%ct", "--",
                                   spelling], cwd=REPO, capture_output=True,
                                  text=True).stdout.strip()
             if one:
-                last.append(one)
-        if not add or not last:
+                lasts.append(int(one))
+        if not adds or not lasts:
             print(f"  SKIP    landing control {name[:36]:<38} -> no history")
             continue
-        add, last = sorted(add, key=int), str(max(int(x) for x in last))
-        n_landing += 1
-        add_ts, last_ts = int(add[-1]), int(last)
-        if add_ts == last_ts:
-            # Never amended: the control cannot discriminate, and saying so is
-            # the point -- a control that cannot fail is not a control.
-            print(f"  VACUOUS landing control {name[:36]:<38} -> add == last; "
-                  f"this record has never been amended, nothing to distinguish")
+        earliest_add, latest_add = min(adds), max(adds)
+        last_touch = max(lasts)
+        # Vacuity is decided BEFORE the denominator moves. The old code counted
+        # the control and THEN discovered it could not discriminate, so a
+        # control that cannot fail was still scored as a control that passed.
+        if earliest_add == latest_add == last_touch:
+            print(f"  VACUOUS landing control {name[:36]:<38} -> earliest add "
+                  f"== latest add == last touch; never moved, never amended, "
+                  f"nothing to distinguish (NOT counted as a control)")
             continue
+        n_landing += 1
         got = _landed(p)
-        ok = got == add_ts and got != last_ts
+        ok = got == earliest_add
+        # A control blind to one of the two classes says so, rather than
+        # letting a partial discrimination read as a full one.
+        blind = " [blind to move-redating: only one spelling has an add]" \
+            if earliest_add == latest_add else ""
+        tell = ""
+        if not ok:
+            tell = (" -- reads the MOVE commit (R21 re-dating)" if got == latest_add
+                    else " -- reads the last touch (D356 re-dating)" if got == last_touch
+                    else " -- reads none of the record's own commits")
         print(f"  {'HELD   ' if ok else 'BROKE  '} landing control {name[:36]:<38} "
-              f"-> add={add_ts} last={last_ts} _landed={got} "
-              f"(delta {last_ts - add_ts}s the old reader would have added)")
+              f"-> earliest_add={earliest_add} latest_add={latest_add} "
+              f"last_touch={last_touch} _landed={got} "
+              f"(delta {last_touch - earliest_add}s the old reader would have "
+              f"added){blind}{tell}")
         failures += 0 if ok else 1
 
-    total = len(plants) + len(negatives) + len(shapes) + n_landing
+    total = len(plants) + len(negatives) + len(shapes) + n_planted + n_landing
     print(f"\nselftest: {total - failures}/{total} controls correct")
     return 1 if failures else 0
 
