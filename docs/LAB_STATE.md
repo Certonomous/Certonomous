@@ -506,6 +506,10 @@ partial transfer finding above.
 
 **On Sanaa's desk:** `RESULT_PRIORITY_CHARTER` v0.5 orderings; the `GATE
 FAIL`/bare-`FAIL` ruling (D-5); the VM2026R1 canonical home (D-6) — now with
-the finding that the second copy's transfer is dead at 10/123 files.
+the finding that the second copy's transfer is dead at 10/123 files, and with
+the prepared ruling memo **`docs/VM2026R1_FILING_ANALYSIS.md`** (three options,
+A recommended: outside-git home per the closure-data pattern + committed sha
+manifest; the manual-basename R8 rename rides along as §4). Analysis only —
+neither copy was touched.
 
 **Blocked:** VM2026R1 grading (blocked on D-6, Sanaa). Nothing else.
