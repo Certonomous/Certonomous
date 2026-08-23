@@ -355,7 +355,7 @@ Older rows (A6 close `6c6de745`, A3 rung-2 `27ce5799`/`92185911`, ADF candidate 
 **Images:** `dafoam-idwarp-rot:v1` (only image carrying the rotation patch, md5 `85f59e87…`), `dafoam-subpclu:v2` (PCLU), `dafoam-kspopts:v1`, `dafoam-team:v1` (`0b3c94c33a15`, both patches, ends `USER dafoamuser` → `--user root` for bind mounts). *The hash is the identity; the version string is not.* F6 series under `cases/dafoam/` is plain `simpleFoam`, not DAFoam work.
 ## heat-transfer
 
-**Section last written:** 2026-08-23T21:12:59Z by heat-transfer-supervisor
+**Section last written:** 2026-08-23T21:16:29Z by heat-transfer-supervisor
 (third session of 2026-08-23, the one holding the T9aH/F14/D477 threads).
 **TWO heat-transfer supervisor sessions are LIVE again:** this one, and the
 parallel session that owns EXPERTISE_CURRICULUM execution (chief's relay).
@@ -415,15 +415,15 @@ Split grading path as §1 registered, halves never merged:
   for verification/chief (beside L-244's T10a-R successor question).
 
 **Live jobs — 4 solvers, all this team's, single-core
-`buoyantBoussinesqSimpleFoam`.** Reading taken 2026-08-23T21:12:59Z (`ps`, `readlink
+`buoyantBoussinesqSimpleFoam`.** Reading taken 2026-08-23T21:16:29Z (`ps`, `readlink
 /proc/<pid>/cwd`, last `Time =`). **Do not touch them.**
 
 | pid | cwd | iteration / endTime | ETA |
 |---|---|---|---|
-| 442445 | `T1_runs/R_300k_x` | 43534 / 80 000 | ~2026-08-26 |
-| 450274 | `T1_runs/R_100k_x` | 38670 / 80 000 | ~2026-08-26 |
-| 488219 | `T1_runs/R_30k_x` | 36306 / 80 000 | ~2026-08-26 |
-| 757934 | `T3_runs/R_f` | 20000 / 78 000 | ≤ 2026-08-25T14:54Z |
+| 442445 | `T1_runs/R_300k_x` | 43628 / 80 000 | ~2026-08-26 |
+| 450274 | `T1_runs/R_100k_x` | 38741 / 80 000 | ~2026-08-26 |
+| 488219 | `T1_runs/R_30k_x` | 36364 / 80 000 | ~2026-08-26 |
+| 757934 | `T3_runs/R_f` | 49892 / 78 000 | ≤ 2026-08-25T14:54Z |
 
 **The L4 completion watcher (pid 1102509) is DEAD** (died with its session);
 not re-armed — completion evidence (STATUS mtimes, log tails) survives
@@ -481,16 +481,18 @@ cost VOID; K2a on Sanaa's desk). This session:
   found; next lane dispatched on it should start from the audit §11.4 and
   the K1-citing records.
 
-**Shared-index hazard (chief's call, untouched by this team, growing):** the
-stale shared index now also holds a staged DELETION of
-`docs/COST_CALIBRATION.md` (worktree byte-identical to HEAD), beside the
-earlier set (`T9aH_RESULTS.md`, `check_t9aH_mesh.py`, prereg `MM` flags,
-foreign dafoam/board-script rows). A bare `git commit` would land mass
-deletions. **Worktree-staleness spot-protection applied by this supervisor
-(defusal, not a fix — D480 owns the mechanism):** landed L-259 and the
-corrected D477 row were merged into the worktree `LESSONS.md`/`DOCKET.md`
-copies, preserving verification's unlanded L-258, so a peer staging those
-files cannot silently drop tonight's rows.
+**Shared-index hazard RESOLVED (chief, 21:15Z, D-1 precedent):** this team's
+escalation of the stale shared index was cleared by the chief after
+inspection — all 215 staged deletions phantom (disk byte-identical to HEAD),
+no unlanded work in the index; `git read-tree HEAD`, worktree untouched.
+The earlier in-section hazard lines are retired. Still real and unchanged:
+the UNSTAGED worktree states — this team's share is the eight K2bP
+`HEATBALANCE` disk deletions plus `K1_STANDING_THERMAL_CHECKS.md` (the open
+D477-row provenance question, next-action 3); the other worktree
+deletions/mods belong to their owning teams. This supervisor's earlier
+spot-defusals of `LESSONS.md`/`DOCKET.md`/`COST_CALIBRATION.md` worktree lag
+(landed rows merged in, verification's unlanded L-258 preserved) remain on
+record; D480 still owns the underlying commit-vs-worktree mechanism.
 
 **Next actions:** 1. L4 completions (~Aug 26; deadline guard 2026-08-27) →
 mark → comparator → four (m,f,x) triples → calibration row. 2. T3 ext1
