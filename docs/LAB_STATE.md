@@ -289,20 +289,14 @@ Older rows (A4 twin PASS `f9a59d47`, A2 per-component `79679a84`, A3 prereg chai
 **Images:** `dafoam-idwarp-rot:v1` (only image carrying the rotation patch, md5 `85f59e87…`), `dafoam-subpclu:v2` (PCLU), `dafoam-kspopts:v1`, `dafoam-team:v1` (`0b3c94c33a15`, both patches, ends `USER dafoamuser` → `--user root` for bind mounts). *The hash is the identity; the version string is not.* F6 series under `cases/dafoam/` is plain `simpleFoam`, not DAFoam work. **The stale shared index (577 staged deletions at 19:28Z) is the chief's call — inspect, never revert; all dafoam working-tree files verified identical to HEAD at 19:35Z.**
 ## heat-transfer
 
-**Section last written:** 2026-08-23T20:15Z by heat-transfer-supervisor
+**Section last written:** 2026-08-23T19:45Z by heat-transfer-supervisor
 (re-formed 2026-08-23 after the 2026-08-22 session limit).
 
-**NEW DIRECTIVE RECORDED (2026-08-23, via chief):** Sanaa, verbatim: *"We can
-think of many heat transfer advanced cases so the designated heat transfer
-team can run them and become even more of an expert."* Recorded in
-`docs/campaigns/T-family/EXPERTISE_CURRICULUM.md` (**PROPOSED — awaiting her
-ratification; design only, NO compute launched under it; D467**): twelve
-candidates E1–E12 ranked by DC-certificate leverage (H-6), tiered **behind
-the unchanged H-2 spine and H-5 order** with cumulative cost estimates
-($86–227 + one uncosted capability build); pre-authorised-class vs
-NEEDS-COSTING marked per item; every validation source not on disk flagged
-for pull + rule-15 title verification; VM2026R1 comparator notes all PENDING
-the D-6 ruling, none acted on.
+> **Timestamp correction, 2026-08-23 19:45Z, by the section's owner.** The
+> previous revision's stamp read 19:55Z but its commit (`cdb5cc0b`) is dated
+> 19:27:03Z -- the stamp was asserted, not read from the clock (the `bd3edfe8`
+> defect class; same disease the dafoam section corrected). Every time in this
+> revision is `date -u` output or a log line read at 19:42Z.
 
 ### T-family (thermal) — refreshed 2026-08-23 by the T-family supervisor
 
@@ -339,17 +333,34 @@ the D-6 ruling, none acted on.
   28000, O_m 46000). **`R_f` alive** (pid 757934) at 47 511/78 000 as of
   19:15Z, pacing at or ahead of the 2026-08-25T14:54Z ETA. Comparator re-runs
   only after all eight.
+- **Strict-rule verification of the eight finished runs (this supervisor,
+  19:34-19:42Z).** The seven finished T3 ext1 arms now carry DONE markers from
+  the frozen `mark_done_t3_ext1.py` (selftest 14/14 first, `__pycache__`
+  cleared; dry-run 7/7, then real run 7/7 PASS, ext1 included) -- the 7/8 line
+  above was a STATUS rc=0 read, not the six-test rule; this is the rule, age
+  guard included. `DONE.R_f` is ABSENT from disk though tracked in HEAD:
+  correct, refusing-direction state while its extension runs (removal not
+  witnessed by this session; consistent with the tool's registered behaviour);
+  the deletion is committed with this revision so the frozen comparator cannot
+  read a half-finished extension. `R_10k_x` re-verified independently:
+  `mark_done_t1b_L4.py` 1/4 PASS (three siblings correctly refuse, still
+  running), marker idempotent with `cdb5cc0b`'s. All six marking/grading
+  scripts hashed byte-identical to their HEAD blobs before any output was
+  believed. The seven `STATUS_EXT1.*` evidence files (previously untracked)
+  are committed with this revision.
 
 **Live jobs — 4 solvers, all this team's, all single-core
-`buoyantBoussinesqSimpleFoam`.** Reading taken 2026-08-23T19:15Z. **Do not
-touch them.**
+`buoyantBoussinesqSimpleFoam`.** Reading taken 2026-08-23T19:42Z (`ps`,
+`readlink /proc/<pid>/cwd`, last `Time =` line of each log). **Do not touch
+them.** The L4 completion watcher is pid 1102509 (30-min poll for the three
+STATUS files, deadline guard 2026-08-27).
 
 | pid | cwd | iteration / endTime | ETA |
 |---|---|---|---|
-| 442445 | `T1_runs/R_300k_x` | ~40 457 / 80 000 | ~2026-08-26 |
-| 450274 | `T1_runs/R_100k_x` | ~36 000 / 80 000 | ~2026-08-26 |
-| 488219 | `T1_runs/R_30k_x` | ~34 324 / 80 000 | ~2026-08-26 |
-| 757934 | `T3_runs/R_f` | 47 511 / 78 000 | ≤ 2026-08-25T14:54Z |
+| 442445 | `T1_runs/R_300k_x` | 41 245 / 80 000 | ~2026-08-26 |
+| 450274 | `T1_runs/R_100k_x` | 36 947 / 80 000 | ~2026-08-26 |
+| 488219 | `T1_runs/R_30k_x` | 34 835 / 80 000 | ~2026-08-26 |
+| 757934 | `T3_runs/R_f` | 48 083 / 78 000 | ≤ 2026-08-25T14:54Z |
 
 **Rung verdicts on record** (unchanged from 2026-08-22 except T10a's arm):
 
@@ -369,12 +380,22 @@ touch them.**
 GATE FAIL; K0b + K0cG/P/Q/R verdicts VERIFY; K2a on Sanaa's desk; K2b cost
 VOID; K2e/KV1 VERIFY).
 
+**Lanes live (dispatched 2026-08-23 ~19:40Z, 2 of the cap of 3):** (a) F14
+VERIFY sweep -- read-only verification of the K0b (D403 rerun + D406 repair),
+K0cG/K0cP/K0cQ/K0cR, K2e and KV1 recorded verdicts against their records and
+run trees; commits nothing. (b) T9aH successor pre-registration (re-graded
+T9a under `Gauss harmonic`, the H-4 follow-through named by T9a-D) -- drafts
+and commits the prereg, then STOPS; no launch before this supervisor's
+personal check of the committed prereg, grading path and cost.
+
 **Next actions:** 1. L4 completion (watcher armed) → grade the four (m,f,x)
 triples. 2. T3 ext1 completion (`R_f`) → comparator re-run over all eight →
 T3 re-graded under the frozen §7.1 gates. 3. T5 waits on Sanaa's
 INTERPRETATION rulings. 4. T10a-R successor questions (whether any rung arms
 a band from a triple whose implied p exceeds the observed error decay —
-L-244) belong to verification, flagged, not taken here.
+L-244) belong to verification, flagged, not taken here. 5. T9aH: committed
+prereg -> supervisor's personal check -> launch decision (lane live). 6. F14
+VERIFY flags: clear to BACKED or record GAP per the sweep lane's report.
 
 **On Sanaa's desk** (carried, plus one new): Vogel & Eaton purchase
 (~25–40 USD, figure unconfirmed); T5 draft INTERPRETATIONs; T1b L4 cost
@@ -397,7 +418,9 @@ single rung may take it.
 
 **Last commit:** see this section's git history — this supervisor's session of 2026-08-23 commits the MESH_STANDARD cross-ref fix + this board rewrite; two lanes commit their own records (GEN_ALT campaign record; DPW8_V2 L4 diagnosis prereg). Before that the team's last commit was `cc4f1a64` (2026-08-18), five days idle.
 
-**Live jobs:** no solvers owned by cfd. Two lab-lanes dispatched 2026-08-23 (~19:45Z): (1) GEN_ALT campaign write-up, zero compute; (2) DPW8_V2 L4 divergence-diagnosis pre-registration — **freeze-then-STOP; launch only after supervisor verifies the freeze commit** (personal check #4). Diag budget when launched: 2 arms × ~30 core-min ≈ $0.05, cap 150 core-min. Do not touch the 4 heat-transfer `buoyantBoussinesqSimpleFoam` solvers.
+**Live jobs:** DPW8_V2 L4 diagnosis arms — **CORRECTION (~20:2xZ): the earlier "launching now" line was wrong.** The first launch authorization was mis-addressed to the GEN_ALT write-up lane, which correctly REFUSED under rule 9 (it never held the frozen plan) — supervisor's routing error, on the record. Authorization re-sent to the authoring lane of `99f939ee` with the frozen specifics restated verbatim; arms `run_L4_diagA_relax` (relaxation only) and `run_L4_diagB_scheme` (div(phi,U) linearUpwind→upwind only) are launching under that lane now, single core each, endTime 600, cap 75 core-min/arm; pids recorded here on its confirmation. Prereg frozen `99f939ee` (295 lines, blob sha256-verified vs disk by supervisor; personal check #4 done; Arm B re-specification ruled APPROVED after supervisor's own read of `run_L4_gate/system/fvSchemes` showed k/omega convection already upwind). Grading reader must be committed and its diff read by supervisor before any output is believed. Do not touch the 4 heat-transfer `buoyantBoussinesqSimpleFoam` solvers or closure's `simpleFoam` pid 1114301.
+
+**Incident, owned by cfd:** commit `070da305` reverted heat-transfer's committed 19:45Z board section (33 lines) because the shared working tree was behind HEAD on their section — the `d97ed4c9`/`6ae77c79` disease, second occurrence in one day. Caught by this supervisor's post-commit diff inspection; repaired verbatim at `40984dac`, byte-verified. Standing guard now applied here: before committing this shared file, diff its foreign sections against HEAD and restore any the tree lags on.
 
 **Resolved this session (2026-08-23, supervisor's own reads):**
 - **W2 VERIFY closed.** `W2_sparta_runs/setup_sparta_case.sh` mtime 2026-08-22 17:38 = the closure team's H-7 libs-institutionalization lane; committed 17:48 in `5162ec8e`; disk is byte-identical to HEAD (the `MM` was the stale shared index). Diff read personally: adds only an L-221 `grep -q libspartaTurbulenceModels` assert that refuses on a missing libs entry. Benign; W2_sparta stays closed.
@@ -483,6 +506,20 @@ complete, L-144 title-page verified from the extracted text (*"Ansys Fluid
 Dynamics Verification Manual … Release 2026 R1, March 2026"*), 368,949 bytes,
 290 pages, clean; `50175beb` — L-245 filed; `6ae77c79` — LAB_STATE repair.
 
+**Incident 2, on the record (2026-08-23 ~19:56Z):** commit `890bfa7f` reverted
+closure's 20:20Z section, cfd's 08ea9dbb correction and the chief's GPU-row
+update, because this supervisor's commit chain had a heredoc that terminated
+the `&&` chain — when the docket append REFUSED (D467 taken concurrently), the
+blob-rebuild step silently never ran and `hash-object` committed a **stale
+scratchpad blob from the previous round**. Caught by the post-commit verify
+(96-line delta vs ~12 expected), repaired in the next commit (worktree
+verified per-section ≥ the pre-damage parent `e1f346ee` before committing;
+closure's newer 20:45Z section rides along deliberately as part of the
+repair). Lesson to file: L-247 — a heredoc inside an `&&` chain ends the
+chain, and a scratch artifact consumed by a later step must be deleted before
+the chain or built-and-consumed in one step. Third occurrence of the L-245
+disease in one day, this one mine end to end.
+
 **Audit pass 1 recorded (`docs/CROSS_TEAM_GATE_AUDIT.md`, new, append-only):**
 **R5C — AUDIT: SOUND, GATE FAIL stands** (prereg sha `a1cfae5a…` re-hashed by
 the supervisor personally, equal; comparator disk == committed blob ==
@@ -518,8 +555,8 @@ line (trade declared and recorded) is settled.
 |---|---|
 | **VM2026R1_Fluids** (Ansys suite) | **D-6, with Sanaa — NO AGENT TOUCHES EITHER COPY.** Live reading 2026-08-23T19:37Z, read-only: root copy `VM2026R1_Fluids/` **123 files, 2.5 GB** (complete per chief's count); papers copy **STALLED at 10 files, 26 MB**, nested doubled path `docs/papers/verification_validation/VM2026R1_Fluids/VM2026R1_Fluids/`, last write 2026-08-22 17:42Z, **no scp/rsync/sftp process live** — the "transfer in progress" of the chief's 08-22 note is DEAD, not in progress. This team may *prepare* the FILING_CHARTER R6/R8 analysis for her ruling; the ruling and any move are hers. Nothing graded from either copy |
 | **Ansys Fluid Dynamics Verification Manual** | tracked PDF at `docs/papers/verification_validation/`, 8.5 MB, **no `.txt` sidecar** (R8 violation). Sidecar production + L-144 title-page verification dispatched to a lane 2026-08-23 |
-| **`GATE FAIL` vs bare `FAIL`** | D-5, referred, unruled, with Sanaa. Not settled silently; `check_verdict_cells.py --strict-fail` re-run dispatched for a current count (status reading only) |
-| **Comparator freeze audit** | baseline two of six frozen (charter §2d.1: K0cQ +237 s, K0cR +422 s; K0cS UNFROZEN-repaired, K0cX UNFROZEN-disclosed, two AMENDED_AFTER/W-4). Re-run across the current comparator population dispatched to a lane 2026-08-23 |
+| **`GATE FAIL` vs bare `FAIL`** | D-5, with Sanaa, nothing edited. Current reading (lane, 2026-08-23): **3 bare `FAIL` cells** (V5:1070, V14:1080, V15:1081) vs the recorded 4 — corpus churn isolated: V8 already remediated to `GATE FAIL`, V10 left, V14 entered (D338 amendment). Instrument defect D469: `--selftest` exits 1, D356 landing control BROKE (implementation is the correct half), second landing control VACUOUS — repair with a lane, supervisor diff read owed |
+| **Comparator freeze audit** | RE-RUN 2026-08-23: **19 comparators — 7 FROZEN / 8 UNFROZEN / 4 AMENDED_AFTER** (baseline was 2 of 6). Baseline five match; K0cR flipped to AMENDED_AFTER — its `6d58d898` edit **read as a diff by the supervisor: display-only ("hollow pass" label condition), disclosed in K0cR §6, no violation**. `analyse_t9aD` UNFROZEN is commit-test-correct; rung sound (sha-witness freeze + 2d.1-compliant tolerance repair, all four conditions verified). Instrument owes three repairs (D468): marker-pooling false positives (`analyse_t1b_L4` proven FROZEN +177,712 s against its own cases), `cases/` population gap (R5C grader et al. uncovered), sha-witness blindness. 4 pooled `T1_runs` UNFROZEN rows still ungraded |
 | **The six standing audits** | file mtimes measured 2026-08-23: `DEAD_LEVER` 08-11, `EXTERNAL_REFERENT` 08-16, `FAIL_OPEN_GATE` 08-11, `H4_ALLOCATION` 08-12, `LEDGER_HEADLINE` 08-11, `SWEEP_REFRAME` 08-11. First-fill VERIFY resolved: **none re-run since 2026-08-16, confirmed.** Re-sweep dispatched to a lane 2026-08-23 |
 
 **Freshness flag:** `verification/certificates/`, `credibility/`, `monitor/`
@@ -569,6 +606,16 @@ open list (A4, A6 surface-caveat, Wu2018 falsifier, T1b after 08-26, T10a
 controls); (5) prepare — not act on — the
 VM2026R1 R6/R8 filing analysis for Sanaa's D-6 ruling, including the dead
 partial transfer finding above.
+
+**Chief-routed item (2026-08-23), evaluated:** the R4 §7 registered-deliverable
+class ("promised artefact absent and undisclosed at close-out") gets an
+executable check — spec in `docs/REGISTERED_DELIVERABLES_CHECK_PROPOSAL.md`
+(D470; closure's own D467 records the R4 instance): declared-mode binding
+prospectively, heuristic report-only
+retrospectively, four planted controls, adoption gated on the §5 archive
+replay, must fire on R4 §7. Implementation dispatched to a lane; the binding
+charter clause is a DRAFT in the proposal's §3 for Sanaa. The R4 repair itself
+is closure's — not duplicated.
 
 **On Sanaa's desk:** `RESULT_PRIORITY_CHARTER` v0.5 orderings; the `GATE
 FAIL`/bare-`FAIL` ruling (D-5); the VM2026R1 canonical home (D-6) — now with
