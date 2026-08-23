@@ -339,3 +339,125 @@ either.
   a tree three other agents were writing to. Per L-79 they are snapshots: the
   commit is stated so a reader can tell "true at that moment" from "true now", and
   the command to re-derive each is `scripts/sweep.py --frame worktree`.
+
+---
+
+## 6. RE-RUN, 2026-08-23 — the sweep re-applied to the material that entered since 2026-08-11
+
+**Lines whose number changed above this section: 0.** This section is appended at
+the foot; nothing above it was edited (rule 6).
+
+**Sweep date:** 2026-08-23, 19:44–20:10 UTC. **Tree:** HEAD moved four times while
+this ran — `c7dc6add` → `090c070c` → `a1d5be72` → `890bfa7f`. Peers were committing
+throughout; per L-79 every count below is a snapshot and carries the frame it was
+taken over. **Executor:** `lab-lane`, verification team. **Compute: zero
+core-minutes** — greps and reads only, no solve launched.
+
+**What re-running this audit means, restated from §5.** It re-runs *published*
+sweeps: a `grep`-derived count offered as evidence in a tracked document. It does
+not re-run sweeps whose input is off this host (§3 stands unchanged — the
+`dafoam/opt-packages:latest` container is still unreachable from this session).
+
+### 6.1 The population, so the next re-run can diff it
+
+| quantity | 2026-08-11 | 2026-08-23 |
+|---|---|---|
+| tracked files (`git ls-files`) | 20,562 | **9,767** |
+| tracked `.md` | 366 | **635** |
+| tracked `.md` naming a `grep`/`zgrep`/`ugrep`/`git grep` invocation (frame: `git ls-files '*.md'`, read with `/usr/bin/grep`, not the shell wrapper) | not measured as such | **165** |
+| …of those, **added since 2026-08-11** | — | **43** |
+| …of those, **added since 2026-08-16** | — | **36** |
+| published sweeps adjudicated in this re-run | 17 | **4 of the 43 new documents** |
+
+The tracked-file count **halved** — 20,562 → 9,767 — across the MOVE_MAP batch
+reorganisation (`9f3971f6` and siblings). **Every tracked-frame figure in §1–§2 of
+this document is therefore taken over a file set that no longer exists**, and a
+reader re-deriving them at HEAD will not get this document's answers for reasons
+that have nothing to do with the ignore filter. That is L-79 at repository scale
+and it is stated here rather than left for a reader to discover.
+
+### 6.2 Adjudicated: 1 UNFRAMED, 2 HOLD, 1 model instance
+
+**U-4 (new) — UNFRAMED. `docs/closure/LIBS_ASSERT_SWEEP.md:31`, the L-221 libs
+sweep, publishes a population no stated frame reproduces.**
+
+> *"Population: **92** grep hits for `libs` in scripts in scope; **75** of them are
+> lines that actually write a `libs` entry (the remaining 17 are comments and
+> argument plumbing)."*
+
+The document states a **scope** in prose (§2: `.py`, `.sh`, `.bash` and
+Makefile-like scripts under `cases/` and `verification/`) and names four excluded
+paths as *"not edited, by instruction"*. It states no **frame**: not whether the
+count was tracked-only, ignore-honouring or a real filesystem walk, and not the
+commit it was taken at. Re-derived four ways:
+
+| frame | files considered | `libs` hit lines |
+|---|---|---|
+| tracked, **at the sweep's own commit `5162ec8e`** (`git grep -cI libs` over the stated scope) | 459 | **105** |
+| tracked at HEAD, same pathspec | — | **141** |
+| worktree at HEAD (`find` + `/usr/bin/grep -cIH`, no ignore filter) | 510 | **141** |
+| tracked at HEAD (`git ls-files` + `/usr/bin/grep -cIH`) | 462 | **110** |
+
+**The published 92 equals none of them.** The likeliest reconciliation is that 92
+is the scope *minus* the four excluded paths — 105 − 92 = 13 is the right order of
+magnitude — but the document does not say whether the exclusions were applied to
+the **count** as well as to the **edits**, and this audit does not guess a figure
+(§3's rule). Classified **UNFRAMED**. *What to correct:* the frame and the commit,
+not the finding — the eight call sites §3 enumerates are each cited by path and
+line and are individually checkable.
+
+**H-1 (new) — HOLDS exactly. `docs/campaigns/T-family/T3_RESULTS.md:64`.**
+
+> *"`grep -c '^ExecutionTime' log.solve` = **20000** — no skipped iteration, no
+> restart replay"*
+
+Re-derived with `/usr/bin/grep` (never the wrapper) on the cited artifact
+`verification/runs/T-family/T3_runs/R_f/log.solve`: **20000**, exact. Re-derived
+on four sibling arms of the same rung — `R_c`, `D_m`, `O_m`, `C_lam_m` — **20000
+each**. This is a strict-completion-rule clause (constitution rule 4) and it
+re-derives on the nose, five times over.
+
+**H-2 (new) — HOLDS, and is the model this audit asked for.
+`docs/P33_CROSS_SURFACE_SWEEP.md:35-36`.**
+
+That document does not merely state its frame; it **measures the gap between two
+frames and publishes both**:
+
+> *"Repo-root `grep -rl "68%" .` (aliased, ugrep --ignore-files) found **66**
+> files; `/usr/bin/grep -rl "68%" --exclude-dir=.git .` found **104**. The 38-file
+> delta is exactly the class the trap warns about…"*
+
+It names L-75's mechanism, quantifies its reach on this tree, and separates the
+tracked-text search (`git grep`) from the untracked/ignored search
+(`/usr/bin/grep`) in a table before any finding is reported. **§2.6 called
+`FAIL_OPEN_GATE_POPULATION.md` "the document every other sweep in this audit
+should have been"; `P33_CROSS_SURFACE_SWEEP.md` is the second, and it is the first
+one written after this audit landed.** The corpus learned the lesson.
+
+**N-1 (new) — a re-citation that carries the command and not the frame.
+`docs/campaigns/F14-cooling-ladder/K0cQ_PREREGISTRATION.md:40`** re-cites
+`W3_QCR_DUCT_FALSIFIER.md` §2 as *"by `grep -rli qcr` over both source trees,
+zero"*. §2.4 of this audit re-derived the host-tree leg as a **complete** sweep
+(19,601 entries, 0 skips) precisely because the OpenFOAM tree ships no
+`.gitignore` and the wrapper's filter was inert there — a fact the re-citation
+does not carry. The **conclusion is unaffected**; the sentence a reader meets
+names a command whose reach is only safe for a reason stated two documents away.
+This is the transmission-loss shape `EXTERNAL_REFERENT_AUDIT.md` §10 names, here
+in a `grep` count. Recorded, not corrected.
+
+### 6.3 What this re-run did not reach — stated, not discovered later
+
+- **39 of the 43 new `grep`-naming documents were not adjudicated.** They were
+  enumerated mechanically and screened for a published count; four were read.
+  Absence of a finding in the other 39 is **a statement about this re-run's
+  depth, not about those documents.**
+- `scripts/sweep.py` was **not** used for the frame figures here; the counts above
+  came from `git grep` at a named commit, `git ls-files` + `/usr/bin/grep`, and
+  `find` + `/usr/bin/grep`. Every one of those has a stated reach; none is the
+  shell wrapper.
+- The three **UNFRAMED** rows of §3 were not re-attempted. The container is still
+  unreachable from this session and PC-2's archive is still unnamed.
+- Per §2.7's own observation, **this section is itself now part of the corpus it
+  sweeps**: a future re-run of the `grep`-naming population will count
+  `SWEEP_REFRAME_AUDIT.md` among the 165, because it quotes the commands it
+  checks.
