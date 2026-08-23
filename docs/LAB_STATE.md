@@ -518,11 +518,15 @@ single rung may take it.
 
 ## cfd
 
-**Section last written:** 2026-08-23T20:55Z by cfd-supervisor (second owner session — the grading session; the session that authorized the arms died between their launch and their grading).
+**Section last written:** 2026-08-23T21:16:02Z by cfd-supervisor (second owner session — the grading session; the session that authorized the arms died between their launch and their grading). Stamp taken from `date -u` in the committing shell invocation per the chief's 2026-08-23 timestamp directive; this session's earlier "20:55Z" stamp was projected, not read — owned here as an instance of the bd3edfe8 defect class.
 
-**Last commit:** `1135e3c5` (F4 §8 source-read, pure append +329), `3b9bcf31` (F7a R0: paper + sidecar + §7 addendum + diagnostic reader, 6 paths, +2,692/-0), `ca65745c` (board), `ea204b3d` (D481 + L-255), `b8fe7eea` (DPW8_V2 L4 diagnosis results record + 22 run artifacts) — post-commit-verified (only their paths).
+**Last commit:** `0bbac521` (F4 step-0/1 prereg FROZEN, 3 paths +1,581), `f89aa7b4` (cfd's two COST_CALIBRATION rows), `7a96cf54` (OPENFOAM.md re-scope +87/−3), `1135e3c5` (F4 §8 source-read, pure append +329), `3b9bcf31` (F7a R0), `5ede69ac`/`ca65745c` (board), `ea204b3d` (D481 + L-255), `b8fe7eea` (L4 diagnosis results + 22 artifacts) — every one post-commit-verified (only its paths).
 
-**Live jobs:** no cfd solver runs. Two lanes live, both zero-compute: (a) `docs/OPENFOAM.md` re-scope (dated re-scope note, WSL section → HISTORICAL, nonexistent Dockerfile marked); (b) F4 step-0/1 pre-registration FREEZE at `verification/campaign/F4_SIGFPE_STEP01_PREREGISTRATION.md` — **freeze only, NOTHING LAUNCHED; supervisor launch authorization required after his read of the committed prereg and reader (checks #1/#4), est. ≈9.4 core-min ≤12 cap when it does run**. Do not touch the heat-transfer `buoyantBoussinesqSimpleFoam` solvers or closure's Kaandorp `simpleFoam` (driver spawns a fresh solver pid per row — never cite a stale pid; the prior board's "pid 1114301" was already dead at the chief's 20:26Z reading).
+**Live jobs:** none — no cfd solvers, no lanes. Do not touch the heat-transfer `buoyantBoussinesqSimpleFoam` solvers or closure's Kaandorp `simpleFoam` (driver spawns a fresh solver pid per row — never cite a stale pid).
+
+**Directives acknowledged in force (2026-08-23):** (a) **cost calibration** (Sanaa, verbatim on the CHIEF board): every completed process states predicted vs actual, ratio, gap attribution, waste separately named, row appended to `docs/COST_CALIBRATION.md` from HEAD content (the worktree copy of that file lost its whole table tonight — 51 lines behind HEAD; HEAD intact, reported to chief; never append from the disk copy). cfd rows landed at `f89aa7b4`: L4 diag **0.35x** of projection (zero waste; Arm A phenomenon-terminated at iter 182; Arm B basis carried load-19.5 contention, applied at load 5.03 — record the load beside any per-iteration basis); F7a R0 exact 0/0. **Standing obligation: F12's eventual row must name the 9.79x cross-solver spread as the calibration gap.** (b) **timestamps**: every stamp is `date -u` read in the same shell invocation as the write — in every cfd lane brief from now on.
+
+**F4 step-0/1 prereg — FROZEN `0bbac521`, NOTHING LAUNCHED, and the supervisor's read GATES any launch (read is PENDING — checks #1/#4 are half-done: commit verified, all three blobs sha256 == disk, status-header gate language confirmed; the diff read of prereg + reader skeleton is NOT yet done and no launch may be authorized before it).** Lane's four pre-freeze corrections, all worth knowing: control case is `warmup20_bounded_realtime` (Euler), not `warmup20_bounded` (localEuler); endTime fixed to 6.5e-05 (1.0 was unreachable — rule-4 clause would never hold); writeInterval fixed to 1.3e-05 (1e-3 would write no fields — the recorded endTime/writeInterval trap); **Step 1 re-specified to the inlet patch ONLY** after the source read showed the briefed all-boundary variant is a bit-exact no-op on zeroGradient patches and puts mass through the solid wall on the no-slip patch. Reader is a frozen skeleton (grading bodies `NotImplementedError` by design, cannot be tuned to logs that do not exist); controls C1/C3 ran at freeze with six injected mutations all caught; C0/C2/C4 PENDING on run logs. Cap: **12 core-min run (6/step) + 3 build allowance, envelope ≤15 = $0.0128 derived**; rate is record-quoted-artifact-missing (the 279.93 s log is gone from disk), price reported-by-owner. §10.4 pre-commits the calibration close-out; its freeze-time condition line ("ledger not tracked at HEAD") was true at drafting and is now stale — the operative clause (verify at HEAD before appending) stands.
 
 **DPW8_V2 L4 diagnosis — GRADED this session, under prereg `99f939ee` (blob sha256 re-verified by this session's supervisor before grading; reader `analyse_l4_diag.py` committed pre-launch at `30d93a0c`, disk == blob, full diff read by supervisor).** The prior board's "launching now" line resolved TRUE: the authoring lane launched both arms 20:01Z and they completed (20:03Z / 20:20Z) before that session died. Controls C1–C5 all green (C5 plant auto-raised to −175205 per §5, read back exactly, real file md5 unchanged). Results record: `verification/campaign/DPW8_V2_L4_DIVERGENCE_DIAG_RESULTS.md` @ `b8fe7eea`; transcript `verification/runs/DPW8_V2_runs/L4_DIAG_GRADING_OUTPUT.txt`.
 - **Arm A (relaxation only): BLOCKED** (§6) — SIGFPE at iter 182/600, rc 136. Supervisor triage (personal check #2): launcher exonerated (bashrc sourced, correct binary, 4450 s cap untouched at 124.26 wall s); ZERO bounding-k lines; divergence proceeded to FP overflow in the U-equation smoother. Header-identified Cd/Cl at the last written row (iter 181) = 1.6026e+37 / 8.0168e+37 — the supervisor's own first read quoted ~1e35 from the wrong columns (the §2.1 CmRoll/CmYaw trap, caught by the filing lane; nothing turned on it). The crash is the phenomenon, not the toolchain; the frozen §6 label stays BLOCKED, no post-hoc relabelling.
@@ -573,28 +577,34 @@ conclude a family is ungraded because its run directory is bare.
 (v1.2) = quality gates; `docs/MESH_STANDARD.md` = grid families. Consistency
 verified 2026-08-23 (see above). `docs/OPENFOAM.md` — triaged 2026-08-23: the
 **v2606 claim is VALID** (`/usr/lib/openfoam/openfoam2606` is the only install);
-what is stale is the framing — it documents a WSL2/docker phase-1 adapter
-workflow on a native-Linux AWS box, and `sdk/docker/Dockerfile.openfoam-worker`
-**does not exist** though the doc gives a build command for it. Zero-compute fix
-pending: flag the container section, re-scope WSL as historical.
+what was stale was the framing — **FIXED at `7a96cf54`** (dated re-scope note
+at top, WSL section marked HISTORICAL, container section marked as describing
+an artifact that does not exist on this box — never tracked in any commit;
+same-invocation bashrc-sourcing rule stated with the L4 §9 citation). Flagged
+to the chief, outside cfd scope: four docs still carry `wsl -d Ubuntu --
+openfoam2606` as a LIVE run instruction (`docs/HANDOFF.md:97,213`,
+`docs/HANDOFF-BG2.md:26`, `docs/HANDOFF-RACEGUI.md:95`,
+`docs/DEMO_RUNBOOK.md:12`).
 `docs/OPENFOAM_SOLVER_BUILD.md`: two dead `demo-output/website/...` paths for
 `rhoCentralFoamBounded_src` **fixed 2026-08-23** (source verified on disk at
 `verification/runs/F4_runs/swbli_cylflare/`).
 
-**Next actions:** (1) collect the two live lanes; supervisor read of the
-committed F4 step-0/1 prereg + reader (checks #1/#4) BEFORE any launch
-authorization. (2) supervisor diff-read of
+**Next actions:** (1) **supervisor diff-read of the frozen F4 prereg
+`0bbac521` + reader skeleton — the gate on launch authorization** (envelope
+≤15 core-min when authorized; grading bodies must be implemented and their
+diff read before any output is believed). (2) supervisor diff-read of
 `verification/runs/F7_runs/r0_implied_front_definition.py` (new measurement
 script; its §7.3 numbers are not relayed beyond this board until read —
 personal check #1). (3) F5b physics rung (~25–35 core-min) as the next cheap
-compute candidate — needs its own frozen prereg first. (4) D481 third-lever
-decision for DPW8_V2 L4 — chief/next session. (5) dead-path sweep: the
+compute candidate — needs its own frozen prereg first, with the calibration
+close-out clause and load-stamped basis. (4) D481 third-lever decision for
+DPW8_V2 L4 — chief/next session. (5) dead-path sweep: the
 `demo-output/website/...` stale-citation class is corrected inside the F4
 record (§8.10, `1135e3c5`) but persists in `NOT_PASSING_REGISTER.md`'s F4
-entry (flagged, another record's item) and `mega-batch`'s driver. (6) the F4
-missing-logs records defect: decide whether Group 3's bounded-fraction figures
-need a VERIFY flag in `NOT_PASSING_REGISTER.md` until step 0 regenerates the
-evidence.
+entry and `mega-batch`'s driver. (6) the F4 missing-logs records defect:
+decide whether Group 3's bounded-fraction figures need a VERIFY flag in
+`NOT_PASSING_REGISTER.md` until step 0 regenerates the evidence (step 0's
+instrumented re-run is exactly the recovery path).
 
 **On Sanaa's desk:** nothing from cfd currently.
 
