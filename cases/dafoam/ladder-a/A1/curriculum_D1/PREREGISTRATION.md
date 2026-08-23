@@ -826,3 +826,104 @@ this amendment adopts. §14 is not edited; this paragraph is the correction.
 | containers started, solvers run, core-minutes spent | **0** |
 
 **NOT FILED ANYWHERE.**
+
+---
+
+## 16. AMENDMENT 2 — dated, appended at the foot, append-only. Two defects in this file, found by its own author before first compute, corrected here.
+
+**Date: 2026-08-23T21:22:10Z — UTC, read by `date -u` in the same shell invocation that wrote and committed this
+amendment (Amendment 1, A1.2).**
+
+**Condition, and how it was checked** (`CLAUDE.md` rule 2). **No compute has occurred.** The run root
+`/home/ubuntu/certonomous-runs/CURRICULUM-D1-a1-constrained-opt/` now exists — it was created, and the
+base case staged into it, under §9.3 — but **no container has ever been started**: `docker ps -a
+--filter name=d1_` returns empty and no arm log exists, both asserted inside the same shell invocation
+that wrote and committed this amendment. **Zero core-minutes have been spent.** Both corrections below
+were found by re-reading a **stored** log (`P1-a1-np1/stock.log`, zero compute) during pre-launch
+staging, **before arm E was launched**, and are made now precisely so they cannot be made afterwards.
+
+**Neither correction moves a gate, a threshold, a cap or a prediction band.** One fixes a wrong
+reference value in a falsifier; one fixes an arithmetic slip in a citation and pins a definition this
+file left open. **The superseded text is retained above and scored against in `RESULTS.md`.**
+
+### A2.1 — F1's reference value was the np=2 figure and this is an np=1 item. Corrected.
+
+**The defect.** §5 falsifier **F1** requires arm E's baseline `CD` to equal
+**`0.0209105098587985`** *"to all 16 digits"*. **That is the np=2 value** from the frozen record.
+**This item runs at np=1**, and the stored np=1 baseline — `P1-a1-np1/stock.log`, arm 1, first primal,
+read at zero compute — is **`0.02091051000679216`**. The two differ by **`1.479937e-10`**, at the 11th
+significant digit. **F1 as written would have fired on arm E for a benign reason** — the decomposition
+difference the reverify item already measured and reported (`../reverify_patched_idwarp_np1/RESULTS.md`
+§5, *"the 7th digit"* on the analytic) — **and would have stopped a healthy run.**
+
+> **CORRECTED F1.** Arm E's cold baseline `CD` must equal **`0.02091051000679216`** — the stored
+> **np=1** value — to all printed digits. The **np=2** figure `0.0209105098587985` is reported beside
+> it as the cross-decomposition comparison, with the measured **`1.479937e-10`** gap stated, and is
+> **not** an assertion target. Everything else about F1 is unchanged: it proves cold start, mesh
+> identity and setup identity at once, and a miss stops the run.
+
+**Why this is a correction and not a loosening.** The tolerance is unchanged — still *all printed
+digits*, still bit-identical, still stopping. Only the **reference** changes, from a value measured at
+a decomposition this item does not use to the value measured at the decomposition it does use. That is
+`DAFOAM_CHARTER.md` §5's own rule applied to this file: **an FD or primal reference is part of a
+configuration, not a property of a case, and is never carried across np.** This file carried one
+across np, and that is the defect.
+
+### A2.2 — the η citation was wrong by one order, and the η **window** was never pinned. Both fixed; the band is NOT moved.
+
+**Defect (a), arithmetic.** P7's basis cell states the frozen record's primal tail as *"a change of
+**1.91e-9** over the final 35 iterations."* **Recomputed from the same two published digits strings:
+`0.02091052898117485 − 0.0209105098587985` = `1.912238e-08`.** The correct figure is **`1.912238e-08`**,
+one order larger than cited. The np=1 stored equivalent is **`1.957350e-08`**.
+**P7's band `[2e-10, 5e-8]` is NOT moved** — the corrected basis still sits inside it, nearer its top
+than its point estimate. **The point estimate `2e-9` is retained unchanged and is expected to be a
+MISS in the high direction; `RESULTS.md` will report it as one.** Correcting a citation is not
+licence to re-centre a prediction after noticing it, and the prediction is therefore left alone.
+
+**Defect (b), an unpinned definition — the more serious of the two.** §4's arm-E row registers
+*"cold baseline primal, `printInterval 10`"* and P7 registers a band, but **this file never pinned the
+sample window η is the peak-to-peak of.** On A1 the window is not a detail: A1's primal **exits on
+`primalMinResTol 1e-8`**, so its final iterations are the steep tail of convergence, not a plateau.
+Measured from the stored np=1 log: **200→300 moves `2.95e-05`, 300→400 moves `1.08e-06`, 400→435 moves
+`1.96e-08`.** A window of the last 200 iterations would therefore report ≈1e-5 and would be measuring
+**convergence, not noise**.
+
+> **REGISTERED DEFINITION.** **`η` := the peak-to-peak of `CD` over the last 5 printed samples of arm
+> E's cold baseline primal at `printInterval 10`** (the final ~40 iterations — the plateau at the
+> stopping point), floored at `1e-12`. **`η_A6window`** — the last-200-iteration, 20-sample
+> peak-to-peak, A6's definition verbatim (N-D13) — **is measured and reported beside it, and is NOT
+> used to size any step**, because A6's primal ran a fixed `endTime 1000` with the tolerance exit
+> closed and A1's does not: **the same formula reads a plateau there and a convergence tail here.**
+
+**The principle this rests on, stated rather than assumed.** What contaminates a central difference is
+not the distance from the converged answer — that stopping error is systematic across the baseline and
+both perturbed solves under an identical residual criterion and largely cancels — but the
+**variation** in that stopping error between the two perturbed states. The plateau peak-to-peak at the
+stop bounds it; the convergence tail does not. And the stochastic term is **measured to be exactly
+zero** on this case: the frozen record's run-2 baseline primal reconverged **bit-identically to all 16
+digits** from a cold start, so `δ_repeat = 0`.
+
+**Why this is not gate-fitting, checked arithmetically before the run.** The registered step pairs are
+**unchanged under every candidate η in the corrected band**, because the ladder floor binds first
+(§6 G3 item 3 predicted exactly this). With `η = 1.957e-08`, `shape` idx6 — the smallest-`|J|`
+component — clears **`C(1e-4) = 10.9`** and **`C(3e-4) = 32.7`**; idx1 **203 / 609**; idx5 **443 /
+1330**; `patchV` idx1 **`C(1e-3) = 470`**, `C(3e-3) = 1411`. **Every named component still lands on
+`{1e-4, 3e-4}` (`shape`) and `{1e-3, 3e-3}` (`patchV[1]`), exactly as §6 G3 item 3 registered before
+any of this was recomputed.** The only reading that would change a step is `η_A6window ≈ 1e-5`, which
+would push idx6 below `C ≥ 5` at every admissible rung and **flag it** — and that reading is rejected
+here **on the stated principle, in advance, with its consequence named**, not after seeing an FD value.
+
+**What is honestly at risk, and it is registered rather than hidden:** if the measured plateau η comes
+back far larger than `1.957e-08` — say above `4.3e-08` — `shape` idx6 no longer clears `C ≥ 5` at
+`1e-4` and the frozen rule will move its step up the ladder or **flag it by name**. **That is the rule
+working and it is graded as such.** No step will be chosen after an FD value is seen, under any branch.
+
+| what this amendment did | figure |
+|---|---|
+| defects in this file corrected | **2** |
+| gates, thresholds, caps or prediction bands moved | **0** |
+| prediction point estimates re-centred after noticing an error | **0** (P7's `2e-9` deliberately left to MISS) |
+| lines whose number changed above this section | **0** |
+| containers started, solvers run, core-minutes spent | **0** |
+
+**NOT FILED ANYWHERE.**
