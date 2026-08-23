@@ -313,8 +313,21 @@ Older rows (A6 close `6c6de745`, A3 rung-2 `27ce5799`/`92185911`, ADF candidate 
 (re-formed 2026-08-23 after the 2026-08-22 session limit).
 
 **EXPERTISE CURRICULUM RATIFIED (2026-08-23, Sanaa via chief, verbatim in
-Amendment 1 of `docs/campaigns/T-family/EXPERTISE_CURRICULUM.md`; recorded
-D474, ratification docketed this commit).** Twelve candidates E1–E12 ranked
+Amendment 1 of `docs/campaigns/T-family/EXPERTISE_CURRICULUM.md`, committed
+`fe409422`; proposal recorded D474; ratification docket row D483 — its first
+append was REFUSED by the upgraded append_record prefix guard on a peer's
+in-flight D472 in-row edit and landed on this retry, disclosed).**
+
+**COST-CALIBRATION DIRECTIVE received (Sanaa via chief, 2026-08-23):** every
+completed process states predicted vs actual (core-min from logs; dollars
+derived at the recorded rate, labelled derived), the ratio, and gap
+attribution. This team's first entry, T10a-R: **predicted 144 core-min /
+$0.123 → actual 399 core-min wall-basis / $0.342 derived, ratio 2.77×;
+attribution: contention (12 solvers live at launch, dominant) +
+misprediction (generator memory/wall at n=18 496; the 21 GB peak vs 5.5 GB
+estimate); waste: none identified — no stalled or discarded run.** To be
+appended to `docs/COST_CALIBRATION.md` when the build lane lands it (not on
+disk at this writing). Twelve candidates E1–E12 ranked
 by DC-certificate leverage, tiered **behind the unchanged H-2 spine and H-5
 order**. Ratification read under rule 9: approval of the proposal **as
 written** — pre-authorised-class items proceed, each under its own frozen,
