@@ -3480,3 +3480,28 @@ ratio of `1e6` therefore rejected R4's own W2-validated `PHLL10595` at
 **9.167e5**. Any future fall criterion on this family must be absolute, or must
 bound distance to the fixed point directly.
 Source: `R5C_omega_repair/RESULTS.md` §6.2.
+
+
+**N-B38. A feature clipped at a constant is invisible to a range-coverage
+check above the clip — the training maximum IS the clip.** The FS1 library's
+wall-distance Reynolds number is `q1_wallRe = min(sqrt(k) d / (50 nu), 2)`
+(`_common/features/FEATURE_LIBRARY.md:178`, `:174` before `01430485`), and it
+**saturates**: over the 40-case, 641,652-cell library its pooled statistics are
+`max = 2.0`, `p99 = 2.0`, **`p50 = 2.0`** — more than half of all cells sit
+exactly on the bound. An FS5 test-vs-training range check on that column
+therefore **cannot report an above-maximum excursion for any test cell**,
+whatever the underlying physics, because the training maximum is the clip;
+only below-minimum excursions stay visible. This is the exact axis the round-5
+diagnostic named: the `Re_y` extrapolation trap was measured on the
+**unclipped** `sqrt(k) d/(50 nu)` at **1.85x and 2.07x** its trained maximum on
+two ducts (`research/closure/md/CLOSURE_CHALLENGE_STATUS.md`:418-423), and the
+FS5 sweep as built would not have seen it. **Bounded by construction is not the
+same as bounded by the data**, and a coverage instrument reports the second
+while a clip supplies the first. Whether the library's other bounded features
+(the Wu/Kaandorp `q = q_raw/(|q_raw| + |q_norm|)` block, bounded in `[-1,1]`)
+also saturate on training data is **unmeasured** — saturation, not
+boundedness, is what destroys visibility, and only `q1_wallRe` was measured
+here. No R4 number is affected: `q1_wallRe` is not among the selected features
+of `MODEL.md`.
+Source: `/home/ubuntu/closure-data/features/fs2_audit.json` (key `per_feature`,
+`q1_wallRe`); `R4_sparta_build/COVERAGE.md` §6.
