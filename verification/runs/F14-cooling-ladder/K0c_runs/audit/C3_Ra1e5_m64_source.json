@@ -1,5 +1,5 @@
 {
-  "case": "/home/ubuntu/Certonomous/docs/campaigns/F14-cooling-ladder/K0c_runs/C3_Ra1e5_m64_source",
+  "case": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0c_runs/C3_Ra1e5_m64_source",
   "time": 4358.0,
   "properties": {
     "nu": 1.589461e-05,
@@ -12,6 +12,18 @@
     "alpha": 2.2386774647887325e-05,
     "k_derived": 0.026182000076588736,
     "g": 9.81
+  },
+  "turbulent_prandtl": {
+    "Prt": 0.85,
+    "source": "case constant/transportProperties",
+    "enters_the_answer": false
+  },
+  "thresholds": {
+    "source": "/home/ubuntu/Certonomous/docs/physics_rules.yaml",
+    "tolerance_pct_from": "--tol on the command line",
+    "heat_balance_tol_pct": 0.5,
+    "boussinesq_beta_dT_max": 0.1,
+    "turbulent_prandtl_default": 0.85
   },
   "patches": [
     {
@@ -47,11 +59,41 @@
   "Q_net_W": -0.0049999964602998135,
   "imbalance_pct": NaN,
   "tolerance_pct": 0.5,
+  "imbalance_defined": false,
+  "imbalance_undefined_reason": "no patch carries heat INWARD, so the ratio has no denominator. Every patch is outward, which on a sealed steady case means an unaccounted volumetric source. Normalising by the outflow instead would read 100.0000 % by construction for any source size and is refused (P1, rejected 2026-08-17). Net and gross are in watts below.",
+  "fvOptions_in_log": {
+    "state": "constructed",
+    "dict_present": true,
+    "n_selecting_lines": 3,
+    "n_absent_lines": 0,
+    "sources": [
+      "heatPlant"
+    ],
+    "per_log": {
+      "log.buoyantBoussinesqSimpleFoam": "constructed",
+      "log.buoyantBoussinesqSimpleFoam.stage2": "constructed",
+      "log.buoyantBoussinesqSimpleFoam.stage3": "constructed"
+    },
+    "logs_read": [
+      "log.buoyantBoussinesqSimpleFoam",
+      "log.buoyantBoussinesqSimpleFoam.stage2",
+      "log.buoyantBoussinesqSimpleFoam.stage3"
+    ]
+  },
+  "advective": {
+    "state": "not_applicable_sealed",
+    "ledger_complete": true,
+    "note": "every active patch is a wall, so no patch passes mass and there is no advective enthalpy flux to compute."
+  },
+  "closure_is_identity_class": false,
+  "closure_identity_basis": "every active patch is a wall: True; solver log says finite volume options were constructed (heatPlant)",
   "dT_field_K": 1.9582984726287123,
   "dT_wall_K": 1.2729081950679983,
   "dT_used_K": 1.9582984726287123,
   "beta_dT": 0.006527661574776275,
   "boussinesq_ok": true,
+  "boussinesq_beta_dT_max": 0.1,
+  "boussinesq_dT_limit_K": 30.000000003000004,
   "T_max_K": 301.4443247965061,
   "T_min_K": 299.4860263238774,
   "U_max_magnitude_ms": 0.023769149132911154,

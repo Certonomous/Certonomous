@@ -2,12 +2,15 @@ $ python3 scripts/heat_balance.py Ra1e3_m32 --tol 0.5 --length 0.1
 exit status 0
 
 ==========================================================================
-HEAT BALANCE AUDIT   /home/ubuntu/Certonomous/docs/campaigns/F14-cooling-ladder/K0c_runs/Ra1e3_m32
+HEAT BALANCE AUDIT   /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0c_runs/Ra1e3_m32
 time = 2436     regime: Ra = 1.0000e+03, Pr = 0.710000
 ==========================================================================
   properties: nu=1.589461e-05 m2/s  Pr=0.710000  alpha=2.238677e-05 m2/s
               rho=1.1614 kg/m3  cp=1007 J/kg/K  -> k = rho.cp.alpha = 0.026182 W/m/K
               |g| = 9.8100 m/s2   (LAMINAR: alphat = 0, alphaEff = nu/Pr exactly)
+  thresholds: /home/ubuntu/Certonomous/docs/physics_rules.yaml
+              tolerance 0.5 % from --tol on the command line
+  fvOptions in the SOLVER LOG: none   (logs read: log.buoyantBoussinesqSimpleFoam, log.buoyantBoussinesqSimpleFoam.stage2, log.buoyantBoussinesqSimpleFoam.stage3)
 --------------------------------------------------------------------------
 patch               type           area m2     int snGradT   Q into dom. W
 hotWall             wall             0.001     0.000121774     3.18827e-06
@@ -19,10 +22,20 @@ adiabaticWalls      wall             0.002               0               0
   net       = -9.810705e-13 W
   IMBALANCE = 0.0000 %  of heat in   (tolerance 0.5000 %)  -> PASS
 --------------------------------------------------------------------------
+  advective term: not_applicable_sealed
+  WHAT THIS NUMBER IS NOT: this case is SEALED and the solver constructed no
+  volumetric source, so the boundary balance is very nearly an IDENTITY -- the
+  discrete equation conserves at EVERY iteration, converged or not. K0b predicted
+  over 20 % on an unconverged snapshot and measured 0.0128 %. A closure number
+  here is NOT evidence that the physics is right, and per W-2 a quantity
+  derivable by construction cannot gate anything. Do not quote it as a result.
+--------------------------------------------------------------------------
   max |U|        = 8.291830e-04 m/s
   T range, cells = 299.994676 .. 300.005324 K
   max dT used    = 0.010882 K (field 0.010647, wall-average 0.010882)
-  BOUSSINESQ     : beta.dT = 3.627200e-05  -> SATISFIED (<< 1)
+  Prt            = 0.85   from case constant/transportProperties   (laminar solve: alphat = 0, so Prt does not enter the answer)
+  BOUSSINESQ     : beta.dT = 3.627200e-05  -> SATISFIED (limit 0.1)
+                   at this beta the limit is reached at dT = 30.0000 K; this case runs at dT = 0.0109 K
   Ra = 9.999979e+02   Gr = 1.408448e+03   Pr = 0.710000   (L = 0.1 m, dT = 0.010882 K)
   Ri: not defined independently: no imposed velocity scale. With Re built from the buoyancy velocity, Ri = Gr/Re^2 = 1 identically, by construction. Ra and Pr carry the regime.
 ==========================================================================

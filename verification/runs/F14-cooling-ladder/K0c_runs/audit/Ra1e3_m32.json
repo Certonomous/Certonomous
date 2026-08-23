@@ -1,5 +1,5 @@
 {
-  "case": "/home/ubuntu/Certonomous/docs/campaigns/F14-cooling-ladder/K0c_runs/Ra1e3_m32",
+  "case": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0c_runs/Ra1e3_m32",
   "time": 2436.0,
   "properties": {
     "nu": 1.589461e-05,
@@ -12,6 +12,18 @@
     "alpha": 2.2386774647887325e-05,
     "k_derived": 0.026182000076588736,
     "g": 9.81
+  },
+  "turbulent_prandtl": {
+    "Prt": 0.85,
+    "source": "case constant/transportProperties",
+    "enters_the_answer": false
+  },
+  "thresholds": {
+    "source": "/home/ubuntu/Certonomous/docs/physics_rules.yaml",
+    "tolerance_pct_from": "--tol on the command line",
+    "heat_balance_tol_pct": 0.5,
+    "boussinesq_beta_dT_max": 0.1,
+    "turbulent_prandtl_default": 0.85
   },
   "patches": [
     {
@@ -47,11 +59,39 @@
   "Q_net_W": -9.810704799820356e-13,
   "imbalance_pct": 3.0771200348444704e-05,
   "tolerance_pct": 0.5,
+  "imbalance_defined": true,
+  "imbalance_undefined_reason": null,
+  "fvOptions_in_log": {
+    "state": "none",
+    "dict_present": false,
+    "n_selecting_lines": 0,
+    "n_absent_lines": 3,
+    "sources": [],
+    "per_log": {
+      "log.buoyantBoussinesqSimpleFoam": "none",
+      "log.buoyantBoussinesqSimpleFoam.stage2": "none",
+      "log.buoyantBoussinesqSimpleFoam.stage3": "none"
+    },
+    "logs_read": [
+      "log.buoyantBoussinesqSimpleFoam",
+      "log.buoyantBoussinesqSimpleFoam.stage2",
+      "log.buoyantBoussinesqSimpleFoam.stage3"
+    ]
+  },
+  "advective": {
+    "state": "not_applicable_sealed",
+    "ledger_complete": true,
+    "note": "every active patch is a wall, so no patch passes mass and there is no advective enthalpy flux to compute."
+  },
+  "closure_is_identity_class": true,
+  "closure_identity_basis": "every active patch is a wall: True; solver log says finite volume options were none",
   "dT_field_K": 0.010647249361909417,
   "dT_wall_K": 0.010881600000118397,
   "dT_used_K": 0.010881600000118397,
   "beta_dT": 3.627199999676745e-05,
   "boussinesq_ok": true,
+  "boussinesq_beta_dT_max": 0.1,
+  "boussinesq_dT_limit_K": 30.000000003000004,
   "T_max_K": 300.005323624717,
   "T_min_K": 299.9946763753551,
   "U_max_magnitude_ms": 0.0008291829954844142,
