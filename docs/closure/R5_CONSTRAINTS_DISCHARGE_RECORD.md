@@ -571,3 +571,43 @@ rather than folded in silently:
 takes no position on any option in `R5_DECISION_MEMO.md`. Its own compute
 remains 0 core-minutes; `COVERAGE.md`'s 30.6 core-seconds are costed in
 `COVERAGE.md` and in `RESULTS.md` §12.1, not here.
+
+---
+
+## 9. AMENDMENT, dated 2026-08-23. Nothing above is altered.
+
+**Document version 1.1 → 1.2.** **Lines whose number changed above this section:
+0.** No line above was edited, struck in place or renumbered; the stale cite
+below stands where it is so that any citation into this file by line number
+still resolves, and this section is the correction.
+
+**The cite whose target moved.** §6 of this record, in the constraint-2 row, and
+the paragraph now at **line 315** (it was line 301 at this file's first commit
+`3a4f4bbb`; my own §3.3 inset at `918e8fe7` moved it) cite
+**`_common/features/FEATURE_LIBRARY.md:174`** for the clipped wall-distance
+Reynolds number. **That row is now at `:178`.** It moved at commit
+**`01430485`** — the FS6 source-column repair, which recited `q7`/`q11` to Ling
+& Templeton 2015 and shifted every table row by +4 lines. Named in **D467**.
+
+**Verified here, not relayed.** `git show 01430485^:…/FEATURE_LIBRARY.md | grep
+-n q1_wallRe` returns **174**; the same grep on the working copy returns
+**178**. The peer report was checked against both revisions before this
+amendment was written.
+
+**What the cited content did and did not do.** The clause this record relies on
+is unchanged across the move: the row still reads **`q1_wallRe` =
+`min(sqrt(k) d / (50 nu), 2)`**, still clipped at 2, and the pooled statistics
+this record quotes beside it — **`max = p99 = p50 = 2.0`**, from
+`/home/ubuntu/closure-data/features/fs2_audit.json`, a file outside git that
+`01430485` did not touch — are unchanged. **But the row is not byte-identical**,
+and this amendment declines to say "content unchanged" flatly: `01430485`
+changed its **source column** from *"Wu Table 2 p. 9"* to *"Wu Table 2 p. 10"*.
+That cite is not one this record relies on, and the change does not touch the
+formula, the clip, the normaliser column or any degeneracy cell — the repair
+commit asserts as much by stripping the source column from all 110 rows of both
+revisions and diffing them identical. **Every finding in §3.3 and §6 of this
+record stands unchanged.**
+
+**Read `:178` wherever this record says `FEATURE_LIBRARY.md:174`.** A reader who
+needs the row rather than the line should grep for `q1_wallRe`, which is
+stable against exactly this class of drift.

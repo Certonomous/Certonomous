@@ -387,3 +387,26 @@ discharge and is not made here.
   do and is not licensed to do — the FS4 freeze is final (`MODEL.md`).
 * **Nothing was sent.** Nothing here is filed, uploaded, registered or submitted
   outside this box.
+
+---
+
+## 8. AMENDMENT, dated 2026-08-23. Nothing above is altered.
+
+**Document version 1.0 → 1.1. Lines whose number changed above this section: 0.**
+
+§6 cites **`_common/features/FEATURE_LIBRARY.md:174`** for the clipped
+wall-distance Reynolds number. **That row is now at `:178`**, moved +4 lines by
+commit **`01430485`** (the FS6 source-column repair; D467), which shifted every
+row of the 110-feature table. Verified against both revisions here rather than
+relayed: `git show 01430485^:…/FEATURE_LIBRARY.md` puts `q1_wallRe` at **174**,
+the working copy at **178**.
+
+**The content §6 relies on is unchanged** — the row still defines `q1_wallRe` as
+`min(sqrt(k) d / (50 nu), 2)`, clipped at 2, and the `fs2_audit.json` statistics
+quoted beside it (`max = p99 = p50 = 2.0`) come from a file outside git that
+`01430485` did not touch. The row is not byte-identical, however: its **source
+column** moved from *"Wu Table 2 p. 9"* to *"Wu Table 2 p. 10"*. That cite is not
+one this document relies on. **No number in §1–§4 is affected**, and none could
+be: `q1_wallRe` is not a selected feature of this model and appears in no table
+above. **Read `:178` wherever §6 says `:174`**, or grep for `q1_wallRe`, which
+does not drift.
