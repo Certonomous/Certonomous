@@ -16,11 +16,11 @@ dead = set(au["per_family"]["POOLED"]["dead_features"])
 
 DESC = {
  "q1_wallRe": ("min(sqrt(k) d / (50 nu), 2)", "wall-distance Reynolds number",
-               "none (already dimensionless)", "Wu Table 2 p. 9 / Kaandorp Table 1 p. 25"),
+               "none (already dimensionless)", "Wu Table 2 p. 10 / Kaandorp Table 1 p. 25"),
  "q2_turbIntensity": ("k / (k + 0.5 U.U)", "turbulence intensity", "0.5 U.U",
-                      "Wu Table 2 p. 9 / Kaandorp Table 1 p. 25 (dagger)"),
+                      "Wu Table 2 p. 10 / Kaandorp Table 1 p. 25 (dagger)"),
  "q3_timeScaleRatio": ("(k/eps) / (k/eps + 1/||S||)", "turbulent : mean-strain time scale",
-                       "1/||S||", "Wu Table 2 p. 9"),
+                       "1/||S||", "Wu Table 2 p. 10"),
  "q4_pgradAlongStreamline": ("U.grad p / (|U.grad p| + |U||grad p|)",
                              "pressure gradient along streamline", "|U||grad p|",
                              "Kaandorp Table 1 p. 25 (dagger)"),
@@ -29,15 +29,18 @@ DESC = {
  "q6_stressRatio": ("||tau|| / (||tau|| + k)", "total : normal Reynolds stress", "k",
                     "Kaandorp Table 1 p. 25"),
  "q7_viscRatio": ("nu_t / (nu_t + 100 nu)", "eddy : molecular viscosity ratio", "100 nu",
-                  "Kaandorp Table 1 p. 25"),
+                  "Ling & Templeton 2015 (NOT ON DISK - PENDING-MIT; no on-disk printed source; "
+                  "absent from Kaandorp Table 1 p. 25, which was miscited here until 2026-08-23)"),
  "q8_kConvection": ("U.grad k / (|U.grad k| + |tau:S|)", "TKE convection : production",
                     "|tau_ij S_ij|", "Kaandorp Table 1 p. 25 (dagger)"),
  "q9_nonOrthogonality": ("|U_i U_j S_ij| / (. + |U|^2 ||S||)", "streamline non-orthogonality",
                          "|U|^2 ||S||", "Kaandorp Table 1 p. 25 (dagger)"),
  "q10_streamlineCurv": ("|U_i A_ij U_j| / (. + |U|^2 ||grad U||)", "streamline curvature marker",
-                        "|U|^2 ||grad U||", "Kaandorp Table 1 p. 25 (dagger)"),
+                        "|U|^2 ||grad U||", "Wang, Wu & Xiao 2017 Table 1, arXiv:1606.07987v2 p. 10 "
+                        "(NOT in Kaandorp Table 1 p. 25 - their nine scalars are Wang's ten minus curvature)"),
  "q11_turbReynolds": ("(sqrt(k)/(nu omega)) / (. + 50)", "turbulent Reynolds number", "50",
-                      "Kaandorp Table 1 p. 25"),
+                      "Ling & Templeton 2015 (NOT ON DISK - PENDING-MIT; no on-disk printed source; "
+                      "absent from Kaandorp Table 1 p. 25, which was miscited here until 2026-08-23)"),
 }
 for i, nm in enumerate(["lam1", "lam2", "lam3", "lam4", "lam5"], start=1):
     DESC[nm] = (f"tr of the {i}-th Pope invariant of (s, r)", "Pope integrity-basis invariant",
@@ -59,9 +62,9 @@ A("## Blocks")
 A("")
 A("| block | count | what | source |")
 A("|---|---|---|---|")
-A("| **A** | 47 | minimal integrity basis of `{S, Omega, A_p, A_k}`, normalisation **A** | Wu, Xiao & Paterson 2018, Table B.4, arXiv:1801.02762v4 preprint **p. 35**; mapping `A = -I x v` their Eq. (B.1a,b) **p. 35** |")
+A("| **A** | 47 | minimal integrity basis of `{S, Omega, A_p, A_k}`, normalisation **A** | Wu, Xiao & Paterson 2018, Table B.4, arXiv:1801.02762v4 preprint, caption **p. 36** (Appendix B opens p. 35); mapping `A = -I x v` their Eq. (B.1a,b) **p. 35** |")
 A("| **B** | 47 | the same 47 invariants, normalisation **B** | normalisation VARIANT, not new physics |")
-A("| **C** | 11 | scalar flow markers `q1..q11` | Wu Table 2 **p. 9**; Kaandorp & Dwight 2020 Table 1 **p. 25** |")
+A("| **C** | 11 | scalar flow markers `q1..q11` | Wu Table 2 **p. 10** (q1-q3); Kaandorp & Dwight 2020 Table 1 **p. 25** (q4-q6, q8, q9); Wang, Wu & Xiao 2017 Table 1 **p. 10** (q10); q7/q11: Ling & Templeton 2015, **NOT ON DISK** (PENDING-MIT) |")
 A("| **D** | 5 | Pope's five invariants of `(s, r)` | Pope 1975, JFM 72(2), **p. 335** |")
 A("")
 A("## Normalisation, and the two variants")
@@ -73,7 +76,7 @@ A("```")
 A("alpha_hat = alpha / (|alpha| + |beta|)")
 A("```")
 A("")
-A("with `beta` from their Table 1 (**p. 8**): `eps/k` for `S`, `||Omega||` for `Omega`,")
+A("with `beta` from their Table 1 (**p. 9**): `eps/k` for `S`, `||Omega||` for `Omega`,")
 A("`rho |DU/Dt|` for `grad p`, `eps/sqrt(k)` for `grad k`.")
 A("")
 A("| variant | time scale used for `S` | carries `nu`? |")
@@ -119,8 +122,12 @@ A(f"* **NOT Galilean invariant: {len(ng)} of {man['n_features']}.** Every one ei
 A("")
 A("This independently reproduces Kaandorp & Dwight's own annotation: *\"Features marked with")
 A("dagger are rotationally invariant but not Galilean invariant\"* (Table 1 footnote, **p. 25**).")
-A("Their daggered features are `q2`, `q4`, `q8`, `q9`, `q10` - and those are exactly the five")
-A("scalar markers this measurement flags.")
+A("Their table daggers **four** rows - `q2`, `q4`, `q8`, `q9` in this library's numbering")
+A("(`q10` is not in their table; it is Wang, Wu & Xiao 2017's streamline curvature) - and the")
+A("measurement here flags all four, plus `q10`, as the five raw-velocity scalar markers.")
+A("(Dagger count read from a two-column pdftotext extraction of p. 25; a marker lost by the")
+A("extractor would not be visible. Corrected from an earlier five-dagger claim, 2026-08-23;")
+A("`CLOSURE_MODELLING_CHARTER.md` sec. 6 agrees on four.)")
 A("")
 A("## Every feature")
 A("")
@@ -138,7 +145,7 @@ for i, n in enumerate(names):
     else:
         defn = f"`tr({base[2:]})`" if base.startswith("tr") else f"`{base}`"
         norm = f"variant **{var}**"
-        src = "Wu Table B.4 p. 35"
+        src = "Wu Table B.4 p. 36"
     A(f"| {i+1} | `{n}` | {defn} | {norm} | {'no' if n in ng else 'yes'} | "
       f"{'no' if n in nr else 'yes'} | {'**DEAD**' if n in dead else ''} | {src} |")
 A("")
