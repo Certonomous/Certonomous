@@ -163,6 +163,24 @@ RECORDS = {
     # Entries are written either bold or as an h2, and both forms are live:
     # 50 bold and 20 headings at the time of writing.
     "docs/NUMERICS_KNOWLEDGE.md": r"^(?:\*\*|## )(N-[A-Z]+\d+)\.",
+    # The cost-calibration ledger (Sanaa's directive 2026-08-23; the calibration
+    # bullet of `CLAUDE.md` rule 12). WHY THE C SERIES EXISTS AT ALL: this file
+    # is appended CONCURRENTLY by all five teams -- that is its own append rule 5
+    # -- and until 2026-08-23 its rows carried no id, so this module's tail
+    # arithmetic had nothing to hold on to. Two teams could each land a row and
+    # neither the tail check nor any reconciliation could NAME the collision,
+    # which is precisely the D369 family's third bite (closure `52e5de39`). A
+    # chief-ruled format amendment on 2026-08-23 added the leading `id` column;
+    # the series is one flat `C-`, not per-team, because the ledger is a single
+    # chronological record and a per-team series would let two teams mint the
+    # same physical row position.
+    # TRAP: the id carries a HYPHEN, so `split_id('C-4')` reads the series as
+    # `'C-'` and `next_id` renders `C-5`. Do not "tidy" this to `C\d+`.
+    # TRAP: the table's own header row and its `|---|` separator both begin with
+    # a pipe. The planted negatives in `run_controls` assert this pattern parses
+    # NEITHER of them as an id -- a looser pattern would mint ids out of table
+    # furniture and the arithmetic would be judged against them.
+    "docs/COST_CALIBRATION.md": r"^\|\s*(?:\*\*|~~)*\s*(C-\d+)\s*(?:~~|\*\*)*\s*\|",
 }
 
 
@@ -383,6 +401,56 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
             "proceeds -- a tail id in another series is arithmetically "
             "irrelevant and must not block")
 
+    # ---- the C series: the cost-calibration ledger's own pattern ----------
+    # `docs/COST_CALIBRATION.md` is appended by all five teams, so it is the
+    # record most exposed to the collision the block above refuses. Its ids
+    # arrived in a 2026-08-23 format amendment, and this control exercises the
+    # NEW pattern rather than assuming the D-series proof carries over: the C
+    # ids carry a hyphen, so a pattern copied without its trap would parse
+    # nothing at all and every check below would pass vacuously.
+    c_pattern = RECORDS["docs/COST_CALIBRATION.md"]
+    c_head = ("| id | date | team | process |\n|---|---|---|---|\n"
+              "| C-1 | 2026-08-23 | a | one |\n"
+              "| C-2 | 2026-08-23 | b | two |\n")
+    c_rows = "| C-3 | 2026-08-23 | c | three |\n"
+    # Plant the zero on the reader itself, before anything is concluded from it.
+    assert parse_ids(c_rows, c_pattern) == ["C-3"], "C-series rows unreadable"
+    assert max_for_series(parse_ids(c_head, c_pattern), "C-") == 2, \
+        "C-series max is not the maximum existing number"
+    c_forms = {
+        "a peer cost row carrying the would-be next id":
+            "| C-3 | 2026-08-23 | peer | unlanded, same number |\n",
+        "a peer cost row already several numbers ahead":
+            "| C-9 | 2026-08-23 | peer | unlanded, further ahead |\n",
+    }
+    c_planted = {}
+    for name, tail in c_forms.items():
+        # Visible first, exactly as the D-series forms above: a refusal that
+        # failed to fire and a reader that cannot see the id look identical.
+        assert parse_ids(tail, c_pattern), name
+        c_m = merge(c_head, c_head + tail, c_rows)
+        c_v = check_first_id(parse_ids(c_head, c_pattern),
+                             parse_ids(c_m["tail"] or "", c_pattern),
+                             parse_ids(c_rows, c_pattern))
+        c_refused = (not c_v["ok"]) and c_v["code"] == EXIT_REFUSED_TAIL_ID
+        c_preserved = bool(c_m["ok"]) and tail in (c_m["merged"] or "")
+        c_planted[name] = bool(c_refused and c_preserved)
+        if c_refused:
+            notes.append(
+                f"    C-series id refusal proved ({name}): exit {c_v['code']}, "
+                f"tail ids {c_v['tail_in_series']}, HEAD max {c_v['head_max']}, "
+                f"tail max {c_v['tail_max']}, correct next id {c_v['next_id']}; "
+                f"tail still preserved verbatim: {c_preserved}")
+    # NEGATIVE FORMS: the ledger's own header row and its `|---|` separator both
+    # begin with a pipe. Either one parsed as an id would put table furniture
+    # into the arithmetic, so both must be rejected.
+    c_negative = {
+        "the ledger's own header row is parsed as an id":
+            bool(parse_ids("| id | date | team | process |\n", c_pattern)),
+        "the table separator row is parsed as an id":
+            bool(parse_ids("|---|---|---|---|\n", c_pattern)),
+    }
+
     ledger = control_kind.ControlLedger(
         claim_class="worktree-only bytes that match no id pattern")
     ledger.plant("merge preserves the invisible tail",
@@ -394,6 +462,11 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                  planted=id_planted,
                  negative={"a tail id in a DIFFERENT series blocks the append":
                            cross_blocked})
+    ledger.plant("the C-series pattern carries the same tail-id refusal",
+                 vocabulary="cost-calibration rows sitting unlanded in a "
+                            "worktree tail",
+                 planted=c_planted,
+                 negative=c_negative)
 
     failures = [n for n, ok in planted.items() if not ok]
     if overwrite_kept:
@@ -402,6 +475,10 @@ def run_controls() -> tuple[control_kind.ControlLedger, int, list[str]]:
                  for n, ok in id_planted.items() if not ok]
     if cross_blocked:
         failures.append("a tail id in a DIFFERENT series blocked the append")
+    failures += [f"C-series tail-id control did not refuse-and-preserve: {n}"
+                 for n, ok in c_planted.items() if not ok]
+    failures += [f"C-series negative form WAS matched (pattern too loose): {n}"
+                 for n, hit in c_negative.items() if hit]
 
     # Two further refusals, proved rather than asserted in prose.
     edited = merge(head.replace("| D2 | two |", "| D2 | EDITED |"),
