@@ -435,8 +435,22 @@ owner-written fill; supersedes the 2026-08-22 harness first fill, whose
 "rule on the VM2026R1 canonical home" next-action over-reached — D-6 is with
 Sanaa and neither copy is touched).
 
-**Last commit:** `6ae77c79` — *LAB_STATE repair: d97ed4c9 carried a STALE
-dafoam section ... restored verbatim from 70c605f0* (2026-08-23 ~19:45Z).
+**Last commit:** this commit (CROSS_TEAM_GATE_AUDIT.md pass 1 + this board
+update). Before it: `090c070c` (lane) — Ansys manual `.txt` sidecar, R8 pair
+complete, L-144 title-page verified from the extracted text (*"Ansys Fluid
+Dynamics Verification Manual … Release 2026 R1, March 2026"*), 368,949 bytes,
+290 pages, clean; `50175beb` — L-245 filed; `6ae77c79` — LAB_STATE repair.
+
+**Audit pass 1 recorded (`docs/CROSS_TEAM_GATE_AUDIT.md`, new, append-only):**
+**R5C — AUDIT: SOUND, GATE FAIL stands** (prereg sha `a1cfae5a…` re-hashed by
+the supervisor personally, equal; comparator disk == committed blob ==
+recorded sha; §2d disclosure-limb compliant per D-4(a); G1c lever-activity
+covers the no-op; planted controls fired with measured values).
+**T10a-R — AUDIT: SOUND WITH DISCLOSED DEVIATIONS, GATE FAIL 5/4/0 stands**
+(all five §1a byte-claims re-derived personally: 30,520-byte prefix property
+holds, ADDENDUM 2 tail sha `ab90298a…` matches, comparator `a3014a64…` disk ==
+blob; the two deviations were disclosed before this audit and carry the
+chief's ruling; ADDENDUM 2 commit stays on Sanaa's desk). Zero solver compute.
 **Incident on the record:** this team's first board commit `d97ed4c9` clobbered
 the dafoam board section in git because the shared working tree was stale on
 that file; caught by the non-optional post-commit verify, repaired forward the
@@ -493,11 +507,21 @@ new at HEAD `9e82321b` since the first fill:
 - Wu2018 aposteriori NOT A RESULT — check the fired falsifier was the
   pre-registered one.
 
-**Next actions:** (1) lane: Ansys manual sidecar + L-144 check, commit the pair;
+**Filing observation (lane, 2026-08-23):** the manual's basename
+`Ansys_Fluid_Dynamics_Verification_Manual.{pdf,txt}` violates R8's
+`author_year_identifier` pattern — now flagged twice by `check_filing.py`
+(both halves of the pair). NOT renamed: a tracked-file rename is coupled work
+and sits beside D-6 material; goes in the D-6 prep note for Sanaa. Repo-wide
+`check_filing.py` reads FAIL: 28 violations (1 R1, 4 R5, 12 R8, 11 R9 — 11
+other PDFs lab-wide still lack sidecars), pre-existing, not this team's alone.
+
+**Next actions:** (1) DONE — Ansys manual sidecar (`090c070c`);
 (2) lane: `check_comparator_freeze.py` re-run + `check_verdict_cells.py
 --strict-fail` current count; (3) lane: six standing audits re-sweep with dated
-amendments; (4) supervisor personally: cross-team gate audit of R5C and T10a-R
-records (big-claim verification, not delegable); (5) prepare — not act on — the
+amendments; (4) DONE — cross-team gate audit of R5C and T10a-R, both SOUND, recorded in
+`docs/CROSS_TEAM_GATE_AUDIT.md` pass 1; next audit targets are that file's §3
+open list (A4, A6 surface-caveat, Wu2018 falsifier, T1b after 08-26, T10a
+controls); (5) prepare — not act on — the
 VM2026R1 R6/R8 filing analysis for Sanaa's D-6 ruling, including the dead
 partial transfer finding above.
 
