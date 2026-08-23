@@ -482,3 +482,120 @@ commit** — the four §3 checks are the supervisor's and are not delegated to t
 
 *Nothing below this line existed when this file was written. No container has been started for
 this item. The arms launch only after this file lands and the supervisor says go.*
+
+---
+
+## ADDENDUM 1 — 2026-08-23, after first compute: a staging defect of this lane's making
+
+**This addendum alters no gate, no threshold, no band, no cap and no label.** Every graded row
+(M0, M2a, M2b, M3a, M3b, M4, M5), every band in §5.2, the 12 GiB launch gate, the 182.0 core-min
+ceiling and the frozen instrument hashes stand exactly as committed at `d062aace`. It records a
+harness failure and its triage, which is what an addendum is for.
+
+**lines whose number changed above this section: 0**
+
+### A1.1 What happened
+
+Both arms died at `prob.setup(mode="rev")`, before any solver work, with the identical error:
+
+```
+PermissionError: [Errno 13] Permission denied: 'reports'
+  openmdao/core/problem.py:2186  get_reports_dir()  ->  pathlib.mkdir(parents=True, exist_ok=True)
+```
+
+| arm | rc | wall s | core-min | what it is |
+|---|---|---|---|---|
+| `D_serial` | **1** | 7 | **0.12** | clean `mpirun` abort |
+| `D_simple2` | **137** | 302 | **20.13** | **hung**, then stopped by this lane — §A1.3 |
+
+**No graded number was produced. The frozen grader refused rather than degrade**, verbatim:
+
+```
+analyse_peak_rss: REFUSE: ./logs/D_serial_rss.log holds 3 samples, fewer than the registered
+minimum 30
+exit=2
+```
+
+### A1.2 Triage — the cause, with a negative AND a positive control
+
+The container runs as **`uid=1002(dafoamuser)`**. The run root is owned by `ubuntu` (uid 1000).
+
+| directory | mode | source |
+|---|---|---|
+| graded arms, 2026-08-21 — **the chain that worked** | **`drwxrwxrwx` (777)** | `B3-decomposition-np4/D_serial`, `/D_simple2` |
+| this item's staged arms — **the chain that failed** | **`drwxr-xr-x` (755)** | `cp` under this lane's umask 022 |
+
+A number this lane could have inferred is instead measured. One container of the graded image,
+two directories differing **only** in mode:
+
+```
+RESULT m755: mkdir reports FAILED (permission denied)
+RESULT m777: mkdir reports SUCCEEDED
+```
+
+**The positive control is the point.** A bare "permission denied" is consistent with a broken
+test; a reader that also demonstrably succeeds on 777 shows the failure is the mode and nothing
+else. **Cause: this lane's staging, not the solver, not the image, not the case, not the
+decomposition question.** §2.4 registered *which files* to stage and said nothing about
+directory modes; the graded arms were world-writable and that is why OpenMDAO could create
+`reports/` in them. `reports/` was excluded from staging as a run product — correctly — but its
+**parent** must be writable by uid 1002 and was not.
+
+### A1.3 The `D_simple2` hang, and this lane's decision to stop it
+
+`D_simple2` did **not** fail fast. Four minutes after the fatal exception:
+
+- its log was **frozen** (0 bytes in 6 s) and carried **no** `mpirun detected …` abort line,
+  unlike `D_serial`;
+- rank 0 (`pid 1145840`) sat at **5.7 % CPU** after raising the exception;
+- ranks 1–3 spun at **99.8 % CPU each** — an MPI collective busy-waiting on a rank that will
+  never arrive.
+
+**`timeout 2100` would have let this burn to 2100 s × 4 ÷ 60 = 140.0 core-min — 77 % of the
+registered 182.0 core-min ceiling — on an arm that could not produce a result**, while three
+spinning ranks took cores from a live peer lane on a shared box.
+
+**Standing rule 12: an overrun stops the run; it does not get a new budget.** This lane issued
+`docker stop b3rss_D_simple2` — its own container, by exact name, at 20:01:26 UTC. Verified after:
+no containers remained and **the W4 peer lane's container was not touched**. The chain then closed
+itself out (`.done` written, watcher exited on `container_gone`, ledger row `rc=137` recorded).
+**The waste is charged, not excused**; `rc=137` is SIGKILL and is recorded as such rather than
+dressed up as a completion.
+
+### A1.4 Spend, all of it waste
+
+| item | ranks | wall s | core-min | basis |
+|---|---|---|---|---|
+| planted-control self-test | 1 | 34 | **0.57** | `selftest_watch.log` 19:54:09Z → 19:54:43Z |
+| triage isolation container | 1 | ~10 | **~0.17** | observed duration, **estimated not logged** |
+| `D_serial` | 1 | 7 | **0.12** | `ledger.csv` |
+| `D_simple2` | 4 | 302 | **20.13** | `ledger.csv` |
+| **total charged** | | | **21.0** | **11.5 % of the 182.0 ceiling; 100 % waste** |
+
+**21.0 core-min = 0.350 core-h × \$0.0513 = \$0.018**, **reported-by-owner, not measured** — this
+box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5). **161.0 core-min of ceiling
+remain unspent.**
+
+### A1.5 What is NOT decided here
+
+§7 of this pre-registration reads **"No retries."** That clause was written against a failed
+*solve* buying itself a new budget. This was a **harness failure that prevented the solve from
+starting at all** — the class the graded item recorded twice as *"two harness failures, both
+caught, both recorded"* (`../decomposition_np4/RESULTS.md` §6) and repaired inside its own
+registration.
+
+**This lane does not get to decide that its own registration means the convenient thing**
+(standing rule 9). Moreover **crash triage is the supervisor's personal check and may never be
+delegated** (`SUPERVISION_CHARTER.md` §3). So:
+
+- the evidence is gathered and written down here;
+- **the repair is PROPOSED, not taken**: `chmod 777` on the staged arm directories so they match
+  the graded arms' modes, then re-stage and re-run the two arms unchanged;
+- **nothing is re-run until the supervisor rules** whether that proceeds under this registration
+  or requires a new one with its own price.
+
+The repair touches **staging permissions only**. It changes no gate, no band, no threshold, no
+cap, no label, no run script, no image, no `daOptions`, no decomposition — and the registered
+identity gate **M0** is precisely what would catch it if it did.
+
+*End of Addendum 1. Nothing above this section was edited.*
