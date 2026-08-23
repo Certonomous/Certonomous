@@ -464,3 +464,196 @@ a log label. **It is numerically inert.**
 A1-F, A2, A3 and A4 are **unchanged**.
 
 *End of Amendment 2. Nothing above this section was edited.*
+
+---
+
+## ADDENDUM 3 — 2026-08-23, AFTER FIRST COMPUTE, BEFORE ANY GRADED SOLVE
+
+**Harness-repair record. This addendum alters no gate, threshold, cap, label, arm definition,
+assertion or grader.** §5, §6, §6a, §7, §8 and §9 stand exactly as committed; A1-F, A1-P (as
+amended by Amendment 2), A2, A3 and A4 stand exactly as committed. It records an incident, a
+triage, a supervisor ruling and a repair to the **launcher** created by AMENDMENT 1 §1d.
+
+*Appended at the foot, not rewritten. **Lines whose number changed above this section: 0.***
+
+### 3a. The legality marker has CHANGED, irreversibly, and this section is where that is recorded
+
+**The condition used by AMENDMENT 1 and AMENDMENT 2 — "the registered run root
+`/home/ubuntu/certonomous-runs/D460-sweep1-solver-family` DOES NOT EXIST" — is SPENT.** The run
+root was created at 2026-08-23T20:57Z as the AMENDMENT 1 §1d pre-compute step, and a `docker run`
+followed. **That condition can never be cited again for this item and no later amendment may use
+it.**
+
+**Its replacement, and the evidence for it:** *no graded solve has occurred.* Concretely, from the
+attempt-1 artifacts preserved under §3e:
+
+| evidence | reading |
+|---|---|
+| `ledger.txt` row | `ARM=psm TASK=probe rc=134 wall_s=1 ranks=1 core_min=0.017 peak_rss_GiB=unmeasured` |
+| `Time = ` blocks in `psm.log` | **0** |
+| `ExecutionTime` lines in `psm.log` | **0** |
+| `End` lines in `psm.log` | **0** |
+| numeric time directories in `psm/` | **none** — only the staged `0/`, still carrying the copied `base/` mtimes of 2026-08-21 16:38 |
+| `ASSERT_MD5` | **FAIL — ARM VOID** |
+| `ASSERT_A4_ADF_MD5` | **ABSENT**; `A4_FIND_LINES: 0` |
+
+**ARM P-SM attempt 1 is VOID by its own registered assertions.** Not one registered observable
+exists: no residual, no continuity value, no NaN reading, no field. Nothing gradable was produced,
+so nothing on the grading path can have been chosen to fit an answer — which is the entire
+evidentiary content §2 says a freeze carries.
+
+### 3b. **`ASSERT_MD5 FAIL` IS NOT AN IDWARP IDENTITY FINDING. No reader may cite it as one.**
+
+The attempt-1 ledger row reads `ASSERT_MD5 FAIL -- ARM VOID`. **That is a SYMPTOM of the control-flow
+defect of §3c and nothing else.** The IDWARP md5 is asserted by grepping the arm log for the string
+`IDWARP_SO_MD5: 85f59e87253e0a71a813f64ca6e4c425`. In attempt 1 the `python -c` that *prints* that
+string was inside the backgrounded and-or list and **never executed**, so the string was absent from
+the log and the grep failed. **The library was never read, never hashed, and never compared.**
+
+`85f59e87253e0a71a813f64ca6e4c425` is neither confirmed nor contradicted by attempt 1. Any later
+record that cites this row as evidence about IDWARP identity is misreading it, and this paragraph
+exists so that misreading is not available.
+
+### 3c. The incident and its triage
+
+**Attempt 1, ARM P-SM, launched 2026-08-23T20:57Z**, control-first per AMENDMENT 1 §1b, after all
+pre-launch assertions passed: A1-P showed **exactly** the four differences AMENDMENT 2 §2b permits
+and no others; A2 touched only §3's five lines; A3 was empty; the §6a guard found no time directory;
+`useAD` was absent. Preflight passed at 20:57:55Z with `MemAvailableGiB=13` against the registered
+`≥ 12` floor; `load1=14.50`, recorded and not gated per §10.
+
+**The container exited in 1 s with `rc=134`**, the log carrying only OpenMPI's
+`mpirun was unable to find the specified executable file … Executable: python`.
+
+**Root cause, read as code.** The launcher's in-container body was written as an `&&` chain ending
+in a backgrounded watcher subshell:
+
+```
+source loadDAFoam.sh && python -c '<idwarp assert>' && … && ( watcher ) & WPID=$!; mpirun … python runScript.py
+```
+
+**`&` binds looser than `&&`.** The trailing `&` therefore terminated the **entire and-or list**,
+backgrounding the source of `loadDAFoam.sh` together with both asserts, and `mpirun` ran in the
+foreground shell where DAFoam's environment had never been established. The defect was introduced by
+the §1d splice itself: the P3 original is a flat foreground `&&` chain with no watcher and no `&`,
+and the copied header's claim *"Nothing else is changed from the P3 script"* was true of the
+commands and **false of the control flow**.
+
+**Demonstrated outside any container, on the shell alone**, so the diagnosis is measured rather than
+inferred. Running the attempt-1 shape with a variable set inside the chain and read after it: the
+chain saw `FOO=setbychain`, the foreground shell saw `FOO=unset` — proving the chain executed in a
+separate, backgrounded shell whose environment `mpirun` could not see. Running the repaired shape,
+the environment step completed **before** `mpirun` and only the watcher ran concurrently.
+
+This is a defect in a harness file written by the lane minutes earlier. It is not a defect in DAFoam,
+in the image, in the case, or anywhere in this frozen document.
+
+### 3d. The ruling, quoted verbatim from the dafoam-supervisor
+
+> RULING — the repair PROCEEDS under this registration. Legal basis: §1d classifies the launcher as
+> grading path; VERIFICATION_CHARTER §2d.1 governs grading-path changes and its boundary is the
+> first GRADED solve — none has occurred (a fortiori the repair is legal there under its four
+> conditions, all met: demonstrable error, not preference; established by instruments that grade
+> nothing — the shell-semantics demonstration and mpirun's own error line; disclosed; pre-repair
+> state preserved). The two readings compose rather than conflict. Recorded as a dated ADDENDUM to
+> PREREGISTRATION.md — not RESULTS-only.
+
+The supervisor states the triage was verified personally before ruling: the launcher body read as
+code, the `psm.log` fingerprint matched, the ledger row re-read, the `Time =` blocks counted at zero,
+and the text diffed against the P3 original.
+
+**§2d.1's condition (2) is the load-bearing one and is satisfied in its strongest form.** The error
+was established by **mpirun's own executable resolution** and by **shell semantics** — two
+instruments that grade nothing, know no hypothesis, and cannot prefer a verdict direction. Condition
+(4) is satisfied vacuously and completely: there are no pre-repair values to record beside published
+ones, because attempt 1 produced no value.
+
+**The harness-repair exception for this item is now SPENT.** Per the supervisor's binding terms, any
+further failure of any kind ends the item with the verdict it has earned; the lane reports and does
+not repair again.
+
+### 3e. Attempt 1 is preserved, not overwritten, and its cost is charged as waste
+
+The attempt-1 arm directory, log and launch output are moved to **`attempt1/`** inside the run root
+and are not deleted. `ledger.txt` remains **append-only**, so the attempt-1 row stays visible above
+every later row.
+
+**`0.017 core-min` is charged to this item and is named WASTE**, not absorbed (`CLAUDE.md` rule 12).
+At $0.0513/core-h that is **$0.0000145, derived, on an owner-stated rate** — the box cannot read its
+own billing. The §9 hard ceiling of **20.0 core-min is unchanged** and this spend counts against it.
+
+### 3f. The repair, in full
+
+Confined to the in-container body. **Source, the idwarp assert and the A4 `find` execute in the
+FOREGROUND, and `mpirun` is not reached if any of them fails** (explicit `exit 91`, `exit 92`,
+`exit 93`); **only the watcher subshell is backgrounded.** No command, path, image, assertion,
+timeout, cpu or memory limit changes. `bash -n` passes on the repaired file. The diff below is the
+authority for what changed.
+
+```diff
+--- a/run_arm.sh   (attempt 1, as launched 2026-08-23T20:57Z)
++++ b/run_arm.sh   (attempt 2, repaired under this addendum)
+@@ -9,7 +9,13 @@
+ #     /proc/<pid>/maps of the live runScript.py process, so the "libDASolverADF
+ #     is absent" reading is taken from a reader that ARM F-SM proves can see a
+ #     presence (CLAUDE.md rule 3 -- F-SM is the positive control for P-SM's zero)
+-# Nothing else is changed from the P3 script.
++# REPAIRED per PREREGISTRATION.md ADDENDUM 3 (attempt 1, rc=134): the in-container
++# body is NEWLINE-SEPARATED, not "&&"-chained. In the attempt-1 text the trailing
++# "&" on the watcher subshell terminated the ENTIRE and-or list, so the source of
++# loadDAFoam.sh and both asserts were backgrounded together and mpirun ran with no
++# environment. Here source, the idwarp assert and the A4 find run in the
++# FOREGROUND and mpirun is not reached if any of them fails; only the watcher
++# subshell is backgrounded. Nothing else is changed.
+ set -uo pipefail
+ BASE=/home/ubuntu/certonomous-runs/D460-sweep1-solver-family
+ ARM="$1"; TASK="$2"; TMO="${3:-600}"
+@@ -20,17 +26,22 @@
+ NAME="d460_$ARM"
+ T0=$(date -u +%s)
+ timeout "$TMO" sudo -n docker run --rm --name "$NAME" --cpus=1 --memory=12g -v "$BASE":/mnt -w "/mnt/$ARM" \
+-    "$IMG" bash -lc \
+-    "source /home/dafoamuser/dafoam/loadDAFoam.sh \
+-     && python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"IDWARP_IMPORTED_FROM:\",p); print(\"IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' \
+-     && echo 'A4_FIND_BEGIN' && find / -name 'libDASolverADF.so' -type f 2>/dev/null | xargs -r md5sum && echo 'A4_FIND_END' \
+-     && ( U=/tmp/dasolver_seen.txt; : > \$U; for i in \$(seq 1 900); do for p in /proc/[0-9]*; do grep -qa runScript.py \$p/cmdline 2>/dev/null || continue; grep -ao '/[^ ]*libDASolver[A-Za-z0-9]*\.so' \$p/maps 2>/dev/null >> \$U; done; sleep 2; done ) & \
+-     WPID=\$!; \
+-     mpirun --allow-run-as-root -np 1 -x PYTHONPATH python runScript.py -task $TASK; RC=\$?; \
+-     kill \$WPID 2>/dev/null; \
+-     echo 'LOADED_DASOLVER_SET_BEGIN'; sort -u /tmp/dasolver_seen.txt 2>/dev/null | sed 's/^/  /'; \
+-     if [ -s /tmp/dasolver_seen.txt ]; then :; else echo '  (EMPTY -- the maps watcher recorded no DASolver mapping)'; fi; \
+-     echo 'LOADED_DASOLVER_SET_END'; exit \$RC" \
++    "$IMG" bash -lc "
++source /home/dafoamuser/dafoam/loadDAFoam.sh || exit 91
++python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"IDWARP_IMPORTED_FROM:\",p); print(\"IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' || exit 92
++echo 'A4_FIND_BEGIN'
++find / -name 'libDASolverADF.so' -type f 2>/dev/null | xargs -r md5sum || exit 93
++echo 'A4_FIND_END'
++( U=/tmp/dasolver_seen.txt; : > \$U; for i in \$(seq 1 900); do for p in /proc/[0-9]*; do grep -qa runScript.py \$p/cmdline 2>/dev/null || continue; grep -ao '/[^ ]*libDASolver[A-Za-z0-9]*\.so' \$p/maps 2>/dev/null >> \$U; done; sleep 2; done ) &
++WPID=\$!
++mpirun --allow-run-as-root -np 1 -x PYTHONPATH python runScript.py -task $TASK
++RC=\$?
++kill \$WPID 2>/dev/null
++echo 'LOADED_DASOLVER_SET_BEGIN'
++sort -u /tmp/dasolver_seen.txt 2>/dev/null | sed 's/^/  /'
++if [ -s /tmp/dasolver_seen.txt ]; then :; else echo '  (EMPTY -- the maps watcher recorded no DASolver mapping)'; fi
++echo 'LOADED_DASOLVER_SET_END'
++exit \$RC" \
+     > "$BASE/${ARM}.log" 2>&1 &
+ DPID=$!
+ # RECORD-ONLY RSS monitor. It never kills anything.
+```
+
+### 3g. What this addendum does NOT do
+
+1. **It does not touch the grading path of §8.** `analyse_sweep1.py` is untouched; its sha256 is
+   still `239c1764c6b2ff8db5736c45f0f5f00f0debba0a4a93e745b080e1e641be7e94`, matching §8 and the
+   committed blob, and it will be re-hashed against the committed blob before it grades.
+2. **It does not relax any gate.** G0's frozen reference strings, G1, G2, G3's threshold of 2.0,
+   §6a's strict-completion clauses and §7's decision rule are exactly as committed.
+3. **It does not make attempt 1 gradable.** Attempt 1 is `NOT A RESULT` in the plainest sense: it
+   produced no result at all.
+4. **It does not re-open the "run root does not exist" condition.** That condition is spent (§3a).
+5. **It does not license a second repair.** §3d records the exception as spent for this item.
+
+*End of Addendum 3. Nothing above this section was edited.*
