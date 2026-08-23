@@ -414,3 +414,53 @@ hard-coded to that directory. Phase 2's first action is to copy them to the new 
 retargeted and assertion A4 (§1c) added. **This is zero compute and happens before any
 `docker run`.** It is recorded here rather than discovered at launch, because a launcher edited
 after first compute would be an edit to the grading path.
+
+---
+
+## AMENDMENT 2 — 2026-08-23, BEFORE FIRST COMPUTE
+
+**Legality condition, stated and checked (CLAUDE.md rule 2):** no compute has occurred against
+this pre-registration. The registered run root
+**`/home/ubuntu/certonomous-runs/D460-sweep1-solver-family` DOES NOT EXIST** — checked by the
+lane at 20:39Z, 20:43Z and 20:51Z, and re-checked by `test ! -d` **in the same shell invocation
+as this amendment's commit**; the commit aborts if the directory exists. No arm directory, log,
+ledger or container exists for this item. The lane that found the defect built its trial arm in
+**scratch, outside the registered run root, precisely to keep this condition intact**, and was
+right to.
+
+**This amendment alters an assertion, not a gate, threshold, cap or label.** §5, §6, §7 and §9
+stand exactly as committed.
+
+### 2a. A1-P as amended by Amendment 1 voids every correctly built control arm
+
+Found by the lane's scratch trial and **verified independently by the supervisor, read as code,
+before this amendment was written**: `gen_arm.py` line 112,
+
+```python
+NEW = NEW.replace("__DV__", useAD_dv).replace("__IDX__", useAD_idx)
+```
+
+is **unconditional**, while the `useAD` dictionary line and the Edit-4 `add_dvgeo` block are
+gated on `useAD_dv`. The injected template's `fwdad` task branch (line 74 of `gen_arm.py`)
+therefore carries a **second, ungated** function of `useAD_dv`: its `print` literals. A plain
+arm gets `("", "-9999", v)` where `s1b/runScript.py:312` has `("patchV", "1", v)`. So every
+correctly built P-SM arm shows a **fourth** difference — one changed line — and Amendment 1's
+"Any other difference **VOIDS the arm**" fires on a correct arm. Same defect class as the A1
+error Amendment 1 repaired.
+
+The changed line is a `print` of string literals inside `elif args.task == "fwdad"`, downstream
+of `prob.run_model()`; ARM P-SM never invokes the `fwdad` task, and the literals appear only in
+a log label. **It is numerically inert.**
+
+### 2b. A1-P is replaced by
+
+- **A1-P (ARM P-SM):** `diff <run root>/psm/runScript.py <P3>/s1b/runScript.py` contains
+  **exactly**: (1) the one added line `    "printInterval": 1,`; (2) the removal of the
+  `"useAD": {...}` dictionary line; (3) the removal of the Edit-4 `add_dvgeo` block that
+  `gen_arm.py` inserts only when `useAD_dv` is set; (4) the **single changed line** in the
+  `fwdad` task branch whose printed literals are `("", "-9999", v)` where `s1b` has
+  `("patchV", "1", v)`. Any other difference **VOIDS the arm.**
+
+A1-F, A2, A3 and A4 are **unchanged**.
+
+*End of Amendment 2. Nothing above this section was edited.*
