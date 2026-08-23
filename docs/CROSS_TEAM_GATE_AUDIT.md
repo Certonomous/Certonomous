@@ -460,3 +460,281 @@ last row) — the operator is already paid for and the plant is near-free.
 **Cost of this pass:** zero solver core-minutes; zero compute launched. Reads,
 `git show`/`cat-file` hashes, `md5sum`, `grep -c` and `find` only. Nothing under
 `cases/dafoam/` or in the run root was written.
+
+---
+
+## Audit pass 5 — 2026-08-23, verification LANE (CANDIDATE, not the supervisor's own read)
+
+**Lines whose number changed above this section: 0.** This section is appended
+at the foot of an append-only file; every section above it is byte-identical to
+its HEAD blob, and the base for this edit was taken from
+`git show HEAD:docs/CROSS_TEAM_GATE_AUDIT.md`, never from the worktree (L-253).
+
+**This pass was run by a `lab-lane`, not by the verification supervisor
+personally.** `SUPERVISION_CHARTER.md` §3 is explicit that a relayed check is a
+summary and not a check, so **every finding below is CANDIDATE until the
+verification supervisor re-derives it.** Each finding names the artifact it was
+read from so re-derivation is cheap. The lane was **read-only toward
+heat-transfer's territory** throughout: nothing under
+`verification/runs/T-family/` or `docs/campaigns/T-family/` was written, no
+comparator was re-executed, and no case was touched.
+
+**Target:** heat-transfer's **T9aH** chain — `Gauss harmonic` re-grade of the
+T9a composite wall and fin. Four commits: `0078fe9c` (pre-registration alone),
+`1908bb7c` (run tree + instruments + Addendum A.1–A.6), `a66232c1` (A.7, A.8),
+`359cccfb` (the grade), plus `b698dfc3` (board + the supervisor close-out note
+appended to the results).
+
+### 17. T9aH (heat-transfer) — CANDIDATE: SOUND. Two items owed, neither touching a verdict
+
+| question | finding |
+|---|---|
+| Pre-registration frozen before compute (§2b, §2d)? | **YES, by 1,247 s, re-derived by this lane.** Prereg committed **alone** at `0078fe9c`, 2026-08-23 **19:52:16Z**; first compute — the `blockMesh` banner inside `W_c/log.blockMesh` — **20:13:03Z**. The doc's own §9 freeze condition was *checked, not asserted*: `date -u` 19:45:57.814Z beside `ls -d …/T9aH_runs` returning rc=2 and a `find … -name 'T9aH*'` returning 0. The `0078fe9c` blob hashes **`84af4208157418efcb41457f346e54a5f41e6360e5a5d7855bb8acd5ff629f0b`**, equal to the sha Addendum A claims for it. |
+| Comparator frozen before its cases could answer it (§2d)? | **YES on the STRONG limb, by 469 s, three-way hash-identical.** `analyse_t9aH.py` committed at `1908bb7c` **20:05:14Z**, 469 s before the first `blockMesh`. Blob@`1908bb7c` == blob@HEAD == on-disk == **`8107ed38578fcade0196c6458cb2e8e0f3d1af620c1a4d2c1dd444cea97f2870`**, the value Addendum A.2 registered *while the tree still held zero case directories* (A.5's re-check, 20:02:53.680Z). Same three-way equality re-derived for `build_t9aH.py` `c7a742f2…787104a4`, `run_chain_t9aH.sh` `77c58025…9eac39aade`, `T9aH_registered.json` `2a5ee67c…def30151b8`, and for `check_t9aH_mesh.py` `5c45eb9c…2608db4d` against its `a66232c1` blob. **§2d.1's repair exception is neither invoked nor needed.** |
+| Could the gate have failed (§2a)? | **YES — demonstrated on the same pipeline, not argued.** The registered null arm `RL_f` (identical mesh, identical `k`, `Gauss linear` instead of harmonic) missed **every** H-row bar: H1 **−2.4091842789175644e-03 K** = **240,918×** above the 1.0e-08 K bar, H2 **1.806464886613582e-02** = 1.81e+06×, H3 **−5.066098354404858e-04 K** = 50,661×. All three recomputed by this lane from `gate_t9aH.json`. Three gates that could *not* have failed are declared in advance and handled — see §18. |
+| Controls fired, not described? | **ALL SIX REFUSAL CHANNELS AND ALL FOUR CONTROLS FIRED**; HC1/HC2/HC3 fired with a live computation but were **recorded as a bare boolean**. Detail and the lane's independent recomputation in §19. |
+| Amendments legal (§2b/§2d)? | **YES — five amendments/addenda, all pre-first-compute and all gate-neutral; ZERO post-compute edits to the pre-registration.** Ledger in §20. |
+| Verdict vocabulary (rule 1)? | **CLEAN. No bare `FAIL` verdict cell anywhere in the chain.** Detail in §21. |
+
+### 18. Margins, and the three gates that could not have failed
+
+Every value below was recomputed by this lane from `gate_t9aH.json`'s
+`cases` and `exact_references` blocks by independent arithmetic, and reproduces
+`T9aH_RESULTS.md` §2 to every printed digit.
+
+| row | worst measured | bar | margin under the bar | what the null arm returned on the same row |
+|---|---:|---:|---:|---:|
+| H1 `T_i1` 400× | 3.183231456205249e-12 K | 1.0e-08 K | 3,141× | −2.409e-03 K (**2.41e+05× over**) |
+| H2 `q″` 400× rel | 2.484899921384454e-11 | 1.0e-08 | 402× | 1.806e-02 (**1.81e+06× over**) |
+| H3 `T_i2` 400× | 1.8758328224066645e-12 K | 1.0e-08 K | 5,331× | −5.066e-04 K (**5.07e+04× over**) |
+| H4 `H40_f` absolute | 2.5011104298755527e-12 K | 1.0e-08 K | 3,998× | no linear counterpart registered at 40× |
+| H4 drop clause | 2.598608970785584e+10 | > 1.0e+06 | 25,986× over | — |
+| H5a `H4000_f` `T_i1` | 4.206412995699793e-12 K | 1.0e-08 K | 2,377× | no counterpart at 4000× |
+| H5b `H4000_f` `q″` rel | 1.1406578348527318e-11 | 1.0e-08 | 877× | — |
+| H6 fin, six deviations | 0.0 | 1.0e-09 | identity | — |
+
+**Three gates could not have failed, and all three are declared in the frozen
+record rather than found by this audit:**
+
+1. **H6 is a near-identity.** Prereg §4.3 says so bluntly ("This row is close to
+   an identity and is declared as one"), and `gate_t9aH.json` carries
+   `counted_toward_hypothesis: false` on it. Five rows, not six, are counted.
+   **Handled correctly.**
+2. **H4's drop clause is not the binding one.** Addendum A.4 disclosed
+   *before grading* that a drop below 1e+06 requires `|e1| > 6.5e-08 K`, which
+   already fails the 1.0e-08 K absolute bar — so the drop clause is a
+   cross-check on the baseline read from `gate_t9aD.json`, not an independent
+   falsifier. This lane re-derived the crossover: `64.99408e-3 / 1.0e+06` =
+   **6.499e-08 K**. §4.4's threshold was **not** changed for it.
+3. **FR0–FR2 could not have PASSED** — the inverse failure mode, and the
+   honest direction. Prereg §4.1 registered, before the run, a four-branch table
+   of what the frozen rule does when the differences it builds a Roache band
+   from are round-off, and named **"the most likely single outcome is
+   OSCILLATORY → NOT A RESULT"**. The frozen comparator returned
+   OSCILLATORY / OSCILLATORY / DIVERGENT on FR0 / FR1 / FR2 with `band_pct: null`
+   — verified by this lane in `T9aH_runs/gate_t9a.json` — and the record
+   publishes them as returned, including the comparator's own line *"the rung is
+   unsound"*, reproduced verbatim rather than explained away.
+
+**One observation the record already makes and this lane confirms rather than
+raises.** H1–H3 at 400× are a **confirmation at a bar set 3,333× above a
+residual T9a-D had already measured on the identical meshes** (0 / 3.2e-12 /
+3.0e-12 K). Their surprise value is low by construction, and the prereg says so
+in the "predicted" column. What is genuinely new is the **4000× contrast** (no
+prior measurement) and **`H40_f` under harmonic** (T9a-D's 40× arm was
+`Gauss linear`, and it grew the error 27–31×). **The rung's evidentiary weight
+sits on HC4's discrimination and on those two extensions, not on the 400×
+rows** — which is what §4.5 of the pre-registration already claims for it.
+
+### 19. Controls — fired with a measured value, except three recorded as booleans
+
+**Fired, with a number read back off disk** (all from `gate_t9aH.json` →
+`refusals`, re-read by this lane):
+
+- **RC6, the load-bearing plant.** `+1.234e-03 K` into cell **25** (x =
+  0.04903846153846154 m) of a scratch copy of `W_f`: the frozen `measure_wall`
+  moved `T_i1` from **348.78108239882687 K** to **348.78225871413395 K**, a
+  shift of **1.1763153070774024e-03 K** against a registered floor of
+  **1.0e-05 K** — **117.6× over the floor and 1.18e+05× over H1's own bar.**
+  In a rung whose headline is a set of zeros this is the single most important
+  artifact in the chain, and it is a real read-back, not an echo.
+- **RC5, the convergence plant, on two cases.** `+1.234e-03 K` into `900/T` of
+  scratch copies of **both** `W_f` and `H40_f`: frozen
+  `iterative_convergence` returned `max_change` **1.2340000000108375e-03 K**
+  and state **NOT_CONVERGED** on both. The `+1.08e-14 K` tail on the readback
+  is the arithmetic signature of a genuine round trip.
+- **RC3, the replica / builder control.** `RL_f` reproduces the frozen `W_f` of
+  `T9a_runs/gate_t9a.json` to **0.0 K, 0.0 K, 0.0 W/m²** — bit-identical,
+  against registered tolerances of 1e-9 K and 1e-7 W/m².
+- **RC2, the `fvSchemes` readback.** Re-read by this lane from
+  `gate_t9aH.json` → `cases[*]["laplacian(DT,T)"]`: **nine cases
+  `Gauss harmonic corrected`, `RL_f` `Gauss linear corrected`** — the single
+  registered change, verified from each case's own dictionary.
+- **HC4, the discrimination test.** Records its three null errors and
+  `rows_not_counted: []`.
+
+**Fired but recorded as a bare boolean — the finding of this pass.** `HC1`,
+`HC2` and `HC3` appear in `gate_t9aH.json` → `controls` as `met: true` plus a
+`must` string and **no measured value**. This lane read
+`analyse_t9aH.py:506–514` and confirms all three are **computed live from
+disk-read case values** (`mw["f"]["q"]`, `mf["f"]["eta"]`, `m_c3`) — they
+**fired**, they are not asserted — and recomputed each independently from the
+same gate file:
+
+| control | lane's independent recomputation | fails its bar by |
+|---|---:|---:|
+| HC1 arithmetic-mean `k̄` | `k̄` = 5.613333333333333 W/m·K (mean of 0.8 / 0.04 / 16.0, read from `T9a_registered.json`), `q_C1` = 1650.9803921568628 W/m²; measured `W_f` `q″` = 19.502681619207195 → **98.81872118458483 %** deviation (identical to the frozen path's own C1 figure) | 9.88e+07× |
+| HC2 perfect fin | `\|η_f − 1\|` = **0.1668262943643002** | 1.67e+08× |
+| HC3 trivial baseline `W_C3` | `\|T_i1 − exact\|` = **1.2189176011683571 K**; `\|T_i2 − exact\|` = **49.97562164797995 K**; `q″` relative **0.9999999998763257** | 1.2e+08× / 5.0e+09× / 1.0e+08× |
+
+**The substance holds by eight to nine orders and this audit withdraws
+nothing.** The finding is a **recording gap**: a reader holding only
+`gate_t9aH.json` cannot see what deviation made HC1–HC3 `MET`, and
+`T9aH_RESULTS.md` §3.2 repeats the boolean ("fails it", "fails all three")
+rather than the number — the one place in an otherwise number-dense record
+where a control is **described rather than quantified**. Contrast HC4, which
+records its values. **The same class applies to two rows:** `H4` and `H5`
+carry only `{row, threshold, verdict}` in the gate file, where H1/H2/H3/H6
+carry `levels`, `errors` and `worst`; their values are recoverable from
+`cases` + `exact_references` (this lane recomputed all six and they match the
+results to every printed digit), so nothing is unsupported — but the row
+records themselves are thinner than their siblings.
+
+**RC4, the strict completion rule, verified independently by this lane.** It is
+wired as a refusal loop over all ten cases calling the frozen `MARK.check`
+(`analyse_t9aH.py:355–360`); it did not fire, and a refusal that does not fire
+leaves no positive per-case record for the three extra cases (the seven frozen
+cases do get `DONE.*` markers). Read from disk for `RL_f`, `H40_f`, `H4000_f`
+and `W_f`: last time directory **1000** == `endTime`; exactly one `End` line;
+**1000** `ExecutionTime` lines; and the **age guard** holds on every one —
+`0/T` at 20:14:04.3678 / 20:14:04.7435 / 20:14:05.1215 / 20:13:54.8652Z against
+`1000/T` at 20:14:04.4822 / 20:14:04.8562 / 20:14:05.2322 / 20:13:54.9782Z,
+margins **113–115 ms**, every field at `endTime` newer than its own `0/T`. All
+ten `STATUS.*` carry `rc=0` and `checkMesh_rc=0`. **The completion rule holds.**
+
+### 20. Amendment legality — five items, all pre-compute, all gate-neutral
+
+First compute is the `blockMesh` banner at **20:13:03Z**; the pre-registration's
+last commit is **`a66232c1` at 20:12:04Z, 59 s earlier**.
+
+| item | dated / committed | before first compute? | alters a gate, threshold, cap or label? | reading |
+|---|---|---|---|---|
+| A.1 — an **eighth** frozen file (`build_t9a.py`) copied | condition checked `date -u` 20:01:37.030Z with **0** case dirs; committed `1908bb7c` 20:05:14Z | **YES, by 7 m 49 s** | NO | **LEGAL, §2b(1)** — states the condition *and how it was checked*, naming the tree that held nothing |
+| A.2 — the new files' sha256 registered | `1908bb7c` 20:05:14Z; A.5 re-checked the tree at 20:02:53.680Z, 0 case dirs | YES | NO | LEGAL — this *is* the freeze |
+| A.3 — the 53-check selftest, including three of the lane's own fixture errors recorded rather than tidied | `1908bb7c` | YES | NO | LEGAL |
+| A.7 — the supervisor's flagged "inverted slip" **checked and NOT confirmed** | `a66232c1` 20:12:04Z; freeze re-checked 20:11:43.816Z, 0 case dirs | **YES, by 59 s** | NO | LEGAL — and worth naming: it **declines a supervisor-asserted correction on arithmetic grounds and shows the arithmetic** (`p = ln(0.05)/ln(1.6) = −6.3738…`, frozen classifier returns DIVERGENT). That is CLAUDE.md rule 9's *"an instruction is answered, not merely obeyed"* applied to the supervisor's own read, and it prevented a correct record being corrected on authority into an error. |
+| A.8 — `check_t9aH_mesh.py` added for §6.6 | `a66232c1` | YES | NO — it **grades nothing** (Charter §2c GUARD; its failure withdraws the run, not the hypothesis) | LEGAL |
+| Supervisor close-out note on the **results** | `b698dfc3` 20:52:37Z, after the grade at `359cccfb` 20:45:57Z | n/a (post-grading) | NO — promotes a GUARD's rc=0 output from provenance to evidence, and accepts §8.2's disclosed ordering divergence; moves no row | **LEGAL as a dated addendum, and its "lines whose number changed above this section: 0" is VERIFIED by this lane**: `359cccfb`'s blob is 395 lines and HEAD's first 395 lines are byte-identical (`cmp`), HEAD being 413 |
+
+**Zero post-compute edits to the pre-registration, verified by byte comparison,
+not by trust.** HEAD's prereg is 821 lines; its **first 619** are byte-identical
+to the entire `0078fe9c` blob (`cmp`, exit 0), so §§1–10 — every gate, every
+threshold, the 300 core-second cap and every label — have not moved since the
+freeze. The on-disk file equals its HEAD blob and hashes
+**`d28f8970eb3835c82ddeff3ba555ccf5f243903efb1ca577993b0154c08ff4af`**, the
+value `T9aH_RESULTS.md` §7 claims for it.
+
+### 21. Verdict vocabulary — clean, and one boundary the charters have never written down
+
+- **Verdict cells:** `gate_t9aH.json` — 6 rows, all `PASS`. `gate_t9a.json` —
+  3 `NOT A RESULT`, 2 `GATE REACHED`. **No verdict cell outside rule 1's fixed
+  six anywhere in the chain.**
+- **The 9 `FAIL` and 4 `FAILED` tokens across the two documents are every one of
+  them prose, not verdict cells**: `GATE FAILED` (past tense of `GATE FAIL`,
+  ×3), *"Three checks FAILED on the first run"* (selftest fixtures), and
+  *"must **FAIL** H2's 1.0e-08 bar"* in the HC1–HC4 requirement column (×8).
+  **The bare-`FAIL`-cell class CLAUDE.md rule 1 flags as referred-and-unruled
+  does not occur here.**
+- **Controls use `MET` / `NOT MET`**, which the frozen `analyse_t9a.py` also
+  uses. Rule 1 fixes the vocabulary for **gate verdicts**; no charter clause
+  this lane could find states the control vocabulary. **Recorded as a boundary
+  the charters leave implicit, not as a breach** — and not a thing a lane rules
+  on.
+- **Row renaming held.** Prereg §4.1 registered that the frozen rows would be
+  called **FR0–FR4** in this rung's records and *"never presented as T9a's
+  R0–R4"*. `gate_t9a.json` calls them R0–R4; `T9aH_RESULTS.md` §1 calls them
+  FR0–FR4 and says which is which. **T9a's verdict was not re-opened and no T9a
+  number moved** — both T9a gate files still hash `7c4c6826…b3a5f4f8` and
+  `96e0dce0…0dc19993`, recorded in `gate_t9aH.json` → `refusals`.
+
+### 22. The mtime hazard on this tree — the freeze checker would be right here, for a reason worth carrying
+
+Pass 3 §9 item 3 records that the freeze instrument cannot see sha-witness
+freezes and falls back to mtime on markers without `finished_utc`. T9aH's seven
+`DONE.*` markers carry the bare text `strict rule met` and **no timestamp**, so
+the fallback applies. Two things follow, offered as candidate repairs:
+
+1. **A marker-based freeze test is systematically lenient by the
+   solve-to-mark gap.** Against the earliest marker (20:37:07.6197Z) the
+   instrument would report `analyse_t9aH.py` (mtime 20:02:40.363Z) **FROZEN by
+   +2,067 s** — the right verdict, agreeing with the commit test. But **the
+   margin that matters is comparator-committed → first `blockMesh`, which is
+   469 s**, and the 1,444 s between first compute (20:13:03Z) and marking
+   (20:37:07Z) inflates the reported figure by more than three-fold. Here there
+   is margin to spare; on a tighter chain the reported number would not be the
+   number that decides.
+2. **The seven markers share one whole-second mtime — the same surface
+   signature as `T1_runs`' 15-marker copy signature — but here it is NOT a
+   copy.** They are distinct at sub-second (…619726333 → …619926474, a
+   **monotone ~200 µs spread**) and were written by one `mark_done_t9a.py`
+   process at 20:37:07. **A copy signature and a single-process batch write are
+   indistinguishable at whole-second resolution and separable at nanosecond
+   resolution; the discriminator is the sub-second spread and its monotonicity,
+   and the instrument does not currently look at it.** Offered to the
+   supervisor as a candidate repair, not as a ruling.
+
+Also noted: the eight frozen copies inside `T9aH_runs/` carry **preserved
+2026-08-20 mtimes** (`analyse_t9a.py` 19:01:15.530, identical to its `T9a_runs`
+original) — a `cp -p` signature. **Here the preserved mtime happens to be honest
+provenance** — the file *is* the `239ed2b8` blob, hash-verified three ways above
+— **but a checker reading it as a creation time is reading a copy's clock, and
+this tree is a clean example of why the hash test, not the clock, is the freeze
+evidence.**
+
+### 23. Owed — two items, neither touching a verdict
+
+1. **No row in `docs/COST_CALIBRATION.md` for T9aH.** CLAUDE.md rule 12's
+   calibration clause makes the estimate-versus-actual comparison a **completion
+   requirement**, and the ledger holds five rows, none of them T9aH — verified
+   by this lane (`grep -c T9aH` → 0). **The comparison itself exists and is
+   complete** in `T9aH_RESULTS.md` §9: registered ≤ 90 core-s against a 300
+   core-s cap, **actual gross 21.422 core-s = 0.357 core-min**, ratio **0.238×
+   prediction and 0.071× cap**, `cost_basis` correctly stated as
+   reported-by-owner and not measured. This lane re-derived the solver-only
+   figure from the ten `STATUS.*` wall fields — **8.52 core-s**, `F_f` dominant
+   at 5.89 s, no row within three orders of the 3600 wall-s stall rule.
+   **What is owed is the ledger row, not the work, and it is heat-transfer's to
+   land** — this lane is read-only toward their territory and did not write it.
+2. **Three of the new instrument's four controls (HC1–HC3) and two of its six
+   rows (H4, H5) are recorded without their measured value** — §19. The
+   substance is sound and was recomputed here, so this is a **next-rung
+   comparator item, not a repair**: `analyse_t9aH.py` is frozen at
+   `8107ed38…a97f2870` and must not be edited for it (rule 6, and the rung's own
+   §0 prohibition 4).
+
+### 24. What this lane could NOT establish, named plainly
+
+- **Whether the supervisor's §3 check-1 read of `analyse_t9aH.py` happened as a
+  `diff -u`**, which prereg §1 demands in a box. Addendum A.7 is strong
+  circumstantial evidence that a step-4 read occurred (it answers a specific
+  line the supervisor flagged), and the close-out note evidences a later read of
+  `check_t9aH_mesh.py`. **A personal read leaves no artifact by construction;
+  this lane takes it as attested, not verified.**
+- **The `build_t9aH.py` 0.004 core-s and `blockMesh` 2.246 core-s figures are
+  bounds, not measurements**, exactly as §8.4 discloses. This lane confirms they
+  cannot be recovered from what is on disk and did not try to improve them.
+- **Neither comparator was re-executed.** Every row and control above was
+  recomputed by **independent arithmetic over the values the instruments wrote
+  to disk**. That tests the grading arithmetic and the thresholds; it does **not**
+  test the readers that produced those values. **The readers are covered instead
+  by RC6's planted control** — which is precisely why RC6, and not any H row, is
+  the load-bearing artifact in this chain.
+- **The shared git index is stale against HEAD on this tree** — `git ls-files`
+  omits `T9aH_RESULTS.md`, `gate_t9aH.json` and `check_t9aH_mesh.py`, all three
+  of which are committed and present. `T9aH_RESULTS.md` §8.3 discloses exactly
+  this and records that the staged entries were **inspected, never reverted**.
+  This lane read the same way — bases taken from `git show HEAD:<path>`, never
+  from `git status` (L-253) — and **touched no staged entry**.
+
+**Cost of this pass:** zero solver core-minutes. Reads, hashes and arithmetic
+only.
