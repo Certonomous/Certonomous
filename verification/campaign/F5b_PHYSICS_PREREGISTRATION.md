@@ -1047,3 +1047,115 @@ this document cites a scratchpad path (rule 13).
 ---
 
 *Draft ends. `PENDING` — not frozen, nothing launched, 0 core-minutes consumed.*
+
+---
+
+## ADDENDUM 1 — §3 assertion 5, read as "the last state `pimpleFoam` actually reads"
+
+**Stamp:** 2026-08-24T17:49:36Z (`date -u`, read in the shell invocation that appended this section).
+**Document version:** the text frozen at `c1ba1845` is taken as **v1.0**; this addendum makes it **v1.1**.
+**Appended at HEAD:** 5a197a411b76b187a449357d48ac7ba469f4f4bb.
+
+> **lines whose number changed above this section: 0.**
+> Asserted by measurement, not by intention: the file as it stood at
+> `git show HEAD:verification/campaign/F5b_PHYSICS_PREREGISTRATION.md` (blob
+> `f1cbc96d26846ea583da6d897e914b37a5f576a4`) was diffed against the file carrying this
+> addendum. The diff is **+112 lines, 0 deletions, 0 modifications** — a single trailing hunk that begins after the
+> last line of the frozen text. **No line above this heading changed number, content or
+> position.** Other records cite this document by line, and one citation sits inside an
+> executable check.
+
+### Why this is an addendum and not a third in-place revision
+
+**No compute exists**, so `CLAUDE.md` rule 2's before-first-compute window — under which
+Revisions 1 and 2 legally edited the body in place — is *technically still open*. **It is
+deliberately not used.** The document is now **frozen by commit** at `c1ba1845`, and rule 6
+governs a frozen file: it is never edited; a departure is disclosed in a **dated amendment
+appended at the foot**, with a version bump and the zero-line assertion above. Revisions 1
+and 2 were in-place because the document was then a *draft* and carried no sha. This one
+cannot be, and the distinction is recorded rather than resolved by convenience: **freeze by
+commit binds ahead of first compute, not only after it.**
+
+### Freeze condition, checked in the writing invocation
+
+**The run directory that must not exist:** `verification/runs/F5b_runs/physics_p1`.
+Checked with `test -e /home/ubuntu/Certonomous/verification/runs/F5b_runs/physics_p1`
+in the same shell invocation that appended this section: **ABSENT** at **2026-08-24T17:49:36Z**.
+The check is written so that ABSENT is its success path and it is not `&&`-chained behind a
+command whose non-zero exit is the expected result — the §9 lesson, applied.
+
+### THE RULING — cfd supervisor, 2026-08-24
+
+§3 assertion 5 reads *"Before `pimpleFoam` starts, `cat` … into `log.levers`."* **It is
+hereby READ AS: "at the last state `pimpleFoam` actually reads."**
+
+**The mechanism that forces the reading**, from E2 rather than from recall:
+`run_case` **overwrites** `system/fvSolution` with the potentialFoam dictionary at
+**E2:270–272** (`_generic_fv_solution(non_orth_correctors=1, potential=True, p_solver="PCG")`),
+runs `potentialFoam`, and **restores** the PIMPLE dictionary at **E2:282** — the line before
+`pimpleFoam` is invoked. **An echo taken any earlier records a dictionary `pimpleFoam` never
+saw.** That is exactly the failure the assertion exists to prevent (E1:126–140, F5c's
+binding instrumentation ruling: *"THE SWITCH YOU SET IS NOT THE SWITCH THAT RAN"*) —
+reproduced by obeying the assertion's literal wording. A second, independent reason the
+literal form cannot run: at driver start **the case directory does not exist at all**.
+
+**Therefore, as registered practice for this rung:**
+
+1. **Capture point.** The wrapper — `verification/runs/F5b_runs/launch_f5b_physics.sh`,
+   committed at **`83e0a309`** — captures the six dictionaries (`system/controlDict`,
+   `system/fvSolution`, `system/fvSchemes`, `constant/dynamicMeshDict`,
+   `constant/transportProperties`, `constant/turbulenceProperties`) into
+   `case/log.levers` **at the appearance of `case/log.pimpleFoam`**. The E2:282 restore
+   strictly precedes the `pimpleFoam` invocation in the same Python thread, so the capture
+   point is after the restore by construction, not by timing luck.
+2. **The capture SELF-VERIFIES.** `log.levers` asserts that the `fvSolution` it recorded is
+   the PIMPLE dictionary — the `pcorr` and `pcorrFinal` solver blocks present, and the
+   `PIMPLE` block present — and writes the result as a `LEVER CHECK` line on its own face.
+   **A capture that cannot prove which dictionary it holds is not a lever echo.**
+3. **On self-verification failure**, the `pcorr`/`pcorrFinal` lever is marked
+   **`unverifiable-from-logs`** — the status §3's `levers_verified_active` table already
+   assigns it — and that mark is carried **as a caveat on the face of every finding that
+   cites the moving-mesh flux correction**. It is **never a launch abort** and it has
+   **no gate effect**.
+4. **At grade time**, the reader compares the `fvSolution` md5 recorded in `log.levers`
+   against `case/system/fvSolution` on disk **after** the run and reports **match /
+   mismatch**. **Reported, not gated** (charter §2a: reporting an identity is encouraged,
+   gating it is forbidden).
+5. **Corroboration, independent of all of the above.** `_foam` itself writes a hash-bound
+   lever echo into `log.pimpleFoam` at solver launch (Verification Charter v1.5 §9), which
+   also fires after the E2:282 restore. The two echoes are produced by different code paths
+   and may be cross-checked against each other.
+
+### What this addendum does NOT do
+
+**Gate quantities, bands, cap and labels are UNCHANGED.** G1's `A_L ≥ +2.00 C_L·deg`, G2's
+`0.40` over `≤ 2.00°`, G3's `2.00×` / `1.00 %` / `5 consecutive`, the §8 point estimate
+35.0 core-min, band 28.8–48.0 and **RUN CAP 72.0 core-min**, and every label in the §7
+outcome map stand exactly as frozen at `c1ba1845`. Nothing here moves a threshold in either
+direction, and an addendum could not lawfully do so (rule 2). This addendum changes only
+**how an already-registered instrumentation step is executed and reported**, and the
+quantity it touches — the flux-correction lever — was already declared
+`unverifiable-from-logs` in §3 before the freeze.
+
+### Status of the wrapper, stated so it is not mistaken for a passing check
+
+`launch_f5b_physics.sh` @ `83e0a309` **has never been executed**, so **every assertion in
+it is UNEXERCISED** — A1 (run-directory absence), A2 (E2–E5 porcelain and md5s), A3 (the
+frozen blobs hashed against the disk files), A4 (`LAUNCH_HEAD` / `LAUNCH_LOAD` /
+`LAUNCH_CMD`) and A5 (the lever echo). Its commit message says so. **The first exercise of
+any of them happens at the permitted launch**, and until then no claim in this addendum
+about the wrapper's runtime behaviour is a measurement; it is a description of committed
+code. The launch itself was **denied by the permission system** at ~17:45Z and is on
+Sanaa's desk; no agent re-routed it.
+
+### Struck by this addendum
+
+The document's closing line — *"Draft ends. `PENDING` — not frozen, nothing launched, 0
+core-minutes consumed."* — is **struck as to the words "not frozen"** only. The document
+**is** frozen, at `c1ba1845` (stage 1) and `a80d5f36` (the stage-2 reader). The original
+line is **not rewritten** (rule 6); it stands above with this strike recorded against it.
+*"Nothing launched"* and *"0 core-minutes consumed"* remain **true** as of this addendum's
+stamp.
+
+*Addendum 1 ends. Status: `PENDING` — frozen, nothing launched, 0 core-minutes consumed,
+launch BLOCKED on a permission decision that is Sanaa's alone.*
