@@ -1701,3 +1701,630 @@ instrumented and is individually sub-second, bounding the pass **well under
 core-minute**. Direction: over-predicted, the same way pass 6 was (C-20, ≈ 0.04×).
 Nothing under `cases/RANS_LES_closure_models/` or `/home/ubuntu/closure-data/`
 was written.
+
+---
+
+## Audit pass 7 — 2026-08-24, verification LANE (CANDIDATE, not the supervisor's own read)
+
+**Lines whose number changed above this section: 0.** This section is appended at
+the foot of an append-only file. The base for this edit was taken from
+`git show HEAD:docs/CROSS_TEAM_GATE_AUDIT.md` (L-253), never from the worktree,
+and the base was asserted to be a **strict byte prefix** of the file written
+(`cmp` rc=0 over 129,151 B, 1,703 lines), so nothing above this line moved.
+
+**Two disclosures about where this section sits, made because a reader will
+notice both.** (i) **It lands after pass 8, not before it.** This pass was
+commissioned as pass 7 and drafted as pass 7; while it was being drafted a peer
+lane landed **pass 8** (the Ling2016 TBNN GPU arm, `9573db65`,
+2026-08-24T16:27:11Z), taking §35–§47. Rule 11's discipline — numbers are
+assigned at commit, from the tail — is applied here to sections rather than to
+the pass label: this pass keeps the number its brief gave it and its **sections
+continue from the actual tail, §48**. The file is therefore append-ordered, not
+pass-ordered. (ii) **The worktree copy of this file was stale when this section
+was written** — 1,110 lines against HEAD's 1,703 — and was verified to be a
+strict byte prefix of the HEAD blob before being replaced, so no peer's text was
+overwritten and nothing unique was lost (§60 records the same pattern on both
+audit targets).
+
+**This pass was run by a `lab-lane`, not by the verification supervisor
+personally.** `SUPERVISION_CHARTER.md` §3 is explicit that a relayed check is a
+summary and not a check, so **every finding below is CANDIDATE until the
+verification supervisor re-derives it.** Each finding names the artifact it was
+read from; no figure is quoted from the auditee's prose without being re-derived
+beside it. The lane was **read-only toward dafoam's territory** throughout:
+nothing under `cases/dafoam/`, `docs/dafoam/` or
+`/home/ubuntu/certonomous-runs/` was written, no dafoam comparator was
+re-executed, and every number below was re-derived with this lane's **own** code
+or arithmetic over the values the instruments wrote to disk.
+
+**Two targets.**
+
+1. **W4 stage O2 re-buy** — the offline `scipy` exact-LU of the already-paid-for
+   NASA-hump `dRdWTPC`. Pre-registration frozen `8d48fd46`
+   (2026-08-23T21:03:46Z), RESULTS landed by the supervisor at `5a93f6ee`
+   (2026-08-24T16:01:21Z, close-out §12), records `b69ac6ec` (L-264…L-266,
+   N-D27, D488–D489), ledger row **C-15**. Reported: §3 decision **`PENDING`**,
+   `spilu` **4 of 4** singular measured, `splu` killed at a 20 GiB cgroup cap at
+   900 s, **15.00 core-min** measured against **35.0** registered. This is the
+   successor to the item audited in **pass 4** (§10–§16).
+2. **B3 decomposition** — `decomposition_np4/RESULTS.md` and its dated addendum
+   (`bb5088c4`), the peak-RSS item (prereg `d062aace` + three addenda, RESULTS
+   `b5ff25d7`), board `52c26ec1`. Reported: **M0 PASS**, **M4 falsified in the
+   registered direction** (np=1 the larger), L-261.
+
+### 48. Target 1 — comparator freeze (§2b, §2d): RE-DERIVED, AND IT HOLDS WITHOUT A SINGLE AMENDMENT
+
+| check | finding |
+|---|---|
+| Prereg committed **alone**, before any compute | **YES.** `8d48fd46cb7a0e037d8871e63d241f11c2861153`, `2026-08-23T21:03:46+00:00`, **one file, 587 insertions, nothing else in the commit.** |
+| Frozen blob **is** the blob the record claims | **YES, hashed by this lane.** Blob `47e2988efca221401f0e3b25b463a0aa155e0774`, sha256 `5321631691044757471bcf36522350f94e6767024e08cf8b6222aa41de5b2322`; the on-disk file re-hashes to the **same** sha256 today. Both values equal what `W4_O2_REBUY_RESULTS.md:7-9` claims. |
+| Gates/thresholds/caps byte-unmoved since the freeze | **YES, and trivially total.** The prereg path has **exactly one commit** in its entire history. Freeze blob == HEAD blob == disk, 587 lines all three ways. There is **no amendment and no addendum to compare a prefix against** — nothing in §3, §4, §5, §7 or §9 has moved by a byte. |
+| First compute **after** the freeze | **YES, by 507 s to the container.** Freeze 21:03:46Z; gate poll attempt 1 at **21:07:02Z** (203 s later, and it started **no container**); container `.start` **21:12:13Z**. The frozen §9's own reading, taken at **20:58:23Z**, records the gate **NOT MET** at 17.51 GiB — the document discloses that the box was busy at the moment of the freeze rather than smoothing it over. |
+| The instrument that ran **is** the frozen instrument | **YES, re-derived today.** `analyze_dump3.py` md5 **`f85140f675bcc287f6e4aaf01276c0e4`**, 33 lines, mtime **2026-08-02 06:18:15Z** — **19 days before the freeze**, so *"already exists and is not edited"* is a checked claim. `pmat.dat` **406,022,696 B**, `rhs.dat` **4,137,928 B**, both mtime 2026-08-23 19:56:17Z (the parent item's dump, unchanged). All four equal the frozen §8 values. |
+| The one disclosed deviation (§8a: the registered inline command transcribed to `run_o2_rebuy.sh`) | **VERIFIED BY BYTE COMPARISON, NOT ACCEPTED.** The frozen §6 `bash` block is 42 lines; lines 5–46 of `run_o2_rebuy.sh` (md5 `4beac779f4d1b18400fa5d71478f9bdf`) are **byte-identical to it** (`diff` rc=0). The file adds only a shebang, three comment lines, `echo LOGPATH=` and `exit $rc`, exactly as §8a says. **No token of the registered command was changed** — the `timeout 2700`, the `--cpus=1 --memory=20g --memory-swap=20g --oom-score-adj=500`, the mounts, `python -u` and the `PIPESTATUS[0]` read are all the frozen bytes. |
+| The RESULTS' own provenance claim (§12: *"committed as found on disk, byte-for-byte above this section"*) | **VERIFIED.** The lane's pre-commit copy still on disk is **428 lines / 28,292 B**, mtime 2026-08-23 21:31:07Z; the committed blob is 466 lines. `cmp` of the disk copy against the **first 28,292 bytes** of the committed blob: **rc=0, strict byte prefix.** The supervisor's ~18-hour-later commit added §12 and touched nothing above it. |
+
+**Sequence of record, all from artifacts:** freeze `8d48fd46` 21:03:46Z → gate
+refusal 21:07:02Z (no container) → container 21:12:13Z → kill/`.end` 21:27:13Z →
+lane's record written 21:31:07Z → supervisor's commit `5a93f6ee` 2026-08-24
+16:01:21Z → records `b69ac6ec` 16:03:03Z.
+
+### 49. Target 1 — could each graded row have failed, and the tautology hunt
+
+**No tautological row was found, and the three rows that carried a measured
+value are all graded against the auditee.**
+
+**O2R-P4 (`spilu` singular at exactly 4 of 4) — HIT, and it could plainly have
+gone the other way.** This lane read the frozen instrument. `analyze_dump3.py`'s
+`spilu` loop is a `try/except` whose **success** branch prints a rich row
+(`nnz(L+U)=…  info=…  matvecs=…  final rel res=…`) and whose failure branch
+prints the **exception text**. The graded quantity is therefore not a boolean an
+optimist could read either way: it is the string `Factor is exactly singular`,
+which distinguishes a zero pivot from a memory failure, a convergence failure or
+any other exception. **The same reader printed the success form three times on
+CBFS** — see §50. Measured on the hump, from
+`logs/o2_rebuy_hump_lu_20260823T211207Z.log:4-7`: four rows, every one
+`FAILED: Factor is exactly singular`, at `drop_tol` 1e-2/1e-3/1e-4/1e-5 and
+`fill_factor` 3/5/5/10.
+
+**The identity line is a real check and this lane re-read both of its
+citations.** `:1` prints `n=517240 nnz=33662810 ||b||=1.094138002900e+00`.
+`W4_M1M2_RESULTS.md:117` carries `nnz(A)` = **33,662,810** and `:115` carries
+`‖b‖₂` = **`1.094138002900e+00`** — so the operator this factorization was run
+on is the one the parent item verified, and the reader that says so is the
+frozen script rather than the record's prose.
+
+**O2R-P5 (wall 1500–2700 s **and** the run completes) — MISS on both clauses,
+reported as a miss.** `.start` `2026-08-23T21:12:13Z`, `.end`
+`2026-08-23T21:27:13Z`, both read by this lane: **900 s**, and rc **137**.
+
+**O2R-P6 (peak 8.0–20.0 GiB) — MISS (high), right-censored, and the censoring is
+stated rather than hidden.** `CGROUP_PEAK_BYTES=21474836480` = **20 × 1024³ to
+the byte**. A cgroup high-water cannot exceed the limit that killed the process,
+so this is a **lower bound** on what the exact LU wanted, and the record says so
+in exactly those terms. The frozen §7b and §7c registered this mapping — kill ⇒
+MISS (high), right-censored, not a void — **before** the run.
+
+**C-P1R (the exact LU exceeds 25.0 core-min) — MISS, and the freeze made it a
+harder test on purpose.** The frozen §4b registers `--cpus=1` billing, under
+which the hypothesis needs **more than 25 wall-minutes** where the original
+C-P1's `--cpus=4` basis would have needed 6.25. Registering the harder billing
+is anti-tuning and it is on the record before the spend.
+
+**The registered `rc` semantics are the cleanest anti-tuning artifact in the
+item.** The frozen §6 fixes `0` = completion, `124` = the `timeout` fired,
+`137` = the cgroup OOM kill, *"anything else is triaged before grading and is a
+finding, not a number to absorb"* — and it names the `tee`/`PIPESTATUS[0]`
+footgun in the same paragraph. The observed `rc=137` maps onto a branch written
+before the answer existed.
+
+### 50. Target 1 — controls: one fired as a **refusal with a measured value**, one is asserted-only, and the rule-3 plant was declined in advance
+
+| control | executed? | measured value, and where it lives |
+|---|---|---|
+| **The registered launch gate (§9)** | **FIRED, AS A REFUSAL, WITH A POSITIVE ARTIFACT ON DISK** | `logs/o2_rebuy_poller.out`, attempt 1 at **21:07:02Z**: `GATE free_cores=6 memavail_gib=19.77` → `GATE NOT MET -- BLOCKED, not launched`, `attempt 1 returned rc=3`, **no container started, 0.00 core-min**. Attempt 2 at 21:12:07Z read `free_cores=9 memavail_gib=26.84` and launched. This is stronger than the parent item's guard evidence audited at §12 of pass 4: there the refusal path was *wired but did not fire*; here the refusal **fired and left a number**. |
+| **The four §8 void assertions** | **RAN AND PASSED, on both attempts, with their values printed** | `o2_rebuy_poller.out` prints the md5, both dump sizes and the full image ID on **each** attempt, all equal to the frozen values; this lane re-derived all four from disk today. **But they have never been shown able to refuse** — no run exists in which any of them differed, and no mutation was staged. They are a checked identity, not a demonstrated refusal. |
+| **A rule-3 plant into the hump operator** | **NOT TAKEN, AND DECLINED IN THE FROZEN FILE BEFORE THE RUN** | The frozen §5a says, verbatim, *"No perturbation is planted into the hump matrix and this file does not claim one is"*, prices the alternative (re-running `analyze_dump3.py` on the CBFS dump, ≈ 10.5 core-min at `--cpus=1`) and declines it as a judgement recorded before the run. **Pass 4 §12's carried-forward recommendation — copy `pmat.dat`, zero one row, confirm `analyze_dump.py` reports `zero rows=1` — was therefore NOT taken.** It was refused in advance and in writing, which is the honest form of not doing it, but the recommendation stands unspent. |
+
+**What this lane can add, unprompted, and it partly closes the rule-3 gap the
+record leaves open.** `analyze_dump3.py` has mtime **2026-08-02 06:18:15Z** and
+md5 `f85140f6…` — the value frozen at `c8254a4a` §5 — i.e. it is byte-unchanged
+since 29 minutes before `W4-cbfs-reordering/analysis_final.log` was written at
+**06:47:57Z**. That log, read by this lane, carries at `:10-12` **three
+completed `splu` rows**:
+
+| `diag_pivot_thresh` | `nnz(L+U)` | `‖Ax−b‖/‖b‖` |
+|---|---|---|
+| 0 | 322,328,834 | 2.3769e-10 |
+| 0.1 | 362,261,983 | 6.4063e-12 |
+| 1 | 389,944,580 | 2.5355e-12 |
+
+**So the hump's "zero completed `splu`" is a zero from a reader that is
+demonstrably able to print a non-zero `splu` completion** — same script, same
+box, a different operator. That is *not* the plant rule 3 asks for (nothing was
+planted into **this** matrix, and the demonstration is 21 days old on a
+different case), but it is a materially stronger position than the record claims
+for itself, and it is offered so the next reader is not left with an
+uncontrolled zero. The remaining uncontrolled channel is unchanged: **no reader
+in this chain has been shown able to see a defect planted in the hump
+operator.**
+
+### 51. Target 1 — **DEFECT FOUND**: `O2R-P2` is graded `PENDING` against a frozen rule that registered `MISS`
+
+The frozen §5 row for **O2R-P2** reads, in the blob whose sha256 this lane
+re-derived as equal to `8d48fd46`'s:
+
+> **O2R-P2** | number of the **3** `diag_pivot_thresh` values (0, 0.1, 1) at
+> which `splu` **completes** | **exactly 3 of 3** | HIT iff exactly 3; **any
+> other count is a MISS** and is still graded under §3
+
+The measured count is **0**, and it is observable on disk: the `splu` section
+header printed at `:9` and **no row followed it** before `245 Killed` at `:10`.
+`W4_O2_REBUY_RESULTS.md:136` grades that row **`PENDING`**, and §4a argues the
+case at length — that completion is measured against termination, that a killed
+threshold "was never asked the question to the end", and that calling it MISS
+"would be wrong".
+
+**On this lane's reading that grade is a post-compute departure from a frozen
+HIT/MISS rule, and it is the one thing in this item that rule 1 forbids.** Four
+reasons, each checkable:
+
+1. **The frozen rule admits no third outcome for this row.** It says *any other
+   count is a MISS*. Zero is another count.
+2. **The freeze author demonstrably knew how to register a `PENDING` branch and
+   chose not to for this row.** In the **same table**, O2R-P3 reads *"HIT iff
+   inside band; **PENDING iff zero `splu` completed**"* and O2R-P6 reads *"An
+   `UNAVAILABLE` cgroup read is **PENDING, not MISS**"*. Two rows carry an
+   explicit `PENDING` branch; O2R-P2 carries an explicit *"any other count is a
+   MISS"*. The asymmetry is deliberate and it is inside the frozen bytes.
+3. **The argument that changes the grade was constructed after the answer
+   existed.** §2d closes gates, thresholds and labels at first compute. §4a is a
+   post-compute re-reading of what O2R-P2's quantity means, and it changes that
+   row's label. Whatever its merits as reasoning, the freeze is the document's
+   entire evidentiary content and this row's freeze says MISS.
+4. **§3's `PENDING` does not reach it.** §4a's load-bearing sentence is that
+   *"§3, inherited verbatim, routes a stop with zero completed `splu` to
+   `PENDING`"*. §3 grades the **decision** — which of D-SINGULAR /
+   D-ILLCOND-CATASTROPHIC / D-MERELY-SLOW / D-UNREGISTERED-CLASS applies. §5's
+   table grades **predictions**. They are different objects with different
+   registered rules, and the §3 row cannot supply a branch the §5 row was
+   written without.
+
+**Severity, stated so it is not read wider than it is.** **No headline verdict
+moves.** The §3 decision is `PENDING` either way (§52); `spilu` 4-of-4 stands;
+the `splu` measurement's `NOT A RESULT` stands; O2R-P5, O2R-P6 and C-P1R stay
+MISSes. The direction of the error is mild self-flattery on one prediction row —
+the opposite direction from the parent item's §5 row 3 defect found at pass 4
+§14, which cost that lane its own headline. **Recommended remedy, dafoam's to
+accept or refuse and not this lane's to impose:** a dated addendum to
+`W4_O2_REBUY_RESULTS.md` (appended at the foot, §4/§4a struck not rewritten, per
+rule 6) regrading **O2R-P2 = MISS** on the frozen arithmetic, keeping §4a's
+reasoning verbatim as the *interpretation* of that MISS — the distinction
+between "the operator failed" and "the item was stopped" is real and worth
+keeping; it just is not a licence to move the label.
+
+**By contrast, O2R-P1 and O2R-P3's `PENDING` grades are SOUND.** O2R-P3's is
+registered explicitly. O2R-P1 names *"`nnz(L+U)` at the **highest completed**
+threshold"* — a quantity that is **undefined**, not zero, when no threshold
+completed; nothing was printed and nothing was read. That is the display/queue
+sense. The freeze's failure to register a `PENDING` branch for O2R-P1 is a
+small gap in the freeze, not a softening in the grade.
+
+**Not caught upstream.** The supervisor's close-out §12 enumerates its personal
+re-verification as O2R-P4 HIT, O2R-P5 MISS, O2R-P6 MISS, C-P1R MISS and the §3
+`PENDING`. **O2R-P1, O2R-P2 and O2R-P3 are not mentioned.** The check that was
+done is described in enough detail to be believed; it simply did not reach this
+row.
+
+### 52. Target 1 — the §3 decision's `PENDING` IS a queue state, not a softened `GATE FAIL` or `NOT A RESULT`. AUDIT: SOUND
+
+This is the question the brief asks a position on, and this lane takes one.
+
+**Position: sound, on the charter text.** `VERIFICATION_CHARTER.md` §9 fixes the
+display sense in one sentence — *"A row whose act has not run prints PENDING and
+is never filled in from a neighbouring run that happens to be close."* The test
+the charter gives is therefore **whether the act that decides the row ran**, not
+whether any container started. Applied here:
+
+1. **The act that decides §3 is a completed `splu`, and it did not run to an
+   answer.** All four §3 verdicts require `splu` to complete at ≥ 1 threshold
+   (D-SINGULAR additionally admits a raise at all three, or a `zero rows/cols` >
+   0 finding — and the latter half was already closed at O1 with 0/0/0, graded
+   HIT). Zero completed. The registered input to the decision does not exist.
+2. **The `PENDING` row was pre-registered with this exact condition, twice.**
+   `c8254a4a` §3's verdict table carries *"stage O2 not launched, **or launched
+   and stopped by the budget ceiling or the memory guard with zero completed
+   `splu` factorizations**"*, and §3's partial-but-decisive clause repeats it.
+   That text was re-frozen verbatim inside `8d48fd46` §3, in the blob this lane
+   re-hashed. **The phrase "launched and stopped" is in the freeze**: this is
+   not the "never launched" branch being stretched to cover an executed run — the
+   executed-and-stopped case is the branch's own registered wording. `8d48fd46`
+   §3 note 2 also disposes of the only wrinkle (the stop was a cgroup, not the
+   watcher script) with *"a stop is a stop; the row grades on how many `splu`
+   factorizations completed"*.
+3. **Nothing that had a measured value was labelled `PENDING`.** The run's own
+   measurement is graded **`NOT A RESULT`** — the correct label for an executed
+   run stopped by its cap — and it is printed in the §1 verdict table beside the
+   `PENDING`. The three predictions with measured values (O2R-P5, O2R-P6,
+   C-P1R) are all **MISS**. The item did not spend `PENDING` on any number it
+   actually had. (The one exception is O2R-P2, and that is §51.)
+4. **The consequence that a softened verdict would have unlocked did not
+   fire.** §3's carried sentence *"if M1 returns singular or catastrophically
+   ill-conditioned, M4 and M5 are not bought"* is explicitly **not** claimed as
+   fired; the record says M4/M5 stay unbought because **M1 has not decided**, a
+   distinct state, and refuses to collapse the two. A lane softening a failure
+   would have had the opposite incentive.
+
+**Where the boundary actually sits, stated so the next auditor inherits it
+rather than re-deriving it.** `PENDING` is legitimate for a **decision** whose
+registered input was never produced, even when compute was spent trying — the
+run's *own* label in that case is `NOT A RESULT`, and both appear. It is **not**
+legitimate for a **prediction whose quantity is observable and was observed**,
+which is precisely the O2R-P2 defect. Pass 4 §13 ruled the parent item's M1
+`PENDING` a queue state on the "no run exists" limb; this pass extends that
+ruling to the harder case — **a run that existed, was stopped, and still leaves
+its decision's input non-existent** — and the extension is what the frozen
+branch's own wording anticipated.
+
+### 53. Target 1 — cost calibration (rule 12): present, complete and honest, including the part that works against the item
+
+`W4_O2_REBUY_RESULTS.md` §5/§5a and ledger row **C-15** carry the comparison the
+frozen §4c registered *before* the spend:
+
+| field | value | this lane's check |
+|---|---|---|
+| predicted | **35.0 core-min** (band 25–45; ceiling **50.0**; wired stop 45.0) | in the frozen §4, byte-unmoved (§48) |
+| actual | **15.00 core-min** | **re-derived**: `.start` 21:12:13Z → `.end` 21:27:13Z = 900 s × 1 cpu ÷ 60 = 15.00 |
+| ratio | **0.43×** | 15.00 ÷ 35.00 = 0.4286 → 0.43 |
+| dollars | predicted **\$0.02993**, actual **\$0.01283** | both labelled **DERIVED** at \$0.0513/core-h, **reported-by-owner, not measured** — correct under `COMPUTE_BUDGET_CHARTER.md` §5 |
+| waste | **0.00, named** | every core-minute produced a graded measurement (the 4-of-4 singularity and the ≥ 20.0 GiB bound); the gate refusal is charged **0.00** and is correct — no ranks were held |
+| gap attribution | contention 0.00, waste 0.00, misprediction 0.00, **truncation by the registered cap −20.00** | the frozen §4c required the three registered causes to sum to the gap *"or the shortfall is named"*. They sum to zero against a −20.00 gap, so the **fourth cause is written into the row** rather than smuggled into "misprediction" |
+
+**The row's best sentence is the one that refuses the flattering reading**:
+*"A cost that came in at 0.43× because the run was killed is not an estimate
+that was too high."* C-15 repeats it and adds that the 35.0 duration estimate
+was **never tested**. **Nothing is owed on this question**; this is the form the
+directive asks for.
+
+Two small honest notes, neither of which is a defect. The **wired budget stop
+(`timeout 2700`) was never exercised** — the memory stop fired first at 900 s —
+so this item has a proven memory stop and an unproven budget stop, which the
+record itself states. And the mid-run `docker stats` reading of **100.05 %** cpu
+that supports "contention 0.00" is labelled in the record as *"an observation,
+not an artifact"*; this lane could not verify it and it is the only figure in
+the ledger row with no file behind it. Nothing rests on it.
+
+### 54. Target 2 — B3: the freeze and its three addenda, verified by byte comparison rather than by their own assertions
+
+| check | finding |
+|---|---|
+| Peak-RSS prereg committed **alone**, before compute | **YES.** `d062aace`, `2026-08-23T19:51:22Z`. Its §0 states the freeze condition and how it was checked (the run root `ls` failing, with the `date -u` beside it) — rule 2's requirement met in the required form. |
+| Frozen instruments == the instruments that ran | **YES, re-hashed by this lane from the committed blobs.** `analyse_peak_rss.py` sha256 **`c4db08fcf7a3e5d23327943d9093feb3b5983ec655083f50a103e30f9c6951eb`** and `b3_rss_watch.sh` **`e9db593ee5932a1b9bb16bf40560ddf38d1836ad34c4a7c281217d3d463dac29`**: `d062aace` blob == disk for both, and **each has exactly one commit in its history** — never edited since the freeze. |
+| Gates/bands/caps byte-unmoved across three addenda | **YES, PROVEN BY `cmp`, NOT BY THE ASSERTIONS.** The freeze blob is **32,392 B / 484 lines**; the Addendum-1 state is **38,194 B / 601 lines**; HEAD is **42,873 B / 688 lines**. `cmp` of the freeze blob against the **first 32,392 bytes** of HEAD: **rc=0**. `cmp` of the Addendum-1 blob against the first 38,194 bytes: **rc=0**. So every band in §5.2, the M0 digit table in §5.4, the 12 GiB launch gate, the 4 GiB mid-run floor, the 182.0 core-min ceiling and the instrument hashes are **exactly as frozen**, and all three *"lines whose number changed above this section: 0"* assertions are **VERIFIED, not accepted**. |
+| The `§2d.1` repair exception invoked at Addendum 3 | **LEGAL, and its four conditions are individually checkable.** (1) demonstrable error: both arms died at `prob.setup(mode="rev")` with `PermissionError: [Errno 13] … 'reports'`, **before any solver work**; (2) an instrument independent of the hypothesis: the paired `m755`/`m777` `mkdir` control, **which this lane found physically on disk** — `triage/m777/reports` **exists** (mode 777 parent), `triage/m755/` is **empty** (mode 755 parent), both mtime 19:59; (3) disclosed in Addenda 1–2 with the instrument named; (4) the pre-repair state recorded in full. **The repair sits upstream of the grading path**: no graded number ever existed, because the frozen grader **refused (exit 2)** on 3 samples against a registered minimum of 30. |
+| Addendum 2 (the 775-not-755 correction) | **A dated correction in the required form** — quote-and-strike of the struck line, corrected table, and the mechanism (`o+w` absent in both 775 and 755; the container is uid/gid 1002 against an `ubuntu:ubuntu` 1000 tree, so the "other" bits govern) explained rather than re-asserted. It corrects a **prose** figure, not a graded number: attempt 1 produced none. |
+| `decomposition_np4/RESULTS.md`'s dated addendum (`bb5088c4`) | **APPEND-ONLY, PROVEN.** The pre-addendum blob (`804c3fd8`) is **17,678 B / 271 lines** and is a **strict byte prefix** of the 372-line file at HEAD (`cmp` rc=0). Its opening asserts it alters no gate, threshold, band, cap or label, and by byte comparison it does not. |
+| The np4 pre-registration's own freeze | **BEFORE COMPUTE, BUT NOT COMMITTED ALONE.** `b8ba5f8f`, 2026-08-21T17:55:29Z, carried **seven files** (a "Phase 2C checkpoint"). Freeze-before-compute still holds and this lane checked it on mtimes rather than on the message: the earliest np4 solver log is `logs/D_serial.log` at **2026-08-21 19:46:40Z**, **111 minutes after** the commit. Named because the pass-4/pass-6 standard is a single-file freeze commit and this one is not; nothing in the co-committed files is an artifact of this item's compute. |
+
+### 55. Target 2 — could each row have failed: **three of seven did**, and M0 is not tautological
+
+**M3a, M3b and M4 are GATE FAIL on the frozen bands.** A pass whose gates all
+pass invites the §2a question; this one answers it by failing.
+
+**M4 is the item's registered falsifiable claim and it was falsified in the
+direction the freeze named in advance.** §5.2 registered *"if the serial LU is
+the larger object, M4 fails and the 'np=1 is the arm at risk' reasoning of
+`decomposition_np4/PREREGISTRATION.md:69` is vindicated a run too late"* — that
+sentence is inside the 32,392-byte prefix proven unmoved at §54. This lane
+**re-derived M4 from the watcher logs with its own parser**:
+
+| instrument | np=4 (`D_simple2`) | np=1 (`D_serial`) | registered claim `np4 > np1` |
+|---|---|---|---|
+| cgroup `memory.peak` | 8,590,049,280 B = **8.000 GiB** | 11,954,151,424 B = **11.133 GiB** | **False**, by **3.133 GiB** |
+| sampled tree RSS | 10,190,996 kB = **9.719 GiB** | 12,061,956 kB = **11.503 GiB** | **False**, by **1.784 GiB** |
+
+**M0 is the row that could most easily have been a tautology and is not.** Three
+independent reasons, all checked here:
+
+1. **The archived digits are frozen inside the grader, and they are the real
+   2026-08-21 printings.** `analyse_peak_rss.py:44-59` hard-codes `163`, `766`,
+   `1.5279275989724403e-02`, `1.5279278602317540e-02`, the two `GRAD` tuples and
+   the two iteration-0 residuals. This lane read the **original** logs in
+   `/home/ubuntu/certonomous-runs/B3-decomposition-np4/logs/` and found
+   `GRAD n=21000 norm=1.4557054356e-05 min=-4.694385e-07 max=1.915505e-06`,
+   `Total iterations: 163`, and the D_simple2 counterparts at **766** — byte-for-byte
+   the frozen constants. The grader was committed at 19:51:22Z, **51 minutes
+   before** the first attempt-2 container. **The comparison is not circular.**
+2. **The `D_simple2` arm regenerated its own coloring, so its iteration count
+   was genuinely free to move.** `dRdWColoring_4.bin` mtime **2026-08-23
+   21:05**, inside the arm's own window — this lane read the mtimes. The frozen
+   §5.4 registered the innocent explanation *in advance* and refused it: a
+   different count *"is an M0 failure, not a shrug"*, because the partitioner is
+   identical here. **It reproduced at 766.** `D_serial`'s coloring, by contrast,
+   is the carried-in file at **2026-08-21 16:43**, untouched — so the two arms'
+   M0 passes carry different weight, exactly as the §2.4 asymmetry registered.
+3. **The registered failure consequence is the strict one.** §5.4 fixes that an
+   M0 failure turns **every band row** into `NOT A RESULT`, in the rule-5
+   direction only (a gate may turn a PASS or GATE FAIL into NOT A RESULT, never
+   the reverse). The grader exited **3** (a graded row is GATE FAIL), not 2 (a
+   refusal) — so it graded rather than refused, which is itself a checkable fact
+   about which path ran.
+
+**M2b passed by 114,688 bytes and the record flags it rather than rounding it.**
+This lane re-did the arithmetic: the 8.0 GiB band floor is **8,589,934,592 B**,
+the arm measured **8,590,049,280 B**, margin **114,688 B = 112.0 KiB =
+0.00134 %** of the floor. The band was **not** adjusted in either direction, and
+the record states in terms that the row *"should not be relied on as evidence
+that `D_simple2`'s peak is comfortably inside the registered range"*. That is the
+correct handling of a near-tie.
+
+**One disclosed censoring, and it is the item's own §9 that says so.** `M5`'s
+memory clause (*`memory.peak` strictly below 12 GiB*) cannot distinguish "this
+arm peaked at 11.13 GiB" from "this arm wanted more and the kernel reclaimed
+cache under the cap". `D_serial` sat at **92.78 % of its 12 GiB cap with 0.867
+GiB of headroom** (this lane's arithmetic). §9 states exactly this — *"these are
+peaks under a 12 GiB cap, not unconstrained peaks … an unconstrained peak is not
+derivable from 11.133 GiB and may be higher"* — and hands it on as a new
+registration rather than absorbing it. **Disclosed limitation, not a defect**,
+and it is the same corollary L-261 records.
+
+### 56. Target 2 — controls fired with measured values, every one re-derived here by this lane's own parser
+
+This lane wrote its **own** watcher-log parser (independent of
+`analyse_peak_rss.py`, which was **not** executed) and re-derived every graded
+quantity from `logs/D_serial_rss.log` and `logs/D_simple2_rss.log`:
+
+| quantity | `D_serial` | `D_simple2` | agrees with `peak_rss.json` |
+|---|---|---|---|
+| samples | **581** | **157** | yes |
+| max inter-sample gap | **3.0 s** (registered ≤ 5 s) | **3.0 s** | yes |
+| cgroup `memory.peak` | **11,954,151,424 B = 11.133171 GiB** | **8,590,049,280 B = 8.000107 GiB** | **to the byte** |
+| sampled tree-RSS max | **12,061,956 kB = 11.503178 GiB** | **10,190,996 kB = 9.718891 GiB** | yes |
+| min host `MemAvailable` during the arm | **7,598,900 kB = 7.247 GiB** | 19,859,000 kB = 18.939 GiB | yes |
+| ledger core-min | 1177 s × 1 ÷ 60 = **19.62** | 337 s × 4 ÷ 60 = **22.47** | yes |
+
+| control | executed? | measured value, on disk |
+|---|---|---|
+| **Rule-3 planted control (§4.4)** | **YES, and this lane re-derived the read-back from the raw sampler log rather than from the verdict file** | `selftest/selftest_watch.log` final samples: `TREE_RSS_KB= 2105852` = **2.00833 GiB** and `MEM_PEAK_B= 2159976448` = **2.011584 GiB**, against a planted **2.00 GiB** and registered bands 2.00–2.60 / 2.00–3.50. `selftest/selftest_verdict.txt`: `PASS … utc=2026-08-23T20:43:16Z`, **80 s before the first graded arm**. The grader **refuses (exit 2)** without that file — a refusal demonstrated in the pre-registration itself against the not-yet-existing run root. |
+| **The kill-trigger path (§3.1)** | **FIRED, WITH ITS SENTINEL STILL ON DISK** | `selftest/selftest_trigger.log`: driven against an unsatisfiable floor (`hard_floor_kib=32132604` = the box's whole `MemTotal`), it printed `ABORT reason=HOST_HARD_FLOOR` and **`KILL_ISSUED rc=0`** — and the sentinel **`selftest/.selftest_kill_fired` exists on disk today** (mtime 20:42). Pass 4 §12 had to record the W4 guard's equivalent sentinel as *no longer on disk*; **here both halves are re-verifiable**, and the second half is the one that proves the kill command ran rather than being scheduled. |
+| **The frozen grader's own refusal path** | **FIRED ON ATTEMPT 1, WITH ITS MESSAGE PRESERVED** | Addendum 1 §A1.1 records `analyse_peak_rss: REFUSE: ./logs/D_serial_rss.log holds 3 samples, fewer than the registered minimum 30`, `exit=2`. **A comparator that refused rather than degraded, on a real failure, is the best evidence a refusal limb can leave**, and it is why no graded number ever existed for attempt 1. |
+| **Attribution to a named container (§4.2, D-1)** | **YES** | Every number is read from `b3rss_D_serial` / `b3rss_D_simple2` by name → id → cgroup. The failure this repairs is on the record: a shared-box `docker stats` watcher once attributed **9.786 GiB** belonging to another lane's container. The record also names a peer container (`d460_psm`) that started **23 s after** the chain finished and therefore could not have entered these numbers. |
+| **The age guard (completion clause 6)** | **YES, re-derived from mtimes by this lane** | `D_serial/cbfs_beta_grad.npy` **21:03:22.891Z** vs staged `D_serial/runScript.py` **20:42:13.576Z** (**+1269 s**); `D_simple2` **21:09:00.502Z** vs **20:42:14.684Z** (**+1606 s**). Both artefacts postdate the run that was allowed to produce them. |
+| **Decomposition read back from each arm's own directory (§5.2)** | **YES** | `logs/D_serial_decomp.txt`: `numberOfSubdomains 1; method scotch; n (1 1 1)`, **0** `processor*` dirs. `logs/D_simple2_decomp.txt`: `numberOfSubdomains 4; method simple; n (4 1 1)`, **4** dirs. The §6a trap of the graded item — an arm that silently ran `scotch` and looked healthy — is closed by reading the file DAFoam itself wrote, not the launch command. |
+| **The paired mode control behind the §2d.1 exception** | **YES, on disk** | `triage/m777/reports` exists; `triage/m755/` is empty. **One residual, named:** the control tested **755** against 777, while the mode that actually failed was **775** (Addendum 2). Addendum 2 bridges the gap by **mechanism** (`o+w` absent in both) rather than by measurement — no `m775` arm was ever run. The bridge is sound and it is disclosed; it is an argument where the other two rows are artifacts. |
+
+### 57. Target 2 — the instrument-relation refutation, re-derived, with one arithmetic corroboration this lane adds
+
+§5.2 of the frozen prereg asserted **`memory.peak` ≥ tree RSS *by
+construction***. The RESULTS §4.1 reports it **refuted on both arms** and names
+two candidate mechanisms without claiming either. This lane re-derived the gaps
+from the raw sampler logs: `D_serial` tree RSS exceeds cgroup peak by
+**+0.370 GiB**, `D_simple2` by **+1.719 GiB**. Both reproduce exactly.
+
+**Corroboration this lane adds, and it narrows the candidate set for one arm.**
+`D_serial`'s single solver process reached `VmHWM` **12,044,544 kB = 11.4866
+GiB** — **0.354 GiB above the whole container's cgroup high-water of 11.133
+GiB**. A single process cannot double-count pages against itself, so
+mechanism 1 (tree RSS summing pages shared between ranks) is **arithmetically
+excluded for `D_serial`**, exactly as §4.1 says, and mechanism 2 (resident pages
+charged to a cgroup that faulted them in first — the plant container ran the
+same image 80 s earlier) is the only one of the two left standing for that arm.
+This is offered as support for the record's reasoning, not as a measurement of
+the mechanism: **neither candidate was measured and this lane measured neither.**
+
+**A second corroboration, which sharpens L-261 rather than contradicting it.**
+L-261's binding half — *a sampled peak is a floor* — is right, and this
+instrument's floor is a tight one: the **sum of per-pid kernel `VmHWM`** (a
+kernel counter, not a sample) is **12,062,416 kB** against the 2 s sampler's
+tree-RSS maximum of **12,061,956 kB** — the sampler lost **460 kB, 0.004 %**, on
+`D_serial`, and **2,452 kB, 0.024 %**, on `D_simple2`. The 1.81× undersample
+L-261 records is a property of the **5 s `docker stats`** figure it replaced, not
+of this 2 s cgroup sampler. Both readings should travel together so the next
+reader does not price a 2 s cgroup sampler as if it were the instrument that
+missed by 1.81×.
+
+### 58. Target 2 — verdict vocabulary, cost calibration, and two record-hygiene items owed
+
+**Vocabulary is CLEAN across all three records.** A sweep of the emphasised
+verdict cells at HEAD returns, for `W4_O2_REBUY_RESULTS.md`: `PENDING` ×9,
+`NOT A RESULT` ×2, MISS ×5, HIT ×2. For `decomposition_peak_rss/RESULTS.md`:
+`PASS` ×3, `GATE FAIL` ×3, HIT ×2. For `decomposition_np4/RESULTS.md`: `PASS`
+×5, `GATE FAIL` ×2, `BLOCKED` ×1, HIT ×6, MISS ×2. **No bare `FAIL` cell, no
+synonym, no hedged label anywhere.** (HIT/MISS are `DAFOAM_CHARTER.md` §12's
+prediction tokens, distinct from the gate vocabulary, and are used only in
+prediction tables — as passes 4 and 6 also read them.)
+
+**Cost calibration (rule 12) is present and substantively complete** in
+`decomposition_peak_rss/RESULTS.md` §8/§8.1: predicted **46.0** core-min against
+**42.91** measured = **0.93×**, with per-line attribution (`D_serial` −2.08
+favourable load; `D_simple2` +1.17 contention), **zero waste in attempt 2**, and
+attempt 1's **21.0 core-min of waste named separately and not netted off** — the
+form rule 12 and `COMPUTE_BUDGET_CHARTER.md` §6 require. Dollars are labelled
+derived at the owner-stated rate. The **2.0 core-min** allotted to
+watcher/staging/grading is **excluded and stated as excluded** rather than folded
+in at its estimate, which is the honest treatment of an unmeasured line.
+
+**Two record-hygiene items are owed, neither of which moves a number.**
+
+1. **The B3 calibration row in `docs/COST_CALIBRATION.md` has no id.** At HEAD
+   the ledger carries **22** rows matching `^| C-<n>` (max id **C-22**), and one
+   further row — line **89**, the B3 peak-RSS row — whose first cell is a
+   **date**, not an id. It sits between C-14 and C-15. Substantively the row is
+   the best-formed in that file; it simply cannot be cited. **Remedy:** assign it
+   the next id from the tail under rule 11, or carry an inline correction row.
+   Dafoam's or the chief's call; this lane did not touch it.
+2. **Two stale status statements point at the same committed file.**
+   `decomposition_peak_rss/RESULTS.md` was committed at `b5ff25d7`, but its own
+   header still reads **"DRAFT — NOT COMMITTED … with the dafoam supervisor for a
+   personal read before any verdict is recorded"**, and its closing line still
+   reads *"the item-level verdict is the supervisor's to record"* — while
+   `L-261`, the board (`52c26ec1`) and the np4 addendum all cite its rows as
+   findings of record. The calibration row's own reference cell repeats the
+   staleness: it states the RESULTS **"is a DRAFT and is NOT YET COMMITTED"**.
+   **A reader at HEAD is told by three places that a committed record does not
+   exist in git.** Cheapest repair: one dated line at the foot of the RESULTS
+   recording the commit and the supervisor's read, plus a correction cell in the
+   ledger row. **No verdict moves** — every graded row came from the frozen
+   grader and is byte-verified above.
+
+### 59. L-262, the memory-stop proposal — **not applied as lab law anywhere this lane can find, and it must stay that way until Sanaa rules**
+
+L-262 (2026-08-23, recorded 21:22:42Z at `52c26ec1`) states a rule in binding
+language: *"the launch gate is derived as **floor + the largest measured (or
+explicitly estimated, labelled so) own-peak among the arms + margin**, and a
+registration whose gate cannot satisfy its own floor at the registered peaks is
+refused at review"*.
+
+**Empirically it is cited nowhere.** A repo-wide sweep for the string `L-262`
+across `*.md`, `*.py` and `*.sh` returns **exactly one hit — its own block in
+`docs/LESSONS.md:9807`**. Neither audited target cites it, and neither could:
+the O2 freeze (21:03:46Z) and the B3 freeze (19:51:22Z) both **predate** it.
+
+**But it is being applied in substance, once, in a third item, and that
+application is legal.** The A3 rung-3 attempt-2 pre-registration
+(`606930b4`, 2026-08-24T16:17:01Z) moves its own launch gate's memory limb
+`MemAvailable ≥ 16 GiB → ≥ 19.65 GiB` and labels it *"the only threshold this
+item changes"*, attributing it to **supervisor ruling R2**. **19.65 = 8.0
+(that item's own neighbourliness floor) + 11.65 (its own measured peak)** —
+L-262's arithmetic exactly, without the citation. This lane reads that as
+**legal**: a new registration setting its **own** gate higher, in the safe
+direction, touching neither the lab's standing 12 GiB `MemAvailable` floor nor
+any other item's threshold. It is not a standard being retired, so it is not
+Sanaa-reserved. *(That item is outside this pass's targets and is named here only
+because the L-262 question required a sweep.)*
+
+**The reason it must not harden into law without a ruling, and this pass supplies
+the evidence.** Applied literally and retroactively, L-262 would have **refused
+both of this pass's targets at review**:
+
+| registration | its floor | its own registered peak | L-262's required gate | its actual gate | L-262 verdict |
+|---|---|---|---|---|---|
+| B3 peak-RSS (`d062aace`) | **4.0 GiB** mid-run hard floor | 5.5–11.0 GiB band, realised **11.133** | ≥ **15.1 GiB** | **12.0 GiB** standing launch gate | would be **refused** |
+| W4 O2 re-buy (`8d48fd46`) | **12.0 GiB** standing floor | point **13.5 GiB**, capped at 20.0 | ≥ **25.5–32 GiB** | **24.0 GiB** | would be **refused** |
+
+Both ran, both produced the measurement they were bought for, and **neither
+harmed a co-tenant**. B3's registration reached the opposite resolution of the
+same tension **deliberately and in writing**: §3.1 set the mid-run floor at
+**4 GiB rather than 12** because *"a mid-run kill at 12 GiB would kill a healthy
+arm on a shared box the moment a peer starts"* — and §6.4 of its RESULTS records
+that `D_serial` spent part of its run at **7.25 GiB** host `MemAvailable`, below
+the 12 GiB launch gate and well above the 4 GiB floor: **the arm a 12 GiB
+mid-run floor would have killed is the arm that produced the item's headline
+number.** O2's is a third design again — a **kernel** cap of 20.0 GiB with the
+gate set at cap + 4.0 GiB, so the container provably cannot take the last 4 GiB
+of what was available at launch.
+
+**This lane's position, offered as evidence and not as a ruling.** L-262 is a
+**PROPOSAL** and the lab currently holds three mutually inconsistent designs for
+the same problem (floor + own-peak; a low mid-run floor with a high launch bar;
+a kernel cap with a cap-derived bar). Adopting any one of them as binding is a
+**standard**, and `CLAUDE.md`'s FIRST-ACTION rule reserves standards and gate
+thresholds to Sanaa. **A lesson block cannot create lab law**, and L-262's
+"Binding rule for every future memory-gated registration" wording reads as if it
+already had — which is the specific hazard this section exists to flag. Two
+things are owed and neither is this lane's to take: the wording should be marked
+as proposed, and the three designs should be put on one page for a ruling.
+
+### 60. A worktree/index observation on both targets, corroborating D486
+
+`git status` at HEAD reports **`D `** (staged deletion) plus **`??`** for
+`W4_O2_REBUY_RESULTS.md` and `decomposition_peak_rss/RESULTS.md`, and `MM` for
+`decomposition_np4/RESULTS.md` and this audit file. This lane checked the disk
+rather than trusting the index: **`decomposition_np4/RESULTS.md`,
+`decomposition_peak_rss/{RESULTS,PREREGISTRATION}.md` and
+`docs/CROSS_TEAM_GATE_AUDIT.md` all re-hash byte-identical to their HEAD blobs**
+— phantoms, exactly the shared-index staleness D486 established as decay by
+construction.
+
+**One is not a phantom, and it matters to a reader.**
+`cases/dafoam/ladder-b/W4_O2_REBUY_RESULTS.md` on disk is the lane's **428-line
+pre-commit copy** (28,292 B, mtime 2026-08-23 21:31:07Z), while HEAD carries
+**466 lines**. The disk copy is a strict byte prefix of the committed blob
+(§48), so nothing is lost — but **a reader working from the worktree gets a file
+without the supervisor's §12 close-out**, i.e. without the personal
+verification, the calibration reading and the "what is owed" paragraph. Reading
+that record from `git show HEAD:` rather than from disk is not optional today.
+**This lane inspected and did not revert** (rule 10).
+
+### 61. Verdicts
+
+**Target 1 — W4 O2 re-buy: AUDIT: SOUND WITH DISCLOSED DEVIATIONS, AND ONE
+DEFECT FOUND** (CANDIDATE — the verification supervisor's own read governs).
+
+| item | as reported | AUDIT (CANDIDATE) |
+|---|---|---|
+| the freeze | prereg alone, before compute | **SOUND** — one commit in the path's whole history, blob and sha256 re-derived equal to the record's claim, 507 s before the container, instrument md5 19 days older than the freeze |
+| the §6 command's transcription (§8a) | disclosed deviation | **DISCLOSED DEVIATION, VERIFIED** — 42 lines byte-identical to the frozen block (`diff` rc=0) |
+| **§3 decision `PENDING`** | `PENDING` | **SOUND — a queue state, not a softener.** The registered branch's own wording covers *"launched and stopped … with zero completed `splu`"*; the run's own label is `NOT A RESULT`; every prediction that had a value is a MISS; the dependent consequence is explicitly not claimed as fired (§52) |
+| `splu` measurement | `NOT A RESULT` | **SOUND** — killed at the registered cap inside the first threshold; `rc=137` and `CGROUP_PEAK_BYTES` = 20 × 1024³ to the byte, both mapped to their meanings in the freeze |
+| `spilu` 4 of 4 singular | measured | **SOUND** — non-tautological (the reader's success branch prints a different, richer row, and has printed it), identity line cross-checked against both parent citations |
+| O2R-P5, O2R-P6, C-P1R | MISS ×3 | **SOUND** — all three re-derived; the harder `--cpus=1` billing for C-P1R was registered in advance and against the lane's interest |
+| **O2R-P2** | `PENDING` | **DEFECT FOUND** — the frozen rule reads *"any other count is a MISS"*, the count is observably 0, and two sibling rows in the same frozen table carry explicit `PENDING` branches while this one does not (§51). Remedy: a dated addendum regrading it MISS. **No headline verdict moves.** |
+| controls | gate + void assertions | **SOUND WITH DISCLOSED DEVIATIONS** — the launch gate **refused with a measured value on disk** (19.77 GiB, rc=3, no container); the void assertions passed but have never been shown able to refuse; **no rule-3 plant into the hump operator**, declined in the frozen file in advance, so pass 4 §12's carried recommendation stays unspent (§50) |
+| cost calibration | 15.00 vs 35.0, C-15 | **SOUND** — ratio, four-way attribution with the fourth cause named, zero waste, dollars labelled derived; the record refuses the flattering reading of 0.43× (§53) |
+
+**Target 2 — B3 decomposition (peak-RSS item + the np4 addendum): AUDIT: SOUND
+WITH DISCLOSED DEVIATIONS** (CANDIDATE).
+
+| item | as reported | AUDIT (CANDIDATE) |
+|---|---|---|
+| the freeze and its three addenda | frozen `d062aace`, addenda gate-neutral | **SOUND** — gate-neutrality proven by `cmp` on two byte prefixes (32,392 B and 38,194 B), not by the assertions; both instruments one-commit-only |
+| the `§2d.1` repair exception | authorised at Addendum 3 | **LEGAL** — all four conditions checkable; the independent instrument is **on disk**; the repair is upstream of a grading path that never produced a number, because the grader **refused (exit 2)** |
+| **M0** | PASS, 18 of 18 | **SOUND, and non-circular** — the archived constants inside the grader are the literal 2026-08-21 log printings, which this lane read from the original logs; `D_simple2` regenerated its own coloring and still reproduced **766** |
+| **M4** | GATE FAIL, falsified as registered | **SOUND** — re-derived with this lane's own parser on both instruments (false by 3.133 and 1.784 GiB); the failure direction and its meaning were registered before the run |
+| M2a / M2b / M3a / M3b / M5 | PASS / PASS(flagged) / GATE FAIL / GATE FAIL / PASS | **SOUND** — every value re-derived to the byte from the raw sampler logs; the 114,688 B M2b margin is flagged rather than rounded; M5's memory clause is a **censored** test and the record's §9 says so |
+| the §4.1 "by construction" refutation | refuted on both arms | **SOUND** — gaps reproduce (+0.370, +1.719 GiB); this lane's per-pid arithmetic **excludes** mechanism 1 for `D_serial`, supporting the record's own reading; neither mechanism was measured by anyone |
+| controls | plant, kill-trigger, refusal, attribution, age guard | **SOUND — the strongest control set audited in this file so far.** Plant read back from the raw log; **kill sentinel still on disk**; the grader's refusal limb **fired on a real failure**; one residual: the paired mode control tested 755 where 775 failed, bridged by mechanism and disclosed (§56) |
+| the np4 addendum (`bb5088c4`) | quantifying confirmation, no verdict moved | **SOUND** — strict byte prefix proven; it also records against the item's own grain that the 10–14 GiB prediction it had called a miss was right and the instrument wrong |
+| cost calibration | 46.0 vs 42.91, 0.93× | **SOUND on substance; the ledger row has no id, and three places still call a committed record a draft** (§58) |
+
+### 62. What this lane could NOT establish, named plainly
+
+- **The dafoam supervisor's §3 personal checks.** `W4_O2_REBUY_RESULTS.md` §12
+  attests a personal re-verification against the raw artifacts, and Addendum 3
+  attests personal crash triage with the four §2d.1 conditions verified on disk.
+  Both descriptions are specific enough to be checkable in their *outputs* and
+  this lane checked those outputs; **the reads themselves leave no artifact by
+  construction and are taken as attested, not verified.** What can be said is
+  where one did not reach: O2R-P1/P2/P3 are absent from §12's enumeration (§51).
+- **That any of the four O2 void assertions can refuse.** No run exists in which
+  one differed; no mutation was staged; this lane staged none (read-only).
+- **That a defect planted in the hump operator would be seen.** No plant exists
+  on that matrix. The CBFS `splu` completions (§50) show the reader can print a
+  non-zero, on a different operator, 21 days earlier — established here on
+  mtime plus the frozen md5, which is evidence and not proof.
+- **The `100.05 %` cpu reading** behind O2's "contention 0.00" — an operator
+  observation with no file behind it (§53). Nothing rests on it.
+- **Whether a 22 GiB cap would have let the hump `splu` finish.** Unknown and
+  unknowable from this run, as `W4_O2_REBUY_RESULTS.md` §6a states; the record's
+  own §3a arithmetic suggests the requirement may exceed 22 GiB by a wide
+  margin, and §3a is correctly **quarantined** — it draws no verdict and is not
+  promoted to a MISS on O2R-P1.
+- **The mechanism behind `memory.peak` < tree RSS.** Two candidates are named by
+  the auditee; this lane excluded one of them for one arm by arithmetic and
+  **measured neither**.
+- **The unconstrained peak of either B3 arm.** Every B3 figure is a peak under a
+  12 GiB cap; the item hands that on as a new registration and this lane did not
+  buy it.
+- **No dafoam comparator was re-executed.** `analyse_peak_rss.py`,
+  `analyze_dump3.py`, `b3_rss_watch.sh` and `chain_peakrss.sh` were **read, not
+  run**. Every number above was re-derived by this lane's own parser and
+  arithmetic over what those instruments wrote to disk, plus `git cat-file`
+  hashes, `cmp` byte comparisons and filesystem mtimes. That tests the grading
+  arithmetic, the freeze, the bands and the controls' recorded outputs. It does
+  **not** test the samplers' front ends — the cgroup and `/proc` reads
+  themselves — which are covered instead by the planted control and, for
+  `memory.peak`, by the in-container read agreeing with the external sampler
+  **to the byte on both arms**.
+
+**Cost of this pass:** zero solver core-minutes; zero compute launched; nothing
+under `cases/dafoam/`, `docs/dafoam/` or `/home/ubuntu/certonomous-runs/` was
+written. One Python step — this lane's independent re-derivation over both
+watcher logs (738 samples) and both 1.4 MB solver logs — measured by
+`/usr/bin/time` at **0.05 s wall / 0.03 CPU-s single core = 0.0005
+core-minutes**. Everything else was `git` reads and hashes, `cmp`, `md5sum`,
+`stat` and arithmetic. Against this lane's pre-stated prediction of **≤ 1.0
+core-min**, the measured figure is **0.0005 core-min**; the prediction was a
+ceiling rather than a point and is recorded as met, not as a 2000× miss — the
+calibration row states it that way. Lane wall **16 min** against a
+predicted ≈ 45 min.
