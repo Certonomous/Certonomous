@@ -10302,3 +10302,114 @@ on all five, and the `r_k` series in `log.analyse_e4a2.20260824T173504Z.txt`) an
 §6 (cost); `docs/campaigns/T-family/E4a2_PREREGISTRATION.md` §2.4 (the 3x
 reasoning) and §7 (no extension arm); `docs/campaigns/T-family/T3_EXT1_AMENDMENT.md`
 §3 lines 157-176 and §5 line 326; ledger row `C-34`; docket `D505`.
+
+## L-282. A "first timestep where the diagnostic fires" read point measures the initial transient, not the mechanism — register the read point at a matched time and pin the reference state to it
+
+**The rule.** A clause of the form *"at the first timestep where `<indicator> > 0`,
+for the worst cell"* lands on step one, where the indicator fires for reasons that
+have nothing to do with the mechanism under study — an initial-condition
+discontinuity, a first-solve transient, or the indicator simply firing everywhere.
+**Register the read point at a matched time (the same `t*` the rest of the section
+compares at), and pin the reference state to the read point rather than to the
+first event.** A reference chosen for one population and applied to another is the
+same defect either way round.
+
+**The measurement that shows it.** F4 §8.3 read the first block with `nLow > 0`.
+That is block 0, `t = 1.20003692e-09`, where the clamp fires on **all 29,700
+cells** — the whole mesh. The interior is initialised uniform at freestream
+(`0/U uniform (1274 0 0)`, `0/T uniform 81.2`) while the inlet carries the Table II
+**boundary-layer** profile, so the amended §13.2 rule compared a still-freestream
+cell against inlet face 108's `66.25 m/s` / `309.32 K` and returned `Δ|U| = +18.23`,
+`Δρ = +2.80`. AMENDMENT 1 had removed the mirror artifact (an inlet-adjacent cell
+judged against freestream) and, at the first timestep, re-created it pointing the
+other way. `INDETERMINATE` was the literally correct label — both deviations are
+outside band — for entirely the wrong reason. Gates close at first compute, so it
+could not be repaired; it could only be disclosed.
+
+*Artifacts:* `verification/campaign/F4_SIGFPE_STEP01_RESULTS.md` §3.4(a) (`5b5f5183`);
+the clause and its amendment at `verification/campaign/F4_SIGFPE_STEP01_PREREGISTRATION.md`
+§8.3 and §13.2 (`290fcff2`); `verification/runs/F4_runs/swbli_cylflare/GRADING_OUTPUT.txt`.
+
+## L-283. A crash-detecting regex that matches the solver's own startup banner is a 100 %-false-positive detector — assert non-match on a clean log's banner in every such reader
+
+**The rule.** Detectors for "did this run die?" are written from the crash text and
+tested on a crash. They are almost never tested on a **clean** log, and the string
+that names the exception usually appears in the startup banner of every run,
+crashed or not. **Every crash detector asserts non-match against the banner, on a
+log known to have completed** — that is standing rule 3 applied to the detector
+itself: a `False` from a reader never shown able to return `True`, and a `True`
+from one never shown able to return `False`, are both worthless.
+
+**The measurement that shows it.** F4's reader carried
+`RE_SIGFPE = r"Foam::sigFpe|Floating point exception|SIGFPE"`. Every OpenFOAM run on
+this box prints `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).`
+at startup whenever `FOAM_SIGFPE` is set. Measured false-positive rate: **100 %** —
+line 18 of the archived F4 crash log, line 18 of `F5_runs/re3900/log.pimpleFoam`
+and line 29 of `F7_runs/damBreak_MM_a2p25in_medium/log.interFoam`, the latter two
+having completed cleanly. The prereg's §7.3 would have labelled a perfectly
+completed step `SIGFPE-RECURRENCE`. The replacement matches the backtrace frame
+`Foam::sigFpe::sigHandler` (the ONLY in-log crash signal — the crash log carries no
+bare `Floating point exception` line at the crash at all) and makes the kernel's
+`rc == 136` the primary signal. The reader's `--selftest` now asserts non-match
+against **two** banner wordings, so the guard does not depend on which one a future
+build emits.
+
+*Artifacts:* `verification/campaign/F4_SIGFPE_STEP01_PREREGISTRATION.md` §13.3
+(`290fcff2`); `verification/runs/F4_runs/swbli_cylflare/analyse_f4_sigfpe_step01.py`
+`RE_SIGFPE` and `selftest_sigfpe_regex()` (`4bf8138d`).
+
+## L-284. A per-timestep diagnostic included twice per step emits two event sets per block — the pre-registration must name the ordinal it grades BEFORE compute, or the choice becomes a post-compute ruling disclosed against numbers already visible
+
+**The rule.** Before freezing a clause that reads "the diagnostic line at time `t`",
+**count how many times the emitting code runs per timestep.** If it is more than
+once, name the ordinal in the frozen text. Left unnamed, the choice is still a
+choice — it just gets made after the numbers are on disk, and then it can only be
+*disclosed*, never *pre-registered*. Disclosure is the honest second-best, not an
+equivalent.
+
+**The measurement that shows it.** F4's `boundE.H` is included **twice per
+timestep** — at `rhoCentralFoamBoundedDiag.C:267` (after the convective `rhoE`
+solve, before `thermo.correct()`) and at `:282` (after the viscous `e`-diffusion
+solve). All 2062 `Time =` blocks in each step carried **two** BOUND-family sets, and
+§8 never said which it meant. **The choice was material**: at `t*` event 1 read
+`2668/29700 = 8.98 %`, inside the registered `[6, 24] %` S0a band, and event 2 read
+`749/29700 = 2.52 %`, outside it — so §8.1 returns `BASELINE-RECOVERED` on one
+reading and `BASELINE-NOT-RECOVERED` on the other, and §9.1's fourth row would then
+have made the whole discrimination question `NOT A RESULT`. The ruling (event 1,
+the `:267` set) rests on mechanism — §8.3's `e = rhoE/rho − ½|U|²` cancellation and
+§4.2's own frozen "`rho` and `U` are CURRENT … `T` is NOT current" comment are true
+at `:267` and false at `:282` — but it was taken with both columns already on disk,
+and ADDENDUM 2 says so in full and prints both.
+
+*Artifacts:* `verification/campaign/F4_SIGFPE_STEP01_PREREGISTRATION.md` §14,
+especially §14.3 (the ordinal rule: event `k` is the `k`-th set in log order, a
+single-set block has event 2 **ABSENT not zero**, and a required-but-missing set
+makes the reader refuse) and §14.4 (both-readings disclosure) — `d457f612`;
+`verification/campaign/F4_SIGFPE_STEP01_RESULTS.md` §3.2 (`5b5f5183`).
+
+## L-285. A build allowance cannot be closed out without a build-time artifact — time the build in the launch wrapper, or the ledger row reads ABSENT forever
+
+**The rule.** A pre-registration that carries a **separate build allowance** must
+also carry the instrument that measures it. Solver wall time comes free in the
+log's `ExecutionTime`; **`wmake` wall time comes from nowhere unless something
+times it.** Capture it in the launch wrapper alongside the solver. Otherwise the
+allowance is registered, the compute is genuinely spent, and the calibration ledger
+can never say whether it fitted — and the ledger's own append rule forbids
+approximating the missing figure in, so the row reads **ABSENT** permanently.
+
+**The measurement that shows it.** F4 §10.3 registered a **3 core-min BUILD
+ALLOWANCE** separately from the 12 core-min run cap, plus an "≈2 core-min for
+builds + control C0" estimate. At close-out the solver rows were exact from the
+logs (295.55 s and 295.81 s) and the C0 twins exact (40.44 s and 40.31 s), but no
+`wmake` timing existed anywhere on the box — the run tree, both `*_src/` trees,
+`LAUNCH.txt`, `RC.txt`, `POSITIVE_CONTROL.txt` and `C0_RESULT.txt` were all
+searched. Measured total **11.2018 core-min** with the builds absent; the
+"≈2 core-min" estimate is recorded **NOT CLOSED OUT**. A relayed gross of
+12.00 core-min could not be reproduced from disk, the ~0.80 gap being consistent
+with exactly those two untimed builds — which is what an unmeasurable line looks
+like from downstream.
+
+*Artifacts:* `docs/COST_CALIBRATION.md` row `C-33` (`bb38504d`);
+`verification/campaign/F4_SIGFPE_STEP01_RESULTS.md` §1 part 2 and part 6(d)
+(`5b5f5183`); the registration at
+`verification/campaign/F4_SIGFPE_STEP01_PREREGISTRATION.md` §10.3, §10.4.
