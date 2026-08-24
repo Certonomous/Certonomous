@@ -1007,3 +1007,169 @@ lost measurement.
 5. Per §2.7's principle in the sibling sweep audit, **this section is now part of
    the corpus it classifies**: it carries verdict tokens and numbers and will
    qualify as a verification section in the next re-run's denominator.
+
+---
+
+## 12. THE SCREEN IS IN THE REPOSITORY, 2026-08-24 — §11's population producer recovered, controlled and committed; §3's bucket screen is still not, and was deliberately not rebuilt
+
+**Lines whose number changed above this section: 0.** Appended at the foot;
+nothing above was edited (rule 6). §10's and §11's verdicts stand as dated.
+
+**Stamp:** 2026-08-24T17:50:45Z (`date -u`, taken in the writing invocation).
+**Executor:** `lab-lane`, verification team. **Compute: zero solver core-minutes.**
+**This section repairs an instrument and records numbers beside the ones already
+published. It re-grades no verdict of any team and strikes nothing.**
+
+### 12.1 The defect, restated against this document
+
+§11.1 recorded, against this audit rather than the corpus, that §3's four bucket
+figures *"cannot be re-derived by anyone, now or later"* because the screen that
+produced them was never committed. **§11 then shipped with the same defect.**
+Commit `e3f3b521` changed exactly one file — this one, 186 insertions, 0
+deletions — and carried no producer. So §11.2's population table quoted five
+figures whose instrument was, on the day the finding against §3 was published,
+itself already outside git.
+
+### 12.2 The §11 screen was RECOVERED, not rebuilt
+
+Three artifacts from the sweep's own session survived on this box, timestamped
+inside §11's stated 19:45–20:30 UTC window. They are named here by filename
+only: they sat in a session temp directory, and a repository document does not
+cite a scratch path (rule 13).
+
+| artifact | mtime (UTC) | what it implements |
+|---|---|---|
+| `referent_pop.py` | 2026-08-23 19:47:25 | §2's rule with **case-sensitive** tokens — §11.1's 1,008 row |
+| `ref_j.py` | 2026-08-23 19:49:03 | §2's rule with **case-insensitive, word-bounded** tokens — §11.1's 1,567 row, the frame §11.2 declares it used |
+| `ref_j.py.per.json` | 2026-08-23 19:49 | that run's own per-file output |
+
+`referent_pop.py`'s docstring quotes its two vocabulary lists from this file at
+`:117-122`, and the surviving per-file JSON **sums to 892 verification sections
+across 151 documents** — which is exactly §11.2's published *"892 verification
+sections"* for the material added since 2026-08-11. The recovered scripts are
+the instrument that ran, corroborated by their own surviving output and, in
+§12.4, by an exact re-derivation of four published figures.
+
+**Recovery, not reconstruction, is what makes this a repair rather than a new
+instrument** — and it was luck. The producer of a published table survived for
+one day in a directory this lab has wiped three times (L-186). §12.3 is the part
+that stops it mattering next time.
+
+### 12.3 What was committed, and how it refuses
+
+**`scripts/referent_population_screen.py`** — the recovered logic, both readings
+in one instrument, framed on **a named revision's blobs rather than on
+`git ls-files` and the worktree**, so the same command returns the same numbers
+at any later date. `scripts/check_filing.py` raises no violation naming it (28
+violations stand elsewhere in the corpus, all pre-existing and none this file's).
+
+**Planted control, constitution rule 3 — 17 checks, run before any population
+number is taken.** Seven known sections are written to disk, hashed into the
+object database, and read back **through the same blob reader and the same
+predicates that produce the figures**. Four plants must qualify, three must not,
+and one — a lowercase verdict token — must be classified *differently* by the two
+readings, which is the only way a screen whose two readings were secretly one
+code path can be caught. The script exits 2 and prints no numbers if any plant
+misses its bucket.
+
+**The control was shown able to refuse.** Seven mutants, each a way this screen
+could be quietly wrong; all seven exit 2:
+
+| mutation | the plant that caught it |
+|---|---|
+| `re.IGNORECASE` dropped from the token regex | plant 3, under `ci_wb` |
+| the two readings aliased (`strict` given `ci_wb`'s test) | plant 3, under `strict` |
+| the verification-verb clause disabled | plant 1 |
+| the "together with a number" requirement dropped | plant 5 |
+| heading regex narrowed to `^#{4,6}\s` | plant splits into 1 section, not 7 |
+| header/body offset shifted by one row | the matched row is plant 7's body cell |
+| the table-separator test disabled | two rows match, not one |
+
+A weaker first version of this control let two of those seven through, and both
+survivors were repaired before commit: the reference-column check now asserts
+**which** header row matched rather than how many, and the plant carries a
+trailing sentence so that no planted table row is the last line of the file —
+where an off-by-one could never be reached. The control writes one unreferenced
+loose blob per run (`git hash-object -w`); it touches no ref and no index.
+
+### 12.4 Re-run — §11.1's four figures reproduce EXACTLY
+
+At the audit's own commit `df4d4cbe`, blob frame:
+
+| quantity | §11.1 published | committed screen, 2026-08-24 |
+|---|---|---|
+| tracked `*.md` | 368 | **368 — exact** |
+| sections total | 4,844 | **4,844 — exact** |
+| verification sections, case-sensitive reading | 1,008 | **1,008 — exact** |
+| verification sections, case-insensitive word-bounded | 1,567 | **1,567 — exact** |
+
+**Four for four.** This is the evidence that the committed instrument is the
+2026-08-23 instrument's behaviour and not a fresh screen reporting under this
+document's numbers — the error §11.5 item 2 refused to commit, and the reason
+§3's buckets are still not rebuilt below.
+
+### 12.5 §11.2's population table does NOT reproduce, and the cause is the frame
+
+| quantity | §11.2 published (2026-08-23) | committed screen at `890bfa7f` | committed screen at `45995a5e` (today) |
+|---|---|---|---|
+| tracked `*.md` | 635 | **678** | **736** |
+| sections total | 9,497 | **10,228** | **11674** |
+| verification sections (case-insensitive reading) | 3,152 | **3,421** | **4002** |
+| verification sections (case-sensitive reading) | not published | **2,474** | **3003** |
+| documents carrying at least one | 552 | **593** | **650** |
+| tables whose header row carries a `reference` column | 76, across 55 documents | **81, across 58** | **85, across 62** |
+
+`890bfa7f` is the commit §11.2 names as the HEAD its sweep ran up to, so the two
+middle columns are the same corpus read two ways, and every published figure is
+**low**.
+
+**The cause is measured, not inferred.** §11.2's frame is `git ls-files '*.md'`
+plus `open()` on the worktree — the **shared index**, which this lab established
+on 2026-08-23 (D486) decays by construction. Measured live in the invocation that
+wrote this section, at `45995a5e`: `git ls-files '*.md'` returns **701**
+while that revision's tree carries **736** markdown files, of which
+**736** are present on disk — so **35 tracked markdown files
+exist, are committed, and are simply not listed by the command §11.2 framed on**.
+A screen framed that way reads a smaller corpus than the repository holds, and
+reads a *different* smaller corpus every time the index decays differently.
+
+**§11.2's five figures are therefore not re-derivable at any later date, by
+construction, and no re-run will ever match them.** They are **not struck**: they
+were honestly taken, they are correctly labelled as of their date, and §11.2's
+stated purpose — *"so the next re-run can diff it"* — is served by recording the
+revision-framed row beside them rather than by rewriting them. From this section
+forward the revision-framed figures are the ones a diff should be taken against,
+because they are the only ones that can be recomputed.
+
+### 12.6 What is still unreproducible, and was deliberately left so
+
+1. **§3's four bucket figures — EXTERNAL 408 / 26.3%, SELF-REFERENTIAL 83 /
+   5.4%, BOTH 93 / 6.0%, UNDECLARED 965 / 62.3% — remain unreproducible, and the
+   4-of-14 adjudication scaling onto 280 (90–560) with them.** The two vocabulary
+   lists exist in no commit and on no disk searched here; the recovered scripts
+   implement the §2 population rule only and contain no bucket classifier.
+   **They were not rebuilt from the prose, on purpose**: §11.5 item 2 rules that
+   doing so *"would be a different instrument reporting under this document's
+   numbers"*, and §12.4 is what a genuine re-derivation looks like by contrast.
+   The committed screen's docstring carries that scope limit so no later reader
+   mistakes it for §3's producer.
+2. **D-B6-8's published `12` reference-column header rows does not reproduce
+   either.** The committed screen counts **29 across 23 documents** at
+   `df4d4cbe`. That figure came from the same uncommitted 2026-08-11 instrument,
+   so **nothing follows about which is right** — the two are not known to be
+   counting the same thing, and no claim is made that D-B6-8 was wrong. What is
+   now on record is a definition anyone can run: the row immediately above a
+   `|---|` separator, any cell of which contains `reference`, case-insensitively.
+   §11.2's "6.3× growth" reading of that metric rests on two instruments and is
+   left standing as its authors took it, uncorroborated.
+
+### 12.7 What this section did not reach
+
+1. **No section was adjudicated by reading.** §11.5 item 1's 892 unadjudicated
+   verification sections are still unadjudicated, and the population has grown
+   since. This section repairs an instrument; it classifies nothing.
+2. **§4.2, §4.3, §4.4, §4.5, §5.1, §5.2 and §5.3 carry no 2026-08-24 status.**
+3. **§11.4's ten deleted-in-worktree referents were not re-checked** and no claim
+   is made about whether they have since been landed or restored.
+4. Per §11.5 item 5, **this section is now part of the corpus it counts** and
+   will appear in the next re-run's denominator.
