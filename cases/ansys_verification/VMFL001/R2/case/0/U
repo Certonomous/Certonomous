@@ -1,0 +1,42 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL001.  Inner cylinder rotates at omega = 1 rad/s about (0 0 1) through
+  the origin; outer cylinder is stationary (noSlip).  THIS FILE IS THE AGE-GUARD
+  MARKER: run_vmfl001.sh touches it immediately before launching the solver, so
+  every field at endTime must be strictly newer than it.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    innerWall
+    {
+        type            rotatingWallVelocity;
+        origin          (0 0 0);
+        axis            (0 0 1);
+        omega           1;
+        value           uniform (0 0 0);
+    }
+
+    outerWall
+    {
+        type            noSlip;
+    }
+
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

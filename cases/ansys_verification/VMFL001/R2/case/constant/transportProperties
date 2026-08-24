@@ -1,0 +1,18 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL001.  Manual p. 15: density = 1 kg/m3, viscosity = 0.0002 kg/m-s, so the
+  KINEMATIC viscosity simpleFoam wants is nu = mu/rho = 2e-4 m2/s.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+transportModel  Newtonian;
+
+nu              2e-04;
+
+// ************************************************************************* //
