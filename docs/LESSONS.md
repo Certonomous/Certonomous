@@ -10190,3 +10190,30 @@ made the box quiet**, and the same error follows.
 *Artifacts:* `cases/dafoam/ladder-a/A3/rung3_patched_idwarp_np4_attempt2/RESULTS.md`
 §7 and §5; `docs/COST_CALIBRATION.md` C-29 (predicted 51.8 core-min, actual gross
 36.733, ratio 0.709), C-4.
+## L-279. A defect measured at one design point is a measurement AT THAT DESIGN POINT, not a property of the code — register any extrapolation of it as a falsifiable hypothesis with a discriminator
+
+**The rule.** Before carrying a measured defect from the operating point where it
+was measured to any other operating point, **register the carry as a hypothesis
+with a named discriminator and a band**, and score it. A number measured at a
+baseline is not a property of the library that produced it.
+
+**Why.** The stock IDWarp warp-derivative error on A1 NACA0012 at np=1 reads
+**640.3696 % with a sign flip** on `shape[6]` at the **undeformed** baseline
+(`reverify_patched_idwarp_np1/RESULTS.md` §4.1) and **≤ 2.80e-06 relative —
+unresolvable, at the cross-run noise floor** at arm O's converged design point,
+same case, same two md5-identified images, both measurements pre-registered.
+Curriculum mini-item D1-C′ registered two carries and **both were falsified**:
+**H1** (the absolute defect carries to the endpoint) is out by **1.3e5**; **H2**
+(the relative error carries) by **1.2e4**. The registered point verdict `P5 =
+GATE FAIL` is a **MISS**, reported as one, and the gate it was registered against
+(`G-C1`) reads **PASS**.
+
+**What is NOT claimed.** No mechanism is inferred. Design-point dependence is the
+*finding*, not the *explanation*; the candidate mechanism is registered as an
+**untested hypothesis** with the arm that would test it, and it is not costed, not
+registered and not launched. **The falsification is the load-bearing part** — the
+predictions were wrong by four and five orders of magnitude, which is only visible
+because they were written down first.
+*Artifacts:* `cases/dafoam/ladder-a/A1/curriculum_D1_Cprime/RESULTS.md` §2, §7,
+§8, §9 (prereg frozen `c19e0cbc`; graded `5bec45b7`, Addendum 1 `c4ce2b8f`);
+`cases/dafoam/ladder-a/A1/reverify_patched_idwarp_np1/RESULTS.md` §4.1.

@@ -529,3 +529,62 @@ cite the landed id, or write the cell as *"id assigned at append; see the ledger
 correct it, as this addendum does.
 
 **This addendum was written at zero compute. NOT FILED ANYWHERE.**
+
+---
+
+## Addendum 2 — 2026-08-24, supervisor check 1 (measurement-script diff, read personally): `d1c_grade.py`'s docstring is INACCURATE — it does carry two thresholds inline, both of which equal the frozen registration
+
+**Disclosing a defect in this item's own grading script, found by the supervisor's
+personal §3 check-1 read of the measurement script as a diff. No number, band,
+gate, verdict, prediction score, ratio or cost figure moves; nothing above this
+section is rewritten and no line number above it changed. Written at zero
+compute.**
+
+**The inaccuracy.** The run-root grading script
+`/home/ubuntu/certonomous-runs/CURRICULUM-D1Cprime-a1-shipped-endpoint/d1c_grade.py`
+opens with a docstring stating, in its own words, *"No band, threshold or label is
+defined here; every one is read from the frozen comparator or from
+PREREGISTRATION.md sections 6-7."* **That sentence is not true of the file it
+describes.** Two thresholds are written **inline, as literals**, in the body:
+
+- **line 81** — `rep["G-C3"] = "PASS" if worst_x <= 0.005 else "GATE FAIL"`
+- **line 86** — `rep["G-C4"] = "PASS" if t["rel_err"] > 0.05 else "GATE FAIL"`
+
+**Why the grade nevertheless stands, and this is the load-bearing half.** Both
+literals were checked against the **frozen** pre-registration, not against memory
+or against the record that cites them:
+
+- `0.005` is exactly **`G-C3`'s registered 0.5 %** — *"`|FD_C′ − FD_armO| / |FD_armO| ≤ 0.5 %`
+  on all four components at both rungs"* (`PREREGISTRATION.md` §"G-C3", frozen
+  `c19e0cbc`).
+- `0.05` is exactly **`G-C4`'s registered 50 %** — the trivial baseline's
+  registered prediction *"> 50 %"* (`PREREGISTRATION.md` §"G-C4", same freeze).
+
+**The instrument is therefore CALIBRATED to the freeze on both gates, and neither
+verdict was produced by a threshold chosen after the answer was visible.** `G-C3`
+read `8.406820e-06 = 0.00084 %` against the 0.5 % band — **594.8× inside** it — and
+`G-C4` read `112.6004 %` with a sign flip against the 50 % floor, so **both gates
+clear their registered bands by margins that no plausible transcription error
+could have manufactured.** `G-C1`'s verdict is untouched: it is graded by the
+frozen comparator `d1c_endpoint.py` (md5 `b20c829f7ea4b63d2a9fec5f673d1cbb`,
+asserted at import), and `d1c_grade.py` only reports it.
+
+**What is being disclosed is a DOCUMENTATION defect with a real hazard.** A
+docstring that says *no threshold is defined here* is exactly the sentence a later
+reader trusts instead of reading the body — and the body is where a drifted
+literal would live. The two literals happen to be right; **the claim that they do
+not exist was wrong, and it was wrong at the moment the file was written, not
+later.** Had either literal drifted, this docstring is the thing that would have
+prevented anyone from looking.
+
+**Not repaired here, deliberately.** `d1c_grade.py` is the script that produced
+this item's graded numbers; editing it after grading would break the
+correspondence between the record and the artifact that made it, for a change that
+alters no output. **The defect is recorded rather than fixed**, and the
+correction belongs in the next DAFoam grading script that copies this one:
+*a grading script states which thresholds it carries inline and cites the frozen
+line each one reproduces, or it carries none.*
+
+**No gate is re-opened, no verdict changes, and the item's verdicts stand as
+graded: `G-C1`…`G-C10` all `PASS`, no falsifier fired, `P5` a `MISS`. NOT FILED
+ANYWHERE.**

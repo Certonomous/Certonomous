@@ -282,3 +282,52 @@ calibration row `C-29`. The gap is contention **in the under direction** (realis
 on the inherited, unvalidated wall point (L-278). Records landed with this
 addendum: **L-277, L-278, N-D32, N-D33, D499–D502**. Nothing here is filed, sent
 or registered.
+
+---
+
+## Addendum 2026-08-24 (supervisor, via a records lane) — curriculum mini-item D1-C′: row 38b moves `BLOCKED` → `PASS`, and curriculum D1 closes as a TWO-ROW `PASS` / `PASS`. No row above is edited.
+
+**Form note.** As at the 2026-08-22 addenda, **the table above is not edited**.
+Row 38b is **re-listed here with its measured verdict** and the `BLOCKED` cell
+above is superseded in place, not rewritten. Row 38 (patched, arm O) stands
+exactly as committed.
+
+| # | case | scope | toolchain | np / cells | **verdict** | headline number (exact) | record |
+|---|---|---|---|---|---|---|---|
+| 38b | **A1** NACA0012 | endpoint gradient @ row 38's design (curriculum **D1-C′**) | **SHIPPED** (`dafoam/opt-packages:latest`, `libidwarp.so` md5 `f0fcb488e0e98156575cd19548e91663`, printed from inside the process that loaded it) | 1 / 4,032 | **PASS** | **`G-C1 PASS`** — all four probed components agree with this run's own FD to **≤ 0.2551 %**, **zero sign flips**, all four **GRADED**; vector-relative over the graded set as reported in §2. The **shipped and patched analytic gradients are indistinguishable at this design point**: largest difference **5.16e-08 absolute / 2.80e-06 relative**, against a predicted **6.76e-03 / 640 %** carried from the undeformed baseline — five orders of magnitude smaller and **at the cross-run noise floor**, so reported as an **UPPER BOUND, not a resolved value** (`patchV[1]`, which cannot cross `warpDeriv`, differs by the same ~1e-6 relative and measures that floor). All ten registered gates returned a verdict, none skipped: G-C1…G-C10 all `PASS`; **no falsifier F1–F7 fired**. `rc=0`, `OOMKilled false`, peak **1.6813 GiB** of a 6 GiB cap, 89 s wall | `A1/curriculum_D1_Cprime/RESULTS.md` §0, §2, §7, §8; prereg frozen `c19e0cbc`; graded `5bec45b7` + Addenda 1–2 |
+
+**Row 38b's earlier `BLOCKED` cell is superseded, not erased, and it was never
+wrong.** Arm C died at 14 s, pre-solve, on a `KeyError: 'CD_final'` in the frozen
+G5 comparator; `curriculum_D1/PREREGISTRATION.md` §4.2(c) **forbade the in-place
+repair**, so the comparison was re-registered as its own mini-item under its own
+freeze rather than patched into a closed one. **That refusal is why this row can
+be read at all** — a repaired frozen comparator would have graded a shipped row on
+an instrument chosen after the answer was visible (L-273).
+
+**The registered verdict `P5 = GATE FAIL` is a `MISS`, and it is reported as a
+MISS, not adjusted.** Six of thirteen predictions missed. **Both registered
+hypotheses are falsified**: H1 (the absolute baseline defect carries to the
+endpoint) is out by **1.3e5**, H2 (the relative error carries) by **1.2e4**.
+
+**Reading added to this file, and it is narrow.** *The stock IDWarp
+warp-derivative defect is DESIGN-POINT DEPENDENT.* It reads **640.3696 % with a
+sign flip** on `shape[6]` at the **undeformed** baseline (row 1's era,
+`A1/reverify_patched_idwarp_np1/RESULTS.md` §4.1) and is **unresolvable** at arm
+O's converged design point — same case, same np, two md5-identified images, both
+measurements pre-registered. **No mechanism is inferred.** The candidate
+mechanism is registered as an **UNTESTED HYPOTHESIS** with the arm that would test
+it (a shipped-vs-patched analytic A/B at a sequence of FFD deformation magnitudes,
+cost of order the item per point) — **not costed, not registered, not launched.**
+
+**Two rows, never merged, and R11 is untouched.** Row 38 (patched) and row 38b
+(shipped) are both `PASS` and neither replaces the other. **The toolchain adoption
+question remains Sanaa's alone and stays parked.**
+
+**Curriculum D1 closes as a TWO-ROW `PASS` / `PASS`** — patched (arm O, row 38)
+and shipped (D1-C′, row 38b); the item is **no longer `PENDING`**. **Total item
+cost: 8.483 core-min gross = $0.007253 DERIVED** (D1 **7.000** + D1-C′ **1.483**),
+at the reported-by-owner c7a.4xlarge rate of $0.0513/core-h — **derived, not
+measured**, because the box cannot read its own billing
+(`COMPUTE_BUDGET_CHARTER.md` §5). Calibration rows **C-24** (D1) and **C-31**
+(D1-C′, ratio 0.915×, waste 0.000). Records landed with this addendum:
+**L-279, N-D34, N-D35, D503**. Nothing here is filed, sent or registered.
