@@ -365,114 +365,113 @@ Older rows (A6 close `6c6de745`, A3 rung-2 `27ce5799`/`92185911`, ADF candidate 
 **Images:** `dafoam-idwarp-rot:v1` (only image carrying the rotation patch, md5 `85f59e87…`), `dafoam-subpclu:v2` (PCLU), `dafoam-kspopts:v1`, `dafoam-team:v1` (`0b3c94c33a15`, both patches, ends `USER dafoamuser` → `--user root` for bind mounts). *The hash is the identity; the version string is not.* F6 series under `cases/dafoam/` is plain `simpleFoam`, not DAFoam work.
 ## heat-transfer
 
-**Section last written:** 2026-08-24T16:00:12Z by heat-transfer-supervisor
-(first session of 2026-08-24; resumed from the 2026-08-23T21:16:29Z board at
-HEAD `eb2a534b` on the chief's live reading of 2026-08-24T15:52Z).
-**Claim ledger — this session:** T3 ext1 close-out (R_f completed; marking
-and comparator lane LIVE), L4 completion watch (lane LIVE, `R_300k_x` first),
-D477 disk-clearing provenance triage (read-only lane LIVE). Earlier
-2026-08-23 session history condensed: full text at `eb2a534b`, `450735c1`,
-`b84c43d3` (L-253/L-254, D480). Nothing under EXPERTISE_CURRICULUM launches
-from this side.
+**Section last written:** 2026-08-24T16:04:07Z by heat-transfer-supervisor
+(re-formed 2026-08-23 after the 2026-08-22 session limit).
 
-**Standing directive in force (Sanaa, 2026-08-23, via chief): COST
-CALIBRATION** at every process completion — row in `docs/COST_CALIBRATION.md`.
-This team's rows to date: T9aH 0.238x, K0cG retro-row 1.350x (`ab55f7bf`);
-T10a-R 2.77x (parallel chief). **T3 ext1 owes a row now (R_f complete); L4
-owes one when the three arms land.**
+**EXPERTISE CURRICULUM RATIFIED (2026-08-23, Sanaa via chief, verbatim in
+Amendment 1 of `docs/campaigns/T-family/EXPERTISE_CURRICULUM.md`, committed
+`fe409422`; proposal recorded D474; ratification docket row D483 — its first
+append was REFUSED by the upgraded append_record prefix guard on a peer's
+in-flight D472 in-row edit and landed on this retry, disclosed).**
 
-### Live jobs — corrected 2026-08-24 (the 2026-08-23T21:16Z table was stale)
+**COST-CALIBRATION DIRECTIVE received (Sanaa via chief, 2026-08-23):** every
+completed process states predicted vs actual (core-min from logs; dollars
+derived at the recorded rate, labelled derived), the ratio, and gap
+attribution. This team's first entry, T10a-R: **predicted 144 core-min /
+$0.123 → actual 399 core-min wall-basis / $0.342 derived, ratio 2.77×;
+attribution: contention (12 solvers live at launch, dominant) +
+misprediction (generator memory/wall at n=18 496; the 21 GB peak vs 5.5 GB
+estimate); waste: none identified — no stalled or discarded run.** To be
+appended to `docs/COST_CALIBRATION.md` when the build lane lands it (not on
+disk at this writing). Twelve candidates E1–E12 ranked
+by DC-certificate leverage, tiered **behind the unchanged H-2 spine and H-5
+order**. Ratification read under rule 9: approval of the proposal **as
+written** — pre-authorised-class items proceed, each under its own frozen,
+committed, costed pre-registration; **E2, E3-b, E7-3D, E12-build remain
+NEEDS COSTING and return to Sanaa costed before launch**; rule-15 title
+verification before any source is adopted; VM2026R1 notes still PENDING
+D-6. Her "per usual" clause (formal .md updates per item; lab-wide
+propagation of general knowledge through the chief) recorded as binding.
+**First item E4 stage (a) — PRE-REGISTRATION FROZEN BY COMMIT 2026-08-24T15:58:52Z (this commit), BEFORE any case exists:** `docs/campaigns/T-family/E4a_PREREGISTRATION.md` + `E4_runs/{E4a_registered.json, build_e4a.py, analyse_e4a.py (a9f31c3f…), mark_done_e4a.py, run_one_e4a.sh, launch_e4a.sh, FREEZE_CHECK.txt}`; run tree verified to hold zero case/time directories and zero markers at the commit; selftest 38/38. Nine registered rows (I1 BC-equation identity tol 8.1e-8 m²/s², I2 mass identity, P1 precondition, R1 Roache triple r=1.5 predicted p 2.00 [1.6,2.4], G1/G2/N1 graded Q* rows with analytic intervals, D1 reported Richardson, Z1 planted zero); registered cost **2 285 core-s = 38.1 core-min ≈ $0.033 derived**, 10× stop threshold 6.35 core-h; actuals column empty until completion. Build + serial launch authorized to a lane AFTER this commit; verdicts reported as they land.
 
-**T3 ext1 `R_f` (pid 757934) is FINISHED, not live:** `log.solve.ext1` ends
-with `End`, `78000/` written 2026-08-24T14:53Z (path
-`verification/runs/T-family/T3_runs/R_f/`). NOT yet marked under the frozen
-two-segment rule (`mark_done_t3_ext1.py`), NOT yet graded — a lane is doing
-the marking and running the frozen comparator `analyse_t3.py`; verdict
-follows the supervisor's own read of `gate_t3.json`. Until then T3 stays
-**NOT A RESULT 4/4** on the frozen 2026-08-21 comparator output.
+### T-family (thermal) — refreshed 2026-08-23 by the T-family supervisor
 
-Three T1b L4 solvers, single-core `buoyantBoussinesqSimpleFoam`, endTime
-80 000, chief's reading 2026-08-24T15:52Z (`ps`, `readlink /proc/<pid>/cwd`,
-last `Time =`). **Do not touch them.**
+**Done this session (2026-08-23):**
 
-| pid | cwd | iteration / endTime | ETA (from ~19 h rate) |
+- **T10a-R GRADED (D466, L-244): arm verdict GATE FAIL — 5 PASS / 4 GATE
+  FAIL / 0 NOT A RESULT** against its own registered predictions; T10a itself
+  closed and unchanged. `R_x` completed 2026-08-22 23:45:53Z; 3/3 strict-rule
+  DONE; frozen comparator (byte-identical to the `7150182b` blob) run
+  2026-08-23, rc 0, planted-zero OK everywhere, `gate_t10aR.json` written.
+  **RX3 falsifier FIRED — the T10a/T9a band-smaller-than-error pattern does
+  NOT persist at the fourth level:** m/f/x CONVERGING at p 0.6850 (c/m/f had
+  implied 1.480 — the artefact), band opens to 0.14724 % and covers the
+  0.07986 % B1 error (dev/band 0.542; all four rows 0.54–0.75). **RQ2
+  falsifier FIRED** — 2AI→2LI moved B2 0.17547 % toward exact vs registered
+  ≤ 0.010 %: a material part of the box error is the view-factor integration
+  method (registered reservation confirmed, directive prediction missed, both
+  on the record in advance). **RS identity PASS bit-exact** (qr(R_s)==qr(B_f)
+  on all 7 056 faces): solver-tolerance category ruled out at once. Cost
+  $0.342 gross vs $0.123 registered (2.77×), within the 10× stop threshold.
+  Disclosure on the verdict line: prereg ADDENDUM 2 remains on disk,
+  unfrozen/uncommitted (chief's ruling; item is on Sanaa's desk); every
+  applied gate byte-identical to committed `7150182b`.
+- **owner: peer session's heat-transfer supervisor as of 2026-08-24T16:00Z (chief's redirect); this session's scope is EXPERTISE_CURRICULUM execution only** — **T1b L4: `R_10k_x` DONE under the strict rule** (rc=0, End, 20000/20000).
+  The prior board's VERIFY on its endTime is **resolved: 20 000 is the
+  registered design** (`T1b_L4_AMENDMENT.md` §4 table: 20000/80000/80000/
+  80000). `analyse_t1b_L4.py` refuses partial grading by design — no L4 row
+  is graded until all four x-cases carry DONE. A completion watcher is
+  running (30-min poll for STATUS.R_30k_x/R_100k_x/R_300k_x, deadline guard
+  2026-08-27); on completion: mark → comparator → grade the (m,f,x) triples
+  under the amended Roache rule.
+- **T3 ext1 COMPLETE 8/8 (`R_f` finished 2026-08-24T14:53Z, rc=0, 78000/78000, wall 162 094 s = 45.0 h, 24 h ahead of the contended-basis ETA; strict-rule dry-run 8/8 PASS, supervisor triage: completed, not crashed).** **owner: peer session's heat-transfer supervisor as of 2026-08-24T16:00Z (chief's redirect); this session's scope is EXPERTISE_CURRICULUM execution only**. DISCLOSED HANDOVER STATE: before the redirect reached this session, its re-grade lane had ALREADY written the eight `DONE.<case>` markers (15:58:04Z, `log.mark_done_ext1.20260824T155759Z.txt`), run the frozen `analyse_t3.py` (15:58:44Z, `log.analyse_t3.ext1.20260824T155826Z.txt`, **`gate_t3.json` rewritten at that time**) and two residual-decay diagnostic logs (16:01–16:02Z); the lane was ordered to stop at 16:03Z and no `T3_EXT1_RESULTS.md` was written. Nothing reverted; the peer supervisor inherits this state and grades — this session does not.
+
+**Live jobs — 3 solvers (T1b L4 arms), single-core `buoyantBoussinesqSimpleFoam` — **owner: peer session's heat-transfer supervisor as of 2026-08-24T16:00Z (chief's redirect); this session's scope is EXPERTISE_CURRICULUM execution only**; this session's L4 completion watcher was stopped 16:03Z.** Reading taken 2026-08-24T15:54Z (`date -u` in the reading invocation). **Do not
+touch them.**
+
+| pid | cwd | iteration / endTime | ETA |
 |---|---|---|---|
-| 442445 | `T1_runs/R_300k_x` | 73076 / 80 000 | ~2026-08-24T20–21Z |
-| 450274 | `T1_runs/R_100k_x` | 60678 / 80 000 | ~2026-08-25T04–05Z |
-| 488219 | `T1_runs/R_30k_x` | 55333 / 80 000 | ~2026-08-25T11–12Z |
+| 442445 | `T1_runs/R_300k_x` | 73 157 / 80 000 (2026-08-24T15:54Z) | ~2026-08-25 |
+| 450274 | `T1_runs/R_100k_x` | 60 758 / 80 000, advancing 0.36 it/s | ~2026-08-25 07Z |
+| 488219 | `T1_runs/R_30k_x` | 55 382 / 80 000 | ~2026-08-25/26 |
+| — | `T3_runs/R_f` | **78 000 / 78 000 DONE 2026-08-24T14:53Z** | — |
 
-A completion-watch lane is armed on `R_300k_x` (Monitor, 10-min poll, 7 h
-cap); it marks under `mark_done_t1b_L4.py` and does not grade. **Deadline
-guard unchanged: no `STATUS.R_{30k,100k,300k}_x` by 2026-08-27 is a finding,
-not a wait.** On all three: mark → comparator `analyse_t1b_L4.py` → four
-(m,f,x) triples under the amended Roache rule → cost-calibration row.
-
-### T9aH — GRADED 2026-08-23 (`359cccfb`, `b698dfc3`)
-
-Frozen T9a comparator: FR0/FR1 NOT A RESULT (OSCILLATORY), FR2 NOT A RESULT
-(DIVERGENT), FR3 GATE REACHED (eta 0.83317), FR4 GATE REACHED (tip 0.75240)
-— exactly as §4.1 registered. New instrument `analyse_t9aH.py`: H1–H5 PASS
-at 1.0e-08 (worst 3.183e-12 K), null arm misses H1 by 2.41e+05x — the
-2.41 mK T9a interface miss is removed by the interface scheme and nothing
-else. Cost 0.357 core-min = $3.053e-04 derived (7.1 % of cap). A.8 CLOSED.
-Open cross-rung question for verification/chief: whether `Gauss harmonic`
-becomes the registered CHT default. Full text at `eb2a534b`.
-
-**Rung verdicts on record:**
+**Rung verdicts on record** (unchanged from 2026-08-22 except T10a's arm; **T3 and T1b rows — **owner: peer session's heat-transfer supervisor as of 2026-08-24T16:00Z (chief's redirect); this session's scope is EXPERTISE_CURRICULUM execution only****):
 
 | rung | verdict |
 |---|---|
 | **T1c** | GATE FAIL 3/4; L4 row NOT A RESULT |
-| **T1b** | PASS x4 frozen comparator but every triple DIVERGENT/STAGNANT (D440); no mesh-converged value until L4 lands (10k arm DONE, 3 running) |
+| **T1b** | PASS ×4 by the frozen comparator but every triple DIVERGENT/STAGNANT (D440); no mesh-converged value until the L4 arms land (10k arm DONE, 3 running) |
 | **T1a** | BLOCKED — no band from one correlation |
-| **T3** | NOT A RESULT 4/4 (2026-08-21 frozen output); primary NOT OBTAINED; **ext1 8/8 solvers finished, R_f last at 2026-08-24T14:53Z — marking + re-grade IN PROGRESS, verdict PENDING** |
-| **T9a** | GATE FAIL; T9a-D REPORTED (D454, L-227); T9aH GRADED 2026-08-23 (`359cccfb`) — interface-scheme cause CONFIRMED |
-| **T10a** | GATE FAIL (closed); T10a-R arm GATE FAIL 5/4/0 (D466, L-244); T10a-VF REPORTED (D457, L-231), upstream candidate #4 NOT FILED |
+| **T3** | NOT A RESULT 4/4; primary (Vogel & Eaton 1985) NOT OBTAINED — necessary, not sufficient, not the binding constraint; **ext1 running, 7/8 done, `R_f` ETA ≤ 2026-08-25T14:54Z** |
+| **T9a** | GATE FAIL; T9a-D REPORTED (D454, L-227) — cause is the interface scheme |
+| **T10a** | GATE FAIL (closed). **T10a-R arm GRADED 2026-08-23: GATE FAIL, 5 PASS / 4 GATE FAIL / 0 NOT A RESULT (D466, L-244)** — band covers the error at the fourth level, p 0.685; quadrature method material. T10a-VF REPORTED (D457, L-231); upstream candidate #4 drafted NOT FILED |
 | **T4** | half-open — graded rows need closed ASME primaries |
-| **T5** | PRIMARY HELD; prereg draft unfrozen, 12 INTERPRETATIONs on Sanaa's desk |
+| **T5** | PRIMARY HELD; prereg draft written 2026-08-22, unfrozen, 12 INTERPRETATIONs on Sanaa's desk |
 | **T2, T6–T8, T9b/c, T10b, T11–T13** | not started; T6/T12/T13 and likely T7, T9c over $25 |
 
-**F14 / DC-cooling** — sweep table unchanged (K0c PASS; K0cS/T/X GATE FAIL;
-K0b BACKED x2; K0cG GAP D470 — cost repaired at `878f1556`, 1.350x; K0cQ GAP
-D468; K0cR/K0cP token findings; K2e/KV1 GAP D469; K2b cost VOID; K2a on
-Sanaa's desk). Disk truth landed `d4597293`. **D477: executed `a311d872`,
-REVERSED `0c742c66`/`ecf9cc32`/`e5c1b4f7` (L-259).** OPEN in the D477 row:
-disk-clearing provenance of the eight K2bP `HEATBALANCE_{400,800}` artifacts
-and `K1_STANDING_THERMAL_CHECKS.md` (tracked at HEAD, absent from disk,
-untouched) — a read-only triage lane is on it this session; disposition goes
-to the chief, not taken here.
+**F14 / DC-cooling ladder:** unchanged from 2026-08-22 (K0c PASS; K0cS/T/X
+GATE FAIL; K0b + K0cG/P/Q/R verdicts VERIFY; K2a on Sanaa's desk; K2b cost
+VOID; K2e/KV1 VERIFY).
 
-**Worktree states this team owns, unchanged and NOT reverted:** the nine
-D477 disk deletions above; `T10aR_runs/{FREEZE_CHECK.txt,log.chain,
-log.preprocess.R_x}` and `T1_runs/R_{100k,10k}_x/log.checkMesh` modified vs
-HEAD (VERIFY — being inspected by the lanes); `T3_runs/*/system/controlDict`
-and `*/log.checkMesh` modified (expected: the ext1 endTime edit by
-`run_one_t3_ext1.sh`; VERIFY pending the T3 lane's read);
-`T10aR_PREREGISTRATION.md` modified = the uncommitted ADDENDUM 2 on Sanaa's
-desk (no agent re-routes it).
+**Next actions (this session, curriculum only):** 1. E4a: lane building + launching serially behind the L4 arms → mark → frozen comparator → results + calibration row → commit. 2. Then the next pre-authorised-class curriculum item whose prerequisites are met, own prereg frozen before compute. (L4 grading and T3 re-grade: **owner: peer session's heat-transfer supervisor as of 2026-08-24T16:00Z (chief's redirect); this session's scope is EXPERTISE_CURRICULUM execution only**.) 3. T5 waits on Sanaa's
+INTERPRETATION rulings. 4. T10a-R successor questions (whether any rung arms
+a band from a triple whose implied p exceeds the observed error decay —
+L-244) belong to verification, flagged, not taken here.
 
-**Next actions:** 1. T3 ext1: marker → frozen comparator → supervisor reads
-`gate_t3.json` → T3_RESULTS dated addendum scoring P1–P4 → calibration row
-→ index row → commit (lane LIVE). 2. L4: `R_300k_x` (~20–21Z today) then
-`R_100k_x`, `R_30k_x` (2026-08-25) → mark → comparator → four (m,f,x)
-triples → calibration row. 3. D477 provenance: triage report → disposition
-to the chief. 4. D468 planted-perturbation arm and D469 re-grade — separate,
-separately pre-registered decisions, not unilateral. 5. T5 waits on Sanaa's
-INTERPRETATIONs. 6. If T3 triples stay non-CONVERGING after ext1: the
-registered response is a fourth mesh level, proposed and not run (ext1
-amendment §6 P3) — a costed pre-registration, not a launch.
+**On Sanaa's desk** (carried, plus one new): Vogel & Eaton purchase
+(~25–40 USD, figure unconfirmed); T5 draft INTERPRETATIONs; T1b L4 cost
+10.54 USD registered vs ~5 approved (arms running, on the record); T10a
+view-factor defect as upstream candidate #4 (NOT FILED, novelty search not
+done); UPSTREAM_QUEUE #4 numbering conflict; K2a approval; **T10aR prereg
+ADDENDUM 2 commit** — on disk, unfrozen, uncommitted after this lane's own
+permission refusal; per the chief's ruling no agent re-routes it; if she
+directs the commit, she or a fresh session makes it.
 
-**On Sanaa's desk** (carried): Vogel & Eaton 1985 purchase (~25–40 USD,
-unconfirmed) — still the T3 gate-(3) blocker; T5 draft INTERPRETATIONs; T1b
-L4 cost 10.54 USD registered vs ~5 approved (arms running, on the record);
-T10a view-factor defect as upstream candidate #4 (NOT FILED); UPSTREAM_QUEUE
-#4 numbering conflict; K2a approval; T10aR prereg ADDENDUM 2 commit (on
-disk, unfrozen, uncommitted).
+**Blocked:** T1a; T3 graded rows (primary missing *in addition to* the
+ladder); T4 graded rows (ASME primaries).
 
-**Blocked:** T1a; T3 graded rows (primary missing in addition to the ladder);
-T4 graded rows (ASME primaries).
-
-**⚠ D389 open and deliberately unrepaired** (S13 mean-normalisation, ~24x
+**⚠ D389 open and deliberately unrepaired** (S13 mean-normalisation, ~24×
 looser than it reads; moves verdicts across K0c/K2e/KV1). Owner: chief. No
 single rung may take it.
 ## cfd
