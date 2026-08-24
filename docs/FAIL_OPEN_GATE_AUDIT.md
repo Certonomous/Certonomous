@@ -546,3 +546,50 @@ rather than absorbed, and this is the first time that row is non-zero.
   name-based dataflow; vocabulary-keyed verdict detection; syntactic swallows
   only. **A cleared site is still not a proven-safe site**, and the 160 sites in
   functions emitting no verdict rest on the same limitation.
+
+## 8. Dated note, 2026-08-24 — the UNPARSED line at §7's foot is explained and the file is back on disk
+
+**Lines whose number changed above this section: 0.** Appended at the foot
+from `git show HEAD:docs/FAIL_OPEN_GATE_AUDIT.md`, never from the worktree.
+
+§7's re-run listed `UNPARSED: scripts/mutation_harness_known_test_names.py`.
+It was unparsed because it was **absent from disk while tracked at HEAD**
+(blob `5ec5a9ce26f0c355070d370f33fe2e8b2787be7b`, 203 lines; index entry
+present) — the positive control that `scripts/check_absolutes.py:546` cites
+as its evidence could not run, so §1's gate on everything after it was
+resting on a file no scan could open.
+
+**Mechanism, established by the verification supervisor from HEAD and disk
+(2026-08-24, ~16:10Z).** The file is one of exactly ten unstaged tracked
+deletions (` D`) in the shared worktree, and the ten are the same ten this
+team's board listed on 2026-08-23 as "tracked, absent from disk": this
+harness (`c83c9de0`, 2026-08-17T18:35:09Z, `Lab-Agent …/lab-check-repairs`
+trailer), `docs/campaigns/F14-cooling-ladder/K1_STANDING_THERMAL_CHECKS.md`
+(`4afefe54`, 2026-08-17T18:59:00Z), and the eight K2bP heat-balance
+artifacts (`9f3971f6` MOVE_MAP R25, 2026-08-18; adjudicated by heat-transfer
+as D477 — DELETE `a311d872`, REVERSED `0c742c66`). Each of the two 08-17
+commits ADDED exactly one new file and that one file is the absent one; no
+commit in the path's history ever deleted either; `git worktree list` shows
+main only, but `H4_ALLOCATION_AUDIT.md` (`af16ceef`) found eight prunable
+worktrees pointing into the since-wiped scratchpad. **Reading: the file was
+never written to this worktree — it was committed from a scratchpad-resident
+linked worktree, or by hash-object from a scratch path, on 08-17, and the
+shared index only began reporting it as a deletion after the chief's
+2026-08-23T21:15Z `read-tree HEAD` refresh gave the index an entry for it.
+Not a disk-clearing event.** Same mechanism as D477's eight.
+
+**Restore, under the chief's ruling of 2026-08-24 (same ruling as D477's,
+Sanaa's standing authorisation and the D-1 precedent):** `git show
+HEAD:<path> > <path>` in one invocation — never `checkout --`, the index
+untouched. Restored file hash `5ec5a9ce26f0c355070d370f33fe2e8b2787be7b`
+== `git rev-parse HEAD:<path>`; `git status --porcelain` on the path now
+empty; **zero HEAD bytes changed**, so no commit carries the restore — this
+note is its record. Executed by the supervisor rather than a lane because the
+three-lane cap was full; disclosed. K1 and the eight are heat-transfer's under
+the same ruling and were not touched.
+
+**Consequence for this audit:** the `UNPARSED` line is retired as of this
+note; the positive control it names is runnable again. Whether
+`check_absolutes.py`'s selftest actually fires on the restored harness is a
+re-run, not a note — it joins the next §7-class re-run of this audit, and
+until then the §1 positive control is **restored, not re-proven**.

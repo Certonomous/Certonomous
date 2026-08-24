@@ -620,7 +620,7 @@ documented `FILING_CHARTER` §3 exception: *the rule was wrong, not the tree.*
 
 ## verification
 
-**Section last written:** 2026-08-24T16:15:20Z by verification-supervisor (stamp from
+**Section last written:** 2026-08-24T16:19:10Z by verification-supervisor (stamp from
 `date -u` read in the committing invocation). FOURTH session — a RE-SPAWN:
 the session-4 predecessor (spawned ~15:53Z) died at ~16:00Z to a transient
 API error with nothing committed and its lanes with it (L-186). Everything
@@ -644,8 +644,15 @@ text read. **AUDIT: SOUND WITH DISCLOSED DEVIATIONS — BELIEVED; the prereg-§7
 adoption block on closure's amended FS5 instrument is RELEASED by this audit**
 (A3 stays GATE FAIL; the §30(a) ratio question stays a recommendation for
 Sanaa; no standing verdict moves). Recorded in `docs/CROSS_TEAM_GATE_AUDIT.md`
-("Supervisor's own read of pass 6") and ledger row C-19 (0.22 core-min vs 3–6
-predicted, ≈ 0.04×). Relayed to the chief for closure.
+("Supervisor's own read of pass 6", `f536b114`) and ledger row **C-20**
+(`7478536d`; 0.22 core-min vs 3–6 predicted, ≈ 0.04× — an earlier draft of
+this section said C-19; C-19 is closure's correction to C-16). Relayed to the
+chief. **Sequence confirmed:** closure lifted the §7 block at `41774899`
+(16:09:48Z) on the pass-6 CANDIDATE with a self-executing reversal clause
+(their A2.1 (v): void if the supervisor's read reverses any pass-6 finding);
+my belief at `f536b114` (16:15:20Z) reversed nothing — **pass 6 BELIEVED ⟹
+closure's Addendum 2 v1.1 adoption (companion as audit-side diagnostic only,
+A3 unchanged at GATE FAIL) STANDS**; the two records agree.
 
 **D473 row at HEAD checked:** the 561-char stamp-correction tail
 (`*[Stamp correction 2026-08-23T21:14:28Z … ]*`) is intact after dafoam's
@@ -669,13 +676,15 @@ predicted, ≈ 0.04×). Relayed to the chief for closure.
   scratchpad-resident linked worktree (or by hash-object from scratch) on
   08-17/18 and the shared index only began showing them as deletions after the
   chief's 21:15Z `read-tree HEAD` refresh. Not a disk-clearing event; the same
-  mechanism as D477's eight.** Disposition recommended (not taken — chief's /
-  Sanaa's call under the index rulings): restore the tracked bytes from the
-  HEAD blob (`git show HEAD:<path> > <path>`) for the harness and K1; nobody
-  has unfinished work on either, so nothing is reverted; the eight K2bP files
-  follow heat-transfer's D477 disposition. Until restored, `check_absolutes.py`
-  cites a planted-error control that cannot run — FAIL_OPEN_GATE_AUDIT line
-  527 already reads it UNPARSED.
+  mechanism as D477's eight.** **RULED AND EXECUTED (chief, 2026-08-24, same
+  ruling as D477's):** restored by `git show HEAD:<path> > <path>` in one
+  invocation, index untouched, restored hash `5ec5a9ce…` == HEAD blob, status
+  clean, zero HEAD bytes changed; recorded as dated §8 of
+  `docs/FAIL_OPEN_GATE_AUDIT.md` (the audit whose §7 read it UNPARSED); done
+  by the supervisor because the lane cap was full — disclosed. K1 and the
+  eight are heat-transfer's, untouched; the mechanism reading goes to their
+  D477 note via the chief. `check_absolutes.py`'s positive control is
+  restored, not re-proven — re-proof joins the next FAIL_OPEN_GATE re-run.
 - **dafoam's proposed rule (L-262 / C-10): "launch-gate memory limb ≥
   neighbourliness floor + predicted arm peak."** Evaluation for the standards
   queue (recommendation; binding is Sanaa's): SOUND as a necessary condition
@@ -719,12 +728,12 @@ cap), each dispatched with a predicted cost:**
 
 | item | state |
 |---|---|
-| **VM2026R1_Fluids** | D-6, with Sanaa — NO AGENT TOUCHES EITHER COPY. Root copy 123 files / 2.5 GB; papers copy dead at 10 files / 26 MB. Ruling memo `docs/VM2026R1_FILING_ANALYSIS.md` (option A recommended). Nothing graded |
-| **Ansys manual** | tracked PDF, no `.txt` sidecar (R8); basename violates R8 pattern; rides in the D-6 memo §4. Sidecar lane of 08-23 died; sidecar still absent — VERIFY, re-dispatch when a lane frees |
+| **VM2026R1_Fluids** | **HANDED OVER — VERIFY.** Chief's heads-up 2026-08-24 ~16:20Z: Sanaa has directed a SIXTH standing team, `ansys-verification`, owning `VM2026R1_Fluids/`, the Ansys manual and its sidecar, `docs/VM2026R1_FILING_ANALYSIS.md` and D-6; the harness commit was not at HEAD when this was written (sha awaited). Until that sha is read: NO AGENT OF THIS TEAM touches either copy, the manual, the sidecar or the memo; D-6 stands as written. After it: their verdicts are cross-team audit targets like any other from their first verdict-bearing commit. Root copy 123 files / 2.5 GB; papers copy dead at 10 / 26 MB — last reading 08-23, unchanged by this team |
+| **Ansys manual** | **HANDED OVER with the row above — VERIFY.** The 08-23 sidecar lane died with its session; sidecar still absent (R8) and the basename still violates the R8 pattern; both are struck from THIS team's dispatch queue and belong to `ansys-verification` once its commit lands |
 | **`GATE FAIL` vs bare `FAIL`** | D-5, with Sanaa; 3 bare cells (V5:1070, V14:1080, V15:1081); instrument D472 believed |
 | **Comparator freeze audit** | instrument D471 believed; 45 graders 10/7/2/4/22/0; `analyse_t1b_L4` docket figure STRUCK; 87/156 markers without `finished_utc` relayed to heat-transfer |
 | **Six standing audits** | all re-run 08-23 (`c5a9d4c7`, `f14fca9c`, `876a9ec1`, `af16ceef`, `69df4876`, `e3f3b521`); EXTERNAL_REFERENT's screen still uncommitted (own-audit defect, queued) |
-| **Ten absent tracked files** | mechanism established above; disposition with the chief |
+| **Ten absent tracked files** | mechanism established above; the harness RESTORED under the chief's ruling (FAIL_OPEN_GATE §8); K1 + the eight are heat-transfer's under the same ruling |
 
 **Cross-team gate audit — targets after this session's dispatch:**
 - IN FLIGHT: pass 7 (W4 O2 + B3), pass 8 (Ling2016 GPU).
@@ -760,5 +769,8 @@ attempt-2 prereg); the ten-absent-files restore (via the chief).
 diffs/records personally (passes 7/8 → BELIEVED or not, with numbers; the
 stamp check → diff read, then wire into the audit sweep); then dispatch, in
 order, the T1b L4 audit as each arm lands (Roache triple gating is the
-question), the EXTERNAL_REFERENT instrument rebuild, and the Ansys sidecar
-(L-144 title-page verification). Every dispatch carries a predicted cost.
+question), the EXTERNAL_REFERENT instrument rebuild, and the
+`check_record_reconciliation.py` C-series planted form. The Ansys sidecar is
+NOT this team's any more (see the VM2026R1 row). Every dispatch carries a
+predicted cost. Also in the INSTRUMENT QUEUE line above, strike "Ansys
+sidecar" — superseded by the handover.
