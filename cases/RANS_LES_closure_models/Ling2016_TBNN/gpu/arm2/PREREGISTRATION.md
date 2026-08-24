@@ -276,3 +276,153 @@ shutdown-behaviour attribute (Sanaa's console); Ling's flows (VARIANT).
 costed here; the start is hers on the chief's request.
 
 ## 13. Verdict at freeze: PENDING — nothing has been run.
+
+---
+
+## AMENDMENT 1 — 2026-08-24T17:26:51Z — before first compute
+
+**Version: v1.0 (frozen `f36fbdd9`) → v1.1.** The frozen file carried no explicit
+version string; its identity was the freeze stamp on line 1 and its blob sha256.
+This amendment introduces explicit versioning, and v1.0 names the frozen text
+above, unaltered.
+
+**Condition, and how it was checked (rule 2, first bullet).** No run directory
+exists: `/home/ubuntu/closure-data/tbnn_gpu/arm2` is **ABSENT**, checked by
+`test -e` on the lab box at **2026-08-24T17:26:51Z** (the `date -u` read in the
+same shell invocation as the test), and its parent
+`/home/ubuntu/closure-data/tbnn_gpu/` holds only arm 1's artefacts. The GPU
+instance is **STOPPED** (Sanaa, 2026-08-24: *"also i stopped that instance"*,
+quoted at line 13 above); it is started by her alone. **Zero compute has been
+spent on this arm.** Amendments are therefore legal here and gates are still
+open — and this amendment nevertheless moves **no** gate.
+
+Both frozen artefacts were verified identical to their committed blobs before
+any edit: `PREREGISTRATION.md` disk sha256
+`82cf4cbce93c68454b3ab5d26bc3949106c98d665ac57ff607ea2ce95bf8f153` == the
+`f36fbdd9` blob == the HEAD blob; `run_all_gpu_v2.sh` disk sha256
+`1404dba0133bfa7bd79e8c3a4080f4d32a492e97723aa241c34fa80c475e43c8` == the HEAD
+blob (= the §9 registered value).
+
+---
+
+### Item (A) — §7's until-confirmed branch was not executable with the registered launcher
+
+**The defect.** §7 (lines 213–216) registers a precondition and a fallback:
+*"**Precondition — VERIFY-by-Sanaa-in-console before start: shutdown behaviour =
+stop.** Until she confirms, the driver is launched **without** `--shutdown`"*.
+The registered launcher `run_all_gpu_v2.sh` (§9, sha `1404dba0…`) hard-coded
+`--frozen --shutdown` on its launch line (line 53) with no switch of any kind.
+The until-confirmed branch of §7 therefore **could not be executed with the
+registered launcher** — an operator obeying §7 would have had to edit a
+sha-registered frozen artefact at launch time, which rule 6 forbids. This is an
+internal inconsistency between two frozen artefacts of the same pre-registration,
+found before first compute.
+
+**The repair — one environment switch, nothing else functional.**
+`SHUTDOWN=${SHUTDOWN:-1}` is added beside the other launcher configuration
+constants. The launch line composes the token from it:
+
+* `SHUTDOWN=1` (**default**, unchanged behaviour) → the composed launch line is
+  **byte-identical** to the frozen line 53, verified by textual substitution
+  against the committed blob, not by running the launcher (which would ssh).
+* `SHUTDOWN=0` → the ` --shutdown` token is **omitted**; the line is otherwise
+  the frozen line with exactly that token removed, and the emitted argv is
+  `… --frozen --data … --out …`.
+
+The launcher additionally **echoes which form it used** into the same launch line
+that already carries the node's `date -u` stamp, as
+`SHUTDOWN=1 (launched WITH --shutdown; self-shutdown ARMED)` or
+`SHUTDOWN=0 (launched WITHOUT --shutdown; the stop stays Sanaa's)`, so the launch
+record states whether self-shutdown was armed.
+
+**Both launch forms are hereby registered, with the condition on each:**
+
+| form | when it is used | consequence |
+|---|---|---|
+| `SHUTDOWN=1` (default) — `bash run_all_gpu_v2.sh launch` | **ONLY** once Sanaa's console reading of the instance's shutdown-behaviour attribute as **`stop`** is on the record. That reading is recorded in **`docs/GPU_CAPABILITY_STATE.md` §10, row "driver self-shutdown"** (or a later dated section of that same file, which then governs). No agent may read the attribute on her behalf; §12 already lists it among the things this file cannot see. | The driver writes `out/COMPLETE.json` and `spend.json`, then `out/shutdown_attempt.json`, then halts the node (§7). A node still up with `shutdown_attempt.json` present has visibly failed to halt. |
+| `SHUTDOWN=0` | **Otherwise** — i.e. by default in the absence of that recorded console reading. This is §7's until-confirmed branch. | The driver is launched without `--shutdown`; **`out/shutdown_attempt.json` is never written**, and its absence under this form is expected, not a failure. **The stop remains Sanaa's**: the chief asks her to stop the node on the completion report, as in arm 1. The idle interval from the completion marker to her stop is **waste**, reported per §6's idle-accounting clause from the marker's stamp to the last artifact mtime. |
+
+**§9 grading-path table — struck and replaced row** (rule 2: originals are struck,
+never rewritten; the table above this section is unedited):
+
+> ~~| `arm2/run_all_gpu_v2.sh` | `1404dba0133bfa7bd79e8c3a4080f4d32a492e97723aa241c34fa80c475e43c8` |~~
+>
+> **STRUCK 2026-08-24T17:26:51Z, before first compute, by this amendment.**
+> **old** `1404dba0133bfa7bd79e8c3a4080f4d32a492e97723aa241c34fa80c475e43c8`
+> **new** `a88aa5fbd633bbd13a7b4583442456fa8b6112ef2c275fd93d02f15f786721bd`
+> **Reason:** the old file could not execute §7's registered until-confirmed
+> branch (above). The new file is the registered launcher for both forms; §9's
+> rule is otherwise unchanged — the frozen file that ran is still verified by
+> hashing against the committed blob and the node's copy.
+
+The other three §9 rows — `train_gpu_ling_v2.py`, `score_gpu_ling_v2.py`,
+`dataset.npz` — are **unchanged**. The driver and the comparator are untouched by
+this amendment.
+
+**Disclosed deviations inside the launcher edit** (named here so the diff carries
+no surprises):
+
+1. Two **comment-only** blocks were also updated, because they stated the old
+   unconditional behaviour and would have been false after the switch: the header
+   paragraph describing `--shutdown`, and one added `Usage:` line showing
+   `SHUTDOWN=0 bash run_all_gpu_v2.sh launch`. Neither is executable text;
+   `bash -n` passes.
+2. **Not changed, and flagged:** `run_window.json`'s printf schema still records
+   `start_utc`, `driver`, `driver_sha256`, `node`, `remote_out` and **not** the
+   shutdown form. The form is stated on the launcher's stdout launch line only.
+   The on-disk launch record therefore does not by itself say which form was
+   used; whoever launches must capture that stdout line into the launch record.
+
+---
+
+### Item (B) — §6's calibration clause named a range the section does not register
+
+**The defect.** §6 line 183 registers
+`REGISTERED ESTIMATE : 3 - 32 GPU-h = $2.41 - $25.75 derived`, while the
+calibration clause at line 198 compares the actual against *"this section's
+8.5–32 range"*. The two disagree on the lower bound, and **the block's own
+arithmetic supports 3, not 8.5**: line 177 gives `epoch_s(both)` = 34 s at the
+fast end (0.05 ms per stacked update × 342,014 × 2 models), and 34 s × 300
+epochs = 10,200 s = **2.83 GPU-h ≈ 3**. The dollar figure agrees: 3 × $0.8048 =
+$2.41, exactly line 183's lower bound. The upper bound 32 is independently
+supported (0.8 × the 40 GPU-h cap; 32 × $0.8048 = $25.75). **8.5 derives from
+nothing in the block** — no line yields it, and 8.5 × $0.8048 = $6.84 appears
+nowhere in §6.
+
+**The amendment.** The calibration comparison of §6 uses the **3 – 32 GPU-h**
+range and this block's registered point/cap — i.e. actual `spend.json` GPU-h
+against (a) P0's in-run projection and (b) the registered estimate **3 – 32
+GPU-h = $2.41 – $25.75 derived**, against the registered **cap 40 GPU-h**, with
+ratio and attribution, waste separately named (rule 12; `COMPUTE_BUDGET_CHARTER`
+§6). The **"8.5" is struck as unsupported**:
+
+> ~~"…and (b) this section's 8.5–32 range…"~~ → **read as: "…and (b) this
+> section's registered 3–32 GPU-h estimate…"**. STRUCK 2026-08-24T17:26:51Z.
+
+**Gate-neutral, explicitly.** This item changes **no gate, no threshold, no cap
+and no label.** G0–G4 and their thresholds are untouched; the falsifier's three
+branches (§5) are untouched; `CAP_H = 40 GPU-h`, `E_TARGET = 300`, `E_MIN = 50`
+and the BLOCKED-on-overrun rule are untouched; the verdict vocabulary is
+untouched. Only the lower bound quoted inside the calibration-reporting sentence
+is corrected to the value the same section already registers.
+
+**Noted, no change: G4's propagation count.** §4's G4 costs *"7 propagations at
+R4's measured 0.259 core-h/case = 1.81 core-h = $0.093 derived"*, but G3 is PASS
+when **at most one** of the 8 TEST cases is NOT A RESULT — so **8** G3-passing
+cases are admissible and 8 propagations would cost 8 × 0.259 = **2.07 core-h =
+$0.106 derived** at $0.0513/core-h. Both figures are inside the CPU blanket
+(rule 12) and neither approaches $25. **The registered G4 cost line is NOT
+amended**; this is a disclosure so that a G4 spend of 2.07 core-h is not read as
+an overrun of a 1.81 core-h cap. G4's gate and its "not run → capped at GATE
+REACHED" clause are unchanged.
+
+---
+
+**Nothing above this section was edited.** Verified by hashing the amended file's
+first 278 lines — the entire pre-amendment body — against the `f36fbdd9` /
+HEAD blob in the same shell invocation that wrote this text: **identical**
+(`82cf4cbce93c68454b3ab5d26bc3949106c98d665ac57ff607ea2ce95bf8f153`).
+
+**lines whose number changed above this section: 0**
+
+**Verdict, unchanged: PENDING — nothing has been run.**

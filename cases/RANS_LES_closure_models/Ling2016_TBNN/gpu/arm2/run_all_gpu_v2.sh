@@ -4,10 +4,13 @@
 # DO NOT RUN `launch` before the arm-2 pre-registration is signed and frozen:
 # the driver is launched with --frozen, which asserts exactly that. The node
 # gpu1 is STOPPED by the owner; only Sanaa starts it (GPU_CAPABILITY_STATE sec. 8).
-# The driver is launched with --shutdown: on every completion path it writes
-# out/COMPLETE.json and then powers the node off itself (owner-approved standing
-# mechanism), so `pull` is normally run AFTER Sanaa restarts the node, or from a
-# second terminal before it halts.
+# With SHUTDOWN=1 (the default) the driver is launched with --shutdown: on every
+# completion path it writes out/COMPLETE.json and then powers the node off itself
+# (owner-approved standing mechanism), so `pull` is normally run AFTER Sanaa
+# restarts the node, or from a second terminal before it halts. With SHUTDOWN=0
+# the --shutdown token is omitted and the stop stays Sanaa's -- this is the form
+# required by pre-registration sec. 7 until her console reading of the instance's
+# shutdown-behaviour attribute (= stop) is on the record (AMENDMENT 1).
 #
 # Restartable: `launch` re-copies the driver, relaunches ONLY if it is not
 # already running (the driver skips DONE stages and resumes from its per-epoch
@@ -17,6 +20,7 @@
 # Usage:  bash run_all_gpu_v2.sh launch     # copy driver, launch (if needed), record start
 #         bash run_all_gpu_v2.sh --pull     # rsync out dir + logs back, never launch
 #         bash run_all_gpu_v2.sh status     # driver.pid / COMPLETE.json state, never launch
+#         SHUTDOWN=0 bash run_all_gpu_v2.sh launch   # sec. 7 until-confirmed form: no --shutdown
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -27,6 +31,7 @@ RDATA='~/r_ling_gpu/data/dataset.npz'       # sha verified by the driver's g0 st
 LOCAL_ROOT=/home/ubuntu/closure-data/tbnn_gpu/arm2
 LOCAL_OUT="$LOCAL_ROOT/out"
 DRIVER=train_gpu_ling_v2.py
+SHUTDOWN=${SHUTDOWN:-1}                     # 1 (default) = launch WITH --shutdown; 0 = omit it (sec. 7 until-confirmed branch)
 
 mode="${1:-}"
 case "$mode" in
@@ -43,6 +48,11 @@ case "$mode" in
     fi
     # 3. launch under nohup unless already running; the launch and the
     #    run-window `date -u` read happen in the same remote shell line
+    if [[ "$SHUTDOWN" == "0" ]]; then
+      shutdown_flag=""; shutdown_form="SHUTDOWN=0 (launched WITHOUT --shutdown; the stop stays Sanaa's)"
+    else
+      shutdown_flag="--shutdown"; shutdown_form="SHUTDOWN=1 (launched WITH --shutdown; self-shutdown ARMED)"
+    fi
     start=$(ssh "$GPU" "
       set -e
       cd $RDIR
@@ -50,7 +60,7 @@ case "$mode" in
         echo '[run_all_v2] driver already running, pid' \$(cat driver.pid) >&2
         echo ALREADY_RUNNING
       else
-        nohup $RPY $DRIVER --frozen --shutdown --data $RDATA --out $RDIR/out >> $RDIR/driver.log 2>&1 & echo \$! > driver.pid; date -u +%Y-%m-%dT%H:%M:%SZ
+        nohup $RPY $DRIVER --frozen $shutdown_flag --data $RDATA --out $RDIR/out >> $RDIR/driver.log 2>&1 & echo \$! > driver.pid; date -u +%Y-%m-%dT%H:%M:%SZ
       fi
     ")
     if [[ "$start" == "ALREADY_RUNNING" ]]; then
@@ -58,7 +68,7 @@ case "$mode" in
     else
       printf '{\n "start_utc": "%s",\n "driver": "%s",\n "driver_sha256": "%s",\n "node": "%s",\n "remote_out": "%s"\n}\n' \
         "$start" "$DRIVER" "$local_sha" "$GPU" "$RDIR/out" > "$LOCAL_ROOT/run_window.json"
-      echo "[run_all_v2] launched at $start (node clock, same shell line as the launch); pid $(ssh "$GPU" "cat $RDIR/driver.pid")"
+      echo "[run_all_v2] launched at $start (node clock, same shell line as the launch); $shutdown_form; pid $(ssh "$GPU" "cat $RDIR/driver.pid")"
       echo "[run_all_v2] wrote $LOCAL_ROOT/run_window.json"
     fi
     ;;
