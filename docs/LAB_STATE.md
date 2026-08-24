@@ -621,7 +621,7 @@ documented `FILING_CHARTER` §3 exception: *the rule was wrong, not the tree.*
 
 ## verification
 
-**Section last written:** 2026-08-24T16:19:10Z by verification-supervisor (stamp from
+**Section last written:** 2026-08-24T16:22:51Z by verification-supervisor (stamp from
 `date -u` read in the committing invocation). FOURTH session — a RE-SPAWN:
 the session-4 predecessor (spawned ~15:53Z) died at ~16:00Z to a transient
 API error with nothing committed and its lanes with it (L-186). Everything
@@ -705,6 +705,50 @@ A3 unchanged at GATE FAIL) STANDS**; the two records agree.
   will fail the floor. With (i)–(iii) it is worth a VERIFICATION_CHARTER §2e
   sibling clause; goes to Sanaa's desk as a draft after their attempt-2 prereg
   lands and is audited.
+
+**Kaandorp standards referrals (D492, `961b0b3e`) — ANSWERED as
+recommendations, 2026-08-24 ~16:2xZ (binding versions Sanaa's; reads only,
+≈ 0.1 core-min):**
+- **(a) G0a threshold 1e-10 vs one-ulp floor 4.00e-07 (writePrecision 6):**
+  the label **PASS is correct and stays** — frozen criterion `< 1e-10`,
+  measured 0.0 exactly (byte-identical, md5 `ff95ccb5…`), and rule 5 lets a
+  gate turn a PASS only into NOT A RESULT, which this is not. What must move
+  is the CLAIM: the instrument floor travels IN THE VALUE CELL —
+  `0.0 (floor 4.0e-07; registered 1e-10 unresolvable at writePrecision 6)` —
+  not in prose 570 lines below the table and not as a seventh label (rule 1:
+  honesty is carried by the value and its interval). A threshold below the
+  instrument's resolution is an interval statement (UNCERTAINTY-DOCTRINE's
+  numerical channel). INSTRUMENT: yes — a sibling
+  `check_threshold_resolution.py` (not the freeze checker, whose job is
+  time-ordering): for every registered numeric gate reading an OpenFOAM
+  field, parse `writeFormat`/`writePrecision` and REFUSE (exit 2) when the
+  threshold is below one ulp of the field's largest component; binding
+  prospectively, report-only replay over the archive (D473 pattern); must
+  fire on this record's §5/§6 if they are the same shape. Spec owed by this
+  team.
+- **(b) Duct rows solved 17:27–17:44Z, prereg's only commit `0ebc9d53` at
+  18:52:18Z:** `check_comparator_freeze.py` **does not see this case** —
+  population is `analyse_*/grade_*/score_*.py`, the grader here is
+  `summarise.py` + a hand grade (A.2), and no `DONE.*`/`finished_utc` marker
+  exists under the case; a coverage residual added to D471. Git evidences:
+  prereg byte-unchanged since 18:52:18Z (blob `411b25f1…`, no amendment),
+  but `0ebc9d53` is a TEN-file commit carrying PREREGISTRATION.md AND
+  RESULTS.md AND the four scripts AND the LESSONS/NUMERICS drafts (2,063
+  insertions) — the pass-2 Wu2018 shape exactly: first commit is the results
+  commit, freeze self-attested ("posted to the supervisor"), no commit
+  witness. RULING RECOMMENDED: six CBFS rows (solved 08-23) FROZEN-BY-COMMIT,
+  nothing owed; the ten duct rows' verdicts STAND (criterion unchanged, same
+  file graded both) but each duct row's verdict surface carries the §2d
+  disclosure label pass 2 attached to Wu2018 — "freeze self-attested, no
+  commit witness". Not NOT A RESULT (rule 5 is grid convergence; §2b/§2d
+  give disclosure, not re-grade). Closure's §3 personal check — a posting
+  time in a dispatch record or harness session log, cited by path — is the
+  one fact that could upgrade the label to a witnessed freeze.
+- **Ids-written-ahead (closure's D488/C-15 → D492/C-18, corrected
+  `8dd3f8bc`):** taken as the second instance class for the stamp-check lane
+  (spec extended in flight: ID-AHEAD limb, planted controls C7–C9); lesson
+  candidate accepted as worded — "an id in prose before its append is a
+  prediction, not an identifier".
 
 **Live jobs:** no solver compute owned by this team. **Three lanes live (the
 cap), each dispatched with a predicted cost:**
