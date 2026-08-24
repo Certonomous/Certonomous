@@ -1,0 +1,21 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL005.  Manual p. 25: density = 1 kg/m3, viscosity = 1e-5 kg/m-s, so the
+  KINEMATIC viscosity simpleFoam wants is nu = mu/rho = 1e-5 m2/s.  Because
+  rho = 1 kg/m3, the kinematic pressure p [m2/s2] that simpleFoam solves equals
+  the static pressure [Pa] numerically, so the pressure drop in Pa is read
+  directly (the comparator multiplies by RHO = 1 explicitly).
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+transportModel  Newtonian;
+
+nu              1e-05;
+
+// ************************************************************************* //

@@ -1,0 +1,79 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL005 -- Poiseuille pipe.  The manual (p. 25) prescribes a FULLY DEVELOPED
+  laminar velocity profile at the inlet with average velocity 2.00 m/s.  The
+  entrance length at Re=500 is ~0.05*Re*D = ~0.0625 m > half the 0.1 m pipe, so
+  a uniform inlet would leave the flow developing over most of the pipe and the
+  pressure drop would NOT be Hagen-Poiseuille -- the parabola MUST be imposed.
+
+  Inlet:  u_x(r) = 2 * Vavg * (1 - (r/R)^2),  Vavg = 2.0 m/s, R = 0.00125 m,
+          u_max = 4.0 m/s on the axis; cross-sectional average = 2.0 m/s.  The
+          profile is set with codedFixedValue from the patch face-centre radius
+          r = sqrt(y^2 + z^2), so it adapts to every mesh level (the idiom from
+          tutorials/incompressible/simpleFoam/pipeCyclic/0.orig/U).
+
+  THIS FILE IS THE AGE-GUARD MARKER: run_vmfl005.sh touches it immediately
+  before launching the solver, so every field at endTime must be strictly newer
+  than it.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (2 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            codedFixedValue;
+        name            poiseuilleInlet;
+        value           uniform (2 0 0);
+
+        code
+        #{
+            const scalar R    = 0.00125;   // pipe radius [m]
+            const scalar Vavg = 2.0;       // average velocity [m/s]
+            const vectorField& Cf = this->patch().Cf();
+            vectorField v(Cf.size(), vector::zero);
+            forAll(Cf, i)
+            {
+                const scalar r  = Foam::sqrt(sqr(Cf[i].y()) + sqr(Cf[i].z()));
+                scalar ux = 2.0*Vavg*(1.0 - sqr(r/R));
+                if (ux < 0) ux = 0;
+                v[i] = vector(ux, 0, 0);
+            }
+            operator==(v);
+        #};
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform (0 0 0);
+        value           uniform (2 0 0);
+    }
+
+    walls
+    {
+        type            noSlip;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

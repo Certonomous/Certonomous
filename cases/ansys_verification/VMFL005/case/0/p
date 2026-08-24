@@ -1,0 +1,49 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL005 -- Poiseuille pipe.  Kinematic pressure (m2/s2); rho = 1 so it equals
+  Pa numerically.  Pressure is pinned by the outlet fixedValue 0; the inlet is
+  zeroGradient, so the measured pressure drop is
+  areaAverage(p)_inlet - areaAverage(p)_outlet.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet
+    {
+        type            zeroGradient;
+    }
+
+    outlet
+    {
+        type            fixedValue;
+        value           uniform 0;
+    }
+
+    walls
+    {
+        type            zeroGradient;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

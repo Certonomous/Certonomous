@@ -1,0 +1,83 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL005 -- Poiseuille flow in a pipe.  Steady laminar, simpleFoam.  Run to a
+  FIXED iteration count: there is NO residualControl, so the run always ends at
+  endTime and the strict completion rule's "last time == endTime" and
+  "ExecutionTime count == endTime" clauses are meaningful.  Iterative
+  convergence is judged AFTER the run, by the comparator, from the residual
+  history and the inlet-pressure plateau.
+
+  The GATE quantity (pressure drop) is read from the two surfaceFieldValue
+  function objects below: areaAverage(p) over the inlet and outlet patches, at
+  endTime.  Both write postProcessing/<name>/<startTime>/surfaceFieldValue.dat
+  (v2606: writeFile.C baseFileDir()->globalPath()/postProcessing, prefix_=name,
+  fileName_="surfaceFieldValue"; startTime dir = 0), one HEADER block of lines
+  prefixed "# ", then one "<time>\t<areaAverage(p)>" row per iteration
+  (writePrecision 12 forces 12 s.f.).  They write EVERY iteration (writeControl
+  timeStep) so the inlet series also serves the plateau leg of convergence.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+
+writeControl    timeStep;
+writeInterval   __ENDTIME__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    // -- GATE + plateau: inlet cross-sectional area-averaged (kinematic)
+    //    pressure, every iteration.  Its LAST row (endTime) is the gate value;
+    //    its full series is the plateau leg of the iterative-convergence test.
+    pInletMonitor
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            inlet;
+        operation       areaAverage;
+        fields          (p);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    // -- outlet cross-sectional area-averaged pressure (fixedValue 0, MEASURED
+    //    not assumed).  Its endTime row is subtracted from the inlet value.
+    pOutletMonitor
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            outlet;
+        operation       areaAverage;
+        fields          (p);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+}
+
+// ************************************************************************* //
