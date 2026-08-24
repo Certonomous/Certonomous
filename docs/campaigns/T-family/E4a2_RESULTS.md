@@ -363,8 +363,16 @@ the last two lines:
 * `STATUS.F_c STATUS.F_m STATUS.F_f STATUS.S_f STATUS.N_f` (five, all rc=0);
 * `DONE.F_c DONE.F_m DONE.F_f DONE.S_f DONE.N_f` (five);
 * `log.mark_done.20260824T173456Z.txt`, `log.analyse_e4a2.20260824T173504Z.txt`;
-* `E4a2_runs/RECORDS_DRAFT.txt` — draft ledger and docket row text, filed under
-  the case directory it belongs to and **not** in a scratchpad (rule 13);
+* ~~`E4a2_runs/RECORDS_DRAFT.txt` — draft ledger and docket row text, filed under
+  the case directory it belongs to and **not** in a scratchpad (rule 13);~~
+  **CORRECTION 2026-08-24T17:55:46Z (supervisor's ruling):** the draft file was superseded
+  by the landed rows **C-34 / D505 / L-281** (`edee5088`) and removed from disk;
+  **it was never committed**, so nothing is recoverable from history and nothing
+  is lost — every row it held is at HEAD under those three ids. The bullet above
+  is **struck, not rewritten** (rule 6). *Foot-of-section correction:* **lines
+  whose number changed above this section: 0** — verified by diffing the first
+  365 lines of this file against the blob committed at `5a197a41`, byte for
+  byte, in the same invocation that landed this change.
 * this file, `docs/campaigns/T-family/E4a2_RESULTS.md`.
 
 **No `__pycache__` was created anywhere.** The 19 pre-existing `.pyc` files
