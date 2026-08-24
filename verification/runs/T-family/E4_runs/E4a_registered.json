@@ -1,0 +1,145 @@
+{
+  "rung": "E4a",
+  "scope": "fanPressure BC verification, exact operating-point class (EXPERTISE_CURRICULUM.md E4 stage (a), Amendment 1). Stage (b) manufacturer-datasheet is NOT this rung.",
+  "solver": "simpleFoam",
+  "turbulence": "laminar",
+  "openfoam": "/usr/lib/openfoam/openfoam2606",
+  "geometry": {
+    "kind": "2D planar channel, x streamwise, y across, z empty",
+    "L": 2.0,
+    "h": 0.01,
+    "t": 0.001
+  },
+  "nu": 1.5e-05,
+  "R_exact": 360000.0,
+  "R_exact_note": "R = 12 nu L / (h^3 t) = 12*1.5e-5*2.0/(1e-6*1e-3) [ (m2/s2)/(m3/s) ], plane Poiseuille, kinematic pressure",
+  "p_out": 0.0,
+  "grid": {
+    "Fs": 1.25,
+    "r": 1.5,
+    "frozen_module_r": 1.6,
+    "ratio_redirect_note": "analyse_t1c.gci is imported frozen; its module-level R_REFINE (1.6) is redirected to 1.5 IN-PROCESS ONLY by a restoring context manager (T10aR in_tree precedent), because integer cell counts across h force r=1.5 (8/12/18); the redirect and its restoration are proved by the selftest"
+  },
+  "time": {
+    "endTime": 20000,
+    "deltaT": 1,
+    "writeInterval": 5000,
+    "writePrecision": 12
+  },
+  "curves": {
+    "A": {
+      "p0_env": 0.0,
+      "coeffs": [[0.081, 0.0], [-1.2e12, 2.0]],
+      "Q_exact": 1.5e-07,
+      "note": "dp(Q) = 0.081 - 1.2e12 Q^2 [m2/s2, Q in m3/s]; operating point 1.2e12 Q^2 + 3.6e5 Q - 0.081 = 0, discriminant (7.2e5)^2 exact, Q* = 1.5e-7 exactly; U_m = 0.015 m/s, Re_h = 10"
+    },
+    "B": {
+      "p0_env": 0.0,
+      "coeffs": [[0.048, 0.0], [-1.2e12, 2.0]],
+      "Q_exact": 1.0e-07,
+      "note": "dp(Q) = 0.048 - 1.2e12 Q^2; discriminant (6.0e5)^2 exact, Q* = 1.0e-7 exactly; U_m = 0.010 m/s, Re_h = 6.67"
+    },
+    "NULL": {
+      "p0_env": 0.054,
+      "coeffs": [[0.0, 0.0]],
+      "Q_exact": 1.5e-07,
+      "note": "zero fan curve; flow driven by environmental total pressure alone: Q* = p0_env/R = 1.5e-7 exactly, same analytic operating point as curve A with the fan contribution removed"
+    }
+  },
+  "cases": {
+    "F_c": {"curve": "A", "ny": 8,  "nx": 100, "role": "coarse ladder level"},
+    "F_m": {"curve": "A", "ny": 12, "nx": 150, "role": "medium ladder level"},
+    "F_f": {"curve": "A", "ny": 18, "nx": 225, "role": "fine ladder level, graded"},
+    "S_f": {"curve": "B", "ny": 18, "nx": 225, "role": "second registered curve, control"},
+    "N_f": {"curve": "NULL", "ny": 18, "nx": 225, "role": "zero-fan null, control"}
+  },
+  "patches": {"fan": "inlet", "outlet": "outlet", "walls": "walls", "empty": "frontAndBack"},
+  "convergence_fields": ["p", "U", "phi"],
+  "rows": {
+    "I1": {
+      "kind": "identity (Charter 2a)",
+      "quantity": "max over fan-patch faces of |p_f - (p0_env + dp(Q_meas) - 0.5*neg(phi_f)*|U_f|^2)| [m2/s2], Q_meas = -sum(phi_fan)",
+      "cases": ["F_c", "F_m", "F_f", "S_f", "N_f"],
+      "prediction": 0.0,
+      "tol_abs": 8.1e-08,
+      "why_tol": "identity exact in exact arithmetic (fanPressureFvPatchScalarField.cxx:144-205 + totalPressureFvPatchScalarField.cxx:191); floor = last-iteration flux lag (bounded by the bit-identical-checkpoint gate at writePrecision 12, <~1e-11 rel) + ascii rounding (~1e-13 abs); 8.1e-8 = 1e-6 * 0.081 sits >=3 decades above that floor and 3 decades below the static-vs-total convention-error signature 0.5*U_m^2 = 1.125e-4",
+      "falsifier": "any face residual > 8.1e-8; a residual of order 1.1e-4 names the static-vs-total convention error the curriculum warns about"
+    },
+    "I2": {
+      "kind": "identity (Charter 2a)",
+      "quantity": "|Q_in - Q_out| / |Q_in|, Q_in = -sum(phi_fan), Q_out = +sum(phi_outlet)",
+      "cases": ["F_c", "F_m", "F_f", "S_f", "N_f"],
+      "prediction": 0.0,
+      "tol_rel": 1.0e-04,
+      "why_tol": "SIMPLE writes the conservative corrected flux; imbalance inherits the p-solve closure (tolerance 1e-10, relTol 0) whose normalisation is opaque from outside, so the floor is registered generous; the defect this row exists to catch (leaking patch, reader bug) shows at O(1) relative",
+      "falsifier": "relative imbalance > 1e-4"
+    },
+    "P1": {
+      "kind": "precondition",
+      "quantity": "number of fan-patch faces with phi >= 0 at endTime",
+      "cases": ["F_c", "F_m", "F_f", "S_f", "N_f"],
+      "prediction": 0,
+      "tol": 0,
+      "falsifier": "any outflow face on the fan patch voids the analytic energy-balance referent: G1/G2/N1/D1 become NOT A RESULT (I1/I2 still graded)"
+    },
+    "R1": {
+      "kind": "Roache triple (rule 5)",
+      "quantity": "observed order p of the F_c/F_m/F_f triple on Q*",
+      "prediction": 2.00,
+      "interval": [1.6, 2.4],
+      "falsifier": "p outside [1.6,2.4] -> GATE FAIL; triple not CONVERGING -> NOT A RESULT, value+triple+order printed, no GCI quoted on non-monotone values; any level not converged/plateaued -> NOT A RESULT",
+      "basis": "derived wall-discretisation law dev(Q*) = +1/Ny^2 (level-independent entrance term cancels in differences): e32/e21 = (1/64-1/144)/(1/144-1/324) = 2.2500 exactly at the leading order, p = ln(2.25)/ln(1.5) = 2.000"
+    },
+    "G1": {
+      "kind": "graded",
+      "quantity": "Q* of F_f at endTime vs exact 1.5e-7",
+      "prediction_dev_pct": 0.111,
+      "interval_dev_pct": [-0.11, 0.31],
+      "falsifier": "outside the interval; requires F_f converged and P1; independent of R1's triple state (its interval is analytic, not GCI-derived)",
+      "basis": "wall-discretisation dev = (2/Ny^2)*R/(R+2 k2 Q*) = 1/18^2 = +0.3086% (the 2/N^2 law is derived and selftested; the factor is R/(R+2k2Q*) = 0.5 for curve A) - entrance+KE term kappa*(U_m^2/2)/((R+2 k2 Q*)*Q*), kappa = alpha_out(54/35=1.5429)+kappa_e, kappa_e in [0,1] central 0.35 -> -0.197% [-0.265,-0.161]; +/-0.15% margin for unmodelled x-discretisation"
+    },
+    "G2": {
+      "kind": "graded",
+      "quantity": "Q* of S_f at endTime vs exact 1.0e-7",
+      "prediction_dev_pct": 0.213,
+      "interval_dev_pct": [-0.02, 0.40],
+      "falsifier": "outside the interval; requires S_f converged and P1",
+      "basis": "wall term (2/18^2)*R/(R+2 k2 Q*_B) = (2/324)*0.6 = +0.3704% - entrance term kappa*5e-5/(6.0e5*1.0e-7), central -0.158% [-0.212,-0.129]; +/-0.15% margin"
+    },
+    "N1": {
+      "kind": "graded control",
+      "quantity": "Q of N_f at endTime vs exact 1.5e-7 (zero-fan null: pressure-difference-driven alone)",
+      "prediction_dev_pct": 0.223,
+      "interval_dev_pct": [-0.12, 0.50],
+      "falsifier": "outside the interval; requires N_f converged and P1. Structural registered prediction: the null's wall term is +2/Ny^2 = +0.617%, double the fan case's, because with no fan slope the factor R/(R+2k2Q*) is 1",
+      "basis": "+2/18^2 = +0.617% wall term - entrance term kappa*1.125e-4/0.054, central -0.394% [-0.530,-0.321]; +/-0.20% margin (double sensitivity)"
+    },
+    "D1": {
+      "kind": "reported diagnostic, graded as a prediction about a diagnostic (T10aR RX5 class)",
+      "quantity": "sign-corrected Richardson extrapolate of the F triple vs exact 1.5e-7",
+      "prediction_dev_pct": -0.197,
+      "interval_dev_pct": [-0.35, -0.08],
+      "falsifier": "outside the interval; in particular a Richardson landing at ~0 dev falsifies the registered entrance model low. NOT A RESULT if R1's triple is not CONVERGING. Grades no case row; uses the exact reference and is not an instrument independent of the hypothesis"
+    },
+    "Z1": {
+      "kind": "planted-zero control (rule 3, T10aR SS2.2 exact-float rule)",
+      "quantity": "recovered change from a plant into a scratch copy of a checkpoint field, read back through the same reader",
+      "prediction": "exactly fl(old+plant)-old for every plant",
+      "falsifier": "any mismatch is a comparator REFUSAL (exit 2), not a graded row"
+    }
+  },
+  "planted_control": {"p": 1.234e-03, "U": 1.234e-03, "phi": 1.234e-09},
+  "cost": {
+    "rate_usd_per_core_h": 0.0513,
+    "rate_basis": "owner-stated 2026-08-21/22 (CLAUDE.md rule 12); derived, not measured",
+    "basis": "T1c-class ladder replicates L_Ts_P_c/m/f (T1_runs STATUS files): 4000 cells/30000 it/809 s, 10240/30000/2221 s, 26112/30000/5844 s -> 6.7-7.5e-6 s per cell-iteration (buoyantBoussinesqSimpleFoam, contended box); 7.5e-6 used as the conservative basis for a cheaper solver",
+    "predicted_core_s": {"F_c": 130, "F_m": 280, "F_f": 620, "S_f": 620, "N_f": 620, "mesh_and_checks": 15},
+    "predicted_total_core_s": 2285,
+    "predicted_total_core_min": 38.1,
+    "predicted_total_usd": 0.0326,
+    "stop_threshold_10x_core_h": 6.35,
+    "per_case_stop": "any case exceeding 10x its predicted wall is stopped and investigated, not waited out",
+    "actual_core_s": null,
+    "actual_note": "filled at process completion only, never at registration (Sanaa 2026-08-23 estimate-vs-actual law, CLAUDE.md rule 12)"
+  }
+}

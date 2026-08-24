@@ -1,0 +1,23 @@
+E4a FREEZE CHECK -- machine-captured; every stamp below is the command's own dated output
+== date -u at capture ==
+2026-08-23T21:25:44.079447732Z
+== directories under E4_runs (case directories must be ZERO at freeze) ==
+-- directory count: 0 (0 required)
+== numeric time directories anywhere under E4_runs (must be ZERO) ==
+0
+== DONE/STATUS markers (must be ZERO) ==
+0
+== sha256 of the instrument set (provisional until the supervisor's freeze commit) ==
+bb363d0232683f50a8f75ecbd15aef436bd72762686764c56027aac6f0401b05  E4a_registered.json
+451eae3682bff7f89f31147c1d2d74fe1badc4c2af2c0e0f40e76ca665e46956  build_e4a.py
+a9f31c3f569181f27b17bcaca318ce1f1a0a3f0e85e788a4214c8d8d5d63ff4b  analyse_e4a.py
+b152ed0071bfe8cea060fc8164587ffeec7ca02ab0c6ce259565935d4b10fbe6  mark_done_e4a.py
+226fd26b019a7fe73b559dda36451ca328ee371bcb1c8fb6b776d024f12ffe19  run_one_e4a.sh
+0e2b893fd134cba67975792d3defefb453ed929ca4d122f22022e4cad9c81274  launch_e4a.sh
+== frozen import ==
+60893b28e284127f61b41842c520897a2202cb024d5a4d260272c6ee7e6c5135  ../T1_runs/analyse_t1c.py
+== selftest at capture (PYTHONDONTWRITEBYTECODE=1 so the run leaves no directory) ==
+SELFTEST 38/38 OK
+== directories after selftest: 0 (0 required) ==
+== date -u at end of capture ==
+2026-08-23T21:25:44.195314030Z
