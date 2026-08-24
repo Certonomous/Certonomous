@@ -10055,3 +10055,90 @@ consumes a real artifact from the producing step — or, where none can exist be
 the producer's key set against the consumer's in the invocation that freezes both. Same family as
 L-266 on the same item: both defects were findable by dry-running the frozen code against its own
 frozen inputs before the freeze.
+
+## L-274. A short solver arm is startup-dominated, and a per-iteration cost basis prices its dominant term at zero
+
+**The rule.** When an arm is order-10 iterations, **estimate the fixed harness
+overhead FIRST and add the solve second.** A seconds-per-iteration rate borrowed
+from a long neighbouring arm carries no fixed-cost term, so it under-prices a
+short arm by roughly the whole overhead — and on a short arm the overhead is not
+a correction to the bill, it *is* the bill.
+
+**Why.** D460 sweep 1's ARM P-SM was priced at **1.5 core-min** from a
+1,000-iteration neighbour's measured 0.95 s/iter × 10 iterations × a ~9×
+`smoothSolver` sweep inflation. It cost **3.833 core-min**, a ratio of **2.56×**.
+The solve was never the cost. Measured from the arm's own log: `ExecutionTime =
+6.92 s`, `ClockTime = 7 s` for **all ten iterations** of a **230 s** wall. The
+other **223 s — 97 % of the bill — was container start, `loadDAFoam.sh`, the
+IDWarp import and its md5 assert, a whole-container-filesystem `find /` for
+`libDASolverADF.so`, OpenMDAO/mphys setup, and the `mphys.html` + `reports/`
+writes.** None of that is visible to a per-iteration basis, which assigns it
+zero. The estimate was wrong in **structure, not in magnitude**: it modelled a
+10-iteration arm as iteration-dominated when a 10-iteration arm is
+startup-dominated.
+
+**The transferable figure, with its honest limit.** Fixed harness overhead on
+this DAFoam container measured **34–223 s per arm** — F-SM 34 s at `load1 =
+4.31`, P-SM 223 s at `load1 = 14.50`, both `--cpus=1` and both running the
+byte-identical launcher. A **6.6× overhead gap on a 3.4× load difference** says
+some of the spread is host contention rather than intrinsic cost, but **no
+per-phase instrumentation exists in this harness, so the split cannot be measured
+and is not claimed.** The structural finding stands either way: whatever its
+cause, the overhead is real and the estimate priced it at zero.
+
+*(Sibling of L-272 from the other side: there a headline ratio of 1.005× hid
+per-row scatter of 1.4–1.6× against 0.74–0.92×; here a headline of 0.940× hid
+2.56× against 0.248×. Both defects are the same missing fixed-cost term in a
+`work ÷ rate` model.)*
+*Artifacts:* `/home/ubuntu/certonomous-runs/D460-sweep1-solver-family/{psm.log,fsm.log,ledger.txt}`;
+`cases/dafoam/d460_sweep1_solver_family/RESULTS.md` §7c item 1;
+`docs/COST_CALIBRATION.md` C-22.
+
+## L-275. A two-branch prediction registered as its maximum is an upper bound wearing a point estimate's clothes — register the interval and let the total carry both ends
+
+**The rule.** When a cost estimate is **conditioned on the very outcome the
+experiment exists to determine**, naming both branches is the honest move.
+**Collapsing them into one number in the item total is not.** Register the
+interval; carry both ends into the total; and when the item is calibrated, do not
+count the resolved branch as a modelling error.
+
+**Why.** D460 sweep 1 §9 priced ARM F-SM at **3.5 core-min**, written as *"if
+healthy, as P-SM; if NaN-contaminated, the measured `s1b` cost … 5.383
+core-min"*. The branch condition was precisely what the arm was built to decide —
+whether the forward-AD build reaches NaN under `smoothSolver`. It resolved to the
+cheap branch and came in at **0.867 core-min, 0.248×**. That **0.248× is not a
+misprediction and must not be attributed as one** in the calibration ledger. What
+it does mean is that the pre-registered item total of **5.0 core-min was an upper
+bound presented as a point estimate**, and the aggregate ratio computed against
+it (**0.940×**, which reads as near-perfect) is soft in one direction by
+construction.
+*Artifacts:* `cases/dafoam/d460_sweep1_solver_family/RESULTS.md` §7c item 2;
+`docs/COST_CALIBRATION.md` C-22.
+
+## L-276. Re-derive an append-only id for the COMMIT MESSAGE too, not only for the row — or put no id in the subject at all
+
+**The rule.** `CLAUDE.md` rule 11 fixes the id at commit time, from the **maximum
+existing number** in the committed blob, re-derived **in the same shell
+invocation**. That discipline is routinely kept for the **row** and dropped for
+the **subject line**, which gets composed earlier from a number read minutes
+before. **Compose the subject from the same shell variable that numbers the row,
+or leave the id out of the subject entirely.**
+
+**Why.** The D460 sweep-1 lane re-derived the next `docs/COST_CALIBRATION.md` id
+from the tail of `git show HEAD:docs/COST_CALIBRATION.md` inside its commit's own
+shell invocation and got **C-22** — **four higher** than the **C-18** it had read
+minutes earlier, because four peer rows (C-18 closure, C-19 closure, C-20
+verification, C-21 heat-transfer) had landed in between. This is exactly the
+collision rule 11 exists to catch, and it caught it: **the row is right — it is
+C-22 and carries no other id.** But the subject line of commit **`f62ec7ed`** was
+composed before the re-derivation and says **C-18**, which is now another team's
+row. **The subject is wrong; the row it landed is right.** No correction row was
+filed in the ledger, because that file's append rules call for one only when a
+*row's data* is wrong, and this row's data is not; the commit message was left
+unrewritten rather than amended, and annotated in the results file instead —
+history is not rewritten to hide a mistake.
+
+**The narrow lesson.** Re-deriving at commit time worked. The rule was simply not
+applied to the one surface that also carries the id: the message.
+*Artifacts:* `cases/dafoam/d460_sweep1_solver_family/RESULTS.md` §7c, disclosure
+block; commit `f62ec7ed`.
