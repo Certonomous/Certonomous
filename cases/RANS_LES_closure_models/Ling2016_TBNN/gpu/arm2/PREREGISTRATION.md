@@ -426,3 +426,229 @@ HEAD blob in the same shell invocation that wrote this text: **identical**
 **lines whose number changed above this section: 0**
 
 **Verdict, unchanged: PENDING — nothing has been run.**
+
+---
+
+## AMENDMENT 2 — 2026-08-24T18:39:44Z — before first compute
+
+**Version: v1.1 (Amendment 1, `84bf079d`) → v1.2.** v1.0 is the frozen text of
+`f36fbdd9`; v1.1 is that text plus Amendment 1; v1.2 is v1.1 plus this section.
+Nothing above is edited.
+
+**Condition, and how it was checked (rule 2, first bullet).** The run directory
+`/home/ubuntu/closure-data/tbnn_gpu/arm2` — the `PRED_DIR`/`OUT_JSON` root the
+registered comparator writes to (`score_gpu_ling_v2.py:38–39`) — is **ABSENT**,
+checked by `test -e` on the lab box with the `date -u` read in the **same shell
+line as the test**, at **2026-08-24T18:39:44Z**. Its parent
+`/home/ubuntu/closure-data/tbnn_gpu/` holds only arm 1's four entries
+(`grading_gpu_ling.json`, `node_root`, `out`, `run_window.json`) and no `arm2`.
+The GPU instance is **STOPPED** (Sanaa, 2026-08-24: *"also i stopped that
+instance"*, quoted at line 13 above); it is started by her alone. **Zero compute
+has been spent on this arm.** Amendments are therefore legal here and the gates
+are still open.
+
+**Artefact identity verified before any edit, in the same invocation.** This
+file's disk copy == its HEAD blob (`d15fcd5f…`, the `84bf079d` blob).
+`arm2/score_gpu_ling_v2.py` disk sha256
+`74aadda9aa3e6c02f543cefd6a3178f798f1ab590c6037cb95e63e50ffce6711` == the §9
+registered value == its HEAD blob (`38c819bb…`); `arm2/train_gpu_ling_v2.py`
+`06d6d4a3…6543` == §9; `arm2/run_all_gpu_v2.sh` `a88aa5fb…21bd` == §9 as struck
+and replaced by Amendment 1. **This amendment edits no script.** The comparator
+and driver are read here, not touched; their registered shas are unchanged.
+
+---
+
+### Item (C) — §4's G1 seed-aggregation convention, registered explicitly
+
+**Why.** Audit pass 8's supervisor-believed read
+(`docs/CROSS_TEAM_GATE_AUDIT.md` §40–§47 body at `9573db65`; supervisor's own
+read §82 at `8cbe716b`, *"Pass 8 BELIEVED in full"*) names it, verbatim:
+
+> *"the G1 seed-aggregation convention and the G2 spread owner are unregistered
+> degrees of freedom (harmless here; to close in the arm-2 prereg)"*
+
+Pass 8 **names the gap and does not prescribe a convention** — no passage of
+passes 8 or 82 states which aggregation G1 must use. There is therefore **no
+recommendation for this amendment to conflict with**; what is registered below is
+the convention the **registered comparator already implements**, transcribed from
+its source, so that the frozen file that runs is the file that grades.
+
+**The G2 half of pass 8's item is already closed by the frozen text and needs no
+amendment:** §4's G2 (line 106) registers the spread owner explicitly — *"by
+**more than the larger of the two seed spreads**"* — which is precisely what arm
+1's §8 left open. Recorded here so the item is not re-opened later as outstanding.
+
+#### C.1 The G1 statistic, in one formula
+
+For each gated model `M` ∈ {A2-TBNN, A2-MLP} and each of the 8 TEST cases `c`,
+the figure G1 is graded on is
+
+```
+                  1    S-1
+  G1(M, c)   =   ---   SUM   b_rms(M, s, c)
+                  S    s=0
+
+  b_rms(M, s, c)  =  sqrt(  (1 / N_c)  *  SUM over k in c of
+                            || bhat(M, s, best-val)_k  -  b_LES_k ||_F^2  )
+```
+
+with:
+
+* `bhat(M, s, best-val)` = the **`pred_best`** array of `pred_<tag>_s<s>.npz` —
+  seed `s`'s **own** best-validation checkpoint (C.2);
+* `k in c` = the **N_c scored cells** of case `c`: `valid` ∧ finite `b_LES` ∧
+  finite `b_RANS`, §4's registered scoring mask (`score_gpu_ling_v2.py:296–299`);
+* `S` = the number of seed prediction files present (C.5);
+* all arithmetic in **float64**, the squared Frobenius norms summed per cell and
+  averaged before the square root (`frob_rms`, `score_gpu_ling_v2.py:92–95`).
+
+**Stated in words, because this is the whole point of registering it: G1 is the
+MEAN OVER SEEDS OF EACH SEED'S OWN PER-CASE ERROR — the mean of the errors, not
+the error of the seed-mean prediction.** The comparator never forms a
+seed-averaged prediction field; no such array exists anywhere in its output.
+
+**Where it is transcribed from** (`score_gpu_ling_v2.py`, sha `74aadda9…`,
+§9-registered, unedited): `frob_rms` :92–95; `score_pred` :149–160 computes
+`per_case[c] = frob_rms(pred_test[m] - bL_test[m])` for the rows of case `c`;
+`collect_model` :190–227 scores each seed file separately (:207) and then, at
+:213–217, forms `agg[c] = mean/lo/hi/n` over `[seeds[s]["per_case"][c] for s in
+seeds]`.
+
+**Where the graded numbers sit in the JSON**, so the grading is a lookup and not
+a re-derivation: `models["TBNN [pred_best]"].per_case_over_seeds[<case>].mean` is
+`G1(A2-TBNN, c)`, with `.lo`, `.hi`, `.n` beside it; the per-seed inputs are at
+`.per_seed["<s>"].per_case[<case>]`; the baselines at
+`baselines.{SST,zero,train_mean}.per_case[<case>]`. The `[pred_final]` blocks are
+**reported beside** G1 and do not grade it.
+
+#### C.2 Best-val is chosen PER SEED, once per seed, on validation only
+
+`train_gpu_ling_v2.py:786` initialises `best = [inf] * S` — **one entry per
+seed** — and :801–813 updates seed `r`'s own best when
+`v[r] < best[r] - 1e-12`, where `v = trainer.val_b_rms()` is evaluated at every
+`HIST_EVERY = 20,000` updates (:72, :822–826) and at the final partial block of
+the last epoch. :836–855 restores each seed's own best snapshot, predicts, and
+writes it as `pred_best` (float32) beside `pred_final`. **No TEST quantity enters
+the selection.** The `1e-12` is an absolute improvement margin on the validation
+`b_rms`: a tie, or an improvement smaller than it, **keeps the earlier
+checkpoint**. Predictions are stored float32 and cast to float64 before scoring
+(`score_gpu_ling_v2.py:207`); the accumulation is float64.
+
+#### C.3 How the ">= 6 of 8" count is taken
+
+For each gated model `M` and each baseline `B` ∈ {`SST`, `zero`, `train_mean`}:
+
+```
+  n_B(M)  =  #{ c in the 8 TEST cases :  G1(M, c)  <  baseline_B(c) }
+```
+
+**strict `<`**, on the float64 values as the comparator wrote them to the JSON,
+with **no tolerance band** (C.4). The three counts are taken **separately**, and
+the figure §4's bands read is
+
+```
+  n_gov(M)  =  min( n_SST(M),  n_zero(M),  n_train_mean(M) )
+```
+
+`n_gov >= 6` → **PASS**; `n_gov` = 4 or 5 → **GATE FAIL**; `n_gov <= 3` → **NOT A
+RESULT**. §4's separate NOT A RESULT branch, *"failure to beat `b = 0` on any
+case"*, reads **`n_zero(M) = 0`** and nothing else. §4's in-family 7-case counts
+are reported beside all of it and do not replace it.
+
+**The conjunction count is reported beside, always:**
+`n_all(M) = #{ c : G1(M,c) < each of the three baselines at c }`, which satisfies
+`n_all <= n_gov` by construction.
+
+**Disclosed plainly, because it is a reading and not a transcription.** §4's G1
+sentence (*"below SST, below `b = 0`, below the train-mean tensor on ≥ 6 of 8
+TEST cases"*) can be read as three separate counts or as one conjunction count,
+and **the three-separate reading registered above is the looser of the two.** It
+is registered because it is arm 1's, verbatim, in the file this arm's §4
+compresses — arm 1 `PREREGISTRATION.md` §8 at `e8309b6c`, :269–272: *"TBNN test
+`b_rms` below k-omega SST on **>= 6 of the 8 TEST cases**, and below `b = 0` (B2)
+and the train-mean tensor (B3) on **>= 6 of 8**."* The ambiguity was created by
+arm 2's compression of that sentence, not by a decision; this item restores arm
+1's reading and prints the stricter one beside it so no reader is misled.
+**SUPERVISOR:** this is the one clause of this amendment that is a *reading* of
+an ambiguous frozen sentence rather than a transcription of registered code. If
+the supervisor rules that the conjunction governs, that ruling lands as
+AMENDMENT 3 **before** launch; after first compute neither reading may be
+revisited.
+
+#### C.4 Ties
+
+**A tie is not a win.** Every comparison in C.3 is strict `<`. A per-case figure
+exactly equal to its baseline is **not below** it and counts toward no `n`. No
+tolerance, epsilon or rounding band is registered and none is applied; the
+comparison is on the float64 values in the JSON, not on any printed rounding.
+(The `1e-12` margin of C.2 governs only the per-seed best-val checkpoint
+selection inside the driver, and never a gate comparison.)
+
+#### C.5 Non-finite values, and the seed count
+
+**What the registered code does, stated first.** `frob_rms` propagates a
+non-finite prediction into `per_case`, `np.mean` propagates it into the seed
+mean, and every `<` against a NaN is False — so a non-finite figure can never
+count as a win, but it never refuses either. The comparator's finiteness masks
+(`score_gpu_ling_v2.py:296–299`) apply to the **data** (`b_LES`, `b_RANS`), never
+to the prediction arrays: **there is no prediction-finiteness refusal anywhere in
+`score_gpu_ling_v2.py`.**
+
+**Registered.** Before G1 is graded, the supervisor asserts that every graded
+figure is finite — `per_seed["<s>"].per_case[<c>]` and
+`per_case_over_seeds[<c>].mean`, for both gated models, all seeds and all 8
+cases. **If any is non-finite, G1 is NOT A RESULT for the arm**, with the
+offending model / seed / case named and the finite figures printed beside it.
+This is a **new branch registered before first compute**, and it runs in the
+strictest direction only: it can turn a reading into NOT A RESULT and can never
+produce a PASS or lift a GATE FAIL — the same one-way principle rule 5 applies to
+a non-CONVERGING triple.
+
+**A large but finite figure is NOT covered by this branch and is graded as
+written** — arm 1 measured `7.01e+07` on `NASA_2DWMH` and that is a finite number
+which counts as "not below" and nothing more. Registered explicitly so this
+branch cannot later be used to quarantine an inconvenient large value.
+
+**Seed count.** `G1`'s mean is over exactly the seed prediction files present:
+the comparator's `--nseeds` defaults to **5** (:270–271) and **silently skips**
+missing files (:198–199), while this arm writes seeds 0, 1, 2 only
+(`train_gpu_ling_v2.py:71`, `SEEDS = [0, 1, 2]`), so the default scan yields
+`S = 3`. **G1 is graded only if `n_seeds == 3` and every
+`per_case_over_seeds[<c>].n == 3` for both gated models**, asserted by the
+supervisor from the JSON. If fewer files are present for either model the arm is
+not DONE under §8 and G1 is not graded — §8 already requires every run DONE and
+labels a cap-stopped run BLOCKED. **No new label is introduced by this clause.**
+
+---
+
+### Gate-neutrality, stated exactly
+
+**No registered threshold, cap, label, seed, learning rate, budget, falsifier
+branch or verdict moves.** G0–G4 and their numbers are untouched: `≥ 6 of 8`,
+`4–5`, `≤ 3`, G2's larger-of-two-spreads, G3's `3×`-truth and `1.633`, G4's
+all-but-at-most-one and its *"not run → capped at GATE REACHED"*, `CAP_H = 40`
+GPU-h, `E_TARGET = 300`, `E_MIN = 50`, the 3–32 GPU-h registered estimate as
+Amendment 1 left it, §5's three falsifier branches, and §13's `PENDING` all stand
+exactly as before.
+
+What this amendment does is **disambiguate** §4's G1 — which statistic (C.1),
+selected how (C.2), counted how (C.3) — and **register two previously
+unregistered handlings**, ties (C.4) and non-finite values (C.5). C.1, C.2, C.4
+and C.5's first paragraph are **transcriptions of the §9-registered comparator
+and driver**, not choices. C.3 is a reading of an ambiguous sentence, disclosed
+as such above. C.5's NOT A RESULT branch is genuinely new and is registered in
+the one-way direction. All of it is registered **before first compute**, on the
+condition proved at the head of this section.
+
+---
+
+**Nothing above this section was edited.** Verified by hashing the amended file's
+first **428** lines — the entire pre-amendment body, v1.1 in full — with
+`git hash-object` and comparing it to the HEAD blob of this file
+(`d15fcd5f87096476ba777c1733bff18148894d27`, the `84bf079d` blob), in the same
+shell invocation that wrote this text and committed it. Result stated in the
+commit message.
+
+**lines whose number changed above this section: 0**
+
+**Verdict, unchanged: PENDING — nothing has been run.**
