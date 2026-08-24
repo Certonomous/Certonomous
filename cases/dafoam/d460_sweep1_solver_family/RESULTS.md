@@ -414,7 +414,24 @@ estimate fixed harness overhead FIRST — measured here at 34–223 s per contai
 solve second; a per-iteration basis borrowed from a 1,000-iteration arm under-prices a
 10-iteration arm by roughly the overhead, which dominates it.*
 
-Landed as row **C-18** in `docs/COST_CALIBRATION.md`.
+Landed as row **C-22** in `docs/COST_CALIBRATION.md`, commit `f62ec7ed`.
+
+> **Disclosed defect in that commit's own subject line.** The id was re-derived from the tail of
+> `git show HEAD:docs/COST_CALIBRATION.md` **inside the commit's shell invocation**, as
+> `CLAUDE.md` rule 11 requires, and came back **C-22** — four peer rows (C-18 closure,
+> C-19 closure, C-20 verification, C-21 heat-transfer) had landed between this lane's earlier
+> read of the file and its commit. **The row is correct: it is `C-22` and carries no other id.**
+> But the commit's *subject line* was composed before that re-derivation and says `C-18`, which
+> is now another team's row. **The subject of `f62ec7ed` is wrong; the row it landed is right.**
+> No correction row is filed in the ledger, because rule 2 of that file's append rules calls for
+> a correction row only when a *row's data* is wrong, and this row's data is not. The commit
+> message is left unrewritten rather than amended — history is not rewritten to hide a mistake,
+> it is annotated here.
+>
+> *This is the rule-11 hazard behaving exactly as the rule anticipates: re-deriving at commit
+> time caught a four-row collision that a pre-computed id would have silently collided with.
+> The lesson is narrower — re-derive the id for the **commit message** in the same invocation
+> too, not only for the row.*
 
 ---
 
@@ -476,6 +493,16 @@ land, per `CLAUDE.md` rule 11 (ids re-derived from the tail at commit time, neve
 > in at 0.867 (0.248×). Naming both branches was the honest move; collapsing them into one
 > number in the total was not. **Register the interval, and let the total carry both ends.**
 > *Artifact:* `RESULTS.md` §7c item 2.
+
+### 9b-ii. Lesson candidate — re-derive an append-only id for the COMMIT MESSAGE too, not only for the row
+
+> `CLAUDE.md` rule 11 is kept for the row and dropped for the subject line. This lane re-derived
+> the next `docs/COST_CALIBRATION.md` id inside the commit's own shell invocation and got
+> **C-22**, four higher than the C-18 it had read minutes earlier — peers had landed C-18…C-21 in
+> between, exactly as the rule warns. The row is right; the commit subject, composed before the
+> re-derivation, says C-18 and is wrong (`f62ec7ed`). **Compose the subject from the same shell
+> variable that numbers the row, or leave the id out of the subject entirely.**
+> *Artifact:* `RESULTS.md` §7c, disclosure block.
 
 ### 9c. Numerics candidate — `smoothSolver`/`GaussSeidel` on `p` for `DARhoSimpleCFoam` transonic
 
