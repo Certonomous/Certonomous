@@ -652,3 +652,203 @@ commit message.
 **lines whose number changed above this section: 0**
 
 **Verdict, unchanged: PENDING — nothing has been run.**
+
+---
+
+## AMENDMENT 3 — 2026-08-24T18:42:28Z — before first compute
+
+**Version: v1.2 (Amendment 2, `1563a6b2`) → v1.3.** v1.0 is the frozen text of
+`f36fbdd9`; v1.1 is v1.0 plus Amendment 1 (`84bf079d`); v1.2 is v1.1 plus
+Amendment 2 (`1563a6b2`); v1.3 is v1.2 plus this section. Nothing above is
+edited.
+
+**This section exists because Amendment 2 §C.3 asked for a ruling and got one.**
+C.3 registered the three-separate-counts reading of §4's G1 sentence, disclosed
+it as the **looser** of two readings of an ambiguous frozen sentence, and stated:
+*"If the supervisor rules that the conjunction governs, that ruling lands as
+AMENDMENT 3 **before** launch."* The supervisor has ruled. This is that section.
+
+### Condition, and how it was checked (rule 2, first bullet)
+
+The run directory `/home/ubuntu/closure-data/tbnn_gpu/arm2` — the
+`PRED_DIR`/`OUT_JSON` root the registered comparator writes to
+(`score_gpu_ling_v2.py:38–39`) — is **ABSENT**, re-checked by `test -e` on the
+lab box with the `date -u` read in the **same shell line as the test**, at
+**2026-08-24T18:42:28Z** (that stamp is this section's date). Its parent
+`/home/ubuntu/closure-data/tbnn_gpu/` holds only arm 1's four entries
+(`grading_gpu_ling.json`, `node_root`, `out`, `run_window.json`) and no `arm2`.
+The GPU instance is **STOPPED** (Sanaa, 2026-08-24: *"also i stopped that
+instance"*, quoted at line 13 above); it is started by her alone. **Zero compute
+has been spent on this arm**, and zero was spent writing this section. Amendments
+are therefore legal here and the gates are still open.
+
+**Artefact identity verified before any edit, in the same invocation.** This
+file's disk copy == its HEAD blob
+(`3bab02fe6baadc71b2074cb8d409f53c6872c3e7`, the `1563a6b2` blob), 654 lines.
+`arm2/score_gpu_ling_v2.py` disk sha256
+`74aadda9aa3e6c02f543cefd6a3178f798f1ab590c6037cb95e63e50ffce6711` == the §9
+registered value. **This amendment edits no script** (see D.3).
+
+---
+
+### Item (D) — the CONJUNCTION count governs G1
+
+#### D.0 The ruling, recorded verbatim
+
+The closure supervisor's ruling, quoted in full and without paraphrase:
+
+> "The frozen §4 sentence lists three 'below' conditions on one '>= 6 of 8'
+> count and reads most naturally as one conjunction per case; where a frozen
+> clause admits two readings the stricter one governs (L-269: a lane may not
+> choose the softer of two readings of a frozen clause, and neither may a
+> supervisor after the fact); arm 1's frozen text registered three separate
+> counts in its own words, and that wording was arm 1's, not arm 2's. The three
+> separate counts are printed beside n_all, always, so no reader loses
+> information."
+
+#### D.1 Amendment 2's C.3 governing clause — STRUCK
+
+Struck from Amendment 2 §C.3 (rule 2: originals are struck, never rewritten; the
+C.3 text above this section is unedited and remains readable there as the
+superseded reading). The exact struck words:
+
+> ~~```
+>   n_gov(M)  =  min( n_SST(M),  n_zero(M),  n_train_mean(M) )
+> ```~~
+>
+> ~~`n_gov >= 6` → **PASS**; `n_gov` = 4 or 5 → **GATE FAIL**; `n_gov <= 3` →
+> **NOT A RESULT**.~~
+>
+> **STRUCK 2026-08-24T18:42:28Z, before first compute, by this amendment, on the
+> supervisor's ruling quoted at D.0.**
+
+C.3's own sentence *"the three-separate reading registered above is the looser of
+the two"* is the reason it is struck, and remains true of the struck text.
+
+#### D.2 Registered in its place — the conjunction count `n_all`
+
+For each gated model `M` ∈ {A2-TBNN, A2-MLP}, a TEST case `c` **counts for `M`
+if and only if all three of the following hold**, each a **strict `<`**:
+
+```
+  G1(M, c)  <  SST(c)          AND
+  G1(M, c)  <  zero(c)         AND
+  G1(M, c)  <  train_mean(c)
+
+  n_all(M)  =  #{ c in the 8 TEST cases : all three hold at c }
+```
+
+with `G1(M, c)` exactly the statistic of C.1 (the mean over seeds of each seed's
+own per-case `b_rms`, on the `pred_best` checkpoint selected per seed per C.2)
+and the baselines exactly those of C.1. **The bands §4 reads are now read on
+`n_all`:**
+
+```
+  n_all >= 6        ->  PASS
+  n_all in {4, 5}   ->  GATE FAIL
+  n_all <= 3        ->  NOT A RESULT
+```
+
+**§4's separate NOT A RESULT branch is UNCHANGED**: *"failure to beat `b = 0` on
+any case"* still reads **`n_zero(M) = 0`** and nothing else, exactly as C.3
+registered it. That branch is independent of `n_all` and is not touched by this
+amendment.
+
+**The three separate counts are printed beside `n_all`, always**, as the ruling
+requires — `n_SST(M)`, `n_zero(M)`, `n_train_mean(M)`, each defined exactly as
+C.3 defines them (strict `<`, no tolerance, float64 as written to the JSON) — and
+so are §4's **in-family 7-case counts** (the same counts taken over the 7 TEST
+cases excluding `NASA_2DWMH`, the registered out-of-training-range case): the
+in-family `n_all`, and the in-family `n_SST` / `n_zero` / `n_train_mean`. None of
+the printed-beside figures carries a verdict; `n_all` over the 8 cases is the
+graded figure, and §4's rule that the in-family count *"is reported beside it; it
+does not replace it"* stands.
+
+**C.4 (ties) governs every comparison above unchanged:** a tie is not a win,
+every comparison is strict `<`, no tolerance or rounding band exists. **C.5
+(non-finite values and the seed count) governs unchanged**, including its NOT A
+RESULT branch and its `n_seeds == 3` requirement — a non-finite `G1(M, c)` fails
+every `<` and so cannot count toward `n_all` either, and C.5's assertion still
+runs before G1 is graded.
+
+#### D.3 The direction of the change — stricter, one-way, and provably so
+
+`n_all <= n_gov` **by construction**: a case counted by `n_all` satisfies all
+three inequalities, so it is counted by each of `n_SST`, `n_zero` and
+`n_train_mean` individually, hence by their minimum. The bands are monotone
+non-increasing in the count. Therefore this amendment can only
+
+* turn a **PASS** under the struck reading into **GATE FAIL** or **NOT A RESULT**, or
+* turn a **GATE FAIL** under the struck reading into **NOT A RESULT**,
+
+and can **never** do the reverse — it cannot lift a GATE FAIL to a PASS, nor a
+NOT A RESULT to anything. This is the same one-way direction rule 5 applies to a
+non-CONVERGING Roache triple and that C.5's non-finite branch was registered in.
+It is registered **before first compute**, on the condition proved above, so the
+direction argument is a property of the rule and not a rescue of a seen number:
+**no number exists yet.**
+
+#### D.4 What does not change — stated explicitly
+
+**No threshold number, cap, label, seed, learning rate, budget or falsifier
+branch changes.** Specifically unchanged: the counts `≥ 6`, `4–5`, `≤ 3`
+themselves (only the count they are read on changes); G0's controls and its
+`1.234e-03` plant and `1e-9`; G2's in-family grading and its
+larger-of-two-spreads; G3's `3×`-truth, `1.633` and at-most-one-case rule; G4's
+all-but-at-most-one, its half-of-cases GATE FAIL and its *"not run → capped at
+GATE REACHED"*; §4's order of combination; §5's three falsifier branches and
+their numbers `0.1719` and `0.30`; `CAP_H = 40` GPU-h, `E_TARGET = 300`,
+`E_MIN = 50`, the 3–32 GPU-h registered estimate as Amendment 1 left it, and the
+BLOCKED-on-overrun rule; §8's completion rule; §9's four registered shas as
+Amendment 1 left them; §13's `PENDING`.
+
+**Amendment 2's C.1, C.2, C.4 and C.5 stand in full and are not touched.** Only
+the governing-figure clause of C.3 is struck (D.1), and only the definitions it
+carries for the three separate counts survive as the printed-beside figures
+(D.2). **Amendment 1 stands in full.**
+
+#### D.5 The comparator is NOT edited — where `n_all` comes from
+
+`score_gpu_ling_v2.py` (§9 sha `74aadda9…`, verified above against disk) is
+**read here, not edited**; its registered sha is unchanged and no §9 row moves.
+
+**Finding, from reading it:** the comparator **prints and writes NO count of any
+kind** — not the three separate counts, and not a conjunction count. It emits
+per-case scalars only; there is no boolean, no comparison against a baseline, and
+no `n_` field anywhere in its output. Its printed summary (`:357–362`) reports
+pooled and in-family pooled figures per baseline and per model and nothing else.
+This is stated as a measured reading of the registered source, not an assumption.
+
+**Registered consequence.** The grading lane computes `n_all` — and the three
+separate counts and the in-family counts — **from the per-case float64 figures
+the comparator writes to its JSON**, and the supervisor asserts the arithmetic.
+The fields, by name, in `grading_gpu_ling_v2.json`:
+
+| quantity | JSON field |
+|---|---|
+| `G1(M, c)` | `models["<label> [pred_best]"].per_case_over_seeds[<case>].mean` (`<label>` = `TBNN`, `MLP`), with `.lo`, `.hi`, `.n` beside it |
+| per-seed inputs to it | `models["<label> [pred_best]"].per_seed["<s>"].per_case[<case>]` |
+| `SST(c)` | `baselines.SST.per_case[<case>]` |
+| `zero(c)` | `baselines.zero.per_case[<case>]` |
+| `train_mean(c)` | `baselines.train_mean.per_case[<case>]` |
+| the 8 TEST cases | `test_cases` |
+| the 7 in-family cases | `in_family_cases` (and `out_of_family_case` = `NASA_2DWMH`) |
+| seed count assertion (C.5) | `models[…].n_seeds` and `per_case_over_seeds[<case>].n` |
+
+All comparisons are made on those float64 values as written, never on a printed
+rounding (C.4). The `[pred_final]` blocks are reported beside and grade nothing
+(C.1). **The supervisor asserts the count arithmetic** — the `n` figures are the
+supervisor's derivation from the comparator's numbers, disclosed as such, and the
+comparator still emits no verdict (§9).
+
+---
+
+**Nothing above this section was edited.** Verified by hashing the amended file's
+first **654** lines — the entire pre-amendment body, v1.2 in full — with
+`git hash-object` and comparing it to the HEAD blob of this file,
+`3bab02fe6baadc71b2074cb8d409f53c6872c3e7` (the `1563a6b2` blob), in the same
+shell invocation that committed this text. Result stated in the commit message.
+
+**lines whose number changed above this section: 0**
+
+**Verdict, unchanged: PENDING — nothing has been run.**
