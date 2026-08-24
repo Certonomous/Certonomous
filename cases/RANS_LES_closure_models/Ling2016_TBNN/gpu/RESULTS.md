@@ -247,3 +247,54 @@ other four GPU drafts were not started; they proceed only under
 | synced run directory: 6 `status_*.json`, `spend.json`, 15 `pred_*.npz`, 15 `hist_*.csv`, 10 `ck_*.pt`, `armb_optuna.db` | `/home/ubuntu/closure-data/tbnn_gpu/out/` (89,609,821 B, byte-identical to the node) |
 | node root: `driver.log`, `driver.pid`, `pip_install.log`, driver copy | `/home/ubuntu/closure-data/tbnn_gpu/node_root/` |
 | run window | `/home/ubuntu/closure-data/tbnn_gpu/run_window.json` (start 2026-08-23T21:21:29Z, live clock read) |
+
+## CORRECTION — 2026-08-24T17:25:01Z — two lesson citations (pass 8 §40)
+
+Two forward citations in §4 name lessons that belong to another team. Struck,
+not rewritten (rule 6 form; this is a grading record, not a frozen
+pre-registration, but the lab's convention is struck-not-rewritten and the lines
+above are cited elsewhere by number).
+
+- **Line 164** (disclosure **D-1**, the optimiser design defect). The citation
+  ~~**(L-264)**~~ is struck and reads **(L-267)**.
+  L-267 is *"A learning rate is not an optimiser — reproducing a paper's rate
+  under a different update count is a different experiment, and a batch size
+  chosen for the cost estimate silently changed the optimiser"*, whose own
+  **Where it fired** names `Ling2016_TBNN/gpu/RESULTS.md` D-1, §3.
+  L-264 is dafoam's W4 O2 re-buy lesson on a kernel-enforced memory cap.
+
+- **Line 174** (disclosure **D-2**, the idle waste). The citation
+  ~~**(L-265)**~~ is struck and reads **(L-268)**.
+  L-268 is *"A detached job survives the fleet; the bill survives with it — the
+  completion-to-stop path for a paid node must not depend on a live agent"*,
+  whose own **Where it fired** names `Ling2016_TBNN/gpu/RESULTS.md` D-2, §5 and
+  ledger row C-16. L-265 is dafoam's W4 O2 re-buy lesson on a spend prediction
+  tested only by a run that stops for the predicted reason.
+
+**Cause.** The draft's ids were written **ahead of** the `LESSONS.md` append and
+reached **below** the tail, not past it: at the parent of `353925c7`
+(`1a634bb2`) the maximum existing lesson id was **L-266**, so L-264 and L-265
+were already occupied by dafoam when this record was drafted. `353925c7` itself
+re-derived the tail correctly and created **L-267** and **L-268** — rule 11 was
+applied in the file that *defines* an id and not in the file that *names* it.
+The mechanism, as pass 8 puts it: a commit that assigns a new id must re-derive
+it in every file that names it.
+
+**Scope.** Confined to these two forward references. Every back-reference was
+already correct and is unchanged — the `LESSONS.md` L-267/L-268 blocks,
+`docs/DOCKET.md` D490, calibration ledger row C-16, and `docs/LAB_STATE.md`
+(verified by pass 8, `docs/CROSS_TEAM_GATE_AUDIT.md` lines 1386–1391).
+
+**No verdict moves.** No gate, threshold, cap, budget, label or measured number
+in this record is touched by this correction. Pass 8's own row records the same:
+*"Confined to the grading record; every back-reference is correct; no verdict
+moves."*
+
+**Source.** `docs/CROSS_TEAM_GATE_AUDIT.md` §40, lines **1370–1405** (pass 8,
+verification LANE, CANDIDATE); summary row at line **1641**.
+
+**lines whose number changed above this section: 0** — verified in the same
+shell invocation as the commit by hashing the pre-correction body (the file's
+first 249 lines) with `git hash-object` and comparing it to the HEAD blob of
+this file, `4c8afddea6cc83c23e3cd28afbc27d19706af358`. Result stated in the
+commit message.
