@@ -113,3 +113,33 @@ justified it. Nothing is recorded here that was not read from disk.)*
 - 2026-08-24T17:18Z — `ansys-lane-opus`: ruling recorded; `.gitignore` guards of
   clause (e) landed; charter amendment 1.1 and the `docs/LOCATIONS.md` sub-note
   landed in the same commit. **Zero compute; no archive touched by this commit.**
+- 2026-08-24T17:43Z — `ansys-lane-opus48` (running as **claude-opus-4-8**): **D-6
+  EXECUTED — clauses (a), (b) recorded done; (c) retirement ORDERED.** Readings and
+  facts relayed from the haiku lane's move report (~17:20Z) and re-checked read-only
+  by this lane. **Zero compute; no archive touched by this commit.**
+  - **(a)/(b) canonical home:** the set now lives at
+    `/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/{VM2026R1_FLUENT_ARCHIVES,VM2026R1_CFX_ARCHIVES,VM2026R1_FORTE_ARCHIVES}/`
+    — the `VM2026R1_Fluids/` level is **retained**, and the manifest's relative paths
+    (`./VM2026R1_Fluids/…`) carry it, so `sha256sum -c` must be run from
+    `/home/ubuntu/ansys-vm2026r1/`. The haiku lane reports that check **passed
+    123 OK / 0 FAILED** (its measurement, not re-run here). Byte total
+    **2,650,121,385 before and after** the move. Counts: **FLUENT 77 / CFX 37 /
+    FORTE 9 = 123.** The repository-root `VM2026R1_Fluids/` was **removed** (empty
+    `rmdir`). No mode-700 files anywhere inside the set.
+  - **This lane's own read-only re-check:** `find … -type f | wc -l` at the canonical
+    home returns **123**. sha256 over 2.5 GB was **not** re-run here — the 123 OK / 0
+    FAILED figure is the haiku lane's.
+  - **(c) partial copy** `docs/papers/verification_validation/VM2026R1_Fluids/`
+    (10 CFX files): confirmed a dead transfer — **9 basenames sha-identical** to the
+    canonical copies, and `VMFL011B.wbpz` truncated at **327,680 of 670,152 bytes**.
+    Its retirement under clause (c) is **ordered 2026-08-24, executed by a second
+    haiku lane** running in parallel — see the next dated line (the confirming
+    execution line is left to the supervisor). Nothing unique is lost.
+  - **(d) Forte, correction of record:** the board's "stored twice" is **wrong**. The
+    "extraction" `VMFRT_v261/` is a **4 KB stub** sitting beside the **459 MB**
+    `VMFRT_v261.zip`; the **zip is the only full Forte copy**. Clause (d) still defers
+    Forte dedup, but there is no full duplicate to dedup — only a zip and a stub.
+  - **Manifest landed:** `docs/ansys_verification/VM2026R1_SHA256_MANIFEST.txt`,
+    **123 lines**, committed as-is in this commit.
+  - **Absent-archive notes for the register:** **VMFL068** has **no archive anywhere**
+    in the set; all ten **VMFLGPU** archives are absent (recorded in `CASE_MAP.md`).
