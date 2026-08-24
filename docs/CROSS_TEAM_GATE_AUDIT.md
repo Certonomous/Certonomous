@@ -3185,3 +3185,247 @@ own read governs).**
 **F4 S0a ruling, sent to the chief in advance of the grade (recommendation; binding is Sanaa's):** the event-1/event-2 choice is a row definition on the grading path (§2d), made post-compute with numbers visible and material (8.98 % in band vs 2.52 % out); §2d.1 condition (2) fails because the selection was made on the hypothesis's own mechanism, not by an instrument that grades nothing. Default: S0a NOT A RESULT with both values printed beside it, the mechanism argument recorded as a finding and registered for any re-run. Upgrade to PASS with a §2d disclosure label only if the frozen §8.3 text, read blind, cannot be read to select event 2.
 
 **Cost of these reads:** < 0.1 core-min, zero solver.
+
+---
+
+## Audit pass 11 — 2026-08-24, verification LANE (CANDIDATE, not the supervisor's own read)
+
+**Target:** cfd's **F4 SWBLI SIGFPE step-0/1 clamp-discrimination experiment**,
+graded at `5b5f5183` (2026-08-24T17:44:48Z, *"Step 0 BASELINE-RECOVERED, Step 1
+DEFICIT-NOT-IMPLICATED"*), record
+`verification/campaign/F4_SIGFPE_STEP01_RESULTS.md`.
+
+**The referred question, from §82 of this file.** The supervisor's F4 ruling sent
+to the chief made the upgrade turn on one limb: *"Upgrade to PASS with a §2d
+disclosure label only if the frozen §8.3 text, read blind, cannot be read to
+select event 2."* This pass runs that limb **blind** — the frozen material was
+read and the reading was written down and sealed **before** §14 or `d457f612` or
+any grading number was opened — and then runs the ordinary §2d / rule-3 / rule-4
+checks over the graded rung.
+
+**Method note on the blind limb, because it is the whole evidentiary content of
+§83.** The order of reads was: (1) `git show 0bbac521:…PREREGISTRATION.md` (1026
+lines, §0–§12) and `git show 0bbac521:…fixtures/bound_log_fixture.txt` (75
+lines); (2) `git show 290fcff2:…` §13; (3) the reading written out in full; (4)
+only then the reader blobs, then §14. The frozen blob **ends at §12/line 1026**,
+so no read of it could leak §14.
+
+---
+
+### 83. The blind reading of the frozen text — does it name the event?
+
+**(a) No sentence of the frozen document names which of the two `boundE.H`
+events a §8 fraction is read from** — not by line number, not by ordinal, not by
+"after the convective solve". The only selector clause is the §8 preamble,
+lines **701–703**:
+
+> "All fractions are `nLow / 29700`, read from the `BOUND:`/`BOUNDDIAG:` lines,
+> at the `Time = ` block whose time is nearest `1.9e-05` from below (call it
+> `t*`) and at the window end (`6.5e-05`, or `3.9e-05` under §7.2)."
+
+That names the **line tags** and the **`Time =` block**. Within the block it is
+silent. §8.1 (lines 709–712) adds only "at `t*`" / "at the window end"; §8.3
+(line 740) selects a **timestep** — *"at the **first** timestep where `nLow >
+0`"* — again a block, not an event within it. §13.2 rewrote §8.3's reference
+state and left that wording untouched.
+
+**(b) The frozen text knows there are two include sites, three times — and never
+once joins that to the log it will parse.** Lines **140** (§1.5), **289**
+(§4.1 item 2: *"including both `#include "boundE.H"` sites at `:267` and
+`:282`"*) and **359** (§4.2 clause 5). §4.1 item 3 puts the instrument **inside**
+`boundE.H`, so both sites print. The document therefore held both premises and
+drew the conclusion nowhere. Token search over the frozen blob: `twice` **0**
+hits, `re-clamp`/`reclamp` **0**, `thermo.correct` **1** (line 317 only), and no
+`call site`, `per timestep`, `ordinal`, `occurrence` or `two lines` anywhere.
+
+**(c) Two frozen elements point at event 1 without §8 saying so, and one of them
+is an executable control §14 never cites.**
+
+1. **The C1 fixture, committed in the freeze commit itself**
+   (`verification/runs/F4_runs/swbli_cylflare/fixtures/bound_log_fixture.txt`,
+   md5 `60f6d5802793f7bd2cbfa5fde3dafbcb`, unchanged since). It models the log
+   as **one** clamp block per timestep — header line 15, *"3 clamp events at
+   `t = 1e-08, 2e-08, 3e-08`"* — and it **places that block at event 1's
+   position**: in each of the three `Time =` blocks the
+   `BOUND:`/`BOUNDDIAG:`/`BOUNDHIST:` triple sits **after** `diagonal: Solving
+   for rhoE` and **before** `smoothSolver: Solving for e` (fixture lines 43–46,
+   56–59, 69–72). Event 2 (`:282`) prints *after* the viscous `e` solve; no such
+   lines exist in the fixture. Header lines 23–26 assert *"The line shapes below
+   are exactly those emitted by …`boundE.H` (prereg §4.2) … A reader that parses
+   this fixture parses a real log."* §6 makes C1 **refusal-gated (exit 2)**, so
+   this is a control, not decoration — and §2d.1's condition (2) names exactly
+   *"a near-identity, a guard or a control"* as the independent kind.
+2. **§4.2's frozen instrument comment, lines 315–319**: *"`rho` and `U` are
+   CURRENT at this point … both before `:265`. `T` is NOT current:
+   `thermo.correct()` has not yet run for this step, so `T` lags by one
+   correction. Reported as `T_prev` and never as the clamped cell's
+   temperature."* That sentence is **true at `:267` and false at `:282`**; at
+   `:282` the frozen field name `TprevLow` is a misnomer.
+
+**(d) This lane's blind reading, stated before §14 was opened, and unchanged
+after.** *On §8's prose alone the ordinal is FREE* — a careful reader who knows
+there are two sets can read S0a's population as event 2 and no sentence forbids
+it. *On the freeze commit taken whole — prose plus the C1 fixture plus the
+instrument spec — the material is not neutral between the two*: it was drafted,
+and its refusal-gated control was built, against an event-1 log shape. The
+sealed reading also recorded the caveat that limb (c)1 is **an inference from
+artifact shape, not a quoted sentence**, and that the fixture's one-block model
+is itself the presumption §14.1 concedes was wrong.
+
+**Corroborating that the drafter had not joined the two premises:** §6's C4 plant
+inserts **one** line *"immediately after the `Time = ` line of the 5th timestep
+block"* and asserts `nLow_max` — a maximum over the file, which passes
+identically under either reading and cannot discriminate.
+
+---
+
+### 84. When the event selector entered the grading path — code archaeology
+
+| reader blob | commit | time (UTC) | grading bodies | `EVENT_` | `ordinal` | `select_event` |
+|---|---|---|---|---|---|---|
+| 480 lines | `0bbac521` | 2026-08-23T21:13:11Z | `raise NotImplementedError("frozen skeleton -- body written when a run exists to grade")` | **0** | **0** | **0** |
+| 564 lines | `290fcff2` | 2026-08-24T16:20:43Z | same `NotImplementedError` | **0** | **0** | **0** |
+| 1501 lines | `4bf8138d` | 2026-08-24T17:32:25Z | implemented | 16 | 16 | 17 |
+
+**Neither pre-compute version contains any notion of an event ordinal within a
+`Time =` block.** The selector — `EVENT_GRADED = 1` and
+`select_event(block, k)` = *"the `k`-th BOUND-family set within a `Time =`
+block, log order"* — **first exists at `4bf8138d`**: **49 min 22 s** after both
+runs completed (`7cdb26f4`, 16:43:03Z) and **11 min 54 s** after the §14 ruling
+(`d457f612`, 17:20:31Z). This is the archaeology the referred question turns on,
+and it is unambiguous.
+
+---
+
+### 85. What §14 itself claims — it **concedes**, it does not assert that the frozen text decides
+
+Read only after §83 was written. §14.1 of `d457f612`:
+
+> "§8 says all fractions are *'read from the `BOUND:`/`BOUNDDIAG:` lines, at the
+> `Time = ` block whose time is nearest `1.9e-05` from below'*. It presumes
+> **one** clamp report per `Time = ` block. There are **two** …"
+
+and, four lines later:
+
+> "**What §8 never says is which of the two sets it reads.** That gap is what
+> this addendum closes."
+
+§14.0 calls it *"fix the reading of a clause that is **ambiguous as frozen**"*.
+**So the addendum and this lane's blind reading agree on limb (a): the frozen
+prose does not name the event.** §14.2's two grounds are (1) §8.3's
+`e = rhoE/rho − ½|U|²` cancellation and (2) §4.2's instrument comment. Ground (1)
+**is the hypothesis's own scoring construction** — the supervisor's §82 objection
+against §2d.1(2) is correct as to that ground. Ground (2) is §83(c)2 and is not
+the scoring rule. **§14 never cites the C1 fixture (§83(c)1)**, which is the one
+piece of frozen, pre-compute, refusal-gated, non-scoring evidence in the file.
+That limb is put to the supervisor **as new to the referred question**, not
+ruled on here: this lane does not rule, and §2d.1(2) is not a lane's call.
+
+---
+
+### 86. The ordinary checks — §2d freeze test, rule 3, rule 4 — all re-derived by this lane
+
+| check | finding |
+|---|---|
+| **§2d freeze test** (comparator commit time vs earliest completion marker in its own run tree) | **UNFROZEN on the freeze limb, by construction and disclosed.** Earliest completion marker: `step0_instrumented/3.9e-05/` at **16:36:50.199Z**; the grading bodies first commit at **17:32:25Z** (`4bf8138d`) — **+55 min 35 s**. Mitigation on the record and verified here: the pre-compute blobs carry the bodies as an explicit **frozen skeleton** (`NotImplementedError`, "body written when a run exists to grade"), so the *deferral* was declared at the freeze; every band, threshold and label was fixed at `0bbac521`. **The exposure is exactly what §84 measured**: a deferred body is where a post-compute row definition enters, and one did. |
+| **"Verify the frozen file is the file that ran"** (§2d, second limb) | **HOLDS, hashed by this auditor.** `analyse_f4_sigfpe_step01.py` on disk = `46f5c5af69cfa3ef29030969a06de0e88c6d48a6` = the `4bf8138d` blob = the HEAD blob; `GRADING_OUTPUT.txt:6` claims that blob and matches. Prereg blob that ran = `1673f24f4b7c6eaebde6d506af8203d6626ac17e` (the `290fcff2` state), quoted in `GRADING_OUTPUT.txt:4` and in `LAUNCH.txt`. |
+| **Rule 3, planted control** | **FIRED, and the reader saw the plant in each step's own file.** `C4 ok: plant seen … at line index 13593 (t=8.92902853e-09): nLow=424242 e=-299999.125 cell=12345 bin0=424242` for **both** steps (`GRADING_OUTPUT.txt:20,22`); real logs unmodified, scratch copy at `c4_plant_grading/log.planted.log`. C1 read 3 events (7/55/411) off the fixture; C3 returned **0** on the stock crash log and the record states the zero is admissible *only* because C1 returned 3. C0 carries its own plant (*"a perturbed `BOUND:` line in block 0 was seen (1 disagreement(s) vs 0 unperturbed)"*) and returned **INERT** over 200 blocks. **Known collision, disclosed by the auditee at §3.4(f):** both steps' scratch copies share the filename `log.planted.log`; each plant is asserted immediately after writing, so the control stands for both. |
+| **Rule 4, completion, re-derived from the raw logs by this lane** | **BOTH STEPS COMPLETE, every clause.** `rc = 0` both (`RC.txt`); exactly **1** `End` line each; last `Time = 6.5e-05` == `endTime`; **2062** `Time =` blocks and **2062** `ExecutionTime` lines in each; all seven fields present under `6.5e-05/`. **Age guard:** each step's own `0/T` at **16:33:54.181Z**, every one of the seven fields at **16:38:49.90–16:38:50.20Z** — newer by ~4 min 56 s. *Minor, disclosed:* both steps' `0/T` carry the **same** mtime to the nanosecond, so `0/T` dates a shared copy rather than a per-step touch; the guard's inequality still holds with five minutes of margin. |
+| **C2 (discrimination test)** | **SOUND, and stronger than its frozen text.** §6 asks for an md5 with *"`ExecutionTime` and wall-clock lines stripped"*; the reader also strips `Date/Time/Host/PID/Exec/Case`, which is what stops the two differently-named binaries from guaranteeing a difference through the banner. Verified: normalised md5s differ (`a90510f7…` vs `2a7c3f20…`), and the difference is **substantive** — the first differing `BOUND:` line is the very first clamp block (worst `e` `−241410.631` vs `−241395.836`, worst cell 12960 vs 29399). The §6 "quote the first differing `Time =` block" requirement **is** met, at `GRADING_OUTPUT.txt:75` and record §3.4(d) (block 0, the first `Ux` solve); C2's own line reads *"first differing time token: `None`"* because the two runs take identical timestep sequences — checked, not a null passed off as a pass. |
+| **§14.3 consequence 2, re-measured** | **HOLDS.** 4124 BOUND-family sets per log = 2 × 2062; **0** blocks carry other than two sets, in either step. `BOUND: e above eMax`: **0** occurrences in both — so that clause is exercised synthetically only, as the auditee's §3.4(e) says. |
+
+---
+
+### 87. Every S-row against its frozen band, with S0a printed under both readings
+
+All values below were re-derived by this lane directly from
+`step0_instrumented/log.rhoCentralFoamBoundedDiag` and
+`step1_inletupwind/log.rhoCentralFoamInletUpwindDiag`, without importing the
+comparator, and **every one reproduces `GRADING_OUTPUT.txt` and §14.4 to the
+digit**. `t*` is the block at `t = 1.8993308e-05` — **block 663 of 2062**
+counting from 1 (the reader prints `662`, counting from 0).
+
+| clause | frozen band (`0bbac521`) | **event 1 (`:267`) — graded** | event 2 (`:282`) — ungraded | agrees with record? |
+|---|---|---|---|---|
+| **S0a** Step 0 at `t*` | inside **[6 %, 24 %]** (§8.1, line 709) | **2668/29700 = 8.9832 %** → **True** | 749/29700 = **2.5219 %** → **False** | yes |
+| **S0b** Step 0 window end ≥ `t*` | §8.1 line 711 | 6856 = **23.0842 %** → **True** | 2019 = **6.7980 %** → **True** | yes |
+| **§8.1 label** | — | **BASELINE-RECOVERED** | **BASELINE-NOT-RECOVERED** | yes |
+| **§8.2** | ≥ 80 % in (19.5, 20) K; ≥ 20 % at ≤ 10 K | THRESHOLD-ARTIFACT (99.1103 % / 0.0000 %) | THRESHOLD-ARTIFACT (100.0000 % / 0.0000 %) | yes (label insensitive) |
+| **§8.3** | 10 % on ρ, 5 % on \|U\|, §13.2 reference | **INDETERMINATE** (worst cell 12960, inlet face 108) | **E-FIRST** (worst cell 0, inlet face 0) | yes — **and see §88** |
+| **S1a** | Step 1 `t*` < 0.60 × Step 0 `t*` | 2668 vs 2668, ratio **1.0000** → False | 775 vs 749, ratio **1.0347** → False | yes |
+| **S1b** | Step 1 growth < 1.5×; Step 0 growth ≥ 1.5× | Step 0 **2.5697×**, Step 1 **2.5671×** → False | Step 0 2.6956×, Step 1 2.4684× → False | yes |
+| **§8.4 label** | — | **DEFICIT-NOT-IMPLICATED** | **DEFICIT-NOT-IMPLICATED** | yes (insensitive) |
+
+**S0a is the only clause whose truth value moves**, and it moves the outcome map:
+event 1 → §9.1 **row 2** (mechanism #7 eliminated, inlet-face variant only);
+event 2 → §9.1 **row 4**, under which the discrimination question is
+**`NOT A RESULT`** whatever Step 1 shows and only §8.2 and §8.3 survive.
+
+---
+
+### 88. **DEFECT found by this pass:** "material in exactly one place" is false, and it is false in the branch that matters
+
+`d457f612` §14.4 states, in bold: *"**The choice is material, and it is material
+in exactly one place.**"* — then discusses §8.1 and §8.4 only. The results record
+repeats it at `F4_SIGFPE_STEP01_RESULTS.md:239`: *"**§8.4 and §8.2 are
+insensitive to the choice**; only §8.1 turns on it."*
+
+**Both statements are contradicted by the record's own table three lines above,
+at `:231`, and by `GRADING_OUTPUT.txt:58` vs `:66`: the §8.3 label also flips —
+`INDETERMINATE` under event 1, `E-FIRST` under event 2.**
+
+**Why this is not cosmetic.** §9.1's fourth row — the row the event-2 reading
+lands on — says that when Step 0 is `BASELINE-NOT-RECOVERED`, *"what survives is
+Step 0's own reads (§8.2, §8.3)"*. **§8.3 is therefore precisely the read that
+would carry the whole surviving content of the experiment under the alternative
+reading, and it does not say the same thing under the two readings**: event 2
+returns `E-FIRST` — an affirmative attribution to the energy, which is the parent
+record §8.7 claim this experiment exists to probe — where event 1 returns
+`INDETERMINATE`, which attributes nothing.
+
+**Mitigating, and stated because it bears on intent:** when §14.4 was written
+(17:19:23Z) the grading bodies did not exist (17:32:25Z), so the §8.3 labels had
+not been computed; the raw counts were visible, the label flip was not. This
+reads as an **overstatement made ahead of the computation**, not a concealment —
+and the record's own §3.2 table and §3.4(a) disclose the flip in full. **What is
+owed is a dated correction of the sentence, in both files, by the cfd team**
+(rule 6 — originals struck, never rewritten).
+
+---
+
+### 89. This pass's finding, and what it is owed
+
+**AUDIT FINDING: SOUND WITH DISCLOSED DEVIATIONS ON EVERY LIMB EXCEPT THE EVENT
+SELECTION, WHICH REMAINS THE SUPERVISOR'S RULING; ONE DEFECT (§88).**
+
+What this lane established, and what it did not:
+
+1. **Established.** The frozen prose does not name the event (§83a); the
+   addendum concedes it in terms (§85); the selector first existed **49 minutes
+   after the runs finished** (§84); every completion clause, both planted-zero
+   families and the discrimination control hold, re-derived independently
+   (§86); every graded number reproduces to the digit (§87).
+2. **Established, and new to the referred question.** The freeze commit contains
+   a **refusal-gated control** — the C1 fixture — whose log shape is event 1's,
+   fixed **19.5 hours before first compute** and therefore incapable of having
+   been chosen to move a verdict (§83c1). §14 does not cite it. Whether it
+   clears §2d.1 condition (2) is **the supervisor's ruling and is not taken
+   here**; §82's default (S0a **`NOT A RESULT`** with both values printed)
+   stands until it is taken.
+3. **Not established, said plainly.** This lane did **not** re-run the solver,
+   did not re-verify C0's twin runs beyond reading `C0_RESULT.txt`, did not
+   re-derive the §8.2 histogram percentages or the §13.2 inlet-face map from
+   `polyMesh/owner`, and did not read the two `*_src/` trees line by line. The
+   §83(c)1 limb rests on the placement of three blocks in a 75-line hand-written
+   fixture; a reader who holds that placement to be incidental rather than
+   intended reaches the opposite conclusion, and that reading is available on
+   the same evidence.
+
+**Owed to cfd** (via the chief; nothing is filed by this lane): the §88
+correction, dated, in both `F4_SIGFPE_STEP01_PREREGISTRATION.md` §14.4 and
+`F4_SIGFPE_STEP01_RESULTS.md` §3.2. **Owed to this team:** the supervisor's own
+read of §83 and §85 before pass 11 moves off CANDIDATE — a relayed blind reading
+is a summary, not a check (`SUPERVISION_CHARTER.md` §3).
+
+**Cost of this pass:** zero solver. Lane wall and executed compute are in
+`docs/COST_CALIBRATION.md` **C-41**, against both registered components.
