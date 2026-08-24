@@ -388,7 +388,7 @@ Older rows (A6 close `6c6de745`, A3 rung-2 `27ce5799`/`92185911`, ADF candidate 
 **Images:** `dafoam-idwarp-rot:v1` (only image carrying the rotation patch, md5 `85f59e87…`), `dafoam-subpclu:v2` (PCLU), `dafoam-kspopts:v1`, `dafoam-team:v1` (`0b3c94c33a15`, both patches, ends `USER dafoamuser` → `--user root` for bind mounts). *The hash is the identity; the version string is not.* F6 series under `cases/dafoam/` is plain `simpleFoam`, not DAFoam work.
 ## heat-transfer
 
-**Section last written:** 2026-08-24T16:04:07Z by heat-transfer-supervisor
+**Section last written:** 2026-08-24T16:16:26Z by heat-transfer-supervisor
 (re-formed 2026-08-23 after the 2026-08-22 session limit).
 
 **EXPERTISE CURRICULUM RATIFIED (2026-08-23, Sanaa via chief, verbatim in
@@ -415,7 +415,7 @@ NEEDS COSTING and return to Sanaa costed before launch**; rule-15 title
 verification before any source is adopted; VM2026R1 notes still PENDING
 D-6. Her "per usual" clause (formal .md updates per item; lab-wide
 propagation of general knowledge through the chief) recorded as binding.
-**First item E4 stage (a) — PRE-REGISTRATION FROZEN BY COMMIT 2026-08-24T15:58:52Z (this commit), BEFORE any case exists:** `docs/campaigns/T-family/E4a_PREREGISTRATION.md` + `E4_runs/{E4a_registered.json, build_e4a.py, analyse_e4a.py (a9f31c3f…), mark_done_e4a.py, run_one_e4a.sh, launch_e4a.sh, FREEZE_CHECK.txt}`; run tree verified to hold zero case/time directories and zero markers at the commit; selftest 38/38. Nine registered rows (I1 BC-equation identity tol 8.1e-8 m²/s², I2 mass identity, P1 precondition, R1 Roache triple r=1.5 predicted p 2.00 [1.6,2.4], G1/G2/N1 graded Q* rows with analytic intervals, D1 reported Richardson, Z1 planted zero); registered cost **2 285 core-s = 38.1 core-min ≈ $0.033 derived**, 10× stop threshold 6.35 core-h; actuals column empty until completion. Build + serial launch authorized to a lane AFTER this commit; verdicts reported as they land.
+**E4 stage (a) — GRADED 2026-08-24T16:16:26Z: rung verdict NOT A RESULT (D493, ledger C-21, lessons L-270/L-271).** Frozen `628e29c4` before any case; 5/5 built, run serially, strict rule 5/5; frozen comparator exit 1 (graded), planted-zero held. **I1 PASS** (BC equation residual 3.794e-11 m²/s² vs 8.1e-8), **I2 PASS** (7.1e-10), **P1 PASS**, **Z1 PASS**; **R1/G1/G2/N1/D1 NOT A RESULT** — the registered bit-identity convergence gate cannot be met by iterates creeping ~6e-11 relative at writePrecision 12 (residuals 1e-10…1e-14); no order/GCI quoted; the §1.5-agreement diagnostic is held unconverted. Cost registered $0.033 → actual $0.0024 derived, **0.0748×**, misprediction: cross-solver-class basis (13.6×), no waste. **Successor E4a2 in design** (lane; same physics/rows/intervals, ONE re-registered thing — a bounded convergence gate with a derived floor, plateau reading, longer endTime, measurable first-crossing); freeze committed before any case, costed on E4a's measured basis. Stage (b) still on Sanaa's desk. Lab-wide propagation proposed via chief: solver class of every cost basis stated (L-271).
 
 ### T-family (thermal) — refreshed 2026-08-23 by the T-family supervisor
 

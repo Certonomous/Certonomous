@@ -9951,3 +9951,50 @@ referred to verification as D492. A lane facing two readings of one frozen
 clause may not take the softer one; the supervisor ruled the registered reading
 governs (D492). Drafted by the close-out lane 2026-08-24T16:09:33Z; landed by
 the closure supervisor 2026-08-24T16:15:11Z with the id re-derived at commit.
+
+## L-270. A bit-identity checkpoint gate has no floor, so a solver that creeps at the write-precision digit can never satisfy it — register a bounded relative-change floor, a plateau reading, and enough retained checkpoints to measure the first crossing.
+
+**Where it fired.** E4a (docket D493), the curriculum's first rung. The
+pre-registration defined iterative convergence as p, U and φ value-for-value
+identical between the last two written checkpoints at `writePrecision 12`.
+All five cases finished rc=0 with residuals 1e-10…1e-14 — and every physics
+row was NOT A RESULT, because the iterates still moved by ~6e-11 relative
+(tens of units in the twelfth digit) over 5 000 iterations. The gate was
+honoured as registered; that is what the record shows and what a closed
+gate must show. The defect was in the criterion's shape, not the solver.
+
+**The rule to carry.** A convergence gate must state a floor it can be
+satisfied at: a registered maximum relative change between the last two
+checkpoints, derived from (a) the write precision and (b) the largest change
+that leaves every graded interval untouched — and it must be paired with a
+plateau reading over at least three checkpoints (change flat or falling, not
+growing: L-243's damping-vs-convergence trap) and a `purgeWrite` large
+enough that the first crossing of the floor is measurable rather than
+inferred (T3 ext1's over-shoot was unmeasurable by construction at
+`purgeWrite 2`). "Identical" is a floor of zero, and zero is not a floor
+a floating-point iteration can be asked to reach.
+
+**Kin.** L-243 (change-based criteria), T1c §3 (endTime, not residuals),
+T3 ext1 §2 (a flat residual is a floor, not slow decay).
+
+## L-271. A per-cell-iteration cost basis is not portable across solver classes — E4a's estimate from a `buoyantBoussinesqSimpleFoam` basis over-predicted laminar 2D `simpleFoam` by 13.6×; measure the basis on the solver class being costed, or label the estimate cross-class.
+
+**Where it fired.** E4a's pre-registration (§4) took 7.5e-6 s per
+cell-iteration from T1c's measured `STATUS.L_Ts_P_*` replicates — coupled
+energy + `alphat`/k/ω, on a contended box — and predicted 2 285 core-s.
+The rung ran in 171 core-s: measured 5.50e-7 s per cell-iteration on the
+momentum-only, laminar, 2D solver. Ratio 0.0748×, ledger C-21. Not waste,
+not contention (three peer solvers were live and pushed the other way):
+pure misprediction from a basis measured on a different solver class.
+
+**The rule to carry.** A cost basis is a property of (solver class, physics,
+dimensionality, contention), not of "OpenFOAM". Before registering a cost,
+either cite a basis measured on the same solver class and physics, or state
+the basis is cross-class and register the factor as unknown — a
+conservative miss of 13× is harmless to the budget and useless to the
+calibration ledger, which exists to make the next estimate better. The
+calibration law (rule 12) turns this into a per-completion check; this
+lesson names the first attribution it produced. **Proposed lab-wide** via
+the chief: a line in `docs/COST_CALIBRATION.md`'s rules or the
+`COMPUTE_BUDGET_CHARTER` requiring the solver class of the basis to be
+stated in every pre-registration cost table.
