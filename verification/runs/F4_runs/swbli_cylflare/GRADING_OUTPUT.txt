@@ -1,0 +1,87 @@
+GRADING_OUTPUT.txt -- F4 SWBLI Step 0 / Step 1 clamp-discrimination experiment
+Produced 2026-08-24T17:43:41Z (box clock, date -u, read in the same shell invocation as this write)
+HEAD at write time: 768b74bc713ffd67f92498f4ec079cfd4760e00c
+Prereg blob that RAN: 1673f24f4b7c6eaebde6d506af8203d6626ac17e (commit 7cdb26f4)
+Prereg now (v1.2, section 14 appended): c69524607abafa9e04bb12d1215b0b2a083ec639
+Reader blob: 46f5c5af69cfa3ef29030969a06de0e88c6d48a6 (commit 4bf8138d; hashed against that blob before the run and matched)
+Command: analyse_f4_sigfpe_step01.py --grade step0_instrumented step1_inletupwind <run-tree>/c4_plant_grading
+Grader exit code: 0
+Zero solver compute: this is a read of logs already on disk.
+Section 8 labels here are MEASUREMENT OUTCOME LABELS, not rule-1 gate verdicts (prereg section 0).
+------------------------------------------------------------------------
+=== POSITIVE CONTROLS (standing rule 3) ===
+C1 fixture: /home/ubuntu/Certonomous/verification/runs/F4_runs/swbli_cylflare/fixtures/bound_log_fixture.txt
+C1 fixture md5: 60f6d5802793f7bd2cbfa5fde3dafbcb
+C1 ok t=1e-08: nLow=7 worst_e=-199600.5 cell=0 Timp=19.8844 bins_sum=7 lowest_bin=9
+C1 ok t=2e-08: nLow=55 worst_e=-201234.75 cell=3960 Timp=17.6061 bins_sum=55 lowest_bin=6
+C1 ok t=3e-08: nLow=411 worst_e=-211681.775 cell=13080 Timp=3.0417 bins_sum=411 lowest_bin=3
+C3 ok: f4_swbli_warmup20_20260730T004453Z.log md5 b658b967377d574d8aacf00e3569cf9c -> 0 clamp events
+C3 zero is admissible ONLY because C1 returned 3 on a file that has 3 (standing rule 3).
+C4 ok: plant seen in log.rhoCentralFoamBoundedDiag own log at line index 13593 (t=8.92902853e-09): nLow=424242 e=-299999.125 cell=12345 bin0=424242
+C4 scratch copy: /home/ubuntu/Certonomous/verification/runs/F4_runs/swbli_cylflare/c4_plant_grading/log.planted.log (the real log was NOT modified)
+C4 ok: plant seen in log.rhoCentralFoamInletUpwindDiag own log at line index 13593 (t=8.92902853e-09): nLow=424242 e=-299999.125 cell=12345 bin0=424242
+C4 scratch copy: /home/ubuntu/Certonomous/verification/runs/F4_runs/swbli_cylflare/c4_plant_grading/log.planted.log (the real log was NOT modified)
+C0 (instrument inertness, prereg 6) is NOT performed by this reader: it is a 200-step twin-run comparison against the published rhoCentralFoamBounded and its output is recorded in <STEP>/POSITIVE_CONTROL.txt at run time. This reader asserts that file exists and is non-empty before grading Step 0.
+C0 artefact present: /home/ubuntu/Certonomous/verification/runs/F4_runs/swbli_cylflare/c0_twin_diag/C0_RESULT.txt (4761 bytes)
+C2 step0 normalised md5: a90510f7d854f8727a3b5663a9e89845
+C2 step1 normalised md5: 2a7c3f20dfe7e4c8949020c84bbe5c56
+C2 ok: logs differ; first differing time token: None
+
+=== COMPLETION (prereg 7) ===
+completion: step=step0_instrumented log=log.rhoCentralFoamBoundedDiag
+  rc: 0
+  End line: True
+  `Time = ` blocks: 2062   ExecutionTime lines: 2062
+  blocks NOT carrying exactly one ExecutionTime line: 0
+  last `Time = `: 6.5e-05   endTime (prereg 1.3): 6.5e-05
+  SIGFPE: False (signal: none); prereg 7.3 label: SIGFPE-ABSENT
+  fields at 6.5e-05/: exists=True missing=[] older-or-equal-to-0/T=[]
+  -> COMPLETE (every prereg 7.1 clause holds)
+completion: step=step1_inletupwind log=log.rhoCentralFoamInletUpwindDiag
+  rc: 0
+  End line: True
+  `Time = ` blocks: 2062   ExecutionTime lines: 2062
+  blocks NOT carrying exactly one ExecutionTime line: 0
+  last `Time = `: 6.5e-05   endTime (prereg 1.3): 6.5e-05
+  SIGFPE: False (signal: none); prereg 7.3 label: SIGFPE-ABSENT
+  fields at 6.5e-05/: exists=True missing=[] older-or-equal-to-0/T=[]
+  -> COMPLETE (every prereg 7.1 clause holds)
+Step 0: COMPLETE    Step 1: COMPLETE
+
+=== prereg 8, Step 0: step0_instrumented (window end 6.5e-05, t* block 662 t=1.8993308e-05) ===
+    Event selection: prereg 14.2/14.3 -- GRADED = event 1 (boundE.H at .C:267); event 2 (.C:282) is UNGRADED and printed beside.
+  event 1 [GRADED]:
+    t*  1.8993308e-05: nLow=2668/29700 = 8.9832 %   S0a band 6-24 % -> S0a=True
+    end 6.5e-05: nLow=6856/29700 = 23.0842 %   S0b (end >= t*) -> S0b=True
+    8.1 label: BASELINE-RECOVERED
+    8.2 label: THRESHOLD-ARTIFACT  (in (19.5,20) K: 99.1103 % vs 80 %; at T <= 10 K: 0.0000 % vs 20 %)
+    8.3 label: INDETERMINATE  first block with nLow>0: 0 (t=1.20003692e-09), worst cell 12960
+        reference (prereg 13.2): inlet-adjacent, inlet face index 108 (prereg 13.2 first bullet); rho_ref=0.006473 kg/m3 magU_ref=66.2508 m/s T_ref=309.3202 K
+        worst cell: rho=0.0246006313 magU=1273.95542  ->  rho dev +2.8007 (band 0.1), magU dev +18.2293 (band 0.05)
+  event 2 [UNGRADED (event 2, :282 re-clamp)]:
+    t*  1.8993308e-05: nLow=749/29700 = 2.5219 %   S0a band 6-24 % -> S0a=False
+    end 6.5e-05: nLow=2019/29700 = 6.7980 %   S0b (end >= t*) -> S0b=True
+    8.1 label: BASELINE-NOT-RECOVERED
+    8.2 label: THRESHOLD-ARTIFACT  (in (19.5,20) K: 100.0000 % vs 80 %; at T <= 10 K: 0.0000 % vs 20 %)
+    8.3 label: E-FIRST  first block with nLow>0: 0 (t=1.20003692e-09), worst cell 0
+        reference (prereg 13.2): inlet-adjacent, inlet face index 0 (prereg 13.2 first bullet); rho_ref=0.024656 kg/m3 magU_ref=1274.0000 m/s T_ref=81.2000 K
+        worst cell: rho=0.0246564032 magU=1274.0  ->  rho dev -0.0000 (band 0.1), magU dev +0.0000 (band 0.05)
+  ALTERNATIVE READING (prereg 14.5, NOT a verdict): under event 2 the labels would be 8.1=BASELINE-NOT-RECOVERED 8.2=THRESHOLD-ARTIFACT 8.3=E-FIRST.
+  MATERIAL: the two readings disagree on the 8.1 label. Per prereg 9.1 a BASELINE-NOT-RECOVERED Step 0 makes the discrimination question NOT A RESULT whatever Step 1 shows. The ruling that selects event 1 is prereg 14.2 and rests on mechanism; both columns are disclosed in 14.4.
+Step 0 section 8.1 label: BASELINE-RECOVERED
+
+=== prereg 8.4, Step 1 vs Step 0 (t* 1.8993308e-05, window end 6.5e-05) ===
+    Event selection: prereg 14.2/14.3 -- GRADED = event 1 (boundE.H at .C:267 / :269); event 2 UNGRADED and printed beside.
+    C2 record requirement (prereg 6): first differing `Time = ` block: {'block': 0, 'time0': '1.20003692e-09', 'time1': '1.20003692e-09', 'line0': 'smoothSolver:  Solving for Ux, Initial residual = 0.451295997, Final residual = 4.83125812e-07, No Iterations 2', 'line1': 'smoothSolver:  Solving for Ux, Initial residual = 0.437372952, Final residual = 4.68220903e-07, No Iterations 2', 'n_blocks0': 2062, 'n_blocks1': 2062}
+  event 1 [GRADED]:
+    t*  step0 nLow=2668 (8.9832 %)   step1 nLow=2668 (8.9832 %)   ratio 1.0000 vs S1a threshold 0.6 -> S1a=False
+    end step0 nLow=6856 (23.0842 %) growth 2.5697   step1 nLow=6849 (23.0606 %) growth 2.5671   flatten threshold 1.5 -> S1b=False
+    8.4 label: DEFICIT-NOT-IMPLICATED
+  event 2 [UNGRADED (event 2, :282 re-clamp)]:
+    t*  step0 nLow=749 (2.5219 %)   step1 nLow=775 (2.6094 %)   ratio 1.0347 vs S1a threshold 0.6 -> S1a=False
+    end step0 nLow=2019 (6.7980 %) growth 2.6956   step1 nLow=1913 (6.4411 %) growth 2.4684   flatten threshold 1.5 -> S1b=False
+    8.4 label: DEFICIT-NOT-IMPLICATED
+  ALTERNATIVE READING (prereg 14.5, NOT a verdict): under event 2 the 8.4 label would be DEFICIT-NOT-IMPLICATED.
+Step 1 section 8.4 label: DEFICIT-NOT-IMPLICATED
+
+NOTE: every label above is a prereg section 8 MEASUREMENT OUTCOME LABEL, deliberately outside the rule-1 verdict vocabulary (prereg section 0). No PASS, GATE REACHED or GATE FAIL is issued from this document.
