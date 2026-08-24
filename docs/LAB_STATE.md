@@ -96,7 +96,7 @@ rung may take it).
 **Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched
 ## closure
 
-**Section last written:** 2026-08-24T16:18:34Z by closure-supervisor (this chief session's
+**Section last written:** 2026-08-24T16:19:53Z by closure-supervisor (this chief session's
 re-spawn, 16:04Z; predecessor killed by an API error at ~16:00Z after one
 interim report), from `date -u` in the writing invocation. **Two closure
 supervisors are live in two chief sessions; the work split agreed 16:01Z is
@@ -224,6 +224,8 @@ Sanaa; R4, R5C closed). Standards recommendations (a) publish rank + smallest
 singular value, ratio only when `s[-1]` clears rtol, and (b) pin threads or gate
 on stored bytes — on Sanaa's desk, referred by verification.
 
+**Note, 2026-08-24T16:19:53Z (chief's corrections, verified at HEAD; the lines above stand as written and are corrected here, not rewritten):** (1) **The D491 condition is MET — the D476/FS5 adoption lift is EFFECTIVE for a build launch.** Verification's supervisor believed pass 6 as its own verdict at `f536b114` (every load-bearing limb re-derived with its own code; §7 adoption block RELEASED; A3 stays GATE FAIL; §30(a) stays a recommendation to Sanaa). Scope unchanged: companion audit-side diagnostic only, never in `F`, `singular_value_ratio_first_to_last` not quoted. (2) **Attribution corrected:** the lane that landed `41774899` was THIS session's — dispatched by the predecessor supervisor minutes before it was killed at ~16:00Z, it survived its parent and reported to the chief; it was NOT the parallel session's. The 'parallel session's lane' wording in the D476 block above, in D491's docket text and in hazard (3)'s example is wrong on that item; the general hazard (two closure supervisors, check HEAD before dispatch) stands. The same survival pattern explains `a56cc309`. A docket correction row naming D491 and D492's L-269 parenthetical is owed in closure's next docket row. (3) D492 referral limbs (a) and (b) are routed to verification by the chief; nothing further owed by closure on them until verification rules.
+
 **R5C (option C, omega-source repair) — CLOSED, VERDICT: GATE FAIL. D465, L-243,
 N-B35–N-B37, commit `0ac76ec2`.** Graded against the frozen pre-registration
 (sha256 `a1cfae5a…1277a`, committed alone at `f364cf2d`; re-hashed equal before
@@ -285,7 +287,7 @@ correctly, wrote nothing); read-only gpu1 lane (predecessor's) finished.
 **Commits this session (supervisor):** `53517fae` D491 (D476 adoption ruling
 docket row, D486 fallback disclosed); `961b0b3e` D492 + L-269 (Kaandorp records,
 same fallback); `6ff8e65c` board; `8dd3f8bc` Kaandorp correction addendum (+85/0,
-from the HEAD blob); this board write. Lane commits verified and adopted: `a56cc309`
+from the HEAD blob); `506dde36` board; this board write (dated note, f536b114 release). Lane commits verified and adopted: `a56cc309`
 (Kaandorp close-out — numbers re-read by me from `results.json`, addendum
 headings and +513/0 append verified) and `41774899` (parallel session's lane —
 both diffs read by me, PASS with the two §31.3 limitations named). NEXT ACTIONS:
@@ -304,8 +306,7 @@ R5C's GATE FAIL (`R5_DECISION_MEMO.md`); R6 phrasing (standing); Ling & Templeto
 2015 acquisition (PENDING-MIT); verification's standards recommendations (a)/(b)
 from the D476 audit. **Blocked:** R6 (Sanaa); Kaandorp `AR_3_Ret_360__ML0/1/2`
 (missing case in `features_nodurbin.npz`); Kaandorp Table 4 (no BFS5100 on
-disk); Xiao2016_EnKF (forward model); Lozano-Durán 2023 (data + charLES); the
-D476 lift's effectiveness (verification supervisor's own read).
+disk); Xiao2016_EnKF (forward model); Lozano-Durán 2023 (data + charLES); (the D476 lift's condition is MET at `f536b114` — no longer blocked).
 
 **⚠ Standing hazards:** (1) shared index stale by decay (D486) — `git status`
 shows phantom `D`/`MM` rows in closure territory (the Ling `gpu/` four, the two
