@@ -1,0 +1,41 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      p;
+}
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet
+    {
+        // fanPressureFvPatchScalarField, ESI v2606.  Entries read by the BC:
+        //   direction (.cxx:91), fanCurve via Function1 (.cxx:97-107),
+        //   nonDimensional (.cxx:92, default false, NOT used here),
+        //   p0/U/phi/rho/psi/gamma/value inherited from totalPressure.
+        type            fanPressure;
+        direction       in;
+        fanCurve        polynomial ( (0.081 0) (-1.2e+12 2) );
+        p0              uniform 0;
+        value           uniform 0;
+    }
+    outlet
+    {
+        type            fixedValue;
+        value           uniform 0;
+    }
+    walls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}

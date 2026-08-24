@@ -1,0 +1,30 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+
+application     simpleFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         60000;
+deltaT          1;
+
+// writeInterval STRICTLY < endTime (L-140).  purgeWrite 0 retains ALL
+// 30 checkpoints, so the FIRST CROSSING of the registered
+// convergence floor is measurable and the plateau reading has a series to
+// read -- the T3 ext1 lesson that purgeWrite 2 made over-shoot unmeasurable.
+writeControl    timeStep;
+writeInterval   2000;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;

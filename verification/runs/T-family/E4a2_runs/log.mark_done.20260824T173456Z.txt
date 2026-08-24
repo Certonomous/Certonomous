@@ -1,0 +1,1 @@
+5/5 cases meet the strict completion rule (frozen mark_done_e4a.check, endTime 60000): F_c F_f F_m N_f S_f

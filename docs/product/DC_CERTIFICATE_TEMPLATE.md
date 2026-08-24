@@ -65,12 +65,29 @@ so the product artifact grows with the validation instead of after it."*
 | **enclosure radiative exchange, box walls — floor** | radiant load onto the raised floor / under-rack surface of an enclosed volume | **T10a B0**, box floor `q` [W/m²] | **PASS** | 6483.263010 vs exact 6484.920941, dev **0.02557 %** | GCI **0.03326 %** | 6480.760 → 6482.287 → 6483.263, **CONVERGING**, `p` 0.954 | `docs/campaigns/T-family/T10a_RESULTS.md` |
 | **enclosure radiative exchange, box walls — x-walls** | radiant exchange with the aisle-facing side walls | **T10a B2**, box x-walls `q`, mean [W/m²] | **PASS** | −1260.793300 vs exact −1254.691645, dev **0.48631 %** | GCI **0.67756 %** | −1269.197 → −1264.164 → −1260.793, **CONVERGING**, `p` 0.853 | `docs/campaigns/T-family/T10a_RESULTS.md` |
 | **enclosure radiative exchange, box walls — y-walls** | radiant exchange with the end walls | **T10a B3**, box y-walls `q`, mean [W/m²] | **PASS** | −1971.177941 vs exact −1964.697075, dev **0.32987 %** | GCI **0.48472 %** | −1980.140 → −1974.801 → −1971.178, **CONVERGING**, `p` 0.825 | `docs/campaigns/T-family/T10a_RESULTS.md` |
+| **fan/air-mover boundary condition, volumetric operating point** | where an air mover actually sits on its curve once the duct fights back — the BC machinery every DC rack and room model imposes at its fans. **This backs the BOUNDARY CONDITION, not any fan** (see the note below) | **E4a2 G1**, `Q` at the fan patch [m³/s], curve A | **PASS** | 1.502157061e-07 vs exact 1.5e-07, dev **0.144 %** | GCI **0.393 %** (from E4a2 R1, `Fs` 1.25) | 1.520548685e-07 → 1.507882092e-07 → 1.502157061e-07, **CONVERGING**, `p` **1.959** | `docs/campaigns/T-family/E4a2_RESULTS.md` |
 
-**Ten lines, of which two are GATE REACHED and eight are PASS.** Every one comes
+**Eleven lines, of which two are GATE REACHED and nine are PASS.** Every one comes
 from an EXACT-tier rung — a closed-form reference that cannot be wrong. **No
 line on this certificate is yet backed by a published measurement**, and no line
 above is a data-centre quantity: they are the component physics the DC quantity
 classes in section 4 will be built from.
+
+**Note on the fan/air-mover line, added with it 2026-08-24 (rule 5 —
+a quantity class is backed by the rung that measured it).** E4a2 measured
+ESI v2606's `fanPressure` boundary condition against a **registered polynomial
+curve intersected with the exact plane-Poiseuille duct resistance** in a 2D
+laminar channel. It is EXACT-tier like every line above it, and what it backs is
+**the BC's ability to find its own operating point**. It backs **nothing about
+any real fan** — E4a2 §7 states that the rung holds no datasheet, no digitised
+curve and no measurement uncertainty, exercises only `direction in`, and says
+nothing about MRF or actuation-disk air movers, the `nonDimensional` path, or
+the reversed-flow clamp. **Stage (b), validation against a manufacturer curve,
+is on Sanaa's desk and is not started**; until it lands, no certificate may
+quote a named fan on the strength of this line. The line also carries two
+disclosures from its own rung: three of five convergence series classify
+LIMIT CYCLE while passing (pre-registered), and the gate's floor was first
+crossed at iteration 4 000 of a registered 60 000.
 
 ---
 

@@ -104,6 +104,24 @@ T-family prerequisites · rough cost · what its pre-registration would gate on
   tolerance; mass conservation identity across the fan face.
 - **Failure modes:** curve digitised from a plot (uncertainty unstated);
   static-vs-total pressure convention mismatch — a classic silent factor.
+- **State 2026-08-24:** **stage (a) is CLOSED at PASS, on its second rung.**
+  E4a (prereg frozen `628e29c4`) returned **NOT A RESULT** — D493: I1/I2/P1
+  passed, but a bit-identity convergence gate voided R1/G1/G2/N1/D1 under rule 5
+  order (1). **E4a2** (prereg frozen `cd1f46e1`) re-registered **exactly one
+  thing**, the iterative-convergence gate, carried everything else over
+  deep-equal, and is graded **PASS 8/8** — the gate closed on all five cases,
+  observed order **1.959** in `[1.6, 2.4]`, GCI **0.393 %**, the BC's own
+  equation held to **6.033e-11 m²/s²** against a registered 8.1e-8, mass to
+  9.712e-10. Cost **≈497 core-s = 8.283 core-min ≈ $0.0071 derived** against a
+  registered 665 core-s (**0.747×**) — inside the ~$1–2 entry above by more than
+  two decades. Records: `E4a2_RESULTS.md`, ledger row, docket row. **Two
+  disclosures ride with the PASS**: three of five series classify LIMIT CYCLE
+  while passing (pre-registered — §2.2 gates no interval-to-interval growth
+  ratio), and first crossing of the floor is at 4 000 on every case, so the
+  registered `endTime` of 60 000 bought margin rather than convergence.
+  **Stage (b) — validation against a manufacturer fan curve — is NOT started
+  and remains on Sanaa's desk; no fan is named, and E4a2 §7 states plainly that
+  the rung says nothing about any real fan.**
 
 ### E5. Conjugate heat transfer at blade/board scale
 - **Expertise:** solid–fluid coupling with realistic conductivity ratios at
@@ -313,7 +331,11 @@ what was approved):**
   needs.
 
 **First item selected: E4 stage (a) — fan/air-mover boundary verification,
-exact operating-point class.** Selection logic, on this file's own terms: it
+exact operating-point class.** *(Dated state line, 2026-08-24: this item is now
+**CLOSED at PASS** on its second rung — E4a NOT A RESULT (D493), E4a2 **PASS
+8/8** on the re-registered convergence gate, prereg frozen `cd1f46e1`. Stage (b)
+remains on Sanaa's desk, fan unnamed. Full state in the E4 entry above.)*
+Selection logic, on this file's own terms: it
 is the only C-A item whose prerequisite line is met today (E1 waits on T5
 graded + K2a approval; E2 and E3-b are NEEDS COSTING; E3-a sits under E3's
 prerequisite line naming T11), it is the cheapest item on the board
