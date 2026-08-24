@@ -563,3 +563,144 @@ before the stop fired.
 
 **Nothing is filed, sent, uploaded, posted, registered or pushed. Filing stays NOT APPROVED and is
 Sanaa's alone.**
+
+---
+
+## 11. Addendum 1 — 2026-08-24T18:34:42Z, dafoam `lab-lane`: five `patched.log` line citations in §2.1 are off by one and are struck; every value stands
+
+**Record version: v1.0 → v1.1.** v1.0 is this file exactly as committed at `8871acf3`. This is the
+first change to the record since, and it is a **dated addendum, not an edit**.
+
+**Lines whose number changed above this section: 0.** The base for this section was taken from
+`git show HEAD:cases/dafoam/ladder-a/A3/rung3_patched_idwarp_np4_attempt2/RESULTS.md` — never from
+the worktree, which is decayed by construction (D486) — and the base was asserted to be a **strict
+byte prefix** of the file written, before it was staged. Nothing above this line moved.
+
+**Frozen text is never edited** (`CLAUDE.md` rule 6). §2.1's table stands above **unaltered and in
+full**; this addendum **strikes five of its artifact cells and only those cells**, and records the
+correct citation for each here.
+
+**Zero compute.** No container was launched, no solver re-run, no comparator re-executed. The log
+was read read-only from the run root. Cost of this addendum: **0.00 core-min**.
+
+**No value changes. No verdict moves. `GATE FAIL — adjoint, inherited` stands exactly as recorded in
+§1**, and the 11-of-11 identity finding stands. What was wrong is the half of each row a reader uses
+to check it.
+
+### 11.1 Origin, and dafoam's acceptance of the finding
+
+Verification's cross-team gate audit **pass 10 §77** (`docs/CROSS_TEAM_GATE_AUDIT.md`, committed
+`d74a36c2`, §73–81), headed:
+
+> ### 77. **DEFECT FOUND** — five line citations into `patched.log` are off by one, low, and one of them lands a reader on a real but wrong number
+
+Pass 10's verdict at its §80 is **`SOUND WITH DISCLOSED DEVIATIONS`**, CANDIDATE, with this as the
+one DEFECT named. The **verification supervisor's own read** promoted it at **`8cbe716b` §82**
+(2026-08-24T17:57:20Z): *"Pass 10 (`d74a36c2`, §73–81; C-35 `ac7de7e4`) — BELIEVED: SOUND WITH
+DISCLOSED DEVIATIONS, ONE DEFECT"*, reading personally that *"line 903 is iteration 900 (the §2.1
+citation range 893–903 is off by one, low — correct 894–904; every value reproduces; dafoam's dated
+correction under rule 6)"*.
+
+**dafoam accepts the finding, and re-derived it here rather than relaying it.** This lane read
+`/home/ubuntu/certonomous-runs/P5-a3-rung3-patched-attempt2/patched.log` directly — `grep -n 'Main
+iteration'` returns the eleven KSP checkpoints at **894, 895, 896, 897, 898, 899, 900, 901, 902,
+903, 904**, and `wc -l` returns **904**. The correction below is dafoam's own reading of the file,
+and it agrees with pass 10 row for row, including the fifth row, which moves in the *opposite*
+direction from the other four.
+
+**Why this is a defect and not a typo, in the record's own terms.** A citation is the half of a
+measured row that a reader can check. Two of the five land a reader on `patched.log:903` for *"the
+residual at iteration 1000"*, and line 903 carries `1.615249565219e-02` — a real, plausible,
+13-figure residual that is the **wrong** one. A citation that lands on a non-number announces itself;
+this one does not. It was **not disclosed**: §6 records *"Deviations from the frozen document:
+none"*, and §8's list of what the record could not verify does not reach it.
+
+### 11.2 The five struck citations, quoted verbatim by line, with the correction
+
+Each row below quotes the **whole §2.1 table row exactly as it stands above**, then strikes the
+artifact cell alone. **The quantity cell and the value cell are not struck in any of the five** —
+every value re-derives from the corrected lines and is carried forward unchanged.
+
+**(a) `RESULTS.md:65`** — the identity row, verbatim:
+
+> | checkpoints bit-identical to the frozen shipped path | **11 of 11**, iterations 0–1000 | `patched.log:893-903` vs `shipped_cd_checkpoints.txt` |
+
+~~STRUCK as to the artifact cell alone: `patched.log:893-903`.~~
+**Correct: `patched.log:894-904`.** Line 893 is `Solving Linear Equation... 171.41 s` — not a
+checkpoint at all; the eleven checkpoints run 894–904 and the block ends at the file's last line.
+**11 of 11 stands.**
+
+**(b) `RESULTS.md:66`** — the total-reduction row, verbatim:
+
+> | total residual reduction through iteration 1000 | **1.3133×** (`2.121343646203e-02` → `1.615247229756e-02`) | `patched.log:893,903` |
+
+~~STRUCK as to the artifact cell alone: `patched.log:893,903`.~~
+**Correct: `patched.log:894,904`.** Line 894 carries iteration 0, `2.121343646203e-02`; line 904
+carries iteration 1000, `1.615247229756e-02`. Line 893 carries no residual, and line 903 carries
+**iteration 900**, `1.615249565219e-02` — the wrong-number landing named in §11.1. **1.3133× stands.**
+
+**(c) `RESULTS.md:67`** — the 200→1000 flatness row, verbatim:
+
+> | flatness, iterations 200 → 1000 | relative change **2.239e-03** | `patched.log:895,903` |
+
+~~STRUCK as to the artifact cell alone: `patched.log:895,903`.~~
+**Correct: `patched.log:896,904`.** Line 896 carries iteration **200**, `1.618871466028e-02`; the
+cited 895 carries iteration **100**. Line 904 carries iteration 1000. **2.239e-03 stands.**
+
+**(d) `RESULTS.md:68`** — the 900→1000 flatness row, verbatim:
+
+> | flatness, iterations 900 → 1000 | relative change **1.446e-06** | `patched.log:902,903` |
+
+~~STRUCK as to the artifact cell alone: `patched.log:902,903`.~~
+**Correct: `patched.log:903,904`.** Line 903 carries iteration **900**, `1.615249565219e-02`; the
+cited 902 carries iteration **800**. **1.446e-06 stands.**
+
+**(e) `RESULTS.md:69`** — the GMRES-cap row, verbatim:
+
+> | iterations executed of the 4000 GMRES cap | **1000** — stop deliberate, not exhaustion | `patched.log:891,903` |
+
+~~STRUCK as to the artifact cell alone: `patched.log:891,903`.~~
+**Correct: `patched.log:890,904`.** Line 890 is `GMRES Max Iterations: 4000`; the cited **891** is
+`GMRES Relative Tolerance: 0.0001`. Line 904 carries iteration 1000. **1000 of 4000 stands, and the
+stop stays deliberate** — `identity_stop.sh` exit 5, `rc=137`, as §1 and §5 record.
+
+**The error is not one shift.** Rows (a)–(d) cite one line **too low**; row (e) cites one line **too
+high**. So there is no single whole-file offset to undo, and no other row can be repaired by
+arithmetic on these — each was checked individually below.
+
+### 11.3 What this lane checked and found CORRECT — the bound on the blast radius, measured rather than assumed
+
+Pass 10 bounded the defect by checking one further row. This lane checked **every** remaining line
+citation into `patched.log` in this record, and **all of them are correct**:
+
+| `RESULTS.md` line | cited | what is on the cited line(s) | reading |
+|---|---|---|---|
+| `:70` | `patched.log:868-882` | 868 = `dRdWTPC: 0 of 1355, ExecutionTime: 60.02 s`; 882 = `dRdWTPC: 1354 of 1355, ExecutionTime: 170.76 s` | **CORRECT** |
+| `:108` (R3-P1(b)) | `patched.log:430` | `    transonicPCOption 1;` | **CORRECT** |
+| `:110` (R3-P1(d)) | `:83,:110,:268,:575` and `:50` | `nProcs : 4` at 83, 110, 268, 575; `nProcs : 1` at 50 and nowhere else | **CORRECT**, all five |
+| `:111` (R3-P1(e)) | `patched.log:25-28` | `PROV rank {2,0,1,3} idwarp version = 2.6.2` — the four rank lines exactly | **CORRECT** |
+| `:112` (R3-P2) | `patched.log:651` | `Time step continuity errors : sum local = 1.018123970654079` | **CORRECT** |
+| `:113` (R3-P3) | `:856,:857,:864,:865,:868` | the five colouring-READ strings the pre-registration registered at `PREREGISTRATION.md:372-374`: `Checking if Coloring file exists..` (856), `dRdWColoring_4.bin exists.` (857), `Reading Coloring dRdWColoring_4` (864), `Validating Coloring...` (865), `dRdWTPC: 0 of 1355` (868) | **CORRECT**, all five |
+
+So the defect is **confined to the five §2.1 rows that cite the KSP checkpoint block**, and every
+scored prediction row in §3 cites correctly. This is a measurement of the blast radius, not an
+inference from the pattern.
+
+### 11.4 What does NOT change
+
+- **The verdict.** `GATE FAIL — adjoint, inherited` (§1) is untouched, and it was frozen at
+  `PREREGISTRATION.md:260` before the gate opened.
+- **Every value in §2.1**, including `2.121343646203e-02`, `1.615247229756e-02`, 1.3133×,
+  2.239e-03, 1.446e-06, 1000 of 4000, 11 of 11, and the memory figures — all re-derive from the
+  corrected lines, unchanged to every digit.
+- **Every scored row in §3**, the cost table in §7, the instruments in §5 and the drafted text in
+  §9.
+- **No frozen file.** `PREREGISTRATION.md`, `stage.sh`, `drive.sh`, `coloring_guard.sh`,
+  `guard_selftest.sh`, `identity_stop.sh`, `mem_guard.sh` and `shipped_cd_checkpoints.txt` remain
+  untouched by this record, as this file's header (lines 7–9) states.
+- **Attempt 1's documents**, which this record already states it does not edit.
+- **The §7 cost calibration**, and no row is added to `docs/COST_CALIBRATION.md` for this addendum:
+  it spent no compute.
+
+**Nothing is filed, sent, uploaded, posted, registered or pushed by this addendum. Filing stays NOT
+APPROVED and is Sanaa's alone** (`CLAUDE.md` rule 7).
