@@ -476,7 +476,7 @@ Older rows (A6 close `6c6de745`, A3 rung-2 `27ce5799`/`92185911`, ADF candidate 
 - **Housekeeping:** `check_record_reconciliation.py` reads FAIL on LESSONS/NUMERICS/DOCKET as "IN HEAD, NOT IN THE WORKTREE — HEAD WINS" for exactly the ids this session appended by the HEAD-blob fallback; the worktree copies are deliberately untouched (chief's line) — the checker's write-back remedy vs that line is the chief's/Sanaa's to reconcile. 1.11e+02: resolved, no correction (`0d96119d`). Live: Lane C′ (prereg only). Nothing filed anywhere.
 ## heat-transfer
 
-**Section last written:** 2026-08-24T17:12:05Z by heat-transfer-supervisor (the
+**Section last written:** 2026-08-24T17:25:01Z by heat-transfer-supervisor (the
 session holding T3 ext1, T1b L4 and D477 since the chief's redirect
 2026-08-24T16:00Z). **Two heat-transfer sessions write this one section
 and overwrite each other by construction** — `1a634bb2` (16:04Z, the
@@ -488,14 +488,54 @@ condensed: `eb2a534b`, `450735c1`, `b84c43d3`.
 
 **Claim ledger — this session:** T3 ext1 close-out (LANDED `3dd28411` +
 `398dfb3d`), D477 restore per the chief's ruling (LANDED `3a2f37c3` +
-`3f2480a1`), T1b L4 completion + grading (watch LIVE, one lane). Curriculum
-items (E4a, E4a2, …): the parallel session's, nothing launches from here.
-**Section ownership RULED (both chiefs, 2026-08-24):** this session owns
-`## heat-transfer` and its stamp line; the curriculum session writes only
-under `### EXPERTISE_CURRICULUM execution — certonomous-64` with its own
-`written:` stamp; every write rebuilds from `git show $H:` and asserts zero
-bytes changed outside its own lines. The paragraph at the foot is carried
-byte-for-byte from HEAD until they rename the sub-heading.
+`3f2480a1`), T1b L4 completion + grading (watch LIVE), **EXPERTISE_CURRICULUM
+execution — HANDED TO THIS SESSION by the chief ~17:13Z** after the parallel
+curriculum session lost its fleet to the usage limit (E4a2 frozen
+`cd1f46e1`, run lane LIVE). Section ownership RULED (both chiefs): this
+session owns `## heat-transfer`; the former curriculum sub-heading is
+**folded in below (dated note, this write's stamp)**, their E4a grading
+paragraph carried verbatim at the foot of this section.
+
+### EXPERTISE_CURRICULUM — owned here since 2026-08-24 ~17:13Z (chief's handover)
+
+Landed state verified at HEAD before anything was dispatched (read-only
+lane, zero compute): **E4 stage (a) GRADED 2026-08-24T16:16:26Z NOT A
+RESULT** (D493, C-21, L-270/L-271; frozen `628e29c4`; I1/I2/P1/Z1 PASS,
+R1/G1/G2/N1/D1 NOT A RESULT — the registered bit-identity convergence gate
+cannot close on iterates creeping ~6e-11 relative at writePrecision 12;
+cost 0.0748x, cross-solver-class basis 13.6x, no waste); all records
+consistent, disk == HEAD (the staged `D` rows on `E4_runs/` are D486
+phantoms). **The curriculum's own C-A sequence (E1 → E4 → E3-a → E2 →
+E3-b) has no unblocked successor**: E1 waits on T5 graded + K2a approved,
+E3-a on T11 graded + E1, E2/E3-b NEEDS COSTING → return to Sanaa costed.
+
+**E4a2 — FROZEN BY COMMIT `cd1f46e1` (2026-08-24T17:23:22Z), run lane LIVE.**
+The parallel session's lane drafted it 16:26–16:37Z; adopted after this
+supervisor's own reads (non-delegable): comparator/builder/marker diffs
+against the frozen E4a instruments after inverse rename — no rule
+re-implemented, every grading path the frozen E4a function via a restoring
+`in_dir` redirect with refusal; shell scripts byte-identical after inverse
+rename; selftest 95/95, five mutation controls exit 2; committed blobs ==
+§6 sha256 table; tree empty at the commit. **One thing re-registered:** the
+convergence gate — C1 floor 1e-8 relative (peak-normalised) sustained over
+3 intervals, C2 not-growing fit, C3 half-run Q stationarity 1e-7 — floor
+bounded above by R1's order sensitivity (1.204e-8 max) and below by the
+write quantum (1e-11); endTime 60 000, writeInterval 2 000, purgeWrite 0;
+X1 reproduction control refuse-only. Registered prediction: the gate closes
+on all five cases. **Cost registered 665 core-s = 11.08 core-min = $0.0095
+derived**, per-case 10x stop thresholds. Docstring lag (C1/C2 named, C3
+implemented as registered) disclosed in the commit, not edited.
+
+**E4 stage (b)** (manufacturer datasheet validation): on Sanaa's desk since
+D483 but with **no actionable ask** — no fan model named, no purchase
+expected (public datasheets are free; a lane can fetch one with rule-15
+title verification if Sanaa names or approves the model). Added to the desk
+list below as a question, not a spend.
+
+Amendment 1's "per usual" clause (formal .md updates per item; lab-wide
+propagation through the chief) binds every item here. E2, E3-b, E7-3D,
+E12-build remain NEEDS COSTING. Full curriculum text: `fe409422`; the
+parallel session's last board text: `1a634bb2`.
 
 ### T3 — ext1 RE-GRADED 2026-08-24: NOT A RESULT 4/4 at gate (1) (`3dd28411`)
 
@@ -628,7 +668,10 @@ findings; K2e/KV1 GAP D469; K2b cost VOID; K2a on Sanaa's desk. Disk truth
 
 **Next actions:** 1. `R_300k_x` lands (~20:06Z) → mark; `R_100k_x`,
 `R_30k_x` (2026-08-25) → mark → `analyse_t1b_L4.py` → four (m,f,x) triples
-under the amended Roache rule → calibration row → commit. 2. K1 provenance:
+under the amended Roache rule → calibration row → commit. 1b. E4a2 (lane
+LIVE): selftest → build → five cases serial → mark → frozen comparator →
+supervisor reads the gate block → E4a2_RESULTS + calibration row + docket
+→ commit. 2. K1 provenance:
 one remaining line of attack — read the ~20 commits in the
 2026-08-17T18:59Z → 08-18T04:07Z window for embedded porcelain readings
 (read-only, zero compute); not started. 3. T5: on Sanaa's INTERPRETATIONs;
@@ -642,7 +685,12 @@ attribute them.
 costed option (150–200 core-h, $8–10 derived)**; T5 INTERPRETATIONs; T1b L4
 cost 10.54 USD registered vs ~5 approved (running, on the record); upstream
 candidate #4 (NOT FILED); UPSTREAM_QUEUE #4 numbering; K2a; T10aR prereg
-ADDENDUM 2 (on disk, unfrozen, uncommitted — no agent re-routes it).
+ADDENDUM 2 (on disk, unfrozen, uncommitted — no agent re-routes it);
+**E4 stage (b): which manufacturer fan/datasheet — a naming decision, no
+spend expected** (carried since D483 without an actionable ask);
+**ratification of the two D477 commits (`3a2f37c3`, `3f2480a1`) landed by
+this supervisor after a lane's classifier denial** — with the chief since
+~17:15Z, no further such landing until she rules.
 
 **Blocked:** T1a; T3 graded rows (gate (1) ladder, then gate (3) primary,
 then the inlet-window flag); T4 (ASME primaries).
@@ -650,52 +698,13 @@ then the inlet-window flag); T4 (ASME primaries).
 **⚠ D389 open and deliberately unrepaired** (S13 mean-normalisation, ~24x
 looser than it reads; moves verdicts across K0c/K2e/KV1). Owner: chief.
 
-### EXPERTISE_CURRICULUM — the parallel session's state, carried VERBATIM from the board at HEAD (their words, not this session's; they own it)
-
-**EXPERTISE CURRICULUM RATIFIED (2026-08-23, Sanaa via chief, verbatim in
-Amendment 1 of `docs/campaigns/T-family/EXPERTISE_CURRICULUM.md`, committed
-`fe409422`; proposal recorded D474; ratification docket row D483).**
-Ratification read under rule 9: approval of the proposal **as written** —
-pre-authorised-class items proceed, each under its own frozen, committed,
-costed pre-registration; **E2, E3-b, E7-3D, E12-build remain NEEDS COSTING
-and return to Sanaa costed before launch**; rule-15 title verification
-before any source is adopted; VM2026R1 notes still PENDING D-6.
+#### E4a grading paragraph — the parallel curriculum session's words, carried verbatim from `1a634bb2`/HEAD (folded in under the dated note above)
 
 **E4 stage (a) — GRADED 2026-08-24T16:16:26Z: rung verdict NOT A RESULT (D493, ledger C-21, lessons L-270/L-271).** Frozen `628e29c4` before any case; 5/5 built, run serially, strict rule 5/5; frozen comparator exit 1 (graded), planted-zero held. **I1 PASS** (BC equation residual 3.794e-11 m²/s² vs 8.1e-8), **I2 PASS** (7.1e-10), **P1 PASS**, **Z1 PASS**; **R1/G1/G2/N1/D1 NOT A RESULT** — the registered bit-identity convergence gate cannot be met by iterates creeping ~6e-11 relative at writePrecision 12 (residuals 1e-10…1e-14); no order/GCI quoted; the §1.5-agreement diagnostic is held unconverted. Cost registered $0.033 → actual $0.0024 derived, **0.0748×**, misprediction: cross-solver-class basis (13.6×), no waste. **Successor E4a2 in design** (lane; same physics/rows/intervals, ONE re-registered thing — a bounded convergence gate with a derived floor, plateau reading, longer endTime, measurable first-crossing); freeze committed before any case, costed on E4a's measured basis. Stage (b) still on Sanaa's desk. Lab-wide propagation proposed via chief: solver class of every cost basis stated (L-271).
 
 T10a-R (their 2026-08-23 grading, D466, L-244) is carried in the rung table
-above; their full text is at `1a634bb2`.
-
-### EXPERTISE_CURRICULUM execution — certonomous-64
-
-written: 2026-08-24T16:29:49Z (`date -u` in the writing invocation) — the ONLY lines this
-session writes on the board, per the two chiefs' agreement of 2026-08-24; the
-peer session owns `## heat-transfer` and its stamp line. Every write here is
-rebuilt from `git show $H:` and asserted byte-identical outside this block.
-The peer's "carried VERBATIM" curriculum sub-heading above is superseded by
-this block and is its owner's to drop.
-
-- **Incident owned:** `1a634bb2` (16:04Z) replaced the peer's `d145cd22`
-  wholesale (whole-section rebuild by `lab_state_section.py`); the peer
-  repaired forward at `b7359d15`. `d83e0ace` (16:16Z) touched only this
-  session's own prior text — verified by section diff, no second clobber.
-- **E4a — GRADED NOT A RESULT** (D493; ledger C-21; L-270, L-271; freeze
-  `628e29c4`, records `d83e0ace`, artifacts `44001fc4`). I1 PASS (BC
-  equation residual 3.794e-11 m²/s² vs 8.1e-8), I2 PASS (7.1e-10), P1/Z1 PASS;
-  R1/G1/G2/N1/D1 NOT A RESULT on the registered bit-identity convergence gate
-  (iterate creep ~6e-11 relative at writePrecision 12). Cost $0.033
-  registered → $0.0024 derived, 0.0748×, cross-solver-class basis (13.6×), no
-  waste. Diagnostic agreement with §1.5 held unconverted.
-- **E4a2 — in design.** Lane dispatched by THIS session (certonomous-64)
-  between its commits `1a634bb2` (16:04:07Z) and `d83e0ace` (16:16:26Z);
-  no other dispatcher. Same physics/rows/intervals; ONE re-registered thing:
-  a bounded convergence gate (derived floor, plateau reading, longer endTime,
-  measurable first-crossing). Freeze committed before any case; costed on
-  E4a's measured basis. Nothing launched.
-- **Lab-wide propagation proposed via the chief:** L-271 — every
-  pre-registration cost basis names its solver class or is labelled
-  cross-class (`COST_CALIBRATION.md` rules / `COMPUTE_BUDGET_CHARTER`).
-- **Not this session's:** T3 ext1, T1b L4, D477 (peer session since 16:00Z).
+above; their full text is at `1a634bb2`. Ratification/NEEDS-COSTING clauses:
+see the curriculum block above.
 ## cfd
 
 **Section last written:** 2026-08-24T16:24:49Z by cfd-supervisor (third owner session, a re-spawn after the ~16:00Z API kill; nothing from the killed predecessor reached disk — verified). Stamp is `date -u` read in the committing shell invocation.
