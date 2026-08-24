@@ -1,22 +1,33 @@
 #!/usr/bin/env python3
-"""F5b PHYSICS RUNG -- the reader.  STAGE 1 SKELETON: controls complete, grading absent.
+"""F5b PHYSICS RUNG -- the reader.  STAGE 2: controls complete, grading complete.
 
 Registered by ``verification/campaign/F5b_PHYSICS_PREREGISTRATION.md`` section 10 and
 committed under that document's two-stage freeze (section 9), BOTH STAGES STRICTLY
-BEFORE ANY COMPUTE:
+BEFORE ANY COMPUTE -- ``verification/runs/F5b_runs/physics_p1`` did not exist at either
+commit:
 
-  STAGE 1 (this file as committed here)
-      every control of section 4 implemented end to end and demonstrably passing on
-      the C-N1 fixture; the section 5 completion clauses 1-8; the window / sigma_quad
-      / delta_close machinery; the RAN=/FOUND= reporting of charter section 9's
-      ``ran_before_found``; an exit-2 refusal path for every control.
-      ``grade_G1``, ``grade_G2``, ``grade_G3`` and ``emit_verdict`` raise
+  STAGE 1  every control of section 4 implemented end to end and demonstrably passing
+      on the C-N1 fixture; the section 5 completion clauses 1-8; the window /
+      sigma_quad / delta_close machinery; the RAN=/FOUND= reporting of charter
+      section 9's ``ran_before_found``; an exit-2 refusal path for every control.
+      ``grade_G1``, ``grade_G2``, ``grade_G3`` and ``emit_verdict`` raised
       ``NotImplementedError``.
 
-      The point of stage 1 is that the controls can be PROVED TO WORK before the
-      grading logic exists to be tuned to them.
+      The point of stage 1 is that the controls are PROVED TO WORK in their own commit,
+      before any grading logic exists that could be tuned to them.
 
-  STAGE 2  the grading bodies, against the bands frozen in section 2 and nothing else.
+  STAGE 2 (this file as committed here)
+      the grading bodies, implemented against the bands frozen in section 2 and the
+      outcome map of section 7, and against nothing else.  Still before any compute, so
+      section 2d's enforcement test -- compare the comparator's commit timestamp
+      against the earliest completion marker in its own run tree -- passes by
+      construction: there is no marker, because there is no tree.
+
+      Stage 2 also plants the zero for the GRADER itself.  A GATE FAIL from a grader
+      never shown able to return PASS is not evidence of anything, so
+      ``selftest-grading`` builds a synthetic dynamic-stall loop (the attached-flow
+      fixture plus a 0.60 collapse) and requires G1 and G2 to PASS on it while both
+      GATE FAIL on the attached-flow fixture -- same code path, same frozen bands.
 
 THE READER REFUSES RATHER THAN DEGRADES (CLAUDE.md rule 4).  There is no fallback
 path, no "best available" reading and no partial grade.  Every refusal is exit 2.
@@ -38,7 +49,10 @@ USAGE
     # the section 5 completion clauses, exercised both ways on a synthetic tree
     python3 verification/runs/F5b_runs/analyse_f5b_physics.py selftest-completion
 
-    # the real thing (stage 2 only; refuses at stage 1)
+    # the grader, shown able to PASS and able to GATE FAIL
+    python3 verification/runs/F5b_runs/analyse_f5b_physics.py selftest-grading
+
+    # the real thing
     python3 verification/runs/F5b_runs/analyse_f5b_physics.py grade --run <dir>
 """
 
@@ -893,31 +907,244 @@ def courant_series(log_text: str):
 
 
 # ==========================================================================
-# GRADING -- STAGE 2.  These raise at stage 1 BY DESIGN.
+# GRADING -- STAGE 2, implemented against the bands frozen in section 2 and the
+# outcome map of section 7, and against nothing else.  Committed BEFORE the run
+# directory is created, so section 2d's enforcement test (compare the comparator's
+# commit timestamp against the earliest completion marker in its own run tree)
+# passes by construction: there is no marker, because there is no tree.
+#
+# LABELS COME FROM CLAUDE.md RULE 1'S FIXED VOCABULARY AND NOWHERE ELSE:
+#   PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING
 # ==========================================================================
 
-_STAGE1_MSG = (
-    "STAGE 1 SKELETON: %s is deliberately unimplemented.  The pre-registration "
-    "(section 9) freezes the CONTROLS first, in their own commit, so that they are "
-    "proved to work before any grading logic exists that could be tuned to them.  "
-    "Stage 2 implements this against the bands frozen in section 2 and against "
-    "nothing else.")
+VERDICT_PASS = "PASS"
+VERDICT_GATE_FAIL = "GATE FAIL"
+VERDICT_NOT_A_RESULT = "NOT A RESULT"
+VERDICT_BLOCKED = "BLOCKED"
 
 
-def grade_G1(*args, **kwargs):
-    raise NotImplementedError(_STAGE1_MSG % "grade_G1")
+def grade_G1(A_L, sq, closing, A_up=None, A_down=None):
+    """G1 -- the loop is open, and MORE open than attached flow.
+
+    Band, frozen in section 2: PASS if A_L >= +2.00 C_L.deg, else GATE FAIL.
+    2.00 is 4.66x the attached-flow reference A_att = 0.429 C_L.deg, so the limb
+    survives a 4x error in A_att -- which section 2 flags as the least robust number
+    in the document because Im(Z) is a near cancellation.
+
+    The measured value is printed beside the band WHICHEVER WAY IT GOES (section 7
+    row 2: the measured values are printed in full beside the bands they missed).
+    """
+    label = VERDICT_PASS if A_L >= G1_BAND else VERDICT_GATE_FAIL
+    detail = (
+        "A_L            %+.9f C_L.deg   +/- sigma_quad %.6e\n"
+        "band           A_L >= %+.2f C_L.deg  -> %s\n"
+        "A_att          %.8f C_L.deg   (band is %.2fx the attached-flow value)\n"
+        "margin         A_L - band = %+.9f\n"
+        "closing seg    %+.6e   (the contour is closed explicitly; this is its "
+        "contribution, shown so an open path cannot masquerade as a loop)"
+        % (A_L, sq, G1_BAND, label, A_ATT_DEG, G1_BAND / A_ATT_DEG,
+           A_L - G1_BAND, closing))
+    if A_up is not None:
+        detail += ("\nreported, NOT gated: A_up %+.9f   A_down %+.9f  (section 2)"
+                   % (A_up, A_down))
+    return label, detail
 
 
-def grade_G2(*args, **kwargs):
-    raise NotImplementedError(_STAGE1_MSG % "grade_G2")
+def grade_G2(times, alpha, cl):
+    """G2 -- a C_L excursion exists that attached flow cannot produce.
+
+    Band, frozen in section 2: PASS if there is a sample pair (i, j), i < j, both in
+    W, with |alpha_j - alpha_i| <= 2.00 deg and C_L,i - C_L,j >= 0.40.  Else GATE FAIL.
+    0.40 is 1.97x the analytic attached-flow ceiling 0.2035 over ANY admissible pair.
+
+    Section 2 requires the FIRING PAIR'S KIND to be reported -- within-stroke (a lift
+    collapse, stall onset proper) or cross-stroke (the post-stall lift deficit) --
+    from the sign of dalpha/dt computed FROM THE ALPHA SERIES, not from the model.
+    A G2 PASS whose kind is not reported is incomplete, so the kind is printed here on
+    the PASS path and on the GATE FAIL path alike.
+    """
+    drop, i, j = max_admissible_pair(alpha, cl)
+    if i < 0:
+        return VERDICT_GATE_FAIL, (
+            "NO ADMISSIBLE PAIR EXISTS AT ALL in W under |dalpha| <= %.2f deg.\n"
+            "That is not a small excursion -- it is no excursion, and it is reported "
+            "as such rather than as a zero." % G2_DALPHA_MAX)
+    label = VERDICT_PASS if drop >= G2_DCL_MIN else VERDICT_GATE_FAIL
+    kind = pair_kind(times, alpha, i, j)
+    detail = (
+        "largest admissible-pair drop   %.7f\n"
+        "band                           C_L,i - C_L,j >= %.2f  -> %s\n"
+        "attached-flow ceiling          %.7f analytic supremum "
+        "(band is %.2fx it); cross-stroke component %.7f\n"
+        "FIRING PAIR (section 2 requires the kind, and this is it):\n"
+        "  kind      %s\n"
+        "  i         window index %d   t = %.9f   alpha = %+.6f deg   C_L = %+.6f\n"
+        "  j         window index %d   t = %.9f   alpha = %+.6f deg   C_L = %+.6f\n"
+        "  |dalpha|  %.6f deg  <= %.2f\n"
+        "  drop      %.7f"
+        % (drop, G2_DCL_MIN, label, G2_CEILING, G2_DCL_MIN / G2_CEILING,
+           CROSS_STROKE_GAP, kind,
+           i, times[i], alpha[i], cl[i], j, times[j], alpha[j], cl[j],
+           abs(alpha[j] - alpha[i]), G2_DALPHA_MAX, drop))
+    if label == VERDICT_GATE_FAIL:
+        detail += ("\nNOTE: the pair above is the LARGEST admissible excursion found, "
+                   "printed in full beside the band it missed (section 7 row 2).  It is "
+                   "not a firing pair.")
+    return label, detail
 
 
-def grade_G3(*args, **kwargs):
-    raise NotImplementedError(_STAGE1_MSG % "grade_G3")
+def grade_G3(co_realised, step_times, step_index_offset=1):
+    """G3's Courant limb -- the reading is admissible.
+
+    Section 2, re-specified at Revision 1 against setDeltaT.H and given its reading
+    rule at Revision 2.  NOT A RESULT if ANY of:
+        (a) any step has Co > 2.00 x maxCo
+        (b) more than 1.00 % of the graded steps have Co > 1.05 x maxCo
+        (c) any run of 5 or more CONSECUTIVE steps has Co > 1.05 x maxCo
+
+    REPORTED ALWAYS, whatever the verdict: the maximum Co with the time and step index
+    at which it occurred, the count and fraction above 1.05 x maxCo, and the length of
+    the longest consecutive run above it.
+
+    ``co_realised[k]`` is the Courant number REALISED by step ``k + step_index_offset``
+    -- the series is already shifted by ``courant_series`` because the printed figure is
+    lagged (see that function).  The final step's realised value is never printed and
+    is therefore absent from the series; the shortfall is stated, not absorbed.
+    """
+    hard = CO_HARD_FACTOR * MAX_CO
+    soft = CO_SOFT_FACTOR * MAX_CO
+    n = len(co_realised)
+    if n == 0:
+        refuse("G3: the realised-Courant series is empty; no step has an observable "
+               "Courant number and the reading cannot be shown admissible")
+
+    kmax = max(range(n), key=lambda k: co_realised[k])
+    co_max = co_realised[kmax]
+    step_max = kmax + step_index_offset
+    t_max = step_times[step_max] if step_max < len(step_times) else float("nan")
+
+    above = [k for k in range(n) if co_realised[k] > soft]
+    frac = len(above) / float(n)
+    longest, run, run_start, best_start = 0, 0, None, None
+    for k in range(n):
+        if co_realised[k] > soft:
+            if run == 0:
+                run_start = k
+            run += 1
+            if run > longest:
+                longest, best_start = run, run_start
+        else:
+            run = 0
+
+    fired = []
+    if co_max > hard:
+        fired.append("(a) max Co %.6f > %.2f x maxCo = %.2f -- the local velocity "
+                     "magnitude more than doubled inside one time step; that is a "
+                     "divergence or a mesh-motion artifact, not a physical "
+                     "acceleration, and a stall signature read under it cannot be told "
+                     "from the artifact" % (co_max, CO_HARD_FACTOR, hard))
+    if frac > CO_POP_FRACTION:
+        fired.append("(b) %d of %d graded steps (%.4f %%) above %.2f x maxCo = %.2f, "
+                     "over the %.2f %% population limb  [JUDGEMENT limb, section 11 A-9]"
+                     % (len(above), n, 100.0 * frac, CO_SOFT_FACTOR, soft,
+                        100.0 * CO_POP_FRACTION))
+    if longest >= CO_RUN_LENGTH:
+        fired.append("(c) %d CONSECUTIVE steps above %.2f x maxCo (from graded index "
+                     "%d, step %d), at or over the limit of %d -- reduction is "
+                     "immediate and undamped (setDeltaT.H), so a controller tracking "
+                     "the flow cannot stay above threshold this long; it is chronically "
+                     "behind the flow"
+                     % (longest, CO_SOFT_FACTOR, best_start,
+                        best_start + step_index_offset, CO_RUN_LENGTH))
+
+    report = (
+        "REPORTED ALWAYS, whatever the verdict:\n"
+        "  max Co                 %.6f   at step %d, t = %s\n"
+        "  count > %.2f x maxCo   %d of %d graded steps\n"
+        "  fraction               %.6f %%   (limb (b) fires above %.2f %%)\n"
+        "  longest consecutive    %d steps   (limb (c) fires at %d)\n"
+        "  maxCo (controlDict)    %.2f;  hard limb (a) at %.2f;  soft mark at %.2f\n"
+        "  graded steps           %d   (the FINAL step's realised Co is never printed "
+        "by pimpleFoam and is absent from this series -- one step, named, not absorbed)"
+        % (co_max, step_max, ("%.9g" % t_max) if t_max == t_max else "unknown",
+           CO_SOFT_FACTOR, len(above), n, 100.0 * frac, 100.0 * CO_POP_FRACTION,
+           longest, CO_RUN_LENGTH, MAX_CO, hard, soft, n))
+
+    if fired:
+        return VERDICT_NOT_A_RESULT, report + "\nLIMBS FIRED:\n  " + "\n  ".join(fired)
+    return None, report + ("\nNo limb fired.  A few-percent single-step overshoot is "
+                           "the controller working as designed (section 2, property 1) "
+                           "and does not void the run.")
 
 
-def emit_verdict(*args, **kwargs):
-    raise NotImplementedError(_STAGE1_MSG % "emit_verdict")
+def emit_verdict(completion, controls, g3_label, g1_label, g2_label, extra=""):
+    """The section 7 outcome map, applied in its registered order.
+
+    Precedence is not a choice made here: CLAUDE.md rule 5's principle -- a gate can
+    only turn a PASS or GATE FAIL INTO NOT A RESULT, never the reverse -- fixes it.
+    So every NOT A RESULT trigger is resolved before G1/G2 are allowed to speak, and
+    when one fires THE GATE IS NOT EVALUATED and no partial A_L is quoted (section 7
+    row 3, charter section 2: a gate that was not reached is stated as not reached,
+    never replaced by a nearer gate that was).
+    """
+    print()
+    print("=" * 78)
+    print("SECTION 7 OUTCOME MAP")
+    print("=" * 78)
+
+    failed = completion.failed() if completion is not None else []
+    if failed:
+        names = ", ".join("clause %d (%s)" % (n, nm) for n, nm, _, _ in failed)
+        print("row 3   %s" % VERDICT_NOT_A_RESULT)
+        print("        failing completion clause(s): %s" % names)
+        print("        THE GATE IS NOT EVALUATED and no partial A_L is quoted.")
+        _print_standing_rows()
+        return VERDICT_NOT_A_RESULT
+
+    if controls is not None and not controls:
+        print("row 4   %s" % VERDICT_NOT_A_RESULT)
+        print("        a section 4 control refused.  The reader is declared broken, the "
+              "run's numbers are withheld ENTIRELY, and the reader defect is a docket "
+              "item.")
+        _print_standing_rows()
+        return VERDICT_NOT_A_RESULT
+
+    if g3_label == VERDICT_NOT_A_RESULT:
+        print("row 5   %s   (G3)" % VERDICT_NOT_A_RESULT)
+        print("        the Courant condition fired.  The full Courant report is printed "
+              "above WHATEVER the verdict.")
+        _print_standing_rows()
+        return VERDICT_NOT_A_RESULT
+
+    if g1_label == VERDICT_PASS and g2_label == VERDICT_PASS:
+        print("row 1   %s" % VERDICT_PASS)
+        print("        Physics rung established: the dynamic-stall mechanism is present "
+              "ON THE 3,584-CELL FEASIBILITY MESH.")
+        print("        SECTION 6 CEILING TRAVELS WITH THIS VERDICT AND IS NOT OPTIONAL:")
+        print("          - no discretisation-error claim; single grid, no GCI, no "
+              "observed order (rule 5 is not applicable and none is printed)")
+        print("          - no quantitative comparison to TP-1100 (reference NOT "
+              "OBTAINED, and the mesh has no error bar -- either alone suffices)")
+        print("          - no cycle-convergence claim: one period is covered, and a "
+              "repeatability estimate needs at least two")
+        print("          - a PASS here means the mechanism is present, AND NOTHING MORE")
+        _print_standing_rows()
+        return VERDICT_PASS
+
+    print("row 2   %s" % VERDICT_GATE_FAIL)
+    print("        Physics rung NOT established.  G1 %s, G2 %s." % (g1_label, g2_label))
+    print("        Shipped as a documented failure under charter section 8, never "
+          "re-posed to fit the answer (L-44).  The measured values are printed in full "
+          "beside the bands they missed, above.")
+    _print_standing_rows()
+    return VERDICT_GATE_FAIL
+
+
+def _print_standing_rows():
+    print("row 7   %s -- the Gate rung (quantitative vs NASA TP-1100) is unchanged by "
+          "any outcome above; its reference is NOT OBTAINED." % VERDICT_BLOCKED)
+    print("row 8   PENDING is a QUEUE state and is never used to soften a GATE FAIL "
+          "(rule 1).")
 
 
 # ==========================================================================
@@ -1072,12 +1299,278 @@ def run_selftest_completion() -> int:
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def _stall_deficit(t: float) -> float:
+    """A synthetic DYNAMIC-STALL deficit on top of the attached-flow loop.
+
+    Deliberately crude and fully deterministic -- it is a test of the GRADER, not a
+    model of stall.  It reproduces the two signatures section 2 names, and nothing else:
+
+      * upstroke, alpha in [24, 25] deg: the deficit ramps 0 -> 0.60.  A lift COLLAPSE
+        of 0.60 across 1 deg of incidence -- within-stroke, inside the 2.00 deg
+        admissible span, above the 0.40 band.
+      * downstroke, alpha from 25 deg down to 8 deg: the deficit holds at 0.60.  The
+        post-stall lift deficit -- so the same alpha is worth 0.60 less on the way down
+        than on the way up, which is the CROSS-STROKE signature and which opens the loop.
+      * downstroke, alpha in [5, 8] deg: the deficit relaxes 0.60 -> 0, so the loop
+        closes and the curve is continuous at both stroke reversals.
+    """
+    a = alpha_deg(t)
+    upstroke = math.cos(OMEGA * t) > 0.0
+    if upstroke:
+        if a <= 24.0:
+            return 0.0
+        return 0.60 * min(1.0, (a - 24.0) / 1.0)
+    if a > 8.0:
+        return 0.60
+    if a > 5.0:
+        return 0.60 * (a - 5.0) / 3.0
+    return 0.0
+
+
+def _write_stall_fixture(path: str, n_samples: int = 4096) -> str:
+    """Write the dynamic-stall fixture in the SAME column layout as the C-N1 fixture,
+    reusing that generator's writers so the layouts cannot drift apart."""
+    import make_theodorsen_fixture as MTF
+    Z = lift_slope_Z(REDUCED_FREQ, PITCH_AXIS_A)
+    names = MTF.coefficient_names()
+    icl = names.index("Cl")
+    t1 = END_TIME - PERIOD
+    lines = [
+        "# ============================================================",
+        "# SYNTHETIC POSITIVE FIXTURE -- NOT SOLVER OUTPUT.  NO SOLVER RAN.",
+        "# F5b Physics rung, GRADING self-test.",
+        "# The attached-flow loop of the C-N1 fixture PLUS a 0.60 lift collapse over",
+        "# 1 deg of incidence at the top of the upstroke, held through the downstroke",
+        "# and relaxed near the trough.  Built to make G1 and G2 FIRE, so that their",
+        "# GATE FAIL on the attached-flow fixture is shown to be discrimination and",
+        "# not an inability to fire at all.",
+        "# Only the 'Cl' column carries physics; every other column is a sentinel.",
+        "# ============================================================",
+    ]
+    lines += MTF.header_block(names)
+    for i in range(n_samples):
+        ts = MTF._time(t1 + PERIOD * i / (n_samples - 1))
+        t = float(ts)
+        cl = MTF.cl_attached(t, Z) - _stall_deficit(t)
+        row = ts.rjust(MTF.CHAR_WIDTH)
+        for j, nm in enumerate(names):
+            row += "\t" + MTF._num(cl if j == icl else
+                                   MTF.SENTINEL_BASE + MTF.SENTINEL_STEP * j)
+        lines.append(row)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as fh:
+        fh.write("\n".join(lines) + "\n")
+    return path
+
+
+def _grade_fixture(path: str):
+    """Run G1 and G2 over a fixture, exactly as the real pipeline does."""
+    table = parse_coefficient_dat(path)
+    t = table.col("Time")
+    a = alpha_series(t)
+    c = table.col("Cl")
+    idx, t1, t_end = window_mask(t)
+    tw = [t[i] for i in idx]
+    aw = [a[i] for i in idx]
+    cw = [c[i] for i in idx]
+    A_L, closing = loop_area(aw, cw)
+    sq, _, _ = sigma_quad(aw, cw)
+    g1, d1 = grade_G1(A_L, sq, closing)
+    g2, d2 = grade_G2(tw, aw, cw)
+    return (g1, d1), (g2, d2), A_L, table.md5
+
+
+def run_selftest_grading() -> int:
+    """Plant the zero, for the GRADER.
+
+    A GATE FAIL from a grader never shown able to return PASS is not evidence of
+    anything.  The attached-flow fixture must GATE FAIL and the dynamic-stall fixture
+    must PASS, on the same code path, with the same frozen bands.  G3's three limbs are
+    each shown able to fire and able not to.
+    """
+    print("=" * 78)
+    print("F5b PHYSICS -- STAGE 2 GRADING SELF-TEST (synthetic fixtures, no solver)")
+    print("=" * 78)
+    tmp = tempfile.mkdtemp(prefix="f5b_grading_")
+    try:
+        stall = _write_stall_fixture(os.path.join(tmp, "dynamic_stall_fixture.dat"))
+
+        print("\n--- POSITIVE fixture: attached flow + a 0.60 collapse -------------")
+        print("    %s" % stall)
+        (g1s, d1s), (g2s, d2s), A_s, md5s = _grade_fixture(stall)
+        print("    md5 %s" % md5s)
+        for line in (d1s + "\n" + d2s).splitlines():
+            print("      %s" % line)
+        print("    G1 %s    G2 %s" % (g1s, g2s))
+
+        print("\n--- NEGATIVE fixture: the committed C-N1 attached-flow loop --------")
+        print("    %s" % FIXTURE_DEFAULT)
+        (g1n, d1n), (g2n, d2n), A_n, md5n = _grade_fixture(FIXTURE_DEFAULT)
+        print("    md5 %s" % md5n)
+        for line in (d1n + "\n" + d2n).splitlines():
+            print("      %s" % line)
+        print("    G1 %s    G2 %s" % (g1n, g2n))
+
+        bad = []
+        if g1s != VERDICT_PASS:
+            bad.append("G1 did not PASS on the dynamic-stall fixture (A_L = %.6f)" % A_s)
+        if g2s != VERDICT_PASS:
+            bad.append("G2 did not PASS on the dynamic-stall fixture")
+        if g1n != VERDICT_GATE_FAIL:
+            bad.append("G1 did not GATE FAIL on the attached-flow fixture (A_L = %.6f)"
+                       % A_n)
+        if g2n != VERDICT_GATE_FAIL:
+            bad.append("G2 did not GATE FAIL on the attached-flow fixture -- THE READER "
+                       "SCORES ATTACHED FLOW AS DYNAMIC STALL")
+        if bad:
+            _die("grading self-test FAILED:\n    " + "\n    ".join(bad))
+
+        print("\n--- G3's three limbs, each shown able to fire and not to -----------")
+        st = [0.001 * k for k in range(400)]
+        cases = [
+            ("clean, all Co ~ 0.9", [0.9] * 300, None),
+            ("(a) one step at 2.5", [0.9] * 150 + [2.5] + [0.9] * 149,
+             VERDICT_NOT_A_RESULT),
+            ("(c) six consecutive at 1.2",
+             [0.9] * 100 + [1.2] * 6 + [0.9] * 194, VERDICT_NOT_A_RESULT),
+            ("(b) 2 % isolated at 1.1",
+             [1.1 if (k % 50 == 0) else 0.9 for k in range(300)],
+             VERDICT_NOT_A_RESULT),
+            ("below (b): 0.67 % isolated at 1.1",
+             [1.1 if (k % 150 == 0) else 0.9 for k in range(300)], None),
+        ]
+        for name, series, expect in cases:
+            lab, _ = grade_G3(series, st)
+            ok = (lab == expect)
+            print("    %-34s -> %-14s %s"
+                  % (name, lab or "no limb fired", "OK" if ok else "*** WRONG ***"))
+            if not ok:
+                _die("grading self-test: G3 case %r returned %r, expected %r"
+                     % (name, lab, expect))
+
+        print("\n--- the section 7 map, on the two fixtures -------------------------")
+        print("  attached-flow fixture:")
+        v_n = emit_verdict(None, True, None, g1n, g2n)
+        print("  dynamic-stall fixture:")
+        v_s = emit_verdict(None, True, None, g1s, g2s)
+        if v_n != VERDICT_GATE_FAIL or v_s != VERDICT_PASS:
+            _die("grading self-test: the outcome map returned %r / %r" % (v_n, v_s))
+
+        print()
+        print("GRADING SELF-TEST PASSED: the grader was shown able to return PASS and "
+              "able to return GATE FAIL, on the same code path and the same frozen "
+              "bands, and G3's three limbs were each shown able to fire and not to.")
+        return 0
+    except Refusal as exc:
+        _die(str(exc))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 def run_grade(run_dir: str) -> int:
-    _die("STAGE 1 SKELETON: grading is not implemented and this reader must not be "
-         "used to grade %s.  grade_G1/grade_G2/grade_G3/emit_verdict raise "
-         "NotImplementedError by design (pre-registration section 9, stage 1).  "
-         "Nothing is graded, nothing is degraded, and no partial value is printed."
-         % os.path.abspath(run_dir))
+    """The real pipeline.  Completion, then controls, then G3, then G1/G2, then the
+    section 7 map -- in that order, because a gate can only turn a PASS or GATE FAIL
+    INTO NOT A RESULT, never the reverse (rule 5)."""
+    run = os.path.abspath(run_dir)
+    print("=" * 78)
+    print("F5b PHYSICS RUNG -- GRADING")
+    print("run      %s" % run)
+    print("reader   %s" % os.path.abspath(__file__))
+    print("md5      %s" % hashlib.md5(open(__file__, "rb").read()).hexdigest())
+    print("         (rule 2 / charter 2d: hash this against the committed blob BEFORE "
+          "believing anything below; a freeze that is claimed and not checked is a "
+          "claim about intent)")
+    print("=" * 78)
+
+    if not os.path.isdir(run):
+        _die("run directory does not exist: %s" % run)
+    case = os.path.join(run, "case")
+
+    try:
+        print("\n--- SECTION 5 COMPLETION ------------------------------------------")
+        comp = check_completion(run)
+        comp.emit()
+        if comp.failed():
+            return 0 if emit_verdict(comp, None, None, None, None) else 0
+
+        print("\n--- SECTION 4 CONTROLS --------------------------------------------")
+        coeff = find_coefficient_file(case)
+        table = parse_coefficient_dat(coeff)
+        workdir = os.path.join(run, "controls")
+        results = [
+            control_CP3(table, os.path.join(case, "postProcessing"),
+                        "physics_p1/case/postProcessing/"),
+            control_CN1(FIXTURE_DEFAULT),
+            control_CP1(table, workdir),
+            control_CP2(table, workdir),
+        ]
+        for r in results:
+            r.emit()
+
+        print("\n--- G3: IS THE READING ADMISSIBLE? --------------------------------")
+        with open(os.path.join(case, "log.pimpleFoam"), errors="replace") as fh:
+            log = fh.read()
+        co, n_pre, n_mesh = courant_series(log)
+        step_times = [float(x) for x in RE_TIME.findall(log)]
+        print("  pre-loop Courant lines %d (derived: pimpleFoam.C:107 and :114)" % n_pre)
+        print("  Mesh Courant lines     %d (counted separately; the graded regex is "
+              "anchored so these cannot leak in)" % n_mesh)
+        g3, d3 = grade_G3(co, step_times)
+        for line in d3.splitlines():
+            print("  %s" % line)
+
+        t = table.col("Time")
+        a = alpha_series(t)
+        c = table.col("Cl")
+        idx, t1, t_end = window_mask(t)
+        tw = [t[i] for i in idx]
+        aw = [a[i] for i in idx]
+        cw = [c[i] for i in idx]
+        A_L, closing = loop_area(aw, cw)
+        sq, _, _ = sigma_quad(aw, cw)
+
+        if g3 == VERDICT_NOT_A_RESULT:
+            return 0 if emit_verdict(comp, True, g3, None, None) else 0
+
+        print("\n--- G1 and G2 -----------------------------------------------------")
+        peak = max(range(len(aw)), key=lambda k: cw[k])
+        A_up, A_down = _split_area(aw, cw)
+        g1, d1 = grade_G1(A_L, sq, closing, A_up, A_down)
+        for line in d1.splitlines():
+            print("  %s" % line)
+        g2, d2 = grade_G2(tw, aw, cw)
+        for line in d2.splitlines():
+            print("  %s" % line)
+
+        print("\n--- REPORTED BESIDE THE GATE, NEVER GATED ON (charter 2a) ----------")
+        print("  delta_close  %.9e   PERIODICITY DEFICIT -- NOT an error bar and never "
+              "quoted as one" % delta_close(cw))
+        print("  sigma_quad   %.9e   the reader's own quadrature error; THIS is the "
+              "error bar on A_L" % sq)
+        print("  C_L,max      %+.6f at alpha = %+.6f deg, t = %.9f"
+              % (cw[peak], aw[peak], tw[peak]))
+        print("  C_L,min      %+.6f" % min(cw))
+        print("  samples in W %d      A_att %.8f C_L.deg" % (len(idx), A_ATT_DEG))
+        print("  NOT CLAIMED: no cycle-to-cycle repeatability figure -- one period is "
+              "covered and a repeatability estimate needs at least two.")
+
+        emit_verdict(comp, True, g3, g1, g2)
+        return 0
+    except Refusal as exc:
+        _die(str(exc))
+    return 0
+
+
+def _split_area(alpha, cl):
+    """A_L split into upstroke and downstroke contributions.  REPORTED, never gated."""
+    up = down = 0.0
+    for i in range(len(alpha) - 1):
+        seg = 0.5 * (cl[i] + cl[i + 1]) * (alpha[i + 1] - alpha[i])
+        if alpha[i + 1] >= alpha[i]:
+            up += seg
+        else:
+            down += seg
+    return up, down
 
 
 def main(argv=None) -> int:
@@ -1089,8 +1582,9 @@ def main(argv=None) -> int:
     c.add_argument("--workdir", default=None)
 
     sub.add_parser("selftest-completion", help="prove the section 5 clauses can fail")
+    sub.add_parser("selftest-grading", help="prove the grader can PASS and GATE FAIL")
 
-    g = sub.add_parser("grade", help="grade a run (stage 2 only)")
+    g = sub.add_parser("grade", help="grade a run")
     g.add_argument("--run", required=True)
 
     args = ap.parse_args(argv)
@@ -1099,6 +1593,8 @@ def main(argv=None) -> int:
             return run_controls(args.fixture, args.workdir)
         if args.cmd == "selftest-completion":
             return run_selftest_completion()
+        if args.cmd == "selftest-grading":
+            return run_selftest_grading()
         if args.cmd == "grade":
             return run_grade(args.run)
     except Refusal as exc:
