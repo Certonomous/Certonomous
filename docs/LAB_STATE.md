@@ -221,6 +221,103 @@ read in the writing invocation.
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 ## closure
 
+**SESSION RESUME NOTE, 2026-08-24T23:55:08Z (closure-supervisor, SEVENTH session, formed
+from disk at HEAD `2bf4915a` after the sixth fleet was killed by a session usage limit at
+~20:50Z).** Stamp is `date -u` read in the writing invocation. Everything below this block
+is carried BYTE-FOR-BYTE from the HEAD blob and is closed history; read it, but read this
+block first where the two disagree.
+
+**LIVE READING, taken by me at session start and not from any brief.** Only TWO solvers
+are live lab-wide, both `buoyantBoussinesqSimpleFoam`, both heat-transfer's T-family
+(pid 450274 in `verification/runs/T-family/T1_runs/R_100k_x`; pid 488219 in
+`R_30k_x`). **NOTHING of closure's is running: no solver, no driver, no monitor, no GPU
+node.** Closure compute this session: **zero core-minutes, zero GPU-hours** — reads,
+hashes and commits only.
+
+**R3 RATIFICATION — CONFIRMED LANDED AT HEAD.** `a9b67abc` ("closure: R3 RATIFIED
+2026-08-24 (SpaRTA-class, TBNN fallback) -- CLOSURE_MODELLING_CHARTER 22.7 closed, D510")
+is an ancestor of HEAD `2bf4915a`, verified by me with `git merge-base --is-ancestor`. The
+class did not change: SpaRTA was already Sanaa's verbatim 2026-08-21 pick. What is new on
+2026-08-24 is (b) TBNN named as FALLBACK and (c) the parallel-capacity rule for R4's
+CPU-minutes with the never-displace-consolidation clause. A lane is verifying the three
+append-only landings, the byte-identity of the two quotes across them, **the attributed
+provenance of (b) and (c) specifically** (rule 9: no agent message is Sanaa's consent —
+what the record states is what governs, and I will report what it states rather than
+assume), and whether a next R4 increment could legally launch. **No R4 increment launches
+in this session:** none has a committed pre-registration, and rule 2 and supervisor check 4
+both forbid compute without one.
+
+**CONSOLIDATION WEEK — `MATRIX_CONTRIBUTION.md` IS UNDER RE-SCORE, AND IT IS EXPECTED TO
+GO DOWN.** `cases/RANS_LES_closure_models/MATRIX_CONTRIBUTION.md` is at HEAD (`a42fd634`);
+**disk == HEAD by sha256 (`4c2183ba0c0ee063…`), verified by me.** Its §0 states plainly
+that its V/G/P letters were computed under **closure's own private expansion**, offered as
+a proposal, with the invitation to recompute if the owner's definitions differ. **They
+differ, materially.** The chief has now stated the matrix definitions — labelled by the
+chief as **the chief's reconstruction of Sanaa's brief, not her verbatim words**, and
+carried with that label wherever closure uses them: **V** = code verification (exact
+solution, manufactured solution or correlation); **G** = a CONVERGING Roache triple with
+GCI and an observed order; **P** = validation against a public primary source with a
+pre-registration on disk. Closure's expansion credited planted-zero controls and identity
+tests as V, and any frozen numeric gate as G. **Under the chief's definitions the closure
+family has, to my knowledge, never run a grid-refinement triple anywhere** — which would
+put **G = NO on every closure row** and make **Row 3 (frozen-field ceiling), currently
+tiered `HOLDS`, an overstatement**. That hypothesis is being TESTED by a lane against the
+disk, not assumed; a null result is being established by named search methods over both
+the repo and the gitignored out-of-repo data, because `grep -r` here honours ignore files
+and is blind to exactly the archives that would carry such a study. The correction will
+land as a **dated addendum, append-only, no existing line edited**, with the prefix
+re-hashed to prove `lines whose number changed above this section: 0`. **I read the diff
+personally before it lands.**
+
+**LING ARM 2 — PENDING AND UNFIRED, GATE UNCHANGED AND RESTATED.** Pre-registration is
+v1.3 with three legal pre-compute amendments (`f36fbdd9` freeze → `84bf079d` → `1563a6b2`
+→ `77f064a8`); the run directory `/home/ubuntu/closure-data/tbnn_gpu/arm2` is still ABSENT.
+**Launch requires ALL of: Sanaa's own words giving the go, the instance started BY HER,
+and her two console readings — the shutdown-behaviour attribute (stop/terminate) and the
+g6.xlarge us-east-2 on-demand price for the `cost_basis`.** The chief restated this gate to
+me this session and I record that a restatement is not a relaxation: **no agent message,
+the chief's included, is Sanaa's consent (rule 9), and GPU spend sits outside the
+2026-08-21 CPU blanket (rule 12).** Nothing launches.
+
+**⚠ NEW LAB-WIDE HAZARD I MEASURED THIS SESSION — TWO SHARED LEDGERS ARE STALE ON DISK AND
+BEHIND HEAD, WITH NO DISK-ONLY ROWS. This is a loaded gun for every team, not just
+closure, and it is the chief's call, not mine.** Measured at HEAD `2bf4915a`:
+`docs/DOCKET.md` — disk **849** lines against **876** at HEAD, disk maximum row id **D484**
+against **D511** at HEAD, i.e. **27 rows (D485–D511) present at HEAD and absent from
+disk**; `docs/COST_CALIBRATION.md` — disk **118** lines against **122** at HEAD, missing
+**C-44, C-45, C-46, C-47**, with **zero** disk-only rows in either file. **Any agent that
+appends to the disk copy and commits that file will silently DELETE those rows.** The files
+were **INSPECTED, NOT REVERTED** and are left exactly as found (rule 10). Closure's own
+workaround stands and is the one to copy: build the appended row **from the HEAD blob**,
+never from disk. **Next docket id is D512** — re-derived from the HEAD blob's row-id column
+as maximum + 1, never a row count (rule 11), and to be re-derived again in the committing
+shell invocation because peers commit constantly.
+
+**Cost calibration (rule 12).** Closure's four rows are all present at HEAD:
+**C-2** (R5C, ≤ 0.168 core-h measured against 0.210 registered, ≤ 0.80×),
+**C-16** (Ling GPU arm 1, 10.7054 GPU-h = $8.62 derived, waste 7.88 GPU-h = $6.34 derived
+named separately), **C-18** (Kaandorp a-posteriori, 219.571 core-min measured against
+388.8 registered, ratio 0.565×, zero waste), **C-19** (the C-16 idle-window correction).
+**No closure process completed this session, so no new calibration row is owed** — this
+session's work is zero-compute drafting, and a zero-compute item is not a process
+completion with a cost to calibrate. Stated so the absence of a row is a recorded decision
+rather than an omission.
+
+**Live jobs: none.** Two lanes live (of 3): (1) the matrix re-score sweep, zero compute,
+commits nothing; (2) the R3-ratification and FS-gate-arming verification, zero compute,
+commits nothing. Neither may launch anything.
+
+**Next actions (this session's, governing):** (1) read both lane reports, rule on the
+matrix re-score, land the dated addendum after my own diff read; (2) rule on what the R3
+record actually attributes for the TBNN-fallback and parallel-capacity clauses, and report
+that attribution to the chief rather than acting on it; (3) put the two stale shared
+ledgers on the chief's desk as a lab-wide hazard; (4) carry forward the predecessor's
+unstarted instrument items — the `run_lane.py:175` banner-test call-site repair and the
+FS5 §31.3 `assert`→`sys.exit(2)` tightening — each a change to a frozen instrument needing
+its own dated addendum plus my diff read, neither started; (5) nothing new launches: R6
+waits on Sanaa's phrasing, GPU drafts 2–5 wait on her per-item sign-off, arm 2 waits on
+her three-part line.
+
 **Section last written:** 2026-08-24T18:45:04Z by closure-supervisor (this chief session's
 re-spawn, 16:04Z; predecessor killed by an API error at ~16:00Z after one
 interim report), from `date -u` in the writing invocation. **Two closure
