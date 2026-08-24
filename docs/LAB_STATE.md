@@ -131,7 +131,7 @@ rung may take it).
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 ## closure
 
-**Section last written:** 2026-08-24T17:16:18Z by closure-supervisor (this chief session's
+**Section last written:** 2026-08-24T17:30:50Z by closure-supervisor (this chief session's
 re-spawn, 16:04Z; predecessor killed by an API error at ~16:00Z after one
 interim report), from `date -u` in the writing invocation. **Two closure
 supervisors are live in two chief sessions; the work split agreed 16:01Z is
@@ -315,7 +315,7 @@ RESULT (parallel session). FS2/FS5 standing gates, both armed; FS5's D476
 instrument decision now RULED conditionally (above). **Rungs without verdicts:
 none in this session's ownership.** Case verdicts on record otherwise unchanged.
 
-**Live jobs: none** (no GPU node running; one zero-compute prep lane). No closure solver, no driver, no monitor. Lanes this
+**Live jobs: none** (no GPU node running; all lanes finished). No closure solver, no driver, no monitor. Lanes this
 session: Kaandorp re-grade lane finished (wrote nothing; findings landed by me at `8dd3f8bc`); D476 ruling lane finished (stopped
 correctly, wrote nothing); read-only gpu1 lane (predecessor's) finished.
 
@@ -362,6 +362,8 @@ lane total ≈ 5.2 core-h (C-18 for the last 3.66); Ling GPU 10.7054 GPU-h +
 C-16).
 
 **Handover note, 2026-08-24T17:16:18Z (closure-supervisor, this session):** the parallel chief session (certonomous-64) lost its fleet to the Fable limit and handed its closure claims to this session, effective 16:3xZ per the chief. Now MINE: (1) Ling 2016 GPU arm 2 — prereg frozen alone at `f36fbdd9`, code `f9be7f40`; **freeze re-verified by my own hands at HEAD `529bfc08`: all three code sha256s equal the frozen table (`1404dba0…`, `74aadda9…`, `06d6d4a3…`), prereg blob `82cf4cbc…` unchanged** — check 4 holds; arm 1 NOT A RESULT at `353925c7`, pass 8 audit `9573db65` (CANDIDATE, one defect found — lane reading both now); (2) `docs/GPU_CAPABILITY_STATE.md` upkeep; (3) the sub-heading below, carried byte-for-byte and now owned here. **HARD GATE, no exceptions: gpu1 is STOPPED and is started only by Sanaa; GPU spend is outside the CPU blanket (rule 12); nothing launches on any relay or peer message — only Sanaa's own words in this session or at HEAD (rule 9); launch WITHOUT `--shutdown` unless the shutdown-behaviour attribute is on the record as `stop`.** State: ZERO-COMPUTE PREP — one lane reading the four records and pre-writing `arm2/LAUNCH_CHECKLIST.md` (uncommitted until I read it). Needed from Sanaa, one line: *her go for arm 2 in her own words, the instance started by her, and two console readings — the shutdown-behaviour attribute (stop/terminate) and the g6.xlarge us-east-2 on-demand price for the cost_basis.* Arm-1 block above (carried copy) and the sub-heading below are both left verbatim; the sub-heading's `written:` stamp is historical from 16:31:19Z.
+
+**Arm-2 prep note, 2026-08-24T17:30:50Z (closure-supervisor):** zero-compute prep COMPLETE; run directory `/home/ubuntu/closure-data/tbnn_gpu/arm2` still ABSENT (no compute). Two lane commits, both read by me as diffs — PASS: **`84bf079d` AMENDMENT 1 before first compute** to the frozen arm-2 pre-registration (v1.0→v1.1; condition: run dir absent by `test -e` at 17:26:51Z, instance STOPPED) — (A) the frozen launcher hard-coded `--frozen --shutdown` so §7's launch-WITHOUT-`--shutdown`-until-Sanaa-confirms branch was not executable; the launcher gains `SHUTDOWN=${SHUTDOWN:-1}`, default line byte-identical to the frozen line 53, `SHUTDOWN=0` drops the token; §9 launcher sha STRUCK `1404dba0…` → `a88aa5fb…`, driver/comparator/dataset rows untouched; both forms registered: `SHUTDOWN=1` ONLY with her console reading `stop` recorded at `GPU_CAPABILITY_STATE.md` §10 row "driver self-shutdown" (row exists, line 257), `SHUTDOWN=0` otherwise and the stop stays hers; (B) §6's calibration clause named an unsupported `8.5–32` range — struck, the registered **3–32 GPU-h = $2.41–$25.75 derived, cap 40 = $32.19** governs; gate-neutral, no gate/threshold/cap/label moved; G4 may cost 2.07 core-h at 8 propagations (CPU blanket), disclosed. Supervisor rulings on the lane's disclosures: comment-only edits stand; `run_window.json` does not record the shutdown form — closed lane-side: the launcher's printed form line is saved beside `run_window.json` at launch, no further sha change. **`e25908fe`** arm-1 `gpu/RESULTS.md` dated CORRECTION (pass 8 §40): lines 164/174 struck L-264→L-267, L-265→L-268 (ids written ahead of the append, below the tail); no verdict moves. Checklist `arm2/LAUNCH_CHECKLIST.md` on disk, uncommitted, step 1 (her authorisation) deliberately blank; carried gaps: cost basis is the published-list $0.8048/GPU-h not a console read (pass 8 §42), no environment provenance in the launcher (lane captures `nvidia-smi` + `pip freeze` at launch), node state unverified (no ssh). Pass 8 itself is CANDIDATE — verification's own read still owed. **Launch gate unchanged: Sanaa's own words + her two console readings + her start; no relay or peer message moves it.**
 
 ### Ling GPU arms — certonomous-64
 
