@@ -1386,3 +1386,198 @@ append.
   the lane's to sign off. A lane's assurance that the amendment is sound is a
   summary, not a check. **No agent message — including the brief that produced
   this amendment — is Sanaa's consent (CLAUDE.md rule 9).**
+
+---
+
+## 14. ADDENDUM 2 (POST-COMPUTE, 2026-08-24) — which of the two `boundE.H` event sets §8 reads
+
+**Version:** v1.1 → **v1.2**. v1.1 is §13 (AMENDMENT 1, pre-compute, 2026-08-24).
+The frozen blob this addendum is appended to is
+`1673f24f4b7c6eaebde6d506af8203d6626ac17e`, which is **the blob that ran**: it was
+verified byte-identical to the working copy immediately before this append, and it
+is the blob quoted in both steps' `LAUNCH.txt`/`POSITIVE_CONTROL.txt` and in
+`c0_twin_diag/C0_RESULT.txt`.
+
+### 14.0 This is POST-COMPUTE. It alters no gate, threshold, cap or label.
+
+**First compute under this document has happened.** Both steps ran and landed at
+commit `7cdb26f4` (*"F4 SIGFPE step-0/1: built, C0 inert, both steps launched and
+completed — COMPLETE / COMPLETE; NOT GRADED, grading bodies not yet written"*,
+2026-08-24T16:43:03Z). Gates are therefore **closed** (rule 2, §12 of this
+document): this addendum is a **dated addendum, not an amendment**, and it
+
+- **changes no gate**: §8.1's `[6 %, 24 %]`, §8.2's `80 %` / `20 %`, §8.3's
+  `10 %` / `5 %`, §8.4's `0.60 ×` / `1.5 ×`, §7.3's 200-block minimum;
+- **changes no cap**: §10's `12 core-min` run cap and `3 core-min` build
+  allowance;
+- **changes no label**: every §7, §8 and §9 label is carried through verbatim;
+- **strikes nothing.** Nothing above this line is edited, struck or renumbered.
+
+What it does is **fix the reading of a clause that is ambiguous as frozen**, and
+disclose in full that the numbers on both readings were already visible when the
+reading was fixed.
+
+### 14.1 The ambiguity, stated exactly
+
+§8 says all fractions are *"read from the `BOUND:`/`BOUNDDIAG:` lines, at the
+`Time = ` block whose time is nearest `1.9e-05` from below"*. It presumes **one**
+clamp report per `Time = ` block. There are **two**, because `boundE.H` is
+included **twice per timestep**:
+
+| include site | file | context |
+|---|---|---|
+| **`:267`** | `rhoCentralFoamBoundedDiag_src/rhoCentralFoamBoundedDiag.C` | immediately after the convective `rhoE` solve and `e = rhoE/rho - 0.5*magSqr(U); e.correctBoundaryConditions();` (`:266`), and **before** `thermo.correct()` (`:270`) |
+| **`:282`** | same file | inside `if (!inviscid)` (`:276`), **after** the viscous solve `fvm::ddt(rho, e) - fvc::ddt(rho, e) - fvm::laplacian(alphaEff, e)` (`:278–:281`), and after the intervening `thermo.correct()` |
+
+In the Step-1 tree the same two sites are at **`:269`** and **`:284`** of
+`rhoCentralFoamInletUpwindDiag_src/rhoCentralFoamInletUpwindDiag.C` — shifted by
+exactly the two lines §5.1 adds (`#include "inletUpwindPos.H"` plus its blank
+line). They are the same two sites; `boundE.H` itself is byte-identical between
+the two trees, as §5.1 requires.
+
+§4.1 item 2 of this document already recorded that both sites exist (*"including
+both `#include "boundE.H"` sites at `:267` and `:282`"*) and §4.2 clause 5 already
+asserted that neither moves. **What §8 never says is which of the two sets it
+reads.** That gap is what this addendum closes.
+
+### 14.2 The ruling — event 1, on mechanism grounds
+
+**The cfd supervisor ruled that §8 reads EVENT 1**, the `:267` set. The ground is
+the frozen hypothesis, not the numbers:
+
+1. **§8.3 reasons about the `e = rhoE/rho − ½|U|²` cancellation.** Its whole
+   construction — `RHO-FIRST` / `U-FIRST` / `E-FIRST` from the worst-low cell's
+   `rho` and `|U|` — is a statement about the state that *produced* the clamp
+   through that identity. That state exists at `:267` and nowhere else in the
+   timestep.
+2. **§4.2 of this document says so in its own words.** The instrument comment
+   frozen there reads *"`rho` and `U` are CURRENT at this point — `rho` is
+   advanced at `:225` (continuity), `U` at `:229-245` (momentum + viscous
+   correction), both before `:265`. `T` is NOT current: `thermo.correct()` has not
+   yet run for this step."* That sentence is **true at `:267` and false at
+   `:282`**, where `thermo.correct()` has already run at `:270`. The frozen
+   instrument was written for the first site.
+3. **Event 2 is a different population.** It is a re-clamp of an `e` that has
+   since been corrected by `thermo.correct()` and then diffused by the viscous
+   `e` solve. It measures how much of the convective clamp survives diffusion —
+   a real quantity, but not the one §8.1/§8.2/§8.3 are written about.
+
+**Corroboration on disk, measured rather than argued.** The two sets are
+demonstrably different populations in the `BOUNDDIAG:` output itself: at `t*` in
+Step 0 the event-1 lagged-temperature range is
+`TprevLow=[139.583003,139.593102]` while event 2's collapses to
+`TprevLow=[139.583003,139.583003]` — consistent with `T` having been corrected
+between them, exactly as the source ordering says. This is quoted as
+corroboration of the *ordering*, not as a physics claim.
+
+### 14.3 The event-ordinal rule, stated so no reader can vary it
+
+> **Event `k` = the `k`-th BOUND-family set within a `Time = ` block, in log
+> order.** A BOUND-family set is the consecutive triple
+> `BOUND: e below eMin …` / `BOUNDDIAG: …` / `BOUNDHIST: …` carrying the same
+> time token. **A block with a single set is event 1 only, and event 2 is
+> ABSENT — not zero.** A block with no set at all has neither.
+
+Three consequences, each of which the reader implements:
+
+1. **`BOUND: e above eMax` is not part of a set.** It is a separate emission
+   (`boundE.H:142–148`) with its own text and no `BOUNDDIAG`/`BOUNDHIST`
+   companion; it is skipped by the ordinal counter. Measured: **0 occurrences in
+   either step's log**, so this clause is stated but untested by these two runs,
+   and is named here rather than left implicit.
+2. **Emission is conditional.** `boundE.H:107` emits the set only `if (nLow > 0)`,
+   so a block *can* carry fewer than two sets. Measured on the logs at
+   `7cdb26f4`: **every one of the 2062 `Time = ` blocks in each step carries
+   exactly two sets** (2062/2062 in Step 0 and in Step 1), so the ordinal rule is
+   unambiguous on this data — but it is written to survive a log where it is not.
+3. **Absent is not zero, and the reader refuses.** Where §8 requires event 1 of a
+   block and that block carries **no** set, the reader **refuses (exit 2)** rather
+   than reading the absence as `nLow = 0`. Standing rule 3: a zero from a reader
+   that cannot distinguish "no clamped cells" from "no line emitted" is not
+   evidence. Where §8 requires event 1 and event 2 exists but is not required, the
+   event-2 value is printed beside it, ungraded (§14.5).
+
+### 14.4 Both-readings disclosure — the numbers were visible when the ruling was made
+
+**Stated plainly, because it is the only thing that could make this addendum look
+like a gate chosen to fit an answer.** When the supervisor ruled, the raw counts
+under both readings were **already on disk** in the two logs committed at
+`7cdb26f4`
+(`step0_instrumented/log.rhoCentralFoamBoundedDiag.gz`,
+`step1_inletupwind/log.rhoCentralFoamInletUpwindDiag.gz`) and had **already been
+relayed in the lane's report**. The ruling was nonetheless taken on the mechanism
+grounds of §14.2 — the frozen §8.3 identity and the frozen §4.2 comment — and not
+by fit to the numbers. **The reader who does not accept that assurance is given
+every number needed to judge it, here:**
+
+`t*` is the block at **`t = 1.8993308e-05`** (block 663 of 2062, the last block at
+or below `1.9e-05`). Fractions are `nLow / 29700`.
+
+| step | point | event 1 (`:267`) `nLow` | fraction | event 2 (`:282`) `nLow` | fraction |
+|---|---|---|---|---|---|
+| Step 0 | `t*` | **2668** | **8.98 %** | 749 | 2.52 % |
+| Step 0 | window end `6.5e-05` | **6856** | **23.08 %** | 2019 | 6.80 % |
+| Step 1 | `t*` | **2668** | **8.98 %** | 775 | 2.61 % |
+| Step 1 | window end `6.5e-05` | **6849** | **23.06 %** | 1913 | 6.44 % |
+
+**The choice is material, and it is material in exactly one place.** §8.1's `S0a`
+band is `[6 %, 24 %]`. Step 0's event-1 `t*` fraction, **8.98 %, is inside it**;
+its event-2 `t*` fraction, **2.52 %, is outside it**. So:
+
+- **Under an event-2 reading, §8.1 would return `BASELINE-NOT-RECOVERED`**, and
+  §9.1's fourth row would then make the discrimination question **`NOT A RESULT`**
+  whatever Step 1 shows, leaving only Step 0's own §8.2/§8.3 absolute reads.
+- **Under the ruled event-1 reading, `S0a` is satisfied at `t*`.** `S0b` and every
+  other clause of §7, §8 and §9 remain to be evaluated by the reader. **No label
+  is issued in this addendum**, and this table is raw counts, not a grade.
+- **§8.4 is insensitive to the choice.** `S1a` compares Step 1's `t*` fraction
+  against `0.60 ×` Step 0's: the ratio is `2668/2668 = 1.000` under event 1 and
+  `775/749 = 1.035` under event 2 — both far above `0.60`, in the same direction.
+
+**Every §8 number the results record quotes must therefore be printed with its
+event-2 counterpart beside it and with the verdict the alternative reading would
+return, stated in the §7/§8/§9 label vocabulary.** A results record that quotes
+only the graded reading is incomplete.
+
+### 14.5 What the reader prints — binding on `analyse_f4_sigfpe_step01.py`
+
+The grading bodies (`check_completion`, `grade_step0`, `grade_step1`), written
+after first compute and landing in their own commit for the supervisor to read as
+a diff, must:
+
+1. Grade **event 1** for every §8.1, §8.2, §8.3 and §8.4 clause.
+2. Print the **event-2** value of every graded number **beside** it, marked
+   `UNGRADED (event 2, :282 re-clamp)`.
+3. Print, for each §8 label it issues, **the label the event-2 reading would
+   return**, marked as an alternative reading and not as a verdict.
+4. **Refuse (exit 2)** where a block required by §8 carries no BOUND-family set.
+5. Report `event 2 = ABSENT` — never `nLow = 0` — for a block carrying one set.
+
+This is a reporting and reading requirement. It moves no threshold.
+
+### 14.6 Assertions
+
+- **lines whose number changed above this section: 0.** This section is appended
+  at the foot; §§0–13 are byte-identical to the blob
+  `1673f24f4b7c6eaebde6d506af8203d6626ac17e`, which was verified against the
+  working copy before the append and is verified after it by diffing this path
+  against `git show HEAD:<path>` and confirming **insertions only, all after the
+  previous last line (1388)**.
+- **No gate, threshold, band, cap or label is altered**, and nothing above is
+  struck. §14 fixes the *reading* of §8's clamp-report clause and adds a printing
+  obligation; it changes no number that decides a label.
+- **Post-compute, and said so.** First compute landed at `7cdb26f4`; this is a
+  dated addendum under rule 2 and §12, not a pre-compute amendment.
+- **Full both-readings disclosure is in §14.4**, including that the numbers were
+  visible when the ruling was made and that the ruling was taken on mechanism
+  grounds. The reader is given both columns and can disagree with the ruling on
+  the evidence.
+- **Version bumped:** v1.1 → **v1.2**.
+- **The supervisor's read of this addendum's diff, and of the grading bodies'
+  diff, is required before any number from this experiment is believed**
+  (`SUPERVISION_CHARTER.md` §3). A lane's assurance is a summary, not a check.
+  **No agent message — including the brief that produced this addendum, and
+  including the ruling it records — is Sanaa's consent (CLAUDE.md rule 9).**
+
+**Stamp:** written at 2026-08-24T17:19:23Z (box clock, `date -u`, read in the same shell
+invocation as the append), at HEAD `a0b524c051a82acee950d1caebce3e6c5dfc0fa7`.
