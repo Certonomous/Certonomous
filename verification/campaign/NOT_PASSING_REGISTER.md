@@ -774,3 +774,126 @@ The following cases ran, converged, and were validated or documented as intended
 - **Nine-Act validation suite**: 8 of 9 acts PASS (cylinder, wedge, cone, diamond, ahmed, hump, CRM). ONERA M6 primal alone UNCONVERGED (included in Group 3).
 - **Curriculum mesh ladders (validated cases)**: ahmed_25, flat_plate, cube all VALIDATED within their reference bands.
 
+
+---
+
+## Added 2026-08-24 — annotation on the Group 3 F4 SWBLI entry: its bounded-fraction evidence is gone from disk, and its artifact prefix is dead
+
+**Form.** This is a dated note appended at the foot, in this register's own
+`Added <date>` convention. **The entries it annotates are NOT edited in place** —
+standing rule 6, and the same reason `F4_hypersonic_blunt_body.md` §8.10 gave for
+correcting its own citations below rather than above: other records cite these
+lines by number. **Insertions only; lines whose number changed above this
+section: 0.**
+
+**What it annotates**, by line number in this file at the commit this note lands
+on (unchanged by this append, which adds only at the foot):
+
+- **lines 147–165** — the 2026-07-30 summary block *"F4 SWBLI cylinder-flare
+  warm-up: a hard case, five mechanisms eliminated, two real bugs fixed,
+  unresolved"*; the artifact path is on **line 161**.
+- **lines 563–578** — the Group 3 entry *"F4 SWBLI cylinder-flare θ=20° warm-up
+  — SIGFPE, then persistent unbounded energy defect, five mechanisms
+  eliminated"*; the evidence line is **line 578**.
+
+Nothing below changes a failure, a cause, a number or a conclusion in either
+block. Both defects are provenance defects.
+
+### (a) The bounded-fraction figures are record-quoted and artifact-missing — **VERIFY**
+
+**Every `BOUND:` log from every bounded run of this case is gone from disk.**
+That is the parent record's own finding at
+`verification/campaign/F4_hypersonic_blunt_body.md` §8.8, restated in the frozen
+`verification/campaign/F4_SIGFPE_STEP01_PREREGISTRATION.md` §2.1, and it is
+re-verified here rather than relayed:
+
+- A search of the git-tracked tree for the guard's own marker `BOUND: e` returns
+  **five files, none of them a solver log**: the two prose records above, the
+  step-01 analysis script, a test fixture
+  (`verification/runs/F4_runs/swbli_cylflare/fixtures/bound_log_fixture.txt`),
+  and the guard source itself
+  (`verification/runs/F4_runs/swbli_cylflare/rhoCentralFoamBounded_src/boundE.H`).
+- A sweep of `verification/runs/F4_runs` for any `log.*` / `*.log` file returns
+  **zero under `swbli_cylflare/`**; `warmup20_bounded/` holds only
+  `0/ constant/ postProcessing/ system/`, i.e. no written time directory and no
+  solver log.
+- **Planted-zero control** (standing rule 3 — a zero from a reader not shown able
+  to see a non-zero is not evidence). The same `find` invocation that returns
+  nothing under `swbli_cylflare/` returns the `log.rhoCentralFoam`,
+  `log.checkMesh`, `log.blockMesh`, `log.sample`, `log.surfsample` set for the
+  `F4_runs/cyl/M{6.0,8.0}/{coarse,medium,fine}` rungs in the same tree — so the
+  reader sees F4 solver logs where they exist. And in the one surviving F4 SWBLI
+  log named in (b), `grep -c "BOUND:"` returns **0** while `grep -c "Courant"`
+  returns **642** in the same file — the zero is a real zero, from a reader
+  demonstrably reading that file.
+
+**Consequently, the figures in the annotated blocks that come from those logs
+carry a `VERIFY` provenance flag.** In this file the affected quantities are the
+bounded-cell fractions **~30 %** (line 573), **~17 %** and **~12 %** (line 575).
+The full set the parent record names — **4 %, 12 %, 17 %, ~22 %, ~30 %, ~32 %** —
+together with the worst-`e` values (`−199,551.388`, `−199,524.67…86`,
+`−211,681.775`) and the clamped-region spatial extents is enumerated at parent
+§8.8 and prereg §2.1; **this register quotes only the three fractions above and
+quotes no worst-`e` value** (checked: no `199,5`, `211,68` or "worst-e" string
+occurs anywhere in this file).
+
+`VERIFY` here is a **provenance flag, not a gate verdict** — the rule-1 vocabulary
+is untouched, and nothing in the F4 entry is or ever was a gate. It means: the
+number is quoted from a record's prose, the artifact behind it is not on disk, and
+it must not be treated as measured until the artifact is regenerated. **The flag
+lifts when the F4 SIGFPE step-0 instrumented re-run regenerates the `BOUND:`
+evidence** — prereg §2.1 states that recreating this artifact is step 0's first
+purpose, *"the run that puts the record's own headline number back on disk."*
+Until then the entry's *conclusions* stand on the record's own reasoning; its
+*numbers* do not stand on artifacts.
+
+**Not weakened by this flag:** the two fixed bugs (the `hConst` thermo swap that
+dropped the only T-bound, `LESSONS.md` L-20; the inverted `simpleGrading` that
+left the wall ~86× too coarse), the SIGFPE itself, and the "root cause: not
+identified" status. Those rest on the surviving crash log and on source, not on
+the missing `BOUND:` logs.
+
+### (b) Every `demo-output/website/campaign/...` path in the F4 entry is dead
+
+Checked against disk, one path at a time. **All seven fail to resolve:**
+
+| cited in this file | line | on disk | corrected location (parent §8.10, confirmed present) |
+|---|---|---|---|
+| `demo-output/website/campaign/F4_hypersonic_blunt_body.md` | 161, 578 | **MISSING** | `verification/campaign/F4_hypersonic_blunt_body.md` |
+| `demo-output/website/campaign/F4_runs/swbli_cylflare/warmup20` | 578 | **MISSING** | `verification/runs/F4_runs/swbli_cylflare/warmup20` |
+| `.../warmup20_bounded` | 578 | **MISSING** | `verification/runs/F4_runs/swbli_cylflare/warmup20_bounded` |
+| `.../warmup20_bounded_realtime` | 578 | **MISSING** | `verification/runs/F4_runs/swbli_cylflare/warmup20_bounded_realtime` |
+| `.../warmup20_bounded_farfield` | 578 | **MISSING** | `verification/runs/F4_runs/swbli_cylflare/warmup20_bounded_farfield` |
+| `demo-output/website/campaign/F4_runs/make_swbli_case.py` | 578 | **MISSING** | `verification/runs/F4_runs/make_swbli_case.py` |
+| `demo-output/website/campaign/F4_runs/build_inlet_profile.py` | 578 | **MISSING** | `verification/runs/F4_runs/build_inlet_profile.py` |
+
+Every corrected target in the right-hand column was confirmed present on disk on
+2026-08-24 by this note's author. The cause is the 2026-08-18 reorganisation
+recorded in `docs/charters/FILING_CHARTER.md`, which collapsed the webroot;
+`demo-output/website/` now holds only `latex/`, `motorbike-video/`,
+`solve_registry/` and `surfaces/`. Parent §8.10 anticipated this correction and
+explicitly left it as its own item: *"The same stale prefix appears in
+`NOT_PASSING_REGISTER.md`'s Group 3 F4 entry and in its 2026-07-30 summary block.
+Not corrected here."* This note is that item.
+
+**The one F4 SWBLI artifact that DOES survive under `demo-output/website/`** —
+verified, not assumed:
+
+- `demo-output/website/solve_registry/f4_swbli_warmup20_20260730T004453Z.log`
+  — **present**, **2,174,951 bytes**, md5 **`b658b967377d574d8aacf00e3569cf9c`**
+  (both read from disk on 2026-08-24). This is the original SIGFPE crash log from
+  the stock `rhoCentralFoam` run, and it contains **0** `BOUND:` lines, as
+  expected for the unmodified solver. It is **not currently cited by the F4 entry
+  in this file**; it is named here so the entry's one surviving artifact is
+  reachable. A companion marker file
+  `demo-output/website/solve_registry/f4_swbli_warmup20_20260730T004453Z.done`
+  is also present.
+
+**Scope of this note:** disclosure and citation repair for the F4 entry only.
+Zero compute. No entry above is edited, no cause is revised, no verdict is taken.
+
+**Separately observed, NOT acted on here:** the same dead
+`demo-output/website/...` prefix appears in roughly thirty other evidence lines
+across this register (F6d, F9, R5, the DAFoam Group 1/2 entries, TMR, F8, the 4G
+bump block and others). Those are outside this note's item and are left for their
+own owners; this note fixes only the F4 rows it enumerates above.
