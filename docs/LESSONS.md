@@ -9888,3 +9888,66 @@ awake", and no file asked that question before launch.
 
 **Where it fired.** `Ling2016_TBNN/gpu/RESULTS.md` D-2, §5; `docs/COST_CALIBRATION.md`
 C-16. Docket D490.
+
+## L-269. A threshold is only as real as the instrument that will read it — dimension every registered number against its reader's resolution BEFORE the freeze, or the gate grades the instrument
+
+One pre-registration, three registered clauses, and **not one of them could be
+served by the instrument that had to read it.** All three were found *after* the
+compute, two of them at close-out, and none could be repaired because gates close
+at first compute (`CLAUDE.md` rule 2).
+
+`Kaandorp2020_TBRF/aposteriori/PREREGISTRATION.md`, frozen `0ebc9d53`:
+
+1. **G0a: threshold 1e-10, instrument resolution 4.00e-07.** The solver-identity
+   gate compares two `U` fields written `ascii` at `writePrecision 6`. One ulp of
+   that representation in the largest component is a rel-L2 of **4.002936e-07**;
+   the half-ulp quantisation floor is **1.822069e-06**. The registered 1e-10 is
+   **4,003x** below the first. The gate read `0.0` and passed — correctly, the
+   files are byte-identical — but two solvers agreeing only to 1e-8 would have
+   passed identically. **The gate proves agreement to < 4e-07 and no more.**
+2. **H5: threshold 1e-3, against a normalisation the control itself fails.** On the
+   registered `U_bulk/L` normalisation the zero-correction `NULL` control reads
+   0.262 — 262x the threshold — and on the curved CBFS mesh the gradient estimator
+   floors at ~5e-3, a level the shipped converged SST baseline **and the LES truth
+   itself** both exceed. The threshold could not be met by any field on that mesh.
+3. **§6 convergence: "sustained for 100 iterations", against a solver that stops
+   at first satisfaction.** `residualControl` terminates the run the first
+   iteration its test passes, so a criterion phrased as a 100-iteration run is
+   unsatisfiable by construction on exactly the rows that converge. Its
+   stagnation fallback is phrased over "the last 500 iterations" and
+   `writeInterval` wrote checkpoints every 5,000, so that limb could not be
+   measured at its registered window either.
+
+**The common failure is not carelessness about the physics. Every one of these
+thresholds is defensible as a statement about the world;** each is indefensible as
+a statement about a *measurement*, because nobody asked what the reader could
+resolve. A pre-registration's evidentiary content is that the gate could not have
+been chosen to fit the answer — but a gate the instrument cannot evaluate has a
+foreordained answer too, and it is not the one the registration was reaching for.
+
+**The rule.** Before the freeze, for every registered number, write down the
+instrument that will read it and its resolution, and assert the threshold sits
+**above** that floor with margin. The check is cheap and it is arithmetic:
+`writePrecision` for a field comparison; the estimator's calibration on a field of
+known answer for a derived quantity — and the CONTROL row's own value, which must
+pass before the treatment is graded; the checkpoint interval for anything phrased
+over a window; the solver's own termination logic for anything phrased as a run of
+iterations. A pre-registration that names a threshold should name, in the same
+sentence, what would be measurable if the claim were false.
+
+**The tell at grading time is a zero, or a floor that the truth also fails.** A
+comparator returning exactly `0.0` and a control row failing the same gate as the
+treatment are both the same signal: the number is about the instrument. Rule 3's
+planted control answers *"can the reader see anything?"* — it does **not** answer
+*"can the reader see the thing the threshold names?"* Here the plant passed (the
+reader reported 4.002936e-07 for a planted perturbation) while the threshold
+remained 4,003x out of reach. **Plant the zero, and then also dimension the
+threshold; they are two different checks and the first does not imply the second.**
+
+**And when the defect is found after the compute, it is disclosed and referred,
+never repaired.** Nothing in that pre-registration was changed; the three defects
+are recorded in `RESULTS.md` §5, §6 and the 2026-08-24 addendum §A.5, and
+referred to verification as D492. A lane facing two readings of one frozen
+clause may not take the softer one; the supervisor ruled the registered reading
+governs (D492). Drafted by the close-out lane 2026-08-24T16:09:33Z; landed by
+the closure supervisor 2026-08-24T16:15:11Z with the id re-derived at commit.
