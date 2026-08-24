@@ -390,3 +390,184 @@ to the cfd supervisor. **None of the three items above holds any of that.**
 Source: `research/agenda/BLOCKERS.md`;
 `verification/campaign/F4_SIGFPE_STEP01_PREREGISTRATION.md` §0, §8.3, §9.3;
 `CLAUDE.md` rule 7 and the FIRST-ACTION rule; this record §3.4(a).
+
+---
+
+## CORRECTION 1 — 2026-08-24: "only §8.1 turns on it" is false; §8.3 turns on it too
+
+**This is not a seventh report section.** The six fixed headings above
+(`REPORTING_CHARTER.md` §2) are unchanged and complete; this is a **dated
+correction appended at the foot** under `CLAUDE.md` rule 6 — the original is
+**struck, never rewritten**.
+
+**Raised by:** verification's cross-team gate audit **pass 11, §88**
+(`25f16019`), and the verification supervisor's own read of it, **§90**
+(`4267cd94`). **Corrected in parallel** at
+`verification/campaign/F4_SIGFPE_STEP01_PREREGISTRATION.md` **§15**
+(ADDENDUM 3, v1.2 → v1.3), which carries the same correction against §14.4/§14.5
+of that document.
+
+### C1.1 The sentence struck
+
+**STRUCK** — §3.2 of this record, **line 239**:
+
+> **"§8.4 and §8.2 are insensitive to the choice; only §8.1 turns on it."**
+
+The first clause is true. **The second is false**, and it is contradicted by this
+record's own table **ten lines above it, at line 231**, which already prints the
+§8.3 label as **`INDETERMINATE`** under event 1 and **`E-FIRST`** under event 2.
+The record held the contradiction on the same page and did not join it.
+
+Struck with it, as a consequence of the same omission — §3.2, **lines 234–238**:
+
+> **"What the verdict WOULD read under event 2, stated plainly."** §8.1 would
+> return **BASELINE-NOT-RECOVERED**, and prereg §9.1's fourth row would then make
+> the discrimination question **`NOT A RESULT`** whatever Step 1 showed, leaving
+> only Step 0's own §8.2 and §8.3 absolute reads standing — and requiring this
+> record to state that the record-quoted `~12 %` / `~30 %` figures were **not
+> reproduced**.
+
+Every clause of that passage is **true**; it is struck as **incomplete**, because
+it says the event-2 branch leaves "§8.2 and §8.3 standing" without saying that
+**§8.3 does not read the same under the two branches** — which is the whole of
+what would then be at stake. **Nothing else in §3.2 is struck.** The
+side-by-side table at lines 229–232 is correct to the digit and stands; §3.1,
+§3.3, §3.4 and §§1–2, 4–6 are untouched.
+
+### C1.2 The correct list, re-derived by this lane from the grading artifact
+
+Re-read directly from `verification/runs/F4_runs/swbli_cylflare/GRADING_OUTPUT.txt`
+(grader exit code 0, produced 2026-08-24T17:43:41Z) — **not** taken on relay from
+the audit finding:
+
+**Turns on the event choice (two clauses):**
+
+| clause | event 1 (`:267`) — GRADED | event 2 (`:282`) — UNGRADED | artifact lines |
+|---|---|---|---|
+| `S0a` → **§8.1** | `2668/29700 = 8.9832 %`, inside `[6, 24] %` → `True` → **`BASELINE-RECOVERED`** | `749/29700 = 2.5219 %`, outside → `False` → **`BASELINE-NOT-RECOVERED`** | `:54`, `:56` vs `:62`, `:64` |
+| **§8.3** | **`INDETERMINATE`** — worst cell **12960**, §13.2 reference inlet face **108** (`rho_ref = 0.006473`, `magU_ref = 66.2508`); deviations `+2.8007` on `rho`, `+18.2293` on `\|U\|`, **both outside** their `0.10` / `0.05` bands | **`E-FIRST`** — worst cell **0**, §13.2 reference inlet face **0** (`rho_ref = 0.024656`, `magU_ref = 1274.0000`); deviations `−0.0000`, `+0.0000`, **both inside** | `:58–60` vs `:66–68` |
+
+**Does not turn on the event choice (three clauses, and they stand as graded):**
+
+| clause | event 1 | event 2 | artifact lines |
+|---|---|---|---|
+| `S0b` | `6856 = 23.0842 %` → `True` | `2019 = 6.7980 %` → `True` | `:55` vs `:63` |
+| **§8.2** | `THRESHOLD-ARTIFACT` (`99.1103 %` / `0.0000 %`) | `THRESHOLD-ARTIFACT` (`100.0000 %` / `0.0000 %`) — *percentages differ, label does not* | `:57` vs `:65` |
+| **§8.4** | `DEFICIT-NOT-IMPLICATED` — `S1a` ratio `1.0000` → `False`; `S1b` growth `2.5697` / `2.5671` → `False` | `DEFICIT-NOT-IMPLICATED` — `S1a` ratio `1.0347` → `False`; `S1b` growth `2.6956` / `2.4684` → `False` | `:77–79` vs `:81–83` |
+
+**The true statement, replacing the struck one:**
+
+> **§8.1 (through `S0a`) AND §8.3 turn on the event choice. `S0b`, §8.2 and §8.4
+> do not.**
+
+### C1.3 What this does to §3.3's licensed conclusion
+
+Under the event-2 reading §8.1 returns `BASELINE-NOT-RECOVERED`, and the outcome
+map lands on **prereg §9.1 row 4**: the discrimination question is
+**`NOT A RESULT`** whatever Step 1 shows, and only Step 0's own §8.2/§8.3
+absolute reads survive.
+
+**Therefore the §3.3 conclusion — the inlet-face dissipation-deficit variant
+eliminated as mechanism #7 (prereg §9.1 row 2) — is CONTINGENT ON THE EVENT-1
+READING.** Under event 2 it is not licensed at all. §3.3's list of things *not*
+licensed is unchanged and still binds; this correction adds that the one thing
+§3.3 *does* license rests on a reading that is presently contested.
+
+**And the surviving-reads branch is not neutral either.** Under event 2, §8.3 is
+the read that would carry the experiment's whole surviving content — and it
+returns **`E-FIRST`**, an affirmative attribution to the energy, which is exactly
+the parent-record §8.7 claim this experiment exists to probe, where event 1
+returns **`INDETERMINATE`**, which attributes nothing. The struck sentence
+understated the exposure in the branch where it matters most.
+
+**Unaffected by all of this, and stated so a reader need not re-derive it:** both
+steps are `COMPLETE` on every clause of prereg §7 with the age guard holding by
+~4 min 56 s; `SIGFPE-ABSENT` on both; C1/C3/C4 planted controls fired and C0
+returned `INERT`; C2 showed the two logs differ substantively; §1's spend
+close-out, §5's queue and §6's waiting list are untouched.
+
+### C1.4 The supervisor CONTESTS the audit's `NOT A RESULT` recommendation; the ruling is Sanaa's and is `PENDING`
+
+Audit §90 recommends **`NOT A RESULT`, both values printed**, for `S0a`, §8.1 and
+§8.3 — on the ground that the event ordinal is a **row definition fixed on the
+grading path after compute** (`VERIFICATION_CHARTER.md` §2d), with the numbers
+already visible and material, and that §2d.1 condition (2) is not met: the C1
+fixture models **one** event set per block, so a control blind to the ambiguity
+cannot discriminate it.
+
+**The cfd supervisor CONTESTS that recommendation on mechanism grounds:** §8.3's
+own frozen formula — the `e = rhoE/rho − ½|U|²` cancellation — describes the state
+at `:267` and nowhere else in the timestep, and prereg §4.2's frozen instrument
+comment (lines 315–319) names that state explicitly, *"`T` is NOT current:
+`thermo.correct()` has not yet run for this step"* — a sentence **true at `:267`
+and false at `:282`**. **Measured corroboration, re-derived by this lane rather
+than relayed:** in the `Time = 1.8993308e-05` block of
+`step0_instrumented/log.rhoCentralFoamBoundedDiag`, the two `BOUNDDIAG:` lines sit
+at file lines **28744** and **28748** and carry `TprevLow=[139.583003,139.593102]`
+(event 1) against `TprevLow=[139.583003,139.583003]` (event 2). The collapse of
+the event-2 range to a **single value** shows the two sets read different `T`
+states inside one timestep, consistent with a `thermo.correct()` between them.
+*Stated with its limit:* that establishes the two sets are not one read of one
+state; the step from "range collapsed" to "`thermo.correct()` ran" rests on the
+source ordering tabulated at prereg §14.1, not on the log line alone.
+
+**The supervisor CONCEDES, without qualification, the limb the audit is right
+about: the frozen text does not name the ordinal.** No sentence of prereg §§0–13
+selects an event by ordinal, by line number or by position within a `Time =`
+block; prereg §14.1 concedes it in its own words, and the `EVENT_GRADED = 1`
+selector first exists in the reader at `4bf8138d`, **after both runs completed**.
+That is a post-compute row definition and it is disclosed as one.
+
+**The contest is narrow:** whether the *frozen material* (the §8.3 identity, the
+§4.2 comment, and the C1 fixture's event-1 log shape committed 19.5 h before first
+compute) constrains the reading even though the *frozen prose* does not name the
+ordinal. Both readings are available on the same evidence.
+
+**The ruling is Sanaa's, and it is `PENDING`.** Re-reading a registered gate clause
+is reserved to her (`CLAUDE.md` FIRST-ACTION rule). **No agent message — the
+audit's recommendation, this supervisor's contest, the chief's relay, or the brief
+that produced this correction — is her consent** (rule 9). Until she rules, both
+readings stay printed beside every §8.1 and §8.3 number, which prereg §14.5
+requires and §3.2's table already does. **Nothing here has been sent** (rule 7).
+
+### C1.5 The same overstatement in the grading artifact, disclosed and deliberately not repaired
+
+`GRADING_OUTPUT.txt:70` reads `MATERIAL: the two readings disagree on the 8.1
+label.` — the same omission, in the instrument's own summary prose; the two
+readings also disagree on **§8.3**, at `:58` versus `:66` of that same file.
+
+**The artifact is NOT edited.** It is a produced run record; correcting it in place
+would destroy the evidence of what the instrument actually printed. The correction
+lives here and in prereg §15.5, which also registers the reporting fix binding on
+the reader for any **future** rung: the `MATERIAL:` line must enumerate every label
+whose value differs between the readings, derived from the computed labels rather
+than written as prose. That is a reporting fix and moves no threshold.
+
+### C1.6 L-284 binds future rungs
+
+**`L-284`** (`docs/LESSONS.md`, landed at `ad63851b`) — *a per-timestep diagnostic
+included twice per step emits two event sets per block; the pre-registration must
+name the ordinal it grades **before** compute, or the choice becomes a post-compute
+ruling disclosed against numbers already visible.* Every future F-family
+pre-registration counts the emitting code's executions per timestep and names the
+ordinal in its frozen text; a C1-family fixture models **both** sets so the control
+can discriminate rather than presume; and the reader's `EVENT_GRADED = 1` selector
+is **not struck** — it is what the next rung inherits and registers pre-compute.
+
+### C1.7 Assertions
+
+- **lines whose number changed above this section: 0.** Appended at the foot;
+  §§1–6 are byte-identical to the blob at `HEAD` before this commit, verified by
+  diffing this path against `git show HEAD:<path>` in the same shell invocation as
+  the write and confirming **insertions only, all after the previous last line
+  (392)**.
+- **No gate, threshold, cap or label is altered.** This correction strikes one
+  false sentence and one incomplete passage, states the true list, names the §9.1
+  contingency, and records a contested ruling as `PENDING`. **The grade issued at
+  `5b5f5183` is not changed by this section** — it is qualified by the contingency
+  now stated in C1.3.
+- **Zero solver compute.** This section is a read of artifacts already on disk plus
+  one grep of one log.
+
+**Stamp:** written at 2026-08-24T18:35:39Z (box clock, `date -u`, read in the same shell
+invocation as the append), at HEAD `091ca90704eec02a3b536cf599aec57ec91a7c3a`.
