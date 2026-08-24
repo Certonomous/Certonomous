@@ -96,34 +96,139 @@ rung may take it).
 **Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched
 ## closure
 
-**Section last written:** 2026-08-24T16:07Z by closure-supervisor, from `date -u` in the writing invocation.
+**Section last written:** 2026-08-24T16:17:18Z by closure-supervisor (this chief session's
+re-spawn, 16:04Z; predecessor killed by an API error at ~16:00Z after one
+interim report), from `date -u` in the writing invocation. **Two closure
+supervisors are live in two chief sessions; the work split agreed 16:01Z is
+exactly one owner per item and is recorded here so the board is truthful.**
+The PARALLEL session's closure supervisor owns the Ling 2016 GPU arm (its
+grading, RESULTS commit `353925c7`, D490, C-16, and the gpu1 stop request) and
+wrote the Ling block below at 16:07Z — carried verbatim, not re-verified by this
+session; its board line "results commit `the commit carrying this section`"
+resolves to `353925c7`. THIS session owns the Kaandorp close-out, the D476/FS5
+adoption ruling and the rest of the board.
 
 **Ling 2016 TBNN GPU arm — CLOSED, VERDICT: NOT A RESULT. D490, L-267,
-L-268, N-B40–N-B42, C-16; results commit `the commit carrying this section`.**
-The lab's first GPU run: pre-registration FROZEN alone at `e8309b6c` (sha256
-`61b2097f…1d97`), code at `11f93da6`, cost_basis **$0.8048/GPU-h from the
-published price list** (`GPU_CAPABILITY_STATE.md` §9, commit `112b61b8`), run on
-`gpu1` under Sanaa's verbatim GPU cost approval. Ladder: **G0 PASS** (plant
-1.6e-14), **G1 NOT A RESULT** (ARM-A TBNN at Ling's SGD 2.5e-7 × 200,000
-full-batch epochs beats SST / `b=0` / train-mean on **0 of 8**), **G2 GATE FAIL**,
-**G3 NOT A RESULT on both TBNN models** (3.1–5.3 % and 4.3–14.4 % violation vs
-2.374 %; `max‖b‖_F` to 2.1e10), G4 not run as registered. Falsifier 1 fires as
-written but does not settle D3: the frozen "full batch by construction" ran ~3.4e5×
-fewer updates per epoch than Ling's per-point SGD — **a rate is not an optimiser
-(L-267)**. Falsifier 2 does not fire: TPE's 9×77 beats 8×30 on validation by
-0.005 inside the 0.0073 spread and re-selects the CPU lane's batch 8192 + Adam
-1.02e-3. Under the verdict: ARM-B beats all baselines 7/8 (ducts 0.11–0.12) and
-violates realisability on **25–46 % of duct cells** for 3 of 5 seeds — RMSE is
-blind to the axis Charter §4 gates. **Compute 10.7054 GPU-h = $8.62 derived**
-(0.97× the P0 projection; below the registered 12–52 floor — throughput assumption
-42–80× measured vs 5–20× assumed); **waste 7.88 GPU-h = $6.34 derived**, the node
-idling after the overnight fleet kill until 15:56:45Z (L-268). **Node idle
-since 08:03:58Z; stop requested through the chief.** The four other GPU drafts
-untouched (plan order and terms). On Sanaa's desk: a per-point-SGD ARM-A
-re-registration (updates registered, not epochs), and the chief's self-shutdown proposal for
-paid nodes (hers to approve — not proposed or implemented by this team). Peer
-findings landed: comparator witness artefact (RESULTS D-5) and the per-case
-`NASA_2DWMH` reading beside every pooled figure (same case as FS5/D476's 9.6 %).
+L-268, N-B40–N-B42, C-16; results commit `353925c7` (parallel session's
+supervisor; block carried as written by it).** The lab's first GPU run:
+pre-registration FROZEN alone at `e8309b6c` (sha256 `61b2097f…1d97`), code at
+`11f93da6`, cost_basis **$0.8048/GPU-h from the published price list**
+(`GPU_CAPABILITY_STATE.md` §9, commit `112b61b8`), run on `gpu1` under Sanaa's
+verbatim GPU cost approval. Ladder: **G0 PASS** (plant 1.6e-14), **G1 NOT A
+RESULT** (ARM-A TBNN at Ling's SGD 2.5e-7 × 200,000 full-batch epochs beats SST
+/ `b=0` / train-mean on **0 of 8**), **G2 GATE FAIL**, **G3 NOT A RESULT on both
+TBNN models** (3.1–5.3 % and 4.3–14.4 % violation vs 2.374 %; `max‖b‖_F` to
+2.1e10), G4 not run as registered. Falsifier 1 fires as written but does not
+settle D3: the frozen "full batch by construction" ran ~3.4e5× fewer updates per
+epoch than Ling's per-point SGD — **a rate is not an optimiser (L-267)**.
+Falsifier 2 does not fire: TPE's 9×77 beats 8×30 on validation by 0.005 inside
+the 0.0073 spread and re-selects the CPU lane's batch 8192 + Adam 1.02e-3. Under
+the verdict: ARM-B beats all baselines 7/8 (ducts 0.11–0.12) and violates
+realisability on **25–46 % of duct cells** for 3 of 5 seeds — RMSE is blind to
+the axis Charter §4 gates. **Compute 10.7054 GPU-h = $8.62 derived** (0.97× the
+P0 projection; below the registered 12–52 floor — throughput assumption 42–80×
+measured vs 5–20× assumed); **waste 7.88 GPU-h = $6.34 derived**, the node
+idling after the overnight fleet kill until 15:56:45Z (L-268). **Node idle since
+08:03:58Z; stop requested through the chief; only Sanaa can stop it** — this
+session's read-only lane confirmed IDLE at 15:58Z (GPU 0 %, 0 MiB, no driver
+process). The four other GPU drafts untouched. On Sanaa's desk: a per-point-SGD
+ARM-A re-registration, and the chief's self-shutdown proposal for paid nodes
+(hers to approve). Peer findings landed: comparator witness artefact (RESULTS
+D-5) and the per-case `NASA_2DWMH` reading beside every pooled figure (same case
+as FS5/D476's 9.6 %).
+
+**Kaandorp a-posteriori — CLOSED OUT, VERDICT: NOT A RESULT for the whole lane,
+on all three registered cases. Commits `a56cc309` (addendum + C-18) and
+`961b0b3e` (D492 + L-269). No closure solver is live.** The driver (pid 1111229)
+exited 2026-08-23T23:17Z; `lane5.log` ends `[done] lane wall-hours 3.66`. The
+six `CBFS13700` rows were graded by hand against the frozen table
+(`PREREGISTRATION.md`, one commit ever `0ebc9d53`, blob == HEAD == disk; no
+grading script is registered and the record says so). **Supervisor's own reads
+of `results.json`, done not relayed:** `TRUTH` U_rms **0.084131** vs the 0.0516
+gate = **+63.05 %** (30 % bar ≤ 0.0361, 50 % bar ≤ 0.0258, both fail the same
+way) — H0 GATE FAIL on the third case as on both ducts (+61.97 % / +57.0 %), so
+the b-only ceiling inversion is not a duct artefact; `NULL` |Δ| **4.625e-05**
+(G0b PASS at 1e-3); ML 0.15883 / 0.15107 / 0.15289, mean **0.15426**, mean+2sd
+0.16238 above SST and above `MEANB` 0.13965; `x_reatt` 5.895 (NULL; SST 5.891)
+→ 6.912 (TRUTH) → 7.948 (MEANB) → 8.78–14.46 (ML) against LES 4.241 — every
+b-only injection moves reattachment the wrong way. H1–H3 NOT A RESULT by the
+registered H0 cascade; **H5 GATE FAIL ×6** on the REGISTERED `U_bulk/L`
+normalisation (0.262–13.67; the `NULL` control itself at 262× the 1e-3
+threshold). **Ruled by this supervisor (D492): the frozen `U_bulk/L` clause
+governs H5**; the v1.0 §1/§5 gradient-scale reading and its "NOT MEASURABLE"
+cell (not in the rule-1 vocabulary) are a disclosed defect of the 2026-08-21
+record, not rewritten (rule 6). **G0a PASS as frozen with the limitation
+disclosed against the lane's own favour:** rel-L2 0.0 (byte-identical `600/U`),
+but at `writePrecision 6` the reader's one-ulp floor is **4.002936e-07**, so
+the registered 1e-10 sits **4,003×** below resolution (this session's brief
+said ~4e-8 / ~400× from the predecessor's relay — the measured figures govern);
+the plant came back at 4.002936e-07, so the zero is evidence and the defect is
+the threshold — the THIRD clause in this one pre-registration its instrument
+cannot serve (L-269). Completion: five rows at `endTime` 60000, `NULL` at 30884
+on `residualControl`; `conv=None` measured — MEANB/ML0/1/2 limit-cycle at
+0.69–1.04 `U_bulk` between checkpoints; `diverged=True` everywhere is the trapFpe
+BANNER artifact (`run_lane.py:175`), zero `FOAM FATAL` in any log; the rule-14
+call-site repair stays queued and the frozen driver is NOT edited.
+`AR_3_Ret_360__MEANB` carries `nan` for `unrealisable_frac`/`b_rms_total` (empty
+mask after `k` collapsed) — not measured, not zero. `AR_3_Ret_360__ML0/1/2`
+BLOCKED (no block in `features_nodurbin.npz`), no metric written. **Cost, C-18:
+388.8 core-min registered (prereg §7) vs 219.571 core-min measured = 3.6595
+core-h = $0.1877 derived, ratio 0.565×, zero waste** (capped rows are
+measurements under the registered rule; MEANB 3411.2 s, 5.2 % inside the 3600 s
+timeout), attribution conservative misprediction (0.126 s/it from a
+five-iteration check vs 0.0869 measured); load not recorded. Whole lane ≈ 5.2
+core-h against 7.1 worst case / 15 cap. **REFERRED to verification via the
+chief (D492, unruled):** (a) a gate whose threshold lies below its instrument's
+resolution — PASS-as-frozen-with-disclosure, or its own label? and should
+`check_comparator_freeze.py` refuse a threshold below the `writePrecision` of
+the field it reads; (b) the ten pre-relaunch duct rows' logs carry mtimes
+17:27–17:44Z on 2026-08-21, an hour BEFORE the 18:52:18Z freeze commit — rule 2
+holds by git for the six CBFS rows (run 08-23) but for the ducts rests on the
+file's 17:17:57Z mtime and its "posted to the supervisor" line. **Attribution
+disclosed:** `a56cc309` was written by a Kaandorp grading lane whose parentage
+(predecessor's lane surviving its supervisor vs this session's 16:06Z lane) is
+unresolved at this write — VERIFY; this session's lane was messaged to stop if
+it was not the author; exactly ONE addendum exists at HEAD (stamped
+16:06:54Z) and no rival was written. **Correction owed in closure's next docket
+row:** D492's parenthetical says the lane's draft ids "D491/L-269 were taken by
+peers" — true of D491 (used for the D476 ruling), false of L-269, which landed
+as drafted. Table 4 (BFS5100) stays BLOCKED-ON-DATA.
+
+**D476/FS5 adoption — RULED: block LIFTED CONDITIONALLY. D491 at `53517fae`;
+record Addendum 2 v1.1 at `41774899`.** Verification's cross-team audit pass 6
+(`542408f7`) returned **AUDIT: SOUND WITH DISCLOSED DEVIATIONS — CANDIDATE** (a
+verification lane's read; the verification supervisor's own read still owed;
+the chief is asking). Ruling: the amended instrument's model-facing surface and
+the unclipped `q1_wallRe_raw` companion (audit-side diagnostic ONLY) may be
+relied on **once verification's supervisor confirms pass 6 as its own verdict**;
+a reversal of any pass-6 finding voids the lift and re-arms the block without
+further ruling. Never in `F`, never a feature, never a correction (L-219/L-220,
+D446, §22.4); `singular_value_ratio_first_to_last` NOT quoted as a number in any
+closure record until a registered instrument decision adopts verification's
+recommendation (a); no thread pinning; A3 stays GATE FAIL; no standing verdict
+moves. Three independent grounds: my D484 diff read; pass 6's own hasher (A2
+40/40 `F` + 40/40 `names`, A1 plant re-derived, A4 `cmp` rc=0); this session's
+lane re-read 40/40 + 40/40 pairs in `D476_A3_triage/A2_{before,after}.json`
+under a live planted control (one hash zeroed → 39/40). **Attribution:** the
+record (`41774899`, Addendum 2 written 16:05:46Z) was landed by the PARALLEL
+session's closure lane at its supervisor's direction, ahead of this session's
+lane, which reached the same ruling and STOPPED rather than write a rival
+Addendum 3 — one record, two concurring supervisors. **Supervisor's personal
+diff read of `41774899` (both files, as diffs, done not relayed): PASS.** The
+addendum is a pure append (290-line prefix re-hashed to blob `b362ea32`); the
+`make_feature_library.py` +13/0 guard (pass 6 §31.3) is accepted as a
+strengthening with two limitations named and NOT repaired here: it is an
+`assert` (off under `python -O`; `sys.exit(2)` is the candidate comparator
+form) and its criterion is a one-sided line COUNT — a regeneration that grows
+by k lines against a marker-less file with ≤ k hand-written lines still
+destroys them silently; shrinkage false-refuses (the safe side). It generates
+prose, not a measured number; `build_features.py` / `fs2_audit.py` /
+`make_fs2_report.py` are disk == HEAD by sha256 and A2 covers them. Either
+tightening is a further change to a frozen instrument: own dated addendum +
+supervisor diff read. No build is queued that needs the lift (R6 BLOCKED on
+Sanaa; R4, R5C closed). Standards recommendations (a) publish rank + smallest
+singular value, ratio only when `s[-1]` clears rtol, and (b) pin threads or gate
+on stored bytes — on Sanaa's desk, referred by verification.
 
 **R5C (option C, omega-source repair) — CLOSED, VERDICT: GATE FAIL. D465, L-243,
 N-B35–N-B37, commit `0ac76ec2`.** Graded against the frozen pre-registration
@@ -137,177 +242,95 @@ on all 27 — the negative source is universal, N-B35); **G1 GATE FAIL**
 registered `1e-6`; eleven of twelve R4 targets reproduce at the IDENTICAL settle
 iteration to 1e-7–1e-11); G3 10 of 27; G4 M=1 → GATE REACHED, **overridden** by
 G1 per §3.1. **Registered consequence applied: R4's 12 targets stand, the 15
-hills remain INCOMPLETE, the R5C targets feed nothing.** The finding under the
+hills remain INCOMPLETE, the R5C targets feed nothing.** Finding under the
 verdict: the Patankar split removes the clipping (22 of 27 at zero
 `bound(omega)` events; 10 of the 15 hills COMPLETE under the strict rule) and
 the same damping makes the change-based settle criterion stop one target 37 %
 early — **a change criterion cannot tell convergence from damping (L-243)**; two
-registered criteria are measured miscalibrated and left standing as written
-(G1's tolerance derivation, G3(d)'s ratio — N-B37). The grading lane was killed
-by the session limit before commit 3; the supervisor re-ran the comparator end
-to end 2026-08-23 with **zero differences** (RESULTS.md D-4, which also
-discloses the comparator missing commit 2 and three promised artefact filenames
-folded into `r5c_grading.json`). Cost **0.140 core-h measured + ≤0.028 bounded
-= ≤$0.0086** against 0.210 registered, 1.0 cap. Whether any R5C target is ever
-used, and whether a fixed-point-distance criterion replaces the settle test, are
+registered criteria measured miscalibrated and left standing (N-B37). The
+supervisor re-ran the comparator end to end 2026-08-23 with **zero differences**
+(RESULTS.md D-4). Cost **0.140 core-h measured + ≤0.028 bounded = ≤$0.0086**
+against 0.210 registered, 1.0 cap (C-2). Whether any R5C target is ever used,
+and whether a fixed-point-distance criterion replaces the settle test, are
 separate later pre-registrations — Sanaa's ladder.
 
 **GPU reproduction plan — DONE, on Sanaa's desk. Commit `9e82321b`.**
-`docs/closure/GPU_REPRODUCTION_PLAN.md` plus **five DRAFT pre-registrations,
-every one stamped DRAFT — NOT FILED, NOT LAUNCHED**, discharging the chief's
-2026-08-22 dispatch (`ff551ed5`). All five papers title-verified twice (killed
-lane 2026-08-22, supervisor re-verification against PDF hashes 2026-08-23,
-rule 15). Triage: **(1) Ling 2016** ready to sign — data local, CPU lane GATE
-REACHED, arms remove departure D3; 12–52 GPU-h cap 60 (~$10–$42, estimate —
-needs console confirmation) at
-`cases/RANS_LES_closure_models/Ling2016_TBNN/gpu/PREREGISTRATION_DRAFT.md`.
-**(2) Beck 2019** scaled variant behind an unpriced CPU DGSEM pilot, 7–27 GPU-h
-cap 30. **(3) Sirignano 2020 DPM** scaled variant, bespoke solver+adjoint build
-dominates, 19–65 GPU-h cap 80. **(4) Bae 2022** NOT a GPU item (paper's own
-O(1e3) CPU-h figure, ~$51 CPU) — recommend no GPU launch. **(5) Lozano-Durán
-2023** BLOCKED at the ~500-DNS database + proprietary charLES; as-published
-~900–1,700 L4 GPU-h — recommend no launch. Drafts 2–5 in
-`docs/closure/gpu_prereg_drafts/`. **No instance exists, none was created, no
-AWS call was made; every dollar figure is agent recall marked "estimate — needs
-console confirmation"; GPU spend is outside the CPU blanket (rule 12): per-item
-sign-off by Sanaa with a console-read `cost_basis`.**
+`docs/closure/GPU_REPRODUCTION_PLAN.md` plus five DRAFT pre-registrations
+(rule 15 title-verified twice). **(1) Ling 2016** — SIGNED AND RUN by the parallel
+session under Sanaa's approval (block above; D490). **(2) Beck 2019** scaled
+variant behind an unpriced CPU DGSEM pilot, 7–27 GPU-h cap 30. **(3) Sirignano
+2020 DPM** scaled variant, bespoke solver+adjoint build dominates, 19–65 GPU-h
+cap 80. **(4) Bae 2022** NOT a GPU item (paper's own O(1e3) CPU-h, ~$51 CPU) —
+recommend no GPU launch. **(5) Lozano-Durán 2023** BLOCKED at the ~500-DNS
+database + proprietary charLES — recommend no launch. Drafts 2–5 in
+`docs/closure/gpu_prereg_drafts/`, every one stamped DRAFT — NOT FILED, NOT
+LAUNCHED; GPU spend is outside the CPU blanket (rule 12): per-item sign-off by
+Sanaa with a console-read `cost_basis`.
 
-**D-14 thread CLOSED — the dead lanes landed everything before the session
-limit killed them, and the supervisor verified before believing (2026-08-23,
-this session).** Five lane commits: `918e8fe7` (R4 RESULTS.md D-14 dated
-addendum, v1.0→1.1, + the 0.09–0.61 % duct-vortex correction of record + late
-`COVERAGE.md` + `make_coverage.py` + `artefacts/coverage.json`); `9f0210dd`
-(R5 record + COVERAGE.md dated amendments for the FEATURE_LIBRARY `:174`→`:178`
-cite drift — with the lane's own correction that the row is NOT byte-identical
-across the move: `01430485` also changed its Wu cite p. 9→p. 10, which neither
-record relies on; the old `:301` stale-cite item is RESOLVED, the citing line
-now `:315`); `52e5de39` (L-248 close-out-grep lesson, N-B38
-clip-blinds-coverage); `1632af6a` (docket rows D475/D476 land after a peer's
-renumber cleared both blockers); `52373459` (draft headings to past tense).
-Supervisor's personal checks, done not relayed: **`make_coverage.py` read in
-full — PASS** (fit mask reproduces `fs3_select.py:89-90`; zero-shot guard
-planted via `guard_is_armed()` with a known TEST case, list-typed call sites so
-the string-iterable trap cannot pass silently; rank by SVD at the registered
-rtol; LOFO on the fit's own folds; no test case opened, no test number
-computed); **RESULTS.md frozen body independently diffed** — lines 1–1313 at
-HEAD byte-identical to v1.0 at `918e8fe7^`; **coverage numbers re-read from
-`coverage.json`, not the commit message** — 172,106 fitted / 65 dropped, rank
-hist [0,0,0,172106], cond p50/p99/max 20.81 / 1.634e4 / 4.430e7, ducts p99
-5.113e4, LOFO 0.0011 / 0.0905 / 0.0000 / 0.2238 % — all match COVERAGE.md and
-D475. Standing ruling restated: FS5's per-build discharge for R4 WAS NOT MET
-(D475); the late delivery discharges the deliverable, not the disclosure duty;
-FS5 stays armed.
+**D-14 thread CLOSED (2026-08-23; supervisor verified before believing):** lane
+commits `918e8fe7`, `9f0210dd`, `52e5de39`, `1632af6a`, `52373459` adopted;
+`make_coverage.py` read in full PASS; R4 RESULTS.md frozen body lines 1–1313
+byte-identical to v1.0; coverage numbers re-read from `coverage.json` (172,106
+fitted / 65 dropped; cond p50/p99/max 20.81 / 1.634e4 / 4.430e7; LOFO 0.0011 /
+0.0905 / 0.0000 / 0.2238 %) match COVERAGE.md and D475. FS5's per-build
+discharge for R4 WAS NOT MET (D475); late delivery discharges the deliverable,
+not the disclosure duty; FS5 stays armed.
 
-**D476 clip repair — CHIEF-DISPATCHED, IMPLEMENTED, A3 REFERRED; adoption
-BLOCKED on verification's audit.** The chief dispatched the standing-gate
-instrument change 2026-08-23; the supervisor's ruling: unclipped `q1_wallRe_raw`
-companion, audit-side, diagnostic only — never in `F`, never a feature.
-Pre-registration FROZEN at `bf4956bc` (blob `8fac067c`) before implementation;
-implemented by one lane at `7e973ba8`; **supervisor's personal diff read PASS**
-(all six files as diffs; frozen texts re-diffed against their blobs by my own
-hands; every headline number re-read from `fs2_audit.json` independently; the
-A3 mismatch scope confirmed by my own stripped comparison). Gates: **A1 PASS**
-(planted 83.4855 flagged 0→1; blinded readers exit 2), **A2 PASS** (40/40 `F`
-sha256 identical — the `min(raw,2)` refactor is bit-exact), **A4 PASS**
-(rule-6 form held), **A3 GATE FAIL** — six values, all
-`singular_value_ratio_first_to_last`, BLAS-thread-dependent rounding noise from
-dividing by an analytically-zero singular value (N-B39); recorded as failed,
-NOT loosened, no thread pinning adopted; **referred to verification-supervisor**
-(two standards questions: publish `s[0]/s[-1]` of a singular matrix at all?
-pin BLAS threads in audit instruments?). First reading: `NASA_2DWMH` 9.596 %
-of cells above the training unclipped max 55.657, worst +5.11 spans, case max
-340.1 (6.11×) — instrument information ONLY, no verdict moves (chief clause);
-seven other test cases inside. `q1_wallRe` frac_at_max **0.5784** — the clip
-is the modal value (N-B38 closed). Records: **D484**, **N-B39**, cost ledger
-row (0.75x cleaned/predicted, gross 2.5–3x = scope misprediction, zero waste).
-Per prereg §7 **no closure build relies on the amended instrument until the
-verification audit returns.**
+**Rungs:** FS6 DONE (`9fb0891f`, + Addendum 1 `e1f346ee`); R5 discharged as a
+record (`3a4f4bbb`, amended `9f0210dd`); R6 NOT DONE, BLOCKED on Sanaa's
+phrasing; R4 CLOSED GATE FAIL (D461; RESULTS.md v1.1 with D-14); R5C CLOSED GATE
+FAIL; Kaandorp a-posteriori CLOSED NOT A RESULT (above); Ling GPU CLOSED NOT A
+RESULT (parallel session). FS2/FS5 standing gates, both armed; FS5's D476
+instrument decision now RULED conditionally (above). **Rungs without verdicts:
+none in this session's ownership.** Case verdicts on record otherwise unchanged.
 
-**Live jobs: the Kaandorp driver plus one lane.** The wait-and-grade lane owns
-the driver wait (dispatched after the chief's dead-watcher warning; currently
-parked on its own watcher between polls — resumable by message, and the
-incumbent for grading: no rival gets spawned). Its interim findings, both
-VERIFIED by my own reads: the `diverged=True` flag on every row is the trapFpe
-BANNER artifact (`run_lane.py:175` tests the banner; `summarise.py:29-31`
-guards correctly; zero `FOAM FATAL` in both CBFS logs; no verdict rests on it
-— rule-14 call-site repair queued post-campaign, the file is frozen
-mid-campaign), and the G0a byte-identity gate sits ~400× below its ascii
-`writePrecision 6` instrument floor (rel-L2 ~4e-8 vs registered 1e-10 —
-disclosed limitation for the addendum, gate unchanged, lane flagged it against
-its own favour). The D476 implementation lane is finished and reported.
-Driver pid
-`1111229`, detached (`setsid`), cwd builds under
-`/home/ubuntu/closure-data/aposteriori/kaandorp/` (driver log `lane5.log` and
-`results.json` live THERE, not in `kaandorp_tbrf/`). Rows landed this pass:
-`CBFS13700__NULL` rc=0, 884 it / 69.3 s, U_rms 0.05155 (registered SST gate
-0.0516); `CBFS13700__TRUTH` rc=0, 30000 it / 1701.6 s, U_rms 0.08413,
-conv=None — no verdict read from it here, grading belongs to the addendum lane
-against the frozen table; `AR_3_Ret_360__ML0/1/2` recorded BLOCKED with
-tracebacks and NO metrics (the `074f60da` repair working live).
-`CBFS13700__MEANB` running since 20:07Z (solver pid 1161379 under the 3600 s
-timeout). **Supervisor's own background monitor armed 20:33Z this session**
-(notifies on driver exit; the prior lane's watcher died with its lane —
-L-186-adjacent dead-watcher tell). NEXT ACTION on exit: one lab-lane grades the
-completed six-row table against the frozen pre-registration and writes the
-Kaandorp addendum with the measured cost. The `AR_10_Ret_180` diagnostic stays
-REPORTED-NOT-GRADED as the closed R4 ladder ruled.
+**Live jobs: none.** No closure solver, no driver, no monitor. Lanes this
+session: Kaandorp grading lane (its authorship of `a56cc309` unconfirmed at this
+write — messaged to stop if not the author); D476 ruling lane finished (stopped
+correctly, wrote nothing); read-only gpu1 lane (predecessor's) finished.
 
-**Rungs:** FS6 DONE (`9fb0891f`, + Addendum 1 at `e1f346ee`); R5 discharged as
-a record (`3a4f4bbb`, amended `9f0210dd`); R6 NOT DONE, BLOCKED on Sanaa's
-phrasing; R4 CLOSED GATE FAIL (D461; RESULTS.md now v1.1 with D-14); R5C CLOSED
-GATE FAIL (above). FS2/FS5 standing gates, both armed; FS5 additionally carries
-D476's open instrument decision. Case verdicts on record unchanged. Last
-session's four supervisor-verified findings all carry their records now:
-D467/L-246 + FS6 Addendum 1 (`e1f346ee`), the `01430485` generator repair
-(diff-read PASS), D475/L-248, D476/N-B38.
+**Commits this session (supervisor):** `53517fae` D491 (D476 adoption ruling
+docket row, D486 fallback disclosed); `961b0b3e` D492 + L-269 (Kaandorp records,
+same fallback); this board write. Lane commits verified and adopted: `a56cc309`
+(Kaandorp close-out — numbers re-read by me from `results.json`, addendum
+headings and +513/0 append verified) and `41774899` (parallel session's lane —
+both diffs read by me, PASS with the two §31.3 limitations named). NEXT ACTIONS:
+(1) await verification's supervisor on pass 6 — the D476 lift becomes effective
+on its confirmation, void on reversal; (2) the D492 referral limbs (a)/(b) go to
+verification via the chief; (3) closure's next docket row carries the L-269
+parenthetical correction; (4) the `run_lane.py:175` banner-test call-site
+repair and the §31.3 `assert`→`sys.exit(2)` tightening are candidate instrument
+changes for a future dated addendum + diff read, not started; (5) nothing new
+launches — R6 waits on Sanaa, the GPU drafts 2–5 wait on her sign-off.
 
-**Relayed to the chief this session (shared tooling, not closure's to fix):**
-`scripts/append_record.py` preserves the worktree tail AHEAD of appended rows
-while asserting the id against HEAD only — when a peer's unlanded tail holds
-the very next id, the helper itself manufactures a duplicate. Third bite of the
-D369 family (D369, D461/D-13, the D468 duplicate); reported by the lane at
-`52e5de39` for judgement. My judgement: lesson-worthy and repair-worthy, but
-the helper is every team's instrument — chief dispatches.
+**On Sanaa's desk (closure):** gpu1 idle-stop (parallel session's request,
+carried); GPU drafts 2–5 (signing is hers; plan recommends none of 4–5); the
+per-point-SGD ARM-A re-registration question (D490); R5/A′ direction after
+R5C's GATE FAIL (`R5_DECISION_MEMO.md`); R6 phrasing (standing); Ling & Templeton
+2015 acquisition (PENDING-MIT); verification's standards recommendations (a)/(b)
+from the D476 audit. **Blocked:** R6 (Sanaa); Kaandorp `AR_3_Ret_360__ML0/1/2`
+(missing case in `features_nodurbin.npz`); Kaandorp Table 4 (no BFS5100 on
+disk); Xiao2016_EnKF (forward model); Lozano-Durán 2023 (data + charLES); the
+D476 lift's effectiveness (verification supervisor's own read).
 
-**Commits this session (supervisor):** `8145f75d` board; `bf4956bc` D476
-prereg frozen; `8322a70f` N-B39 + cost ledger row; `2cfca52d` D484; this board
-write. Lane commits verified and adopted: `918e8fe7`, `9f0210dd`, `52e5de39`,
-`1632af6a`, `52373459` (previous fleet, D-14 thread) and `7e973ba8` (D476
-implementation, diff read PASS). NEXT ACTIONS: on driver exit, resume the
-wait-and-grade lane by message → grade the six rows, dated addendum, and the
-Kaandorp cost-calibration ledger row (Sanaa's 2026-08-23 directive, first
-applied to this close-out); await verification's A3 audit before anything
-relies on the amended FS5 instrument; GPU node gpu1 exists
-(`GPU_CAPABILITY_STATE.md` §8) but console price is NOT DONE — nothing costed,
-nothing launched, all five drafts stay on Sanaa's desk.
+**⚠ Standing hazards:** (1) shared index stale by decay (D486) — `git status`
+shows phantom `D`/`MM` rows in closure territory (the Ling `gpu/` four, the two
+feature files) while disk == HEAD by sha256; read tracked status with `git
+ls-tree -r HEAD <dir>`; inspect, never revert; the index is chief's call.
+(2) **L-253 disclosure:** this section was committed blob-based from `git show
+HEAD:`; the WORKTREE copy of `## closure` lags HEAD by design and was NOT
+fast-forwarded (foreign uncommitted edits sit elsewhere in the worktree file).
+Read this section from HEAD. (3) Two closure supervisors are live in two chief
+sessions; before any dispatch, check HEAD for a peer's landing on the same item
+— this session's D476 lane found the item landed 4 minutes after dispatch and
+stopped, which is the correct behaviour.
 
-**On Sanaa's desk (closure):** the five GPU drafts (§ above — signing any is
-hers; the plan's recommendation, marked as one: Ling first, none of 4–5);
-R5/A′ direction after R5C's GATE FAIL (`R5_DECISION_MEMO.md` options stand —
-option C is now measured: repair works, criterion does not); R6 phrasing
-(standing); Ling & Templeton 2015 acquisition (PENDING-MIT — the un-owned
-origin of the scalar-marker feature bloodline; two FS1 features cite it as
-their only printed source). **Blocked:** R6 (Sanaa), Kaandorp
-`AR_3_Ret_360__ML0/1/2` (missing case in `features_nodurbin.npz`), Xiao2016_EnKF
-(forward model), Kaandorp Table 4 (no BFS5100 on disk), Lozano-Durán 2023
-training reproduction (data + charLES).
+**Compute:** 487 core-h pre-authorised (charter §18). Live: nothing. This
+session: zero solver core-minutes (reads, hashes, three commits). Kaandorp
+lane total ≈ 5.2 core-h (C-18 for the last 3.66); Ling GPU 10.7054 GPU-h +
+7.88 GPU-h idle waste and accruing until stopped (parallel session's ledger,
+C-16).
 
-**⚠ Standing hazards:** (1) the shared index remains stale — `git status`
-still shows phantom staged rows, including deletions in foreign territory.
-Read tracked status with `git ls-tree -r HEAD <dir>`; inspect, never revert;
-the index is chief's call. (2) **L-253 disclosure:** this section was committed
-blob-based from `git show HEAD:` — the WORKTREE copy of `## closure` now lags
-HEAD by design and was deliberately NOT fast-forwarded, because uncommitted
-foreign edits sit elsewhere in the worktree file and a whole-file write is
-forbidden. Read this section from HEAD, not the tree.
-
-**Compute:** 487 core-h pre-authorised (charter §18). Live: the Kaandorp
-driver, one serial core. Measured so far this pass: NULL 69.3 s + TRUTH
-1,701.6 s + MEANB in progress — ≈0.5+ core-h of the ~3.3 core-h planning figure
-(≈$0.17; hard bound ≤$0.31 via the 3600 s/solve timeout, inside the lane's
-standing 15 core-h cap). D476 spent ~10–12 core-min gross (3.0 registered
-scope; ledger row at `8322a70f`). Everything else this session is zero-solve
-(verification reads, records, board).
 ## dafoam
 
 **Section last written:** 2026-08-24T16:03:31Z by dafoam-supervisor (session 2 close-out addendum; third session's text untouched). *Stamp is `date -u` read in the commit invocation.*
