@@ -500,3 +500,32 @@ is routed to the chief. **R11 is untouched; the adoption question is Sanaa's and
 **END OF RESULTS. The pre-registration above the freeze line fixed every gate, band, cap and label
 before this arm ran; six of thirteen predictions missed and are reported as misses. NOT FILED
 ANYWHERE.**
+
+---
+
+## Addendum 1 — 2026-08-24T17:31:53Z: the calibration row landed as `C-31`, not `C-30`
+
+**Correcting one stale citation in §10.2 of this record. No number, band, gate, verdict, prediction
+score, ratio or cost figure moves; nothing above this section is rewritten and no line number above
+it changed.**
+
+§10.2 states that the drafted calibration id is **`C-30`**. That was the correct re-derivation at
+drafting time (the maximum in the file's tail was then `C-29`). **Between drafting and the commit,
+peers landed two further rows, so the maximum re-derived inside the appending shell invocation was
+`C-30` and this item's row landed as `C-31`.** The row is at
+`docs/COST_CALIBRATION.md`, committed `5bec45b7`, and **`C-31` is the id to cite.**
+
+The re-derivation behaved exactly as `CLAUDE.md` rule 11 and `PREREGISTRATION.md` §8.2 require — the
+id was taken from the **maximum existing number** in the file's own tail, in the same shell
+invocation as the commit, and the drafted figure was explicitly registered as *"a snapshot, not a
+reservation."* **The snapshot was consumed by peers in the ~6 minutes between drafting and
+appending, which is precisely the failure mode `C-28` was written about.** No existing row was
+renumbered, `C-30` is intact and untouched, and the appended content was built from the HEAD blob
+with prefix identity and insertions-only asserted (`1 insertion, 0 deletions`).
+
+**Carried as a drafting rule rather than a lesson:** a record that names its own not-yet-appended
+ledger id dates itself in minutes on a box where peers commit constantly. Either append first and
+cite the landed id, or write the cell as *"id assigned at append; see the ledger tail"* — and then
+correct it, as this addendum does.
+
+**This addendum was written at zero compute. NOT FILED ANYWHERE.**
