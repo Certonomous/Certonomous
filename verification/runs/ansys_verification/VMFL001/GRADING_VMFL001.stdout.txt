@@ -1,0 +1,11 @@
+REFUSE: no sampled file for set 'gateAxis', field 'U' at time 3000 under /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL001/L1_16x64/postProcessing
+==============================================================================
+VMFL001 -- flow between rotating and stationary concentric cylinders
+Ansys Fluid Dynamics Verification Manual 2026 R1, p. 15-16
+reference: White, Viscous Fluid Flow, section 3-2.3 (analytical)
+==============================================================================
+  r =  20.0 mm   manual target  15.1000 mm/s   exact  15.120125 mm/s
+  r =  25.0 mm   manual target  10.5000 mm/s   exact  10.533600 mm/s
+  r =  30.0 mm   manual target   7.2000 mm/s   exact   7.186565 mm/s
+  r =  35.0 mm   manual target   4.6000 mm/s   exact   4.547810 mm/s
+  analytic torque per unit length: 9.345533e-07 N-m/m (diagnostic)
