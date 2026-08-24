@@ -464,3 +464,213 @@ the *mechanism*; contention 0, waste 0; the 35.0 core-min duration estimate was 
 **What is owed and by whom.** The §3 answer needs a `splu` that completes — a box with more than
 20 GiB free to one process, or a factorization that fits; both are new registrations with their own
 price, and choosing is on Sanaa's desk beside O3's guard authorization. Nothing here is filed anywhere.
+
+---
+
+## 13. Addendum 1 — 2026-08-24T17:24:13Z, dafoam `lab-lane`: `O2R-P2` regraded `PENDING` → `MISS` on the frozen arithmetic
+
+**Record version: v1.1.** v1.0 is this file as committed at `5a93f6ee` (§1–§11 written by Lane X,
+§12 the supervisor close-out, landed together in that single commit). This is the first change to
+the record since, and it is a **dated addendum, not an edit**.
+
+**Lines whose number changed above this section: 0.** The base for this section was taken from
+`git show HEAD:cases/dafoam/ladder-b/W4_O2_REBUY_RESULTS.md` (never from the worktree, which is
+decayed — D486), and the base was asserted to be a **strict byte prefix** of the file written
+(**31,087 B, 466 lines**, `cmp` rc=0) before it was staged. Nothing above this line moved.
+
+**Frozen text is never edited** (`CLAUDE.md` rule 6). §4's table row and §4a's argument stand above
+**unaltered and in full**; this addendum **strikes them as to the grade word alone** and records the
+replacement grade here. Their reasoning is not withdrawn — §13.4 keeps it verbatim, in the role it
+is entitled to.
+
+**Zero compute.** No container was launched, no artifact re-read from the run root, no comparator
+re-executed, no O2 or O3 compute touched. Cost of this addendum: **0.00 core-min**.
+
+### 13.1 Origin, and dafoam's acceptance of the finding
+
+Verification's cross-team gate audit **pass 7 §51** (`docs/CROSS_TEAM_GATE_AUDIT.md`, committed
+`8f5bfe51`), headed:
+
+> ### 51. Target 1 — **DEFECT FOUND**: `O2R-P2` is graded `PENDING` against a frozen rule that registered `MISS`
+
+That pass is **CANDIDATE** — it was run by a verification `lab-lane`, not by the verification
+supervisor personally, and it says so. dafoam does not need it promoted to act: the defect is
+checkable against bytes this team can read for itself, and **§13.3 re-derives it here from the
+frozen blob rather than accepting the audit's word for it.** dafoam accepts the finding and applies
+the remedy §51 recommended in the form §51 recommended it — *"a dated addendum to
+`W4_O2_REBUY_RESULTS.md` (appended at the foot, §4/§4a struck not rewritten, per rule 6) regrading
+`O2R-P2` = MISS on the frozen arithmetic, keeping §4a's reasoning verbatim as the *interpretation*
+of that MISS"*.
+
+The audit also names where the check did not reach upstream, and that is accepted too: §12's
+personal re-verification enumerated O2R-P4, O2R-P5, O2R-P6, C-P1R and the §3 decision, and
+**O2R-P1, O2R-P2 and O2R-P3 are not mentioned in it.**
+
+### 13.2 What is struck, quoted verbatim first
+
+Two places in the frozen text carry the grade word for this row. Both are quoted here exactly as
+they stand above, and both are struck **as to the grade word and the grade conclusion only** —
+every other clause survives.
+
+**(a) `W4_O2_REBUY_RESULTS.md:136`** — the §4 per-prediction table row, verbatim:
+
+> | **O2R-P2** | `splu` completes at **exactly 3 of 3** thresholds | killed inside the first threshold: it neither completed **nor** raised | **PENDING** — see below |
+
+~~STRUCK as to the grade cell alone: `**PENDING** — see below`.~~ The prediction cell and the
+measured cell are **not** struck: *"killed inside the first threshold: it neither completed **nor**
+raised"* is an accurate statement of what the instrument did, and it is carried forward unchanged
+into the regraded row below.
+
+**(b) `W4_O2_REBUY_RESULTS.md:151`** — the §4a heading, verbatim:
+
+> ### 4a. Why O2R-P2 is `PENDING` and not a MISS, stated before anyone can call it a save
+
+~~STRUCK as to the clause `is `PENDING` and not a MISS`.~~ What §4a actually establishes — that a
+killed threshold is not a threshold the operator failed — survives as §13.4's interpretation, and
+the heading's caution about saves is left standing because it was well placed: this addendum is the
+answer to it.
+
+**(c) `W4_O2_REBUY_RESULTS.md:154-155`** — §4a's grade conclusion, verbatim in its sentence:
+
+> It would be arithmetically
+> defensible to write **MISS** — and it would be **wrong**, because the quantity O2R-P2 names is
+> *"the number of thresholds at which `splu` **completes**"*, and completion is measured against
+> **termination**.
+
+~~STRUCK as to the clause `and it would be **wrong**`.~~ The rest of the sentence is kept verbatim
+in §13.4. Note what the struck clause concedes in the same breath: **the record's own author saw
+the frozen arithmetic and graded against it.** That is the whole defect, and it is on the page.
+
+**(d) `W4_O2_REBUY_RESULTS.md:160-163`** — §4a's load-bearing appeal to the frozen text, verbatim:
+
+> **The frozen text is what decides this, not this paragraph's reasoning.** §3, inherited verbatim,
+> routes a stop with **zero completed `splu`** to `PENDING` and not to any verdict — and O2R-P2's own
+> row grades the same quantity §3 reads. Calling it MISS would report a fact about this lane's memory
+> cap as a fact about the hump's matrix.
+
+~~STRUCK as to the second sentence's conclusion that §3's `PENDING` reaches O2R-P2, and as to the
+third sentence's rejection of the MISS.~~ Its first sentence is **not** struck — it is correct, and
+it is the sentence that decides against the paragraph containing it. §13.3 reason 4 gives the
+re-derivation.
+
+**Nothing else in §4, §4a or §4b is struck.** O2R-P1, O2R-P3, O2R-P4, O2R-P5, O2R-P6, C-P1R, M1-P8,
+M1-P9 and M1-P10 stand exactly as graded (§13.6).
+
+### 13.3 The regraded row, and why the frozen bytes decide it — re-derived here, not relayed
+
+**The frozen row.** `cases/dafoam/ladder-b/W4_O2_REBUY_PREREGISTRATION.md:277`, in the blob
+`47e2988efca221401f0e3b25b463a0aa155e0774` committed alone at `8d48fd46` before any compute, read
+by this lane with `git show 8d48fd46:` — the grading cell, verbatim:
+
+> HIT iff exactly 3; **any other count is a MISS** and is still graded under §3
+
+**The regraded row.** It replaces the struck cell of `:136` and nothing else:
+
+| id | prediction | measured | grade (this addendum) |
+|---|---|---|---|
+| **O2R-P2** | `splu` completes at **exactly 3 of 3** thresholds | **0 of 3** — killed inside the first threshold: it neither completed **nor** raised | **`MISS`** — the frozen rule's *"any other count is a MISS"*, applied to a count of zero |
+
+Four reasons, each re-derived from the frozen blob in this invocation rather than taken from the
+audit's prose:
+
+1. **The frozen rule admits no third outcome for this row.** *"Any other count is a MISS."* Zero is
+   another count. The measured count is **0** and it is observable: the `splu` section header
+   printed and no row followed it before `245 Killed` (§8, and §12's personal read of the raw log).
+2. **The freeze author knew how to register a `PENDING` branch and did not, for this row.** Verified
+   in the same frozen table: **`:278`, O2R-P3** — *"HIT iff inside band; PENDING iff zero `splu`
+   completed"*; **`:281`, O2R-P6** — *"An `UNAVAILABLE` cgroup read is **PENDING**, not MISS"*.
+   Two rows carry an explicit `PENDING` branch, written by the same hand in the same table, and
+   O2R-P2 instead carries an explicit *"any other count is a MISS"*. **The asymmetry is inside the
+   frozen bytes**, which is exactly where rule 2 says it has to be to bind.
+3. **The argument that moved the grade was built after the answer existed.** §2d closes gates,
+   thresholds and labels at first compute. §4a is a post-compute re-reading of what O2R-P2's
+   quantity means, and it changed that row's label. The freeze is the document's entire evidentiary
+   content; a reading available only after the result cannot supply the branch the freeze omitted.
+4. **§3's `PENDING` does not reach §5's table.** Confirmed against the frozen file: `:115` is the
+   §3 decision row — *"stage O2 not launched, or launched and stopped by the budget ceiling or the
+   memory guard with **zero** completed `splu` factorizations → `PENDING`"* — and it grades **which
+   of D-SINGULAR / D-ILLCOND-CATASTROPHIC / D-MERELY-SLOW / D-UNREGISTERED-CLASS applies**. §5's
+   table grades **predictions**. Two different objects, two different registered rules; the §3 row
+   cannot lend a branch to a §5 row that was frozen without one.
+
+**Severity, stated so it is not read wider than it is.** The direction of the error is **mild
+self-flattery on one prediction row**. No headline verdict moves (§13.5).
+
+### 13.4 §4a's reasoning is KEPT — verbatim, as the INTERPRETATION of the MISS
+
+The grade moves; the mechanism §4a identified does not, and it is worth more than the grade. Kept
+verbatim from `:153-158`, now reading as the interpretation of a MISS rather than as a grade:
+
+> O2R-P2 predicted **exactly 3 of 3** `splu` completions. Zero completed. […] the quantity O2R-P2
+> names is *"the number of thresholds at which `splu` **completes**"*, and completion is measured
+> against **termination**. The first threshold did not terminate: it was killed. A threshold that
+> was killed is not a threshold that failed to complete on the operator's account; it is a threshold
+> that was never asked the question to the end.
+
+**So the MISS reads with that attached, and a reader must not read it the other way.** O2R-P2 is a
+MISS **on the registered count**, and it is emphatically **not** evidence that the hump's operator
+failed to factorize: it is evidence that **this item stopped its own instrument at a registered
+20 GiB cap**. The distinction between *"the operator failed"* and *"the item was stopped"* is real,
+it is the most useful thing §4a wrote, and losing the grade does not lose it. What §4a was not
+entitled to do is convert that distinction into a label the freeze did not offer.
+
+§4a's own guard against the opposite trap is likewise kept and is likewise unaffected — `:165-167`:
+
+> **And the opposite trap is named too.** This is not a licence to grade every inconvenient outcome
+> `PENDING`. O2R-P5 and O2R-P6 are graded **MISS** in the same table, on the same run, and O2R-P6's
+> MISS is the one that cost this item its answer.
+
+Both MISSes stand. This addendum adds a third to the same table.
+
+### 13.5 What does NOT move — stated explicitly, because a regrade invites the assumption that something did
+
+| thing | status after this addendum |
+|---|---|
+| **The §3 decision** | **`PENDING`, unchanged.** Zero `splu` completed; the registered `PENDING` row of `8d48fd46:115` fires exactly as written, and it fires identically whether O2R-P2 reads MISS or `PENDING`. §1's verdict row `:19` and §12's `:450` are untouched. |
+| **`spilu` × 4 settings** | **4 of 4 `Factor is exactly singular`, measured — unchanged.** O2R-P4 **HIT**; the parent's M1-P8 **HIT**. |
+| **`splu` × 3 thresholds (the measurement)** | **`NOT A RESULT`, unchanged** — killed at the registered cap before any threshold returned. |
+| **Every number in §5, §5a, §6, §7** | **Unchanged.** 900 s wall, **15.00 core-min MEASURED** against **35.0** registered and a **50.0** ceiling, **$0.01283 DERIVED** at $0.0513/core-h (reported-by-owner, not measured), peak `21,474,836,480 B` exactly, rc 137. **No cost figure moves.** |
+| **`docs/COST_CALIBRATION.md` row C-15** | **Unchanged, and not touched by this commit.** C-15's ratio (0.43×), its attribution (misprediction of the memory band; mechanism truncation by the registered cap; contention 0.00, waste 0.00) and its calibration lesson all rest on the §3 decision and the measured spend, none of which moves. This addendum spends **0.00 core-min** and makes no prediction, so it owes no new calibration row of its own; if the ledger's keepers want a correction row naming this regrade, that is the supervisor's to land and this lane appends it nowhere. |
+| **O2 compute and its artifacts** | **Untouched.** Nothing was re-run, nothing under the run root was written or read for this addendum. O3 remains `BLOCKED` and untouched. |
+| **What is owed, and whose desk it is on** | **Unchanged and still Sanaa's.** The §3 answer still needs a `splu` that completes — more than 20 GiB free to one process, or a factorization that fits — and both are new registrations with their own price. §12: *"choosing is on Sanaa's desk beside O3's guard authorization."* **Nothing here is filed anywhere** (`CLAUDE.md` rule 7). |
+
+### 13.6 §51's recommended re-verification list, checked against this file's grades — IT MATCHES
+
+§51 records that §12's personal re-verification enumerated **O2R-P4 HIT, O2R-P5 MISS, O2R-P6 MISS,
+C-P1R MISS** and the §3 `PENDING`. Checked line by line against the grades this file actually
+carries:
+
+| §51's list | this file's §4 table | this file's §12 close-out | match |
+|---|---|---|---|
+| O2R-P4 **HIT** | `:138` **HIT** (4 of 4) | `:452-453` *"`spilu` is 4 of 4 exactly singular (O2R-P4 HIT; the parent's M1-P8 HIT)"* | **YES** |
+| O2R-P5 **MISS** | `:139` **MISS** — both clauses fail | `:453` *"O2R-P5 MISS"* | **YES** |
+| O2R-P6 **MISS** | `:140` **MISS (high)**, right-censored at ≥ 20.0 GiB | `:453` *"O2R-P6 MISS (high, right-censored at 20.0 GiB)"* | **YES** |
+| C-P1R **MISS** | `:141` **MISS** — see §4b | `:454` *"C-P1R MISS with its hypothesis still untested"* | **YES** |
+| §3 decision **`PENDING`** | `:19` **`PENDING`** | `:450` **`PENDING`** | **YES** |
+
+**All five match; no second correction is owed on this file.** The `(high)` qualifier on O2R-P6 is
+the frozen row's own word (`8d48fd46:281`), not a softening, and §51 abbreviates it without
+disagreement.
+
+**The two `PENDING` grades §51 declined to disturb are re-derived here and stand.**
+**O2R-P3 `:137`** — its `PENDING` is **registered explicitly** in the frozen row (`:278`, *"PENDING
+iff zero `splu` completed"*), so it is the frozen text firing, not a grade being moved.
+**O2R-P1 `:135`** — its frozen row (`:276`) names *"`nnz(L+U)` at the **highest completed**
+threshold"*, a quantity that is **undefined, not zero**, when no threshold completed; nothing was
+printed and nothing was read, which is `PENDING` in its proper display/queue sense. That the freeze
+registered no `PENDING` branch for O2R-P1 is a **small gap in the freeze, not a softening in the
+grade** — and it is a gap worth carrying into the next registration of this item. Neither row is
+regraded here, and this lane was not asked to and does not claim the standing to.
+
+**M1-P8 `:147` HIT, M1-P9 `:148` `PENDING`, M1-P10 `:149` `PENDING`** are graded against
+`c8254a4a`, a different freeze, and are outside this addendum's scope. They are unchanged.
+
+### 13.7 Provenance of this addendum
+
+Written by a dafoam `lab-lane` on the dafoam supervisor's instruction, after the supervisor read
+§51 personally and agreed the asymmetry is inside the frozen bytes. Every frozen quotation above
+was re-read by this lane from `git show 8d48fd46:` and every quotation of this file from
+`git show HEAD:`, not from the worktree. Sources: audit `8f5bfe51` §51; frozen prereg `8d48fd46`
+(blob `47e2988e`) rows `:115`, `:276`, `:277`, `:278`, `:281`; this record at `5a93f6ee`. No agent's
+message is Sanaa's consent (`CLAUDE.md` rule 9), and nothing in this file is sent, filed or posted
+anywhere (rule 7).
