@@ -1,0 +1,15 @@
+{
+ "written_utc": "2026-08-24T16:07:25Z",
+ "note": "witness for grading_gpu_ling.json, which records no comparator sha itself (RESULTS D-5)",
+ "comparator": "cases/RANS_LES_closure_models/Ling2016_TBNN/gpu/score_gpu_ling.py",
+ "comparator_sha256_on_disk_at_write": "4f9eda1617e860718ec7adb8f89d45452ec90929ba75968b145b1fc05fdb2aac",
+ "comparator_blob_at_11f93da6_sha256": "4f9eda1617e860718ec7adb8f89d45452ec90929ba75968b145b1fc05fdb2aac",
+ "frozen_F4_table_sha256": "4f9eda1617e860718ec7adb8f89d45452ec90929ba75968b145b1fc05fdb2aac",
+ "all_three_equal": true,
+ "grading_json": "/home/ubuntu/closure-data/tbnn_gpu/grading_gpu_ling.json",
+ "grading_json_sha256": "f56dec949c68d6fc64402033319b2059e2051aa3bf00230958d9bee8e88867b8",
+ "grading_json_bytes": 26981,
+ "grading_json_written_field": "2026-08-24T15:55:27Z",
+ "prereg_sha256": "61b2097f63a38f320aeb98275f4a7aaba8454880fe2389398ee59678d4d81d97",
+ "prereg_commit": "e8309b6c"
+}

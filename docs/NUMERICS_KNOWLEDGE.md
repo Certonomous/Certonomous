@@ -3553,3 +3553,28 @@ Source: `cases/RANS_LES_closure_models/_common/features/FS5_D476_CLIP_REPAIR_RES
 **N-D26. Image equivalence, measured bit-for-bit: the literal `dafoam/opt-packages:latest` reproduces the archived `dafoam-subpclu:v1`-env-unset A3 rung-1 row exactly — 16/16 perturbed CD values, 8/8 FD estimates, both baselines and the repeat drift.** This closes the previously untested ‡ equivalence that carries every SHIPPED-equivalent row on the A3 sweep ladder: those rows now rest on a measured bit-identity at rung 1 rather than an inference. The hash remains the identity — this equivalence is a measured fact about these two images' contents on this case, not a rule about tags. Source: `/home/ubuntu/certonomous-runs/P4-a3-rung1-patched/` (R1-P6), grader `cases/dafoam/ladder-a/A3/rung1_patched_idwarp_np4/analyse_r1.py` (committed before running, planted control live).
 
 **N-D27. The NASA hump's incomplete factorization is singular at all four registered `spilu` settings — the CBFS signature reproduced on a second case — and its complete factorization does not fit in 20 GiB.** Assembled `dRdWTPC`, 517,240 states, 33,662,810 nnz (N-D22): `scipy.sparse.linalg.spilu` raises `Factor is exactly singular` at `drop_tol` 1e-2/1e-3/1e-4/1e-5 with `fill_factor` 3/5/5/10 — 4 of 4, matching CBFS's 4 of 4 (`PROOF.md` §25.3). `splu(diag_pivot_thresh=0)` was killed by a 20.0 GiB cgroup cap without completing (peak right-censored at exactly 21,474,836,480 B), against CBFS's complete LU finishing inside 10 GiB at 3.22e8 nnz(L+U). Source: `cases/dafoam/ladder-b/W4_O2_REBUY_RESULTS.md` §2–§3, log `W4-m1m2-hump-conditioning/logs/o2_rebuy_hump_lu_20260823T211207Z.log`. **The singular-vs-merely-slow verdict (frozen §3 of `c8254a4a`) remains `PENDING`**: the incomplete factorization's singularity is measured; the complete factorization's behaviour is not.
+**N-B40. Ling's SGD rate under full-batch updates is inert on the TBNN and
+sufficient for the MLP.** 200,000 full-batch SGD updates at lr 2.5e-7 move the
+8×30 TBNN's train loss by 12–36 % and its validation `b_rms` from 3.0–9.6 to
+3.0–7.1 (seed 1's best epoch is epoch 0); at 2.5e-6 the 10×10 MLP trains from
+0.49–1.09 to 0.30–0.37 and is still descending at the cap. The paper's own
+updates were per training point (sidecar l.131–132) — ~3.4e5× more per epoch.
+Source: `Ling2016_TBNN/gpu/RESULTS.md` §2, `hist_tbnn_s*.csv`, `hist_mlp_s*.csv`.
+
+**N-B41. The architecture optimum is flat, and the search re-selects the
+CPU lane's recipe.** 100 TPE trials over depth 2–12, width 5–100, four
+activations, batch {8192, 65536, full}, lr 1e-7–1e-2 (Adam, 400 epochs, 3 seeds,
+VAL only) return 9×77 LeakyReLU(0.01), **batch 8192, lr 1.023e-3** — the CPU
+lane's batch and learning rate to three figures — with validation 0.1595 (5
+seeds, spread 0.0035) against the frozen 8×30's 0.1646 (spread 0.0073): inside
+the spread, so the paper's 8×30 is not shown suboptimal on this data.
+Source: `status_armb_search.json`, `../train_log.json`; `RESULTS.md` §3.
+
+**N-B42. Low RMSE and high non-realisability coexist on the ducts.** The
+ARM-B network scores 0.109–0.121 on the three held-out ducts (train-mean
+0.39–0.42) while violating the barycentric triangle on 24.7–46.4 % of those
+cells for three of five seeds (0.5–1.2 % and 6.1–6.8 % for the other two) at
+`max ‖b‖_F` 0.76–0.83 — inside the norm bound, outside the triangle. On the
+out-of-family `NASA_2DWMH` every seed violates on 10.1–12.1 % with `‖b‖_F` to
+9.4e8. The truth violates on 0.79 %, SST on 0.10 %, the MLP on 0.00 %.
+Source: per-case `realisability_violation` over `pred_armb_s*.npz`; `RESULTS.md` §2.

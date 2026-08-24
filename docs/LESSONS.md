@@ -9844,3 +9844,47 @@ rule text before any FD ran — a `VERIFICATION_CHARTER.md` §2d.1-eligible repa
 pre-registration's own §4.2(c) had forbidden. The whole class is closed by one habit: run the frozen
 rule on its frozen ladder with a synthetic `|J|` and `η` **before the freeze**, and freeze the printed
 selections beside the rule.
+## L-267. A learning rate is not an optimiser — reproducing a paper's rate under a different update count is a different experiment, and a batch size chosen for the cost estimate silently changed the optimiser
+
+**The rule.** When a pre-registration claims to run "the paper's own optimiser",
+register the **update count and the update granularity** (per-point, mini-batch,
+full-batch), not the epoch count — and cost *those*. Any batch-regime choice made
+to fit a throughput estimate is an optimiser change and must be written down as
+one, beside the departure it was meant to remove.
+
+**Why.** The Ling2016 GPU arm registered ARM-A as "Ling's own SGD at 2.5e-7, 200,000
+epochs, full batch by construction" — full batch chosen because a 7,000-parameter
+network is launch-bound and the GPU-hour estimate needed it. The paper's own text
+(sidecar l.131–132) says the weights were *updated after each training point*.
+On 341,717 training cells that is ~3.4e5 more updates per epoch than the arm ran:
+the arm removed the CPU lane's learning-rate departure (D3) by introducing an
+update-count departure five orders of magnitude larger, and the registered
+falsifier then fired on the wrong question. Measured: the TBNN's validation error
+did not move in 200,000 full-batch updates (one seed's best epoch was epoch 0),
+while the same optimiser at the paper's MLP rate trained the control to 0.30–0.37.
+The gate is graded as written; the finding is that the experiment tested "the rate
+at one update per epoch", not the paper.
+
+**Where it fired.** `Ling2016_TBNN/gpu/RESULTS.md` D-1, §3; frozen file §6.
+Docket D490.
+
+## L-268. A detached job survives the fleet; the bill survives with it — the completion-to-stop path for a paid node must not depend on a live agent
+
+**The rule.** Before launching a paid instance that a session cannot stop, register
+who or what stops it *at batch completion* when no agent is alive — a durable
+completion marker and a stop path that does not route through a live session —
+and cost the idle interval you would otherwise pay as waste. The specific
+mechanism is an instance-behaviour decision reserved to Sanaa; the chief has put
+a proposal to her, and no lane proposes or implements one on its own.
+
+**Why.** The Ling2016 GPU batch ran under `nohup` and completed cleanly at
+08:03:58Z while the session limit had killed every agent overnight; nobody
+reported completion until 15:56:45Z. The node idled **7.88 GPU-h = $6.34
+derived** against the run's own **10.71 GPU-h = $8.62** — waste at 73 % of the
+spend, entirely attributable to the report-then-ask-Sanaa path having a live
+agent as its single point of failure. This box has no AWS CLI, so "stop it from
+here" was never an option; the honest register was "who stops it when nobody is
+awake", and no file asked that question before launch.
+
+**Where it fired.** `Ling2016_TBNN/gpu/RESULTS.md` D-2, §5; `docs/COST_CALIBRATION.md`
+C-16. Docket D490.

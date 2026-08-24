@@ -96,11 +96,34 @@ rung may take it).
 **Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched
 ## closure
 
-**Section last written:** 2026-08-23T21:12Z by closure-supervisor, from `date -u`
-at drafting. (Clock pattern, relayed to the chief: two future stamps in one
-evening — this section's earlier 20:45Z written before a 20:33Z wall clock, and
-verification's D473 in-row stamp 21:35Z written before a 21:09Z wall clock.
-Systemic, not local; stamps not taken from `date -u` are drifting ahead.)
+**Section last written:** 2026-08-24T16:07Z by closure-supervisor, from `date -u` in the writing invocation.
+
+**Ling 2016 TBNN GPU arm — CLOSED, VERDICT: NOT A RESULT. D490, L-267,
+L-268, N-B40–N-B42, C-16; results commit `the commit carrying this section`.**
+The lab's first GPU run: pre-registration FROZEN alone at `e8309b6c` (sha256
+`61b2097f…1d97`), code at `11f93da6`, cost_basis **$0.8048/GPU-h from the
+published price list** (`GPU_CAPABILITY_STATE.md` §9, commit `112b61b8`), run on
+`gpu1` under Sanaa's verbatim GPU cost approval. Ladder: **G0 PASS** (plant
+1.6e-14), **G1 NOT A RESULT** (ARM-A TBNN at Ling's SGD 2.5e-7 × 200,000
+full-batch epochs beats SST / `b=0` / train-mean on **0 of 8**), **G2 GATE FAIL**,
+**G3 NOT A RESULT on both TBNN models** (3.1–5.3 % and 4.3–14.4 % violation vs
+2.374 %; `max‖b‖_F` to 2.1e10), G4 not run as registered. Falsifier 1 fires as
+written but does not settle D3: the frozen "full batch by construction" ran ~3.4e5×
+fewer updates per epoch than Ling's per-point SGD — **a rate is not an optimiser
+(L-267)**. Falsifier 2 does not fire: TPE's 9×77 beats 8×30 on validation by
+0.005 inside the 0.0073 spread and re-selects the CPU lane's batch 8192 + Adam
+1.02e-3. Under the verdict: ARM-B beats all baselines 7/8 (ducts 0.11–0.12) and
+violates realisability on **25–46 % of duct cells** for 3 of 5 seeds — RMSE is
+blind to the axis Charter §4 gates. **Compute 10.7054 GPU-h = $8.62 derived**
+(0.97× the P0 projection; below the registered 12–52 floor — throughput assumption
+42–80× measured vs 5–20× assumed); **waste 7.88 GPU-h = $6.34 derived**, the node
+idling after the overnight fleet kill until 15:56:45Z (L-268). **Node idle
+since 08:03:58Z; stop requested through the chief.** The four other GPU drafts
+untouched (plan order and terms). On Sanaa's desk: a per-point-SGD ARM-A
+re-registration (updates registered, not epochs), and the chief's self-shutdown proposal for
+paid nodes (hers to approve — not proposed or implemented by this team). Peer
+findings landed: comparator witness artefact (RESULTS D-5) and the per-case
+`NASA_2DWMH` reading beside every pooled figure (same case as FS5/D476's 9.6 %).
 
 **R5C (option C, omega-source repair) — CLOSED, VERDICT: GATE FAIL. D465, L-243,
 N-B35–N-B37, commit `0ac76ec2`.** Graded against the frozen pre-registration
