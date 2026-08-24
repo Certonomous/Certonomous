@@ -2,13 +2,16 @@
 # drive.sh -- A3 rung 3 patched-IDWarp, np=4, ATTEMPT 2. Copied byte-identical from
 # ../rung3_patched_idwarp_np4/drive.sh (frozen at 3525f1d2) except for the lines listed in this
 # item's PREREGISTRATION.md section 11. It changes no gate, threshold, band, cap or label.
+# AMENDMENT 1 (2026-08-24, before first compute, PREREGISTRATION.md section 15): the launch-gate
+# memory limb is 25.0 GiB = floor 8.0 + P11 registered UPPER 15.0 + co-tenant allowance 2.0, and
+# the gate records the margin it opened on. Nothing else moves; mem_guard.sh is untouched.
 #
 # One arm: R3-A, `dafoam-idwarp-rot:v1`, -task ct_cd, --cpus=4 --memory=16g, timeout 2600.
 #
 # PRECONDITIONS (PREREGISTRATION.md section 12 step 4):
 #   GUARD_SELFTEST_PASS exists AND is newer than mem_guard.sh, coloring_guard.sh,
 #     identity_stop.sh and shipped_cd_checkpoints.txt
-#   free_cores >= 4 AND MemAvailable >= 19.65 GiB, polled 60 s x 360 (6 h)
+#   free_cores >= 4 AND MemAvailable >= 25.0 GiB, polled 60 s x 360 (6 h)   [AMENDMENT 1]
 # DECISION RULE (section 7): rc=124 => report what matched, NO second budget, and neither the
 # ct_cd discriminator of section 3 departure 6 nor stage R3-2 is launched under any branch.
 set -u
@@ -46,8 +49,11 @@ gate() {
     FC=$(freecores); MG=$(awk '/MemAvailable/{printf "%.2f", $2/1048576}' /proc/meminfo)
     echo "$(date -u +%FT%TZ) $ARM poll=$i free_cores=$FC MemAvailable_GiB=$MG load1=$(cut -d' ' -f1 /proc/loadavg)" \
       >> "$ROOT/launch_condition.txt"
-    if [ "$FC" -ge 4 ] && awk -v m="$MG" 'BEGIN{exit !(m>=19.65)}'; then
-      GATE_FC=$FC; GATE_MG=$MG; return 0
+    if [ "$FC" -ge 4 ] && awk -v m="$MG" 'BEGIN{exit !(m>=25.0)}'; then
+      GATE_FC=$FC; GATE_MG=$MG
+      echo "$(date -u +%FT%TZ) $ARM GATE_OPEN poll=$i limb_GiB=25.0 MemAvailable_GiB=$MG margin_mem_GiB=$(awk -v m="$MG" 'BEGIN{printf "%+.2f", m-25.0}') free_cores=$FC margin_cores=$((FC-4)) floor_GiB=8.0 floor_sampled_by=mem_guard.sh_MemAvailable_at_5s" \
+        >> "$ROOT/launch_condition.txt"
+      return 0
     fi
     sleep 50
   done

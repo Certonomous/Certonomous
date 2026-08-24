@@ -1065,3 +1065,249 @@ without Sanaa** (§3 departure 8).
 
 **Nothing is filed, sent, uploaded, posted, registered or pushed. Filing stays NOT APPROVED and is
 Sanaa's alone.**
+
+---
+
+## 15. AMENDMENT 1 — dated, appended at the foot, append-only. One threshold re-derived and one recording duty added, BEFORE FIRST COMPUTE.
+
+**Date: 2026-08-24T16:26:12Z — UTC, read by `date -u` in the same shell invocation that wrote and committed this
+amendment. Not asserted, not projected, not carried from an earlier step.**
+
+**The condition under which this amendment is legal, and how it was checked.** `CLAUDE.md` rule 2 and
+`VERIFICATION_CHARTER.md` §2b item 1: before first compute, amendments are legal **and must state the
+condition and how it was checked — naming the run directory that does not exist**. **NO COMPUTE HAS
+OCCURRED UNDER THIS PRE-REGISTRATION.** The registered run root
+**`/home/ubuntu/certonomous-runs/P5-a3-rung3-patched-attempt2` still does not exist**, re-checked with
+`test ! -d` **inside the same shell invocation** that wrote and committed this amendment, together
+with **`docker ps -a` showing no container named `p3_a3r3_patched`**. Both assertions and the stamp
+above are quoted in this amendment's commit message. No container has been started, no solver has
+run, and **0 core-minutes have been spent under this item.**
+
+**Source, recorded as a RELAY (`CLAUDE.md` rule 9).** The verification supervisor reviewed §13's
+candidate rule; the chief relayed the review to the dafoam supervisor, who ruled it into this item on
+2026-08-24 and passed it to this lane. **Verbatim, as relayed:**
+
+> *"SOUND as a necessary condition and arithmetically forced by C-10's 16/8/9.2 GiB triple; three
+> refinements: (i) use the arm's REGISTERED UPPER band, not its point peak; (ii) add a co-tenant
+> growth allowance, else the rule protects the floor only at t=0; (iii) require the gate to record
+> the margin it opened on, with the floor sampled from MemAvailable at the gate's cadence."*
+
+**It is adopted because it is a supervisor's ruling within this item's existing scope and it
+*tightens* the item's own gate at zero compute cost — not because any agent's message is authority.**
+No permission, config file, `CLAUDE.md` or charter is touched by this amendment.
+
+### A1.1 — refinement (i): the limb is re-derived from the REGISTERED UPPER band, not the point peak
+
+**Struck, and its derivation kept rather than deleted:**
+
+> ~~**Proposed registered limb: `MemAvailable ≥ 19.65 GiB`** = floor 8.0 + the shipped arm's complete
+> measured peak 11.65 GiB.~~ — **SUPERSEDED by this amendment.** The arithmetic was correct and the
+> rejection of 17.2 GiB in §3 departure 8 **stands unchanged**; what was wrong is the *quantity*
+> chosen. **11.65 GiB is a POINT estimate. This item's own registered band for the same quantity is
+> R3-P11's `[9.2, 15.0] GiB`, and a gate built on the point of a band it registered itself protects
+> the floor only if the arm lands on the point.**
+
+**The registered upper is `15.0 GiB`, and that number is not arbitrary: it is also the RSS ceiling
+`mem_guard.sh:79` kills at.** So the arm's own growth is **bounded by construction** — the arm cannot
+exceed 15.0 GiB and continue, because the guard stops it at 3 consecutive 5 s samples above it. Using
+the registered upper therefore makes the limb consistent with the guard that enforces it, which is
+exactly what attempt 1's 16/8/9.2 triple was not.
+
+### A1.2 — refinement (ii): a co-tenant growth allowance, and the honest gap in it
+
+**A gate built from `floor + arm` protects the floor at `t = 0` only.** Every co-tenant that grows
+after the gate opens eats the same headroom. Attempt 1 is the worked example: the gate opened at
+16.02 GiB and the floor was breached **60 s later**, with the co-tenants alive throughout.
+
+**Allowance: `2.0 GiB`, and here is its basis, verified by this lane rather than relayed.** The one
+live co-tenant at this item's freeze reading was a peer lane's A1 curriculum-D1 arm O
+(`d1_armO_20260824T160553Z_1400030`, `dafoam-idwarp-rot:v1`). That item registers its memory envelope
+as **predicted peak 1.2 GiB, ceiling ≤ 2.0 GiB** — its **P9** at
+`cases/dafoam/ladder-a/A1/curriculum_D1/PREREGISTRATION.md:300` and its gate **G9** at `:462-464`.
+The allowance is that registered ceiling.
+
+**And the gap in it, named rather than absorbed, because a reader would otherwise find it:**
+
+1. **2.0 GiB is that co-tenant's REGISTERED ceiling, not its ENFORCED one.** Its kernel cap is
+   **`--memory=6g --memory-swap=6g`** (`:242`, `:564`). If arm O exceeds its own prediction, it can
+   reach **6 GiB** before anything stops it — a **4.0 GiB exposure this allowance does not cover.**
+2. **Heat-transfer and closure solvers are not bounded by this item at all.** They carry no cap this
+   item can cite, they were simply not running at the freeze reading, and they may relaunch at any
+   moment. They are captured **only** by the gate reading at the poll that opens, and by
+   `mem_guard.sh` thereafter.
+3. **Therefore the allowance is a *stated* allowance, not a proof of sufficiency.** What actually
+   protects the floor after `t = 0` is refinement (iii)'s sampled floor, below — and if it fires,
+   §3 departure 8's registered consequence applies unchanged: **NOT A RESULT — stopped by memory, no
+   second budget, no third attempt without Sanaa.**
+
+### A1.3 — the amended limb, its arithmetic, and what it costs
+
+> ### **LAUNCH-GATE MEMORY LIMB := `MemAvailable ≥ 25.0 GiB`**
+> **`8.0` (neighbourliness floor, UNCHANGED) `+ 15.0` (R3-P11 registered UPPER = the RSS ceiling the
+> guard kills at, UNCHANGED) `+ 2.0` (co-tenant growth allowance, A1.2) `= 25.0 GiB`.**
+
+**What that costs, stated where the threshold is stated:**
+
+| | |
+|---|---|
+| limb as a fraction of `MemTotal` **30.64 GiB** | **81.6%** — call it **82% of the entire machine free at launch** |
+| margin at this item's freeze reading (`MemAvailable` **26.26 GiB**, 2026-08-24T16:07:18Z) | **+1.26 GiB** — the gate **would have opened**, by 1.26 GiB |
+| margin on the free-cores limb at the same reading | `free_cores 12 − 4` = **+8** |
+| the previous limb, struck | ~~19.65 GiB~~, margin would have been +6.61 GiB |
+| host `MemAvailable` across the whole of attempt 1's window | **15.04 → 7.38 GiB** — **9.96 to 17.62 GiB BELOW this limb.** Under that fleet this gate does not open at all |
+
+**This is the disclosure §3 departure 8 already carries, arriving one step earlier than expected:**
+a limb this high is close to the 25.2 GiB that the 17.19 GiB stage-0 record would force, and it is
+being paid for **before** knowing which peak governs. **The item accepts a materially higher chance
+of BLOCKED in exchange for a gate that can protect its own floor.** That trade is registered here,
+in advance, and it is the whole content of this amendment.
+
+#### R3-P10, struck and amended — both are scored in `RESULTS.md`
+
+**Struck, retained for scoring:**
+
+> ~~**R3-P10 — the launch gate opens inside its 6 h window. Point: YES. Confidence: 0.6.** Band: the
+> gate (`free_cores ≥ 4` AND `MemAvailable ≥ 19.65 GiB`) returns open on at least one of the ≤ 360
+> polls, i.e. `drive.sh` does not exit 9.~~ — **SUPERSEDED as to threshold and confidence. The body
+> of §6 above is NOT edited; the original text stands there and is scored beside the amended one.**
+
+**Amended, and this is the version the gate now tests:**
+
+> **R3-P10′ — the launch gate opens inside its 6 h window. Point: YES. Confidence: 0.25.**
+> **Band:** the gate (`free_cores ≥ 4` **AND** `MemAvailable ≥ 25.0 GiB`) returns open on at least one
+> of the ≤ 360 polls, i.e. `drive.sh` does not exit 9.
+> **Basis — unchanged reading, changed threshold.** The same freeze reading
+> (2026-08-24T16:07:18Z: `MemAvailable` 26.26 GiB, `free_cores` 12, `load1` 4.09, one live peer DAFoam
+> container) clears the amended limb by **+1.26 GiB** instead of +6.61.
+> **Why 0.25 and not 0.6, said before the poll rather than after it — this lane's number, with its
+> reason:** (1) the freeze margin is **1.26 GiB, 4.1% of `MemTotal`** — a *single* co-tenant growing
+> into its own registered 2.0 GiB ceiling closes this gate, and the peer's arm O had been up **85 s**
+> at the reading with its demand still growing; (2) the fleet configuration that prevailed for the
+> **whole** of attempt 1's window put host `MemAvailable` at 15.04 → 7.38 GiB, **below this limb by
+> 10 to 18 GiB** — under that fleet the gate is not unlikely, it is **unreachable**; (3) the box is
+> quiet at the freeze **by coincidence, not by agreement**, and this lane neither schedules it nor
+> may ask anyone to quiet it (§7's standing refusals, §14 disposition 2 is Sanaa's alone).
+> **Falsifier and registered consequence, UNCHANGED:** all 360 polls close ⇒ `drive.sh` exits 9, the
+> item is **BLOCKED on host contention at 0 solver core-min**, and it **ends** (§14 disposition 1).
+> **A BLOCKED verdict here is the gate working, not the item failing**, and §7.2's cost comparison is
+> delivered in that branch too, at ratio `0 / 51.8 = 0.00`.
+
+**R3-P11 is NOT amended.** Its point (11.65 GiB) and band (`[9.2, 15.0]`) stand exactly as frozen at
+`606930b4`. Its **upper** is now doing a second job as the limb's arm term (A1.1), which makes P11 a
+sharper prediction to score, not a looser one: **a measured peak above 15.0 GiB is `mem_guard.sh:79`
+firing, not a MISS written down afterwards.**
+
+### A1.4 — refinement (iii): the gate records the margin it opened on, and the floor is sampled
+
+**The recording duty, registered:** at the poll that opens the gate — and only there — `drive.sh`
+appends **one UTC-stamped line** to `launch_condition.txt` carrying `limb_GiB=25.0`, the measured
+`MemAvailable_GiB`, **`margin_mem_GiB` = `MemAvailable − 25.0`** (signed, 2 dp), `free_cores`,
+**`margin_cores` = `free_cores − 4`**, `floor_GiB=8.0` and the identity of what samples the floor.
+The per-poll line already written at `drive.sh:47-48` is unchanged, so the poll history and the
+opening margin are both on disk and neither replaces the other. **`RESULTS.md` quotes the
+`GATE_OPEN` line verbatim**; a launch whose opening margin is not on disk is not reportable as
+having met this gate.
+
+**The floor, and its cadence, stated because refinement (iii) asks for it:** the quantity sampled is
+**`/proc/meminfo` `MemAvailable`**, read by **`mem_guard.sh` every 5 s** for the whole life of the
+arm, at `mem_guard.sh:80`, requiring **3 consecutive breaching samples (15 s)** before it
+`sudo -n docker kill`s at `:98` and exits 4 at `:100`. **`mem_guard.sh` IS NOT EDITED BY THIS
+AMENDMENT** and remains byte-identical to its `97a54c07` blob, as do `identity_stop.sh`,
+`coloring_guard.sh`, `guard_selftest.sh` and `shipped_cd_checkpoints.txt`. **The gate is a launch
+condition and is never re-checked during the run; the floor is what acts during the run. Those are
+two different instruments and this amendment changes only the first.**
+
+#### The complete diff, `drive.sh` — 9 lines added, 3 replaced, in 2 hunks
+
+```diff
+--- rung3_patched_idwarp_np4_attempt2/drive.sh        (blob 606930b4)
++++ rung3_patched_idwarp_np4_attempt2/drive.sh        (AMENDMENT 1)
+@@ -2,13 +2,16 @@
+ # drive.sh -- A3 rung 3 patched-IDWarp, np=4, ATTEMPT 2. Copied byte-identical from
+ # ../rung3_patched_idwarp_np4/drive.sh (frozen at 3525f1d2) except for the lines listed in this
+ # item's PREREGISTRATION.md section 11. It changes no gate, threshold, band, cap or label.
++# AMENDMENT 1 (2026-08-24, before first compute, PREREGISTRATION.md section 15): the launch-gate
++# memory limb is 25.0 GiB = floor 8.0 + P11 registered UPPER 15.0 + co-tenant allowance 2.0, and
++# the gate records the margin it opened on. Nothing else moves; mem_guard.sh is untouched.
+ #
+ # One arm: R3-A, `dafoam-idwarp-rot:v1`, -task ct_cd, --cpus=4 --memory=16g, timeout 2600.
+ #
+ # PRECONDITIONS (PREREGISTRATION.md section 12 step 4):
+ #   GUARD_SELFTEST_PASS exists AND is newer than mem_guard.sh, coloring_guard.sh,
+ #     identity_stop.sh and shipped_cd_checkpoints.txt
+-#   free_cores >= 4 AND MemAvailable >= 19.65 GiB, polled 60 s x 360 (6 h)
++#   free_cores >= 4 AND MemAvailable >= 25.0 GiB, polled 60 s x 360 (6 h)   [AMENDMENT 1]
+ # DECISION RULE (section 7): rc=124 => report what matched, NO second budget, and neither the
+ # ct_cd discriminator of section 3 departure 6 nor stage R3-2 is launched under any branch.
+ set -u
+@@ -46,8 +49,11 @@
+     FC=$(freecores); MG=$(awk '/MemAvailable/{printf "%.2f", $2/1048576}' /proc/meminfo)
+     echo "$(date -u +%FT%TZ) $ARM poll=$i free_cores=$FC MemAvailable_GiB=$MG load1=$(cut -d' ' -f1 /proc/loadavg)" \
+       >> "$ROOT/launch_condition.txt"
+-    if [ "$FC" -ge 4 ] && awk -v m="$MG" 'BEGIN{exit !(m>=19.65)}'; then
+-      GATE_FC=$FC; GATE_MG=$MG; return 0
++    if [ "$FC" -ge 4 ] && awk -v m="$MG" 'BEGIN{exit !(m>=25.0)}'; then
++      GATE_FC=$FC; GATE_MG=$MG
++      echo "$(date -u +%FT%TZ) $ARM GATE_OPEN poll=$i limb_GiB=25.0 MemAvailable_GiB=$MG margin_mem_GiB=$(awk -v m="$MG" 'BEGIN{printf "%+.2f", m-25.0}') free_cores=$FC margin_cores=$((FC-4)) floor_GiB=8.0 floor_sampled_by=mem_guard.sh_MemAvailable_at_5s" \
++        >> "$ROOT/launch_condition.txt"
++      return 0
+     fi
+     sleep 50
+   done
+```
+
+**`bash -n drive.sh` passes.** Line by line: **1** executable threshold (`19.65` → `25.0`), **2**
+executable lines restructured to emit the `GATE_OPEN` record (`GATE_FC=…; return 0` split so the
+record is written between them), **2** added lines carrying that record, **1** precondition comment
+corrected to the amended limb, **3** added header comment lines naming this amendment. **Against the
+`3525f1d2` original the running file now differs by 15 added / 8 replaced lines** — §11's table row
+reading *"drive.sh … 7"* is **superseded by this count**; §11's own diff block still shows the state
+at `606930b4` and is not edited.
+
+**Every number §11 lists as unchanged is still unchanged:** `--memory=16g`, `--cpus=4`,
+`timeout 2600`, `RSS_CEIL=15.0`, `HOST_FLOOR=8.0`, `CONV=1.0e-03`, `COLOURS=1355`,
+`NAME=p3_a3r3_patched`, `IMG=dafoam-idwarp-rot:v1`, and the poll window `360 × 60 s (6 h)`.
+
+### A1.5 — where the superseded 19.65 still appears, said so nobody applies it
+
+**The body of this document is NOT edited** (append-only, §6 of `CLAUDE.md`), so `19.65` still stands
+in **§3 departure 8**, **§6 R3-P10**, **§7's launch-condition bullet** and **§12's step-4 comment
+block**. **In every one of those places it is SUPERSEDED by this amendment.** The operative limb is
+**25.0 GiB**, it is what `drive.sh` executes, and `drive.sh` is the instrument — the arithmetic and
+the 17.2 GiB rejection in §3 departure 8 remain correct and are unaffected. **A reader who applies
+19.65 has not read to the foot of the file, which is why this paragraph exists.**
+
+### A1.6 — §13's proposal gains verification's three refinements, attributed, still enforced nowhere
+
+§13 routes the candidate rule *"a launch gate's memory limb must be at least
+`neighbourliness_floor + predicted_arm_peak`"* upward as a **PROPOSAL**. The verification
+supervisor's review — **SOUND as a necessary condition, arithmetically forced by C-10's 16/8/9.2 GiB
+triple**, with the three refinements quoted verbatim at the head of this amendment — is recorded
+**as verification's, attributed to them**, and the proposal is amended to read:
+
+> **CANDIDATE RULE, as refined by verification and still a PROPOSAL.** A launch gate's memory limb
+> must be at least `neighbourliness_floor + arm_peak_REGISTERED_UPPER + co_tenant_growth_allowance`,
+> and the gate must **record the margin it opened on**, with the floor sampled from `MemAvailable`
+> at the guard's cadence for the life of the run. Anything less registers a gate that cannot protect
+> its own floor, or protects it only at `t = 0`.
+
+**It is still NOT a lab rule and is enforced nowhere by this item.** Retiring, adopting or amending a
+lab-wide standard is **reserved** (`CLAUDE.md`, *Reserved to Sanaa*; `ESCALATION_CHARTER.md`). **This
+item continues to use only its own numbers** — `8.0 + 15.0 + 2.0` from its own P11, its own floor and
+one verified co-tenant registration — and would compute the same 25.0 GiB whether or not the general
+rule is ever adopted.
+
+### What this amendment did
+
+| what | figure |
+|---|---|
+| gate limbs re-derived | **1** — the launch-gate memory limb, `19.65 → 25.0 GiB` |
+| recording duties added | **1** — the `GATE_OPEN` margin record at the opening poll |
+| predictions superseded (original struck and retained, both scored) | **1** — R3-P10 → R3-P10′, confidence `0.6 → 0.25` |
+| thresholds, caps, bands or labels otherwise altered, widened or narrowed | **0** — RSS ceiling 15.0, floor 8.0, `--memory=16g`, `timeout 2600`, P11's band, the price table and the 176.0 core-min HARD CEILING all stand |
+| grading-path files edited | **0** — `mem_guard.sh`, `identity_stop.sh`, `coloring_guard.sh`, `guard_selftest.sh` and `shipped_cd_checkpoints.txt` remain byte-identical to their `97a54c07` blobs |
+| **lines whose number changed above this section** | **0** |
+| containers started, solvers run, core-minutes spent | **0** |
+
+**Nothing is filed, sent, uploaded, posted, registered or pushed. Filing stays NOT APPROVED and is
+Sanaa's alone. NOTHING LAUNCHES UNDER THIS COMMIT.**
