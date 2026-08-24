@@ -10855,3 +10855,128 @@ quantity sits on** and therefore which of its two verdicts is the trustworthy on
 `ID-FIRE` / `DANGLING` / `ok-id` classifier at `:434`–`:447`, the DANGLING
 non-skip argument at `:113`–`:124`, the NOTE at `:880`; the 280 / 256 / 485 h
 first-sweep figures.
+
+## L-296. An optimiser's final accepted step norm does NOT bound how far two optimizers' optima can sit apart — the NLP's conditioning does, and on a flat-valleyed problem the two differ by a large factor
+
+**The rule.** When registering a band on how closely two different algorithms
+solving the **same** NLP must agree **in the design vector**, do not size it from
+either algorithm's own final step norm. The step norm measures **where one
+algorithm stopped moving**; what bounds the spread of the optima is the
+**conditioning of the problem along the directions that separate them**. Size the
+band from a curvature or flatness argument, or register it wide and say plainly
+that the width is carrying the prediction.
+
+**Why.** Curriculum item D2 ran IPOPT against SLSQP on the D1 NACA0012
+lift-constrained drag-minimisation NLP — one CLI token apart on a byte-identical
+script — and built gate `AB2`'s band from IPOPT's own final accepted step,
+`‖d‖ = 6.09e-03` against `‖shape‖₂ = 9.39e-02`, i.e. **6.486 %**, on the reasoning
+that *"two solutions of the same NLP should agree at about the scale at which the
+optimiser stopped moving."* **Measured: `‖Δshape‖₂/‖shape_A‖₂ = 33.259 %`, 5.1×
+that basis**, with `‖Δshape‖_∞ = 1.9379e-02` against a registered `8.0e-03` —
+while the **objective** separated the two designs by only **0.7381 %**, inside
+`AB1`'s registered 1.0 %. The two optimizers agree on the value and disagree on
+the point: the objective is **near-flat along the direction that separates them**,
+and a step-norm basis cannot see that flatness because it is a property of the
+problem, not of the stopping rule.
+
+**Cost of learning it, stated plainly:** one `GATE FAIL` on a gate that was
+registered before either arm ran and is reported as failed, not re-banded. The
+registered point prediction `P8` is a **MISS** by 5.1× its own basis and is
+reported as a MISS.
+
+**What is NOT claimed.** Nothing about which design is aerodynamically better,
+nothing about global optimality — two algorithms reaching two points is not
+evidence that either is local rather than global — and nothing about any
+optimizer's correctness. `AB2` is an **algorithm/conditioning finding**, never an
+aerodynamic one.
+*Artifacts:* `cases/dafoam/ladder-a/A1/curriculum_D2/RESULTS.md` §6 (AB1, AB2) and
+§7 (P8); `PREREGISTRATION.md` frozen `03580b8f` §6.2 and the P8 row at :618 for
+the band and its basis; raw
+`/home/ubuntu/certonomous-runs/CURRICULUM-D2-a1-optimizer-ab/ab_report_20260824T180411Z_1530445.json`.
+
+## L-297. Price a line-search primal by the MEASURED evaluations-per-iteration ratio, never by assuming one trial step per iteration
+
+**The rule.** When costing an optimisation arm whose optimizer performs a line
+search, read the **evaluations-per-iteration ratio** off an instrument — `NFUNC` /
+`NGRAD` and `ITER` for pyOptSparse SLSQP, the `ls` column for IPOPT — and price
+with that ratio. Do not add a backtracking primal per iteration on the reasoning
+that the method *can* backtrack.
+
+**Why.** Calibration row **C-24** taught that a `check_totals`-derived per-major
+basis prices a line search into **every** major and over-prices a run that never
+backtracks. D2's `P12` applied that lesson correctly and then **over-corrected**:
+it added one line-search primal back, on the (correct) reasoning that an
+active-set SQP would backtrack where an interior-point filter had not. It does
+backtrack — **at 1.15 evaluations/iteration against IPOPT's 1.09**, i.e. about
+**two extra primals in the whole run, not thirteen**. The measured per-iteration
+driver cost, **24.48 s**, came in **below** D1's own no-line-search **25.28 s**.
+The lesson transferred and was then applied too hard, which is the failure mode a
+calibration ledger exists to catch.
+
+**What is NOT claimed.** The ratio is this case, this optimizer, this NLP at np=1;
+it is not a constant of SLSQP. The rule is *read the ratio*, not *use 1.15*.
+*Artifacts:* `cases/dafoam/ladder-a/A1/curriculum_D2/RESULTS.md` §8 and §7 (P12);
+`docs/COST_CALIBRATION.md` C-43 and the C-24 row it names;
+`/home/ubuntu/certonomous-runs/CURRICULUM-D2-a1-optimizer-ab/armB/opt_SLSQP.txt`
+(`ITER`, `NFUNC = 15`, `NGRAD = 14`) and `armA/opt_IPOPT.txt` (the `ls` column).
+
+## L-298. In a session-shared scratchpad a generic draft filename is an accidental handoff — and `test -s` will pass on the wrong file. The assertion that saves you is a CONTENT check, not an existence check
+
+**The rule.** Every scratch draft a lane writes carries a **per-invocation unique
+name** (stamp + pid), and every provenance check on it asserts **content this
+invocation wrote** — a stamp `grep -q` — never merely that the path exists or is
+non-empty. `test -s`, `test -f` and `wc -l > 0` are all satisfied by **somebody
+else's file at your path**.
+
+**Why.** This lane's first attempt at an authorisation addendum wrote its draft to
+a generic `addendum.md` in the session scratchpad, which a **concurrently running
+D3 lane already held a different file under**. `test -s` passed — on the foreign
+file. The guard that caught it was the **per-invocation stamp assertion**
+(`grep -q "$TS"` on the draft), which failed and stopped the chain before anything
+was appended; the frozen file was then re-verified byte-unchanged (md5
+`aebf26ed722e417b715cf0eb48cd4493`) and **nothing foreign ever reached it**. Had
+the check been `test -s`, a peer lane's prose would have been appended to a frozen
+pre-registration under this lane's name.
+
+**Scope, and it widens a known lesson.** **L-252's rule was written for run-root
+artifacts**; it binds a lane's own scratch drafts **just as hard**, because the
+scratchpad is session-shared, is wiped without warning (**L-186** — three times in
+one day) and is **never a handoff channel** (`CLAUDE.md` rule 13). The collision
+here was benign only because the assertion was a content check.
+
+**What is NOT claimed.** No defect in the D3 lane, which did nothing wrong: it
+wrote its own draft under its own reasonable name. The defect is entirely in
+choosing a **generic** name in a shared directory and then checking for
+**existence** instead of **authorship**.
+*Artifacts:* `cases/dafoam/ladder-a/A1/curriculum_D2/RESULTS.md` §9.2 and §10;
+`cases/dafoam/ladder-a/A1/curriculum_D2/PREREGISTRATION.md` §18 (the authorisation
+that was being appended), frozen `641c5938`; L-252, L-186.
+
+## L-299. A per-unit cost basis good to 8–14 % can still miss a total by 38 % — the unit COUNT is where estimating effort belongs
+
+**The rule.** When a cost prediction misses, decompose it into **per-unit basis**
+and **unit count** before attributing the miss, and put the estimating effort into
+whichever one carries the error. For an optimisation arm on an unfamiliar
+optimizer, that is almost always the **iteration count**, not the per-iteration
+cost. Register a **wide band** on the count and say plainly that the width, not
+the point, is carrying the prediction.
+
+**Why.** D2 predicted **16.733 core-min** and spent **12.150** — a ratio of
+**0.726×**, a 38 % under-run — while its **per-iteration** and **per-evaluation**
+bases came in at **1.078×** and **1.143×**, i.e. slight *under*-estimates in the
+opposite direction. **The whole of the total's error was in predicting how many
+iterations an unfamiliar optimizer would take: 20 predicted, 13 measured.** The
+two errors are not merely different in size, they are opposite in sign, so an
+undecomposed ratio would have taught the wrong correction to the per-unit basis.
+
+**The registered response, which worked twice.** D1's `P2` and D2's `P5` both
+registered a **wide band** on the count with the width declared as load-bearing,
+and both **HIT**. That is the recommended form.
+
+**What is NOT claimed.** Nothing about waste, which stays separately named at
+**0.000 core-min** and is never absorbed into a ratio
+(`COMPUTE_BUDGET_CHARTER.md` §6), and nothing about contention, measured
+separately at **−5.19 %**.
+*Artifacts:* `cases/dafoam/ladder-a/A1/curriculum_D2/RESULTS.md` §8;
+`docs/COST_CALIBRATION.md` **C-43** (the three ratio bases: total 0.726×,
+per-iteration 1.078×, per-evaluation 1.143×).

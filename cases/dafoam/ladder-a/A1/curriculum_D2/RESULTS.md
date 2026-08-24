@@ -838,3 +838,75 @@ document cites no scratch path** (`CLAUDE.md` rule 13, L-186).
 ---
 
 **END OF RESULTS. NOT FILED ANYWHERE. SUBMISSIONS PARKED.**
+
+---
+
+## Addendum 1 — 2026-08-24, supervisor check 1 (measurement-script diff, read personally): both run-root grading drivers RESTATE the A/B band constants INLINE, and every restated constant equals the frozen registration
+
+**Document version: v1.0 → v1.1. Lines whose number changed above this section: 0.**
+**Zero compute.** No number, band, gate, threshold, cap, label, verdict, prediction
+score, ratio or cost figure moves; nothing above this section is rewritten, no
+frozen file is edited and no gate is re-opened. `date -u` at writing:
+**2026-08-24T18:26:08Z**.
+
+**What the check found.** §10.2 already discloses that the frozen comparator
+`d2_ab.py` carries no A/B CLI subcommand and was therefore imported, unedited, by a
+grading driver written into the run root — and that the driver "transcribes the
+§6/§7 thresholds". The supervisor's personal §3 check-1 read of that driver **as a
+diff** makes the transcription specific, which the prose above does not. **Both**
+drivers,
+
+- `d2_grade_20260824T175938Z_1526213.py` (md5 `f1fbc06540c2ac7267ddffcff7ee95b2`), and
+- `d2_grade_ab_20260824T181131Z_1537564.py` (md5 `eacee063be9688601f169e8713dc3789`),
+
+carry the A/B bands as **inline literals**, at the **same line numbers in both**:
+
+- **line 42** — `AB1_POINT, AB1_BAND = 1.0e-3, 1.0e-2            # 0.10 % / 1.0 %`
+- **line 43** — `AB2_POINT = {"l2_rel": 0.065, "linf": 6.09e-03, "aoa": 0.05}`
+- **line 44** — `AB2_BAND  = {"l2_rel": 0.10, "linf": 8.0e-03, "aoa": 0.25}`
+
+**Why the grade nevertheless stands, and this is the load-bearing half.** Every
+literal was checked against the **frozen** sources — the comparator committed at
+`03580b8f` and the pre-registration frozen at the same commit — not against memory
+and not against the record that cites them:
+
+- `0.10` and `8.0e-03` are **byte-for-byte the frozen comparator's own constants**,
+  `d2_ab.py:38–39`: `AB2_BAND_L2_REL = 0.10   # gate AB2, frozen band` and
+  `AB2_BAND_LINF = 8.0e-03   # gate AB2, frozen band`.
+- `0.25` (deg) and the `AB1` pair `1.0e-3` / `1.0e-2` are **not** in `d2_ab.py` at
+  all; they are registered in the **pre-registration only**, and they reproduce its
+  `P8` and `P7` rows exactly — *"`≤ 10.0 %`; `≤ 8.0e-03`; `≤ 0.25 deg`"* and
+  *"`< 0.10 %`" / "`≤ 1.0 %`"* (`PREREGISTRATION.md` :617–:618, §6.2).
+- The `AB2_POINT` triple `0.065` / `6.09e-03` / `0.05` likewise reproduces `P8`'s
+  registered **point** predictions.
+
+**The instrument is therefore CALIBRATED to the freeze on both A/B gates, and
+neither the `AB1` `PASS` nor the `AB2` `GATE FAIL` was produced by a threshold
+chosen after the answer was visible.** The margins make this checkable rather than
+merely asserted: `AB1` read **0.7381 %** against a 1.0 % band, and `AB2` read
+**33.259 %** against 10.0 % — **3.3× outside** — and **1.9379e-02** against
+8.0e-03. No plausible transcription error manufactures a 3.3× breach, and the
+`AB2` L2 and L∞ literals are in any case the frozen comparator's own.
+
+**What is being disclosed is a STRUCTURAL hazard, not a wrong number.** A band that
+lives in two places — the frozen comparator and a transcription in an unfrozen
+driver — can drift in the unfrozen copy, and the record above cites the driver's
+output. Here the two copies agree and the third source (the pre-registration)
+agrees with both. **The hazard is that nothing in the driver asserts that
+agreement**: it asserts `md5(d2_ab.py)` before importing it, which pins the
+comparator, but it does not assert `AB2_BAND == {d2_ab.AB2_BAND_L2_REL,
+d2_ab.AB2_BAND_LINF}`. That assertion is one line and was not written.
+
+**Not repaired here, deliberately.** Both drivers produced this item's graded
+numbers; editing either after grading would break the correspondence between this
+record and the artifacts that made it, for a change that alters no output. **The
+defect is recorded rather than fixed** (the same disposition as
+`../curriculum_D1_Cprime/RESULTS.md` Addendum 2), and the correction belongs in the
+next DAFoam grading driver that copies this one: *a driver that restates a frozen
+band asserts equality against the frozen symbol it copies, or it imports the symbol
+and restates nothing.*
+
+**No gate is re-opened and no verdict changes. The item's verdicts stand exactly as
+graded: per-arm gate sets `PASS` / `PASS`; `AB1`, `AB3`, `AB4`, `AB5`, `AB6`
+`PASS`; `AB2` `GATE FAIL`, reported as failed and not re-banded; `P8` a `MISS`;
+12.150 core-min, waste 0.000. NOT FILED ANYWHERE. SUBMISSIONS PARKED.**

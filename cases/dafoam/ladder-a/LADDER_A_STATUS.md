@@ -331,3 +331,64 @@ measured**, because the box cannot read its own billing
 (`COMPUTE_BUDGET_CHARTER.md` §5). Calibration rows **C-24** (D1) and **C-31**
 (D1-C′, ratio 0.915×, waste 0.000). Records landed with this addendum:
 **L-279, N-D34, N-D35, D503**. Nothing here is filed, sent or registered.
+
+---
+
+## Addendum 2026-08-24 (supervisor, via a records lane) — curriculum item **D2**, the optimizer A/B: row **39** is added, `PASS` / `PASS` per arm with `AB2` a `GATE FAIL` that is the item's finding. No row above is edited.
+
+**Form note.** As at the 2026-08-22 and 2026-08-24 addenda, **the table above is
+not edited**. Row 39 is a **new** row; it supersedes nothing and replaces nothing.
+Rows 38 and 38b (curriculum D1 and D1-C′) stand exactly as committed, and **row
+39's arm A is the same optimisation as row 38, re-run and reproduced BIT-IDENTICALLY**
+— it does not restate row 38's verdict, it measures its reproducibility.
+
+| # | case | scope | tool­chain | np / cells | **verdict** | headline number (exact) | record |
+|---|---|---|---|---|---|---|---|
+| 39 | **A1** NACA0012 | **optimizer A/B on the D1 NLP** (curriculum **D2**): IPOPT vs SLSQP, one CLI token apart on a byte-identical `d1_opt_runScript.py` | **PATCHED** (`dafoam-idwarp-rot:v1`) — **both arms** | 1 / 4,032 | **arm A `PASS` / arm B `PASS` (per-arm gate sets); `AB2` `GATE FAIL`; `AB1`, `AB3`, `AB4`, `AB5`, `AB6` `PASS`** | **Arm A (IPOPT)** `EXIT: Optimal Solution Found.`, **11 majors**, CD `0.017527899854535338`; **arm B (SLSQP)** `Inform 0` / `Optimization terminated successfully.`, **13 iterations**, `NFUNC = 15`, `NGRAD = 14`, CD `0.017657273`. **`AB1` PASS**: `\|ΔCD\|/CD_A = 0.7381 %`, inside the registered 1.0 %. **`AB2` GATE FAIL**: `‖Δshape‖₂/‖shape_A‖₂ = 33.259 %` vs registered **10.0 %**; `‖Δshape‖_∞ = 1.9379e-02` vs **8.0e-03**; `\|ΔAoA\| = 0.2428°` **inside** its 0.25° band, so the divergence is in the FFD shape modes. **`AB5` PASS BIT-IDENTICALLY** — arm A reproduced row 38's arm O with **all five identity rows exactly `0.0`**, graded **before** arm B launched. **`AB4`**: `V_max` arm A 2.6046e-03 at block 2, arm B 3.3141e-03 at block 4, ratio 1.272. **`AB6`**: contention MEASURED at **−5.19 %**. Endpoint FD worst **0.2553 % (A)** / **0.2485 % (B)**, 8 of 8 graded, **zero sign flips**. **12.150 core-min gross of a registered 16.733 (0.726×), waste 0.000** | `A1/curriculum_D2/RESULTS.md` §3–§8 (+ Addendum 1); prereg frozen `03580b8f`, authorisation §18 `641c5938`; graded `a7f00e42` |
+
+**The `AB2` `GATE FAIL` is this item's registered finding, not a defect in it, and
+the band is not re-drawn.** Two optimizers one CLI token apart reach the **same
+objective to 0.7381 %** and **designs 33.259 % apart**. The reading this file takes
+is narrow: **the objective is near-flat along the direction that separates the two
+designs**, so the design vector is not pinned by the objective at this tolerance.
+The band was sized from IPOPT's own final accepted step (`‖d‖ = 6.09e-03`, 6.486 %
+of `‖shape‖₂`) and was missed by **5.1×** — an optimiser's stopping scale does not
+bound the spread of two optimizers' optima (**L-296**). The registered point
+prediction **`P8` is a `MISS`, reported as a MISS**; 14 of 15 predictions HIT.
+
+**This is an ALGORITHM / CONDITIONING finding and is NEVER an aerodynamic claim.**
+Nothing in row 39 says which design is aerodynamically better; nothing in it is
+evidence that either point is a local rather than a global optimum; and nothing
+aerodynamic is read out of either arm's constraint-violation path. Both arms
+satisfied their own per-arm gates with zero sign flips, so **neither design is an
+unconverged artefact** — the disagreement is between two converged answers.
+
+**Both rows are PATCHED (R11) and the SHIPPED row is untouched.** Row 39 enters no
+shipped cell; the SHIPPED row of the A1 optimisation ledger remains **`BLOCKED`**
+exactly where curriculum D1 left it, and **the toolchain adoption question remains
+Sanaa's alone and stays parked.**
+
+**The trust-region half of the ratified curriculum row is `NOT DELIVERED BY
+CONSTRUCTION`, and this file records that rather than letting the row read as
+delivered.** The graded image carries **no importable trust-region optimizer** —
+`ParOpt` ships in `dafoam-idwarp-rot:v1` **without its compiled extension** and
+does not import; `SNOPT` and `NLPQLP` are absent — measured by a **0.0333
+core-min** probe **before** the freeze and disclosed on the pre-registration's
+first screen (**N-D37**). Row 39 therefore delivers **interior-point vs active-set
+SQP, both line-search methods**. The narrowing is **on Sanaa's desk as a supervisor
+NOTICE and is not read into the 2026-08-21 blanket** (`CLAUDE.md` rule 9); nothing
+about building `ParOpt` was run, costed or prepared.
+
+**Cost of the item: 12.150 core-min gross = $0.010389 DERIVED** at the
+reported-by-owner c7a.4xlarge rate of $0.0513/core-h — **derived, not measured**,
+because the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5).
+Against a registered **16.733** (**0.726×**) and a **140.0** ceiling (**8.68 %** of
+it), with **waste 0.000 core-min** named separately and never absorbed into the
+ratio. Calibration row **C-43**, whose three bases split the miss: total 0.726×,
+per-iteration 1.078×, per-evaluation 1.143× — the error was in the iteration
+**count**, not the per-unit basis (**L-299**).
+
+Records landed with this addendum: **L-296, L-297, L-298, L-299, N-D36, N-D37,
+N-D38, N-D39, N-D40, D508**, the `EXPERTISE_CURRICULUM.md` §7 ledger row, and
+**RESULTS Addendum 1** (the supervisor's check-1 disclosure). Nothing here is
+filed, sent, uploaded, posted or registered.
