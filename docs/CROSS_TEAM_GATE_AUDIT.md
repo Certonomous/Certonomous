@@ -2328,3 +2328,367 @@ core-min**, the measured figure is **0.0005 core-min**; the prediction was a
 ceiling rather than a point and is recorded as met, not as a 2000× miss — the
 calibration row states it that way. Lane wall **16 min** against a
 predicted ≈ 45 min.
+
+## Audit pass 9 — 2026-08-24, verification LANE (CANDIDATE, not the supervisor's own read)
+
+**Lines whose number changed above this section: 0.** This section is appended
+at the foot of an append-only file. The base for this edit was taken from
+`git show HEAD:docs/CROSS_TEAM_GATE_AUDIT.md` inside the commit invocation
+itself and never from the worktree copy, which is dirty with foreign edits.
+Section numbering continues from **62**, the highest numbered section at the
+HEAD this was built on.
+
+**This pass was run by a `lab-lane`, not by the verification supervisor
+personally.** `SUPERVISION_CHARTER.md` §3 is explicit that a relayed check is a
+summary and not a check, so **every finding below is CANDIDATE until the
+verification supervisor re-derives it.** The lane was **read-only toward
+heat-transfer's territory** throughout: nothing under
+`verification/runs/T-family/` or `docs/campaigns/T-family/` was written, no
+T-family comparator was re-executed, and every number below was re-derived by
+this lane's **own code** over what heat-transfer's instruments left on disk.
+
+**Target:** heat-transfer's **T3 ext1 re-grade** — the heated backward-facing
+step ladder, extended from `latestTime` and re-graded at commit **`3dd28411`**
+(committer **2026-08-24T16:18:52Z**) as **`NOT A RESULT` 4 of 4** at gate (1),
+with G2's grid triple **CONVERGING**. Records:
+`docs/campaigns/T-family/{T3_PREREGISTRATION.md, T3_EXT1_AMENDMENT.md,
+T3_RESULTS.md}`; instruments
+`verification/runs/T-family/T3_runs/{analyse_t3.py, mark_done_t3.py,
+mark_done_t3_ext1.py}`; graded artifact
+`verification/runs/T-family/T3_runs/gate_t3.json`; run logs
+`verification/runs/T-family/T3_runs/log.{analyse_t3.ext1.20260824T155826Z,
+mark_done_ext1.20260824T155759Z}.txt`; calibration row **C-23**.
+
+### 63. Freeze order — the comparator predates the first byte of every case, and the pre-registration was never touched after it
+
+| check | finding |
+|---|---|
+| Comparator freeze commit | **`628ef452`, committer 2026-08-21T18:02:09Z.** `git log -- verification/runs/T-family/T3_runs/analyse_t3.py` returns **exactly one commit in the path's entire history.** The grading path has never been edited. |
+| The frozen file **is** the file that ran (rule 2) | **YES, four ways.** Blob id **`d5e4a9eb1aac25d73c88f077c3fb95a549ae9bfb`** is identical on disk, at `HEAD` and at `628ef452`; sha256 **`f41c544d7552e7abfe6adeb8ff1d7ff4c14288017d36821ea3040f1158498741`** re-derived by this lane from all three, and it is the value the run's own log records **before and after** execution and the value `gate_t3.json` carries in `comparator_sha256`. |
+| Pre-registration | `T3_PREREGISTRATION.md`, created in the **same commit** `628ef452`, amended once at **`bee3878b`, 2026-08-21T18:02:31Z**, and **never committed again.** Blob **`987c184576e7d4fbc5cc6671c995045555e7df38`** identical on disk, at `HEAD` and at `bee3878b`. |
+| First evidence any case could answer a gate | **2026-08-21T18:02:44.163Z** — `R_c/system/blockMeshDict`, the earliest mtime under any of the eight case directories, found by this lane with a `find -printf '%T+'` sweep over all eight. **35 s after the comparator freeze; 13 s after the pre-registration amendment.** |
+| Earliest `0/T` (the launch-dating file of rule 4) | **2026-08-21T18:03:22.426Z**, `R_f` — 73 s after the freeze. |
+| Grading run | `gate_t3.json` `generated_utc` **2026-08-24T15:58:26.638871Z**, `finished_utc` **15:58:44.896088Z**, sha256 **`8e766cd5dbc59cff336f9756a90967d92f34e981094f3b8b427089eeb34ba573`**. Its predecessor (`5e23f84e…`) is named in the run log as committed at `fd831c11`, so the artifact the re-grade overwrote is **recoverable**, not lost. |
+
+**Nothing that answers a T3 gate predates the instrument that grades it.** This
+is the same strong form pass 8 §35 recorded for the GPU arm, reached by a
+different route: there, the freeze was proved by a single-commit history plus a
+run window; here by a single-commit history plus a filesystem sweep that found
+no case artifact of any kind before the freeze.
+
+### 64. Could the gates have failed — the non-tautology proof is inside the same run
+
+The rung's gates are ordered in `T3_PREREGISTRATION.md` §7.1 and implemented in
+`analyse_t3.py` `graded_verdict()`: (1) any ladder level not iteratively
+CONVERGED → `NOT A RESULT`; (2) triple not CONVERGING → `NOT A RESULT`;
+(3) band comparison → `PASS`/`GATE FAIL`. All four graded rows stopped at
+gate (1). The audit question is whether either fired gate could have returned
+the other answer.
+
+| gate | could it have returned otherwise? | the evidence, from this run |
+|---|---|---|
+| **(1) iterative convergence** | **YES, and it did — five times.** | The reader returned `CONVERGED` for **5 of the 8 cases** and for **2 of the 3 ladder levels**: `R_m` relative **1.535e-08** (`T`) and **8.754e-09** (`U`), `R_f` **9.679e-08** and **7.796e-08**, against the registered tolerance **1e-6**. At attempt 1 *all three* levels were NOT CONVERGED. **The gate is not a constant function of its input, proven on the same instrument, in the same invocation, over the same tree.** |
+| **(2) grid triple** | **YES, and it did — once.** | `x_peak_H` returned **CONVERGING**, `p = 4.3045`. It is the only CONVERGING triple T3 has ever produced, and it arrived on the run whose headline verdict is `NOT A RESULT`. |
+| **(3) band** | **NO — and the record says so, in advance and in the output.** | `T3_reference_primary.json` **does not exist on disk** (checked by this lane); `gate_t3.json` `primary_present: false`, `primary_sha256: null`. The comparator prints *"PRIMARY NOT OBTAINED: no band is armed; a graded row that passes the convergence and triple gates is BLOCKED"*. `T3_PREREGISTRATION.md` §2 registered Vogel & Eaton (1985) as NOT OBTAINED **before any case existed**. **No `PASS` is reachable on this rung at all**, and that is stated as an unreached gate rather than replaced by a nearer one — `VERIFICATION_CHARTER.md` §2's M6 clause, honoured. |
+
+**No row is graded `PASS` or `GATE FAIL` on a non-CONVERGING triple.** Tally
+re-read from `gate_t3.json`: `PASS 0, GATE FAIL 0, NOT A RESULT 4, BLOCKED 0,
+PENDING 0`. **Rule 5's one-way clause is honoured in the hardest available
+case**: G2 has a CONVERGING triple and is still `NOT A RESULT`, because gate (1)
+fires on level `c` before the triple is consulted. The gate turned a gradeable
+row *into* `NOT A RESULT`; nothing turned a `NOT A RESULT` into anything else.
+
+### 65. The completion rule — every limb re-derived by this lane's own code, and it holds 8 of 8
+
+This lane wrote its own parser (`Time =` lines, `ExecutionTime` lines, the `End`
+line, `controlDict` `endTime`, field mtimes, `0/T` mtime) and did **not** call,
+import or read the output of `mark_done_t3_ext1.py`. Under the two-segment rule
+of `T3_EXT1_AMENDMENT.md` §8 each case has `log.solve` (segment 1) and
+`log.solve.ext1` (segment 2).
+
+| case | `endTime` | segments (`Time =` span) | last time == `endTime` | Σ `ExecutionTime` == `endTime` | `End` | rc | age guard vs `0/T` | age guard vs `STATUS.<case>` |
+|---|---:|---|---|---|---|---|---:|---:|
+| `R_c` | 80 000 | 1→20 000, 20 001→80 000 | ✔ | 80 000 ✔ | ✔ ×2 | 0, 0 | **+87 240 s** | **+83 971 s** |
+| `R_m` | 36 000 | 1→20 000, 20 001→36 000 | ✔ | 36 000 ✔ | ✔ ×2 | 0, 0 | **+100 039 s** | **+84 137 s** |
+| `R_f` | 78 000 | 1→20 000, 20 001→78 000 | ✔ | 78 000 ✔ | ✔ ×2 | 0, 0 | **+247 794 s** | **+186 817 s** |
+| `P_m` | 36 000 | 1→20 000, 20 001→36 000 | ✔ | 36 000 ✔ | ✔ ×2 | 0, 0 | **+99 094 s** | **+83 245 s** |
+| `C_lam_m` | 80 000 | 1→20 000, 20 001→80 000 | ✔ | 80 000 ✔ | ✔ ×2 | 0, 0 | **+117 819 s** | **+107 504 s** |
+| `W_m` | 80 000 | 1→20 000, 20 001→80 000 | ✔ | 80 000 ✔ | ✔ ×2 | 0, 0 | **+80 781 s** | **+79 291 s** |
+| `D_m` | 28 000 | 1→20 000, 20 001→28 000 | ✔ | 28 000 ✔ | ✔ ×2 | 0, 0 | **+90 473 s** | **+79 893 s** |
+| `O_m` | 46 000 | 1→20 000, 20 001→46 000 | ✔ | 46 000 ✔ | ✔ ×2 | 0, 0 | **+120 120 s** | **+93 340 s** |
+
+- **The `ExecutionTime` count equals `endTime` to the unit on all eight**, summed
+  across both segments, and **the two segments join without a gap or an overlap**
+  (segment 2 begins at exactly segment 1's last time + 1) on all eight. Neither
+  fact is asserted anywhere in the record; both were derived here.
+- **`rc = 0` on both segments of all eight**, read from
+  `STATUS.<case>` and `STATUS_EXT1.<case>`, not from the marker's summary.
+- **Fields present.** Rule 4's thermal set `T U p_rgh alphat nut k omega` is
+  complete at `endTime` for seven cases. **`C_lam_m` is missing `nut`, `k` and
+  `omega`** — and that is correct, not a gap: `C_lam_m/constant/turbulenceProperties`
+  reads `simulationType laminar`, and the marking tool imports `NEEDED` /
+  `NEEDED_TURBULENT` from `mark_done_t3.py` and **selftests the exemption**
+  (`mark_done_t3_ext1.py:353`, *"laminar case (no nut/k/omega) PASSES"*). The
+  exemption is in code with a control, not in prose.
+- **The ext1 age guard is STRICTER than rule 4, in the refusing direction.** The
+  marking tool demands each field newer than `0/T` **and** newer than
+  `STATUS.<case>`, the file that dates the end of segment 1 — so a field written
+  by segment 1 and left in place cannot be mistaken for an extension product.
+  This lane re-derived both margins independently (columns above); the tightest is
+  `W_m` at **+79 291 s**, three orders of magnitude clear. **A tightening of a
+  completion rule by a team on itself is worth recording as such.**
+
+### 66. Roache triple gating re-derived — five of six agree to the digit, and **DEFECT FOUND** in the sixth number
+
+This lane implemented Celik et al. (2008) / ASME V&V-20 from the method, not
+from `analyse_t3.py`, and ran it over the three ladder values `gate_t3.json`
+records. Refinement ratios re-derived from `nCells` (36 000 / 92 160 / 235 520,
+two-dimensional, so `r = sqrt(N₂/N₁)`): **r21 = 1.598611, r32 = 1.600000**,
+matching the comparator's stored `refinement_ratios` to 7 figures.
+
+| quantity | triple (coarse, med, fine) | state — mine / record | `p` — mine / record | GCI(Fs=1.25) — mine / record |
+|---|---|---|---|---|
+| `St_peak` | 0.00336772, 0.00343791, 0.00350859 | DIVERGENT / DIVERGENT | **−0.0148 / −0.0148** | n/a |
+| `x_peak_H` | 6.0895, 6.13516, 6.1412 | **CONVERGING / CONVERGING** | **4.3045 / 4.3045** | **0.0188 % / 0.0188 %** |
+| `St_10H` | 0.00298296, 0.00304705, 0.00310443 | STAGNANT / STAGNANT | **0.2317 / 0.2317** | n/a |
+| `St_20H` | 0.00224934, 0.0022961, 0.00233824 | STAGNANT / STAGNANT | **0.2175 / 0.2175** | n/a |
+| `x_R_H` | 7.01291, 7.01011, 6.98336 | DIVERGENT / DIVERGENT | **−4.8092 / −4.8092** | n/a |
+| `Cf_15H` | 0.00159321, 0.00163293, 0.00166925 | STAGNANT / STAGNANT | **0.1868 / 0.1868** | n/a |
+
+**Every state, every observed order and the one GCI reproduce exactly.** The
+`STAGNANT` band (`p < 0.5`) is stricter than textbook Roache, which would call
+`St_10H`, `St_20H` and `Cf_15H` monotone-convergent at a very low order; the
+band was frozen in the comparator before any case existed and it moves rows only
+toward `NOT A RESULT`, never away. **`GCI_fine = 0.019 %` for G2 is correct**,
+and rule 5's prohibition on quoting a GCI over a non-monotone triple is
+observed — no GCI is printed for the five non-CONVERGING quantities.
+
+**DEFECT — the Richardson extrapolate is printed on the wrong side of the fine
+value.** `analyse_t3.py:384` computes
+
+    e21 = f_med - f_fine                 # line 348
+    richardson = f_fine + e21 / den      # line 384,  den = r21**p - 1
+
+Celik's extrapolate is `φ_ext21 = (r21^p·φ1 − φ2)/(r21^p − 1)`, which with this
+file's own sign convention for `e21` is **`f_fine − e21/den`**. The published
+sign is inverted.
+
+- **Measured consequence, the only place it surfaces:** `x_peak_H` converges
+  **upward** with refinement (6.0895 → 6.13516 → 6.1412), so its extrapolated
+  limit must exceed the finest value. This lane's Celik arithmetic gives
+  **6.142121**; the comparator wrote and printed **`RE = 6.14027`** —
+  **below the fine grid value**, off by **1.848e-03**, i.e. **0.0301 %** of the
+  quantity and **1.6 × the GCI it is quoted beside**.
+- **Blast radius: two frozen comparators, one line each.** The identical
+  expression is at `verification/runs/T-family/T1_runs/analyse_t1c.py:337`,
+  which `analyse_t3.py` imports as `T1C` and whose equal-ratio result its
+  `--selftest` asserts it reproduces. A grep for `richardson=` across the
+  T-family comparators returns those two sites and no others; `T10a_runs` has
+  none.
+- **Why the freeze did not catch it.** The `--selftest` block exercises
+  `richardson` only for the **presence of the key** (`for k in ("order",
+  "GCI_pct", "richardson")`, ~line 1096) and never against a known analytic
+  limit. A control that checks a key exists cannot see a sign.
+- **No verdict moves, and this lane checked that by reading the grading path,
+  not by assuming it.** `graded_verdict()` compares the **fine** value to the
+  band (`|fine − value| <= band`); `richardson` is assigned at line 703 for
+  CONVERGING rows only and is never an operand of a comparison. The one
+  CONVERGING row, G2, exits at gate (1) *before* line 703, so **no
+  `gate_t3.json` row even carries a `richardson` key** — the wrong number lives
+  only in `triples.x_peak_H.richardson` and in the console log's `RE = 6.14027`.
+  **`VERIFICATION_CHARTER.md` §6 exists because of exactly this space, between a
+  correct number and the words printed next to it.**
+- **Remedy, for heat-transfer and the verification supervisor to weigh, not for
+  this lane to apply:** the file is frozen, so rule 6 forbids editing it. The
+  charter-clean paths are a dated addendum recording the defect and the corrected
+  value, and a `--selftest` case pinning `richardson` to an analytic limit before
+  any future rung uses the number.
+
+### 67. Controls — the planted zero FIRED with a measured value, and what it does not establish
+
+**It fired, and the artifact is the run's own log, not a description.**
+`verification/runs/T-family/T3_runs/log.analyse_t3.ext1.20260824T155826Z.txt`,
+line 10, records the control before any measurement:
+
+    planted-zero control on R_m: {'passed': True, 'planted': 0.001234,
+      'read_back_delta': 0.0012340000000108375, 'reader_max_change':
+      0.0012340000000108375, 'reader_state': 'NOT_CONVERGED',
+      'between': ['34000', '36000']}
+
+- **The refusal limb is real and is upstream of everything.** `main()` calls
+  `planted_zero_control()` **before** `measure()` and executes
+  `refuse("planted-zero control failed: … its zeros mean nothing")` on a false
+  `passed`. A refusal writes no `gate_t3.json`, so **every published T3 number is
+  downstream of a control that passed.**
+- **It plants into a temp copy, not the case.** `planted_zero_control()` copies
+  the last two checkpoints' `T` files to a `tempfile.mkdtemp()` tree, plants
+  there, and `shutil.rmtree`s in a `finally`. The graded run directory is never
+  written by the control — which is why the age-guard margins in §65 are clean.
+- **The read-back is exact.** `read_back_delta − PLANT = 1.084e-14`, i.e. the
+  planted perturbation was written to disk, re-read from disk and recovered to
+  double precision.
+
+**What it does not establish, stated plainly.** `R_m`'s decision threshold is
+`1e-6 × field_range = 1e-6 × 51.295947 K = 5.1296e-05 K`. The plant is
+**1.234e-03 K = 24.06 × that threshold**, while the value the reader actually
+reported for `R_m` is **7.875e-07 K = 0.0154 × the threshold**. So the control
+proves the reader is **not blind**, at 24× above the decision boundary; it does
+not exercise the boundary itself, and the reported value sits 64× below it. The
+exact read-back argues the reader is a plain max-absolute-difference with no
+resolution floor, which makes a boundary plant very likely redundant — but that
+is an argument, not a measurement. **Candidate recommendation, not a finding
+against the rung:** a second plant at `1.05 × tol_abs` would close it, and it is
+a sub-second addition. **A further limitation:** the control is planted into
+**`R_m` only**, one case of eight. The reader is the same object for all eight,
+so what is established is the *reader class*, not each case's read.
+
+### 68. Amendments after first compute — legal and gate-neutral, proved by byte prefix; and one **DEFECT** in a frozen stamp
+
+First compute is **2026-08-21T18:02:44Z** (§63). Everything before it is a
+pre-compute amendment; everything after must be a dated addendum that alters no
+gate, threshold, cap or label.
+
+| item | when | audit |
+|---|---|---|
+| `T3_PREREGISTRATION.md` amendment (`bee3878b`) | **18:02:31Z, 13 s BEFORE first compute** | **LEGAL under rule 2's first bullet, and it names its condition and how it was checked** — *"no T3 case directory existed — checked with `find verification/runs/T-family/T3_runs -type d`, which returned nothing"*. This lane confirmed the condition independently: the earliest artifact under any case directory is 13 s later. **It also registered, in advance, the outcome that occurred:** *"A separated RANS flow under SIMPLE may never meet this; if it does not, the rows are NOT A RESULT and the record says so — the criterion is not relaxed after the fact."* |
+| `T3_EXT1_AMENDMENT.md` §14, the ordering disclosure (`586ea08c`) | 2026-08-22T18:14:25Z | Post-compute; disclosed on its face as a departure (extensions launched ahead of the committed amendment). Recorded, not re-litigated here. |
+| `T3_EXT1_AMENDMENT.md` §15, predictions scored (`3dd28411`) | 2026-08-24T16:15:34Z | **GATE-NEUTRAL, PROVED BY BYTES, NOT BY ITS OWN ASSERTION.** The file's first **869** lines at `3dd28411` are byte-identical to the whole of the file at `586ea08c` (sha256 of both: `1f200321c4312f3e…`). Its rule-6 claim *"lines whose number changed above this section: 0"* is **true, verified mechanically.** §15 scores §6's predictions and adds no gate. |
+| `T3_RESULTS.md` §14 (`3dd28411`) | 2026-08-24 | **Same test, same result.** First **504** lines byte-identical to the whole file at `fd831c11` (`e557c798df87181e…`). 486 lines appended, none inserted. |
+
+**The predictions are scored against the team's own interest.** §15 records
+**P3's secondary clause as FALSIFIED** — heat-transfer predicted that *none* of
+G1–G4 would come back CONVERGING, and G2 did — and states the non-renegotiation
+rule was honoured anyway. A record that files its own miss in the row next to
+its hits is the behaviour rule 2 exists to produce.
+
+**DEFECT — an in-record stamp inside a FROZEN pre-registration is written ahead
+of its own commit, and read literally it falsifies the condition it asserts.**
+`docs/campaigns/T-family/T3_PREREGISTRATION.md:241` reads *"amendment of
+**2026-08-21 18:05 Z**"*. The commit that introduced the line, `bee3878b`, has
+committer date **18:02:31Z** — the stamp is **+149 s ahead of the wall clock**,
+the `bd3edfe8` class this lab built `scripts/check_stamp_vs_commit.py` for
+(ledger row C-25). It matters more than the 149 s suggests: **18:05Z is 76 s
+AFTER the first T3 case artifact appeared (18:02:44Z)**, so a reader taking the
+document's own stamp as binding would conclude the amendment post-dated first
+compute and was illegal. **It was not.** The binding evidence is the committer
+date, which precedes first compute by 13 s, and the condition the amendment
+names is independently true at that time. **Gate-neutral; no verdict moves; the
+remedy is a dated addendum, since rule 6 forbids editing the frozen file.**
+
+**An instrument finding against the verification team's own tool, recorded
+here so it is not mistaken for a heat-transfer defect.** Run over the three T3
+records, `check_stamp_vs_commit.py` reports **9 FIRES**. **Eight of them are
+false positives of one class:** `T3_EXT1_AMENDMENT.md:660–667` are the **ETA
+column of §10.4's rate table** — predicted finish times, correctly ahead of the
+commit that wrote them (`D_m` 19:12:55Z … `R_f` 2026-08-25T14:54:30Z). The
+checker's cue list caught the two *prose* sentences quoting the same ETAs
+(lines 669 and `T3_RESULTS.md:873`, both reported as PLANNED) but **cannot see a
+future-intent cue when the stamp is a table cell whose cue lives in the column
+header.** Only the ninth fire, `T3_PREREGISTRATION.md:241`, is genuine. **Owed
+by the verification team, not by heat-transfer: a table-aware cue (a header cell
+matching `ETA|forecast|predicted|projected` marking its whole column PLANNED).**
+
+### 69. Cost calibration (rule 12) and verdict vocabulary
+
+**The calibration comparison is present, complete, and this lane re-derived its
+arithmetic from the raw status files rather than accepting it.** Row **C-23** of
+`docs/COST_CALIBRATION.md` (dated 2026-08-24, heat-transfer).
+
+| element | the row's figure | this lane's independent re-derivation |
+|---|---|---|
+| actual, measured unit | 4 798.05 core-min = 79.968 core-h | **287 883 wall s** summed by this lane from the eight `STATUS_EXT1.<case>` files (13 782 + 14 884 + 162 094 + 15 095 + 33 909 + 7 230 + 6 380 + 34 509), serial at `nProcs 1`, ÷ 60 = **4 798.05 core-min** ✔ ÷ 3600 = **79.968 core-h** ✔ |
+| dollars | $4.102 **derived, not measured** | 79.968 × 0.0513 = **$4.1023** ✔, and the row states the rate is owner-stated and the box cannot read its own billing ✔ |
+| ratio | **1.005×** vs the §5 pre-launch estimate; 0.738× vs the §10.4 post-launch revision | 79.968 / 79.55 = **1.0053** ✔. **Both ratios are carried**, and the flattering one is not the only one shown. |
+| rung to date | 120.29 core-h = $6.171 = 24.7 % of the $25 ceiling | segment-1 walls sum to **145 157 s**; + 287 883 = **433 040 s** = **120.289 core-h** ✔ × 0.0513 = **$6.171** ✔ ÷ 25 = **24.7 %** ✔ |
+| waste | **nil, 0.00 core-min, separately named** | consistent with §65: all eight terminated under the solver's own hand, so there is no abandoned segment to name. Not absorbed into the ratio ✔ (`COMPUTE_BUDGET_CHARTER.md` §6). |
+| gross vs cleaned | **gross == cleaned**, with the stall rule addressed rather than ignored | **All eight ext1 rows exceed rule 12's 3 600 wall-s stall heuristic** (smallest `D_m`, 6 380 s; largest `R_f`, 162 094 s). The row does not quietly pass over this: it argues the heuristic detects a *hung or abandoned* row and that every one of these carries `rc=0`, an `End` line, last time == `endTime` and a full `ExecutionTime` count — **all four of which this lane re-derived independently in §65.** **A reading of the heuristic, disclosed and evidenced, not a silent exemption.** |
+| honesty about the model | *"two cancelling errors … NOT the record of an accurate model, and must not be filed as one"* | The row refuses the flattering reading of its own 1.005×, attributes the two errors (no fixed-cost term: `W_m` 1.617×, `D_m` 1.507×, `R_c` 1.404×; an over-extrapolated 5-minute contention window: `R_f` 0.917× of §5) and states the calibration lesson. **This is the standard the ledger should be held to.** |
+
+**Verdict vocabulary — CLEAN.** Token census across the three records at
+`3dd28411`: **10 `FAIL` tokens in total, every one of them part of `GATE FAIL`
+or `GATE FAILED`** (2 / 3 / 5 in prereg / amendment / results). **No bare `FAIL`
+cell** — the class CLAUDE.md rule 1 flags as referred-and-unruled does not occur
+here. A sweep for *"roughly converged", "partial pass", "near-pass",
+"inconclusive", "marginal pass", "weak pass", "soft fail", "essentially
+passed"* returns **zero hits** in all three files. `gate_t3.json`'s verdict
+cells are `NOT A RESULT` ×4 and `REPORTED` ×13.
+
+**`REPORTED` is not one of rule 1's six words, and it is not a breach.** It was
+**registered in advance** as a non-graded channel: `T3_PREREGISTRATION.md:94`
+(*"is REPORTED, never graded. No verdict in this rung rests on it"*) and the
+row table at lines 313–319 assign it to M1, DW, DD and the heat-balance guards
+before any case existed; every such row carries `counted_in_tally=False` in the
+JSON, and the tally sums **only** the graded rows. **One display candidate, not
+a finding:** `gate_t3.json`'s stored `tally` dict includes the key
+`"REPORTED": 0` while thirteen rows carry `verdict: "REPORTED"` — arithmetically
+correct (zero *graded* rows are REPORTED) but capable of misleading a reader of
+the JSON alone. The console output does not have the problem: it prints only
+non-zero counts, as *"4 graded rows: NOT A RESULT 4"*. **This is the same
+boundary passes 5 §21 and 8 §41 named — a second vocabulary living alongside the
+verdict vocabulary, still unwritten in any charter.** Third sighting; it is
+beginning to look like a charter line rather than a curiosity.
+
+### 70. Verdict
+
+**AUDIT: SOUND WITH DISCLOSED DEVIATIONS, AND TWO DEFECTS FOUND** (CANDIDATE —
+the verification supervisor's own read governs). **Nothing in this pass moves a
+heat-transfer verdict, and this lane wrote nothing in heat-transfer's
+territory.**
+
+| item | as reported | AUDIT (CANDIDATE) |
+|---|---|---|
+| **the freeze** | comparator frozen before any case existed | **SOUND** — one commit in the path's entire history; blob id and sha256 identical on disk, at HEAD and at `628ef452`; the earliest artifact under any of the eight case directories is **35 s later** |
+| **the file that ran IS the frozen file** | claimed | **SOUND, verified four ways** — sha256 `f41c544d…498741` from disk, from HEAD, from `628ef452`, and recorded by the run itself before and after execution |
+| **`NOT A RESULT` ×4 at gate (1)** | the comparator's own output | **SOUND, and non-tautological** — the same reader returned `CONVERGED` for 5 of 8 cases and 2 of 3 ladder levels in the same invocation (`R_m` 1.535e-08, `R_f` 9.679e-08 vs tol 1e-6) |
+| **G2 triple CONVERGING** | `p = 4.304`, GCI 0.019 % | **SOUND** — `p = 4.3045` and GCI `0.0188 %` reproduced exactly by this lane's own Celik implementation; and the row is still `NOT A RESULT`, which is rule 5's one-way clause honoured in its hardest case |
+| **the other five triples** | DIVERGENT ×2, STAGNANT ×3 | **SOUND** — all five states and all five observed orders reproduced to four decimals; no GCI quoted over a non-monotone triple |
+| **the Richardson extrapolate** | `RE = 6.14027` | **DEFECT — the sign is inverted** (`analyse_t3.py:384`, and identically `analyse_t1c.py:337`). Celik gives **6.142121**; the printed value falls **below** the finest grid value on an upward-converging ladder, off by **1.848e-03 = 0.0301 %**, 1.6× the GCI beside it. **Display-only: `richardson` is never an operand of a verdict, and no `gate_t3.json` row carries the key.** The `--selftest` checks the key exists, never its value (§66) |
+| **completion rule, 8 of 8** | strict rule met | **SOUND — every limb re-derived by this lane's own parser**, including two the record does not assert: the `ExecutionTime` count equals `endTime` to the unit on all eight, and the two segments join with no gap or overlap on all eight. `C_lam_m`'s missing `nut/k/omega` is a **coded, selftested laminar exemption**, not a gap |
+| **the ext1 age guard** | fields newer than `0/T` | **SOUND, and STRICTER than rule 4** — also newer than `STATUS.<case>`; tightest margin **+79 291 s** (`W_m`), re-derived here |
+| **planted-zero control** | passed | **SOUND — fired with a measured value on disk, upstream of every number**, read back to 1.084e-14, refusal limb real and JSON-suppressing. **One limitation named:** the plant is 24.06× the decision threshold and lands on `R_m` only; the boundary itself is unexercised (§67) |
+| **gate (3), the band** | reference NOT OBTAINED, no band armed | **SOUND** — `T3_reference_primary.json` absent from disk, `primary_present: false`, registered as NOT OBTAINED before any case existed. **No `PASS` is reachable on this rung, and the record says so rather than substituting a nearer gate** |
+| **amendments after first compute** | dated addenda, gate-neutral | **SOUND, proved by byte prefix rather than by their own assertions** — 869 lines and 504 lines byte-identical; and P3's secondary clause is filed as **FALSIFIED**, against the team's interest |
+| **the frozen prereg's own stamp** | (not claimed) | **DEFECT — `T3_PREREGISTRATION.md:241` reads "2026-08-21 18:05 Z", +149 s ahead of its commit and 76 s AFTER first compute.** Read literally it falsifies the pre-compute condition the amendment asserts. **The condition is true on the binding evidence (committer date 18:02:31Z, 13 s before first compute); no verdict moves.** Remedy: a dated addendum, never an edit (§68) |
+| **cost calibration (rule 12)** | C-23, 1.005×, waste nil | **SOUND, and among the best rows in the ledger** — every figure re-derived here from the raw `STATUS_EXT1` walls (287 883 s → 4 798.05 core-min → $4.102) and the rung total (433 040 s → 120.29 core-h → $6.171 → 24.7 %); both ratios carried; the 3 600-s stall heuristic **addressed with evidence rather than skipped**; the row refuses the flattering reading of its own result |
+| **verdict vocabulary** | — | **CLEAN** — 10 `FAIL` tokens, all `GATE FAIL(ED)`; zero hedges; `REPORTED` registered in advance as a non-graded channel. One JSON display candidate (`"REPORTED": 0` beside 13 REPORTED rows) |
+
+**The headline is the anti-tuned direction, and that is the point.** T3 spent
+**120.29 core-h** across two attempts and returns **0 of 4 graded rows**. The
+re-grade moved two ladder levels from NOT CONVERGED to CONVERGED, produced the
+rung's first CONVERGING triple, closed the fine-level heat balance from 8.234 %
+to 0.0003935 %, and **changed no verdict** — because the coarse level is in a
+limit cycle that `T3_PREREGISTRATION.md` §11 registered in advance as an outcome
+the rung reports rather than averages. A team that buys 79.97 core-h of compute,
+gets a better-behaved ladder, and still writes `NOT A RESULT` in the first line
+is doing the thing this charter was written to make possible.
+
+### 71. What this lane could NOT establish, named plainly
+
+- **The heat-transfer supervisor's §3 personal checks.** The commit message of
+  `3dd28411` attests that this lane's counterpart *"independently re-hashed all
+  six instruments against HEAD, re-derived every number from `gate_t3.json` and
+  the case directories"*, and that the comparator run at 15:58:26Z and the
+  marker at 15:57:59Z were executed by **a lane of a parallel session** before
+  the chief redirected T3 to the recording session at 16:00Z. The disclosure is
+  unusually specific and its *outputs* are checkable — this lane checked them —
+  but **the reads themselves leave no artifact by construction and are taken as
+  attested, not verified.**
+- **That the run's `analyse_t3.py` invocation was the one that produced
+  `gate_t3.json`.** The chain is strong but circumstantial: the log's own
+  `EXIT_CODE=0`, the post-run sha256 `8e766cd5…4ba573` and the mtime
+  15:58:44.918Z bracket `gate_t3.json`'s `finished_utc` of 15:58:44.896Z by
+  22 ms. **No witness file cross-signs the pair.** Nothing suggests otherwise;
+  it is stated because it is an inference, not a measurement.
+- **Whether the convergence reader resolves a change at its own decision
+  threshold.** §67: the plant is 24× above it and the reported value 64× below
+  it. The exact read-back makes a resolution floor very unlikely, but no
+  boundary plant exists.
+- **The physics reading of `p = 4.304`.** `T3_RESULTS.md` reads it as *"levels
+  too close to resolve an order, not fourth-order accuracy"* — a judgement about
+  the scheme's formal order that this lane can neither confirm nor refute from
+  the artifacts, and one that no gate rests on.
+- **Whether the sign defect of §66 has ever produced a published number
+  elsewhere.** `analyse_t1c.py:337` carries the same expression. Whether any T1c
+  record quotes an `RE` value, and on which side of its ladder, was **not swept**
+  — it is T-family territory and outside this pass's read. **Flagged for the
+  verification supervisor to route.**
