@@ -52,13 +52,14 @@ to Sanaa. Sends are reserved to Sanaa.
 | H-5 | Tier order after the spine: T4, T6, T7, T2, T9b/c, T10b, T11 | same | queued behind the spine; nothing started ahead of it |
 | H-6 | Every thermal gate feeds the DC certificate spec as it passes | same | `docs/product/DC_CERTIFICATE_TEMPLATE.md` created |
 | H-7 | Two institutionalizations: bands-vs-corrections caveat into the charters verbatim; the libs lesson as law | same | **BOTH DONE** — VERIFICATION_CHARTER §2e (v1.10), CLOSURE_MODELLING §22.4 (v1.1.2); `scripts/foam_libs.py` + `lint_foam_libs.py` |
-| **GPU-blocked reproductions now unblocked for pre-registration** | Closure supervisor to pre-register DPM, Bae, Lozano-Durán, Beck (and Ling2016 TBNN GPU training) with GPU-hour cost bases; nothing launches before Sanaa signs each | chief, 2026-08-22 | **DISPATCHED** |
+| **GPU-blocked reproductions now unblocked for pre-registration** | Closure supervisor to pre-register DPM, Bae, Lozano-Durán, Beck (and Ling2016 TBNN GPU training) with GPU-hour cost bases; nothing launches before Sanaa signs each | chief, 2026-08-22 | ~~**DISPATCHED**~~ **2026-08-24:** Ling2016 TBNN GPU arm 1 graded **NOT A RESULT** at `353925c7`; arm 2 prereg in drafting under her *"i approve of everything"* with per-item costing still required (rule 9: a blanket is not a per-item read; GPU spend needs its console-priced GPU-hour cost basis) |
 | **R3 = SpaRTA** | The closure line rebuilds on SpaRTA-class, Sanaa's pick from the R2 shortlist | Sanaa 2026-08-21, verbatim *"R3: Sparta"*, appended to `docs/closure/R2_SHORTLIST_MEMO.md` | **DECIDED** |
 | **R4 approved** | Sanaa said *"R4 approved"* in the same message | same | **APPROVED**; R4 build **OPEN, no verdict** |
 | **R4's CPU-minutes have first call on capacity** | named in the thermal directive's own header | Sanaa 2026-08-22 | **IN FORCE** |
 | **SUBMISSIONS PARKED** | Nothing is sent, filed, uploaded, registered or posted anywhere. Sending is Sanaa's alone | Katie 2026-08-07; `GOALS_AND_PROPOSALS` §8, `CLOSURE_MODELLING` §19, `DAFOAM` §10 | **IN FORCE**, indefinitely |
 | **Blanket compute approval** | Runs above the $25 pre-authorisation are blanket-approved, **and are still costed in their pre-registration** | Sanaa 2026-08-21, *"all the teams have my approval for everything"* — **owner-stated, chief's session record** | **IN FORCE** |
-| **GPU quota GRANTED, no GPU attached** | AWS raised "All G and VT instances" in us-east-2 to 8 (vCPUs; one g6.2xlarge/g5.2xlarge or two xlarge). No GPU on this box. `BLOCKED-GPU` retired as a standing verdict. **GPU spend sits OUTSIDE the 2026-08-21 CPU blanket**: each GPU run needs a console-priced GPU-hour cost basis and Sanaa's per-item sign-off. Case-number link (178725840000468) is an inference, unconfirmed | AWS message pasted by Sanaa 2026-08-22, recorded verbatim in `docs/GPU_CAPABILITY_STATE.md`; rule 12 amended at e0cf8f0c | **IN FORCE** |
+| **GPU quota GRANTED, no GPU attached** | AWS raised "All G and VT instances" in us-east-2 to 8 (vCPUs; one g6.2xlarge/g5.2xlarge or two xlarge). No GPU on this box. `BLOCKED-GPU` retired as a standing verdict. **GPU spend sits OUTSIDE the 2026-08-21 CPU blanket**: each GPU run needs a console-priced GPU-hour cost basis and Sanaa's per-item sign-off. Case-number link (178725840000468) is an inference, unconfirmed | AWS message pasted by Sanaa 2026-08-22, recorded verbatim in `docs/GPU_CAPABILITY_STATE.md`; rule 12 amended at e0cf8f0c | **IN FORCE.** ~~gpu1 running~~ **2026-08-24: gpu1 STOPPED by Sanaa** (her words: *"also i stopped that instance"*); **driver self-shutdown APPROVED as a standing GPU mechanism** (her words: *"GPU shutdown suggestion: yes approved"*) — every GPU driver stops its own instance when its run ends |
+| **ansys-verification team created** | A sixth standing team on Sanaa's directive: Fable supervisor, 2 Opus lanes (5 and 4.8), 2 Haiku lanes (pull code / watch logs only); reads the Ansys Fluid Dynamics Verification Manual first; runs its cases as pre-registered lab verdicts in the lab's own solvers; keeps `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` (only PASS rows are credentials); updates LESSONS / NUMERICS / charters with what it finds; the verification team audits it. Lane cap 4 is her explicit exception to §8's 3 | Sanaa 2026-08-24, verbatim in `docs/charters/ANSYS_VERIFICATION_CHARTER.md` §1; agent definitions in `.claude/agents/ansys-*.md` take effect at the next session start | **IN FORCE**; first-fill section `## ansys-verification` below |
 
 **Lab-wide live compute:** 12 single-core solvers, all `buoyantBoussinesqSimpleFoam`,
 all owned by heat-transfer. At $0.0513/core-h that is **~$0.62/h** (c7a.4xlarge at $0.0513/core-h, owner-stated) while all 12
@@ -66,8 +67,10 @@ run. No other team has anything on the box.
 
 **On Sanaa's desk, aggregated:** the T10a view-factor defect as upstream candidate
 #4 (filing is hers); **K2a rack row module, awaiting her approval**; four DAFoam upstream defect classes, all `NOT FILED`; the
-`RESULT_PRIORITY_CHARTER` orderings (v0.5 draft, awaiting her ruling); the
-`GATE FAIL` vs bare `FAIL` ledger-vocabulary conflict (referred, unruled); and the
+`RESULT_PRIORITY_CHARTER` orderings (v0.5 draft, awaiting her ruling); ~~the
+`GATE FAIL` vs bare `FAIL` ledger-vocabulary conflict (referred, unruled);~~ (D-5
+CLOSED 2026-08-24 under the chief's disclosed interpretation, see the rulings
+below) and the
 D389 S13 normalisation question (re-grades the whole thermal corpus; no single
 rung may take it).
 
@@ -82,18 +85,50 @@ rung may take it).
   under $25 pre-authorised; *"all the teams have my approval for everything"*
   (2026-08-21); AWS case **178725840000468** for the G-instance quota. VERIFY is
   dropped on these four and on nothing else.
-- **D-3 … D-6 are with Sanaa and no agent acts on them.** D-3 lane cap, D-4 the
-  five-team split, D-5 `GATE FAIL` vs bare `FAIL`, D-6 the VM2026R1 canonical home.
-- **D-6, board note — DO NOT TOUCH EITHER COPY.** `VM2026R1_Fluids/` at the repo
+- ~~**D-3 … D-6 are with Sanaa and no agent acts on them.** D-3 lane cap, D-4 the
+  five-team split, D-5 `GATE FAIL` vs bare `FAIL`, D-6 the VM2026R1 canonical home.~~
+  **2026-08-24 — D-3 … D-6 CLOSED on Sanaa's words**, verbatim, given in reply to the
+  chief's explanation of exactly these four items: *"yes it's approved by me. I
+  ratify the six team structure. I apporve all actually"* (chief's session record;
+  scope discipline: applied to D-3..D-6 ONLY, read onto no other desk item,
+  submission or send).
+  - **D-3 CLOSED** — the 3-lane cap per supervisor is standing law, with the
+    ansys-verification team's 4 lanes (2 opus + 2 haiku) as her explicit exception,
+    recorded in `ANSYS_VERIFICATION_CHARTER.md` §3 and the 2026-08-24 addendum at
+    the foot of `SUPERVISION_CHARTER.md`.
+  - **D-4 CLOSED** — the six-team structure is ratified in her words (closure,
+    dafoam, heat-transfer, cfd, verification, ansys-verification). Earlier the same
+    day the row had been narrowed to "open for her explicit word" after her
+    *"Let's have an ansy-verification team"* made it six; that word has now been given.
+  - **D-5 CLOSED under the chief's interpretation, stated as such:** her approval
+    is read as approving CLAUDE.md rule 1's vocabulary as written — legacy ledger
+    cells reading bare `FAIL` (3 known: V5:1070, V14:1080, V15:1081) are to be
+    corrected to `GATE FAIL` by their owning teams by quote-and-strike, never
+    rewritten. The interpretation is the chief's and is disclosed here so she can
+    overturn it.
+  - **D-6 RESOLVED** (see the next bullet), her *"I approve all"* confirming.
+- ~~**D-6, board note — DO NOT TOUCH EITHER COPY.** `VM2026R1_Fluids/` at the repo
   root holds **123 files, 2.5 GB** (Fluent / CFX / Forte archives). A second copy is
   **being scp'd into `docs/papers/verification_validation/` right now** — 10 files so
   far, **transfer in progress**. Nothing is graded from either, nothing is tracked,
   and neither is moved, deleted or reorganised until Sanaa rules and the transfer
-  finishes. A half-copied tree read as a corpus is a measurement of nothing.
+  finishes. A half-copied tree read as a corpus is a measurement of nothing.~~
+  **D-6 RESOLVED 2026-08-24 by Sanaa's directive creating the ansys-verification
+  team with exclusive ownership of the archives and the manual** — her words: *"I
+  wanted a verification team to exclusively work on these verification cases."*
+  The canonical-home decision is now the **ansys-verification supervisor's first
+  action**, informed by the harness-build inspection in
+  `ANSYS_VERIFICATION_CHARTER.md` §9 (root copy 123 files / 2.5 GB complete;
+  papers copy 10 files / 26 MB, a DEAD transfer, 9 files byte-identical and
+  `VMFL011B.wbpz` truncated at 327,680 of 670,152 B) and the verification team's
+  memo `docs/VM2026R1_FILING_ANALYSIS.md`. **Until it rules, neither copy is moved
+  or deleted.** Confirmed by her *"I apporve all actually"* of the same day.
 
 ---
 
-**Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched
+~~**Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched~~
+
+**Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 ## closure
 
 **Section last written:** 2026-08-24T16:24:03Z by closure-supervisor (this chief session's
@@ -828,3 +863,63 @@ question), the EXTERNAL_REFERENT instrument rebuild, and the
 NOT this team's any more (see the VM2026R1 row). Every dispatch carries a
 predicted cost. Also in the INSTRUMENT QUEUE line above, strike "Ansys
 sidecar" — superseded by the handover.
+
+---
+
+## ansys-verification
+
+**Section last written:** 2026-08-24T16:27:20Z by harness-build (FIRST FILL — not yet
+written by its owner, `ansys-verification-supervisor`; stamp from `date -u` read
+in the writing invocation). Team created this day on Sanaa's directive
+(verbatim in `docs/charters/ANSYS_VERIFICATION_CHARTER.md` §1). Agent
+definitions (`.claude/agents/ansys-verification-supervisor.md`,
+`ansys-lane-opus.md`, `ansys-lane-opus48.md`, `ansys-lane-haiku.md`) **take
+effect at the next session start** — a session that began before this commit
+cannot spawn them (form-teams skill, "If a subagent_type is not found").
+
+**Last commit:** this commit (harness-build lane, parent `b7359d15`): team added to
+`harness/teams.yaml` v1.2, generator extended for team-owned lane types and
+restricted tools, charter v1.0, register created empty, `docs/ansys_verification/README.md`,
+LOCATIONS note, this section.
+
+**Live jobs:** none. No compute has been run by this team; zero core-minutes.
+
+**Rungs lacking verdicts:** none run. 0 of the manual's 95 indexed cases
+(78 VMFL, 7 VMFRT, 10 VMFLGPU) opened; register holds 0 rows. **Credential
+count: 0 PASS of 0 run.**
+
+**Next actions, in order:**
+1. **Read the manual first** (Sanaa's directive) —
+   `docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt`,
+   title-page verified against the PDF (rule 15): "Ansys Fluid Dynamics
+   Verification Manual, ANSYS, Inc., Release 2026 R1, March 2026", 290 pages;
+   sha256 prefixes at this writing PDF `ee1bf7ce8a79…`, sidecar `577659469a30…`.
+2. **Rule on the archives' canonical home (D-6)** with charter §9's inspection
+   and `docs/VM2026R1_FILING_ANALYSIS.md` as input; say which copy is
+   authoritative; record the ruling here and in the docket. Neither copy is
+   moved or deleted before the ruling.
+3. **Open the first rung**: the manual's ladder starts VMFL001 (Flow Between
+   Rotating and Stationary Concentric Cylinders, p. 15), VMFL002 (Laminar Flow
+   Through a Pipe with Uniform Heat Flux, p. 17), VMFL003 (Pressure Drop in
+   Turbulent Flow Through a Pipe, p. 19) — analytical-reference cases the lab's
+   OpenFOAM can reproduce cheaply. Pre-registration per charter §5 (reference
+   result, tolerance, cost in core-minutes), frozen and **committed** before any
+   solver starts; prereg sha reported to the chief.
+4. **First spawn of `ansys-lane-opus48` is the load test of the `claude-opus-4-8`
+   pin** (documented id; provider-side availability on this box unverified until
+   a spawn succeeds — VERIFY). If it fails, report it and amend the charter §3;
+   do not guess another id.
+5. At every completion: calibration row in `docs/COST_CALIBRATION.md`; register
+   row; LESSONS / `N-AV` numerics rows; charter amendments routed via the chief.
+
+**On Sanaa's desk:** none from this team. Her directive is executed as written;
+the D-3..D-6 closures are recorded in the CHIEF section above.
+
+**Blocked:** none. **VERIFY:** (a) the Opus 4.8 pin loads (item 4); (b) VMFL068
+has no `_WB` archive in the root copy (77 Fluent archives for 78 indexed cases —
+observed by `find`, cause unknown); (c) the FORTE set is stored twice inside the
+root copy (`VMFRT_v261.zip`, 481 MB, plus its extraction) — a 2.5 GB `du` figure
+that would be ~2.0 GB deduplicated.
+
+*First fill by the harness-build lane, 2026-08-24. `ansys-verification-supervisor`
+owns this section and corrects it at its first commit or verdict.*

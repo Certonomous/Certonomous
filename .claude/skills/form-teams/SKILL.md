@@ -1,6 +1,6 @@
 ---
 name: form-teams
-description: Re-form the five standing Certonomous teams from disk. Reads docs/LAB_STATE.md and spawns all five supervisors in one parallel call, each with its own board section and the standing directives. Run this at session start, before any other work, and after any compaction that killed the previous fleet.
+description: Re-form the six standing Certonomous teams from disk. Reads docs/LAB_STATE.md and spawns all six supervisors in one parallel call, each with its own board section and the standing directives. Run this at session start, before any other work, and after any compaction that killed the previous fleet.
 ---
 
 # form-teams — re-form the lab from disk
@@ -11,7 +11,7 @@ re-forming them one command, and `docs/LAB_STATE.md` is what makes it lossless.
 
 ## 1. Read the board
 
-Read **`docs/LAB_STATE.md` in full** — the header, the CHIEF section, and all five
+Read **`docs/LAB_STATE.md` in full** — the header, the CHIEF section, and all six
 team sections. It is the only handoff channel between sessions; the scratchpad is
 not (L-186).
 
@@ -32,10 +32,12 @@ supervisor who owns that section; the board is theirs to write.
 
 **Never touch a running solver.**
 
-## 2. Spawn all five supervisors in ONE parallel call
+## 2. Spawn all six supervisors in ONE parallel call
 
-Issue a single message containing **five Agent tool calls**, so they run
-concurrently. The `subagent_type` is the agent's name:
+Issue a single message containing **six Agent tool calls**, so they run
+concurrently. (Six since 2026-08-24: Sanaa's directive added `ansys-verification`;
+its definition carries its own lane types and a lane cap of 4 — see
+`docs/charters/ANSYS_VERIFICATION_CHARTER.md`.) The `subagent_type` is the agent's name:
 
 <!-- BEGIN GENERATED formteams (harness/generate_agents.py from harness/teams.yaml) -->
 | `subagent_type` | Board section to pass |
@@ -45,6 +47,7 @@ concurrently. The `subagent_type` is the agent's name:
 | `heat-transfer-supervisor` | `## heat-transfer` |
 | `cfd-supervisor` | `## cfd` |
 | `verification-supervisor` | `## verification` |
+| `ansys-verification-supervisor` | `## ansys-verification` |
 <!-- END GENERATED formteams -->
 
 Each supervisor's charter, reading list, folder scope, delegation rules, board
@@ -83,9 +86,9 @@ A worked brief:
 happen is the thing the log exists to catch.
 
 ```bash
-# all five away:
+# all six away:
 python3 scripts/session_log.py event formation --ok \
-  --detail "5 supervisors spawned: closure,dafoam,heat-transfer,cfd,verification"
+  --detail "6 supervisors spawned: closure,dafoam,heat-transfer,cfd,verification,ansys-verification"
 
 # any of them refused to spawn:
 python3 scripts/session_log.py event formation --fail \
@@ -115,12 +118,12 @@ copy, because under the shared-board rule no team writes that file.
 
 ## 3. Report the roster to Sanaa
 
-Once the five are away, tell her plainly:
+Once the six are away, tell her plainly:
 
-- **The five teams are formed**, named, with the model each runs on.
+- **The six teams are formed**, named, with the model each runs on.
 - **What each one is picking up first**, one line each, from its board section.
 - **Live jobs across the lab** — pid, cwd, ETA — and their owning team.
-- **What is on her desk**, aggregated across all five sections, with how long it
+- **What is on her desk**, aggregated across all six sections, with how long it
   has been there.
 - **Anything the live reading contradicted** on the board.
 

@@ -9,8 +9,11 @@
 # Another lab adapts this harness by replacing `teams:` wholesale and adjusting
 # `lab:` and `common:`. Nothing in generate_agents.py knows about CFD.
 #
-# Version 1.1, dated 2026-08-23. (1.1: common.conventions added — the
-# silent-background convention, CLAUDE.md rule 16.)
+# Version 1.2, dated 2026-08-24. (1.2: sixth team, ansys-verification, on
+# Sanaa's directive of 2026-08-24 — the first team with lane types of its own
+# (`lanes:`), a per-team lane cap (`max_live_lanes` + `lane_cap_note`), a
+# `preconditions:` block, and a RESTRICTED lane carrying a `tools:` list. 1.1:
+# common.conventions added — the silent-background convention, CLAUDE.md rule 16.)
 
 lab:
   name: Certonomous
@@ -27,8 +30,13 @@ defaults:
   worker_model: opus
   # `tools` is OMITTED from generated frontmatter, which is how Claude Code grants
   # ALL tools. Listing tools explicitly would silently drop the Agent tool and
-  # break every supervisor's ability to spawn lanes.
+  # break every supervisor's ability to spawn lanes. The ONE exception is a lane
+  # declared under a team's `lanes:` with its own `tools:` list — a deliberately
+  # restricted lane; the generator refuses `tools` everywhere else.
   tools: all
+  # SUPERVISION_CHARTER v1.4 §8's cap. A team may override it with
+  # `max_live_lanes` ONLY together with a `lane_cap_note` naming the authority;
+  # check_harness.py --selftest fails a silent override.
   max_live_lanes: 3
   worker_agent: lab-lane
 
@@ -332,13 +340,148 @@ teams:
       - docs/LEDGER_HEADLINE_AUDIT.md
       - docs/SWEEP_REFRAME_AUDIT.md
     ladders:
-      - "Cross-team gate audit; the Ansys VM2026R1 external suite; the six standing audits"
+      - "Cross-team gate audit (incl. the ansys-verification team's VM2026R1 verdicts, from 2026-08-24); the six standing audits"
     notes:
       - "VM2026R1_Fluids is UNTRACKED and unpacked twice — at the repo root and under docs/papers/verification_validation/. Decide the canonical home under FILING_CHARTER R8/R6 and say which copy is authoritative before grading anything from it."
       - "A known open conflict: charter §2 says GATE FAIL, some ledger cells read bare FAIL. Referred, unruled. Do not settle it silently."
-      - "The Ansys manual is a PDF with no .txt sidecar — FILING_CHARTER R8 requires the pair. Note it rather than fixing it in flight."
+      - "The Ansys manual's .txt sidecar EXISTS and is tracked since 2026-08-23 (the 08-23 note that it was absent is superseded); its basename still does not match FILING_CHARTER R8's author_year pattern — rides in the D-6 memo §4."
+      - "Since 2026-08-24 the RUNNING of the VM2026R1 cases and the canonical-home decision for the archives belong to the ansys-verification team (Sanaa's directive; docs/charters/ANSYS_VERIFICATION_CHARTER.md). This team keeps docs/papers/verification_validation/ and AUDITS the ansys-verification team's verdicts under its cross-team mandate; it does not run the cases."
 
-# The one worker type every supervisor spawns. Lanes do the work; supervisors do not.
+  - name: ansys-verification-supervisor
+    team: ansys-verification
+    title: the Ansys Fluid Dynamics Verification Manual run as lab verdicts
+    territory: >-
+      The Ansys Fluid Dynamics Verification Manual (VM2026R1) run case by case as pre-registered lab verdicts, and the validation register that becomes the lab's credentials. `docs/ansys_verification/`, `cases/ansys_verification/`, `verification/runs/ansys_verification/`, `verification/credentials/ansys/`, `ANSYS_VERIFICATION_CHARTER.md`, the manual PDF + sidecar by explicit path
+    scope_paths:
+      - docs/ansys_verification
+      - cases/ansys_verification
+      - verification/runs/ansys_verification
+      - verification/credentials/ansys
+      - docs/charters/ANSYS_VERIFICATION_CHARTER.md
+      - docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.pdf
+      - docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt
+    mandate: >-
+      Own the Ansys Fluid Dynamics Verification Manual as a ladder of lab
+      verdicts. Sanaa created this team on 2026-08-24 to "exclusively work on
+      these verification cases": every VMFL / VMFRT / VMFLGPU case the lab runs
+      is pre-registered prediction-first with the manual's reference result and
+      a tolerance as its gate, frozen by sha before compute, graded under the
+      strict completion rule, the planted-zero control and the fixed verdict
+      vocabulary, costed in core-minutes, and recorded — whatever its verdict —
+      in the VALIDATION REGISTER at verification/credentials/ansys/. Only PASS
+      rows are credentials; GATE FAIL and NOT A RESULT rows stay in the register
+      honestly. You personally handle research, code verification, compute
+      allocation and numerics checks; your lanes take orders from you. Everything
+      you and your lanes learn from the manual and from running its cases lands
+      in LESSONS, NUMERICS_KNOWLEDGE and the charters. This box has NO Ansys
+      solver: a case is reproduced in the lab's own solvers against the manual's
+      reference result, and the archives are read for setup and reference
+      numbers only. The existing verification team audits your verdicts.
+    charters:
+      - docs/charters/ANSYS_VERIFICATION_CHARTER.md
+      - docs/charters/VERIFICATION_CHARTER.md
+    reading:
+      - path: docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt
+        why: "THE MANUAL, sidecar of the PDF beside it (290 pages; VMFL001–078, VMFRT001–007, VMFLGPU cases). Sanaa's directive: supervisor and opus lanes read it FIRST. Title-page verify it against the PDF (rule 15) before citing a number from it"
+      - path: docs/charters/ANSYS_VERIFICATION_CHARTER.md
+        why: "v1.0 (2026-08-24). Sanaa's directive verbatim (§1), the roster and models (§3), the reading rule (§4), how a case becomes a verdict (§5), the register (§6), the record-update duty (§7), the §8 lane-cap exception"
+      - path: docs/ansys_verification/README.md
+        why: the map of this team's territory and where every artifact goes
+      - path: verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md
+        why: every case run so far, its verdict, artifact path, prereg sha, cost and date — append-only
+      - path: docs/VM2026R1_FILING_ANALYSIS.md
+        why: "the verification team's D-6 memo on the archives' canonical home (option A recommended); the decision is now YOURS, first action, with the harness-build inspection in the charter §9 as input"
+      - path: docs/charters/VERIFICATION_CHARTER.md
+        why: "§2 vocabulary, §2b amendment legality, §2d comparator freeze, §9 evidence record — the verdict machinery your cases run under"
+      - path: docs/charters/COMPUTE_BUDGET_CHARTER.md
+        why: "core-minutes, cost_basis, §5 the box cannot read its billing, §6 waste named separately; the calibration row at every completion (CLAUDE.md rule 12)"
+    folder_scope:
+      - docs/ansys_verification/
+      - cases/ansys_verification/
+      - verification/runs/ansys_verification/
+      - verification/credentials/ansys/
+      - docs/charters/ANSYS_VERIFICATION_CHARTER.md
+      - docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.pdf
+      - docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt
+    external_data:
+      - "VM2026R1_Fluids/ at the repository root — UNTRACKED, 123 files, 2.5 GB (FLUENT 77 / CFX 37 / FORTE 9 files); the complete copy as of 2026-08-24"
+      - "docs/papers/verification_validation/VM2026R1_Fluids/ — UNTRACKED, 10 files, 26 MB, CFX only, a DEAD partial transfer; 9 files byte-identical to the root copy, VMFL011B.wbpz TRUNCATED (327,680 of 670,152 bytes)"
+    ladders:
+      - "VMFL001–078: the Fluent verification cases, each a rung; VMFRT001–007 (Forte) and VMFLGPU follow as capability allows"
+    preconditions:
+      - "READ THE MANUAL FIRST (Sanaa's directive): the sidecar `docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt`, title-page verified against the PDF (rule 15). You dispatch nothing before you have."
+      - "Every opus lane you spawn is told to read the manual first, and its brief names the case id, the manual page, the reference result and the tolerance you intend to register."
+      - "FIRST ACTION of the team: rule on the archives' canonical home (D-6) with the charter §9 inspection as input, and say which copy is authoritative before any case is opened. Until you rule, neither copy is moved or deleted."
+      - "No compute without a COMMITTED pre-registration (your §3 check 4), and no GATE FAIL/NOT A RESULT is ever softened — it goes in the register as it is."
+    max_live_lanes: 4
+    lane_cap_note: >-
+      **This cap is 4, not the charter's 3, on Sanaa's explicit directive of
+      2026-08-24 ("2 opus sub agents ... and 2 haiku subagent") — a disclosed
+      exception to SUPERVISION_CHARTER v1.4 §8, recorded in
+      ANSYS_VERIFICATION_CHARTER §3, not a silent violation.** At most 2 opus and
+      2 haiku lanes live at once.
+    lanes:
+      - name: ansys-lane-opus
+        model: opus
+        title: Opus 5 worker — reads the manual, runs cases, drafts records
+        mandate: >-
+          You are an OPUS LANE of the ansys-verification team. You take orders
+          from your supervisor and from nobody else. You reproduce Ansys
+          Fluid Dynamics Verification Manual cases in the lab's own solvers: you
+          draft the pre-registration (reference result, tolerance, cost in
+          core-minutes) for the supervisor to freeze and commit, you build and
+          run the case AFTER the freeze is committed, you grade it against the
+          frozen gate, and you draft the register row and the RESULTS record.
+          You also draft the LESSONS / NUMERICS_KNOWLEDGE / charter entries for
+          what you found in the manual and in running the case, for your
+          supervisor's read. Nothing you run touches the archive copies.
+        must_read:
+          - path: docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt
+            why: "THE MANUAL. Sanaa's directive: read it FIRST, before anything else on the item. Title-page verify against the PDF beside it (rule 15)"
+          - path: docs/charters/ANSYS_VERIFICATION_CHARTER.md
+            why: how a case becomes a lab verdict here, and what the register row must carry
+      - name: ansys-lane-opus48
+        model: claude-opus-4-8
+        title: Opus 4.8 worker — reads the manual, runs cases, drafts records
+        mandate: >-
+          You are an OPUS LANE of the ansys-verification team, pinned to Opus
+          4.8 on Sanaa's directive. You take orders from your supervisor and
+          from nobody else. You reproduce Ansys Fluid Dynamics Verification
+          Manual cases in the lab's own solvers: you draft the pre-registration
+          (reference result, tolerance, cost in core-minutes) for the supervisor
+          to freeze and commit, you build and run the case AFTER the freeze is
+          committed, you grade it against the frozen gate, and you draft the
+          register row and the RESULTS record. You also draft the LESSONS /
+          NUMERICS_KNOWLEDGE / charter entries for what you found in the manual
+          and in running the case, for your supervisor's read. Nothing you run
+          touches the archive copies.
+        must_read:
+          - path: docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt
+            why: "THE MANUAL. Sanaa's directive: read it FIRST, before anything else on the item. Title-page verify against the PDF beside it (rule 15)"
+          - path: docs/charters/ANSYS_VERIFICATION_CHARTER.md
+            why: how a case becomes a lab verdict here, and what the register row must carry
+      - name: ansys-lane-haiku
+        model: haiku
+        title: Haiku lane — pulls code and archives, monitors logs; drafts nothing
+        tools: [Bash, Read, Grep, Glob]
+        mandate: >-
+          You are a HAIKU LANE of the ansys-verification team, and your job is
+          exactly two things: PULLING code or archives your supervisor names
+          (listing, extracting to the directory it names, hashing, verifying
+          counts — never moving or deleting the archive copies), and MONITORING
+          logs (tail the named log, report the last `Time =` line, the residual
+          trend, the ExecutionTime, whether an `End` line exists, and whether
+          the process is alive). You report numbers with the path each came
+          from. You do not draft records, do not write files, do not grade, do
+          not launch solvers, and do not interpret a result beyond what the log
+          says.
+        limits:
+          - "You do not write or edit any file — your tool list has no Edit/Write, by design."
+          - "You do not launch, kill or restart a solver. If a log shows a crash or a stall, you report it; triage is the supervisor's (§3 check 2)."
+          - "You do not assign a verdict. The words PASS / GATE FAIL / NOT A RESULT are not yours to use about a run; you report the raw observation."
+          - "You never move, delete, rename or git-add anything under VM2026R1_Fluids/ (either copy)."
+
+# The common worker type; every supervisor without `lanes:` of its own spawns it. Lanes do the work; supervisors do not.
 worker:
   name: lab-lane
   model: opus

@@ -219,11 +219,17 @@ never a generated file. `scripts/check_harness.py` gates the whole thing.
 | `heat-transfer-supervisor` | heat-transfer | The T-family ladder and the DC-cooling spine. `docs/campaigns/T-family/`, `docs/campaigns/F14-cooling-ladder/`, `verification/runs/T-family/`, `verification/runs/F14-cooling-ladder/`, `verification/runs/THERMAL_K0_runs/` |
 | `cfd-supervisor` | cfd | General CFD campaigns, meshing, solver builds, OpenFOAM tooling. `cases/` outside closure and dafoam, `verification/runs/` outside the T-family, `docs/standards/MESH_STANDARD.md`, `docs/OPENFOAM*.md` |
 | `verification-supervisor` | verification | V&V standards, Roache/GCI gating, external verification suites, cross-team gate audits. `VERIFICATION_CHARTER.md`, `RESULT_PRIORITY_CHARTER.md`, `docs/papers/verification_validation/`, `docs/*_AUDIT.md`, `verification/certificates/`, `verification/credibility/` |
+| `ansys-verification-supervisor` | ansys-verification | The Ansys Fluid Dynamics Verification Manual (VM2026R1) run case by case as pre-registered lab verdicts, and the validation register that becomes the lab's credentials. `docs/ansys_verification/`, `cases/ansys_verification/`, `verification/runs/ansys_verification/`, `verification/credentials/ansys/`, `ANSYS_VERIFICATION_CHARTER.md`, the manual PDF + sidecar by explicit path |
 <!-- END GENERATED roster -->
 
-Every supervisor spawns workers of one type: **`lab-lane`**. Supervisors run on
-**Fable** (`SUPERVISION_CHARTER.md` §5: *"Family supervisors and adversarial
-verifiers run on Fable."*); lanes run on **Opus**.
+Five of the six supervisors spawn workers of one type: **`lab-lane`**, on Opus.
+The sixth, `ansys-verification-supervisor`, spawns **its own three lane types**
+per its charter — `ansys-lane-opus` (Opus 5), `ansys-lane-opus48` (Opus 4.8),
+`ansys-lane-haiku` (Haiku; pulls code and watches logs, restricted tools, drafts
+nothing) — with a lane cap of **4** (2 opus + 2 haiku) by Sanaa's explicit
+2026-08-24 exception to §8's cap of 3. Supervisors run on **Fable**
+(`SUPERVISION_CHARTER.md` §5: *"Family supervisors and adversarial verifiers run
+on Fable."*).
 
 **Supervisors supervise.** A supervisor does not run its family's solves, write its
 code or fetch its papers — those go to `lab-lane` agents. But the four §3 checks are

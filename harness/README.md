@@ -1,6 +1,12 @@
 # The team harness
 
-Version 1.0, dated 2026-08-22.
+Version 1.1, dated 2026-08-24. (1.1: a sixth team, `ansys-verification`, on
+Sanaa's directive of 2026-08-24; `teams.yaml` v1.2 adds per-team `lanes:` with
+their own models and an optional restricted `tools:` list, a per-team lane cap
+with a required `lane_cap_note`, and a `preconditions:` block; the board check
+reads HEAD, never the worktree. Counts below that say "five" or "six agent
+definitions" were true at v1.0 and are left as written: at v1.1 there are six
+supervisors, one common worker and three team-owned lanes — ten files.)
 
 Five standing teams re-form from disk whenever a Claude Code session opens in this
 repository, with their charters, reading lists, folder scope, standing rules and

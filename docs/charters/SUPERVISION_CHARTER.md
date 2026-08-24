@@ -545,3 +545,50 @@ setting, is what keeps the screen clean.
 | standing conventions added | 1 |
 | clauses altered, widened or narrowed | 0 |
 | lines whose number changed above this section | 0 |
+
+## Amendment record, continued: §8's lane cap ratified, with one owner's exception (2026-08-24)
+
+**Dated addendum, 2026-08-24, appended at the foot; append-only. No clause above
+is altered, widened or narrowed; no line above this section changed number; the
+header's version line is deliberately left untouched, because this addendum
+inserts nothing and edits nothing above itself.**
+
+**What §8 said about its own cap.** §8 added *"a lane cap: at most three lanes
+live per supervisor"* and named it, honestly, a preference — *"no numeric cap
+existed in this charter before today ... checked by nobody"* — pending the
+owner's word. §8 also recorded the five-team roster as an operational split of
+§2's four families, *"not as a redefinition of them,"* pending the same.
+
+**The owner's word, 2026-08-24, verbatim (relayed by the chief's session record,
+in reply to the chief's explanation of desk items D-3 through D-6):** *"yes it's
+approved by me. I ratify the six team structure. I apporve all actually"* — and,
+the same day, creating the sixth team: *"Let's have an ansy-verification team.
+That team should have a fable supervisor, 2 opus sub agents (5 and 4.8)and 2
+haiku subagent."*
+
+**What this addendum records, and no more.**
+
+1. **§8's cap of three live lanes per supervisor is ratified as standing law**
+   (D-3 closed), no longer a preference. It remains rendered into every generated
+   supervisor definition and, as §8 already says, enforced by nobody.
+2. **One exception, hers:** the `ansys-verification` team runs **four** lanes —
+   two Opus (5 and 4.8) and two Haiku — because she specified that roster in
+   terms. `harness/teams.yaml` carries `max_live_lanes: 4` for that team with a
+   `lane_cap_note` naming the authority; `scripts/check_harness.py --selftest`
+   fails any cap override that lacks such a note. The exception is recorded in
+   `docs/charters/ANSYS_VERIFICATION_CHARTER.md` §3.
+3. **The six-team roster is ratified** (D-4 closed): closure, dafoam,
+   heat-transfer, cfd, verification, ansys-verification. §2's four families
+   are not edited by this addendum; whether "six teams" re-states §2's families
+   or remains an operational split over them is left exactly where §8 left it,
+   because her sentence ratifies the structure and does not mention §2.
+4. **Scope discipline.** Her *"I approve all"* is applied to D-3 through D-6
+   only — the four items the chief put to her — and is not read onto any other
+   desk item, submission or send (`CLAUDE.md` rules 7 and 9).
+
+| what the amendment did | figure |
+| --- | --- |
+| clauses altered, widened or narrowed | 0 |
+| standing rules ratified (§8 cap; six-team roster) | 2 |
+| owner's exceptions recorded | 1 (ansys-verification, 4 lanes) |
+| lines whose number changed above this section | 0 |

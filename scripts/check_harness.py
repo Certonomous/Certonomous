@@ -25,6 +25,12 @@ What this does NOT check, stated rather than implied: whether the agents actuall
 LOAD (they are read at session start -- see harness/README.md), whether the lane
 cap is respected, or whether a board section is TRUE. Only that it is present,
 stamped, and not older than the work it describes.
+
+It also does NOT treat overlapping scope_paths between teams as a conflict, and
+never has: scope_paths are the freshness gate's territory query, not an
+ownership claim. Two teams may legitimately watch one path (the verification
+team keeps docs/papers/verification_validation/; the ansys-verification team
+names the Ansys manual and its sidecar inside it by explicit path, 2026-08-24).
 """
 
 import argparse
@@ -349,7 +355,56 @@ def selftest():
         else:
             print("  ok    selftest    %-28s %s" % (label, got))
 
-    total = len(STAMP_CASES) + 2 + len(FRESHNESS_CASES)
+    # ---- lane frontmatter: `tools` only where a lane is declared RESTRICTED ----
+    # Added 2026-08-24 with the ansys-verification team, the first team with lane
+    # types of its own and the first RESTRICTED lane (haiku: Bash, Read, Grep,
+    # Glob; no Edit/Write). The generator must refuse `tools` on a supervisor or
+    # an unrestricted lane (an explicit list silently drops the Agent tool), and
+    # must refuse a restricted lane that is missing its list or grants a writer.
+    sys.path.insert(0, os.path.join(REPO, "harness"))
+    import generate_agents as ga
+    fm = ga.frontmatter
+    LANE_CASES = [
+        # (label, filename, content, tools_allowed, want_ok)
+        ("supervisor no tools", "x-supervisor.md", fm("x-supervisor", "d: e", "fable"), False, True),
+        ("supervisor with tools", "x-supervisor.md",
+         fm("x-supervisor", "d: e", "fable", ["Bash"]), False, False),
+        ("restricted lane ok", "x-lane-haiku.md",
+         fm("x-lane-haiku", "d", "haiku", ["Bash", "Read", "Grep", "Glob"]), True, True),
+        ("restricted lane missing list", "x-lane-haiku.md",
+         fm("x-lane-haiku", "d", "haiku"), True, False),
+        ("restricted lane grants Edit", "x-lane-haiku.md",
+         fm("x-lane-haiku", "d", "haiku", ["Bash", "Edit"]), True, False),
+        ("restricted lane grants Agent", "x-lane-haiku.md",
+         fm("x-lane-haiku", "d", "haiku", ["Bash", "Agent"]), True, False),
+        ("full model id parses", "x-lane-opus48.md",
+         fm("x-lane-opus48", "d", "claude-opus-4-8"), False, True),
+        ("name mismatch", "y.md", fm("x", "d", "opus"), False, False),
+    ]
+    for label, fname, content, allowed, want_ok in LANE_CASES:
+        problem = ga.assert_parses(fname, content, allowed)
+        got_ok = problem is None
+        if got_ok != want_ok:
+            print("  FAIL  selftest    %-28s got %s want %s (%s)"
+                  % (label, "ok" if got_ok else "reject", "ok" if want_ok else "reject",
+                     problem)); bad += 1
+        else:
+            print("  ok    selftest    %-28s %s" % (label, "ok" if got_ok else "rejected"))
+    # A team may carry its own lane cap; the default is the charter's 3. The
+    # cap is rendered, not enforced (SUPERVISION_CHARTER v1.4 §8 says so).
+    cfg = load_cfg()
+    for t in cfg["teams"]:
+        cap = t.get("max_live_lanes", cfg["defaults"]["max_live_lanes"])
+        if cap != cfg["defaults"]["max_live_lanes"] and not t.get("lane_cap_note"):
+            print("  FAIL  selftest    %-28s cap %d differs from default %d with no "
+                  "lane_cap_note naming the authority"
+                  % (t["team"], cap, cfg["defaults"]["max_live_lanes"])); bad += 1
+        else:
+            print("  ok    selftest    %-28s lane cap %d%s"
+                  % (t["team"], cap, "" if cap == cfg["defaults"]["max_live_lanes"]
+                     else " (exception, authority recorded)"))
+
+    total = len(STAMP_CASES) + 2 + len(FRESHNESS_CASES) + len(LANE_CASES) + len(cfg["teams"])
     print("\n%s: harness selftest, %d case(s), %d failure(s)"
           % ("FAIL" if bad else "PASS", total, bad))
     return 1 if bad else 0

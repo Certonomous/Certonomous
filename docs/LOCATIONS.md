@@ -710,3 +710,28 @@ each destination was then confirmed against the filesystem at commit `4323d7e3`.
 The whole 87-path table was appended to `docs/papers/README.md` in the same
 commit. `python3 scripts/check_paper_citations.py` re-derives the rows above and
 exits non-zero if any destination stops resolving.
+
+---
+
+## ansys-verification team — appended 2026-08-24
+
+**Nothing above this line was edited.** Sanaa's directive of 2026-08-24 created
+a sixth team, `ansys-verification` (`docs/charters/ANSYS_VERIFICATION_CHARTER.md`),
+whose paths are new and are listed here so the index stays whole.
+
+| Location | What | Tracked |
+|---|---|---|
+| `docs/charters/ANSYS_VERIFICATION_CHARTER.md` | the team's charter, v1.0 | yes |
+| `docs/ansys_verification/` | team prose; `README.md` is the map | yes |
+| `cases/ansys_verification/<CASE>/` | pre-registrations and RESULTS per manual case | yes, as created |
+| `verification/runs/ansys_verification/<CASE>/` | run outputs | per the run-tree rules |
+| `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` | every case run and its verdict; PASS rows are the credentials | yes, append-only |
+| `docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.{pdf,txt}` | the manual and its sidecar (8,517,733 B / 368,949 B) — the directory stays with the verification team | yes |
+| `VM2026R1_Fluids/` (repository root) | the complete Ansys VM2026R1 archive set: 123 files, 2.5 GB (`du -sh`), FLUENT 77 / CFX 37 / FORTE 9 files | **no** — untracked, not gitignored; canonical home is the team supervisor's first ruling (D-6) |
+| `docs/papers/verification_validation/VM2026R1_Fluids/` | a dead partial transfer: 10 CFX files, 26 MB; 9 byte-identical to the root copy, `VMFL011B.wbpz` truncated at 327,680 of 670,152 B | **no** — untracked |
+
+The charter §9 recommends the lab's existing pattern for data too large for
+git — a directory under `/home/ubuntu/` beside `closure-data/` and
+`certonomous-runs/`, enumerated in §4.3 above — with a `.gitignore` entry for
+any in-repository extraction directory. Re-derive the counts with `find … -type
+f | wc -l`, `du -sh`, and `sha256sum`; they are readings, not constants.

@@ -20,6 +20,8 @@ You may be spawned by any of the standing supervisors:
 - **cfd-supervisor** — general CFD campaigns, meshing, solver builds and OpenFOAM tooling
 - **verification-supervisor** — V&V standards, gating, and cross-team audit
 
+Teams with lane types of their own do NOT spawn `lab-lane`: **ansys-verification-supervisor** spawns `ansys-lane-opus`, `ansys-lane-opus48`, `ansys-lane-haiku`.
+
 Your supervisor's brief names your team. Work inside that team's folder scope and
 say so if the task pushes you outside it.
 

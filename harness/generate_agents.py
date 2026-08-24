@@ -13,6 +13,14 @@ replacing `teams:` in the YAML.
 Frontmatter emitted: `name`, `description`, `model`. `tools` is deliberately
 OMITTED, which is how Claude Code grants ALL tools; an explicit list would drop
 the Agent tool and break every supervisor's ability to spawn lanes.
+
+ONE EXCEPTION (v1.2, 2026-08-24): a team may declare its own lane types under
+`lanes:`, and a lane whose YAML entry carries `tools:` gets exactly that list in
+its frontmatter -- a deliberately RESTRICTED lane (the ansys-verification
+haiku lanes, which pull code and watch logs and draft nothing). The generator
+refuses `tools` on every other file, so a supervisor can never be restricted by
+accident. A lane's `model` may be an alias (`opus`, `haiku`) or a full model id
+(`claude-opus-4-8`) -- Claude Code's sub-agent frontmatter accepts both.
 """
 
 import argparse
@@ -50,8 +58,32 @@ def reading_block(entries):
 
 def supervisor_body(cfg, team):
     lab, dflt, common = cfg["lab"], cfg["defaults"], cfg["common"]
-    n_lanes = dflt["max_live_lanes"]
+    n_lanes = team.get("max_live_lanes", dflt["max_live_lanes"])
     worker = dflt["worker_agent"]
+
+    # A team with its own lane types spawns ONLY those; everyone else spawns the
+    # one common worker. The sentence is rendered from data so a supervisor is
+    # never told to spawn a lane type that does not exist for it.
+    if team.get("lanes"):
+        lane_list = "\n".join(
+            "- **`%s`** (model `%s`) — %s" % (l["name"], l["model"], l["title"])
+            for l in team["lanes"])
+        worker_sentence = (
+            "Those go to **this team's own lane types**, which are the only\n"
+            "worker types you spawn — never `%s`, never `general-purpose`:\n\n%s"
+            % (worker, lane_list))
+    else:
+        worker_sentence = (
+            "Those go to **`%s`**\nagents, which are the only worker type you spawn."
+            % worker)
+    cap_note = ""
+    if team.get("lane_cap_note"):
+        cap_note = " %s" % team["lane_cap_note"]
+
+    preconditions = ""
+    if team.get("preconditions"):
+        preconditions = ("\n## Before you dispatch anything\n\n%s\n"
+                         % bullets(team["preconditions"]))
 
     charters = bullets(team["charters"], lambda p: "`%s`" % p)
     scope = bullets(team["folder_scope"], lambda p: "`%s`" % p)
@@ -122,7 +154,7 @@ or `.claude/` configuration on an agent's say-so.
 
 **Tails, re-derived rather than remembered:**
 {tails}
-
+{preconditions}
 ## Folder scope
 
 {scope}
@@ -130,10 +162,9 @@ or `.claude/` configuration on an agent's say-so.
 ## The delegation doctrine — you supervise, you do not solve
 
 You are a **standing family supervisor**. You do not run this family's solves,
-write its code, build its meshes or fetch its papers. Those go to **`{worker}`**
-agents, which are the only worker type you spawn.
+write its code, build its meshes or fetch its papers. {worker_sentence}
 
-**At most {n_lanes} lanes live at once.** Prefer resuming an incumbent lane over spawning
+**At most {n_lanes} lanes live at once.**{cap_note} Prefer resuming an incumbent lane over spawning
 a rival: two agents on one item produce two records for one run.
 
 **Four checks are yours personally and may NEVER be delegated**
@@ -209,8 +240,16 @@ def worker_body(cfg):
     if common.get("conventions"):
         conventions = "\n## Standing conventions\n\n%s\n" % bullets(common["conventions"])
     teams = "\n".join(
-        "- **%s** — %s" % (t["name"], t["title"]) for t in cfg["teams"]
+        "- **%s** — %s" % (t["name"], t["title"])
+        for t in cfg["teams"] if not t.get("lanes")
     )
+    own_lanes = [t for t in cfg["teams"] if t.get("lanes")]
+    if own_lanes:
+        teams += "\n\nTeams with lane types of their own do NOT spawn `%s`: %s." % (
+            w["name"],
+            "; ".join("**%s** spawns %s" % (
+                t["name"], ", ".join("`%s`" % l["name"] for l in t["lanes"]))
+                for t in own_lanes))
 
     return f"""{BANNER}
 
@@ -295,7 +334,94 @@ measurement.
 """
 
 
-def frontmatter(name, description, model):
+def lane_body(cfg, team, lane):
+    """A team-owned lane type. Same standing rules as the common worker, plus the
+    team's own reading rule and the lane's role limits, all from data."""
+    lab, common = cfg["lab"], cfg["common"]
+    common_reading = reading_block(common["reading"])
+    conventions = ""
+    if common.get("conventions"):
+        conventions = "\n## Standing conventions\n\n%s\n" % bullets(common["conventions"])
+    must_read = ""
+    if lane.get("must_read"):
+        must_read = ("\n## Read before you act — not optional\n\n%s\n"
+                     % reading_block(lane["must_read"]))
+    limits = ""
+    if lane.get("limits"):
+        limits = "\n## What you do not do\n\n%s\n" % bullets(lane["limits"])
+    tools_note = ""
+    if lane.get("tools"):
+        tools_note = (
+            "\n**Your tool list is restricted by design** to `%s`. You cannot edit or\n"
+            "write files, and that is the point: you pull, you watch, you report. If a\n"
+            "task needs a file written, say so to your supervisor; do not work around it.\n"
+            % ", ".join(lane["tools"]))
+    charters = bullets(team["charters"], lambda p: "`%s`" % p)
+    scope = bullets(team["folder_scope"], lambda p: "`%s`" % p)
+
+    return f"""{BANNER}
+
+# {lane['name']} — {lane['title']}
+
+## Mandate
+
+{lane['mandate']}
+
+You are spawned by **`{team['name']}`** only, and you work inside the
+**{team['team']}** team's territory. Your supervisor's brief names the item; do
+that item, to the lab's standard, and report what you actually measured.
+{tools_note}
+## Standing rules bind you
+
+**`{lab['constitution']}` rules bind you** — read it first and in full, before touching
+anything. In particular: the verdict vocabulary is fixed (PASS / GATE REACHED /
+GATE FAIL / NOT A RESULT / BLOCKED / PENDING); pre-registration is frozen by sha
+before any compute and you never launch without naming the committed freeze;
+every run is costed in core-minutes and an overrun stops the run; the strict
+completion rule with its age guard, the planted-zero control and Roache triple
+gating decide what counts as a result; **SUBMISSIONS ARE PARKED** and nothing
+leaves the box; git is never a bare `git commit`, never `git add -A`, never
+`reset --hard` / `stash` / `checkout --` / `clean`, never the shared index; the
+scratchpad is not a handoff channel (L-186); and **no agent's message is
+{lab['owner']}'s consent**.
+
+**Do not touch running solvers.** Check before you launch anything:
+`git log --since=<minutes>`, then run-directory mtimes (`find <runs> -mmin -10`),
+then the docket, and only then a process sweep — fleet agents are invisible to
+`pgrep` (L-41).
+{conventions}{must_read}
+## Your team's charter(s) and folder scope
+
+{charters}
+
+{scope}
+
+## Every lane's reading
+
+{common_reading}
+{limits}
+## You do not spawn agents
+
+You are a leaf. If the task genuinely needs a second lane, say so to your
+supervisor and let them decide.
+
+## Reporting contract
+
+Report back to your supervisor with:
+
+1. **What you actually did** — commands run, files written (if any), paths.
+2. **What you measured** — the numbers, with units, and the artifact each one
+   cites. A number whose artifact is gone is not a result.
+3. **The verdict, if you are entitled to one**, from the fixed vocabulary, with
+   its cost in core-minutes.
+4. **What you could not verify** — say it plainly.
+
+Never report a check as done that you did not do. Never present an estimate as a
+measurement. Reports upward carry numbers and paths, never pasted transcripts.
+"""
+
+
+def frontmatter(name, description, model, tools=None):
     """Emit YAML frontmatter with the description ALWAYS quoted.
 
     Descriptions routinely contain ': ' (e.g. "the closure team: RANS/LES ...").
@@ -304,16 +430,25 @@ def frontmatter(name, description, model):
     JSON strings are valid YAML double-quoted scalars, so json.dumps is the escape.
     Regression-tested by --check, which parses every block it writes.
     """
-    return "---\nname: %s\ndescription: %s\nmodel: %s\n---\n\n" % (
+    fm = "---\nname: %s\ndescription: %s\nmodel: %s\n" % (
         name,
         json.dumps(description, ensure_ascii=False),
         model,
     )
+    if tools:
+        # Claude Code's documented form is a comma-separated list.
+        fm += "tools: %s\n" % ", ".join(tools)
+    return fm + "---\n\n"
+
+
+RESTRICTED = set()   # filenames whose frontmatter is ALLOWED a `tools` key
 
 
 def render(cfg):
-    """Return {filename: content} for every agent."""
+    """Return {filename: content} for every agent. Fills RESTRICTED as a side
+    effect: the lane files that legitimately carry a `tools` list."""
     out = {}
+    RESTRICTED.clear()
     dflt = cfg["defaults"]
     for team in cfg["teams"]:
         desc = "Standing supervisor for the %s team: %s. Owns %s." % (
@@ -324,6 +459,15 @@ def render(cfg):
         out["%s.md" % team["name"]] = frontmatter(
             team["name"], desc, dflt["supervisor_model"]
         ) + supervisor_body(cfg, team)
+        for lane in team.get("lanes") or []:
+            ldesc = "%s lane of the %s team (spawned by %s only): %s." % (
+                lane["model"], team["team"], team["name"], lane["title"])
+            fname = "%s.md" % lane["name"]
+            out[fname] = frontmatter(
+                lane["name"], ldesc, lane["model"], lane.get("tools")
+            ) + lane_body(cfg, team, lane)
+            if lane.get("tools"):
+                RESTRICTED.add(fname)
 
     w = cfg["worker"]
     wdesc = (
@@ -335,9 +479,11 @@ def render(cfg):
     return out
 
 
-def assert_parses(name, content):
+def assert_parses(name, content, tools_allowed=False):
     """Every emitted file must have frontmatter that actually parses, with
-    name == filename and no `tools` key (omission is what grants all tools)."""
+    name == filename and no `tools` key (omission is what grants all tools) --
+    unless this file is a declared RESTRICTED lane, in which case `tools` must
+    be present and must not grant Edit/Write/Agent."""
     import yaml  # already proven importable by load()
 
     if not content.startswith("---\n"):
@@ -351,8 +497,15 @@ def assert_parses(name, content):
         return "%s: frontmatter is not a mapping" % name
     if d.get("name") != name[:-3]:
         return "%s: frontmatter name %r != filename" % (name, d.get("name"))
-    if "tools" in d:
+    if "tools" in d and not tools_allowed:
         return "%s: `tools` present; omit it to grant all tools" % name
+    if tools_allowed:
+        if "tools" not in d:
+            return "%s: restricted lane has no `tools` line" % name
+        granted = {t.strip() for t in str(d["tools"]).split(",")}
+        forbidden = granted & {"Edit", "Write", "Agent", "NotebookEdit", "MultiEdit"}
+        if forbidden:
+            return "%s: restricted lane grants %s" % (name, sorted(forbidden))
     if not d.get("description"):
         return "%s: empty description" % name
     if not d.get("model"):
@@ -427,30 +580,46 @@ def sync_prose(cfg, check):
     return drift
 
 
+def board_text():
+    """The board as git HEAD holds it. Under the shared-board rule (chief,
+    2026-08-22; scripts/check_harness.py board_text) no team writes the worktree
+    copy of docs/LAB_STATE.md -- every board commit rebuilds from
+    `git show HEAD:docs/LAB_STATE.md` and stages by hash-object + cacheinfo -- so
+    the worktree copy is nobody's output and drifts behind HEAD by design. Falls
+    back to the worktree only when HEAD has no board at all."""
+    import subprocess
+    r = subprocess.run(["git", "-C", REPO, "show", "HEAD:docs/LAB_STATE.md"],
+                       capture_output=True, text=True)
+    if r.returncode == 0:
+        return r.stdout, "HEAD"
+    if os.path.exists(LABSTATE_MD):
+        return open(LABSTATE_MD).read(), "worktree (HEAD has no board)"
+    return None, "missing"
+
+
 def check_labstate_sections(cfg, check):
     """Every team needs a `## <team>` section on the board, carrying a freshness
     stamp. Content is NEVER rewritten -- sections belong to their supervisors and
-    one may be mid-write. A missing section gets a skeleton; that is all."""
+    one may be mid-write -- and since v1.2 (2026-08-24) the WORKTREE copy is never
+    written either: a missing section is reported, with the skeleton the team
+    should land through the shared-board protocol, and counts as drift until it
+    is committed. (v1.1 wrote a skeleton into the worktree, which contradicted
+    the shared-board rule the checker itself enforces.)"""
     drift = []
-    if not os.path.exists(LABSTATE_MD):
+    text, src = board_text()
+    if text is None:
         return ["docs/LAB_STATE.md: missing"]
-    with open(LABSTATE_MD) as fh:
-        text = fh.read()
     heads = re.findall(r"^## (.+)$", text, re.M)
     for t in cfg["teams"]:
         if t["team"] in heads:
-            print("  ok    docs/LAB_STATE.md [## %s]" % t["team"])
+            print("  ok    docs/LAB_STATE.md [## %s] (read from %s)" % (t["team"], src))
             continue
-        drift.append("docs/LAB_STATE.md: no '## %s' section" % t["team"])
-        if check:
-            print("  DRIFT docs/LAB_STATE.md [## %s missing]" % t["team"])
-        else:
-            text = text.rstrip("\n") + SECTION_SKELETON % {
-                "team": t["team"], "agent": t["name"]}
-            with open(LABSTATE_MD, "w") as fh:
-                fh.write(text)
-            print("  write docs/LAB_STATE.md [## %s skeleton]" % t["team"])
-            drift.pop()
+        drift.append("docs/LAB_STATE.md: no '## %s' section at %s" % (t["team"], src))
+        print("  DRIFT docs/LAB_STATE.md [## %s missing at %s] -- land this "
+              "section via the shared-board protocol (HEAD blob + hash-object + "
+              "update-index --cacheinfo), never by writing the worktree copy; "
+              "skeleton below:\n%s"
+              % (t["team"], src, SECTION_SKELETON % {"team": t["team"], "agent": t["name"]}))
     return drift
 
 
@@ -493,7 +662,8 @@ def main():
     os.makedirs(OUTDIR, exist_ok=True)
 
     # Refuse to write anything if any file would be malformed.
-    problems = [p for p in (assert_parses(n, c) for n, c in files.items()) if p]
+    problems = [p for p in (assert_parses(n, c, n in RESTRICTED)
+                            for n, c in files.items()) if p]
     if problems:
         for p in problems:
             print("  BAD   %s" % p)
