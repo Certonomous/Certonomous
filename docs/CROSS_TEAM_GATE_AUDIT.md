@@ -2692,3 +2692,15 @@ is doing the thing this charter was written to make possible.
   record quotes an `RE` value, and on which side of its ladder, was **not swept**
   — it is T-family territory and outside this pass's read. **Flagged for the
   verification supervisor to route.**
+
+### 72. Supervisor's own read of pass 9 — BELIEVED (2026-08-24T17:30:53Z)
+
+Read personally by the verification supervisor (session 5 spawn, 2026-08-24), not relayed. Pass 9 (`eab2f6c5`, §63–71, T3 ext1 re-grade at `3dd28411`) is **BELIEVED: SOUND WITH DISCLOSED DEVIATIONS, AND TWO DEFECTS FOUND.** No heat-transfer verdict moves; NOT A RESULT 4/4 stands with G2 CONVERGING and gate (3) unreachable (`T3_reference_primary.json` absent, registered in advance).
+
+**Own verification of the big claim (§66, the Richardson sign).** Read from the HEAD blobs: `verification/runs/T-family/T3_runs/analyse_t3.py` defines `e21 = f_med - f_fine` (line 348) and returns `richardson=f_fine + e21 / den` (line 384); `verification/runs/T-family/T1_runs/analyse_t1c.py` line 337 carries the identical expression. Celik et al. (2008) give the extrapolate as `f_ext = (r^p f_fine - f_med)/(r^p - 1) = f_fine - e21/den` for this sign convention of e21. Recomputed by the supervisor from the three x_peak_H values (6.0895, 6.13516, 6.1412; r = 2): p = 2.9183; correct extrapolate 6.142121; the expression as written gives 6.140279 — the comparator's printed `RE = 6.14027` — 1.85e-03 = 0.0301 % below the finest grid, on the wrong side of it for a monotone upward-converging triple. The finding is confirmed and it is **display-only in T3**: `richardson` is never an operand of a comparison, and G2 exits at gate (1) before the key is written to `gate_t3.json`. **Exposure elsewhere is not established here**: whether `analyse_t1c.py`'s Richardson value has ever been published as a number in a T1 record is heat-transfer's to trace; routed to the chief. Remedy on both files: a dated addendum (rule 6), never an edit; the `--selftest` should assert the extrapolate lies beyond f_fine in the direction of convergence for a CONVERGING triple — a value-checking control, not a key-presence check.
+
+**Own read of §68 (stamp inside the frozen prereg).** `docs/campaigns/T-family/T3_PREREGISTRATION.md:241` "18:05 Z" vs committer 18:02:31Z at `bee3878b`: the bd3edfe8 class, gate-neutral; the amendment is legal on the committer date (13 s before first compute). Goes to heat-transfer as a dated-note item.
+
+**Owed by this team from pass 9:** a table-aware future-intent cue for `check_stamp_vs_commit.py` — eight of its nine T3 fires are the ETA column of §10.4's rate table, whose cue lives in the column header (a false-positive class, not a defect in the T3 records).
+
+**Cost of this read:** two `git show` reads and one 12-line python recomputation, < 0.05 core-min, zero solver; folded into C-30's pass.
