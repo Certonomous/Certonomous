@@ -298,3 +298,125 @@ shell invocation as the commit by hashing the pre-correction body (the file's
 first 249 lines) with `git hash-object` and comparing it to the HEAD blob of
 this file, `4c8afddea6cc83c23e3cd28afbc27d19706af358`. Result stated in the
 commit message.
+
+## CORRECTION 2 — 2026-08-24T18:36:49Z — pass 8, believed at 8cbe716b
+
+Two verdict-neutral items owed to this record by the verification supervisor's
+own read of audit pass 8 — `docs/CROSS_TEAM_GATE_AUDIT.md` §82, commit
+`8cbe716b`, stamped 2026-08-24T17:57:20Z, where **pass 8 is recorded BELIEVED in
+full** after the supervisor re-derived all five gate labels from the grading JSON
+against the frozen thresholds at `e8309b6c`. Struck, not rewritten (rule 6 form);
+the table and prose above are unedited.
+
+### (a) Line 22 — "identical reading per seed" is an overstatement, and the per-case reading
+
+Pass 8, verbatim (§82): *"`RESULTS.md:22` "identical reading per seed" is an
+overstatement — seed 2 beats b=0 on `alpha_15_13929_4048` (0.310588 vs
+0.312796)"*.
+
+The G1 row's *measured* cell (line 22) reads *"beats SST **0 of 8**, `b = 0`
+**0 of 8**, train-mean **0 of 8** (per-case mean over 5 seeds, best-val;
+identical reading per seed and for the final epoch)"*.
+
+- ~~**identical reading per seed**~~ is **struck**. It reads: **the per-seed
+  tallies are 0 of 8 against all three baselines on seeds 0, 1, 3 and 4; seed 2
+  is 1 of 8 against `b = 0` — on `alpha_15_13929_4048` and on no other case —
+  and 0 of 8 against SST and against the train-mean tensor.**
+- Everything else in the cell **stands, unchanged and re-verified**: the three
+  headline `0 of 8` tallies are the tallies of the **registered G1 statistic**
+  (the per-case mean over the five seeds, best-val), and *"and for the final
+  epoch"* is correct — the `pred_final` tallies are the same 0 of 8 / 0 of 8 /
+  0 of 8 on the seed mean, with the same single seed-2 exception.
+
+**The case seed 2 beats `b = 0` on, and by how much.** Re-read by this lane from
+`/home/ubuntu/closure-data/tbnn_gpu/grading_gpu_ling.json` — the artefact §7
+lists — at
+`models["ARM-A TBNN [pred_best]"].per_seed["2"].per_case` against
+`baselines.zero.per_case`; not from any summary field and not from pass 8's text:
+
+| case | seed 2 `b_rms` | `b = 0` | ratio | below `b = 0`? |
+|---|---|---|---|---|
+| AR_14_Ret_180 | 0.861340 | 0.584175 | 1.4745 | no |
+| AR_1_Ret_360 | 0.993210 | 0.599591 | 1.6565 | no |
+| AR_3_Ret_360 | 0.849678 | 0.557973 | 1.5228 | no |
+| NASA_2DWMH | 7.4832e+07 | 0.339821 | 2.2021e+08 | no |
+| α05_4071_2024 | 0.352318 | 0.345719 | 1.0191 | no |
+| α05_4071_4048 | 0.380451 | 0.379091 | 1.0036 | no |
+| α15_13929_2024 | 0.385426 | 0.335471 | 1.1489 | no |
+| **α15_13929_4048** | **0.310587543** | **0.312796084** | **0.9929** | **YES** |
+
+**Margin on the one case it wins: 0.002208542 absolute, 0.7061 % below `b = 0`**
+(0.310587543 against 0.312796084). It is the only sub-1.0 ratio in the row; the
+next closest is `α05_4071_4048` at **1.0036**, i.e. **0.36 % above** `b = 0`
+(0.380451 against 0.379091). On the same case seed 2 is **not** below the other
+two baselines — SST reads **0.288872485** and the train-mean tensor
+**0.225804652** there, both below seed 2's 0.310588. `pred_final` for seed 2 on
+this case is the identical **0.310587543**, consistent with §2's statement that
+best-val and final-epoch readings differ only on TBNN seed 1 and on ARM-B.
+
+**Why no verdict moves.** G1's registered statistic is the per-case figure of the
+**5-seed mean**, and on `α15_13929_4048` that mean is **0.317814688** (lo
+0.310587543, hi 0.328567749, n = 5) — **above** `b = 0`'s 0.312796084 by
+**0.005018603**. So the gate's own reading is still 0 of 8 against all three
+baselines, and §8's *"failure to beat `b = 0` anywhere"* branch still fires on
+its own terms. **G1 remains NOT A RESULT; the lane verdict remains NOT A RESULT.**
+The seed-2 win is one seed on one of eight cases, 0.7 % on a case where SST and
+the train-mean are both better still — a within-noise crossing of the weakest
+baseline, not a result about the model.
+
+### (b) Line 25 — the G4 VERDICT cell, which held `—`
+
+Pass 8, verbatim (§82): *"the G4 cell is an em-dash outside the rule-1
+vocabulary"* — and, on the gate itself, *"G4 capped (not run)"*.
+
+The frozen pre-registration, verbatim, registers the consequence rather than a
+verdict token. §8, `PREREGISTRATION.md:303` (blob frozen at `e8309b6c`):
+
+> **"Capped verdict if G4 is not run: GATE REACHED, and no higher."**
+
+and F.6, the same file at :499–500:
+
+> *"Runs on the lab box only after G0-G3 are graded and only if G3 has not fired
+> NOT A RESULT; … If G4 is not run the verdict is capped at GATE REACHED, as
+> sec. 8 registers."*
+
+- ~~**—**~~ is **struck**. The cell reads: **capped at GATE REACHED** — the
+  registered consequence phrase, F.6's own words ("the verdict is capped at GATE
+  REACHED").
+- **Reason.** G4 was **not run**, and under F.6 it could not be: it runs *"only
+  if G3 has not fired NOT A RESULT"*, and G3 fired NOT A RESULT on both TBNN
+  models. The frozen file attaches no verdict token to a not-run G4; it attaches
+  a cap on the **arm's** verdict, which is what the cell must carry.
+- **Why not `PENDING`.** Rule 1 reserves `PENDING` for "not yet run" (a
+  display/queue state). This arm's G4 will **never** run — F.6's precondition
+  cannot now be met on this arm's artefacts — so `PENDING` would assert a queued
+  future run that does not exist.
+- **Why not a bare `GATE REACHED`.** That token in the cell would read as G4
+  having reached a gate. It did not run; the cap is on the arm, not a grade of
+  the gate.
+- **The cap is moot here, and is stated so it cannot be misread as a lift.** The
+  arm's verdict is **NOT A RESULT**, which is below GATE REACHED. A cap of GATE
+  REACHED cannot raise it. Line 3's `# VERDICT: NOT A RESULT` and the lane
+  verdict at lines 27–30 are untouched.
+- **The frozen clause and pass 8 agree** — pass 8's own words for this row are
+  *"G4 capped (not run)"*, which is the same reading. No SUPERVISOR flag is
+  raised on this item.
+
+### Scope
+
+Confined to the two cells named. **No gate, threshold, cap, budget, label,
+registered cost or measured number in this record is touched**, and neither item
+alters the arm verdict or any of G0–G3. Pass 8 classifies both as
+verdict-neutral, and the supervisor's own read at `8cbe716b` records the same
+after re-deriving every gate label independently.
+
+**Source.** `docs/CROSS_TEAM_GATE_AUDIT.md` §82 (commit `8cbe716b`, the
+verification supervisor's own read: *"Pass 8 BELIEVED in full"*), the pass 8
+body at §35–§47 (commit `9573db65`, CANDIDATE lane pass), and this lane's own
+re-read of `grading_gpu_ling.json` for the numbers in (a).
+
+**lines whose number changed above this section: 0** — verified in the same shell
+invocation as the commit by hashing the pre-correction body (the file's first 300
+lines, i.e. everything through CORRECTION 1) with `git hash-object` and comparing
+it to the HEAD blob of this file, `e690bca3b4b6c30f3a0fc33e71a59c4da5dc6d3e`.
+Result stated in the commit message.
