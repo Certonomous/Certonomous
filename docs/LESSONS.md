@@ -10608,3 +10608,250 @@ residuals in `verification/runs/ansys_verification/VMFL001/L*/log.simpleFoam` an
 3000-row plateau probes in `.../L*/postProcessing/gateProbes/0/U`, committed
 `ae30f914`; verdict commit `dee5870d`; calibration row `C-37`; the measured
 convergence degradation is `N-AV5`.
+
+## L-290. The hash-object append fallback needs a THREE-LINE ASSERT every time — a committed blob with no trailing newline concatenates the new row onto the old one
+
+*2026-08-24. Paid for by `016ac2bf` (16:30:33Z), repaired by `ec35bf9e` (16:31:35Z).*
+
+**The rule.** When the worktree copy is stale and a record must be appended from
+the **HEAD blob** by `git hash-object`, three assertions run **before**
+`write-tree`, and a fourth runs before any of them:
+
+0. **Read the blob's trailing byte first.** `tail -c 1` is `\n` or the append is
+   a concatenation, not an append.
+1. **Prefix identity.** The first `N` bytes of the new content are
+   **byte-identical** to the whole HEAD blob — `cmp -n $(wc -c < head_blob)`, not a
+   line count, not a diff summary.
+2. **The new id/heading is at the START of its own line** — grep the anchored row
+   form (`^## L-`, `^| C-`, `^| D`), not a loose mention.
+3. **The PREVIOUS last id/heading is still at the start of its own line** — the
+   assertion that actually catches a missing trailing newline, because assertion 2
+   passes happily while the *old* last row is the one that got eaten.
+
+**The measurement that shows it.** `016ac2bf` appended calibration row `C-27` to
+`docs/COST_CALIBRATION.md` from the HEAD blob. That blob's last byte was `|`, not
+`\n`. The row was therefore concatenated onto the end of **C-26's line**, and over
+the resulting blob `grep -cE '^\| C-27 '` returns **0** — the row it claims to have
+landed is unreadable by the ledger's own id pattern, and C-26's cell was silently
+extended. Nothing in the chain refused. It was caught **after** the commit, by the
+post-commit verify (L-223): the `diff-tree --stat` read `1 insertion(+), 1
+deletion(-)` on an **append-only** record, and any deletion there is the alarm and
+never a plausible edit (L-263). `ec35bf9e` restored C-26 verbatim by byte
+comparison and landed C-27 on its own line; over that blob the same grep returns
+**1**. Sixty-two seconds of history carried a ledger row that no reader could see.
+
+**Where it must be asserted (rule 14 — a lesson is not applied until every call
+site asserts it).** Every lane invocation that appends a record by the D486
+hash-object fallback: `docs/COST_CALIBRATION.md`, `docs/DOCKET.md`,
+`docs/LESSONS.md`, `docs/NUMERICS_KNOWLEDGE.md`, and the `docs/*_AUDIT.md`
+appends. The fallback is legal — the worktree copies of these files are stale by
+construction (D486) — but it is legal **only with the four checks above printed
+and read before `commit-tree`**, which is L-286's rule applied to this chain.
+
+*Artifacts:* `016ac2bf` (the concatenation, and its `1 insertion / 1 deletion`
+diff-stat on an append-only file); `ec35bf9e` (the repair, message states the
+mechanism); `docs/COST_CALIBRATION.md` rows `C-26`, `C-27`; D486 for why the
+fallback exists at all.
+
+## L-291. Register a POINT ESTIMATE and a CEILING, and price LANE WALL separately from EXECUTED COMPUTE — a "≤ N" is not a prediction and no ratio can be computed against it
+
+*2026-08-24. Paid for by four consecutive calibration rows and three lanes in one
+session.*
+
+**The rule.** Every dispatch registers **four** numbers, not one: a **point
+estimate** and a **ceiling**, for **each of two components** —
+
+- **executed compute**, core-minutes from timers (`/usr/bin/time`, log
+  `ExecutionTime`, wall × ranks), and
+- **lane wall**, spawn-to-report, which is what the box is actually rented for
+  while a lane thinks.
+
+The calibration row then compares **each component to its own pair**. A ceiling is
+a stopping rule (rule 12: an overrun stops the run), not a forecast; a row that
+reports "≤ N" in the predicted column has registered no forecast at all and its
+ratio cell can only be left ABSENT.
+
+**The measurement that shows it.** Two independent failures, same week.
+**(a) The ceiling-as-point rows.** `C-25`, `C-26`, `C-27` and `C-30` of
+`docs/COST_CALIBRATION.md` each reported a `≤ N core-min` ceiling in the predicted
+column; `C-27`'s own commit message names itself *"the third consecutive row to
+report a CEILING as if it were a point"*. Four rows, no honestly computable
+actual/predicted ratio between them — the ledger's entire purpose, defeated by a
+column convention. **(b) The wrong component.** Three lanes in one session
+predicted **executed compute** while the quantity that actually ran out was
+**lane wall**: a readiness read at 2.8 measured against `≤ 0.5`; a dictation lane
+at 3.0 against 0.2; a gate-arithmetic lane at 4 core-min against 1.5. All three
+"overran" a budget that was never priced for the thing being spent — the executed
+compute in each was a rounding error, and the lane wall was never registered.
+
+**Measured this session, for the next brief to price from.** Dictation-class lanes
+(read a defect, write a record, commit): **point 2.5 / ceiling 4.0 lane-minutes**.
+`scripts/check_stamp_vs_commit.py`: **≈ 2.5 core-seconds per stamp target**. An
+**instrument-recovery** item is priced **per instrument named in the defect, not
+per document**, plus **one full round for the mutation harness itself** — a mutant
+copied outside the tree under test does not test it (`C-36`, three rounds, first
+battery invalid at exit 128).
+
+**Where it must be asserted.** Supervisor briefs, in the dispatch line that names
+the budget — four numbers or the brief is incomplete; and the `C`-row template of
+`scripts/append_record.py`, whose predicted and ratio columns should refuse a bare
+`≤`.
+
+*Artifacts:* `docs/COST_CALIBRATION.md` rows `C-25`, `C-26`, `C-27`, `C-30` (the
+ceiling-as-point class) and `C-36` (the first row to register point AND ceiling for
+both components, and the first to disclose a **lane-wall** overrun — 20.4 measured
+against a 20 core-min ceiling — rather than an executed-compute one); `016ac2bf`
+commit message; `CLAUDE.md` rule 12 and `COMPUTE_BUDGET_CHARTER.md` §5, §6.
+
+## L-292. An id written into prose before its own row is appended is a PREDICTION, not an identifier
+
+*2026-08-24. Paid for by closure's `8dd3f8bc` correction and, the same day, live
+again at `86fb1b34`.*
+
+**The rule.** No record cites a docket, lesson, calibration or numerics id that
+does not exist **in the HEAD blob at the moment of writing**. Ids are re-derived
+`max + 1` **in the committing invocation** (rule 11) and are written **only into
+the record that creates them**. A board, a status file or a `RESULTS` record that
+needs to point at a row not yet landed refers to it **by description** — "the row
+recording the rung-3 identity check" — and never by number. The number is filled in
+by the commit that lands the row, or not at all.
+
+**The measurement that shows it.** Closure's first instance: `D488`/`C-15` were
+written into prose, the rows landed as `D492`/`C-18`, and the citations had to be
+corrected at `8dd3f8bc` (16:18:13Z). The class was then **live again nine hours
+later**: `docs/LAB_STATE.md:423` at `86fb1b34` (17:27:20Z) reads *"ids re-derived:
+`L-277+`, `N-D32+`, `D499+` — VERIFY"*. Measured over that same tree,
+`^## L-277\.` in `docs/LESSONS.md`, `^\| D499 ` in `docs/DOCKET.md` and `N-D32` in
+`docs/NUMERICS_KNOWLEDGE.md` return **0, 0 and 0**. Three ids named in the lab's
+only handoff channel, none of which existed at the tree that named them. The
+trailing `VERIFY` is the mitigation and it is worth keeping — it marks the numbers
+as candidates rather than facts — but a reader who greps the board for `D499` gets a
+hit either way, and the next session's cold start reads the board before it reads
+the caveat.
+
+**Where it must be asserted.** Every board write (`docs/LAB_STATE.md` and the
+per-team boards); every `RESULTS` record's candidate-id section; the dictation
+briefs, which are exactly the lanes that write ids for a living.
+
+**Instrument.** `scripts/check_stamp_vs_commit.py` limb 2 (`02a84b18`) sweeps the
+corpus for ids cited ahead of their own defining row and reports **DANGLING** — an
+id whose defining row does not exist at the graded revision — as a distinct verdict
+and never as a silent skip (script `:113`, `:434`, `:502`). Read its `ID-FIRE`
+class as a **blame artifact** until first-introduction attribution is built; see the
+blame lesson below.
+
+*Artifacts:* `8dd3f8bc` (the correction); `86fb1b34`, `docs/LAB_STATE.md:423` (the
+live instance, and the three zero counts measured over that tree);
+`scripts/check_stamp_vs_commit.py` limb 2 at `02a84b18`; `CLAUDE.md` rule 11.
+
+## L-293. A commit-message file is PER-INVOCATION-UNIQUE, and the first-line guard before `commit-tree -F` is mandatory
+
+*2026-08-24. The L-252 class, recurring twice in one session.*
+
+**The rule.** The commit-message file and the private index file both carry a
+`date -u` stamp **and** `$$` in their names — `msg_20260824T175612Z_$$.txt`, never
+`msg1.txt`. Before `git commit-tree -F <msg>`, **assert the file's first line equals
+the intended subject string**, in the same shell invocation that writes it and
+commits it. The scratchpad is shared between every live lane (rule 13), so a
+generic filename is not a private name; it is a rendezvous point.
+
+**The measurement that shows it.** A peer lane's generic `msg1.txt` / `msg2.txt` in
+the shared scratchpad **clobbered a cfd lane's commit message twice** on
+2026-08-24. Both times the first-line guard caught it before `commit-tree` ran, so
+no commit carries a foreign subject — which is the whole return on a two-line
+assertion, and is also why the failure is invisible in `git log` and has to be
+recorded here instead. Without the guard the outcome is L-286's worst case wearing
+someone else's message: a commit whose text claims work that is not in its tree,
+because **the message is what a reader trusts**.
+
+**Where it must be asserted.** Every private-index invocation. The rule-10 block in
+`CLAUDE.md` is the template and should be read as requiring stamped names;
+`cases/RANS_LES_closure_models/_common/commit_private.sh` is the shared
+implementation and the place a guard, once written, is inherited from. A lane that
+hand-rolls the chain inherits nothing and must write both asserts itself.
+
+*Artifacts:* `docs/LESSONS.md` L-252 (the parent class: a session-shared scratchpad
+hands a commit chain a stale artifact with the right filename); L-286 (a commit
+whose message claims a write not in its tree); `CLAUDE.md` rules 10 and 13.
+
+## L-294. `git ls-files` reads the INDEX — an instrument frames its corpus on `git ls-tree <rev>`, and states the rev
+
+*2026-08-24. Paid for by `EXTERNAL_REFERENT_AUDIT.md` §11.2 (`890bfa7f`).*
+
+**The rule.** Any count, sweep or screen whose population is "the tracked files" is
+framed on **`git ls-tree -r --name-only <rev>`** and **prints the rev it used**.
+`git ls-files` is never a corpus: it enumerates the **shared index**, which on this
+box decays away from HEAD by construction (D486), so a figure framed on it is
+irreproducible from history — nobody downstream, including its own author an hour
+later, can name the set it counted.
+
+**The measurement that shows it.** `docs/EXTERNAL_REFERENT_AUDIT.md` §11.2
+(published `890bfa7f`) quotes **five population figures** framed on
+`git ls-files '*.md'`. Measured 2026-08-24 by the verification supervisor:
+`ls-files` listed **701** `.md` files while HEAD's tree carried **736** — **35**
+tracked, committed files invisible to the index, every one of them present on disk.
+Re-measured in this lane at a later HEAD the same day: **701 listed, 737 in the
+tree, 36 unlisted, all 36 on disk, and 0 in the reverse direction**. The totals
+moved between the two readings and the **gap did not vanish**, which is the point:
+the gap, not the totals, is the stable fact, and it is one-directional — the index
+under-reports and never over-reports. §11.2's figures were **not struck**; they are
+superseded by a revision-framed row and explained by the live measurement.
+
+**Where it must be asserted.** Every audit screen that reports a population;
+`scripts/check_filing.py`, whose own file population is the obvious next call site.
+The corrected form already exists as `scripts/referent_population_screen.py`
+(`bb082627`), which is revision-framed and re-runs from any named revision — copy
+its framing rather than inventing another. Its neighbour lesson is the memory note
+*gitignored is not filed*: a cleanliness check that asks git is blind to exactly the
+clutter it hunts. Same shape, opposite direction — one asks git and misses
+untracked clutter, the other asks git and misses tracked files.
+
+*Artifacts:* `docs/EXTERNAL_REFERENT_AUDIT.md` §11.2 at `890bfa7f` and §12 at
+`bb082627`; `scripts/referent_population_screen.py` (`bb082627`, 17-check planted
+control, 7 mutants all exit 2); `docs/COST_CALIBRATION.md` row `C-36`; D486 for the
+decay mechanism.
+
+## L-295. Blame's last-toucher attribution HIDES a fire on one side and MANUFACTURES one on the other — which side depends on where the graded quantity sits
+
+*2026-08-24. Paid for by the first HEAD sweep of `check_stamp_vs_commit.py` limb 2
+(`02a84b18`).*
+
+**The rule.** `git blame` attributes a line to its **last** toucher, and the
+consequence is **asymmetric**, not merely noisy:
+
+- When the graded quantity sits on the **CITING** line, a later touch moves the
+  **citation** later, which can only make a fire **quieter**. Blame can hide a fire
+  here; it cannot invent one. A fire is therefore trustworthy and a zero is not.
+- When the graded quantity sits on the **DEFINING** line, a later touch moves the
+  **definition** later, so a citation that was correct when written now appears to
+  precede its own row. Blame **manufactures** fires here. A zero is trustworthy and
+  a fire is not.
+
+So a definition-side instrument needs **first-introduction attribution** — `git
+log -S` / pickaxe, or the added-lines-only method the stamp limb's own calibration
+used — and **until it has one, a definition-side fire is a triage prompt, never a
+finding.** It may not be reported as a defect count.
+
+**The measurement that shows it.** Limb 2's first sweep over HEAD (`02a84b18`)
+returned **280 ID-FIRES**, of which **256 were D-family**, with apparent ages
+running to **485 hours**. Triage found these were not mis-numbered citations at all:
+they were the age of docket rows that had been **strike-and-replaced** since they
+were first written, so blame dated the *definition* to the strike and the citation
+to its original commit. The instrument was reporting the docket's own amendment
+discipline as a 256-item defect. The limb's own output already carries the caveat —
+`scripts/check_stamp_vs_commit.py:880`: *"blame attributes a line to its LAST
+toucher. For limb 1 that can hide a fire but cannot manufacture one; for limb 2 it
+cuts both ways … so read both commits before believing a limb-2 fire."* — which is
+correct and, on its own, insufficient: a NOTE under a headline number is read after
+the number.
+
+**Where it must be asserted.** Limb 2's output NOTE (**present** at `:880`, and to
+be kept until first-introduction attribution lands, at which point the count becomes
+reportable and the NOTE can be struck against a measurement). Any future
+blame-based instrument declares, before it prints a count, **which side its graded
+quantity sits on** and therefore which of its two verdicts is the trustworthy one.
+
+*Artifacts:* `scripts/check_stamp_vs_commit.py` limb 2 at `02a84b18` — the
+`ID-FIRE` / `DANGLING` / `ok-id` classifier at `:434`–`:447`, the DANGLING
+non-skip argument at `:113`–`:124`, the NOTE at `:880`; the 280 / 256 / 485 h
+first-sweep figures.
