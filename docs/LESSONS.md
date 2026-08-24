@@ -10254,3 +10254,51 @@ is the manual's claim; the exact diagnostic is the honesty channel.
 Table .01.1 (VMFL001, p. 16) and §1.2 (p. 4); `docs/NUMERICS_KNOWLEDGE.md`
 N-AV2/N-AV3; VMFL001 pre-registration `ffeed580` (blob `e0afc259`), comparator
 `8cb29610`.
+## L-281. A gate that closes at the FIRST measurable interval has bought margin, not convergence — register `endTime` from a predecessor's measured first crossing times a stated multiple, and name that multiple as a cost decision
+
+**The rule.** When a predecessor rung's retained change-series exists, **derive
+`endTime` from its measured first crossing of the registered floor, times a
+stated multiple, and record the multiple as a cost decision in the
+pre-registration**. A run length carried over by habit, or picked as "3x the
+last one", is a spend nobody has justified. And when a gate closes at the
+earliest interval the checkpoint schedule can measure, **say so in the results**:
+that reading is evidence about the run length, not about the convergence.
+
+**Why.** E4a2 (prereg frozen `cd1f46e1`) registered `endTime` **60 000** — 3x
+E4a's 20 000 — reasoning from E4a's flat floor that stationarity should be tested
+over three times the span. The gate closed on all five cases, and **first
+crossing of the `1e-8` floor was at iteration 4 000 on every one of them: the
+first measurable interval in the series** (the `r_k` series begins with the
+2 000 -> 4 000 pair, so no earlier reading exists). The floor was met as soon as
+it could be observed. **60 000 iterations therefore bought ~15x margin rather
+than convergence**, and the rung's solver cost — 491 core-s of a 497 core-s
+total — is dominated by iterations after the answer had stopped moving. The
+evidence that nothing was gained is in the rung itself: X1 recovered Q agreeing
+with E4a's 20 000-iteration values **to ten significant figures**, gaps
+**0.0000 pp** on all five cases.
+
+**The contrasting case, and it is why this rule says "measured", not "shorter".**
+T3 ext1 sized every extension from each case's own measured decay rate rather
+than from a habit. `R_f`, the critical path, was granted **58 000** further
+iterations and needed **57 713** of them — **99.5 % consumed, with margin only
+from the round-up to `writeInterval`** (`T3_EXT1_AMENDMENT.md` §3: `T` must fall
+a factor of 1 095 = 3.0394 decades at 0.05266 decades per 1 000 iterations ->
+57 713; `20 000 + 57 713 = 77 713` -> `endTime` **78 000**). The same arithmetic
+run on E4a's series would have exposed E4a2's 15x margin **before** the compute,
+not after. **A registered `endTime` is a falsifiable prediction about a decay
+rate, and it should be sized like one in both directions** — T3 ext1 sized it
+tight and was nearly falsified; E4a2 sized it loose and paid for margin it
+never used.
+
+**What this lesson does NOT license.** It does not license shortening a run
+after seeing where its gate closed. E4a2 §7 registered, before any solve, that
+the rung has **no extension arm** precisely because a run length chosen after
+seeing the numbers is what rule 2 exists to prevent; gates and caps are closed
+after first compute. The rule binds the **successor's** pre-registration, and
+the successor states the multiple and its cost basis in advance.
+
+*Artifacts:* `docs/campaigns/T-family/E4a2_RESULTS.md` §2 (first crossing 4 000
+on all five, and the `r_k` series in `log.analyse_e4a2.20260824T173504Z.txt`) and
+§6 (cost); `docs/campaigns/T-family/E4a2_PREREGISTRATION.md` §2.4 (the 3x
+reasoning) and §7 (no extension arm); `docs/campaigns/T-family/T3_EXT1_AMENDMENT.md`
+§3 lines 157-176 and §5 line 326; ledger row `C-34`; docket `D505`.
