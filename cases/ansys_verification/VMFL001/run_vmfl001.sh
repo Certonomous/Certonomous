@@ -41,7 +41,13 @@ done
 mkdir -p "$RUN_ROOT" || refuse "cannot create ${RUN_ROOT}"
 
 # shellcheck disable=SC1090
+# AMENDMENT 1, 2026-08-24 (pre-compute): the vendor bashrc READS $WM_PROJECT_DIR at its
+# line 181 and only EXPORTS it at 187, so under set -u the source died before || refuse fired.
+# Condition checked before amending: run tree held 0 files, no level dir existed -- zero compute.
+set +u
 source "$FOAM_BASHRC" || refuse "cannot source ${FOAM_BASHRC}"
+set -u
+command -v simpleFoam >/dev/null || refuse "simpleFoam not on PATH after sourcing ${FOAM_BASHRC}"
 
 BUDGET_S=$(python3 -c "print(int(${CAP_CORE_MIN}*60/${RANKS}))")
 SPENT_S=0

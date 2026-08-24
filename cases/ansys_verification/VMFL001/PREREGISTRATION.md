@@ -406,3 +406,90 @@ softened to `PENDING` (charter §6).
   and `…/VM2026R1_FLUENT_ARCHIVES/VMFL001_WB.wbpz` (both named in
   `docs/ansys_verification/VM2026R1_SHA256_MANIFEST.txt`; D-6 ruling clause g:
   archive paths are cited under that home only). **They were not opened.**
+
+---
+
+## Amendment 1 (pre-compute, 2026-08-24T17:42Z)
+
+**This amendment is legal because it is made BEFORE ANY COMPUTE** (CLAUDE.md rule 2;
+`VERIFICATION_CHARTER.md` §2b). It states the condition and how it was checked, and it
+alters **no gate, threshold, cap or label**. Nothing above this section is edited.
+
+**The condition, and it is a fact about the disk, not an intention.** No solver has
+run. No level directory exists. The run tree
+`verification/runs/ansys_verification/VMFL001/` **exists but is empty** — it was
+created by the `mkdir -p "$RUN_ROOT"` on line 41 of the run script, which executes
+*before* the failing `source`, and it contains **zero files** and no `L1_16x64`,
+`L2_32x128` or `L3_64x256`. That empty directory does **not** trip guard 1, which
+refuses only on `${RUN_ROOT}/<level>`, and it is deliberately left in place.
+
+**How it was checked** (checked, not assumed; both run at 2026-08-24T17:41:57Z, before
+the run script was touched):
+
+| command | output |
+|---|---|
+| `find /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL001 -type f \| wc -l` | `0` |
+| `ls -d /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL001/L*` | `ls: cannot access '…/L*': No such file or directory` |
+
+**The defect this amendment repairs.** `run_vmfl001.sh` could not run at all. Line 17
+sets `set -u -o pipefail`; line 45 sourced the vendor OpenFOAM bashrc. That vendor file
+**reads** `$WM_PROJECT_DIR` in the `foamOldDirs=` assignment beginning at its line 181
+(the statement continues to line 184) and only **exports** it at its line 187. Under
+`set -u` the read of an unset variable is fatal in a sourced file, so the source aborted
+with `/usr/lib/openfoam/openfoam2606/etc/bashrc: line 184: WM_PROJECT_DIR: unbound
+variable` and the script exited **1** — *before* its own `|| refuse` could fire, so it
+never printed a `REFUSE:` line. Reproduced by the `ansys-verification-supervisor` in
+personal triage, and reproduced again here as the control arm of the check in §"what was
+verified" below. **This is a defect in the lab's run script, not in OpenFOAM**: the
+vendor bashrc is not written to be sourced under `set -u`, and every caller must relax
+`nounset` across the source.
+
+**What CHANGED — the whole of it, four inserted lines and a three-line comment:**
+
+1. the bare `source "$FOAM_BASHRC" || refuse …` is now wrapped: `set +u` immediately
+   before it and `set -u` immediately after, so `nounset` is relaxed **only** across the
+   vendor source and is restored for every line of the lab's own script;
+2. immediately after the restore, a positive check that the environment actually landed:
+   `command -v simpleFoam >/dev/null || refuse "simpleFoam not on PATH after sourcing
+   ${FOAM_BASHRC}"`. This exists because `set +u` also *disarms* the failure mode that
+   exposed the defect — without it, a future bashrc that silently half-loads would let
+   the script proceed to `blockMesh` and fail later and less legibly. **A relaxed guard
+   is replaced by an explicit one, not merely removed.**
+3. a three-line dated comment above the block naming the vendor line numbers and the
+   pre-compute condition checked.
+
+**Consequently the run-script blob sha changes**, and §9's row for it is superseded by
+this line (the §9 table itself is **not** edited — rule 6):
+
+| file | frozen sha (superseded) | sha frozen by THIS amendment |
+|---|---|---|
+| `cases/ansys_verification/VMFL001/run_vmfl001.sh` | `3da645cf630ec33e178c394512089adb8c81b864` | **`f2b09aa230c569629145b3b03613ca8f1873ed0b`** |
+
+**What did NOT change — none of it, and this is the evidentiary content of the freeze:**
+
+- **the gate**: 2 % relative against the manual's printed target at all four radii at L3 (§3);
+- **the tolerance and its justification** (§3), and the 0.5 % diagnostic against the exact formula, which remains a diagnostic and not the gate;
+- **the cap**: 10 core-minutes, overrun stops the run (§8), and the `CAP_CORE_MIN=10` line is untouched;
+- **the label / verdict vocabulary** (§11) and the `NOT A RESULT` ordering of §4;
+- **the comparator**, `grade_vmfl001.py`, blob **`8cb29610e5d6f6fa4291df503a98bc99d0ff660f`** — not opened, not edited, byte-identical;
+- **the mesh levels** `L1_16x64` / `L2_32x128` / `L3_64x256`, the refinement ratio 2, and the `blockMeshDict.template` blob `45286819…`;
+- **the solver settings**: `fvSchemes` `b22740ae…`, `fvSolution` `6f88ec55…`, `controlDict` `c94a72b0…`, `0/U` `fd65259a…` — all untouched;
+- **the guards**: guard 1 (no level directory), guard 2 (pre-registration committed at HEAD), guard 3 (the `timeout` cap) are unchanged in text and in order, and the age-guard marker is still `0/U` touched immediately before launch.
+
+**What was verified before this amendment was committed** (no solver, no `blockMesh`, no
+compute of any kind):
+
+- `bash -n cases/ansys_verification/VMFL001/run_vmfl001.sh` — syntax OK;
+- the idiom, run standalone: `bash -c 'set -u; set +u; source /usr/lib/openfoam/openfoam2606/etc/bashrc; set -u; command -v simpleFoam'` prints
+  `/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam`, rc 0;
+- the **control arm**, the same command with the `set +u` removed, still fails exactly as
+  the defect predicts: `line 184: WM_PROJECT_DIR: unbound variable`, rc 127. The fix is
+  therefore shown to be *the* thing that changed the outcome, not a coincident edit.
+
+**What this amendment does NOT establish.** That the case runs. The script has still
+never reached `blockMesh` or `simpleFoam`, the comparator has still never seen real
+solver output (§9 states this and still stands), and this rung remains **`PENDING`**.
+**Launch authorisation remains the `ansys-verification-supervisor`'s after its own read
+of this diff, and no agent message is Sanaa's consent** (CLAUDE.md rule 9).
+
+**lines whose number changed above this section: 0**
