@@ -592,3 +592,41 @@ haiku subagent."*
 | standing rules ratified (§8 cap; six-team roster) | 2 |
 | owner's exceptions recorded | 1 (ansys-verification, 4 lanes) |
 | lines whose number changed above this section | 0 |
+
+## Amendment record, continued: TEMPORARY Fable-to-Opus 5 substitution (2026-08-24)
+
+**Dated addendum, 2026-08-24, appended at the foot; append-only. No clause above
+is altered, widened or narrowed; no line above this section changed number; the
+header's version line is deliberately left untouched, because this addendum
+inserts nothing and edits nothing above itself.**
+
+Sanaa's directive, verbatim (2026-08-24): *"this set of instructions mean that
+for now anything requiering Fable 5 uses OPus 5 temporarily"* — and, earlier in
+the same message: *"for now this means we are using opus 5 for anything needing
+fable temporarily."*
+
+**§5's standing rule is untouched and is quoted, not restated: *"Family
+supervisors and adversarial verifiers run on Fable."*** That sentence is not
+retired, widened or narrowed by this addendum. What changes is practice, not
+law: `harness/teams.yaml`'s `defaults.supervisor_model` is set to `opus`
+instead of `fable`, so all six standing supervisors are generated onto Opus 5
+(`.claude/agents/*-supervisor.md`, via `python3 harness/generate_agents.py`),
+because Fable capacity is currently exhausted and a fresh session's
+`/form-teams` must not spawn supervisors onto a model that cannot answer. The
+substitution is recorded, dated and marked TEMPORARY at the same place in
+`harness/teams.yaml`, immediately above the `supervisor_model:` line, so the
+next reader of the YAML sees the departure and its reason without reading this
+charter.
+
+**This is a suspension in practice, not a repeal.** §5 remains the standing
+rule this departs from. Reverting means: restore `supervisor_model: fable` in
+`harness/teams.yaml`, regenerate with `python3 harness/generate_agents.py`, and
+confirm with `--check`; no further charter edit is needed to revert, because
+this addendum never altered §5's text.
+
+| what the amendment did | figure |
+| --- | --- |
+| clauses altered, widened or narrowed | 0 |
+| standing rules suspended in practice (not retired) | 1 (§5's Fable designation for supervisors) |
+| temporary substitutions recorded | 1 (Opus 5 for Fable, all six supervisors) |
+| lines whose number changed above this section | 0 |

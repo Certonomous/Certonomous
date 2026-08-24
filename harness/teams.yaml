@@ -24,9 +24,25 @@ lab:
   supervision_charter: docs/charters/SUPERVISION_CHARTER.md
 
 defaults:
-  # SUPERVISION_CHARTER.md §5: "Family supervisors and adversarial verifiers run
-  # on Fable. Solver, bookkeeping and liaison agents inherit the session default."
-  supervisor_model: fable
+  # ---------------------------------------------------------------------------
+  # TEMPORARY MODEL SUBSTITUTION -- 2026-08-24 -- Sanaa, verbatim:
+  #   "this set of instructions mean that for now anything requiering Fable 5
+  #   uses OPus 5 temporarily" / "for now this means we are using opus 5 for
+  #   anything needing fable temporarily"
+  #
+  # supervisor_model below is set to `opus`, not `fable`, because Fable capacity
+  # is currently exhausted. This is a TEMPORARY departure in PRACTICE from the
+  # standing rule at SUPERVISION_CHARTER.md §5 ("Family supervisors and
+  # adversarial verifiers run on Fable. Solver, bookkeeping and liaison agents
+  # inherit the session default."). §5 itself is NOT retired or amended by this
+  # change -- it remains the standing rule -- it is only suspended in practice
+  # until Fable capacity returns. See docs/charters/SUPERVISION_CHARTER.md, dated
+  # 2026-08-24 amendment at the foot of that file for the full record.
+  #
+  # TO REVERT: restore `supervisor_model: fable` below once Fable capacity is
+  # confirmed back, and note the reversion in the same charter amendment trail.
+  # ---------------------------------------------------------------------------
+  supervisor_model: opus
   worker_model: opus
   # `tools` is OMITTED from generated frontmatter, which is how Claude Code grants
   # ALL tools. Listing tools explicitly would silently drop the Agent tool and
