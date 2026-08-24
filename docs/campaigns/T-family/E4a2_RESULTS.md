@@ -369,10 +369,16 @@ the last two lines:
   by the landed rows **C-34 / D505 / L-281** (`edee5088`) and removed from disk;
   **it was never committed**, so nothing is recoverable from history and nothing
   is lost — every row it held is at HEAD under those three ids. The bullet above
-  is **struck, not rewritten** (rule 6). *Foot-of-section correction:* **lines
-  whose number changed above this section: 0** — verified by diffing the first
-  365 lines of this file against the blob committed at `5a197a41`, byte for
-  byte, in the same invocation that landed this change.
+  is **struck, not rewritten** (rule 6). *Foot-of-section correction; the rule 6
+  assertion is on the single line below, unwrapped, so a line-wise check can
+  actually find it:*
+
+  lines whose number changed above this section: 0
+
+  Verified, not asserted: the first 365 lines of this file were diffed
+  byte-for-byte against the blob committed at `5a197a41` in the same invocation
+  that landed the correction, and the file was first confirmed untouched by
+  peers since that commit.
 * this file, `docs/campaigns/T-family/E4a2_RESULTS.md`.
 
 **No `__pycache__` was created anywhere.** The 19 pre-existing `.pyc` files
