@@ -10980,3 +10980,119 @@ separately at **−5.19 %**.
 *Artifacts:* `cases/dafoam/ladder-a/A1/curriculum_D2/RESULTS.md` §8;
 `docs/COST_CALIBRATION.md` **C-43** (the three ratio bases: total 0.726×,
 per-iteration 1.078×, per-evaluation 1.143×).
+
+## L-300. A gate value whose source artifact is gitignored is a number with no artifact — the sampled files are named in the pre-registration and landed by EXPLICIT path
+
+*2026-08-24. Paid for by VMFL001 run 1 (`ae30f914`) and rung R2 (`fd2321ef`),
+where the six files the gate is read from were all invisible to `git add`.*
+
+**The trap.** The graded number of VMFL001 is a tangential velocity sampled by a
+`sets` function object, so it lives in
+`verification/runs/ansys_verification/VMFL001/{,R2/}L*/postProcessing/radialProbes/<t>/gateAxis_p_U.xy`.
+Every one of those six paths matches **`.gitignore:67`, `**/postProcessing/`** —
+`git check-ignore -v` names that line for the R2 L3 file. The ignore rule is not a
+mistake and was not relaxed: it exists so nobody commits a regenerable mesh or a
+sweep of sampled output. Its consequence is that **the only artifact the verdict
+cites cannot be staged by `git add`, and `git add` fails silently** — no error, no
+path, nothing to notice in a hurry.
+
+So the failure mode is not "the file was lost". It is worse: the run completes, the
+comparator reads the file off the disk, the record quotes 0.0045457781 m/s, the
+commit lands, `git status` is clean — **and the number's source is not in the
+repository at all.** Somebody who was not there, checking out that commit, finds the
+record and not the evidence. `VERIFICATION_CHARTER.md` §1 fails on its third clause:
+*"Done means a gate has a verdict, the verdict cites an artifact, and the artifact
+is still on disk."* Disk here means the repository, not one box's filesystem.
+
+**The rule, in three parts.**
+
+1. **The pre-registration names the comparator's input files by path**, before
+   compute, as part of the frozen grading path. If the freeze cannot say which file
+   the gate is read from, the gate is not frozen.
+2. **Those files are landed by explicit path with `git update-index --add`**, which
+   is plumbing and **does not consult the ignore rules** — the private-index
+   protocol of CLAUDE.md rule 10 already uses exactly that verb, so this costs
+   nothing beyond naming the paths. It is not a licence to widen the commit: the
+   `diff-tree --stat` assert still gates it, and only the named files go in.
+3. **Presence is verified after the commit, per blob, not assumed.** The
+   post-commit `git diff HEAD~1 HEAD --stat` of rule 10 is read for these paths
+   specifically. An ignored file that failed to stage looks identical to one that
+   was never intended — the verify is the only thing that tells the two apart.
+
+**A verdict citing an unlanded file is not a verdict.** That is the whole content of
+the lesson; the ignore rule is only how this lab happened to meet it. Any campaign
+whose graded quantity is read from `postProcessing/`, `*.xy`, `*.raw`,
+`constant/polyMesh/` or any other ignored path inherits it unchanged. The lab's standing
+"gitignored is not filed" reading cuts in **both** directions: an ignored file is
+not filed when you are hunting clutter, and it is equally not filed when it is your
+evidence. `L-75` is the same blindness on the reading side — our sweeps' denominators
+are over what the ignore rules permit; this is its writing-side twin.
+
+**Scope and honesty.** This was caught in both VMFL001 rungs *before* the grading
+commits, so no lab verdict has yet shipped on an unlanded artifact. It is recorded
+as a near-miss discipline, not as an incident — and specifically because a green
+`git status` is the tell that is **absent** in this failure.
+
+*Artifacts:* `.gitignore:67` (`**/postProcessing/`); the six tracked blobs
+`verification/runs/ansys_verification/VMFL001/L{1_16x64,2_32x128,3_64x256}/postProcessing/radialProbes/3000/gateAxis_p_U.xy`
+and `.../VMFL001/R2/L{1_16x64,2_32x128}/postProcessing/radialProbes/3000/` plus
+`.../R2/L3_64x256/postProcessing/radialProbes/6000/gateAxis_p_U.xy`, committed
+`ae30f914` and `fd2321ef` (both commit messages disclose the explicit-path landing
+and the post-commit blob verification);
+`cases/ansys_verification/VMFL001/R2/RESULTS.md` §3, which cites the R2 L3 file as
+the gate source; `docs/charters/VERIFICATION_CHARTER.md` §1.
+
+## L-301. Extending a converging steady SIMPLE run is SUB-LINEAR in cost — price a continuation at ≈ 0.88 × linear, and say which case measured it
+
+*2026-08-24. Paid for by VMFL001-R2, whose L3 endTime doubled from run 1's and came
+in 12 % under a cost estimate built by scaling run 1's wall time linearly.*
+
+**The estimate everyone writes.** Run 1 measured L3 (64 × 256 = 16,384 cells,
+serial) at **104 wall s for 3,000 iterations**. R2 needed 6,000 iterations at that
+level, so `PREREGISTRATION.md` §7 priced it at **208 s** — 104 × 2, constant cost per
+outer iteration — giving a registered estimate of **2 + 13 + 208 = 223 s = 3.7167
+core-min** and a cap of 10.
+
+**What it actually cost.** L3 ran **183 wall s** for 6,000 iterations; the three
+levels totalled **197 s = 3.2833 core-min**. Per outer iteration that is
+**34.67 ms at 3,000 iterations against 30.50 ms at 6,000** — the second 3,000
+iterations are *cheaper than the first*. Ratio actual/predicted **0.8834**, i.e. the
+linear scaling over-priced the continuation by ~12 %, in the conservative direction.
+
+**Why, and it is visible in the log.** Cost per outer iteration is not a constant:
+it is the number of **inner** linear-solver sweeps, and that falls as the residuals
+fall. At iteration 6,000 the `log.simpleFoam` block shows `Ux` converging in **4**
+smoothSolver sweeps and the **second `p` GAMG solve taking 0 iterations** — it is
+already inside tolerance on entry. Early iterations, far from the solution, buy far
+more sweeps for the same outer step. So a *continuation of an already-converging
+run* is structurally cheaper per iteration than the run that got it there.
+
+**The planning rule.** When extending a steady SIMPLE run that is already
+converging, **price the extension at ≈ 0.88 × the linear extrapolation** of measured
+wall time — and keep the cap sized off the *linear* number, because a cap that
+assumes the discount has no headroom when the discount does not appear. Under-run is
+reported as a calibration ratio, never absorbed (CLAUDE.md rule 12).
+
+**Scope — this is one case, one setting, and the entry refuses to generalise.**
+Measured on VMFL001-R2 L3 only: laminar `simpleFoam`, 16,384 cells, central schemes,
+`p` GAMG / `U` smoothSolver, relaxation `p 0.3 / U 0.7`, no `residualControl`,
+serial, 3,000 → 6,000 iterations. It is **not** a law about SIMPLE, and 0.88 is not
+a constant — a run extended while still far from convergence, or one whose inner
+tolerances bind differently, will not show it. Two points define this line; there is
+no curve.
+
+**One honest asymmetry, which strengthens rather than weakens it.** Three T-family
+solvers (heat-transfer team) were live on the 16-core box for the whole of the R2
+run. Contention pushes serial wall time **UP**, not down, so a quiet box would have
+made L3 cheaper still: **the measured 0.88× under-states the over-estimate.** The
+number is reported as-is, gross, with the contention named — not corrected for it,
+because no measurement of the contention's size was taken.
+
+*Artifacts:*
+`verification/runs/ansys_verification/VMFL001/R2/L3_64x256/log.simpleFoam` (final
+`Time = 6000` block: `Ux` 4 sweeps, second `p` GAMG `No Iterations 0`,
+`ExecutionTime = 182.31 s`) and the three `RUN_RC.txt` / `COST.txt`, committed
+`fd2321ef`; run 1's 104 s at
+`verification/runs/ansys_verification/VMFL001/L3_64x256/`, committed `ae30f914`;
+`cases/ansys_verification/VMFL001/R2/PREREGISTRATION.md:221` (the frozen 223 s /
+3.7167 core-min estimate) and `.../R2/RESULTS.md` §7 (the calibration table).

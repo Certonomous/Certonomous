@@ -3781,3 +3781,67 @@ probe 3 = r = 35 mm), committed `ae30f914`;
 **N-D39. The OpenMDAO `debug_print` block count exceeds the optimizer's own reported function-evaluation count by exactly 1, and the offset is optimizer-independent.** Measured 13 = 12 + 1 for IPOPT **twice** (curriculum D1 arm O and D2 arm A) and 16 = 15 + 1 for SLSQP (`NFUNC` read from `opt_SLSQP.txt`). The `+1` is a property of the **driver's printing**, not of either optimizer. **Use: when counting primal evaluations from a log's `debug_print` blocks for costing, subtract one — or read the optimizer's own counter instead, which is the better instrument because it is the optimizer's.** Source: `cases/dafoam/ladder-a/A1/curriculum_D2/RESULTS.md` §8, §9.1; `/home/ubuntu/certonomous-runs/CURRICULUM-D2-a1-optimizer-ab/armA_20260824T175746Z_1524887.log`, `armB/opt_SLSQP.txt`.
 
 **N-D40. pyOptSparse SLSQP's converged termination on this box prints `Inform 0` with `Optimization terminated successfully.` under an `Exit Status` header, and `opt_SLSQP.txt` closes with `ITER = <n>`, `NUMBER OF FUNC-CALLS: NFUNC = <n>`, `NUMBER OF GRAD-CALLS: NGRAD = <n>`.** Measured on D2 arm B: `Inform 0`, `ITER = 13`, `NFUNC = 15`, `NGRAD = 14`. **This wording had never been printed in this lab before** — every prior optimisation row was IPOPT, whose success string is `Optimal Solution Found`. D2's convergence gate therefore keyed on the **numeric `Inform` code** rather than on the string, precisely because the string was unknown at freeze time; the strings are recorded here so the next item can key on them if it chooses. **Rule this supports: when an unfamiliar tool's success wording is not known at freeze time, gate on its numeric status code and record the wording afterwards — never register a string match you have not seen printed.** Source: `cases/dafoam/ladder-a/A1/curriculum_D2/RESULTS.md` §5, §9.1; `/home/ubuntu/certonomous-runs/CURRICULUM-D2-a1-optimizer-ab/armB/opt_SLSQP.txt`, `armB_20260824T180411Z_1530445.log`.
+
+## N-AV6. Richardson extrapolation of a CONVERGING second-order triple lands on the analytic solution three orders finer than the finest grid — VMFL001-R2 hits White §3-2.3 to 3.7 ppm without ever seeing the formula
+
+**The fact, as measured.** VMFL001-R2, v_θ at r = 35 mm, grid family refined by
+exactly 2 in each direction (16 × 64 → 32 × 128 → 64 × 256 cells), laminar
+`simpleFoam`, all three levels iteratively converged and plateaued:
+
+| level | cells | v_θ(35 mm), m/s |
+|---|---|---|
+| coarse `L1_16x64` | 1,024 | **0.0045145840** |
+| medium `L2_32x128` | 4,096 | **0.0045395745** |
+| fine `L3_64x256` | 16,384 | **0.0045457781** |
+
+`R = d21/d32 = 0.2482366` ⇒ **`CONVERGING`**; observed order **p = 2.0102**;
+**GCI_fine (Fs = 1.25) = 5.632839e-04 = 0.0563 %**. R ≈ 1/4 and p ≈ 2 on a family
+refined by 2 is the formal second order of the frozen `fvSchemes` recovered to
+0.5 %.
+
+**The extrapolation beats its own finest grid by three orders of magnitude.**
+Richardson extrapolated value **0.00454782654 m/s** against the exact White §3-2.3
+value **0.00454780952 m/s** — a difference of **1.70e-11 m/s = 0.000374 %**, while
+**the fine grid itself is 0.0447 % off**. Ratio ≈ 120×. The extrapolation is
+computed from the three lab values and the refinement ratio **only**; it never sees
+the analytic formula, so the agreement is a genuine test of the discretisation's
+asymptotic behaviour and not a fit. Read it as: on a clean second-order triple in
+the asymptotic range, the *extrapolant* is the accurate number and the finest grid
+is merely the best input to it.
+
+**The gate context, recorded with it.** The manual's printed target at 35 mm is
+**0.0046 m/s** where the exact value is **0.00454781** — the manual's own
+four-figure rounding is worth **1.148 %**. The lab's deviation from that printed
+target is **1.179 %**, so **97 % of the gate deviation at 35 mm is the manual's
+rounding**, not this lab's solver: against the exact formula the same value deviates
+by **0.0447 %**. **The frozen 2 % gate held with the lab 0.045 % from exact.** This
+is the quantitative form of `N-AV3` and the reason a printed-target gate must be
+sized against the printing, not against the physics.
+
+**Residual-decay extrapolation, same rung, also held.** The R2 freeze predicted L3's
+iteration budget from a log-linear fit to run 1's `Ux` initial residual over
+iterations 2,000 → 3,000: slope **−9.6065e-04 decades/iteration**, predicting
+**≈ 1.57e-09 at iteration 6,000**. Measured at 6,000: **1.61027e-09** —
+**ratio 1.026**, a 2.6 % miss on a two-decade extrapolation across 3,000 iterations.
+A residual decay that is log-linear over a 1,000-iteration window stayed log-linear
+over the next 3,000 here; that is a usable planning instrument for sizing an
+`endTime`, and it was used exactly that way before compute.
+
+**Scope.** One case, one quantity, one triple, one solver. The three-orders result
+requires all of: `CONVERGING` state, monotone values, observed order close to
+formal, and an exact solution to check against — VMFL001 has all four, which is
+rare. Nothing here licenses quoting an extrapolant where the triple is not
+`CONVERGING` (CLAUDE.md rule 5 forbids it) or where the three values are not
+monotone.
+
+*Artifacts:* `cases/ansys_verification/VMFL001/R2/RESULTS.md` §3 and §4 (the gate
+table, the Roache table, the extrapolant);
+`verification/runs/ansys_verification/VMFL001/R2/L*/postProcessing/radialProbes/<endTime>/gateAxis_p_U.xy`
+(the three sampled values) and
+`.../R2/L3_64x256/log.simpleFoam` (`Ux` initial residual 1.61026505382e-09 at
+`Time = 6000`), committed `fd2321ef`;
+`cases/ansys_verification/VMFL001/R2/PREREGISTRATION.md` §3.2 (the frozen
+residual-decay fit and its 1.57e-09 prediction), frozen at blob `c6b4a7c4`;
+manual sidecar
+`docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt`
+Table .01.1 (printed target 0.0046 at r = 35 mm).
