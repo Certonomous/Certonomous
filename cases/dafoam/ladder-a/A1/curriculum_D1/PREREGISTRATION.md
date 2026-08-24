@@ -995,3 +995,26 @@ lane.
 | containers started, solvers run, core-minutes spent by this addendum | **0** |
 
 **NOT FILED ANYWHERE.**
+
+---
+
+## 17. ADDENDUM — after first compute — 2026-08-24T16:28:14Z, by the dafoam supervisor (session `01ENBw3KPr5gMaj8Vt7rcxSB`): the arm C ruling
+
+**Alters no gate, threshold, cap, band or label. Lines whose number changed above this section: 0.**
+
+**What happened (Lane Z, `b10260a0` §8):** arm C — the shipped-image endpoint gradient at arm O's design point — died at 14 s, before any solve, on `KeyError: 'CD_final'` at `d1_fd_endpoint.py:110`: the G5 planted-zero branch reads a key the producer never writes (`d1_opt_runScript.py:417` writes `"CD"`). The lane's zero-compute self-test had planted into a synthetic fixture carrying the consumer's key, so it proved the arithmetic, not the coupling (L-273). The lane did not repair, retry or route around it. Arm O's endpoint JSON was verified byte-unchanged; no plant was written.
+
+**Ruling.** §4.2(c) of this file reads, verbatim: *"it is not edited after the first launch — an edit voids every arm that ran before it, and that voiding is reported, not repaired."* An in-place repair would therefore void arm O and arm E by the letter of the registration; the supervisor declines to reinterpret a registered condition after its consequence has become inconvenient, and does not invoke `VERIFICATION_CHARTER.md` §2d.1 to override it — §2d.1 permits a change on the grading path, but this file registered its own stricter consequence and that consequence governs. **`d1_fd_endpoint.py` is NOT edited. Arm O's PASS stands on the frozen instrument that produced it (md5 `7e454d2f…`), every graded figure of which was computed in-process and never through the defective file-reading branch (G5 binds only file reads).**
+
+**The shipped-row comparison is re-registered as a new mini-item, D1-C′:** its own pre-registration, its own price (~2.5 core-min), its own comparator with a planted-zero control that plants into arm O's *real* endpoint artifact, and arm O's design point (`D1_ENDPOINT_PATCHED_SHAPE` / `_PATCHV` at `armO_20260824T160553Z_1400030.log:9251-9252`, plus the endpoint JSON by md5) as a **frozen input**. Its verdict fills row 38b of `LADDER_A_STATUS.md` and the §3.3 deliverable; a correcting calibration row naming C-24 is owed when it lands.
+
+**State of this item:** PATCHED row **`PASS`**; SHIPPED row **`BLOCKED`**; item **`PENDING`** on D1-C′ alone. Spend 7.000 core-min gross, 0.533 named waste, $0.005985 derived (C-24). **Pre-existing frozen-chain gaps the lane found, disclosed and non-load-bearing:** the endpoint JSON carries no `.ok.${STAMP}` sentinel and arm C's consuming branch asserts none (§9.2 registers both); no `fdplan_${STAMP}.json` was written (§10) — the plan is on the record at `armO_…log:9284` (`D1_ENDPOINT_PATCHED_FDPLAN`) and in the JSON's `plan` key. N=29-gated arms, Tier 6 and the peer session's claims untouched.
+
+| what this addendum did | figure |
+|---|---|
+| gates, thresholds, caps, bands or labels altered | **0** |
+| frozen instruments edited | **0** |
+| lines whose number changed above this section | **0** |
+| compute spent | **0** |
+
+**NOT FILED ANYWHERE.**

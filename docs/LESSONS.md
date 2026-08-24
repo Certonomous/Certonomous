@@ -10038,3 +10038,20 @@ was the worse one, because it generalised a minute-scale observation to a
 would have carried both defects forward into the next rung's estimate.
 *(`docs/COST_CALIBRATION.md` C-23; `docs/campaigns/T-family/T3_RESULTS.md` §14.7;
 `docs/campaigns/T-family/T3_EXT1_AMENDMENT.md` §5, §10.4 and §15.)*
+
+## L-273. A planted-zero control that plants into its own fixture proves the arithmetic and not the coupling — plant into a file the producer actually wrote.
+
+Curriculum D1 arm C (`b10260a0` §8): the G5 control passed its zero-compute self-test and its
+negative control (a deliberately blind reader refused with exit 2), then killed the arm at 14 s on
+`KeyError: 'CD_final'` — the producer writes `"CD"` (`d1_opt_runScript.py:417`), the consumer reads
+`"CD_final"` (`d1_fd_endpoint.py:110`). The self-test had planted into a hand-built dict carrying
+the consumer's own key, so it verified the reader against a schema the pipeline never produces.
+`CLAUDE.md` rule 3's logic applies to the control itself: a plant seen in a file no producer writes
+is not the demonstration the rule asks for. Cost: 0.233 core-min of named waste and a `BLOCKED`
+toolchain row a 2.0 core-min arm was bought to fill — and, because the frozen file's §4.2(c) voids
+every prior arm on any edit, the repair could not be made in place: the shipped-row comparison is
+re-registered as its own mini-item (Addendum §17). The habit that closes it: the pre-launch control
+consumes a real artifact from the producing step — or, where none can exist before the run, asserts
+the producer's key set against the consumer's in the invocation that freezes both. Same family as
+L-266 on the same item: both defects were findable by dry-running the frozen code against its own
+frozen inputs before the freeze.

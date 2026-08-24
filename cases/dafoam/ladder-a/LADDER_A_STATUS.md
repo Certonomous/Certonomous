@@ -226,3 +226,12 @@ gate's two readings are registered and **the choice between them is Sanaa's** (D
 → NOT MET (one flagged component, unreachable by any FD arm on this rung); subset-complete → GATE
 REACHED. The gap is one component and one unbought ~5 core-min arm. Cost of this item: **39.15
 core-min = $0.0335**, 34.8% under a 60 ceiling, zero waste, nine registered predictions all HIT.
+
+**Addendum rows 38–38b, added 2026-08-24 by the supervisor — the first curriculum item on this case (EXPERTISE_CURRICULUM D1); verified against the arm O log before recording.**
+
+| # | case | scope | toolchain | np / cells | **verdict** | headline number (exact) | record |
+|---|---|---|---|---|---|---|---|
+| 38 | **A1** NACA0012 | **constrained optimisation** (CD min s.t. CL = 0.5, thickness/volume/LE-radius) **+ endpoint gradient** | **PATCHED** (`dafoam-idwarp-rot:v1`) | 1 / 4,032 | **PASS** | `EXIT: Optimal Solution Found.`, **11 majors**, NLP error `4.0871293161759560e-07`; CD `0.020943920630946831` → `0.017527899854535338`, **−16.310321 %**; `\|CL−0.5\| = 1.879064e-07`, 24/24 constraint rows in bound; endpoint FD **≤ 0.2553 %** on `shape` 6/1/5 + `patchV` 1, zero flips (`shape[6]` 0.0525 % vs 1.1888 % at baseline) | `A1/curriculum_D1/RESULTS.md` §4–§5 |
+| 38b | **A1** NACA0012 | endpoint gradient @ row 38's design | **SHIPPED** (`dafoam/opt-packages:latest`) | 1 / 4,032 | **BLOCKED** | arm C died at 14 s, pre-solve, `KeyError: 'CD_final'` in the frozen G5 comparator; not repaired in place (§4.2(c)); re-registered as mini-item D1-C′ | same, §8; prereg Addendum §17 |
+
+Cost of the item: **7.000 core-min = $0.005985 derived**, 0.304× of 23.0 registered, 0.533 core-min named waste; calibration row C-24. The A1 two-row verdict summary (row 1–2 era: shipped GATE FAIL / patched PASS at baseline) is unchanged; row 38 adds the patched adjoint's behaviour at a converged constrained optimum (N-D28).
