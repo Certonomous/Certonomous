@@ -10413,3 +10413,78 @@ like from downstream.
 `verification/campaign/F4_SIGFPE_STEP01_RESULTS.md` §1 part 2 and part 6(d)
 (`5b5f5183`); the registration at
 `verification/campaign/F4_SIGFPE_STEP01_PREREGISTRATION.md` §10.3, §10.4.
+
+## L-286. An empty commit with a claiming message — guard EVERY step of a commit chain explicitly, because `set -e` does not stop the harness tool shell
+
+**The rule.** Every step of a private-index commit chain carries `|| exit 1` of its
+own. Before `commit-tree`, **assert the written tree differs from the parent tree**,
+and **assert the exact path list** the `diff-tree` prints. Read those assertions
+*before* the commit, not after it. `set -e` inside a harness bash tool invocation
+does **not** reliably abort the invocation, so an unguarded chain runs on past a
+failed step and produces a commit whose message claims a write that is not in its
+tree — the worst failure mode available to this protocol, because the message is
+what a reader trusts.
+
+**The measurement that shows it.** Commit `d99d82cd` (2026-08-24T17:35:52Z) carries
+a message claiming a dafoam board write — the D1-C′ grading, the curriculum-D1
+close, the C-31 calibration row. Its tree is `b2533d80`; `git rev-parse
+d99d82cd^^{tree}` returns **the same** `b2533d80`, and `git diff-tree --stat
+d99d82cd^ d99d82cd` prints **nothing**. The commit wrote no bytes. Cause: the
+section-edit python step failed on a **pattern mismatch**, `set -e` did not abort
+the invocation, and the chain then ran `write-tree` on the *unchanged* `read-tree`
+and `commit-tree` on that tree. The evidence was already on the screen — the
+chain's own `git diff-tree --stat $H $T` printed **EMPTY** — and was read too late
+to stop the commit. A printed assertion nobody reads at the moment it can still
+stop something is not a guard.
+
+**The repair.** Nothing was reverted: rule 10 says an unexpected state is
+**inspected, never reverted**, and that applies to one's own mistake as much as to
+a peer's. The empty commit is disclosed **forward**, in the message of `ac19e210`
+(2026-08-24T17:37:30Z, which carries the real board write) and on the dafoam board.
+The history keeps an empty commit with a false-looking message and a successor that
+says so; that is cheaper than a rewrite, and it is honest.
+
+**Corollary — an anchor assertion must first assert the anchor is UNIQUE.** A check
+that locates its edit point by substring can match the wrong occurrence and report
+success. In this same session the sub-heading byte check first matched a mention of
+`### O2 re-buy` **inside a stamp line** rather than the heading of that name. It was
+caught by its own byte assertion before any commit, which is exactly what the
+assertion is for — but the general form of the defect is that a non-unique anchor
+turns a targeted edit into a silent misplacement.
+
+*Artifacts:* `d99d82cd` — tree `b2533d80`, identical to its parent's, empty
+`diff-tree --stat`; `ac19e210` — the forward disclosure and the board write that
+`d99d82cd` claimed; CLAUDE.md rule 10, whose chain this lesson tightens.
+
+## L-287. The docket maximum is read at LINE START — a loose `D[0-9]{3}` reader returns a phantom
+
+**The rule.** Derive the maximum docket id from ids **at line start in their row
+form** — `^\| D[0-9]+ ` for `docs/DOCKET.md` — and never from a `D`-number
+*mention* anywhere in the prose. The same holds for `L-` (`^## L-[0-9]+`, the form
+rule 11 already prints) and for the `N-D` series. A future id named in prose (the
+dafoam board's `L-267+`) is not a row; neither is a number quoted inside another
+row's body.
+
+**The measurement that shows it.** Row **`D349`** of `docs/DOCKET.md` (line 714 at
+`cc136f39`) narrates a citation-guard defect and, in doing so, names **`D901`** — an
+*unallocated fixture constant*, a deliberately out-of-range synthetic value from a
+`TempDocketRepo` test fixture, quoted inside the text of D349 itself. A reader
+written as `grep -oE 'D[0-9]{3}' docs/DOCKET.md | sort -n | tail -1` therefore
+returns **901**. It did, twice: the dafoam supervisor's own first read this session
+returned 901, and the D1-C′ `RESULTS` §13 draft recorded it in writing —
+`cases/dafoam/ladder-a/A1/curriculum_D1_Cprime/RESULTS.md:480`, "**`D` candidate
+(max at drafting: `D901`)**". The true line-start maxima in that window were
+**D498** (from `3f2480a1`, 17:11:23Z) and **D502** (from `dfe5292d`, 17:41:31Z).
+Over the same `cc136f39` blob the line-start reader returns **505** while the loose
+reader still returns **901** — the two readers disagree by 396 on the same bytes.
+
+**Why no id was actually mis-assigned, and why that is not reassurance.** Rule 11
+re-derives the id at commit time from **row** ids, in the same shell invocation, so
+the phantom reached two drafts and no commit. The rule caught it; the reader is
+still wrong, and a reader that is wrong everywhere except at the one gate that
+happens to re-derive is a defect waiting for the gate to be skipped once.
+
+*Artifacts:* `docs/DOCKET.md` row `D349` at line 714 of `cc136f39` (the D901
+mention, the only one in the file); the true tail rows `D501`–`D505` at the same
+rev; `cases/dafoam/ladder-a/A1/curriculum_D1_Cprime/RESULTS.md:480` (the recorded
+phantom); CLAUDE.md rule 11.
