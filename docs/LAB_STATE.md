@@ -456,7 +456,7 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## heat-transfer
 
-**Section last written:** 2026-08-24T17:25:01Z by heat-transfer-supervisor (the
+**Section last written:** 2026-08-24T17:55:16Z by heat-transfer-supervisor (the
 session holding T3 ext1, T1b L4 and D477 since the chief's redirect
 2026-08-24T16:00Z). **Two heat-transfer sessions write this one section
 and overwrite each other by construction** — `1a634bb2` (16:04Z, the
@@ -471,7 +471,7 @@ condensed: `eb2a534b`, `450735c1`, `b84c43d3`.
 `3f2480a1`), T1b L4 completion + grading (watch LIVE), **EXPERTISE_CURRICULUM
 execution — HANDED TO THIS SESSION by the chief ~17:13Z** after the parallel
 curriculum session lost its fleet to the usage limit (E4a2 frozen
-`cd1f46e1`, run lane LIVE). Section ownership RULED (both chiefs): this
+`cd1f46e1`, GRADED PASS `5a197a41` + `edee5088`). Section ownership RULED (both chiefs): this
 session owns `## heat-transfer`; the former curriculum sub-heading is
 **folded in below (dated note, this write's stamp)**, their E4a grading
 paragraph carried verbatim at the foot of this section.
@@ -489,7 +489,31 @@ phantoms). **The curriculum's own C-A sequence (E1 → E4 → E3-a → E2 →
 E3-b) has no unblocked successor**: E1 waits on T5 graded + K2a approved,
 E3-a on T11 graded + E1, E2/E3-b NEEDS COSTING → return to Sanaa costed.
 
-**E4a2 — FROZEN BY COMMIT `cd1f46e1` (2026-08-24T17:23:22Z), run lane LIVE.**
+**E4a2 — GRADED PASS 8/8, 2026-08-24 (`5a197a41` results + run artifacts;
+`edee5088` C-34 / D505 / L-281).** Frozen `cd1f46e1` 17:23:22Z; selftest
+95/95 against zero case trees; five cases serial at nice 15, rc=0 5/5,
+strict rule 5/5 with the age guard; frozen comparator `26a10ef4…` exit 0.
+**The re-registered gate closed on all five (§3.2 CONFIRMED):** worst C1
+1.113e-09 vs floor 1e-8, worst C3 2.526e-10 vs 1e-7, C2 nowhere. Rows: I1
+6.033e-11 m²/s² (tol 8.1e-8), I2 9.712e-10, P1 0 outflow faces, **R1 order
+1.959 in [1.6, 2.4], GCI 0.393 %**, G1 +0.144 %, G2 +0.239 %, N1 +0.288 %,
+D1 −0.171 % — every row inside its carried-over interval; Z1 held; X1
+reproduction gaps 0.0000 pp vs E4a on all five. **Cost 8.283 core-min =
+$0.00708 derived vs 665 core-s registered = 0.747x** (solver subtotal
+0.959x — C-21's measured basis reproduced to 0.7 %; comparator
+over-registered ≥30x), waste none. Carried as reported, not smoothed: three
+of five series classify LIMIT CYCLE while passing (pre-registered, §2.2 —
+the rung certifies a stationary bouncing iterate); first crossing at 4 000
+on every case, so endTime 60 000 bought margin, not convergence → L-281.
+Supervisor's checks personal: instrument diffs read before the freeze,
+comparator log read after the run, `5a197a41` read as a diff of paths
+(2.40 M of 2.40 M insertions are the ten tracked `log.solve*` files,
+mirroring E4a's set), the DC_CERTIFICATE_TEMPLATE line confirmed in section
+2 with its "backs the BC, not any fan" note (H-6). Pending one small
+commit: §8's bullet citing `RECORDS_DRAFT.txt` struck and the draft
+removed. **E4 stage (a) CLOSED at PASS on its second rung.**
+
+Earlier state at the freeze:
 The parallel session's lane drafted it 16:26–16:37Z; adopted after this
 supervisor's own reads (non-delegable): comparator/builder/marker diffs
 against the frozen E4a instruments after inverse rename — no rule
@@ -648,10 +672,10 @@ findings; K2e/KV1 GAP D469; K2b cost VOID; K2a on Sanaa's desk. Disk truth
 
 **Next actions:** 1. `R_300k_x` lands (~20:06Z) → mark; `R_100k_x`,
 `R_30k_x` (2026-08-25) → mark → `analyse_t1b_L4.py` → four (m,f,x) triples
-under the amended Roache rule → calibration row → commit. 1b. E4a2 (lane
-LIVE): selftest → build → five cases serial → mark → frozen comparator →
-supervisor reads the gate block → E4a2_RESULTS + calibration row + docket
-→ commit. 2. K1 provenance:
+under the amended Roache rule → calibration row → commit. 1b. E4a2
+DONE (PASS); the curriculum's C-A tier has no unblocked successor — next
+curriculum compute waits on the spine (T5) or on Sanaa naming a fan for
+stage (b). 2. K1 provenance:
 one remaining line of attack — read the ~20 commits in the
 2026-08-17T18:59Z → 08-18T04:07Z window for embedded porcelain readings
 (read-only, zero compute); not started. 3. T5: on Sanaa's INTERPRETATIONs;
