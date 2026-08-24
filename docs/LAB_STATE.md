@@ -124,6 +124,96 @@ rung may take it).
   memo `docs/VM2026R1_FILING_ANALYSIS.md`. **Until it rules, neither copy is moved
   or deleted.** Confirmed by her *"I apporve all actually"* of the same day.
 
+
+### CONSOLIDATION WEEK — chief, certonomous-64
+
+**This entry is the chief's RECONSTRUCTION of Sanaa's CONSOLIDATION WEEK
+directive. It is not her verbatim words and no part of it is a quotation.** The
+chief does not hold her wording: the directive was issued in a session
+transcript that has since been compacted, and the fleet was killed by a usage
+limit at ~20:50Z on 2026-08-24 before the directive was ever written to the
+board. It is recorded here because a directive that is not on the board is lost
+(L-186), and this is the most load-bearing directive of the week — every team is
+working under it right now. **If Sanaa restates the directive, her words
+supersede this entry in full**; strike this block then, do not rewrite it.
+
+Checked against HEAD when this was written: `docs/COVERAGE_MATRIX.md` does not
+exist at HEAD, and no file under `docs/` and no commit message carries the
+phrase. That absence is exactly what this entry repairs.
+
+**§1 — the week's product.** A lab coverage matrix, **`docs/COVERAGE_MATRIX.md`,
+owned by the verification team**, built this session.
+
+**Every row is scored on three columns.**
+
+| Column | What it certifies |
+|---|---|
+| **V** | Code verification — an exact solution, a manufactured solution, or a correlation |
+| **G** | Grid convergence — a CONVERGING Roache triple, GCI at Fs = 1.25, and an observed order |
+| **P** | Validation against a public primary source, with the pre-registration on disk |
+
+**Every row carries one tier, from exactly these five words and no synonyms.**
+
+| Tier | Meaning |
+|---|---|
+| **HOLDS** | V + G + P all green under frozen pre-registrations |
+| **GATE REACHED** | One of V/G/P missing — **the entry must name which** |
+| **SURVEYED** | Breadth evidence, ungated |
+| **NOT HELD** | An honest FAIL, or a blocker |
+| **NEVER RUN** | Nothing run |
+
+**These five are the MATRIX's tier vocabulary and are DISTINCT from CLAUDE.md
+rule 1's verdict vocabulary** (`PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A
+RESULT` / `BLOCKED` / `PENDING`), which governs **gates**. The two overlap only
+at **GATE REACHED** and must never be conflated: a tier states what a row's
+coverage is, a verdict states what a gate did.
+
+**Section assignments as dispatched.**
+
+| § | Work | Owner |
+|---|---|---|
+| §1 | The coverage matrix | verification |
+| §2 | The conversion batch — F3, F11, F4, each under a frozen pre-registration; plus `uncertainty_band.py` onto the certificate path with a combined `u_val` | cfd |
+| §3 | The 3D campaign | cfd, coordinating with heat-transfer on geometry |
+| §4 | The Ansys campaign, prioritising **never-run classes over ground already held** | ansys-verification |
+| §5 | Thermal references — sidecars, and rule-15 title-page verification | heat-transfer |
+| §7 | The Certonomous Verification Manual, **deliberately sequenced behind the matrix**, drawing only on rows the verification supervisor has spot-check-confirmed as **HOLDS** | verification |
+| §8 | Adjoint consolidation | dafoam |
+
+The four non-verification families each owe a **`MATRIX_CONTRIBUTION.md` in
+their own territory**, feeding rows to verification.
+
+**Also recorded in the same directive** (same reconstruction caveat): **R3
+ratified as SpaRTA-class, with TBNN as the fallback**; **D16a parked**; **GCI
+accepted lab-wide**; the week's **priority teams are cfd, verification,
+ansys-verification and heat-transfer**.
+
+**End-of-week deliverable.** The matrix, the conversion results, the 3D verdict,
+and gap-ranked proposals — in **one pointable document**; and the morning report
+gains a **MATRIX DELTA** section.
+
+**A separate standing instruction from Sanaa, same period — also the chief's
+reconstruction, not verbatim here.** While Fable capacity is unavailable, **Opus
+5 is used for anything that would otherwise run on Fable.** This one does not
+rest on the reconstruction, because it is already implemented and checkable in
+two places:
+
+- **`7c469330`** — `harness/teams.yaml`, `defaults.supervisor_model` flipped
+  `fable` → `opus`, with a dated TEMPORARY comment immediately above the line
+  recording the revert path (restore `fable`, regenerate with
+  `python3 harness/generate_agents.py`, confirm with `--check`).
+- **`docs/charters/SUPERVISION_CHARTER.md`**, dated addendum at the foot,
+  *Amendment record, continued: TEMPORARY Fable-to-Opus 5 substitution
+  (2026-08-24)*. It **carries Sanaa's own wording verbatim** for this
+  instruction, quotes §5 rather than restating it, and asserts `lines whose
+  number changed above this section | 0`. It records the change as a
+  **suspension in practice, not a repeal**: §5's designation of Fable for family
+  supervisors and adversarial verifiers stands unaltered.
+
+**Sub-section last written:** 2026-08-24T23:55:06Z by chief (certonomous-64), via a record lane
+— reconstruction only, zero compute, no case directory; stamp from `date -u`
+read in the writing invocation.
+
 ---
 
 ~~**Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched~~
