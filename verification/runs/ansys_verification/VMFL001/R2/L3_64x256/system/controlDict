@@ -1,0 +1,113 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL001 -- flow between rotating and stationary concentric cylinders.
+  Steady laminar, simpleFoam.  Run to a FIXED iteration count: there is NO
+  residualControl, so the run always ends at endTime and the strict completion
+  rule's "last time == endTime" and "ExecutionTime count == endTime" clauses are
+  meaningful.  Iterative convergence is judged AFTER the run, by the comparator,
+  from the residual history and the probe plateau.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         6000;
+deltaT          1;
+
+writeControl    timeStep;
+writeInterval   6000;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    // ---------------------------------------------------------------------
+    // The GATE quantity and the Roache triple quantity are read from THIS
+    // sampler, at endTime, with cellPoint (point-interpolated) values.
+    // gateAxis:      the four manual radii on the +x axis (theta = 0), where
+    //                v_theta == U_y exactly.  This is the fixed probe
+    //                procedure named in the pre-registration.
+    // azimuthCheck:  the same four radii at 8 azimuths, DIAGNOSTIC ONLY --
+    //                it measures how axisymmetric the discrete solution is.
+    // ---------------------------------------------------------------------
+    radialProbes
+    {
+        type            sets;
+        libs            (sampling);
+        writeControl    writeTime;
+        interpolationScheme cellPoint;
+        setFormat       raw;
+        fields          (U p);
+
+        sets
+        {
+            gateAxis
+            {
+                type    cloud;
+                axis    xyz;
+                points
+                (
+                    (0.020 0 0.0025)
+                    (0.025 0 0.0025)
+                    (0.030 0 0.0025)
+                    (0.035 0 0.0025)
+                );
+            }
+
+            azimuthCheck
+            {
+                type    cloud;
+                axis    xyz;
+                points
+                (
+                    (0.02 0 0.0025) (0.025 0 0.0025) (0.03 0 0.0025) (0.035 0 0.0025)
+                    (0.0141421356237 0.0141421356237 0.0025) (0.0176776695297 0.0176776695297 0.0025) (0.0212132034356 0.0212132034356 0.0025) (0.0247487373415 0.0247487373415 0.0025)
+                    (0 0.02 0.0025) (0 0.025 0.0025) (0 0.03 0.0025) (0 0.035 0.0025)
+                    (-0.0141421356237 0.0141421356237 0.0025) (-0.0176776695297 0.0176776695297 0.0025) (-0.0212132034356 0.0212132034356 0.0025) (-0.0247487373415 0.0247487373415 0.0025)
+                    (-0.02 0 0.0025) (-0.025 0 0.0025) (-0.03 0 0.0025) (-0.035 0 0.0025)
+                    (-0.0141421356237 -0.0141421356237 0.0025) (-0.0176776695297 -0.0176776695297 0.0025) (-0.0212132034356 -0.0212132034356 0.0025) (-0.0247487373415 -0.0247487373415 0.0025)
+                    (0 -0.02 0.0025) (0 -0.025 0.0025) (0 -0.03 0.0025) (0 -0.035 0.0025)
+                    (0.0141421356237 -0.0141421356237 0.0025) (0.0176776695297 -0.0176776695297 0.0025) (0.0212132034356 -0.0212132034356 0.0025) (0.0247487373415 -0.0247487373415 0.0025)
+                );
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Per-iteration series at the same four radii.  Used ONLY for the
+    // plateau leg of the iterative-convergence test; these are CELL values,
+    // not point-interpolated, so they are not the gate number and the
+    // comparator never grades on them.
+    // ---------------------------------------------------------------------
+    gateProbes
+    {
+        type            probes;
+        libs            (sampling);
+        writeControl    timeStep;
+        writeInterval   1;
+        fields          (U);
+        probeLocations
+        (
+            (0.020 0 0.0025)
+            (0.025 0 0.0025)
+            (0.030 0 0.0025)
+            (0.035 0 0.0025)
+        );
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,7 @@
+level=L1_16x64
+rc=0
+wall_s=2
+ranks=1
+core_min=0.0333
+prereg_blob=c6b4a7c4fd09d2286a30440f5090116a7dae0eea
+utc=2026-08-24T18:10:47Z

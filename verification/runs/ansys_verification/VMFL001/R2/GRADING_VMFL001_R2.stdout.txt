@@ -1,0 +1,25 @@
+==============================================================================
+VMFL001 -- flow between rotating and stationary concentric cylinders
+Ansys Fluid Dynamics Verification Manual 2026 R1, p. 15-16
+reference: White, Viscous Fluid Flow, section 3-2.3 (analytical)
+==============================================================================
+  r =  20.0 mm   manual target  15.1000 mm/s   exact  15.120125 mm/s
+  r =  25.0 mm   manual target  10.5000 mm/s   exact  10.533600 mm/s
+  r =  30.0 mm   manual target   7.2000 mm/s   exact   7.186565 mm/s
+  r =  35.0 mm   manual target   4.6000 mm/s   exact   4.547810 mm/s
+  analytic torque per unit length: 9.345533e-07 N-m/m (diagnostic)
+
+planted-zero control on L3_64x256: {'passed': True, 'planted': 0.001234, 'read_back_delta': 0.0012339999999999999, 'reader_delta': 0.0012339999999999999, 'file': 'gateAxis_p_U.xy'}
+
+--- gate: |v_lab - v_manual| / |v_manual| <= 0.020, at L3_64x256 ---
+  r =  20.0 mm  lab  15.112132  manual  15.100000  dev  0.080 %  ok | vs exact  15.120125  dev  0.053 %  ok
+  r =  25.0 mm  lab  10.528795  manual  10.500000  dev  0.274 %  ok | vs exact  10.533600  dev  0.046 %  ok
+  r =  30.0 mm  lab   7.183545  manual   7.200000  dev  0.229 %  ok | vs exact   7.186565  dev  0.042 %  ok
+  r =  35.0 mm  lab   4.545778  manual   4.600000  dev  1.179 %  ok | vs exact   4.547810  dev  0.045 %  ok
+
+--- Roache triple on v_theta(35 mm), ratio 2.0, Fs 1.25 ---
+  coarse 0.004514584  medium 0.004539575  fine 0.004545778 m/s
+  state CONVERGING  R 0.248237  p 2.0102  GCI_fine 5.6328e-04
+
+VERDICT: PASS -- all four radii within 2.0 % of the manual target
+grading written to /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL001/R2/GRADING_VMFL001_R2.json

@@ -1,0 +1,5 @@
+total_wall_s=197
+ranks=1
+total_core_min=3.2833
+cap_core_min=10
+utc=2026-08-24T18:14:02Z

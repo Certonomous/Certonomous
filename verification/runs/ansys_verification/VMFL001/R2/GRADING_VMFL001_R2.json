@@ -1,0 +1,304 @@
+{
+  "case": "VMFL001",
+  "comparator": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL001/R2/grade_vmfl001_r2.py",
+  "completion": {
+    "L1_16x64": {
+      "age_guard": "fields newer than 0/U",
+      "endTime": 3000.0,
+      "fields_at_endTime": [
+        "U",
+        "p"
+      ],
+      "levers": {
+        "laminar": "active-in-log",
+        "mesh": {
+          "cells": 1024,
+          "mesh_ok": true
+        },
+        "nu": 0.0002,
+        "omega": 1.0
+      },
+      "n_exec": 3000,
+      "rc": 0,
+      "times": [
+        "0",
+        "3000"
+      ]
+    },
+    "L2_32x128": {
+      "age_guard": "fields newer than 0/U",
+      "endTime": 3000.0,
+      "fields_at_endTime": [
+        "U",
+        "p"
+      ],
+      "levers": {
+        "laminar": "active-in-log",
+        "mesh": {
+          "cells": 4096,
+          "mesh_ok": true
+        },
+        "nu": 0.0002,
+        "omega": 1.0
+      },
+      "n_exec": 3000,
+      "rc": 0,
+      "times": [
+        "0",
+        "3000"
+      ]
+    },
+    "L3_64x256": {
+      "age_guard": "fields newer than 0/U",
+      "endTime": 6000.0,
+      "fields_at_endTime": [
+        "U",
+        "p"
+      ],
+      "levers": {
+        "laminar": "active-in-log",
+        "mesh": {
+          "cells": 16384,
+          "mesh_ok": true
+        },
+        "nu": 0.0002,
+        "omega": 1.0
+      },
+      "n_exec": 6000,
+      "rc": 0,
+      "times": [
+        "0",
+        "6000"
+      ]
+    }
+  },
+  "diagnostic_tol_vs_exact": 0.005,
+  "exact": {
+    "0.020": 0.015120124999999998,
+    "0.025": 0.010533599999999997,
+    "0.030": 0.007186564814814816,
+    "0.035": 0.004547809523809523
+  },
+  "gate": {
+    "passed": true,
+    "rows": [
+      {
+        "diagnostic_ok": true,
+        "exact": 0.015120124999999998,
+        "gate_ok": true,
+        "lab": 0.0151121316794,
+        "manual_target": 0.0151,
+        "r_m": 0.02,
+        "rel_vs_exact": 0.0005286543993516906,
+        "rel_vs_manual": 0.0008034224768211983
+      },
+      {
+        "diagnostic_ok": true,
+        "exact": 0.010533599999999997,
+        "gate_ok": true,
+        "lab": 0.0105287949234,
+        "manual_target": 0.0105,
+        "r_m": 0.025,
+        "rel_vs_exact": 0.0004561666097058239,
+        "rel_vs_manual": 0.0027423736571427822
+      },
+      {
+        "diagnostic_ok": true,
+        "exact": 0.007186564814814816,
+        "gate_ok": true,
+        "lab": 0.00718354542927,
+        "manual_target": 0.0072,
+        "r_m": 0.03,
+        "rel_vs_exact": 0.0004201430895872931,
+        "rel_vs_manual": 0.0022853570458332873
+      },
+      {
+        "diagnostic_ok": true,
+        "exact": 0.004547809523809523,
+        "gate_ok": true,
+        "lab": 0.00454577809391,
+        "manual_target": 0.0046,
+        "r_m": 0.035,
+        "rel_vs_exact": 0.0004466831534804203,
+        "rel_vs_manual": 0.011787370889130443
+      }
+    ],
+    "tol": 0.02
+  },
+  "iterative_convergence": {
+    "L1_16x64": {
+      "converged": true,
+      "final_residuals": {
+        "Ux": 4.69186946262e-14,
+        "Uy": 4.56644915724e-14,
+        "p": 6.5087083618e-11
+      },
+      "plateau_n": 600,
+      "plateau_ok": true,
+      "plateau_ptp": 9.999813477268304e-15,
+      "plateau_tol": 1e-06,
+      "probe_last": 0.0046392461578,
+      "residual_tol": 1e-06,
+      "residuals_ok": true
+    },
+    "L2_32x128": {
+      "converged": true,
+      "final_residuals": {
+        "Ux": 1.48771375716e-12,
+        "Uy": 1.48751379771e-12,
+        "p": 4.85296496926e-11
+      },
+      "plateau_n": 600,
+      "plateau_ok": true,
+      "plateau_ptp": 1.2699999905885218e-11,
+      "plateau_tol": 1e-06,
+      "probe_last": 0.00446275180113,
+      "residual_tol": 1e-06,
+      "residuals_ok": true
+    },
+    "L3_64x256": {
+      "converged": true,
+      "final_residuals": {
+        "Ux": 1.61026505382e-09,
+        "Uy": 1.61026499051e-09,
+        "p": 8.42765657046e-11
+      },
+      "plateau_n": 1200,
+      "plateau_ok": true,
+      "plateau_ptp": 1.7723690000012726e-07,
+      "plateau_tol": 1e-06,
+      "probe_last": 0.00457718702904,
+      "residual_tol": 1e-06,
+      "residuals_ok": true
+    }
+  },
+  "levels": {
+    "L1_16x64": {
+      "azimuthal_spread": {
+        "0.020": {
+          "mean": 0.01500637273820413,
+          "n": 8,
+          "spread": 8.259018469125579e-15
+        },
+        "0.025": {
+          "mean": 0.010446789593468777,
+          "n": 8,
+          "spread": 6.775136007775018e-14
+        },
+        "0.030": {
+          "mean": 0.007132077335785622,
+          "n": 8,
+          "spread": 2.9791273614687697e-14
+        },
+        "0.035": {
+          "mean": 0.004514584023762019,
+          "n": 8,
+          "spread": 4.035834166860042e-15
+        }
+      },
+      "cells": 1024,
+      "source": "L1_16x64/postProcessing/radialProbes/3000/gateAxis_p_U.xy",
+      "values": {
+        "0.02": 0.0150063727382,
+        "0.025": 0.0104467895935,
+        "0.03": 0.0071320773358,
+        "0.035": 0.00451458402376
+      }
+    },
+    "L2_32x128": {
+      "azimuthal_spread": {
+        "0.020": {
+          "mean": 0.015094978416399283,
+          "n": 8,
+          "spread": 1.4328815911568427e-15
+        },
+        "0.025": {
+          "mean": 0.010512950576175222,
+          "n": 8,
+          "spread": 4.955584553822945e-14
+        },
+        "0.030": {
+          "mean": 0.007174031539795278,
+          "n": 8,
+          "spread": 2.9443461557754347e-14
+        },
+        "0.035": {
+          "mean": 0.004539574534534117,
+          "n": 8,
+          "spread": 1.0001548200744281e-14
+        }
+      },
+      "cells": 4096,
+      "source": "L2_32x128/postProcessing/radialProbes/3000/gateAxis_p_U.xy",
+      "values": {
+        "0.02": 0.0150949784164,
+        "0.025": 0.0105129505762,
+        "0.03": 0.00717403153981,
+        "0.035": 0.00453957453453
+      }
+    },
+    "L3_64x256": {
+      "azimuthal_spread": {
+        "0.020": {
+          "mean": 0.015112131679373279,
+          "n": 8,
+          "spread": 5.344336084789347e-14
+        },
+        "0.025": {
+          "mean": 0.010528794923406519,
+          "n": 8,
+          "spread": 3.1020325197417264e-13
+        },
+        "0.030": {
+          "mean": 0.0071835454292472345,
+          "n": 8,
+          "spread": 1.2508136887356969e-13
+        },
+        "0.035": {
+          "mean": 0.004545778093929444,
+          "n": 8,
+          "spread": 1.1593850879343393e-13
+        }
+      },
+      "cells": 16384,
+      "source": "L3_64x256/postProcessing/radialProbes/6000/gateAxis_p_U.xy",
+      "values": {
+        "0.02": 0.0151121316794,
+        "0.025": 0.0105287949234,
+        "0.03": 0.00718354542927,
+        "0.035": 0.00454577809391
+      }
+    }
+  },
+  "manual_pages": "15-16",
+  "manual_target": {
+    "0.020": 0.0151,
+    "0.025": 0.0105,
+    "0.030": 0.0072,
+    "0.035": 0.0046
+  },
+  "planted_zero": {
+    "file": "gateAxis_p_U.xy",
+    "passed": true,
+    "planted": 0.001234,
+    "read_back_delta": 0.0012339999999999999,
+    "reader_delta": 0.0012339999999999999
+  },
+  "torque_exact_per_length": 9.345533031411828e-07,
+  "triple": {
+    "R": 0.2482365981669591,
+    "d21": -6.20355937999955e-06,
+    "d32": -2.4990510769999988e-05,
+    "f_coarse": 0.00451458402376,
+    "f_extrapolated": 0.004547826544889741,
+    "f_fine": 0.00454577809391,
+    "f_med": 0.00453957453453,
+    "fs": 1.25,
+    "gci_fine": 0.000563283924506965,
+    "p": 2.010212263457908,
+    "ratio": 2.0,
+    "state": "CONVERGING"
+  },
+  "verdict": "PASS",
+  "why": "all four radii within 2.0 % of the manual target"
+}
