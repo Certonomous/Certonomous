@@ -1,0 +1,12 @@
+== date -u at build start ==
+Mon Aug 24 16:00:01 UTC 2026
+== python3 build_e4a.py ==
+built 5 case dictionaries; one-change verify() passed; manifest /home/ubuntu/Certonomous/verification/runs/T-family/E4_runs/BUILD_MANIFEST.txt
+  F_c   curve A    ny   8 nx 100 cells    800
+  F_f   curve A    ny  18 nx 225 cells   4050
+  F_m   curve A    ny  12 nx 150 cells   1800
+  N_f   curve NULL ny  18 nx 225 cells   4050
+  S_f   curve B    ny  18 nx 225 cells   4050
+BUILD_RC=0
+== date -u at build end ==
+Mon Aug 24 16:00:01 UTC 2026

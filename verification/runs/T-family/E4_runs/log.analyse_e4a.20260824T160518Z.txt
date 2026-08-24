@@ -1,0 +1,34 @@
+== date -u at analyse start ==
+Mon Aug 24 16:05:18 UTC 2026
+== sha256 of comparator immediately before run ==
+a9f31c3f569181f27b17bcaca318ce1f1a0a3f0e85e788a4214c8d8d5d63ff4b  analyse_e4a.py
+60893b28e284127f61b41842c520897a2202cb024d5a4d260272c6ee7e6c5135  ../T1_runs/analyse_t1c.py
+== python3 analyse_e4a.py ==
+provenance sha256 of every instrument this comparator uses:
+  a9f31c3f569181f27b17bcaca318ce1f1a0a3f0e85e788a4214c8d8d5d63ff4b  E4_runs/analyse_e4a.py
+  bb363d0232683f50a8f75ecbd15aef436bd72762686764c56027aac6f0401b05  E4_runs/E4a_registered.json
+  451eae3682bff7f89f31147c1d2d74fe1badc4c2af2c0e0f40e76ca665e46956  E4_runs/build_e4a.py
+  b152ed0071bfe8cea060fc8164587ffeec7ca02ab0c6ce259565935d4b10fbe6  E4_runs/mark_done_e4a.py
+  226fd26b019a7fe73b559dda36451ca328ee371bcb1c8fb6b776d024f12ffe19  E4_runs/run_one_e4a.sh
+  0e2b893fd134cba67975792d3defefb453ed929ca4d122f22022e4cad9c81274  E4_runs/launch_e4a.sh
+  60893b28e284127f61b41842c520897a2202cb024d5a4d260272c6ee7e6c5135  T1_runs/analyse_t1c.py (FROZEN import)
+
+=== registered rows ===
+I1   PASS           max face residual 3.794e-11 m2/s2 (worst case F_f, tol 8.1e-08); convention-error signature would be ~1.1e-4
+I2   PASS           max |Q_in-Q_out|/|Q_in| 7.082e-10 (worst case S_f, tol 1e-04)
+P1   PASS           no fan-patch outflow face in any case
+R1   NOT A RESULT   a level is not iteratively converged/plateaued; triple (1.5205486849494e-07, 1.5078820910875e-07, 1.5021570613088e-07) order None  (no GCI quoted)
+G1   NOT A RESULT   F_f not converged: checkpoints 15000 and 20000 differ
+G2   NOT A RESULT   S_f not converged: checkpoints 15000 and 20000 differ
+N1   NOT A RESULT   N_f not converged: checkpoints 15000 and 20000 differ
+D1   NOT A RESULT   triple not CONVERGING or P1 violated
+
+Z1   (control)      planted-zero exact-float rule held for p, U, phi readers in every case (a failure would have refused)
+     F_c: converged=False (checkpoints 15000 and 20000 differ); Q 1.520548685e-07
+     F_m: converged=False (checkpoints 15000 and 20000 differ); Q 1.507882091e-07
+     F_f: converged=False (checkpoints 15000 and 20000 differ); Q 1.502157061e-07
+     S_f: converged=False (checkpoints 15000 and 20000 differ); Q 1.002387044e-07
+     N_f: converged=False (checkpoints 15000 and 20000 differ); Q 1.504314707e-07
+ANALYSE_EXIT_CODE=1
+== date -u at analyse end ==
+Mon Aug 24 16:05:18 UTC 2026
