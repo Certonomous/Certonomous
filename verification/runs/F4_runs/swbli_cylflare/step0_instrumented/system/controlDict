@@ -1,0 +1,54 @@
+FoamFile
+{
+    version 2.0;
+    format  ascii;
+    class   dictionary;
+    object  controlDict;
+}
+application     rhoCentralFoamBoundedDiag;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         6.5e-05;
+deltaT          1e-9;
+writeControl    adjustable;
+writeInterval   1.3e-05;
+purgeWrite      3;
+writeFormat     ascii;
+writePrecision  9;
+writeCompression off;
+timeFormat      general;
+timePrecision   9;
+runTimeModifiable true;
+adjustTimeStep  yes;
+maxCo           0.3;
+maxDeltaT       1e-6;
+
+// Explicit T bound (see rhoCentralFoamBounded's createFields.H for the
+// derivation) -- guards the hConst thermo's un-clamped T inversion against
+// the SIGFPE that killed f4_swbli_warmup20 in libfluidThermophysicalModels.so.
+// TMin below the coldest physical state in this case (T_inf=81.2K, T_wall=
+// 311K); TMax well above the M=7.05 normal-shock stagnation estimate
+// (T0 ~ 888K) to bound only numerically implausible excursions, not real
+// post-shock heating.
+TMin            20.0;
+TMax            5000.0;
+
+functions
+{
+    wallShear
+    {
+        type            wallShearStress;
+        libs            ("libfieldFunctionObjects.so");
+        patches         (wall);
+        executeControl  writeTime;
+        writeControl    writeTime;
+    }
+    yPlus1
+    {
+        type            yPlus;
+        libs            ("libfieldFunctionObjects.so");
+        executeControl  writeTime;
+        writeControl    writeTime;
+    }
+}

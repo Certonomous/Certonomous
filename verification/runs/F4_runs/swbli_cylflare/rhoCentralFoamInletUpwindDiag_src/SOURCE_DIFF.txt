@@ -1,0 +1,45 @@
+SOURCE_DIFF.txt -- the four diffs required by F4_SIGFPE_STEP01_PREREGISTRATION.md 5.1
+Produced Mon Aug 24 16:28:37 UTC 2026 (box clock, date -u in the same shell invocation as this write)
+Step-0 tree: rhoCentralFoamBoundedDiag_src   Step-1 tree: rhoCentralFoamInletUpwindDiag_src
+
+=== 1. diff -u <step0>.C <step1>.C  -- must be EXACTLY the one added #include (plus the blank)
+--- rhoCentralFoamBoundedDiag_src/rhoCentralFoamBoundedDiag.C	2026-08-24 16:26:00.689160095 +0000
++++ rhoCentralFoamInletUpwindDiag_src/rhoCentralFoamInletUpwindDiag.C	2026-08-24 16:28:13.416842734 +0000
+@@ -146,6 +146,8 @@
+             interpolate(c, neg, T.name())*mesh.magSf()
+         );
+ 
++        #include "inletUpwindPos.H"    // <-- THE ONLY FUNCTIONAL CHANGE
++
+         surfaceScalarField ap
+         (
+             "ap",
+(diff rc=1)
+
+=== 2. diff -u <step0>/boundE.H <step1>/boundE.H  -- must be EMPTY
+(diff rc=0 -- 0 and no hunks above == EMPTY, the instrument is bit-identical between the steps)
+
+=== 3. diff -u <step0>/Make/files <step1>/Make/files  -- target rename only
+--- rhoCentralFoamBoundedDiag_src/Make/files	2026-08-24 16:26:00.751495848 +0000
++++ rhoCentralFoamInletUpwindDiag_src/Make/files	2026-08-24 16:28:13.415054586 +0000
+@@ -1,3 +1,3 @@
+-rhoCentralFoamBoundedDiag.C
++rhoCentralFoamInletUpwindDiag.C
+ 
+-EXE = $(FOAM_USER_APPBIN)/rhoCentralFoamBoundedDiag
++EXE = $(FOAM_USER_APPBIN)/rhoCentralFoamInletUpwindDiag
+(diff rc=1)
+
+=== 4. diff -u <step0>/Make/options <step1>/Make/options  -- must be EMPTY
+(diff rc=0 -- 0 and no hunks above == EMPTY, same libraries in the same order)
+
+=== tree-level: files present in one tree only
+Files rhoCentralFoamBoundedDiag_src/Make/files and rhoCentralFoamInletUpwindDiag_src/Make/files differ
+Only in rhoCentralFoamInletUpwindDiag_src: SOURCE_DIFF.txt
+Only in rhoCentralFoamInletUpwindDiag_src: inletUpwindPos.H
+Only in rhoCentralFoamBoundedDiag_src: rhoCentralFoamBoundedDiag.C
+Only in rhoCentralFoamInletUpwindDiag_src: rhoCentralFoamInletUpwindDiag.C
+(diff -rq rc=1)
+
+md5 inletUpwindPos.H: 627ca79897767a309d057c099ef1a481
+md5 boundE.H (both):  7a56b070c1f348269e65da68117166fb  7a56b070c1f348269e65da68117166fb

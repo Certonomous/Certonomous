@@ -1,0 +1,56 @@
+C0_RESULT.txt -- control C0, F4_SIGFPE_STEP01_PREREGISTRATION.md section 6
+Produced Mon Aug 24 16:33:02 UTC 2026 (box clock, date -u in the same shell invocation as this write)
+Prereg blob at HEAD: 1673f24f4b7c6eaebde6d506af8203d6626ac17e
+
+Twins: c0_twin_published (published rhoCentralFoamBounded, md5 ee83ca590752bd34265d306faf3ad660)
+       c0_twin_diag      (rhoCentralFoamBoundedDiag,     md5 c2a16a2ca96511faa8db4fcee299c4cd)
+Both are fresh copies of warmup20_bounded_realtime's 0 constant system, with the two
+shared section 3 controlDict edits (endTime 6.5e-05, writeInterval 1.3e-05) and
+'application' set to their own solver. Both single-rank. Both were stopped by an
+explicit kill by pid after passing 200 timesteps; neither ran to endTime and neither
+is a graded run -- these two directories are throwaway.
+
+Blocks produced before the kill: published=299  diag=299
+Final ExecutionTime:             published=40.44 s   diag=40.31 s
+
+=== WHOLE-BLOCK BYTE COMPARISON (the binding test) ===
+published log: /home/ubuntu/Certonomous/verification/runs/F4_runs/swbli_cylflare/c0_twin_published/log.c0
+diag log     : /home/ubuntu/Certonomous/verification/runs/F4_runs/swbli_cylflare/c0_twin_diag/log.c0
+blocks compared: published=200 diag=200 (target 200)
+BOUND: lines inside the compared window: published=400 diag=400
+PLANT ok: a perturbed BOUND: line in block 0 was seen (1 disagreement(s) vs 0 unperturbed). The comparator is able to report a difference.
+
+C0 RESULT: INERT. Every line of the first 200 `Time = ` blocks is byte-identical between the published rhoCentralFoamBounded and the instrumented rhoCentralFoamBoundedDiag, once the two ADDED lines (BOUNDDIAG:, BOUNDHIST:) and the wall-clock lines are removed. That covers Time, the Courant lines, every residual line and every BOUND: line (N, worst-e to all printed digits, worst cell).
+prereg 4.2's inertness argument is now a MEASUREMENT.
+compare_c0.py exit code: 0
+
+=== ITEMISED, as prereg section 6 enumerates them, over the first 200 blocks ===
+Each row states how many lines of that class the window actually holds. A row whose
+count is 0 proves NOTHING about that class and is labelled so -- standing rule 3.
+  Time =                                   published=  200 diag=  200  identical
+  Courant (Mean and max Courant Numbers)   published=  200 diag=  200  identical
+  deltaT =                                 published=  200 diag=  200  identical
+  residual: diagonal:                      published= 1000 diag= 1000  identical
+  residual: smoothSolver:                  published= 1200 diag= 1200  identical
+  BOUND: e below eMin                      published=  400 diag=  400  identical
+  BOUND: e above eMax                      published=    0 diag=    0  VACUOUS - 0 lines of this class in the window, nothing tested
+
+The 'BOUND: e above eMax' class does not fire in this window, so C0 does not test it.
+It is named here rather than silently omitted.
+
+BOUND: e below eMin lines in window: 400 published / 400 diag
+  (2 per timestep -- boundE.H is included twice per step, at .C:267 and .C:282)
+  first, published: BOUND: e below eMin in 29700 cell(s) at Time = 1.20003692e-09, worst e = -241410.631 J/kg at cell 12960 C = (0.000333333333 0.10157192 0) | low-e cell extent: x=[0.000333333333,0.19959979] r=[0.101523646,0.200360135]
+  first, diag     : BOUND: e below eMin in 29700 cell(s) at Time = 1.20003692e-09, worst e = -241410.631 J/kg at cell 12960 C = (0.000333333333 0.10157192 0) | low-e cell extent: x=[0.000333333333,0.19959979] r=[0.101523646,0.200360135]
+  last,  published: BOUND: e below eMin in 356 cell(s) at Time = 4.63325311e-06, worst e = -199523.969 J/kg at cell 0 C = (0.000333333333 0.199484435 0) | low-e cell extent: x=[0.000333333333,0.0835999874] r=[0.103579608,0.199484435]
+  last,  diag     : BOUND: e below eMin in 356 cell(s) at Time = 4.63325311e-06, worst e = -199523.969 J/kg at cell 0 C = (0.000333333333 0.199484435 0) | low-e cell extent: x=[0.000333333333,0.0835999874] r=[0.103579608,0.199484435]
+
+=== THE ADDED LINES DO PARSE UNDER THE FROZEN READER'S REGEXES ===
+(analyse_f4_sigfpe_step01.py RE_DIAG / RE_HIST, at HEAD blob 1cf320b4af25c3199c5ca2f4bb7b66635ee88837)
+  parse_log: 598 BOUND events, 598 carrying a parsed BOUNDHIST histogram
+  sigfpe flag on this clean (killed) log: False  <- must be False
+  histogram rows whose bins do NOT sum to nLow: 0  <- must be 0
+  histogram rows without exactly 12 bins: 0  <- must be 0
+  rows where worst Timp is NOT in the lowest occupied bin: 0  <- must be 0
+  rows where the solver's printed Timp disagrees with the reader's implied_T(): 0  <- must be 0
+  last parsed event: t=7.48216302e-06 nLow=457 worst_cell=0 worst_e=-199523.856 Timp=19.9912395 bins=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 457]

@@ -1,0 +1,41 @@
+PRELAUNCH_DIFF.txt -- step1_inletupwind
+F4_SIGFPE_STEP01_PREREGISTRATION.md section 3, the four assertions, run BEFORE launch.
+Produced Mon Aug 24 16:33:27 UTC 2026 (box clock, date -u in the same shell invocation as this write)
+Prereg blob at HEAD: 1673f24f4b7c6eaebde6d506af8203d6626ac17e
+Control (read-only, section 1.2): warmup20_bounded_realtime
+
+=== A1: diff -r $SRC/0 $D/0   -- must be EMPTY
+(rc=0 ; 0 with no hunks == EMPTY)
+
+=== A2: diff -r $SRC/constant $D/constant   -- must be EMPTY
+(rc=0 ; 0 with no hunks == EMPTY)
+
+=== A3: diff -r $SRC/system $D/system   -- must show EXACTLY endTime, writeInterval, application
+diff -r warmup20_bounded_realtime/system/controlDict step1_inletupwind/system/controlDict
+8c8
+< application     rhoCentralFoamBounded;
+---
+> application     rhoCentralFoamInletUpwindDiag;
+12c12
+< endTime         1.0;
+---
+> endTime         6.5e-05;
+15c15
+< writeInterval   1e-3;
+---
+> writeInterval   1.3e-05;
+(rc=1)
+
+=== A4: diff -r $STEP0/system $STEP1/system   -- must show EXACTLY the application line
+diff -r step0_instrumented/system/controlDict step1_inletupwind/system/controlDict
+8c8
+< application     rhoCentralFoamBoundedDiag;
+---
+> application     rhoCentralFoamInletUpwindDiag;
+(rc=1)
+
+=== GUARD (standing rule 4): numeric time directories other than 0 under step1_inletupwind
+step1_inletupwind/0
+(only step1_inletupwind/0 may appear)
+
+controlDict md5: control=d1a144790d89f4c5ebcf1a9a5691d87e  step1_inletupwind=23813e95a3948d7e32e43fa571ec2bd9

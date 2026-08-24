@@ -1,0 +1,104 @@
+POSITIVE_CONTROL.txt -- F4_SIGFPE_STEP01_PREREGISTRATION.md section 6
+Produced Mon Aug 24 16:40:04 UTC 2026 (box clock, date -u equivalent, read in the same invocation as this write)
+HEAD at write time: 20dd303e56dd8017d57ccf8bb6bba7972d2a1e5c
+Prereg blob at HEAD: 1673f24f4b7c6eaebde6d506af8203d6626ac17e
+Reader blob at HEAD: 1cf320b4af25c3199c5ca2f4bb7b66635ee88837
+
+Every control function called below is imported from the frozen reader.
+This driver implements no grading and defines no threshold.
+
+STEP: step0_instrumented
+LOG : /home/ubuntu/Certonomous/verification/runs/F4_runs/swbli_cylflare/step0_instrumented/log.rhoCentralFoamBoundedDiag  (5804764 bytes)
+LOG md5: 75f674bd1bf145a824f2ca084a84485a
+
+=== C1 -- reader sees a known non-zero (committed fixture) ===
+C1 fixture: /home/ubuntu/Certonomous/verification/runs/F4_runs/swbli_cylflare/fixtures/bound_log_fixture.txt
+C1 fixture md5: 60f6d5802793f7bd2cbfa5fde3dafbcb
+C1 ok t=1e-08: nLow=7 worst_e=-199600.5 cell=0 Timp=19.8844 bins_sum=7 lowest_bin=9
+C1 ok t=2e-08: nLow=55 worst_e=-201234.75 cell=3960 Timp=17.6061 bins_sum=55 lowest_bin=6
+C1 ok t=3e-08: nLow=411 worst_e=-211681.775 cell=13080 Timp=3.0417 bins_sum=411 lowest_bin=3
+
+=== C3 -- the same counter returns zero on a log with no clamp lines ===
+C3 ok: f4_swbli_warmup20_20260730T004453Z.log md5 b658b967377d574d8aacf00e3569cf9c -> 0 clamp events
+C3 zero is admissible ONLY because C1 returned 3 on a file that has 3 (standing rule 3).
+
+=== prereg 13.3 -- the SIGFPE regex cannot fire on the startup banner ===
+13.3 ok: RE_SIGFPE = 'Foam::sigFpe::sigHandler|^Floating point exception\\b'
+13.3 ok: does NOT match 2 startup-banner wordings
+13.3 ok: DOES match 2 sigHandler backtrace frames
+13.3 ok: f4_swbli_warmup20_20260730T004453Z.log parses sigfpe=True (real crash), and C3 above shows the same file parses 0 clamp events -- the two reads are independent, so neither zero is a blind zero (rule 3).
+13.3 note: SIGFPE_RC = 136 is the PRIMARY signal at run time; the archived .done sidecar records no rc, so this selftest exercises the SECONDARY (log) signal only.
+
+=== C4 -- the plant, into THIS STEP'S OWN log, by line index ===
+C4 ok: plant seen in log.rhoCentralFoamBoundedDiag own log at line index 13593 (t=8.92902853e-09): nLow=424242 e=-299999.125 cell=12345 bin0=424242
+C4 scratch copy: /home/ubuntu/Certonomous/verification/runs/F4_runs/swbli_cylflare/step0_instrumented/c4_plant_1465525/log.planted.log (the real log was NOT modified)
+C4 PASSED: the reader is demonstrably reading THIS step's file.
+
+=== C2 -- can the reader tell step 1's log from step 0's? ===
+C2 step0 normalised md5: a90510f7d854f8727a3b5663a9e89845
+C2 step1 normalised md5: 2a7c3f20dfe7e4c8949020c84bbe5c56
+C2 ok: logs differ; first differing time token: None
+C2 logs differ: True
+
+=== C0 -- instrument inertness (twin runs; not this reader's) ===
+Verbatim copy of c0_twin_diag/C0_RESULT.txt:
+------------------------------------------------------------------------
+C0_RESULT.txt -- control C0, F4_SIGFPE_STEP01_PREREGISTRATION.md section 6
+Produced Mon Aug 24 16:33:02 UTC 2026 (box clock, date -u in the same shell invocation as this write)
+Prereg blob at HEAD: 1673f24f4b7c6eaebde6d506af8203d6626ac17e
+
+Twins: c0_twin_published (published rhoCentralFoamBounded, md5 ee83ca590752bd34265d306faf3ad660)
+       c0_twin_diag      (rhoCentralFoamBoundedDiag,     md5 c2a16a2ca96511faa8db4fcee299c4cd)
+Both are fresh copies of warmup20_bounded_realtime's 0 constant system, with the two
+shared section 3 controlDict edits (endTime 6.5e-05, writeInterval 1.3e-05) and
+'application' set to their own solver. Both single-rank. Both were stopped by an
+explicit kill by pid after passing 200 timesteps; neither ran to endTime and neither
+is a graded run -- these two directories are throwaway.
+
+Blocks produced before the kill: published=299  diag=299
+Final ExecutionTime:             published=40.44 s   diag=40.31 s
+
+=== WHOLE-BLOCK BYTE COMPARISON (the binding test) ===
+published log: /home/ubuntu/Certonomous/verification/runs/F4_runs/swbli_cylflare/c0_twin_published/log.c0
+diag log     : /home/ubuntu/Certonomous/verification/runs/F4_runs/swbli_cylflare/c0_twin_diag/log.c0
+blocks compared: published=200 diag=200 (target 200)
+BOUND: lines inside the compared window: published=400 diag=400
+PLANT ok: a perturbed BOUND: line in block 0 was seen (1 disagreement(s) vs 0 unperturbed). The comparator is able to report a difference.
+
+C0 RESULT: INERT. Every line of the first 200 `Time = ` blocks is byte-identical between the published rhoCentralFoamBounded and the instrumented rhoCentralFoamBoundedDiag, once the two ADDED lines (BOUNDDIAG:, BOUNDHIST:) and the wall-clock lines are removed. That covers Time, the Courant lines, every residual line and every BOUND: line (N, worst-e to all printed digits, worst cell).
+prereg 4.2's inertness argument is now a MEASUREMENT.
+compare_c0.py exit code: 0
+
+=== ITEMISED, as prereg section 6 enumerates them, over the first 200 blocks ===
+Each row states how many lines of that class the window actually holds. A row whose
+count is 0 proves NOTHING about that class and is labelled so -- standing rule 3.
+  Time =                                   published=  200 diag=  200  identical
+  Courant (Mean and max Courant Numbers)   published=  200 diag=  200  identical
+  deltaT =                                 published=  200 diag=  200  identical
+  residual: diagonal:                      published= 1000 diag= 1000  identical
+  residual: smoothSolver:                  published= 1200 diag= 1200  identical
+  BOUND: e below eMin                      published=  400 diag=  400  identical
+  BOUND: e above eMax                      published=    0 diag=    0  VACUOUS - 0 lines of this class in the window, nothing tested
+
+The 'BOUND: e above eMax' class does not fire in this window, so C0 does not test it.
+It is named here rather than silently omitted.
+
+BOUND: e below eMin lines in window: 400 published / 400 diag
+  (2 per timestep -- boundE.H is included twice per step, at .C:267 and .C:282)
+  first, published: BOUND: e below eMin in 29700 cell(s) at Time = 1.20003692e-09, worst e = -241410.631 J/kg at cell 12960 C = (0.000333333333 0.10157192 0) | low-e cell extent: x=[0.000333333333,0.19959979] r=[0.101523646,0.200360135]
+  first, diag     : BOUND: e below eMin in 29700 cell(s) at Time = 1.20003692e-09, worst e = -241410.631 J/kg at cell 12960 C = (0.000333333333 0.10157192 0) | low-e cell extent: x=[0.000333333333,0.19959979] r=[0.101523646,0.200360135]
+  last,  published: BOUND: e below eMin in 356 cell(s) at Time = 4.63325311e-06, worst e = -199523.969 J/kg at cell 0 C = (0.000333333333 0.199484435 0) | low-e cell extent: x=[0.000333333333,0.0835999874] r=[0.103579608,0.199484435]
+  last,  diag     : BOUND: e below eMin in 356 cell(s) at Time = 4.63325311e-06, worst e = -199523.969 J/kg at cell 0 C = (0.000333333333 0.199484435 0) | low-e cell extent: x=[0.000333333333,0.0835999874] r=[0.103579608,0.199484435]
+
+=== THE ADDED LINES DO PARSE UNDER THE FROZEN READER'S REGEXES ===
+(analyse_f4_sigfpe_step01.py RE_DIAG / RE_HIST, at HEAD blob 1cf320b4af25c3199c5ca2f4bb7b66635ee88837)
+  parse_log: 598 BOUND events, 598 carrying a parsed BOUNDHIST histogram
+  sigfpe flag on this clean (killed) log: False  <- must be False
+  histogram rows whose bins do NOT sum to nLow: 0  <- must be 0
+  histogram rows without exactly 12 bins: 0  <- must be 0
+  rows where worst Timp is NOT in the lowest occupied bin: 0  <- must be 0
+  rows where the solver's printed Timp disagrees with the reader's implied_T(): 0  <- must be 0
+  last parsed event: t=7.48216302e-06 nLow=457 worst_cell=0 worst_e=-199523.856 Timp=19.9912395 bins=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 457]
+------------------------------------------------------------------------
+
+NOTE: no prereg section 8 label is computed here. The grading bodies of analyse_f4_sigfpe_step01.py remain NotImplementedError and are a separate commit the supervisor reads as a diff.

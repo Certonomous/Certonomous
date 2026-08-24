@@ -1,0 +1,21 @@
+LAUNCH.txt -- step1_inletupwind
+launched (date -u, read in the same shell invocation as the launch): Mon Aug 24 16:33:54 UTC 2026
+solver: rhoCentralFoamInletUpwindDiag
+solver binary md5: b8608265b04d02d89eb1896e0cf7e190
+wrapper pid (bash -c under setsid): 1458226
+solver pid: 1458229
+cap: timeout 360  -- 360 wall-s x 1 rank / 60 = 6.00 core-min, the prereg section 10.3 PER-STEP RUN CAP.
+     An overrun stops the run; it does not get a new budget (CLAUDE.md rule 12).
+ranks: 1 (nProcs : 1, matching every prior run of this case, prereg section 3)
+
+RESOURCE STATE AT LAUNCH (prereg section 10.3: the basis's own load is NOT RECORDED,
+so this end of the comparison is recorded here for the next estimator):
+  uptime/load:  16:33:54 up 3 days,  1:12,  3 users,  load average: 7.87, 7.65, 6.35
+  nproc: 16
+  memory (GB): total=30 used=15 available=15
+  other solvers live on the box at launch (a FLOOR, not a ceiling -- fleet agents are
+  invisible to pgrep, L-41): 3 x buoyantBoussinesq (heat-transfer team, ~67 h elapsed);
+  not touched.
+
+age guard (standing rule 4): 0/T touched immediately before this launch.
+  0/T mtime: 2026-08-24 16:33:54.181485006 +0000
