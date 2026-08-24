@@ -1581,3 +1581,256 @@ This is a reporting and reading requirement. It moves no threshold.
 
 **Stamp:** written at 2026-08-24T17:19:23Z (box clock, `date -u`, read in the same shell
 invocation as the append), at HEAD `a0b524c051a82acee950d1caebce3e6c5dfc0fa7`.
+
+---
+
+## 15. ADDENDUM 3 — correction to §14.4/§14.5 (2026-08-24, POST-COMPUTE)
+
+### 15.0 What this section is, and what it does not touch
+
+This is a **dated correction under rule 6** (originals struck, never rewritten) of
+a factual overstatement in §14.4 of this document. It is raised by verification's
+cross-team audit **pass 11, §88** (`25f16019`) and by the verification
+supervisor's own read of that pass, **§90** (`4267cd94`).
+
+It **alters no gate, no threshold, no band, no cap and no label.** §8.1's
+`[6 %, 24 %]`, §8.2's `80 %` / `20 %`, §8.3's `10 %` / `5 %`, §8.4's `0.60 ×` /
+`1.5 ×`, §7.3's 200-block minimum, §10's `12 core-min` run cap and `3 core-min`
+build allowance, and every §7/§8/§9 label are carried through **verbatim and
+untouched**. Nothing above this line is edited, struck or renumbered; the
+correction operates by **striking a sentence and stating the true one here**,
+which is the only mechanism rule 6 permits after first compute.
+
+### 15.1 The sentence struck
+
+**STRUCK** — §14.4, **line 1523** of this file:
+
+> **"The choice is material, and it is material in exactly one place."**
+
+It is struck as **false**. The sentence is contradicted by the same experiment's
+own grading artifact, `verification/runs/F4_runs/swbli_cylflare/GRADING_OUTPUT.txt`,
+and by the results record's own side-by-side table
+(`verification/campaign/F4_SIGFPE_STEP01_RESULTS.md:231`).
+
+Also struck, as an **incomplete enumeration** rather than a false statement: the
+three bullets that follow at **lines 1527–1536** discuss §8.1 and §8.4 only. They
+are individually correct — §8.1 does turn on the choice, §8.4 is insensitive, and
+the `S1a` ratios `1.000` / `1.035` quoted at **line 1533** reproduce to the digit
+(`GRADING_OUTPUT.txt:77`, `:81`) — but as a **list of the places the choice bites
+they are incomplete**, because §8.3 is absent from them. The bullets' individual
+claims stand; their completeness does not.
+
+**Nothing else in §14 is struck.** §14.1's statement of the ambiguity, §14.2's
+ruling and its grounds, §14.3's ordinal rule, §14.4's both-readings table (which
+is correct to the digit) and §14.5's printing obligations all stand as written.
+
+### 15.2 The correct list, re-derived by this lane from the grading artifact
+
+Re-read directly from `GRADING_OUTPUT.txt` (blob on disk at correction time,
+produced 2026-08-24T17:43:41Z, grader exit code 0), **not** taken on relay from
+the audit:
+
+**Two clauses turn on the event choice, not one:**
+
+| clause | event 1 (`:267`) — graded | event 2 (`:282`) — ungraded | flips? | artifact lines |
+|---|---|---|---|---|
+| **`S0a`** (§8.1, `t*` inside `[6 %, 24 %]`) | `2668/29700 = 8.9832 %` → **`True`** | `749/29700 = 2.5219 %` → **`False`** | **YES** | `:54` vs `:62` |
+| **§8.1 label** | **`BASELINE-RECOVERED`** | **`BASELINE-NOT-RECOVERED`** | **YES** | `:56` vs `:64` |
+| **§8.3 label** | **`INDETERMINATE`** (worst cell **12960**, §13.2 reference inlet face **108**, `rho_ref = 0.006473`, `magU_ref = 66.2508`; deviations `+2.8007` on `rho` and `+18.2293` on `\|U\|`, both outside their bands) | **`E-FIRST`** (worst cell **0**, §13.2 reference inlet face **0**, `rho_ref = 0.024656`, `magU_ref = 1274.0000`; deviations `−0.0000` and `+0.0000`, both inside their bands) | **YES** | `:58–60` vs `:66–68` |
+
+**Three clauses do not turn on the choice, and stand as graded:**
+
+| clause | event 1 | event 2 | flips? | artifact lines |
+|---|---|---|---|---|
+| **`S0b`** (§8.1, window end ≥ `t*`) | `6856 = 23.0842 %` → **`True`** | `2019 = 6.7980 %` → **`True`** | **no** | `:55` vs `:63` |
+| **§8.2 label** | **`THRESHOLD-ARTIFACT`** (`99.1103 %` vs 80 %; `0.0000 %` vs 20 %) | **`THRESHOLD-ARTIFACT`** (`100.0000 %` vs 80 %; `0.0000 %` vs 20 %) | **no** — the *percentages* differ, the *label* does not | `:57` vs `:65` |
+| **§8.4 label** | **`DEFICIT-NOT-IMPLICATED`** (`S1a` ratio `1.0000` → `False`; `S1b` Step 0 growth `2.5697`, Step 1 `2.5671` → `False`) | **`DEFICIT-NOT-IMPLICATED`** (`S1a` ratio `1.0347` → `False`; `S1b` Step 0 growth `2.6956`, Step 1 `2.4684` → `False`) | **no** — and both sub-flags agree, not merely the label | `:77–79` vs `:81–83` |
+
+**The true statement, replacing the struck one:**
+
+> **The choice is material in two places: §8.1 (through `S0a`) and §8.3. `S0b`,
+> §8.2 and §8.4 do not turn on it.**
+
+### 15.3 Why the §8.3 flip is not cosmetic — the §9.1 consequence, stated plainly
+
+Under the event-2 reading, §8.1 returns `BASELINE-NOT-RECOVERED`, and **§9.1's
+fourth row** applies: the discrimination question is **`NOT A RESULT`** whatever
+Step 1 shows, and *"what survives is Step 0's own reads (§8.2, §8.3)."*
+
+**§8.3 is therefore precisely the read that would carry the surviving content of
+the experiment under the alternative reading — and it does not say the same thing
+under the two readings.** Event 2 returns `E-FIRST`, an affirmative attribution to
+the energy, which is the parent-record §8.7 claim this experiment exists to probe;
+event 1 returns `INDETERMINATE`, which attributes nothing. The struck sentence
+therefore understated the exposure **in the branch where the exposure matters
+most**.
+
+**Consequence for the licensed conclusion, stated without softening:** the
+**elimination of the inlet-face dissipation-deficit variant as mechanism #7** —
+`verification/campaign/F4_SIGFPE_STEP01_RESULTS.md` §3.3, prereg §9.1 row 2 — is
+**contingent on the event-1 reading**. Under event 2 the map lands on row 4 and
+mechanism #7 is **not** eliminated. No other conclusion of this document is
+affected: `S0b`, §8.2 and §8.4 are insensitive, and the completion labels
+(§7, both steps `COMPLETE`, `SIGFPE-ABSENT`) do not involve the event choice at
+all.
+
+**Mitigating circumstance, recorded because it bears on how the error arose and
+not to excuse it:** §14.4 was written at **17:19:23Z**; the grading bodies that
+compute the §8.3 labels first existed at **17:32:25Z** (`4bf8138d`). The raw
+counts under both readings were on disk and are tabulated correctly in §14.4; the
+**§8.3 label flip had not yet been computed** when the sentence was written. That
+makes it an **overstatement made ahead of the computation**, and it is corrected
+the moment the computation contradicted it — but a claim of the form "material in
+exactly one place" should not have been written before the places had been
+enumerated by the instrument. That is the operational lesson and it is the
+reason this section exists.
+
+### 15.4 The supervisor CONTESTS the `NOT A RESULT` recommendation — and concedes the ordinal is unnamed
+
+Audit §90 (`4267cd94`) recommends **`NOT A RESULT`, both values printed**, for
+`S0a` — and, by the same reasoning, for §8.1 and §8.3 — on the ground that the
+event ordinal is a **row definition fixed on the grading path after compute**
+(§2d), with the numbers visible and material, and that `VERIFICATION_CHARTER.md`
+§2d.1 condition (2) is not met because the C1 fixture models **one** event set per
+block and so cannot discriminate event 1 from event 2.
+
+**The cfd supervisor CONTESTS that recommendation, on mechanism grounds:**
+
+1. **§8.3's own frozen formula describes the `:267` state and no other.** The
+   clause is written on the `e = rhoE/rho − ½|U|²` cancellation and scores the
+   worst-low cell's `rho` and `|U|` against a reference. That identity is the
+   convective clamp's own construction; at `:282` the quantity being clamped has
+   already been corrected by `thermo.correct()` and then diffused by the viscous
+   `e` solve, so the `:282` population is a *different physical question*, not a
+   different sample of the same one.
+2. **§4.2's frozen instrument comment names the `:267` state explicitly**, at
+   lines 315–319: *"`rho` and `U` are CURRENT at this point … `T` is NOT current:
+   `thermo.correct()` has not yet run for this step, so `T` lags by one
+   correction. Reported as `T_prev`."* That sentence is **true at `:267` and false
+   at `:282`**, where the frozen field name `TprevLow` would be a misnomer.
+3. **Measured corroboration, re-derived by this lane rather than relayed.** In the
+   `Time = 1.8993308e-05` block of
+   `step0_instrumented/log.rhoCentralFoamBoundedDiag`, the two `BOUNDDIAG:` lines
+   are at file lines **28744** and **28748**, and carry
+   `TprevLow=[139.583003,139.593102]` (event 1) and
+   `TprevLow=[139.583003,139.583003]` (event 2). The **collapse of the event-2
+   range to a single value** shows the two sets read **different `T` states within
+   one timestep** — consistent with a `thermo.correct()` between them and with the
+   source ordering §14.1 tabulates. *Stated with its limit:* this establishes that
+   the two sets are not the same read of one state; it is corroboration of the
+   **ordering**, and the inference from "range collapsed" to "`thermo.correct()`
+   ran" rests on the source ordering, not on the log line alone.
+
+**And the supervisor CONCEDES, without qualification, the limb the audit is right
+about:** **the frozen text does not name the ordinal.** No sentence of §§0–13
+selects an event by ordinal, by line number or by position within a `Time =`
+block; §14.1 says so in its own words (*"What §8 never says is which of the two
+sets it reads"*), and §14.0 calls the clause *"ambiguous as frozen"*. The
+`EVENT_GRADED = 1` selector first exists in the reader at `4bf8138d`, after both
+runs completed. That is a post-compute row definition and it is disclosed as one.
+
+**The contest is therefore narrow and is stated as such:** the supervisor argues
+the *frozen material* (the §8.3 identity, the §4.2 comment, and the C1 fixture's
+event-1 log shape, committed 19.5 h before first compute) constrains the reading
+even though the *frozen prose* does not name the ordinal. The audit argues that a
+control blind to the ambiguity cannot discriminate it. **Both readings are
+available on the same evidence, and neither party is entitled to close it.**
+
+**The ruling is Sanaa's, and it is `PENDING`.** Retiring or re-reading a
+registered gate clause is reserved to her (`CLAUDE.md` FIRST-ACTION rule); no
+agent message — including the audit's recommendation, including this supervisor's
+contest, and including the brief that produced this section — is her consent
+(rule 9). Until she rules, **both readings stay printed beside every §8.1 and
+§8.3 number this experiment publishes**, which is what §14.5 already requires and
+what the results record already does.
+
+**What is NOT in dispute and stands regardless of the ruling:** both steps are
+`COMPLETE` on all eight clauses with the age guard holding by ~4 min 56 s; `S0b`,
+§8.2 and §8.4 are insensitive to the choice; the planted controls C1/C3/C4 fired
+and C0 returned `INERT`; every graded number reproduces from the logs to the
+digit; and the reader blob that ran is the reader blob on disk and at `HEAD`.
+
+### 15.5 The §14.5 limb — the printing obligation stands, and the reader's own summary line carries the same overstatement
+
+**§14.5 is not amended.** Its five printing obligations stand exactly as frozen,
+and the reader met them: `GRADING_OUTPUT.txt` prints the event-2 value beside
+every graded number (`:61–68`, `:80–83`), marks them `UNGRADED (event 2, :282
+re-clamp)`, and prints the alternative-reading labels at `:69` and `:84`. **It is
+that obligation — §14.5 item 3 — that produced the evidence contradicting §14.4.**
+The printing requirement did its job and is left untouched.
+
+**One defect is recorded against the reader's own prose, and is deliberately NOT
+repaired in place.** `GRADING_OUTPUT.txt:70` reads:
+
+> `MATERIAL: the two readings disagree on the 8.1 label.`
+
+That summary repeats the §14.4 overstatement: the two readings also disagree on
+the **§8.3** label, at `:58` versus `:66` of the same file. **The artifact is not
+edited.** It is a produced run record; correcting it in place would destroy the
+evidence of what the instrument actually printed, and a record that a later reader
+cannot check against its own output is worth less than one carrying a disclosed
+defect. The correction lives here and in the results record's CORRECTION 1.
+
+**Binding on the reader for any future rung, not retroactively on this one:**
+`analyse_f4_sigfpe_step01.py`'s `MATERIAL:` line must enumerate **every** label
+whose value differs between the readings, derived from the computed labels rather
+than written as prose. This is a **reporting fix, not a threshold change**, and it
+is registered here so the next rung inherits it.
+
+### 15.6 L-284 binds every future rung of this family
+
+**`L-284`** (`docs/LESSONS.md`, landed at `ad63851b`): *"A per-timestep diagnostic
+included twice per step emits two event sets per block — the pre-registration must
+name the ordinal it grades BEFORE compute, or the choice becomes a post-compute
+ruling disclosed against numbers already visible."*
+
+**That lesson binds every future F-family pre-registration**, and this section is
+the reason it is not merely advisory:
+
+1. Any pre-registration reading a per-timestep diagnostic **counts how many times
+   the emitting code runs per timestep** and **names the ordinal in the frozen
+   text**, before freeze.
+2. Where the ordinal is named pre-compute, the choice becomes a **legitimate
+   pre-compute row definition** rather than a disclosed post-compute ruling — which
+   is exactly what audit §90 says the C1 fixture *does* earn for a re-run or next
+   rung: *"a registered event-1 row definition for any re-run or next rung."*
+3. The `EVENT_GRADED = 1` selector in `analyse_f4_sigfpe_step01.py` is **not
+   struck** — it is the instrument the next rung inherits, and the next rung
+   registers it in its frozen text instead of ruling it afterwards.
+4. Any C1-family fixture must model **both** event sets per block, so that a
+   refusal-gated control can discriminate the ambiguity rather than presume it
+   away.
+
+**L-284's generalisation reaches beyond F4** — it also covers F5b's `CourantNo.H`
+pre-loop double-include. That is a cross-application of one lesson, not a second
+lesson.
+
+### 15.7 Assertions
+
+- **lines whose number changed above this section: 0.** This section is appended
+  at the foot. §§0–14 are byte-identical to the blob at `HEAD` before this commit;
+  verified by diffing this path against `git show HEAD:<path>` in the same shell
+  invocation as the write and confirming **insertions only, all after the previous
+  last line (1583)**.
+- **No gate, threshold, band, cap or label is altered.** This section strikes one
+  false sentence and one incomplete enumeration, states the true list, names the
+  §9.1 consequence, and records a contested ruling as `PENDING`. It moves no
+  number that decides a label, and it does not change the grade issued at
+  `5b5f5183`.
+- **Post-compute, and said so.** First compute landed at `7cdb26f4`
+  (2026-08-24T16:43:03Z); grading landed at `5b5f5183`. This is a dated addendum
+  under rule 2 and §12, not a pre-compute amendment.
+- **Version bumped:** v1.2 → **v1.3**. v1.2 is §14 (ADDENDUM 2, post-compute,
+  2026-08-24); v1.1 is §13 (AMENDMENT 1, pre-compute, 2026-08-24); v1.0 is the
+  freeze at `0bbac521`.
+- **Nothing here is a verdict on the event selection.** The supervisor's contest
+  and the audit's recommendation are both recorded; **the ruling is Sanaa's and is
+  `PENDING`.** No agent message — the audit's, the chief's, this supervisor's, or
+  the brief that produced this section — is Sanaa's consent (`CLAUDE.md` rule 9).
+- **Nothing was sent** (rule 7): this correction was written to disk and committed
+  inside this box, and to nowhere else.
+- **Cost:** zero solver compute. This section is a read of artifacts already on
+  disk plus one grep of one log.
+
+**Stamp:** written at 2026-08-24T18:35:02Z (box clock, `date -u`, read in the same shell
+invocation as the append), at HEAD `bec36c9dc0bcd3f98e5170d5a853c45747e9238a`.
