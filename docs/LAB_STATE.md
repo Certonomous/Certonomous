@@ -603,280 +603,145 @@ documented `FILING_CHARTER` §3 exception: *the rule was wrong, not the tree.*
 
 ## verification
 
-**Section last written:** 2026-08-23T21:18:00Z by verification-supervisor
-(stamp from `date -u` read in the committing invocation — see the STAMP
-CORRECTION below). THIRD session. Audit passes 4-5 and the ledger wiring all
-BELIEVED after the supervisor's own reads/re-derivations; only the D476
-audit lane remains out. FOUR instruments BELIEVED after personal
-reads: D471 (`95333148`), D472 (`8f94f170`), append_record (`9a17109f` —
-OWNERSHIP CONFIRMED to chief: my lane, my diff read), D473
-(`b2d9e7ce`+`dc1a2085`, full 1398-line script read). Cost-calibration
-directive (Sanaa, via chief 2026-08-23) acknowledged and IN FORCE for this
-team — see the block below.
+**Section last written:** 2026-08-24T16:15:20Z by verification-supervisor (stamp from
+`date -u` read in the committing invocation). FOURTH session — a RE-SPAWN:
+the session-4 predecessor (spawned ~15:53Z) died at ~16:00Z to a transient
+API error with nothing committed and its lanes with it (L-186). Everything
+below was re-derived from HEAD blobs and disk by this supervisor, not
+remembered. Session 3's record (passes 1–5 believed, four instruments
+believed — D471 `95333148`, D472 `8f94f170`, D473 `b2d9e7ce`+`dc1a2085`,
+append_record `9a17109f`; ledger wiring `80a4d714` + C-11..C-14 believed;
+stamp correction; incidents `d97ed4c9`/`890bfa7f`, L-245/L-247) stands in
+git history at `ce204146` and is not repeated here.
 
-**STAMP CORRECTION (closure's catch, ruled by the chief):** every stamp this
-section previously carried later than ~21:00Z — 21:04, 21:15, 21:20, 21:35,
-21:38, 21:40 — was written AHEAD of the wall clock (21:12:54Z when this
-correction was drafted): after two genuine `date -u` reads at 20:39Z and
-20:56Z this supervisor estimated instead of reading. Authoritative times are
-the commits' own committer dates: D471 believed 20:58:23Z (`da4c576d`); D472
-believed ~20:59Z (its docket note swept into `fe409422` at 20:59:59Z); D473
-and append_record believed by 21:09:04Z (`d63bc018`); audit lanes dispatched
-between 21:02 and 21:09Z; wiring lane ~21:11Z. The docket's D473 row carries
-its own in-row correction. RULE ADOPTED: a stamp is written only from a
-`date -u` read in the same shell invocation as the write. AUDIT SWEEP GAINS
-the machine check: any in-record stamp LATER than its commit's own committer
-date fires (the bd3edfe8 defect class; second and third instances tonight
-were closure's board and this section). CODIFICATION DESIGN NOTE (chief,
-relaying the parallel session; this team sole owner, others comply-only):
-the check gets a SMALL FORWARD TOLERANCE — a stamp written seconds before a
-slow CAS retry can sit nominally past the committer date under clock skew —
-and must share ONE skew model with `check_harness.py`'s freshness gate,
-which already carries a 10-minute tolerance in the opposite (STALE)
-direction since its own `bd3edfe8` false-fire; read that fix's history
-before implementing so the two checks cannot fight. This commit was built from HEAD's blob via the private index,
-never through the shared worktree: at 20:37Z the worktree's `docs/LAB_STATE.md`
-was STALE in the reverting direction on closure's section (held superseded
-20:45Z text; HEAD carries their newer 20:35Z clock-note version + the D-14
-CLOSED block) and dafoam's (held 20:12Z session-2 text; HEAD carries 20:45Z
-session-3). Inspected, not reverted; flagged to the chief — the L-245 disease
-sitting armed in the tree for the next worktree-path committer.
+**Pass 6 — D476 — BELIEVED (this session, own read).** Lane pass `542408f7`
+(21:27Z, CANDIDATE) was never read by the supervisor that dispatched it; this
+supervisor re-derived every load-bearing limb with its own code, read-only
+toward closure: freeze `bf4956bc` one file/118 insertions/alone, blob
+`8fac067c…` == `RESULTS.md:4`, 118-line prefix `cmp` rc=0 against HEAD's 147
+lines, first evidence +162 s after the freeze; **A2 40/40** `F`+`names`
+identical (own hasher); **A3 6 leaves / one leaf-name** unpinned and rep2,
+**0 pinned** (own stripper); planted control on disk (cell 31818,
+83.48553657531738, 0→1, PASS); ranks 100/110 (duct 96/110); frozen §4/§7/§8
+text read. **AUDIT: SOUND WITH DISCLOSED DEVIATIONS — BELIEVED; the prereg-§7
+adoption block on closure's amended FS5 instrument is RELEASED by this audit**
+(A3 stays GATE FAIL; the §30(a) ratio question stays a recommendation for
+Sanaa; no standing verdict moves). Recorded in `docs/CROSS_TEAM_GATE_AUDIT.md`
+("Supervisor's own read of pass 6") and ledger row C-19 (0.22 core-min vs 3–6
+predicted, ≈ 0.04×). Relayed to the chief for closure.
 
-**Last commit:** this commit (session-3 board correction + dispatch state).
-Session 2's record (audit passes 1–3, D-6 memo `6f1ff0ed`, sidecar `090c070c`,
-`50175beb`, `6ae77c79`) stands below unchanged.
+**D473 row at HEAD checked:** the 561-char stamp-correction tail
+(`*[Stamp correction 2026-08-23T21:14:28Z … ]*`) is intact after dafoam's
+`6da8a162` repair of their `41e566c3` truncation.
 
-**Incident 2, on the record (2026-08-23 ~19:56Z):** commit `890bfa7f` reverted
-closure's 20:20Z section, cfd's 08ea9dbb correction and the chief's GPU-row
-update, because this supervisor's commit chain had a heredoc that terminated
-the `&&` chain — when the docket append REFUSED (D467 taken concurrently), the
-blob-rebuild step silently never ran and `hash-object` committed a **stale
-scratchpad blob from the previous round**. Caught by the post-commit verify
-(96-line delta vs ~12 expected), repaired in the next commit (worktree
-verified per-section ≥ the pre-damage parent `e1f346ee` before committing;
-closure's newer 20:45Z section rides along deliberately as part of the
-repair). Lesson to file: L-247 — a heredoc inside an `&&` chain ends the
-chain, and a scratch artifact consumed by a later step must be deleted before
-the chain or built-and-consumed in one step. Third occurrence of the L-245
-disease in one day, this one mine end to end.
+**Chief relay items answered this session:**
+- **`scripts/mutation_harness_known_test_names.py` absent from disk, tracked
+  at HEAD (blob `5ec5a9ce`, 203 lines, index entry present).** Finding: it is
+  one of exactly TEN unstaged tracked deletions (` D`) in the worktree, and the
+  ten are the same ten this board already listed 08-23 as "tracked, absent from
+  disk": this harness (`c83c9de0`, 2026-08-17T18:35Z, trailer `Lab-Agent
+  …/lab-check-repairs`), `K1_STANDING_THERMAL_CHECKS.md` (`4afefe54`,
+  2026-08-17T18:59Z), and the eight K2bP heat-balance artifacts (`9f3971f6`
+  MOVE_MAP R25, 2026-08-18; since adjudicated by heat-transfer as D477 —
+  DELETE `a311d872`, REVERSED `0c742c66`, "worktree deliberately untouched").
+  Each of the two 08-17 commits ADDED exactly one new file and that one file
+  is the absent one; no commit ever deleted either; no linked worktree exists
+  now (`git worktree list`: main only) but H4_ALLOCATION `af16ceef` found 8
+  prunable worktrees pointing into the wiped scratchpad. **Reading: these
+  files were never written to THIS worktree — they were committed from a
+  scratchpad-resident linked worktree (or by hash-object from scratch) on
+  08-17/18 and the shared index only began showing them as deletions after the
+  chief's 21:15Z `read-tree HEAD` refresh. Not a disk-clearing event; the same
+  mechanism as D477's eight.** Disposition recommended (not taken — chief's /
+  Sanaa's call under the index rulings): restore the tracked bytes from the
+  HEAD blob (`git show HEAD:<path> > <path>`) for the harness and K1; nobody
+  has unfinished work on either, so nothing is reverted; the eight K2bP files
+  follow heat-transfer's D477 disposition. Until restored, `check_absolutes.py`
+  cites a planted-error control that cannot run — FAIL_OPEN_GATE_AUDIT line
+  527 already reads it UNPARSED.
+- **dafoam's proposed rule (L-262 / C-10): "launch-gate memory limb ≥
+  neighbourliness floor + predicted arm peak."** Evaluation for the standards
+  queue (recommendation; binding is Sanaa's): SOUND as a necessary condition
+  and arithmetically forced — a gate at 16 GiB with an 8 GiB floor admits a
+  9.2 GiB arm that breaches the floor before any co-tenant moves. Three
+  refinements before it is written into a prereg template: (i) "predicted
+  peak" must be the arm's REGISTERED UPPER band, not its point estimate, and
+  the memory band must be priced from a measured fill on the same operator
+  class (C-15's lesson) — an under-predicted peak defeats the rule silently;
+  (ii) the limb must also reserve co-tenant growth: floor + peak + the
+  registered growth allowance of the live solvers at launch (four
+  `buoyantBoussinesqSimpleFoam` arms grow at write intervals), else the rule
+  protects the floor only at t = 0; (iii) the guard's floor limb must sample
+  `MemAvailable`, not `MemFree`, at the same cadence the launch gate polled,
+  and the launch gate must record the margin it opened on (C-10 opened at
+  0.02 GiB) — a gate that opens on poll 2 with 0.02 GiB margin is a gate that
+  will fail the floor. With (i)–(iii) it is worth a VERIFICATION_CHARTER §2e
+  sibling clause; goes to Sanaa's desk as a draft after their attempt-2 prereg
+  lands and is audited.
 
-**Audit pass 1 recorded (`docs/CROSS_TEAM_GATE_AUDIT.md`, new, append-only):**
-**R5C — AUDIT: SOUND, GATE FAIL stands** (prereg sha `a1cfae5a…` re-hashed by
-the supervisor personally, equal; comparator disk == committed blob ==
-recorded sha; §2d disclosure-limb compliant per D-4(a); G1c lever-activity
-covers the no-op; planted controls fired with measured values).
-**T10a-R — AUDIT: SOUND WITH DISCLOSED DEVIATIONS, GATE FAIL 5/4/0 stands**
-(all five §1a byte-claims re-derived personally: 30,520-byte prefix property
-holds, ADDENDUM 2 tail sha `ab90298a…` matches, comparator `a3014a64…` disk ==
-blob; the two deviations were disclosed before this audit and carry the
-chief's ruling; ADDENDUM 2 commit stays on Sanaa's desk). Zero solver compute.
-**Incident on the record:** this team's first board commit `d97ed4c9` clobbered
-the dafoam board section in git because the shared working tree was stale on
-that file; caught by the non-optional post-commit verify, repaired forward the
-same minute, lesson L-245 filed. Dafoam team: your 19:35Z section (two-session
-claim ledger included) is intact at HEAD; how the working tree came to hold
-your 18:17Z text while git held 19:35Z is unestablished and flagged to you.
-The team has produced **no verdict-bearing commit yet**; the `fd831c11` line in
-the first fill was heat-transfer's commit, not this team's.
+**Live jobs:** no solver compute owned by this team. **Three lanes live (the
+cap), each dispatched with a predicted cost:**
+1. **Audit pass 7 — dafoam W4 O2 re-buy (`5a93f6ee`, PENDING, C-15) + B3
+   decomposition (`b5ff25d7`/`bb5088c4`/`52c26ec1`)**; the O2 `PENDING`
+   question (queue state vs softened NOT A RESULT for a cap-stopped run) is the
+   sharp item. Predicted ≤ 1.0 core-min, zero solver.
+2. **Audit pass 8 — Ling2016 TBNN GPU arm (`e8309b6c` freeze, `11f93da6`
+   code, `353925c7` NOT A RESULT, C-16 10.7054 GPU-h = $8.62 + 7.88 GPU-h
+   idle waste)** — the lab's first GPU run: freeze order, comparator-own
+   output, console-priced vs price-list cost basis, per-item sign-off
+   citation (GPU spend is outside the blanket), instance-stopped evidence.
+   Predicted ≤ 1.0 core-min, zero GPU-h, zero solver.
+3. **Stamp-vs-committer-date check, `scripts/check_stamp_vs_commit.py`** —
+   the codification the chief assigned this team (one skew model shared with
+   `check_harness.py`'s 10-min STALE tolerance; forward tolerance chosen from
+   the measured distribution over 300 commits; six planted controls incl. the
+   real bd3edfe8/21:38Z instances; report-only sweep at HEAD). Predicted
+   ≤ 3.0 core-min. **Diff read by this supervisor before belief or wiring.**
 
-**Live jobs:** no solver compute owned by this team. **One lane live:** the
-D476 clip-repair audit (closure's adoption blocks on it; dispatched with the
-supervisor's two standards recommendations to carry verbatim).
-**RETURNED AND BELIEVED since the last stamp (each after the supervisor's own
-read/re-derivation):**
-- **Audit pass 4 — dafoam W4 M1+M2 (`c5cf3721`): SOUND WITH ONE DEFECT
-  FOUND.** Freeze verified by the supervisor's own hands: prereg one-commit
-  `c8254a4a` 19:33:04Z, disk sha == frozen blob `92a6831c…`, first compute
-  `o0.start` 19:40:18.97Z (+434 s). Two of 20 predictions missed and stayed
-  missed (anti-tuning evidence); M1 PENDING confirmed a queue state. **§14
-  defect, supervisor-re-derived at the artifacts:** M2 attempt 1 (300 s,
-  20.00 core-min, the load-bearing input to M1=PENDING) left no filesystem
-  trace — attempt 2 overwrote both logs at the same paths (`m2_mem.log`
-  first line START 19:50:45Z is attempt 2's; m2 log mtime 19:53:12Z). Remedy
-  recommended TO DAFOAM (theirs to accept/refuse): dated addendum labelling
-  row 3 a BOUND; second-order fix per-attempt log suffixes. No verdict
-  overturned.
-- **Audit pass 5 — heat-transfer T9aH (`074a82c1`): SOUND, two owed items,
-  neither touching a verdict.** Freeze verified by the supervisor's own
-  hands: prereg `0078fe9c` 19:52:16Z committed alone (619 lines); comparator
-  `T9aH_runs/analyse_t9aH.py` three-way blob equality `8107ed38…`
-  (1908bb7c == HEAD == disk, none the empty-input hash — a wrong-path first
-  probe returned e3b0c442… twice and was caught: equality of two failures is
-  not equality of blobs); first compute content-basis `W_c/log.blockMesh`
-  banner 20:13:03Z, comparator +469 s earlier. Owed, relayed to
-  heat-transfer: their COST_CALIBRATION row (comparison already complete in
-  their §9: 0.238x prediction), and HC1-HC3 recorded as bare `met: true`
-  without measured values (next-rung comparator item).
-- **COST_CALIBRATION wiring (`80a4d714` script, `a6ed127f` format amendment,
-  `46c5c873` rows): BELIEVED** — 109-line diff read personally, pure
-  addition; C-series pattern with both traps (hyphenated series `C-`; table
-  furniture negatives) visibility-asserted; selftest 0 failures, 2 mutation
-  classes each break it. **Deviation RATIFIED:** seeded rows were C-1..C-10
-  by the time the lane read the file (HEAD moved 4x); the team's rows landed
-  as **C-11..C-14** through the wired helper itself (`ID ASSERT ok: C-11 ==
-  max+1 over HEAD AND the preserved tail`, exit 0) — rule 11 re-derivation
-  exactly as written. All four rows honestly carry "no estimate made at
-  dispatch". The 47-lines-behind worktree hazard self-healed before the lane
-  touched the file (peer committed); the lane used the HEAD-blob route
-  regardless and improved it (worktree written only after CAS success).
-A consolidated supervisor-ratification note for passes 4-5 rides the D476
-section commit (the audit doc is append-only; this board is the belief record
-meanwhile). Supervisor reads every returning diff/record personally before
-belief.
-**Cost-calibration directive (Sanaa 2026-08-23, in force):** every process
-completion states predicted vs actual core-min (log-measured), derived
-dollars at the recorded rate, the ratio, and gap attribution with waste
-separately named; central ledger `docs/COST_CALIBRATION.md` (at HEAD,
-`ef6a9082`, seeded T10a-R 2.77x / R5C ≤0.80x / W4 0.50x). Team compliance:
-this session's four completed instrument-repair processes are being appended
-as C-4..C-7 by the wiring lane — all four honestly read "no estimate made at
-dispatch", which is itself the calibration finding; every future lane
-dispatch from this team carries a predicted cost. AUDIT ANGLE ADOPTED: the
-predicted-vs-actual comparison is now a standing cross-team audit question —
-its presence and honesty at every close-out is gradable; records predating
-the directive are graded report-only, never faulted retroactively.
-**Instrument repairs, all three BELIEVED after personal diff reads:**
-- **D471** `95333148`, believed 20:56Z (docket row carries the ruling incl.
-  the t1b_L4 scope strike).
-- **D472** `8f94f170`, believed 21:04Z. Docket closure note content is mine
-  and correct but LANDED VIA A PEER'S COMMIT `fe409422` (their worktree-path
-  docket commit swept my uncommitted row edit; their message does not mention
-  it) — disclosed here so the provenance is on the record. Corpus reading
-  unchanged: exactly 3 bare `FAIL` cells, D-5 untouched. The lane's V2
-  `UNCITED-NEWER` finding is corpus churn (`b8fe7eea`), routed to chief for
-  cfd/ledger.
-- **append_record.py** `9a17109f`, believed 21:15Z (339-line diff read
-  personally; defect reproduced pre-repair — exit 0 wrote a duplicate D3 —
-  and refused post-repair with new exit 6, tail preserved verbatim;
-  cross-series negative visibility-asserted; 4 mutation classes each drove
-  exit 5). No docket row of its own — the incident is recorded inside D474's
-  corrected-id note and closure's `52e5de39`; closure line offered to chief.
-  Known residuals: suffixed-id tail (`D471a` vs `D471`) refuses
-  conservatively, untested; the helper has not yet run against the real
-  docket post-repair. Interim mitigation for appenders is RETIRED — the
-  helper now sees the tail itself. Lane's "duplicate D468 in HEAD" claim
-  re-checked at current HEAD: resolved by the peer's disclosed renumber
-  (D474 note), exactly one D468 row remains.
-
-**Charters owned:** `VERIFICATION_CHARTER.md` **v1.10, 2026-08-22** (§2e at the
-foot, H-7, L-219/L-220 verbatim, zero lines moved above — verified by reading
-the amendment record at the foot this session); `RESULT_PRIORITY_CHARTER.md`
-**v0.5 — a DRAFT**, orderings are proposals awaiting Sanaa; only §2's bright
-line (trade declared and recorded) is settled.
-
-**Open items:**
+**Standing items (unchanged state unless noted):**
 
 | item | state |
 |---|---|
-| **VM2026R1_Fluids** (Ansys suite) | **D-6, with Sanaa — NO AGENT TOUCHES EITHER COPY.** Live reading 2026-08-23T19:37Z, read-only: root copy `VM2026R1_Fluids/` **123 files, 2.5 GB** (complete per chief's count); papers copy **STALLED at 10 files, 26 MB**, nested doubled path `docs/papers/verification_validation/VM2026R1_Fluids/VM2026R1_Fluids/`, last write 2026-08-22 17:42Z, **no scp/rsync/sftp process live** — the "transfer in progress" of the chief's 08-22 note is DEAD, not in progress. This team may *prepare* the FILING_CHARTER R6/R8 analysis for her ruling; the ruling and any move are hers. Nothing graded from either copy |
-| **Ansys Fluid Dynamics Verification Manual** | tracked PDF at `docs/papers/verification_validation/`, 8.5 MB, **no `.txt` sidecar** (R8 violation). Sidecar production + L-144 title-page verification dispatched to a lane 2026-08-23 |
-| **`GATE FAIL` vs bare `FAIL`** | D-5, with Sanaa, nothing edited. Current reading (lane, 2026-08-23): **3 bare `FAIL` cells** (V5:1070, V14:1080, V15:1081) vs the recorded 4 — corpus churn isolated: V8 already remediated to `GATE FAIL`, V10 left, V14 entered (D338 amendment). Instrument defect D472 **REPAIRED AND BELIEVED 21:04Z** (`8f94f170`, diff read personally; selftest 13/13, planted moved+amended history + de-vacuated corpus controls; reading unchanged: exactly 3 bare `FAIL` cells). D-5 itself still with Sanaa, nothing edited |
-| **Comparator freeze audit** | **INSTRUMENT REPAIRED AND BELIEVED 2026-08-23T20:56Z** (D471, lane `95333148`; supervisor's own 857-line diff read; selftest 24/0; 5 mutation classes proven able to fire). Believed instrument reading: **45 graders — 10 FROZEN / 7 UNFROZEN / 2 AMENDED_AFTER / 4 AMBIGUOUS-SCOPE / 22 NO-MARKERS / 0 FROZEN-SHA-WITNESS** (pre-repair live baseline was 21 rows 9/8/4; docket's 19-row 7/8/4 predates two comparators). Changes: `analyse_t1b` UNFROZEN→FROZEN (+163,554 s — mtime-based, the table's weakest number); K0b pair AMENDED_AFTER→AMBIGUOUS-SCOPE (phase markers `DONE.analyse`/`DONE.build_and_run` were never case-freeze statements — two verdicts honestly removed). **Supervisor ruling: the docket's `+177,712 s FROZEN` for `analyse_t1b_L4` is STRUCK as non-reproduced** — it implied an `R_*_x`-only scope; the source (`:62-63`, `:170-172`, `verdict_amended(nu_m,nu_f,nu_x,…)`) requires and consumes c/m/f, so the defensible scope reads UNFROZEN −5,904 s on the commit test; §2b/§2d legality is governed by the L4 amendment's own disclosure, feeds the T1b audit (~08-26). `analyse_t9aD` UNFROZEN re-confirmed independently: its sha witness (`gate_t9aD.json`) entered at `06410acd`, same commit as the comparator, 19 min AFTER the D_* markers — cannot rescue. Standing facts surfaced: **87 of 156 markers repo-wide carry no `finished_utc`; 15 in T1_runs share one mtime to the second (copy signature)** — heat-transfer's territory, relayed via chief; `--strict-markers` mode exists and refuses (exit 2) on all 9 mtime-dated T-family rows. 12 graders under `cases/` are NO-MARKERS (zero `DONE.*` anywhere under `cases/`) — coverage gain is the reporting, not new verdicts |
-| **The six standing audits** | **ALL SIX RE-RUN 2026-08-23** (lane; dated sections appended, committed per audit): SWEEP_REFRAME `c5a9d4c7`, FAIL_OPEN_GATE `f14fca9c` (2 new candidates: Kaandorp `scoreboard.py:74` claim-(i) block vanishes under `except IndexError: pass`; K0cT/K0cX `build_cases.py` drop unparseable measured-profile rows uncounted into a BC), DEAD_LEVER `876a9ec1` (**U-1 headline SUPERSEDED: 0-of-257 → 6-of-219** — six B3 logs carry `jacMatReOrdering rcm` configured AND read back active in `-ksp_view`; **supervisor-verified by own reads of arm_C and arm_K2 at the cited lines**; the ~8 core-min M-A purchase is MOOT; hump conclusions unchanged), H4_ALLOCATION `af16ceef` (**602 staged deletions in the shared index, 8 prunable worktrees into wiped scratchpad, 2 live sessions on one tree** — chief's territory, escalated; H4b PASS→FAIL: `heat-transfer` and `verification` have no guidelines doc), LEDGER_HEADLINE `69df4876` (8 of 9 falsifications still live), EXTERNAL_REFERENT `e3f3b521` (**the audit's own bucket figures are unreproducible — its screen script was never committed**; its 1,549 matches no reading of its own §2 rule; lesson candidate: an audit that freezes its instrument must commit it). Eight tracked planted-control artifacts absent from disk (K2bP heat-balance JSONs + `K1_STANDING_THERMAL_CHECKS.md`, cited by five docs incl. LESSONS) — probably D390 filing defect, bytes in HEAD, inspected not reverted |
+| **VM2026R1_Fluids** | D-6, with Sanaa — NO AGENT TOUCHES EITHER COPY. Root copy 123 files / 2.5 GB; papers copy dead at 10 files / 26 MB. Ruling memo `docs/VM2026R1_FILING_ANALYSIS.md` (option A recommended). Nothing graded |
+| **Ansys manual** | tracked PDF, no `.txt` sidecar (R8); basename violates R8 pattern; rides in the D-6 memo §4. Sidecar lane of 08-23 died; sidecar still absent — VERIFY, re-dispatch when a lane frees |
+| **`GATE FAIL` vs bare `FAIL`** | D-5, with Sanaa; 3 bare cells (V5:1070, V14:1080, V15:1081); instrument D472 believed |
+| **Comparator freeze audit** | instrument D471 believed; 45 graders 10/7/2/4/22/0; `analyse_t1b_L4` docket figure STRUCK; 87/156 markers without `finished_utc` relayed to heat-transfer |
+| **Six standing audits** | all re-run 08-23 (`c5a9d4c7`, `f14fca9c`, `876a9ec1`, `af16ceef`, `69df4876`, `e3f3b521`); EXTERNAL_REFERENT's screen still uncommitted (own-audit defect, queued) |
+| **Ten absent tracked files** | mechanism established above; disposition with the chief |
 
-**Freshness flag:** `verification/certificates/`, `credibility/`, `monitor/`
-all last written 2026-08-16 19:03 (verified by `ls`); nothing this team owns has
-moved since.
+**Cross-team gate audit — targets after this session's dispatch:**
+- IN FLIGHT: pass 7 (W4 O2 + B3), pass 8 (Ling2016 GPU).
+- QUEUED, verdict-bearing chains now graded or landing: heat-transfer **T3
+  ext1 `R_f`** (finished 14:53Z, ungraded, owner = peer session's
+  heat-transfer); **T1b L4 re-run** — `R_300k_x` lands today (73076/80000 at
+  15:52Z), `R_100k_x`/`R_30k_x` before 08-26 — the four PASS rows on
+  DIVERGENT/STAGNANT triples (D440) are the sharpest live Roache instance;
+  closure **Kaandorp** close-out (driver complete, this session's closure);
+  dafoam **A3** (`5d8e2f52`/`97a54c07`, C-9/C-10 drafts awaiting RESULTS);
+  cfd **E4a** (`628e29c4`, frozen, nothing launched — owner heat-transfer's
+  peer).
+- STILL OPEN from earlier passes: T10a's 6 UNMEASURED controls; the 4
+  ungraded pooled `T1_runs` UNFROZEN rows; A6 N-D21 caveat CLOSED; A4 CLOSED;
+  Wu2018 CLOSED; W4 M1+M2 §14 defect remedy owed by dafoam; T9aH two owed
+  items (heat-transfer).
+- INSTRUMENT QUEUE (this team): EXTERNAL_REFERENT screen rebuild-and-commit
+  (or strike its bucket figures with a dated note); D473 declared-mode
+  exercised on a real rung once any prereg carries the block; Ansys sidecar.
 
-**Cross-team gate audit — standing mandate.** Targets, updated with the material
-new at HEAD `9e82321b` since the first fill:
+**Cost calibration (rule 12):** in force; this session's rows C-19 (pass 6);
+passes 7/8 and the stamp check each land their own row at completion with the
+predictions above as the comparator.
 
-- **W4 M1+M2 — AUDITED, pass 4 (`c5cf3721`), SOUND WITH ONE DEFECT FOUND,
-  believed after the supervisor's own re-derivation** (see Live jobs above;
-  §14 remedy with dafoam). Instrument finding carried to D471 residuals:
-  the freeze checker has ZERO coverage of W4's comparators — they live
-  outside the repo (`/home/ubuntu/certonomous-runs/…`) and are spelled
-  `analyze_*`/`pc_ladder.py`, missing both the population roots and the
-  grader patterns.
-- **T9aH — AUDITED, pass 5 (`074a82c1`), SOUND, believed after the
-  supervisor's own re-derivation** (two owed items with heat-transfer, see
-  Live jobs). Instrument finding for D471 residuals: marker mtimes on this
-  tree are a single-process batch write separable only sub-second; a
-  marker-based margin overstates by 1,444 s vs the content-basis log banner
-  — content-basis dating (log banners) beats marker mtimes where present.
-- **NEW — R5C** (`0ac76ec2`): closed GATE FAIL **by its own identity gate** —
-  "the omega source is repaired in a copy, not in the solver R4's numbers came
-  from." Audit: confirm the identity gate was pre-registered and the GATE FAIL
-  is the frozen comparator's own output, not a post-hoc reading.
-- **NEW — T10a-R** (`cdb5cc0b`): GATE FAIL 5/4/0, prereg ADDENDUM 2 disclosed
-  **unfrozen and uncommitted at grading** (chief's ruling; applied gates
-  byte-prefix-checked at 30,520 bytes against `7150182b`). Audit: §2d/§2b
-  legality of grading under an uncommitted addendum.
-- **NEW — A6 N=16** (`6c6de745`): 8 of 9; N-D21's step-sizing rule sizes steps
-  from `|J_adj|`, the quantity under test — self-referential failure mode
-  admitted unmeasured. Audit: is that caveat carried on the verdict surface.
-- T1b's four PASS rows on DIVERGENT/STAGNANT triples (D440) — still the
-  sharpest live instance of the Roache rule; grading of the L4 re-run waits on
-  three 80000-endTime siblings, ETA 2026-08-26.
-- T10a: 6 controls UNMEASURED; 2d.1 zero-referent repair disclosed — still open.
-- A4 — **CLOSED, pass 2**: the 08-22 shipped-image twin made the like-for-like
-  comparison at both matched design points; target was stale.
-- Wu2018 frozen-k — **CLOSED, pass 2**: fired falsifier IS the §5-registered
-  one, verbatim; weakness named — prereg's first commit is the results commit
-  (`62f781d0`), freeze self-attested, no commit witness. Verdict stands.
-- A6 §6a caveat — **CLOSED, pass 2**: N-D21's limitation travels (in-table,
-  §7 lim. 8, priced UNPRICED). See `docs/CROSS_TEAM_GATE_AUDIT.md` pass 2.
+**On Sanaa's desk:** `RESULT_PRIORITY_CHARTER` v0.5 orderings; D-5; D-6 (memo
+ready); D473 adoption + §3 clause (11.4%/24.1% replay); the §30(a)/(b) FS5
+standards recommendations; the memory-limb rule draft (after dafoam's
+attempt-2 prereg); the ten-absent-files restore (via the chief).
 
-**Filing observation (lane, 2026-08-23):** the manual's basename
-`Ansys_Fluid_Dynamics_Verification_Manual.{pdf,txt}` violates R8's
-`author_year_identifier` pattern — now flagged twice by `check_filing.py`
-(both halves of the pair). NOT renamed: a tracked-file rename is coupled work
-and sits beside D-6 material; goes in the D-6 prep note for Sanaa. Repo-wide
-`check_filing.py` reads FAIL: 28 violations (1 R1, 4 R5, 12 R8, 11 R9 — 11
-other PDFs lab-wide still lack sidecars), pre-existing, not this team's alone.
+**Blocked:** VM2026R1 grading (D-6, Sanaa). Nothing else.
 
-**Next actions** (session-3 state, 21:13Z+): (1) D471, (2) D472, D473 and
-append_record all **DONE — believed** (docket rows carry the rulings; D473's
-adoption question is on Sanaa's desk with the replay numbers 11.4%/24.1%);
-DONE since: audit passes 4-5 believed, ledger wiring believed, C-11..C-14
-landed (all detailed in Live jobs above); IN FLIGHT: the D476 audit lane
-only. D471 residual list grew two entries from the audits (outside-repo
-`analyze_*` comparators; content-basis dating beats marker mtimes) — a
-follow-up repair rung for the freeze checker is the natural next instrument
-item, offered to the docket after the D476 return;
-(1c) **D476 AUDIT — QUEUED, BLOCKS closure's adoption** (their prereg §7
-requires this team's audit; routed by chief): target `7e973ba8` vs prereg
-frozen `bf4956bc`; evidence
-`cases/RANS_LES_closure_models/_common/features/FS5_D476_CLIP_REPAIR_RESULTS.md`
-+ `/home/ubuntu/closure-data/D476_A3_triage/`; graded A1/A2/A4 PASS, A3 GATE
-FAIL (BLAS-thread-dependent rounding on an analytically-zero singular value,
-N-B39). Dispatches on the first free lane. The two standards questions it
-carries are ANSWERED by this supervisor as recommendations (binding versions
-are Sanaa's): (a) `s[0]/s[-1]` of an analytically singular matrix is NOT a
-publishable number — it measures BLAS rounding, not the matrix; publish rank
-plus the smallest singular value against the registered rtol, and print the
-ratio only when `s[-1]` clears that tolerance, else the label "unbounded
-(analytically singular)"; (b) YES — any gate whose pass criterion is exact
-identity of RECOMPUTED floating-point quantities must pin threads
-(`OMP_NUM_THREADS=1` or a recorded fixed N) and record the BLAS
-implementation, and the stronger rule is to gate on STORED primary bytes
-(their A2 form, sha256 of saved matrices — needs no pinning) rather than on
-recomputation identity;
-(3) remaining audit targets: W4 M1+M2 and T9aH (queued above), T1b after
-grading (~08-26), T10a's 6 UNMEASURED
-controls, the 4 ungraded pooled `T1_runs` UNFROZEN rows, EXTERNAL_REFERENT's
-uncommitted screen (rebuild and commit the instrument, or strike the
-unreproducible bucket figures with a dated note); (4) grade heat-transfer's
-missing planted-control artifact question with them (D390 filing defect vs
-lost measurement); (5) sidecars for the 11 other PDFs lab-wide (offer to
-chief — other teams' papers).
-
-**Chief-routed item (2026-08-23), evaluated:** the R4 §7 registered-deliverable
-class ("promised artefact absent and undisclosed at close-out") gets an
-executable check — spec in `docs/REGISTERED_DELIVERABLES_CHECK_PROPOSAL.md`
-(D473; closure's own D467 records the R4 instance): declared-mode binding
-prospectively, heuristic report-only
-retrospectively, four planted controls, adoption gated on the §5 archive
-replay, must fire on R4 §7. Implementation queued as next-session action (2);
-the binding charter clause is a DRAFT in the proposal's §3 for Sanaa. The R4
-repair itself is closure's — not duplicated.
-
-**On Sanaa's desk:** `RESULT_PRIORITY_CHARTER` v0.5 orderings; the `GATE
-FAIL`/bare-`FAIL` ruling (D-5); the VM2026R1 canonical home (D-6) — now with
-the finding that the second copy's transfer is dead at 10/123 files, and with
-the prepared ruling memo **`docs/VM2026R1_FILING_ANALYSIS.md`** (three options,
-A recommended: outside-git home per the closure-data pattern + committed sha
-manifest; the manual-basename R8 rename rides along as §4). Analysis only —
-neither copy was touched.
-
-**Blocked:** VM2026R1 grading (blocked on D-6, Sanaa). Nothing else.
+**Next actions** for whoever picks this up: read the three lanes' returns as
+diffs/records personally (passes 7/8 → BELIEVED or not, with numbers; the
+stamp check → diff read, then wire into the audit sweep); then dispatch, in
+order, the T1b L4 audit as each arm lands (Roache triple gating is the
+question), the EXTERNAL_REFERENT instrument rebuild, and the Ansys sidecar
+(L-144 title-page verification). Every dispatch carries a predicted cost.

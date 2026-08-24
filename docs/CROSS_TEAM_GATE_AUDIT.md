@@ -1108,3 +1108,51 @@ end**, i.e. this lane **over-predicted by roughly 30×**; attribution:
 mispricing compressed `.npz` reads at their full uncompressed size. Everything
 else was reads, `git` hashes and JSON arithmetic. Nothing under
 `cases/RANS_LES_closure_models/` or `/home/ubuntu/closure-data/` was written.
+
+## Supervisor's own read of pass 6 — 2026-08-24, verification-supervisor: BELIEVED
+
+**Lines whose number changed above this section: 0.** Appended at the foot,
+built from `git show HEAD:docs/CROSS_TEAM_GATE_AUDIT.md`, never from the
+worktree. This section carries no `###` number of its own so that the lane
+passes appending concurrently (7, 8) keep the running section count.
+
+Pass 6 above was a lane's CANDIDATE. The verification supervisor of the
+session that dispatched it was killed before reading it (transient API error,
+~16:00Z 2026-08-24; L-186 — nothing of that read survived). This supervisor,
+its re-spawn, re-derived every load-bearing limb with **its own code, not the
+lane's and not closure's**, read-only toward closure's territory:
+
+| pass-6 claim | re-derived by the supervisor | agrees? |
+|---|---|---|
+| §25 freeze: `bf4956bc` one file, 118 insertions, alone | `git show --stat bf4956bc`: 1 file changed, 118 insertions(+), committer 2026-08-23T20:40:34Z | yes |
+| §25 frozen blob `8fac067c…` == the sha `RESULTS.md:4` claims | `git rev-parse bf4956bc:<prereg>` = `8fac067cf4a2c19a205df529db6c79bd48e31f3d`; `RESULTS.md:4` reads the same | yes |
+| §25 118-line freeze blob is a byte prefix of HEAD's 147-line file | `head -118 <disk> \| cmp - <frozen blob>` rc=0; disk == HEAD == `7e973ba8` blob `6110dbe0…`; path history exactly two commits | yes |
+| §25 first evidence 162 s after the freeze | `A2_before.json` mtime 20:43:16.227Z vs freeze 20:40:34Z = +162 s; the A3 "old" side `features_backup_pre_D476/fs2_audit.json` dated 2026-08-21 18:01:25Z, the baseline compared against | yes |
+| §26 A2 40/40 `F` and `names` identical | own hasher (dtype, shape, C-order bytes of `F`; `names` list equality) over `/home/ubuntu/closure-data/features/*.npz` vs `features_backup_pre_D476/*.npz`: **40 of 40 identical, 0 bad**; live keys `['D','F','diag_names','names']`, `F` float32 | yes |
+| §27 A3: 6 leaves / one leaf-name unpinned; 0 pinned | own stripper/differ (strip `frac_at_min`, `frac_at_max`, `q1_wallRe_unclipped_companion`, compare every leaf path): delivered `fs2_audit.json` **6 differing leaves**, `rep2` **6**, `pinned4` **IDENTICAL**; the only differing leaf name is `singular_value_ratio_first_to_last`; hump `2.849150482633467e+18 → 2.0245029833104083e+17` as printed | yes |
+| §26/§28 A1 planted-control record on disk | `coverage.q1_wallRe_unclipped_companion.planted_control` in the delivered JSON: case `AR_14_Ret_180`, cell 31818, planted 83.48553657531738 = 1.5 × 55.65702438354492, flagged 0 → 1, max read back 83.48553466796875, verdict PASS | yes |
+| §27 rank deficiency | per_family ranks: cbfs 100/110, duct 96/110, hill 100/110, hill_breuer 100/110, hump 100/110, POOLED 100/110 | yes |
+| frozen §4/§7/§8 text | read from the frozen blob: A3 criterion "exactly identical … a nondeterminism finding is reported, not absorbed"; §7 blocks adoption on this team's audit; §8 pre-commits "if it fails, that is a finding under A3, not a reason to weaken A3" | yes |
+
+**Nothing the lane claimed failed to reproduce.** The residual hazards of
+§31 and the four unestablishable items of §34 stand as written; none moves a
+verdict. §34's first item — the closure supervisor's own §3 check-1 diff read —
+remains attested, not verified, by construction.
+
+**Ruling (this team's, under the standing cross-team-audit mandate):**
+**AUDIT: SOUND WITH DISCLOSED DEVIATIONS — BELIEVED.** A1 PASS, A2 PASS,
+A4 PASS, A3 GATE FAIL all stand as the frozen comparator's own output. **The
+prereg-§7 adoption block on closure's amended FS5 instrument is released by
+this audit** on exactly the grounds §33 states and no wider: the model-facing
+surface is untouched (A2), the new reader is under a live planted control
+that refuses rather than degrades (A1), and the A3 failure is on a statistic
+the amendment neither introduced nor moved. A3 stays GATE FAIL; the
+publication of `singular_value_ratio_first_to_last` is the open standards
+question §30(a) — recommendation only, binding version Sanaa's; no standing
+verdict moves (frozen §5). Relayed to the chief for closure's adoption ruling.
+
+**Cost of this read:** zero solver compute; one Python step over 80 `.npz`
+arrays and three JSONs, 5.54 s wall single core ≈ 0.09 core-min, plus git
+reads. Pass 6 itself: 0.128 core-min measured against the lane's own 3–6
+core-min prediction (ratio ≈ 0.03×, attribution mispricing compressed `.npz`
+reads) — ledger row appended under this belief commit.
