@@ -593,3 +593,106 @@ note; the positive control it names is runnable again. Whether
 `check_absolutes.py`'s selftest actually fires on the restored harness is a
 re-run, not a note — it joins the next §7-class re-run of this audit, and
 until then the §1 positive control is **restored, not re-proven**.
+
+---
+
+## 9. Dated note, 2026-08-24T17:31:21Z — the stamp/id-skew instrument is wired REPORT-ONLY, and there is no shared audit re-run entry point to wire it into
+
+**Why this note is in THIS audit rather than in a new runner.** The instruction
+was to add a report-only invocation of `scripts/check_stamp_vs_commit.py` to
+whatever the six standing audits use as a shared re-run entry point, and if
+there is none, not to invent one. **There is none.** The six re-runs of
+2026-08-23 — `c5a9d4c7` (sweep-reframe), `f14fca9c` (this audit's §7),
+`876a9ec1` (dead-lever), `af16ceef` (H4 allocation), `69df4876` (ledger
+headline), `e3f3b521` (external referent) — each touch exactly ONE file, their
+own audit, one commit apiece. Frame and filter for that claim: `git show --stat`
+on those six shas, plus `/usr/bin/grep -rlE '_AUDIT\.md'` over every tracked
+`.py` and `.sh`, which returns three files and no runner among them — this
+instrument's own corpus glob in `scripts/check_stamp_vs_commit.py`, and two
+`cases/dafoam/f6d_random_matrix_uq/` plotting scripts that cite
+`F6D_ENSEMBLE_CONVERGENCE_AUDIT.md` in prose. The invocation is therefore
+recorded here, in the audit that owns instrument-coverage findings.
+`scripts/check_harness.py` and `scripts/check_filing.py` were not touched.
+
+**The invocation — report-only, never a gate, never `--strict`:**
+
+    python3 scripts/check_stamp_vs_commit.py --at <HEAD>
+
+Exit 0 on this path by construction: `--strict` is the only flag that converts a
+FIRE into a non-zero exit and it is deliberately not passed. Nothing depends on
+this check's exit code, and no gate anywhere consults it.
+
+**HEAD output summary — graded tree `86fb1b34`, counts only, exit 0.**
+
+    LIMB 1  stamps vs the commit that introduced their line
+      corpus files carrying stamps          66
+      candidate tokens                     462
+      graded (UTC-marked)                  404
+      UNMARKED (not graded, listed)         58
+      PLANNED (future-intent cue)            2
+      FIRES                                 19
+
+    LIMB 2  id citations vs the commit that appended their defining row
+      corpus files carrying ids              90
+      id tokens (L-nnn, Dnnn, C-nn, N-XXn) 3871
+      graded                              3833
+      DANGLING (distinct verdict)           38
+      FIRES                                280
+
+**Selftest beside it, same tree:** `python3 scripts/check_stamp_vs_commit.py
+--selftest`, exit 0, **11 named controls, 4 mutants, 15 results; 0 failed**.
+That summary line now names all three figures deliberately. The record has
+carried two different counts of the same thing — `docs/COST_CALIBRATION.md`
+C-25 says "9 planted controls" while the verification board says "six" — and
+both were true at different granularities (6 named + 3 C6 mutants = 9 recorded
+results). C-25 is an append-only ledger row and is **not rewritten**; the
+ambiguity is closed at the instrument, where the next reader will meet it.
+
+**What 280 does NOT license.** 280 limb-2 fires is not 280 findings, and this
+note grades none of them. Measured breakdown over the immediately preceding
+tree `e25908fe` (281 fires there, `--show-all` so the table was not capped):
+**256 of 281 are D-family citations against `docs/DOCKET.md`**, 23 are C-family,
+1 L, 1 N; **124 of 281 exceed 24 h**. That distribution is the signature of the
+blame limitation the instrument prints on every run, not of 280 mis-numbered
+citations: `git blame` names a line's LAST toucher, so a docket row edited long
+after it landed reads as though it were appended then — D3's own row records
+being "DEQUOTED 2026-08-11", and D1/D5/D9/D12 head the fire table with deltas of
+288 to 485 hours, which is simply the age of the rows. For limb 1 the same error
+is conservative (it can hide a fire, never manufacture one); **for limb 2 it cuts
+both ways** — a reflowed citation reads quieter, a reflowed defining row louder —
+and the instrument says exactly that in its closing NOTE. A limb-2 fire is a
+triage prompt; it is not a verdict and must not be quoted as one.
+
+**What is worth a reader's attention, and is why the limb was built.** Three of
+the 38 DANGLING citations at `86fb1b34` sit on ONE board line,
+`docs/LAB_STATE.md:423` — `D499`, `L-277` and `N-D32`, none of which has a
+defining row at that tree. That is the D488/C-15 instance class live: ids
+written into prose as a prediction of what the next append will be numbered,
+before the append that would make them identifiers. It is reported as a count
+and a verdict name, not adjudicated here — those three may land within the hour,
+which is precisely the point rule 11 makes.
+
+**Known false positives in the DANGLING set, disclosed rather than filtered
+away.** 35 of the 38 are already-documented non-citations or known holes, and
+they account for the whole set once the three live ones above are removed:
+`C-2026` (25 occurrences) is a certificate serial in `docs/DOCKET.md` reading as
+a C-family id; `D188` (3) and `D901` (2) are the two non-citations `D349`
+already documents as such; `L-52` (4) is the hole CLAUDE.md rule 11 names by
+name; `N-B21` (1) sits on `docs/DOCKET.md:828` beside `L-52`, in a row that is
+itself about missing ids. 25 + 3 + 2 + 4 + 1 + 3 = 38. Filtering the known ones
+out would make the instrument quieter and less honest, so they are listed on
+every run instead.
+
+**Standing weaknesses of this wiring.** (a) Nothing runs it on a schedule; it
+runs when someone types it, exactly like the six audits themselves — this note
+records an invocation, not an automation. (b) Its corpus is the fixed glob set
+limb 1 already used, so a record outside `docs/`, `cases/` and `verification/`
+is invisible to both limbs. (c) Report-only means a FIRE has no consequence
+unless a reader acts on it; that was the supervisor's explicit decision on this
+instrument and is recorded as such, not as an oversight.
+
+**Consequence for this audit:** none of §1–§8 changes. This section adds a
+coverage record only, and the fail-open sweep's own counts, control and verdicts
+stand exactly as §7 and §8 left them.
+
+*Lines whose number changed above this section: 0.*

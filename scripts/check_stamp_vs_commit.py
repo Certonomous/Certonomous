@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
-"""Fire when an in-record stamp was written AHEAD of the wall clock.
+"""Fire when a record was written AHEAD of the thing it claims to describe.
+
+TWO LIMBS, ONE SWEEP, ONE TOLERANCE. Limb 1 grades STAMPS against the committer
+date of the commit that introduced the stamped line. Limb 2 grades ID CITATIONS
+(`L-nnn`, `Dnnn`, `C-nn`, `N-XXn`) against the committer date of the commit that
+appended that id's own defining row. Both limbs share `stamp_skew`'s
+FORWARD_TOLERANCE_S, share the blame attribution, and share the refusal
+semantics: a token the reader cannot adjudicate is REFUSED, never skipped.
 
     python3 scripts/check_stamp_vs_commit.py              # report-only sweep, exit 0
     python3 scripts/check_stamp_vs_commit.py --strict     # exit 1 on any FIRE
     python3 scripts/check_stamp_vs_commit.py --at <sha>   # grade a committed tree
-    python3 scripts/check_stamp_vs_commit.py --selftest   # planted controls C1-C6
+    python3 scripts/check_stamp_vs_commit.py --selftest   # planted controls C1-C11
     python3 scripts/check_stamp_vs_commit.py --show-all   # list every graded stamp
+    python3 scripts/check_stamp_vs_commit.py --no-ids     # limb 1 only (stamps)
 
 THE DEFECT CLASS. `bd3edfe8` (2026-08-22T21:00:24Z) is the ancestor: an
 instrument comparing a hand-typed stamp against a machine timestamp, wrong
@@ -70,22 +78,74 @@ SCOPE, and what is deliberately NOT graded -- stated, never silent:
            CANNOT-PARSE refusal, exit 2. It is never silently skipped -- a reader
            that cannot see a stamp must say so, not shrug (rule 3).
 
-ATTRIBUTION. The introducing commit is taken from `git blame -w --line-porcelain`
-at the graded revision. Blame names the commit that LAST TOUCHED the line, which
-for a reflowed or moved line can be later than the commit that first wrote the
-stamp. That error is conservative in the safe direction: a later committer date
-makes the delta smaller and the check quieter, so blame can hide a fire but
-cannot manufacture one. `--at <sha>` grades a committed tree, which is how a
-historical instance is reproduced.
+LIMB 2 -- IDS WRITTEN AHEAD OF THEIR OWN DEFINING ROW. The same defect wearing a
+different coat, and its instance class is on the record: closure's board cited
+`D488`/`C-15` for work that landed as `D492`/`C-18` (corrected at `8dd3f8bc`).
+An id written in prose BEFORE the commit that appends that id's row is a
+PREDICTION, not an identifier -- the number was guessed from a count instead of
+re-derived from the tail at commit (rule 11), and it reads to any later reader as
+a citation to a row that did not exist. This limb finds the commit that
+introduced the CITING line and the commit that introduced the id's own DEFINING
+row, and fires when the citing commit's committer date precedes the defining
+commit's by more than the SAME FORWARD_TOLERANCE_S. There is no second
+tolerance: `stamp_skew.ahead_verdict` is called with (defining, citing) so that
+"the definition is ahead of the citation" is literally the same comparison the
+stamp limb makes.
+
+  THE FOUR FAMILIES AND THEIR DEFINING ROWS, read from the HEAD blobs 2026-08-24
+  rather than assumed (counts at that HEAD in brackets):
+
+    L-nnn  `docs/LESSONS.md`, a markdown heading `^#{1,6} L-nnn` [274 headings;
+           the maximum is L-276, so the numbering has holes -- L-52 is the one
+           CLAUDE.md rule 11 names, and it duly reads DANGLING below].
+    Dnnn   `docs/DOCKET.md`, a table row whose FIRST CELL is the id,
+           `^| [**]Dnnn[a-z][**] |` [497 rows, maximum D498]. The docket id
+           carries NO HYPHEN -- `D486`, never `D-486`. `D-nnn` tokens DO occur in
+           this corpus (`docs/COST_CALIBRATION.md` C-2 cites `D-1`) and are NOT
+           graded here: they are an unreconciled second usage and grading them
+           would invent a family rather than read one. Stated, not silent. A
+           lettered sub-row (`D1a`) falls back to its base row (`D1`).
+    C-nn   `docs/COST_CALIBRATION.md`, a table row `^| [**]C-nn[**] |` [27 rows].
+    N-XXn  `docs/NUMERICS_KNOWLEDGE.md`, either a heading `^#{1,6} [**]N-XXn` or
+           a bold lead `^**N-XXn.` -- BOTH forms are in use and both are read
+           [92 ids across the N-B, N-D, N-K, N-T and N-X families].
+
+  DANGLING is a DISTINCT VERDICT, never a silent skip: an id cited at the graded
+  tree whose defining row does not exist at that tree. It is reported in its own
+  block and is never a FIRE -- it is not a timing finding, it is a missing row,
+  and the two must not be blended. At HEAD the DANGLING set is small and mostly
+  real signal (`L-258` cited on the board before its lesson block was appended);
+  it also carries a KNOWN FALSE-POSITIVE CLASS, disclosed rather than engineered
+  away -- a certificate serial in `docs/DOCKET.md` reads as `C-2026`, and
+  `D188`/`D901` are the two non-citations `D349` already documents as such.
+
+  REFUSAL, limb 2: if a family's DEFINING FILE is absent from the graded tree
+  while ids of that family are cited, every one of those ids would silently read
+  DANGLING -- a mass skip wearing a verdict's clothes. That is a CANNOT-ADJUDICATE
+  refusal, exit 2 (rule 3: a reader that cannot see must say so). The check is
+  conditional on a citation existing, so a tree carrying neither is graded
+  normally.
+
+ATTRIBUTION, both limbs. The introducing commit is taken from
+`git blame -w --line-porcelain` at the graded revision. Blame names the commit
+that LAST TOUCHED the line, which for a reflowed or moved line can be later than
+the commit that first wrote the stamp -- or the citation. That error is
+conservative in the safe direction for limb 1: a later committer date makes the
+delta smaller and the check quieter, so blame can hide a fire but cannot
+manufacture one. For limb 2 the limitation is the same but cuts BOTH ways, and
+that is stated rather than glossed: a reflowed CITING line reads later (quieter),
+while a reflowed DEFINING row reads later (louder). A limb-2 fire is therefore
+triaged by reading both commits, not believed on sight. `--at <sha>` grades a
+committed tree, which is how a historical instance is reproduced.
 
 KNOWN FALSE-POSITIVE CLASS, disclosed rather than engineered away: a genuinely
 future-dated time written without a cue word (a progress-table ETA rendered as
 `**~2026-08-23 01:40Z**`) reads as a FIRE. Triage the fire; do not widen the
 cue list to make a red go away.
 
-EXIT CODES.  0 report ran (or --strict with no fire).  1 --strict with >= 1 FIRE,
-or a selftest control failed.  2 REFUSAL: CANNOT-PARSE, a blame/ls-tree failure,
-or the shared skew model unavailable.
+EXIT CODES.  0 report ran (or --strict with no fire).  1 --strict with >= 1 FIRE
+from EITHER limb, or a selftest control failed.  2 REFUSAL: CANNOT-PARSE,
+CANNOT-ADJUDICATE, a blame/ls-tree failure, or the shared skew model unavailable.
 """
 
 import argparse
@@ -179,6 +239,70 @@ def is_planned(line, col):
     return bool(CUES.search(line[max(0, col - CUE_WINDOW):col]))
 
 
+# -------------------------------------------------------------------- ids ---
+# Limb 2. Token forms and defining-row forms are READ from the HEAD blobs (see
+# the header) -- in particular the docket id carries no hyphen and the numerics
+# ids appear under two heading forms, both of which are matched here.
+
+ID_TOKEN_RES = (
+    ("L", re.compile(r"\bL-(\d+)\b")),
+    ("D", re.compile(r"\bD(\d{1,4}[a-z]?)\b")),
+    ("C", re.compile(r"\bC-(\d+)\b")),
+    ("N", re.compile(r"\bN-([A-Z]+\d+[a-z]?)\b")),
+)
+
+ID_DEFS = {
+    "L": ("docs/LESSONS.md", re.compile(r"^#{1,6}\s+L-(\d+)\b")),
+    "D": ("docs/DOCKET.md",
+          re.compile(r"^\|\s*\*{0,2}D(\d+[a-z]?)\*{0,2}\s*\|")),
+    "C": ("docs/COST_CALIBRATION.md",
+          re.compile(r"^\|\s*\*{0,2}C-(\d+)\*{0,2}\s*\|")),
+    "N": ("docs/NUMERICS_KNOWLEDGE.md",
+          re.compile(r"^(?:#{1,6}\s+\*{0,2}|\*\*)N-([A-Z]+\d+[a-z]?)\b")),
+}
+
+
+class CannotAdjudicate(Exception):
+    """A family's defining file is absent while ids of that family are cited.
+
+    Every such id would read DANGLING, which is a mass skip wearing a verdict's
+    clothes. Refused instead (rule 3).
+    """
+
+
+def id_definition_lines(repo, rev, families):
+    """{(fam, ident): lineno} for every defining row of `families` present at rev.
+
+    Raises CannotAdjudicate when a needed defining file is not in the tree.
+    """
+    out = {}
+    for fam in sorted(families):
+        path, rx = ID_DEFS[fam]
+        try:
+            lines = blob_lines(repo, rev, path)
+        except RuntimeError as exc:
+            raise CannotAdjudicate(
+                "ids of family %r are cited at %s but its defining file %s is not "
+                "in that tree (%s) -- REFUSING to report every one of them as "
+                "DANGLING, which would be a mass skip wearing a verdict's clothes"
+                % (fam, rev, path, str(exc)[:60]))
+        for n, line in enumerate(lines, 1):
+            m = rx.match(line)
+            if m and (fam, m.group(1)) not in out:
+                out[(fam, m.group(1))] = n
+    return out
+
+
+def _def_key(defs, fam, ident):
+    """Defining row for this id, with the lettered-sub-row fallback (D1a -> D1)."""
+    if (fam, ident) in defs:
+        return (fam, ident)
+    base = ident.rstrip("abcdefghijklmnopqrstuvwxyz")
+    if base and (fam, base) in defs:
+        return (fam, base)
+    return None
+
+
 # -------------------------------------------------------------------- git ---
 
 def git(repo, *args, **kw):
@@ -223,19 +347,22 @@ def blame(repo, rev, path, linenos):
 
 # ------------------------------------------------------------------ sweep ---
 
-def sweep(repo, rev="HEAD", paths=None):
-    """Returns (rows, counts). Raises CannotParse on a marked-but-invalid token."""
+def sweep(repo, rev="HEAD", paths=None, do_ids=True):
+    """Returns (rows, counts) for BOTH limbs over one pass of the corpus.
+
+    Raises CannotParse on a marked-but-invalid stamp token, CannotAdjudicate when
+    a cited id family has no defining file at `rev`.
+    """
     files = paths if paths else tree_files(repo, rev)
     rows = []
-    counts = dict(files=0, tokens=0, graded=0, unmarked=0, planned=0, fires=0)
+    counts = dict(files=0, tokens=0, graded=0, unmarked=0, planned=0, fires=0,
+                  id_files=0, id_tokens=0, id_graded=0, id_dangling=0, id_fires=0)
+    id_hits = []                      # (path, n, fam, ident, tok, sha, ctime)
     for path in sorted(files):
         lines = blob_lines(repo, rev, path)
-        hits = []
+        hits, ihits = [], []
         for n, line in enumerate(lines, 1):
-            found = stamps_in(line)
-            if not found:
-                continue
-            for tok, col, ts, kind in found:
+            for tok, col, ts, kind in stamps_in(line):
                 counts["tokens"] += 1
                 if kind == BAD:
                     raise CannotParse(
@@ -248,10 +375,20 @@ def sweep(repo, rev="HEAD", paths=None):
                                      text=line.strip()[:120]))
                 else:
                     hits.append((n, col, tok, ts, line))
-        if not hits:
+            if not do_ids:
+                continue
+            for fam, rx in ID_TOKEN_RES:
+                for m in rx.finditer(line):
+                    counts["id_tokens"] += 1
+                    ihits.append((n, fam, m.group(1), m.group(0)))
+        if not hits and not ihits:
             continue
-        counts["files"] += 1
-        att = blame(repo, rev, path, [h[0] for h in hits])
+        if hits:
+            counts["files"] += 1
+        if ihits:
+            counts["id_files"] += 1
+        att = blame(repo, rev, path,
+                    [h[0] for h in hits] + [h[0] for h in ihits])
         for n, col, tok, ts, line in hits:
             if n not in att:
                 raise RuntimeError("blame returned no attribution for %s:%d" % (path, n))
@@ -270,6 +407,50 @@ def sweep(repo, rev="HEAD", paths=None):
             rows.append(dict(path=path, line=n, tok=tok, kind=kind, stamp=ts,
                              sha=sha, ctime=ctime, delta=delta,
                              text=line.strip()[:120]))
+        for n, fam, ident, tok in ihits:
+            if n not in att:
+                raise RuntimeError("blame returned no attribution for %s:%d" % (path, n))
+            sha, ctime = att[n]
+            id_hits.append((path, n, fam, ident, tok, sha, ctime))
+
+    if not id_hits:
+        return rows, counts
+
+    # --- limb 2: the defining row of every id actually cited -----------------
+    defs = id_definition_lines(repo, rev, {h[2] for h in id_hits})
+    need = {}
+    for h in id_hits:
+        key = _def_key(defs, h[2], h[3])
+        if key is not None:
+            need.setdefault(ID_DEFS[key[0]][0], set()).add(defs[key])
+    datt = {}
+    for dpath, linenos in need.items():
+        datt[dpath] = blame(repo, rev, dpath, sorted(linenos))
+
+    for path, n, fam, ident, tok, sha, ctime in id_hits:
+        key = _def_key(defs, fam, ident)
+        if key is None:
+            counts["id_dangling"] += 1
+            rows.append(dict(path=path, line=n, tok=tok, kind="DANGLING",
+                             fam=fam, ident=ident, sha=sha, ctime=ctime,
+                             dsha=None, dctime=None, delta=None, dpath=None))
+            continue
+        dpath, dline = ID_DEFS[fam][0], defs[key]
+        if dline not in datt.get(dpath, {}):
+            raise RuntimeError("blame returned no attribution for the defining "
+                               "row %s:%d (%s)" % (dpath, dline, tok))
+        dsha, dctime = datt[dpath][dline]
+        # SAME comparison, SAME tolerance as limb 1: is the DEFINITION ahead of
+        # the CITATION? If so the id was cited before it existed.
+        status, delta = stamp_skew.ahead_verdict(dctime, ctime)
+        counts["id_graded"] += 1
+        kind = "ID-FIRE" if status == "ahead" else "ok-id"
+        if status == "ahead":
+            counts["id_fires"] += 1
+        rows.append(dict(path=path, line=n, tok=tok, kind=kind, fam=fam,
+                         ident=ident, sha=sha, ctime=ctime, dsha=dsha,
+                         dctime=dctime, delta=delta,
+                         dpath="%s:%d" % (dpath, dline)))
     return rows, counts
 
 
@@ -278,9 +459,10 @@ def iso(epoch):
         epoch, datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def report(rows, counts, show_all=False):
+def report(rows, counts, show_all=False, do_ids=True):
     fires = [r for r in rows if r["kind"] == "FIRE"]
     planned = [r for r in rows if r["kind"] == "PLANNED"]
+    print("LIMB 1 -- stamps vs the commit that introduced their line")
     print("  scanned  %d corpus files carrying stamps, %d candidate tokens"
           % (counts["files"], counts["tokens"]))
     print("  graded   %d UTC-marked stamps against their introducing commit"
@@ -307,7 +489,48 @@ def report(rows, counts, show_all=False):
         print("\n  UNMARKED (not graded, listed so the skip is not silent): %d" % len(un))
         for r in un:
             print("    %s:%d  %s" % (r["path"], r["line"], r["tok"]))
-    return fires
+
+    id_fires = [r for r in rows if r["kind"] == "ID-FIRE"]
+    if do_ids:
+        dangling = [r for r in rows if r["kind"] == "DANGLING"]
+        print("\nLIMB 2 -- id citations vs the commit that appended their defining row")
+        print("  scanned  %d corpus files carrying ids, %d id tokens "
+              "(L-nnn, Dnnn, C-nn, N-XXn)"
+              % (counts["id_files"], counts["id_tokens"]))
+        print("  graded   %d citations against their defining row's introducing "
+              "commit" % counts["id_graded"])
+        print("  DANGLING %d citations whose defining row does not exist at this "
+              "tree (distinct verdict, never a fire)" % counts["id_dangling"])
+        print("  FIRES    %d" % counts["id_fires"])
+        if id_fires:
+            print("\n  %-46s %-8s %-10s %-10s %s"
+                  % ("file:line", "id", "cite", "define", "cited AHEAD by"))
+            ordered = sorted(id_fires, key=lambda r: -r["delta"])
+            cap = len(ordered) if show_all else 40
+            for r in ordered[:cap]:
+                print("  %-46s %-8s %-10s %-10s %+d s (%+.1f h)  def %s"
+                      % ("%s:%d" % (r["path"], r["line"]), r["tok"],
+                         r["sha"][:8], r["dsha"][:8], r["delta"],
+                         r["delta"] / 3600.0, r["dpath"]))
+            if len(ordered) > cap:
+                print("  ... %d further limb-2 fires not listed (--show-all "
+                      "prints them all)" % (len(ordered) - cap))
+        if dangling:
+            seen, shown = set(), 0
+            print("\n  DANGLING (reported separately, never silently skipped):")
+            for r in sorted(dangling, key=lambda r: (r["fam"], r["ident"])):
+                if r["tok"] in seen:
+                    continue
+                seen.add(r["tok"])
+                n = sum(1 for x in dangling if x["tok"] == r["tok"])
+                print("    %-10s %2d citation(s), first at %s:%d"
+                      % (r["tok"], n, r["path"], r["line"]))
+                shown += 1
+                if shown >= 40:
+                    print("    ... %d further distinct dangling ids not listed"
+                          % (len({x["tok"] for x in dangling}) - shown))
+                    break
+    return fires, id_fires
 
 
 # --------------------------------------------------------------- controls ---
@@ -329,6 +552,65 @@ def _mkrepo(tmp, lines, cdate):
 
 
 CONTROL_BASE = "2026-08-24T12:00:00+00:00"
+
+
+def _mkrepo_ids(tmp):
+    """Planted repo for limb 2: four commits, one hour apart, ids planted so that
+    the citing/defining ORDER is known by construction rather than inferred.
+
+      12:00Z  LAB_STATE cites L-900 (C7) and L-999 (C10); LESSONS defines L-1
+      13:00Z  LESSONS defines L-900          -> C7 is a citation one commit early
+      14:00Z  LESSONS defines L-901 AND LAB_STATE cites it in the SAME commit (C8)
+      15:00Z  LAB_STATE cites L-900 again, two commits after it existed (C9)
+    """
+    os.makedirs(os.path.join(tmp, "docs"))
+    state = os.path.join(tmp, "docs", "LAB_STATE.md")
+    less = os.path.join(tmp, "docs", "LESSONS.md")
+
+    def write(p, lines):
+        with open(p, "w") as fh:
+            fh.write("\n".join(lines) + "\n")
+
+    def commit(hh, paths):
+        stamp = "2026-08-24T%02d:00:00+00:00" % hh
+        env = dict(os.environ, GIT_AUTHOR_DATE=stamp, GIT_COMMITTER_DATE=stamp,
+                   GIT_AUTHOR_NAME="control", GIT_AUTHOR_EMAIL="c@x",
+                   GIT_COMMITTER_NAME="control", GIT_COMMITTER_EMAIL="c@x")
+        for cmd in (["add"] + paths, ["commit", "-q", "-m", "control %d" % hh]):
+            p = subprocess.run(["git", "-C", tmp] + cmd, env=env,
+                               capture_output=True, text=True)
+            if p.returncode != 0:
+                raise RuntimeError("id control repo setup failed: %s" % p.stderr)
+
+    p = subprocess.run(["git", "-C", tmp, "init", "-q", "-b", "main"],
+                       capture_output=True, text=True)
+    if p.returncode != 0:
+        raise RuntimeError("id control repo init failed: %s" % p.stderr)
+
+    state_lines = [
+        "## verification",
+        "C7 planted: cites L-900 one commit BEFORE its defining row exists",
+        "C10 planted: cites L-999, a row that is never defined at all",
+    ]
+    less_lines = ["# lessons", "## L-1. the base lesson, defined at 12:00Z"]
+    write(state, state_lines)
+    write(less, less_lines)
+    commit(12, ["docs/LAB_STATE.md", "docs/LESSONS.md"])
+
+    less_lines.append("## L-900. planted definition, appended at 13:00Z")
+    write(less, less_lines)
+    commit(13, ["docs/LESSONS.md"])
+
+    less_lines.append("## L-901. planted definition, appended at 14:00Z")
+    state_lines.append("C8 planted: cites L-901 in the SAME commit as its row")
+    write(less, less_lines)
+    write(state, state_lines)
+    commit(14, ["docs/LAB_STATE.md", "docs/LESSONS.md"])
+
+    state_lines.append("C9 planted: cites L-900 two commits AFTER its row landed")
+    write(state, state_lines)
+    commit(15, ["docs/LAB_STATE.md"])
+    return tmp
 
 
 def selftest(repo, run_mutation=True):
@@ -389,10 +671,60 @@ def selftest(repo, run_mutation=True):
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
-    # C5 -- the known real instance, reproduced from the tree that carried it
+    # C7/C8/C9/C10 -- one planted repo, four commits, the ORDER known by
+    # construction. C7 is limb 2's non-zero: a zero from this limb is worth
+    # nothing unless the same reader has been shown seeing a fire (rule 3).
+    tmp = tempfile.mkdtemp(prefix="idctl_")
+    try:
+        _mkrepo_ids(tmp)
+        rows, counts = sweep(tmp, "HEAD")
+        st = {r["line"]: r for r in rows
+              if r["path"] == "docs/LAB_STATE.md" and r["kind"] != "UNMARKED"}
+        rec("C7 id cited ONE COMMIT BEFORE its defining row MUST fire",
+            st.get(2, {}).get("kind") == "ID-FIRE" and st[2]["delta"] == 3600,
+            "line 2 (L-900) -> %s, cited %+d s early"
+            % (st.get(2, {}).get("kind"), st.get(2, {}).get("delta", 0)))
+        rec("C8 id cited in the SAME commit as its row must NOT fire",
+            st.get(4, {}).get("kind") == "ok-id" and st[4]["delta"] == 0,
+            "line 4 (L-901) -> %s, delta %+d s"
+            % (st.get(4, {}).get("kind"), st.get(4, {}).get("delta", 0)))
+        rec("C9 id cited AFTER its row landed must NOT fire",
+            st.get(5, {}).get("kind") == "ok-id" and st[5]["delta"] == -7200,
+            "line 5 (L-900) -> %s, delta %+d s"
+            % (st.get(5, {}).get("kind"), st.get(5, {}).get("delta", 0)))
+        rec("C10 id with NO defining row -> DANGLING, not a fire and not skipped",
+            st.get(3, {}).get("kind") == "DANGLING"
+            and counts["id_dangling"] == 1 and counts["id_fires"] == 1,
+            "line 3 (L-999) -> %s; dangling %d, id fires %d"
+            % (st.get(3, {}).get("kind"), counts["id_dangling"],
+               counts["id_fires"]))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    # C11 -- the defining FILE is missing while its ids are cited: every one of
+    # them would read DANGLING, which is a mass skip wearing a verdict's clothes
+    tmp = tempfile.mkdtemp(prefix="idctl_")
+    try:
+        _mkrepo(tmp, ["## verification",
+                      "C11 planted: cites L-900 in a tree with no LESSONS.md"],
+                CONTROL_BASE)
+        try:
+            sweep(tmp, "HEAD")
+            rec("C11 cited family with no defining file -> CANNOT-ADJUDICATE",
+                False, "sweep returned instead of refusing")
+        except CannotAdjudicate as exc:
+            rec("C11 cited family with no defining file -> CANNOT-ADJUDICATE",
+                True, str(exc)[:70])
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    # C5 -- the known real instance, reproduced from the tree that carried it.
+    # Limb 1 only: C5 is the stamp limb's real-world control and is left exactly
+    # as it was, so the new limb cannot change what it proves.
     C5_SHA = "82194ec5"
     try:
-        rows, counts = sweep(repo, C5_SHA, paths=["docs/LAB_STATE.md"])
+        rows, counts = sweep(repo, C5_SHA, paths=["docs/LAB_STATE.md"],
+                             do_ids=False)
         fires = {r["tok"]: r for r in rows if r["kind"] == "FIRE"}
         want = ("2026-08-23T21:35Z", "2026-08-23T21:40Z")
         ok = all(w in fires for w in want)
@@ -416,6 +748,15 @@ def selftest(repo, run_mutation=True):
             # pass. Uniqueness is asserted below rather than assumed.
             ("tolerance inflated", "stamp_skew.py",
              "\nFORWARD_TOLERANCE_S = 60\n", "\nFORWARD_TOLERANCE_S = 100000\n"),
+            # Limb 2's comparison. Argument ORDER is the whole semantics here:
+            # (defining, citing) asks "was the id cited before its row existed?",
+            # and the swap asks the opposite question while still returning a
+            # verdict, which is exactly the failure a selftest must catch.
+            # Anchored by its own newline and indent for the same reason the
+            # tolerance mutant is: the bare call text also occurs in THIS list.
+            ("limb-2 comparison direction swapped", "check_stamp_vs_commit.py",
+             "\n        status, delta = stamp_skew.ahead_verdict(dctime, ctime)\n",
+             "\n        status, delta = stamp_skew.ahead_verdict(ctime, dctime)\n"),
         ]
         for name, target, old, new in mutants:
             box = tempfile.mkdtemp(prefix="stampmut_")
@@ -443,7 +784,14 @@ def selftest(repo, run_mutation=True):
                 shutil.rmtree(box, ignore_errors=True)
 
     bad = [r for r in results if not r[1]]
-    print("\n  %d control(s), %d failed" % (len(results), len(bad)))
+    # GRANULARITY, stated so the number is unambiguous. The record has carried
+    # two different counts of the same thing ("nine planted controls" in
+    # docs/COST_CALIBRATION.md C-25, "six" on the verification board): both were
+    # true of different granularities. This line names all three.
+    mut = [r for r in results if r[0].startswith("C6 mutant")]
+    named = [r for r in results if not r[0].startswith("C6 mutant")]
+    print("\n  %d named controls, %d mutants, %d results; %d failed"
+          % (len(named), len(mut), len(results), len(bad)))
     return 1 if bad else 0
 
 
@@ -467,7 +815,11 @@ def main():
                     help="grade this committed tree instead of HEAD")
     ap.add_argument("--strict", action="store_true",
                     help="exit 1 on any FIRE (default is a report-only sweep)")
-    ap.add_argument("--selftest", action="store_true", help="run planted controls C1-C6")
+    ap.add_argument("--selftest", action="store_true",
+                    help="run planted controls C1-C11 plus the C6 mutation harness")
+    ap.add_argument("--no-ids", action="store_true",
+                    help="limb 1 only: do not grade id citations against their "
+                         "defining rows")
     ap.add_argument("--no-mutation", action="store_true",
                     help="selftest without the C6 mutation harness (used BY C6)")
     ap.add_argument("--show-all", action="store_true",
@@ -494,15 +846,19 @@ def main():
         return selftest(repo, run_mutation=not args.no_mutation)
 
     print("  repo %s at %s\n" % (repo, args.at))
+    do_ids = not args.no_ids
     try:
-        rows, counts = sweep(repo, args.at, paths=args.path)
+        rows, counts = sweep(repo, args.at, paths=args.path, do_ids=do_ids)
     except CannotParse as exc:
         sys.stderr.write("REFUSAL (CANNOT-PARSE): %s\n" % exc)
+        return 2
+    except CannotAdjudicate as exc:
+        sys.stderr.write("REFUSAL (CANNOT-ADJUDICATE): %s\n" % exc)
         return 2
     except RuntimeError as exc:
         sys.stderr.write("REFUSAL: %s\n" % exc)
         return 2
-    fires = report(rows, counts, show_all=args.show_all)
+    fires, id_fires = report(rows, counts, show_all=args.show_all, do_ids=do_ids)
     print("\n" + "-" * 70)
     if fires:
         print("%d stamp(s) written AHEAD of the commit that introduced them "
@@ -512,9 +868,20 @@ def main():
     else:
         print("No stamp in the corpus leads its introducing commit by more than "
               "%d s." % FORWARD_TOLERANCE_S)
-    print("NOTE: blame attributes a line to its LAST toucher, so this check can "
-          "hide a fire but cannot manufacture one.")
-    return 1 if (fires and args.strict) else 0
+    if do_ids:
+        if id_fires:
+            print("%d id citation(s) written AHEAD of the commit that appended "
+                  "the cited row (D488/C-15 instance class)." % len(id_fires))
+            print("Triage each: an id is re-derived from the TAIL at commit "
+                  "(rule 11), never guessed from a count beforehand.")
+        else:
+            print("No id citation in the corpus precedes its own defining row by "
+                  "more than %d s." % FORWARD_TOLERANCE_S)
+    print("NOTE: blame attributes a line to its LAST toucher. For limb 1 that can "
+          "hide a fire but cannot manufacture one; for limb 2 it cuts both ways "
+          "(a reflowed citation reads quieter, a reflowed defining row louder), "
+          "so read both commits before believing a limb-2 fire.")
+    return 1 if ((fires or id_fires) and args.strict) else 0
 
 
 if __name__ == "__main__":
