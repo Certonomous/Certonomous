@@ -9998,3 +9998,43 @@ lesson names the first attribution it produced. **Proposed lab-wide** via
 the chief: a line in `docs/COST_CALIBRATION.md`'s rules or the
 `COMPUTE_BUDGET_CHARTER` requiring the solver class of the basis to be
 stated in every pre-registration cost table.
+
+## L-272. An aggregate cost ratio near 1.00 can be two large errors cancelling — read the per-row spread before calling a model calibrated, and never extrapolate a minutes-long contention window across a multi-day run
+
+**The rule.** When a completed process is calibrated against its estimate
+(CLAUDE.md rule 12), **the ratio of the totals is not the finding until the
+per-row ratios have been read.** A total that lands on the prediction while its
+rows scatter by 1.4–1.6× in one direction and 0.65–0.92× in the other is a
+model with two defects, not a model that works. Two specific defects to look for,
+because both were paid for here:
+
+1. **A throughput model of the form `work ÷ rate` has no fixed-cost term**, so it
+   under-predicts every short run by whatever the startup and IO cost is. Detect
+   it with the **`ExecutionTime`/wall ratio per row**: where that ratio is well
+   below 1, the missing fraction *is* the fixed cost the model omits. Add a fixed
+   per-case term measured on the same mesh sizes before reusing the model.
+2. **A contention penalty measured over minutes does not extrapolate over days.**
+   A rate window taken while the box is saturated describes that moment. Re-measure
+   on the long pole, or register the contended figure as an upper bound and the
+   uncontended one as a lower bound — do not replace the pre-launch estimate with
+   a short post-launch window and treat the replacement as better.
+
+**Why.** T3's ext1 extension predicted **79.55 core-hours** before launch and
+spent **79.968** — a headline **1.005×**, which read alone would have entered the
+ledger as an accurate estimate. It was not. The three shortest runs came in at
+**1.617× (`W_m`), 1.507× (`D_m`) and 1.404× (`R_c`)**, and their
+`ExecutionTime`/wall ratios were **0.775, 0.778 and 0.858** — 14–23 % of their
+wall was mesh read, field read, first write and wrapper, which the model has no
+term for. Meanwhile the critical path `R_f` came in at **0.917×**, its
+`ExecutionTime`/wall ratio **0.988**, because the pre-launch rates had themselves
+been measured under contention. Separately, a **five-minute** window taken after
+launch (2026-08-22 17:54–17:59Z, 15 of 16 cores committed) revised the estimate
+*upward* to 108.3 core-hours on a 1.36× contention penalty; the contention
+dissipated as siblings finished and the revision came in at **0.738×**, with
+`R_f` finishing **24 h 1 min ahead** of the ETA that window produced. The
+pre-launch estimate was the better one, and the "improved" measured-rate revision
+was the worse one, because it generalised a minute-scale observation to a
+45-hour run. Recording only the 1.005× would have taught the lab nothing and
+would have carried both defects forward into the next rung's estimate.
+*(`docs/COST_CALIBRATION.md` C-23; `docs/campaigns/T-family/T3_RESULTS.md` §14.7;
+`docs/campaigns/T-family/T3_EXT1_AMENDMENT.md` §5, §10.4 and §15.)*
