@@ -1016,3 +1016,82 @@ independent re-derivation from the written fields; and the freeze-before-compute
 ordering of the original ten duct rows, which git cannot evidence (D492 limb b).
 
 Cost of this addendum: zero core-minutes.
+
+---
+
+## ADDENDUM — 2026-08-24T16:23:45Z, closure supervisor: verification's recommendations on the D492 referrals applied to the verdict surface
+
+**Appended only. Lines whose number changed above this section: 0** — the
+1018-line body above is the committed blob `efaef8c3f19eb5f46c051b8ad55b44888922cebd` at `b10260a03cc42232923b13e7454682e67a09a9d4`, re-hashed in
+the same shell invocation as this append. No gate, threshold, cap or label is
+changed. **The rulings below are verification's RECOMMENDATIONS, relayed by the
+chief; the binding versions are Sanaa's.** They are applied here as the
+verdict-surface entries verification asked for, so that no reader has to find
+the disclosures in prose hundreds of lines below the table.
+
+### 1. G0a — PASS stands; the value cell now carries the instrument floor
+
+Rule 5 forbids turning a PASS into anything but NOT A RESULT, and `0.0 < 1e-10`
+holds as frozen. What was wrong was the SURFACE: a bare `0.0` in §1 with the
+4,003× resolution shortfall disclosed only in a later addendum. No seventh label
+is introduced — an unresolvable threshold is an interval statement and lives in
+the value column. **§1 row G0a is read with this value cell:**
+
+| gate | registered band | measured (verdict surface, corrected) | VERDICT |
+|---|---|---|---|
+| **G0a** solver identity | rel-L2 `U` < 1e-10 | **0.0 (floor 4.0e-07; registered 1e-10 unresolvable at `writePrecision 6`)** — byte-identical `600/U`, plant read back at 4.002936e-07 | **PASS** |
+
+The same shape sits in §5 (H5's 1e-3 against a ~5e-3 estimator floor on the
+CBFS mesh, and a `NULL` control at 262× on the registered normalisation) and §6
+(a 100-iteration sustain against a stop-at-first-satisfaction solver, a
+500-iteration window against 5,000-iteration checkpoints). Their verdict cells
+are read the same way: **the number, then the floor, in the value column.**
+Verification will spec `check_threshold_resolution.py` (refuse, exit 2, when a
+registered numeric gate's threshold is below one ulp of the field it reads;
+prospective-binding, archive report-only). Nothing here anticipates it.
+
+### 2. The ten duct rows — verdicts STAND, each carrying the §2d disclosure label
+
+**Fact only closure could supply, searched 2026-08-24T16:23:45Z and NOT FOUND:** no record
+outside git carries the time this pre-registration was "posted to the
+supervisor" on 2026-08-21. Searched: the harness session log
+`/home/ubuntu/harness-state/sessions/` (begins 2026-08-23T19:28:32Z; nothing
+from 08-21), `/home/ubuntu/harness-state/msg8.txt` (2026-08-22, unrelated),
+`/home/ubuntu/notes/` (no hit), the case directory and the run root (no brief,
+no dispatch record; the driver logs `lane*.log` start at 17:21:47Z with the G0a
+line), and git itself — no commit before the first scored solve mentions
+`Kaandorp2020_TBRF/aposteriori`; the earliest commit that does is `8a380cb9`
+at 18:06:32Z, after compute, and the first commit CONTAINING the file is
+`0ebc9d53` at 18:52:18Z — a **ten-file** commit (pre-registration + RESULTS.md
++ four scripts + two drafts + LESSONS/NUMERICS appends, 2,063 insertions): the
+results commit, with no freeze witness. The Wu2018 lane-2 sibling (`79a73944`,
+17:52Z) names "Lane 1 = CLOSURE-REPRO, Kaandorp TBRF" but not this file.
+
+What the filesystem says, self-attested and stated as such: pre-registration
+born 17:17:34Z, last written 17:17:57Z; the two 5-iteration interface checks it
+declares as preceding it at 17:13Z (`smoke/caseDef` 17:13:11Z); the first scored
+`log.run` (`AR_1_Ret_360__NULL`) born 17:21:55Z — **3 min 58 s after the file's
+last write** — and the ten pre-relaunch rows' logs 17:21–17:44Z. The ordering
+is consistent with freeze-before-compute and nothing witnesses it.
+
+**Ruling recommended by verification and applied here:** the six `CBFS13700`
+rows (run 2026-08-23, 47 h after `0ebc9d53`) are **FROZEN-BY-COMMIT** and need
+nothing. The ten duct rows' verdicts **STAND, not NOT A RESULT**, and every one
+of them — `AR_1_Ret_360` NULL / TRUTH / MEANB / MEANB64 / ML0 / ML1 / ML2 and
+`AR_3_Ret_360` NULL / TRUTH / MEANB — carries this label on its verdict
+surface: **"freeze self-attested, no commit witness (§2d)"**. The §1 gates
+that rest on those rows (G0a, G0b on T1/T2, H0 on T1/T2, H4, H5 on the ducts)
+carry the same label. The label is not removable by any later act in this
+record; it would have upgraded to "witnessed" only on a dated record outside
+the file itself, and none exists.
+
+Verification's own freeze instrument does not see this case (grader is
+`summarise.py` plus a hand grade, no DONE markers) — added to D471's residuals
+by verification; nothing owed by closure there.
+
+### 3. What this addendum does not do
+
+It re-grades nothing, softens nothing, and adds no label to the vocabulary. It
+moves two disclosures from prose into the value cells they belong to and
+records a negative search result so the §2d label rests on a stated absence
+rather than an unasked question. Cost: reads only, zero core-minutes.
