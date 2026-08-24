@@ -1,0 +1,68 @@
+E4a2 FREEZE CHECK -- machine-captured; every stamp below is the command's own dated output
+== date -u at capture ==
+2026-08-24T16:37:44,710868518Z
+== directories under E4a2_runs (case directories must be ZERO at freeze) ==
+-- directory count: 0 (0 required)
+== numeric time directories anywhere under E4a2_runs (must be ZERO) ==
+0
+== DONE/STATUS markers (must be ZERO) ==
+0
+== __pycache__ anywhere in E4a2_runs, E4_runs or T1_runs newer than this session's start (must be ZERO) ==
+0
+== sha256 of this rung's instrument set (provisional until the supervisor's freeze commit) ==
+c8877e6ca376a04300eebd3c69d906ba06a5b8dec30c5747d701a23718471d6b  E4a2_registered.json
+f788ba740938777f60621e9bf6bcacbb7e0682ef5192657f49fdb866ab9a2c9b  build_e4a2.py
+26a10ef4d55319b8de01988a2d24631f15a680ae91dc066d6aab9e1096cf7261  analyse_e4a2.py
+48c01195f10bd6d97ddde69f5ace586cf4a9e4953f93e4fa9b6299ac937d4aae  mark_done_e4a2.py
+9c01d3d70453c5698f74c709ae150a96134b4c024ba84e9824f4a30f6245c09d  run_one_e4a2.sh
+2444d9644e9065d0afcbb5f3929674ed85f89ddc174fab6c206bc9567dbd9659  launch_e4a2.sh
+== frozen imports (blobs committed at 628e29c4; verified on disk at every invocation) ==
+bb363d0232683f50a8f75ecbd15aef436bd72762686764c56027aac6f0401b05  ../E4_runs/E4a_registered.json
+451eae3682bff7f89f31147c1d2d74fe1badc4c2af2c0e0f40e76ca665e46956  ../E4_runs/build_e4a.py
+a9f31c3f569181f27b17bcaca318ce1f1a0a3f0e85e788a4214c8d8d5d63ff4b  ../E4_runs/analyse_e4a.py
+b152ed0071bfe8cea060fc8164587ffeec7ca02ab0c6ce259565935d4b10fbe6  ../E4_runs/mark_done_e4a.py
+226fd26b019a7fe73b559dda36451ca328ee371bcb1c8fb6b776d024f12ffe19  ../E4_runs/run_one_e4a.sh
+0e2b893fd134cba67975792d3defefb453ed929ca4d122f22022e4cad9c81274  ../E4_runs/launch_e4a.sh
+60893b28e284127f61b41842c520897a2202cb024d5a4d260272c6ee7e6c5135  ../T1_runs/analyse_t1c.py
+== pre-registration on disk at capture ==
+140c47577c3fa9e583a1d6e1334834dd380b26967f12b51a80d5f42f207e684c  /home/ubuntu/Certonomous/docs/campaigns/T-family/E4a2_PREREGISTRATION.md
+== shell instruments: inverse rename must return the frozen originals byte-identical ==
+run_one_e4a2.sh  -> IDENTICAL to run_one_e4a.sh after inverse rename
+launch_e4a2.sh   -> IDENTICAL to launch_e4a.sh after inverse rename
+-- the complete textual delta (instrument names only):
+2c2
+< # Detached runner for ONE E4a case.  Identical guard set to
+---
+> # Detached runner for ONE E4a2 case.  Identical guard set to
+11c11
+< [ -d "$LOCK" ] || refuse "G1: no LAUNCH_LOCK (not launched via launch_e4a.sh)"
+---
+> [ -d "$LOCK" ] || refuse "G1: no LAUNCH_LOCK (not launched via launch_e4a2.sh)"
+20,21c20,21
+< [ -f "$CDIR/system/blockMeshDict" ] || refuse "no system/blockMeshDict (build_e4a.py did not run)"
+< [ -d "$CDIR/0.orig" ] || refuse "no 0.orig (build_e4a.py did not run)"
+---
+> [ -f "$CDIR/system/blockMeshDict" ] || refuse "no system/blockMeshDict (build_e4a2.py did not run)"
+> [ -d "$CDIR/0.orig" ] || refuse "no 0.orig (build_e4a2.py did not run)"
+2c2
+< # Idempotent, collision-safe foreground launcher for ONE E4a case.
+---
+> # Idempotent, collision-safe foreground launcher for ONE E4a2 case.
+28c28
+< setsid nohup "$HERE/run_one_e4a.sh" "$CASE" > /dev/null 2>&1 &
+---
+> setsid nohup "$HERE/run_one_e4a2.sh" "$CASE" > /dev/null 2>&1 &
+== selftest at capture (sys.dont_write_bytecode is set inside the file, so the run leaves no directory) ==
+SELFTEST 95/95 OK
+== mutation controls on the selftest -- each must FAIL and exit 2 (the suite is not vacuous) ==
+  mutation [A.FLOOR=1e-6] -> SELFTEST FAIL at check 45: gate FAILS C1 when r exceeds the floor exit 2 
+  mutation [A.SUSTAIN=1] -> SELFTEST FAIL at check 46: gate FAILS: one interval under the floor is not a sustained floor exit 2 
+  mutation [A.CUM_TOL=1e-3] -> SELFTEST FAIL at check 51: C3 FAILS on a Q still marching, even though each step is tiny exit 2 
+  mutation [A.classify_series=(lambda f:(lambda s:dict(f(s),growing=False)))(A.classify_series)] -> SELFTEST FAIL at check 48: gate FAILS C2: a growing change under the floor is not converged exit 2 
+  mutation [A.gate_c3=lambda qs,end_time=None:(True,{'t_half':0,'q_half':0,'q_end':1,'cum':0.0})] -> SELFTEST FAIL at check 50: C3 passes on a stationary Q series and picks the mid-run checkpoint exit 2 
+== directories after selftest and mutation controls: 0 (0 required) ==
+== E4a's run tree is untouched: file/dir count and the five DONE markers ==
+26
+5
+== date -u at end of capture ==
+2026-08-24T16:37:45,188396096Z

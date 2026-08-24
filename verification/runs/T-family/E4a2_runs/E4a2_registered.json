@@ -1,0 +1,358 @@
+{
+  "rung": "E4a2",
+  "supersedes": "E4a",
+  "scope": "Successor rung to E4a.  The physics, geometry, curves, exact operating points, the section 1.5 error derivation and rows I1/I2/P1/R1/G1/G2/N1/D1/Z1 with their intervals and falsifiers are CARRIED OVER UNCHANGED from E4a.  Exactly ONE thing is re-registered: the iterative-convergence gate, which was bit-identity between the last two checkpoints in E4a and is a registered bounded floor plus a not-growing plateau reading here.  endTime and writeInterval change only to make that gate measurable.",
+  "source_of_carried_rows": {
+    "file": "docs/campaigns/T-family/E4a_PREREGISTRATION.md",
+    "sha256": "2ebe2fc89ed7467730310d51630df837fb0f3dd578a05ef702c9b05d32150765",
+    "frozen_by_commit": "628e29c4",
+    "registered_json_sha256": "bb363d0232683f50a8f75ecbd15aef436bd72762686764c56027aac6f0401b05",
+    "note": "Every key listed in carried_over_keys is asserted DEEP-EQUAL to the corresponding key of E4_runs/E4a_registered.json at every invocation of analyse_e4a2.py; a mismatch is a REFUSAL (exit 2). That executable assertion, not any prose, is the carry-over's provenance."
+  },
+  "carried_over_keys": [
+    "geometry",
+    "nu",
+    "R_exact",
+    "R_exact_note",
+    "p_out",
+    "grid",
+    "curves",
+    "cases",
+    "patches",
+    "convergence_fields",
+    "rows",
+    "planted_control"
+  ],
+  "solver": "simpleFoam",
+  "turbulence": "laminar",
+  "openfoam": "/usr/lib/openfoam/openfoam2606",
+  "geometry": {
+    "kind": "2D planar channel, x streamwise, y across, z empty",
+    "L": 2.0,
+    "h": 0.01,
+    "t": 0.001
+  },
+  "nu": 1.5e-05,
+  "R_exact": 360000.0,
+  "R_exact_note": "R = 12 nu L / (h^3 t) = 12*1.5e-5*2.0/(1e-6*1e-3) [ (m2/s2)/(m3/s) ], plane Poiseuille, kinematic pressure",
+  "p_out": 0.0,
+  "grid": {
+    "Fs": 1.25,
+    "r": 1.5,
+    "frozen_module_r": 1.6,
+    "ratio_redirect_note": "analyse_t1c.gci is imported frozen; its module-level R_REFINE (1.6) is redirected to 1.5 IN-PROCESS ONLY by a restoring context manager (T10aR in_tree precedent), because integer cell counts across h force r=1.5 (8/12/18); the redirect and its restoration are proved by the selftest"
+  },
+  "curves": {
+    "A": {
+      "p0_env": 0.0,
+      "coeffs": [
+        [
+          0.081,
+          0.0
+        ],
+        [
+          -1200000000000.0,
+          2.0
+        ]
+      ],
+      "Q_exact": 1.5e-07,
+      "note": "dp(Q) = 0.081 - 1.2e12 Q^2 [m2/s2, Q in m3/s]; operating point 1.2e12 Q^2 + 3.6e5 Q - 0.081 = 0, discriminant (7.2e5)^2 exact, Q* = 1.5e-7 exactly; U_m = 0.015 m/s, Re_h = 10"
+    },
+    "B": {
+      "p0_env": 0.0,
+      "coeffs": [
+        [
+          0.048,
+          0.0
+        ],
+        [
+          -1200000000000.0,
+          2.0
+        ]
+      ],
+      "Q_exact": 1e-07,
+      "note": "dp(Q) = 0.048 - 1.2e12 Q^2; discriminant (6.0e5)^2 exact, Q* = 1.0e-7 exactly; U_m = 0.010 m/s, Re_h = 6.67"
+    },
+    "NULL": {
+      "p0_env": 0.054,
+      "coeffs": [
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "Q_exact": 1.5e-07,
+      "note": "zero fan curve; flow driven by environmental total pressure alone: Q* = p0_env/R = 1.5e-7 exactly, same analytic operating point as curve A with the fan contribution removed"
+    }
+  },
+  "cases": {
+    "F_c": {
+      "curve": "A",
+      "ny": 8,
+      "nx": 100,
+      "role": "coarse ladder level"
+    },
+    "F_m": {
+      "curve": "A",
+      "ny": 12,
+      "nx": 150,
+      "role": "medium ladder level"
+    },
+    "F_f": {
+      "curve": "A",
+      "ny": 18,
+      "nx": 225,
+      "role": "fine ladder level, graded"
+    },
+    "S_f": {
+      "curve": "B",
+      "ny": 18,
+      "nx": 225,
+      "role": "second registered curve, control"
+    },
+    "N_f": {
+      "curve": "NULL",
+      "ny": 18,
+      "nx": 225,
+      "role": "zero-fan null, control"
+    }
+  },
+  "patches": {
+    "fan": "inlet",
+    "outlet": "outlet",
+    "walls": "walls",
+    "empty": "frontAndBack"
+  },
+  "convergence_fields": [
+    "p",
+    "U",
+    "phi"
+  ],
+  "rows": {
+    "I1": {
+      "kind": "identity (Charter 2a)",
+      "quantity": "max over fan-patch faces of |p_f - (p0_env + dp(Q_meas) - 0.5*neg(phi_f)*|U_f|^2)| [m2/s2], Q_meas = -sum(phi_fan)",
+      "cases": [
+        "F_c",
+        "F_m",
+        "F_f",
+        "S_f",
+        "N_f"
+      ],
+      "prediction": 0.0,
+      "tol_abs": 8.1e-08,
+      "why_tol": "identity exact in exact arithmetic (fanPressureFvPatchScalarField.cxx:144-205 + totalPressureFvPatchScalarField.cxx:191); floor = last-iteration flux lag (bounded by the bit-identical-checkpoint gate at writePrecision 12, <~1e-11 rel) + ascii rounding (~1e-13 abs); 8.1e-8 = 1e-6 * 0.081 sits >=3 decades above that floor and 3 decades below the static-vs-total convention-error signature 0.5*U_m^2 = 1.125e-4",
+      "falsifier": "any face residual > 8.1e-8; a residual of order 1.1e-4 names the static-vs-total convention error the curriculum warns about"
+    },
+    "I2": {
+      "kind": "identity (Charter 2a)",
+      "quantity": "|Q_in - Q_out| / |Q_in|, Q_in = -sum(phi_fan), Q_out = +sum(phi_outlet)",
+      "cases": [
+        "F_c",
+        "F_m",
+        "F_f",
+        "S_f",
+        "N_f"
+      ],
+      "prediction": 0.0,
+      "tol_rel": 0.0001,
+      "why_tol": "SIMPLE writes the conservative corrected flux; imbalance inherits the p-solve closure (tolerance 1e-10, relTol 0) whose normalisation is opaque from outside, so the floor is registered generous; the defect this row exists to catch (leaking patch, reader bug) shows at O(1) relative",
+      "falsifier": "relative imbalance > 1e-4"
+    },
+    "P1": {
+      "kind": "precondition",
+      "quantity": "number of fan-patch faces with phi >= 0 at endTime",
+      "cases": [
+        "F_c",
+        "F_m",
+        "F_f",
+        "S_f",
+        "N_f"
+      ],
+      "prediction": 0,
+      "tol": 0,
+      "falsifier": "any outflow face on the fan patch voids the analytic energy-balance referent: G1/G2/N1/D1 become NOT A RESULT (I1/I2 still graded)"
+    },
+    "R1": {
+      "kind": "Roache triple (rule 5)",
+      "quantity": "observed order p of the F_c/F_m/F_f triple on Q*",
+      "prediction": 2.0,
+      "interval": [
+        1.6,
+        2.4
+      ],
+      "falsifier": "p outside [1.6,2.4] -> GATE FAIL; triple not CONVERGING -> NOT A RESULT, value+triple+order printed, no GCI quoted on non-monotone values; any level not converged/plateaued -> NOT A RESULT",
+      "basis": "derived wall-discretisation law dev(Q*) = +1/Ny^2 (level-independent entrance term cancels in differences): e32/e21 = (1/64-1/144)/(1/144-1/324) = 2.2500 exactly at the leading order, p = ln(2.25)/ln(1.5) = 2.000"
+    },
+    "G1": {
+      "kind": "graded",
+      "quantity": "Q* of F_f at endTime vs exact 1.5e-7",
+      "prediction_dev_pct": 0.111,
+      "interval_dev_pct": [
+        -0.11,
+        0.31
+      ],
+      "falsifier": "outside the interval; requires F_f converged and P1; independent of R1's triple state (its interval is analytic, not GCI-derived)",
+      "basis": "wall-discretisation dev = (2/Ny^2)*R/(R+2 k2 Q*) = 1/18^2 = +0.3086% (the 2/N^2 law is derived and selftested; the factor is R/(R+2k2Q*) = 0.5 for curve A) - entrance+KE term kappa*(U_m^2/2)/((R+2 k2 Q*)*Q*), kappa = alpha_out(54/35=1.5429)+kappa_e, kappa_e in [0,1] central 0.35 -> -0.197% [-0.265,-0.161]; +/-0.15% margin for unmodelled x-discretisation"
+    },
+    "G2": {
+      "kind": "graded",
+      "quantity": "Q* of S_f at endTime vs exact 1.0e-7",
+      "prediction_dev_pct": 0.213,
+      "interval_dev_pct": [
+        -0.02,
+        0.4
+      ],
+      "falsifier": "outside the interval; requires S_f converged and P1",
+      "basis": "wall term (2/18^2)*R/(R+2 k2 Q*_B) = (2/324)*0.6 = +0.3704% - entrance term kappa*5e-5/(6.0e5*1.0e-7), central -0.158% [-0.212,-0.129]; +/-0.15% margin"
+    },
+    "N1": {
+      "kind": "graded control",
+      "quantity": "Q of N_f at endTime vs exact 1.5e-7 (zero-fan null: pressure-difference-driven alone)",
+      "prediction_dev_pct": 0.223,
+      "interval_dev_pct": [
+        -0.12,
+        0.5
+      ],
+      "falsifier": "outside the interval; requires N_f converged and P1. Structural registered prediction: the null's wall term is +2/Ny^2 = +0.617%, double the fan case's, because with no fan slope the factor R/(R+2k2Q*) is 1",
+      "basis": "+2/18^2 = +0.617% wall term - entrance term kappa*1.125e-4/0.054, central -0.394% [-0.530,-0.321]; +/-0.20% margin (double sensitivity)"
+    },
+    "D1": {
+      "kind": "reported diagnostic, graded as a prediction about a diagnostic (T10aR RX5 class)",
+      "quantity": "sign-corrected Richardson extrapolate of the F triple vs exact 1.5e-7",
+      "prediction_dev_pct": -0.197,
+      "interval_dev_pct": [
+        -0.35,
+        -0.08
+      ],
+      "falsifier": "outside the interval; in particular a Richardson landing at ~0 dev falsifies the registered entrance model low. NOT A RESULT if R1's triple is not CONVERGING. Grades no case row; uses the exact reference and is not an instrument independent of the hypothesis"
+    },
+    "Z1": {
+      "kind": "planted-zero control (rule 3, T10aR SS2.2 exact-float rule)",
+      "quantity": "recovered change from a plant into a scratch copy of a checkpoint field, read back through the same reader",
+      "prediction": "exactly fl(old+plant)-old for every plant",
+      "falsifier": "any mismatch is a comparator REFUSAL (exit 2), not a graded row"
+    }
+  },
+  "planted_control": {
+    "p": 0.001234,
+    "U": 0.001234,
+    "phi": 1.234e-09
+  },
+  "time": {
+    "endTime": 60000,
+    "deltaT": 1,
+    "writeInterval": 2000,
+    "purgeWrite": 0,
+    "writePrecision": 12,
+    "note": "endTime 20000 -> 60000 and writeInterval 5000 -> 2000, purgeWrite 0 (retain ALL 30 checkpoints).  writeInterval STRICTLY < endTime (L-140).  The longer run and the 30 retained checkpoints exist so that the FIRST CROSSING of the registered floor is measurable and the plateau reading has a series to read (T3 ext1: purgeWrite 2 made over-shoot unmeasurable).  writePrecision is UNCHANGED at 12 -- the registered floor sits 3 decades above the 12-significant-digit last-place quantum, so no precision change is needed."
+  },
+  "convergence_gate": {
+    "supersedes": "E4a's bit-identity gate (analyse_e4a.py:411-418), which demanded that every parsed value of p, U and phi be value-for-value identical between the last two checkpoints. It did not close on any of the five E4a cases and voided five registered rows (E4a_RESULTS.md sections 1 and 5).",
+    "quantity": "For each field f in convergence_fields and each consecutive retained checkpoint pair (t_{k-1}, t_k): D_k(f) = max over every parsed value index i of |v_k(f)[i] - v_{k-1}(f)[i]| (internalField values first, then every boundary patch that carries a 'value' entry, patches in sorted order, vector components flattened); S(f) = max over i of |v_K(f)[i]| at the LAST checkpoint (the field's peak magnitude, which is <= its range, so this normalisation is conservative relative to T3's registered 'fraction of that field's range' form); r_k(f) = D_k(f)/S(f); r_k = max over f of r_k(f).",
+    "floor_rel": 1e-08,
+    "sustained_intervals": 3,
+    "C1": "SUSTAINED FLOOR: r_k <= floor_rel for EACH of the last sustained_intervals consecutive-pair intervals.  One lucky interval cannot pass the gate.",
+    "C2": "NOT GROWING (T3 ext1 section 2 style): the least-squares fit of log10(r_k) against iteration over the last third of the series must NOT be classified GROWING, i.e. NOT (R^2 >= fit_r2_min AND slope >= +fit_slope_decades_per_1000).  A case whose change is climbing steadily toward the floor is not certified converged even while it is still under it.",
+    "C3": "GRADED-QUANTITY STATIONARITY (the L-243 remedy): |Q(t_K) - Q(t_half)| / |Q(t_K)| <= cum_tol_rel, where Q(t) = -sum(phi) over the fan patch at checkpoint t (the frozen reader, the same quantity every graded row uses) and t_half is the retained checkpoint nearest endTime/2, excluding t_K itself.  C1 and C2 are CHANGE criteria and L-243 is explicit that change bounds nothing about distance to a fixed point; C3 is a FIELD-SPACE DISTANCE on the graded target itself, measured across half the run, and it is what makes the gate more than a settle bar.",
+    "cum_tol_rel": 1e-07,
+    "verdict": "A case is CONVERGED iff C1 AND C2 AND C3.  An unconverged case makes every row that needs it NOT A RESULT (rule 5 order (1)); the gate can only turn a PASS or GATE FAIL INTO NOT A RESULT, never the reverse.",
+    "grow_tol_note": "No growth ratio between individual intervals is gated. E4a's own F_c series grew 1.54x across its last three intervals (7.707e-10, 4.919e-10, 1.189e-9) while sitting three decades inside this floor: a strict interval-to-interval non-growth requirement would void the rung for bounce AT a floor, which is E4a's defect in a new costume.  Growth is read from the fitted trend over the last third, never from one bounce.",
+    "fit_r2_min": 0.9,
+    "fit_slope_decades_per_1000": 0.01,
+    "fit_window_note": "last third = max(4, n_intervals // 3) intervals; n_intervals = 29 at the registered checkpoint set, so the window is 9 intervals.",
+    "fit_floor_rel": 1e-16,
+    "fit_floor_note": "an exactly-zero interval change is floored at 1e-16 for the log10 fit AND for the p95/p05 spread denominator (5 decades below the ascii quantum, so it can never mask a real value); it is reported as 0 and gates as 0, and an all-zero series therefore classifies FLOOR rather than an undefined spread.",
+    "spread_tol": 3.0,
+    "classification": "Reported diagnostic, grades nothing: DECAYING if R^2 >= 0.90 and slope <= -0.01 dec/1000; GROWING if R^2 >= 0.90 and slope >= +0.01 dec/1000; else LIMIT CYCLE if the p95/p05 spread over the window exceeds spread_tol, else FLOOR.",
+    "min_checkpoints": 12,
+    "min_checkpoints_note": "fewer retained checkpoints than this is a REFUSAL (exit 2), not a degraded reading: the registered controlDict produces 30.",
+    "floor_derivation": {
+      "upper_bound_from_graded_rows": "Q is read as -sum(phi) over the fan patch, so |dQ| <= n_fan * D(phi) = n_fan * r(phi) * S(phi) and S(phi) <= |Q| (each face flux is part of a same-signed total), giving |dQ|/|Q| <= n_fan * r <= 18 * floor_rel = 1.8e-7, i.e. 1.8e-5 percentage points of dev.  The narrowest graded dev half-width is D1's 0.117 pp -> 3.8 decades.  The BINDING row is R1, whose observed order is a function of the triple's DIFFERENCES: from the carried-over section 1.5 arithmetic (not from any measurement) e21 = 1.5e-7*(0.497-0.111)/100 = 5.790e-10 and e32 = 1.5e-7*(1.366-0.497)/100 = 1.3035e-9, so |dp_order| <= (1/(e32 ln r) + (1/e32 + 1/e21)/ln r + 1/(e21 ln r)) * dQ = 1.230e10 * 2.7e-14 = 3.32e-4 against R1's half-width 0.40 -> 1204x = 3.08 decades.  The largest floor that still clears three decades on R1 is 1.204e-8; 1e-8 is registered.",
+      "lower_bound_from_write_precision": "At writePrecision 12 the last-place quantum of a written value is between 1e-12 and 1e-11 of that value (leading digit 9 to 1).  The worst case, 1e-11, is the ascii resolution floor of r.  floor_rel = 1e-8 sits 3.0 decades above it, so the gate cannot be reading write-precision flicker.",
+      "feasibility_from_e4a": "Measured on E4a's five completed case trees under exactly this definition (read-only; E4a's tree was not written to): the worst r over all cases, all three fields and all three intervals is 1.189e-9 (F_c, phi, 15000->20000).  floor_rel is 8.41x above it.  THE FLOOR IS NOT DERIVED FROM THIS NUMBER -- it is derived from the two bounds above; E4a's measurement is cited only to show the floor is reachable, and it sits 8.41x inside it rather than at it.",
+      "comparison_to_the_family": "T3's registered convergence gate is 1e-6 of the field's range (T3_PREREGISTRATION section 5).  This floor is two decades tighter and normalised by peak magnitude rather than range.",
+      "effect_on_carried_row_I1": "DISCLOSED WEAKENING, registered before any solve.  E4a's I1 why_tol argued its 8.1e-8 tolerance sat >=3 decades above the last-iteration flux-lag floor BECAUSE the gate was bit-identity.  Under this floor the flux-lag bound is |d(dp)/dQ| * dQ = 2*k2*Q* * 2.7e-14 = 3.6e5 * 2.7e-14 = 9.72e-9 m2/s2, only 8.3x below I1's carried-over tolerance rather than 3 decades.  I1's tolerance is NOT changed (it is carried over).  What the row exists to catch is unaffected: the static-vs-total convention signature 0.5*U_m^2 = 1.125e-4 remains 4.06 decades above the flux-lag bound.  E4a measured I1 at 3.794e-11, three decades inside the tolerance.",
+      "cum_tol_derivation": "cum_tol_rel = 1e-7.  UPPER BOUND, from the graded rows: 1e-7 relative in Q is 1e-5 percentage points of dev, against D1's narrowest half-width of 0.117 pp -> 4.07 decades; and on the BINDING row R1, |dp_order| <= 1.230e10 * (1e-7 * 1.5e-7) = 1.845e-4 against R1's half-width 0.40 -> 2168x = 3.34 decades.  FEASIBILITY, measured read-only on E4a's completed trees: the worst |Q(t) - Q(endTime)|/|Q(endTime)| over all five cases and all four retained checkpoints is 3.886e-10 (F_c at 5000), and Q shows NO systematic drift -- it bounces in the eleventh to twelfth significant digit (N_f moves 0.000e+00 between 10000 and 20000).  cum_tol_rel is 257x above that worst reading; E4a2's C3 window (30000 -> 60000) is twice as long as the widest E4a span, so even a doubling leaves >100x.  As with the floor, the tolerance is DERIVED from the two bounds and E4a's measurement is cited only for feasibility."
+    }
+  },
+  "reproduction_control": {
+    "row": "X1",
+    "kind": "reproduction control -- GRADES NOTHING and can produce NO verdict; it can only REFUSE (exit 2), exactly like Z1.",
+    "quantity": "|dev_pct(E4a2) - dev_pct(E4a)| per case, in percentage points",
+    "e4a_dev_pct": {
+      "F_c": 1.3699,
+      "F_m": 0.5255,
+      "F_f": 0.1438,
+      "S_f": 0.2387,
+      "N_f": 0.2876
+    },
+    "e4a_dev_source": "E4a_RESULTS.md section 3, log.analyse_e4a.20260824T160518Z.txt -- values the E4a comparator printed beside converged=False and which E4a labelled NOT A RESULT.",
+    "tol_pp": 0.01,
+    "why_this_is_not_a_prediction": "The registered PREDICTIONS for R1/G1/G2/N1/D1 are the carried-over section 1.5 arithmetic and nothing else.  E4a's diagnostic Q values are NOT predictions, NOT gates and NOT intervals: no threshold in this file is a function of them.  A match to them is EXPECTED (same meshes, same BCs, same solver, same settings; only endTime differs) but earns no verdict.  X1 exists so the expectation is not merely annotated: a gross non-reproduction stops the rung instead of being printed and waved past.",
+    "calibration": "0.01 pp = 1e-4 relative in Q.  Sustained iteration drift big enough to move Q that far between 20000 and 60000 would need r ~ 2.8e-8 held over 20 intervals, which is above floor_rel and trips C1 FIRST.  X1 can therefore only fire on gross non-reproduction -- a wrong mesh, a wrong curve, a wrong case -- never on the drift question this rung is about."
+  },
+  "prediction_gate_closes": {
+    "registered_before_any_solve": true,
+    "prediction": "The convergence gate CLOSES at endTime 60000 for ALL FIVE cases: C1, C2 and C3 all hold for F_c, F_m, F_f, S_f and N_f.",
+    "basis": "E4a's r-series is already 8.4x to 3 decades inside floor_rel at 20000 under identical settings, and it is FLAT (F_f's p change is 2.600e-12 at all three of its intervals, identically), so the prediction does not depend on further decay -- only on the floor staying where it is over 3x the iterations.",
+    "falsifier": "Any case failing C1, C2 or C3 makes R1/G1/G2/N1/D1 NOT A RESULT again and the rung NOT A RESULT.",
+    "readings_registered_in_advance": [
+      "(i) THE CRITERION IS STILL TOO TIGHT for this solver's achievable floor -- supported iff the failing case's series classifies FLOOR (|slope| < 0.01 dec/1000 or R^2 < 0.90) with p95/p05 <= spread_tol and its r sits within one decade above floor_rel.  Discriminating measurement: the classification and the spread.",
+      "(ii) THE SOLVER HAS A LIMIT CYCLE at this precision -- supported iff the series classifies LIMIT CYCLE (p95/p05 > spread_tol) or C2 fails with a GROWING fit.  Discriminating measurement: the spread and the fitted slope with its R^2.",
+      "(iii) THE endTime WAS SIMPLY TOO SHORT -- supported iff the series classifies DECAYING (R^2 >= 0.90, slope <= -0.01 dec/1000) and still sits above floor_rel.  Discriminating measurement: the fit; T3 ext1's rule then gives the iterations still needed, N = 1000*log10(r/floor)/|slope|.",
+      "(iv) THE ITERATE IS STATIONARY IN CHANGE BUT NOT IN THE GRADED TARGET -- supported iff C1 and C2 hold while C3 fails.  That is precisely L-243's damping/change confusion showing itself, and it is the reading only C3 can produce.  Discriminating measurement: the Q(t) series across the retained checkpoints against the r_k series."
+    ],
+    "note": "These three readings are registered so the outcome DISCRIMINATES rather than confirms (L-244).  No reading is a gate and none changes a verdict: the rung is NOT A RESULT in all three."
+  },
+  "cost": {
+    "rate_usd_per_core_h": 0.0513,
+    "rate_basis": "owner-stated 2026-08-21/22 (CLAUDE.md rule 12); the box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5), so every dollar here is DERIVED, NOT MEASURED.",
+    "basis_s_per_cell_iteration": 5.5e-07,
+    "basis_source": "E4a MEASURED: F_f 44.56 s ExecutionTime / (4050 cells * 20000 iterations) = 5.50e-7 s per cell-iteration (E4a_RESULTS.md section 7; STATUS.F_f wall=45, log.solve ExecutionTime 44.56).  E4a's registered basis of 7.5e-6 s/cell-iteration, borrowed from buoyantBoussinesqSimpleFoam T1c replicates, over-predicted this solver class by 13.6x; that basis is NOT used here.",
+    "per_case_basis_s_per_cell_iteration": {
+      "F_c": 7.925e-07,
+      "F_m": 6.603e-07,
+      "F_f": 5.501e-07,
+      "S_f": 5.493e-07,
+      "N_f": 5.362e-07
+    },
+    "predicted_core_s": {
+      "F_c": 39,
+      "F_m": 69,
+      "F_f": 135,
+      "S_f": 135,
+      "N_f": 134,
+      "mesh_and_checks": 3,
+      "extra_checkpoint_io": 30,
+      "comparator": 120
+    },
+    "predicted_note": "Per case the registered figure is the LARGER of (a) 5.50e-7 * cells * 60000 and (b) 3x E4a's measured wall (endTime ratio 60000/20000 = 3), disclosed rather than averaged.  Meshing: E4a measured 2 core-s across five cases against a registered 15; 3 is registered here. extra_checkpoint_io: 26 further ascii field writes per case at ~0.2 s.  comparator: 5 cases x 30 checkpoints x ~24700 parsed floats.",
+    "predicted_total_core_s": 665,
+    "predicted_total_core_min": 11.083,
+    "predicted_total_core_h": 0.18472,
+    "predicted_total_usd_derived": 0.0095,
+    "stop_threshold_10x_core_h": 1.8472,
+    "stop_threshold_10x_usd_derived": 0.0948,
+    "per_case_stop_core_s": {
+      "F_c": 390,
+      "F_m": 690,
+      "F_f": 1350,
+      "S_f": 1350,
+      "N_f": 1340
+    },
+    "per_case_stop": "any case exceeding 10x its predicted wall is STOPPED and investigated, not waited out; every per-case threshold is below the rule-12 3600 wall-s stall rule, so the per-case threshold binds first.",
+    "actual_core_s": null,
+    "actual_note": "filled at process completion ONLY, never at registration (Sanaa's 2026-08-23 estimate-vs-actual law, rule 12); the completion report states actual core-minutes from the STATUS/log records, the ratio actual/predicted with the gap attributed, and lands a row in docs/COST_CALIBRATION.md."
+  },
+  "frozen_instruments": {
+    "E4_runs/E4a_registered.json": "bb363d0232683f50a8f75ecbd15aef436bd72762686764c56027aac6f0401b05",
+    "E4_runs/build_e4a.py": "451eae3682bff7f89f31147c1d2d74fe1badc4c2af2c0e0f40e76ca665e46956",
+    "E4_runs/analyse_e4a.py": "a9f31c3f569181f27b17bcaca318ce1f1a0a3f0e85e788a4214c8d8d5d63ff4b",
+    "E4_runs/mark_done_e4a.py": "b152ed0071bfe8cea060fc8164587ffeec7ca02ab0c6ce259565935d4b10fbe6",
+    "E4_runs/run_one_e4a.sh": "226fd26b019a7fe73b559dda36451ca328ee371bcb1c8fb6b776d024f12ffe19",
+    "E4_runs/launch_e4a.sh": "0e2b893fd134cba67975792d3defefb453ed929ca4d122f22022e4cad9c81274",
+    "T1_runs/analyse_t1c.py": "60893b28e284127f61b41842c520897a2202cb024d5a4d260272c6ee7e6c5135"
+  },
+  "frozen_instruments_note": "Every hash above is the blob committed at 628e29c4 (E4a's freeze) and is re-verified on disk at every invocation of analyse_e4a2.py, build_e4a2.py and mark_done_e4a2.py; a mismatch is a REFUSAL (exit 2).  These files are FROZEN: E4a2 imports them and never edits, copies or re-implements them where an import is possible."
+}
