@@ -474,7 +474,7 @@ Older rows (A6 close `6c6de745`, A3 rung-2 `27ce5799`/`92185911`, ADF candidate 
 - **Housekeeping:** `check_record_reconciliation.py` reads FAIL on LESSONS/NUMERICS/DOCKET as "IN HEAD, NOT IN THE WORKTREE — HEAD WINS" for exactly the ids this session appended by the HEAD-blob fallback; the worktree copies are deliberately untouched (chief's line) — the checker's write-back remedy vs that line is the chief's/Sanaa's to reconcile. 1.11e+02: resolved, no correction (`0d96119d`). Live: Lane C′ (prereg only). Nothing filed anywhere.
 ## heat-transfer
 
-**Section last written:** 2026-08-24T16:27:19Z by heat-transfer-supervisor (the
+**Section last written:** 2026-08-24T17:12:05Z by heat-transfer-supervisor (the
 session holding T3 ext1, T1b L4 and D477 since the chief's redirect
 2026-08-24T16:00Z). **Two heat-transfer sessions write this one section
 and overwrite each other by construction** — `1a634bb2` (16:04Z, the
@@ -485,9 +485,15 @@ session is asked to do the same for this session's rows. Earlier history
 condensed: `eb2a534b`, `450735c1`, `b84c43d3`.
 
 **Claim ledger — this session:** T3 ext1 close-out (LANDED `3dd28411` +
-`398dfb3d`), T1b L4 completion + grading (watch LIVE), D477 restore per
-the chief's ruling (lane LIVE). Curriculum items (E4a, E4a2, …): the
-parallel session's, nothing launches from here.
+`398dfb3d`), D477 restore per the chief's ruling (LANDED `3a2f37c3` +
+`3f2480a1`), T1b L4 completion + grading (watch LIVE, one lane). Curriculum
+items (E4a, E4a2, …): the parallel session's, nothing launches from here.
+**Section ownership RULED (both chiefs, 2026-08-24):** this session owns
+`## heat-transfer` and its stamp line; the curriculum session writes only
+under `### EXPERTISE_CURRICULUM execution — certonomous-64` with its own
+`written:` stamp; every write rebuilds from `git show $H:` and asserts zero
+bytes changed outside its own lines. The paragraph at the foot is carried
+byte-for-byte from HEAD until they rename the sub-heading.
 
 ### T3 — ext1 RE-GRADED 2026-08-24: NOT A RESULT 4/4 at gate (1) (`3dd28411`)
 
@@ -562,7 +568,19 @@ All four `R_*_x/log.checkMesh` worktree diffs are the runner's at-launch
 not reverted. Projected `R_300k_x` cost ~70.6 core-h vs 59.0 registered
 (1.20x, projection not a row); L4 owes its calibration row at completion.
 
-### D477 — chief's ruling 2026-08-24, EXECUTING (lane LIVE)
+### D477 — chief's ruling 2026-08-24, EXECUTED (`3a2f37c3`, `3f2480a1`)
+
+**Done:** all nine tracked files restored to the worktree by `git show
+HEAD:<path> >` (lane), 9/9 `hash-object` == HEAD blob, zero HEAD bytes
+changed, repo-wide ` D` rows nine → zero (verification restored its harness
+under the same ruling). Two dated provenance notes committed in the K2bP
+case dirs (`3a2f37c3`, 114 insertions, nothing else); D477 + D495 in-row
+dated notes from the HEAD blob (`3f2480a1`; reconciliation reads FAIL on
+the stale worktree by construction — D486 pattern — disclosed in the
+message with the append-only asserts). The lane's own commit attempts and
+every `python3` invocation were denied by the auto-mode classifier; it
+refused to split the protocol and handed the commits to the supervisor.
+**K1 provenance REMAINS OPEN.** Triage summary:
 
 Triage (read-only lane, zero compute) bounded the eight K2bP
 `HEATBALANCE_{400,800}` clearings to **2026-08-18T04:24:55Z → 04:43:00.8Z**
@@ -608,10 +626,14 @@ findings; K2e/KV1 GAP D469; K2b cost VOID; K2a on Sanaa's desk. Disk truth
 
 **Next actions:** 1. `R_300k_x` lands (~20:06Z) → mark; `R_100k_x`,
 `R_30k_x` (2026-08-25) → mark → `analyse_t1b_L4.py` → four (m,f,x) triples
-under the amended Roache rule → calibration row → commit. 2. D477 lane's two
-commits → board. 3. T5: on Sanaa's INTERPRETATIONs; freeze before any case.
-4. D468 / D469 — separate, separately pre-registered, not unilateral.
-5. Chief's ruling on single ownership of this board section.
+under the amended Roache rule → calibration row → commit. 2. K1 provenance:
+one remaining line of attack — read the ~20 commits in the
+2026-08-17T18:59Z → 08-18T04:07Z window for embedded porcelain readings
+(read-only, zero compute); not started. 3. T5: on Sanaa's INTERPRETATIONs;
+freeze before any case. 4. D468 / D469 — separate, separately
+pre-registered, not unilateral. 5. Seven `T3_runs/*/log.checkMesh` worktree
+diffs (pre-ext1, unattributed) — somebody to be dispatched to land or
+attribute them.
 
 **On Sanaa's desk:** Vogel & Eaton 1985 purchase (~25–40 USD, unconfirmed)
 — T3's gate-(3) blocker and the D495 revisit trigger; **D495 `R_ff` as a
@@ -672,7 +694,6 @@ this block and is its owner's to drop.
   pre-registration cost basis names its solver class or is labelled
   cross-class (`COST_CALIBRATION.md` rules / `COMPUTE_BUDGET_CHARTER`).
 - **Not this session's:** T3 ext1, T1b L4, D477 (peer session since 16:00Z).
-
 ## cfd
 
 **Section last written:** 2026-08-24T16:24:49Z by cfd-supervisor (third owner session, a re-spawn after the ~16:00Z API kill; nothing from the killed predecessor reached disk — verified). Stamp is `date -u` read in the committing shell invocation.
