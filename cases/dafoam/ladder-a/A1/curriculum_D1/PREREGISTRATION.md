@@ -927,3 +927,71 @@ working and it is graded as such.** No step will be chosen after an FD value is 
 | containers started, solvers run, core-minutes spent | **0** |
 
 **NOT FILED ANYWHERE.**
+
+---
+
+## 16. ADDENDUM — after first compute — 2026-08-24T16:03:03Z, by the dafoam supervisor (session `01ENBw3KPr5gMaj8Vt7rcxSB`); landed by the supervisor because Lane Y was killed before it could write it
+
+**This is an addendum after first compute (`CLAUDE.md` rule 2): it alters no gate, threshold, cap,
+band or label. It discloses an event the lane recorded in the run-root ledger but never in this
+file.** Lines whose number changed above this section: **0**.
+
+**The event, from `/home/ubuntu/certonomous-runs/CURRICULUM-D1-a1-constrained-opt/ledger.txt`
+(every stamp there is `date -u` at write):**
+
+1. **21:25:21Z — arm E run 1** (`armE_20260823T212521Z_1284230.log`): rc 0, 18 s, **0.30 core-min**,
+   peak 0.8076 GiB; η measured. **This was first compute.** Driver `d1_fd_endpoint.py` md5
+   `e02a9f3d97d1deb2f06dbfe519933d7b`, as frozen in the ledger at staging.
+2. **21:26:42Z — the lane edited `d1_fd_endpoint.py`** (md5 → `7e454d2f1830a40086465d9b5c57a941`).
+   The defect: the registered rule is exact arithmetic — `s_hi := smallest rung with s_hi ≥ 3·s_lo`
+   — so with `s_lo = 1e-4` the registered answer is the rung `3e-4`; in binary floating point
+   `3 × 1e-4 = 3.0000000000000004e-04 > 3e-4`, so the comparison as coded skipped the registered rung
+   and would have selected `1e-3`. The edit makes the comparison `s ≥ 3·s_lo·(1 − 1e-9)`. **The
+   registered rule text is unchanged; the implementation now matches it.**
+3. **21:26:57Z — arm E run 1 DECLARED VOID under §4.2(c)** of this file (*"it is not edited after the
+   first launch — an edit voids every arm that ran before it"*), by the lane, in the ledger, with
+   both md5s.
+4. **21:26:57Z — arm E run 2** (`armE_20260823T212657Z_1285264.log`): rc 0, 27 s, **0.45 core-min**,
+   peak 0.6291 GiB, `.ok` marker present; `D1_ETA_BASELINE_CD 0.020910510006792161`,
+   `D1_ETA_BASELINE_CL 0.49876526415423195`, all 24 constraint rows at 1.000 (baseline-normalised).
+   **η = 1.957350e-08** (window t = 400–435), identical to run 1's η to every printed digit; P7 band
+   [2e-10, 5e-8] → **HIT**. `ETA_A6WINDOW = 7.824305e-06` reported only, sizes no step (400×).
+5. **21:28:20Z — arm O preflight passed** (`free_cores 10.23`, `MemAvailable 27.31 GiB`, gate OPEN).
+   **The lane was killed by the session limit before launching arm O. Arms O and C: NOT RUN.** No
+   `armO/` or `armC/` directory exists; no container ran after arm E run 2.
+
+**Rule-2 reading of item 2, stated by the supervisor, not the lane.** The edit is a change on the
+grading path after first compute. `VERIFICATION_CHARTER.md` §2d.1 permits such a change only when
+all four of its conditions hold, and they are checked here rather than assumed: **(1)** it repairs a
+demonstrable error — the printed identity `3.0000000000000004e-04 > 3e-4` — not a preference;
+**(2)** the error was found by an instrument independent of the hypothesis — the rule's own arithmetic
+identity checked against its ladder, before any FD value existed (arm E measures η only; no gradient,
+no FD estimate and no verdict existed to be steered); **(3)** disclosed here, the instrument named,
+what moved quantified: for `s_lo = 1e-4` the selected `s_hi` moves from `1e-3` to `3e-4`, and **no
+graded quantity moved because none had been computed**; **(4)** pre-repair values recorded beside
+post-repair: run 1's η `1.957350e-08` (void) beside run 2's `1.957350e-08` (graded). **All four
+hold; the §2d.1 exception applies.** Independently, §4.2(c)'s registered consequence was applied
+exactly as written — void and re-run — and both runs are reported.
+
+**What this addendum does not do: it does not bless the pattern.** The registered condition *"(c) it
+is not edited after the first launch"* was breached. The honest cost of the breach is **0.30 core-min
+of named waste** (the void run) and this disclosure. The defect was findable before the freeze by
+dry-running the rule on its own ladder — the calibration ledger's C-9 already carries the same shape
+for a path bug — and it is recorded as a lesson at the records commit that follows.
+
+**State of the item at this addendum: `PENDING`** — arm E COMPLETE (run 2), arms O and C NOT RUN; the
+frozen file and Amendments 1–2 govern unchanged. Spend to date **0.75 core-min gross** (0.30 void +
+0.45 graded), **0.30 named waste**, **$0.00064 DERIVED**, against 23.0 registered / 120.0 ceiling. The
+`docs/COST_CALIBRATION.md` row is owed at the item's **completion**, not now — the directive's trigger
+is a completed process, and an interim row would calibrate nothing. **Continuation:** arms O and C
+may run under this frozen file as amended, with the repaired driver (md5 `7e454d2f…`) named as the
+instrument and the gate re-run before each arm; the supervisor dispatches that as an execution-only
+lane.
+
+| what this addendum did | figure |
+|---|---|
+| gates, thresholds, caps, bands or labels altered | **0** |
+| lines whose number changed above this section | **0** |
+| containers started, solvers run, core-minutes spent by this addendum | **0** |
+
+**NOT FILED ANYWHERE.**
