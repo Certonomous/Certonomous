@@ -821,3 +821,67 @@ cp -a /home/ubuntu/certonomous-runs/P3-a4-opt-shipped/base <root>/{geom,eta,opt,
 **END OF PRE-REGISTRATION. Frozen by commit. Nothing below this line existed when the gates,
 thresholds, caps and labels above were fixed. NO SOLVER COMPUTE SPENT ON THIS ATTEMPT; the one
 pre-freeze diagnostic container is declared in §2.2 and costed in §10.2. NOT FILED ANYWHERE.**
+
+---
+
+## 20. ADDENDUM A1 — Supervisor launch authorisation (dated; version bump v1.0 → v1.1)
+
+**Dated 2026-08-24T18:29:24Z** (`date -u`, read in the shell invocation that wrote this addendum, asserted the
+run root absent, built the tree and landed the commit carrying it).
+
+**lines whose number changed above this section: 0** — this addendum is appended at the foot of the
+frozen file; the 823 lines above it are byte-identical to the `092e54e7` blob, asserted by md5 of
+`head -n 823` taken before and after the append in the same invocation. Nothing above was touched,
+re-flowed or re-numbered (`CLAUDE.md` rule 6).
+
+**Version.** The frozen document carried no explicit version token. This addendum designates the
+state committed at `092e54e7` as **v1.0**, and this file with this addendum as **v1.1**.
+
+**Condition asserted, and how it was checked (`CLAUDE.md` rule 2, before-first-compute clause).**
+**NO SOLVER COMPUTE HAS BEEN SPENT ON THIS ATTEMPT WHEN THIS ADDENDUM IS COMMITTED.** The run root
+`/home/ubuntu/certonomous-runs/D3-a4-constrained-attempt2/` **does not exist**: `test ! -d` on that
+exact path is executed **inside the same shell invocation** that writes this addendum and that builds
+and lands the commit carrying it, and the commit is refused if the path is present. No container of
+this attempt has been started, no image has been run, and no solver has executed. The one pre-freeze
+diagnostic container is the one declared in §2.2 and costed in §10.2; it predates the freeze, ran in
+its own probe root, and is not compute of this attempt's stages. The `date -u` stamp at the head of
+this section is read in that same invocation.
+
+**No gate, band, threshold, cap or label is altered by this addendum.** Every number in §7, §8, §9
+and §10 stands exactly as frozen.
+
+### 20.1 The authorisation, as directed by the dafoam-supervisor
+
+**Launch of phase 2 is AUTHORISED, dated 2026-08-24**, after the supervisor's own §17.2 item-5 checks,
+performed personally and not on relay:
+
+1. **The freeze was verified by the supervisor at 18:26Z** — the three frozen executables on disk were
+   hashed against the committed blobs at `092e54e7` and found equal
+   (`d3_runScript.py` `4dd289f275b512598e74daf2eb39d729`, `d3_grade.py`
+   `a32f075853e264910ee0a6c2473fd948`, `d3_sep_monitor.py` `cd07d7b8a70627579384f263ba92194e`), and the
+   latter two additionally byte-identical to the attempt-1 `0cbf463c` blobs.
+2. **The repair diff was read as a diff, not as a summary** (§17.2 item 2). The supervisor read the two
+   executable lines of the repair:
+   `tri_points = self.mesh.mphys_get_triangulated_surface()` and
+   `self.geometry.nom_setConstraintSurface(tri_points)`, at the attempt-2 producer's lines 155–156,
+   inside `configure()` between `nom_add_discipline_coords` and `getLocalIndex(0)`. The remaining 17
+   inserted lines are documentation; nothing is deleted or modified.
+3. **The pre-freeze diagnostic probe (§2.2) was read by name** — 0.1833 core-min, no flow solve, its own
+   probe root — and its consequence accepted: **P1a is disclosed as pre-observed and is NOT graded**,
+   while P1b, P2, P3 and P15 remain unobserved and are graded.
+4. **The two-attempt cost accounting of §10.2 is RULED to stand.** The supervisor's reading is this
+   lane's reading: attempt 1's spend is charged to the **item**, and **the HARD ceiling for this attempt
+   is 69.2 core-min**, not 70.0. §17.2 item 4 asked for this to be said before launch, because it moves
+   G10; it is said here. **69.2 stands.** An overrun stops the run; it does not get a new budget
+   (`CLAUDE.md` rule 12, F12).
+
+The four rulings carried from attempt 1 (§1.2) are unchanged and are not re-argued: DV 1 → 2
+authorised; the shipped row bought as endpoint-only accepted; the item proceeds with the separation
+content honestly absent; `NOT AN INSTRUMENT` is a printed reason and the Gs cell reads `NOT A RESULT`
+with that reason beside it.
+
+**Nothing is filed, sent, uploaded, posted or pushed anywhere** (`CLAUDE.md` rule 7). SUBMISSIONS
+PARKED.
+
+**END OF ADDENDUM A1. Phase 2 may launch. Nothing below the line above existed when the gates,
+thresholds, caps and labels were fixed.**
