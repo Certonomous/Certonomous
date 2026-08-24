@@ -238,3 +238,21 @@ ready item (Ling2016 TBNN, `GPU_REPRODUCTION_PLAN.md` §2 item 1) under that
 item's own registered cap. **It is not a physics-scope change**: the other four
 GPU items proceed only in the plan's own order and terms, each costed before it
 runs. An overrun still stops the run; it does not get a new budget.
+
+## 10. First run complete; instance STOPPED by Sanaa; self-shutdown approved — 2026-08-24
+
+**Written 2026-08-24T16:11:46Z (clock read in the writing invocation).** §7–§9 are not edited;
+this section supersedes §8's "instance launched" state.
+
+**Sanaa's rulings, verbatim (2026-08-24, chief's session record):**
+
+> 1. GPU shutdown suggestion: yes approved (also i stopped that instance).
+> 2. Good for the dispatched work, i approve of everything.
+
+| item | state |
+|---|---|
+| `gpu1` | **STOPPED by Sanaa** (2026-08-24, reported without a clock). Private IP 172.31.44.162 persists across stop/start; the public IP changes on restart and is never recorded as canonical |
+| first run | Ling2016 TBNN GPU arm 1 — **NOT A RESULT** on its frozen gates (`gpu/RESULTS.md`, commit `353925c7`); 10.7054 GPU-h = $8.62 derived at §9's $0.8048/GPU-h |
+| idle waste of record | **7.88 GPU-h = $6.34 derived**, 08:03:58Z → 15:56:45Z (the last verified idle read, ledger C-16). The window from 15:56:45Z to Sanaa's stop is **unmeasured** — she reported "stopped" without a clock — and is stated absent, not estimated (ledger correction C-19) |
+| driver self-shutdown | **APPROVED as a standing mechanism** (ruling 1). Every future GPU driver ends with `sudo shutdown -h now` AFTER its completion marker and `spend.json` are written, so a failed halt is visible. **Precondition, VERIFY-by-Sanaa-in-console before first reliance:** the instance's *shutdown behaviour* attribute must read **stop** (the EBS-backed default); with *terminate* the root volume would be lost. This box has no AWS CLI and cannot read the attribute |
+| next GPU item | Ling2016 arm 2 (matched update count) — approved under ruling 2 with per-item costing still required; pre-registration to be frozen BEFORE compute; the instance is started by Sanaa on the chief's request only |
