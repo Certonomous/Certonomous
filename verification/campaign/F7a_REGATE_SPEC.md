@@ -897,3 +897,94 @@ should say so plainly rather than let the old sentence circulate:
   regenerated.
 - `verification/runs/F7_runs/fig7_digitised_R1.json` — the comparator curve, R1's
   second digitisation, unchanged.
+
+---
+
+## 8. Addendum, 2026-08-24 — the R0 toe-width diagnostic is mislabelled in its own output; the threshold is 0.95·h_max, not 0.995·h_max
+
+**Spec version unchanged at v1.0.** §2 is untouched; no gate, threshold, station
+set, cap or label moves. This addendum follows the same reasoning §7 recorded at
+lines 652–653 — an addendum that records a diagnostic outcome is not a new
+version of the contract — and it is stated here rather than left implicit
+because standing rule 6 asks for a version bump: the bump is declined on the
+§7 precedent, and the decline is disclosed rather than silent. This addendum is
+itself **ADDENDUM §8 v1.0**.
+
+**lines whose number changed above this section: 0**
+
+### 8.1 The defect
+
+`verification/runs/F7_runs/r0_implied_front_definition.py`, at HEAD
+`290fcff2`, computes the upstream end of the toe-width diagnostic at
+
+    line 346:  x95 = cross_down(xs, rec["h"], 0.95 * max(rec["h"]))
+
+— a crossing of **0.95 × h_max**. It then stores that crossing under the key
+`x_h995_over_a` (line 350) and prints it as
+
+    line 400:  "T=%.2f toe from h=0.995*hmax to h=0.005a spans %s cells"
+
+Both the key and the printed sentence say **0.995 × h_max**. The code says
+**0.95 × h_max**. The code is what ran; the label is wrong.
+
+**The true window is therefore h = 0.95·h_max down to h = 0.005·a**, not
+0.995·h_max down to 0.005·a. Every cell count written under `toe_width` is the
+width of the **0.95 – 0.005a** window.
+
+### 8.2 What carries the wrong label, and what does not
+
+- **No prose in this spec quotes a toe-width figure.** §7.3, §7.4, §7.5 and
+  §7.6 contain no cell count from `toe_width` and no "0.995" anywhere. The
+  string "0.995" does not occur in this file.
+- **The committed JSON does carry it.**
+  `verification/runs/F7_runs/F7a_R1/r0_implied_front_definition.json` is
+  git-tracked and holds the `toe_width` block at lines 124–167, with the
+  mislabelled key `x_h995_over_a` on lines 128, 135, 142, 149, 156 and 163.
+- **That JSON is cited by this spec**, at §7.7 line 894–895, as *"every number
+  in §7.3, as written by that instrument"* — a blanket artifact citation. A
+  reader following it reaches the wrong label. That citation path, not any
+  quoted prose figure, is why this addendum exists.
+
+For the record, the affected figures as written, now correctly attributed to the
+**0.95·h_max → 0.005a** window on `F7a_R1/res16_papermodel` (dx = dy = a/16):
+
+| T | t used | x(h=0.95·h_max)/a | x(h=0.005a)/a | span, cells |
+|---|---|---|---|---|
+| 3.90 | 0.30 | 0.7361 | 7.6942 | 111.3 |
+| 4.49 | 0.35 | 1.2311 | 8.9748 | 123.9 |
+| 5.17 | 0.40 | 1.5654 | 10.2428 | 138.8 |
+| 5.91 | 0.45 | 2.0069 | 11.4857 | 151.7 |
+| 6.70 | 0.50 | 2.3958 | 12.7203 | 165.2 |
+| 7.72 | 0.60 | 3.2880 | null | null |
+
+The T = 7.72 row has no downstream 0.005a crossing and its span is `null` in
+the JSON; it is carried here as null and not as a number.
+
+### 8.3 No §7 headline number depends on it
+
+`toe_width` is computed in an isolated block (script lines 342–354), attached
+to the result dict at line 377, and printed at lines 399–401. Nothing in
+`stations` or in `fixed_definition_sweep` reads `x95` or `x005`. In
+particular the §7.3 / §7.4 headline chain is untouched:
+
+- the **+23.36%** six-station mean under this spec's pinned h\* = 0.02a;
+- its collapse to **+0.70%** mean under the α = 0.65 floor-row contour;
+- the **±7.3%** surviving residual (max|d| = 7.31%, station spread 14.04 pts);
+- the "~97% of the mean offset" statement in §7.4.
+
+None of these is a function of the toe-width window. **GATE (a): FAIL —
+unchanged**, at max deviation +11.03% at T = 7.72 on `res32y128_base`; §8 moves
+nothing about it, exactly as §7.5 recorded for §7.
+
+### 8.4 The script is NOT edited, and that is deliberate
+
+`r0_implied_front_definition.py` is the instrument that produced a committed
+record (the JSON cited at §7.7). Editing it in place would silently change the
+instrument behind an existing citation. A correction, if the campaign wants one,
+is a **new script version, read as a diff by the supervisor** under the standing
+measurement-script-diff check, producing a new output file — not an in-place
+relabel. Until then the label defect is disclosed here and the JSON's
+`x_h995_over_a` key is to be read as **x(h = 0.95·h_max)/a**.
+
+**Scope of this addendum:** disclosure only. Zero compute. No gate, threshold,
+station set, cap, label or published number is altered.
