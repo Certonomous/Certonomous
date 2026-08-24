@@ -9811,3 +9811,36 @@ filing defect that provoked it.
 ## L-263. A refusal piped through `tail` is an approval, and `update-index --add` after a refused merge stages exactly the stale bytes the tool refused — on an append-only record, ANY deletion in the pre-commit diff is the alarm
 
 2026-08-23, dafoam supervisor, self-caught and repaired same session. Mechanism, measured on the lab's own history: a records commit chained `append_record.py ... | tail -3` for three paths in one `&&` chain — the pipe made every segment's exit status `tail`'s 0, so the chain survived TWO refusals (LESSONS: ids had moved, peers landed three lessons in the interim; DOCKET: stale truncated worktree) — and the follow-up `git update-index --add -- <all three paths>` staged the DOCKET **worktree** file the tool had just refused to touch. Damage: commit `41e566c3` truncated 561 characters off the D473 row — verification's OWN 21:14:28Z stamp-correction, the exact repair the chief's timestamp standing had just mandated — while its `diff-tree --stat` read innocently (`docs/DOCKET.md | 2 +-`). Caught in the post-commit verify by content, repaired at `6da8a162` (bytes restored verbatim, asserted by prefix and length). Binding: (a) never pipe a refusal-capable tool inside a commit chain — capture output to a file and test the tool's own exit status (`PIPESTATUS[0]` if a pipe is unavoidable); (b) after `append_record.py`, stage a path ONLY if that run printed `WROTE` for that path; (c) on an append-only record file, the pre-commit `diff-tree` must be asserted **insertions-only** — any deletion on LESSONS/DOCKET/NUMERICS/COST_CALIBRATION is a stale-base or truncation alarm, never a plausible edit (generalizes the chief's COST_CALIBRATION discipline to every record). Sibling of L-256 (masked failure between write and commit) and of the L-223/L-253 stale-base family — this instance adds the pipe as the mask and the shared worktree as the payload.
+
+## L-264. A kernel-enforced memory cap cannot be denied, forgotten or armed late, and it fires at the byte — but a cap set for co-tenant safety is also a cap on what the item can measure, and when it binds the item returns PENDING, not an answer.
+
+W4 O2 re-buy (`8d48fd46` → results committed by the supervisor after the lane's death): the cgroup
+guard (`--memory=20g --memory-swap=20g --oom-score-adj=500`) replaced a watcher script whose start
+command was under a permission denial. It worked perfectly — rc 137, `memory.peak` exactly
+21,474,836,480 B, box undisturbed, no permission needed — **and** it is the sole reason the §3
+decision was not bought: `splu` needed more than 20 GiB and was killed inside its first threshold.
+The pre-registration registered that trade before the run (§7a), which is the only reason it can be
+reported as a designed cost rather than discovered as a surprise. Register the cap, register the
+outcome if it binds, and never call a censored peak a measurement of what the job needed.
+
+## L-265. A spend prediction is only tested by a run that stops for the reason the prediction was about.
+
+Same item. Both spend predictions — O2R-P5 (wall 1500–2700 s) and C-P1R (the scipy exact-LU exceeds
+25.0 core-min) — are MISSes that measured a memory cap, not a factorization; the run ended at 900 s
+because memory bound, so the 0.43× ratio measures an interruption. The C-P1 hypothesis is now two
+attempts and zero tests old: first the factorization never ran (`W4_M1M2_RESULTS.md` §4f), then it
+ran and never finished. A third attempt must change the binding constraint or it will produce a
+third untested MISS. In the calibration ledger such a row attributes its gap to the misprediction
+that truncated the run (here the memory band), never to the untested duration estimate.
+
+## L-266. A registered exact-arithmetic rule implemented with a floating-point comparison can skip its own rung — dry-run the rule on its ladder before the freeze.
+
+Curriculum D1 (`f07256fb`, addendum §16): the registered step rule reads `s_hi := smallest rung with
+s_hi ≥ 3·s_lo`, so for `s_lo = 1e-4` the registered answer is the ladder's `3e-4`. In binary
+`3 × 1e-4 = 3.0000000000000004e-04 > 3e-4`, and the comparison as first coded skipped the registered
+rung and would have graded at `1e-3`. Found by the lane by checking the implementation against the
+rule text before any FD ran — a `VERIFICATION_CHARTER.md` §2d.1-eligible repair, disclosed with md5s
+— but it cost a voided arm (0.30 core-min, named waste) and a post-first-compute edit the
+pre-registration's own §4.2(c) had forbidden. The whole class is closed by one habit: run the frozen
+rule on its frozen ladder with a synthetic `|J|` and `η` **before the freeze**, and freeze the printed
+selections beside the rule.
