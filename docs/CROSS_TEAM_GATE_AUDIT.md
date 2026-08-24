@@ -1156,3 +1156,548 @@ arrays and three JSONs, 5.54 s wall single core ≈ 0.09 core-min, plus git
 reads. Pass 6 itself: 0.128 core-min measured against the lane's own 3–6
 core-min prediction (ratio ≈ 0.03×, attribution mispricing compressed `.npz`
 reads) — ledger row appended under this belief commit.
+
+## Audit pass 8 — 2026-08-24, verification LANE (CANDIDATE, not the supervisor's own read)
+
+**Lines whose number changed above this section: 0.** This section is appended
+at the foot of an append-only file. The base for this edit was taken from
+`git show HEAD:docs/CROSS_TEAM_GATE_AUDIT.md`, re-read inside the commit
+invocation itself and never from the worktree — which is stale here by 48 lines
+(a strict prefix of HEAD, the D486 index-decay signature), so writing the
+worktree copy would have destroyed the supervisor's own pass-6 read. The blob
+was staged by `hash-object` from the HEAD base plus this text, so no peer's
+uncommitted work was overwritten and section numbering continues from **34**,
+the highest numbered section at the HEAD this was built on.
+
+**This pass was run by a `lab-lane`, not by the verification supervisor
+personally.** `SUPERVISION_CHARTER.md` §3 is explicit that a relayed check is a
+summary and not a check, so **every finding below is CANDIDATE until the
+verification supervisor re-derives it.** Each finding names the artifact it was
+read from. The lane was **read-only toward closure's territory** throughout:
+nothing under `cases/RANS_LES_closure_models/` or `/home/ubuntu/closure-data/`
+was written, no closure comparator was re-executed, and every gate below was
+re-derived by this lane's **own code over the values closure's instruments
+wrote to disk**.
+
+**Target:** closure's **Ling 2016 TBNN GPU arm — the lab's FIRST GPU run.**
+Pre-registration frozen at `e8309b6c` (2026-08-23T21:18:12Z); driver, comparator
+and launcher at `11f93da6` (21:19:18Z); graded and committed at `353925c7`
+(2026-08-24T16:07:26Z) as **NOT A RESULT** on its own gates. Records:
+`cases/RANS_LES_closure_models/Ling2016_TBNN/gpu/{PREREGISTRATION.md,RESULTS.md,
+artefacts/grading_witness.json,run_all_gpu.sh,score_gpu_ling.py,train_gpu_ling.py}`;
+run outputs `/home/ubuntu/closure-data/tbnn_gpu/`; ledger rows **C-16** and its
+correction **C-19** in `docs/COST_CALIBRATION.md`; docket **D490**; lessons
+**L-267**, **L-268**; numerics **N-B40**, **N-B41**, **N-B42**.
+
+**Index decay, checked first because the brief flagged it.** All six `gpu/`
+paths show a staged deletion (`D `) in the shared index. **It is not a
+deletion.** For every one of the six the on-disk blob id equals the HEAD blob
+id — `PREREGISTRATION.md` `910cea44…`, `RESULTS.md` `4c8afdde…`,
+`artefacts/grading_witness.json` `daaf508d…`, `run_all_gpu.sh` `034cf739…`,
+`score_gpu_ling.py` `3da5c706…`, `train_gpu_ling.py` `662b8461…` — and the
+sha256 of each disk file equals the sha256 of its HEAD blob. **HEAD and disk
+agree byte-for-byte on all six.** D486's mechanism is confirmed live on a
+second, independent path set.
+
+### 35. Freeze order — the strongest form this lab has produced, re-derived
+
+| check | finding |
+|---|---|
+| Prereg committed **alone**, before any compute | **YES.** `e8309b6c`, committer 2026-08-23T21:18:12Z, **one file, 509 insertions, nothing else in the commit.** |
+| Path history | **Exactly one commit** for `gpu/PREREGISTRATION.md` (checked without `--follow`, which otherwise reports the unrelated `PREREGISTRATION_DRAFT.md` ancestor at `9e82321b`). The path does not exist at `9e82321b`. **Never edited after the freeze.** |
+| Frozen sha == the sha the record claims | **YES, three ways.** Disk sha256 = HEAD-blob sha256 = `61b2097f63a38f320aeb98275f4a7aaba8454880fe2389398ee59678d4d81d97`, which is the value in the `e8309b6c` commit message, in `RESULTS.md:6`, in `artefacts/grading_witness.json` (`prereg_sha256`) and in the run's own `/home/ubuntu/closure-data/tbnn_gpu/run_window.json`. |
+| First artifact of the run window vs the freeze | **The run starts 197–200 s AFTER the freeze commit.** `run_window.json` mtime **2026-08-23 21:21:29.700Z** (+197 s) and it records `commit: e8309b6c` and the frozen sha *inside itself*; `driver.log` created **21:21:30.575Z** at **0 bytes**; the first gate artefact `out/status_g0.json` **21:21:32.575Z** (+200 s), its own `utc` field reading `2026-08-23T21:21:32Z`. **Nothing that answers a gate predates the freeze.** |
+| The one file that legitimately predates it | `node_root/pip_install.log`, mtime **21:07:08.310Z**, 11 min before the freeze. It is the environment build on the bare node — F.3's *"Environment (installed 2026-08-23, bare node)"* — and answers no gate. |
+| Do the run-directory mtimes date anything? | **YES, and this is the contrast with pass 6 §31 item 2.** The 55 files under `tbnn_gpu/` carry mtimes spread **continuously across the whole 10.71 h window** (21:21:29 → 08:03:58), stage by stage — `hist_tbnn_s0.csv` 22:25:50, `s1` 23:30:09, `s2` 00:34:24, … `pred_armb_s4.npz` 08:03:58.079, `spend.json` 08:03:58.081. That is a time-preserving sync, not the millisecond batch-write signature of a `cp` without `-p`. **The sync-back mtimes are live node times and they do date the run.** |
+
+### 36. The three code files — hashes, mtimes, and the copy that actually ran
+
+| check | finding |
+|---|---|
+| F.4's sha256 table == the `11f93da6` blobs | **YES, all three.** `train_gpu_ling.py` `1bac03bd…0ed3`, `score_gpu_ling.py` `4f9eda16…2aac`, `run_all_gpu.sh` `5b9c68eb…6fad`, re-hashed by this lane from `git show 11f93da6:<path>`. |
+| F.4's table == disk | **YES**, same three values, re-hashed from disk. |
+| Did any code file change after the freeze? | **NO.** Each of the three has **exactly one commit in its whole history** — `11f93da6` — and disk blob id == HEAD blob id == `11f93da6` blob id. There is no second edit anywhere. |
+| The order the freeze fixed hashes in | **The code was written BEFORE the freeze and committed 66 s AFTER it.** Disk mtimes: `run_all_gpu.sh` **21:12:10.116Z**, `train_gpu_ling.py` **21:13:59.339Z**, `score_gpu_ling.py` **21:14:05.034Z** — all earlier than `PREREGISTRATION.md`'s own **21:18:11.693Z**. So F.4 fixed the hashes of files that already existed and were unchanged when `11f93da6` landed at 21:19:18Z. This is the correct order: the freeze names the grading path, and the commit that publishes it must hash to the names already frozen. It does. |
+| The file that ran on the node | **Bit-identical to the frozen driver.** The synced node copy `/home/ubuntu/closure-data/tbnn_gpu/node_root/train_gpu_ling.py` (mtime 21:21:30.337Z, i.e. the launcher's re-copy at run start) hashes to **`1bac03bda82eab98b14dc49ccc01ca9542a764a8caf34d2d22e0213b79d10ed3`** — the frozen F.4 value. Rule 2's *"verify the frozen file IS the file that ran"* is satisfied for the driver by a hash of the actual node copy, not by assertion. |
+
+**The frozen file against the draft it claims to preserve — checked by diff, not
+by its own STATUS line.** `PREREGISTRATION.md` lines **9–405** are identical,
+line for line, to `PREREGISTRATION_DRAFT.md` lines **2–398**. Two things are
+absent from the frozen file: the draft's line-1 `STATUS: **DRAFT — NOT FILED,
+NOT LAUNCHED**` stamp (replaced by the freeze STATUS block, as declared), and
+the draft's whole **§14**, a 13-line supervisor addition. The STATUS block's
+claim is *"sections 1-13 below are the draft's, byte-preserved"* — **literally
+true, and verified.** But see §42: the dropped §14 is the section that said the
+signed file's `cost_basis` *"must carry the console-read price"*, and its
+removal is not flagged anywhere. **Gate-neutral** (§14 registered no gate,
+threshold, arm, seed, range or cap), so it is a disclosure gap, not an
+amendment violation.
+
+### 37. The NOT A RESULT — the frozen comparator's own output, re-derived here
+
+**This lane wrote its own grading arithmetic** (independent of
+`score_gpu_ling.py`, reading only the values that comparator wrote to
+`/home/ubuntu/closure-data/tbnn_gpu/grading_gpu_ling.json`) and re-derived every
+gate. **Every printed figure in `RESULTS.md` §1 and §2 reproduces.**
+
+**G1 — ARM-A TBNN a-priori. Registered: below SST, below `b = 0` and below the
+train-mean tensor on ≥ 6 of 8 TEST cases; 4–5 → GATE FAIL; ≤ 3, *or failure to
+beat `b = 0` anywhere* → NOT A RESULT.** Re-derived per-case means over the five
+seeds, computed here from `per_seed`, not read from any summary field:
+
+| case | ARM-A TBNN | SST | `b = 0` | train-mean |
+|---|---|---|---|---|
+| AR_14_Ret_180 | 0.9182 | 0.5799 | 0.5842 | 0.4036 |
+| AR_1_Ret_360 | 1.0534 | 0.5972 | 0.5996 | 0.4221 |
+| AR_3_Ret_360 | 0.9052 | 0.5523 | 0.5580 | 0.3866 |
+| NASA_2DWMH | **7.010e+07** | 0.3318 | 0.3398 | 0.2949 |
+| α05_4071_2024 | 0.3622 | 0.3271 | 0.3457 | 0.2586 |
+| α05_4071_4048 | 0.4004 | 0.3512 | 0.3791 | 0.3014 |
+| α15_13929_2024 | 0.4929 | 0.3339 | 0.3355 | 0.2714 |
+| α15_13929_4048 | 0.3178 | 0.2889 | 0.3128 | 0.2258 |
+
+**Wins: 0 of 8 against SST, 0 of 8 against `b = 0`, 0 of 8 against the
+train-mean.** The registered *"failure to beat `b = 0` anywhere"* branch fires
+on its own terms. **The verdict is the gate's own branch, not a post-hoc
+reading**, and the branch that fired is the one written into the frozen §8
+before any compute existed.
+
+**G2 — invariance embedding. GATE FAIL, re-derived.** TBNN pooled mean
+**3.896e+07** (per-seed 2.015e+07–5.476e+07, spread 3.462e+07) against the plain
+MLP's **0.360359** (per-seed 0.3182–0.4096, spread 0.09139). The TBNN is
+**1.081e+08 ×** the MLP's pooled error — above it, not below it, before the
+spread comparison even applies.
+
+**G3 — realisability. NOT A RESULT on both TBNN models, re-derived against the
+thresholds recomputed from the frozen wording**, not from the results' prose:
+`truth_viol_frac_test` = **0.0079137162** in the grading JSON → 3× = **2.3741 %**;
+2·√(2/3) = **1.632993**.
+
+| model | per-seed violation % | per-seed max ‖b‖_F |
+|---|---|---|
+| ARM-A TBNN | 3.0999, 4.6053, 5.3390, 4.5142, 5.0354 | 1.694e10, 1.344e10, 1.614e10, 2.125e10, 7.813e9 |
+| ARM-B best | 12.4567, 4.3044, 11.9899, 6.3336, 14.4388 | 8.181e8, 9.403e8, 5.563e6, 8.715e8, 3.204e8 |
+
+**Every seed of both models fails both clauses**, the norm clause by nine to ten
+orders of magnitude. Charter §4's *"regardless of RMSE"* is what makes ARM-B's
+excellent RMSE irrelevant here, and the frozen §8 quoted that clause verbatim.
+
+**Were any thresholds moved after first compute?** **NO, and this is verified by
+byte comparison rather than accepted.** §8's whole text sits inside the
+frozen file's single, never-amended commit (§35), so the criteria this lane
+graded against are literally the bytes committed at 21:18:12Z, 200 s before the
+first gate artefact existed. **`RESULTS.md` contains no amendment, no addendum
+and no struck text**; its §4 "Disclosures and departures" are dated disclosures
+that alter no threshold — D-1 says so explicitly: *"The gate fired on the
+registered configuration; the threshold, budget and arm are not rewritten."*
+
+**The two pre-stated falsifiers, re-derived.** Falsifier 1 fires as written
+(ARM-A's TBNN loses to the CPU lane's on every case and every baseline, 0/8
+against 7/8), and D-1 correctly bounds what that licenses — the arm ran the
+paper's *rate* at one update per epoch against the paper's *"weights were updated
+after each training point"*, so D3 is not settled. Falsifier 2 **does not fire**,
+and this lane re-derived it from the two primary logs rather than from the
+results table: CPU lane `../train_log.json` TBNN `val_best` = 0.169337, 0.164549,
+0.162009, 0.162257, 0.164794 → **mean 0.164589, spread 0.007328**; ARM-B retrain
+`out/status_armb_retrain.json` = 0.158399, 0.161046, 0.159979, 0.157543, 0.161073
+→ **mean 0.159608, spread 0.003530**. Advantage **0.004981**, inside the
+governing (larger) spread **0.007328**. *(Presentation nit: `RESULTS.md` §3
+prints the advantage as `0.0051`, the difference of the rounded means; the
+unrounded difference is 0.004981. The grade is identical either way — the margin
+to the spread is 0.0023 — so nothing turns on it.)*
+
+**The "search re-selects the CPU recipe" claim — checked against the CPU lane's
+own source, not against its prose.** `../train_tbnn.py:34` `BATCH = 8192`,
+`:35` `LR_TBNN = 1e-3`, Adam at `:189`, `nh=30, nlayers=8` at `:82`. The TPE
+search's selection (`out/status_armb_search.json`, 100 trials complete):
+**batch `8192` — identical**, **lr `1.0228870826023146e-3` — 2.29 % from `1e-3`**,
+Adam, `LeakyReLU(0.01)`. Architecture 9×77 against 8×30. **The claim holds on the
+optimiser axes exactly and the architecture axis is where it differs.**
+
+### 38. Could the gates have passed — and the non-tautology proof is inside the same artefact
+
+**No gate here is one that no model could pass, and the proof does not require a
+hypothetical: the run contains a model that clears each.**
+
+- **G3 is passable, demonstrably, in this very run.** The ARM-A control MLP,
+  trained by the same driver on the same data and scored by the same comparator,
+  reads **0.0000 % violation on all five seeds** with `max ‖b‖_F` **0.1179 to
+  0.2223** — inside **both** G3 clauses on every seed. A gate that one of the
+  three trained models satisfies at zero and two fail by ten orders of magnitude
+  is discriminating, not decorative.
+- **G1's shape is reachable in this run too.** ARM-B's 9×77 network beats **all
+  three** baselines on **7 of 8** cases (re-derived here: 7/8 against SST, 7/8
+  against `b = 0`, 7/8 against the train-mean) — i.e. it clears the ≥ 6-of-8 bar
+  G1 sets. ARM-B is not a G1-gated model under the frozen §8, so this does not
+  change the verdict; it establishes that **the threshold is one a model produced
+  by this pipeline can meet.**
+- **What would have passed G1**, stated as the brief asks: the ARM-A TBNN needed
+  to be below `b = 0` on six cases. Its per-case ratios to `b = 0` are **1.016,
+  1.048, 1.056, 1.469, 1.572, 1.622, …** — so on the three closest cases it was
+  short by **1.6 %, 4.8 % and 5.6 %**, and it would have had to improve by
+  ≈ 47 % on the fourth. Not a hair's breadth, but not a structurally impossible
+  bar either.
+- **What would have passed G2:** a TBNN pooled figure below **0.269** (the MLP's
+  0.360359 less the governing spread 0.09139). It read 3.896e+07.
+- **What would have passed G3:** violation ≤ 2.374 % *and* `max ‖b‖_F` ≤ 1.633.
+  The MLP read 0.000 % and ≤ 0.223.
+
+**One residual hazard on G3's second clause, named because it is a standards
+question and not a defect in this grade.** The `b_RANS` (k-ω SST) baseline's own
+`max ‖b‖_F` on the scored TEST cells is **3.4819** — **2.13 × the 1.633 norm
+bound**. So G3's norm clause is an absolute bound that the RANS *reference field*
+does not itself satisfy on these cells, while its violation-fraction clause is
+scaled to the truth and the truth passes by construction. Nothing here turns on
+it — both TBNN models exceed the bound by nine orders of magnitude — but a bound
+the reference violates cannot discriminate at the margin, which is the same
+family of question as pass 6 §30. **Candidate for the standards docket; no
+re-grade, and this lane does not rule.**
+
+### 39. Controls — each fired, with a measured value on disk
+
+| control | executed? | measured value, and where it lives |
+|---|---|---|
+| **Rule-3 planted zero (G0a)** | **YES, twice, on two machines** | `out/status_g0.json` and `grading_gpu_ling.json.plant_control`: `PLANT` = **1.234e-03** into `b_LES[k,0,1]` and `[k,1,0]` of cell **474490**, case `AR_14_Ret_180`, `b01_before` = 0.029159002006053925. `rms_clean` **0.5841749700516138** → `rms_planted` **0.5841749740294948**, **diff 3.9779e-09 (non-zero)**, back-solved `recovered_plant` **0.0012340000000000198**, `rel_err` **1.5990664132282154e-14** against the registered 1e-9 tolerance — **inside by a factor of 6.25e+04**. |
+| **Realisability-reader plant (G0b)** | **YES, on disk** | A cell forced to `diag(1,1,-2)`, `‖b‖_F` = **2.449489742783178** (= √6, as the frozen §9 registers): `g0b_flagged: true`, `g0b_min_bary: -5.0`. The reader is shown able to see an unrealisable tensor before G3 grades anything. |
+| **Cross-machine determinism control** | **YES — and this lane checked it is genuinely two computations, not a copy** | All **nine** shared fields of the node's `status_g0.json` (written by `train_gpu_ling.py` on `gpu1`) and the lab box's `plant_control` (written by `score_gpu_ling.py` here, 18 h later) are **bit-identical**, to the last digit of `rms_clean`, `rms_planted`, `recovered_plant` and `rel_err`. **`score_gpu_ling.py` contains no reference to `status_g0.json`** (checked by grep of the source): it re-plants and re-reads from the clean dataset itself. So this is one control executed twice, on two machines, by two different programs, agreeing bit-for-bit. |
+| **The refusal is structural, not an add-on** | **wired; did not need to fire** | `score_gpu_ling.py` refuses at lines 105–109 (`if diff == 0.0 or rel >= 1e-9` → print refusal, `sys.exit(2)` **with no JSON written**) and 117–119 (G0b blind → exit 2). **The existence of `grading_gpu_ling.json` is therefore itself proof the plant was read back** — no number in it could have been emitted by a reader that had not just been shown able to see the plant. The driver has the mirror image at `train_gpu_ling.py:256–261, 274–277`, writing a `REFUSED` status then exiting 2. |
+| **Leakage / row-identity guard** | **wired; did not fire** | `score_gpu_ling.py:151–154`: if a prediction file's `idx` array is not equal to the clean dataset's TEST rows, it prints `[refuse]` and exits 2. Verified as source, not provoked. |
+| **Seed control** | **YES** | `train_gpu_ling.py:360` `torch.manual_seed(seed); np.random.seed(seed)` per run; five seeds on every arm; TPE `sampler: TPE(seed=0)` recorded in `status_armb_search.json`. Both `pred_best` and `pred_final` were scored — `RESULTS.md` §2's claim that they differ only on TBNN seed 1 and on ARM-B is checkable in the grading JSON, which carries all six model blocks. |
+| **Cap guard** | **wired; never fired, and its absence is verifiable** | `train_gpu_ling.py:205–211, 457–460, 508–513` write a `BLOCKED` status and `exit 3`. All **six** `status_*.json` files read `"state": "DONE"`; **no file anywhere in the run directory carries `BLOCKED` or `REFUSED`**. Spend 10.71 of the registered 60 GPU-h. |
+| **`--frozen` interlock** | **wired** | `train_gpu_ling.py:23–24`: training never starts without `--frozen`; without it only `g0` runs. This is a code-level enforcement of rule 2, not a convention. |
+| **The F.5(1) live refusal** ("the first implementation refused with exit 2, measured 9.3e-9") | **NOT verifiable** | Prose in the frozen file; **no stdout, log or status artefact of that refusal survives** anywhere this lane could find. See §47. |
+
+### 40. **DEFECT FOUND** — two dangling lesson citations in the grading record (rule 11)
+
+`RESULTS.md` §4 cites lessons that are not its own:
+
+- **line 164** (disclosure D-1, the optimiser design defect): *"…must register
+  **updates**, not epochs, and cost them **(L-264)**."*
+- **line 174** (disclosure D-2, the idle waste): *"Cause: the completion→stop
+  path depended on a live agent **(L-265)**."*
+
+**At the parent of `353925c7` the maximum existing lesson id was 266**, and that
+commit correctly added **L-267** and **L-268** — rule 11 applied properly at the
+tail. **L-264 and L-265 already existed at that parent and belong to dafoam's
+W4 O2 re-buy** (a cgroup memory cap; a spend prediction tested only by a run that
+stops for the predicted reason). A reader following D-1's citation lands on a
+memory-cap lesson from another team.
+
+**Every other surface is correct**, which is what confines the defect: the
+`LESSONS.md` blocks themselves name their targets right — L-267 *"Where it
+fired: `Ling2016_TBNN/gpu/RESULTS.md` D-1, §3"*, L-268 *"… D-2, §5"* — and
+`docs/DOCKET.md` D490 cites L-267 and L-268, ledger row C-16 cites L-268, and
+`docs/LAB_STATE.md` cites L-267. **The back-references all point the right way;
+only the forward references from the grading record are wrong.**
+
+**No verdict moves.** `RESULTS.md` is a grading record, not a frozen file, so
+rule 6 does not bar a repair; the lab's convention is a dated correction that
+strikes rather than rewrites. Cheapest repair: two struck citations and a dated
+line in §4. **Reported to closure, not repaired by this lane** — read-only.
+
+**The mechanism worth carrying**, because it is rule 11's failure mode in a form
+the rule's own text does not quite name: these were not stale *tail* numbers
+drifting behind a moving maximum. **They were ids that were already occupied at
+the moment the draft was written** — the draft reached below the tail, not past
+it. Re-deriving the tail at commit time (which closure did, correctly, for the
+LESSONS blocks) does not fix citations embedded in prose elsewhere in the same
+commit. **A commit that assigns a new id must re-derive it in every file that
+names it, not only in the file that defines it.**
+
+### 41. Verdict vocabulary — CLEAN
+
+Token census across the surfaces, taken from the HEAD blobs:
+
+- **`PREREGISTRATION.md`**: `NOT A RESULT` ×9, `PASS` ×5, `GATE REACHED` ×5,
+  `GATE FAIL` ×3, `BLOCKED` ×3, `PENDING` ×1.
+- **`RESULTS.md`**: `NOT A RESULT` ×6, `GATE FAIL` ×3, `GATE REACHED` ×2,
+  `PASS` ×1, `BLOCKED` ×1.
+- **`artefacts/grading_witness.json`**: no verdict token — correctly, it is a
+  hash witness and grades nothing.
+- **`docs/DOCKET.md` D490** and **`docs/LAB_STATE.md`**: `G0 PASS`,
+  `G1 NOT A RESULT`, `G2 GATE FAIL`, `G3 NOT A RESULT`, `Verdict: NOT A RESULT`.
+
+**No bare `FAIL` cell.** The single apparent hit — `PREREGISTRATION.md:301`
+beginning `FAIL**;` — is the token `GATE FAIL` wrapped across lines 300–301 by
+markdown reflow, verified by reading the pair. **No synonym and no hedge**: a
+sweep for "roughly converged", "partial pass", "near-pass", "inconclusive",
+"marginal pass", "weak pass", "soft fail", "essentially passed" returns **zero
+hits** in either file.
+
+**One boundary, the same one pass 5 §21 named and the charters still have not
+written down.** The driver's status files carry `DONE`, `RUNNING`, `BLOCKED` and
+`REFUSED` as **stage states**, and `RESULTS.md` quotes two of them ("no BLOCKED
+or REFUSED state was ever written"). `BLOCKED` is in the rule-1 vocabulary;
+`DONE`, `RUNNING` and `REFUSED` are not, and they are machine states of a
+process, not grades of a hypothesis. **No confusion arises here** — no stage
+state is used as a verdict anywhere — but a process-state vocabulary that
+overlaps the verdict vocabulary on exactly one token is a trap worth a charter
+line. **Candidate, not a finding against this rung.**
+
+### 42. GPU cost basis under rule 12 — the price is NOT a console read, and the record says so at every surface
+
+**Rule 12's GPU clause requires a `cost_basis` "in GPU-hours priced from the
+console, never from recall." The rate used is neither.**
+
+The rate is **$0.8048/GPU-h** for `g6.xlarge`, Linux, on-demand, us-east-2, taken
+from **AWS's published on-demand pricing feed**: `docs/GPU_CAPABILITY_STATE.md`
+§9 records the source URL, the JSON path
+(`regions["US East (Ohio)"]["g6 xlarge US East Ohio Linux"].price`), the
+OnDemand rateCode term `JRTCKXETXF`, the literal payload string `"0.8048000000"`,
+the retrieval stamp **2026-08-23 21:00:47 UTC**, and the payload's own
+`hawkFilePublicationDate: 2026-08-21T02:02:57Z`.
+
+**Is it labelled honestly? YES, and unusually so — at five surfaces.** The frozen
+F.2 is headed *"cost_basis — published price list, not recall, not a console
+read"*; §9's provenance-label row reads **"published price list, retrieved
+2026-08-23 — satisfies 'never from recall'; the console itself remains Sanaa's to
+read and a console figure supersedes this one if they ever differ"**;
+`RESULTS.md` §5 repeats "published price list retrieved 2026-08-23"; ledger row
+C-16 repeats it inside the actual-cost cell; D490 repeats it. **And §7's row
+"Console price check: NOT DONE" is left standing, unedited, superseded only by
+an explicit statement rather than by a silent overwrite.** Dollar figures are
+labelled **"derived, not measured"** everywhere they appear, which is right — the
+box cannot read its own billing.
+
+**So: a documented deviation from rule 12's literal wording, disclosed rather
+than papered over.** The source is strictly stronger than the "recall" the rule
+forbids and strictly weaker than the "console" it names. **This lane does not
+rule on whether the substitution is acceptable — that is the supervisor's, and
+the console read is Sanaa's.**
+
+**One thing that makes the substitution worth flagging rather than waving
+through.** Two records had already committed to the console read specifically.
+`GPU_CAPABILITY_STATE.md` §8 states the standing operational rule as *"nothing
+trains until the Ling2016 TBNN pre-registration carries the console price in its
+`cost_basis` **and** Sanaa's per-item sign-off."* And the draft's **§14** — the
+section the frozen file dropped (§36) — said *"The signed file's `cost_basis`
+must carry the console-read price."* **The frozen file both dropped the section
+that stated the requirement and met the requirement with a substitute source,
+and its STATUS block does not mention the dropped section.** Gate-neutral, so it
+is a disclosure gap, not an amendment violation — but the two limbs together are
+why this reads as a substitution rather than a satisfaction.
+
+**Not independently verifiable from this box**, and this lane did not try: there
+is **no AWS CLI on this machine** (`which aws` → absent), and rule 8 governs
+what may leave the box. The feed value is taken as recorded.
+
+### 43. Below the registered floor, and the waste — carried, separated, and re-derived
+
+**The measured spend re-derives exactly.** Summing the six stage figures in
+`out/spend.json` — g0 0.8595 s, p0 3.7290, arma_tbnn 19,278.6208, arma_mlp
+9,742.4880, armb_search 9,309.3383, armb_retrain 204.5737 — gives **38,539.6093 s
+= 10.705447 h**, against the file's own `total_hours` **10.7054**. At $0.8048 that
+is **$8.6157 → $8.62 derived**, the figure of record. The wall window
+21:21:29Z → 08:03:58Z is 10.708 h, i.e. **10 s of inter-stage overhead across
+six stages** — the stage sum is not a proxy for the window, it is the window
+minus a measured gap.
+
+**The 12–52 GPU-h range against 10.7054 measured — BELOW THE FLOOR — is carried
+on the verdict surface.** `RESULTS.md` §5's ratio row states it in the words
+*"Actual/registered-floor **0.892 — below the 12–52 range**"*; ledger C-16's
+ratio cell states *"0.974 vs P0 projection; 0.892 vs the registered floor —
+**BELOW the registered range**"*; D490 states *"below floor"*. Re-derived:
+10.7054 / 12 = **0.8921**; 10.7054 / 10.99 = **0.9741**. **It is not in the
+top-of-file verdict block**, which carries the gate ladder only — a
+presentational point, not a defect, since rule 12 places the estimate-vs-actual
+comparison in the calibration ledger, where it is prominent. **An under-run is
+not an overrun**, so rule 12's "an overrun stops the run" clause never engages;
+what is owed is a calibration, and §45 finds it present.
+
+**The 7.88 GPU-h idle is named separately and is NEVER absorbed into the
+ratio.** `RESULTS.md` §5 gives it **its own table row** — *"waste, separately
+named | 0 | **7.88 GPU-h idle after completion = $6.34 derived**"* — and C-16
+carries it in the attribution column as *"WASTE, separately: 7.88 GPU-h = $6.34
+derived"*. **Checked arithmetically, not taken on the word:** the ratios 0.892
+and 0.974 are computed from **10.7054** alone; had the waste been folded in, the
+figures would have been 18.585 GPU-h → 1.549 and 1.691. **They are not.** The
+window 08:03:58Z → 15:56:45Z re-derives to **28,367 s = 7.8797 h = $6.3416**,
+i.e. the 7.88 and $6.34 of record. Cause named, not absorbed: the overnight
+session limit killed the fleet, so no agent existed to report completion
+(L-268).
+
+**Is the instance recorded STOPPED, with evidence?** `GPU_CAPABILITY_STATE.md`
+§10 records **"`gpu1` — STOPPED by Sanaa (2026-08-24, reported without a
+clock)"**, carrying her verbatim ruling *"GPU shutdown suggestion: yes approved
+(also i stopped that instance)"*, and states plainly that **this box has no AWS
+CLI and cannot read the instance's shutdown-behaviour attribute.**
+**Owner-reported, labelled as owner-reported.**
+
+**This lane added an independent probe, with a positive control on its own
+reader** (rule 3's discipline applied to a reachability check, since an
+unreachable host is a kind of zero):
+
+| probe, 2026-08-24 ~16:20Z | result |
+|---|---|
+| `ssh ubuntu@172.31.44.162` (gpu1's canonical private IP, the `gpu1` alias in `~/.ssh/config`) | **`Connection timed out`**, then **`No route to host`** on the alias |
+| **positive control** — the identical command against this box's own private IP `172.31.43.247` | **`Permission denied (publickey)`** — the TCP connection completed and SSH negotiated |
+
+**So the reader can see a live SSH host and cannot see `gpu1`.** That is positive
+evidence of unreachability from a reader shown able to detect reachability. It is
+**not** proof of the AWS instance state — a running instance behind a revoked
+security group reads the same — and no billing state is readable from this box.
+**Recorded as corroboration of the owner's report, not as a verification of it.**
+
+### 44. The comparator witness — what it closes, what it does not, and it is NOT the pass-2 class
+
+The chief asked specifically whether the comparator's sha is now witnessed in the
+grading artefact, since at 15:55Z it was not.
+
+**What is there.** `cases/RANS_LES_closure_models/Ling2016_TBNN/gpu/artefacts/grading_witness.json`
+exists, and **the HEAD blob and the disk file are identical** (blob
+`daaf508db768616cdc5abaed56fae8632eb3d40c` both sides; no difference). It
+carries the comparator's sha256 three ways and asserts they agree —
+`comparator_sha256_on_disk_at_write`, `comparator_blob_at_11f93da6_sha256` and
+`frozen_F4_table_sha256`, all **`4f9eda1617e860718ec7adb8f89d45452ec90929ba75968b145b1fc05fdb2aac`**,
+with `all_three_equal: true`. **This lane re-derived all three independently**
+(re-hashing the disk file, re-hashing `git show 11f93da6:<path>`, and reading the
+F.4 table line from the frozen blob): **all four values agree.** It also carries
+`grading_json_sha256` `f56dec949c68d6fc64402033319b2059e2051aa3bf00230958d9bee8e88867b8`
+and `grading_json_bytes` 26981 — **re-hashed here from
+`/home/ubuntu/closure-data/tbnn_gpu/grading_gpu_ling.json`: identical, and the
+byte count matches.**
+
+**When it entered.** The witness's first and only commit is **`353925c7` — the
+grade commit itself**, alongside `RESULTS.md`. **It did not enter after the
+grade.**
+
+**The gap that remains, stated exactly.** The comparator writes no sha into its
+own output (`RESULTS.md` D-5, self-disclosed, and confirmed here: the grading
+JSON's top-level keys are `written, dataset, pred_dir, plant_control,
+realisability_source, n_test_predicted, n_test_scored,
+n_test_dropped_nonfinite_bRANS, n_train, grades_verdict, note, models,
+baselines, truth_viol_frac_test` — **no comparator field of any kind**). The
+witness's own `written_utc` is **2026-08-24T16:07:25Z**, while the grading JSON's
+`written` field and disk mtime are **15:55:27Z / 15:55:31.268Z**. **The
+comparator's identity was therefore stamped 11 min 58 s after the artefact it
+witnesses was produced**, by re-hashing a file rather than by the producing
+process recording itself.
+
+**Is that the pass-2 Wu2018 class? NO — it is a narrower and different
+weakness.** Pass 2 §5's finding was that the pre-registration's **first commit
+was the results commit**, so nothing witnessed that the prereg predated compute.
+Here the prereg has its own commit **18 h 49 m before the grade** and **3 m 20 s
+before the first compute artefact**, the grading path was fixed **by sha256
+inside the frozen file**, and the driver that ran on the node hashes to that
+frozen value (§36). The freeze witness is about as strong as this lab has
+produced. The gap is only that **one artefact does not self-witness**.
+
+**And the residual risk that a retrospective re-hash cannot close by itself —
+an edit-run-restore between 15:55:27Z and 16:07:25Z — is closed by evidence
+outside the witness:** `score_gpu_ling.py`'s mtime on disk is
+**2026-08-23 21:14:05.034Z**, **18 h 41 m before the grading run**, and any
+edit-then-restore would have moved it; and the path has **exactly one commit in
+its history**, with disk blob id == HEAD blob id == `11f93da6` blob id. **So the
+comparator that produced the NOT A RESULT is established as the frozen one — by
+mtime and commit history, not by the witness alone.** The witness's real value is
+that it makes the grading JSON's *content* pinnable at all, which nothing else
+did. **Neutral finding; no re-grade; the standing repair D-5 already names is the
+right one — a future comparator writes its own hash into its output.**
+
+### 45. Cost calibration (rule 12) — present, complete, and C-19's correction audited
+
+**C-16 is the row of record and it carries every limb rule 12 requires:**
+predicted (12–52 GPU-h registered, cap 60, plus the in-run P0 projection 10.99),
+actual (**10.7054 GPU-h**, cited to `out/spend.json`, **= $8.62 derived** at the
+recorded rate with the provenance label attached), gross-vs-cleaned stated
+(*"= gross … no solver-row stall rule applies"* — correct: the 3600-s stall rule
+is a solver-row rule and a 5.4-hour GPU stage is hours-long by design), **ratio**
+(0.974 and 0.892, both re-derived above), **attribution** (the 5–20× throughput
+assumption against 42–80× measured, with the two cancelling errors inside the
+projection named individually — ARM-B's mini-batch trials at **4.2×** and the MLP
+at **0.52×**, both re-derivable from `spend.json` against the P0 rate), and
+**waste separately named and excluded from the ratio** (§43).
+
+**C-19, closure's own correction to C-16, is itself sound.** It states that C-16
+left the post-sync idle "unmeasured", that Sanaa reported the stop **without a
+clock**, and that the waste window therefore **ends at the last verified idle
+read, 15:56:45Z**, with the 15:56:45Z → stop interval **"absent from the record —
+neither measured nor estimated."** C-16's figures are explicitly unchanged.
+**Audited: correct, and the honest direction.** The correction *narrows* a claim
+rather than widening it, it names an absence instead of estimating into it, and
+the closing point it uses is a real one — the last artefact touched on this box
+in that window. `GPU_CAPABILITY_STATE.md` §10 carries the same reading in its
+own table. **The two rows are consistent and neither over-claims.**
+
+**Which row's numbers this pass grades:** C-16's, as corrected by C-19. The
+correction moves no figure; it bounds one window's open end.
+
+### 46. Verdict
+
+**AUDIT: SOUND WITH DISCLOSED DEVIATIONS** (CANDIDATE — the verification
+supervisor's own read governs).
+
+| target | verdict as reported | AUDIT (CANDIDATE) |
+|---|---|---|
+| **Freeze order** | prereg committed alone before compute | **SOUND, and the strongest form on this lab's record** — one file, 509 insertions, one commit ever; first gate artefact 200 s later; the run's own `run_window.json` names the commit and sha; the node's driver copy hashes to the frozen F.4 value |
+| **G0** planted zero | PASS | **SOUND** — measured on disk twice, on two machines, by two programs, bit-identical; `rel_err` 1.6e-14 against a 1e-9 tolerance; the refusal path writes no JSON, so every published number is downstream of a passed control |
+| **G1** ARM-A a-priori | NOT A RESULT | **SOUND** — re-derived 0/8, 0/8, 0/8 by this lane's own arithmetic; the branch that fired is the frozen file's own registered branch; not vacuous (ARM-B clears the same 6-of-8 bar at 7/8 in the same run) |
+| **G2** invariance embedding | GATE FAIL | **SOUND** — TBNN pooled 3.896e7 vs MLP 0.360359, re-derived; the direction of the comparison is not close |
+| **G3** realisability | NOT A RESULT, both TBNN models | **SOUND, and the gate is demonstrably passable** — thresholds recomputed from the frozen wording (2.3741 %, 1.632993); every seed of both models fails both clauses; the control MLP clears both on all five seeds. **One standards hazard named**: the SST reference field's own `max ‖b‖_F` = 3.4819 exceeds the 1.633 norm bound (§38) |
+| **thresholds after first compute** | none moved | **SOUND, verified by history, not by assertion** — the frozen file has one commit and no addendum; `RESULTS.md` carries dated disclosures that alter nothing |
+| **cost basis** | $0.8048/GPU-h, published price list | **DISCLOSED DEVIATION from rule 12's "priced from the console"** — a documented feed with URL, JSON path, rateCode and retrieval stamp; labelled as not-a-console-read at five surfaces; §7's "NOT DONE" row left standing. **The dropped draft §14, which demanded the console read, is not flagged (§36, §42)** |
+| **below-floor spend and waste** | 10.7054 vs 12–52; waste 7.88 GPU-h | **SOUND** — both re-derived; below-floor carried on three surfaces; waste separately named and arithmetically excluded from the ratio |
+| **instance stopped** | STOPPED by Sanaa | **OWNER-REPORTED, correctly labelled** — no clock, no AWS CLI on this box; this lane's probe with a positive control corroborates unreachability but cannot verify instance state (§43) |
+| **lesson citations in `RESULTS.md`** | (not claimed) | **DEFECT — two dangling citations, L-264 and L-265, pointing at another team's lessons (§40).** Confined to the grading record; every back-reference is correct; **no verdict moves** |
+| **comparator witness** | repaired in the record (D-5) | **SOUND on the identity question, with the timing gap named** — all four sha256 values re-derived and agreeing; entered in the grade commit, not after it; the retrospective-hash risk closed by mtime and single-commit history rather than by the witness (§44) |
+
+**The verdict `NOT A RESULT` is the frozen comparator's own output under the
+registered gates, and this lane reproduced it independently.** It is not a
+post-hoc reading, it is not a softened `GATE FAIL`, and it is the anti-tuned
+direction: **the lab's first GPU run, costing $8.62 of a resource it had waited
+weeks to obtain, returned nothing for the ladder** — and the record says so in
+the first line of the file, then spends five sections explaining why the
+findings underneath it are still worth having.
+
+### 47. What this lane could NOT establish, named plainly
+
+- **The F.5(1) refusal proof.** The frozen file states that a first
+  implementation of the G0a back-solve *"refused live with exit 2, proving the
+  refusal path (measured 9.3e-9)"*. **No artefact of that refusal survives** —
+  no log, no `REFUSED` status, no captured stdout anywhere under
+  `/home/ubuntu/closure-data/tbnn_gpu/`. The refusal path is verified as
+  *source* (§39) and its structural consequence is verified (a refusal writes no
+  JSON, so the JSON's existence proves the passing branch ran), but **the claim
+  that it was once exercised live is transcribed prose.** Same class as pass 6
+  §28's A1 mutation proof.
+- **That the AWS instance is stopped.** Owner-reported without a clock; this box
+  has no AWS CLI and cannot read the instance state, the shutdown-behaviour
+  attribute or any billing figure. The probe in §43 shows unreachability, not
+  state.
+- **The $0.8048 feed value.** Recorded with URL, JSON path and retrieval stamp
+  by a closure lane; **not re-fetched by this lane** (no AWS CLI, and rule 8
+  governs what leaves the box). Taken as recorded.
+- **The closure supervisor's own §3 personal reads.** `RESULTS.md:11` attests
+  the supervisor *"graded personally"* and D-4 attests every figure was re-read
+  by the supervisor from the primary artefacts rather than from a lane relay. A
+  personal read leaves no artefact by construction; **taken as attested, not
+  verified.** *(This lane's independent re-derivation of every number in §1 and
+  §2 is, however, positive corroboration that whoever wrote them read the
+  primary artefacts: they all reproduce.)*
+- **The pre-launch idle.** Sanaa launched `gpu1` before 21:20Z on 2026-08-23 and
+  the launch time is not on this box. `RESULTS.md` D-2 and C-16 both state it as
+  unmeasured; this lane can add only that the earliest file synced from the node,
+  `node_root/pip_install.log`, is dated **21:07:08.310Z**, so the instance was
+  alive at least **14 min 21 s** before the run window opened. **That is a lower
+  bound on the pre-launch idle, not a measurement of it**, and it is offered as
+  such.
+- **Nothing was re-executed.** No closure comparator, no driver, no GPU. Every
+  gate above was re-derived by independent code over the values closure's
+  instruments wrote to disk, plus source reads of the driver and comparator and
+  primary reads of `../train_log.json` and the six `status_*.json`. That tests
+  the grading arithmetic, the thresholds, the control records and the falsifier
+  logic. It does **not** test the training front of `train_gpu_ling.py` or the
+  prediction files themselves — the `pred_*.npz` arrays were not re-scored, so
+  the per-case `b_rms` values are re-derived *from* the comparator's per-seed
+  output, not *from* the raw predictions.
+
+**Cost of this pass:** zero solver core-minutes, **zero GPU-hours** — nothing was
+launched, and no GPU instance was contacted beyond one unreachable SSH probe.
+Two Python steps were instrumented with `/usr/bin/time` and measured **0.02 CPU-s
+combined ≈ 0.0003 core-minutes**; the remainder — `git` plumbing, hashing, a
+handful of sub-second `python3 -c` reads and the SSH probe pair — was not
+instrumented and is individually sub-second, bounding the pass **well under
+0.1 core-minutes** against this lane's own pre-stated prediction of **≤ 1.0
+core-minute**. Direction: over-predicted, the same way pass 6 was (C-20, ≈ 0.04×).
+Nothing under `cases/RANS_LES_closure_models/` or `/home/ubuntu/closure-data/`
+was written.
