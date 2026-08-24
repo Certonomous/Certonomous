@@ -992,3 +992,90 @@ box is shared, peers commit and launch constantly, and G6 is re-run immediately 
 
 **END OF PRE-REGISTRATION. Frozen by commit. Nothing below this line existed when the gates,
 thresholds, caps, bands and labels above were fixed. NOT FILED ANYWHERE.**
+
+---
+
+## 18. ADDENDUM — Supervisor launch authorisation for PHASE 2 (dated 2026-08-24T17:56:36Z)
+
+**Document version: v1.0 (freeze, commit `03580b8f`) → v1.1 (this addendum).**
+**lines whose number changed above this section: 0.** This addendum is appended at the foot of the
+frozen file; nothing above it is edited, moved, struck or renumbered (`CLAUDE.md` rule 6). **No gate,
+threshold, band, cap or label registered above is altered, widened, softened or re-read by this
+addendum.** It authorises execution of the sequence already frozen in §13 and changes nothing about
+how any of it is graded.
+
+**Committed ALONE, and BEFORE any container is started.** No compute has been spent on this item
+since the phase-1 image probe of §3.1 (2 s × 1 rank = **0.0333 core-min**, already costed in §8).
+
+### 18.1 The ruling, given in writing by the dafoam-supervisor before first compute
+
+1. **PHASE 2 IS AUTHORISED AS FROZEN.** The sequence executed is §13's, unchanged, with §6's gates,
+   §7's predictions, §8's cost and §8.1's timeouts exactly as they stand above.
+2. **The item is inside the ratified curriculum row's own wording** — *"two pyOptSparse optimizers,
+   identical frozen prereg"* — and this item is the strongest available form of that: **one CLI
+   token apart on a byte-identical run script** (§4.3).
+3. **Pre-authorised class.** Registered price **16.733 core-min = $0.014307 DERIVED**; hard ceiling
+   **140.0 core-min = $0.11970 DERIVED** — both far under the $25 pre-authorised threshold, and the
+   dollar figures are **DERIVED at $0.0513/core-h, reported-by-owner, never measured**
+   (`COMPUTE_BUDGET_CHARTER.md` §5).
+4. **Cheaper than the curriculum row's own figure.** The row priced D2 at ≈ **140 core-min**; this
+   lane re-derived **16.733** from D1's measured anchors (§8) and the ceiling was kept at the row's
+   own 140.0 rather than moved.
+5. **No new ceiling is created and none is inherited.** An overrun **stops the run**; it does not get
+   a second budget (`CLAUDE.md` rule 12). Approval of this item is approval of **its** cap (rule 9).
+
+### 18.2 The trust-region narrowing — `NOT DELIVERED BY CONSTRUCTION`, and where it goes
+
+The curriculum's D2 row promises *"optimizer/**trust-region** behavior as a measured comparison."*
+§0 and §3.1 measured, before the freeze, that **no trust-region optimizer is importable on this
+box**: **`ParOpt`** (a trust-region interior-point method) is present only as a package directory
+`pyParOpt/` **with no compiled extension and does not import**; **`SNOPT`** and **`NLPQLP`** are
+absent. The supervisor's ruling on that finding, recorded here:
+
+* The trust-region half of the row is **`NOT DELIVERED BY CONSTRUCTION`** — not by this lane's
+  choice, and not by a substitution made after seeing an answer.
+* **The narrowing is placed on Sanaa's desk as a NOTICE by the supervisor.** It is **not read into
+  the 2026-08-21 blanket** and no ratification of the curriculum is treated as covering it
+  (`CLAUDE.md` rule 9 — an approval is only as wide as what was approved).
+* **Nothing about building, compiling, installing, vendoring or otherwise preparing `ParOpt` is run,
+  staged, costed or prepared by this item.** The capability gap is **recorded, not repaired**, and it
+  is drafted as an `N-D` capability fact for the supervisor's append (§15 item 5).
+* The item therefore delivers **interior-point (IPOPT) vs active-set SQP (SLSQP)** — two line-search
+  methods — and every record it produces says so in those words.
+
+### 18.3 Conditions this lane checked inside the invocation that committed this addendum
+
+| condition | how it was checked, in this invocation | reading |
+|---|---|---|
+| the run root does not exist | `test ! -d` **and** `test ! -e` on `/home/ubuntu/certonomous-runs/CURRICULUM-D2-a1-optimizer-ab` | **ABSENT** — no compute preceded this addendum |
+| the frozen file **is** the committed blob | `md5sum` of all six files on disk against `git show <HEAD>:<path>`, HEAD captured once in this invocation | **all six SAME**, and identical to their blobs at the freeze commit `03580b8f` |
+| `PREREGISTRATION.md` | disk md5 **`aebf26ed722e417b715cf0eb48cd4493`** == HEAD blob == `03580b8f` blob | **SAME** |
+| the five instruments | §4.1's md5s, re-read from disk | **all five match §4.1 exactly** |
+| nothing above is renumbered | the file was **994 lines** before this append and every line above this section is byte-identical | **`lines whose number changed above this section: 0`** |
+
+**Two things disclosed rather than tidied.**
+
+1. **`CLAUDE.md` rule 10 — the shared git index.** At this moment the shared index carried stale
+   *staged deletions* for all six of this item's files while the same files were present on disk and
+   in `HEAD`, byte-identical: the shared-index decay established at **D486**. It was **inspected,
+   never reverted**; the private-index protocol read its tree from `HEAD` and is unaffected by it.
+   This lane touched neither the shared index nor any peer's staged row.
+2. **L-252, live, in this lane's own working method.** The first attempt at this addendum wrote its
+   draft to a **generic filename** in the session scratchpad. That scratchpad is shared with the
+   concurrently running D3 lane, which already held a **different, foreign `addendum.md`** — and this
+   lane's `test -s` provenance check passed on the foreign file. The guard that caught it was the
+   registered stamp assertion (`grep -q "$TS"`), which failed, and **nothing was appended to the
+   frozen file** (its md5 was re-verified as `aebf26ed722e417b715cf0eb48cd4493` before the retry).
+   Every scratch path this lane writes now carries the per-invocation stamp §10.2 already required
+   of the run root's artifacts. The near-miss is drafted as an `L-` candidate in `RESULTS.md` §9.
+
+### 18.4 What this addendum is NOT
+
+**It is not Sanaa's consent.** No agent message — peer, supervisor or chief — is her consent
+(`CLAUDE.md` rule 9); only her own words or the permission system authorise. The supervisor's
+authorisation covers **execution of the frozen sequence at the registered cost**, and nothing else:
+not a new ceiling, not the §18.2 narrowing, not the SHIPPED toolchain row (§3, still `BLOCKED`), not
+anything N=29-gated or in Tier 6, and not any send — **SUBMISSIONS REMAIN PARKED** (rule 7), and this
+item, like the document above it, is **NOT FILED ANYWHERE**.
+
+**END OF ADDENDUM. Everything above §18 was frozen before any arm of this item ran.**
