@@ -96,7 +96,7 @@ rung may take it).
 **Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched
 ## closure
 
-**Section last written:** 2026-08-24T16:20:36Z by closure-supervisor (this chief session's
+**Section last written:** 2026-08-24T16:24:03Z by closure-supervisor (this chief session's
 re-spawn, 16:04Z; predecessor killed by an API error at ~16:00Z after one
 interim report), from `date -u` in the writing invocation. **Two closure
 supervisors are live in two chief sessions; the work split agreed 16:01Z is
@@ -224,7 +224,7 @@ Sanaa; R4, R5C closed). Standards recommendations (a) publish rank + smallest
 singular value, ratio only when `s[-1]` clears rtol, and (b) pin threads or gate
 on stored bytes — on Sanaa's desk, referred by verification.
 
-**Note, 2026-08-24T16:19:53Z (chief's corrections, verified at HEAD; the lines above stand as written and are corrected here, not rewritten):** (1) **The D491 condition is MET — the D476/FS5 adoption lift is EFFECTIVE for a build launch.** Verification's supervisor believed pass 6 as its own verdict at `f536b114` (every load-bearing limb re-derived with its own code; §7 adoption block RELEASED; A3 stays GATE FAIL; §30(a) stays a recommendation to Sanaa). Scope unchanged: companion audit-side diagnostic only, never in `F`, `singular_value_ratio_first_to_last` not quoted. (2) **Attribution corrected:** the lane that landed `41774899` was THIS session's — dispatched by the predecessor supervisor minutes before it was killed at ~16:00Z, it survived its parent and reported to the chief; it was NOT the parallel session's. The 'parallel session's lane' wording in the D476 block above, in D491's docket text and in hazard (3)'s example is wrong on that item; the general hazard (two closure supervisors, check HEAD before dispatch) stands. The same survival pattern explains `a56cc309`. The docket correction row is LANDED as **D494** at `a15b48b9` (nothing owed). (3) D492 referral limbs (a) and (b) are routed to verification by the chief; nothing further owed by closure on them until verification rules.
+**Note, 2026-08-24T16:19:53Z (chief's corrections, verified at HEAD; the lines above stand as written and are corrected here, not rewritten):** (1) **The D491 condition is MET — the D476/FS5 adoption lift is EFFECTIVE for a build launch.** Verification's supervisor believed pass 6 as its own verdict at `f536b114` (every load-bearing limb re-derived with its own code; §7 adoption block RELEASED; A3 stays GATE FAIL; §30(a) stays a recommendation to Sanaa). Scope unchanged: companion audit-side diagnostic only, never in `F`, `singular_value_ratio_first_to_last` not quoted. (2) **Attribution corrected:** the lane that landed `41774899` was THIS session's — dispatched by the predecessor supervisor minutes before it was killed at ~16:00Z, it survived its parent and reported to the chief; it was NOT the parallel session's. The 'parallel session's lane' wording in the D476 block above, in D491's docket text and in hazard (3)'s example is wrong on that item; the general hazard (two closure supervisors, check HEAD before dispatch) stands. The same survival pattern explains `a56cc309`. The docket correction row is LANDED as **D494** at `a15b48b9` (nothing owed). (3) D492 referral limbs (a) and (b): verification's RECOMMENDATIONS (binding versions Sanaa's) returned via the chief and are APPLIED as a dated addendum at `8322b7b2` — G0a PASS stands with the value cell now reading `0.0 (floor 4.0e-07; registered 1e-10 unresolvable at writePrecision 6)`, the same reading for §5/§6; the ten duct rows' verdicts STAND with the §2d label "freeze self-attested, no commit witness" after my own negative search for any out-of-git posting record (harness session log begins 08-23; no brief/dispatch record; first commit holding the prereg is the ten-file results commit `0ebc9d53` at 18:52Z; filesystem: prereg last write 17:17:57Z, first scored log born 17:21:55Z); the six CBFS rows are frozen-by-commit. Verification will spec `check_threshold_resolution.py` (prospective-binding). Nothing owed by closure.
 
 **R5C (option C, omega-source repair) — CLOSED, VERDICT: GATE FAIL. D465, L-243,
 N-B35–N-B37, commit `0ac76ec2`.** Graded against the frozen pre-registration
@@ -287,7 +287,7 @@ correctly, wrote nothing); read-only gpu1 lane (predecessor's) finished.
 **Commits this session (supervisor):** `53517fae` D491 (D476 adoption ruling
 docket row, D486 fallback disclosed); `961b0b3e` D492 + L-269 (Kaandorp records,
 same fallback); `6ff8e65c` board; `8dd3f8bc` Kaandorp correction addendum (+85/0,
-from the HEAD blob); `506dde36` board; `979dec7f` board note; `a15b48b9` D494 correction row; this board write. Lane commits verified and adopted: `a56cc309`
+from the HEAD blob); `506dde36` board; `979dec7f` board note; `a15b48b9` D494 correction row; `887bad8b` board; `8322b7b2` Kaandorp verdict-surface addendum (+79/0); this board write. Lane commits verified and adopted: `a56cc309`
 (Kaandorp close-out — numbers re-read by me from `results.json`, addendum
 headings and +513/0 append verified) and `41774899` (parallel session's lane —
 both diffs read by me, PASS with the two §31.3 limitations named). NEXT ACTIONS:
