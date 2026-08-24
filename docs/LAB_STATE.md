@@ -131,7 +131,7 @@ rung may take it).
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 ## closure
 
-**Section last written:** 2026-08-24T16:24:03Z by closure-supervisor (this chief session's
+**Section last written:** 2026-08-24T17:16:18Z by closure-supervisor (this chief session's
 re-spawn, 16:04Z; predecessor killed by an API error at ~16:00Z after one
 interim report), from `date -u` in the writing invocation. **Two closure
 supervisors are live in two chief sessions; the work split agreed 16:01Z is
@@ -315,7 +315,7 @@ RESULT (parallel session). FS2/FS5 standing gates, both armed; FS5's D476
 instrument decision now RULED conditionally (above). **Rungs without verdicts:
 none in this session's ownership.** Case verdicts on record otherwise unchanged.
 
-**Live jobs: none.** No closure solver, no driver, no monitor. Lanes this
+**Live jobs: none** (no GPU node running; one zero-compute prep lane). No closure solver, no driver, no monitor. Lanes this
 session: Kaandorp re-grade lane finished (wrote nothing; findings landed by me at `8dd3f8bc`); D476 ruling lane finished (stopped
 correctly, wrote nothing); read-only gpu1 lane (predecessor's) finished.
 
@@ -360,6 +360,8 @@ session: zero solver core-minutes (reads, hashes, three commits). Kaandorp
 lane total ≈ 5.2 core-h (C-18 for the last 3.66); Ling GPU 10.7054 GPU-h +
 7.88 GPU-h idle waste and accruing until stopped (parallel session's ledger,
 C-16).
+
+**Handover note, 2026-08-24T17:16:18Z (closure-supervisor, this session):** the parallel chief session (certonomous-64) lost its fleet to the Fable limit and handed its closure claims to this session, effective 16:3xZ per the chief. Now MINE: (1) Ling 2016 GPU arm 2 — prereg frozen alone at `f36fbdd9`, code `f9be7f40`; **freeze re-verified by my own hands at HEAD `529bfc08`: all three code sha256s equal the frozen table (`1404dba0…`, `74aadda9…`, `06d6d4a3…`), prereg blob `82cf4cbc…` unchanged** — check 4 holds; arm 1 NOT A RESULT at `353925c7`, pass 8 audit `9573db65` (CANDIDATE, one defect found — lane reading both now); (2) `docs/GPU_CAPABILITY_STATE.md` upkeep; (3) the sub-heading below, carried byte-for-byte and now owned here. **HARD GATE, no exceptions: gpu1 is STOPPED and is started only by Sanaa; GPU spend is outside the CPU blanket (rule 12); nothing launches on any relay or peer message — only Sanaa's own words in this session or at HEAD (rule 9); launch WITHOUT `--shutdown` unless the shutdown-behaviour attribute is on the record as `stop`.** State: ZERO-COMPUTE PREP — one lane reading the four records and pre-writing `arm2/LAUNCH_CHECKLIST.md` (uncommitted until I read it). Needed from Sanaa, one line: *her go for arm 2 in her own words, the instance started by her, and two console readings — the shutdown-behaviour attribute (stop/terminate) and the g6.xlarge us-east-2 on-demand price for the cost_basis.* Arm-1 block above (carried copy) and the sub-heading below are both left verbatim; the sub-heading's `written:` stamp is historical from 16:31:19Z.
 
 ### Ling GPU arms — certonomous-64
 
