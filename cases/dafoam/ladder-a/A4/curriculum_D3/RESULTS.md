@@ -501,3 +501,70 @@ be drafted as such.**
 - **Shipped and patched are separate rows** and are not merged: the patched row has one live G7
   reading; the shipped row has none.
 - **NOT FILED ANYWHERE** (`CLAUDE.md` rule 7).
+
+---
+
+## 11. ADDENDUM R1 — the supervisor's written direction on the calibration row, and the landing
+
+**Dated 2026-08-24T18:06:32Z** (`date -u`, read in the shell invocation that wrote this addendum, performed the four ledger asserts, built the tree and landed the commit).
+
+**lines whose number changed above this section: 0** — appended at the foot; §§1–10 are byte-unchanged
+from the record committed at `3e4c7d81`.
+
+**This addendum supersedes the operative conclusion of §6.3 and leaves its reasoning standing.**
+§6.3 recorded that this lane had **not** appended the calibration row, because the item's frozen
+`PREREGISTRATION.md` §8.2 — adopting D1 Amendment A1.1 — reserves that landing to the supervisor and
+says *"No lane writes that file."* That reading was correct at the time it was written and is left on
+the record unaltered.
+
+**What changed is not the reading but the authority.** After personally reading
+`/home/ubuntu/certonomous-runs/D3-a4-constrained/geom.log` — the `SUPERVISION_CHARTER.md` §3 crash
+triage that may not be delegated — the dafoam-supervisor issued a **written direction** to this lane
+to land the row, naming the safeguards to apply. `PREREGISTRATION.md` §6 G6 fixes the form such a
+departure takes: *"Any departure must be directed in writing by the supervisor and recorded as a dated
+amendment."* This section is that record.
+
+**Why the direction is answerable rather than merely obeyable** (`CLAUDE.md` rule 9):
+
+1. §8.2 is a **procedural allocation of who writes**, not a gate, threshold, band, cap or label.
+   **Nothing gated moved**, and rule 2's post-compute closure is untouched.
+2. The clause's stated **reason** is that `docs/COST_CALIBRATION.md` **lags HEAD by design under the
+   private-index protocol and must never be used as a base**. That reason was honoured, not bypassed —
+   see the asserts below, and note the measured staleness: **the worktree copy held max id `C-14` and
+   23,937 bytes against the HEAD blob's `C-37` and 110,095 bytes, a lag of 23 rows.** Landing off the
+   worktree would have destroyed those rows. The row was merged onto the **committed blob**.
+3. **Nothing here is a Sanaa-reserved action** (`CLAUDE.md` FIRST-ACTION RULE): no send, no scoring
+   call, no charter or threshold retired, nothing leaving the box. **No permission setting, `CLAUDE.md`
+   or `.claude/` config was touched, and a peer's message could not have authorised that if it had
+   asked** (rule 9).
+
+### 11.1 The four ledger asserts, as directed, with their readings
+
+Landed with `scripts/append_record.py --path docs/COST_CALIBRATION.md --rev <H> --expect-first-id C-38`,
+where `<H>` is **the same revision passed to `commit-tree -p`**, all inside one shell invocation:
+
+1. **Id re-derived at commit time as the MAXIMUM EXISTING NUMBER, never a count** (`CLAUDE.md`
+   rule 11), over **both** the committed blob **and** the preserved worktree tail — the tool's
+   `--expect-first-id` refuses (exit 6) if it is not max+1 for the series. **Previous last id `C-37`;
+   new id `C-38`.**
+2. **The HEAD blob's last byte verified `\n`**, so the append cannot splice onto an unterminated final
+   row.
+3. **Prefix identical:** every byte of the committed blob before the appended row is unchanged —
+   asserted as **insertions only, 0 deletions** in `git diff-tree --numstat`, and again in the
+   post-commit `git diff HEAD~1 HEAD --numstat`.
+4. **Previous last id on its own line and new id on its own line** — `C-37` and `C-38` each begin a
+   line of their own in the committed result; asserted by grep on the built blob, not on the worktree.
+
+All four readings are stated in the commit message as well as here, per the direction.
+
+### 11.2 What this addendum does NOT do
+
+It does not alter a single number, gate, verdict or prediction in §§1–10. **The item verdict remains
+`BLOCKED`.** The measured spend remains **0.300 core-min = $0.000257 DERIVED**, the bounded triage row
+remains a **bound**, and the **0.010× total ratio remains labelled NOT A CALIBRATION**. It records a
+procedural departure and its authority, and nothing else.
+
+**The D3 attempt-2 re-registration is NOT drafted in this lane**, by the supervisor's explicit
+instruction; §4.3's bar on any in-place edit of a frozen file stands.
+
+**NOT FILED ANYWHERE** (`CLAUDE.md` rule 7).
