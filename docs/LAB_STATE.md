@@ -815,58 +815,91 @@ see the curriculum block above.
 
 ## ansys-verification
 
-**Section last written:** 2026-08-24T16:27:20Z by harness-build (FIRST FILL — not yet
-written by its owner, `ansys-verification-supervisor`; stamp from `date -u` read
-in the writing invocation). Team created this day on Sanaa's directive
-(verbatim in `docs/charters/ANSYS_VERIFICATION_CHARTER.md` §1). Agent
-definitions (`.claude/agents/ansys-verification-supervisor.md`,
-`ansys-lane-opus.md`, `ansys-lane-opus48.md`, `ansys-lane-haiku.md`) **take
-effect at the next session start** — a session that began before this commit
-cannot spawn them (form-teams skill, "If a subagent_type is not found").
+**Section last written:** 2026-08-24T18:07:57Z by `ansys-lane-opus48`, on the
+`ansys-verification-supervisor`'s dictation (stamp from `date -u` in the writing
+invocation; the section is staged via `scripts/lab_state_section.py` +
+`hash-object -w` + `update-index --cacheinfo`, never the shared worktree copy).
 
-**Last commit:** this commit (harness-build lane, parent `b7359d15`): team added to
-`harness/teams.yaml` v1.2, generator extended for team-owned lane types and
-restricted tools, charter v1.0, register created empty, `docs/ansys_verification/README.md`,
-LOCATIONS note, this section.
+**Last commit:** this commit (opus48 lane) — the board rewrite plus the append of the
+supervisor's confirming line to `docs/ansys_verification/ARCHIVE_HOME_RULING.md` §4.
+Immediately prior ansys commits: `4507fc66` (VMFL001-R2 PRE-REGISTRATION FROZEN),
+`a37170a9` (VMFL001-R2 inputs + comparator, NO COMPUTE).
 
-**Live jobs:** none. No compute has been run by this team; zero core-minutes.
+**Team status:** formed 2026-08-24 ~17:15Z. Manual **title-page verified** against the
+PDF (rule 15): "Ansys Fluid Dynamics Verification Manual, ANSYS, Inc., Release 2026 R1,
+March 2026". The **Opus 4.8 pin is LOAD-VERIFIED** — this section was written by a live
+`ansys-lane-opus48` spawn, so `claude-opus-4-8` spawns on this box.
 
-**Rungs lacking verdicts:** none run. 0 of the manual's 95 indexed cases
-(78 VMFL, 7 VMFRT, 10 VMFLGPU) opened; register holds 0 rows. **Credential
-count: 0 PASS of 0 run.**
+**D-6 RULED AND EXECUTED.** Canonical archive home is
+`/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/{FLUENT,CFX,FORTE}_ARCHIVES/`; **123
+files sha256-verified** (manifest `docs/ansys_verification/VM2026R1_SHA256_MANIFEST.txt`).
+The repository-root partial copy (`docs/papers/verification_validation/VM2026R1_Fluids/`)
+was **deleted 2026-08-24T17:39:17Z after re-verification** (manifest 123 OK, exit 0;
+git ls-files empty for the path). Ruling commits `e9737c5f` / `17527f40`. The manual
+PDF (8,517,733 B) and its sidecar (368,949 B) are intact. Nothing this team runs touches
+the archive copies.
+
+**CASE_MAP** `546a036b`: **95 cases** — 54 2D / 22 axi / 19 3D; 26 analytical /
+50 experimental / 19 benchmark; 11 no-solver. VMFLGPU archives are absent; VMFL068 is
+absent. First tranche selected: **VMFL001 → VMFL005, VMFL003, VMFL007, VMFL050**;
+3D-gap candidates **VMFL078, VMFL030, VMFL069**.
+
+**VMFL001 run 1: `NOT A RESULT`** (register row #1). Two independent mechanisms, either
+sufficient: (1) the frozen comparator **REFUSED (exit 2)** — v2606 writes the sampled
+set headerless as `<setName>_<fields alphabetical>.xy` (real file `gateAxis_p_U.xy`,
+7 cols `x y z p U_x U_y U_z`), not the `<field>_<set>` with a `#` header the R1 reader
+assumed; (2) **L3 failed the registered iterative-convergence clause** — final `Ux`
+initial residual `1.19876e-06` > `1e-6` at 3000 iterations, plateau ptp `2.772e-05` m/s
+> `1e-6` (L1/L2 already at `1e-14`/`1e-12`). **1.9833 core-min measured, $0.0017 derived.**
+Commits `dee5870d` (VERDICT; calibration C-37) and `ae30f914` (artifacts).
+
+**VMFL001-R2 FROZEN** at commit `4507fc66` (prereg blob `c6b4a7c4`); inputs/comparator
+committed first at `a37170a9`. It is a NEW rung citing run 1 (charter §6). Gate (2 % vs
+manual target at four radii, L3), the 0.5 % exact-formula diagnostic, mesh levels
+16x64/32x128/64x256, solver settings and triple v_θ(35 mm) are UNCHANGED. Changed: the
+reader is matched to v2606's headerless `<set>_p_U.xy` writer, and the endTime is
+per-level `{L1:3000, L2:3000, L3:6000}` — N=6000 fixed before the run from a
+log10(residual)-vs-iteration fit of run 1's last 1000 L3 iterations (slope −9.6065e-04
+decades/iter; extrapolated 1e-8 at ~5163; predicted residual at 6000 ≈ 1.57e-9).
+Comparator blob `64b02be8`, run script `116c7c2d`, controlDict template `ecb4514c`.
+**Cost:** estimate 3.72 core-min (run 1's measured rates, L3 scaled ×2), **CAP 10
+core-min**, $0.003178 est / $0.008550 cap DERIVED not measured. Pre-freeze
+external-reader check: `--dryrun-reader` on run 1's L1 `gateAxis_p_U.xy` = "parsed,
+4 rows". **PENDING the supervisor's own comparator-diff read and freeze verification,
+then launch — no agent message is Sanaa's consent (rule 9).**
+
+**Docket / lessons:** docket **D504** (VMFL001-R2). Lessons **L-280** (dictated) plus
+the run-1 lessons from git log — **L-288, L-289** and numerics **N-AV4, N-AV5**
+(commit `ebb7da5a`); earlier ansys lessons + **N-AV1/2/3** at `b6ee710c`. Calibration
+row C-37 (run 1) landed; the R2 calibration row is due at R2 completion.
+
+**Live jobs:** none. No R2 compute has run; zero R2 core-minutes.
+
+**Rungs lacking verdicts:** **VMFL001-R2** — frozen, not run (awaiting the supervisor's
+launch). Register holds 1 row (run 1, `NOT A RESULT`). **Credential count: 0 PASS.**
 
 **Next actions, in order:**
-1. **Read the manual first** (Sanaa's directive) —
-   `docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt`,
-   title-page verified against the PDF (rule 15): "Ansys Fluid Dynamics
-   Verification Manual, ANSYS, Inc., Release 2026 R1, March 2026", 290 pages;
-   sha256 prefixes at this writing PDF `ee1bf7ce8a79…`, sidecar `577659469a30…`.
-2. **Rule on the archives' canonical home (D-6)** with charter §9's inspection
-   and `docs/VM2026R1_FILING_ANALYSIS.md` as input; say which copy is
-   authoritative; record the ruling here and in the docket. Neither copy is
-   moved or deleted before the ruling.
-3. **Open the first rung**: the manual's ladder starts VMFL001 (Flow Between
-   Rotating and Stationary Concentric Cylinders, p. 15), VMFL002 (Laminar Flow
-   Through a Pipe with Uniform Heat Flux, p. 17), VMFL003 (Pressure Drop in
-   Turbulent Flow Through a Pipe, p. 19) — analytical-reference cases the lab's
-   OpenFOAM can reproduce cheaply. Pre-registration per charter §5 (reference
-   result, tolerance, cost in core-minutes), frozen and **committed** before any
-   solver starts; prereg sha reported to the chief.
-4. **First spawn of `ansys-lane-opus48` is the load test of the `claude-opus-4-8`
-   pin** (documented id; provider-side availability on this box unverified until
-   a spawn succeeds — VERIFY). If it fails, report it and amend the charter §3;
-   do not guess another id.
-5. At every completion: calibration row in `docs/COST_CALIBRATION.md`; register
-   row; LESSONS / `N-AV` numerics rows; charter amendments routed via the chief.
+1. Supervisor's personal freeze verification of `4507fc66` (hash the frozen
+   `grade_vmfl001_r2.py` blob `64b02be8` against the committed blob) and its own read of
+   the comparator diff (15 hunks, every one carrying an `R2 CHANGE` marker).
+2. On the supervisor's launch, run `run_vmfl001_r2.sh` (CAP 10 core-min; guards: no
+   pre-existing level dir, prereg committed at HEAD, `timeout` cap); grade with
+   `grade_vmfl001_r2.py`.
+3. At completion: calibration row in `docs/COST_CALIBRATION.md` (R2 estimate 3.72
+   core-min vs actual); register row #2; any lessons / `N-AV` numerics; charter
+   amendments routed via the chief.
+4. Advance the first tranche (VMFL005, VMFL003, VMFL007, VMFL050) once R2 closes.
 
-**On Sanaa's desk:** none from this team. Her directive is executed as written;
-the D-3..D-6 closures are recorded in the CHIEF section above.
+**On Sanaa's desk:** none from this team.
 
-**Blocked:** none. **VERIFY:** (a) the Opus 4.8 pin loads (item 4); (b) VMFL068
-has no `_WB` archive in the root copy (77 Fluent archives for 78 indexed cases —
-observed by `find`, cause unknown); (c) the FORTE set is stored twice inside the
-root copy (`VMFRT_v261.zip`, 481 MB, plus its extraction) — a 2.5 GB `du` figure
-that would be ~2.0 GB deduplicated.
+**Blocked:** none.
 
-*First fill by the harness-build lane, 2026-08-24. `ansys-verification-supervisor`
-owns this section and corrects it at its first commit or verdict.*
+**VERIFY (items this lane did NOT personally check):** (a) that R2 actually converges
+L3 below 1e-6 by 6000 iterations — the fit is an extrapolation from run 1, not a
+measurement; (b) the 123/123 post-move archive re-verification and the partial-copy
+deletion (reported by the haiku lane and confirmed by the supervisor, recorded in
+`ARCHIVE_HOME_RULING.md` §4 — this lane did not re-run `sha256sum`); (c) the CASE_MAP
+counts and the VMFLGPU/VMFL068 absences (from `546a036b`, not re-derived here);
+(d) lesson number L-280 as dictated — this lane did not re-derive the LESSONS tail.
+
+*Section rewritten by `ansys-lane-opus48`, 2026-08-24, on the supervisor's dictation.*

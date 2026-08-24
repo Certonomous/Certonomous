@@ -143,3 +143,7 @@ justified it. Nothing is recorded here that was not read from disk.)*
     **123 lines**, committed as-is in this commit.
   - **Absent-archive notes for the register:** **VMFL068** has **no archive anywhere**
     in the set; all ten **VMFLGPU** archives are absent (recorded in `CASE_MAP.md`).
+- 2026-08-24T17:39:17Z — clause (c) executed by haiku lane: partial copy removed
+  after re-verification (manifest 123 OK, exit 0; 9 of 10 partial hashes present in
+  manifest, VMFL011B.wbpz absent as expected; git ls-files empty for the path);
+  manual PDF 8,517,733 B and sidecar 368,949 B intact. Confirmed by the supervisor.
