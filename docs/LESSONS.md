@@ -10217,3 +10217,40 @@ because they were written down first.
 *Artifacts:* `cases/dafoam/ladder-a/A1/curriculum_D1_Cprime/RESULTS.md` §2, §7,
 §8, §9 (prereg frozen `c19e0cbc`; graded `5bec45b7`, Addendum 1 `c4ce2b8f`);
 `cases/dafoam/ladder-a/A1/reverify_patched_idwarp_np1/RESULTS.md` §4.1.
+
+## L-280. A vendor verification table's ratio column measures agreement with a ROUNDED target, not with the reference solution — a tolerance drawn from that column is set wrong
+
+**The rule.** In the Ansys Fluid Dynamics Verification Manual (VM2026R1) each
+Results-Comparison table prints three columns — **Target**, **Ansys**, and
+**Ratio = Ansys/Target** — and every one of those numbers is rounded to the
+manual's reported significant figures (§1.2, p. 4: an ANSYS result "reported in
+this manual as 0.01234 may very well show up in your printout as 0.012335271").
+**The Ratio column therefore measures agreement between two rounded numbers, not
+between the solver and the exact reference.** Do not set a lab tolerance from the
+ratio column. Gate against the **printed Target** (that is the manual's own
+claim, and it is what a re-run must reproduce), and print the **exact-formula
+diagnostic beside it** so the rounding is visible rather than absorbed.
+
+**The measurement that shows it.** VMFL001 (flow between rotating and stationary
+concentric cylinders, p. 15) has a closed-form tangential-velocity solution
+`v_θ(r) = Ω r_i²/(r_o²−r_i²)·(r_o²/r − r)` with `r_i = 17.8 mm`, `r_o = 46.28 mm`,
+`Ω = 1 rad/s`. At **r = 35 mm** the exact value is **0.00454781 m/s**; the
+manual's **printed Target is 0.0046** — already **+1.148 %** off the exact
+solution purely from four-figure rounding. Ansys Fluent's own value **0.0045** is
+**−1.05 %** from exact, yet the table shows it as **Ratio 0.978** (CFX 0.976),
+i.e. a "2.2 %" disagreement — when Ansys's number is actually *closer* to the
+exact solution than the printed target is. A 2 % tolerance drawn from "ratio
+0.978" would be a tolerance against a rounded target, off in the wrong direction.
+
+**What the lab did with it.** VMFL001's frozen pre-registration (`ffeed580`)
+gates the lab velocity at **±2 % of the four printed Targets** — the manual's
+reproducibility claim — and its comparator (`8cb29610`) prints, beside each gated
+value, the deviation of the **exact formula** from the printed target
+(−0.133 / −0.319 / +0.187 / +1.148 % at r = 20/25/30/35 mm; see N-AV3). The gate
+is the manual's claim; the exact diagnostic is the honesty channel.
+
+*Artifacts:* the manual sidecar
+`docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt`
+Table .01.1 (VMFL001, p. 16) and §1.2 (p. 4); `docs/NUMERICS_KNOWLEDGE.md`
+N-AV2/N-AV3; VMFL001 pre-registration `ffeed580` (blob `e0afc259`), comparator
+`8cb29610`.

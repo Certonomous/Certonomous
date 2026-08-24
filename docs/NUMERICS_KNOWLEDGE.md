@@ -3592,3 +3592,79 @@ Source: per-case `realisability_violation` over `pred_armb_s*.npz`; `RESULTS.md`
 **N-D34. An adjoint on a COLD-staged DAFoam case buys the `dRdW` colouring, and a mid-run adjoint anchor under-prices it by roughly 2.5× — measured on A1 NACA0012, np=1, `dafoam/opt-packages:latest`.** Mid-run adjoint (arm O's log, elapsed `273.19 s → 281.77 s`): **8.58 s**. Cold first adjoint on the same case at the same design point: **≈ 23 s**, of which **14.47 s is `Calculating dRdW Coloring... Completed!`, stated by the log itself**, not inferred. **Pricing rule that follows: an adjoint on a cold-staged case is `mid-run adjoint anchor + the colouring cost`, and the colouring is READ FROM A LOG LINE, never estimated.** Conversely and in the opposite direction, a cold primal at an **already-converged** design point is ~3× cheaper than one at an arbitrary deformed point (**≈ 6 s** measured against **20 s** registered) because the injected vector is already the optimum and the primal converges in ~60 iterations from `0/`. The two errors are **+14 s and −14 s** and nearly cancelled: the item's headline ratio **0.915×** would have read ~0.77× or ~1.06× had either occurred alone, so **the headline is the least informative number in that record**. Source: `cases/dafoam/ladder-a/A1/curriculum_D1_Cprime/RESULTS.md` §10, §10.1; run-root `ledger.txt`; `docs/COST_CALIBRATION.md` C-31.
 
 **N-D35. A cross-run analytic-gradient comparison between two containers has a RESOLUTION FLOOR set by the primal state difference, and `patchV` measures that floor.** A1 NACA0012, np=1, arm O's converged design vector injected into a cold shipped-image solve: `|CD_A − CD_B| = 9.23e-09` between the cold single solve and the warm major-11 endpoint at the **same** design vector. The `patchV[1]` component — which never crosses `warpDeriv` (IG-2) and was **bit-identical across the two images at the undeformed baseline** — nonetheless differs by **1.69e-06 relative** across the two runs. Because that component cannot carry a warp-derivative defect, its cross-run difference **is** the floor. **Consequence, and it is a reporting rule: any claimed toolchain difference below ~`1e-5` relative in such a comparison is AT THE FLOOR and must be reported as an UPPER BOUND, never as a resolved value.** The shipped-vs-patched analytic difference at this design point is `5.16e-08` absolute / `2.80e-06` relative — inside the floor, hence reported as an upper bound (against a predicted `6.76e-03` / 640 % carried from the baseline, five orders of magnitude out). Source: same file §2, §3, §6; graded `5bec45b7`.
+
+## N-AV1. The Ansys Fluid Dynamics Verification Manual describes itself as verification, NOT validation: one mesh, one model, one scenario, a 3 % accuracy goal, and cases that may not be grid-independent
+
+**Family note.** `N-AV*` is the ansys-verification team's numerics family
+(ANSYS_VERIFICATION_CHARTER §7). Everything below is quoted from the manual
+sidecar
+`docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt`
+(VM2026R1, March 2026), with the manual's own printed page numbers.
+
+**§1.2 Expected Results (p. 4), verbatim (the "Important" box):** *"It should be
+noted that these are not validation cases of the models presented. The test cases
+are single instance simulations using one mesh, one turbulence model, and one
+scenario of the model."* And, on grid independence (p. 4): *"An attempt has been
+made to present a test case and results that are grid-independent. If test
+results are not grid-independent, it is due to the need to limit the run time for
+the test to be in the manual. Improved results can be obtained in some cases by
+refining the mesh, but this requires longer solution times."*
+
+**§1.3 References (p. 5), verbatim:** *"The goal for the test cases contained in
+this manual was to have results accuracy within 3% of the target solution."*
+
+**§1.4 Verification and Validation (p. 5), verbatim:** *"The test cases provided
+in this manual are a single instance, using one mesh, one turbulence model, and
+one scenario for the model. They are not validation cases of the models presented
+since they do not provide, nor attempt to provide, the necessary methodology on
+how to arrive at the presented results. The intent of these cases is to provide a
+means to verify that you are obtaining the same results in your computing
+environment as ANSYS obtained in its computing environment."*
+
+**Two consequences for this lab.** (1) A register `PASS` on any of these cases
+validates the **lab's own solver against a reference value**, not a physical
+model — the manual explicitly disclaims model validation, so credential wording
+must not claim more. (2) The manual's own accuracy goal is **3 %** and its cases
+**may not be grid-independent** (grid independence is sacrificed to run time by
+the manual's own statement); therefore a lab **CONVERGING Roache triple** with a
+GCI is **new information the manual does not itself provide**, and a lab band
+tighter than 3 % is a stronger claim than the manual makes.
+
+## N-AV2. VMFL001's analytical tangential-velocity field is independent of viscosity and density, so a wrong μ passes the velocity gate — the μ-sensitive check is the wall torque, for which the manual prints no reference
+
+**The fact.** For steady laminar flow between a rotating inner cylinder and a
+stationary outer cylinder (VMFL001, p. 15), the closed-form tangential velocity
+`v_θ(r) = Ω r_i²/(r_o²−r_i²)·(r_o²/r − r)` depends **only** on the geometry
+(`r_i = 17.8 mm`, `r_o = 46.28 mm`) and the inner-wall angular velocity
+(`Ω = 1 rad/s`). It contains **neither μ nor ρ**: the creeping annular solution
+is set by the boundary conditions, and μ and ρ cancel out of the velocity field
+entirely. **A lab run with the wrong viscosity (or the wrong density) still
+reproduces the exact velocity profile and passes the manual's velocity gate.**
+
+**The μ-sensitive diagnostic (lab-added; no manual reference).** The quantity
+that does see μ is the viscous torque per unit axial length on the inner
+cylinder, `M'/L = 4π μ Ω r_i² r_o²/(r_o²−r_i²)`. At the manual's
+`μ = 0.0002 kg/m·s` this is **9.345533e-7 N·m/m** (linear in μ, independent of ρ).
+**The manual prints no target for it** — it is a lab-added control that would
+catch a μ error the velocity gate cannot see. Any lab report on VMFL001 that
+claims to have exercised the viscosity must cite this torque, not the velocity.
+
+## N-AV3. VMFL001 printed-target rounding: the manual's four-figure Targets deviate from the exact solution by −0.133 / −0.319 / +0.187 / +1.148 % at r = 20/25/30/35 mm
+
+**The fact.** Evaluating the exact `v_θ(r)` (N-AV2) at the manual's four radii
+and comparing with the manual's **printed Target** column (Table .01.1, p. 16):
+
+| r (mm) | exact v_θ (m/s) | printed Target | (Target−exact)/exact |
+|---|---|---|---|
+| 20 | 0.0151201 | 0.0151 | **−0.133 %** |
+| 25 | 0.0105331 | 0.0105 | **−0.319 %** |
+| 30 | 0.0071868 | 0.0072 | **+0.187 %** |
+| 35 | 0.0045478 | 0.0046 | **+1.148 %** |
+
+The r = 35 mm target is +1.148 % from exact from four-figure rounding alone.
+Ansys Fluent's own reported value there, **0.0045**, is **−1.05 %** from exact —
+i.e. closer to the exact solution than the printed target is — yet the manual's
+Ratio column reads it as **0.978** (CFX 0.976). See L-280: a tolerance drawn
+from the Ratio column is set against a rounded target, not the reference. The lab
+gates against the printed Target (the manual's reproducibility claim) and prints
+these four exact-formula deviations beside the gated values.
