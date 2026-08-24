@@ -315,3 +315,43 @@ work, not on the ladder.
 
 This section is a decision record appended to a delivered memo; the memo's
 §1–§final text above is unchanged.
+
+---
+
+## ADDENDUM — 2026-08-24: R3 RATIFIED (SpaRTA-class, TBNN fallback)
+
+**Appended 2026-08-24 by the closure team. lines whose number changed above this section: 0.**
+Nothing above this line was rewritten, reflowed or renumbered; in particular the memo's own **R3
+DECISION — recorded 2026-08-21** appendix — Sanaa's *"R3: Sparta"* — **stands unedited**.
+
+Sanaa ratified R3 on 2026-08-24. Her words, verbatim:
+
+> R3 is ratified (SpaRTA-class, TBNN fallback) — R4's CPU-minutes run in parallel; they never displace consolidation work.
+
+and, from her standing section, verbatim:
+
+> R4 (SpaRTA build) runs in parallel on its CPU-minutes; FS gates apply.
+
+**Effect.** This closes the decision reserved to Sanaa alone by
+`docs/charters/CLOSURE_MODELLING_CHARTER.md` §22.7 and by
+`docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md` Part 3 R3, and closes open action 3 of that
+doctrine.
+
+**The class did not change.** SpaRTA-class was already Sanaa's 2026-08-21 pick, made on this memo
+and recorded in its R3 appendix above, docketed as **D443** / **D444**, and carried on
+`docs/LAB_STATE.md` as *"R3 = SpaRTA / DECIDED"*. This addendum adds to the record exactly what the
+2026-08-21 ruling did not carry:
+
+1. **The fallback clause** — **TBNN** is named the fallback class. The 2026-08-21 record named
+   no fallback.
+2. **The parallel-capacity clause** — R4's CPU-minutes run in parallel and **never displace
+   consolidation work**; FS gates apply to the SpaRTA build.
+3. **The ratification framing** — it is stated as a ratification closing §22.7 and Part 3 R3,
+   not as a fresh pick.
+
+**Limits.** This addendum re-opens no ranking in §1–§6 and changes no rank; it
+authorises no scoring call; and it lifts nothing — **SUBMISSIONS PARKED** stands (`CLAUDE.md`
+rule 7). The memo's §6 *"What this memo cannot see"* is unaffected and still binds any claim
+built on this memo.
+
+Docket: **D510**. Recording it cost **0.0 core-minutes** — zero compute, a records task only.

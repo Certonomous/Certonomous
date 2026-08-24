@@ -200,6 +200,42 @@ assumed.**
 > **SANAA PICKS THE CLASS**, as a docket decision with the shortlist memo. **The lab does NOT
 > pick.**
 
+**RATIFICATION — 2026-08-24. R3 IS RATIFIED, AND THE DECISION THIS ENTRY RESERVED TO SANAA IS CLOSED.**
+
+*(Appended 2026-08-24 by the closure team. The R3 text above is reproduced nowhere and rewritten
+nowhere; lines whose number changed above this section: 0.)*
+
+Sanaa ruled this week. Her words, verbatim:
+
+> R3 is ratified (SpaRTA-class, TBNN fallback) — R4's CPU-minutes run in parallel; they never displace consolidation work.
+
+and, from her standing section, verbatim:
+
+> R4 (SpaRTA build) runs in parallel on its CPU-minutes; FS gates apply.
+
+**What this closes.** The decision reserved to Sanaa alone by
+`docs/charters/CLOSURE_MODELLING_CHARTER.md` §22.7 — *"SANAA picks, as a docket decision"*,
+*"The lab does NOT pick the model class"* — and by this Part 3 R3 entry — *"SANAA PICKS THE
+CLASS ... The lab does NOT pick"* — is **CLOSED**. The class is **SpaRTA-class**, with **TBNN as
+the fallback class**. Open action 3 of this document is closed by the same ruling; that row stands
+unedited, with the dated closing note appended beneath the table.
+
+**What is new on 2026-08-24, and what is not. The class did NOT change.** Sanaa's 2026-08-21 word
+— *"R3: Sparta"* — was already on record: appended to `docs/closure/R2_SHORTLIST_MEMO.md`,
+docketed as **D443** / **D444**, and carried on `docs/LAB_STATE.md` as *"R3 = SpaRTA / DECIDED"*.
+What the 2026-08-24 ruling adds is three things, and only these three:
+
+1. **It is stated as a ratification**, closing §22.7 and this Part 3 R3 entry.
+2. **It names TBNN as the FALLBACK class explicitly**, which the 2026-08-21 record did not.
+3. **It sets the parallel-capacity rule** for R4's CPU-minutes, with the clause that they **never
+   displace consolidation work**; FS gates apply to the SpaRTA build.
+
+**What this ratification does NOT do.** It does **not** re-open R2's ranking; it does **not**
+authorise the one pre-registered zero-shot scoring call that R4 ends in — that remains Sanaa's
+separate word; and it does **not** lift **SUBMISSIONS PARKED** (`CLAUDE.md` rule 7).
+
+Docket: **D510**. Recording it cost **0.0 core-minutes** — zero compute, a records task only.
+
 ### R4 — Build ladder
 
 **Implement -> verify on training flows a-priori AND a-posteriori (the re-solved field) ->
@@ -302,6 +338,11 @@ ONLY**:
 | 3 | **R3 — pick the model class**, as a docket decision with the shortlist memo. | **SANAA** |
 | 4 | **Approve the internal-scoring phrasing** for external surfaces, or confirm leaderboard claims are dropped. | **SANAA** |
 | 5 | **Repo 2 creation and every release into it.** | **SANAA** |
+
+**Row 3 — CLOSED 2026-08-24.** Sanaa ratified R3 on 2026-08-24 (SpaRTA-class, TBNN fallback); the
+row above is left standing and unedited, and this dated note beside it records its closure. See the
+**RATIFICATION — 2026-08-24** block under Part 3 R3, `docs/closure/R2_SHORTLIST_MEMO.md`
+Addendum 2026-08-24, and docket **D510**.
 
 ---
 
