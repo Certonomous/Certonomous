@@ -1024,3 +1024,365 @@ Results will be recorded in
 `verification/campaign/F4_SIGFPE_STEP01_RESULTS.md`, citing this file by its
 commit sha and hashing the frozen file against the committed blob to prove the
 document that ran is the document that was frozen.
+
+---
+
+## 13. AMENDMENT 1 (pre-compute, 2026-08-24) — three defects found in the supervisor's read of the frozen file
+
+**Version:** v1.1 — was v1.0, the freeze at commit `0bbac521`
+(`0bbac521712258b1def4c6119710fe6fcc10ba7c`, 2026-08-23T21:13:11Z). The frozen
+blob of v1.0 is `3c90b9931e6f996ed59db4ee0c7a125bf8fc60b5` and was verified byte-
+identical to the working copy before this amendment was appended
+(`git hash-object` == `git rev-parse 0bbac521:<this file>`).
+
+**Why this is legal.** Rule 2: *"Before first compute, amendments are legal and
+must state the condition and how it was checked (name the run directory that does
+not exist)."* Rule 6: frozen files are never edited — this is appended at the
+foot, nothing above is touched. §12 of this document repeats both.
+
+**What produced it.** The cfd supervisor's personal read of the frozen file
+(`SUPERVISION_CHARTER.md` §3 — pre-registration verified before compute, and the
+measurement-script diff read as a diff). Three defects were found. Each is stated
+below with the original clause quoted verbatim and struck, the replacement, and
+the on-disk evidence that the defect is real. **A supervisor brief is not Sanaa's
+consent (rule 9); this amendment authorises nothing to launch.**
+
+---
+
+### 13.0 The condition, and how it was checked
+
+Checked at 2026-08-24T16:18:47Z (box clock, `date -u`, read in the same shell invocation as
+the write), at HEAD `506dde3608e3f2625a96862129449ddca8d461b3`.
+
+**(a) Neither step's run directory nor either solver source tree exists.** Verbatim
+from the box, the same probe §12 froze:
+
+```
+$ ls -d verification/runs/F4_runs/swbli_cylflare/step0* \
+        verification/runs/F4_runs/swbli_cylflare/step1* \
+        verification/runs/F4_runs/swbli_cylflare/rhoCentralFoamBoundedDiag_src \
+        verification/runs/F4_runs/swbli_cylflare/rhoCentralFoamInletUpwindDiag_src
+ls: cannot access 'verification/runs/F4_runs/swbli_cylflare/step0*': No such file or directory
+ls: cannot access 'verification/runs/F4_runs/swbli_cylflare/step1*': No such file or directory
+ls: cannot access 'verification/runs/F4_runs/swbli_cylflare/rhoCentralFoamBoundedDiag_src': No such file or directory
+ls: cannot access 'verification/runs/F4_runs/swbli_cylflare/rhoCentralFoamInletUpwindDiag_src': No such file or directory
+```
+
+**(b) No numeric time directory other than `0/` exists anywhere in the run tree** —
+so no solver has written a field under this document, in either step or in any of
+the four pre-existing `warmup20*` cases:
+
+```
+$ find verification/runs/F4_runs/swbli_cylflare -maxdepth 2 -type d -regex '.*/[0-9.e-]+$'
+verification/runs/F4_runs/swbli_cylflare/warmup20/0
+verification/runs/F4_runs/swbli_cylflare/warmup20_bounded/0
+verification/runs/F4_runs/swbli_cylflare/warmup20_bounded_farfield/0
+verification/runs/F4_runs/swbli_cylflare/warmup20_bounded_realtime/0
+```
+
+Four directories, four `0/` dirs, nothing else. §12's assertion still holds
+verbatim: **no run directory, no solver source tree, no compiled binary, and no
+compute spent under this document.**
+
+**(c) The whole run tree, for completeness** — `analyse_f4_sigfpe_step01.py`,
+`fixtures/`, `rhoCentralFoamBounded_src/` (the *published* solver, §11.7, not
+either new one) and the four `warmup20*` cases. No `step0`, no `step1`, no
+`*Diag_src`.
+
+**Gates are therefore open.** This amendment changes one completion clause
+(§7.3), one reference state (§8.3) and one reader regex. It changes **no
+threshold, no band, no cap and no label**; §8.3's `10 %` and `5 %` bands and
+§10's `12 core-min` cap are carried through untouched.
+
+---
+
+### 13.1 Defect 1 — §7.3's `1.3e-05/` field-write clause is unsatisfiable under `purgeWrite 3`
+
+**STRUCK — original, line 677, verbatim:**
+
+> ~~- at least one field write (`1.3e-05/`) present and newer than that step's `0/T`.~~
+
+**REPLACEMENT:**
+
+> - **at least one numeric time directory other than `0` present under the step,
+>   carrying all seven fields (`T U p alphat k nut omega`), every one of them
+>   newer than that step's own `0/T`** (the age guard, standing rule 4). The
+>   results record states which time directory was used.
+
+**Why the original cannot hold.** The step `controlDict` (§3, lines 235–241) sets
+`writeInterval 1.3e-05`, `endTime 6.5e-05`, `purgeWrite 3`, giving five writes at
+`1.3e-05, 2.6e-05, 3.9e-05, 5.2e-05, 6.5e-05`. `purgeWrite 3` keeps the three
+most recent: the moment `5.2e-05/` is written, **`1.3e-05/` is deleted by
+OpenFOAM.** A step that crashes after `5.2e-05` therefore has no `1.3e-05/` and
+would be forced to **`BLOCKED`** by §7.3's second bullet — routing the *late*
+crash, which carries the most pre-crash trend data, into the empty cell that
+L-255 was written to prevent. The clause inverts its own purpose.
+
+**On-disk evidence, and an internal contradiction this document already carried.**
+`purgeWrite 3;` is confirmed at line 16 of
+`verification/runs/F4_runs/swbli_cylflare/warmup20_bounded_realtime/system/controlDict`
+(md5 `d1a144790d89f4c5ebcf1a9a5691d87e`), the inherited file §3 modifies, and §3
+line 241 carries `purgeWrite 3` forward unchanged. **This document already knew
+the consequence**: §11 note 6, lines 969–971, states *"`purgeWrite 3` with
+`writeInterval 1.3e-05` at `endTime 6.5e-05` keeps `3.9e-05/`, `5.2e-05/` and
+`6.5e-05/`"* — a list that does not contain `1.3e-05/`. §7.3 and §11.6
+contradicted each other at the freeze. §11.6 is right; §7.3 was wrong, and is
+corrected here.
+
+**What is NOT changed.** The 200-`Time = `-block minimum stands. The
+`SIGFPE-RECURRENCE` / `SIGFPE-ABSENT` labels stand. The `BLOCKED` fallback for a
+crash with fewer than 200 blocks **or with no surviving field write at all**
+stands. This widens no gate: a step that writes nothing still fails.
+
+---
+
+### 13.2 Defect 2 — §8.3's freestream reference state is wrong for exactly the cells that clamp
+
+**STRUCK — original, lines 740–743, verbatim:**
+
+> ~~From Step 0's `BOUNDDIAG:` lines, at the **first** timestep where `nLow > 0`, for
+> the worst-low cell, relative to the freestream reference state
+> (`rho∞ = 0.0252 kg/m³`, `|U|∞ = 1274 m/s`, `T∞ = 81.2 K`; NASA TM 101075 Table I,
+> quoted in the parent record §7a):~~
+
+**REPLACEMENT:**
+
+> From Step 0's `BOUNDDIAG:` lines, at the **first** timestep where `nLow > 0`,
+> for the worst-low cell, relative to a reference state chosen as follows and
+> **stated in the results record**:
+>
+> - **If the worst-low cell is the owner of an inlet-patch face** — determined by
+>   the exact map `constant/polyMesh/owner` over the inlet face range
+>   `[startFace, startFace + nFaces)` read from `constant/polyMesh/boundary`, whose
+>   ordering is the **same** ordering as the `nonuniform List` entries of the
+>   `inlet` patch in `0/U` and `0/T` — the reference is **that face's own Table II
+>   inlet-profile values**: `|U|_ref` = the magnitude of that face's `0/U` entry,
+>   `T_ref` = that face's `0/T` entry, and `rho_ref = p / (R · T_ref)` with
+>   `p = 576 Pa` (`0/p`, `internalField uniform 576.0`) and
+>   `R = 8314.47 / 28.9 = 287.6979 J/(kg K)` (`constant/thermophysicalProperties`,
+>   `molWeight 28.9`, `perfectGas`; the same `R` already used by `CV_BOUND`).
+> - **Otherwise** the freestream values `rho∞ = 0.0252 kg/m³`, `|U|∞ = 1274 m/s`,
+>   `T∞ = 81.2 K` (NASA TM 101075 Table I, parent record §7a).
+> - The results record **states which reference was used** and either the cell's
+>   **inlet face index** or the words **`not inlet-adjacent`**. A row that does not
+>   state this is not graded.
+
+**The bands are UNCHANGED.** `RHO_BAND = 0.10` and `U_BAND = 0.05` and the four
+labels `RHO-FIRST` / `U-FIRST` / `E-FIRST` / `INDETERMINATE` (lines 745–749) are
+carried through **verbatim and untouched**, as is their justification at lines
+751–758. **This amendment changes what the deviation is measured *from*, not how
+large a deviation has to be to fire a label.** The 5 % figure still sits above the
+2.71 % / 3.45 % velocity errors of parent record §8.6(3); that argument is
+unaffected, because it was always an argument about a *deviation from the local
+state*, and the local state at an inlet-adjacent cell is the inlet profile.
+
+**On-disk evidence — the map, read read-only from the control case
+`warmup20_bounded_realtime`.** `constant/polyMesh/boundary` gives the `inlet`
+patch as `nFaces 110`, `startFace 59020`; the mesh header records
+`nCells:29700  nFaces:119180  nInternalFaces:59020`, so `inlet` is the first
+boundary patch and its faces are `59020 … 59129`. Reading
+`constant/polyMesh/owner` over that range gives 110 distinct owner cells running
+`0, 120, 240, …, 13080` — **a single constant stride of 120**, which is the
+origin of the parent record's "`≡ 0 mod 120`" observation. All four persistently
+clamped cells are inlet-face owners:
+
+| clamped cell | inlet face index | global face |
+|---|---|---|
+| 0 | 0 | 59020 |
+| 3960 | 33 | 59053 |
+| 6360 | 53 | 59073 |
+| 13080 | **109** — the last inlet face, the inlet∩wall corner | 59129 |
+
+**On-disk evidence — the profile at those faces**, read from the `inlet` patch's
+`nonuniform List<vector>` in `0/U` (110 entries, `type fixedValue`) and
+`nonuniform List<scalar>` in `0/T` (110 entries, `type fixedValue`), with
+`rho = p/(R T)`, `p = 576 Pa`, `R = 287.699`:
+
+(pipes avoided in the header below so the table renders: `magU` is `|U|`.)
+
+| cell | face | magU (m/s) | `T` (K) | `rho` (kg/m³) | magU/magU∞ − 1 | rho/rho∞ − 1 | label §8.3 **would** fire |
+|---|---|---|---|---|---|---|---|
+| 0 | 0 | 1274.0000 | 81.200 | 0.024656 | +0.000 | −0.0216 | `E-FIRST` |
+| 3960 | 33 | 1274.0000 | 81.200 | 0.024656 | +0.000 | −0.0216 | `E-FIRST` |
+| 6360 | 53 | 1224.8712 | 106.169 | 0.018858 | −0.0386 | −0.2517 | `RHO-FIRST` |
+| 13080 | 109 | **21.7811** | 303.959 | 0.006587 | **−0.9829** | **−0.7386** | `INDETERMINATE` |
+
+**The defect is confirmed, and it is not marginal.** The brief's check was
+whether `|U|` at the corner face is within 5 % of 1274 m/s. It is **21.78 m/s —
+98.29 % below freestream**, because the inlet profile is a boundary-layer profile
+and face 109 sits in it. Across the whole inlet, **54 of 110 faces** exceed the
+5 % `|U|` band and **65 of 110** exceed the 10 % `rho` band **on the prescribed
+boundary condition alone, at `t = 0`, before the solver has taken a single step**
+(inlet `|U|` range 21.78 … 1274.00 m/s; inlet `T` range 81.200 … 368.823 K; inlet
+`rho` range 0.005428 … 0.024656 kg/m³). Against the freestream reference, §8.3
+would have returned three *different* labels for four cells that are the same
+phenomenon — and for the corner cell it would have read `INDETERMINATE` (both
+deviations outside their bands) purely from the inlet BC. The attribution read
+would have been measuring the inlet profile, not the clamp mechanism.
+
+**One honest disclosure about the replacement's own arithmetic.** At the
+freestream face (`T = 81.2 K`), `rho = p/(R T) = 0.024656 kg/m³`, which is
+**2.16 % below** the Table I `rho∞ = 0.0252 kg/m³`. The case's own `p` and `T`
+and the tabulated `rho` are not exactly consistent. 2.16 % is inside the 10 %
+band, so it flips no label at the freestream face, but the results record must
+quote the reference it used numerically rather than by name, so this offset is
+visible to the reader rather than hidden inside a symbol.
+
+---
+
+### 13.3 Defect 3 — the reader's `RE_SIGFPE` matches the OpenFOAM startup banner, so it reports a SIGFPE on **every** OpenFOAM run
+
+**STRUCK — original, `analyse_f4_sigfpe_step01.py` line 119, verbatim:**
+
+> ~~`RE_SIGFPE = re.compile(r"Foam::sigFpe|Floating point exception|SIGFPE")`~~
+
+**REPLACEMENT (landed in the reader in the same commit as this amendment):**
+
+> `RE_SIGFPE = re.compile(r"Foam::sigFpe::sigHandler|^Floating point exception\b")`
+>
+> and a new module constant `SIGFPE_RC = 136`.
+
+**The rule, pre-declared here.** For §7.3's *"terminates on a floating-point
+exception"* test:
+
+1. **`rc == SIGFPE_RC` (136 = 128 + `SIGFPE`(8)) is the PRIMARY signal.** It is
+   the kernel's own report and cannot be produced by log text.
+2. **The backtrace frame `Foam::sigFpe::sigHandler` in the log is SECONDARY** —
+   sufficient on its own when `rc` was not captured, but it is a log artefact and
+   is named as such.
+3. **The startup banner is EXPLICITLY EXCLUDED.** It is not evidence of anything
+   except that trapping was enabled.
+
+**On-disk evidence — the banner is universal and the old pattern matches it.** The
+banner line is, verbatim from the archived F4 crash log
+`demo-output/website/solve_registry/f4_swbli_warmup20_20260730T004453Z.log`
+(md5 `b658b967377d574d8aacf00e3569cf9c`, asserted before reading), **line 18**:
+
+```
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+```
+
+The same line appears in every OpenFOAM solver log sampled on this box, including
+runs that completed cleanly and never crashed —
+`verification/runs/F5_runs/re3900/log.pimpleFoam` (line 18),
+`verification/runs/F5_runs/re3900_corrected/log.pimpleFoam`,
+`verification/runs/F5_runs/re1000/log.pimpleFoam`,
+`verification/runs/F7_runs/damBreak_MM_a2p25in_medium/log.interFoam` (line 29),
+and two further F7 `interFoam` logs. It is emitted by `Foam::sigFpe` at startup
+whenever `FOAM_SIGFPE` is set, which is the default in the environment this box
+sources.
+
+**Measured false-positive rate of the struck pattern: 100 %.** Applied line by
+line:
+
+| log | struck pattern matches | first match | replacement matches | first match |
+|---|---|---|---|---|
+| F4 archived crash log (a **real** SIGFPE) | 2 | line 18, the banner | 1 | line 27602, the backtrace frame |
+| `F5_runs/re3900/log.pimpleFoam` (clean, no crash) | **1** | line 18, the banner | **0** | — |
+| `F7_runs/damBreak_MM_a2p25in_medium/log.interFoam` (clean, no crash) | **1** | line 29, the banner | **0** | — |
+
+The struck pattern would have set `parse_log()["sigfpe"] = True` on a clean run,
+and §7.3 would have labelled a perfectly completed step `SIGFPE-RECURRENCE`. The
+replacement returns `True` on the real crash and `False` on both clean runs.
+
+**How the archived crash actually signals**, quoted verbatim from line 27602 of
+that log (the first frame of the `[stack trace]` block that ends the file at line
+27611):
+
+```
+#1  Foam::sigFpe::sigHandler(int) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+```
+
+with frames `#4`/`#5` in `libfluidThermophysicalModels.so` and `#6`/`#9` in
+`rhoCentralFoam` — the thermo inversion, which is the mechanism this experiment
+is about. **The crash log contains no bare `Floating point exception` line at the
+crash at all**: the only occurrence of that string in the whole 27,611-line file
+is inside the startup banner. The backtrace frame is the only in-log signal there
+is, which is exactly why the replacement pattern targets it.
+
+**One thing this lane could NOT verify, stated plainly.** The archived crash's
+`rc` is **not recoverable from disk**. Its sidecar
+`demo-output/website/solve_registry/f4_swbli_warmup20_20260730T004453Z.done`
+records `job`, `pid` (296218), `started`, `finished`, `case`,
+`expected_artifact` and the last 25 log lines — **no `rc` field**. So rule 1
+above (`rc == 136` primary) is a forward commitment binding the step-0/step-1
+launch wrapper, which must capture and record `rc`; it is **not** a claim about
+the 2026-07-30 archived run, whose `rc` nobody can now read. The archived run is
+classified a SIGFPE here on the secondary signal alone, and this amendment says
+so rather than implying a measurement that does not exist.
+
+**Also corrected in passing:** the supervisor's brief predicted the banner text
+as `SigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).` The
+actual text on this box is `trapFpe: Floating point exception trapping enabled
+(FOAM_SIGFPE).` Both are excluded by the replacement pattern, and the reader's
+`--selftest` asserts non-match against **both** strings so the guard does not
+depend on which wording a future OpenFOAM build emits.
+
+**Reader changes landed in the same commit** (and nothing else in that file):
+`RE_SIGFPE` replaced at line 119; `SIGFPE_RC = 136` added to the frozen-constants
+block with a comment citing this §13.3; `INLET_P_PA = 576.0` and
+`R_GAS = 8314.47 / 28.9` added with a comment citing §13.2; three assertions
+added to `--selftest`. All grading bodies remain `NotImplementedError` by design.
+The C1 fixture `fixtures/bound_log_fixture.txt` is **untouched** — md5
+`60f6d5802793f7bd2cbfa5fde3dafbcb` before and after.
+
+---
+
+### 13.4 Note — §10.4's freeze-time condition on `docs/COST_CALIBRATION.md` is stale, and was already stale when it was frozen
+
+§10.4 lines 935–941 state, as a condition checked at freeze:
+
+> ~~`docs/COST_CALIBRATION.md` **exists on disk today (7,189 bytes) but is NOT
+> tracked at HEAD** — `git ls-files docs/COST_CALIBRATION.md` returns nothing, so a
+> parallel session's commit of it is still pending.~~
+
+**This is no longer true, and on inspection it was not true at the freeze
+either.** The file was first committed at `ef6a9082` (*"Cost calibration law:
+estimate-vs-actual at every process completion (Sanaa 2026-08-23)"*,
+2026-08-23T21:04:25Z), which `git merge-base --is-ancestor` confirms is an
+ancestor of the freeze commit `0bbac521` (2026-08-23T21:13:11Z) — **nine minutes
+earlier**. `git ls-tree 0bbac521^ -- docs/COST_CALIBRATION.md` returns a blob, so
+the file was tracked at the very HEAD the freeze was taken against. The condition
+as written appears to have been read from a stale worktree rather than from HEAD.
+Today it is tracked and has been appended to repeatedly, most recently at
+`e88b86e6`; the cfd team's own two rows landed at `f89aa7b4`.
+
+**The operative clause of §10.4 stands UNCHANGED**, and this note makes it more
+important, not less: *"At close-out time, verify the file exists at HEAD before
+appending; if it does not, the row is held and the fact reported to the
+supervisor rather than the file created a second time from this side."* Verifying
+**at HEAD** is precisely the check that would have caught the stale reading. The
+worktree is measurably behind HEAD on this file right now — `23,937` bytes on
+disk against `38,661` bytes at HEAD — so an agent appending from the disk copy
+would silently revert a peer's rows. §10.4's seven close-out requirements are
+otherwise unaltered, including the private-index protocol of rule 10 for that
+append.
+
+**Nothing in `docs/COST_CALIBRATION.md` was touched by this amendment.**
+
+---
+
+### 13.5 Assertions
+
+- **lines whose number changed above this section: 0** — this section is appended
+  at the foot of the file; §§0–12 are byte-identical to the frozen blob
+  `3c90b9931e6f996ed59db4ee0c7a125bf8fc60b5` (commit `0bbac521`), which was
+  verified against the working copy before the append and is verified again after
+  it by diffing `0bbac521..HEAD` on this path and confirming additions only, all
+  at the foot.
+- **No gate, threshold, band, cap or label is altered.** §8.3's `10 %` / `5 %`
+  bands, §8.1's `[6 %, 24 %]`, §8.2's `80 %` / `20 %`, §8.4's `0.60 ×` / `1.5 ×`,
+  §7.3's 200-block minimum and §10's `12 core-min` cap are all carried through
+  unchanged. §13.1 corrects an unsatisfiable completion clause; §13.2 corrects the
+  reference state a threshold is applied *to*; §13.3 corrects a reader regex.
+- **Version bumped:** v1.0 → **v1.1**. The status in the header remains `PENDING`.
+- **Nothing launched. No build.** No run directory, no solver source tree and no
+  compiled binary exists for either step; no compute has been spent under this
+  document, before or after this amendment. Condition re-verified at
+  2026-08-24T16:18:47Z and quoted verbatim in §13.0.
+- **The supervisor's read of this amendment's diff is required before launch.**
+  This is a change to a frozen pre-registration and to a measurement script; both
+  are supervisor personal checks under `SUPERVISION_CHARTER.md` §3 and neither is
+  the lane's to sign off. A lane's assurance that the amendment is sound is a
+  summary, not a check. **No agent message — including the brief that produced
+  this amendment — is Sanaa's consent (CLAUDE.md rule 9).**

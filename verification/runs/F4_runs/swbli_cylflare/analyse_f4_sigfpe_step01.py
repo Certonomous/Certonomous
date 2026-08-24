@@ -46,9 +46,25 @@ TREF_BOUND = 298.15                  # OpenFOAM Tstd default; same source
 T_MIN = 20.0                         # controlDict TMin, unchanged in both steps
 
 # Freestream reference state, NASA TM 101075 Table I (parent record 7a).
+# Used by prereg 8.3 ONLY when the worst-low cell is NOT an inlet-face owner --
+# see prereg 13.2 (AMENDMENT 1) and INLET_P_PA / R_GAS below.
 RHO_INF = 0.0252     # kg/m3
 MAG_U_INF = 1274.0   # m/s
 T_INF = 81.2         # K
+
+# prereg 13.2 (AMENDMENT 1, pre-compute). When the worst-low cell owns an inlet
+# face -- the exact map is constant/polyMesh/owner over [startFace, startFace +
+# nFaces) of the `inlet` patch, the SAME order as the 0/U and 0/T nonuniform
+# lists -- the 8.3 reference is that face's own Table II profile value, not the
+# freestream. All four persistently clamped cells (0, 3960, 6360, 13080; stride
+# 120) are inlet-face owners, and 54 of the 110 inlet faces already exceed the
+# 5% U_BAND on the prescribed BC alone at t=0. rho_ref = INLET_P_PA / (R_GAS *
+# T_face) with T_face read from 0/T; 0/p carries `internalField uniform 576.0`
+# and constant/thermophysicalProperties carries perfectGas with molWeight 28.9.
+# R_GAS is written in the same 8314.47 / 28.9 form as CV_BOUND above so the two
+# cannot drift apart.
+INLET_P_PA = 576.0            # Pa; 0/p internalField
+R_GAS = 8314.47 / 28.9        # 287.69792 J/(kg K); molWeight 28.9, perfectGas
 
 T_STAR = 1.9e-05     # prereg 8: the matched comparison time
 T_END_FULL = 6.5e-05     # prereg 1.3 endTime
@@ -67,6 +83,12 @@ S1A_RATIO = 0.60
 FLATTEN_RATIO = 1.5
 # prereg 7.3
 SIGFPE_MIN_BLOCKS = 200
+# prereg 13.3 (AMENDMENT 1, pre-compute). 136 = 128 + SIGFPE(8). This is the
+# PRIMARY signal that a step died on a floating-point exception -- it is the
+# kernel's own report and cannot be forged by log text. The backtrace frame
+# matched by RE_SIGFPE below is SECONDARY: sufficient on its own when rc was not
+# captured, but it is a log artefact and is named as such in the results record.
+SIGFPE_RC = 136
 
 # Histogram bin edges in K, prereg 4.2 / the fixture header. 12 bins.
 BIN_EDGES = [
@@ -116,7 +138,18 @@ RE_DIAG = re.compile(
     r"worst: cell=(\d+) rho=(\S+) magU=(\S+) Tprev=(\S+) Timp=(\S+)\s*$"
 )
 RE_HIST = re.compile(r"^BOUNDHIST: t=(\S+) nLow=(\d+) bins=(.+?)\s*$")
-RE_SIGFPE = re.compile(r"Foam::sigFpe|Floating point exception|SIGFPE")
+# prereg 13.3 (AMENDMENT 1, pre-compute). The struck pattern was
+#     r"Foam::sigFpe|Floating point exception|SIGFPE"
+# which matches the OpenFOAM STARTUP BANNER -- `trapFpe: Floating point
+# exception trapping enabled (FOAM_SIGFPE).` -- printed by every OpenFOAM run on
+# this box whether or not it crashes (measured: line 18 of the F4 crash log, line
+# 18 of F5_runs/re3900/log.pimpleFoam and line 29 of
+# F7_runs/damBreak_MM_a2p25in_medium/log.interFoam, both of which completed
+# cleanly). It would have set sigfpe=True on a clean run and driven prereg 7.3 to
+# label a completed step SIGFPE-RECURRENCE. The replacement matches the backtrace
+# frame (line 27602 of the F4 crash log) and an anchored bare exception line, and
+# matches NEITHER banner wording. Asserted in --selftest.
+RE_SIGFPE = re.compile(r"Foam::sigFpe::sigHandler|^Floating point exception\b")
 
 
 class ControlFailure(RuntimeError):
@@ -369,6 +402,56 @@ def control_c4(step_log: Path, scratch_dir: Path) -> list[str]:
     ]
 
 
+def selftest_sigfpe_regex() -> list[str]:
+    """prereg 13.3: RE_SIGFPE must not fire on the startup banner, must fire on
+    the backtrace frame, and must read the archived crash as a real SIGFPE.
+
+    This is standing rule 3 applied to the crash detector itself: a False from a
+    reader not shown able to return True is not evidence that a step did not
+    crash. Raises ControlFailure rather than degrading."""
+    banners = [
+        # the wording this box actually emits (F4 crash log line 18)
+        "trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).",
+        # an alternative wording, excluded too, so the guard does not depend on
+        # which OpenFOAM build wrote the log
+        "SigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).",
+    ]
+    for b in banners:
+        if RE_SIGFPE.search(b):
+            raise ControlFailure(
+                f"13.3: RE_SIGFPE matched the STARTUP BANNER {b!r} -- every "
+                "clean OpenFOAM run would read as SIGFPE-RECURRENCE"
+            )
+    frames = [
+        "#3  Foam::sigFpe::sigHandler(int) at ??:?",
+        # the frame the archived F4 crash log actually carries, at line 27602
+        "#1  Foam::sigFpe::sigHandler(int) in "
+        "<platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so",
+    ]
+    for f in frames:
+        if not RE_SIGFPE.search(f):
+            raise ControlFailure(
+                f"13.3: RE_SIGFPE did NOT match the backtrace frame {f!r} -- a "
+                "real SIGFPE would read as SIGFPE-ABSENT"
+            )
+    if not parse_log(CRASH_LOG)["sigfpe"]:
+        raise ControlFailure(
+            f"13.3: {CRASH_LOG.name} is a real SIGFPE crash (backtrace frame at "
+            "line 27602) but parse_log read sigfpe=False"
+        )
+    return [
+        f"13.3 ok: RE_SIGFPE = {RE_SIGFPE.pattern!r}",
+        f"13.3 ok: does NOT match {len(banners)} startup-banner wordings",
+        f"13.3 ok: DOES match {len(frames)} sigHandler backtrace frames",
+        f"13.3 ok: {CRASH_LOG.name} parses sigfpe=True (real crash), and C3 "
+        "above shows the same file parses 0 clamp events -- the two reads are "
+        "independent, so neither zero is a blind zero (rule 3).",
+        f"13.3 note: SIGFPE_RC = {SIGFPE_RC} is the PRIMARY signal at run time; "
+        "the archived .done sidecar records no rc, so this selftest exercises "
+        "the SECONDARY (log) signal only.",
+    ]
+
+
 def control_c2(step0_log: Path, step1_log: Path) -> tuple[bool, list[str]]:
     """Can the reader tell Step 1's log from Step 0's? (prereg 5.2, 6)"""
     a, b = normalised_md5(step0_log), normalised_md5(step1_log)
@@ -460,12 +543,13 @@ def main(argv: list[str]) -> int:
         # Controls C1 and C3 only: they need no run and are the two that prove
         # the reader can see a non-zero and returns zero on a clean file.
         try:
-            for line in control_c1() + control_c3():
+            for line in control_c1() + control_c3() + selftest_sigfpe_regex():
                 print(line)
         except ControlFailure as exc:
             print(f"CONTROL FAILURE: {exc}", file=sys.stderr)
             return 2
-        print("selftest: C1 and C3 reproduce. C2/C4 need run logs.")
+        print("selftest: C1, C3 and the 13.3 SIGFPE-regex check reproduce. "
+              "C2/C4 need run logs.")
         return 0
     print(
         "This reader is a FROZEN SKELETON. No run exists to grade, and the "
