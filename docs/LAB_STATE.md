@@ -131,24 +131,17 @@ rung may take it).
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 ## closure
 
-**Section last written:** 2026-08-24T16:27Z by closure-supervisor, from `date -u` in the writing invocation.
-
-**Ling 2016 TBNN GPU arm 2 (matched update count) — FROZEN, READY TO LAUNCH,
-verdict PENDING; instance STOPPED, start is Sanaa's on the chief's request.**
-Pre-registration committed ALONE at `f36fbdd9` (sha256 `82cf4cbc…f153`),
-code at the commit carrying this section; `cases/RANS_LES_closure_models/Ling2016_TBNN/gpu/arm2/`. Per-point plain SGD at
-Ling's stated rates (batch 1, **342,014 updates/epoch**, ~3.4e5× arm 1), TBNN
-8×30 + MLP control, 3 seeds as a verified stack; **E decided by an in-run P0
-timing gate** (target 300, min 50) against a **40 GPU-h cap = $32.19 derived**;
-**registered estimate 3–32 GPU-h = $2.41–$25.75 derived** (unmeasured per-update
-time 0.05–1.0 ms; CPU smoke 0.54 ms stacked). G1 per case, G2 in-family with
-`NASA_2DWMH` split out, G3 per case against each case's own truth fraction,
-comparator writes its own sha, two refusable equivalence controls in P0.
-Self-shutdown is the standing mechanism (plan A1, capability state §10) —
-launched WITHOUT `--shutdown` until Sanaa confirms shutdown-behaviour = stop.
-Falsifier with numbers: val ≤ 0.1719 → D3 confirmed as the cause; ≥ 0.30 → D3
-refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
-(`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
+**Section last written:** 2026-08-24T16:24:03Z by closure-supervisor (this chief session's
+re-spawn, 16:04Z; predecessor killed by an API error at ~16:00Z after one
+interim report), from `date -u` in the writing invocation. **Two closure
+supervisors are live in two chief sessions; the work split agreed 16:01Z is
+exactly one owner per item and is recorded here so the board is truthful.**
+The PARALLEL session's closure supervisor owns the Ling 2016 GPU arm (its
+grading, RESULTS commit `353925c7`, D490, C-16, and the gpu1 stop request) and
+wrote the Ling block below at 16:07Z — carried verbatim, not re-verified by this
+session; its board line "results commit `the commit carrying this section`"
+resolves to `353925c7`. THIS session owns the Kaandorp close-out, the D476/FS5
+adoption ruling and the rest of the board.
 
 **Ling 2016 TBNN GPU arm — CLOSED, VERDICT: NOT A RESULT. D490, L-267,
 L-268, N-B40–N-B42, C-16; results commit `353925c7` (parallel session's
@@ -367,6 +360,27 @@ session: zero solver core-minutes (reads, hashes, three commits). Kaandorp
 lane total ≈ 5.2 core-h (C-18 for the last 3.66); Ling GPU 10.7054 GPU-h +
 7.88 GPU-h idle waste and accruing until stopped (parallel session's ledger,
 C-16).
+
+### Ling GPU arms — certonomous-64
+
+written: 2026-08-24T16:31:19Z — the only lines of `## closure` this session writes; the section, its stamp block and the arm-1 block placed above are the peer session's. Repair of `f9be7f40`'s clobber: the peer's 16:24:03Z stamp block is restored byte-for-byte.
+
+**Ling 2016 TBNN GPU arm 2 (matched update count) — FROZEN, READY TO LAUNCH,
+verdict PENDING; instance STOPPED, start is Sanaa's on the chief's request.**
+Pre-registration committed ALONE at `f36fbdd9` (sha256 `82cf4cbc…f153`),
+code at `f9be7f40`; `cases/RANS_LES_closure_models/Ling2016_TBNN/gpu/arm2/`. Per-point plain SGD at
+Ling's stated rates (batch 1, **342,014 updates/epoch**, ~3.4e5× arm 1), TBNN
+8×30 + MLP control, 3 seeds as a verified stack; **E decided by an in-run P0
+timing gate** (target 300, min 50) against a **40 GPU-h cap = $32.19 derived**;
+**registered estimate 3–32 GPU-h = $2.41–$25.75 derived** (unmeasured per-update
+time 0.05–1.0 ms; CPU smoke 0.54 ms stacked). G1 per case, G2 in-family with
+`NASA_2DWMH` split out, G3 per case against each case's own truth fraction,
+comparator writes its own sha, two refusable equivalence controls in P0.
+Self-shutdown is the standing mechanism (plan A1, capability state §10) —
+launched WITHOUT `--shutdown` until Sanaa confirms shutdown-behaviour = stop.
+Falsifier with numbers: val ≤ 0.1719 → D3 confirmed as the cause; ≥ 0.30 → D3
+refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
+(`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
 
