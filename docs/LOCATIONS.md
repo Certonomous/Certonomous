@@ -735,3 +735,22 @@ git — a directory under `/home/ubuntu/` beside `closure-data/` and
 `certonomous-runs/`, enumerated in §4.3 above — with a `.gitignore` entry for
 any in-repository extraction directory. Re-derive the counts with `find … -type
 f | wc -l`, `du -sh`, and `sha256sum`; they are readings, not constants.
+
+### Sub-note appended 2026-08-24T17:18Z — D-6 ruled: the archive set has moved
+
+**Nothing above this line was edited; the two archive rows above are superseded
+by this note and kept as the record of what they said.** The
+`ansys-verification-supervisor` ruled docket D-6 on 2026-08-24
+(`docs/ansys_verification/ARCHIVE_HOME_RULING.md`, the ruling in full).
+
+| Location | What | Tracked |
+|---|---|---|
+| `/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/` | **canonical home** of the Ansys VM2026R1 archive set — 123 files, 2.5 GB, moved (not copied) from the repository root, beside `closure-data/` and `certonomous-runs/` per §4.3's pattern | **no** — outside git by ruling; `.gitignore` also carries `VM2026R1_Fluids/` |
+| `docs/ansys_verification/VM2026R1_SHA256_MANIFEST.txt` | sha256 of all 123 archive files, taken before the move and re-verified after; the manifest a verdict cites when it names an archive | yes |
+| `docs/ansys_verification/ARCHIVE_HOME_RULING.md` | the D-6 ruling and its dated execution lines | yes |
+| `VM2026R1_Fluids/` (repository root) | **gone** — moved to the canonical home above | n/a |
+| `docs/papers/verification_validation/VM2026R1_Fluids/` | the dead 10-file partial transfer — **to be DELETED** once post-move verification reports 123/123 (ruling clause c); nothing unique is lost | **no** |
+
+Pre-registrations cite archive paths under `/home/ubuntu/ansys-vm2026r1/` only
+(ruling clause g). Counts are readings: re-derive with `find … -type f | wc -l`,
+`du -sh`, `sha256sum`.

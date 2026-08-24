@@ -310,3 +310,12 @@ verification/runs/F14-cooling-ladder/K0cT_runs/*/constant/polyMesh/
 verification/runs/F14-cooling-ladder/K0cT_runs/*/log.buoyantBoussinesqSimpleFoam*
 !verification/runs/F14-cooling-ladder/K0cT_runs/*/0.orig/
 !verification/runs/F14-cooling-ladder/K0cT_runs/*/0.orig/**
+
+# ANSYS VM2026R1 archive set -- D-6 ruling, 2026-08-24
+# (`docs/ansys_verification/ARCHIVE_HOME_RULING.md` clause (e)).  The canonical
+# home is `/home/ubuntu/ansys-vm2026r1/`, OUTSIDE this repository; these two
+# entries exist so that no rule-10 pathspec sweep (`git add -A <path>`; L-12:
+# 1,187 files, 25M insertions, twice) can ever commit 2.5 GB of vendor archives
+# or an extraction of one, whatever future copy lands where.
+VM2026R1_Fluids/
+cases/ansys_verification/**/archive_extract/
