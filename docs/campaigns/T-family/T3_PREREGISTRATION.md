@@ -472,3 +472,42 @@ and marker committed beside them. The costed acquisition list of section 2
 goes to Sanaa. Results, when the physics stage reports, land in
 `T3_RESULTS.md` beside this file with every row's verdict and what it cannot
 see.
+
+---
+
+## 13. Dated amendment note (2026-08-24): a stamp in §7's prose is 149 s ahead of this file's own commit
+
+**Appended at the foot of a frozen pre-registration. Lines whose number changed
+above this section: 0** — verified by byte-comparing everything above against
+`git show HEAD:docs/campaigns/T-family/T3_PREREGISTRATION.md`. **This note
+alters no gate, threshold, cap or label; it is a disclosure, not an amendment
+to the design.** T3's verdict stands `NOT A RESULT`, 4 of 4 graded rows.
+
+**Line 241** reads *"(amendment of 2026-08-21 18:05 Z, legal under Charter 2b
+because no T3 case directory existed …)"*. The commit that introduced that line
+is **`bee3878b`**, committer date **2026-08-21T18:02:31Z**: the stamp is
+**+149 s ahead of its own commit**, i.e. it names a moment that had not
+happened when it was written. Re-derived here by the lab's own instrument —
+`scripts/check_stamp_vs_commit.py --show-all` FIREs on this exact line at
+`+149 s (+2.5 min)` — and independently found by verification's audit pass 9
+(`CROSS_TEAM_GATE_AUDIT.md` §68, supervisor's read §72).
+
+**This is the `bd3edfe8` class**: a stamp typed from recall rather than read
+from `date -u` in the same shell invocation as the write. The ancestor case
+(`bd3edfe8`, 2026-08-22T21:00:24Z) and the rule adopted in response are
+documented in the header of `scripts/check_stamp_vs_commit.py`; the instrument
+that detects it was built and costed at `COST_CALIBRATION.md` C-25.
+
+**Gate-neutral, and the condition rule 2 requires is true on the binding
+evidence.** The amendment's legality rests on no T3 case directory existing when
+it was registered, and the binding timestamp for that is the **committer date**,
+18:02:31Z — **13 s before first compute** (18:02:44Z, `CROSS_TEAM_GATE_AUDIT.md`
+§63). Read literally, the 18:05 Z stamp would place the amendment *after* first
+compute and falsify the condition; read against the commit, the condition holds.
+**One arithmetic discrepancy is recorded rather than repeated:** audit §68 states
+the stamp is *"76 s AFTER first compute"*; on §63's own first-compute time the
+difference is **136 s**. The +149 s skew against the committer date is the
+figure re-derived here.
+
+**The frozen text above is unchanged**, per rule 6 and Charter §2d: originals are
+struck, never rewritten, and nothing above this line was touched.

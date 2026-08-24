@@ -124,3 +124,49 @@ only**, so `K0cS`'s 17-20 % `kEpsilon` deviation and 13-14 % `kOmegaSST`
 deviation have **no discretisation bound at all**. A third square-cavity mesh is
 the cheapest way to give the campaign's most-cited rung the attribution this one
 now has.
+
+---
+
+## 6. Dated addendum (2026-08-24): the §4 Richardson extrapolate has an inverted sign
+
+**Appended at the foot. Lines whose number changed above this section: 0** —
+verified by byte-comparing everything above against
+`git show HEAD:docs/campaigns/F14-cooling-ladder/K0cX_GRID_CONVERGENCE.md`.
+**No verdict moves. Every model still `GATE FAIL`, as §5 states.**
+
+`verification/runs/F14-cooling-ladder/K0cX_runs/grid_convergence.py:106` forms
+`e21 = f2 - f1` with `f1` the **finest** level, then writes
+`richardson_extrapolate = f1 + e21/den`. Roache / Celik et al. (2008) for that
+convention give `f1 - e21/den`, so the printed limit is reflected through the
+finest value onto the coarse side. `GCI_finest_pct` uses `|e21|` and the
+observed order `p` is sign-independent: **both are unaffected.**
+
+Same defect class as `T3_runs/analyse_t3.py:384` and `T1_runs/analyse_t1c.py:337`
+(verification audit pass 9, `CROSS_TEAM_GATE_AUDIT.md` §66/§72) and
+`K0cG_runs/analyse_k0cg.py:107`, **independently written** — not shared code.
+It is **not** present in the three `K0b` instruments, which use the correct
+`f_fine + (f_fine - f_med)/(r^p - 1)` (`K0b_D406_repair/analyse_k0b_mesh.py:319`);
+K0b's published extrapolate 4.52001514525647 stands.
+
+**§4's one affected number**, `kOmegaSST` stratification `S`
+(`grid_convergence.json`, `/quantities/SST/S`; finest 0.23105658418258596,
+`p` = 1.2234):
+
+| | value | distance from the measured 0.095, in 0.05 band-widths |
+| --- | ---: | ---: |
+| **printed at :95 and :100** | 0.23651325856424776 | 2.83 |
+| **corrected** | **0.22559990980092415** | **2.61** |
+
+**The reading survives; the number does not.** §4's statement — *"Refining to
+infinity does not reach the experiment; it reaches a number 2.8 band-widths
+away"* — should read **2.6 band-widths** at **0.2256**. The corrected limit
+still lies far outside the band and still lies on the far side of the
+experiment, so §5's conclusion that `kOmegaSST`'s deficit is model error is
+untouched. The `kEpsilon` and `LaunderSharmaKE` rows are **DIVERGENT** and carry
+no extrapolate at all.
+
+**No K0cX record other than this one quotes the value**, and
+`grid_convergence.py` grades nothing through it: the in-band tests use the
+finest-level deviation against the reference, never the extrapolate. Status:
+**PUBLISHED DISPLAY-ONLY**. The frozen instrument is **not edited**; this
+disclosure is the amendment.

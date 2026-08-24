@@ -809,3 +809,56 @@ difference persists, the comparison value for developed-flow axial conduction
 at Pe = 17.75 and 71 is to be **obtained from a cited extended-Graetz source
 and checked against its own asymptotes before use** — never recalled. **Still
 diagnostic, still ungraded, and no T1c verdict can move on it.**
+
+---
+
+# DATED ADDENDUM (2026-08-24): the h→0 excesses in this file carry an inverted Richardson sign
+
+**Appended at the foot. Lines whose number changed above this section: 0** —
+verified by byte-comparing everything above against
+`git show HEAD:verification/runs/T-family/T1_runs/DIAGNOSTIC_PREDICTION.md`.
+**No registered prediction, band or threshold in this file is altered, and no
+T1c verdict moves** — this file states, and it remains true, that everything in
+it is diagnostic and ungraded.
+
+`analyse_t1c.py:337` (imported by `analyse_dts.py` and `analyse_dts_p.py` as
+`T1C.gci`) returns `richardson = f_fine + e21/den` with `e21 = f_med - f_fine`;
+Roache's extrapolate for that convention is `f_fine - e21/den`. Every `h → 0
+excess` in this file is `100 (richardson - Nu_exact)/Nu_exact`
+(`analyse_dts.py:722`, `analyse_dts_p.py:374`) and therefore carries the defect.
+Found by verification's audit pass 9 (`CROSS_TEAM_GATE_AUDIT.md` §66/§72).
+
+**Every published h→0 excess in this file, corrected** (from `dts.json`,
+`dts_p.json` and `gate_t1c.json` level values; corrected = `2*f_fine − frozen`):
+
+| line | ladder | frozen | **corrected** |
+| --- | --- | ---: | ---: |
+| :12, :388, :684 | constant `Ts`, Re = 100 | +0.1106 % (3.6608395) | **+0.0624 % (3.6590762)** |
+| :13, :294 | constant `q″`, Pr = 0.71 | +0.0748 % (4.3669013) | **+0.0013 % (4.3636945)** |
+| §Re sweep | Re = 200 | +0.0873 % | **+0.0448 %** |
+| §Re sweep | Re = 50 | +0.1856 % | **+0.1551 %** |
+| §Re sweep | Re = 25 | +0.5068 % | **+0.5034 %** |
+| :694, :708, foot | parabolic-inlet Re = 100 | +0.0721 % | **+0.0294 %** |
+| `dts_p.json` | parabolic-inlet Re = 25 | +0.4402 % | **+0.4233 %** |
+
+**What this changes in the readings above.**
+* The **Re = 100 → parabolic-inlet** movement quoted at :694/:708 as
+  *"+0.1106 to +0.0721 %, closing 36.5 % of the gap"* becomes
+  **+0.0624 → +0.0294 %**, closing **52.9 %** of the gap to the +0.0051 %
+  Graetz figure. The **direction and the sign of every registered prediction
+  are unchanged**; the magnitudes move.
+* The **constant-`q″` baseline of +0.0748 %**, which §:127 and
+  `build_diag_ladder.py:21` treat as the like-for-like reference excess, is
+  **+0.0013 %** corrected — indistinguishable from zero at this precision. Any
+  reading that rests on that baseline being non-zero is withdrawn; the
+  Pr-dependence claim at :306 (+0.0748 % → +0.0987 %) must be recomputed from
+  corrected extrapolates before it is quoted again. **It is not recomputed
+  here** — the Pr-sweep triples are not all in the artifacts this addendum
+  re-read, and an uncomputed number is left uncomputed rather than estimated.
+* Nothing that is a **per-level** excess (the `c`/`m`/`f` columns) is affected:
+  those never pass through `richardson`.
+
+**The frozen comparators are NOT edited.** `analyse_t1c.py` sha256
+`60893b28…7e6c5135` is a registered frozen import that
+`E4a2_runs/analyse_e4a2.py:139-141` refuses on. The derivation and citer list:
+`analyse_t1c.ADDENDUM_2026-08-24_richardson_sign.md`, beside this file.

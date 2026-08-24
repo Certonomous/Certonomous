@@ -127,3 +127,58 @@ extrapolation to zero mesh spacing** — +0.1106 % and +0.0748 % — so the exce
 `DIAGNOSTIC_PREDICTION.md`, whose predictions were registered before either
 diagnostic case was built. **Explaining a failure is not the same as excusing
 it, and no verdict here moves on the outcome of that test.**
+
+---
+
+## 6. Dated addendum (2026-08-24): the Richardson extrapolate quoted in §5 has the wrong sign
+
+**Appended at the foot. Lines whose number changed above this section: 0** —
+verified by byte-comparing everything above against
+`git show HEAD:docs/campaigns/T-family/T1c_RESULTS.md`. **No gate, threshold,
+band or verdict is altered: row L0 remains `GATE FAIL`, L1/L2/L3 `PASS`, L4
+`NOT A RESULT`.**
+
+`verification/runs/T-family/T1_runs/analyse_t1c.py:337` returns
+`richardson = f_fine + e21/den` with `e21 = f_med - f_fine`; the Roache /
+Celik et al. (2008) extrapolate for that convention is `f_fine - e21/den`. The
+`+` reflects the limit through the finest value onto the coarse side.
+Found by verification's audit pass 9 (`CROSS_TEAM_GATE_AUDIT.md` §66, confirmed
+§72); the same class was recorded earlier at `T9a_RESULTS.md` §8 item 1.
+
+**§5's two numbers, corrected** (recomputed from `gate_t1c.json`'s own level
+values, `r` = 1.6):
+
+| arm | c / m / f | `p` | printed h→0 excess | **corrected** |
+| --- | --- | ---: | ---: | ---: |
+| constant `Ts` | 3.6641114 / 3.6611832 / 3.6599579 | 1.8536 | +0.1106 % (3.6608395) | **+0.0624 % (3.6590762)** |
+| constant `q″` | 4.3745118 / 4.3678591 / 4.3652979 | 2.0309 | +0.0748 % (4.3669013) | **+0.0013 % (4.3636945)** |
+
+**What survives and what does not.** §5 argues that *"both arms overshoot the
+exact constant even after Richardson extrapolation to zero mesh spacing … so
+the excess is not discretisation error."*
+* For the **constant-`Ts`** arm the reading **survives**: +0.0624 % is still
+  above the row's 0.0301 % band, and L0's `GATE FAIL` (deviation 0.0865 % on the
+  fine mesh against that band) is untouched — the verdict never used the
+  extrapolate.
+* For the **constant-`q″`** arm the reading **does not survive**: the corrected
+  extrapolate sits **+0.0013 %** from 48/11, i.e. on the exact constant to a
+  part in 10⁵. On the corrected number that arm's excess **is** consistent with
+  discretisation error. §5's sentence is **struck as to the `q″` arm**, and left
+  standing as to the `Ts` arm. **No verdict in §1 moves** — L2 (`q″`, Nu)
+  PASSED on `dev` 0.0381 % against band 0.0459 %, both computed without the
+  extrapolate.
+
+**Status: PUBLISHED DISPLAY-ONLY.** Read from the grading code, not the prose:
+`analyse_t1c.py:446-452` and `:464-470` decide every row on
+`deviation_pct <= band_pct` where `band_pct` is `GCI_pct` (which uses `|e21|`
+and is sign-independent); `gate_t1c.json` rows carry **no `richardson` key**.
+The diagnostic ladders that consume the value print
+*"DIAGNOSTIC, NOT GRADED: no band, no pass/fail, no T1c verdict moves"*
+(`analyse_dts.py:944`, `analyse_dts_p.py:639`).
+
+**The frozen comparator is NOT edited.** Its sha256
+`60893b28…7e6c5135` is the registered frozen-import identity of five other
+rungs, and `E4a2_runs/analyse_e4a2.py:139-141` **refuses (exit 2)** on any
+mismatch. The full derivation, the corrected values for every published row,
+and the citer list are in
+`verification/runs/T-family/T1_runs/analyse_t1c.ADDENDUM_2026-08-24_richardson_sign.md`.

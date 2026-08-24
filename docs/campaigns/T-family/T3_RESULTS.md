@@ -988,3 +988,70 @@ and **not reverted** (CLAUDE.md rule 10: an unexpected change is inspected, neve
 reverted), and it is **not committed here** because it does not belong to this
 item. Whose it is has not been established and no guess is recorded.
 
+
+---
+
+## 15. Richardson-extrapolate sign, audit pass 9 (2026-08-24)
+
+**Dated addendum, appended at the foot. Lines whose number changed above this
+section: 0** — verified by byte-comparing everything above against
+`git show HEAD:docs/campaigns/T-family/T3_RESULTS.md`. **No gate, threshold, cap
+or label is altered. The rung verdict is unchanged: `NOT A RESULT`, 4 of 4
+graded rows**, G2's triple CONVERGING, gate (3) unreachable with
+`T3_reference_primary.json` registered NOT OBTAINED before any case existed.
+
+**15.1 The printed Richardson extrapolate has the wrong sign.**
+`verification/runs/T-family/T3_runs/analyse_t3.py:348` forms
+`e21 = f_med - f_fine`; line **384** returns `richardson = f_fine + e21/den`.
+Roache / Celik et al. (2008) for that convention give
+`f_fine + (f_fine - f_med)/(r^p - 1) = f_fine - e21/den`. The `+` reflects the
+extrapolate through the finest value onto the coarse side.
+
+On G2's `x_peak/H` triple (6.089504035601254 / 6.135162348547744 /
+6.141196894641299; `r21` 1.5986, `p` 4.304464, `den` 6.533393823101537):
+
+| | value |
+| --- | ---: |
+| **printed here as `RE = 6.14027`** | 6.140273248178687 |
+| **corrected** | **6.142120541103910** |
+| difference | 1.847292925e-03 = **0.0301 %**, 1.6× the 0.0188 % GCI printed beside it |
+
+The corrected value lies **above** the finest grid value, as an upward-monotone
+triple requires. `GCI_pct` uses `|e21|` and the observed order `p` is
+independent of the sign — **both are unaffected**.
+
+**15.2 Display-only, established from the grading code and not from prose.**
+The `richardson` key is formed inside `gci()`'s return dict and printed; it is
+never an operand of a comparison, band, deviation or verdict, and
+`gate_t3.json` carries no `richardson` key on any row — G2 exits at gate (1)
+before a band is armed. **Nothing in §7, §13 or §14 moves.**
+
+**15.3 The frozen comparator is NOT edited**, and cannot be: its sha256
+`f41c544d…498741` is the registered identity of the file that ran, quoted at
+`gate_t3.json:3`, in the run's own log before and after execution, at §1, §6.1
+and §6.2 of this record, in `T3_EXT1_AMENDMENT.md`, in `DOCKET.md` D450 and in
+`LAB_STATE.md`. The amendment therefore lives beside the file as
+`verification/runs/T-family/T3_runs/analyse_t3.ADDENDUM_2026-08-24_richardson_sign.md`,
+which carries the full derivation, the citer list and the trace. The corrected
+instrument already exists and is in use: `E4_runs/analyse_e4a.py:128`
+`richardson_corrected`, printed beside the frozen value, with a value-checking
+selftest control the frozen `--selftest` lacks.
+
+**15.4 A stamp inside the frozen pre-registration is 149 s ahead of its own
+commit** (audit §68). `T3_PREREGISTRATION.md:241` reads *"amendment of
+2026-08-21 18:05 Z"*; the commit that introduced that line, `bee3878b`, has
+committer date **2026-08-21T18:02:31Z**. Re-derived here by the lab's own
+instrument — `scripts/check_stamp_vs_commit.py --show-all` FIREs on exactly this
+line at **+149 s (+2.5 min)**. This is the **`bd3edfe8` class**: a stamp typed
+from recall rather than from a `date -u` read in the same shell invocation as
+the write; the ancestor case and the rule adopted in response are documented in
+that script's own header, and the class is cited at `CROSS_TEAM_GATE_AUDIT.md`
+§68/§72 and `COST_CALIBRATION.md` C-25.
+**Gate-neutral.** The pre-compute condition rule 2 requires is true on the
+binding evidence — the committer date 18:02:31Z precedes first compute
+(18:02:44Z, audit §63) by 13 s — so the amendment is legal and no verdict moves.
+**One arithmetic discrepancy is recorded rather than repeated:** audit §68 also
+states the stamp is *"76 s AFTER first compute"*; on §63's own first-compute
+time the difference is **136 s**. The +149 s skew against the committer date is
+the figure this record re-derived and stands behind. The frozen file is not
+edited; the disclosure is appended at its foot.
