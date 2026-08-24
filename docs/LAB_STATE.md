@@ -466,7 +466,7 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## heat-transfer
 
-**Section last written:** 2026-08-24T17:55:16Z by heat-transfer-supervisor (the
+**Section last written:** 2026-08-24T18:50:57Z by heat-transfer-supervisor (the
 session holding T3 ext1, T1b L4 and D477 since the chief's redirect
 2026-08-24T16:00Z). **Two heat-transfer sessions write this one section
 and overwrite each other by construction** — `1a634bb2` (16:04Z, the
@@ -599,6 +599,36 @@ parallel session's last board text: `1a634bb2`.
   parallel session's lane at 15:58Z before the 16:00Z redirect; this
   session's lane corroborated (six hashes, dry-run 8/8 at 16:09:32Z,
   `gate_t3.json` byte-identical) and did not re-run the comparator.
+
+### Audit pass 9 (verification `eab2f6c5` §63–71) on T3 ext1 — ANSWERED (`2f1d6cb7`, `792acd8f`)
+
+**Richardson-extrapolate SIGN inverted** at `analyse_t3.py:384` and
+`analyse_t1c.py:337` (`f_fine + e21/den` with `e21 = f_med − f_fine`; Roache
+gives `f_fine − e21/den`; signature: coded + corrected = 2·f_fine exactly,
+confirmed on T3, E4a2 and T10a). **Display-only everywhere — no verdict in
+the lab is a function of a Richardson value** (verdicts are dev ≤ GCI band;
+`gate_t1c.json`/`gate_t3.json` carry no richardson key; T1b/L4 computes
+none; the DC certificate quotes none). Corrected values on the record: T3
+G2 6.14027 → **6.142121**; T1c `Ts` +0.1106 → +0.0624 %, `q″` +0.0748 →
+**+0.0013 %** (§5's "both arms overshoot after extrapolation" struck as to
+`q″` only; L0 GATE FAIL / L2 PASS unmoved); dts/dts_p diagnostics; K0cX
+0.2365 → 0.22560 (reading survives); K0cG defective in json, recomputed;
+K0b correct. **Frozen comparators byte-unchanged** (`f41c544d…`,
+`60893b28…`) — in-file addenda impossible: `analyse_e4a2.py:139` REFUSES on
+`analyse_t1c.py` hash mismatch (E4a2_registered.json:355) — so rule-6
+sidecars `analyse_t3.ADDENDUM_2026-08-24_richardson_sign.md`,
+`analyse_t1c.ADDENDUM_…md` + dated foot addenda on T3_RESULTS §15,
+T1c_RESULTS §6, K0cX_GRID_CONVERGENCE §6, DIAGNOSTIC_PREDICTION (529
+insertions, 0 deletions). **Standing control** N-T8: every T-family
+comparator selftest carries a value-checking Richardson control (E4a/E4a2
+already do, for `richardson_corrected`); D509. **T3 prereg :241 stamp
++149 s ahead of committer date** (bd3edfe8 class; gate-neutral, committer
+date precedes first compute by 13 s) — dated note T3_PREREGISTRATION §13;
+audit §68's "76 s" figure flagged as inconsistent with §63's own times.
+Out of territory, flagged to the chief: `F9_work/f9_criteria.py:527` and
+`4G_runs/…/ladder.py:64` carry the same form (cfd). Left uncomputed:
+DIAGNOSTIC_PREDICTION's Pr-dependence figure (needs corrected Pr-sweep
+triples). Zero compute.
 
 ### Live jobs — T1b L4, reading 2026-08-24T16:02:14Z (lane, `date -u` in the invocation)
 
