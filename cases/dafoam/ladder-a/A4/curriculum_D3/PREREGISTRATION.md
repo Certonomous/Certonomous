@@ -854,3 +854,89 @@ cp -a /home/ubuntu/certonomous-runs/P3-a4-opt-shipped/base  <root>/geom   # and 
 
 **END OF PRE-REGISTRATION. Frozen by commit. Nothing below this line existed when the gates,
 thresholds, caps and labels above were fixed. ZERO COMPUTE SPENT. NOT FILED ANYWHERE.**
+
+---
+
+## 18. ADDENDUM A1 — Supervisor launch authorisation (dated; version bump v1.0 → v1.1)
+
+**Dated 2026-08-24T17:53:21Z** (`date -u`, read in the shell invocation that wrote this addendum, asserted the run root absent, built the tree and landed the commit).
+
+**lines whose number changed above this section: 0** — this addendum is appended at the foot of the
+frozen file; nothing above line 856 was touched, re-flowed or re-numbered (`CLAUDE.md` rule 6).
+
+**Version.** The frozen document carried no explicit version token. This addendum designates the
+state committed at `0cbf463c` as **v1.0** and this file, with this addendum, as **v1.1**.
+
+**Condition asserted, and how it was checked (`CLAUDE.md` rule 2, before-first-compute clause).**
+**ZERO COMPUTE HAS BEEN SPENT WHEN THIS ADDENDUM IS COMMITTED.** The run root
+`/home/ubuntu/certonomous-runs/D3-a4-constrained/` **does not exist**: `test ! -d` on that exact path
+is executed **inside the same shell invocation** that writes this addendum and that builds and lands
+the commit carrying it, and the commit is refused if the path is present. No container has been
+started, no image has been run, and no solver has executed. The `date -u` stamp at the head of this
+section is read in that same invocation.
+
+**No gate, band, threshold, cap or label is altered by this addendum.** Every number in §5, §6, §7,
+§8 stands exactly as frozen. What is recorded here is the supervisor's authorisation, which §15.2
+made a precondition of launch.
+
+### 18.1 The four rulings, as directed by the dafoam-supervisor
+
+**(1) The DV extension 1 → 2 is AUTHORISED.** §15.2 item 1 and §12's row put this on the
+supervisor's desk as the item's one substantive design judgement. The supervisor's ruling is that the
+extension sits **inside the curriculum row's own wording** — the row specifies *"volume/rear-slant
+constraints"*, and a rear-slant constraint is **inexpressible with a single design variable**: with
+one DV an active geometric constraint either fixes the design outright or is inert (§2.1). The
+extension therefore does not go to Sanaa under `EXPERTISE_CURRICULUM.md` §7 clause 2; it is inside
+these pages. §12's reading is confirmed, not widened.
+
+**(2) The shipped row bought as endpoint-only is ACCEPTED.** §15.2 item 2, §3.1. Stage T buys the
+endpoint gradient on both images at the same design vector reached by the same path — the arm A4's
+own `RESULTS.md` §8 limit 3 named as missing. **The full shipped optimisation twin is DEFERRED**, and
+the deferral stays priced at **≈ 17 core-min ≈ $0.0145 DERIVED** (§3.1). It is **not bought here**,
+and the item's two-row toolchain table (§3) is read with that deviation on its face.
+
+**(3) The item PROCEEDS with the separation content honestly absent.** §15.2 item 3, §7.3. The
+supervisor did not take this lane's §7 measurement on relay: as the `SUPERVISION_CHARTER.md` §3
+big-claim check, the supervisor **independently counted reverse-flow cells on every 2,777-cell A4
+field on disk** — the P2 and P3 optimisation runs, the W4 discriminator runs, baselines and optima
+alike. The count is **zero everywhere**, with **min U_x ≈ +23.5 m/s** against U₀ = 40, measured
+against **528** reverse-flow cells on the 79,439-cell Ahmed-25 field and **780** on the cfd team's
+9,050-cell F5c A4 field. **P11 is expected to HIT.** The A4 2,777-cell adjoint mesh carries no
+separated flow, the curriculum row's "separation-dominated flow" premise is **not met by this mesh**,
+and the item must not claim that content. **The 45,760-cell successor is a mesh change, goes to
+Sanaa's desk unpriced (§12.1), and nothing about it is run, staged or prepared under this
+pre-registration.**
+
+**(4) VOCABULARY — `NOT AN INSTRUMENT` is a printed REASON, never a verdict.** §16 already says the
+token is a statement about the instrument and is not one of the six. This ruling fixes how it is
+rendered in the record: in `RESULTS.md` the **Gs verdict cell reads `NOT A RESULT`**, with
+`NOT AN INSTRUMENT` and the failed instrument conditions printed **beside** it as the reason
+(`CLAUDE.md` rule 1 — the verdict vocabulary is closed, and honesty is carried by the value and the
+reason, never by a new word). The frozen `d3_sep_monitor.py` is **not edited**: it prints what it was
+frozen to print and exits 3; the mapping happens in the record.
+
+### 18.2 What this addendum does NOT do
+
+It does not authorise anything Sanaa reserved (`CLAUDE.md` FIRST-ACTION RULE): nothing is sent, filed,
+uploaded or posted (rule 7); no mesh is changed; no threshold, band or ceiling moves; no instance or
+GPU is touched. **No agent's message is Sanaa's consent** (rule 9) — the supervisor authorises the
+launch of an item that already sits in the pre-authorised class (**$0.0598 DERIVED at the HARD
+ceiling**, §8), and authorises nothing wider than that.
+
+### 18.3 The launch invocation's own re-verification (§17 step 0)
+
+Independently of the supervisor's 17:50Z check, the invocation that stages and launches re-hashes the
+three frozen executables **on disk** against the **committed blobs** at `0cbf463c` and at the
+then-current `HEAD`, and refuses to stage on any mismatch. Reading taken before this addendum was
+written:
+
+```
+d3_runScript.py    disk af2ce474e7954c03e3937161510f6590 == 0cbf463c blob == HEAD blob
+d3_grade.py        disk a32f075853e264910ee0a6c2473fd948 == 0cbf463c blob == HEAD blob
+d3_sep_monitor.py  disk cd07d7b8a70627579384f263ba92194e == 0cbf463c blob == HEAD blob
+PREREGISTRATION.md disk 837794ed3bed9cfc12b2658df754a65c == 0cbf463c blob == HEAD blob
+run root /home/ubuntu/certonomous-runs/D3-a4-constrained/   ABSENT
+```
+
+**END OF ADDENDUM A1. Nothing below this line existed when the gates, thresholds, caps and labels
+above were fixed. ZERO COMPUTE SPENT AT THIS COMMIT. NOT FILED ANYWHERE.**
