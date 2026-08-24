@@ -2704,3 +2704,474 @@ Read personally by the verification supervisor (session 5 spawn, 2026-08-24), no
 **Owed by this team from pass 9:** a table-aware future-intent cue for `check_stamp_vs_commit.py` — eight of its nine T3 fires are the ETA column of §10.4's rate table, whose cue lives in the column header (a false-positive class, not a defect in the T3 records).
 
 **Cost of this read:** two `git show` reads and one 12-line python recomputation, < 0.05 core-min, zero solver; folded into C-30's pass.
+
+## Audit pass 10 — 2026-08-24, verification LANE (CANDIDATE, not the supervisor's own read)
+
+**Lines whose number changed above this section: 0.** This section is appended
+at the foot of an append-only file. The base for this edit was taken from
+`git show HEAD:docs/CROSS_TEAM_GATE_AUDIT.md` inside the commit invocation
+itself and never from the worktree copy, which is dirty with foreign edits.
+Section numbering continues from **72**, the highest numbered section at the
+HEAD this was built on.
+
+**This pass was run by a `lab-lane`, not by the verification supervisor
+personally.** `SUPERVISION_CHARTER.md` §3 is explicit that a relayed check is a
+summary and not a check, so **every finding below is CANDIDATE until the
+verification supervisor re-derives it.** The lane was **read-only toward
+dafoam's territory** throughout: nothing under `cases/dafoam/` was written, no
+dafoam instrument was re-executed against a case, and every number below was
+re-derived by this lane's **own code** over what dafoam's instruments left on
+disk. **Nothing here moves a dafoam verdict.**
+
+**Target:** dafoam's **A3 rung 3, patched-IDWarp np=4, ATTEMPT 2** — the ONERA M6
+sweep rung at 79,560 cells, graded at commit **`8871acf3`** (committer
+**2026-08-24T17:23:42Z**) as **`GATE FAIL` — adjoint, inherited**, on the finding
+**IDENTITY CONFIRMED, 11 of 11 printed checkpoints**. Records:
+`cases/dafoam/ladder-a/A3/rung3_patched_idwarp_np4_attempt2/{PREREGISTRATION.md,
+RESULTS.md}`; instruments in the same directory (`drive.sh`, `stage.sh`,
+`identity_stop.sh`, `mem_guard.sh`, `coloring_guard.sh`, `guard_selftest.sh`,
+`shipped_cd_checkpoints.txt`); run root
+`/home/ubuntu/certonomous-runs/P5-a3-rung3-patched-attempt2/`; calibration row
+**C-29**; dafoam board `86fb1b34`.
+
+### 73. Freeze order — and the amendment's own condition re-proved from a filesystem birth time, not from the commit message that asserts it
+
+| check | finding |
+|---|---|
+| Pre-registration commit history | **Exactly two commits, ever.** `606930b4` (committer **2026-08-24T16:17:01Z**, freeze) and `8a0b440d` (**16:26:12Z**, Amendment 1). **No third commit exists** — so there is no post-compute addendum to the pre-registration at all, and the question "does an addendum alter a gate/threshold/cap/label" has no instance to answer. |
+| The frozen file **is** the file that ran (rule 2) | **YES.** Blob **`fa488e7cedf5385b5a4b30f2370a3abfc8fecaf9`** is identical at `8a0b440d`, at the grading commit `8871acf3`, at `HEAD` and on disk; sha256 **`2f5cafcce2ebf053ada1bc3eb5a5a9af25850b129631a44232d7d1acdd1bcac8`** re-derived by this lane from all four. The pre-amendment blob is **`9f7ec6f1…`** (sha256 `0dc1ded3…`) and is correctly superseded, not silently replaced. |
+| Amendment 1 is append-only (rule 2, rule 6) | **PROVED BY BYTE COMPARISON, not by its own assertion.** `cmp -n 80151` over the two blobs: the amended file's **first 80,151 bytes are byte-identical** to the whole of the frozen file. 1,067 lines → 1,313 lines, **246 lines appended, 0 changed**. The commit message's claim *"lines whose number changed above the amendment = 0"* is therefore true, and this lane checked it rather than read it. |
+| Amendment 1 landed **before first compute** | **YES, and by an independent clock.** The registered run root's **filesystem birth time is 2026-08-24 16:27:59.296995 UTC** (`stat --format=%w`), **107 s after** the amendment commit at 16:26:12Z and **121 s before** the gate opened at 16:30:00Z. The amendment asserted `test ! -d <run root>` in its own invocation; **this lane did not take that assertion — it read the directory's birth timestamp, which the amendment's author did not write and could not have set.** |
+| It states the condition and how it was checked (rule 2) | **YES, two conditions, both named.** `test ! -d /home/ubuntu/certonomous-runs/P5-a3-rung3-patched-attempt2 -> TRUE`, and `docker ps -a` carrying no container named `p3_a3r3_patched`. The rule requires naming the run directory that does not exist; it is named by absolute path. |
+| Grading-path files | **Seven instruments, one commit each, all at `606930b4` except `drive.sh`** (which Amendment 1 also touched, legally and before compute — see below). md5s on disk equal their `606930b4` blobs for all four files `GUARD_SELFTEST_PASS` names: `mem_guard.sh` `2c3a4852…`, `coloring_guard.sh` `599d15e3…`, `identity_stop.sh` `6ab865e9…`, `shipped_cd_checkpoints.txt` `e9a7a6c8…` — **and these are the same four md5s `GUARD_SELFTEST_PASS` recorded at 16:29:17Z**, before the arm launched. |
+| `drive.sh` under Amendment 1 | **The only executable change, and it is confined to the gate.** This lane read the diff: 3 lines replaced, 9 added, in 2 hunks — the memory limb `19.65 → 25.0` in the poll test, and the new `GATE_OPEN` recording line. **`mem_guard.sh` is untouched**, so the RSS ceiling and the host floor the arm actually ran under are byte-identical to attempt 1's. |
+
+**Frozen gate, threshold, cap and labels — quoted with line numbers, from the
+`8a0b440d` blob (line numbers identical in the `606930b4` blob for everything
+below 1068, because the prefix is byte-identical):**
+
+| what | line | frozen text |
+|---|---:|---|
+| Verdict vocabulary | **301** | *"PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING. No other word grades an arm here."* |
+| **The label**, registered in advance | **260** | *"The PATCHED column's rung-3 cell becomes `GATE FAIL — adjoint, inherited`"* |
+| The stop condition | **562** | *"11 checkpoints bit-identical through iteration **1000**"* → *"**DELIBERATE STOP, identity CONFIRMED.** Not a measurement failure; the finding is complete before the stop"* |
+| RSS ceiling / host floor | **567** | own RSS > **15.0 GiB**, host `MemAvailable` < **8.0 GiB**, 3 consecutive 5 s samples → **NOT A RESULT — stopped by memory** |
+| Launch gate (original) | **584** | `free_cores ≥ 4` AND `MemAvailable ≥ 19.65 GiB`, ≤ 360 polls at 60 s |
+| Launch gate (Amendment 1) | **1146** | `8.0` floor `+ 15.0` (R3-P11 registered UPPER) `+ 2.0` co-tenant `= 25.0 GiB` |
+| Peak-RSS band | **524** | **R3-P11 point 11.65 GiB, band [9.2, 15.0] GiB** |
+| Peak-RSS band, carried | **426** | **R3-P7 band 9.0–14.0 GiB** against a 16 GiB cap; host `MemAvailable` never below 8 GiB |
+| Wall cap | **§7** | `timeout 2600` ⇒ `2600 × 4 / 60 =` **173.333 core-min**, *"reachable but not exceedable by construction"*; registered **HARD CEILING 176.0** core-min |
+
+**AUDIT: SOUND.** The label the item shipped was frozen **66 minutes and 41
+seconds before the gate opened**, in a commit whose tree contains no run
+directory, and this lane proved the "no run directory" clause from a timestamp
+the author did not control.
+
+### 74. Could the gate have failed — and the 11/11 identity re-derived by this lane's own comparator, with two planted controls
+
+**What "bit-identical" was measured on, stated because the word invites three
+different readings.** Not file bytes; not a recomputed residual norm. It is the
+**printed decimal digit string of the KSP residual norm** at each of eleven
+checkpoints (13 significant figures as printed by PETSc), compared **character
+for character**. `shipped_cd_checkpoints.txt`'s own header says so —
+*"Compared as PRINTED STRINGS, digit for digit"* — and this lane re-read the
+comparison on that basis.
+
+**This lane wrote its own comparator** (regex over `Main iteration <n> KSP
+Residual norm <x>` in `patched.log`, and a parser for the frozen reference) and
+did **not** call, import or read the output of `identity_stop.sh`. Result:
+
+| comparison | result |
+|---|---|
+| **LIVE** — arm `patched.log` (lines **894–904**) vs frozen `shipped_cd_checkpoints.txt` | **11 / 11 matched, 0 mismatched** |
+| **TRANSCRIPTION** — the frozen reference vs its own claimed source, `/home/ubuntu/certonomous-runs/A3-rung3-n52/rung3_stage1.log:873-883` | **11 / 11 matched, 0 mismatched.** The transcription the freeze rests on is correct, checked here rather than trusted. That log carries **42** checkpoints; the frozen file takes the first eleven, which is what iteration 1000 means. |
+| Checkpoints printed beyond iteration 1000 | **0** — `patched.log` contains exactly 11 `Main iteration … KSP Residual norm` lines and **zero** occurrences of `PetscConvergedReason`. |
+
+**PLANTED CONTROLS (rule 3) — the zero was planted against before it was
+believed, twice, because a zero from a reader not shown able to see a non-zero
+is not evidence.**
+
+| plant | what the reader returned |
+|---|---|
+| One digit changed in one printed norm (`1.615247229756e-02` → `…757e-02`, iteration 1000) | **10 / 11 matched, 1 mismatched**, and the comparator **named the checkpoint and printed both strings**. |
+| One whole checkpoint line deleted (iteration 500) | **10 checkpoints parsed instead of 11; 5 mismatched.** The count limb is read, not only the values — so a truncated log cannot pass as a match. |
+
+**Registered outcomes, and which one fired.** The pre-registration's §7 stop
+table (line 562 ff.) registers **five** distinct terminal dispositions for this
+arm, each with the file and line that performs it:
+
+| registered outcome | condition | fired? |
+|---|---|---|
+| **IDENTITY CONFIRMED** — deliberate stop | 11 checkpoints identical through 1000 | **YES.** `identity_stop.sh` exit **5**, `docker kill` at `:56`, `rc=137 = 128 + SIGKILL`. |
+| **PATH DIVERGED** — stop and escalate | any checkpoint differs **and** residual ≥ 1.0e-03 | no |
+| **PATH CONVERGING** — guard stands down | any checkpoint differs **and** residual < 1.0e-03 | no |
+| `PetscConvergedReason: 2` → escalate | printed | no |
+| **NOT A RESULT — stopped by memory** | RSS > 15.0 GiB or host < 8.0 GiB, 3 strikes | no |
+| **BLOCKED** — gate never opens | 360 polls close | no |
+
+**Could the comparator have said one of the others? YES — and it was proved
+able to, in this session, before the arm launched.** `guard_selftest.sh` ran
+**eight limbs** at 16:28:09–16:29:17Z against **planted** inputs, and this lane
+read every one from `guard_selftest.log`:
+
+| limb | what it plants | exit | meaning |
+|---|---|---:|---|
+| 1 POS-mem | breach | **4** | mem guard fires, container gone |
+| 2 NEG-mem | no breach | **124** | mem guard correctly does **not** fire |
+| 3 POS-col | a rebuild behind a masking `Reading Coloring` line | **3** | detected |
+| 4 NEG-col | warm cache | **0** | no fire |
+| 5 col-count | a rung-1 colour count (1233) at rung 3 | **5** | rejected — a **discrimination** limb, not just a positive |
+| 6 ID-match | the **real** shipped log | **5** | match path reachable |
+| **7 ID-differ** | **a planted difference from rung 2's real path** | **6** | **the comparator SEES a difference** |
+| 8 ID-stand-down | a converging path | **7** | correctly does not kill a converging solve |
+
+**Limb 7 is the non-tautology proof and it is the whole difference between this
+zero and a worthless one.** The same comparator, byte-identical, produced a
+worthless zero at attempt 1 (the arm died before any checkpoint printed, so "no
+difference found" meant "nothing was read"). Here it was given eleven
+checkpoints **and** was shown, in the same session, on a real rung-2 residual
+path, to return exit 6 when the strings differ. **`GUARD_SELFTEST_PASS`
+(16:29:17.597Z) is newer than all four grading-path files it names** (worktree
+mtimes 2026-08-23 19:59:22–20:00:06Z), so the licence-to-run clause held; this
+lane read both sides of that comparison.
+
+**The gate could also have refused to open at all.** The launch condition is a
+registered falsifier with a registered consequence — 360 polls closing ⇒
+`drive.sh` exit 9 ⇒ **BLOCKED on host contention at 0 solver core-min, and the
+item ends**. That branch is not hypothetical: **attempt 1's window made the gate
+unreachable.** The gate is not a constant function of its input.
+
+**The `.gs_*` / `.patched` marker trap — checked directly, as the brief and
+`TIME_PROVENANCE.txt` item 7 both flag.** The run root holds **six** `.gs_*`
+markers (`MEMORY_STOP_FIRED.gs_pos`, `PATH_DIVERGED.gs_id_differ`,
+`IDENTITY_CONFIRMED.gs_id_match`, `PATH_CONVERGING.gs_id_conv`,
+`COLORING_REBUILD_DETECTED.gs_col_pos`, `COLORING_COUNT_MISMATCH.gs_col_cnt`),
+all written 16:28:09–16:29:17Z, **before the arm existed**. This lane tested
+each `.patched` name individually:
+
+- `IDENTITY_CONFIRMED.patched` — **PRESENT** (16:38:52.708Z). **It is the only
+  `.patched` marker in the run root**, count re-derived here: **1**.
+- `MEMORY_STOP_FIRED.patched` — **ABSENT.** `PATH_DIVERGED.patched`,
+  `PATH_CONVERGING.patched`, `COLORING_REBUILD_DETECTED.patched`,
+  `COLORING_COUNT_MISMATCH.patched` — **all ABSENT.**
+- `MEMORY_STOP_FIRED.gs_pos` **is** the planted one, and its own text proves it
+  rather than merely asserting it: it fired on `own RSS 0.001693 GiB > ceiling
+  **0.0000001 GiB**; host MemAvailable 27.3342 GiB < floor **99 GiB**` — two
+  thresholds no real run could carry. **A reader does not need the suffix
+  convention to tell this apart; the numbers inside give it away.**
+
+**AUDIT: SOUND.** The identity reproduces exactly under an independent
+comparator; the reader is proved able to see a difference by two of this lane's
+own plants and by the item's own limb 7; and the memory stop demonstrably did
+not fire on the arm.
+
+### 75. Is `GATE FAIL (adjoint, inherited)` a legal verdict — the parenthetical, the inheritance, and whether anything stopped is reported as measured
+
+**Rule 1.** `GATE FAIL` is one of the six tokens. `(adjoint, inherited)` is a
+**chip**: `adjoint` names *which* gate of the two the rung carries (the FD cell
+is graded separately and stays `NOT A RESULT`), and `inherited` names the
+**evidential route** of one of the gate's three instrument components. Rule 1
+puts honesty in "the value, its interval, the chip and the uncertainty
+channels" — this is the chip channel used exactly as the rule provides for, and
+**no adjective softens the token**.
+
+**Was the inheritance registered in advance, or read after the stop? REGISTERED
+— at `PREREGISTRATION.md:260`, in the `606930b4` freeze**, 66 minutes before the
+gate opened. The word `inherited` is in the frozen label itself, not appended to
+it afterwards. §4 is additionally marked *"Carried VERBATIM from
+`../rung3_patched_idwarp_np4/PREREGISTRATION.md` §4 by ruling R5 — it is not
+re-tuned after a failed attempt; that is the point of carrying it."* **A label
+carried unchanged across a failed attempt is the strongest available form of
+prediction-first**, because the one thing that could have motivated re-tuning it
+had already happened.
+
+**DAFOAM §7 — was the deliberate stop registered as the stop condition before
+compute? YES, `PREREGISTRATION.md:562`**, quoted verbatim in §73 above. The
+charter clause reads *"A stop is not a measurement"* and exists because this lab
+once published a `docker stop` as a memory finding (`W4_ADJOINT_PC_UNBLOCK.md`
+§5b.1, headline 3 withdrawn). The item cites the clause at §10 (line 796 ff.)
+and applies it in the refusing direction.
+
+**Is any quantity reported as measured that was actually stopped? NO — and this
+is the sharpest thing in the record.** §5's grading instrument has **three**
+components. `RESULTS.md` §2.2 splits them by hand:
+
+| §5 component | claimed as | re-derived by this lane |
+|---|---|---|
+| iteration count | **measured here**, 1000 of a 4000 cap, stop deliberate | 11 checkpoints at 100-iteration spacing, last at 1000; `patched.log:890` carries `GMRES Max Iterations: 4000`. **Confirmed.** |
+| total residual reduction | **measured here**, 1.3133× | `2.121343646203e-02 / 1.615247229756e-02 = ` **1.313324×**. **Confirmed to the quoted digits.** Flatness 900→1000 re-derived as **1.445884e-06** against the record's 1.446e-06. **Confirmed.** |
+| terminal `PetscConvergedReason` | **NOT measured here** — the shipped run's `-3` at 4000, carried by the bit-identity | `grep -c PetscConvergedReason patched.log` = **0**. The record's claim that this arm printed none is **true**, and it says so at the headline (§2.2), not in a limits appendix. |
+
+**The one thing a sceptic should press on, and the record presses on it
+first.** The identity is measured through iteration **1000**; the inherited
+terminal reason is the shipped run's value at **4000**. Nothing in this arm
+measures iterations 1001–4000, so the inheritance is an **extrapolation along a
+path proved identical over its first quarter**. `RESULTS.md` §2.2 states this in
+those terms — *"A reader who wants the terminal reason measured on the patched
+image at rung 3 is asking for the 3000 iterations this pre-registration decided
+**before the run** not to buy… That decision is disclosed here as a limit, not
+presented as a result"* — and §8 item 1 lists it under **what this record could
+not verify**. **This lane finds the disclosure adequate and correctly placed**,
+and notes the structural safeguard: the extrapolation cannot rescue a verdict,
+because the direction it runs is toward a **GATE FAIL**. Had the inheritance
+been used to claim a `PASS`, the same disclosure would not have been enough.
+
+**AUDIT: SOUND.** Legal token, legal chip, label frozen in advance, stop
+condition frozen in advance, and the one un-measured component named as
+un-measured in three separate places.
+
+### 76. Launch gate and the memory limb — the registered band against the measured peak, re-derived from all 87 guard samples
+
+The brief asks for this because it feeds the memory-limb rule draft. Every
+figure below was parsed by this lane from `rss_patched.txt`, not read from
+`ledger.txt`'s summary or from `RESULTS.md`.
+
+| quantity | registered | measured, re-derived here | reading |
+|---|---|---|---|
+| Launch limb (Amendment 1) | **25.0 GiB** = floor 8.0 + R3-P11 registered **UPPER** 15.0 + co-tenant 2.0 | gate opened **poll 1 of ≤360** at `MemAvailable` **27.19 GiB** | margin **+2.19 GiB**, as `launch_condition.txt` records. **81.6 % of MemTotal 30.64 GiB** — arithmetic re-derived here. |
+| Free-cores limb | ≥ 4 (UNCHANGED) | **13** | margin **+9** |
+| Peak container RSS vs **R3-P11** band | point **11.65**, band **[9.2, 15.0] GiB** | **11.680 GiB** | **inside the band. HIT.** **+0.2575 %** off the registered point. |
+| Peak container RSS vs **R3-P7** band | **9.0–14.0 GiB** vs a 16 GiB cap | **11.680 GiB** | **inside. HIT.** 73.0 % of the container cap. The two bands are scored separately, as line 530 registered, and here they agree. |
+| RSS guard ceiling | 15.0 GiB, 3 consecutive 5 s samples | **0 samples above 15.0** across 87 | guard exit **0** |
+| Host neighbourliness floor | **8.0 GiB**, 3 consecutive 5 s samples | **minimum `MemAvailable` 15.2871 GiB**, **0 samples below 8.0**, **0 strikes** | **the floor held throughout, with 7.29 GiB of headroom at the tightest sample.** |
+| Guard sample log | every sample written to `rss_patched.txt` | **87 samples**, span **521 s**, cadence 5 s armed, **max observed inter-sample gap 7 s** | the trace is dense enough that a 3-strike/15 s breach could not have been missed between samples |
+
+**The R3-P11 completeness clause is what makes this HIT legitimate, and this
+lane checked it independently rather than accepting the score.** Line 539
+registers: *"If the arm is stopped before the preconditioner assembly completes,
+the peak is **INCOMPLETE** and R3-P11 is scored `NOT A RESULT`, never as a HIT
+inside a band it never approached."* This lane read the assembly directly:
+`patched.log:868-882` runs `dRdWTPC: 0 of 1355` (60.02 s) through
+`dRdWTPC: 1354 of 1355` (170.76 s) — **the assembly completed**, so the peak is
+a complete peak and the band may be scored. That clause is precisely the error
+attempt 1's partial 9.202 GiB peak had to be qualified around, and it is
+**wired into the frozen document rather than applied by judgement afterwards.**
+
+**For the memory-limb rule draft, the one-line finding:** a limb built from the
+**registered UPPER** of the peak band (15.0) rather than the point (11.65)
+over-provisioned the host by **3.32 GiB** against the measured peak — and the
+run's tightest host reading still left **7.29 GiB** above the floor. The upper-band
+construction was not merely safe here; it was **not close to binding.** The
+honest counter-reading, which the item states itself at §5.2 and this lane
+endorses: **one draw is not a calibration**, and the A1.2 co-tenant gap (4.0 GiB
+between arm O's registered 2.0 GiB ceiling and its enforced 6.0 GiB cap) **was
+not realised on this day and is therefore not proved sufficient.**
+
+**A structural cost of the same limb, worth carrying into the draft.** A limb at
+81.6 % of `MemTotal` **selects for a quiet box by construction**. That is the
+mechanism behind this item's cost miss (§78): a wall estimate carrying a
+*contended-box* multiplier is systematically high behind such a gate. **The rule
+draft should require the gate's own memory limb to be recorded beside any
+contention multiplier**, and to state which side of the gate the multiplier was
+measured on. The item reaches this conclusion itself at `RESULTS.md` §9.2 and
+C-29; this lane re-derived the arithmetic and concurs.
+
+**AUDIT: SOUND.**
+
+### 77. **DEFECT FOUND** — five line citations into `patched.log` are off by one, low, and one of them lands a reader on a real but wrong number
+
+`RESULTS.md` §2.1 is the record's measured-quantity table. Every **value** in it
+is correct — this lane re-derived all of them. Five of its **citations** are
+not. `patched.log` has **904 lines** and a trailing newline (`wc -l` 904,
+`grep -c ''` 904 — checked, because a missing final newline is the usual innocent
+explanation for exactly this, and it is not the explanation here).
+
+| `RESULTS.md` §2.1 row | cited | what is actually on the cited line | correct citation |
+|---|---|---|---|
+| 11 checkpoints | `patched.log:893-903` | 893 is `Solving Linear Equation... 171.41 s` — **not a checkpoint at all**; the block ends at 904 | **894–904** |
+| total residual reduction (iterations 0 and 1000) | `patched.log:893,903` | 893 carries no residual; **903 carries iteration 900**, `1.615249565219e-02` | **894, 904** |
+| flatness 200 → 1000 | `patched.log:895,903` | 895 is iteration **100**; 903 is iteration **900** | **896, 904** |
+| flatness 900 → 1000 | `patched.log:902,903` | 902 is iteration **800**; 903 is iteration **900** | **903, 904** |
+| iterations executed of the 4000 cap | `patched.log:891,903` | 891 is `GMRES Relative Tolerance: 0.0001`; the `GMRES Max Iterations: 4000` line is **890** | **890, 904** |
+
+**Why this is a defect and not a typo.** The lab's product is *"a number that
+cites an artifact still on disk"*, and the citation is the half a reader can
+check. Here a reader who follows the citation for **"the residual at iteration
+1000"** lands on line 903 and finds `1.615249565219e-02` — **a real, plausible,
+13-figure residual that is the wrong one.** That is worse than landing on a
+non-number, which announces itself. It is the same class pass 9 named at §66:
+the space between a correct number and the words printed next to it.
+
+**Blast radius, bounded by this lane rather than assumed.**
+
+- **Values: unaffected.** Every quoted value reproduces from the correct lines —
+  `2.121343646203e-02`, `1.615247229756e-02`, 1.3133×, 1.446e-06, 1000 of 4000.
+  **No verdict moves. Not one.**
+- **Not uniform, and the exception locates the cause.** The same table's
+  preconditioner row cites `patched.log:868-882` and is **exactly right**
+  (868 = `dRdWTPC: 0 of 1355`, 882 = `dRdWTPC: 1354 of 1355`). So this is not a
+  whole-file off-by-one; it is confined to the **five rows citing the KSP
+  checkpoint block**, consistent with those five indices having been derived by a
+  different route from the tail of the file than the preconditioner row was.
+- **Elsewhere in the record: clean.** §5.3's citation of the pre-registration
+  stop table as `~:562` is **correct** (and marked approximate). The board row at
+  `86fb1b34` quotes the values, not line indices, and is unaffected.
+- **Not disclosed.** `RESULTS.md` §6 records *"Deviations from the frozen
+  document: none"* and three discrepancies, none of which is this. §8 lists eight
+  things the record could not verify, none of which is this. **It is an
+  undisclosed citation defect, and that is the only reason it is filed as a
+  DEFECT rather than a disclosed deviation.**
+
+**Recommended repair, and it is dafoam's to make, not this lane's:** a dated
+correction at the foot of `RESULTS.md` restating the five citations, under rule
+6 — the record is committed, so the original rows are struck, never rewritten.
+**Zero compute. No verdict moves.**
+
+### 78. Cost calibration (rule 12) — re-derived line by line, and the 1.266 core-min above the ledger is accounted for
+
+| component | C-29 / `RESULTS.md` §7.1 | re-derived here | source |
+|---|---|---|---|
+| Arm R3-A | **35.467** core-min | `t1 − t0 = 1787589533 − 1787589001 = ` **532 s**; `532 × 4 / 60 = ` **35.4667** | `ledger.txt`, this lane's arithmetic |
+| Guard selftest | **1.133** | 16:28:09Z → 16:29:17Z = **68 s × 1 rank ÷ 60 = 1.1333** | `guard_selftest.log`'s own two stamps |
+| Per-rank pre-flight | **0.133 registered / ≤ 1.333 BOUNDED NOT MEASURED** | not instrumented anywhere in the item; bound is ≤ 20.0 s wall at `--cpus=4` between the selftest's terminal stamp and `preflight.log`'s mtime (16:29:17.597 → 16:29:37.020 = **19.42 s**) | this lane read both mtimes |
+| Polling | **0.000** | gate opened on **poll 1** of ≤360; host-side `ps`/`awk`, no container | `launch_condition.txt` — one poll line, one GATE_OPEN line |
+| **Total** | **36.733 core-min** | `35.467 + 1.133 + 0.133 = ` **36.733** — **the extra 1.266 over the ledger is exactly guards + preflight, and it is attributed, not absorbed** | |
+
+**The brief's 1.27 is 1.266**, and it is **not** unaccounted overhead: 1.133 of
+it is a **bought instrument** (the guard selftest, which is R3-P9's
+planted-difference control and therefore the thing that makes §74's zero
+evidence), and 0.133 is a registered pre-flight whose wall is **bounded, not
+measured**, and labelled as such in the ledger row. **A component labelled
+BOUNDED NOT MEASURED in the cost column is the compute charter's honesty rule
+working**, not a gap.
+
+- **Ratio: 0.709** = 36.733 / 51.8 predicted. Re-derived: **0.7091**. Against
+  the **176.0 core-min HARD CEILING: 0.2087**. Both confirmed.
+- **Conservative upper bound carrying the pre-flight bound: 37.933** = 36.733 −
+  0.133 + 1.333. Confirmed; ratio 0.732.
+- **Waste: 0.000 core-min, named separately** and not folded into the ratio's
+  explanation, as `COMPUTE_BUDGET_CHARTER.md` §6 requires. One arm, one launch,
+  no abort, no restage, no second budget. **This lane checked the harder half of
+  that claim**: the deliberate iteration-1000 stop is a *registered cost
+  decision*, not waste — it avoided ~69 % of the arm's wall (the shipped run's
+  own `ExecutionTime` stamps, 435.44 s at iteration 1000 against 1416.00 s at
+  4000) and was frozen before the run, at line 562.
+- **Gap attribution: contention, in the *under* direction.** Realised factor
+  **532 / 445 = 1.1955×** against a registered **1.7×** point taken from a
+  rung-2 measurement on a **contended** box. Re-derived: **1.1955**. The point
+  missed by **+42 %** while the registered 1.0–2.6× band held. **The record
+  reports the miss as a miss** even though R3-P8 scores HIT on its band, and
+  even though §6 registers that point as **INHERITED and UNVALIDATED** — the
+  easiest miss in the lab to quietly not mention, and it is mentioned.
+- **Stall rule.** `COMPUTE_BUDGET_CHARTER.md` §2's 3600-s row matches **no
+  row**: longest wall 532 s, then 68 s, then ≤ 20 s. Stated rather than left
+  blank.
+- **Dollars.** $0.0314 total, $0.0372 across both attempts, at $0.0513/core-h,
+  c7a.4xlarge — **derived, not measured**, and `RESULTS.md` §7 says
+  `REPORTED-BY-OWNER, NOT MEASURED` at the head of the section, per
+  `COMPUTE_BUDGET_CHARTER.md` §5. **cost_basis honest.**
+
+**AUDIT: SOUND.** Every figure reproduces; the gap is attributed to a named
+mechanism with arithmetic behind it; waste is separately named and is genuinely
+zero.
+
+### 79. Stamps and verdict vocabulary (rule 1)
+
+**Stamp check, report-only, at the grading tree.**
+`python3 scripts/check_stamp_vs_commit.py --at 8871acf3 --path
+<PREREGISTRATION.md> --path <RESULTS.md>` (the instrument is at HEAD and is
+BELIEVED on the verification supervisor's own diff read at `965d4f87` /
+`02a84b18`; this lane ran it, it did not re-verify it):
+
+- **Limb 1** (stamps ahead of their introducing commit): 11 candidate tokens, 10
+  graded, 1 skipped as UNMARKED, **0 FIRES**.
+- **Limb 2** (ids cited ahead of their defining row): 23 id tokens, 23 graded,
+  **0 DANGLING, 0 FIRES**.
+
+Swept separately over `docs/COST_CALIBRATION.md` at the same tree: 3 stamps, **0
+limb-1 fires**; 85 id tokens, **0 DANGLING**, **2 limb-2 fires**, both the same
+citation at `docs/COST_CALIBRATION.md:87` (a **`D473`** cite, +397 s). **Counts
+only, per the brief: not triaged here, and not this item's row** — C-29 is line
+104. Limb-2 fires are blame artifacts as the tool's own footer warns.
+
+**`TIME_PROVENANCE.txt` item 5, cited as the brief requires.** The dafoam
+supervisor discloses that times of the form **"~16:40Z"** and **"~16:52Z"** in
+their own messages were **PROJECTED, not read, and ran about 20 minutes fast** —
+the `bd3edfe8` stamp class, on the supervisor's side. **The disclosure is
+correctly scoped**: the launching lane states it as REPORTED-BY-SUPERVISOR, NOT
+VERIFIED HERE, and adds the checkable half — **no such time appears in any
+artifact of this item.** This lane confirms that: every stamp it read in the run
+root is `date -u` output written in the same command that wrote its line
+(`drive.sh:54`), and each agrees with its own file's mtime to within 1 s.
+`RESULTS.md` §8 item 8 carries the same disclosure into the graded record.
+**A projected time that never reached an artifact is a supervisor-side hygiene
+item, not a record defect** — and this pass finds none of the item's numbers
+depending on it.
+
+**Vocabulary sweep, rule 1.** `RESULTS.md`: `PASS` 8, `GATE REACHED` 1,
+`GATE FAIL` 9, `NOT A RESULT` 9, `BLOCKED` 1, `PENDING` 4. **Zero bare `FAIL`,
+zero bare `PASSED`/`FAILED`, and zero hits on a 20-term softener sweep**
+(*roughly, nearly, mostly, essentially converged, partial pass, inconclusive,
+good/reasonable agreement, acceptable, promising, successfully converged* …).
+`HIT`/`MISS` appear 18/4 times and are **prediction-scoring words, not gate
+verdicts** — the distinction the record itself draws at §1.
+
+**One vocabulary decision worth naming as a positive.** `RESULTS.md` §1 declines
+to call the 11/11 identity a `PASS`: *"calling it `PASS` would award a gate this
+pre-registration does not register."* The identity is scored as a **prediction
+HIT (R3-P4)** and the single registered gate returns `GATE FAIL`. **A record
+that refuses a token it could plausibly have claimed is the behaviour rule 1
+exists to produce**, and this is the second-strongest instance this audit series
+has seen. Board rows at `86fb1b34` (`docs/LAB_STATE.md`:393, 412, 421) use the
+same token and the same chip throughout — **CLEAN**.
+
+### 80. Verdict
+
+**`SOUND WITH DISCLOSED DEVIATIONS` (CANDIDATE — the verification supervisor's
+own read governs).**
+
+- **Freeze order: SOUND.** Two commits, both before the run root existed, the
+  amendment append-only over an 80,151-byte byte-identical prefix, and its
+  "directory does not exist" condition re-proved here from the directory's own
+  **birth timestamp** rather than from the commit that asserts it. No
+  post-compute addendum exists to alter anything.
+- **Non-tautology: SOUND, and strongly.** Six registered terminal dispositions,
+  one fired; the comparator proved able to return a different answer by the
+  item's own limb 7 on a real divergent path **and** by two plants this lane
+  wrote; the launch gate had a live BLOCKED branch that attempt 1 actually took.
+- **Verdict legality: SOUND.** `GATE FAIL` + chip, label frozen at
+  `PREREGISTRATION.md:260` sixty-six minutes before the gate opened, stop
+  condition frozen at line 562, and the one component the stop cost is named as
+  **not measured** in three places.
+- **Memory limb: SOUND.** Registered band [9.2, 15.0], measured peak 11.680,
+  host floor never approached (min 15.2871 vs 8.0, 0 strikes on 87 samples), and
+  the completeness clause that gates the score verified independently.
+- **Cost: SOUND.** Every figure reproduces; 1.266 core-min attributed; waste
+  separately named at 0.000; dollars derived, not measured.
+- **DEFECT (named): five `patched.log` line citations in `RESULTS.md` §2.1 are
+  off by one, low, and undisclosed** — §77. **No value is wrong and no verdict
+  moves**, but one citation lands a reader on a real residual for the wrong
+  iteration. Repair is a dated correction at the foot of `RESULTS.md`, zero
+  compute, and it is **dafoam's to make**.
+
+**Nothing in this pass moves a dafoam verdict, and this lane wrote nothing under
+`cases/dafoam/`.**
+
+### 81. What this lane could NOT establish, named plainly
+
+1. **That the patched path stays identical past iteration 1000.** Nobody can, on
+   this evidence — the arm was stopped there by design. The audit finding is that
+   the record **discloses** this rather than that the extrapolation is verified.
+   It is disclosed in three places and never used to reach a `PASS`.
+2. **That `identity_stop.sh` is correct as a program.** This lane re-derived the
+   *comparison* independently, which is the stronger check for this purpose, but
+   it did not read the guard's source line by line or mutation-test it. Its limbs
+   6–8 were observed to return 5 / 6 / 7 on planted inputs; that is behavioural
+   evidence, not a code review.
+3. **Whether the 445 s idle basis behind the 1.7× multiplier is right.** The box
+   was not idle. 532 s bounds it from above and confirms nothing — the record
+   says exactly this at §8 item 3 and this lane cannot improve on it.
+4. **The co-tenant allowance's sufficiency.** 2.0 GiB was not tested against the
+   named 4.0 GiB exposure, because the exposure was not realised. One draw.
+5. **The supervisor's internal clock.** `TIME_PROVENANCE.txt` item 5 is
+   REPORTED-BY-SUPERVISOR. This lane confirmed only the checkable half — that no
+   projected time reached any artifact of this item.
+6. **The two limb-2 stamp fires at `docs/COST_CALIBRATION.md:87`.** Reported as
+   counts, **not triaged**, per the brief. They are not on C-29's row.
+7. **Whether the `.gs_*` suffix convention is safe in general.** It held here and
+   the planted markers' own absurd thresholds (ceiling 1e-7 GiB, floor 99 GiB)
+   give them away independently of the suffix — but that is a property of these
+   plants, not of the convention.
+8. **Anything about `check_stamp_vs_commit.py`'s own correctness.** It is at HEAD
+   and BELIEVED on the verification supervisor's diff read. This lane ran it
+   report-only and did not re-verify the instrument.
