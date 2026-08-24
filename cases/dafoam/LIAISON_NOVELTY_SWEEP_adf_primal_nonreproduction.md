@@ -698,3 +698,100 @@ the §8 `-1e10` false-convergence finding remains a clean zero everywhere, now i
 
 **Nothing in this addendum has been sent, filed, posted, uploaded, registered or pushed to any
 external service. The defect candidate remains NOT FILED. Filing is Sanaa's decision alone.**
+
+---
+
+## ADDENDUM 2026-08-24 — sweep 1 narrows D460's class to CONDITIONING / DIAGNOSABILITY, and the mechanism behind that `PASS` is narrower than the ratio makes it look
+
+*Appended, not rewritten. Nothing above this line changed; **lines whose number
+changed above this section: 0**. This file carries no version number, so there is
+no version to bump — the dated addendum is the version record. This addendum
+alters **no disposition, no count, no verdict, no gate and no threshold** anywhere
+above it, and it is not a re-argument of a gate after the fact.*
+
+**Landed by the DAFoam team, lab-lane, on the dafoam-supervisor's ruling of
+`RESULTS.md` §9f — ruled YES, 2026-08-24.**
+
+### What sweep 1 settled
+
+`cases/dafoam/d460_sweep1_solver_family/` — pre-registration FROZEN at `538c9f51`
+(+ AMENDMENT 1; AMENDMENT 2 at `f0448fab`, both before first compute; ADDENDUM 3
+at `a7abde10` after first compute, its harness-repair exception SPENT and unused
+by the grading lane). Comparator `analyse_sweep1.py`, sha256
+`239c1764c6b2ff8db5736c45f0f5f00f0debba0a4a93e745b080e1e641be7e94` — equal on
+disk and in the committed blob, hash-checked inside the grading invocation.
+Graded 2026-08-24T16:09:30Z, exit 0, all three planted controls read back live on
+that same invocation.
+
+> ## VERDICT: `PASS`
+> ## CLASS: CONDITIONING / DIAGNOSABILITY
+
+The class question this record left **UNDETERMINED** is answered **for this case,
+one solver, one mesh, np = 1, ten iterations**: the upstream ask is a
+**documentation + warning change, not an AD fix**, and the more serious
+**AD-correctness reading is not reached**.
+
+### The mechanism, stated because the ratio alone flatters the result
+
+The gated quantity is `r = |cum_F| / |cum_P|`, the ratio between the two builds'
+cumulative continuity magnitudes at `Time = 1`. It fell from `10.029307` under
+`GAMG` to `0.968227` under `smoothSolver`, inside the registered band of 2.0. But
+**both magnitudes GREW**:
+
+| | GAMG (on record) | `smoothSolver` (sweep 1) | change |
+|---|---|---|---|
+| `\|cum_F\|` — forward-AD arm | `0.05058272456310364` | `0.08515074416090457` | **×1.683** |
+| `\|cum_P\|` — plain arm, **the CONTROL** | `0.00504349133910657` | `0.08794505498506013` | **×17.437** |
+| `r` | `10.029307` | `0.968227` | **÷10.36** |
+
+**`r` fell mainly because the CONTROL's own continuity error grew 17.4×, not
+because the forward-AD arm's error fell — it rose 1.68×.** The honest statement of
+the mechanism is therefore:
+
+> **Under `smoothSolver` both builds converge on each other at a worse absolute
+> level, and the 8th-figure AD difference is no longer the dominant term because a
+> larger common term now dominates both.**
+
+It is **not** "the amplification collapsed", and it is **not** a claim that
+`smoothSolver` is a better pressure solver for this case. The registered band
+gates the ratio, the ratio is inside it, and the `PASS` stands exactly as frozen —
+a gate is not re-argued after the fact — but the *mechanism* is the narrower
+statement above.
+
+**This caveat travels with the class.** Any downstream statement of D460's class —
+**including a revised upstream draft, if one is ever prepared** — carries it. A
+`PASS` on a ratio gate is not a licence to state the ratio's fall as a property of
+its numerator.
+
+### Unchanged by sweep 1, and re-asserted here
+
+1. **The 8th-significant-figure `he finalRes` difference between the two builds is
+   still present under `smoothSolver`** — `0.06128001402295498` (forward-AD)
+   against `0.06128002514528321` (plain), unchanged in every digit. Not amplified,
+   not removed.
+2. **Which build is *right* is untouched.** Sweep 1 measured what the difference
+   *does*, never which side of it is correct.
+3. **`DAFoam/OpenFOAM-AD` issue #2's opposite polarity is exactly as unresolved
+   after this run as before it.** The arm avoided PBiCGStab/DILU by construction,
+   so #2 is excluded as a **confound**, not connected or disconnected as a
+   **mechanism**.
+4. **Neither arm is a converged solve** — `endTime 10`, `primalMinIters 1000000`,
+   ten-iteration probes by design.
+5. **D460 sweep 2 (case family) is UNRUN and UNAUTHORISED**, and neither sweep 1
+   nor this addendum authorises it; it needs its own costed pre-registration.
+6. The registered prediction **P5 MISSED**, and not narrowly: removing multigrid
+   drove the two builds' pressure-sweep counts **219 apart** (206 vs 425) where
+   the registered expectation was *fewer* than the `GAMG` pair's 2.
+
+*Sources for every number above:*
+`cases/dafoam/d460_sweep1_solver_family/RESULTS.md` §4, §5, §5a, §5b, §6, §8;
+`GRADE_sweep1.txt`, `fsm.log`, `psm.log`, `ledger.txt` in
+`/home/ubuntu/certonomous-runs/D460-sweep1-solver-family/`.
+*Records landed from this close-out:* `docs/LESSONS.md` L-274, L-275, L-276;
+`docs/NUMERICS_KNOWLEDGE.md` N-D30, N-D31; `docs/DOCKET.md` D498;
+`docs/COST_CALIBRATION.md` C-22.
+
+**Nothing in this addendum has been sent, filed, posted, uploaded, registered or
+pushed to any external service. Every disposition, count and verdict in this sweep
+is unchanged; the defect candidate remains NOT FILED, and filing is Sanaa's
+decision alone** (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10).
