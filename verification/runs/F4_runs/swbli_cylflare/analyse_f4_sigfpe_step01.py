@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """Grading reader for the F4 SWBLI Step 0 / Step 1 clamp-discrimination experiment.
 
-SKELETON, COMMITTED BEFORE COMPUTE, per the house rule that the grading path is
-fixed at the pre-registration commit (CLAUDE.md rule 2). Frozen alongside
+The skeleton -- constants, labels, controls and the refusal structure -- was
+COMMITTED BEFORE COMPUTE, per the house rule that the grading path is fixed at
+the pre-registration commit (CLAUDE.md rule 2). Frozen alongside
     verification/campaign/F4_SIGFPE_STEP01_PREREGISTRATION.md
 
-NOTHING HAS BEEN LAUNCHED. This file has never been run against a solver log
-because no such log exists: every `BOUND:` log from every bounded run of this
-case is gone from disk (F4_hypersonic_blunt_body.md 8.8, re-verified
-2026-08-23), and the two new runs are not authorised.
+FIRST COMPUTE HAS NOW HAPPENED. Both steps ran and landed at commit 7cdb26f4
+(COMPLETE / COMPLETE, NOT GRADED). The grading bodies below were written after
+that, against the constants frozen above them; they choose no threshold. The one
+READING they fix -- which of the two per-timestep boundE.H sets section 8 means
+-- is prereg section 14 (ADDENDUM 2, post-compute), ruled on mechanism with both
+readings disclosed and with every graded number printed beside its event-2
+counterpart.
 
 THE SUPERVISOR MUST READ THIS FILE'S DIFF AS A DIFF BEFORE ANY OUTPUT OF IT IS
 BELIEVED. It is a measurement script; SUPERVISION_CHARTER.md 3 makes that read a
@@ -30,8 +34,10 @@ Exit codes
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import sys
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -89,6 +95,45 @@ SIGFPE_MIN_BLOCKS = 200
 # matched by RE_SIGFPE below is SECONDARY: sufficient on its own when rc was not
 # captured, but it is a log artefact and is named as such in the results record.
 SIGFPE_RC = 136
+
+# prereg 14 (ADDENDUM 2, POST-COMPUTE). boundE.H is included TWICE per timestep:
+# at rhoCentralFoamBoundedDiag.C:267 (after the convective rhoE solve and
+# `e = rhoE/rho - 0.5*magSqr(U)`, BEFORE thermo.correct()) and at :282 (inside
+# `if (!inviscid)`, AFTER the viscous e-diffusion solve and after an intervening
+# thermo.correct()). In the Step-1 tree the same two sites sit at :269 and :284,
+# shifted by exactly the two lines prereg 5.1 adds. Every `Time = ` block
+# therefore carries TWO BOUND/BOUNDDIAG/BOUNDHIST sets, and prereg 8 as frozen
+# does not say which it reads.
+#
+# prereg 14.2 rules that section 8 grades EVENT 1 (the :267 set), on mechanism:
+# 8.3's whole construction reasons about the e = rhoE/rho - 1/2|U|^2
+# cancellation, which is the state at :267, and 4.2's own frozen instrument
+# comment ("rho and U are CURRENT ... T is NOT current: thermo.correct() has not
+# yet run for this step") is true at :267 and false at :282. Event 2 is a
+# re-clamp of a thermo-corrected, then diffused, e -- a different population.
+#
+# prereg 14.5 binds this reader: grade event 1; print the event-2 value beside
+# EVERY graded number, marked UNGRADED; print the label the event-2 reading
+# would return; refuse (exit 2) where a required block carries no set; and report
+# an absent event 2 as ABSENT, never as nLow = 0.
+EVENT_GRADED = 1
+EVENT_ALT = 2
+
+# prereg 7.1. Note `p`, not `p_rgh`: this is a compressible rhoCentralFoam case,
+# and the seven names below are quoted verbatim from that clause.
+FIELDS_REQUIRED = ("T", "U", "p", "alphat", "k", "nut", "omega")
+
+# prereg 7.2. TRUNCATED-AT-CAP is admissible ONLY when the stop was the 6
+# core-min per-step cap. Both steps were launched under `timeout 360` (each
+# step's LAUNCH.txt), and GNU timeout reports 124 when it fires. If rc was not
+# captured at all a cap stop CANNOT be asserted, and the step is BLOCKED rather
+# than handed the pre-declared truncated window on an inference.
+CAP_STOP_RC = 124
+
+EXIT_GRADED = 0
+EXIT_CONTROL_FAILURE = 2   # rule 3 / rule 4 refusal
+EXIT_LEVER_INERT = 3       # control C2, prereg 5.2 / 6
+EXIT_BLOCKED = 4           # prereg 7
 
 # Histogram bin edges in K, prereg 4.2 / the fixture header. 12 bins.
 BIN_EDGES = [
@@ -173,6 +218,11 @@ class ClampEvent:
     worst_tprev: float = float("nan")
     worst_timp: float = float("nan")
     bins: list[int] = field(default_factory=list)
+    # prereg 14.3: which `Time = ` block this set sits in, and its ORDINAL
+    # within that block in log order. block == -1 / ordinal == -1 means the set
+    # was seen before any `Time = ` line, which no solver log produces.
+    block: int = -1
+    ordinal: int = -1
 
     @property
     def fraction(self) -> float:
@@ -199,9 +249,26 @@ def md5_of(path: Path) -> str:
 # --------------------------------------------------------------------------
 
 def parse_log(path: Path) -> dict:
-    """Parse a solver log into clamp events, time blocks and completion facts."""
+    """Parse a solver log into clamp events, time blocks and completion facts.
+
+    prereg 14.3: every clamp event is additionally tagged with the index of the
+    `Time = ` block it sits in and its ORDINAL within that block, in log order,
+    and the blocks themselves are returned. That is what lets section 8 grade
+    event 1 (the :267 include) and print event 2 (the :282 include) beside it.
+
+    `BOUND: e above eMax` is a SEPARATE emission (boundE.H:142-148) with no
+    BOUNDDIAG/BOUNDHIST companion. It matches none of the regexes below -- in
+    particular not RE_BOUND, which is anchored on `e below eMin` -- so it cannot
+    create a set and cannot shift an ordinal. Asserted in --selftest.
+
+    This function is NOT the place for the block-structure refusal: it is the one
+    parsing path the controls share, and control C4 deliberately plants an extra
+    set into a block. The refusal lives in select_event(), on the grading path.
+    """
     events: list[ClampEvent] = []
     times: list[str] = []
+    blocks: list[dict] = []
+    cur: dict | None = None
     exec_lines = 0
     saw_end = False
     saw_sigfpe = False
@@ -214,9 +281,14 @@ def parse_log(path: Path) -> dict:
         m = RE_TIME.match(line)
         if m:
             times.append(m.group(1))
+            cur = {"index": len(blocks), "time": m.group(1),
+                   "events": [], "exec_lines": 0}
+            blocks.append(cur)
             continue
         if RE_EXEC.match(line):
             exec_lines += 1
+            if cur is not None:
+                cur["exec_lines"] += 1
             continue
         if RE_END.match(line):
             saw_end = True
@@ -227,6 +299,10 @@ def parse_log(path: Path) -> dict:
                 time=float(m.group(2)), n_low=int(m.group(1)),
                 worst_e=float(m.group(3)), worst_cell=int(m.group(4)),
             )
+            if cur is not None:
+                ev.block = cur["index"]
+                ev.ordinal = len(cur["events"]) + 1
+                cur["events"].append(ev)
             events.append(ev)
             by_time[m.group(2)] = ev
             continue
@@ -256,7 +332,7 @@ def parse_log(path: Path) -> dict:
             continue
 
     return {
-        "path": path, "events": events, "times": times,
+        "path": path, "events": events, "times": times, "blocks": blocks,
         "exec_lines": exec_lines, "end": saw_end, "sigfpe": saw_sigfpe,
     }
 
@@ -492,17 +568,253 @@ def run_controls(step0_log: Path | None, step1_log: Path | None,
 
 
 # --------------------------------------------------------------------------
-# Completion (prereg 7) and the measurement clauses (prereg 8).
-#
-# NOT YET IMPLEMENTED -- deliberately. These functions are the graded path and
-# their bodies are written when there is a run to grade, under the frozen
-# constants above. Writing a grading body now, against no data, would invite
-# tuning it to a log that does not exist. The constants, the labels and the
-# refusal structure ARE frozen here; the arithmetic that consumes them is
-# mechanical and is reviewed as a diff before first use.
+# Event selection (prereg 14.3) -- the rule the whole of section 8 now reads
+# through. Written AFTER first compute, as a dated ADDENDUM 2 reading of an
+# ambiguous clause; it moves no threshold. It refuses rather than degrading.
 # --------------------------------------------------------------------------
 
-def check_completion(step_dir: Path, log: Path) -> str:
+def select_event(block: dict, k: int, *, required: bool = True):
+    """Event k = the k-th BOUND-family set within a `Time = ` block, log order.
+
+    prereg 14.3. A block with a single set is event 1 only and event 2 is
+    ABSENT -- not zero. Where section 8 REQUIRES an event and the block carries
+    no such set, this refuses (ControlFailure -> exit 2) rather than reading the
+    absence as nLow = 0: boundE.H:107 emits the set only `if (nLow > 0)`, so
+    "no line" and "no clamped cells" are indistinguishable from the log alone,
+    and a zero a reader cannot tell apart from a silence is not evidence
+    (standing rule 3).
+    """
+    evs = block["events"]
+    if len(evs) >= k:
+        return evs[k - 1]
+    if required:
+        raise ControlFailure(
+            f"prereg 14.3: `Time = ` block {block['index']} (t={block['time']}) "
+            f"carries {len(evs)} BOUND-family set(s); event {k} is required here "
+            "and is ABSENT. Refusing rather than reading the absence as "
+            "nLow = 0 (standing rule 3)."
+        )
+    return None
+
+
+def describe_event(ev) -> str:
+    """One-line description of an event, or the word ABSENT (never a zero)."""
+    if ev is None:
+        return "ABSENT (no such BOUND-family set in this block; NOT nLow = 0)"
+    return (f"nLow={ev.n_low} frac={ev.fraction:.6f} ({100*ev.fraction:.4f} %) "
+            f"worst_e={ev.worst_e} worst_cell={ev.worst_cell}")
+
+
+def find_t_star_block(parsed: dict) -> dict:
+    """The `Time = ` block whose time is nearest T_STAR from below (prereg 8)."""
+    below = [b for b in parsed["blocks"] if float(b["time"]) <= T_STAR]
+    if not below:
+        raise ControlFailure(
+            f"{parsed['path']}: no `Time = ` block at or below t* = {T_STAR}; "
+            "section 8's matched comparison point does not exist in this log"
+        )
+    return max(below, key=lambda b: float(b["time"]))
+
+
+def find_window_end_block(parsed: dict, window_end: float) -> dict:
+    """The block AT the window end (prereg 8; 6.5e-05, or 3.9e-05 under 7.2)."""
+    hits = [b for b in parsed["blocks"] if float(b["time"]) == window_end]
+    if len(hits) != 1:
+        raise ControlFailure(
+            f"{parsed['path']}: found {len(hits)} `Time = ` blocks at the window "
+            f"end {window_end}; section 8 needs exactly one"
+        )
+    return hits[0]
+
+
+# --------------------------------------------------------------------------
+# The inlet map and the prereg 13.2 reference state (AMENDMENT 1).
+# --------------------------------------------------------------------------
+
+def _strip_foam_comments(text: str) -> str:
+    """Remove /* */ and // comments. Necessary, not cosmetic: 0/U's inlet entry
+    carries a prose comment containing both `(` and `)`, which would otherwise
+    be parsed as list delimiters."""
+    text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
+    return re.sub(r"//[^\n]*", "", text)
+
+
+def _foam_list_after(text: str, header_re: str, vector: bool) -> list:
+    """Read a `<header> N ( ... )` OpenFOAM list, returning N parsed entries."""
+    m = re.search(header_re + r"\s*(\d+)\s*\(", text, re.S)
+    if not m:
+        raise ControlFailure(f"could not find an OpenFOAM list matching {header_re!r}")
+    n = int(m.group(1))
+    rest = text[m.end():]
+    depth, k = 1, 0
+    while k < len(rest) and depth > 0:
+        if rest[k] == "(":
+            depth += 1
+        elif rest[k] == ")":
+            depth -= 1
+        k += 1
+    if depth != 0:
+        raise ControlFailure(f"unterminated OpenFOAM list for {header_re!r}")
+    body = rest[:k - 1]
+    if vector:
+        vals = [[float(x) for x in v.split()]
+                for v in re.findall(r"\(([^()]*)\)", body)]
+    else:
+        vals = [float(x) for x in body.split()]
+    if len(vals) != n:
+        raise ControlFailure(
+            f"OpenFOAM list for {header_re!r} declares {n} entries, parsed {len(vals)}"
+        )
+    return vals
+
+
+def inlet_owner_cells(step_dir: Path) -> list[int]:
+    """The owner cell of every `inlet` face, IN FACE ORDER (prereg 13.2).
+
+    constant/polyMesh/boundary gives the inlet patch's startFace and nFaces; the
+    slice of constant/polyMesh/owner over [startFace, startFace + nFaces) is the
+    same ordering as the nonuniform Lists of 0/U and 0/T.
+    """
+    pm = step_dir / "constant" / "polyMesh"
+    bnd = (pm / "boundary").read_text()
+    bnd = bnd.split("// * * *", 1)[-1]
+    m = re.search(r"\binlet\s*\{(.*?)\}", bnd, re.S)
+    if not m:
+        raise ControlFailure(f"{pm/'boundary'}: no `inlet` patch entry")
+    mf = re.search(r"nFaces\s+(\d+)\s*;", m.group(1))
+    ms = re.search(r"startFace\s+(\d+)\s*;", m.group(1))
+    if not (mf and ms):
+        raise ControlFailure(f"{pm/'boundary'}: inlet entry lacks nFaces/startFace")
+    n_faces, start_face = int(mf.group(1)), int(ms.group(1))
+    if n_faces == 0:
+        raise ControlFailure(f"{pm/'boundary'}: inlet has nFaces 0")
+
+    own_txt = (pm / "owner").read_text().split("// * * *", 1)[-1]
+    mh = re.search(r"(\d+)\s*\(", own_txt)
+    if not mh:
+        raise ControlFailure(f"{pm/'owner'}: no list header")
+    n_total = int(mh.group(1))
+    nums = re.findall(r"-?\d+", own_txt[mh.end():])
+    if len(nums) < n_total:
+        raise ControlFailure(
+            f"{pm/'owner'}: declares {n_total} entries, only {len(nums)} readable"
+        )
+    owners = [int(x) for x in nums[:n_total]]
+    if start_face + n_faces > n_total:
+        raise ControlFailure(
+            f"{pm/'owner'}: inlet range [{start_face},{start_face+n_faces}) "
+            f"runs past the {n_total} owner entries"
+        )
+    inlet = owners[start_face:start_face + n_faces]
+    if len(set(inlet)) != len(inlet):
+        raise ControlFailure(
+            f"{pm/'owner'}: the inlet owner map is not one-to-one; a cell owning "
+            "two inlet faces would make the 13.2 reference ambiguous"
+        )
+    return inlet
+
+
+def reference_state(step_dir: Path, cell: int) -> dict:
+    """The prereg 8.3 reference state for one cell, per 13.2 (AMENDMENT 1).
+
+    Inlet-face owner  -> that face's own Table II profile: |U| and T from the
+                         0/U and 0/T nonuniform Lists, rho = p/(R T) with
+                         p = INLET_P_PA and R = R_GAS.
+    Otherwise         -> the NASA TM 101075 Table I freestream.
+    Quoted NUMERICALLY in the results record, never by name (prereg 13.2's own
+    disclosure: p/(R T) at the freestream face is 2.16 % below the tabulated
+    rho_inf, which is inside the 10 % band but must be visible to the reader).
+    """
+    inlet = inlet_owner_cells(step_dir)
+    if cell not in inlet:
+        return {"kind": "freestream", "inlet_face": None,
+                "rho_ref": RHO_INF, "magU_ref": MAG_U_INF, "T_ref": T_INF,
+                "note": "not inlet-adjacent (prereg 13.2 second bullet)"}
+    face = inlet.index(cell)
+    u_txt = _strip_foam_comments((step_dir / "0" / "U").read_text())
+    t_txt = _strip_foam_comments((step_dir / "0" / "T").read_text())
+    u_txt = u_txt[u_txt.index("boundaryField"):]
+    t_txt = t_txt[t_txt.index("boundaryField"):]
+    u_txt = u_txt[u_txt.index("inlet"):]
+    t_txt = t_txt[t_txt.index("inlet"):]
+    uvals = _foam_list_after(u_txt, r"nonuniform\s+List<vector>", vector=True)
+    tvals = _foam_list_after(t_txt, r"nonuniform\s+List<scalar>", vector=False)
+    if len(uvals) != len(inlet) or len(tvals) != len(inlet):
+        raise ControlFailure(
+            f"prereg 13.2: inlet map has {len(inlet)} faces but 0/U has "
+            f"{len(uvals)} and 0/T has {len(tvals)} entries -- the orderings "
+            "cannot be the same map"
+        )
+    ux, uy, uz = uvals[face]
+    mag_u = (ux * ux + uy * uy + uz * uz) ** 0.5
+    t_ref = tvals[face]
+    return {"kind": "inlet-adjacent", "inlet_face": face,
+            "rho_ref": INLET_P_PA / (R_GAS * t_ref),
+            "magU_ref": mag_u, "T_ref": t_ref,
+            "note": f"inlet face index {face} (prereg 13.2 first bullet)"}
+
+
+# --------------------------------------------------------------------------
+# Completion (prereg 7) and the measurement clauses (prereg 8).
+#
+# Bodies written AFTER first compute (both steps landed at 7cdb26f4) against the
+# constants, labels and refusal structure frozen above. Nothing below chooses a
+# threshold: every number it compares against is a module constant taken verbatim
+# from the frozen document, and the one reading it fixes -- which of the two
+# boundE.H sets section 8 means -- is the subject of ADDENDUM 2 (prereg 14),
+# ruled on mechanism with both readings disclosed. This file is a measurement
+# script: SUPERVISION_CHARTER.md 3 makes reading its diff AS A DIFF a supervisor
+# personal check, and nothing it prints is believed before that read.
+# --------------------------------------------------------------------------
+
+def read_rc(step_dir: Path) -> int | None:
+    """The solver's exit code, from <STEP>/RC.txt. None if not captured.
+
+    prereg 13.3 rule 1 makes rc the PRIMARY SIGFPE signal, and prereg 7.2 makes
+    it the only admissible evidence of a cap stop. `None` is returned rather than
+    guessed, and every caller says what it did with the absence.
+    """
+    rc_file = step_dir / "RC.txt"
+    if not rc_file.exists():
+        return None
+    m = re.search(r"^rc=(-?\d+)", rc_file.read_text(errors="replace"), re.M)
+    return int(m.group(1)) if m else None
+
+
+def _is_numeric_time(name: str) -> bool:
+    try:
+        float(name)
+    except ValueError:
+        return False
+    return True
+
+
+def time_dir_state(step_dir: Path, tname: str) -> dict:
+    """Fields present under <STEP>/<tname>/ and the age guard against 0/T."""
+    ref = step_dir / "0" / "T"
+    if not ref.exists():
+        raise ControlFailure(
+            f"{step_dir}: no 0/T, so the age guard (standing rule 4) cannot be "
+            "evaluated; refusing rather than skipping it"
+        )
+    ref_mtime = ref.stat().st_mtime
+    tdir = step_dir / tname
+    if not tdir.is_dir():
+        return {"time": tname, "exists": False, "missing": list(FIELDS_REQUIRED),
+                "stale": [], "ok": False, "ref_mtime": ref_mtime}
+    missing, stale = [], []
+    for f in FIELDS_REQUIRED:
+        p = tdir / f
+        if not p.exists():
+            missing.append(f)
+        elif p.stat().st_mtime <= ref_mtime:
+            stale.append(f)
+    return {"time": tname, "exists": True, "missing": missing, "stale": stale,
+            "ok": not missing and not stale, "ref_mtime": ref_mtime}
+
+
+def check_completion(step_dir: Path, log: Path,
+                     out: list[str] | None = None) -> str:
     """-> 'COMPLETE' | 'TRUNCATED-AT-CAP' | 'SIGFPE-RECURRENCE' | 'BLOCKED'.
 
     Clauses, all of which must hold for COMPLETE (prereg 7.1):
@@ -512,27 +824,623 @@ def check_completion(step_dir: Path, log: Path) -> str:
       than this step's own 0/T (the age guard).
     TRUNCATED-AT-CAP (prereg 7.2) applies the same clauses at 3.9e-05 and only
     when the stop was the 6 core-min cap.
-    SIGFPE-RECURRENCE (prereg 7.3) needs >= 200 Time blocks and a field write.
+    SIGFPE-RECURRENCE (prereg 7.3) needs >= 200 Time blocks and a field write --
+    as amended by 13.1, ANY numeric time directory other than 0 carrying all
+    seven fields, every one newer than 0/T (1.3e-05/ is deleted by purgeWrite 3).
+
+    `out`, if given, collects the clause-by-clause evidence. The status string is
+    the return value; the SIGFPE-ABSENT / SIGFPE-RECURRENCE label of prereg 7.3's
+    last paragraph is recorded UNCONDITIONALLY into `out`, so neither the absence
+    nor the presence of a crash can go unrecorded.
     """
-    raise NotImplementedError(
-        "frozen skeleton -- body written when a run exists to grade"
+    say = out.append if out is not None else (lambda _s: None)
+    parsed = parse_log(log)
+    rc = read_rc(step_dir)
+    blocks = parsed["blocks"]
+    n_blocks = len(blocks)
+    last_time = parsed["times"][-1] if parsed["times"] else None
+    bad_exec = [b["index"] for b in blocks if b["exec_lines"] != 1]
+
+    say(f"completion: step={step_dir.name} log={log.name}")
+    say(f"  rc: {rc if rc is not None else 'NOT CAPTURED (no RC.txt / no rc= line)'}")
+    say(f"  End line: {parsed['end']}")
+    say(f"  `Time = ` blocks: {n_blocks}   ExecutionTime lines: {parsed['exec_lines']}")
+    say(f"  blocks NOT carrying exactly one ExecutionTime line: {len(bad_exec)}"
+        + (f" (first: {bad_exec[:5]})" if bad_exec else ""))
+    say(f"  last `Time = `: {last_time}   endTime (prereg 1.3): {T_END_FULL}")
+
+    # prereg 13.3: rc == SIGFPE_RC is primary, the backtrace frame is secondary.
+    sigfpe = (rc == SIGFPE_RC) or parsed["sigfpe"]
+    signal = ("rc" if rc == SIGFPE_RC
+              else "log backtrace frame (SECONDARY -- a log artefact)"
+              if parsed["sigfpe"] else "none")
+    say(f"  SIGFPE: {sigfpe} (signal: {signal}); prereg 7.3 label: "
+        f"{'SIGFPE-RECURRENCE' if sigfpe else 'SIGFPE-ABSENT'}")
+
+    if sigfpe:
+        writes = [d.name for d in sorted(step_dir.iterdir())
+                  if d.is_dir() and _is_numeric_time(d.name)
+                  and float(d.name) != 0.0]
+        usable = [t for t in writes if time_dir_state(step_dir, t)["ok"]]
+        say(f"  7.3 (as amended by 13.1): numeric time dirs other than 0: "
+            f"{writes}; complete + age-guarded: {usable}")
+        if n_blocks >= SIGFPE_MIN_BLOCKS and usable:
+            say(f"  -> SIGFPE-RECURRENCE (>= {SIGFPE_MIN_BLOCKS} blocks and a "
+                f"surviving field write at {usable[-1]}/)")
+            return "SIGFPE-RECURRENCE"
+        say(f"  -> BLOCKED: a SIGFPE with {n_blocks} blocks and "
+            f"{len(usable)} usable field write(s) fails prereg 7.3")
+        return "BLOCKED"
+
+    full = time_dir_state(step_dir, "6.5e-05")
+    say(f"  fields at 6.5e-05/: exists={full['exists']} missing={full['missing']} "
+        f"older-or-equal-to-0/T={full['stale']}")
+    complete = (
+        rc == 0
+        and parsed["end"]
+        and last_time is not None and float(last_time) == T_END_FULL
+        and not bad_exec
+        and parsed["exec_lines"] == n_blocks
+        and full["ok"]
     )
+    if complete:
+        say("  -> COMPLETE (every prereg 7.1 clause holds)")
+        return "COMPLETE"
+
+    trunc = time_dir_state(step_dir, "3.9e-05")
+    cap_stop = (rc == CAP_STOP_RC)
+    say(f"  7.2: cap stop asserted? {cap_stop} (rc == {CAP_STOP_RC}); "
+        f"fields at 3.9e-05/: exists={trunc['exists']} missing={trunc['missing']} "
+        f"older-or-equal-to-0/T={trunc['stale']}")
+    if (cap_stop and last_time is not None
+            and float(last_time) >= T_END_TRUNC and trunc["ok"]):
+        say("  -> TRUNCATED-AT-CAP (graded on the pre-declared [0, 3.9e-05] window)")
+        return "TRUNCATED-AT-CAP"
+
+    say("  -> BLOCKED (prereg 7.4). BLOCKED is a statement about the run, "
+        "never about the physics (L-255's corollary).")
+    return "BLOCKED"
 
 
-def grade_step0(parsed: dict) -> dict:
+# --------------------------------------------------------------------------
+
+def _bin_indices() -> tuple[list[int], list[int]]:
+    """prereg 8.2's two bin groups, DERIVED from BIN_EDGES rather than hardcoded
+    so the histogram definition and the threshold cannot drift apart."""
+    in_1950_20 = [i for i, (lo, _hi) in enumerate(BIN_EDGES) if lo >= 19.5]
+    at_or_below_10 = [i for i, (_lo, hi) in enumerate(BIN_EDGES) if hi <= 10.0]
+    return in_1950_20, at_or_below_10
+
+
+def _hist_read(ev) -> dict:
+    """prereg 8.2 over one event's clamped population."""
+    if ev is None:
+        return {"label": None, "note": "event ABSENT"}
+    if len(ev.bins) != len(BIN_EDGES):
+        raise ControlFailure(
+            f"prereg 8.2: event at t={ev.time} carries {len(ev.bins)} histogram "
+            f"bins, expected {len(BIN_EDGES)}"
+        )
+    if sum(ev.bins) != ev.n_low:
+        raise ControlFailure(
+            f"prereg 8.2: histogram at t={ev.time} sums to {sum(ev.bins)}, "
+            f"nLow={ev.n_low}"
+        )
+    if ev.n_low == 0:
+        raise ControlFailure(
+            f"prereg 8.2: nLow = 0 at t={ev.time}; the fraction is undefined"
+        )
+    hi_idx, lo_idx = _bin_indices()
+    f_hi = sum(ev.bins[i] for i in hi_idx) / ev.n_low
+    f_lo = sum(ev.bins[i] for i in lo_idx) / ev.n_low
+    if f_hi >= THRESHOLD_ARTIFACT_FRAC:
+        label = "THRESHOLD-ARTIFACT"
+    elif f_lo >= GENUINE_DIVERGENCE_FRAC:
+        label = "GENUINE-DIVERGENCE"
+    else:
+        label = "MIXED"
+    return {"label": label, "frac_19p5_to_20": f_hi, "frac_le_10K": f_lo,
+            "bins": list(ev.bins), "n_low": ev.n_low,
+            "bins_in_19p5_to_20": hi_idx, "bins_le_10K": lo_idx}
+
+
+def _attribution_read(step_dir: Path, parsed: dict, k: int) -> dict:
+    """prereg 8.3 with the 13.2 reference rule, for event ordinal k."""
+    first = None
+    for b in parsed["blocks"]:
+        ev = select_event(b, k, required=False)
+        if ev is not None and ev.n_low > 0:
+            first = (b, ev)
+            break
+    if first is None:
+        return {"label": None, "note": f"no block carries an event {k} with nLow > 0"}
+    b, ev = first
+    if not hasattr(ev, "worst_cell_diag"):
+        raise ControlFailure(
+            f"prereg 8.3: the event {k} set at t={b['time']} has no BOUNDDIAG "
+            "line, so the worst-low cell's rho and |U| cannot be read"
+        )
+    if ev.worst_cell_diag != ev.worst_cell:
+        raise ControlFailure(
+            f"prereg 8.3: BOUND says worst cell {ev.worst_cell} and BOUNDDIAG "
+            f"says {ev.worst_cell_diag} at t={b['time']}; refusing"
+        )
+    ref = reference_state(step_dir, ev.worst_cell)
+    d_rho = ev.worst_rho / ref["rho_ref"] - 1.0
+    d_u = ev.worst_magu / ref["magU_ref"] - 1.0
+    rho_out = abs(d_rho) > RHO_BAND
+    u_out = abs(d_u) > U_BAND
+    if rho_out and not u_out:
+        label = "RHO-FIRST"
+    elif u_out and not rho_out:
+        label = "U-FIRST"
+    elif not rho_out and not u_out:
+        label = "E-FIRST"
+    else:
+        label = "INDETERMINATE"
+    return {"label": label, "block": b["index"], "time": b["time"],
+            "n_low": ev.n_low, "worst_cell": ev.worst_cell,
+            "worst_rho": ev.worst_rho, "worst_magu": ev.worst_magu,
+            "reference": ref, "d_rho": d_rho, "d_magU": d_u,
+            "rho_outside_band": rho_out, "magU_outside_band": u_out}
+
+
+def grade_step0(parsed: dict, window_end: float = T_END_FULL) -> dict:
     """S0a/S0b -> BASELINE-RECOVERED | BASELINE-NOT-RECOVERED (prereg 8.1),
-    plus the free histogram read (8.2) and the attribution read (8.3)."""
-    raise NotImplementedError(
-        "frozen skeleton -- body written when a run exists to grade"
-    )
+    plus the free histogram read (8.2) and the attribution read (8.3).
+
+    prereg 14.2/14.5: EVENT 1 is graded; event 2 is computed and printed beside
+    every graded number, UNGRADED, together with the label the event-2 reading
+    would return. Nothing here chooses a threshold -- S0A_BAND, the 8.2 fractions
+    and the 8.3 bands are frozen module constants.
+    """
+    step_dir = Path(parsed["path"]).parent
+    b_star = find_t_star_block(parsed)
+    b_end = find_window_end_block(parsed, window_end)
+    res = {"step_dir": str(step_dir), "window_end": window_end,
+           "t_star_block": b_star["index"], "t_star_time": b_star["time"],
+           "graded_event": EVENT_GRADED, "events": {}, "report": []}
+    say = res["report"].append
+
+    say(f"=== prereg 8, Step 0: {step_dir.name} "
+        f"(window end {window_end}, t* block {b_star['index']} "
+        f"t={b_star['time']}) ===")
+    say(f"    Event selection: prereg 14.2/14.3 -- GRADED = event {EVENT_GRADED} "
+        "(boundE.H at .C:267); event 2 (.C:282) is UNGRADED and printed beside.")
+
+    for k in (EVENT_GRADED, EVENT_ALT):
+        required = (k == EVENT_GRADED)
+        ev_star = select_event(b_star, k, required=required)
+        ev_end = select_event(b_end, k, required=required)
+        e: dict = {"ordinal": k, "graded": required}
+        if ev_star is None or ev_end is None:
+            e.update({"label_8_1": None,
+                      "note": "event ABSENT at t* and/or the window end "
+                              "(prereg 14.3: ABSENT, not nLow = 0)"})
+            res["events"][k] = e
+            say(f"  event {k}: {describe_event(ev_star)} at t*; "
+                f"{describe_event(ev_end)} at the window end")
+            continue
+        f_star, f_end = ev_star.fraction, ev_end.fraction
+        s0a = S0A_BAND[0] <= f_star <= S0A_BAND[1]
+        s0b = f_end >= f_star
+        e.update({
+            "n_low_t_star": ev_star.n_low, "frac_t_star": f_star,
+            "n_low_end": ev_end.n_low, "frac_end": f_end,
+            "S0a": s0a, "S0b": s0b,
+            "label_8_1": "BASELINE-RECOVERED" if (s0a and s0b)
+                         else "BASELINE-NOT-RECOVERED",
+            "read_8_2": _hist_read(ev_end),
+            "read_8_3": _attribution_read(step_dir, parsed, k),
+        })
+        res["events"][k] = e
+        tag = "GRADED" if required else "UNGRADED (event 2, :282 re-clamp)"
+        say(f"  event {k} [{tag}]:")
+        say(f"    t*  {b_star['time']}: nLow={ev_star.n_low}/{N_CELLS} "
+            f"= {100*f_star:.4f} %   S0a band {100*S0A_BAND[0]:g}-"
+            f"{100*S0A_BAND[1]:g} % -> S0a={s0a}")
+        say(f"    end {b_end['time']}: nLow={ev_end.n_low}/{N_CELLS} "
+            f"= {100*f_end:.4f} %   S0b (end >= t*) -> S0b={s0b}")
+        say(f"    8.1 label: {e['label_8_1']}")
+        h = e["read_8_2"]
+        say(f"    8.2 label: {h['label']}  "
+            f"(in (19.5,20) K: {100*h['frac_19p5_to_20']:.4f} % vs "
+            f"{100*THRESHOLD_ARTIFACT_FRAC:g} %; at T <= 10 K: "
+            f"{100*h['frac_le_10K']:.4f} % vs {100*GENUINE_DIVERGENCE_FRAC:g} %)")
+        a = e["read_8_3"]
+        if a["label"] is None:
+            say(f"    8.3: {a['note']}")
+        else:
+            r = a["reference"]
+            say(f"    8.3 label: {a['label']}  first block with nLow>0: "
+                f"{a['block']} (t={a['time']}), worst cell {a['worst_cell']}")
+            say(f"        reference (prereg 13.2): {r['kind']}, {r['note']}; "
+                f"rho_ref={r['rho_ref']:.6f} kg/m3 magU_ref={r['magU_ref']:.4f} "
+                f"m/s T_ref={r['T_ref']:.4f} K")
+            say(f"        worst cell: rho={a['worst_rho']} magU={a['worst_magu']}"
+                f"  ->  rho dev {a['d_rho']:+.4f} (band {RHO_BAND}), "
+                f"magU dev {a['d_magU']:+.4f} (band {U_BAND})")
+
+    g, alt = res["events"][EVENT_GRADED], res["events"].get(EVENT_ALT, {})
+    res["label_8_1"] = g["label_8_1"]
+    res["label_8_2"] = g["read_8_2"]["label"]
+    res["label_8_3"] = g["read_8_3"]["label"]
+    res["alt_label_8_1"] = alt.get("label_8_1")
+    res["alt_label_8_2"] = (alt.get("read_8_2") or {}).get("label")
+    res["alt_label_8_3"] = (alt.get("read_8_3") or {}).get("label")
+    say("  ALTERNATIVE READING (prereg 14.5, NOT a verdict): under event 2 the "
+        f"labels would be 8.1={res['alt_label_8_1']} 8.2={res['alt_label_8_2']} "
+        f"8.3={res['alt_label_8_3']}.")
+    if res["alt_label_8_1"] != res["label_8_1"]:
+        say("  MATERIAL: the two readings disagree on the 8.1 label. Per prereg "
+            "9.1 a BASELINE-NOT-RECOVERED Step 0 makes the discrimination "
+            "question NOT A RESULT whatever Step 1 shows. The ruling that "
+            "selects event 1 is prereg 14.2 and rests on mechanism; both columns "
+            "are disclosed in 14.4.")
+    return res
 
 
-def grade_step1(parsed0: dict, parsed1: dict) -> dict:
+def first_differing_block(log0: Path, log1: Path) -> dict:
+    """The first `Time = ` block whose content differs (prereg 6, C2's record
+    requirement: "the results record quotes the first differing `Time = ` block").
+
+    control_c2() answers only whether the logs differ at all, and reports the
+    first differing TIME TOKEN -- which is None when both runs take identical
+    timestep sequences, as these two do. This function is additive and does NOT
+    modify control C2 or normalised_md5: a control is not refactored after first
+    compute. The only wall-clock-dependent lines that can occur INSIDE a `Time =`
+    block are ExecutionTime and ClockTime (the Date/Host/PID/Exec/Case header
+    lines all precede the first block), so those two are the whole filter here.
+    """
+    def blocks_of(p: Path) -> list[dict]:
+        out, cur = [], None
+        for ln in p.read_text(errors="replace").splitlines():
+            m = RE_TIME.match(ln)
+            if m:
+                cur = {"time": m.group(1), "lines": []}
+                out.append(cur)
+                continue
+            if cur is None:
+                continue
+            if ln.startswith("ExecutionTime") or ln.startswith("ClockTime"):
+                continue
+            cur["lines"].append(ln)
+        return out
+
+    b0, b1 = blocks_of(log0), blocks_of(log1)
+    for i in range(min(len(b0), len(b1))):
+        if b0[i]["time"] != b1[i]["time"] or b0[i]["lines"] != b1[i]["lines"]:
+            pair = next(((x, y) for x, y in zip(b0[i]["lines"], b1[i]["lines"])
+                         if x != y), (None, None))
+            return {"block": i, "time0": b0[i]["time"], "time1": b1[i]["time"],
+                    "line0": pair[0], "line1": pair[1],
+                    "n_blocks0": len(b0), "n_blocks1": len(b1)}
+    if len(b0) != len(b1):
+        return {"block": min(len(b0), len(b1)), "time0": None, "time1": None,
+                "line0": None, "line1": None,
+                "n_blocks0": len(b0), "n_blocks1": len(b1),
+                "note": "blocks identical up to the shorter log; lengths differ"}
+    return {"block": None, "note": "no differing `Time = ` block"}
+
+
+def grade_step1(parsed0: dict, parsed1: dict, window_end: float = T_END_FULL,
+                status0: str | None = None, status1: str | None = None) -> dict:
     """S1a/S1b -> DEFICIT-IMPLICATED | DEFICIT-NOT-IMPLICATED (prereg 8.4).
-    Reached only when control C2 reports the logs differ."""
-    raise NotImplementedError(
-        "frozen skeleton -- body written when a run exists to grade"
-    )
+    Reached only when control C2 reports the logs differ.
+
+    prereg 8.4 also requires a Step 0 of the SAME completion status (7.2); when
+    both statuses are supplied and differ, this refuses rather than producing an
+    unmatched ratio. Event 1 is graded and event 2 is printed beside it,
+    UNGRADED, with the label the alternative reading would return (14.5).
+    """
+    if normalised_md5(Path(parsed0["path"])) == normalised_md5(Path(parsed1["path"])):
+        raise ControlFailure(
+            "prereg 8.4 is evaluated ONLY if control C2 reports the logs differ; "
+            "these two are byte-equivalent after stripping wall-clock lines "
+            "(LEVER-INERT). The discrimination question is NOT A RESULT."
+        )
+    if status0 is not None and status1 is not None and status0 != status1:
+        raise ControlFailure(
+            f"prereg 7.2: Step 0 is {status0} and Step 1 is {status1}. A COMPLETE "
+            "step compared against a TRUNCATED-AT-CAP step is not a matched "
+            "comparison; both must be re-read on [0, 3.9e-05]. Refusing."
+        )
+    b0s, b0e = find_t_star_block(parsed0), find_window_end_block(parsed0, window_end)
+    b1s, b1e = find_t_star_block(parsed1), find_window_end_block(parsed1, window_end)
+    if b0s["time"] != b1s["time"]:
+        raise ControlFailure(
+            f"prereg 8.4 needs the SAME t*: Step 0 has {b0s['time']}, Step 1 has "
+            f"{b1s['time']}. Refusing an unmatched ratio."
+        )
+    res = {"window_end": window_end, "t_star_time": b0s["time"],
+           "graded_event": EVENT_GRADED, "events": {}, "report": []}
+    say = res["report"].append
+    say(f"=== prereg 8.4, Step 1 vs Step 0 (t* {b0s['time']}, window end "
+        f"{window_end}) ===")
+    say(f"    Event selection: prereg 14.2/14.3 -- GRADED = event {EVENT_GRADED} "
+        "(boundE.H at .C:267 / :269); event 2 UNGRADED and printed beside.")
+    fd = first_differing_block(Path(parsed0["path"]), Path(parsed1["path"]))
+    res["first_differing_block"] = fd
+    say(f"    C2 record requirement (prereg 6): first differing `Time = ` block: {fd}")
+
+    for k in (EVENT_GRADED, EVENT_ALT):
+        required = (k == EVENT_GRADED)
+        e0s = select_event(b0s, k, required=required)
+        e0e = select_event(b0e, k, required=required)
+        e1s = select_event(b1s, k, required=required)
+        e1e = select_event(b1e, k, required=required)
+        e: dict = {"ordinal": k, "graded": required}
+        if None in (e0s, e0e, e1s, e1e):
+            e.update({"label_8_4": None,
+                      "note": "event ABSENT in at least one required block "
+                              "(prereg 14.3: ABSENT, not nLow = 0)"})
+            res["events"][k] = e
+            say(f"  event {k}: step0 t*={describe_event(e0s)}; "
+                f"step1 t*={describe_event(e1s)}")
+            continue
+        f0s, f0e, f1s, f1e = (e0s.fraction, e0e.fraction,
+                              e1s.fraction, e1e.fraction)
+        s1a = f1s < S1A_RATIO * f0s
+        s1b = (f1e < FLATTEN_RATIO * f1s) and (f0e >= FLATTEN_RATIO * f0s)
+        e.update({
+            "step0_n_low_t_star": e0s.n_low, "step0_frac_t_star": f0s,
+            "step0_n_low_end": e0e.n_low, "step0_frac_end": f0e,
+            "step1_n_low_t_star": e1s.n_low, "step1_frac_t_star": f1s,
+            "step1_n_low_end": e1e.n_low, "step1_frac_end": f1e,
+            "ratio_t_star": (f1s / f0s) if f0s else float("inf"),
+            "step0_growth": (f0e / f0s) if f0s else float("inf"),
+            "step1_growth": (f1e / f1s) if f1s else float("inf"),
+            "S1a": s1a, "S1b": s1b,
+            "label_8_4": "DEFICIT-IMPLICATED" if (s1a and s1b)
+                         else "DEFICIT-NOT-IMPLICATED",
+        })
+        res["events"][k] = e
+        tag = "GRADED" if required else "UNGRADED (event 2, :282 re-clamp)"
+        say(f"  event {k} [{tag}]:")
+        say(f"    t*  step0 nLow={e0s.n_low} ({100*f0s:.4f} %)   "
+            f"step1 nLow={e1s.n_low} ({100*f1s:.4f} %)   "
+            f"ratio {e['ratio_t_star']:.4f} vs S1a threshold {S1A_RATIO} "
+            f"-> S1a={s1a}")
+        say(f"    end step0 nLow={e0e.n_low} ({100*f0e:.4f} %) growth "
+            f"{e['step0_growth']:.4f}   step1 nLow={e1e.n_low} "
+            f"({100*f1e:.4f} %) growth {e['step1_growth']:.4f}   "
+            f"flatten threshold {FLATTEN_RATIO} -> S1b={s1b}")
+        say(f"    8.4 label: {e['label_8_4']}")
+
+    res["label_8_4"] = res["events"][EVENT_GRADED]["label_8_4"]
+    res["alt_label_8_4"] = res["events"].get(EVENT_ALT, {}).get("label_8_4")
+    say("  ALTERNATIVE READING (prereg 14.5, NOT a verdict): under event 2 the "
+        f"8.4 label would be {res['alt_label_8_4']}.")
+    if res["alt_label_8_4"] != res["label_8_4"]:
+        say("  MATERIAL: the two readings disagree on the 8.4 label. Both "
+            "columns are disclosed; the ruling that selects event 1 is prereg "
+            "14.2 and rests on mechanism, not on these numbers.")
+    return res
+
+
+# --------------------------------------------------------------------------
+# Self-test of the prereg 14.3 event-selection rule, on a SYNTHETIC log.
+#
+# Standing rule 3 applied to the ordinal itself: an event-1 reading from a
+# selector not shown able to return a DIFFERENT value for event 2 is not
+# evidence that event 1 was read. The synthetic block below carries two sets
+# with deliberately distinct counts (100 and 40), so a selector that silently
+# took the last set, or the largest, or the only one it happened to key by time
+# token, returns the wrong number and the test fails.
+# --------------------------------------------------------------------------
+
+SYNTHETIC_TWO_EVENT_LOG = """\
+Time = 1e-09
+Courant Number mean: 0.01 max: 0.2
+BOUND: e below eMin in 100 cell(s) at Time = 1e-09, worst e = -200000.5 J/kg \
+at cell 7 C = (0 0 0) | low-e cell extent: x=[0,0] r=[0,0]
+BOUNDDIAG: t=1e-09 nLow=100 rhoLow=[0.02,0.03] magULow=[1000,1274] \
+TprevLow=[80,82] worst: cell=7 rho=0.0201 magU=1000.5 Tprev=81.2 Timp=19.2
+BOUNDHIST: t=1e-09 nLow=100 bins=0 0 0 0 0 0 0 0 0 0 0 100
+BOUND: e above eMax in 3 cell(s) at Time = 1e-09, worst e = 5e+06 J/kg at cell 9 C = (0 0 0)
+BOUND: e below eMin in 40 cell(s) at Time = 1e-09, worst e = -199530.25 J/kg \
+at cell 0 C = (0 0 0) | low-e cell extent: x=[0,0] r=[0,0]
+BOUNDDIAG: t=1e-09 nLow=40 rhoLow=[0.024,0.025] magULow=[1270,1274] \
+TprevLow=[139.6,139.6] worst: cell=0 rho=0.0246 magU=1274.0 Tprev=139.583 Timp=19.99
+BOUNDHIST: t=1e-09 nLow=40 bins=0 0 0 0 0 0 0 0 0 0 0 40
+ExecutionTime = 1 s  ClockTime = 1 s
+
+Time = 2e-09
+BOUND: e below eMin in 7 cell(s) at Time = 2e-09, worst e = -199600.5 J/kg \
+at cell 3 C = (0 0 0) | low-e cell extent: x=[0,0] r=[0,0]
+BOUNDDIAG: t=2e-09 nLow=7 rhoLow=[0.024,0.025] magULow=[1270,1274] \
+TprevLow=[81,82] worst: cell=3 rho=0.0246 magU=1273.0 Tprev=81.2 Timp=19.8844
+BOUNDHIST: t=2e-09 nLow=7 bins=0 0 0 0 0 0 0 0 0 7 0 0
+ExecutionTime = 2 s  ClockTime = 2 s
+
+Time = 3e-09
+ExecutionTime = 3 s  ClockTime = 3 s
+End
+"""
+
+
+def _synthetic_blocks() -> list[dict]:
+    """Parse the synthetic log from a real file on disk (not from a string), so
+    the test exercises the same read path the real logs take."""
+    d = Path(tempfile.mkdtemp(prefix="f4_event_selftest_"))
+    p = d / "log.synthetic"
+    p.write_text(SYNTHETIC_TWO_EVENT_LOG)
+    return parse_log(p)["blocks"]
+
+
+def selftest_event_selection() -> list[str]:
+    """prereg 14.3: event k is the k-th BOUND-family set in a `Time = ` block."""
+    blocks = _synthetic_blocks()
+    if len(blocks) != 3:
+        raise ControlFailure(
+            f"14.3 selftest: synthetic log parsed {len(blocks)} `Time = ` blocks, "
+            "expected 3"
+        )
+    b0, b1, b2 = blocks
+
+    if len(b0["events"]) != 2:
+        raise ControlFailure(
+            f"14.3 selftest: the two-event block parsed {len(b0['events'])} "
+            "BOUND-family sets, expected 2 -- the interleaved `BOUND: e above "
+            "eMax` line must NOT create a set (boundE.H:142-148)"
+        )
+    e1, e2 = select_event(b0, 1), select_event(b0, 2)
+    if e1.n_low != 100:
+        raise ControlFailure(
+            f"14.3 selftest: event 1 read nLow={e1.n_low}, expected 100. A "
+            "selector that took the LAST set would have read 40."
+        )
+    if e2.n_low != 40:
+        raise ControlFailure(f"14.3 selftest: event 2 read nLow={e2.n_low}, expected 40")
+    if e1.n_low == e2.n_low:
+        raise ControlFailure(
+            "14.3 selftest: the planted counts are not distinct, so this test "
+            "could not tell a correct selector from a wrong one"
+        )
+    if (e1.block, e1.ordinal, e2.block, e2.ordinal) != (0, 1, 0, 2):
+        raise ControlFailure(
+            f"14.3 selftest: ordinals/blocks wrong: {(e1.block, e1.ordinal)} "
+            f"{(e2.block, e2.ordinal)}, expected (0,1) (0,2)"
+        )
+    if e1.worst_cell != 7 or e2.worst_cell != 0 or e1.bins[11] != 100 or e2.bins[11] != 40:
+        raise ControlFailure(
+            "14.3 selftest: BOUNDDIAG/BOUNDHIST did not bind to the set they "
+            "follow -- the two sets share one time token and must not be merged"
+        )
+
+    if len(b1["events"]) != 1 or select_event(b1, 1).n_low != 7:
+        raise ControlFailure("14.3 selftest: the single-set block did not read as event 1 only")
+    s1 = select_event(b1, 1)
+    if (s1.block, s1.ordinal) != (1, 1):
+        # the ordinal must RESET at every `Time = ` line. A global counter would
+        # make this (1, 3) and coincide with the correct answer in block 0 only.
+        raise ControlFailure(
+            f"14.3 selftest: the second block's only set reports "
+            f"block={s1.block} ordinal={s1.ordinal}, expected (1, 1) -- the "
+            "ordinal must be counted WITHIN the block, not globally"
+        )
+    absent = select_event(b1, 2, required=False)
+    if absent is not None:
+        raise ControlFailure(
+            f"14.3 selftest: event 2 of a single-set block read as {absent}, "
+            "expected ABSENT (None)"
+        )
+    desc = describe_event(absent)
+    if "ABSENT" not in desc or "nLow=0" in desc:
+        raise ControlFailure(
+            f"14.3 selftest: an absent event described as {desc!r} -- it must "
+            "read ABSENT, never as a zero (standing rule 3)"
+        )
+
+    if b2["events"]:
+        raise ControlFailure("14.3 selftest: the third block should carry no set")
+    if select_event(b2, 1, required=False) is not None:
+        raise ControlFailure("14.3 selftest: a zero-set block returned an event")
+    try:
+        select_event(b2, 1)
+    except ControlFailure:
+        pass
+    else:
+        raise ControlFailure(
+            "14.3 selftest: a REQUIRED event 1 on a zero-set block did not "
+            "refuse. A reader that cannot tell `no clamped cells` from `no line "
+            "emitted` would report a blind zero (standing rule 3)."
+        )
+
+    return [
+        "14.3 ok: two-event block -> event 1 nLow=100, event 2 nLow=40 "
+        "(distinct by construction; a last-set or largest-set selector fails)",
+        "14.3 ok: the interleaved `BOUND: e above eMax` line created no set "
+        "and shifted no ordinal",
+        "14.3 ok: BOUNDDIAG/BOUNDHIST bound to their own set although both "
+        "sets carry the same time token",
+        "14.3 ok: single-set block -> event 1 only; event 2 reads ABSENT, "
+        "never nLow = 0",
+        f"14.3 ok: zero-set block -> select_event(..., required=True) REFUSES; "
+        f"main maps ControlFailure to exit {EXIT_CONTROL_FAILURE} "
+        f"(measure it with --selftest-refusal-probe)",
+    ]
+
+
+# --------------------------------------------------------------------------
+# Grading entry point (prereg 6 gates it; prereg 7, 8, 9 and 14 shape it).
+# --------------------------------------------------------------------------
+
+def find_step_log(step_dir: Path) -> Path:
+    """The one solver log under a step directory. Refuses if it is not one."""
+    cands = [p for p in sorted(step_dir.glob("log.*"))
+             if p.is_file() and p.suffix != ".gz" and "planted" not in p.name]
+    if len(cands) != 1:
+        raise ControlFailure(
+            f"{step_dir}: found {len(cands)} candidate solver logs "
+            f"({[c.name for c in cands]}); need exactly one"
+        )
+    return cands[0]
+
+
+def grade_all(step0_dir: Path, step1_dir: Path, scratch_dir: Path) -> tuple[int, list[str]]:
+    """Controls first (prereg 6), then completion (7), then section 8/9."""
+    log0, log1 = find_step_log(step0_dir), find_step_log(step1_dir)
+    out = run_controls(log0, log1, scratch_dir)
+
+    # run_controls() asserts this file must exist and be non-empty before Step 0
+    # is graded; C0 itself is the twin-run comparison, not this reader's.
+    c0 = step0_dir.parent / "c0_twin_diag" / "C0_RESULT.txt"
+    if not (c0.exists() and c0.stat().st_size > 0):
+        raise ControlFailure(f"C0 artefact missing or empty: {c0}")
+    out.append(f"C0 artefact present: {c0} ({c0.stat().st_size} bytes)")
+
+    differ, c2_lines = control_c2(log0, log1)
+    out += c2_lines
+
+    out.append("")
+    out.append("=== COMPLETION (prereg 7) ===")
+    st0 = check_completion(step0_dir, log0, out)
+    st1 = check_completion(step1_dir, log1, out)
+    out.append(f"Step 0: {st0}    Step 1: {st1}")
+
+    if "BLOCKED" in (st0, st1):
+        out.append("prereg 9.1: a BLOCKED step makes the diagnosis PENDING on "
+                   "that step. Nothing in section 8 is graded here.")
+        return EXIT_BLOCKED, out
+
+    window = T_END_TRUNC if "TRUNCATED-AT-CAP" in (st0, st1) else T_END_FULL
+    suffix = " (TRUNCATED)" if window == T_END_TRUNC else ""
+    if window == T_END_TRUNC:
+        out.append("prereg 7.2: the two steps do not share a COMPLETE status, so "
+                   "BOTH are re-read on [0, 3.9e-05] and BOTH labels carry "
+                   "(TRUNCATED).")
+
+    parsed0, parsed1 = parse_log(log0), parse_log(log1)
+    out.append("")
+    r0 = grade_step0(parsed0, window_end=window)
+    out += r0["report"]
+    out.append(f"Step 0 section 8.1 label: {r0['label_8_1']}{suffix}")
+
+    if "SIGFPE-RECURRENCE" in (st0, st1):
+        out.append("")
+        out.append("prereg 9.2: a SIGFPE is a MEASUREMENT here, not a hole "
+                   "(L-255). The section 8.4 fraction clauses are unevaluable "
+                   "against a crashed arm, so the discrimination question is "
+                   "not graded. Goes to the supervisor for triage.")
+        return EXIT_GRADED, out
+
+    if not differ:
+        out.append("prereg 9.1 row 3 / C2: LEVER-INERT. The discrimination "
+                   "question is NOT A RESULT and is not graded.")
+        return EXIT_LEVER_INERT, out
+
+    out.append("")
+    r1 = grade_step1(parsed0, parsed1, window_end=window,
+                     status0=st0, status1=st1)
+    out += r1["report"]
+    out.append(f"Step 1 section 8.4 label: {r1['label_8_4']}{suffix}")
+    out.append("")
+    out.append("NOTE: every label above is a prereg section 8 MEASUREMENT "
+               "OUTCOME LABEL, deliberately outside the rule-1 verdict "
+               "vocabulary (prereg section 0). No PASS, GATE REACHED or GATE "
+               "FAIL is issued from this document.")
+    return EXIT_GRADED, out
 
 
 def main(argv: list[str]) -> int:
@@ -540,24 +1448,53 @@ def main(argv: list[str]) -> int:
         print(__doc__)
         return 0
     if argv[1] == "--selftest":
-        # Controls C1 and C3 only: they need no run and are the two that prove
-        # the reader can see a non-zero and returns zero on a clean file.
+        # C1 and C3 need no run; they are the two that prove the reader can see
+        # a non-zero and returns zero on a clean file. The 13.3 and 14.3 checks
+        # need no run either.
         try:
-            for line in control_c1() + control_c3() + selftest_sigfpe_regex():
+            for line in (control_c1() + control_c3() + selftest_sigfpe_regex()
+                         + selftest_event_selection()):
                 print(line)
         except ControlFailure as exc:
             print(f"CONTROL FAILURE: {exc}", file=sys.stderr)
-            return 2
-        print("selftest: C1, C3 and the 13.3 SIGFPE-regex check reproduce. "
-              "C2/C4 need run logs.")
-        return 0
-    print(
-        "This reader is a FROZEN SKELETON. No run exists to grade, and the "
-        "grading bodies are NotImplementedError by design (see the module "
-        "docstring and the section comment above check_completion).",
-        file=sys.stderr,
-    )
-    return 2
+            return EXIT_CONTROL_FAILURE
+        print("selftest: C1, C3, the 13.3 SIGFPE-regex check and the 14.3 "
+              "event-selection check reproduce. C0/C2/C4 need run logs.")
+        return EXIT_GRADED
+    if argv[1] == "--selftest-refusal-probe":
+        # Deliberately drives the prereg 14.3 refusal through main's own handler,
+        # so "refuses with exit 2" is a MEASUREMENT (run it and read $?), not an
+        # inspection of the source.
+        try:
+            zero_set_block = _synthetic_blocks()[2]
+            select_event(zero_set_block, EVENT_GRADED)
+        except ControlFailure as exc:
+            print(f"CONTROL FAILURE: {exc}", file=sys.stderr)
+            return EXIT_CONTROL_FAILURE
+        print("REFUSAL PROBE DID NOT REFUSE -- this is itself a failure",
+              file=sys.stderr)
+        return 1
+    if argv[1] == "--grade":
+        if len(argv) < 4:
+            print("usage: --grade <step0_dir> <step1_dir> [scratch_dir]",
+                  file=sys.stderr)
+            return EXIT_CONTROL_FAILURE
+        step0, step1 = Path(argv[2]).resolve(), Path(argv[3]).resolve()
+        scratch = Path(argv[4]).resolve() if len(argv) > 4 else (
+            step0 / f"c4_plant_{os.getpid()}")
+        try:
+            code, lines = grade_all(step0, step1, scratch)
+        except ControlFailure as exc:
+            print(f"CONTROL FAILURE: {exc}", file=sys.stderr)
+            return EXIT_CONTROL_FAILURE
+        for line in lines:
+            print(line)
+        return code
+    print("usage: analyse_f4_sigfpe_step01.py "
+          "[--selftest | --selftest-refusal-probe | "
+          "--grade <step0_dir> <step1_dir> [scratch_dir]]",
+          file=sys.stderr)
+    return EXIT_CONTROL_FAILURE
 
 
 if __name__ == "__main__":
