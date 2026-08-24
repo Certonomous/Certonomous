@@ -931,3 +931,88 @@ above §A.1 was changed.**
 *Assertion, `CLAUDE.md` rule 6: **lines whose number changed above this section: 0** —
 this addendum is a pure append; verified by diffing the first 420 lines of this file
 against its pre-append state, zero differences.*
+
+---
+
+## ADDENDUM — 2026-08-24T16:18:13Z, closure supervisor: corrections of record and two diagnostics from the independent re-grade
+
+**Appended only. Lines whose number changed above this section: 0** — the
+933-line body above is the committed blob `8503cd830eca68b7b72b24745b3390b7cc2b2aaa` at `6ff8e65cde0c8d7bc1d0f5e6582b32423ce059fc`, re-hashed in
+the same shell invocation as this append. Nothing above is edited; no gate,
+threshold, cap, label or verdict moves.
+
+**Provenance.** The 2026-08-24T16:06:54Z addendum above was written by the
+grading lane the previous closure supervisor dispatched, which survived its
+supervisor's death and landed `a56cc309`. A second lane, dispatched by the
+re-spawned supervisor at 16:06Z, found that addendum on disk 74 s later,
+wrote nothing, and instead re-graded the same six rows independently. This
+addendum records what the re-grade found, by the supervisor who read both.
+
+### 1. Four false cross-references, corrected (rule 11 — an id written ahead of its append is a prediction, not an identifier)
+
+The addendum above cites **`D488`** (four occurrences) for the G0a
+instrument-floor referral and **`C-15`** (once, "the calibration row lands …
+as C-15") for its cost row. Both ids were written into prose before the rows
+were appended, and dafoam landed both at 16:03:03Z (`b69ac6ec`), three minutes
+earlier. **Read `D488` as `D492` and `C-15` as `C-18`** — the ids that
+actually landed (`961b0b3e`, `a56cc309`), each re-derived max+1 at its
+commit. The parked drafts in `RECORDS_PENDING_D486.md` (ids D491 / L-269 at
+drafting) landed as **D492 / L-269**; D492's own text says "D491/L-269 were
+taken by peers", which is true of D491 only — L-269 landed as drafted. This
+addendum is that correction of record.
+
+### 2. `k/k_base` on CBFS — a diagnostic that §4's mechanism does not cover (no verdict)
+
+`results.json` carries no `k_mean` for CBFS; the re-grade lane computed it
+the way `summarise.py:101` does, against the shipped-SST mean 0.003018
+(§2 BASE row 0.00303). **Unregistered path, diagnostic only, carries nothing.**
+
+| row | `k/k_base` | row | `k/k_base` |
+|---|---|---|---|
+| `NULL` | 1.011 | `ML0` | 0.065 |
+| `TRUTH` | **0.914** | `ML1` | 0.060 |
+| `MEANB` | 0.330 | `ML2` | 0.073 |
+
+§4 explains the ducts' ceiling inversion by transported-`k` collapse (TRUTH
+retains 0.328 on T1, 0.359 on T2). **On CBFS the TRUTH row inverts the ceiling
+by the largest margin of the three cases (+63.05 %) while retaining 91 % of its
+baseline `k`.** The k-collapse account therefore does not by itself explain the
+third case, and §4 is read with that caveat. What does explain it is a new
+pre-registered question, not a continuation of this one.
+
+Seed spread on CBFS: sd/mean **2.63 %** (0.154263 ± 0.004058) against 0.27 %
+on T1 — ten times wider, consistent with the limit-cycling reading of the
+addendum above.
+
+### 3. Cost, the secondary comparison the addendum omits
+
+Per-row `ExecutionTime` from the six `log.run` files (serial): NULL 68.95 s,
+TRUTH 1699.21, MEANB 3371.57, ML0 3189.10, ML1 1978.08, ML2 2795.63 — **13,102.54
+s = 218.376 core-min = 3.6396 core-h = $0.1867 derived**, 0.4 % under C-18's
+driver-`wall_s` basis (219.571); neither is wrong, C-18 stands. Against the
+frozen §7 figure (378 core-min for six CBFS solves) **0.578×**; against the
+2026-08-22 NOTE's refined 204.24 core-min **1.069× — the refined figure
+under-predicted by 7 %.** The calibration fact: §7's 0.126 s/it came from a
+5-iteration interface check and over-states steady state by 1.45× (five capped
+rows mean 0.086891 s/it); the NOTE's 0.06951 s/it, from one completed 30,000-it
+solve, lands within 7 % but optimistic — **a rate from one completed solve is a
+floor, not a point estimate.** The five capped rows spread **1.98×** in
+per-iteration cost on an identical mesh with T-family solvers live; load not
+recorded, contention not attributed. Whole lane ≈ 5.146 core-h = $0.2640
+derived, 0.725× of the §7 worst case, 34 % of the 15 core-h cap. Waste 0.00.
+
+### 4. What the re-grade did and did not establish
+
+Established: freeze re-verified (prereg sha256 `3298d8bb…a5d744` blob == disk;
+four instruments byte-identical to HEAD); strict completion on all six rows
+including the age guard (`0/` 2026-08-21, last-time fields 2026-08-23);
+`FOAM FATAL` 0 and `Foam::sigFpe` 0 in all six logs, exactly one trapFpe header
+line each (the `diverged=True` artifact); the ten pre-relaunch rows identical
+field-by-field to `results_PRE_RELAUNCH_2026-08-23.json` (10/10); the three
+`AR_3_Ret_360` ML rows carry no metric field of any kind. **Not established:**
+the graded metrics were read from `results.json` and cross-checked against
+`lane5.log` — two outputs of one driver, a consistency check, not an
+independent re-derivation from the written fields; and the freeze-before-compute
+ordering of the original ten duct rows, which git cannot evidence (D492 limb b).
+
+Cost of this addendum: zero core-minutes.
