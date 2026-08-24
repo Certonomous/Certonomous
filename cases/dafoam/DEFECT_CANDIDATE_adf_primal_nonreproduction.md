@@ -444,3 +444,386 @@ lab did not measure.
 
 **Nothing in this addendum has been sent, filed, posted, uploaded or pushed.
 Filing is Sanaa's alone.**
+
+---
+
+## ADDENDUM 2026-08-24 (second) — Filing-readiness reassessment, 2026-08-24T17:50:53Z
+
+*Appended, not rewritten. Nothing above this line changed; **lines whose number
+changed above this section: 0** — asserted and machine-checked: the first **446**
+lines of the amended file were `cmp`-ed byte-for-byte against `git show
+HEAD:cases/dafoam/DEFECT_CANDIDATE_adf_primal_nonreproduction.md` inside the same
+shell invocation that wrote the commit, and the commit was gated on that `cmp`
+returning 0.*
+
+***Version bump.*** This file carries no version field in its header and its
+header is frozen, so the version cannot be written there. **The version is
+therefore declared here and this declaration is the version record:** this file is
+now **v3** — **v1** the body of 2026-08-22 (`757eccf0`, lines 1–331), **v2** the
+sweep-1 class addendum of 2026-08-24T16:35:55Z (`20dd303e`, lines 333–446), **v3**
+this addendum. ADDENDUM 1 declined to number itself; numbering it retrospectively
+here changes no line above and is the same house practice its sibling
+`LIAISON_NOVELTY_SWEEP_adf_primal_nonreproduction.md` uses.
+
+**This addendum alters no gate, no threshold, no cap, no label, no count, no
+disposition and no verdict anywhere above it.** It is a **readiness assessment and
+a set of PROPOSED wordings**. **Nothing in it is applied to the body**, which is
+frozen, and **nothing in it authorises, prepares or performs a send.**
+
+> ### NOTHING HERE AUTHORISES OR PERFORMS A SEND.
+> This is a document about whether a document is ready to be read by its owner.
+> **No issue has been opened, no maintainer contacted, nothing posted, pushed,
+> uploaded, registered or commented, by this lane or any other.** Filing is
+> **Sanaa's decision alone** (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10;
+> `FAMILY_SUPERVISION_GUIDELINES.md` §3.6). A readiness state of
+> `READY-FOR-SANAA'S-READ` would mean *this file is worth her ten minutes* and
+> would mean **nothing else**; the phrase "ready to file" does not appear in this
+> lab's vocabulary and is not used here.
+
+**`NOT FILED` marker, machine-checked before and after this append.** `grep -c
+'NOT FILED'` over the file's **first five lines** — the placement
+`DAFOAM_CHARTER.md` §10 requires, "in their opening lines, with the marker at the
+top of the file and not in a closing paragraph" — returned **1 before** and **1
+after**. Whole-file `grep -c 'NOT FILED'` returned **2 before** and **6 after**
+(this addendum re-asserts it four times). The opening-lines count is the one the
+charter binds and it is **unchanged**; the commit was gated on it, and had it
+changed the commit would have aborted. Line 3's status block is untouched.
+
+**Scope of this reassessment.** It is written from **this evidence set only**: the
+body (v1), ADDENDUM 1 (v2), `LIAISON_NOVELTY_SWEEP_adf_primal_nonreproduction.md`
+including its two 2026-08-23 addenda, `cases/dafoam/d460_sweep1_solver_family/RESULTS.md`,
+`docs/LESSONS.md` L-274/L-275/L-276, `docs/NUMERICS_KNOWLEDGE.md` N-D30/N-D31,
+`docs/DOCKET.md` D498, `docs/charters/DAFOAM_CHARTER.md` §6 and §10, and
+`docs/dafoam/README.md` §3 and §6. **Zero compute was spent on it.** Anything
+outside that set is not assessed and is not asserted about.
+
+**A citation correction, stated because the brief that commissioned this section
+carried it.** The **two-row shipped/patched rule and the toolchain-identity rule
+(an image ID and a library hash, never a version string)** are `DAFOAM_CHARTER.md`
+**§6**, not §11 — §11 of that charter is the lessons/numerics numbering clause, and
+§11 of *this file* is "Suggested tone if filed". The prose convention for the
+two-row table is `docs/dafoam/README.md` §3 (rule **R11**: a patched grade is
+recorded *beside* a shipped grade and never in place of it). This section assesses
+against §6 and R11.
+
+**Checklist form.** The table in §A1 below reuses the house **"Submission
+readiness"** form already used by the two prepared upstream reports —
+`UPSTREAM_BUG_REPORT_decomposition_adjoint.md:330-336` and
+`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md:287-294` — `| requirement | state |`, with
+each state **Done** or **NOT DONE** and the evidence named. That form is reused
+rather than invented so D460 can be read beside D-A/D-A2 and D-B/D-B2 without a
+translation step. **D-C and D-E carry no such table**: D-C states readiness as a
+bare status line (`DEFECT_CANDIDATE_ksp_options_override.md:1,3,169`) and D-E
+(`ladder-b/B3/DEFECT_NOTE_ilu_zero_pivot.md`) carries no readiness section at all —
+so there was no fifth form to reconcile.
+
+---
+
+### A1. What a reader upstream would need to reproduce this, and whether the draft has it
+
+**Assessed by line against the frozen body.** "Present" means a maintainer who
+opens this file and nothing else can act on it.
+
+| # | requirement | present in the draft? | by line |
+|---|---|---|---|
+| 1 | **Image identity — an ID, not a version string** (`DAFOAM_CHARTER.md` §6) | **Done.** `dafoam-idwarp-rot:v1`, image ID `2927768a16ac`; DAFoam 5.0.0 / OpenFOAM v2506 / PETSc 3.15.5 | **:49, :50** |
+| 2 | **Library hash** for the library under test | **Done.** `libDASolverADF.so` md5 `44538ed4ac157ecb5dbb6850cf4bde64`, shown equal on `dafoam/opt-packages:latest` and `dafoam-idwarp-rot:v1` | **:83–:86** |
+| 3 | **Both rows, shipped and patched** (§6; README §3 R11) | **Done for the FORWARD-AD arm, NOT DONE for the CONTROL arm.** See §A1.1 — this is the one genuinely new gap this reassessment found | **:89–:93** (the argument), **:49** (the single image row) |
+| 4 | **The case** | **Done as a description, NOT DONE as an artifact.** A6 CRM wing-alone coarsened, 41,760 cells, `DARhoSimpleCFoam`, transonic, `primalMinResTol 1e-8`, `transonicPCOption 1`, np=1 serial undecomposed. **The mesh is lab-built and the draft says nowhere how a maintainer obtains it** | **:51**; record pointer **:54**, logs **:53** — both are paths *inside this box*, which a maintainer cannot read |
+| 5 | **Exact commands** | **Partially done.** The invocation is exact — `mpirun -np 1 -x PYTHONPATH python runScript.py -task run_model` — and the three `daOptions` deltas and the three traps are stated. **`runScript.py` itself is neither supplied nor pointed at**, so the one command given cannot be run | **:123–:132** (the block), **:135–:145** (the traps), **:147–:148** (what to compare) |
+| 6 | **The GAMG stopping-rule lever** — the load-bearing mechanism claim | **Done in the body, and it is the draft's best line.** `GAMG` with **`relTol 0.1, tolerance 0`**, named as a *relative*-tolerance stopping rule crossing its threshold one V-cycle early | **:73–:75** |
+| 6b | **The counter-configuration that removes the failure** — `smoothSolver`/`GaussSeidel`/`nSweeps 1` on `p` | **Present in the FILE (ADDENDUM 1), absent from the REPRODUCER.** A maintainer reading §6 is told how to make it fail and not how to make it stop failing, and the fact that it stops failing is now the report's whole class argument | body **:122–:148** has it **not at all**; ADDENDUM 1 **:344–:394**; measured detail in `N-D31`'s sibling `N-D30` |
+| 7 | **Both arms' `fvSolution` differing in exactly one block** | **NOT DONE in the draft.** Measured and recorded elsewhere — five lines in the `"(p\|p_rgh\|G)"` block, the two files otherwise byte-identical (`N-D30`) — but the draft never states it | — |
+
+#### A1.1 The two-row gap this reassessment found, stated as a reading and not as a measurement
+
+§4 (**:89–:93**) argues that the md5 identity of `libDASolverADF.so` across the two
+images "licenses one measurement covering both rows". **That argument covers the
+forward-AD arm and only the forward-AD arm.** Line **:89** states that the lab's
+images "differ only in `DALinearEqn.C` and its rebuilt library", and `N-D31`
+records that the **plain control arm loads `libDASolver.so` and `libDASolverADR.so`**,
+not `libDASolverADF.so`. **`DALinearEqn.C` compiles into the `libDASolver*` family.**
+So on the face of the draft's own two sentences, **the control arm may well have run
+on a patched library whose hash is nowhere established**, and §4's "this is a
+statement about SHIPPED DAFoam" therefore rests on an identity that has been proved
+for one of the two arms.
+
+**This is a reading of :89 against `N-D31`, not a measurement.** It is not a claim
+that the control arm is contaminated; it is a claim that **the draft does not
+contain what would rule that out**, and §6 of the charter asks for exactly that.
+Closing it is one `md5sum` per image on `libDASolver.so` — see §A5 item 6.
+
+---
+
+### A2. What the sweep-1 `PASS` changes in the draft's CLAIM — the class is CONDITIONING / DIAGNOSABILITY, not AD correctness
+
+**The settled position, from `d460_sweep1_solver_family/RESULTS.md` §5 and D498:**
+the class is **CONDITIONING / DIAGNOSABILITY** for **this case, one solver, one
+mesh, np = 1, ten iterations**. The upstream ask is a **documentation + warning
+change, not an AD fix**, and **the AD-correctness reading is not reached**. The
+liaison sweep adds the framing: this is an **opposite-polarity second instance of
+the open, maintainer-authored `DAFoam/OpenFOAM-AD` #2** — #2 reports AD builds
+blowing up under `PBiCGStab`/`DILU` and *fixed* by `GAMG`; D460 measures the
+forward-AD build failing under `GAMG` and *not* failing under `smoothSolver`.
+
+**Four sentences in the frozen body still read as an AD-correctness claim** — that
+is, they assert, hold open, or offer as a live branch the reading that the
+forward-AD *arithmetic* may be wrong. Each is quoted, and each carries a
+**PROPOSED** replacement. **The proposals are proposals. The body is frozen; not
+one character of it is changed by this addendum; adopting any of them is the
+supervisor's ruling and would itself be a further dated addendum.**
+
+---
+
+**AD-CORRECTNESS SENTENCE 1 — lines :17–:19** *(the first screen, and therefore the
+most consequential)*
+
+> **Target if filed:** `mdolab/dafoam` (v5 series). **Class: UNDETERMINED** — *AD correctness* or
+> *numerical robustness/diagnosability*, and **which one is decided by a single 5-core-minute arm that
+> has not been run** (§7 sweep 1). **A defect note that does not know its own class says so.**
+
+Two independent defects now: the class is no longer undetermined, and the arm is no
+longer unrun. **PROPOSED replacement:**
+
+> **Target if filed:** a comment on the open `DAFoam/OpenFOAM-AD` **#2**, with
+> `mdolab/dafoam` (v5 series) as the alternative venue. **Class: CONDITIONING /
+> DIAGNOSABILITY**, decided 2026-08-24 by the redesigned sweep 1
+> (`cases/dafoam/d460_sweep1_solver_family/`, `PASS`) **for this case, one solver,
+> one mesh, np = 1 and ten iterations, and for nothing wider**. The ask is a
+> **documentation + warning change, not an AD fix**; the AD-correctness reading is
+> **not reached**. **The class rests on a ratio whose fall is mostly the control's —
+> see ADDENDUM 1's mechanism paragraph, which travels with this class wherever it
+> is stated.**
+
+---
+
+**AD-CORRECTNESS SENTENCE 2 — line :162** *(the strongest one, and now doubly
+unavailable)*
+
+> | **NaN persists** | the divergence is in the AD arithmetic itself, independent of the pressure solver | **AD correctness.** A materially more serious report |
+
+This row is unavailable for **two independent reasons**, and the second survives
+even if the first is ignored. **(i)** The arm ran and the NaN did **not** persist
+(`RESULTS.md` §4 G2: 0 NaN tokens against 14 in `s1b.log`). **(ii)** The liaison
+sweep §5b established **before any compute** that the row's inference was
+**confounded by construction**: `PBiCGStab` is the exact configuration
+`OpenFOAM-AD` #2 already reports as breaking AD builds, so a NaN under it would
+have been fully explained by a separately-reported known defect; and `DIC` is a
+*symmetric* preconditioner that the asymmetric transonic `fvm::div(phid, p)`
+pressure equation would likely have refused before computing anything.
+**PROPOSED replacement for the whole §7 sweep-1 table (:159–:162):**
+
+> **Sweep 1 was redesigned and run.** The `PBiCGStab`/`DIC` design sketched below
+> was **withdrawn before compute as confounded** — see
+> `LIAISON_NOVELTY_SWEEP_adf_primal_nonreproduction.md` §5b. The executed arm swaps
+> `p` to **`smoothSolver`/`GaussSeidel`/`nSweeps 1`**, which is neither multigrid
+> nor the `PBiCGStab`/`DILU` pair upstream reports as broken, and is the solver the
+> maintainer himself named as the fix in `OpenFOAM-v1812-AD` #2 (2020-12-07).
+> **Outcome: the NaN disappears — `PASS`, class CONDITIONING / DIAGNOSABILITY.**
+> **The "NaN persists → AD correctness" branch was never reachable by the design it
+> was registered against, and is struck rather than merely unexercised.**
+
+---
+
+**AD-CORRECTNESS SENTENCE 3 — line :308**
+
+> Sweep 1 is unrun, so **the defect class is undetermined** and §"Target if filed" says so.
+
+**PROPOSED replacement:**
+
+> Sweep 1 ran 2026-08-24 and graded `PASS`: **the class is CONDITIONING /
+> DIAGNOSABILITY for this case only.** What §10 item 1 still withholds is narrower
+> and is not closed: **the sweep did not confirm §3's inferred mechanism.** `r` fell
+> from `10.029307` to `0.968227` mainly because the **control's** own continuity
+> error grew **×17.437** while the forward-AD arm's **rose ×1.683** — both builds
+> converge on each other at a *worse* absolute level. **§3's GAMG-amplification
+> story remains an inference from two arms on one case.**
+
+---
+
+**AD-CORRECTNESS SENTENCE 4 — lines :325–:326**
+
+> State the class as **undetermined** and **offer sweep 1's result** rather than asserting a mechanism.
+
+**PROPOSED replacement** — and note that the liaison sweep §5a item 3 independently
+requires **all** of §11 rewritten, because the filing is no longer "here is a new
+defect":
+
+> State the class as **CONDITIONING / DIAGNOSABILITY for this case**, give sweep 1's
+> result and its `smoothSolver` counter-configuration, and **state the mechanism
+> caveat in the same breath as the class** — that `r`'s fall is mostly the control's
+> error growing. Frame the report as **a second instance of the maintainer's own
+> open `OpenFOAM-AD` #2, at the opposite solver polarity, on a compressible
+> transonic case, with the divergence located to the 8th significant figure of the
+> energy equation at iteration 1** — which is a *better* report than a new-defect
+> filing, because it attaches to an issue the maintainer already owns and supplies
+> the digit-level entry point #2 lacks. Cite `mdolab/CMPLXFOIL` **#28** as the
+> merged, mdolab-authored precedent for the remedy. Keep §8 separate.
+
+---
+
+**Three further sentences are NOT AD-correctness claims but read to a maintainer as
+unconditional properties of the forward-AD build**, when what is measured is a
+property of the **build × pressure-solver pair**. They are listed because a reader
+upstream will not make the distinction the draft does not make for them.
+
+| line | text | why it now misreads | PROPOSED |
+|---|---|---|---|
+| **:1** (title) | "…and on a transonic case it reaches NaN in ten iterations" | true **under `GAMG`**; false under `smoothSolver` | append "**under `GAMG` on `p`**" |
+| **:38–:39** | "the run reaches **NaN within ten iterations**. The derivative `run_model` returns is `nan`." | same | "…reaches **NaN within ten iterations under `GAMG` on `p`**, and completes ten finite iterations when `p` is switched to `smoothSolver`" |
+| **:41–:43** | "on this case the toolchain's own sanctioned verification reference is unavailable" | **now falsified in its unconditional form** — under `smoothSolver` the forward build completes and prints a finite value | "…is unavailable **in this case's shipped `fvSolution` configuration**, and is recoverable by changing the pressure solver — which is what makes this a conditioning report rather than an AD one" |
+
+**Count: 4 sentences read as AD-correctness claims (:17–:19, :162, :308,
+:325–:326); 3 more read as solver-unconditional properties (:1, :38–:39,
+:41–:43). Seven flagged in total.**
+
+**One row is stale rather than wrong and is recorded here for completeness:** line
+**:152**, *"Neither has been run. The first is what makes this note filing-ready."*
+Sweep 1 has now run, and **its running did not make this note filing-ready** — see
+§A5. The sentence overstated what one arm could buy, which is a claim about
+readiness rather than about AD, and §A6 is the correction.
+
+---
+
+### A3. The §5a mechanism caveat — is it in the abstract-level text?
+
+**No. It is not, and this is a placement finding, not a content finding.**
+
+The caveat is stated, correctly and at length, in **ADDENDUM 1 at :363–:394**, and
+ADDENDUM 1 at **:390–:394** explicitly binds it to *"any downstream statement of
+D460's class — including a revised upstream draft, if one is ever prepared"*. So
+the caveat exists, is committed, and is bound.
+
+**But this file's abstract-level text is lines :1–:44** — the title, the status
+block, the "Target if filed" block and §1 Summary — and the caveat appears **319
+lines below the first of them**. `DAFOAM_CHARTER.md` §10 is explicit that a defect
+record says what it must **"on its first screen"**. A reader who reads the first
+screen of this file today is told the class is **UNDETERMINED** (:17) and meets the
+caveat **never**. The two failure modes that follows are opposite and both real:
+the first-screen reader gets a **stale, more-alarming** class, and a reader who
+skips to ADDENDUM 1 gets the **correct** class with the caveat attached.
+
+**PROPOSED** (again: proposed, not applied — and this one cannot be applied by
+appending, which is precisely why it is flagged): the class-plus-caveat pair
+belongs in the same sentence at :17, and any revised draft prepared for Sanaa's
+read should carry it in its opening block. **Until a revision exists, this addendum
+is the pointer**, and the pointer is: *the class is CONDITIONING / DIAGNOSABILITY;
+`r` fell mainly because the control's error grew 17.4×, not because the AD arm's
+fell — it rose 1.68×.*
+
+---
+
+### A4. Novelty — the `CMPLXFOIL` #28 analogue, and the unstruck §9.4
+
+**Does the draft cite `mdolab/CMPLXFOIL` #28? No — zero occurrences.** Measured:
+`grep -c 'CMPLXFOIL'` over the whole file at HEAD returns **0**.
+`grep -c 'OpenFOAM-AD'` returns **1**, at **:403**, inside ADDENDUM 1, and there it
+appears only to say that #2's opposite polarity is *"exactly as unresolved after
+this run as before it"* — it is **never introduced as prior art anywhere in this
+file**.
+
+**What #28 is.** `mdolab/CMPLXFOIL` **#28**, *"Match complex version convergence
+tolerances to real version"*, 2024-07-17, **merged**, author `eytanadler` (mdolab):
+the primal (real) build of XFOIL converges while the gradient evaluation with the
+complex build does not, and **one identified cause is that the tolerances of the
+real and complex builds do not match**. It is **analogue prior art of the family
+from mdolab's own tree** — a differentiated build failing where the plain build
+succeeds, with the lever being **the stopping tolerance rather than the
+differentiated arithmetic**, and the accepted fix being to make the two builds'
+stopping rules agree. That is **D460's conditioning branch, with a merged
+maintainer precedent for the exact remedy the class implies**. It is **not** prior
+art of D460's finding — different code, Fortran, complex-step not CoDiPack
+forward-AD, different equation set, and it reports a *gradient* failing rather than
+a primal *differing at the 8th digit* — and it **does not narrow the novelty
+statement**. It belongs in any filing (liaison §A4, §A9 item 2).
+
+**The larger novelty problem, which #28 is not.** **§9.4 at :291 still reads *"No
+prior art was found for either finding"*, and the liaison sweep's full-protocol
+verdict is that this sentence is "not sustainable for the primal finding"** —
+`DAFoam/OpenFOAM-AD` **#2** is an **open, maintainer-authored** report of AD builds
+generating wrong, rapidly-blowing-up flow solutions as a function of the
+`fvSolution` linear solver. That is D460's family. **§9.4 has not been struck.** Its
+"Not covered" list at **:293–:296** is also wrong in both directions: the venues it
+names are now covered (mdolab mailing lists **do not exist**; CFD-Online, the
+OpenFOAM forums, Google Scholar, `OpenFOAM-v1812-AD` and MeDiPack were all swept),
+**and the venue that mattered — `DAFoam/OpenFOAM-AD` — was not on the list at all.**
+
+**Quota, for the record, because it is the one blocker that IS closed.** The
+full-protocol sweep now stands at **127 recorded searches across 18 venues** (17
+read, 1 `BLOCKED`) with **11 controls**, against the house standard of 63 across
+10. **Blocker 1 of the two named at :13–:15 is met and exceeded.**
+
+---
+
+### A5. What is STILL MISSING before Sanaa could file, if she chose to
+
+**Numbered, each labelled zero-compute or needs-a-run. A "core-min class" below is
+an order-of-magnitude class for triage and is NOT a registration, NOT a cost basis
+and NOT an authorisation** — every run named here would need its own costed,
+frozen, prediction-first pre-registration before anything launched
+(`CLAUDE.md` rules 2 and 12). **Items 6, 7, 8 and 10 are named, not proposed for
+launch.**
+
+| # | what is missing | zero-compute or needs a run | class |
+|---|---|---|---|
+| **1** | **§9.4's novelty verdict (:291) is falsified and unstruck.** `OpenFOAM-AD` #2 is prior art of the family. Requires a dated addendum narrowing the sentence to *no prior report of this measurement* (liaison §5a item 1) | **zero-compute** | — |
+| **2** | **§9.4's "not covered" list (:293–:296) is wrong in both directions** and must be struck (liaison §5a item 2) | **zero-compute** | — |
+| **3** | **`mdolab/CMPLXFOIL` #28 is cited nowhere** (0 occurrences) and belongs in any filing as the merged mdolab precedent for the remedy | **zero-compute** | — |
+| **4** | **§11's tone section (:321–:327) still frames a new-defect filing.** The filing is now "a second instance of your open #2, at the opposite polarity" (liaison §5a item 3) | **zero-compute** | — |
+| **5** | **§7's sweep-1 design (:154–:162) is superseded and its "AD correctness" branch was unreachable by construction**; it needs striking with a pointer to the executed `smoothSolver` arm (liaison §5b) | **zero-compute** | — |
+| **6** | **The control arm's library identity across the two rows is not established** (§A1.1). §4 proves md5 identity for `libDASolverADF.so`; the control loads `libDASolver.so`, and :89 says that is the family the images differ in | **needs a run** — two `docker run --rm … md5sum`, no solver, no mesh | **< 1 core-min class** |
+| **7** | **No from-nothing reproducer bundle.** The house bar is D-A's `upstream_repro/run_repro.sh` (fresh clone of the official tutorials at a pinned commit, nothing-to-results in ~2 min); D-B records the same requirement as **NOT DONE**. D460 gives an invocation (**:132**) without the `runScript.py` it invokes, and a 41,760-cell lab-built mesh with no recipe a maintainer can run (**:51**) | **needs a run** — build the bundle and execute it end-to-end | **~10–50 core-min class** (sweep 1's two 10-iteration arms actually charged **4.717** core-min; mesh generation and a shakedown dominate) |
+| **8** | **Scope is one case.** §10 item 2 stands: one solver, one mesh, np = 1. **Sweep 2 (case family, A1/A4) is UNRUN and UNAUTHORISED**, and neither sweep 1, ADDENDUM 1 nor this addendum authorises it | **needs a run** + its own costed pre-registration | **~10 core-min class** as §7 sketches at **:164** |
+| **9** | **One novelty venue is `BLOCKED`** — OpenFOAM's own upstream tracker, and it is the venue nearest D460's mechanism claim (liaison §A6). Whether a `BLOCKED` venue blocks filing is **the supervisor's judgement and then Sanaa's, not this lane's** | **zero-compute to re-attempt**, but it may stay `BLOCKED` — a `BLOCKED` is recorded as `BLOCKED`, never as a zero | — |
+| **10** | **Which build is right is untouched** (§10 item 4; ADDENDUM 1 item 2). Sweep 1 measured what the difference *does*, never which side of it is correct. **No arm for this has been designed**, so it is unpriced | **needs a run, undesigned** | **unpriced — no estimate is offered rather than a guessed one** |
+| **11** | **§3's inferred mechanism is still an inference.** Sweep 1 removed the NaN but did **not** confirm the GAMG-amplification story — `r` fell mostly on the control's growth, and prediction **P5 MISSED and not narrowly** (the two builds' pressure-sweep counts ended **219 apart**, 206 vs 425, where *fewer* than the GAMG pair's 2 was registered) | **needs a run, undesigned** | **unpriced** |
+
+**Items 1–5 and 9 are zero-compute and are six of the eleven.** They are also the
+ones that matter most for a read, because each is a place where **this file
+currently contradicts a committed sibling record of this lab**.
+
+**Not on this list, deliberately:** §8's adjacent `-1e10` false-convergence finding
+(**:183–:212**). It has a **clean-zero** novelty result in every venue swept
+(`primalMinIters`, `primalMaxRes` and `-10000000000` are zeros in issues,
+Discussions and GitHub-global alike), a one-condition fix, and §11 already says it
+should not ride on the AD question. **Its readiness is a separate assessment and
+this readiness state does not carry it.**
+
+---
+
+### A6. READINESS STATE
+
+> ## READINESS STATE: **NOT READY**
+>
+> **Missing:** §A5 items **1, 2, 3, 4, 5** (zero-compute — the draft's own §9.4
+> novelty verdict, its "not covered" list, the uncited `CMPLXFOIL` #28, §11's tone
+> section, and §7's superseded sweep-1 design); item **6** (control-arm library
+> identity, < 1 core-min class); items **7** and **8** (no from-nothing reproducer;
+> scope is one case — both need runs and their own pre-registrations); item **9**
+> (one `BLOCKED` venue, supervisor's judgement); items **10** and **11** (which
+> build is right, and §3's mechanism — undesigned and unpriced).
+>
+> **The determining reason, in one sentence:** sweep 1 closed the *class* question
+> and the full-protocol sweep closed the *quota* question, but **the draft's own
+> §9.4 still asserts a novelty verdict that a committed sibling record of this lab
+> has falsified**, and a note that contradicts its own lab's evidence is not a note
+> to put in front of its owner.
+>
+> **The alternative state was `READY-FOR-SANAA'S-READ` and it was not reached. The
+> phrase "ready to file" is not in this lab's vocabulary and is not used here.**
+
+**What would change it.** §A5 items **1–5** are zero-compute and are entirely
+within the supervisor's gift as dated addenda; landing them would leave items 6–11,
+of which only 6 is cheap. **This lane does not rule on whether that would be
+enough** — `READY-FOR-SANAA'S-READ` is a supervisor's call on a lane's assessment,
+and the four §3 supervision checks are not delegable.
+
+---
+
+**Cost of this reassessment: ZERO compute.** No container was launched, no solver
+run, no image pulled, no network request made. The work was `git show` at a single
+captured HEAD, `grep`, `cmp` and this write.
+
+**Nothing in this addendum has been sent, filed, posted, uploaded, registered or
+commented, and nothing in it authorises or performs a send. The defect candidate
+remains NOT FILED ANYWHERE. Filing is Sanaa's decision alone.**
