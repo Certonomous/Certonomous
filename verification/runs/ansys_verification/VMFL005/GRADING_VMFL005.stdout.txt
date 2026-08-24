@@ -1,0 +1,23 @@
+==============================================================================
+VMFL005 -- Poiseuille flow in a pipe
+Ansys Fluid Dynamics Verification Manual 2026 R1, p. 25
+reference: White, Fluid Mechanics 3rd ed. (Hagen-Poiseuille, analytical)
+==============================================================================
+  Reynolds number (rho Vavg D / mu)            500.0000  (manual: 500)
+  manual target dP (Table .05.1)                10.2400 Pa
+  Ansys Fluent  10.22 Pa (ratio 0.998), CFX  10.49 Pa (ratio 1.024) [context]
+  exact Hagen-Poiseuille  8 mu L Vavg / R^2  10.24 Pa (6 s.f.)
+  exact via 8 mu L Q/(pi R^4) cross-check    10.24 Pa
+
+planted-zero control on L3_400x40: {'passed': True, 'planted': 1.234, 'read_back_delta': 1.234, 'reader_dp_delta': 1.234, 'file': 'surfaceFieldValue.dat'}
+
+--- gate: |dP_lab - dP_manual| / |dP_manual| <= 0.020, at L3_400x40 ---
+  dP_lab  10.290985 Pa   manual  10.2400 Pa   dev  0.498 %  ok
+  vs exact  10.240000 Pa   dev  0.498 %  ok (diagnostic, tol 1.0 %)
+  per level: coarse 10.2348  medium 10.2793  fine 10.291
+
+--- Roache triple on dP, ratio 2.0, Fs 1.25 ---
+  state CONVERGING  R 0.261691  p 1.9341  GCI_fine 5.0212e-04
+
+VERDICT: PASS -- dP within 2.0 % of the manual target
+grading written to /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL005/GRADING_VMFL005.json

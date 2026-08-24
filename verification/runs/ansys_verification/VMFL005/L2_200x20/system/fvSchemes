@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL005 -- Poiseuille pipe.  UNLIKE VMFL001 (cell Peclet ~ 0.13, central
+  differencing), this case is convection-DOMINATED numerically: cell Peclet
+  number |u| dx / nu ~ 4.0 * (0.1/__NX__) / 1e-5 is ~400 at the coarsest level,
+  so a central div(phi,U) would be oscillatory.  The convection term is
+  discretised with `bounded Gauss linearUpwind grad(U)` -- second order and
+  stable.  (Physically the fully-developed convection term is null: u_x has no
+  axial gradient and u_r = 0, so u.grad(u) = 0; the pressure drop is set purely
+  by the viscous term.  The upwind scheme is a numerical-stability choice, not a
+  physics one, and does not bias the developed pressure gradient.)
+
+  The viscous / Laplacian term is `Gauss linear corrected` (second order),
+  which is the term that actually sets the Hagen-Poiseuille pressure gradient,
+  so the Roache triple on the pressure drop measures ITS discretisation error.
+  Stated in PREREGISTRATION.md section 6.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         steadyState;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    // `default Gauss linear` (second order) rather than `default none`: a div
+    // term this dict does not name by the exact v2606 spelling then still runs
+    // with the correct second-order scheme instead of aborting (VMFL001's
+    // deliberate choice).  The convection term is named explicitly and made
+    // upwind because of the high cell Peclet number; the viscous-stress term is
+    // second-order central either by its explicit line or by the default.
+    default         Gauss linear;
+    div(phi,U)      bounded Gauss linearUpwind grad(U);
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+// ************************************************************************* //

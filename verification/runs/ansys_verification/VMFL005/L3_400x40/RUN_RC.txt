@@ -1,0 +1,7 @@
+level=L3_400x40
+rc=0
+wall_s=200
+ranks=1
+core_min=3.3333
+prereg_blob=43aaf6bf5c5f1189495e1460e5de415e56860447
+utc=2026-08-24T18:49:21Z

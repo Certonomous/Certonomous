@@ -1,0 +1,197 @@
+{
+  "ansys_context": {
+    "cfx": 10.49,
+    "fluent": 10.22
+  },
+  "case": "VMFL005",
+  "comparator": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL005/grade_vmfl005.py",
+  "completion": {
+    "L1_100x10": {
+      "age_guard": "fields newer than 0/U",
+      "endTime": 2000.0,
+      "fields_at_endTime": [
+        "U",
+        "p"
+      ],
+      "levers": {
+        "inlet": "codedFixedValue poiseuilleInlet",
+        "laminar": "active-in-log",
+        "mesh": {
+          "cells": 1000,
+          "mesh_ok": true
+        },
+        "nu": 1e-05,
+        "wedge_in_log": false
+      },
+      "n_exec": 2000,
+      "rc": 0,
+      "times": [
+        "0",
+        "2000"
+      ]
+    },
+    "L2_200x20": {
+      "age_guard": "fields newer than 0/U",
+      "endTime": 3000.0,
+      "fields_at_endTime": [
+        "U",
+        "p"
+      ],
+      "levers": {
+        "inlet": "codedFixedValue poiseuilleInlet",
+        "laminar": "active-in-log",
+        "mesh": {
+          "cells": 4000,
+          "mesh_ok": true
+        },
+        "nu": 1e-05,
+        "wedge_in_log": false
+      },
+      "n_exec": 3000,
+      "rc": 0,
+      "times": [
+        "0",
+        "3000"
+      ]
+    },
+    "L3_400x40": {
+      "age_guard": "fields newer than 0/U",
+      "endTime": 6000.0,
+      "fields_at_endTime": [
+        "U",
+        "p"
+      ],
+      "levers": {
+        "inlet": "codedFixedValue poiseuilleInlet",
+        "laminar": "active-in-log",
+        "mesh": {
+          "cells": 16000,
+          "mesh_ok": true
+        },
+        "nu": 1e-05,
+        "wedge_in_log": false
+      },
+      "n_exec": 6000,
+      "rc": 0,
+      "times": [
+        "0",
+        "6000"
+      ]
+    }
+  },
+  "diagnostic": {
+    "exact": 10.240000000000002,
+    "exact_via_Q": 10.24,
+    "ok": true,
+    "rel_vs_exact": 0.004979041523437386,
+    "tol": 0.01
+  },
+  "gate": {
+    "dp_fine": 10.2909853852,
+    "manual_target": 10.24,
+    "passed": true,
+    "rel_vs_manual": 0.004979041523437561,
+    "tol": 0.02
+  },
+  "iterative_convergence": {
+    "L1_100x10": {
+      "converged": true,
+      "final_residuals": {
+        "Ux": 4.14311432861e-12,
+        "Uy": 5.39759365826e-08,
+        "p": 7.09973313019e-10
+      },
+      "inlet_p_last": 10.23475565622,
+      "plateau_n": 400,
+      "plateau_ok": true,
+      "plateau_ptp": 4.100009221019718e-10,
+      "plateau_tol": 0.0001,
+      "residual_tol": 1e-06,
+      "residuals_ok": true,
+      "uz_final_residual": 0.0184821588925
+    },
+    "L2_200x20": {
+      "converged": true,
+      "final_residuals": {
+        "Ux": 1.35528128325e-12,
+        "Uy": 9.49413907491e-08,
+        "p": 7.36848014889e-10
+      },
+      "inlet_p_last": 10.27932261636,
+      "plateau_n": 600,
+      "plateau_ok": true,
+      "plateau_ptp": 3.199982501200793e-10,
+      "plateau_tol": 0.0001,
+      "residual_tol": 1e-06,
+      "residuals_ok": true,
+      "uz_final_residual": 0.00881939774051
+    },
+    "L3_400x40": {
+      "converged": true,
+      "final_residuals": {
+        "Ux": 1.73203321082e-13,
+        "Uy": 1.99872706904e-08,
+        "p": 8.39134670768e-10
+      },
+      "inlet_p_last": 10.2909853852,
+      "plateau_n": 1200,
+      "plateau_ok": true,
+      "plateau_ptp": 6.000000496442226e-11,
+      "plateau_tol": 0.0001,
+      "residual_tol": 1e-06,
+      "residuals_ok": true,
+      "uz_final_residual": 0.00253829538905
+    }
+  },
+  "levels": {
+    "L1_100x10": {
+      "cells": 1000,
+      "dp": 10.23475565622,
+      "p_inlet": 10.23475565622,
+      "p_outlet": 0.0,
+      "source_inlet": "L1_100x10/postProcessing/pInletMonitor/0/surfaceFieldValue.dat",
+      "source_outlet": "L1_100x10/postProcessing/pOutletMonitor/0/surfaceFieldValue.dat"
+    },
+    "L2_200x20": {
+      "cells": 4000,
+      "dp": 10.27932261636,
+      "p_inlet": 10.27932261636,
+      "p_outlet": 0.0,
+      "source_inlet": "L2_200x20/postProcessing/pInletMonitor/0/surfaceFieldValue.dat",
+      "source_outlet": "L2_200x20/postProcessing/pOutletMonitor/0/surfaceFieldValue.dat"
+    },
+    "L3_400x40": {
+      "cells": 16000,
+      "dp": 10.2909853852,
+      "p_inlet": 10.2909853852,
+      "p_outlet": 0.0,
+      "source_inlet": "L3_400x40/postProcessing/pInletMonitor/0/surfaceFieldValue.dat",
+      "source_outlet": "L3_400x40/postProcessing/pOutletMonitor/0/surfaceFieldValue.dat"
+    }
+  },
+  "manual_page": "25",
+  "planted_zero": {
+    "file": "surfaceFieldValue.dat",
+    "passed": true,
+    "planted": 1.234,
+    "read_back_delta": 1.234,
+    "reader_dp_delta": 1.234
+  },
+  "reynolds": 499.99999999999994,
+  "triple": {
+    "R": 0.26169092088319074,
+    "d21": -0.011662768840000837,
+    "d32": -0.04456696013999917,
+    "f_coarse": 10.23475565622,
+    "f_extrapolated": 10.29511921045573,
+    "f_fine": 10.2909853852,
+    "f_med": 10.27932261636,
+    "fs": 1.25,
+    "gci_fine": 0.0005021172780104668,
+    "p": 1.9340642225610707,
+    "ratio": 2.0,
+    "state": "CONVERGING"
+  },
+  "verdict": "PASS",
+  "why": "dP within 2.0 % of the manual target"
+}

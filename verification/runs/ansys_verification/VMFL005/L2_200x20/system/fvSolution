@@ -1,0 +1,59 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL005 -- Poiseuille pipe.  NO residualControl: the run always reaches
+  endTime (see system/controlDict), so the strict-completion clauses are
+  meaningful.  Iterative convergence is judged by the comparator.
+
+  The domain is OPEN (velocity fixed at the inlet, pressure fixed at the
+  outlet), so the pressure level is pinned by the outlet BC and NO pRefCell /
+  pRefValue is set (contrast VMFL001, a closed annulus that needed one).
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        tolerance       1e-9;
+        relTol          0.01;
+        smoother        GaussSeidel;
+    }
+
+    U
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-11;
+        relTol          0.01;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+    consistent      no;
+    residualControl
+    {
+    }
+}
+
+relaxationFactors
+{
+    equations
+    {
+        U               0.7;
+    }
+    fields
+    {
+        p               0.3;
+    }
+}
+
+// ************************************************************************* //
