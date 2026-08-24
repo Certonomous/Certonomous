@@ -395,3 +395,86 @@ neither gap is read as a finding about the solver. Core-minutes are charged as m
 
 *Nothing in this file has been filed, sent, uploaded, registered, posted or pushed. The item-level
 verdict is the supervisor's to record; this draft reports the rows the frozen grader produced.*
+
+---
+
+## ADDENDUM 1 — 2026-08-24 (2026-08-24T17:19:00Z): this file IS committed and its item-level verdict IS on record — three stale status statements corrected. No number, band, verdict, cost figure or artifact path moves.
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.** Nothing above this line is
+edited, re-ordered or re-worded. This section is appended at the foot under `CLAUDE.md` rule 6, and
+the statements it corrects are **struck by this addendum, never rewritten**.
+
+**Raised by:** verification's cross-team gate audit pass 7, `docs/CROSS_TEAM_GATE_AUDIT.md` §58
+(committed `8f5bfe51`), which opens the finding *"Two record-hygiene items are owed, neither of
+which moves a number"* and records that **"a reader at HEAD is told by three places that a committed
+record does not exist in git."** Written by a dafoam lane. **Zero compute.**
+
+### A1.0 The fact this addendum records
+
+This file was committed at **`b5ff25d7`** (2026-08-23 21:19:17 +0000), subject *"B3 peak RSS:
+RESULTS — the NOT MEASURED peak of `decomposition_np4` is measured; M0 PASS so it attaches, M4's
+registered claim FALSIFIED in the registered direction"*. `git log --follow` on this path returns
+**that commit and no other** (verified at `239321af`): the file has not been modified since it
+landed, and this addendum is the first change to it.
+
+The supervisor's personal read and the item-level verdict were recorded **three minutes later** at
+**`52c26ec1`** (2026-08-23 21:22:42 +0000), which landed **L-261** (`docs/LESSONS.md:9803` —
+*"supervisor-verified against `peak_rss.json` before recording"*) and the dafoam board block
+**"B3 peak-RSS: MEASURED AND GRADED (attempt 2, `d062aace`+Addenda)"** in `docs/LAB_STATE.md`. The
+sibling record's own addendum `bb5088c4` (21:19:38 +0000) already cites this file's rows as findings
+of record.
+
+### A1.1 Statement 1 — the header, lines 3–4, quoted verbatim
+
+> `**DRAFT — NOT COMMITTED.** With the dafoam supervisor for a personal read before any verdict is`
+> `recorded. Nothing here is filed, sent, uploaded, registered, posted or pushed.`
+
+**STRUCK as to "DRAFT", as to "NOT COMMITTED", and as to "before any verdict is recorded."** The
+file is committed (`b5ff25d7`); the supervisor's read happened and the item-level verdict was
+recorded (`52c26ec1`). This is the record of the item, not a draft of one.
+
+**NOT struck, because it remains true:** *"Nothing here is filed, sent, uploaded, registered, posted
+or pushed."* A commit to this private repository is none of those things. **SUBMISSIONS REMAIN
+PARKED** (`CLAUDE.md` rule 7): nothing in this file has left the box, and sending is Sanaa's
+decision alone.
+
+### A1.2 Statement 2 — the closing line, lines 396–397, quoted verbatim
+
+> `*Nothing in this file has been filed, sent, uploaded, registered, posted or pushed. The item-level`
+> `verdict is the supervisor's to record; this draft reports the rows the frozen grader produced.*`
+
+**STRUCK as to "The item-level verdict is the supervisor's to record" and as to "this draft."** The
+verdict was recorded at `52c26ec1`: **M0, M2a, M2b, M5 PASS; M3a, M3b, M4 GATE FAIL**, with M4's
+registered claim falsified in the registered direction. **The first clause is NOT struck** — it is
+true and stays true.
+
+**As corrected, that closing line reads:** *"Nothing in this file has been filed, sent, uploaded,
+registered, posted or pushed. The item-level verdict was recorded by the dafoam supervisor at
+`52c26ec1`; this record reports the rows the frozen grader produced."*
+
+### A1.3 Statement 3 — the calibration ledger's reference cell, corrected in that file, not here
+
+`docs/COST_CALIBRATION.md` line 89 (the id-less B3 peak-RSS row, committed `d45596f8`) closes its
+record-ref cell with:
+
+> ``**`cases/dafoam/ladder-b/B3/decomposition_peak_rss/RESULTS.md` is a DRAFT and is NOT YET COMMITTED** — with the dafoam supervisor for a personal read.``
+
+**That statement was TRUE when it was written and went stale 4 minutes 24 seconds later**: the
+ledger row committed at 21:14:53Z, this file at 21:19:17Z. It is corrected **in the ledger's own
+file**, by the appended correction row that the stale row itself pre-registered (*"a correcting row
+naming this one is owed once RESULTS.md lands"*) — that file's append rule 1 forbids editing an
+existing row, so a correction there is a new row, never an edit. The same commit that carries this
+addendum carries that row.
+
+### A1.4 What does NOT change
+
+**No number, band, verdict, grader output, cost figure or artifact path in §1–§10 is touched.**
+Every graded row still comes from the frozen `analyse_peak_rss.py` (sha256 `c4db08fc…9c6951eb`, §1),
+grader exit 3, under registration `d062aace` with Addenda `7a007d67` and `5edfe8c0`. §9's limits
+stand in full — in particular that every figure here is a peak **under a 12 GiB cap** and is not an
+unconstrained peak, and that the `MemAvailable` launch-gate threshold is **Sanaa's**, was not moved
+by this item, and is not moved by this addendum (`CLAUDE.md` rule 9).
+
+**Cost of this addendum: 0.00 core-min.** A records correction; no solver, no grader, no re-read of
+any run artifact. The estimate-versus-actual comparison required by `CLAUDE.md` rule 12 is carried
+by the correction row landed in `docs/COST_CALIBRATION.md` in this same commit.
