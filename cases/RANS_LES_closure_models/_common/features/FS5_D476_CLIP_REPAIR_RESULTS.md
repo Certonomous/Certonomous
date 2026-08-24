@@ -288,3 +288,172 @@ billing, so any rate is reported-by-owner.
   attempted and none is implied by this lane.
 - **The `_b`-form crowding pattern** described in section 8, which the
   saturation columns do not resolve.
+
+---
+
+## ADDENDUM 2 — 2026-08-24
+
+**Document version 1.1.** Everything above this line is version 1.0 (the text
+above carried no version field). Rule 6: **appended only, nothing above edited.**
+**Lines whose number changed above this section: 0** — verified, not merely
+asserted: the 290-line pre-addendum body is byte-identical to the committed blob
+`b362ea32fe7891b066c3999ba65ee735d201e0e1`, re-checked in the same shell
+invocation as this append by piping the first 290 lines through
+`git hash-object --stdin`.
+
+Written 2026-08-24T16:05:46Z by a closure lane at the closure-supervisor's direction.
+Addendum 1 of this item is the dated addendum at the foot of
+`FS5_D476_CLIP_REPAIR_PREREGISTRATION.md` (appended `7e973ba8`); this is the
+item's second addendum and the first appended to this results file. It alters
+**no gate, threshold, cap or label**: A1, A2 and A4 remain **PASS**, A3 remains
+**GATE FAIL**, and FS5 remains a **STANDING GATE, armed**.
+
+### A2.1 The adoption ruling, recorded verbatim
+
+Section 7 of the frozen pre-registration reads "no closure build relies on the
+amended instrument before that audit returns." Verification's cross-team audit
+pass 6 has returned — `docs/CROSS_TEAM_GATE_AUDIT.md` §25–§34, at commit
+`542408f7`, **CANDIDATE** (a verification lane's read; the verification
+supervisor's own read governs). The closure supervisor re-derived the audit's
+load-bearing findings personally from the delivered artefacts and rules as
+follows. The words are the supervisor's, unaltered; line breaks are wrapping.
+
+> ADOPTION BLOCK LIFTED for the unclipped q1_wallRe_raw companion as an
+> AUDIT-SIDE DIAGNOSTIC ONLY — 2026-08-24, closure-supervisor, on verification's
+> audit pass 6 (542408f7, CANDIDATE) plus the supervisor's own independent
+> re-derivation of its A1/A2/A3 findings from the delivered artefacts. Scope of
+> the lift, stated so it cannot be read wider: (i) the companion may be read and
+> reported by FS5 coverage discharges; (ii) it is never in F, never a feature,
+> never a correction, never applied to any prediction (L-219/L-220, charter
+> §22.4); (iii) A3 stays GATE FAIL — nothing here re-grades it;
+> (iv) `singular_value_ratio_first_to_last` is NOT to be quoted as a number in
+> any closure record until a registered instrument decision adopts verification's
+> recommendation (a) (rank + smallest singular value against the registered
+> rtol; ratio only when s[-1] clears it, else 'unbounded (analytically
+> singular)') — that adoption and recommendation (b) (pin threads / gate on
+> stored bytes) are standards decisions on Sanaa's desk; (v) if the verification
+> supervisor's own read reverses any pass-6 finding, this lift is void and the
+> block re-arms without further ruling. FS5 remains a STANDING GATE, armed.
+
+Two consequences are worth stating so no later reader has to infer them. First,
+the six differing values of section 4 are **not** re-labelled by this ruling —
+section 4's `GATE FAIL` stands exactly as written, and the ruling forbids
+quoting the statistic that produced it. Second, the lift is conditional on a
+CANDIDATE audit; clause (v) is self-executing, so a reversal by the verification
+supervisor needs no further closure ruling to re-arm the block.
+
+### A2.2 Pass-6 residual items that were closure's to repair — discharged here
+
+Pass 6 listed five residual hazards (§31) and two unestablished items (§34),
+none of which moves a verdict. Those that are closure's are discharged below.
+
+**§31.1 — the grading record did not cite the triage directory. It is cited
+now.** The rc table in section 2 and the thread sweep in section 4.1 are read
+from artefacts under **`/home/ubuntu/closure-data/D476_A3_triage/`**, which
+holds **eight** files:
+
+| file | bytes | what it is |
+|---|---|---|
+| `fs2_audit_pinned4.json` | 92,850 | the `OPENBLAS_NUM_THREADS=4` diagnostic run of section 4.1 |
+| `fs2_audit_rep2.json` | 92,850 | the back-to-back repeat run of section 4.1 item 3 |
+| `A2_before.json` | 12,461 | the gate-A2 before-hashes (a copy; the live original is in the backup directory below) |
+| `A2_after.json` | 13,541 | the gate-A2 after-hashes |
+| `a1_refusal_proof.py` | 2,553 | the section 2 mutation harness (control / `clipped_reader` / `ignores_disk`) |
+| `a3_audit_identity.py` | 2,301 | the section 4 stripped new-vs-old comparator |
+| `a3_diagnose.py` | 1,325 | the section 4.1 thread sweep |
+| `hash_features.py` | 1,581 | the array-content hasher behind gate A2 |
+
+The pre-repair state is at **`/home/ubuntu/closure-data/features_backup_pre_D476/`**
+(already cited in section 1): the 40 pre-repair case `.npz`, `manifest.json`,
+the pre-repair `fs2_audit.json`, and `A2_before.json` at its live mtime.
+
+**§31.2 — disclosure attached to that citation: the triage directory's mtimes
+date nothing.** It is a `cp` **without `-p`**. All eight files carry
+`mtime == ctime` inside `2026-08-23 21:01:32.859738Z`–`21:01:32.865102Z`, a
+~5.4 ms batch write, **after** the commit that already reported their contents.
+The copy was a correct rescue out of a scratch location that L-186 says gets
+wiped, but **no timestamp inside that directory dates any run**, and none is
+offered as evidence of when anything ran. The timing evidence in this record
+rests on `features/` and `features_backup_pre_D476/`, which carry live mtimes.
+
+**§31.4 — the presentation nit in section 8, corrected here.** Section 8's
+sentence "Three features have `frac_at_max` above 0.1 %" sits above a **four**-row
+table. The count of three is correct; the fourth row is shown for context and is
+**below** the 0.1 % threshold. Re-read from
+`/home/ubuntu/closure-data/features/fs2_audit.json`, `per_feature`, by the lane
+appending this addendum: `q4_pgradAlongStreamline` has
+**`frac_at_max` = 0.0005781950340683112**, i.e. **0.0578 %** of the 641,652
+pooled cells (`frac_at_min` = 0.0005485839676335459, `max` = 0.5). Section 8's
+table shows it rounded to 0.0006. The three rows genuinely above 0.1 % are
+`I3_trW2__A` and `I3_trW2__B` at 1.0000 and `q1_wallRe` at 0.5783727004669198.
+
+**§27.5 and §27.6 / §34 — the thread-sweep rows and the delivered run's thread
+count, acknowledged as not artefact-backed.** Of the five rows in section 4.1's
+sweep table, only two are corroborated by a preserved artefact: **threads = 4 →
+2.849150482633467e+18**, exactly the pre-D476 baseline `hump` value, and
+**threads = 16 → 2.0245029833104083e+17**, exactly the delivered value. The
+**threads = 1, 2 and 8 rows are transcribed prose with no surviving artefact** —
+`a3_diagnose.py` printed to stdout and no stdout was preserved. Consequently the
+statement that **the delivered run ran at 16 threads is an inference from that
+sweep, not a recorded fact**: `fs2_audit.json` carries no BLAS implementation,
+thread-count or numpy field (its top-level keys are exactly `coverage`,
+`families`, `n_features`, `per_family`, `per_feature`, `rank_rcond`,
+`tensor_basis_rank`, `zero_abs`, `zero_test` — re-read by this lane). **Nothing
+load-bearing rests on the three uncorroborated rows.** The diagnosis of section
+4.1 is carried by the pinned pair alone — unpinned six differences versus
+`OPENBLAS_NUM_THREADS=4` zero differences, both preserved as JSON in the triage
+directory — which establishes that the D476 change moved no pre-existing audit
+value without needing any particular thread count to be true of the delivered
+run. The missing environment provenance is verification's §31.5, and its repair
+is recommendation (b), a standards decision (see A2.3).
+
+**§31.3 — `make_feature_library.py`'s carry-forward was guarded only when the
+marker was already present. Repaired in the same commit as this addendum.** The
+carry-forward of section 6 ran under `if AMEND_MARK in prev:`, so a future
+hand-written amendment appended **without** the marker line would have been
+silently destroyed by the generator's `"w"` write — the exact failure mode
+section 6 exists to repair. The generator now **refuses** rather than
+overwrites: when the destination exists and carries no marker, it asserts that
+the file has no lines beyond the generated text, and the refusal message prints
+the marker line to insert. Nothing about what the generator *generates* changed,
+and the guard was proven live in both directions, in a scratch copy, leaving the
+repository file untouched:
+
+| case | pre-repair generator | repaired generator |
+|---|---|---|
+| destination with the marker (the real amended file) | rewrites, byte-identical | rewrites, byte-identical (rc 0) |
+| destination = generated body only, no marker, no extra lines | rewrites | rewrites (rc 0) — **no false refusal** |
+| destination = generated body + a hand-written amendment, **no marker** | **rc 0, amendment silently destroyed** | **refuses, rc 1, destination unchanged** |
+
+Round trip on the repository file: `FEATURE_LIBRARY.md` sha256
+`73068606406878037a11751b8a19ff373ef892d75b201f0ffe2531606de17c5d`, 259 lines,
+**identical before and after** re-running the repaired generator (205 generated
+lines + 54 carried amendment lines).
+
+### A2.3 What is owed, and to whom
+
+**Owed to verification: nothing.** Every pass-6 item that was closure's to
+repair is discharged above; the cost calibration verification asked after is
+already ledgered as row **C-6** of `docs/COST_CALIBRATION.md` (registered 2–6
+core-min against ~10–12 core-min gross and 3.0 core-min cleaned; ratio 0.75x
+cleaned/predicted, 2.5–3x gross/predicted; attribution *misprediction of scope*;
+zero waste, zero contention). This addendum's own compute is one generator round
+trip and one scratch guard proof, **~0.02 core-minutes**, which adds no ledger
+row. `cost_basis`: wall and CPU seconds measured on this box by `/usr/bin/time`;
+no dollar figure is quoted, the box cannot read its own billing.
+
+**On Sanaa's desk: two standards decisions, neither closure's to take** —
+verification's recommendation **(a)**, publish rank and the smallest singular
+value against the registered rtol and print `s[0]/s[-1]` only when `s[-1]`
+clears that tolerance, else label it "unbounded (analytically singular)"; and
+recommendation **(b)**, pin threads (or record a fixed N and the BLAS
+implementation) for any gate whose criterion is exact identity of *recomputed*
+floating-point quantities, with the stronger form being to gate on **stored**
+primary bytes. Until (a) is adopted by a registered instrument decision, clause
+(iv) of the ruling stands: `singular_value_ratio_first_to_last` is not quoted as
+a number in any closure record.
+
+**Still open, unchanged by this addendum:** A3's `GATE FAIL`; the `_b`-form
+crowding question of section 8 and section 10, which the saturation columns do
+not resolve; and the NASA_2DWMH excursion of section 7, which remains instrument
+information beside the standing verdicts and re-grades nothing.

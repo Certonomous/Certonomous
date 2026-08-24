@@ -172,6 +172,19 @@ if os.path.exists(DST):
     if AMEND_MARK in prev:
         carried = AMEND_MARK + prev.split(AMEND_MARK, 1)[1]
         assert carried.strip() != AMEND_MARK, "rule 6: amendment marker found but nothing after it"
+    else:
+        # Cross-team gate audit pass 6, sec. 31.3: the carry-forward above fires
+        # only when the marker is present, so a hand-written amendment appended
+        # WITHOUT it would be silently destroyed by the write below -- the exact
+        # failure mode the carry-forward exists to repair. REFUSE instead of
+        # overwriting: any line on disk past the end of the generated text is
+        # content this generator did not produce and cannot reproduce.
+        n_extra = len(prev.splitlines()) - len(L)
+        assert n_extra <= 0, (
+            f"rule 6: {DST} carries {n_extra} line(s) beyond the generated text and "
+            f"NO amendment marker -- refusing to overwrite unreproducible content. "
+            f"Put this marker line above the hand-written section, then re-run:\n"
+            f"{AMEND_MARK}")
 open(DST, "w").write("\n".join(L) + "\n" + carried)
 if carried:
     assert AMEND_MARK in open(DST).read(), "rule 6: amendments lost on write"
