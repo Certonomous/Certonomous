@@ -1,0 +1,22 @@
+=== mark_done_t3_ext1.py LIVE RUN ===
+date -u (same invocation): 2026-08-24T15:57:59Z
+stamp: 20260824T155759Z
+cwd: /home/ubuntu/Certonomous/verification/runs/T-family/T3_runs
+HEAD: eb2a534b63defd1105d970501d4c91b8849df4b7
+sha256 mark_done_t3_ext1.py: 387a2c9e66322615dd6aabc2c658332c49c4f8985ac0cf91ecd1a25e99a11a0c
+sha256 mark_done_t3.py:      ba466e23a5b633993c726c6657802cf146e200c4d96c311d962666361fc2d60d
+DONE markers before: DONE.C_lam_m DONE.D_m DONE.O_m DONE.P_m DONE.R_c DONE.R_m DONE.W_m 
+--- command: python3 mark_done_t3_ext1.py ---
+8/8 cases meet the strict completion rule (8 with an ext1 extension)
+  PASS      R_c  [ext1 included]
+  PASS      R_m  [ext1 included]
+  PASS      R_f  [ext1 included]
+  PASS      P_m  [ext1 included]
+  PASS      C_lam_m  [ext1 included]
+  PASS      W_m  [ext1 included]
+  PASS      D_m  [ext1 included]
+  PASS      O_m  [ext1 included]
+rc=0
+--- after ---
+DONE markers after: DONE.C_lam_m DONE.D_m DONE.O_m DONE.P_m DONE.R_c DONE.R_f DONE.R_m DONE.W_m 
+date -u at end: 2026-08-24T15:58:04Z

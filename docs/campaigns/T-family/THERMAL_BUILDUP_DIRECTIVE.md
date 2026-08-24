@@ -35,7 +35,7 @@ BLOCKED / PENDING.**
 
 | item | owner | state |
 | --- | --- | --- |
-| **H-1 (a) Vogel & Eaton 1985** | T-family supervisor | **NOT on disk as of 2026-08-22.** Searched `docs/papers/` (all subdirectories), `docs/campaigns/T-family/reference-data/`, and repo-wide by filename and by tracked path; zero hits on `vogel` or `eaton`. The two upstream commits named in the pull, `ddd2d75b` and `c99bce64`, are other PDFs — closure and UQ papers, listed in the merge row below — and a third, `ad110f9d`, arrived during this session and is also not it. **T3 is NOT A RESULT 4/4 (gates (1)/(2) of prereg §7.1: no case at 1e-6, triples DIVERGENT/OSCILLATORY); primary (Vogel & Eaton 1985) still NOT OBTAINED — necessary, not sufficient; ext1 extension launched 2026-08-22 (`T3_EXT1_AMENDMENT.md`).** The missing primary is necessary and not sufficient, and it is not today's binding constraint |
+| **H-1 (a) Vogel & Eaton 1985** | T-family supervisor | **NOT on disk as of 2026-08-22.** Searched `docs/papers/` (all subdirectories), `docs/campaigns/T-family/reference-data/`, and repo-wide by filename and by tracked path; zero hits on `vogel` or `eaton`. The two upstream commits named in the pull, `ddd2d75b` and `c99bce64`, are other PDFs — closure and UQ papers, listed in the merge row below — and a third, `ad110f9d`, arrived during this session and is also not it. **State 2026-08-24: T3 is NOT A RESULT 4/4, ext1 COMPLETE 8/8 (`R_f` 14:53Z), now at gate (1) alone of prereg §7.1 — `R_m`/`R_f` CONVERGED, `R_c` in a limit cycle at the 80 000 cap (prereg §11's registered alternative). G2 `x_peak/H` triple CONVERGING (`p` 4.304, GCI 0.019 %) and ungradeable anyway, gate (1) firing first. Fourth mesh level (`R_m`,`R_f`,`R_ff`) PROPOSED and NOT RUN. Primary (Vogel & Eaton 1985) still NOT OBTAINED — necessary, not sufficient. Scored in `T3_EXT1_AMENDMENT.md` §15, `T3_RESULTS.md` §14.** The missing primary is necessary and not sufficient, and it is not today's binding constraint |
 | **H-1 (b) T5 primary status** | T-family supervisor | **HELD.** `docs/papers/forced_convection_heat_transfer/meinders_1998_tudelft_thesis_wall_mounted_cubes.pdf`, sha256 `36c89a54…` re-verified on disk 2026-08-22, obtained under commit `4cc8c22c`. Open, title-page verified, stated uncertainty 5 % mid-face / 10 % edges in local `h` |
 | **H-2 spine ordering** | T-family supervisor | **Index reordered (this commit).** `T_FAMILY_INDEX.md` carries a dated ordering section; the old order is marked superseded and retained, not deleted |
 | **H-3a T10a ceiling refinement arm** | T10a lane | **PENDING** — pre-registration not yet written; lane dispatched |
@@ -59,3 +59,18 @@ disqualifying, and obtaining it is necessary and not sufficient — but it is no
 today's binding constraint. The ladder is. The word **BLOCKED** is therefore
 withdrawn from T3's state here in favour of what the frozen comparator returned,
 rather than the comparator's word being edited to match the ledger's.
+
+**Update 2026-08-24, and the paragraph above is left as written.** The ext1
+extension it names has completed, 8 of 8, and the rung was re-graded by the same
+frozen comparator: still **NOT A RESULT 4/4**. The paragraph's argument is not
+weakened by the extension but sharpened by it — the rows now stop at **gate (1)
+alone**, and on a single case. `R_m` and `R_f` are iteratively CONVERGED; `R_c`
+sits in a limit cycle at the 80 000 cap, which `T3_PREREGISTRATION.md` §11
+registered in advance as an outcome the rung reports rather than averages. One
+triple, G2 `x_peak/H`, is now CONVERGING (`p` 4.304, GCI 0.019 %) and is
+**NOT A RESULT anyway**, because gate (1) fires before a triple is consulted —
+the gate turning a gradeable row *into* NOT A RESULT, never the reverse. So the
+distance between this rung and the missing primary has grown, not shrunk: gate
+(3) is further downstream than it was on 2026-08-22, and the registered response
+is a fourth mesh level, **proposed and not run**. Scored in
+`T3_EXT1_AMENDMENT.md` §15; evidence in `T3_RESULTS.md` §14.

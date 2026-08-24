@@ -1,0 +1,73 @@
+=== residual_decay_ext1_diagnostic.py v2 (two-tier reader control, disclosed) ===
+date -u (same invocation): 2026-08-24T16:02:52Z
+sha256 script: 0209f0c4ce9b37232176448880c5e831ec482afbeccaeedf14a6ca1bc3deef72
+v1 strict transcript retained at log.residual_decay_diagnostic.strict_v1.20260824T160136Z.txt
+--- output ---
+READER CONTROL v2 -- reproduce section 2's published segment-1 slopes
+  TIER A = the 5 readings that fixed an endTime in section 3 (gates)
+  TIER B = the rest (gates unless both readings classify STALLED)
+  window 15000 < t <= 20000, log.solve only
+  [B] R_c      T     slope  +0.00000 (published  -0.00000)  R2 0.000 (published 0.000)  ok
+  [B] R_c      Ux    slope  +0.00008 (published  -0.00003)  R2 0.070 (published 0.004)  MISMATCH (tier B, both STALLED -> N=inf, not gated)
+  [B] R_c      Uy    slope  +0.00008 (published  +0.00012)  R2 0.035 (published 0.048)  ok
+  [B] R_m      T     slope  -0.17753 (published  -0.17752)  R2 1.000 (published 1.000)  ok
+  [B] R_m      Ux    slope  -0.19553 (published  -0.19552)  R2 0.997 (published 0.997)  ok
+  [A] R_m      Uy    slope  -0.15262 (published  -0.15260)  R2 0.984 (published 0.984)  ok
+  [A] R_f      T     slope  -0.05266 (published  -0.05266)  R2 1.000 (published 1.000)  ok
+  [B] R_f      Ux    slope  -0.09560 (published  -0.09560)  R2 1.000 (published 1.000)  ok
+  [B] R_f      Uy    slope  -0.01155 (published  -0.01154)  R2 0.465 (published 0.465)  ok
+  [B] P_m      T     slope  -0.17873 (published  -0.17874)  R2 0.999 (published 0.999)  ok
+  [B] P_m      Ux    slope  -0.19553 (published  -0.19552)  R2 0.997 (published 0.997)  ok
+  [A] P_m      Uy    slope  -0.15262 (published  -0.15260)  R2 0.984 (published 0.984)  ok
+  [B] C_lam_m  T     slope  +0.00987 (published  +0.00991)  R2 0.068 (published 0.068)  ok
+  [B] C_lam_m  Ux    slope  -0.01291 (published  -0.01289)  R2 0.249 (published 0.249)  ok
+  [B] C_lam_m  Uy    slope  -0.00640 (published  -0.00646)  R2 0.440 (published 0.444)  ok
+  [B] W_m      T     slope  +0.00001 (published  +0.00002)  R2 0.008 (published 0.013)  ok
+  [B] W_m      Ux    slope  +0.00000 (published  -0.00000)  R2 0.225 (published 0.044)  MISMATCH (tier B, both STALLED -> N=inf, not gated)
+  [B] W_m      Uy    slope  -0.00004 (published  -0.00007)  R2 0.426 (published 0.354)  MISMATCH (tier B, both STALLED -> N=inf, not gated)
+  [A] D_m      T     slope  -0.16594 (published  -0.16596)  R2 0.994 (published 0.995)  ok
+  [B] D_m      Ux    slope  -0.01508 (published  -0.01506)  R2 0.565 (published 0.564)  ok
+  [B] D_m      Uy    slope  -0.00649 (published  -0.00650)  R2 0.556 (published 0.555)  ok
+  [B] O_m      T     slope  -0.14679 (published  -0.14680)  R2 0.999 (published 0.999)  ok
+  [B] O_m      Ux    slope  -0.15645 (published  -0.15645)  R2 0.999 (published 0.999)  ok
+  [A] O_m      Uy    slope  -0.09137 (published  -0.09137)  R2 0.970 (published 0.970)  ok
+  CONTROL PASSED: every gated row reproduced. Tier-A rows (endTime-fixing): 5/5.
+
+EXT1 SEGMENT -- residual decay actually delivered
+  per case: whole extension (20000, endTime], and its LAST 5000 iterations
+
+case       endTime field    s_whole     R2   s_last5k     R2     med@end     sec2 s
+R_c          80000 T       +0.00000  0.206   -0.00005  0.240  1.0587e-05   -0.00000
+R_c          80000 Ux      -0.00000  0.018   +0.00020  0.100  7.6530e-06   -0.00003
+R_c          80000 Uy      +0.00000  0.107   +0.00010  0.112  1.1824e-04   +0.00012
+
+R_m          36000 T       -0.03800  0.740   -0.00184  0.923  1.6002e-08   -0.17752
+R_m          36000 Ux      -0.14180  0.877   -0.01133  0.891  1.1184e-10   -0.19552
+R_m          36000 Uy      -0.09655  0.814   -0.00306  0.878  2.8264e-10   -0.15260
+
+R_f          78000 T       -0.07180  0.998   -0.03585  0.995  5.6778e-10   -0.05266
+R_f          78000 Ux      -0.08479  0.986   -0.08157  0.970  1.5791e-11   -0.09560
+R_f          78000 Uy      -0.07797  0.971   -0.10155  0.927  9.4196e-12   -0.01154
+
+P_m          36000 T       -0.01996  0.646   -0.00044  0.901  1.6682e-08   -0.17874
+P_m          36000 Ux      -0.14180  0.877   -0.01133  0.891  1.1184e-10   -0.19552
+P_m          36000 Uy      -0.09655  0.814   -0.00306  0.878  2.8264e-10   -0.15260
+
+C_lam_m      80000 T       +0.00026  0.047   -0.00338  0.012  2.9117e-03   +0.00991
+C_lam_m      80000 Ux      +0.00022  0.138   +0.00555  0.205  1.8212e-02   -0.01289
+C_lam_m      80000 Uy      +0.00004  0.045   +0.00252  0.094  3.3247e-02   -0.00646
+
+W_m          80000 T       -0.00005  0.366   -0.00005  0.049  6.8213e-07   +0.00002
+W_m          80000 Ux      -0.00000  0.244   -0.00000  0.046  2.8002e-06   -0.00000
+W_m          80000 Uy      -0.00000  0.257   -0.00001  0.054  1.6583e-06   -0.00007
+
+D_m          28000 T       -0.03129  0.863   -0.01404  0.922  2.8101e-08   -0.16596
+D_m          28000 Ux      -0.00002  0.402   -0.00006  0.098  1.9116e-10   -0.01506
+D_m          28000 Uy      +0.00001  0.067   +0.00002  0.110  3.3672e-10   -0.00650
+
+O_m          46000 T       -0.04575  0.703   -0.00017  0.915  1.1633e-08   -0.14680
+O_m          46000 Ux      -0.11570  0.835   -0.00036  0.877  8.1562e-11   -0.15645
+O_m          46000 Uy      -0.08054  0.777   -0.00002  0.657  2.1480e-10   -0.09137
+
+EXIT_CODE=0
+date -u at end: 2026-08-24T16:02:57Z

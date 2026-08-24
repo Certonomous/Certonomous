@@ -11,7 +11,7 @@ application     buoyantBoussinesqSimpleFoam;
 startFrom       latestTime;
 startTime       0;
 stopAt          endTime;
-endTime         20000;
+endTime         46000;
 deltaT          1;
 writeControl    timeStep;
 writeInterval   2000;

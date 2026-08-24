@@ -867,3 +867,57 @@ only because §1 happened to capture a timestamped negative precondition; a
 future addendum without that check would have nothing but its own assertion.
 The cost of committing first is one `git commit-tree` before the launcher
 runs.
+
+---
+
+## 15. Predictions scored (appended 2026-08-24T16:15:34Z)
+
+**This is amendment 2 of this document** (amendment 1 being §14, the ordering
+disclosure appended 2026-08-22). **Lines whose number changed above this section:
+0.** *This document carries no version line at its head and none is retro-fitted;
+the dated-amendment number and the zero-lines-moved assertion carry rule 6's
+guarantee without asserting a version series the file never had.*
+No gate, threshold, cap or label is altered; §6's predictions are scored as
+written and none is restated to fit its outcome. The evidence, the full tables and
+the artifact paths are in **`T3_RESULTS.md` §14**; this section is the one-line
+scoreboard and nothing else.
+
+All eight extensions completed under the two-segment rule of §8 — 8 of 8, the
+critical path `R_f` finishing **2026-08-24T14:53:19Z**, 24 h 1 min ahead of §10.4's
+ETA. The frozen comparator (`analyse_t3.py`, sha256 `f41c544d…498741`) re-graded
+the pool at `2026-08-24T15:58:44Z`, exit 0, planted-zero control passed.
+
+| prediction | outcome | the number that decides it |
+| --- | --- | --- |
+| **P1** — the five DECAYING cases reach `1e-6` at their registered `endTime`; the three STALLED cases do not, even at 80 000 | **HELD, 8 of 8** | `R_m` 1.535e−08, `P_m` 3.684e−09, `D_m` 3.373e−07, `O_m` 1.278e−09, `R_f` 9.679e−08 — all inside. `R_c` 4.833e−02, `C_lam_m` 7.045e−01, `W_m` **1.409e−06** — all outside |
+| **P1, the `W_m` clause** registered as the one most likely to look foolish | **HELD** | 60 000 further iterations moved `W_m` from 1.417e−06 to **1.409e−06 — 0.6 %**. Its delivered ext1 `T` slope is −0.00005 dec/1 000 it, `R² = 0.366`. §2's "flat residual means a floor" reading is correct |
+| **P2** — the `R_f` heat balance closes below 0.5 %; §4's power-law reading is right and the fine level has no non-iterative fault | **HELD** | **0.0003935 %**, 1 270 × inside, down from 8.234 %. The registered falsification condition did not fire. The five DECAYING cases fell 24–20 900 ×; the three STALLED moved < 1 % |
+| **P3, primary clause** — at least one of G1–G4 is still not CONVERGING | **HELD** | three of four: G1 DIVERGENT (`p` −0.0148), G3 STAGNANT (+0.232), G4 STAGNANT (+0.218) |
+| **P3, secondary clause** — "the most likely outcome is that none of the four is" | **FALSIFIED, in the recorded direction** | G2 `x_peak/H` came back **CONVERGING, `p` = 4.304, GCI 0.0188 %** — T3's first converging triple |
+| **P3, the non-renegotiation rule** — a still-non-CONVERGING triple stays `NOT A RESULT`, and iterations bought change no judgement | **HONOURED** | all four rows `NOT A RESULT`, **including G2**: gate (1) fires on level `c` (`R_c` NOT CONVERGED) before the triple is consulted. The gate turned a gradeable row *into* `NOT A RESULT`, never the reverse |
+| **P4** — the marking tool reports 0/8 and removes all eight stale markers while extensions run | **HELD**, as scored in §10.3 at 2026-08-22T17:53:21Z | not re-scorable now: the pool no longer has the in-flight state. An inferred 7-of-8 partial-pool refusal is recorded in `T3_RESULTS.md` §14.1 as an inference, not a measurement |
+
+**Cost, §5 versus actual.** Predicted **79.55 core-h / USD 4.08**; actual
+**4 798.05 core-minutes = 79.968 core-hours = USD 4.102 derived** (not measured;
+USD 0.0513/core-h owner-stated) — **1.005 ×**, and **0.738 ×** against §10.4's
+revised 108.3 core-h. Gross == cleaned; **waste nil**. The §5 binding stop of
+USD 22.93 was never approached: actual is **17.9 %** of it. **The aggregate
+1.005 × is two cancelling errors, not an accurate model** — §5 has no fixed-cost
+term, so the three shortest runs over-ran 1.40–1.62 × on startup and IO, while
+§10.4's five-minute contention window over-predicted the multi-day critical path
+and `R_f` came in at 0.917 × of §5 and 0.653 × of §10.4. Attribution in full at
+`T3_RESULTS.md` §14.7; calibration row in `docs/COST_CALIBRATION.md`.
+
+**Verdict unchanged, cause changed.** T3 remains **`NOT A RESULT` 4 of 4, 0 of 4
+graded**. At attempt 1 all three ladder levels were NOT CONVERGED and every triple
+was DIVERGENT or OSCILLATORY; after ext1 the medium and fine levels are converged,
+the Stanton ladder is monotone in mesh, G3 and G4 have moved DIVERGENT → STAGNANT,
+G2 is CONVERGING, and the rung is stopped by the coarse level alone — `R_c` in the
+limit cycle `T3_PREREGISTRATION.md` §11 registered in advance. The registered
+response of §6 P3 stands: **a fourth mesh level (`R_m`, `R_f`, `R_ff`), proposed
+and NOT run**, needing its own costed pre-registration frozen before any compute;
+a rough bound of **150–200 core-hours, USD 8–10 derived, 6.4–8.4 days serial** is
+worked in `T3_RESULTS.md` §14.8 with its assumptions on its face. The primary,
+Vogel & Eaton (1985), remains **NOT OBTAINED**, and gate (3) is still downstream
+of gates (1) and (2).
+

@@ -502,3 +502,489 @@ below `y+` 30; DD +15.68 % in the registered direction. Predictions 1, 2, 5, 6,
 `delta_99/H` 0.67 against a targeted 1.07. 8 of 8 cases complete under the
 strict rule; 40.3214 core-hours, 2.0685 USD, 3.71 × the predicted cost and
 8.3 % of the authorised ceiling.**
+
+---
+
+## 14. ext1 re-grade (2026-08-24)
+
+**Dated section appended 2026-08-24T16:15:34Z under Charter §2b clause 2 and CLAUDE.md
+rule 6. This is amendment 1 of this document. Lines whose number changed above
+this section: 0.** *On the version bump rule 6 asks for: this document has never
+carried a version line at its head, and none is retro-fitted here — inventing a
+"v1.0 → v1.1" series after the fact would assert a provenance the file does not
+have. The dated-amendment number and the zero-lines-moved assertion carry the
+same guarantee and are checkable against the file.* It alters no gate, no
+threshold, no cap and no label. Sections 1–13
+above are the attempt-1 record at `endTime 20000` and stand unedited; this
+section reports the ext1 extension registered in `T3_EXT1_AMENDMENT.md` (D452)
+and re-graded by the same frozen comparator. **The rung verdict does not
+change: `NOT A RESULT` on all four graded rows, 0 of 4 graded.** What changed is
+*which gate* fires and *what the ladder now looks like*, and both are recorded
+below because a verdict that stays the same for a different reason is not the
+same verdict.
+
+### 14.1 Completion audit: 8 of 8 under the two-segment rule
+
+Every case satisfies the strict completion rule as extended by
+`mark_done_t3_ext1.py`'s two-segment rule (`T3_EXT1_AMENDMENT.md` §8), which is
+strictly *more* refusing than the original: it adds both-segment `rc=0`, both-segment
+`End`, the summed `ExecutionTime` identity, the `first Time = 20001` continuity
+test, and a second age-guard datum (`STATUS.<case>`) on top of `0/T`.
+
+`R_f`, the critical path, clause by clause — read from disk, not from the marker:
+
+| clause | `R_f` |
+| --- | --- |
+| `STATUS.R_f` `rc=0` **and** `STATUS_EXT1.R_f` `rc=0` | `0` and `0` |
+| `End` in `log.solve` **and** in `log.solve.ext1` | present / present |
+| last time dir == `system/controlDict` `endTime` | `78000` == `78000` |
+| `NEEDED` + `NEEDED_TURBULENT` at that time | `T U p_rgh alphat phi` + `nut k omega`, all present |
+| `^ExecutionTime` count, segment 1 (unaltered) | **20 000** |
+| `^ExecutionTime` count, ext1 | **58 000**; sum **78 000** == `endTime` |
+| first `Time =` of `log.solve.ext1` | **`20001`** — exactly one past segment 1 |
+| age guard vs the case's own `0/T` | fields `2026-08-24T14:53:16–17Z` ≫ `0/T` `2026-08-21T18:03:22Z` |
+| age guard vs `STATUS.R_f` | fields ≫ `STATUS.R_f` `2026-08-22T10:59:39Z` |
+
+The same eight clauses hold on all eight cases: segment-1 `ExecutionTime` count
+is **20 000** on every case, the first ext1 `Time` is **20001** on every case,
+the summed count equals `endTime` on every case, each `log.solve.ext1` carries
+exactly one `End`, and each last time directory equals its `endTime`.
+
+| case | `STATUS_EXT1.<case>` | ext1 `ExecutionTime` lines | sum | last time dir | finished (UTC) |
+| --- | --- | ---: | ---: | ---: | --- |
+| `R_c` | `rc=0 wall=13782 endTime=80000` | 60 000 | 80 000 | 80 000 | 2026-08-22T21:41:26Z |
+| `R_m` | `rc=0 wall=14884 endTime=36000` | 16 000 | 36 000 | 36 000 | 2026-08-22T21:59:48Z |
+| **`R_f`** | `rc=0 wall=162094 endTime=78000` | 58 000 | 78 000 | 78 000 | **2026-08-24T14:53:19Z** |
+| `P_m` | `rc=0 wall=15095 endTime=36000` | 16 000 | 36 000 | 36 000 | 2026-08-22T22:03:20Z |
+| `C_lam_m` | `rc=0 wall=33909 endTime=80000` | 60 000 | 80 000 | 80 000 | 2026-08-23T03:16:55Z |
+| `W_m` | `rc=0 wall=7230 endTime=80000` | 60 000 | 80 000 | 80 000 | 2026-08-22T19:52:16Z |
+| `D_m` | `rc=0 wall=6380 endTime=28000` | 8 000 | 28 000 | 28 000 | 2026-08-22T19:38:07Z |
+| `O_m` | `rc=0 wall=34509 endTime=46000` | 26 000 | 46 000 | 46 000 | 2026-08-23T03:26:56Z |
+
+**An unregistered partial-pool control, reported as inferred and not as
+measured.** The live marker log's `DONE markers before:` line lists **seven**
+markers, `R_f`'s absent. The inference is that an earlier invocation, run after
+the other seven had finished but while `R_f` still iterated, marked 7 of 8 and
+**refused `R_f`** — P4's mechanism exercised on the real pool at partial
+completion rather than only on forged directories in the §8.1 selftest. **This is
+an inference from one line of a log, not a measurement**: that earlier
+invocation's own output was not kept, and no attempt is made here to date it.
+What *is* measured, and is what the inference would predict, is that the
+comparator never graded a partial pool — see §14.2.
+
+### 14.2 The comparator run, and who ran it
+
+**Instrument integrity, verified independently by two lanes.** All six
+instruments are byte-identical to their `HEAD` blobs (`git diff HEAD` empty on
+each), and the four that `T3_EXT1_AMENDMENT.md` §11 tabulates match those
+recorded hashes:
+
+| instrument | sha256 | §11 |
+| --- | --- | --- |
+| `analyse_t3.py` | `f41c544d…498741` | matches |
+| `mark_done_t3.py` | `ba466e23…fc2d60d` | matches |
+| `build_t3.py` | `7527a546…36f739` | matches |
+| `run_one_t3.sh` | `7cd0df46…4879ff` | matches |
+| `mark_done_t3_ext1.py` | `387a2c9e…9a11a0c` | new in §8 |
+| `run_one_t3_ext1.sh` | `845a4059…8081bc` | new in §9 |
+
+`gate_t3.json`, sha256 `8e766cd5dbc59cff336f9756a90967d92f34e981094f3b8b427089eeb34ba573`,
+mtime `2026-08-24T15:58:44Z`. `analyse_t3.py` exit code **0**. The comparator
+sha256 stored *inside* the graded artifact is `f41c544d…498741`, i.e. the frozen
+one.
+
+**Planted-zero control: FIRED and PASSED.** `PLANT = 1.234e-03 K` planted into a
+copy of `R_m`'s `34000/T` and read back from disk: `read_back_delta`
+`1.2340000000108375e-03`, `reader_max_change` `1.2340000000108375e-03`,
+`passed: true`, and the reader's verdict on the perturbed pair flips to
+`NOT_CONVERGED`. The reader is therefore demonstrably able to see a non-zero, and
+the `CONVERGED` results in §14.3 are evidence rather than silence. **There is one
+control, not two**: the frozen comparator plants once, on `R_m`
+(`analyse_t3.py:307`), and the refusal at `:801` is armed on that single control.
+
+**Provenance of the run, disclosed because it is not this lane's.** The marker
+(`15:57:59Z`) and the comparator (`15:58:26Z`, finishing `15:58:44Z`) were run by
+a **lane of a parallel session**, before the chief redirected T3 ext1 to this
+session at `16:00Z`; that lane was stopped at `16:03Z` and wrote no results
+record. Its two tool logs are committed beside this record as
+`T3_runs/log.mark_done_ext1.20260824T155759Z.txt` and
+`T3_runs/log.analyse_t3.ext1.20260824T155826Z.txt`, each carrying its own `date -u`,
+`HEAD` and instrument hashes.
+
+**Stated exactly: what this lane did and did not run.** This lane **did not run**
+`analyse_t3.py` and **did not run** the live `mark_done_t3_ext1.py`. Re-running the
+comparator would have rewritten the graded artifact for no gain, the instrument
+being frozen and hash-verified. This lane **did** independently re-hash all six
+instruments against `HEAD`; **did** re-derive every number in §14.3–§14.5 and
+§14.7 from `gate_t3.json` and from the case directories on disk, not from the
+parallel lane's log; **did** verify `R_f`'s completion clause by clause from disk
+(§14.1); and **did** run `python3 mark_done_t3_ext1.py --dry-run` once at
+`2026-08-24T16:09:32Z` as its own confirmation, which reported
+`DRY RUN -- nothing written or removed: 8/8 cases meet the strict completion rule
+(8 with an ext1 extension)`, `rc=0`, all eight `PASS [ext1 included]`, removing
+nothing and leaving `gate_t3.json` byte-identical.
+
+**The comparator never graded a partial pool.** The parallel lane's log records
+the **pre-run** `gate_t3.json` as sha256 `5e23f84e…780c04` with mtime
+`2026-08-22 17:33:22Z` — the original pre-launch artifact, committed at
+`fd831c11`, untouched across the entire 2-day extension. Nothing graded anything
+between the launch and `15:58:44Z`.
+
+*A note on this record's own provenance, for the same reason §13 of the amendment
+recorded a hash that moved:* two sessions were dispatched onto this item
+independently and both began it; the collision was resolved by the chief at
+`16:00Z` in favour of this session. No lesson is filed for it here — the
+duplicate-dispatch failure mode is already known practice (claim the item in
+`docs/DOCKET.md` before starting) — but it is recorded because two lanes reaching
+for one graded artifact is exactly the condition under which a `gate_t3.json`
+could have been overwritten mid-read, and it was not.
+
+### 14.3 Iterative convergence after ext1
+
+The registered criterion (`T3_PREREGISTRATION.md` §5): the largest change of any
+cell value of `T`, and separately of `U`, between the last two checkpoints, at
+most `1e-6` of that field's range.
+
+| case | checkpoints | rel Δ`T` | rel Δ`U` | state |
+| --- | --- | ---: | ---: | --- |
+| `R_c` | 78000 / 80000 | **4.833e−02** | **1.499e−01** | NOT CONVERGED |
+| `R_m` | 34000 / 36000 | 1.535e−08 | 8.754e−09 | **CONVERGED** |
+| **`R_f`** | 76000 / 78000 | **9.679e−08** | **7.796e−08** | **CONVERGED** |
+| `P_m` | 34000 / 36000 | 3.684e−09 | 8.754e−09 | **CONVERGED** |
+| `C_lam_m` | 78000 / 80000 | **7.045e−01** | **1.103e+00** | NOT CONVERGED |
+| `W_m` | 78000 / 80000 | **1.409e−06** | **1.252e−06** | NOT CONVERGED |
+| `D_m` | 26000 / 28000 | 3.373e−07 | 6.321e−11 | **CONVERGED** |
+| `O_m` | 44000 / 46000 | 1.278e−09 | 1.865e−10 | **CONVERGED** |
+
+Five of eight now meet the criterion, against **none** at attempt 1 (§3). The
+three that do not are exactly the three the amendment classed STALLED.
+
+### 14.4 The graded rows
+
+Effective refinement ratios from `nCells`: `r21 = 1.5986`, `r32 = 1.6000`;
+`Fs = 1.25`.
+
+| row | quantity | triple `c` / `m` / `f` | triple state | `p` | GCI (fine) | verdict |
+| --- | --- | --- | --- | ---: | --- | --- |
+| G1 | `St_peak` | 0.00336772 / 0.00343791 / 0.00350859 | **DIVERGENT** | −0.0148 | — | **NOT A RESULT** |
+| G2 | `x_peak/H` | 6.0895 / 6.13516 / 6.14120 | **CONVERGING** | **+4.304** | **0.0188 %** (RE 6.14027) | **NOT A RESULT** |
+| G3 | `St(10 H)` | 0.00298296 / 0.00304705 / 0.00310443 | **STAGNANT** | +0.2317 | — | **NOT A RESULT** |
+| G4 | `St(20 H)` | 0.00224934 / 0.00229610 / 0.00233824 | **STAGNANT** | +0.2175 | — | **NOT A RESULT** |
+| M1 | `x_R/H` | 7.01291 / 7.01011 / 6.98336 | DIVERGENT | −4.809 | — | REPORTED |
+
+**All four fire at gate (1), not gate (2).** Every graded row carries
+`iterative_convergence: {c: NOT_CONVERGED, m: CONVERGED, f: CONVERGED}` and the
+reason line `-- level c not iteratively converged`. Under
+`T3_PREREGISTRATION.md` §7.1 the order is (1) any ladder level NOT CONVERGED →
+`NOT A RESULT`; (2) triple not CONVERGING → `NOT A RESULT`; (3) no primary →
+`BLOCKED`. Gate (1) fires, so gate (2) is never reached and gate (3) is never
+reached. This is a **change of cause** from attempt 1, where all three levels
+were NOT CONVERGED and every triple was DIVERGENT or OSCILLATORY: the medium and
+fine levels are now converged and it is the **coarse** level alone that stops the
+ladder.
+
+**G2 is CONVERGING and is `NOT A RESULT` anyway, and that is the gate working.**
+`x_peak/H` returns a CONVERGING triple with `p = 4.304` and `GCI_fine =
+0.0188 %` — T3's first converging triple in either attempt. It is still
+`NOT A RESULT`, because gate (1) fires on level `c` before the triple is
+consulted. This is the rule the amendment §6 P3 wrote down so it could not be
+renegotiated afterwards, and it is the direction the triple gate is allowed to
+move a row: **the gate can turn a gradeable row INTO `NOT A RESULT`, never the
+reverse.** A CONVERGING triple built on a level that is still moving is not a
+mesh statement.
+
+**`p = 4.304` is not a claim of fourth-order accuracy.** The discretisation is
+nominally second order, so an observed order of 4.3 exceeds the scheme's formal
+order and is read here as **the three values being too close together to resolve
+an order at all** — the same reading, in the opposite direction, that makes G3
+and G4 STAGNANT at `p ≈ 0.22`. The `x_peak/H` spread across the whole ladder is
+`6.0895 → 6.1412`, i.e. **0.85 %**, and the fine-to-medium step is `0.0060`
+against the medium-to-coarse `0.0457`. An observed order extracted from
+differences that small is not evidence of superconvergence; it is a ratio of two
+small numbers. The GCI is reported because the triple is monotone and CONVERGING,
+as the rule requires, and it is not offered as a mesh-convergence claim for a
+row that does not grade.
+
+**Two things about the ladder changed, and both are findings.** First, the
+Stanton ladder is now **monotone in mesh** — `0.003368 < 0.003438 < 0.003509`
+— where §3 of this document found the ladder *not ordered by mesh*, with the fine
+level further from steady than the medium. That disorder was iterative, not
+discretisation: converging the levels removed it. Second, **G3 and G4 moved
+DIVERGENT → STAGNANT** (from `p = −0.516` and `−0.209` to `+0.232` and `+0.218`)
+and G2 moved OSCILLATORY → CONVERGING. Every triple moved toward order. What
+remains is not divergence but **insufficient separation between levels**, which
+is a different and more tractable problem, and it is what the registered response
+in §14.8 addresses.
+
+### 14.5 Heat-balance GUARD, before and after
+
+Charter §2c GUARD, counted in no tally, against the governed 0.5 %
+(`physics_rules.yaml`). "Before" is §5.2 of this document at `endTime 20000`;
+"after" is `gate_t3.json` at each case's ext1 `endTime`.
+
+| case | HB % before | HB % after | change | class (`T3_EXT1_AMENDMENT.md` §2) |
+| --- | ---: | ---: | ---: | --- |
+| **`R_f`** | **8.2340** | **0.0003935** | **↓ 20 900 ×** | DECAYING |
+| `O_m` | 0.3458 | 0.0005548 | ↓ 623 × | DECAYING |
+| `R_m` | 0.0900 | 0.0007866 | ↓ 114 × | DECAYING |
+| `P_m` | 0.0382 | 0.0008762 | ↓ 44 × | DECAYING |
+| `D_m` | 0.0212 | 0.0008942 | ↓ 24 × | DECAYING |
+| `R_c` | 0.0739 | 0.07345 | −0.6 % | STALLED (limit cycle) |
+| `W_m` | 0.0082 | 0.008225 | +0.3 % | STALLED (floor) |
+| `C_lam_m` | 99.32 | **99.68 (OUTSIDE)** | +0.4 % | STALLED (limit cycle) |
+
+**The storage-term mechanism argued in `T3_EXT1_AMENDMENT.md` §4 is now
+measured, not inferred, and the separation is total.** §4 argued that a case
+whose residual is still marching one way carries a net enthalpy storage term that
+a steady energy balance cannot account for, and that a case in a stationary limit
+cycle carries none. The prediction that follows is that the imbalance of a
+DECAYING case must collapse as its residual falls, while a STALLED case's must
+not move at all. Over 60 000 further iterations for the stalled cases and
+8 000–58 000 for the decaying ones: **the five DECAYING cases fell by 24× to
+20 900×; the three STALLED cases moved by less than 1 %.** There is no case in
+between, which is the same clean bimodality §2 of the amendment found in the
+residual fits. `C_lam_m` remains outside 0.5 % as predicted and is not a finding
+either way.
+
+### 14.6 The registered predictions of `T3_EXT1_AMENDMENT.md` §6, scored
+
+**P1 — which cases reach `1e-6`. HELD, 8 of 8, no exceptions.** The five
+DECAYING cases reach the criterion at their registered `endTime`: `R_m`
+(1.535e−08), `P_m` (3.684e−09), `D_m` (3.373e−07), `O_m` (1.278e−09) and `R_f`
+(9.679e−08, inside by 10 ×). The three STALLED cases do not, even at the 80 000
+cap: `R_c` (4.833e−02, 48 000 × off), `C_lam_m` (7.045e−01), `W_m`
+(1.409e−06).
+
+**`W_m` is the clause that carried the risk and it held.** It was registered
+deliberately as "the prediction most likely to look foolish" — 1.25 × away, the
+closest of all eight. After **60 000 further iterations** its `T` relative change
+moved from `1.417e−06` to `1.409e−06`: **0.6 %**, still outside. The residual-decay
+diagnostic committed beside this record
+(`T3_runs/log.residual_decay_diagnostic.v2.20260824T160252Z.txt`) measures its
+delivered ext1 `T` slope at **−0.00005 decades per 1 000 iterations, `R² = 0.366`**.
+**The "a flat residual is a floor, not a slow decay" reading of §2 is correct**,
+and the alternative P1 named — that the field increment decays where the residual
+does not — is falsified. That same diagnostic reproduced every published §2 slope,
+including **5 of 5** on the tier-A rows that fixed the `endTime`s (e.g. `O_m` `T`
+−0.14679 against the published −0.14680), so the extrapolator was not mis-fitted.
+
+*Honest qualification on `R_f`.* It converged, but **faster than the model
+claimed**: its delivered ext1 `T` slope is **−0.07180 (`R² = 0.998`)** against the
+registered **−0.05266**, i.e. **1.36 × faster**, which is why it landed 10 ×
+inside the criterion rather than at it. P1 held for `R_f` with margin the
+log-linear model did not predict, and the margin is recorded rather than claimed.
+
+**P2 — the `R_f` heat balance closes below 0.5 %. HELD, emphatically.** Observed
+**0.0003935 %**, **1 270 × inside** the threshold. The registered falsification
+condition — imbalance still above 0.5 % at 78 000 with the `T` residual at or
+below `1e−06` — did not fire. **The question §4 raised is therefore closed by
+measurement: the 8.234 % of §5.2 was non-convergence, and the fine level carries
+no mesh, `alphat` or heated-patch fault.** That was the one open possibility that
+would have invalidated the fine level outright, and it is now excluded.
+`C_lam_m` was predicted to remain outside and does (99.68 %); as registered, that
+is not a finding either way.
+
+**P3 — do any triples become CONVERGING? SPLIT: the primary clause HELD, the
+secondary clause FALSIFIED.**
+- Registered primary clause, *"at least one of G1–G4 is still not CONVERGING
+  after ext1"* — **HELD**: three of four (G1 DIVERGENT, G3 and G4 STAGNANT).
+- Registered secondary clause, *"the most likely outcome is that none of the four
+  is"* — **FALSIFIED in a recorded direction**: G2 `x_peak/H` came back
+  CONVERGING at `p = 4.304`, `GCI 0.0188 %`.
+- The reasoning P3 gave held exactly: `R_c` was STALLED, P1 predicted it would not
+  converge, it did not, and all four rows therefore fall at gate (1) before gate
+  (2) is reached.
+- **The non-renegotiation clause was honoured.** The three still-non-CONVERGING
+  triples stay `NOT A RESULT` — not relaxed, not averaged over, not reported with
+  a "nearly", not converted to REPORTED because USD 4.10 was spent on them. And
+  G2, the one row whose triple now passes, is `NOT A RESULT` too. Spending the
+  extension bought the ladder more iterations to be judged on; it bought no change
+  to the judgement.
+
+**P4 — the marking tool. HELD**, as scored in `T3_EXT1_AMENDMENT.md` §10.3 at
+`2026-08-22T17:53:21Z` while the extensions were in flight: `0/8`, all eight
+stale `DONE.<case>` markers flagged and removed, the frozen comparator refusing
+with exit 2, `gate_t3.json` untouched. It is **not re-scorable now** — the pool no
+longer has the in-flight state P4 describes — and this lane did not re-run
+`--dry-run` against a running pool to manufacture one. The inferred 7-of-8
+partial-pool refusal in §14.1 is corroborating evidence for the same mechanism,
+and is labelled as an inference there.
+
+### 14.7 Cost: estimate versus actual (CLAUDE.md rule 12)
+
+Serial throughout, `nProcs = 1`, so **core-minutes = wall seconds ÷ 60**. Walls
+are read from `T3_runs/STATUS_EXT1.<case>`; the `ExecutionTime` column is the last
+`^ExecutionTime` of each `log.solve.ext1` and is solver time only.
+
+| case | wall s | **core-min** | ext1 `ExecutionTime` s | ET/wall | §5 predicted core-s | actual/§5 | §10.4 ETA h | actual/§10.4 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `R_c` | 13 782 | 229.70 | 11 825.25 | 0.858 | 9 818 | 1.404 × | 3.24 | 1.181 × |
+| `R_m` | 14 884 | 248.07 | 13 168.67 | 0.885 | 12 712 | 1.171 × | 4.44 | 0.931 × |
+| **`R_f`** | **162 094** | **2 701.57** | 160 062.45 | **0.988** | 176 716 | **0.917 ×** | 68.91 | **0.653 ×** |
+| `P_m` | 15 095 | 251.58 | 13 263.77 | 0.879 | 12 712 | 1.187 × | 4.49 | 0.934 × |
+| `C_lam_m` | 33 909 | 565.15 | 32 129.92 | 0.948 | 30 892 | 1.098 × | 10.61 | 0.888 × |
+| `W_m` | 7 230 | 120.50 | 5 599.45 | 0.775 | 4 470 | 1.617 × | 1.34 | 1.499 × |
+| `D_m` | 6 380 | 106.33 | 4 962.07 | 0.778 | 4 233 | 1.507 × | 1.22 | 1.452 × |
+| `O_m` | 34 509 | 575.15 | 32 576.64 | 0.944 | 34 812 | 0.991 × | 12.91 | 0.743 × |
+| **total** | **287 883** | **4 798.05** | | | 286 364 | **1.005 ×** | 108.3 h | **0.738 ×** |
+
+**Actual ext1 spend: 4 798.05 core-minutes = 79.968 core-hours.** Derived cost
+**USD 4.102** at USD 0.0513 per core-hour (c7a.4xlarge, owner-stated
+2026-08-21/22) — **derived, not measured**: the box cannot read its own billing
+(`COMPUTE_BUDGET_CHARTER.md` §5).
+
+- Against the **§5 pre-launch prediction** of 79.55 core-h / USD 4.08: **1.005 ×**.
+- Against the **§10.4 revised measured-rate figure** of 108.3 core-h / USD 5.56:
+  **0.738 ×**.
+- **Gross == cleaned == 79.968 core-h.** All eight rows exceed 3 600 wall
+  seconds (the smallest, `D_m`, is 6 380 s), but **none is a stall**: the
+  3 600-second rule detects a hung or abandoned row, and every one of these
+  terminated under OpenFOAM's own hand with `rc=0`, an `End` line, the last time
+  equal to `endTime` and the full `ExecutionTime` count. There is nothing to clean
+  out.
+- **Waste, separately named per `COMPUTE_BUDGET_CHARTER.md` §6: nil, zero
+  core-minutes.** No rerun, no crash, no abandoned segment, no discarded field, no
+  launcher refusal. Every core-minute spent produced a field that was graded.
+- **Stop thresholds were never approached.** The binding stop registered in §5 was
+  USD 22.93 of ext1 spend; actual USD 4.102 is **17.9 %** of it. The 10 ×
+  threshold (USD 40.80) is **10.1 %**. Neither came within a factor of five.
+- **Rung total.** Attempt 1 was 40.324 core-h / USD 2.069 (§9). After ext1:
+  **120.29 core-hours = USD 6.171 derived**, **24.7 %** of the pre-authorised
+  USD 25 ceiling. §5 predicted "rung after ext1: USD 6.15" → **1.003 ×**.
+
+**Attribution — and the 1.005 × is not a claim of a 0.5 %-accurate model.** Two
+opposite errors cancelled, and recording the aggregate alone would be the wrong
+lesson.
+
+1. **Short runs over-ran systematically: `W_m` 1.617 ×, `D_m` 1.507 ×, `R_c`
+   1.404 ×.** Their `ExecutionTime`/wall ratios are **0.775, 0.778 and 0.858** —
+   **14–23 % of their wall was not solver time** (mesh read, field read, first
+   write, wrapper). §5's model is `extra iterations × cells ÷ measured rate` with
+   **no fixed-cost term**, so it must under-predict short runs, and the shorter
+   the run the worse. **This is a misprediction of model form, not of throughput.**
+2. **Long runs came in at or under prediction: `R_f` 0.917 ×, `O_m` 0.991 ×.**
+   `R_f`'s `ExecutionTime`/wall ratio is **0.988** — fixed cost is 1.25 % of its
+   wall and negligible — so its miss is pure throughput, and it ran *faster* than
+   §5 assumed because §5's rates came from §9 of this document, measured under
+   contention.
+3. **Contention eased, and §10.4 measured it at its worst.** §10.4's rates came
+   from a five-minute window on 2026-08-22 17:54–17:59Z when 15 of 16 cores were
+   committed, and attributed a 1.36 × penalty to cache and memory-bandwidth
+   contention. `R_f`'s ETA from that window was **2026-08-25T14:54Z**; it finished
+   **2026-08-24T14:53:19Z, 24 h 1 min early**, at 0.653 × the predicted wall. As
+   the siblings finished and a closure lane's ~3 cores freed, the contention fell
+   away. **§10.4's penalty was real when measured and did not survive two days.**
+
+**Calibration carried forward:** add a fixed startup/IO term to the cost model
+(order 1 400–1 900 s per case on these meshes), and do not extrapolate a
+five-minute contention window across a multi-day critical path. The row lands in
+`docs/COST_CALIBRATION.md`.
+
+**One caveat about the artifact.** `gate_t3.json`'s own `cost` block reports
+**segment-1 walls only** — it reads `STATUS.<case>` (e.g. `R_f wall 60974 s`)
+because the comparator was frozen before ext1 existed. That is correct frozen
+behaviour, not a defect, but **it is not the ext1 cost and must not be cited as
+one.** The ext1 figures above come from `STATUS_EXT1.<case>`.
+
+### 14.8 What this leaves
+
+**`R_c` is in a limit cycle at 80 000 iterations, and the rung says so.**
+`T3_PREREGISTRATION.md` §11 registered exactly this alternative in advance: *"a
+steady RANS of a flapping shear layer may be in a limit cycle that no extension
+resolves, in which case the rung says so rather than averaging."* `R_c` was run
+to the 80 000 cap precisely to convert the §2 extrapolation into a measurement,
+and the measurement is that **60 000 further iterations moved its `T` relative
+change from 4.944e−02 to 4.833e−02 — 2.2 % — and its heat balance by 0.6 %.** It
+is not converging and it is not going to. **No average is taken and none will
+be**; the rung reports the state.
+
+**The four graded rows remain `NOT A RESULT` at gate (1).** They are not BLOCKED:
+gate (3), the missing primary, sits downstream of gates (1) and (2) and is still
+not reached. The primary, **Vogel & Eaton (1985), DOI 10.1115/1.3247522, remains
+NOT OBTAINED**; `T3_reference_primary.json` does not exist and `primary_sha256`
+is `null`. Obtaining it stays necessary and is still not sufficient.
+
+**The registered response is a fourth mesh level, proposed and NOT run.**
+`T3_EXT1_AMENDMENT.md` §6 P3 registered it before ext1 ran: *"if the levels
+converge and the triples remain DIVERGENT or OSCILLATORY, the response is …
+a fourth mesh level, proposed and not run."* The condition is met in the form the
+prediction anticipated — with the refinement that what remains is STAGNANT rather
+than DIVERGENT, i.e. **levels too close to resolve an order**, which a fourth
+level addresses directly. Because `R_c` will not converge, the fourth-level triple
+is **(`R_m`, `R_f`, `R_ff`)** — the three iteratively converged levels — and not
+a re-run of the coarse level.
+
+**A rough cost bound for `R_ff`, with its assumptions on its face. This is an
+estimate, not a registration, and it authorises nothing.**
+
+1. `r = 1.6` in 2D → cells × `1.6²` = **× 2.56** → `235 520 × 2.56` ≈
+   **603 000 cells**.
+2. Throughput degrades with cell count. Measured on the ext1 segment itself:
+   `R_m` (92 160 cells) ran at **1.12e5** cell-iterations per core-second and
+   `R_f` (235 520 cells) at **8.53e4** — a **2.556 ×** cell increase costing a
+   **0.762 ×** rate. Applying the same factor across the same 2.56 × step gives
+   `R_ff` ≈ **6.50e4** cell-it/core-s.
+3. Iterations **at least 78 000**, `R_f`'s requirement. A finer mesh is not
+   expected to converge in fewer, and this is the assumption most likely to be
+   optimistic.
+4. Serial, `nProcs = 1`, as the whole rung has been.
+
+That gives **≈ 201 core-hours ≈ USD 10.3 derived**, or **≈ 153 core-hours ≈
+USD 7.85** if the throughput does not degrade further — call it **150–200
+core-hours, USD 8–10 derived**. Serial wall would be **6.4–8.4 days**, which is
+the binding practical constraint rather than the money: it is 1.6–2.0 × `R_f`'s
+already 45-hour critical path, and a decomposed run is the obvious question. On
+the ledger it would consume **over half** the rung's USD 18.83 remaining headroom
+under the USD 25 ceiling.
+
+**This bound is where this record stops.** A fourth level needs its own
+pre-registration, frozen by commit before any compute, carrying its own gate,
+threshold, cap and costed budget, and the decision to build it is not this lane's
+and not this record's. **Proposed, not run.**
+
+**The `delta_99/H` inlet-window flag still stands and is unaffected by ext1.**
+§8 prediction 7 of this document already records it — `delta_99/H` **0.668–0.671**
+on the ladder against a targeted 1.07 and a registered window of 0.95–1.20,
+**MISSED low by ~37 %** — and §11 and §13 already carry it forward; the comparator
+still reports `delta99_H_R_m = 0.671` after ext1, unchanged. It is restated here
+only to make one consequence explicit: under `T3_PREREGISTRATION.md` §4 item 4
+the registered tolerance is `[0.80, 1.35]`, and a ladder outside it means the
+thermal rows *"carry a flag 'inlet condition outside the registered window' and
+are REPORTED, not graded, when the primary arrives."* **This is a second and
+independent obstacle to G1–G4, downstream of the triple problem and not solved by
+a fourth mesh level**, and it would still be live on the day Vogel & Eaton is
+obtained. It is named here so that acquiring the primary is not mistaken for
+unblocking the rung.
+
+### 14.9 Rung verdict after ext1
+
+**T3: `NOT A RESULT` 4 of 4 graded rows. 0 of 4 graded.**
+`gate_t3.json` tally: **`PASS 0, GATE FAIL 0, NOT A RESULT 4, BLOCKED 0,
+PENDING 0, REPORTED 0`.** The verdict of §13 is unchanged in value and changed in
+cause: at attempt 1 all three ladder levels were NOT CONVERGED and every triple
+was DIVERGENT or OSCILLATORY; after ext1 the medium and fine levels are converged,
+one triple is CONVERGING, and the rung is stopped by the coarse level alone.
+Cost of the extension: **79.968 core-hours, USD 4.102 derived**; cost of the rung
+to date: **120.29 core-hours, USD 6.171 derived**.
+
+### 14.10 Worktree disclosure
+
+Committed with this section: the eight `<case>/system/controlDict` files, each
+differing from its previous committed state by exactly one line —
+`endTime 20000` → the case's ext1 `endTime`. That edit is
+`run_one_t3_ext1.sh`'s, made by the `sed`-with-post-check path documented in
+`T3_EXT1_AMENDMENT.md` §9; `startFrom latestTime` and `stopAt endTime` are
+unchanged from their committed values. `system/controlDict.pre_ext1` snapshots
+exist beside each and are untracked, as time directories and solver logs are
+untracked throughout this run tree.
+
+**Left as found, and not attributed:** seven `<case>/log.checkMesh` files
+(`R_c`, `R_m`, `P_m`, `C_lam_m`, `W_m`, `D_m`, `O_m` — every case except `R_f`)
+differ from their committed state. The diff is a re-run of `checkMesh` stamped
+**`Aug 21 2026 21:27:25`** with a different PID, reading the mesh at `Time = 0`
+instead of falling back to `constant` with a `FOAM Warning`. **It pre-dates the
+ext1 launch by twenty hours and is not this extension's work.** It was inspected
+and **not reverted** (CLAUDE.md rule 10: an unexpected change is inspected, never
+reverted), and it is **not committed here** because it does not belong to this
+item. Whose it is has not been established and no guess is recorded.
+
