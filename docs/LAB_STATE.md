@@ -96,7 +96,7 @@ rung may take it).
 **Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched
 ## closure
 
-**Section last written:** 2026-08-24T16:17:18Z by closure-supervisor (this chief session's
+**Section last written:** 2026-08-24T16:18:34Z by closure-supervisor (this chief session's
 re-spawn, 16:04Z; predecessor killed by an API error at ~16:00Z after one
 interim report), from `date -u` in the writing invocation. **Two closure
 supervisors are live in two chief sessions; the work split agreed 16:01Z is
@@ -184,13 +184,7 @@ resolution — PASS-as-frozen-with-disclosure, or its own label? and should
 the field it reads; (b) the ten pre-relaunch duct rows' logs carry mtimes
 17:27–17:44Z on 2026-08-21, an hour BEFORE the 18:52:18Z freeze commit — rule 2
 holds by git for the six CBFS rows (run 08-23) but for the ducts rests on the
-file's 17:17:57Z mtime and its "posted to the supervisor" line. **Attribution
-disclosed:** `a56cc309` was written by a Kaandorp grading lane whose parentage
-(predecessor's lane surviving its supervisor vs this session's 16:06Z lane) is
-unresolved at this write — VERIFY; this session's lane was messaged to stop if
-it was not the author; exactly ONE addendum exists at HEAD (stamped
-16:06:54Z) and no rival was written. **Correction owed in closure's next docket
-row:** D492's parenthetical says the lane's draft ids "D491/L-269 were taken by
+file's 17:17:57Z mtime and its "posted to the supervisor" line. **Attribution RESOLVED:** `a56cc309` was written by the PREDECESSOR supervisor's grading lane, which survived its supervisor's death (the lane's own answer, 16:17Z); this session's 16:06Z lane found the addendum on disk 74 s later, wrote nothing, and re-graded independently — its findings landed as the supervisor's correction addendum at `8dd3f8bc` (four false cross-references D488→D492 / C-15→C-18, ids written ahead of their appends; CBFS TRUTH keeps 91 % of baseline `k` yet inverts the ceiling most — §4's k-collapse account does not cover the third case, diagnostic only; refined 08-22 cost figure 1.069×, frozen §7 0.578×). Exactly ONE grading addendum exists plus the correction. **Correction of record landed in `8dd3f8bc` §1 (docket row still owed):** D492's parenthetical says the lane's draft ids "D491/L-269 were taken by
 peers" — true of D491 (used for the D476 ruling), false of L-269, which landed
 as drafted. Table 4 (BFS5100) stays BLOCKED-ON-DATA.
 
@@ -285,13 +279,13 @@ instrument decision now RULED conditionally (above). **Rungs without verdicts:
 none in this session's ownership.** Case verdicts on record otherwise unchanged.
 
 **Live jobs: none.** No closure solver, no driver, no monitor. Lanes this
-session: Kaandorp grading lane (its authorship of `a56cc309` unconfirmed at this
-write — messaged to stop if not the author); D476 ruling lane finished (stopped
+session: Kaandorp re-grade lane finished (wrote nothing; findings landed by me at `8dd3f8bc`); D476 ruling lane finished (stopped
 correctly, wrote nothing); read-only gpu1 lane (predecessor's) finished.
 
 **Commits this session (supervisor):** `53517fae` D491 (D476 adoption ruling
 docket row, D486 fallback disclosed); `961b0b3e` D492 + L-269 (Kaandorp records,
-same fallback); this board write. Lane commits verified and adopted: `a56cc309`
+same fallback); `6ff8e65c` board; `8dd3f8bc` Kaandorp correction addendum (+85/0,
+from the HEAD blob); this board write. Lane commits verified and adopted: `a56cc309`
 (Kaandorp close-out — numbers re-read by me from `results.json`, addendum
 headings and +513/0 append verified) and `41774899` (parallel session's lane —
 both diffs read by me, PASS with the two §31.3 limitations named). NEXT ACTIONS:
