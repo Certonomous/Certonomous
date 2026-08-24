@@ -235,3 +235,50 @@ core-min = $0.0335**, 34.8% under a 60 ceiling, zero waste, nine registered pred
 | 38b | **A1** NACA0012 | endpoint gradient @ row 38's design | **SHIPPED** (`dafoam/opt-packages:latest`) | 1 / 4,032 | **BLOCKED** | arm C died at 14 s, pre-solve, `KeyError: 'CD_final'` in the frozen G5 comparator; not repaired in place (§4.2(c)); re-registered as mini-item D1-C′ | same, §8; prereg Addendum §17 |
 
 Cost of the item: **7.000 core-min = $0.005985 derived**, 0.304× of 23.0 registered, 0.533 core-min named waste; calibration row C-24. The A1 two-row verdict summary (row 1–2 era: shipped GATE FAIL / patched PASS at baseline) is unchanged; row 38 adds the patched adjoint's behaviour at a converged constrained optimum (N-D28).
+
+---
+
+## Addendum 2026-08-24 (supervisor, via a records lane) — A3 rung 3's patched cell is MEASURED: row 12b's rung-3 cell moves `PENDING` → `GATE FAIL (adjoint, inherited)`. No row above is edited.
+
+**Form note.** This file's own convention, set at the 2026-08-22 addenda, is that
+**the table above is never edited**; a cell moves by a dated addendum row that
+supersedes it in place. The supervisor's ruling — *row 12b's rung-3 cell:
+`PENDING` → `GATE FAIL (adjoint)`* — is landed that way here, as row **12e**,
+rather than by rewriting row 12b. Row 12b, row 12d and every row above stand
+exactly as committed.
+
+| # | case | scope | toolchain | np / cells | **verdict** | headline number (exact) | record |
+|---|---|---|---|---|---|---|---|
+| 12e | **A3** sweep rung 3, **attempt 2** | adjoint | **PATCHED** (`dafoam-idwarp-rot:v1`, md5 `85f59e87253e0a71a813f64ca6e4c425`) | 4 / 79,560 | **GATE FAIL — adjoint, inherited** | **IDENTITY CONFIRMED 11 of 11**: the patched CD adjoint residual path is **bit-identical** to the SHIPPED-equivalent ‡ path on all 11 printed checkpoints, iterations 0–1000, in a **stagnating** regime — total reduction **1.3133×** (`2.121343646203e-02` → `1.615247229756e-02`), relative change **1.446e-06** over iterations 900→1000. **No `PetscConvergedReason` was printed by this arm**; the terminal `−3` at 4000 iterations is row 11's SHIPPED measurement carried across by the bit-identity — that is what **"inherited"** means and it is the whole content of the word. Stop **DELIBERATE** (`identity_stop.sh` exit 5, rc=137), and a stop is not a measurement (`DAFOAM_CHARTER.md` §7). Peak aggregate RSS **11.680 GiB** of a 16 GiB cap, within **+0.26 %** of the shipped arm's 11.65 GiB; host `MemAvailable` minimum **15.2871 GiB** against an 8.0 GiB floor, **0 strikes / 87 samples** | `A3/rung3_patched_idwarp_np4_attempt2/RESULTS.md` §1–§3, §5; prereg frozen `606930b4` + Amendment 1 `8a0b440d`; graded `8871acf3` |
+
+**Row 12b's rung-3 cell now reads `GATE FAIL (adjoint, inherited)`**, superseding
+both its own `PENDING — NOT MEASURED` and row **12d**'s `NOT A RESULT` (attempt 1,
+killed by the host-floor limb at 85 s with **0 of 11** checkpoints reached). **Row
+12d is not struck and not wrong**: attempt 1 measured nothing and said so, and the
+difference between its worthless zero and attempt 2's load-bearing one is exactly
+the positive leg of the planted-difference control (L-277). Row 12b's
+**399,360-cell** cell stands unchanged at **PENDING — NOT MEASURED**.
+
+**The patched column's rung-3 FD cell stays `NOT A RESULT`.** Stage R3-2's
+registered precondition — `PetscConvergedReason: 2` out of stage R3-1 — did not
+occur and was never measured; it is unbought, and a re-buy needs its own
+pre-registration, never an addendum (D502).
+
+**Two rows, never merged.** Row 11 (SHIPPED-equivalent ‡, `GATE FAIL`, 4000
+iterations, reason −3) stands exactly as it is. **A patched grade never replaces a
+shipped grade** (R11), and the bit-identity is a statement about the patch, not a
+re-grading of the shipped row.
+
+**Toolchain identity is an image ID and a library hash, never a version string**
+(`DAFOAM_CHARTER.md` §6): `idwarp` reports `2.6.2` on both stacks and
+discriminates nothing. The discriminators are
+`image_id=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35`
+and `IDWARP_SO_MD5 = 85f59e87253e0a71a813f64ca6e4c425`.
+
+**Cost of the item: 36.733 core-min gross (bound 37.933 on an un-instrumented
+pre-flight), cleaned = gross, against 51.8 predicted — ratio 0.709, waste 0.000**;
+calibration row `C-29`. The gap is contention **in the under direction** (realised
+1.1955× against a 1.7× point measured on a contended box) plus misprediction named
+on the inherited, unvalidated wall point (L-278). Records landed with this
+addendum: **L-277, L-278, N-D32, N-D33, D499–D502**. Nothing here is filed, sent
+or registered.

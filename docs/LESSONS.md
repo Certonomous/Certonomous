@@ -10142,3 +10142,51 @@ history is not rewritten to hide a mistake.
 applied to the one surface that also carries the id: the message.
 *Artifacts:* `cases/dafoam/d460_sweep1_solver_family/RESULTS.md` §7c, disclosure
 block; commit `f62ec7ed`.
+## L-277. A planted-difference control turns "no difference found" into evidence — and the SAME comparator can produce a worthless zero and a load-bearing one on consecutive attempts of the same item
+
+**The rule.** The discriminator for a null result is **never the guard's exit
+code**. It is whether the guard was **given something to read**, and was **proved
+able to read it in that session**. A zero from a reader that was handed nothing
+is not a measurement of anything (`CLAUDE.md` rule 3).
+
+**Why.** A3 rung 3, attempts 1 and 2, ran the **byte-identical** `identity_stop.sh`
+comparator. **Attempt 1**: the arm was killed by its host-floor memory limb at 85 s
+of a 2600 s budget, **0 of 11 identity checkpoints reached**; the comparator found
+no difference, and the record correctly wrote *"this is explicitly not evidence
+that it would not have fired"* — graded **NOT A RESULT**. **Attempt 2**: eleven
+checkpoints printed, the same comparator's limb 7 had **already returned exit 6**
+on rung 2's real path differing in the 5th significant figure, and the same zero
+became the item's headline finding — **11 of 11 checkpoints bit-identical**,
+verdict **GATE FAIL (adjoint, inherited)**.
+
+**The narrow reading.** Two runs, one comparator, one exit code, two entirely
+different evidentiary values. The positive leg is what separates them, and it has
+to be demonstrated **in the session that reports the zero**, not inherited from
+the script's design.
+*Artifacts:* `cases/dafoam/ladder-a/A3/rung3_patched_idwarp_np4/RESULTS.md:107`
+(attempt 1, NOT A RESULT) against
+`cases/dafoam/ladder-a/A3/rung3_patched_idwarp_np4_attempt2/RESULTS.md` §3.1
+(attempt 2, 11/11); `CLAUDE.md` rule 3.
+
+## L-278. A launch gate tight enough to protect its own memory floor SELECTS FOR A QUIET BOX — so any wall estimate carrying a contended-box contention multiplier is systematically high behind that gate
+
+**The rule.** **Record the gate's own memory limb beside any contention
+multiplier, and state which side of the gate the multiplier was measured on.** A
+launch gate that refuses to open until the box is quiet is not a neutral
+observer of contention: it is a filter that removes exactly the condition the
+multiplier was calibrated on.
+
+**Why.** A3 rung 3 attempt 2: Amendment 1 raised the launch gate's memory limb to
+**25.0 GiB (82 % of `MemTotal`)**; the gate opened on **poll 1** at **27.19 GiB
+with 13 free cores**. The realised contention factor was **1.1955×** against a
+**1.7×** point taken from a rung-2 measurement made on a **contended** box. The
+wall point estimate missed by **+42 %**, while the registered **1.0–2.6×** band
+held.
+
+**Relation to C-4.** This is C-4's lesson (*record the load average beside a
+per-iteration cost basis*) arriving from the other direction: there a basis
+measured under contention was carried onto a quiet box; here **the gate itself
+made the box quiet**, and the same error follows.
+*Artifacts:* `cases/dafoam/ladder-a/A3/rung3_patched_idwarp_np4_attempt2/RESULTS.md`
+§7 and §5; `docs/COST_CALIBRATION.md` C-29 (predicted 51.8 core-min, actual gross
+36.733, ratio 0.709), C-4.
