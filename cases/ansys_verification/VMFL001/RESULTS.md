@@ -330,3 +330,37 @@ The credential count stands at **0 PASS of 1 run**.
   `nu` and `omega` never ran — it refused before reaching them.
 - **Nothing about grid convergence.** No triple was classified; no GCI exists and none
   is quoted.
+
+---
+
+## Addendum 1 — lesson-id correction (2026-08-24T18:04:10Z)
+
+**Appended, never rewritten.** Nothing above this line is edited. This addendum
+alters no number, no verdict, no gate and no cost; it corrects two cross-reference
+ids that a concurrent peer commit invalidated between this record landing and its
+lessons landing.
+
+**What happened.** §3, §4 and §9 above were written naming the two lessons from this
+rung as **`L-286`** and **`L-287`**, the ids derived from HEAD's own blob in this
+record's commit invocation (`dee5870d`). Between that commit and the lessons commit,
+the `dafoam` team landed `2f14f448`, which took **L-286** ("An empty commit with a
+claiming message…") and **L-287** ("The docket maximum is read at LINE START…"). The
+lessons commit's own rule-11 assert — re-deriving the maximum from HEAD's blob in the
+same invocation as `commit-tree` — **caught the collision and aborted rather than
+mint a duplicate**, which is the assert doing exactly its job.
+
+**The correction. Read every `L-286` and `L-287` above as:**
+
+| as written above | **the actual id** | subject |
+|---|---|---|
+| `L-286` (§3, §9) | **`L-288`** | a comparator selftest on its own fixture verifies the reader's belief about the writer, never the writer |
+| `L-287` (§4) | **`L-289`** | a single frozen iteration count across a grid triple is adequate at the coarse levels and inadequate at the fine one |
+
+**Unchanged and confirmed against HEAD in the same invocation:** `N-AV4` (the v2606
+`sets` output layout), `N-AV5` (the measured fixed-iteration residual degradation)
+and the calibration row `C-37`. All three ids are as written above.
+
+**Why this is an addendum and not an edit.** CLAUDE.md rule 11 assigns ids at commit
+from the tail, and a record that silently rewrote itself to match a later reality
+would hide the very race this lab's assert exists to catch. The stale ids stay
+visible above; this table is how they are read.

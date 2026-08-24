@@ -10488,3 +10488,123 @@ happens to re-derive is a defect waiting for the gate to be skipped once.
 mention, the only one in the file); the true tail rows `D501`–`D505` at the same
 rev; `cases/dafoam/ladder-a/A1/curriculum_D1_Cprime/RESULTS.md:480` (the recorded
 phantom); CLAUDE.md rule 11.
+
+## L-288. A comparator selftest that builds its own fixture verifies the comparator's BELIEF about the writer, never the writer — run the reader once against real solver output before the freeze
+
+**The rule.** A selftest that writes its own input file and then reads it back is a
+round-trip through one mind. It proves the reader is self-consistent. It cannot
+prove the reader matches the **producer**, because the producer never appeared. So:
+**before freezing a comparator, run its reader once against real output from the
+real producer** — one throwaway coarse case, seconds of compute — and freeze only
+after it has parsed something the solver actually wrote. If a producer's output
+format is genuinely unavailable pre-freeze, the pre-registration must say so in the
+words "this reader has never seen real output", and the first run must be treated as
+an instrument shakedown whose grading is expected to be repeated.
+
+**The measurement that shows it.** VMFL001 run 1. `grade_vmfl001.py` (blob
+`8cb29610`) was frozen with a `--selftest` of **18 checks, all 18 passing** —
+including a positive read of a synthetic `sets` file and, deliberately, a **refusal
+on a headerless file**. The pre-registration disclosed honestly, in §9, that *"No
+solver has run, so its OpenFOAM-output parsing has never seen real `simpleFoam`
+output"*, and stated in advance that the comparator would refuse rather than guess.
+Every one of those statements was true and the freeze was in good faith.
+
+The fixture was still wrong in two ways at once, because the author wrote it from
+the same belief the reader was written from:
+
+| | the frozen comparator expected | OpenFOAM v2606 actually writes |
+|---|---|---|
+| filename | `U_gateAxis.*` — **field first** | `gateAxis_p_U.xy` — **set name first, then fields ALPHABETICALLY** |
+| header | a `#` comment line naming the columns | **no header at all** |
+
+At grading the comparator refused, exit 2, on the **coarsest** level:
+`REFUSE: no sampled file for set 'gateAxis', field 'U' at time 3000`. It therefore
+never reached L2, L3, its own planted-zero control, the grid triple or the gate. The
+refusal was **correct behaviour** — it is what §9 promised and it is what stopped a
+guessed column from becoming a lab value. The rung was lost anyway.
+
+**Why the honest disclosure did not save it.** §9 said the reader had never seen
+real output; the selftest's 18 green checks said the reader worked. Both were true,
+and together they read as "unexercised but sound". They were not the same claim, and
+only one of them was about OpenFOAM. **A disclosure that a check was not run is not
+a substitute for running it when running it costs two seconds** — the L1 level here
+takes **2 wall seconds**, and parsing its output before the freeze would have cost
+0.033 core-minutes and caught both defects.
+
+**The trap generalises past filenames.** Anything a comparator believes about a
+producer — column order, units, sign convention, time-directory naming, header
+presence, delimiter — is a belief until the producer has been observed. A fixture is
+where those beliefs get written down twice and checked against each other.
+
+**Not a licence to loosen the reader.** The repair is to teach the reader the true
+convention and keep it refusing when it cannot identify a column. A reader made
+tolerant enough that no fixture could have caught this would have produced a number
+from run 1, and that number would have been worth nothing.
+
+*Artifacts:* `cases/ansys_verification/VMFL001/RESULTS.md` §3 and §9;
+`cases/ansys_verification/VMFL001/PREREGISTRATION.md` §9 (the honest pre-freeze
+disclosure) and §10 (the planted-zero control that never fired);
+`verification/runs/ansys_verification/VMFL001/GRADING_VMFL001.stdout.txt` (the
+`REFUSE:` line) and `.../L*/postProcessing/radialProbes/3000/gateAxis_p_U.xy` (what
+v2606 actually wrote), committed `ae30f914`; verdict commit `dee5870d`; register
+row #1; the format itself is `N-AV4`.
+
+## L-289. A single frozen iteration count across a grid triple is adequate at the coarse levels and inadequate at the fine one — register a per-level `endTime`, or a convergence-based stop the completion rule can still check
+
+**The rule.** A Roache triple refines the mesh by 2 in every direction and holds
+everything else fixed. **The iteration budget must not be one of the things held
+fixed.** Iterative convergence at a fixed iteration count degrades with cell count,
+so one `endTime` that comfortably converges the coarse level can leave the *fine*
+level — the level the verdict is actually about — short of the registered residual
+criterion. Register **per-level iteration budgets**, sized for the finest level, or
+a **convergence-based stop**; and if you take the second, register the replacement
+completion clause **in the same freeze**, because a solver that stops on
+`residualControl` no longer satisfies "last time == `endTime`".
+
+**The measurement that shows it.** VMFL001 run 1 froze `endTime = 3000` SIMPLE
+iterations for all three levels at relaxation `p 0.3 / U 0.7`, and registered (§7)
+that at **every** level the final-iteration initial residuals of `Ux`, `Uy`, `p` be
+< 1e-6 and the plateau peak-to-peak of the r = 35 mm probe be < 1e-6 m/s over the
+last 600 iterations:
+
+| level | cells | Ux init. resid. @ 3000 | p init. resid. @ 3000 | plateau ptp (m/s) | §7 |
+|---|---|---|---|---|---|
+| L1 16×64 | 1,024 | 4.69187e-14 | 6.50871e-11 | 1.00e-14 | ✅ |
+| L2 32×128 | 4,096 | 1.48771e-12 | 4.85296e-11 | 1.27e-11 | ✅ |
+| **L3 64×256** | **16,384** | **1.19876e-06** | **2.89185e-06** | **2.77178e-05** | ❌ **both** |
+
+L3 misses the residual clause by 1.20× on velocity and 2.89× on pressure, and the
+plateau clause by **27.7×**. Under CLAUDE.md rule 5 step 1 the rung is
+`NOT A RESULT` **before the triple is classified** — the verdict was decided by the
+level the gate is defined on, and the two coarse levels passing tells you nothing.
+
+**The triple is what exposed it, and it was cheap.** Total spend: **1.9833
+core-minutes** (119 wall s serial), 0.661× the 3.0 core-min estimate, $0.0017
+derived. A single-mesh run at L1 or L2 would have converged beautifully and taught
+nothing about the mesh the verdict rests on. **Refining the mesh without refining
+the iteration budget converts a discretisation study into an iterative-convergence
+failure**, and the failure lands on exactly the level whose value is graded.
+
+**The trade the repair has to make explicitly.** A per-level `endTime` keeps the
+strict completion rule intact (`last time == endTime`, `ExecutionTime` count ==
+`endTime`) and costs one more registered number per level. A `residualControl` stop
+is better physics — it converges to a criterion instead of to a guess — but it
+**breaks completion clause 3 by construction**, since the last time is then
+deliberately less than `endTime`. If chosen, the replacement clause must be frozen
+alongside it: last time < `endTime` **and** the `SIMPLE solution converged` line
+present **and** `ExecutionTime` count == last time. Choose in the pre-registration,
+before compute; a completion rule relaxed after a run that failed it is not a
+completion rule.
+
+**And it must be a new rung.** Changing `endTime` changes a registered quantity
+after first compute, which CLAUDE.md rule 2 forbids in an addendum. The repair is a
+**new pre-registration**, frozen by sha before any compute, landing as a **new
+register row citing the old** (`ANSYS_VERIFICATION_CHARTER.md` §6). Run 1's
+`NOT A RESULT` row is never removed, re-labelled or softened.
+
+*Artifacts:* `cases/ansys_verification/VMFL001/RESULTS.md` §4, §6 and §9;
+`PREREGISTRATION.md` §4 (verdict order), §7 (the convergence clauses), §8 (cost);
+residuals in `verification/runs/ansys_verification/VMFL001/L*/log.simpleFoam` and the
+3000-row plateau probes in `.../L*/postProcessing/gateProbes/0/U`, committed
+`ae30f914`; verdict commit `dee5870d`; calibration row `C-37`; the measured
+convergence degradation is `N-AV5`.

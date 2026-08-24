@@ -3668,3 +3668,106 @@ Ratio column reads it as **0.978** (CFX 0.976). See L-280: a tolerance drawn
 from the Ratio column is set against a rounded target, not the reference. The lab
 gates against the printed Target (the manual's reproducibility claim) and prints
 these four exact-formula deviations beside the gated values.
+
+## N-AV4. OpenFOAM v2606 `sets` (`type cloud`, `setFormat raw`) writes `postProcessing/<fo>/<time>/<setName>_<fields alphabetical>.xy` with NO header — set name FIRST, not field first
+
+**The fact.** The `sets` function object in OpenFOAM **v2606**, configured with
+`type sets` / `setFormat raw` and a set of `type cloud`, writes one file per
+time directory per set, named:
+
+    postProcessing/<functionObjectName>/<time>/<setName>_<field><_field...>.xy
+
+- **the SET NAME comes first**, then the fields, joined by `_`;
+- **the fields appear in ALPHABETICAL order**, not in the order they are listed in
+  the `fields (...)` entry — `fields (p U)` and `fields (U p)` both give `_p_U`;
+- **there is NO `#` comment header** of any kind — the file's first line is data;
+- columns are **`x y z`** and then the fields in that same alphabetical order, each
+  contributing its component count: a scalar 1 column, a vector 3.
+
+So `functions { radialProbes { type sets; setFormat raw; fields (p U);
+sets { gateAxis { type cloud; ... } } } }` at time 3000 produces
+`postProcessing/radialProbes/3000/gateAxis_p_U.xy` with **7 columns**:
+`x y z p Ux Uy Uz`.
+
+**The measurement that shows it.** VMFL001 run 1, all three levels. The L3 file's
+first row, verbatim from disk:
+
+    0.02 	0 	0.0025 	2.92410904085e-05 	-1.25945914166e-09 	0.0151084998672 	1.14918639546e-24
+
+read as x = 0.02 m, y = 0, z = 0.0025 m, p = 2.924e-05, then `U` = (−1.259e-09,
+0.01510850, 1.149e-24) — `U_y` dominant on the +x axis, which is what a tangential
+velocity must look like there, and `U_z` at round-off in a one-cell-thick planar
+case. Four rows, one per sampled radius, no header line. Identical layout in
+`gateAxis_p_U.xy` and `azimuthCheck_p_U.xy` at all three levels.
+
+**Why it is written down.** A comparator frozen expecting `U_gateAxis.*` **with** a
+`#` header — the plausible and wrong belief — refuses to find its file and the rung
+is lost. That happened here: `grade_vmfl001.py` refused exit 2 and VMFL001 run 1 is
+`NOT A RESULT`. The general lesson is `L-288`; this entry is the specific fact so
+the next comparator in this lab is written against the producer instead of against a
+belief about it.
+
+**Scope, stated honestly.** Measured on **v2606** only, `setFormat raw`,
+`type cloud`, `interpolationScheme cellPoint`, in a 2D planar case. The alphabetical
+ordering and the missing header were **observed, not read out of the source**; other
+`setFormat` values (`csv`, `vtk`, `gnuplot`) are not covered by this entry and other
+OpenFOAM versions are not either. The `probes` function object, by contrast, **does**
+write `#` header lines — the two function objects differ, which is part of the trap.
+
+*Artifacts:* `verification/runs/ansys_verification/VMFL001/L*/postProcessing/
+radialProbes/3000/{gateAxis,azimuthCheck}_p_U.xy` and, for the contrasting `probes`
+header, `.../L*/postProcessing/gateProbes/0/U`, committed `ae30f914`;
+`.../GRADING_VMFL001.stdout.txt` (the refusal);
+`cases/ansys_verification/VMFL001/RESULTS.md` §3.
+
+## N-AV5. VMFL001 laminar `simpleFoam` at `p 0.3 / U 0.7`: 3000 iterations reach Ux initial residual 4.7e-14 at 1,024 cells, 1.5e-12 at 4,096 and only 1.2e-6 at 16,384 — the fixed-iteration residual degrades sharply and NOT by a constant factor
+
+**The fact, as measured.** Steady laminar `simpleFoam`, the VMFL001 annulus
+(R_i = 17.8 mm, R_o = 46.28 mm, ω = 1 rad/s, ν = 2e-4 m²/s), full 360° planar mesh,
+central schemes, `p` GAMG / `U` smoothSolver, relaxation **`p 0.3` / `U 0.7`**, no
+`residualControl`, **`endTime = 3000` iterations at every level**. Initial residual
+at the **final** iteration, and peak-to-peak of the per-iteration v_θ(35 mm) probe
+over the last 600 iterations:
+
+| level | cells | Ux | Uy | p | plateau ptp (m/s) |
+|---|---|---|---|---|---|
+| 16 × 64 | 1,024 | 4.69187e-14 | 4.56645e-14 | 6.50871e-11 | 1.00e-14 |
+| 32 × 128 | 4,096 | 1.48771e-12 | 1.48751e-12 | 4.85296e-11 | 1.27e-11 |
+| 64 × 256 | 16,384 | 1.19876e-06 | 1.19876e-06 | 2.89185e-06 | 2.77178e-05 |
+
+**The degradation is not one number, and the entry refuses to average it.** Each
+step is a 4× increase in cells (2× in each direction). The Ux residual at fixed
+iteration count rises by **≈ 32×** from 1,024 → 4,096 cells and by **≈ 8.0 × 10⁵×**
+from 4,096 → 16,384. Quoting a single "≈10⁶-fold per 4× cells" would describe only
+the second step; the honest statement is that the degradation **accelerates**, and
+that the finest level is the only one that fails a 1e-6 criterion. The plateau ptp
+tells the same story with different arithmetic: 1.00e-14 → 1.27e-11 (≈ 1.3e3×) →
+2.77e-05 (≈ 2.2e6×).
+
+**Mechanism: UNTESTED, and named only as a candidate.** The expected cause is that
+SIMPLE's convergence rate depends on the mesh through the pressure solve and the
+relaxation, so a fixed iteration budget buys less convergence as cells grow. That is
+**not measured here** — this run varied cells and held relaxation, solver tolerances
+and iteration count fixed, so it cannot separate the pressure-solve contribution
+from the relaxation's. **No iteration-count-to-convergence curve was recorded**, and
+none is inferred. What is measured is the table above.
+
+**Consequence, which is the reason to record it.** VMFL001 run 1 registered a single
+`endTime = 3000` across its grid triple and an iterative-convergence clause of
+< 1e-6 at every level. L1 and L2 pass by 8 and 6 orders of magnitude; **L3, the
+level the gate is defined on, fails**, and the rung is `NOT A RESULT` under
+CLAUDE.md rule 5 step 1 before the triple is classified. The planning figure for the
+next VMFL001 freeze: **3,000 iterations is not enough at 16,384 cells at this
+relaxation** — size the budget for the finest level or stop on a residual criterion.
+The general rule is `L-289`.
+
+**Scope.** One case, one solver, one relaxation pair, one scheme set, three meshes,
+`endTime` fixed. Do not read it as a law about `simpleFoam`; read it as this
+configuration's measured numbers and as a warning about fixed iteration budgets
+across a refinement study.
+
+*Artifacts:* `verification/runs/ansys_verification/VMFL001/L*/log.simpleFoam` (final
+`Time = 3000` block) and `.../L*/postProcessing/gateProbes/0/U` (3,000 rows each,
+probe 3 = r = 35 mm), committed `ae30f914`;
+`cases/ansys_verification/VMFL001/PREREGISTRATION.md` §6 (solver settings) and §7
+(the frozen clauses); `cases/ansys_verification/VMFL001/RESULTS.md` §4.
