@@ -430,3 +430,117 @@ refused is a generator with no second opinion in it.**
 Both constraints bind **cfd mesh ladders**. Neither is retroactive: ladders already frozen are not
 re-opened by this section. Neither alters any gate in §3 — §3's thresholds are unchanged, and 8.1
 governs **when** a ladder may be frozen against them, not **what** they are.
+
+---
+
+## 9. GRID-LEVEL COUNT, AND THE SIMILARITY CLAUSE THAT GOES WITH IT (v1.4, 2026-08-25)
+
+**Appended at the foot. Lines whose number changed above this section: 0.** Nothing above is
+edited, struck or renumbered by this section.
+
+**A version discrepancy recorded rather than silently repaired.** This file's header (line 3) reads
+`Version 1.2, dated 2026-08-11`; §8 declares itself `v1.3, 2026-08-25`. The header was not bumped
+when §8 landed. **It is not bumped here either**, because editing line 3 would move every line
+number above this section and break the zero-lines-changed assertion that other records cite. The
+authoritative version of this document is the **highest section version**, which is now **v1.4**.
+Repairing the header is a separate, disclosed edit for whoever takes it.
+
+### 9.1 THREE LEVELS — Sanaa's ruling, 2026-08-25, quoted verbatim
+
+Ruled by Sanaa in her own session turn of 2026-08-25. Quoted verbatim and attributed:
+
+> Grid standard ruled: 3 levels. A converging three-level family with observed order and GCI is the
+> lab's gate standard (Roache-standard minimum). More levels are a research option, never a gate
+> requirement. Update the standards doc; the pending grid-standard desk item is closed with this.
+
+**What this settles:** three is both the **minimum** and the **sufficient** level count for a gate.
+A fourth level is a **research option** and is **never owed**. No agent may require a fourth level
+of another team, and no gate may be written that presumes one. The pending grid-standard desk item
+is **closed** with this ruling.
+
+**WHAT THIS DOES NOT RELAX, and the distinction is the whole point.** The ruling fixes a *count*.
+It touches no other condition on a gradeable family. All three of the following continue to bind
+in full, unchanged:
+
+1. The family must **CONVERGE**. Standing rule 5 is untouched: a triple that is `DIVERGENT`,
+   `STAGNANT`, `OSCILLATORY` or `EXACT` is `NOT A RESULT` whatever its value, and a level that is
+   not iteratively converged or not plateaued is `NOT A RESULT` before the triple is even read.
+2. An **observed order** must be computed and printed.
+3. A **GCI** must be computed and printed, at `Fs = 1.25`, and **never quoted when the three values
+   are not monotone**.
+
+**Three levels that do not converge are not a gate. They are three numbers.** A team that reads
+this ruling as permission to ship a three-level family without order and GCI has read it backwards.
+
+### 9.2 THE SIMILARITY CLAUSE — letter versus spirit, and the ruling on the far-side branch flip
+
+Ruled by the cfd supervisor, 2026-08-25, under Sanaa's desk-item disposal rule of the same date:
+referred with recommendation and reasoning, **ADOPTED unless she rules otherwise within one day**,
+recorded `[lab-attributed]`. **Overrulable.**
+
+**The occasion.** F12's ladder generator sets the far-side wall-normal grading of the two wake
+blocks from an **absolute** first cell of 0.3 chord, with **no dependence on the level**
+(`F12_PREREGISTRATION.md:539`, reading `sdk/workflows/tmr_verification.py`). Evaluated across the
+ladder, the total expansion returned is **3.747165 / 1.084468 / 1.000000** at coarse / medium /
+fine: at the fine level the requested first cell exceeds the uniform spacing `length / n`, the
+generator's own guard `if first_cell >= length / n: return 1.0` fires, and the fine level's wake
+blocks get a **UNIFORM** far-side distribution where the coarse level's are graded **3.75:1**.
+
+**The question put to me.** Gate A tests max non-orthogonality and max skewness. A branch-flipped
+ladder can pass gate A at **every** level — a uniform wake block is, if anything, *better*
+conditioned than a graded one. So by the **letter** of §3, the ladder is admissible. By the
+**spirit** of a Roache ladder, the three levels are no longer the same experiment.
+
+**RULING — the spirit governs, and this is not a discretionary reading.**
+
+> **A refinement recipe that FLIPS A BRANCH across the levels produces a family that is NOT a
+> Roache ladder, whatever §3 says about each mesh individually. Such a family is `NOT A RESULT`
+> under standing rule 5, and gate A passing at every level does not save it.**
+
+**Three reasons, in order of force.**
+
+1. **§3's gates are per-MESH; a Roache triple is a claim about a FAMILY.** Every gate in §3 grades
+   one mesh in isolation. None of them can see a relationship *between* levels, and it is exactly
+   that relationship the observed order is computed from. A per-mesh gate that passes three times
+   has said nothing whatever about whether the three are comparable. **Reading §3 as sufficient for
+   ladder admissibility is a category error, not a lenient interpretation.**
+2. **The already-standing similarity ruling covers this on its face.** This team has ruled that *a
+   mesh ladder is admissible as a Roache ladder only if the refinement is geometrically similar —
+   the first cell height and the expansion ratio scale WITH the mesh, and the refinement recipe is
+   otherwise held FIXED* (`F12_PREREGISTRATION.md:616-619`). An expansion ratio going 3.75 -> 1.08
+   -> 1.00 while the mesh refines by two is the **negation** of "scales with the mesh". §9.2 does
+   not extend that ruling; it applies it to a case that tried to slip under it.
+3. **A branch flip is WORSE than a drift, and the difference matters.** A recipe that drifts
+   smoothly across levels contaminates the observed order continuously and might, with effort, be
+   bounded. A guard that fires at one level and not the others makes the fine level a
+   **discontinuously different experiment**. There is no expansion of the error in `h` that
+   contains it, so the observed order it produces is not an order of anything.
+
+**THE HAZARD THIS CLAUSE EXISTS TO CATCH, stated plainly.** The dangerous property of this defect
+is that **it is invisible to every check the lab currently runs.** It passes gate A. It passes
+`checkMesh`. It passes the nesting and cell-count assertions, because the *node positions* can
+still nest exactly. `scripts/roache_triple.py` **cannot detect it** — the pre-registration says so
+at `:468`. It is read only from the dictionary-writing **code**, never from a built mesh. **A
+ladder can therefore be dead on arrival while every instrument reports green.**
+
+**THE OPERATIONAL CONSEQUENCE — a required, checkable deliverable.**
+
+> **Every cfd mesh ladder must record, per level, the ACTUAL VALUE of every grading and
+> first-cell parameter its generator used — read back from the written dictionary or the built
+> mesh, never from the parameter that was requested.** A ladder whose per-level graded values are
+> not recorded cannot be shown similar, and a ladder that cannot be shown similar is not gradeable
+> as a Roache ladder.
+
+This is deliberately a **read-back**, not an assertion. The F12 defect is precisely a case where
+the requested parameter was **identical at every level** — that constancy is what *caused* the
+flip — so a check that compared requested values would have reported perfect similarity. **The
+requested value is the thing that lied. Only the returned value tells the truth.** It belongs in
+the §6 mesh birth certificate for any ladder level.
+
+### 9.3 Scope of §9
+
+§9.1 is **Sanaa's ruling and is lab-wide**. §9.2 binds **cfd mesh ladders** and is offered to other
+families rather than imposed on them. Neither is retroactive: **ladders already frozen are not
+re-opened by this section**, and F12's and F1's closed verdicts are not regraded by it. Neither
+alters any gate value in §3 — §3's thresholds are unchanged. §9.2 governs **whether a set of meshes
+is a LADDER**, not what any single mesh must achieve.
