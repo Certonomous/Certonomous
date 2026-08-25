@@ -128,3 +128,48 @@ their having been written in the work lost when the session usage limit killed t
 This is not this team's file and I am not writing into it; it is flagged for the owning team
 because a checker whose provenance citations do not resolve is a checker whose warrant cannot
 be audited.
+
+---
+
+## CORRECTION — 2026-08-25, appended the same hour, by the same author
+
+**The "dangling citations" section immediately above is WRONG and I am striking its claim,
+not quietly deleting it.**
+
+I measured the highest lesson at HEAD as **L-319** and concluded that the committed script's
+citations to **L-321** and **L-322** did not resolve — a plausible story, since the fleet had
+just been killed by a usage limit and lost work was the obvious explanation.
+
+**It was an artefact of my own measurement window.** Between my read and my commit, a peer
+landed `f07d6c99` — *"L-321 and L-322: the FOURTH and FIFTH shapes of guard failure"* — and
+`0eaf602a` landed L-320 alongside it. When I re-derived the maximum **inside the committing
+invocation**, as CLAUDE.md rule 11 requires, it came back **322**, not 319, and my lesson was
+allocated **L-323** rather than the L-320 I had been about to take. All of L-320, L-321,
+L-322 are present at HEAD. **The script's provenance citations resolve correctly and there is
+nothing for the owning team to repair.**
+
+**Two things are worth keeping from the error.**
+
+**First, rule 11 paid for itself in one commit.** Had I trusted the number I read three
+minutes earlier, I would have allocated **L-320 on top of a lesson that already existed** and
+silently collided with a peer's block. The rule says re-derive from the tail at commit time,
+in the same shell invocation, because peers commit constantly. This is the mechanism, caught
+live, not a hypothetical.
+
+**Second, the failure shape is the one this whole document is about.** I reported an
+**absence** — "these lessons do not exist" — from a reader that had not been shown able to
+see them at the moment the claim was published. That is standing rule 3's shape exactly, one
+level up from the comparators: **a zero from a reader not shown able to see a non-zero is not
+evidence.** I applied that discipline to the checker and then failed it myself on a
+repository read, in the same hour, in the same commit. **A measured absence has a timestamp,
+and on a tree six agents are writing to, a timestamp three minutes old is not current.**
+Any claim of absence against this repository states the moment it was measured, or it is not
+a claim about HEAD.
+
+The commit message of `99326ea2` carries the incorrect paragraph as well. **A commit message
+cannot be rewritten and is not rewritten**; this correction is the record that its final
+paragraph is superseded.
+
+**No other finding in this document is affected.** The probe-B idiom blindness, the coverage
+census and all five rulings were measured from file contents and re-verified; the three-idiom
+demonstration is reproducible from the recipe given above and does not depend on HEAD.
