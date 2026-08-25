@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL019 -- Transient flow near a wall set in motion (Stokes' first / Rayleigh
+  problem), manual p. 77.  Fluid initially at rest; at t>0 the bottom wall moves
+  at 0.01 m/s in +x.  Flow is homogeneous in x (cyclic), pure shear u=u(y,t),
+  v=w=0, p=const.  Analytic: u(y,t) = U erfc( y / (2 sqrt(nu t)) ), U=0.01.
+  Top boundary (y=0.3 m) held at 0 -- at endTime 5 s the penetration sqrt(nu t)
+  = 0.0707 m << 0.3 m, so the far wall is undisturbed (analytic u(0.3,5)=2.7e-5).
+
+  THIS FILE IS THE AGE-GUARD MARKER: run_vmfl019.sh touches it immediately before
+  each solver launches.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    movingWall
+    {
+        type            fixedValue;
+        value           uniform (0.01 0 0);
+    }
+    topWall
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    inlet
+    {
+        type            cyclic;
+    }
+    outlet
+    {
+        type            cyclic;
+    }
+    frontBack
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

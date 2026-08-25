@@ -1,0 +1,17 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL019.  rho = 1000 kg/m3, mu = 1 kg/m-s (manual p. 77) -> kinematic
+  viscosity nu = mu/rho = 1e-3 m2/s (what icoFoam is given).  The comparator
+  recomputes nu and REFUSES if this disagrees.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+nu              [0 2 -1 0 0 0 0] 1e-03;
+
+// ************************************************************************* //

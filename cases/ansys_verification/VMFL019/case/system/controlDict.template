@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL019 -- icoFoam, transient.  endTime 5 s.  deltaT refined WITH the mesh
+  across the Roache triple (space+time ratio 2), so #timesteps = 5/__DT__.
+  Fields written only at 0 and 5.  Two probes write EVERY step; the row at t=5
+  is the gate value: u_x at (0.375, 0.05, 0.005) and (0.375, 0.10, 0.005),
+  cellPoint-interpolated, compared to the Stokes erfc profile.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     icoFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         5;
+deltaT          __DT__;
+
+writeControl    runTime;
+writeInterval   5;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   8;
+runTimeModifiable false;
+
+functions
+{
+    probesU
+    {
+        type            probes;
+        libs            (sampling);
+        name            probesU;
+        interpolationScheme cellPoint;
+        fields          (U);
+        probeLocations  ( (0.375 0.05 0.005) (0.375 0.10 0.005) );
+        writeControl    timeStep;
+        writeInterval   1;
+        log             false;
+    }
+}
+
+// ************************************************************************* //

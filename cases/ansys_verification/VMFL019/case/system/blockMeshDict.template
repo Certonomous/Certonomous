@@ -1,0 +1,79 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL019 -- Rayleigh problem.  Domain 0.75 m (x) x 0.3 m (y), 1 cell thick (z).
+  x is homogeneous: 4 cells, the inlet/outlet faces a CYCLIC pair.  y is the
+  refined direction (__NY__ cells) -- the wall-normal boundary layer.  Bottom
+  (y=0) movingWall, top (y=0.3) topWall, front/back empty.
+  __NY__ substituted by run_vmfl019.sh; template never edited by a run.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   1;
+
+vertices
+(
+    (0.0  0    0     )   // 0
+    (0.75 0    0     )   // 1
+    (0.75 0.3  0     )   // 2
+    (0.0  0.3  0     )   // 3
+    (0.0  0    0.01  )   // 4
+    (0.75 0    0.01  )   // 5
+    (0.75 0.3  0.01  )   // 6
+    (0.0  0.3  0.01  )   // 7
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (4 __NY__ 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    movingWall
+    {
+        type wall;
+        faces ( (0 1 5 4) );   // y = 0
+    }
+    topWall
+    {
+        type wall;
+        faces ( (3 7 6 2) );   // y = 0.3
+    }
+    inlet
+    {
+        type cyclic;
+        neighbourPatch outlet;
+        faces ( (0 4 7 3) );   // x = 0
+    }
+    outlet
+    {
+        type cyclic;
+        neighbourPatch inlet;
+        faces ( (1 2 6 5) );   // x = 0.75
+    }
+    frontBack
+    {
+        type empty;
+        faces
+        (
+            (0 3 2 1)   // z = 0
+            (4 5 6 7)   // z = 0.01
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

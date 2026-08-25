@@ -1,0 +1,43 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL019 -- kinematic pressure (m2/s2).  Pure-shear Rayleigh flow has no
+  pressure gradient; p is uniform and pinned by pRefCell/pRefValue 0 in
+  fvSolution.  Walls zeroGradient, x-boundaries cyclic.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    topWall
+    {
+        type            zeroGradient;
+    }
+    inlet
+    {
+        type            cyclic;
+    }
+    outlet
+    {
+        type            cyclic;
+    }
+    frontBack
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

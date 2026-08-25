@@ -1,0 +1,50 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL019 -- icoFoam.  Euler in time (refined with the mesh; its error enters
+  the Roache triple).  Convection is physically null (u.grad u = 0 for pure
+  shear homogeneous in x); div(phi,U) is Gauss linear (second order).  The
+  viscous Laplacian -- the term that sets the erfc profile -- is Gauss linear
+  corrected (second order).
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+    div(phi,U)      Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         none;
+    laplacian(nu,U) Gauss linear corrected;
+    laplacian((1|A(U)),p) Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+// ************************************************************************* //
