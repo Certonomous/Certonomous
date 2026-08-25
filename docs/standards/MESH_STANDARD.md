@@ -375,3 +375,58 @@ intended; transplanting the *numbers* is not.
   `demo-output/website/tmr/runs/`.
 - Certonomous Numericist knowledge base, `docs/NUMERICS_KNOWLEDGE.md`,
   validated facts 2 and 7.
+
+---
+
+## 8. TWO STANDING CONSTRAINTS ON MESH LADDERS (v1.3, 2026-08-25)
+
+**Ruled by the cfd supervisor 2026-08-25, on the F1 (ONERA M6) ladder, which failed §3's
+non-orthogonality gate at every level and could not be repaired by amendment.**
+Evidence: `verification/runs/F13_ONERA_M6_runs/R0_TERMINAL.md`,
+`verification/campaign/F13_RESULTS.md`, and CORRECTION 1 at the foot of
+`verification/campaign/F13_ONERA_M6_PREREGISTRATION.md`.
+
+### 8.1 BUILD BEFORE YOU FREEZE
+
+> **No cfd mesh-ladder pre-registration is frozen until at least one level has been BUILT,
+> `checkMesh`'d, and SHOWN ADMISSIBLE against the gates that registration will carry.
+> Template speed does not exempt it. A ten-line pre-registration form can carry a MEASURED mesh
+> line as easily as an ASSUMED one.**
+
+**What it cost to learn.** F1's ladder was frozen from an assumed mesh. It was arithmetically
+exact — cell counts to the unit, `r = 2.000000` on both pairs, node nesting **0.000e+00 m** read
+from the built `polyMesh` under a live planted control — and **inadmissible at every level**:
+max non-orthogonality **84.64 / 86.02 / 86.78°** against a **≤ 70°** gate, **worsening under
+refinement** (severe faces **36 → 216 → 1,440**, asymptoting toward 90°). **A fixed fraction of the
+mesh, not a marginal miss — so no finer level could ever have cleared it.** Every core-minute of
+R1–R4 that the registration costed was unspendable from the moment the ladder was written.
+
+This is the same shape as the F12 attempt-1 failure, and the lesson had **already been written down
+in this team's own board** before F1 was dispatched. **L-221/L-222 applies to rulings, not only to
+`libs` entries: a lesson is not applied until EVERY call site asserts it**, and the call site that
+failed here was the dispatch itself.
+
+### 8.2 `blockMesh` REFUSING IS A DIAGNOSTIC, NOT AN OBSTACLE TO ROUTE AROUND
+
+> **If `blockMesh` cannot express the topology, THE TOPOLOGY IS REDESIGNED — NOT BYPASSED.**
+> Hand-writing `constant/polyMesh` is a materially weaker provenance path: it bypasses the one tool
+> whose refusals are a check on the block structure.
+
+**What it cost to learn.** F1's tip fill — a lens whose leading- and trailing-edge ends are single
+lines — was refused by `blockMesh` v2606 **twice**:
+
+| how it was written | what `blockMesh` / `checkMesh` did |
+|---|---|
+| repeated-vertex prism block, `hex (0 1 2 0 4 5 6 4)` | **`blockMesh` ABORTS, rc = 134**, `FOAM FATAL ERROR` |
+| two distinct but coincident vertices | builds, then `checkMesh`: **`***Zero or negative face area detected`, 48 zero-area faces, max skewness 3.35e+148, `Failed 2 mesh checks`** |
+
+The refusal was **routed around** by writing `polyMesh` directly, where the collapsed ends become
+legal prism cells. **The mesh then built cleanly and failed admission at 84.64°.** The tool had been
+right: the topology it rejected is the topology that could not pass. **A generator that cannot be
+refused is a generator with no second opinion in it.**
+
+### 8.3 Scope
+
+Both constraints bind **cfd mesh ladders**. Neither is retroactive: ladders already frozen are not
+re-opened by this section. Neither alters any gate in §3 — §3's thresholds are unchanged, and 8.1
+governs **when** a ladder may be frozen against them, not **what** they are.

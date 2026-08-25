@@ -577,3 +577,79 @@ In the invocation that wrote this amendment, all **22** paths registered in §9 
 
 **Vocabulary unchanged:** `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` /
 `PENDING`.
+
+---
+
+## CORRECTION 1 — 2026-08-25 — **§5's FLAT-TIP STATEMENT IS FACTUALLY FALSE AND IS STRUCK.** v1.3
+
+**Class: DATED ADDENDUM, POST-FIRST-COMPUTE (rule 2).** This document is **FIRED** — rung R0 ran on
+2026-08-25 and produced `verification/runs/F13_ONERA_M6_runs/`, so the pre-first-compute route
+Amendments 1 and 2 used is **closed**. Under rule 2 a change may now land **only as a dated addendum
+that cannot alter a gate, threshold, cap or label**, and originals are **struck, never rewritten**.
+**This addendum alters no gate, no band, no threshold, no cap and no label. It strikes a FACT.**
+**lines whose number changed above this section: 0 — VERIFIED BY DIFF, not asserted.**
+
+### C1.1 The struck statement
+
+§5 states, of the spanwise blocking:
+
+> ~~"the M6 tip is a flat cut, so the cap is geometry, not a simplification"~~ — **STRUCK. FALSE.**
+
+**Measured from the registered geometry** (`sdk/geometry/onera_m6_wing.stl`, §1), by slicing it:
+
+| measured | value |
+|---|---|
+| planform linear (prismatic) to | **z = 1.19676 m** |
+| STL closes at | **z = 1.21640 m** |
+| **rounded tip closure the STL actually carries** | **0.01964 m = 2.44 % of c_root** |
+| chord across that closure | 0.45309 m → **0.0335 m** |
+| fit residuals it is measured against | `xle(z) = 0.5773499 z + 9.84e-7`, max **2.79e-8 m**; `c(z) = 0.8062163 − 0.2950627 z`, max **9.62e-8 m** |
+
+**The registered geometry has a ROUNDED tip closure. It does not have a flat cut.** The mesh built
+under this registration cuts the wing flat at z = 1.19676 m and does not reproduce that closure.
+
+### C1.2 Why this is worse than a typo, and must not be filed as one
+
+**This is not a wording slip. It is a false geometric fact that the gates were reasoned from.**
+§5's spanwise blocking — `n_span = 26m` = 20m root→tip **+ 6m tip cap** — was justified *by* the
+flat cut, in the same sentence: *"so the cap is geometry, not a simplification."* **AMENDMENT 2's
+tip-fill design descended directly from that false premise:** a flat cut presents a plane end face,
+and the region beyond it reads naturally as a prism of constant cross-section to be filled by an
+H-block. **A rounded closure does not present that, and the lens-with-collapsed-ends topology that
+followed is what carried the mesh from 51.26° to 84.64° and made every level inadmissible**
+(`R0_TERMINAL.md`; the measured no-fill control). **A false premise upstream of a topology choice is
+a defect of the registration, not of the lane that executed it.**
+
+**Nothing here re-opens the topology.** The ladder is closed `GATE FAIL` and this addendum cannot and
+does not alter that. It records the fact so a successor registration does not inherit it.
+
+### C1.3 STANDING CONSTRAINT — `blockMesh` refusing is a DIAGNOSTIC, not an obstacle to route around
+
+Ruled by the cfd supervisor, 2026-08-25, on the evidence in AMENDMENT 2 §A2.2(2):
+
+> **If `blockMesh` cannot express the topology, THE TOPOLOGY IS REDESIGNED — NOT BYPASSED.**
+
+Hand-writing `constant/polyMesh` is a **materially weaker provenance path**: it bypasses the one
+tool whose refusals are a check on the block structure. On this ladder `blockMesh` v2606 refused the
+tip fill twice — **rc = 134** on a repeated-vertex prism block, and **48 zero-area faces with
+`Failed 2 mesh checks`** written with coincident distinct vertices — and **those refusals were
+correct**: the topology they rejected is the topology that later measured 84.64° and failed
+admission. **The tool was right and the bypass was wrong.** Moot for this ladder, which is dead;
+**binding for its successor.**
+
+### C1.4 STANDING CONSTRAINT — build before you freeze
+
+Also ruled 2026-08-25, and it is the constraint whose absence produced this whole outcome:
+
+> **No cfd mesh-ladder pre-registration is frozen until at least one level has been BUILT,
+> `checkMesh`'d, and SHOWN ADMISSIBLE. Template speed does not exempt it. A ten-line form can carry
+> a measured mesh line as easily as an assumed one.**
+
+Both constraints are recorded in `docs/standards/MESH_STANDARD.md` as well, so a reader who never
+reaches this file still meets them.
+
+### C1.5 Standing of this document
+
+**`GATE FAIL` on §5 admission at all three levels; tier `NOT HELD`; V, G and P `PENDING` with no
+value computed.** See `verification/campaign/F13_RESULTS.md` and
+`verification/runs/F13_ONERA_M6_runs/R0_TERMINAL.md`. **Vocabulary unchanged.**
