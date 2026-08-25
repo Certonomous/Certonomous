@@ -601,3 +601,102 @@ the evidence of arm O.
 
 *Recorded as a defect in a frozen instrument, disclosed here as a dated departure that changes
 no gate. Whether the launcher is amended for future items is not a lane's call.*
+
+---
+
+# 2026-08-25 19:05Z — CUSTODY LANE (successor after a session-limit kill)
+
+**The previous D4 lane was killed by a session usage limit. THE RUN WAS NOT KILLED.** This
+section is written by the successor custody lane. Its first act was a reading, not a launch.
+
+## 1. Custody reading — arm O is LIVE and was never interrupted
+
+Established from disk and from the process table at **19:04:33Z**, without touching the run:
+
+| item | value | artifact |
+|---|---|---|
+| launcher pid | `2359354`, `bash d4_run_arm.sh O dafoam-idwarp-rot:v1`, elapsed `3129 s` | process table |
+| MPI ranks | pids `2359929/30/31/32`, each `~99.5 %` CPU, RSS `~2.93 GB` each | process table |
+| launch epoch | `18:12:37Z` under `timeout 9300` | `O_20260825T181237Z_2359354.log` name + ledger |
+| **hard cap-stop time** | **`20:47:37Z`** = 18:12:37Z + 9300 s | derived from the enforced timeout |
+| delivered cores, latest sample | `3.9717` of the 4-core quota (`nr_throttled` 8792) | `O_20260825T181237Z_2359354.cpu.jsonl` |
+| container peak memory | `10.308 GiB` against the `12g` cap | `O_mem.jsonl` |
+
+**NOTHING WAS RELAUNCHED, KILLED, OR DUPLICATED.** No second arm O exists. The frozen
+launcher's guard (a run directory that already exists is refused) was **not** routed around,
+and no parallel tree was created. A run interrupted by a fleet kill would not be a completed
+run — but this run was never interrupted; only its watcher died (`agent watchers die with the
+agent`: the correct response is to reattach, not to restart).
+
+## 2. Optimiser state, PARSED FROM FILES (never from stdout)
+
+Prereg §9 registers that MPI log splicing is **measured on this exact case** (commit
+`79679a84`), so every number below is read from a file a single writer owns.
+
+From `/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O/opt_IPOPT.txt` — IPOPT's
+own output file — at 19:04Z:
+
+| quantity | value |
+|---|---|
+| iteration rows present | **29** (iters `0`–`28`), i.e. **28 majors completed** past the baseline |
+| baseline objective, iter 0 | `CD = 2.9619634e-02` at `inf_pr = 4.16e-08` |
+| latest objective, iter 28 | `CD = 2.1490696e-02` at `inf_pr = 7.11e-04`, `inf_du = 3.82e-04` |
+| drag reduction so far | `(2.9619634e-02 − 2.1490696e-02) / 2.9619634e-02` = **27.44 %** |
+| `EXIT` line | **ABSENT** — `grep -a EXIT` returns nothing. The optimiser has NOT terminated |
+
+Cross-check from the live log's last completed adjoint block: the driver reports
+`CD = 0.0214907` and `CL = 0.49928921` with `volcon = 1.00261444`, consistent with iter 28.
+
+**27.44 % sits inside frozen band C `[25 %, 45 %]`** — but band C is graded at the ENDPOINT by
+the frozen grader, not here, and a mid-run reading is not a verdict.
+
+**Band A is NOT gradeable from `inf_pr`.** `inf_pr` is the maximum violation over *all*
+nonlinear constraints — `thickcon` (100 rows), `volcon` and `CL` together — so the `6.19e-03`
+peak at iter 11 says nothing about `|CL − 0.5|` on its own. Band A and band B are graded from
+`d4_major_history.json`, extracted from `OptView.hst` by the frozen extractor, exactly as
+prereg §7 G2 registers. No feasibility claim is made in this section.
+
+## 3. Instrument verification — DONE BEFORE ANY GRADING
+
+Every frozen instrument was hashed against the **committed blob** at `HEAD` and against the
+md5 registered in prereg §9a. All five agree, and the staged copies in the run root agree too:
+
+| file | md5 | vs `git show HEAD:` | vs prereg §9a |
+|---|---|---|---|
+| `d4_grade.py` | `f162ef69a7385e5d0586ef5f27657cbb` | MATCH | MATCH |
+| `d4_fd_endpoint.py` | `c6112b0ec3bfdb5287345e350500f64a` | MATCH | MATCH |
+| `d4_extract_endpoint.py` | `ee7d3c99fd716da23779cb651961918e` | MATCH | MATCH |
+| `d4_opt_runScript.py` | `2906d52a5dbed2bacbaeaf85a37d3fe8` | MATCH | MATCH |
+| `d4_run_arm.sh` | `399957c616215c8f1ae078abe2e97958` | MATCH | MATCH |
+
+The frozen file **is** the file that ran (prereg §9a's closing requirement).
+
+## 4. Termination is a verdict — registered here BEFORE it happens
+
+Prereg §7 gate **G3** and `DAFOAM_CHARTER.md` §9 are restated so no later reading can soften
+them:
+
+* An `EXIT: Optimal Solution Found.` line in `opt_IPOPT.txt` is the ONLY route to `PASS`.
+* A **cap-stop** — wall clock at `20:47:37Z`, or `max_iter 100`, or budget — is
+  **`GATE REACHED`** if bands C and A both hold, else **`NOT A RESULT`**. It is **NEVER
+  `PASS`**, whatever the drag number says.
+* An adjoint `-9`-class exit is **`BLOCKED`**, recorded, not skipped.
+* `OOMKilled true` → **`NOT A RESULT` about convergence** (G11), recorded as stopped by memory.
+
+**Projection, stated as a projection and not as a measurement.** 28 majors in 3129 s is
+`~112 s/major`; the driver's own total-derivative counter stood at `30` at `3086 s`. At that
+rate the 9300 s timeout lands near **major 83**, short of `max_iter 100`. **Prediction P1
+(`EXIT` within 100 majors) is therefore at risk of being a MISS by wall clock rather than by
+optimiser behaviour** — and if the timeout fires first, that is a CAP-STOP and the ceiling
+verdict available to this item is `GATE REACHED`. This is written down now, before the fact,
+so it cannot be presented afterwards as an expectation that was met.
+
+## 5. Cost so far
+
+Arm O, in flight: `3129 s × 4 ranks ÷ 60` = **208.6 core-min** of its registered **620.0**
+cap. Completed arms from `ledger.txt`: P1 `0.333`, P2 `36.4` core-min. Item total spent to
+this reading: **245.3 core-min** of the **800.0** ceiling.
+`cost_basis: c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED` — dollars are
+**DERIVED**: 245.3 core-min = **$0.210 derived, not measured**.
+
+**Status at this commit: PENDING** — arm O is still running. No verdict is claimed.
