@@ -1371,6 +1371,44 @@ were **not re-checked this session** and are carried forward from `2bf4915a`.
 **Case tree:** `cases/{committee-grids, demo-surfaces, hlpw6, mega-batch, tmr, unsteady-cylinder, valve}` dormant in git; `tmr` most open; `mega-batch` driver path broken (points into `demo-output/website/...`; on record as D404 — stale paths of that shape are systemic in this team's records; treat as suspect until resolved). `models/tmr/**` is a documented FILING_CHARTER §3 exception: the rule was wrong, not the tree.
 ## verification
 
+**Section updated:** 2026-08-25T00:27:00Z by verification-supervisor. Matrix at **`cec9739a`**, 1,146 lines. Zero compute all session.
+
+### ⚠ THE SHARED-INDEX DECAY IS **STRUCTURAL**, and `git status` IS NOT A VALID INSTRUMENT HERE
+
+Rule 10's private-index protocol **by design never writes the shared index**, so **every file any team commits widens the gap by one**. The chief cleared it tonight — **443 staged deletions, 63 staged modifications, every sampled staged blob a HISTORICAL version of its file** — and a re-reading **decayed again inside the same session (11,067 vs 11,089)**. **Clearing it is a treadmill.** Four measured misreadings on record: a present file reported deleted; a docket called "47 lines behind HEAD" when its worktree copy was **ahead**; phantom `D`/`MM` rows with no writer; clean status over dirty files.
+
+**Valid instruments only:** `git cat-file -e HEAD:<path>` · `git show HEAD:<path>` · `git ls-tree -r HEAD <dir>` · a direct `diff` of the HEAD blob against the worktree file. **Never** `git status` / `git diff HEAD` / `git diff --cached`.
+
+**THE AUDIT OF THIS TEAM'S OWN AUDIT — both status-derived claims RE-CHECKED HEAD-DIRECT, BOTH SURVIVE.** (1) *"Both contribution files were untracked"* was **NOT a phantom**: `git cat-file -e 2bf4915a:<path>` confirms both genuinely absent at session start, introduced later at **`7d09e4c9`** (dafoam) and **`71ecb659`** (thermal). (2) **G-16's AGARD artifact is genuinely tracked** — `git ls-tree -r HEAD` lists it, HEAD blob and worktree file **both 22,695 B**, and the title line was read **out of the HEAD blob itself**. **No row in the matrix rests on a status reading.**
+
+**THE APPEND TRAP, and it is the whole lab's:** the worktree copy of any append-only shared record is **presumed STALE**, and an in-place edit **silently reverts peers' rows**. Measured: `docs/COST_CALIBRATION.md` worktree **four rows stale at C-43 against HEAD's C-47** — an in-place edit would have reverted **C-44 through C-47**. **Every team appends there under rule 12 at every process completion. Build every append from `git show HEAD:<path>`.** Nothing is amended into `CLAUDE.md` over this — rule 9 reserves that to Sanaa, and **no agent's judgement, the chief's included, is her consent**.
+
+### NEW STANDING AUDIT CLASS OPENED — **ATTRIBUTION INTEGRITY** (§6b), sweep LIVE
+
+Trigger: heat-transfer found a block in its own records marked **Sanaa's verbatim words** that a non-ignoring `find | xargs grep` located **nowhere on disk**; their supervisor did not hear it said, would not vouch for it, and **withdrew the attribution while keeping the text**, re-marked as a paraphrase. **Right handling — and it establishes the class.**
+
+**This ranks ABOVE a wrong number, mechanically.** A wrong number meets a gate. **A wrong quotation from the principal meets nothing** — it becomes standing law and propagates into charters, briefs and agent definitions, where every later agent reads it as authority with no instrument that could contradict it. Classes: **A SOURCED · B CORROBORATED-BY-REPETITION-ONLY** (the dangerous middle) **· C UNSOURCED** (high severity) **· D HONESTLY LABELLED** (the honest baseline). **DRIFT audited alongside fabrication and likelier** — a known-good quote carries the typo *"I apporve all actually"*, so **a variant that silently CORRECTS it is itself evidence of retyping**. Priority by **blast radius**: `.claude/agents/*.md` and `harness/teams.yaml` first (regenerated into every agent's standing instructions every session), then charters, then `CLAUDE.md`. **Nothing found will be fixed by this team — withdrawal belongs to the owning team or to Sanaa, never to the auditor and never to the chief by proxy.**
+
+### THE NEGATIVE-GCI TRACE IS **OWNED, NOT REFERRED** — routing corrected on the chief's override
+
+This team's first instinct was to refer it to cfd and heat-transfer. **The chief overrode it and was right: a defect spanning three implementations across two territories has NO OWNER when split between two families**, because each will reasonably assume the other holds the load-bearing half. **Cross-team gate audit is this team's charter purpose.** Two lanes running.
+
+**The question, stated so its answer cannot soften into a reassurance:** *is there any number — in any record, certificate, RESULTS file, JSON artifact or published figure — whose uncertainty was quoted from one of those three implementations while the triple behind it was NOT CONVERGING?* **Not "could there be". Traced.** Worth the compute even though nothing is expected: under **rule 5's one-way door** a row scored with a negative GCI has a tier wrong **in the FAVOURABLE direction**, and a negative GCI is wrong **twice** — quoted on a row that is not a result, and **pointing the wrong way**, saying the answer is **better**-determined than it is. **Both lanes plant a positive control BEFORE any null** (rule 3), in each shape the artifacts use — JSON key, table cell, prose, figure caption — and **any shape the sweep cannot see is reported as a hole in the null**. The sdk lane **re-derives the flat plate's own six triples through the guarded `scripts/roache_triple.py`**, because the row that refuted a lab-wide standing fact tonight must not rest on an instrument that cannot refuse.
+
+### Chief's adoptions recorded in the matrix
+
+**F12 ADOPTED** as the lab's shortest path to a first `HOLDS`, routed to cfd. **The chief WITHDREW the earlier briefing position that the Ansys campaign was a route to `P`** on §4's evidence — recorded in the file rather than left in a private exchange, **because the withdrawn claim had already been briefed to five supervisors and a claim that circulated should be seen to be withdrawn**.
+
+**Lanes live: 3 (at cap)** — attribution-integrity sweep; K0b + 4G negative-GCI trace; sdk/`tmr_verification` negative-GCI trace incl. the flat-plate re-derivation.
+
+**Next actions:** land the three lane results; then the `check_threshold_resolution.py` spec (drafted, **this supervisor's to read before any implementation**); then exhaustive cfd rows. **§7 stays held and is now load-bearing rather than cautious — with zero `HOLDS` rows the Verification Manual has NOTHING to draw on. That is the week's finding, not a blocker.**
+
+**On Sanaa's desk, via the chief:** FD-vs-adjoint as a fourth `V` instrument (**23 dafoam rows move**); the four §2.2 rulings, disclosed as overrulable; `RESULT_PRIORITY_CHARTER` v0.5; and **the matrix rubric is still the chief's reconstruction of her directive, unruled by her**.
+
+**Blocked:** nothing in this team's territory.
+
+---
+
 **Section updated:** 2026-08-25T00:21:39Z by verification-supervisor. **THE COVERAGE MATRIX IS COMPLETE AS A FIRST PASS — `docs/COVERAGE_MATRIX.md` at `be9e3222`, 972 lines, all five families scored.** Every load-bearing row was spot-checked by this supervisor's audits against artifacts, not lifted. Commits: `00367194`, `ddd38a70`, `93d1a02e`, `be9e3222` (+ board `8deabecd`, `79979af8`). **Zero compute throughout — 0 core-minutes, no solver, no container. No calibration row is owed and none was written: rule 12 costs compute, and inventing a 0-vs-0 row would be noise, so the absence is stated rather than filled.**
 
 ### THE HEADLINE — **ZERO `HOLDS` ROWS IN THE WHOLE LAB**, and the reason is nameable
