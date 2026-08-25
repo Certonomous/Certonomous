@@ -453,6 +453,104 @@ a ramp verdict has been written.**
 plume is physically unsteady.** It is named so that a re-registration confronts
 it before, not after, committing to a steady formulation.
 
+## 4e. `assert` IS NOT A GUARD — `python3 -O` DELETES IT. Disclosure against a frozen file, not repair.
+
+**`analyse_t8.py` is frozen at `f04f9a67…` and is NOT edited by this finding.**
+It is recorded so the re-registration cannot inherit the defect.
+
+### 4e.1 The hazard, measured elsewhere in the lab tonight
+
+**`assert` statements are removed outright by `python3 -O` / `PYTHONOPTIMIZE=1`.**
+Measured consequences, not hypotheses:
+
+- a repository guard written as `assert` **refused under `python3` and proceeded
+  to `git add -A` on the shared tree under `python3 -O`**;
+- a measurement script whose planted controls were all asserts **exited 0 with
+  every control gone.**
+
+> **Standing rule 3 — the planted-zero control — defeated by an interpreter
+> flag.**
+
+### 4e.2 What `analyse_t8.py` carries
+
+**Exactly TWO asserts in 2,025 lines, and both are the same statement:**
+
+```
+1054:    assert rec["verdict"] in (band, VERDICT_NAR), (      # in grade_row()
+1329:            assert rec["verdict"] in (rec["band"], VERDICT_NAR)   # in grade()
+```
+
+**That is the ONE-WAY GATE** — standing rule 5's requirement that the gate may
+only turn a `PASS` or `GATE FAIL` **into** `NOT A RESULT`, never the reverse.
+**Under `python3 -O` both vanish.**
+
+### 4e.3 THE DECISIVE MEASUREMENT — driven under `-O`, not inferred from a green selftest
+
+A **sacrificial copy** was mutated so `grade_row` emits a verdict rule 5
+forbids, then driven under both interpreters. **`analyse_t8.py` itself was not
+touched.**
+
+| run | `python3` | `python3 -O` |
+|---|---|---|
+| **mutated** — forbidden verdict | **guard FIRES**, `AssertionError`, rc **3** | **NO GUARD FIRES** — returns `'GATE REACHED'`, rc **0** |
+| **control** — unmutated file | no fire, `'PASS'`, rc 0 | no fire, `'PASS'`, rc 0 |
+| **non-assert refusal** — `refuse()` → `sys.exit(2)` on a missing root | rc **2** | rc **2** |
+
+**The control matters: the harness is not one that always fires.** And the
+`sys.exit(2)` refusals are **unaffected by `-O`** — which is precisely the
+argument for the replacement form.
+
+**Under `-O`, `analyse_t8.py` returns `GATE REACHED` where rule 5 forbids it,
+with no error and rc 0.**
+
+### 4e.4 A REFINEMENT: "fails safe" is true of the SELFTEST, not of the GRADING PATH
+
+The supervisor's sweep concluded the file **fails safe**, because the exhaustive
+one-way coverage at lines **1659–1668 is `ok(...)`-based, not assert-based**, and
+so survives `-O`. **That is correct, and this lane re-verified it — the file
+contains only those two asserts.**
+
+**But lines 1659–1668 are inside `selftest()`.** They **do not run during
+grading.** In an actual graded run the one-way property is protected by the
+asserts at 1054 and 1329 **and by nothing else** — so under `-O` a graded run
+has **no one-way protection at all**, as §4e.3 measures directly.
+
+> **The behavioural coverage is a TEST, not a RUNTIME GUARD. It proves the
+> property held at test time under plain `python3`; it cannot protect a
+> production run under `-O`.**
+
+**So the good outcome is narrower than it looked, and it was luck either way:**
+had 1659–1668 been asserts too, the property would have evaporated **silently
+and every mutation test would still have passed, because selftests run under
+plain `python3`.**
+
+### 4e.5 REGISTER IN THE RE-REGISTRATION
+
+**Territory rule, adopted from cfd under the disposal rule: no `assert` in an
+instrument may carry a refusal, guard, control or gate.** Referred to Sanaa;
+adopted by silence in a day; retires no threshold and no charter clause.
+
+1. **The one-way gate becomes a `raise` or `sys.exit(2)`, never an `assert`** —
+   and it stops being redundant belt-and-braces and becomes the **primary**
+   check, with behavioural coverage as a **second arm rather than the only one.**
+2. **Every registered refusal must be DRIVEN under `python3 -O` itself and shown
+   to fire identically**, against a sacrificial copy. **Not "the selftest passes
+   under `-O`"** — a passing selftest exercises the clean path only, and
+   identical rc on a green run is weak evidence. **What matters is whether
+   refusals FIRE.**
+3. **A mutant reverting `raise` → `assert` must be caught on statement type
+   alone.** Cheap, decisive, and it makes the rule self-enforcing.
+
+### 4e.6 PROVENANCE — this is D476 §31.3 recurring, and that is worse than a fresh discovery
+
+**Three days ago** the closure team flagged a guard as *"an `assert` (off under
+`python -O`; `sys.exit(2)` is the candidate comparator form)"* — and **left it
+as a named limitation.** It is now **measured to be exploitable, and it is
+lab-wide.**
+
+> **A limitation named and not closed is a defect with a deadline.**
+
+
 ## 5. The measurement that refutes the level-specific-setup hypothesis
 
 Reported in full at §APPENDIX 3 of `T8_LANE_STATUS_2026-08-25.md`. In short:
