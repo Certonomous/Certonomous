@@ -28,6 +28,7 @@
       2.5
     ],
     "observed_order": 3.173,
+    "observed_order_verdict_2026_08_25": "NOT A RESULT -- fitted across a RECIPE-FORKED gap; see recipe_fork_ruling_2026_08_25 in this file and verification/campaign/LADDER_RECIPE_RULING_2026-08-25.md. The number is struck, not deleted. This says nothing against the underlying solves.",
     "order_used": 2.5,
     "clamped": true,
     "band_abs": 0.015120620546983623,
@@ -87,6 +88,7 @@
     ],
     "reproduced_exactly": {
       "observed_order": 3.173,
+      "observed_order_verdict_2026_08_25": "NOT A RESULT -- fitted across a RECIPE-FORKED gap; see recipe_fork_ruling_2026_08_25 in this file and verification/campaign/LADDER_RECIPE_RULING_2026-08-25.md. The number is struck, not deleted. This says nothing against the underlying solves.",
       "band_abs": 0.015120620546983623,
       "method": "3-mesh study (r = 1.28), observed order p = 3.17; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)"
     },
@@ -208,6 +210,7 @@
       },
       "fit": {
         "observed_order": 24.048,
+        "observed_order_verdict_2026_08_25": "NOT voided by the 2026-08-25 recipe-fork ruling -- this is the SEPARATE W3 four-rung production family (MATRIX_CONTRIBUTION.md C-36). It is refused on its own terms: clamped true, conclusive false, uq.reportable_band None, order_window guard failing.",
         "monotone": true,
         "conclusive": false,
         "asymptotic": true,
@@ -487,5 +490,43 @@
       "corrects_an_earlier_number": "W3_MESH_NOISE_FLOOR_RESULTS.md reports the scatter falling as N^-2, exponent 2.024, 'constant to plus or minus 6 percent'. That came from a SINGLE pairwise difference at each of four resolutions. With four meshes at each of two resolutions the same body gives an implied exponent of 1.46 from the range and 1.42 from the standard deviation, against 1.98 from the single pair. Those are different statistics and not directly comparable, so 2.024 is not wrong on its own terms -- but the exponent is not pinned down and the tidy inverse square should not be carried forward as established. The direction, falling rather than rising, is unaffected and was the part that mattered.",
       "cost_core_min": 16.7
     }
+  },
+  "recipe_fork_ruling_2026_08_25": {
+    "ruled_utc": "2026-08-25T00:00:00Z",
+    "ruled_by": "cfd supervisor, standing ruling",
+    "record": "verification/campaign/LADDER_RECIPE_RULING_2026-08-25.md",
+    "ruling": "An observed order computed across a RECIPE-FORKED gap is NOT A RESULT. It is a slope fitted across a CHANGE OF EXPERIMENT (docs/charters/VERIFICATION_CHARTER.md section 3.2), and under CLAUDE.md rule 5 a row whose triple is not a valid CONVERGING triple is NOT A RESULT whatever its value.",
+    "says_nothing_against_the_solves": "THIS SAYS NOTHING AGAINST THE UNDERLYING SOLVES. Every rung ran; every coefficient was measured on a real mesh by a real solver; every cell count, force history and convergence log stands exactly as recorded. The ruling is against the GRID-CONVERGENCE CLAIMS BUILT ON THEM and against nothing else.",
+    "one_way_door": "The affected rows move TOWARD NOT A RESULT, which CLAUDE.md rule 5 permits -- never back. In rule 5 own words the gate \"can only turn a PASS or GATE FAIL INTO NOT A RESULT, never the reverse.\" Nothing here turns any NOT A RESULT back into a PASS.",
+    "instrument": "scripts/recipe_audit.py",
+    "instrument_commit": "72bc966d",
+    "instrument_head_blob_sha256": "4e45603038f7ae03c9236e7e800f3e1f87d47086eb4bf9e467520c125da8dd9a",
+    "instrument_head_blob_lines": 1558,
+    "sweep": "461 candidate directories, 422 parsed, 14 ladders assembled: 7 RECIPE-FORKED, 4 recipe-clean, 3 unauditable",
+    "instrument_stated_limit": "similarity_failures() treats ANY change of a block grading as a similarity failure (\"regraded cells are not scaled cells\"). That is CORRECT for the uniform-background snappyHexMesh ladders this sweep covers and WRONG for a correctly-built GRADED ladder, which must change its grading string as it refines precisely in order to keep the first cell scaling. F12 repaired RAE 2822 ladder is exactly such a family, so running recipe_audit.py against it would report a SPURIOUS FORK. A check that overstates its reach is worse than none. See section 5 of the record.",
+    "ladder": "naca0012_wing",
+    "published_observed_order": 3.173,
+    "forked_gaps": [
+      "gap 2 (medium -> production)"
+    ],
+    "background_cells_coarse_medium_fine": [
+      13524,
+      39600,
+      39600
+    ],
+    "rung_directories": [
+      "/home/ubuntu/certonomous-runs/study-naca0012_wing-coarse-09bec1 (27265 cells)",
+      "/home/ubuntu/certonomous-runs/study-naca0012_wing-medium-520ccb (67356 cells)",
+      "/home/ubuntu/certonomous-runs/study-naca0012_wing-1021cb (140580 cells)"
+    ],
+    "verdict": "NOT A RESULT",
+    "matrix_tier": "NOT HELD",
+    "matrix_row": "MATRIX_CONTRIBUTION.md C-71",
+    "re_measured_by_recording_lane": true,
+    "note_the_original_numbers_are_struck_not_deleted": "Every published number stays visible in this file with its verdict beside it. Nothing was rewritten or removed.",
+    "gap_1": "SCALED, background x2.9281, recipe held fixed",
+    "gap_2": "RECIPE-FORKED: background HELD FIXED at 39600 and the recipe moved in 3 fields",
+    "this_file_already_said_so": "The stored recipe_audit block in this same file already recorded \"The three stored rungs are TWO mesh recipes, and no knob moves twice.\" What is new is that it is now MEASURED MECHANICALLY and carries a verdict.",
+    "separate_number_not_voided_by_this_ruling": "recipe_audit.production_recipe_family_built.fit.observed_order = 24.048 belongs to the SEPARATE W3 four-rung production family (MATRIX_CONTRIBUTION.md C-36), not to these three rungs. It is not voided by THIS ruling; it is already refused on its own terms -- clamped, conclusive false, uq.reportable_band None, failing order_window."
   }
 }

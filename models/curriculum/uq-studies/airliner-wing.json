@@ -28,5 +28,42 @@
     "wing-area360-span58-sweep27.5",
     "wing-area360-span64-sweep27.5"
   ],
-  "updated_utc": "2026-07-23T06:08:13Z"
+  "updated_utc": "2026-07-23T06:08:13Z",
+  "recipe_fork_ruling_2026_08_25": {
+    "ruled_utc": "2026-08-25T00:00:00Z",
+    "ruled_by": "cfd supervisor, standing ruling",
+    "record": "verification/campaign/LADDER_RECIPE_RULING_2026-08-25.md",
+    "ruling": "An observed order computed across a RECIPE-FORKED gap is NOT A RESULT. It is a slope fitted across a CHANGE OF EXPERIMENT (docs/charters/VERIFICATION_CHARTER.md section 3.2), and under CLAUDE.md rule 5 a row whose triple is not a valid CONVERGING triple is NOT A RESULT whatever its value.",
+    "says_nothing_against_the_solves": "THIS SAYS NOTHING AGAINST THE UNDERLYING SOLVES. Every rung ran; every coefficient was measured on a real mesh by a real solver; every cell count, force history and convergence log stands exactly as recorded. The ruling is against the GRID-CONVERGENCE CLAIMS BUILT ON THEM and against nothing else.",
+    "one_way_door": "The affected rows move TOWARD NOT A RESULT, which CLAUDE.md rule 5 permits -- never back. In rule 5 own words the gate \"can only turn a PASS or GATE FAIL INTO NOT A RESULT, never the reverse.\" Nothing here turns any NOT A RESULT back into a PASS.",
+    "instrument": "scripts/recipe_audit.py",
+    "instrument_commit": "72bc966d",
+    "instrument_head_blob_sha256": "4e45603038f7ae03c9236e7e800f3e1f87d47086eb4bf9e467520c125da8dd9a",
+    "instrument_head_blob_lines": 1558,
+    "sweep": "461 candidate directories, 422 parsed, 14 ladders assembled: 7 RECIPE-FORKED, 4 recipe-clean, 3 unauditable",
+    "instrument_stated_limit": "similarity_failures() treats ANY change of a block grading as a similarity failure (\"regraded cells are not scaled cells\"). That is CORRECT for the uniform-background snappyHexMesh ladders this sweep covers and WRONG for a correctly-built GRADED ladder, which must change its grading string as it refines precisely in order to keep the first cell scaling. F12 repaired RAE 2822 ladder is exactly such a family, so running recipe_audit.py against it would report a SPURIOUS FORK. A check that overstates its reach is worse than none. See section 5 of the record.",
+    "ladder": "airliner_wing_span52",
+    "published_observed_order": null,
+    "forked_gaps": [
+      "gap 2 (medium -> production)"
+    ],
+    "background_cells_coarse_medium_fine": [
+      6300,
+      17280,
+      17280
+    ],
+    "rung_directories": [
+      "/home/ubuntu/certonomous-runs/study-airliner_wing_span52-coarse-1f61fe (9639 cells)",
+      "/home/ubuntu/certonomous-runs/study-airliner_wing_span52-medium-e565e1 (22754 cells)",
+      "/home/ubuntu/certonomous-runs/study-airliner_wing_span52-2cdf8e (32385 cells)"
+    ],
+    "verdict": "NOT A RESULT",
+    "matrix_tier": "NOT HELD",
+    "matrix_row": "MATRIX_CONTRIBUTION.md C-74",
+    "re_measured_by_recording_lane": true,
+    "note_the_original_numbers_are_struck_not_deleted": "Every published number stays visible in this file with its verdict beside it. Nothing was rewritten or removed.",
+    "gap_1": "SCALED, background x2.7429, recipe held fixed",
+    "gap_2": "RECIPE-FORKED: background HELD FIXED at 17280 and the recipe moved in 3 fields",
+    "nothing_is_withdrawn": "No observed order was ever fitted from these rungs and this file carries no numerical block. This entry is a FORWARD BAR: no order may be fitted from them in future."
+  }
 }

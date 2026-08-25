@@ -212,3 +212,104 @@ Route B compares, per body, every surviving `study-<body>*` case directory:
 level; cell counts from `log.checkMesh` or the `polyMesh/owner` header, and they
 **match the stored `levels[]` to the cell** on both wings, which is what makes
 the dirs identifiable as those rungs. No file was modified and no solver ran.
+
+---
+
+# AMENDMENT 1 — 2026-08-25. The closing line is SUPERSEDED, and two §2 rows are corrected on measurement
+
+**Appended at the foot by a cfd `lab-lane` under the cfd supervisor. Version 1.0 →
+1.1. `lines whose number changed above this section: 0`.** Nothing above is edited.
+This document's own §0 already carries one dated correction to its own headline; this
+is the second, and it is made against **measurement** rather than against a better
+argument.
+
+**ZERO SOLVER COMPUTE.**
+
+## A1.1 The closing line of §5 is SUPERSEDED
+
+> *"**Exactly one ladder in this lab is known to be a ladder**, and it is the one whose
+> turn was withdrawn today for a different reason."*
+
+**SUPERSEDED.** A mechanised per-gap recipe audit — `scripts/recipe_audit.py`, commit
+**`72bc966d`**, HEAD blob **1,558 lines**, sha256
+`4e45603038f7ae03c9236e7e800f3e1f87d47086eb4bf9e467520c125da8dd9a`, `--selftest`
+**PASS** on 53 value controls, 12 mutation controls, 6 refusal controls and a live
+`ahmed_25` regression fixture — walked **461 candidate directories, parsed 422, and
+assembled 14 ladders: 7 RECIPE-FORKED, 4 recipe-clean, 3 unauditable.**
+
+**Four recipe-clean ladders, not one.** The original sentence was true of what its
+sampling frame could see and is false of the lab.
+
+## A1.2 Two rows of the §2 classification table, corrected
+
+| §2 row | what §2 says | what is measured, 2026-08-25 |
+|---|---|---|
+| **`motorBike`** | **UNDETERMINABLE**, *"1 of 3"* rungs on disk, *"deciding rung's case absent"* | **All three rungs are on disk.** `/home/ubuntu/certonomous-runs/mb-iterfix/coarse` **14,714 cells** · `mb-iterfix/medium` **66,302** · `study-motorBike-f8b4a2` **353,688**. The ladder is **RECIPE-FORKED at BOTH gaps** — background **(20 8 8) = 1,280 on all three rungs**, so it never moves at all while the recipe moves twice. **Directly measured, not undeterminable.** |
+| **`ahmed_25` / `ahmed_35`** | **CONFOUNDED**, *"2 of 3"*, *"production missing, `recipe_audit` records the level change"* | **The production rungs exist**: `w3-published-rung-ahmed_25/a` (**79,439 cells**) and `act7-ahmed_35-02688b` (**79,778 cells**), both matching the stored `levels[]` to the cell. Both forks are therefore **DIRECTLY MEASURED, not inherited from prose.** |
+
+**Why this document could not see them, and it is not a failure of care.** Its Route B
+enumerated case directories by the glob `study-<body>*` and says so in its own §6. The
+production rungs live under `w3-published-rung-*`, `act7-*` and `mb-iterfix/*`. The
+mechanised sweep walks the filesystem with `os.walk` and **consults neither git nor
+grep** — which is the only reason it reached them, because
+`/home/ubuntu/certonomous-runs/` is outside the repository and `grep` in this shell
+honours ignore files. **This is §0's own lesson, one level further down: being
+different in kind protects the reading, not the sampling frame.**
+
+## A1.3 What this document got RIGHT and this amendment does not disturb
+
+* The **structural finding** on both NACA wings — `coarse → medium` moves the
+  background divisions only; `medium → production` holds them **exactly** and moves
+  surface level, region level and feature level together. Reproduced mechanically,
+  gap for gap.
+* §0's identification of the **single generator defect**,
+  `sdk/workflows/geometry_study.py::refinement_rungs()`, whose runtime guard checks
+  **distinctness, not comparability**. **One generator defect with downstream victims
+  and a filed fix remains a materially more tractable finding than N independent
+  failures**, and it is still the right frame.
+* §4's non-consequence: **draw-scatter measurements stay valid as measurements of
+  scatter.** Replicate meshes at a fixed resolution measure what they measure
+  regardless of how the ladder was built.
+* §5's **recommendation, still not taken**: that the recipe audit be made an
+  **explicit** prerequisite of an order rather than an implicit one. That is a
+  `VERIFICATION_CHARTER.md` change and belongs to the verification team; a draft note
+  is at `verification/campaign/LADDER_RECIPE_RULING_2026-08-25.md` §7 and is **NOT
+  FILED**.
+
+## A1.4 The standing ruling these measurements now carry
+
+**An observed order computed across a RECIPE-FORKED gap is `NOT A RESULT`** — a slope
+fitted across a change of experiment (`VERIFICATION_CHARTER.md` §3.2), and under
+`CLAUDE.md` rule 5 a row whose triple is not a valid CONVERGING triple is `NOT A
+RESULT` whatever its value. Seven published orders are affected:
+
+| ladder | published p | verdict |
+|---|---|---|
+| `ahmed_25` | 1.95 | **NOT A RESULT** |
+| `ahmed_35` | 3.169 | **NOT A RESULT** |
+| `naca0012_wing` | 3.173 | **NOT A RESULT** |
+| `naca4412_wing` | **10.467** | **NOT A RESULT** |
+| `motorBike` | **7.298** | **NOT A RESULT** |
+| `airliner_wing_span52` | none fitted | nothing withdrawn — a forward bar |
+| `credential-repair-naca4412` | none fitted | nothing withdrawn — a forward bar |
+
+**Two things that travel with that ruling everywhere it is quoted:**
+
+1. **It says NOTHING against the underlying solves** — only against the
+   grid-convergence claims built on them. Every rung ran; every coefficient was
+   measured; every log stands.
+2. **The affected rows move TOWARD `NOT A RESULT`, which `CLAUDE.md` rule 5's one-way
+   door permits — never back.** The gate can turn a `PASS` or a `GATE FAIL` *into*
+   `NOT A RESULT`, never the reverse.
+
+**And a stated limit on the instrument, which must be carried wherever it is cited:**
+`similarity_failures()` treats **any** change of a block's grading as a similarity
+failure. That is **correct for the uniform-background snappy ladders this sweep covers
+and WRONG for a correctly-built GRADED ladder**, which must change its grading string
+as it refines precisely in order to keep the first cell scaling. **F12's repaired RAE
+2822 ladder is exactly such a family, so running `recipe_audit.py` against it would
+report a SPURIOUS FORK.** A check that overstates its reach is worse than none.
+
+**Full record, with the rung-by-rung measurements, the annotations in the study files,
+and the draft note for the verification team:**
+`verification/campaign/LADDER_RECIPE_RULING_2026-08-25.md`.
