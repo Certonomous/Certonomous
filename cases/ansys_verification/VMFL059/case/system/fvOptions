@@ -1,0 +1,19 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object fvOptions; }
+// VMFL059 volumetric heat generation, material 1 only.
+// VALUE q''' = 1500000 W/m3 -- read DIRECTLY from the Ansys archive case
+// (cond-slab.cas.h5: source-terms (energy ((constant . 1500000) ...))),
+// NOT derived from the 378/413 K targets. See PREREGISTRATION.md sec.1.
+// volumeMode specific => Su is per-unit-volume; numerically = q'''.
+heatGeneration
+{
+    type            scalarSemiImplicitSource;
+    selectionMode   cellZone;
+    cellZone        material1;
+    volumeMode      specific;
+    injectionRateSuSp
+    {
+        T           (1500000 0);   // Su = q''' , Sp = 0
+    }
+}
+// ************************************************************************* //

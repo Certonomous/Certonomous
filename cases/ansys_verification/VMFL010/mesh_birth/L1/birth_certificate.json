@@ -1,0 +1,12 @@
+{
+ "points_sha256": "1be82e183e37d4c373a62115263475a255130927f9c5571fe13cfc54b10fe973",
+ "verdict": "clean",
+ "cells": 2800,
+ "max_aspect_ratio": 1.0,
+ "max_non_orthogonality": 0.0,
+ "max_skewness": 4.44094e-14,
+ "hard_errors": [],
+ "generator": "blockMesh, VMFL VMFL010 L1, r=2 grid triple",
+ "created_at": "2026-08-25T17:05:00+00:00",
+ "provenance": "at-creation"
+}

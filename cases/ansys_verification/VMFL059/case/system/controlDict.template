@@ -1,0 +1,11 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     laplacianFoam;
+startFrom       startTime;   startTime 0;
+stopAt          endTime;     endTime   __ENDTIME__;
+deltaT          __DELTAT__;
+writeControl    runTime;     writeInterval __ENDTIME__;
+writePrecision  10;  writeCompression off;  timeFormat general;  runTimeModifiable false;
+// Wall temperatures are read post-hoc by the comparator:
+//   postProcess -func "patchAverage(name=rightWall,T)"   -> cooled wall  (target 378 K)
+//   postProcess -func "patchAverage(name=leftWall,T)"    -> adiabatic wall(target 413 K)

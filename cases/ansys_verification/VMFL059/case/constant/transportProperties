@@ -1,0 +1,11 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// Fallback only. laplacianFoam reads DT as a FIELD (0/DT, READ_IF_PRESENT);
+// the field is present, so this scalar is NOT used. Kept so the case is
+// well-posed if 0/DT is ever absent. Numeric value = material-1 conductivity.
+// NOTE: DT here carries material CONDUCTIVITY k [W/m-K] numerically, in
+// laplacianFoam's nominal m^2/s slot; at STEADY STATE the solution of
+// div(DT grad T)+S=0 depends only on the NUMBERS, so DT:=k reproduces
+// div(k grad T)+q'''=0 exactly with correct k-continuity at the interface.
+DT              DT [ 0 2 -1 0 0 0 0 ] 75;
+// ************************************************************************* //

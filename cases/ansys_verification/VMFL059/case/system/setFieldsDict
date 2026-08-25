@@ -1,0 +1,8 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object setFieldsDict; }
+defaultFieldValues ( volScalarFieldValue DT 75 );   // material-1 conductivity
+regions
+(
+    zoneToCell { name material2; fieldValues ( volScalarFieldValue DT 150 ); }
+);
+// ************************************************************************* //

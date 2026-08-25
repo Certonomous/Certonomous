@@ -1,0 +1,14 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     simpleFoam;
+startFrom       startTime;   startTime 0;
+stopAt          endTime;     endTime   __ENDTIME__;   // SIMPLE iterations
+deltaT          1;
+writeControl    runTime;     writeInterval __ENDTIME__;
+writePrecision  10;  writeCompression off;  timeFormat general;  runTimeModifiable false;
+// Flow split read post-hoc by the comparator:
+//   phi(mainOutlet) / phi(inlet)  -> flow split (target 0.887, manual p.39)
+functionObjects
+{
+    resid { type solverInfo; libs (utilityFunctionObjects); fields (U p); }
+}

@@ -1,0 +1,33 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class volScalarField; object T; }
+dimensions      [ 0 0 0 1 0 0 0 ];
+internalField   uniform 400;   // initial guess, between the two wall targets
+boundaryField
+{
+    leftWall   { type zeroGradient; }          // adiabatic (manual: extreme-left adiabatic)
+    topBottom  { type zeroGradient; }          // adiabatic (manual: other boundaries adiabatic)
+    rightWall                                   // convective (Robin): -k dT/dn = h (T_s - Tinf)
+    {
+        type            codedMixed;
+        refValue        uniform 303;            // Tinf [K], manual p.185
+        refGradient     uniform 0;
+        valueFraction   uniform 0.01;           // overwritten every step by the code below
+        name            vmfl059Convective;
+        code
+        #{
+            const scalar h    = 1000.0;         // W/m2-K, manual p.185
+            const scalar Tinf = 303.0;          // K, manual p.185
+            const scalar kw   = 150.0;          // material-2 conductivity at this wall [W/m-K]
+            const fvPatchScalarField& DTp =
+                patch().lookupPatchField<volScalarField, scalar>("DT");
+            const scalarField& dC = patch().deltaCoeffs();   // 1/Delta
+            this->refValue()      = Tinf;
+            this->refGrad()       = 0.0;
+            // Robin cast of OpenFOAM 'mixed': vf = h / (h + k*deltaCoeffs).
+            // Uses DT at the wall (=kw) so it stays correct if DT is edited.
+            this->valueFraction() = h/(h + DTp*dC);
+        #};
+    }
+    frontBack  { type empty; }
+}
+// ************************************************************************* //

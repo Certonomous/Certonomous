@@ -1,0 +1,44 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+scale 1;
+// 90-degree planar dividing tee (manual p.39: L=3.0 m branches, W=1.0 m width).
+// Inlet at the bottom of a 1x1 junction (flow +y); main (upper) branch runs up;
+// secondary (right) branch runs +x. GEOMETRY FIDELITY is the named principal
+// risk (PREREGISTRATION sec.7): exact archive junction/lead lengths pending
+// h5py-based extraction; the flow split 0.887 is geometry- and Re-sensitive.
+// __N__ = cells per width W (r=2 triple: 20 / 40 / 80).
+vertices
+(
+    (0 0 0) (1 0 0) (0 1 0) (1 1 0)            // junction corners      z=0
+    (0 4 0) (1 4 0)                             // main-leg top
+    (4 0 0) (4 1 0)                             // branch-leg right end
+    (0 0 1) (1 0 1) (0 1 1) (1 1 1)            // z=1 (unit depth)
+    (0 4 1) (1 4 1)
+    (4 0 1) (4 1 1)
+);
+blocks
+(
+    hex ( 0  1  3  2  8  9 11 10) junction (__N__ __N__ 1) simpleGrading (1 1 1)
+    hex ( 2  3  5  4 10 11 13 12) mainleg  (__N__ __N3__ 1) simpleGrading (1 1 1)
+    hex ( 1  6  7  3  9 14 15 11) branchleg (__N3__ __N__ 1) simpleGrading (1 1 1)
+);
+edges ();
+boundary
+(
+    inlet        { type patch; faces ( (0 1 9 8) ); }               // y=0 bottom of junction
+    mainOutlet   { type patch; faces ( (4 5 13 12) ); }             // y=4 top of main leg
+    branchOutlet { type patch; faces ( (6 7 15 14) ); }             // x=4 end of branch leg
+    walls        { type wall;  faces (
+                       (0 2 10 8) (2 4 12 10)                       // left wall of main
+                       (1 6 14 9)                                   // bottom wall of branch
+                       (7 3 11 15)                                  // top wall of branch (from junction corner up)
+                       (3 5 13 11)                                  // right wall of main leg
+                   ); }
+    frontBack    { type empty; faces (
+                       (0 1 3 2) (8 9 11 10)
+                       (2 3 5 4) (10 11 13 12)
+                       (1 6 7 3) (9 14 15 11)
+                   ); }
+);
+mergePatchPairs ();
+// ************************************************************************* //

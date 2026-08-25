@@ -1,0 +1,14 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class volScalarField; object DT; }
+// DT carries CONDUCTIVITY k numerically (see transportProperties note).
+// internalField = material-1 (k=75). setFields overrides material-2 zone -> 150.
+dimensions      [ 0 2 -1 0 0 0 0 ];
+internalField   uniform 75;
+boundaryField
+{
+    leftWall   { type zeroGradient; }
+    topBottom  { type zeroGradient; }
+    rightWall  { type zeroGradient; }
+    frontBack  { type empty; }
+}
+// ************************************************************************* //
