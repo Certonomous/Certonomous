@@ -1,0 +1,28 @@
+  COMPLETE       M6.0/coarse rc=0 0.1892 core-min (cum 0.1892 / cap 24.0)
+  COMPLETE       M7.0/coarse rc=0 0.2019 core-min (cum 0.3911 / cap 24.0)
+  COMPLETE       M8.0/coarse rc=0 0.2181 core-min (cum 0.6092 / cap 24.0)
+  COMPLETE       M6.0/medium rc=0 0.8822 core-min (cum 1.4915 / cap 24.0)
+  COMPLETE       M7.0/medium rc=0 1.0099 core-min (cum 2.5014 / cap 24.0)
+  COMPLETE       M8.0/medium rc=0 1.1850 core-min (cum 3.6864 / cap 24.0)
+  COMPLETE       M6.0/fine   rc=0 6.2617 core-min (cum 9.9481 / cap 24.0)
+  COMPLETE       M7.0/fine   rc=0 6.8414 core-min (cum 16.7895 / cap 24.0)
+  COMPLETE       M8.0/fine   rc=0 7.3213 core-min (cum 24.1108 / cap 24.0)
+*** HARD CAP 24.0 core-min CROSSED at 24.1108. STOPPING. This is REPORTED to the supervisor, who decides. The cap is NOT extended here.
+  M=6.0: delta_est/R=0.4395  R_top/R=1.7  outer-arc worst pre-shock margin(x)=1.3136 (must be >0)
+  M=7.0: delta_est/R=0.4246  R_top/R=1.7  outer-arc worst pre-shock margin(x)=1.2581 (must be >0)
+  M=8.0: delta_est/R=0.4152  R_top/R=1.7  outer-arc worst pre-shock margin(x)=1.2165 (must be >0)
+  M=6.0: delta_est/R=0.4395  R_top/R=1.7  outer-arc worst pre-shock margin(x)=1.3136 (must be >0)
+  M=7.0: delta_est/R=0.4246  R_top/R=1.7  outer-arc worst pre-shock margin(x)=1.2581 (must be >0)
+  M=7.0: delta_est/R=0.4246  R_top/R=1.7  outer-arc worst pre-shock margin(x)=1.2581 (must be >0)
+  M=6.0: delta_est/R=0.4395  R_top/R=1.7  outer-arc worst pre-shock margin(x)=1.3136 (must be >0)
+  M=8.0: delta_est/R=0.4152  R_top/R=1.7  outer-arc worst pre-shock margin(x)=1.2165 (must be >0)
+  M=8.0: delta_est/R=0.4152  R_top/R=1.7  outer-arc worst pre-shock margin(x)=1.2165 (must be >0)
+{
+  "root": "verification/runs/F4_runs/conversion_2026-08-25/runs",
+  "wall_s": 473.8741388320923,
+  "solver_core_min": 24.110809393723805,
+  "cap_core_min": 24.0,
+  "cap_crossed": true,
+  "prereg_commit": "3e82e989604e540ea2e9cfbef62e0530a086a98d",
+  "grader_blob": "f51961435729558dc768d89e429c1818e8ae1da6"
+}

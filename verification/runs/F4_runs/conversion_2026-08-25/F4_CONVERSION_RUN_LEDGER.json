@@ -1,0 +1,155 @@
+{
+  "root": "verification/runs/F4_runs/conversion_2026-08-25/runs",
+  "wall_s": 473.8741388320923,
+  "solver_core_min": 24.110809393723805,
+  "cap_core_min": 24.0,
+  "cap_crossed": true,
+  "cases": [
+    {
+      "M": 6.0,
+      "level": "coarse",
+      "case_dir": "verification/runs/F4_runs/conversion_2026-08-25/runs/cyl/M6.0/coarse",
+      "rc": 0,
+      "t_run_s": 11.35316514968872,
+      "core_min": 0.1892194191614787,
+      "ncells": 1000,
+      "status": "COMPLETE",
+      "t_total_s": 14.677478790283203,
+      "snapshots": [
+        "4.4998543386",
+        "5.2498543386",
+        "5.9998543386"
+      ]
+    },
+    {
+      "M": 7.0,
+      "level": "coarse",
+      "case_dir": "verification/runs/F4_runs/conversion_2026-08-25/runs/cyl/M7.0/coarse",
+      "rc": 0,
+      "t_run_s": 12.115665435791016,
+      "core_min": 0.2019277572631836,
+      "ncells": 1000,
+      "status": "COMPLETE",
+      "t_total_s": 15.195035696029663,
+      "snapshots": [
+        "4.4996781973",
+        "5.25048595117",
+        "6.000140535443"
+      ]
+    },
+    {
+      "M": 8.0,
+      "level": "coarse",
+      "case_dir": "verification/runs/F4_runs/conversion_2026-08-25/runs/cyl/M8.0/coarse",
+      "rc": 0,
+      "t_run_s": 13.084725379943848,
+      "core_min": 0.21807875633239746,
+      "ncells": 1000,
+      "status": "COMPLETE",
+      "t_total_s": 16.61598777770996,
+      "snapshots": [
+        "4.4998649576",
+        "5.2500085122",
+        "5.99979092006"
+      ]
+    },
+    {
+      "M": 6.0,
+      "level": "medium",
+      "case_dir": "verification/runs/F4_runs/conversion_2026-08-25/runs/cyl/M6.0/medium",
+      "rc": 0,
+      "t_run_s": 52.93364477157593,
+      "core_min": 0.8822274128595988,
+      "ncells": 4000,
+      "status": "COMPLETE",
+      "t_total_s": 56.75880146026611,
+      "snapshots": [
+        "4.50002106",
+        "5.249754071",
+        "6.0001706623"
+      ]
+    },
+    {
+      "M": 7.0,
+      "level": "medium",
+      "case_dir": "verification/runs/F4_runs/conversion_2026-08-25/runs/cyl/M7.0/medium",
+      "rc": 0,
+      "t_run_s": 60.59509253501892,
+      "core_min": 1.009918208916982,
+      "ncells": 4000,
+      "status": "COMPLETE",
+      "t_total_s": 64.14255833625793,
+      "snapshots": [
+        "4.500072442",
+        "5.2500466487",
+        "6.00024149444"
+      ]
+    },
+    {
+      "M": 8.0,
+      "level": "medium",
+      "case_dir": "verification/runs/F4_runs/conversion_2026-08-25/runs/cyl/M8.0/medium",
+      "rc": 0,
+      "t_run_s": 71.1019172668457,
+      "core_min": 1.1850319544474284,
+      "ncells": 4000,
+      "status": "COMPLETE",
+      "t_total_s": 75.33314418792725,
+      "snapshots": [
+        "4.500195504",
+        "5.2498826573",
+        "6.00010974532"
+      ]
+    },
+    {
+      "M": 6.0,
+      "level": "fine",
+      "case_dir": "verification/runs/F4_runs/conversion_2026-08-25/runs/cyl/M6.0/fine",
+      "rc": 0,
+      "t_run_s": 375.7005021572113,
+      "core_min": 6.261675035953521,
+      "ncells": 16000,
+      "status": "COMPLETE",
+      "t_total_s": 378.2367699146271,
+      "snapshots": [
+        "4.4999677",
+        "5.25008297",
+        "6.000009029"
+      ]
+    },
+    {
+      "M": 7.0,
+      "level": "fine",
+      "case_dir": "verification/runs/F4_runs/conversion_2026-08-25/runs/cyl/M7.0/fine",
+      "rc": 0,
+      "t_run_s": 410.4851059913635,
+      "core_min": 6.841418433189392,
+      "ncells": 16000,
+      "status": "COMPLETE",
+      "t_total_s": 412.98632621765137,
+      "snapshots": [
+        "4.49992295",
+        "5.250120652",
+        "5.9999993531"
+      ]
+    },
+    {
+      "M": 8.0,
+      "level": "fine",
+      "case_dir": "verification/runs/F4_runs/conversion_2026-08-25/runs/cyl/M8.0/fine",
+      "rc": 0,
+      "t_run_s": 439.2787449359894,
+      "core_min": 7.321312415599823,
+      "ncells": 16000,
+      "status": "COMPLETE",
+      "t_total_s": 442.5051691532135,
+      "snapshots": [
+        "4.500024366",
+        "5.25004183",
+        "5.999927519"
+      ]
+    }
+  ],
+  "prereg_commit": "3e82e989604e540ea2e9cfbef62e0530a086a98d",
+  "grader_blob": "f51961435729558dc768d89e429c1818e8ae1da6"
+}

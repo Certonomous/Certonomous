@@ -1,0 +1,395 @@
+{
+  "root": "verification/runs/F4_runs/conversion_2026-08-25/runs",
+  "gates": [
+    {
+      "gate": "G-F4-1-M6.0",
+      "quantity": "standoff delta/R",
+      "M": 6.0,
+      "state": "OSCILLATORY",
+      "values": {
+        "coarse": 0.43801169333333334,
+        "medium": 0.43684210333333334,
+        "fine": 0.44853801000000004
+      },
+      "cells": [
+        1000,
+        4000,
+        16000
+      ],
+      "r21": 2.0,
+      "r32": 2.0,
+      "ratio_gap": 0.0,
+      "order": null,
+      "monotone": false,
+      "GCI_pct": null,
+      "richardson": null,
+      "triple_verdict": "NOT A RESULT",
+      "why": "triple state OSCILLATORY, monotone=False -- standing rule 5 clause 2"
+    },
+    {
+      "gate": "G-F4-2-M6.0",
+      "quantity": "standoff dev vs Billig (fine)",
+      "reference": 0.43946566521114816,
+      "measured": 0.44853801000000004,
+      "deviation_pct": 2.06440354890818,
+      "band_pct": 3.1746793868246335,
+      "snapshot_std": 0.0016540500404159456,
+      "verdict": "NOT A RESULT",
+      "why": "G-F4-1-M6.0 is NOT A RESULT; rule 5 forbids a band verdict on a non-converging triple"
+    },
+    {
+      "gate": "G-F4-3-M6.0",
+      "quantity": "RMS(Cp - Cp_Newton) as % of Cp_max",
+      "M": 6.0,
+      "state": "DIVERGENT",
+      "values": {
+        "coarse": 4.47921729835309,
+        "medium": 4.207655388064851,
+        "fine": 3.9096199477570677
+      },
+      "cells": [
+        1000,
+        4000,
+        16000
+      ],
+      "r21": 2.0,
+      "r32": 2.0,
+      "ratio_gap": 0.0,
+      "order": -0.13420275713989382,
+      "monotone": true,
+      "GCI_pct": null,
+      "richardson": null,
+      "triple_verdict": "NOT A RESULT",
+      "why": "triple state DIVERGENT, monotone=True -- standing rule 5 clause 2",
+      "cp_max": 1.818063718892768
+    },
+    {
+      "gate": "G-F4-1-M7.0",
+      "quantity": "standoff delta/R",
+      "M": 7.0,
+      "state": "OSCILLATORY",
+      "values": {
+        "coarse": 0.42807017333333336,
+        "medium": 0.43859648999999995,
+        "fine": 0.43450292333333335
+      },
+      "cells": [
+        1000,
+        4000,
+        16000
+      ],
+      "r21": 2.0,
+      "r32": 2.0,
+      "ratio_gap": 0.0,
+      "order": null,
+      "monotone": false,
+      "GCI_pct": null,
+      "richardson": null,
+      "triple_verdict": "NOT A RESULT",
+      "why": "triple state OSCILLATORY, monotone=False -- standing rule 5 clause 2"
+    },
+    {
+      "gate": "G-F4-2-M7.0",
+      "quantity": "standoff dev vs Billig (fine)",
+      "reference": 0.4245982772504153,
+      "measured": 0.43450292333333335,
+      "deviation_pct": 2.33270990807072,
+      "band_pct": 3.2004796898835846,
+      "snapshot_std": 0.001654054754461151,
+      "verdict": "NOT A RESULT",
+      "why": "G-F4-1-M7.0 is NOT A RESULT; rule 5 forbids a band verdict on a non-converging triple"
+    },
+    {
+      "gate": "G-F4-3-M7.0",
+      "quantity": "RMS(Cp - Cp_Newton) as % of Cp_max",
+      "M": 7.0,
+      "state": "OSCILLATORY",
+      "values": {
+        "coarse": 4.693087957579816,
+        "medium": 3.8500886186848726,
+        "fine": 3.908691512800274
+      },
+      "cells": [
+        1000,
+        4000,
+        16000
+      ],
+      "r21": 2.0,
+      "r32": 2.0,
+      "ratio_gap": 0.0,
+      "order": null,
+      "monotone": false,
+      "GCI_pct": null,
+      "richardson": null,
+      "triple_verdict": "NOT A RESULT",
+      "why": "triple state OSCILLATORY, monotone=False -- standing rule 5 clause 2",
+      "cp_max": 1.8236917275355162
+    },
+    {
+      "gate": "G-F4-1-M8.0",
+      "quantity": "standoff delta/R",
+      "M": 8.0,
+      "state": "OSCILLATORY",
+      "values": {
+        "coarse": 0.4426900566666667,
+        "medium": 0.40818713333333334,
+        "fine": 0.4181286533333333
+      },
+      "cells": [
+        1000,
+        4000,
+        16000
+      ],
+      "r21": 2.0,
+      "r32": 2.0,
+      "ratio_gap": 0.0,
+      "order": null,
+      "monotone": false,
+      "GCI_pct": null,
+      "richardson": null,
+      "triple_verdict": "NOT A RESULT",
+      "why": "triple state OSCILLATORY, monotone=False -- standing rule 5 clause 2"
+    },
+    {
+      "gate": "G-F4-2-M8.0",
+      "quantity": "standoff dev vs Billig (fine)",
+      "reference": 0.41521901145222184,
+      "measured": 0.4181286533333333,
+      "deviation_pct": 0.7007487135367559,
+      "band_pct": 3.272774427998176,
+      "snapshot_std": 0.0033081047948770965,
+      "verdict": "NOT A RESULT",
+      "why": "G-F4-1-M8.0 is NOT A RESULT; rule 5 forbids a band verdict on a non-converging triple"
+    },
+    {
+      "gate": "G-F4-3-M8.0",
+      "quantity": "RMS(Cp - Cp_Newton) as % of Cp_max",
+      "M": 8.0,
+      "state": "CONVERGING",
+      "values": {
+        "coarse": 4.080257919623501,
+        "medium": 3.889367058830906,
+        "fine": 3.868457904168597
+      },
+      "cells": [
+        1000,
+        4000,
+        16000
+      ],
+      "r21": 2.0,
+      "r32": 2.0,
+      "ratio_gap": 0.0,
+      "order": 3.190541391647192,
+      "monotone": true,
+      "GCI_pct": 0.08310801391044288,
+      "richardson": 3.8658859053421044,
+      "triple_verdict": "CONVERGING",
+      "cp_max": 1.8273541997099865
+    }
+  ],
+  "cases": {
+    "M6.0/coarse": {
+      "rc": 0,
+      "last_exec_s": 9.29,
+      "n_steps": 6095,
+      "last_time_logged": 5.9998543386,
+      "dt_final": 0.0009999999999994458,
+      "latest_time_dir": "5.9998543386",
+      "field_ages_s": {
+        "T": 12.435800313949585,
+        "U": 12.434800386428833,
+        "p": 12.435800313949585,
+        "rho": 12.434800386428833
+      },
+      "core_min": 0.15483333333333332
+    },
+    "M6.0/medium": {
+      "rc": 0,
+      "last_exec_s": 46.19,
+      "n_steps": 11096,
+      "last_time_logged": 6.0001706623,
+      "dt_final": 0.0005693833000002257,
+      "latest_time_dir": "6.0001706623",
+      "field_ages_s": {
+        "T": 54.075661182403564,
+        "U": 54.07366132736206,
+        "p": 54.07466125488281,
+        "rho": 54.07166123390198
+      },
+      "core_min": 0.7698333333333333
+    },
+    "M6.0/fine": {
+      "rc": 0,
+      "last_exec_s": 351.23,
+      "n_steps": 22113,
+      "last_time_logged": 6.000009029,
+      "dt_final": 0.00028520900000028604,
+      "latest_time_dir": "6.000009029",
+      "field_ages_s": {
+        "T": 377.00310826301575,
+        "U": 376.9971082210541,
+        "p": 377.0001082420349,
+        "rho": 376.9881081581116
+      },
+      "core_min": 5.853833333333333
+    },
+    "M7.0/coarse": {
+      "rc": 0,
+      "last_exec_s": 9.67,
+      "n_steps": 6386,
+      "last_time_logged": 6.000140535443,
+      "dt_final": 0.0009888835530000861,
+      "latest_time_dir": "6.000140535443",
+      "field_ages_s": {
+        "T": 13.182879447937012,
+        "U": 13.18187928199768,
+        "p": 13.182879447937012,
+        "rho": 13.18187928199768
+      },
+      "core_min": 0.16116666666666665
+    },
+    "M7.0/medium": {
+      "rc": 0,
+      "last_exec_s": 53.95,
+      "n_steps": 12714,
+      "last_time_logged": 6.00024149444,
+      "dt_final": 0.0004913521400000675,
+      "latest_time_dir": "6.00024149444",
+      "field_ages_s": {
+        "T": 61.794676780700684,
+        "U": 61.7926766872406,
+        "p": 61.79367685317993,
+        "rho": 61.7906768321991
+      },
+      "core_min": 0.8991666666666667
+    },
+    "M7.0/fine": {
+      "rc": 0,
+      "last_exec_s": 383.4,
+      "n_steps": 25272,
+      "last_time_logged": 5.9999993531,
+      "dt_final": 0.0002472931000001566,
+      "latest_time_dir": "5.9999993531",
+      "field_ages_s": {
+        "T": 411.84945726394653,
+        "U": 411.8424572944641,
+        "p": 411.8464572429657,
+        "rho": 411.83445715904236
+      },
+      "core_min": 6.39
+    },
+    "M8.0/coarse": {
+      "rc": 0,
+      "last_exec_s": 11.09,
+      "n_steps": 7207,
+      "last_time_logged": 5.99979092006,
+      "dt_final": 0.0008675098599999487,
+      "latest_time_dir": "5.99979092006",
+      "field_ages_s": {
+        "T": 14.573005676269531,
+        "U": 14.57200574874878,
+        "p": 14.573005676269531,
+        "rho": 14.57200574874878
+      },
+      "core_min": 0.18483333333333332
+    },
+    "M8.0/medium": {
+      "rc": 0,
+      "last_exec_s": 61.32,
+      "n_steps": 14327,
+      "last_time_logged": 6.00010974532,
+      "dt_final": 0.00043551831999977253,
+      "latest_time_dir": "6.00010974532",
+      "field_ages_s": {
+        "T": 72.59087252616882,
+        "U": 72.58887267112732,
+        "p": 72.58987259864807,
+        "rho": 72.58687257766724
+      },
+      "core_min": 1.022
+    },
+    "M8.0/fine": {
+      "rc": 0,
+      "last_exec_s": 412.45,
+      "n_steps": 28465,
+      "last_time_logged": 5.999927519,
+      "dt_final": 0.00021903299999959103,
+      "latest_time_dir": "5.999927519",
+      "field_ages_s": {
+        "T": 441.5256857872009,
+        "U": 441.5176856517792,
+        "p": 441.52168560028076,
+        "rho": 441.5096855163574
+      },
+      "core_min": 6.8741666666666665
+    }
+  },
+  "controls": {
+    "C1_pre": {
+      "accepted_last_time": 5.9999,
+      "accepted_dt_final": 0.00025000000000030553,
+      "refused_last_time": 5.99925,
+      "refusal": "/tmp/f4c1_53q_irv9/c1_short: THE SOLVER DID NOT REACH endTime.  latest 5.99925, final dt 2.500000e-04, latest + dt = 5.9995 <= endTime 6.0 -- it could have taken another step without passing the end, "
+    },
+    "C1": {
+      "accepted_last_time": 5.9999,
+      "accepted_dt_final": 0.00025000000000030553,
+      "refused_last_time": 5.99925,
+      "refusal": "/tmp/f4grade_lwmltrse/c1_short: THE SOLVER DID NOT REACH endTime.  latest 5.99925, final dt 2.500000e-04, latest + dt = 5.9995 <= endTime 6.0 -- it could have taken another step without passing the en"
+    },
+    "P1": {
+      "A": {
+        "planted_index": 137,
+        "located_index": 138,
+        "distance": 0.24210526
+      },
+      "B": {
+        "planted_index": 300,
+        "located_index": 301,
+        "distance": 0.52807018
+      }
+    },
+    "P2": {
+      "before": 0.44853801000000004,
+      "after": 0.44853801000000004,
+      "restored": 0.44853801000000004,
+      "victim": "postProcessing/sampleDict/6.000009029/r3_T_p_rho.xy"
+    },
+    "P3": {
+      "clean_r21": 2.0,
+      "clean_r32": 2.0,
+      "perturbed_refusal": "medium: written mesh has 4100 cells, registered 4000"
+    }
+  },
+  "cost": {
+    "solver_core_min": 22.309833333333334,
+    "cap_core_min": 24.0,
+    "cap_crossed": false
+  },
+  "similarity": {
+    "M6.0": {
+      "r21": 2.0,
+      "r32": 2.0,
+      "h1_ratios": [
+        1.9820459663677346,
+        1.9913076754650876
+      ]
+    },
+    "M7.0": {
+      "r21": 2.0,
+      "r32": 2.0,
+      "h1_ratios": [
+        1.9820459663677346,
+        1.9913076754650876
+      ]
+    },
+    "M8.0": {
+      "r21": 2.0,
+      "r32": 2.0,
+      "h1_ratios": [
+        1.9820459663677346,
+        1.9913076754650876
+      ]
+    }
+  }
+}
