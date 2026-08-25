@@ -1,0 +1,24 @@
+{
+ "CD": 0.021130918911049287,
+ "CD_repr": "0.021130918911049287",
+ "CL": 0.5000025614837795,
+ "CL_repr": "0.5000025614837795",
+ "dv_preimage_md5": "44031bba9447aa65bb581d071b01395d",
+ "dv_scalers_applied": {
+  "patchV": 0.1,
+  "shape": 10.0,
+  "twist": 0.1
+ },
+ "dv_source": "/mnt/ACC/d4_endpoint_dvs_PHYSICAL.json",
+ "dv_source_md5": "7ebaf69c19a605b8a52230068c68ed25",
+ "dv_units": "PHYSICAL",
+ "endpoint_final_CD_from_history": 0.021125978108239574,
+ "endpoint_final_CL_from_history": 0.49999992625227224,
+ "kind": "d4_acceptance_primal",
+ "n_patchV": 2,
+ "n_shape": 96,
+ "n_twist": 7,
+ "producer_md5": "2906d52a5dbed2bacbaeaf85a37d3fe8",
+ "ranks": 4,
+ "wall_s": 24.301
+}

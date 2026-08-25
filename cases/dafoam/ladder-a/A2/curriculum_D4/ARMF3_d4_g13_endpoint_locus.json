@@ -1,0 +1,43 @@
+{
+ "artifact": "/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/F3/d4_endpoint_dvs_PHYSICAL.json",
+ "control_B": {
+  "closest_to_a_bound": {
+   "dv": "patchV",
+   "excess": 0.0,
+   "idx": 0,
+   "lower": 100.0,
+   "upper": 100.0,
+   "value": 100.0
+  },
+  "control": "B_BOUNDS_CONTAINMENT",
+  "n_checked": 105,
+  "n_violations": 0,
+  "tol_abs": 1e-09,
+  "verdict": "PASS",
+  "violations": []
+ },
+ "control_P": {
+  "control": "P_PINNED_WITNESS",
+  "n_pinned_found": 1,
+  "tol_rel": 1e-12,
+  "verdict": "PASS",
+  "violations": [],
+  "witnesses": [
+   {
+    "dv": "patchV",
+    "idx": 0,
+    "pinned_value": 100.0,
+    "reconstructed": 100.0,
+    "rel_residual": 0.0
+   }
+  ]
+ },
+ "gate": "G13_ENDPOINT_LOCUS",
+ "registration_source": "/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/F3/d4_opt_runScript.py",
+ "scalers_registered": {
+  "patchV": 0.1,
+  "shape": 10.0,
+  "twist": 0.1
+ },
+ "verdict": "PASS"
+}

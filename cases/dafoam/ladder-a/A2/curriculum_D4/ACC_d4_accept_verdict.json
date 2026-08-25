@@ -1,0 +1,51 @@
+{
+ "ACC2_reported_gates_nothing": {
+  "band": 1e-06,
+  "in_band": false,
+  "rel_CD": 0.000233873328108105
+ },
+ "ACC_CL_reported_gates_nothing": {
+  "CL_measured": 0.5000025614837795,
+  "CL_target": 0.49999992625227224,
+  "band": 0.001,
+  "in_band": true,
+  "rel_CL": 5.270463791942248e-06
+ },
+ "CD_measured": 0.021130918911049287,
+ "CD_measured_repr": "0.021130918911049287",
+ "CD_target": 0.021125978108239574,
+ "artifact": "/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/ACC/d4_accept_primal.json",
+ "band_ACC1": 0.001,
+ "consequence": "PASS: the D4-DEF-4 diagnosis is proved by an instrument that grades nothing; the repair is frozen and arm F re-runs.",
+ "counts_verified": {
+  "n_patchV": 2,
+  "n_shape": 96,
+  "n_twist": 7
+ },
+ "dv_preimage_md5": "44031bba9447aa65bb581d071b01395d",
+ "dv_scalers_applied": {
+  "patchV": 0.1,
+  "shape": 10.0,
+  "twist": 0.1
+ },
+ "dv_units": "PHYSICAL",
+ "gate": "ACC-1 -- does the corrected design point reproduce arm O's IPOPT objective",
+ "planted_zero_control": {
+  "blind_reader": "REFUSED",
+  "blind_reader_returns_identical_on_clean_and_planted": true,
+  "clean_in_band_ACC1": true,
+  "control": "G-ACC-PLANT",
+  "expectation_residual": 0.0,
+  "plant": 0.001234,
+  "planted_artifact": "/tmp/d4_accept_cmp_uq8e4r1g/d4_accept_primal_PLANTED.json",
+  "planted_in_band_ACC1": false,
+  "rel_CD_clean": 0.000233873328108105,
+  "rel_CD_expected_under_plant": 0.058645370001898234,
+  "rel_CD_planted": 0.058645370001898234,
+  "verdict": "PASS"
+ },
+ "ranks": 4,
+ "rel_CD": 0.000233873328108105,
+ "verdict": "PASS",
+ "wall_s": 24.301
+}

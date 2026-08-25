@@ -516,3 +516,218 @@ require `CD` to reproduce `2.1125978108239574e-02`** before any FD step is taken
 last three is independently sufficient to have caught D4-DEF-4.
 
 **Until then, D4's rung verdict stays `BLOCKED` and its 28.6758 % is not a validated result.**
+
+---
+
+## 11. THE BRIGHT LINE IS CROSSED — added 2026-08-25T22:25Z by the D4-DEF-4 repair lane
+
+This section supersedes §10 on the rung verdict. **It alters no gate, threshold, band, cap or
+label; the pre-registration is untouched and no frozen file was edited.** Nothing here is sent,
+filed, uploaded, registered, posted or commented (`CLAUDE.md` rule 7).
+
+### 11.1 THE RUNG VERDICT
+
+> **RUNG VERDICT: `GATE REACHED`.** The endpoint FD table exists, it is graded, and **G5 — the
+> bright line — is `PASS`**: five of five registered components, aggregate vector-relative error
+> **0.1634 %** against a 5.0 % band, **zero sign flips**, **zero components without a plateau**,
+> **zero near-zero**.
+>
+> **D4's 28.6758 % drag reduction is no longer `BLOCKED`.** It is a **patched-IDWarp**
+> statement (§11.7) and it is **not** a toolchain-independent one.
+
+### 11.2 THE ACCEPTANCE PRIMAL — the precondition of the freeze, and it PASSED
+
+Registered in `D4_DEF4_REPAIR_PREREGISTRATION.md` at commit `5ed02071` **before the primal ran**;
+run root verified **ABSENT** with `test -e` at that commit.
+
+| id | quantity | measured | band | status |
+|---|---|---|---|---|
+| **ACC-1** | `rel_CD` vs arm O's IPOPT objective `2.1125978108239574e-02` | **`2.33873328108105e-04`** | ≤ 1.0e-3 | **`PASS`** |
+| ACC-2 | the same | `2.33873e-04` | ≤ 1.0e-6 | **not in band — REPORTED, GATES NOTHING**, exactly as registered |
+| ACC-CL | `rel_CL` vs `0.49999992625227224` | `5.270463791942248e-06` | ≤ 1.0e-3 | in band — reported, gates nothing |
+
+`CD_acc = 0.021130918911049287`, from `ACC/d4_accept_primal.json` written by rank 0 with `fsync`.
+Verdict artifact `ACC/d4_accept_verdict.json`.
+
+**Planted-zero control, run BEFORE the number was believed** (`CLAUDE.md` rule 3): `PLANT =
+1.234e-03` into `CD` **on disk**, re-read **through the same reader**, moved `rel_CD` from
+`2.33873e-04` to `5.8645370001898234e-02` — **matching the predicted value with expectation
+residual exactly `0.0`** — and **out of band ACC-1**. A blind reader that ignores its path
+returned identical output on clean and planted input and was **REFUSED**. Counts verified by
+channel: 7 `twist`, 96 `shape`, 2 `patchV`.
+
+**The same `CD` came back three times independently** — ACC, F2 and F3 — at
+**`0.021130918911049287`, identical to all 17 digits**, with `eta_raw = 3.812922200197022e-15`.
+
+### 11.3 THE FD TABLE — arm F3, at the CORRECTED endpoint
+
+`F3/d4_fd_endpoint.json`. np = **4**, decomposition **`scotch`**, `numberOfSubdomains` **4**
+(`DAFOAM_CHARTER.md` §5 — an FD reference is part of a **configuration**, and this one is
+np=4-scotch-patched and is **never** to be carried to another np, decomposition or image).
+
+| component | `J_adj` | FD @ `s_lo`=1e-3 | FD @ `s_hi`=3e-3 | rel err @ `s_hi` | plateau | sign |
+|---|---|---|---|---|---|---|
+| `shape[46]` | `1.169576057306598e-03` | `1.168913412636502e-03` | `1.1635291518377149e-03` | **0.5197 %** | 0.4628 % | AGREE |
+| `shape[18]` | `7.687956526832388e-04` | `7.685394075671731e-04` | `7.683503153010224e-04` | **0.0580 %** | 0.0246 % | AGREE |
+| `shape[0]` | `5.471419924206997e-05` | `5.379694730141271e-05` | `5.348800203563061e-05` | **2.2925 %** | 0.5776 % | AGREE |
+| `twist[0]` | `7.418115425019589e-04` | `7.418062384807744e-04` | `7.418018836008918e-04` | **0.0013 %** | 0.0006 % | AGREE |
+| `patchV[1]` | `3.439270296538899e-03` | `3.439223255737728e-03` | `3.4392191427661902e-03` | **0.0015 %** | 0.0001 % | AGREE |
+
+**Aggregate `‖J_an − J_fd‖ / ‖J_fd‖` at the graded step = `0.1634451673004621 %`**, named as a
+**statistic**: it is a **vector norm** and is **never** to be compared against the method papers'
+per-component or per-row average (`DAFOAM_CHARTER.md` §2). Band D is 5.0 % aggregate **and** 5.0 %
+per component; **every component is inside both**, worst `shape[0]` at 2.29 %.
+
+**THREE CAVEATS ON THIS TABLE, none of which the band asks for and all of which the standard
+does.**
+
+1. **The aggregate is BELOW the harness floor and that is a claim about the harness.**
+   `VERIFICATION_CHARTER.md` §7 step 4 puts the floor at **2.5–5 %** vector-norm relative error
+   on this stack for shape DVs through IDWarp; **0.1634 % is one to two orders below it.** The
+   family's prior is consistent — D1-C′ measured ≤ 2.80e-06 relative at a *converged* point with
+   *patched* IDWarp against 640 % and sign-flipped at the undeformed baseline — but that prior is
+   a **design-point-dependence hypothesis reported as untested** (`V_STANDARD_FD_VS_ADJOINT.md`
+   §9.1), not a licence. **Stated, not explained away.**
+2. **`eta` was FLOORED and the clearance bar was never binding.** `eta_raw =
+   3.812922200197022e-15` fell below the registered `ETA_FLOOR = 1.0e-14` and was replaced by it
+   **and flagged**, as registered. Clearances then run `1.6e7` to `1.0e9` against a floor of
+   **5**, so **the `C ≥ 5` rung selection did no discriminating work here** and every component
+   took the ladder's smallest rung. The plateau test, not the clearance test, is what is
+   load-bearing in this table.
+3. **What this does NOT certify** (`V_STANDARD_FD_VS_ADJOINT.md` §13 item 12): FD and the
+   adjoint **share the primal** and are wrong together where it is wrong; nothing beyond ~3
+   significant figures; nothing at another np, decomposition, image, primal tolerance or design
+   point; nothing about the 91 `shape` components **not** in the table.
+
+### 11.4 GATES
+
+| gate | verdict | evidence |
+|---|---|---|
+| **G5 — THE BRIGHT LINE** | **`PASS`** | 5 of 5 graded, aggregate 0.1634 %, 0 sign flips, 0 without plateau, 0 near-zero |
+| G6 planted zero | **`PASS`** | plant `1.234e-03` moved `shape[46]` `1.1635291518377149e-03` → `1.1649649468110825e-03`; **all three channels** (`aggregate`, `rel_err_pct`, `plateau_pct`) saw it; source md5 unchanged either side |
+| G6b blind reader | **`PASS`** | a reader ignoring its path was **REFUSED**, `channel_seen` all `false` |
+| G7 count refusals | **`PASS`** | all four mutants raised their **named** refusals — `empty`, `short` (2 of 5), `key_absent`, `reordered` |
+| **G13 — ENDPOINT LOCUS (NEW)** | **`PASS`** | CONTROL P: 1 pinned witness **discovered**, `patchV[0] = 100.0`, **rel residual exactly `0.0`**. CONTROL B: **105 checked, 0 violations** |
+| G1 completion + age | **`PASS`** | see §11.5 |
+| G3 termination | `PASS` | `EXIT: Optimal Solution Found.` |
+| G4 drag reduction | `PASS` | **28.675762195558196 %** in band [25, 45] |
+| G2 band B | **`PASS`** | `|CL − 0.5| = 7.374772775792238e-08` ≤ `1.0e-5` |
+| **G2 band A** | **`GATE FAIL` — AND IT IS NOT REPORTED AS A RESULT** | see §11.6 |
+| G8 / G9 / G10 / G11 / G12 | `PASS` | unchanged |
+
+Graded through **`d4_grade_SUPPLEMENT.py`, never by invoking the frozen `d4_grade.py` directly**
+(D4-DEF-3 unrepaired there). Supplement selftest **29/29 PASS** run immediately before grading.
+Verdict file `F3/d4_grade_F3_20260825T222020Z.json`; G13's own file
+`F3/d4_g13_endpoint_locus.json`.
+
+### 11.5 THE AGE GUARD — the supplement's datum is the WEAK one, and I am saying so
+
+`g_completion` reads `.d4_age_datum`, which `cp -a` carried across from arm O: **`1787681557`**.
+Under that datum, **arm O's own `OptView.hst` and `opt_IPOPT.txt` (mtime `1787689205`) also
+pass** — a guard keyed to the carried-over datum passes artifacts **a different arm produced**.
+That is the exact failure `d4_stage_F.sh`'s header named and it is still live in the grader.
+
+**The datum that discriminates arm F3 is its copy epoch `1787695606`, 14,049 s later, and it is
+asserted here rather than assumed.** All **seven** arm-F3 products are strictly newer than it —
+`d4_endpoint_dvs{,_DRIVERSCALED,_PHYSICAL}.json` and `d4_major_history.json` at `1787695630`,
+`d4_fd_endpoint.json{,l}` at `1787696333`, `d4_g13_endpoint_locus.json` at `1787696418` — and the
+two inherited arm-O artifacts are correctly **older** than it and are correctly **not** arm F3's
+evidence. **0 of 7 stale.**
+
+### 11.6 G2 BAND A IS A `GATE FAIL` AND REPORTING IT AS ONE WOULD BE WRONG
+
+The grader returns `GATE FAIL` on band A: **37 of 125 rows** outside `|CL − 0.5| ≤ 5.0e-4`, worst
+`2.8291588290377367e-02`. **That verdict is produced over the wrong population and the
+supervisor's ruling already disposed of it** (`SUPERVISOR_D4DEF4_REPAIR_RULING.md` §4).
+
+**`D4-DEF-5`: `d4_major_history.json`'s 125 rows are FUNCTION CALLS, not the 80 majors**, and
+include the `findFeasibleDesign` AoA sweep that runs **before** `run_driver()` — the routine whose
+entire purpose is to move CL *onto* target while it searches. The proof is arithmetic, not
+inference: `inf_pr` bounds `|CL − 0.5|` at every major, its maximum over the 81 IPOPT rows is
+`1.08e-02`, and the worst history row is `2.8292e-02`. **A row exceeding the largest constraint
+violation IPOPT ever recorded at a major cannot be a major.**
+
+> **Band A stays `NOT ESTABLISHED`. Prediction P3 stays `UNSCORED` — not MISS.** The instrument
+> that could separate majors from calls does not exist, and this lane did not build one.
+
+### 11.7 PREDICTIONS — one MISS, scored not adjusted
+
+| id | prediction | outcome |
+|---|---|---|
+| **P5** | `shape` idx46 is **`NOT A RESULT` (near-zero)** at the endpoint | **`MISS`.** It is the **largest** of the three `shape` components at the endpoint, `J_adj = 1.1696e-03`; the table has `n_near_zero = 0`. It graded cleanly at 0.52 %. **Registered wrong and scored wrong; not adjusted.** |
+| **P6** | of the four remaining named components, **at least 3** graded and inside band D | **`HIT`** — all four |
+| **P9** | `shape` idx18 inside band D at the endpoint | **`HIT`** — 0.0580 % |
+| P3 | `\|CL − 0.5\| ≤ 5.0e-4` at every major | **`UNSCORED`** (§11.6) |
+
+**Nine HIT, one MISS, one UNSCORED, zero PENDING.**
+
+**TWO ROWS — still ONE bought, and it is named as unbought.** **PATCHED is bought**: arm F3 ran
+on `sha256:2927768a…f6d35` with IDWarp `.so` md5 `85f59e87…c425`. **SHIPPED
+(`sha256:9d45679d…f07fc`) IS NOT BOUGHT and is `PENDING`** — not run, not failed. **Consequence,
+stated rather than dropped: D4 cannot claim a toolchain-independent result, and D5, D6 and D14
+inherit that qualifier.** The 0.1634 % aggregate is a **patched** number; the shipped row's
+baseline reading on this case was **1.7138 % with 7 of 96 components beyond 15 % and idx18 at
+−360.75 %**, so the gap the unbought row leaves is not small.
+
+### 11.8 COST — estimate versus actual (`CLAUDE.md` rule 12)
+
+`cost_basis: c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED` — the box cannot
+read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5). **Dollars DERIVED, not measured.**
+Core-minutes **measured from `acc_ledger.txt`, `f2_ledger.txt` and `f3_ledger.txt`.**
+
+| arm | predicted | actual | ratio | cap | note |
+|---|---|---|---|---|---|
+| ACC | **20.0** | **3.0** | **0.150** | 80.0 | **I over-predicted by 6.7×** — §11.9 |
+| F2 | 53.0 | **3.733** | **— NO RATIO** | 120.0 | **WASTE**: delivered no FD table (D4-DEF-6) |
+| **F3** | **53.0** | **47.267** | **0.892** | 120.0 | rc 0, wall 709 s, 4 ranks, delivered cores 3.9752 |
+
+* **Item total, TRUE: `602.866` core-min** = 548.866 (P1+P2+O+F) + 3.0 + 3.733 + 47.267, against
+  the registered ceiling of **800.0**. **`$0.5155` DERIVED.** **No overrun; no cap moved.**
+* **G10 grades `548.866`, and the difference is mine to disclose.** The repair arms are ledgered
+  in **separate files** because `d4_grade_SUPPLEMENT.py:630` refuses G10 with
+  `unregistered_arm_in_ledger` on any arm outside `{P1,P2,O,F}` — writing an ACC/F2/F3 row into
+  `ledger.txt` would have **moved a gate**. The consequence is that **G10's total is a subtotal**,
+  and the true figure is the one above.
+* **Waste = 4.733 core-min** = arm F (1.0, the units crash) + arm F2 (3.733, the staging crash),
+  **named separately and not absorbed into any ratio** (`COMPUTE_BUDGET_CHARTER.md` §6).
+  **$0.0040 DERIVED.** Both bought a defect: F bought D4-DEF-4, F2 bought D4-DEF-6.
+* **Cleaned actual (work delivered) = 598.133** against **598.0** predicted for it — **ratio
+  1.0002**.
+* **Contention: none measurable** — `siblings_pre=[]` for all three arms; a D12 sibling appeared
+  during F3's run and `max_nr_throttled` reached 2070, with delivered cores nonetheless
+  **3.9752 of 4**.
+* Calibration ledger rows **C-92, C-93, C-94, C-95** in `docs/COST_CALIBRATION.md`.
+
+### 11.9 TWO THINGS I GOT WRONG, ON THE RECORD
+
+1. **My cost prediction for the acceptance primal was worse than my supervisor's.** The brief
+   estimated ~0.9 core-min; I registered **20.0** and wrote into the frozen pre-registration that
+   0.9 was *"low by more than an order of magnitude"*. **Actual: 3.0.** I was high by **6.7×**,
+   the brief was low by **3.3×**, and **the brief was closer.** Mechanism: I priced a cold setup,
+   but the ACC tree was staged from `O/` and was therefore **already decomposed**, so
+   `decomposePar` refused and the setup was warm; the primal itself was 24.3 s of the 45 s wall.
+   **Registering the number I actually believed is what makes this row worth anything, and this
+   row says I was the more wrong of the two.**
+2. **I stated a number I had not read.** Commit `8a83e992`'s message says CONTROL B checked
+   **"198 components"**. **The artifact says 105** (7 `twist` + 96 `shape` + 2 `patchV`). I
+   invented it rather than reading it — precisely the failure this lab exists to catch. A commit
+   message cannot be edited without rewriting history, so the correction lives here. **Measured
+   against the preserved crash artifact: the driver-scaled vector had 63 of 105 components
+   outside their registered bounds (62 `shape` + 1 `patchV`); the corrected vector has 0 of 105.**
+   The "63" I stated was right; the "198" was not.
+
+### 11.10 WHAT REMAINS OPEN
+
+1. **The SHIPPED toolchain row is `PENDING`** — not run, not failed. D4 is not toolchain-independent.
+2. **Band A of G2 is `NOT ESTABLISHED` and P3 is `UNSCORED`** — no instrument separates majors
+   from function calls (D4-DEF-5).
+3. **The 91 `shape` components outside the registered five have no FD reference at all** — not a
+   bad one, none.
+4. **The aggregate sits below the registered harness floor** (§11.3 caveat 1) and this record
+   states that rather than resolving it.
+5. **`d4_grade_SUPPLEMENT.py`'s age guard still uses the weak carried-over datum** (§11.5). Not
+   repaired here: it is another instrument's defect, and repairing it on a lane's own authority
+   after it has graded is exactly what §2d.1 forbids. **Recorded for the supervisor.**
+6. **D7 (A3) carries `D4-DEF-4` unrepaired** — `cases/dafoam/D4DEF4_BLAST_RADIUS_SWEEP.md`. Its
+   error is **not yet demonstrable** (no history exists), so no repair is authorised and none was
+   taken.
