@@ -54,7 +54,7 @@ This file is a frozen file under CLAUDE.md rule 6.
                      AREA-DEFICIT form. Cartesian case → "N/A (not axisymmetric)".
 12. COST + CAP     : estimate in core-minutes (basis stated); cap; overrun STOPS the run.
 13. CONTROLS       : planted-zero (rule 3) fires in the comparator; strict completion
-                     (rule 4); Roache gating (rule 5). Comparator sha + --selftest green.
+                     (rule 4); Roache gating (rule 5); LAUNCHER FREEZE CHECK (rule 2) — non-droppable (see Amendment 2). Comparator sha + --selftest green.
 ```
 
 Lines 1–8 and 12 are Sanaa's seven fields (case, reference, quantities, bands,
@@ -157,3 +157,41 @@ REACHED`. Fixed here at the source.
 or completion rule moved; the ten-line form's structure and the reference-KIND →
 score-column mapping on line 3 (correct as written) are unchanged. Only the tier-ceiling
 vocabulary (line 4) and the VMFL059 worked-example ceiling (line 98) are corrected.
+
+---
+
+## AMENDMENT 2 — 2026-08-25 — the LAUNCHER FREEZE CHECK is now a REQUIRED, non-droppable artifact
+
+This template is a frozen file (header, rule 6); this correction is a dated amendment
+appended at the foot, not an edit above. **lines whose number changed above this
+section: 0** — line 13 (CONTROLS) was extended in place with no line added or removed,
+so every line number, including the worked example's line 98 cited by Amendment 1, is
+unchanged.
+
+**Why.** The two template-speed cases (VMFL059, VMFL010) were built from this form and
+each launcher shipped with **zero** launch-time freeze-verification lines, while the
+bespoke launchers (VMFL003-M2: 3 lines; VMFL007: 1) prove at launch that the
+pre-registration and the comparator on disk ARE the blobs committed at HEAD. A launcher
+that does not re-prove the freeze at launch can run a solver against a pre-registration
+or a grading path that has drifted from the committed one — the freeze is the evidence,
+and an unverified freeze is no freeze. Sanaa's directive for this form was *"minutes to
+freeze, not sessions"* alongside *"We are raising the denominator — core-hours — not
+lowering the bar."* **A dropped guard is lowering the bar; short must never mean weaker.**
+
+**The requirement (now binding on every case built from this form).** The case's launcher
+MUST, before any solver starts, verify BOTH:
+
+1. the **pre-registration** on disk hashes equal to `HEAD:<prereg path>`, and
+2. the **comparator** on disk hashes equal to `HEAD:<comparator path>`,
+
+each check **gating EXPLICITLY** with `|| { echo ABORT...; exit 1; }` — `set -e` does NOT
+gate at a Bash tool's top level and `( set -e; … )` fails silently — and the resolved shas
+recorded into the run's own launch record (e.g. `LAUNCH_RECORD.txt`). This artifact sits
+in the **same non-droppable list** as the planted-zero control (line 13, rule 3) and the
+mesh birth certificate (line 7, MESH_STANDARD §6): it is named in the form, it is not
+optional, and a launcher without it is incomplete regardless of how short the form is.
+
+**What did NOT change.** No gate rule, band rule, reference-KIND → score-column mapping,
+tier-ceiling vocabulary, cost/cap rule, or completion/Roache rule moved; only line 13 was
+extended in place to name the launcher freeze check, and this amendment states the
+requirement in full.

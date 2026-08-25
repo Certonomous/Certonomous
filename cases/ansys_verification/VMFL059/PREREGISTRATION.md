@@ -14,7 +14,7 @@ message is Sanaa's consent** (rule 9). Drafted by `ansys-lane-opus48` on the
 `docs/ansys_verification/PREREG_TEMPLATE.md` standard form. Departures land as
 dated addenda at the foot, never by editing above (rule 6).
 
-**Reference kind = closed-form/exact → this case can buy V. Tier ceiling = PASS.**
+~~**Reference kind = closed-form/exact → this case can buy V. Tier ceiling = PASS.**~~ **[SUPERSEDED BY AMENDMENT 1: ceiling is GATE REACHED; closed-form buys V (code verification), never P (validation).]**
 
 ---
 
@@ -33,7 +33,7 @@ dated addenda at the foot, never by editing above (rule 6).
 3. REF KIND   : closed-form/exact → buys V. The comparator derives 378 and 413
                 two ways from first principles (--selftest) and they coincide with
                 the manual's printed targets to full printed precision.
-4. CEILING    : PASS (a validation credential if the band is met on both walls).
+4. CEILING    : ~~PASS (a validation credential if the band is met on both walls).~~  [SUPERSEDED BY AMENDMENT 1: ceiling = GATE REACHED; closed-form buys V (code verification), never P (validation)]
 5. QUANTITIES : areaAverage(T) on patch rightWall (cooled) and leftWall (adiabatic),
                 in K, read post-solve via postProcess patchAverage.
 6. THE GATE   : |T_lab − T_exact| / |T_exact| ≤ 0.01 (1%), on BOTH walls, at L3.
@@ -137,3 +137,34 @@ labels), so it is **not** edited and the supervisor's check 4 is **not** re-open
 **Provenance.** `docs/charters/ANSYS_VERIFICATION_CHARTER.md` §6; VMFL007
 PREREGISTRATION.md (closed-form → ceiling `GATE REACHED`); `PREREG_TEMPLATE.md`
 AMENDMENT 1 of the same date. lines whose number changed above this section: 0.
+
+---
+
+## AMENDMENT 2 — 2026-08-25 — the body strike declared in Amendment 1 was PHYSICALLY APPLIED to lines 17 and 36
+
+**What this amendment records.** Amendment 1 declared lines 17 and 36 *struck*, but the
+body still carried both sentences unmarked, so a reader reaching line 17 or line 36 would
+quote a false sentence and might never reach the foot. This amendment records that the
+strike has now been **physically applied in place**: line 17 and line 36 are wrapped in
+strikethrough and each carries an explicit **"SUPERSEDED BY AMENDMENT 1"** marker pointing
+here — the original words are **preserved, not deleted**, so a reader sees both what was
+said and that it was withdrawn (ceiling = `GATE REACHED`; closed-form buys V / code
+verification, never P / validation).
+
+**Legality (CLAUDE.md rule 2, before-first-compute clause).** The in-place strike is legal
+because **no solver has touched VMFL059**: `verification/runs/ansys_verification/VMFL059/`
+**did not exist** — checked with `ls -d` at **2026-08-25T17:37:44Z** (returned *No such file
+or directory*) and **re-checked in the committing invocation**, which STOPS the commit if
+the directory has appeared. No register row cites this file's blob, so no evidence rests on
+it; the reason the old post-compute ruling forbade in-place edits (the blob IS the cited
+evidence) does not apply here.
+
+**What did NOT change — asserted explicitly.** No gate, no 1 % band, no reference value
+(378 K cooled / 413 K adiabatic), no Ansys context value, no cap (15 core-minutes), no
+ladder, no seed, no control, and no verdict label moved. Only the two already-struck body
+sentences were physically marked; content was modified **in place with no line added or
+removed**, so every line number above is unchanged and the "lines 17 / 36" references in
+Amendment 1 remain accurate. The grading path `grade_vmfl059.py` was **not touched**.
+
+**Provenance.** CLAUDE.md rules 1, 2, 6; this document's Amendment 1; VMFL007 precedent
+(closed-form → ceiling `GATE REACHED`). lines whose number changed above this section: 0.
