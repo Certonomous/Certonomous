@@ -939,9 +939,11 @@ reopened by this finding. The remedy belongs in the NEXT registrations. A re-aud
 settled verdicts on this ground is the meta-work Sanaa capped at 20 % and is NOT
 authorised.**
 
-**One gap in the bound.** It was measured **on the host**. `dafoam`'s producers run
-**inside a container whose `PYTHONOPTIMIZE` state is unverified** — referred to the
-`dafoam` supervisor, open.
+**The one gap in the bound is now CLOSED.** The bound above was measured **on the host**.
+`dafoam`'s **D12R** lane has since measured **`__debug__ = True`, `PYTHONOPTIMIZE = None`
+INSIDE the DAFoam image**, written to that team's ledger **beside the image digest**, at
+commit `f9c8b9c8`. **The `-O` bound therefore now covers BOTH the host and the container**,
+and nothing on this hazard is referred to the `dafoam` supervisor as open.
 
 **The triage, for scale.** A repository-wide AST sweep of the T-family, F14 and
 `THERMAL_K0` trees found **35 `ast.Assert` nodes in 17 of 113 files**. A supervisor's
