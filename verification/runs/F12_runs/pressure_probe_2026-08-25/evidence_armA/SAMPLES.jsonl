@@ -1,0 +1,11 @@
+{"utc":"2026-08-25T17:41:14Z","elapsed_s":0,"core_min":0.0000,"cap_core_min":6.0,"loadavg":["5.01","5.15","5.75"]}
+{"utc":"2026-08-25T17:41:34Z","elapsed_s":20,"core_min":0.3333,"cap_core_min":6.0,"loadavg":["5.52","5.25","5.77"]}
+{"utc":"2026-08-25T17:41:54Z","elapsed_s":40,"core_min":0.6667,"cap_core_min":6.0,"loadavg":["5.66","5.30","5.77"]}
+{"utc":"2026-08-25T17:42:14Z","elapsed_s":60,"core_min":1.0000,"cap_core_min":6.0,"loadavg":["5.82","5.37","5.78"]}
+{"utc":"2026-08-25T17:42:34Z","elapsed_s":80,"core_min":1.3333,"cap_core_min":6.0,"loadavg":["5.95","5.42","5.80"]}
+{"utc":"2026-08-25T17:42:54Z","elapsed_s":100,"core_min":1.6667,"cap_core_min":6.0,"loadavg":["6.04","5.48","5.81"]}
+{"utc":"2026-08-25T17:43:14Z","elapsed_s":120,"core_min":2.0000,"cap_core_min":6.0,"loadavg":["6.03","5.51","5.81"]}
+{"utc":"2026-08-25T17:43:34Z","elapsed_s":140,"core_min":2.3333,"cap_core_min":6.0,"loadavg":["6.02","5.55","5.82"]}
+{"utc":"2026-08-25T17:43:54Z","elapsed_s":160,"core_min":2.6667,"cap_core_min":6.0,"loadavg":["6.01","5.58","5.82"]}
+{"utc":"2026-08-25T17:44:14Z","elapsed_s":180,"core_min":3.0000,"cap_core_min":6.0,"loadavg":["6.01","5.60","5.83"]}
+{"utc":"2026-08-25T17:44:34Z","elapsed_s":200,"core_min":3.3333,"cap_core_min":6.0,"loadavg":["6.01","5.63","5.83"]}

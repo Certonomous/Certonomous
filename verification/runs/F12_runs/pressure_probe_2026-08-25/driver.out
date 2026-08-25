@@ -1,0 +1,8 @@
+PRE-ASSERT OK 2026-08-25T17:41:13Z  cap 6.0 core-min/arm = 360s at ranks 1
+MESHES BUILT: A rc=0 B rc=0
+/home/ubuntu/certonomous-runs/F12_pressure_probe_2026-08-25/run_probe.sh: line 57: 2313287 Aborted                 timeout ${CAP_WALL_S}s openfoam2606 rhoSimpleFoam > log.rhoSimpleFoam 2>&1
+  armA_relaxation_only: rc=134 wall=220s
+/home/ubuntu/certonomous-runs/F12_pressure_probe_2026-08-25/run_probe.sh: line 57: 2316068 Floating point exceptiontimeout ${CAP_WALL_S}s openfoam2606 rhoSimpleFoam > log.rhoSimpleFoam 2>&1
+  armB_relaxation_plus_transonic: rc=136 wall=20s
+POST-ASSERT OK: rung 1 byte-unchanged
+POST-ASSERT: rungs 2-5 still absent.  DONE 2026-08-25T17:45:14Z
