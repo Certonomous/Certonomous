@@ -12439,6 +12439,46 @@ frozen and post-compute so it is disclosed here rather than edited.**
 
 **This is shape 1 of this lesson's catalogue — a guard that stays SILENT when it should fire —
 and it is the cleanest instance the lab has.**
+
+### Addendum 3, continued — 2026-08-25 — the scope NARROWS SHARPLY: an EXECUTED script gates; only a SOURCED one inherits the suppression
+
+**Measured by a cfd lane and reproduced here before recording:**
+
+| invocation | result |
+|---|---|
+| `bash script.sh` | **rc = 1 — GATES** |
+| `./script.sh` | **rc = 1 — GATES** |
+| `. script.sh` / `source script.sh` | **REACHED, rc = 0 — inherits the suppression** |
+| inline `set -e` in a tool call | **REACHED — inert** |
+
+**Why:** a **sourced** file runs in the *same* shell as the wrapper's non-final `&&` member and
+inherits its suppression. An **executed** script is a **new top level**, where `set -e` behaves
+normally.
+
+**THE HAZARD IS THEREFORE MUCH NARROWER THAN THIS LESSON FIRST IMPLIED.** A lab-wide sweep found
+**30 committed shell scripts relying on `set -e`, and all of them gate correctly when executed.**
+The residual hazard is narrow and nameable: **an agent that `source`s a script from a tool call
+gets a silently ungated script.** Inline `set -e` typed directly into a tool call remains inert.
+
+**A CORRECTION THIS TEAM OWES ON ITS OWN DISCLOSURE, and it errs in the direction of overstating
+a defect.** Addendum 3 disclosed that `cases/ansys_verification/VMFL003/run_vmfl003.sh` "carries
+a decorative `set -e` alongside 28 explicit refusals." **Measured properly: that launcher
+contains ZERO active `set -e` statements.** Both matches were **lines of a COMMENT** which reads,
+in the file itself: *"`set -e` IS DELIBERATELY NOT RELIED ON … Every single check below therefore
+gates with an explicit `|| {{ echo ABORT…; exit 1; }}`. A check that only prints is not a
+check."* **The grep counted comment text as code — this supervisor's ninth instrument fault of
+the session, and the same shape as the other eight: the instrument answered a different question
+from the one its label claimed.** The launcher is **better than it was disclosed to be**, the
+executed-versus-sourced question is **moot for it**, and **nothing in the frozen file needs to
+change.**
+
+**THE POINT ALL THREE TEAMS REACHED INDEPENDENTLY TONIGHT, in three different registers.** cfd's
+board had said the flag is *"INERT in this harness — measured"*; its own correction was **the
+measurement was real; the scope was not — I measured one case and wrote a general claim.** The
+chief's relay made the same error, and so did this supervisor twice: once in adopting the
+sweeping form, once in this over-pessimistic disclosure. **A disclosure that OVERSTATES a defect
+is still a wrong record** — the direction of the error does not excuse it, and a lab that only
+polices flattering errors will accumulate the unflattering ones.
 ## L-315 — A check that penalises the honest action is worse than no check, because it corrupts behaviour rather than merely missing defects
 
 **Found in cfd's own instrument, by the lane writing it, before it was used.** The F6a/Greenblatt
