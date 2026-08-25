@@ -241,7 +241,8 @@ criterion and is NOT plateaued.**
 Measured: **228 CONSECUTIVE iterations at or below the registered `1e-6`,
 iterations 877 to 1104** — and independently confirmed that this is the **only**
 stretch below `1e-6` anywhere in the run (228 consecutive, 228 total, so the
-block is contiguous and unique). The run then **leaves**, peaking at
+block is contiguous and unique). **`f` touched the registered criterion exactly once, for 228 iterations, and
+never again.** The run then **leaves**, peaking at
 `3.85e-05` at 1800, and is still oscillating at iteration 2717 —
 `2.85e-05` (2000), `2.45e-05` (2200), `3.97e-05` (2400), `4.28e-05` (2600),
 **rising into a second excursion**.
@@ -275,6 +276,40 @@ correction, moved from the residual to the field.** A gate built on **two**
 samples of an oscillating quantity is a two-point sample. **Recorded as an open
 instrument question for the re-registration; this lane does not propose the
 fix.**
+
+### 4b.2 RULING — what a checkpoint-difference convergence gate must satisfy
+
+**Supervisor's ruling, 2026-08-25, and it is broader than T8.**
+
+**The mechanism, named: a last-two-checkpoints difference gate is a TWO-POINT
+SAMPLE, and on an oscillating quantity it ALIASES.** One spacing, two samples.
+If the two checkpoints land at **similar phases** the difference is small, the
+gate reports converged, and **nothing in the output signals that anything went
+wrong.** That is the same failure as a point-sampled residual and as a
+truncating reader, arriving a third way.
+
+**A convergence gate built on differences between written checkpoints must
+satisfy all three:**
+
+1. **At least THREE distinct checkpoint SPACINGS, and it must pass at ALL of
+   them.** An oscillation aliased at spacing `Δ` is not generally aliased at
+   `2Δ` and `3Δ`. This **attacks the mechanism directly, costs nothing — it
+   reuses checkpoints already written — and needs no new physics.**
+2. **The successive differences must be NON-INCREASING across the window, not
+   merely small.** A converging run's checkpoint differences shrink; an
+   oscillating run's wander. **"Small" is satisfiable by luck; "shrinking" is
+   not.**
+3. **It must REFUSE — `NOT A RESULT`, never a pass — when the quantity is not
+   shown stationary.** A difference gate on a non-stationary quantity **cannot
+   distinguish convergence from aliasing**, and an instrument that cannot tell
+   those apart must **say so rather than pick one**. This is deliberately the
+   same refusal shape as §4c's stationarity precondition.
+
+**Scope: this is not a T8 fix.** It bears on **every checkpoint-difference
+convergence gate in the T-family and the cooling spine**, and an audit of those
+is owed. Rungs **already graded** under such a gate are the exposed ones — a
+verdict there may rest on a two-point sample. **Audit reported separately; no
+rung is re-graded by this draft and no frozen file is touched by it.**
 
 ## 4c. THE RAMP TEST, REPAIRED — a CONTROL, not a window
 
