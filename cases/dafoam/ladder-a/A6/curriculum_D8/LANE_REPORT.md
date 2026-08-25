@@ -423,3 +423,145 @@ silently worked around.
 and is taking **99.4 %** of it, with peer containers explicitly pinned elsewhere (cpuset 5,6,7,9 and
 11). **The `fd` arm is therefore not CPU-contended**, and its core-minutes are reported gross with
 that check named. Box loadavg at launch: 9.72 on 16 cores.
+
+---
+
+# D8 CLOSE lane — 2026-08-25, 19:05Z–19:25Z
+
+Appended, not rewritten. The previous lane was killed by a session usage limit; the run was not.
+I attached to arm `fd`, found it already finished, verified it, verified the instruments, found and
+repaired a defect in the grader's own amendment, graded the rung and closed it.
+
+## 14. Arm `fd` — attached, and it had already completed cleanly
+
+**It was not a cap-stop.** `d8_run_arm.sh fd fdsub8 4500` launched at `18:20:22Z` under
+`timeout 4500`; the ledger row records `rc=0 wall_s=2602 ranks=1 core_min=43.367`, so the arm ended at
+`19:03:44Z` with **1,898 s (42.2 %) of its registered cap unspent**. The hard kill at ~19:35Z was
+never approached. `inspect(exit,oomkilled)=[0 false]`, `peak_rss_GiB=0.658496` against the 12 GiB cap
+— the FD arm holds no adjoint, so it is nowhere near the 9.787 GiB envelope. Artifact:
+`/home/ubuntu/certonomous-runs/CURRICULUM-D8-a6-twist-opt/ledger.txt`, row `stamp=20260825T182022Z_2376204`.
+
+## 15. The strict completion rule applied to arm `fd`, clause by clause
+
+CLAUDE.md rule 4 is written for a single OpenFOAM solve. Arm `fd` is **33 primals in one container**
+(1 baseline + 8 components × 2 steps × 2 signs = 32), so two clauses are stated in their generalised
+form and the generalisation is disclosed rather than assumed.
+
+| clause | required | measured | artifact |
+|---|---|---|---|
+| `rc = 0` | 0 | **0** | `ledger.txt` `ARM=fd` |
+| an `End` line | ≥ 1 | **33** — exactly one per primal, so no primal aborted mid-solve | `fd.log` |
+| last time == `endTime` | `endTime 1000` | last `Time = 1000`; highest written time dir `1000/` | `fd/system/controlDict`, `fd/1000/` |
+| fields present at `endTime` | the `DARhoSimpleCFoam` set | `T U p nut nuTilda alphat rho phi` (+ `betaFINuTilda`, `meshPhi`, `polyMesh`, `uniform`) | `fd/1000/` |
+| `ExecutionTime` count == `endTime` **(generalised)** | at `printInterval 10`, 33 primals ⇒ 33 × (1000/10 + 1) = **3,333** | **3,333**, exact | `fd.log` |
+| **age guard** — every field at `endTime` newer than the case's own `0/` | strict | newest `0/` file `1787684534`, oldest `1000/` file `1787684621`, **delta +87 s** | `stat` on `fd/0/`, `fd/1000/` |
+| arm marker | `D8_FD_ARM_COMPLETE` | present, `fd.log` line 58791 | `fd.log` |
+| `ASSERT_MD5 OK` | present | present | `ledger.txt` |
+| G8 cold-start guard | must have refused a dirty tree | `G8 OK (fd): no written time dirs, no processor*, no reports/, 0/ present` | `queue_fd.out` |
+
+**The `ExecutionTime` clause is the strongest one here and it is worth naming why.** 3,333 is not a
+round number that could be hit by accident: it is 33 primals each running all 1,000 iterations at
+`printInterval 10`. A primal that stalled short, or a 32nd perturbation that never launched, moves
+that count off 3,333. It landed exactly.
+
+**One age-guard subtlety, disclosed.** `fd/0/U.gz` carries mtime `19:02`, later than its five
+siblings at `18:20`, because the FD loop rewrites the inlet BC in `0/U` for every `patchV`
+perturbation. The guard is still satisfied strictly — I compared **the newest `0/` file** against
+**the oldest `endTime` field**, not the convenient pair, and the margin is +87 s.
+
+**Arm `fd` is COMPLETE under every clause.**
+
+## 16. D8-DEF-2 — the grader's own AMENDMENT 1 is INERT, and this is DEMONSTRATED
+
+I verified the instruments before grading, as required, and the verification caught a real defect.
+
+**Three of four frozen instruments hash EXACTLY to `PREREGISTRATION.md` §9, in the working tree and
+in the HEAD blob:** `d8_gen_arm.py` `0b8a8b3449363287237e8136aaf13128`, `d8_run_arm.sh`
+`cd66ead4b0dc1a26e460ea6bcc719551`, `d8_stepplan.py` `8be156d5cff3ef373d3bf359eddcb317`.
+
+**`d8_grade.py` differs from §9 by its committed amendment and by NOTHING ELSE, and I checked that
+mechanically rather than reading the commit message.** Working tree `0b1907a994b626d5d869ce159bd181df`
+== HEAD blob, byte for byte. `diff` against the copy in the run root (which is the untouched v1.0,
+md5 `04bba79c2a303bc3cf70af723da81dce`, the §9 value) is **a single purely-additive hunk
+`@@ -403,3 +403,182 @@`** — 0 lines removed, 179 appended at the foot. And `head -405` of the amended
+file hashes to `04bba79c2a303bc3cf70af723da81dce`, so the amendment's own assertion *"lines whose
+number changed above this section: 0"* is true **as arithmetic**, not as a claim. The difference is
+exactly commit `b8039512` and nothing else. **Rule 6 is honoured to the letter.**
+
+**And the amendment does not work.** The frozen v1.0 body's last eight lines are its
+`if __name__ == "__main__":` entrypoint at line 397. Python executes a module body top to bottom, so
+when `d8_grade.py` is run as a script that entrypoint fires while `main` is **still bound to the v1.0
+body**, and `sys.exit(main(sys.argv[1]))` raises `SystemExit` before the amended `def main` at line 429
+is ever evaluated. **AMENDMENT 1 is unreachable when the file is invoked the way it is meant to be
+invoked.**
+
+**Demonstrated, not asserted** — `python3 d8_grade.py <run-root>` exits **rc = 2** with
+`G0 Mesh region0 size: 41760  FAIL` and `REFUSE: G0 failed -- the arm is VOID on identity/activity;
+nothing below is graded`. That is the v1.0 label and the v1.0 string — the exact string AMENDMENT 1
+was written to remove because no DAFoam runtime log ever emits it. **As committed, the D8 grader
+refuses to grade a healthy, completed rung**, which is the precise failure AMENDMENT 1 identified and
+believed it had fixed. The amendment repaired the gate's *text* and never repaired the gate's
+*reachability*, and nothing in the commit demonstrated that the repaired code path executes.
+
+**This is the L-221/L-222 shape one level up: a lesson is not applied until every call site asserts
+it — and an amendment is not applied until something proves the amended path is the path that runs.**
+Proposed as a lesson to the supervisor; I have **not** taken a lesson number, because numbers are
+assigned at commit from the tail of a shared file and this lane was not asked to edit `docs/LESSONS.md`.
+
+## 17. The repair — a disclosed entry shim that edits the frozen instrument by ZERO bytes
+
+`cases/dafoam/ladder-a/A6/curriculum_D8/d8_grade_entry.py`, new file, committed with this report.
+
+The graded quantities now exist, so repairing the grader is inside the zone
+`VERIFICATION_CHARTER.md` §2d.1 fences: *nothing a verdict depends on may be repaired on the authority
+of the verdict it produces.* **I therefore did not repair the grader.** The shim imports
+`d8_grade.py` under a module name that is not `__main__`, which skips the v1.0 entrypoint, lets the
+module body run to completion, and resolves `main` to the amended v1.1 body — **the same bytes frozen
+at 17:00Z on 2026-08-25, before either arm had produced a graded quantity** (arm `opt` ran
+16:51:53Z–18:19:24Z, arm `fd` 18:20:22Z–19:03:44Z). No gate, threshold, band, cap or label is touched
+by anything I wrote; every number below comes out of the committed blob.
+
+**Three controls, and they refuse rather than degrade:**
+
+* **C1** — `d8_grade.py` on disk must hash to the HEAD blob `0b1907a994b626d5d869ce159bd181df`, else
+  refuse. An unverified instrument does not grade.
+* **C2** — the bound `main` must be defined **below line 405**, i.e. it must be the AMENDMENT 1 body.
+  This is the planted control on the defect itself: if the shim ever silently binds v1.0 again, it
+  **refuses instead of grading**. It is shown able to see the non-zero — the direct
+  `python3 d8_grade.py` invocation above *is* the v1.0 case, and it fails at G0.
+* **C3** — the frozen 405-line prefix must still hash to `04bba79c...`, re-proving AMENDMENT 1's
+  append-only property at grading time rather than trusting it.
+
+All three pass, and the tell is visible in the output: G0 now prints the **v1.1 labels**
+`Global Cells: 41760 (runtime)` and `Mesh region0 size: 41760 (generation record)` where the v1.0 run
+printed the single failing `Mesh region0 size: 41760`. **Which labels appear is which `main` ran.**
+
+The grader's own 18-check selftest with its six negative controls passes in the same invocation
+(it is the amended `main`'s first statement), so the planted-zero discipline is intact:
+the FD gate refuses on a 7-component set, a 0-component set, a 1-step component and an `idx6` leak,
+and the RSS reader refuses on missing / empty / unparseable rather than printing `0.000`.
+
+## 18. The step plan was re-derived from the logged adjoints and matches EXACTLY
+
+`PREREGISTRATION.md` §4.1 promised this and it is discharged. I rebuilt the adjoint column **from
+`opt.log`'s nine `ADJ_DERIV` lines**, not from the stored `d8_adj.json` — the rebuilt JSON is byte-equal
+to the stored one — then re-ran the frozen `d8_stepplan.py` on it. The re-derived plan is an **exact
+match** to `fdplan.json`, the file that actually drove the arm: 16 entries, 32 perturbed primals,
+`PLANNED_COMPONENTS 8 of 8 gradeable`, `EXCLUDED_BY_NAME_IN_ADVANCE [('twist', 6)]`. The step rule's
+own selftest reproduces the rem item's registered `{s_lo, s_hi}` pairs and refuses a negative control
+at `J = 1e-9`. **The plan that ran is the plan the frozen arithmetic produces, and no human chose a
+step.**
+
+## 19. Verdicts
+
+Full table, evidence and the two-row disclosure in `RESULTS.md`, committed alongside.
+
+`G0` **PASS** · `G1` **GATE REACHED** (3-major cap, `EXIT: Maximum Number of Iterations Exceeded.`,
+never `PASS`) · `G2` **PASS** (|CL−0.5| = 1.142e-05 vs 5.0e-03) · `G3` **PASS** (drop +1.1134e-04 vs
+1.0910e-04) · **`G4` PASS — aggregate 0.6852 %, band 5.0 %, worst 2.6497 % vs 10.0 %, zero sign
+flips, 8 of 9 components** · `G5` **PASS** (worst plateau 6.78 % vs 10 %, zero failures) ·
+`G6` **PASS** (9.970 GiB vs 11.0 GiB, uncensored) · `G7` **PASS** (min C 16.09× vs 5×) ·
+`P-BASE` **PASS** (cold CD exact to all 17 digits) · `P-η` **PASS** (1.0795e-05, ratio 0.989) ·
+**`twist` idx6 NOT A RESULT, named in advance, and the rung is not downgraded for it.**
+
+**Cost, whole rung: 131.101 core-min actual against 147.3 predicted, ratio 0.890, $0.1121 derived.**
