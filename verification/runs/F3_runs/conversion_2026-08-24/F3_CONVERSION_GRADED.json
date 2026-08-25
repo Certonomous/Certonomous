@@ -1,0 +1,522 @@
+{
+  "family": "F3",
+  "conversion": "F3_CONVERSION_PREREGISTRATION.md",
+  "grading_path_freeze": {
+    "grading_path": "verification/runs/F3_runs/conversion_2026-08-24/grade_f3.py",
+    "prereg_commit": "48b7812a",
+    "sha256": "e7602996cb75fd61e95a51a85910b24cf0a675b6eee05e8b7c3d2e5ae0b88570",
+    "frozen_match": true
+  },
+  "planted_zero_controls": [
+    {
+      "control": "PZ-2_shock_detector_wedge_find_shock_y",
+      "plant_y": 0.3717,
+      "seen_y": 0.3704630788485607,
+      "sample_spacing": 0.0012515644555694619,
+      "passed": true
+    },
+    {
+      "control": "PZ-2_shock_detector_cone_find_shock_r",
+      "plant_y": 0.3717,
+      "seen_y": 0.3704630788485607,
+      "sample_spacing": 0.0012515644555694619,
+      "passed": true
+    },
+    {
+      "control": "PZ-1_surface_pressure_reader",
+      "plant": 0.001234,
+      "seen": 0.0012340000000001794,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F3_runs/conversion_2026-08-24/runs/wedge/M2.0_th15/fine/postProcessing/surfaceSampleDict/3.8997682/p_wedgeSurface.raw",
+      "passed": true
+    },
+    {
+      "control": "PZ-3_beta_fit",
+      "plant_slope": 0.01,
+      "beta_rederived_deg": 44.692792746510406,
+      "beta_planted_deg": 44.98090076004166,
+      "beta_planted_expected_deg": 44.98090076004166,
+      "passed": true
+    },
+    {
+      "control": "PZ-1_surface_pressure_reader",
+      "plant": 0.001234,
+      "seen": 0.0012340000000001794,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F3_runs/conversion_2026-08-24/runs/wedge/M3.0_th15/fine/postProcessing/surfaceSampleDict/2.5999683/p_wedgeSurface.raw",
+      "passed": true
+    },
+    {
+      "control": "PZ-3_beta_fit",
+      "plant_slope": 0.01,
+      "beta_rederived_deg": 31.931111435642887,
+      "beta_planted_deg": 32.3419420562588,
+      "beta_planted_expected_deg": 32.341942056258794,
+      "passed": true
+    },
+    {
+      "control": "PZ-1_surface_pressure_reader",
+      "plant": 0.001234,
+      "seen": 0.0012339999999999574,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F3_runs/conversion_2026-08-24/runs/cone/M2.35_th10/fine/postProcessing/surfaceSampleDict/3.319099/p_coneSurface.raw",
+      "passed": true
+    },
+    {
+      "control": "PZ-3_beta_fit",
+      "plant_slope": 0.01,
+      "beta_rederived_deg": 27.308527036247256,
+      "beta_planted_deg": 27.759042402889623,
+      "beta_planted_expected_deg": 27.75904240288963,
+      "passed": true
+    },
+    {
+      "control": "PZ-4_force_reader",
+      "plant_Fx": 1.234e-05,
+      "cd_rederived": 0.03623736707142858,
+      "cd_planted": 0.037118795642857146,
+      "cd_planted_expected": 0.03711879564285715,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F3_runs/conversion_2026-08-24/runs/diamond/M2.0_eps7p125/fine/postProcessing/forces1/0/force.dat",
+      "passed": true
+    }
+  ],
+  "bands": {
+    "surface_pressure_pct": 0.5,
+    "shock_angle_pct": 2.0,
+    "wave_drag_pct": 1.0
+  },
+  "runs": {
+    "wedge/M2.0_th15/coarse": {
+      "status": "COMPLETE",
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C5_log_step_integrity": true,
+        "_n_time_lines": 3919,
+        "_n_exec_lines": 3919,
+        "_last_time": 3.89966377,
+        "_endTime": 3.9,
+        "C3_last_time_is_endTime": true,
+        "_log_final_time": 3.89966377,
+        "C4_fields_present": true,
+        "_missing_fields": [],
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "T": 6.132,
+          "U": 6.132,
+          "p": 6.132,
+          "rho": 6.131
+        },
+        "ran_before_found": "checked"
+      },
+      "core_s": 6.18,
+      "note": null
+    },
+    "wedge/M2.0_th15/medium": {
+      "status": "COMPLETE",
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C5_log_step_integrity": true,
+        "_n_time_lines": 4040,
+        "_n_exec_lines": 4040,
+        "_last_time": 3.90020142,
+        "_endTime": 3.9,
+        "C3_last_time_is_endTime": true,
+        "_log_final_time": 3.90020142,
+        "C4_fields_present": true,
+        "_missing_fields": [],
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "T": 25.947,
+          "U": 25.944,
+          "p": 25.945,
+          "rho": 25.94
+        },
+        "ran_before_found": "checked"
+      },
+      "core_s": 26.02,
+      "note": null
+    },
+    "wedge/M2.0_th15/fine": {
+      "status": "COMPLETE",
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C5_log_step_integrity": true,
+        "_n_time_lines": 8056,
+        "_n_exec_lines": 8056,
+        "_last_time": 3.8997682,
+        "_endTime": 3.9,
+        "C3_last_time_is_endTime": true,
+        "_log_final_time": 3.8997682,
+        "C4_fields_present": true,
+        "_missing_fields": [],
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "T": 182.51,
+          "U": 182.5,
+          "p": 182.505,
+          "rho": 182.484
+        },
+        "ran_before_found": "checked"
+      },
+      "core_s": 182.71,
+      "note": null
+    },
+    "wedge/M3.0_th15/fine": {
+      "status": "COMPLETE",
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C5_log_step_integrity": true,
+        "_n_time_lines": 8071,
+        "_n_exec_lines": 8071,
+        "_last_time": 2.5999683,
+        "_endTime": 2.6,
+        "C3_last_time_is_endTime": true,
+        "_log_final_time": 2.5999683,
+        "C4_fields_present": true,
+        "_missing_fields": [],
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "T": 184.545,
+          "U": 184.536,
+          "p": 184.54,
+          "rho": 184.52
+        },
+        "ran_before_found": "checked"
+      },
+      "core_s": 184.83,
+      "note": null
+    },
+    "wedge/M2.5_th10/fine": {
+      "status": "PENDING",
+      "completion": null,
+      "core_s": null,
+      "note": "run directory does not exist -- not launched"
+    },
+    "cone/M2.35_th10/coarse": {
+      "status": "COMPLETE",
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C5_log_step_integrity": true,
+        "_n_time_lines": 4431,
+        "_n_exec_lines": 4431,
+        "_last_time": 3.31904242,
+        "_endTime": 3.319149,
+        "C3_last_time_is_endTime": true,
+        "_log_final_time": 3.31904242,
+        "C4_fields_present": true,
+        "_missing_fields": [],
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "T": 15.912,
+          "U": 15.911,
+          "p": 15.912,
+          "rho": 15.91
+        },
+        "ran_before_found": "checked"
+      },
+      "core_s": 16.19,
+      "note": null
+    },
+    "cone/M2.35_th10/medium": {
+      "status": "COMPLETE",
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C5_log_step_integrity": true,
+        "_n_time_lines": 8841,
+        "_n_exec_lines": 8841,
+        "_last_time": 3.31930753,
+        "_endTime": 3.319149,
+        "C3_last_time_is_endTime": true,
+        "_log_final_time": 3.31930753,
+        "C4_fields_present": true,
+        "_missing_fields": [],
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "T": 118.457,
+          "U": 118.455,
+          "p": 118.456,
+          "rho": 118.45
+        },
+        "ran_before_found": "checked"
+      },
+      "core_s": 118.86,
+      "note": null
+    },
+    "cone/M2.35_th10/fine": {
+      "status": "COMPLETE",
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C5_log_step_integrity": true,
+        "_n_time_lines": 17663,
+        "_n_exec_lines": 17663,
+        "_last_time": 3.319099,
+        "_endTime": 3.319149,
+        "C3_last_time_is_endTime": true,
+        "_log_final_time": 3.319099,
+        "C4_fields_present": true,
+        "_missing_fields": [],
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "T": 1150.46,
+          "U": 1150.45,
+          "p": 1150.455,
+          "rho": 1150.432
+        },
+        "ran_before_found": "checked"
+      },
+      "core_s": 1151.22,
+      "note": null
+    },
+    "diamond/M2.0_eps7p125/coarse": {
+      "status": "COMPLETE",
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C5_log_step_integrity": true,
+        "_n_time_lines": 6019,
+        "_n_exec_lines": 6019,
+        "_last_time": 5.99966377,
+        "_endTime": 6.0,
+        "C3_last_time_is_endTime": true,
+        "_log_final_time": 5.99966377,
+        "C4_fields_present": true,
+        "_missing_fields": [],
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "T": 12.573,
+          "U": 12.572,
+          "p": 12.572,
+          "rho": 12.571
+        },
+        "ran_before_found": "checked"
+      },
+      "core_s": 12.33,
+      "note": null
+    },
+    "diamond/M2.0_eps7p125/medium": {
+      "status": "COMPLETE",
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C5_log_step_integrity": true,
+        "_n_time_lines": 6019,
+        "_n_exec_lines": 6019,
+        "_last_time": 5.99964382,
+        "_endTime": 6.0,
+        "C3_last_time_is_endTime": true,
+        "_log_final_time": 5.99964382,
+        "C4_fields_present": true,
+        "_missing_fields": [],
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "T": 39.463,
+          "U": 39.46,
+          "p": 39.461,
+          "rho": 39.455
+        },
+        "ran_before_found": "checked"
+      },
+      "core_s": 39.2,
+      "note": null
+    },
+    "diamond/M2.0_eps7p125/fine": {
+      "status": "COMPLETE",
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C5_log_step_integrity": true,
+        "_n_time_lines": 9129,
+        "_n_exec_lines": 9129,
+        "_last_time": 5.99989277,
+        "_endTime": 6.0,
+        "C3_last_time_is_endTime": true,
+        "_log_final_time": 5.99989277,
+        "C4_fields_present": true,
+        "_missing_fields": [],
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "T": 235.777,
+          "U": 235.766,
+          "p": 235.771,
+          "rho": 235.748
+        },
+        "ran_before_found": "checked"
+      },
+      "core_s": 235.41,
+      "note": null
+    },
+    "diamond/M2.5_eps5/fine": {
+      "status": "PENDING",
+      "completion": null,
+      "core_s": null,
+      "note": "run directory does not exist -- not launched"
+    }
+  },
+  "gates": {
+    "G-F3-1_wedge_surface_pressure": {
+      "M2.0_th15": {
+        "verdict": "NOT A RESULT",
+        "measured": 2.196237603787879,
+        "exact": 2.1946531336077966,
+        "deviation_pct": 0.07219683857182098,
+        "band_pct": 0.5,
+        "triple": {
+          "triple_coarse_medium_fine": [
+            2.294626109090909,
+            2.18680091969697,
+            2.196237603787879
+          ],
+          "increment_coarse_to_medium": 0.10782518939393881,
+          "increment_medium_to_fine": -0.009436684090908809,
+          "refinement_ratio_h": 2.0,
+          "R": -0.08751836323172991,
+          "klass": "OSCILLATORY",
+          "p_dim2": null,
+          "p_dim3": null,
+          "gci_fine_pct": null
+        },
+        "basis": "grid triple is OSCILLATORY (R=-0.0875)"
+      },
+      "M3.0_th15": {
+        "verdict": "PASS",
+        "measured": 2.821769172727273,
+        "exact": 2.821562321277495,
+        "deviation_pct": 0.007331096258916325,
+        "band_pct": 0.5,
+        "triple": null,
+        "basis": "no grid triple -- band only, no discretization-error estimate"
+      },
+      "M2.5_th10": {
+        "verdict": "PENDING",
+        "note": "fine run absent or incomplete"
+      }
+    },
+    "G-F3-2_wedge_shock_angle": {
+      "M2.0_th15": {
+        "verdict": "PASS",
+        "measured": 44.692792746510406,
+        "exact": 45.343616761855984,
+        "deviation_pct": -1.4353156228443258,
+        "band_pct": 2.0,
+        "triple": {
+          "triple_coarse_medium_fine": [
+            47.58767882153372,
+            46.12330850878531,
+            44.692792746510406
+          ],
+          "increment_coarse_to_medium": 1.4643703127484144,
+          "increment_medium_to_fine": 1.4305157622749007,
+          "refinement_ratio_h": 2.0,
+          "R": 0.9768811548699226,
+          "klass": "CONVERGING",
+          "p_dim2": 0.03374503700171001,
+          "p_dim3": 0.05061755550256502,
+          "gci_fine_pct": 169.05996039491623
+        },
+        "basis": "grid triple CONVERGING, p(dim=2)=0.034, GCI(fine)=169.060%",
+        "secondary_all_station_fit_deg": 45.174090372752595,
+        "secondary_all_station_dev_pct": -0.37387046118032236,
+        "detector_quantization_1sigma_pct": 0.7875760337216526
+      },
+      "M3.0_th15": {
+        "verdict": "PASS",
+        "measured": 31.931111435642887,
+        "exact": 32.240400182744665,
+        "deviation_pct": -0.9593204344507863,
+        "band_pct": 2.0,
+        "triple": null,
+        "basis": "no grid triple -- band only, no discretization-error estimate",
+        "secondary_all_station_fit_deg": 32.45713149311334,
+        "secondary_all_station_dev_pct": 0.6722351743160705,
+        "detector_quantization_1sigma_pct": 0.9791129947427123
+      },
+      "M2.5_th10": {
+        "verdict": "PENDING",
+        "note": "fine run absent or incomplete"
+      }
+    },
+    "G-F3-3_cone_surface_pressure": {
+      "verdict": "PASS",
+      "measured": 1.377878471969697,
+      "exact": 1.3739363670377716,
+      "deviation_pct": 0.2869204882046119,
+      "band_pct": 0.5,
+      "triple": {
+        "triple_coarse_medium_fine": [
+          1.3937037454545458,
+          1.3801983696969697,
+          1.377878471969697
+        ],
+        "increment_coarse_to_medium": 0.013505375757576044,
+        "increment_medium_to_fine": 0.0023198977272727017,
+        "refinement_ratio_h": 2.0,
+        "R": 0.17177587420855878,
+        "klass": "CONVERGING",
+        "p_dim2": 2.541400669608918,
+        "p_dim3": 3.812101004413377,
+        "gci_fine_pct": 0.04364979696870282
+      },
+      "basis": "grid triple CONVERGING, p(dim=2)=2.541, GCI(fine)=0.044%"
+    },
+    "G-F3-4_cone_shock_angle": {
+      "verdict": "GATE FAIL",
+      "measured": 27.308527036247256,
+      "exact": 26.73671771893154,
+      "deviation_pct": 2.1386668450736286,
+      "band_pct": 2.0,
+      "triple": {
+        "triple_coarse_medium_fine": [
+          29.514261902985567,
+          28.113172967295345,
+          27.308527036247256
+        ],
+        "increment_coarse_to_medium": 1.4010889356902219,
+        "increment_medium_to_fine": 0.8046459310480891,
+        "refinement_ratio_h": 2.0,
+        "R": 0.5743003963211617,
+        "klass": "CONVERGING",
+        "p_dim2": 0.8001225375681257,
+        "p_dim3": 1.2001838063521886,
+        "gci_fine_pct": 4.968810417388615
+      },
+      "basis": "grid triple CONVERGING, p(dim=2)=0.800, GCI(fine)=4.969%",
+      "secondary_all_station_fit_deg": 27.488362807562954,
+      "secondary_all_station_dev_pct": 2.8112840795682033,
+      "detector_quantization_1sigma_pct": 0.7710015998060326
+    },
+    "G-F3-5_diamond_wave_drag": {
+      "M2.0_eps7p125": {
+        "verdict": "PASS",
+        "measured": 0.03623736707142858,
+        "exact": 0.036331061285517954,
+        "deviation_pct": -0.25789011048439775,
+        "band_pct": 1.0,
+        "triple": {
+          "triple_coarse_medium_fine": [
+            0.0361316645,
+            0.03623603885714286,
+            0.03623736707142858
+          ],
+          "increment_coarse_to_medium": -0.00010437435714286125,
+          "increment_medium_to_fine": -1.3282142857160006e-06,
+          "refinement_ratio_h": 2.0,
+          "R": 0.01272548470787726,
+          "klass": "CONVERGING",
+          "p_dim2": 6.296135580834627,
+          "p_dim3": 9.444203371251941,
+          "gci_fine_pct": 5.905517102050492e-05
+        },
+        "basis": "grid triple CONVERGING, p(dim=2)=6.296, GCI(fine)=0.000%"
+      },
+      "M2.5_eps5": {
+        "verdict": "PENDING",
+        "note": "fine run absent or incomplete"
+      }
+    }
+  },
+  "actual_core_minutes": 32.8825
+}
