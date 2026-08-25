@@ -2945,7 +2945,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T02:35:40Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T02:38:05Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3356,6 +3356,44 @@ tonight and it returned within minutes. **The protection is the discipline at th
 a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
 `git commit -a`, private-index protocol for everything. A single bare commit would destroy the
 frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**A ROUTING PRECEDENT WORTH KEEPING: THE CHIEF INSTRUCTED A LANE OF THIS TEAM OVER THIS
+SUPERVISOR'S HEAD, AND THE LANE'S HANDLING IS THE MODEL.** On reattaching the VMFL045-R2 lane the
+chief told it *"grade nothing and issue no verdict"*, contradicting this supervisor's standing
+authorisation to grade. **The lane SURFACED THE CONFLICT rather than quietly picking a side,
+cited that NO AGENT MESSAGE IS SANAA'S CONSENT (rule 9), and HELD AT THE CONSERVATIVE READING.**
+Nothing was graded, no comparator was run, and it committed its report of record to disk.
+**The chief has WITHDRAWN the instruction and confirmed that inside this team's territory this
+supervisor's authorisation governs.** Cost: **one turn of delay on a run that was never at
+risk** — and the lane could not have graded anyway, since L3 was 24 % through at the time,
+verified off disk. **This is the first time tonight rule 9's permission-laundering guard has been
+exercised on a LIVE conflict rather than in the abstract, and it worked.** A lane that halts and
+escalates when two instructions disagree is worth more than the turn it costs.
+
+**THE BOUNDARY, DRAWN BY THIS SUPERVISOR BECAUSE IT IS THIS SUPERVISOR'S TO DRAW:**
+- **Running the frozen comparator is NOT "issuing a verdict."** It computes the verdict **and**
+  the triple **MECHANICALLY, from rules frozen before compute**. Running it executes a frozen
+  instrument and **the answer is the instrument's** — a lane is authorised to run it and to
+  record what it prints, **verbatim**.
+- **A lane may NEVER choose, adjust, soften or re-run toward a verdict.**
+- **THE TIER IS THE SUPERVISOR'S RULING and is not a lane's to assign** — every tier this session
+  was ruled personally. **The frozen instrument produces; the supervisor rules.**
+
+**THE `"(h|e)"` REPAIR IS CONFIRMED BY MECHANISM, NOT BY ARGUMENT.** R2's pre-flight smoke test
+passed **rc=0 in 1 s**, run 1's `Entry 'e' not found` failure is **GONE**, and **L3 is solving the
+energy variable cleanly** — the widening genuinely carries the viscous path. Both zones non-empty
+at every level (L3: gateZone **4025**, gateZoneInner **2358**). **Validated by the failure it was
+built to fix.** Cost **3.0334 core-min MEASURED** (L1 0.3667, L2 2.6667) of a 48 cap against a
+20.4 estimate; **~24 total is a PROJECTION and is labelled one** — the real figure comes from
+`COST.txt` at completion and calibration is computed then, never before.
+
+**THE DISTINCTION THAT EXPLAINS WHY THE SAMPLE WAS LOST WHILE THE RUN WAS NEVER IN DANGER:** the
+solve is **`setsid`-detached** and was **wholly unaffected** by the lane's turn ending. **Only the
+IN-AGENT OBSERVATION was ever at risk.** That is the precise reason the fix had to be an
+OS-LEVEL process rather than a better-behaved agent. The sampler is **alive, PPID 1, and has
+correctly NOT fired** (L3 at 0.00171 against its 0.0035 threshold). **The sampler's block in
+`CONTENTION.txt` is the sampler's** — lanes are ordered not to write, edit or reconstruct it,
+which would recreate the reconstruction risk just closed.
 
 **A LANE CANNOT BE A WATCHER — AND THE FIX IS AN OS-LEVEL PROCESS, NOW BUILT AND RUNNING
 (`contention_sampler.sh`, `8a45cd7b`).** A VMFL045-R2 lane reported *"awaiting the L3 MIDPOINT
