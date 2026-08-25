@@ -1801,6 +1801,77 @@ I was told `docs/LAB_STATE.md:2427` carries `2 749.14` and that I must reconcile
 
 **A named limitation, recorded rather than left to be discovered:** `check_freeze_set` (224–256) hashes against `HEAD:` rather than the **pinned pre-registration commit**, so it detects an *uncommitted* edit but not a *committed* one. Today the two coincide, so it is not lying.
 
+#### ⚠⚠ THE TIER QUESTION REACHES A GRADED RUNG — I VERIFIED IT MYSELF, AND THE VERIFICATION BOTH CONFIRMS IT AND BOUNDS IT MORE TIGHTLY THAN THE LANE COULD
+
+A lane reported that ruling T2's tier **silently decides T1b**. That is large enough to change this family's direction, so I ran my own sweep and my own diagnostic rather than repeat it upward (SUPERVISION §3 check 3).
+
+**CONFIRMED, under a live planted control.** Across `docs/papers/`: **`dittus` → 0 files. `gnielinski` → 0 files.** Planted controls on the identical reader and flags: **`nusselt` → 14, `reynolds` → 56.** The reader can see; the zeros are real. **Neither correlation behind T1b's band is stated by any source on this box.**
+
+**The band's validity ranges are hard-coded constants with no artifact behind them** — `correlation_band.py:32-33`:
+`DB_VALID = dict(Pr=(0.6, 160.0), Re=(1.0e4, None), note="L/D >~ 10")` and `GN_VALID = dict(Pr=(0.5, 2000.0), Re=(3.0e3, 5.0e6))`.
+**In fairness to the instrument, the CHECK is real and well built** — lines 66-79 refuse a row outside range rather than assume it, and the comment *"validity is checked, not assumed"* is true of the check. **It is the RANGES that cite nothing.** They are asserted from an author's recall, which is the exact thing rule 15 and L-144 exist to forbid, arriving by a route neither was written for: not a mis-identified paper, but **no paper at all**.
+
+**And this is not cosmetic, because the ranges gate ADMISSIBILITY, not presentation.** T1b sweeps `Re = (1e4, 3e4, 1e5, 3e5)` at `Pr = 0.71`. `DB_VALID`'s lower bound is `Re = 1e4` — **the first row sits exactly ON the boundary.** If the true bound were higher, that row should have been REFUSED rather than graded. So an unsourced constant is load-bearing on whether a row was legally graded at all.
+
+**THE PREMISE HOLDS EXACTLY, and I checked it rather than accept it.** `T_FAMILY_INDEX.md:38` records **T1b — tier `FORMULA` — `PASS ×4`**. The tier table defines `FORMULA` as *"a published correlation stated as an equation; reproducible from the formula; **no paper needed to evaluate it**, though **its validity range must be cited**"* — **two clauses pulling in opposite directions**, and T2 satisfies the first while failing the second. T1b is in **identical** standing. **So the definition, not its application, is what is in dispute — and per my own standing constraint that makes it SANAA'S, not mine.**
+
+**⚠ BUT THE LANE'S ESCALATION IS ONE STEP TOO ALARMED, AND THE CORRECTION MATTERS.** It reports that T1b's *"four PASS rows reopen."* **They cannot reopen, because they are already closed by a different rule.** The same index cell reads **`PASS ×4 as returned by the frozen comparator, every grid triple DIVERGENT or STAGNANT`**. Standing rule 5 is unambiguous: **a row whose triple is not `CONVERGING` is `NOT A RESULT`, whatever its value**, and the gate may only turn a PASS **into** NOT A RESULT, never the reverse. **T1b's four rows are ALREADY `NOT A RESULT` on their triples — my own board has carried them that way all session. No live graded PASS is at risk today, and I will not report one.**
+
+**⚠⚠ THE REAL URGENCY IS A DEADLINE, NOT A REGRADE — AND IT IS ABOUT TWELVE HOURS.** The three solvers burning on this box **exist precisely to land a CONVERGING triple for T1b**. The moment they do, rule 5 stops suppressing those rows, the tier question becomes live against a **real** graded value, and the band arming it still cites nothing. **ETAs `R_100k_x` ~04:37Z, `R_10k_x` ~08:51Z, `R_300k_x` ~11:55Z on 2026-08-26.** **The cheapest possible outcome is that the tier is settled BEFORE the first arm lands; the most expensive is that it is settled after, against a number someone has already read.**
+
+**Referred to Sanaa with that deadline attached, and with the T1b coupling named in the referral** — because **a ruling on T2 alone silently decides T1b**, and a decision-maker shown only T2 would not know that. **I am not ruling it and I am not editing a tier.**
+
+#### T12 — STILL BLOCKED, AND I AM TAKING MY OWN RANKING DOWN
+
+The title page **VERIFIES and unblocks nothing: the block was never the paper's identity.** Three measurements, each with its own planted control: the paper is a **pointer, not the data** (*"The benchmark is defined on a web page"*); its measurement primaries **Nielsen 1990, Restivo 1979, Schwenke 1975** return **0 files** against planted controls of 2 and 4; and it states **no measurement uncertainty** — 0 hits against controls of 3 and 9. **The ranking that called T12 "the highest-value zero-compute action on the board" was wrong and comes down.** All three primaries are **sends** — Sanaa's alone. No fetch attempted, none proposed.
+
+#### T5 — I DECLINE TO PROMOTE IT, AND THE OBSTACLE IS MY OWN RULING
+
+Evidence is good: Meinders 1998 held and **title-page verified**, sidecar real at 503,207 non-whitespace characters, stated uncertainty 5 % mid-face / 10 % edges from a printed propagation. **`PENDING`, not `BLOCKED` — document-blocked, not reference-blocked.**
+
+**`T5_CONFIGURATION_RULING.md` §1 puts T5 on the Meinders MATRIX and requires the cell ladder re-derived, not rescaled. The draft on disk is still the SINGLE CUBE.** Promoting it unchanged would **freeze a configuration I have already ruled against**, carrying a superseded ladder (5.4e4 / 2.2e5 / 9.0e5) and a superseded cost.
+
+**A conflict on record that I am resolving against my own earlier convenience.** The draft's line 5 says it freezes *"on Sanaa's reading **or on the supervisor's promotion**"*; **my own later ruling §6 says the twelve INTERPRETATIONs "are hers."** A 20:30Z reading took the first clause alone and concluded I may promote. **That reading is incomplete and I am not acting on it: the later ruling governs, the interpretations are Sanaa's, and T5 is not mine to promote.** The rewrite must also freeze the **Nusselt film-temperature choice** before compute (§5.3 — the thesis reports no `Nu` at all), keep the **two error channels separate and never summed** (§5.2), and **grade no row at or near an edge or corner**.
+
+#### THE RULE-15 EXPOSURE — THE TRUE HALF IS DISCHARGED, AND MY BOARD'S SENTENCE WAS WRONG THREE WAYS
+
+**Ampofo, Betts and Nielsen are VERIFIED**, title pages rendered and read, every filename token matching the printed page:
+- **Ampofo & Karayiannis**, *Experimental benchmark data for turbulent natural convection in an air filled square cavity*, **IJHMT 46 (2003) 3551-3572** — printed abstract 0.75×0.75×1.5 m, walls 50/10 °C, **Ra 1.58e9**.
+- **Betts & Bokhari**, *Experiments on turbulent natural convection in an enclosed tall cavity*, **IJHFF 21 (2000) 675-683** — 2.18×0.076×0.52 m, ΔT 19.6/39.9 °C, Ra 0.86e6 and 1.43e6.
+- **Nielsen, Rong & Olmedo**, *The IEA Annex 20 Two-Dimensional Benchmark Test for CFD Predictions*, Clima 2010.
+
+**My board's sentence was wrong about the number, the folder AND the papers.** A committed record eight days old (`PAPER_INTAKE_2026-08-24.md:20`) already read *"3 of 3, plus `tian_karayiannis_2000` as a fourth"* — **four, not three, and the fourth is in `buoyant_natural_convection`, not `forced_convection_heat_transfer`.**
+
+**⚠ And it pointed at the wrong papers. The real exposure was never Ampofo or Betts — it was `gjesdal_wasberg_andreassen_2003`, which was on NO list.** `K0c_DIFFERENTIALLY_HEATED_CAVITY_GATE.md:70-78` cites it **"READ IN FULL"** as the authority for **every line** of K0c's case specification — geometry, fluid, all four walls, gravity, the `Ra` definition, the rung values — and lines 60/85 take its **Table 1** as K0c's referent `Nu`. **K0c is a GRADED rung.** Now read: *Spectral element simulations of buoyancy-driven flow*, arXiv:physics/0305049v1. **VERIFIED, exact match. Nothing about K0c's numbers moves — but the check that could have moved them had never been made, and it was not the check anyone was watching.**
+
+**Count: 19 territory PDFs. VERIFIED 4 → 10. UNVERIFIED 15 → 9. FAILED 0 of 19.** `wibron_ljung_lundstrom_2018` also read, **closing the K2c-A exposure that rested on a sha256 match** — and **rule 15 says a hash is not verification**.
+
+**Rule 15 vindicated twice inside my own corpus:** Nielsen's embedded metadata says `Title: Microsoft Word - 100128 Full paper.doc`, `Author: pvn`; Ampofo's says `Title: doi:10.1016/…` with no author at all. **A metadata-built manifest would have recorded a Word filename as a title and "pvn" as an author.**
+
+**Two unverified papers remain load-bearing** and each is one reading at zero core-minutes: **`vierendeels_merci_dick_2002`** (K0c's **stated applicability limit**, Nu 8.687 at Ra 1e6) and **`zou_zhao_chen_2018`** (**supplies K0d's case, inside a frozen re-registration**). Scheduled.
+
+#### THE QUEUE — I AM ANSWERING SANAA'S QUESTION HONESTLY: IT IS EMPTY, AND I AM ASKING FOR MORE
+
+**"Bucket A is empty except K0d" is REFUTED in BOTH directions.** **K0d is not in Bucket A at all** — it is `BLOCKED` on a grader that does not exist and supplies **0 cores for the whole window**. **T8 is, and it was never counted.**
+
+| rank | rung | prereg COMMITTED | comparator EXISTS | est. core-min | cores |
+|---:|---|---|---|---:|---:|
+| **1** | **T8** `_c`/`_m`/`_f` | **YES** | **YES** | **335.3 POINT / 595 cap** | **3** |
+| 2 | T3 4th mesh level | NO | reuses `analyse_t3.py` — VERIFY | 9 000-12 000 (bound) | 3 |
+| 3 | T5 matrix | NO — draft, superseded | VERIFY | unregistered | — |
+| 4 | T11 entry arm | **NO — no `T11_*` file exists** | NO | ~300-600 (bound) | 3 |
+| — | K0d / T12 / T2 | — | — | **0 — BLOCKED** | 0 |
+
+**Bucket A holds exactly ONE rung.** Peak thermal occupancy **37.5 % at t = 0, falling to 0 by ~4.8 h.** **Sanaa's 80-90 % band is NOT reachable today by any legal means available to this team, and I will not write a schedule implying otherwise.** Box at 21:17Z: 13 cores free, 27.1 GiB available, three arms live.
+
+**The bottleneck is not cores, not memory, and since her directive not cost — it is COMMITTED PRE-REGISTRATIONS. This team can only write its way out.** She said to ask when the queue is genuinely empty. **It is genuinely empty, and I am asking.**
+
+#### PROCESS FINDINGS
+
+- **`THERMAL_REFERENCE_TITLE_PAGE_AUDIT.md` — 503 lines of finished work, still outside HEAD. TWO lanes have now declined to commit it, which is itself the finding: nobody lands it by accident.** Dispatched explicitly, with its **Tian row corrected on the way in** — the audit currently calls Tian *"never title-page verified"*, and that is **false** against a committed record. **A document wrong about what has been verified is worse than no document.**
+- **Live L-186 evidence, stronger than the lesson:** a lane wrote four rendered title pages into the scratchpad and **four minutes later the directory did not exist**, wiped by another agent mid-task. **The scratchpad is not reliable storage even WITHIN one lane's own task**, let alone between sessions.
+- **HEAD moved three times during one lane's work** (`59c3d8f6` → `c10ba764` → `b530da36`). Every freeze check must capture HEAD **once, inside the same shell invocation** as the `read-tree`, the assertion and the `-p`.
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
