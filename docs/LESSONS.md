@@ -13155,3 +13155,308 @@ At the commit: `analyse_t8.py` scans clean — 8 literally weighted stencils and
 plant targets, the uniform arm plus the two supplementary arms added by its pre-compute
 amendment A1 — and `scripts/analyse_k0d.py`, `analyse_t1b_L4.py` and `analyse_t3.py` all exit 0
 with the scan stating, in each case, exactly which of them it was not competent to judge.
+
+---
+
+## L-327 — NAME THE QUANTITY BEFORE YOU NAME THE PLACE. "Where is it worst" and "where is it made" are different questions, and a localisation answers only the one it was asked
+
+**Found 2026-08-25, cfd, THREE TIMES IN ONE DAY — and the third instance is the supervisor
+committing the error inside the document that coined the lesson, within the hour.**
+
+A localisation is always a localisation *of a named quantity*. Strip the quantity and the
+sentence still reads like a fact about the world — *"the problem is at the trailing edge"* —
+and it is then applied to a different quantity, where it is false. Nothing in the sentence
+warns you, because the quantity was never in it.
+
+### The three instances, with the measurement each rests on
+
+**1. F1 / ONERA M6 — POPULATION is not MAXIMUM.** The `> 70°` **population** is at the sharp
+trailing edge: **516 of 598 severe faces, 86.3 %, in the tip fill**
+(`verification/runs/F1_MESH_TRIALS_2026-08-25/TRIAL_RESULTS.md:143`). The **maximum at the
+registered beta** — which is the number `MESH_STANDARD.md` §3.1 actually gates on — is the
+**outermost wall-normal cell of the far field**, centroid `(1.134134, −13.850016, 1.166844)`,
+`|y| = 13.85` of a `16.118` far-field radius. `te_study/worst_nonortho.py` recomputes every
+internal face with OpenFOAM's own pyramid-weighted algorithm under **two planted controls**
+that make it exit 2 without printing if either fails — agreement with `checkMesh`'s own maximum
+to `< 0.05°` (**achieved to 0.00002°**), and a displaced point that must move the winning
+face's angle. **Both localisations are correct. They are about different quantities.**
+
+**2. F12 / RAE 2822 — ORIGIN is not TERMINUS.** From the 147-row `Q1_crossings` track in
+`verification/runs/F12_runs/terminal_departure_2026-08-25/evidence/terminal_departure.json`:
+`T` first crosses **250 K at iteration 14** at `(0.0078, −0.0118)` — **the leading edge** — and
+first crosses **0 K at iteration 147** at `(2.0819, 0.2694)`, **one chord into the wake**. The
+frozen 15-iteration replication had found the origin; the terminal-departure probe found the
+terminus; the probe's `P3` FAIL (predicted `r < 1.5 c`, measured `1.91791 c`) is a failed
+prediction **about the terminus** and is not a refutation of the origin.
+
+**3. THE SUPERVISOR, INSIDE THE DOCUMENT THAT COINED IT — MAXIMUM is not FLOOR.** §2.1 of
+`verification/campaign/F1_M6_TOPOLOGY_RULING_2026-08-25.md` (commit `3026c90e`) rules **"The
+maximum is NOT at the trailing edge"** and §7 of the same document coins this lesson. **The
+ruling is TRUE of the maximum at the registered beta and FALSE of the dial-invariant FLOOR** —
+and **the floor is what has to be cleared**, because §3.1 must hold for the mesh that is
+actually built. Measured in `F1_M6_TOPOLOGY_RULING_AMENDMENT_2026-08-25.md` (`43daff2f`) §3:
+the floor is **mechanism B, `blk18`/`blk21`, 81.5834°, 444 faces**, at face centroid
+`(1.135483, −0.000732, 1.525873)` — `|y| = 7.3e-04`, **the sharp trailing edge**, not the far
+field. The author named the place for one quantity and then reasoned about a second as though
+the localisation transferred.
+
+### Why the third instance is the most useful and must not be softened
+
+**Coining a rule does not immunise you against it.** The error and its statement sat in the
+same file, and the error still shipped. **A lesson that catches its own author within the hour
+is the strongest available evidence that the failure mode is structural rather than careless** —
+if awareness were sufficient, this instance could not exist. Any retelling that quietly drops
+it keeps the lesson and discards its proof.
+
+### The rules
+
+1. **Every localisation carries its quantity in the same sentence.** Not *"the problem is at the
+   trailing edge"* but *"the >70° POPULATION is at the trailing edge"*. If the quantity will not
+   fit in the sentence, the sentence is not yet a finding.
+2. **Before applying a localisation to a decision, check that the decision's quantity is the
+   localisation's quantity.** §3.1 gates the maximum of the built mesh; a statement about the
+   maximum at one dial setting is not a statement about the floor over all reachable settings.
+3. **A later localisation that disagrees with an earlier one is a signal to check the two
+   QUANTITIES first, and only then the two measurements.** Twice in this family a reader was one
+   step from concluding the earlier localisation was wrong; **both times it was right about a
+   different quantity**, and discarding it would have destroyed a correct result.
+4. **Population, maximum, floor, origin and terminus are five different quantities.** They
+   routinely live in different places on the same object, and none of them substitutes for
+   another.
+
+### The general form worth carrying
+
+**"Where" is not a property of a defect. It is a property of a defect AND a quantity, and the
+answer changes when you change the quantity while keeping the words.**
+
+---
+
+## L-328 — A REPAIR TESTED AGAINST THE WRONG MECHANISM PRODUCES A NULL THAT READS AS A REFUTATION. Before believing a null, establish that the arm COULD have moved the quantity you measured
+
+**Found 2026-08-25, cfd, in the ONERA M6 topology work — and the null had already been written
+into a ruling as "both hypotheses falsified by measurement".**
+
+### What happened
+
+Two independent mechanisms drive non-orthogonality in the M6 butterfly mesh and they are
+**0.36° apart**, so **which one is the maximum depends on the dial setting**:
+
+| | mechanism A — far-field fan | mechanism B — tip-cap fan |
+|---|---|---|
+| blocks | `blk01` / `blk06` | `blk18` / `blk21` |
+| angle | **81.9396°** | **81.5834°**, BETA-invariant |
+| where | outermost wall-normal cell, `|y| = 13.85` | sharp trailing edge, `|y| = 7.3e-04` |
+| reached by `F1_MK`? | **NO** | yes |
+
+The degeneracy hypothesis — that four tip-fill blocks carrying corners of **exactly
+180.000000°** were producing the breach — was tested with the `F1_MK` repair **at the registered
+beta, where mechanism A is the maximum**. `MK` removes all four degenerate corners at any
+`MK ≥ 0.25`, **and the maximum did not move by one digit: 81.9396 with and without.** That null
+was read as falsifying the hypothesis, and the ruling said so.
+
+**`MK` cannot reach mechanism A. The null was structural, not empirical.**
+
+### The re-test, and it inverts the reading
+
+Run at a beta where mechanism **B** is the maximum, both numbers read by this lane directly from
+the two `log.checkMesh` files:
+
+- `verification/runs/F1_MESH_TRIALS_2026-08-25/te_study/b3_BETA_5/log.checkMesh` — **81.5834**
+- `verification/runs/F1_MESH_TRIALS_2026-08-25/te_study/b3_BETA5_MK1/log.checkMesh` — **81.5971**
+
+> **`MK` DOES move the floor — by `+0.0137°`, THE WRONG WAY.**
+
+So the correct reading is **the right block, an ineffective repair** — not *"the degeneracy is
+irrelevant"*. Those two conclusions point at completely different next experiments, and the
+first one is what the null appeared to license.
+
+### Why this is worse than an ordinary negative result
+
+**A null has no signature.** A lever that is *disconnected* and a lever that is *connected and
+inert* produce byte-identical output: the number does not move. The experiment cannot tell you
+which one you ran, so the distinction has to be established **outside** the measurement — and if
+nobody establishes it, the disconnected case is silently reported as the inert case, **with the
+authority of a measurement it never made**.
+
+This is standing rule 3's planted-zero discipline moved from a *reader* to an *arm*: rule 3 says
+a zero from a reader not shown able to see a non-zero is not evidence. **A null from an arm not
+shown able to move the quantity is not evidence either.**
+
+### The rules
+
+1. **Before believing a null, name the mechanism the arm acts on and show it is the mechanism
+   the measured quantity is currently governed by.** If the quantity is a maximum over
+   competing mechanisms, that means naming which mechanism holds the maximum *at the settings
+   the arm ran at*.
+2. **Give the arm a positive control: a configuration in which it MUST move the number.** For
+   `MK` that is any beta where mechanism B is the maximum. It costs one extra build.
+3. **Never write "hypothesis falsified" from a null alone.** The defensible sentence is *"the
+   arm did not move the quantity, and here is the evidence it could have"* — or the null stays
+   uninterpreted.
+4. **A quantity that is a maximum over several mechanisms is a hostile target for lever tests.**
+   Test each mechanism at settings where it is binding, or you are testing the envelope and
+   attributing the result to a part.
+
+### The general form worth carrying
+
+**An ineffective repair and a misdirected repair are indistinguishable in the data and opposite
+in their implications. Only a positive control separates them.**
+
+---
+
+## L-329 — "NO SOLVER HAS RUN" IS NOT "NO GATE HAS FIRED". Check the instrument the GATE NAMES, not the one you expect
+
+**Found 2026-08-25, cfd. The supervisor wrote the false premise TWICE, and it made his own
+proposed route UNLAWFUL under standing rule 2.**
+
+### What happened
+
+Standing rule 2 closes a pre-registration's gates at **first compute**: before it, amendments
+are legal; after it, only dated addenda that cannot alter a gate, threshold, cap or label.
+
+`verification/campaign/F1_M6_TOPOLOGY_RULING_2026-08-25.md` §5 (`3026c90e`) states
+`F13_ONERA_M6_PREREGISTRATION.md` **"is UNFIRED — no solver has ever run under it"**, and
+therefore that a rule-2 amendment was still legal. `F1_M6_TOPOLOGY_RULING_AMENDMENT_2026-08-25.md`
+§7 (`43daff2f`) repeats it — *"a rule-2 amendment to the **unfired** …"* — and recommends taking
+that route.
+
+**Read by this lane from the frozen blob `7456a7b3dc623db28445759bb8a31621882d6133`, which the
+disk copy byte-matches:**
+
+- **line 653, `C1.5 Standing of this document`** — *"**`GATE FAIL` on §5 admission at all three
+  levels; tier `NOT HELD`; V, G and P `PENDING` with no value computed.**"*
+- **line 623** — *"The ladder is closed `GATE FAIL` and this addendum cannot…"*
+- **line 637, `C1.3`** — *"Moot for this ladder, **which is dead**"*
+
+**The gate had already fired and its verdict was already in the document.** Amending it would
+have altered a gate after its verdict — which rule 2 forbids outright. The proposed route was
+not merely inadvisable; **it was unlawful, and it was proposed twice.**
+
+### The mechanism of the error, which is the transferable part
+
+**§5's gate is a MESH ADMISSION gate. Its instrument is `blockMesh` and `checkMesh`, not a
+solver.** The frozen document says so on its own face at **lines 168–169**: *"ADMISSION CHECKS —
+every level, from THREE REAL `checkMesh` LOGS: max non-orthogonality ≤ 70°; max skewness ≤ 4;
+`checkMesh` prints `Mesh OK`"*, and line 545 carries the graded row — *"`checkMesh` prints
+`Mesh OK` | required | **NO** — `Failed 1 mesh checks`"*.
+
+The reasoning that failed was: *no solver has run → no compute → gates are open.* **Each arrow
+is plausible and the first one is simply not true of this gate.** The mesher's compute happened,
+the gate was graded, and the verdict landed — all without a solver ever starting.
+
+> **A gate that a mesher grades is FIRED WHEN THE MESHER RUNS. Checking for a solver is
+> checking the wrong instrument.**
+
+### Where the false premise still stands, so it is not inherited again
+
+`docs/DOCKET.md` row **D527** still asserts *"the document is **UNFIRED**, so the amendment is
+legal under rule 2"* as the justification for its AMENDMENT 1. **That amendment's own content
+is a filename/id correction that alters no gate, band, threshold, cap or label, so nothing
+about it is in doubt — but its stated LEGAL BASIS is the premise corrected here**, and the row
+is the form a later reader is most likely to meet. Flagged, not edited: amending a peer's
+docket row is not this lane's call.
+
+### The rules
+
+1. **To decide whether a pre-registration is fired, read the GATE and identify ITS instrument.**
+   `blockMesh`, `checkMesh`, `decomposePar`, a sampler, a grader and a solver are all
+   instruments, and any of them can be the one a gate is graded by.
+2. **Then look for that instrument's OUTPUT, and for a recorded verdict** — a `GATE FAIL`, a
+   tier, a `NOT HELD`. A verdict in the document is proof of firing that needs no inference at
+   all, and it is cheaper to find than a run directory.
+3. **"First compute" is compute BY THE GATE'S INSTRUMENT, not compute by a solver.**
+4. **The lawful route after a gate has fired is a NEW PRE-REGISTRATION for a successor ladder**,
+   never an amendment. Here `C1.3` had already anticipated exactly that, calling the dead ladder
+   *"binding for its successor."*
+5. **Verify the freeze from the COMMITTED BLOB.** The premise was checkable in one command
+   against a document whose disk copy hash-matches; it went unchecked through two rulings.
+
+### The general form worth carrying
+
+**A negative premise about an instrument you did not name is not a fact, it is a guess wearing
+a fact's grammar — and "no X has run" is only ever evidence about X.**
+
+---
+
+## L-330 — COMPLETION AND PHYSICAL ADMISSIBILITY ARE INDEPENDENT. Standing rule 4 asks whether a run FINISHED and contains nothing that can notice a finished run whose answer is IMPOSSIBLE
+
+**Found 2026-08-25, cfd, on the F12 energy-bound discriminator. Recorded as an OBSERVATION
+ABOUT RULE 4'S REACH — NOT as a proposed amendment. Amending or extending a standing rule is
+reserved; the referral to verification is already made and is not a lane's to press.**
+
+### The observation
+
+Arm 1 of the discriminator satisfies **every limb of standing rule 4**, and its solution is
+**physically impossible**. Both halves are measured, from
+`verification/runs/F12_runs/energy_bound_discriminator_2026-08-25/evidence/discriminator.json`.
+
+**Completion — `arms/arm1/completion_REPORTED_not_claimed`, `ALL_LIMBS_HOLD: true`:**
+`rc = 0`; `End_line_present: true`; `last_written_time 148 == endTime_registered 148`;
+`ExecutionTime_count 148 == endTime`; eleven fields present at the last time
+(`Ma T U alphat k nut omega p phi rho yPlus`); no abort message. *(An honest limit on this
+citation: the JSON enumerates those limbs and records `ALL_LIMBS_HOLD: true`; it carries no
+separately named key for the age guard, so the age guard is asserted by the record and is not
+independently re-derivable from this file.)*
+
+**Impossibility — the flow's own adiabatic ceiling, derived from the boundary conditions
+alone.** From the case's `0/` directory `T = 300 K`, `U = (254.55661283, 12.40536100, 0)`:
+`|U| = 254.8586 m/s`, `a = sqrt(1.4 · 287 · 300) = 347.190 m/s`, **`M = 0.734064`** — which
+independently reproduces the registered `M 0.734`. Hence
+
+> **`T0 = T∞ (1 + 0.2 M²) = 332.331 K`. The entire dynamic temperature of this flow is
+> `32.331 K`.**
+
+`discriminator.json/frozen_constants` carries `T0_K = 332.3309915963` and
+`dynamic_temperature_K = 32.3309915963`. Arm 1's `T_max_over_run = 431.5574594 K`, which is
+**99.2265 K above `T0` — 3.069 dynamic temperatures.** The ceiling is first crossed at
+**iteration 4 of 148** in the control arm (`D3_i_T0 = 4`); against the deliberately generous
+`T0 + 10 K` ceiling, arm 1 first breaches at **iteration 53**.
+
+**And it never converged.** Re-derived by this lane from
+`evidence/arm1/log.rhoSimpleFoam`: the minimum first-solve `p` initial residual over the whole
+run is **6.984446e-04** against the case's own `residualControl { p 1e-06; }` — **698× above
+it, 2.84 orders**, not the "three orders" the round figure suggests. `SIMPLE solution
+converged` **appears zero times** in that log; the `End` line appears once. **Arm 1 stopped
+because 148 is the `endTime` it registered, and for no other reason.**
+
+### Why this is not a criticism of rule 4
+
+**Rule 4 does exactly what it was built to do.** It was paid for by runs that were reported
+done and were not — truncated, crashed, or reading a stale field older than the case's own
+`0/T` — and it catches those. **Every one of its limbs is a question about the RUN as a
+process: did it reach the end, did it write what it should have, is the output younger than
+the launch.** Not one of them is a question about the ANSWER.
+
+**So a run can pass all six limbs on a solution that no flow could produce, and the rule is
+silent by construction, not by oversight.** `endTime` is a stopping condition chosen by the
+author; a run that reaches it has satisfied the author's stopping condition and nothing more.
+**`rc = 0` means the executable did not abort. It has never meant the answer is admissible.**
+
+### The instrument gap this exposes, stated as a gap
+
+`T0` is different in kind from a residual. It is **derivable from the boundary conditions
+before the solver starts** and **checkable at every iteration**, so a monitor asserting
+`T_max ≤ T0 + margin` would have refused arm 1 at iteration 53 — **with a reason**, rather
+than at 148 with a stopping condition. F12 had no such monitor. That is what
+`docs/standards/MONITOR_STANDARD.md` exists to require, and the general clause is **referred to
+verification, not drafted here.**
+
+### The rules, all of which are available today without touching any standing rule
+
+1. **A completion check and an admissibility check are two separate instruments. Passing one
+   says nothing about the other, and a record that reports only completion should say which
+   question it answered.**
+2. **`rc = 0` plus an `End` line is the weakest possible evidence about a solution.** It is
+   evidence about a process.
+3. **Derive the flow's own bounds from the boundary conditions BEFORE launching** — stagnation
+   temperature, stagnation pressure, a positivity floor — and register them. They cost
+   arithmetic and they are checkable from iteration 1.
+4. **Report convergence beside completion, always.** Arm 1's `698× residualControl` and its
+   **absent** `SIMPLE solution converged` line are the tell that its `rc = 0` is a stopping
+   condition and not a result. Neither is visible in a completion check.
+5. **A run that finishes on `endTime` has told you about `endTime`.** Say so in those words.
+
+### The general form worth carrying
+
+**"Finished" and "true" are independent properties of a solve, and every instrument this lab
+has for the first one is blind to the second.**
