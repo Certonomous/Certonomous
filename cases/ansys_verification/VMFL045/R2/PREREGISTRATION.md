@@ -200,3 +200,64 @@ nothing else. R2 makes **no claim about Ansys, about the manual's correctness be
 run 1's recorded findings, about a γ the case does not fix, or about the domain the
 manual left open.** Only a `PASS` is a credential; a `GATE FAIL` or `NOT A RESULT` is a
 finding that is never removed, re-labelled or softened, and it cites run 1.
+
+---
+
+## AMENDMENT 1 (dated pre-compute amendment — CLAUDE.md rule 2) — 2026-08-25T02:20:06Z
+
+**Version:** freeze v1.0 → **v1.1**. This amendment is appended at the foot; **lines
+whose number changed above this section: 0.** No original text above is rewritten;
+where a prior sentence is now inaccurate it is **struck and corrected here**, not
+edited in place.
+
+**Status:** STILL PRE-COMPUTE. **The condition, CHECKED and not asserted**
+(`VERIFICATION_CHARTER.md` §2b.1): at the moment this amendment was written, read with
+`date -u` in the **same shell invocation** as the append, **2026-08-25T02:20:06Z**,
+`verification/runs/ansys_verification/VMFL045/R2/` **does not exist** — the R2 run
+tree is ABSENT (verified with date -u in this same invocation), no `blockMesh`/`topoSet`/`rhoCentralFoam` has run for R2, and
+no R2 solver is running. Run 1's tree at
+`verification/runs/ansys_verification/VMFL045/L1_90x76/` is left in place, untouched.
+
+**What changed, and only this:** one line of the R2 comparator
+`grade_vmfl045_r2.py` — the `--verify-frozen` **success message** — plus the four
+docstring usage lines. The success line previously printed the literal
+`grade_vmfl045.py` (the run-1 filename) while `SELF_REL` and the file itself are
+`grade_vmfl045_r2.py`; a freeze-verification sentence must not misname its own
+subject. It now prints `os.path.basename(SELF_REL)`, so the name is **derived** from
+the path constant and cannot go stale on a future retarget (fixed as a CLASS, not an
+instance). The four docstring usage lines now name the real R2 file.
+
+**This is the FOURTH path-related change in the R2 comparator** (`SELF_REL`,
+`RUN_ROOT`, `OUT_JSON` were the first three). **Correction to §3 (and the summary at
+the head, line 12):** the statements that the comparator is "byte-identical to run 1's
+`grade_vmfl045.py` **except three path constants**" and that "**only these three lines
+differ**" are hereby **STRUCK**. The correct statement is: the R2 comparator differs
+from run 1's by **four path-related changes** — the three path constants above **and**
+the `--verify-frozen` success message (now derived from `SELF_REL`, with the four
+docstring usage lines corrected to match). No logic, no threshold and no numeric
+constant differs.
+
+**What did NOT move — asserted:** NO gate, band, level, `endTime`, solver, zone,
+Roache quantity, plant constant, classifier, reference literal, cost cap or label is
+changed by this amendment. `EPS_ABS`, `STAG_TOL`, `RATIO`, `FS`, `TOL_GATE`,
+`PLATEAU_TOL_MA`, `ZONE_CONSISTENCY_TOL`, the reference literals and the three
+planted-zero controls are untouched. The Fluent-would-fail declaration, the p≈1
+expectation with p≈2 declared suspicious, the three grid levels, the 48-core-min cap
+and every verdict-vocabulary rule stand exactly as frozen.
+
+**New frozen grading path (supersedes the §6 table's comparator row only):**
+
+| what | path | committed blob sha | commit |
+|---|---|---|---|
+| **comparator (THE GRADING PATH)** | `grade_vmfl045_r2.py` | **`382ff4975801c5911277fb463076d1a14dd813c6`** | `d52143aedb2c78956c33563fea1799664217154a` |
+
+The run script, `fvSolution`, `topoSetDict` and all other case blobs in the §6 table
+are **unchanged** and keep their frozen shas.
+
+**Checks run at amendment time, zero solver compute:** `--selftest` → **45 ok, 0
+FAIL**; `--verify-frozen HEAD` → **exit 0**, and its success line now names
+`grade_vmfl045_r2.py` on both sides (defect fixed). The grading path is re-hashed
+against blob `382ff4975801c5911277fb463076d1a14dd813c6` at analysis time.
+
+**No launch is authorised by this amendment.** Compute remains locked pending the
+supervisor's personal re-verification of the changed grading path (their check).
