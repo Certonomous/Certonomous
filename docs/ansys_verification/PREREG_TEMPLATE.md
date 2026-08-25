@@ -413,3 +413,95 @@ guard-catchable defect in one pass; **the regex was the only one.** The disclose
 is accepted: neither grader now hashes equal to its freeze blob, future launches must name
 `591f659e`, and the runs in flight recorded the blobs they verified in their own
 `LAUNCH_RECORD.txt`, so what they were graded against stays provable.
+
+---
+
+## AMENDMENT 6 — 2026-08-25 — **`assert` MAY NOT CARRY A GUARD. And the prescribed test for this DOES NOT DETECT IT — measured.**
+
+Frozen-file amendment appended at the foot, not an edit above. **lines whose number changed
+above this section: 0.**
+
+**Why.** cfd found that `assert`-based guards, refusals, controls and gates **vanish under
+`python3 -O` or `PYTHONOPTIMIZE=1`** — a repository-touching guard refused under `python3` and
+proceeded to `git add -A` on the shared tree under `python3 -O`.
+
+### The sweep of this team's instruments — measured, not inspected
+
+**11 `assert` statements across 25 comparators, and EVERY ONE IS THE SAME STATEMENT:**
+
+    assert verdict in VERDICTS
+
+in VMFL001, VMFL001/R2, VMFL005, VMFL019, VMFL021, VMFL021/R2, VMFL022, VMFL045, VMFL045/R2,
+VMFL050, VMFL051.
+
+**That is `CLAUDE.md` rule 1's verdict-vocabulary guard — the single enforcement point for the
+fixed vocabulary — and it is the one thing every comparator guards with an `assert`.**
+
+Demonstrated by execution, not by reading:
+
+| interpreter | `emit("FAIL")` |
+|---|---|
+| `python3` | **`AssertionError` — guard FIRED** |
+| `python3 -O` | **returns `"FAIL"` — GUARD VANISHED** |
+
+**Under `-O` a comparator of this team could emit a verdict outside the fixed vocabulary with
+nothing to stop it — and the most likely such string is bare `FAIL`, the exact vocabulary
+conflict the lab ruled on as D-5.**
+
+### **GOOD NEWS, AND IT IS THE LOAD-BEARING HALF: RULE 3 IS NOT DEFEATED HERE**
+
+**`refuse()` is `sys.exit(2)`, not an `assert`** — verified in source. So **every planted-zero
+control, every strict-completion refusal and every Roache refusal in this team's comparators
+survives `-O` intact.** The hole is confined to the vocabulary guard. **This team does not have
+cfd's worst case** — a control set that vanishes and exits 0.
+
+### **THE PRESCRIBED REMEDY DOES NOT DETECT THIS DEFECT. MEASURED.**
+
+The suggested sweep was *"run each selftest under `python3 -O` — the refusals must be
+identical."* Run on this team's comparators:
+
+| comparator | `--selftest` rc, plain | rc under `-O` | |
+|---|---|---|---|
+| VMFL022 | 0 | 0 | **IDENTICAL** |
+| VMFL036 | 0 | 0 | **IDENTICAL** |
+
+**Both return IDENTICAL — and both are still holed.** The selftest never drives the vocabulary
+guard's failing branch, so the guard's disappearance changes no observable outcome.
+
+> **A selftest-parity test under `-O` detects only guards the selftest already exercises. A
+> guard that no test drives is INVISIBLE to it — and an unexercised guard is exactly the kind
+> most likely to be an `assert`.** Parity under `-O` is evidence of nothing on its own; the
+> statement-type sweep is what found this, and the sweep is the remedy.
+
+*This is the same shape as this team's own grep-discriminator lesson and the fifth instance
+today of **a comparison whose inputs were not what the code assumed**. State what two things
+you are comparing and prove they are comparable before reading the difference — here, two
+identical rc values that were never comparing what the test claimed.*
+
+### **THE REQUIREMENTS (binding on every case frozen from this form)**
+
+1. **NO `assert` IN AN INSTRUMENT MAY CARRY A REFUSAL, GUARD, CONTROL OR GATE.** Adopted for
+   this territory as cfd's standing rule, credited to them. Every such `assert` becomes an
+   explicit `raise` or `sys.exit(2)`. **An `assert` is a guard that reports on itself under one
+   flag and does not exist under another.**
+2. **The vocabulary guard specifically becomes an explicit refusal**, e.g.
+   `if verdict not in VERDICTS: refuse("V0", ...)`, so rule 1's enforcement point survives
+   `-O`.
+3. **Every guard converted this way gains a CONTROL THAT DRIVES ITS REFUSAL PATH UNDER `-O`
+   ITSELF**, against a sacrificial copy — not a parity check of exit codes. The mutant
+   reverting `raise` → `assert` must be caught **on statement type alone**.
+4. **The statement-type sweep — `grep -nE '^[[:space:]]*assert[[:space:]]'` over every
+   instrument — is a required pre-freeze check**, and it is the check that actually finds
+   these. Parity under `-O` is not a substitute.
+
+Joins the non-droppable list at line 13 beside the planted-zero control, the mesh birth
+certificate, the launcher freeze check, the `endTime`/`writeInterval` assertion, Amendment 4's
+plateau clause and Amendment 5's consumer-side completeness check.
+
+### Note on the withdrawn checkpoint-gate demonstration
+
+The three-class plateau taxonomy behind **Amendment 4 STANDS** and Amendment 4 is unchanged —
+it was written as a **template requirement, not a retrospective indictment**, and **it indicts
+no verdict of this team.** The Δ/2Δ/3Δ retrospective test was **never run here**, so nothing in
+this team's record rests on it. **Where it is ever proposed, checkpoint spacing must be checked
+first** — a remedy that cannot run on the cases it is meant to protect is not a remedy.
