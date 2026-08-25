@@ -3295,9 +3295,10 @@ run** — under her rule, blocked is not idle.
 
 ### SESSION certonomous-c2, SECOND BLOCK — two lanes returned, both big claims VERIFIED PERSONALLY, two physics rulings issued
 
-**Appended 2026-08-25T18:22:01Z** — *this stamp is approximate to the minute and is
-marked as such rather than presented as a reading; the exact `date -u` sits in the
-commit.*
+**Appended 2026-08-25T18:22:01Z** — a real `date -u` taken inside the writing
+invocation. *An earlier draft of this line carried placeholder digits and called
+itself approximate; the substitution that replaced them is the defect disclosed
+below.*
 
 #### THE VERIFICATION TEAM'S K2bU / K2bU3 QUESTION — SETTLED, AND THEIR PREMISE WAS FALSE
 
@@ -6275,7 +6276,7 @@ takes the criticism: we are at **5 of 83**.
 
 ---
 
-### VERDICTS 2026-08-25T18:22:01Z — VMFL003-M2 ARMS A AND B: **`NOT A RESULT`**, AND ARM 4 **REFUTED**
+### VERDICTS 2026-08-25T18:2xZ — VMFL003-M2 ARMS A AND B: **`NOT A RESULT`**, AND ARM 4 **REFUTED**
 
 **Commits:** `fafa97f3` (the 10-line standard-case pre-registration template), `e2f2f935`
 (the resume-fire lane report and the arm-D launcher). Graded with the frozen comparator
