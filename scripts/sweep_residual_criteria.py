@@ -375,8 +375,46 @@ def collect():
             files += [pathlib.Path(x) for x in o.stdout.split("\n") if x.strip()]
     return sorted(set(files))
 
+DEFAULT_OUT = pathlib.Path("/tmp/residual_sweep")
+
+
+def parse_out(argv):
+    """Output directory.
+
+    DEFECT FIXED 2026-08-25: this used `sys.argv[1]` as the output directory
+    unconditionally, so the documented invocation `--selftest` created a
+    LITERAL DIRECTORY NAMED `--selftest` in the caller's cwd -- and since the
+    documented cwd is the repository root, every selftest dropped an untracked,
+    NON-gitignored `--selftest/` there.  A flag and a path are not the same
+    kind of argument and are no longer conflated.
+
+    A bare (non `-`-prefixed) argument, or `--out <dir>`, sets the directory.
+    Writing a direct child of the repository root is REFUSED rather than
+    silently done: repo-root cleanliness is a filing rule (`check_filing.py`
+    R1-ROOT-CLEAN), and an instrument that quietly violates it while auditing
+    other people's hygiene is the wrong instrument.
+    """
+    a = argv[1:]
+    if "--out" in a:
+        i = a.index("--out")
+        if i + 1 >= len(a) or a[i + 1].startswith("-"):
+            print("REFUSING: --out needs a directory argument.")
+            sys.exit(2)
+        out = pathlib.Path(a[i + 1])
+    else:
+        bare = [x for x in a if not x.startswith("-")]
+        out = pathlib.Path(bare[0]) if bare else DEFAULT_OUT
+    out = out.expanduser().resolve()
+    if out == REPO or out.parent == REPO:
+        print(f"REFUSING: {out} is the repository root or a direct child of it. "
+              f"This instrument does not drop working files there. "
+              f"Use --out <dir> (default {DEFAULT_OUT}).")
+        sys.exit(2)
+    return out
+
+
 def main():
-    scratch = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/f13sweep")
+    scratch = parse_out(sys.argv)
     scratch.mkdir(parents=True, exist_ok=True)
     ok, plants = plant_and_verify(scratch)
     print("=" * 78); print("PLANTED CONTROL (standing rule 3) -- run BEFORE any zero is believed")
