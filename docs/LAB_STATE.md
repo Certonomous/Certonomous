@@ -2259,6 +2259,55 @@ That is **L-325 verbatim**: *"not found" is the return value of two different si
 #### OPEN, HONESTLY UNVERIFIED (**VERIFY**)
 
 **The corrected physical values are NOT verified by any solve** — that is Limit 1 and it is the acceptance test, unrun at this writing. **Whether other items in this family carry the same defect is NOT ESTABLISHED** — the sweep is commissioned and its precedent (`D8-DEF-2`, 101 files, blast radius exactly one) says it may well come back as an instance. **The 125 rows are not fully decomposed** (81 + 101 line-search ≠ 125); not needed, the `inf_pr` contradiction is decisive alone. **Whether pyHyp can meet cfd's other requirements — cell count, y+, FFD, campaign topology — is NOT measured and NOT asserted.** **D12's δ_repeat and checkpoint envelope remain unmeasured**, and this session's timings are **contended** with two other lanes live.
+
+#### UPDATE 2 — TWO FD PAIRS BOUGHT: D10-F′ `PASS`, D12-F′ `NOT A RESULT` — AND A CATCH THAT AMENDS MY OWN PRE-COMPUTE CHECK (2026-08-25T21:52Z)
+
+Lane commits `120dddd2` (pre-registrations, **before** compute), `4d9d902b` (results + amendments + calibration), `8fe3402a` (D12-proper recovered + defect record). My rulings at **`43318484`**.
+
+**`D10-F′` — `PASS`. CHARTER §2 IS NOW SATISFIED FOR D10-P′.** Adjoint `d(HFX)/d(patchV[0]) = 1.9771502962421681e+02`, central FD `1.9771503832566850e+02`, **relative error `4.401007e-08`** against a `5.0e-2` band, at `h = 1.000e-03`, **δ_repeat exactly `0.000000e+00`**. Plateau established over all six registered steps, adjacent values agreeing to `1.3e-07`–`1.9e-04` against a registered `1.0e-2` — **the step is PROVED to lie in the plateau, not asserted.**
+
+**The corroboration nobody designed in:** the error column is a clean **V with its minimum exactly at the reference step** — `2.3e-06, 3.9e-07, 4.4e-08, 1.8e-07, 6.3e-06, 2.0e-04`. Roundoff rising as `h` falls, `O(h²)` truncation as it grows. **The reference-step rule is POSITIONAL over the plateau and never reads the adjoint, yet it landed on the step that independently minimises disagreement. A grader fitting the step to the answer cannot produce that.** The §7 2.5–5 % harness-floor caveat **travels with the number**: the escape is legitimate and narrow — the floor is calibrated on `shape` DVs **through IDWarp** and `patchV` has no warp in its chain — but all three supporting facts are consistency arguments and **none is an independent measurement.**
+
+**`D12-F′` — `NOT A RESULT` on both components. CHARTER §2 IS STILL NOT SATISFIED FOR D12.** All 24 stages `rc=0`, `OOMKilled false`, **every control passed — this is not a failed run.** Longest run of consecutive FD steps agreeing to 1 %: **one**, on each component. No plateau, so no admissible step, so **no FD table.** **Not a tolerance artifact, and the lane checked that against itself:** at 2 %, 5 % and D12-proper's own registered 2 %, neither component plateaus; component 3 needs **10 %**, component 0 needs **50 %** — wider than the charter's entire FAIL threshold.
+
+**THE HEADLINE, AND IT IS AN N-D NUMERICS FACT THIS FAMILY DID NOT HAVE: δ_repeat is exactly `0.000000e+00` while the objective's PERTURBATION-RESPONSE floor is ≈ `1.65e-06` absolute (`1.8e-05` relative) on component 3 — THREE-PLUS ORDERS ABOVE IT — and ≈ `8.4e-09` on component 0. THE FLOOR IS COMPONENT-DEPENDENT.** Model-free proof: the FD signal at `h=1e-5` is `1.05e-06`, **smaller** than `3.07e-06` at `h=1e-6` — **a linear response cannot do that**; from `h=1e-4` up it scales cleanly 10× per decade. Noise and truncation cross at **~5 %**: **on this window an FD verification could not have beaten ~5 % even in principle.**
+
+**A repeat-only noise estimate said this objective was noiseless. IT IS NOT NOISELESS WHERE IT MATTERS — under perturbation — and δ_repeat cannot see that.** Sized off δ_repeat alone, D12-proper would have chosen a step inside the noise floor and produced a table whose disagreement had nothing to do with the adjoint. **This is the split that vindicates my buy-the-pairs ruling more than two passes would have.** The lane correctly **refused to bank** component 0's 30–46 % gap: the central estimate nearly coincides with the plant-implied one-sided estimate, so it is not curvature, but without a plateau it cannot be separated from an unconverged FD. **A gap that cannot be attributed is not evidence in either direction.** Both probes' `GATE REACHED` reachability verdicts are **untouched**, as my ruling fenced.
+
+#### D12-PROPER — `PENDING`, AND IT COULD NOT HAVE FIRED. MY OWN CHECK IS AMENDED.
+
+**The pre-registration names FOUR instruments and TWO DO NOT EXIST** — `d12r_series.py` and, decisively, **`d12r_stage_and_run.sh`, THE LAUNCHER. There is nothing to run.** **I verified it myself, applying L-325's own prescription I had failed to apply four hours earlier:** a predicate naming each file, **plus a planted name I knew existed** to prove the enumeration returns what it should. `git log --all` returns nothing on any branch for either.
+
+**HAD THE LANE OBEYED ITS BRIEF AND COMMITTED THAT DOCUMENT AS A v1.0 FREEZE, MY NON-DELEGABLE CHECK #4 WOULD HAVE RETURNED TRUE WHILE CERTIFYING A DOCUMENT RATHER THAN AN ARMED ITEM.** The gates would have closed against a half-absent instrument set. **That is a defect in the check as I have been running it, and it is mine, not the lane's** — rule 2 freezes the gate; it never asks whether the thing the gate grades can run.
+
+**AMENDED, EFFECTIVE NOW, FOR EVERY ITEM IN THIS FAMILY: my pre-compute check is that the pre-registration is committed AND that EVERY INSTRUMENT IT NAMES EXISTS — by a predicate naming each file, with a planted control proving the enumeration can return a name it should find. A pre-registration naming an absent instrument is NOT ARMED; it is a plan.** **Twice today "not found" has been the return value of two different situations, and both times the instrument was mine.**
+
+#### MY FOUR RULINGS ON D12-PROPER (`43318484`)
+
+1. **THE LAUNCHER IS AUTHORED BY THE LANE THAT FIRES IT.** The lane declined and **flagged the judgement as mine** rather than quietly doing either thing — right to raise, and I rule the other way **because of `D4-DEF-4`**. A launcher is not an auditor, but it **IS A PRODUCER, and D4-DEF-4 proved the producer is where invisible corruption lives.** Separation would not have caught it. Three conditions: **I read it personally as a diff**; **it writes the ACTUAL perturbation per component and the comparator reads it back and REFUSES on mismatch — a count of stages is not a witness of WHAT was perturbed**; the step rule stays **positional, never reading the adjoint.**
+2. **`δ_eff := max(δ_repeat, δ_window, δ_pert)` APPROVED.** Pre-compute (run root absent by `test -e`, prereg uncommitted), measured not preferred, and **it can only RAISE `h_min`** — it can cause a `NOT A RESULT` and cannot manufacture a `PASS`. **Condition: `δ_pert` MEASURED for D12-proper's own configuration, never imported** — the floor is component-dependent, so it is a property of a configuration (charter §5).
+3. **G12R-0 MUST carry the age guard and `ExecutionTime` count — REQUIRED.** Rule 4 is a standing rule, not a preference and **not mine to waive.**
+4. **The `δ_window ≡ 0` hazard is resolved BEFORE the freeze.** `δ_window` is identically zero whenever `W` divides the shedding period and **`W = 300` is registered.**
+
+#### THE SELFTEST DEFECTS — `M3` IS THE ONE THAT MATTERS
+
+Three gaps, and **in all three the gate logic was right and the TEST was wrong.** **`M3`: deleting the sign-flip override ENTIRELY left the whole selftest passing**, because `U-09s`'s aggregate is 160 % and the override is never load-bearing there — repaired with `U-09s2` at an aggregate of **0.1414 %**, inside the PASS band, one flipped component. **A control that is never load-bearing in any unit is not tested, however many units reference it** — the `D4-DEF-1` shape again. **`U-09c`** asserted the CONDITIONAL band from a **per-component** error when the statistic is **vector-relative** (20.02 %, the FAIL band) — **precisely the confusion charter §2 forbids**, and until repair **the CONDITIONAL band had never been exercised by a passing unit.** After repair: **exit 0, 40 units, 6 of 6 mutants caught, all repairs to FIXTURES, no gate or band changed.**
+
+#### COST — `C-85`, `C-86`
+
+D10-F′ **1.7501** actual / 1.9339 predicted = **0.905×**; D12-F′ **3.2504** / 4.3544 = **0.747×**; **5.0005 core-min, $0.004275 DERIVED, not measured**, zero waste, both gaps misprediction on the `run_model` anchor. **D12-F′'s zero waste is argued and I endorse it: a `NOT A RESULT` from a sweep that ran correctly is a PURCHASE, and calling it waste would make the ledger punish the lab's most useful outcome.** **The hand-derivation caught a live collision** — first read `C-83`, re-derived **inside the committing invocation** returned **`C-84`**, a peer's **bold-format** row landed mid-work. Second independent confirmation of that rule in one day.
+
+#### BOX AT 21:49Z — SATURATED, AND DAFOAM IS THE REASON
+
+**Load 16.05 on 16 cores, MemAvailable 17 GB (from 27 GB at 21:07Z), three containers.** Dafoam went from **zero contribution** at session start to **filling the box**. Sanaa's utilisation directive is met; the memory guard is now the live constraint and the D12 lane is ordered to do all zero-compute work first and fire only on real headroom.
+
+#### RUNGS WITHOUT VERDICTS
+
+**D4** `BLOCKED`, repair authorised and fenced, **bright line still uncrossed**. **D7** frozen, mesh clear, firing. **D12-proper** `PENDING` — launcher being authored under ruling 1. **D12 (the capability)** — §2 **unsatisfied**, and now known to be unsatisfiable below ~5 % on that window. **D5, D6, D14** prerequisite-queued on D4. **D15** in drafting.
+
+#### FOR THE NUMERICS RECORD (N-D family), offered to the chief
+
+**A time-averaged unsteady objective can have δ_repeat exactly zero and still be noise-limited under perturbation, and the perturbation floor is COMPONENT-DEPENDENT.** Consequence: **an FD step sized from repeat noise alone is sized from a quantity that does not bound the error it is meant to bound.** No `N-` id taken — ids at append time only.
 ### NINTH SESSION — CUSTODY AFTER THE FLEET KILL, three lanes re-attached
 
 **Section block written:** 2026-08-25T19:07:01Z by dafoam-supervisor (NINTH session, formed ~19:00Z 2026-08-25 after a session usage limit killed the eighth fleet mid-work). Opus 5. **The eighth session's block below is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in it is superseded and this session re-opens none of it.**
