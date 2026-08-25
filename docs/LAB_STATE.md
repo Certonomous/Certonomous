@@ -1727,6 +1727,30 @@ Live at 20:20Z: **30 GB total, ~18 GB available, load 7.05/16.** D4's four ranks
 |---|---|---|---|
 | 2359929–2359932 | `/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O` (container `/mnt/O`) | `d4_opt_runScript.py -task run_driver -optimizer IPOPT`, np=4 | **CONVERGED at 80 majors; ranks still at 100 % CPU in a post-driver stage.** ~11.7 GB. Custody held; **untouched** |
 
+#### I RAN THE BLINDNESS CHECKER OVER MY COMPARATORS AS INSTRUCTED. IT WENT RED ON THE FILE THE CONSTITUTION CITES AS THE REFERENCE — AND THE CHECKER IS WRONG, NOT THE COMPARATOR
+
+**Selftest first, because an unchecked instrument is not evidence:** `scripts/check_grader_self_blindness.py --selftest` **PASSES** — each probe shown able to FIRE on a planted defect and to STAY QUIET on its clean counterpart. So the probes work in principle.
+
+Swept six comparators. **Five clean on both probes** (`analyse_t1b_L4.py`, `mark_done_t1b_L4.py`, `analyse_t3.py`, `mark_done_t3.py`, `analyse_k0cs.py`) — the checker's own words, *"clean on both probes (NOT a proof of correctness)"*, and I repeat that caveat rather than upgrade it.
+
+**`analyse_t10a.py` EXITS 2 with two ERRORs.** That file is cited **in CLAUDE.md standing rule 3 itself** (`T10a_runs/analyse_t10a.py:846`) as a canonical planted-zero implementation. I triaged it personally rather than accept or dismiss the red (SUPERVISION §3 check 2 — a refusal is a finding until triage says otherwise).
+
+**BOTH ERRORS ARE FALSE POSITIVES, and the cause is structural rather than lucky:**
+
+1. **`m["geometry"]` "differing key sets" is three MUTUALLY EXCLUSIVE branches on `spec["kind"]`** — `spheres` (L480), `box` (L499), else (L501). The probe reports the keys are *"READ ELSEWHERE"* at L475, L485, L486, L492 and would therefore raise. They would not:
+   - **L485/L486 sit INSIDE the spheres branch**, three lines below the spheres write, guarded by the very branch that created the keys.
+   - **L475 and L492 do not read `m` at all.** L475 is `REG["spheres"]["r1"]`; L492 is `Lr = (REG["box"]["Lx"], REG["box"]["Ly"], REG["box"]["Lz"])`. **These are reads of `REG`, the registration constants — a DIFFERENT dictionary that merely shares key names.**
+   - The one genuine cross-branch read, **L838, is correctly defensive**: `m["geometry"].get("facet_deficit_inner")` — `.get()`, safe on all three branches.
+2. **`m["rowsum"]` "differing key sets" is not two branches at all — it is INITIALISE-THEN-POPULATE in sequence.** L541 is `m["rowsum"] = {}`; L545 fills `m["rowsum"][p] = dict(min=…, max=…, mean=…, max_defect=…)` inside the loop. They are consecutive statements, not alternatives. The read at L832 is guarded by `if "rowsum" in m`.
+
+**SO THE DEFECT IS IN THE CHECKER, AND IT IS A FALSE-ALARM INSTRUMENT — which is not the harmless failure direction.** Two blind spots, both demonstrated above:
+- **It does not track the BASE OBJECT of a subscript**, so `REG["box"]["Lx"]` is counted as a read of `m["geometry"]["Lx"]`. Key-name matching without container identity.
+- **It does not distinguish mutually exclusive branches from sequential initialise-then-populate**, so every `d = {}` followed by `d[k] = …` reads as two conflicting writes.
+
+**Why this matters beyond one file:** the checker goes **red on the exact implementation the constitution holds up as correct**. Anyone sweeping the corpus meets that red first and learns the tool is noise — and a checker that has taught its readers to ignore it will not be believed on the day it is right. That is the same failure class as `docs/MEMORY_ARCHITECTURE.md`'s "evidence annotated as non-binding", arriving by a different route.
+
+**`analyse_t10a.py`'s recorded verdict is NOT disturbed** — its branch structure is sound and its cross-branch reads are correctly guarded. **No T10a regrade is owed.** I am not editing the checker: it is a **cross-team instrument under `scripts/`, so widening or repairing it is not mine to do alone (rule 9, ESCALATION)** — **referred to the chief for the verification team**, with the two blind spots named above and a reproduction that costs zero compute (`python3 scripts/check_grader_self_blindness.py verification/runs/T-family/T10a_runs/analyse_t10a.py`, rc=2).
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — converged, no `RESULTS.md`, FD table and both toolchain rows outstanding. **D7** — firing, cap-stop registered in advance as the expected outcome, so its ceiling verdict is `GATE REACHED` and a convergence would be a **genuine surprise on the record**. **D10, D11, D12** — probes arming.
