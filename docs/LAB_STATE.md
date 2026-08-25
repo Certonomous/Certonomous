@@ -8394,3 +8394,93 @@ guessed or "typical" value for an input it could not read.**
 **Practice earned tonight, three lane drops in one hour:** the lane that produced the sha
 result **wrote to disk and committed BEFORE interpreting.** It survived; two lanes that
 reasoned first lost everything. **Measure, commit, then reason.**
+
+---
+
+### 2026-08-25T21:34Z — **COMPUTE IS LIVE, PROPERLY GATED. D-6 CLOSED. And the PROFILE blocker turns out to be smaller than anyone thought.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+**Last commits (mine, this session):** `3fa6058d` VMFL036 pre-freeze finding · `d02f5ff0`
+board · `e3c94d67` census b6 · `dbae2004` D-6 record/disk divergence · `dccfea07` **D-6
+CLOSED** · `6f65e2d5` census b7, manual fully classified · `215df545` census b8,
+reference-KIND of the PROFILE population.
+
+**LIVE COMPUTE — the first of this session, and it is correctly gated.**
+
+| pid | solver | cwd |
+|---|---|---|
+| 2630005 | `interPhaseChangeFoam` | `verification/runs/ansys_verification/VMFL021/L2` |
+| 2631444 | `interPhaseChangeFoam` | `verification/runs/ansys_verification/VMFL022/L3` |
+
+**§3 check 4 done personally, on evidence rather than on a lane's word:** both
+pre-registrations committed at **21:31:35** (`605d5593`); earliest run artifact at
+**21:32:35** — **compute started 60 s AFTER the freeze**, and the on-disk pre-registration
+blob still **hashes equal to the HEAD blob** for both. No drift, no ordering violation.
+
+**Verdicts: none yet.** VMFL021 (ref 0.620) and VMFL022 (ref 0.780) are running; VMFL036 and
+VMFL023 are with the other opus lane, not yet frozen. **Core-hours burned by this team so
+far: essentially zero** — 2 cores live for a few minutes against 3 held by heat-transfer.
+Box load 5.67 of 16.
+
+**D-6 IS CLOSED** — the question this team was created to answer. 123/123 sha match, **the
+planted-corruption control FIRED**, both partial copies absent, `VMFL011B.wbpz` complete at
+670,152 bytes. **The standing "neither copy is moved or deleted" hold is RETIRED; it has
+nothing left to protect.** Two matters recorded honestly rather than tidied: the ruling's §3
+said two steps were never taken when both were done (superseded by dated notes, **not
+edited** — the divergence is the finding), and **I nearly re-ruled a closed item** because my
+brief and this board's CHIEF section still carry the pre-ruling two-copy text. **That stale
+CHIEF text should be struck by whoever owns it.**
+
+**THE MANUAL IS NOW FULLY CLASSIFIED** — VMFL001–078, VMFLGPU001–010, VMFRT001–007. **15
+DISCRETE, 65 PROFILE, 1 UNCLEAR of 81 unrun.**
+
+**AND THE PROFILE BLOCKER IS SMALLER THAN IT LOOKED.** `PROFILE` describes **the form the
+manual prints**, not **where the reference comes from**. A PROFILE case whose reference is
+analytic needs no digitiser: the curve is **evaluated** from the closed form, at any
+resolution, zero digitisation error, gated pointwise. **Up to 9 cases move from ungateable to
+gateable today, 5 of them on the manual's own words** — VMFL033, VMFL070, VMFL074, VMFL076,
+VMFLGPU004 (Tier 1, the page itself says *analytical*). **Tier 2 — VMFL020, VMFL038, VMFL061,
+VMFLGPU010 — is derivable physics the manual does NOT confirm plots an analytic curve, and no
+Tier-2 case may freeze against a lab-derived curve until its figure's provenance is pinned.**
+Gating against our own derivation is legitimate but is **not** "reproducing the manual's
+reference". VMFL045 is analytic too but has already run.
+
+**Useful adjacency found:** **VMFL017 and VMFL041 are the same RAE 2822 case** (same
+Cook/McDonald/Firmin AGARD AR-138) — one gated on integrated coefficients, one on surface Cp;
+**one solve yields both.** And six VMFLGPU cases duplicate VMFL parents (013=GPU007,
+052=GPU005, 066=GPU008, 069=GPU009, 071=GPU006, 061=GPU010).
+
+**A PATTERN IN THE READING LANES, now four instances: correct tables under incorrect summary
+counts.** A Taylor number matching neither its own formula nor any standard group (real
+values: gap Re 2.535, Ta 10.28); "17 cases" over a 24-row table; code-to-code "1" where it is
+2; "21 + 3 = 24" where it is 22 and 7. **The tables are the data; these lanes' summary
+arithmetic is not to be quoted.** Every count in the committed census is my own recount.
+**My own gap-check script was also wrong once tonight** — it stripped leading zeros and
+returned garbage; caught and redone.
+
+**Rungs without verdicts.** VMFL021, VMFL022 (running), VMFL036, VMFL023 (freezing),
+VMFL017/041, VMFRT005, VMFLGPU001–010. **Contested, needing bespoke documents rather than the
+ten-line form:** **VMFLGPU002** (manual omits the inlet velocity; parent VMFL010 omits it too)
+and **VMFRT005** (manual omits start-of-injection, and supplies nothing from which any
+governing group could be formed).
+
+**Next actions.** The Tier-1 analytic five are the best next batch — cheap, closed-form,
+buy V, no instrument needed; **VMFL033 (viscous heating in an annulus) is the natural first.**
+Then VMFL017+VMFL041 as one solve. Resolve the two `<PIN>` tags in `build_gpu_solver.sh`.
+
+**On Sanaa's desk.** Per-item GPU cost sign-off (GPU spend sits outside the 2026-08-21
+blanket, which was given when no GPU could launch); and confirmation that the instance's
+shutdown behaviour reads **`stop`, not `terminate`** — `terminate` destroys the root volume
+and the AMI work with it.
+
+**Blocked.** GPU boot — on the two `<PIN>` tags (mine) and her sign-off. **No HDF5 tooling on
+this box** (`h5ls`/`h5dump`/`h5copy`/`h5py` all missing) while **77 of 123 archives are FLUENT
+`.cas.h5`** — so the archive route for a manual-omitted input is **open for CFX cases and
+closed for FLUENT ones.**
+
+**VERIFY.** A **2-case reconciliation gap** in the census: family totals give 65 PROFILE,
+a row-level parse finds 63. **Two cases could be hiding in it.** Recorded as open, being
+reconciled; **no completeness claim may rest on these totals until it closes.** Also still
+open: the `append_record.py` id-collision **mechanism** (values C-83 / L-325 / D901 / D-14 are
+measured and fine).
