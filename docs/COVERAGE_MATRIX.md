@@ -108,6 +108,93 @@ them by path and quotes them, and does not commit another team's work.
 
 ---
 
+## 2.2 Three gaps in the rubric, and this team's rulings on them
+
+The chief's rubric is three sentences long, which is a virtue. Applying it to real
+rows exposed three places where it does not say what to do. **Each is ruled here,
+by the verification supervisor, and each ruling is disclosed as a ruling so the
+chief or Sanaa can overturn it.** A rubric gap filled silently is how a matrix
+starts meaning something other than what it says.
+
+### Ruling 1 — a row missing MORE THAN ONE of V / G / P is still `GATE REACHED`, and names them all
+
+The chief's wording is *"GATE REACHED (missing one of V/G/P — name which)"*. Rows
+exist that are missing two. The four other tiers do not fit them: `SURVEYED` means
+*ungated*, and a row that armed a pre-registered gate and passed it is not ungated;
+`NOT HELD` means the answer was no, and it was not; `NEVER RUN` is false.
+
+**Ruling: `GATE REACHED` is assigned when AT LEAST ONE of V / G / P is missing, and
+the row names EVERY missing letter.** `SURVEYED` is reserved for rows with no
+pre-registered gate at all. This is a minimal widening of the chief's wording in the
+only direction that does not force a row into a tier that says something false about
+it, and naming every missing letter means the widening costs the reader nothing —
+a row missing two is visibly weaker than a row missing one, on the face of the cell.
+
+### Ruling 2 — an UNSETTLED observed order still scores `G`; it does not license the word "asymptotic"
+
+The rubric asks G for *"a CONVERGING Roache triple, with GCI at Fs = 1.25 and an
+observed order p"*. It does not ask that p have **settled**. `VERIFICATION_CHARTER.md`
+§3.4 is directly on point and holds the two apart:
+
+> *"A conclusive ladder has earned a quotable band. It has not thereby shown that it
+> is in the asymptotic range, and the two are separate claims with separate
+> evidence."*
+
+**Ruling: `G` is green on a CONVERGING triple with a GCI at Fs = 1.25 and a quoted
+observed order, whether or not the order has settled** — the band is what the guards
+certify, and the band is what G is asking about. **But §3.4 also requires the record
+to state which of the two claims it is making, so every G-green row in this matrix
+additionally carries an `order settled?` disclosure, and a row whose order is still
+moving quotes the sequence.** No row in this file may be called asymptotic on the
+strength of a green G.
+
+This is the ruling that keeps the flat plate scorable: under the opposite ruling the
+lab's best verification result would score no G at all, which would be a statement
+about the rubric rather than about the plate.
+
+### Ruling 3 — a benchmark reached THROUGH a secondary source does NOT make `P` green
+
+This is the hard one, it is the one the lab's single cleanest gate PASS turns on, and
+**the charter has already settled it twice.** `VERIFICATION_CHARTER.md` §6b's mapping
+table adjudicates two rows of exactly this shape and both come out the same way:
+
+- F5a, where no primary reporting the value could be found and the lab fell back to a
+  secondary reproduced as a figure in a 2014 thesis, is recorded as **`NOT OBTAINED`
+  as a primary. What is held is SECONDARY**, and the row is graded *BANDED and LOWER
+  CONFIDENCE*.
+- F7, where no tabulated Martin & Moyce (1952) data could be located and the lab
+  digitised a 2021 figure at 600 dpi, is likewise **`NOT OBTAINED` as a primary**.
+
+**Ruling: `P` is green only against a source the lab HOLDS and can read. A value that
+reaches the lab through a third party is `SECONDARY`, and `SECONDARY` does not score
+P.** The reference is recorded as `NOT OBTAINED` as a primary, in those two words,
+with §6b's four fields — what is missing, which row it blocks, why it was not
+obtained with the availability check named and dated, and the acquisition path with
+its price.
+
+**What this ruling does NOT do, and §6b says so in its own words:** *"`NOT OBTAINED`
+is a statement about a document, never about a verdict, and it changes no tier by
+itself."* No gate verdict anywhere in this lab moves because of this ruling. A row
+whose gate returned `PASS` still returned `PASS`; the matrix is recording that a
+different column was never filled. **The verdict column and the tier column say
+different things and §1.1 is why they are printed separately.**
+
+### A consequence worth stating in advance of the rows
+
+Ruling 3 bears directly on **K0c**, the laminar square cavity, which the
+heat-transfer contribution calls *"this family's ONE CLEAN GATE PASS"* — 0 of 20
+graded rows failed, largest deviation **1.139 %** on a **3 %** band, **41.73
+core-min**. That family's own file discloses that K0c's reference is **de Vahl Davis
+(1983) reached through Han and Xie (2019) Table 3**, the original **paywalled and
+never read**. Under Ruling 3 that is `SECONDARY` and P is not green. The `PASS`
+stands; the tier is under audit and this team has not yet entered it.
+
+**The disclosure is the family's own, made in its own contribution, unprompted.**
+That is the behaviour this lab is trying to produce, and it should be read as the
+record working rather than as a row failing.
+
+---
+
 ## 3. The matrix
 
 **ROWS PENDING AUDIT.** Nothing is entered here until this team has checked the
