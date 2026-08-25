@@ -823,3 +823,104 @@ was thinking about, not the channel that consumes the artifact.**
 
 *Addendum by a heat-transfer lane, 2026-08-25T22:05Z. Nothing sent —
 submissions remain PARKED (standing rule 7).*
+
+---
+
+# ADDENDUM 3 — 2026-08-25T22:20Z: THE AD1.1 EQUIVALENCE CHECK **DISAGREES**. A FALSE `DISAGREE` CAME FIRST, AND IT NEARLY GOT REPORTED.
+
+**Author:** heat-transfer lane. **This lane assigns no verdict to the rung.**
+`ADDENDUM 1` §AD1.1 fixed the consequence before compute; the ruling on it is
+the supervisor's and Sanaa's.
+
+## C1. THE RESULT, UNSOFTENED
+
+The registered check ran on a **frozen static snapshot** of `M1_c`
+(`analyse_k0d.py`'s reader vs OpenFOAM's own `postProcess -func sample`, the
+registered §A1.3a parameters, same case, same time, same 2 081 points):
+
+| set | field | worst \|diff\| | criterion | verdict |
+| --- | --- | ---: | ---: | --- |
+| vertical mid-plane | `T` | **1.209843** K | 2.00e-05 K | **DISAGREE** |
+| vertical mid-plane | `U.x` | **5.032e-02** m/s | 5.70e-07 m/s | **DISAGREE** |
+| horizontal mid-plane | `T` | **2.684e-01** K | 2.00e-05 K | **DISAGREE** |
+| horizontal mid-plane | `U.x` | **2.409e-04** m/s | 5.70e-07 m/s | **DISAGREE** |
+
+**Under §AD1.1 as registered, that reads: the comparator's reader is WRONG,
+every graded row is `NOT A RESULT`, and the rung is REPAIRED AND RE-REGISTERED —
+not rescued by amendment.**
+
+## C2. THE MECHANISM, IDENTIFIED
+
+**`cellPoint` uses BOUNDARY FACE VALUES at a wall; `analyse_k0d.py`'s
+`_vertex_value()` averages only CELL values.** At the floor OpenFOAM returns
+**308.150000 K** — exactly the registered `fixedValue` floor BC — while the
+in-comparator reader returns **306.940157 K**, an extrapolation from cell
+centres. The error decays within two or three cells of each wall.
+
+## C3. THE PART THAT MUST NOT BE USED TO WAVE IT THROUGH
+
+Stated because it is material to the ruling, and immediately followed by why it
+does **not** change the verdict:
+
+- **71 of 2 081 points** exceed the criterion — thin bands hard against the
+  walls (`n = 0…4`, `n ≈ 2078…2080`).
+- **Median difference 2.86e-06 K**, comfortably inside the criterion.
+- **All 13 registered graded stations AGREE**: 0 of 13 over criterion; station
+  `0.05` differs by **6.31e-07 K**.
+- `G5a`'s peak landed at `n = 2035`, **outside** the disagreeing band on this
+  snapshot; `G8` reads the ceiling cell row, not the sampled line.
+
+**AND THE VERDICT IS STILL `DISAGREE`.** §AD1.1's criterion is written on the
+sampled line, not on the station subset. **Re-reading it as "at the registered
+stations" after seeing which points failed is exactly the move §2d.1 forbids and
+exactly the move the supervisor refused for condition D — the numbers looked
+wrong, so the scope was narrowed.** A criterion narrowed to fit its own result is
+not a criterion. **This lane will not narrow it, and notes that `G5a`'s peak
+sitting outside the band is a property of ONE SNAPSHOT, not a guarantee: the
+peak search scans the full upper half INCLUDING the wall point, so a later field
+can put it inside the band.**
+
+## C4. A FALSE `DISAGREE` CAME FIRST, AND IT WOULD HAVE CONDEMNED AN UNTESTED READER
+
+**The first dry run reported ALL 2 081 points over criterion — and that was
+wrong.** The cause was not the reader: `A.load_case_fields()` derives `times[-1]`
+itself, the solver was **still writing**, and **`purgeWrite 2` was deleting old
+directories** — so OpenFOAM was sampled at **time 4000** while the in-comparator
+reader read **time 12000**.
+
+**A COMPARISON OF TWO DIFFERENT TIMES IS NOT A DISAGREEMENT BETWEEN TWO
+READERS.** Reporting it would have condemned a reader that had not been tested,
+and it is the mirror image of the day's other failures: **an instrument
+exercising a channel that was not the one under test.**
+
+Two guards, both shown to fire:
+
+1. **`load_fields_at(case, time)`** — takes an **explicit** time and reads it
+   through the production readers under test.
+2. **`assert_case_is_quiescent(case)`** — **REFUSES (exit 2) while any solver is
+   running on the case.** Verified: exit 2 on the live `M1_c`. Against a live
+   case the answer is meaningless **in both directions** — it can fabricate a
+   disagreement **and it can equally mask a real one**.
+
+**The real disagreement of §C1 was then measured on a static snapshot, where no
+race is possible.** It survives.
+
+## C5. THE REPAIR, NAMED BUT NOT TAKEN
+
+The reader must use the **boundary face value** at a wall vertex, as `cellPoint`
+does, instead of averaging only interior cells. **THIS LANE HAS NOT MADE THAT
+CHANGE.** §AD1.1's registered consequence is *"REPAIRED AND RE-REGISTERED"*, and
+**re-registration is not a lane's to take.** Repairing the grading path quietly
+and continuing would be the rescue §AD1.1 forbids.
+
+## C6. STATUS
+
+- `M1_c` / `M2_c` still running to `endTime 40000`, ~25 % at 22:17Z, untouched
+  per RULING 3.
+- A background watcher will run `mark_done_k0d.py` and the **registered
+  `endTime`** instance of this check when both exit.
+- **The §C1 result already stands on a static snapshot and is not expected to
+  change at `endTime`** — the mechanism is geometric, not transient.
+
+*Addendum by a heat-transfer lane, 2026-08-25T22:20Z. Zero verdicts assigned.
+Nothing sent — submissions remain PARKED.*
