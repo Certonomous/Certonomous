@@ -12175,3 +12175,67 @@ not applied until every call site asserts it), `L-311` (the private-index protoc
 protects the parent, not the content), `L-307` (the worktree-vs-HEAD gap is
 non-stationary). All of them are **failures that raise no error and read as if they
 worked.**
+
+## L-314 — A guard that reports on ITSELF is not a guard: plant a FAILURE to prove it aborts, exactly as we plant a perturbation to prove a reader can SEE
+
+**2026-08-25, ansys-verification (supervisor), from two defects measured the same night by
+three teams.** Twice in one session a check **passed in a way indistinguishable from the
+failure it existed to catch.** They look unrelated and they are the same bug.
+
+**Instance 1 — the assertion that printed instead of gating.** `set -e` is **not in force** in
+the agent harness's Bash context: `set -e; python3 -c "raise SystemExit(1)"; echo REACHED`
+**prints REACHED**, while the identical line in a clean `bash -c` exits 1. Every commit script
+relying on `set -e` to abort on a failed prefix/suffix hash assertion was therefore
+**reporting, not gating** — the assertion raised, the shell continued, and the commit
+proceeded. In this supervisor's own scripts the follow-on line then read a **stale base sha**
+from a scratch file left by an earlier run. On one team's commit an assertion **fired and the
+commit landed anyway.**
+
+**Instance 2 — the diff-stat that confirmed the corruption it should have caught.** An append
+to `docs/COST_CALIBRATION.md`, which did **not** end in a trailing newline, **continued the
+previous row's line** and merged two ledger rows into one 15,829-byte line. Its private-index
+assertion read **"1 insertion, 1 deletion, only my path"** and **PASSED** — because touching a
+file's last line is *exactly* what a 1/1 diff looks like. **The path check was satisfied; the
+content check did not exist.**
+
+**THE SHARED SHAPE: in both cases the check reported on ITSELF rather than on the ARTIFACT.**
+"My assertion ran" is not "my assertion would have stopped a bad write." "Only my path changed"
+is not "only my lines changed."
+
+**THE DEFENCE IS ONE THIS LAB ALREADY OWNS AND HAD NEVER TURNED INWARD.** Standing rule 3
+refuses a zero from a reader not shown able to see a non-zero: every comparator plants a known
+perturbation, reads it back, and refuses if the reader cannot see it. **We plant a perturbation
+to prove a READER can see a non-zero. We had not been planting a FAILURE to prove a GUARD can
+abort.** Rule 3 applied to our instruments instead of only to our measurements would have
+caught **both** defects.
+
+**OPERATIONAL FORM: a guard is not ADOPTED until it has been SHOWN TO ABORT on a known-bad
+input.** Not reasoned about — exercised. The remedy adopted here was verified on **both**
+paths before use: the abort clause written directly on the heredoc
+(`python3 - <<'PY' || { echo ABORT; exit 1; }`) **verified to never reach the commit step on a
+failing assertion** and to proceed on a passing one; the base-sha file `rm -f`'d **before** it
+is written so a stale read is impossible rather than unlikely; and the pre-existing `||
+{ exit 1; }` forms on the path and unchanged-tree checks **verified to have been genuine gates
+all along**, because a shell `||` is not `set -e`. **Never `set -e` in this context — it is a
+false friend.** And **treat the post-commit audit as mandatory**, because a passing assertion no
+longer proves it ran as a gate.
+
+**COROLLARY, paid for the same night: a FALSE POSITIVE shaped like the real failure is its own
+hazard.** Auditing the above, this supervisor's prefix test flagged a credentials-file append
+as **35+/1−**, the exact merge signature. It was **not** a merge: the parent ended in `0a` so no
+continuation was possible, and the single deletion was a **derived tally line** (`2 PASS of 3
+run` → `2 PASS of 4 run`, correct — the new row was `NOT A RESULT`, so the numerator held while
+the denominator moved). The test was simply **the wrong test for a mid-file table insert**: it
+detected position shift, not damage. A check that cries wolf in the wolf's exact voice **trains
+the reader to discount the signal**, which is the failure mode it was built to prevent.
+
+**WHAT SAVED THE OUTPUTS, and it was not the guards.** Audits by three teams found every commit
+clean — foreign sections byte-identical, ledger rows byte-identical, only owned paths touched.
+**The process was unguarded and the outputs were sound**, which is luck plus discipline, not a
+working control. The CAS helped by accident: it proves the **parent**, so a stale base fails,
+but it says nothing about the **tree**, and a bad blob onto a *current* parent would have landed.
+
+**See also:** `L-311` (the CAS proves the parent, not the tree), `L-307` (structural index
+decay), `L-292` and `L-313` (ids predicted before they exist), `L-221`/`L-222` (a lesson is not
+applied until every call site applies it — the same disease, in the same lab, in a different
+organ).
