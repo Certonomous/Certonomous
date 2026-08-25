@@ -837,6 +837,89 @@ directory, no science.** Assembled from the HEAD blob of this file, never the wo
 **525 insertions / 8,336 deletions**, one of **2,508 staged paths** — reported, not changed
 (rule 10).
 
+#### Addendum 22:30Z — one relay WITHDRAWN, one hazard broadcast
+
+*Written by the chief's records lane. **Everything below is THE CHIEF'S RECORD of what
+was relayed and what the raising team then withdrew — it is NOT Sanaa's words, and
+nothing here is her ruling.** Zero compute, no solver, no case directory, no science.
+Assembled from the HEAD blob of this file, never the worktree copy.*
+
+**Why this addendum exists.** One alarm the chief relayed tonight — to Sanaa and to two
+teams — was afterwards **withdrawn by the team that raised it**. A successor reading this
+sub-section, or this session's transcript, would otherwise inherit the alarm without the
+withdrawal. A second item, a lab-wide instrument hazard broadcast tonight, belongs on this
+section as a standing caution rather than living only in relays.
+
+**1. WITHDRAWN RELAY — the five-rung alarm is WITHDRAWN by the team that raised it.**
+
+Item 7 of this sub-section, and the chief's relays of ~22:00Z, stated that
+`heat-transfer`'s checkpoint-gate audit showed **five graded thermal rungs — T1b, T1c,
+T9a, T9aH, T9aD — rest on an exposed Class A convergence gate**, and that a **"free
+Δ/2Δ/3Δ test"** could re-check them at zero compute. **Both claims are WITHDRAWN** by the
+heat-transfer supervisor in `CHECKPOINT_GATE_AUDIT_2026-08-25.md` Amendment A, commit
+`9c56029a`.
+
+Why they fell:
+
+- The audit's own demonstration compared checkpoints **38,000 iterations apart**, not 2Δ.
+  It was never the comparison it was read as being.
+- Re-verified **through the gate's own reader**, **three of four `_f` arms are
+  bit-identical between their last two checkpoints** — `dmax = 0.000e+00`, `rng > 0`, no
+  fallback. That is the **strongest** convergence evidence available, not the weakest.
+- The Δ/2Δ/3Δ test is **unrunnable on essentially the whole corpus**: only `R_10k_x` has
+  uniformly spaced checkpoints. There was no free re-check to have.
+
+**Status of the five rungs — T1b, T1c, T9a, T9aH, T9aD — is `UNJUDGED`: not shown clean,
+not shown exposed.** The audit states in its own words that it must **not** be read as
+showing any graded rung wrong. **T10aR remains unclassified.**
+
+**What STANDS from that audit, unaffected by the withdrawal:**
+
+- The **three-class taxonomy**. **Class A** = last-two-checkpoint tolerance, a two-point
+  sample in principle. **Class B** = bit-identical requirement, which fails safe.
+  **Class C** = sustained window + trend rejection + stationarity, refusing below a sample
+  minimum — already implemented, at `analyse_e4a2.py:300` and `analyse_k0cx.py:644`.
+- The recommendation that **Class A adopt Class C's shape in NEXT registrations** — a
+  forward rule, not a retrofit into frozen documents.
+- The supervisor's own generalisation, which is the durable part: **state what two things
+  you are comparing, and prove they are comparable, before reading the difference.** That
+  team logged **five instances of this one failure class in a single day**.
+
+**2. LAB-WIDE INSTRUMENT HAZARD, broadcast tonight — standing caution.**
+
+`cfd` measured that **`assert`-based guards, refusals, planted controls and gates VANISH
+under `python3 -O` / `PYTHONOPTIMIZE=1`.** Measured instances, not inferred ones:
+
+- A **repository-touching guard refused under plain `python3` and, under `-O`, proceeded
+  to `git add -A` on the shared tree.** Repaired at `6de564d1` to `raise`, with a control
+  that drives the refusal under `-O` against a sacrificial copy.
+- A measurement script's **planted controls were all `assert`s with a sole
+  `sys.exit(0)`** — under `-O` every control vanishes and the script reports clean.
+- `heat-transfer` then measured the sharper form: **under `-O`, `analyse_t8.py` returns
+  `GATE REACHED` — a verdict standing rule 5 forbids for that state — with rc 0**, because
+  its one-way guards are two `assert`s and its behavioural coverage lives inside
+  `selftest()`, which does not run during grading.
+
+**The lesson, stated so a successor cannot mis-take it: a selftest that passes under `-O`
+is the WEAK test. What matters is whether the REFUSALS FIRE under `-O`.**
+
+**Provenance — this is a recurrence, not a discovery.** It is the D476 §31.3 limitation
+recorded 2026-08-22, verbatim: *"an `assert` (off under `python -O`; `sys.exit(2)` is the
+candidate comparator form)"*. What is new is that it has now been **measured exploitable,
+and measured lab-wide**.
+
+**`cfd`'s territory rule, offered to all teams under the desk-item disposal rule: no
+`assert` in an instrument may carry a refusal, guard, control or gate.** Broadcast by the
+chief to `ansys-verification`, `heat-transfer` and `dafoam` at ~22:27Z. **Each team's
+adoption is its own call under the disposal rule** — this is not a charter amendment and
+**`CLAUDE.md` was NOT edited.**
+
+**3. One-line state at the time of writing.** Box at **71 % (22:28Z), nine solvers**;
+`verification` **PAUSED** and `closure` **at rest** by Sanaa's order — and **both those
+territories carry the same two hazards untouched**: closure's Kaandorp record measured
+*"limit-cycle between checkpoints"*, which is a Class A shape, and closure's
+`make_feature_library.py` guard is the original §31.3 `assert`.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
