@@ -5185,6 +5185,120 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+**Section last written:** 2026-08-25T19:17:04Z by `ansys-verification-supervisor` personally
+(stamp from `date -u` in the writing invocation; built from the HEAD blob, never the shared
+worktree copy). **Supersedes the 2026-08-25T03:40:29Z stamp below**, which stood through the
+usage-limit fleet kill. Everything below this block is retained unedited.
+
+### 2026-08-25 EVENING — post-kill session. Cases run 5 of 83. Four commits, two verdicts.
+
+**COMMITS THIS SESSION**
+| sha | what |
+|---|---|
+| `99326ea2` | The blindness checker has its OWN blind spot; + L-323; + two artifacts that survived the kill uncommitted |
+| `7a472fb3` | CORRECTION to my own stale-read claim in the above |
+| `2dcea996` | VMFL003_M2 arm D triage — `NOT A RESULT` |
+
+**VERDICTS**
+- **VMFL003_M2 arm D (`kOmegaSST`) — `NOT A RESULT`** on ladder incompleteness. `L3_1000x5`
+  stopped at `Time = 5949` of `endTime 22000` (**27.0 %**), no `End`, `ExecutionTime
+  1662.74 s` against `timeout 1663`. **Not a crash — the frozen `PER_ARM_CAP = 40`
+  core-min fired to the second.** Arm consumed **39.99 of 40 (100.0 %)**. **NO FRESH CAP**
+  (rule 12), on precisely the ground arm C was ruled on in `aba61e53`.
+  Record: `cases/ansys_verification/VMFL003_M2/TRIAGE_ARM_D_BUDGET_STOP.md`.
+- **VMFL003_M2 arm C (`RNGkEpsilon`) — `NOT A RESULT`**, ruled `aba61e53`, **now
+  corroborated by the same mechanism**: 39.93 of 40 core-min (99.8 %). `D_500x3` stopped at
+  22.7 %.
+- **Arms A (`kEpsilon`, 29.96 core-min, 74.9 % of cap) and B (`realizableKE`, 31.15,
+  77.9 %) are COMPLETE** — six levels each, `End` present, last `Time` == `endTime`.
+  **Under grading now; verdicts NOT yet in.** They completed precisely because they fitted
+  the cap that killed C and D.
+
+**A DEAD HYPOTHESIS, RECORDED SO IT IS NOT RE-FORMED.** I read the two cap-stops as
+**contention** — a wall-derived core-minute cap charging runs for their neighbours, which
+would have been a tidy lab-wide warning against Sanaa's new saturation target. **FALSE.**
+`ExecutionTime` (CPU) tracks `ClockTime` (wall) to within **0.3 %** on every run
+(A L2 333.93/334, C L2 1413.1/1416, D L3 1662.74/1662). **These processes were never
+starved.** No contention story belongs in any calibration row for this rung.
+
+**WHAT DID CAUSE IT — hypothesis, labelled as one.** Identical mesh `L2_500x5`, identical
+`endTime`: `kOmegaSST` 1.06× baseline, `RNGkEpsilon` **4.23×** — inverted from what model
+cost predicts. Arm C's `L3` is **cheaper than its own `L2`** at twice the cells; arm D's
+`L3` ran **7× over** its own mesh scaling. Reads as a badly-converging inner linear solve,
+configuration-specific not model-specific. **This is exactly what Sanaa's *"try different
+pre conditioners"* instruction anticipates**, and the `VMFL007_R2` sweep (A1–A6) is the
+instrument already built. **NOT run** — each remedy changes the experiment and needs its own
+frozen registration, never a re-run of a stopped arm until it fits.
+
+**INSTRUMENT FINDINGS, both mine, both measured today**
+1. **No `RC.txt` / `record.json` anywhere under `VMFL003_M2`** — the launcher's `rc=`
+   printf runs only on the completing path. So rule 4's `rc = 0` clause is **UNEVALUABLE
+   FROM DISK** for every run in the rung. Rule 4 is a conjunction; an unevaluable conjunct is
+   one nobody is applying. **Charter-grade for §5.** Today's batch writes `RC.txt` per job.
+2. **`scripts/check_grader_self_blindness.py` probe B fires on `os.path.join` and is
+   STRUCTURALLY SILENT on `pathlib` and f-strings** — demonstrated with the identical defect
+   written three ways. This team's 15 case comparators are join-dominant so the probe works
+   there; **three scripts under `verification/runs/ansys_verification/` are f-string-only and
+   cannot be flagged at all.** Extension **DOCKETED, NOT DONE** — two lanes are in flight on
+   that instrument at that sha, and changing a measurement script mid-batch creates the one
+   question a verification lab must never face: *which version graded this?*
+   Full working: `docs/ansys_verification/GRADER_BLINDNESS_PROBE_COVERAGE.md`.
+3. **A `log*` glob matches `log.blockMesh` before `log.simpleFoam`.** My own first arm scan
+   reported every level of C and D complete — it was reading **the mesher's `End` line**.
+   Plausible and wrong. **Match the solver log by exact name, never a glob.**
+
+**LANES LIVE (cap 4 = 2 opus + 2 haiku, Sanaa's disclosed exception)**
+| lane | task | state |
+|---|---|---|
+| `ansys-lane-opus` | BATCH A — freeze + launch VMFL002/004/007/010/011 | running; preregs freezing, no compute yet at 19:15Z |
+| `ansys-lane-opus48` | grade arms A and B; register + calibration rows | running; corrected twice (arm D dead; `log*` glob) |
+| `ansys-lane-haiku` #1 | 25-min utilisation time series + run-state scan | running |
+| `ansys-lane-haiku` #2 | VMFL050/059 launch readiness + VMFL029 archive tensor | running |
+
+**UTILISATION — Sanaa's 80–90 % target.** Box 16 cores. Session start **9.18 (57 %)**;
+19:15Z **11.87 (74 %)**, but **ZERO of it is this team's** — it is cfd, dafoam and
+heat-transfer. **This team's contribution to core utilisation right now is 0 %**, and that is
+the live defect. Batch A is the fix and it is in its freeze-before-compute phase, which is
+the correct order and is not skipped for speed.
+
+**NEXT ACTIONS, concrete**
+1. **VMFL050 and VMFL059 have COMMITTED preregs at HEAD and have never run** — compute that
+   can start with zero drafting. Readiness check in flight; fire them the moment it lands.
+2. Land register rows for arms A, B (from the grading lane) **and C, D** (`NOT A RESULT`) in
+   one append — the register is append-only and concurrent edits collide.
+3. Batch B from the extracted manual data: **VMFL023** (Strouhal 0.165, EXP, discrete) and
+   **VMFL036** (Cd 1.0895, discrete) are ready to freeze.
+4. Correct the two records that call VMFLGPU low-value — see the desk item below.
+
+**ON SANAA'S DESK** — under her 2026-08-25 disposal rule each carries my recommendation and
+is **ADOPTED as `[lab-attributed]` if she does not rule within one day**.
+- **GPU: `NOT READY` and I am holding the boot.** No GPU solver route is even selected —
+  no GPU-capable OpenFOAM, no AmgX, no PETSc-GPU, no RapidCFD on disk; **zero sources
+  fetched; no build script; no smoke test; no AMI snapshot procedure; no console-priced
+  `cost_basis`.** Her sequence forbids booting while an agent is still working out which
+  packages it needs, and the lab already carries a **7.88 GPU-h idle-waste row**.
+  **Recommendation: instance stays down until all seven items close.** Capacity state is
+  **UNKNOWN** — `docs/GPU_CAPABILITY_STATE.md` does not record whether AWS capacity
+  returned, and I will not infer it.
+- **VMFLGPU mischaracterisation — her ruling accepted, correction identified.** Two
+  sentences call the family low-value because it re-measures parent physics:
+  `CASE_MAP.md` L162–163 and `LAB_STATE.md` L5502–5508. **Her reading governs: the GPU
+  SOLVER PATH is what is verified.** Count verified against the manual: **10 cases,
+  VMFLGPU001–010, pp. 225–251**, each mirroring a CPU parent.
+  **Recommendation: correct both by dated amendment, never in-place edit.**
+
+**BLOCKED**
+- **VMFL029 (anisotropic conduction)** — the manual's Reference field is **empty**, the
+  conductivity tensor components are **absent from the sidecar**, and the target is a
+  **plotted profile**. Cannot be frozen from the manual. Archive inspection in flight; the
+  single deciding question is whether the tensor is **axis-aligned** (cheap, native
+  `laplacianFoam`) or **rotated** (no native solver on this box → defer, do not fake).
+- **VMFL046** — reference is analytic (White 1994) but printed **only as a plotted profile**;
+  needs a digitized profile or reformulation onto a discrete probe before it can carry a gate.
+
+---
+
+
 **Section last written:** 2026-08-25T03:40:29Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
