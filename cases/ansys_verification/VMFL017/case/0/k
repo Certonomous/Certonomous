@@ -1,0 +1,37 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      k;
+}
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0.024092;
+
+boundaryField
+{
+    inflow
+    {
+        type            inletOutlet;
+        inletValue      uniform 0.024092;
+        value           uniform 0.024092;
+    }
+    outflow
+    {
+        type            inletOutlet;
+        inletValue      uniform 0.024092;
+        value           uniform 0.024092;
+    }
+    aerofoil
+    {
+        type            kLowReWallFunction;
+        value           uniform 0.024092;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
