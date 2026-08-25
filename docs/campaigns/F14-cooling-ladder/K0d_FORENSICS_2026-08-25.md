@@ -924,3 +924,138 @@ and continuing would be the rescue §AD1.1 forbids.
 
 *Addendum by a heat-transfer lane, 2026-08-25T22:20Z. Zero verdicts assigned.
 Nothing sent — submissions remain PARKED.*
+
+---
+
+# ADDENDUM 4 — 2026-08-25T22:58:56Z: L1 REACHED `endTime`. THE `endTime` EQUIVALENCE CHECK **DISAGREES**, AS PREDICTED. AND BOTH CASES ARE **NOT DONE** — BECAUSE OF MY LAUNCH, NOT THEIR SOLVE.
+
+**Author:** heat-transfer lane. **This lane assigns the rung no verdict.**
+
+## D1. THE SOLVES COMPLETED CLEANLY
+
+Both reached `endTime 40000` at **22:58:56Z**: last `Time = 40000`, one `End`
+line, `ExecutionTime` count **40000**, time dirs `0 / 36000 / 40000`
+(`purgeWrite 2`), and **every registered field present for that case's own
+closure** — `M1_c` (`kOmegaSST`) all 8 including `omega`; `M2_c`
+(`RNGkEpsilon`) all 8 including `epsilon`.
+
+**A CORRECTION I MADE AGAINST MYSELF:** a first audit here reported `M2_c`
+**MISSING `omega`**. That audit was wrong — it hard-coded the `kOmegaSST` tuple
+for both cases. `M2_c` is `RNGkEpsilon` and its registered set names `epsilon`,
+**not** `omega`. `mark_done_k0d.py` applies the **per-closure** table correctly
+and did not make this mistake. **This is exactly the defect `AMENDMENT 3` §A3.4
+repaired in the frozen document — a single field tuple applied to every closure —
+and I reproduced it in a throwaway audit script within the hour.** The lesson is
+not "check the closure"; it is that **a check written beside the instrument, in a
+hurry, does not inherit the instrument's rigor.**
+
+## D2. `mark_done_k0d.py` → **NOT DONE**, 0 of 2, AND THE CAUSE IS MINE
+
+```
+0/2 cases meet the strict completion rule
+  NOT DONE  M1_c   - no STATUS file (case never finished)
+  NOT DONE  M2_c   - no STATUS file (case never finished)
+```
+
+**Clause-by-clause, every other clause PASSES:**
+
+| clause | `M1_c` | `M2_c` |
+| --- | --- | --- |
+| 1 `STATUS.<case>` reports `rc=0` | **ABSENT** | **ABSENT** |
+| 2 `End` line | PASS | PASS |
+| 3 last time == `endTime` | PASS | PASS |
+| 4 registered fields, per closure | PASS (8/8) | PASS (8/8) |
+| 5 `ExecutionTime` count == `endTime` | PASS | PASS |
+| 6 age guard, fields newer than `0/T` | PASS | PASS |
+
+**THE SINGLE FAILING CLAUSE IS A LAUNCH-PROTOCOL GAP OF MINE.** I launched under
+`setsid` + `timeout` and **never captured the solver's return code into
+`STATUS.<case>`** in the registered pool format (`rc= wall= checkMesh_rc=`).
+
+**I WILL NOT WRITE THAT FILE NOW.** The solver processes are gone and **the rc was
+never captured, so it is unrecoverable.** The log carries an `End` line and a
+full `ExecutionTime` count, which is what `rc=0` normally accompanies — **but
+that is an inference, not the measurement the clause requires.** Writing `rc=0`
+today would be **back-dating a measurement I did not take**, and the completion
+rule is all-or-nothing precisely so that it cannot be satisfied by a plausible
+reconstruction.
+
+**`NOT DONE` is therefore the correct and honest verdict**, and
+`analyse_k0d.py` would refuse anyway — it requires all **ten** `DONE` markers,
+and six cases cannot even mesh.
+
+**Consequence, stated so it is not lost:** the `V`-column artifact these two
+solves were fired for **is not clean**. Re-running them with a launcher that
+captures `rc` would cost **~105 core-min** and is a supervisor's call; it is
+**not** required for the rung's verdict, which is `BLOCKED` on three independent
+grounds regardless.
+
+## D3. THE REGISTERED `endTime` EQUIVALENCE CHECK — **DISAGREE**, ON BOTH
+
+Ordered recorded either way. It is `DISAGREE`:
+
+| case | set | field | worst \|diff\| | criterion |
+| --- | --- | --- | ---: | ---: |
+| `M1_c` | vertical | `T` | **1.141331 K** | 2.00e-05 K |
+| `M1_c` | vertical | `U.x` | **9.234e-02 m/s** | 5.70e-07 m/s |
+| `M1_c` | horizontal | `T` | **2.533e-01 K** | 2.00e-05 K |
+| `M1_c` | horizontal | `U.x` | **1.965e-04 m/s** | 5.70e-07 m/s |
+| `M2_c` | vertical | `T` | **1.559530 K** | 2.00e-05 K |
+| `M2_c` | vertical | `U.x` | **1.106e-01 m/s** | 5.70e-07 m/s |
+| `M2_c` | horizontal | `T` | **5.926e-01 K** | 2.00e-05 K |
+| `M2_c` | horizontal | `U.x` | **7.354e-05 m/s** | 5.70e-07 m/s |
+
+**The intermediate-snapshot result SURVIVED to `endTime`, on a second closure,
+and it was measured rather than assumed.** The mechanism is geometric —
+`cellPoint` uses boundary face values at a wall; the in-comparator reader
+averages only cell values — so it was expected to survive, **and expecting it is
+not the same as having measured it.** `M2_c` is the stronger case at
+**1.559530 K**, and it is a closure the earlier snapshot never touched.
+
+**Under §AD1.1 as registered before compute: every graded row is `NOT A RESULT`,
+and the rung is repaired and re-registered — not rescued by amendment.**
+
+## D4. COST — ACTUAL VERSUS PREDICTED (rule 12), ROW **`C-99`**
+
+| | |
+| --- | ---: |
+| predicted (2 × POINT 43.50) | **87.00 core-min** |
+| actual gross | **105.10 core-min** |
+| actual cleaned | **105.10 core-min** (no stall; both under 3 600 s) |
+| **ratio cleaned/predicted** | **1.208** |
+| derived cost | **$0.0899** — DERIVED, NOT MEASURED |
+| share of the 2 748.64 ceiling | **3.82 %** |
+
+**ATTRIBUTION: CONTENTION, AND IT IS MEASURED RATHER THAN GUESSED.** The measured
+solve rate was **3.140e-06** (`M1_c`) and **3.019e-06** (`M2_c`)
+s/cell-iteration against the registered POINT rate of **2.549e-06** — ratios
+**1.232** and **1.184**, which reproduce the 1.208 overall almost exactly.
+**So the gap is RATE, not iteration count or misprediction of the work: the cell
+count and iteration count were exactly as registered.** The box carried **5–9
+foreign solvers** throughout and measured occupancy at launch was **8.10 of 16
+cores**.
+
+**WASTE, named separately per `COMPUTE_BUDGET_CHARTER` §6 and NOT folded into the
+ratio: ~0.17 core-min** of meshing across the two failed builds. **Zero solver
+iterations were wasted — both failures died before any solve.**
+
+**THE ID WAS RE-DERIVED AT APPEND TIME AND THE CARRIED FIGURES WERE ALL STALE.**
+Relayed to this lane as `C-76`, then corrected to `C-83`, then `C-84`; **when
+first checked the tolerant maximum was `C-93`, and twenty minutes later, at the
+moment of the append, it was `C-98`.** The row is **`C-99`**. `C-84` was already
+taken by a live dafoam row. **Six teams append continuously, so any carried
+number is stale by the time it is used — including one derived twenty minutes
+earlier by the same lane.**
+
+## D5. STATUS
+
+- **Rung verdict recommended: `BLOCKED`. Every graded row `NOT A RESULT`.**
+  Three independent grounds: `P` (Blay `NOT OBTAINED`), `G` (the L2 parity
+  contradiction), `V` (this reader disagreement). **Never `GATE REACHED` — that
+  asserts a gate was reached, and none was.**
+- **L3 not fired**, per ruling: two L3 caps exceed the entire rung ceiling.
+- **Condition D untouched.**
+- Both failed build trees preserved.
+
+*Addendum by a heat-transfer lane, 2026-08-25T23:0xZ. Nothing sent — submissions
+remain PARKED (standing rule 7).*
