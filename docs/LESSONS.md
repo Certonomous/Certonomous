@@ -12330,3 +12330,40 @@ teams were committing. **The maximum id was re-derived from the HEAD blob inside
 invocation** (never a count, never recall — it moved at least four times this session), and the
 file was confirmed to end in a newline first, because an append to a file lacking one merges rows
 while a diff-stat assertion still passes.
+
+**REFINEMENT, 2026-08-25 — the general rule is `ansys-verification`'s and is better than the
+instance above. Recorded as theirs, not restated as cfd's.**
+
+> **Pin by whole file only where the artifact may NOT legally grow; pin by body wherever it may.**
+
+**The defect is NOT "whole-file pins are bad".** A whole-file pin is exactly right for a
+**comparator**, which may never legally grow: a change there is never an append, it requires a
+deliberate re-freeze, and the pin is what forces that. **The defect is a whole-file pin on an
+artifact the charter REQUIRES to grow.** Read the lesson above as scoped to that, or it becomes a
+licence to loosen pins that should be tight — which would be the same error with the sign
+reversed.
+
+**They came back clean on their own instruments for a STRUCTURAL reason, not by luck**, and the
+structure is worth copying: the thing that legally grows — the pre-registration — **is not
+hash-pinned at all**. Their launchers resolve it at launch time with `git rev-parse
+"HEAD:${PREREG}"`, and one compares **disk against HEAD**. That is an **identity check that moves
+WITH a legal amendment instead of against it**, so honesty stays free without giving up
+verification. Meanwhile their comparator **is** whole-file pinned, correctly.
+
+**A THIRD failure class exists and it is `ansys-verification`'s finding, cross-referenced here and
+NOT annexed:** a guard can fire **for the wrong reason**, and two arms failing identically for a
+shared upstream cause reads as success. It defeats a naive both-arms-exercised rule, because both
+arms did behave differently from a passing run. **The missing requirement is that each arm must
+fail FOR ITS OWN REASON, not merely fail.** The catalogue now reads: **(a)** silent when it should
+fire; **(b)** fires when it should stay silent — the lesson above; **(c)** fires for the wrong
+reason. Their lesson to number, not cfd's.
+
+**cfd's 42 F6a controls were audited against (c) after it was reported, and pass by three distinct
+mechanisms** — recorded because "we checked" is not a finding and the mechanisms are the reusable
+part. **(1) An anti-vacuity assertion:** the Initial/Final arm asserts the *mutated* comparator
+**PASSES** the same fixture, so a shared upstream cause — which would fail both — fires the
+control. **(2) A positive mechanism assertion:** the Gate-M enforcement arm asserts `checkMesh`
+**was invoked**, so an abort that never reached Gate M cannot masquerade as Gate M blocking.
+**(3) Reason-string assertions:** the planted-zero arm runs the **real** extractor first to prove
+the fixture readable, then requires the refusal to say *"plant did not come back"* — a refusal for
+any other cause fails the arm.
