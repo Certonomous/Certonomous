@@ -325,3 +325,105 @@ untraceable *"Sanaa, verbatim"* attribution while keeping its text — **had not
 here.** Both attributions were already marked as relays in the attribution line itself, and both
 already carried explicit rule-9 provenance notes at v1.0, written before anyone asked for them. This
 amendment sharpens one word in each. It does not repair a lapse.
+
+---
+
+## Amendment 2 — 2026-08-25: the three PROBE-FIRST prerequisites are DISCHARGED, and D12's cost row is measured to be 4–23× high
+
+**Document version 1.2**; the ratified body committed at `43b530cc` (2026-08-23) is v1.0 and
+Amendment 1 is v1.1. **Lines whose number changed above this section: 0.** Nothing above is
+edited, struck or rewritten — `CLAUDE.md` rule 6. This section is appended at the foot and is
+the entire record of the change.
+
+**Written by dafoam-supervisor.** A lane established these facts, then **correctly refused to
+amend a ratified curriculum's cost row on its own authority and referred it upward.** That
+refusal was right and I am recording it so a successor does not repeat the loop: **the facts are
+a lane's to establish; the amendment to a ratified document is the supervisor's to make. It is
+made here.** Under Sanaa's 2026-08-25 desk-item disposal rule this is an operational matter,
+decided and recorded rather than parked; it moves no gate, no threshold, no cap and no label.
+
+**Nothing here is sent, filed, uploaded, posted or commented. SUBMISSIONS ARE PARKED and sending
+is Sanaa's alone** (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10).
+
+### A2.1 The three PROBE FIRST prerequisites are discharged — all three capabilities REACHED
+
+§3 marks D10, D11 and D12 **PROBE FIRST**, and §5 item 3 budgets *"the three cheap capability
+probes (D10, D11, D12 reachability, ≤15 core-min total)"*. **Those probes have been run, graded
+and committed — as NINE pre-registered arms, not three.** A reader of the curriculum alone
+cannot currently tell, which is the sole defect this amendment repairs.
+
+| capability | probe verdict | reachable |
+|---|---|---|
+| **D10** thermal objective (`DAFunctionWallHeatFlux`) | **`GATE REACHED`** (at arm D10-P′) | **YES** |
+| **D11** MRF / rotating-frame adjoint | **`GATE REACHED`** (at arm D11-F′) | **YES** |
+| **D12** unsteady adjoint (`DAPimpleFoam`) | **`GATE REACHED`**, first attempt | **YES** |
+
+Arms live under `cases/dafoam/ladder-a/*/curriculum_D10_probe*`, `…_D11_mrf_probe*`,
+`…_D12_unsteady_probe*`. **The prerequisite text in §3 is not rewritten** — it recorded the
+correct requirement, and the requirement is now met.
+
+**Nine-arm cost rollup, re-read from each arm's own `TOTAL_SPENT_CORE_MIN`:** predicted **17.45**
+core-min, actual **8.4173**, ratio **0.482×**, **$0.007197 derived at $0.0513/core-h and labelled
+derived, not measured** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5).
+**The whole nine-arm campaign came in under the ≤15 core-min envelope §5 budgeted for three
+probes.** Waste of **2.6834 core-min (31.9 %)**, all of it prior-lane instrument defects, is
+**named separately and absorbed into no ratio** (that charter's §6). Calibrated at rows `C-69`
+and `C-75`; **no further calibration row is owed and one would double-count.**
+
+### A2.2 D12's `NEEDS COSTING` is ANSWERED — and the curriculum's own figure is 4–23× high
+
+§3 Tier 5 prices D12 at **~1,000–3,000 core-min, $0.9–2.6**, and §5 flags it **NEEDS COSTING
+refinement after probe**. The probe supplies a **two-point measured wall-time fit**:
+
+> **`wall(n) = 19.0 + 2.000·n` seconds**, giving a 10–20-major D12 at
+> **127.6–240.5 core-min = $0.109–0.206 derived**.
+
+**Against the measurement the ratified estimate is 4–23× high.** The original row is **struck,
+not rewritten**: it stands where it is, and this is the corrected figure.
+
+**The registered limitation, stated with the number rather than after it:** this is a **two-point
+fit of an unsteady solver**, which is an extrapolation and not a law. It is registered as the
+planning figure **and as a thing to be verified before it is spent against** — the lane firing
+D12 is instructed to check it and to report a departure rather than absorb it. **A cost estimate
+is not a measurement merely because it was derived from one.**
+
+### A2.3 D11 stays UNPRICED — and the reason is registered, not glossed
+
+§3 marks D11 **UNPRICED until probe** and §4 repeats **D11 NEEDS COSTING after probe.** The probe
+is done and **D11 remains UNPRICED, deliberately.** Its case is **not selected**, and the probe
+substrate was a **720-cell** artefact of a different case class. Pricing D11 from it would
+**invent a price across case classes**, which `DAFOAM_CHARTER.md` §5 forbids in the FD context
+for the same reason it is wrong here: **a cost anchor, like an FD reference, is part of a
+configuration and not a property of a case.** **An honest "unpriced" outranks a fabricated
+number.**
+
+What D11 did deliver: the lab's **first MRF case-class anchors**, and a **named blocker — a
+300 rad/s zone STALLS the steady SIMPLE primal.** It **stalls; it does not diverge and does not
+NaN**, and that distinction is registered because it points at a different repair.
+
+**A hazard §3 named for D11 did NOT occur.** *"MRF interface derivatives silently zero"* did not
+happen: the derivative is **`2.3058711101e-01`**, agreeing with central FD to **`1.704895e-07`**.
+**Terminology correction carried here for whoever writes D11's real pre-registration: in this
+build MRF is a CELL-ZONE formulation, not an interface — there is no interface object to plant
+on.** The rule-3 planted control is still mandatory; it must be planted on the cell zone.
+
+### A2.4 A directory-naming fact that cost this family a wrong census today
+
+The probe arms are filed as `curriculum_D10_probe`, `curriculum_D11_mrf_probe_Fprime` and
+similar — **a suffix after the item number.** A census keyed on `curriculum_D<N>/` returns
+**nothing** for all three and reports them unarmed. **That census was run at supervisor level
+today and was wrong**, and a lane caught it by checking `PRIOR_WORK_INVENTORY.md` before
+proposing anything as new — which is what that inventory is for. **Enumerate with
+`curriculum_D[0-9]+[A-Za-z_'-]*` and read the list; never key on an assumed separator.**
+
+### A2.5 What this amendment changes — the exhaustive list
+
+It records that **three PROBE FIRST prerequisites are discharged**, supplies **D12's measured
+price with its limitation**, records **why D11 stays unpriced**, corrects **one terminology point
+for D11**, and notes **one filing-naming hazard**. **It changes nothing else.** No gate, no
+threshold, no cap, no label, no tier, no candidate item, no falsifier, no prerequisite other than
+marking three as met, and not the recommended sequence. **The set D1–D16 and every authorisation
+class stand as v1.0 left them, and the authority of D2–D15 is unchanged.** Tier 6 remains behind
+Sanaa's explicit per-item approval; `CLAUDE.md` rule 9 is untouched — **an approval is only as
+wide as what was approved, and a blanket is not a per-item cost reading.** Zero compute: a
+records action at **0.000 core-min**, so no calibration row is owed for the amendment itself.
