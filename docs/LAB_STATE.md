@@ -2807,7 +2807,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T01:43:27Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T01:48:31Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3218,6 +3218,53 @@ tonight and it returned within minutes. **The protection is the discipline at th
 a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
 `git commit -a`, private-index protocol for everything. A single bare commit would destroy the
 frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**THIRD AND WORST GIT FINDING: `set -e` IS NOT IN FORCE IN THIS EXECUTION CONTEXT, SO THIS
+SUPERVISOR'S PREFIX/SUFFIX ASSERTIONS WERE PRINTING AND NOT GATING. I REPORTED THEM AS WORKING;
+THAT REPORT WAS WRONG AND IS WITHDRAWN.** Found by heat-transfer against its own work,
+**re-measured here before being believed**, and then **audited rather than assumed**.
+- **The measurement:** `set -e; python3 -c "raise SystemExit(1)"; echo REACHED` **prints
+  REACHED** in this context; the identical line in a clean `bash -c` exits 1.
+- **My exact exposure, tested rather than reasoned about:** the hash assertions sat inside a
+  `python3 - <<'PY'` heredoc; on failure python exits 1, **the shell CONTINUES**, and
+  `H=$(cat base.txt)` returns a **STALE sha** — `base.txt` held `3c00077b` while HEAD was
+  `145a51ab`. **The CAS was an ACCIDENTAL backstop**: a stale parent fails `update-ref`. But **a
+  CAS only proves the PARENT**, so a bad blob committed onto a CURRENT parent would have landed.
+  **That hole was open for three commits.**
+- **THE AUDIT — five board commits, checking the thing that matters, not the thing that is
+  easy.** For `093e150f`, `13e210ca`, `bbc4d0ad`, `7e313a3e`, `145a51ab`: parent and child
+  parsed into `## ` sections and **every section this team does not own byte-compared**.
+  **Result: all five touched only `docs/LAB_STATE.md`, altered ZERO foreign sections, heading
+  list unchanged. THE PROCESS WAS UNGUARDED; THE OUTPUTS ARE CLEAN.**
+- **The append audit threw one flag and it was chased to the bottom, not cleared.** Register row
+  #4 (`393476d9`) showed **35+/1-** on a CREDENTIALS file — the exact merge signature. **It is
+  not a merge:** the parent **did** end with a newline (`0a`, verified), so no continuation was
+  possible; the single deletion was the **DERIVED TALLY** `2 PASS of 3 run` -> `2 PASS of 4
+  run`, correct because row #4 is `NOT A RESULT` so the numerator held at 2 while the
+  denominator moved; and **rows #1/#2/#3 are BYTE-IDENTICAL parent-to-HEAD**, hashed
+  individually (`f7626474`, `7b2133e2`, `540a2a92`). **This supervisor's own prefix test was the
+  WRONG TEST for a mid-file table insert** — it flagged position shift, not damage. **A false
+  positive shaped like the real failure is its own hazard** and is named here as one.
+- **THE REMEDY, VERIFIED ON BOTH PATHS RATHER THAN ADOPTED ON FAITH, and used for THIS write:**
+  `python3 - <<'PY' || { echo "ABORT"; exit 1; }` — **verified** to print ABORT and **never
+  reach the commit step** on failure, and to proceed on success; **`rm -f` the base-sha file
+  BEFORE the python writes it**, then `[ -n "$H" ] || abort`, making a stale read **impossible
+  rather than unlikely**; explicit `|| { exit 1; }` on the path and unchanged-tree checks,
+  which **were verified to have been genuine gates all along** because a shell `||` is not
+  `set -e`; and a **MANDATORY post-commit audit**, because a passing assertion no longer proves
+  it ran as a gate. **NEVER `set -e` — it is a false friend here.**
+- **THE PATTERN BEHIND BOTH OF TONIGHT'S GUARD FAILURES, and it is the generalisable one.**
+  Twice a check **passed in a way indistinguishable from the failure it was meant to catch** —
+  `diff-tree` reading "1 insertion, 1 deletion" while MERGING two rows, and assertions printing
+  while NOT gating. Both share a shape: **the check reported on ITSELF rather than on the
+  ARTIFACT.** The defence is rule 3's own principle turned on our instruments: **we plant a
+  perturbation to prove a READER can see a non-zero; we have not been planting a FAILURE to
+  prove a GUARD can abort.** Every guard should be exercised against a known-bad input before it
+  is trusted. That would have caught both. **Referred upward, not acted on unilaterally: `CLAUDE.md`
+  rule 10 writes the private-index protocol AS THOUGH ITS ASSERTIONS GATE, and in this context
+  they do not — but `CLAUDE.md` is Sanaa's and this team edits nothing there.**
+- `LAUNCHER_EXIT=2` is **unaffected** — the launcher's own explicit `exit 2`, and it
+  **demonstrably fired** when it refused the second VMFL045 launch.
 
 **GIT PROTOCOL, TIGHTENED TWICE TONIGHT AND NOW BINDING ON THIS TEAM'S LANES.** Two
 independent failures proved rule 10's assertions insufficient, and **neither failure announced
