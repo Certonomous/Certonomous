@@ -91,6 +91,19 @@ THE FOUR GUARDS
    bypasses it and is for a deliberate restart, with the reason stated in the
    job spec.
 
+   TWO USAGE CONSTRAINTS ON GUARD 5, stated so neither is discovered later.
+   (a) IT READS THE CASE ROOT ONLY.  A DECOMPOSED case keeps its time
+   directories under ``processor*/``, which this guard does not walk.  In
+   practice the root ``0/`` still trips it, so a decomposed case is covered
+   INCIDENTALLY rather than by design -- do NOT "optimise away" the root ``0/``
+   check on the grounds that decomposed cases are covered, because that is the
+   only thing covering them.
+   (b) IT WANTS THE RUN DIRECTORY, NOT A PRE-POPULATED TEMPLATE.  Any case
+   carrying ``0/`` trips it, and a template always carries ``0/``.  Point
+   ``foam_case`` at the FRESH directory the solver will write into.  A caller
+   who reaches for ``allow_existing_times: true`` to quiet the guard has
+   pointed it at the wrong directory, and the guard becomes decorative.
+
 EVERY NUMBER THIS RUNNER REPORTS IS READ BACK FROM DISK.  The per-case record is
 written to ``<cwd>/batch_record.json`` and the batch summary is built by
 RE-READING those files, never from the in-memory state that wrote them.
@@ -103,11 +116,23 @@ foreground solver launched from a tool call gets SIGTERMed when the tool call
 ends; a session leader survives, and the whole group can still be signalled as
 one if the runaway ceiling fires.
 
-EXIT CODES.  0 = every job completed rc 0, none blocked, none stopped as a
-runaway.  1 = the batch ran but at least one job failed, was blocked, or was
-stopped.  2 = REFUSE: the runner could not establish the conditions it needs (no
-free core, unreadable manifest, a record that will not read back).  It refuses
-rather than degrades.
+EXIT CODES, one per verdict, because conflating them is how a caller turns a
+run that produced no number into a run that produced a failing one.
+
+    0  PASS          every job completed rc 0, none blocked, none stopped.
+    1  GATE FAIL     RESERVED AND UNREACHABLE FROM THIS RUNNER.  A gate failure
+                     means a value was evaluated and MISSED its band, and this
+                     runner never evaluates a value -- it reports whether the
+                     JOBS RAN.  Bands are the comparator's business.  The code
+                     is kept defined so nothing silently reuses it.
+    2  REFUSE        the runner could not establish the conditions it needs (no
+                     free core, unreadable manifest, a record that will not read
+                     back, a pinning that never bound, a case that already holds
+                     0/).  It REFUSES rather than degrades (rule 4's posture).
+    3  NOT A RESULT  at least one job exited nonzero, or the runaway ceiling
+                     stopped it.  NO VALUE EXISTS to compare against anything.
+    4  BLOCKED       at least one job was never launched (the memory guard, or
+                     the batch ended before it was reached).
 """
 from __future__ import annotations
 
@@ -125,7 +150,8 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-EXIT_OK, EXIT_FAIL, EXIT_REFUSE = 0, 1, 2
+EXIT_OK, EXIT_GATE_FAIL, EXIT_REFUSE = 0, 1, 2
+EXIT_NOT_A_RESULT, EXIT_BLOCKED = 3, 4
 
 # Standing rule 3's planted perturbation, the same constant the lab's Roache
 # instrument uses (scripts/roache_triple.py PLANT, ported from T3:81).  Used
@@ -702,18 +728,44 @@ def summary_verdict(summary: dict) -> str:
     and nothing whatever about whether their numbers are right -- that is the
     comparator's business and this runner has no opinion on it.
 
+    A CRASH AND A RUNAWAY STOP ARE ``NOT A RESULT``, NEVER ``GATE FAIL``.
+    Corrected 2026-08-25 on cfd-supervisor's ruling, and the reasoning is worth
+    keeping because the original code got it backwards in the ONE direction the
+    lab forbids.
+
+    ``GATE FAIL`` asserts that a gate WAS evaluated and the value MISSED its
+    band.  A job that crashed, or that the runaway ceiling stopped, produced NO
+    VALUE to miss with.  Labelling it ``GATE FAIL`` promotes an execution
+    failure into an evaluated gate failure -- a STRONGER and more
+    informative-sounding claim than the evidence supports.  Standing rule 5
+    fixes the direction of travel: the gate may turn a PASS or a GATE FAIL
+    *into* ``NOT A RESULT``, NEVER the reverse.  The original mapping ran the
+    reverse.
+
+    It would also have put this instrument at odds with cfd's own graded
+    records: F12 rung 1, DPW8_V2 L4 arm A and F4 all closed ``NOT A RESULT`` on
+    exactly this ground -- the run did not complete, so there is no number.
+
     NOTE: a job that merely EXCEEDED its cap and finished is not a failure here.
     Under the 2026-08-25 directive the cap is a runaway guard, so the breach is
     reported (``cap_exceeded_names``) for the supervisor to rule on, and does not
-    by itself turn the batch into a GATE FAIL."""
+    by itself change this verdict at all.
+
+    ``GATE FAIL`` is unreachable from this function BY DESIGN and that is not an
+    omission: this runner has no bands, so it can never be the thing that
+    decides a value missed one."""
     rows = summary["rows"]
     if any(r["state"] == STATE_BLOCKED for r in rows):
         return "BLOCKED"
     if any(r["state"] == STATE_STOPPED for r in rows):
-        return "GATE FAIL"
+        return "NOT A RESULT"
     if any(r["rc"] != 0 for r in rows):
-        return "GATE FAIL"
+        return "NOT A RESULT"
     return "PASS"
+
+
+VERDICT_EXIT = {"PASS": EXIT_OK, "GATE FAIL": EXIT_GATE_FAIL,
+                "NOT A RESULT": EXIT_NOT_A_RESULT, "BLOCKED": EXIT_BLOCKED}
 
 
 # ---------------------------------------------------------------------------
@@ -828,6 +880,62 @@ def selftest() -> int:
                f"{rc_['runaway_multiple']}x{rc_['core_minute_cap']:.5f}")
         _check("runaway ceiling stays QUIET when disabled (runaway_multiple 0)",
                not r["stopped_on_runaway"], "the held job above ran to completion")
+
+        # (vi-a) THE VERDICT VOCABULARY.  A crash and a runaway stop are
+        # NOT A RESULT, never GATE FAIL: no gate was evaluated, so no value
+        # exists to have missed a band.  Standing rule 5 permits a gate to turn
+        # a PASS or GATE FAIL *into* NOT A RESULT and NEVER the reverse; the
+        # original mapping ran the reverse and this is the corrected branch.
+        # Each check below is paired with a MUTATION control that flips the one
+        # field the branch keys on, so the check is shown able to give the
+        # OTHER answer.  A check that cannot change its mind is not a check.
+        d = root / "crash" / "boom"
+        s_cr = run_batch({"batch": "crash", "jobs": [
+            {"name": "boom", "cwd": str(d), "argv": ["sh", "-c", "exit 7"],
+             "core_minute_cap": 1.0, "mem_estimate_gb": 0.01}]},
+            concurrency=1, mem_floor_gb=0.1, core_busy_max=0.99,
+            sample_interval_s=0.5, kill_grace_s=2.0, core_probe_s=0.5,
+            mem_wait_s=2.0, summary_path=root / "crash" / "summary.json",
+            log=_quiet)
+        _check("a nonzero rc is NOT A RESULT, never GATE FAIL",
+               s_cr["rows"][0]["rc"] == 7
+               and summary_verdict(s_cr) == "NOT A RESULT",
+               f"rc={s_cr['rows'][0]['rc']} verdict={summary_verdict(s_cr)} -- "
+               "a crashed job produced no value to miss a band with")
+        mut = json.loads(json.dumps(s_cr))
+        mut["rows"][0]["rc"] = 0
+        _check("MUTATION: the rc branch flips to PASS when rc becomes 0",
+               summary_verdict(mut) == "PASS",
+               f"mutated rc 7 -> 0, verdict {summary_verdict(s_cr)!r} -> "
+               f"{summary_verdict(mut)!r}: the branch reads rc, it is not a "
+               "constant")
+        _check("a runaway stop is NOT A RESULT, never GATE FAIL",
+               s2c["rows"][0]["state"] == STATE_STOPPED
+               and summary_verdict(s2c) == "NOT A RESULT",
+               f"state={s2c['rows'][0]['state']} "
+               f"verdict={summary_verdict(s2c)} -- the ceiling stopped it, so "
+               "no gate was ever evaluated")
+        mut2 = json.loads(json.dumps(s2c))
+        mut2["rows"][0]["state"] = STATE_DONE
+        mut2["rows"][0]["rc"] = 0
+        _check("MUTATION: the STOPPED branch flips to PASS when the state does",
+               summary_verdict(mut2) == "PASS",
+               f"mutated STOPPED -> DONE, verdict {summary_verdict(s2c)!r} -> "
+               f"{summary_verdict(mut2)!r}")
+        _check("GATE FAIL is UNREACHABLE from this runner, by design",
+               all(summary_verdict(x) != "GATE FAIL"
+                   for x in (s, s2, s2b, s2c, s_cr, mut, mut2)),
+               "the runner has no bands, so it can never be the thing that "
+               "decides a value missed one -- that is the comparator's business")
+        _check("every verdict maps to a DISTINCT exit code",
+               len(set(VERDICT_EXIT.values())) == len(VERDICT_EXIT)
+               and VERDICT_EXIT["PASS"] == EXIT_OK
+               and VERDICT_EXIT["NOT A RESULT"] == EXIT_NOT_A_RESULT
+               and VERDICT_EXIT["BLOCKED"] == EXIT_BLOCKED
+               and EXIT_REFUSE not in VERDICT_EXIT.values(),
+               f"{VERDICT_EXIT} -- a caller that conflates BLOCKED, NOT A "
+               "RESULT and GATE FAIL into one code cannot tell a run that "
+               "never started from one that produced a wrong number")
 
         # (vi-b) guard 5 FIRES: a case that already holds 0/ is not launched
         (root / "fresh" / "case" / "0").mkdir(parents=True)
@@ -1018,7 +1126,11 @@ def main(argv=None):
         print(f"  CAP EXCEEDED (held, not killed -- supervisor decides): "
               f"{s['cap_exceeded_names']}")
     print(f"  summary: {summary_path}\n  contention: {s['contention_artifact']}")
-    return EXIT_OK if v == "PASS" else EXIT_FAIL
+    if v not in VERDICT_EXIT:
+        print(f"REFUSE: verdict {v!r} is not in the fixed vocabulary",
+              file=sys.stderr)
+        return EXIT_REFUSE
+    return VERDICT_EXIT[v]
 
 
 if __name__ == "__main__":
