@@ -4600,3 +4600,161 @@ mesh that actually ran.
 **Instruction corrected in flight:** both live lanes were sent `(49*f1 - 9*f2)/40` before this
 ruling reached me. **They have been re-sent the general form.** No comparator of this team's
 had the exposure, so nothing built on the withdrawn prescription.
+
+---
+
+## N-C5. An adiabatic flow carries its own temperature ceiling `T0 = T∞(1 + ½(γ−1)M²)`, derivable from the boundary conditions BEFORE the solver starts and checkable at every iteration — and bare `T0` is a near-degenerate discriminator that a HEALTHY solve also trips
+
+**Landed 2026-08-25, cfd, from the F12 energy-bound discriminator.** This is the numerics half
+of `L-330`; the process half — that a completion rule cannot bound a solution's physical
+admissibility — stays a lesson and is not restated as a fact here.
+
+### The fact
+
+For a calorically perfect gas in **adiabatic** flow, total temperature is conserved along a
+streamline, so the static temperature anywhere in the field is bounded above by the freestream
+stagnation temperature:
+
+> **`T0 = T∞ (1 + ½(γ−1) M∞²)`**, and for `γ = 1.4`, **`T0 = T∞ (1 + 0.2 M∞²)`.**
+
+Every quantity on the right is a **boundary condition**. Nothing about the mesh, the scheme, the
+relaxation or the solver enters, so **the bound exists before the first iteration** and holds at
+every iteration of a correct solve. Its complement is equally usable: a measured `T_min` implies
+a local Mach number `M = sqrt(((T0/T) − 1)/0.2)`, which is a second, independent bound read off
+the other end of the same field.
+
+### The worked instance, measured
+
+F12's RAE 2822 case, from the case's own `0/` directory: `T∞ = 300 K`,
+`U = (254.55661283, 12.40536100, 0)` → `|U| = 254.8586 m/s`,
+`a = sqrt(1.4 · 287 · 300) = 347.190 m/s`, **`M∞ = 0.734064`** (which independently reproduces
+the registered `M 0.734`, so the case is the case it says it is). Hence
+
+> **`T0 = 332.331 K`, and the ENTIRE DYNAMIC TEMPERATURE of this flow is `32.331 K`.**
+
+`verification/runs/F12_runs/energy_bound_discriminator_2026-08-25/evidence/discriminator.json`
+carries these as `frozen_constants`: `T0_K = 332.3309915963`,
+`dynamic_temperature_K = 32.3309915963`. The control arm's field first exceeds `T0` at
+**iteration 4 of 148**, and arm 1's `T_max_over_run = 431.5574594 K` — **99.2265 K above the
+ceiling, 3.069 dynamic temperatures.**
+
+### THE DEGENERACY, WHICH IS THE PART THAT MAKES THIS USABLE
+
+**A healthy converged adiabatic solve touches `T0` from below at its stagnation cell BY
+CONSTRUCTION.** So *"`T_max` exceeded `T0`"* is very nearly a tautology: the F12 control's own
+first crossing overshoots by about **0.65 K, ~2 % of the dynamic temperature**, which any run
+would produce. `discriminator.json` records this against itself in
+`D3_DEGENERACY_DISCLOSED` — *"Reported, never used to classify alone."*
+
+> **A discriminator that a PASSING case also trips is not discriminating.** Bare `T0` is a
+> physical bound, not an instrument.
+
+**The instruments that DO discriminate, both measured on this case:**
+
+1. **`T0 + margin`, with the margin stated and generous.** `T0` is the *inviscid* bound; a
+   viscous flow at `Pr ≈ 0.7` admits a small total-enthalpy overshoot, so the registered ceiling
+   was **`T0 + 10 K = 342.331 K`**. Control breaches at iteration **19**, arm 1 at **53**,
+   arm 2 at **9** — a spread of 6× across three arms, which bare `T0` (4 / 9 / …) does not give.
+2. **The span ratio `(T_max − T_min) / (T0 − T∞)`** — field span in units of the flow's own
+   dynamic temperature. At iteration 20: control **3.282**, arm 1 **2.770**, arm 2 **8.812**.
+   Dimensionless, comparable across arms, and it moves when the physics moves.
+
+### Operational reading for cfd lanes
+
+1. **Derive `T0` in the pre-registration, before compute, from the registered boundary
+   conditions.** It is arithmetic on three numbers and it costs nothing.
+2. **Register `T0 + margin` and the span ratio as the instruments; report bare `T0` with its
+   degeneracy disclosed.** Never classify on bare `T0` alone.
+3. **A monitor asserting `T_max ≤ T0 + margin` refuses a run AT THE ITERATION IT GOES
+   NON-PHYSICAL, with a reason** — arm 1 at iteration 53 instead of at its registered `endTime`
+   of 148. That is what `docs/standards/MONITOR_STANDARD.md` exists to require, and F12 had no
+   such monitor. **Recorded as an instrument gap in cfd's own territory.**
+4. **This is a bound on ADIABATIC flow.** A case with wall heat transfer, a heated boundary or a
+   source term does not carry it, and the derivation must be redone or the bound dropped.
+
+*Artifacts:* `verification/runs/F12_runs/energy_bound_discriminator_2026-08-25/evidence/discriminator.json`
+(`frozen_constants`, `arms/arm*/D1_i_gen…`, `D2_S20`, `D3_i_T0…`, `D3_DEGENERACY_DISCLOSED`);
+the case's `0/T`, `0/U`, `0/p`; ruling `verification/campaign/F12_DISCRIMINATOR_RULING_2026-08-25.md`
+§4 and §5.2.
+
+---
+
+## N-C6. A structured butterfly tip cap on a SHARP trailing edge has a non-orthogonality floor that REFINEMENT MAKES WORSE — the maximum rises to an asymptote and the severe-face fraction rises an order of magnitude
+
+**Landed 2026-08-25, cfd, from the ONERA M6 topology study. Filed as a NUMERICS fact and not as
+a process lesson: it is a property of the discretisation of a geometry, it is reusable on any
+sharp-trailing-edge wing this lab meshes, and it predicts an outcome before the mesh is built.**
+
+**Beyond the supervisor's reading, which named only the `T0` bound as numerics. Filed by this
+lane with its evidence so it can be struck if the supervisor disagrees.**
+
+### The fact
+
+Where a structured tip cap meets a **sharp** trailing edge, the strip facing the TE must join a
+surface arc of `~(1 − U2)·c` to a core edge of `~CORE_S · t2(U2) · c`. **The ratio is set by the
+section half-thickness `t2`, which goes to ZERO at a sharp trailing edge** — at the M6's
+registered break it is **~16:1**, and `blk21` has three of four corners on `x = xb` with the `j`
+direction turning 90° across the block and collapsing ~16:1 onto the TE.
+
+**Because the ratio is geometric, refining the cap does not dilute it — it reproduces it at
+every level.**
+
+### The measurement, and it is the decisive one
+
+Read by this lane directly from the four `log.checkMesh` files under
+`verification/runs/F1_MESH_TRIALS_2026-08-25/topology_study/`, far-field blocks already repaired
+so the tip cap is the only mechanism above 70°:
+
+| variant | cells | internal faces | max non-orthogonality | severe (> 70°) | severe fraction |
+|---|---|---|---|---|---|
+| `t1_SHELL` (nr = 4) | 111,872 | 327,168 | **81.5834°** | 516 | **0.158 %** |
+| `t6_SHELL_NR16` | 118,784 | 346,752 | **81.9764°** | 1,812 | **0.523 %** |
+| `t7_SHELL_NR32` | 128,000 | 372,864 | **82.0355°** | 3,636 | **0.975 %** |
+| `t8_SHELL_NR64` | 146,432 | 425,088 | **82.0645°** | 7,200 | **1.694 %** |
+
+> **The maximum RISES monotonically toward an asymptote near 82.07°, and the severe-face
+> FRACTION rises 10.7× while the cell count rises only 1.31×.**
+
+**A MEASURED CORRECTION TO THE RULING THAT ORDERED THIS ENTRY.**
+`verification/campaign/F1_M6_TOPOLOGY_RULING_AMENDMENT_2026-08-25.md` §4 and
+`F1_M6_CORRECTION2_2026-08-25.md` §3 describe the obstruction as **"a fixed fraction of the
+mesh"**. Measured, **the fraction is not fixed — it rises by an order of magnitude across the
+same sweep.** The correction **strengthens** the ruling it corrects: the conclusion was that no
+amount of resolution reaches 70°, and a rising fraction is worse for that geometry than a
+constant one. Recorded here rather than absorbed.
+
+### Why this is a numerics fact and not just an M6 finding
+
+`MESH_STANDARD.md` §8.1's diagnostic is that a **marginal miss vanishes under refinement** while
+a **structural defect does not**. This is the second signature, sharpened:
+
+> **A quantity that RISES under refinement to a finite asymptote is not converging to the
+> truth — it is converging to the defect.** Richardson extrapolation of such a series
+> extrapolates the defect, and a triple built on it will look beautifully monotone while
+> measuring nothing about the flow.
+
+The mechanism generalises to any structured cap on a geometry whose thickness goes to zero:
+sharp trailing edges, sharp leading edges, knife-edged fins, closed-out wing tips.
+
+### Operational reading for cfd lanes
+
+1. **Before building a structured cap on a sharp-edged geometry, compute the strip-to-core
+   arc-length ratio at the break.** A ratio of order 10 or more predicts a non-orthogonality
+   floor in the 80s, and it predicts it without building anything.
+2. **Run the refinement direction as a DIAGNOSTIC, not as a repair.** Two levels are enough to
+   tell rising from falling, and rising settles the question.
+3. **Report the severe-face FRACTION beside the maximum.** The maximum alone asymptotes and can
+   look stable; the fraction is what shows the defect propagating into the refined mesh.
+4. **Thickening the section to relieve it is INADMISSIBLE** — `TSCALE` was ruled so on this
+   case, because a thickened aerofoil is a different aerofoil. This entry is a reason to change
+   the MESHING METHOD, never the geometry.
+5. **`checkMesh`'s own verdict is not the lab's gate.** On `t1_SHELL` at 81.5834° with 516
+   severe faces, `checkMesh` still prints **"Non-orthogonality check OK"** against its own
+   internal error threshold. `MESH_STANDARD.md` §3.1's 70° hard gate is applied by the lab and
+   must be read off the reported **maximum**, never off the tool's OK line.
+
+*Artifacts:* the four `log.checkMesh` files named in the table;
+`verification/runs/F1_MESH_TRIALS_2026-08-25/topology_study/LANE_REPORT.md:193-195, 243, 326`;
+`te_study/worst_nonortho.py` and `topology_study/outer_face_geom.py` (both carrying the two
+planted controls — agreement with `checkMesh` to `< 0.05°`, worst seen `0.00005°`, and a point
+displacement that must move the angle).
