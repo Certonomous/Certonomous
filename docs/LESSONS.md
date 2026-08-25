@@ -12092,3 +12092,86 @@ Had it landed, every coverage statement this team made would have been wrong by 
 than 10 %, and a lane would have been sent hunting for ten manual pages that do not
 exist. **The campaign fraction is 3 of 73 in-scope cases** — a denominator that only
 means anything if the enumeration behind it is real.
+
+## L-313 — A records id must be re-derived INSIDE the committing shell invocation: derived five minutes early, it collided; and the row that collided was itself citing the lesson against doing that
+
+**2026-08-25, ansys-verification.** A lane appended a cost-calibration row and cited it
+from a credentials register row as **`C-50`**. **`C-50` belonged to the cfd team.**
+
+**The timestamps are the whole diagnosis, and they rule out the excuse.**
+
+| event | commit | time |
+|---|---|---|
+| cfd's `C-50` lands in `docs/COST_CALIBRATION.md` | `cd1ac21a` | **01:09:21Z** |
+| our register row citing `C-50` lands | `393476d9` | **01:14:13Z** |
+
+**Four minutes fifty-two seconds apart, cfd first.** So **nothing raced**: the id was
+already taken and already visible at `HEAD` when the row was written. The cause is not
+concurrency and cannot be filed under bad luck — **the id was derived BEFORE the commit
+instead of inside the committing shell invocation.** `CLAUDE.md` rule 11 says it in
+terms: *"Peers commit constantly: re-derive at commit time, in the same shell
+invocation."* A derivation minutes old is not a derivation; **it is a snapshot of a
+ledger that other teams are appending to continuously.**
+
+**A CONTRIBUTING FACTOR THAT IS WORSE THAN THE RACE, because it needs no peer at all:**
+the worktree copy of `docs/COST_CALIBRATION.md` was **~19.8 kB shorter than the HEAD
+blob** (168 635 B against 188 448 B). **An id derived from a truncated worktree copy
+races nothing and is still wrong** — it reads a maximum that the file at HEAD passed
+long ago. *Read the ledger with `git show HEAD:<path>`, never from the worktree.*
+
+**THE STING, AND IT IS THE REASON THIS IS A LESSON AND NOT A TICKET.** The offending
+register row **cites `L-292` in its own text** — *"an id in prose before its append is a
+prediction, not an identifier"* — and it was written by a lane that had **just corrected
+that same team's previous instance** of it, row #3's wrong `D510`, hours earlier the
+same night. **The row named the failure mode, in the same sentence in which it committed
+it.**
+
+**A LESSON RECORDED IS NOT A LESSON APPLIED.** Prose describing a discipline is not the
+discipline; **only the committing invocation is.** `L-221`/`L-222` say exactly this about
+`libs` entries — *a lesson is not applied until EVERY call site asserts it* — and this is
+the records-id instance of the same law. The defence is never a more careful reading; it
+is **moving the derivation inside the invocation that writes the tree**, where it cannot
+be skipped, and **re-deriving again on any CAS retry** — a retry means HEAD moved, which
+is precisely when the previous id went stale.
+
+**THE RULE, operationally.**
+
+1. Derive the id **in the same shell invocation** that runs `write-tree`/`commit-tree`,
+   from `git show HEAD:<ledger>`, **never from the worktree** and never from an earlier
+   tool call.
+2. Take the **MAXIMUM EXISTING NUMBER, never a count** (`CLAUDE.md` rule 11 — block
+   count, distinct count and highest number are three different figures).
+3. **Match the id pattern loosely enough to see every row.** Two near-misses in one
+   night: a `C-` derivation that matched only `^\| *\*?\*?C-[0-9]+` missed a bolded id,
+   and an `L-` existence check written as `^## L-307\.` returned a **false negative**
+   because those headings use an **em-dash**, not a period. **An id check must not assume
+   the punctuation.**
+4. **Never bold an id in a ledger whose ids are plain** — a bolded id hides from the next
+   lane's derivation grep, which is the collision mechanism reintroduced as formatting.
+5. On a **CAS retry, re-derive the id** before retrying.
+6. **Verify the append**: `insertions == lines written`, `deletions == 0`, and the prior
+   file byte-identical as a **prefix by hash**. `git diff-tree` proves **which** paths
+   changed, **not what changed inside them**.
+
+**One further defect from the same repair, recorded because it is on shared history.**
+The invocation that first tried to land the replacement row **aborted inside its build
+step** — the ledger's HEAD blob **had no trailing newline**, which fired a guard — and
+then **committed the unchanged `read-tree` of HEAD anyway**, producing an **EMPTY commit
+carrying a message that claimed a row it had not written** (`dc0a096c`). A peer committed
+on top before it was noticed, so it was **left standing and corrected forward** rather
+than rewritten. **A build step that can abort must be unable to reach `commit-tree`:**
+assert the tree actually changed, and ensure the file **ends in a trailing newline before
+you append to it.** That guard was added and fired correctly on the very next commit.
+
+**Repairs, all append-only, none rewriting the offending row:** the calibration row
+landed as **`C-51`** at `0c3f3054` with its id re-derived in-invocation; the register
+carries a **dated foot-note** at `969c6074` striking the `C-50` citation and naming
+`C-51`, with *"lines whose number changed above this section: 0"* **verified by hashing
+the prefix** rather than asserted. **The append-only rows themselves were not edited** —
+the same treatment the `D510` correction got.
+
+**Family:** `L-292` (the id-in-prose failure this repeats), `L-221`/`L-222` (a lesson is
+not applied until every call site asserts it), `L-311` (the private-index protocol
+protects the parent, not the content), `L-307` (the worktree-vs-HEAD gap is
+non-stationary). All of them are **failures that raise no error and read as if they
+worked.**
