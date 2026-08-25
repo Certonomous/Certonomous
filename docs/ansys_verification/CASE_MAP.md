@@ -350,3 +350,123 @@ Drafted as bullets for the supervisor's read; each cites the manual page.
 - **N-AV (mesh statement worth capturing):** VMFL078 discloses its mesh size
   (**279,894 polyhedral cells**, p. 223) — a rare explicit cell count, useful as the
   order-of-magnitude anchor for the lab's 3D lid-cavity ladder sizing.
+
+---
+
+## GAP-CLOSING PRIORITY — the never-run classes, ranked (appended 2026-08-25, `ansys-lane-opus48`)
+
+**Purpose.** Sanaa's priority, relayed by the chief: *where there is a choice, take a
+case from a class the lab has NEVER RUN over one that re-covers held ground.* This
+section ranks the manual cases that close each of the lab's four **declared gaps** —
+compressible/supersonic, 3D, turbulent thermal, and a converging Roache triple outside
+the thermal family — so the supervisor can pick the next case on evidence.
+
+**Caveat carried, as instructed.** This priority follows the chief's **reconstruction
+of Sanaa's instruction, not her verbatim words**, and is labelled as such. It is a
+draft for the supervisor's read, not a dispatch.
+
+**Ranking criterion (multiplicative — a case scores on all four or it falls):**
+closes a declared gap **×** has an EXACT/analytical target (which is what lets a row
+hold the **V** column) **×** cheap **×** the lab has a working solver on this box.
+
+**Cost bands are ESTIMATES for a full 3-level Roache triple, not measured** — priced
+by analogy to VMFL005's laminar triple (4.0 core-min measured) and inflated for
+density-based/explicit solvers, which take small time steps to a steady state.
+`trivial` < 15 core-min · `small` 15–180 · `medium` 180–1800 · `large` > 1800. Every
+one is re-costed in its own pre-registration before compute (CLAUDE.md rule 12).
+
+**Solver column** reads the box's OpenFOAM v2606 application set (per CASE_MAP Table A).
+
+### Gap 1 — compressible / supersonic
+
+| Rank | Case | Pg | Dim | Target type | Solver on box? | Cost band (triple) | Note |
+|---|---|---|---|---|---|---|---|
+| — | **VMFL051** Prandtl–Meyer expansion | 165 | 2D | **AN** discrete(1), Mach | **yes** rhoCentralFoam | trivial | **IN FLIGHT — assigned to another lane, being pre-registered now. DO NOT TOUCH `cases/ansys_verification/VMFL051/`.** |
+| **1** | **VMFL045** oblique shock over a ramp | 153 | 2D | **AN** discrete(3), Mach/T/ρ | **yes** rhoCentralFoam/sonicFoam | trivial | Inviscid, monotone (ladder `Y`, not `Y*`); exact oblique-shock relations for all three targets. **Recommended second case — see below.** |
+| 2 | **VMFL046** normal shock in a C–D nozzle | 155 | 2D | **AN** (profile → gate a scalar: exit Mach / shock x) | **yes** rhoCentralFoam/sonicFoam | small | Analytic 1-D area–Mach + normal-shock relations; profile, so gate a functional. |
+| 3 | **VMFL075** supersonic circular-arc bump | 217 | 2D | NUM (profile) | **yes** rhoCentralFoam | small | Inviscid; reference is a benchmark, not analytic — weaker V. |
+| 4 | **VMFL044** supersonic nozzle | 149 | A | EXP (profile) | **yes** rhoSimpleFoam/sonicFoam | small | Experimental wall-pressure ratio; V would be correlation at best. |
+| 5 | **VMFL017** RAE 2822 transonic airfoil | 69 | 2D | EXP discrete(2), Cd/Cl | **yes** rhoSimpleFoam(SST) | small | Turbulent + shock + y+ band; even Ansys is 5–7 % off (Fluent Cd 0.952). Demanding. |
+| 6 | **VMFL041** transonic airfoil | 141 | 2D | EXP (profile) Cp | **yes** rhoSimpleFoam(SST) | small | Shock + y+. |
+| 7 | **VMFL018** shock reflection | 71 | 2D | EXP (profile) | **yes** sonicFoam/rhoCentralFoam | small | Afterbody p + heat flux; profile. |
+| 8 | **VMFL053** compressible turbulent mixing layer | 171 | 2D | EXP (profile) | **yes** rhoSimpleFoam(RNG k-ε) | small | Profile. |
+| 9 | **VMFL060** transitional supersonic rearward step | 187 | 2D | EXP (profile) | **partial** transition SST | small | Shock + transition model. |
+| 10 | **VMFL020** adiabatic piston compression | 79 | 2D | **AN** (profile) T,p vs t | **yes** rhoPimpleFoam+dynamicMesh | small | Analytic target, but transient + moving mesh — harder tooling. |
+| — | **VMFL026** real-gas shock tube | 99 | 3D | NUM (profile) | **BLOCKED** real-gas EOS absent | medium | Perfect-gas only; real-gas limb cannot run. Also a 3D case. |
+
+### Gap 2 — 3D
+
+| Rank | Case | Pg | Dim | Target type | Solver on box? | Cost band (triple) | Note |
+|---|---|---|---|---|---|---|---|
+| **1** | **VMFL078** lid-driven cubic cavity, Re=1000 | 223 | 3D | NUM (benchmark; Ku-type) | **yes** icoFoam/simpleFoam | medium | Laminar, **clean structured-hex triple** (ladder `Y`); the cleanest 3D converging-triple candidate. Reference is a benchmark, not analytic → V = correlation/benchmark, not exact. Manual discloses 279,894 cells (sizing anchor). |
+| 2 | **VMFL069** two-phase Poiseuille | 205 | 3D | NUM (profile) | yes interFoam | small | Laminar, fixed interface; benchmark reference. |
+| 3 | **VMFL030** 90° pipe bend | 111 | 3D | EXP (profile) | yes simpleFoam(RNG k-ε) | medium | Turbulent, half-domain, y+ band. |
+| 4 | **VMFL048** 180° pipe bend | 159 | 3D | EXP (profile) | yes simpleFoam(SST) | medium | Turbulent, y+. |
+| 5 | **VMFL035** 3D axial compressor | 123 | 3D | NUM discrete(2) | yes rhoSimpleFoam(MRF) | large | **Also compressible** (closes two gaps) but turbomachinery + MRF + large cost. |
+| 6 | **VMFL015** engine inlet valve | 61 | 3D | EXP (profile) | yes simpleFoam | large | Costly. |
+| 7 | **VMFL016** transition duct (RSM) | 65 | 3D | EXP (profile) | yes simpleFoam(RSM) | large | RSM, costly. |
+| 8 | **VMFL077** ship free surface (VOF) | 219 | 3D | EXP (profile) | yes interFoam | large | Costly VOF. |
+| — | **VMFL068** eccentric annulus (RSM) | 203 | 3D | EXP (profile) | yes simpleFoam(RSM) | medium | **ARCHIVE ABSENT** — no `.wbpz` anywhere in the set. |
+
+### Gap 3 — turbulent thermal
+
+| Rank | Case | Pg | Dim | Target type | Solver on box? | Cost band (triple) | Note |
+|---|---|---|---|---|---|---|---|
+| **1** | **VMFL028** turbulent heat transfer, pipe expansion | 107 | A | EXP (profile) Nusselt | **yes** rhoSimpleFoam / simpleFoam+energy | small | Cheapest turbulent-thermal; axisymmetric wedge (note the wedge-area finding below). |
+| 2 | **VMFL013** turbulent + heat, backward-facing step | 51 | 2D | EXP (profile) Nusselt | yes rhoSimpleFoam | small | Reattachment + heated wall; y+ band. |
+| 3 | **VMFL052** turbulent natural convection, tall cavity | 167 | 2D | EXP (profile) | yes buoyantSimpleFoam | small | Buoyancy + y+. |
+
+**All three are EXP profiles — none has an analytical target**, so none can hold the
+**V** column as `exact`; V would be `correlation` at best and the row's ceiling is
+GATE REACHED / SURVEYED, not HOLDS. This gap is real but cannot be closed to HOLDS
+from the manual alone.
+
+### Gap 4 — a converging Roache triple OUTSIDE the thermal family
+
+**Already partially closed.** VMFL001-R2 (laminar rotating cylinders) and VMFL005
+(Poiseuille) each provide a CONVERGING triple outside the thermal family. To broaden
+into *new physics classes* with a converging triple:
+
+| Rank | Case | Pg | Dim | Target type | Solver on box? | Cost band (triple) | Note |
+|---|---|---|---|---|---|---|---|
+| **1** | **VMFL045** oblique shock | 153 | 2D | **AN** discrete(3) | yes rhoCentralFoam | trivial | Inviscid, monotone triple; **also closes Gap 1**. Best two-gap-for-one pick. |
+| 2 | **VMFL078** lid-driven cubic cavity | 223 | 3D | NUM benchmark | yes icoFoam | medium | Clean hex triple; **also closes Gap 2**. |
+| 3 | **VMFL036** laminar flow past a sphere, Re≈50 | 125 | A | NUM discrete(1) Cd | yes simpleFoam(axisym) | small | Monotone; benchmark reference. |
+| 4 | **VMFL063 / VMFL064** reattachment length | 193/195 | 2D | EXP discrete(1) LR | yes icoFoam/simpleFoam | small | Laminar, gate on a length functional (noisier). |
+
+### The recommended SECOND case — VMFL045 (after the in-flight VMFL051)
+
+**Run VMFL045 (oblique shock over an inclined ramp, p. 153) next.** It is the only
+other case that scores on **all four** ranking factors at once:
+
+1. **Closes a declared gap — two of them.** Compressible/supersonic **and** a
+   converging Roache triple outside the thermal family, in one case.
+2. **EXACT analytical target.** The downstream Mach number, temperature and density
+   come from the exact oblique-shock relations (θ–β–M, Rankine–Hugoniot) — a
+   `discrete(3)` target, so the **V** column can hold `exact`, unlike the profile-only
+   supersonic cases. Being **inviscid**, its converging triple's Richardson extrapolate
+   can be expected to land on the exact value (no wall-model or wedge-area limb like
+   VMFL005's), making it a genuine HOLDS candidate rather than a GATE REACHED.
+3. **Cheap.** Inviscid, 2D, trivial cost band; a full triple is a few tens of
+   core-minutes at most, well under the pre-authorised ceiling.
+4. **The lab has the solver.** rhoCentralFoam (density-based, shock-capturing) is on
+   the box; VMFL045's CASE_MAP ladder is `Y` (clean monotone), not `Y*`.
+
+And it is the **natural sibling of the in-flight VMFL051** — same solver
+(rhoCentralFoam), same inviscid-supersonic class — so the tooling, mesh style and
+grading harness built for VMFL051 transfer directly, cutting VMFL045's setup cost.
+VMFL078 is the strongest **3D** pick and should follow once a compressible case holds,
+but its reference is a benchmark (V = benchmark, not exact) and its cost is `medium`,
+so it ranks behind VMFL045 for a *next* case under the stated criterion.
+
+### A note that bears on every axisymmetric (`A`) case above
+
+VMFL005 (axisymmetric wedge) showed that an OpenFOAM wedge under-represents the true
+circular cross-section by the factor **sin(t)/t = 0.99873 at t = 5°** (a 0.127 % area
+deficit), which contributes an estimated **~a quarter to ~half** of that case's
+0.4979 % deviation from the exact reference (full arithmetic in
+`docs/ansys_verification/COVERAGE_ROWS.md`). Any axisymmetric case run against an
+**exact** target (VMFL002, VMFL007, VMFL028, VMFL036, VMFL044, VMFL058, VMFL073,
+VMFL076) inherits this geometric bias and should either use a **smaller wedge angle**
+to shrink it or **carry it explicitly** in the pre-registration's error budget. This
+is the pending numerics candidate in `docs/ansys_verification/RECORDS_DRAFTS.md`.
