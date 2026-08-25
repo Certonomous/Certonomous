@@ -13730,3 +13730,130 @@ That is L-326's doctrine landing on a third instrument in two days: **a selftest
 instrument self-consistent; only a real artifact proves it right.** Both narrowings are recorded
 in the source at the point they constrain, so the next hand widening them sees what widening
 cost last time.
+
+---
+
+## L-332 — NO `assert` MAY CARRY A REFUSAL, A GUARD, A CONTROL OR A GATE. `python3 -O` DELETES EVERY ASSERT, so a guard written as one exists only under a flag the runner chooses — and the prints after it will certify a pass that never happened
+
+**Found 2026-08-25, cfd, by the supervisor's check-1 on a guard this lane had just
+landed and its own selftest had just passed. Authorised by the cfd supervisor
+(`665935ea` §3). This is a NEW SHAPE for the catalogue: an instrument that is correct
+under one interpreter invocation and absent under another, with nothing in its output
+distinguishing the two.**
+
+**This lesson amends no standard.** Standing rules 3 and 4 are quoted, not changed;
+extending a standing rule is reserved and no lane or supervisor takes it here.
+
+### The fact
+
+`assert` is a **debug statement**. `python3 -O` and the `PYTHONOPTIMIZE` environment
+variable **remove every `assert` from the compiled code**. A stripped assert leaves
+**no trace at all** — the function simply proceeds to the next statement.
+
+**So a refusal written as an `assert` is not a refusal. It is a refusal *offer*, which
+the person running the script accepts or declines by their choice of interpreter
+flag — usually without knowing they are choosing.**
+
+### Instance 1 — the guard that would have swept the shared tree
+
+`scripts/check_worktree_matches_head.py:_build_control_repo()` runs `git add -A`,
+lawful **only** because its one call site passes a `tempfile.mkdtemp()` path. This lane
+landed a rule-10 guard on it as an `assert` (`1a377983`). **Measured on that exact
+shape:**
+
+| invocation | result |
+|---|---|
+| `python3` | **rc=1, `AssertionError`, REFUSED** |
+| `python3 -O` | **rc=0, `PROCEEDED TO add -A on /home/ubuntu/Certonomous`** |
+| `PYTHONOPTIMIZE=1 python3` | **rc=0, PROCEEDED, identically** |
+
+**Under either flag the guard vanished and `git add -A` would have swept the shared
+tree — L-12, which happened twice (1,187 files, 25M insertions).** Repaired at
+`6de564d1`; both files repaired at `eb96b3e3`.
+
+### Instance 2 — WORSE THAN VANISHING: the script CERTIFIED a pass that never ran
+
+`verification/runs/F1_MESH_TRIALS_2026-08-25/te_study/block_corner_angles.py` carried
+its **standing-rule-3 planted controls as six `assert`s** and had exactly one exit, and
+it was `sys.exit(0)`. Measured with `quad_angles()` mutated to return zeros, so every
+control **must** fail:
+
+- `python3 --selftest` → **rc=1, `AssertionError: CONTROL FAILED (square): [0.0, 0.0, 0.0, 0.0]`**
+- `python3 -O --selftest` → **rc=0**, and it **printed**:
+  - `PLANTED CONTROL PASSED: estimator recovers 90.000000000, 135.000000000 and 180.000000000 deg ... to < 1e-9 deg.`
+  - `PLANT SEEN: ... moved its angle 0.000000 -> 0.000000 deg, matching the hand recompute.`
+  - `SELFTEST PASS.`
+
+> **The prints sat AFTER the asserts, so deleting the asserts left the CLAIMS. The
+> script did not merely lose its controls — it affirmatively certified that controls
+> had passed which never ran, on an estimator returning zeros, and called a
+> `0.000000 -> 0.000000` displacement a PLANT SEEN.**
+
+**That is standing rule 3's exact failure — a zero from a reader not shown able to see
+a non-zero — reached through the INTERPRETER rather than through the reader.** Rule 3
+guards the reader; nothing guarded the statement type.
+
+### Why no test written in normal mode can catch this
+
+**A stripped assert leaves no trace.** The selftest passes, the mutation controls pass,
+the output is identical. **The property is invisible to every test that does not
+itself set the flag** — which is exactly how the assert form survived this lane
+writing it, testing it with a planted control, and a supervisor reviewing the diff.
+**Three independent chances, none of which could have seen it.**
+
+### THE EXECUTABLE CHECK — this is the durable part
+
+1. **Find load-bearing asserts.** An `assert` in a file that also refuses is the
+   suspicious shape; an `assert` in a file whose only exit is `sys.exit(0)` is the
+   dangerous one:
+   ```
+   grep -n '^\s*assert\b' <instrument>        # candidates
+   grep -c 'sys.exit\|raise '  <instrument>   # is there any real refusal at all?
+   ```
+2. **Run every instrument's selftest under `python3 -O` and require IDENTICAL
+   refusals.** Same exit codes, same refusal lines. A selftest that passes under
+   `python3` and passes under `python3 -O` **on a mutant that must fail** is not a
+   selftest.
+3. **Build the `-O` control into the instrument**, as `6de564d1` and `eb96b3e3` do:
+   drive the refusal path under `-O` itself, against a **mutant that must be refused**
+   and a **pristine positive that must pass**. Both this lab's implementations run
+   against a **SACRIFICIAL COPY in a temp tree** — so a fully stripped guard cannot
+   cause the catastrophe the control is testing for.
+4. **The control must be shown able to fail.** Reverting `raise` → `assert` with
+   identical logic must flip it: measured, it does — `PROCEEDED` on both clauses, rc=3.
+   **The control discriminates on statement type alone, which is the property that
+   was missing.**
+
+### The rules
+
+1. **`assert` is for an invariant whose violation is a programming error.** Never for a
+   refusal, a guard, a control or a gate.
+2. **Every refusal `raise`s or `sys.exit`s**, so no interpreter flag can remove it.
+3. **A standing-rule-3 planted control implemented as `assert` is a control a flag
+   deletes** — and the run then reports a clean pass with no planted-zero control
+   having executed. **This is the highest-value case in the whole class**, because rule
+   3 exists precisely to stop an unwitnessed zero.
+4. **A standing-rule-4 completion limb implemented as `assert` is the same failure**:
+   a run reported done with the limb never evaluated.
+5. **Never put an unconditional success `print` after a check.** Print inside the
+   passing branch, so removing the check removes the claim. Instance 2 is the whole
+   argument.
+6. **When a latent exposure is repaired, RE-RUN and compare** before restating any
+   number. Both scripts here reproduced **byte-identically**, so their findings return
+   with an artifact behind them instead of an inference — the four degenerate tip-fill
+   blocks at exactly `180.000000°`, and `outer_face_geom.py`'s agreement leg at
+   `81.5834` vs `checkMesh` `81.5834`, `|diff| 0.00001°`.
+
+### The honest limit, which is the reason the re-run was ordered
+
+**The exposure was LATENT, NOT REALIZED.** Nothing in this lab invokes `-O`, so the
+controls almost certainly fired all along, and **no verdict is indicted** (`665935ea`).
+**But "almost certainly fired" is an assumption, not an artifact — and the instrument
+could not prove otherwise. That inability IS the defect.** A re-run converts the
+assumption into evidence, and it converts it **only for the runs it makes**.
+
+### The general form worth carrying
+
+**An instrument's guarantees are only as strong as the weakest invocation anybody can
+give it. If a flag, an environment variable or an optimisation level can delete your
+refusal, then your refusal is a default setting, not a property of the instrument.**
