@@ -2579,6 +2579,165 @@ unrecorded.** **This block is committed BEFORE the grade rather than held to
 report with it** — a task must never depend on an agent surviving to a future
 moment.
 
+
+### certonomous-66 CONTINUED — THE POOL IS GRADED, K0d IS BLOCKED, AND HER V/P RULING IS IN
+
+**Section appended 2026-08-25T~17:0xZ by heat-transfer-supervisor.**
+
+#### SANAA'S SECOND AND THIRD TURNS, BYTE-EXACT AND UNNORMALISED
+
+> a. Uphold
+
+> the teams need to be more pro active and launch/ run stuff more automatically
+
+> II/ heat transfer I just scpd the book into Certonomous/docs/standards so the team can go ahead and read it
+
+#### T1b L4 — GRADED. `NOT A RESULT` x 4. TIER `NOT HELD`
+
+`048ee7b4` (ruling + artifact), `6c9d9afc` (lane record), `fe5a6a52` (correction).
+
+| row | Re | `Nu` at x | (m,f,x) | order | gated by |
+|---|---|---|---|---|---|
+| X0 | 1e4 | 32.576755 | **DIVERGENT** | −0.4129 | step (1) |
+| X1 | 3e4 | 73.904493 | **STAGNANT** | +0.4350 | step (2) |
+| X3 | 1e5 | 189.207411 | **STAGNANT** | +0.4217 | step (1) |
+| X4 | 3e5 | 457.101164 | **STAGNANT** | +0.4058 | step (1) |
+
+**Zero graded rows, zero `PASS`, zero `GATE FAIL`, no GCI quotable.** Markers
+41 → 44 (exactly the three expected). Freeze re-verified **inside the grading
+invocation**. **All sixteen levels plateaued** (worst 0.0815 vs 0.1758);
+**three of four x levels failed iterative convergence** — 48 320x / 127x / 19.5x
+tolerance. `R_30k_x` returned exactly **0.0**.
+
+**Tier `NOT HELD`, and it does NOT depend on the V/P ruling** — `G` fails on its
+own (no CONVERGING triple), so no rubric ruling can lift it off the floor.
+
+**§3.6's prediction is COMPOUND and 2 of 4 clauses FAIL.** Quoting only the
+first clause — the usual quotation — scores a failed prediction as a success.
+
+#### FIVE COMPARATOR DEFECTS — `D522`–`D526`, DOCKETED, NOT FIXED (the file is FROZEN)
+
+`D522` **exit 0 on a rung with zero graded rows** (`fails` counts only
+`GATE FAIL`) — the printed summary is honest, the exit code is not.
+`D523` gated rows' deviations never computed. `D524` three of four friction
+rows never emitted. `D525` tags unstable by emission order — registered range
+`X0..X7` unrealised (five rows, not eight); **stated as the range being
+unrealised, NOT as contradicting a mapping the prereg never fixed.**
+`D526` the `REPORTED` vocabulary boundary — **pre-registered, referred to
+verification, neutral, no fix proposed.**
+
+#### MY OWN RULING WAS WRONG AND IS CORRECTED — `fe5a6a52`
+
+**I wrote that "the three deviations a reader can see are +0.2989 %, −0.6255 %
+and +0.0828 %, all comfortably inside." THREE of four amended `Nu` deviations
+are ABSENT, not one.** Only X1 is printed; the other two figures are ones **I
+computed** and no reader sees. **Found by the ledger lane; I had the correct
+measurement in hand** — my own pass printed a column reading **NO / yes / NO /
+NO** minutes earlier, and I wrote the sentence from the derived values instead.
+**Third instance in two days of an instrument of ours being right while the prose
+written from it was wrong.**
+
+**The conclusion is WORSE, not better:** the artifact prints **six** deviation
+figures and **every one lies inside its band**; the one that is **1.90x
+OUTSIDE** appears nowhere. **The commit message of `048ee7b4` carries the same
+false sentence and cannot be edited** — corrected in the record only.
+
+**Direction: this error ran AGAINST the standing prior.** Recorded without
+relief; it is not a credit.
+
+#### COST — `C-61` RUNG, `C-62` INSTRUMENT, NOT POOLED
+
+**Predicted 205.44 core-h; measured 16 192.45 core-min = 269.874 core-h =
+$13.8445 derived; ratio 1.3136x.** Per case 1.198 / 1.298 / 1.321 / 1.759 —
+**ordered by iteration count, not Reynolds number.** Gross == cleaned
+**measured** (ExecutionTime/wall 0.99936 / 0.99938); **waste nil, checked.**
+**Mechanism extends, magnitude does not, and it was RE-MEASURED**: throughput
+0.770x / 0.757x of assumed, reproducing the wall ratios to four figures.
+**Gap named, not approximated:** contention was NOT re-measured for these two
+walls. Grading instrument **1.459 core-min** as `C-62`, **no ratio** — no
+estimate was ever registered for the grading step, and that absence is the
+finding.
+
+#### K0d — **`BLOCKED`**, 0 core-min against a registered 829.36. STILL FROZEN, ARMED, UNFIRED
+
+**A lane refused to launch and was RIGHT. Verified personally.** §8.2 clause 4
+requires `omega`; §5 registers `M2_c/m/f` on **`RNGkEpsilon`**, which writes
+`epsilon`, never `omega`. **Those three cases could never complete** — and since
+the comparator refuses without **all nine** markers, exposure is the **whole
+rung**, not M2's 296.32.
+
+**Counter-reading REJECTED on clause 4's own words** — *"registered here, not
+discovered later"* forbids inferring an unregistered exemption. **Recorded in
+full, answered not suppressed.**
+
+**The defect is K0d's, NOT the lab's**, and this was checked: k-ε thermal cases
+**have** earned markers (K0cG, K0cX, K0cS — nine of them), and marker scripts
+carry **per-rung** field tuples (`T,qr`; `T,DT`; `p,U,phi`). **Standing rule 4's
+field list describes the T1b INSTANCE, not a lab-wide invariant. No charter
+clause is touched.**
+
+**AMENDMENT 3 in draft, pre-compute and LEGAL** (`K0d_runs/` does not exist).
+Per-closure field sets; **it TIGHTENS** — adds `epsilon` on M2, which clause 4
+does not require at all. **No gate, threshold, band, cap, label or prediction
+moves.** **I read it AS A DIFF before any compute — undelegatable.**
+
+**AGAINST MYSELF:** my dispatch brief said the box was idle. **True at 15:28Z,
+STALE BY DISPATCH** — cfd's `pimpleFoam` pid 2150855 is running. No obstruction
+at 1 rank of 16 against a cap of 6, **but a launch plan on a stale read is a
+defect and the lane was right to correct me.**
+
+#### THE ID TOOL — MY IDS ARE CLEAN, AND I NEARLY MADE THE MIRROR ERROR
+
+`scripts/append_record.py` was relayed as blind to em-dash-headed lessons
+(reads max 317 against a true 319). **Checked independently, NOT with the tool:
+`C-61`/`C-62` and `D522`–`D526` are CORRECT and COLLIDE WITH NOTHING** —
+parent max row-opener `C-60` and `D521`, and D522–D526 occur **zero** times in
+the parent. **It did not bite because `COST_CALIBRATION.md` and `DOCKET.md` use
+table-row openers, not the `## L-nnn.` heading form. That is luck of FORMAT, not
+a guarantee.**
+
+**AND THE COMPLEMENT IS REAL:** my first permissive sweep read **max D = 901**.
+**`D901` is a fixture constant quoted inside `D349`'s own prose** — not a row.
+**A strict pattern UNDER-reads and a loose one OVER-reads; both are blind, in
+opposite directions**, and I demonstrated the second on myself within two minutes
+of being warned about the first. **An id must be derived from the ROW-OPENER
+form and eyeballed, never from a bare token sweep.** `scripts/` is not this
+team's: **REFERRED, not fixed.**
+
+#### STANDARDS BOOK — READ, AND IT IS NOT WHAT ITS FILENAME SAYS (`7e01097d`)
+
+**Ekaterinaris (2005), *High-order accurate, low numerical diffusion methods for
+aerodynamics*, Prog. Aero. Sci. 41:192–300**, 109 pages, COMPLETE. **Not a
+grid-convergence standard**: `Richardson` 0, `GCI` 0, `grid refinement` 0,
+`design order` 0, `manufactured` 0. **No conflict with anything frozen** — and a
+standard arriving after a freeze does not retroactively amend one. **`file -b`
+said "10 page(s)" and was WRONG**; two instruments were needed. URL NOT fetched.
+
+#### HER V/P RULING IS IN — THE SEVEN ROWS ARE FINAL, NOT PENDING (`9a2b79ab`)
+
+**"a. Uphold".** S6, S13, S19, S22 + cells C2, C10, C15 → **`GATE REACHED`,
+missing P, FINAL on her authority.** **UNFLAGGED.** Zero rows at `HOLDS` in
+either table is now **final, not provisional.** **This team argued for the ruling
+that cost it seven rows.** What must travel with them: **thermal's `G` is the
+strongest in the lab; what defeats these rows is `P`, not `G`.**
+
+#### NEXT ACTIONS
+
+1. **Read AMENDMENT 3 as a diff, then fire K0d** under the standing
+   pre-authorisation — 829.36 core-min point / 2 484.84 ceiling, $0.71 / $2.13
+   derived. Smoke test first, ABORT on failure, triage is the supervisor's.
+2. **Cost and launch the §4 extension** for `R_10k_x`, `R_100k_x`, `R_300k_x`
+   from THIS rung's measured rates — the rung whose own estimate missed by 31 %
+   on a rate borrowed across a mesh jump.
+3. `D521`'s fifteen ungraded graders; T5 prereg (12 INTERPRETATIONs still hers);
+   K1 provenance.
+
+#### ON SANAA'S DESK — **NOTHING BLOCKING FROM THIS TEAM**
+
+T5's 12 INTERPRETATIONs remain hers; K2a rack module; D389 S13 normalisation;
+D495; the T10a upstream draft (**filing is hers**). Vogel & Eaton 1985 and
+Blay 1992 both **NOT OBTAINED**.
+
 ## cfd
 
 **THREE CHECK-1 DIFF READS DONE PERSONALLY THIS SESSION, ALL THREE CLEARED — and each was re-run by the supervisor rather than believed on its lane's own test.**
