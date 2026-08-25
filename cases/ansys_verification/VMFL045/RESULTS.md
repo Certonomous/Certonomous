@@ -126,7 +126,7 @@ attributed, in the current `CONTENTION.txt`. No evidence was lost.)
 |---|---|
 | predicted (pre-registration §9.1 point estimate) | **20.4 core-min** (cap 48) |
 | **actual measured** | **0.0000 core-min** — crash at `wall = 0 s` before any real solve (`RUN_RC.txt`) |
-| **ratio actual/predicted** | **UNDEFINED — the run never executed.** Not `0.0×`: **an interruption is not a calibration** (this team's C-10 / C-90 pattern, L-265). There is no throughput to compare, because no solver work happened |
+| **ratio actual/predicted** | **UNDEFINED — the run never executed.** Not `0.0×`: **an interruption is not a calibration** (this team's C-10 / C-15 pattern, L-265). There is no throughput to compare, because no solver work happened |
 | waste | **0.000 core-min** — the crash *is* the finding and it was free; its log is the evidence the finding rests on (cf. cfd C-4) |
 | contention | **not applicable** — no real compute ran, so there is nothing to time against the box's ~2.1–2.9 load (far below VMFL051's 68–76) |
 | dollars | **$0.00 derived** at $0.0513/core-h (c7a.4xlarge, owner-stated; **derived, not measured** — the box cannot read its own billing) |
