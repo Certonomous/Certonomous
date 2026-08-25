@@ -223,6 +223,143 @@ read in the writing invocation.
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
 
+**FINAL WRITE, 2026-08-25T01:18:09Z (closure-supervisor, EIGHTH session).** Stamp from
+`date -u` in the writing invocation. **Sanaa stood the closure and dafoam teams down in
+her own session turn on 2026-08-25**, concentrating the lab's tokens on cfd,
+ansys-verification and heat-transfer so the coverage matrix can be built out. **A future
+session must read the gap after this line as a DELIBERATE STAND-DOWN, not as a fleet
+kill.** Three fleets died this week and the board is how they are told apart.
+
+**IT IS A CAPACITY DECISION, NOT A JUDGEMENT ON THE WORK, and the reason is a real one:
+closure's `G` column is empty for reasons no amount of tokens would fix.** More compute
+cannot give this family a grid triple, because **no flow in closure territory exists at
+two cell counts** — measured below.
+
+**EVERYTHING IS AT HEAD. Six closure commits this session, all ZERO COMPUTE:**
+`666a3c9e` (board), `d5d89baf` (MATRIX_CONTRIBUTION **Addendum 2**), `66688b0c` (three
+instrument repairs as drafts + the false-sweep finding), `34c75597` (**D518 + L-310**),
+and inherited from the seventh incarnation `39340d3d`, `1db6db8f`, `af2b23b0`.
+
+**⚠ CORRECTION TO A RESTATEMENT — THE ARM-2 GATE IS FOUR-PART, NOT THREE.** The
+stand-down message described arm 2 as sitting behind "her three-part gate". **It is
+FOUR-part as of `1db6db8f`, landed earlier the same night.** Because the GPU **cost
+approval** is now a **WITHDRAWN attribution**, the cost authority behind arm 2 is
+**weaker than it was yesterday, not stronger**, and the gate was **TIGHTENED** in
+consequence: (1) her go **in her own words**; (2) **her own start of the instance**; (3)
+**her two console readings** — the shutdown-behaviour attribute and the g6.xlarge
+us-east-2 on-demand price; **(4) her COST approval in her own words as well.** Recorded
+here because **a restatement is not a relaxation**, and a board that let the gate quietly
+revert to three parts would be the whole failure. `/home/ubuntu/closure-data/tbnn_gpu/arm2`
+remains **ABSENT**. **ARM 2 DOES NOT LAUNCH.**
+
+**OPEN ITEMS — AT REST, NOT ABANDONED. Each with what it needs to resume.**
+
+| Item | State | What resumes it |
+|---|---|---|
+| **Ling arm 2** | `PENDING`, **UNFIRED**, prereg v1.3 frozen with three legal pre-compute amendments; run dir absent | **All FOUR parts above, in Sanaa's own words.** No agent message is her consent (rule 9); GPU spend sits outside the 2026-08-21 CPU blanket (rule 12) |
+| **The four withdrawn attributions** | `ATTRIBUTION WITHDRAWN — TEXT STANDS AS A RELAYED PARAPHRASE` | **One confirming line from her restores all four.** Nothing re-opened, nothing re-run, no verdict disturbed. Chief among them *"regarding the GPU COST it's fine you have my approval"* |
+| **R6 (surfaces)** | Not started | Her phrasing |
+| **GPU drafts 2–5** (DPM, Bae, Lozano-Durán, Beck) | Drafted, unfrozen | Her **per-item** sign-off, each with a console-priced GPU-hour `cost_basis` |
+| **Next R4 increment** | `R4b_pair_control/PREREGISTRATION.md`, **now committed?** NO — still **UNTRACKED**, self-labelled `NO COMPUTE AUTHORISED` | A committed sha-frozen prereg, **and** her direction on the increment itself — its own §0.2 concedes it is the lab's ranking, not her choice |
+| **D518** (new, OPEN) | D491 limit (iii): a standing contrary state already on disk | A ruling on breach-vs-grandfathered. **Not closure's call** |
+| **Three instrument diffs** | Committed as drafts at `66688b0c`, **APPLIED TO NOTHING** | **A supervisor's own diff read of the patches as patches.** I read the lane's analysis, not the diffs. Under §3 check 1 none may be applied without that read |
+| **Arm-2 comparator rule-3 shortfall** | Open, **deliberately unamended** | A fourth pre-compute amendment with its own condition, condition check and diff read. No urgency — arm 2 cannot launch |
+| **§22.7 / the two 2026-08-24 R3 quotes** | Referred | Her confirmation, and whether §22.7 is marked closed **in the charter itself** |
+
+**WHAT LANDED TONIGHT, IN ONE PARAGRAPH EACH.**
+
+**`d5d89baf` — Addendum 2: WHY the `G` column is empty.** It is a **MIX**, and this is the
+plain structural statement the chief asked for. **Rows 2 and 3 grade a-posteriori solve
+outputs on meshes that exist** — a Roache triple is **defined and applicable** and was
+never run: a **GAP**. **Rows 1, 4 and 5 grade a-priori quantities** read off a **frozen
+reference field on the reference dataset's own grid** — a model-form error, a matrix rank,
+a coverage census. **There is no mesh of the lab's to refine, so a triple is NOT DEFINED**,
+and *"closure never ran a grid study"* **misdescribes them**. Row 6 is structural in what
+it graded, with a latent gap in the G4 limb that was registered and never reached.
+**The decisive measurement is positive, not documentary: 266 `polyMesh` directories, 40
+distinct geometries, and ZERO exist at more than one cell count.** A triple needs one flow
+at three levels; **the disk cannot supply a PAIR.** That is why the Row 2/3 gap could never
+have been closed by re-running what is here. **No tier and no verdict moved.**
+
+**Supervisor check 3, recorded AGAINST MYSELF at §A2.10.** My own re-run **appeared to
+contradict the lane**, reporting 23 "multi-level flows". **It was an artefact of my own
+key**: `null`, `truth`, `ceiling`, `discovered` are **configuration names reused across
+geometries**, not flow identities. Re-keyed by full path and by geometry token, the lane's
+claim held and was **stronger** than its own statement of it. **I killed my false
+contradiction before it reached a record and then recorded that I had made it.** The
+lesson, against myself: **a census is only as good as its key, and a silently colliding
+key manufactures exactly the positive a null-hunting search is least equipped to doubt.**
+
+**`66688b0c` + `34c75597` — THE FINDING THAT MATTERS, AND IT IS AGAINST US.** This board
+recorded D491 scope limit (iii) as **intact**. **That was false.**
+`FS2_DEGENERACY_REPORT.md` quotes the forbidden statistic **as a number in seven places**
+at HEAD — lines 13–18 and line 20 in prose — and all six values are the **pre-D476
+"before" figures A3 GATE FAIL'd on**. **The sweep that cleared it searched the KEY NAME,
+which the rendered report never contains**: name scan **0**, value scan **7**, run side by
+side. **A zero from a reader that could not have seen a non-zero is not evidence — and
+that is as true of a compliance sweep as of a comparator.** The quotes landed **two days
+BEFORE D491 was ruled**, so breach-vs-grandfathered is **referred and open (D518)**, not
+closure's call. **L-310** is the durable half and generalises past this family: *a search
+proves an absence only over the vocabulary it searched; a null that does not name its own
+apparatus is a claim about the searcher, not the corpus.* Second-order: **a guard that
+compares LINE COUNTS is blind to an interleaved edit, whose delta is zero — a guard must
+compare CONTENT, not size.**
+
+**⚠ TWO LATENT HAZARDS ON `make_fs2_report.py`, NEITHER PREVIOUSLY RECORDED. DO NOT RE-RUN
+IT.** A re-run (i) **destroys a dated rule-6 correction hand-written INSIDE a generated
+paragraph** at report line 73, and (ii) **silently rewrites six committed measured numbers**
+to post-D476 values — hump moves by a factor of **14** — a **re-grade wearing the clothes of
+a regeneration**, against the FS5 prereg's own *"No verdict may move retroactively from this
+repair."*
+
+**COST CALIBRATION (rule 12) — NO ROW IS OWED, AND THAT IS A RECORDED DECISION.** **Closure
+compute this entire session: 0.000 core-minutes, 0.000 GPU-hours, $0.00.** No rung graded,
+no case closed, no curriculum item finished — **no process completed with a cost, so there
+is nothing to calibrate.** Closure's four rows stand at HEAD unchanged: **C-2, C-16, C-18,
+C-19**. **C-16's `cost_basis` is UNAFFECTED by the withdrawal** — the $0.8048/GPU-h came
+from a **published price list with a URL and a retrieval stamp**, an artefact, not an
+attribution. The withdrawal touches the **authority to spend**, never the **arithmetic of
+what was spent**.
+
+**LIVE JOBS: NONE. NO LANES. NO SOLVER, NO DRIVER, NO MONITOR, NO GPU NODE.** Both lanes
+were sent an explicit stand-down, both confirmed they applied nothing, committed nothing
+and touched no index, and both have finished. **Nothing of closure's is running and nothing
+is queued.**
+
+**⚠ FILE-STATE WARNINGS FOR WHOEVER RESUMES — measured, not assumed.**
+- **This board write was committed from the HEAD blob and the WORKTREE COPY WAS
+  DELIBERATELY NOT WRITTEN.** At the time of writing `docs/LAB_STATE.md` on disk held **92
+  lines that HEAD does not** (other teams' uncommitted work) and was **239 lines behind
+  HEAD**. Writing disk would have **destroyed the 92**. **INSPECTED, NEVER REVERTED.** So
+  **this block is at HEAD and NOT on disk** — resume with `git show HEAD:docs/LAB_STATE.md`.
+- `docs/DOCKET.md` and `docs/LESSONS.md` likewise: rows built from HEAD blobs, **worktree
+  copies not written**, because they are stale and writing them **deletes rows**.
+- `docs/COST_CALIBRATION.md` on disk was measured **stale by one row** (C-49 absent).
+- `Kaandorp2020_TBRF/aposteriori/RESULTS.md` on disk is **stale by 164 lines with ZERO
+  disk-only content** — HEAD is the good copy. **Left exactly as found.**
+- **Rule 11 earned its keep again tonight:** docket **maximum 517 against a count of 520**;
+  lessons maximum 309, count 309. **The two figures differ and the count was used in
+  neither.**
+- The shared index still carries **~50 paths staged differing from HEAD**. **`git status`
+  is not an instrument here.** It was **inspected, never cleared** — that is the chief's
+  call, not mine.
+
+**NOTHING CHANGES BECAUSE THE TEAM IS RESTING.** **SUBMISSIONS PARKED** holds (rule 7).
+**Arm 2 does not launch** on any agent's message. **GPU spend stays outside the CPU
+blanket.** **The four attributions stay withdrawn** until Sanaa's own line restores them.
+**The repository stays permanently private.**
+
+**ON SANAA'S DESK, in priority order:** (1) **confirm or correct the four withdrawn
+attributions**, chief among them the GPU cost approval — one line restores all four; (2)
+confirm or correct the two 2026-08-24 R3 quotations, and say whether **§22.7 is marked
+closed in the charter itself** — a cold reader still finds it open; (3) her direction on
+the next R4 increment; (4) R6's phrasing; (5) per-item sign-off on GPU drafts 2–5.
+
+**CLOSURE STANDS DOWN HERE. Everything above is at HEAD. Nothing is lost.**
+
+
+**═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
+
 **FINAL WRITE, 2026-08-25T01:17:23Z (closure-supervisor, EIGHTH session).** Stamp from
 `date -u` in the writing invocation. **Sanaa stood the closure and dafoam teams down in
 her own session turn on 2026-08-25**, concentrating the lab's tokens on cfd,
