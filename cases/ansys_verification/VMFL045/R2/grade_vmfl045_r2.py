@@ -37,10 +37,10 @@ L-286):
 
 Columns are located BY HEADER NAME, never by position.
 
-    python3 grade_vmfl045.py                       # grade the run tree
-    python3 grade_vmfl045.py --selftest            # all controls, zero compute
-    python3 grade_vmfl045.py --dryrun-reader FILE  # parse only; prints no value
-    python3 grade_vmfl045.py --verify-frozen SHA   # hash self against a commit
+    python3 grade_vmfl045_r2.py                    # grade the run tree
+    python3 grade_vmfl045_r2.py --selftest         # all controls, zero compute
+    python3 grade_vmfl045_r2.py --dryrun-reader FILE  # parse only; prints no value
+    python3 grade_vmfl045_r2.py --verify-frozen SHA   # hash self against a commit
 """
 
 import hashlib
@@ -937,8 +937,9 @@ def verify_frozen(commitish):
               % (hashlib.sha256(mine).hexdigest()[:16], commitish,
                  hashlib.sha256(blob).hexdigest()[:16]), file=sys.stderr)
         return 2
-    print("FREEZE VERIFIED: grade_vmfl045.py is byte-identical to %s:%s (sha256 %s)"
-          % (commitish, SELF_REL, hashlib.sha256(mine).hexdigest()[:16]))
+    print("FREEZE VERIFIED: %s is byte-identical to %s:%s (sha256 %s)"
+          % (os.path.basename(SELF_REL), commitish, SELF_REL,
+             hashlib.sha256(mine).hexdigest()[:16]))
     return 0
 
 
