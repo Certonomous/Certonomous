@@ -83,6 +83,16 @@ Written 2026-08-24 by a heat-transfer `lab-lane`, at **zero compute**, against
 HEAD `69d2f1ba`. Every sha below is a real `git log -1 --format=%h -- <path>`
 lookup performed while writing, not a recollection.
 
+**AUDIT RE-STAMP, 2026-08-25 (dated addendum; line above is NOT rewritten).** This file
+was audited row by row by a heat-transfer `lab-lane` against the records on
+disk. **All nine sampled shas were verified genuine ancestors of `69d2f1ba`**, so
+the claim in the line above holds. The **blast radius of the staleness was
+exactly two items**: the K0d status (§3 S16, §5, §10 — corrected below) and T3's
+Richardson extrapolate (§3 S12, §4.4 — corrected below). Every other row's
+triple state, observed order, GCI and paper-on-disk claim reproduced exactly
+from the gate artifacts. Corrections below are **dated addenda, not silent
+rewrites**, per the supervisor's banner.
+
 **Verdict vocabulary is the fixed set** (CLAUDE.md rule 1): PASS / GATE REACHED /
 GATE FAIL / NOT A RESULT / BLOCKED / PENDING. **Tier vocabulary is Sanaa's five
 words, used with no synonyms**: HOLDS / GATE REACHED / SURVEYED / NOT HELD /
@@ -110,6 +120,37 @@ against this lane's own brief.
 reason: K0c's headline PASS rests on de Vahl Davis reached **through Han and Xie
 (2019) Table 3**, and de Vahl Davis 1983 itself is paywalled and was never read
 (`K0c_RESULTS.md:50-51,71`).
+
+### 0.1a MAPPING TO `docs/COVERAGE_MATRIX.md` — READ BEFORE LIFTING A COLUMN (added 2026-08-25)
+
+**The V / G / P above are NOT the coverage matrix's V / G / P.** `docs/COVERAGE_MATRIX.md`
+did not exist when §0.1 was written; it does now, and its rubric differs:
+
+| letter | matrix's rubric (`COVERAGE_MATRIX.md:33-35`) | what supplies it in THIS file |
+| --- | --- | --- |
+| **V** — code verification | an **exact**, **manufactured** or **correlation** solution compared against | **UNFILLED HERE.** No column of this file answers it. It **must be derived separately** and may not be lifted from any column below. |
+| **G** — grid convergence | a **CONVERGING Roache triple**, **GCI at Fs = 1.25** and an **observed order `p`** | **this file's `V` column** |
+| **P** — validation | a **public primary** AND the **pre-registration ON DISK** | this file's `P` column, **but only its first half** — see §0.1b |
+
+**The verification supervisor reached this independently and wrote it down**
+(`COVERAGE_MATRIX.md:82-86`): *"heat-transfer's V is grid convergence — which is
+the chief's G, not the chief's V. … Under the chief's rubric, heat-transfer's
+V-green rows are G-green rows, and their V column is unfilled."*
+
+**The risk is contained by the owner's own ruling, not by this file.**
+`COVERAGE_MATRIX.md:88-92` rules that **every tier is re-derived by the
+verification team from the underlying artifacts, not lifted**, and that *"a
+family's `HOLDS` is not this matrix's `HOLDS`."* A lane that lifts a column
+positionally out of this file will mis-score all 54 rows; a lane that follows
+the owner's ruling and re-derives will not.
+
+### 0.1b The `P` column answers only HALF the matrix's P test (added 2026-08-25)
+
+The matrix's **P** requires **both** a public primary **and** a pre-registration
+**on disk**. This file's `P PAPER-HELD` attests only the first. Two rows are
+affected and both are qualified in place below: **S11 / C14** (T5 — primary
+held, prereg a **DRAFT, UNFROZEN**) and **C1 / S1** (K0c — `P SECONDARY`, which
+under `COVERAGE_MATRIX.md` Ruling 3 does not score P at all).
 
 ### 0.2 The five tiers, defined so they are liftable
 
@@ -147,7 +188,7 @@ be conflated.)*
 
 | # | dimension | class | V | G | P | tier | record path | sha |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| C1 | **2D** | buoyant-thermal | `V YES` — K0c triples CONVERGING, `p` 1.94–2.33 on the Richardson ladder | `PASS` — K0c gate, **0 of 20 graded rows failed**, largest deviation 1.139 % on a 3 % band | `P SECONDARY` — de Vahl Davis via Han and Xie (2019) Table 3; the 1983 original is paywalled and **was not read** | **HOLDS** *(laminar only — turbulent sub-class is **NOT HELD**, §3 S4/S5)* | `docs/campaigns/F14-cooling-ladder/K0c_RESULTS.md` | `8590c96a` |
+| C1 | **2D** | buoyant-thermal | `V YES` — K0c triples CONVERGING, `p` 1.94–2.33 on the Richardson ladder | `PASS` — K0c gate, **0 of 20 graded rows failed**, largest deviation 1.139 % on a 3 % band | `P SECONDARY` — de Vahl Davis via Han and Xie (2019) Table 3; the 1983 original is paywalled and **was not read** | **HOLDS** *(laminar only — turbulent sub-class is **NOT HELD**, §3 S4/S5)* — **2026-08-25: under `COVERAGE_MATRIX.md` Ruling 3 (`:168-171`) `P SECONDARY` DOES NOT SCORE P, so this maps to matrix tier `GATE REACHED` (missing P), not HOLDS. The `PASS` verdict is UNDISTURBED.** | `docs/campaigns/F14-cooling-ladder/K0c_RESULTS.md` | `8590c96a` |
 | C2 | **2D** | conjugate | `V YES` — T9a R0 `p` 1.079, R2 `p` 0.952, both CONVERGING | `PASS` ×2 (R0 wall `q″`, R2 interface 2) | `P ANALYTIC-HELD` — closed-form composite wall; comparator refuses if the derivation does not reproduce | **HOLDS** *(pure solid conduction only — **fluid–solid CHT has NEVER RUN in any dimension**, §3 S11; hot interface **NOT HELD**, fin rows **GATE REACHED**)* | `docs/campaigns/T-family/T9a_RESULTS.md` | `0cbaea26` |
 | C3 | **2D** | radiation | `V NONE` | `G NONE` | `P NONE` | **NEVER RUN** | — (all radiation work is 3D: C15) | — |
 | C4 | **2D** | forced-convection-internal | `V PARTIAL` — T3 G2 `x_peak/H` **CONVERGING** (`p` 4.304, GCI 0.0188 %); G3/G4 STAGNANT | **`NOT A RESULT` 4 of 4**, at **gate (1) alone** of `T3_PREREGISTRATION.md` §7.1 | `P NOT HELD` — Vogel & Eaton 1985 **NOT OBTAINED** (ASME closed; every open archive checked and named in prereg §2) | **NOT HELD** | `docs/campaigns/T-family/T3_RESULTS.md` §14 | `2f1d6cb7` |
@@ -156,11 +197,11 @@ be conflated.)*
 | C7 | **axisymmetric** | buoyant-thermal | `V NONE` | `G NONE` | `P NONE` | **NEVER RUN** | — | — |
 | C8 | **axisymmetric** | conjugate | `V NONE` | `G NONE` | `P NONE` | **NEVER RUN** | — | — |
 | C9 | **axisymmetric** | radiation | `V NONE` | `G NONE` | `P NONE` | **NEVER RUN** | — | — |
-| C10 | **axisymmetric** | forced-convection-internal | `V PARTIAL` — T1c L2 CONVERGING `p` 2.031, L0 `p` 1.854; **every T1b triple DIVERGENT or STAGNANT** | `PASS` ×3 (T1c L1, L2, L3); `GATE FAIL` ×1 (T1c L0); T1b returns **`PASS` ×4 by the frozen comparator and `NOT A RESULT` ×4 under the binding triple gate** | `P ANALYTIC-HELD` for T1c (`f·Re` = 64, 48/11, Graetz `λ₀²` = 7.313587 to 1.6e-08); `P FORMULA` for T1b (Dittus–Boelter / Gnielinski midpoint, band = their half-spread) | **HOLDS** *(T1c `f·Re` and constant-`q″` `Nu` only — constant-`Ts` `Nu` **NOT HELD**; turbulent pipe **NOT HELD**, and see §4.3, the tension row)* | `docs/campaigns/T-family/T1c_RESULTS.md` | `2f1d6cb7` |
+| C10 | **axisymmetric** | forced-convection-internal | `V PARTIAL` — T1c L2 CONVERGING `p` 2.031, L0 `p` 1.854; **every T1b triple DIVERGENT or STAGNANT** | `PASS` ×3 (T1c L1, L2, L3); `GATE FAIL` ×1 (T1c L0); **`NOT A RESULT` ×1 (T1c L4, `Ts_as_registered`) — added 2026-08-25, omitted when written**; T1b returns **`PASS` ×4 by the frozen comparator and `NOT A RESULT` ×4 under the binding triple gate** | `P ANALYTIC-HELD` for T1c (`f·Re` = 64, 48/11, Graetz `λ₀²` = 7.313587 to 1.6e-08); `P FORMULA` for T1b (Dittus–Boelter / Gnielinski midpoint, band = their half-spread) | **HOLDS** *(T1c `f·Re` and constant-`q″` `Nu` only — constant-`Ts` `Nu` **NOT HELD**; turbulent pipe **NOT HELD**, and see §4.3, the tension row)* | `docs/campaigns/T-family/T1c_RESULTS.md` | `2f1d6cb7` |
 | C11 | **axisymmetric** | forced-convection-external | `V NONE` | `G NONE` | `P NONE` | **NEVER RUN** | — | — |
 | C12 | **axisymmetric** | mixed-convection | `V NONE` | `G NONE` | `P NONE` | **NEVER RUN** | — | — |
 | C13 | **3D** | buoyant-thermal | `V NONE` | `G NONE` | `P NONE` | **NEVER RUN** *(every buoyant cavity this lab owns is 2D)* | — | — |
-| C14 | **3D** | conjugate | `V NONE` | `G NONE` | `P NONE` | **NEVER RUN** *(T9c planned, unstarted; T5 would be the first fluid–solid CHT and its pre-registration is a draft)* | `docs/campaigns/T-family/T5_PREREGISTRATION_DRAFT.md` (unfrozen) | `a74b2f61` |
+| C14 | **3D** | conjugate | `V NONE` | `G NONE` | `P NONE` | **NEVER RUN** *(T9c planned, unstarted; T5 would be the first fluid–solid CHT and its pre-registration is a draft)* | `docs/campaigns/T-family/T5_PREREGISTRATION_DRAFT.md` (**unfrozen — 2026-08-25: prereg half of the matrix's P test is UNMET**) | `a74b2f61` |
 | C15 | **3D** | radiation | `V PARTIAL` — box B0/B2/B3 CONVERGING (`p` 0.954 / 0.853 / 0.825); **both sphere triples DIVERGENT** (`p` −3.253, −1.838) | `PASS` ×3 (box floor, x-walls, y-walls); `GATE FAIL` ×1 (ceiling); `NOT A RESULT` ×2 (spheres) | `P ANALYTIC-HELD` — closed-form surface-to-surface view factors and the two-surface network | **HOLDS** *(black box enclosure only — ceiling **NOT HELD**, grey spheres **NOT HELD**, **participating media NEVER RUN**)* | `docs/campaigns/T-family/T10a_RESULTS.md` | `31fd2268` |
 | C16 | **3D** | forced-convection-internal | `V NONE` | `G NONE` | `P NONE` | **NEVER RUN** *(T3 is 2D by design — prereg §173: "Cases (8, all serial, all 2D)"; T1b/T1c are axisymmetric wedges)* | — | — |
 | C17 | **3D** | forced-convection-external | `V NONE` | `G NONE` | `P NONE` | **NEVER RUN** | — | — |
@@ -181,7 +222,7 @@ state is visible.
 
 | id | cell | sub-class | V | G | P | tier | record path | sha |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| S1 | C1 | laminar differentially heated square cavity, Ra 1e3–1e6 | `V YES`, CONVERGING, `p` 1.94–2.33 | `PASS`, **0 of 20 graded** | `P SECONDARY` | **HOLDS** | `docs/campaigns/F14-cooling-ladder/K0c_RESULTS.md` | `8590c96a` |
+| S1 | C1 | laminar differentially heated square cavity, Ra 1e3–1e6 | `V YES`, CONVERGING, `p` 1.94–2.33 | `PASS`, **0 of 20 graded** | `P SECONDARY` — **does not score matrix P (Ruling 3); maps to matrix tier `GATE REACHED` (missing P). `PASS` undisturbed. 2026-08-25** | **HOLDS** | `docs/campaigns/F14-cooling-ladder/K0c_RESULTS.md` | `8590c96a` |
 | S2 | C1 | laminar buoyant capability rungs K0a / K0b | `V NO` — capability rungs, no Roache ladder claimed | `PASS` on their own capability gates; **"validated against no published reference datum"** in the record's own words | `P NONE` **by design** | **SURVEYED** | `verification/runs/THERMAL_K0_runs/README.md` | `a1fbe127` |
 | S2b | C1 | K0b reproduction repair (V3 → W1–W4) | `V NO` | `PASS` ×4 (W1–W4); 39 of 39 graded quantities bit-identical, 48 of 48 Richardson leaves bit-identical | `P NONE` | **SURVEYED** | `docs/campaigns/F14-cooling-ladder/K0b_D406_REPAIR_RESULTS.md` | `f279aac5` |
 | S3 | C1 | Boussinesq validity limit, K2e | `V NO` — a model-separation sweep, not a grid ladder | `G` thresholds pre-registered `0869284` before any K2e solver ran; velocity separates at ε ∈ (0.0333, 0.0500]; `Nu` last, 0.063 % at ε = 0.1, 1 % not until ε ∈ (0.30, 0.40] | `P NONE` — **SOLVER-BACKED, cannot reach VALIDATED**; the record says so on its face | **SURVEYED** | `docs/campaigns/F14-cooling-ladder/K2e_RESULTS.md` | `b845b603` |
@@ -199,17 +240,18 @@ state is visible.
 | S8 | C2 | fin efficiency and fin tip ratio (T9a R3, R4) | `V YES` — CONVERGING, `p` 1.990 and 1.997 | **`GATE REACHED`** — the GCI bands (0.00077 %, 0.00011 %) sit **below the 0.025 % O(Bi) floor**, so the comparison cannot discriminate; reported, not graded | `P ANALYTIC-HELD` — and the fin equation is 1D and valid only to O(Bi), which is why the floor exists | **GATE REACHED** | `docs/campaigns/T-family/T9a_RESULTS.md` | `0cbaea26` |
 | S9 | C2 | interface-scheme diagnosis arm, T9a-D | `V PARTIAL` — B0/B2 triple **STAGNANT**, `p` 0.130 → NOT A RESULT (**predicted in advance**) | 3 `PASS`, 1 `GATE FAIL`, 3 `NOT A RESULT` of 7 registered rows — **every one as the arm's own pre-registered arithmetic predicted, including the two rows where that arithmetic contradicted the directive** | `P ANALYTIC-HELD` | **SURVEYED** *(a diagnosis, which grades no T9a row)* | `docs/campaigns/T-family/T9aD_RESULTS.md` | `a74b2f61` |
 | S10 | C2 | harmonic-interpolation re-grade, T9a-H | `V NO` on the frozen path — FR0/FR1 **OSCILLATORY**, FR2 **DIVERGENT** | **split grading path, never merged**: frozen path FR0/FR1/FR2 `NOT A RESULT`, FR3/FR4 `GATE REACHED`; new instrument H1–H6 **6 PASS, 0 GATE FAIL** (H6 a specificity row counting toward nothing) | `P ANALYTIC-HELD` | **SURVEYED** — **it does not make T9a pass and did not try**; T9a's R1 GATE FAIL stands | `docs/campaigns/T-family/T9aH_RESULTS.md` | `b698dfc3` |
-| S11 | C2 | **fluid–solid conjugate heat transfer (true CHT)** | `V NONE` | `G NONE` | `P PAPER-HELD` for the intended first rung (Meinders 1998, title-page verified, sha256 `36c89a54…`, re-verified on disk 2026-08-22) | **NEVER RUN** | `docs/campaigns/T-family/T5_PREREGISTRATION_DRAFT.md` (**unfrozen**, 12 INTERPRETATIONs on Sanaa's desk) | `a74b2f61` |
-| **S12** | C4 | **heated backward-facing step (separated thermal), T3** | `V PARTIAL` — G2 `x_peak/H` **CONVERGING**, `p` 4.304, GCI 0.0188 %, RE 6.1403; G3/G4 moved DIVERGENT → STAGNANT (`p` 0.23 / 0.22) | **`NOT A RESULT` 4 of 4** at **gate (1) alone**; §4.4 | `P NOT HELD` — Vogel & Eaton 1985 **NOT OBTAINED**; open secondary Smirnov 2016 (CC-BY) digitised as **REPORT-ONLY** | **NOT HELD** | `docs/campaigns/T-family/T3_RESULTS.md` §14 / `T3_EXT1_AMENDMENT.md` §15 | `2f1d6cb7` / `3dd28411` |
+| S11 | C2 | **fluid–solid conjugate heat transfer (true CHT)** | `V NONE` | `G NONE` | `P PAPER-HELD` **(PRIMARY ONLY)** for the intended first rung (Meinders 1998, title-page verified, sha256 `36c89a54…`, re-verified on disk 2026-08-22) — **2026-08-25: the matrix's P also requires a pre-registration ON DISK, and T5's is a DRAFT, UNFROZEN. P DOES NOT SCORE.** | **NEVER RUN** | `docs/campaigns/T-family/T5_PREREGISTRATION_DRAFT.md` (**unfrozen**, 12 INTERPRETATIONs on Sanaa's desk) | `a74b2f61` |
+| **S12** | C4 | **heated backward-facing step (separated thermal), T3** | `V PARTIAL` — G2 `x_peak/H` **CONVERGING**, `p` 4.304, GCI 0.0188 %, **RE 6.14027 as printed by the frozen comparator / 6.14212 CORRECTED** (sign defect, `T3_RESULTS.md` §15, `2f1d6cb7`; **`p` 4.304 and GCI 0.0188 % are UNAFFECTED**); G3/G4 moved DIVERGENT → STAGNANT (`p` 0.23 / 0.22) | **`NOT A RESULT` 4 of 4** at **gate (1) alone**; §4.4 | `P NOT HELD` — Vogel & Eaton 1985 **NOT OBTAINED**; open secondary Smirnov 2016 (CC-BY) digitised as **REPORT-ONLY** | **NOT HELD** | `docs/campaigns/T-family/T3_RESULTS.md` §14 / `T3_EXT1_AMENDMENT.md` §15 | `2f1d6cb7` / `3dd28411` |
 | S13 | C4 | fan / air-mover boundary-condition operating point, E4a2 | `V YES` — R1 observed order **1.959** in [1.6, 2.4], GCI **0.393 %**, CONVERGING | `PASS` **8 of 8**; `Q` 1.502157061e-07 vs exact 1.5e-07, dev **0.144 %** | `P ANALYTIC-HELD` | **HOLDS** *(adjunct: this backs a **flow** quantity and, in the DC certificate's own words, "**backs the BOUNDARY CONDITION, not any fan**" — it is not a heat-transfer gate)* | `docs/campaigns/T-family/E4a2_RESULTS.md` | `2d639d3b` |
 | S14 | C4 | fan-BC first attempt, E4a | `V NO` — comparator order `None` | **`NOT A RESULT`** (D493) — the registered bit-identity convergence gate cannot close on iterates creeping ~6e-11 relative at writePrecision 12 | `P ANALYTIC-HELD` | **NOT HELD** | `docs/campaigns/T-family/E4a_RESULTS.md` | `44001fc4` |
 | S15 | C6 | rack-row module, 2D vertical slice, K2b pilot | `V NO` | **PHYSICALLY UNSTEADY** — 6.0 s limit cycle, 1.1 K amplitude; the **steady cost plan is VOID**. Found for 36.75 core-min against a plan it invalidated that would have cost 374–697 | `P NONE` | **SURVEYED** | `docs/campaigns/F14-cooling-ladder/K2b_PILOT_RESULTS.md` | `5c3fe5a8` |
-| S16 | C6 | Blay cavity turbulent mixed convection, K0d | `V NONE` | `G NONE` — specification only, zero compute, no solver launched | `P NOT HELD` — Blay, Mergui & Niculae 1992 **NOT OBTAINED** | **NEVER RUN** — **a K0d pre-registration is being armed in a parallel lane as this is written: prereg being armed, unfired.** No K0d file was written or touched by this lane. | `docs/campaigns/F14-cooling-ladder/K0d_TURBULENT_MIXED_CONVECTION_GATE.md` | `208fef5c` |
+| S16 | C6 | Blay cavity turbulent mixed convection, K0d | `V NONE` | `G NONE` — specification only, zero compute, no solver launched | `P NOT HELD` — Blay, Mergui & Niculae 1992 **NOT OBTAINED** | **NEVER RUN** — **2026-08-25 CORRECTION (was: "being armed in a parallel lane"): K0d pre-registration is FROZEN AND UNFIRED (`193b62a1`) — zero compute, no case directory; the section 7 reference column is UNARMED pending the Blay 1992 primary.** No K0d file was written or touched by this lane. | `docs/campaigns/F14-cooling-ladder/K0d_PREREGISTRATION.md` (`193b62a1`) and `K0d_TURBULENT_MIXED_CONVECTION_GATE.md` | `208fef5c` / `193b62a1` |
 | S17 | C6 | hard-floor rack-inlet validation, K2c-A | `V NONE` | `G NONE` — **armable**; rung not built. TREND-ONLY until Figures 3/6/7/8 are digitised | `P PAPER-HELD` — Wibron, Ljung & Lundström 2018, *Energies* 11(3) 644, CC-BY, READ IN FULL, SHA-256 `4de4798e…`, on disk | **NEVER RUN** | `docs/campaigns/F14-cooling-ladder/K2c_RACK_ROW_VALIDATION_SEARCH.md` §3.1 | `cc4f1a64` |
 | S18 | C6 | raised-floor / perforated-tile validation, K2c-B | `V NONE` | `G NONE` — **BLOCKED**: no raised-floor gate rows are written and no provisional reference numbers exist, because there is no primary to write them against | `P NOT HELD` — Schmidt & Cruz 2002, VanGilder & Schmidt 2005/2006, Abdelmaksoud 2010 all `is_oa: false`, no repository copies found | **NEVER RUN** | `docs/campaigns/F14-cooling-ladder/K2c_RACK_ROW_VALIDATION_SEARCH.md` §3.2 | `cc4f1a64` |
 | S18b | C6 | rack-row module specification, K2a | `V NONE` | `G NONE` — specification, **zero compute** | `P NONE` | **NEVER RUN** | `docs/campaigns/F14-cooling-ladder/K2a_RACK_ROW_MODULE_SPEC.md` | `151bd7ea` |
-| S19 | C10 | laminar pipe `f·Re` and constant-`q″` `Nu` (T1c L1, L2, L3) | `V YES` — L2 CONVERGING, `p` 2.031 | `PASS` ×3: `f·Re` 63.98771 vs exact 64, dev 0.0192 % on a 0.0236 % band (twice); `Nu` 4.365298 vs 4.3636364, dev 0.0381 % on 0.0459 % | `P ANALYTIC-HELD` — and the comparator **refuses to run unless the references reproduce** | **HOLDS** | `docs/campaigns/T-family/T1c_RESULTS.md` | `2f1d6cb7` |
+| S19 | C10 | laminar pipe `f·Re` and constant-`q″` `Nu` (T1c L1, L2, L3) | `V YES` **for L2 ONLY** — L2 CONVERGING, `p` 2.031. **2026-08-25: L1 and L3 carry a GCI band (0.0236 %) but NO observed order (`T1c_RESULTS.md:14`, `:16` print `—`), so under the matrix's G rubric ONLY L2 SCORES.** | `PASS` ×3: `f·Re` 63.98771 vs exact 64, dev 0.0192 % on a 0.0236 % band (twice); `Nu` 4.365298 vs 4.3636364, dev 0.0381 % on 0.0459 % | `P ANALYTIC-HELD` — and the comparator **refuses to run unless the references reproduce** | **HOLDS** | `docs/campaigns/T-family/T1c_RESULTS.md` | `2f1d6cb7` |
 | S20 | C10 | laminar pipe constant-`Ts` `Nu` (T1c L0) | `V YES` — CONVERGING, `p` 1.854 | `GATE FAIL` — 3.659958 vs exact 3.6567934, dev **0.0865 % against a 0.0301 % band**, ~2.9 bands out | `P ANALYTIC-HELD` — Graetz eigenproblem, `λ₀²` = 7.313587, agreeing with the tabulated value to 1.6e-08 | **NOT HELD** | `docs/campaigns/T-family/T1c_RESULTS.md` | `2f1d6cb7` |
+| **S20b** | C10 | laminar pipe `Nu` at the station AS ORIGINALLY REGISTERED (T1c L4) — **row added 2026-08-25; it was omitted when this file was written** | `V NO` — no triple, no order, no GCI: the record prints `—` in all three columns | **`NOT A RESULT`** — `gate_t1c.json` row L4, `verdict: "NOT A RESULT"`; value 3.658427 vs exact 3.6567934, **no band armed** | `P ANALYTIC-HELD` | **NOT HELD** | `docs/campaigns/T-family/T1c_RESULTS.md:18`, `:138` | `2f1d6cb7` |
 | **S21** | C10 | **turbulent pipe `Nu`, Re 1e4 / 3e4 / 1e5 / 3e5 (T1b B0/B2/B4/B6)** | `V NO` — **every one of the four triples is DIVERGENT or STAGNANT**; `p` −0.219, −0.150, −0.059, +0.010 | **BOTH readings are displayed and neither is picked**: `PASS` ×4 as returned by the frozen comparator (`08732fd6`, verified byte-identical, sha256 `647d7412…`), **and** `NOT A RESULT` ×4 under the binding triple gate (CLAUDE.md rule 5). D440 | `P FORMULA` — Dittus–Boelter / Gnielinski midpoint, band their half-spread, `T1b_band.json` committed before any case directory existed | **NOT HELD**, *with the tension displayed and the pendency explicit* — §4.3 | `docs/campaigns/T-family/T1b_RESULTS.md`; gate `T1b_L4_AMENDMENT.md` | `07313b68` / `17209b50` |
 | S22 | C15 | black box enclosure — floor, x-walls, y-walls (T10a B0, B2, B3) | `V YES` — CONVERGING, `p` 0.954 / 0.853 / 0.825 | `PASS` ×3: floor dev 0.02557 % on 0.03326 %; x-walls 0.48631 % on 0.67756 %; y-walls 0.32987 % on 0.48472 % | `P ANALYTIC-HELD` — closed-form view factors; ε = 1 verified to 0.005 % | **HOLDS** | `docs/campaigns/T-family/T10a_RESULTS.md` | `31fd2268` |
 | S23 | C15 | black box enclosure — ceiling (T10a B1) | `V YES` — CONVERGING, `p` 1.480 | `GATE FAIL` — **0.12463 % against a 0.07676 % GCI band**, ~1.6 bands | `P ANALYTIC-HELD` | **NOT HELD** | `docs/campaigns/T-family/T10a_RESULTS.md` | `31fd2268` |
@@ -222,9 +264,11 @@ state is visible.
 
 ## 4. The load-bearing findings, each with its numbers
 
-### 4.1 K0c is this family's ONE CLEAN GATE PASS — and the 20-vs-24 denominator is RESOLVED on disk
+### 4.1 K0c is this family's ONE CLEAN PASS — and the 20-vs-24 denominator is RESOLVED on disk
 
-**`GATE PASS. 0 of 20 GRADED rows failed.`** Largest deviation anywhere on the
+**`PASS. 0 of 20 GRADED rows failed.`** *(2026-08-25: "GATE PASS" corrected to `PASS`
+here and in the heading above — rule 1's word is `PASS`. The record's own
+wording is quoted verbatim in the table below and is NOT altered.)* Largest deviation anywhere on the
 gate **1.139 %** on a **3 %** band. **41.73 core-minutes** produced the table,
 **plus roughly 44.3 core-minutes discarded** — and the discarded figure is
 labelled on its own record as **reconstructed, not measured**.
@@ -267,9 +311,22 @@ is the correct one**.
 
 ### 4.2 The turbulent-thermal front is NOT HELD — and that is a defensible scientific position, stated as one
 
-> **Sanaa, verbatim:** *"the 18-combination zero-pass finding enters the matrix as
+> **As relayed to this lane in its brief; PROVENANCE NOT ON DISK and not
+> confirmed by this team — the wording is carried as a brief's paraphrase, not as
+> Sanaa's words:** *"the 18-combination zero-pass finding enters the matrix as
 > NOT HELD with its model-error attribution (43-722x GCI proof) — that's a
 > defensible scientific position, stated as one"*
+
+**Attribution corrected 2026-08-25.** As written this block was marked *"Sanaa,
+verbatim"*. An audit searched the whole repository with a non-ignoring
+`find | xargs grep` (the ignore-file trap that blinds `grep -r` here) and found
+this text **nowhere on disk except in this file**. The heat-transfer supervisor
+did not hear it said and will not vouch for it. Under this lab's own rule that a
+record beats a summary, a verbatim attribution to Sanaa that cannot be sourced
+from disk does not stand in a document feeding the lab's credentials. **The text
+is kept because the reasoning below stands on its own; the attribution is
+withdrawn. No verdict, no tier and no row anywhere in this file depends on
+it** — §4.2's accounting is derived from the records, not from this quotation.
 
 **The attribution, stated exactly.** From `K0cG_RESULTS.md` §2, the table at
 lines 29–35 — **kOmegaSST, square cavity, deviation ÷ GCI:**
@@ -376,9 +433,22 @@ needing transported temperature variance is **named, not built**.
 | row | `Re` | value | reference | band | deviation | **grid triple** | `p` | **reading A — frozen comparator** | **reading B — binding triple gate** |
 | --- | ---: | ---: | ---: | ---: | ---: | --- | ---: | --- | --- |
 | B0 | 1e4 | 31.619 | 30.907 | 2.84 % | 2.305 % | **DIVERGENT** | −0.219 | **PASS** | **NOT A RESULT** |
-| B2 | 3e4 | 72.480 | 73.684 | 1.635 % | 3.89 % | **DIVERGENT** | −0.150 | **PASS** | **NOT A RESULT** |
-| B4 | 1e5 | 185.771 | 190.398 | 2.430 % | 5.33 % | **DIVERGENT** | −0.059 | **PASS** | **NOT A RESULT** |
-| B6 | 3e5 | 449.255 | 456.723 | 1.635 % | 5.75 % | **STAGNANT** | +0.010 | **PASS** | **NOT A RESULT** |
+| B2 | 3e4 | 72.480 | 73.684 | 3.885 % | 1.635 % | **DIVERGENT** | −0.150 | **PASS** | **NOT A RESULT** |
+| B4 | 1e5 | 185.771 | 190.398 | 5.334 % | 2.430 % | **DIVERGENT** | −0.059 | **PASS** | **NOT A RESULT** |
+| B6 | 3e5 | 449.255 | 456.723 | 5.749 % | 1.635 % | **STAGNANT** | +0.010 | **PASS** | **NOT A RESULT** |
+
+**Dated correction, 2026-08-25 — the `band` and `deviation` columns were TRANSPOSED on
+B2, B4 and B6.** As originally written the table read `1.635 % | 3.89 %`,
+`2.430 % | 5.33 %` and `1.635 % | 5.75 %`, which put the deviation above the band
+on three rows while the same rows were labelled `PASS` — the table contradicted
+its own verdict. **This was a TRANSCRIPTION ERROR. The comparator was right and
+the transcription was wrong.** The values above are now as
+`verification/runs/T-family/T1_runs/gate_t1b.json` prints them (`band_pct` /
+`deviation_pct`: B2 3.8851 / 1.6346; B4 5.3339 / 2.4302; B6 5.7488 / 1.6350).
+**B0 was already correct and has not been touched.** **No verdict, no tier and
+no triple state changes**: all four rows remain `PASS` under reading A and
+`NOT A RESULT` under reading B, all four triples remain DIVERGENT or STAGNANT,
+and S21's tier remains **NOT HELD**.
 
 **Reading A** is what the frozen comparator returned. `analyse_t1b.py` was frozen
 at commit `08732fd6` (2026-08-19 19:10:04 Z) **before any case solved**, and
@@ -438,7 +508,9 @@ not gate (2), and not the missing-primary gate (3).
   `T3_PREREGISTRATION.md` §11 **registered it in advance** as an outcome the rung
   **reports rather than averages**. The rung says so and does not average.
 - **One triple, G2 `x_peak/H`, is CONVERGING** — `p` **4.304**, GCI **0.0188 %**,
-  Richardson extrapolate 6.1403 — **and it is NOT A RESULT anyway, because gate
+  Richardson extrapolate **6.14027 as printed by the frozen comparator**, and
+  **6.14212 corrected** — see the dated note below — **and it is NOT A RESULT
+  anyway, because gate
   (1) fires before a triple is consulted.** This is the triple gate operating in
   **the only direction rule 5 allows**: turning a gradeable row **into** NOT A
   RESULT, never the reverse.
@@ -602,7 +674,7 @@ Named explicitly, because an unnamed absence is invisible.
 | **Humidity** | — | none sought | **NEVER RUN** |
 | **Transient thermal response / thermal mass** | T11 (partial EXACT: lumped and 1D transient solutions are closed form) | published transient data **not held** | **NEVER RUN** |
 | **3D conjugate (fluid–solid)** | T9c; T5 would be the first CHT of any dimension | T5's Meinders 1998 **P PAPER-HELD**; T5 prereg is a **draft, unfrozen**, 12 INTERPRETATIONs on Sanaa's desk | **NEVER RUN** |
-| **Turbulent mixed convection** | K0d (Blay cavity) | Blay 1992 **NOT OBTAINED**. **A K0d pre-registration is being armed in a parallel lane — prereg being armed, unfired.** No K0d file was created or edited by this lane. | **NEVER RUN** |
+| **Turbulent mixed convection** | K0d (Blay cavity) | Blay 1992 **NOT OBTAINED**. **2026-08-25 CORRECTION (was: "being armed in a parallel lane"): K0d pre-registration FROZEN AND UNFIRED (`193b62a1`) — zero compute, no case directory; the section 7 reference column is UNARMED pending the Blay 1992 primary.** No K0d file was created or edited by this lane. | **NEVER RUN** |
 | **Impinging jet** | T4 | **PARTIAL** — ERCOFTAC case025 tabulated `Nu(r/D)` on disk (Re 23k/70k, H/D 2/6; one mislabeled header noted) + Martin correlation with stated validity from an open NREL report; **the `Nu` uncertainty is SECOND-HAND (2.4 %, KB Wiki quoting Baughn & Shimizu)**; graded rows need the closed ASME primaries | **NEVER RUN** |
 | **Heated cubes (the rack physic)** | T5 | **P PAPER-HELD** — Meinders 1998 TU Delft thesis, OPEN, title-page verified, sha256 `36c89a54…`, stated uncertainty 5 % mid-face / 10 % edges in local `h`; **digitisable figures, no tabulated appendix** | **NEVER RUN** |
 | **Plume / stratification (the aisle physic)** | T8 | partial EXACT — **Morton–Taylor–Turner entrainment theory is closed form**; the room data is not held | **NEVER RUN** |
@@ -688,6 +760,7 @@ matrix.
 | **WORSE** | `K0cR_RESULTS.md:13` — *"Verdict: WORSE, by the rule registered before compute"* | a **pre-registered branch label**: SSG moved velocity 19 points toward the experiment and wall heat flux 30 points away | **SURVEYED** |
 | **REFUSED** | `K0cS_RESULTS.md:20` — `LaunderSharmaKE` **REFUSED** | **not a failed gate — an ungraded model.** The fine mesh missed the **registered** convergence criterion, so the comparator declined to grade rather than degrading. The distinguishing evidence: `fmu` 0.887 → 0.034, **25 996 bounding-`k` events of 40 000 iterations**, Reynolds stress four orders below molecular — the model **relaminarised** | **NOT A RESULT** — this is a refusal under the strict completion / convergence discipline, which is exactly what rule 5's clause (1) describes. **It is NOT a GATE FAIL and must not be counted as one**; K0cS's headline correctly reports "0 models passed" rather than "3 models failed" |
 | **GRADES NOTHING** | `K0cG_RESULTS.md:8` — *"This rung GRADES NOTHING and no K0cS verdict moved"* | an **honest scope statement**: the arm reports whether the solutions are in the asymptotic range, which is the *precondition* for reading K0cS's deviations as model error | **SURVEYED** for the arm itself. **Its output is what licenses S4's NOT HELD** (§4.2) |
+| **GATE PASS** | `K0c_RESULTS.md:18`, `:103`, `:546`; `THERMAL_CAPABILITY_STATE.md:33` — *"GATE PASS. 0 of 24 graded rows failed."* | a **compound the F14 records use for a whole-rung pass**. Rule 1's vocabulary has no such compound | **PASS** — added 2026-08-25. This file used "GATE PASS" in its own voice at §4.1 and has been corrected; the quotations of the records are left verbatim |
 | **O1** | `K2b_PILOT_RESULTS.md:1501` — *"Outcome: O1 — PHYSICALLY UNSTEADY"* | a **pre-registered outcome-mapping branch**, fixed before anything ran | **SURVEYED**, with the physics finding stated as the substance: 6.0 s limit cycle, 1.1 K amplitude, steady cost plan VOID. The record itself flags the honest limit — a 2D slice can both suppress a 3D instability and manufacture oscillations a 3D flow would damp, so **O1 is a warning about the 3D case, not a measurement of it** |
 
 **A note the matrix should carry:** all six of these are **pre-registered branch
@@ -724,21 +797,29 @@ black box enclosure only**, and participating media has never run.
 **The cell-level census flatters the record**, because a single PASS anywhere in
 a cell promotes the whole cell to HOLDS. §8.2 is the honest one.
 
-### 8.2 Sub-row census — the 36 sub-rows of §3
+### 8.2 Sub-row census — the 37 sub-rows of §3
 
 **This is the honest census.** Counted by id from the §3 table:
 S1, S2, S2b, S3, S3b, S4, S5, S5b, S5c, S5d, S5e, S5f, S5g, S6, S7, S8, S9, S10,
-S11, S12, S13, S14, S15, S16, S17, S18, S18b, S19, S20, S21, S22, S23, S24, S25,
-S26, S27 — **36 rows**.
+S11, S12, S13, S14, S15, S16, S17, S18, S18b, S19, S20, **S20b**, S21, S22, S23,
+S24, S25, S26, S27 — **37 rows**.
 
 | tier | sub-rows | which |
 | --- | ---: | --- |
 | **HOLDS** | **5** | S1 (K0c laminar cavity), S6 (T9a wall flux + interface 2), S13 (E4a2 fan BC — a *flow* quantity, adjunct), S19 (T1c `f·Re` + constant-`q″` `Nu`), S22 (T10a box floor/x-walls/y-walls) |
 | **GATE REACHED** | **1** | S8 (T9a fin efficiency + fin tip ratio, bands below the O(Bi) floor) |
 | **SURVEYED** | **13** | S2, S2b, S3, S3b, S5d, S5e, S5f, S5g, S9, S10, S15, S25, S26 |
-| **NOT HELD** | **11** | S4, S5, S5b, S5c, S7, S12, S14, S20, S21, S23, S24 |
+| **NOT HELD** | **12** | S4, S5, S5b, S5c, S7, S12, S14, S20, **S20b**, S21, S23, S24 |
 | **NEVER RUN** | **6** | S11, S16, S17, S18, S18b, S27 |
-| **total** | **36** | 5 + 1 + 13 + 11 + 6 = 36 |
+| **total** | **37** | 5 + 1 + 13 + 12 + 6 = 37 |
+
+**Census corrected 2026-08-25: 36 → 37 rows, NOT HELD 11 → 12.** Sub-row **S20b**
+(T1c L4, `NOT A RESULT`) was **missing when this file was written**. An omitted
+`NOT A RESULT` **flatters the denominator**, and this is **exactly the D414 /
+D420 defect shape** the file diagnoses at length in §4.1 and §9 — recurring here
+in the file's own C10 row, and invisible for the same reason both of those were:
+nothing failed. The NEVER RUN count is unchanged at 6, so the §5 arithmetic
+below (6 + 13 = 19) also stands.
 
 **Plus the §5 roster: 17 named classes with no solve.** Four of those 17 already
 appear above as sub-rows (S11 fluid–solid CHT, S16 K0d, S18 K2c-B raised floor,
@@ -748,11 +829,11 @@ there is nothing to describe. **Total distinct thermal classes with no solve:
 
 ### 8.3 The headline for the verification supervisor
 
-- **One clean gate PASS in the whole family**: K0c laminar square cavity,
+- **One clean `PASS` in the whole family**: K0c laminar square cavity,
   **0 of 20 graded rows failed**, largest deviation **1.139 %** on a **3 %**
   band, **41.73 core-min** (+ ~44.3 discarded, reconstructed not measured).
 - **Twelve of eighteen cells have NEVER RUN.**
-- **Eleven sub-rows are NOT HELD** — and NOT HELD here means *the lab measured it
+- **Twelve sub-rows are NOT HELD** — and NOT HELD here means *the lab measured it
   and the answer is no*, with the model-error attribution to prove it, not
   *nobody looked*.
 - **No turbulence model has ever passed a turbulent thermal gate against
@@ -790,9 +871,12 @@ is the same shape of defect.
 - **`docs/COVERAGE_MATRIX.md` was NOT created, read-modify-written, or touched in
   any way.** It did not exist on disk at the time this lane began (checked). It
   is the **verification supervisor's** file.
-- **No K0d file was written, created or edited.** A K0d pre-registration is being
-  armed in a parallel lane; it is referenced here only as *"prereg being armed,
-  unfired"*.
+- **No K0d file was written, created or edited.** *(Original wording, struck
+  2026-08-25: "A K0d pre-registration is being armed in a parallel lane; it is referenced
+  here only as 'prereg being armed, unfired'.")* **Corrected: the K0d
+  pre-registration is FROZEN AND UNFIRED (`193b62a1`) — zero compute, no case
+  directory; its section 7 reference column is UNARMED pending the Blay 1992
+  primary.** This lane still wrote and touched no K0d file.
 - **No solver was touched, started or stopped.** The T1b L4 arm states in §4.3
   were read from `system/controlDict`, directory listings and completion markers.
   Total compute spent by this lane: **zero core-minutes.**
