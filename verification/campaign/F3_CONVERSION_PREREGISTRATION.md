@@ -688,3 +688,121 @@ vocabulary used in §3, §4.4 and §9.)*
 provenance correction. The rule-2 ABSENT condition was checked by `test -e` in the
 committing shell invocation. Committed under the rule-10 private-index protocol,
 this file alone, as a pure append proven three ways.*
+
+---
+
+## AMENDMENT 2 — 2026-08-25T17:27:54Z: the grading path's `report["runs"]` SCHEMA DEFECT, repaired STRUCTURALLY under §2d.1
+
+**Document version 1.1 → 1.2. Appended at HEAD:** `52a213adc7b19e463101b5e591854f0a13b789a3`.
+**Pre-repair state at append time:** blob `8726b4225dbfd1917a3f7992eccf4185c9b21fbe`, 38154 bytes, 690 lines.
+
+> **Lines whose number changed above this section: 0.** Verified by diff, not asserted: the
+> file immediately before this append was diffed against the file carrying it; the change is
+> a **single trailing hunk with ZERO deletions**, and the byte prefix of the new file over
+> the old file's full length is **identical**. Both figures are printed in this amendment's
+> commit message.
+
+**This amendment alters NO gate, NO threshold, NO cap and NO label.** §7's HARD CAP of 39.5
+core-min, every band in §3/§4.4, and every label in §9 stand exactly as frozen at
+`2bf4915a`. It repairs a **dict-schema defect on the grading path** and nothing else.
+
+### 1. The defect
+
+`grade_f3.py` builds `report["runs"][key]` at **two sites with differing key sets**:
+
+| line | branch | keys written |
+| --- | --- | --- |
+| **482** | run directory **absent** → `status="PENDING"` | `status`, `note` — **no `core_s`** |
+| **487** | directory present → `COMPLETE`/`INCOMPLETE` | `status`, `completion`, **`core_s`** |
+
+Line **602** then reads `v["core_s"]` across **every** entry. The 2026-08-25 grading run
+died with `KeyError: 'core_s'` on a suite whose ten launched solves all returned
+`rc = 0` (measured), and the rung was recorded **`NOT A RESULT`** with the gate not
+evaluated (`verification/runs/F3_runs/conversion_2026-08-24/RESULTS.md`; cost row
+**C-66**, corrected by **C-68**).
+
+**The state that triggered it is one THIS DOCUMENT GUARANTEES.** §7 enforcement point 2:
+*a wave whose predicted cost does not fit the remaining budget with 20 % headroom is not
+launched; its rows grade `PENDING`.* The ledger records
+`stopped_by: "budget check before wave 6"`, so `wedge/M2.5_th10/fine` and
+`diamond/M2.5_eps5/fine` were never launched. **The cap fired exactly as registered and the
+comparator crashed on it having fired.** Recorded as **L-322**.
+
+### 2. Why §2d permits this, and why it is an addendum rather than a fresh registration
+
+A **missing dict key on a branch** is not a gate, a threshold, a cap or a label. §2d closes
+gates after first compute and permits **dated addenda that cannot alter those four things**.
+This alters none of them.
+
+**§2d.1's four conditions, each checked rather than asserted:**
+
+1. **A demonstrable error, not a preference** — a `KeyError` on a completed run.
+2. **Established by an instrument INDEPENDENT of the hypothesis, one that grades nothing** —
+   the Python traceback itself, and `scripts/check_grader_self_blindness.py` (Probe A), a
+   static probe that grades no case and cannot know which direction a verdict would move.
+3. **Disclosed here, naming the instrument, quantifying what moved** — see §4.
+4. **Pre-repair values recorded beside the published ones** — the pre-repair verdict
+   **`NOT A RESULT`** is already committed in `RESULTS.md` and rows **C-66**/**C-68**, and
+   **stands**.
+
+### 3. THE FREEZE CONDITION, AND THE VOID CLAUSE — binding, and on the record here rather than in any message
+
+> **This amendment is frozen and committed BEFORE the repaired comparator is run, and
+> BEFORE any agent has observed any gate quantity of this suite by any means. If that is
+> ever shown to be false, THIS AMENDMENT IS VOID AND F3 REQUIRES A FRESH SOLVE.**
+
+**What was checked, and how, before this amendment was written:**
+
+The crash occurs at **aggregation**, downstream of the gate assignments at L541, L542, L548,
+L549, L561, L569 and L600 — so **verdicts were COMPUTED in memory.** They were **never
+emitted**:
+
+- The **only two** `print(` calls in the file are at **L608** and **L610**; the **only**
+  output write is `json.dump` at **L606–607**. All four are **downstream of L602**.
+- The one other file-write (L339, in `pz_force_reader`) is a `NamedTemporaryFile` of
+  perturbed **force** data for a planted-zero control, `os.unlink`'d immediately. No verdict.
+- **No `F3_CONVERSION_GRADED.json` exists.**
+- The comparator's full stdout+stderr was **re-captured to a file and SEARCHED WITHOUT BEING
+  DISPLAYED** — a check that would have contaminated the thing it was checking is not a
+  check. **676 bytes, 10 lines**, decomposing as 1 `Traceback` header + 3 `File` lines +
+  5 source/caret lines + 1 `KeyError` line, **0 other**. Every gate identifier
+  (`G-F3-`, `verdict`, `deviation_pct`, `measured`, `exact`, `band_pct`, `PASS`,
+  `GATE FAIL`, `NOT A RESULT`, `shock`, `wave_drag`, `cd_computed`) returned
+  **0 matches**, and **no float with ≥3 decimals** appears anywhere in it.
+
+**The structural reason, which is why this is a mechanism and not a hopeful assertion:
+Python's `KeyError` carries the key name alone, never the mapping.** The crash could not
+have leaked a value.
+
+**The ruling this rests on, recorded verbatim because it is the reasoning and not merely the
+conclusion:** *knowledge contaminates a freeze, not computation.* A value that lived
+transiently in a dead process's memory, was never emitted and was never read by any agent
+**is not known to anyone**, so a freeze written now cannot be aimed at it — which is the whole
+evidentiary content rule 2 exists to supply. And *recoverability was never the bar, or every
+repair-then-grade this lab has ever done would be void*: the run artifacts have been on disk
+since the solves finished, and anyone could always have re-derived those values.
+
+### 4. The repair — STRUCTURAL, and what moves
+
+**The defect is TWO CONSTRUCTION SITES THAT CAN DRIFT APART.** Adding `core_s` to the
+`PENDING` branch patches the symptom and **leaves the next divergent key waiting**.
+
+**Registered repair: ONE CONSTRUCTOR, ONE SCHEMA.** A single factory builds every
+`report["runs"]` entry with the same key set, absent values carried explicitly as `None`;
+and the L602 summary **tolerates a legitimately absent cost** rather than assuming every entry
+carries one. **An unlaunched run has no cost, and that is a fact to represent, not an error to
+avoid.**
+
+**What moves, quantified:** the comparator proceeds past L602 instead of raising. **No band,
+cap or label is touched, and no measured quantity is recomputed** — the same ten completed
+runs and the same two unlaunched rows feed the same frozen criteria.
+
+**What is NOT claimed:** this amendment does **not** assert what the gates will say. Nobody
+knows, and that is the condition under which it was written.
+
+### 5. Execution
+
+The repaired comparator **extracts and grades in ONE MOTION**, so no gate quantity is
+observed before the criteria are fixed. This amendment is committed **first**.
+
+*Amendment 2 ends. Zero compute: no solver ran, no run directory was created or modified.*
