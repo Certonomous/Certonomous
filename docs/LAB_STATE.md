@@ -456,6 +456,119 @@ finding `R_300k_x` unmarked should read this paragraph, not re-diagnose it.
 **Sub-section last written:** 2026-08-25T03:48:19Z by chief (certonomous-c1), via a records lane — zero
 compute, no solver, no case directory; assembled from the HEAD blob, not the worktree copy;
 stamp and live readings from `date -u`, `ps` and `log.solve` in the writing invocation.
+
+### V/P RULINGS AND THE DEFERRED RUBRIC GAP — Sanaa, 2026-08-25
+
+**What this entry is.** Sanaa ruled **two** long-standing open questions and **deferred a
+third**, in her own session turn of 2026-08-25. Her words are reproduced **BYTE-EXACT**
+below — every typo preserved, including the doubled **"for for"**, the missing apostrophe in
+**"itll"** and in **"cant"**, and **"gate reach at best"**. **Nothing is normalised, and
+nothing here may ever be "corrected".** Tonight the lab established that **normalised
+spelling is the signature of a relayed paraphrase rather than a primary source**, and that
+**the chief's own relay has corrupted her words before**. Everything after the quote is **the
+CHIEF'S READING, labelled as such — it is NOT her words.** Zero compute, no solver, no case
+directory, no science; written by a records lane from the HEAD blob, never the worktree copy.
+Under the standing zero-compute ruling recorded in `## verification` (*"rule 12's calibration
+duty does NOT reach zero-compute work"*), **no `docs/COST_CALIBRATION.md` row is owed and
+none was written.**
+
+**HER WORDS, VERBATIM — reproduced byte-exact:**
+
+> a. Uphold b. Yes ansys manual is a public primary source, and it's fine that itll reach gate reach at best. Anything gate reached for for that team means we reached ansys, which is good enough. About the comment regarding what the rubric cant represent, you can make a note of that and we will add that later.
+
+#### 1. RULING (a) — **UPHELD.** `V` and `P` are separate columns, and one artifact cannot discharge both
+
+**THE CHIEF'S READING OF WHAT "Uphold" SETTLES — NOT HER WORDS.** An **exact solution**, an
+**analytic benchmark**, a **manufactured solution**, a **correlation**, **another code's
+result**, or a **numerical benchmark** scores **`V`** — code verification — and **NEVER
+`P`**. **Validation requires a comparison against MEASURED PHYSICAL REALITY**, from a
+**public primary source**, with the **pre-registration on disk**. A known answer, however
+strong an instrument it is, is not a measurement of the world.
+
+**Whose reading this was, recorded because provenance is the point.** This was **the reading
+the VERIFICATION team ruled**, and **the HEAT-TRANSFER team argued for it AGAINST ITS OWN
+INTEREST** — its own rows are the ones that would have been promoted. The argument it made:
+**if one artifact could discharge both columns, every code-verification row becomes top-tier
+automatically**, and **a column that cannot be missing is not a column.** That is the
+substance Sanaa's "Uphold" now stands behind.
+
+#### 2. RULING (b) — the **Ansys Fluid Dynamics Verification Manual IS a public primary source.** The licence objection is CLOSED
+
+**HER RULING**, in her own words above: *"Yes ansys manual is a public primary source"*. The
+standing **licence objection to citing the manual as a primary source is CLOSED** and is not
+to be re-opened by any agent at any level.
+
+**THE CHIEF'S READING OF THE CONSEQUENCE — NOT HER WORDS.** The two rulings compose, and the
+composition is per-case, never per-campaign:
+
+- Where a VM case's reference is genuinely **MEASURED or EXPERIMENTAL data carried by the
+  manual**, **`P` CAN BE GREEN** — the manual is now an admissible public primary source for
+  it.
+- Where the reference **IS the closed-form answer** (an exact solution, an analytic result, a
+  correlation), **ruling (a) governs and the case scores `V` ONLY.** Most of the VM suite is
+  of this second kind.
+
+**HER STATED EXPECTATION FOR THAT CAMPAIGN, IN HER OWN WORDS** — recorded as an expectation,
+verbatim, not paraphrased: *"it's fine that itll reach gate reach at best"*, and **"Anything
+gate reached for for that team means we reached ansys, which is good enough."**
+
+#### 3. A CONSEQUENCE SHE MAY NOT HAVE INTENDED — **THE CHIEF'S READING, FLAGGED AS SUCH, AND NOT HER WORDS**
+
+**(a) and (b) together do NOT forbid a `HOLDS` on an Ansys case.** An Ansys case with (i) a
+**measured** reference carried by the manual, (ii) a **CONVERGING** Roache triple, and (iii)
+a **frozen pre-registration on disk** would score **all three columns** — `V`, `G` and `P` —
+and would be a legitimate `HOLDS`. Nothing in her turn rules that out; her sentence sets an
+**expectation about the likely ceiling**, and **an expectation is not a cap to be enforced
+downward.**
+
+**THE INSTRUCTION GIVEN TO THE ansys-verification TEAM, and it has four clauses:**
+
+1. **Do NOT chase it.** No case is selected, re-scoped or re-graded in order to manufacture a
+   third column.
+2. **Do NOT suppress it.** No grade is held down to match the expected ceiling.
+3. **Grade each case on what it ACTUALLY HOLDS**, per case, against its own frozen
+   pre-registration.
+4. **REPORT IT IF IT OCCURS** — to the chief, and onto this board.
+
+**Flagged for Sanaa:** if she intends `GATE REACHED` as a **hard cap** on that campaign
+rather than as an expectation, that is a one-line correction from her and the chief will
+record it. **Until she says so, clause 3 governs.**
+
+#### 4. **DEFERRED BY SANAA — recorded so it is NOT LOST, and NOT DROPPED**
+
+**HER WORDS:** *"About the comment regarding what the rubric cant represent, you can make a
+note of that and we will add that later."* **This note is that note.**
+
+**THE GAP, as the VERIFICATION team identified it — and it REFERRED the gap rather than
+working around it, which is why it is still open and still clean.** No row in this lab joins
+a **known answer** to a **converging grid ladder**: the **exact-solution rows carry no Roache
+triple**, and **the one clean triple has no known answer.** The three columns **`V` / `G` /
+`P`** are all the rubric has, and they can only express what a case **HAS**. They **cannot
+express that a case would establish a CAPABILITY the lab does not currently hold** — which is
+the whole argument for such a case, and the rubric as written cannot hear it.
+
+**STATUS: DEFERRED BY SANAA — TO BE ADDED LATER, NOT DROPPED.** A future session must **not
+read the silence between now and then as a decision.** The item stays live on her desk until
+she rules it.
+
+**CROSS-REFERENCE — it bears on a related open question already on her desk.** Whether **`V`
+should be graded by the STRENGTH of its instrument.** The rubric's `V` is **binary**: an
+**exact solution**, a **manufactured solution** and a **correlation** all score the same
+green, though they are not the same evidence. The two items are separate but they move
+together, and **widening `V` is a rubric change and is hers alone.** Both are **referred, not
+taken, and not worked around.**
+
+#### 5. TWO FURTHER RULINGS FROM THE SAME SESSION, recorded in one line each so the board is complete
+
+- **cfd ratification — APPROVED.** She **approved the ratification of the two cfd commits
+  that landed after a permission denial.** **THE CHIEF'S READING, RECORDED AS SUCH:** that
+  approval covers **THOSE TWO COMMITS**, and **NOT the class** — it is not a standing
+  permission for commits after a denial (standing rule 9: approval of an item is approval of
+  **its** cap, never a new ceiling).
+- **ansys-verification charter duty — PROSPECTIVE.** She ruled that team's charter-update
+  duty is **"going forward"**, with **NO BACK-FILL DEMANDED** for the records already
+  written.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
