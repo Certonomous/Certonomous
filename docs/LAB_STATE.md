@@ -2104,6 +2104,113 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+
+### SESSION certonomous-67 — THE K0d BLOCKER IS NEITHER COST NOR THE TWO NAMED FINDINGS. IT IS FOUR REGISTRATION GAPS, AND I HAVE RULED THEM
+
+**Sub-section written:** 2026-08-25T20:30Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; this session re-opens none of them.**
+
+#### THE HEADLINE — I READ THE THREE K0d INSTRUMENTS PERSONALLY AND FOUND WHAT THE SELFTESTS AND THE BLINDNESS CHECKER BOTH MISSED
+
+Both K0d selftests PASS and `scripts/check_grader_self_blindness.py` reports both scripts *"clean on both probes (NOT a proof of correctness)"*. **A green selftest is not a green instrument.** My own read (SUPERVISION §3, non-delegable) found a defect neither instrument caught:
+
+**`check_k0d_mesh.py` CONDITION C DOES NOT READ THE MESH.** At `main()` line 448 it is called `condition_C(None, LEVELS[lo], None, LEVELS[hi])` — **both mesh arguments are `None`** — and the body computes the ratio from the hard-coded `LEVELS` spec constants. **It cannot fail on any real mesh: at run time it is a tautology over the script's own constants.** The module docstring asserts *"refusal conditions A-G, every one READ FROM DISK"* — **false for C.** Its selftest "FIRES" check at line 521 plants into a **modified spec** (`dict(LEVELS["L2"], nB=400)`), **not a modified mesh — a planted control planting into the wrong channel**, which is exactly why a passing selftest hid it.
+
+**The hole is exploitable, not theoretical.** A mesh redistributing cells between blocks A/B/C while holding `Ny = nA+nB+nC` and `Nx*Ny` passes condition A (total cells, from disk), passes condition B (slots tested with `>=` minimums, so a LARGER slot passes), and C never looks. **Block B — the cavity interior — would be under-resolved and nothing would catch it. Condition C underwrites the refinement ratio the entire Roache triple rests on.** Repair dispatched and registered in `AMENDMENT 2`; **I read the repair as a diff before the fire order.**
+
+#### THE REAL BLOCKER, ESTABLISHED FROM DISK — AND IT IS NOT WHAT THREE BRIEFS IN A ROW HAVE SAID IT WAS
+
+`build_k0d.py` **REFUSES (exit 2) and writes nothing** while any entry of its `REGISTRATION_GAPS` table is unresolved. **The builder is CORRECT to refuse** — superseded §A5.11 clause 2 forbids it choosing what the document leaves open. Four gaps: `writeFormat`, `writePrecision`, `writeCompression`, `domain_thickness_t`.
+
+- **Cost was never the blocker** — my predecessor established that an hour before the cost directive arrived, and Sanaa has now lifted constraints anyway.
+- **`A5.13` Findings 10 and 11 have now been relayed as owed pre-compute rulings THREE times. They were RULED AND CLOSED at HEAD before the first relay** — Finding 10 by `AMENDMENT 1` §A1.2, Finding 11 by §A1.3, each saying *"is CLOSED"* in terms. **Nothing is owed and nothing is to be re-ruled.**
+- **These four gaps are the live pre-compute rulings, and they are the ones that actually block the fire.**
+
+#### MY FOUR RULINGS, each derived rather than chosen, `[lab-attributed]` under Sanaa's desk-item disposal rule of 2026-08-25
+
+1. **`writeFormat ascii`.** `check_k0d_mesh.py` reads `points` and `owner` through an ASCII regex reader and REFUSES anything it cannot parse; a binary mesh would silently disarm conditions A–F. The planted-zero control in `analyse_k0d.py` must plant into a field on disk and read it back through the same reader that produces the graded number — binary cannot carry that readback through a parser this lab has neither written nor verified. **ascii is the one setting under which every registered instrument on this rung has been shown able to see.**
+2. **`writePrecision 16`, and the arithmetic is the ruling.** §7.1's criterion is ≤ 1e-6 of the field's range between two written checkpoints; the registered `T` range is 20.0 K, so the criterion is **2.0e-5 K**. An ASCII field at **8** significant digits near 300 K has a last-digit quantum of **~1e-5 K — the SAME ORDER as the criterion**, so two checkpoints could differ by one quantum of the WRITER and the criterion could not tell that from convergence. **A convergence criterion sitting at the write quantum is not a criterion.** At 16 digits the quantum is ~1e-13 K, five orders below. Sibling K0cS writes at 16.
+3. **`writeCompression off`.** `mark_done_k0d.py`'s `field_path` accepts `T` or `T.gz`, **but its `.gz` branch is never exercised by its selftest — a reader branch not shown able to see is standing rule 3's defect class.** `off` puts every instrument on the path it has been demonstrated on. **Additionally required and not optional: extend that selftest to exercise the `.gz` branch anyway** — one gzipped clean case that must still pass, one gzipped stale case where the age guard must still FIRE.
+4. **`domain_thickness_t = 0.010 m`.** A1.3a's *"cancels in every registered quantity"* is true of the GRADED quantities and false of the MESH FILE — the builder's finding is right and is why the ruling is owed. The case is 2D: **one cell in z, `empty` front/back patches**. Under that construction no graded quantity depends on `t` (fields z-invariant by construction; `Ra`, `Ri`, `Re` all built on the 1.040 m cavity dimension), and the registered sampling plane `z_m = t/2` is the single cell's centre for ANY `t`, so it is `t`-invariant too. **Registered WITH the two assertions that make it refutable:** the builder asserts exactly one z-cell and `empty` front/back; the extraction asserts sampling `z` == that cell's centre. **If a graded number were ever found to move with `t`, that is a finding against the 2D registration, not against this ruling.**
+
+**None is a tier definition, an external send, a constitutional change, or compute above a cap — so all four are mine.** Referred to Sanaa's desk; adopted by silence within one day.
+
+#### THE CEILING COLLISION, RULED — the board carried TWO numbers
+
+`AMENDMENT 1` §A1.4's enumeration is meshing bounded **2.00** + mesh reader **0.50** + comparators **1.00** + dual-scheme extraction **≤ 8.00** = **`I` = 11.50**. That the first three sum to 3.50 **reproduces §8's frozen "instruments, bounded 3.50" line exactly**, which is the check that this is the right enumeration. **The `12.00` in §A1.4's arrangement table is not reproducible from its own enumeration — 0.50 is unexplained.**
+
+**CEILING = 3 × 912.38 + 11.50 = `2 748.64` core-min. `2 749.14` IS SUPERSEDED and is recorded as superseded rather than deleted** — a ruling quietly corrected is worse than one visibly corrected. Derived **45.8107 core-h × $0.0513 = $2.3501, DERIVED NOT MEASURED** (`COMPUTE_BUDGET_CHARTER.md` §5). POINT **922.71 core-min / $0.789 derived** — 34 % of even the OLD ceiling. **What never fit was the worst-case envelope, never the expected run.** Neither concession taken; `M1_m_seed` stays at L2 and stays in the rung.
+
+#### WHAT K0d CAN AND CANNOT EARN — stated plainly, and NOT a reason to withhold the run
+
+**§0 holds: no graded verdict against the reference is reachable while Blay 1992 is `NOT OBTAINED`.** Under Sanaa's V/P ruling *"a. Uphold"* (V and P are separate columns; one artifact cannot discharge both): **K0d can earn `V` and `G`; it CANNOT earn `P` and therefore never `HOLDS`. Its rung verdict is `GATE REACHED`, naming `P` as the unreached column.** Obtaining Blay 1992 from outside the box is Sanaa's alone (rules 7, 8) and is not being attempted. **V and G are exactly the columns the lab is short of — this is a reason to run it.**
+
+**Sanaa's grid ruling recorded as received:** *"A converging three-level family with observed order and GCI is the lab's gate standard (Roache-standard minimum). More levels are a research option, never a gate requirement."* It relaxes nothing; K0d's L1/L2/L3 is exactly three, confirmed not extended.
+
+#### THE THREE LIVE SOLVERS — MEASURED BY ME AT 20:27:21Z, NOT RELAYED
+
+T1b L4 EXT2, `buoyantBoussinesqSimpleFoam`, **all serial (`ranks == 1`, CPU-time / elapsed = 99.9 %)**, all started 16:36:46–47Z, **survivors of the fleet kill**. Elapsed 13 835 s each; **230.4 core-min burned each, 691.3 core-min = 11.52 core-h for the three, derived $0.591 (DERIVED, not measured)**.
+
+| pid | cwd (`verification/runs/T-family/T1_runs/`) | now | `endTime` | s/iter | projected total | registered cap | ETA (derived) |
+|---|---|---:|---:|---:|---:|---:|---|
+| 2203927 | `R_10k_x` | 22 786 | 32 000 | 4.968 | **993.5 core-min** | **1 100** | ~2026-08-26T09:10Z |
+| 2203944 | `R_100k_x` | 84 412 | 94 000 | 3.137 | 731.9 core-min | 1 300 | ~2026-08-26T04:48Z |
+| 2203947 | `R_300k_x` | 85 877 | 110 000 | 2.354 | 1 177.2 core-min | 2 750 | ~2026-08-26T12:14Z |
+
+**ETAs are DERIVED from a measured rate averaged over the whole 3.84 h, not promised.** `R` is **REYNOLDS**, not Rayleigh: three separate Re at level `x`, one member each of three different ladders — **NOT a grid triple, and they cannot carry `G` among themselves.** T1b L4 stands **`NOT A RESULT` ×4**.
+
+**`R_10k_x` IS THE ARM AT RISK: projected 993.5 against a 1 100 core-min cap — 90.3 %, 9.7 % margin.** Its `timeout 66000` fires at **2026-08-26T10:56:46Z**, about 1 h 46 m after its projected finish. If contention rises it trips.
+
+**VERIFY — an unexplained 2.1× spread in per-iteration cost across three arms reportedly at the same mesh level `x` (4.968 / 3.137 / 2.354 s/iter).** Either the meshes differ or contention was very unevenly distributed. Not established; named rather than smoothed over.
+
+#### A RULE-2 BOUNDARY I AM PUTTING UP RATHER THAN DECIDING ALONE
+
+**Sanaa's cost directive relaxed rule 12's stop-on-budget clause. It did NOT relax rule 2.** If `R_10k_x` trips its cap, **raising that cap now would alter a registered cap AFTER first compute, which rule 2 forbids** — so the arm is `NOT A RESULT` under its own frozen §10 and that stands. **My recommended resolution:** the arm is not rescued by amendment; instead a **fresh, separately pre-registered re-run at a correctly sized cap** is legal, is now cheap, and is the right disposition. Referred with that recommendation under the disposal rule.
+
+#### LANES LIVE — THREE, AT THE CAP
+
+| lane | task | gate on me |
+|---|---|---|
+| K0d | `AMENDMENT 2` (four gap rulings + ceiling + condition-C repair + §A2.4), implement, commit, build ten meshes, **STOP** | **I read the condition-C repair as a diff before the fire order** |
+| T8 | finish the truncated comparator, joint prereg+comparator freeze commit | I read `analyse_t8.py` and `build_t8.py` as diffs before any output is believed |
+| saturation | T12's stale block, the rule-15 title-page audit, T2's mis-tiering, the ranked 24 h queue | T2 and T12 are my rulings; the lane brings numbers |
+
+**Both dead lanes' work SURVIVED on disk, untracked, and is being landed rather than redone:** K0d's `build_k0d.py` / `check_k0d_mesh.py` / `mark_done_k0d.py`; T8's `T8_PREREGISTRATION.md`, `build_t8.py`, `run_one_t8.sh` and an `analyse_t8.py` written at 19:31 that **may be truncated** — it was the last thing written before the kill.
+
+#### CAPACITY — MEASURED 20:19Z, AND THE PICTURE HAS CHANGED SINCE 19:05Z
+
+**16 cores, load average 7.07, 12 GB of 30 used, 18 GB available — ~44 %, BELOW Sanaa's 80–90 % band.** At 19:05Z the box was 16/16 and there were no free cores; dafoam ranks have since retired. **Three of the busy cores are mine.** ~9 cores are free and **thermal now can fill them.**
+
+**Pre-decided staging, so the fire order is one word:** K0d is serial, ten cases. **Stage SEVEN now, hold `M1_f`, `M2_f` and one more until first retirement → 7 mine + 7 foreign = 14/16 = 87.5 %, inside the band.** Firing all ten puts the box at 100 % and **corrupts the wall-clock timing basis the cost calibration depends on — a MEASUREMENT argument, not a cost argument, and it survives her directive intact.** A §9.4 contention file records the load average and foreign-solver identity at each launch so contention is attributed, not absorbed.
+
+#### RUNGS WITHOUT VERDICTS
+
+- **K0d** — `BLOCKED` until `AMENDMENT 2` lands and I clear the condition-C repair. Zero core-minutes spent. Can reach `GATE REACHED` (V, G); never `P`.
+- **T1b L4 EXT2** ×3 live + 1 — `NOT A RESULT` ×4; a `docs/COST_CALIBRATION.md` row is **OWED at completion** under rule 12 and is `PENDING`, not forgotten.
+- **T8** — `PENDING`; not committed, so not frozen.
+- **T5** — mine to promote; **any TIER-DEFINITION interpretation still reserved to Sanaa** (tier ACQUIRE).
+- **T2** — mis-tiering under audit; my ruling, not yet made.
+- **T12** — possibly unblocked by a zero-compute title-page read; under audit.
+
+#### NEXT ACTIONS
+
+1. Read the condition-C repair diff **personally** → give the K0d fire order → stage seven.
+2. Read `analyse_t8.py` and `build_t8.py` as diffs before believing any T8 output.
+3. Rule T2's tier and T12's block once the audit returns numbers.
+4. Promote T5, holding the tier definition back.
+5. **Ask Sanaa for more cases the moment the queue is genuinely empty — she has offered, and stretching a queue to look busy is the opposite of what she asked for.**
+
+#### ON SANAA'S DESK
+
+- The **four K0d registration-gap rulings** (`writeFormat ascii`, `writePrecision 16`, `writeCompression off`, `t = 0.010 m`), each with its derivation — adopted by silence in one day.
+- The **ceiling ruling** `I` = 11.50 → **2 748.64** core-min, superseding 2 749.14. **No longer a budget question**; it is this team's own runaway guard.
+- The **rule-2 boundary** above: a cap may not be raised after first compute even though cost constraints are lifted, with my recommended resolution (fresh pre-registration, not a rescue amendment).
+- **The largest open exposure, unchanged and VERIFY:** reportedly only **three** PDFs in the whole repository carry a rule-15 title-page verification, all in `docs/papers/forced_convection_heat_transfer/`; **Ampofo**, **Betts / ERCOFTAC 079** and **Nielsen** carry none — **and every `P` column in this family rests on them.**
+
+#### BLOCKED
+
+- **K0d's `P`, and therefore `HOLDS`** — until **Blay 1992** is obtained and title-page verified. **Obtaining it from outside the box is Sanaa's alone (rules 7, 8) and is not being attempted.** Unblocked by that paper landing in `docs/papers/` and by nothing else.
+- **Nothing else in this territory is blocked on Sanaa.** The queue is thin, not blocked, and I am asking for more work rather than stretching what is left.
+
 ### SESSION certonomous-66 — RESUME AFTER THE FLEET KILL: the chief's reading CORRECTED, and the K0d cap RULED
 
 **Sub-section last written:** 2026-08-25T19:07:58Z by heat-transfer-supervisor.
