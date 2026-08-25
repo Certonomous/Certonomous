@@ -1872,6 +1872,39 @@ Evidence is good: Meinders 1998 held and **title-page verified**, sidecar real a
 - **Live L-186 evidence, stronger than the lesson:** a lane wrote four rendered title pages into the scratchpad and **four minutes later the directory did not exist**, wiped by another agent mid-task. **The scratchpad is not reliable storage even WITHIN one lane's own task**, let alone between sessions.
 - **HEAD moved three times during one lane's work** (`59c3d8f6` → `c10ba764` → `b530da36`). Every freeze check must capture HEAD **once, inside the same shell invocation** as the `read-tree`, the assertion and the `-p`.
 
+#### MY §3 CHECK-1 DIFF READ ON T8 — DONE PERSONALLY, WITH THE CENTRAL CLAIM REPRODUCED RATHER THAN ACCEPTED. **T8 IS FIRED.**
+
+**`grade()` is untouched, confirmed two independent ways.** The hunk header reads `@@ -1449,6 +1449,129 @@ def grade(root)`, which reads as if 123 lines were inserted **into the grading function**. They were not — that is git's enclosing-context label, and the new block begins **after `grade()`'s closing `return 0`**. Verified independently by **my own md5 of lines 1-1451 on both sides: `e4f91e27c033b633471b74f4ae1ed8a5`, identical.** The grading path did not move and every instrument kept its line number. All three hunks land at 1449 or below. **No gate, threshold, band, cap or label value changed** — every match on those tokens is comment or assertion text. The seven deletions are docstring lines only; no instrument was removed.
+
+**I REPRODUCED THE MUTATION MYSELF, on a copy, with the frozen file never touched.** Line 685 `(9.0*T[i1] - T[i2])/8.0` → `(7.0*T[i1] - T[i2])/6.0`; `__pycache__` cleared first, because a stale one inverts a mutation test and makes the clean control fail while the mutated case passes.
+
+| | selftest | rc |
+|---|---|---:|
+| **frozen file, baseline** | **69 ok, 0 FAILED** | **0** |
+| **mutated copy** | **65 ok, 3 FAILED** | **2** |
+
+**CAUGHT.** And the three failures are exactly the ones the finding predicts: the shipped `Tc` missing the analytic axis value by **3.000e-01 K at all 32 planes**; `check_planted_zero` reporting **"THE READER COULD NOT SEE THE PLANT"**; and **`supplementary (a) innermost column only`** as the arm that fires. **Call sites: all five readers now at 5 each — `check_planted_zero` was at 1.** Before this amendment it was never invoked by `--selftest` at all.
+
+#### ⚠ A STANDING-RULE-3 DEFECT IN MY OWN FROZEN PRE-REGISTRATION — §9's REGISTERED PLANTED-ZERO ARM WAS NEVER ARMED
+
+**§9 registers ONE arm: plant into both axis-adjacent columns, expect exactly `PLANT`, because `(9P − P)/8 = P`. That arm is ANALYTICALLY INCAPABLE of seeing a `(7f₁ − f₂)/6` mis-weighting — because `(7P − P)/6 = P` as well.** Measured under the mutation: **both registered arms PASS.** What forces the refusal is the comparator's **supplementary arm (a)** — innermost column only, expecting `9P/8` — which was already shipped but was **not what §9 registered as the control**.
+
+**A registered control that cannot distinguish the defect it exists to catch is a control that was never armed**, and standing rule 3 is precisely the rule that refuses it. The lane **did not weaken, widen or reinterpret §9** — the supplementary arms were already in the frozen comparator. **What is new is the DISCLOSURE, and the disclosure is the point: it stops a future rung copying §9's wording believing one arm suffices.** The split is now asserted in selftest section (x), so it is **checked every run rather than believed once**. `check_planted_zero` is now tested on its **refusal**, not only its arithmetic — a guard shown able to abort on a known-bad input (L-314).
+
+**Landed correctly under rule 2's pre-compute path:** window verified OPEN by direct `stat` — all three `T8_MTT_*` directories absent, no `STATUS.T8*`, no `log.solve` under any T8 path, no calibration row — **and re-verified after the commit**. Pre-registration **v1.0 → v1.1**, amendment A1 at the foot, **lines 1-477 byte-identical**, so rule 6's `lines whose number changed above this section: 0` is **verified, not merely stated**. `--check-freeze` FROZEN; blindness checker clean on both probes.
+
+**A CORRECTION THAT IS THE WHOLE ARGUMENT FOR THIS CHECK BEING NON-DELEGABLE: the lane reported its diff as `+216 / −7`. It is `+239 / −7`** — measured by me with `git diff --numstat`. **Nothing was hidden**, all three hunks are visible, the grading path is byte-identical and the conclusion is unaffected — **but a supervisor who took the figure on trust would have carried a wrong number into the record.** A relayed check is a summary, not a check.
+
+#### THE T8 FIRE ORDER, AND THE ONE GAP I AM ACCEPTING **WITH ITS BAD OUTCOME PRE-DECIDED**
+
+**Fired:** three levels `_c` / `_m` / `_f`, serial, `ranks == 1`, each under a `timeout` equal to its registered cap × 60. **Registered cap 595 core-min against a 335.3 core-min point estimate.** Freeze re-verified immediately before launch by hashing against the committed blobs — `analyse_t8.py` **`f04f9a67…`**, `build_t8.py` **`376a41da…`** — using `git cat-file -p HEAD:<path>` and **not `git diff`**, which the lane caught reporting an edited file **clean**: the stale-index trap, live again.
+
+**THE GAP, named by the lane against its own work rather than by me against it: `build_t8.py` is unchanged and UNAUDITED by mutation.** The comparator was audited; the case builder feeding it was not.
+
+**MY RULING: fire first, audit in parallel, and pre-decide the bad outcome now so nobody improvises it later.** If the builder audit finds a defect able to move a graded value, **the run is `NOT A RESULT` and T8 is RE-REGISTERED FRESH — not rescued by an amendment**, because after first compute rule 2 forbids altering a gate, threshold, cap or label. **That is the identical boundary already on Sanaa's desk for `R_10k_x`, and applying it consistently to my own convenience is the point.** What justifies firing rather than waiting: **cost is not a consideration** (335 core-min = $0.29 derived, and Sanaa has removed cost as a ground entirely), the box is at **19 % with 13 idle cores**, and the builder's structural output is **partly checked downstream anyway** — `resolve_planes` enforces `r2 = 3·r1` **from the mesh on disk**, and the registered mesh conditions are read rather than assumed.
+
+**Two items the lane correctly left to me:** ruling 4 (the plateau conjunct) stays undecided and `grade_row` is untouched — it is a canon question for the chief and verification, not a T8 defect. And **A1.5 records the `check_freeze_set` HEAD-versus-pinned-sha limitation as a named limitation DELIBERATELY NOT CLOSED**, because pinning it would change the grading path's own guard. **A limitation named and left open is honest; one closed silently in the same commit would not have been.**
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
