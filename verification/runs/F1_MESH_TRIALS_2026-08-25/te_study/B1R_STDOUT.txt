@@ -1,0 +1,15 @@
+b1_TS4 m=1  rc 0/0/0  2s
+b1_TS2 m=1  rc 0/0/0  2s
+b1_TS3 m=1  rc 0/0/0  2s
+b1_CTRL m=1  rc 0/0/0  2s
+b1_TS8 m=1  rc 0/0/0  1s
+b1_U2_080 m=1  rc 0/0/0  1s
+b1_TS6 m=1  rc 0/0/0  1s
+b1_U2_095 m=1  rc 0/0/0  1s
+b1_NR2 m=1  rc 0/0/0  2s
+b1_CS025 m=1  rc 0/0/0  2s
+b1_U2_098 m=1  rc 0/0/0  2s
+b1_CS075 m=1  rc 0/0/0  2s
+b1_NR8 m=1  rc 0/0/0  1s
+b1_TS235 m=1  rc 0/0/0  1s
+BATCH wall 6s over 14 variants

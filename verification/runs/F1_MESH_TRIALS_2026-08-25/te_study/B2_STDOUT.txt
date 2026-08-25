@@ -1,0 +1,13 @@
+b2_MK1_U095 m=1  rc 0/0/0  1s
+b2_MK0_U090 m=1  rc 0/0/0  1s
+b2_MK1_U098 m=1  rc 0/0/0  1s
+b2_MK1_U090 m=1  rc 0/0/0  1s
+b2_MK1_U099 m=1  rc 0/0/0  2s
+b2_MK1_U0995 m=1  rc 0/0/0  2s
+b2_MK1_U0999 m=1  rc 0/0/0  2s
+b2_MK1_U0997 m=1  rc 0/0/0  2s
+b2_MK05_U0995 m=1  rc 0/0/0  1s
+b2_MK1_U099_CS025 m=1  rc 0/0/0  1s
+b2_MK2_U099 m=1  rc 0/0/0  1s
+b2_MK1_U099_NR8 m=1  rc 0/0/0  1s
+BATCH wall 4s over 12 variants

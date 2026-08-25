@@ -1,0 +1,13 @@
+b3_BETA_5 m=1  rc 0/0/0  2s
+b3_BETA_4 m=1  rc 0/0/0  2s
+b3_BETA_6 m=1  rc 0/0/0  2s
+b3_BETA_8 m=1  rc 0/0/0  2s
+b3_RFAC_10 m=1  rc 0/0/0  1s
+b3_BETA_1 m=1  rc 0/0/0  1s
+b3_BETA_3 m=1  rc 0/0/0  1s
+b3_BETA_2 m=1  rc 0/0/0  1s
+b3_BETA3_MK1 m=1  rc 0/0/0  1s
+b3_BETA2_MK1_U099 m=1  rc 0/0/0  1s
+b3_BETA5_MK1 m=1  rc 0/0/0  2s
+b3_RFAC_5 m=1  rc 0/0/0  2s
+BATCH wall 5s over 12 variants
