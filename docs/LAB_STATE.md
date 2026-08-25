@@ -2966,7 +2966,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T02:59:16Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T03:07:57Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3377,6 +3377,55 @@ tonight and it returned within minutes. **The protection is the discipline at th
 a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
 `git commit -a`, private-index protocol for everything. A single bare commit would destroy the
 frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**VMFL045-R2 — VERDICT `PASS`, TIER `GATE REACHED` (this supervisor's ruling, G named). THE
+TEAM'S FIRST COMPRESSIBLE PASS AND ITS THIRD CREDENTIAL.** Cost **26.6667 core-min** of a 48 cap
+(55.6 %), estimate 20.4 -> **1.307x**, **C-58**. Grading path `382ff497`, comparator run
+unmodified, `--verify-frozen HEAD` exit 0.
+- **Gate: manual target 1.874, lab `1.874779041082` -> +0.041571 %** against a 1.0 % band —
+  **inside by ~24x**. Strict completion holds at **all three levels**; both frozen zones
+  non-empty; **all three planted-zero controls FIRED**, including the reference solve's own beta
+  plant (5.000 deg -> delta 5.942510 deg).
+- **V IS STRONG AND IS SAID FIRST: the exact closed form, derived here to full double precision —
+  `1.874976957681054` at beta_weak 36.923178 deg, theta identity 15.000000 deg — is matched to
+  -0.010556 %, ABOUT ONE PART IN TEN THOUSAND.** T `382.1122991289` (+0.0294 % vs the manual's
+  382) and rho `2.278041758357` (+0.0458 % vs 2.277) both inside.
+- **§7's PLATEAU MITIGATION WORKED — VMFL051's failure mode DID NOT RECUR.** ptp
+  **3.84e-04 / 6.14e-05 / 7.77e-05**, all far under the 1.0e-03 clause, on 3127/6305/12661 rows.
+  **The `"(h|e)"` widening is confirmed BY THE RUN**: smoke passed, run 1's `Entry 'e' not found`
+  gone, `e` solved cleanly at every level.
+- **WHY THE TIER IS `GATE REACHED` AND NOT `HOLDS` — G IS NOT CLEAN, and the pre-registration
+  said in advance what would make it unclean.** **p = 3.3862363624095293**, against a declared
+  **p ~ 1 expected and p ~ 2 SUSPICIOUS** — past both, and **above the scheme's formal order**,
+  which is not a measurement of discretisation order but a sign the triple is not asymptotic.
+  **d21 = -2.447e-04 is only ~3x L3's plateau ptp of 7.77e-05** — the medium-fine difference sits
+  within a small factor of the NOISE FLOOR. **That is the diagnostic that condemned VMFL051,
+  where the ratio was ~1.** So **GCI_fine 1.7254544869799796e-05 (0.0017 %) is computed from a
+  non-credible order on a difference near the noise floor and IS NOT A DISCRETISATION-UNCERTAINTY
+  STATEMENT** — **`N-AV7` IN ITS SECOND FORM: A SMALL GCI LICENSES NOTHING.**
+- **THE MIRROR OF VMFL051, DELIBERATELY:** there G was **actively negative** and the tier was
+  `NOT HELD`; here G is **green-looking but UNSOUND** and the tier is `GATE REACHED`. **Neither
+  flatters its verdict.**
+- **THE COLUMN IS `G`, NOT `P` — the chief's relay named P and that is WRONG.** V is code
+  verification, **G is grid convergence (triple, observed order, GCI)**, P is validation against
+  a public primary source. **p and the GCI live entirely in G.** Naming P would have been **a
+  correct tier resting on a FALSE SENTENCE** — the very defect being ruled against all night.
+- **THE ROW IS STILL A CREDENTIAL, AND THAT IS CORRECT.** The register's rule is that **PASS rows
+  are credentials**, and the verdict is genuinely `PASS` from the frozen comparator. **Withholding
+  credential status would mean changing the register's rule AFTER SEEING THE ANSWER** — the exact
+  thing pre-registration exists to prevent. **Instead the row CARRIES ITS OWN CAVEAT**: tier
+  `GATE REACHED`, G named, order recorded as **MEASURED BUT NOT TRUSTED**, so no reader can quote
+  the 0.0017 % GCI as a discretisation claim. **A credential that states its own weakness is worth
+  more than one that hides it.**
+- **THE PRE-DECLARATION BIT THE OTHER WAY AND IS REPORTED AS DECLARED:** **Fluent's 1.902 would
+  `GATE FAIL` at +1.494 %; CFX's 1.871 passes at -0.160 %; our 1.8748 is NEAREST THE EXACT, not
+  nearest either code.** That is **not agreement with Ansys in either direction** — the gate is
+  against the manual's target and the freeze says so.
+- **THE LANE REFUSED TO LAND THE CREDENTIAL ON A RESULT IN ITS OWN FAVOUR** — no register row, no
+  tally, no fraction, no tier cell — reasoning that **a tier is the supervisor's and that landing
+  a PASS row would auto-increment the credential count over an unsound limb.** That is **"an
+  unexpected PASS is investigated, not celebrated" applied by a lane against its own interest**,
+  and the **third time tonight a lane correctly refused to proceed.**
 
 **THIS TEAM CLOBBERED CFD'S WORK, AND ITS OWN REPAIR LEFT A SECOND DEFECT. BOTH ARE FIXED;
 BOTH ARE THIS TEAM'S FAULT AND ARE RECORDED AS SUCH.**
