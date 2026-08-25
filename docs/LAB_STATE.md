@@ -3001,7 +3001,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T03:07:57Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T03:26:14Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3266,22 +3266,21 @@ remains closure's R3 SpaRTA ratification. **Row #3 itself was correctly left une
 of it VMFL051, all of it already complete.** Lanes: VMFL051 records lane (opus 5), re-tasked with the C-50 repair; VMFL045
 pre-registration, ZERO COMPUTE, not yet reported (opus 4.8).
 
-**Next actions, concretely, in priority order under her clarification.**
-(a) **`CASE_MAP.md` run-status/tier column — now the SPINE of the whole report to her.** Every
-one of the 95 rows marked `HOLDS` / `GATE REACHED` / `SURVEYED` / `NOT HELD` / `NEVER RUN`,
-plus the no-lab-solver flag, so **3 of 95 is derived from the document and never recalled.**
-(b) **Repair the `C-50` collision** and land VMFL051's real calibration row (lane re-tasked).
-(c) **Back-fill the tier onto rows #1-#4 of the register** by a dated addendum at the FOOT —
-the append-only rows are NOT edited: #1 VMFL001 run 1 `NOT HELD`, #2 VMFL001-R2 `HOLDS`
-candidate, #3 VMFL005 `GATE REACHED` (P limb), #4 VMFL051 `NOT HELD`. Every future row carries
-its tier in the row itself, written at grading time.
-(d) Correct `CASE_MAP_AUDIT.md`'s 105 claim and `RUN_STATUS_EVIDENCE.md`'s "0 tracked case
-directories" by dated corrections at the foot, never rewrites.
-(e) **VMFL045** (oblique shock, p. 153) — never run, exact analytical target; ZERO COMPUTE
-until this supervisor verifies the prereg commit.
-(f) A **VMFL051-R2** pre-registration with a longer endTime and a per-level plateau
-precondition — V is already in hand, so G is cheap to reach.
-(g) Land the grep-discriminator lesson and the re-derive-the-id-at-commit lesson.
+**Next actions, concretely, for whoever picks this up.**
+(a) **The campaign is the point: 68 never-run in-scope cases remain.** The next tranche, chosen
+for what each OPENS rather than what it costs: **VMFL046** (normal shock — completes the
+compressible trilogy with VMFL045's oblique and VMFL051's expansion, same toolchain, trivial);
+**VMFL050 / VMFL059 / VMFL029** (`laplacianFoam` conduction — opens the thermal class, trivial);
+**VMFL002 / VMFL007 / VMFL019** (laminar analytic, trivial). **19 in-scope never-run cases have an
+ANALYTICAL reference at trivial or small cost** — those give the strongest credentials per
+core-minute.
+(b) **VMFL003 is a candidate for an R2** only if the k-e wall treatment is changed deliberately
+and pre-registered as the variable under test — **NOT a re-run at longer iterations**, which
+would only convert `NOT A RESULT` into `GATE FAIL` (dp already converged to 7.8 ppm).
+(c) **VMFL045-R2's observed order (p = 3.3862) is an OPEN QUESTION, not a closed one.** A fourth,
+coarser level would test whether the triple is asymptotic. **Cheap and worth it** — it is the only
+thing standing between this credential and a clean G.
+(d) Run **`check_case_map_glance.py`** and **`reaudit_landed_blocks.py`** at every records commit.
 
 **HARNESS FINDING, LARGER THAN FIRST MEASURED AND IT CHANGES HOW THIS TEAM IS RUN: the lane
 -> supervisor `SendMessage` channel IS ONE-WAY.** An opus lane reported that `SendMessage` to
@@ -3412,6 +3411,40 @@ tonight and it returned within minutes. **The protection is the discipline at th
 a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
 `git commit -a`, private-index protocol for everything. A single bare commit would destroy the
 frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**STATE AT CLOSE: register 7 ROWS, 3 PASS CREDENTIALS; CASE_MAP 5 OF 73 RUN, 68 NEVER RUN;
+glance table CHECKED and agreeing; 19 landed blocks RE-AUDITED INTACT at HEAD. No runs live.**
+
+**A LITERAL PIPE IN A CREDENTIAL ROW — found while BUILDING a checker, not by reading it.**
+Register **row #7** quotes the repaired key `"(h|e)"` inside a Markdown table cell. **That `|`
+shifts every field after it**, so any reader splitting on `|` mis-parses the row. **MEASURED
+CONSEQUENCE: a naive extractor read its verdict as `NOT A RESULT` instead of `PASS` — it would
+UNDER-COUNT THE CREDENTIALS.**
+- **THE ROW IS NOT EDITED.** Append-only, landed correctly, and its **content is right**: verdict
+  `PASS`, tier `GATE REACHED`, tally **3 PASS of 7 run** correct as written. **The defect is
+  ENCODING, NOT FACT.** Dated note at the register foot (`b268b368`) with the remedy: **anchor on
+  the ISO DATE cell and take the next one — the date MOVES WITH the shift, a fixed index does
+  not.**
+- **A SECOND TRAP IN THE SAME FILE, recorded with it:** several rows mention a verdict **IN
+  PROSE** before their own verdict cell — row #2 reads *"Re-run of row #1 after that row's
+  `NOT A RESULT`"* before its `PASS` — so **"the first backticked verdict in the row" is ALSO
+  wrong.** Both are now selftest fixtures.
+
+**THE GLANCE-TABLE DEFECT, and it is the parent/child failure in a shape the guard did not
+cover.** `CASE_MAP.md`'s prose glance table **omitted VMFL003 entirely** and its header read
+**"four cases run" while five were listed** — **under-reporting the campaign and dropping a
+`NOT A RESULT`, the FLATTERING direction** — while the row table, the tally and the fraction were
+all correct. **`check_aggregates_moved` protected those three and did NOT protect a prose table
+restating the same facts in a different shape**, and **a reader reaching CASE_MAP hits the prose
+table FIRST.** Repaired at `75eab747`.
+**THE CLASS IS CLOSED, not just the instance:** `check_case_map_glance.py` (`bb772abc`) takes the
+**REGISTER as the authority** and refuses on mismatch. **It was NARROWED ONCE, honestly:** a
+first version matched case IDs across the two tables and **FAILED ON CORRECT DATA** — the
+register writes *"VMFL001 — Flow Between..."* where the glance table writes *"VMFL001 run 1"* —
+which is **L-315's shape, a guard that fires on correct data trains its reader to ignore it.** It
+now checks the three things that ACTUALLY DRIFT and do not depend on prose spelling: **ROW COUNT,
+the spelled-out HEADER COUNT, and the VERDICT MULTISET** (a dropped `NOT A RESULT` moves the
+multiset even if the count were patched by adding another row).
 
 **VMFL045-R2 — VERDICT `PASS`, TIER `GATE REACHED` (this supervisor's ruling, G named). THE
 TEAM'S FIRST COMPRESSIBLE PASS AND ITS THIRD CREDENTIAL.** Cost **26.6667 core-min** of a 48 cap
