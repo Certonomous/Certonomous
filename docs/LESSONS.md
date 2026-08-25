@@ -12733,3 +12733,70 @@ have reported it clean.
 input? *(2)* does it **stay quiet** on a known-good one? *(3)* `L-315`: what does it **cost**
 when it fires correctly under a wrong scope? **And now the fourth: what happens to the thing
 it protected AFTER it stops watching?**
+
+## L-320 — A negative control that leaves the LOAD-BEARING BRANCH INTACT proves the branch that does not matter, and it reports GREEN the whole time
+
+**Found 2026-08-25, cfd, on F5b Physics, by PLANTING — not by reading the code.**
+
+`analyse_f5b_physics.py` grades §5 clause 1 (`rc = 0`) by a **disclosed proxy**, because the
+rc is structurally unavailable: the launcher `setsid`-detaches so the solver outlives the
+launching agent, then exits, so **nothing ever reaps the driver.** The proxy is
+`record.json` present **AND** `End` on all three prelude logs.
+
+The reader ships a completion selftest that breaks each clause in turn and asserts that
+exactly that clause fails. **It passes. It has always passed. And its clause-1 breaker
+never touched the half of the proxy that carries it:**
+
+```
+    if break_clause != 1:
+        open(os.path.join(root, "record.json"), "w").write(json.dumps(rec))
+    else:
+        open(os.path.join(root, "record.json"), "w").write(json.dumps(rec))
+```
+
+**Both branches are identical.** `break_clause=1` breaks clause 1 by blanking
+`log.checkMesh`'s `End` — the *dependent* half, the half that duplicates another limb of
+the same conjunctive rule. **The independent half — `record.json` presence — had never
+been shown able to fail**, across every run of the selftest, while the selftest reported
+green throughout.
+
+**The plant that found it** (`verification/runs/F5b_runs/plant_rc_proxy_control.py`,
+grading synthetic trees with the frozen reader's own `check_completion`):
+
+| arm | clause 1 | expected |
+| --- | --- | --- |
+| N clean synthetic tree | True | True — OK |
+| **P1 `record.json` ABSENT** | **False** | False — **OK, and never previously exercised** |
+| P2 prelude log missing | False | False — OK |
+| P3 prelude log has no `End` | False | False — OK |
+| P4 `record.json` written, driver then died | True | **blind spot, bounded below** |
+
+**The rule.** A conjunctive check `A AND B` has a negative control per clause, not per
+check. **Breaking whichever operand is cheapest to break tests that operand and certifies
+the conjunction.** Ask of every breaker: *which operand did this actually falsify, and has
+the other one ever been false in a passing test run?* If the answer is no, that operand is
+**decorative**, and the selftest's green is evidence about the cheap branch only.
+
+**This is the L-314 disease in a new costume.** L-314: a guard that reports on itself is
+not a guard — plant a FAILURE to prove it aborts. Here the guard *was* planted, dutifully,
+every time — **into the branch that did not carry the load.** Planting is not sufficient;
+**planting into the load-bearing operand** is.
+
+**Corollary — prefer the independent operand when the proxy is a substitute.** Part of this
+proxy is `End` on the prelude logs, and `End` is itself another limb of the same
+completion rule. A proxy partly constituted by a sibling limb is a **disclosed
+circularity**, not a sound one, and the operand worth testing hardest is always the one
+that is *not* a restatement of something already checked.
+
+**The bound, stated because a named hole beats a denied one.** P4: a driver dying *after*
+the solver completed and *after* `record.json` was written passes clause 1 **and every
+other limb** — the conjunction is blind to it, not merely clause 1. What that costs is
+knowledge of the driver's **post-completion exit hygiene**; it does **not** reach the
+integrity of the graded quantity, because in that scenario the solve is complete and every
+field is on disk with the age guard satisfied.
+
+**Cross-refs:** L-314 (plant a failure, not just a perturbation); standing rule 3 (a zero
+from a reader not shown able to see a non-zero); L-315 (a check that penalises the honest
+action); L-316 (a comparator selftest proves the GRADER, never the CASE or the LAUNCHER —
+this lesson is its inward-facing twin: the selftest may not even prove the grader, if its
+breaker is vacuous).
