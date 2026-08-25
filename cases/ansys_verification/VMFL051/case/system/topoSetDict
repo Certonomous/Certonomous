@@ -1,0 +1,72 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+// VMFL051 -- THE FROZEN SAMPLING RULE (PREREGISTRATION.md section 5).
+//
+// Two axis-aligned cell zones, in ABSOLUTE PHYSICAL COORDINATES, identical at
+// every mesh level.  The gated quantity is the volume-average of the Mach number
+// over `gateZone` at endTime.  Nothing about where the answer is read may change
+// after a solver has run.
+//
+// The post-expansion UNIFORM region is the wedge between
+//   the downstream wall,          y = -x*tan(15 deg),          tan = 0.26794919243112271
+//   the TRAILING Mach line,       y = +x*tan(mu2 - 15 deg),    tan = 0.05246083158162142
+// where mu2 = asin(1/M2,exact) = 18.00303133857135 deg and M2,exact =
+// 3.2355411372251863 is the frozen Prandtl-Meyer solution for the manual's own
+// gas (gamma = 1.399009373474948509).  Between those two rays the exact solution
+// is EXACTLY UNIFORM at M2, so any volume weighting returns M2 exactly.
+//
+// x window: [1.00, 1.15] m.  Its upstream face x1 = 1.00 m is where the wedge is
+// narrowest, so both insets below are computed AT x1 = 1.00 and the zone is then
+// strictly inside the wedge for every x in the window.
+//
+// INSET, gateZone: delta = 0.075 m off BOTH bounding rays.
+//   Derivation: the coarsest level L1 has nominal h = 0.0125 m, and in the
+//   downstream block the cells stretch in y, giving dy = (0.65 + 1.0*0.26794919)/52
+//   = 0.017653 m at x = 1.00.  delta = 0.075 m = 4.25 * dy(L1) = 6.0 * h(L1), so
+//   even at the COARSEST level the zone edge stands more than four coarse cells
+//   clear of the exact trailing Mach line and of the wall -- the numerically
+//   smeared C1 kink at the fan's tail cannot reach into the average.  At L3
+//   (h = 0.003125) the same 0.075 m is 17 fine cells.
+//     y_lo = -1.00*0.26794919243112271 + 0.075 = -0.1929491924311227
+//     y_hi = +1.00*0.05246083158162142 - 0.075 = -0.02253916841837858
+//     band height 0.170410024013 m
+//
+// INSET, gateZoneInner: delta = 0.110 m -- a strictly smaller zone entirely
+// inside gateZone.  Its average is a DECLARED DIAGNOSTIC ONLY and NEVER the gate
+// (PREREGISTRATION.md section 5): if the two averages disagree the zone is being
+// contaminated from an edge, and the comparator prints both.
+//     y_lo = -0.1579491924311227
+//     y_hi = -0.05753916841837858
+//     band height 0.100410024013 m
+//
+// The z bounds (-1, +1) enclose the +/-0.01 m slab with room to spare.
+// boxToCell selects cells by CELL CENTRE, so the selected count differs slightly
+// between levels; that is harmless precisely because the exact solution inside
+// the zone is uniform.
+
+actions
+(
+    {
+        name    gateZone;
+        type    cellZoneSet;
+        action  new;
+        source  boxToCell;
+        box     (1.00 -0.1929491924311227 -1) (1.15 -0.02253916841837858 1);
+    }
+
+    {
+        name    gateZoneInner;
+        type    cellZoneSet;
+        action  new;
+        source  boxToCell;
+        box     (1.00 -0.1579491924311227 -1) (1.15 -0.05753916841837858 1);
+    }
+);

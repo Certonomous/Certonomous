@@ -1,0 +1,60 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+
+// rhoCentralFoam, density-based central-upwind (Kurganov-Tadmor) with
+// vanLeer reconstruction.  This is the lab's PROVEN compressible scheme set on
+// this box (the F3 supersonic exact-theory suite, verification/runs/F3_runs/,
+// 17 runs); it is reused here as SETUP KNOWLEDGE only -- none of F3's gates,
+// bands or reference values is reused, and no F3 file is touched.
+//
+// WHY AN OBSERVED ORDER IS MEANINGFUL HERE AND NOT FOR F3's CASES: F3's wedge,
+// cone and diamond all carry a SHOCK, and a shock-capturing scheme is only
+// first-order in the neighbourhood of the discontinuity whatever its nominal
+// order, so an observed order there measures the smearing, not the scheme.
+// VMFL051 is a centred EXPANSION fan: the solution is smooth everywhere except
+// at the corner point itself and along the two bounding Mach lines, both of
+// which the frozen sampling zone excludes by more than four coarse cells.  The
+// Roache triple of section 6 therefore measures something real.
+
+fluxScheme          Kurganov;
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+    div(tauMC)      Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default          linear;
+    reconstruct(rho) vanLeer;
+    reconstruct(U)   vanLeerV;
+    reconstruct(T)   vanLeer;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
