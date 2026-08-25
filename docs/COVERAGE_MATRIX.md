@@ -994,12 +994,17 @@ Measured on four files during this audit, three of them independently:
 | file | worktree | HEAD |
 | --- | --- | --- |
 | `docs/LAB_STATE.md` | 870 lines | 1,173 — **303 short** |
-| `docs/COST_CALIBRATION.md` | max **C-43** | max **C-47** — four rows short |
-| `docs/NUMERICS_KNOWLEDGE.md` | **does not contain N-T8** | contains it at line 3849 |
+| `docs/COST_CALIBRATION.md` | max **C-43**, later **C-48**, 168,635 B | max **C-47**, later **C-49**, 181,803 B. **Both readings correct at their stamps — see §6a.2** |
+| `docs/NUMERICS_KNOWLEDGE.md` | **254,652 B, and DOES NOT CONTAIN N-T8 AT ALL** (0 occurrences) | **312,617 B**, N-T8 present (2 occurrences) |
 | `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` | 1 row, *"0 PASS of 1 run"* | 3 rows, *"2 PASS of 3 run"* |
 
-**The consequence is not untidiness.** A lane that opens `NUMERICS_KNOWLEDGE.md` to
-check the Richardson convention **will not find it**. A lane that reads the ansys
+**The consequence is not untidiness, and the sharpest instance is this team's own
+standardisation.** §5 rules that the lab standardises on `scripts/roache_triple.py`
+with **N-T8's convention**. **N-T8 does not exist in the worktree copy of
+`docs/NUMERICS_KNOWLEDGE.md`** — 0 occurrences against 2 at HEAD, a **57,965-byte**
+shortfall. **So a lane that opens that file to check the very convention this matrix
+just standardised on will not find it**, and will reasonably conclude no convention is
+registered. A lane that reads the ansys
 register sees a credential count that is wrong. And a lane that *edits* any of these
 from the worktree **reverts everything a peer landed since the copy went stale** —
 303 lines, in the LAB_STATE case.
@@ -1022,10 +1027,56 @@ staged blob a HISTORICAL version of its file** — and a re-reading a short whil
 found it **decayed again inside the same session (11,067 against 11,089)**. Clearing
 it is a treadmill, not a fix.
 
-**Four measured misreadings are on record**: a file reported entirely deleted while
-present and correct; a docket misdiagnosed as "47 lines behind HEAD" when the worktree
-copy was in fact **ahead** in a preserved-tail pattern; phantom `D` / `MM` rows with no
-writer; and clean-looking status over genuinely dirty files under concurrency.
+**CORRECTED 2026-08-25. This section originally cited FOUR measured misreadings. TWO
+DO NOT HOLD and are withdrawn here rather than quietly dropped**, because this file
+had already been committed and cited when the correction arrived. The chief, who
+supplied the original four, withdrew two of them on its own re-check.
+
+| claim | status |
+| --- | --- |
+| a file reported **entirely deleted** while present and correct | **HOLDS** |
+| **phantom `D` / `MM` rows with no writer** | **HOLDS, and now MEASURED rather than asserted: 8 of 8 sampled `D ` rows were present at HEAD and correct on disk** |
+| ~~a docket misdiagnosed as "47 lines behind HEAD" when the worktree was **ahead** in a preserved-tail pattern~~ | **WITHDRAWN as stated.** A documented docket misreading does exist, but it is a **different shape and figure**: disk **849** against HEAD **876**, **27 ids missing from disk** — i.e. genuinely **behind**, not ahead. The "ahead" version is unsupported |
+| ~~clean status over genuinely dirty files under concurrency~~ | **WITHDRAWN.** It comes from a working note, **not from any repository artifact**, and the lane that checked it did not reproduce it and correctly refused to cite it as measured |
+
+**Two misreadings still establish the rule**, and the withdrawal costs the argument
+nothing — but a rule argued from four instances when two are real is a rule that
+invites exactly the scepticism it cannot afford.
+
+### 6a.0 This finding is NOT NEW, and saying so is the point
+
+**The structural index argument was already codified three times before this file
+restated it.** This section originally presented it as a discovery. It is not one:
+
+- **`L-92`** holds the entire **read** side, including the *"grows on its own"*
+  measurement — an instrument reading the index measures a per-machine, per-moment
+  scratch state no reader of the repository will ever see.
+- **`L-253`** holds the **write** side almost verbatim: *"always take the base for the
+  next edit from `git show HEAD:<path>`, never from the tree."*
+- **`L-294`** fixes the **instrument** rule: `git ls-files` reads the INDEX, so any
+  corpus is framed on `git ls-tree -r --name-only <rev>` **and prints the rev**.
+- **`L-307`** landed 2026-08-25 as an explicit **extension** citing all three rather
+  than a restatement — deliberately, to avoid repeating the **`L-185`/`L-205`
+  duplication defect the lessons file has already committed once.**
+
+**And `docs/COST_CALIBRATION.md` lines 40–52 already carry the per-file warning**,
+headed *"Divergence-by-design"*, which is why a proposed addition to it was correctly
+declined as redundant.
+
+**The lesson for this matrix is uncomfortable and worth keeping.** This team wrote a
+section warning that unchecked claims propagate, and in the same section propagated an
+unchecked claim of its own — that the finding was new. **Re-deriving a fact is cheap;
+checking whether the lab already knows it is the step that gets skipped.** L-307's
+own framing is the model: cite the prior art and state what you ADD.
+
+**What `L-307` genuinely adds, and it is sharper than the version this file first
+carried:** the gap is **NON-STATIONARY, not merely stale — its size AND ITS DIRECTION
+change within minutes, so every figure about it is void without a sha and a UTC
+stamp.** The decay was originally described as *"mechanical drift plus fresh
+staleness"*. **There is no separate fresh-staleness category.** Across 9 peer commits
+the tree gained **672 insertions against 3 deletions**, and staged deletions grew by
+exactly **669 = 672 − 3**. **The decay rate does not merely correlate with the commit
+rate; it EQUALS it, line for line.**
 
 **Why this section sits inside the coverage matrix and not only in a lesson.** This
 file's entire value is that its rows were *checked*. Spot-checking a row means asking
@@ -1081,12 +1132,24 @@ the whole lab's trap, not one team's.
 
 **Build every append from `git show HEAD:<path>`.** Every commit this team made to
 `docs/LAB_STATE.md` today was built that way, which is why each is insertion-only and
-reverted nothing. §6's four-file staleness table is the same finding measured from
-the other side.
+reverted nothing.
+
+**CORRECTED, and the correction IS `L-307`'s point.** The C-43/C-47 figure above was
+this team's own direct reading, taken early in the session and correct at that moment.
+**Re-measured later the same session it reads worktree `C-48` against HEAD `C-49`,
+worktree 168,635 B against HEAD 181,803 B** — and the chief reports the **shared-index
+blob further behind still, at `C-47`**, so the three surfaces hold three different
+values at once. **A figure about this gap is void without a sha and a UTC stamp**, and
+the figure above is retained with its stamp rather than silently refreshed, because
+that is the evidence for the rule. The **direction** of the finding is unchanged and
+the append trap is real; only the integers move, and they move constantly.
 
 **Not amended into `CLAUDE.md` by anyone.** Rule 9 reserves that to Sanaa, and no
-agent's judgement — chief's included — is her consent. A draft proposal goes to her
-desk through the chief.
+agent's judgement — chief's included — is her consent. **Two proposals are already on
+her desk, and this team is adding no third:** a rule-10 amendment at
+`docs/BOARD_BASE_RULE_PROPOSAL.md` §2, which was there **before** a second was
+commissioned, and `docs/SHARED_INDEX_INSTRUMENT_PROPOSAL.md`, written not to compete
+and saying **which to adopt if only one is**. Both verified present at HEAD.
 
 ---
 
