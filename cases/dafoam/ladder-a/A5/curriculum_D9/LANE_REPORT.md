@@ -228,18 +228,82 @@ Results are recorded in §7 of `RESULTS.md`.
 
 ---
 
-## 7. REPORTING ORDER
+## 7. ANSWER TO THE SUPERVISOR'S 19:20Z STATUS CHECK
 
-**Commits** — see the tail of this file; updated at each commit.
+The supervisor asked which of two things was true: (1) still doing the per-stage
+strict-completion analysis, or (2) blocked and unable to say so.
+
+**Neither. There is a third case, and it is the finding.** At 19:20Z the box showed no D9
+compute because **the replication batch had just finished** — four concurrent containers ran
+on cores 11, 12, 14, 15 from **19:11:18Z**, and the last of them (h=1e-5, 454 s) exited at
+**≈ 19:19:30Z**. The supervisor's reading was taken roughly one minute after the batch closed.
+
+**On "D9's FD stages are armed":** they were not armed in the sense of waiting to be fired.
+The frozen launcher **ran to completion** — its final two lines, `TOTAL_SPENT_CORE_MIN=27.7833`
+and `STAMP=20260825T181838Z_2370464`, are the last two lines of `ledger.txt`. Three FD stages
+had already been fired and had **failed on deterministic physics**: `AnalysisError: Mesh
+quality error!`, `OOMKilled=false`, face-pyramid inversion in the warped mesh at the optimised
+endpoint. **Re-firing them unchanged reproduces the failure exactly, which is what happened
+and what the replication proves.** The per-stage table is §1; the triage is §2.
+
+**Not blocked. Nothing on Sanaa's desk.** And per the supervisor's own closing instruction —
+*"if the honest answer is that … there is nothing to re-fire, that is a fine answer … do not
+invent work to fill the budget"* — the budget was **not** filled for its own sake: 46.7667 of
+110 core-min, 42.5 % of cap. The one thing worth buying was crash triage, and it bought a
+bit-identical replication that turns "it crashed" into "it crashes deterministically, here,
+for this reason".
+
+**One correction the supervisor should have.** The brief's premise — partial trees left by a
+launcher killed mid-build — is wrong, and acting on it as written would have been the
+expensive mistake: it would have re-fired stages as *recovery*, found the same crash, and
+read it as a second kill. The launcher was never killed.
+
+---
+
+## 8. REPORTING ORDER
+
+**Commits**
+- `50c61e8d` — *D9 RECOVERY: the launcher was NEVER KILLED — it ran to completion and THREE FD
+  stages died of MESH-QUALITY CELL INVERSION at the optimised endpoint; verdict NOT A RESULT*
+  (`LANE_REPORT.md`; `d9_def2_bridge.sh`, the killed lane's uncommitted work; `d9_fd_replicate.sh`)
+- `f8916f36` — *D9 GRADED: NOT A RESULT, with the FD table, the plateau evidence (there is
+  none), both toolchain rows, and cost calibration row C-79* (`RESULTS.md`;
+  `docs/COST_CALIBRATION.md`)
+- this commit — the supervisor's status check answered and the report closed
 
 **Verdicts**
-- **D9 probe verdict: `NOT A RESULT`** (G9-4: 1 of 4 registered endpoint FD tables).
-- **G9-3: `GATE FAIL`** (SLSQP driver reported failure; improvement 2.0659 = 3.95 % reported,
-  not gated).
-- Cost: see `RESULTS.md` §8 and the calibration row.
+- **D9 probe verdict: `NOT A RESULT`.** G9-4: only **1 of 4** registered endpoint FD steps
+  produced a table; a plateau needs ≥ 3 consecutive usable steps.
+- **G9-3: `GATE FAIL`.** The SLSQP driver reported failure (`driver_failed=True`,
+  `driver_iter_count=47` against `maxit=20`). `OBJ_baseline` **52.34521691559307** →
+  `OBJ_final` **50.27935096533333**, improvement **2.06587 = 3.947 %**, **reported, not gated**.
+- G9-0, G9-1, G9-2, G9-7: `PASS`. `delta_repeat` = **0.000000e+00**, measured before any FD
+  step was sized; noise floor falls back to representational eps·\|OBJ\| = **1.162297e-14**.
+- **Cost: 46.7667 core-min across every D9 container = 42.5 % of the registered 110.0 cap.
+  NO OVERRUN; the verdict is not a cap-stop.** Registered chain 27.7833 core-min = **$0.0238
+  DERIVED**; all containers **$0.0400 DERIVED**. `cost_basis: c7a.4xlarge at $0.0513/core-h,
+  REPORTED-BY-OWNER, NOT MEASURED.` Calibration row **C-79**, id derived by hand from the HEAD
+  blob inside the committing shell.
+- Both toolchain rows carried: **patched BOUGHT** → `NOT A RESULT`; **shipped NOT BOUGHT**,
+  with the registered reason. **D9 cannot claim a toolchain-independent result and does not.**
 
-**Runs live** — the 4-member replication batch (§6); see `RESULTS.md` §7 for its close-out.
+**Runs live** — **none.** The replication batch closed at ≈ 19:19:30Z; no D9 container is
+running and no D9 process remains.
 
-**On Sanaa's desk** — none from this lane.
+**On Sanaa's desk** — **none.**
 
-**Blocked** — none.
+**Blocked** — **none.**
+
+**What I could not verify, stated plainly**
+- **Whether h = 1e-5 lies in the plateau.** §4 of `RESULTS.md` gives a measured reason to doubt
+  it — a near-constant `J_an − J_fd` offset of **+6.379282e-02** with only 3.26 % relative
+  spread — but distinguishing an FD artifact from a genuine adjoint bias needs the step sweep
+  the mesh-quality limit prevents at this design point. **The question is open.**
+- **Whether the surviving components would agree under a completed sweep.** `check_totals`
+  aborts the whole table when one component's perturbation breaks the mesh, so the components
+  after the crash index were never evaluated at h = 1e-4, 1e-3, 1e-2. Per-component isolation
+  would salvage them; **this lane did not implement it**, because it is a change to the
+  measurement path and needs the supervisor's read as a diff.
+- **The physical cause of the constant offset.** A sequence-correlated evaluation error of
+  ≈ 1.28e-06 in the objective fully accounts for it arithmetically, but that is a **hypothesis
+  I did not test** and it is not asserted as the cause.
