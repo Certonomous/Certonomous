@@ -565,3 +565,74 @@ flips, 8 of 9 components** · `G5` **PASS** (worst plateau 6.78 % vs 10 %, zero 
 **`twist` idx6 NOT A RESULT, named in advance, and the rung is not downgraded for it.**
 
 **Cost, whole rung: 131.101 core-min actual against 147.3 predicted, ratio 0.890, $0.1121 derived.**
+
+## 20. D8 CLOSE lane — closing report
+
+### Commits
+
+| sha | subject |
+|---|---|
+| `aaa06b73` | dafoam D8 CLOSE: arm `fd` COMPLETE under every clause — and **D8-DEF-2, the grader's OWN AMENDMENT 1 IS INERT, DEMONSTRATED** |
+| `9c241fe2` | dafoam D8 **GRADED AND CLOSED: `GATE REACHED`** — the bright line is SATISFIED at 0.6852 % aggregate, 8 of 9 by construction, PATCHED ROW ONLY |
+| `f67ff033` | dafoam D8 cost calibration **C-76** — whole rung 131.101 core-min vs 147.3 predicted, ratio 0.890, waste 0.000 named separately |
+
+HEAD moved under me between the second and third commits (a peer landed `49d7a6d0`). The id was
+re-derived from the HEAD blob **inside the committing shell invocation** and the CAS held; every
+commit was verified post-landing as touching only my own paths.
+
+### Verdicts
+
+> **THE RUNG: `GATE REACHED`.** Graded and closed. Not `PASS`, and the reason is `G1` alone — the
+> optimiser stopped at its registered 3-major cap (`EXIT: Maximum Number of Iterations Exceeded.`),
+> and the pre-registration fixed that mapping before compute. **A stop is not a measurement.**
+
+`G0` **PASS** · `G1` **GATE REACHED** · `G2` **PASS** (1.142427e-05 vs 5.0e-03) · `G3` **PASS**
+(+1.113404e-04 vs 1.0910e-04; margin 0.2054 η, stated as an interval) · **`G4` PASS — aggregate
+0.6852 %, band 5.0 %; worst 2.6497 %, band 10.0 %; zero sign flips; 8 of 9** · `G5` **PASS** (worst
+plateau 6.78 % vs 10 %, zero failures) · `G6` **PASS** (9.970 GiB vs 11.0 GiB, uncensored) ·
+`G7` **PASS** (min clearance 16.09× vs 5×) · `P-BASE` **PASS** (cold CD exact to 17 digits) ·
+`P-η` **PASS** (1.0795e-05, ratio 0.989) · **`twist` idx6 `NOT A RESULT`**, named in advance, printed
+by name with its adjoint value and an explicit *not measured*; **the rung is not downgraded for it** ·
+**shipped-toolchain row `PENDING`**, named unbought, priced ~147 core-min.
+
+**Cost: 131.101 core-min actual against 147.3 predicted, ratio 0.890.**
+**$0.1121 actual / $0.1259 predicted — DERIVED at $0.0513/core-h, reported-by-owner, NOT MEASURED.**
+Registered stop threshold 215.0 core-min never approached. **Waste 0.000 core-min, named separately.**
+
+### Runs live
+
+**None.** Arm `opt` closed at 18:19:24Z, arm `fd` at 19:03:44Z; both `rc = 0`. No D8 process, container
+or watcher remains. The only DAFoam solver on the box is the **peer D4 arm O** (pid 2359354,
+`/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O`, np=4 pinned to cpuset 5,6,7,9 under
+`timeout 9300`) — **not mine, not touched.** `MemAvailable` 16 GiB.
+
+### On Sanaa's desk
+
+**Nothing requiring a decision from this lane.** Three items are flagged upward to the DAFoam
+supervisor, none of them a send and none of them urgent:
+
+1. **D8-DEF-2 — an appended amendment can be INERT.** `d8_grade.py`'s AMENDMENT 1 satisfied rule 6
+   perfectly (append-only, zero lines moved above) and still never ran, because it redefined `main`
+   *below* the `if __name__ == "__main__"` entrypoint. **Proposed as a lesson; I did not take a
+   lesson number** — numbers are assigned at commit from the tail of a shared file and this lane was
+   not asked to edit `docs/LESSONS.md`. The general form: *an amendment is not applied until something
+   proves the amended path is the path that runs.* Worth a sweep of other `*_grade.py` amendments in
+   this family.
+2. **The §7 harness-sound floor excursion.** 0.6852 % here, 1.0432 % on the same rung's start design,
+   both below `VERIFICATION_CHARTER.md` §7's 2.5–5 % floor, where *"a number below that is a claim
+   about the harness"*. Either the floor needs a configuration qualifier or this family's agreement
+   needs an explanation. **Unresolved; a mechanism is offered and explicitly labelled an inference.**
+   For the verification team as much as for dafoam.
+3. **The 3600-s stall rule mis-classifies DAFoam optimisation arms.** It would clean arm `opt`'s
+   87.517 core-min to 0.000 while 95.6 % of that wall is solver-accounted. Carried in C-76 as a
+   disclosure rather than worked around. *(Raised by the prior lane; re-stated because it is now in
+   the calibration ledger.)*
+
+### Blocked
+
+**None.** Nothing in this lane is blocked. Named as remaining, not blocked: the shipped-toolchain row
+(`PENDING`, ~147 core-min), `twist` idx6 (`NOT A RESULT` by registration), the `shape` group
+(`PENDING` for this family, never graded), and **A6 overall, which remains `BLOCKED` — this item does
+not lift it.**
+
+**Nothing was filed, sent, uploaded, posted or registered anywhere. SUBMISSIONS ARE PARKED.**
