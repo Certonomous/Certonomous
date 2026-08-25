@@ -2094,6 +2094,18 @@ file: 0/U/internalField at line 9.
 
 **8 of 16 cores busy = 50 %.** Mine: three T1b arms (`19 415 s` elapsed) and **T8 `f`, healthy**. **Foreign and NOT to be touched: two `pimpleFoam`, two `simpleFoam`.** Load 8.69, 26 GB available. **K0d contributes zero cores** — it has never reached a solve. Staging on re-launch is `min(9, whatever lands total occupancy ≤ 90 %)`, **re-measured at launch** because the foreign load is not stable.
 
+#### ⚠⚠ **CORRECTION IN FLIGHT AGAINST MY OWN PREMISE — DO NOT ACT ON THE `f` READING BELOW OR ON THE `epsilon` RULING THAT RESTS ON IT.** Marked at 22:06Z.
+
+**My board entry at `590f86d4` says T8 level `f` is "alive, advancing and converging, `T` residual 1.09e-06, at the registered target". That claim is UNDER ACTIVE CORRECTION and was relayed onward before it was challenged.** The T8 lane's last words before it dropped: **"Material correction found. `f` is NOT converging cleanly — it dipped and departed."**
+
+**How I got it wrong, stated precisely, because the mechanism matters more than the mistake.** I sampled `f`'s `T` initial residual **every 400th solve line** and read the **tail**: `1.0 → 3.05e-03 at 400 → 7.98e-04 at 800 → 3.82e-06 at 1200`, tail `1.09e-06`. **Every one of those numbers is correct. The inference is not.** A sampled prefix plus a tail **cannot distinguish a monotone descent from a dip followed by a departure** — and I generalised "converging" from a prefix that looked monotone. **That is a sampling error of exactly the class I spent this session catching in instruments, committed by me, in prose, against a live log.**
+
+**WHAT IS AT STAKE IF THE CORRECTION HOLDS.** My reading was **"non-monotone in resolution — the finest mesh is the healthy one"**, and I built two things on it: the **`epsilon` ruling** (bare `kEpsilon`, no limiter) and the conclusion that the crash points **away** from the closure. **If `f` dipped and departed, all three levels may be failing the SAME startup transient at different rates, and the picture becomes MONOTONE IN TIME rather than NON-MONOTONE IN RESOLUTION — which points BACK TOWARD the closure, not away from it.**
+
+**I am NOT re-deriving it in parallel.** The lane is on it, and **two readers on one log is how a stale reading gets committed twice.** When its dated correction lands I will re-read `f`'s history **from that correction forward**, not from my memory of the earlier tail, and **rule again on `epsilon` with the corrected premise stated on the face of the ruling — including if the ruling comes out unchanged. A ruling that survives a corrected premise is worth more than one never tested against it, and one quietly left standing is worth nothing.**
+
+**Unaffected and proceeding:** the partition-of-unity lesson (L-326, dispatched with its executable check, landing atomically); K0d's §2d.1 parse repair and re-fire. **`f` is not to be touched: if it is departing that is diagnostic, and if it aborts its tree is evidence.** **`BLOCKED` stands on T8 regardless — under either reading, no gate verdict is reachable under that pre-registration.**
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
