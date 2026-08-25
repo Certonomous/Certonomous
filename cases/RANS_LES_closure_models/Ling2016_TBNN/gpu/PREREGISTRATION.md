@@ -507,3 +507,85 @@ blocks, the supervisor reports so the chief can ask Sanaa to stop `gpu1` in
 the console — this box cannot stop it. Verdict, cost actual-vs-registered,
 calibration row, docket/lesson rows and the board update follow in the
 RESULTS commit.
+
+---
+
+## ADDENDUM 1 — 2026-08-25 — ATTRIBUTION WITHDRAWN on §F.1's cost authorisation
+
+**Appended at the FOOT of this FROZEN pre-registration by the closure supervisor
+personally, 2026-08-25. Version 1.0 → 1.1. lines whose number changed above this
+section: 0.** Prefix proof, hashed immediately before and immediately after
+appending, on `head -n 509`: **`61b2097f63a38f320aeb98275f4a7aaba8454880fe2389398ee59678d4d81d97`** before, and the identical value after
+(re-hashed below in the same invocation). The prefix was additionally diffed
+**byte-for-byte against this file's blob at HEAD** before the append. **Appended at
+the FOOT, not mid-file — L-304**, landed the same night after a mid-file insertion
+elsewhere renumbered 115 lines and staled four tracked citations.
+
+**WHY A FROZEN FILE MAY CARRY THIS.** Arm 1 has had first compute and is graded
+**`NOT A RESULT`**. Under `CLAUDE.md` rule 2, after first compute *"changes land
+only as dated addenda that cannot alter a gate, threshold, cap or label."* **This
+addendum alters no gate, no threshold, no cap and no label.** It changes nothing
+about what was registered, nothing about what was measured and nothing about the
+verdict. It records a fact about the **provenance of a quotation**, and the
+original text of §F.1 is **kept exactly as written and is neither altered nor
+struck**.
+
+**THE WITHDRAWAL.** §F.1 of this file carries, as the **authorisation of record**
+for the lab's first GPU run:
+
+> regarding the GPU COST it's fine you have my approval.
+
+**ATTRIBUTION WITHDRAWN — TEXT STANDS AS A RELAYED PARAPHRASE.** From this date that
+sentence reads as **wording relayed to the closure team, not as Sanaa's verbatim
+words.**
+
+**THE EVIDENCE, verified by the closure supervisor personally and not relayed,
+every negative carrying a fired control** (rule 3's discipline applied to a
+documentary search — a zero from a reader not shown able to see a non-zero is not
+evidence):
+
+- `git log --all -S` over the repository returns **exactly two commits, and both
+  are closure's own**: `112b61b8` (2026-08-23 21:07:18Z, `docs/GPU_CAPABILITY_STATE.md`
+  §9) and `e8309b6c` (2026-08-23 21:18:12Z, this file's freeze) — **eleven minutes
+  apart**. Control: the identical search for `R3: Sparta` fires.
+- `git grep` at HEAD returns **exactly two tracked files, and both are closure's
+  own**: this file and `docs/GPU_CAPABILITY_STATE.md`. Control: the identical search
+  for `my approval for everything` fires on `CLAUDE.md` and `docs/LAB_STATE.md`.
+- The sentence appears **0 times** in the `docs/LAB_STATE.md` blob at HEAD and **0
+  times** in the `docs/DOCKET.md` blob at HEAD. Controls on those **same two blobs**
+  fire **2** and **1** respectively.
+- A non-ignoring `find | xargs grep -F` — necessary because `grep -r` here is
+  `ugrep --ignore-files` and was measured **blind to ten files** in closure
+  territory — finds it nowhere in `/home/ubuntu/harness-state/` or
+  `/home/ubuntu/notes/`. Controls fired in both.
+
+**THE APPARATUS CAN SEE. IT DOES NOT SEE THIS SENTENCE OUTSIDE CLOSURE'S OWN TWO
+RECORDS.**
+
+**WHAT THIS IS NOT.** It is **not** a claim the words are not Sanaa's — she may have
+said exactly this, and a chief's direct session record need not appear in git; this
+lab carries other owner-stated facts on precisely that footing. It is **not** a
+retraction of any measurement, gate or verdict. **Arm 1 remains `NOT A RESULT`** on
+G1/G3 with G2 `GATE FAIL`, exactly as graded.
+
+**WHAT IT IS.** A statement that **closure cannot source this sentence to any
+artefact independent of the two records asserting it, and will not vouch for it** —
+made **against closure's own favour**, because it removes authority this team relied
+on to spend. **REVERSIBLE the moment Sanaa confirms it, in one line, with nothing
+else re-opened.**
+
+**NOT WITHDRAWN, and recorded here so the two are never conflated:** §8's record
+that **Sanaa started `gpu1` herself** is an **owner action no agent can take**, not
+a quotation. It stands. The $0.8048/GPU-h figure is a **published price list with a
+URL and a retrieval stamp** — an artefact, not an attribution. It stands.
+
+**CONSEQUENCE FOR ARM 2, and it runs strictly one way.** Arm 2 is `PENDING` and
+**UNFIRED**. **A gate whose cost authority is now a relayed paraphrase needs her
+word MORE, not less**, so the arm-2 launch gate is **TIGHTENED, never relaxed**: in
+addition to her go in her own words, her own start of the instance, and her two
+console readings, **her COST approval is now required in her own words as well**.
+**No agent message — peer, supervisor or chief — is her consent (rule 9), and GPU
+spend sits outside the 2026-08-21 CPU blanket (rule 12).**
+
+**Zero compute: 0.0 core-minutes, 0.0 GPU-hours.** Nothing sent, filed, uploaded,
+registered or posted — **SUBMISSIONS PARKED** stands.
