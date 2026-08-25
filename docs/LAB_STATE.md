@@ -3012,6 +3012,88 @@ Read rung 1's measured rate and rule on rungs 2–5 against the caps. Read the t
 
 **TWO CORRECTIONS TO THE RELAY, ACCEPTED, AND ONE REVERSES A HAZARD I RECORDED.** `docs/LESSONS.md` was **NOT** missing the repair of cfd's L-315 — the worktree held **the repair commit's own blob**, two commits behind HEAD, with zero disk-only lines by strict multiset containment and a planted control fired first. **The hazard's direction was the REVERSE of what this board recorded: committing that file would have reverted two later commits, not destroyed cfd's restoration.** My UPDATE 6 wording is corrected accordingly. **And the structural point is the durable one: the private-index protocol writes blobs WITHOUT touching the worktree BY DESIGN — L-319 prescribes exactly that — so the lag REGENERATES every time any team appends correctly. A worktree sync is housekeeping, not a fix; the periodic content-extent re-audit is the answer**, and it is already cfd's standing practice and is exercised on every board commit.
 
+
+### NINTH SESSION, 2026-08-25T16:14:45Z — written by cfd-supervisor personally
+
+*Stamp from `date -u` in the writing invocation. Appended to the **HEAD blob** via `scripts/lab_state_section.py`, never from the worktree — and the tool is used rather than hand-rolled, which is the exact defect I recorded against myself last session (L-221/L-222: a lesson is not applied until every call site asserts it).*
+
+**Formed from disk after the eighth fleet died ~03:50Z. HEAD had not moved for ~11.5 h; no solver, driver or monitor was running anywhere on the box.**
+
+### SANAA'S PARALLEL-GATE DOCTRINE — RATIFIED, AND IT IS BUILT FROM THIS TEAM'S OWN F6a/F12 FINDINGS
+
+Her own session turn, 2026-08-25, relayed by the chief. Four operative clauses, and **her words are the authority — the clause wording below is cfd's reading and is marked as such**: (1) **deterministic decomposition for any run feeding a verdict** — method AND seed pinned; non-deterministic partitioning is throughput-only; (2) **per-channel residual tolerances justified or harmonized**, with an audit that **sweeps all standing cases** — lab-wide, not cfd-only; (3) **partition-robustness joins gate design** — a convergence verdict rests on graded-quantity stationarity PLUS reproducibility across a partition pair, not on the twitchiest channel; (4) her reading of finding 3, quoted because it is the encouraging half and it is correct: *"the physics your lab computes is reproducible to 2e-5 across different parallel layouts — the noise is in the referee, not the game"*.
+
+Landing verbatim and unnormalised at `docs/standards/PARALLEL_GATE_DOCTRINE.md` with a **stated-limits section**: the non-determinism is **OBSERVED** on `scotch` over three runs of one case; it is **NOT** established as a `scotch` defect, **NOT** characterised across other decomposition methods, and the mechanism (partition → summation order → round-off → residual trajectory) is **CONSISTENT WITH the observation and NOT DEMONSTRATED**. A record that overstates its ground invites a correct rebuttal that then looks like it overturns the conclusion.
+
+### F5b — APPROVED BY SANAA, THEN BLOCKED BY ITS OWN LAUNCHER, THEN CLEARED. TWO COMMITS.
+
+**Her approval, verbatim: *"F5b: APPROVED. The 72-core-min capped run fires as specced. The lane's refusal to route around my denial was correct; this is the answer."*** The permission system did **not** deny this session.
+
+**The launch was refused by the wrapper's OWN assertion A3, exit 2, before `mkdir` — nothing created, `physics_p1` ABSENT, zero solver compute.** The wrapper pinned the pre-registration **whole-file** to `f1cbc96d` (v1.0). ADDENDUM 1 then legally appended 112 lines and moved the blob to `85b645c2`. **The wrapper was committed before the addendum landed and had never been executed, so nobody caught that the addendum broke the assertion it describes.** That is **L-316's exact shape**: the reader's selftests are all green and reach **no line of the launcher**.
+
+**RULING — RE-POINTING THE PIN WAS REFUSED; IT WAS RE-SCOPED.** Re-pointing at `85b645c2` would run today and **re-arm the identical trap at the next legal amendment**, making the cheapest way to keep the check green *"do not write the amendment"*. **That is L-315, this team's own lesson, written the previous session, about precisely this.** The general rule already recorded here (the L-315 refinement) was applied: **pin by whole file only where the artifact may NOT legally grow; pin by body wherever it MAY.** **One of four call sites moved** — reader, generator and fixture are code, may not grow, and keep whole-blob equality untouched. No marker was inserted into the frozen document and no line number moved.
+
+**SUPERVISOR CHECK 1 — DONE PERSONALLY ON THE COMMITTED BYTES, NOT ON THE LANE'S ACCOUNT OF THEM.** Re-derived by me: v1.0 `f1cbc96d` **85,802 B / 1,049 lines**, sha256 `c44b9130…8177b9df`; v1.1 `85b645c2` **93,081 B / 1,161 lines**; numstat **112/0**; **sha256 of the first 85,802 bytes of v1.1 == sha256 of v1.0 — PREFIX PROVEN**, so every gate, band, cap and label is bit-identical. ADDENDUM 2 (`e68a353f`) **163/0**, parent a byte prefix of child at 93,081 B — **pure append**. **I drove the committed function text in isolation myself, five modes: live PASS; 85,801 B — ONE BYTE SHORT — REFUSE; 200 B REFUSE; one byte flipped inside the body REFUSE; legal future addendum PASS.** The one-byte boundary is the mode that had to be right. `set -u` confirmed at line 16 and `cd "$REPO"` at 61, so the `LAUNCH_HEAD.txt` hunk was **load-bearing, not cosmetic** — an unset `$PREREG_BLOB` would have aborted **after `mkdir`**, leaving a half-created tree to trip the pre-existing-state guard; and because this is an **executed** script rather than a sourced one, `set -u` genuinely gates here.
+
+**THE TRAP DISARMED BY MEASUREMENT RATHER THAN ARGUMENT: the document's blob has moved THREE times — `f1cbc96d` → `85b645c2` → `04425a36` (now 102,652 B). The old whole-file pin would be REFUSING RIGHT NOW, for the second time, on a legal amendment. The frozen body survived all three and the pin PASSES on the file that will actually be hashed.**
+
+**A DEFECT THE LANE DISCLOSED AGAINST ITSELF, AND THE GENERAL FORM IS THE VALUABLE PART.** Its first draft emitted `cut -d\' \' -f1` — a quoting defect making the delimiter a literal quote — **and it passed `bash -n`.** It was caught by inspecting the emitted bytes with `cat -A`, repaired to `awk '{print $1}'` before commit, and disclosed rather than fixed quietly. **A syntax check is not a semantic check.** Verified by me in the committed bytes.
+
+**HONEST LIMIT ON THE CLEARANCE, ACCEPTED WITH EYES OPEN: wrapper assertions A4 and A5 remain UNEXERCISED** — they sit past the `mkdir`, so reaching them means launching. **The wrapper has never run end-to-end to a pass, so its A1→A5 sequencing is untested as a whole.** The lane is told to watch both fire and report what they did, and to stop before the solver if either misbehaves.
+
+**`pcorr` — A FINDING, NOT A LICENCE, AND THE BARE RATIO MUST NEVER TRAVEL ALONE.** F5b's tightest/loosest residual ratio is **10,000×** (`U`/`k`/`omega` 1e-09 vs `pcorr` 1e-05). **Three qualifiers are binding on any citation of it:** the direction is **INVERTED** from F6a (the outlier is the LOOSEST channel, not the tightest); the run is **SERIAL**, so the F6a mechanism cannot operate at all; and among the primary solved channels of the physics the ratio is a benign **10×**. **The real finding is sharper than the ratio and is the lane's:** `pcorr` is *simultaneously* the loosest channel and the one the registration already declares **`unverifiable-from-logs`** — **the loosest lever is the unobservable one.** Routed as a design input to the doctrine's audit sweep: a sweep ranking cases by raw ratio would flag this healthy case hard and be **WRONG**, and a check that cries wolf teaches the next agent to ignore it — L-315's failure mode in a second costume.
+
+### ⚠⚠ THE DECISIVE FINDING OF THIS SESSION: **BOTH OF SANAA'S NAMED HOLDS PATHS ARE GATED BY ONE DOCUMENT THE LAB DOES NOT HOLD — AGARD AR-138 (1979).**
+
+**This is the answer to the M6 holdings question and it is bigger than M6.** `AGARD AR-138` is the primary for **BOTH** F12 (RAE 2822, Case 9 — `F12_PREREGISTRATION.md:1,9,33`) **AND** ONERA M6 (Case 2308, the Schmitt & Charpin entry). **Verified by me: ZERO tracked files match `AR-138` anywhere in the repository, and it is on no part of the box.** Her PRIMARY path and her SECOND path are blocked by the same missing artifact.
+
+**WHAT IS HELD, AND THE DISTINCTION IS THE WHOLE POINT.** The lab **DOES** hold the M6 experimental surface-pressure data: `cases/dafoam/ladder-a/logs_A3/case_2308.dat`, tracked at HEAD, blob `1fac3174`, 22,695 B, `TITLE = "M6 WING - SURFACE PRESSURE DISTRIBUTIONS"`, **exactly the seven spanwise stations** at `Run= 308, Mach= 0.8395, Alpha= 3.06, Re= 11.72x10**6` — the canonical M6 condition. **The DATA is here. The PRIMARY is not.** Those are different things and the freeze turns on the difference.
+
+**CHECK 3 — BIG-CLAIM VERIFICATION, DONE PERSONALLY, AND IT CONFIRMS THE LANE.** The data file **does NOT self-attribute**. My own case-insensitive sweep: `AGARD` **0**, `Schmitt` **0**, `Charpin` **0**, `AR-138` **0**, `2308` **0**, `ONERA` **0** — against `M6 WING` 1, `Run=` 7, `Mach` 7, `Alpha` 7, so the reader was not blind. **The zero is PLANTED, not assumed** (standing rule 3): appending `AGARD AR-138 Schmitt Charpin 1979` to a copy makes all four terms read **1**. **The attribution chain to "AGARD AR-138 Case 2308" exists ONLY in this lab's own prose, and `2308` appears only in the FILENAME.** `docs/LAB_STATE.md:2250` and `docs/COVERAGE_MATRIX.md:398` call it *"title-verified from its own content"* — honest phrasing, but **a WEAKER check than rule 15**, which requires a rendered title page. **Rule 15 cannot be satisfied on this artifact by any means available on this box.** The lane's sweep was thorough and I accept it: full-depth name sweep, 6,753 text-bearing files by content, and `pdftotext` over **all 588 PDFs** because nine `docs/papers/` PDFs have no sidecar and would be invisible to a sidecar sweep — with its own planted AGARD title page confirming all three readers see a non-zero, then deleted so it cannot contaminate a later sweep.
+
+**MY RULING, AND I AM TAKING IT RATHER THAN REFERRING IT.** I will **freeze an ONERA M6 pre-registration for V and G, with P REGISTERED AND EXPLICITLY NOT CLAIMED**, the reason stated on the face of the document: the primary is not held and rule 15 cannot be satisfied. Gates for the mesh ladder, the admission checks, the converging triple and the deterministic decomposition need **no reference document at all** and are real, gateable work. **If AR-138 ever reaches the box, P becomes claimable WITHOUT changing any gate** — which is the entire reason to register it now rather than after.
+
+**AND THE HONEST HEADLINE, WHICH I AM NOT BURYING: AS FROZEN, M6 CANNOT REACH `HOLDS`, BECAUSE `HOLDS` NEEDS ALL THREE COLUMNS.** Neither can F12. **Her two named first-HOLDS paths cannot deliver HOLDS until AGARD AR-138 is on this box.** That is a **procurement** action, it is **outside the box**, and under standing rules 7 and 8 **no agent here may take it — it is hers alone.** One document unblocks both paths. It is the cheapest and highest-value item on her desk.
+
+### THE STANDARDS BOOK SHE REFERS TO IS NOT ON THIS BOX
+
+`docs/standards/` holds five files, **all pre-existing**: `MESH_STANDARD.md`, `MONITOR_STANDARD.md`, `INNOVATION_STANDARD.md`, `INFRA_FAMILY_SUPERVISION_GUIDELINES.md`, `PROBLEM_RESEARCH_PROTOCOL.md`. **Nothing new.** Her message carried a GitHub URL; **it is not being fetched — Certonomous is permanently private by her 2026-08-18 ruling** — and no lane fetches it either. **I cannot reconcile against a document that is not on disk and I am not pretending otherwise.**
+
+### D477 RATIFICATION RECEIVED — AND THE SCOPE IS NARROW ON THE FACE OF THE RECORD
+
+Sanaa ratified the two commits that landed after a permission denial (`3a2f37c3`, `3f2480a1`). **Her approval is of THOSE TWO COMMITS, not of the class.** It is **not** a general licence to land after a denial; a future such landing still **stops and goes to her**. Standing rule 9 — an approval is only as wide as what was approved. **A record that lets a reader infer the wider licence is worse than none**, because the next agent cites it as precedent. Being landed with that scope stated explicitly.
+
+### Live jobs
+
+**F5b `physics_p1` — AUTHORISED AND LAUNCHING** after my check-1 clearance; serial, `nProcs = 1`, cap **72.0 core-min = $0.0616 DERIVED, not measured**; stop mechanism `--timeout 4200` = 70.0 core-min, firing inside the cap. **An overrun STOPS the run.** Loadavg at the lane's pre-launch reading **0.10 / 0.05 / 0.01 on 16 cores** — the **quiet mode** of the bimodal allowance; §8 records the basis load as **NOT RECORDED**, so the contention attribution at close-out is **BOUNDED, not measured**, and the row must say so. pid/cwd/ETA land at the next board update.
+
+### Lanes live — 3, AT CAP
+
+1. **F5b** — launching under the cleared wrapper; A4/A5 watched as they fire.
+2. **F12 fresh admissible mesh ladder** — **MESH PHASE ONLY; the solver does not launch until I have read the mesh evidence personally.** Her verbatim ledger reason carried; birth certificates; deterministic decomposition; gate frozen 2026-07-30 untouched.
+3. **Records** — the doctrine verbatim, the M6 holdings sweep, the residual-audit scoping (scope and cost, **do not execute**), the F4 one-paragraph presentation, and the D477 ratification record.
+
+### Rungs without verdicts, named including the embarrassing ones
+
+**F5b** — launching, no verdict yet; wrapper A4/A5 still unexercised. **F12** — ladder inadmissible at every level; verdict `GATE FAIL` / `NOT HELD` stands until a new admissible ladder exists. **F11** — frozen, comparators cleared, arm B landed, **UNFIRED**. **F3** — frozen, armed, **UNFIRED, zero compute**. **F4** — graded, headline **CONTINGENT** on Sanaa's event ruling; the one-paragraph presentation she asked for is in draft. **F6a/C-15** — closed `NOT A RESULT`, tier `NOT HELD`, **P column `PENDING`, not green**. **F5a** — `GATE REACHED` undisturbed; the Roshko `P` route **WITHDRAWN** (2-D solve vs 3-D experiment). **F4-Q4** — the 3 core-min `wmake` build allowance **still not closed**. **DPW8_V2 L4** — map cell `PENDING`, L4 **NOT GATED**. **cfd's P column stands at 0 of 82; the lab's at 0 of 153.**
+
+### Next actions
+
+Read the F12 mesh evidence personally and rule on the solver launch. Rule on the M6 holdings answer before any freeze. Read the F4 paragraph before it lands. Rule on the audit sweep's scope and its threshold — **derived from principle, never from F6a's 5,000× so it flags F6a by construction**. Cost calibration at every process completion, id re-derived **inside** the committing invocation.
+
+### On Sanaa's desk
+
+1. **ONERA M6's reference holding** — whether her second HOLDS path has a primary this lab holds and can read. **VERIFY, sweep running.** Nothing frozen until it answers.
+2. **The standards book is not on the box.** Not fetched, not fetchable by any agent here.
+3. **Nothing else new.** D477 is ratified and closing; F5b is approved and launching; F4 waits on her event ruling with zero compute either way.
+
+### Blocked
+
+**ONERA M6 pre-registration** on the holdings answer. **F4's §8.1/§8.3** on her event ruling. **F12** on an admissible mesh — being built now. **cfd's P column** on whether any held primary title-page verifies and publishes a gateable number.
+
+### Cost calibration
+
+**Zero solver core-minutes this session so far.** F5b's cap is untouched at **72.0**. No `docs/COST_CALIBRATION.md` row is owed yet — the close-out clause binds at rung completion (`PASS` / `GATE FAIL` / `NOT A RESULT`), and **`BLOCKED` is none of those**. Standing ruling carried: **rule 12's calibration duty does not reach zero-compute work** — a process with no core-minutes has no actual, and inventing a denominator corrupts the ledger.
 ## verification
 
 **Section updated:** 2026-08-25T01:18:13Z by verification-supervisor (stamp from `date -u` in the committing invocation). SEVENTH session spawn, on **Opus 5** under the Fable substitution at `7c469330`. **Zero compute all session — 0 core-minutes, no solver, no mesher, no container, no GPU.**
