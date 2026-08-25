@@ -319,3 +319,97 @@ birth certificate, the launcher freeze check and the `endTime`/`writeInterval` a
 
 **What did NOT change.** No gate rule, band rule, reference-KIND mapping, tier-ceiling
 vocabulary, cost/cap rule or Roache/completion rule moved.
+
+---
+
+## AMENDMENT 5 — 2026-08-25 — **INTERNALLY PERFECT, EXTERNALLY FALSE. A launcher must assert what the CONSUMER NEEDS, never what the PRODUCER WROTE.**
+
+Frozen-file amendment appended at the foot, not an edit above. **lines whose number changed
+above this section: 0.**
+
+**Why.** dafoam's D12 launcher staged a field directory, **hashed whatever was there, and
+re-asserted that manifest before all 23 stages — passing every time.** The directory held
+**four** fields; the solver needed **eleven**. Every stage died on `cannot find file 0/nut`.
+**A comparator-side hash of the same directory would not have caught it either: both readers
+agree on the same wrong files.**
+
+**This team met the identical shape from the other side today.** VMFL036's frozen comparator
+parsed `RUN_RC.txt` with `r"(\w+)=(.*)"`, requiring `=` to abut the key. **Its own launcher
+writes `rc = 0`, with spaces.** No key matched, every field fell back to its default, `rc`
+defaulted to `"1"`, and the strict-completion guard **refused every level. VMFL036 would have
+been ungradable.** Producer and consumer were written together and **shared an assumption
+neither could see.**
+
+> **A producer/consumer pair authored in one sitting is not two independent checks. It is one
+> assumption, written twice. Hashing what the producer wrote proves the two halves agree; it
+> proves nothing about whether either is right.**
+
+**Measured across this team, and the trap is still armed:** two `RUN_RC.txt` conventions are
+live — `rc=0` (VMFL003, VMFL003_M2, VMFL021, VMFL022) and `rc = 0` (VMFL036, VMFL023) — and
+**only the two repaired comparators parse tolerantly.** The other twenty each match their own
+launcher by construction. **No case currently sets `writeCompression on`, and ZERO comparators
+tolerate a `.gz` field** — so a single config line would silently break every one of them,
+exactly as it broke an age guard keyed on `0/U` elsewhere in the lab.
+
+### **THE REQUIREMENTS (binding on every case frozen from this form)**
+
+1. **FIELD COMPLETENESS AGAINST THE CONSUMER, before any solver starts.** The launcher
+   **enumerates the fields the solver's own `fvSchemes` / `fvSolution` / turbulence-model
+   dictionaries REQUIRE**, and **refuses, NAMING THE MISSING FIELD**, if any is absent from
+   `0/`. **It does NOT hash what it staged.** The pre-flight smoke test catches this at compute
+   time by crashing; the completeness check catches it **before** compute and **says which
+   field**. Both are required — they fail at different times and only one of them explains
+   itself.
+   *This is the VMFL045 lesson generalised: that dictionary was complete for inviscid and
+   silently incomplete for viscous, and no selftest could have caught it, because **a selftest
+   proves the grader, not the case.***
+
+2. **PARSE THE PRODUCER'S FORMAT TOLERANTLY, AND FAIL SAFE.** Readers of `RUN_RC.txt`,
+   `LAUNCH_RECORD.txt` and any launcher-written record use `r"(\w+)\s*=\s*(.*)"` with the value
+   stripped, and **default to the REFUSING value** (`rc` defaults to `"1"`, never `"0"`), so an
+   unparseable record refuses rather than passes.
+
+3. **ANCHOR EVERY READER ON THE QUANTITY NAME, NEVER ON A SHARED TOKEN.** A frozen reader
+   elsewhere in the lab took *"the LAST `average:` value"* and read **CL instead of CD**,
+   because the solver prints `average:` on both lines — **93.9 % off against a 1e-12 band, a
+   gate that could never have passed.** Same trap as this team's grep-discriminator lesson,
+   where 17 apparent "Roache" hits were all the substring inside *app-**roache**-s*. **A token
+   that appears beside the quantity is not an identifier for it.**
+
+4. **RESOLVE A FIELD AS `X` OR `X.gz`.** `writeCompression on` makes `U` into `U.gz`, and an
+   age guard or field-presence check keyed on the bare name then never finds its datum. Every
+   field lookup — the rule-4 age guard included — accepts both spellings.
+
+These join the non-droppable list at line 13 beside the planted-zero control, the mesh birth
+certificate, the launcher freeze check, the `endTime`/`writeInterval` assertion and Amendment
+4's plateau clause.
+
+### **THE SAME REQUIREMENT ON THE GPU RECIPE**
+
+**The AMI snapshot is exactly a manifest: *what was installed*.** The GPU smoke test therefore
+**asserts what the GPU SOLVER PATH NEEDS** — the libraries resolvable at run time, device
+visibility, and the offload backend actually dispatching — **NOT that the build script's own
+install list completed.** *A build that installs every package it listed and cannot see the
+GPU is internally perfect and externally false.*
+
+**This team already holds the discriminator that makes that assertion real:** the smoke test's
+`tell1_gpu_flops` is a loose regex that **cannot discriminate on its own**, because PETSc's
+`-log_view` prints GPU columns and `CpuToGpu`/`GpuToCpu` rows on a CUDA-configured build
+**even when the solve ran on the CPU**. **The forced-CPU control IS the discriminator**, and a
+smoke test run without it is **`NOT A RESULT`**, never `PASS`.
+
+### SUPERVISOR'S APPROVAL OF THE 2d.1 COMPARATOR REPAIR (`591f659e`)
+
+**Read as a diff by the supervisor personally** (`SUPERVISION_CHARTER.md` §3 item 1 — a
+measurement-script change is not believed until the supervisor has read it as a diff).
+**APPROVED.** The change is one line, `r"(\w+)=(.*)"` → `r"(\w+)\s*=\s*(.*)"` with `.strip()`;
+**the fail-safe default `rcd.get("rc", "1")` is retained**, so an unparseable record still
+refuses. No gate, band, window, level list, classifier, control or ceiling moved — the gate
+arithmetic is bit-identical and simply could not be reached. **§2d.1 condition 2 holds in its
+strongest form: the defect emitted NO NUMBER AT ALL (exit 2), so the repair cannot have been
+selected to move a verdict — there was no verdict and no direction to select.** The lane
+emulated the regex in memory against every completed level **before** editing, to find every
+guard-catchable defect in one pass; **the regex was the only one.** The disclosed consequence
+is accepted: neither grader now hashes equal to its freeze blob, future launches must name
+`591f659e`, and the runs in flight recorded the blobs they verified in their own
+`LAUNCH_RECORD.txt`, so what they were graded against stays provable.
