@@ -220,3 +220,77 @@ Whether a Roache 3-level grid-refined triple is feasible for that case.
 
 All data extracted from CASE_MAP.md at HEAD commit `eb0feb8b17db07e5dfdd2336b7241ee2c6964f63` on 2026-08-25.
 
+
+---
+
+## Dated correction — 2026-08-25 — "0 case directories tracked" is wrong; `HEAD` carries **three**
+
+**Append-only correction under `CLAUDE.md` rule 6. Nothing above this section is edited
+or struck in place.** Appended by `ansys-lane-opus`.
+
+### What is wrong
+
+**Table 5, "Tracked case directories in git", reads:**
+
+> *"**Result:** 0 case directories tracked (archives live at canonical home
+> `/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/`)"*
+
+**`HEAD` carries THREE tracked case directories**, and has since before this document
+was written:
+
+| tracked at `HEAD` | `cases/ansys_verification/` | `verification/runs/ansys_verification/` |
+|---|---|---|
+| **VMFL001** | tracked | tracked |
+| **VMFL005** | tracked | tracked |
+| **VMFL051** | tracked | tracked |
+
+Verified with `git ls-tree -d --name-only HEAD:cases/ansys_verification/` and the same
+over `verification/runs/ansys_verification/` — **both return the same three**, so the
+case definitions and their run artifacts are tracked in matched pairs, not one without
+the other.
+
+- Struck, verbatim: ~~"**Result:** 0 case directories tracked"~~
+- Corrected: **3 case directories tracked — `VMFL001`, `VMFL005`, `VMFL051`.**
+
+**The parenthetical is separately misleading and is corrected too.** *"(archives live
+at canonical home …)"* is true of the **Ansys `.wbpz` archives** and says nothing about
+this lab's own case directories, which are the thing the row counts. The two are
+different objects: the archives are Ansys's inputs, and `cases/ansys_verification/<CASE>/`
+holds **this lab's** pre-registration, comparator, run script and OpenFOAM case tree.
+The archives living elsewhere is not a reason for the tracked count to be zero.
+
+### Why it read zero — the likely mechanism, stated as likely and not as established
+
+**The document's own closing line dates its data:** *"All data extracted from
+CASE_MAP.md at HEAD commit `eb0feb8b…`"*. **`CASE_MAP.md` is a map of the manual — it
+does not and cannot report what is tracked in git.** A count of tracked directories
+read out of a document that never contained that information will be zero **whatever
+is on disk**, and the zero will look like a measurement.
+
+**This is a planted-zero failure in its plainest form** (`CLAUDE.md` rule 3): *a zero
+from a reader not shown able to see a non-zero is not evidence.* The row reported a
+count without demonstrating that its method could ever have returned anything else. Had
+the same command been run against a directory known to hold entries, it would have
+returned zero there too — **and that check is what was missing, not the data.**
+
+**Stated as the leading candidate, not as established:** the exact command that produced
+the zero is not recorded in the document, so this cannot be proved from the artifact,
+only inferred from what the closing line says the data came from. **The correction to 3
+does not depend on the mechanism** — it rests on `git ls-tree` against `HEAD`, run
+directly.
+
+### The consequence for anything downstream
+
+**The document's Table 5 conclusion that the lab has run 3 cases is CORRECT** — its
+"Run directories on disk: **3**" row read the disk and got the right answer. **Only the
+tracked-in-git row is wrong**, and it is wrong in the direction that would make a reader
+believe the three runs were never filed. **They are filed**: `VMFL001` at `ae30f914`
+and `fd2321ef`, `VMFL005` at `90ee8d80`, `VMFL051` at `fc46ad2d`, with their graded
+records and register rows #1–#4.
+
+**Current status, for a reader arriving here:** the campaign stands at **3 of 73
+in-scope cases run** (`CASE_MAP.md`, where the denominator is 73 by Sanaa's scope ruling
+of 2026-08-25, not 95), with tiers `NOT HELD` / `HOLDS` candidate / `GATE REACHED` /
+`NOT HELD` on register rows #1–#4.
+
+**Lines whose number changed above this section: 0.**
