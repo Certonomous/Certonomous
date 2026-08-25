@@ -788,3 +788,180 @@ core-minutes measured, dollars derived, overrun stops the run, and a
 is cited by this document) · rule 15 (title-page verification attempted and
 **impossible** for Ghia; §3.1, and the `P` column BLOCKED because of it) · rule 16
 (silent background operation).
+
+---
+
+## Amendment 1 — 2026-08-25, PRE-COMPUTE. §6.1 re-registered as arm B, and the §8.2 addendum landed
+
+**Document version 1.0 → 1.1.** Version 1.0 is the text frozen at commit
+`157793db5ff6bbdda7ab22299abe5725d96e9b37`; it carried no version marker, so
+that text is designated v1.0 here and this section is the first amendment to it.
+
+**This section is a PURE APPEND. `lines whose number changed above this section: 0`.**
+Sections 1–11 above are byte-identical to v1.0: nothing above line 791 was edited,
+re-ordered, struck or renumbered. The assertion is checkable — `git show
+157793db5ff6bbdda7ab22299abe5725d96e9b37:verification/campaign/F11_CONVERSION_PREREGISTRATION.md`
+is a byte-for-byte prefix of this file, and the commit landing this amendment
+carries `--numstat` insertions only, zero deletions.
+
+**This amendment alters NO gate, NO threshold, NO cap and NO label.** §3's six
+gates, §3.1's reference and its status, §4's six bands and their six intervals,
+§4.3's `1.0e-6` plateau threshold, §4.4's `dim = 2` / `form="equal"` / `Fs = 1.25`,
+§4.5's 250-iteration plateau window, §4.6's plant constant, §5's completion clauses
+C1–C6 **including C4's literal path**, §6's run matrix, §7's 13.0 core-min cap and
+§9's outcome meanings are untouched and are what the amended launcher and
+comparator are still checked against. What changes is **how the artifact C4 names
+is produced**, and nothing else.
+
+### A1.1 The condition, checked and not asserted (rule 2, VERIFICATION §2b.1)
+
+**The case is UNFIRED.** The run root
+`verification/runs/F11_runs/conversion_2026-08-25/runs/` **does not exist**, and
+was verified absent by `test -e` in the same shell invocation that committed this
+amendment. The only contents of
+`verification/runs/F11_runs/conversion_2026-08-25/` are `grade_f11.py` and
+`rerun_f11.py`; there is no `runs/`, no case directory, no `0/`, no time
+directory, no `log.simpleFoam` and no `postProcessing/` anywhere beneath it.
+**There is therefore no answer to tune a gate to**, which is the whole condition
+rule 2 places on a pre-compute amendment.
+
+### A1.2 The defect: §6.1 as frozen CANNOT satisfy §5's clause C4
+
+§6.1 v1.0 moves the `centerlineProfiles` function object itself onto
+`executeControl timeStep; executeInterval 250; writeControl timeStep;
+writeInterval 250`. Its closing sentence — *"so sample sets are written every 250
+iterations **and again at the final stop**"* — is **factually wrong about
+OpenFOAM**, and this document says so rather than working around it quietly. A
+`sets` function object on `timeStep`/250 writes on multiples of 250 **only**. It
+emits nothing at an early `residualControl` stop, which is exactly how every run
+in §6 is expected to terminate.
+
+**Measured, not reasoned.** A mechanism probe was run at
+`/home/ubuntu/certonomous-runs/f11_c4_probe_2026-08-25/` (outside git, under the
+registered out-of-repository data root), applying §6.1 **exactly as frozen**, by
+the committed launcher itself, at Re 1000, n = 32:
+
+| what | arm A — §6.1 as frozen | arm B — as re-registered below |
+|---|---|---|
+| converged at | **747 iterations** | **747 iterations** |
+| field time directories | `0/`, `747/` | `0/`, `747/` |
+| `postProcessing/centerlineProfiles/` | **`250/`, `500/` — no `747/`** | **`747/`**, both `.xy` present |
+| `postProcessing/centerlineSeries/` | *(object does not exist)* | `250/`, `500/`, both `.xy` in each |
+| **clause C4** | **FAILS — `centerlineProfiles/747/` never exists** | **SATISFIED at the frozen literal path** |
+
+C4 requires both `.xy` files at `postProcessing/centerlineProfiles/<N>/` where
+`<N>` is the converged iteration. Under §6.1 v1.0 that directory is **never
+written, for any run**. Every one of the six gates would have graded
+`NOT A RESULT` through §5, and the entire 8.02 core-min wave would have measured a
+dictionary defect rather than a discretisation error.
+
+**The zero was planted, not assumed** (standing rule 3). The same listing that
+reported no `747/` under arm A reported `250/` and `500/` **present, each holding
+both `uAlongX05_U.xy` and `vAlongY05_U.xy`** — so the reader was demonstrably able
+to see a non-empty sample directory when one existed. A reader that saw nothing
+anywhere would have proved nothing.
+
+### A1.3 §6.1 AS AMENDED — arm B, the two separately named sampling objects
+
+§6.1 v1.0's paragraph is **struck, not rewritten**; it stands above as the record
+of what was frozen and found defective. The registered change to the 2026-07-30
+case dictionaries is now, and is only:
+
+1. **`centerlineProfiles` STAYS at `executeControl onEnd; writeControl onEnd;`.**
+   It is the **graded** object. `onEnd` fires at the `residualControl` stop, so
+   both `.xy` files land under `postProcessing/centerlineProfiles/<N>/` at the
+   **converged** iteration — the literal path C4 already names, unchanged.
+2. **A separately named `centerlineSeries` object is added**, sampling **the same
+   points**, at `executeControl timeStep; executeInterval 250; writeControl
+   timeStep; writeInterval 250`. It is the **periodic** object, and §4.5's plateau
+   reads its earlier samples from it.
+
+**Field writes remain untouched**: `controlDict` keeps `writeControl timeStep;
+writeInterval <endTime>; purgeWrite 1`, asserted intact by the launcher after the
+edit. Everything else in §6.1 v1.0's second bullet — `blockMeshDict`, `fvSchemes`,
+`fvSolution`, `transportProperties`, `turbulenceProperties`, the boundary
+conditions — remains byte-identical, as it was.
+
+**This still cannot move a number a verdict depends on, and that is now MEASURED
+rather than argued** (VERIFICATION §2d's own test). Between arm A and arm B at
+Re 1000, n = 32:
+
+- both converged in **747 iterations**;
+- the converged fields `747/U` and `747/p` are **BYTE-IDENTICAL** between the two
+  arms;
+- the sample files at 250 and 500 are **BYTE-IDENTICAL** between arm A's
+  `centerlineProfiles/` and arm B's `centerlineSeries/`, both stations.
+
+The sampling dictionary does not perturb the solution. That is a byte comparison
+of the artifacts on disk, not an inference from the physics.
+
+### A1.4 The REJECTED alternative, and why it was rejected
+
+The alternative repair was to **relax C4** to accept the last periodic sample
+directory instead of one at the converged iteration. **It was rejected**, and the
+reason is recorded here so it cannot be re-opened as a convenience later:
+
+- Under arm A the last periodic directory is **`500/`**, while the run converged at
+  **747**. Relaxing C4 would grade a **materially less-converged state**.
+- The size of that concession is measured, not asserted: on the synthetic tree in
+  `grade_f11.py --selftest`, constructed to the probe's own layout, grading the
+  last periodic directory instead of the converged one moves the graded value by
+  **5.000024e-02 in lid-speed units — 50,000× the `1.0e-6` plateau threshold** of
+  §4.3, and far outside every one of §4's six bands.
+- **Relaxing C4 IS a gate change**, and rule 2 forbids one after this document is
+  frozen. Arm B is not: it leaves C4's literal path and its meaning exactly as
+  frozen and changes only which dictionary object writes there.
+
+**No fallback to the last periodic sample is implemented anywhere.** A missing
+graded artifact **refuses (exit 2)**; an absent or too-short periodic series is
+reported **UNMEASURED** and drives `NOT A RESULT` through standing rule 5 step (a).
+An unevaluated step is never a passed one.
+
+### A1.5 §8.2 ADDENDUM — the grading path, now frozen by sha256
+
+§8.2 registered that `grade_f11.py` and `rerun_f11.py` did not exist at the freeze
+commit, and that the gap closes by committing both **with their sha256 recorded in
+a dated addendum, before the first solve**. This is that addendum. Both files exist
+and the run root does not.
+
+| file | sha256 |
+|---|---|
+| `verification/runs/F11_runs/conversion_2026-08-25/grade_f11.py` | `7815de3495c49456296cd68355543247c99c9e92b6b43d7f1b86be969d3b21e5` |
+| `verification/runs/F11_runs/conversion_2026-08-25/rerun_f11.py` | `3df39bfd994ddfe2942079d294cc8718534efc22ff9df985d0b8ae77f4e0017d` |
+
+`grade_f11.py`'s `verify_own_freeze()` **refuses to grade anything** unless both
+tokens above appear in this document at the commit passed as `--prereg-commit`, and
+unless §4's six band interval endpoints and §8.1's instrument blob and sha256 are
+also present. That is §8.2 made executable rather than promised.
+
+Frozen-instrument note, unchanged by this amendment: **standing rule 5 is applied
+by `scripts/roache_triple.py` (blob `8dee0d31e94d3f59d28658f88a4cd6df80ae8e39`,
+sha256 `452f475181c9897000ea530b39a84bd3e7e9927e0a3fd39fe8b1105f538ac051`) and by
+nothing in `grade_f11.py`**, which calls `grade_ladder` and never reimplements the
+ordering.
+
+**Controls at this commit**, both run before the freeze and both exit 0:
+`rerun_f11.py --selftest` → **28/28, 12 mutation controls**;
+`grade_f11.py --selftest` → **98/98, 32 mutation controls**. The mutation controls
+new at this amendment each assert a way arm B could silently regress: the two
+sampling objects collapsed back into one; the graded object moved off `onEnd`; the
+periodic object left on `onEnd`; the two objects sampling different points; the
+`centerlineSeries` directory absent or too short; the plateau reader pointed back
+at `centerlineProfiles`; and **the graded read pointed at `centerlineSeries`, which
+refuses**.
+
+### A1.6 Cost — §7's cap is UNCHANGED (rule 12)
+
+The §7 cap stands at **13.0 core-minutes = 780 core-seconds**, and the four waves
+still sum to the frozen **8.02 core-min** prediction; both are asserted by
+`rerun_f11.py --selftest` at this commit. Arm B adds **one** extra sample-set
+evaluation and write per run — 34 points across the two stations, once, at the
+convergence stop. Its measured cost at Re 1000, n = 32 is the difference between
+the two probe arms' `ExecutionTime`: **1.43 s (arm B) versus 1.38 s (arm A) on one
+rank = 0.05 core-seconds**, against a 780 core-second budget. **Immaterial, and
+measured rather than estimated.** No cap, no per-run wall cap and no wave
+prediction is altered by this amendment.
+
+The probe itself was compute spent **outside** this document's §7 cap and is not
+drawn against it; it is a mechanism probe, not a run in §6's matrix, and it
+produced no graded value.
