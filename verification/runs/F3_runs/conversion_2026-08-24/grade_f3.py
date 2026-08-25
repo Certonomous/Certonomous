@@ -473,22 +473,43 @@ def main():
         ("diamond", "M2.0_eps7p125", ("coarse", "medium", "fine")),
         ("diamond", "M2.5_eps5",     ("fine",)),
     ]
+    # ------------------------------------------------------------------
+    # AMENDMENT 2 REPAIR (2026-08-25), under VERIFICATION_CHARTER 2d.1.
+    # ONE CONSTRUCTOR, ONE SCHEMA.  Previously report["runs"][key] was built at two
+    # sites with DIFFERENT key sets -- the PENDING branch (run directory absent) wrote
+    # no ``core_s`` -- and the summary read ``core_s`` across every entry, so the
+    # grader raised KeyError on the one state section 7 GUARANTEES: a wave the
+    # pre-wave budget check refuses to launch.  The cap fired exactly as registered
+    # and the grader crashed on it having fired (L-322).
+    #
+    # Adding ``core_s`` to the short branch would patch the symptom and leave the next
+    # divergent key waiting.  The defect is TWO SITES THAT CAN DRIFT APART, so there is
+    # now exactly one factory and every entry carries every key.  An unlaunched run has
+    # NO COST -- that is a fact to REPRESENT (core_s=None), not an error to avoid.
+    # No gate, threshold, cap or label is altered by this change.
+    # ------------------------------------------------------------------
+    def run_entry(status, completion=None, core_s=None, note=None):
+        """The ONLY constructor for a report["runs"] entry.  Single schema."""
+        return dict(status=status, completion=completion, core_s=core_s, note=note)
+
     cases = {}
     for fam, pair, levels in spec:
         for lvl in levels:
             cd = os.path.join(a.root, fam, pair, lvl)
             key = "%s/%s/%s" % (fam, pair, lvl)
             if not os.path.isdir(cd):
-                report["runs"][key] = dict(status="PENDING",
-                                           note="run directory does not exist -- not launched")
+                report["runs"][key] = run_entry(
+                    "PENDING",
+                    note="run directory does not exist -- not launched")
                 continue
             ok, clauses = completion_check(cd)
             d = load_case(cd)
-            report["runs"][key] = dict(status="COMPLETE" if ok else "INCOMPLETE",
-                                       completion=clauses,
-                                       core_s=None if d is None else round(
-                                           d.get("t_mesh_s", 0) + d.get("t_run_s", 0)
-                                           + d.get("t_sample_s", 0), 2))
+            report["runs"][key] = run_entry(
+                "COMPLETE" if ok else "INCOMPLETE",
+                completion=clauses,
+                core_s=None if d is None else round(
+                    d.get("t_mesh_s", 0) + d.get("t_run_s", 0)
+                    + d.get("t_sample_s", 0), 2))
             if ok and d is not None:
                 cases[key] = d
 
@@ -599,7 +620,10 @@ def main():
                         triple=tri, basis=why)
     report["gates"]["G-F3-5_diamond_wave_drag"] = g5
 
-    total_core_s = sum(v["core_s"] or 0.0 for v in report["runs"].values())
+    # AMENDMENT 2: an unlaunched run has no cost.  .get() rather than [] so a future
+    # entry missing the key is ALSO tolerated -- the summary must never be the thing
+    # that decides whether a registered outcome can be represented.
+    total_core_s = sum((v.get("core_s") or 0.0) for v in report["runs"].values())
     report["actual_core_minutes"] = round(total_core_s / 60.0, 4)
     report["planted_zero_controls"] = controls
 
