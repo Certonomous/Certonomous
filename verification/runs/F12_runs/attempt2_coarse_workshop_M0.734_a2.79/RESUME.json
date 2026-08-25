@@ -1,0 +1,95 @@
+{
+ "rung": "attempt2_coarse_workshop_M0.734_a2.79",
+ "case": "/home/ubuntu/Certonomous/verification/runs/F12_runs/attempt2_coarse_workshop_M0.734_a2.79",
+ "started_utc": "2026-08-25T17:07:00.886312+00:00",
+ "pid_and_pgid": 2265888,
+ "sampler_pid": 2265987,
+ "detachment": {
+  "pid": 2265888,
+  "session_leader": true,
+  "ppid": 1
+ },
+ "ranks": 1,
+ "iterations": 6000,
+ "cap_core_min": 120.0,
+ "cap_wall_s_at_this_ranks": 7200.0,
+ "loadavg_at_launch": [
+  "9.10",
+  "8.52",
+  "7.29"
+ ],
+ "frozen_evidence": {
+  "checked_utc": "2026-08-25T17:07:00.866189+00:00",
+  "launcher_sha256": "d25295ad9c0dcb71c216e582e7d7ce73a6168e9668523bb4b5c75d2d3905300d",
+  "prereg_blob": "462492a82b6cf848eaaff25661ded45e623e723f",
+  "frozen_sentences_found": 7,
+  "rae_module_blob": "a18314f77160b7a58f443073850a44b4d8fada7d",
+  "grading_functions_pinned": 26
+ },
+ "composition": {
+  "build_case_params": {
+   "mach": 0.734,
+   "alpha_deg": 2.79,
+   "reynolds": 6500000.0,
+   "level": "coarse",
+   "cells_nominal": 23040,
+   "iterations": 6000,
+   "farfield_r": 50.0,
+   "first_cell": 2e-06,
+   "far_first_cell": 0.3,
+   "wall_normal_total_ratio": 4401087.3866123175,
+   "far_total_ratio": 3.747164974176604,
+   "refinement_factor": 1.0,
+   "a_inf": 347.2189510957027,
+   "u_inf": 254.8587101042458,
+   "rho_inf": 1.176624281484062,
+   "mu": 4.613429948559432e-05,
+   "nu": 3.920903232373013e-05,
+   "k_inf": 0.001085049,
+   "omega_inf": 3074.827223599547,
+   "nut_inf": 3.528812909135712e-07,
+   "q_inf": 38212.61619
+  },
+  "blockMeshDict_replaced_sha256_from": "83e05f27cfc32cfec8a23410de846f63d37c9beae86703f5d13a65afba8a7025",
+  "blockMeshDict_replaced_sha256_to": "d47f5b9c5e9718cc155b4173f2a898cfe26ce3b9be9c881fe201ce5c116ff637",
+  "substitution_is_the_entire_delta": true
+ },
+ "mesh": {
+  "quality": {
+   "failed_checks": [],
+   "cells": 23040,
+   "max_non_orthogonality": 51.12365363,
+   "max_skewness": 0.9572299919,
+   "mesh_ok": true
+  },
+  "gate_A": {
+   "passed": true,
+   "breaches": [],
+   "max_non_orthogonality": 51.12365363,
+   "max_skewness": 0.9572299919,
+   "max_aspect_ratio": null,
+   "aspect_ratio_gated": false
+  },
+  "blockMesh_s": 0.41,
+  "checkMesh_s": 0.52,
+  "decomposition": {
+   "method": "hierarchical",
+   "n": [
+    2,
+    2,
+    1
+   ],
+   "subdomains": 4,
+   "seed": "none \u2014 hierarchical is seed-free",
+   "summary_lines": [
+    "Cells min:5760 max:5760 median:5760 (100%)"
+   ],
+   "dry_run": true,
+   "s": 0.42
+  }
+ },
+ "how_to_check": "tail -2 /home/ubuntu/Certonomous/verification/runs/F12_runs/attempt2_coarse_workshop_M0.734_a2.79/SAMPLES.jsonl ; cat /home/ubuntu/Certonomous/verification/runs/F12_runs/attempt2_coarse_workshop_M0.734_a2.79/RC.txt",
+ "how_to_stop": "kill -TERM -2265888",
+ "how_to_grade": "verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/launch_f12_rung.py --grade attempt2_coarse_workshop_M0.734_a2.79",
+ "note": "the run does not depend on the agent that started it: the solver is a session leader under setsid and the sampler is a separate detached process."
+}

@@ -65,3 +65,29 @@ names and their face assignment, the wall-normal first-cell anchoring
 
 **Gate A result:** recorded in `mesh_ladder_attempt2_2026-08-25/RESULTS_GATE_A.md`
 and `gate_a_attempt2.json`, from three real `checkMesh` logs.
+
+### Attempt 2, rung 1 — fired 2026-08-25T17:06:57Z — `NOT A RESULT`
+
+**Run directory:** `verification/runs/F12_runs/attempt2_coarse_workshop_M0.734_a2.79/`
+(registered by name in the pre-registration's LAUNCHER ADDENDUM §3 and asserted
+ABSENT before launch). Record: `RESULTS_RUNG1.md` beside it.
+
+| gate | outcome |
+| --- | --- |
+| admission gate A | **`PASS`** — 51.12365363°, skewness 0.9572299919 |
+| admission gate B | **`GATE FAIL`** — no convergence statement; the run aborted |
+| strict completion rule | **fails all six limbs**; `rc = 134` read from disk |
+| Gates 1–4 | **`PENDING`** — no values exist and none is quoted |
+| **overall** | **`NOT A RESULT`** |
+
+**The finding: the same failure as attempt 1, on a mesh 19.5° better.**
+`Negative initial temperature T0` at iteration **148** (attempt 1: **180**), on a
+mesh whose max non-orthogonality fell 70.646° → 51.124°, average 30.213° →
+17.375°, faces over 70° 892 → 0. **Removing the gate-A breach did not remove the
+failure**, so `F12_RESULTS.md` §6.3's *"CONSISTENT BUT NOT DEMONSTRATED"* reading
+of the breach as the cause is not sufficient. Crash triage is the supervisor's
+and is not done here.
+
+**The rate-calibration rung did its job anyway:** measured **3.8975e-6 s per
+cell-iteration**, against Basis A's 4.7015e-6 (1.21×) and Basis B's 4.6010e-5
+(**11.80×**). Cost **0.3007 core-min** of a frozen 120; cap not breached.

@@ -1,0 +1,2 @@
+{"utc": "2026-08-25T17:07:03.920058+00:00", "elapsed_s": 3.0, "core_min": 0.0506, "cap_core_min": 120.0, "frac_of_cap": 0.0004, "ranks": 1, "latest_time": null, "alive": true, "loadavg": ["9.10", "8.52", "7.29"]}
+{"utc": "2026-08-25T17:07:18.927353+00:00", "elapsed_s": 18.0, "core_min": 0.3007, "cap_core_min": 120.0, "frac_of_cap": 0.0025, "ranks": 1, "latest_time": "148", "alive": false, "loadavg": ["9.93", "8.72", "7.38"]}
