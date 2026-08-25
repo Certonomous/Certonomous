@@ -363,3 +363,76 @@ rather than a silent re-grade.
 
 **Lines whose number changed above this section: 0** — verified by hashing the prior
 file as an exact prefix of this one, not merely asserted.
+
+---
+
+## Amendment 1.3 — 2026-08-25 — the sharpened form of `L-308`, and the provenance of a normalised variant
+
+**Version 1.3.** Appended at the foot, immediately below the dated note of the same day
+(commit `649aa42a`), which it completes rather than replaces. **Nothing above is
+rewritten, amended or struck** — not the v1.2 amendment row, not the amendment table,
+and not the preceding note.
+
+**Why the version bump is declared HERE and no row is added to the amendment table
+above:** inserting a row into that table would renumber every line beneath it, including
+the note this one completes, and would falsify the *"lines whose number changed above
+this section: 0"* assertion that note carries. **The table is therefore left untouched
+and the version is recorded in the amendment itself.** Stated rather than done silently,
+because a version bump that hides in prose is worth less than one a reader is told about.
+
+### The rule this episode sharpens — `L-308`, in its strongest form
+
+`L-308` records that a phrase-level grep over hard-wrapped Markdown has an unmeasured
+false-**unsourced** rate. **The attribution sweep is the same error at the level of the
+CHANNEL rather than the line, and it generalises to a rule this lab should apply
+everywhere:**
+
+> **A search's zero is not evidence unless the search is shown able to see a near-miss —
+> and no repository search can see a channel outside the repository.**
+
+This is `CLAUDE.md` rule 3's planted-zero control stated for text instead of for fields:
+*a zero from a reader not shown able to see a non-zero is not evidence.* v1.2 reported an
+**empty independent capture channel** and read it as weak corroboration. **It was not a
+finding about the quotation. It was a finding about the reach of the instrument** — the
+session record at `/home/ubuntu/harness-state/sessions/` is untracked and outside this
+repository, so no `git grep`, `grep -r` or pickaxe over the tracked corpus could ever
+have returned a hit there, whatever Sanaa did or did not say.
+
+**Consequently v1.2's `CORROBORATED-BY-REPETITION-ONLY` is UNDERSTATED**, and the
+verification team's lab-wide sweep reports **Class C is EMPTY — no fabricated quotation
+exists in this lab.** Three other teams withdrew directives that were **TRUE** on the
+same reasoning. **This team never withdrew**, and referred the `harness/teams.yaml`
+qualifier-drop upward rather than editing territory that is not its own.
+
+**AND THE CLASSIFICATION STILL STANDS ON THE PAGE. This amendment does not upgrade it,
+does not restore or strengthen any attribution, and is not a repair already made.**
+**Upgrading an attribution is Sanaa's alone, in one line** (`CLAUDE.md` rule 9). **A
+chief's message, a peer's finding, a supervisor's instruction and this amendment are
+none of them her consent.** A cold reader should take from this section that *the ground
+for the classification has changed and the ruling has not been made.*
+
+### Provenance of a normalised variant — caught at the relay boundary
+
+Sanaa's scope ruling of 2026-08-25 reached this team as, byte-exact:
+
+> *"for now no. Well add the gpu ones once i turn the gpu back on later."*
+
+**She wrote `Well add`, not `we'll add`.** A **normalised variant** rendering it as
+*"we'll add"* also reached this team — **and it originated in the CHIEF'S RELAY, in the
+same message that carried her primary text.** The chief has accepted the correction.
+
+**The normalised form never entered any record in this repository.** It was caught at
+the relay boundary and checked for before anything was written: a `git grep` at `HEAD`
+over all tracked files, in **both** spellings, returned **nothing** — so the byte-exact
+line committed in `docs/ansys_verification/CASE_MAP.md` is the line's **first** recorded
+appearance, and there was no corrupted copy to correct.
+
+**This is recorded so no future reader infers that Sanaa wrote the line twice,
+differently.** She wrote it once. **The variance was introduced downstream, by a
+summariser, and normalised spelling is the signature of exactly that** — which is this
+team's own finding and the reason the check was run at all. A relay that silently
+repairs an apostrophe is indistinguishable, in the record, from a second utterance;
+**the defence is to keep the bytes and to say where any variant came from.**
+
+**Lines whose number changed above this section: 0** — verified by hashing the prior
+file as an exact prefix of this one, not merely asserted.
