@@ -786,3 +786,102 @@ a result until an FD table stands beside it at a step proved to lie in the plate
 
 **Live at this commit:** arm O at major **29**, `CD = 2.2291356e-02`, `inf_pr = 1.57e-05`,
 delivered cores `3.9967`, container peak `10.308 GiB` of `12g`. Still **PENDING**.
+
+---
+
+# 2026-08-25 19:2xZ — D4-DEF-1 REPAIRED AS A SUPPLEMENT, AND THE REPAIR IS DEMONSTRATED
+
+The dafoam-supervisor confirmed the dead-flag finding **by its own read of the HEAD blob**, not
+on this lane's say-so, and named it **D4-DEF-1: a declared-but-unread control flag** — the same
+family as D9-DEF-1. It also named the sharper hazard, which this lane had not stated and which
+is worse than a merely missing flag:
+
+> because `--base`, `--work` and `--out` are all `required=True`, `--selftest` **alone** fails
+> loudly on missing arguments, but `--selftest` **alongside a full invocation** parses fine and
+> silently runs a **complete grade**. A future reader could invoke
+> `d4_grade.py --base … --work … --out … --selftest`, see a clean exit, and record
+> *"grader selftest passed"* when no selftest ever existed.
+
+That is recorded as the supervisor's contribution, not this lane's.
+
+## 9. What was built, and what was NOT touched
+
+**`d4_grade.py` IS NOT EDITED.** Verified after the work, not merely intended: it still hashes
+`f162ef69a7385e5d0586ef5f27657cbb`, which is both the md5 registered in prereg §9a **and** the
+md5 of its own committed HEAD blob. Rule 6 holds.
+
+| artifact | what it is |
+|---|---|
+| `cases/dafoam/ladder-a/A2/curriculum_D4/d4_grade_SUPPLEMENT.py` | the frozen grader's body **byte-for-byte**, plus a real selftest wired to `--selftest` |
+| `cases/dafoam/ladder-a/A2/curriculum_D4/d4_grade_D4DEF1_REPAIR.diff` | the unified diff, so the change is **auditable as a diff** rather than asserted in prose |
+
+**The diff's shape is itself the argument that nothing was smuggled in.** Two hunks; **exactly
+three deleted lines in the whole 399-line diff**, and they are these three and nothing else:
+
+```
+-    ap.add_argument("--base", required=True)
+-    ap.add_argument("--work", required=True)
+-    ap.add_argument("--out", required=True)
+```
+
+Every other diff line is an **addition**. `required=True` became `required=False` so that
+`--selftest` can stand alone; the three arguments are then re-required for a grading run by an
+explicit `ap.error()` loop, so a grading invocation that omits one still fails loudly. **No
+gate, threshold, band, cap, label or mapping is altered anywhere in the diff.**
+
+**The exit path cannot be confused with a graded run** — the defect's whole danger. The
+selftest writes **no `--out` file at all**, prints the banner `D4_SELFTEST`, and exits **`0`**
+(every unit did what was wanted) or **`3`** (one or more did not). `3` is used by no other path
+in the file: a grade exits `0` with `D4_GRADER OK` or `2` with `D4_GRADER REFUSED`.
+
+## 10. The selftest DEMONSTRATES; it does not assert — 21/21
+
+Twenty-one units. Each builds a synthetic case violating **exactly one** gate and then runs
+**the supplement's own `main()` as a subprocess**, reading the verdict back out of the JSON
+`main()` writes. **The real mapping is exercised, not a copy of it** — a mirrored mapping would
+only ever test the mirror. `__pycache__` was removed before every run (stale bytecode has
+inverted mutation tests in this lab before, and `PYTHONDONTWRITEBYTECODE` does not clear what
+is already on disk).
+
+**`D4_SELFTEST 21/21 PASS`**, exit `0`. Coverage against the supervisor's required list:
+
+| gate | units | what each PROVED the grader can emit |
+|---|---|---|
+| **G1** completion + age guard | 4 | refusal on absent age datum; refusal on a **moved** age reference; refusal on `arm_absent_from_ledger`; and a stale artifact → **`NOT A RESULT`** |
+| **G2** CL feasibility | 3 | beyond band A → `GATE FAIL`; final beyond band B → `GATE FAIL`; **present-but-EMPTY `CL` → refusal** (the D3 defect verbatim) |
+| **G3** termination | 3 | cap-stop in band → **`GATE REACHED`**; cap-stop out of band → **`NOT A RESULT`**; cap-stop with infeasible CL → **`NOT A RESULT`**. Every one of the three additionally asserts **`NEVER_PASS_holds`** |
+| **G8** decomposition | 2 | non-identical maps → `GATE FAIL`; wrong cell total → refusal |
+| **G9** toolchain identity | 1 | two distinct IDWarp `.so` md5s → `GATE FAIL` |
+| **G10** cap discipline | 2 | enforced ≠ registered → `GATE FAIL`; actual over cap → `GATE FAIL` |
+| **G11** memory envelope | 1 | `OOMKilled true` → **`NOT A RESULT`** |
+| **G12** CPU placement | 4 | short rank set → **count refusal**; all ranks on one core → `GATE FAIL`; affinity outside `{5,6,7,9}` → `GATE FAIL`; delivered cores below the 3.0 floor → `GATE FAIL` |
+| **CLEAN** | 1 | **the discrimination control** — a fully consistent fixture grades **13 gates, all `PASS`** |
+
+**Why CLEAN is not padding.** Without it, a mutation unit that "failed" would not distinguish a
+working gate from a broken fixture. Because the same fixture builder grades all-`PASS` when
+un-mutated, each failure above is attributable to **its mutation** and to nothing else.
+
+## 11. THE META-CONTROL — the selftest is shown able to FAIL
+
+A selftest never shown able to fail is ceremony, exactly as a planted zero that cannot refuse
+is not a control. So the selftest was run against a **deliberately broken grader**: a copy in
+scratch (**the committed file was not touched**) with one line of `main()` changed so that a
+cap-stop maps to `PASS` — the single most consequential violation available, since
+`DAFOAM_CHARTER.md` §9 and prereg §7 G3 both say a cap-stop is **never** `PASS`.
+
+**The selftest caught it**: unit `G3-capstop-in-band` reported `NOT`, printing
+`{"G3": "PASS", … "NEVER_PASS_holds": false}`, the tally fell to `20/21`, and the process
+exited **`3`**. The instrument distinguishes a correct grader from a broken one **on the exact
+clause that matters most**.
+
+## 12. What this lane does NOT do with the supplement
+
+**Arm O will be graded with the FROZEN `d4_grade.py`, not with this supplement.** The
+supervisor reads the diff personally before the supplement's output is believed, and that check
+is not delegated. The supplement is the repair **for the record and for the next rung** — it is
+not a licence to swap the instrument mid-case, and swapping a grading instrument after compute
+would breach the prereg §2/§9a freeze regardless of the supplement's quality.
+
+**`RESULTS.md` will therefore state plainly that NO grader selftest was run for D4**, because
+the frozen flag is dead. That disclosure stands even though a working selftest now exists
+beside it.

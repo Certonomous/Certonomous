@@ -1,0 +1,399 @@
+--- d4_grade.py	2026-08-25 17:44:57.261754300 +0000
++++ d4_grade_SUPPLEMENT.py	2026-08-25 19:15:11.476626120 +0000
+@@ -29,6 +29,14 @@
+ stdout for a graded quantity; stdout is read only for provenance markers
+ (container uid, IDWarp .so md5) which are single short lines whose corruption
+ would make them fail to match rather than silently mis-read.
++
++D4-DEF-1 SUPPLEMENT.  This file is NOT `d4_grade.py`.  `d4_grade.py` is
++frozen at md5 f162ef69a7385e5d0586ef5f27657cbb by PREREGISTRATION.md 9a and is
++NOT edited (CLAUDE.md rule 6).  This supplement carries that file's grading
++body BYTE-FOR-BYTE and repairs exactly one defect: the frozen `--selftest`
++flag is declared at argparse and never read, so it silently runs a FULL GRADE.
++Here it is WIRED to a real selftest with a DISTINCT exit path.  See the
++D4-DEF-1 REPAIR section and `d4_grade_D4DEF1_REPAIR.diff`.
+ """
+ import argparse
+ import hashlib
+@@ -636,16 +644,378 @@
+             "pass": bool(len(digests) >= 1 and len(uniq_so) == 1)}
+ 
+ 
++# ======================= D4-DEF-1 REPAIR: A REAL SELFTEST ==================
++# PREREGISTRATION.md §9a freezes `d4_grade.py` at md5
++# f162ef69a7385e5d0586ef5f27657cbb.  THAT FILE IS NOT EDITED (CLAUDE.md rule
++# 6).  This SUPPLEMENT carries its grading body BYTE-FOR-BYTE and repairs one
++# defect, named D4-DEF-1 by the dafoam-supervisor:
++#
++#   in the frozen grader `--selftest` is DECLARED at argparse (line 646) and
++#   NEVER READ AGAIN.  The token appears exactly once in the file.  Because
++#   --base/--work/--out are required, `--selftest` ALONE fails loudly on
++#   missing arguments -- but `--selftest` ALONGSIDE a full invocation parses
++#   fine and SILENTLY RUNS A COMPLETE GRADE, exiting clean.  A reader could
++#   record "grader selftest passed" when no selftest ever existed.  That is
++#   L-302's shape: an instrument that cannot say "I measured nothing".
++#
++# THE REPAIR DEMONSTRATES, IT DOES NOT ASSERT.  Every unit below builds a
++# synthetic case that VIOLATES exactly one gate, then runs THIS FILE'S OWN
++# main() AS A SUBPROCESS and reads the verdict back out of the JSON main()
++# writes.  The REAL mapping is therefore exercised -- a mirrored copy of the
++# mapping would only test the mirror.
++#
++# Unit CLEAN is the DISCRIMINATION CONTROL: a fully consistent fixture must
++# grade all-PASS.  Without it, a mutation unit that "failed" would not
++# distinguish a working gate from a broken fixture.
++#
++# The exit path is DISTINCT AND CANNOT BE CONFUSED WITH A GRADED RUN: the
++# selftest writes NO --out file, prints the banner D4_SELFTEST, and exits 0
++# (all units did what was wanted) or 3 (one or more did not).  A grading run
++# exits 0 with D4_GRADER OK or 2 with D4_GRADER REFUSED.  3 is used by nothing
++# else in this file.
++
++_ST_CD0 = 2.9619634e-02
++_ST_COMPS = [("shape", 46), ("shape", 18), ("shape", 0),
++             ("twist", 0), ("patchV", 1)]
++_ST_CPUS = [5, 6, 7, 9]
++
++
++def _st_w(path, text):
++    d = os.path.dirname(path)
++    if d and not os.path.isdir(d):
++        os.makedirs(d)
++    with open(path, "w") as fh:
++        fh.write(text)
++    return path
++
++
++def _st_ipopt(o):
++    """A synthetic IPOPT output FILE.  Rows are formatted exactly as IPOPT
++    writes them so the frozen IPOPT_ROW regex is what parses them."""
++    red = 0.05 if o.get("drag_out_of_band") else 0.30
++    n = 12
++    cdf = _ST_CD0 * (1.0 - red)
++    cds = [_ST_CD0 + (cdf - _ST_CD0) * i / (n - 1) for i in range(n)]
++    lines = ["List of user-set options:",
++             "iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) "
++             "alpha_du alpha_pr  ls"]
++    for i, c in enumerate(cds):
++        lines.append("  %2d  %.7e 4.16e-08 8.10e-03  -5.1 2.83e-01    -  "
++                     "9.99e-01 1.00e+00h  1" % (i, c))
++    if o.get("converged"):
++        lines += ["", "Number of Iterations....: %d" % (n - 1), "",
++                  "EXIT: Optimal Solution Found."]
++    return "\n".join(lines) + "\n", cds
++
++
++def _st_hist(o, cds):
++    n = len(cds)
++    cls = [0.5 + 1.0e-6] * n
++    if o.get("cl_bad"):
++        cls[3] = 0.5 + 1.0e-3          # beyond band A (5.0e-4)
++    if o.get("cl_final_bad"):
++        cls[-1] = 0.5 + 1.0e-4         # inside A, beyond B (1.0e-5)
++    if o.get("cl_empty"):
++        cls = []                       # the D3 defect: present-but-empty
++    return {"CD": list(cds), "CL": cls, "_n_major_rows": n,
++            "_key_CD": "scenario1.aero_post.functionals.CD",
++            "_key_CL": "scenario1.aero_post.functionals.CL"}
++
++
++def _st_fd(o):
++    """A synthetic endpoint FD table that GRADES CLEAN: per-component relative
++    error 1.0 % (band D is 5.0 %), plateau 1.0 % (tolerance 10 %), no sign
++    flips.  The five components are the registered set in registered order."""
++    rows = []
++    for dv, idx in _ST_COMPS:
++        d_hi = 1.0e-4
++        d_lo = 1.0e-4 * 1.01
++        j = 1.0e-4 * 1.01
++        rows.append({"dv": dv, "idx": idx, "status": "PLANNED",
++                     "s_lo": 1.0e-3, "s_hi": 3.0e-3,
++                     "J_adj": repr(j), "C_lo": 50.0, "C_hi": 150.0,
++                     "fd": {"s_lo": {"step": 1.0e-3, "d": repr(d_lo),
++                                     "ok": True},
++                            "s_hi": {"step": 3.0e-3, "d": repr(d_hi),
++                                     "ok": True}}})
++    return {"eta_used": repr(1.0e-9), "eta_raw": repr(1.0e-9),
++            "eta_floored": False, "rows": rows, "n_rows": len(rows),
++            "components_requested": [[d, i] for (d, i) in _ST_COMPS],
++            "n_components_requested": len(_ST_COMPS),
++            "clearance_floor": 5.0, "ratio_min": 2.0,
++            "plateau_tol_pct": 10.0, "adjoint": {}}
++
++
++def _st_ledger(o):
++    specs = [("P1", 5.0, 0.333, "4g", "NOT_MEASURED"),
++             ("P2", 55.0, 36.4, "12g", "3.9867 n=36"),
++             ("O", 620.0, 600.0, "12g", "3.9900 n=100"),
++             ("F", 120.0, 50.0, "12g", "3.9800 n=20")]
++    out = []
++    for arm, cap, act, mem, deliv in specs:
++        if o.get("arm_missing") == arm:
++            continue
++        enforced = cap
++        if o.get("cap_mismatch") == arm:
++            enforced = cap * 2.0
++        if o.get("over_cap") == arm:
++            act = cap + 10.0
++        if o.get("delivered_low") == arm:
++            deliv = "2.1000 n=20"
++        oom = "true" if o.get("oom") == arm else "false"
++        out.append(
++            "ARM=%s ROW=PATCHED IMG=img:v1 DIGEST=sha256:aaa rc=0 wall_s=100 "
++            "ranks=4 core_min=%.3f cap_core_min=%.1f enforced_wall_s=100 "
++            "enforced_core_min=%.6f memory=%s "
++            "inspect(exit,oomkilled)=[0 %s] memavail_pre_GiB=17.5 "
++            "memavail_post_GiB=17.2 cpuset=5,6,7,9 "
++            "delivered_cores_mean=[%s] siblings_pre=[] siblings_post=[]"
++            % (arm, act, cap, enforced, mem, oom, deliv))
++    return "\n".join(out) + "\n"
++
++
++def _st_fixture(root, **o):
++    """Build a complete synthetic D4 case.  With no options it is CONSISTENT
++    and must grade all-PASS; each option violates exactly one gate."""
++    import time
++    base = os.path.join(root, "base")
++    work = os.path.join(base, "O")
++    p1 = os.path.join(base, "P1")
++    for d in (base, work, p1, os.path.join(work, "0"),
++              os.path.join(p1, "system")):
++        if not os.path.isdir(d):
++            os.makedirs(d)
++
++    now = int(time.time())
++    datum = now - 1000
++
++    ref = _st_w(os.path.join(work, "0", "U"), "synthetic U\n")
++    os.utime(ref, (datum, datum))
++    if not o.get("datum_absent"):
++        _st_w(os.path.join(work, ".d4_age_datum"), "%d\n" % datum)
++    if o.get("age_ref_moved"):
++        os.utime(ref, (datum + 5, datum + 5))
++
++    ip_txt, cds = _st_ipopt(o)
++    ip = _st_w(os.path.join(work, "opt_IPOPT.txt"), ip_txt)
++    _st_w(os.path.join(work, "OptView.hst"), "synthetic history\n")
++    _st_w(os.path.join(work, "d4_major_history.json"),
++          json.dumps(_st_hist(o, cds)))
++    _st_w(os.path.join(work, "d4_fd_endpoint.json"), json.dumps(_st_fd(o)))
++    if o.get("age_stale"):
++        os.utime(ip, (datum - 10, datum - 10))
++
++    _st_w(os.path.join(base, "ledger.txt"), _st_ledger(o))
++
++    _st_w(os.path.join(base, "arm.log"),
++          "D4_IDWARP_SO_MD5: 85f59e87253e0a71a813f64ca6e4c425\n")
++    if o.get("so_mismatch"):
++        _st_w(os.path.join(base, "arm2.log"),
++              "D4_IDWARP_SO_MD5: 0000000000000000000000000000dead\n")
++
++    per = NCELLS // RANKS
++    a = dict(("processor%d" % i, per) for i in range(RANKS))
++    b = dict(a)
++    if o.get("decomp_mismatch"):
++        b["processor0"] += 1
++        b["processor1"] -= 1
++    if o.get("decomp_badcells"):
++        a["processor0"] += 7
++    _st_w(os.path.join(p1, "d4_decomp_A.json"), json.dumps(a))
++    _st_w(os.path.join(p1, "d4_decomp_B.json"), json.dumps(b))
++    _st_w(os.path.join(p1, "system", "decomposeParDict"),
++          "numberOfSubdomains %d;\nmethod %s;\n" % (RANKS, DECOMP_METHOD))
++
++    n_rank = RANKS - 1 if o.get("placement_short") else RANKS
++    for r in range(n_rank):
++        if o.get("placement_collide"):
++            aff = [_ST_CPUS[0]]
++        elif o.get("placement_outside"):
++            aff = [1 + r]
++        else:
++            aff = [_ST_CPUS[r]]
++        _st_w(os.path.join(p1, "d4_placement_rank%d.json" % r),
++              json.dumps({"rank": r, "affinity": aff}))
++    return base, work
++
++
++def _st_run(root):
++    """Run THIS FILE'S OWN main() as a subprocess against the fixture and read
++    the verdicts back from the file main() writes.  The real mapping runs."""
++    import subprocess
++    base = os.path.join(root, "base")
++    work = os.path.join(base, "O")
++    out = os.path.join(root, "selftest_out.json")
++    if os.path.isfile(out):
++        os.remove(out)
++    p = subprocess.run(
++        [sys.executable, os.path.abspath(__file__), "--base", base,
++         "--work", work, "--arms", "P1,P2,O,F", "--out", out],
++        capture_output=True, text=True)
++    doc = {}
++    if os.path.isfile(out):
++        try:
++            doc = json.load(open(out))
++        except Exception:                                  # noqa: BLE001
++            doc = {}
++    return p.returncode, doc
++
++
++def _st_v(doc, gate):
++    return (doc.get("verdicts") or {}).get(gate)
++
++
++def selftest():
++    """Return 0 if every unit did what was wanted, 3 otherwise."""
++    import shutil as _sh
++    import tempfile
++
++    def all_pass(rc, doc):
++        vs = (doc.get("verdicts") or {})
++        bad = sorted(k for k, v in vs.items() if v != "PASS")
++        return (rc == 0 and vs and not bad,
++                {"rc": rc, "non_PASS": bad, "n_gates": len(vs)})
++
++    def refused(rc, doc):
++        return (rc == 2 and "REFUSED" in doc,
++                {"rc": rc, "refused": str(doc.get("REFUSED"))[:200]})
++
++    def gate_is(gate, want):
++        def chk(rc, doc):
++            got = _st_v(doc, gate)
++            return got == want, {"rc": rc, "gate": gate, "want": want,
++                                 "got": got}
++        return chk
++
++    def capstop_never_pass(want_g3, want_g4):
++        def chk(rc, doc):
++            g3, g4 = _st_v(doc, "G3_termination"), _st_v(doc,
++                                                         "G4_drag_reduction")
++            ok = (g3 == want_g3 and g4 == want_g4
++                  and g3 != "PASS" and g4 != "PASS")
++            return ok, {"rc": rc, "G3": g3, "G4": g4,
++                        "want": [want_g3, want_g4],
++                        "NEVER_PASS_holds": bool(g3 != "PASS"
++                                                 and g4 != "PASS")}
++        return chk
++
++    UNITS = [
++        # name                        fixture options                    check
++        ("CLEAN-control", dict(converged=True), all_pass),
++
++        ("G3-capstop-in-band", dict(converged=False),
++         capstop_never_pass("GATE REACHED", "GATE REACHED")),
++        ("G3-capstop-out-of-band",
++         dict(converged=False, drag_out_of_band=True),
++         capstop_never_pass("NOT A RESULT", "NOT A RESULT")),
++        ("G3-capstop-infeasible-CL", dict(converged=False, cl_bad=True),
++         capstop_never_pass("NOT A RESULT", "GATE REACHED")),
++
++        ("G2-CL-beyond-band-A", dict(converged=True, cl_bad=True),
++         gate_is("G2_cl_feasibility", "GATE FAIL")),
++        ("G2-CL-final-beyond-band-B",
++         dict(converged=True, cl_final_bad=True),
++         gate_is("G2_cl_feasibility", "GATE FAIL")),
++        ("G2-CL-present-but-EMPTY", dict(converged=True, cl_empty=True),
++         refused),
++
++        ("G1-age-datum-absent", dict(converged=True, datum_absent=True),
++         refused),
++        ("G1-age-reference-moved", dict(converged=True, age_ref_moved=True),
++         refused),
++        ("G1-arm-absent-from-ledger", dict(converged=True, arm_missing="F"),
++         refused),
++        ("G1-stale-artifact-age-guard", dict(converged=True, age_stale=True),
++         gate_is("G1_completion_and_age", "NOT A RESULT")),
++
++        ("G8-decomposition-not-identical",
++         dict(converged=True, decomp_mismatch=True),
++         gate_is("G8_decomposition_determinism", "GATE FAIL")),
++        ("G8-cell-total-wrong", dict(converged=True, decomp_badcells=True),
++         refused),
++
++        ("G9-two-distinct-IDWarp-so",
++         dict(converged=True, so_mismatch=True),
++         gate_is("G9_toolchain_identity", "GATE FAIL")),
++
++        ("G10-enforced-cap-not-registered",
++         dict(converged=True, cap_mismatch="O"),
++         gate_is("G10_cap_discipline", "GATE FAIL")),
++        ("G10-actual-over-cap", dict(converged=True, over_cap="O"),
++         gate_is("G10_cap_discipline", "GATE FAIL")),
++
++        ("G11-OOMKilled", dict(converged=True, oom="O"),
++         gate_is("G11_memory_envelope", "NOT A RESULT")),
++
++        ("G12-short-rank-set", dict(converged=True, placement_short=True),
++         refused),
++        ("G12-all-ranks-share-a-core",
++         dict(converged=True, placement_collide=True),
++         gate_is("G12_cpu_placement", "GATE FAIL")),
++        ("G12-affinity-outside-cpuset",
++         dict(converged=True, placement_outside=True),
++         gate_is("G12_cpu_placement", "GATE FAIL")),
++        ("G12-delivered-cores-below-floor",
++         dict(converged=True, delivered_low="O"),
++         gate_is("G12_cpu_placement", "GATE FAIL")),
++    ]
++
++    sys.stdout.write("D4_SELFTEST start units=%d  (this is NOT a grade: no "
++                     "--out file is written)\n" % len(UNITS))
++    results, n_ok = [], 0
++    for name, opts, check in UNITS:
++        root = tempfile.mkdtemp(prefix="d4st_")
++        try:
++            _st_fixture(root, **opts)
++            rc, doc = _st_run(root)
++            ok, detail = check(rc, doc)
++        except Exception as exc:                           # noqa: BLE001
++            ok, detail = False, {"exception": repr(exc)[:300]}
++        finally:
++            _sh.rmtree(root, ignore_errors=True)
++        n_ok += bool(ok)
++        results.append((name, ok, detail))
++        sys.stdout.write("  %-34s %s  %s\n"
++                         % (name, "ok " if ok else "NOT",
++                            json.dumps(detail, sort_keys=True,
++                                       default=str)[:190]))
++
++    n = len(UNITS)
++    sys.stdout.write("D4_SELFTEST %d/%d PASS\n" % (n_ok, n))
++    if n_ok != n:
++        for name, ok, detail in results:
++            if not ok:
++                sys.stdout.write("D4_SELFTEST UNIT DID NOT DO WHAT WAS "
++                                 "WANTED: %s %s\n"
++                                 % (name, json.dumps(detail, sort_keys=True,
++                                                     default=str)[:400]))
++        return 3
++    sys.stdout.write("D4_SELFTEST_IS_NOT_A_GRADE -- no verdict file written\n")
++    return 0
++
++
++
+ # ------------------------------------------------------------------- main
+ def main():
+     ap = argparse.ArgumentParser()
+-    ap.add_argument("--base", required=True)
+-    ap.add_argument("--work", required=True)
++    ap.add_argument("--base", required=False)
++    ap.add_argument("--work", required=False)
+     ap.add_argument("--arms", default="P1,P2,O,F")
+-    ap.add_argument("--out", required=True)
++    ap.add_argument("--out", required=False)
+     ap.add_argument("--selftest", action="store_true")
+     a = ap.parse_args()
+ 
++    # ---- D4-DEF-1 REPAIR.  In the frozen grader this flag is declared
++    # and NEVER READ: passing it beside a full invocation silently ran a
++    # COMPLETE GRADE and exited clean.  Here it is WIRED, it returns a
++    # DISTINCT exit code (3) that no grading path uses, and it writes NO
++    # verdict file -- so a selftest can never be mistaken for a grade.
++    if a.selftest:
++        sys.exit(selftest())
++    for _req in ("base", "work", "out"):
++        if getattr(a, _req) is None:
++            ap.error("--%s is required for a grading run" % _req)
++
+     verdicts, report = {}, {}
+     try:
+         ledger_rows = read_ledger(os.path.join(a.base, "ledger.txt"))
