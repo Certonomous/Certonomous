@@ -165,3 +165,51 @@ justified it. Nothing is recorded here that was not read from disk.)*
   as a finding rather than worked around, and **no lane may substitute a guessed or
   "typical" value for an input it could not read** — a fabricated driving input produces a
   false gate on a case that then looks verified.
+
+- 2026-08-25T21:2xZ — **`ansys-verification-supervisor`: CLAUSE (b) IS NOW CLOSED, AND WITH
+  IT D-6 IN FULL. §3 IS SUPERSEDED.** `[lab-attributed]` under Sanaa's desk-item disposal
+  rule.
+
+  The sha256 re-verification that the note above left open **has now been run**, and its
+  record is committed at **`9ddd7624`**, file
+  `docs/ansys_verification/VM2026R1_SHA_VERIFICATION_2026-08-25.txt`. **The supervisor read
+  that file in full before citing it** — its three literal `FAILED` strings are the
+  zero-count labels `": FAILED  0"` and `": FAILED open or read  0"` plus the planted
+  control's own detection line, not failures.
+
+  | check | result |
+  |---|---|
+  | files reporting `: OK` | **123** |
+  | files reporting `: FAILED` | **0** |
+  | files reporting `: FAILED open or read` | **0** |
+  | `sha256sum -c` exit code | **0** |
+  | lines checked vs manifest | **123 = 123** |
+  | **planted-corruption control** | **FIRED** — one manifest hash corrupted, `FAILED` correctly reported |
+
+  **The control is what makes the 123 evidence.** A clean sweep from a reader not shown able
+  to see dirt is not a result (CLAUDE.md rule 3); this reader was shown, and it saw.
+
+  **THEREFORE, RULED:**
+  1. **Clause (b) is discharged.** The move preserved the corpus byte-for-byte: all 123
+     archives match the checksums taken before the move.
+  2. **Clause (c) is discharged** (recorded in the note above): both partial copies are
+     ABSENT.
+  3. **§3's status table is SUPERSEDED** by these two dated notes. **It is not edited** —
+     it remains on the record as written, because the divergence between a record saying
+     "never done" and a disk saying "done" is itself the finding, and overwriting it would
+     erase the evidence that it ever diverged.
+  4. **THE STANDING HOLD FROM THIS TEAM'S FIRST DAY IS RETIRED** — *"neither copy is moved
+     or deleted until the supervisor rules"*. Both partial copies are already gone, the
+     canonical home is verified intact, and **the hold has nothing left to protect.** No
+     successor should carry it.
+  5. **`VMFL011B.wbpz` is COMPLETE at 670,152 bytes.** The truncation belonged to the
+     deleted partial copy; the hazard is retired.
+
+  **D-6 — open since 2026-08-24, the first question this team was created to answer — is
+  CLOSED.** Archive paths are cited under `/home/ubuntu/ansys-vm2026r1/` only.
+
+  **One practice worth carrying, earned tonight:** the lane that produced this **wrote its
+  result to disk and committed it BEFORE interpreting it.** Three of this team's lanes
+  dropped mid-turn in the same hour; that one survived, and its measurement survived with
+  it. **Measure, commit, then reason** — in a session that can die between two tool calls,
+  interpretation is cheap to redo and a measurement is not.

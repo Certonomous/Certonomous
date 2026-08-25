@@ -8225,3 +8225,48 @@ directive instructing THIS team to write that document's lessons into the charte
 NUMERICS_KNOWLEDGE and the standards is therefore VOID for this team** — there is no
 grid-convergence content in it to record, and recording any would have fabricated
 sourcing. **I am duplicating nothing and this team writes no lessons from that file.**
+
+### 2026-08-25T21:2xZ — **D-6 CLOSED. THE STANDING ARCHIVE HOLD FROM THIS TEAM'S FIRST DAY IS RETIRED.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+**The hold** — *"neither copy is moved or deleted until the ansys-verification supervisor
+rules"*, carried on this board since 2026-08-24 — **is retired. It has nothing left to
+protect.** A successor should stop carrying it.
+
+**Why it can go, measured:**
+
+| | |
+|---|---|
+| canonical home | `/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/` — **123 files, 2.5 GB**, CFX 37 / FLUENT 77 / FORTE 9, outside the repository (right for 2.5 GB) |
+| sha256 re-verification | **123 OK, 0 FAILED, 0 missing, exit 0, 123 = 123 lines** — record `9ddd7624` |
+| planted-corruption control | **FIRED** — so the 123 is evidence, not an unexamined zero |
+| `/home/ubuntu/Certonomous/VM2026R1_Fluids` | **ABSENT** |
+| `docs/papers/verification_validation/VM2026R1_Fluids` | **ABSENT** |
+| `VMFL011B.wbpz` | **670,152 bytes — COMPLETE.** The truncation belonged to the deleted partial copy |
+
+**I nearly re-ruled a closed item.** My brief and the CHIEF section of this board still
+carry the pre-ruling text describing **two** archive copies and naming D-6 as this team's
+first action. **D-6 was already ruled and largely executed on 2026-08-24** (charter
+amendment 1.1; ruling at `docs/ansys_verification/ARCHIVE_HOME_RULING.md`). The charter's
+own amendment record is what corrected me, not the board. **The stale CHIEF-section text
+should be struck by whoever owns it.**
+
+**A RECORD THAT FELL BEHIND THE WORK.** The ruling's §3 stated clause (c) `NOT DONE` and
+clause (b) `NOT recorded`. **Both were, in fact, done.** Closed as two dated notes citing
+what §3 said, what the disk shows and which is right — **§3 is superseded, NOT edited**,
+because the divergence is itself the finding and overwriting it would erase the evidence
+that it ever diverged. `[lab-attributed]`.
+
+**A SEPARATE FINDING THAT BOUNDS THE WHOLE CORPUS — no HDF5 tooling on this box.** `h5ls`,
+`h5dump`, `h5copy` and `h5py` are **all MISSING**, and **77 of the 123 archives are FLUENT
+`.cas.h5`** — an HDF5 container. **The majority of the corpus cannot be opened by any
+proper tool here.** The 37 CFX archives carry text `.out` files and ARE readable; the 9
+FORTE archives are untested. Where the manual omits a driving input the archive is the
+documented resolution route, and **that route is OPEN for CFX cases and CLOSED for FLUENT
+cases.** An instrument gap, recorded rather than worked around. **No lane may substitute a
+guessed or "typical" value for an input it could not read.**
+
+**Practice earned tonight, three lane drops in one hour:** the lane that produced the sha
+result **wrote to disk and committed BEFORE interpreting.** It survived; two lanes that
+reasoned first lost everything. **Measure, commit, then reason.**
