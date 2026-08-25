@@ -7856,3 +7856,133 @@ silent CPU fallback), AMI snapshot procedure, GPU-hour cost basis, capacity stat
 route is SELECTED and VIABLE (not BLOCKED), with open items that are Sanaa's to clear
 before boot (capacity, shutdown-behaviour = stop, console price, per-item GPU sign-off,
 her starting the instance).
+
+---
+
+### 2026-08-25T21:1xZ — SESSION RESTART AFTER THE ~20:45Z FLEET KILL. Board re-derived from HEAD, four lanes fired, one pre-freeze finding landed.
+
+**Written by `ansys-verification-supervisor` personally.** HEAD at restart was
+`ed726454`; my own HEAD after this session's first commit is `3fa6058d`.
+
+**Last commit.** `3fa6058d` — *ansys-verification VMFL036: SUPERVISOR PRE-FREEZE CHECK
+— the manual's stated viscosity gives Re=50 but its target Cd 1.0895 is the Re=100
+value. A MIS-SPECIFIED GATE QUANTITY caught BEFORE the freeze this time.* Zero compute.
+
+**The VMFL036 finding — my §3 check, done personally, and it fired.** My predecessor
+died mid-sentence on exactly this question and **its read did not land**: no VMFL036 path
+existed at HEAD and no commit had ever touched one. Redone from the manual:
+
+| quantity | value | source |
+|---|---|---|
+| manual's stated rho, U, D, mu | 1, 1, 1, **0.02** | manual p.125 |
+| Reynolds number these imply | **50** | arithmetic |
+| manual's target Drag Coefficient | **1.0895** | manual p.126 |
+| Schiller-Naumann Cd(Re=50) | **1.5381** | correlation |
+| Schiller-Naumann Cd(Re=100) | **1.0917** | correlation |
+| Re implied by Cd = 1.0895 | **100.4** | inverted correlation |
+
+**The manual's VMFL036 page is internally inconsistent** — `mu = 0.02` looks like a
+transcription error for `mu = 0.01`. Freezing the gate on 1.0895 at the manual's stated
+viscosity would have produced ~1.5 and a **guaranteed GATE FAIL measuring the manual's
+typo, not our solver**. That is the VMFL059 class (`6a9afa0a`) for the second time in two
+days — **caught before the freeze this time, which is where the check is supposed to
+fire.** Registered as two arms: A (mu=0.01, Re=100, the primary gate) and B (mu=0.02 as
+the manual states, **predicted Cd ~1.54 registered before the run**, evidence about the
+MANUAL, not a gate on the solver). Reference kind is **code-to-code** (Mittal 1999 and
+Tabata & Itakura 1998 are computed spectral solutions, not experiment) -> buys **neither
+V nor P** -> tier ceiling **GATE REACHED**, whatever the number.
+
+**Live lanes — 4 of 4, at cap (2 opus + 2 haiku).**
+
+| lane | item | state |
+|---|---|---|
+| opus | VMFL036 freeze+run, then VMFL023 (St = 0.165) | live, core budget 4 |
+| opus48 | VMFL021 + VMFL022 (Nurick orifice cavitation, 0.620 / 0.780) | live, core budget 4 |
+| haiku | instrument + id census | **returned** |
+| haiku | GPU boot readiness | **returned** |
+| haiku | VMFLGPU005-010 census completion | live, zero compute |
+
+**Box, measured by me at 21:09Z** (16 cores): three heat-transfer
+`buoyantBoussinesqSimpleFoam` at 99.9% CPU each — pids 2203927 / 2203944 / 2203947, cwds
+`verification/runs/T-family/T1_runs/R_{10k,100k,300k}_x`. Load average **11.92** and
+climbing as my lanes mesh. Utilisation is no longer the defect it was at 21:04Z (load
+3.00, 19%).
+
+**A LANE ZERO I REFUSED TO BELIEVE, and was right to.** The census lane reported
+*"Running OpenFOAM solver processes: 0 … box is idle"* **in the same breath as load
+average 7.87**, and concluded 8 cores were free. A load of 7.87 cannot come from an idle
+box. I re-read `/proc/<pid>/exe` directly and found the three solvers above. **Its reader
+was never shown able to see a non-zero** — the planted-zero lesson (rule 3) in its
+supervisory form. Its core-budget conclusion was discarded and both opus lanes were
+corrected to 4 cores rather than 5.
+
+**The same lane's id census, which I DO accept for the values but NOT for the
+mechanism:** tolerant maxima are **C-83**, **L-325**, **D901** and **D-14** (two distinct
+docket series), 131 N-families. But it reported the bold-markup blast radius as **0 rows
+missed** — which does **not** reproduce the `append_record.py` collision. It tested a
+generic strict pattern, **not that script's actual regex**. So the id values are usable;
+**the cause of the collision bug remains unestablished** and must not be recorded as
+"bold markup, fixed". Ids are allocated only at append time against HEAD, derived by
+hand in the committing invocation.
+
+**GPU — the boot decision is MINE and I am NOT taking it yet. Reason, in one line: the
+build script refuses to run.** The offline bundle is complete and committed under
+`docs/ansys_verification/gpu/` (recipe 282 lines, build script 179, smoke test 115, AMI
+procedure, cost basis, capacity statement, ten draft pre-registrations). Both scripts
+audited clean on the two hazards that killed the last two template cases: **no `set -u`**
+(the v2606 bashrc `WM_PROJECT_DIR` cycle, named in the header) and **every check gates
+explicitly** with `|| { ...; exit 1; }` rather than bare `set -e`. But
+`build_gpu_solver.sh` still carries **two unresolved `<PIN>` tags and refuses to run while
+they exist** (its own lines 46-48 — correct behaviour). **Booting an instance that bills
+continuously, to run a script that will refuse, is pure waste**, and the target
+`3.15.199.152` is down (2/2 packets lost). Boot stays closed.
+
+**The finding my own earlier review caught and the lane had not flagged**, recovered
+verbatim from `docs/ansys_verification/gpu/SUPERVISOR_REVIEW.md` lines 27-37: the smoke
+test's `tell1_gpu_flops` is a **loose regex that cannot discriminate on its own** —
+PETSc's `-log_view` prints GPU columns and `CpuToGpu`/`GpuToCpu` rows **on a
+CUDA-configured build even when the solve ran on the CPU**, with zero counts. **The
+forced-CPU control is not a nicety; it IS the discriminator.** Tell 1 alone would
+certify a CPU run as a GPU run. Standing instruction (lines 39-44): the control is never
+removed, skipped, short-circuited or made conditional, and a smoke test run without it is
+**`NOT A RESULT`**, never `PASS`.
+
+**Rungs without verdicts.** VMFL036 (frozen this session, running), VMFL023, VMFL021,
+VMFL022 — all `PENDING`, none yet graded. VMFL017 and VMFL059's two-value siblings not
+yet started. **VMFLGPU001-010 all `PENDING`, gated on boot.** Of the 65 never-run VMFL
+cases in the census, **51 are PROFILE** and need a digitisation route before any of them
+can carry a numeric gate at all — that is the structural blocker on this ladder and it is
+not yet solved.
+
+**Next actions.** Resolve the two `<PIN>` tags in `build_gpu_solver.sh` offline (needs an
+opus lane; both are busy). Then VMFL017 (0.0168 / 0.803, experimental, **can buy P**) and
+the remaining DISCRETE cases. The PROFILE digitisation route is the item that unlocks the
+other 51.
+
+**On Sanaa's desk.** (1) **Per-item GPU cost sign-off — hers alone**; GPU spend sits
+outside the 2026-08-21 blanket (CLAUDE.md rule 12), which was given when no GPU could
+launch. (2) Confirmation that the instance's **shutdown behaviour reads `stop`, not
+`terminate`** — `terminate` destroys the root volume and the AMI work with it. Both
+predate this session.
+
+**Blocked.** GPU boot — on the two `<PIN>` tags (mine to clear) and her sign-off (hers).
+The 51 PROFILE cases — on a digitisation route not yet designed.
+
+**VERIFY flags.** The `append_record.py` collision **mechanism** is unestablished (values
+C-83 / L-325 / D901 / D-14 are measured and fine). The g6 capacity in us-east-2 remains
+**UNKNOWN** and is correctly not inferred from the 2026-08-23 launch.
+
+**On `docs/standards/High_order_grid_convergence.pdf` — asked of me so cfd does not
+duplicate. IT IS ALREADY DONE, AND NOT BY ME.** The **cfd supervisor** did it personally
+and landed it: the rule-15 catch is committed at **`01fcb3d8`** with a 13,925-line
+verified sidecar and a 115-line provenance file, and the numerics landed at
+`docs/NUMERICS_KNOWLEDGE.md:4294` ("cfd-team numerics from Ekaterinaris 2005 — read
+personally"). **The file is misfiled: it is not a grid-convergence paper.** It is
+Ekaterinaris, *High-order accurate, low numerical diffusion methods for aerodynamics*,
+Progress in Aerospace Sciences 41 (2005) 192-300 — and over its 66,033 words it contains
+**Roache 0, GCI 0, Richardson 0, grid refinement 0, mesh refinement 0, verification 0**.
+The 17 naive "Roache" hits are all the substring inside "app-**roache**-s". **The
+directive instructing THIS team to write that document's lessons into the charters,
+NUMERICS_KNOWLEDGE and the standards is therefore VOID for this team** — there is no
+grid-convergence content in it to record, and recording any would have fabricated
+sourcing. **I am duplicating nothing and this team writes no lessons from that file.**
