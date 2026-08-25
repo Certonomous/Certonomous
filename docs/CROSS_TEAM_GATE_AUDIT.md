@@ -3437,3 +3437,150 @@ is a summary, not a check (`SUPERVISION_CHARTER.md` §3).
 **RULING on S0a (recommendation; binding is Sanaa's):** **NOT A RESULT, both values printed** — S0a 2668/29700 = 8.98 % (event 1, inside [6, 24] %) / 749/29700 = 2.52 % (event 2, outside); likewise §8.1 (BASELINE-RECOVERED / BASELINE-NOT-RECOVERED) and §8.3 (INDETERMINATE / E-FIRST). S0b, §8.2 and §8.4 do not turn on the choice and stand. Reasoning: the event ordinal is a row definition on the grading path (§2d), fixed post-compute with the numbers visible and material; §2d.1(2) is not met — the fixture, committed in the freeze, proves the drafter's pre-compute PRESUMPTION was an event-1 log shape, but a control that models one event per block cannot discriminate event 1 from event 2 and was blind to the very ambiguity, so the selection rests on §8.3's own mechanism, as §14 itself grounds it. What the fixture DOES earn: a §2d disclosure on the finding, and a registered event-1 row definition for any re-run or next rung, where it becomes a legitimate pre-compute choice. The reader's `EVENT_GRADED = 1` selector, first introduced at `4bf8138d`, is not struck — it is the instrument the next rung inherits. The blind-reading protocol (reading sealed before §14 was opened) is recorded as the method for any future post-compute disambiguation question.
 
 **Cost of this read:** three `git show` reads and one grep, < 0.05 core-min, zero solver.
+
+---
+
+## Audit pass 12 — 2026-08-25, verification-supervisor's OWN READ (not a lane's)
+
+### 91. F12's grading-path repair (cfd, `b0c0db35`) — is it inside §2d? **RULING: OUTSIDE §2d. The freeze is NOT compromised and F12 is gradeable. cfd's ground is correct and NARROWER THAN IT NEEDS TO BE, and one half of the repair does not stand on it at all**
+
+**Read personally as a diff, per `SUPERVISION_CHARTER.md` §3 check 1.** One file
+changed, `sdk/workflows/rae2822_case9.py`, 13 hunks, 583 lines added, 14 removed.
+Every one of the 14 removed lines was inspected individually: the import line, the
+`REFERENCE_DIR` constant binding, its two read sites, the `FIRST_CELL = 2.0e-6`
+module constant, four signature/default lines and the `r_y_far` line. **No band, no
+reference value, no row definition, no verdict rule and no discrimination test is
+among them.** `git status` and `git diff HEAD` were not used; the diff was taken
+against the parent blob.
+
+#### The question cfd asked, and the answer
+
+cfd's commit message closes with *"WHAT THIS LANE REFUSED TO DECIDE: whether
+repairing defect 3 was in this task's scope"* and refers the §2d reading upward.
+The chief put it as: *if the repair was inside §2d then the freeze is compromised
+and the run is not gradeable.* It is outside. **But there are three grounds, they
+are not equally strong, and cfd cited only the third.**
+
+**GROUND 1 — the primary one, and cfd did not state it. §2d has not been triggered
+at all.** §2d's operative sentence freezes the grading path so that it *"does not
+change **once the first graded solve has started**"* (charter line 1843). **F12 has
+never run.** Verified on disk by this supervisor, not read from a claim:
+`verification/runs/F12_runs/` holds exactly one subdirectory, `reference/`, with
+eight files and no case directory, no time directory and no log; and no `F12` path
+exists under `/home/ubuntu/certonomous-runs/`. No graded solve has started, so
+§2d's freeze has not attached to anything. **The governing rule is §2b and
+CLAUDE.md rule 2** — before first compute an amendment is legal **and must state
+the condition and how it was checked, naming the run directory that does not
+exist.** That condition **is** stated, in the frozen pre-registration itself and
+twice over: `F12_PREREGISTRATION.md` lines 195–199 register the five case
+directories the run will create, and lines 428–439 re-assert each of the five with
+the words **"does not exist"** beside it, then restate that `verification/runs/F12_runs/`
+still holds only `reference/`. **That is rule 2's amendment discipline performed as
+written, not gestured at.**
+
+**GROUND 2 — the one that actually settles defect 3, and it is stronger than the
+clause cfd cited. The repaired path is the path the FROZEN pre-registration itself
+names.** The pre-repair constant bound to `demo-output/website/campaign/F12_runs/reference`
+— **a location the frozen document never names anywhere.** The frozen prereg cites
+its reference data at `verification/runs/F12_runs/reference/…` (lines 168–178, a
+`find` listing inside the frozen text, and again at line 707 in the rule-15
+disclosure). **The repair moves the code TOWARD the frozen document.** A repair
+whose destination was fixed in the pre-registration before any answer existed
+cannot be an instrument tuned to an answer — there is no answer, and the drafter
+did not choose where it landed.
+
+**Checked, not assumed:** the three reference files the repaired code will read are
+**byte-identical disk-vs-HEAD** — `rae2822_case9_cp_upper.dat` `3f776272e326…`,
+`rae2822_case9_cp_lower.dat` `edadf7556fa6…`, `rae2822_coordinates.dat`
+`bf6921f97b87…`. The reference that will be read **is** the reference at HEAD.
+
+**GROUND 3 — cfd's. Boundary clause 1. Correct for defect 3, and I confirm it by
+measurement rather than by assertion.** §2d boundary clause 1 exempts *"a
+comparator that cannot run at all"*, on the test *"a path either resolves or
+refuses"*. That premise is only true when the resolver is single-valued.
+`lab_paths.resolve` returns whichever of {literal, MOVE_MAP successor, MOVE_MAP
+predecessor} exists — a three-way choice. **Measured: exactly ONE of the three
+exists in the repository tree.** `verification/runs/F12_runs/reference` exists;
+`demo-output/website/campaign/F12_runs/reference` and `web/campaign/F12_runs/reference`
+are both **absent**. So the resolver is single-valued here and boundary clause 1's
+premise holds **as a measured fact about this tree**, not as a property of the code.
+
+#### CONTESTED — and this is the half that matters, because a narrow ground is about to be cited as a wide one
+
+**Boundary clause 1 does NOT cover defects 1 and 2, and nothing may later cite it
+as though it did.** Boundary clause 1 carries its own test in its own words: *"The
+test is whether the repair **can change a number**; a path either resolves or
+refuses."* Apply it:
+
+- **Defect 1 changes numbers, by design and by a factor of four.** The wall-normal
+  first cell was held **fixed at 2.0e-6 on all three levels**; it is now
+  **2.0e-6 / 1.0e-6 / 5.0e-7 chord**. That moves y⁺, and y⁺ moves every quantity
+  F12's gate reads. cfd measured the pre-repair ladder spread at **313.5 %** and the
+  post-repair wall-normal total expansion held to **6.84 %**.
+- **Defect 2 changes numbers.** The outlet column went from **3.747165 / 1.084468 /
+  1.000000** — graded 3.75 : 1 at coarse and **UNIFORM at fine** — to
+  **3.747165 / 3.752710 / 3.755469**, held to 0.222 %.
+
+**Both plainly can change a number. Both FAIL boundary clause 1's own test
+outright.** They are nonetheless **legal — on Ground 1**, because there is no first
+graded solve, and under §2b's pre-compute limb via the MESH-SIMILARITY AMENDMENT
+(`03c35817`, v1.1 → v1.2 §7) that commissioned them.
+
+**cfd's own record is right about this and the summary is not.** The commit message
+invokes boundary clause 1 **only inside the DEFECT 3 paragraph**, and grounds
+defects 1 and 2 in the pre-compute amendment. **The one-line framing that travelled
+upward — "the repair sits outside §2d by that section's own boundary clause" —
+flattens a three-part repair onto its narrowest limb.** That is how a clause written
+for a dangling path constant becomes precedent for changing a mesh. **Recorded here
+so the precedent does not form.**
+
+#### RESIDUAL, named so nobody re-derives it by spending
+
+`lab_paths.resolve` is single-valued **only while exactly one candidate exists**.
+Should a second ever appear with different content, it would bind one silently and
+boundary clause 1's premise — *a path either resolves or refuses* — would be **false
+at this call site**. A stale copy of the same reference does exist outside the
+repository at `/home/ubuntu/.mutarc-64b13819/demo-output/website/campaign/F12_runs/reference/`;
+it is **byte-identical today** and outside the resolver's reach, and it is named here
+because *byte-identical today* is not a property anything in the lab enforces.
+
+#### Two of cfd's own "REPORTED, NOT REPAIRED" items, confirmed as material
+
+1. **`surface_points(..., n=240)` is level-independent** against 48/96/192 surface
+   cells, so the fine level discretises the same 240-segment polygon as the coarse.
+   Holding the geometry fixed is what similarity requires — but the consequence is a
+   **geometric error floor that does not vanish under refinement, and Richardson
+   cannot see it.** When F12 runs, its `G` column must carry this caveat; an
+   observed order fitted through a fixed floor is biased and the bias is invisible
+   in the triple.
+2. **Three sibling ladders carry defect 1's exact shape and are unswept** —
+   `sdk/workflows/transonic_airfoil.py:87`, `sdk/workflows/backstep_case.py:198`,
+   `verification/runs/F5_runs/cylinder_ladder_3d.py:119`. A first cell fixed across a
+   refining ladder is a recipe fork **in the strongest sense — it changes the
+   discretised problem, not the path to convergence** — and it lives in a **source
+   constant**, not in a stored per-level recipe record. **Referred into this team's
+   recipe-fork audit as a negative-control question**: a sweep that compares stored
+   recipe fields between levels reads CLEAN when the defect is identical in all
+   three records *because the constant was*.
+
+#### The ruling, stated so it can be acted on
+
+**F12's pre-registration freeze is INTACT. The repair is outside §2d. F12 is
+gradeable and may run** — on Ground 1 primarily, Ground 2 for defect 3
+specifically, with boundary clause 1 as a correct but narrow third ground that
+covers defect 3 and **does not** cover defects 1 and 2. **No gate, threshold, cap or
+label moved**, which this supervisor confirms independently: cell counts are
+unchanged at 23,040 / 92,160 / 368,640, so the 2026-08-23 addendum's
+120/160/700/160/160 = **1,300 core-min** caps stand verbatim.
+
+**One thing this ruling does NOT do.** It does not bless the repair as *correct*.
+The code is **UNEXERCISED against a real solve** — cfd says so itself. The selftest
+is 41/41 with 10 mutation controls and a module-level vacuity test (four mutations
+applied to a scratch copy: 34/41, an exit-1 refusal, 39/41, 39/41), which is the
+best pre-compute evidence available and **is not the same thing as a mesh that
+built**. **Whether the instrument works is settled by F12's first launch, not by
+this reading.**
+
+**Cost of this read:** four `git show`/`git ls-tree` reads, one `find`, three
+sha256 comparisons. **Zero solver, zero mesher, no case directory.** Under
+0.1 core-min; not separately metered, and stated as such rather than invented.
