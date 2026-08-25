@@ -811,6 +811,50 @@ def rewrite_fail():
         shutil.rmtree(d, ignore_errors=True)
 
 
+@control("ADDENDUM 2", "PASS",
+         "attempt 1's preserved tree and its evidence are present -> attempt 2 may run")
+def preserved_pass():
+    d = L.assert_attempt1_preserved()
+    assert d["evidence_present"]
+    return "preserved tree present with %s" % ", ".join(d["evidence_present"])
+
+
+@control("ADDENDUM 2", "FAIL",
+         "A CLEARED OR STRIPPED ATTEMPT-1 TREE REFUSES ATTEMPT 2 -- 'do not delete the "
+         "evidence' is a check the code performs, not a discipline the lane remembers")
+def preserved_fail():
+    import tempfile as _t
+    d = _t.mkdtemp()
+    try:
+        try:
+            L.assert_attempt1_preserved(os.path.join(d, "gone"))
+        except G.Refusal as e:
+            assert "PRESERVED tree is missing" in str(e)
+        else:
+            raise AssertionError("a deleted tree was accepted")
+        empty = os.path.join(d, "stripped"); os.makedirs(empty)
+        try:
+            L.assert_attempt1_preserved(empty)
+        except G.Refusal as e:
+            assert "evidence has been removed" in str(e)
+            return "deleted tree REFUSED; tree stripped of result.json REFUSED"
+        raise AssertionError("a stripped tree was accepted")
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
+@control("ADDENDUM 2", "FAIL",
+         "the ss9.1 registration is NOT repurposed: attempt 2 writes to a "
+         "differently-named root and the attempt-1 case path is never a write target")
+def roots_distinct():
+    assert L.RUN_CASE != L.PRESERVED_ATTEMPT1, "attempt 2 would overwrite attempt 1"
+    assert L.RUN_CASE.endswith("attempt2_Re936k"), L.RUN_CASE
+    assert L.PRESERVED_ATTEMPT1 not in L.RUN_ROOTS, (
+        "the preserved tree is registered as must-not-exist -- it MUST exist")
+    assert L.RUN_CASE in L.RUN_ROOTS
+    return "attempt-2 root distinct from the preserved attempt-1 tree"
+
+
 FORBIDDEN = ("richardson", "extrapolat", "gci_fine", "observed order of")
 
 

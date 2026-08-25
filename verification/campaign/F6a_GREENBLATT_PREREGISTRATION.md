@@ -1371,3 +1371,192 @@ byte-identical copies of this file exist across the tree; the pin names one.
 
 **Amended 2026-08-25 by a cfd `lab-lane` at the cfd supervisor's direction.
 PRE-COMPUTE. ZERO SOLVER COMPUTE. The frozen body above is untouched.**
+
+---
+
+## ADDENDUM 2 — 2026-08-25 — **RULING 1 (cfd supervisor).** A SECOND run root is registered for attempt 2. The §9.1 registration stands verbatim. NOTHING IS DELETED.
+
+**Document version 1.1 → 1.2.**
+**Lines whose number changed above this section: 0.** *(Append-only; the frozen body
+above the `FROZEN-BODY-ENDS-HERE` marker is untouched and still hashes to
+`9989f1f9…`. Amendment 1 is likewise untouched.)*
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** Gates P1 and P2,
+their bands `[0.63175, 0.69825]` and `[1.045, 1.155]`, Gate M's ≤ 70° / ≤ 4, the
+plateau clauses (P-a)–(P-d), the 30 core-min cap, the ±5 % model-form tolerance and
+every `REPORTED — NOT A GATE` label stand **verbatim and unchanged**.
+
+### A2.0 What happened, in one line
+
+**ATTEMPT 1 returned `BLOCKED`.** Gate M `PASS` (40.5495° / 0.743352, reproducing §5.2
+exactly), then §6.3's smoke test aborted the campaign on a `FOAM FATAL`. **The graded
+solver never started.** Full record: `verification/runs/F6a_GREENBLATT_runs/baseline_Re936k/result.json`,
+committed `fbe99573`.
+
+> **AND THE SENTENCE THE SUPERVISOR REQUIRED IN THE RECORD VERBATIM:**
+>
+> **THE SMOKE TEST DID NOT TEST THE CASE.** It crashed on an empty dictionary of its
+> own making — the launcher's `open(p,"w")` truncated the file before reading it.
+> **No conclusion about the case's dictionary completeness may be drawn from attempt 1
+> in either direction, and the VMFL045 failure class remains UNTESTED here.**
+>
+> **If anyone later reads attempt 1 as evidence that the case is sound, that reading is
+> wrong, and this record forbids it.**
+
+### A2.1 THE RULING
+
+> **PRESERVE THE ATTEMPT-1 TREE. REGISTER A SECOND, DIFFERENTLY-NAMED RUN ROOT FOR
+> ATTEMPT 2. DELETE NOTHING. RENAME NOTHING.**
+>
+> **REGISTERED FOR ATTEMPT 2:**
+> `/home/ubuntu/Certonomous/verification/runs/F6a_GREENBLATT_runs/attempt2_Re936k`
+> — **verified ABSENT by `test -e` in the amending invocation**, and to be re-verified
+> by `test -e` **in the launching invocation**.
+>
+> **STILL REGISTERED AND STILL MUST NOT EXIST:**
+> `/home/ubuntu/certonomous-runs/f6a-greenblatt-baseline`.
+>
+> **§9.1's ORIGINAL REGISTRATION AND ITS "BOTH VERIFIED ABSENT" ASSERTION STAND
+> VERBATIM** as the historical record that the case was unfired at freeze. The new root
+> is added **beside** them, never in place of them.
+
+**Both options the lane was offered were refused, and the reasons are recorded because
+they generalise:**
+
+* **Deleting the tree: REFUSED OUTRIGHT.** It carries the Gate M measurement and the
+  launcher-defect evidence. **You do not delete a measurement to make room for a nicer
+  one.** ansys-verification refused exactly this on VMFL051 and cfd upheld them; cfd
+  does not now do the thing it praised them for refusing.
+* **Renaming or repurposing the §9.1 path: REFUSED.** That assertion is the historical
+  record that the case was unfired at freeze, and **it stays true by staying untouched.**
+
+### A2.2 WHY THIS IS LEGAL — and the reasoning does not rest on §2d being unengaged
+
+1. **A run directory is NONE of rule 2's four protected items.** It is not a gate, a
+   threshold, a cap or a label. **Even read as post-compute**, rule 2 permits a dated
+   addendum that alters none of the four, and this one alters none.
+2. **THE HAZARD §9.2 EXISTS TO PREVENT IS NOT PRESENT HERE, AND THIS IS THE DECISIVE
+   POINT.** §9.2 guards against **re-running until you like the answer**.
+   **NO GRADED QUANTITY EXISTS.** The graded solver never started: there is no `x_r/c`,
+   no `x_s/c`, no `Cf`, no crossing and no coefficient — **nothing that could make a
+   re-launch answer-directed, because there is no answer.**
+3. **AND THAT WAS SHOWN, NOT ASSERTED.** The preserved tree was enumerated exhaustively
+   before this addendum was written:
+
+   | probe | result |
+   |---|---|
+   | time directories beyond `0/` | **NONE** |
+   | `processor*` directories | **0** — decomposition never ran |
+   | solver logs | **NONE** (`log.checkMesh` only) |
+   | `postProcessing/`, `*.raw`, `gate_result*`, `cf_xc*`, `cp_xc*`, `*.dat`, coefficients | **NONE** |
+   | `0/` vs the shipped case | **byte-identical** (`diff -rq` clean) |
+   | files written by the attempt | **3** — `log.checkMesh`, `result.json`, `system/controlDict` (the §3.1 (P-c) sampling install) |
+
+   *(The one `wallValues` path in the tree is `system/wallValues` — the shipped
+   function-object DICTIONARY, an INPUT, not output.)*
+
+   **Total: 46 files, all of them inputs, one mesh-quality log, and this lane's own
+   record. No graded quantity of any kind.**
+4. **EXACTLY ONE BEHAVIOURAL CHANGE BETWEEN ATTEMPT 1 AND ATTEMPT 2** — the VMFL051-R2
+   discipline. Auditable by `git diff 3017eb4c HEAD -- scripts/run_f6a_greenblatt.py`:
+   * **the `open(p,"w")` truncation bug**, replaced by `rewrite_file()`, which reads
+     fully and refuses to write empty content. **This is the only logic change.**
+   * *(mandated by this addendum)* the launcher's registered run root, per §A2.1.
+   * *(documentation only, zero behavioural diff)* one stale sentence in
+     `rewrite_file`'s docstring said the selftest *"greps the source"* — true of the
+     control's first form, false of the AST walk that replaced it. **Corrected rather
+     than left standing, because a knowingly false sentence in code is worse than an
+     extra line in a diff.**
+   * **`scripts/f6a_greenblatt_gate.py` is BYTE-IDENTICAL to attempt 1** — verified by
+     blob comparison, not by inspection.
+
+**WHAT IS EXPLICITLY NOT RELIED UPON, recorded as raised and unused.** §6.3's smoke-test
+solver ran in a scratch directory **outside every registered path**, which is an
+argument that rule 2's post-compute clause was never engaged at all. **This ruling
+deliberately does NOT rest on that**, because the attempt-1 run root **does** now exist
+and that is the fact §9.2 keys on. **The ruling stands on grounds 1 and 2, which hold
+either way. If verification later rules the post-compute clause engaged, this
+disposition is unaffected.**
+
+### A2.3 The preserved tree is now an EXECUTABLE assertion, not a promise
+
+> The launcher **asserts that
+> `verification/runs/F6a_GREENBLATT_runs/baseline_Re936k` STILL EXISTS** and refuses to
+> launch attempt 2 if it does not.
+>
+> **"Do not delete the evidence" is thereby a check the code performs rather than a
+> discipline the lane remembers.** Attempt 2 cannot run on a tree where attempt 1's
+> proof has been cleared away.
+
+---
+
+## ADDENDUM 3 — 2026-08-25 — **RULING 2 (cfd supervisor).** §3.1 (P-a) GOVERNS; §9.4's endTime equality is read as the legitimate termination time.
+
+**Document version 1.2 → 1.3. Lines whose number changed above this section: 0.**
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** Every band, the
+30 core-min cap and every label stand verbatim.
+
+### A3.1 The contradiction, stated in the frozen text's own terms
+
+| clause | requires |
+|---|---|
+| **§3.1 (P-a)** | `SIMPLE solution converged in N iterations` with **N < the endTime cap**. Reaching the cap is **not** convergence. |
+| **§9.4** (importing `CLAUDE.md` rule 4) | **last time == `endTime`** |
+
+**Against the controlDict literal `endTime 2000`, a run converging at 1772 CANNOT
+SATISFY BOTH.** C-45 converged at 1772. **The frozen text cannot be satisfied on both
+readings at once**, and the conflict surfaced twice unresolved before it was ruled.
+
+### A3.2 THE RULING
+
+> **§3.1 (P-a) GOVERNS. §9.4's endTime limb is read as *"last time == the time at which
+> the run LEGITIMATELY TERMINATED"*, which for a `residualControl` run is its
+> CONVERGENCE ITERATION.**
+>
+> **This is the SUPERVISOR'S INTERPRETATION and is marked as such so it can be
+> overturned.** Both readings are disclosed here and the comparator prints both into
+> every record it writes.
+
+**The reasoning, with the second point deciding it:**
+
+1. **Rule 4's endTime equality exists to catch a run that DIED EARLY**, and its real
+   discriminators are `rc = 0`, the `End` line, field presence and the age guard — **all
+   of which a converged run satisfies.** The clause was written for fixed-`endTime`
+   thermal runs and imported here without noticing that this case terminates on a
+   **criterion** instead.
+2. **THE LITERAL READING MAKES §3.1 (P-a) UNSATISFIABLE — AND WORSE, IT INVERTS BOTH
+   CLAUSES: a CONVERGED run would FAIL, while a run that burned to the cap without
+   converging would PASS.** That is precisely what (P-a) refuses. **A reading that makes
+   a sibling frozen clause unsatisfiable, and that admits exactly what that sibling
+   rejects, is the wrong reading.**
+3. **IT IS VERDICT-NEUTRAL, AND THAT WAS CHECKED BEFORE RULING RATHER THAN AFTER.** The
+   forecast is `GATE FAIL` at **+13.918 %**. This resolution decides whether the run can
+   be **graded at all**; it does not move the verdict toward `PASS`. **Had it favoured a
+   `PASS`, the supervisor's stated position is that he would have REFERRED it rather
+   than ruled it.**
+
+### A3.3 The mechanism, which is a solver fact and not a grading choice
+
+On convergence `simpleControl::loop()` calls `runTime.writeAndEnd()`, which **sets the
+run's endTime to the current time**. The run's **effective** endTime therefore IS the
+converged iteration, and *last time == endTime* holds against it. **(P-a) independently
+gates that the termination was a genuine `residualControl` trip and not a cap hit**, so
+nothing is loosened by reading it this way — and a control asserts the reconciliation
+**cannot launder a cap-hit into a convergence**: on a run that reached 2000 the effective
+endTime is 2000 and **(P-a) still refuses it.**
+
+### A3.4 THE UNDERLYING DEFECT, named plainly — it is about the CLAUSE, not only this document
+
+> **`CLAUDE.md` rule 4's completion clause ASSUMES A FIXED-`endTime` RUN AND DOES NOT
+> FIT A CRITERION-TERMINATED ONE.** Any campaign whose solver stops on `residualControl`
+> inherits this contradiction the moment it also gates on convergence.
+>
+> **The next pre-registration in this family should register its completion rule in
+> terms of LEGITIMATE TERMINATION rather than importing the endTime equality
+> unexamined.** That is a finding about the clause and is recorded as one. **Retiring or
+> rewording a `CLAUDE.md` rule is not cfd's to do** — it is noted here and referred.
+
+**Amended 2026-08-25 by a cfd `lab-lane` on the cfd supervisor's two rulings.
+PRE-LAUNCH for attempt 2. The frozen body and Amendment 1 are untouched.
+SUBMISSIONS PARKED.**

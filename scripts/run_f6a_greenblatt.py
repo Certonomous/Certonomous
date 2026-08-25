@@ -35,12 +35,28 @@ import f6a_greenblatt_gate as G   # noqa: E402
 REPO = G.REPO
 
 # ---- FROZEN, transcribed with section numbers -----------------------------
-RUN_ROOTS = (                                                          # ss9.1
-    "/home/ubuntu/Certonomous/verification/runs/F6a_GREENBLATT_runs",
+# ---- ATTEMPT 2, under ADDENDUM 2 (supervisor's Ruling 1) -------------------
+# Attempt 1 returned BLOCKED: Gate M PASSED, then the ss6.3 smoke test aborted the
+# campaign on a FOAM FATAL caused by THIS FILE's open(p,"w") truncation bug. The
+# graded solver never started and NO GRADED QUANTITY EXISTS -- verified by exhaustive
+# enumeration of the preserved tree, which is the premise Addendum 2 rests on.
+#
+# The attempt-1 tree is PRESERVED. It is not deleted and the ss9.1 path is not renamed:
+# that registration is the historical record that the case was unfired at freeze, and it
+# stays true by staying untouched. Addendum 2 registers a SECOND root BESIDE it.
+ATTEMPT = 2
+RUN_CASE = ("/home/ubuntu/Certonomous/verification/runs/F6a_GREENBLATT_runs/"
+            "attempt2_Re936k")                                    # ADDENDUM 2 / ss11
+RUN_ROOTS = (                                                     # ADDENDUM 2 / ss9.1
+    RUN_CASE,
     "/home/ubuntu/certonomous-runs/f6a-greenblatt-baseline",
 )
-RUN_CASE = ("/home/ubuntu/Certonomous/verification/runs/F6a_GREENBLATT_runs/"
-            "baseline_Re936k")                                         # ss11
+# ADDENDUM 2 sect. A2.3: "do not delete the evidence" is an EXECUTABLE ASSERTION here,
+# not a discipline the lane remembers. Attempt 2 REFUSES to run on a tree where
+# attempt 1's proof has been cleared away.
+PRESERVED_ATTEMPT1 = ("/home/ubuntu/Certonomous/verification/runs/F6a_GREENBLATT_runs/"
+                      "baseline_Re936k")
+PRESERVED_ATTEMPT1_EVIDENCE = ("result.json", "log.checkMesh")
 SOURCE_CASE = "cases/dafoam/f6a_nasa_hump/case"                        # ss6.1
 PRISTINE = ("0", "constant", "system", "caseDef", "fieldDef")          # ss6.1 -- inputs ONLY
 
@@ -68,6 +84,24 @@ def solver_timeout_s(cap_core_min=CAP_CORE_MIN, ranks=RANKS, reserve=MESH_RESERV
         raise ValueError("mesh reserve %ss exhausts the cap's %ss wall budget"
                          % (reserve, total))
     return total, t
+
+
+def assert_attempt1_preserved(path=None, evidence=None):
+    """ADDENDUM 2 sect. A2.3. The attempt-1 tree carries the Gate M measurement and the
+    launcher-defect evidence. You do not delete a measurement to make room for a nicer
+    one -- so attempt 2 refuses to start if that tree, or the evidence inside it, is
+    gone."""
+    path = PRESERVED_ATTEMPT1 if path is None else path
+    evidence = PRESERVED_ATTEMPT1_EVIDENCE if evidence is None else evidence
+    if not os.path.isdir(path):
+        raise G.Refusal("ADDENDUM 2: attempt 1's PRESERVED tree is missing: %s. It "
+                        "carries the Gate M measurement and the launcher-defect "
+                        "evidence. REFUSING to run attempt 2 on a cleared tree." % path)
+    missing = [f for f in evidence if not os.path.exists(os.path.join(path, f))]
+    if missing:
+        raise G.Refusal("ADDENDUM 2: attempt 1's evidence has been removed from %s: %s. "
+                        "REFUSING." % (path, missing))
+    return {"preserved": path, "evidence_present": list(evidence)}
 
 
 def freeze_condition(roots=None):
@@ -163,7 +197,10 @@ def rewrite_file(path, transform):
     case's system/controlDict to 0 bytes and produced a FOAM FATAL IO ERROR --
     "problem while reading header for object controlDict ... at line 1" -- which looked
     exactly like a case defect and was not one. Every rewrite in this file goes through
-    here, and the selftest greps the source for the truncating form.
+    here, and the selftest walks the AST of this file and the comparator asserting ZERO
+    truncating call sites. (An earlier form of that control was a REGEX and it matched
+    THIS DOCSTRING describing the bug: a scan that cannot tell code from prose about
+    code is not a scan.)
     """
     with open(path) as fh:
         text = fh.read()
@@ -227,7 +264,9 @@ def main(argv=None):
     if a.show_frozen:
         total, t = solver_timeout_s()
         print("LAUNCHER FROZEN CONSTANTS")
-        print("  ss9.1 run roots that must NOT exist:")
+        print("  ATTEMPT %d (ADDENDUM 2). Preserved attempt-1 tree that MUST exist:" % ATTEMPT)
+        print("        %s" % PRESERVED_ATTEMPT1)
+        print("  ss9.1 + ADDENDUM 2 run roots that must NOT exist:")
         for d in RUN_ROOTS:
             print("        %s" % d)
         print("  ss11  graded run case: %s" % RUN_CASE)
@@ -247,6 +286,10 @@ def main(argv=None):
         G.assert_pinned(a.repo)
         report["pins"] = {"extractor_sha256": G.EXTRACTOR_SHA256,
                           "preregistration_sha256": G.PREREG_SHA256}
+
+        # ---- ADDENDUM 2 sect. A2.3: attempt 1's evidence must still be there ----
+        report["attempt"] = ATTEMPT
+        report["preservation"] = assert_attempt1_preserved()
 
         # ---- ss9.1 / ss9.2 freeze condition, IN THIS INVOCATION ----
         ok, present = freeze_condition()
