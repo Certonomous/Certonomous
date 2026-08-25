@@ -462,3 +462,200 @@ private-index protocol; this file was committed that way and named only itself.*
 
 *Forensics by a heat-transfer lane, 2026-08-25, against HEAD `ed726454`.
 Zero compute. Nothing sent — submissions remain PARKED (standing rule 7).*
+
+---
+
+# ADDENDUM — 2026-08-25, LATER THE SAME DAY: THE MISSING HALF OF THE INSTRUMENT IS BUILT
+
+**Author:** the same heat-transfer lane, on the supervisor's ruling that K0d
+does not fire on RIGOR (not cost) while `analyse_k0d.py` does not exist.
+**Compute: zero core-minutes.** No solver fired. `build_k0d.py` was **not**
+pointed at the registered run tree.
+`verification/runs/F14-cooling-ladder/K0d_runs` **re-checked ABSENT after every
+step of this work**, including after each selftest.
+
+**This addendum records forensics and construction. It assigns no verdict to the
+rung — that is the supervisor's, after the personal diff read.**
+
+## A1. WHAT WAS BUILT
+
+| script | path | lines | `--selftest` |
+| --- | --- | ---: | --- |
+| **`analyse_k0d.py`** | `/home/ubuntu/Certonomous/scripts/analyse_k0d.py` | **1 751** | **PASSED, 68 checks** |
+| `build_k0d.py` | `/home/ubuntu/Certonomous/scripts/build_k0d.py` | 985 | **PASSED, 39 checks** |
+| `check_k0d_mesh.py` | `/home/ubuntu/Certonomous/scripts/check_k0d_mesh.py` | 770 | **PASSED, 41 checks** |
+| `mark_done_k0d.py` | `/home/ubuntu/Certonomous/scripts/mark_done_k0d.py` | 396 | **PASSED, 15 checks** |
+
+`scripts/check_grader_self_blindness.py` over all four: **exit 0**, each
+*"clean on both probes (NOT a proof of correctness)"* — the tool's own caveat,
+carried unsoftened. Its own `--selftest` was run first (exit 0) so its clean
+verdicts are not unplanted zeros.
+
+## A2. THE THREE REGISTERED PLANTS, AND THE CHANNEL THEY PLANT INTO
+
+Implemented as `K0d_REREGISTRATION.md` §7.4 adopts them from the superseded
+§8.1 — **not to this lane's own design.**
+
+| plant | line | what it does | refusal |
+| --- | ---: | --- | ---: |
+| **P1** | `run_planted_controls` at **382** | `PLANT_T = 1.234e-03` K (**110**) into a **copy** of `M1_f/<endTime>/T` **by line index** (`plant_into_scalar_copy`, **346**), read back through the production scalar reader (**301**) | exit 2 at **407** |
+| **P2** | same call | `PLANT_U = 1.234e-03` m/s (**111**) into the **x-component** of a copy of `M1_f/<endTime>/U` (`plant_into_vector_copy`, **366**), read back through the production **vector** reader (**321**) | exit 2 at **422** |
+| **P3** | same call | the **negative control**, `0.0` (**112**), which must read back **NOT DISTINGUISHABLE FROM THE BACKGROUND** | exit 2 at **450** if it fires |
+
+**THE CHANNEL IS THE POINT.** Each plant writes into a **field file on disk** and
+is read back through **the same reader that produces the graded number** — not
+into a spec, a dict or a constants table. That is why the comparator performs
+its own extraction from mesh + fields rather than reading `.xy` files written by
+a separate utility: if the graded number came from a file some other program
+wrote, a plant into the field would exercise a reader the graded path never
+calls, which is the `AMENDMENT 2` §A2.3 defect one layer up. **The reading is
+disclosed in the module docstring and flagged for the diff read**; it introduces
+no free parameter, since every extraction number (`cellPoint`/`cell`, 2081
+points, 5.000e-04 m, the two mid-plane lines) is registered in §A1.3a.
+
+**Proved, not asserted:** the selftest plants into a field holding **twelve
+identical values** and asserts **exactly one** changed — a plant by regex over
+the value would have hit all twelve.
+
+**The standing consequence** (`zero_is_supported`, **465**): a graded row
+returning **exactly zero** is `NOT A RESULT` unless P1/P2 demonstrated a
+non-zero **on the same reader in the same invocation**.
+
+## A3. ROACHE TRIPLE GATING, IN THE STANDING-RULE-5 ORDER
+
+`classify_triple` **658**, `observed_order` **679** (the **unequal-ratio**
+fixed point, `r21 = 1.400000` vs `r32 = 1.401786` — this rung does not pretend
+they are equal), `gci_fine` **708** at `Fs = 1.25`, `roache` **721**.
+
+**A GCI IS NEVER QUOTED WHEN THE THREE VALUES ARE NOT MONOTONE, and that is
+enforced in `roache()` at line 729 — not left to the caller.** The selftest
+recovers a **planted `p = 2.0` to within 1e-3** from the fixed point.
+
+The ladder is `row_verdict` (**967**) and runs in the registered order: level
+not converged → triple not `CONVERGING` → guard/`y⁺` → no primary → band.
+**The direction of the gate is enforced by `gate_is_monotone` (962) and proved
+by the selftest**: `PASS`/`GATE FAIL` may become `NOT A RESULT`; **`NOT A
+RESULT` may never become `PASS` or `GATE FAIL`, and `BLOCKED` may never become
+`PASS`.**
+
+A **profile row takes the most severe of its thirteen station triples** — a
+single `DIVERGENT` station makes the row `NOT A RESULT`. That **tightens and
+cannot loosen**, and is disclosed as a reading.
+
+## A4. THE SELFTEST WOULD ACTUALLY FAIL — TEN MUTATIONS, TEN CAUGHT
+
+A green selftest that exercises the wrong channel is worse than none (the K0d
+condition-C lesson). So the selftest was **mutation-tested**: ten defects were
+injected one at a time into a copy and the selftest re-run.
+
+**All ten were CAUGHT (`SELFTEST FAILED`):** P1 refusal removed; P2 refusal
+removed; P3 negative-control refusal removed; the `DIVERGENT` branch disabled;
+GCI quoted on non-monotone triples; station `0.25` dropped (back to eleven);
+the ten-marker refusal removed; the ordering assertion removed; band
+widening/anti-widening disabled; the unsupported-zero rule removed.
+`__pycache__` was cleared first — a stale one inverts mutation tests.
+
+68 checks, each a positive that must stay quiet **and** a negative that must
+fire, including: nine-of-ten markers refused; a field/mesh length mismatch
+refused; a **compressed** field refused (§A2.1a/§A2.1c register ascii and
+`writeCompression off`); a missing `endTime−4000` checkpoint reported NOT
+CONVERGED rather than assumed converged.
+
+## A5. CONDITION C — ALREADY REPAIRED IN THE WORKTREE, AND VERIFIED HERE
+
+The supervisor's brief described `condition_C(None, LEVELS[lo], None,
+LEVELS[hi])`. **That is the HEAD form. The uncommitted worktree copy already
+carried the repair**, written by the lane that died at 20:45Z. It was
+**verified, not assumed**:
+
+`block_cells_from_mesh` (**225**) counts each block from the mesh with the same
+`_count_between` helper condition B uses; `condition_C` (**239**) **raises rather
+than falling back to `LEVELS` when a mesh is missing** (**251**) — the fallback
+*was* the defect; `condition_C_spec` (**271**) keeps the registered-table check
+**labelled as not a check on the mesh**; `synthetic_mesh` (**387**) grows a
+`redistribute` plant that moves cells out of block B.
+
+**The assertion that proves the hole is closed fires:** *"REPAIRED CONDITION C
+REFUSES a 20-cell block redistribution THAT A AND B BOTH LET THROUGH"*, with A
+and B both shown quiet on the same synthetic mesh, and the control confirmed to
+genuinely under-resolve block B (38 752 vs 43 232 cells). All six §A2.3c repair
+items are satisfied, including item 5 — a single-level invocation says condition
+C was not evaluated.
+
+## A6. A LIVE DEFECT FOUND IN `build_k0d.py`, AND IT NEARLY COST THE ABSENCE PROOF
+
+**`build_k0d.py --selftest` was FAILING one check when this work began.** The
+diagnosis matters more than the fix:
+
+**1. The check was STALE.** It asserted the builder refuses because a
+registration gap is unresolved. `AMENDMENT 2` §A2.1a–d **resolved all four
+gaps** (`writeFormat ascii`, `writePrecision 16`, `writeCompression off`,
+`domain_thickness_t 0.010 m`), so that refusal no longer fires. **A check that
+can no longer pass is not a check.**
+
+**2. The check was DANGEROUS, and this is the finding.** It invoked the **real
+builder** against a **real fixed path**, `/tmp/should_never_be_written`, and
+asserted nothing was written there. **With the gaps closed the builder DID write
+there — all ten case directories, measured and then removed.**
+
+> **HAD THAT FIXED PATH BEEN THE REGISTERED RUN TREE, THE SELFTEST ITSELF WOULD
+> HAVE CREATED `K0d_runs/` AND DESTROYED THE PRE-COMPUTE ABSENCE PROOF THAT
+> EVERY AMENDMENT'S LEGALITY RESTS ON.**
+
+**The repair** (`gap_tmp` probe, **826**), in the same shape as the §A2.3
+lesson — **plant into the real channel, never into a spec**: a copy of the
+script is written with **one gap re-opened to `None`** and *that copy* is run, so
+the refusal produced is the real refusal path on the real code. Every root is a
+**fresh tempdir**; **no fixed path is passed as `--root` anywhere in the
+selftest**, and that is itself asserted (**874**).
+
+A **positive counterpart** was added: with all four gaps closed the builder
+**does** build into a tempdir — which is what proves the refusal check is a
+control and not a tautology, **and it is the measurement that answers the
+question the forensics left open: `build_k0d.py`'s refusal IS cleared.**
+
+**One mistake made here is recorded rather than smoothed over** (**845**): the
+first version of this probe appended the mutation to the end of the file, *after*
+`sys.exit(main())`, where it never executed — the probe reported a pass while
+proving nothing. It is now injected before the `__main__` block, and the
+injection point is asserted.
+
+**The stale success banner was also corrected** (**969**). It claimed *"main()
+REFUSES while any registration gap is unresolved"*, which is no longer true.
+**An instrument may not assert something false about itself** (§A2.3c item 4).
+It now states plainly that **given `--root`, the script writes ten case
+directories**, and must not be pointed at the registered run tree before the
+fire order.
+
+## A7. WHAT THIS LANE COULD NOT VERIFY
+
+1. **No K0d field has ever been read.** Every reader, plant, guard and triple in
+   `analyse_k0d.py` was exercised against **synthetic** fields and meshes built
+   by its own selftest. **Nothing here is evidence about the real rung**, only
+   about the instrument.
+2. **The extraction reading is a reading.** §A1.3a's `setFormat raw` names
+   OpenFOAM `sample` parameters; this comparator implements the registered
+   semantics itself, for the reason in §A2. **If the supervisor rules that the
+   graded number must come from `postProcess`, the plants must move with it** —
+   and this lane does not amend a frozen registration to suit its own code.
+3. **`build_k0d.py` was never pointed at the registered run tree**, so that it
+   produces a *correct* case there is unverified — only that it no longer
+   refuses, and that it writes into a tempdir.
+4. **`analyse_k0d.py` has never been hashed against a committed blob**, because
+   until this commit there was none. It prints its own blob sha1 and accepts
+   `--expect-sha` so the freeze check becomes possible from the output.
+5. **The supervisor's §3 check-1 diff read has NOT been performed** and is not
+   recorded as performed. It is undelegatable and is the supervisor's.
+
+## A8. STATUS
+
+**`PENDING`** — the instrument is built and green; the rung has not run and this
+lane assigns it no verdict. The blockers this forensics named in §11 are
+addressed: `analyse_k0d.py` now exists, and all four scripts are committed in
+one commit so the freeze binds on a true assertion rather than on a registration
+naming a grading path that does not exist.
+
+**The fire order remains the supervisor's, after the personal diff read.**
+
+*Addendum by a heat-transfer lane, 2026-08-25. Zero core-minutes. Nothing sent —
+submissions remain PARKED (standing rule 7).*
