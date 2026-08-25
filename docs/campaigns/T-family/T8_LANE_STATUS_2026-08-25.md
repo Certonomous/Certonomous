@@ -628,3 +628,111 @@ level-m crash is mesh-related or setup-related (triage is not mine); and
 whether `(49f₁ − 9f₂)/40` is right for the **flat-sided** wedge — I derived it
 for the exact annular centroid ratio, and the 0.1 % flat-sided correction on
 the radii themselves has **not** been carried through that derivation.
+
+---
+
+# APPENDIX 3 — the `m` configuration diff: the setup hypothesis is REFUTED (2026-08-25)
+
+Ruling 2 named a hypothesis with a mechanism: a **level-specific initialisation
+or boundary error in `m`** — the defect class the builder audit (B7–B11) showed
+the instruments cannot see. **It was tested and it is refuted.** No compute.
+
+## 1. Method
+
+Every file in `0.orig/`, `constant/` and `system/` compared **by md5 across all
+three levels**, `polyMesh` excluded (it is generated from `blockMeshDict`).
+
+## 2. Result — identical everywhere it could have differed
+
+| file | c vs m vs f |
+|---|---|
+| `0.orig/T`, `U`, `alphat`, `epsilon`, `k`, `nut`, `p_rgh` | **IDENTICAL (all 7)** |
+| `constant/g`, `transportProperties`, `turbulenceProperties` | **IDENTICAL (all 3)** |
+| `system/fvSchemes` | **IDENTICAL** |
+| `system/fvSolution` | **IDENTICAL** |
+| `system/controlDict` | differs |
+| `system/blockMeshDict` | differs |
+
+Both differences are **registered per-level values and nothing else**:
+
+- **`controlDict`** — the *complete* diff is `endTime` (8000 / 12000 / 20000)
+  and `writeInterval` (800 / 1200 / 2000). Both are §5 registered values. **No
+  other line differs**, in either comparison.
+- **`blockMeshDict`** — normalising every `hex … (NR NZ 1)` division triple
+  gives **md5 `edd58933141d4cf6abecc1ef160b40e9` for all three levels**.
+  Identical vertices, identical boundary block, identical patch names and
+  **types**, identical `simpleGrading (1 1 1)`. The only differences are the
+  division counts, each exactly doubled: `(4,12,16,8)×160` →
+  `(8,24,32,16)×320` → `(16,48,64,32)×640`.
+
+**There is no level-specific initialisation, boundary type, scheme, relaxation
+or transport difference in `m`. The hypothesis is refuted.**
+
+This does **not** retract the builder audit: B7–B11 remain genuinely invisible
+to every instrument T8 has. It says that **this particular blind spot is not
+what happened to `m`** — which is exactly what a discriminating measurement is
+for, and it came out negative.
+
+## 3. What the crash actually looks like, measured
+
+With the setup identical, the divergence is **numerical**. All three levels
+enter the same `k`–`epsilon` startup transient; only `m` fails to leave it.
+
+| level | cells | `bounding epsilon` | `bounding k` | steps | rate | outcome |
+|---|---:|---:|---:|---:|---:|---|
+| c | 6,400 | 305 | 232 | 8,000 | **3.8 %** | contained, max stays **O(5e-2)**; `T` residual **7.32e-04** |
+| m | 25,600 | 419 | 360 | 1,085 | **38.6 %** | **escalates to 4.6e+64, SIGFPE** |
+| f | 102,400 | 103 | 51 | 1,224 | **8.4 %** | contained, max **O(1e6)**; `T` residual **5.11e-06** |
+
+- **`epsilon` goes negative on every level from the very start** — `m`'s first
+  bounding is at **`Time = 24`**, at a benign `min −5.8e-07, max 0.070`.
+- `m`'s escalation once established is roughly **seven orders per iteration**:
+  `5.1e+03 → 7.0e+11 → 1.7e+43 → 4.6e+64`, terminating in SIGFPE inside
+  `PBiCGStab::scalarSolve` from `libincompressibleTurbulenceModels`.
+- **The bounding rate is non-monotone in resolution** — 3.8 % / 38.6 % / 8.4 %.
+  Supervisor's reading confirmed: **the finest mesh is the healthy one.**
+- `T` never bounds on any level. **The turbulence closure diverged; the
+  momentum and thermal fields did not.**
+
+**Mechanism candidate, named and NOT asserted:** `fvSolution` is identical
+across levels and applies **fixed relaxation with no ramp** (`p_rgh 0.3`;
+`U`, `T`, `k`, `epsilon` 0.5), and the case carries **no `epsilon` limiter or
+`limitT` fvOption**. An un-damped `k`–`epsilon` startup transient escaping at
+one resolution and not others is consistent with that, but this lane has **not
+measured it** and does not claim it. **Triage remains the supervisor's.**
+
+## 4. Verdict on this appendix
+
+**`m` is `NOT A RESULT`** (supervisor's ruling 2), and the crash is a
+**finding about the case setup's numerics**, recorded as one.
+
+**`f` runs for DIAGNOSTIC value and CANNOT be graded.** §12 S3's weights are
+wrong under this pre-registration and nothing may be adjusted to reach a
+verdict. **`f` reaching `endTime` is not a result and must never be recorded as
+one.** At last check `f` was alive at `Time = 1225` with `T` initial residual
+**5.11e-06** and still inside its 30,000 s cap.
+
+**`BLOCKED` stands, on two independent grounds** — the extrapolation
+precondition (§2.1) and rule 5 order (1), under which no triple was ever
+gradeable because `c` never converged and `m` wrote no fields.
+
+## 5. The re-registration draft
+
+Drafted at
+**`/home/ubuntu/Certonomous/docs/campaigns/T-family/T8_REREGISTRATION_DRAFT_2026-08-25.md`**
+— **DRAFT, NOT A REGISTRATION, NOT FROZEN, no rung id claimed.** It carries the
+disk-read weights (`w1 = k²/(k²−1)`, `w2 = −1/(k²−1)` from radii read off
+disk, asserting `r₂ > r₁ > 0` and never a ratio), the annular-centroid fixture,
+the third-ratio selftest arm, and a proposed read-back control for the
+initialisation and boundary constants that closes four of the five surviving
+builder mutations.
+
+**One general result fell out of writing it, and it strengthens A1.3:** since
+`w1 + w2 = 1` identically **for every `k`**, the both-column plant shifts the
+axis value by exactly `PLANT` **at any ratio whatsoever**. The registered §9
+arm is therefore **blind to a weight error in general** — not merely to the
+`(7f₁−f₂)/6` case that exposed it. **The innermost-only arm must be registered
+as load-bearing, not carried as supplementary.**
+
+**Authorisation to re-register is Sanaa's and the chief's. This lane drafted
+and did not register.**
