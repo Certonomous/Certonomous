@@ -251,3 +251,110 @@ re-derived by hand from the tail at the committing invocation.
 4. **A ruling on the `P`-column reading** if §202's open question should change the
    declared ceiling. It must be made **before** compute; after first compute the
    label is closed.
+
+---
+
+# APPENDED 2026-08-25 — THE GRADED RUN IS LAUNCHED (run lane, `ansys-lane-opus`)
+
+Appended, never rewritten: **lines whose number changed above this section: 0.**
+
+## 6. WHAT I VERIFIED BEFORE THE SOLVER STARTED
+
+- **Every one of the 18 tracked VMFL007 blobs is byte-identical disk-to-HEAD**
+  (`git rev-parse HEAD:<path>` against `git hash-object <path>`), including
+  `PREREGISTRATION.md` `76adce6a…`, `grade_vmfl007.py` `9a72721…` and
+  `run_vmfl007.sh` `71d26af…`.
+- **The freeze is real and is separate.** `48f7a9bf930fbd06bf23ba4b6469754f879cb74e`,
+  committed 2026-08-25T16:51:56Z, `1 file changed, 755 insertions` — it touches
+  `PREREGISTRATION.md` and nothing else.
+- **`verification/runs/ansys_verification/VMFL007/` did not exist** at launch. Zero
+  graded compute preceded the freeze.
+- The launcher's own gates then re-proved this from inside: `--verify-frozen`
+  matched the frozen comparator blob, `--selftest` came back clean, the four
+  `transportProperties` coefficient asserts held (`k = 0.01`, `n = 0.4`,
+  `nuMin = 1e-08`, `nuMax = 1.0`), the Stokes laminar model was confirmed and
+  `generalizedNewtonian` was confirmed **not** selected, and the pre-flight smoke
+  passed on 625 cells in a `/tmp` scratch directory outside the runs tree.
+
+## 7. THE LAUNCH
+
+| | |
+|---|---|
+| launcher pid | **2241096** (session leader; `setsid`, detached — it does not die with this lane) |
+| run root | `verification/runs/ansys_verification/VMFL007/` |
+| freeze named on the command line | `48f7a9bf930fbd06bf23ba4b6469754f879cb74e` |
+| levels | `L1_25x25`, `L2_50x50`, `L3_100x100`, serial and sequential, `endTime` 10000 |
+| cap | **60 core-minutes** = 3600 s at 1 rank |
+| estimate | **15 core-minutes** (`PREREGISTRATION.md:579`) |
+| derived dollars at the cap | **$0.0513** at $0.0513/core-h — **derived, never measured** |
+
+## 8. THE COST CAP IS ENFORCED AT OS LEVEL, AND WHY THAT WAS NECESSARY
+
+`PREREGISTRATION.md:580` names the cap as **60 core-minutes** and describes it as
+"enforced by `timeout 3600` per level in the launcher". **Those two statements do
+not agree.** `timeout 3600` applied to each of three sequential levels admits
+**180 core-minutes**, three times the cap. The frozen script is not edited
+(rule 6); instead `verification/runs/ansys_verification/VMFL007/cap_watchdog.sh`
+was armed as a detached OS process against the launcher's session. **It can only
+stop the run** — it never extends a budget, never edits a frozen file and never
+touches a value. On expiry it writes `CAP_STOP.txt` and signals every pid in the
+session. This is CLAUDE.md rule 12 applied literally: *an overrun stops the run;
+it does not get a new budget.*
+
+**Disclosure:** the first arming at 16:57Z captured the transient pid of `setsid`
+rather than the launcher's, so it saw a dead pid and exited within seconds; it
+would also have signalled one process group only, killing the launcher shell and
+**leaving `simpleFoam` running**. Corrected and re-armed at 16:58Z against session
+leader 2241096, signalling every pid in the session. Recorded here rather than
+quietly fixed.
+
+## 9. A MEASURED PROJECTION THAT THE RUN WILL HIT THE CAP
+
+From `L1_25x25`'s own log at 116 s of solver time: **4884 iterations of 625 cells
+= 26 315 cell-iterations/s** under the contention recorded in §10. The three levels
+total 1.3125 × 10^8 cell-iterations, so the projected total is **≈ 4990 s ≈ 83
+core-minutes — 1.4× the 60 core-minute cap and 5.5× the 15 core-minute estimate.**
+
+This is a **projection from a measured rate, not a measurement**, and it is stated
+before the fact rather than after. `system/fvSolution` sets no `residualControl`,
+so no level can converge out early; every level runs its full 10 000 iterations.
+**If the projection holds, the watchdog stops the run inside `L3_100x100` and the
+honest outcome is a capped run, not a completed one.** That is the rule working,
+not a failure of it — but the supervisor should know now, because the cap is
+frozen and cannot be raised after compute.
+
+## 10. CONTENTION, STATED — A CALIBRATION ROW THAT DOES NOT SAY WHAT ELSE WAS RUNNING IS NOT A CALIBRATION
+
+At launch, `verification/runs/ansys_verification/VMFL007/CONTENTION.txt` records
+loadavg **9.45 / 8.40 / 5.90 on 16 cores** with a **peer `ansys-verification` job
+resident: the VMFL003-M2 four-arm ladder, launcher pid 2218904**, its own
+`simpleFoam` at 99.9 % of one core. The box was **not** quiet.
+
+`contention_sampler.sh` is armed as a detached OS process (pid 2241095) on
+`L3_100x100/log.simpleFoam` at **simulation time 5000 of 10000** — the midpoint by
+simulation time, not by wall-clock guess. It writes its own sample and records the
+sim time at which it actually fired; if the run ends first it records **MISSED**
+rather than reconstructing a sample. Nothing here depends on this lane being alive.
+
+## 11. WHAT IS **NOT DONE**, PLAINLY
+
+The run was launched at 16:57Z and needs roughly an hour. **This lane's turn ends
+before it finishes**, and a task must never depend on an agent being alive at a
+future instant. Therefore, **NOT DONE and owed to a successor lane**:
+
+1. **Grading** — `python3 cases/ansys_verification/VMFL007/grade_vmfl007.py`, run
+   once, its output recorded **verbatim**. Running the comparator is not issuing a
+   verdict; the verdict is the instrument's.
+2. **The register row**, the **`docs/COST_CALIBRATION.md` row** (estimate 15
+   core-min vs actual, the ratio, and the attribution split between **contention**
+   — §10 names the peer job — and **misprediction**, with waste named separately
+   and never absorbed into the ratio), and the **three parent aggregates**
+   (credential tally, CASE_MAP fraction, glance table).
+3. Every id in those records **derived by hand inside the committing shell
+   invocation**, reading the tail with human eyes. `scripts/append_record.py` is
+   **prohibited** here: it reads a maximum of 317 where the true maximum is 320.
+
+**I did not grade, and I did not tier.** The tier is the supervisor's; the declared
+ceiling is `GATE REACHED`, which on this case is a success condition and not a
+shortfall, because the reference is the closed-form power-law pipe solution and an
+analytic reference scores V and never P.
