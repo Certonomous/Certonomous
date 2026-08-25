@@ -478,7 +478,45 @@ def blockmesh_dict(level, thickness):
 # 0/ field files -- superseded A5.5, per closure
 # ==========================================================================
 def _fmt(v):
-    return v if isinstance(v, str) else f"uniform {v:.10g}"
+    """Format a field value as OpenFOAM requires.
+
+    REPAIRED 2026-08-25, SECOND MEASURED FAILURE OF THE SAME CLASS.  This used
+    to be `return v if isinstance(v, str) else ...`, which passed a STRING
+    THROUGH RAW.  The registered kOmegaSST / RNGkEpsilon / laminar seeds carry
+    U as the string "(0 0 0)", so 0/U went out as
+
+        internalField   (0 0 0);
+
+    with NO `uniform` keyword, and the solver refused every case with
+
+        --> FOAM FATAL IO ERROR: Expected keyword 'uniform' or 'nonuniform',
+            found on line 9: punctuation '('   (file: 0/U/internalField)
+
+    The BOUNDARY entries were unaffected because they spell "uniform (...)"
+    out in full -- so, exactly as with the missing FoamFile headers, one half
+    of the file was right and the broken half had nothing checking it.
+
+    A string that ALREADY declares uniform/nonuniform is passed through; a bare
+    literal gets the keyword it needs.
+
+    THE FIRST VERSION OF THIS REPAIR WAS ITSELF WRONG, and the solver arm below
+    caught it rather than a launch: the registered wall entries carry the
+    OpenFOAM MACRO string "$internalField", which already expands to
+    `uniform <value>`.  Prepending the keyword produced
+
+        value           uniform $internalField;   ->   uniform uniform 0.00125
+
+    and the solver refused 0/k with "Wrong token type - expected scalar value,
+    found word 'uniform'".  A `$` macro is therefore passed through with the
+    other two forms.  Recorded rather than quietly corrected, because it is the
+    same failure mode twice in one function: assuming what a string means
+    instead of checking what OpenFOAM does with it."""
+    if not isinstance(v, str):
+        return f"uniform {v:.10g}"
+    s = v.strip()
+    if s.startswith("uniform") or s.startswith("nonuniform") or s.startswith("$"):
+        return s
+    return f"uniform {s}"
 
 
 def field_file(name, dims, internal, boundary):
@@ -981,6 +1019,48 @@ def selftest():
                    "blockMesh FAILS -- so the arm above was shown able to "
                    "fire and is not a probe that passes on anything",
                    r4.returncode != 0, f"rc={r4.returncode}")
+
+            # --------------------------------------------------------------
+            # THE SOLVER ARM.  blockMesh READS system/ AND constant/ AND NEVER
+            # LOOKS AT 0/.  The blockMesh arm above therefore passed while
+            # 0/U was still unreadable -- `internalField (0 0 0);` with no
+            # `uniform` keyword -- and the solver refused every case on launch.
+            # ONE READABILITY ARM WAS NOT ENOUGH BECAUSE IT EXERCISED ONLY THE
+            # CHANNEL IT HAPPENED TO TOUCH.  This arm runs THE REAL SOLVER,
+            # which is the only program that reads every 0/ field, for a
+            # couple of iterations against a shortened endTime.
+            cd_path = os.path.join(bm_case, "system", "controlDict")
+            cd_txt = open(cd_path).read()
+            open(cd_path, "w").write(
+                cd_txt.replace("endTime         40000;", "endTime         2;")
+                      .replace("writeInterval   4000;", "writeInterval   2;"))
+            r5 = subprocess.run(
+                ["bash", "-c",
+                 f"source {foam_bashrc} >/dev/null 2>&1 && "
+                 f"buoyantBoussinesqSimpleFoam -case {bm_case}"],
+                capture_output=True, text=True)
+            reached = "Time = 1" in r5.stdout
+            check_("THE REAL SOLVER READS EVERY 0/ FIELD THIS BUILDER WRITES: "
+                   "buoyantBoussinesqSimpleFoam runs two iterations and "
+                   "reaches a Time line.  blockMesh NEVER READS 0/, which is "
+                   "why the arm above passed while 0/U was unreadable",
+                   r5.returncode == 0 and reached,
+                   f"rc={r5.returncode}, reached Time=1: {reached}")
+            # NEGATIVE half: put 0/U back into the broken form and require the
+            # solver to refuse it.
+            up = os.path.join(bm_case, "0", "U")
+            open(up, "w").write(open(up).read().replace(
+                "internalField   uniform (0 0 0);",
+                "internalField   (0 0 0);"))
+            r6 = subprocess.run(
+                ["bash", "-c",
+                 f"source {foam_bashrc} >/dev/null 2>&1 && "
+                 f"buoyantBoussinesqSimpleFoam -case {bm_case}"],
+                capture_output=True, text=True)
+            check_("NEGATIVE: with 0/U's `uniform` keyword REMOVED the solver "
+                   "REFUSES -- so the solver arm was shown able to fire on the "
+                   "exact defect that reached the launch",
+                   r6.returncode != 0, f"rc={r6.returncode}")
     finally:
         shutil.rmtree(gap_tmp, ignore_errors=True)
 
