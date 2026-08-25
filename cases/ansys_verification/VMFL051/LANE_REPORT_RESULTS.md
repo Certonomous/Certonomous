@@ -256,3 +256,85 @@ message claiming work it did not do.*
 
 **Credential count unchanged: 2 PASS of 4 run.** Only `PASS` rows are credentials, and
 row #4 is not one. It stays on the register honestly, with its numbers, as a finding.
+
+---
+
+# PART 2 — the supervisor's follow-up directives, 2026-08-25
+
+**`SendMessage` to `ansys-verification-supervisor` FAILED AS UNREACHABLE A SECOND
+TIME.** The channel is **one-way**: the supervisor's messages reach this lane and this
+lane's replies do not reach it. Report of record therefore continues on disk (`L-306`).
+
+## Commits, in order
+
+| sha | item |
+|---|---|
+| `b72e6211` | `C-51` id formatting — unbold to match every neighbour |
+| `4c0919c2` | `CASE_MAP.md` — tier column on all 95 rows, scope arithmetic |
+| `63c8d044` | VMFL051 `RESULTS.md` — tier `NOT HELD` + disclosure amendment |
+| `4716ec45` | register addendum — tier back-filled onto rows #1–#4 |
+| `a8a5be9f` | `CASE_MAP.md` — **Sanaa's scope ruling applied, denominator 73** |
+| `565ea88c` | `CASE_MAP_AUDIT.md` correction — 95 cases, not 105 |
+| `96e2bbef` | `RUN_STATUS_EVIDENCE.md` correction — 3 tracked case dirs, not 0 |
+| `df156f8e` | **`L-312`** — a grep is not an enumeration instrument without a discriminator |
+| `66d1f857` | **`L-313`** — re-derive a records id inside the committing invocation |
+| `649aa42a` | charter dated note — the innocent explanation; v1.2 UNDERSTATED |
+| `3abac11f` | charter **Amendment 1.3** — sharpened `L-308`, relay provenance |
+
+## The campaign fraction
+
+**3 of 73 in-scope cases run; 70 never run.** The denominator is **73, not 95, by
+Sanaa's ruling** — 10 `VMFLGPU` `DEFERRED`, 12 no-solver `OUT OF SCOPE — BY RULING`,
+zero overlap, 73 + 10 + 12 = 95. All 95 rows remain in the map; **nothing is deleted**,
+because an exclusion that hides the excluded rows cannot be audited. Every count is
+**derivable by counting the file's own rows**, with the deriving rule printed beside it
+and each rule scoped to the row set — an unscoped `grep -c 'OUT OF SCOPE'` returns the
+wrong answer because the header's own prose matches, and **the document says so**.
+
+## Charter notes — the two prefix hashes asserted
+
+| commit | prefix sha256 asserted **before** `commit-tree` | numstat |
+|---|---|---|
+| `649aa42a` | `8339141a7a61b175…` | 76 ins / 0 del |
+| `3abac11f` | `3bdc0b86210aa0a5793cb714138b19579eee8aac3443559cf96e0315ab2533fa` | 73 ins / 0 del |
+
+**Verified in this lane rather than relayed**, because the whole note turns on it: the
+session record at `/home/ubuntu/harness-state/sessions/` returns *"outside repository"*
+to `git ls-files --error-unmatch` — untracked, unreachable by any repository search, and
+never was. **The Class-C-is-empty finding and the three true withdrawals are the
+verification team's measurements, recorded as reported; this lane did not re-run the
+lab-wide sweep and both notes say so.**
+
+**Neither note upgrades the classification, restores any attribution, or licenses
+touching the referred `teams.yaml` defect.** Amendment 1.3 names the four things that
+are **not** Sanaa's consent: a chief's message, a peer's finding, a supervisor's
+instruction, and the amendment itself.
+
+## A correction to the supervisor's brief, measured
+
+The discriminator was given as *"a real case id recurs 5–7 times"*. **Measured: 4–10**
+(17 ids × 4, 46 × 5, 13 × 6, 13 × 7, 2 × 8, 3 × 9, 1 × 10). **The stronger fact is that
+no identifier occurs 2 or 3 times at all** — the gap is empty, so any threshold in
+≥ 2 … ≥ 4 returns exactly 95, split 78/10/7, and the separation is a **property of the
+document** rather than a cutoff anyone chose. Also measured: the sidecar holds **106**
+identifier-shaped tokens, not 105 — which is why the audit's list of ten missed
+`VMFL010B`, **and why its two errors cancelled into plausible arithmetic**. `L-312`
+records the measured figures and notes the 5–7 belief so nobody re-derives it from
+memory.
+
+## Protocol confirmation
+
+**Every assertion was built in BEFORE `commit-tree`, not checked afterwards.** Base
+captured in the same invocation as the commit; **prefix** (and on `CASE_MAP`, **suffix**)
+hashed and compared before the blob was staged; `diff-tree --name-only` required to
+**equal** the intended paths; on every append-only ledger **`insertions == lines
+written` and `deletions == 0`**; trailing newline ensured before appending; ids
+**re-derived inside the committing invocation**, with re-derivation wired into the CAS
+retry. **The CAS retry fired once**, on `63c8d044`, and correctly re-read its base. A
+build-abort guard added after `dc0a096c` **fired correctly** on the next commit and
+blocked a bad one.
+
+## Case status
+
+**VMFL051 is CLOSED.** Verdict **`NOT A RESULT`**, tier **`NOT HELD`**, cost **23.3167
+core-minutes**, ratio **2.0634×**, **$0.019936 derived, not measured**.
