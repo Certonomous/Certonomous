@@ -3950,3 +3950,86 @@ a converging-triple `PASS` is not mistaken for convergence to the exact value.
 `cases/ansys_verification/VMFL005/case/system/blockMeshDict.template` and
 `.../constant/polyMesh/boundary` (`wedge1`/`wedge2`, `type wedge`, half-angle 2.5°);
 the arithmetic in `docs/ansys_verification/COVERAGE_ROWS.md`.
+
+## N-C1. A snappyHexMesh LEVEL step is not a grid refinement — the `ahmed_25` ladder's rung 2→3 holds the background block byte-identical, and the representative `h` it reports exists nowhere in the mesh
+
+**Family note.** `N-C*` is the cfd team's numerics family, opened 2026-08-25 on the
+precedent of `N-D` (*"N-D = DAFoam-team numerics facts, opened 2026-08-21"*, above),
+so that cfd-team appends cannot collide with a concurrent closure-, thermal-,
+DAFoam- or ansys-team append. Numbers are re-derived at filing time and never
+carried in a document.
+
+Measured 2026-08-25 from the three rungs' own dictionaries and `polyMesh` notes,
+**ZERO COMPUTE** — no mesher and no solver was run to establish any figure here.
+
+| rung | `nCells` | `blockMeshDict` `blocks` | background cells | `refinementSurfaces body` | `eMesh` | `refinementRegions nearBody` | `addLayers` |
+|---|---:|---|---:|---|---:|---|---|
+| coarse | 20,621 | `(42 9 25)` | 9,450 | `level (2 3)` | 2 | `levels ((1e15 1))` | `false` |
+| medium | 45,753 | `(60 13 36)` | 28,080 | `level (2 3)` | 2 | `levels ((1e15 1))` | `false` |
+| production | 79,439 | `(60 13 36)` | 28,080 | `level (3 4)` | 3 | `levels ((1e15 2))` | `false` |
+
+**Two byte-level identities, checked with `cmp` after newline normalisation, are the
+whole finding.** The **coarse and medium `snappyHexMeshDict` are byte-identical** — the
+recipe is held fixed across gap 1. The **medium and production `blockMeshDict` are
+byte-identical**, vertices included — the background is held fixed across gap 2. Coarse
+and medium `blockMeshDict` differ on **line 26 alone**, the `hex` entry, so gap 1's
+domain box is unchanged and its background scales `(42 9 25) → (60 13 36)`, a factor
+**2.9714** in background cells (linear 1.4286 / 1.4444 / 1.4400, cube-root-equivalent
+1.4373). **One triple, two different refinement mechanisms, joined mid-ladder.**
+
+**The ratios, from the cell counts at `dim = 3`.** `r21 = (79439/45753)^(1/3) =`
+**1.2019**, `r32 = (45753/20621)^(1/3) =` **1.3043**, `|r21 − r32| = 0.1024`. **`r21` is
+below the `r ≥ 1.3` floor** — and it is below it *because* that gap spent its refinement
+on a local level step instead of on the background, which is the arithmetic tell of the
+recipe fork rather than a separate defect.
+
+**What the reported `h` means at gap 2, and this is the numerics content.**
+`h = (N_ref/N)**(1/dim)` (`scripts/roache_triple.py:200`) is a volume-average spacing,
+and it is a *spacing* only under uniform refinement. Across gap 2 the far field does not
+change at all — same 28,080-cell background, same box — while the surface layer splits
+by a factor 2 locally. The `h` the convention returns is therefore an average of two
+spacings that both exist in the mesh and **is neither of them**: no region of the
+production mesh has the spacing its ladder entry reports. Every quantity built on that
+`h` — `r`, `p`, the GCI, the Richardson extrapolate — inherits it.
+
+**And no guard in the lab sees it.** `models/curriculum/uq-studies/ahmed_25.json` fits
+this triple to `observed_order` **1.95** at `dim` 3 in an `order_window` of [0.5, 2.5],
+`monotone` true. **Four of five guards PASS** — `distinct_rungs`, `monotone`,
+`order_window`, `increment_trend`. The one failure, `extrapolation_sanity`, fires for an
+unrelated reason (`richardson_extrapolated` 0.07327589152491365 falls outside the
+measured range 0.08481–0.10099) and is not looking at the recipe. Neither is
+`scripts/roache_triple.py`, whose own docstring at `:123-127` states the limit
+explicitly: *"whether the three values came from the same case setup. It grades numbers.
+… The caller establishes similarity; this file cannot."* So the ladder's protection here
+is **accidental**: had `extrapolation_sanity` passed, a recipe-forked triple would read
+conclusive at a textbook second-order number.
+
+**Structural identity with a case the lab already named.** This is
+`VERIFICATION_CHARTER.md` §3.2's second NACA 4412 ladder — *"coarse and medium are both
+`level (2 3)` and differ only in background block density; production alone is
+`level (3 4)`"* — rung for rung, in a second family. The 35° sibling
+`models/curriculum/uq-studies/ahmed_35.json` (20,425 / 45,813 / 79,778, `r21` 1.2030,
+`r32` 1.3093, `observed_order` 3.169) carries the same shape. The NACA ladder was caught
+because `p = 10.467` blew the window; **`ahmed_25` was not caught because `p = 1.95`
+looked right**, which is the practical difference between a rule that is checkable and a
+rule that is checked. §3.2's rule 3 — *"a recipe audit precedes an order"* — has no
+mechanised checker, and its absence is what this entry prices.
+
+**The admissibility rule this registers** (lesson `L-303`): a 3-D ladder is a Roache
+ladder only if the background `blocks` tuple scales at every gap with `vertices`
+unchanged, and `refinementSurfaces` / `eMesh` / `refinementRegions` levels, `addLayers`
+and `addLayersControls` are identical across every rung. The compliance artifact is a
+per-rung **mesh birth certificate** carrying the block tuple and its product, the vertex
+hash, the full snappy level tuple, `addLayers`, `nCells` from that rung's own
+`constant/polyMesh/owner` note, and the `dim` established from its own boundary file.
+Fail the recipe clause and the ladder is **NOT A RESULT**, not a caveated value.
+
+Source: `mission-output/geometry-study/study-ahmed_25/case/system/{blockMeshDict,snappyHexMeshDict}`;
+`mission-output/ahmed-body/act7-ahmed_25/case/system/{blockMeshDict,snappyHexMeshDict}`;
+`/home/ubuntu/certonomous-runs/study-ahmed_25-coarse-40aacb/system/` and its
+`constant/polyMesh/owner` note (`nCells:20621`; outside git per `docs/LOCATIONS.md`);
+`mission-output/*/log.checkMesh:39` (45,753 and 79,439);
+`models/curriculum/uq-studies/ahmed_25.json`, `.../ahmed_35.json`;
+`verification/campaign/AHMED_BODY_RECONCILIATION.md`;
+`verification/campaign/3D_CAMPAIGN_CASE_SELECTION_MEMO.md` §2.3–§2.4;
+`scripts/roache_triple.py:123-127`, `:200`; `docs/charters/VERIFICATION_CHARTER.md` §3.2.

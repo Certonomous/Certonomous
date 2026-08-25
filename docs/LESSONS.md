@@ -11279,3 +11279,144 @@ four defective gates, and the probe-station and symmetry measurements);
 `startFace 9115`, 47 unique nodes — the source of the 17.513 mm and 6-of-47 figures);
 `cases/dafoam/MATRIX_CONTRIBUTION.md` §4 (the printed census command, the `TOTAL 58`
 -versus-51 disagreement, and the five field-shifted rows).
+
+## L-303. A 3-D ladder that steps a snappyHexMesh refinement LEVEL between rungs has changed the experiment, not the mesh spacing — the background block is scaled and the recipe is held FIXED, or it is not a Roache ladder
+
+*2026-08-25. Paid for by the Ahmed-body `ahmed_25` grid ladder, which has been carried
+as a three-rung ladder, was fitted to `observed_order` **1.95** — monotone, inside the
+0.5–2.5 window, plausible — and is not a geometrically similar family at all. Read from
+the three rungs' own dictionaries, not from any summary of them. ZERO COMPUTE.*
+
+**What the dictionaries say.** Three rungs, three archived cases, and two DIFFERENT
+kinds of refinement inside one triple:
+
+| rung | cells | `blockMeshDict` block | background cells | `refinementSurfaces body` | `eMesh` level | `refinementRegions nearBody` |
+|---|---:|---|---:|---|---:|---|
+| coarse | 20,621 | `hex (0 1 2 3 4 5 6 7) (42 9 25) simpleGrading (1 1 1)` | 9,450 | `level (2 3)` | 2 | `levels ((1e15 1))` |
+| medium | 45,753 | `hex (0 1 2 3 4 5 6 7) (60 13 36) simpleGrading (1 1 1)` | 28,080 | `level (2 3)` | 2 | `levels ((1e15 1))` |
+| production | 79,439 | `hex (0 1 2 3 4 5 6 7) (60 13 36) simpleGrading (1 1 1)` | 28,080 | **`level (3 4)`** | **3** | **`levels ((1e15 2))`** |
+
+Two byte-level facts settle it, and both were checked rather than eyeballed:
+the **coarse and medium `snappyHexMeshDict` are byte-identical** (after newline
+normalisation — the `mission-output` copy is CRLF, the archived copy LF), and the
+**medium and production `blockMeshDict` are byte-identical**, including the eight
+vertices, so the background box is the same box at the same density. Coarse and medium
+differ on **line 26 alone** — the hex block — so their domain is identical too.
+`addLayers false` on all four Ahmed meshes on this box, so no prism-layer stack is
+absorbing any of the difference.
+
+So: **rung 1 → 2 is a legitimate background scaling with the recipe held fixed.
+Rung 2 → 3 is a pure recipe change with the background held fixed.** One triple,
+two experiments. The fit runs straight through the join.
+
+**Why this defeats every downstream check, in four steps.**
+
+1. **A snappy level refines only near the wetted surface.** Between medium and
+   production the far field does not change at all: same 28,080-cell background, same
+   box. The three meshes are not a geometrically similar family, and geometric
+   similarity is the premise of the whole Roache construction — not a nicety on top
+   of it.
+
+2. **It defeats the representative-`h` convention silently.** `h = (N_ref/N)**(1/dim)`
+   — `scripts/roache_triple.py:200`, and the same convention in every GCI in the
+   literature — is an average that is only a *spacing* when refinement is uniform.
+   Applied to a locally-refined step it returns an `h` that **no region of the mesh
+   actually has**: the far field is coarser than the reported `h` and the surface
+   layer is finer, and the number sits between two spacings that both exist and is
+   neither of them.
+
+3. **The instrument cannot see it, and says so in its own docstring.**
+   `scripts/roache_triple.py:123-127`: *"whether the three values came from the same
+   case setup. It grades numbers. A ladder that changed a scheme, a model or a mesh
+   RECIPE between levels will be graded as if it had not … The caller establishes
+   similarity; this file cannot."* The triple can come back `CONVERGING` with a
+   textbook order and be `VERIFICATION_CHARTER.md` §3.2's **slope fitted across a
+   change of experiment**.
+
+4. **A level step is not a ratio `r` at all.** Each snappy level is a factor-2 LOCAL
+   split. It is not a smooth global ratio, so the ladder is neither equal-ratio nor a
+   similar family, and the unequal-ratio fixed point that would otherwise rescue an
+   unequal ladder is being fed a `r` that does not describe what changed.
+
+**The stored order is the demonstration.** `models/curriculum/uq-studies/ahmed_25.json`
+carries `observed_order` **1.95**, `dim` 3, `order_window` [0.5, 2.5], `monotone` true.
+Four of its five guards **PASS** — `distinct_rungs`, `monotone`, `order_window`,
+`increment_trend`. The one that fails is `extrapolation_sanity`, which fails for an
+unrelated reason (the Richardson value falls outside the measured range) and would not
+have caught this. **Not one guard in the set is looking at the recipe.** Had
+`extrapolation_sanity` happened to pass, this ladder would read conclusive at a
+beautiful second-order number.
+
+**And the ratios were already outside the floor, from the same cell counts.**
+`r21 = (79439/45753)^(1/3) = 1.2019`, below the **r ≥ 1.3** floor the unequal form
+wants; `r32 = (45753/20621)^(1/3) = 1.3043`. The gap `|r21 − r32| = 0.1024` is the
+arithmetic shadow of the recipe fork — the rung that changed the recipe instead of the
+background is exactly the rung that failed to buy a refinement ratio.
+
+**This is not a new pathology. It is `VERIFICATION_CHARTER.md` §3.2's second NACA 4412
+ladder, structure for structure, in a second family.** That entry reads: *"coarse and
+medium are both `level (2 3)` and differ only in background block density; production
+alone is `level (3 4)`."* Substitute `ahmed_25` for `naca4412_wing` and the sentence is
+still true. The NACA ladder was caught because its `p` came out at **10.467** and blew
+the window. **The Ahmed ladder was not caught, because its `p` came out at 1.95 and
+looked right.** §3.2's rule 3 — *"a recipe audit precedes an order"* — was written as
+checkable and left unmechanised, and this is what an unmechanised rule costs.
+
+---
+
+**THE RULE, stated so a future lane can apply it without judgement.**
+
+> **A 3-D mesh ladder is not admissible as a Roache ladder unless the BACKGROUND mesh is
+> scaled between every pair of adjacent rungs and the refinement recipe is otherwise held
+> FIXED.** A ladder that changes a snappy refinement level — `refinementSurfaces
+> <patch> level (n m)`, a feature `eMesh level`, or a `refinementRegions levels` entry —
+> between two rungs has changed the experiment at that rung, and no fit across that join
+> is a discretization order.
+
+Mechanically, before any order is fitted, for each adjacent pair:
+
+1. **The background changed.** The `blocks` entry's `(nx ny nz)` product is strictly
+   larger on the finer rung, and its `vertices` are unchanged. Scale all three
+   directions; a one-direction bump is not a 3-D refinement.
+2. **The recipe did not.** `refinementSurfaces` levels, feature `eMesh` levels,
+   `refinementRegions` levels, `addLayers` and `addLayersControls` are **identical**
+   across every rung. The cheapest sufficient check is a normalised `cmp` of the
+   `snappyHexMeshDict` with the background-independent fields compared byte for byte.
+3. **Then, and only then,** form `r` from the cell counts and check `r ≥ 1.3` at every
+   gap. A ratio computed across a recipe fork is a number about nothing.
+
+Fail any of (1) or (2) and the correct label is **NOT A RESULT** on the ladder, not a
+caveat under a value — the ladder was never in the vocabulary's `CONVERGING` branch to
+begin with.
+
+**What proves compliance, and it is an artifact, not an assertion:** a **mesh birth
+certificate** stored with the ladder, carrying per rung the `blockMeshDict` block tuple
+and its product, the vertex list hash, the full snappy level tuple
+(`refinementSurfaces` / `eMesh` / `refinementRegions`), `addLayers`, the resulting
+`nCells` read from that rung's own `constant/polyMesh/owner` note, and the `dim`
+established from that rung's own boundary file. A ladder whose rungs cannot produce
+that table has not established similarity, and per `roache_triple.py`'s own docstring
+the instrument will not establish it for them.
+
+**Honest scope, and one figure corrected in the writing.** The finding reached this
+lane framed as *"the background `blockMesh` is IDENTICAL on every rung."* **That is not
+reproducible and is not what the dictionaries say.** It is true for medium → production
+and false for coarse → medium, whose background goes `(42 9 25)` → `(60 13 36)`, a
+factor 2.971 in background cells. The corrected form is stronger, not weaker: the ladder
+does not merely refine the wrong way throughout, it **mixes** a valid refinement step
+and an invalid one inside one triple, which is why it survived inspection — the first
+gap looks exactly like what a ladder should look like. The three-row table above matches
+the one already drawn in `verification/campaign/3D_CAMPAIGN_CASE_SELECTION_MEMO.md` §2.3;
+that memo is where the defect was first written down, and this lesson is what generalises
+it off the Ahmed body.
+
+*Artifacts:* `mission-output/geometry-study/study-ahmed_25/case/system/{blockMeshDict,snappyHexMeshDict}`
+(medium, lines 26 / 39 / 44 / 54); `mission-output/ahmed-body/act7-ahmed_25/case/system/{blockMeshDict,snappyHexMeshDict}`
+(production, same lines); `/home/ubuntu/certonomous-runs/study-ahmed_25-coarse-40aacb/system/`
+(coarse — outside git, per `docs/LOCATIONS.md`) with `nCells:20621` in its own
+`constant/polyMesh/owner` note; `mission-output/*/log.checkMesh:39` reading 45,753 and
+79,439; `models/curriculum/uq-studies/ahmed_25.json` (`observed_order` 1.95, the guard
+map); `verification/campaign/AHMED_BODY_RECONCILIATION.md` (the level 2-vs-3 fork,
+recorded there while the rungs are called one ladder); `verification/campaign/3D_CAMPAIGN_CASE_SELECTION_MEMO.md`
+§2.3–§2.4; `scripts/roache_triple.py:123-127` and `:200`;
+`docs/charters/VERIFICATION_CHARTER.md` §3.2.
