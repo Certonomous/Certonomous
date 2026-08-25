@@ -886,3 +886,140 @@ supervisor-directed **ZERO-COMPUTE** task. No solver was launched, no mesh was
 built and no case directory was created in producing it. Every line number and
 every value above was read from the named blob by this lane. The wall-clock
 finding is `ansys-verification`'s and is cited as theirs.*
+
+---
+
+## LAUNCHER ADDENDUM — 2026-08-25 (POST-COMPUTE)
+
+**Document version 1.3 (CAP-ENFORCEMENT ADDENDUM, 2026-08-25) -> 1.4.**
+**Lines whose number changed above this section: 0.** This addendum is
+INSERTIONS ONLY, appended at the foot. Verified by diff against the immediately
+preceding blob: 0 deletions, and every line above this heading byte-identical.
+
+**This addendum alters NO gate, NO threshold, NO cap and NO label.** Admission
+gate A (`<= 70` degrees, `<= 4` skewness), admission gate B, Gates 1, 2, 3 and 4
+and their thresholds (0.08, 0.04, 0.020 chord, 5 %, 20 %), the CM-reported-not-
+gated clause, the overall PASS rule, the §5 caps (120 / 160 / 700 / 160 / 160,
+total 1,300 core-min), the three cell counts, both conditions, the two further
+medium runs and all four predictions stand **exactly as frozen 2026-07-30**.
+
+### 1. Why this addendum is legal, and what it is
+
+**It is post-compute and it says so.** Rung 1 fired on 2026-08-25 (`cd1ac21a`),
+so `VERIFICATION_CHARTER.md` §2d is **live**. The pre-compute grounds that
+carried the earlier `REFERENCE_DIR` repair — that F12 had never run — **have
+expired and are not cited here.**
+
+**The authority is the owner's, and it is explicit.** Sanaa's instruction of
+2026-08-25: *"Build a fresh three-level mesh ladder that passes the admission
+gate at every level … mesh instrument replaced, gate unchanged. Then run
+RAE 2822 / AGARD Case 9 against the unchanged criteria."* **Replacing the mesh
+instrument after first compute is an owner ruling and only she can make it.**
+Her approval is of the new ladder against unchanged criteria and **nothing
+wider** (standing rule 9); this addendum takes nothing beyond it.
+
+**What this addendum discloses is a LAUNCHER, not a grading path.** The
+replacement ladder cannot be fired by `run_case`, which writes
+`system/blockMeshDict` from `sdk/workflows/rae2822_case9.py`'s own
+`blockmesh_dict` and offers hooks for spacings only, never topology. A launcher
+that can write the new dictionary is **instrumental to what was authorised, not
+an expansion of it.**
+
+**And there is an independent reason the old path cannot fire a gate run at
+all:** `run_case` writes `method scotch;` into `decomposeParDict`
+(`sdk/workflows/rae2822_case9.py`, the `ranks > 1` branch), which is
+non-compliant with the parallel-gate doctrine ratified 2026-08-25. It also runs
+the solver in the foreground under a subprocess timeout, with no `setsid` and
+**no `rc` written to disk**, so standing rule 4's `rc` limb cannot be measured
+through it — only inferred, which rule 4 forbids.
+
+### 2. How "launcher, not grading path" is ENFORCED and not merely asserted
+
+The launcher is `verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/`
+`launch_f12_rung.py`. It does not contain, and may not contain, any code that
+turns a solve into a number. Every graded quantity is produced by calling the
+**unchanged** frozen functions, and the launcher **asserts their bytes at run
+time and fails closed**:
+
+1. `sdk/workflows/rae2822_case9.py` is hashed whole against its pinned committed
+   blob. Any difference is an ABORT before anything is written.
+2. Every downstream grading function is hashed **individually**, by
+   `inspect.getsource`, against a sha256 pinned in the launcher — across all
+   three modules the grading path spans (`rae2822_case9`, `tmr_verification`,
+   `chief_engineer.head_engineer`). A function-level pin survives an unrelated
+   edit elsewhere in a shared file and still fails closed if a graded function
+   changes.
+3. The launcher **contains no comparator of its own.** `mesh_gate`,
+   `solver_converged`, `split_surfaces`, `shock_location`, `cp_deviation`,
+   `final_coefficient`, `parse_force_split` and `parse_coefficient_history` are
+   imported and called, never reimplemented.
+4. The only substitution is `system/blockMeshDict`, overwritten from the
+   **committed** attempt-2 dictionary and asserted sha256-equal to its blob
+   before the mesh is built. The assertion fails closed.
+
+**The single mesh substitution is the entire delta.** Fields, thermophysical and
+turbulence properties, `fvSchemes`, `fvSolution` and `controlDict` — including
+the `forceCoeffs1`, `surfaceP`, `yPlus` and `MachNo` function objects that
+produce every graded quantity — are written by the frozen `build_case`,
+unchanged and byte-asserted.
+
+### 3. Run directories registered by name, and asserted ABSENT before launch
+
+Attempt 1 fired into `verification/runs/F12_runs/coarse_workshop_M0.734_a2.79/`,
+which **exists** and is preserved undeleted and unrenamed. Standing rule 4's
+guard refuses a case where `0` or a time directory already exists, so attempt 2
+uses new directories, registered here:
+
+| # | rung | run directory (under `verification/runs/F12_runs/`) | cap |
+| --- | --- | --- | --- |
+| 1 | coarse, workshop | `attempt2_coarse_workshop_M0.734_a2.79` | **120 core-min** |
+| 2 | medium, workshop | `attempt2_medium_workshop_M0.734_a2.79` | **160 core-min** |
+| 3 | fine, workshop | `attempt2_fine_workshop_M0.734_a2.79` | **700 core-min** |
+| 4 | medium, tape | `attempt2_medium_tape_M0.730_a2.79` | **160 core-min** |
+| 5 | medium, 2x far-field | `attempt2_medium_farfield2x_M0.734_a2.79` | **160 core-min** |
+
+The caps are the §5 caps **verbatim**; this table converts nothing and relaxes
+nothing. The launcher asserts the target directory ABSENT by `os.path.exists` in
+its own invocation and aborts if it is not.
+
+### 4. `rc`, detachment and the sampler — rule 4's limbs made measurable
+
+- The solver is launched under **`setsid`**, so it is a session leader and
+  survives the launching agent. Its `rc` is captured **immediately** into a shell
+  variable, written raw to `RC.txt`, `sync`'d, and **read back from the file**.
+  A missing, empty or non-integer `RC.txt` is **REFUSED, never inferred.**
+- An **external sampler**, also detached, appends a sample every 15 s carrying
+  the UTC stamp, elapsed wall seconds, accumulated core-minutes, the cap, the
+  latest solver iteration, and **`loadavg` in EVERY sample** — not only at
+  launch. This team has measured that the contention allowance is **bimodal**; a
+  run that records only its launch load has measured the wrong thing.
+- **Cap breach STOPS the rung.** The sampler signals the solver's process group
+  when accumulated core-minutes exceed the frozen cap and records the stop. An
+  overrun stops the run; it does not get a new budget (standing rule 12).
+- A **resume record** is written into the run directory carrying the pid, the
+  process-group id, the case path, the cap and the stamp, so the run does not
+  depend on the agent that started it.
+
+### 5. What this addendum does NOT do
+
+**It does not authorise a launch.** The launcher is committed **UNFIRED**. Firing
+needs, separately: the cfd supervisor's personal reading of the launcher as a
+diff (`SUPERVISION_CHARTER.md` §3, check 1, which may never be delegated), and
+the supervisor's personal check that this pre-registration is committed and
+frozen before compute. No agent message authorises a launch, and this addendum is
+an agent's work product, not consent (standing rule 9).
+
+**It does not re-open `build_ladder_attempt2.py`.** That builder pins the
+**pre-addendum** blob `080303c57aee52849bb625579565a84ca5469717` and will
+therefore REFUSE to run against this file from now on. That is intended and is
+disclosed rather than repaired: the pin records the exact bytes the mesh ladder
+was graded against, and the ladder's gate-A verdict is already on record at
+`d26f5bdc`. Re-running it would require a new dated record of its own.
+
+**It does not touch the mesh verdict.** Admission gate A `PASS` at 51.1237 /
+51.5250 / 51.9261 degrees, zero faces over 70 at every level, stands on the
+record already committed and is not restated as a new claim here.
+
+*Written 2026-08-25 by a `lab-lane` worker for the cfd team, on a supervisor-
+authorised task. **No solver was launched in producing it.** The launcher it
+discloses is committed unfired.*
