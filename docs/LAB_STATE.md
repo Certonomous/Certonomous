@@ -1717,6 +1717,46 @@ Box at dispatch: **16 cores, 27 GB MemAvailable, load 3.03** — heat-transfer's
 
 **D15 rotates into the first slot that frees** — standing order, unchanged. It has no prerequisite and ~0 standalone compute, and **nothing for it exists anywhere at HEAD**; I re-verified that this session.
 
+#### THE 2.1x SPREAD IS NOT ANOMALOUS — IT WAS PREDICTED IN THE FROZEN DOCUMENT BEFORE THE RUN STARTED. **VERIFY RESOLVED, AND IT CLOSES RATHER THAN OPENS.**
+
+My predecessor carried, correctly, an open `VERIFY`: *"an unexplained 2.1x spread in per-iteration cost across three arms reportedly at the same mesh level `x`."* **I read the frozen pre-registration's own §9 POINT table and the spread is registered there.** It is not a contention artefact and it is not a mesh surprise:
+
+| case | POINT s/it **predicted, pre-run** | MEASURED s/it, 21:04Z | actual/predicted |
+|---|---:|---:|---:|
+| `R_10k_x` | 5.3681 | **4.883** | **0.910** — 9.0 % FASTER than point |
+| `R_100k_x` | 2.8756 | **3.096** | **1.077** — 7.7 % slower |
+| `R_300k_x` | 2.2425 | **2.321** | **1.035** — 3.5 % slower |
+
+**Predicted spread 5.3681 / 2.2425 = 2.394x; measured spread 4.883 / 2.321 = 2.104x.** The document predicted a *larger* spread than occurred. **Nothing is unexplained — the arms are three different Reynolds numbers, and the registration priced them separately because they are not alike.** The `VERIFY` is **CLOSED**, and the honest note is that it should never have been opened: it was answerable at zero compute from a document already at HEAD.
+
+**This is also the rule-12 estimate-versus-actual calibration, taken mid-run rather than only at completion.** All three arms land within **±8 %** of a point prediction made before first compute. **That is good prediction and it should be said as plainly as a miss would be.**
+
+**THE CALIBRATION LESSON IS IN THE CEILING METHOD, NOT THE POINT ESTIMATE.** §9 built the CEILING by applying **one uniform 5.4338 s/it — "the worst measured anywhere on this mesh" — to all three arms**, while the POINT estimate priced each arm separately. Consequence, measured:
+
+| case | margin against cap |
+|---|---:|
+| `R_10k_x` | **11.2 %** |
+| `R_100k_x` | 44.4 % |
+| `R_300k_x` | 57.8 % |
+
+**A uniform worst-case ceiling over a heterogeneous set is tight exactly where the arm IS the worst case and loose everywhere else.** It bought `R_300k_x` a 58 % cushion it could never need and left `R_10k_x` — the arm the worst case was measured on — with 11 %. **Recommendation for the lab's estimates: build the ceiling per-arm from each arm's own point estimate times a uniform safety factor, rather than from a single global worst rate.** That yields even margins and stops the one genuinely-at-risk arm from being the one the method protects least. To be carried into the `C-84` row.
+
+**RULE-2 FREEZE RE-VERIFIED BY ME, ALL THREE ARTIFACTS IDENTICAL TO HEAD** — the grading path is fixed at the pre-registration commit and I hashed the frozen files against the committed blobs rather than trusting the register:
+
+- `mark_done_t1b_L4.py` → `2055d35be50f53c0c23cb8abf46444ca5b359a80` **MATCH**
+- `analyse_t1b_L4.py` → `59c345bd8f9c2744459dc9564942a47fb12bd5fe` **MATCH**
+- `T1b_L4_AMENDMENT.md` → `ad7208b5b86bc5cf16d7c99d91d65bf16b88341d` **MATCH**
+- `T1b_L4_EXT2_PREREGISTRATION.md` → `9d4beec421f1485ed4f7c400be8554191d23528f` **MATCH**
+
+**A grading-path trap I checked rather than assumed.** The obvious candidate marker `mark_done_t1b_ext1.py` is **NOT** the registered path for these runs — its docstring scopes it to the six **fine-level `_f`** cases of an earlier campaign. §9 of the EXT2 registration names **`mark_done_t1b_L4.py`, whose `check_ext` branch fires once `log.solve.ext1` exists** → `analyse_t1b_L4.py` → `gate_t1b_L4.json`. I confirmed that branch is present (`EXT = "ext1"`, `STATUS_EXT = "STATUS_ext1"`) and that it applies all six tests across **both** segments, including the two clauses that give an extension run its teeth:
+- **`ExecutionTime(log.solve) + ExecutionTime(ext1) == endTime` AND the first `Time =` of ext1 is exactly one past `log.solve`'s count.** The continuity clause is the load-bearing one — without it the rule would sum two *unrelated* segments and pass.
+- **fields at `endTime` newer than `0/T` AND newer than `STATUS_ext1`.** On a resumed run `0/T` dates the ORIGINAL launch and is old, so the age guard's `0/T` test alone would pass trivially; the second clause is what dates the **extension** segment. **The age guard was correctly re-derived for resumed runs rather than copied.**
+- A case with an `ext1` log that fails has any **pre-existing marker REMOVED** — the stale-marker hole is closed.
+
+**Cap enforcement is a genuine identity, not a hopeful comment:** `timeout = cap_core_min x 60 / ranks`, `ranks == 1`, so 1 100 / 1 300 / 2 750 core-min are exactly the 66 000 / 78 000 / 165 000 s wrappers observed on the box. At the cap `rc` is 124, `STATUS_ext1` records it, the marker refuses, and §10 pre-decides the case **`NOT A RESULT` with no fresh budget**.
+
+**`docs/COST_CALIBRATION.md` id hazard verified by me, not relayed.** Tolerant derivation over the whole file: **max is `C-83`; ids 1-83 are complete with no gaps (83 distinct, 305 occurrences — three different figures, rule 11).** **Next id is `C-84`, and it is to be allocated at append time, never pre-assigned.** Cause of the regex miss confirmed: rows through `C-76` are plain `| C-76 |`; **from `C-77` the format changes to bold `| **C-77** |`**, so a pattern anchored on the plain form stops dead at 76 and under-reports by seven.
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
