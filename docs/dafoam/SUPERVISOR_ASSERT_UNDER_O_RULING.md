@@ -195,3 +195,96 @@ with its unit count intact.** **Nothing in the output changes and nothing is the
 L-332's counterfeit evidence is at least visible to a reader who looks; **this is invisible to
 one who does.** Its repair under §4 is required before D12-proper re-fires, and it is already
 ordered into the re-registration.
+
+---
+
+# AMENDMENT 2 (2026-08-25, appended at the foot; **lines whose number changed above this section: 0**)
+
+## A2.1 — THE CONTAINER GAP WAS REAL IN MY MEASUREMENT. IT IS NOW CLOSED, AND THE ANSWER DID NOT MOVE.
+
+**§2 claimed the producer side was measured. It was measured badly, and the challenge was right
+to push on it.** My earlier check ran `--entrypoint bash`, **which BYPASSES the image's own
+ENTRYPOINT — so it could not have answered the entrypoint question at all** — and it tested
+`dafoam/opt-packages:latest`, **the SHIPPED-row image, while D4, D7 and D9 run on
+`dafoam-idwarp-rot:v1`, the PATCHED row.** *I measured the wrong image with a method that
+skipped the thing being asked about, and reported it as a producer-side clearance.*
+
+**Re-measured properly across every image this family uses:**
+
+| image | ENTRYPOINT | CMD | `PYTHONOPTIMIZE` in `Config.Env` |
+|---|---|---|---|
+| **`dafoam-idwarp-rot:v1`** (PATCHED row) | **null** | null | **absent** |
+| `dafoam/opt-packages:latest` (SHIPPED row) | **null** | null | **absent** |
+| `dafoam-team:v1` | **null** | null | **absent** |
+| `dafoam-subpclu:v2` | **null** | null | **absent** |
+| `dafoam-subpclu:v1` | **null** | `["sleep","infinity"]` | **absent** |
+| `dafoam-kspopts:v1` | **null** | `["sleep","infinity"]` | **absent** |
+
+**`ENTRYPOINT` is null on ALL SIX, so no entrypoint can pass `-O`.** **No dafoam launcher passes
+`python -O` or sets `PYTHONOPTIMIZE` in any container command line** (`git grep` over
+`cases/dafoam`, empty). And the decisive runtime check, **on the PATCHED-row image with its
+entrypoint NOT bypassed: `PYTHONOPTIMIZE=UNSET`, `__debug__ = True`.**
+
+**THE EXPOSURE IS LATENT, NOT LIVE, ON BOTH HOST AND PRODUCER.** **The challenge was correct
+that my bound had a gap; the gap is closed and the conclusion is unchanged — and those are two
+separate facts that must not be collapsed into "I was already right."**
+
+## A2.2 — THE BUILD-GUARD CLASS IS NOT HYPOTHETICAL HERE. IT IS `D4-DEF-4`.
+
+The extension is that build-time guards **produce wrong INPUTS rather than wrong verdicts**, so
+**a flag-proof grader grades the wrong artifact correctly.**
+
+**This family does not need to reason about that class in the abstract: IT HAS A MEASURED
+INSTANCE FROM TODAY.** `D4-DEF-4` was a **producer** defect — the endpoint extracted in
+driver-scaled units and applied as physical — and **every count-, plant- and order-based control
+downstream PASSED on it.** Had `shape`'s scaler been 1.0 rather than 10, arm F would have
+returned a complete, well-formed FD table **at a design point that is not the optimum.**
+
+**A STRIPPED BUILD GUARD IS `D4-DEF-4` WITH A DIFFERENT CAUSE AND THE SAME SIGNATURE.** The
+grader is not the defence and never was.
+
+**Producer census, HEAD blobs, 59 producers matched — 5 carry asserts (9 total):**
+
+| asserts | producer |
+|---|---|
+| 3 | `ladder-a/A1/curriculum_D13/d13_opt_runScript.py` |
+| 2 | `ladder-a/A6/curriculum_D8/d8_gen_arm.py` |
+| 2 | `f6d_random_matrix_uq/build_ensemble.py` |
+| 1 | `ladder-b/S1_work/scripts/build_ref.py` |
+| 1 | `ladder-a/A1/curriculum_D2/d1_opt_runScript.py` |
+
+**`d13_opt_runScript.py` and `d1_opt_runScript.py` RUN INSIDE THE DAFoam IMAGE.** They are
+precisely the class named. **Latent, because `__debug__` is true everywhere measured — and to
+be repaired before either re-fires, not after.**
+
+**`d4_extract_endpoint.py` carries ZERO asserts** — the file at the centre of `D4-DEF-4` was
+never exposed to this hazard. **Its defect was units, not a stripped guard. Two independent
+ways for a producer to emit a wrong artifact, and this family has now met both.**
+
+**Both L-325 limbs fired on this enumeration:** the positive plant (`d4_extract_endpoint.py`)
+returned; **the negative plant returned nothing.** Sensitivity and specificity, per the
+refinement a lane of mine supplied today.
+
+## A2.3 — THE "CORRUPTED IN MEMORY" WORST CASE: **NOT ESTABLISHED, NOT CLEARED**
+
+The sharpest reported form is a frozen-constant **restoration** guard: under `-O` the registered
+constant is **left corrupted in memory for the rest of the process** — worse than a vanished
+check, because it is a vanished check **plus a persistent corruption.**
+
+**In dafoam, `d7_run_arm.sh` and `d12r_stage_and_run.sh` are BASH.** Bash has no `assert` and
+`-O` does not touch it; both were measured at **zero asserts**. The live question is whether any
+**in-container Python** stage overrides a registered value and restores it under an assert.
+**My pattern search found no such guard — and my pattern was crude, so I record this as NOT
+ESTABLISHED rather than as absent.** *"My grep found nothing" is the return value of two
+different situations, which is L-325 and I am not going to assert the stronger reading of my
+own weak instrument.* **Assigned to the sweep lane as a named open question.**
+
+## A2.4 — CONSEQUENCE FOR THE TWO RE-REGISTRATIONS
+
+**Both D7 and D12 are being re-cut, so this costs a paragraph each rather than an amendment.**
+Required in both: **the `-O` three-arm form on every selftest; no `assert` carrying any refusal,
+guard, control or gate, INCLUDING BUILD GUARDS IN PRODUCERS; no unconditional success `print`
+after a check; and `__debug__` asserted INSIDE the image the run actually uses, recorded in the
+ledger beside the toolchain digest** — because a producer that silently drops its own guards
+while the host-side grader stays flag-proof is the self-consistent-manifest shape, and that is
+the failure `D12` defect 1 already cost this family once.
