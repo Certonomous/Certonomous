@@ -511,3 +511,80 @@ row-level parse of this census finds **63**, with **55** classified and **8** no
 appears twice, once as *"postponed"* and once as PROFILE). **Two cases could be hiding in
 that gap.** It is recorded as open rather than rounded away; a reconciliation pass over the
 whole census is owed before any completeness claim is made from these totals.
+
+---
+
+## Batch 9 — RECONCILIATION. **The gap was MY arithmetic, not a lane's. The totals in batch 7 are WRONG and are corrected here.**
+
+I flagged a 2-case reconciliation gap in batch 8 and sent a lane to close it. The lane
+returned a **10-case** gap and a VMFL PROFILE count of **42**. **Both the lane and my batch-7
+table were wrong, in opposite directions**, so I counted the census myself, id by id, taking
+each case's **latest valid form** where it appears more than once.
+
+### The measured count (supervisor's own, each id counted ONCE)
+
+| family | ids | DISCRETE | PROFILE | EMPTY | UNCLEAR |
+|---|---|---|---|---|---|
+| VMFL | **63** | 12 | **50** | 0 | 1 |
+| VMFLGPU | **10** | 2 | **7** | **1** | 0 |
+| VMFRT | **7** | 1 | **6** | 0 | 0 |
+| **total** | **80** | **15** | **63** | **1** | **1** |
+
+### STRUCK — the batch-7 family table (this file, "THE COMPLETE MANUAL, CLASSIFIED")
+
+> ~~VMFL 51 PROFILE · VMFLGPU 8 PROFILE · **total 65 PROFILE, 81 cases**~~
+
+**Corrected to: VMFL 50 PROFILE · VMFLGPU 7 PROFILE + 1 EMPTY · total 63 PROFILE, 80 cases.**
+
+**Two errors, both mine, both in the commit `6f65e2d5` that announced the manual was fully
+classified:**
+
+1. **`VMFLGPU004` was counted as PROFILE. It is EMPTY.** Batch 5 classified it EMPTY because
+   **the page cites no published source at all** — and batch 8 then found the manual calls its
+   reference an *"analytical solution"* while still naming no source. So it is a case with an
+   analytic reference and **no citation**: it can buy **V** on a lab-side derivation, and it
+   can **never** buy P. Counting it as PROFILE inflated the digitisation backlog by one and
+   hid a case that needs no digitiser at all.
+2. **The VMFL PROFILE count was one too high** — 50, not 51 — from a batch summary that
+   double-counted an id appearing in two batches.
+
+**The "65 PROFILE" figure I reported upward twice tonight was wrong. The correct figure is
+63**, of which **at least 9 are analytic and need no digitiser**, so **the genuine
+digitisation backlog is at most 54, not 65.**
+
+**22 case ids appear in more than one batch** (VMFL020, 030, 033, 038, 061, 070, 074, 076;
+VMFLGPU004–010; VMFRT001–007). Every duplicate resolves to a single valid form under the
+latest-batch rule, so **no case is unclassified and none is missing** — but the duplication is
+exactly what made three separate counts disagree, and **any future total must be computed by
+id, never by summing batch summaries.**
+
+### The last two reference KINDs — VMFL011 and VMFL030
+
+| Case | p. | Source (verbatim) | KIND | ANALYTIC? |
+|---|---|---|---|---|
+| **VMFL011** | 41 | R. Jyotsna, S.P. Vanka, "Multigrid Calculation of Steady, Viscous Flow in a Triangular Cavity", *J. Comp. Phys.* 122, 107-117, 1995 | **code-to-code** (a third party's multigrid numerical solution) → **buys NEITHER V nor P** | NO |
+| **VMFL030** | 111 | M.M. Enayet, M.M. Gibson, A.M.K.P. Taylor, M. Yianneskis, "Laser-Doppler Measurements of Laminar and Turbulent Flow in a Pipe Bend", *Int. J. Heat & Fluid Flow* 3, 213-219, 1982 | **measured / experimental** → **can buy P** | NO |
+
+**VMFL011 is fully specified** — rho 1, mu 0.01, height 4 m, width 2 m, lid 2 m/s, so
+**Re = 400** and the consistency check can be run. Its ceiling is `GATE REACHED` whatever the
+number, because reproducing another code's answer is not a verification.
+
+**VMFL030 is CONTESTED: its page states the inlet as a *"fully developed turbulent profile"*
+but never gives the velocity magnitude**, so no Reynolds number can be formed and the
+VMFL036-class check cannot be run from the manual alone.
+
+### **A SYSTEMATIC DEFECT IN THE MANUAL, now at four instances — the omitted driving input**
+
+| case | what the page omits |
+|---|---|
+| **VMFL010** | inlet velocity magnitude ("fully developed" profile only) |
+| **VMFLGPU002** | inlet velocity magnitude — *inherits VMFL010's omission* |
+| **VMFL030** | inlet velocity magnitude ("fully developed turbulent profile" only) |
+| **VMFRT005** | start-of-injection timing, and anything from which a governing group could be formed |
+
+**This is a class, not four coincidences: the manual repeatedly specifies an inlet by its
+SHAPE and omits its MAGNITUDE.** Every case in this class is **CONTESTED** — bespoke frozen
+document, never the ten-line form — and its magnitude must be recovered from the archive or
+the cited source, **never guessed and never inferred from a "typical" Reynolds number.** For
+FLUENT-side cases that recovery is currently **blocked**: no HDF5 tooling exists on this box
+and 77 of 123 archives are `.cas.h5`.
