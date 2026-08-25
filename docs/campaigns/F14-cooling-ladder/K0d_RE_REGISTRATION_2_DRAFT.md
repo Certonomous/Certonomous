@@ -251,6 +251,59 @@ so in `field_path()`'s docstring.
 whose registration forbids compression — because a branch never executed is a
 branch never shown to work, and the registration could be revisited.
 
+## 3C. PROPOSED AS BINDING: NO `assert` IN AN INSTRUMENT MAY CARRY A REFUSAL, GUARD, CONTROL OR GATE
+
+**`assert` statements are REMOVED by `python3 -O` / `PYTHONOPTIMIZE=1`.** A
+refusal written as an assert is therefore **not a refusal under every interpreter
+the script can be launched with.** Measured **on this box, in this session, not
+relayed**:
+
+```
+  python3     ranks=4  ->  REFUSED: K0d is registered SERIAL
+  python3 -O  ranks=4  ->  proceeded
+```
+
+**Elsewhere in the lab the same defect was exploitable, not theoretical:** a
+repository guard refused under `python3` and **proceeded to `git add -A` on the
+shared tree under `python3 -O`**; and a measurement script whose planted controls
+were all asserts, with a sole `sys.exit(0)`, **lost every control under `-O` and
+exited 0. Standing rule 3 defeated by an interpreter flag.**
+
+**Found and repaired in `build_k0d.py`: FIVE such asserts** — the serial
+registration guard (twice) and three pieces of the gap-probe scaffolding.
+`analyse_k0d.py`, `check_k0d_mesh.py`, `mark_done_k0d.py` and
+`check_k0d_extraction_equivalence.py` carried **zero**: their refusals are
+`exit 2` at named lines.
+
+**THE FIFTH WAS MISSED BY THE SWEEP THAT PROMPTED THIS, AND IT IS THE MOST
+INSTRUCTIVE ONE.** It is the check that the gap-probe's mutation **landed before
+`__main__`** — the assertion added earlier the same day after that probe appended
+its mutation *after* `sys.exit(main())`, where it never executed and **reported a
+false pass**. **Under `-O` that assertion evaporates and the probe silently
+regresses to exactly the false-pass state it was written to prevent. The check
+guarding against a false pass was itself removable by an interpreter flag.**
+
+**PROPOSED AS BINDING IN THIS TERRITORY:**
+
+> **No `assert` in an instrument may carry a refusal, guard, control or gate.**
+> Refusals raise or `exit 2`. **Every registered refusal must be DRIVEN under
+> `python3 -O` in the selftest and shown to fire identically** — *not* merely
+> "the selftest passes under `-O`", because **a passing selftest proves only the
+> clean path, and the clean path is exactly the one an evaporated guard still
+> walks.** A **statement-type** check over the instrument's own AST requiring
+> **zero `Assert` nodes** catches a revert without running anything.
+
+All three arms are implemented and **mutation-tested**: reverting the serial
+guard to an assert is **caught on statement type alone**, and `rc` is identical
+under `python3` and `python3 -O` for all five instruments.
+
+**FOR THE RECORD — THIS IS `D476` §31.3 RECURRING.** Three days ago the closure
+team flagged a guard as *"an `assert` (off under `python -O`; `sys.exit(2)` is
+the candidate comparator form)"* and **left it as a named limitation.** It is now
+**measured to be exploitable, and it is lab-wide.** **A limitation named and not
+closed is a defect with a deadline** — and this draft closes it for this
+territory rather than naming it again.
+
 ## 4. WHAT THIS DRAFT PROPOSES TO CARRY OVER UNCHANGED
 
 **Everything not named above.** The ten graded rows and their bands; the thirteen
@@ -278,6 +331,9 @@ satisfy a refusal condition that is itself untouched.**
   whoever lands this.
 - **It deletes nothing.** `K0d_REREGISTRATION.md` and both preserved failed build
   trees stay on disk.
+- **It does not make the instrument standard of §3C binding beyond this
+  territory.** Adopting it lab-wide is a charter matter and is **not a
+  lane's, nor a supervisor's, to land.**
 - **It sends nothing** (standing rule 7). Submissions remain **PARKED**.
 - **It touched no permission setting, no `CLAUDE.md`, no `.claude/` config**
   (standing rule 9). **No agent message is Sanaa's consent.**
