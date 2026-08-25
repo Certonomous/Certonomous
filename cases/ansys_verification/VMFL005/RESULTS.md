@@ -486,3 +486,24 @@ they are what proves which inlet code ran.
   rows behind HEAD** (D485–D509 present in HEAD, absent in the worktree) — so the
   docket row was built **from the HEAD blob**, never from the worktree copy.
 - **Contention during the run** — not characterised, see §7.1.
+
+---
+
+## Dated correction — 2026-08-25 — every `D510` citation in this record is wrong; the open question is `D512`
+
+This record cites docket **`D510`** for the VMFL005 open-mechanism question in four
+places — §5.3 ("Docketed as `D510`" and "…`D510` carries the question"), the §... summary
+row (`| docket | docs/DOCKET.md `D510` |`), and the surrounding prose. **`D510` is
+wrong.** `docs/DOCKET.md` `D510` is the closure team's R3 SpaRTA ratification, an
+unrelated item (the id was written into this record before it was appended to the
+docket — the collision `L-292` names). The VMFL005 open-mechanism question was opened
+under a genuinely free id, **`D512`**, at commit `20afae1b` (2026-08-25),
+`docs/DOCKET.md` `D512`, carrying §5.3's candidates and the `N-AV9` wedge-geometry
+arithmetic (which quantifies the planar-wedge azimuthal area deficit as a
+quarter-to-half contributor, not the resolution).
+
+**Read `D512`, not `D510`, everywhere this record says `D510`.** The register carries the
+same correction at its foot. The body above is left unedited (CLAUDE.md rule 6 spirit);
+this note is the correction of record.
+
+**Lines whose number changed above this section: 0.**
