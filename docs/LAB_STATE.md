@@ -2347,6 +2347,125 @@ triple that does not exist, orders borrowed from a neighbouring ladder. That is
 not a coincidence to be explained away; it is the prior this team now audits
 under.
 
+
+### SESSION certonomous-66 — SANAA'S GO FOR THE T1b L4 POOL GRADE
+
+**Her session turn, 2026-08-25, reproduced BYTE-EXACT — spacing and
+capitalisation as she wrote them, because a normalised quotation is the
+signature of a paraphrase rather than a primary source:**
+
+> Instruction for the heat transfer team: You have my go. And once that is done, we can add more cases to run.
+
+**Also hers, same day, recorded because it bears on this team's dormant GPU
+items and changes nothing here:** *"I'll turn the gpu back on once aws has
+capacity."* **Nothing of this team's depends on a GPU.**
+
+**Relayed by the chief. The go is for the T1b L4 pool grade** — the item this
+team reported as unblocked and awaiting her.
+
+#### THE TWO SOLVERS LANDED — ALL SIX CLAUSES HOLD ON BOTH, ESTABLISHED FROM ARTIFACTS
+
+**Read off the artifacts, not off the projection**, after the chief reported both
+processes gone from the process table at 15:28Z with HEAD unmoved for ~11.5 h.
+**Neither is a fleet-kill casualty.**
+
+| case | `End` at | rc | wall s | core-min (1 rank) |
+|---|---|---|---|---|
+| `R_100k_x` | **2026-08-25T07:23:53Z** | **0** | 294 910 | **4 915.2** |
+| `R_30k_x` | **2026-08-25T14:56:05Z** | **0** | 318 702 | **5 311.7** |
+
+**Strict completion rule (`T1b_L4_AMENDMENT.md` §7), all six clauses, both
+cases:** `rc = 0` (wrapper `STATUS.*` in `T1_runs/`, not in the case dir);
+exactly one `End`, the last non-blank line; last `Time = 80000` == `endTime
+80000`, highest time dir `80000`; all seven required fields present at
+`endTime`; `ExecutionTime` count exactly **80 000**; **age guard holds by ~3.4
+days** — `0/T` dates 2026-08-21T21:28:41Z and 22:24:22Z, every `80000/` field
+dates today.
+
+**NOT A SIGNAL DEATH, and this was the question that decided gradeability.**
+Both logs kept writing **3.5 h and 11 h past the ~03:5xZ fleet death**. No
+`SIGTERM`/`SIGKILL`/`FOAM FATAL`, no truncated final line, no partial time
+directory (`80000/` complete in both, `uniform/time` recording index 80000).
+**Start time + recorded wall reproduces each `End` to within two seconds**,
+leaving no gap for a stall-and-restart. The only OOM in the readable kernel-log
+window is an unrelated containerised process on 08-23. An independent 5-minute
+liveness watcher brackets each exit within 1–4 min of its own `End`.
+**Supervisor's personal read and a lane's independent sweep agree on every
+clause.**
+
+#### FREEZE RE-VERIFIED PERSONALLY, IN THIS SESSION — not carried from last night
+
+`git hash-object` on disk against `git rev-parse 17209b50:<path>`, the
+**pre-registration commit**, taken by the supervisor at 2026-08-25T~16:0xZ.
+**All four grading-path files IDENTICAL to prereg AND to HEAD**:
+`analyse_t1b_L4.py` `59c345bd8f9c`, `mark_done_t1b_L4.py` `2055d35be50f`,
+`analyse_t1b.py` `17436d64dcea`, `analyse_t1c.py` `3d56680271d5`.
+**The grading lane re-verifies these in the same invocation that grades** —
+Charter §2d is a check on the file that RAN, and a reading taken in an earlier
+invocation does not discharge it.
+
+#### THE STANDARDS BOOK SHE MENTIONED IS NOT ON DISK — DISCLOSED, NOT RECONCILED
+
+Sanaa referred to a standards book added at a GitHub URL. **The URL was NOT
+fetched and will not be** — Certonomous is permanently private by her own
+2026-08-18 ruling (standing rule 8). **`docs/standards/` was read on disk
+instead**: five files, newest `MONITOR_STANDARD.md` at 2026-08-18T05:03Z, and
+**no commit has touched `docs/standards/` since before 2026-08-24T12:00Z.**
+**Nothing new bearing on convergence or mesh criteria has landed there**, so
+there is nothing to reconcile against the frozen T1b L4 amendment — and if
+something does land, the standing instruction is to **disclose any conflict, not
+silently reconcile it.**
+
+#### THE MARKER DEFERRAL HAS EXPIRED — its reason, and why it is now discharged
+
+The `R_300k_x` marker was deferred on the reasoning that marking it early bought
+nothing (`analyse_t1b_L4.py:170-173` refuses without markers for **all sixteen**
+cases) **while running a marker script beside two live 250-core-hour solvers
+carried a non-zero risk of writing into a live case tree.** **The box is idle;
+the risk is gone; the deferral is discharged.** One sweep marks `R_300k_x`,
+`R_100k_x` and `R_30k_x` together, as ruled.
+
+#### TWO QUALIFICATIONS TRAVEL WITH WHATEVER THE POOL RETURNS
+
+1. **The planted-zero control's limitation.** It proved the T1b readers are **not
+   blind and not noisy — their zeros are real zeros.** It did **NOT** prove
+   either reader is **correct**: a reader that sees a difference and then
+   computes the wrong `Nu` passes that control unchanged. **Only `R_10k_x` was
+   exercised — one case of sixteen.** This qualification is quoted beside the
+   verdict, not filed away from it.
+2. **The direction-of-error prior.** Every defect found in this family's records
+   in the last two days ran in the **flattering direction**. This is the lab's
+   only converging grid ladder and **verification is paused**, so nobody
+   downstream catches an over-claimed tier before it reaches her. **Graded as if
+   an auditor who assumes we are wrong reads it tomorrow.**
+
+#### TIERING IS WITHHELD — HER V/P RUBRIC RULING IS STILL NOT GIVEN
+
+She did not address it in this turn. **The ruling that an exact analytic solution
+supplies `V` and never `P` now decides SEVEN rows** — four §3 sub-rows (S6, S13,
+S19, S22) plus three §2 cells (C2, C10, C15), up from four when it was first
+flagged. **Those seven stay flagged CONTINGENT and are not tiered as though it
+were settled.** No tier is assigned to the L4 pool by the grading lane either;
+tiering is the supervisor's and waits on her.
+
+#### "ONCE THAT IS DONE, WE CAN ADD MORE CASES TO RUN"
+
+**No case is selected or launched on this turn.** Her pattern with the other
+teams is **per-item approval against a costed proposal**, so the next cases go to
+her **with core-minute costs derived from measured rates**, after the pool's
+verdict is reported — not as a guess. **A blanket is not a per-item read**
+(standing rule 9).
+
+#### SESSION HYGIENE — recorded because it happened twice
+
+**This supervisor's previous turn terminated mid-work on an API error**, between
+recording her go and acting on it, **with nothing committed.** State was
+re-established from disk rather than assumed: HEAD had moved to a peer's board
+write, **no marker existed**, **no gate artifact existed**, and **her go was
+unrecorded.** **This block is committed BEFORE the grade rather than held to
+report with it** — a task must never depend on an agent surviving to a future
+moment.
+
 ## cfd
 
 **THREE CHECK-1 DIFF READS DONE PERSONALLY THIS SESSION, ALL THREE CLEARED — and each was re-run by the supervisor rather than believed on its lane's own test.**
