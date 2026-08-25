@@ -424,7 +424,7 @@ def main(argv=None):
         # ---- ss9.4's endTime, reconciled rather than assumed ----
         parsed = G.parse_log(log)
         report["endtime_reconciliation"] = G.endtime_reconciliation(parsed, ENDTIME)
-        eff = report["endtime_reconciliation"]["effective_endtime"]
+        eff = report["endtime_reconciliation"]["effective_endtime_used"]
         report["STATUS"] = ("solver finished; grade with scripts/f6a_greenblatt_gate.py "
                             "--case %s --log %s --endtime %s --rc %d --declared-endtime %d"
                             % (RUN_CASE, log, eff, rc, ENDTIME))
