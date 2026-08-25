@@ -1041,6 +1041,48 @@ pre-registration leaves HEAD and its rule-2 freeze is destroyed.** VMFL051's is 
 cleanest unfired freeze in the lab. **The shared index is the chief's to clear and
 nothing was touched here (rule 10).**
 
+
+### 3.8k ⚠ DATED CORRECTION, 2026-08-25T01:20Z — **TWO ROWS OF THIS CENSUS WERE STALE WITHIN THE HOUR, and the staleness is itself the finding**
+
+**This pass was audited against HEAD `af2b23b0`. Two rows moved before the ink was
+dry, both from `NEVER RUN`, and this team found out by reading the cost ledger while
+writing its own calibration row — not by any instrument that watches for it.**
+
+| row | tiered here | what actually happened | correct tier |
+| --- | --- | --- | --- |
+| **VMFL051** (ansys) | **NEVER RUN** | **GRADED `NOT A RESULT`** — C-51, commit `0c3f3054`. Three-level refinement-2 Roache family (6,240 / 24,960 / 99,840 cells), `rhoCentralFoam`, the family's first compressible case. Register row **#4**. `NOT A RESULT` on **two independent clauses of rule 5** | **NOT HELD** |
+| **F12** (cfd) | **NEVER RUN** | **RUNG 1 FIRED AND FAILED** — commit `cd1ac21a`, C-50. **Gate A `GATE FAIL`: non-orthogonality 70.646 against a frozen limit of 70**, solver then diverged to negative T at iteration 180 | **NOT HELD** |
+
+**Corrected census: `NEVER RUN` 18 → 16; `NOT HELD` 23 → 25.** `HOLDS 0` is
+unchanged, `GATE REACHED 10` is unchanged, and the total stays **153**.
+
+**Three things worth carrying, none of them comfortable.**
+
+1. **A coverage matrix is a MEASUREMENT WITH A TIMESTAMP, not a standing fact.** Every
+   row in this file is true of a sha, and this file names its sha. **Two rows decayed
+   in under an hour because the lab was working while it was being written.** Any
+   future pass must **print the sha it was taken at** — §3.8 does — and any reader
+   must treat a tier older than the rows beneath it as **provisional**. This is the
+   same non-stationarity `L-307` measured on the index, arriving in a second place.
+2. **`NEVER RUN` is the least stable tier in the vocabulary and should be read as
+   such.** It is the only tier a peer team can invalidate by doing exactly what it is
+   supposed to do. **The other four require a re-grade; this one requires only a
+   launch.**
+3. **BOTH MOVEMENTS ARE THE LAB WORKING CORRECTLY, and neither is a defect.** VMFL051
+   returned `NOT A RESULT` on two independent rule-5 clauses; **F12's gate A failed on
+   a mesh-quality limit frozen in advance — 70.646 against 70 — which is a gate
+   discriminating, i.e. the thing a gate is for.** **The two rows this team lost are
+   two rows the lab earned.**
+
+**AND IT BEARS ON §91 OF `docs/CROSS_TEAM_GATE_AUDIT.md`, so it is stated rather than
+left to be noticed.** That ruling's **primary** ground was that **§2d had not been
+triggered because F12 had never run** — verified on disk at the time and **true when
+the ruling was made**. **F12 has now run, and that is precisely what the ruling
+authorised.** The ruling is **unaffected**: §2d asks whether the grading path changed
+**after** the first graded solve, and the repair **predates** it. **What has changed is
+that the ground is now historical rather than current, and any future citation of §91
+must say so.** Rung 1's `GATE FAIL` on a pre-frozen non-orthogonality limit is also
+the first direct evidence that F12's gates discriminate.
 ---
 ---
 
