@@ -11533,3 +11533,105 @@ drafting).
 
 *Artifacts:* this session's `SendMessage` failure to `ansys-verification-supervisor`
 (2026-08-25); CLAUDE.md rule 13; `L-186`.
+
+## L-307 — The worktree-vs-HEAD gap is NON-STATIONARY, not merely stale: its size AND ITS DIRECTION change within minutes, so every figure about it is void without a sha and a UTC stamp — and a planted control proves an instrument sees what it measures, never that it saw what it does not
+
+2026-08-25, records lane for the chief, from a lab-wide re-measurement commissioned to
+codify the "stale shared index" problem as structural. **The general rule was already
+codified and this block does NOT restate it as new.** The read side is `L-92` (an
+instrument reading the index measures a per-machine scratch state, and the gap **grows on
+its own** because every private-index commit leaves a committed file with no index entry —
+measured there at 2,597 index vs 2,658 tree, asymmetry 477/0). The write side is `L-253`
+(a private-index protocol that never writes the worktree makes the worktree stale **by
+design** and selectively destroys the work of the teams that follow it — *"always take the
+base for the next edit from `git show HEAD:<path>`, never from the tree"*). `L-294` fixes
+the instrument rule. `docs/COST_CALIBRATION.md:40-52` already carries the per-file warning
+in its own header. **This block adds only what those do not say**, and it is filed as an
+extension precisely because a re-statement would be the `L-185`/`L-205` duplication defect
+that this file has already committed once.
+
+**What is new, first half: the gap is a time-varying quantity and its DIRECTION is not a
+property of the file.** `docs/DOCKET.md` was measured twice by one lane, with one pattern,
+minutes apart. At **00:25:19Z, HEAD `dcf7b9be`**: worktree 1,809,535 bytes, max id `D484`,
+**31 ids present at HEAD and absent from disk, 0 the other way**. At **00:26Z, HEAD
+`04325b6b`**: worktree 1,913,848 bytes, **byte-identical to the HEAD blob**, 550 id-rows
+each side, 0 ids missing in either direction, max `D515` both. A peer fast-forwarded the
+worktree copy between the two readings. The same non-stationarity hit
+`docs/COST_CALIBRATION.md` inside a single tool call: worktree and HEAD measured equal at
+168,635 bytes, and the very next command diffed them and found HEAD carrying a `C-49` the
+worktree lacked — HEAD had moved mid-measurement. **Consequence, and it is the operative
+rule: "the worktree is behind" is not a fact about a file, it is a fact about one instant.
+A divergence figure quoted without the HEAD sha and the UTC second it was taken at is not a
+measurement, and a base read even one tool call before the commit is already unproven** —
+which is why rule 10 demands the base and the id be re-derived **inside the committing
+shell invocation**, and why re-deriving them merely "recently" does not satisfy it.
+
+**What is new, second half: `docs/LESSONS.md` is itself a victim, and that is the instance
+worth carrying.** At **00:22:35Z, HEAD `e471b657`**: worktree 655,485 bytes vs HEAD 768,432;
+worktree max `L-263` against HEAD's `L-304`; **41 lesson ids present at HEAD and absent from
+disk, 0 the other way**; the worktree copy a strict byte-prefix of the HEAD blob. **An agent
+who opened the worktree copy of this file to write a lesson, and committed that file, would
+have deleted forty-one lessons in the act of recording one.** That is the closed loop this
+block exists to break, and it is why this very block was built from
+`git show HEAD:docs/LESSONS.md` and landed without the worktree copy being written at all.
+The same reading also reproduces rule 11's three-different-figures warning exactly: at that
+HEAD the maximum id was **304**, the block count **303**, the distinct count **302**.
+
+**Scale, measured, against the figure rule 10 cites.** At HEAD `dcf7b9be` the shared index
+held **38 staged paths — 23 whole-file deletions and 15 modifications, 439 insertions
+against 12,435 deletions**, overwhelmingly stale in the reverting direction. Staged for
+deletion while present at HEAD **and correct on disk**: `docs/COVERAGE_MATRIX.md` (984 lines),
+`cases/ansys_verification/VMFL051/PREREGISTRATION.md` (669), `verification/campaign/F11_CONVERSION_PREREGISTRATION.md`
+(790), `docs/campaigns/T-family/MATRIX_CONTRIBUTION.md` (888). A bare `git commit` at that
+instant deletes twenty-two files including two frozen pre-registrations. Rule 10's cited
+figure is 402 lines across six files; this is roughly **thirty times that**, accumulated in
+minutes. **The hazard is not shrinking with familiarity — it scales with the lab's commit
+rate, which is what "structural" means.** Directly measured this session, not inferred: of
+23 `D ` rows sampled 8, **8 of 8 were present at HEAD and present on disk**; of 6 `MM` rows,
+**2 were byte-identical to the HEAD blob** — phantom rows with no writer.
+
+**The chief's standing ruling, recorded here as the position rather than left open:
+the index will NOT be cleared again, and clearing is not the mitigation.** A clear was
+performed earlier the same session (443 staged deletions, 63 staged modifications) and the
+gap reopened within the same session. Clearing buys **false confidence**: it makes
+`git status` briefly look trustworthy, which is the worst possible thing to leave on the
+box. **A cleared index is not a safe index; it is a recently cleared one.** The mitigation
+is the rule — never a bare `git commit`, never `git add -A` / `git add .` / `git commit -a`
+— and the instruments below.
+
+**The valid instruments, consolidated in one place for the first time.** Existence:
+`git cat-file -e HEAD:<path>`. Content: `git show HEAD:<path>`. Tracked set:
+`git ls-tree -r HEAD <dir>` (never `git ls-files`, `L-294`). Change: a direct `diff` of
+`git show HEAD:<path>` against the worktree file. **Not instruments in this repository:
+`git status`, `git diff HEAD`, `git ls-files`, and anything else that consults the shared
+index.** An unexpected staged row is **inspected, never reverted**; the index is the
+chief's call.
+
+**And the sharper, more transferable half, which is about instruments and not about git.**
+`scripts/check_docket_reconciliation.py` returned `VERDICT: FAIL` on the live worktree with
+its planted control **healthy — 5 of 5 planted row decorations recognised, 1 negative
+correctly rejected, `ZERO VERDICT: NOT_A_ZERO`**. The control worked. The reading was still
+silently incomplete, because the script compares **ids** and not **bodies**, and it says so
+itself in its own output: *"CANNOT SEE: whether a row's CONTENT diverged (same ID, different
+body reads as reconciled here)"* (`scripts/check_docket_reconciliation.py:366`, blind-spot
+section at `:69`). Two rows had been reported as same-id-different-content on this very
+file. **The rule: a planted control proves an instrument can see what it measures. It
+proves NOTHING about what the instrument does not measure.** Standing rule 3 mandates the
+plant; it does not license reading a passing plant as coverage. Every instrument that
+declares a blind spot must have that declaration read **beside its verdict**, and a verdict
+quoted without its `CANNOT SEE` line is quoted out of context.
+
+**One methodological trap, hit twice tonight by two different readers, recorded so the
+third avoids it.** A docket divergence was reported as *"550 rows at HEAD against 519 in the
+worktree"*. Re-measured with **one pattern applied to both sides**, it was 550 against 550.
+The 519 was a `D`-only count set against an all-letter (`A`–`G`) count — two different
+populations, not two readings of one. This lane made the identical mistake one batch earlier
+with two differently-anchored greps. **A divergence is measured with one pattern, run over
+both sides, in one invocation** — the rule-11 warning (maximum, block count and distinct
+count are three different figures) generalising from ids to every corpus frame.
+
+**Applied in the landing of this block:** built from `git show HEAD:docs/LESSONS.md`, id
+re-derived from the HEAD blob's own maximum inside the committing shell invocation, merged
+under `L-290`'s four asserts, landed through rule 10's private index with the `diff-tree`
+assertion, a CAS on `refs/heads/main` and the post-commit verify — and **the worktree copy
+was deliberately not written**, so no peer's tail could be clobbered.
