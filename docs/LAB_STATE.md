@@ -1369,6 +1369,38 @@ were **not re-checked this session** and are carried forward from `2bf4915a`.
 **Case tree:** `cases/{committee-grids, demo-surfaces, hlpw6, mega-batch, tmr, unsteady-cylinder, valve}` dormant in git; `tmr` most open; `mega-batch` driver path broken (points into `demo-output/website/...`; on record as D404 — stale paths of that shape are systemic in this team's records; treat as suspect until resolved). `models/tmr/**` is a documented FILING_CHARTER §3 exception: the rule was wrong, not the tree.
 ## verification
 
+**Section updated:** 2026-08-25T00:37:14Z by verification-supervisor. Matrix at **`d3a196fb`**, 1,209 lines. **CORRECTION COMMIT — this team cited withdrawn evidence and presented settled prior art as new.**
+
+### ⚠ CORRECTION TO THIS TEAM'S OWN §6a — read this before citing it
+
+**TWO of the FOUR "measured misreadings" this team cited to justify calling `git status` an invalid instrument DO NOT HOLD**, and are **withdrawn in place** (struck, visible) rather than dropped, because the section was already committed and cited when the correction arrived.
+- ~~*"docket misdiagnosed as 47 lines behind HEAD when the worktree was AHEAD in a preserved-tail pattern"*~~ — a documented docket misreading exists but is a **different shape and figure: disk 849 vs HEAD 876, 27 ids missing from disk — genuinely BEHIND, not ahead.**
+- ~~*"clean status over genuinely dirty files under concurrency"*~~ — **from a working note, NOT a repository artifact**; the lane that checked it did not reproduce it and correctly refused to cite it as measured.
+
+**Still hold, one now stronger:** a file reported entirely deleted while present and correct; and **phantom `D`/`MM` rows, now MEASURED — 8 of 8 sampled `D ` rows present at HEAD and correct on disk.** Two instances still establish the rule. **But a rule argued from four instances when two are real invites exactly the scepticism it cannot afford.**
+
+### ⚠⚠ THE CORRECTION THAT MATTERS MOST, AND IT IS AGAINST THIS TEAM
+
+**The structural-index finding is NOT NEW. It was already codified THREE TIMES**, each read from the HEAD blob by this supervisor before crediting: **`L-92`** (the READ side, incl. the *"grows on its own"* measurement) · **`L-253`** (the WRITE side, almost verbatim: *"always take the base for the next edit from `git show HEAD:<path>`, never from the tree"*) · **`L-294`** (the INSTRUMENT rule). **`L-307`** landed as an explicit **EXTENSION citing all three**, deliberately, to avoid repeating the **`L-185`/`L-205` duplication defect the lessons file has already committed once**. And **`docs/COST_CALIBRATION.md` lines 40–52 already carry the per-file warning**, headed *Divergence-by-design*.
+
+**This team wrote a section warning that unchecked claims propagate, and in the same section propagated an unchecked claim of its own — that the finding was new.** Kept in the file, not softened. **Re-deriving a fact is cheap; checking whether the lab already knows it is the step that gets skipped.**
+
+**What `L-307` genuinely adds is SHARPER than what this team first carried:** the gap is **NON-STATIONARY — size AND DIRECTION change within minutes, so every figure about it is void without a sha and a UTC stamp.** There is **no separate "fresh staleness" category**: across 9 peer commits the tree gained **672 insertions against 3 deletions**, and staged deletions grew by **exactly 669 = 672 − 3**. **The decay rate does not correlate with the commit rate — it EQUALS it, line for line.**
+
+### This team's own figure corrected, and the correction IS the rule
+
+The **C-43 vs C-47** reading was this team's own direct measurement, correct at its moment. **Re-measured later the same session: worktree `C-48` (168,635 B) against HEAD `C-49` (181,803 B)**, with the **shared-index blob further behind still at `C-47`** — **three surfaces holding three different values at once.** The original figure is **retained with its stamp, not silently refreshed**, because that is the evidence. Direction unchanged; only the integers move, and they move constantly.
+
+**The sharpest instance is this team's OWN standardisation.** §5 rules the lab onto `scripts/roache_triple.py` with **N-T8's convention**. **N-T8 does not exist in the worktree copy of `docs/NUMERICS_KNOWLEDGE.md` — 0 occurrences against 2 at HEAD, a 57,965-byte shortfall** (254,652 vs 312,617, re-measured directly). **A lane opening that file to check the very convention this matrix just standardised on will not find it, and will reasonably conclude none is registered.**
+
+**NO THIRD PROPOSAL ADDED.** Two are already on Sanaa's desk, both verified present at HEAD: **`docs/BOARD_BASE_RULE_PROPOSAL.md` §2** (there **before** a second was commissioned) and **`docs/SHARED_INDEX_INSTRUMENT_PROPOSAL.md`** (written not to compete, and saying which to adopt if only one is). Nothing amended into `CLAUDE.md` by anyone — rule 9 is Sanaa's, and **no agent's judgement, the chief's included, is her consent**.
+
+**Unaffected by any of the above:** the matrix's rows, tiers and rulings; §4's refutation of standing fact 1; the Richardson standardisation; and **the negative-GCI trace, which remains this team's**. **Lanes live: 3 (at cap)** — attribution-integrity sweep; K0b + 4G trace; sdk/`tmr_verification` trace incl. the flat-plate six-triple re-derivation.
+
+**Blocked:** nothing.
+
+---
+
 **Section updated:** 2026-08-25T00:27:00Z by verification-supervisor. Matrix at **`cec9739a`**, 1,146 lines. Zero compute all session.
 
 ### ⚠ THE SHARED-INDEX DECAY IS **STRUCTURAL**, and `git status` IS NOT A VALID INSTRUMENT HERE
