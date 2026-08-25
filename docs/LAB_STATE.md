@@ -1661,6 +1661,79 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
+### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
+
+**Section block written:** 2026-08-25T21:12Z by dafoam-supervisor (ELEVENTH session, formed ~21:05Z 2026-08-25 after a session usage limit killed the tenth fleet at ~20:45Z). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
+
+**Mandate, narrow: fire curriculum D2–D15. Execution, not audit.** Meta-work near zero. **Cost constraints LIFTED** (Sanaa 2026-08-25) — caps are **RUNAWAY GUARDS reported to me**, not budgets a lane trims rigor to fit. **Costing and calibration CONTINUE; rigor unchanged.** **This family's binding constraint is MEMORY and it is PHYSICAL, not financial.**
+
+#### THE THREE DEAD LANES — ESTABLISHED FROM DISK, AND THEY LANDED FAR MORE THAN THE KILL SUGGESTED
+
+The chief's reading was that "anything uncommitted at the kill is gone." **That is true of an agent's working state and FALSE of files already written to disk.** All three dead lanes left artifacts, and two of them left substantial uncommitted work that survived intact. **The correct first act after a fleet kill is a disk-and-process reading, not a relaunch** — this is now the second session running in which that reading changed the dispatch.
+
+| dead lane | what it actually landed | state |
+|---|---|---|
+| **D4 custody-and-grade** | **ITS FULL GRADE, COMMITTED** (`9dd0054a`), plus the selftest commit `11c0ce6f` | **COMPLETE.** Nothing lost |
+| **D7 ONERA M6** | 7 files on disk: an **amended** `PREREGISTRATION.md`, a `PRE_LAUNCH_RECORD.md`, and 5 instrument scripts | **ALL UNCOMMITTED but INTACT.** Nothing fired |
+| **D12 unsteady adjoint** | 3 files at `cases/dafoam/curriculum_D12/`: `PREREGISTRATION.md` (27,764 B), the frozen comparator `d12r_grade.py` (39,798 B), `d12r_run_script.py` (7,010 B) | **ALL UNCOMMITTED but INTACT.** Run root does not exist |
+
+**Its last relayed words were "Now writing the D12 pre-registration and its frozen instruments" — and all three files were already on disk.** A lane's last utterance describes what it was starting, not what it had finished; the disk is the authority.
+
+#### D4 IS `BLOCKED` BY EXACTLY ONE UNRUN ARM, AND THAT ARM IS THE BRIGHT LINE ITSELF
+
+D4's committed verdict is **`BLOCKED`**. Arm O **converged** — `EXIT: Optimal Solution Found.`, 80 majors, **28.6758 % drag reduction** (CD₀ `2.9619634e-02` → CD_f `2.1125978e-02`), inside band C [25,45] %, prediction 30 %. **Nine gates PASS**, including G8 decomposition determinism (identical partitions summing to the registered 38,304 cells), G9 toolchain identity (one image digest `sha256:2927768a…f6d35`, one IDWarp `.so` md5), G12 CPU placement (four ranks on four **distinct** single cores — the D13 shared-core defect did not reproduce).
+
+**Six gates are `BLOCKED` and all six are downstream of arm F alone:** G2 CL feasibility, **G5 the endpoint FD — THE BRIGHT LINE**, G6 planted zero, G6b negative control, G7 count refusal, and predictions P3, P5, P6, P9. **Item headroom 252.1 core-min.** This is the single highest-value fire in the family: it converts a converged 28.7 % optimum from an unvalidated number into a result, and it unblocks D5, D6 and D14, all three of which take D4 as prerequisite.
+
+#### MY §3 CHECK, DONE BEFORE DISPATCH — `d4_stage_F.sh` DOES NOT EXIST
+
+`RESULTS.md` §9 states that what unblocks D4 is "one command pair": `bash d4_stage_F.sh` then `bash d4_run_arm.sh F`. **I looked for the first half in both the case directory and the run root. It is not on disk anywhere.** The record names a command that does not exist. That is a gap in the record, not an obstacle — but a record that says "one command away" when the command is absent is a record that would have wasted the next lane's first twenty minutes. **The lane is ordered to write it, commit it as its own commit saying plainly what was missing, and I read the committed blob as a diff before believing anything downstream of it** — the stager is load-bearing for the **age guard**, and the age guard is what dates the run allowed to produce the answer.
+
+#### D4-DEF-2 DID NOT MATERIALISE. D4-DEF-3 DID, AND IT IS IN THE FROZEN GRADER
+
+I registered in advance that **if the empty-component-set unit did not fire, that was D4-DEF-2, the D3 defect reproduced, and D4 was `NOT A RESULT`.** **The unit FIRED**, printing `{"COUNT_REFUSAL": "empty component set", "n_rows": 0, "n_registered": 5}`. **D4 is not `NOT A RESULT` on that ground, and that question is settled and closed.**
+
+**`D4-DEF-3` is new and unrepaired in the frozen file.** With `rows` absent from the FD artifact entirely, the G7 count mutators index `d["rows"][:2]` and raise an **uncaught `KeyError`** — the grader exits **rc=1 with a traceback and writes NO VERDICT FILE AT ALL**, on the very gate whose purpose is to prove a malformed component set is refused **by name**. Prereg §7b requires rc=1 and rc=2 to be **different, named** failures; an unhandled exception is neither. Repaired in the **supplement** by a named G7 refusal raised before any mutation; **`d4_grade.py` is not edited** (rule 6), md5 re-verified `f162ef69a7385e5d0586ef5f27657cbb`. **Standing instruction to the firing lane: grade through the SUPPLEMENT, never by invoking the frozen grader directly.**
+
+**The discrimination probe is why I believe the repair.** A scratch mutant with the count refusals removed — the D3 disease reproduced deliberately — turns four units NOT (25/29), and on that mutant **the bright line reads `PASS` at 1.0000 % over a coverage of 3 of 5 components, which is D3 verbatim.** The `n_graded==0` guard catches only the fully-empty case and **does not catch the short set**, so the count refusal is load-bearing and that guard is not a substitute for it.
+
+#### THE D7 MESH RECONCILE — I AM NOT TAKING "DIFFERENT PROVENANCE" AS AN ANSWER
+
+cfd's F1 lane found that **of 38 ONERA M6 mesh variants, none clears the 70° admission gate; the floor is 81.58°, DIAL-INVARIANT, and the maximum is at the OUTERMOST FARFIELD CELL, not the trailing edge.** D7 runs on the A3 rung-2 mesh, **42,120 cells (`n28`)**, staged by copy from a July case and described in its own pre-registration as "a proven mesh — A3 rungs 1–2 both `PASS`".
+
+**Different generator is an inference, and 81.58° at the outermost farfield cell is a TOPOLOGY property of an M6 grid with a far-field boundary, not a property of one script.** The D7 lane is ordered to **measure it** — `checkMesh` on the staged base, reporting max non-orthogonality **and where it occurs** — and to rule and commit either way. **If D7's mesh shows the same farfield maximum, D7 inherits cfd's finding and needs a different topology; the gate is not widened to let it through** (widening a gate threshold is reserved and comes to my desk, not a lane's). **If it is clean, that tells cfd a passing M6 mesh exists on this box and where it came from** — which their sweep concluded was impossible. **A3 rungs 1–2 passing is evidence about the ADJOINT, not about the mesh quality gate, and I will not accept one substituted for the other.**
+
+#### THE MEMORY ARITHMETIC THAT SET THE STAGGER
+
+Box at dispatch: **16 cores, 27 GB MemAvailable, load 3.03** — heat-transfer's three thermal solvers only, **dafoam's contribution ZERO**. D4 arm F is np=4 at a registered 12 GiB cap; D7 is np=4 at ~12 GB. **Two of them at once is 24 GB against 27 GB available, which breaches the standing 12 GiB MemAvailable floor.** So the third lane was given **np=1, memory-light work** instead of a second heavy job, and D7 polls and fires the moment arm F's ranks exit. **A batch that OOMs is worse than a batch that queues.** This is Sanaa's fill-the-box directive answered under her own memory guard, not evaded by it.
+
+#### LANES LIVE (3 of 3 — at cap)
+
+| lane | item | compute | status |
+|---|---|---|---|
+| 1 | **D4 arm F** — the endpoint FD, np=4, 12 GiB cap, 252.1 core-min headroom | **FIRING** | writes and commits `d4_stage_F.sh` first, then fires |
+| 2 | **D12 proper** (unsteady adjoint, 2D cylinder, time-averaged CD) + **the D10/D12 probe FD pairs** | np=1, memory-light | commits prereg + frozen instruments **before** any container |
+| 3 | **D7 ONERA M6** | np=4, **queued on memory** | mesh reconcile and commit first; fires when arm F frees memory |
+
+**D15 rotates into the first slot that frees** — standing order, unchanged. It has no prerequisite and ~0 standalone compute, and **nothing for it exists anywhere at HEAD**; I re-verified that this session.
+
+#### RUNGS WITHOUT VERDICTS
+
+**D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
+
+#### ON SANAA'S DESK
+
+**Nothing new.** The five upstream defect drafts stay **`NOT FILED`** — SUBMISSIONS PARKED is unchanged and reserved to her.
+
+#### BLOCKED
+
+**Nothing.** Every item in this family either has a lane on it or is prerequisite-queued behind one that does.
+
+#### OPEN, HONESTLY UNVERIFIED (**VERIFY**)
+
+**δ_repeat on D12's time-average is still NOT MEASURED BY ANY LANE** and must be bought before any FD step is sized — N-D15 at its worst on a limit-cycle flow. **D12's memory envelope is OPEN:** the 32 GiB alarm is not supported, but **"flat" is not established either** — the probe's 1.3 MiB difference sits below a run-to-run RSS noise scale one run per point cannot measure. **Residual contention is unmeasured and no uncontended control exists** — and this session runs two lanes concurrently, so D12's timings will be contended and must say so. **`cases/dafoam/curriculum_D12/` is an unusual filing location** for this family, whose items otherwise sit under `ladder-a/<Ax>/` or `probes/`; `scripts/check_filing.py` is the binding artifact and the lane obeys it.
+
+
 ### TENTH SESSION — D4 arm O CONVERGED, D7 FIRING, THE THREE PROBES ARMED
 
 **Section block written:** 2026-08-25T20:26:52Z by dafoam-supervisor (TENTH session, formed ~20:15Z 2026-08-25 after a weekly usage limit killed the ninth fleet mid-work). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
