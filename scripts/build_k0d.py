@@ -695,6 +695,50 @@ def assert_two_d_registration(d, thickness):
     return True
 
 
+# ==========================================================================
+# THE FoamFile HEADER.  ADDED 2026-08-25 AFTER A MEASURED FAILURE.
+#
+# THE DEFECT: this builder wrote every system/ and constant/ dictionary with NO
+# FoamFile header.  OpenFOAM REQUIRES one on every dictionary it reads, so
+# blockMesh REFUSED ALL TEN CASES with
+#
+#     --> FOAM FATAL IO ERROR: problem while reading header for object
+#         controlDict   (file: system/controlDict at line 1)
+#
+# and the rung could not mesh, let alone solve.  field_file() already emitted a
+# header for the 0/ fields, so the FIELDS were readable and the DICTIONARIES
+# were not -- which is why nothing in this script noticed.
+#
+# WHY THE SELFTEST DID NOT CATCH IT, and this is the same lesson AMENDMENT 2
+# section A2.3 records one layer up: EVERY CHECK EXERCISED THE WRONG CHANNEL.
+# The selftest asserted the dictionaries' CONTENT -- that controlDict carries
+# endTime 40000, that blockMeshDict has three hex blocks and seven patches --
+# and it read those assertions back from the strings this script had just
+# written.  IT NEVER ASKED THE ONE PROGRAM THAT HAS TO READ THEM WHETHER IT
+# COULD.  A green selftest is not a green instrument.
+#
+# THE REPAIR IS AT THE SINGLE WRITE POINT, so no dictionary can be added later
+# that misses it, and a body that already carries a header is left alone.
+FOAM_CLASS = {"g": "uniformDimensionedVectorField"}
+
+
+def foam_header(obj, location):
+    """The FoamFile header OpenFOAM requires on every dictionary it reads."""
+    return ("FoamFile\n{\n    version     2.0;\n    format      ascii;\n"
+            f"    class       {FOAM_CLASS.get(obj, 'dictionary')};\n"
+            f"    location    \"{location}\";\n    object      {obj};\n}}\n\n")
+
+
+def with_header(name, body, location):
+    """Prepend the header unless the body already carries one.
+
+    0/ field bodies come from field_file(), which emits its own header; those
+    are passed through untouched rather than double-headed."""
+    if body.lstrip().startswith("FoamFile"):
+        return body
+    return foam_header(name, location) + body
+
+
 def write_case(root, case, gaps):
     d = os.path.join(root, case)
     if os.path.exists(d):
@@ -708,7 +752,8 @@ def write_case(root, case, gaps):
                        ("system", system_dir(case, t, gaps))):
         os.makedirs(os.path.join(d, sub))
         for name, body in files.items():
-            open(os.path.join(d, sub, name), "w").write(body)
+            open(os.path.join(d, sub, name), "w").write(
+                with_header(name, body, sub))
     # 0/T is touched LAST, so its mtime dates the run allowed to produce the
     # answer.  The age guard of section 7.2 clause 6 rests on this ordering.
     # RULING 4's two refutability assertions, READ BACK FROM DISK, BEFORE the
@@ -876,6 +921,66 @@ def selftest():
                "create the registered run tree",
                gap_tmp.startswith(tempfile.gettempdir())
                and never.startswith(gap_tmp) and ok_root.startswith(gap_tmp))
+
+        # ------------------------------------------------------------------
+        # THE READABILITY ARM.  ADDED 2026-08-25 BECAUSE ITS ABSENCE COST THE
+        # RUNG A FAILED BUILD OF ALL TEN CASES.
+        #
+        # Every other check in this selftest reads the dictionaries back as
+        # STRINGS THIS SCRIPT JUST WROTE.  That proves the CONTENT and proves
+        # NOTHING about whether OpenFOAM can PARSE them -- and it could not:
+        # every system/ and constant/ dictionary went out with no FoamFile
+        # header and blockMesh refused all ten with a FATAL IO ERROR.
+        #
+        # THIS ARM ASKS THE CONSUMING PROGRAM.  It runs the real blockMesh on a
+        # real built case in a tempdir and requires rc == 0 AND a polyMesh on
+        # disk.  It is the same shape as AMENDMENT 2 section A2.3's repair:
+        # exercise the channel that actually consumes the artifact.
+        #
+        # If OpenFOAM is not installed the arm SAYS SO and does not silently
+        # pass -- a check skipped in silence reads as a check passed.
+        foam_bashrc = "/usr/lib/openfoam/openfoam2606/etc/bashrc"
+        if not os.path.isfile(foam_bashrc):
+            check_("OPENFOAM READABILITY ARM COULD NOT RUN: no OpenFOAM at "
+                   f"{foam_bashrc}.  NOT SILENTLY SKIPPED -- reported as "
+                   "unrun, because a check omitted in silence reads as a "
+                   "check passed", False, "openfoam absent")
+        else:
+            bm_case = os.path.join(ok_root, "M1_c")
+            r3 = subprocess.run(
+                ["bash", "-c",
+                 f"source {foam_bashrc} >/dev/null 2>&1 && "
+                 f"blockMesh -case {bm_case}"],
+                capture_output=True, text=True)
+            pm = os.path.join(bm_case, "constant", "polyMesh", "points")
+            check_("OPENFOAM ITSELF READS WHAT THIS BUILDER WRITES: real "
+                   "blockMesh on a real built case returns 0 and produces a "
+                   "polyMesh.  THIS IS THE ARM WHOSE ABSENCE LET TEN "
+                   "HEADERLESS CASES BE WRITTEN",
+                   r3.returncode == 0 and os.path.isfile(pm),
+                   f"rc={r3.returncode}, polyMesh={os.path.isfile(pm)}")
+            # NEGATIVE half: strip the header back off and blockMesh must FAIL.
+            # Without this the arm above is not shown able to fire.
+            strip_root = os.path.join(gap_tmp, "headerless")
+            subprocess.run([sys.executable, os.path.abspath(__file__),
+                            "--root", strip_root], capture_output=True,
+                           text=True)
+            hc = os.path.join(strip_root, "M1_c")
+            for sub in ("system", "constant"):
+                for fn in os.listdir(os.path.join(hc, sub)):
+                    fp = os.path.join(hc, sub, fn)
+                    txt = open(fp).read()
+                    if txt.lstrip().startswith("FoamFile"):
+                        open(fp, "w").write(txt.split("}\n", 1)[1].lstrip("\n"))
+            r4 = subprocess.run(
+                ["bash", "-c",
+                 f"source {foam_bashrc} >/dev/null 2>&1 && "
+                 f"blockMesh -case {hc}"],
+                capture_output=True, text=True)
+            check_("NEGATIVE: with the FoamFile headers STRIPPED BACK OFF, "
+                   "blockMesh FAILS -- so the arm above was shown able to "
+                   "fire and is not a probe that passes on anything",
+                   r4.returncode != 0, f"rc={r4.returncode}")
     finally:
         shutil.rmtree(gap_tmp, ignore_errors=True)
 
