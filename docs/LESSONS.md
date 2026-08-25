@@ -11924,3 +11924,49 @@ stands whatever happens to the words around it. An **artefact** is not an attrib
 repository is `ugrep --ignore-files` and was measured **blind to ten files** in
 closure territory in this very sweep. Use a non-ignoring `find | xargs grep -F`, and
 **fire a control on every negative**. Docket **D517**; see also **L-304**.
+
+## L-310 — A compliance sweep that searches the KEY NAME is a reader that cannot see a non-zero, and its clean report is not evidence
+
+**2026-08-25, closure.** Rule 3 exists because *a zero from a reader not shown able to
+see a non-zero is not evidence*. The lab has always applied that to **comparators**.
+It applies just as hard to **compliance sweeps** — the searches that certify a scope
+limit, a redaction or a privacy constraint is intact — and closure has now been caught
+by it against its own favour.
+
+**What happened.** D491 scope limit (iii) forbade a particular statistic from being
+quoted as a number in a committed record. A sweep certified the limit intact and the
+finding went onto the board: the statistic *"is nowhere quoted as a number"*. **It was
+quoted seven times in a committed record at HEAD.** The sweep searched for the
+**key name**, `singular_value_ratio_first_to_last`. The rendered report never contains
+that string — the generator writes the value under the header `sigma_1/sigma_N` and in
+prose as *"a condition number"*. **Name scan: 0 hits. Value scan: 7 hits.** Both run
+side by side on the same file.
+
+**Why it is the same failure as a false zero from a comparator.** The name scan's zero
+was **structurally guaranteed**, not measured. No amount of care in running it would
+have changed the answer, because the apparatus was blind to the thing it was certifying
+the absence of. That is precisely the shape rule 3's planted control was invented to
+catch, and nobody planted one, because a documentary sweep does not feel like an
+instrument.
+
+**The rule.** **A sweep that certifies an absence must plant the thing it is hunting and
+prove it can find it — in the form the artefact actually carries it.** For a rendered
+record that means **scanning by VALUE at every precision the renderer can emit**, not by
+the key name the code uses internally. Name and rendering are two different
+vocabularies and the gap between them is invisible from either side.
+
+**The generalisation, and it is the part worth carrying:** *a search proves an absence
+only over the vocabulary it searched.* State the vocabulary in the finding. A null that
+does not name its own apparatus is a claim about the searcher, not about the corpus.
+
+**Companion.** L-304 (a rule-6 append goes at the FOOT, because a mid-file insertion
+breaks citations silently) and L-309 (an attribution authorising SPEND must carry its
+source when recorded) are the same family: **failures that raise no error and read as if
+they worked.** This one differs in being caught by a *second method*, which is the only
+thing that ever catches it. See D518.
+
+**Second-order finding from the same investigation, recorded because it generalises.**
+The guard shape adopted elsewhere in this family compares **line COUNTS** to detect a
+hand-edit before an overwrite. The correction it must protect here was written
+**interleaved inside a generated paragraph**, so the line delta is **zero** and a
+count-based guard waves it through. **A guard must compare CONTENT, not size.**
