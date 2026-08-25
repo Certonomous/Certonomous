@@ -1,0 +1,119 @@
+--- d9_grade.py	2026-08-25 18:15:28.730259774 +0000
++++ d9_grade_SUPPLEMENT.py	2026-08-25 18:27:54.458402197 +0000
+@@ -103,11 +103,15 @@
+                 src = cand
+                 break
+     if not os.path.isfile(src):
+-        return None  # no endpoint record; the plant has nothing to plant into
++        # REPAIR (D9-DEF-1): an EXPLICIT, TAGGED status. A bare `None` here made the
++        # plant silently not run, and nothing downstream could tell "the plant fired
++        # and the reader saw it" from "the plant never ran" -- rule 3 exactly.
++        return ("NO_ENDPOINT", None)
+     with open(src) as f:
+         d = json.load(f)
+     if "J_an" not in d:
+-        return None
++        # REPAIR (D9-DEF-1): key ABSENCE, as distinct from key EMPTINESS below.
++        return ("NO_J_AN", None)
+     planted = dict(d)
+     planted["J_an"] = list(d["J_an"])
+     if not planted["J_an"]:
+@@ -124,7 +128,20 @@
+         raise Refuse("READER PLANT NOT SEEN: planted %.6e into J_an[0] and read back a "
+                      "difference of %.6e. A zero from a reader not shown able to see a "
+                      "non-zero is not evidence." % (PLANT, seen))
+-    return seen
++    return ("PLANTED", seen)
++
++
++def require_plant_fired(status, value):
++    """REPAIR (D9-DEF-1).  The caller's ASSERTION, which the frozen grader lacked:
++    `reader_plant(root)` was called with its return value DISCARDED, so two silent
++    `None` paths could make the plant not run at all.  This can only turn an outcome
++    INTO a refusal, never the reverse."""
++    if status != "PLANTED" or value is None:
++        raise Refuse("PLANT DID NOT FIRE (status=%r): the grader was about to report an "
++                     "endpoint table without a reader shown able to see a planted "
++                     "non-zero. A zero from such a reader is not evidence (rule 3)."
++                     % (status,))
++    return value
+ 
+ 
+ def fmt_tag(h):
+@@ -270,7 +287,7 @@
+                      "about the BASELINE geometry wearing the endpoint's name.")
+ 
+     # ---------------- G9-4 / G9-5 / G9-6  the endpoint FD table -------------
+-    reader_plant(root)
++    plant_status, plant_seen = reader_plant(root)
+ 
+     tables = {}
+     for h in FD_STEPS:
+@@ -307,10 +324,14 @@
+ 
+     steps = sorted(tables)
+     J_an = [float(v) for v in tables[steps[0]]["J_an"]]
++    # REPAIR (D9-DEF-1): assert the plant demonstrably FIRED before any endpoint PASS.
++    require_plant_fired(plant_status, plant_seen)
+     emit("G9-4", "PASS",
+          "endpoint FD table formed over %d of %d registered steps (%s) at the OPTIMISED "
+-         "design point (l2(shapexUpper) = %.10e, %d components)"
+-         % (len(steps), len(FD_STEPS), ", ".join("%.1e" % h for h in steps), l2, len(dv)))
++         "design point (l2(shapexUpper) = %.10e, %d components); READER PLANT status "
++         "%s, planted %.6e and read back %.6e from disk"
++         % (len(steps), len(FD_STEPS), ", ".join("%.1e" % h for h in steps), l2, len(dv),
++            plant_status, PLANT, plant_seen))
+ 
+     gradeable, ungradeable, rows = [], [], []
+     for i in range(N_COMPONENTS_REQUIRED):
+@@ -419,6 +440,7 @@
+ 
+ 
+ def selftest():
++    global shutil, tempfile
+     import shutil
+     import tempfile
+     results = []
+@@ -539,8 +561,41 @@
+         _healthy(d, an=an, dv=dv, tables=t)
+     case("Q partial gradeable set below the N-of-M floor -> NOT A RESULT", q, "NOT A RESULT")
+ 
++    # --- REPAIR (D9-DEF-1): the new refusal must be PROVED TO FIRE. A control that is
++    # --- not shown to fire is ceremony, not a control. These two exercise the exact
++    # --- paths that previously returned a bare `None` and vanished.
++    def unit(label, fn, want):
++        try:
++            fn()
++            got = "NO REFUSAL"
++        except Refuse:
++            got = "REFUSE"
++        results.append((label, want, got, got == want))
++
++    def r():
++        d = tempfile.mkdtemp()
++        try:
++            st, val = reader_plant(d)          # empty root: no endpoint record at all
++            assert st == "NO_ENDPOINT" and val is None, (st, val)
++            require_plant_fired(st, val)        # MUST refuse, not pass silently
++        finally:
++            shutil.rmtree(d, ignore_errors=True)
++    unit("R plant cannot run (no endpoint record) -> REFUSE, not a silent None", r, "REFUSE")
++
++    def s_():
++        d = tempfile.mkdtemp()
++        try:
++            _mk(d, "fd_" + fmt_tag(1.0e-3), J_fd=[1.0] * 27, fd_step=1.0e-3,
++                shapexUpper=[0.001] * 27)      # record present, J_an key ABSENT
++            st, val = reader_plant(d)
++            assert st == "NO_J_AN" and val is None, (st, val)
++            require_plant_fired(st, val)        # MUST refuse
++        finally:
++            shutil.rmtree(d, ignore_errors=True)
++    unit("S plant cannot run (J_an key ABSENT) -> REFUSE, not a silent None", s_, "REFUSE")
++
+     npass = sum(1 for _, _, _, ok in results if ok)
+-    print("D9 GRADER SELFTEST: %d/%d %s" % (npass, len(results),
++    print("D9 GRADER SUPPLEMENT SELFTEST: %d/%d %s" % (npass, len(results),
+                                             "PASS" if npass == len(results) else "FAIL"))
+     for label, want, got, ok in results:
+         if not ok:
