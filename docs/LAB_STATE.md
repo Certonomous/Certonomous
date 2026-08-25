@@ -2924,7 +2924,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T02:03:40Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T02:16:07Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3335,6 +3335,74 @@ tonight and it returned within minutes. **The protection is the discipline at th
 a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
 `git commit -a`, private-index protocol for everything. A single bare commit would destroy the
 frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**BOTH FREEZES VERIFIED PERSONALLY AT 2026-08-25T02:16:07Z. VMFL003 IS RUNNING; VMFL045-R2 IS
+HELD ON A FIX OF THIS SUPERVISOR'S OWN CALLING.**
+- **VMFL003 — COMPUTE AUTHORISED.** Inputs `9fea6a65` (01:59:08Z) declaring no compute,
+  pre-registration frozen **SEPARATELY** at `9195d25e` (02:06:14Z). Blobs identical
+  worktree-to-HEAD: prereg `e969e654`, comparator `15b14d40`, launcher `5ed5ff81`.
+  `--verify-frozen HEAD` rc=0; no run directory; **selftest 60 checks, 0 failures — the most
+  thorough this team has produced.** Cap **24 core-min**, point estimate 9.6.
+  **First turbulent case; it opens the largest never-run class (30 cases).**
+- **VMFL045-R2 — VERIFIED MINIMAL, HELD.** Claims checked, not accepted: comparator differs by
+  **EXACTLY 3 path constants** (6 diff lines, no logic change); `fvSolution` by **`h` ->
+  `"(h|e)"`** plus a comment rewrap; **all NINE other case inputs BYTE-IDENTICAL**. Freeze
+  ordering correct (`3467dd25` 02:05:56Z, `4b3f512e` 02:07:20Z); selftest 45/0; smoke test in a
+  `mktemp` dir **outside `verification/runs/`**; run-1's tree preserved.
+  **HELD BECAUSE its `--verify-frozen` prints "FREEZE VERIFIED: grade_vmfl045.py is
+  byte-identical to HEAD:.../R2/grade_vmfl045_r2.py" — NAMING TWO DIFFERENT FILES AS THE SAME
+  THING.** The mechanism is sound (`SELF_REL` drives the hash) but **this is the ONE SENTENCE a
+  reader quotes when asserting a freeze held**, and it is the same defect class as a correct
+  tier over a false sentence. **Not waved through in our own instrument while being ruled
+  against everywhere else.** Fixed as a **CLASS** — print from `SELF_REL`, never a literal —
+  declared as a **pre-compute amendment naming the non-existent run directory**, then re-frozen
+  and **RE-VERIFIED BY THIS SUPERVISOR before compute**, because a changed grading path
+  **re-opens check 4**.
+
+**FIVE RULINGS, each verified arithmetically BEFORE being made.**
+1. **VMFL003's 2.5 % band STANDS.** Bounded on both sides by things outside the lane's control:
+   it must contain ~0.98 % declared systematics, **cannot be tighter than the 1.210428 % spread
+   between the manual's OWN two "standard k-e" codes** on this exact case, and must stay inside
+   the manual's 3 % goal. Not the loosest available; discriminating power shown before the fact
+   (fails laminar -83.5 %, inviscid, Blasius +2.86 %). **BINDING CONDITION ADDED: a value inside
+   2.5 % but outside the 2.0 % Colebrook diagnostic is a `PASS` VERDICT whose TIER may NOT be
+   `HOLDS`** — the V column is not satisfied by a gate met against a 3-s.f. chart read when the
+   closed form is missed. **Verdict and tier stay separate, as with VMFL051.**
+2. **N-AV9's Delta-p CONSEQUENCE DOES NOT TRANSFER to turbulent — the lane is right and this is a
+   real finding.** Verified here: **`sec(2.5 deg) - 1 = 0.09526851633199218 %`**, and
+   `1 - sin(t)/t` at 5 deg reproduces N-AV9's **`0.1268756046250763 %`** exactly. N-AV9's
+   **+0.25 %** was derived under **laminar, fixed-Q, R^-4**, where a radius error is quartically
+   amplified. Importing it here would have been **one case's number inside another's
+   justification** — precisely the defect heat-transfer found. **Recorded as an ADDENDUM to
+   N-AV9, not a new id** (L-292/L-313), stated as a **bounded estimate with its derivation**,
+   never as a fact.
+3. **VMFL005 §9 CONFIRMED: per-cell-iteration exponents 1000x TOO SMALL, products CORRECT.**
+   `2 s / (3000 x 1024) = 6.51e-7`, not the stated `6.51e-10`; and `1000 x 2000 x 6.51e-7 =
+   1.30 s` matches the stated 1.3 s, with L2/L3 reproducing 12.7 s and 203.1 s -> 217 s. **The
+   lane was right to flag it and RIGHT NOT TO TOUCH IT.**
+4. **Repair by FOOT APPEND, NOT in place — and this DECLINES a technique the chief recommended,
+   with reasons.** In-place quote-and-strike at constant line count is the better tool for a
+   **body table a reader consults**, and the chief is right that a foot append puts a correction
+   where nobody looks. **It is wrong here:** VMFL005's `PREREGISTRATION.md` is a **FROZEN file
+   whose blob `43aaf6bf` is cited in register row #3 as the FREEZE PROOF of a PASS credential**,
+   and other records cite it **by line**. Editing in place — even at constant line count —
+   **changes the blob that IS the evidence**, and the strong `lines whose number changed above
+   this section: 0` form is **only provable for a pure append**. **THE RULE: the technique's
+   value is inversely related to how load-bearing the file's IDENTITY is — use it on census
+   tables, never on freeze artifacts.** The register gets a dated note quoting **BOTH** shas so
+   the original freeze stays quotable; **row #3 is append-only and is NOT edited.**
+5. **The VMFL045 CASE_MAP descriptor fix is UPHELD.** "inviscid" -> "mu=1e-8 (nonzero ->
+   viscous path)" was **not** scope creep: the old text was **FALSE AS A STATEMENT OF FACT**, and
+   a false sentence beside a corrected tier is the defect the lab documented all night.
+
+**`append_guards.py` RE-PINNED to `safe_append.py` v1.1 (`dd4ba663`), DELIBERATELY.** **The pin
+REFUSED IN PRODUCTION** when upstream moved to `6c8035a3` — a negative arm firing on a **REAL
+CHANGE, not in a selftest.** Re-read as code, selftest 6/6 and meta-selftest 6/6 run personally,
+then re-pinned. v1.1's `symmetry_verdict` is a **pure function grouped by guard FAMILY requiring
+BOTH ARMS PER FAMILY**, and its meta-suite carries **this team's v1.0 defect planted verbatim as
+a named regression that must REFUSE**. **Their diagnosis is the sharpest form of L-314 and is
+carried here: v1.0 had NEITHER ARM on its own verdict logic — the guard checked everything
+except itself.**
 
 **THE GUARDS ARE NOW A TOOL, ADOPTED BY IMPORT AND PINNED — `append_guards.py` (`0794b682`),
 `verification/runs/ansys_verification/`.** heat-transfer built tonight's findings into
