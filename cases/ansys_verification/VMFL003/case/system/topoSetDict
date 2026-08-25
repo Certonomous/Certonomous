@@ -1,0 +1,81 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003 -- THE FROZEN SAMPLING RULE for the DEVELOPED-REGION DIAGNOSTIC.
+
+  These two cell zones are NOT the gate.  The GATE is the inlet-to-outlet
+  pressure difference read from the two patch `surfaceFieldValue` monitors in
+  system/controlDict, exactly as the manual defines the compared quantity
+  ("pressure difference between inlet and outlet", p. 19).
+
+  These zones support the DECLARED DIAGNOSTIC of PREREGISTRATION.md section 3.3:
+  the fully-developed axial pressure gradient, from which the friction factor
+  actually realised by the turbulence model is recovered as
+
+        f_dev = (dp/dx) * D / (0.5 rho U^2)
+
+  This isolates the turbulence model's wall friction from (i) the entrance
+  excess that the uniform inlet BC introduces and (ii) the Moody-chart read
+  that the manual's printed target rests on.  It can NEVER change the gate
+  verdict; it is printed beside it.
+
+  Both slabs are 0.04 m long (10 D) and SYMMETRIC about their nominal station,
+  so a volume average of a locally linear p returns the value at the station
+  centre to second order.  Stations:
+
+      slabA  centred x = 1.00 m  (250 D from inlet; the turbulent entrance
+                                  length 4.4 Re^(1/6) D = 0.08608400083579049 m
+                                  = 21.52 D ends at x = 0.086 m, so slabA is
+                                  more than 11 entrance lengths downstream)
+      slabB  centred x = 1.80 m  ( 50 D upstream of the fixedValue outlet, so
+                                  the outlet pressure BC cannot contaminate it)
+
+      separation SLAB_DX = 0.80 m = 200 D, fixed in grade_vmfl003.py.
+
+  At the COARSEST level (NX = 250, dx = 0.008 m) each slab holds 5 axial cells
+  x NR radial cells; at the finest (NX = 1000, dx = 0.002 m) it holds 20 x NR.
+  Neither can be empty -- and run_vmfl003.sh REFUSES to start the solver if
+  topoSet leaves either zone empty, and grade_vmfl003.py REFUSES (exit 2) if the
+  `# Cells` header of either volFieldValue output is absent or 0.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+actions
+(
+    {
+        name    slabACells;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        box     (0.98 -1 -1) (1.02 1 1);
+    }
+    {
+        name    slabA;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     slabACells;
+    }
+
+    {
+        name    slabBCells;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        box     (1.78 -1 -1) (1.82 1 1);
+    }
+    {
+        name    slabB;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     slabBCells;
+    }
+);
+
+// ************************************************************************* //
