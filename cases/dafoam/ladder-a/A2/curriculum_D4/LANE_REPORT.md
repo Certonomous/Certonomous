@@ -519,3 +519,85 @@ claim about the cap* that was wrong, and it is struck here rather than quietly e
 
 §6a's **measurements** stand as recorded — they were correctly labelled as the values observed
 at that time. It is the **inference** drawn from them that is withdrawn.
+
+---
+
+## 10. Supervisor rulings adopted into this record (2026-08-25, dafoam-supervisor)
+
+**On the floor breach — DISCLOSED AND ESCALATED, and explicitly NOT softened to a near-miss.**
+The supervisor adopted §8's structural finding verbatim and ruled: the breach is **disclosed,
+not waived** (0.712 GiB below floor, transient, no OOM, no run harmed, **no verdict adjusted
+on account of it**); this lane does **not** repair it and does **not** add a cross-lane lock
+mid-item; enforcement moves to the supervisor, who sequences launches against projected peaks;
+and the general form is **escalated to the chief**, because every team on this box launches
+lanes independently against one shared ~30 GiB, making this a **lab-wide guard-architecture
+gap rather than a dafoam defect**. Recorded as instructed: **the invariant broke, and that it
+broke harmlessly this time is luck, not design.**
+
+**On the §9 self-correction.** The struck claim stays visible in this record with its
+correction beside it, never silently deleted — a pre-repair value published beside the
+post-repair one. **This applies to a lane's own inferences, not only to case values.**
+
+**On §2's instrument gap.** Recorded, as instructed, as a textbook **L-302** instance:
+**an instrument named for a quantity it cannot see.** P2 is registered as the memory-envelope
+check and its frozen sampler carries no memory channel; the peak is `NOT_MEASURED` and
+unrecoverable for P1 and P2. §9's measurement makes the severity concrete — the envelope was
+at **85.9 % of cap with 1.692 GiB of headroom**, so it was **tight**, and the gap hid a real
+margin rather than an academic one.
+
+**On arm F — AUTHORISED, and not optional.** It needs no new registration: the frozen prereg
+§8 already registers it at **cap 120.0 core-min**, memory 12g, prediction 53.0. **Bands D and
+E stay `PENDING` and D4 is NOT reported complete until arm F lands.**
+
+---
+
+## 11. FINDING — the frozen launcher CANNOT RUN ARM F as written
+
+Discovered while preparing arm F, **before spending anything on it**.
+
+The launcher derives its work directory as one line, `d4_run_arm.sh:136`:
+
+```
+WORK="$BASE/$ARM"
+```
+
+so for `ARM=F` this resolves to `$BASE/F`. The arm-F branch then requires that directory to
+already exist, carrying arm O's history:
+
+```
+test -d "$WORK" || { echo "ABORT arm F expects an existing $WORK from arm O"; exit 5; }
+test -f "$WORK/OptView.hst" || { echo "ABORT arm F: no OptView.hst to read an endpoint from"; exit 5; }
+```
+
+**But arm O's work directory is `$BASE/O`, not `$BASE/F`** — arm O was staged into `$BASE/O`
+by the same `WORK="$BASE/$ARM"` line. Verified on disk: `$BASE/O` exists; **`$BASE/F` does not
+and never will be created by any arm.** Run as written, arm F aborts with **exit 5** having
+computed nothing.
+
+The comment on that very line — *"arm F expects an existing `$WORK` from arm O"* — shows the
+author's intent was for arm F to operate on **arm O's tree**. The naming convention
+`WORK=$BASE/$ARM` silently defeats that intent. It is a latent defect that could only surface
+when arm F was first attempted, which is now.
+
+### How it is handled — WITHOUT touching a frozen file
+
+`d4_run_arm.sh` is frozen at md5 `399957c616215c8f1ae078abe2e97958` in prereg §9a. **It is not
+edited** (rule 6; editing it would break the freeze and invalidate the §9a hash the launcher's
+own record rests on).
+
+**The remedy is to satisfy the launcher's stated precondition rather than change it:** stage
+`$BASE/F` as a copy of the **completed** `$BASE/O` tree, then invoke the frozen launcher
+unmodified. This alters **no gate, threshold, cap or label** — arm F still runs its registered
+command, under its registered 120.0 core-min cap and 12g memory cap, on the endpoint arm O
+actually produced.
+
+It also has a property worth stating because the grader depends on it: `d4_grade.py` takes a
+**single** `--work`, and reads `opt_IPOPT.txt`, `d4_major_history.json` **and**
+`d4_fd_endpoint.json` from it. Staging `F` as a copy of `O` puts all three in one directory,
+so the grader reads a coherent set rather than being pointed at two trees it cannot reconcile.
+
+**Arm O's own tree is NOT moved, renamed or deleted** — it is copied. The original remains as
+the evidence of arm O.
+
+*Recorded as a defect in a frozen instrument, disclosed here as a dated departure that changes
+no gate. Whether the launcher is amended for future items is not a lane's call.*
