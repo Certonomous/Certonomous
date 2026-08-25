@@ -443,3 +443,102 @@ ladder is re-fired after the launcher dies; (3) whether arm D's per-arm cap surv
 contact with an 8× pressure penalty, should one appear; (4) the two register rows and the
 credential denominator; (5) the two `NUMERICS_KNOWLEDGE` lines. **No agent message is
 Sanaa's consent (rule 9)**, and nothing above was sent anywhere.
+
+---
+
+## 7. ADDENDUM, 2026-08-25 18:26Z — THE OUTCOME, AND A PREDICTION OF MINE THAT WAS WRONG
+
+Appended, not rewritten. §0 and §6 above are left exactly as they were committed so the
+prediction and its correction can both be read. **Lines whose number changed above this
+section: 0.**
+
+### 7.1 I WAS WRONG ABOUT WHICH LEVEL THE BUDGET WOULD KILL
+
+**`C_RNGkEpsilon/L3_1000x5` COMPLETED. It was not killed.** `rc=0`, wall **634 s**,
+**10.566667 core-min**, against its `timeout 670` — **36 s of margin**, 5.4 %.
+
+My §0 reasoning was that C/L3 needed at least the 666–675 s A and B needed, plus a 4.16×
+RNG penalty. **The penalty does not carry to L3.** Measured: C/L3 ran at **≈35.0 it/s**
+against C/L2's 12.54 — **2.8× faster on twice the cells** — because the
+pressure-conditioning penalty §4 measured is *strongly mesh-dependent and falls with axial
+refinement*. The same trend is visible in arm A (96.47 p-iterations at L1 → 32.50 at L2).
+I had the mechanism right and its mesh-dependence wrong, and I extrapolated a penalty
+measured at L2 onto L3 where it does not hold.
+
+**The correct general statement, and it is the one worth keeping:** RNGkEpsilon's pressure
+penalty on this pipe is worst on the *coarse-axial* meshes and largely gone by
+`L3_1000x5`. A cost model that samples it at one level will mispredict every other level.
+
+### 7.2 WHAT THE BUDGET ACTUALLY KILLED
+
+**`C_RNGkEpsilon/D_500x3`** — the first level of C's wall-treatment ladder.
+`RUN_RC.txt` records `rc=124`, `wall_s=36`, `timeout_s=36`, `core_min=0.6`. Arm C had
+39.3833 of its 40 core-min gone after L3, so the ladder's first level got 36 seconds.
+
+**Strict-completion conditions it fails**, for your ruling — I have not touched it:
+**C1** (`rc=124`, not 0), and consequently **C2** (no `End` line), **C3** (last `Time` far
+below endTime 18000), **C4** (no `18000/` time directory), **C5** (`ExecutionTime` count
+≪ 18000). C6 is never reached. `D_500x4` and `D_500x6` were never created.
+
+**The frozen slate launcher exited at 18:25:00Z**, tripped by its own
+`[ "$RC" -eq 0 ] || exit 1` guard on that `rc=124` — the ≈18:25Z ETA in §0 was right, for
+the wrong level. **`COST.txt` was never written**, as predicted.
+
+### 7.3 THE MATERIAL CONSEQUENCE — BETTER THAN §0 PREDICTED, AND A NEW REFUSAL
+
+**Arm C now holds a COMPLETE Roache triple**: `L1_250x5` (5.2167), `L2_500x5` (23.6000),
+`L3_1000x5` (10.5667 core-min), **all `rc=0`**. The gate quantity for `RNGkEpsilon` exists
+on disk. That is materially better than §0 forecast.
+
+**But arm C will still not grade, and the reason is the ladder, not the triple.** Frozen
+§10: the ladder is registered for every model and *"Both M2 comparators require it (they
+refuse if a ladder level is missing)"*. Arm C is missing `D_500x4` and `D_500x6` entirely
+and holds a `rc=124` stub at `D_500x3`. **`grade_vmfl003_m2.py` will REFUSE (exit 2) on
+arm C.** That refusal will be the correct behaviour and, per your own instruction, would
+be the result — not something to work around. **I have not run it on arm C**; grading arm
+C was not mine and an incomplete arm is exactly what you told me not to grade.
+
+Arm C's cost is **39.3833 of its 40 core-min sub-cap, 98.5 % consumed**, for a triple that
+cannot currently be graded. Re-firing its three ladder levels needs roughly 6–10 core-min
+that arm C does not have. **That is a fresh-cap decision and it is yours.**
+
+### 7.4 ARM D — HANDED OFF CLEANLY AND RUNNING
+
+GUARD 0 released at **18:25:02Z**, two seconds after the frozen launcher died. Every guard
+passed, in order: prereg == HEAD == `cdbf2659…`; both comparators == HEAD and both
+self-checks OK; `build_case`/`mesh_case` extract sha256 `3fee43cb…` matched; no
+pre-existing arm-D directory; budget **seeded from 16 `RUN_RC.txt` files at 101.066667 of
+160 core-min, arm D at 0 of 40**. Smoke test passed (1 iteration, mesh certificate
+**clean** — 1250 cells, aspect 40.038, nonOrtho 0.0, skew 0.3308).
+
+`D_kOmegaSST/L1_250x5` launched **18:25:02Z**, `timeout 2400 s` (the full 40 core-min
+arm cap), mesh certificate **clean**, running at ≈39 it/s.
+
+**The collision the wait prevented was real.** The frozen launcher was still building into
+this tree eleven minutes after I was told arm D "never started". Had I fired arm D when
+the brief asked, GUARD 3 would have been satisfied and the two launchers would have
+overlapped in the run root.
+
+**Arm D's live risk, unchanged and named:** at ≈39 it/s, L1 ≈ 6.4 core-min against arm A's
+4.57 — roughly 1.4×. Extrapolated, arm D needs ~42 core-min against a **40 core-min cap**.
+The **gate level `L3_1000x5` is third in the frozen order and should run**; the tail of the
+wall-treatment ladder is what the cap will most likely take. I did not reorder to protect
+it (§2.1), and I am not raising the cap. If the ladder is truncated, arm D will refuse at
+grading for the same §10 reason as arm C.
+
+### 7.5 CALIBRATION UPDATE — arm C, for the ledger
+
+Frozen prediction per model: 28.1 core-min. **Arm C measured 39.9833 core-min for four
+levels** (three graded levels plus the 0.6 stub) — **1.4229× the whole-arm prediction while
+delivering only four of six levels**. Attribution: **not contention** (§4 —
+the box was equally loaded during arms A and B, which came in at 1.07× and 1.11×), but the
+**RNGkEpsilon pressure-conditioning penalty**, concentrated almost entirely in
+`L2_500x5` (23.6 core-min against arm A's 5.57 for the identical mesh — **4.24×**), and
+absent by `L3_1000x5` (10.57 against 11.25 — **0.94×, faster than arm A**). Slate total on
+disk at arm D's launch: **101.066667 of the frozen 160 core-min cap**; dollars
+**$0.08641 DERIVED, NOT MEASURED** at the owner-stated $0.0513/core-h.
+
+**Calibration lesson for `docs/COST_CALIBRATION.md`, offered for your read:** a per-arm
+cap built from a *model-independent* s/(cell·iter) basis is not robust to a closure that
+changes the linear-system conditioning. Arm C's cap was consumed by one level whose cost
+the basis under-predicted by 4.24×, and the arm was decapitated at the ladder as a result.
