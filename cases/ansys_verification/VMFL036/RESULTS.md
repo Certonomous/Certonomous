@@ -14,16 +14,41 @@ as absent at the freeze timestamp.
 
 ## 0. PROVENANCE OF THIS RECORD — what THIS lane measured, and what it inherited
 
-A predecessor lane graded this case and was lost to a connection drop before committing
-its `RESULTS.md`. It **had** committed the register row and the cost-calibration row at
-`6a229113`, both of which cite `cases/ansys_verification/VMFL036/RESULTS.md` — **a
-citation that pointed at a file not in git.** That dangling citation is what this record
-closes.
+### CORRECTION 2026-08-25T22:30Z — THE PARAGRAPH BELOW WAS WRONG AND IS STRUCK
 
-**This lane did not trust the uncommitted draft.** Before running anything it re-derived
-`HEAD` and asserted, by hash, that the comparator and the pre-registration on disk ARE the
-blobs committed at HEAD (`8a1aea3b…` and `5f228280…` respectively, both matching), then
-re-ran the frozen comparator from scratch.
+**What I claimed, in this section and in commit `08e0d6d0`'s message: that the predecessor
+lane's `RESULTS.md` was never committed, and that register row #20 and cost row C-92 cited
+"a file not in git". THAT IS FALSE.** Commit **`6a229113`** landed **all three together** —
+`RESULTS.md` (253 lines), the register row and C-92. There was never a dangling citation.
+
+**How I got it wrong, stated so nobody repeats it.** At my first read `HEAD` was
+`ea41497b`, which does **not** contain `6a229113`; `git status` showed the case directory
+as `??` and `git ls-files` returned nothing for it. **I read "untracked" off a shared index
+that is decayed** — it stages every file in that directory as deleted — **and off a HEAD
+that another lane then moved past.** `6a229113` landed on `main` between my first read and
+my commit. `ls-files` and `status` both consult the index; **neither is evidence about
+HEAD**, and I treated them as if they were. **The correct instrument was the one I already
+had and did not point at the file: `git rev-parse HEAD:<path>`.**
+
+**What was NOT damaged.** My private-index `read-tree` captured the *current* HEAD, so the
+commit was built on a tree that already contained the predecessor's version and replaced
+only that one file — `diff-tree` and the post-commit verify both show `RESULTS.md` alone.
+The draft on disk that I superseded is **byte-identical** to the committed `6a229113`
+version (checked), and an audit of the superseded text found **every numeric value and
+every section of it present in this record** — nothing was dropped, only added to. The
+measurements below are unaffected.
+
+~~*Struck:* "A predecessor lane graded this case and was lost to a connection drop before
+committing its `RESULTS.md`… That dangling citation is what this record closes."~~
+
+### What this record actually is
+
+The predecessor lane's `RESULTS.md` **was** committed, at `6a229113`. This record
+**supersedes it with an independently re-measured version**: before running anything, this
+lane re-derived `HEAD` and asserted **by hash** that the comparator and the
+pre-registration on disk ARE the blobs committed at HEAD (`8a1aea3b…` and `5f228280…`,
+both matching), then **re-ran the frozen comparator from scratch** rather than transcribing
+the predecessor's numbers. Every figure below reproduced digit-for-digit.
 
 | | verified by THIS lane | inherited, NOT re-verified |
 |---|---|---|
