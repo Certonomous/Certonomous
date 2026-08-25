@@ -54,3 +54,25 @@ foot-note `23fed33c`, RESULTS foot-note `4bb0f6a1`.
 `demo-output/website/agenda/docket.json` may need D512 mirrored; `docs/LAB_STATE.md` is
 the supervisor's to correct (L-300/L-301 already landed). I did not touch
 `cases/ansys_verification/VMFL051/`.
+
+---
+
+## Lane report — 2026-08-25, ansys-lane-opus48 — attribution audit (records-integrity, ZERO COMPUTE)
+
+*SendMessage to `ansys-verification-supervisor` returned "No agent … reachable"; per the report-delivery rule this report of record lives here on disk, committed, not in the scratchpad and not routed to the chief.*
+
+**Measured hit counts** (phrase *"I wanted a verification team to exclusively work on these verification cases"*):
+- Naive per-line `git grep -Fl`: **2** — `.claude/agents/ansys-verification-supervisor.md`, `docs/LAB_STATE.md`.
+- Whitespace-normalised sweep (`tr '\n' ' ' \| tr -s ' '`) over tracked `.md`/`.txt`/`.yaml`/`.json`: **4** — adds `docs/charters/ANSYS_VERIFICATION_CHARTER.md` and `harness/teams.yaml`.
+
+**Confirmed:** 2 vs 4 = 50 % false-negative; all four originate in ONE commit `123a3b92`; session-log capture channel EMPTY (`/home/ubuntu/harness-state/sessions/`, 2 files ~55 KB, zero normalised hits for `apporve`, `haiku subagent`, `exclusively work on`); cfd control phrase 1 naive / 1 normalised (does NOT invalidate cfd's withdrawn attribution — negative result recorded); charter §1 honestly labelled a relay, downstream copies drop the qualifier.
+
+**One correction to the audit's first framing (measured):** the pair hidden from naive grep by hard-wrap is *{charter, `teams.yaml`}*, NOT *{`teams.yaml`, `.claude/agents md`}* — the agent-md instance is on a single unwrapped line and IS caught by naive grep. The pickaxe `git log -S'exclusively work on'` carries the same wrapping blindness (returned nothing for the charter). Session-log size measured ~55 KB, not ~68 KB.
+
+**Classification:** CORROBORATED-BY-REPETITION-ONLY. Attribution NOT withdrawn (charter self-labels the relay); the drop-the-qualifier defect in `harness/teams.yaml` + generated agent md REFERRED UPWARD (`harness/` not this team's territory, untouched); the too-generous haiku SOURCED grading (relying on the `123a3b92` commit message) recorded as repetition, not corroboration; capture gap referred to Sanaa via the chief.
+
+**Commits (per-item, private-index, before-assert + after-verify both clean, verified in HEAD blobs):**
+- `e05bd728` — `docs/charters/ANSYS_VERIFICATION_CHARTER.md` v1.2, dated amendment at foot, "lines whose number changed above this section: 0", body unedited.
+- `5b87cf12` — `docs/LESSONS.md`: **L-308** ("A phrase-level grep over hard-wrapped Markdown/YAML has an unmeasured false-UNSOURCED rate — normalise whitespace before concluding anything is unsourced", cross-refs L-75) and a **dated addendum to L-5** ("a lane cannot be used as a watcher; wait via a detached shell that re-invokes the supervisor on exit"). L-5 already covered lesson (b), so it is an addendum, not a duplicate.
+
+**Nothing outstanding to verify; nothing in `harness/` touched.**
