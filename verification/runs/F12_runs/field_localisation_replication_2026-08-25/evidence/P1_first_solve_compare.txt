@@ -1,0 +1,27 @@
+ it field     rung1 (registered)            replication  match
+  1    Ux           0.9999999533           0.9999999533  OK
+  1    Uy           0.9999999583           0.9999999583  OK
+  1     e           0.9999999059           0.9999999059  OK
+  1     p                      1                      1  OK
+  5    Ux          0.01443870383          0.01443870383  OK
+  5    Uy          0.02263898921          0.02263898921  OK
+  5     e          0.07574811223          0.07574811223  OK
+  5     p         0.009554815904         0.009554815904  OK
+ 10    Ux          0.05549550787          0.05549550787  OK
+ 10    Uy          0.07280834961          0.07280834961  OK
+ 10     e           0.3801908309           0.3801908309  OK
+ 10     p           0.2006112477           0.2006112477  OK
+ 15    Ux          0.05391755886          0.05391755886  OK
+ 15    Uy           0.0815270827           0.0815270827  OK
+ 15     e           0.2108001786           0.2108001786  OK
+ 15     p          0.07671622987          0.07671622987  OK
+
+P1: compared 60 first-solve initial residuals over iterations 1-15, fields ['Ux', 'Uy', 'e', 'p']
+P1: mismatches = 0
+P1 VERDICT: PASS -- identical at the solver's printed precision
+
+Registered check values for p (from the pre-registration):
+  it  1: registered                1   replication                1   OK
+  it  5: registered   0.009554815904   replication   0.009554815904   OK
+  it 10: registered     0.2006112477   replication     0.2006112477   OK
+  it 15: registered    0.07671622987   replication    0.07671622987   OK

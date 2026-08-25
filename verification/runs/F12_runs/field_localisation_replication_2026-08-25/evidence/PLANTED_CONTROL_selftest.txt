@@ -1,0 +1,10 @@
+PASS  baseline: the reader reads a real written field and finds cells at all  [23040 cells]
+PASS  baseline: the CLEAN field does NOT already contain the plant value (so a positive arm cannot be a false positive)
+PASS  POSITIVE arm: reader SEES the planted anomalous internal value  [min=-7654321000.0]
+PASS  LOCALISATION arm: reader reports it at EXACTLY cell 12345  [got index 12345]
+PASS  CELL COUNT arm: planting did not change the cell count  [23040 -> 23040]
+PASS  PATCH arm: a value planted on patch 'inflow' is reported ON THAT PATCH  [min=-1357911000.0]
+PASS  PATCH SPECIFICITY arm: the patch plant does NOT leak into other patches  [checked ['outflow']]
+PASS  NEGATIVE arm: re-reading the UNPLANTED original returns no plant value, so 'no departure here' is a reading and not a blind spot
+
+8/8 control checks passed; reader IS shown able to see a planted anomaly and to localise it

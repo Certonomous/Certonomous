@@ -1,0 +1,31 @@
+cells 23040   regions aerofoil_wall=192, near_r_lt_1.5c=13497, mid_1.5_to_6c=3409, outer_6_to_20c=2842, far_ge_20c=3292, inflow_patch=240, outflow_patch=207
+
+D1  p outside [10132.5, 202650.0] Pa (pre-clip, solver print): FIRST DEPARTURE N_p = 1
+    it  1  pre-clip p min -411376.774  max 2974458.981  departed=True
+    it  2  pre-clip p min -167638.1166  max 658689.6056  departed=True
+    it  3  pre-clip p min -31076.54842  max 543586.6327  departed=True
+
+D2  T <= 0 K or T > 600 K: FIRST DEPARTURE = None  (None = not reached in window)
+    it  1  T_min 279.8794 K at cell 4599 (x=0.995635, y=0.001004, r=0.7456c)
+    it  5  T_min 271.4512 K at cell 15155 (x=-0.1627, y=-0.01147, r=0.4129c)
+    it 10  T_min 266.2669 K at cell 16514 (x=1.050604, y=0.008898, r=0.8007c)
+    it 15  T_min 244.1993 K at cell 14323 (x=0.011252, y=-0.014241, r=0.2392c)
+
+D3  region departs when max|T-300| > 0.5 K.  DEPARTURE ORDER:
+        1   aerofoil_wall
+        1   near_r_lt_1.5c
+        2   mid_1.5_to_6c
+        2   outer_6_to_20c
+        6   far_ge_20c
+        7   outflow_patch
+       10   inflow_patch
+
+Clipped-cell census on disk (spatial locator; p is censored):
+    it  1  floor   3628  ceil   3286  total   6914 (30.01%)  {'aerofoil_wall': 142, 'near_r_lt_1.5c': 6914}
+    it  2  floor   2796  ceil   4452  total   7248 (31.46%)  {'aerofoil_wall': 129, 'near_r_lt_1.5c': 7248}
+    it  5  floor    219  ceil   3454  total   3673 (15.94%)  {'aerofoil_wall': 59, 'near_r_lt_1.5c': 3673}
+    it 10  floor      0  ceil  16800  total  16800 (72.92%)  {'aerofoil_wall': 192, 'near_r_lt_1.5c': 13497, 'mid_1.5_to_6c': 2162, 'outer_6_to_20c': 1072, 'far_ge_20c': 69}
+    it 13  floor  11156  ceil      0  total  11156 (48.42%)  {'aerofoil_wall': 128, 'near_r_lt_1.5c': 7970, 'mid_1.5_to_6c': 1217, 'outer_6_to_20c': 1197, 'far_ge_20c': 772, 'inflow_patch': 15}
+    it 15  floor  21201  ceil      0  total  21201 (92.02%)  {'aerofoil_wall': 192, 'near_r_lt_1.5c': 13497, 'mid_1.5_to_6c': 3409, 'outer_6_to_20c': 2842, 'far_ge_20c': 1453, 'inflow_patch': 176, 'outflow_patch': 6}
+
+wrote /home/ubuntu/certonomous-runs/F12_field_localisation_replication_2026-08-25/evidence/departure_D1_D2_D3.json

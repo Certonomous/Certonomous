@@ -1,0 +1,15 @@
+ITERATION 1 -- 6914 cells pinned at the registered p bounds (30.01% of 23040)
+  bounding box   x [-0.1042, 1.0757]   y [-0.2697, 0.3880]   (chord is x in [0,1])
+  radial extent  r_qc [0.0556, 0.8365] chords   -- NOTHING beyond r = 0.836c
+  radial histogram of pinned cells:
+    r_qc [   0,  0.1)    533
+    r_qc [ 0.1, 0.25)   2372
+    r_qc [0.25,  0.5)   2140
+    r_qc [ 0.5, 0.75)   1627
+    r_qc [0.75,  1.0)    242
+    r_qc [ 1.0,  1.5)      0
+    r_qc [ 1.5,  inf)      0
+  nearest pinned cell to LEADING  edge (0,0): 0.00033 c
+  nearest pinned cell to TRAILING edge (1,0): 0.00448 c
+  T minimum at it 1: 279.8794 K at (x=0.995635, y=0.001004)  d_TE=0.00448 c
+  cells still EXACTLY 300.000000 K at it 1: 19787 of 23040 (85.9%)
