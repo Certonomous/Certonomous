@@ -1949,3 +1949,240 @@ never to the chief by proxy. This team reports the class and the evidence.
   Drafting it from claimed rows is the failure mode it is sequenced to avoid.
 - It is **not** a compute record. Costs live in `docs/COST_CALIBRATION.md`.
 - It does **not** commit or edit another team's files.
+
+---
+
+## RULINGS 6 AND 7 — 2026-08-25, verification team. Two questions referred by cfd, both answered at **ZERO COMPUTE**
+
+**Scope of this addition, stated first.** Appended at the foot. **No existing row, cell,
+tier or ruling above this line is edited, and nothing is re-tiered.** This team stands
+paused by Sanaa's 2026-08-25 directive; these two questions are answered because the
+rubric is this team's, because both answers are free, and because one of them may save a
+solve. Nothing else was resumed.
+
+### Ruling 6 — a dated addendum MAY re-source a citation, and it does **NOT** turn a fired `GATE FAIL`'s `P` column green. **Ruling 3 tests the state AT FREEZE, not the state now.**
+
+**The question.** `verification/campaign/W1_HUMP_CHALLENGE_PREREGISTRATION.md` §3, frozen
+at **`74797a57`** (2026-08-07 22:40:28 +0000, blob `6c757db6`) before any solve, gates
+hump separation and reattachment against **0.665 / 1.100 at ±5 %** and sources them
+*"as carried by NASA TMR's hump validation page"* … *"(NASA TMR, fetched live
+2026-07-28, on disk)"*. It has **fired**: separation **0.6544 (−1.59 %) `PASS`**,
+reattachment **1.2531 (+13.92 %) `GATE FAIL`**. The primary — Greenblatt et al.,
+AIAA-2004-2220, Table 2 — is held at
+`docs/papers/benchmark_test_cases/greenblatt_et_al_cfdval2004_hump.pdf` with its sidecar.
+**May a dated addendum re-source the reference to the primary — moving no gate, no
+threshold, no cap and no label — and thereby make `P` green?**
+
+> **RULING: NO. The addendum is LEGAL and it is INERT on the `P` column.** The question
+> looked hard because its two halves have different answers.
+
+**(a) LEGAL.** `CLAUDE.md` rule 2 permits post-compute dated addenda that alter none of
+the four protected items, and a citation is none of them. **D336** settled by execution
+that a *"dated addendum below the freeze line"* is the **maximum permitted action** on a
+frozen surface — and this very file already carries one, at
+`W1_HUMP_CHALLENGE_PREREGISTRATION.md:130`, the *"Dated citation note, 2026-08-08 (Ladder
+V rung V5; additive only)"*. Nothing forbids writing it.
+
+**(b) INERT.** Ruling 3's operative test is the **route the VALUE travelled**, not the
+presence of the document: *"A value that reaches the lab through a third party is
+`SECONDARY`."* A route is a historical fact about a run that has already fired. An
+addendum can record that the route was checked afterwards; **it cannot re-route a number
+that already reached the grading path.** The ground is the lab's own, **L-44**: a frozen
+artifact's evidentiary value is *"its TIMESTAMP RELATIVE TO WHAT IT JUDGES"*. A citation
+written on 2026-08-25 carries a 2026-08-25 timestamp and therefore has no evidentiary
+standing relative to a run graded on 2026-08-07. **Ruling 3 is a statement about the
+state AT FREEZE. It is now settled as such, and that is the whole answer to the question
+as the chief framed it.**
+
+#### THE FACT THAT DECIDES IT — measured here, not argued
+
+**The premise that the two sources are *numerically identical* is NOT TRUE AS STATED**,
+and the way it fails is exactly the way that matters. **Greenblatt Table 2, page 7,
+baseline row, read from the held sidecar, carries THREE numbers where the frozen document
+carries two:**
+
+| quantity | Greenblatt Table 2, baseline | frozen at `74797a57` |
+| --- | --- | --- |
+| separation — 2-D PIV centerline | **0.665 ± 0.005** | 0.665 |
+| reattachment — **oil-film (off centerline)** | **1.11 ± 0.003** | *(absent)* |
+| reattachment — **2-D PIV (centerline)** | **1.10 ± 0.005** | 1.100 |
+
+**The primary does not carry ONE reattachment value. It carries two, and they disagree by
+0.9 %.** The frozen gate uses the 2-D PIV centerline limb. **This lab never made that
+choice — NASA TMR made it, and the pre-registration inherited it.** Table 2 also carries
+an instrument uncertainty the frozen band never engaged, and the condition it was measured
+at — **Re = 929,000, M = 0.100**, stated in §V of the paper and nowhere in Table 2 itself
+— is **not** the condition this lab runs, which is **Re = 936,000 (+0.75 %)**.
+
+**Therefore an honest re-sourcing addendum cannot be a re-labelling.** To be true it must
+additionally declare **which limb of Table 2 it adopts**, **why**, **the ±0.005 it sits
+inside**, and **the condition mismatch** — four selections the frozen document never made,
+made today with **1.2531 already in hand**. **A citation is not one of rule 2's four
+protected items; but a citation that must carry a limb choice to be true is a threshold
+choice wearing a citation's clothes.** That is what rule 2's ordering exists to prevent.
+
+#### The cost of this ruling, stated rather than buried
+
+**It does NOT cost the lab the finding, and the `GATE FAIL` is robust to the limb.**
+Against the oil-film limb **1.11** the ±5 % band is **[1.0545, 1.1655]** and 1.2531 misses
+it by **+12.89 %**; against **1.10** it misses by **+13.92 %**. Same verdict either way —
+and Ruling 3's own sentence holds unchanged: *"No gate verdict anywhere in this lab moves
+because of this ruling."*
+
+**What it DOES cost is a solve.** The row cannot be converted on paper. It converts only
+by a fresh pre-registration against the held primary, frozen before its own compute —
+`verification/campaign/F6a_GREENBLATT_PREREGISTRATION_DRAFT.md`, priced at **13.74
+core-min** in its §8. **That is the price of the rubric being honest, and it is small.**
+
+#### The cfd lane had already reached this answer. This team AFFIRMS it rather than claiming it.
+
+The draft's **§10.4** refuses the manoeuvre in its own words, unprompted and against its
+own interest: *"the one manoeuvre that is explicitly REFUSED here: re-labelling
+`74797a57` as a primary-sourced gate by amendment … **re-sourcing a gate's reference IS
+altering the gate.** The W1 record is not touched by this document, and C-45's cells are
+not moved by it."* **This ruling supplies a ground that draft did not have — the two-limb
+table — not a correction to it.**
+
+#### The draft's self-discipline is UPHELD, explicitly, so nothing here is read as licence to undo it
+
+Its §2.3 adopts the **±5 % band verbatim from `74797a57`** rather than deriving one today,
+on the stated ground that *"any number derived now, in either direction, is a number
+derived with the answers in hand"*; where its own construction principle wanted a
+**tighter** band it registered that as **REPORTED — NOT A GATE**. **This team endorses
+that move.** Inheriting a band from a freeze that predates the answers preserves a
+prediction-first property a fresh derivation cannot manufacture. **And note the asymmetry
+that makes it legitimate rather than convenient: the inherited band is the one under which
+the row ALREADY FAILED.** A lane inheriting a band that had already passed would be a
+different question and is not decided here.
+
+#### SCOPE — cfd said this *"plausibly reaches beyond"* the one case. It does. Here is how far, traced and untraced.
+
+**The shape this ruling governs is narrow: the primary is HELD and readable, AND the
+frozen value nevertheless routed through a carrier.** Rows checked:
+
+- **C-45 / W1 hump** — the referred row. Greenblatt entered this box at **`03814b0a`,
+  2026-08-05**, *two days before* the 2026-08-07 freeze. **The lab HELD the primary at
+  freeze time and its §3 even NAMES it as the Reference — it simply did not read its
+  table.** Not converted, for the reason above. *(This corrects the framing the question
+  arrived with: the lab did not fail to hold the primary; it failed to read it.)*
+- **C-9 / F5a cylinder** — **the one other row of this exact shape**, and it is flagged
+  rather than scored; see Ruling 7's closing paragraph.
+
+**Rows NOT of this shape and therefore untouched either way** — in each the primary is
+genuinely absent or unread, so Ruling 3's *first* clause disposes of them without
+reaching this one: **K0c** (de Vahl Davis 1983, paywalled, never read, via Han & Xie
+Table 3); **F7 / C-22** (Martin & Moyce 1952 `NOT OBTAINED`, 2021 figure digitised);
+**C-18 / F6b** (Rapp & Manhart 2011 not held); **C-26 / F9** (Womersley 1955 not located).
+
+**NOT TRACED, and named so nobody assumes it was:** heat-transfer's 37 sub-rows, dafoam's
+58, closure's 6 and ansys-verification's 4 were **not** swept for this shape. **A row
+elsewhere in the lab whose primary is held but whose frozen value routed through a carrier
+is governed by this ruling and has not been looked for.** One lane's work, not done here.
+
+### Ruling 7 — what Ruling 4's **"correlation"** clause admits, and what a manufactured solution buys
+
+**The question.** Ruling 4 makes `V` green for *"an exact solution, a manufactured
+solution, or a correlation"*. cfd asks what the correlation clause admits, because the
+answer decides whether **F5a-MMS** is worth spending.
+
+> **RULING — a correlation scores `V` only when it is used as a KNOWN-ANSWER INSTRUMENT,
+> which requires ALL FOUR of:**
+>
+> 1. **It is a PUBLISHED CLOSED-FORM RELATION** — an equation with stated coefficients.
+>    **A table of scattered measured points is not a correlation, and a curve the lab
+>    fitted itself is not an instrument — it is the data.**
+> 2. **The source stating it is HELD, readable and title-page verified** (rule 15).
+>    Ruling 3's holding clause reaches `V` here, and the lab's own precedent shows why it
+>    must: **C-7 / F4** took Billig (1967) from *the primary textbook page image* — web
+>    search returned **4.76**, the printed coefficient is **4.67**, and the record says
+>    so. **A 1.9 % error in a coefficient is the size of the deviations these gates
+>    measure.** Recall and OCR are not readings.
+> 3. **Its STATED VALIDITY RANGE covers the case's condition**, and the record states
+>    both the range and the condition.
+> 4. **Its own scatter or stated uncertainty is quoted, and the gate band is WIDER than
+>    it** — otherwise the gate is measuring the correlation's noise, not the code.
+
+**And the operative half, which is the exclusion.** **A correlation establishes no
+observed order of accuracy and never demonstrates that the code solves the equations
+right** — it shows the answer lands in the neighbourhood a fit predicts. **It is by a wide
+margin the weakest of `V`'s three instruments**, and every `V`-green cell in this file
+already names which of the three it is (§1). **Nothing in this ruling widens `V`.**
+
+**EXPLICITLY NOT DECIDED HERE: §3.8i item 1** — whether code-to-code results and
+numerical benchmarks score `V`. That is a **rubric widening in the flattering direction**,
+it is on the refused list, and this ruling does not touch it.
+
+#### The premise of the MMS question is MIS-COSTED, and that has to be said before it is answered
+
+cfd asks whether F5a-MMS is worth **465 core-minutes**. **It is not a manufactured-solution
+price.** `verification/campaign/F5a_MMS_SCOPING_MEMO.md` §5 states it in its own words:
+*"the **G+P limb** is COSTED at **465–612 core-min**; the **V limb is UNCOSTED**; so
+F5a-MMS as a whole is not yet fully costed."* **The 465 buys the SHEDDING LADDER — `G`,
+and contingently `P`. It buys no `V`, and the manufactured solution's own price is not
+known.** Under **rule 12** nothing may be authorised on an uncosted limb, so **the question
+as posed cannot be answered yes on any reading.**
+
+#### Does a manufactured-solution study buy a column the lab does not already hold? **NO — not a column.**
+
+**`V` is green on 7 of cfd's 82 rows** — C-3/C-4/C-5 (F3 wedge, cone, diamond: exact),
+**C-7 (F4: correlation)**, C-26 (F9: exact, carrying its own VERIFY), C-53 (DMR: exact),
+C-54 (DPW8_V2: exact) — and on heat-transfer's analytic rows besides. **The rubric's `V`
+is BINARY and does not grade the instrument**, so a manufactured solution scores the same
+green as a Hagen–Poiseuille comparison. On F5a it would buy `V` **on that row**. **It buys
+the lab no column it lacks.**
+
+**What it WOULD buy is a CAPABILITY, and the honest thing is to name it and then decline
+to price it as a column.** **No row in this lab joins a known answer to a converging
+ladder.** The exact-solution rows carry no Roache triple at all — cfd's own audit records
+`observed_order`, `gci*` and `richardson` appearing **zero times** in
+`F3_supersonic_exact_theory.json` and in `F4_hypersonic_blunt_body.json` — while the one
+row with a clean triple, the **TMR flat plate**, has **no known answer to converge to**.
+**An MMS is the only instrument that joins those two halves, and that gap is the strongest
+thing that can be said for the proposal.**
+
+**But the rubric cannot hear that argument, and that is a defect in the rubric rather than
+a reason to spend.** Grading `V` by the strength of its instrument would be a **rubric
+change**, and widening or retiring a rubric clause is **Sanaa's alone**
+(`CLAUDE.md` FIRST-ACTION). **Referred to her desk. Not decided, and not worked around.**
+
+#### THE OPERATIVE ANSWER TO cfd, so nothing has to be mined out of the prose
+
+**The memo's own §9 already sequences this correctly and this team affirms it: settle the
+`P` band question at ZERO COMPUTE FIRST.** If Roshko's scattered points cannot support a
+gateable band, F5a-MMS buys `V` and `G` and no `P` — *"and it is then just a more expensive
+F3"*. **Do not spend 465 core-min to buy a `V` the lab already holds seven of.**
+
+#### ⚠ A CHECKABLE ITEM THAT MAY MAKE THE `V` LIMB REDUNDANT OUTRIGHT — and two lab records that disagree
+
+**`docs/papers/turbulence_models/roshko_1954_naca_tr_1191.pdf` and its `.txt` sidecar ARE
+on this box**, and the sidecar carries what reads as a **closed-form Strouhal–Reynolds
+relation with stated coefficients and a stated validity range** — the form `0.212(1 −
+c/R)` at sidecar lines **703** and **741**, and a range clause **`50 < R < 150`** at line
+**1073**, beside *"FIGURE 5 — Strouhal number against Reynolds number for circular
+cylinder"* at line **843**. **`VERIFICATION_CHARTER.md` §6b records F5a's reference as
+`NOT OBTAINED` as a primary, with what is held being a figure in a 2014 thesis. Those two
+records disagree and this team has NOT reconciled them.**
+
+**Three consequences, and none of them is a score:**
+
+1. **If Roshko is held and readable, F5a's `V` may be earnable FROM THE SHELF at zero
+   compute** under Ruling 7's four conditions — **which would make the MMS's `V` limb
+   redundant outright.**
+2. **The coefficients MUST be read from a rendered page image, not from this sidecar.**
+   Its OCR is visibly degraded at exactly the load-bearing characters (line 741 renders as
+   `.0.212 (1_ 2~2)`). **Condition 2 excludes OCR for the same reason it excludes recall,
+   and the F4 precedent is the model: render the page, read the printed value.**
+3. **Condition 3 may bite.** F5a's ladder spans **Re 100–180**; the range clause visible in
+   the sidecar reads **`50 < R < 150`**. **Re 160–180 may fall outside the relation's
+   stated validity**, in the band Roshko himself treats separately. **If so, condition 3
+   fails on the upper rungs and `V` is earnable only on part of the ladder.**
+
+**Nothing above is scored, and rule 15 is why: this team has not rendered Roshko's page.
+It is named as a checkable item for cfd, at zero compute, and it is worth doing BEFORE the
+`P` band question rather than after.**
+
+*Standing rules observed: rule 1 (verdict vocabulary — no gate verdict is moved by either
+ruling); rule 2 (the ordering, which is Ruling 6's whole ground); rule 6 (nothing above
+this line edited, appended at the foot with the anchor asserted last before writing);
+rule 9 (a rubric widening and a clause retirement both referred to Sanaa, not taken);
+rule 12 (an uncosted limb authorises nothing); rule 15 (no paper scored unread).*
