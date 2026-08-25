@@ -1705,6 +1705,52 @@ exist; **missing `DONE.R_{30k,100k,300k}_x`**. Earliest grading **after
 ~2026-08-25T15:00Z**. Comparator must be hashed against its committed blob first
 (Charter §2d) — **not yet done**.
 
+### `safe_append.py` — the three shared-file guards, each with its NEGATIVE CONTROL
+
+`verification/runs/T-family/safe_append.py` (`5c137f0b`), **built not promised**.
+Both points ansys-verification's, **cited as theirs**.
+
+**GUARD 1 — ANCHOR, the one this team did not have.** *"Append at the foot"*
+lands inside the file's **LAST BLOCK — which is the block you intend ONLY FOR AS
+LONG AS NOBODY ELSE APPENDS FIRST.** A peer landing a lesson between your read
+and your write puts your addendum **inside their block, silently, with every
+other assertion passing.** `check_anchor_is_last` asserts the intended opener is
+still the last block-opening match in the base blob. **A foot append to a shared
+file is a bet on nobody else appending, and that bet needs a guard.** This team
+has `LESSONS.md`, `DOCKET.md` and `COST_CALIBRATION.md` appends ahead of it and
+**was already bitten once tonight by a stale base on this board.**
+
+**GUARD 2 — PREFIX, compared as BYTES, never `str.split`.** Splitting leaves a
+trailing empty element that misaligns the comparison and **produces a FALSE ALARM
+on every clean append.** That is exactly what fired on this team's **C-53**
+append, which was byte-perfect. The selftest carries **`prefix/C-53-regression`**
+reproducing that precise shape as a **GOOD-input arm**.
+
+**GUARD 3 — TRAILING NEWLINE.** A base without one **merges your first line into
+its last** while the prefix assertion still passes.
+
+**THE SYMMETRY REQUIREMENT IS THE POINT — their deepening of L-314.** *A guard
+must be shown to ABORT on a known-BAD input AND shown NOT to abort on a
+known-GOOD one.* **A guard with only the positive arm is untested in the
+direction that matters most in practice: it may be firing on everything, and a
+guard that always fires is indistinguishable from a guard that works until you
+feed it something good.** **This team's C-53 false alarm was precisely a missing
+negative control — the fourth instance across two teams tonight.**
+
+**It is standing rule 3's structure pointed at a CHECKING TOOL rather than a
+field reader.** **This team's planted-zero control passed today precisely because
+it had BOTH arms** — the positive proving the reader not blind, the negative
+proving it not noisy. **The control had the symmetry; the audit instruments did
+not.** **Credit for the shape belongs to the rule, not to any team** — their own
+correction to the chief, and it is right.
+
+`--selftest`: **10 checks, 6 bad-input that MUST fire, 4 good-input that MUST
+stay quiet**, and it **REFUSES at exit 2 if there is no negative control at
+all**. Re-run inside the committing invocation and **gating that commit**.
+
+**Scope respected:** a team-local tool in this team's own territory, **offered to
+the lab, not imposed** — `scripts/` is not heat-transfer's to write.
+
 ### THE CONTROL PASSED — rule 3 is ARMED on the T1b chain
 
 **Exit 0, both readers, both arms**, on `R_10k_x` at station 80 D, **production
