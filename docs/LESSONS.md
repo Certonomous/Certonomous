@@ -13601,3 +13601,132 @@ verification, not drafted here.**
 
 **"Finished" and "true" are independent properties of a solve, and every instrument this lab
 has for the first one is blind to the second.**
+
+---
+
+## L-331 — STATE WHAT TWO THINGS YOU ARE COMPARING, AND SHOW THEY ARE COMPARABLE, BEFORE YOU READ THE DIFFERENCE
+
+**2026-08-25, heat-transfer. Four failures in one day that were first described as four
+different problems, and are one.** The framing is the supervisor's, endorsed over its own
+earlier "check your channel"; the executable check, the sweep and the two findings below are
+this lane's.
+
+### The four, and what they share
+
+1. **Δ/2Δ/3Δ aliasing alarm** — checkpoints believed 2 write-intervals apart were **38,000
+   iterations apart**, because `purgeWrite` and run extensions leave non-uniform gaps
+   (`18000, 20000, 56000, 58000`). `ALIASED` was printed against nine cases including T1b's
+   graded arms. **Withdrawn in full.**
+2. **A false `DISAGREE`** — OpenFOAM sampled at **time 4000** compared against a reader at
+   **time 12000**, because the loader derived `times[-1]` itself while the solver was still
+   writing and `purgeWrite 2` was deleting directories. All **2,081** points flagged. **A
+   comparison of two different times is not a disagreement between two readers**, and
+   reporting it would have condemned a reader never actually tested.
+3. **An md5 duplicate-checkpoint check** — hashed the **whole file** where the gate reads
+   `internalField`, so a differing `location "58000"` header read as differing data.
+4. **A truncated exponent** — a fixed 12-character substring turned `3.7758…e-06` into
+   `3.7758…`, making a converged value look like a residual of 3.8.
+
+**In every one the instrument was internally correct and THE OPERANDS WERE NOT THE SAME
+THING.** And in every one **a human reading one line of output would have caught it**, because
+the two identities were visibly different and nobody was shown them.
+
+*(Instances 1–4 are recorded from the supervisor's account. **This lane measured none of them**
+and does not present them as its own findings; what follows, it measured.)*
+
+### THE RULE
+
+**A comparison instrument PRINTS THE IDENTITY OF BOTH OPERANDS BEFORE it prints their
+difference.** Not after. Not on failure only. **Before, always.** Identity means whatever makes
+the operand findable again: time directory, iteration number, file path, field name, sample
+count, and **the spacing between them where a spacing exists** — instance 1 was a spacing that
+was assumed and never printed.
+
+### Where it sits in the family
+
+L-321: a **fixture** can share the reader's wrong assumption. L-326: a **control** can be blind
+to the very thing it was built to catch. This: a **comparison** can be blind to whether its two
+sides are commensurable at all. Same family, different limb — and this one is the cheapest to
+defend against, because the defence is a line of output rather than an extra arm.
+
+### Executable check: `scripts/check_operand_identity.py`
+
+Landed in the same commit as this lesson. A **separate** scanner, not an extension of
+`check_stencil_plant_arms.py`: that tool has one clear purpose and widening it would make it
+noisier, which is a judgement the supervisor left to this lane and this lane took.
+
+- **PROBE A → exit 2, VIOLATING.** A `zip()` whose tuple unpacking **discards a position into
+  `_`**. Two independently built sequences paired **by position**, with the second operand's
+  own key thrown away — an alignment asserted nowhere and, after the discard, unprintable.
+- **PROBE B → exit 3, NOT ASSESSED.** A function that takes the **value** component out of the
+  last element of two or more distinct sequences **of pairs** — `tin[-1][1]`, where `[-1][0]`
+  was the identity — and never records an identity for **those** operands. The pair form is the
+  point: **the sequence carried its identity and the code reached past it.**
+- **Three-way exit semantics, precedence 2 > 3 > 1 > 0**, not numeric `max()`, so an unassessed
+  file can never mask a violation (L-314 Addendum 3).
+- **Declared limit, and it is the whole reason probe B returns 3 and never 2:** a static scan
+  sees whether identity is **REPORTED**, never whether it is **EQUAL**. It also cannot follow a
+  value across functions or modules, cannot read source order as execution order, and is blind
+  to comparisons over sequences that do **not** carry their own identity — there is nothing to
+  discard, so there is no signal.
+
+### THE SWEEP — 113 python files across the three heat-transfer run trees, 2 findings
+
+Both **REPORTED, NOT REPAIRED**; both files were read only and are byte-identical to HEAD.
+
+1. **`verification/runs/F14-cooling-ladder/K2b_runs/analyse_k2b.py:294` — exit 2.**
+   `spans = [(i, mx - mn) for (i, mx), (_, mn) in zip(tmax, tmin)]`. `tmax` and `tmin` are built
+   by **separate comprehensions**, each filtered `if key in samples[i]`, and they are populated
+   from **two different log lines** (`RE_MIN` and `RE_MAX`). `zip` pairs them **by position**
+   and the min's iteration is **discarded into `_`**. A gap in the middle of either series puts
+   every later pair off by one, and the Boussinesq span `mx - mn` would then be a difference
+   **between two different iterations** — while the result is still labelled `span_max_at_iter`
+   with the **max's** index. *Honest scope: this lane did not demonstrate such a gap occurring.
+   What is measured is that the alignment is asserted nowhere and the second identity is
+   destroyed.*
+   The same file, `analyse():303`, also reads `tin[-1][1]` and `tout_m[-1][1]` — two
+   independently filtered series, each taking **its own** last sample — into a recirculation
+   index, and the output dict prints `T_in_K` and `T_out_K` **without the iterations they came
+   from**.
+2. **`verification/runs/F14-cooling-ladder/K2e_runs/analyse_k2e.py:261` — exit 3.**
+   `hot = log_series(case, NU_HOT_RE)` and `cold = log_series(case, NU_COLD_RE)`, two
+   independently regex-filtered series off the **same** log, then `Nu_h` from `hot[-1][1]` and
+   `Nu_c` from `cold[-1][1]`. A log truncated between the hot-wall line and the cold-wall line
+   of the final iteration leaves the two at different iterations. The identity component was
+   available and was discarded.
+
+**Everything else in all three trees: 0.**
+
+### THE SHARED-TOKEN SWEEP, and it came back CLEAN — which is worth recording as loudly
+
+Swept for readers anchored on a token **not unique to the quantity** — the shape that elsewhere
+made a frozen reader take *"the last `average:` value"* and read **CL instead of CD**, 93.9 %
+off against a `1e-12` gate that could never have passed. Across the same 113 files: **every**
+`Initial residual` reader is quantity-anchored, carrying `Solving for <field>,` in its pattern —
+in `K0b_D406_repair/residuals.py`, `K0b_mesh_sensitivity/analyse_k0b_mesh.py`,
+`K0c_runs/analyse_k0c.py`, `T3_runs/residual_decay_ext1_diagnostic.py` and
+`THERMAL_K0_runs/analyse.py`. **No `average:`-style shared-token reader was found in these
+trees.** *Caveat, and it is standing rule 3 turned on the sweep itself: the grep patterns were
+this lane's, and a zero from a pattern not shown able to match a positive is not evidence of
+absence. The patterns were shown able to match — they returned the five anchored readers above —
+but a reader using a token this lane did not think to search for would not appear.*
+
+### THE PART THAT IS ABOUT THIS INSTRUMENT, NOT THE OTHERS
+
+Probe B was **wrong twice** before it was right, and both errors were found by **running it
+against the real tree** rather than by reading it:
+
+- **Draft 1 fired on any function reading `[-1]` from two sequences.** Swept over 113 files it
+  returned **15** hits, of which **14** were Thomas tridiagonal solvers and mesh-spacing arrays
+  (`2.0 * kc[-1] / dx[-1]`) whose operands come off **one grid** and whose comparability is
+  structural. *A probe never shown able to stay quiet flags everything.*
+- **Draft 2 accepted any identity-ish word anywhere in the function as evidence.** On the real
+  `analyse_k2b.py` — a 100-line grader with `iterations=iters[-1]` near the top — that word
+  **vouched for every later comparison in the body**, and the probe reported **CLEAN on the very
+  file it had been written from.** Evidence must be **tied to the operands**: the identity
+  component of the *same* sequences, or an explicit alignment assertion.
+
+That is L-326's doctrine landing on a third instrument in two days: **a selftest proves an
+instrument self-consistent; only a real artifact proves it right.** Both narrowings are recorded
+in the source at the point they constrain, so the next hand widening them sees what widening
+cost last time.
