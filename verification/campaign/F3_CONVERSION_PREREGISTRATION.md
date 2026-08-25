@@ -806,3 +806,85 @@ The repaired comparator **extracts and grades in ONE MOTION**, so no gate quanti
 observed before the criteria are fixed. This amendment is committed **first**.
 
 *Amendment 2 ends. Zero compute: no solver ran, no run directory was created or modified.*
+
+---
+
+## ADDENDUM 3 — 2026-08-25: the §8 sha256 for `grade_f3.py` is RECORDED POST-REPAIR, and AMENDMENT 1's `:557` assertion about it is SUPERSEDED
+
+**Document version 1.2 → 1.3.** Written by a cfd lab-lane under cfd-supervisor, on that
+supervisor's ruling of 2026-08-25 (`verification/runs/F3_runs/conversion_2026-08-24/BAND_ONLY_RULING_2026-08-25.md`).
+
+> **Lines whose number changed above this section: 0.** Verified by diff, not asserted: the
+> file immediately before this append was copied and diffed against the file carrying it; the
+> change is a **single trailing hunk with ZERO deletions**, and the byte prefix of the new file
+> over the old file's full length (45,073 bytes, 808 lines) is **identical**. Both figures are
+> printed in this addendum's commit message.
+
+**This addendum alters NO gate, NO threshold, NO cap and NO label, and it REGRADES NOTHING.**
+Every band in §3/§4.4, §7's HARD CAP of 39.5 core-min, and every verdict meaning in §9 stand
+exactly as frozen. No verdict in `RESULTS.md` or `F3_CONVERSION_GRADED.json` is touched. F3's
+tally stands at **5 PASS, 1 GATE FAIL, 1 NOT A RESULT, 3 PENDING**.
+
+### 1. THIS IS NOT A FREEZE BREACH — stated first, because the defect is that it LOOKS like one
+
+**§8's operative mechanism is a BLOB check against the commit passed at run time, not a
+comparison against the sha256 literal printed in §8's table.** `grade_f3.py` is invoked with
+`--prereg-commit <sha>`; `verify_frozen_against_commit()` (`grade_f3.py:107-127`) hashes the
+file on disk against `git cat-file blob <sha>:verification/runs/F3_runs/conversion_2026-08-24/grade_f3.py`
+and **refuses (exit 2)** on any mismatch. That check **ran and passed**:
+`F3_CONVERSION_GRADED.json` records `prereg_commit: "48b7812a"`, `sha256:
+"e7602996cb75fd61e95a51a85910b24cf0a675b6eee05e8b7c3d2e5ae0b88570"`, `frozen_match: true`, and
+`RESULTS.md` discloses the re-freeze on its own face: *"Grading path re-frozen at `48b7812a`,
+blob `6fea2e1d`."*
+
+**The grade is therefore defensible and is not reopened by this addendum.** What was missing is
+a **pointer**, and nothing more.
+
+### 2. The gap, stated exactly
+
+§8's table records `grade_f3.py` at sha256
+`fe9fe6dfa94f529634355da152486983a847d9003e6ab05c129585cfdff04f87` — the value at the ORIGINAL
+freeze. **AMENDMENT 2 repaired `grade_f3.py` under §2d.1** (the `report["runs"]` two-constructor
+schema defect, L-322) and re-froze the grading path at commit `48b7812a`, **but recorded no
+post-repair sha256 anywhere in this document.**
+
+Consequence: a reader who hashes `grade_f3.py` against §8's literal gets a **mismatch with no
+in-document explanation**, and must reconstruct the re-freeze from `RESULTS.md` and the graded
+JSON to discover that it is legitimate. **A records defect that makes a defensible grade look
+undefendable is worth repairing even though no verdict moves.**
+
+### 3. THE POST-REPAIR VALUE, RECORDED
+
+| file | sha256 | git blob | status |
+|---|---|---|---|
+| `verification/runs/F3_runs/conversion_2026-08-24/grade_f3.py` | `e7602996cb75fd61e95a51a85910b24cf0a675b6eee05e8b7c3d2e5ae0b88570` | `6fea2e1d64cc3c377dd0e05ee4c08f6e83e1d049` | **POST-AMENDMENT-2, and the file that actually graded F3** |
+| same path, at the original freeze | `fe9fe6dfa94f529634355da152486983a847d9003e6ab05c129585cfdff04f87` | — | **superseded by AMENDMENT 2's §2d.1 repair** |
+| `verification/runs/F3_runs/conversion_2026-08-24/rerun_f3.py` | `d53d32e8e779c3725bfe49b825535e9f58acb92023121f6f6f89e3467072abb2` | `77615bd94b645b97985f9717f489850879d1ae55` | **unchanged since the original freeze** |
+
+**§8's table is NOT edited** (standing rule 6: frozen files are not edited). The row above is
+the operative record for any reader hashing the grading path from this date forward.
+
+### 4. AMENDMENT 1 `:557` IS SUPERSEDED ON THIS ONE POINT, AND ONLY THIS ONE
+
+AMENDMENT 1 asserts that *"the §8 grading-path sha256 pair and every §9 verdict meaning stand
+**exactly as** [frozen]"*. AMENDMENT 1 was written **before** AMENDMENT 2 repaired
+`grade_f3.py`, so that clause was true when written and is **overtaken by the later repair**.
+
+**Superseded:** the clause insofar as it asserts the §8 **sha256 pair** stands unchanged. The
+`grade_f3.py` half of that pair changed under §2d.1; the `rerun_f3.py` half did not.
+
+**NOT superseded, and expressly reaffirmed:** every §9 verdict meaning, which AMENDMENT 2 also
+declares untouched, and every other assertion AMENDMENT 1 makes. **AMENDMENT 1's own
+withdrawal of the §"Why this document exists" attribution stands and is not reopened.**
+
+### 5. Scope, stated so this addendum cannot be cited for more than it does
+
+- It records a hash and supersedes one clause of one earlier amendment.
+- It does **not** regrade, re-run, or re-open any row. F3's three unlaunched rows stay
+  **`BLOCKED`** as a launch request and **`PENDING`** as graded cells, exactly as
+  `PENDING_ROWS_DISPOSITION.md` leaves them.
+- It does **not** authorise, cost or pre-register any compute. **Zero compute: no solver ran,
+  no run directory was created or modified.**
+- The cone M3.0/θc12 pair remains deliberately not re-run per §6 and is not a credential.
+
+*Addendum 3 ends.*
