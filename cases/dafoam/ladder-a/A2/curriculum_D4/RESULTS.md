@@ -731,3 +731,15 @@ Core-minutes **measured from `acc_ledger.txt`, `f2_ledger.txt` and `f3_ledger.tx
 6. **D7 (A3) carries `D4-DEF-4` unrepaired** — `cases/dafoam/D4DEF4_BLAST_RADIUS_SWEEP.md`. Its
    error is **not yet demonstrable** (no history exists), so no repair is authorised and none was
    taken.
+
+### 11.11 CORRECTION to §11.8 — the calibration row ids
+
+§11.8 was committed at `4eae12f4` naming rows **C-92, C-93, C-94, C-95**. **Those are not the
+ids.** `docs/COST_CALIBRATION.md`'s tail was re-derived **at commit time, in the same shell
+invocation as the commit** (`CLAUDE.md` rule 11), and a peer had already taken **C-92** while this
+lane was working. The rows landed as **C-94,C-95,C-96,C-97**.
+
+**Recorded as a correction rather than an edit**, because §11.8 is committed and this file's own
+pattern is to supersede by appending. **This is exactly why rule 11 says ids are assigned at
+commit from the maximum existing number, never reserved in advance** — the number written into
+prose minutes earlier was already stale.
