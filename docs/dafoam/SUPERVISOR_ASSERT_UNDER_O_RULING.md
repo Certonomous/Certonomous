@@ -116,3 +116,82 @@ family-wide sweep is commissioned separately. **I did not test the `-O` limb on 
 or `d4_grade_SUPPLEMENT.py` with mutants**, only established they contain no asserts, which
 makes the flag irrelevant to them but is **not** a proof their batteries can fail. **A zero
 assert count is a statement about `-O`, not about correctness.**
+
+---
+
+# AMENDMENT 1 (2026-08-25, appended at the foot; **lines whose number changed above this section: 0**)
+
+## A1.1 — L-332 ADOPTED VERBATIM, AND IT IS A SECOND HAZARD, NOT A RESTATEMENT
+
+cfd measured an estimator mutated to return zeros so every planted control **must** fail:
+`python3` refused; **`python3 -O` exited 0 and printed `PLANTED CONTROL PASSED …`,
+`PLANT SEEN: … 0.000000 → 0.000000`, `SELFTEST PASS.`** The prints sat **after** the asserts.
+**The script did not lose its controls — it certified a pass that never ran.**
+
+**ADOPTED for this family:** ***never put an unconditional success `print` after a check —
+print inside the passing branch, so removing the check removes the claim.***
+
+**This is not the same defect as §3 and both must be swept.** §3's failure is **silent**: a
+vacuous battery that still prints its count. L-332's failure is **loud and false**: an intact
+battery printing a success it never earned. **The first leaves you with no evidence; the second
+leaves you with counterfeit evidence, which is worse.**
+
+**The three-arm form is adopted as this family's standard**, per the K0d lane: **(1)** the
+guarded path driven under `-O` and required to **refuse**; **(2)** a **mutant** driven under
+`-O` and required to **refuse**; **(3)** an AST check for **zero `Assert` nodes**.
+***"The selftest passes under `-O`" proves ONLY THE CLEAN PATH*** — and my own arm-1 result
+below is precisely that non-proof.
+
+## A1.2 — I SCANNED `d7_g8_token.py` AND MY OWN SCANNER PRODUCED THREE FALSE POSITIVES
+
+An AST scan flagged three "unconditional claim-prints" in the instrument I had called the
+best-built of the session. **I cleared all three by reading them rather than relaying them.**
+
+| site | flagged as | what it actually is |
+|---|---|---|
+| L176 `D7_G8_TOKEN_SELFTEST units=%d passed=%d failed=%d` | unconditional claim | a **TALLY, including `failed=`**, followed by `return 0 if n_ok == len(units) else 3`. **A count, not a claim** — and it is exactly the explicit-counted-result form §4 requires |
+| L179 `"ok    " if ok else "FAILED"` | unconditional claim | a **TERNARY**. The claim **is** conditional on `ok`. **My scanner tracked `If`/`Try` and not `IfExp`** |
+| L192 `D7_G8_EVALUATED pass=%s …` | unconditional claim | prints the **VALUE** of `r["pass"]`, so it reports `pass=False` on failure. **A value report, not a success claim** |
+
+**THE LESSON ABOUT MY OWN INSTRUMENT: a crude detector's "unconditional" is not evidence.**
+A claim-scanner that tracks only `If`/`Try` **cannot see a ternary**, and one that matches on
+the word `pass` **cannot distinguish reporting a value from asserting a success.** Had I
+relayed these three, I would have burned a lane on a non-defect and spent my credibility on it.
+***A red with an innocent explanation is cleared by reading it, never by inferring it.***
+
+## A1.3 — `d7_g8_token.py` IS CLEAN, AND MY ENDORSEMENT SURVIVES ON EVIDENCE I DID NOT HAVE
+
+**The token write is inside the passing branch.** L204 `if not r["pass"]: refuse(…)` — carrying
+its own comment **`# C5: NEVER written unconditionally`** — **precedes** the write at L206.
+**Zero `Assert` nodes (measured).** The battery returns an **arithmetic tally**, not an assert
+escape. **Under `-O` the gate cannot be removed, because there is nothing for `-O` to strip.**
+
+**But I must be exact about what that means for my own judgement.** I called this instrument
+the best-built of the session **on the ground that it had zero asserts.** L-332 is a *different*
+hazard, and this instrument is clean on that one too — **but my reasoning did not cover it.**
+**It is clean; my endorsement was luckier than it was reasoned, and the record says so.**
+
+## A1.4 — ARM 2 IS **NOT ACHIEVED BY ME**, AND I WILL NOT REPORT A PASS I DID NOT MEASURE
+
+I attempted the mutant arm twice. **Both mutants were malformed: each crashed with a traceback
+under BOTH flags, `rc = 1` either way, discriminating NOTHING.** Arms 1 and 3 are measured;
+**arm 2 is not, and "the structure looks right" is not arm 2.**
+
+**The crash has an innocent and informative explanation, which I establish rather than assume:**
+run from a scratch path, the instrument's own **C1 control — on-disk md5 must equal the HEAD
+blob — and its `load_grader()` path resolution refuse.** **The instrument declining to run as
+an out-of-tree copy is the control working**, and it is why a naive out-of-tree mutation cannot
+reach it. **That is evidence about the controls, NOT evidence about the mutant's verdict, and
+the two must not be conflated.**
+
+**Arm 2 is handed to the commissioned sweep lane to run IN PLACE**, under the private-index
+protocol, with the mutant never committed.
+
+## A1.5 — `d12r_grade.py` IS THE WORSE CASE ON BOTH AXES
+
+**0 unconditional claim-prints AND 59 asserts, all in `selftest`.** It has **no compensating
+prints at all** — so under `-O` it does not print a false claim; **it goes vacuous SILENTLY,
+with its unit count intact.** **Nothing in the output changes and nothing is there to notice.**
+L-332's counterfeit evidence is at least visible to a reader who looks; **this is invisible to
+one who does.** Its repair under §4 is required before D12-proper re-fires, and it is already
+ordered into the re-registration.
