@@ -732,3 +732,71 @@ reference-value injector: a build guard is a gate on the ARTIFACT and must survi
 **Bound on the whole `-O` class, confirmed for this territory:** nothing here invokes
 `python3 -O` and `PYTHONOPTIMIZE` is unset. **The exposure is LATENT, not live — no graded
 verdict on this team's record was produced under `-O`, and the register is not reopened.**
+
+---
+
+## DATED NOTE — 2026-08-25 — **SWEEP HYGIENE: my sweeps were NOT corrupted, and the reason is luck of habit, not design. Plus two comparators that broke a rule 20 minutes after I wrote it.**
+
+### The instrument fault, measured in THIS territory
+
+`git ls-files` reads the **INDEX**, not HEAD. The shared index is decayed and stages phantom
+deletions, so any sweep built on it reports a smaller population **with no error and no
+warning**.
+
+| enumeration of `cases/ansys_verification` | paths |
+|---|---|
+| `git ls-files` (INDEX) | **36** |
+| `git ls-tree -r HEAD` | **387** |
+| `find` (filesystem) | **441** |
+
+**The index is short of HEAD by 351 paths here.** For comparators specifically: **`ls-files`
+finds 3 where HEAD has 23** — an **87 % shortfall**. A sweep through it would have audited three
+comparators and reported the territory clean.
+
+**My sweeps tonight — asserts, plateau clauses, success prints, builders — all enumerated with
+`find`, not `ls-files`, so none was corrupted.** I record that as **habit rather than
+foresight**: I used `find` because it was convenient, not because I had reasoned about the
+index. **The same supervisor who warned every lane about that index all session would have been
+caught by it had the habit gone the other way.**
+
+**Re-run from HEAD with a planted control**, per the rule that a zero needs a reader shown able
+to see a non-zero: a file written to contain one `assert` returns **1** from the identical grep,
+so the reader is not blind; HEAD then yields **12 assert-carrying files**.
+
+### The 12-versus-11 is NOT a gap — the population GREW while I audited
+
+My Amendment 6 sweep found **11**. HEAD now holds **12**, and a set difference between the HEAD
+list and the disk list is **empty** — nothing is missing on either side. **Two comparators were
+committed in the interval:**
+
+| file | committed | assert |
+|---|---|---|
+| `VMFL021/R2/grade_vmfl021_r2.py:467` | `a7b784ef`, 24 min ago | `assert verdict in VERDICTS` |
+| `VMFL017/R2/grade_vmfl017_r2.py:333` | `f8871113`, 17 min ago | `assert verdict in VERDICTS` |
+
+**Both were committed AFTER Amendment 6 forbade exactly that line.** The lane was in flight when
+the rule landed.
+
+> **AN AMENDMENT IS NOT IN FORCE WHEN IT IS COMMITTED. It is in force when it reaches the lanes
+> already writing.** Writing a rule does not fix the artifacts being written against the old
+> one, and a sweep is a measurement **at a time** on a territory that peers are still changing.
+> **Any count in this team's records is a count as of its commit, not a standing property.**
+
+`VMFL021/R2`'s comparator will grade the family running **right now** (pid 2834860), so its
+repair is ordered before grading, as a §2d.1 dated addendum — the guard emits no number when it
+fires, so it moves no verdict.
+
+### Bound, so this is not read as an emergency
+
+**The `-O` exposure is LATENT, not live.** Nothing in this repository invokes `python3 -O`, and
+`PYTHONOPTIMIZE` is unset on this box. **No graded verdict on this team's record was produced
+under `-O`; no register row reopens; the credentials stand exactly as graded.** The repairs buy
+that the *next* freeze cannot be defeated by a flag.
+
+### The standing rule this territory adopts
+
+**Enumerate populations with `git ls-tree -r HEAD --name-only`, or from the filesystem with
+`find` — NEVER with `git ls-files`.** And **establish every enumeration zero with a planted
+control** that proves the reader can see a non-zero. **A negative result is only as wide as the
+search that produced it** — the same lesson that had me answer *"no such twelve exists"* after
+searching two documents and not the third.
