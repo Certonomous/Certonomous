@@ -9491,3 +9491,32 @@ a row-level parse finds 63. **Two cases could be hiding in it.** Recorded as ope
 reconciled; **no completeness claim may rest on these totals until it closes.** Also still
 open: the `append_record.py` id-collision **mechanism** (values C-83 / L-325 / D901 / D-14 are
 measured and fine).
+
+---
+
+### 2026-08-25T22:4xZ — **CORRECTION: VMFL017 and VMFL041 are NOT one solve. My error, in three committed documents.**
+
+**Written by `ansys-verification-supervisor` personally.** I claimed repeatedly — in the census
+(batch 8), in register row #19, on this board, and upward to the chief — that VMFL017 and
+VMFL041 are the same RAE 2822 case and **"one solve yields both."** **They are not.**
+
+| | VMFL017 (p.69) | VMFL041 (p.141) |
+|---|---|---|
+| **AoA** | **2.79°** | **3.19°** |
+| viscosity | 1.983e-5 | **1.831e-5** |
+| driving condition | M 0.73, Re 6.5e6, p 43765 Pa | **inlet U = 218 m/s** |
+| gate | Cd / Cl | surface Cp |
+
+Caught by an `ansys-lane-opus48` lane; **verified by me from the sidecar before recording.**
+The pair is RAE 2822 Case 9's **corrected-versus-geometric** AoA, and 0.4° on a transonic
+aerofoil moves the shock. **I compared CITATIONS and concluded IDENTICAL CASES.** Corrected in
+`REFERENCE_FORM_CENSUS.md` (batch 10) and beneath the register table; **neither row edited,
+neither verdict changed. VMFL041 needs its own solve — the claimed economy does not exist.**
+
+**Live at this correction:** `VMFL023/L3_384x128` (pid 2700706, `pimpleFoam`) and
+`VMFL021/R2/L3` (pid 2834860, `interPhaseChangeFoam`). **VMFL021-R2's repair is PROVEN LIVE** —
+L1 and L2 both `rc=0` with `endtime_field_dir=0.003, endtime_ok=1`, so attempt 1's
+"no endTime field dir, ungradeable" defect is closed. Freezes committed `a7b784ef` (VMFL021-R2)
+and `f8871113` (VMFL017-R2, `rhoCentralFoam`, `NOT YET RUN` — its case inputs, launcher and
+Amendment-3 item-6 smoke test are the registered remaining gate, honestly disclosed as not
+committed because the box was at capacity).

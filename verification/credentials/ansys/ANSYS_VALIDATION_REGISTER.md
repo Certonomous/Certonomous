@@ -431,3 +431,29 @@ its own evidence*) was NOT applied to this claim before it was committed. It was
 afterwards, by an independent disk census, and it caught it. The check works; it was run late.
 
 | **20** | **VMFL036** — Laminar Flow Past Sphere (VM2026R1, pp. 125–126). Steady laminar flow past a sphere, reproduced in OpenFOAM v2606 `simpleFoam` on a **two-block axisymmetric polar wedge** (5° full angle, r from D/2 to the manual's 50 D, collapsed axis in an `empty` patch per the OpenFOAM convention). **TWO ARMS, both frozen before any compute**, on the supervisor's committed pre-freeze finding (`3fa6058d`) that **the manual's page is internally inconsistent**: its stated μ = 0.02 gives **Re = 50**, but its target Cd = 1.0895 is the **Re = 100** literature value. **ARM A (this row, the gate)** ran the repaired μ = 0.01, Re = 100. **ARM B (`NOT A RESULT` by registration, scores nothing)** ran the manual's stated μ = 0.02 exactly as printed and returned **Cd = 1.577375** — **2.55% from the Schiller–Naumann Re = 50 prediction of 1.5381 that was registered BEFORE the run** (band 10% → AGREES) and **44.78% from the manual's own target** (discriminator ≥ 25% → DISCRIMINATES). **Arm B is evidence about the MANUAL, not a gate on this solver: it establishes that μ = 0.02 on that page is a transcription error for μ = 0.01.** Had the gate been frozen the obvious way it would have been a **guaranteed `GATE FAIL` measuring a typo** — the VMFL059 class, caught BEFORE the freeze this time. Roache triple r = 2 **by construction** (a fixed K = 400 radial stretching map with the expansion ratio recomputed per level, so h halves exactly): 3 072 / 12 288 / 49 152 cells, Cd = 1.091486 / 1.089233 / **1.088834**, **CONVERGING**, **GCI_fine = 0.0099% at Fs = 1.25**, Richardson f_ex = 1.088748. **p_obs = 2.4963 is ABOVE the formal p_f = 2 and is reported as the WARNING pre-registration line 10 declared it in advance, not as a win.** **N-AV9 azimuthal bias CARRIED, not assumed away:** the predecessor lane's frozen Aref = D²sin(a)/4 was **wrong by 0.095%** — the frontal PROJECTED area carries an extra cos(a) that the WETTED area does not; corrected to D²sin(a)cos(a)/4 = 1.08944678435e-02, which matches the value read off the real mesh **to 1 part in 1e8**, and the residual pressure-vs-viscous bracket (**0.0952% of Cd**; Cd = 1.087798 on the other normalisation) is printed beside the verdict rather than dropped. Comparator **repaired under `VERIFICATION_CHARTER.md` §2d.1** (see `PREREG_ADDENDUM_02.md`): it could not parse its own launcher's `rc = 0` and **refused every level**, caught by the rule-4 guard **before** grading; **the defect emitted no number at all, so the repair could not have been selected to move a verdict.** | 2026-08-25 | **`GATE REACHED`** | **Cd = 1.088834** (finest level, L3 128×192 = 49 152 cells) | **1.0895** — Mittal, R. (1999) *A Fourier-Chebyshev spectral collocation method for simulating flow past spheres and spheroids*, IJNMF 30(7); Tabata, M. & Itakura, K. (1998) *A precise computation of drag coefficients of a sphere*, IJCFD 9(3–4). VM2026R1 Table .36.1, p. 126. **REFERENCE KIND: CODE-TO-CODE** — both are COMPUTED spectral solutions, not experiment, so this reference buys **NEITHER V NOR P** and the **TIER CEILING is `GATE REACHED`**, frozen as the ceiling on pre-registration lines 3–4 and hard-coded in the comparator. **NOT A CREDENTIAL — this row is not a `PASS` and must not be counted as one.** (Context only, never a gate: Ansys Fluent 1.0875.) | **\|Cd − 1.0895\|/1.0895 ≤ 0.03** at the finest level — frozen at `ff9e28da` from the manual's own 3% acceptance practice, the ~1.4% published reference spread at Re = 100, and target rounding; **never from a first run**. Achieved **0.0611%**, inside the band by a factor of 49. | `verification/runs/ansys_verification/VMFL036/A/L3_128x192/` (and `/A/L1_32x48/`, `/A/L2_64x96/`; Arm B under `/B/`) | `ff9e28da` | `8a1aea3bd6f0dcd1d720c54a92f76b780924d028` | **82.40 core-min measured** across BOTH arms (Arm A 41.43, Arm B 40.97), from each level's own `RUN_RC.txt`; `ranks = 1` so core-min = wall-min. Predicted 70.0 → **ratio 1.18x**. Cap 120 core-min **per arm**, separate budgets so the diagnostic arm could not starve the gate arm; no overrun, zero waste. | **$0.0705 DERIVED** at $0.0513/core-h (owner-stated, c7a.4xlarge) — **derived, not measured** | `cases/ansys_verification/VMFL036/RESULTS.md` |
+
+---
+
+### CORRECTION TO ROW #19, 2026-08-25 — the "single solve serves both" note is WITHDRAWN
+
+**Row #19 (VMFL017, `PENDING`) is NOT edited and its verdict does NOT change.** This note
+corrects one claim inside it.
+
+**Struck:** ~~"Note VMFL017 and VMFL041 are the SAME RAE 2822 case from the SAME source, one
+gated on integrated coefficients and one on surface Cp: **a single converged solve can serve
+both**."~~
+
+**Measured from the manual sidecar by the supervisor:** VMFL017 (p.69) runs at **AoA 2.79°**,
+viscosity 1.983e-5, M = 0.73, Re = 6.5e6, static pressure 43765 Pa. VMFL041 (p.141) runs at
+**AoA 3.19°**, viscosity **1.831e-5**, driven by an **inlet average velocity of 218 m/s**.
+**Same airfoil and same experiment; different solves.** The pair is RAE 2822 Case 9's
+**corrected-versus-geometric** angle of attack, and 0.4° on a transonic aerofoil moves the
+shock.
+
+**The error was the supervisor's**: a shared *citation* was read as a shared *configuration*.
+**No economy exists — VMFL041 requires its own solve.** `VMFL017-R2` is registered for
+VMFL017's conditions only, and the pre-registration records this so the false economy
+propagates no further. Everything else in row #19 stands: the `PENDING`, the divergence
+finding, the reference kind (measured/experimental → can buy P) and the Re consistency check
+(6.496e6 against 6.5e6, 0.06 %).
+

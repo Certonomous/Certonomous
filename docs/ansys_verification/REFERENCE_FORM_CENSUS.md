@@ -588,3 +588,49 @@ document, never the ten-line form — and its magnitude must be recovered from t
 the cited source, **never guessed and never inferred from a "typical" Reynolds number.** For
 FLUENT-side cases that recovery is currently **blocked**: no HDF5 tooling exists on this box
 and 77 of 123 archives are `.cas.h5`.
+
+---
+
+## Batch 10 — **CORRECTION: VMFL017 AND VMFL041 ARE *NOT* ONE SOLVE. I compared CITATIONS and concluded IDENTICAL CASES.**
+
+**Struck from batch 8** (and from register row #19, and from the board):
+
+> ~~"VMFL017 (DISCRETE: drag 0.0168, lift 0.803) and VMFL041 (PROFILE: surface Cp) are the SAME
+> RAE 2822 case from the same Cook/McDonald/Firmin AGARD AR-138 source — **one solve yields
+> both**."~~
+
+**Caught by an `ansys-lane-opus48` lane against the manual; verified independently by the
+supervisor from the sidecar before this correction was written.**
+
+| | **VMFL017** (p.69) | **VMFL041** (p.141) |
+|---|---|---|
+| **angle of attack** | **2.79°** | **3.19°** |
+| viscosity | 1.983e-5 kg/m-s | **1.831e-5 kg/m-s** |
+| driving condition | M = 0.73, Re = 6.5e6, static p = 43765 Pa | **inlet average velocity 218 m/s**, chord 1 m |
+| gate quantity | drag 0.0168, lift 0.803 | surface pressure coefficient |
+
+**Same airfoil, same experiment, same citation — DIFFERENT SOLVES.** The 2.79° / 3.19° pair is
+the classic RAE 2822 Case 9 **corrected-versus-geometric** angle of attack: the tunnel-wall
+interference correction. The manual uses the *corrected* angle for the coefficient case and the
+*geometric* angle for the pressure-distribution case. **A 0.4° difference in AoA on a transonic
+aerofoil moves the shock; these are not interchangeable.**
+
+**My error, and its shape.** I established that the two cases share a *citation* and concluded
+they share a *configuration*. **A shared reference is a statement about where the data came
+from, not about what conditions were run.** No new economy exists: **VMFL041 remains a separate
+case requiring its own solve**, and the ladder accounting is corrected accordingly.
+
+**This is the SEVENTH instance today of one shape — a comparison whose inputs were not what the
+code, or the supervisor, assumed:** a citation against a configuration; a regex surface against
+a runtime requirement; two `rc` formats; two identical `-O` exit codes never comparing what the
+test claimed; `7/3` against a flat-sided wedge; a Taylor number against its own formula;
+`app-roache-s` against Roache. **Six of the seven were caught by someone other than the person
+who made them.** The rule stands and now has a supervisor's own instance attached to it:
+
+> **State what two things you are comparing and prove they are comparable before reading the
+> difference.**
+
+**What does NOT change:** both cases' reference kind (Cook/McDonald/Firmin is
+**measured/experimental → CAN buy P**), both tolerances, both classifications (VMFL017
+DISCRETE, VMFL041 PROFILE), and every count in batch 9's reconciliation — **the correction is
+to a claimed EQUIVALENCE, not to any classification or total.**
