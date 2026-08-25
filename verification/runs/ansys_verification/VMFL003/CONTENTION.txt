@@ -1,0 +1,138 @@
+VMFL003 CONTENTION RECORD -- captured LIVE by an OS-level detached sampler
+=========================================================================
+
+HOW THESE WERE TAKEN, because it decides whether they are evidence.
+A `setsid nohup` shell loop, started in the same invocation as the launcher
+and terminated by the launcher writing its own done-marker.  It is an OS
+process, NOT an agent-alive watcher: it does not depend on this lane being
+present at any future instant (the L-5-addendum hazard).  Cadence 10 s.
+Every row below was written AT the timestamp it carries.  NOTHING here is
+reconstructed after the fact, and no row was taken later and presented as
+an earlier sample.
+
+Box: 16 cores (nproc).  Concurrent foreign load throughout: two
+heat-transfer buoyantBoussinesqSimpleFoam processes, plus VMFL045-R2.
+These were NOT touched.
+
+THE THREE NAMED SAMPLES THE BRIEF ASKED FOR
+-------------------------------------------
+at launch   : 2026-08-25T02:21:36Z loadavg=2.77 4.37 3.45 ncpu=16 current=none
+mid-L3      : 2026-08-25T02:28:26Z loadavg=3.64 3.53 3.35 ncpu=16 current=L3_1000x5
+at end      : 2026-08-25T02:35:06Z loadavg=4.05 3.93 3.61 ncpu=16 current=D_500x6
+
+L3 window spans 35 samples, 2026-08-25T02:25:46Z .. 2026-08-25T02:31:26Z
+loadavg over the whole run: min 2.77 max 4.14 (1-min column)
+
+CONTENTION ACTUALLY SUFFERED -- a DIFFERENT and BETTER quantity
+--------------------------------------------------------------
+A loadavg says what was ON the box.  wall/ExecutionTime says what the run
+SUFFERED.  Both are given; they are not the same measurement and neither
+substitutes for the other.  Derived from each level RUN_RC.txt and the
+last ExecutionTime line of its own log.simpleFoam.
+
+LEVEL          WALL_S       EXEC_S      RATIO
+L1_250x5          107       106.81     1.0018
+L2_500x5          139       138.24     1.0055
+L3_1000x5         343       342.93     1.0002
+D_500x3            67         67.1     0.9985
+D_500x4            56        55.92     1.0014
+D_500x6            98        98.12     0.9988
+
+VMFL003 ran ESSENTIALLY UNCONTENDED at every level (0.9985 .. 1.0055).
+The concurrent VMFL045-R2 and heat-transfer jobs cost it nothing measurable.
+
+THE CONTROLLED COMPARISON -- VMFL051, the 2.06x cost overrun
+-----------------------------------------------------------
+Same instrument, same box, computed here from VMFL051 own artifacts:
+  L1_120x52      wall=9      exec=7.71      ratio=1.1673
+  L2_240x104     wall=207    exec=59.31     ratio=3.4901
+  L3_480x208     wall=1183   exec=467.5     ratio=2.5305
+
+VMFL051 L2 3.4901, L3 2.5305 against VMFL003 ~1.00.  VMFL051 overrun was
+CONTENTION, not misprediction, and the evidence is a ratio MEASURED in both
+runs rather than an inference from ambient load.
+
+FULL SERIES (82 rows, 10 s cadence)
+-----------------------------------
+2026-08-25T02:21:36Z loadavg=2.77 4.37 3.45 ncpu=16 current=none
+2026-08-25T02:21:46Z loadavg=2.80 4.33 3.45 ncpu=16 current=L1_250x5
+2026-08-25T02:21:56Z loadavg=2.83 4.28 3.44 ncpu=16 current=L1_250x5
+2026-08-25T02:22:06Z loadavg=2.86 4.24 3.44 ncpu=16 current=L1_250x5
+2026-08-25T02:22:16Z loadavg=2.88 4.20 3.43 ncpu=16 current=L1_250x5
+2026-08-25T02:22:26Z loadavg=2.90 4.16 3.43 ncpu=16 current=L1_250x5
+2026-08-25T02:22:36Z loadavg=2.92 4.12 3.42 ncpu=16 current=L1_250x5
+2026-08-25T02:22:46Z loadavg=2.93 4.08 3.42 ncpu=16 current=L1_250x5
+2026-08-25T02:22:56Z loadavg=2.94 4.05 3.41 ncpu=16 current=L1_250x5
+2026-08-25T02:23:06Z loadavg=2.95 4.01 3.41 ncpu=16 current=L1_250x5
+2026-08-25T02:23:16Z loadavg=2.96 3.98 3.40 ncpu=16 current=L1_250x5
+2026-08-25T02:23:26Z loadavg=2.96 3.94 3.40 ncpu=16 current=L2_500x5
+2026-08-25T02:23:36Z loadavg=2.97 3.91 3.39 ncpu=16 current=L2_500x5
+2026-08-25T02:23:46Z loadavg=2.98 3.88 3.39 ncpu=16 current=L2_500x5
+2026-08-25T02:23:56Z loadavg=2.98 3.85 3.38 ncpu=16 current=L2_500x5
+2026-08-25T02:24:06Z loadavg=2.98 3.82 3.38 ncpu=16 current=L2_500x5
+2026-08-25T02:24:16Z loadavg=2.99 3.80 3.37 ncpu=16 current=L2_500x5
+2026-08-25T02:24:26Z loadavg=2.99 3.77 3.37 ncpu=16 current=L2_500x5
+2026-08-25T02:24:36Z loadavg=2.99 3.74 3.36 ncpu=16 current=L2_500x5
+2026-08-25T02:24:46Z loadavg=2.99 3.72 3.36 ncpu=16 current=L2_500x5
+2026-08-25T02:24:56Z loadavg=2.99 3.69 3.36 ncpu=16 current=L2_500x5
+2026-08-25T02:25:06Z loadavg=3.00 3.67 3.35 ncpu=16 current=L2_500x5
+2026-08-25T02:25:16Z loadavg=3.00 3.65 3.35 ncpu=16 current=L2_500x5
+2026-08-25T02:25:26Z loadavg=3.00 3.63 3.34 ncpu=16 current=L2_500x5
+2026-08-25T02:25:36Z loadavg=3.00 3.61 3.34 ncpu=16 current=L2_500x5
+2026-08-25T02:25:46Z loadavg=3.00 3.58 3.34 ncpu=16 current=L3_1000x5
+2026-08-25T02:25:56Z loadavg=3.00 3.57 3.33 ncpu=16 current=L3_1000x5
+2026-08-25T02:26:06Z loadavg=3.08 3.56 3.33 ncpu=16 current=L3_1000x5
+2026-08-25T02:26:16Z loadavg=3.07 3.54 3.33 ncpu=16 current=L3_1000x5
+2026-08-25T02:26:26Z loadavg=3.06 3.53 3.33 ncpu=16 current=L3_1000x5
+2026-08-25T02:26:36Z loadavg=3.05 3.51 3.32 ncpu=16 current=L3_1000x5
+2026-08-25T02:26:46Z loadavg=3.04 3.49 3.32 ncpu=16 current=L3_1000x5
+2026-08-25T02:26:56Z loadavg=3.03 3.47 3.31 ncpu=16 current=L3_1000x5
+2026-08-25T02:27:06Z loadavg=3.03 3.46 3.31 ncpu=16 current=L3_1000x5
+2026-08-25T02:27:16Z loadavg=3.02 3.44 3.31 ncpu=16 current=L3_1000x5
+2026-08-25T02:27:26Z loadavg=3.02 3.43 3.30 ncpu=16 current=L3_1000x5
+2026-08-25T02:27:36Z loadavg=3.17 3.45 3.31 ncpu=16 current=L3_1000x5
+2026-08-25T02:27:46Z loadavg=3.30 3.47 3.32 ncpu=16 current=L3_1000x5
+2026-08-25T02:27:56Z loadavg=3.41 3.48 3.33 ncpu=16 current=L3_1000x5
+2026-08-25T02:28:06Z loadavg=3.50 3.50 3.33 ncpu=16 current=L3_1000x5
+2026-08-25T02:28:16Z loadavg=3.58 3.52 3.34 ncpu=16 current=L3_1000x5
+2026-08-25T02:28:26Z loadavg=3.64 3.53 3.35 ncpu=16 current=L3_1000x5
+2026-08-25T02:28:36Z loadavg=3.70 3.55 3.36 ncpu=16 current=L3_1000x5
+2026-08-25T02:28:46Z loadavg=3.74 3.57 3.37 ncpu=16 current=L3_1000x5
+2026-08-25T02:28:56Z loadavg=3.78 3.58 3.37 ncpu=16 current=L3_1000x5
+2026-08-25T02:29:06Z loadavg=3.82 3.60 3.38 ncpu=16 current=L3_1000x5
+2026-08-25T02:29:16Z loadavg=3.92 3.62 3.39 ncpu=16 current=L3_1000x5
+2026-08-25T02:29:26Z loadavg=3.93 3.64 3.40 ncpu=16 current=L3_1000x5
+2026-08-25T02:29:36Z loadavg=3.94 3.65 3.40 ncpu=16 current=L3_1000x5
+2026-08-25T02:29:46Z loadavg=3.95 3.66 3.41 ncpu=16 current=L3_1000x5
+2026-08-25T02:29:56Z loadavg=3.96 3.67 3.42 ncpu=16 current=L3_1000x5
+2026-08-25T02:30:06Z loadavg=3.97 3.68 3.43 ncpu=16 current=L3_1000x5
+2026-08-25T02:30:16Z loadavg=3.97 3.70 3.43 ncpu=16 current=L3_1000x5
+2026-08-25T02:30:26Z loadavg=3.98 3.71 3.44 ncpu=16 current=L3_1000x5
+2026-08-25T02:30:36Z loadavg=4.14 3.75 3.46 ncpu=16 current=L3_1000x5
+2026-08-25T02:30:46Z loadavg=4.12 3.76 3.46 ncpu=16 current=L3_1000x5
+2026-08-25T02:30:56Z loadavg=4.10 3.77 3.47 ncpu=16 current=L3_1000x5
+2026-08-25T02:31:06Z loadavg=4.08 3.77 3.47 ncpu=16 current=L3_1000x5
+2026-08-25T02:31:16Z loadavg=4.07 3.78 3.48 ncpu=16 current=L3_1000x5
+2026-08-25T02:31:26Z loadavg=4.06 3.79 3.49 ncpu=16 current=L3_1000x5
+2026-08-25T02:31:36Z loadavg=3.98 3.78 3.49 ncpu=16 current=D_500x3
+2026-08-25T02:31:46Z loadavg=4.06 3.81 3.50 ncpu=16 current=D_500x3
+2026-08-25T02:31:56Z loadavg=4.05 3.81 3.50 ncpu=16 current=D_500x3
+2026-08-25T02:32:06Z loadavg=4.04 3.82 3.51 ncpu=16 current=D_500x3
+2026-08-25T02:32:16Z loadavg=4.04 3.83 3.51 ncpu=16 current=D_500x3
+2026-08-25T02:32:26Z loadavg=4.03 3.83 3.52 ncpu=16 current=D_500x3
+2026-08-25T02:32:36Z loadavg=4.02 3.84 3.53 ncpu=16 current=D_500x3
+2026-08-25T02:32:46Z loadavg=4.02 3.84 3.53 ncpu=16 current=D_500x4
+2026-08-25T02:32:56Z loadavg=4.02 3.85 3.54 ncpu=16 current=D_500x4
+2026-08-25T02:33:06Z loadavg=4.01 3.86 3.54 ncpu=16 current=D_500x4
+2026-08-25T02:33:16Z loadavg=4.01 3.86 3.55 ncpu=16 current=D_500x4
+2026-08-25T02:33:26Z loadavg=4.01 3.87 3.55 ncpu=16 current=D_500x4
+2026-08-25T02:33:36Z loadavg=4.09 3.89 3.56 ncpu=16 current=D_500x6
+2026-08-25T02:33:46Z loadavg=4.07 3.89 3.57 ncpu=16 current=D_500x6
+2026-08-25T02:33:56Z loadavg=4.06 3.89 3.57 ncpu=16 current=D_500x6
+2026-08-25T02:34:06Z loadavg=4.05 3.90 3.58 ncpu=16 current=D_500x6
+2026-08-25T02:34:16Z loadavg=4.12 3.92 3.59 ncpu=16 current=D_500x6
+2026-08-25T02:34:26Z loadavg=4.10 3.92 3.59 ncpu=16 current=D_500x6
+2026-08-25T02:34:36Z loadavg=4.08 3.92 3.60 ncpu=16 current=D_500x6
+2026-08-25T02:34:46Z loadavg=4.07 3.93 3.60 ncpu=16 current=D_500x6
+2026-08-25T02:34:56Z loadavg=4.06 3.93 3.61 ncpu=16 current=D_500x6
+2026-08-25T02:35:06Z loadavg=4.05 3.93 3.61 ncpu=16 current=D_500x6

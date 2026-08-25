@@ -1,0 +1,54 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003 -- KINEMATIC pressure [m2/s2].  rho = 1.225 kg/m3, so p here is NOT
+  numerically Pa: dp[Pa] = 1.225 * dp[m2/s2].  grade_vmfl003.py applies RHO
+  explicitly and its first planted-zero control proves it did (see
+  system/controlDict.template).
+
+  The manual (p. 19) gives "Outlet pressure = 0 Pa", imposed as fixedValue 0.
+  The inlet is zeroGradient, so the measured gate quantity is
+        areaAverage(p)_inlet - areaAverage(p)_outlet,
+  the manual's own definition of the compared quantity.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet
+    {
+        type            zeroGradient;
+    }
+
+    outlet
+    {
+        type            fixedValue;
+        value           uniform 0;
+    }
+
+    walls
+    {
+        type            zeroGradient;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

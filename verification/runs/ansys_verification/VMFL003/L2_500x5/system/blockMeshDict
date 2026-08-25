@@ -1,0 +1,111 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003 -- Pressure Drop in Turbulent Flow Through a Pipe
+  (Ansys Fluid Dynamics Verification Manual, Release 2026 R1, pp. 19-20).
+
+  Axisymmetric WEDGE, single cell thick, `wedge` front/back patches -- the same
+  idiom the team proved on VMFL005 (Poiseuille pipe).  Pipe axis is +x (flow
+  direction), 0 <= x <= L = 2 m.  Radius R = 0.002 m, so L/D = 500.
+
+  The wedge is symmetric about the x-y plane, HALF-ANGLE 2.5 deg (5 deg total).
+  The wall vertices are placed at EXACT radius R:
+        y_w = R cos(2.5 deg) = 0.0019980964431637158
+        z_w = R sin(2.5 deg) = 8.7238774730672e-05
+  so |(y_w, z_w)| = R = 0.002 m to machine precision (NOT y = R, z = R tan a,
+  which would put the wall at R/cos a).
+
+  N-AV9 -- THE AZIMUTHAL AREA DEFICIT IS NOT REMOVED BY THIS MESH AND NOT BY
+  ANY REFINEMENT OF IT.  A flat-sided 5 deg wedge has cross-sectional area
+  0.9987312439537492 of the true circular sector (deficit 0.1268756046250763 %)
+  and wall area 0.9996827203920081 of the true arc (deficit 0.03172796079918827
+  %).  Their ratio is exactly sec(2.5 deg), so for a fixed wall shear stress the
+  modelled pressure drop is HIGH by sec(2.5 deg) - 1 = +0.09526851633199218 %.
+  That term is AZIMUTHAL: refining 500 or 5 does not touch it.  It is
+  carried explicitly in the PREREGISTRATION.md section 3.4 error budget.
+
+  500  axial cells (x)
+  5  radial cells (r), UNIFORM -- deliberately not graded, because the
+          first-cell y+ is what the wall function reads and it is fixed at
+          NR = 5 across the whole Roache triple (PREREGISTRATION.md section 4).
+  Substituted by run_vmfl003.sh; this template is never edited by a run.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+mergeType points;   // Wedge geometry -- merge coincident axis points
+
+scale   1;
+
+vertices
+(
+    (0.0  0                      0                     )   // 0  inlet  axis
+    (2.0  0                      0                     )   // 1  outlet axis
+    (0.0  0.0019980964431637158 -8.7238774730672e-05   )   // 2  inlet  wall back  (z<0)
+    (2.0  0.0019980964431637158 -8.7238774730672e-05   )   // 3  outlet wall back
+    (0.0  0.0019980964431637158  8.7238774730672e-05   )   // 4  inlet  wall front (z>0)
+    (2.0  0.0019980964431637158  8.7238774730672e-05   )   // 5  outlet wall front
+);
+
+blocks
+(
+    hex (0 1 3 2  0 1 5 4) (500 5 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (0 2 4 0)
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (1 3 5 1)
+        );
+    }
+    walls
+    {
+        type wall;
+        faces
+        (
+            (2 3 5 4)
+        );
+    }
+    wedge1
+    {
+        type wedge;
+        faces
+        (
+            (0 2 3 1)
+        );
+    }
+    wedge2
+    {
+        type wedge;
+        faces
+        (
+            (0 1 5 4)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

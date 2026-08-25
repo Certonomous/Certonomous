@@ -1,0 +1,9 @@
+rc=0
+level=L1_250x5
+nx=250
+nr=5
+endTime=6000
+wall_s=107
+ranks=1
+core_min=1.7833333333333334
+timeout_s=1440

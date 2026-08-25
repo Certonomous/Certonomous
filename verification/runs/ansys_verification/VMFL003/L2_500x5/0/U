@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003 -- turbulent pipe.  The manual (p. 19) gives the inlet boundary
+  condition as "Inlet velocity = 50 m/s" and NOTHING ELSE -- no profile is
+  specified, so a UNIFORM 50 m/s inlet is the faithful reading and is what is
+  imposed here.  (Contrast VMFL005, where the manual explicitly prescribed a
+  "fully developed laminar velocity profile at inlet".)
+
+  THIS IS A DECLARED, BUDGETED SYSTEMATIC, NOT AN OVERSIGHT.  A uniform inlet
+  has a developing region of length 4.4 Re^(1/6) D = 0.08608400083579049 m =
+  21.52 D = 4.30 % of the 2 m pipe, over which the wall shear exceeds its
+  fully-developed value and the momentum flux rises from beta = 1 toward
+  beta ~ 1.02.  The manual's own target comes from the FULLY DEVELOPED formula
+  dp = f (L/D) (rho U^2 / 2), which contains none of that.  The excess is
+  estimated at K * rho U^2 / 2 with K = 0.04 to 0.10, i.e. +0.28 % to +0.70 %
+  of the target, and is carried in the PREREGISTRATION.md section 3.4 error
+  budget.  The measured f_dev diagnostic (system/topoSetDict) exists precisely
+  to separate this entrance term from the turbulence model's wall friction.
+
+  All three velocity components are set at the wedge patches by the `wedge`
+  boundary type, which applies the axisymmetric transformation.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (50 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform (50 0 0);
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform (0 0 0);
+        value           uniform (50 0 0);
+    }
+
+    walls
+    {
+        type            noSlip;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

@@ -85,7 +85,7 @@ committed record and there was no normalised copy to correct.
 
 ---
 
-# **THE CAMPAIGN FRACTION: 4 of 73 run. 69 never run.**
+# **THE CAMPAIGN FRACTION: 5 of 73 run. 68 never run.**
 
 **THE DENOMINATOR IS 73, NOT 95 — BY SANAA'S RULING, NOT BY THIS LAB'S CHOICE.** The
 `VMFLGPU` family (10) and the cases with no lab solver (12) are **out of scope for
@@ -103,8 +103,8 @@ beside it so a reader reproduces it rather than trusting the header.** Let
 |---|---|---|
 | **cases printed in the manual** | **95** | `ROWS \| wc -l` |
 | **IN SCOPE (the denominator)** | **73** | `ROWS \| grep -c 'IN SCOPE'` |
-| **run** | **4** | `ROWS \| grep 'IN SCOPE' \| grep -vc 'NEVER RUN'` |
-| **never run** | **69** | `ROWS \| grep 'IN SCOPE' \| grep -c 'NEVER RUN'` |
+| **run** | **5** | `ROWS \| grep 'IN SCOPE' \| grep -vc 'NEVER RUN'` |
+| **never run** | **68** | `ROWS \| grep 'IN SCOPE' \| grep -c 'NEVER RUN'` |
 | **DEFERRED — the `VMFLGPU` family** | **10** | `ROWS \| grep -c 'DEFERRED'` |
 | **OUT OF SCOPE — no lab solver** | **12** | `ROWS \| grep -c 'OUT OF SCOPE'` |
 | **overlap of the two exclusions** | **0** | `ROWS \| grep 'DEFERRED' \| grep -c 'OUT OF SCOPE'` |
@@ -199,7 +199,7 @@ all.
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | VMFL001 | 15 | Flow between rotating & stationary concentric cylinders | 2 | Laminar, rotating wall | AN | Tangential velocity at r=20/25/30/35 mm — **discrete(4)** | simpleFoam / icoFoam (rotatingWallVelocity) | F+C | trivial | Y — structured annulus, monotone | **`NOT HELD`** (run 1) → **`HOLDS`** *candidate* (R2) | `IN SCOPE` |
 | VMFL002 | 17 | Laminar flow through pipe, uniform heat flux | A | Laminar + heat transfer (Mercury) | AN | Pressure drop + centreline outlet T — **discrete(2)** | simpleFoam + energy / buoyantSimpleFoam | F+C | trivial | Y — axisym wedge, monotone | `NEVER RUN` | `IN SCOPE` |
-| VMFL003 | 19 | Pressure drop, turbulent pipe flow | A | Turbulent, standard k-ε | AN | Pressure drop — **discrete(1)** | simpleFoam (kEpsilon) | F+C | trivial | Y* — hold y+ band across levels | `NEVER RUN` | `IN SCOPE` |
+| VMFL003 | 19 | Pressure drop, turbulent pipe flow | A | Turbulent, standard k-ε | AN | Pressure drop — **discrete(1)** | simpleFoam (kEpsilon) | F+C | trivial | Y* — hold y+ band across levels | `NOT HELD` | `IN SCOPE` |
 | VMFL004 | 21 | Plain Couette flow with pressure gradient | 2 | Laminar, moving wall, periodic | AN | X-velocity profile at X=0.75 m — **profile** | pimpleFoam/simpleFoam (cyclic + pressureGradient) | F+C | trivial | Y* — gate on profile / centre value | `NEVER RUN` | `IN SCOPE` |
 | VMFL005 | 25 | Poiseuille flow in a pipe | A | Steady laminar | AN | Pressure drop (Hagen-Poiseuille) — **discrete(1)** | icoFoam / simpleFoam | F+C | trivial | Y — axisym, exact analytic | **`GATE REACHED`** | `IN SCOPE` |
 | VMFL006 | 27 | Multicomponent species transport in pipe flow | A | Laminar, species transport | AN | Mass fraction of species A along axis — **profile** | reactingFoam (inert) / scalarTransportFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `IN SCOPE` |

@@ -4059,7 +4059,7 @@ authoritative one; any block above it is historical. Ids are listed in id order 
 
 | Family | Gloss (approximate; the entries themselves are authoritative) | Ids (id order) |
 |---|---|---|
-| N-AV | Ansys Fluid Dynamics Verification Manual — VMFL cases reproduced in the lab's own solvers as pre-registered verdicts (this team) | N-AV1, N-AV2, N-AV3, N-AV4, N-AV5, N-AV6, N-AV7, N-AV8, N-AV9 |
+| N-AV | Ansys Fluid Dynamics Verification Manual — VMFL cases reproduced in the lab's own solvers as pre-registered verdicts (this team) | N-AV1, N-AV2, N-AV3, N-AV4, N-AV5, N-AV6, N-AV7, N-AV8, N-AV9, N-AV10, N-AV11 |
 | N-B | Closure line (RANS/LES): β-field correction, feature-library, clip-repair and injection numerics | N-B1, N-B2, N-B3, N-B4, N-B5, N-B6, N-B7, N-B8, N-B9, N-B10, N-B11, N-B12, N-B13, N-B14, N-B15, N-B16, N-B17, N-B18, N-B19, N-B20, N-B22, N-B23, N-B24, N-B25, N-B26, N-B27, N-B28, N-B29, N-B30, N-B31, N-B32, N-B33, N-B34, N-B35, N-B36, N-B37, N-B38, N-B39, N-B40, N-B41, N-B42 |
 | N-C | General CFD meshing: snappyHexMesh / grid-family facts (a LEVEL step is not a grid refinement) | N-C1 |
 | N-D | DAFoam adjoint & optimisation: primal/adjoint solver behaviour, gradient verification, optimiser and cost numerics | N-D1, N-D2, N-D3, N-D4, N-D5, N-D6, N-D7, N-D8, N-D9, N-D10, N-D11, N-D12, N-D13, N-D14, N-D15, N-D16, N-D17, N-D18, N-D19, N-D20, N-D21, N-D22, N-D23, N-D24, N-D25, N-D26, N-D27, N-D28, N-D29, N-D30, N-D31, N-D32, N-D33, N-D34, N-D35, N-D36, N-D37, N-D38, N-D39, N-D40, N-D41 |
@@ -4067,6 +4067,158 @@ authoritative one; any block above it is historical. Ids are listed in id order 
 | N-T | T-family heat-transfer ladder: GCI / Richardson, thermal grid-convergence numerics | N-T1, N-T2, N-T3, N-T4, N-T5, N-T6, N-T7, N-T8 |
 | N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3 |
 
-**Families: 7. Total entries: 113.** Counts are re-derivable by the grep above; this line is diagnostic, not authoritative.
+**Families: 7. Total entries: 115.** Counts are re-derivable by the grep above; this line is diagnostic, not authoritative.
 
 **Lines whose number changed above this section: 0.**
+
+
+---
+
+## FOOT AMENDMENT — 2026-08-25T02:44:28Z — `ansys-verification`, from VMFL003 (run 1)
+
+**Lines whose NUMBER changed above this section: 0.** **Lines whose CONTENT changed:
+exactly TWO, both AGGREGATE cells that a child row obliges to move** (CLAUDE.md rule 10
+posture; `verification/runs/ansys_verification/append_guards.py::check_aggregates_moved`):
+
+| line | was | now |
+|---|---|---|
+| 4062 | `… N-AV8, N-AV9 |` | `… N-AV8, N-AV9, N-AV10, N-AV11 |` |
+| 4070 | `Total entries: 113.` | `Total entries: 115.` |
+
+**Proven, not asserted:** with those two lines removed, the prior file and this file's
+prefix are byte-identical and positionally unchanged — sha256 `0dcbd45c7d52a7c092c3aa4e8431bfe6852bf0c9941f4adfb00dd3bafc2d07b4`.
+Ids re-derived from the tail **inside the committing invocation** (rule 11, `L-313`):
+the maximum existing `N-AV` was **9**, never a count.
+
+**ADDENDUM to N-AV9 — 2026-08-25, from VMFL003 (turbulent pipe, Re = 13 692) — A SCOPE
+CORRECTION: the +0.25 % Δp consequence above is LAMINAR-ONLY and DOES NOT TRANSFER.**
+Recorded as an addendum to this entry rather than a new id, because it corrects the
+scope of a figure already stated here.
+
+**The geometric facts above are regime-independent and are re-confirmed exactly.**
+VMFL003 re-derived them independently, at the same 5° total angle, inside
+`grade_vmfl003.py --selftest`: cross-sectional area ratio `sin(2α)/(2α)` at α = 2.5° is
+`0.9987312439537492`, deficit **0.1268756046250763 %** — **reproducing this entry's own
+recorded constant digit for digit**. New here: the **wetted (wall) area** ratio is
+`sin(α)/α = 0.9996827203920081`, deficit **0.03172796079918827 %**, and the ratio of the
+two is **exactly `sec α`**, since `sin(2α)/2 = sin α cos α`.
+
+**WHAT DOES NOT TRANSFER, and why — the defect being corrected.** This entry's Δp
+consequence of **+0.2542349500671337 %** is `(sin t/t)^-2`, derived for **VMFL005:
+LAMINAR flow at FIXED VOLUMETRIC Q**, where Hagen–Poiseuille's **R⁻⁴** scaling squares
+the area deficit. **Turbulent pipe Δp does not scale as R⁻⁴ and VMFL003 does not fix Q**
+— its inlet fixes a **velocity** (uniform 50 m/s). Importing +0.25 % into a turbulent,
+fixed-U case would **over-state the term by ≈ 2.6×** and would be exactly the defect of
+quoting one case's figure inside another case's justification. **Each figure below is
+labelled with the regime it belongs to, and none is valid outside it.**
+
+| regime | what is held fixed | Δp bias factor | value |
+|---|---|---|---|
+| **LAMINAR** (VMFL005) | volumetric **Q** | `(sin t/t)^-2` | **+0.2542349500671337 %** |
+| **LAMINAR** | mean **U** | `(sin t/t)^-1` | +0.1270367849608793 % |
+| **TURBULENT** (VMFL003) | mean **U**, τ_w fixed | `sec α` | **+0.09526851633199218 %** |
+| **TURBULENT** | mean **U**, f responding | `sec α · (cos α)^-n` | **+0.1196374 %** |
+
+**THE TURBULENT TRANSFER IS A BOUNDED ESTIMATE, NOT A FACT, and the derivation is shown
+so it can be checked rather than believed.** Two independent routes give the same
+leading term:
+
+1. **Force balance.** For fixed wall shear τ_w, the streamwise balance
+   `Δp · A_cross = τ_w · A_wall` gives
+   `Δp_modelled/Δp_true = (A_wall/A_cross)_ratio = (sin α/α)/(sin 2α/2α) = sec α`
+   ⇒ **+0.09526851633199218 %**.
+2. **Hydraulic diameter.** The wedge's front/back are `wedge` (symmetry, no shear), so
+   only the outer face is wetted: `D_h = 4·(½R² sin t)/(2R sin(t/2)) = D cos α`, i.e.
+   **D_h is LOW by 0.09517784181422018 %**. With `Δp = f (L/D_h) ½ρU²` at fixed U, the
+   `1/D_h` factor contributes the same **`sec α`**.
+
+**Route 2 adds a second-order term route 1 cannot see**, and it is what makes this a
+**band rather than a point**: `Re_h = U D_h/ν` is also low by 0.0952 %, and `f` responds.
+The local logarithmic slope of the Colebrook `f` at Re = 13 691.740248127866 is
+**`n = -dln f/dln Re = 0.255625048426263`** (computed, not assumed), giving
+`f(Re cos α)/f(Re) = 1.000243456811933`, i.e. **+0.024346 %**. A Blasius `n = 0.25`
+closes to +0.1190998 %, so the bound is tight and not sensitive to the choice of `n`.
+
+> **BOUNDED ESTIMATE, TURBULENT SMOOTH PIPE, FIXED MEAN VELOCITY, 5° wedge:
+> Δp is biased HIGH by +0.095 % … +0.120 %.** The lower edge holds τ_w fixed; the
+> upper edge lets `f` respond to the hydraulic-diameter deficit. **It is one-signed and
+> AZIMUTHAL — no axial or radial refinement removes it** — and it scales as `α²/2`, so
+> halving the wedge angle quarters it.
+
+**Honest limits of this estimate.** It is a *geometric* bias computed from exact
+mesh arithmetic and a correlation's own Re-sensitivity; it is **not** a measurement of
+what OpenFOAM's wedge discretisation actually did, and no run isolated it. On VMFL003 it
+is **≈ 0.1 % against a measured 4.34 % gate deviation — about 2 % of the discrepancy**,
+so it neither explains nor materially offsets that case's outcome. VMFL003's error
+budget carried the **leading** term (+0.0953 %); the upper edge would raise its linear
+worst case from ≈ 0.98 % to ≈ 1.01 %, **changing no gate, band or verdict**.
+Source: `cases/ansys_verification/VMFL003/{PREREGISTRATION.md §7b, RESULTS.md}`,
+`grade_vmfl003.py --selftest` (60 checks, 0 failures).
+
+## N-AV10. A ratio-2 RADIAL grid triple cannot coexist with a standard wall function below R⁺ ≈ 600 (pipe: Re ≈ 21 252) — refine AXIALLY and hold N_r fixed; VMFL003 did, and the wall treatment stayed identical to 1.4e−4 across all three levels
+
+**The constraint, derived before any run and then confirmed by it.** A standard wall
+function (`nutkWallFunction`, the OpenFOAM analogue of Fluent's and CFX's standard) is
+valid only with the first cell centre in the log layer: **y⁺ ≳ 30** at the bottom and
+**y/R ≲ 0.2** at the top, so the admissible window is **y⁺ ∈ [30, 0.2 R⁺]**. A
+three-level ratio-2 family spans a factor of **4** in y⁺. It fits only if
+**0.2 R⁺/30 ≥ 4**, i.e. **R⁺ ≥ 600**. For a pipe, `R⁺ = (Re/2)√(f/8)`, which puts the
+threshold at **Re ≈ 21 252** (f = 0.02551 there). **No grading rescues a case below it:**
+with N_r uniform radial cells the first centre sits at `R/(2N_r)`, so y⁺ = R⁺/(2N_r) and
+more radial resolution always means *lower* y⁺ — δ₁ < R/N_r always.
+
+**VMFL003 (Re = 13 691.740248127866, R⁺ = 408.3503397076439) is below the threshold**;
+its admissible window was y⁺ ∈ [30, 81.67], a factor of only **2.72 < 4**, mapping to
+**N_r ∈ [2.50, 6.81]**. The design forced by this: **hold N_r = 5 fixed across the whole
+Roache triple and refine axially by 2.**
+
+**MEASURED, and the design worked exactly as intended.** Mean wall y⁺ at endTime across
+the three levels: **37.60534067864 / 37.60077854753 / 37.60014411059** — a relative
+spread of **1.4e−4**. The wall treatment was therefore *identical* at every level, so
+the triple measured axial discretisation and **not** a wall-function regime change. All
+three sat mid-band against a declared [25, 65] clause.
+
+**THE PRICE, and it is the part to carry forward: such a GCI bounds the AXIAL channel
+ONLY, and on VMFL003 that channel was negligible while the invisible one was not.** The
+axial level-to-level differences were **0.161 Pa and 2.006 Pa on 20 800 Pa (7.8 ppm)**,
+while a declared wall-treatment ladder at fixed N_x = 500 and N_r = 3/4/5/6 (y⁺ 60.02 →
+31.66) moved Δp across **1.7356 %** — **a factor of ≈ 2200 larger than the channel the
+GCI can see, and 70 % of that case's whole 2.5 % gate band.** **A small GCI on such a
+family is not evidence of grid independence and must never be reported as if it were.**
+Run a declared wall-treatment ladder beside the triple and print its spread next to the
+GCI. Source: `cases/ansys_verification/VMFL003/{PREREGISTRATION.md §4.2–§4.4, RESULTS.md
+§3–§5}`, `verification/runs/ansys_verification/VMFL003/GRADING_VMFL003.json`.
+
+## N-AV11. OpenFOAM v2606 `simpleFoam` + `kEpsilon` + `nutkWallFunction` UNDER-predicts developed smooth-pipe friction by 4.63 % at Re = 13 692 — a one-signed model bias 3.6× the band that both Ansys codes pass
+
+**The measurement.** VMFL003 reproduced the manual's turbulent pipe (Re = 13 691.74,
+L/D = 500, standard k-ε coefficients written out explicitly, not defaulted). At the
+finest level, converged to **7.8 ppm** between the two finest grids:
+
+| quantity | lab | reference | deviation |
+|---|---|---|---|
+| **f_dev**, developed region, entrance and BC effects removed | **0.027147309070475995** | Colebrook **0.028464169573919965** | **−4.626379490974265 %** |
+| Δp inlet→outlet | **20 800.824487444752 Pa** | manual target **21 744 Pa** | **−4.337635727351215 %** |
+| Δp inlet→outlet | same | exact Colebrook **21 792.879830032474 Pa** | **−4.552199389548252 %** |
+
+**It is the MODEL, and three separate arguments close off the alternatives.** (i) The
+axial discretisation channel is **7.8 ppm** — three orders below the deviation. (ii) The
+gap between f_dev (−4.626 %) and Δp (−4.338 %) is **+0.29 %**, which lands inside the
+independently pre-registered entrance excess of **+0.28 … 0.70 %** — so the entrance
+treatment behaved as budgeted and is not hiding it. (iii) The wedge azimuthal bias is
+**+0.10 %** (`N-AV9` addendum) and is the wrong sign to help. **After every declared
+systematic (≈ 0.98 % worst case, linear) the residual is ≈ −4.3 %, one-signed and
+unattributed.**
+
+**Why this is worth a numerics entry rather than a case footnote.** The manual's own two
+implementations of the *same* stated model differ by only **1.210428 %** on this exact
+case (Fluent 21 480 Pa, CFX 21 740 Pa), and the lab's 2.5 % band was deliberately built
+wide enough to pass **both**. **The lab missed that band by 3.6×.** So the difference is
+not the ordinary inter-code spread of correctly-implemented k-ε: something in this
+lab's wall treatment differs in kind. **The suspect is named and NOT claimed** — no
+second wall function was run, and `nutUSpaldingWallFunction` was deliberately declined
+before the run as a different treatment from the manual's. **Any turbulent VMFL case
+this lab grades on `nutkWallFunction` should carry this −4.6 % friction bias as a
+known, one-signed, unexplained prior until a case isolates it.**
+Source: `cases/ansys_verification/VMFL003/RESULTS.md` §2–§3,
+`verification/runs/ansys_verification/VMFL003/GRADING_VMFL003.json`.

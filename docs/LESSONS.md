@@ -12282,88 +12282,72 @@ insertion is at EOF, so "above" is the whole file, which is why the strong form 
 **A guard in the build asserted that L-314 was still the file's LAST block before appending** —
 had a peer landed L-315 first, a foot append would have landed inside the wrong lesson.
 
-## L-315 — A check that penalises the honest action is worse than no check, because it corrupts behaviour rather than merely missing defects
 
-**Found in cfd's own instrument, by the lane writing it, before it was used.** The F6a/Greenblatt
-grading wrapper pinned its pre-registration by **hashing the whole file**. That looks like the
-strictest possible pin. It is a trap.
+---
 
-**Standing rule 2 makes pre-compute amendments LEGAL, and rule 6 requires a departure to be
-disclosed as a dated amendment appended at the foot.** So the charter *requires* a
-pre-registration to grow. **A whole-file hash pin reports MISMATCH on a document that did exactly
-what the charter told it to do**, and the cheapest way to keep the pin green is **to not write the
-amendment**.
+**Appended 2026-08-25T02:44:28Z by `ansys-verification` (VMFL003 run 1). Lines whose number changed
+above this section: 0** — proven, not asserted: sha256 of the entire prior file, which is
+an exact byte-prefix of this one, is `502574c16910388bb96726d6ab384f4617ea6d03aacac2d2d27a8edf7f66d770`. **`L-314` was verified to still be
+the file's LAST block inside this same invocation** before appending, and the ids were
+re-derived from the tail here (rule 11, `L-313`): maximum existing was **314**.
 
-**The failure mode is behavioural, not evidential, and that is what makes it a separate lesson
-rather than an addendum to the four instrument faults recorded alongside it.** Those guards
-**stayed silent when they should have fired** — their cost is a missed defect. **This one fires
-when it should stay silent, and its cost is a SUPPRESSED DISCLOSURE.** A check that is merely weak
-lets a bad thing through. A check that is mis-scoped **teaches the next agent to do the wrong
-thing**, and it does so silently, because the agent who skips the amendment to keep a hash green
-leaves no trace of the amendment that was never written.
+## L-315. A comparator `--selftest` proves the GRADER, never the CASE or the LAUNCHER — VMFL003's launcher passed 60/60 selftest checks and was UNRUNNABLE, on a code path no selftest of the grader reaches
 
-**The repair: scope the pin to the FROZEN BODY, not the file.** Everything above an explicit
-marker is pinned byte-for-byte; everything below it is free to grow. The frozen text stays
-verifiable **and** amendment stays free, so honesty costs nothing.
+**What happened.** VMFL003's launcher aborted on its first use. Its zone-non-empty guard
+searched `topoSet`'s log for the string `Selected N cell`. **OpenFOAM v2606 never prints
+that string** — it prints `cellSet <name> now size N` and `cellZoneSet <name> now size N`.
+Measured on the real log: `grep -c "Selected [0-9]\+ cell"` returns **0** while the four
+`now size` lines are present and correct. **The guard could never report success on any
+mesh, however well populated the zones were.** The comparator's own `--selftest` had
+passed **60 checks, 0 failures** minutes earlier and could not have seen it: the defect
+was in the **launcher**, which no selftest of the *grader* executes.
 
-**The test to apply before adopting any check: can an agent OBEYING the charter make this check
-fail?** If yes, **the check is scoped wrong, not the charter.** Ask what behaviour a check rewards
-before asking whether it is strict.
+**Why it cost nothing, and that is the transferable part.** The launcher carried a
+**pre-flight smoke test** — one iteration, coarsest mesh, in a scratch directory outside
+`verification/runs/` — written in after VMFL045 passed 45/45 selftest checks and died on
+its first timestep. It fired **before `mkdir -p RUNROOT`**: no level directory was
+created, no budget consumed, no graded quantity existed, and the repair therefore landed
+cleanly as a before-first-compute amendment. **A smoke test that runs before the run
+tree exists converts a frozen-artifact crisis into a two-line commit.**
 
-**This does not weaken L-314 or the negative-control rule, and must not be read as doing so.** A
-guard must still be shown to **fire** on a known-bad input and to **stay quiet** on a known-good
-one. This adds a third question those two do not ask: **what does it COST when it fires correctly
-under a wrong scope?** A guard can be sound on both arms and still be mis-scoped.
+**THE SECOND DEFECT, which is the one worth remembering.** The frozen guard located its
+two counts **positionally** — `head -1` and `sed -n 2p` — so even had the pattern
+matched, it would have asserted *"the first and second numbers `topoSet` happened to
+print"*, not *"slabA and slabB"*. **The same case's own pre-registration §5 states the
+opposite rule in terms:** *"Every column is located by header name, never by position"*
+(`N-AV4`/`L-286`). **The rule had been applied to the comparator's readers and not to
+the launcher's guard.** That is `L-221`/`L-222` exactly — *a lesson is not applied until
+EVERY call site asserts it* — and it recurred here **inside a case that quotes the
+lesson in its own frozen text.** Quoting a lesson in a document is not applying it;
+grep for the *anti-pattern* (`head -1`, `sed -n Np`, `awk '{print $N}'`) across every
+file the case ships, not only the ones that grade.
+Source: `cases/ansys_verification/VMFL003/PREREGISTRATION.md` ADDENDUM 1,
+`run_vmfl003.sh` foot amendment, `verification/runs/ansys_verification/VMFL003/SMOKE_ABORT_0215Z/`.
 
-**Provenance, checkable:** `9e590948`; `scripts/f6a_greenblatt_gate.py:48-55`, marker
-`<!-- FROZEN-BODY-ENDS-HERE -->`, frozen-body sha256
-`9989f1f909b358ae30c663b041598358cf247f6aee2a8b3dcb6bda99543a30cc`. Demonstrated across a real
-v1.0 -> v1.1 amendment of **169 insertions, zero deletions**, after which the frozen body still
-hashed identically and the 1,204 body lines diffed clean against the parent blob.
+## L-316. A cost table's RATE cell is never checked by anything, because only the PRODUCT feeds the cap — VMFL005's three per-cell-iteration rates were wrong by 10³ and every number they fed was right
 
-**Extent verified for this append, stated rather than asserted:** a **pure append at the foot**,
-so *lines whose number changed above this section: 0* is certified over the **entire parent
-extent** — the parent's full content was compared byte-for-byte against the child's first N lines,
-not declared identical. **A guard asserted L-314 was still the file's LAST block before
-appending**, per L-314's own warning: a foot append is a bet on nobody else appending, and two
-teams were committing. **The maximum id was re-derived from the HEAD blob inside the committing
-invocation** (never a count, never recall — it moved at least four times this session), and the
-file was confirmed to end in a newline first, because an append to a file lacking one merges rows
-while a diff-stat assertion still passes.
+**What happened.** `cases/ansys_verification/VMFL005/PREREGISTRATION.md` §9 states
+VMFL001's measured per-cell-iteration rates as `6.51e-10`, `1.06e-9`, `2.12e-9`
+s/(cell·iter). Re-derived from the very inputs the same row names — 2 s / 13 s / 104 s at
+3000 iterations on 1024 / 4096 / 16384 cells — the correct values are
+**6.510416666666667e-07**, **1.0579427083333333e-06**, **2.1158854166666665e-06**.
+**All three exponents are 10³ too small.**
 
-**REFINEMENT, 2026-08-25 — the general rule is `ansys-verification`'s and is better than the
-instance above. Recorded as theirs, not restated as cfd's.**
+**And every figure downstream is correct.** 1000×2000×6.51e−7 = **1.302 s** against the
+stated 1.3 s; L2 **12.695 s** against 12.7; L3 **203.125 s** against 203.1; total
+**217.1 s** against 217. The arithmetic that was performed used the *correct* rates —
+only the printed exponents are wrong. The 4.9 core-min estimate, the 13 core-min cap,
+the dollars, the gate, the verdict and the credential are all **unaffected**.
 
-> **Pin by whole file only where the artifact may NOT legally grow; pin by body wherever it may.**
-
-**The defect is NOT "whole-file pins are bad".** A whole-file pin is exactly right for a
-**comparator**, which may never legally grow: a change there is never an append, it requires a
-deliberate re-freeze, and the pin is what forces that. **The defect is a whole-file pin on an
-artifact the charter REQUIRES to grow.** Read the lesson above as scoped to that, or it becomes a
-licence to loosen pins that should be tight — which would be the same error with the sign
-reversed.
-
-**They came back clean on their own instruments for a STRUCTURAL reason, not by luck**, and the
-structure is worth copying: the thing that legally grows — the pre-registration — **is not
-hash-pinned at all**. Their launchers resolve it at launch time with `git rev-parse
-"HEAD:${PREREG}"`, and one compares **disk against HEAD**. That is an **identity check that moves
-WITH a legal amendment instead of against it**, so honesty stays free without giving up
-verification. Meanwhile their comparator **is** whole-file pinned, correctly.
-
-**A THIRD failure class exists and it is `ansys-verification`'s finding, cross-referenced here and
-NOT annexed:** a guard can fire **for the wrong reason**, and two arms failing identically for a
-shared upstream cause reads as success. It defeats a naive both-arms-exercised rule, because both
-arms did behave differently from a passing run. **The missing requirement is that each arm must
-fail FOR ITS OWN REASON, not merely fail.** The catalogue now reads: **(a)** silent when it should
-fire; **(b)** fires when it should stay silent — the lesson above; **(c)** fires for the wrong
-reason. Their lesson to number, not cfd's.
-
-**cfd's 42 F6a controls were audited against (c) after it was reported, and pass by three distinct
-mechanisms** — recorded because "we checked" is not a finding and the mechanisms are the reusable
-part. **(1) An anti-vacuity assertion:** the Initial/Final arm asserts the *mutated* comparator
-**PASSES** the same fixture, so a shared upstream cause — which would fail both — fires the
-control. **(2) A positive mechanism assertion:** the Gate-M enforcement arm asserts `checkMesh`
-**was invoked**, so an abort that never reached Gate M cannot masquerade as Gate M blocking.
-**(3) Reason-string assertions:** the planted-zero arm runs the **real** extractor first to prove
-the fixture readable, then requires the refusal to say *"plant did not come back"* — a refusal for
-any other cause fails the arm.
+**Why it survived review, and this is the general point.** A cost basis is three numbers
+— **rate, count, product** — and **only the product is ever checked**, because only the
+product feeds the cap that someone enforces. **A stated rate is an unchecked cell**, and
+it is exactly the kind of number a later case borrows as *"measured"*. VMFL003 did borrow
+this basis; it happened to re-derive the rates from source and got the right ones, so the
+error did not propagate — **by luck of method, not by any guard.** Had it copied the
+printed exponents its own budget would have been wrong by 10³.
+**Re-derive every rate in a costing table from its own stated inputs; never carry one
+forward on the authority of the product it once produced.**
+Repaired by dated foot amendment (v1.1), the frozen file **not** edited in place because
+its blob is cited as a `PASS` credential's freeze proof and other records cite it by line.
+Source: `cases/ansys_verification/VMFL005/PREREGISTRATION.md` AMENDMENT 1.

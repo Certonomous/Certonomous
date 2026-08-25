@@ -1,0 +1,68 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003 -- turbulent viscosity.  ALGEBRAIC (nut = Cmu k^2 / epsilon), not
+  solved, so it has no entry in fvSolution.
+
+  THE WALL TREATMENT IS THE MOST CONSEQUENTIAL CHOICE IN THIS CASE AND IT IS
+  DECLARED, NOT DEFAULTED.  `nutkWallFunction` computes the first-cell
+  turbulent viscosity from the LOG LAW using a friction velocity built from k
+  (u* = Cmu^0.25 sqrt(k)), which is the direct OpenFOAM analogue of Fluent's
+  and CFX's STANDARD wall function -- the treatment the manual names ("standard
+  k-epsilon Model", p. 19).  A continuous / all-y+ alternative
+  (nutUSpaldingWallFunction) was considered and DECLINED: it is a different
+  wall treatment from the one the manual ran, and this case's whole purpose is
+  to measure the lab's reproduction of the manual's stated model.
+
+  nutkWallFunction is valid only where the first cell centre lies in the log
+  layer.  That is why the radial mesh is FIXED at NR = 5 across the entire
+  Roache triple (predicted first-cell y+ = 40.835033970764385, mid-log-layer)
+  and why the comparator carries a one-way NOT-A-RESULT clause on the measured
+  mean y+ outside [25, 65].  PREREGISTRATION.md section 4.2 derives why a
+  ratio-2 refinement in the RADIAL direction is IMPOSSIBLE for this case
+  without leaving the log layer: the pipe radius is only
+  R+ = R u_tau / nu = 408.3503397076439 wall units.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      nut;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -1 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet
+    {
+        type            calculated;
+        value           uniform 0;
+    }
+
+    outlet
+    {
+        type            calculated;
+        value           uniform 0;
+    }
+
+    walls
+    {
+        type            nutkWallFunction;
+        value           uniform 0;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

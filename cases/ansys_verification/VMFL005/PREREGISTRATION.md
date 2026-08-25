@@ -328,3 +328,78 @@ nothing else (CLAUDE.md rule 1). **Nothing about Ansys** — the Fluent 10.22 an
 verdict is a statement about this lab's solver against the manual's Hagen–Poiseuille
 reference, and only a `PASS` is a credential; a `GATE FAIL` is a finding that is never
 removed or softened.
+
+---
+
+## Amendment record
+
+| Version | Date | Change |
+|---|---|---|
+| 1.0 | 2026-08-24 | Frozen before any compute; blob `43aaf6bf5c5f1189495e1460e5de415e56860447`, cited as the freeze proof of register row #3. Lines whose number changed above this section: n/a (first version). |
+| **1.1** | **2026-08-25T02:23:39Z** | **§9's three per-cell-iteration rates are MISLABELLED BY A FACTOR OF 10³. Every product, total, cap, dollar figure, gate, threshold, label, verdict and credential is UNAFFECTED.** See the amendment below. **Lines whose number changed above this section: 0**, proven by prefix hash: the sha256 of the first **330** lines is unchanged by this append, and equals `2d18e67d01f0f9bfbcd26bcc258f63d995e25cb5b9773e7f15c02d8b16fdb999` (re-derive with `head -n 330 cases/ansys_verification/VMFL005/PREREGISTRATION.md | sha256sum`). |
+
+## AMENDMENT 1 — 2026-08-25T02:23:39Z — §9's THREE EXPONENTS ARE 10³ TOO SMALL; NOTHING THEY FEED IS WRONG
+
+**This file is NOT corrected in place, and the reason is specific.** It is a frozen
+pre-registration whose blob `43aaf6bf5c5f1189495e1460e5de415e56860447` is cited in
+**register row #3 as the freeze proof of a `PASS` credential**, and other records cite
+it by line. An in-place quote-and-strike — the better technique for a body table a
+reader consults — would move nothing here but would break the strong form of the
+"lines whose number changed above this section: 0" assertion and could disturb line
+citations. **The foot append keeps both intact.** §9's body text stands as frozen;
+this amendment is what a reader of §9 must read beside it.
+
+**THE DEFECT.** §9's `basis` and `solver estimate` rows (file lines 255 and 256) state
+VMFL001's measured per-cell-iteration rates as **`6.51e-10`, `1.06e-9`, `2.12e-9`
+s/(cell·iter)**. Re-derived from the very inputs the same row names — VMFL001 R1's
+2 s / 13 s / 104 s at 3000 iterations on 1024 / 4096 / 16384 cells:
+
+| level | arithmetic | correct rate | as printed in §9 | error |
+|---|---|---|---|---|
+| L1 | 2 / (3000 × 1024) = 2 / 3.072e6 | **6.510416666666667e-07** | `6.51e-10` | **10³ too small** |
+| L2 | 13 / (3000 × 4096) = 13 / 1.2288e7 | **1.0579427083333333e-06** | `1.06e-9` | **10³ too small** |
+| L3 | 104 / (3000 × 16384) = 104 / 4.9152e7 | **2.1158854166666665e-06** | `2.12e-9` | **10³ too small** |
+
+**THE PRODUCTS ARE CORRECT, AND THAT IS HOW THE DEFECT IS BOUNDED.** §9's stated
+per-level times reproduce exactly from the **correct** rates and not at all from the
+printed ones:
+
+| level | cells × iters | × correct rate | §9 states | × printed rate |
+|---|---|---|---|---|
+| L1 | 1000 × 2000 = 2.0e6 | **1.302 s** | **1.3 s** ✓ | 1.302e−3 s ✗ |
+| L2 | 4000 × 3000 = 1.2e7 | **12.695 s** | **12.7 s** ✓ | 1.270e−2 s ✗ |
+| L3 | 16000 × 6000 = 9.6e7 | **203.125 s** | **203.1 s** ✓ | 2.031e−1 s ✗ |
+| **total** | | **217.1 s** | **217 s** ✓ | 0.217 s ✗ |
+
+**The arithmetic that was actually performed used the correct rates; only the three
+printed exponents are wrong.** A reader who took the printed rates at face value would
+have computed a 0.217 s estimate and would have been misled about the *basis*, never
+about the *budget*.
+
+**WHAT IS UNAFFECTED — stated exhaustively, because that is the point of this
+amendment.** The 217 s solver estimate; the 45 s compile allowance; the 33 s margin;
+the **295 s = 4.9 core-min** estimate; the **13 core-minute CAP**; **$0.004190** at the
+estimate and **$0.011115** at the cap; the `cost_basis` labelling (dollars **derived,
+not measured**); the pre-authorisation clause. **NO GATE, THRESHOLD, BAND, CAP, LABEL,
+REFERENCE VALUE, VERDICT OR CREDENTIAL MOVES.** VMFL005's verdict and its register row
+#3 are untouched, and **row #3 is append-only and is NOT edited**; a dated note at the
+foot of the register records that this file's blob has advanced, quoting both shas.
+
+**PROVENANCE OF THE CATCH, recorded honestly.** The defect was found by this lane
+while drafting VMFL003's own cost basis, and was **referred upward rather than
+corrected unilaterally**; the `ansys-verification-supervisor` verified the arithmetic
+independently and ruled that the repair land as this foot amendment. The lane that
+found it did not touch the file until that ruling.
+
+**THE DOWNSTREAM COPY IS ALREADY CORRECT.** VMFL003's `PREREGISTRATION.md` §9.1 cites
+these same rates as *"VMFL001's measured per-level rates 6.51e−7 / 1.06e−6 / 2.12e−6
+s/(cell·iter)"* — **with the correct exponents.** The error did not propagate.
+
+**THE GENERAL LESSON, drafted for `docs/LESSONS.md`.** A cost basis is three numbers
+— rate, count and product — and **only the product was ever checked**, because only
+the product feeds the cap. A stated rate that no downstream figure depends on is an
+**unchecked cell in a costing table**, and it is exactly the kind of number a later
+case borrows as "measured". VMFL003 borrowed this basis and happened to re-derive it;
+had it copied the printed exponents, its own budget would have been wrong by 10³.
+**Every rate in a cost table should be re-derived from its own stated inputs, not
+carried forward on the authority of the product it once produced.**

@@ -1,0 +1,72 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003 -- turbulent pipe, steady simpleFoam + kEpsilon.
+
+  NO residualControl: the run ALWAYS reaches endTime, so the strict-completion
+  clauses "last time == endTime" and "ExecutionTime count == endTime" are
+  meaningful (CLAUDE.md rule 4, and the VMFL005 idiom).  Iterative convergence
+  is judged AFTER the run, by the comparator, PER LEVEL and BEFORE the Roache
+  triple is formed (CLAUDE.md rule 5 step 1), from BOTH the final initial
+  residuals AND the plateau of the gate quantity itself.
+
+  EVERY VARIABLE simpleFoam+kEpsilon SOLVES HAS AN ENTRY.  simpleFoam solves p
+  and U; the incompressible kEpsilon model solves k and epsilon; nut is
+  algebraic (Cmu k^2/epsilon) and is not solved.  The regex "(U|k|epsilon)"
+  covers all three transported variables as a CLASS rather than as three named
+  instances, so a variable this case later acquires cannot fall through to "no
+  entry" (the L-221/L-222 posture: fix the class, not the instance).  The
+  domain is OPEN (velocity fixed at the inlet, pressure fixed at the outlet),
+  so the pressure level is pinned by the outlet BC and NO pRefCell/pRefValue is
+  set.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        tolerance       1e-12;
+        relTol          0.01;
+        smoother        GaussSeidel;
+    }
+
+    "(U|k|epsilon)"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-13;
+        relTol          0.01;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+    consistent      no;
+    residualControl
+    {
+    }
+}
+
+relaxationFactors
+{
+    equations
+    {
+        U               0.7;
+        k               0.7;
+        epsilon         0.7;
+    }
+    fields
+    {
+        p               0.3;
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,21 @@
+VMFL003 launcher -- 2026-08-25T02:21:36Z
+  freeze check OK: cases/ansys_verification/VMFL003/PREREGISTRATION.md == HEAD (778c3a3c7b03127ceb2e275b53640d4dccc24f31)
+frozen-file check OK: 15b14d40f166cc31770ead452c27905332670c97 == HEAD:cases/ansys_verification/VMFL003/grade_vmfl003.py
+  no pre-existing level directories
+  pre-flight smoke test in /tmp/vmfl003-smoke-gK8REm (outside verification/runs)
+  smoke test PASSED (1 iteration on the coarsest mesh)
+--- L1_250x5  nx=250 nr=5 endTime=6000  timeout=1440s (remaining budget 24 core-min)
+    L1_250x5 done: 107s = 1.7833333333333334 core-min (running total 1.7833333333333334 of 24)
+--- L2_500x5  nx=500 nr=5 endTime=8000  timeout=1333s (remaining budget 22.216666666666665 core-min)
+    L2_500x5 done: 139s = 2.316666666666667 core-min (running total 4.1000000000000005 of 24)
+--- L3_1000x5  nx=1000 nr=5 endTime=12000  timeout=1194s (remaining budget 19.9 core-min)
+    L3_1000x5 done: 343s = 5.716666666666667 core-min (running total 9.816666666666666 of 24)
+--- D_500x3  nx=500 nr=3 endTime=8000  timeout=851s (remaining budget 14.183333333333334 core-min)
+    D_500x3 done: 67s = 1.1166666666666667 core-min (running total 10.933333333333334 of 24)
+--- D_500x4  nx=500 nr=4 endTime=8000  timeout=784s (remaining budget 13.066666666666666 core-min)
+    D_500x4 done: 56s = 0.9333333333333333 core-min (running total 11.866666666666667 of 24)
+--- D_500x6  nx=500 nr=6 endTime=8000  timeout=728s (remaining budget 12.133333333333333 core-min)
+    D_500x6 done: 98s = 1.6333333333333333 core-min (running total 13.5 of 24)
+ALL LEVELS COMPLETE: 810s wall = 13.5 core-min of a 24 core-min cap.
+Grade with:  python3 /home/ubuntu/Certonomous/cases/ansys_verification/VMFL003/grade_vmfl003.py --runroot /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL003 --json /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL003/GRADING_VMFL003.json
+LAUNCHER_RC=0

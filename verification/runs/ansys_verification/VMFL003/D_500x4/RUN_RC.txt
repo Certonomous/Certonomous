@@ -1,0 +1,9 @@
+rc=0
+level=D_500x4
+nx=500
+nr=4
+endTime=8000
+wall_s=56
+ranks=1
+core_min=0.9333333333333333
+timeout_s=784

@@ -1,0 +1,73 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003 -- turbulent kinetic energy.
+
+  FINDING 4 OF PREREGISTRATION.md section 1a: THE MANUAL SPECIFIES NO INLET
+  TURBULENCE BOUNDARY CONDITION.  VMFL003's Overview, Test Case, Material
+  Properties and Boundary Conditions blocks (p. 19) give density, viscosity,
+  geometry, inlet velocity and outlet pressure and NOTHING about turbulence
+  intensity, length scale, k or epsilon -- yet a standard k-epsilon run cannot
+  start without them.  This lab must therefore CHOOSE them, and the choice is
+  declared here rather than left implicit:
+
+      I = 5 % (turbulence intensity), l = 0.07 D (mixing length)
+
+  which are the fully-developed-pipe defaults of BOTH Fluent and CFX, so they
+  are the most likely reading of what the manual's own runs used.
+
+      k_in  = 1.5 (U I)^2 = 1.5 * (50 * 0.05)^2 = 9.375 m2/s2
+      l     = 0.07 * 0.004 = 0.00028 m
+      eps_in = Cmu^0.75 k^1.5 / l = 0.16431676725154984 * 28.704959... / 0.00028
+             = 16845.37817870935 m2/s3
+
+  The pipe is 500 D long and its entrance region is 21.5 D, so 95.7 % of the
+  gate quantity is accumulated in fully developed flow where the inlet
+  turbulence state has been forgotten.  The sensitivity is therefore expected
+  to be small -- but it is NOT zero and it is NOT specified by the manual, so a
+  PASS is not evidence that the manual intended these values.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      k;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 9.375;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 9.375;
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 9.375;
+        value           uniform 9.375;
+    }
+
+    walls
+    {
+        type            kqRWallFunction;
+        value           uniform 9.375;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

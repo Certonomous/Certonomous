@@ -1,0 +1,44 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003.  Manual p. 19, Physics/Models: "Turbulent flow, standard k-epsilon
+  Model".  OpenFOAM's `kEpsilon` IS the standard (Launder-Spalding) model and
+  its default coefficients are Cmu 0.09, C1 1.44, C2 1.92, sigmak 1.0,
+  sigmaEps 1.3 -- IDENTICAL to Fluent's and CFX's standard k-epsilon
+  coefficient set.  They are written out explicitly below rather than
+  defaulted, so that "the coefficients are the same" is an assertion this file
+  makes rather than a belief about a default.
+
+  THE COEFFICIENTS BEING IDENTICAL IS EXACTLY WHY THE REMAINING DIFFERENCE IS
+  THE WALL TREATMENT (see 0/nut and PREREGISTRATION.md section 7a).  The
+  manual's own two implementations of "standard k-epsilon" differ from each
+  other by 1.210428 % on this very case (Fluent 21480 Pa, CFX 21740 Pa), and
+  that spread is NOT a discretisation error and does NOT shrink with grid
+  refinement.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType  RAS;
+
+RAS
+{
+    RASModel        kEpsilon;
+    turbulence      on;
+    printCoeffs     on;
+
+    kEpsilonCoeffs
+    {
+        Cmu             0.09;
+        C1              1.44;
+        C2              1.92;
+        sigmak          1.0;
+        sigmaEps        1.3;
+    }
+}
+
+// ************************************************************************* //

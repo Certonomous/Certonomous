@@ -1,0 +1,33 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003.  Manual p. 19: Density = 1.225 kg/m3, Viscosity = 1.7894e-5 kg/m-s.
+  simpleFoam is incompressible and wants the KINEMATIC viscosity:
+
+      nu = mu / rho = 1.7894e-5 / 1.225 = 1.4607346938775508e-05 m2/s
+
+  DERIVED FROM THE MANUAL'S OWN MATERIAL PROPERTIES BLOCK -- nothing assumed.
+  The same two numbers give Re = rho U D / mu = 13691.740248127866, which the
+  manual states as "1.37 X 10^4" (p. 19): consistent to 0.06 %.
+
+  Incompressibility is a declared modelling choice and it is justified here:
+  U = 50 m/s in air gives Ma ~ 0.147 and the whole pressure drop (~21.7 kPa) is
+  ~21 % of one atmosphere, so the density variation along the pipe would be a
+  few per cent under an ideal-gas treatment.  The manual gives a CONSTANT
+  density of 1.225 kg/m3 in its own Material Properties block, so a constant-
+  density solver is the FAITHFUL reading of the case as specified, and the
+  manual's own analytical target dp = f (L/D) rho U^2 / 2 is itself a
+  constant-density formula.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+transportModel  Newtonian;
+
+nu              1.4607346938775508e-05;
+
+// ************************************************************************* //

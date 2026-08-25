@@ -1,0 +1,5 @@
+total_wall_s=810
+ranks=1
+total_core_min=13.5
+cap_core_min=24
+cost_basis=owner-stated rate $0.0513/core-h (c7a.4xlarge, Sanaa 2026-08-21/22); dollars DERIVED, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)

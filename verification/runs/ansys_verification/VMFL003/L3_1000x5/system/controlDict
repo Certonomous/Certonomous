@@ -1,0 +1,139 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003 -- turbulent pipe.  Steady simpleFoam, run to a FIXED iteration
+  count: there is NO residualControl (system/fvSolution), so the run always
+  ends at endTime and rule 4's "last time == endTime" and "ExecutionTime count
+  == endTime" clauses are meaningful.
+
+  THE GATE quantity is the pressure difference between INLET and OUTLET -- the
+  manual's own definition of the compared quantity (p. 19: "compared with the
+  simulation results (pressure difference between inlet and outlet)").  It is
+  read from pInletMonitor and pOutletMonitor below, at endTime.
+
+  UNITS TRAP, and it is a REAL one here and was not one on VMFL005.  simpleFoam
+  solves KINEMATIC pressure p [m2/s2].  VMFL005 had rho = 1 kg/m3, so its p was
+  numerically Pa.  VMFL003 has rho = 1.225 kg/m3, so
+        dp[Pa] = 1.225 * ( areaAverage(p)_inlet - areaAverage(p)_outlet ).
+  grade_vmfl003.py multiplies by RHO = 1.225 explicitly, and its FIRST planted-
+  zero control plants into the KINEMATIC column and asserts the graded Pa value
+  moves by exactly PLANT * RHO = 1.234 * 1.225 = 1.5116500000000002 Pa -- so the
+  control is a LIVE test that the rho conversion is actually applied.  A reader
+  that forgot rho would see 1.234 and the comparator would REFUSE (exit 2).
+
+  The monitors write every iteration (writeControl timeStep, writeInterval 1),
+  so the inlet/outlet series is also the PLATEAU leg of the per-level iterative-
+  convergence test (rule 5 step 1), checked BEFORE the Roache triple is formed.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         12000;
+deltaT          1;
+
+writeControl    timeStep;
+writeInterval   12000;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    // ---- GATE, leg 1: inlet cross-section area-averaged KINEMATIC pressure,
+    //      every iteration.  Its endTime row is half the gate value; its full
+    //      series is the plateau leg of iterative convergence.
+    pInletMonitor
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            inlet;
+        operation       areaAverage;
+        fields          (p);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    // ---- GATE, leg 2: outlet area-averaged kinematic pressure.  It is a
+    //      fixedValue 0 BC, so this is MEASURED, not assumed, and subtracted.
+    pOutletMonitor
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            outlet;
+        operation       areaAverage;
+        fields          (p);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    // ---- DIAGNOSTIC (never the gate): developed-region pressure at x = 1.00 m
+    pSlabA
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      cellZone;
+        name            slabA;
+        operation       volAverage;
+        fields          (p);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    // ---- DIAGNOSTIC (never the gate): developed-region pressure at x = 1.80 m
+    pSlabB
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      cellZone;
+        name            slabB;
+        operation       volAverage;
+        fields          (p);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    // ---- WALL-FUNCTION VALIDITY INSTRUMENT.  The first-cell y+ decides
+    //      whether "standard k-epsilon with wall functions" is being used
+    //      inside its own region of validity.  The pre-registered NOT-A-RESULT
+    //      band is 25 <= mean(y+) <= 65 on patch `walls` at endTime, against a
+    //      predicted 40.835033970764385 (PREREGISTRATION.md section 4.2).
+    //      Writes "# Time patch min max average" rows.
+    yPlusWall
+    {
+        type            yPlus;
+        libs            (fieldFunctionObjects);
+        writeControl    timeStep;
+        writeInterval   200;
+        writePrecision  12;
+        log             false;
+    }
+}
+
+// ************************************************************************* //
