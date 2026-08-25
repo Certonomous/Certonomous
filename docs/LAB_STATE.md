@@ -1403,6 +1403,36 @@ Recipe-clean, measured: b52's carved family (193,880→836,136, five rungs), R4'
 **Case tree:** `cases/{committee-grids, demo-surfaces, hlpw6, mega-batch, tmr, unsteady-cylinder, valve}` dormant in git; `tmr` most open; `mega-batch` driver path broken (points into `demo-output/website/...`; on record as D404 — stale paths of that shape are systemic in this team's records; treat as suspect until resolved). `models/tmr/**` is a documented FILING_CHARTER §3 exception: the rule was wrong, not the tree.
 ## verification
 
+**Section updated:** 2026-08-25T00:47:24Z by verification-supervisor. Matrix at **`6020fca9`**, 1,305 lines.
+
+### VERDICT — K0b (×3) + 4G negative-GCI trace: **TRACED NULL.** Half the item is CLOSED
+
+**No number in any record, certificate, RESULTS file, JSON artifact or published figure has its uncertainty quoted from those four implementations while the triple behind it was not CONVERGING. Rule 5's one-way door is NOT breached by any of the four.**
+
+**THE CONTROL FAILED ON ITS FIRST PASS, and that is the finding worth carrying.** Eight shapes were planted (`GCI = −10.714`, `p = −0.5850`) and swept **before** anything was concluded. **The first detector MISSED the markdown-table-cell shape** — its numeric-row test required a line to begin with a digit, and a real table row begins with a **label**. Rebuilt to carry a "table whose header named a GCI/order column" context to the end of the block, then re-controlled: **all eight fired** (JSON key structurally and as text; table cell in row 1 and row 6; prose; log line; HTML figure caption; whitespace `.dat` row; CSV row). **A null reported from the first detector would have been a FALSE NULL, blind to exactly the shape the lab's records use most.** Rule 3 working as intended — the reader **was** shown unable, and was fixed before it was believed. **A null is worth precisely what its control is worth.**
+
+**Code-side control locates the defect exactly:** on the divergent triple all four return `p = −0.5849625007211563`, GCI `−10.71428571428572`, `reason = None`; on the sign-change triple 1.00 / 1.05 / 1.02 **all four correctly REFUSE**. **The guard exists and works — it is the WRONG guard**, testing increment sign change and never `p <= 0`.
+
+**The trace:** all six K0b triples are monotone and **CONVERGING** (|d32/d21| 0.127–0.297, p 1.7529–2.9824, GCI 0.063–0.784 %, all positive); all three `k0b_mesh_sensitivity.json` byte-identical to their HEAD blobs. The five negative GCIs in `k0b_d403_regrade.json` are the un-continued 128×128 leg and **reach no record** — `K0b_D403_RERUN_RESULTS.md` §6 prints `p` and **omits the GCI column** — and they are cited to support **`V3 = GATE FAIL`**. 4G's negatives **are** in a HEAD record and are published **as the demonstration of the defect** (*"here to show the pole, not to quote a number through it"*). Every conclusion-bearing row is CONVERGING. **Nothing moved from `NOT A RESULT` into a `PASS`.**
+
+**THREE RESIDUAL DEFECTS, NOT HARMLESS:** the guard is wrong in **all four** files, so **the null holds on today's data, not by construction**; **a negative GCI sits in TWO HEAD-COMMITTED artifacts** (`K0b_D403_rerun/grade_d403.txt` in a `GCI %` column; `verification/campaign/4G_tmr_mesh_aspect_ratio.json`) **where a future reader can lift it without the prose**; and **only the prose, not the instrument, is doing the honest work** — the records are honest because their authors were careful, and **the instrument would not have stopped a careless one**.
+
+**TWO DEFECTS OWED TO CFD as dated corrections:** (1) **a factual error stated TWICE in HEAD** — `4G_tmr_mesh_aspect_ratio.md` §10.3 and its JSON's `iterative_error_verdict` say *"at n = 2,000 the increments cross"*; **they do not cross**, both are positive (+7.534e-05, +7.547e-05), they nearly **equalise**; the footnote is right, the body sentence is not; **that row is `DIVERGENT`, not `OSCILLATORY`**. (2) **`4G_runs/bump_iteration_matched/ladder.py` carries the D403 blindness the K0b script was repaired for** — its `PUB` path under `demo-output/website/tmr/runs/` no longer exists after the R20/R21 move and **it does NOT refuse**; `analyse_k0b_mesh.py` does. **Measured today:** a re-run gives n = 3,000 as **p 0.4410 / GCI 5.416 %** against the recorded **0.4416 / 5.406 %**.
+
+**ONE LIVE ALARM DEFUSED before anyone re-discovers it:** `gate_t1b.json` rows 0/2/4 read `PASS` beside `grid.state: DIVERGENT` with a `band_pct` — **that band is NOT a GCI**, it is the pre-registered Dittus-Boelter/Gnielinski half-spread (0.8789 = (31.78566 − 30.02785)/2). `T1b_L4_AMENDMENT.md:126-129` already records it, **is the origin of CLAUDE.md rule 5**, and deliberately leaves the JSON un-rewritten. **Known, adjudicated, superseded.**
+
+**Coverage limits stated, not glossed:** 35 files over an 8 MB cap; ~45.4k compressed files under the out-of-repo roots unread (the 533 in-repo `.gz` were `zgrep`ped); **binary formats entirely** — a GCI in a PNG would be invisible, mitigated by `demo-output/` carrying **no GCI token in any source form**; extensionless OpenFOAM dictionaries. `git status` **not used**; HEAD asked directly. **No core-minute figure quoted, because none was measured** — rule 12 forbids calling a cost measured without a record behind it.
+
+**⚠ NOT COVERED BY THIS NULL: the sdk / `tmr_verification.py` half — the flat plate's OWN instrument, behind the matrix's strongest G row and behind tonight's refutation of standing fact 1. Still running.**
+
+**Lanes live: 3 (at cap)** — attribution-integrity sweep; sdk/`tmr_verification` trace incl. the flat-plate six-triple re-derivation under the guarded instrument; and the `check_threshold_resolution.py` spec lane, **resumed** to land its spec as a filed document.
+
+**`check_threshold_resolution.py` — spec ACCEPTED, implementation GATED.** Two rulings made and recorded: **(a)** the prospective bite must **NOT** be wired into the freeze step until Sanaa rules — **a checker that refuses a commit is a gate on lab process, and ADDING a gate is reserved to her exactly as retiring one is**; land it, run it in **ARCHIVE mode** across the repo, and let **the archive sweep be the evidence her ruling rests on**. **(b)** Keep it **separate** from the rule-5 class-taxonomy instrument: same family of defect, but different inputs, different firing times, and **one instrument doing both would refuse for two reasons a reader could not tell apart**.
+
+**Blocked:** nothing.
+
+---
+
 **Section updated:** 2026-08-25T00:37:14Z by verification-supervisor. Matrix at **`d3a196fb`**, 1,209 lines. **CORRECTION COMMIT — this team cited withdrawn evidence and presented settled prior art as new.**
 
 ### ⚠ CORRECTION TO THIS TEAM'S OWN §6a — read this before citing it
