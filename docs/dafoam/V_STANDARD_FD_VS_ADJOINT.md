@@ -939,3 +939,185 @@ it was written.**
 **Dated addenda only.** This file is cited by line from the checklist onward; a departure is
 disclosed as a dated addendum appended at the foot with the assertion `lines whose number
 changed above this section: 0` (`CLAUDE.md` rule 6).
+
+---
+
+## 17. AMENDMENT 2 — 2026-08-25 — five checklist items the D4 endpoint FD bought, and one of them is the hole §13 had
+
+**Lines whose number changed above this section: 0.** Version **1.1**. This is a dated addendum
+appended at the foot, as §16 requires (`CLAUDE.md` rule 6). §13's items 1–13 are **unchanged in
+wording, numbering and line position**; items 14–18 below **continue** that block and are copied
+into a pre-registration beside it.
+
+**This amendment creates NO gate, NO threshold, NO band and NO cap.** Every item below is a
+**disclosure or a control**, never a scoring rule. Retiring or moving a threshold is Sanaa's
+alone. Nothing here is filed, sent, uploaded or posted.
+
+### 17.0 What bought these — and item 14 is the one that matters
+
+**Curriculum D4's endpoint FD, arm F, 2026-08-25.** The frozen extractor read the optimum's
+design point out of `OptView.hst`, which holds **driver-scaled** values because OpenMDAO's
+`pyOptSparseDriver` applies each DV's `scaler` **before pyOptSparse sees the problem** — so
+pyOptSparse's own scale factor is 1.0, its `scale` flag is a **no-op**, and the extractor's
+`getValues(..., scale=False)` argument is **inert**. The FD producer then applied those values as
+**physical** through `prob.set_val`. `shape`'s registered scaler is **10.0**, so arm F set the
+wing to ten times its optimised deformation and destroyed the mesh: 2,989 non-orthogonality
+errors, `AnalysisError: Mesh quality error!`, 15 wall s. That is **`D4-DEF-4`**.
+
+**The sentence this amendment exists for:**
+
+> **Had `shape`'s scaler been 1.0, every primal would have converged and arm F would have
+> produced a complete, well-formed, plausible FD table AT A DESIGN POINT THAT IS NOT THE
+> OPTIMUM.** Five components requested, five returned, in the registered order; every count
+> refusal passing; the planted-zero control seeing its plant; the blind reader refused; all four
+> mutation controls raising their named refusals. **THE FULLY ARMED INSTRUMENT SET WOULD HAVE
+> CERTIFIED IT.**
+
+**A units error is invisible to every count-based, plant-based and order-based control in this
+family. They check THAT n components were measured. THEY NEVER CHECK WHERE.** §13 as issued has
+no item that establishes the design point's location, and item 9 — the endpoint rule — stamps the
+endpoint with its **path** without ever asking whether the point is in the right **units**.
+**Item 14 closes that.**
+
+### 17.1 The five items — copy them into the pre-registration beside §13's block
+
+```
+V-COLUMN CHECK — ADDENDUM (2026-08-25).  Items 14-18 continue the block in §13.
+
+14. THE ENDPOINT LOCUS - a control that establishes WHERE the design point is, not only
+    THAT n components were measured.  MANDATORY on any item that re-applies a design
+    vector it did not itself set.  Count-, plant- and order-based controls are NECESSARY
+    AND DEMONSTRABLY NOT SUFFICIENT (D4-DEF-4, §17.0).  Two controls, and each must be
+    shown able to REFUSE:
+
+      (a) THE PINNED WITNESS.  A DV component whose registered `lower` EQUALS its
+          registered `upper` cannot be moved by any optimiser: its physical value is
+          DEFINITIONAL.  Assert every such component equals its pinned value.
+          - the control DISCOVERS pinned components by scanning the registration; it is
+            never TOLD where to look, or it only checks the case its author imagined;
+          - it REFUSES IF IT FINDS NONE.  A control with nothing to check is not a
+            control (L-302).  An item with no pinned DV states that, and says what stands
+            in for the witness.
+          - D4 measured: patchV[0] pinned at U0 = 100.0 read back as 10.0 - exactly
+            100.0 x 0.1, the registered scaler, to all digits.  No second explanation
+            exists for a variable that cannot move.
+
+      (b) BOUNDS CONTAINMENT.  Assert EVERY reconstructed component lies inside its
+          registered bounds.  IPOPT does not violate bound constraints, so a component
+          outside its bounds is a units or indexing error and NOT an optimum.
+          - D4 measured: 63 of 105 components outside their registered bounds before the
+            repair (62 shape + 1 patchV), 0 of 105 after.
+
+    Both controls run in the PRODUCER, before any core-minute is spent, AND are re-asserted
+    at grading time against the artifact ON DISK.  Neither may be satisfied by a value the
+    producer merely asserts.
+
+15. UNITS AND SCALING DECLARATION - on every path that reads design variables out of an
+    optimiser history and re-applies them.  State the framework's scaling convention and
+    PROVE IT; do not trust an argument to mean what it reads like.
+      - THE DISCRIMINATOR IS THE SOURCE OF THE VECTOR, NOT THE set_val call.
+        prob.get_val(...) returns the MODEL value and is PHYSICAL.  History.getValues(...)
+        on OptView.hst returns DRIVER-SCALED values.  A round trip through get_val is safe;
+        a round trip through the history is the defect.
+      - The proof is a MEASUREMENT in the registered container, not a reading of the
+        docstring: print getValues(scale=True) beside getValues(scale=False), and print
+        getDVInfo()'s bounds.  D4 measured them IDENTICAL, with getDVInfo() bounds already
+        multiplied by the scalers and pyOptSparse's own `scale` = 1.0 for every DV.
+      - Any divisor applied to correct the units is PARSED FROM THE REGISTERING SOURCE, never
+        typed into the reader.  A typed constant can drift from the registration and
+        reintroduces the defect somewhere new.  MEASURED INSTANCE, not hypothetical:
+        sdk/scripts/build_a2_shape_frames.py already de-scales OptView.hst correctly - by a
+        typed SCALER_SHAPE that nothing checks against the registration.  It is right today
+        and right BY LUCK.
+      - The published artifact carries an explicit units field, and every consumer REFUSES
+        an artifact that does not declare the units it expects.
+
+16. EVERY GATE'S REFUSAL IS MADE TO FIRE IN THE SELFTEST.  For each gate the
+    pre-registration emits, the selftest carries at least one unit in which THAT GATE'S
+    REFUSAL ACTUALLY FIRES, driven by a deliberate mutant, and the battery is shown able to
+    FAIL.  A unit that REFERENCES a control without making it LOAD-BEARING does not test it,
+    however many units there are.
+      - THE MECHANISM IS ALWAYS THE SAME: READING THE CODE CONFIRMS THE GUARD AND STOPS
+        THERE.  Three independent instances in one day:
+          D4-DEF-1        21 selftest units that NEVER mutated the FD table, so the bright
+                          line itself had no end-to-end unit behind it;
+          M3 (D12)        deleting the sign-flip override ENTIRELY left the whole selftest
+                          passing, because the only unit referencing it was not load-bearing
+                          there;
+          D7-GRADER-DEF-2/3  the crash class inside g6_plant - the gate its own addendum
+                          called "defended" - and g11_oom returning pass=True FOR A
+                          CONTAINER THAT NEVER RAN.  A gate that certifies absence as
+                          success.
+      - "21/21" and "48/48" have both been true of unit sets that omitted the gate that
+        mattered.  A selftest count is not evidence about coverage; the mutant is.
+      - This subsumes the planted-zero control (CLAUDE.md rule 3): the plant must be shown
+        to MOVE the graded quantity ACROSS the band, and a blind reader that ignores its
+        path must be REFUSED.
+
+17. COST BASIS - EVERY TERM CARRIES A NUMBER, OR THE BASIS IS LABELLED PARTIAL.  A basis
+    reading "X + Y" where only X has a figure has NOT priced Y, and must say so.
+      - MEASURED: D7's arm P2 came in at ratio 1.915 - predicted 31.5, actual 60.334
+        core-min.  Its basis read "+ coloring build" with NO NUMBER BESIDE IT, and setup +
+        primals + colouring consumed 682 of 901 s.  THE ONLY TERM ACTUALLY PRICED - the
+        adjoint - was about right.  THE UNPRICED TERM WAS ESSENTIALLY THE ENTIRE OVERRUN.
+        That is a PRICING DEFECT, not a mis-estimate.
+      - The prediction carries a numeric STOP THRESHOLD, and an overrun STOPS THE RUN; it
+        does not get a new budget (CLAUDE.md rule 12).
+      - At completion the actual/predicted ratio is stated in core-minutes from logs, the
+        gap is ATTRIBUTED (contention / waste / misprediction / instrument defect), waste is
+        named SEPARATELY and never absorbed into the ratio, dollars are labelled DERIVED,
+        and a row lands in docs/COST_CALIBRATION.md.
+      - An arm that DELIVERED NO WORK gets NO RATIO.  A ratio compares work done against
+        work predicted for it, and there is nothing to compare (precedent c21ada18).
+
+18. STAGED-TREE COLD START - a tree copied from another arm inherits that arm's OUTPUTS.
+    State, per staged arm, that it satisfies the same cold-start standard the launcher
+    enforces on a fresh arm - no pre-existing answer file, no inherited output time
+    directory, no inherited reports/ - or state the exemption AND why it is safe.
+      - MEASURED (D4-DEF-6): `cp -a O F2` carried arm O's 84 pseudo-time directories
+        0.0001..0.0082 into the staged tree.  DASolver.renameSolution counts from 1, so the
+        FIRST rename collided: "processor1/0.0001 already exists, moving failed!", and the
+        arm died in compute_totals AFTER both primals had converged correctly.
+      - THE DEFECT WAS INHERITED FROM THE ORIGINAL STAGER, SO THE ARM COULD NEVER HAVE
+        COMPLETED EVEN WITH CORRECT UNITS.  The earlier units crash masked it.  TWO
+        INDEPENDENT BLOCKERS ON ONE ARM: fixing only the first buys a second crash at a
+        higher price.  This is the case FOR making a SOLVE, not an argument, the
+        precondition of any freeze.
+      - The staging repair removes OUTPUTS from the COPY only, asserts the count removed is
+        NON-ZERO (a repair that removes nothing is a no-op wearing the costume of one),
+        asserts the INPUTS survive, and asserts the SOURCE tree is unharmed AFTER the
+        removal rather than assuming it.
+
+19. ENFORCEMENT, RESTATED.  Nothing automatic checks items 14-18 either, with one
+    exception: item 14's two controls ARE executable and DO refuse - the reference
+    implementation is cases/dafoam/ladder-a/A2/curriculum_D4/d4_endpoint_locus.py, whose
+    selftest builds deliberate mutants and requires each control to fire (22/22 at
+    e63df1845771c3e67457443918f5b82e).  It parses the registering runScript with `ast` and
+    hard-codes no design-variable name, so another item adopts it by pointing it at its own
+    runScript.  TESTED, NOT CLAIMED: pointed at curriculum D7's d7_opt_runScript.py with
+    zero code changes it read U0 = 291.6, DISCOVERED patchV[0] as the pinned witness, and
+    REFUSED a driver-scaled vector at 29.16.  Items 15-18 are honoured by the writer and
+    audited by the supervisor's personal read.  Do not describe them as enforced.
+```
+
+### 17.2 What this amendment does NOT establish
+
+1. **It does not make item 14 general beyond a bounded DV registration.** The reference
+   implementation reads `add_design_var(name, lower=, upper=, scaler=)`. An item whose DVs are
+   registered another way, or whose scaler is a variable rather than a literal, gets a
+   **refusal** from the parser rather than a silent half-application — which is the safe
+   direction, but it is **not coverage**, and it is stated rather than implied.
+2. **It does not claim a pinned DV always exists.** D4 and D7 both have one because `patchV`
+   pins the freestream. **An item with no pinned component has no unforgeable witness**, and
+   item 14 requires it to say so instead of quietly checking nothing.
+3. **Item 15's proof is a measurement of ONE framework version.** OpenMDAO/pyOptSparse could
+   change where the scaler is applied. The requirement is therefore to **re-measure per item**,
+   not to inherit D4's reading.
+4. **Nothing here was bought with new compute.** The measurements cited are D4's arms ACC, F2
+   and F3, D7's P2, and the D12/D7 grader findings, all already spent.
+
+### 17.3 Amendment record, continued
+
+| Version | Date | Change |
+|---|---|---|
+| **1.1** | **2026-08-25** | **AMENDMENT 2**, by the D4-DEF-4 repair lane. Adds §17: checklist items **14–18** continuing §13's block, plus item 19 restating enforcement. **14** — the endpoint locus (pinned witness + bounds containment), which closes the hole D4-DEF-4 fell through: §13 as issued had no item establishing WHERE a design point is. **15** — the units/scaling declaration, with the source-of-the-vector discriminator and the measured `build_a2_shape_frames.py` typed-constant instance. **16** — every gate's refusal made to fire by a deliberate mutant, from three independent instances in one day. **17** — every cost-basis term carries a number or the basis is PARTIAL (D7 P2, ratio 1.915). **18** — staged-tree cold start (D4-DEF-6). **Creates no gate, threshold, band or cap; edits no frozen record; zero compute; nothing filed or sent.** Lines whose number changed above §17: **0**. |
