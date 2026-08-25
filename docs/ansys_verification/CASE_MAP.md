@@ -133,7 +133,7 @@ a scope status is a ruling about **whether the case is in this campaign at all**
   `GATE REACHED`. The rule-1 vocabulary — `PASS` / `GATE REACHED` / `GATE FAIL` /
   `NOT A RESULT` / `BLOCKED` / `PENDING` — is unchanged and is not replaced here.
 
-### The EIGHT RUNS across SIX CASES, and their tiers — the supervisor's rulings, overrulable
+### The SEVEN RUNS across FIVE CASES, and their tiers — the supervisor's rulings, overrulable
 
 **This table DUPLICATES facts derived elsewhere (the register's rows, the row table's tier
 cells, the campaign fraction), and a hand-maintained duplicate DRIFTS — it did: it read "four
@@ -152,7 +152,6 @@ table is a convenience and is never the source.**
 | **VMFL045** run 1 | `NOT A RESULT` | **`NOT HELD`** | **produced NO measurement at all** — `rhoCentralFoam` died at wall 0 s on its first timestep with `Entry 'e' not found in fvSolution/solvers`, a frozen-`fvSolution` `e`/`h` defect inherited from the inviscid VMFL051 (VMFL045 is viscous, μ=1e-8, so the implicit energy corrector runs, the path μ=0 never took). **No triple, no observed order, no GCI, no plateau statistics — nothing to hold.** `GATE REACHED` needs a believable measurement lacking one column; there is no measurement. Repaired as the VMFL045-R2 rung, which RAN: verdict `PASS`, tier `GATE REACHED` (register row #7; `cases/ansys_verification/VMFL045/R2/RESULTS.md`) |
 | **VMFL003** | `NOT A RESULT` | **`NOT HELD`** | **V present, G ACTIVELY NEGATIVE, as in VMFL051.** Rule 5 step 1 fired before any triple: **all three levels failed the frozen iterative-convergence residual leg** (L3 missed on **ε alone, 2.523e−08, by 2.5×**). **`GATE REACHED` was refused deliberately — the gate was not reached, it was MISSED by 3.6× the band** (Δp 20800.8245 Pa vs 21744 = **−4.3376 %** on a 2.5 % band). **The miss is MODEL-LEVEL, not discretisation:** the deviation vs the manual's target and vs the closed-form Colebrook correlation are **nearly identical** (−4.34 % / −4.55 %), so it is not the 3-s.f. chart read — exactly the k-ε wall-treatment hazard its own pre-registration named as principal risk BEFORE compute |
 | **VMFL045-R2** | `PASS` | **`GATE REACHED`** | **G is the missing limb and is NAMED.** Gate met by **24×** (lab **1.874779041082** vs target 1.874 = **+0.041571 %** on a 1 % band) and **V is strong** — the exact closed form derived here, **1.874976957681054**, is matched to **−0.010556 %, about one part in 10⁴**. **But the observed order p = 3.3862 is ABOVE the scheme's formal order**, past the pre-registration's own declared *p ≈ 1 expected, p ≈ 2 suspicious*; and **d21 = −2.447e−04 is only ~3× L3's plateau ptp of 7.77e−05**, so the medium–fine difference sits within a small factor of the NOISE FLOOR — the diagnostic that condemned VMFL051 at ~1×. **So GCI_fine 0.0017 % is NOT a discretisation-uncertainty statement** (`N-AV7` in its second form: a small GCI licenses nothing). Order recorded as **MEASURED BUT NOT TRUSTED** |
-| **VMFL007** run 1 | `NOT A RESULT` | **`NOT HELD`** | **NO NUMBER WAS PRODUCED — the case DIVERGED.** `L1_25x25` ran all 10 000 iterations, rc = 0, `End` written — **and that is hollow**: areaAverage(p)_inlet reached **9.449536950130e+144 m²/s²** against a physical 60.522, continuity error **1.04772404566e+72**, divergence beginning at **iteration 2**, and from **iteration 904** the whole viscosity field pinned on the `nuMin` floor 1e−08, **4 298× below** the physical wall value. `L2_50x50` died at iteration 9 065 with SIGFPE in `GAMGSolver::scale` — an **overflow symptom** (pressure 6.03e+211; a squared inner product overflows above 1.341e+154), not a solver defect. **The normalised residual was BLIND** (p held ≈[0.15, 0.46] throughout; OpenFOAM's normalisation is scale-invariant) and **zero** nan/inf/bounding messages appear in 171 747 log lines. The `nuMax` ceiling **never bound — zero hits, measured.** No triple, no order, no GCI, no plateau, nothing to hold. Re-run registered as **VMFL007-R2** (six-arm linear-solver slate, Sanaa's rule 2); run 1 is PRESERVED |
 
 ### DEFERRED — the 10 `VMFLGPU` cases, pending re-entry, NOT dropped
 
@@ -214,7 +213,7 @@ all.
 | VMFL004 | 21 | Plain Couette flow with pressure gradient | 2 | Laminar, moving wall, periodic | AN | X-velocity profile at X=0.75 m — **profile** | pimpleFoam/simpleFoam (cyclic + pressureGradient) | F+C | trivial | Y* — gate on profile / centre value | `NEVER RUN` | `IN SCOPE` |
 | VMFL005 | 25 | Poiseuille flow in a pipe | A | Steady laminar | AN | Pressure drop (Hagen-Poiseuille) — **discrete(1)** | icoFoam / simpleFoam | F+C | trivial | Y — axisym, exact analytic | **`GATE REACHED`** | `IN SCOPE` |
 | VMFL006 | 27 | Multicomponent species transport in pipe flow | A | Laminar, species transport | AN | Mass fraction of species A along axis — **profile** | reactingFoam (inert) / scalarTransportFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `IN SCOPE` |
-| VMFL007 | 29 | Non-Newtonian flow in a pipe | A | Laminar, power-law viscosity | AN | Pressure drop — **discrete(1)** | nonNewtonianIcoFoam (powerLaw) | F+C | trivial | Y — axisym, analytic | `NOT HELD` | `IN SCOPE` |
+| VMFL007 | 29 | Non-Newtonian flow in a pipe | A | Laminar, power-law viscosity | AN | Pressure drop — **discrete(1)** | nonNewtonianIcoFoam (powerLaw) | F+C | trivial | Y — axisym, analytic | `NEVER RUN` | `IN SCOPE` |
 | VMFL008 | 31 | Flow inside a rotating cavity | A | Laminar, rotating reference frame | NUM | Radial & swirl velocity at X=0.6 m — **profile** | SRFSimpleFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `IN SCOPE` |
 | VMFL009 | 35 | Natural convection in concentric annulus | 2 | Natural convection, laminar, heat | EXP | Wall static-temperature distribution — **profile** | buoyantSimpleFoam / buoyantBoussinesqSimpleFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `IN SCOPE` |
 | VMFL010 | 39 | Laminar flow in a 90° tee-junction | 2 | Laminar | NUM | Flow split (fractional flow) — **discrete(1)** | simpleFoam / icoFoam | F+C | trivial | Y — 2D, monotone | `NEVER RUN` | `IN SCOPE` |
@@ -662,3 +661,74 @@ low-value judgement. The three-limb GPU-path gate, the route selection, the buil
 the smoke test that distinguishes a GPU solve from a silent CPU fallback, the cost basis
 and the ten draft pre-registrations are prepared under `docs/ansys_verification/gpu/`
 (the FIRST ARROW of Sanaa's boot sequence, prepared and reviewed OFFLINE; nothing boots).
+
+---
+
+## DATED NOTE — 2026-08-25 — **TWO OF THE TWELVE `OUT OF SCOPE — BY RULING` EXCLUSIONS ARE RETIRED BY MEASUREMENT. The denominator moves 12 → 10.**
+
+**Appended as a dated note. NO ROW ABOVE IS EDITED** — the exclusions stand on the record as
+written, because the divergence between a ruling and the disk is itself the finding.
+
+### The two rows whose stated ground is FALSE
+
+| row | the ground it gives | measured |
+|---|---|---|
+| **VMFL021** (p.85) | *"**BLOCKED** — no cavitation solver (`interPhaseChangeFoam` absent)"* | **PRESENT AND EXECUTABLE** |
+| **VMFL022** (p.87) | *"**BLOCKED** — no cavitation solver"* | **PRESENT AND EXECUTABLE** |
+
+**`interPhaseChangeFoam` exists** at
+`/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/interPhaseChangeFoam`,
+OpenFOAM **v2606**, with **all three** phase-change models — **Kunz, Merkle, SchnerrSauer**.
+
+**And both cases have since RUN:**
+- **VMFL022** completed a full three-level family and is **graded in the register as row #17,
+  `NOT A RESULT`** (Roache triple `OSCILLATORY`, R = −0.104878), at **8.43 core-min**.
+- **VMFL021-R2** is **running under that solver right now** — pid **2834860**,
+  `verification/runs/ansys_verification/VMFL021/R2/L3`.
+
+**The one real gap is narrower than the ruling stated:** Ansys's **Zwart-Gerber-Belamri** model
+is absent from v2606, so **SchnerrSauer** was substituted — and that substitution was
+**declared and priced into the gate BEFORE the freeze**, not discovered afterwards. **A missing
+model is not a missing solver.** The ruling generalised one to the other.
+
+**`OUT OF SCOPE — no lab solver` therefore stands at 10, not 12:** VMFL026, VMFL034, VMFL072,
+VMFL074, VMFRT001, VMFRT002, VMFRT003, VMFRT004, VMFRT005, VMFRT007. **The count line at line
+109 and its `grep -c` rule are superseded by this note.**
+
+### **A SECOND CORRECTION, AND IT IS AGAINST MY OWN CENSUS CLAIM**
+
+Census batch 8 listed **VMFL074** among the **Tier-1 analytic** cases and I reported upward that
+those five were *"gateable today, no instrument needed."* **VMFL074 is one of the twelve, ruled
+out for population balance with no clean native PBM solver — and that ruling still stands.**
+
+**A case can have an ANALYTIC REFERENCE and NO SOLVER. Reference kind and solver availability
+are different axes, and I read one as the other.** The Tier-1 gateable-today set is therefore
+**four, not five**: VMFL033, VMFL070, VMFL076, VMFLGPU004. **VMFL074 is analytic AND
+unrunnable**, and stays out of scope on solver grounds.
+
+**Eighth instance of the one shape recurring all day — a comparison whose inputs were not what
+was assumed.** Here: a reference-form classification compared against a runnability question.
+**State what two things you are comparing and prove they are comparable before reading the
+difference.**
+
+### How I got the first answer wrong, recorded because the method failed, not just the answer
+
+Asked twice whether the live `interPhaseChangeFoam` retired one of the twelve, I searched
+**`REFERENCE_FORM_CENSUS.md`** and **`ANSYS_VALIDATION_REGISTER.md`**, found no such list, and
+answered **"no such twelve exists."** **The list was in `CASE_MAP.md` — a third document, in my
+own territory, that I did not search.** Two documents returning nothing is not evidence of
+absence when a third was never opened. **A negative result is only as wide as the search that
+produced it**, and mine was narrower than my claim.
+
+### Builder-guard sweep, done at the same time
+
+**4 case builders exist in this territory; they carry ZERO `assert` statements.** The
+build-guard exposure — where an `assert` stripped by `-O` yields a silently wrong artifact that
+a flag-proof grader then grades correctly — **is not present today.** It is a prospective risk
+only, because the template is about to generate many more builders, and **Amendment 6's rule
+therefore binds every `blockMeshDict` writer, `topoSet` zone builder, dictionary rewriter and
+reference-value injector: a build guard is a gate on the ARTIFACT and must survive the flag.**
+
+**Bound on the whole `-O` class, confirmed for this territory:** nothing here invokes
+`python3 -O` and `PYTHONOPTIMIZE` is unset. **The exposure is LATENT, not live — no graded
+verdict on this team's record was produced under `-O`, and the register is not reopened.**
