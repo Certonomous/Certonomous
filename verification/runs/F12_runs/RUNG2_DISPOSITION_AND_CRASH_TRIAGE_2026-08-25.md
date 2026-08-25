@@ -144,3 +144,90 @@ frozen file was edited and no gate, threshold, cap or label moves.
 `scripts/roache_triple.py` is **still not pinned**, and the launcher's own
 docstring records it as owed before rungs 2-5 — where the triple is the graded
 object.
+
+---
+
+## AMENDMENT 1 — 2026-08-25 — **§3's MECHANISM IS STRUCK. RUNG 1 WAS NEVER AN FPE.**
+
+**Written by the cfd supervisor personally.** Crash triage is a `SUPERVISION_CHARTER.md` §3
+check 2 and may not be delegated; this correction was **verified by me at source**, not relayed.
+**Lines whose number changed above this section: 0.** The original text above is preserved
+exactly as written, not rewritten (standing rule 6).
+
+**Found by the field-localisation lane and confirmed independently by me.** Credit where it
+belongs: the lane read the log to its end. I had not.
+
+### WHAT ACTUALLY KILLED RUNG 1
+
+`verification/runs/F12_runs/attempt2_coarse_workshop_M0.734_a2.79/log.rhoSimpleFoam` ends:
+
+```
+--> FOAM FATAL ERROR: (openfoam-2606)
+Negative initial temperature T0: -2.384321367
+    ... in file ./src/thermophysicalModels/specie/lnInclude/thermoI.H at line 57.
+```
+
+The last solve before it is `Solving for e` — **the energy equation**. The pressure equation had
+not run that iteration.
+
+**At source**, `/usr/lib/openfoam/openfoam2606/src/thermophysicalModels/specie/thermo/thermo/thermoI.H`
+lines 54-60:
+
+```
+    if (T0 < 0)
+    {
+        FatalErrorInFunction
+            << "Negative initial temperature T0: " << T0
+            << abort(FatalError);
+    }
+```
+
+**That is an explicit physical range check, not a floating-point trap.** The stack trace's frame
+#1 is `Foam::error::simpleExit` in `libOpenFOAM.so`; frames #2-#4 are
+`libfluidThermophysicalModels.so`. **GAMG is not on the stack.**
+
+**And the exit code says so too.** `kill -l 6` = `ABRT`, `kill -l 8` = `FPE`. `rc = 134` is
+`128 + 6` = **SIGABRT**. **A SIGFPE would have been 136.**
+
+### WHAT IS STRUCK, AND WHAT SURVIVES
+
+**STRUCK — §3 heading and §3.3's mechanism.** §3 reads *"`rc = 134` is `128 + 6` — `SIGABRT`,
+consistent with a floating-point trap raising `abort()`."* §3.3 reads *"A coarsest-level GAMG
+solve that traps on a matrix assembled from a field that has been rising for tens of iterations
+is doing the expected thing with garbage input."* **There was no trap and GAMG was not involved.
+Both sentences are withdrawn as statements about rung 1.** They remain true of **arm B**, which
+is a different case.
+
+**MY OWN ERROR, NAMED: I read an exit code permissively when the log carried the answer in plain
+text.** `128 + 6` is *consistent with* an FPE-induced abort, and it is also consistent with every
+other `abort()` OpenFOAM raises — which is most of them. I chose the reading that fitted the
+story the previous arms had been telling. **The log's last twenty lines would have refuted it at
+any point.** This is the **fourth** corrected mechanism claim on this line and **the first that
+is mine**.
+
+**SURVIVES, AND IS STRENGTHENED — §3.3's CONCLUSION and §3.4's DIRECTION.**
+
+§3.3 concluded that the crash is **downstream of an outer iteration that was already diverging**,
+not an independent defect of the linear solver. That is now on **firmer** ground, not weaker:
+`T = -2.384321367 K` is unambiguous divergence of the solution itself, and the thing that caught
+it is a **physical bound on a field**. The corroborating residual reading is unchanged and was
+re-derived independently from the log: first-solve `p` minimum **`0.009554815904` at iteration
+5**, rising to **`0.2006112477` by iteration 10**.
+
+§3.4 ruled: *"Stop asking why the linear solve traps. Establish WHERE IN THE DOMAIN the field
+first goes wrong, and WHEN."* **That direction is now more clearly right than when it was
+written** — the failing quantity is a field, the killer is a physical range check on that field,
+and "why did GAMG FPE" turns out never to have been rung 1's question at all.
+
+### CONSEQUENCE FOR THE FALSIFIABLE TEST IN §3.3
+
+§3.3 offered: *"if the outer iteration were made to descend, the FPE would not occur — and if it
+still occurred on a descending run, my triage is wrong."* **Restate it without the FPE:** if the
+outer iteration were made to descend, `T` would not go negative; if `T` still went negative on a
+descending run, the triage is wrong. **The test is unchanged in substance and its subject is
+corrected.**
+
+Full verification and the probe that found it: the field-localisation registration
+`verification/campaign/F12_FIELD_LOCALISATION_PREREGISTRATION.md`, frozen `56d72ac3`, blob
+sha256 `bca4074a7de26f478115a1efc1706c9cba6daedab8174cf72c202566d534b667` — **recomputed by me
+from the commit object, not accepted from the lane.**
