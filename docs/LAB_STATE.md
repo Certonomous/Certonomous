@@ -1945,6 +1945,46 @@ Tian moved out of the NOT-VERIFIED table, out of the load-bearing-gap pair, and 
 
 **T8's three case directories are BUILT** — `T8_MTT_c`, `T8_MTT_m`, `T8_MTT_f` — so `build_t8.py` has run; solvers not yet up at this reading. T1b arms: `R_10k_x` **23 713 / 32 000**, `R_100k_x` **85 797 / 94 000**, `R_300k_x` **87 794 / 110 000**, elapsed 17 837 s each. **Two foreign `interPhaseChangeFoam` processes are on the box and are NOT mine** — noted so that the contention record attributes them rather than absorbing them into thermal's timing basis. Load 5.52, 27 GB available.
 
+#### MY §3 CHECK-1 READ ON K0d — DONE PERSONALLY, CLAIMS RE-DERIVED NOT ACCEPTED. **K0d IS FIRED. THE GRADER THAT DID NOT EXIST NOW EXISTS.**
+
+Four instruments at HEAD, **3 980 insertions**, `4e210c91` + `0592cb06`. **I checked ANCESTRY explicitly** — both are ancestors of HEAD and all four files exist at HEAD and on disk — because a raced `update-ref` orphans work silently and the `--stat` would still look right.
+
+**The three plants are correct where correctness is load-bearing.** P1 plants into a **copy on disk BY LINE INDEX** — not by regex over a value, which **would have hit all twelve identical cells** — and reads back through `read_scalar_field`. P2 plants into the X-component and reads back through `read_vector_field`, a **genuinely separate parser**; **six of the ten graded rows are velocity rows**, so P2 is not decorative. Both compare with exact `!=` — **no tolerance chosen to make them pass**. **Rule 5's last clause is enforced INSIDE `roache()`**, not left to the caller, and `format_triple` prints **"NOT QUOTED (values not monotone)"** rather than a number a reader could mistake for one. **`HOLDS` is unreachable** — two occurrences, both saying it can never be read. All four selftests PASS under **my own** run; blindness checker exit 0 on all four **with its own `--selftest` run first**, so those are not unplanted zeros.
+
+**I mutated the grader myself, on copies, `__pycache__` cleared first.** Disarming the P1 readback refusal (`if seen != PLANT_T:` → `if False:`) is **CAUGHT, rc=1**: *"a reader BLIND to the plant is REFUSED — RETURNED INSTEAD OF REFUSING, the probe is blind."*
+
+**⚠ ONE MUTATION SURVIVED, AND I CHASED IT DOWN RATHER THAN REPORT IT. IT IS A FALSE POSITIVE OF MY OWN TEST.** Changing `(mono and cls == CONVERGING)` → `(cls == CONVERGING)` passes rc=0, which reads as rule 5's last clause going undefended. **It is not.** `CONVERGING` requires `R = eps21/eps32 ∈ (0,1)`, which forces `eps21` and `eps32` to **share a sign**, which forces `coarse > medium > fine` or `coarse < medium < fine`. **`CONVERGING` mathematically IMPLIES monotone**, so the conjunct is redundant and a mutation to it is undetectable **because it changes nothing**. **KEEP IT** — correct defensive coding that survives a future edit to `classify_triple`. **Recorded as a NON-FINDING so nobody "fixes" it later**, and recorded at all because I spent this session criticising a checker for exactly the false-alarm failure I nearly committed myself.
+
+#### ⚠⚠ THE NEAR-MISS OF THE DAY — A REFUSAL TEST THAT WOULD HAVE FIRED THE CASE IT EXISTED TO PROVE COULD NOT FIRE
+
+**`build_k0d.py`'s selftest invoked the REAL builder against a REAL FIXED PATH** (`/tmp/should_never_be_written`). It was failing, and **the diagnosis is worse than the failure: AMENDMENT 2 closed all four registration gaps, so the builder no longer refuses — it WROTE ALL TEN CASE DIRECTORIES THERE.** **Had that fixed path been the registered run tree, the selftest itself would have created `K0d_runs/` and destroyed the pre-compute absence proof on which every amendment's legality rests.** A test written to prove the builder refuses **would have fired the case.**
+
+Repaired in the §A2.3 shape (826): **a COPY of the script with one gap re-opened is run**, so the refusal is the real path on real code; **every root a fresh tempdir, and that ASSERTED (874)**; a positive counterpart proving it is a control and not a tautology. **It also answers my open question: `build_k0d.py`'s refusal IS cleared.** And the lane recorded that **its own first probe appended the mutation after `sys.exit(main())`, where it never ran, and reported a FALSE PASS** — kept in the source at 845 rather than quietly deleted, with a stale success banner corrected at 969. **Recording your own false pass is worth more than the repair.**
+
+**Condition C: repaired in the worktree by the lane that died, and this lane VERIFIED rather than assumed.** `condition_C` now **raises rather than falling back**, and the proving assertion fires — repaired C **refuses a 20-cell block redistribution that A and B both let through**, with A and B shown **quiet on the same mesh**. That is a control, not a tautology.
+
+#### MY RULING ON THE EXTRACTION — the reading is ACCEPTED, and its equivalence becomes a REGISTERED CHECK rather than an assumption
+
+**The in-comparator reader IS the registered graded path, and the plants stay with it.** §8.1's reasoning binds: **a plant traversing a reader the graded number never calls exercises the wrong channel.** This lab has been burned by exactly that **twice today** — condition C planting into a modified **spec** rather than a mesh, and T8's §9 arm analytically incapable of catching the mis-weighting it existed to catch. **I will not order a third instance.** The lane implemented registered semantics in-comparator and **did not amend the frozen registration to suit its code**, which is the right instinct.
+
+**But the equivalence is ASSERTED, not DEMONSTRATED, and it will not sit as an unmeasured assumption under every graded number.** §A1.3a's `cellPoint` is a specific OpenFOAM interpolation — cell-to-point then inverse-distance weighting — and a re-implementation can silently differ. **Ruled, pre-decided BEFORE compute so rule 2 is satisfied:**
+
+> Once L1 produces real fields, run OpenFOAM's own **`postProcess -func sample`** with the registered §A1.3a parameters on the same `endTime` and compare against the in-comparator reader. **Criterion: agreement within 1e-6 of the field's registered range — for `T` that is the SAME 2.0e-5 K already registered in §7.1, REUSED RATHER THAN INVENTED.** Agreement vindicates the reading. **Disagreement means the comparator's reader is wrong, every graded row is `NOT A RESULT`, and the rung is repaired and re-registered — NOT rescued by amendment.**
+
+**This turns limit 1 from an excuse into a schedule: "no K0d field has ever been read" is exactly why the check cannot precede the solves — firing is the PREREQUISITE for closing the gap, not a way around it.**
+
+**The lane's three limits, stated back because they are correctly stated:** everything so far ran on **synthetic fixtures** and is **evidence about the instrument, not about the rung**; the extraction is a **disclosed reading**; and **my check-1 read had NOT been performed at its commit — it is performed now, and this record says so.**
+
+**Filing, ruled:** `scripts/check_filing.py` — the **binding** artifact — reports **no violation** on the four paths, so `scripts/` is legal. It is nonetheless **inconsistent with every sibling comparator**, which lives under `verification/runs/F14-cooling-ladder/K0c*_runs/`. **Leave them and do NOT move them after first compute** — relocating a grading path post-freeze is a rule-2 problem for no gain. **Disclosed, not silently accepted.**
+
+#### THE FIRE ORDER AS GIVEN
+
+Registered order **`build_k0d.py` → `check_k0d_mesh.py` (A-G) → solve → `mark_done_k0d.py` → `analyse_k0d.py`**; **a mesh failing any condition does not solve.** Freeze re-verified at launch with `git cat-file -p HEAD:<path>` — **not `git diff`**, caught twice today reporting an edited file **clean** against the decayed index. **Cap cited from the RE-REGISTRATION only: 2 748.64 core-min**; the superseded `K0d_PREREGISTRATION.md` §10.3 still reads **2 484.84** with five amendments claiming no cap moved, and **that file is never to be quoted.**
+
+**Staging is a RUNAWAY GUARD, not a budget:** stage **`min(9, whatever lands total occupancy ≤ 90 %)`**, measured at launch — **9 is §9.1's registered cap and is a ceiling, never a floor.** **Not all ten:** that pins the box at 100 % and corrupts the wall-clock basis the cost calibration rests on — **a MEASUREMENT argument, which survives Sanaa's cost directive intact.** Foreign `interPhaseChangeFoam` on the box is **not mine and is not to be touched.**
+
+**Expected outcome, and it is the REGISTERED one, not a failure: `GATE REACHED` naming `P`, tally 0 of 10, every row `BLOCKED` while Blay 1992 is `NOT OBTAINED`. V and G are what this rung is for, and they are the columns the lab is short of.**
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
