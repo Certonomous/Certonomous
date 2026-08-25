@@ -1,0 +1,44 @@
+VMFL045-R2 CONTENTION LOG -- serial run (RANKS=1) on a 16-core box (c7a.4xlarge)
+Samples record WHAT ELSE was on the box, not a bare loadavg (supervisor's directive):
+a calibration row that does not say what else was running is not a calibration.
+
+--- SAMPLE 1: AT LAUNCH --- 2026-08-25T02:27:17Z
+loadavg(1/5/15) = 3.02 3.44 3.31 on 16 cores
+concurrent solvers visible = simpleFoam(etime=92s,cpu=99.9%) 
+PEER ANSYS-VERIFICATION JOB RUNNING: VMFL003 (level(s): L3_1000x5,L1_250x5,L2_500x5,) --
+  a peer ansys-verification case is computing concurrently on this box.
+context: supervisor noted VMFL003 L1 done at 1.7833 core-min, L2/L3 in flight;
+  three solvers at load ~3.0 -- LIGHT (VMFL051's 2.06x overrun came from load 68-76).
+
+--- SAMPLE 2: DURING L3, EARLY (NOT the midpoint) --- 2026-08-25T02:33:12Z
+NOTE: the mid-L3 sample I was to take on a monitor event was NOT written before my
+watcher's agent was interrupted; the monitor emits events, it does not write samples.
+This sample is taken while L3 is still solving but EARLY (L3 rhoCentralFoam etime
+~160s, before its first field write at t=0.0035). It is honestly labelled early-L3,
+NOT reconstructed as the midpoint. A genuine mid-L3 sample is captured by the detached
+watcher below when L3's first write appears.
+loadavg(1/5/15) = 4.01 3.86 3.55 on 16 cores
+concurrent solvers visible = rhoCentralFoam(etime=160s,cpu=99.9%) simpleFoam(etime=34s,cpu=100%) 
+PEER ANSYS-VERIFICATION JOB: VMFL003 active level(s) = D_500x4,D_500x3,L3_1000x5,
+
+--- SAMPLE 2: MID-L3 (sim-time midpoint, endTime/2 = 3.5e-3), written by an OS-LEVEL sampler -- no agent was alive at this instant --- 2026-08-25T02:42:40Z
+loadavg(1/5/15) = 3.00 3.20 3.37 on 16 cores
+co-resident solvers (ps args, NOT comm -- comm truncates at 15 chars):
+  1999830     727 99.9 rhoCentralFoam
+   450274  278035 99.9 buoyantBoussinesqSimpleFoam
+   488219  274694 99.9 buoyantBoussinesqSimpleFoam
+  2000222     590  0.0 /bin/bash ./verification/runs/ansys_verification/contention_sampler.sh /home/ubuntu/Certonomous/verification/runs/ans
+  1999829     727  0.0 timeout 2698 rhoCentralFoam
+fired at SIMULATION TIME = 0.0035469705 (threshold 0.0035), read from /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL045/R2/L3_360x304/log.rhoCentralFoam -- this
+  sample is the MIDPOINT BY SIMULATION TIME, not a wall-clock estimate.
+
+--- SAMPLE 3: AT END (terminal; written by the lane just after COST.txt appeared) --- 2026-08-25T02:58:11Z
+run complete: all three levels, total 26.6667 core-min of a 48 cap (COST.txt 02:54:10Z).
+loadavg(1/5/15) = 2.11 2.52 2.92 on 16 cores
+concurrent solvers visible = none
+PEER ANSYS-VERIFICATION JOB: VMFL003 active level(s) = none seen in last 3 min
+SUMMARY OF CO-RESIDENCY DURING VMFL045-R2: a peer ansys-verification job (VMFL003) ran
+concurrently for the whole solve; box load stayed ~3.0-4.0 on 16 cores (LIGHT). The
+mid-L3 point (SAMPLE 2, sim-time 3.5e-3) was captured by the OS-level sampler at
+02:42:40Z, not reconstructed. This co-residency is named in the calibration row per the
+rule that a calibration stating no co-tenant is not a calibration.

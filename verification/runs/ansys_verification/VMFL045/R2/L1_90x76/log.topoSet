@@ -1,0 +1,45 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : topoSet
+Date   : Aug 25 2026
+Time   : 02:27:28
+Host   : ip-172-31-43-247
+PID    : 1998931
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL045/R2/L1_90x76
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create polyMesh for time = 0
+
+Reading topoSetDict
+
+Time = 0
+    mesh not changed.
+Created cellZoneSet gateZone
+    Applying source boxToCell
+    Adding cells with centre within boxes 1((0.34 0.1532566285 -1) (0.46 0.22549436 1))
+    cellZoneSet gateZone now size 252
+Created cellZoneSet gateZoneInner
+    Applying source boxToCell
+    Adding cells with centre within boxes 1((0.34 0.1682566285 -1) (0.46 0.21049436 1))
+    cellZoneSet gateZoneInner now size 148
+
+End
+

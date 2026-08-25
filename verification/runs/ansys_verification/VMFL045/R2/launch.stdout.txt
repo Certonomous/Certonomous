@@ -1,0 +1,17 @@
+pre-registration frozen at blob 592e872b5738f33cbbbb5eac6440e7174cbed95e
+comparator        frozen at blob 382ff4975801c5911277fb463076d1a14dd813c6
+pre-flight smoke PASSED (rc=0, 1s) on the coarsest mesh -- solver dictionaries are complete
+=== L1_90x76: NX=90, NY=76 (cells 6840), endTime=0.007 ===
+L1_90x76: gateZone holds 252 cells
+L1_90x76: gateZoneInner holds 148 cells
+L1_90x76: rc=0, wall=22s, 0.3667 core-min
+=== L2_180x152: NX=180, NY=152 (cells 27360), endTime=0.007 ===
+L2_180x152: gateZone holds 1005 cells
+L2_180x152: gateZoneInner holds 590 cells
+L2_180x152: rc=0, wall=160s, 2.6667 core-min
+=== L3_360x304: NX=360, NY=304 (cells 109440), endTime=0.007 ===
+L3_360x304: gateZone holds 4025 cells
+L3_360x304: gateZoneInner holds 2358 cells
+L3_360x304: rc=0, wall=1418s, 23.6333 core-min
+all three levels complete: 26.6667 core-min of a 48 core-min cap
+grade with: python3 cases/ansys_verification/VMFL045/R2/grade_vmfl045_r2.py

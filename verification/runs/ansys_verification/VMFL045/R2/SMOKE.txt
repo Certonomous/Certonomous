@@ -1,0 +1,6 @@
+smoke_rc=0
+smoke_wall_s=1
+smoke_dir=/tmp/vmfl045_r2_smoke.aDWlQb
+endTime=1e-7
+level=L1_90x76(coarsest)
+utc=2026-08-25T02:27:28Z

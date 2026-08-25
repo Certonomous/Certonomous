@@ -1,0 +1,199 @@
+{
+  "Cp": 1004.8565342807003,
+  "M1_modelled": 2.501814636762496,
+  "M2_exact_M1_2p5": 1.8735260067502537,
+  "RR_openfoam": 8314.47006650545,
+  "R_specific": 287.1018669373429,
+  "ansys_context_never_the_gate": {
+    "CFX": {
+      "Mach": 1.871,
+      "Mach_ratio": 0.9984,
+      "T": 382.8,
+      "T_ratio": 1.002,
+      "rho": 2.278,
+      "rho_ratio": 1.0
+    },
+    "Fluent": {
+      "Mach": 1.902,
+      "Mach_ratio": 1.015,
+      "T": 377.6,
+      "T_ratio": 0.9885,
+      "rho": 2.233,
+      "rho_ratio": 0.9807
+    }
+  },
+  "beta_weak_deg": 36.92317760072532,
+  "case": "VMFL045",
+  "controls": {
+    "PZ-1_dat_reader": {
+      "base": 1.874779041082,
+      "fired": true,
+      "plant": 0.001234,
+      "seen": 0.0012339999999999574
+    },
+    "PZ-2_field_reader": {
+      "field_max": 2.501814637,
+      "field_mean": 2.2674449017315608,
+      "field_min": 1.310441254,
+      "fired": true,
+      "n_cells": 109440,
+      "plant": 0.0777,
+      "seen": 0.0777000000000001
+    },
+    "PZ-3_reference": {
+      "M2": 1.874976957681054,
+      "beta": 36.92317760072532,
+      "beta_planted": 42.86568785594815,
+      "delta_beta": 5.942510255222835,
+      "fired": true,
+      "plant_deg": 5.0,
+      "theta_identity_deg": 14.999999999999977
+    }
+  },
+  "diagnostic_T": {
+    "deviation_manual_pct": 0.029397677722518244,
+    "inside": true,
+    "lab_value": 382.1122991289,
+    "reference_exact": 382.11007638339845,
+    "reference_manual": 382.0,
+    "tolerance_rel": 0.01
+  },
+  "diagnostic_exact_mach": {
+    "deviation_pct": -0.010555681670817642,
+    "deviation_rel": -0.00010555681670817642,
+    "inside": true,
+    "reference": 1.874976957681054,
+    "reference_class": "closed-form oblique-shock M2 for the as-modelled inlet (velocity BC 852.68, M1 = 2.5018146368, gamma = 1.4)",
+    "tolerance_rel": 0.005
+  },
+  "diagnostic_rho": {
+    "deviation_manual_pct": 0.04575135516028596,
+    "inside": true,
+    "lab_value": 2.278041758357,
+    "reference_exact": 2.277883594569441,
+    "reference_manual": 2.277,
+    "tolerance_rel": 0.01
+  },
+  "endTime": 0.007,
+  "gamma": 1.4,
+  "gate": {
+    "deviation_pct": 0.041571028922085765,
+    "deviation_rel": 0.0004157102892208576,
+    "lab_value": 1.874779041082,
+    "reference": 1.874,
+    "reference_class": "manual printed target Mach, Tables .45.1/.45.2 (analytic oblique-shock, White 1994)",
+    "tolerance_rel": 0.01
+  },
+  "levels": {
+    "L1_90x76": {
+      "M_from_p": 1.9227720620621633,
+      "Ma": 1.871975736979,
+      "Ma_inner": 1.872314303307,
+      "T": 382.3979854011,
+      "cells": 6840,
+      "completion": {
+        "endtime_dir": "0.0069995039",
+        "n_steps": 3127,
+        "rc": 0,
+        "t_last": 0.0069995039,
+        "wall_ok": true
+      },
+      "diag_dat": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL045/R2/L1_90x76/postProcessing/gateMachInner/0/volFieldValue.dat",
+      "diag_ncells": 148,
+      "diag_region": "cellZone gateZoneInner",
+      "endtime_dir": "0.0069995039",
+      "gate_dat": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL045/R2/L1_90x76/postProcessing/gateMach/0/volFieldValue.dat",
+      "gate_ncells": 252,
+      "gate_region": "cellZone gateZone",
+      "gate_volume": 0.0001735739150359,
+      "nx": 90,
+      "ny": 76,
+      "p": 249891.3249291,
+      "plateau_ptp": 0.00038421883200001616,
+      "plateau_rows": 625,
+      "rho": 2.276137372425,
+      "series_rows": 3127,
+      "t_row": 0.0069995039
+    },
+    "L2_180x152": {
+      "M_from_p": 1.9226404337966327,
+      "Ma": 1.874534335731,
+      "Ma_inner": 1.874703893343,
+      "T": 382.1144864973,
+      "cells": 27360,
+      "completion": {
+        "endtime_dir": "0.0069997326",
+        "n_steps": 6305,
+        "rc": 0,
+        "t_last": 0.0069997326,
+        "wall_ok": true
+      },
+      "diag_dat": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL045/R2/L2_180x152/postProcessing/gateMachInner/0/volFieldValue.dat",
+      "diag_ncells": 590,
+      "diag_region": "cellZone gateZoneInner",
+      "endtime_dir": "0.0069997326",
+      "gate_dat": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL045/R2/L2_180x152/postProcessing/gateMach/0/volFieldValue.dat",
+      "gate_ncells": 1005,
+      "gate_region": "cellZone gateZone",
+      "gate_volume": 0.0001730603759569,
+      "nx": 180,
+      "ny": 152,
+      "p": 249942.2341091,
+      "plateau_ptp": 6.140313500013761e-05,
+      "plateau_rows": 1261,
+      "rho": 2.278294337109,
+      "series_rows": 6305,
+      "t_row": 0.0069997326
+    },
+    "L3_360x304": {
+      "M_from_p": 1.922715514533475,
+      "Ma": 1.874779041082,
+      "Ma_inner": 1.874803009297,
+      "T": 382.1122991289,
+      "cells": 109440,
+      "completion": {
+        "endtime_dir": "0.0069997885",
+        "n_steps": 12661,
+        "rc": 0,
+        "t_last": 0.0069997885,
+        "wall_ok": true
+      },
+      "diag_dat": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL045/R2/L3_360x304/postProcessing/gateMachInner/0/volFieldValue.dat",
+      "diag_ncells": 2358,
+      "diag_region": "cellZone gateZoneInner",
+      "endtime_dir": "0.0069997885",
+      "gate_dat": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL045/R2/L3_360x304/postProcessing/gateMach/0/volFieldValue.dat",
+      "gate_ncells": 4025,
+      "gate_region": "cellZone gateZone",
+      "gate_volume": 0.0001732691518589,
+      "nx": 360,
+      "ny": 304,
+      "p": 249913.1943162,
+      "plateau_ptp": 7.768665500007543e-05,
+      "plateau_rows": 2532,
+      "rho": 2.278041758357,
+      "series_rows": 12661,
+      "t_row": 0.0069997885
+    }
+  },
+  "manual_page": "153-154",
+  "plateau_tol_Ma": 0.001,
+  "theta_max_deg": 29.81673765738661,
+  "triple": {
+    "R": 0.0956403776905927,
+    "d21": -0.00024470535099996304,
+    "d32": -0.002558598752000041,
+    "f_coarse": 1.871975736979,
+    "f_extrapolated": 1.8748049198492682,
+    "f_fine": 1.874779041082,
+    "f_med": 1.874534335731,
+    "fs": 1.25,
+    "gci_fine": 1.7254544869799796e-05,
+    "p": 3.3862363624095293,
+    "ratio": 2.0,
+    "state": "CONVERGING",
+    "why": null
+  },
+  "verdict": "PASS",
+  "why": "|M_lab - target| / target = 0.041571 % <= 1.0000 % (rule 5 step 3)"
+}

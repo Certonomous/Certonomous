@@ -1,0 +1,48 @@
+==============================================================================
+VMFL045 -- Oblique Shock Over an Inclined Ramp
+Ansys Fluid Dynamics Verification Manual, Release 2026 R1, pp. 153-154
+==============================================================================
+
+gamma  = 1.4000 (SET; the VMFL045 section gives NO Cp -- see PREREGISTRATION.md sec. 2)
+R      = 287.1018669373429 J/kg-K   Cp = 1004.8565342807003 J/kg-K
+M1     = 2.5018146367625  (from the velocity BC 852.68 m/s, NOT 2.5)
+beta   = 36.9231776007253 deg (weak root; theta_max = 29.8167 deg, deflection 15 deg)
+
+--- controls (CLAUDE.md rule 3) ---
+  PZ-3_reference       FIRED  {'beta': '36.9232', 'M2': '1.87498', 'theta_identity_deg': '15', 'plant_deg': '5', 'beta_planted': '42.8657', 'delta_beta': '5.94251'}
+  PZ-1_dat_reader      FIRED  {'plant': '0.001234', 'seen': '0.001234', 'base': '1.87478'}
+  PZ-2_field_reader    FIRED  {'plant': '0.0777', 'seen': '0.0777', 'n_cells': 109440, 'field_mean': '2.26744', 'field_min': '1.31044', 'field_max': '2.50181'}
+
+--- levels ---
+  L1_90x76     cells   6840  zone   252 cells  Ma = 1.8719757370  (inner 1.8723143033)  plateau ptp 3.842e-04 over 625/3127 rows
+                 T = 382.3980 K  rho = 2.276137  <p> = 249891.32 Pa  M(from p0/p) = 1.92277206
+  L2_180x152   cells  27360  zone  1005 cells  Ma = 1.8745343357  (inner 1.8747038933)  plateau ptp 6.140e-05 over 1261/6305 rows
+                 T = 382.1145 K  rho = 2.278294  <p> = 249942.23 Pa  M(from p0/p) = 1.92264043
+  L3_360x304   cells 109440  zone  4025 cells  Ma = 1.8747790411  (inner 1.8748030093)  plateau ptp 7.769e-05 over 2532/12661 rows
+                 T = 382.1123 K  rho = 2.278042  <p> = 249913.19 Pa  M(from p0/p) = 1.92271551
+
+--- Roache triple on the post-shock Mach number, r = 2.0, Fs = 1.25 ---
+  coarse 1.8719757370   medium 1.8745343357   fine 1.8747790411
+  d32 (coarse-medium) = -2.558599e-03   d21 (medium-fine) = -2.447054e-04
+  R = 0.095640   observed order p = 3.3862   state = CONVERGING
+  GCI(fine) = 0.0017 %   Richardson extrapolation = 1.8748049198
+
+--- THE GATE (manual printed target Mach, Tables .45.1/.45.2) ---
+  reference   1.8740
+  lab value   1.8747790411   (finest level, L3_360x304)
+  deviation   +0.041571 %   band +/- 1.0000 %
+
+--- DIAGNOSTICS, NEVER THE GATE ---
+  exact Mach (as-modelled) 1.8749769576811  dev -0.010556 %  band +/-0.500 %  inside True
+  T   lab 382.1123 K   vs manual 382.0 (dev +0.0294 %, inside True)  vs exact 382.1101
+  rho lab 2.278042    vs manual 2.277 (dev +0.0458 %, inside True)  vs exact 2.277884
+  exact Mach at M1 = 2.5 (target basis): 1.8735260067503
+
+--- CONTEXT ONLY, never the gate: Ansys's own reported values ---
+  Fluent  Mach 1.9020 (r 1.0150)  T 377.6 (r 0.9885)  rho 2.2330 (r 0.9807)
+  CFX     Mach 1.8710 (r 0.9984)  T 382.8 (r 1.0020)  rho 2.2780 (r 1.0000)
+
+VERDICT: PASS
+  |M_lab - target| / target = 0.041571 % <= 1.0000 % (rule 5 step 3)
+==============================================================================
+grading JSON: /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL045/R2/GRADING_VMFL045_R2.json
