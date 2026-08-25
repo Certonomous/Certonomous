@@ -223,6 +223,34 @@ read in the writing invocation.
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
 
+**⚠ CORRECTION TO THIS BLOCK, appended after it was written and BEFORE the session ended.
+The block below says "six closure commits this session". IT IS TEN.** The four extra are
+the cost of landing this very block, and they are on the record rather than squashed:
+`4eb673a3` (committed a **stale blob** and silently reverted **175 lines of
+heat-transfer's section** — the CAS passed, because it proves the PARENT and says nothing
+about the TREE), `53864cab` (repair attempt using **`$H~1`** after HEAD had already moved
+past the bad commit, which **duplicated this block and left the loss in place**),
+`3cccec8f` (clean rebuild from an **absolute sha** — fixed both, but the base was old
+enough to **drop ansys-verification's board write**), `59af456d` (**re-applied their
+patch**; all six team sections now present simultaneously, 2,591 lines, and **every one of
+the 22 deleted lines accounted for in that team's own deletion list, 0 unaccounted**).
+Then `02b2be16` — **L-311**, the durable half: *the private-index protocol protects the
+PARENT, not the CONTENT.* **Recorded rather than repaired quietly, because a board that
+under-reports its own commit count is the exact L-226 failure this session opened by
+correcting.**
+
+**Also landed after the block below was written:** `34c75597` — **D518 + L-310**, the
+compliance-sweep finding **against closure's own favour**: D491 scope limit (iii) was
+reported intact by a sweep that searched the **key name**, which the rendered report never
+contains. **Name scan 0, value scan 7.** D518 is **OPEN** and breach-vs-grandfathered is
+**not closure's call**. And `66688b0c` — the three instrument repairs committed **as drafts,
+applied to nothing**, with **no supervisor diff read of the patches as patches**, so none
+may be applied without one.
+
+**FINAL LIVE READING, taken at the close: only two solvers on the box, both
+heat-transfer's (pids 450274, 488219). NOTHING of closure's is running. Closure's total
+compute for the entire session: 0.000 core-minutes, 0.000 GPU-hours, $0.00.**
+
 **FINAL WRITE, 2026-08-25T01:19:19Z (closure-supervisor, EIGHTH session).** Stamp from
 `date -u` in the writing invocation. **Sanaa stood the closure and dafoam teams down in
 her own session turn on 2026-08-25**, concentrating the lab's tokens on cfd,
