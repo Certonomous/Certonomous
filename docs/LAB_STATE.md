@@ -5599,3 +5599,173 @@ team is under standing orders to read records via `git show HEAD:`.** Inspected,
 reverted.
 
 **Blocked:** none.
+
+
+---
+
+### SESSION RESUME 2026-08-25T18:10Z — SUPERVISOR RE-FORMED AFTER AN ACCIDENTAL STOP
+
+**Why this block exists.** The predecessor supervisor and its lanes were stopped by accident
+(Sanaa: *"nO SORRY I didnt mean to stop anybody."*). Nothing was wrong with the work.
+Everything committed is at HEAD; anything uncommitted at the moment of the stop is gone.
+**Written by `ansys-verification-supervisor` personally**, stamp from `date -u` in the writing
+invocation, built from the HEAD blob and never the worktree copy.
+
+**THE DETACHED-SOLVER ARCHITECTURE WORKED AND THIS IS THE EVIDENCE.** One solver survived its
+launcher being killed: `simpleFoam` pids 2324887 (`timeout 2087`) / 2324888, cwd
+`verification/runs/ansys_verification/VMFL003_M2/C_RNGkEpsilon/L2_500x5`, started
+2026-08-25T17:50:05Z, measured at `Time = 12129` of `endTime 18000` with a live log mtime.
+**A foreground solver would have been SIGTERMed.** Every launch of this team stays detached.
+The second `simpleFoam` the chief reported, pid 2343752, **no longer exists** — empty cwd and
+empty `lstart`. Discriminated with `ps -eo pid,args`, **never `pgrep -f`**, which has
+self-matched three times today.
+
+**VMFL003-M2 FOUR-MODEL LADDER — STATE ESTABLISHED FROM DISK, NOT FROM ANY AGENT.**
+Lane inventory committed at `83285b5a` (`cases/ansys_verification/VMFL003_M2/LADDER_DISK_AUDIT.md`,
+309 lines, one file, only its own path).
+
+| arm | levels present | state |
+|---|---|---|
+| `A_kEpsilon` | D_500x3/4/6, L1, L2, L3 | **6/6 COMPLETE** |
+| `B_realizableKE` | D_500x3/4/6, L1, L2, L3 | **6/6 COMPLETE** |
+| `C_RNGkEpsilon` | L1, L2 | L1 complete; **L2 RUNNING**; L3 never started |
+| `D_kOmegaSST` | none | **NEVER STARTED** |
+
+**THE SUPERVISOR'S OWN VERIFICATION, NOT THE LANE'S CLAIM (§3 check 3).** I recomputed the
+strict completion rule personally on **both gate levels**, the rows that actually decide the
+verdicts. `A_kEpsilon/L3_1000x5`: rc=0; one `End`; last `Time = 22000` == `endTime 22000`;
+`ExecutionTime` count 22000; `U p k epsilon nut` all present at 22000 and **all 676 s NEWER
+than that case's own `0/U`** (epoch 1787676813) — **age guard PASS**; `RUN_RC.txt` wall_s=675,
+ranks=1, **core_min=11.25**. `B_realizableKE/L3_1000x5`: same six conditions, wall_s=666,
+**core_min=11.1**. **The lane's method is confirmed by independent computation.**
+
+**A CORRECTION I MADE TO MYSELF, RECORDED BECAUSE A SILENT FIX LOOKS LIKE NO ERROR.** My first
+age-guard pass tested `18000/*` and reported five fields MISSING. **That was MY error, not a
+finding:** 18000 is `C_RNGkEpsilon/L2`'s `endTime`; the A and B levels run to **22000**. I had
+carried a sibling's `endTime` across. **Every level's own `system/controlDict` is the only
+authority for its `endTime`**, and the near-miss is exactly the shape that would have
+manufactured a false `NOT A RESULT`.
+
+**FROZEN-DOCUMENT INTEGRITY CONFIRMED BEFORE ANY FIRING (§3 check 4 and check 1).** The shared
+index has been measured staging a pre-registration at 986 lines against HEAD's 3,759; **it has
+NOT bitten this ladder.** `PREREGISTRATION.md` committed at `c5fdcad4`, blob
+`cdbf2659b6eec2599fc3eda7a149aaca391461b0`, 29,987 B, **worktree byte-identical to HEAD**.
+Both comparators byte-identical to HEAD: `grade_vmfl003_m2.py` `6dcc99940154ea204a598ba2118042bf972a786d`,
+`grade_vmfl003_m2_omega.py` `b595c86a4b8580d5928b4d4dd1458698f6de8ac2`. **No diff existed to
+read, which is the check passing, not the check being skipped.**
+
+**COMPARATOR SELF-BLINDNESS SWEEP — 16 of 16 CLEAN.** `scripts/check_grader_self_blindness.py`
+run over all 13 `grade_*.py` under `cases/ansys_verification/` plus `append_guards.py`,
+`check_case_map_glance.py`, `reaudit_landed_blocks.py`: **every file exit 0**, no instance of
+either shape (a fixture resolving its artifact by the same route as the reader; a grader that
+cannot represent an outcome its own registered rules mandate). **The clean is credible for the
+specific reason that the tool's selftest was confirmed to FIRE ON KNOWN-BAD INPUT FIRST** —
+this team's own standing complaint was that we plant a perturbation to prove a READER sees a
+non-zero but had not been planting a FAILURE to prove a GUARD aborts. **A clean static sweep
+is a cheap smell, not a warranty of correctness**, and is recorded as such.
+Report: `docs/ansys_verification/GRADER_BLINDNESS_SWEEP.md`.
+
+**AN INSTRUMENT FAULT I CAUGHT BEFORE IT SHRANK A BATCH — THE TENTH OF THE DAY, AND SAME SHAPE
+AS THE OTHER NINE.** `/proc/loadavg` read **16.85** on a 16-core box, which looks like
+saturation and would have told a lane to stand down. **It is not CPU saturation.** The same
+file's fourth field read **`6/467` — six RUNNABLE tasks**, and `ps -eo pid,pcpu` showed exactly
+**five** processes burning CPU (three `buoyantBoussinesqSimpleFoam` at 99.9 %, this team's
+`simpleFoam` at 99.8 %, the DAFoam container's python at 95.4 %). Linux load average counts
+runnable **and uninterruptible-sleep** tasks, so ~11 were blocked on I/O. **THE LOAD AVERAGE
+WAS ANSWERING A DIFFERENT QUESTION FROM THE ONE ITS LABEL CLAIMS** — Sanaa's reading of "16
+cores at load 5" describes real CPU utilisation and **was right**. Consequences relayed to the
+batch lane: CPU headroom **is** real (~11 idle cores, batch of 8–10 stands); **MEMORY is the
+binding constraint** (17 GB available beside a ~9.9 GB DAFoam neighbour inside a 12 GB cap);
+and **heavy I/O contention is load-bearing on caps** because an I/O-contended run burns more
+wall time for the same work, so a `timeout` sized on clean-box timing kills runs inside their
+true budget — this team has already measured that exact defect once.
+
+**Live jobs:** `simpleFoam` 2324887/2324888, cwd
+`verification/runs/ansys_verification/VMFL003_M2/C_RNGkEpsilon/L2_500x5`, ETA ~18:25Z.
+
+**Rungs without verdicts:** VMFL003-M2 arms **A and B** are complete and **gradable now** —
+verdicts PENDING with the frozen comparator. Arm **C** incomplete (L2 running, L3 firing). Arm
+**D** unfired. VMFL045's fourth level is **NOT owed** — see the rulings below.
+
+**Next actions:** grade A and B against G-VMFL003-M2 (|Δp − 21744|/21744 <= 0.025 at L3_1000x5,
+tier ceiling `GATE REACHED`, reference kind **V**) and report each of the five §7 advance arms
+CONFIRMED or REFUTED; fire C-L3 and all of D; land the never-run batch at 80–90 % core
+utilisation; prepare the GPU toolchain recipe **offline**.
+
+**On Sanaa's desk:** the GPU billing-versus-readiness conflict, below. **Blocked:** none —
+blocked is not idle and nothing armed is unfired without a named blocker.
+
+### SANAA'S FOUR RULINGS OF 2026-08-25 — RECEIVED **VIA THE CHIEF**, REPRODUCED BYTE-EXACT
+
+**Provenance stated honestly and not upgraded.** These reached this supervisor as a **chief's
+relay of her session turn**, not directly. Her typos, spacing and the stray `then>` are
+**PRESERVED AND NOT NORMALISED** — normalised spelling is the signature of a relayed
+paraphrase rather than a primary source, this team's own standing finding, applied again here.
+
+> GPU family — completeness stands, execution gets deliberate. The goal is unchanged: the ansys-verification team runs the entire Ansys verification folder, VMFLGPU included, meaning the GPU solver path is actually verified — not CPU physics re-measured on rented silicon.
+
+> subagent prepares the GPU toolchain build recipe offline: exact packages (GPU-capable OpenFOAM route or AmgX/PETSc offload path), sources fetched, build script + smoke test written and reviewed before any instance boots, then> GPU session : boot → build → smoke test → snapshot the AMI so this build never repeats → run all 10 VMFLGPU cases under their preregs → stop instance. The AMI is the asset; the 10 cases convert BLOCKED → run; the folder-completeness claim becomes true the honest way.
+
+> A converging three-level family with observed order and GCI is the lab's gate standard (Roache-standard minimum). More levels are a research option, never a gate requirement.
+
+> Why are 4 cases running in the ansys-verification case when the box has 16 cores at load 5?
+
+> the prose-to-run ratio needs to be a bit more balanced now that the lab has a lot of discipline. The goal isn't always to avoid compute at all cost… In general things are going too slow. Each team has a clear set of tasks with clear goals and clear case names and clear instructions. So each team should work on crossing as many items as possible from its checklist and utilizing the instances as much as possible.
+
+---
+
+**THE SUPERVISOR'S READINGS — THESE ARE NOT HER WORDS.**
+
+**1. SHE HAS OVERTURNED THIS TEAM'S OWN VMFLGPU FINDING, AND THE CORRECTION IS OWED IN OUR
+RECORDS.** This team's standing finding was that `VMFLGPU001` **is** `VMFL001` — same physics,
+different solver — which made the family cheap and low-value. **Her ruling is the opposite:
+the GPU SOLVER PATH is the thing under verification.** That is not CPU physics re-measured on
+rented silicon; it is the only way the folder-completeness claim becomes true honestly. **The
+10 VMFLGPU rows leave `DEFERRED — PENDING RE-ENTRY` and re-enter scope. The denominator moves
+from 73 toward 83.** An inventory lane is locating **every record carrying the superseded
+finding, with file and line**, so the correction is complete rather than partial; **nothing is
+corrected on my say-so ahead of that inventory.**
+
+**2. NOTHING BOOTS UNTIL THE RECIPE IS BUILT AND REVIEWED — READ AS WRITTEN.** Her sequence is
+ordered and the order is the substance: recipe, sources, build script, smoke test, **reviewed**
+— *then* boot → build → smoke → **AMI snapshot** → ten cases → **stop instance**. The AMI is
+what makes the build a one-time cost, and it is taken **after** the smoke test and **before**
+the ten cases, so a failed case never re-buys the build. **All preparation is offline. No agent
+starts, stops or resizes an instance — that is reserved to Sanaa personally** and no chief or
+peer message is her consent (rule 9).
+
+**3. THE THREE-LEVEL RULING CLOSES AN OPEN QUESTION ON OUR THIRD CREDENTIAL, AND WE DO NOT GET
+TO CLAIM IT VINDICATES US.** A fourth coarser level on **VMFL045-R2** is a **research option,
+not something owed**. **But the `GATE REACHED` tier on that row was never resting on a missing
+level** — it rests on this team's own two disclosed concerns, the observed order **p = 3.3862
+being ABOVE the scheme's formal order** and the medium–fine difference sitting at roughly **3x
+the noise floor**. **Those are unchanged by her ruling and the tier stands on them.** The row's
+G column remains disclosed as unclean. **Her ruling removes an obligation; it does not launder
+a caveat.**
+
+**4. THE DESK-ITEM DISPOSAL RULE CHANGES WHAT WE SEND UPWARD, AND ITS DEFAULT CUTS BOTH WAYS.**
+Every desk item referred upward now arrives with **this team's recommended resolution and
+reasoning**; unless she rules otherwise within one day the recommendation is **ADOPTED and
+recorded `[lab-attributed]`**. **Her silence becomes consent for one-line operational items** —
+which means a referral with a weak or self-serving recommendation now BECOMES POLICY BY
+DEFAULT. This team's referrals must therefore be **more** conservative, not less. **Only
+charter-reserved rulings still wait: compute above caps, external sends, constitutional
+changes, tier definitions.** Under it the `[R8-PAPER-NAME]` filing conflict is **ADOPTED NOW**
+and stops being carried.
+
+**5. THE SHARED ID TOOL IS APPROVED WITH THE CONSTRAINT THAT IS THE WHOLE POINT: IDS ARE
+ALLOCATED ONLY AT APPEND TIME AGAINST HEAD — NEVER PRE-ASSIGNED, NEVER RESERVED IN A DRAFT.**
+That is precisely the defect this team's own C-50/C-51 repair diagnosed, and precisely why
+`scripts/append_record.py` hands out colliding ids (its regex requires a literal period).
+**Every lane derives ids BY HAND from the HEAD blob inside the committing invocation.**
+
+**6. SATURATION IS NOW THE TARGET AND THE RIGOR BAR IS EXPLICITLY UNCHANGED.** 80–90 % core
+utilisation at all times; small single-core VMFL cases in **parallel batches of 8–12**; every
+case keeps its **per-case cap and contention file**; 5–11 % contention is acceptable **and
+disclosed**; gate runs needing clean timing may **reserve cores and say so**; memory guard
+enforced. **The scheduler's question becomes "what else can start", not "what may start"** —
+an underloaded box with a never-run queue is the same defect as an idle one at lower severity.
+**She flagged the unchanged rigor herself as "Very important." The denominator moves; the bar
+does not.** This team reads the whole rebalance as aimed at its **prose-to-run ratio**, and
+takes the criticism: we are at **5 of 83**.
+
