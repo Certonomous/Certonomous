@@ -11096,3 +11096,186 @@ because no measurement of the contention's size was taken.
 `verification/runs/ansys_verification/VMFL001/L3_64x256/`, committed `ae30f914`;
 `cases/ansys_verification/VMFL001/R2/PREREGISTRATION.md:221` (the frozen 223 s /
 3.7167 core-min estimate) and `.../R2/RESULTS.md` §7 (the calibration table).
+
+## L-302. An instrument that cannot say "I measured nothing" will report a number it did not measure — four measured members in one session, a working control certifying an empty table, and an aggregation command is a measurement instrument
+
+**THE CLASS, in one sentence: an instrument that has no way to report "I measured nothing"
+will, when it measures nothing, report a number anyway — and the number will look exactly
+like a measurement.** The defect is never in the arithmetic. It is in the **absent refusal
+path**. `CLAUDE.md` rule 3 states the principle for zeros (*"a zero from a reader not shown
+able to see a non-zero is not evidence"*) and rule 4 states the duty (*comparators refuse,
+exit 2, rather than degrade*). **This lesson is the general form: the failure is not
+confined to zeros, not confined to solver graders, and not confined to physics.**
+
+**Four members, all measured 2026-08-24/25, all inside `cases/dafoam/`.**
+
+**MEMBER 1 — the silent exception handler that falls back to DECLARED CONSTANTS and reports
+them as measured.** `cases/dafoam/ladder-a/A4/curriculum_D3_attempt2/d3_grade.py` gate
+`g_theta` (`:258`) sets the frozen trilinear-FFD coefficients at `:266` —
+`cB, cR = 0.72287, -0.43863` — then at `:267-270` tries to overwrite them with the
+producer's measured Jacobian, inside a `try` whose handler at `:271-272` is
+`except (KeyError, TypeError): pass`. The producer writes `None` into a Jacobian entry
+whenever its probe helper `z_at` (`:256-259`) finds no surface node inside a **2 mm**
+tolerance of a probe station; the guards at `:293-294` propagate the `None`. A `None` on
+either side of `:269`'s subtraction raises `TypeError`; **the handler swallows it**;
+execution falls through to the constants. **The gate then prints a theta and a
+`PASS`/`GATE FAIL` cell computed entirely from numbers a human typed.** The comment three
+lines above the swallow states the intended contract — *"Stage G's measured Jacobian
+replaces them when supplied, and the two must agree"* — **and nothing is ever supplied, and
+the failure to supply is silent.** Measured on the case's own mesh: the nearest body node
+to the `X_BREAK` station is **17.513 mm** against the 2 mm tolerance, **8.76× it**, so the
+fallback fires for real. **And the failure is ONE-SIDED** — the other station, `X_REAR`,
+resolves cleanly (six nodes exactly on it, `z = 0.194179` against a declared `0.1942`) — so
+**a repair that merely checks "did the Jacobian come back" sees one good half and one
+`None`, and `None - float` raises the same swallowed `TypeError`.** **A half-working
+instrument is the hardest kind to notice.**
+
+**MEMBER 2 — the max-over-a-matched-set that degrades to `0.0` with no refusal, and a
+witness field that counts the WRONG QUANTITY.** The same producer's y-symmetry assertion
+(`d3_runScript.py:282-292`) initialises `asym = 0.0`, scans `n = min(p.shape[0], 4000)`
+points, and for each looks for a mirror partner. **Three compounding defects: (1)** when no
+partner is found, `best is None` and the point is **silently skipped** — no counter, no
+flag, no refusal — so if *no* point finds a partner, `asym` stays `0.0` and reads as a
+perfect pass; **(2)** the witness stored beside it (`:296`),
+`jac["symmetry_npts_checked_%s"] = int(n)`, records the number of points **SCANNED, not
+MATCHED** — **the one diagnostic that could have exposed the emptiness records the wrong
+quantity**; **(3)** centreline points where `y ≈ 0` satisfy `abs(p[j,1]+yi) < 1e-9` at
+`j == i` and **self-match with `d = 0.0`, certifying themselves.** Measured on the case's
+own 47-node design surface: **47 scanned, 6 matched, 2 of those 6 self-matches, 41 silently
+skipped, `asym = 0.0` exactly** — four genuine comparisons, two mirror pairs, both on one
+x-station. **The record would have carried `symmetry_npts_checked = 47` and
+`symmetry_max_dz = 0.0` — two true cells that together assert nothing.**
+
+**MEMBER 3 — the FINITE-DIFFERENCE GATE that returns `PASS` at 0.0000 % over an EMPTY
+component set, WITH ITS DISCRIMINATION CONTROL CERTIFYING IT. This is the largest member
+and it teaches the most.** In the same `d3_grade.py`: `steps_from_log` (`:115-122`) creates
+the per-step dict key **unconditionally** for every marker pair, so unparseable contents
+give `by_step[s] = []` **with the key present**; `g3_endpoint` (`:174`) then refuses only on
+`len(have) < 3` where `have` tests **KEY PRESENCE, never NON-EMPTINESS** — **three empty
+lists pass it**; the component-collection loop (`:178-182`) never appends, so `comps` stays
+`{}`; the plateau loop (`:185-196`) iterates zero times, `okall` stays `True`, and **a
+plateau step is SELECTED AND BREAKS WITHOUT A SINGLE COMPARISON BEING MADE**, so the
+`graded_step is None` refusal at `:197` never fires; `worst, flips = 0.0, 0` at `:201` then
+survives a zero-iteration loop with **not one per-component note line appended**; the
+trivial baseline at `:208-221` parses **normally** from the real `1e-1` block and
+`triv_fails` is `True`, so the discrimination guard at `:222` **passes**; and
+`ok = (0.0 <= 15.0) and (0 == 0)` returns **`PASS`** at `:227`, printing *"graded: worst
+per-component 0.0000% vs band 15.0%, flips 0"*. **`DAFOAM_CHARTER.md` §2 makes this gate
+the family's entire line — "no DAFoam gradient enters a record without a finite-difference
+table beside it" — and it would have shipped a 15 %-band `PASS` on an empty table.**
+
+**MEMBER 4 — an AGGREGATION COMMAND that counts verdict rows in a document, and it matters
+because there is no physics anywhere near it.** `cases/dafoam/MATRIX_CONTRIBUTION.md` §4
+carries a tier census and states, in its opening sentence, that the table was *"Derived from
+the tables in §1 and §2 by the command below, not by counting in prose"* — printing the
+`awk` command it claims produced it. **Run verbatim, the command does not reproduce the
+table.** It prints `TOTAL 58` against the table's column totals of **51**, and emits roughly
+fifty buckets against the table's five tier rows. Two compounding defects: **(i)** it
+buckets on raw cell text rather than on the leading tier token, so any cell carrying a
+trailing note becomes its own bucket and the census shatters into singletons; **(ii)** it
+reads its columns **by field position** with `-F'|'`, and **five rows contain unescaped
+literal pipe characters inside cell text**, so those five are field-shifted and misbucket.
+**In neither case did the instrument refuse, warn, or record that it had failed to classify
+a row.** A wrong total went onto the page **under a provenance claim that the command
+supported it.** Re-run keyed on the tier column with a field-count assertion: **58 rows
+matched (43 `G-` + 15 `O-`, closing exactly), 53 bucket cleanly, 5 FIELD-SHIFTED** —
+`HOLDS 20, NOT HELD 13, SURVEYED 9, NEVER RUN 9, GATE REACHED 2` against the shipped table's
+`HOLDS 18, NOT HELD 14, SURVEYED 8, NEVER RUN 9, GATE REACHED 2`.
+
+**FIVE THINGS THE FOUR MEMBERS TOGETHER TEACH, THAT NO ONE OF THEM DOES ALONE.**
+
+1. **A CONTROL THAT FIRES CORRECTLY CAN STILL CERTIFY A RESULT IT DID NOT MEASURE, IF IT
+   MEASURES A DIFFERENT QUANTITY FROM THE ONE THAT REACHES THE VERDICT.** Member 3's
+   trivial baseline is **not broken** — it parses a real block, it computes a real worst
+   error, it correctly reports `FAILS as required`, and it correctly certifies the gate as
+   discriminating. **It is simply not looking at the component set the verdict is computed
+   from.** A control is evidence about the quantity it reads, and about nothing else.
+2. **A PARTIAL PLANT READS ON THE PAGE EXACTLY LIKE A COMPLETE ONE.** Member 3's baseline is
+   a *partial* accident-guard: it catches the case where the trivial-step block **also**
+   parses empty, and does not fire when only the graded steps do. **On the page it reads as
+   "the gate was shown to discriminate."**
+3. **WHEN A FILE CONTAINS A CORRECT PLANT-AND-REFUSE, THAT IS EVIDENCE ABOUT THAT GATE
+   ONLY, NEVER ABOUT THE FILE.** `d3_grade.py` refuses an empty constraint array at
+   `:147-151` (*"a constraint array is empty -- nothing was graded"*) and refuses an unseen
+   plant at `:239-241`, **citing `CLAUDE.md` rule 3 BY NAME** (*"this reader's zero is not
+   evidence"*). **The author knew the rule exactly and applied it twice in this file — and
+   the one gate the charter makes the family's whole line was left unplanted.** The file
+   sits on the planting side of the ledger and still carries member 3.
+4. **THE CLASS IS NOT CONFINED TO SOLVER GRADERS, AND AN AGGREGATION COMMAND IS A
+   MEASUREMENT INSTRUMENT.** Members 1–3 sit inside a producer/grader pair for a physical
+   measurement. Member 4 is a document command counting verdict rows, with no solver, no
+   mesh and no field in sight, and it fails identically. **The lesson binds any instrument
+   that produces, GRADES OR AGGREGATES a number that reaches a record** — the wording
+   `SUPERVISION_CHARTER.md` check 1 already uses. An aggregation command gets a
+   comparator's treatment: a refusal path, a control, a self-check that fails loudly.
+   Corollary, and it is the cheapest general check here: **WHEN A DOCUMENT PRINTS THE
+   COMMAND THAT GENERATED ITS NUMBERS, RUN IT.** Member 4's provenance sentence was present
+   and the command was printed in full and it was still false — **reading the sentence
+   passes it; running the command failed it in one invocation.**
+5. **THE ERROR RUNS IN WHATEVER DIRECTION THE BROKEN INSTRUMENT HAPPENS TO EMIT, AND THE
+   DIRECTION IS LUCK.** Member 4's shipped table read `HOLDS 18` / `NOT HELD 14` where the
+   true counts are **20** / **13** — it made this family look slightly **WORSE** covered
+   than it is. **This class does not only ever flatter**, which removes the easy dismissal
+   that a silent-degradation defect is self-limiting because it "errs safe".
+
+**AND THE DEFECT CAN BE ARMED WITHOUT EVER HAVING FIRED.** Member 3 has never produced a
+number, because the D3 attempt-2 producer crashed at `dvg.update("aero")` **before the
+grading path executed** — which is the only reason that item's `RESULTS.md` is honest. **The
+crash was load-bearing.** The gate fires on the first attempt that repairs that one line.
+**A record can be truthful today and be one line of repair away from shipping a `PASS` it
+never measured**, and no reading of the record can tell you which.
+
+**THE SHARPEST IRONY, on the record because it is what makes the lesson durable.** Member
+4's §4 **opens by quoting** `docs/charters/README.md` §5 — *"a count carried in a document
+schedules its own next correction"* — **and then carries a count its own instrument does not
+reproduce.** The document knew the rule, cited the rule, and was caught by the rule anyway.
+**Citing a discipline is not practising it.**
+
+**THE REMEDY, one line of code per instrument, not a review habit.** Every instrument that
+produces, grades or aggregates a number gets an **explicit refusal path and a counter of
+what it could not read**, and the refusal is **loud** (`exit 2`, not a logged note):
+
+- **Test NON-EMPTINESS, never key presence.** `if s in by_step` is not `if by_step[s]`.
+  Every gate asserts the **cardinality of the set it graded** and refuses at zero.
+- **Count what you MATCHED, never what you SCANNED**, and refuse when the two differ by
+  more than a registered tolerance. A witness that cannot distinguish "47 compared" from
+  "6 compared" is not a witness.
+- **Never let an exception handler fall through to a declared constant.** If a fallback is
+  legitimate, the instrument must **record that the fallback fired** and the gate cell must
+  read `NOT A RESULT`, not `PASS`. `except (KeyError, TypeError): pass` above a pair of
+  literals is the signature.
+- **A degenerate aggregate — `max()` over an empty or self-matching set, a mean over zero
+  rows, a loop that selects a parameter without iterating — is a REFUSAL, not a `0.0`.**
+- **Assert the shape of every row you parse** (field count, expected token set) and **refuse
+  on the first row you cannot classify**, rather than emitting a junk bucket.
+- **Plant into the quantity the VERDICT reads**, not into a neighbouring one, and refuse if
+  the reader cannot see it (`CLAUDE.md` rule 3). **A selftest that exercises the fallback
+  path certifies the defect** — `d3_grade.py`'s controls call `g_theta` with the Jacobian
+  omitted at `:404`, `:408` and `:412`, so the constant-only path is the path signed off as
+  `SEEN`.
+
+**Scope and honesty.** Four members, one family, one session. Members 1–3 are **code defects
+asserted unconditionally** — true whatever the mesh; only whether they *fire* is
+mesh-dependent, and on the D3 mesh they fire. **Every one of members 1–3 exists in TWO
+frozen copies** (`curriculum_D3/` and `curriculum_D3_attempt2/`: the two `d3_grade.py` are
+byte-identical; the two `d3_runScript.py` differ by 19 added lines, none in the defective
+blocks), so a count of instances understates the exposure. Member 4 was found by the
+dafoam-supervisor personally, by running the document's own printed command; **the lane
+that wrote that document wrote the defect, it did not find it**, and the repair belongs to
+the matrix-contribution lane. This lesson claims a **pattern within one family**, not a law
+about the lab.
+
+*Artifacts:*
+`cases/dafoam/ladder-a/A4/curriculum_D3_attempt2/d3_grade.py` (md5
+`a32f075853e264910ee0a6c2473fd948`, frozen at `092e54e7`) lines 115-122, 147-151, 174-227,
+239-241, 258-279, 404-412; `.../d3_runScript.py` (md5
+`4dd289f275b512598e74daf2eb39d729`) lines 256-259, 266-267, 282-296;
+`cases/dafoam/ladder-a/A4/curriculum_D3/d3_grade.py` (same md5 — the byte-identical second
+copy); `.../curriculum_D3_attempt2/RESULTS.md` AMENDMENT 1 §A1.0 and §A1.4 (the ruling, the
+four defective gates, and the probe-station and symmetry measurements);
+`/home/ubuntu/certonomous-runs/D3-a4-constrained-attempt2/geom.log:459`
+(`Unique Surface Nodes : 47`, IDWarp's own count) and
+`.../geom/constant/polyMesh/{points,faces,boundary}` (body patch `nFaces 44`,
+`startFace 9115`, 47 unique nodes — the source of the 17.513 mm and 6-of-47 figures);
+`cases/dafoam/MATRIX_CONTRIBUTION.md` §4 (the printed census command, the `TOTAL 58`
+-versus-51 disagreement, and the five field-shifted rows).

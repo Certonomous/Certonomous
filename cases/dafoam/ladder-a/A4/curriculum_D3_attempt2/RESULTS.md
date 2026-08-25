@@ -615,3 +615,440 @@ registration is warranted, and if so at what price given §9.4. **This lane draf
   number produced by a plant carries a verdict about this item.
 
 **NOT FILED ANYWHERE** (`CLAUDE.md` rule 7). SUBMISSIONS PARKED.
+
+---
+
+## AMENDMENT 1 — 2026-08-25. D3 THIRD REGISTRATION: THE SUPERVISOR'S RULING, AND FOUR DEFECTIVE STAGE-G/GRADER GATES
+
+**Dated amendment, appended at the foot; append-only (`CLAUDE.md` rule 6). This file
+carries no version line above; this amendment declares it **v1.1** and adds no version
+line above itself, because it inserts nothing and edits nothing above itself.**
+
+| what the amendment did | figure |
+| --- | --- |
+| gates, thresholds, bands, caps or labels altered | **0** |
+| the item's verdict | **UNCHANGED — `BLOCKED`** |
+| **lines whose number changed above this section** | **0** |
+
+**The item's verdict is unchanged and is restated so nothing below can be read as moving
+it: attempt 2 is CLOSED `BLOCKED`, falsifier class `F1c`, spend 2.8667 core-min of the
+69.2 HARD, calibration row `C-46`.** This amendment adds a ruling and four defect
+findings. It alters no gate, no threshold, no cap and no label, it re-grades nothing, and
+**it is not a repair proposal.**
+
+**Filed by:** dafoam `lab-lane` (Opus), **ZERO COMPUTE** — every number below comes from
+files already on disk. The ruling is the dafoam-supervisor's, made and then **widened** by
+them this session; this lane files it and establishes the limbs it was given.
+**NOT FILED ANYWHERE** (`CLAUDE.md` rule 7). SUBMISSIONS PARKED.
+
+---
+
+### A1.0 THE HEADLINE — THE ATTEMPT-2 CRASH WAS LOAD-BEARING, AND THE FD GATE IS ARMED AND UNFIRED
+
+**This file above is honest — `Gθ` `PENDING` (§4), `P2` and `P3` `NOT TESTED` (§5), `P15`
+`MISS` (§5) — and it is honest ONLY BECAUSE `KeyError: 'aero'` fired at Stage G before any
+of the grading path executed.**
+
+**The defect below is ARMED AND UNFIRED. It fires on the first attempt that repairs the
+`"aero"` point-set name — which is precisely the one-line repair the supervisor was asked
+for and REFUSED.** Had that one-line repair been applied, this family's bright-line
+finite-difference gate — the one `DAFOAM_CHARTER.md` §2 makes the family's entire line —
+would have returned **`PASS` at 0.0000 % worst per-component error with zero sign flips,
+over an EMPTY component set**, with its own trivial-baseline discrimination control
+**firing correctly and certifying the gate as discriminating**, into a record whose verdict
+cell would have read `PASS`.
+
+**Stated so nobody rewrites history: the ruling refusing the one-line patch was made
+BEFORE this was known, on the narrower ground of three vacuous predictions (§A1.4 (i)–(iii)).
+The supervisor did not know about the FD gate when the ruling was made. This finding was
+established afterwards, independently, and it supports the same refusal far more
+strongly.** What was known when is recorded, not smoothed.
+
+---
+
+### A1.1 THE RULING — dafoam supervisor, 2026-08-24, widened 2026-08-25
+
+**(1) The one-line patch route is REFUSED.** A third registration built on attempt 2's
+producer and grader, repaired only at `d3_runScript.py:253`, is **NOT authorised.**
+**STANDS UNCHANGED.**
+
+**(2) A third registration MAY proceed, but ONLY as a NEW pre-registration** with a
+**REWRITTEN Stage G producer** and a **REWRITTEN grader**, carrying **its own re-derived
+cost table**. It does **not** inherit attempt 2's §10.1 pricing. **AMENDED 2026-08-25: the
+ordered rewrite covers FOUR gates, not three — `G-theta`, `P1b`, `P3` AND `G3+G4`, the
+finite-difference gate — plus the two registered-but-ABSENT gates `P2` and `P3` (§A1.5).**
+
+**(3) It is NOT authorised to launch now.** It queues behind **Sanaa's mesh call on D3's
+45,760-cell successor, already on her desk.** Ground: D3's registered scientific content is
+**separation**, and this family's own prior finding is that the **2,777-cell A4 adjoint mesh
+carries ZERO reverse-flow cells** (min `U_x` ≈ **+23.5 m/s** across ~60 fields on disk;
+§5's P11 row of this file records the freeze-time triple 23.526 / 24.084 / 24.095 m/s and
+the supervisor's independent count over every 2,777-cell A4 field). **Buying ~70 core-min
+of stage ladder on a mesh measured not to carry the phenomenon is the wrong buy even with a
+repaired instrument.** The instrument rewrite is **zero-compute** and proceeds
+independently of her call. **STANDS UNCHANGED.**
+
+---
+
+### A1.2 GROUND (a) — THE KEY FIX IS CORRECT AND SETTLED
+
+pyGeo's `mphys_dvgeo.py`, method `nom_add_discipline_coords(self, discipline,
+points=None)`, registers the point set under the key built as `"x_%s0" % discipline` — the
+else-branch calls `self.nom_addPointSet(points, "x_%s0" % discipline, add_output=False)`
+and declares `add_input("x_%s_in" % discipline)` / `add_output("x_%s0" % discipline)`.
+**With `discipline="aero"` the registered key is `"x_aero0"` and never `"aero"`.**
+
+Therefore `d3_runScript.py:253`'s `pts = dvg.update("aero")` is **a one-line defect whose
+correct form is `pts = dvg.update("x_aero0")`**, and the `KeyError: 'aero'` raised from
+`pyBlock.getAttachedPoints` (`pyBlock.py:745`, reached from `DVGeo.py:2012`) is **fully
+explained**. §3.1 of this file records that traceback from `geom.log:472-481`; §9.2's
+numerics candidate said in terms that it did **not** establish what the correct key is.
+**It is now established.** The producer's own mphys wiring at `:155-157` uses the same
+composed names — `self.connect("mesh.x_aero0", "geometry.x_aero_in")` and
+`self.connect("geometry.x_aero0", "scenario1.x_aero")`.
+
+**This repairs the CRASH, not the INSTRUMENT.** That distinction is the whole of grounds
+(b) through (e).
+
+#### A1.2.1 PROVENANCE — the durable citation is `PENDING`, and is marked `VERIFY`
+
+**The copy the supervisor read is a temporary extraction, and `CLAUDE.md` rule 13 / L-186
+forbid this record from citing a scratch path. No such path is cited here.**
+
+| limb | reading |
+|---|---|
+| **in-image absolute path of `mphys_dvgeo.py`** | **`PENDING` — `VERIFY`.** Not established. **No path is invented here.** |
+| **image identity — the image ID hash, not the tag** (`DAFOAM_CHARTER.md` §6) | **`PENDING` — `VERIFY`.** |
+| **why** | **This lane cannot reach any image.** `/usr/bin/docker` exists, but every call returns *permission denied while trying to connect to the docker API at `unix:///var/run/docker.sock`* — the lane's uid is not in the docker group. `docker images` returns nothing, so **not even the image ID could be read.** |
+| **host fallback checked, and it is empty** | A whole-filesystem `find / -name mphys_dvgeo.py`, excluding the temporary extraction, returns **zero hits**. pyGeo is **not** installed on the host; it exists only inside the images. There is no non-scratch host copy to cite. |
+| **the values a completed citation must match** | md5 **`e3ee130ac86bc524d6296132fae7695f`**, size **25,180 bytes**, mtime **2026-05-04** — the supervisor's own read this session. Stated as the target of the check, **not** as a citation. |
+| **what completes it** | A session whose uid can reach the docker socket runs, against each of `dafoam/opt-packages:latest`, `dafoam-team:v1` (`0b3c94c33a15`), `dafoam-idwarp-rot:v1`, `dafoam-subpclu:v2`, `dafoam-kspopts:v1`: (i) `docker images --no-trunc` for the identity hash; (ii) inside the container, resolve `pygeo.mphys.mphys_dvgeo.__file__` to an absolute in-image path; (iii) `md5sum` and `stat` it. **The row is complete when the md5 equals `e3ee130a…` at a named absolute path inside a named image ID.** |
+
+**Until then, ground (a)'s source claim rests on the supervisor's personal read and on this
+run's own traceback, and this record says so rather than manufacturing a citation.** The
+traceback limb is durable and is cited: `geom.log:472-481`.
+
+---
+
+### A1.3 GROUND (b) — §2d.1 LICENSES REPAIRING A CRASH, NOT CARRYING A KNOWN-VACUOUS INSTRUMENT
+
+`VERIFICATION_CHARTER.md` §2d.1's four-condition repair exception, **even where
+satisfiable, licenses repairing a CRASH.** It does **not** license carrying a
+**KNOWN-VACUOUS instrument** across a re-freeze. **Freezing a gate you already know cannot
+fail is the prediction-first rule (`CLAUDE.md` rule 2; §2a's identity test) INVERTED.**
+
+---
+
+### A1.4 GROUND (c) — THE FOUR DEFECTIVE GATES
+
+Every line cited below was re-read from the frozen files by this lane. **The two frozen
+files are READ-ONLY here and were NOT repaired**: `d3_runScript.py` md5
+**`4dd289f275b512598e74daf2eb39d729`**, `d3_grade.py` md5
+**`a32f075853e264910ee0a6c2473fd948`** — the values §2.1 records as the frozen blobs at
+`092e54e7`, re-read unchanged.
+
+#### (i) G-theta — TWO CHAINED DEFECTS, AND THE FAILURE IS ONE-SIDED
+
+**Defect 1, in the producer.** `d3_runScript.py:256-259`, the probe helper
+`z_at(pts, x, tol=2.0e-3)`, returns **`(None, 0)`** whenever no surface node lies within
+**2 mm in x** of the probe station with `|y| <= 0.19`. When it does, the guards at
+`:293-294` — `if (zb is not None and zb0 is not None)` — write `None` into the recorded
+Jacobian entry.
+
+**Defect 2, in the grader.** `d3_grade.py:258` `g_theta` evaluates, at `:269-270`:
+
+```
+cB = jac["dzbreak_dshapeBreak"] - jac["dzrear_dshapeBreak"]
+cR = jac["dzbreak_dshapeRear"]  - jac["dzrear_dshapeRear"]
+```
+
+inside a `try` whose handler at `:271-272` is `except (KeyError, TypeError): pass`. A
+`None` on either side raises `TypeError`, **the handler SWALLOWS it**, and execution falls
+through to the **FROZEN DECLARED CONSTANTS** at `:266`: `cB, cR = 0.72287, -0.43863`.
+**The gate then reports a theta and a `PASS`/`GATE FAIL` cell computed ENTIRELY from
+declared constants, while the record reads as though Stage G had measured them.** The
+pre-registration's §2.5 wording — that Stage G's measured Jacobian replaces the constants
+when supplied *"and the two must agree"* — sits as a comment at `:264-265`, **three lines
+above the swallow**, and is never exercised, because nothing is ever supplied and the
+failure to supply is silent.
+
+**The vacuity of G-theta is CONDITIONAL on the mesh; the swallow itself is an
+UNCONDITIONAL code defect**, true whatever the mesh. Both limbs are now measured.
+
+##### A1.4.1 THE PROBE-STATION LIMB — ESTABLISHED FROM DISK AT ZERO COMPUTE, AND THE FAILURE IS ONE-SIDED
+
+A figure reported by a **now-dead triage lane**, backed by **no committed artifact**, held
+that the nearest body nodes sit **17.5 mm** and **22.6 mm** from the two probe stations.
+**It is now measured. One half is confirmed; the other half is a misreading, and correcting
+it changes what the rewrite must fix.** **This limb is `ESTABLISHED FROM DISK`, not
+`VERIFY`.**
+
+**Method and artifacts.** The design surface is `body` and nothing else —
+`daOptions["designSurfaces"] = ["body"]` (`d3_runScript.py:69`), echoed by this run's own
+`geom.log:253` and `:464`. The body patch's unique node set was reconstructed from **this
+attempt's own case mesh**:
+`/home/ubuntu/certonomous-runs/D3-a4-constrained-attempt2/geom/constant/polyMesh/{points,faces,boundary}`
+— `boundary` gives `body` as `nFaces 44`, `startFace 9115`; `points` holds **3,661** points.
+**Reconstructed unique body-patch node count: 47.** The identity check that makes this
+readable as the producer's own point set: `geom.log:453` prints IDWarp's
+`Total Volume Nodes : 3661` and **`geom.log:459` prints `Unique Surface Nodes : 47`** —
+measured by the container's own IDWarp, on this mesh, in this run. **The reconstruction's
+47 equals the run's own printed 47.** The mesh is identical across the D3 trees (`points`
+md5 `72a2d95816b43b9672411dbd3819914a` in both this run root and the probe root).
+
+| station | declared | nodes with `\|y\| <= 0.19` | inside `tol = 2.0e-3` | **nearest node, all body nodes** | `z_at` returns |
+|---|---|---|---|---|---|
+| **`X_BREAK`** | `0.8428`, `Z_BREAK = 0.288` | 16 | **0** | **17.513 mm**, at `(0.825287, +0.0000535, 0.288001)` | **`(None, 0)`** |
+| **`X_REAR`** | `1.044`, `Z_REAR = 0.1942` | 16 | **2** | **0.000 mm** — **SIX** nodes sit **EXACTLY** at `x = 1.044` | **`(0.19417875, 2)`** |
+
+**`X_BREAK` — CONFIRMED, and it selects nothing.** 17.513 mm against a 2 mm tolerance is
+**8.76× the tolerance**. `z_at(base, X_BREAK)` returns `(None, 0)`, so `zb0 = None`, so
+**`jac["dzbreak_dshapeBreak"]` and `jac["dzbreak_dshapeRear"]` are both `None`** by the
+`:293` guard.
+
+**`X_REAR` — WORKS CORRECTLY. The "22.6 mm at `X_REAR`" figure is REFUTED, and it was never
+a distance to `X_REAR` at all.** `22.592 mm` is the **SECOND-NEAREST node to `X_BREAK`**.
+The full `X_BREAK` neighbourhood over all 47 body nodes reads **17.513 / 22.592 / 22.592 /
+23.052 / 23.052 / 27.378 mm** — **the dead lane reported that list's first two entries as
+one distance per station.** At `X_REAR` the nearest distance is **0.000 mm**, `z_at`
+selects the two `y = 0` nodes surviving the `|y| <= 0.19` filter, and returns
+**`z = 0.194179`, which is 0.021 mm from the declared `Z_REAR = 0.1942`.** So
+**`jac["dzrear_dshapeBreak"]` and `jac["dzrear_dshapeRear"]` are floats, not `None`.**
+
+**THE FAILURE IS ONE-SIDED, AND THAT IS THE OPERATIVE FINDING FOR THE REWRITE.** One
+station resolves cleanly and one selects nothing. **A repair that merely checks "did the
+Jacobian come back" WILL SEE ONE GOOD HALF AND ONE `None`** — and `g_theta:269`'s
+`None - float` raises the same `TypeError`, is swallowed by the same `:271` handler, and
+falls through to the same declared constants. **The ruling's conclusion is unchanged; only
+its mechanism is corrected, from four `None` entries to two.**
+
+**AND IT IS A TOLERANCE QUESTION, NOT A MESH QUESTION.** `Z_BREAK` is declared **0.288**
+and the nearest node sits at **`z = 0.288001`** — **the geometry is right to a micron; only
+the tolerance is wrong**, by roughly an order of magnitude for a **44-face** body patch.
+**That belongs in the rewrite's pre-registration as a registered tolerance derived from the
+mesh's own node spacing, not as a re-mesh.**
+
+#### (ii) P1b — AN IDENTITY GATED, NOT A CONSTRAINT MEASURED
+
+`PREREGISTRATION.md:321` grades *"every DVCon baseline value is finite and within **1e-6 of
+1.0**"* for `thickcon_slant` (**30 rows**) and `volcon_aft` (**1 row**) — **and its own
+justification cell states the reason: "pyGeo normalises both families to the baseline"**
+(citing JBC_Hull `:202-204` and D1-C′ `:175-177`).
+
+**A quantity normalised to the baseline, read AT the baseline, is 1.0 by construction of
+the normalisation.** P1b **cannot fail for the reason it claims to test**: it confirms the
+constant 1.0, not the constraint geometry. **It reads declared defaults without ever
+evaluating a constraint.** This is `VERIFICATION_CHARTER.md` §2a's identity test failing at
+creation, in §2a's own words: *could a wrong treatment still pass this?* **Yes, trivially,
+by the normalisation the justification cell itself names.**
+
+#### (iii) P3 SYMMETRY — A STANDING-RULE-3 PLANTED-ZERO VIOLATION, A FINDING IN ITS OWN RIGHT
+
+**On the record regardless of whether attempt 3 ever runs.**
+
+`d3_runScript.py:282-292` initialises `asym = 0.0` (`:282`) and, for each of
+`n = min(p.shape[0], 4000)` scanned points (`:283`), searches for a mirror partner with
+`abs(p[j,0]-xi) < 1e-9 and abs(p[j,1]+yi) < 1e-9`. **THREE compounding defects:**
+
+1. **A missing partner is SILENTLY SKIPPED.** `best is None` and `:291`'s
+   `if best is not None:` falls through — **no counter, no flag, no refusal.** If **no**
+   point finds a partner, `asym` stays **`0.0`** and reads as a perfect pass.
+2. **The witness field records the WRONG QUANTITY.** `:296` stores
+   `jac["symmetry_npts_checked_%s"] = int(n)` — points **SCANNED**, not **MATCHED**. **The
+   one diagnostic that could have exposed the emptiness records the wrong quantity**, and a
+   record showing "47 checked" would be consistent with 6 actual comparisons.
+3. **Centreline points self-certify.** Where `yi ≈ 0`, `abs(p[j,1]+yi) < 1e-9` is satisfied
+   at **`j == i`**: the point matches **itself**, with `d = 0.0`.
+
+**There is no planted asymmetry anywhere in the stage: the reader is never shown able to
+report a non-zero.** `CLAUDE.md` rule 3 is explicit — *"a zero from a reader not shown able
+to see a non-zero is not evidence"* — and the comparator's duty is to **REFUSE**, not to
+degrade. **The code defect is asserted unconditionally and depends on no count.**
+
+##### A1.4.2 THE "6 OF 47" FIGURE — ESTABLISHED FROM DISK, EXACTLY AS REPORTED
+
+Measured by replaying `:282-292`'s exact semantics over the reconstructed 47-node body
+patch (same artifacts as A1.4.1):
+
+| quantity | reading |
+|---|---|
+| `n` scanned — **the value `:296` would store as `symmetry_npts_checked_*`** | **47** |
+| points that **found a partner** (actually compared) | **6** |
+| of those, **SELF-MATCHES at `j == i`** (`y = 0.000000`, `d = 0.0` by construction) | **2** |
+| points **SILENTLY SKIPPED** (`best is None`) | **41** |
+| resulting `asym` (`:292`'s max over the matched set) | **`0.0` exactly** |
+
+**CONFIRMED: 6 of 47** — and the measurement sharpens it. **Of the 6, two are
+self-matches**, so the assertion performs **four** genuine mirror comparisons — **two
+pairs**, `(1.044000, ±0.194500, 0.000000)` and `(1.044000, ±0.194500, 0.194179)`, **both on
+the single x-station `x = 1.044`, the rear face.** **The frozen record would have read
+`symmetry_npts_checked = 47` and `symmetry_max_dz = 0.0` — two true cells that together
+assert nothing.**
+
+#### (iv) G3+G4 — THE FINITE-DIFFERENCE GATE RETURNS `PASS` AT 0.0000 % OVER AN EMPTY COMPONENT SET
+
+**This is the fourth defect, it was not in the original ruling, and it is the largest.** It
+sits on the gate `DAFOAM_CHARTER.md` §2 makes this family's entire line — *"no DAFoam
+gradient enters a record, a report or an optimisation without a finite-difference table
+beside it."*
+
+**The chain, every link re-read from `d3_grade.py` by this lane:**
+
+1. **`steps_from_log` (`:115-122`)** does `out[float(m.group(1))] = parse_check_totals(m.group(2))`
+   — it creates the dict key **UNCONDITIONALLY** for every `D3_CHECK_TOTALS_BEGIN/END`
+   marker pair, whatever `parse_check_totals` returns. **Markers present with unparseable
+   contents give `by_step[s] = []` with the key present.**
+2. **`g3_endpoint` (`:174`)** computes `have = [s for s in GATE["fd_steps_plateau"] if s in
+   by_step]` and refuses at `:175-177` on `len(have) < 3`. **That tests KEY PRESENCE, never
+   NON-EMPTINESS. Three empty lists pass it.**
+3. **The triple loop (`:178-182`)** never appends, so **`comps` stays `{}`**.
+4. **The plateau loop (`:185-196`)** iterates `for key, byS in comps.items()` — **ZERO
+   iterations** — so `okall` stays `True` and **`graded_step` is SET AND BREAKS**
+   (`fd_steps_plateau = [1e-2, 1e-3, 1e-4]`, so `ordered[1:-1]` is `[1e-3]`). **A plateau
+   step is selected WITHOUT A SINGLE COMPARISON BEING MADE**, and the
+   `if graded_step is None` refusal at `:197` therefore **never fires**.
+5. **`worst, flips = 0.0, 0` (`:201`)**, then the per-component loop at `:202` runs zero
+   times. **`worst` stays `0.0`, `flips` stays `0`, and NOT ONE per-component note line is
+   appended.**
+6. **The trivial baseline (`:208-221`)** parses **NORMALLY** from the real `1e-1` block,
+   `triv_fails` is `True`, and the discrimination guard at `:222` **PASSES**.
+7. **`ok = (0.0 <= 15.0) and (0 == 0)` is `True`.** `:227` returns **`PASS`**, and `:225`
+   prints *"graded: worst per-component 0.0000% vs band 15.0%, flips 0"*.
+
+**So the gate reports a 15 %-band `PASS` with zero sign flips ON AN EMPTY FD TABLE — and
+the trivial-baseline control STILL FIRES CORRECTLY AND CERTIFIES THE GATE AS
+DISCRIMINATING.** **That is the sharpest form of this defect class in the family: the
+discrimination control is REAL, it WORKS, and it measures a DIFFERENT QUANTITY from the one
+that reaches the verdict.** The trivial baseline is a **partial** accident-guard — it
+catches the case where the `1e-1` block *also* parses empty, and it does **not** fire when
+only the three plateau steps do.
+
+**THE CONTRAST IS IN THE SAME FILE AND IT IS DAMNING.** `g1_constraints` at `:147-151`
+counts its rows and refuses: *"a constraint array is empty -- nothing was graded"*. `g_eta`
+at `:239-241` refuses an unseen plant and **cites `CLAUDE.md` rule 3 BY NAME**: *"the
+planted perturbation was NOT seen: this reader's zero is not evidence (CLAUDE.md rule 3)"*.
+**The author knew the rule exactly and applied it TWICE in this file. `G3+G4` — the one gate
+the charter makes the family's whole line — was left unplanted.** **A PARTIAL PLANT READS
+ON THE PAGE EXACTLY LIKE A COMPLETE ONE.**
+
+---
+
+### A1.5 GROUND (e) — TWO REGISTERED PREDICTIONS DO NOT EXIST IN THE FROZEN INSTRUMENT
+
+**Sharper than "vacuous": the gates the pre-registration promised are not in the grading
+path at all.**
+
+- **`PREREGISTRATION.md:322` registers `P2`** — measured `(cB, cR)` within **2 %** of
+  `(+0.72287, −0.43863)`. **`PREREGISTRATION.md:323` registers `P3`** — symmetry residual
+  `max|z(+y) − z(−y)| <= 1e-9`. **NEITHER IS IMPLEMENTED ANYWHERE IN `d3_grade.py`.** The
+  file's complete gate set is `g1_constraints`, `g2_termination`, `g3_endpoint`, `g_eta`,
+  `g_theta`, `g_cost` and the inline `G7` at `:445-449`. **There is no code path that can
+  test either prediction.**
+- **This is a FREEZE-INTEGRITY finding against `VERIFICATION_CHARTER.md` §2b/§2d:** the
+  grading path is fixed at the pre-registration commit, **and here the fixed path never
+  contained two of the registered gates.**
+
+**The diagnostics that would have caught all of this are computed, written to disk, and
+consumed by nobody.** `d3_runScript.py:266-267` writes `out["G_nbreak"]` and
+`out["G_nrear"]` — **the very counts that say "the tolerance selected nothing"** — and
+`d3_grade.py` **never reads either key**: its only consumers of the Stage-G summary are
+`:433` `jac = summary.get("G_jac")` and `:451` `g_theta(summary, jac)`. **The same holds for
+`symmetry_max_dz_*` and `symmetry_npts_checked_*`: no gate reads them.**
+
+**And the selftest actively certifies the broken path.** `d3_grade.py`'s `--selftest` calls
+`g_theta` **with `jac` OMITTED** at `:404`, `:408` and `:412`, so the **constant-only
+fallback path** is the path exercised; `:410` asserts `abs(th - 25.0) < 0.05` and the
+control is printed **`SEEN`** and signed off. **The 12 controls of §4.1 of this file include
+one that certifies the defect.**
+
+---
+
+### A1.6 GROUND (d) — §10.1's PER-STAGE PRICING IS ALREADY INVALIDATED BY THIS FILE'S OWN §9.4
+
+**No third registration could reuse attempt 2's cost table in any case.** §9.4 measured it:
+**≈90 % of a no-flow stage's wall sits at or before producer line 215**, in the setup path
+every stage pays — `om.n2` completing **≈154.8 s into a 172 s run** against a probe that
+reached line 214 in **11 s**. **Every per-stage price in §10.1 rests on an ~11 s setup
+basis.** That is why ruling (2) requires a **re-derived cost table**.
+
+---
+
+### A1.7 EVERY DEFECT EXISTS IN TWO FROZEN COPIES, AND NEITHER MAY BE EDITED
+
+**Measured this session, and binding on the rewrite:**
+
+| file | `cases/dafoam/ladder-a/A4/curriculum_D3/` | `.../curriculum_D3_attempt2/` | reading |
+|---|---|---|---|
+| `d3_grade.py` | md5 `a32f075853e264910ee0a6c2473fd948` | md5 `a32f075853e264910ee0a6c2473fd948` | **BYTE-IDENTICAL.** Every grader defect above exists twice. |
+| `d3_runScript.py` | md5 `af2ce474e7954c03e3937161510f6590`, 351 lines | md5 `4dd289f275b512598e74daf2eb39d729`, 370 lines | **19 lines added, 0 removed** — at `3a4,7`, `20a25,30`, `137a148,156`. **NONE of them is in the defective blocks** (`:252-296`). |
+
+**Any repair must address both copies, and NEITHER MAY BE EDITED IN PLACE — they are
+frozen. The ruling orders a REWRITTEN producer and grader under a NEW pre-registration, not
+a repair of these.**
+
+---
+
+### A1.8 THE CLOSING SENTENCE OF THE RULING, VERBATIM
+
+> **"A completed Stage G whose three predictions are vacuous is a compute spend that buys a
+> label, not a finding."**
+
+---
+
+### A1.9 WHOSE RULING THIS IS, AND THE SEQUENCE OF FAILURES IT RESTS ON
+
+**This ruling is the dafoam-supervisor's.** This lane files it and did not re-decide it.
+
+**The sequence, stated without softening:**
+
+1. **Attempt 1 died on `nom_setConstraintSurface`** — the missing registrar of the surface
+   name `"default"`; `KeyError: 'Need to add surface "default" to the DVConstraints
+   object'` at its `geom.log:491`.
+2. **Attempt 2 died on `dvg.update("aero")`** — `d3_runScript.py:253`,
+   `KeyError: 'aero'`, this file's §3.1.
+3. **The enumeration of remaining unexercised producer lines was NEVER COMPLETED, because
+   the triage lane was killed.**
+
+**Two blind draws in a row, each one line deep.** §8 item 4 already recorded that lines
+**262-299** remain unexercised and that nothing here is evidence about them. **The rewrite
+ordered in ruling (2) is what replaces blind-draw sequencing.**
+
+**The count of remaining unexercised producer lines is therefore still `UNKNOWN`, and it is
+an INPUT the rewrite must produce** — not an output of any run this item has bought.
+
+**And the order in which the grounds were established is on the record, not smoothed:** the
+refusal of the one-line patch was decided on grounds (a)–(d), the three vacuous predictions
+of §A1.4 (i)–(iii). **Grounds (iv) and (e) — the armed-and-unfired FD gate and the two
+absent gates — were established afterwards and were not known when the ruling was made.**
+
+---
+
+### A1.10 WHAT THIS AMENDMENT DID NOT DO
+
+- **No frozen file was edited.** `d3_runScript.py` and `d3_grade.py` were **READ ONLY** in
+  both copies; all md5s re-read unchanged and are quoted above. **The ruling forbids
+  repairing them in place, and they were not repaired.**
+- **No gate, threshold, band, cap or label moved.** The item stays `BLOCKED`, `F1c`,
+  2.8667 core-min of 69.2 HARD, `C-46`.
+- **This amendment is NOT a repair proposal.** It records a ruling and four findings. **The
+  rewrite is a separate, costed, pre-registered item that has NOT been authorised to
+  launch.**
+- **No attempt-3 pre-registration was drafted** and **no compute was launched.** ZERO
+  COMPUTE throughout.
+- **No scratch path is cited** (`CLAUDE.md` rule 13, L-186). **Nothing was filed, sent,
+  posted or uploaded** (rule 7).
+
+---
+
+### A1.11 RECORDS LANDED WITH THIS AMENDMENT
+
+Ids re-derived at commit time from the **maximum existing number in the tail of the
+committed blob**, never a count (`CLAUDE.md` rule 11):
+
+| record | id | subject |
+|---|---|---|
+| `docs/LESSONS.md` | **L-302** | **An instrument that cannot say "I measured nothing" will report a number it did not measure.** One class, four measured members: the swallowing handler that falls back to declared constants; the max-over-matched-set that degrades to 0.0 with a witness field counting the wrong quantity; the **FD gate that returns `PASS` at 0.0000 % over an empty component set while its discrimination control certifies it**; and a **document AGGREGATION COMMAND**, found independently by the supervisor elsewhere in this family the same day. |
+| `docs/NUMERICS_KNOWLEDGE.md` | **N-D41** | The pyGeo mphys point-set key rule: a discipline registered via `nom_add_discipline_coords` is addressed as `"x_<discipline>0"`, never `"<discipline>"`, and `DVGeo.update` takes **that** key. Closes §9.2's open half. |
+| `docs/DOCKET.md` | **D513** | The ruling as widened, the four defective gates, and the blocked-behind-Sanaa's-mesh-call status. |
+
+**NOT FILED ANYWHERE** (`CLAUDE.md` rule 7). SUBMISSIONS PARKED.
