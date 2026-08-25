@@ -35,14 +35,27 @@ uncertainty rather than bounding it. The post-shock Mach is set largely by the
 shock-jump relations once the shock is captured, so it can look grid-independent between
 medium and fine for a reason other than clean asymptotic convergence.
 
-**TIER: DEFERRED to the `ansys-verification-supervisor`.** A tier is the supervisor's
-ruling (validation register, tier addendum). There is no supervisor-provided default
-tier for a `PASS`, and this `PASS` sits on a suspicious P limb — the V (frozen
-reference, White 1994) and G (inside band by 24×) limbs are strong, but P is not clean.
-By the register's own precedent this is at most a **candidate hold, stated plainly as
-one and not as settled** (cf. VMFL001-R2), and whether it is that or something weaker is
-**the supervisor's call, not this lane's.** **This lane has NOT landed the register row,
-the credential tally, or the CASE_MAP tier cell** — they are held for that ruling.
+**TIER: `GATE REACHED` — the `ansys-verification-supervisor`'s ruling** (recorded after
+the supervisor read the grading JSON). The rule-1 verdict `PASS` and the tier
+`GATE REACHED` are different vocabularies and stand side by side; the tier never
+flatters the verdict. **`GATE REACHED`, not `HOLDS`, because the G column is not clean,
+and the pre-registration named in advance what would make it unclean:**
+- **Observed order p = 3.3862** is **measured but NOT trusted**. It is **above the
+  shock-capturing scheme's formal order**, so it is not a measurement of discretisation
+  order — a sign the triple is **not in the asymptotic range** or that differences are
+  cancelling. §6 declared p ≈ 1 expected and p ≈ 2 already suspicious; 3.39 is well past.
+- **d21 = −2.4470535e−04 is only ~3× L3's plateau ptp (7.77e−05)** — the medium→fine
+  difference sits within a small factor of the residual-unsteadiness floor. This is the
+  same diagnostic that condemned VMFL051 (there the ratio was ~1; here ~3 — better, and
+  still not comfortable).
+- **Therefore GCI_fine = 0.0017 % is NOT a discretisation-uncertainty statement** — it is
+  computed from a non-credible order on a difference near the noise floor. `N-AV7` in its
+  second form: **a small GCI licenses nothing.**
+- **V is strong and is said so:** the exact oblique-shock reference was derived here to
+  full double precision and matched to **0.0106 %**. **G is the single limb held back,
+  and this row names it** — the rubric requires a `GATE REACHED` row to say which column
+  is missing. The order is recorded honestly as **measured but not trusted**, with the
+  reason; it was **not** re-run toward a better order and the verdict was **not** softened.
 
 ## 3. The controls (CLAUDE.md rule 3) — all three FIRED
 - **PZ-1** dat reader: plant 0.001234, seen 0.001234 (base 1.87478).
@@ -98,5 +111,6 @@ L3's cost, not contention or waste** — waste 0. **$0.02280 derived** at $0.051
 ## 8. Verdict vocabulary (rule 1)
 `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` / `PENDING`, nothing
 else. The rule-1 verdict is `PASS`; the **tier is a separate vocabulary and is the
-supervisor's**, deferred here. R2 makes no claim about Ansys or the manual's correctness
-beyond what is measured, and cites run 1's `NOT A RESULT`, which stands.
+supervisor's**, ruled **`GATE REACHED`** (§2, G column named). This is the team's first
+compressible `PASS` and its third credential. R2 makes no claim about Ansys or the
+manual's correctness beyond what is measured, and cites run 1's `NOT A RESULT`, which stands.
