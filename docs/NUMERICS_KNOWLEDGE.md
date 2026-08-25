@@ -4288,3 +4288,178 @@ UNCONFIRMED RATHER THAN LAUNDERED INTO THIS ENTRY.**
 Source: `verification/runs/ansys_verification/VMFL007/L2_50x50/log.simpleFoam`
 (lines 81594–81658 for the terminal continuity errors and the `sigFpe` handler);
 `cases/ansys_verification/VMFL007_R2/PREREGISTRATION.md` for `C-BOUNDED`.
+
+---
+
+## cfd-team numerics from Ekaterinaris 2005 — appended 2026-08-25 (cfd supervisor, read personally)
+
+**Source, title-page verified by this supervisor rather than relayed** (standing rule 15,
+L-144). The file on disk is `docs/standards/High_order_grid_convergence.pdf`, sha256
+`dd5b10cacaed3b08a81fc4b283de44da5b1a6d41151b6a7fd514468e279f035a`. Its **filename names a
+subject it does not have.** Title page and embedded PDF metadata agree:
+
+> *High-order accurate, low numerical diffusion methods for aerodynamics.*
+> John A. Ekaterinaris, FORTH/IACM, Heraklion, Crete.
+> **Progress in Aerospace Sciences 41 (2005) 192–300**, Elsevier, `doi:10.1016/j.paerosci.2005.03.003`.
+
+Full provenance, including the count evidence, is at
+`docs/standards/High_order_grid_convergence_PROVENANCE.md` (landed `01fcb3d8`). Three
+independent title-page verifications now agree: cfd's at `01fcb3d8`, heat-transfer's at
+`docs/campaigns/T-family/STANDARDS_INTAKE_RULING_2026-08-25.md`, and this supervisor's own,
+re-derived from the PDF and the sidecar in this session.
+
+**THE STANDING PROHIBITION, restated here because this is the file a numerics lane reads.**
+Measured over the full 66,033-word text with **word-boundary discriminators**: `Roache` **0**,
+`GCI` **0**, `Richardson` **0**, `grid refinement` **0**, `mesh refinement` **0**,
+`verification` **0**. **No grid-convergence, GCI, Richardson-extrapolation or verification
+lesson may be sourced to this document by any team.** A record of the form *"the
+grid-convergence literature says X, per `High_order_grid_convergence.pdf`"* would be a
+fabrication. `docs/standards/MESH_STANDARD.md` §9's three-level ruling comes from Sanaa and
+from Roache and owes this paper **nothing**.
+
+The naive substring `roache` returns **17** hits. **Every one of them is the substring inside
+`app-roache-s`** — re-derived independently in this session, unique contexts inspected. A grep
+over a document is not an enumeration instrument unless it carries a discriminator.
+
+**A SECOND DISCRIMINATOR TRAP IN THE SAME FILE, found while verifying the quotes below.**
+The `.txt` sidecar carries **Elsevier's typographic ligatures** — `fi`, `fl`, `ff`, `ffi`, `ffl`
+are single code points, not letter pairs. Every quotation in the entries below is transcribed
+here with those ligatures **normalised to ASCII**, and each was verified against the sidecar
+**only after normalisation**. A plain `grep` for `"turbulent flows"` over the sidecar returns
+**zero** and the phrase is on the page. **A future reader who cannot find one of these quotes
+by grep has not caught this record in an error — they have hit the ligatures.** Normalise
+before you search.
+
+---
+
+## N-C2. Second-order numerical diffusion of vorticity is a SCHEME limitation, not a mesh limitation — and it is the standing candidate for this lab's worst Cp row
+
+Ekaterinaris 2005 states the deficiency as its motivating thesis, in the abstract, p. 192:
+
+> *"The main deficiency of widely available, second-order accurate methods for the accurate
+> computation of these flows is the numerical diffusion of vorticity to unacceptable levels."*
+
+"These flows" are the vortex-dominated ones the paper names immediately before: *"the vorticity
+in the flow field and the wake of swept wings at an incidence and rotor blades largely
+determines the distribution of loading."* Term frequencies in the text, word-boundary counted:
+`WENO` 160, `shock` 89, `vortex` 62, `limiter` 37, `vorticity` 20, `numerical diffusion` 6,
+`tip vortex` 5.
+
+**Where this bites in this lab — and the in-house number is a LEAD, NOT EVIDENCE.** `F1`
+(ONERA M6) is a swept wing at incidence, run with OpenFOAM's second-order finite-volume
+discretization, and its **η = 0.99 station is the worst Cp row cfd has** — recomputed by a cfd
+lane from `cases/dafoam/ladder-a/logs_A3/cp_comparison.json` and recorded at
+`verification/campaign/F1_CP_PROVENANCE_2026-08-25.md:25` as **RMS 0.1139, bias +0.0652**.
+η = 0.99 is the wingtip-vortex station.
+
+**THAT NUMBER IS ATTACHED TO A CELL THAT NOW READS `NOT A RESULT`, and this entry says so
+rather than quoting it as though it were graded.** `verification/campaign/CAMPAIGN_STATUS.md:453`
+was moved from `GATE REACHED` to **`NOT A RESULT`** on 2026-08-25, on the ground that *"the
+reference values are not held on this box"* — the solve is untouched, the **reference** is what
+failed. So 0.1139 is a comparison against a reference this lab cannot show it holds. **It is a
+lead for where to look, and it is not admissible as evidence for anything.** What survives
+independently of it is the **mechanism**: on a swept wing at incidence, a second-order code's
+largest Cp error is *expected* at the tip station, and Ekaterinaris gives that expectation a
+named cause that is not the mesh.
+
+**The standing in-house explanation for that station has been mesh-diffusion smearing. This
+paper says the same physical error has a scheme component that a second-order code carries at
+any mesh density.**
+
+**THE CONSEQUENCE FOR GATING, and it is the part that matters.** A GCI computed at a
+vortex-core station measures the **mesh** contribution to an error whose **scheme** contribution
+does not refine away at the same rate. A three-level family can therefore be perfectly
+`CONVERGING`, print a small GCI, and still sit outside the true error — because the quantity the
+triple is converging in is not the whole of the discrepancy against experiment. **This is
+`N-T2`'s failure mode arriving by a different route** (*"a CONVERGING Roache triple can arm a
+band narrower than the finest level's actual error"*), and it is a reason to state, beside any
+tip-vortex or vortex-core row, that its GCI bounds mesh error only.
+
+**WHAT THIS ENTRY DOES NOT DO.** It does not move `F1`'s verdict, does not touch
+`CAMPAIGN_STATUS.md`, and does not retire or widen any gate. It records a mechanism and a
+caveat. **Whether `VERIFICATION_CHARTER.md` should carry the vortex-core GCI caveat as a
+clause is the verification team's ruling, not cfd's** — referred, not decided here.
+
+---
+
+## N-C3. This paper's implicit-scheme and multigrid sections do NOT transfer to `rhoSimpleFoam`'s pressure equation — recorded as a NEGATIVE so the next lane does not re-mine it
+
+cfd has an open convergence problem: F12's admission gate B, where the pressure residual
+converges in neither of two runs and floors far above its `1e-06` target. The paper was read
+against that problem **because Sanaa's directive of 2026-08-25 says to read it first where a
+team has bumped into numerical convergence issues.** The honest result is that **it offers no
+relief**, and the reason is structural rather than a matter of not looking hard enough:
+
+- **§2.3.2 "Implicit schemes" (p. 202)** is about **time-marching**: the approximately factored
+  Beam–Warming algorithm with Newton-type subiterations to eliminate linearization and
+  factorization error, Steger–Warming flux-vector splitting on the right-hand side, and the
+  Yoon–Jameson unfactored LU-SGS scheme extended by Zhang and Wang with **dual time-stepping**.
+  Every one of these is a **density-based, method-of-lines** construction for high-order finite
+  differences and finite volumes on the compressible Euler/NS equations.
+- **§2.3.3 "Time accurate solutions with multigrid" (p. 202)** introduces a **pseudo-time**
+  variable and drives Eq. (2.14) to steady state with **a multistage Runge–Kutta method that
+  performs the role of the smoother in the multigrid process.** That is **FAS multigrid on the
+  nonlinear residual of a dual-time formulation.**
+
+`rhoSimpleFoam` is a **pressure-based segregated SIMPLE** solver, and OpenFOAM's `GAMG` is
+**algebraic** multigrid applied to the **linear** pressure system. **Different object, different
+equation, different failure modes.** Neither section names a pressure-correction equation, a
+SIMPLE-family algorithm, or an algebraic multigrid; `preconditioning` appears **once** in
+66,033 words, `GMRES` **three** times, `line relaxation` and `ADI` **zero** times.
+
+**THE ONE CLAIM THAT DOES TRANSFER, stated narrowly because it is narrow.** Of the high-order
+compact implicit LHS operator, §2.3.2 reports that
+
+> *"it yields accurate solutions of time dependent problems with fewer subiterations and
+> converges faster to the steady state [90]."*
+
+The transferable content is the **attribution**: steady-state convergence *rate* is a property
+of the **implicit operator and its linearization**, not only of the mesh or of the tolerance
+asked for. In OpenFOAM terms that points at relaxation and the corrector structure before it
+points at the mesh. **That is consistent with what cfd's own gate-B probe already measured** —
+`verification/campaign/F12_GATE_B_RULING_2026-08-25.md` — where the mechanism was shown to fire
+(a 400-cell arm printed `SIMPLE solution converged in 14 iterations`) and the apparent floor was
+traced to a first-solve versus last-solve reading of the log, not to an unsatisfiable gate.
+
+**So: gate B gets NO relief from this paper, and this entry exists to stop the next lane
+spending an hour discovering that.** A negative result about a source is still a result about
+the source.
+
+---
+
+## N-C4. Raising scheme order to cure a diffusion problem buys an instability unless a filter or limiter comes with it
+
+§3, opening paragraph, p. 203:
+
+> *"For nonlinear problems, straightforward application of high-order accurate central
+> difference schemes is not possible, because the spurious modes that develop from the
+> unresolvable by the numerical discretization high-frequency modes lead to instabilities."*
+
+and immediately after:
+
+> *"Rai and Moin [96] found that high-order upwind schemes are more promising to simulate
+> turbulent flows. However, early attempts to apply high-order finite differences were often
+> frustrated because of lack of robustness of the proposed high-order (FD) schemes compared to
+> spectral methods."*
+
+The paper's entire apparatus of **spectral-type filters (§3.5)**, **characteristic-based ACM
+filters (§3.6)**, **ENO/WENO ACM filters (§3.6.1)** and **DG limiting (§5.6, §5.7)** exists to
+pay for the order it buys. `limiter` occurs **37** times.
+
+**Where this bites in this lab.** N-C2 gives cfd a standing motive to reach for a
+higher-order convection scheme at vortex-dominated stations. **This entry is the price tag.**
+Two in-house data points sit squarely in this territory and neither is a counterexample:
+`DPW8_V2`'s L4 arm B was a `linearUpwind`→`upwind` swap, i.e. a move *down* in order taken for
+boundedness, and its bounded-ness legs still failed
+(`verification/campaign/DPW8_V2_L4_DIVERGENCE_DIAG_RESULTS.md`); F12's rung-1 crash was **not**
+an FPE but **OpenFOAM's own negative-temperature range check** firing — an unboundedness, which
+is the symptom class this section describes (`ed050ff1`, F12 crash triage AMENDMENT 1, in which
+this supervisor struck his own earlier mechanism).
+
+**Operational reading for cfd lanes.** A scheme-order change is a **change of experiment**, not
+a tuning knob. Under standing rule 2 it cannot be made inside a fired pre-registration at all.
+Where one is registered before compute, it is registered **together with the boundedness
+apparatus that pays for it**, and the pre-registration says which one — not as a lever to be
+swapped when the first arm misbehaves.
+
+---

@@ -544,3 +544,78 @@ families rather than imposed on them. Neither is retroactive: **ladders already 
 re-opened by this section**, and F12's and F1's closed verdicts are not regraded by it. Neither
 alters any gate value in §3 — §3's thresholds are unchanged. §9.2 governs **whether a set of meshes
 is a LADDER**, not what any single mesh must achieve.
+
+---
+
+## 10. `High_order_grid_convergence.pdf` IS NOT A SOURCE FOR THIS DOCUMENT, AND THE ONE THING IT DOES SAY ABOUT GRIDS (v1.5, 2026-08-25)
+
+**Appended at the foot under standing rule 6. Version 1.4 → 1.5. Lines whose number changed
+above this section: 0. THIS SECTION MOVES NO GATE, NO THRESHOLD, NO BAND, NO CAP AND NO
+LABEL.** §3's values are untouched; §9.1's three-level ruling is untouched and is **not**
+re-sourced by anything here.
+
+### 10.1 The prohibition, placed in the file where a lane will look for it
+
+`docs/standards/High_order_grid_convergence.pdf` sits in this directory and **its filename names
+a subject it does not have.** Title-page verified three times independently (standing rule 15,
+L-144): by cfd at `01fcb3d8`, by heat-transfer at
+`docs/campaigns/T-family/STANDARDS_INTAKE_RULING_2026-08-25.md`, and by the cfd supervisor
+personally on 2026-08-25. It is:
+
+> *High-order accurate, low numerical diffusion methods for aerodynamics.*
+> John A. Ekaterinaris, **Progress in Aerospace Sciences 41 (2005) 192–300**,
+> `doi:10.1016/j.paerosci.2005.03.003`. sha256 `dd5b10ca…f035a`.
+
+Measured over its full 66,033-word text with **word-boundary discriminators**: `Roache` **0**,
+`GCI` **0**, `Richardson` **0**, `grid refinement` **0**, `mesh refinement` **0**,
+`verification` **0**.
+
+> **NO CLAUSE OF THIS STANDARD MAY CITE THAT DOCUMENT, AND NO CLAUSE OF THIS STANDARD DOES.**
+> A sentence of the form *"the grid-convergence literature says X, per
+> `High_order_grid_convergence.pdf`"* — in this file, in `VERIFICATION_CHARTER.md`, or in the
+> GCI/Roache rows of `docs/NUMERICS_KNOWLEDGE.md` — would be a **fabrication**.
+
+**§9.1's three-level ruling comes from Sanaa, quoted verbatim there, and from Roache. It owes
+this paper nothing.** That is stated here because §9.1 and this PDF landed in this directory on
+the same day, and the coincidence is exactly how a false attribution gets made later.
+
+The naive substring `roache` returns **17** hits in that text. **All 17 are the substring inside
+`app-roache-s`.** Full provenance and the count evidence:
+`docs/standards/High_order_grid_convergence_PROVENANCE.md`.
+
+### 10.2 The one thing it does say that a mesh ladder must carry: a GCI at a vortex core bounds MESH error only
+
+The paper's thesis, abstract p. 192, is that **the main deficiency of widely available
+second-order accurate methods for vortex-dominated flows is the numerical diffusion of vorticity
+to unacceptable levels.** The full quotation and its consequences are recorded as **`N-C2`** in
+`docs/NUMERICS_KNOWLEDGE.md`. What that means for a **ladder**, and therefore for this standard:
+
+> **A three-level family taken at a vortex-core, tip-vortex or wake station may be perfectly
+> `CONVERGING`, with a clean observed order and a small GCI, and still sit outside the true
+> error — because the GCI bounds the MESH contribution to a discrepancy that also has a SCHEME
+> contribution, and the scheme contribution does not refine away at the same rate.**
+
+**This is a DISCLOSURE requirement, not a gate.** It adds no threshold and rejects no mesh:
+
+- A ladder reporting a GCI at such a station **states beside it that the GCI bounds mesh error
+  only**, and names the discretization order actually used.
+- It does **not** claim, from a converging triple at such a station, that the remaining
+  discrepancy against experiment is mesh-resolvable.
+
+This is `N-T2`'s failure mode — *a `CONVERGING` Roache triple can arm a band narrower than the
+finest level's actual error* — reached by a second route, and it is recorded because the two
+routes call for the same disclosure.
+
+### 10.3 What is referred elsewhere and NOT decided here
+
+Whether `VERIFICATION_CHARTER.md` should carry §10.2's caveat as a **charter clause** binding
+every family is **the verification team's ruling, not cfd's**, and it is referred rather than
+taken. Retiring or widening a gate or a charter clause is reserved (`ESCALATION_CHARTER.md`);
+this section deliberately does neither.
+
+### 10.4 Scope of §10
+
+§10.1 is a **prohibition on sourcing** and is lab-wide, because the fabrication it prevents
+would be lab-wide. §10.2 binds **cfd mesh ladders** and is offered to other families rather than
+imposed. Neither is retroactive: **no frozen ladder is re-opened and no closed verdict is
+regraded by this section.**
