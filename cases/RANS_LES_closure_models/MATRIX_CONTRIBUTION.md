@@ -469,3 +469,625 @@ were derived with `git log -1 --format=%H -- <path>`; **no sha in this file was 
 
 **This file creates, writes to and touches nothing in `docs/`.** `docs/COVERAGE_MATRIX.md`
 is the verification team's and was not opened, created or modified.
+
+---
+
+## 5. ADDENDUM 1 — 2026-08-25 — re-score under the chief's stated V / G / P definitions
+
+**Version: v1.0 → v1.1.** This section is **appended**. **Lines whose number changed
+above this section: 0.** Proof, run in one shell invocation immediately before and
+immediately after the append, on the prefix alone (`head -n 471`):
+
+| what | value |
+|---|---|
+| prefix line count, before and after | **471** |
+| `sha256(head -n 471 MATRIX_CONTRIBUTION.md)` **before** the append | `4c2183ba0c0ee06331c2d3b2bfa1ae2c686798a991e8a650cdfda7c9b9e2b4d2` |
+| `sha256(head -n 471 MATRIX_CONTRIBUTION.md)` **after** the append | `4c2183ba0c0ee06331c2d3b2bfa1ae2c686798a991e8a650cdfda7c9b9e2b4d2` |
+| `sha256` of the whole file at HEAD `a42fd634`, and on disk, before the append | `4c2183ba0c0ee06331c2d3b2bfa1ae2c686798a991e8a650cdfda7c9b9e2b4d2` (disk == HEAD) |
+
+**No existing line was edited.** Every letter and tier in §1 stands as written; this
+addendum states what those cells become under a definition set that did not exist when
+§1 was written, and §0's own invitation is what licenses it: *"If the owner's definitions
+differ, the evidence clauses in each cell are the durable part and the YES/NO/PARTIAL
+letters should be recomputed from them."* The evidence clauses are unchanged and are
+still the durable part.
+
+**Dating, stated because the clock rolled over mid-pass.** Every sweep reported below was
+run on **2026-08-24**; this addendum was written and appended as the box's clock turned to
+**2026-08-25**, and is dated by the day it lands. The §1 body it is appended to is dated
+2026-08-24 and is unchanged.
+
+**Zero compute.** No solver, no training, no GPU. Every finding below is a read of a
+record, a source file or a disk sweep.
+
+---
+
+### 5(a) The definitions this re-score uses, quoted as received
+
+These reached the closure supervisor from the chief this session. **They are labelled by
+the chief as the CHIEF'S RECONSTRUCTION of Sanaa's brief and NOT her verbatim words, and
+that label travels with them everywhere they are used, including here.** Verbatim as
+received:
+
+> V = code verification: exact solution, manufactured solution or correlation.
+> G = a CONVERGING Roache triple with GCI and an observed order.
+> P = validation against a public primary source with a pre-registration on disk.
+>
+> Tier vocabulary, exactly these five and no synonyms: HOLDS (V+G+P all green under
+> frozen prereqs) / GATE REACHED (missing one of V/G/P — name which) / SURVEYED
+> (breadth evidence, ungated) / NOT HELD (an honest FAIL or a blocker) / NEVER RUN.
+
+**These are materially narrower than §0's closure-private expansion**, on all three
+axes:
+
+* §0's **V** credited a planted-zero control, an identity test or an independent
+  re-derivation. The chief's V credits none of those by name; it names three instruments
+  closure does not have.
+* §0's **G** credited *any* pre-registered numeric gate that could have failed. The
+  chief's G is a grid-refinement construct and nothing else.
+* §0's **P** credited *any* pre-registered prediction, graded. The chief's P additionally
+  requires the comparison target to be a **public primary source**.
+
+Verdict words below are rule-1 vocabulary only. Tier words are the five above only.
+
+---
+
+### 5(b) The G sweep — the load-bearing finding
+
+**Result: NO grid-convergence triple exists anywhere in closure territory. Not one.**
+No `CONVERGING` classification, no GCI, no observed order, no refinement ratio, no
+coarse/medium/fine family. The closure family has never run a grid-refinement study.
+
+**Methods, both run, because one of them is blind by design.**
+
+1. **`grep -r` over `cases/RANS_LES_closure_models/` and `docs/closure/`.** In this
+   environment `grep -r` is `ugrep --ignore-files` and **cannot see gitignored
+   archives**, so it was never trusted alone. *It also produced a false-positive class
+   worth recording: the pattern `roache`, case-insensitive, matches the substring in
+   **app-roache-s**. Five of its hits were the word "approaches".*
+2. **`find` + `/bin/grep` on explicit absolute paths**, which honours no ignore file:
+   over `/home/ubuntu/Certonomous/cases/RANS_LES_closure_models`,
+   `/home/ubuntu/Certonomous/docs/closure`, `/home/ubuntu/closure-data` and
+   `/home/ubuntu/closure-challenge-benchmark`. Pattern:
+   `[Rr]oache|\bGCI\b|grid.?converg|observed order|order of accuracy|refinement ratio|h-refinement|mesh triple|[Rr]ichardson`,
+   plus a separate pass for `extrapolat`, and a filename sweep for
+   `*coarse* *medium* *fine* *gci* *roache* *refine* *mesh* *grid*`.
+3. **A tracked-vs-disk reconciliation**, because the shared index shows phantom rows:
+   `git ls-tree -r HEAD --name-only cases/RANS_LES_closure_models/` returns **148**
+   files; `find` returns **174** on disk. The 26 extra are **22 `__pycache__/*.pyc`** and
+   **four untracked drafts** (`Bae2022_SciMARL_GPU/PREREGISTRATION_DRAFT.md`,
+   `R4b_pair_control/PREREGISTRATION.md`, `Sirignano2020_DPM_GPU/PREREGISTRATION_DRAFT.md`,
+   `Ling2016_TBNN/gpu/arm2/LAUNCH_CHECKLIST.md`). **Nothing tracked at HEAD is missing
+   from disk.** All four untracked drafts were opened and searched.
+
+**What the sweep found, and what each hit actually is.**
+
+| hit | what it is |
+|---|---|
+| `Kaandorp2020_TBRF/aposteriori/PREREGISTRATION.md:314` | closure's own written disclaimer, in the frozen pre-registration: *"no `Re` sweep, no mesh-refinement study. A converged answer on one mesh is not a grid-converged answer."* **This is the family admitting the gap in advance, in a frozen file.** |
+| `Ling2016_TBNN/gpu/arm2/PREREGISTRATION.md:786` | a citation of rule 5's **one-way direction principle** as an analogy for an amendment's direction argument. No triple, no mesh, no refinement. `grep` for `refin|mesh|grid` in that whole file returns **zero** lines. |
+| `R4b_pair_control/PREREGISTRATION.md:308` (untracked draft) | *"the grid `G = {0.01, 0.02, ... 1.00}` — twelve values"*. This is a **parameter grid over the scaling `xi`**, not a spatial mesh. Explicitly *"fixed here, not refined afterwards"*. |
+| `docs/closure/PAPER_CATALOGUE.md`, `CLOSURE_METHOD_CLASSES_INVENTORY.md`, `FOUNDATIONAL_MODELS_INVENTORY.md`, `_common/FEASIBILITY.md` | **other people's papers**, catalogued. Larsson et al. 2016's demand that WMLES show grid convergence; Lozano-Durán's non-monotonic grid convergence; Spalart's supersonic flat-plate study. **Closure catalogued the requirement and never met it.** |
+| `/home/ubuntu/closure-data/kaandorp_tbrf/results.json`, `/home/ubuntu/closure-data/supervisor/msg_xiao.txt` | the word *extrapolation* / *extrapolated*, in the feature-coverage sense. Not Richardson extrapolation. |
+
+**The one candidate that looked like a refinement family, and why it is not.** The R5C
+and R4 case names carry a four-digit suffix — `alpha_10_9000_2024`,
+`alpha_10_9000_3036`, `alpha_10_9000_4048` — reading like `20×24`, `30×36`, `40×48`.
+It was checked rather than assumed. **All three carry `nCells: 15600`, identical**, read
+from the `note` header of `constant/polyMesh/owner` under
+`/home/ubuntu/closure-data/r5c/frozen/<case>/`. The suffix is the public benchmark's
+own PHLL29 parametric-variation label (`closure-challenge-benchmark/README.md:73`),
+a geometry/parameter index, **not a grid level**. Same mesh size, different hill.
+**No refinement family exists in the R5C 27 or the R4 12.**
+
+**Corroborating structural evidence.** The lab's Roache machinery is
+`scripts/roache_triple.py` and `verification/campaign/LADDER_V_TRIPLE_VERIFICATION.md`.
+A whole-repo sweep for the triple-classification vocabulary (`CONVERGING`,
+`OSCILLATORY`, `STAGNANT`) returns the T-family, the F14 cooling ladder, the ansys
+verification cases, one dafoam A3 rung, and the charters — and, in closure territory,
+**exactly one file: `Ling2016_TBNN/gpu/arm2/PREREGISTRATION.md`, at the single line
+above.** No closure file imports or invokes `scripts/roache_triple.py`; the sweep for
+`roache_triple|p_obs|apparent order|gci_fine|gci_coarse|Fs *= *1.25` across closure
+territory returns **nothing**.
+
+**What this null result proves, and what it does not.** It proves that **no closure
+record, script, artefact or out-of-repo data file names a grid triple, a GCI or an
+observed order**, under two search methods one of which reads the raw disk and honours
+no ignore file. It does **not** prove that no such calculation was ever performed and
+left unrecorded — an unrecorded calculation carries no evidentiary weight under rule 2, so
+that residue cannot move a letter. It also does **not** cover binary artefacts
+(`.npz`, `.pt`, `.pkl`, `.db`), which were not text-searched; a triple hidden in a binary
+with no accompanying record would likewise not be a result. **The supervisor's working
+hypothesis is CONFIRMED: no closure row can be HOLDS, because G is categorically absent
+family-wide.**
+
+**One structural objection, raised here rather than used as an excuse.** The chief's G
+is a mesh construct. Rows 4 and 5 are **feature-library audits with no PDE solve and no
+mesh** — G is not merely absent there, it is inapplicable, and the five tier words carry
+no "not applicable". Rows 2 and 3 are solver rows where G is squarely applicable and
+squarely absent, and Rows 1 and 6 are training rows whose claims are about propagated
+flows, so the absence bites there too. **This is referred to the supervisor as a
+definitional question; it changes no letter below, where G is scored NO throughout.**
+
+---
+
+### 5(c) The V sweep under the chief's definition
+
+**Result: closure has NO code verification in the chief's sense, on any row.** A
+`find` + `/bin/grep` sweep over every `.md` and `.py` under
+`cases/RANS_LES_closure_models/` for
+`manufactured solution|MMS|method of manufactured|exact solution|analytic(al)? solution|closed-form solution|Blasius|Moody|Dittus|Colebrook|Poiseuille|Couette`
+returns **zero hits**. The only hits anywhere in closure territory are in
+`docs/closure/PAPER_CATALOGUE.md` — other people's papers again.
+
+Per-row classification into the chief's three categories, or out of them:
+
+| row | instrument | classification |
+|---|---|---|
+| 1 a-priori | GPU G0 planted-zero on the `b_rms` scorer; R4's planted-zero on term selection | **planted-zero control — NOT one of the three** |
+| 2 a-posteriori | G0a solver identity `kOmegaSSTCorrected(0,0)` vs stock `kOmegaSST`; the `4.002936e-07` read-back | **identity test — see the ruling below** |
+| 3 ceiling | (1) byte-identical reproduction of the internal W2 record; (2) `ic1_check.py` Python re-derivation; (3) R5C's three planted comparators | (1) **internal regression test — NOT one of the three**; (2) **see the ruling below**; (3) **planted-zero control — NOT one of the three** |
+| 4 FS2 | Galilean/rotational invariance check at `1e-12`, which caught 58 of 110 features non-invariant | **an identity/symmetry test — NOT one of the three** |
+| 5 FS5 | gate A1: plant written to a temporary `.npz`, read back through the audit's own path, **two mutated readers run as subprocesses, rc 0 / rc 2 / rc 2** | **planted-zero control with a proven refusal — NOT one of the three** |
+| 6 GPU | G0 plant `1.234e-03` recovered at 1.6e-14 relative | **planted-zero control — NOT one of the three; and see 5(f)** |
+
+**The two items the supervisor asked to be judged on their merits, not dismissed. The
+argument on each side is stated; the supervisor rules, not this lane.**
+
+**(a) `R4_sparta_build/ic1_check.py` — worst relative L2 `3.969e-12` on `kDeficit`,
+`5.078e-13` on `bijDelta`, over all 12 cases (`RESULTS.md` §4.7,
+`artefacts/ic1_discovered.json`).**
+
+*For calling it code verification:* the reference it checks against is **known in closed
+form**. `MODEL.json`'s frozen term sets are an algebraic expression; evaluating that
+expression at given inputs has an exact answer, and `ic1_check.py` computes it in a
+second language, from the same `0/` fields, **independently of the solver**. Agreement at
+the ascii round-trip floor is therefore agreement with an exactly-known target, which is
+the shape of an exact-solution code verification for the term-evaluation routine. The
+file's own docstring names the four specific defect classes it rules out — component
+ordering, exponent mapping, the `2k` factor, the `I2` sign — and those are precisely
+implementation errors an exact-solution test is for.
+
+*Against:* it verifies **one subroutine's arithmetic**, not the solver, not the
+discretisation and not the PDE. It compares two implementations of the same formula
+against each other with **no external truth**; a shared misreading of `MODEL.md` would
+pass. And the independence is partial — `ic1_check.py` imports
+`assemble_dataset.basis`, `sym_to_full` and `of_read.read_field` from
+`cases/RANS_LES_closure_models/_common/`, i.e. it shares the tensor-basis and
+field-reading code with the harness that built the training data. It is independent of
+the **solver**, not of the **lab's own library**.
+
+**This lane's reading: a cross-implementation regression test, not code verification** —
+because the target is the lab's own frozen expression rather than an externally-known
+solution, and because a shared-library defect survives it. It is a strong instrument and
+its evidence clause stands verbatim; it is not V under the chief's definition.
+
+**(b) The Kaandorp a-posteriori G0a solver identity —
+`kOmegaSSTCorrected(0,0)` vs stock `kOmegaSST`, `0.0 exactly`, two byte-identical
+`600/U` files, `md5 ff95ccb5c5b3f146ac4c364c006352b5` on both
+(`aposteriori/RESULTS.md` §G0).**
+
+*For:* it is a **known-answer test on the solver itself**. The correct answer is
+analytically zero, known in advance, admitting no tuning; it runs the full discretisation
+over 3,025 cells and 200 iterations; and it is the gate the whole lane was registered to
+stop on. That is closer to code verification than anything else in the family.
+
+*Against:* the identity verifies that **the correction path vanishes when switched off** —
+it says the new code reduces to the old code, not that either is right. Both branches
+share the same discretisation, so **a discretisation error common to both is invisible to
+it by construction**. The chief's three named instruments all supply an *external*
+reference; this one supplies an *internal* one. And the record's own disclosed defect
+sharpens the point: at `writePrecision 6` the reader's one-ulp floor **is 4.002936e-07**,
+so the registered `1e-10` sits **4,003× below the instrument's resolution** and what the
+gate actually establishes is agreement to better than `4.0e-07` relative.
+
+**This lane's reading: an analytic identity the code must satisfy, and a genuine
+known-answer test — but a code-to-code identity, not an exact solution of a problem
+whose answer is independently known.** Not V under the chief's definition. **The
+supervisor rules; if the supervisor rules that a known-answer identity on the full
+solver is code verification, Row 2's V returns to YES and Row 2's tier is unaffected,
+because G is still NO.**
+
+**A correction closure owes against its own favour, found during this sweep.** §1 Row 1's
+V cell says the GPU a-priori `b_rms` scorer *"carries a planted-zero control that was
+read back from disk."* **The disk half of that sentence is not supported by the source.**
+In `Ling2016_TBNN/gpu/score_gpu_ling.py`, `b_LES` is loaded once from
+`/home/ubuntu/closure-data/tbnn/dataset.npz` at line 184; the plant is then applied to an
+**in-memory copy** at lines 85–88 (`b_plant = b_clean.copy()`), and the reference
+`pred = np.zeros_like(b_clean)` is synthesised in memory, not read from disk. **The plant
+never round-trips through a file.** Contrast rule 3's cited exemplar, `T3_runs/analyse_t3.py`'s
+`plant_into_T()`, which writes into the field file, and FS5's A1, which writes a temporary
+`.npz` and reads it back. **The arm-1 record itself does not make the disk claim** —
+`Ling2016_TBNN/gpu/RESULTS.md:21` says only *"plant `1.234e-03` read back within 1e-9
+relative"*, which is accurate. **The overstatement is this contribution's, in §1 Row 1,
+and it is corrected here rather than left standing.** What the arm-1 control establishes
+is that the **scorer arithmetic** responds to a known perturbation; it does not establish
+that the **disk reader** can see one.
+
+---
+
+### 5(d) The P sweep under the chief's definition
+
+Public primary source, and the pre-registration path, verified present **both** at HEAD
+(`git ls-tree -r HEAD --name-only`) **and** on disk (`find`), each of the six rows:
+
+| row | public primary source | pre-registration path | at HEAD | on disk |
+|---|---|---|---|---|
+| 1 a-priori | **Ling, Kurzawski & Templeton 2016**, *J. Fluid Mech.* 807:155–166 (on-disk copy is Sandia unlimited release `SAND2016-7345J`; `gpu/PREREGISTRATION.md:34-36` records **no arXiv id**); **Wu, Xiao & Paterson 2018**, *Phys. Rev. Fluids* 3:074602, arXiv:1801.02762v4; **Kaandorp & Dwight 2020**, arXiv:1810.08794v2; **Schmelzer, Dwight & Cinnella 2020**, arXiv:1905.07510v2 | `Ling2016_TBNN/PREREGISTRATION.md`, `Wu2018_PIML_RF/PREREGISTRATION.md`, `Kaandorp2020_TBRF/PREREGISTRATION.md`, `R4_sparta_build/PREREGISTRATION.md` | **yes, all four** | **yes, all four** |
+| 2 a-posteriori | **Kaandorp & Dwight 2020**, plus the public benchmark LES/DNS truth fields | `Kaandorp2020_TBRF/aposteriori/PREREGISTRATION.md` | **yes** | **yes** |
+| 3 ceiling | **contested — see below** | `R4_sparta_build/PREREGISTRATION.md`; instrument repair `R5C_omega_repair/PREREGISTRATION.md` | **yes, both** | **yes, both** |
+| 4 FS2 | **none** — the report is generated from the data, not predicted against a source | **NO PRE-REGISTRATION EXISTS.** §1 Row 4 already says so | n/a | n/a |
+| 5 FS5 | **none — an internal instrument repair.** The gates A1–A4 predict the behaviour of closure's own audit code, not any published quantity | `_common/features/FS5_D476_CLIP_REPAIR_PREREGISTRATION.md` | **yes** | **yes** |
+| 6 GPU | **Ling, Kurzawski & Templeton 2016** | `Ling2016_TBNN/gpu/PREREGISTRATION.md`; arm 2 `Ling2016_TBNN/gpu/arm2/PREREGISTRATION.md` | **yes, both** | **yes, both** |
+
+Every PDF named above is present as a title-page-verified pair under
+`docs/papers/closure/` — `Ling2016_tbnn_embedded_invariance.{pdf,txt}`,
+`Wu2018_physics_augmenting.{pdf,txt}`, `Kaandorp2020_random_forests.{pdf,txt}`,
+`Schmelzer2020_algebraic_reynolds.{pdf,txt}`.
+
+**Row 3's P is the contested one and it is contested against the ceiling's favour.** A
+frozen-field ceiling **reads `bijDelta` and `kDeficit` extracted from the truth** and
+injects them. Scoring that construction against the same truth field is **not validation
+of a prediction** — the row's own §1 text says it: *"It predicts nothing. It is not a
+model. It is an upper bound available only when the answer is already known."* And the
+row's headline corroboration — `CBFS13700`'s ceiling **0.3975** against the W2 campaign's
+**0.39753** — is agreement with **an internal Certonomous record**, not with a public
+primary source. **This lane's reading: Row 3's P is NO.** The registered branch that was
+graded (does the ceiling beat NULL by 30 %) is an **internal** comparison between two of
+closure's own configurations. **The supervisor rules.**
+
+**Two rows registered a prediction against no public primary source, and say so:** Row 4
+(no pre-registration at all) and Row 5 (a pre-registration on disk, frozen at commit
+`bf4956bc`, blob `8fac067cf4a2c19a205df529db6c79bd48e31f3d`, gating **closure's own
+instrument**, not a published result).
+
+---
+
+### 5(e) The re-score table
+
+**OLD** = §1 as written, under §0's closure-private expansion. **NEW** = under the
+chief's reconstruction quoted in 5(a).
+
+| row | OLD tier | OLD V/G/P | **NEW tier** | **NEW V/G/P** | evidence for each changed cell |
+|---|---|---|---|---|---|
+| **1** a-priori model fit | GATE REACHED | YES / YES / YES | **NOT HELD** | **NO / NO / YES** | **V→NO:** the instrument is a planted-zero control, and for the GPU arm it is an in-memory one (`Ling2016_TBNN/gpu/score_gpu_ling.py:85-88`); no exact, manufactured or correlation reference exists — the sweep over every `.md`/`.py` in `cases/RANS_LES_closure_models/` returns zero hits. **G→NO:** no triple anywhere (5(b)). **P stays YES:** Ling 2016 and Wu 2018 are public primary sources and the pre-registrations are at HEAD. **Tier:** two of the row's four records are honest `GATE FAIL` — `Kaandorp2020_TBRF/RESULTS.md` and `R4_sparta_build/RESULTS.md` §6 G1 at 2 of 4 families against a registered 3. |
+| **2** a-posteriori propagation | NOT HELD | YES / PARTIAL / YES | **NOT HELD** | **NO / NO / YES** | **Tier unchanged.** **V→NO:** G0a is a code-to-code identity, not one of the three (5(c)(b)); its registered `1e-10` is 4,003× below the instrument's `4.002936e-07` floor (`aposteriori/RESULTS.md` §G0). **G→NO:** the row's own frozen pre-registration says it at `aposteriori/PREREGISTRATION.md:314`. **P stays YES:** Kaandorp & Dwight 2020, pre-registration at HEAD, one commit ever. |
+| **3** frozen-field ceiling | **HOLDS** | YES / YES / YES | **NOT HELD** — *this cell was OVERTURNED by the supervisor; see Ruling 2 in 5(k)* | **NO / NO / NO** — *V by Ruling 3, P by Ruling 5* | **See 5(f). This row drops and the drop is not softened.** **G→NO:** no triple; the `2024/3036/4048` suffixes are one mesh at `nCells 15600` (5(b)). **P→NO:** a ceiling built from the truth and scored against the truth is not validation, and its corroborating record (W2, `0.39753`) is internal. **V contested:** `ic1_check.py` at `3.969e-12` / `5.078e-13` — this lane reads it as a cross-implementation regression test (5(c)(a)). **If the supervisor rules V=NO and P=NO, this row is missing two of three and GATE REACHED no longer fits — see the vocabulary gap in 5(h).** |
+| **4** FS2 degeneracy | SURVEYED | PARTIAL / NO / NO | **SURVEYED** | **NO / NO / NO** | **Tier CONFIRMED, not dropped** — SURVEYED is exactly "breadth evidence, ungated", and the row already said nothing in it can fail. **V→NO:** the Galilean/rotation invariance check at `1e-12` is a symmetry identity, not exact/manufactured/correlation — though it is the instrument that **caught 58 of 110 features non-Galilean at max relative change 2.000e+00** (`FS2_DEGENERACY_REPORT.md`). G and P were already NO. |
+| **5** FS5 extrapolation coverage | SURVEYED | YES / PARTIAL / PARTIAL | **SURVEYED** | **NO / NO / NO** | **Tier CONFIRMED, not dropped.** **V→NO:** A1 is the family's strongest instrument — plant `83.4855` into `AR_14_Ret_180` cell 31818, flagged cells 0→1, and **two mutated readers run live as subprocesses, `clipped_reader` rc 2 and `ignores_disk` rc 2** — and it is still a planted-zero control, not one of the chief's three. **G→NO:** the repair's four gates are not a triple; FS5's own standing gate has **no declared factor, stated three times, met zero times**. **P→NO:** an internal instrument repair, no public primary source. |
+| **6** GPU training | NOT HELD | YES / YES / PARTIAL | **NOT HELD** | **NO / NO / PARTIAL** | **Tier unchanged.** **V→NO:** planted-zero control, in-memory (5(c)); and the VERIFY item is now settled negatively — see 5(g). **G→NO:** no triple. **P stays PARTIAL:** Ling 2016 is a public primary source with a frozen pre-registration at HEAD, **but the prediction was registered on the wrong question** — the design's *"full batch by construction"* ran **~3.4e5× fewer updates per epoch** than Ling's per-point SGD (342,014 updates per epoch against one). **A rate is not an optimiser (L-267).** |
+
+---
+
+### 5(f) Every row that DROPS, stated plainly. Row 3 first.
+
+**ROW 3 DROPS FROM `HOLDS`. It is not `HOLDS` and it was never entitled to be under the
+chief's definitions.** The reason is not a judgement call and not a matter of degree:
+**`HOLDS` requires V+G+P all green, G requires a CONVERGING Roache triple with a GCI and
+an observed order, and no closure row — including this one — has ever run a grid
+refinement of any kind.** The ceiling's twelve cases are twelve different flows on twelve
+different meshes, one mesh each. §1 called this row *"the one thing in this family that
+does"* hold. **Under the owner's definitions it does not, and the sentence in §1 is
+superseded by this addendum.** Beyond G, the row's P is a comparison of a
+truth-constructed field against the truth, and its V rests on instruments this lane reads
+as regression and planted-zero controls. **A row that claims more than its verdict is
+exactly the failure this matrix exists to prevent, and this row claimed the most.**
+
+Nothing in the ceiling's *measurements* is withdrawn. `eps(U)_CEILING / eps(U)_NULL` is
+still `0.003523` on `PHLL10595`, `0.398057` on `CBFS13700`, `0.000140` on
+`AR_5_Ret_180`; the duct vortex recovery is still 0.09–0.61 % where a linear EVM gives
+exactly zero. **What is withdrawn is the tier, not the numbers.**
+
+**ROW 1 DROPS FROM `GATE REACHED` TO `NOT HELD`.** Under §0's expansion it held all three
+letters. Under the chief's it holds one. Its class contains two honest `GATE FAIL`
+records, and closure's own Charter §2 already forbade the tier going higher: **an
+a-priori score alone is `NOT A RESULT` for any claim that a closure improves a flow.**
+
+**ROWS 2 AND 6 DO NOT DROP IN TIER — they were already `NOT HELD` — but their letters
+drop from YES/PARTIAL/YES and YES/YES/PARTIAL to NO/NO/YES and NO/NO/PARTIAL.** A tier
+that was already at the floor cannot fall further; the letters that supported it can and
+do.
+
+**ROWS 4 AND 5 DO NOT DROP AT ALL IN TIER.** `SURVEYED` is confirmed by the narrower
+definitions, because `SURVEYED` is the one tier that asks for no gate. Their V letters
+drop to NO.
+
+**Nothing goes UP.** This lane looked for a row the narrower definitions would raise and
+found none. The nearest candidate is Row 5: **its A1 gate is the only instrument in the
+closure family whose refusal path was proven live**, with two deliberately broken readers
+exiting rc 2 and naming the planted value, the cell and the expected-versus-observed
+counts. Under the chief's V that instrument scores **NO**, because a planted-zero control
+is not an exact solution, a manufactured solution or a correlation. **That is recorded as
+a place where the definition may be too narrow for a feature-library audit that has no
+PDE — a question for the owner, not a licence for closure to score itself higher.**
+
+---
+
+### 5(g) The one VERIFY item — SETTLED, and settled negatively
+
+§3 carried one item: *whether the GPU arm-1 comparator's registered **refusal** branch
+was exercised live, as FS5's A1 refusal was.* **It is settled by reading the record and
+the comparator source. It was NOT exercised live.** Three independent legs, all cheap:
+
+1. **The source.** `Ling2016_TBNN/gpu/score_gpu_ling.py` contains two refusal branches —
+   G0a at lines 106–109 and G0b at lines 117–119, both `sys.exit(2)` with refusal text.
+   **Both are present and reachable. Nothing in the file, in `run_all_gpu.sh`, or in
+   `train_gpu_ling.py` runs a mutated reader or checks a return code.** Contrast FS5's
+   repair, which runs `clipped_reader` and `ignores_disk` as subprocesses and asserts
+   rc 2 on each.
+2. **The artefacts.** A `find` + `/bin/grep` sweep for `REFUSAL|mutat` across every
+   `.json`, `.log`, `.txt` and `.csv` under `/home/ubuntu/closure-data/tbnn_gpu/` returns
+   **nothing**.
+3. **The record's own words.** `Ling2016_TBNN/gpu/RESULTS.md:197`: the run's timestamps
+   are continuous 21:21:32Z → 08:03:58Z and *"no BLOCKED or REFUSED state was"* entered.
+
+**Settlement: the arm-1 refusal branch is PRESENT and READABLE but NOT DEMONSTRATED.**
+Under rule 3's principle — *a zero from a reader not shown able to see a non-zero is not
+evidence* — the G0a plant does show the **scorer** responding to a non-zero, so the gate
+is not empty. But the refusal path itself is unexercised, and per 5(c) the plant is
+applied in memory rather than round-tripped through disk, so **the arm-1 control is
+weaker than FS5's A1 on both counts**. §3's VERIFY row is discharged by this finding, not
+by a confirmation. **This does not move the arm-1 verdict**, which is `NOT A RESULT` on
+G1/G3 and `GATE FAIL` on G2 and stands unchanged.
+
+**Arm 2's comparator inherits the same shape.** `arm2/score_gpu_ling_v2.py` carries the
+same two refusal branches at lines 128 and 139. **Nothing here is a recommendation to
+change arm 2's frozen code — it is frozen and unlaunched, and this is an observation for
+the owner, not an amendment.**
+
+---
+
+### 5(h) The four closed verdicts as the anchor, and the tier check against them
+
+The four verdicts that are closed, restated as the ceiling the tiers may not exceed:
+
+| verdict | record |
+|---|---|
+| **Ling2016 GPU arm 1 — `NOT A RESULT`** | `Ling2016_TBNN/gpu/RESULTS.md`, graded personally by the closure supervisor 2026-08-24T16:07:25Z |
+| **Kaandorp a-posteriori — `NOT A RESULT`** | `Kaandorp2020_TBRF/aposteriori/RESULTS.md`, whole lane, all three registered cases |
+| **R5C — `GATE FAIL`** | `R5C_omega_repair/RESULTS.md` §3.1; `kDeficit` rel L2 `1.1848e-04` on `alpha_10_12000_4048` against a registered `1e-6` |
+| **R4 — `GATE FAIL`** | `R4_sparta_build/RESULTS.md`; both registered halves fired independently |
+
+Row-by-row check, **and one row is flagged**:
+
+* **Row 6 vs arm 1 `NOT A RESULT`** — tier `NOT HELD`. Does not read richer. **OK.**
+* **Row 2 vs Kaandorp `NOT A RESULT`** — tier `NOT HELD`. Does not read richer. **OK.**
+* **Row 1 vs R4 `GATE FAIL`** — tier `NOT HELD`. Does not read richer. **OK.**
+* **Row 4, Row 5 vs nothing closed** — tier `SURVEYED`, ungated by construction. **OK.**
+* **ROW 3 IS FLAGGED.** Its tier, even after dropping to `GATE REACHED`, rests on
+  **two records whose own verdicts are `GATE FAIL`**: the ceiling was measured inside the
+  R4 lane, whose verdict is `GATE FAIL`, and its instrument repair R5C is a `GATE FAIL`
+  on its identity gate with **3 of the 12 not CONVERGED under G3**. The ceiling is a
+  sub-arm that met its own registered branch, and §1 says so — but **a reader who sees
+  `GATE REACHED` on Row 3 and `GATE FAIL` on both of its underlying records is entitled
+  to ask which is the row's verdict.** This lane's answer: **the row's tier must not be
+  read as a verdict on R4 or R5C, and R4's `GATE FAIL` and R5C's `GATE FAIL` stand
+  untouched by anything in this addendum.** Whether `GATE REACHED` is a defensible tier
+  for a sub-arm of a `GATE FAIL` lane is **referred to the supervisor**, and if the answer
+  is no, Row 3 falls to `NOT HELD`.
+
+**The vocabulary gap, reported rather than filled.** The chief's `GATE REACHED` is defined
+as *"missing one of V/G/P — name which"*. **Rows 1, 2 and 6 are missing two; Rows 4 and 5
+are missing three; Row 3 is missing at least two on this lane's reading.** The five words
+carry no tier for "missing two". This lane refused to coin a sixth word (rule 1's
+discipline, applied to the tier vocabulary by the supervisor's instruction) and instead
+routed each such row to `NOT HELD` where the class contains an honest FAIL or a blocker,
+and to `SURVEYED` where it is ungated breadth. **That routing is this lane's proposal and
+is the supervisor's to confirm or overturn. It is the single largest source of
+uncertainty in this re-score, and it is named rather than buried.**
+
+---
+
+### 5(i) Arm 2 is untouched
+
+**Arm 2 remains `PENDING` in the rule-1 display/queue sense: not yet run.** Nothing about
+arm 2 has been graded, no number exists, and `PENDING` here is not a softened `GATE FAIL`
+and must never be read as one. Its pre-registration is **frozen and committed alone
+before any compute at `f36fbdd9`** (2026-08-24T16:27:45Z), last-changed `77f064a8` after
+three pre-compute amendments, and the instance was **STOPPED at freeze**. **No GPU node is
+running and nothing in this addendum proposes launching one** — that is Sanaa's decision,
+per item, with a console-read `cost_basis`, and GPU spend sits outside the 2026-08-21 CPU
+blanket.
+
+---
+
+### 5(j) Scope, cost, and what this addendum did not do
+
+* **`docs/COVERAGE_MATRIX.md` was not created, opened for writing, read for writing, or
+  touched.** It is the verification team's.
+* **`docs/LAB_STATE.md` was not touched.** The closure supervisor owns that section.
+* **Nothing was committed by the lane that drafted this.** The closure supervisor reads
+  the diff personally before anything lands.
+* **Nothing was sent, filed, uploaded, registered or posted. Submissions are parked.**
+* **Zero compute.** No solver, no training, no GPU, no run directory created. Cost:
+  **0.000 core-minutes**; there is no pre-registered estimate to calibrate against because
+  no run was pre-registered — this is a documentation pass, not a process completion in
+  the rule-12 sense.
+* **Tracked state was read with `git ls-tree -r HEAD` and `git cat-file -p HEAD:<path>`**,
+  because the shared index shows phantom `D`/`MM` rows in closure territory while disk
+  equals HEAD; `MATRIX_CONTRIBUTION.md` was confirmed identical on disk and at HEAD
+  (`4c2183ba…b4d2`) before the append. **No `git checkout --`, `git reset`, `git stash` or
+  `git clean` was run.**
+
+**End of Addendum 1.**
+
+---
+
+### 5(k) SUPERVISOR'S RULINGS on the questions 5(b)–5(h) referred upward
+
+Written by the **closure supervisor personally**, 2026-08-25, before this addendum was
+committed and after reading the whole draft above as a diff. The draft was **uncommitted
+and never landed** when these rulings were written, so they are recorded here as part of
+Addendum 1 rather than as a later correction of it. **Two cells of the draft above were
+edited by the supervisor before landing — both are named in 5(k)(2) and nowhere else —
+and every other line of 5(a)–5(j) is the lane's, unedited.**
+
+The independent re-verification the supervisor did **personally, not relayed**: the
+append-only claim was re-proved with `git diff --numstat` at HEAD — **441 insertions,
+0 deletions** for the lane's draft as it was handed over, and **622 insertions, 0
+deletions** for the file as it lands with these rulings appended, still a pure append
+because every line of §5 is new at HEAD — and by re-hashing `head -n 471` on disk to
+`4c2183ba0c0ee06331c2d3b2bfa1ae2c686798a991e8a650cdfda7c9b9e2b4d2`, **equal to the
+whole-file hash at HEAD `a42fd634`**; and the four closed verdicts of 5(h) were re-read
+from their own records at HEAD, not from this file (`gpu/RESULTS.md:3`
+`# VERDICT: NOT A RESULT`; `aposteriori/RESULTS.md:2-4` H0 GATE FAIL ⇒ H1–H3 NOT A
+RESULT; `R5C_omega_repair/RESULTS.md:3` `# VERDICT: GATE FAIL`;
+`R4_sparta_build/RESULTS.md:23` `# VERDICT: **GATE FAIL**`).
+
+**RULING 1 — the vocabulary gap. The lane's routing is CONFIRMED, and no sixth word is
+coined.** The chief's `GATE REACHED` is defined as *"missing one of V/G/P — name which"*.
+A row missing **two or three** is therefore **not eligible for `GATE REACHED` at all** —
+the definition is a count, not a direction. The lane routed such rows to `NOT HELD` where
+the class contains an honest FAIL or a blocker and to `SURVEYED` where it is ungated
+breadth. **That routing is correct and is adopted.** The governing principle when a fixed
+vocabulary does not cleanly fit is the one this matrix exists to serve: **the tier must
+never read richer than the evidence, so an unfitted row goes DOWN, never up.** The gap
+itself — that the five words carry no tier for "missing two" and none for "not
+applicable" — is **referred to the matrix owner (verification) through the chief**, as a
+question about the vocabulary and not a licence for closure to relabel itself.
+
+**RULING 2 — ROW 3 FALLS TO `NOT HELD`. The draft's `GATE REACHED` is OVERTURNED.** The
+lane proposed `GATE REACHED (missing G)` and flagged, correctly and against its own
+proposal, that on its own reading the row is missing **two or three**. Two independent
+grounds, either sufficient:
+
+* **(i) Arithmetic, under Ruling 1.** The row's P is NO (5(d)) and its V is at best
+  contested (5(c)(a)). Missing two, `GATE REACHED` is unavailable by the definition's own
+  terms.
+* **(ii) The anchor check of 5(h), which the lane raised and referred.** The ceiling was
+  measured inside the **R4** lane, whose verdict is **`GATE FAIL`**, and its instrument
+  repair **R5C** is a **`GATE FAIL`** on its identity gate at `kDeficit` rel L2
+  **1.1848e-04** against a registered **1e-6**. **A sub-arm of a `GATE FAIL` lane may not
+  carry a tier that reads richer than the lane's own verdict.** I rule that explicitly,
+  because the lane asked: the answer is **no**.
+
+`NOT HELD` — *"an honest FAIL or a blocker"* — is the fitting tier and not merely the
+residual one: the row carries **two honest FAILs** (R4, R5C) and **a live blocker** (15 of
+27 hills never completed under the strict rule in R4; R5C brought 10 of those to COMPLETE
+and still GATE FAILed, so those targets feed nothing, and whether a positivity-preserving
+discretisation of the frozen `omega` source would converge is **not measured**).
+`SURVEYED` was considered and **rejected**: this row is not ungated breadth — it carried a
+registered NOT-A-RESULT branch that did not fire, and its G3 continuity gate **did** fire
+`NOT CONVERGED` on `AR_1_Ret_180` at `1.0628e-04`.
+
+**None of the ceiling's measurements is withdrawn, and this ruling withdraws no verdict.**
+`eps(U)_CEILING / eps(U)_NULL` stands at `0.003523` / `0.398057` / `0.000140`; the duct
+vortex recovery stands at 0.09–0.61 % where a linear EVM gives exactly zero; the
+byte-identical W2 reproduction stands. **What is withdrawn is a tier, and it is withdrawn
+by two steps — `HOLDS` → `GATE REACHED` → `NOT HELD` — because the family's single
+strongest row was also its single largest overstatement.**
+
+**RULING 3 — `ic1_check.py` is NOT code verification. Row 3's V is `NO`, not
+`CONTESTED`.** The lane's reading is adopted, on the ground it identified as decisive and
+which the supervisor re-checked: the checker **imports `assemble_dataset.basis`,
+`sym_to_full` and `of_read.read_field` from `_common/`**, so it is independent of the
+**solver** and not of the **lab's own library** — a shared-library defect survives it —
+and its target is closure's **own frozen `MODEL.json` expression**, not an externally
+known solution. The argument for the other side is real and is preserved verbatim in
+5(c)(a); it loses on independence. Row 3's V is therefore **`NO`**, which strengthens
+Ruling 2's ground (i) from "at best contested" to "missing two, plainly".
+
+**RULING 4 — the G0a solver identity is NOT code verification. Row 2's V stays `NO`.**
+Adopted on the lane's decisive point: **both branches share the discretisation, so an
+error common to both is invisible by construction**, and all three of the chief's named
+instruments supply an *external* reference where this supplies an *internal* one. It
+remains a genuine known-answer test on the full solver and the strongest V-axis
+instrument in the family; it is not V under this definition set. **Row 2's tier is
+unaffected either way, because G is NO.**
+
+**RULING 5 — Row 3's P is `NO`. Adopted.** A field constructed from the truth and scored
+against that same truth is not validation of a prediction, and the row's corroboration
+(`0.3975` against W2's `0.39753`) is agreement with **an internal Certonomous record**.
+The row's own §1 text already said the substance of it.
+
+**RULING 6 — the in-memory plant is a RULE-3 FINDING, not a typo, and it is recorded as
+one.** The lane found, against closure's own favour, that §1 Row 1's *"read back from
+disk"* is unsupported: in `Ling2016_TBNN/gpu/score_gpu_ling.py` the plant is applied to an
+**in-memory copy** (lines 85–88, `b_plant = b_clean.copy()`) and the reference is
+`np.zeros_like`, so **the plant never round-trips a file**. The supervisor's reading goes
+further than the correction. **CLAUDE.md rule 3 requires that a comparator *"plants a
+known perturbation, reads it back from disk, and refuses if the reader cannot see it."*
+The GPU comparator satisfies neither the disk limb (5(c)) nor the refusal limb (5(g),
+settled negatively).** Consequences, stated exactly and no wider:
+
+* **No verdict moves.** Arm 1 is already **`NOT A RESULT`**; a weaker control cannot make
+  a NOT A RESULT weaker, and the arm-1 record's own wording was accurate — the
+  overstatement was this contribution's and is corrected above.
+* **What the arm-1 G0 control does establish** is that the **scorer arithmetic** responds
+  to a known perturbation. **What it does not establish** is that the **disk reader** can
+  see one. Those are different claims and the record now separates them.
+* **This is live for arm 2, which is frozen and UNLAUNCHED**, and whose comparator
+  `arm2/score_gpu_ling_v2.py` carries the same shape at lines 128 and 139. Amendments
+  before first compute are legal (rule 2), so a repair is *available* — and is
+  **deliberately NOT made tonight**. Arm 2 cannot launch in any case (its gate is Sanaa's
+  own words, her start of the instance and her two console readings), so there is **no
+  urgency**, and a change to a frozen instrument written at speed is precisely what
+  supervisor check 1 exists to prevent. **Recorded as an OPEN INSTRUMENT QUESTION with the
+  supervisor's recommendation: before arm 2 ever runs, its planted-zero control should
+  round-trip the plant through a file and its refusal path should be exercised live
+  against a deliberately blinded reader, as FS5's A1 does — which would be a fourth
+  pre-compute amendment, needing its own stated condition, its own condition check, and
+  the supervisor's own diff read.** Nothing is amended by this addendum.
+
+**RULING 7 — G's inapplicability to Rows 4 and 5 changes no letter.** The lane is right
+that a feature-library audit with no PDE and no mesh cannot have a Roache triple, and that
+the five words carry no "not applicable". **G stays `NO` on those rows** — the honest
+record is that the evidence is absent, and inventing an exemption would be the same
+failure in the other direction. The definitional question is **referred to the matrix
+owner**, with the note that it is closure's rows that would benefit, which is precisely
+why closure does not decide it.
+
+---
+
+#### 5(k)(1) The re-score AS RULED — THIS TABLE GOVERNS
+
+It supersedes the "NEW tier" column of 5(e) and the provisional tier language of 5(h)
+wherever they differ. Where 5(h) reads *"even after dropping to `GATE REACHED`"* it is
+recording the lane's own referred proposal, preserved so the argument is auditable;
+**Ruling 2 answered that referral and the answer was no.**
+
+| row | §1 as written | **AS RULED** | **V / G / P as ruled** |
+|---|---|---|---|
+| **1** a-priori model fit | GATE REACHED | **NOT HELD** | NO / NO / YES |
+| **2** a-posteriori propagation | NOT HELD | **NOT HELD** | NO / NO / YES |
+| **3** frozen-field ceiling | **HOLDS** | **NOT HELD** *(Ruling 2 — down two steps)* | **NO** *(Ruling 3)* / NO / **NO** *(Ruling 5)* |
+| **4** FS2 degeneracy | SURVEYED | **SURVEYED** | NO / NO / NO |
+| **5** FS5 extrapolation coverage | SURVEYED | **SURVEYED** | NO / NO / NO |
+| **6** GPU training | NOT HELD | **NOT HELD** | NO / NO / PARTIAL |
+
+**Closure offers the matrix owner NO row at `HOLDS` and NO row at `GATE REACHED`.** Four
+rows at `NOT HELD`, two at `SURVEYED`, none `NEVER RUN`. **G is `NO` on every row without
+exception**, because the closure family has never run a grid-refinement study of any kind
+— a null established under two search methods, one of which reads the raw disk and honours
+no ignore file, and admitted in advance in closure's own frozen pre-registration
+(`Kaandorp2020_TBRF/aposteriori/PREREGISTRATION.md:314`: *"no mesh-refinement study. A
+converged answer on one mesh is not a grid-converged answer."*).
+
+**These letters and tiers are closure's OFFER, not a matrix entry.** The owner re-maps,
+renames, merges or rejects any row without asking, and `docs/COVERAGE_MATRIX.md` remains
+untouched by closure.
+
+#### 5(k)(2) The two cells the supervisor edited in the draft above, named in full
+
+Disclosed so no reader has to diff the draft against what landed. **Exactly ONE line was
+edited: the Row 3 line of the 5(e) table.** Its "NEW tier" field went from
+`**GATE REACHED** — missing **G**` to `**NOT HELD**` under Ruling 2, and its letters field
+from `**CONTESTED / NO / NO**` to `**NO / NO / NO**` under Rulings 3 and 5; both now point
+here. **Nothing else in 5(a)–5(j) was touched** — including 5(f)'s Row 3 paragraph, which
+needed no edit because it states only that the row drops from `HOLDS`, which is true and
+now truer. The lane's reasoning for its own superseded proposal is preserved verbatim
+wherever it appears, and the supervisor's overturning of it is recorded here rather than
+by deleting it.
+
+#### 5(k)(3) What this addendum did NOT do, restated at the supervisor's level
+
+**No verdict moved.** R4 stays `GATE FAIL`, R5C stays `GATE FAIL`, Kaandorp a-posteriori
+stays `NOT A RESULT`, Ling arm 1 stays `NOT A RESULT`, A3 stays `GATE FAIL`. **Arm 2 stays
+`PENDING` in the display/queue sense and UNFIRED**; nothing here proposes launching it, no
+GPU node is running, and its launch gate is unchanged — **Sanaa's own words, her start of
+the instance, and her two console readings; no agent message, the chief's included, is her
+consent (rule 9), and GPU spend is outside the 2026-08-21 CPU blanket (rule 12).** **No
+frozen file was edited.** **Zero compute: 0.000 core-minutes, 0.000 GPU-hours.** Nothing
+was sent, filed, uploaded, registered or posted — **submissions are parked**.
+
+**End of Supervisor's Rulings.**
