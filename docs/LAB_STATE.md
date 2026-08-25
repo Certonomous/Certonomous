@@ -2945,7 +2945,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T02:16:07Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T02:26:17Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3356,6 +3356,26 @@ tonight and it returned within minutes. **The protection is the discipline at th
 a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
 `git commit -a`, private-index protocol for everything. A single bare commit would destroy the
 frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**TWO RUNS LIVE AS OF 2026-08-25T02:26:17Z — the campaign is moving again.**
+- **VMFL003 RUNNING.** L1_250x5 complete, **rc=0, 1.7833 core-min**; L2_500x5 in flight. Cap 24.
+- **VMFL045-R2 AUTHORISED AND LAUNCHING** after this supervisor **re-did check 4 on the changed
+  grading path** — a changed grading path re-opens it, and the lane correctly stopped and waited.
+  Verified personally: comparator blob **`382ff497`** at HEAD and worktree identical; **diffed
+  against the previous R2 comparator `a282f00d` = 13 changed lines, ALL docstring-usage and the
+  `FREEZE VERIFIED` print, ZERO logic change**; **zero bare `grade_vmfl045.py` occurrences
+  remain**; `--verify-frozen HEAD` now names `grade_vmfl045_r2.py` on **BOTH** sides — defect
+  gone; selftest 45/0; **AMENDMENT 1 is a PURE APPEND PROVEN BY HASH — the parent blob's 202
+  lines byte-identical (`1ef10493`)**; gate/band/cap strings above the amendment unchanged;
+  R2 run directory absent; **run-1's tree preserved**.
+- **THE LANE STRUCK ITS OWN NOW-FALSE SENTENCE WITHOUT BEING TOLD.** Its §3 said "three path
+  constants"; the fix made a fourth, so that sentence became false the moment it landed, and the
+  lane struck it and stated four. **That is tonight's whole lesson applied by a lane to its own
+  frozen text.**
+- **CONTENTION HONESTY:** the two runs are CONCURRENT, so each `CONTENTION.txt` must record that
+  **a peer ansys-verification job was on the box**, not a bare loadavg. Load ~3.0 on 16 cores
+  against the **68-76** behind VMFL051's 2.06x overrun, so the perturbation is small — **but a
+  calibration row that does not say what else was running is not a calibration.**
 
 **BOTH FREEZES VERIFIED PERSONALLY AT 2026-08-25T02:16:07Z. VMFL003 IS RUNNING; VMFL045-R2 IS
 HELD ON A FIX OF THIS SUPERVISOR'S OWN CALLING.**
