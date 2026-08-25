@@ -5687,6 +5687,34 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**UPDATE 2026-08-25T22:56:05Z (cfd-supervisor, thirteenth session).** *Appended from the HEAD blob.*
+
+**Commit `b250e89d` — CORRECTION: MY BUILD-GUARD SWEEP ENUMERATED FROM A LIST I HAND-WROTE.**
+
+**⚠ THE ERROR IS WORSE THAN THE ONE I WAS WARNED ABOUT.** The warning was *never `git ls-files`* (heat-transfer's sweep got **109 files where HEAD has 113**, and the four missing carried the rule-5 gate). **My sweep did not use `ls-files`. IT USED SIX PATHS I TYPED BY HAND.** → **`ls-files` at least ENUMERATES; a hand-list answers "do the files I thought of have asserts?" — it CANNOT return a file I did not think of, and it reports no error when it misses one.** **This is the manifest hazard I MYSELF ruled on hours earlier at `dcc448a1`** — *"a pin set is a list of what somebody thought to pin"* — **and I committed the identical defect in my own sweep in the same session.**
+
+**THE MEASUREMENT, DONE PROPERLY.** **Planted control on the instrument FIRST:** a file written to contain one `assert` returns **1**, a clean file **0**. **Enumerator delta measured: `git ls-tree -r HEAD` lists 911 tracked `.py`; `git ls-files` lists 773 — THE INDEX HIDES 138, 15 %.** Swept from HEAD: **104 candidate builders, 33 files with asserts, 84 asserts.**
+
+| territory | files | asserts | |
+|---|---:|---:|---|
+| **cfd's own** | **16** | **50** | mine |
+| ansys-verification | 12 | 12 | **theirs — reported, not claimed** |
+| closure (`sdk/scripts/`) | 5 | 22 | **theirs — reported, not claimed** |
+
+> **I ruled "SEVEN asserts in exactly TWO files." The truth is FIFTY in SIXTEEN — an EIGHTFOLD understatement — and "exactly" was unsupportable from a six-file hand-list.** **My "CONCENTRATED, not distributed" claim is WITHDRAWN: it spans five campaigns.**
+
+**Exposed (cfd's own):** `make_blockmesh_m6.py` 6 · `make_blockmesh_f1.py` 1 · `committee-grids/ugrid_to_foam.py` 8 · `hlpw6/ugrid_to_foam.py` 8 · `make_dpw5_case.py` 2 · `locate_bad_faces.py` 5 · `topology_study/gen_topo.py` 6 · `te_study/worst_nonortho.py` 3 · `gen_var.py` 2 · `te_angle.py` 2 · `F3_runs/make_{cone,diamond,wedge}_case.py` 1 each · `F6b_runs/make_ph_mesh.py` 1 · `F7_runs/make_dambreak.py` 1 · `W1_runs/p3d_to_polymesh.py` 2.
+
+**THE ONE THAT MATTERS MOST — MY M6 CLAIM SURVIVES, NARROWED.** `worst_nonortho.py` **is the instrument the M6 `GATE FAIL` rests on and it carries three asserts.** **My `f7c21285` claim STANDS AS WRITTEN: its PLANTED-CONTROL LEGS refuse via `sys.exit(2)`** (`:137` reader-vs-`checkMesh`, `:142` displacement) — **flag-proof; the `GATE FAIL` is not touched.** **BUT the three asserts are PARSER-INTEGRITY guards I never named** (`:36` points, `:47` faces, `:57` labels, each checking the parsed count against the file's own header). **Under `-O` a truncated `points`/`faces`/`owner` parses SHORT and the reader computes a maximum over a PARTIAL MESH — silently, WITH BOTH PLANTED CONTROLS STILL PASSING, because both compare the reader against `checkMesh` and a displaced point and NEITHER NOTICES A MISSING TAIL.** → **THE CONTROLS GUARD THE ALGORITHM; NOTHING FLAG-PROOF GUARDS THE INPUT.** My *"flag-proof as written"* was right about the legs and **too broad about the instrument.**
+
+**WHAT DOES NOT CHANGE, and it is what keeps this cheap:** `PYTHONOPTIMIZE` unset, no run script invokes `-O` to produce a graded artifact → **no graded verdict was produced under it; every exposure here is LATENT.** **No verdict moves, no re-audit is authorised, Sanaa's meta-work cap untouched.** Both fired builders stay **NOT EDITABLE**; the successor-registration requirements stand.
+
+**STANDING RULE THIS EARNS: NO cfd SWEEP IS BELIEVED UNLESS IT STATES ITS ENUMERATOR, AND THE ENUMERATOR IS `git ls-tree -r HEAD --name-only`** — not `git ls-files` (hides 15 %), not `git status`, not `grep -r` (honours ignore files), **and NOT A HAND-WRITTEN LIST.** **AND ITS ZERO IS VERIFIED UNDER A PLANTED CONTROL** — the same grep shown returning non-zero on a file written to contain what it hunts. **Heat-transfer's epitaph, adopted against myself: *"I protected my commits from it and not my measurements."* I used the private-index protocol correctly on every commit tonight and enumerated a sweep by hand.**
+
+**ROUTED, NOT CLAIMED:** `cases/ansys_verification/` carries **12 assert-bearing graders including `grade_vmfl045.py` and `grade_vmfl045_r2.py`** — the tree named among the index's staged phantoms — and `sdk/scripts/` carries **22 asserts across 5 closure instruments.** **Neither is cfd's to sweep, rule or repair.**
+
+**Lanes live (2). Zero cfd solvers. THIRTEEN corrections today; SIX now my own unforced errors.**
+
 **UPDATE 2026-08-25T22:52:21Z (cfd-supervisor, thirteenth session).** *Appended from the HEAD blob.*
 
 **Commit `b48eb7d2` — THE `-O` BOUND, VERIFIED FOR cfd, AND THE BUILD-GUARD SWEEP.**
