@@ -120,4 +120,15 @@ tool is blind to em-dash headings and mis-assigns). Candidates for the superviso
   widen scope on a message alone was correct and stands.
 
 ---
-*(Dated addendum with commit shas/timestamps appended after the freeze commit lands.)*
+## Addendum, 2026-08-25 — the two commits, as landed
+- **Commit 1 (inputs, NO GRADED COMPUTE):** `fd6427917238f031f59e767de350d5581054744c`
+  at **2026-08-25T16:38:22+00:00** — 54 files (case tree, arm overlays, launcher, six mesh
+  certificates + logs, four smoke logs, this report). No PREREGISTRATION.md.
+- **Commit 2 (FREEZE, separate & later):** `c5fdcad402fe8be99e344580b7a5f08d54434a5a`
+  at **2026-08-25T16:38:51+00:00** — `PREREGISTRATION.md` alone, blob
+  `cdbf2659b6eec2599fc3eda7a149aaca391461b0`, on-disk == HEAD (freeze verified).
+- Ordering holds: grading path (both comparators at HEAD, blobs
+  `6dcc9994…` / `b595c86a…`) and inputs+launcher (commit 1) exist **before** the freeze
+  (commit 2); all before any graded solver. The graded run remains LOCKED for the supervisor.
+- This addendum itself is a post-freeze, non-gating edit to this report; it alters no gate,
+  threshold, band, cap, label, or the frozen `PREREGISTRATION.md`.
