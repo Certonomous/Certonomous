@@ -12479,6 +12479,37 @@ chief's relay made the same error, and so did this supervisor twice: once in ado
 sweeping form, once in this over-pessimistic disclosure. **A disclosure that OVERSTATES a defect
 is still a wrong record** — the direction of the error does not excuse it, and a lab that only
 polices flattering errors will accumulate the unflattering ones.
+
+### Addendum 3 — 2026-08-25 — shape 1 recurring in the tool built to name the disease: an aggregate verdict whose ORDERING could not express "violation"
+
+**Recorded by the heat-transfer lane that hit it, at the supervisor's direction.** Addendum 2's
+catalogue lists *"the aggregate symmetry verdict"* under shape 1 — *a guard stays SILENT when it
+should fire*. It recurred the same day, in `scripts/check_stencil_plant_arms.py`, in the tool
+written to enforce L-326.
+
+That checker aggregated per-file severities with `max()`. When a third state was added — **3 =
+NOT ASSESSED** — `max()` began reporting **3** for any sweep that contained a real **2 =
+VIOLATION**, because **3 > 2 numerically**. **An unassessed file would have silently masked a
+violation in the same run.** The aggregate reported on *itself* — "here is the largest number I
+saw" — rather than on the **artifact**: *which finding was worst*. That is this lesson's shared
+shape exactly, one layer above the per-file check, in the instrument built to name it.
+
+**The fix is an explicit precedence, not a bigger number:** `worse()` replaces `max()` with the
+documented ordering **2 > 3 > 1 > 0**, printed in the docstring, in `--help`, and in a summary
+line whenever more than one file is scanned. **Measured:** a 3-file and a 2-file in one
+invocation now return **2**; the supervisor verified this independently on its own fixtures
+before this addendum was written.
+
+**The general form, and it is the one to carry:** *whenever a verdict vocabulary gains a state,
+every aggregator over that vocabulary becomes wrong until its ordering is restated.* An
+enumeration's numeric order is not a severity order, and `max()` silently asserts that it is.
+Any place this lab reduces many verdicts to one owes an explicit precedence, not an arithmetic
+maximum.
+
+*(The supervisor states this is the `safe_append.py` v1.0 aggregate-verdict defect recurring in
+a different tool on the same day. **This lane did not measure that earlier instance** and
+records the linkage as the supervisor's, not as its own finding.)*
+
 ## L-315 — A check that penalises the honest action is worse than no check, because it corrupts behaviour rather than merely missing defects
 
 **Found in cfd's own instrument, by the lane writing it, before it was used.** The F6a/Greenblatt
@@ -13203,6 +13234,68 @@ same shape in one day. The generalisation now applies to itself:
 Re-run at this addendum: `analyse_t8.py`, `scripts/analyse_k0d.py`, `analyse_t1b_L4.py` and
 `analyse_t3.py` **all remain at 0** — none moved to 3, because the two that scan clean without
 a stencil have no *literally* weighted stencil for the new state to apply to.
+#### Addendum 2, 2026-08-25 — the import channel, and what it caught on its first run: AN UNARMED LITERAL STENCIL IN A MODULE THE GRADED PATH GATES ON
+
+**Ruled by the heat-transfer supervisor after the exit-3 fix**, on the reasoning that *a
+comparator whose stencil arrives through `from analyse_t1c import ...` reads as having no
+stencil at all — so the file most at risk looks cleanest.* `check_stencil_plant_arms.py` now
+follows imports **ONE HOP**, repo-local, resolving module names to ordinary `.py` files beside
+the importer, at the repo root, or in `scripts/`; anything not resolving inside the repo is
+reported **UNRESOLVED** and never guessed at. One hop is a declared limit with its own selftest
+arm: a stencil two hops away is deliberately **not** chased, because conditional imports,
+`sys.path` surgery and re-exports make transitive resolution unreliable.
+
+**REFUSED IN THE SAME RULING, and the refusal is the more important half:** variable-weighted,
+loop-accumulated and table-driven stencils are **not** detected and **no attempt is made** to
+detect them. `analyse_t1c.gci` forms its Richardson extrapolate as `f_fine + e21/den` with
+`den = R_REFINE**p - 1.0` and `p` **observed at run time** — the weights are literals nowhere in
+the source. **A checker that claimed to find these and caught a third of them would be worse
+than one that says it cannot**: it converts a declared blind spot into an undeclared one and
+manufactures exactly the false reassurance this lesson exists to name.
+
+##### THE FIRST CATCH — a finding, not a demonstration
+
+`verification/runs/T-family/T1_runs/exact_laminar_pipe.py:44` computes the wall velocity
+gradient with a **literally weighted one-sided second-order stencil**
+
+```
+dudeta = (3 * u(1.0) - 4 * u(1.0 - h) + u(1.0 - 2 * h)) / (2 * h)
+```
+
+and the module contains **zero** planted-zero machinery — a case-insensitive `grep -c` for
+`plant` returns **0**. It is imported by **four** files, among them `analyse_t1c.py`, whose line
+346 calls `EXACT.main()` and **refuses when it returns non-zero** — so the unarmed stencil sits
+inside a dependency the graded path gates on. `analyse_t1c.py` now scans **rc = 3, NOT
+ASSESSED**. It scanned **0** before the import channel existed.
+
+**AND IT SHARPENS THIS LESSON'S OWN ARITHMETIC.** Those weights sum to **ZERO**, not one:
+`3 - 4 + 1 = 0`. So a uniform plant into all three inputs shifts the derivative by **exactly
+`0 · P = 0` at every `h`** — and **a zero shift is precisely what a reader that saw nothing
+would also report.** The derivative case is therefore the *more* dangerous of the two, because
+its blind arm returns the same number as a completely dead reader. A plant into the wall point
+alone shifts it by `3P/(2h)` and discriminates.
+
+> **A uniform plant probes ONLY `sum(w)`. Value-recovering stencils have `sum(w) = 1`;
+> derivative stencils have `sum(w) = 0`. The rule was never about the number 1 — it is that a
+> uniform plant collapses every weight into a single scalar.**
+
+Both facts are now exact-arithmetic assertions in `--selftest` part 3b, cited to the artifact.
+
+**Status: the finding is REPORTED, NOT REPAIRED.** `exact_laminar_pipe.py` and `analyse_t1c.py`
+were read only and are byte-identical to HEAD; arming another rung's comparator is that rung's
+call, not this lane's.
+
+**And note how it was found.** Not by inspection, not by a selftest — by an instrument widened
+on a supervisor's ruling and then **run across a real tree**, where it immediately named an
+artifact nobody had gone looking for.
+
+**What did NOT move, which is the honest half of the report:** `analyse_t8.py`,
+`scripts/analyse_k0d.py`, `analyse_t1b_L4.py` and `analyse_t3.py` **all remain at 0**.
+`analyse_t1b_L4.py` in particular imports `analyse_t1c` and `analyse_t1b`, both resolved and
+both followed, and **neither contributed a stencil** — because t1c's Richardson weights are
+variables. The eleven-comparator shared-gate exposure is therefore **NOT** surfaced by this
+check, and its 0 means *nothing to assess*, not *clean*. The scan now says exactly that in its
+own output for every file that hits the cell, rather than leaving it in a lane's report.
 
 ---
 

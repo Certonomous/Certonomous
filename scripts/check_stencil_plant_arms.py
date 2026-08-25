@@ -61,7 +61,12 @@ It CAN:
     callable by reference inside a tuple (the T8 ``arms = [(...), ...]`` shape);
   * count how many DISTINCT target-argument expressions those arms use;
   * find weighted-stencil expressions written as a numeric linear combination of two
-    or more distinct operands, and functions named for extrapolation/interpolation.
+    or more distinct operands, and functions named for extrapolation/interpolation;
+  * FOLLOW IMPORTS ONE HOP.  A comparator whose stencil arrives through
+    ``from analyse_t1c import ...`` used to read as having no stencil at all, so the
+    file most at risk looked cleanest.  Module names are resolved to ordinary .py
+    files beside the importer, at the repo root, or in ``scripts/``; anything that
+    does not resolve inside the repo is reported UNRESOLVED and never guessed at.
 
 It CANNOT:
   * prove that one arm's target set is a strict SUBSET of another's.  Two different
@@ -74,7 +79,26 @@ It CANNOT:
     reported with no stencil is NOT proven to have none -- the variable-weight blind
     spot is carried as a declared case in ``--selftest`` so it stays on the record;
   * see a plant whose helper is not named for planting;
-  * say anything about whether an existing subset arm is CORRECTLY registered.
+  * say anything about whether an existing subset arm is CORRECTLY registered;
+  * follow an import chain more than ONE HOP.  A stencil two imports away is not
+    reported, and the scan says so rather than implying it looked.  Conditional
+    imports, ``sys.path`` surgery and re-exports make transitive resolution
+    unreliable, and a follower that caught some and missed others would convert a
+    declared blind spot into an undeclared one;
+  * tell which stencil an imported module's plant arms actually reach.  When arms
+    are counted across an import boundary the scan says so in its output rather
+    than trusting the union silently.
+
+REFUSED DELIBERATELY, ON THE HEAT-TRANSFER SUPERVISOR'S RULING OF 2026-08-25:
+VARIABLE-weighted, loop-accumulated and table-driven stencils are NOT detected and no
+attempt is made to detect them.  ``analyse_t1c.gci`` forms its Richardson extrapolate
+as ``f_fine + e21/den`` with ``den = R_REFINE**p - 1.0`` and ``p`` observed at run
+time -- the weights are not literals anywhere in the source and only dataflow analysis
+could recover them.  A checker that claimed to find these and caught a third of them
+would be WORSE than one that says it cannot: it converts a declared blind spot into an
+undeclared one and manufactures exactly the false reassurance this lesson exists to
+name.  The blind spot is therefore carried in this docstring, in the scan's own output
+for every file that hits it, and as a declared case in ``--selftest``.
 
 A clean line from the scan is therefore evidence of absence of a smell, and nothing
 stronger.  The proof in this file is the ``--selftest`` arithmetic, which is exact.
@@ -135,7 +159,9 @@ real artifact proves it is RIGHT.
 """
 import argparse
 import ast
+import os
 import sys
+import tempfile
 from fractions import Fraction
 
 # --------------------------------------------------------------------------
@@ -172,6 +198,24 @@ def subset_shift(k, plant):
     """Shift when ONLY the innermost input is planted -- a strict subset."""
     w1, _ = axis_weights(k)
     return plant * w1
+
+
+# The one-sided second-order wall-derivative stencil found at
+# verification/runs/T-family/T1_runs/exact_laminar_pipe.py:44 by this checker's own
+# import channel: (3 u(1) - 4 u(1-h) + u(1-2h)) / (2h).  Literal weights, no control.
+DERIV_WEIGHTS = (Fraction(3), Fraction(-4), Fraction(1))
+
+
+def derivative_uniform_shift(weights, plant):
+    """Shift of a DERIVATIVE stencil when EVERY input is planted with `plant`.
+
+    A uniform plant probes ONLY sum(w).  For a value-recovering stencil sum(w) = 1;
+    for a derivative stencil sum(w) = 0.  EITHER WAY it is blind to the individual
+    weights -- the two cases are the same fact wearing different clothes, and the
+    zero case is the more dangerous of the two because a zero shift is exactly what
+    a reader that saw NOTHING would also report.
+    """
+    return plant * sum(weights)
 
 
 def annular_centroid(ra, rb):
@@ -380,14 +424,99 @@ def find_stencils(tree):
     return strong, hints
 
 
+# --------------------------------------------------------------------------
+# the import channel -- ONE HOP, repo-local, statically resolved
+# --------------------------------------------------------------------------
+def _repo_root(start):
+    d = os.path.abspath(start)
+    while True:
+        if os.path.isdir(os.path.join(d, ".git")):
+            return d
+        nd = os.path.dirname(d)
+        if nd == d:
+            return None
+        d = nd
+
+
+def _resolve_module(name, level, base_dir, root):
+    """Resolve an imported module name to a .py file INSIDE the repo, or None.
+
+    Only ordinary paths are tried: beside the importing file, then at the repo
+    root, then in ``scripts/``.  A name that resolves to nothing in the repo --
+    the standard library, a site package, a namespace package, anything built by
+    ``importlib`` at run time -- is reported UNRESOLVED and never guessed at.
+    """
+    if not name:
+        return None
+    rel = name.replace(".", os.sep)
+    bases = [base_dir] if level else [base_dir, root, os.path.join(root or "", "scripts")]
+    for b in bases:
+        if not b:
+            continue
+        for cand in (os.path.join(b, rel + ".py"), os.path.join(b, rel, "__init__.py")):
+            if os.path.isfile(cand):
+                if root and not os.path.abspath(cand).startswith(os.path.abspath(root)):
+                    return None            # never leave the repo
+                return cand
+    return None
+
+
+def find_imported_stencils(path, tree):
+    """ONE HOP only: parse each repo-local imported module and look for stencils.
+
+    Returns ``(contributors, unresolved)`` where a contributor is a dict with the
+    module's path, its stencil hits and its own plant-arm signatures.
+
+    ONE HOP IS A DELIBERATE LIMIT, not an oversight.  A stencil two imports away is
+    NOT reported, and the scan says so rather than implying it looked.  Transitive
+    chains cannot be resolved reliably by a static reader (conditional imports,
+    ``sys.path`` surgery, re-exports), and a follower that catches some of them and
+    misses others converts a declared blind spot into an undeclared one.
+    """
+    base_dir = os.path.dirname(os.path.abspath(path))
+    root = _repo_root(base_dir)
+    names = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for al in node.names:
+                names.append((al.name, 0))
+        elif isinstance(node, ast.ImportFrom):
+            names.append((node.module or "", node.level or 0))
+    contributors, unresolved, seen = [], [], set()
+    for name, level in names:
+        if not name or name in seen:
+            continue
+        seen.add(name)
+        mp = _resolve_module(name, level, base_dir, root)
+        if mp is None:
+            unresolved.append(name)
+            continue
+        if os.path.abspath(mp) == os.path.abspath(path):
+            continue
+        try:
+            with open(mp, "r", encoding="utf-8", errors="replace") as fh:
+                sub = ast.parse(fh.read(), filename=mp)
+        except (SyntaxError, OSError):
+            unresolved.append(name + " (does not parse)")
+            continue
+        sub_strong, _ = find_stencils(sub)
+        if not sub_strong:
+            continue
+        sub_sigs = sorted({sg for _, sg in find_plant_arms(sub) if sg})
+        contributors.append(dict(module=name, path=mp, stencils=sub_strong,
+                                 sigs=sub_sigs))
+    return contributors, unresolved
+
+
 def scan(path):
-    """Return (severity, [lines]).  severity in {0, 1, 2}."""
+    """Return (severity, [lines]).  severity in {0, 1, 2, 3}."""
     with open(path, "r", encoding="utf-8", errors="replace") as fh:
         src = fh.read()
     tree = ast.parse(src, filename=path)
     arms = find_plant_arms(tree)
     strong, hints = find_stencils(tree)
     sigs = sorted({s for _, s in arms if s})
+    contributors, unresolved = find_imported_stencils(path, tree)
     out = []
 
     out.append("plant APPLICATION sites/arm rows (drivers excluded): %d" % len(arms))
@@ -399,6 +528,39 @@ def scan(path):
                "(weak, never raises severity): %d" % len(hints))
     for ln, s in hints[:4]:
         out.append("    name hint @L%d: %s" % (ln, s))
+    out.append("stencils arriving BY IMPORT (one hop, repo-local): %d module(s)"
+               % len(contributors))
+    for c in contributors:
+        out.append("    from %s (%s): %d stencil(s), first @L%d: %s"
+                   % (c["module"], c["path"], len(c["stencils"]),
+                      c["stencils"][0][0], c["stencils"][0][1]))
+        out.append("        that module's own distinct plant targets: %d" % len(c["sigs"]))
+    if unresolved:
+        out.append("imports NOT resolved inside this repo (not followed, not judged): %s"
+                   % ", ".join(sorted(unresolved)[:8]))
+
+    # The union. Declared risk, stated in the output because a reader must not have
+    # to read the source to learn it: an arm counted in an imported module may plant
+    # into a DIFFERENT stencil than the one imported. This scan cannot tell.
+    imported_strong = [(c["path"], ln, sc) for c in contributors for ln, sc in c["stencils"]]
+    all_strong = len(strong) + len(imported_strong)
+    all_sigs = set(sigs)
+    for c in contributors:
+        all_sigs.update(c["sigs"])
+    n_all_sigs = len(all_sigs)
+
+    if not arms and not all_sigs and imported_strong:
+        out.append("NOT ASSESSED (exit 3, NOT a pass): this file has NO literally "
+                   "weighted stencil of its own and NO plant-applying callable, but it "
+                   "IMPORTS %d stencil(s) from %d repo-local module(s) named above, and "
+                   "neither this file nor those modules carry a plant-applying callable. "
+                   "THIS IS THE CELL THAT USED TO READ CLEANEST: a comparator whose "
+                   "stencil arrives through an import looked, to the previous version of "
+                   "this scan, like a file with no stencil at all. It is not a "
+                   "violation, because the control may exist under a name this scan does "
+                   "not recognise or beyond the one hop it follows. Go and look."
+                   % (len(imported_strong), len(contributors)))
+        return 3, out
 
     if not arms:
         if strong:
@@ -413,23 +575,33 @@ def scan(path):
                        "ASSESSED rather than a violation. Go and look."
                        % len(strong))
             return 3, out
-        out.append("NOTE: no plant-APPLYING callable found by NAME in this file, and no "
-                   "literally weighted stencil either -- so there is genuinely nothing "
-                   "here for this check to judge and no control whose absence could "
-                   "mislead anyone. This scan sees only callables whose name contains "
-                   "'plant'; it is NOT a proof that the file has no planted-zero "
-                   "control.")
+        out.append("NOTHING TO ASSESS (exit 0). Read this as 'nothing to assess', NOT "
+                   "as 'clean': no plant-applying callable was found by NAME, no "
+                   "literally weighted stencil was found here, and no repo-local import "
+                   "one hop away contributed one. Exit 3 fires only where a LITERALLY "
+                   "weighted stencil was found, so a stencil whose weights are VARIABLES "
+                   "-- computed at run time, as a Richardson extrapolate's "
+                   "1/(r**p - 1) is -- accumulated in a loop, or built from a "
+                   "coefficient table sits here at 0 because this scan could not see it, "
+                   "not because it is armed. That blind spot is declared and deliberate: "
+                   "detecting it needs dataflow analysis, and a follower that caught a "
+                   "third of them would manufacture exactly the false reassurance this "
+                   "check exists to name.")
         return 0, out
 
-    if not strong:
-        out.append("NOTE: a plant-like control is present but this scan found no "
-                   "LITERALLY WEIGHTED stencil. Loop-accumulated, table-driven and "
-                   "imported stencils are INVISIBLE to a static scan, and a name hint "
-                   "is not evidence of literal weights -- this is NOT a proof that no "
-                   "stencil is planted into. Inspect manually.")
+    if not all_strong:
+        out.append("NOTHING TO ASSESS (exit 0). Read this as 'nothing to assess', NOT as "
+                   "'clean': a plant-like control IS present, but no literally weighted "
+                   "stencil was found here and no repo-local import one hop away "
+                   "contributed one. VARIABLE-weighted stencils (a Richardson "
+                   "extrapolate's 1/(r**p - 1), where p is observed at run time), "
+                   "loop-accumulated and table-driven stencils are INVISIBLE to this "
+                   "scan, and a name hint is not evidence of literal weights. This file "
+                   "sits at 0 because there was nothing this scan could assess, NOT "
+                   "because its control is adequate. Inspect manually.")
         return 0, out
 
-    if len(sigs) < 2:
+    if n_all_sigs < 2:
         out.append("VIOLATION (L-326): a literally weighted stencil and a plant-like "
                    "control in one file, with only %d distinct plant target "
                    "expression(s). A plant that goes uniformly into every input of a "
@@ -444,12 +616,18 @@ def scan(path):
             out.append("    arm @L%d: %s" % (ln, s or "<no non-label args>"))
         return 2, out
 
+    if imported_strong:
+        out.append("DECLARED RISK on the union: %d of the plant target(s) counted above "
+                   "may come from an IMPORTED module and may plant into a DIFFERENT "
+                   "stencil than the one imported. This scan cannot tell which stencil "
+                   "an arm reaches -- that needs dataflow. Counted, named, and not "
+                   "silently trusted." % sum(len(c["sigs"]) for c in contributors))
     out.append("%d distinct plant target expressions found -- CONSISTENT with a subset "
                "arm being present, but THIS SCAN CANNOT PROVE one target set is a strict "
                "SUBSET of another: that needs the runtime values. It also cannot check "
                "that the subset arm is shown FIRING on a mis-weighted stencil. Inspect "
-               "manually." % len(sigs))
-    for s in sigs[:8]:
+               "manually." % n_all_sigs)
+    for s in sorted(all_sigs)[:8]:
         out.append("    target: %s" % s[:100])
     return 0, out
 
@@ -567,6 +745,106 @@ def total(vals):
 '''
 
 
+STENCIL_MODULE = """
+def centreline(T, i1, i2):
+    return (9.0 * T[i1] - T[i2]) / 8.0
+"""
+
+ARMED_STENCIL_MODULE = """
+PLANT = 1.234e-03
+
+def plant_cells(case, cells, amount):
+    return case
+
+def centreline(T, i1, i2):
+    return (9.0 * T[i1] - T[i2]) / 8.0
+
+def control(case, i1, i2):
+    return plant_cells(case, [i1, i2], PLANT), plant_cells(case, [i1], PLANT)
+"""
+
+PLAIN_MODULE = """
+def total(vals):
+    out = 0.0
+    for v in vals:
+        out += v
+    return out
+"""
+
+
+def _write_tree(root, files):
+    os.makedirs(os.path.join(root, ".git"), exist_ok=True)
+    for rel, body in files.items():
+        full = os.path.join(root, rel)
+        os.makedirs(os.path.dirname(full), exist_ok=True)
+        with open(full, "w", encoding="utf-8") as fh:
+            fh.write(body)
+    return root
+
+
+def _selftest_imports():
+    """Positive AND negative arms for the one-hop import follower.
+
+    The positive is the cell that used to read cleanest: an importer with no stencil
+    and no control that pulls a stencil in from a repo-local module.  The negatives
+    exist because a follower never shown able to STAY QUIET would flag every file
+    that imports anything.
+    """
+    ok = True
+    tmp = tempfile.mkdtemp(prefix="stencil_imports_")
+
+    a = _write_tree(os.path.join(tmp, "a"), {
+        "mod_stencil.py": STENCIL_MODULE,
+        "importer.py": "from mod_stencil import centreline\n\ndef grade(T, i1, i2):\n"
+                       "    return centreline(T, i1, i2)\n"})
+    sev, lines = scan(os.path.join(a, "importer.py"))
+    named = any("mod_stencil.py" in ln for ln in lines)
+    good = (sev == 3) and named
+    ok = _p("POSITIVE: importer with no stencil and no control, imports one",
+            "severity = %d (wanted 3); names the exporting file: %s" % (sev, named),
+            good) and ok
+
+    b = _write_tree(os.path.join(tmp, "b"), {
+        "plain.py": PLAIN_MODULE,
+        "importer.py": "from plain import total\n\ndef grade(v):\n    return total(v)\n"})
+    sev, _ = scan(os.path.join(b, "importer.py"))
+    ok = _p("NEGATIVE: importer of a module with NO stencil -> must stay 0",
+            "severity = %d (wanted 0)" % sev, sev == 0) and ok
+
+    c = _write_tree(os.path.join(tmp, "c"), {
+        "importer.py": "import math\nimport json\n\ndef grade(x):\n"
+                       "    return math.sqrt(x)\n"})
+    sev, lines = scan(os.path.join(c, "importer.py"))
+    said = any("NOT resolved inside this repo" in ln for ln in lines)
+    ok = _p("NEGATIVE: only stdlib imports -> 0, and says they were NOT followed",
+            "severity = %d (wanted 0); reports them unresolved: %s" % (sev, said),
+            sev == 0 and said) and ok
+
+    d = _write_tree(os.path.join(tmp, "d"), {
+        "deep.py": STENCIL_MODULE,
+        "mid.py": "from deep import centreline\n",
+        "importer.py": "from mid import centreline\n\ndef grade(T, i, j):\n"
+                       "    return centreline(T, i, j)\n"})
+    sev, _ = scan(os.path.join(d, "importer.py"))
+    ok = _p("DECLARED LIMIT: stencil TWO hops away -> 0, deliberately not chased",
+            "severity = %d (wanted 0). One hop only, and the docstring says so rather "
+            "than implying it looked." % sev, sev == 0) and ok
+
+    e = _write_tree(os.path.join(tmp, "e"), {
+        "armed.py": ARMED_STENCIL_MODULE,
+        "importer.py": "from armed import centreline\n\ndef grade(T, i, j):\n"
+                       "    return centreline(T, i, j)\n"})
+    sev, _ = scan(os.path.join(e, "importer.py"))
+    ok = _p("NEGATIVE: imported stencil that is ARMED where it lives -> must stay 0",
+            "severity = %d (wanted 0)" % sev, sev == 0) and ok
+
+    print("      The positive is the cell the supervisor's ruling targets: eleven")
+    print("      comparators share one gate design by import, so the file most at risk")
+    print("      looked cleanest. The four negatives exist because a follower never")
+    print("      shown able to stay quiet would flag every file that imports anything.")
+    return ok
+
+
 def _p(label, value, ok):
     print("  %-64s %s" % (label, "OK" if ok else "*** WRONG ***"))
     if value is not None:
@@ -629,6 +907,26 @@ def selftest():
             d_subset == Fraction(1, 10)) and ok
 
     print()
+    print("(3b) DERIVATIVE STENCILS: the same blindness, with sum(w) = ZERO")
+    print("     Found by this file's OWN import channel, in a real artifact:")
+    print("     exact_laminar_pipe.py:44, (3 u(1) - 4 u(1-h) + u(1-2h)) / (2h),")
+    print("     literal weights and NO planted-zero control anywhere in the module.")
+    ws = DERIV_WEIGHTS
+    ok = _p("the three weights sum to", "sum(3, -4, 1) = %s" % sum(ws), sum(ws) == 0) and ok
+    du = derivative_uniform_shift(ws, P)
+    ok = _p("uniform plant into ALL THREE inputs shifts the derivative by",
+            "%s * P / (2h) -- EXACTLY ZERO at every h, and a zero shift is also what "
+            "a reader that saw NOTHING would report" % du, du == 0) and ok
+    ok = _p("subset plant into the WALL point only shifts it by",
+            "%s * P / (2h) -- non-zero, so it discriminates" % ws[0],
+            ws[0] != 0) and ok
+    print("      GENERALISATION: a uniform plant probes ONLY sum(w). Value-recovering")
+    print("      stencils have sum(w) = 1; derivative stencils have sum(w) = 0. In")
+    print("      BOTH cases the arm is blind to the individual weights. The rule is")
+    print("      not about the number 1 -- it is about the fact that a uniform plant")
+    print("      collapses every weight into a single scalar.")
+
+    print()
     print("(4) THE OPERATIONAL CASE: an instrument shipping k=3 weights, run on a")
     print("    k=7/3 mesh, at T8's registered PLANT = 1.234e-03 and tol = 1e-09")
     shipped_w1, shipped_w2 = axis_weights(Fraction(3))
@@ -669,8 +967,6 @@ def selftest():
 
     print()
     print("(6) THE STATIC SCAN, shown able to FIRE and able to STAY QUIET")
-    import os
-    import tempfile
     cases = [("uniform arm only, with a stencil   -> must FIRE", BAD_SRC, 2),
              ("a subset arm present              -> must stay quiet", GOOD_SRC, 0),
              ("plant, no literal stencil found   -> quiet, and says why",
@@ -706,9 +1002,18 @@ def selftest():
     print("      blindness is on the record instead of being discovered later.")
 
     print()
-    print("(7) WHAT THIS SELFTEST DOES NOT PROVE -- stated, not buried")
+    print("(7) THE IMPORT CHANNEL -- one hop, with its positives AND its negatives")
+    ok = _selftest_imports() and ok
+
+    print()
+    print("(8) WHAT THIS SELFTEST DOES NOT PROVE -- stated, not buried")
     print("      Part 1-5 is a PROOF: exact rational arithmetic, no tolerance.")
-    print("      Part 6 is NOT. It shows the scan separating assessed-clean, assessed-")
+    print("      Parts 6 and 7 are NOT. Part 6 shows the scan separating assessed-clean,")
+    print("      assessed-violating and NOT-ASSESSED on planted cases; part 7 shows the")
+    print("      import follower firing once and staying quiet four times, including on")
+    print("      a two-hop chain it refuses to chase.")
+    print("      OLD LINE, KEPT BECAUSE IT IS STILL TRUE: it shows the scan separating")
+    print("      assessed-clean, assessed-")
     print("      violating and NOT-ASSESSED on planted cases, one of which is a DECLARED")
     print("      BLIND SPOT rather than a success.")
     print("      It does NOT show the scan finds every such defect, and the scan CANNOT")
