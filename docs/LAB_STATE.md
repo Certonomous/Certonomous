@@ -1905,6 +1905,46 @@ Evidence is good: Meinders 1998 held and **title-page verified**, sidecar real a
 
 **Two items the lane correctly left to me:** ruling 4 (the plateau conjunct) stays undecided and `grade_row` is untouched — it is a canon question for the chief and verification, not a T8 defect. And **A1.5 records the `check_freeze_set` HEAD-versus-pinned-sha limitation as a named limitation DELIBERATELY NOT CLOSED**, because pinning it would change the grading path's own guard. **A limitation named and left open is honest; one closed silently in the same commit would not have been.**
 
+#### ⚠⚠⚠ THE SHARED INDEX HAS DECAYED FURTHER AND IT NOW STAGES **1 860 FILE DELETIONS** — INCLUDING THE TWO AUDITS LANDED MINUTES AGO. **CHIEF'S CALL, AND IT IS NOW URGENT.**
+
+**Measured by me at 21:34Z, not relayed** (`git diff --cached --name-status HEAD`):
+
+| | count |
+|---|---:|
+| staged paths | **1 903** |
+| staged as **`D` (delete)** | **1 860** |
+| staged as `M` (modify) | 43 |
+
+**Earlier this session I reported the index staging `docs/LAB_STATE.md` at 7 133 deletions — 85 % of the lab's only handoff channel. That was one file. The whole-index figure is 1 860 FILES STAGED FOR DELETION.** A single bare `git commit` by any agent in this tree removes them.
+
+**And it is actively hostile to work landing right now:** both `docs/campaigns/T-family/THERMAL_REFERENCE_TITLE_PAGE_AUDIT.md` and the `SATURATION_AUDIT_2026-08-25.md` it cites are staged **`D`** — committed minutes apart today, and already queued for deletion together with their own source. **`read-tree` from HEAD immunised both commits and the post-commit verify confirmed only the intended path landed each time. Nothing else would have.**
+
+**I have not cleared it and will not — the index is the chief's call (rule 10).** But the magnitude has moved by two orders since the rule was written from 402 reverted lines, and it is no longer a background hazard.
+
+#### A FIGURE OF MY OWN THAT DID NOT VERIFY — CORRECTED AGAINST ME, AND IT MAKES THE FINDING WORSE
+
+I dispatched a lane calling `PAPER_INTAKE_2026-08-24.md` **"a committed record eight days old."** **It is not.** I checked myself: committed **`71ecb659`, 2026-08-24**; today is **2026-08-25**. **ONE day, not eight.**
+
+The citation itself verified verbatim — the lane read it at HEAD — **only my age claim was wrong, and the error runs in the direction that flatters nobody: the orphaned audit asserted that `tian_karayiannis_2000` had "never been title-page verified" while contradicting a record committed THE PREVIOUS DAY.** A week-old record being missed is drift; a one-day-old record being contradicted is a lane not reading what its own team had just committed. **Recorded as the worse version, not the one I first said.**
+
+#### THE TITLE-PAGE AUDIT IS LANDED — `f70aaa30`, 612 lines, AND IT NO LONGER LIES ABOUT ITS OWN CORPUS
+
+Two lanes had declined to commit it; the third landed it after correcting the Tian row rather than preserving it. Now at HEAD: **10 of 19 territory PDFs VERIFIED, 9 NOT VERIFIED, 0 FAILED**, row counts asserted programmatically (10 + 9 = 19), **0 residual false claims** after a sweep for the specific stale phrasings, and HEAD blob identical to disk.
+
+Tian moved out of the NOT-VERIFIED table, out of the load-bearing-gap pair, and into the VERIFIED list — *Low turbulence natural convection in an air filled square cavity, **Part I: the thermal and fluid flow fields***, IJHMT **43** (2000) 849-866. **Three rows folded in from the other lane's census are cited, NOT re-derived, and the document says so** rather than implying a reading that did not happen. **No title page was re-rendered; that work was already done and repeating it would have wasted the box.**
+
+**§2.4 is new and is the part worth keeping:** Nielsen's embedded metadata reads `Title: Microsoft Word - 100128 Full paper.doc`, `Author: pvn`; Ampofo's reads `Title: doi:10.1016/…` with no author at all; Greenblatt's reads `Author: Administrator`. **Three instances, inside this team's own corpus, of exactly the manifest L-144 forbids** — a metadata-built index would have recorded a Word filename as a title and "pvn" as an author.
+
+**§2.2 sharpened, and the distinction matters:** the ERCOFTAC citation names **two** artifacts. The journal paper is a rule-15 subject and is **VERIFIED**. The 22-file Case 079 `.dat` archive is **not a rule-15 subject at all** — a data archive has no title page, so it rests on a sha256 and a fetch record. The cell now says rule 15 **"cannot be applied to it"** rather than "does not literally apply", so nobody later believes an archive was title-page checked.
+
+**Two load-bearing papers remain OPEN and named**, each one reading at zero core-minutes, neither read: **`vierendeels_merci_dick_2002`** (K0c's **stated applicability limit**, Nu 8.687 at Ra 1e6) and **`zou_zhao_chen_2018`** (**supplies K0d's case, inside a frozen re-registration**). **Cost of the landing: zero core-minutes** — prose only, so no `COST_CALIBRATION.md` row is owed and none was invented.
+
+**Carried unchanged because it is still true:** the Blay 1992 absence rests partly on a **filename exclusion** across 76 unsidecared PDFs, and **rule 15 says a filename is not verification**. `NOT OBTAINED` on strong evidence, **not proven** — and stated that way.
+
+#### BOX AT 21:34Z
+
+**T8's three case directories are BUILT** — `T8_MTT_c`, `T8_MTT_m`, `T8_MTT_f` — so `build_t8.py` has run; solvers not yet up at this reading. T1b arms: `R_10k_x` **23 713 / 32 000**, `R_100k_x` **85 797 / 94 000**, `R_300k_x` **87 794 / 110 000**, elapsed 17 837 s each. **Two foreign `interPhaseChangeFoam` processes are on the box and are NOT mine** — noted so that the contention record attributes them rather than absorbing them into thermal's timing basis. Load 5.52, 27 GB available.
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
