@@ -94,7 +94,7 @@ SPENT_CORE_MIN=0
 SPENT_S8_CORE_MIN=0
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
 
-usage () { echo "usage: $0 --phase {1|2|3} [--image {shipped|patched}]"; exit 3; }
+usage () { echo "usage: $0 --phase {1|2|3|4} [--image {shipped|patched}]"; exit 3; }
 PHASE=""; ROW="shipped"
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -216,9 +216,34 @@ run_stage () {
     sudo -n rm -rf "$D/0/uniform" "$D/0/polyMesh" 2>/dev/null
   fi
 
-  # ---- COLD-START GUARD (CLAUDE.md rule 4): no pre-existing time dir, no processor dirs.
-  local COLD=1 ENDT
-  ENDT=$(python3 -c "print(repr(round($NSTEP*float('$DELTAT'),8)))" 2>/dev/null)
+  # ---- endTime AND the timestep count are READ FROM THE controlDict THAT IS ACTUALLY
+  # ---- STAGED, never derived from a hard-coded deltaT.  DEFECT FOUND IN THIS FILE BY ITS
+  # ---- OWN AUTHOR BEFORE ANY COMPUTE: the first draft computed endTime as NSTEP*deltaT
+  # ---- with deltaT pinned at 1e-2, which is WRONG for S1a (controlDict_simple: deltaT 1,
+  # ---- endTime 500) and for S1b (controlDict_pimple_long: deltaT 5e-2, endTime 10).  It
+  # ---- would have made the age guard look for a directory that does not exist and the
+  # ---- rule-4 step count compare against a fabricated number.  Reading the dict the
+  # ---- solver actually read cannot disagree with the solver -- the same reason the
+  # ---- WHERE-control reads the shape vector off disk instead of echoing an argument.
+  local COLD=1 ENDT NSTEP_ACTUAL
+  read -r ENDT NSTEP_ACTUAL <<< "$(python3 - "$D/system/controlDict" <<'PYCD'
+import re, sys
+t = open(sys.argv[1]).read()
+def grab(k):
+    m = re.search(r"^\s*%s\s+([0-9.eE+-]+)\s*;" % k, t, re.M)
+    return float(m.group(1)) if m else None
+et, dt = grab("endTime"), grab("deltaT")
+n = int(round(et / dt)) if (et is not None and dt not in (None, 0.0)) else 0
+print(repr(et if et is not None else 0.0), n)
+PYCD
+)"
+  [ -n "$ENDT" ] || { echo "ABORT: could not read endTime from $STAGE/system/controlDict"; return 4; }
+  # the caller's expected step count must agree with the staged dict, or the registration
+  # and the thing that will run have diverged and the stage is NOT launched
+  if [ "$NSTEP" != "0" ] && [ "$NSTEP" != "$NSTEP_ACTUAL" ]; then
+    echo "ABORT: stage $STAGE registered $NSTEP steps but its staged controlDict gives $NSTEP_ACTUAL (endTime=$ENDT)"; return 4
+  fi
+  NSTEP="$NSTEP_ACTUAL"
   for bad in "$D/$ENDT" "$D/0.01"; do
     [ "$bad" = "$D/0" ] && continue
     [ -e "$bad" ] && { echo "COLDSTART FAIL: $bad exists"; COLD=0; }
@@ -575,8 +600,8 @@ if [ "$PHASE" = "3" ]; then
   [ -f "$PLAN2" ] || { echo "ABORT: $PLAN2 absent -- run the comparator in --plan2 mode first"; exit 1; }
   HSTAR=$(python3 -c "import json;print(repr(json.load(open('$PLAN2'))['h_star']))")
   HWRONG=$(python3 -c "import json;print(repr(json.load(open('$PLAN2'))['h_wrong']))")
-  OPT_OK=$(python3 -c "import json;print(json.load(open('$PLAN2'))['optimisation_authorised'])")
-  echo "H_STAR=$HSTAR H_WRONG=$HWRONG OPTIMISATION_AUTHORISED=$OPT_OK (all from the comparator)" | tee -a "$LEDGER"
+  [ "$HSTAR" = "None" ] && { echo "NO PLATEAU: the comparator returned no h*. Phase 3 is NOT LAUNCHED and the gradient is NOT A RESULT." | tee -a "$LEDGER"; exit 0; }
+  echo "H_STAR=$HSTAR H_WRONG=$HWRONG (both from the comparator, selected POSITIONALLY)" | tee -a "$LEDGER"
 
   # S6b -- the registered trivial baseline at a DELIBERATELY WRONG step
   field_b_assert; run_stage S6b_p run_model 0 "$HWRONG"  $W_STEPS "$ROOT/FIELD_B" "$ROOT/cd_W" ""
@@ -588,7 +613,23 @@ if [ "$PHASE" = "3" ]; then
     field_b_assert; run_stage "S6c_c${i}_m" run_model "$i" "-$HSTAR" $W_STEPS "$ROOT/FIELD_B" "$ROOT/cd_W" ""
   done
 
-  # S8 -- the optimisation, ONLY if the comparator authorised it (G12R-11)
+  echo "PHASE3_COMPLETE spent=$SPENT_CORE_MIN core-min" | tee -a "$LEDGER"
+  echo "NEXT: comparator --plan3 computes G12R-6 at h* and DECIDES whether the" | tee -a "$LEDGER"
+  echo "      optimisation is authorised.  THE LAUNCHER DOES NOT DECIDE THAT." | tee -a "$LEDGER"
+  echo "  python3 $GRADEPY --manifest $MANIFEST --root $ROOT --plan3" | tee -a "$LEDGER"
+  exit 0
+fi
+
+# ============================================================ PHASE 4
+# The optimisation.  It runs ONLY if the COMPARATOR authorised it (G12R-11).  The
+# authorisation is read from step_plan3.json, which the comparator wrote after taking the
+# 4-component vector FD at h*.  This launcher does not compute the bright line and does
+# not decide whether the optimisation may proceed.
+if [ "$PHASE" = "4" ]; then
+  PLAN3="$ROOT/step_plan3.json"
+  [ -f "$PLAN3" ] || { echo "ABORT: $PLAN3 absent -- run the comparator in --plan3 mode first"; exit 1; }
+  OPT_OK=$(python3 -c "import json;print(json.load(open('$PLAN3'))['optimisation_authorised'])")
+  echo "STEP_PLAN3_MD5=$(md5sum "$PLAN3"|cut -d' ' -f1) OPTIMISATION_AUTHORISED=$OPT_OK" | tee -a "$LEDGER"
   if [ "$OPT_OK" = "True" ]; then
     field_b_assert
     run_stage S8 opt 0 0.0 $W_STEPS "$ROOT/FIELD_B" "$ROOT/cd_W" "" || echo "STAGE S8 NONZERO rc"
@@ -596,7 +637,7 @@ if [ "$PHASE" = "3" ]; then
     echo "S8 NOT LAUNCHED: the comparator did not authorise the optimisation (G12R-11)." | tee -a "$LEDGER"
     echo "D12's optimisation is NOT A RESULT, and the reason is in the grade output." | tee -a "$LEDGER"
   fi
-  echo "PHASE3_COMPLETE spent=$SPENT_CORE_MIN core-min" | tee -a "$LEDGER"
+  echo "PHASE4_COMPLETE spent=$SPENT_CORE_MIN core-min" | tee -a "$LEDGER"
   echo "TOTAL_SPENT_CORE_MIN=$SPENT_CORE_MIN CAP=$CAP_CORE_MIN" | tee -a "$LEDGER"
   echo "FINISHED_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)" | tee -a "$LEDGER"
   exit 0

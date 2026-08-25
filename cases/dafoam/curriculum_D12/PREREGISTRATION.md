@@ -545,3 +545,146 @@ legal, and §A1.2's repairs are within rule 2.**
 `INSTRUMENT_STATE_AND_DEFECTS.md` in this directory.**
 
 **NOT FILED. Nothing in this amendment was sent, uploaded, registered, posted or commented.**
+
+---
+
+## AMENDMENT 2 — 2026-08-25 — **THE FOUR RULINGS APPLIED; RE-FROZEN AS AN ARMED ITEM (v1.2)**
+
+**Version 1.1 → 1.2.**
+**lines whose number changed above this section: 0.**
+
+Appended at the foot; **nothing above is edited, struck or reinterpreted.** Made **before
+first compute** — the condition and how it was checked are in §A2.6.
+
+Authority: **`cases/dafoam/curriculum_D12/SUPERVISOR_D12_RULINGS.md`, committed `43318484`
+before this lane acted on it.** Amendment 1 said this document must not be frozen while §4
+named files that do not exist. **All four now exist. This amendment closes that.**
+
+### A2.1 — RULINGS §3: THE LAUNCHER IS AUTHORED, AND CARRIES A WHERE-CONTROL
+
+`d12r_stage_and_run.sh` is authored and committed at **`3f0026ea`**, alone and early, so the
+supervisor reads it as a diff before any number it produces is believed (condition 2,
+non-delegable). **§4's instrument table now matches what exists.** `d12r_series.py` is
+**struck from the instrument set, not written**: `d12r_grade.py` carries its series reader
+inline and never referenced it.
+
+**This lane raised author/auditor separation and the supervisor ruled the other way. The lane
+is persuaded and records why:** D4-DEF-4 showed that had `shape`'s scaler been 1.0 instead of
+10, every primal would have converged and **every count-, plant- and order-based control would
+have passed on a design point that was not the optimum.** Separation would not have caught
+that — both parties reason downstream of the same corrupted artifact.
+
+**THE WHERE-CONTROL, gate `G12R-W`, is added to the gate set.** For every stage the manifest
+records `applied_index`, `applied_sign`, `applied_magnitude` and the full
+`applied_shape_vector`, **derived from the shape vector the run script wrote to disk, never
+echoed from the launcher's own arguments.** Echoing arguments back witnesses the launcher's
+*intent*; reading the JSON witnesses what the run *did*. The comparator **REFUSES** on a wrong
+index, a wrong sign, a magnitude off by a scaler, a leak into a second component, a registered
+perturbation that never reached the solver, or an unregistered one that did.
+
+**THE LAUNCHER DOES NOT CHOOSE A STEP.** The sweep list comes from the comparator's `--plan`
+into `step_plan.json`; `h*` and `h_wrong` from `--plan2`; **and the optimisation's
+authorisation from `--plan3`, which is why phase 3 was split and a phase 4 added** — G12R-11
+must be decided by the comparator after the vector FD at `h*`, not by the launcher. **G12R-5
+remains POSITIONAL over the plateau and never reads the adjoint.** G12R-4 sizes the sweep's
+**range** from `|g|`, which is this document's own registered arithmetic and is a different
+act from selecting a step.
+
+**A DEFECT IN THE LAUNCHER, FOUND BY ITS OWN AUTHOR BEFORE ANY COMPUTE AND DISCLOSED RATHER
+THAN QUIETLY FIXED:** the first draft derived each stage's `endTime` as `steps × deltaT` with
+`deltaT` pinned at `1e-2`. That is **wrong for S1a** (`controlDict_simple`: `deltaT 1`,
+`endTime 500`) and **wrong for S1b** (`controlDict_pimple_long`: `deltaT 5e-2`,
+`endTime 10`). It would have pointed the age guard at a directory that does not exist and
+compared the rule-4 step count against a fabricated number. **Repaired: `endTime` and the step
+count are read from the controlDict the solver actually read**, and a mismatch against the
+registered count **aborts the stage**. Verified on all three dicts: 500, 200, 300 steps.
+
+### A2.2 — RULINGS §4: `δ_eff := max(δ_repeat, δ_window, δ_pert)`. **APPLIED.**
+
+New gate **`G12R-3b`** measures `δ_pert`, and `G12R-4` now takes the max of **three** terms.
+**It can only raise `h_min`: it can cause a `NOT A RESULT` and cannot manufacture a `PASS`.**
+
+**`δ_pert` IS MEASURED FOR THIS CONFIGURATION AND IS NEVER IMPORTED FROM D12-F′**, per the
+ruling's condition — the floor is component-dependent (`1.65e-06` vs `8.4e-09` on two
+components of one probe), so it is a property of a configuration exactly as
+`DAFOAM_CHARTER.md` §5 says an FD reference is.
+
+**Stage S3b** runs two probe steps **a decade apart** (`1.0e-6`, `1.0e-5`) on **all four**
+components — 16 runs — because `h*` must be admissible for all four. The estimator is
+**MODEL-FREE and never reads the adjoint**: with `S(h) = 2h|g| + 2ε` and `h_b = 10 h_a` the
+`|g|` term cancels, giving `ε = (10·S_a − S_b)/18`. **Validated against D12-F′'s committed
+component-3 data it returns `1.649557e-06`, against the `1.65e-06` that record obtained by
+the adjoint-based route** — two independent routes to one number, one of which never reads
+the adjoint. A non-positive `ε` is reported as **"not detectable at these steps"**, never as
+"there is no floor": D12-F′'s component 0 returns exactly that and still had no plateau.
+
+`G12R-4` **REFUSES if all three terms are zero** — no step can be sized against a floor of
+zero, and a zero from readers not shown able to see a non-zero is not evidence (rule 3).
+
+### A2.3 — RULINGS §5: THE AGE GUARD AND THE STEP COUNT. **APPLIED, REQUIRED, NOT OPTIONAL.**
+
+`G12R-0` now carries both limbs of `CLAUDE.md` rule 4 it lacked:
+
+- **THE AGE GUARD.** The launcher touches `0/U` last at launch and records its mtime as the
+  datum; **every field in the `endTime` directory must be NEWER.** Stale field names are
+  **listed, not counted.** The gate **REFUSES on `False` AND on `None`** — *absence of a
+  check is not a pass.*
+- **THE STEP COUNT.** The primal writes one `Time = ` line per timestep, so that count must
+  **EQUAL** the registered steps. `ExecutionTime` lines are counted too, but a
+  `compute_totals` stage emits them in the adjoint sweep as well, so that count is required
+  only to be **≥** the step count — **stated rather than quietly gated at an equality it
+  cannot meet.**
+
+### A2.4 — RULINGS §6: THE `δ_window ≡ 0` HAZARD. **RESOLVED BEFORE THE FREEZE.**
+
+**`W = 300` IS NOT MOVED.** It is the tutorial's own registered optimisation window and D12 is
+required to grade the case it names. The supervisor's **second** option is taken: **`δ_window`
+is not load-bearing, and `δ_pert` carries the noise floor.**
+
+**A PRE-COMPUTE PREDICTION IS REGISTERED HERE SO `G12R-1` TESTS IT RATHER THAN CONFIRMING
+IT:** a circular cylinder sheds at `St ≈ 0.2`; with `D = 1.0 m` and `U0 = 10 m/s` that is
+`f ≈ 2 Hz`, `T ≈ 0.5 s`, and at `deltaT = 1e-2` **the period is ≈ 50 timesteps. `W = 300`
+is then ≈ 6.0 periods EXACTLY, so `δ_window` is PREDICTED DEGENERATE — not merely at risk of
+it.** The record will state whether the prediction held.
+
+`G12R-3` gains a **frozen** branch: with `P` measured by `G12R-1`, `δ_window` is
+**DEGENERATE** iff `|W/P − round(W/P)| ≤ 0.05`, and the record **prints** that it is cancelled
+by construction and not load-bearing. **`G12R-4` REFUSES if a degenerate `δ_window` is
+nevertheless the dominant term** — a floor that is zero by construction cannot be the largest
+one, and a manifest saying otherwise is inconsistent.
+
+### A2.5 — THE COMPARATOR'S STATE, MEASURED
+
+| check | at Amendment 1 | **now** |
+|---|---|---|
+| `--selftest` exit | 0 | **0** |
+| units | 40 | **62** |
+| gates emitted / exercised | 12 / 12 | **14 / 14** |
+| mutants caught | 6 of 6 | **12 of 12** |
+
+The six new mutants: **the age guard accepting a stale field**; the step-count limb deleted;
+the WHERE-control ignoring the index; **the WHERE-control ignoring the MAGNITUDE — the
+D4-DEF-4 class itself**; `δ_eff` dropping `δ_pert`; the degeneracy branch always reporting
+"not degenerate". **All six flip the selftest to exit 1.**
+
+**A pre-existing fixture, `U-01`, began FAILING the moment the age guard was added, because
+it did not carry the new fields. That refusal is the gate working** — a fixture missing a limb
+is a stage missing evidence — and the fixture was repaired, not the gate.
+`check_grader_self_blindness.py`: clean, **which is not a proof of correctness.**
+
+### A2.6 — THE CONDITION, AND HOW IT WAS CHECKED
+
+> **The run root `/home/ubuntu/certonomous-runs/CURRICULUM-D12-cylinder-unsteady/` DOES NOT
+> EXIST**, by `test -e` returning false at **2026-08-25T22:07:02Z**, immediately before this
+> amendment was written, and **no container has started for this item.**
+
+Rule 2's pre-compute window is therefore open and every change above is an amendment before
+first compute, not an addendum after it. **All four instruments §4 names now exist**, verified
+by a predicate naming each, **with a planted control and a negative control** — the
+supervisor's amended pre-compute check, implemented inside the launcher as assert A4.
+
+> **STATUS: this document is now FROZEN AS AN ARMED ITEM at v1.2.** After the first container
+> starts, gates are CLOSED and only dated addenda that cannot alter a gate, threshold, cap or
+> label may follow.
+
+**NOT FILED. Nothing in this amendment was sent, uploaded, registered, posted or commented.**

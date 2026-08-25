@@ -55,8 +55,32 @@ HARNESS_FLOOR_LO   = 0.025      # VERIFICATION_CHARTER section 7 step 4, shape D
 CAP_CORE_MIN       = 600.0
 CAP_S8_CORE_MIN    = 350.0
 
-GATES_EMITTED = ["G12R-0", "G12R-1", "G12R-2", "G12R-3", "G12R-4", "G12R-5",
-                 "G12R-6", "G12R-7", "G12R-8", "G12R-9", "G12R-10", "G12R-11"]
+# ---- ADDED 2026-08-25 under SUPERVISOR_D12_RULINGS.md, before first compute -------
+# RULING 4 (delta_pert).  Two probe steps A DECADE APART, frozen.  delta_pert is
+# MEASURED FOR THIS CONFIGURATION and is NEVER imported from D12-F': the floor is
+# component-dependent (1.65e-06 vs 8.4e-09 on two components of one probe), so it is
+# a property of a configuration exactly as DAFOAM_CHARTER.md section 5 says an FD
+# reference is.  Importing it would be inventing a price across configurations.
+DPERT_HA           = 1.0e-6
+DPERT_HB           = 1.0e-5
+DPERT_RATIO        = 10.0       # h_b / h_a, ASSERTED, because the solve assumes it
+
+# RULING 6 (the delta_window == 0 hazard).  delta_window is IDENTICALLY ZERO whenever
+# the graded window W is an integer multiple of the shedding period -- not because the
+# objective is noiseless, but because block averaging over whole periods cancels the
+# phase spread it exists to measure.
+WINDOW_DEGEN_TOL   = 0.05       # |W/P - round(W/P)| <= this  =>  DEGENERATE
+# PRE-COMPUTE PREDICTION, registered so G12R-1 tests it rather than confirming it:
+# a circular cylinder sheds at St ~ 0.2; with D = 1.0 m and U0 = 10 m/s that is
+# f ~ 2 Hz, T ~ 0.5 s, and at deltaT = 1e-2 the period is ~50 timesteps.  W = 300 is
+# then ~6.0 periods EXACTLY, so delta_window is PREDICTED DEGENERATE -- not merely at
+# risk of it.  W is NOT moved: it is the tutorial's own registered optimisation window
+# and D12 is required to grade the case it names.  delta_pert carries the burden
+# instead, which is why RULING 4 and RULING 6 are one repair and not two.
+PERIOD_PREDICTED_STEPS = 50.0
+
+GATES_EMITTED = ["G12R-0", "G12R-1", "G12R-2", "G12R-3", "G12R-3b", "G12R-4", "G12R-5",
+                 "G12R-6", "G12R-7", "G12R-8", "G12R-9", "G12R-10", "G12R-11", "G12R-W"]
 
 
 class Refusal(Exception):
@@ -183,6 +207,36 @@ def g0_completion(stages):
             raise Refusal("G12R-0 %s: last time %r != endTime %r" % (nm, lt, et))
         if not st.get("coldstart_ok"):
             raise Refusal("G12R-0 %s: cold-start assertion did not pass" % nm)
+        # ---- ADDED under RULING 5: the two limbs of CLAUDE.md rule 4 this gate did not
+        # ---- carry.  REQUIRED, not optional -- rule 4 is a standing rule.
+        #
+        # THE AGE GUARD.  `0/U` is touched last at launch, so it dates the run allowed to
+        # produce the answer; every field at endTime must be NEWER.  A stage that fails
+        # this is carrying a field it did not produce, and no cold-start check can see
+        # that on its own -- a directory can be absent at launch and still be filled from
+        # somewhere other than this run.
+        ag = st.get("age_guard_ok")
+        if ag is not True:
+            raise Refusal("G12R-0 %s: AGE GUARD not satisfied (age_guard_ok=%r): %s. "
+                          "Every field at endTime must be newer than the case's own 0/U "
+                          "datum (CLAUDE.md rule 4)."
+                          % (nm, ag, st.get("age_guard_detail", "<no detail recorded>")))
+        # THE STEP COUNT.  rule 4's "ExecutionTime count == endTime" limb, in the form
+        # this solver carries it: the primal writes one `Time = ` line per timestep, so
+        # that count must EQUAL the registered number of steps.  `ExecutionTime` lines are
+        # counted too and reported, but a compute_totals stage emits them in the adjoint
+        # sweep as well, so that count is required only to be >= the step count -- stated
+        # rather than quietly gated at equality it cannot meet.
+        exp = st.get("expected_steps")
+        if exp:
+            tlc = st.get("time_line_count")
+            if tlc != exp:
+                raise Refusal("G12R-0 %s: primal wrote %r `Time =` lines, registered %d "
+                              "steps (rule 4's step-count limb)" % (nm, tlc, exp))
+            etc = st.get("execution_time_count")
+            if etc is None or etc < exp:
+                raise Refusal("G12R-0 %s: ExecutionTime count %r is below the %d "
+                              "registered steps" % (nm, etc, exp))
         if not st.get("field_b_md5_ok", True):
             raise Refusal("G12R-0 %s: FIELD_B md5 manifest mismatch" % nm)
         oj, ol = st.get("obj"), st.get("obj_from_log")
@@ -200,6 +254,130 @@ def g0_completion(stages):
             raise Refusal("G12R-0 %s: launched at MemAvailable %.4f GiB, below the "
                           "registered %.1f GiB floor" % (nm, float(ma), MEMAVAIL_FLOOR_GIB))
     return {"gate": "G12R-0", "verdict": "PASS", "n_stages": len(stages)}
+
+
+def g_where(stage, reg_index, reg_delta, nshapes=None):
+    """G12R-W -- THE WHERE-CONTROL.  SUPERVISOR_D12_RULINGS.md section 3, condition 3.
+
+    D4-DEF-4: "A units error is invisible to every count-based, plant-based and
+    order-based control in this family's gate set.  They check THAT n components were
+    measured.  They never check WHERE."  D4's endpoint was extracted in driver-scaled
+    units and applied as physical; had the scaler been 1.0 instead of 10 every primal
+    would have converged and THE FULLY ARMED INSTRUMENT SET WOULD HAVE CERTIFIED a
+    design point that was not the optimum.
+
+    So this gate reads back, from the stage's own JSON on disk, the perturbation the run
+    ACTUALLY APPLIED -- index, sign and magnitude, derived from the shape vector itself,
+    never echoed from the launcher's arguments -- and REFUSES if it is not the registered
+    one.  A count of stages is not a witness of what was perturbed.
+    """
+    nm = stage.get("name", "<unnamed>")
+    sv = stage.get("applied_shape_vector")
+    if sv is None:
+        raise Refusal("G12R-W %s: no applied_shape_vector on disk -- the WHERE-control "
+                      "has nothing to read, so nothing witnesses what was perturbed" % nm)
+    if not isinstance(sv, list) or (nshapes is not None and len(sv) != nshapes):
+        raise Refusal("G12R-W %s: applied_shape_vector is %r; expected a list of %r"
+                      % (nm, sv, nshapes))
+    ai, asg, amag = (stage.get("applied_index"), stage.get("applied_sign"),
+                     stage.get("applied_magnitude"))
+    if asg == "multiple" or isinstance(ai, list):
+        raise Refusal("G12R-W %s: MORE THAN ONE non-zero shape component was applied "
+                      "(indices %r). That is not a partial derivative and no FD taken "
+                      "from it is one." % (nm, ai))
+    reg_delta = float(reg_delta)
+    if reg_delta == 0.0:
+        if asg != "zero":
+            raise Refusal("G12R-W %s: registered an UNPERTURBED stage but the run applied "
+                          "index=%r sign=%r magnitude=%r" % (nm, ai, asg, amag))
+        return {"gate": "G12R-W", "verdict": "PASS", "stage": nm, "applied": "zero",
+                "registered_delta": 0.0}
+    if asg == "zero":
+        raise Refusal("G12R-W %s: registered delta %.16e but the run applied NOTHING -- "
+                      "the perturbation did not reach the solver" % (nm, reg_delta))
+    if ai != int(reg_index):
+        raise Refusal("G12R-W %s: perturbation landed on component %r, registered %r. "
+                      "THE RUN POINT IS NOT WHERE THE REGISTRATION SAYS IT IS."
+                      % (nm, ai, reg_index))
+    want_sign = "plus" if reg_delta > 0 else "minus"
+    if asg != want_sign:
+        raise Refusal("G12R-W %s: perturbation sign is %r, registered %r"
+                      % (nm, asg, want_sign))
+    want_mag = abs(reg_delta)
+    if amag is None or not _finite(amag):
+        raise Refusal("G12R-W %s: applied magnitude is %r" % (nm, amag))
+    # relative agreement, because the magnitudes span 1e-6 to 1e-2
+    if abs(amag - want_mag) > 1.0e-12 * max(1.0, want_mag):
+        raise Refusal("G12R-W %s: applied magnitude %.16e, registered %.16e (rel %.3e). "
+                      "A SCALER OR UNITS ERROR LOOKS EXACTLY LIKE THIS."
+                      % (nm, amag, want_mag, abs(amag - want_mag) / want_mag))
+    # every OTHER component must be exactly zero, or it is not a partial derivative
+    for j, v in enumerate(sv):
+        if j != ai and float(v) != 0.0:
+            raise Refusal("G12R-W %s: component %d is %.16e, must be exactly 0.0"
+                          % (nm, j, float(v)))
+    return {"gate": "G12R-W", "verdict": "PASS", "stage": nm, "applied_index": ai,
+            "applied_sign": asg, "applied_magnitude": amag,
+            "registered_delta": reg_delta}
+
+
+def g3b_delta_pert(pairs):
+    """G12R-3b -- delta_pert, the PERTURBATION-RESPONSE floor.  RULING 4.
+
+    MODEL-FREE: this function NEVER READS THE ADJOINT.  D12-F' measured delta_repeat at
+    exactly 0.000000e+00 while the objective carried a floor of ~1.65e-06 -- three-plus
+    orders apart -- so an unperturbed-run noise estimate is demonstrably blind to the
+    thing that actually limits the finite difference.
+
+    `pairs` is a list of dicts, one per component:
+        {"component": i, "h_a": ha, "S_a": |obj(+ha)-obj(-ha)|,
+                          "h_b": hb, "S_b": |obj(+hb)-obj(-hb)|}
+
+    THE SOLVE.  Model the measured difference at step h as  S(h) = 2h|g| + 2e, where e is
+    the per-evaluation floor.  With h_b = 10 h_a the |g| term cancels:
+        S_b - 10 S_a = 2|g|(h_b - 10 h_a) + 2e - 20e = -18e
+        =>  e = (10 S_a - S_b) / 18
+    Two measurements, two unknowns, no adjoint anywhere.  Validated against D12-F''s
+    committed component-3 data (S_a=3.0738e-06, S_b=1.0464e-06) it returns 1.6495e-06,
+    against the 1.65e-06 that record obtained by the adjoint-based route.
+
+    e <= 0 means the data are consistent with NO detectable floor at these steps.  That is
+    reported as 0.0 AND FLAGGED AS "not detectable at these steps", never as "there is no
+    floor" -- component 0 of D12-F' returns exactly that and still had no plateau.
+
+    delta_pert for the item is the MAX over components, because h* must be admissible for
+    ALL of them.
+    """
+    if not pairs:
+        raise Refusal("G12R-3b: EMPTY component set -- no delta_pert can be computed, and "
+                      "a percentage over an empty set is this family's own measured defect")
+    per = []
+    for row in pairs:
+        i = row.get("component")
+        ha, hb = float(row["h_a"]), float(row["h_b"])
+        if ha <= 0.0 or hb <= 0.0:
+            raise Refusal("G12R-3b component %r: non-positive probe step" % i)
+        r = hb / ha
+        if abs(r - DPERT_RATIO) > 1.0e-9 * DPERT_RATIO:
+            raise Refusal("G12R-3b component %r: probe steps are a ratio of %.6f, the "
+                          "solve assumes exactly %.1f" % (i, r, DPERT_RATIO))
+        sa, sb = float(row["S_a"]), float(row["S_b"])
+        if not (_finite(sa) and _finite(sb)):
+            raise Refusal("G12R-3b component %r: non-finite signal" % i)
+        e = (DPERT_RATIO * sa - sb) / (2.0 * (DPERT_RATIO - 1.0))
+        detectable = e > 0.0
+        g_implied = (sb - sa) / (2.0 * (hb - ha))
+        per.append({"component": i, "h_a": ha, "h_b": hb, "S_a": sa, "S_b": sb,
+                    "delta_pert": (e if detectable else 0.0),
+                    "detectable": detectable,
+                    "linearity_ratio": (sb / sa if sa != 0.0 else float("inf")),
+                    "g_implied_DIAGNOSTIC_ONLY": g_implied})
+    dp = max(p["delta_pert"] for p in per)
+    return {"gate": "G12R-3b", "verdict": "PASS", "delta_pert": dp,
+            "n_components": len(per), "per_component": per,
+            "note": ("delta_pert is the MAX over components because h* must be admissible "
+                     "for all of them; a component reporting 0.0 means NO FLOOR WAS "
+                     "DETECTABLE AT THESE STEPS, which is not the same claim as no floor")}
 
 
 def g1_limit_cycle(cd_retained):
@@ -238,17 +416,73 @@ def g2_delta_repeat(objs):
                      "measured by G12R-3." if d == 0.0 else "")}
 
 
-def g3_delta_window(cd_retained, W):
+def g3_delta_window(cd_retained, W, period_steps=None):
     blocks = block_averages(cd_retained, W)
     if len(blocks) < 2:
         raise Refusal("G12R-3: only %d block averages at W=%d -- no spread to measure"
                       % (len(blocks), W))
     d = max(blocks) - min(blocks)
     m = sum(blocks) / len(blocks)
-    return {"gate": "G12R-3", "verdict": "PASS", "W": W, "n_windows": len(blocks),
-            "delta_window": d,
-            "delta_window_rel": (d / abs(m) if m != 0.0 else float("inf")),
-            "grand_mean": m, "block_min": min(blocks), "block_max": max(blocks)}
+    out = {"gate": "G12R-3", "verdict": "PASS", "W": W, "n_windows": len(blocks),
+           "delta_window": d,
+           "delta_window_rel": (d / abs(m) if m != 0.0 else float("inf")),
+           "grand_mean": m, "block_min": min(blocks), "block_max": max(blocks)}
+    # ---- THE DEGENERACY BRANCH.  RULING 6, frozen before the data. ------------------
+    # delta_window is IDENTICALLY ZERO whenever W is an integer multiple of the shedding
+    # period, because block averaging over whole periods cancels the phase spread this
+    # quantity exists to measure.  A floor that can be zero BY CONSTRUCTION must never be
+    # allowed to size a step silently.
+    out["degenerate"] = None
+    out["periods_per_window"] = None
+    if period_steps and period_steps > 0:
+        k = float(W) / float(period_steps)
+        out["periods_per_window"] = k
+        out["degenerate"] = abs(k - round(k)) <= WINDOW_DEGEN_TOL
+        out["degeneracy_note"] = (
+            "W = %g is %.4f shedding periods. DEGENERATE: within %.2f of a whole number, "
+            "so delta_window is cancelled BY CONSTRUCTION and is NOT LOAD-BEARING here -- "
+            "delta_pert (G12R-3b) carries the noise floor. This branch was frozen BEFORE "
+            "the data and the ~%.0f-step period was PREDICTED before the run."
+            % (W, k, WINDOW_DEGEN_TOL, PERIOD_PREDICTED_STEPS)) if out["degenerate"] else (
+            "W = %g is %.4f shedding periods, not within %.2f of a whole number, so "
+            "delta_window is not cancelled by construction and stands on its own."
+            % (W, k, WINDOW_DEGEN_TOL))
+        out["period_prediction_steps"] = PERIOD_PREDICTED_STEPS
+        out["period_measured_steps"] = period_steps
+        out["period_prediction_held"] = (
+            abs(period_steps - PERIOD_PREDICTED_STEPS) <= 0.25 * PERIOD_PREDICTED_STEPS)
+    return out
+
+
+def g4_delta_eff(delta_repeat, delta_window, delta_pert, window_degenerate=None):
+    """delta_eff := max(delta_repeat, delta_window, delta_pert).  RULING 4, APPROVED.
+
+    As originally registered this was max(delta_repeat, delta_window), BOTH FROM
+    UNPERTURBED RUNS.  D12-F' measured delta_repeat = 0.000000e+00 against a
+    perturbation-response floor of ~1.65e-06 -- three-plus orders above -- so an
+    unperturbed-run estimate is demonstrably blind to the floor that actually limits the
+    FD.  Adding a term to a maximum can only RAISE h_min: it can cause a NOT A RESULT and
+    it cannot manufacture a PASS.
+    """
+    terms = {"delta_repeat": delta_repeat, "delta_window": delta_window,
+             "delta_pert": delta_pert}
+    for k, v in terms.items():
+        if v is None or not _finite(v) or v < 0.0:
+            raise Refusal("G12R-4: %s=%r is not a usable noise floor" % (k, v))
+    dom = max(terms, key=lambda k: terms[k])
+    out = {"gate": "G12R-4", "verdict": "PASS", "delta_eff": max(terms.values()),
+           "terms": terms, "dominant_term": dom,
+           "window_degenerate": window_degenerate}
+    if window_degenerate and dom == "delta_window":
+        raise Refusal("G12R-4: delta_window is DEGENERATE (W is a whole number of shedding "
+                      "periods, so it is cancelled by construction) yet it is the DOMINANT "
+                      "term. A noise floor that is zero by construction cannot be the "
+                      "largest one; the manifest is inconsistent.")
+    if max(terms.values()) == 0.0:
+        raise Refusal("G12R-4: ALL THREE noise terms are zero. No step can be sized "
+                      "against a floor of zero, and a zero from readers not shown able to "
+                      "see a non-zero is not evidence (CLAUDE.md rule 3).")
+    return out
 
 
 def g4_step_sizing(delta_eff, g_component):
@@ -470,10 +704,18 @@ def selftest(tmpdir):
     exercised = set()
 
     def base_stage(**kw):
+        # REPAIRED 2026-08-25 under RULING 5.  This fixture predates the age guard and the
+        # step-count limb, so it did NOT carry them -- and G12R-0 correctly REFUSED it the
+        # moment those limbs were added.  That refusal is the gate working: a fixture
+        # missing a limb is a stage missing evidence, and rule 4 does not accept absence
+        # of a check as a pass.  The fields are added; the gate is unchanged.
         st = {"name": "s", "rc": 0, "oomkilled": "false", "status": "COMPLETE",
               "end_line_present": True, "last_time": 3.0, "endTime": 3.0,
               "coldstart_ok": True, "field_b_md5_ok": True,
-              "obj": 1.0, "obj_from_log": 1.0, "memavail_GiB": 25.0}
+              "obj": 1.0, "obj_from_log": 1.0, "memavail_GiB": 25.0,
+              "age_guard_ok": True, "age_guard_detail": "all fields newer than 0/U",
+              "expected_steps": 300, "time_line_count": 300,
+              "execution_time_count": 300}
         st.update(kw)
         return st
 
@@ -485,7 +727,10 @@ def selftest(tmpdir):
         for mut, val in [("rc", 1), ("oomkilled", "true"), ("status", "STARTED"),
                          ("end_line_present", False), ("last_time", 2.99),
                          ("coldstart_ok", False), ("field_b_md5_ok", False),
-                         ("memavail_GiB", 3.0), ("obj_from_log", 1.5)]:
+                         ("memavail_GiB", 3.0), ("obj_from_log", 1.5),
+                         # the two limbs added under RULING 5
+                         ("age_guard_ok", False), ("age_guard_ok", None),
+                         ("time_line_count", 299), ("execution_time_count", 3)]:
             try:
                 g0_completion([base_stage(**{mut: val})])
                 raise AssertionError("G12R-0 did NOT refuse on mutation %s=%r" % (mut, val))
@@ -578,6 +823,140 @@ def selftest(tmpdir):
                 pass
 
     # ---- G12R-3
+    # ================= ADDED 2026-08-25 under SUPERVISOR_D12_RULINGS.md ============
+    # Every unit below walks a FAILURE path.  A control whose failure path has never been
+    # walked is a control nobody has shown to work -- M3 is this file's standing proof.
+    def _stage(name="S6", idx=0, delta=1.0e-3, n=4, leak=False, applied=None):
+        sv = [0.0] * n
+        if applied is None:
+            applied = delta
+        if applied != 0.0:
+            sv[idx] = applied
+        if leak:
+            sv[(idx + 1) % n] = 1.0e-12
+        nz = [(i, v) for i, v in enumerate(sv) if v != 0.0]
+        st = {"name": name, "applied_shape_vector": sv}
+        if len(nz) == 0:
+            st.update(applied_index=None, applied_sign="zero", applied_magnitude=0.0)
+        elif len(nz) == 1:
+            i, v = nz[0]
+            st.update(applied_index=i, applied_sign=("plus" if v > 0 else "minus"),
+                      applied_magnitude=abs(v))
+        else:
+            st.update(applied_index=[i for i, _ in nz], applied_sign="multiple",
+                      applied_magnitude=None)
+        return st
+
+    def _refuses(fn, what):
+        try:
+            fn()
+        except Refusal:
+            return
+        raise AssertionError("did NOT refuse: " + what)
+
+    def uW():
+        exercised.add("G12R-W")
+        r = g_where(_stage(), 0, 1.0e-3, nshapes=4)
+        assert r["verdict"] == "PASS" and r["applied_index"] == 0, r
+        r = g_where(_stage(idx=2, delta=-1.0e-3), 2, -1.0e-3, nshapes=4)
+        assert r["applied_sign"] == "minus", r
+        r = g_where(_stage(delta=0.0, applied=0.0), 0, 0.0, nshapes=4)
+        assert r["applied"] == "zero", r
+    def uW_index():
+        # the perturbation landed on the WRONG COMPONENT
+        _refuses(lambda: g_where(_stage(idx=1), 0, 1.0e-3, nshapes=4), "wrong index")
+    def uW_sign():
+        _refuses(lambda: g_where(_stage(delta=1.0e-3), 0, -1.0e-3, nshapes=4), "wrong sign")
+    def uW_scaler():
+        # THE D4-DEF-4 CLASS: the magnitude applied is the registered one times a scaler.
+        # This is the single most important unit in this file -- it is the failure that a
+        # fully armed count/plant/order instrument set certified.
+        _refuses(lambda: g_where(_stage(applied=1.0e-2), 0, 1.0e-3, nshapes=4),
+                 "magnitude off by a factor of 10 (a scaler error)")
+    def uW_leak():
+        _refuses(lambda: g_where(_stage(leak=True), 0, 1.0e-3, nshapes=4),
+                 "a non-zero leaked into a second component")
+    def uW_nothing():
+        _refuses(lambda: g_where(_stage(applied=0.0), 0, 1.0e-3, nshapes=4),
+                 "registered a perturbation but the run applied nothing")
+    def uW_unexpected():
+        _refuses(lambda: g_where(_stage(applied=1.0e-3), 0, 0.0, nshapes=4),
+                 "registered an unperturbed stage but the run perturbed it")
+    def uW_novector():
+        _refuses(lambda: g_where({"name": "S6"}, 0, 1.0e-3, nshapes=4),
+                 "no applied_shape_vector on disk")
+
+    def u3b():
+        exercised.add("G12R-3b")
+        # D12-F''s OWN COMMITTED component-3 data.  The model-free two-point solve must
+        # recover the floor that record obtained by the adjoint-based route, 1.65e-06.
+        r = g3b_delta_pert([{"component": 3, "h_a": 1e-6, "S_a": 3.0738409e-06,
+                             "h_b": 1e-5, "S_b": 1.0464e-06}])
+        assert abs(r["delta_pert"] - 1.6495e-06) < 1.0e-9, r
+        assert r["per_component"][0]["detectable"] is True, r
+    def u3b_undetectable():
+        # a clean linear response: S_b = 10*S_a exactly => e = 0, reported as NOT
+        # DETECTABLE rather than as "there is no floor"
+        r = g3b_delta_pert([{"component": 0, "h_a": 1e-6, "S_a": 1.0e-8,
+                             "h_b": 1e-5, "S_b": 1.0e-7}])
+        assert r["delta_pert"] == 0.0 and r["per_component"][0]["detectable"] is False, r
+    def u3b_max():
+        r = g3b_delta_pert([{"component": 0, "h_a": 1e-6, "S_a": 1.0e-8, "h_b": 1e-5, "S_b": 1.0e-7},
+                            {"component": 3, "h_a": 1e-6, "S_a": 3.0738409e-06, "h_b": 1e-5, "S_b": 1.0464e-06}])
+        assert abs(r["delta_pert"] - 1.6495e-06) < 1.0e-9, r   # the MAX, not the first
+    def u3b_empty():
+        _refuses(lambda: g3b_delta_pert([]), "G12R-3b on an EMPTY component set")
+    def u3b_ratio():
+        _refuses(lambda: g3b_delta_pert([{"component": 0, "h_a": 1e-6, "S_a": 1.0,
+                                          "h_b": 3e-6, "S_b": 1.0}]),
+                 "probe steps that are not a decade apart")
+
+    def u3_degen():
+        # W = 300 and a 50-step period is 6.0 periods EXACTLY -> DEGENERATE by construction
+        r = g3_delta_window([1.0, 3.0] * 200, 300, period_steps=50.0)
+        assert r["degenerate"] is True and abs(r["periods_per_window"] - 6.0) < 1e-12, r
+        assert "NOT LOAD-BEARING" in r["degeneracy_note"], r
+    def u3_nondegen():
+        r = g3_delta_window([1.0, 3.0] * 200, 300, period_steps=47.0)
+        assert r["degenerate"] is False, r
+
+    def u4_eff():
+        r = g4_delta_eff(0.0, 1.0e-9, 1.65e-06)
+        assert r["delta_eff"] == 1.65e-06 and r["dominant_term"] == "delta_pert", r
+        # the historical case: delta_repeat exactly zero and delta_window degenerate
+        r2 = g4_delta_eff(0.0, 0.0, 1.65e-06, window_degenerate=True)
+        assert r2["delta_eff"] == 1.65e-06, r2
+    def u4_allzero():
+        _refuses(lambda: g4_delta_eff(0.0, 0.0, 0.0),
+                 "ALL THREE noise terms zero -- no step can be sized against zero")
+    def u4_degen_dominant():
+        _refuses(lambda: g4_delta_eff(0.0, 1.0e-3, 0.0, window_degenerate=True),
+                 "a DEGENERATE delta_window as the dominant term")
+
+    def _g0row(**kw):
+        row = {"name": "S5", "rc": 0, "oomkilled": "false", "status": "COMPLETE",
+               "end_line_present": True, "last_time": 3.0, "endTime": 3.0,
+               "coldstart_ok": True, "age_guard_ok": True, "age_guard_detail": "ok",
+               "expected_steps": 300, "time_line_count": 300,
+               "execution_time_count": 600, "memavail_GiB": 20.0}
+        row.update(kw)
+        return row
+    def u0_age():
+        exercised.add("G12R-0")
+        assert g0_completion([_g0row()])["verdict"] == "PASS"
+        _refuses(lambda: g0_completion([_g0row(age_guard_ok=False,
+                                               age_guard_detail="STALE: U,p")]),
+                 "AGE GUARD failed -- a field older than the case's own 0/U datum")
+    def u0_age_unevaluated():
+        _refuses(lambda: g0_completion([_g0row(age_guard_ok=None)]),
+                 "age guard NOT EVALUATED -- absence of a check is not a pass")
+    def u0_steps():
+        _refuses(lambda: g0_completion([_g0row(time_line_count=299)]),
+                 "primal wrote 299 Time lines against 300 registered steps")
+    def u0_exectime():
+        _refuses(lambda: g0_completion([_g0row(execution_time_count=12)]),
+                 "ExecutionTime count below the registered step count")
+
     def u06():
         exercised.add("G12R-3")
         # REPAIRED 2026-08-25 (before first compute).  The original fixture used W = 2 on a
@@ -797,7 +1176,7 @@ def selftest(tmpdir):
 
     for nm, fn in [
         ("U-01  G12R-0 accepts a complete stage", u01),
-        ("U-01b G12R-0 refuses all 9 rule-4 mutations", u01b),
+        ("U-01b G12R-0 refuses all 13 rule-4 mutations", u01b),
         ("U-01c G12R-0 refuses an empty stage list", u01c),
         ("U-02  series reader reads a real log shape", u02),
         ("U-02b series reader refuses a zero-sample log", u02b),
@@ -808,6 +1187,28 @@ def selftest(tmpdir):
         ("U-04b G12R-1 refuses an empty series", u04b),
         ("U-05  G12R-2 zero and non-zero repeat spread", u05),
         ("U-05b G12R-2 refuses <3 repeats and non-finites", u05b),
+        ("U-W   G12R-W where-control PASS on index/sign/zero", uW),
+        ("U-W1  G12R-W refuses the WRONG COMPONENT", uW_index),
+        ("U-W2  G12R-W refuses the WRONG SIGN", uW_sign),
+        ("U-W3  G12R-W refuses a SCALER ERROR (the D4-DEF-4 class)", uW_scaler),
+        ("U-W4  G12R-W refuses a LEAK into a second component", uW_leak),
+        ("U-W5  G12R-W refuses registered-but-not-applied", uW_nothing),
+        ("U-W6  G12R-W refuses applied-but-not-registered", uW_unexpected),
+        ("U-W7  G12R-W refuses a stage with no shape vector on disk", uW_novector),
+        ("U-3b  G12R-3b recovers D12-F's 1.65e-06 MODEL-FREE", u3b),
+        ("U-3b1 G12R-3b reports NOT DETECTABLE, not 'no floor'", u3b_undetectable),
+        ("U-3b2 G12R-3b takes the MAX over components", u3b_max),
+        ("U-3b3 G12R-3b refuses an EMPTY component set", u3b_empty),
+        ("U-3b4 G12R-3b refuses probe steps not a decade apart", u3b_ratio),
+        ("U-3d  G12R-3 flags W=300 at a 50-step period as DEGENERATE", u3_degen),
+        ("U-3e  G12R-3 does NOT flag a non-dividing period", u3_nondegen),
+        ("U-4e  G12R-4 delta_eff = max of THREE terms", u4_eff),
+        ("U-4f  G12R-4 refuses all-zero noise terms", u4_allzero),
+        ("U-4g  G12R-4 refuses a DEGENERATE delta_window as dominant", u4_degen_dominant),
+        ("U-0a  G12R-0 AGE GUARD refuses a stale field", u0_age),
+        ("U-0b  G12R-0 refuses an UNEVALUATED age guard", u0_age_unevaluated),
+        ("U-0c  G12R-0 refuses a short primal step count", u0_steps),
+        ("U-0d  G12R-0 refuses a short ExecutionTime count", u0_exectime),
         ("U-06  G12R-3 window spread", u06),
         ("U-06c G12R-3 W a multiple of the period => delta_window EXACTLY 0", u06c),
         ("U-06b G12R-3 refuses a single-window series", u06b),
@@ -858,9 +1259,231 @@ def selftest(tmpdir):
     return 0
 
 
+# =============================================================================
+# THE PLAN MODES -- where step selection lives, and why it lives HERE
+# =============================================================================
+# SUPERVISOR_D12_RULINGS.md section 3 condition 3: "The launcher stages in two phases;
+# IT DOES NOT CHOOSE A STEP.  The rule that selects the step stays frozen in the
+# comparator and must remain POSITIONAL OVER THE PLATEAU, NEVER READING THE ADJOINT."
+#
+# That property is not decoration.  In D10-F' the positional rule landed on the step that
+# independently minimised disagreement with a number it never reads, producing a V-shaped
+# error column whose minimum coincided with the rule's own choice.  A grader fitting the
+# step to the answer cannot produce that coincidence, which is why the coincidence is
+# evidence.  Give the rule sight of the adjoint and the evidence evaporates.
+#
+# So: G12R-4 sizes the RANGE of the sweep from |g| -- that is the pre-registration's own
+# registered arithmetic, and sizing a range is not selecting a step.  G12R-5 selects h*
+# POSITIONALLY over the plateau and never sees the adjoint at all.
+
+def _read_manifest_rows(path):
+    rows = []
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                rows.append(json.loads(line))
+    if not rows:
+        raise Refusal("manifest %s holds NO stage rows" % path)
+    return rows
+
+
+def _by_name(rows):
+    d = {}
+    for r in rows:
+        d[r.get("name")] = r
+    return d
+
+
+def plan(manifest_path, root):
+    """--plan : phase 1 -> step_plan.json.  Computes delta_eff and the sweep RANGE."""
+    rows = [r for r in _read_manifest_rows(manifest_path) if not r.get("blocked")]
+    out = {"gates": []}
+    out["gates"].append(g0_completion(rows))
+
+    # ---- G12R-W on EVERY stage, before any number from it is used ------------------
+    nsh = None
+    for r in rows:
+        if r.get("nShapes"):
+            nsh = int(r["nShapes"])
+            break
+    if nsh is not None and nsh != 4:
+        raise Refusal("nShapes is %r, the registered case has 4 shape modes" % nsh)
+    where = []
+    for r in rows:
+        if r.get("applied_shape_vector") is None:
+            continue
+        where.append(g_where(r, r.get("registered_dvIndex", 0),
+                             r.get("registered_dvDelta", 0.0), nshapes=nsh))
+    out["gates"].append({"gate": "G12R-W", "verdict": "PASS", "n_stages_witnessed": len(where)})
+    if not where:
+        raise Refusal("G12R-W witnessed ZERO stages -- the WHERE-control read nothing, and "
+                      "a control that read nothing has not passed")
+
+    byn = _by_name(rows)
+
+    # ---- G12R-1 and G12R-3 from S2's own series on disk -----------------------------
+    s2 = byn.get("S2")
+    if not s2:
+        raise Refusal("no S2 diagnostic stage in the manifest")
+    logp = os.path.join(root, os.path.basename(s2.get("log", "")))
+    cands = [p for p in os.listdir(root) if p.startswith("S2_") and p.endswith(".log")]
+    if not cands:
+        raise Refusal("no S2 log on disk in %s" % root)
+    _, cd, _ = read_series(os.path.join(root, sorted(cands)[-1]))
+    if len(cd) <= TRANSIENT_DISCARD:
+        raise Refusal("S2 produced %d CD samples, at or below the registered %d-step "
+                      "transient discard" % (len(cd), TRANSIENT_DISCARD))
+    retained = cd[TRANSIENT_DISCARD:]
+    g1 = g1_limit_cycle(retained)
+    out["gates"].append(g1)
+    g3 = g3_delta_window(retained, W_PRIMARY, period_steps=g1.get("period_steps"))
+    out["gates"].append(g3)
+
+    # ---- G12R-2 delta_repeat --------------------------------------------------------
+    reps = [byn["S3_r%d" % i]["obj"] for i in (1, 2, 3) if byn.get("S3_r%d" % i)]
+    if len(reps) < 3:
+        raise Refusal("delta_repeat needs 3 runs, the manifest carries %d" % len(reps))
+    g2 = g2_delta_repeat(reps)
+    out["gates"].append(g2)
+
+    # ---- G12R-3b delta_pert, MEASURED HERE, never imported --------------------------
+    pairs = []
+    for i in range(nsh or 4):
+        row = {"component": i}
+        ok = True
+        for tag, key, h in (("a", "S_a", DPERT_HA), ("b", "S_b", DPERT_HB)):
+            pn = byn.get("S3b_c%d_%sp" % (i, tag))
+            mn = byn.get("S3b_c%d_%sm" % (i, tag))
+            if not pn or not mn or pn.get("obj") is None or mn.get("obj") is None:
+                ok = False
+                break
+            row[key] = abs(float(pn["obj"]) - float(mn["obj"]))
+            row["h_a" if tag == "a" else "h_b"] = h
+        if ok:
+            pairs.append(row)
+    g3b = g3b_delta_pert(pairs)
+    out["gates"].append(g3b)
+
+    # ---- delta_eff, and the step RANGE ---------------------------------------------
+    ge = g4_delta_eff(g2["delta_repeat"], g3["delta_window"], g3b["delta_pert"],
+                      window_degenerate=g3.get("degenerate"))
+    out["gates"].append(ge)
+    s5 = byn.get("S5")
+    if not s5 or not s5.get("dobj_dshape"):
+        raise Refusal("no S5 adjoint in the manifest -- no |g| to size the sweep range")
+    g_comp = float(s5["dobj_dshape"][0])
+    g4 = g4_step_sizing(ge["delta_eff"], g_comp)
+    out["gates"].append(g4)
+
+    planj = {"admissible": bool(g4.get("verdict") == "PASS" and g4.get("steps")),
+             "steps": g4.get("steps", []), "h_min": g4.get("h_min"),
+             "h_max": H_MAX, "delta_eff": ge["delta_eff"],
+             "delta_terms": ge["terms"], "dominant_term": ge["dominant_term"],
+             "window_degenerate": g3.get("degenerate"),
+             "period_steps": g1.get("period_steps"),
+             "g_component_0": g_comp}
+    with open(os.path.join(root, "step_plan.json"), "w") as f:
+        json.dump(planj, f, indent=2, sort_keys=True)
+    out["step_plan"] = planj
+    return out
+
+
+def plan2(manifest_path, root):
+    """--plan2 : phase 2 -> step_plan2.json.  Selects h* POSITIONALLY.  NO ADJOINT."""
+    rows = [r for r in _read_manifest_rows(manifest_path) if not r.get("blocked")]
+    g0_completion(rows)
+    byn = _by_name(rows)
+    with open(os.path.join(root, "step_plan.json")) as f:
+        pj = json.load(f)
+    fds, used = [], []
+    for k, h in enumerate(pj["steps"], start=1):
+        pn, mn = byn.get("S6_s%d_p" % k), byn.get("S6_s%d_m" % k)
+        if not pn or not mn or pn.get("obj") is None or mn.get("obj") is None:
+            continue
+        g_where(pn, 0, h, nshapes=4)
+        g_where(mn, 0, -h, nshapes=4)
+        fds.append((float(pn["obj"]) - float(mn["obj"])) / (2.0 * float(h)))
+        used.append(float(h))
+    if len(used) < 3:
+        raise Refusal("G12R-5: only %d usable sweep steps on disk; a plateau needs at "
+                      "least %d and one step is never a plateau" % (len(used), PLATEAU_MIN_RUN))
+    g5 = g5_plateau(used, fds) if "g5_plateau" in globals() else None
+    if g5 is None:
+        # positional plateau, inline: consecutive steps agreeing within PLATEAU_TOL_REL
+        runs, cur = [], [0]
+        for i in range(len(fds) - 1):
+            a, b = fds[i], fds[i + 1]
+            if b != 0.0 and abs(a - b) / abs(b) <= PLATEAU_TOL_REL:
+                cur.append(i + 1)
+            else:
+                runs.append(cur); cur = [i + 1]
+        runs.append(cur)
+        best = max(runs, key=len)
+        g5 = {"gate": "G12R-5",
+              "verdict": "PASS" if len(best) >= PLATEAU_MIN_RUN else "NOT A RESULT",
+              "run_len": len(best), "steps": used, "fd": fds,
+              "h_star": (used[best[(len(best) - 1) // 2]] if len(best) >= PLATEAU_MIN_RUN else None)}
+    hs = g5.get("h_star")
+    p2 = {"h_star": hs, "h_wrong": (hs * TRIVIAL_MULTIPLIER if hs else None),
+          "plateau_verdict": g5["verdict"], "plateau_run_len": g5.get("run_len"),
+          "steps": used, "fd_estimates": fds,
+          "NOTE": "h* was selected POSITIONALLY over the plateau. No adjoint was read."}
+    with open(os.path.join(root, "step_plan2.json"), "w") as f:
+        json.dump(p2, f, indent=2, sort_keys=True)
+    return {"gates": [g5], "step_plan2": p2}
+
+
+def plan3(manifest_path, root):
+    """--plan3 : phase 3 -> step_plan3.json.  G12R-6 at h*, and G12R-11's AUTHORISATION.
+
+    The optimisation is authorised BY THE COMPARATOR, never by the launcher.  G12R-11:
+    S8 runs only if the bright line returns PASS or the charter's CONDITIONAL band on the
+    SHIPPED row; otherwise D12's optimisation is NOT A RESULT and is not launched.
+    """
+    rows = [r for r in _read_manifest_rows(manifest_path) if not r.get("blocked")]
+    g0_completion(rows)
+    byn = _by_name(rows)
+    with open(os.path.join(root, "step_plan2.json")) as f:
+        p2 = json.load(f)
+    hs = p2.get("h_star")
+    if not hs:
+        raise Refusal("G12R-6: no h* -- the plateau gate did not return one, so there is "
+                      "no step at which to take a vector FD")
+    s5 = byn.get("S5")
+    if not s5 or not s5.get("dobj_dshape"):
+        raise Refusal("G12R-6: no S5 adjoint in the manifest")
+    g_adj, g_fd = [], []
+    for i in range(len(s5["dobj_dshape"])):
+        pn, mn = byn.get("S6c_c%d_p" % i), byn.get("S6c_c%d_m" % i)
+        if not pn or not mn or pn.get("obj") is None or mn.get("obj") is None:
+            raise Refusal("G12R-6: component %d has no FD pair on disk at h*; the "
+                          "aggregate would be taken over a SHORT component set (%d of %d)"
+                          % (i, len(g_fd), len(s5["dobj_dshape"])))
+        g_where(pn, i, hs, nshapes=len(s5["dobj_dshape"]))
+        g_where(mn, i, -hs, nshapes=len(s5["dobj_dshape"]))
+        g_adj.append(float(s5["dobj_dshape"][i]))
+        g_fd.append((float(pn["obj"]) - float(mn["obj"])) / (2.0 * float(hs)))
+    g6 = g6_bright_line(g_adj, g_fd, label="SHIPPED at h*=%r" % hs)
+    authorised = g6["charter_band"] in ("PASS", "CONDITIONAL")
+    p3 = {"optimisation_authorised": authorised, "h_star": hs,
+          "aggregate_vector_rel": g6["aggregate_vector_rel"],
+          "charter_band": g6["charter_band"], "verdict": g6["verdict"],
+          "per_component": g6["per_component"], "sign_flipped": g6["sign_flipped"],
+          "NOTE": ("The optimisation is authorised by THIS comparator, not by the "
+                   "launcher. A refusal here means D12's optimisation is NOT A RESULT.")}
+    with open(os.path.join(root, "step_plan3.json"), "w") as f:
+        json.dump(p3, f, indent=2, sort_keys=True)
+    return {"gates": [g6], "step_plan3": p3}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--plan3", action="store_true")
+    ap.add_argument("--plan", action="store_true")
+    ap.add_argument("--plan2", action="store_true")
+    ap.add_argument("--root", default=None)
     ap.add_argument("--gatelist", action="store_true")
     ap.add_argument("--tmpdir", default="/tmp")
     ap.add_argument("--manifest", default=None,
@@ -874,6 +1497,17 @@ def main():
         d = os.path.join(a.tmpdir, "d12r_selftest")
         os.makedirs(d, exist_ok=True)
         return selftest(d)
+    if a.plan or a.plan2 or a.plan3:
+        if not (a.manifest and a.root):
+            print("REFUSAL: --plan/--plan2 need --manifest and --root", file=sys.stderr)
+            return 3
+        try:
+            res = (plan if a.plan else (plan2 if a.plan2 else plan3))(a.manifest, a.root)
+        except Refusal as e:
+            print("REFUSAL: %s" % e, file=sys.stderr)
+            return 2
+        print(json.dumps(res, indent=2, sort_keys=True, default=str))
+        return 0
     if not a.manifest:
         print("REFUSAL: no --manifest and no --selftest", file=sys.stderr)
         return 2
