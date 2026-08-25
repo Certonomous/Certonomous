@@ -253,6 +253,19 @@ def _clear_pycache(root):
 
 
 def _build_control_repo(root):
+    # RULE 10. The `git add -A` below is lawful ONLY because `root` is a throwaway
+    # temp repo. Nothing used to say so, and a refactor that hoisted this helper
+    # would turn it into a directory sweep of the SHARED tree (L-12, twice).
+    assert (
+        os.path.realpath(root).startswith(
+            os.path.realpath(tempfile.gettempdir()) + os.sep
+        )
+        and os.path.realpath(root)
+        != os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+    ), (
+        "_build_control_repo runs `git add -A`: root must be a throwaway temp repo "
+        "and must not be the Certonomous root; refusing %s" % os.path.realpath(root)
+    )
     env = dict(os.environ)
     env.pop("GIT_INDEX_FILE", None)
     env.update(
