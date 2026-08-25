@@ -1,0 +1,49 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M2 ARM C -- RNGkEpsilon.  "Try other models" (Sanaa 2026-08-25).
+
+  THE ONLY CHANGE vs run-1 / ARM A is the RASModel keyword: RNGkEpsilon in
+  place of kEpsilon.  Mesh, nutkWallFunction wall treatment and inlet
+  turbulence state (0/k, 0/epsilon byte-identical to run 1) are held FIXED as a
+  control.  The strain-dependent R term in the epsilon equation is the only
+  active difference; with the standard log-law wall function the near-wall
+  shear is still imposed from the first-cell k, so ARM C is expected to cluster
+  with A/B on Delta p (PREREGISTRATION_DRAFT.md section 7, Arm 4).
+
+  COEFFICIENTS READ FROM THE LIBRARY, NOT RECALLED.  RNGkEpsilon's default
+  constants in OpenFOAM v2606 are, from
+  src/TurbulenceModels/turbulenceModels/RAS/RNGkEpsilon/RNGkEpsilon.C
+  (getOrAddToDict defaults): Cmu 0.0845, C1 1.42, C2 1.68, C3 0,
+  sigmak 0.71942, sigmaEps 0.71942, eta0 4.38, beta 0.012.  Written out
+  explicitly below.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType  RAS;
+
+RAS
+{
+    RASModel        RNGkEpsilon;
+    turbulence      on;
+    printCoeffs     on;
+
+    RNGkEpsilonCoeffs
+    {
+        Cmu             0.0845;
+        C1              1.42;
+        C2              1.68;
+        C3              0;
+        sigmak          0.71942;
+        sigmaEps        0.71942;
+        eta0            4.38;
+        beta            0.012;
+    }
+}
+
+// ************************************************************************* //

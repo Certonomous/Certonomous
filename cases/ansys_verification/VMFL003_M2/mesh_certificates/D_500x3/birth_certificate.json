@@ -1,0 +1,12 @@
+{
+ "points_sha256": "56c69c06b2ef06f25a831f85bfe0cc9b36ba2c276c270cc1b520c827aa6dc88f",
+ "verdict": "clean",
+ "cells": 1500,
+ "max_aspect_ratio": 12.011432222,
+ "max_non_orthogonality": 0.0,
+ "max_skewness": 0.330796465394,
+ "hard_errors": [],
+ "generator": "blockMesh, VMFL003-M2 D_500x3 (model-agnostic geometry; scratch mesh, deterministic re-gen at graded run), PREREGISTRATION.md",
+ "created_at": "2026-08-25T16:32:28+00:00",
+ "provenance": "at-creation"
+}

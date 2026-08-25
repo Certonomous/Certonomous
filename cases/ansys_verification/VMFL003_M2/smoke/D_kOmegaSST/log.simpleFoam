@@ -1,0 +1,94 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : simpleFoam
+Date   : Aug 25 2026
+Time   : 16:32:29
+Host   : ip-172-31-43-247
+PID    : 2172505
+I/O    : uncollated
+Case   : /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/vmfl003m2-K8HN0M/smoke_D_kOmegaSST
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: no convergence criteria found. Calculations will run for 1 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWave
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.555555555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+No MRF models present
+
+No finite volume options present
+
+Starting time loop
+
+surfaceFieldValue pInletMonitor:
+    operation     = areaAverage
+
+
+surfaceFieldValue pOutletMonitor:
+    operation     = areaAverage
+
+
+Time = 1
+
+smoothSolver:  Solving for Ux, Initial residual = 1, Final residual = 0.00611231498288, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0.924162843791, Final residual = 0.00447565679656, No Iterations 2
+smoothSolver:  Solving for Uz, Initial residual = 0.930121039342, Final residual = 0.00713927509294, No Iterations 2
+GAMG:  Solving for p, Initial residual = 1, Final residual = 0.00980924416339, No Iterations 360
+GAMG:  Solving for p, Initial residual = 1.9536627034e-05, Final residual = 1.92264719697e-07, No Iterations 165
+time step continuity errors : sum local = 7.49221930261e-05, global = -1.52276781098e-08, cumulative = -1.52276781098e-08
+smoothSolver:  Solving for omega, Initial residual = 0.0389488173088, Final residual = 9.08576158505e-05, No Iterations 2
+smoothSolver:  Solving for k, Initial residual = 1, Final residual = 0.00367211581389, No Iterations 2
+ExecutionTime = 0.07 s  ClockTime = 0 s
+
+End
+

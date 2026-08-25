@@ -1,0 +1,78 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M2 ARM D -- turbulent pipe, kOmegaSST, steady simpleFoam.
+  Field-name diff of the epsilon-family fvSchemes: div(phi,omega) replaces
+  div(phi,epsilon); every other scheme is byte-identical (declared coupled
+  change, PREREGISTRATION_DRAFT.md section 3, 4).
+
+  The cell Peclet number based on the MOLECULAR viscosity is enormous
+  (|u| dx / nu = 50 * (2/__NX__) / 1.4607346938775508e-05 ~ 2.7e7 at NX = 250),
+  so a central div(phi,U) is out of the question: `bounded Gauss linearUpwind
+  grad(U)` -- second order, stable -- is used, exactly as on VMFL005.
+
+  The turbulence transport terms use `bounded Gauss limitedLinear 1`: second
+  order where the solution is smooth, degrading to upwind where the limiter
+  activates.  That is expected to happen ONLY in the entrance region (the first
+  ~21.5 D of a 500 D pipe), and it is the reason PREREGISTRATION.md section 6
+  registers an EXPECTED OBSERVED ORDER of p ~ 1 rather than p ~ 2 on the axial
+  triple: the axial discretisation error of the gate quantity lives almost
+  entirely in that limited entrance region, because over the remaining ~96 % of
+  the pipe the flow is fully developed and the axial pressure variation is
+  LINEAR and therefore represented exactly by any of the three meshes.
+
+  `bounded` prepends -fvm::Sp(fvc::div(phi), X), the standard steady-state
+  correction for a non-exactly-conservative intermediate phi.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         steadyState;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    // `default Gauss linear` rather than `default none`: a div term this dict
+    // does not name by the exact v2606 spelling then still runs with a
+    // second-order scheme instead of aborting (the team's VMFL001/VMFL005
+    // choice).  Every term simpleFoam+kEpsilon actually assembles is named
+    // explicitly below.
+    default         Gauss linear;
+    div(phi,U)      bounded Gauss linearUpwind grad(U);
+    div(phi,k)      bounded Gauss limitedLinear 1;
+    div(phi,omega) bounded Gauss limitedLinear 1;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+wallDist
+{
+    method          meshWave;
+}
+
+// ************************************************************************* //

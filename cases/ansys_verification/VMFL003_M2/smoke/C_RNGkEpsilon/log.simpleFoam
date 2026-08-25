@@ -1,0 +1,82 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : simpleFoam
+Date   : Aug 25 2026
+Time   : 16:32:29
+Host   : ip-172-31-43-247
+PID    : 2172468
+I/O    : uncollated
+Case   : /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/vmfl003m2-K8HN0M/smoke_C_RNGkEpsilon
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: no convergence criteria found. Calculations will run for 1 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model RNGkEpsilon
+RNGkEpsilonCoeffs
+{
+    Cmu             0.0845;
+    C1              1.42;
+    C2              1.68;
+    C3              0;
+    sigmak          0.71942;
+    sigmaEps        0.71942;
+    eta0            4.38;
+    beta            0.012;
+}
+
+No MRF models present
+
+No finite volume options present
+
+Starting time loop
+
+surfaceFieldValue pInletMonitor:
+    operation     = areaAverage
+
+
+surfaceFieldValue pOutletMonitor:
+    operation     = areaAverage
+
+
+Time = 1
+
+smoothSolver:  Solving for Ux, Initial residual = 1, Final residual = 0.00902892163333, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0.996922418658, Final residual = 0.00817917721692, No Iterations 2
+smoothSolver:  Solving for Uz, Initial residual = 0.934375992927, Final residual = 0.00903378000909, No Iterations 2
+GAMG:  Solving for p, Initial residual = 1, Final residual = 0.00973317896445, No Iterations 355
+GAMG:  Solving for p, Initial residual = 1.93832007413e-05, Final residual = 1.91055417107e-07, No Iterations 163
+time step continuity errors : sum local = 6.42371822435e-05, global = -1.30899125558e-08, cumulative = -1.30899125558e-08
+smoothSolver:  Solving for epsilon, Initial residual = 0.0831076655417, Final residual = 0.00020859094025, No Iterations 2
+smoothSolver:  Solving for k, Initial residual = 1, Final residual = 0.0044823757701, No Iterations 2
+ExecutionTime = 0.06 s  ClockTime = 0 s
+
+End
+

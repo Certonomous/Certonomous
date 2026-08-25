@@ -1,0 +1,54 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003 -- turbulent dissipation rate.  See 0/k for the derivation and for
+  FINDING 4 (the manual specifies no inlet turbulence condition at all).
+
+      eps_in = Cmu^0.75 * k_in^1.5 / l
+             = 0.09^0.75 * 9.375^1.5 / (0.07 * 0.004)
+             = 16845.37817870935 m2/s3
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      epsilon;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -3 0 0 0 0];
+
+internalField   uniform 16845.37817870935;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 16845.37817870935;
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 16845.37817870935;
+        value           uniform 16845.37817870935;
+    }
+
+    walls
+    {
+        type            epsilonWallFunction;
+        value           uniform 16845.37817870935;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

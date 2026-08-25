@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M2 ARM D -- kOmegaSST.  "Try other models" (Sanaa 2026-08-25).
+
+  THIS ARM CARRIES A DECLARED COUPLED CHANGE, NOT A SINGLE-KEYWORD SWAP, and it
+  is included DESPITE that precisely because dropping the model most able to
+  move wall friction would be answer-directed (PREREGISTRATION_DRAFT.md
+  section 3, 4).  kOmegaSST transports (k, omega) rather than (k, epsilon), so
+  changing to it necessarily also changes:
+    - the second turbulence field: 0/omega replaces 0/epsilon;
+    - system/fvSchemes: div(phi,omega) replaces div(phi,epsilon);
+    - system/fvSolution: the solved-variable class "(U|k|omega)" and the omega
+      relaxation factor replace their epsilon spellings.
+  The wall treatment is kept as close to run 1 as the model allows: nut still
+  uses nutkWallFunction and k still uses kqRWallFunction (0/nut, 0/k byte-
+  identical to run 1); omega uses omegaWallFunction, which BLENDS the viscous-
+  sublayer and log-law omega rather than switching, so the same numeric y+ floor
+  is a conservative validity floor (PREREGISTRATION_DRAFT.md section 8).
+
+  INLET omega IS DERIVED, NOT GUESSED, and is chosen to reproduce run 1's inlet
+  turbulence STATE so ARM D is comparable to A/B/C: with beta* = Cmu = 0.09,
+      omega_in = epsilon_in / (Cmu * k_in)
+               = 16845.37817870935 / (0.09 * 9.375)
+               = 19964.892656248117  1/s
+  which returns epsilon_in exactly (Cmu*k*omega = 16845.37817870935).
+
+  COEFFICIENTS.  kOmegaSST's default constant set (Menter 2003) is used as
+  shipped in OpenFOAM v2606
+  (src/TurbulenceModels/turbulenceModels/RAS/kOmegaSST); the model has a large
+  blended coefficient set and is left at its documented library defaults rather
+  than transcribed, with printCoeffs on so the run log records the set actually
+  used.  This is the honest reading of "the standard SST model".
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType  RAS;
+
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+}
+
+// ************************************************************************* //

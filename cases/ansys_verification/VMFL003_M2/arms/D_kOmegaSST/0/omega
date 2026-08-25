@@ -1,0 +1,60 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M2 ARM D -- specific dissipation rate omega [1/s], for kOmegaSST.
+
+  DERIVED to reproduce run 1's inlet turbulence STATE (see
+  constant/turbulenceProperties), so ARM D is a controlled comparison against
+  the epsilon-family arms and NOT a second, hidden BC change:
+      omega_in = epsilon_in / (Cmu * k_in)
+               = 16845.37817870935 / (0.09 * 9.375) = 19964.892656248117 1/s
+  0/k and 0/nut are byte-identical to run 1; only the second field changes from
+  epsilon to omega, exactly as the omega comparator grade_vmfl003_m2_omega.py is
+  a field-name-only diff of the epsilon comparator.
+
+  omegaWallFunction blends the sublayer and log-law omega at the wall.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      omega;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 -1 0 0 0 0];
+
+internalField   uniform 19964.892656248117;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 19964.892656248117;
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 19964.892656248117;
+        value           uniform 19964.892656248117;
+    }
+
+    walls
+    {
+        type            omegaWallFunction;
+        value           uniform 19964.892656248117;
+    }
+
+    wedge1
+    {
+        type            wedge;
+    }
+
+    wedge2
+    {
+        type            wedge;
+    }
+}
+
+// ************************************************************************* //

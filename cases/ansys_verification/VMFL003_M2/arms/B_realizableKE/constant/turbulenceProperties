@@ -1,0 +1,48 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL003-M2 ARM B -- realizableKE.  "Try other models" (Sanaa 2026-08-25).
+
+  THE ONLY CHANGE vs run-1 / ARM A is the RASModel keyword: realizableKE in
+  place of kEpsilon.  Nothing else in the case moves -- same mesh, same
+  nutkWallFunction wall treatment, same inlet turbulence state (0/k, 0/epsilon
+  are byte-identical to run 1, held FIXED as a control so the ONLY registered
+  variable is the closure).  The wall shear is imposed by the standard log-law
+  wall function from the first-cell k, so ARM B shares run 1's wall treatment
+  and tests only the interior epsilon-source / variable-Cmu differences of the
+  realizable model (PREREGISTRATION_DRAFT.md section 7, Arm 4).
+
+  COEFFICIENTS READ FROM THE LIBRARY, NOT RECALLED.  realizableKE's default
+  constants in OpenFOAM v2606 are, from
+  src/TurbulenceModels/turbulenceModels/RAS/realizableKE/realizableKE.C
+  (getOrAddToDict defaults): A0 4.0, C2 1.9, sigmak 1.0, sigmaEps 1.2.  Cmu is
+  NOT a constant in this model (it is computed per-cell, realizableKE.C rCmu),
+  so there is no Cmu entry.  They are written out explicitly below so that "the
+  coefficients are the model's own standard set" is an assertion this file makes
+  rather than a belief about a default.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType  RAS;
+
+RAS
+{
+    RASModel        realizableKE;
+    turbulence      on;
+    printCoeffs     on;
+
+    realizableKECoeffs
+    {
+        A0              4.0;
+        C2              1.9;
+        sigmak          1.0;
+        sigmaEps        1.2;
+    }
+}
+
+// ************************************************************************* //
