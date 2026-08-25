@@ -1,0 +1,19 @@
+ it  nFLOOR   nCEIL    ntot   %dom   breakdown of clipped cells by region
+  1    3628    3286    6914  30.0%   near field  r<1.5c:6772  ON THE AEROFOIL WALL:142
+       bbox of clipped cells: x [-0.104, 1.076]  y [-0.270, 0.388]   (chord is x in [0,1])
+  2    2796    4452    7248  31.5%   near field  r<1.5c:7119  ON THE AEROFOIL WALL:129
+       bbox of clipped cells: x [-0.175, 1.138]  y [-0.470, 0.385]   (chord is x in [0,1])
+  3    1057    5990    7047  30.6%   near field  r<1.5c:6917  ON THE AEROFOIL WALL:130
+       bbox of clipped cells: x [-0.166, 0.996]  y [-0.672, 0.631]   (chord is x in [0,1])
+  4       0    8397    8397  36.4%   near field  r<1.5c:8242  ON THE AEROFOIL WALL:155
+  5     219    3454    3673  15.9%   near field  r<1.5c:3614  ON THE AEROFOIL WALL:59
+  6    7163       0    7163  31.1%   near field  r<1.5c:6637  mid field   1.5-6c:434  ON THE AEROFOIL WALL:92
+  7   13508       0   13508  58.6%   near field  r<1.5c:12530  mid field   1.5-6c:791  ON THE AEROFOIL WALL:187
+  8   12710       0   12710  55.2%   near field  r<1.5c:11247  mid field   1.5-6c:1300  ON THE AEROFOIL WALL:163
+  9       0    3840    3840  16.7%   near field  r<1.5c:2200  mid field   1.5-6c:1168  outer       6-20c:444  ON THE AEROFOIL WALL:28
+ 10       0   16800   16800  72.9%   near field  r<1.5c:13501  mid field   1.5-6c:1968  outer       6-20c:1070  ON THE AEROFOIL WALL:192  FAR FIELD   >20c:69
+ 11       0   18212   18212  79.0%   near field  r<1.5c:13501  mid field   1.5-6c:2913  outer       6-20c:1476  ON THE AEROFOIL WALL:192  FAR FIELD   >20c:130
+ 12     129   11890   12019  52.2%   near field  r<1.5c:8321  mid field   1.5-6c:2037  outer       6-20c:1535  ON THE AEROFOIL WALL:109  FAR FIELD   >20c:17
+ 13   11156       0   11156  48.4%   near field  r<1.5c:7769  mid field   1.5-6c:1290  outer       6-20c:1197  FAR FIELD   >20c:757  ON THE AEROFOIL WALL:128  on the inflow patch:15
+ 14   20071       0   20071  87.1%   near field  r<1.5c:13501  mid field   1.5-6c:3235  outer       6-20c:2076  FAR FIELD   >20c:969  ON THE AEROFOIL WALL:192  on the inflow patch:98
+ 15   21201       0   21201  92.0%   near field  r<1.5c:13501  mid field   1.5-6c:3235  outer       6-20c:2822  FAR FIELD   >20c:1269  ON THE AEROFOIL WALL:192  on the inflow patch:176  on the outflow patch:6
