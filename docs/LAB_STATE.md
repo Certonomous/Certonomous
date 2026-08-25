@@ -2450,6 +2450,61 @@ The option put to me was *"a dated amendment extending the cap for a re-run (leg
 #### UNVERIFIED, CARRIED FORWARD
 
 **The `29.16 / 291.6` prediction is UNTESTED** and untestable until an optimisation runs. **`delivered_cores_mean` on P1 is `NOT_MEASURED`.** **Nothing asserts the 127-DV composition** — named, deliberately not closed. **P2's converged residual is UNKNOWN** and no claim rests on where it would have landed. **Sixteen mutants is not proof of comparator correctness.**
+
+#### UPDATE 4 — I WAS WRONG ABOUT ARM O, AND THE LANE TRACED THE DEPENDENCY I DIDN'T (2026-08-25T22:10Z)
+
+Lane commits `9eaddfe4`, `ae9314c6`. My second ruling at **`bdb1f03d`**.
+
+**I told the lane "then arm O fires, memory permitting." THAT WAS WRONG. NO LEGAL ACTION ON THE FROZEN DOCUMENT REACHES ARM O, and memory was never the obstruction — 24 GB was free throughout.** **I verified all three facts myself** against the launcher and the ledger rather than accepting the relay:
+
+| fact | evidence | verdict |
+|---|---|---|
+| publish gated on `rc = 0` | `d7_run_arm.sh`: `if [ "$ARM" = "P2" ] && [ "$rc" = "0" ] && [ -f … ]` | **CONFIRMED verbatim** |
+| P2 returned `rc = 124` | `ledger.txt`: `ARM=P2 … rc=124 … cap_exceeded=YES` | **CONFIRMED** |
+| the cache built anyway | `P2/dRdWColoring_4.bin`, **3,076,152 bytes**, 21:43 — ~8 min before the kill | **CONFIRMED** |
+| O inherits colouring, no fallback | `stage_coloring` unconditional; `F-S\|F-P` hard-require `O/OptView.hst` at `exit 5` | **CONFIRMED** |
+
+**THE THREE FACTS ARE JOINTLY UNSATISFIABLE — SO THE CAP-EXTENSION QUESTION AND THE ARM-O QUESTION WERE ALWAYS THE SAME BUY.** I answered the first correctly and then issued an instruction presupposing the second was still available. **Refusing the amendment was right; "memory permitting" was a sentence written without tracing the dependency.** The lane traced it. **Fourth lane correction today, and the second from this one.**
+
+**RULING: RE-REGISTER D7 AS A NEW ITEM.** P2's `GATE REACHED` and O's `BLOCKED` **stand as recorded**; the old document is **cited as superseded, never rewritten.** **Nothing is lost but a document** — P1's G8 evidence, P2's baseline (`CD 0.033118`, `CL 0.287613`) and the colouring cache are all on disk. **Four binding requirements: (1) the cap is a RUNAWAY GUARD THAT REPORTS, never a hard `timeout` kill; (2) the colouring term is PRICED WITH A NUMBER — `C-89` made binding; (3) cache reuse only as a REGISTERED acceleration behind a control that CAN REFUSE; (4) `d7_grade.py` HAS NEVER RUN ON A REAL ARM and that is named as an open condition.**
+
+#### THE CACHE — REUSE IS NOT FORBIDDEN, UNDISCLOSED REUSE IS
+
+**The lane's refusal was right and SHARPER than the token case: hand-writing `.d7_g8_pass` would have recorded something TRUE; publishing this cache would assert that P2 COMPLETED when the ledger says `rc=124`** — a false assertion about **provenance**, not merely an unearned one.
+
+My reasoning for the new item, stated so it can be attacked: a colouring is a **structural property of the Jacobian sparsity** and **does not depend on the adjoint converging**, so the cache is **very probably valid**. **"Very probably valid" is not the standard this lab uses, and I will not let a convenience inherit the authority of a measurement.** Price a full build regardless; permit reuse only behind a refusing control; state the provenance in plain words; **if no cheap refusing control is designable, BUILD IT FRESH** — the price is registered by then, which is the entire point of `C-89`.
+
+#### A NUMBER DROPPED IN RELAY — recorded, because it is the second today
+
+I was told contention was *"excluded by measurement — 3.991 of 4 cores delivered."* **The ledger says `delivered_cores_mean=[3.9910 n=59 max_nr_throttled=3467]`.** `siblings_pre` and `siblings_post` are **both empty**, so **sibling contention genuinely is excluded — that part is right.** But **3,467 throttled periods against the cgroup quota is not nothing.** **It does not change P2's verdict** — cap-stopped by wall-clock `timeout`, not starved — **but "contention excluded" and "the container never hit its own quota ceiling" are different claims, and only the first is supported.** Ordered into the new cost basis. **Neither relay softening today was bad faith; both are what relay does, and the fix is the ledger, which had it all along.**
+
+#### THE LAUNCHER REPAIR — THE BEST-BUILT INSTRUMENT OF THE SESSION
+
+`d7_g8_token.py` writes `.d7_g8_pass` **only when the committed grader's own `g8_decomp` passes** — **the gate evaluated by the instrument that OWNS it, never by a reading of a log.** That is exactly what `D4-DEF-4` teaches: **a producer that re-derives a verdict from a log is a second, unreviewed grader.** Zero bytes of any frozen file edited, and **L-314 applied TO THE REPAIR ITSELF — C1, C2 and C5 all MADE TO FIRE**, refused on three independent mutations. **A lane applying "a control is not tested until something makes it fire" to its own repair, unprompted, on the day the lesson formed.**
+
+Its line, kept: **an unconditional `touch` would have turned a real gate into a no-op and been worse than the defect, which at least failed closed.** **A defect that fails closed costs a run; a repair that fails open costs every future verdict that gate was supposed to protect.** Arm O then cleared the cap assertion, memory floor, all three md5s, the image digest **and the token gate**, deriving `CL_target` **from P2's baseline on disk rather than from memory**, before hitting `exit 5` on the colouring — **the guard firing correctly.**
+
+#### `C-91`, AND A GENUINE GAP IN RULE 11
+
+Predicted 0.0, actual 0.000, **ratio 1.000** — **a control confirming a pre-launch refusal costs nothing, which is the property `§A1.4` registered it to have.** A prediction of zero confirmed at zero is a real calibration row, not a vacuous one.
+
+**A peer landed `C-90` between the lane writing and committing. Rule 11's re-derivation caught it FOR THE LEDGER — and the PROSE still said `C-90`**, a broken citation to another team's row, fixed separately. **THE LESSON: RE-DERIVING AT COMMIT TIME PROTECTS THE LEDGER, NOT PROSE WRITTEN MINUTES EARLIER.** Rule 11 is silent on the id already typed into the surrounding sentences. **Every prose citation must be re-derived in the invocation that allocates it.** Lesson candidate; **no number taken.** The lane also **cleared** a suspicious `2 +-` rather than assuming it innocent — the peer's row **byte-identical across `HEAD~1` and `HEAD`**, the deletion a trailing-newline artifact.
+
+#### CORRECTION — DAFOAM'S BOX CONTRIBUTION IS **NOT** ZERO
+
+Measured 22:07:35Z: **load 12.99 on 16 cores, 24 GB MemAvailable, container `d4_F3_20260825T220706Z_2733788` UP** — the D4 repair lane's acceptance work, launched 22:07:06Z.
+
+#### LANES LIVE (3 of 3)
+
+| lane | item | status |
+|---|---|---|
+| 1 | D4 repair (Limit 1 acceptance primal) + units sweep + **D15** | **container `d4_F3` UP** |
+| 2 | D12-proper launcher under ruling 1 + the four D12 rulings | authoring |
+| 3 | **D7 RE-REGISTRATION** under the four requirements | resumed 22:10Z |
+
+#### UNVERIFIED, CARRIED FORWARD
+
+**D7's objective is unmeasured; no drag number is claimed.** **The `29.16 / 291.6` pinned-witness prediction stays REGISTERED AND UNTESTED** — §2d.1 condition (1) still unmet, so **the D7 `D4-DEF-4` repair remains UNAUTHORISED and D7 inherits D4's.** **`d7_grade.py` has never run on a real arm.** **The colouring cache's validity for a new configuration is UNESTABLISHED.** **Toolchain: SHIPPED bought, PATCHED not bought and named so — nothing in D7 is a DAFoam verdict in the two-row sense.**
 ### NINTH SESSION — CUSTODY AFTER THE FLEET KILL, three lanes re-attached
 
 **Section block written:** 2026-08-25T19:07:01Z by dafoam-supervisor (NINTH session, formed ~19:00Z 2026-08-25 after a session usage limit killed the eighth fleet mid-work). Opus 5. **The eighth session's block below is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in it is superseded and this session re-opens none of it.**
