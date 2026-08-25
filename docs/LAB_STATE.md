@@ -2119,6 +2119,70 @@ A lane correctly escalated this rather than deciding it. Both records **explicit
 
 **Three lanes live:** D4 custody-and-grade, D7 (firing), D12-for-real. **Blocked: nothing.**
 
+
+#### UPDATE 1 — ARM F RAN AND CRASHED, AND THE CRASH IS WORTH MORE THAN THE TABLE WOULD HAVE BEEN (2026-08-25T21:40Z)
+
+**Six dafoam commits landed inside twenty minutes.** `b530da36` (D7 mesh measured), `3ce489f4` (the stager), `0e229a0a` (D7 freeze), `2ecf6ec9` (**D4-DEF-4 + D4-DEF-5**), `9233acd8` (D4 RESULTS §10), `c21ada18` (**C-84**), `120dddd2` (D10-F′/D12-F′ FD pairs frozen), and my ruling `dbb88eb4`.
+
+**D4 rung verdict: `BLOCKED` — UNCHANGED, and the REASON changed.** From *"arm F was never launched"* to **"arm F cannot be run correctly with the frozen instrument set."** §4 and §9 of `RESULTS.md` were **STRUCK, not rewritten** (rule 6). Arm F: `rc=1`, **15 wall s**, 4 ranks, **1.0 core-min**, `docker inspect` = `1 false`. Not OOM, not a cap-stop (15 s against 1800 s), not contention, not a preflight abort. `AnalysisError: Mesh quality error!` on the first primal after **2,989 non-orthogonality errors** and **6,090 mis-oriented face pyramids**.
+
+**`D4-DEF-4` — THE ENDPOINT IS EXTRACTED IN DRIVER-SCALED UNITS AND APPLIED AS PHYSICAL. I VERIFIED IT MYSELF** against `d4_opt_runScript.py` and `F/d4_endpoint_dvs.json`, not on the lane's report. OpenMDAO applies `scaler` **before** pyOptSparse sees the problem, so pyOptSparse's own scale is 1.0, `getValues(scale=True)` and `(scale=False)` return **identical** values, and the frozen extractor's `scale=False` argument is **INERT — it cannot do what the instrument was written believing it does.** `d4_fd_endpoint.py` then applies those values as physical via `prob.set_val`.
+
+**The unforgeable control:** `patchV[0]` is **PINNED** — `lower == upper == U0 == 100.0` — so its physical value is definitionally 100.0 and no optimiser can move it. **The extractor returns exactly 10.0 = 100.0 × 0.1, the registered scaler, to all digits.** Divide each family by its registered scaler and every one lands inside its bounds: `shape` 6.0246 → **0.6025** in [-1,1] (62 of 96 components were outside), `twist` −0.2802 → **−2.8020 deg** in [-10,10], `patchV` 10.0 → **100.0 m/s**. The extractor picks the **right row** — `_final_CD` matches arm O's objective to all 17 digits. **Only the units are wrong.**
+
+**THE SENTENCE THAT MATTERS.** `shape`'s scaler is 10, so the mesh could not survive. **Had it been 1.0 — as it is for the objective and both aerodynamic constraints — every primal would have converged and arm F would have produced a complete, well-formed, plausible FD table AT A DESIGN POINT THAT IS NOT THE OPTIMUM**, with twist 10× wrong and the freestream at 10 m/s instead of 100. Five components requested, five returned, in registered order: **every count refusal passes, G6's plant is seen, G6b's blind reader is refused, all four G7 mutations raise their named refusals. THE FULLY ARMED INSTRUMENT SET WOULD HAVE CERTIFIED IT.** **A UNITS ERROR IS INVISIBLE TO EVERY COUNT-, PLANT- AND ORDER-BASED CONTROL IN THIS FAMILY: they check THAT n components were measured, NEVER WHERE.** The D3 catastrophe with the corruption moved one stage **upstream, out of the grader and into the PRODUCER** — and every D4 control lives downstream of that artifact and takes its contents as given. **The crash is lucky, not designed.**
+
+**`D4-DEF-5` — the 125 history rows are FUNCTION CALLS, not the 80 majors**, including the `findFeasibleDesign` AoA sweep that runs before `run_driver()`. Arithmetic, not inference: max `inf_pr` over the 81 IPOPT rows is **1.08e-02**, the worst history row has `|CL−0.5| = 2.8292e-02`, and `inf_pr` bounds `|CL−0.5|` at every major. **Graded over that file, G2 band A returns `GATE FAIL` on 37 of 125 rows — AND THAT GATE FAIL WOULD HAVE BEEN WRONG.** Band A stays **NOT ESTABLISHED**, P3 **UNSCORED**; band B is bought at `|CL−0.5| = 7.3747727758e-08` vs a 1.0e-5 band. **A defect that stops a wrong `GATE FAIL` is worth exactly as much as one that stops a wrong `PASS`, and this lab has historically been better at hunting the second.**
+
+#### MY §2d.1 RULING (`dbb88eb4`) — PERMITTED, AND NOT FROZEN UNTIL A SOLVE PROVES IT
+
+I took the **strict** reading to get there. Arm F graded nothing, so a convenient reading says §2d never engaged; **I do not take it** — arm O is graded and committed, so the four-condition exception must be met in full. It is. **Condition (2), the load-bearing one, is met three independent ways by instruments that GRADE NOTHING**: the pinned-variable near-identity, the bound-violation guard, and the in-container `scale=False`/`scale=True` identity. **The pinned variable is this case's exact analogue of the K0cS heat balance that §2d.1 was cut to fit.**
+
+**LIMIT 1, the whole ruling: ONE PRIMAL at the corrected point must reproduce `CD = 2.1125978108239574e-02`, band registered BEFORE the run.** Reproduces → the diagnosis is proved and the repair is frozen. **Does not reproduce → THE DIAGNOSIS IS WRONG, the repair is withdrawn, D4 stays `BLOCKED`.** No amount of internal consistency substitutes. **~0.9 core-min.** **LIMIT 2:** zero bytes of any frozen file edited; the `d8_grade_entry.py` shape; **scalers READ FROM the registering source, never typed.** **LIMIT 3:** no gate, threshold, band, cap or label moves — *"a band is not an instrument; it is the hypothesis's own scoring rule."*
+
+**THE FREEZE WORKED EXACTLY AS DESIGNED and it is recorded as such.** The launcher asserts the extractor's md5 and aborts code 4, which is **why this surfaced as a hard dated crash instead of a quiet number.** That is the strongest argument for the freeze this lab has yet produced.
+
+#### D7 DOES NOT INHERIT CFD'S MESH FINDING — AND A PASSING M6 MESH HAS BEEN ON THIS BOX SINCE 2026-08-10
+
+**Measured, not argued from records**, on a scratch copy: **42,120 cells** (confirming the registration), **max non-orthogonality 61.4935°** against the 70° hard gate, `Mesh OK.`, **zero cells above 65°**.
+
+**The two meshes are INVERTED IN STRUCTURE, and that is the ruling.** cfd localise their 81.5834° to the **outermost wall-normal cell at 86 % of the domain radius** — the farfield is the worst place in their grid. **D7's maximum is at the WING TRAILING EDGE, 7.79 % of R**, and its **farfield is the CLEANEST region: 7.5610° max over the 250 outermost cells, mean 3.3991°.** The ten worst cells sit in symmetric ± pairs about y=0 — a trailing-edge closure signature. Two controls gate the localisation and it refuses if either fails: a **planted zero** (999.987654 into cell 7777 of a disk copy, read back through the same parser, neighbour verified unchanged) and a **cross-instrument check** reproducing checkMesh's own printed max to 0.00e+00.
+
+**Mechanism: pyHyp is a HYPERBOLIC MARCHING extruder — near-orthogonality of each new layer is a constraint of the scheme, so quality IMPROVES outward. cfd's blockMesh butterfly fills outer blocks by ALGEBRAIC/TRANSFINITE INTERPOLATION, where corner distortion accumulates OUTWARD.** The lane labelled this an **inference from generator class, not a measurement of cfd's code**, and did not re-measure their 81.5834 — correctly.
+
+**FOR CFD, relayed through the chief: pyHyp 2.6.1 is ALREADY INSTALLED and importable in `dafoam-idwarp-rot:v1`; `genWingMesh.py` is at `/home/ubuntu/dafoam-tutorials/Onera_M6_Wing/`. Their dial-invariance is REAL AND UNCONTRADICTED — on this evidence the floor is a property of the GENERATOR CLASS, and a sweep over dials cannot reach a floor set by the construction the dials live inside. Their 38 variants are what establishes that the fix must be a different generator.** Offered, not imposed; cfd own `MESH_STANDARD` and cross-family arbitration is not ours. **The gate was NEITHER WIDENED NOR WAIVED — nothing needed waiving.**
+
+#### CORRECTION TO MY OWN BRIEF — L-325 FIRED AGAINST ITS OWN AUTHOR, ONE SESSION LATER
+
+**I told the D4 lane that `d4_stage_F.sh` did not exist. I was wrong.** It was in the run root, written by the arm-O lane at 18:32, **untracked and never run** — that lane had been permission-denied on staging and launch, as `RESULTS.md` §4 already recorded. **I listed the run root through `ls -la | head -20`, and the alphabetical truncation fell ONE LINE ABOVE the file I was looking for. I read my own truncation as absence.**
+
+That is **L-325 verbatim**: *"not found" is the return value of two different situations — the record is absent, and the instrument cannot express its name.* **The generalisation worth keeping: `head`, `tail` and every truncating filter ARE ENUMERATION INSTRUMENTS when their output is read for presence or absence, and they fail silently in the "absent" direction. A presence/absence question is never answered through a pager — it is answered with a predicate that names the thing sought.** Cost: nothing, **and that is luck rather than design** — the lane checked the disk instead of believing me, preserved the arm-O lane's text verbatim and committed it before launch. **Second time today a lane of mine was more right than I was.** Lesson candidate offered to the chief; **no number taken.**
+
+#### LANES LIVE (3 of 3 — at cap)
+
+| lane | item | compute | status |
+|---|---|---|---|
+| 1 | **D4 repair under `dbb88eb4`** + the **units sweep** + **D15 gate template** | acceptance primal ~0.9 core-min, then arm F re-run | dispatched 21:40Z |
+| 2 | **D12 proper** + D10-F′/D12-F′ FD pairs (frozen at `120dddd2`) | np=1, **container live** | firing |
+| 3 | **D7 ONERA M6** — frozen at `0e229a0a`, mesh CLEAR | np=4, ~12 GB | **resumed and firing; the memory block is gone** |
+
+**D15 IS FINALLY STARTED** — folded into lane 1 because D4-DEF-4 is exactly the failure a naive template would institutionalise. Its spine now requires **a control that establishes WHERE the design point is, not only THAT n components were measured** — the pinned-variable witness and bounds-containment, named.
+
+#### COST THIS SESSION
+
+**C-84 landed.** Arm F predicted 53.0, **actual 1.0 core-min**; item **548.866 measured / 547.866 cleaned**, ratio **1.0053** against 545.0 predicted for work actually delivered; **$0.4693 DERIVED, not measured**. Waste **1.000 core-min**, named separately. **Arm F's 1.0/53.0 = 0.019 was WITHHELD as a calibration signal with the reason on the row — a ratio compares work done against work predicted, and arm F delivered none.** Attribution **100 % instrument defect**, not misprediction and not contention. **Precedent set: a completed process that delivers no work is costed, not ratioed.** Mesh measurement ~3 core-min. **Triage spend is `NOT MEASURED`** — two diagnostic containers ran outside the launcher's ledger, bounded ≤ ~1 core-min each; a `DIAG` ledger label was proposed and is **unruled**.
+
+#### RUNGS WITHOUT VERDICTS
+
+**D4** — `BLOCKED`, repair authorised and fenced, bright line still uncrossed, **no FD table exists**. **D7** — frozen, mesh clear, firing. **D12 proper** — frozen, firing. **D10-F′/D12-F′** — frozen, firing. **D5, D6, D14** — prerequisite-queued on D4. **D15** — in drafting at last.
+
+#### ON SANAA'S DESK
+
+**Nothing new.** Five upstream drafts stay **`NOT FILED`**. **`D4-DEF-4` is a defect in THIS LAB'S OWN INSTRUMENT — not in DAFoam, OpenMDAO, IPOPT or pyOptSparse — so no upstream report arises and none is to be drafted.** Two items **decided, not parked**, under her disposal rule: the §2d.1 repair authorisation with its three limits, and the commissioning of the units sweep.
+
+#### OPEN, HONESTLY UNVERIFIED (**VERIFY**)
+
+**The corrected physical values are NOT verified by any solve** — that is Limit 1 and it is the acceptance test, unrun at this writing. **Whether other items in this family carry the same defect is NOT ESTABLISHED** — the sweep is commissioned and its precedent (`D8-DEF-2`, 101 files, blast radius exactly one) says it may well come back as an instance. **The 125 rows are not fully decomposed** (81 + 101 line-search ≠ 125); not needed, the `inf_pr` contradiction is decisive alone. **Whether pyHyp can meet cfd's other requirements — cell count, y+, FFD, campaign topology — is NOT measured and NOT asserted.** **D12's δ_repeat and checkpoint envelope remain unmeasured**, and this session's timings are **contended** with two other lanes live.
 ### NINTH SESSION — CUSTODY AFTER THE FLEET KILL, three lanes re-attached
 
 **Section block written:** 2026-08-25T19:07:01Z by dafoam-supervisor (NINTH session, formed ~19:00Z 2026-08-25 after a session usage limit killed the eighth fleet mid-work). Opus 5. **The eighth session's block below is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in it is superseded and this session re-opens none of it.**
