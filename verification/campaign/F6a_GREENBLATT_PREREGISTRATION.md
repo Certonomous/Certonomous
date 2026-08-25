@@ -1560,3 +1560,108 @@ endTime is 2000 and **(P-a) still refuses it.**
 **Amended 2026-08-25 by a cfd `lab-lane` on the cfd supervisor's two rulings.
 PRE-LAUNCH for attempt 2. The frozen body and Amendment 1 are untouched.
 SUBMISSIONS PARKED.**
+
+---
+
+## ADDENDUM 4 — 2026-08-25 — **RULING 1 (cfd supervisor).** Attempt 2's `rc` limb was INFERRED, not measured. **The row is `NOT A RESULT`. The `P` column is `PENDING`, NOT green.** A third run root is registered.
+
+**Document version 1.3 → 1.4. Lines whose number changed above this section: 0.**
+**ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.**
+
+### A4.1 THE RULING, and it costs this team the headline
+
+**Attempt 2 returned every gate the forecast predicted** — Gate M `PASS`, P1 `PASS` at
+−1.5923 %, P2 `GATE FAIL` at **+13.9485 %**, plateau HOLDS, all seven §10.2 predictions
+correct. **And it is `NOT A RESULT` anyway.**
+
+> **`rc = 0` WAS INFERRED, NOT MEASURED, AND RULE 4 IS ALL-OR-NOTHING BY DESIGN.**
+> Four limbs were measured — the `End` line, `last time == endTime 1813` under
+> Addendum 3, all five fields present, and the age guard (`0/U` 03:00:39Z against
+> `1813/U` 03:02:05Z). **The fifth was not.** The launcher captured the solver exit
+> code in memory and then crashed on a typo in its own reporting line
+> (`effective_endtime` vs `effective_endtime_used`) before writing it out.
+>
+> **AN INFERRED LIMB IN AN ALL-OR-NOTHING RULE IS A DEGRADATION, AND THIS LAB'S
+> COMPARATORS REFUSE RATHER THAN DEGRADE.**
+
+**Four grounds, the fourth decisive:**
+
+1. **Rule 4 is not a checklist satisfied on balance.** It is **conjunctive** precisely so
+   no limb can be carried by the others. An inference resting on the `End` line and the
+   absence of `FOAM FATAL` is an argument **from the other limbs** — which is exactly
+   what conjunctivity forbids.
+2. **Standing rule 3 applies by analogy and bites hard.** *A zero from a reader not
+   shown able to see a non-zero is not evidence.* **The reader crashed before it could
+   report at all**, so nothing demonstrates it could have distinguished `rc = 1` from
+   `rc = 0`. **That is an unplanted zero in a different currency.**
+3. **The precedent is permanent and asymmetric.** This would be the lab's **first green
+   `P` cell in 153 rows** and it **will be quoted**. A first-ever credential carrying an
+   inferred limb teaches every future completion check that the awkward limb may be
+   **reasoned rather than read**.
+4. **THE DEFECT IS IN OUR LAUNCHER, NOT THE CASE — AND WE DO NOT LOWER AN EVIDENTIARY
+   STANDARD TO COMPENSATE FOR OUR OWN TOOLING BUG.** That is the identical principle to
+   *the clause is not relaxed to match the code*, upheld twice already in this campaign.
+   **It would be incoherent to apply it to the case and exempt ourselves.**
+
+**The cost of refusing is ~6.1 core-minutes and about half a cent, on a case that has
+now demonstrated end to end that it works. The trade is not close.**
+
+### A4.2 WHAT THIS DOES AND DOES NOT SAY
+
+> **IT DOES NOT SAY THE NUMBER IS WRONG.** **+13.9485 % is almost certainly right and
+> will very likely reproduce.** All seven §10.2 predictions came back correct; the fresh
+> solve landed at **1.25343**, the 1.2534 reading §10.1 quoted while gating against
+> neither; and the finding is robust to the limb at **+13.9485 % PIV / +12.9219 %
+> oil-film**, both `GATE FAIL`.
+>
+> **IT SAYS THE ROW IS NOT YET A CREDENTIAL.**
+
+> **AND THE CONSEQUENCE THAT IS NOT SOFTENED: THE `P` COLUMN IS *NOT* GREEN.**
+> A `NOT A RESULT` row has **no admissible measurement**, and a `P` cell certifies a
+> comparison that **actually happened**. **`P` is `PENDING` — rule 1's display state,
+> "not yet run" — until attempt 3 lands.** **This team does not keep a green cell earned
+> under a limb it just refused**; that would be exactly the flattering reading this lab
+> exists to refuse.
+
+### A4.3 ATTEMPT 3 — registered, with ONE change
+
+> **REGISTERED FOR ATTEMPT 3:**
+> `/home/ubuntu/Certonomous/verification/runs/F6a_GREENBLATT_runs/attempt3_Re936k`
+> — **ABSENT by `test -e` in the amending invocation**, to be re-verified in the
+> launching one. `/home/ubuntu/certonomous-runs/f6a-greenblatt-baseline` remains
+> registered as must-not-exist.
+>
+> **ATTEMPT 1'S AND ATTEMPT 2'S TREES ARE BOTH PRESERVED — undeleted, unrenamed, and
+> now BOTH asserted by the launcher**, which refuses to start if either tree or its
+> evidence is gone.
+
+**Ruling 1's legality grounds hold again, and the reason is worth stating exactly:
+attempt 2's graded quantity does NOT license a re-run aimed at a different answer.
+Attempt 3 re-runs to MEASURE A LIMB.** The gate, the bands, the cap and every label are
+untouched, and the predicted answer is the one already in hand — **an unchanged
+`GATE FAIL` at ≈ +13.9 % is the expected and desired outcome.** A materially different
+number would itself be a finding to investigate, not a result to prefer.
+
+**EXACTLY ONE CHANGE, and it is not a gate:** the solver exit code is **PERSISTED TO
+DISK IMMEDIATELY ON CAPTURE**, fsync'd, **before any reporting, formatting or
+f-string**, and the comparator reads it **from disk** via `--rc-file`. **A value held
+only in memory until a reporting line runs is a value one typo from unrecoverable** —
+which is precisely what happened. **A missing or non-integer `rc` file is REFUSED, never
+inferred**, and two controls prove both refusals fire.
+
+**Gate M is re-evaluated from scratch on attempt 3. Attempt 2's PASS is NOT carried
+forward.** **The 30 core-min cap is CUMULATIVE and stands: 6.15 spent, 23.85 remaining.**
+
+### A4.4 WHY NO CONTROL CAUGHT THE TYPO — **L-316's shape, cited as its author's**
+
+> **The 51 mutation controls covered the FROZEN CLAUSES, not the launcher's post-solve
+> REPORTING GLUE — which cannot be exercised without a real solve.**
+
+That is **`L-316`**'s finding, and it is **ansys-verification's**, cited as theirs and
+**no lesson is assigned from it here**: *a comparator `--selftest` proves the GRADER,
+never the CASE or the LAUNCHER*. **It caught this lane on precisely the path L-316
+names.** The repair is not a bigger selftest: it is **persisting the value at the moment
+of capture**, so no reporting path can lose it.
+
+**Amended 2026-08-25 by a cfd `lab-lane` on the cfd supervisor's Ruling 1.
+PRE-LAUNCH for attempt 3. The frozen body and Amendments 1–3 are untouched.**

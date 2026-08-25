@@ -814,9 +814,9 @@ def rewrite_fail():
 @control("ADDENDUM 2", "PASS",
          "attempt 1's preserved tree and its evidence are present -> attempt 2 may run")
 def preserved_pass():
-    d = L.assert_attempt1_preserved()
-    assert d["evidence_present"]
-    return "preserved tree present with %s" % ", ".join(d["evidence_present"])
+    d = L.assert_preserved()
+    assert d
+    return "%d preserved trees present with their evidence" % len(d)
 
 
 @control("ADDENDUM 2", "FAIL",
@@ -827,14 +827,14 @@ def preserved_fail():
     d = _t.mkdtemp()
     try:
         try:
-            L.assert_attempt1_preserved(os.path.join(d, "gone"))
+            L.assert_preserved({os.path.join(d, "gone"): ("result.json",)})
         except G.Refusal as e:
             assert "PRESERVED tree is missing" in str(e)
         else:
             raise AssertionError("a deleted tree was accepted")
         empty = os.path.join(d, "stripped"); os.makedirs(empty)
         try:
-            L.assert_attempt1_preserved(empty)
+            L.assert_preserved({empty: ("result.json",)})
         except G.Refusal as e:
             assert "evidence has been removed" in str(e)
             return "deleted tree REFUSED; tree stripped of result.json REFUSED"
@@ -847,12 +847,82 @@ def preserved_fail():
          "the ss9.1 registration is NOT repurposed: attempt 2 writes to a "
          "differently-named root and the attempt-1 case path is never a write target")
 def roots_distinct():
-    assert L.RUN_CASE != L.PRESERVED_ATTEMPT1, "attempt 2 would overwrite attempt 1"
-    assert L.RUN_CASE.endswith("attempt2_Re936k"), L.RUN_CASE
-    assert L.PRESERVED_ATTEMPT1 not in L.RUN_ROOTS, (
-        "the preserved tree is registered as must-not-exist -- it MUST exist")
+    assert L.RUN_CASE not in L.PRESERVED_TREES, "this attempt would overwrite a preserved tree"
+    assert L.RUN_CASE.endswith("attempt%d_Re936k" % L.ATTEMPT), L.RUN_CASE
+    for t in L.PRESERVED_TREES:
+        assert t not in L.RUN_ROOTS, (
+            "a preserved tree is registered as must-not-exist -- it MUST exist")
     assert L.RUN_CASE in L.RUN_ROOTS
-    return "attempt-2 root distinct from the preserved attempt-1 tree"
+    return "attempt-%d root distinct from all %d preserved trees" % (L.ATTEMPT, len(L.PRESERVED_TREES))
+
+
+@control("ADDENDUM 4 rc", "PASS",
+         "the solver exit code is PERSISTED TO DISK IMMEDIATELY ON CAPTURE, before any "
+         "reporting, formatting or f-string")
+def rc_persist_pass():
+    import tempfile as _t
+    d = _t.mkdtemp()
+    try:
+        p = L.persist_rc(d, 0)
+        assert open(p).read().strip() == "0"
+        src = open(os.path.join(HERE, "run_f6a_greenblatt.py")).read()
+        i_cap = src.index("rc = pr.returncode")
+        i_persist = src.index("persist_rc(RUN_CASE, rc)")
+        i_report = src.index('report["solver_rc"] = rc')
+        assert i_cap < i_persist < i_report, (
+            "rc is not persisted between capture and reporting")
+        between = src[i_cap:i_persist]
+        assert "%" not in between and "format(" not in between, (
+            "formatting happens between capturing rc and persisting it: %r" % between)
+        return "capture -> persist -> report, with no formatting in between"
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
+@control("ADDENDUM 4 rc", "FAIL",
+         "AN UNPERSISTED rc IS REFUSED, NOT INFERRED. Attempt 2's rc was lost to a typo, "
+         "the supervisor REFUSED the inference and the row became NOT A RESULT: an "
+         "unmeasured limb in a conjunctive rule is a degradation")
+def rc_missing_refused():
+    import tempfile as _t
+    d = _t.mkdtemp()
+    try:
+        out = os.path.join(d, "o.json")
+        rc = G.main(["--case", d, "--log", os.path.join(HERE, "run_f6a_greenblatt.py"),
+                     "--endtime", "1813", "--rc-file", os.path.join(d, "nope.txt"),
+                     "--scratch", d, "--out", out])
+        assert rc == 2, "a missing rc file did not refuse, got %s" % rc
+        import json as _j
+        assert _j.load(open(out))["VERDICT"] == "NOT A RESULT"
+        # and a garbage exit code is refused rather than coerced
+        bad = os.path.join(d, "bad.txt"); open(bad, "w").write("probably fine")
+        rc2 = G.main(["--case", d, "--log", os.path.join(HERE, "run_f6a_greenblatt.py"),
+                      "--endtime", "1813", "--rc-file", bad,
+                      "--scratch", d, "--out", out])
+        assert rc2 == 2, "a non-integer rc was accepted"
+        return "missing rc file -> NOT A RESULT (exit 2); non-integer rc -> refused"
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
+@control("ADDENDUM 4", "FAIL",
+         "EVERY prior attempt's tree is guarded, not just attempt 1 -- attempt 2's "
+         "complete solve and grading must still be there")
+def preserved_all_attempts():
+    assert len(L.PRESERVED_TREES) >= 2, L.PRESERVED_TREES
+    keys = sorted(L.PRESERVED_TREES)
+    assert any("baseline_Re936k" in k for k in keys)
+    assert any("attempt2_Re936k" in k for k in keys)
+    import tempfile as _t
+    d = _t.mkdtemp()
+    try:
+        try:
+            L.assert_preserved({os.path.join(d, "gone"): ("result.json",)})
+        except G.Refusal:
+            return "%d trees guarded; a missing one REFUSES" % len(L.PRESERVED_TREES)
+        raise AssertionError("a missing preserved tree was accepted")
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
 
 
 FORBIDDEN = ("richardson", "extrapolat", "gci_fine", "observed order of")

@@ -656,7 +656,11 @@ def main(argv=None):
     ap.add_argument("--case")
     ap.add_argument("--log")
     ap.add_argument("--endtime", type=int)
-    ap.add_argument("--rc", type=int, default=0)
+    ap.add_argument("--rc", type=int, default=None)
+    ap.add_argument("--rc-file", default=None,
+                    help="ADDENDUM 4: read the solver exit code FROM DISK. rule 4's "
+                         "rc limb is MEASURED, never inferred -- the supervisor refused "
+                         "an inferred rc on attempt 2 and the row became NOT A RESULT.")
     ap.add_argument("--declared-endtime", type=int, default=None,
                     help="controlDict endTime, for the ss9.4 reconciliation")
     ap.add_argument("--scratch")
@@ -673,6 +677,24 @@ def main(argv=None):
 
     try:
         assert_pinned(a.repo)
+        if a.rc_file:
+            if not os.path.exists(a.rc_file):
+                sys.stderr.write("REFUSAL: --rc-file %s does not exist. rule 4's rc limb "
+                                 "is MEASURED, not inferred.\n" % a.rc_file)
+                with open(a.out, "w") as fh:
+                    json.dump({"VERDICT": "NOT A RESULT",
+                               "REFUSAL": "solver rc was never persisted; the limb is "
+                                          "unmeasured and an unmeasured limb in a "
+                                          "conjunctive rule is a degradation."}, fh, indent=2)
+                return 2
+            raw = open(a.rc_file).read().strip()
+            try:
+                a.rc = int(raw)
+            except ValueError:
+                refuse("--rc-file %s holds %r, not an integer exit code. REFUSING."
+                       % (a.rc_file, raw))
+        if a.rc is None:
+            refuse("no exit code supplied: pass --rc-file (preferred, MEASURED) or --rc")
         log = parse_log(a.log)
         conv = log["converged_at"] if log["converged_at"] is not None else log["last_time"]
         completion_ok, comp = completion_check(a.case, log, a.endtime, a.rc,

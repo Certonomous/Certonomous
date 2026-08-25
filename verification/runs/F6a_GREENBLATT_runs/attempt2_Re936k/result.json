@@ -7,9 +7,9 @@
   "extractor_sha256": "9a6ec8553b863b3b43a1a3ca03970923778f7da5c2bf3e1cfacdfa8f6fd2414f",
   "launched_utc": "2026-08-25T03:00:12Z",
   "finished_utc": "2026-08-25T03:02:05Z",
-  "ROW_VERDICT": "GATE FAIL",
+  "ROW_VERDICT": "NOT A RESULT",
   "ROW_TIER": "NOT HELD",
-  "P_COLUMN": "GREEN",
+  "P_COLUMN": "PENDING",
   "P_column_basis": "Ruling 4: measured physical reality, public primary source held and title-page verified, pre-registration on disk frozen BEFORE the solve. Ruling 4 asks for the source and the pre-registration; it does not ask the gate to pass.",
   "gate_M": {
     "VERDICT": "PASS",
@@ -331,5 +331,19 @@
     }
   },
   "SUPERSEDES_NOTHING": "Attempt 1's BLOCKED record stands at verification/runs/F6a_GREENBLATT_runs/baseline_Re936k/result.json and is NOT deleted, NOT renamed and NOT superseded. THE SMOKE TEST IN ATTEMPT 1 DID NOT TEST THE CASE.",
-  "submissions": "PARKED. Nothing here is sent, filed, uploaded, registered or posted."
+  "submissions": "PARKED. Nothing here is sent, filed, uploaded, registered or posted.",
+  "SUPERVISOR_RULING_1_2026_08_25": {
+    "verdict": "NOT A RESULT",
+    "why": "rc = 0 was INFERRED, not measured. Rule 4 is all-or-nothing by design and an inferred limb in a conjunctive rule is a DEGRADATION; this lab's comparators refuse rather than degrade.",
+    "grounds": [
+      "rule 4 is conjunctive so no limb may be carried by the others, and the inference argued FROM the other limbs",
+      "standing rule 3 by analogy: the reader CRASHED before it could report, so nothing shows it could distinguish rc=1 from rc=0 -- an unplanted zero in a different currency",
+      "this would be the lab's first green P cell in 153 rows and will be quoted; a first-ever credential carrying an inferred limb teaches every future completion check that the awkward limb may be reasoned rather than read",
+      "THE DEFECT IS IN OUR LAUNCHER, NOT THE CASE, and we do not lower an evidentiary standard to compensate for our own tooling bug -- the same principle as 'the clause is not relaxed to match the code'"
+    ],
+    "P_COLUMN": "PENDING, NOT GREEN. A NOT A RESULT row has no admissible measurement and a P cell certifies a comparison that actually happened. This team does not keep a green cell earned under a limb it just refused.",
+    "does_NOT_say_the_number_is_wrong": "+13.9485 % is almost certainly right and will very likely reproduce. All seven section 10.2 predictions came back correct; the solve landed at 1.25343, the 1.2534 reading section 10.1 quoted while gating against neither; robust to the limb at +13.9485 % PIV / +12.9219 % oil-film, both GATE FAIL. IT SAYS THE ROW IS NOT YET A CREDENTIAL.",
+    "superseded_by": "attempt 3, registered in ADDENDUM 4; this tree is PRESERVED"
+  },
+  "gate_arithmetic_status": "REPORTED, NOT CERTIFIED. These values are correct readings of a run whose completion rule could not be fully verified."
 }

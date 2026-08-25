@@ -44,9 +44,9 @@ REPO = G.REPO
 # The attempt-1 tree is PRESERVED. It is not deleted and the ss9.1 path is not renamed:
 # that registration is the historical record that the case was unfired at freeze, and it
 # stays true by staying untouched. Addendum 2 registers a SECOND root BESIDE it.
-ATTEMPT = 2
+ATTEMPT = 3
 RUN_CASE = ("/home/ubuntu/Certonomous/verification/runs/F6a_GREENBLATT_runs/"
-            "attempt2_Re936k")                                    # ADDENDUM 2 / ss11
+            "attempt3_Re936k")                                    # ADDENDUM 4 / ss11
 RUN_ROOTS = (                                                     # ADDENDUM 2 / ss9.1
     RUN_CASE,
     "/home/ubuntu/certonomous-runs/f6a-greenblatt-baseline",
@@ -54,9 +54,18 @@ RUN_ROOTS = (                                                     # ADDENDUM 2 /
 # ADDENDUM 2 sect. A2.3: "do not delete the evidence" is an EXECUTABLE ASSERTION here,
 # not a discipline the lane remembers. Attempt 2 REFUSES to run on a tree where
 # attempt 1's proof has been cleared away.
-PRESERVED_ATTEMPT1 = ("/home/ubuntu/Certonomous/verification/runs/F6a_GREENBLATT_runs/"
-                      "baseline_Re936k")
-PRESERVED_ATTEMPT1_EVIDENCE = ("result.json", "log.checkMesh")
+PRESERVED_TREES = {
+    "/home/ubuntu/Certonomous/verification/runs/F6a_GREENBLATT_runs/baseline_Re936k":
+        ("result.json", "log.checkMesh"),
+    "/home/ubuntu/Certonomous/verification/runs/F6a_GREENBLATT_runs/attempt2_Re936k":
+        ("result.json", "grading.json", "log.simpleFoam"),
+}
+# The persisted solver exit code. ADDENDUM 4: rc = 0 is a limb of rule 4 and it is
+# MEASURED FROM DISK, never inferred. Attempt 2's rc was captured in memory and lost
+# when a typo in a reporting line crashed the launcher; the supervisor REFUSED the
+# inference and the row became NOT A RESULT. A value held only in memory until a
+# reporting line runs is a value one typo from unrecoverable.
+RC_FILE = "solver_rc.txt"
 SOURCE_CASE = "cases/dafoam/f6a_nasa_hump/case"                        # ss6.1
 PRISTINE = ("0", "constant", "system", "caseDef", "fieldDef")          # ss6.1 -- inputs ONLY
 
@@ -86,22 +95,36 @@ def solver_timeout_s(cap_core_min=CAP_CORE_MIN, ranks=RANKS, reserve=MESH_RESERV
     return total, t
 
 
-def assert_attempt1_preserved(path=None, evidence=None):
-    """ADDENDUM 2 sect. A2.3. The attempt-1 tree carries the Gate M measurement and the
-    launcher-defect evidence. You do not delete a measurement to make room for a nicer
-    one -- so attempt 2 refuses to start if that tree, or the evidence inside it, is
-    gone."""
-    path = PRESERVED_ATTEMPT1 if path is None else path
-    evidence = PRESERVED_ATTEMPT1_EVIDENCE if evidence is None else evidence
-    if not os.path.isdir(path):
-        raise G.Refusal("ADDENDUM 2: attempt 1's PRESERVED tree is missing: %s. It "
-                        "carries the Gate M measurement and the launcher-defect "
-                        "evidence. REFUSING to run attempt 2 on a cleared tree." % path)
-    missing = [f for f in evidence if not os.path.exists(os.path.join(path, f))]
-    if missing:
-        raise G.Refusal("ADDENDUM 2: attempt 1's evidence has been removed from %s: %s. "
-                        "REFUSING." % (path, missing))
-    return {"preserved": path, "evidence_present": list(evidence)}
+def assert_preserved(trees=None):
+    """ADDENDUM 2 sect. A2.3, extended by ADDENDUM 4 to EVERY prior attempt.
+
+    Attempt 1's tree carries the Gate M measurement and the launcher-defect evidence.
+    Attempt 2's carries a complete solve and its grading. You do not delete a
+    measurement to make room for a nicer one -- so a later attempt REFUSES to start if
+    any earlier tree, or the evidence inside it, is gone."""
+    trees = PRESERVED_TREES if trees is None else trees
+    out = {}
+    for path, evidence in trees.items():
+        if not os.path.isdir(path):
+            raise G.Refusal("ADDENDUM 2/4: a PRESERVED tree is missing: %s. REFUSING to "
+                            "run on a cleared tree." % path)
+        missing = [f for f in evidence if not os.path.exists(os.path.join(path, f))]
+        if missing:
+            raise G.Refusal("ADDENDUM 2/4: evidence has been removed from %s: %s. "
+                            "REFUSING." % (path, missing))
+        out[path] = list(evidence)
+    return out
+
+
+def persist_rc(run_case, value):
+    """Write the solver exit code to disk IMMEDIATELY on capture, fsync'd, BEFORE any
+    reporting, formatting or f-string touches it. ADDENDUM 4 -- see RC_FILE."""
+    path = os.path.join(run_case, RC_FILE)
+    with open(path, "w") as fh:
+        fh.write(str(value))
+        fh.flush()
+        os.fsync(fh.fileno())
+    return path
 
 
 def freeze_condition(roots=None):
@@ -264,8 +287,9 @@ def main(argv=None):
     if a.show_frozen:
         total, t = solver_timeout_s()
         print("LAUNCHER FROZEN CONSTANTS")
-        print("  ATTEMPT %d (ADDENDUM 2). Preserved attempt-1 tree that MUST exist:" % ATTEMPT)
-        print("        %s" % PRESERVED_ATTEMPT1)
+        print("  ATTEMPT %d (ADDENDUM 4). Preserved trees that MUST exist:" % ATTEMPT)
+        for _p in PRESERVED_TREES:
+            print("        %s" % _p)
         print("  ss9.1 + ADDENDUM 2 run roots that must NOT exist:")
         for d in RUN_ROOTS:
             print("        %s" % d)
@@ -289,7 +313,7 @@ def main(argv=None):
 
         # ---- ADDENDUM 2 sect. A2.3: attempt 1's evidence must still be there ----
         report["attempt"] = ATTEMPT
-        report["preservation"] = assert_attempt1_preserved()
+        report["preservation"] = assert_preserved()
 
         # ---- ss9.1 / ss9.2 freeze condition, IN THIS INVOCATION ----
         ok, present = freeze_condition()
@@ -401,7 +425,11 @@ def main(argv=None):
                      "-parallel"],
                     stdout=lf, stderr=subprocess.STDOUT, timeout=timeout_s)
                 rc = pr.returncode
+                # PERSIST FIRST. Nothing -- no formatting, no reporting, no f-string --
+                # runs between capturing rc and writing it to disk. ADDENDUM 4.
+                persist_rc(RUN_CASE, rc)
             except subprocess.TimeoutExpired:
+                persist_rc(RUN_CASE, "TIMEOUT")
                 report["wall_s"] = time.time() - t0
                 report["VERDICT"] = "NOT A RESULT"
                 report["why"] = ("ss8.3 CAP EXCEEDED at %.0f s wall (%d core-min at "
@@ -411,6 +439,7 @@ def main(argv=None):
                 return 7
         wall = time.time() - t0
         report["solver_rc"] = rc
+        report["solver_rc_persisted_at"] = os.path.join(RUN_CASE, RC_FILE)
         report["solver_wall_s"] = wall
         report["solver_core_min"] = wall * RANKS / 60.0
 
@@ -426,8 +455,8 @@ def main(argv=None):
         report["endtime_reconciliation"] = G.endtime_reconciliation(parsed, ENDTIME)
         eff = report["endtime_reconciliation"]["effective_endtime_used"]
         report["STATUS"] = ("solver finished; grade with scripts/f6a_greenblatt_gate.py "
-                            "--case %s --log %s --endtime %s --rc %d --declared-endtime %d"
-                            % (RUN_CASE, log, eff, rc, ENDTIME))
+                            "--case %s --log %s --endtime %s --rc-file %s --declared-endtime %d"
+                            % (RUN_CASE, log, eff, os.path.join(RUN_CASE, RC_FILE), ENDTIME))
     except G.Refusal as e:
         sys.stderr.write("REFUSAL: %s\n" % e)
         report["VERDICT"] = "NOT A RESULT"
