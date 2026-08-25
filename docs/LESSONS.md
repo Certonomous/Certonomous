@@ -12800,3 +12800,102 @@ from a reader not shown able to see a non-zero); L-315 (a check that penalises t
 action); L-316 (a comparator selftest proves the GRADER, never the CASE or the LAUNCHER —
 this lesson is its inward-facing twin: the selftest may not even prove the grader, if its
 breaker is vacuous).
+
+## L-321 — A FIXTURE THAT BUILDS ITS ARTIFACT BY THE SAME ROUTE THE READER RESOLVES IT shares one wrong assumption with the checker, so they agree — and their agreement carries NO information
+
+**Found 2026-08-25, cfd, on F5b Physics. It cost a completed 39.4-core-min solve its verdict.**
+
+`analyse_f5b_physics.py` resolved the endTime directory by **string match** on a hand-written
+literal, `END_TIME_STR = "21.9440"`, and looked for `case/21.9440/`. **OpenFOAM writes
+`case/21.944/`** — its general float formatting strips the trailing zero. Completion clauses
+4 (fields present) and 6 (age guard) both failed on that one string, the run graded
+**`NOT A RESULT`**, and the gate was never evaluated.
+
+**The reader ships a comprehensive selftest. It passed. It had always passed.** Because
+`_synthetic_run` — the fixture — **created** its time directory from the *same constant the
+reader searched for*:
+
+```python
+tdir = os.path.join(case, END_TIME_STR)      # in the FIXTURE
+tdir = os.path.join(case, END_TIME_STR)      # in the CHECKER
+```
+
+**Fixture and checker shared one assumption, so they agreed perfectly, and their agreement
+meant nothing.** No selftest could ever have caught this, however many controls it carried.
+
+**THE RULE.** A fixture must construct its artifact by a **DIFFERENT ROUTE** than the code
+under test resolves it. Same route ⇒ the pair tests the route against itself. Ask of every
+fixture: *if the shared assumption were wrong, would this test still pass?* If yes, the test
+is decorative.
+
+**The repair is STRUCTURAL, never a corrected constant.** Changing `"21.9440"` to `"21.944"`
+leaves the identical trap armed for the next endTime ending in a zero. The directory must be
+**resolved numerically** and the fixture must build its name by formatting — two different
+routes, so their agreement finally carries information.
+
+**Relation to L-320**, which is its sibling and was found the same evening: there, a
+conjunctive check's negative control broke only the cheap operand and never the load-bearing
+one. Here the control was planted diligently — **into a fixture that shared the defect.**
+Both are the same disease: **the test and the thing tested agreeing for a reason unrelated to
+correctness.** L-314 said *plant a failure*. L-320 added *plant it into the load-bearing
+operand*. This adds: **plant it by a route the code under test does not share.**
+
+**Executable check: `scripts/check_grader_self_blindness.py`, PROBE B** — flags a
+module-level constant used both to BUILD a path in a fixture/synthetic constructor and to
+RESOLVE a path in the checked code. Its selftest plants the defect **and** its clean
+counterpart, requiring the probe to fire on one and stay quiet on the other. It fires on
+`analyse_f5b_physics.py` at HEAD (L1197 fixture / L772 checker), which is the artifact that
+cost the run.
+
+---
+
+## L-322 — A GRADER THAT CANNOT REPRESENT AN OUTCOME ITS OWN REGISTERED RULES MANDATE. The registration worked; the grader could not read its own output
+
+**Found 2026-08-25, cfd, on the F3 conversion suite, the SAME DAY as L-321 and in a
+DIFFERENT comparator.**
+
+`grade_f3.py` died on a completed run — ten solves, every one `rc = 0` measured — with:
+
+```
+File "grade_f3.py", line 602, in main
+    total_core_s = sum(v["core_s"] or 0.0 for v in report["runs"].values())
+KeyError: 'core_s'
+```
+
+`report["runs"]` is built at **two sites that disagree on their keys**: the `PENDING` branch
+(L482, run directory absent) writes `status` and `note` and **no `core_s`**; L487 writes
+`core_s`. L602 then reads `core_s` across **every** entry.
+
+**And the state that triggered it is one the pre-registration GUARANTEES.** §7 enforcement
+point 2: *"a wave whose predicted cost does not fit the remaining budget with 20 % headroom
+is not launched; its rows grade `PENDING`."* The ledger records
+`stopped_by: "budget check before wave 6"`. **The cap fired exactly as registered, and the
+grader crashed on it having fired.** The comparator was structurally unable to grade the one
+outcome its own registration promised would occur.
+
+**THE RULE.** Enumerate every terminal state your registration can produce — budget refusal,
+skip, unlaunched, cap breach, kill, refusal-to-degrade — and **assert the grader can
+represent each one**. A grader that can only describe the happy path has not been shown to
+grade; it has been shown to grade *when nothing registered actually happens*.
+
+**And the check must plant each state.** Adding the one missing key proves nothing about the
+next branch. The defect is **two construction sites that can drift apart**; the repair is
+**one constructor with a single schema**, and a summary that tolerates a legitimately absent
+cost rather than assuming every entry carries one.
+
+**THE PAIRING IS THE STRONGEST EVIDENCE EITHER LESSON HAS: two comparators, in one day, each
+defeated by a state its own registration produces** — one a formatting literal, one a missing
+key on a mandated branch. **In both cases the registration was working correctly and the
+grader could not read its own output.** That is a class, not two anecdotes.
+
+**Catalogue of guard failures, now five:** *(1)* silent when it should fire; *(2)* fires when
+it should stay silent (L-315); *(3)* fires for the wrong reason; *(4)* shares an assumption
+with its fixture (L-321); *(5)* **cannot represent an outcome its own rules mandate.**
+
+**Executable check: `scripts/check_grader_self_blindness.py`, PROBE A** — flags two or more
+dict assignments to the same subscript target with differing key sets where a consumer reads
+a key some branch omits. Selftest plants the defect and its clean counterpart. It fires on
+`grade_f3.py` (L482/L487, `core_s` read at L602) — **and it found a live, unfired instance in
+`rerun_f11.py`**, whose `ledger["runs"]` is written at three sites with four divergent keys
+(`cost_basis`, `predicted_core_s`, `ranks`, `wall_cap_s`) read at L571–L574. Reported to the
+owning team, **not repaired** — that is a frozen-artifact question and their call.
