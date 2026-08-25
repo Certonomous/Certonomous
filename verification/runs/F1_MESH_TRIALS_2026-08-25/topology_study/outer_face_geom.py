@@ -23,15 +23,32 @@ import sys
 
 import numpy as np
 
-# rule 14 / L-221: the import path is ASSERTED, never assumed.  The te-study lane's
+# rule 14 / L-221: the import path is CHECKED, never assumed.  The te-study lane's
 # 14 dead variants were a bare sys.path.insert that pointed at nothing.
+#
+# THESE TWO REFUSALS WERE `assert`s UNTIL 2026-08-25, AND `python3 -O` / PYTHONOPTIMIZE
+# DELETE EVERY `assert`.  Under -O this file would have imported WHATEVER `worst_nonortho`
+# happened to resolve -- a stale sys.modules entry from another path included -- and then
+# reported angles from it as though they came from the reader carrying the planted
+# controls.  Rule 14's shape with the assert itself as the removable part.  They now
+# refuse explicitly; `--o-control` drives both under -O and requires the refusal.
 WN_DIR = "/home/ubuntu/Certonomous/verification/runs/F1_MESH_TRIALS_2026-08-25/te_study"
-assert os.path.isfile(os.path.join(WN_DIR, "worst_nonortho.py")), (
-    "worst_nonortho.py not at " + WN_DIR + " -- refusing rather than importing something else")
+
+
+def _refuse(msg):
+    """A provenance check that fails STOPS THE SCRIPT. Never an assert: -O deletes those."""
+    print("  REFUSED: " + msg)
+    print("  No result printed. (CLAUDE.md rule 14 / L-221)")
+    sys.exit(2)
+
+
+if not os.path.isfile(os.path.join(WN_DIR, "worst_nonortho.py")):
+    _refuse("worst_nonortho.py not at " + WN_DIR
+            + " -- refusing rather than importing something else")
 sys.path.insert(0, WN_DIR)
 import worst_nonortho as wn  # noqa: E402
-assert os.path.dirname(os.path.abspath(wn.__file__)) == WN_DIR, (
-    "imported worst_nonortho from " + wn.__file__ + ", not from " + WN_DIR)
+if os.path.dirname(os.path.abspath(wn.__file__)) != WN_DIR:
+    _refuse("imported worst_nonortho from " + wn.__file__ + ", not from " + WN_DIR)
 
 
 def block_index(case):
@@ -68,7 +85,8 @@ def cell_block(ncell, ns):
         n = ni * nj * nk
         b[off:off + n] = i
         off += n
-    assert off == ncell, f"blockMeshDict block cells {off} != mesh cells {ncell}"
+    if off != ncell:
+        raise RuntimeError(f"blockMeshDict block cells {off} != mesh cells {ncell}")
     return b
 
 
@@ -173,5 +191,83 @@ def main(case, ntop):
             f"{a}:{b}" for a, b in sorted(blocks.items(), key=lambda kv: -kv[1])))
 
 
+def _o_flag_control():
+    """Drive BOTH import-provenance refusals under `python3 -O` and require refusal.
+
+    An `assert`-based guard passes every normal-mode test and is DELETED by -O,
+    leaving no trace: the import simply proceeds with the wrong module.  Only
+    running the interpreter WITH the flag can see it.  Every probe drives a
+    SACRIFICIAL COPY of this module in a temp tree, so a fully stripped guard
+    cannot make the real study directory produce a number.
+    """
+    import shutil
+    import subprocess
+    import tempfile
+
+    tmp = tempfile.mkdtemp(prefix="ofg_oflag_")
+    try:
+        src = io_open_read(os.path.abspath(__file__))
+        pristine = os.path.join(tmp, "pristine_ofg.py")
+        with open(pristine, "w", encoding="utf-8") as fh:
+            fh.write(src)
+
+        # variant A: WN_DIR repointed at a directory that has no worst_nonortho.py
+        nowhere = os.path.join(tmp, "nowhere")
+        os.makedirs(nowhere, exist_ok=True)
+        anchor = 'WN_DIR = "%s"' % WN_DIR
+        if src.count(anchor) != 1:
+            print("  REFUSED: -O control anchor not unique; cannot build the mutant.")
+            sys.exit(2)
+        bad = os.path.join(tmp, "badpath_ofg.py")
+        with open(bad, "w", encoding="utf-8") as fh:
+            fh.write(src.replace(anchor, 'WN_DIR = "%s"' % nowhere, 1))
+
+        # variant B: a DECOY worst_nonortho pre-seeded in sys.modules from another
+        # directory -- the exact stale-cache case the identity check exists for.
+        decoy = os.path.join(tmp, "decoy")
+        os.makedirs(decoy, exist_ok=True)
+        with open(os.path.join(decoy, "worst_nonortho.py"), "w", encoding="utf-8") as fh:
+            fh.write("# decoy: NOT the reader carrying the planted controls\n")
+        driver = os.path.join(tmp, "drive_decoy.py")
+        with open(driver, "w", encoding="utf-8") as fh:
+            fh.write(
+                "import sys\n"
+                "sys.path.insert(0, %r)\n" % decoy
+                + "import worst_nonortho  # noqa: F401  -- poisons sys.modules\n"
+                "sys.path.insert(0, %r)\n" % tmp
+                + "import pristine_ofg  # noqa: F401\n")
+
+        probes = [
+            ("A: WN_DIR missing the reader, under -O", [sys.executable, "-O", bad], 2),
+            ("A: same, normal mode", [sys.executable, bad], 2),
+            ("B: decoy module in sys.modules, under -O", [sys.executable, "-O", driver], 2),
+            ("positive: pristine imports under -O",
+             [sys.executable, "-O", "-c",
+              "import sys; sys.path.insert(0, %r); import pristine_ofg" % tmp], 0),
+        ]
+        ok = True
+        for label, cmd, want in probes:
+            env = dict(os.environ)
+            env.pop("PYTHONOPTIMIZE", None)
+            r = subprocess.run(cmd, capture_output=True, cwd=tmp, env=env)
+            good = r.returncode == want
+            ok = ok and good
+            print("  %s %-40s want rc=%d  got rc=%d"
+                  % ("ok  " if good else "FAIL", label, want, r.returncode))
+        return ok
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def io_open_read(path):
+    with open(path, "r", encoding="utf-8") as fh:
+        return fh.read()
+
+
 if __name__ == "__main__":
+    if "--o-control" in sys.argv:
+        print("INTERPRETER-FLAG CONTROL -- the import-provenance refusals must")
+        print("survive `python3 -O`. (`assert` is REMOVED by -O; a guard that")
+        print("vanishes under a flag is not a guard.)")
+        sys.exit(0 if _o_flag_control() else 3)
     main(sys.argv[1], int(sys.argv[2]) if len(sys.argv) > 2 else 3)

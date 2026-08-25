@@ -14,9 +14,33 @@ PLANTED CONTROL (CLAUDE.md rule 3).  An angle from a reader not shown able to se
 a different angle is not evidence.  --selftest pushes three hand-built quads with
 angles known EXACTLY by construction (90, 135 and 180 deg) through the same
 estimator and refuses unless all three come back within 1e-9 deg; then it
-DISPLACES one real block corner by a known offset and asserts the reported angle
-moves to the value recomputed by hand from the displaced points.
+DISPLACES one real block corner by a known offset and REFUSES unless the reported
+angle moves to the value recomputed by hand from the displaced points.
+
+NONE OF THOSE REFUSALS IS AN `assert`, AND THAT IS DELIBERATE (2026-08-25).  As
+first written every control here WAS an assert, and `python3 -O` / PYTHONOPTIMIZE
+DELETE every assert.  Measured on this file's own former shape, with quad_angles()
+mutated to return zeros so every control MUST fail:
+
+    python3    --selftest  -> rc=1, AssertionError: CONTROL FAILED (square)
+    python3 -O --selftest  -> rc=0, and it PRINTED
+                              "PLANTED CONTROL PASSED: estimator recovers
+                               90.000000000, 135.000000000 and 180.000000000 deg"
+                              "PLANT SEEN: ... moved its angle 0.000000 -> 0.000000
+                               deg, matching the hand recompute."
+                              "SELFTEST PASS."
+
+So under -O this file did not merely lose its controls: IT AFFIRMATIVELY CERTIFIED
+THAT CONTROLS HAD PASSED WHICH NEVER RAN, on an estimator returning zeros, and
+called a 0.000000 -> 0.000000 displacement a PLANT SEEN.  That is the exact failure
+standing rule 3 exists to prevent -- a zero from a reader not shown able to see a
+non-zero -- reached through the interpreter rather than through the reader.
+
+Every refusal below therefore `sys.exit(2)`s or raises, and `--selftest` runs
+`_o_flag_control()`, which drives this file's own refusal path UNDER `-O` against a
+mutated sacrificial copy and requires it to refuse.
 """
+import io
 import os
 import sys
 
@@ -24,6 +48,13 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+
+
+def _refuse(msg):
+    """A control that fails STOPS THE SCRIPT. Never an assert: `-O` deletes those."""
+    print("  REFUSED: " + msg)
+    print("  No result printed. (CLAUDE.md rule 3)")
+    sys.exit(2)
 
 
 def corner_angle(p_prev, p_at, p_next):
@@ -47,16 +78,19 @@ def selftest():
              (np.array([[0, 0, 0], [1, 0, 0], [2, 1, 0], [0, 1, 0]], float), 90.0, 0)]
     q90 = tests[0][0]
     got = quad_angles(q90)
-    assert all(abs(g - 90.0) < 1e-9 for g in got), f"CONTROL FAILED (square): {got}"
+    if not all(abs(g - 90.0) < 1e-9 for g in got):
+        _refuse(f"CONTROL FAILED (square): {got}")
     # 135 deg by construction at v1: edges v1->v0 = (-1,0) and v1->v2 = (cos45,sin45)
     q135 = np.array([[0, 0, 0], [1, 0, 0],
                      [1 + np.cos(np.radians(45)), np.sin(np.radians(45)), 0], [0, 1, 0]], float)
     a135 = quad_angles(q135)[1]
-    assert abs(a135 - 135.0) < 1e-9, f"CONTROL FAILED (135): {a135}"
+    if not abs(a135 - 135.0) < 1e-9:
+        _refuse(f"CONTROL FAILED (135): {a135}")
     # 180 deg by construction: v0 sits ON the segment v3-v1, both edges from v0 vertical
     q180 = np.array([[0, 0.5, 0], [0, 0, 0], [1, 0, 0], [0, 1, 0]], float)
     a180 = quad_angles(q180)[0]
-    assert abs(a180 - 180.0) < 1e-9, f"CONTROL FAILED (180): {a180}"
+    if not abs(a180 - 180.0) < 1e-9:
+        _refuse(f"CONTROL FAILED (180): {a180}")
     print("  PLANTED CONTROL PASSED: estimator recovers 90.000000000, 135.000000000 and")
     print("                          180.000000000 deg on quads whose angles are exact by")
     print("                          construction, to < 1e-9 deg.")
@@ -69,13 +103,78 @@ def selftest():
     q2 = q.copy(); q2[0] += off
     after = quad_angles(q2)
     hand = corner_angle(q2[3], q2[0], q2[1])
-    assert abs(after[0] - hand) < 1e-12, "displacement not seen consistently"
-    assert abs(after[0] - before[0]) > 1e-6, (
-        f"PLANT NOT SEEN: displacing a corner by {off} did not move the angle "
-        f"({before[0]} -> {after[0]})")
+    if not abs(after[0] - hand) < 1e-12:
+        _refuse(f"displacement not seen consistently: {after[0]} vs hand {hand}")
+    if not abs(after[0] - before[0]) > 1e-6:
+        _refuse(f"PLANT NOT SEEN: displacing a corner by {off} did not move the "
+                f"angle ({before[0]} -> {after[0]})")
     print(f"  PLANT SEEN: displacing block {names[k]} corner 0 by {off[:2]} moved its angle")
     print(f"              {before[0]:.6f} -> {after[0]:.6f} deg, matching the hand recompute.")
+    if "--no-o-control" not in sys.argv:
+        print("  INTERPRETER-FLAG CONTROL -- these refusals must survive `python3 -O`.")
+        print("  (`assert` is REMOVED by -O; a control that vanishes under a flag is")
+        print("   not a control, and this file's prints would then certify a false pass)")
+        if not _o_flag_control():
+            print("  REFUSED: the -O control did not hold.")
+            sys.exit(2)
     print("  SELFTEST PASS.")
+
+
+def _o_flag_control():
+    """Drive THIS file's refusal path under `python3 -O` and require it to refuse.
+
+    An `assert`-based control passes every normal-mode test and is DELETED by -O,
+    leaving no trace -- worse here, the prints after it then CERTIFY a pass that
+    never happened.  No test written in normal mode can see that.  Only running the
+    interpreter WITH the flag can.
+
+    The mutant destroys quad_angles(), so every planted control MUST fail.  Both
+    variants are SACRIFICIAL COPIES in a temp tree; nothing here touches the real
+    study directory, and the control reads no mesh and writes no result.
+    """
+    import shutil
+    import subprocess
+    import tempfile
+
+    tmp = tempfile.mkdtemp(prefix="bca_oflag_")
+    try:
+        for name in os.listdir(HERE):
+            if name.endswith(".py"):
+                shutil.copy(os.path.join(HERE, name), os.path.join(tmp, name))
+        me = os.path.abspath(__file__)
+        src = io.open(me, encoding="utf-8").read()
+        pristine = os.path.join(tmp, "pristine_bca.py")
+        io.open(pristine, "w", encoding="utf-8").write(src)
+
+        ANCHOR = ("    return [corner_angle(q[(i - 1) % 4], q[i], q[(i + 1) % 4]) "
+                  "for i in range(4)]")
+        if src.count(ANCHOR) != 1:
+            print("  REFUSED: -O control anchor not unique (%d hits); cannot build the "
+                  "mutant, so the control cannot be shown able to fail." % src.count(ANCHOR))
+            sys.exit(2)
+        mutant = os.path.join(tmp, "mutant_bca.py")
+        io.open(mutant, "w", encoding="utf-8").write(
+            src.replace(ANCHOR, "    return [0.0, 0.0, 0.0, 0.0]  # -O CONTROL MUTANT", 1))
+
+        probes = [
+            ("mutant REFUSES under -O", mutant, ["-O"], 2),
+            ("mutant REFUSES in normal mode", mutant, [], 2),
+            ("positive: pristine PASSES under -O", pristine, ["-O"], 0),
+        ]
+        ok = True
+        for label, path, flag, want in probes:
+            env = dict(os.environ)
+            env.pop("PYTHONOPTIMIZE", None)
+            r = subprocess.run(
+                [sys.executable, *flag, path, "--selftest", "--no-o-control"],
+                capture_output=True, cwd=tmp, env=env)
+            good = r.returncode == want
+            ok = ok and good
+            print("  %s %-36s want rc=%d  got rc=%d"
+                  % ("ok  " if good else "FAIL", label, want, r.returncode))
+        return ok
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 BLOCK_NAMES = (
@@ -99,7 +198,8 @@ def load(m):
     gen = gen_var.Gen(m, g).geom().topology()
     V = np.array(gen.V, float)
     B = np.array([b[0] for b in gen.blocks])
-    assert len(B) == len(BLOCK_NAMES), f"{len(B)} blocks vs {len(BLOCK_NAMES)} names"
+    if len(B) != len(BLOCK_NAMES):
+        raise RuntimeError(f"{len(B)} blocks vs {len(BLOCK_NAMES)} names")
     return V, B, BLOCK_NAMES
 
 
