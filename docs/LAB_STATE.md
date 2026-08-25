@@ -3072,6 +3072,182 @@ limitation; the over-claimed tiers found in this team's own records; **today's
 refusal to fire K0d into an unsatisfiable completion clause.** **All of it keeps
 happening — on top of many more core-hours, not instead of them.**
 
+### SESSION certonomous-c2 RESUME — the accidental stop, and what it did NOT kill
+
+**Section appended 2026-08-25T18:05Z by heat-transfer-supervisor** (real `date -u`
+taken inside the writing invocation; the placeholder-digit stamp defect of an
+earlier write is not repeated).
+
+#### THE CHIEF'S LIVE READING WAS WRONG ON THIS TEAM, AND THE CORRECTION IS GOOD NEWS
+
+The resume brief stated: *"Your three thermal solvers are NOT in the process
+table."* **They are.** Established from `ps`, `/proc/<pid>/cwd` and the live logs
+at 18:02–18:05Z:
+
+| pid | cwd | started | rank | `timeout` |
+|---|---|---|---|---|
+| 2203927 | `verification/runs/T-family/T1_runs/R_10k_x` | 16:36:46Z | 1 | 66 000 s |
+| 2203944 | `verification/runs/T-family/T1_runs/R_100k_x` | 16:36:46Z | 1 | 78 000 s |
+| 2203947 | `verification/runs/T-family/T1_runs/R_300k_x` | 16:36:47Z | 1 | 165 000 s |
+
+**All three survived the stop** — they were launched detached under `timeout`,
+so the accidental termination of the fleet did not reach them. All three
+`log.solve.ext1` files were still growing at the moment of this write.
+**This team's compute floor was never at zero; it is at 3 of 16 cores.**
+
+**Recorded against myself as much as against the brief:** the correct response to
+a supervisor's stale process reading is to re-derive it from `/proc`, which is
+what was done here. A launch or scheduling decision taken on a relayed process
+table is a decision on a summary, and a summary is not a check — the same rule
+that governs my two disclosed rulings-from-summary.
+
+#### THE THREE EXTENSION RUNS — NOT COMPLETE, NOT GRADEABLE, AND CORRECTLY SO
+
+**A run that ended when its launcher was stopped is not a completed run.** None of
+these ended at all. Graded against all six clauses of the strict completion rule
+(`T1b_L4_AMENDMENT.md` §7):
+
+| clause | `R_10k_x` | `R_100k_x` | `R_300k_x` |
+|---|---|---|---|
+| 1. `rc = 0` | **N/A — still running** | **N/A — still running** | **N/A — still running** |
+| 2. an `End` line | **FAILS** — 0 occurrences | **FAILS** — 0 | **FAILS** — 0 |
+| 3. last time == `endTime` | **FAILS** — 21 065 vs 32 000 | **FAILS** — 81 740 vs 94 000 | **FAILS** — 82 330 vs 110 000 |
+| 4. fields present at `endTime` | **FAILS** — no `endTime` dir exists | **FAILS** | **FAILS** |
+| 5. `ExecutionTime` count == `endTime` | **FAILS** | **FAILS** | **FAILS** |
+| 6. age guard vs own `0/T` | not reachable — clause 4 unmet | not reachable | not reachable |
+
+**Verdict on all three: `PENDING`.** Not `NOT A RESULT` — that verdict is for a
+run that produced something ungradeable. These have produced nothing to grade
+yet, and `PENDING` is the display/queue state for *not yet run to completion*
+(`VERIFICATION_CHARTER` §9). **NOTHING IS GRADED FROM THEM AND NOTHING WILL BE
+until all six clauses hold.** Clause 6, the age guard, is the one that will
+matter at completion: each case's `0/T` predates its restart by four days
+(`R_10k_x` 2026-08-21T22:37:55Z, `R_100k_x` 21T21:28:41Z, `R_300k_x`
+21T21:27:10Z), so every field written by the extension will be newer than it —
+**the guard will pass, and it will pass for the right reason.**
+
+**ETAs, DERIVED from each run's own measured rate over its 5 259 s of extension
+wall time — not from the frozen §5 estimate that missed by 31.4 % on a borrowed
+rate:**
+
+| case | iters done | s/iter | iters remaining | ETA (derived) | `timeout` expires | margin |
+|---|---|---|---|---|---|---|
+| `R_10k_x` | 1 065 | 4.9380 | 10 935 | **2026-08-26T09:04Z** | 26T10:56Z | 1.9 h |
+| `R_100k_x` | 1 740 | 3.0224 | 12 260 | **2026-08-26T04:21Z** | 26T14:16Z | 9.9 h |
+| `R_300k_x` | 2 330 | 2.2566 | 27 670 | **2026-08-26T11:25Z** | 27T14:24Z | 27.0 h |
+
+**`R_10k_x`'s 1.9 h margin is the one to watch** and it is named here so it is not
+discovered at expiry. It is also the anomaly worth flagging: **the 10k case is
+2.19x SLOWER PER ITERATION than the 300k case.** These labels are Reynolds
+numbers, not cell counts, so this is not a mesh-size ordering — it is the same
+shape as the T1b L4 cost finding, where per-case cost ordered by **iteration
+count, not Reynolds number**. Not yet explained; recorded as unexplained rather
+than rationalised.
+
+**Cost so far, measured not estimated:** 3 ranks x 5 259 s = **262.95 core-min =
+4.3825 core-h**, **$0.2248 derived** at $0.0513/core-h (owner-stated rate; the
+box cannot read its own billing, so this is **derived, not measured**). The
+calibration row against the extension's registered estimate lands at completion,
+per rule 12 — **not now, because the run is not a completed process.**
+
+#### SANAA'S FOUR NEW RULINGS — RECORDED, AND THREE OF THEM MOVE THIS TEAM TODAY
+
+1. **DESK-ITEM DISPOSAL RULE.** Every desk item referred upward arrives with the
+   referring team's recommended resolution and reasoning; unless she rules
+   otherwise **within one day**, the team's recommendation is **ADOPTED**,
+   recorded **`[lab-attributed]`**, with a line in the weekly digest. Only
+   charter-reserved rulings still wait: compute above caps, external sends,
+   constitutional changes, tier definitions. **This ADOPTS this team's K0d
+   recommendation — see below.**
+2. **GRID STANDARD — THREE LEVELS.** *"A converging three-level family with
+   observed order and GCI is the lab's gate standard (Roache-standard minimum).
+   More levels are a research option, never a gate requirement."* **This relaxes
+   nothing** — convergence, observed order and GCI are all still required, and
+   rule 5's ordering is untouched. It fixes the *count*, which matters here
+   because **this family's ladders are the lab's only converging triples.**
+3. **MAXIMUM CONCURRENCY — the floor becomes a saturation target.** Schedule to
+   **80–90 % core utilisation**; small single-core cases in **parallel batches of
+   8–12**; every case keeps its **per-case cap and contention file**; measured
+   contention of **5–11 % is acceptable and disclosed**; gate runs needing clean
+   timing **may RESERVE CORES AND SAY SO**; memory guard enforced. Daily headline
+   adds **average core utilisation**. Her framing: the scheduler's question is now
+   **"what else can start,"** not "what may start."
+4. **THE PROSE-TO-RUN RATIO**, her words: *"the prose-to-run ratio needs to be a
+   bit more balanced now that the lab has a lot of discipline. The goal isn't
+   always to avoid compute at all cost… In general things are going too slow."*
+   **Read precisely: the discipline is CREDITED, not withdrawn.** She has twice
+   flagged the rigor standard as unchanged and *"Very important."* What is being
+   corrected is the ratio.
+
+#### K0d — UNBLOCKED BY HER DISPOSAL RULE. RE-REGISTERING, NOT PATCHING
+
+**This team's recommendation is adopted and is now `[lab-attributed]`:** K0d is
+**re-registered on the 10-line template**, not patched a sixth time. The reason
+goes in the new document's opening, in the terms she used: **two frozen
+amendments reconciled ONE contradiction TWO DIFFERENT WAYS — one moved `ν`, the
+other moved `β`, both against the same 2.76 % inconsistency in `Ra` — so the
+document did not determine what physics was being simulated.**
+
+**The original is SUPERSEDED, NOT DELETED.** It stays on disk with every
+amendment intact and untouched (rule 6); the new registration cites it as
+superseded and says why. **The physics is chosen ONCE.**
+
+**The `ν`-vs-`β` choice is a physics ruling and is MINE, not the lane's.** A lane
+is gathering both options with their arithmetic — resulting `Ra`, resulting `Pr`,
+which published reference each is consistent with, and what each implies for the
+registered bands — and has been instructed to **STOP** before writing anything.
+**It will stop a second time after committing the new registration, because I read
+it as a diff before any compute.** That check is undelegatable and firing without
+it would be a rule-2 violation regardless of how much the throughput directive
+presses.
+
+**The second K0d defect must not reproduce:** §8.2 clause 4 required an `omega`
+field while §5 registered `M2_c/m/f` on `RNGkEpsilon`, which writes `epsilon`,
+never `omega`. Those three could never satisfy the completion rule and the
+comparator refuses without all nine markers — **the whole 829.36 core-min would
+have produced nothing.** The new registration carries **per-closure field sets**.
+
+#### THE V/P ROWS ARE UNFLAGGED AND FINAL
+
+**Sanaa: "a. Uphold".** An exact or analytic reference scores **V**, never **P**;
+validation requires measured physical reality from a public primary with the
+pre-registration on disk. **S6, S13, S19, S22 and cells C2, C10, C15 →
+`GATE REACHED`, missing P — FINAL on her authority, not pending.** Zero rows at
+`HOLDS` is **final, not provisional.** What travels with those rows: **thermal's
+`G` is the strongest in the lab; what defeats these seven is `P`, not `G`.**
+This team argued for the ruling that cost it seven rows.
+
+#### LANES LIVE — THREE, AT THE CAP
+
+1. **Never-run inventory + K2bU/K2bU3** — settling the verification team's open
+   question against this family **from disk** (their audit: *"NEVER RUN cannot be
+   separated from completed-but-unfiled"*; run output is gitignored, so `git`
+   cannot answer it and a `grep -r` here is blind to exactly those archives).
+   Also drafting a 10-line template prereg for the best next never-run case.
+2. **Grader self-blindness sweep** — `scripts/check_grader_self_blindness.py` over
+   every thermal comparator, plus the two traces referred to this family: the
+   **negative GCI on a divergent triple** in the three K0b copies (`p <= 0`
+   unguarded; only increment sign change is checked) and the **T1c Richardson
+   sign inversion** whose exposure is UNKNOWN. **Fixes nothing** — those files are
+   frozen; findings land as docket rows.
+3. **K0d re-registration**, phase 1 (gather and stop), as above.
+
+#### LIVE JOBS AND NEXT ACTIONS
+
+**Live:** the three extension solvers above, 3 of 16 cores. Lab-wide also one
+`simpleFoam` (not this team's) and one Docker task (dafoam's) — **about 5 of 16
+cores in use, well under her 80–90 % target.**
+
+**Next, in order:** rule `ν` vs `β` and fire K0d's nine cases **as a batch, not
+serially**, per her concurrency ruling; fire the best never-run case the inventory
+lane returns; land the extension's cost-calibration row when the runs complete.
+
+**On Sanaa's desk from this team:** T5's 12 INTERPRETATIONs; K2a rack module;
+D389's S13 normalisation (~24x looser than it reads on an absolute temperature —
+changing it re-grades the whole thermal corpus, **not to be settled
+unilaterally**); D495; the T10a upstream draft (**filing is hers**). Vogel &
+Eaton 1985 and Blay 1992 both **NOT OBTAINED**. **Nothing on that list blocks a
+run** — under her rule, blocked is not idle.
 ## cfd
 
 **THREE CHECK-1 DIFF READS DONE PERSONALLY THIS SESSION, ALL THREE CLEARED — and each was re-run by the supervisor rather than believed on its lane's own test.**
