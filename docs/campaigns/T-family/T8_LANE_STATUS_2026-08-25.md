@@ -258,3 +258,142 @@ not charged as campaign compute.
 3. Anything about T8 physics. No solver ran.
 4. That the supervisor's §3 check-1 diff read happened before `96c2fe3c`. It
    is not this lane's check to make and the ordering is now historical (§1).
+
+---
+
+# APPENDIX — the supervisor's pre-compute rulings, executed (2026-08-25)
+
+Appended after the audit above. **Rulings 1 and 2 are DISCHARGED; rulings 3 and
+4 required no action from this lane.** Landed as commit
+**`78ee37ae`** — *"T8 PRE-COMPUTE AMENDMENT A1…"*.
+
+## A. The pre-compute condition, checked before anything was touched
+
+`CLAUDE.md` rule 2 requires the condition be **stated and checked**, naming the
+run directory that does not exist. Checked by direct `stat` of each path:
+
+- `verification/runs/T-family/T8_runs/T8_MTT_c` — **DOES NOT EXIST**
+- `verification/runs/T-family/T8_runs/T8_MTT_m` — **DOES NOT EXIST**
+- `verification/runs/T-family/T8_runs/T8_MTT_f` — **DOES NOT EXIST**
+
+The run tree holds **only** the three freeze-set scripts. A repository-wide
+search for `STATUS.T8*`, any `T8_MTT_*` directory and any `log.solve` under a
+T8 path returned nothing; `docs/COST_CALIBRATION.md` has **no T8 row**. **Zero
+core-minutes.** The window was open, and it was **re-checked after the commit
+and is still open** — no case directory exists now either.
+
+## B. Rulings 1 and 2 — what was built
+
+Both repairs live in `analyse_t8.py`, **in the selftest and its fixtures only.**
+
+| new artifact | line | role |
+|---|---:|---|
+| `write_foam_scalar` / `write_foam_vector` | 1473 / 1483 | write real OpenFOAM fields at full double precision |
+| `make_synthetic_field_case` | 1493 | a **real** `endTime` dir on disk: `Cx Cy Cz V T U`, `T` and `U_z` exactly quadratic in `r` |
+| `mis_weighted_reader` | 1538 | negative fixture — `(7f₁ − f₂)/6` |
+| `wrong_column_pair_reader` | 1558 | negative fixture — right weights, columns `idx[1],idx[2]` |
+| selftest **(v)** extension | 1834 | **CALLS** `read_mesh`, `resolve_planes`, `read_plane_quantities`, `read_stations` |
+| selftest **(x)** | 1952 | **CALLS `check_planted_zero`** on a real case; 6 arms pass, 2 negative arms fire |
+
+The fixture is exactly quadratic in `r` on purpose: cell centres at
+`r_j = (j+½)dr` put the two axis-adjacent columns at `r₂ = 3r₁` **exactly**, so
+`(9f₁ − f₂)/8` returns the axis value **analytically**. Every expected response
+is an exact identity — **no tolerance was fitted to make a fixture pass.**
+
+**The grading path did not move.** Diff vs the previous blob: **+216 / −7 in
+three hunks, all at old line 1449 or below.** Lines 1–1451 of the old blob are
+**byte-identical** in the new one (verified by md5 of the truncated files, not
+by eye). Every instrument line number from §3 of this document **still holds**:
+extrapolation **685–686**, `check_completion` 384 / age guard 478–497,
+`gci_triple` 800, `band_verdict` 845, `check_planted_zero` 925, `grade_row`
+1009. **No gate, threshold, cap or label was altered.**
+
+## C. The mutation suite, re-run — the gap is CLOSED
+
+Same method as §5 above: mutate a scratch copy, re-run `--selftest`. Scratch
+baseline is **68 ok** (a copy outside the repo loses the canon differential).
+
+| mutation | before repair | after repair |
+|---|---|---|
+| `Tc` extrapolation → `(7f₁ − f₂)/6` | **SURVIVED**, 0 FAILED | **CAUGHT** — rc 2, **3 FAILED** |
+| `wc` extrapolation → `(7f₁ − f₂)/6` | not testable | **CAUGHT** — rc 2, **3 FAILED** |
+| column pair → `idx[1], idx[2]` | not testable | **CAUGHT** — rc 2, **7 FAILED** |
+| planted-zero verdict → `good = True` | not testable | **CAUGHT** — rc 2, **3 FAILED** |
+| age guard disabled | CAUGHT | **CAUGHT** — rc 2, 1 FAILED |
+| `OSCILLATORY` branch disabled | CAUGHT | **CAUGHT** — rc 2, 2 FAILED |
+
+The fourth row matters as much as the first: forcing the control's **own
+verdict** to `True` is now caught, so `check_planted_zero` is tested on its
+refusal, not merely on its arithmetic.
+
+## D. THE FINDING — §9's registered arm is not sufficient on its own
+
+Produced by the new negative arm, and it is about **the pre-registration**, not
+the code.
+
+§9 registers **one** arm: plant into **both** axis-adjacent columns, expect a
+shift of exactly `PLANT`, because `(9P − P)/8 = P`. **That arm cannot see a
+`(7f₁ − f₂)/6` mis-weighting** — because `(7P − P)/6 = P` **as well.**
+
+Measured, not argued. Under that mutation **both registered arms PASS**, and it
+is the comparator's **supplementary arm (a)** — innermost column only, expect
+exactly `9P/8` — that **FAILS** and forces the refusal. Selftest (x) asserts
+this split explicitly, so the claim is checked on every run rather than
+believed once.
+
+**The supplementary arms are load-bearing, not decoration.** §9's registered
+text is not weakened, widened or reinterpreted — it binds exactly as written,
+and the supplementary arms were already in the frozen comparator. What is new
+is the **disclosure**, so that no future rung copies §9's wording believing one
+arm suffices.
+
+## E. Rulings 3 and 4 — no action, recorded
+
+- **Ruling 3** (`epsilon` not `omega`): registered form **stands**. No change
+  made. The general wording point was referred upward by the supervisor.
+- **Ruling 4** (plateau conjunct): **not decided locally**, does not block T8,
+  referred to the chief for the verification team. `grade_row` is unchanged.
+
+## F. Re-freeze, and the numbers at the amending commit
+
+| check | result |
+|---|---|
+| `--check-freeze` | **rc = 0, FROZEN** — all four blobs match `HEAD` |
+| `--selftest` | **69 ok, 0 FAILED**, rc = 0 (was 52 ok) |
+| `check_grader_self_blindness.py` | **rc = 0**, clean on both probes |
+
+| freeze-set path | blob at `78ee37ae` |
+|---|---|
+| `T8_PREREGISTRATION.md` | `93a9f1fe8189` — amended, v1.0 → v1.1 |
+| `build_t8.py` | `376a41da268c` — unchanged |
+| `analyse_t8.py` | **`f04f9a674e03`** — was `d82c98ae2caf` |
+| `run_one_t8.sh` | `70a37aa634d6` — unchanged |
+
+The rule-6 assertion in the amendment — **`lines whose number changed above
+this section: 0`** — was **verified, not asserted**: prereg lines 1–477 are
+byte-identical to the pre-amendment blob.
+
+## G. The freeze instrument's own limitation, now on the record
+
+`check_freeze_set` (224–256) hashes against **`HEAD:`**, not a pinned sha, so
+it detects an **uncommitted** edit to the grading path but **not a committed
+one**. It is **not lying today** — the blobs coincide, verified. Recorded in
+amendment §A1.5 as a named limitation. **Not closed by this lane**: pinning the
+sha would be a change to the grading path's own guard, and that is the
+supervisor's call.
+
+## H. Verdict and what remains
+
+**PENDING.** The comparator is re-frozen, its two blind spots are closed, and
+every instrument is now demonstrably able to fire. **No level has been fired.**
+
+**Cost: 0 core-minutes of solver compute.** No solver ran at any point.
+
+**STOPPED AS INSTRUCTED.** The supervisor reads
+`verification/runs/T-family/T8_runs/analyse_t8.py` and `build_t8.py` as diffs
+personally before the fire order. **This time the ordering is correct: the
+repair is committed and frozen, and no compute has started.**
+
+**What this lane still could not verify:** anything about T8 physics — no
+solver ran; and `build_t8.py` is **unchanged and unaudited by mutation** — this
+lane audited the comparator, not the case builder.
