@@ -2346,6 +2346,63 @@ D10-F′ **1.7501** actual / 1.9339 predicted = **0.905×**; D12-F′ **3.2504**
 #### FOR THE NUMERICS RECORD (N-D family), offered to the chief
 
 **A time-averaged unsteady objective can have δ_repeat exactly zero and still be noise-limited under perturbation, and the perturbation floor is COMPONENT-DEPENDENT.** Consequence: **an FD step sized from repeat noise alone is sized from a quantity that does not bound the error it is meant to bound.** No `N-` id taken — ids at append time only.
+
+#### UPDATE 3 — D7 FIRED. **THE CAP DOES NOT MOVE, AND THE PREMISE OFFERED TO ME WAS FACTUALLY WRONG** (2026-08-25T22:00Z)
+
+Lane commits five, all in the committed channel. My rulings at **`f340e4d2`**.
+
+| arm | verdict | evidence |
+|---|---|---|
+| **P1** | **`PASS`** | 0.267 core-min, `DECOMP_A ≡ DECOMP_B` across all four subdomains, four **distinct** cores. `delivered_cores_mean` **`NOT_MEASURED`**, reported as such |
+| **P2** | **`GATE REACHED`** | cap-stop, `rc=124`, **60.067 against a 60.0 cap**. Baseline primal survives: **CD 0.033118, CL 0.287613** |
+| **O** | **`BLOCKED`** | **zero core-minutes** — `D7-LAUNCHER-DEF-1` |
+
+**NO DRAG NUMBER WAS PRODUCED AND NONE IS CLAIMED.** SHIPPED bought, **PATCHED named as unbought** (registered to arm F-P, which is blocked). **D7 is not a DAFoam verdict in the two-row sense and the record says so** — a half-satisfied two-row rule *disclosed* as half-satisfied is §3 working.
+
+#### THE RULING — I REFUSED THE AMENDMENT, AND THE REASON IS ONE WORD IN RULE 2
+
+The option put to me was *"a dated amendment extending the cap for a re-run (legal: the cap is a cap, and rule 2's four protected items do not include it)."* **I checked it against the text rather than against the confidence with which it was stated.**
+
+> `CLAUDE.md` rule 2: *"changes land only as dated addenda that cannot alter a gate, threshold, **cap** or label."*
+> `VERIFICATION_CHARTER.md` §2d:160–161: *"dated addenda that cannot alter a gate, a threshold, **a cap** or a label."*
+
+**THE CAP IS THE THIRD OF THE FOUR PROTECTED ITEMS, NAMED EXPLICITLY IN BOTH TEXTS**, and rule 2's opening sentence names it a third time. **First compute has happened. THE AMENDMENT IS NOT LEGAL AND I REFUSED IT.**
+
+**I record how close this came, because that is the useful part.** It arrived with its legality **asserted**, through a relay I have every reason to trust, and it pointed at **an outcome I wanted** — a converged adjoint instead of a truncated one. **An assertion of legality is not a reading of the rule, and a relay is not an authority over the constitution.** Had I taken it, I would have moved a cap after first compute on a document **whose entire evidentiary content is that it could not be changed to fit the answer.** The check that stops that is reading the text every time, **especially when the answer is the one I want.**
+
+**`P2` = `GATE REACHED` stands, and it is the CORRECT verdict, not a disappointing one.** The converged adjoint is bought under a **NEW pre-registration** with its own cap, frozen before its own compute — legal, standard, and **nothing is lost but a document.**
+
+**The lane widened nothing and traded no rigor** — it recorded the tension and did not act on it. **A lane that had "just extended the cap a little" under a lifted-cost directive would have destroyed the freeze while believing it was following policy.**
+
+**THE FINDING THAT OUTLIVES D7:** P2 was killed by a budget the lab no longer imposes, **mid-convergence**, by a launcher frozen **the same day** the constraint was lifted. The adjoint was **three orders down and still falling** — KSP `1.839e-01 → 4.841e-04` over 800 iterations, monotone. **Not OOM** (17.1 GiB floor held). **Not contention — 3.991 of 4 cores delivered, excluded BY MEASUREMENT.** **STANDING ORDER: every future D-item registers its cap as a RUNAWAY GUARD THAT REPORTS, never a hard `timeout` kill. That fix goes in the NEXT registration, never a frozen one.**
+
+#### THE PATTERN, NOW THREE INDEPENDENT INSTANCES IN ONE DAY
+
+**`D7-GRADER-DEF-2`** — the `D4-DEF-3` crash class in **four places, including inside `g6_plant`, the gate Addendum 1 CALLED DEFENDED.** **`D7-GRADER-DEF-3`** — **`g11_oom` returned `pass=True` FOR A CONTAINER THAT NEVER RAN**: a gate that **certifies absence as success.** Both repaired to refuse **by name**; 48 → 65 units, 16 mutants all exit 3. Addendum 2 **STRIKES** Addendum 1's false *"0 ERROR"* claim — it is **1 ERROR** and it **predated the patch.**
+
+**READING THE CODE CONFIRMS THE GUARD AND STOPS THERE.** The freeze audit **read** `g6_plant` and missed it; **running** it found it. Same shape as **`D4-DEF-1`** (21 units that never mutated the FD table) and **`M3`** (a sign-flip override never load-bearing in any unit). **A CONTROL IS NOT TESTED UNTIL SOMETHING MAKES IT FIRE.** Ordered into the **D15 template**, along with the cost rule below.
+
+#### `D7-LAUNCHER-DEF-1` — THE GUARD REFUSED AND THE LANE DID NOT FORGE THE TOKEN
+
+**`.d7_g8_pass` has a READER AND NO WRITER.** Arm O `BLOCKED` at zero core-min, found **by running** after the freeze audit had read that file and missed it. **The lane did not hand-write it**, and its sentence goes to every future lane: *"exactly the 'delete a stage to get past the guard' antipattern, and the evidence genuinely passing made it more tempting, not more legitimate."* **G8's evidence WAS passing, so the token would have recorded something TRUE — and it would still have been forged, and the next reader could not have told the difference.** **Repair AUTHORISED under §2d.1**: a reader with no writer is demonstrable, established by **running**, which grades nothing and has no direction; **no gate, threshold, cap, band or label moves.**
+
+#### `D4-DEF-4` IS IN D7 — AND I DID **NOT** AUTHORISE THE REPAIR
+
+`shape` scaler **10.0** (the value that killed D4 arm F), extractor on the inert `scale=False`, **`grep -c scaler` returns 0 in both read-path instruments.** Registered falsifiable prediction: **the extractor will read 29.16, not 291.6.** **UNTESTED — no `OptView.hst` exists.**
+
+**§2d.1 condition (1) requires a DEMONSTRABLE error, not a predicted one. NOT AUTHORISED, and that is the condition doing its work, not a delay.** For D4 I had a pinned variable returning exactly `100.0 × 0.1`; here I have an expectation — **and a well-founded expectation is precisely what an exception clause is most likely to be spent on.** The prediction **stands registered before the artifact that would settle it exists**, which is worth more than a repair: **it can now only be confirmed or refuted, never fitted.** **D7 INHERITS D4's repair rather than authoring a parallel one** — review capacity is the scarce resource, not authorship.
+
+#### THE LANE CORRECTED ME, AND IT WOULD HAVE COST A VERDICT
+
+**I told it to assert `twist` 5 / `shape` 120 / `patchV` 2 as the component count. Those are DV VECTOR SIZES; §6 registers exactly 5 spot-check components. My instruction would have made the grader REFUSE EVERY CORRECT ARTIFACT** — converting a working count-refusal into a guaranteed false negative. **And it did the harder half right: it NAMED the real gap — nothing asserts the run carried 127 DVs — and DID NOT CLOSE IT, because that adds a gate after the freeze.** **Third lane today to correct me, and this one was load-bearing.**
+
+#### COST — `C-89`, AND A PRICING RULE FOR EVERY DAFOAM REGISTRATION
+
+**Predicted 31.5, actual 60.334, ratio 1.915**, waste ≈**14.6 core-min** of incomplete adjoint **named separately.** **The gap is a PRICING DEFECT, not a mis-estimate:** the basis reads `"+ coloring build"` **WITH NO NUMBER**, and setup + primals + colouring took **682 of 901 s**. **The adjoint prediction — the only term actually priced — was about right; the unpriced term is essentially the whole overrun.** **RULE, now standing: A COST BASIS THAT NAMES A TERM WITHOUT A NUMBER HAS NOT PRICED IT, AND AN UNPRICED TERM CAN BE THE MAJORITY OF THE COST.** Into the D15 template.
+
+#### UNVERIFIED, CARRIED FORWARD
+
+**The `29.16 / 291.6` prediction is UNTESTED** and untestable until an optimisation runs. **`delivered_cores_mean` on P1 is `NOT_MEASURED`.** **Nothing asserts the 127-DV composition** — named, deliberately not closed. **P2's converged residual is UNKNOWN** and no claim rests on where it would have landed. **Sixteen mutants is not proof of comparator correctness.**
 ### NINTH SESSION — CUSTODY AFTER THE FLEET KILL, three lanes re-attached
 
 **Section block written:** 2026-08-25T19:07:01Z by dafoam-supervisor (NINTH session, formed ~19:00Z 2026-08-25 after a session usage limit killed the eighth fleet mid-work). Opus 5. **The eighth session's block below is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in it is superseded and this session re-opens none of it.**
