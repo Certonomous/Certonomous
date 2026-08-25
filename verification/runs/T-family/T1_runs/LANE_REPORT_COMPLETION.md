@@ -149,3 +149,107 @@ enforcement instrument at all (actual spend 0.28 core-s, ratio 0.0009 — no
 overrun, nothing reportable under rule 12).
 
 **SUBMISSIONS REMAIN PARKED.** Nothing here was sent anywhere.
+
+---
+
+# ADDENDUM — 2026-08-25: THE REAL RUN. Control **PASSED**, exit 0.
+
+Appended after the supervisor discharged the `SUPERVISION_CHARTER.md` §3 check 1
+diff read personally, ratified the negative-arm spec reading and the subject
+choice, and authorised the run. Nothing above this line was altered; **lines
+whose number changed above this section: 0.**
+
+Command: `planted_zero_control_t1b.py` (no arguments; production path, no reader
+injected). Subject `R_10k_x`, station 80.0 D. Run 2026-08-25 01:34:41–01:34:54 Z.
+
+## A1. `analyse_t1c.iterative_convergence` — the reader that gates Roache step (1)
+
+| arm | recovered | expected | outcome |
+| --- | --- | --- | --- |
+| NEGATIVE (two byte-identical checkpoints) | `0.0` exactly | `0.0` | **not noisy** — `state=CONVERGED`, `between=('18000','20000')` |
+| POSITIVE (plant read back from disk) | `0.0012340000000108375` | `0.0012340000000108375` | **not blind** — exact equality, `state=NOT_CONVERGED` |
+
+**Planted:** `18000/T` **line 24**, pre-plant value **`299.9999999999995`**
+(cell index 0). The state flip `CONVERGED → NOT_CONVERGED` on a single planted
+cell is itself informative: the reader is sensitive at the level at which it
+gates.
+
+## A2. `analyse_t1b.measure` — supplies Nu, f, u_tau, y+. **First exercise of this arm ever.**
+
+| arm | recovered | expected | outcome |
+| --- | --- | --- | --- |
+| NEGATIVE (independent unmodified copy) | `0.0` exactly, on both `T_wall` and `Nu` | `0.0` | **not noisy** — `Nu` bit-identical at `32.576755397128444` |
+| POSITIVE (aimed plant) | `0.0012340000000108375` | `0.0012340000000108375` | **not blind** — exact equality on `T_wall` |
+
+**Planted:** `20000/T` **line 209738**, cell **209714** of 209920, pre-plant
+value **`300.620284378675`**. `Nu` moved
+**`32.576755397128444` → `32.44621428379953`** (Δ `-0.13054111332891694`, −0.40 %).
+
+The aim was correct: `T_wall` shifted by *exactly* the planted float change, which
+is the assertion that proves the aim rather than assuming it.
+
+## A3. Exit code
+
+**`0`** (`EXIT_OK`). No refusal path was taken. Printed verdict: *"PASSED — both
+readers saw the plant and neither invented one."*
+
+**This is not a rung verdict.** Per the frozen pre-registration §2 and §4 the
+control arms an existing gate; it does not create one, and it can only ever turn
+a number into `NOT A RESULT`, never into a `PASS`. The §4 prediction — that both
+readers would see the plant and the negative arms report no change — is
+**scored CORRECT**.
+
+## A4. Nothing was written into any case directory
+
+Established by snapshot, not by assertion. All 1053 files under `T1_runs/R_*`
+were recorded (path, `mtime_ns`, size) before the run and again after.
+
+- **1053 files before, 1053 after — no file created, none deleted.**
+- **The only entries that changed are `R_100k_x/log.solve` and
+  `R_30k_x/log.solve`** — the two live solvers' own output, which advances on its
+  own while they run.
+- The differ was itself given a **planted control** (a one-character change in a
+  copy of the pre-snapshot) and detected it, so the short change list is a real
+  result and not a blind reader — the same discipline this control exists to
+  enforce.
+- **Both solvers still running** after the run: pid 450274 at 3-04:06:25 elapsed,
+  pid 488219 at 3-03:10:45. Neither was touched, signalled or renice'd.
+- The control removed its own scratch: no `t1b_plant_*` directory left behind.
+- The three frozen graders re-hashed **after** the run and remain byte-identical
+  to their blobs at pre-registration commit `17209b50`.
+
+## A5. Cost — estimate versus actual (CLAUDE.md rule 12)
+
+| | value |
+| --- | --- |
+| pre-registered estimate (frozen spec §6) | **under 1 core-minute**; $0.0009 derived |
+| measured wall | **12.63 s**, single continuous run |
+| ranks | **1** (serial Python; `postProcess` is serial, and there is no `decomposeParDict` anywhere in this territory) |
+| **actual** | **0.2105 core-minutes** = 0.003508 core-hours |
+| **ratio actual / predicted** | **0.21** against the ≤1 core-min ceiling |
+| dollars | **$0.00018, DERIVED at $0.0513/core-h, not measured** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5) |
+| waste | **none.** No stall; no row approaches the 3600-s rule. Gross = cleaned |
+| gap attribution | **estimate was a conservative ceiling, not a miss.** Six `postProcess` invocations on a 209,920-cell mesh plus ~340 MB of scratch copying came in at about a fifth of it. The honest lesson for the next estimate is that a copy-and-read control on a 2·10⁵-cell case is a **~0.2 core-minute** item, not a ~1 core-minute one |
+
+Row not appended to `docs/COST_CALIBRATION.md` by this lane: that ledger is
+written across teams and the row is the supervisor's to place. Figures above are
+ready for it. **The number must be re-derived at commit time** — the maximum
+existing `C-` number is **52** while the distinct row count is **7**, exactly the
+divergence CLAUDE.md rule 11 warns about, so the next id is `C-53` *only if it is
+still 52 when the row lands.*
+
+## A6. What this control still cannot see
+
+Unchanged by the run, and worth keeping beside the PASS:
+
+- **Whether either reader is CORRECT.** It establishes that they are not blind and
+  not noisy — that their zeros are real zeros. A reader that sees a difference and
+  then computes the wrong `Nu` passes this control.
+- **The other fourteen levels.** Only `R_10k_x` was exercised. The control was not
+  run against, and says nothing about, the other fifteen cases in the pool.
+- **Any grader outside the T1b chain.** The frozen spec §5 list stays **OPEN**, as
+  a lead and not a finding.
+
+**The pool was NOT graded.** `R_30k_x` and `R_100k_x` are still solving, the
+comparator refuses without all sixteen markers, and the marker decision is the
+supervisor's. **SUBMISSIONS REMAIN PARKED.**
