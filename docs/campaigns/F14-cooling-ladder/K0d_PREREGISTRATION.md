@@ -2601,3 +2601,1159 @@ convergence or any graded quantity.
 
 *Amendment drafted by the heat-transfer lane on the supervisor's ruling,
 2026-08-25. Zero graded compute.*
+
+---
+
+# AMENDMENT 5 — 2026-08-25, BEFORE FIRST COMPUTE. Version 1.4 -> 1.5.
+
+**Lines whose number changed above this section: 0.** Nothing above is edited.
+**No gate, threshold, band, cap, label or registered prediction is created,
+moved, retired or weakened by this amendment.** It registers the two remaining
+inputs that `build_k0d.py` would otherwise have to choose after the freeze — the
+**discretisation and linear-solver settings with the boundary TYPES of every
+field on every patch**, and the **Boussinesq `beta` and `TRef`** — it adds
+**`phi`** to all three completion field sets, and it corrects one
+cross-reference. Every one of those is an addition or a tightening.
+
+**Why an unregistered INPUT is the same defect as an unregistered THRESHOLD.**
+Rule 2: a pre-registration's entire evidentiary content is that the gate could
+not have been chosen to fit the answer. That content is destroyed just as
+completely when an input the answer depends on is left open, because whoever
+writes the build script then chooses it **after** the freeze, with the freeze's
+protection already spent. **Discretisation is the clearest case of all**: it
+determines every graded value and every observed order this rung will report.
+This family has already paid for that lesson once — T3's `p = 4.304464` turned
+out to be an artifact of a ladder that was not geometrically similar, the lab
+held the diagnostic that said so, and nobody read it. This amendment is written
+so that no equivalent diagnostic has to be read later.
+
+## A5.0 The condition under which this amendment is legal, how it was checked, and the proof that nothing above moved
+
+Standing rule 2: *"Before first compute, amendments are legal **and must state
+the condition and how it was checked** (name the run directory that does not
+exist)."*
+
+**The run directory that does not exist is
+`verification/runs/F14-cooling-ladder/K0d_runs/`.** All three checks below were
+run **in the same shell invocation that wrote this file**, and their output is
+recorded **verbatim**:
+
+```
+$ ls -d verification/runs/F14-cooling-ladder/K0d_runs
+ls: cannot access 'verification/runs/F14-cooling-ladder/K0d_runs': No such file or directory
+
+$ find verification/runs -iname '*K0d*'
+(no output)
+```
+
+**And the reader was shown able to see a match.** A `find` that reports nothing
+while being incapable of reporting anything is not evidence — rule 3's
+planted-zero principle applied to a search. The identical `find`, with the
+pattern changed **one character** to the sibling rung that does exist:
+
+```
+$ find verification/runs -iname '*K0c*' | head -3
+verification/runs/F14-cooling-ladder/K0cG_runs
+verification/runs/F14-cooling-ladder/K0cR_runs
+verification/runs/F14-cooling-ladder/K0cP_runs
+```
+
+**The pattern matches when there is something to match. `*K0d*` matches
+nothing.** K0d has consumed **zero graded core-seconds**, has no case directory
+under `verification/`, no graded mesh and no graded output. The one thing that
+has ever run for this rung is `AMENDMENT 2` §A2.4's pre-flight smoke test, in
+scratch **outside** `verification/runs/`, and §A5.6 states exactly what it did
+and what it may not be cited for.
+
+**The freeze was re-verified before one byte was appended.** `sha256` of
+`docs/campaigns/F14-cooling-ladder/K0d_PREREGISTRATION.md` **on disk** against
+its **committed blob at the `HEAD` current in the writing invocation**,
+computed in that same invocation. **The commit sha is deliberately not quoted as
+the invariant** — peers commit to this repository constantly and `HEAD` advances
+between one shell call and the next (L-223). **The invariant is the blob**, whose
+git object id for this path is `8b031c35f291f6e2abb76bd89091b90a2937ba7a`:
+
+```
+disk = 3cc4b50dae7efb5e832e0bf899ed17f2eb75832a38a418b063f061528456f8ea
+blob = 3cc4b50dae7efb5e832e0bf899ed17f2eb75832a38a418b063f061528456f8ea
+```
+
+**Identical**, at **156 255 bytes** and **2 603 lines**. The document this
+amendment is appended to is the document that was frozen, and the appended text
+was built onto the **`HEAD` blob**, not onto the working-tree copy.
+
+**THE `lines whose number changed above this section: 0` ASSERTION IS ARITHMETIC
+HERE, NOT A PROMISE**, in the form `AMENDMENT 3` §A3.0 fixed and `AMENDMENT 4`
+§A4.0 repeated:
+
+1. **The child file was produced by CONCATENATION onto the `HEAD` blob.** The
+   base was obtained with `git show HEAD:<path>`; no byte of it was read,
+   modified and written back. There is no edit path by which a line above could
+   move.
+2. **The base is a BYTE-EXACT PREFIX of the child**, compared byte-for-byte over
+   all **156 255** bytes before the write, and compared again against the
+   committed blob **after** the commit. A single changed, inserted or deleted
+   byte anywhere above would have failed that comparison and aborted the write.
+3. **The commit is INSERTIONS ONLY, ZERO DELETIONS**, verified after the commit
+   from `git diff HEAD~1 HEAD --numstat`.
+
+**Other records cite this file by line**, and every one was re-verified **after**
+this commit rather than assumed: §3.2's inlet-turbulence row at **line 187**,
+§5's `I_hi` row at **line 332**, §7.2's station list at **line 432**, §7.3's
+pointer sentence at **line 444**, §7.3's `G7` row at **line 455**, and §8.2
+clause 4 at **lines 560–562**. All still read what they read before.
+
+**A HAZARD FOUND IN THE SHARED GIT INDEX WHILE DOING THIS, RECORDED AND NOT
+ACTED ON.** At this amendment the shared index staged a version of this very
+file **1 617 lines shorter than `HEAD`** — `git diff --cached --numstat` on this
+path returned `0	1617`, and `2603 − 1617 = 986`, which is the line immediately
+before `AMENDMENT 1`. **A bare `git commit` at that moment would have deleted
+all four amendments from the pre-registration.** This amendment was written
+under the rule-10 private-index protocol and never touched the shared index; the
+staged state was **inspected, never reverted** (rule 10), and it is reported
+upward rather than repaired here.
+
+**This amendment could legally alter a gate, threshold, cap or label — the
+window is open. It does not, and §A5.14 says so item by item.**
+
+---
+
+## A5.1 THE RULING, and the order it is implemented in
+
+The heat-transfer supervisor has ruled on the five items the `AMENDMENT 4`
+pre-flight lane surfaced. **This amendment implements that ruling and does not
+re-open it.** Two of the five block firing.
+
+| item | ruling | where implemented |
+| --- | --- | --- |
+| **A** — no `fvSchemes`, no `fvSolution` and no field boundary TYPES registered anywhere in the document | **REPAIRED. It blocks firing.** Register the full set on a standing basis, cite what the sibling thermal rungs on this box actually use, and disclose without softening that the smoke test already chose a set before any of it was registered | §A5.2–§A5.6 |
+| **B** — `beta` and `TRef` | **REPAIRED. It blocks firing.** Register `beta = 3.26577e-3 K⁻¹` at `ΔT = 20 K` **as a registered lab choice, never as an inherited fact**; show the arithmetic from the registered `Ra`; register `TRef`; record the 2.44 % alternative in full and name §3.3's dispute as unresolved | §A5.7 |
+| **C** — `phi` in no completion field set | **REPAIRED.** Add `phi` to all three per-closure sets. A tightening: it adds a required field to all nine cases and removes none | §A5.8 |
+| **D** — the `§12` cross-reference at line 444 | **CORRECTED** by quote-and-strike. No gate depends on it | §A5.9 |
+| **E** — `C_mu` is two constants on this box | **RESOLVED CORRECTLY BY `AMENDMENT 4` AND NOT RE-OPENED.** Referenced; nothing changed | §A5.10 |
+
+---
+
+## A5.2 ITEM A, PRELIMINARY — the PATCH SET, registered, because a per-patch table needs one
+
+**A boundary TYPE table cannot be registered against patches this document has
+never named.** §3.1 fixes the geometry and §4 fixes the three blocks; neither
+fixes patch names, and `blockMeshDict` must choose them. They are registered
+here so that `build_k0d.py` cannot choose them and so that every row of §A5.5
+has a subject.
+
+| registered patch name | geometry, from §3.1 and §4 | patch type |
+| --- | --- | --- |
+| `inlet` | `x = 0`, `y ∈ [1.022, 1.040]` — the left face of block **C** | `patch` |
+| `outlet` | `x = 1.04`, `y ∈ [0, 0.024]` — the right face of block **A** | `patch` |
+| `floor` | `y = 0`, `x ∈ [0, 1.04]` | `wall` |
+| `ceiling` | `y = 1.04`, `x ∈ [0, 1.04]` | `wall` |
+| `leftWall` | `x = 0`, `y ∈ [0, 1.022]` — the inlet wall **below** the inlet slot | `wall` |
+| `rightWall` | `x = 1.04`, `y ∈ [0.024, 1.04]` — the outlet wall **above** the outlet slot | `wall` |
+| `frontAndBack` | both `z` faces of the single-cell-thick 2D domain | `empty` |
+
+**Seven patches, four of them `wall`.** Wherever §A5.5 writes *"the four walls"*
+it means `floor`, `ceiling`, `leftWall`, `rightWall`, and no other patch.
+
+**`T` IS IN KELVIN, and the conversion is registered rather than left to a
+script.** §3.2 states the thermal boundary conditions in degrees Celsius;
+OpenFOAM's `T` field for `buoyantBoussinesqSimpleFoam` is absolute. Registered:
+`15 °C = 288.15 K`, `35 °C = 308.15 K`, and `B_hi`'s §3.3 perturbation
+`35.5 °C = 308.65 K`. **`ΔT_band` is unchanged at exactly 20.0 K** (§3.3 clause 2
+and §7.2), because a difference of two temperatures is the same number in both
+scales; **no band moves and none could.**
+
+---
+
+## A5.3 ITEM A — the `fvSchemes` set, REGISTERED, on the standing sibling basis
+
+**What the sibling thermal rungs on this box actually use — read from disk at
+this amendment, not recalled.** Four sibling `system/fvSchemes` files were read
+in full:
+
+| sibling case read | path |
+| --- | --- |
+| K0cS | `verification/runs/F14-cooling-ladder/K0cS_runs/S_SST_f/system/fvSchemes` |
+| K0cG | `verification/runs/F14-cooling-ladder/K0cG_runs/S_SST_x/system/fvSchemes` |
+| K0cX | `verification/runs/F14-cooling-ladder/K0cX_runs/X_hi_f_SST/system/fvSchemes` |
+| K0cT | `verification/runs/F14-cooling-ladder/K0cT_runs/T_hi_c/system/fvSchemes` |
+
+**All four are IDENTICAL in content**, entry for entry, differing only in
+whitespace. That is the standing basis: this is not a preference of this
+document, it is what four graded rungs of this campaign discretised with.
+
+**REGISTERED, 2026-08-25, BEFORE FIRST COMPUTE — the `system/fvSchemes` of all
+nine K0d cases, identical across all three closures:**
+
+```
+ddtSchemes
+{
+    default         steadyState;
+}
+gradSchemes
+{
+    default         Gauss linear;
+}
+divSchemes
+{
+    default         none;
+    div(phi,U)      bounded Gauss linearUpwind grad(U);
+    div(phi,T)      bounded Gauss limitedLinear 1;
+    div(phi,k)      bounded Gauss limitedLinear 1;
+    div(phi,omega)  bounded Gauss limitedLinear 1;
+    div(phi,epsilon) bounded Gauss limitedLinear 1;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+interpolationSchemes
+{
+    default         linear;
+}
+snGradSchemes
+{
+    default         corrected;
+}
+wallDist
+{
+    method          meshWave;
+}
+```
+
+**Every clause the ruling named, and where it is:**
+
+| the ruling asked for | registered above as |
+| --- | --- |
+| `ddt` | `steadyState` — §6 registers a steady solve; a transient scheme would contradict a frozen clause |
+| `grad` | `Gauss linear` — second order, unlimited |
+| `div` for **momentum** | `div(phi,U) bounded Gauss linearUpwind grad(U)` — second order, gradient-limited |
+| `div` for the **energy / temperature** equation | `div(phi,T) bounded Gauss limitedLinear 1` — second order, **bounded**, which is what keeps `T` inside its own boundary values on a buoyant plume |
+| `div` for **each turbulence field** | `div(phi,k)`, `div(phi,omega)`, `div(phi,epsilon)`, each `bounded Gauss limitedLinear 1` |
+| the deviatoric stress term | `div((nuEff*dev2(T(grad(U))))) Gauss linear` |
+| `laplacian` | `Gauss linear corrected` |
+| `interpolation` | `linear` |
+| `snGrad` | `corrected` |
+
+**Three properties, each stated because each closes a channel:**
+
+1. **`default none` on `divSchemes` is itself an instrument.** A convective term
+   this document did not enumerate does not silently inherit a scheme — the
+   solver **refuses to start**. That is the same shape as `AMENDMENT 3` §A3.4's
+   *no exemption may be inferred at grading time*, applied to discretisation.
+2. **`div(phi,epsilon)` is registered even though five of the nine cases are
+   `kOmegaSST` and one is laminar.** This is `AMENDMENT 3`'s lesson applied
+   before it costs anything: a peer team's case crashed at wall 0 s on an entry
+   that was latent until the regime turned the term on. An entry a case never
+   exercises **cannot change a number**; an entry a case needs and does not have
+   **stops the run**. The asymmetry is entirely one-way.
+3. **Every convective scheme is second-order and bounded**, which is the lab's
+   practice on this campaign and the condition under which an observed order
+   computed from the §4 ladder means anything. A first-order convective scheme
+   would have made §8.3's observed order a measurement of the scheme rather than
+   of the ladder.
+
+**Departures from the sibling set: NONE.** The registered set is byte-equivalent
+to the four sibling files.
+
+---
+
+## A5.4 ITEM A — the `fvSolution` set, REGISTERED, with every entry the regime will exercise
+
+**Read from disk at this amendment**, the same four rungs plus the laminar
+control `K0cS_runs/C1_laminar/system/fvSolution`. **All five are identical in
+their `solvers`, `SIMPLE` and `relaxationFactors` content**, and differ only in
+whether a `residualControl` block is present.
+
+**REGISTERED, 2026-08-25, BEFORE FIRST COMPUTE — the `system/fvSolution` of all
+nine K0d cases, identical across all three closures:**
+
+```
+solvers
+{
+    "(p_rgh|p_rghFinal)"
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-10;
+        relTol          0.01;
+    }
+    "(U|T|k|omega|epsilon)(Final)?"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0.01;
+    }
+}
+SIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+    pRefCell        0;
+    pRefValue       0;
+}
+relaxationFactors
+{
+    fields
+    {
+        p_rgh           0.7;
+    }
+    equations
+    {
+        U               0.4;
+        T               0.6;
+        "(k|omega|epsilon)" 0.4;
+    }
+}
+```
+
+**`residualControl` IS DELIBERATELY ABSENT, and that is a frozen requirement, not
+a choice.** §6: *"`residualControl` is not written, and the residual is not the
+instrument."* Three of the five sibling files carry a `residualControl` block
+(K0cS, K0cG and `C1_laminar` at `1e-30`, which never fires; K0cT at `1e-07` /
+`1e-08`, which can). **K0cX carries none, and K0d follows K0cX**, because §6 is
+frozen text and a sibling's habit cannot override it. **This is the one departure
+from the majority sibling form, and the one sentence of justification is that
+§6 already forbids the block.**
+
+**The departure from the sibling `solvers` block is exactly one alternation, and
+it is named rather than left for a reader to diff.** The sibling keys are
+`p_rgh` and `"(U|T|k|omega|epsilon)"`; the registered keys add `(Final)?` and
+`p_rghFinal`. **Every solver, preconditioner, `tolerance` and `relTol` is
+identical to the sibling value.** The reason is the failure mode the ruling
+named: with `nNonOrthogonalCorrectors 0` no `Final` solver is ever requested, so
+the added alternation **cannot change a number in any case that runs**, while
+its absence is precisely the latent missing entry that stops a run at wall 0 s
+if anything ever does request one.
+
+**Every entry the nine cases will actually exercise, enumerated so the claim is
+checkable rather than asserted:**
+
+| equation solved by `buoyantBoussinesqSimpleFoam` | cases that solve it | matching registered key |
+| --- | --- | --- |
+| `p_rgh` | all nine | `"(p_rgh\|p_rghFinal)"` |
+| `U` | all nine | `"(U\|T\|k\|omega\|epsilon)(Final)?"` |
+| `T` | all nine | same |
+| `k` | eight (`kOmegaSST` × 5, `RNGkEpsilon` × 3) | same |
+| `omega` | five (`kOmegaSST`) | same |
+| `epsilon` | three (`RNGkEpsilon`) | same |
+| `nut`, `alphat` | all nine | **none needed — both are algebraic**, computed from the closure and from `Prt` (§3.2), never linear-solved |
+
+**No case exercises an equation without a registered entry, and no registered
+entry is reachable by an equation this rung does not solve.**
+
+**`pRefCell` / `pRefValue` are registered at the sibling values and are expected
+to be inert here.** K0d has an `outlet` patch carrying `fixedValue` `p_rgh`
+(§A5.5), so the pressure system is not singular and OpenFOAM does not apply the
+reference. They are registered rather than dropped so the dictionary is
+complete under every mesh the §4 ladder produces.
+
+**Relaxation is registered at the sibling values, and the reason it is not
+"tuned to help convergence" is stated.** `p_rgh 0.7`, `U 0.4`, `T 0.6`,
+turbulence `0.4` are what four graded rungs of this campaign converged with.
+**§6's convergence criterion is a field test between two written checkpoints,
+not a residual**, so relaxation cannot buy a passing convergence verdict; it can
+only change how many of the registered 40 000 iterations are needed to reach it.
+
+**AND THE COST BASIS IS PROTECTED BY THIS CHOICE, which is registered so it
+cannot be discovered later.** §10.1 bases the POINT estimate on **K0cS**'s
+measured `s/(cell·iteration)`. K0cS ran the `PCG`/`DIC` `p_rgh` solver registered
+above. **Registering a different pressure solver would have invalidated the
+basis of a frozen cap.** The registered set keeps §10's POINT of **829.36
+core-min** and CEILING of **2 484.84 core-min** measured against a like solver;
+**neither number moves in this amendment.**
+
+---
+
+## A5.5 ITEM A — the boundary TYPES of every field on every patch, for all three closures, REGISTERED
+
+**The `0/` type names are the third thing `build_k0d.py` would have had to
+choose.** `AMENDMENT 4` §A4.3 said so in terms — *"the mixed boundary-condition
+types are NOT registered here and are NOT being registered by stealth"* — and
+left them open on purpose. They close here.
+
+**The physics is already frozen and is not re-opened.** §3.2 fixes the inlet
+velocity and temperature, the wall temperatures, the no-slip condition and
+*"zero gradient on `U`, `T` and every turbulent variable"* at the outlet;
+§A4.3 fixes the inlet `k`, `omega` and `ν_t` of every `kOmegaSST` case. **This
+section registers the OpenFOAM type NAMES that express them, and the wall
+treatment for the turbulence fields, which no clause above determines.**
+
+### A5.5.1 Fields common to all nine cases
+
+| field | `inlet` | `outlet` | the four walls | `frontAndBack` |
+| --- | --- | --- | --- | --- |
+| `U` | `fixedValue`, `uniform (0.57 0 0)` (§3.2) | `zeroGradient` (§3.2) | `noSlip` (§3.2) | `empty` |
+| `T` | `fixedValue`, `uniform 288.15` (§3.2, 15 °C) | `zeroGradient` (§3.2) | `floor` `fixedValue` `uniform 308.15` (35 °C); `ceiling`, `leftWall`, `rightWall` `fixedValue` `uniform 288.15` (15 °C). **`B_hi` only:** `floor` `uniform 308.65` (35.5 °C, §3.3) | `empty` |
+| `p_rgh` | `fixedFluxPressure`, `uniform 0` | `fixedValue`, `uniform 0` | `fixedFluxPressure`, `uniform 0` | `empty` |
+| `alphat` | `calculated`, `uniform 0` | `calculated`, `uniform 0` | **`calculated`, `uniform 0`** | `empty` |
+
+### A5.5.2 The `kOmegaSST` cases — `M1_c`, `M1_m`, `M1_f`, `B_hi`, `I_hi`
+
+| field | `inlet` | `outlet` | the four walls | `frontAndBack` |
+| --- | --- | --- | --- | --- |
+| `k` | `fixedValue`, `uniform 1.25e-03` (§3.2); **`I_hi`: `uniform 5.00e-03`** (§5 line 332, §A4.3) | `zeroGradient` (§3.2) | `kLowReWallFunction`, `value $internalField` | `empty` |
+| `omega` | `fixedValue`, `uniform 51.2` (§A4.3, all five cases including `I_hi`) | `zeroGradient` (§3.2) | `omegaWallFunction`, `value $internalField` | `empty` |
+| `nut` | `calculated`, `uniform 2.4414e-05`; **`I_hi`: `uniform 9.7656e-05`** (§A4.3's registered inlet `ν_t`) | `calculated`, `uniform 0` | `nutLowReWallFunction`, `value uniform 0` | `empty` |
+
+### A5.5.3 The `RNGkEpsilon` cases — `M2_c`, `M2_m`, `M2_f`
+
+| field | `inlet` | `outlet` | the four walls | `frontAndBack` |
+| --- | --- | --- | --- | --- |
+| `k` | `fixedValue`, `uniform 1.25e-03` (§3.2) | `zeroGradient` (§3.2) | `kqRWallFunction`, `value $internalField` | `empty` |
+| `epsilon` | `fixedValue`, `uniform 5.76e-03` (§3.2 line 187, used directly — **no conversion, because §A4.2's `ε → ω` conversion applies only to the five `kOmegaSST` cases**) | `zeroGradient` (§3.2) | `epsilonWallFunction`, `value $internalField` | `empty` |
+| `nut` | `calculated`, `uniform 2.4414e-05` (`C_mu k²/ε = 0.0845 × (1.25e-3)² / 5.76e-3 = 2.2917e-5`; **registered at the `k/ω` value 2.4414e-5 for consistency with the `M1_*` inlet, and the 6.5 % difference is disclosed in §A5.13 Finding 13**) | `calculated`, `uniform 0` | `nutkWallFunction`, `value uniform 0` | `empty` |
+
+### A5.5.4 The laminar case — `C_lam`
+
+**`C_lam` has no `k`, no `omega`, no `epsilon` and no `nut`.** Its `0/` contains
+exactly `T`, `U`, `p_rgh` and `alphat`, which is `AMENDMENT 3` §A3.4's registered
+laminar completion field set and §A4.8's three-field exemption, **carried across
+unchanged and no wider**. `alphat` takes the common row of §A5.5.1.
+`constant/turbulenceProperties` reads `simulationType laminar`.
+
+### A5.5.5 `constant/turbulenceProperties`, registered so no closure is selected by a script
+
+| cases | `simulationType` | `RASModel` |
+| --- | --- | --- |
+| `M1_c`, `M1_m`, `M1_f`, `B_hi`, `I_hi` | `RAS` | `kOmegaSST`, `turbulence on`, `printCoeffs on` |
+| `M2_c`, `M2_m`, `M2_f` | `RAS` | `RNGkEpsilon`, `turbulence on`, `printCoeffs on` |
+| `C_lam` | `laminar` | — |
+
+This follows directly from §5 and creates no choice; it is written down so that
+the file `build_k0d.py` emits is determined by this document.
+
+### A5.5.6 The two wall treatments that are NOT inherited from any frozen clause, and why each was chosen
+
+**1. `alphat` on the walls is `calculated`, NOT `alphatJayatillekeWallFunction`.**
+
+- **Sibling basis, read from disk at this amendment:** `K0cS_runs/S_SST_f`,
+  `K0cS_runs/S_KE_f` and `K0cS_runs/C1_laminar` all use `alphat { type
+  calculated; value uniform 0; }` on every wall — the turbulent, the k-epsilon
+  and the laminar case alike.
+- **And it is the treatment §5's frozen wall-resolved design requires.** Read
+  from the solver source on this box:
+  `applications/solvers/heatTransfer/buoyantBoussinesqSimpleFoam/TEqn.H` line 2
+  assigns `alphat = turbulence->nut()/Prt` and line 5 forms
+  `alphaEff = nu/Pr + alphat` — **the same expression §7.5's guard `HB` already
+  registers.** `nutLowReWallFunction::nut()` returns **zero** on the patch
+  (`.../nutWallFunctions/nutLowReWallFunction/nutLowReWallFunctionFvPatchScalarField.C`
+  **line 41**, `return tmp<scalarField>::New(patch().size(), Zero)`). So with
+  `calculated`, the wall `alphat` is `nut_w/Prt = 0` and the wall heat flux is
+  **purely molecular** — which is exactly right on a mesh registered at
+  `y⁺ ≤ 1`, where the conductive sublayer is resolved and not modelled.
+  `alphatJayatillekeWallFunction` would impose a **high-Reynolds thermal wall
+  law on top of a resolved sublayer**, modelling the same resistance twice.
+- **This is the choice most likely to move `G6`**, the floor-averaged Nusselt
+  number, because `G6` is a wall heat flux and this type sets the wall heat
+  flux. **It is stated as a reading of the source and the sibling dictionaries,
+  not as a measurement: no comparison of the two treatments has been run, and
+  none may be run before the graded ladder without a further amendment.**
+
+**2. The `RNGkEpsilon` cases take the HIGH-Re wall-function set, and the tension
+with §5's `y⁺ ≤ 1` is disclosed rather than smoothed.**
+
+- **Sibling basis:** `K0cS_runs/S_KE_f` — the k-epsilon arm of the square-cavity
+  re-gate, on that rung's fine mesh — uses `kqRWallFunction`,
+  `epsilonWallFunction` and `nutkWallFunction`. That is the lab's standing
+  k-epsilon wall set on this campaign.
+- **The tension, stated plainly:** §5 registers **both** closures as
+  *"wall-resolved, `y⁺` target ≤ 1"*. OpenFOAM's `RNGkEpsilon` carries **no
+  low-Reynolds damping functions**, so there is no low-Re wall set for it in
+  this lab's practice, and a high-Re wall function on a `y⁺ ≈ 1` mesh is a
+  known model-form compromise. **It is registered as a compromise, with its name
+  on it**, and it is referred in §A5.13 Finding 12.
+- **It moves no gate.** §5's `y⁺` window is **measured and REPORTED**, and a
+  case outside it carries a flag and has its rows REPORTED rather than graded —
+  that machinery is unchanged and is the instrument that will show this if it
+  matters.
+
+---
+
+## A5.6 ITEM A — THE SMOKE TEST ALREADY CHOSE A SCHEME SET, BEFORE ANY OF IT WAS REGISTERED. STATED WITHOUT SOFTENING.
+
+**This is the disclosure the ruling demanded, and it is put at the top of the
+section rather than at the bottom.**
+
+`AMENDMENT 2` §A2.4's pre-flight smoke test **ran** on 2026-08-25, commit
+`cf6e20a6`, in `/home/ubuntu/certonomous-runs/K0d_smoke_L1/` — scratch, outside
+`verification/runs/`. To run at all it needed a complete `fvSchemes`, a complete
+`fvSolution`, a complete `constant/transportProperties` and a complete `0/`.
+**None of those was registered anywhere in this document at the time.** A lane
+therefore chose them, **before the freeze covered them**, and that lane said so
+in its own commit message, referring all three groups upward rather than
+registering them by use.
+
+**What that costs, and it is bounded, stated as a fact a reader can check:**
+
+- **The smoke test ran ONE timestep.** `endTime 1`, `deltaT 1`. Its own
+  registration, §A2.4 clause 4, fixes what it proves: *"the dictionaries are
+  sufficient for the solver to take a step in this regime"*, and *"it is **not**
+  evidence about the physics, the mesh quality, convergence, or any graded
+  quantity, and it may not be cited as such."*
+- **NO GRADED VALUE EXISTS ANYWHERE FROM THOSE SCHEMES.** Not a temperature
+  profile, not a velocity profile, not a Nusselt number, not a triple, not an
+  observed order, not a GCI. The rung's tally is `0 of 10` and every graded row
+  is `BLOCKED` by §7.4 order 4 because the primary is `NOT OBTAINED`.
+- **Therefore this registration COULD NOT have been chosen to fit an answer,
+  because no answer exists to fit.** That is the whole content of rule 2, and
+  here it is checkable rather than asserted: `find verification/runs -iname
+  '*K0d*'` returns nothing (§A5.0), against a control that returns matches.
+
+**FIELD BY FIELD, WHAT IS REGISTERED ABOVE AGAINST WHAT THE SMOKE TEST RAN.**
+The smoke dictionaries were read from disk at this amendment.
+
+**`fvSchemes` — registered set vs smoke set:**
+
+| entry | smoke test `cf6e20a6` | REGISTERED §A5.3 | same? |
+| --- | --- | --- | --- |
+| `ddtSchemes default` | `steadyState` | `steadyState` | **same** |
+| `gradSchemes default` | `Gauss linear` | `Gauss linear` | **same** |
+| `divSchemes default` | `none` | `none` | **same** |
+| `div(phi,U)` | `bounded Gauss linearUpwind grad(U)` | identical | **same** |
+| `div(phi,T)` | `bounded Gauss limitedLinear 1` | identical | **same** |
+| `div(phi,k)` | `bounded Gauss limitedLinear 1` | identical | **same** |
+| `div(phi,omega)` | `bounded Gauss limitedLinear 1` | identical | **same** |
+| **`div(phi,epsilon)`** | **ABSENT** | `bounded Gauss limitedLinear 1` | **DIFFERS — added** |
+| `div((nuEff*dev2(T(grad(U)))))` | `Gauss linear` | identical | **same** |
+| `laplacianSchemes default` | `Gauss linear corrected` | identical | **same** |
+| `interpolationSchemes default` | `linear` | identical | **same** |
+| `snGradSchemes default` | `corrected` | identical | **same** |
+| `wallDist method` | `meshWave` | `meshWave` | **same** |
+
+**One difference, and it is an addition.** The smoke test ran a `kOmegaSST` case
+and had no `epsilon` to discretise; the registered set serves all three closures
+and must carry the entry, or the three `RNGkEpsilon` cases stop at `default
+none`. **The registered set is a strict superset of the smoke set** — nothing the
+smoke test used was changed or removed.
+
+**`fvSolution` — registered set vs smoke set. HERE THE SETS DIFFER
+SUBSTANTIALLY, AND THE DIFFERENCES ARE LISTED IN FULL:**
+
+| entry | smoke test `cf6e20a6` | REGISTERED §A5.4 | same? |
+| --- | --- | --- | --- |
+| `p_rgh` solver | **`GAMG`**, `smoother GaussSeidel` | **`PCG`**, `preconditioner DIC` | **DIFFERS** |
+| `p_rgh` `tolerance` | **`1e-08`** | **`1e-10`** | **DIFFERS — tighter** |
+| `p_rgh` `relTol` | `0.01` | `0.01` | **same** |
+| segregated solver | `PBiCGStab` / `DILU` | `PBiCGStab` / `DILU` | **same** |
+| segregated `tolerance` | **`1e-08`** | **`1e-12`** | **DIFFERS — tighter** |
+| segregated `relTol` | **`0.1`** | **`0.01`** | **DIFFERS — tighter** |
+| segregated key | `"(U\|T\|k\|omega)"` | `"(U\|T\|k\|omega\|epsilon)(Final)?"` | **DIFFERS — wider** |
+| `nNonOrthogonalCorrectors` | `0` | `0` | **same** |
+| `pRefCell` / `pRefValue` | `0` / `0` | `0` / `0` | **same** |
+| `residualControl` | absent | absent (§6) | **same** |
+| relax `p_rgh` | **`0.3`** | **`0.7`** | **DIFFERS** |
+| relax `U` | **`0.5`** | **`0.4`** | **DIFFERS** |
+| relax `T` | **`0.5`** | **`0.6`** | **DIFFERS** |
+| relax turbulence | **`"(k\|omega)" 0.5`** | **`"(k\|omega\|epsilon)" 0.4`** | **DIFFERS** |
+
+**Seven entries differ and none of the seven is a softening**: four linear-solver
+settings move **tighter**, one key moves **wider**, and the four relaxation
+factors move to the values four graded sibling rungs of this campaign actually
+converged with — which is also the pressure solver §10.1's cost basis was
+measured on.
+
+**`0/` boundary TYPES — registered set vs smoke set:**
+
+| field / patch | smoke test `cf6e20a6` | REGISTERED §A5.5 | same? |
+| --- | --- | --- | --- |
+| `U`, all patches | `fixedValue` / `zeroGradient` / `noSlip` / `empty` | identical | **same** |
+| `T`, all patches | `fixedValue` 288.15 / `zeroGradient` / 308.15 floor / 288.15 walls / `empty` | identical | **same** |
+| `p_rgh`, all patches | `fixedFluxPressure` / `fixedValue 0` / `fixedFluxPressure` / `empty` | identical | **same** |
+| **`alphat`, the four walls** | **`alphatJayatillekeWallFunction`, `Prt 0.85`** | **`calculated`** | **DIFFERS — and it is the difference most likely to move `G6`, per §A5.5.6** |
+| `alphat`, `inlet` / `outlet` | `calculated` | `calculated` | **same** |
+| `k`, `inlet` / `outlet` | `fixedValue 1.25e-03` / `zeroGradient` | identical | **same** |
+| **`k`, the four walls** | `kLowReWallFunction`, **`value uniform 1e-10`** | `kLowReWallFunction`, **`value $internalField`** | **type same; the placeholder `value` DIFFERS** |
+| `omega`, all patches | `fixedValue 51.2` / `zeroGradient` / `omegaWallFunction` / `empty` | identical | **same** |
+| `nut`, `inlet` | `calculated`, `2.44140625e-05` | `calculated`, `2.4414e-05` | **same to five significant figures** |
+| `nut`, the four walls | `nutLowReWallFunction` | `nutLowReWallFunction` | **same** |
+| `epsilon` | **no such field — the smoke case was `kOmegaSST`** | registered for the three `RNGkEpsilon` cases | **NOT EXERCISED by the smoke test** |
+| `frontAndBack`, every field | `empty` | `empty` | **same** |
+
+**`constant/` — registered set vs smoke set:**
+
+| entry | smoke test `cf6e20a6` | REGISTERED | same? |
+| --- | --- | --- | --- |
+| `g` | `(0 -9.81 0)` | §5, `(0, −9.81, 0)` | **same** |
+| `transportModel` | `Newtonian` | Newtonian | **same** |
+| `nu` | `1.55e-05` | §3.2's registered design value `1.55e-5` | **same** |
+| `Pr` | `0.71` | §3.2 | **same** |
+| `Prt` | `0.85` | §3.2, *never tuned* | **same** |
+| **`beta`** | **`3.2657e-03`** | **`3.26577e-03`** (§A5.7) | **DIFFERS in the 5th significant figure — the smoke value is the registered value TRUNCATED, low by `2.1e-5` relative** |
+| **`TRef`** | **`298.15`** | **`298.15 K`** (§A5.7) | **same — and §A5.7 records that §5 line 312 writes `298 K`** |
+| `RASModel` | `kOmegaSST` | §A5.5.5 | **same** |
+
+**WHAT THE SMOKE TEST THEREFORE STILL PROVES, AND WHAT IT NO LONGER PROVES.**
+It still proves its one registered claim about the entries that did **not**
+change — the mesh generates at `nCells 25600` exactly, `checkMesh` returns
+`Mesh OK`, and the boundary/field structure takes a step. **It does NOT
+establish that the registered `fvSolution` and the registered wall `alphat`
+take a step, because those differ from what ran.** That is stated here rather
+than assumed, and it is the honest cost of a set having been chosen before it
+was registered. **It blocks nothing**: every changed entry is a sibling-standard
+value that four graded rungs on this box ran to 40 000 iterations, and §A2.4's
+smoke test remains a registered ABORT CONDITION on first compute — **it is run
+again, against the registered dictionaries, before any graded solver starts, and
+that re-run is the check that closes this gap.**
+
+---
+
+## A5.7 ITEM B — `beta` and `TRef`, REGISTERED AS A LAB CHOICE, with the arithmetic, the 2.44 % alternative, and one SUPERSESSION the ruling did not anticipate
+
+### A5.7.1 THE RULING'S PREMISE WAS WRONG, AND THAT IS SAID FIRST
+
+The ruling reads *"Neither is registered"*. **Both are.** §5, **line 312**,
+inside the solver paragraph:
+
+> **Solver:** `buoyantBoussinesqSimpleFoam`, steady, `g = (0, −9.81, 0)`,
+> Boussinesq, `T_ref = 298 K`, `β = 1/298 = 3.356e-3 K⁻¹`.
+
+The `AMENDMENT 2` smoke-test lane reported these as *"nowhere written down"*; it
+missed line 312, and this amendment does not repeat the miss. **The consequence
+is that Item B is not a gap-filling registration. It is a SUPERSESSION of a
+registered input, and it is treated as one throughout this section.** It remains
+legal — rule 2's pre-compute window is open, and `β` is an INPUT, not a gate, a
+threshold, a band, a cap, a label or a prediction — but a reader must be able to
+see that a registered number was moved, and by how much.
+
+**THE SUPERVISOR IS PUT ON NOTICE HERE, IN THE INSTRUMENT RATHER THAN IN A
+MESSAGE THAT CAN BE LOST WITH A SESSION.** If the intent was only to write down
+a missing value and not to move `β` from `1/298`, then reverting to
+`3.356e-3 K⁻¹` requires a further amendment in this same still-open window.
+`SUPERVISION_CHARTER.md` §3 makes reading this amendment as a diff an
+undelegatable check; this paragraph is what that check is for.
+
+### A5.7.2 WHY THE TWO NUMBERS CANNOT BOTH BE RIGHT — the frozen document is OVER-DETERMINED
+
+`Ra`, `g`, `β`, `ΔT`, `H`, `ν` and `Pr` are **seven quantities bound by one
+equation**. The document registers all seven, so it registers one relation more
+than it has freedom for. Written with `α = ν/Pr`:
+
+```
+  Ra = g * beta * dT * H^3 / (nu * alpha)  =  g * beta * dT * H^3 * Pr / nu^2
+```
+
+**Taking §5 line 312's `β = 1/298 = 3.355705e-3` with the registered
+`ν = 1.55e-5` (§3.2):**
+
+```
+  Ra = 3.355705e-3 * 9.81 * 20.0 * 1.124864 * 0.71 / (1.55e-5)^2
+     = 3.355705e-3 * 156.695804928 / 2.4025e-10
+     = 2.18873e9
+```
+
+against §3.4's registered `Ra = 2.13e9` — **high by 2.76 %.** The two frozen
+sections are **mutually inconsistent at the registered `ν`**, and that is the
+actual defect Item B exposes. It is not that a number was missing; it is that
+two registered numbers disagree.
+
+**`AMENDMENT 1` §A1.2 reconciled them, and it did so with a DIFFERENT `ν`.**
+Line 1108 uses `beta = 1/298 = 3.356e-3` **and `nu = 1.569e-5`**, and line 1111
+obtains `Ra = 2.136e9`, which is within **0.27 %** of 2.13e9. **That
+reproduction stands and is not withdrawn** — it is correct arithmetic at the
+`ν` it used. But `1.569e-5` appears in this document **only inside §3.4's
+consistency-check sentence about `Re`**; the value `build_k0d.py` writes into
+`constant/transportProperties` is **§3.2's registered design value
+`ν = 1.55e-5`**, and the smoke test wrote exactly that. **Which `ν` you take
+decides whether line 312's `β` is consistent with §3.4's `Ra`.** §A5.13
+Finding 9 refers the duality; this section resolves only what it must to build
+the case.
+
+### A5.7.3 REGISTERED, 2026-08-25, BEFORE FIRST COMPUTE
+
+> ~~`T_ref = 298 K`, `β = 1/298 = 3.356e-3 K⁻¹`~~ **(§5, line 312 — STRUCK AND
+> SUPERSEDED HERE, at the foot, under rule 6. The frozen line above is NOT
+> edited.)**
+>
+> **`beta` = `3.26577e-03 K⁻¹`**
+> **`TRef` = `298.15 K`**
+>
+> Both are written into `constant/transportProperties` of **all nine cases**,
+> unchanged between closures and unchanged between mesh levels. **`B_hi` takes
+> the same `beta` and the same `TRef` as `M1_m`** — `B_hi` perturbs the floor
+> temperature and nothing else (§3.3), and giving it a different fluid property
+> would confound the arbitration guard it exists to be.
+
+**THE ARITHMETIC, FROM THE REGISTERED `Ra` AND NOTHING ELSE.** Every input is a
+number already frozen above; a reader can reproduce every digit without a
+script.
+
+```
+  beta = Ra * nu^2 / ( g * dT * H^3 * Pr )
+
+  Ra  = 2.13e9        (section 3.4, secondary, Oulghelou 2020 lines 694-697)
+  nu  = 1.55e-5 m2/s  (section 3.2, this document's registered design value)
+  g   = 9.81 m/s2     (section 5)
+  dT  = 20.0 K        (section 3.3 clause 2 -- FIXED FOR ALL TIME IN THIS RUNG)
+  H   = 1.04 m        (section 3.1),  H^3 = 1.124864 m3
+  Pr  = 0.71          (section 3.2)
+
+  numerator   = 2.13e9 * (1.55e-5)^2 = 2.13e9 * 2.4025e-10 = 0.5117325
+  denominator = 9.81 * 20.0 * 1.124864 * 0.71
+              = 196.2 * 1.124864 = 220.6983168
+              = 220.6983168 * 0.71 = 156.695804928
+
+  beta = 0.5117325 / 156.695804928 = 3.26577e-03 1/K
+```
+
+**AND IT IS REGISTERED AS A LAB CHOICE, NEVER AS AN INHERITED FACT.** No source
+held by this lab states `β` for this case. `3.26577e-3 K⁻¹` is **this
+document's decision** to treat §3.4's `Ra` as binding and `β` as the free
+variable that reconciles it with the registered `ν`, `Pr`, `ΔT`, `H` and `g`.
+That is the same footing this team used for **T5's Nusselt film temperature** —
+a defensible reduction choice, labelled as a choice, with the arithmetic shown
+so a reader can adopt a different one and see exactly what it costs.
+
+**THE ALTERNATIVE THIS CHOICE REJECTS, recorded so it is not lost.** Keeping
+`β = 1/298 = 3.355705e-3 K⁻¹` — the ideal-gas value at a 298 K datum, which is
+what line 312 wrote — is also defensible; it makes `β` binding and `Ra` derived,
+and the rung would then run at an implied `Ra = 2.18873e9`, **2.76 % above the
+secondary's quoted figure.** The registered choice keeps the rung at the `Ra`
+the secondaries actually report, which is the number §3.4 froze and the number
+§1 puts in the rung's one-paragraph description.
+
+### A5.7.4 THE 2.44 % ALTERNATIVE FROM §3.3's UNRESOLVED DISPUTE, RECORDED IN FULL
+
+**§3.3's floor-temperature dispute is UNRESOLVED and cannot be settled from a
+source today.** Oulghelou 2020 quotes `θ_hot = 35.5 °C` when defining
+`Ra = 2.13e9` (line 696) and imposes `35 °C` in its own solve (line 708); Zou
+2018 states `35 °C` (line 678). **The primary — Blay, Mergui and Niculae
+(1992) — is `NOT OBTAINED`**, confirmed again at this amendment by §2's checks,
+so **no source on this box can arbitrate it.**
+
+**The arithmetic of the alternative:**
+
+```
+  If the primary establishes dT = 20.5 K, then, holding Ra = 2.13e9 and every
+  other registered input fixed, beta scales as 1/dT:
+
+    beta(20.5) = 3.26577e-03 * (20.0 / 20.5) = 3.18612e-03 1/K
+
+    relative change = (3.26577e-3 - 3.18612e-3) / 3.26577e-3
+                    = 0.0796500e-3 / 3.26577e-3
+                    = 0.024390  =  2.4390 %   ->  2.44 %
+```
+
+**REGISTERED IN ADVANCE, so it cannot be handled quietly later.** If the primary,
+when obtained and title-page verified (L-144), establishes `ΔT = 20.5 K`, then
+the value this rung ran with is wrong by **2.44 % on `beta`**, and:
+
+1. **That is a DISCLOSED INPUT ERROR of 2.44 %, and it is reported as one** — in
+   the results record, in the reference addendum of §14 step 3, and beside every
+   affected row.
+2. **It is NOT silently re-run.** No case is rebuilt, no value is quietly
+   replaced, and no verdict is revised without the error being stated first.
+3. **`ΔT_band` does not move.** §3.3 clause 2 fixes it at exactly 20.0 K **for
+   all time in this rung**, and §7.2's bands are computed from it. A `beta` error
+   is an error in the physics the solver ran; it is not a licence to widen a
+   band, and the correct action if a band is wrong remains §0's — *record that
+   this pre-registration was wrong and say so, not move the band.*
+4. **Guard `B` already measures the same discrepancy from the other side.**
+   §7.5's `B_hi` arm imposes 35.5 °C on the medium level and reads the difference
+   at every graded station of `G1`, `G2` and `G7`; if it exceeds 1.00 K those
+   rows are `NOT A RESULT` until the primary arbitrates. **That guard is
+   unchanged by this amendment and is the instrument that will show the effect
+   on the solution, as against this section, which registers the effect on the
+   input.**
+
+### A5.7.5 `TRef = 298.15 K`, and the proof that the choice cannot move a graded row
+
+**Why 298.15 K.** It is the arithmetic mean of the two registered isothermal
+boundary temperatures in absolute units, `(288.15 + 308.15)/2 = 298.15 K`
+(§A5.2), and it is what the smoke test wrote. §5 line 312 wrote `298 K`; the
+difference is **0.15 K**.
+
+**And the difference is EXACTLY inert for every graded row, which is shown from
+the solver source on this box rather than argued.**
+
+- `TEqn.H` **line 26**: `rhok = 1.0 - beta*(T - TRef);` — `TRef` enters the
+  solver at exactly one place.
+- `UEqn.H`: buoyancy enters the momentum equation **only** as
+  `- ghf*fvc::snGrad(rhok)`; `pEqn.H` **line 8** builds `phig` from the same
+  `fvc::snGrad(rhok)`.
+- **`snGrad` is a gradient.** Changing `TRef` adds a spatially UNIFORM constant
+  `beta*ΔTRef` to `rhok`, whose surface-normal gradient is **identically zero**.
+  `U`, `T`, `phi`, `p_rgh`, `k`, `omega`, `epsilon`, `nut` and `alphat` are
+  therefore **unchanged to machine precision** by any choice of `TRef`.
+- The single field that does change is the derived `p = p_rgh + rhok*gh`
+  (`pEqn.H` **line 54**). **`p` is in no completion field set of `AMENDMENT 3`
+  §A3.4 or of §A5.8 below, is read by no guard of §7.5, and appears in no graded
+  row of §7.3.**
+
+**`TRef` is registered for reproducibility, not because it can change an answer.
+`beta` is the number that carries the buoyancy, and `beta` is registered above
+with its arithmetic.**
+
+### A5.7.6 ONE CONSEQUENCE OF THE `beta` REGISTRATION, DISCLOSED RATHER THAN LEFT AS A SILENT CONTRADICTION
+
+§3.5 and §7.3's row **`M0`** carry the Boussinesq model-form floor evaluated at
+`ε = β·ΔT = 20.0/298 = 0.0671` — i.e. at the **superseded** `β`. At the
+registered `β`, `ε = 3.26577e-3 × 20.0 =` **0.0653154**, and K2e's two laws give:
+
+| quantity | K2e law | at `ε = 0.0671` (frozen text) | at `ε = 0.0653154` (registered `β`) |
+| --- | --- | ---: | ---: |
+| peak velocity | `D = 24.91 · ε^1.005` | **≈ 1.65 %** | **≈ 1.61 %** |
+| Nusselt | `D = 6.355 · ε^1.968` | **≈ 0.031 %** | **≈ 0.0296 %** |
+
+**REGISTERED: the comparator prints BOTH pairs, labelled by the `ε` each was
+evaluated at, and subtracts neither from any deviation.** Row `M0` is
+**REPORTED, NEVER GRADED** (§7.3) and this amendment does not change that word;
+printing a second pair beside the first adds information to a reported row and
+removes none. **No band moves**: `≈1.61 %` sits inside the same `±10 %` velocity
+band that `≈1.65 %` sat inside, and `≈0.0296 %` inside the same `±10 %` on `G6`.
+`0.0653154` remains **below `physics_rules.yaml:279`'s governed
+`boussinesq_beta_dT_max: 0.1`** and remains **above** §3.5's velocity-separation
+bracket `(0.0333, 0.0500]`, so §3.5's reading is unchanged in kind. **The frozen
+text of §3.5 and of row `M0` is not edited; this table is the disclosure.**
+
+---
+
+## A5.8 ITEM C — `phi` ENTERS ALL THREE COMPLETION FIELD SETS. A TIGHTENING.
+
+**The gap, restated exactly.** §7.5's guard `HB` computes `Q_adv` *"from the
+written `phi`"* over inlet and outlet, and guard `MB` reads mass imbalance
+across the same patches. **`phi` was in none of `AMENDMENT 3` §A3.4's three
+per-closure completion field sets**, and `AMENDMENT 4` §A4.7 disclosed that and
+deliberately did not repair it, recording that *"if the supervisor wants `phi` in
+the completion sets, it must be ruled before the first case starts."* **It has
+now been ruled, the window is still open, and this section is the repair.**
+
+**REGISTERED, 2026-08-25, BEFORE FIRST COMPUTE. `AMENDMENT 3` §A3.4's clause-4
+table is struck and replaced by this one; every other word of §A3.4 — the
+generalised instruction that no exemption and no field substitution may be
+inferred at grading time, and `mark_done_k0d.py`'s exit-2 refusal for an
+unregistered closure — stands unchanged:**
+
+> | closure | cases | **completion field set BEFORE (`AMENDMENT 3` §A3.4)** | **completion field set AFTER (this amendment)** |
+> | --- | --- | --- | --- |
+> | `kOmegaSST` | `M1_c`, `M1_m`, `M1_f`, `B_hi`, `I_hi` (five) | ~~`T U p_rgh alphat nut k omega`~~ (7) | **`T U p_rgh alphat nut k omega phi`** (8) |
+> | `RNGkEpsilon` | `M2_c`, `M2_m`, `M2_f` (three) | ~~`T U p_rgh alphat nut k epsilon`~~ (7) | **`T U p_rgh alphat nut k epsilon phi`** (8) |
+> | laminar | `C_lam` (one) | ~~`T U p_rgh alphat`~~ (4) | **`T U p_rgh alphat phi`** (5) |
+
+**IT ADDS A REQUIRED FIELD TO ALL NINE CASES AND REMOVES NONE.** Field-presence
+assertions a compliant run can be tested against, counted the way §A3.5 counted
+them:
+
+| | satisfiable assertions | assertions no run could satisfy |
+| --- | ---: | ---: |
+| **before** (`AMENDMENT 3` §A3.4) | `5×7 + 3×7 + 1×4 =` **60** | **0** |
+| **after** (this amendment) | `5×8 + 3×8 + 1×5 =` **69** | **0** |
+
+**69 against 60 — nine added, one per case, zero removed, and still zero
+assertions that no run could satisfy.**
+
+**AND EVERY ONE OF THE NINE IS SATISFIABLE, WHICH IS MEASURED AND NOT ASSUMED.**
+The laminar row is the one that could have recreated `AMENDMENT 3`'s defect —
+`AMENDMENT 4` §A4.8 records that the last brief nearly did exactly that to
+`C_lam` — so it was checked from disk, per closure, at this amendment:
+
+| closure | case inspected on disk | latest time directory | `phi` present? |
+| --- | --- | --- | --- |
+| `kOmegaSST` | **K0d's own smoke test**, `/home/ubuntu/certonomous-runs/K0d_smoke_L1/1/` (commit `cf6e20a6`) | `1` | **YES** |
+| `kOmegaSST` | `verification/runs/F14-cooling-ladder/K0cS_runs/S_SST_f/40000/` | `40000` | **YES** |
+| `RNGkEpsilon`-family (k-epsilon) | `verification/runs/F14-cooling-ladder/K0cS_runs/S_KE_f/40000/` | `40000` | **YES** |
+| **laminar** | `verification/runs/F14-cooling-ladder/K0cS_runs/C1_laminar/30000/` | `30000` | **YES** |
+| **laminar** | `verification/runs/F14-cooling-ladder/K0cX_runs/X_hi_c_LAM/60000/` | `60000` | **YES** |
+
+**Two independent laminar cases on this box write `phi`**, so the laminar row
+adds a requirement that a laminar run demonstrably meets. `buoyantBoussinesqSimpleFoam`
+writes `phi` because `pEqn.H` line 39 assigns it and it is a registered `IOobject`
+of the case; **it is not a closure-dependent field.**
+
+**The asymmetry that makes a late completion instrument safe applies here
+unchanged, and it is `AMENDMENT 2` §A2.5's and `AMENDMENT 3` §A3.5's:** a
+completion instrument can only ever **prevent a case from being certified**. It
+produces no graded number, it cannot move a value, and **it cannot turn a
+`GATE FAIL` into a `PASS`.**
+
+---
+
+## A5.9 ITEM D — the `§12` cross-reference at line 444, CORRECTED BY QUOTE-AND-STRIKE
+
+`AMENDMENT 4` §A4.9 Finding 6 identified this and referred it. It is corrected
+here. **The frozen line is NOT edited** (rule 6); it is quoted, struck and
+replaced at the foot.
+
+> §7.3, line 444, as frozen:
+> ~~"**The reference column is UNARMED. Every cell in it is filled by the dated
+> addendum of §12, and by nothing else.**"~~
+>
+> **CORRECTED, 2026-08-25:** the reference-arming addendum is specified at
+> **§7.6** — the reference slot `K0d_reference_primary.json`, its path and its
+> schema — and at **§14 step 3**, *"Append the dated reference addendum at the
+> foot of this file"*. **§12 is `The registered alternative: what this rung does
+> if a case will not converge`** and says nothing about arming a reference.
+> **Read line 444 as: "Every cell in it is filled by the dated addendum of §7.6
+> and §14 step 3, and by nothing else."**
+
+**NO GATE DEPENDS ON THIS, AND THAT IS STATED RATHER THAN LEFT TO INFERENCE.**
+Line 444's binding content — *the reference column is UNARMED, and only a dated
+addendum fills it* — is unambiguous either way; §7.6 and §14 both already supply
+the procedure; **no band, threshold, cap, label, verdict or prediction changes,
+and no row's status changes.** The rung's tally is `0 of 10` before and after.
+`AMENDMENT 4`'s control stands: `§12` occurs at lines **444, 877 and 935**, and
+the occurrences at 877 and 935 are correct references to the convergence
+alternative — the string is used correctly elsewhere in the same document, so
+line 444's mis-target is a reading, not a search failure.
+
+---
+
+## A5.10 ITEM E — `C_mu`, REFERENCED AND UNCHANGED
+
+`AMENDMENT 4` §A4.2 and §A4.9 Finding 5 resolved this and **this amendment
+re-opens nothing.** For the record, unchanged: `kOmegaSST`'s `betaStar` is
+**0.09** (`kOmegaSSTBase.C` **line 341**, defining relation `epsilonByk =
+betaStar_*omega_()` at **line 163**); `RNGkEpsilon`'s `Cmu` is **0.0845**; they
+differ by **6.51 %** in the resulting inlet `omega`; and **0.09 is registered for
+the `ε → ω` conversion because that conversion is applied only to the five
+`kOmegaSST` cases and 0.09 is the constant those cases' own solver uses.** The
+inlet `omega = 51.2 s⁻¹` of all five `kOmegaSST` cases stands exactly as §A4.3
+registered it, and §A5.5.2 writes it into the boundary table without changing a
+digit.
+
+---
+
+## A5.11 `build_k0d.py` — the binding constraint on whoever writes it
+
+**`build_k0d.py` DOES NOT EXIST.** `AMENDMENT 4` §A4.9 Finding 7 established
+that from disk, against two controls that showed the finder works. It is still
+true at this amendment.
+
+**The dictionaries in `/home/ubuntu/certonomous-runs/K0d_smoke_L1/` are the first
+and only K0d dictionaries that have ever existed anywhere. They are registered
+here, again and unambiguously, as SCRATCH DRAFTS. They are NOT the graded case
+and they are NOT promoted to it by this amendment or by any other.** §A2.4
+clause 2 put them in scratch on purpose; §A2.4 clause 4 forbids citing them for
+anything but *"the dictionaries are sufficient for the solver to take a step in
+this regime"*; and §A5.6 lists, entry by entry, the ten places where what is
+registered **differs** from what they contain.
+
+**REGISTERED, AND BINDING ON WHOEVER WRITES `build_k0d.py`:**
+
+1. **It implements what this document registers, and nothing else.** Every
+   `system/fvSchemes` entry from §A5.3; every `system/fvSolution` entry from
+   §A5.4; every patch name and patch type from §A5.2; every field boundary type
+   and value from §A5.5; `constant/transportProperties` with `nu` from §3.2,
+   `Pr` and `Prt` from §3.2 and `beta` and `TRef` from §A5.7; `constant/g` from
+   §5; `constant/turbulenceProperties` from §A5.5.5; the mesh family from §4;
+   the `controlDict` timings from §6; the inlet `k`, `omega` and `ν_t` from
+   §A4.3; the thirteen graded stations from §A4.5.
+2. **It may not choose anything this document leaves open.** If the builder
+   reaches a value this document does not fix, **that is a finding, it is
+   referred upward, and it is registered by amendment while the window is open
+   — it is not chosen by the script.** §A5.13 lists the ones already known.
+3. **It copies nothing from the smoke-test directory without checking it against
+   §A5.6's table entry by entry.** Seven `fvSolution` entries, one `fvSchemes`
+   entry, one `alphat` wall type, one `k` wall placeholder value and one `beta`
+   digit differ; a copy would silently reinstate all twelve.
+4. **The order is fixed by §9 and is unchanged:** `build_k0d.py` writes;
+   `check_k0d_mesh.py` refuses on conditions **A–G** of §4 with its
+   planted-positive test **FIRING**; `checkMesh` gives a birth certificate per
+   case; §A2.4's pre-flight smoke test runs on the coarsest level **with the
+   registered dictionaries** as an abort condition; only then may
+   `launch_k0d.sh` take `LAUNCH_LOCK`. **None of steps 2, 3 or 4 has been done
+   with the registered dictionaries, because they did not exist until this
+   commit.**
+
+---
+
+## A5.12 THIS TIGHTENS AND CANNOT LOOSEN — the whole amendment, in a form a reader can refuse
+
+**The claim is not asserted; it is shown item by item, so that a reader who
+thinks it false can point at the row where it fails.**
+
+| what changed | direction | why it cannot loosen a verdict |
+| --- | --- | --- |
+| `fvSchemes` registered (§A5.3) | **from NOTHING registered to a fully enumerated set** | Before: a script author picks the discretisation after the freeze. After: `default none` makes an unenumerated convective term **stop the solver**. Nothing was previously required and later excused |
+| `fvSolution` registered (§A5.4) | **tighter than the only set ever run** | Four linear-solver settings move tighter (`1e-08 → 1e-10`, `1e-08 → 1e-12`, `relTol 0.1 → 0.01`), one key widens to cover an entry whose absence stops a run, and `residualControl` stays absent as §6 requires |
+| boundary types registered (§A5.5) | **from NOTHING registered to every field on every patch** | `AMENDMENT 4` §A4.3 left them explicitly open. They are now fixed for all three closures and cannot be chosen by a builder |
+| `beta` superseded (§A5.7) | **an input made determinate and a document contradiction exposed** | It changes what the solver computes. It changes **no band, no threshold, no scale and no verdict rule**; `ΔT_band` stays 20.0 K, and the 2.44 % alternative is registered in advance as a **reported input error**, not as a licence to widen |
+| `TRef` registered (§A5.7.5) | **inert, and shown to be inert from the source** | `snGrad(rhok)` annihilates any uniform offset; only the derived `p` moves, and `p` is in no field set, no guard and no graded row |
+| `phi` added to all three completion sets (§A5.8) | **69 satisfiable assertions against 60; none removed** | A completion instrument can only ever prevent certification. It produces no graded number and cannot turn a `GATE FAIL` into a `PASS` |
+| line 444 corrected (§A5.9) | **neutral** | A cross-reference. No band, threshold, cap, label, verdict or row status depends on it |
+
+**And the one-way property that makes all of it safe is the same one this rung
+has now registered four times:** everything above either **constrains the build**
+or **constrains certification**. Nothing above **relaxes a band, widens a
+tolerance, excuses a case, or creates a route by which a row that would have been
+`GATE FAIL` becomes `PASS`.**
+
+---
+
+## A5.13 CHECKED AND FOUND — eight further items, DISCLOSED HERE, NOT REPAIRED HERE, REFERRED
+
+Recorded under the practice `AMENDMENT 1` §A1.4 established: **a check that finds
+something must be recorded, and a check that finds nothing must be
+distinguishable from a check never made.** This is the **fourth consecutive
+amendment to find an unregistered input**, so the sweep was made deliberately
+rather than opportunistically: *every quantity `build_k0d.py` would have to
+choose that this document does not fix* was enumerated. None of the eight is
+repaired here — repairing them was not the ruling, and rule 9 forbids a lane
+widening a ruling on its own authority — and all eight are referred **while the
+pre-compute window is still open.**
+
+**FINDING 9 — `ν` IS TWO DIFFERENT NUMBERS IN THIS DOCUMENT, and which one is
+taken decides whether §5's `β` was ever consistent with §3.4's `Ra`.** §3.2
+registers `ν = 1.55e-5 m²/s` as *"this document's design value, stated as such"*;
+§3.4's `Re` consistency sentence uses **`ν = 1.569e-5 m²/s`**; §4 computes the
+first wall cell at **1.55e-5**; `AMENDMENT 1` §A1.2 line 1108 reproduces `Ra` at
+**1.569e-5**. **Consequences, both computed here:** (i) at the registered
+`ν = 1.55e-5`, `Re = 0.57 × 0.018 / 1.55e-5 =` **662.0**, against the secondary's
+quoted **654** — high by **1.22 %**, so §3.4's *"mutually consistent"* claim
+holds at 1.569e-5 and not at the registered value; (ii) §A5.7.2's 2.76 %
+inconsistency between line 312's `β` and §3.4's `Ra` **disappears at 1.569e-5**.
+**Not repaired, and it blocks nothing**, because §3.2 registers the solver input
+unambiguously and §3.4's figure sits inside a justification sentence, not in a
+registered-input row. `Re` is a reported group and **no gate, band or threshold
+is defined on it**. Referred.
+
+**FINDING 10 — THE INITIAL INTERNAL FIELD OF EVERY FIELD IS UNREGISTERED, AND
+THIS IS THE STRONGEST OF THE EIGHT.** Nothing in §§1–14 or in `AMENDMENT` 1–4
+fixes `internalField` for `T`, `U`, `p_rgh`, `k`, `omega`, `epsilon`, `nut` or
+`alphat`. **A steady SIMPLE solve of a buoyant cavity is not guaranteed to be
+seed-independent, and this team knows it**: `K0cS` carries a dedicated
+seed-sensitivity arm, `verification/runs/F14-cooling-ladder/K0cS_runs/C2_seed_d100`,
+built for exactly this question. The smoke test chose `T 288.15`, `U (0 0 0)`,
+`p_rgh 0`, `k 1.25e-3`, `omega 51.2`, `nut 0`, `alphat 0` — **a choice made after
+the freeze, by a lane, and referred rather than registered.** It does not prevent
+a build and it is not a contradiction, so it is not called blocking here; **but a
+graded value can depend on it, and the supervisor should rule on it before firing
+rather than after.** Referred, with that recommendation stated plainly.
+
+**FINDING 11 — THE PROFILE SAMPLING METHOD IS UNREGISTERED, AND IT TOUCHES A
+GRADED NUMBER DIRECTLY.** §7.3 grades `G1`–`G4` at the thirteen registered
+stations of §A4.5, and §7.2 fixes `±0.01` as the station-matching tolerance for
+the reference. **Nothing registers how a solved value is extracted at a station**
+— the sampling `setFormat`, the `interpolationScheme` (`cell` returns the
+containing cell's value; `cellPoint` interpolates from vertex values), the sample
+set type, or whether the mid-plane profile is taken on face centres or cell
+centres. **Near a wall on a `y⁺ ≈ 1` mesh the two interpolation schemes differ by
+more than the mesh spacing suggests**, and `G5b` (peak location, band
+`± 0.0208 m`) and `G8` (penetration length, band `± 0.104 m`) are defined on
+where a profile peaks or crosses a threshold. Referred, and named as the second
+item after Finding 10 that can move a graded value.
+
+**FINDING 12 — `RNGkEpsilon` TAKES HIGH-Re WALL FUNCTIONS AGAINST §5's REGISTERED
+`y⁺ ≤ 1`.** Registered in §A5.5.3 on the sibling basis (`K0cS_runs/S_KE_f` uses
+`kqRWallFunction`, `epsilonWallFunction`, `nutkWallFunction`), and the tension is
+in §A5.5.6: OpenFOAM's `RNGkEpsilon` carries no low-Reynolds damping, so this
+lab has no low-Re wall set for it. **§5's `y⁺` window is measured and REPORTED,
+and a case outside it has its rows REPORTED rather than graded** — that machinery
+is unchanged and is the instrument that will surface this. Referred.
+
+**FINDING 13, minor — the `RNGkEpsilon` inlet `nut` placeholder.** From that
+closure's own constants, `nut = C_mu k²/ε = 0.0845 × (1.25e-3)² / 5.76e-3 =`
+**2.2922e-5 m²/s**, which is **6.51 % below** the `2.4414e-5` registered in
+§A5.5.3 — the same 6.51 % as the `C_mu` ratio of §A4.2. **It blocks nothing and
+changes nothing**: `nut` at the inlet is a `calculated` patch, overwritten by the
+model's own `correctNut()` on the first iteration, so the registered figure is a
+dictionary placeholder and not a physical input. Recorded so the discrepancy is
+not first met in a diff.
+
+**FINDING 14, minor — `controlDict` write settings are unregistered.** §6 fixes
+`endTime 40000`, `deltaT 1`, `writeInterval 4000` and `purgeWrite 2`; nothing
+fixes `writeFormat`, `writePrecision` or `writeCompression`. The sibling
+`K0cS_runs/S_SST_f/system/controlDict` uses `ascii` at **`writePrecision 16`**;
+the smoke test used `ascii` at **`writePrecision 8`**. **Two clauses depend on
+it:** §6's convergence criterion is *"at most `1e-6` of that field's range"*
+between two written checkpoints — on a 20 K range that is `2e-5 K`, which needs
+more significant digits than a coarse precision provides — and
+`writeCompression` decides whether the completion reader and the age guard of
+§8.2 must find `T` or `T.gz`. Referred.
+
+**FINDING 15, minor — the 2D domain thickness is unregistered.** §3.1 registers a
+0.7 m span with guard cavities and a 2D design; the smoke test used a single cell
+of **0.01 m** (`checkMesh` total volume `0.010816 = 1.04 × 1.04 × 0.01`). **It
+cancels in every registered quantity** — `G1`–`G8` are intensive or normalised,
+`S1` is structural, and guards `HB` and `MB` are ratios in which the thickness
+appears on both sides. Recorded for completeness.
+
+**FINDING 16 — NOT A DOCUMENT DEFECT: A REPOSITORY HAZARD, recorded in §A5.0.**
+The shared git index staged a version of this file **1 617 lines shorter than
+`HEAD`**, i.e. the state immediately before `AMENDMENT 1`. **A bare `git commit`
+would have deleted all four amendments.** Inspected, never reverted (rule 10);
+referred to the supervisor and the chief.
+
+**CHECKED AND FOUND SOUND, recorded so it is distinguishable from unchecked.**
+The rung POINT (**829.36 core-min**) and CEILING (`1 654.23 + 827.11 + 3.50 =`
+**2 484.84 core-min**) were re-derived from §10.2 and §10.3 at this amendment and
+**reproduce exactly**. §7.3's ten graded rows, §7.4's five-step verdict ladder,
+§7.5's five guards, §8.1's planted-zero control, §8.2's seven completion clauses
+(other than clause 4's field enumeration, amended in §A5.8) and §8.3's Roache
+ordering were re-read in full and **none is altered**. `AMENDMENT 1` §§A1.1–A1.5,
+`AMENDMENT 2` §§A2.1–A2.6, `AMENDMENT 3` §§A3.0–A3.8 and `AMENDMENT 4`
+§§A4.0–A4.10 were re-read in full and **nothing in any of them is withdrawn**,
+with the two exceptions this amendment states explicitly and at the foot:
+`AMENDMENT 3` §A3.4's clause-4 field table, replaced by §A5.8, and §5 line 312's
+`β` and `T_ref`, superseded by §A5.7.
+
+---
+
+## A5.14 WHAT THIS AMENDMENT DID NOT DO — each stated explicitly
+
+- **No GATE moved.** §7.3's ten graded rows `G1, G2, G3, G4, G5a, G5b, G6, G7,
+  G8, S1` stand as registered — **ten before, ten after**; §7.4's verdict ladder
+  stands; §8.3's Roache triple gating stands; §8.1's planted-zero control stands;
+  §7.5's five guards `HB`, `B`, `I`, `DC`, `MB` stand with their consequences
+  unchanged.
+- **No THRESHOLD and no BAND moved.** `± 1.00 K`, `± 0.0570 m/s`, `± 0.0208 m`,
+  `± 0.104 m`, `± 10 % of |q_ref|`, `EXACT MATCH REQUIRED`, §7.2's conversion
+  rule with its `max` form and its anti-widening guard, `ΔT_band = 20.0 K`, the
+  `0.5 %` heat-balance tolerance, the `25 %` discrimination threshold and the
+  `y⁺` windows `≤ 5.0` and `≤ 3.3` — all **byte-unchanged**.
+- **No CAP moved.** The registered **POINT of 829.36 core-min** and the
+  **CEILING / TOTAL CAP of 2 484.84 core-min** stand exactly, with §10.3's stop
+  rules, the 10× per-case hard stop, the 1.6× re-estimate trigger and the
+  **827.11 core-min** continuation reserve unchanged. `cost_basis` is unchanged
+  and still says the rate is **reported-by-owner, not measured**
+  (`COMPUTE_BUDGET_CHARTER.md` §5). §A5.4 records that the registered pressure
+  solver is the one §10.1's basis was measured on, so the cap is measured against
+  a like solver.
+- **No LABEL moved**, and no verdict word outside rule 1's vocabulary is used
+  anywhere in this amendment.
+- **No PREDICTION moved.** §11's predictions 1–8 stand as registered.
+  **Prediction 6 in particular is untouched** — this amendment offers no revised
+  number, no direction and no excuse for it.
+- **The NINE CASES do not change**, the **THREE CLOSURES do not change**
+  (`kOmegaSST` × 5, `RNGkEpsilon` × 3, laminar × 1), the mesh family of §4 does
+  not change, the `endTime` of **40 000** does not change, §6's convergence
+  criterion does not change, and §A4.5's **thirteen** graded stations do not
+  change.
+- **`G6` remains `PENDING` on Blay 1992**, which is still **`NOT OBTAINED`** —
+  re-checked at this amendment. All ten graded rows remain `BLOCKED` by
+  construction under §7.4 order 4. The rung's tally is still **`0 of 10`**.
+- **`AMENDMENT 1`, `AMENDMENT 2` and `AMENDMENT 4` stand in full**, and
+  `AMENDMENT 3` stands in full except its §A3.4 clause-4 field table, replaced by
+  §A5.8 with `phi` added to all three sets and nothing removed. `AMENDMENT 3`
+  §A3.4's generalised instruction — *no exemption and no field substitution may
+  be inferred at grading time*, and `mark_done_k0d.py` refuses (exit 2) rather
+  than infer one — is **unchanged**.
+- **`AMENDMENT 2`'s pre-flight smoke test remains a registered ABORT CONDITION on
+  first compute**, unmodified. §A2.4 clause 1 already requires it to run *"with
+  K0d's own `constant/`, `system/` and `0/` dictionaries **as they will be used
+  for the graded run**"* — so it must be run again against the dictionaries
+  registered here, and **this amendment does not run it.**
+- **NO COMPUTE RAN AT THIS AMENDMENT. Zero core-minutes, graded or otherwise.**
+  `verification/runs/F14-cooling-ladder/K0d_runs/` does not exist at the moment
+  of this write (§A5.0) and **this amendment does not create it**. No case
+  directory was built, no mesh generated, no solver launched. Rule 12's
+  estimate-versus-actual calibration is **not triggered**, because no process
+  completed; the calibration row still outstanding is the smoke test's, which
+  `cf6e20a6` left for the supervisor, and **this lane did not touch
+  `docs/COST_CALIBRATION.md`.**
+- **`docs/LAB_STATE.md`, `docs/DOCKET.md` and `docs/LESSONS.md` were not
+  touched**, and `scripts/append_record.py` was not used for any id.
+- **Nothing was sent** (rule 7). Submissions remain **PARKED**.
+
+**One thing this amendment deliberately does NOT do, stated because a reader
+should not have to infer it:** **it does not authorise the launch.** **The
+supervisor must read this amendment as a diff before any graded compute** — an
+undelegatable check under `SUPERVISION_CHARTER.md` §3 — and §A5.7.1's
+supersession of a registered `β`, §A5.5.6's `alphat` wall treatment and §A5.13's
+Findings 10 and 11 are the three places that check most needs to land.
+
+**K0d remains FROZEN, ARMED AND UNFIRED.**
+
+*Amendment drafted by the heat-transfer lane on the supervisor's ruling,
+2026-08-25. Zero compute.*
