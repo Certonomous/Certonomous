@@ -550,3 +550,106 @@ the claim honestly; and scope and cost the C4 audit.
 
 **It does not:** authorise any run; alter any frozen gate, threshold, cap or label; file
 anything upstream; or execute the §6 sweep.
+
+---
+
+## 8. AMENDMENT — 2026-08-25: **THE SOFT `FLAG ≥ 100` TIER IS RETIRED. THE DISCRIMINATOR IS THE LONE-OUTLIER COLUMN.**
+
+**Insertions-only, appended at the foot. Nothing above this line is edited; §6.4's proposal stands
+in the record exactly as it was written, because the reason a threshold was retired is worth more
+than the threshold was.**
+
+### 8.1 The ruling
+
+> **A `residualControl` block is FLAGGED when its TIGHTEST tolerance is held by EXACTLY ONE
+> CHANNEL — a LONE TIGHT OUTLIER.**
+> **`bind_ratio` is a SEVERITY MEASURE ON A FLAGGED BLOCK. IT IS NOT A DETECTOR.**
+> **`HARD FLAG` at `bind_ratio ≥ 1000` is VALIDATED AND STANDS.**
+> **The bare-ratio soft `FLAG ≥ 100` tier is RETIRED.**
+
+Ruled by the cfd supervisor, 2026-08-25, on this lane's measurement of the tier's own population.
+
+### 8.2 The ground — and it is a measurement, not an argument
+
+§6.4 derived `FLAG ≥ 100` **from principle**, and said so honestly, and added the right test:
+*"100× will flag many blocks besides F6a, and that is the test."* **The test was run. The tier
+failed it, and it failed in the most complete way a threshold can.**
+
+Measured by `scripts/sweep_residual_criteria.py` over **1,990 non-`processor*` `fvSolution` files,
+1,282 carrying a `residualControl` block**, 1,035 with a computable `bind_ratio`
+(2026-08-25T17:4xZ). **The sweep was run TWICE, twelve minutes apart, while other teams were
+writing into the same corpus: it grew by 2 files and the `OK`→`OK` cell moved 767 → 769, while
+EVERY FLAG POPULATION — 90, 151 and 25 — WAS IDENTICAL IN BOTH RUNS.** The counts below are the
+second run's.
+
+| what the retired tier caught | count | `bind_ratio` | channels sharing the tightest value |
+|---|---|---|---|
+| soft `FLAG` population | **90** | **EXACTLY 100.000 — all ninety** | **3 — all ninety**, and the same three every time: `U, k, omega` |
+
+**All ninety sat precisely on the boundary.** `>= 100` catches all ninety; `> 100` catches none.
+**A threshold whose entire population sits exactly on its own boundary is not measuring anything —
+it is re-describing the convention it was set at.** That convention is the ubiquitous two-tier
+`p 1e-6` with `U, k, omega 1e-8`, in which **three channels share the tightest tolerance, so no
+single channel can become the sole binding criterion and the F6a mechanism cannot arise.**
+
+And the discriminating column was already visible in the same sweep:
+
+| tier | count | lone tight outlier? |
+|---|---|---|
+| `HARD FLAG` (≥ 1000) | **151** | **151 of 151 — every one** |
+| soft `FLAG` (= 100) | **90** | **0 of 90 — not one** |
+
+**The signal was never the ratio. It was whether ONE channel holds the tightest tolerance alone** —
+which is precisely the F6a mechanism §4.2 and §4.3 recorded: one channel 5,000× tighter than its
+siblings became the sole binding criterion and measured the partition rather than the convergence.
+
+### 8.3 The corrected counts, re-measured under the new rule
+
+| | retired rule (`ratio ≥ 100 / ≥ 1000`) | **lone-outlier rule** | movement |
+|---|---|---|---|
+| `HARD FLAG` | 151 | **151** | **unchanged — every one is a lone tight outlier** |
+| `FLAG` | 90 | **25** | 90 retired, **25 NEW** |
+| `OK` | 794 | **859** | |
+| **total flagged** | **241** | **176** | **−65** |
+
+Transition matrix, every cell measured:
+
+| retired → new | count |
+|---|---|
+| `FLAG` → `OK` | **90** (all at ratio 100.000, all with 3 channels tied) |
+| `HARD FLAG` → `HARD FLAG` | **151** (all lone outliers — the tier is confirmed, not merely kept) |
+| `OK` → `FLAG` | **25** |
+| `OK` → `OK` | **769** |
+
+**THE 25 NEW FLAGS ARE THE POINT.** Every one is a **lone tight outlier at `bind_ratio` 10.0**, with
+**`U` as the lone tightest channel in all 25** — 18 in cfd territory, 7 in the out-of-git run store.
+**The retired tier could never have seen them**, because 10 is a decade below its boundary. So the
+retirement did not merely remove 90 false positives; **it revealed 25 blocks carrying the real F6a
+pattern that a ratio threshold was structurally blind to.**
+
+### 8.4 The instrument
+
+`scripts/sweep_residual_criteria.py`. The retirement and its ground are recorded **in the
+instrument's own docstring**, beside the code that implements it, so a reader who never finds this
+file still finds the reason.
+
+**Two new planted controls were added, and `--selftest` passes all six:**
+
+| control | plant | required |
+|---|---|---|
+| **P4** positive | lone tight outlier at `bind_ratio` **10** (below the retired boundary) | **must `FLAG`** — measured `FLAG`, `n_at_tightest = 1`, ratio 10.0 |
+| **N2** negative | the exact two-tier convention: `p 1e-6`, `(U\|k\|omega) 1e-8`, ratio **exactly 100** | **must stay `OK`** — measured `OK`, `n_at_tightest = 3`, ratio 100.0 |
+
+together with the four already standing (P1 hard-flag 5000×, P2 auxiliary exclusion, P3
+loosest-and-unobservable, N1 harmonized-negative). **N2 is the important one: it is the negative
+control for the retirement itself**, and without it a later reader could not tell a rule that
+correctly ignores the two-tier convention from a rule that has gone blind.
+
+### 8.5 What this amendment does NOT do
+
+It does not touch `HARD FLAG ≥ 1000`, which stands **validated by its own population**. It does not
+re-verdict any case: a `FLAG` is a **request for the one-line C2 justification**, never a verdict,
+and nothing here converts one into a finding. It does not sweep another team's cases — §6.6's
+routing is unchanged. It authorises no run and alters no frozen gate, threshold, cap or label.
+
+**ZERO SOLVER COMPUTE.** This is a dictionary parse over files already on disk.

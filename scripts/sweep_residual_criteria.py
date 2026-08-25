@@ -21,7 +21,29 @@ docs/standards/PARALLEL_GATE_DOCTRINE.md sections 6.1-6.4:
       mechanism; C2's justification requirement still applies to it.
 
   bind_ratio = (loosest PRIMARY tol) / (tightest PRIMARY tol) under
-  residualControl ONLY.  DIRECTIONAL.  FLAG at >= 100, HARD FLAG at >= 1000.
+  residualControl ONLY.  DIRECTIONAL.
+
+  DISCRIMINATOR, as ruled by the cfd supervisor 2026-08-25:
+
+      A block is FLAGGED when its TIGHTEST tolerance is held by EXACTLY ONE
+      CHANNEL -- a LONE TIGHT OUTLIER.  bind_ratio is then a SEVERITY MEASURE
+      ON A FLAGGED BLOCK.  IT IS NOT A DETECTOR.  HARD FLAG at bind_ratio >=
+      1000 is VALIDATED AND STANDS.
+
+  THE BARE-RATIO SOFT `FLAG` TIER AT >= 100 IS RETIRED.  THE GROUND IS WORTH
+  MORE THAN THE THRESHOLD WAS, so it is recorded here rather than deleted:
+
+      The soft tier was measured against its own population before it was
+      believed.  ALL 90 blocks it caught sat at bind_ratio EXACTLY 100.000 --
+      a knife edge where `>= 100` catches all ninety and `> 100` catches none.
+      A THRESHOLD WHOSE ENTIRE POPULATION SITS PRECISELY ON ITS BOUNDARY IS
+      NOT MEASURING ANYTHING; IT IS RE-DESCRIBING THE CONVENTION IT WAS SET AT.
+      Those ninety are the ubiquitous two-tier convention `p 1e-6` with
+      `U, k, omega 1e-8`, in which THREE channels share the tightest value, so
+      no single channel can become the sole binding criterion and the F6a
+      mechanism cannot arise.  Meanwhile ALL 151 blocks the HARD tier caught
+      are LONE TIGHT OUTLIERS -- the real F6a pattern.  So the signal was never
+      the ratio; it was whether ONE channel holds the tightest tolerance alone.
 
   LOOSEST-AND-UNOBSERVABLE: the loosest channel in a block that the case's own
   registration also names unverifiable/unobservable/not-echoed-to-logs.
@@ -224,10 +246,25 @@ def analyse(fv: pathlib.Path):
         lo, hi = min(prim.values()), max(prim.values())
         row["tol_primary_min"], row["tol_primary_max"] = lo, hi
         row["bind_ratio"] = hi / lo
+        row["n_channels_at_tightest"] = sum(1 for v in prim.values() if v == lo)
+        row["channels_at_tightest"] = sorted(k for k, v in prim.items() if v == lo)
+        row["lone_tight_outlier"] = row["n_channels_at_tightest"] == 1
     else:
         row["bind_ratio"] = None
+        row["n_channels_at_tightest"] = len(prim)
+        row["channels_at_tightest"] = sorted(prim)
+        row["lone_tight_outlier"] = False
     br = row["bind_ratio"]
-    row["flag"] = "OK" if br is None or br < FLAG else ("HARD FLAG" if br >= HARD else "FLAG")
+    # RULED 2026-08-25: the DETECTOR is the lone-tight-outlier column; the bare
+    # ratio is SEVERITY on an already-flagged block, never a detector.  The soft
+    # `FLAG at >= 100` tier is RETIRED -- see the module docstring for its ground.
+    if br is None or not row["lone_tight_outlier"]:
+        row["flag"] = "OK"
+    elif br >= HARD:
+        row["flag"] = "HARD FLAG"
+    else:
+        row["flag"] = "FLAG"
+    row["severity_bind_ratio"] = br if row["flag"] != "OK" else None
     # --- solvers{} tolerances, axis A1: SEPARATE column, NEVER ratioed against the above
     sp = {}
     if blk["solvers_body"]:
@@ -286,7 +323,18 @@ def plant_and_verify(scratch: pathlib.Path):
                      "    p { solver GAMG; tolerance 1e-8; }\n"
                      '    "(U|k|omega)" { solver smoothSolver; tolerance 1e-9; }\n',
                      ["U", "p", "k", "omega"])
-    r1, r2, r3, rn = (analyse(x) for x in (p1, p2, p3, n1))
+    # P4 LONE TIGHT OUTLIER BELOW THE RETIRED SOFT TIER -- the discriminator's own
+    # positive control.  bind_ratio 10 would have been silent under `FLAG >= 100`.
+    p4 = write_plant(root, "P4_lone_outlier_low_ratio",
+                     '        "(U|p|k)"   1e-6;\n        omega       1e-7;\n',
+                     "    p { solver GAMG; tolerance 1e-8; }\n", ["U", "p", "k", "omega"])
+    # N2 NEGATIVE: the exact two-tier convention the retired soft tier caught 90 times.
+    # bind_ratio is EXACTLY 100 and it MUST NOW BE SILENT -- three channels share
+    # the tightest value, so no channel can bind alone.
+    n2 = write_plant(root, "N2_two_tier_NEGATIVE",
+                     '        p            1e-6;\n        "(U|k|omega)" 1e-8;\n',
+                     "    p { solver GAMG; tolerance 1e-8; }\n", ["U", "p", "k", "omega"])
+    r1, r2, r3, rn, r4, rn2 = (analyse(x) for x in (p1, p2, p3, n1, p4, n2))
     res["P1_hardflag"] = {"bind_ratio": r1["bind_ratio"], "flag": r1["flag"],
                           "SEEN": r1["flag"] == "HARD FLAG" and abs(r1["bind_ratio"] - 5000) < 1e-6}
     res["P2_auxiliary"] = {"bind_ratio": r2["bind_ratio"], "aux": r2["channels_auxiliary"],
@@ -297,6 +345,17 @@ def plant_and_verify(scratch: pathlib.Path):
     res["N1_harmonized_NEGATIVE"] = {"bind_ratio": rn["bind_ratio"], "flag": rn["flag"],
                                      "solver_tol_ratio": rn["solver_tol_ratio"],
                                      "QUIET": rn["flag"] == "OK" and rn["bind_ratio"] == 1.0}
+    res["P4_lone_outlier_low_ratio"] = {
+        "bind_ratio": r4["bind_ratio"], "flag": r4["flag"],
+        "n_at_tightest": r4["n_channels_at_tightest"],
+        "SEEN": r4["flag"] == "FLAG" and r4["n_channels_at_tightest"] == 1
+                and abs(r4["bind_ratio"] - 10.0) < 1e-9}
+    res["N2_two_tier_NEGATIVE"] = {
+        "bind_ratio": rn2["bind_ratio"], "flag": rn2["flag"],
+        "n_at_tightest": rn2["n_channels_at_tightest"],
+        "channels_at_tightest": rn2["channels_at_tightest"],
+        "QUIET": rn2["flag"] == "OK" and abs(rn2["bind_ratio"] - 100.0) < 1e-9
+                 and rn2["n_channels_at_tightest"] == 3}
     ok = all(res[k].get("SEEN", res[k].get("QUIET")) for k in res)
     return ok, res
 
