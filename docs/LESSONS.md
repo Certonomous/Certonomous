@@ -11420,3 +11420,41 @@ map); `verification/campaign/AHMED_BODY_RECONCILIATION.md` (the level 2-vs-3 for
 recorded there while the rungs are called one ladder); `verification/campaign/3D_CAMPAIGN_CASE_SELECTION_MEMO.md`
 §2.3–§2.4; `scripts/roache_triple.py:123-127` and `:200`;
 `docs/charters/VERIFICATION_CHARTER.md` §3.2.
+
+## L-304 — "lines whose number changed above this section: 0" is TRUE and INSUFFICIENT: a rule-6 append goes at the FOOT
+
+**2026-08-25, closure. Cost: zero — found by reading, not by running.**
+
+Rule 6 requires a departure from a frozen file to be disclosed in a dated amendment
+carrying the assertion **"lines whose number changed above this section: 0"**. Commit
+`a9b67abc` made that assertion in `docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md` and
+**the assertion was TRUE** — verified by hashing the parent's first 202 lines against the
+child's, not accepted as written.
+
+**The file still broke four citations.** The insertion was **mid-file**, after parent line
+202. Two hunks moved **115 parent lines** — 103 by +36 and 12 by +41. FS5's "declared
+factor" sentence went from `:252` to `:288`, and line 252 now holds an unrelated R6
+bullet, so **a reader following `:252` lands on the wrong sentence and gets no error**.
+Four tracked records cite the stale line, one of them a landed docket row and one of them
+sitting *inside* a frozen dated addendum whose own guarantee an in-place fix would break.
+
+**The lesson.** The assertion certifies the lines **ABOVE** the insertion. It says nothing
+about the lines **BELOW** — and **every citation into a file from elsewhere points below
+almost any mid-file insertion point.** The assertion is therefore necessary and not
+sufficient, and a commit message that generalises it to "no renumbering" is making a
+claim the assertion does not support. `a9b67abc`'s message did exactly that.
+
+**The rule that follows: a rule-6 append goes at the FOOT of the file** — the only
+insertion point that cannot move a line number. If a mid-file insertion is unavoidable,
+the amendment must ALSO state the shift, name every external citation below the insertion
+point, and give each one's replacement line.
+
+**Corollary, and it is why this cost nothing to find but would have cost a lot to hit:**
+the failure is silent. A stale line citation resolves to *something*, raises no error, and
+reads as if it worked. There is no planted control for it short of re-deriving the cited
+line at HEAD — so **cite frozen files by a quoted string as well as a line number**, and
+re-derive the number rather than copying it forward.
+
+**Applied the same day:** the two disclosures recording this defect are themselves appended
+at the FOOT of their files and each says so in its own text, so as not to commit the defect
+while recording it. Docket **D515**.
