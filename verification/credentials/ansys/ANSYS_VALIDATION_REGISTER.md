@@ -223,7 +223,7 @@ place, with lines 1–330 proven byte-identical by prefix sha256
 **NO GATE, THRESHOLD, BAND, CAP, LABEL, VERDICT OR CREDENTIAL MOVES, and VMFL005's
 `PASS` stands.** **Row #3 itself is append-only and is NOT edited** — this note is the
 record that its cited blob now resolves to a superseded version, and the amendment names
-both. Recorded as **`L-316`** in `docs/LESSONS.md` — a cost table's RATE cell is never
+both. Recorded as **`L-317`** in `docs/LESSONS.md` — a cost table's RATE cell is never
 checked by anything, because only the PRODUCT feeds the cap.
 
 **Lines whose number changed above this section:** row #6 was inserted into the main

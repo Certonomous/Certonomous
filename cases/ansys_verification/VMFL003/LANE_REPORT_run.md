@@ -18,7 +18,7 @@ sampler**. **First launch aborted at the pre-flight smoke test** — triaged, re
 disclosed and committed **before any level ran**. Relaunched; six meshes completed
 rc=0. Graded with the frozen comparator, **unmodified**. Wrote the run artifacts,
 `RESULTS.md`, register row #6, calibration **C-57**, CASE_MAP's tier cell and
-counts, **N-AV9's addendum**, **N-AV10/N-AV11**, **L-315/L-316**, and VMFL005's
+counts, **N-AV9's addendum**, **N-AV10/N-AV11**, **L-316/L-317**, and VMFL005's
 **AMENDMENT 1**.
 
 ## 2. THE VERDICT
@@ -121,7 +121,7 @@ foot and in `PREREGISTRATION.md` **ADDENDUM 1** (committed `bdc37b32`, before an
 read its counts **positionally** (`head -1`, `sed -n 2p`) — in a case whose own §5 says
 *"located by header name, never by position"* (`N-AV4`/`L-286`). **The lesson had been
 applied to the comparator and not to the launcher: `L-221`/`L-222` exactly, inside a case
-that quotes it in its own frozen text.** `L-315`.
+that quotes it in its own frozen text.** `L-316`.
 
 **If you judge the repair should have been `BLOCKED` instead, the run is fully
 reversible on the record:** both shas are quoted everywhere, the defect and its evidence
