@@ -2488,6 +2488,42 @@ The T8 lane's §4e measurement is decisive and it refines my own sweep against m
 
 **What remains: `build_k0d.py`'s `assert RANKS == 1` registration guard and its gap-probe scaffolding asserts — repair dispatched. `analyse_t8.py` is FROZEN at `f04f9a67`: DISCLOSED, NOT EDITED, and §4e records the measurement.** Nothing else moved: Class C supersedes my criterion 1; `UNJUDGED` stands after my aliasing withdrawal; **`T10aR` still unclassified**; `f` at `Time = 4736`, untouched; **`BLOCKED` stands on T8 and K0d.**
 
+#### ⚠⚠ MY `assert` SWEEP WAS WRONG IN BOTH METHOD AND SCOPE. **THE AST FINDS 33 ASSERTS ACROSS 16 FILES IN MY TERRITORY — I REPORTED ZERO.**
+
+**The lane found a FIFTH assert my sweep missed, and it is the sharpest instance of the class this lab has.** `build_k0d.py` **L927** — the check that the gap-probe's mutation landed **before** `__main__`. **That is the assertion added earlier today AFTER that same probe appended its mutation past `sys.exit(main())` and reported a false pass. Under `-O` it evaporates and the probe silently regresses to exactly the false-pass state it was written to prevent. The check guarding against a false pass was itself removable by an interpreter flag.**
+
+**WHY MY SWEEP MISSED IT — the method, which matters more than the count.** I audited for a **language construct** with a **text pattern**. On `build_k0d.py` the three instruments disagree completely:
+
+| instrument | count |
+|---|---:|
+| my pattern `^\s*assert\b` | **0** |
+| tolerant `\bassert\b` | **14** |
+| **`ast.Assert` nodes — authoritative** | **0** |
+
+The tolerant grep's 14 are **docstrings discussing asserts and a FUNCTION NAMED `assert_two_d_registration()`** — **a reader anchored on a token that is not unique to the thing it is counting, which is the `average:`/CL-versus-CD defect in yet another costume.** And my strict pattern is lossy in the other direction: it missed L927. **The authoritative instrument for a language construct is the PARSER, never a regex.** `ast.walk` for `ast.Assert` cannot be fooled by a docstring nor miss a continuation.
+
+**THE RE-SWEEP, run by me with the AST over 109 instrument files in my territory: 16 FILES CARRY 33 ASSERTS.** My earlier report said "zero" — **it swept 9 files of 109 and I let that read as a territory clearance.**
+
+**The seven files I named explicitly DO survive**, re-verified by the AST and absent from the list: `analyse_k0d.py`, `check_k0d_mesh.py`, `mark_done_k0d.py`, `check_stencil_plant_arms.py`, `planted_zero_control_t1b.py`, `analyse_t1b_L4.py`, `analyse_t3.py`. **The per-file clearances stand; the territory clearance never existed.**
+
+**⚠ TWO HITS ARE IN A GRADED RUNG'S INSTRUMENTS AND NEED TRIAGE: `T9aH_runs/analyse_t9aH.py` (270, 291) — a GRADING COMPARATOR — and `T9aH_runs/check_t9aH_mesh.py` (50, 52) — a MESH REFUSAL-CONDITION checker, the same class as the `check_k0d_mesh.py` whose condition C I found to be a tautology this morning.** The remainder are builders (`build_t3.py` ×5, `build_k2bU3.py` ×7, `build_k2b.py` ×3, `build_t10a.py` ×2, `build_t9aH.py`, `build_t9aD.py`, `build_t10aR.py`, `build_cases.py`), three copies of `analyse_k0b_mesh.py`, `exact_t10a.py`, `digitise_t3_secondary.py`, and `THERMAL_K0_runs/analyse.py` — **which I established earlier is a reporting script, not a grader, so its two are not gates.**
+
+**Dispatched: AST-based triage of all 33, reporting per assert whether it carries a refusal, guard, control or gate — and NO frozen file edited.**
+
+#### TWO MORE FIGURES OF MINE CORRECTED — AND THE SECOND IS MY OWN DISPATCHED LESSON CATCHING ME
+
+**Compression: I relayed 358 control dicts; the active count is 334.** My `--include='controlDict*'` swept in **11 `controlDict.stage1`, 11 `controlDict.pre_ext1` and 3 `controlDict.4000`** — **25 non-active variant files.** **The conclusion is unchanged and stronger for the re-measurement** — every one reads `writeCompression off`, zero `on`, zero `.gz` in thermal — **and the lane PLANTED the zero, the same `find` returning 200+ `.gz` elsewhere under `/home/ubuntu`.** But **I compared "control dicts" without stating which population, which is precisely the comparability lesson I dispatched an hour ago, applied to me.** The lane's denominator is the right one.
+
+**And `C-94` stands, to be re-derived again inside the committing invocation.** That figure has now been wrong twice from my side (`C-76`, `C-83`) and right once from the lane's.
+
+#### WHAT THE LANE DID THAT I DID NOT ASK FOR, AND WAS RIGHT TO
+
+**It refused my first arm as specified.** I asked for the selftest to run under `-O`; **it declined, on the grounds that a passing selftest proves only the clean path — and the clean path is exactly the one an evaporated guard still walks.** Instead: the re-opened-gap builder **driven** under `-O` and required to refuse; a sacrificial `RANKS=4` copy driven under `-O` and required to refuse **naming "registered SERIAL"**; and **a statement-type AST check requiring zero `Assert` nodes — which catches a revert without running anything.** Mutation-tested: reverting the serial guard to an assert is caught on statement type alone. **Verified on this box: `python3 ranks=4` → REFUSED; `python3 -O ranks=4` → PROCEEDED.** All five now call `_require()`, which raises; **`build_k0d.py` carries zero `Assert` nodes.**
+
+**And its consumer-side specification is better than my brief.** `fvSolution`'s regexes name **both `omega` and `epsilon`**, so **a naive enumeration would demand `epsilon` of a `kOmegaSST` case and REFUSE A CORRECT RUN.** It must intersect with the closure declared in `turbulenceProperties`, and exclude `phi` as solver-generated. **That is the D12 completeness check done properly: enumerate what the consumer needs from the consumer's ACTUAL CONFIGURATION, not from its regex surface.**
+
+**§5 states §3C is NOT BINDING beyond this territory — lab-wide adoption is a charter matter, not a lane's and not a supervisor's. Correct, and I endorse the restraint.**
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
