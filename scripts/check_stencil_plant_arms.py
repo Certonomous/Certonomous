@@ -79,13 +79,45 @@ It CANNOT:
 A clean line from the scan is therefore evidence of absence of a smell, and nothing
 stronger.  The proof in this file is the ``--selftest`` arithmetic, which is exact.
 
+UNASSESSED IS NOT CLEAN -- why there is an exit code 3
+------------------------------------------------------
+The first independent test of this checker, by the heat-transfer supervisor on
+2026-08-25, ran a case its author had not thought to construct: **a weighted stencil
+with NO planted-zero control of any kind.**  It exited 0.  Severity was therefore
+NON-MONOTONE in how well armed the instrument was -- the WORST case (no control at
+all) scored the same as the BEST case (uniform arm plus subset arm), and only the
+middle case fired:
+
+    stencil + ZERO controls   ->  0     <- strictly the worst, and it read GREEN
+    stencil + ONE uniform arm ->  2
+    stencil + TWO arms        ->  0
+
+The prose said "nothing this scan is competent to judge"; the EXIT CODE said "clean".
+When those two disagree the exit code wins in practice, because exit codes are what get
+automated into corpus sweeps and prose is what gets skimmed.  So a sweep by exit code
+would have read an unarmed stencil as passing.
+
+That is this very lesson's own shape, in the instrument written for it, found the same
+way the lesson was found: by running it against something its author had not imagined.
+The principle applied is already lab law -- CLAUDE.md rule 1 reserves ``PENDING`` as a
+"not yet run" state and forbids using it to soften a ``GATE FAIL``.  The analogue here:
+**NOT ASSESSED IS ITS OWN STATE AND IS NOT A PASS.**
+
 Exit codes
 ----------
-  0  clean, or nothing this scan is competent to judge (each case says which)
+  0  ASSESSED AND CLEAN -- or genuinely nothing to assess (no weighted stencil found at
+     all, so there is no control whose absence could mislead anyone)
   1  a note worth a look, no violation asserted
-  2  VIOLATION: a plant-like control and a weighted stencil in one file with only ONE
-     distinct plant target expression -- i.e. no subset arm found where the rule
-     requires one.  Also 2 if ``--selftest`` fails.
+  2  ASSESSED AND VIOLATING: a plant-like control and a weighted stencil in one file
+     with only ONE distinct plant target expression -- no subset arm found where the
+     rule requires one.  Also 2 if ``--selftest`` fails.
+  3  NOT ASSESSED: a weighted stencil IS present and NO plant-applying callable was
+     found, so this scan has nothing it is competent to judge about its control.
+     **THIS IS NOT A PASS.**  Treat it as an open question, never as a green.
+
+PRECEDENCE when several files are scanned in one invocation: the process exit code is
+the most serious severity seen, ordered 2 > 3 > 1 > 0 -- an assessed VIOLATION outranks
+an unassessed file, even though 3 is the larger integer.  Do not use ``max()`` on these.
 
 Usage
 -----
@@ -158,6 +190,13 @@ PLANT_HINT = "plant"
 # distinct-target count and would let a single-arm control read as clean.
 DRIVER_HINTS = ("check_", "control", "_control", "verify")
 STENCIL_NAME_HINTS = ("extrapol", "interp", "reconstruct", "stencil", "weight")
+
+SEVERITY_MEANING = {
+    0: "assessed and clean, or no weighted stencil to assess",
+    1: "a note worth a look",
+    2: "ASSESSED AND VIOLATING",
+    3: "NOT ASSESSED -- a weighted stencil with no control found. NOT A PASS",
+}
 
 
 def _callee_name(node):
@@ -362,10 +401,24 @@ def scan(path):
         out.append("    name hint @L%d: %s" % (ln, s))
 
     if not arms:
-        out.append("NOTE: no plant-APPLYING callable found by NAME in this file. This "
-                   "scan sees only callables whose name contains 'plant'; it is NOT a "
-                   "proof that the file has no planted-zero control. Nothing this scan "
-                   "is competent to judge.")
+        if strong:
+            out.append("NOT ASSESSED (exit 3, NOT a pass): %d literally weighted "
+                       "stencil(s) are present and NO plant-applying callable was found "
+                       "in this file. A weighted stencil with no planted-zero control at "
+                       "all is STRICTLY WORSE than one with a uniform-only arm, which "
+                       "this scan exits 2 on -- so it must not share an exit code with "
+                       "'assessed and clean'. This scan sees only callables whose name "
+                       "contains 'plant', so a control may exist under another name or "
+                       "in an imported module; that is precisely why this is NOT "
+                       "ASSESSED rather than a violation. Go and look."
+                       % len(strong))
+            return 3, out
+        out.append("NOTE: no plant-APPLYING callable found by NAME in this file, and no "
+                   "literally weighted stencil either -- so there is genuinely nothing "
+                   "here for this check to judge and no control whose absence could "
+                   "mislead anyone. This scan sees only callables whose name contains "
+                   "'plant'; it is NOT a proof that the file has no planted-zero "
+                   "control.")
         return 0, out
 
     if not strong:
@@ -404,6 +457,16 @@ def scan(path):
 # --------------------------------------------------------------------------
 # selftest -- PROVES the claim in exact arithmetic
 # --------------------------------------------------------------------------
+# Severity precedence.  2 (assessed VIOLATION) outranks 3 (NOT ASSESSED) even though
+# 3 is the larger integer, so ``max()`` is WRONG here and is never used on these.
+_SEVERITY_RANK = {0: 0, 1: 1, 3: 2, 2: 3}
+
+
+def worse(a, b):
+    """Return the more serious of two severities under the documented precedence."""
+    return a if _SEVERITY_RANK[a] >= _SEVERITY_RANK[b] else b
+
+
 BAD_SRC = '''
 PLANT = 1.234e-03
 
@@ -479,6 +542,28 @@ def interpolate(a, b, t):
 
 def control(path):
     return plant_into_T(path, PLANT)
+'''
+
+
+# The case the author did not think to construct, found by the heat-transfer
+# supervisor's independent test: a weighted stencil with NO control of any kind.
+# It must NOT share an exit code with "assessed and clean".
+STENCIL_NO_CONTROL_SRC = '''
+def centreline(T, i1, i2):
+    return (9.0 * T[i1] - T[i2]) / 8.0
+
+def grade(T, i1, i2):
+    return centreline(T, i1, i2)
+'''
+
+# Its negative: no stencil and no control, where 0 is the RIGHT answer because there
+# is no control whose absence could mislead anyone.
+NOTHING_SRC = '''
+def total(vals):
+    out = 0.0
+    for v in vals:
+        out += v
+    return out
 '''
 
 
@@ -593,7 +678,11 @@ def selftest():
              ("one arm + a 'plant'-NAMED DRIVER  -> must still FIRE (the driver "
               "must not count as an arm)", DRIVER_SRC, 2),
              ("KNOWN BLIND SPOT: one arm + a VARIABLE-weight interpolation "
-              "-> quiet", NAMEHINT_ONLY_SRC, 0)]
+              "-> quiet", NAMEHINT_ONLY_SRC, 0),
+             ("stencil + ZERO controls -> must be 3, NOT ASSESSED, NOT a pass",
+              STENCIL_NO_CONTROL_SRC, 3),
+             ("no stencil and no control -> must be 0 (nothing to assess)",
+              NOTHING_SRC, 0)]
     tmp = tempfile.mkdtemp(prefix="stencil_arms_")
     for i, (label, src, want) in enumerate(cases):
         p = os.path.join(tmp, "case%d.py" % i)
@@ -601,9 +690,17 @@ def selftest():
             fh.write(src)
         sev, lines = scan(p)
         ok = _p(label, "severity = %d (wanted %d)" % (sev, want), sev == want) and ok
-    print("      A probe never shown able to fire is not evidence (standing rule 3);")
-    print("      one never shown able to stay quiet flags everything.")
-    print("      The LAST case is a declared BLIND SPOT, not a success: a stencil whose")
+    print("      %d cases: %d must raise a severity, %d must stay at 0. A probe never"
+          % (len(cases), sum(1 for c in cases if c[2]), sum(1 for c in cases if not c[2])))
+    print("      shown able to fire is not evidence (standing rule 3); one never shown")
+    print("      able to stay quiet flags everything.")
+    print("      MONOTONICITY, which the first version of this file got WRONG: a stencil")
+    print("      with ZERO controls (3) must not share an exit code with a stencil whose")
+    print("      control carries a subset arm (0). The worst case scored the same as the")
+    print("      best case until the supervisor's independent test ran the case this")
+    print("      author had not constructed.")
+    print("      The variable-weight case is a declared BLIND SPOT, not a success: a "
+          "stencil whose")
     print("      weights are variables, not literals, is invisible to this scan even")
     print("      though the rule applies to it in full. It is in the selftest so the")
     print("      blindness is on the record instead of being discovered later.")
@@ -611,8 +708,9 @@ def selftest():
     print()
     print("(7) WHAT THIS SELFTEST DOES NOT PROVE -- stated, not buried")
     print("      Part 1-5 is a PROOF: exact rational arithmetic, no tolerance.")
-    print("      Part 6 is NOT. It shows the scan firing on two planted shapes and")
-    print("      staying quiet on three others, one of which is a DECLARED BLIND SPOT.")
+    print("      Part 6 is NOT. It shows the scan separating assessed-clean, assessed-")
+    print("      violating and NOT-ASSESSED on planted cases, one of which is a DECLARED")
+    print("      BLIND SPOT rather than a success.")
     print("      It does NOT show the scan finds every such defect, and the scan CANNOT")
     print("      prove a subset relation between two target expressions. This lesson")
     print("      exists because a green selftest proved an instrument self-consistent")
@@ -627,7 +725,17 @@ def selftest():
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap = argparse.ArgumentParser(
+        description=__doc__.splitlines()[0],
+        epilog=("EXIT CODES -- 0 assessed and clean (or no weighted stencil at all, so "
+                "nothing to assess); 1 a note; 2 ASSESSED AND VIOLATING (a weighted "
+                "stencil with only ONE distinct plant target); 3 NOT ASSESSED -- a "
+                "weighted stencil is present and no plant-applying callable was found. "
+                "3 IS NOT A PASS: unassessed is not clean, the same way PENDING is not "
+                "a softened GATE FAIL (CLAUDE.md rule 1). Over several files the "
+                "process exit code is the most serious severity under the precedence "
+                "2 > 3 > 1 > 0, NOT the numeric max."),
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("files", nargs="*")
     a = ap.parse_args(argv)
@@ -646,8 +754,12 @@ def main(argv=None):
             continue
         for ln in lines:
             print("  " + ln)
-        print("  severity: %d" % sev)
-        worst = max(worst, sev)
+        print("  severity: %d  (%s)" % (sev, SEVERITY_MEANING[sev]))
+        worst = worse(worst, sev)
+    if len(a.files) > 1:
+        print("=" * 78)
+        print("most serious severity, precedence 2 > 3 > 1 > 0: %d  (%s)"
+              % (worst, SEVERITY_MEANING[worst]))
     return worst
 
 

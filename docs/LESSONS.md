@@ -13155,6 +13155,54 @@ At the commit: `analyse_t8.py` scans clean — 8 literally weighted stencils and
 plant targets, the uniform arm plus the two supplementary arms added by its pre-compute
 amendment A1 — and `scripts/analyse_k0d.py`, `analyse_t1b_L4.py` and `analyse_t3.py` all exit 0
 with the scan stating, in each case, exactly which of them it was not competent to judge.
+#### Addendum, 2026-08-25 — the instrument written for this lesson exhibited this lesson's own shape on its first independent test
+
+The heat-transfer supervisor's §3 check-1 read did not take the lane's word: it rebuilt a
+violator and a clean counterpart and ran them, and then ran **a third case the lane had not
+thought to construct — a weighted stencil with NO planted-zero control of any kind.**
+
+| case | first-version exit code |
+|---|---|
+| stencil + **ZERO** controls | **0** ← strictly the worst, and it read GREEN |
+| stencil + **ONE** uniform arm | **2** |
+| stencil + **TWO** arms (uniform + subset) | **0** |
+
+**Severity was NON-MONOTONE in how well armed the instrument was: the worst case scored the
+same as the best case.** The scan's prose said *"nothing this scan is competent to judge"* while
+its **exit code said "clean"** — and when those disagree **the exit code wins in practice**,
+because exit codes are what get automated into corpus sweeps and prose is what gets skimmed.
+A sweep by exit code would have read an unarmed stencil as passing.
+
+**The principle applied is already lab law, not a new invention.** CLAUDE.md rule 1 reserves
+`PENDING` as a "not yet run" state and forbids using it to soften a `GATE FAIL`. The analogue:
+**UNASSESSED IS NOT CLEAN.** `scripts/check_stencil_plant_arms.py` now separates three states:
+
+- **0** — assessed and clean, *or* no weighted stencil at all (nothing to assess, and no
+  control whose absence could mislead anyone);
+- **2** — assessed and **violating**;
+- **3** — **NOT ASSESSED**: a weighted stencil is present and no plant-applying callable was
+  found. **Not a pass.**
+
+Over several files the process exit code is the **most serious** severity under the precedence
+**2 > 3 > 1 > 0**, deliberately *not* the numeric `max()` — an assessed violation outranks an
+unassessed file even though 3 is the larger integer. Both new states carry a selftest arm with
+its negative: the zero-control stencil must return 3, and a file with neither stencil nor
+control must return 0. Measured after the fix: **3 / 2 / 0** across the three cases above.
+
+**Why this belongs inside L-326 rather than beside it.** The lesson says a green selftest
+proves an instrument self-consistent and only a real artifact proves it right. The instrument
+written to enforce that lesson shipped with a green selftest, seven checks and a declared blind
+spot — and a false green on the most dangerous input, found within the hour **by someone
+running it against a case its author had not imagined.** That is the fifth confirmation of the
+same shape in one day. The generalisation now applies to itself:
+
+> **An instrument's own selftest is written by the person with the blind spot. The first
+> independent execution against an unimagined case is not a formality — it is the first moment
+> the instrument is tested at all.**
+
+Re-run at this addendum: `analyse_t8.py`, `scripts/analyse_k0d.py`, `analyse_t1b_L4.py` and
+`analyse_t3.py` **all remain at 0** — none moved to 3, because the two that scan clean without
+a stencil have no *literally* weighted stencil for the new state to apply to.
 
 ---
 
