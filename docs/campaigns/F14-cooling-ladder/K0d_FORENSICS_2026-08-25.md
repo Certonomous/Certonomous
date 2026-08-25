@@ -659,3 +659,167 @@ naming a grading path that does not exist.
 
 *Addendum by a heat-transfer lane, 2026-08-25. Zero core-minutes. Nothing sent —
 submissions remain PARKED (standing rule 7).*
+
+---
+
+# ADDENDUM 2 — 2026-08-25T22:05Z: K0d IS FIRED. TWO BUILDER PARSE DEFECTS AND A REGISTERED-MESH CONFLICT FOUND ON THE WAY.
+
+**Author:** heat-transfer lane, executing the supervisor's fire order.
+**K0d L1 IS RUNNING.** Two solvers live. Six cases are **`BLOCKED`** on a
+conflict between two registered clauses that this lane **may not rule on**.
+
+## B1. LAUNCH RECORD
+
+| case | level | solver pid | timeout pid | cwd | timeout | registered cap |
+| --- | --- | ---: | ---: | --- | ---: | ---: |
+| `M1_c` | L1 | **2729793** | 2729790 | `/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0d_runs/M1_c` | **26 100 s** | **435.00 core-min** |
+| `M2_c` | L1 | **2729792** | 2729791 | `/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0d_runs/M2_c` | **26 100 s** | **435.00 core-min** |
+
+`setsid`, `ranks = 1`, `timeout = cap × 60 ÷ ranks = 435.00 × 60 ÷ 1 = 26 100 s`.
+**`0/T` was touched LAST, immediately before each solver**, so its mtime dates
+the run allowed to produce the answer (the age guard, `mark_done_k0d.py`
+clause 6).
+
+**Measured after 77 s:** `M1_c` at `Time = 1036` (**13.5 it/s**), `M2_c` at
+`Time = 1074` (**13.9 it/s**), both at 100 % CPU. Projected to `endTime 40000`:
+**≈ 49.5 and 47.8 core-min** — **11.4 % and 11.0 % of their registered caps**,
+and **≈ 97 core-min of the rung's 2 748.64 core-min ceiling**
+(`K0d_REREGISTRATION.md` §A2.2b — **the superseded file's 2 484.84 is never
+quoted**).
+
+**Launch contention, 22:04:04Z:** load average **8.57**, **26 GB** available,
+**8.10 of 16 cores busy (50.59 %)**, measured over a 5 s `/proc/stat` window.
+**Foreign processes, untouched, not reniced, not killed:** `pimpleFoam` pids
+2700408 and 2700706, `simpleFoam` pids 2686040 and 2686107.
+
+**Staging arithmetic:** `min(9 registered §9.1 cap, 6 occupancy headroom to
+90 %, 4 mesh-passing) = 4`. **TWO were fired, not four**, and the reason is a
+runaway guard, not cost: the two L3 cases carry **1 675.50 core-min** caps each,
+so firing all four commits **4 221 core-min of ceiling against a 2 748.64
+core-min rung cap**. **L3 is held for the supervisor**, who may fire it once the
+L2 question below is ruled — there is no Roache triple without L2, so an L3
+value today could not be gated in any case.
+
+## B2. THE MESH CHECK DID RUN — AND SIX CASES FAIL CONDITION D
+
+The supervisor could not confirm this from a `Mesh OK` / `FAILED` sweep. **The
+reason is the pattern, not a missing check:** `check_k0d_mesh.py` prints one
+line per condition (`   D  FAIL ...`), never a summary line.
+
+**It ran, on all ten, and returned `rc = 1`: 46 conditions ok, 6 FAILED.** Every
+failure is **condition D on an L2 case** — `M1_m`, `M2_m`, `C_lam`, `B_hi`,
+`I_hi`, `M1_m_seed` — and all six are byte-identical:
+
+> `D  FAIL  floor 7.864662e-04 (0.000% off) NOT SMALLEST IN BLOCK`
+
+**The first wall cell is EXACTLY the registered design value — 0.000 % off. Only
+the "smallest in its block" clause fails.** Diagnosed from the mesh:
+
+| level | block A cells | floor cell | opposite (lip) cell | D |
+| --- | ---: | ---: | ---: | --- |
+| L1 | **12, EVEN** | 1.101053e-03 | 1.101053e-03 | ok |
+| **L2** | **17, ODD** | 7.864662e-04 | **7.004187e-04** | **FAIL** |
+| L3 | **24, EVEN** | 5.610459e-04 | 5.610459e-04 | ok |
+
+**THIS IS NOT A BUILDER BUG. IT IS TWO REGISTERED CLAUSES THAT CANNOT BOTH
+HOLD.** §5 registers **two-sided geometric grading** to every wall and both slot
+lips with one registered first cell; §4 condition D requires the first wall cell
+to be **the smallest in its block**. Block A is the outlet band, and its
+registered L2 count is **17 — odd**. An odd count cannot be split into two equal
+halves, so the two ends necessarily receive different first cells, and the
+smaller one lands at the slot lip. **L1 (12) and L3 (24) are even and symmetric,
+which is exactly why only L2 fails.**
+
+**THIS LANE DOES NOT RULE ON IT.** It is a registered-quantity conflict, the
+pre-compute amendment window is **spent**, and the supervisor's own instruction
+stands: *"If your work needs a registration change, tell me and I rule; do not
+amend it yourself."* **Six cases are `BLOCKED` pending that ruling, and the
+consequence is stated plainly: WITHOUT L2 THERE IS NO ROACHE TRIPLE, SO THE `G`
+COLUMN IS UNREACHABLE TOO** — not merely `P`.
+
+## B3. TWO BUILDER PARSE DEFECTS, BOTH REPAIRED UNDER `VERIFICATION_CHARTER` §2d.1
+
+**DEFECT 1 — no `FoamFile` header on any dictionary.** `blockMesh` refused all
+ten: *"problem while reading header for object controlDict"*. Every `system/`
+and `constant/` dict went out headerless; the `0/` **fields** were fine, because
+`field_file()` emits its own header.
+
+**DEFECT 2 — `0/U`'s `internalField` lost its `uniform` keyword.** The solver
+refused: *"Expected keyword 'uniform' or 'nonuniform', found on line 9:
+punctuation '('"*.
+
+**A CORRECTION TO THE DIAGNOSIS ON RECORD, because it changes the repair.** The
+ruling in hand described *"the internalField list opening `(` without the
+required `nonuniform List<vector>` declaration"*. **That is not the defect.** The
+registered seed (`AMENDMENT 1` §A1.2a) is a **UNIFORM** initial field, and
+`(0 0 0)` is the uniform vector **value**, not a list opening:
+
+```
+  WRONG   internalField   (0 0 0);
+  RIGHT   internalField   uniform (0 0 0);
+```
+
+**Writing a `nonuniform List<vector>` here would have been wrong twice over:** it
+is not what §A1.2a registers, and it would expand every `0/` file to one entry
+per cell for a field that is **uniform by registration**. The repair is the
+keyword, at the single formatting point in `_fmt()`.
+
+**§2d.1's four conditions, named rather than waved through:** (1) a demonstrable
+error — OpenFOAM refuses to parse, no judgement in it; (2) established by an
+instrument **independent of the hypothesis** — **`openfoam-2606`'s own parser**,
+which grades nothing and cannot know which way a verdict should move; (3)
+disclosed, instrument named, what moved quantified — **nothing moved, zero
+solver iterations ran**; (4) pre-repair values beside the published ones —
+**there are none**. **No gate, band, threshold, cap or label is altered.**
+
+**MY OWN FIRST REPAIR WAS WRONG, AND THE NEW SOLVER ARM CAUGHT IT RATHER THAN A
+LAUNCH.** The registered wall entries carry the OpenFOAM macro `$internalField`,
+which already expands to `uniform <value>`; prepending the keyword produced
+`uniform uniform 0.00125` and the solver refused `0/k`. A `$` macro is now
+passed through with the other two forms. **Recorded in the source, not quietly
+corrected** — it is the same failure mode twice in one function: assuming what a
+string means instead of checking what OpenFOAM does with it.
+
+## B4. TWO READ-BACK ARMS, BECAUSE ONE WAS NOT ENOUGH
+
+- **`blockMesh` arm** — reads `system/` and `constant/`. **It passed while `0/U`
+  was still unreadable, because `blockMesh` never reads `0/`.** An arm covers
+  only the channel it happens to touch.
+- **SOLVER arm** — runs the real `buoyantBoussinesqSimpleFoam` for two
+  iterations against a shortened `endTime` and requires `rc = 0` **and** a `Time`
+  line. It is the only program that reads every `0/` field.
+
+Each has a **negative half that must fire**: headers stripped → `blockMesh`
+`rc = 1`; `0/U`'s `uniform` removed → solver `rc = 1`. **Both fire.** Neither arm
+re-parses the file with this script's own reader, which shares the writer's
+assumptions and would have agreed with it. **Selftest now 43 checks, PASSED.**
+
+**This makes four instruments in one day that passed green while unable to do
+their job** — condition C, the gap probe, the headers, the `0/U` keyword. The
+common thread is one sentence: **every check exercised the channel the author
+was thinking about, not the channel that consumes the artifact.**
+
+## B5. EVIDENCE PRESERVED, NOT DELETED
+
+- `/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0d_runs.attempt1_headerless_FAILED`
+  — ten case dirs, ten failed `blockMesh` logs, **zero `polyMesh`**.
+- `/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0d_runs.attempt2_0U_no_uniform_FAILED`
+  — ten case dirs, meshed, **solver `rc = 1` at 54 log lines, zero iterations**.
+
+**Zero solver iterations across both.** Total compute consumed by both failures:
+**≈ 10 s of meshing (≈ 0.17 core-min)**.
+
+## B6. WHAT REMAINS, AND WHAT THIS LANE WILL NOT DO
+
+1. **`mark_done_k0d.py` then `analyse_k0d.py`** once the solves finish — but
+   `analyse_k0d.py` **refuses (exit 2) unless all TEN `DONE` markers exist**, so
+   **it cannot run at all while six cases are blocked on condition D.**
+2. **The registered `postProcess` equivalence check of `ADDENDUM 1` §AD1.1**,
+   once L1 has real fields at `endTime`.
+3. **A `docs/COST_CALIBRATION.md` row at completion**, id derived tolerantly at
+   append time.
+4. **This lane will not rule on the condition-D conflict, will not touch a
+   foreign solver, and will not fire L3 against the cap arithmetic in §B1.**
+
+*Addendum by a heat-transfer lane, 2026-08-25T22:05Z. Nothing sent —
+submissions remain PARKED (standing rule 7).*
