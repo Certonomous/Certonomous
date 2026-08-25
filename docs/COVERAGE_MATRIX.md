@@ -1,9 +1,22 @@
 # The lab coverage matrix — one row per case, three columns, one tier
 
-**Owner:** verification team. **Status: DRAFT, IN CONSTRUCTION — not yet a lab
-record.** Rows are landing as they are audited; a row is not in this matrix until
-this team has spot-checked its load-bearing evidence itself. Until this line is
-struck, no other document may cite a tier from this file.
+**Owner:** verification team. **Status: FIRST COMPLETE PASS, 2026-08-25.** All five
+families are scored and every load-bearing row was spot-checked against its artifacts
+by this team, not lifted from a family's claim. **The tier column may be cited.**
+
+**What is still open, stated so nobody over-reads the file:** the cfd rows are
+selected rather than exhaustive and several are families rather than single rows;
+four rulings (§2.2) are this team's and are **overrulable by the chief or Sanaa**;
+and one escalation is unresolved — whether FD-vs-adjoint is admitted as a fourth `V`
+instrument, which moves 23 dafoam rows. **Re-derive any census before quoting it.**
+
+> **THE HEADLINE. There are no `HOLDS` rows. Zero, in the whole lab.**
+> Not because the work is weak — the lab holds four converging grid ladders, exact
+> solutions, manufactured comparisons, correlations, and the best pre-registration
+> hygiene this team has audited anywhere. **It is because the lab has never closed a
+> validation loop against measured physical reality under a frozen pre-registration,
+> in any dimension.** §4 carries the evidence. The tier is empty for a specific,
+> nameable and fixable reason, and §4 names the shortest path out of it.
 
 **Created** 2026-08-24 by the verification supervisor, at the chief's dispatch, as
 the consolidation-week deliverable.
@@ -76,8 +89,8 @@ meant a different thing in every block of rows.
 | family | file | its V | its G | its P |
 | --- | --- | --- | --- | --- |
 | closure | `cases/RANS_LES_closure_models/MATRIX_CONTRIBUTION.md` (tracked, `a42fd634`) | a verification instrument **demonstrated able to fail** — planted-zero, identity test, independent re-derivation | a **pre-registered NUMERIC gate that could have failed**, frozen by sha before the run | a **pre-registered PREDICTION**, made before the run and graded |
-| dafoam | `cases/dafoam/MATRIX_CONTRIBUTION.md` (**untracked on disk**) | the **finite-difference-versus-adjoint check** (`DAFOAM_CHARTER.md` §9) | *(not a column; the family prints a lab-verdict column and a matrix-tier column instead)* | *(as above)* |
-| heat-transfer | `docs/campaigns/T-family/MATRIX_CONTRIBUTION.md` (**untracked on disk**) | **a converged Roache triple with an observed order** | a **pre-registered gate with a threshold**, and what it returned | the reference **ON DISK and title-page verified** |
+| dafoam | `cases/dafoam/MATRIX_CONTRIBUTION.md` (**tracked**) | the **finite-difference-versus-adjoint check** (`DAFOAM_CHARTER.md` §9) | *(not a column; the family prints a lab-verdict column and a matrix-tier column instead)* | *(as above)* |
+| heat-transfer | `docs/campaigns/T-family/MATRIX_CONTRIBUTION.md` (**tracked**, landed at `71ecb659`) | **a converged Roache triple with an observed order** | a **pre-registered gate with a threshold**, and what it returned | the reference **ON DISK and title-page verified** |
 
 Read down that table: **closure's V is an instrument-integrity test, dafoam's V is
 a gradient consistency check, and heat-transfer's V is grid convergence — which is
@@ -97,14 +110,23 @@ dafoam's §0.2 states its mapping is "this lane's proposal and the verification
 supervisor may replace it", and heat-transfer's §0.2 defines its tiers "so they are
 liftable". That is the right instinct and it is why the re-scoring is cheap.
 
-### 2.1 Contribution files that are ON DISK BUT UNCOMMITTED
+### 2.1 ~~Contribution files that are ON DISK BUT UNCOMMITTED~~ — CORRECTED 2026-08-25, both are now tracked
+
+**This section's original text is superseded and the correction is dated because the
+section was stale within about a minute of being written.**
 
 `cases/dafoam/MATRIX_CONTRIBUTION.md` (414 lines) and
-`docs/campaigns/T-family/MATRIX_CONTRIBUTION.md` (730 lines) were written by lanes
-that were killed by the session usage limit at ~20:50Z on 2026-08-24. **Both files
-survived on disk and are untracked.** They were reported upward as lost; they are
-not lost. They are their families' to commit, not this team's — this file cites
-them by path and quotes them, and does not commit another team's work.
+`docs/campaigns/T-family/MATRIX_CONTRIBUTION.md` were written by lanes killed by the
+session usage limit at ~20:50Z on 2026-08-24, and were reported upward as **lost**.
+They were not lost — both survived on disk, untracked — and **both are now tracked**;
+the thermal file landed at **`71ecb659`**. The original text, that they were "on disk
+but uncommitted", was true when written and stopped being true almost at once.
+Corrected here at this team's own hand: the owning supervisors and their lanes both
+declined to edit this file, which was right.
+
+**The recovery finding stands and is worth keeping** — work reported as lost to a
+session kill was sitting on disk the whole time. That is a cheap thing to check
+before anyone rewrites a dead lane's output.
 
 ---
 
@@ -130,7 +152,7 @@ only direction that does not force a row into a tier that says something false a
 it, and naming every missing letter means the widening costs the reader nothing —
 a row missing two is visibly weaker than a row missing one, on the face of the cell.
 
-### Ruling 1 — AMENDED 2026-08-25, before any row was entered under it
+### ~~Ruling 1 — AMENDED 2026-08-25, before any row was entered under it~~ — **ALSO STRUCK, see the second amendment below**
 
 **The original Ruling 1 above is STRUCK.** It is left standing, unrewritten, because
 this file's own §1.1 discipline is worth more than a tidy page and because a reader
@@ -158,6 +180,73 @@ direction a rubric must never drift.
 better instrumented, better frozen and better reproduced than a `GATE REACHED` one —
 closure's frozen-field ceiling (§3.2 below) is exactly that. The tier says what
 **kind** of evidence the row is, not how well it was done.
+
+### Ruling 1 — SECOND AMENDMENT, 2026-08-25. The tier counts GREEN columns, not missing ones
+
+**Both earlier forms of Ruling 1 are STRUCK.** They are left standing above. This is
+the third statement of the same rule and the convergence is worth reading, because
+each version broke on a real row rather than on an argument.
+
+- The **original** tiered a row by how many letters were *missing*, and broke on
+  dafoam's 24 rows missing all three: it would have called them `GATE REACHED`.
+- The **first amendment** sent "missing two or three" to `SURVEYED`, and broke on
+  **VMFL005**, which has the lab's cleanest `G` — a CONVERGING triple under a
+  pre-registration frozen 194 seconds before first compute — and is missing V and P.
+  Calling that `SURVEYED` ("ungated") is as wrong as calling dafoam's rows
+  `GATE REACHED`, only in the other direction.
+
+**The defect in both was the same: counting absences.** A tier should be monotone in
+the evidence a row actually holds.
+
+**Ruling 1, final form — count the GREEN columns:**
+
+| green columns | tier |
+| --- | --- |
+| **3** | **HOLDS** |
+| **1 or 2**, under a frozen pre-registration | **GATE REACHED** — and the row names every missing letter |
+| **0** | **SURVEYED** — *nothing on the V / G / P axes*, whatever lab gates the row passed |
+| a green column's own gate returned FAIL, or a blocker | **NOT HELD** |
+| no solve | **NEVER RUN** |
+
+This is simple, monotone, and it resolves both breaking cases the way the evidence
+reads: dafoam's 24 rows hold **zero** green columns → `SURVEYED`; VMFL005 holds
+**one** → `GATE REACHED`, missing V and P; K0c holds **one** → `GATE REACHED`,
+missing G and P.
+
+### Ruling 4 — `P` requires validation against MEASURED PHYSICAL REALITY. An exact solution scores `V`, never `P`
+
+Two audits collided on this and the collision is why the ruling exists. Scoring
+VMFL005, one lane read `P` green — the Ansys manual is a primary source, held on
+disk with a verified sha256, and the pre-registration is frozen. Another lane,
+scoring the thermal rows, read the same clause the opposite way: *"under the chief's
+rubric an exact analytic solution scores V, not P — so every row marked
+`P ANALYTIC-HELD` has a green V and an empty P."*
+
+**The second reading is right, and the word that settles it is the first word of the
+chief's own clause: `P` — validation.** In V&V, *verification* asks whether the
+equations are solved right and *validation* asks whether the right equations were
+solved — which only reality can answer. The rubric already spends V on exact
+solutions, manufactured solutions and correlations. Reading P to cover them too
+would let one comparison score two columns and would make `HOLDS` reachable without
+the lab ever comparing anything to the world.
+
+**Ruling: `P` is green only for a comparison against MEASURED PHYSICAL REALITY — an
+experiment or measured data — from a public primary source, with the
+pre-registration on disk. An exact solution, an analytic benchmark, a manufactured
+solution, a correlation, another code's result, or a numerical benchmark scores `V`
+if it qualifies there, and scores `P` never.**
+
+**This ruling is severe and I want its cost stated, not buried.** It empties the P
+column across most of the lab, and it means **`HOLDS` requires the lab to have
+compared something to an experiment under a frozen pre-registration and been
+right** — which, as §4 now records, has not yet happened anywhere. That is the
+finding. A rubric that could not produce that finding would not be worth running.
+
+It also resolves a question §4 raised about the Ansys VM manual — whether a
+proprietary vendor manual is a "public primary source" — by making it moot for
+these rows. VMFL005's reference value **is the Hagen-Poiseuille exact solution**,
+so the comparison is a `V` comparison whatever the manual's licence, and the
+licence question does not need deciding to score the row.
 
 ### Ruling 2 — an UNSETTLED observed order still scores `G`; it does not license the word "asymptotic"
 
@@ -434,41 +523,454 @@ history is exactly as claimed:
    ever exercised **live**, as FS5's A1 refusal was with mutated readers exiting
    `rc 2`.
 
+### 3.4 heat-transfer — 37 sub-rows, 0 HOLDS. The five claimed HOLDS are GATE REACHED, and one of them has no triple at all
+
+Source: `/home/ubuntu/Certonomous/docs/campaigns/T-family/MATRIX_CONTRIBUTION.md`
+(tracked, `71ecb659`). The family's own audit lane re-derived its census by parsing
+its §3 table rather than copying its prose and applied 28 corrections; it reports
+**37 ids — HOLDS 5 (S1, S6, S13, S19, S22), GATE REACHED 1, SURVEYED 13, NOT HELD
+12, NEVER RUN 6**, and found that a row (**S20b**) had been **missing**, so the
+file's own totals had been wrong **in the optimistic direction** until that pass.
+**VERIFY:** this team's independent audit scored **36** sub-rows against the
+pre-correction file; the one-row delta is S20b, a `NOT HELD` row, and it moves no
+tier and no headline.
+
+**The rubric is not merely different here, it is rotated.** The contribution's **V**
+asks *"is there a converged Roache triple with an observed order?"* — **that is the
+chief's G.** Its **P** asks a custody question (is the reference on disk and
+title-page verified?) where the chief's P asks a validation question. So under
+Ruling 4 every row the family marks `P ANALYTIC-HELD` has a **green V and an empty
+P** — and that single re-reading moves **four of its five HOLDS rows to GATE
+REACHED** in one step.
+
+| id | claim | V | G | P | tier here | family said |
+| --- | --- | --- | --- | --- | --- | --- |
+| **S1 — K0c** | laminar square cavity, 0 of 20 graded rows failed, largest deviation **1.139 %** on a **3 %** band | **YES** — benchmark values parsed from the frozen spec at run time; planted control fires at 3.19 % | **NO — there is no triple, and there cannot be** | **NO** | **GATE REACHED — missing G and P** | HOLDS |
+| S6 — T9a | wall q″ + interface 2, conjugate | YES — closed-form composite wall | **YES** — p 1.079 / 0.952, CONVERGING | NO — analytic | **GATE REACHED — missing P** | HOLDS |
+| S13 — E4a2 | fan BC, Q deviation 0.144 % | YES — exact to 1.5e-07 | **YES** — p 1.959, GCI 0.393 % | NO — analytic | **GATE REACHED — missing P** | HOLDS |
+| S19 — T1c | f·Re = 64 and 48/11, Graetz λ₀² = 7.313587 to **1.6e-08** | YES | **YES** — p 2.031, CONVERGING | NO — analytic | **GATE REACHED — missing P** | HOLDS |
+| S22 — T10a | 3D radiation box, closed-form view factors verified to 0.005 % | YES | **YES** — p 0.954 / 0.853 / 0.825 | NO — analytic | **GATE REACHED — missing P** | HOLDS |
+
+**Sub-row census under this rubric: HOLDS 0 · GATE REACHED 6 · SURVEYED 13 ·
+NOT HELD 11–12 · NEVER RUN 6.** The 11 `NOT HELD` rows are the family's most
+valuable holding and they are not absences — they are measured negatives with model-
+error attribution.
+
+#### S1 / K0c — the load-bearing row of the whole matrix, and the one material error found in any contribution
+
+**K0c has no grid triple and cannot have one: it was designed as mesh PAIRS.** The
+eight case directories under
+`/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0c_runs/` are
+`Ra1e3_{m32,m64}`, `Ra1e4_{m40,m80}`, `Ra1e5_{m64,m128}`, `Ra1e6_{m128,m192}` — **two
+levels per Rayleigh number** — and every one of the 20 rows in `gate_k0c.json`
+carries exactly `coarse_mesh` and `fine_mesh`. **A Roache triple needs three levels.**
+No GCI, no observed order and no Richardson extrapolation exists anywhere in the K0c
+comparator or run tree.
+
+**Where the contribution's "`p` 1.94–2.33 on the Richardson ladder" actually comes
+from: a different rung.** That triple is at `K0c_RESULTS.md:338-344` under the
+heading *"The K0b mesh-sensitivity pair"* — a 32/64/128 ladder on the **K0b
+capability rung**, at Pr = 0.706814 with different schemes. **K0b's own record
+disclaims the reference**, at line 335:
+
+> *"K0b's Pr = 0.706814 and its `limitedLinear`/`linearUpwind` schemes are kept
+> deliberately, so **the de Vahl Davis values do not apply to these cases and are not
+> used**: K0b is a capability rung graded against no published datum."*
+
+The quoted range is not even that table's range — its six orders are **1.94, 1.75,
+2.12, 2.98, 2.33, 1.84**, spanning **1.75 to 2.98**.
+
+**So a different rung's grid ladder, one whose own record says the reference does not
+apply to it, was attributed to K0c's gate. That is the single error that would have
+carried K0c to HOLDS,** and it is exactly the failure the chief's instruction to
+spot-check load-bearing rows exists to catch. **G is empty. K0c is GATE REACHED on
+this alone**, before Ruling 4 is even reached.
+
+**Two false friends that would trip any future sweep**, recorded so nobody re-finds
+them: the `"Richardson_note"` key in all eleven `K0c_runs/audit/*.json` files is about
+the **Richardson NUMBER** Ri = Gr/Re², not Richardson extrapolation; and the gate-row
+field `fine_value_3pt_estimator` is a **three-point wall-gradient stencil**, not a
+three-mesh ladder.
+
+**Everything else about K0c holds up, and the record is good.** Pre-registration
+frozen at **`7c606b74`, 2026-08-17 15:43:21 UTC**, message *"filed from literature
+**before any mesh burns**"*; earliest run artifact **16:04:01 UTC** — the run
+postdates the freeze by **19 minutes**. Reference values and bands are **parsed out of
+the frozen spec at run time** rather than copied into the comparator, which exits 2
+and grades nothing if the spec will not parse. The **0-of-20 denominator is confirmed
+from `gate_k0c.json` directly**: 20 `gate_rows`, all `passed: true`; 4
+`reported_never_graded`, all `energy_balance`; largest deviation
+**1.1388340512100987 %** on `Nu_min` at Ra 1e6 against a 3 % band.
+
+**One rule-2 defect, reported rather than waved through.** Rule 2 fixes the grading
+path at the pre-registration commit. `analyse_k0c.py` was **first committed at
+`32d4ae0d`, 17:03:13 UTC — after every solve finished.** The substantive exposure is
+small, because the comparator holds no private copy of any reference or band. But the
+claim must be stated as *"the specification was frozen before compute; the comparator
+was not"*, and not as a clean rule-2 freeze.
+
+**And a caution about the K0c comparator that generalises.** Its second dated
+correction records that `analyse_k0c.py:122` resolved its spec by a fixed relative
+path, the 2026-08-18 reorg moved the file, and **the K0c comparator was unrunnable at
+HEAD and nothing noticed — because a comparator that is never invoked reports
+nothing.** The repair swept 428 scripts and all 13 analysers and reported the zero as
+a measurement. That is the right handling, and the failure mode is worth carrying
+lab-wide.
+
+**On K0c's P column, for completeness:** the family's disclosure verifies exactly —
+`K0c_RESULTS.md:47-51` records tier **SECONDARY**, de Vahl Davis (1983) paywalled
+(`10.1002/fld.1650030305`, Unpaywall `is_oa: false`) and **not read**, values carried
+from Han & Xie (2019) Table 3. The tier string is reproduced into `gate_k0c.json`'s
+`reference_tier` field so a reader of the JSON cannot lose the caveat — good practice.
+**But P fails here for a reason that does not need Ruling 3 at all:** the record
+itself says *"This rung is a verification result against a numerical benchmark. It is
+not an experimental comparison"*, and the frozen specification **capped the rung at
+TREND ONLY before compute**. Under Ruling 4 a numerical benchmark scores V, not P;
+under rule 2 a cap frozen before the answer cannot be lifted after it.
+
+### 3.5 cfd — 0 HOLDS, and the family's best-shaped row has never been run
+
+Source: `verification/campaign/*.md`. cfd wrote no `MATRIX_CONTRIBUTION.md`; these
+rows were built by this team from the campaign records. Selected rows; the family is
+larger and several entries are families rather than rows.
+
+| id | claim | V | G | P | tier |
+| --- | --- | --- | --- | --- | --- |
+| **flat-plate-tmr** | TMR 2D ZPG flat plate, SST, five rungs 816 → 208,896 cells: **Cd p 1.6344 / GCI 0.1482 %**, **Cf p 1.5281 / GCI 0.1880 %**, both CONVERGING, band earned | NO — reference is CFL3D/FUN3D, code-to-code | **YES** — CONVERGING at Fs = 1.25, order quoted; **order still rising**, not asymptotic | NO — code-to-code, **and no pre-registration on disk** | **GATE REACHED — missing V and P** |
+| **DMR** | double Mach reflection, prereg `74797a57` frozen **before any mesh existed**: incident-shock kinematics vs exact theory **PASS** both rungs (0.15 %, 0.17 %); structure detector **FAIL as registered, left standing** | **YES** — exact theory | NO — two rungs | NO | **GATE REACHED — missing G and P.** The best-disciplined row in the family |
+| **F3** | wedge / cone / diamond, `rhoCentralFoam`: surface pressure **0.01–0.07 %** of exact oblique-shock theory, cone 0.19–0.29 %, wave drag 0.18–0.55 % | **YES** — oblique-shock, Taylor–Maccoll, shock-expansion | NO — three levels exist, no order, no GCI | NO | **GATE REACHED — missing G and P**; a conversion prereg is frozen, so the re-gated row is **PENDING** |
+| **F4** | 2D cylinder M 6–8: standoff vs **Billig (1967) correlation** +0.70…+2.33 %; Cp RMS vs modified Newtonian 3.87–3.91 % | **YES** — a correlation scores V | NO | NO | **GATE REACHED — missing G and P** |
+| **DPW8_V2** | Joukowski airfoil vs analytic inviscid: L1 −8.262e-08 ± 1.029e-06, L3 −2.039e-06 ± 7.162e-07, both PASS | **YES** — analytic | NO | NO | **GATE REACHED — missing G and P**; L4 **PENDING** |
+| **W1** | bump on **NASA's own grids**, prereg `3e252b5c` before any solve: the pressure order returns where the blockMesh family had none | NO | **CONTESTED** — all three quantities CONVERGING by state (p 4.037 / 3.200 / 1.246) but the campaign's **own certifier records `conclusive: no`**, failing `order_window` and `extrapolation_sanity` | NO | **GATE REACHED — missing V and P**, with G disclosed as contested |
+| **F11** | lid-driven cavity Re 100 / 1000 vs Ghia, Ghia & Shin (1982) | NO | NO — two resolutions, not three | NO — public but numerical, no prereg | **GATE REACHED — missing V and G** |
+| **F7a** | Martin & Moyce (1952) dam break, spec frozen at **zero compute**: pinning the measurement definition **refutes** the ambiguity hypothesis; every reading lands **+7.8 % to +11.9 %**, all FAIL a 5 % band | NO | NO | **YES — experiment, public primary, spec frozen on disk** | **NOT HELD** — and one of the lab's most defensible rows |
+| **F8** | UAE Phase VI vs Hand et al. (2001), NREL experiment | NO | NO | experimental and public; **no frozen prereg** | **NOT HELD**. Vocabulary flag: *"NO VERDICT"* and *"NO MILESTONE"* are outside rule 1 |
+| **F12** | RAE 2822 / AGARD AR-138 Case 9, prereg written 2026-07-30 **before any solver**, admission gates A/B plus Gates 1–3, overall PASS rule frozen | — | — | **YES in principle** | **NEVER RUN** — *"F12 remains PENDING"*. **The family's best-shaped unfired row** |
+| 4G, B52_RUNG6, D5_rsm, F2, F5b, F5c, GEN_ALT, MESH_AUDIT, W2_sparta, W3 | diagnoses, replicates, scored predictions, instrument audits | mixed | none | none | **SURVEYED** (10 rows) |
+
+**Two caveats the flat-plate row must carry and the charter does not.** From the
+ladder's own proposal record: **(1)** the grids are *"this module's blockMesh at
+matching cell counts, **NOT NASA's point files**"* — W1 is the case that ran NASA's
+grids. **(2) The same ladder at the default iteration cap is a DIVERGENCE**: at the
+module's 15,000-iteration cap this rung read Cd 1.05 % high and still falling, and
+the same certifier reads **p = −0.745 with growing increments**. **36,000 iterations
+were needed.** Measured spend **483.6 core-min against a 327 estimate (1.48×)**, of
+which **202.7 went on a stage the module then refused.** Any row claiming this ladder
+must claim the iteration count with it.
+
+**Two filing defects found and referred, not scored:** `FPE_DIAG` **could not be
+located** under that id — no campaign record exists, and this team will not guess at
+a row; and `F4_SIGFPE_STEP01_RESULTS.md` **contains a "CERTONOMOUS MORNING REPORT"
+dated 2026-08-24, not an F4 SIGFPE result** — filename and content do not match.
+Both are cfd's, and the second is a docket item independent of this matrix.
+
+**Vocabulary drift found in cfd records, referred to cfd:** `GEN_ALT` grades
+*"GENERATOR-OWNED"*; `W1_hump` grades *"OUTCOME ONE"* / *"outcome two"* / *"outcome
+N"*; `F8` grades *"NO VERDICT"* / *"NO MILESTONE"*. These are pre-registered branch
+labels, which is legitimate design — but they are **not rule 1 verdict words**, and
+they are the same defect shape the thermal family catalogued in its own §7. A sweep
+for the lab's verdicts does not see them.
+
+### 3.6 ansys-verification — the lab's cleanest G, audited row by row
+
+**VMFL005's `PASS` is SOUND.** This team audited it as a gate audit rather than
+reading the claim:
+
+- **Pre-registration frozen 194 seconds before the first solver artifact existed.**
+  Freeze commit `2d54a629`, 18:42:07Z; earliest run artifact 18:45:21.32Z. The
+  prereg blob at that commit is `43aaf6bf…` and **the same file hashed on disk now is
+  `43aaf6bf…`** — byte-identical, never amended. The comparator blob frozen in the
+  prereg's §10 table is `8e7410cc…` and **the file on disk hashes to `8e7410cc…`**:
+  the frozen file **is** the file that ran. Checked by hashing against the committed
+  blob, which is what rule 2 demands, not by reading a claim.
+- **The gate could have failed, and it discriminates.** The 2 % band is in the frozen
+  prereg and hardcoded in the comparator frozen five minutes earlier still. The
+  prereg's own §2 states — **before any number existed** — that Ansys's own CFX value
+  of 10.49 Pa would fail it. Driving values through the frozen gate expression:
+  10.2909853852 → **PASS** (0.4979 %); 10.22 (Fluent's own value) → PASS; **10.49
+  (CFX's own value) → GATE FAIL (2.4414 %)**; 10.45 → GATE FAIL; 5.0, 20.0, 0.0 → GATE
+  FAIL. **A plausible wrong answer — a commercial code's own published number for this
+  exact case — fails.** The band is 4.0× the measured deviation, so it is not tight;
+  it was argued from the manual's own 3 % goal, not chosen to clear the answer.
+- **The instrument is demonstrably capable of not-PASS**: the same family's VMFL001
+  returned **`NOT A RESULT`** on real data — the comparator refused (exit 2) on a
+  v2606 filename mismatch and L3 missed the registered 1e-6 residual clause.
+- **The planted-zero control fired on the real file** — planted 1.234 Pa, read back
+  1.234, with a negative arm confirming an unplanted copy shows no change to 1e-15.
+- **The reference traces to the manual on disk**, sha256 `577659469a30…`, line 1208
+  (Fluent, p. 25) and line 1223 (CFX, p. 26). **Transcription trap worth carrying: a
+  literal search for `10.24` in the sidecar returns NOTHING** — the PDF text layer
+  renders it as `10. 24`, with a space inside the number. Any checker matching the
+  reference literally would find zero. The value is unambiguous by the manual's own
+  printed ratios: 10.22/10.24 = 0.998 ✓ and 10.49/10.24 = 1.024 ✓.
+
+| id | V | G | P | tier |
+| --- | --- | --- | --- | --- |
+| **VMFL005** | **NO — and this is a measured negative, not an absence.** The reference **is** an exact solution (Hagen-Poiseuille), and the code is measured **not to converge to it**: the CONVERGING triple extrapolates to **10.29511921 Pa, 0.5383 % from exact — FURTHER than the fine grid's 0.4979 %**. Deviation/GCI = **9.92**, so ~90 % of the residual is not discretisation error. Grid refinement does not close it | **YES — the strongest G in the lab.** 10.23475565622 / 10.27932261636 / 10.2909853852 Pa at 1,000 / 4,000 / 16,000 cells, r = 2.0 exact, **CONVERGING**, **p = 1.9340642**, **GCI_fine = 0.0502 % at Fs = 1.25**, monotone so the GCI is quotable | **NO** — under Ruling 4 the Hagen-Poiseuille comparison is a V comparison, not validation | **GATE REACHED — missing V and P** |
+| **VMFL001-R2** | NO | **YES** — CONVERGING, **p = 2.0102**, GCI_fine 5.633e-04, prereg frozen `4507fc66` 18:05:49Z against a first artifact 18:10:44Z, **295 s later** | NO | **GATE REACHED — missing V and P** |
+| **VMFL001** | NO | NO | NO | **NOT HELD** — `NOT A RESULT`, kept rather than deleted, correctly excluded from the credential count |
+
+**The register is correct and I recomputed it rather than reading it.** At HEAD
+`verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` holds **3 rows, 2 PASS
+of 3 run**, and **every PASS row's cited artifact exists on disk** — verified
+individually, including that **dP = 10.2909853852 Pa reproduces from the raw monitor
+files by subtraction** (`pInletMonitor` last row `1.029098538520e+01`,
+`pOutletMonitor` last row `0.000000000000e+00`). **No non-PASS row is carried as a
+credential, and I found no softening anywhere.** The re-run is a new row citing the
+old one, exactly as `VERIFICATION_CHARTER.md` §6 requires.
+
+**⚠ The register's WORKTREE copy is STALE** — it holds 1 row and reads *"Credential
+count: 0 PASS of 1 run"* where HEAD holds 3 rows and *"2 PASS of 3 run"*. It
+**understates**, so it is not a false credential; but **the file a reader opens is not
+the record**. Same staleness class as `docs/LAB_STATE.md`, `docs/COST_CALIBRATION.md`
+and `docs/NUMERICS_KNOWLEDGE.md`. This is now a **four-file pattern** and is recorded
+in §6.
+
+**The ansys team reached the same tier independently** (`docs/ansys_verification/COVERAGE_ROWS.md`,
+N-AV7: *"A team scoring the V column from GCI alone would score VMFL005 HOLDS and be
+wrong"*). This team checked that reasoning rather than relaying it, and it holds.
+**That is a family grading itself down on its own evidence, unprompted, and it is the
+behaviour the audit exists to produce.**
+
+### 3.7 The census so far
+
+| tier | dafoam | closure | heat-transfer | cfd | ansys | **total** |
+| --- | --- | --- | --- | --- | --- | --- |
+| **HOLDS** | 0 | 0 | 0 | 0 | 0 | **0** |
+| **GATE REACHED** | 0 | 0 | 6 | 7 | 2 | **15** |
+| **SURVEYED** | 49 | 4 | 13 | 10 | 0 | **76** |
+| **NOT HELD** | 0 | 2 | 11–12 | 2 | 1 | **16–17** |
+| **NEVER RUN** | 9 | 0 | 6 | 1 | 0 | **16** |
+
+**Read as a claim, not as an authority.** dafoam's row is its corrected 58-row census
+re-tiered wholesale (24 claimed-HOLDS → SURVEYED, plus its own SURVEYED and GATE
+REACHED rows, which hold no green column either); cfd's rows are selected, not
+exhaustive, and several are families rather than rows. **Re-derive before quoting.**
+
+---
 ---
 
-## 4. The two standing facts, under test
+## 4. The two standing facts — BOTH RESOLVED
 
-`docs/inventory/2026-08-24/LAB_INVENTORY.md` §7 asserts two structural facts about
-the lab. The chief asked that they be **tested by this matrix rather than assumed**.
-Both are under audit; neither is confirmed or refuted in this draft.
+`docs/inventory/2026-08-24/LAB_INVENTORY.md` §7 asserts two structural facts. The
+chief asked that they be **tested rather than assumed**. Both now have answers, and
+**one of them is false**.
 
-1. **"No converging Roache triple exists outside the thermal family."**
-   **PARTIALLY CONFIRMED, 2026-08-25 — and confirmed harder than the fact claims.**
-   Across dafoam (58 rows) and closure (6 rows) there is not merely no *converging*
-   triple: **there is no triple at all, no GCI ever computed, and no observed order
-   ever reported.** The tokens `GCI` and `Roache` appear in **zero** files under
-   `cases/dafoam/`, `docs/dafoam/` and `cases/RANS_LES_closure_models/`. See §3.1.
-   **Still under test for cfd**, which is where the fact is most likely to break —
-   and the lead below is exactly where it would break.
-   A lead that may refute it: `VERIFICATION_CHARTER.md` §3.4 calls the
-   **2D flat plate** "the lab's best verification result" and states it is the first
-   family the Eca-Hoekstra certifier declares **conclusive**, on the finest triple,
-   on both functionals — Cd at observed order **1.634**, reportable band
-   **4.244e-6** (**0.148 %** of the value). The flat plate is not thermal. The
-   open question is whether an **Eca-Hoekstra certifier verdict is the same
-   instrument as a Roache triple with a GCI at Fs = 1.25**; they are not obviously
-   the same, and the answer decides the fact.
-   The same section records a second thing that bears on the G column: the flat
-   plate's **band is earned and quotable while its observed order is still
-   rising** (Cd 1.0833 → 1.2587 → 1.6344; Cf 1.0315 → 1.1110 → 1.5281), so the
-   ladder is **not demonstrated asymptotic**. Whether an unsettled order still
-   scores G is a ruling this file must make explicitly rather than by default.
+### Fact 1 — *"Not one aerodynamic case, 2D or 3D, carries a CONVERGING Roache triple."* — **FALSE**
 
-2. **"No 3D PASS against experiment with a pre-registration on disk exists at all."**
-   Under test.
+Refuted on four independent counts, each re-derived by running the lab's own
+canonical instrument `scripts/roache_triple.py` (Fs = 1.25, `STAGNANT_FLOOR` 0.5) on
+values already on disk:
 
-If the matrix confirms either, that is a finding, not an embarrassment — it is the
-kind of structural fact a lab can only state once it has counted.
+| ladder | family | result |
+| --- | --- | --- |
+| **TMR 2D flat plate**, five rungs 816 → 208,896 cells | cfd | **six CONVERGING triples.** Finest: **Cd p 1.634406, GCI 0.148208 %**; **Cf p 1.528107, GCI 0.187998 %**. The certifier records `conclusive: true` with `reportable_band_abs` 4.244064059104043e-06 (Cd) and 5.084493331132672e-06 (Cf) |
+| **VMFL005** | ansys | **CONVERGING**, **p 1.9340642**, GCI_fine 5.0211727801e-04, `verdict PASS` |
+| **VMFL001-R2** | ansys | **CONVERGING**, **p 2.0102122635**, GCI_fine 5.6328392451e-04, `verdict PASS` |
+| **W1 bump on NASA's own grids** | cfd | **CONVERGING by state** on all three quantities (p 4.037 / 3.200 / 1.246) — **but the campaign's own certifier records `conclusive: no`**, failing `order_window` on two and `extrapolation_sanity` on the third. Orders of 3.2 and 4.0 on a formally second-order scheme are the lab's own signature for *"the coarsest level is outside the asymptotic range"*. **Both readings reported; this team does not pick** |
+
+**The charter is not quoting a vanished artifact.** `VERIFICATION_CHARTER.md` §3.4's
+flat-plate numbers are all on disk, in `cases/tmr/flatplate_sst.json` under
+`convergence_extended`. The `VERIFY` this team placed on them is **lifted**.
+
+**The honest restatement, offered to the inventory:**
+
+> *"Outside the thermal family, four aerodynamic ladders carry CONVERGING Roache
+> triples — the TMR flat plate (both functionals, conclusive band earned), the W1
+> bump on NASA's grids (converging state, certifier-refused on the order window), and
+> two Ansys VM cases. **What none of them has is a pre-registered gate against
+> experiment.**"*
+
+That preserves the strategic point §7 was reaching for while ceasing to be false —
+and the strategic point survives intact, because the missing column was never G.
+
+**Three false friends cleared**, so nobody re-finds them: `PATH_CONVERGING.gs_id_conv`
+in a dafoam A3 record is a guard-selftest marker *filename*; an agenda proposal uses
+*"the CONVERGING one"* of a **linear-solver** rung; and a closure arm-2 prereg
+**registers a branch** for a non-CONVERGING triple and has not run.
+
+### Fact 2 — *"3D validation against experiment is empty."* — **TRUE, and it is true far more broadly than stated**
+
+No 3D case reached a PASS against an experimental reference with a pre-registration
+on disk. Every candidate and why it fails:
+
+| candidate | why not |
+| --- | --- |
+| **Ahmed body 25°** — 3D, experimental, prereg properly frozen | **No PASS.** Non-monotone ladder; Cd 0.3041 against 0.285, **+6.73 %**. The turn was **withdrawn** |
+| **F8 / UAE Phase VI vs Hand et al. (2001)** | **No PASS** — *"NO VERDICT — and that is the result"*; no frozen prereg |
+| **ONERA M6** | *"documented failure. The ninth act does not certify"* |
+| **W3 cube / W3 wing family** | prereg'd, but arm no gate against experiment |
+| **D5 square duct RSM** | reference is **DNS, not experiment**; *"two of four right"* |
+| **B52 rung 6** | mesh replicates, no external reference |
+| **T10a (thermal, 3D)** | `PASS` ×3, but against **closed-form view factors**, not experiment |
+
+**The stronger fact this matrix actually found.** Under Ruling 4, look at the P column
+across all five families: **the lab has never recorded a PASS against measured
+physical reality under a frozen pre-registration — in any dimension.** Every place
+the lab did compare against an experiment under a frozen spec, the honest answer was
+**no**: F7a's dam break lands +7.8 % to +11.9 % against a 5 % band; the thermal
+turbulent-cavity rows (Ampofo & Karayiannis; Betts & Bokhari) are `GATE FAIL`; the
+Ahmed turn was withdrawn; F8 reached no verdict. **The one favourable experimental
+comparison in the lab — dafoam's G-16 against AGARD AR-138 Case 2308 — has no
+pre-registration**, so its "PASS" was written after the numbers were in hand.
+
+**That is the week's most useful finding, and it is why the matrix was worth
+building.** It is not a criticism of any team. It says the lab has built real
+verification capability — exact solutions, manufactured comparisons, correlations,
+and now four converging grid ladders — and has **not yet closed a single validation
+loop against the world under a frozen gate**. The `HOLDS` tier is empty for a
+specific, nameable, fixable reason.
+
+**⚠ §7's proposed remedy is UNSOUND and should not be acted on as written.** It says
+*"A 3D case with a clean triple and an experimental reference — **the Ansys VM cases
+are exactly this shape**."* They are not, on two counts:
+
+1. **They are not 3D.** VMFL001 is a concentric-cylinder annulus and VMFL005 a pipe.
+2. **Their reference is not experimental and not public.** It is the Ansys VM2026R1
+   manual, which those very records mark **proprietary Ansys documentation**. A
+   proprietary vendor manual is the opposite of a public primary source, and the
+   VMFL005 value is in any case **the Hagen-Poiseuille exact solution** — a `V`
+   reference under Ruling 4, not a `P` one.
+
+**The Ansys cases are the lab's cleanest G. They are not a route to P.**
+
+**The genuine nearest candidate is 2D and already written: F12.** RAE 2822 / AGARD
+AR-138 Case 9 — public, experimental, **pre-registration frozen 2026-07-30 before any
+solver**, admission gates A and B plus Gates 1–3, and an overall PASS rule already
+fixed. It has **never been run**. If the lab wants its first `HOLDS`, F12 is the
+shortest path to it that does not require writing a new pre-registration — and its
+gate could genuinely fail, which is the point.
+
+---
+
+## 5. The Richardson-sign cross-team audit — one instrument, one convention
+
+**18 distinct implementations exist across 22 files. All 18 agree on the observed
+order and on the GCI to the last bit; they split exactly two ways on the extrapolate,
+and the split is the sign.** Fed one shared triple with a known analytic answer
+(`f = 1 + 0.01h²`, r = 2, so p = 2 and the limit is 1.0 exactly), every implementation
+returned **p = 1.9999999999999973** and **GCI = 1.2376237623762418 %**; the
+extrapolate came back **1.0** from thirteen and **1.02** from five. The error is not
+small — **1.02 against a true limit of 1.0 is 2 % of the value and 100 % of the
+correction, which has the wrong sign** — and it is invisible on a printout because
+1.02 sits plausibly between the levels.
+
+**RULING — the lab standardises on `/home/ubuntu/Certonomous/scripts/roache_triple.py`,
+with N-T8's convention verbatim: `f_ext = f_f + (f_f − f_m)/(r^p − 1)`.**
+
+**This supervisor read that instrument's arithmetic personally, as a diff**
+(`SUPERVISION_CHARTER.md` §3 check 1 — it may not be delegated, and a lane's test is
+evidence, not the read). What I verified with my own eyes:
+
+- `richardson = f_fine − e21/den` with `e21 = f_med − f_fine` **is** N-T8's registered
+  form, algebraically identical.
+- The defective form is returned **beside** it as `richardson_parent_convention`,
+  under a name that says it is wrong — so a reader holding a published thermal number
+  can reconcile it without re-deriving the algebra. That matters because the frozen
+  T-family records can never be edited.
+- **Both the equal- and unequal-ratio paths return `EXACT`, `OSCILLATORY`,
+  `DIVERGENT` and `STAGNANT` before any GCI key is created**, so a non-monotone triple
+  physically cannot carry a GCI — and a belt-and-braces assertion re-checks it.
+- A second assertion requires the final verdict to be the band verdict or
+  `NOT A RESULT` — rule 5's one-way door, enforced in code.
+- It **refuses** on `r <= 1.0` rather than degrading (rule 4), and `dim` is required
+  and asserted with no default.
+
+**Its `--selftest` returns 53/53, and it imports both parents and cross-checks against
+them live — so its provenance claim is executable rather than a comment.** Under rule
+6 that is the only kind of citation that cannot rot.
+
+**Adopting one instrument going forward is NOT retiring five, and I have not retired
+anything.** `analyse_t1c.py` and `analyse_t3.py` are byte-frozen with hash identities
+that other code refuses on; editing them would break running checks. The sidecar
+addenda are the right disposition and they stand. **Retiring a standard is reserved to
+Sanaa.**
+
+### 5.1 "Display-only" is correct at every defective site, and FALSE as a lab-wide sentence
+
+heat-transfer's conclusion was re-derived here rather than relayed, and it holds
+**within its scope**: across the whole repository there is **not one comparison
+outside a `--selftest` whose operand is an extrapolate** at a defective site. Every
+defective site writes the extrapolate into a record and nothing reads it back. The
+trace's own two un-adjudicated residues (`f9_criteria.py`, `4G/ladder.py`) were driven
+and **both carry the correct form**. **No verdict moved and none could have.**
+
+**But N-T8's registered sentence — *"No verdict in this lab was ever a function of a
+Richardson value"* — is too broad, and there are two counterexamples:**
+
+1. **`sdk/chief_engineer/uq.py`.** `_asymptotic_guard` tests whether the extrapolate
+   lands inside the fit triple's range ± 0.15; that boolean sets `conclusive`, which
+   is consumed by eight call sites and **selects the band formula itself**. Driven on
+   an engineered triple, the correct form gives `conclusive: False` with a
+   factor-3 fallback band; the defective form gives **`conclusive: True`** with a GCI
+   band. The defective sign makes the extrapolate land **inside the range by
+   construction, always** — so that guard would pass unconditionally and certify
+   exactly the ladders its own docstring exists to reject.
+2. **The ansys coverage tiers.** VMFL005's and VMFL001-R2's V columns are functions of
+   a Richardson value, and **under the defect the two tiers exchange places** —
+   VMFL005 would read V green and VMFL001-R2 V red, the exact inverse of the truth.
+
+**Both surfaces carry the CORRECT form, so nothing actually moved.** But
+*"display-only"* is a property of **where the defective code happens to live**, not a
+property of the defect. **Referred to heat-transfer as a narrowing of N-T8** — that
+fact is theirs, not this team's, and the accurate sentence is *"no verdict that a
+DEFECTIVE implementation feeds is a function of its extrapolate."* Two further facts
+for that amendment: N-T8's header says *"four independent implementations"* while its
+own body lists **five**, and the census confirms five; and its adopted rule binds only
+*"every T-family and F14 comparator"*, so **by its own terms it does not reach**
+`scripts/roache_triple.py`, the ansys graders, `sdk/`, F3, F9 or 4G — several of which
+conform anyway, unasked.
+
+### 5.2 A worse defect found on the way: THREE implementations quote a GCI on a DIVERGENT triple
+
+This was not the question asked, and in this team's judgement it matters more than
+the sign — **a wrong extrapolate is display-only everywhere it currently lives; a
+negative GCI printed beside a `PASS` is a quoted uncertainty on a row rule 5 says is
+`NOT A RESULT`.**
+
+Planted the divergent triple 1.00 / 1.02 / 1.05 (error **growing** under refinement,
+increments same-sign so a sign-only guard misses it) and read back:
+
+| implementation | returns |
+| --- | --- |
+| `verification/runs/F14-cooling-ladder/K0b_D403_rerun/analyse_k0b_mesh.py:318-321` (and its D406 and `mesh_sensitivity` copies) | p = −0.5850, extrapolated 0.96, **GCI_fine_pct = −10.714 %** — a **negative GCI**, `reason = None` |
+| `verification/runs/4G_runs/bump_iteration_matched/ladder.py:63-66` | same |
+| `sdk/workflows/tmr_verification.py:199` | `observed_order` returns **−0.5850** rather than `None`, and the GCI then divides by `2^(−0.585) − 1 < 0` |
+
+All three guard **only** on increment sign change, never on `p <= 0` or
+`p < STAGNANT_FLOOR`. **The K0b instruments are the ones N-T8 holds up as correct** —
+and on the extrapolate sign they **are**. They are not correct on rule 5's class
+taxonomy. `scripts/roache_triple.py` and eleven others refuse a divergent triple
+before any GCI is formed.
+
+**`sdk/workflows/tmr_verification.py` is the flat-plate ladder's own instrument**, so
+this is not hypothetical for the matrix's own strongest G row. **Nothing here says
+any published number rests on a divergent triple — that trace has NOT been run, and
+it should be.** Referred to cfd and heat-transfer as a docket item.
+
+---
+
+## 6. A four-file pattern: the worktree copies of the lab's ledgers are STALE
+
+Measured on four files during this audit, three of them independently:
+
+| file | worktree | HEAD |
+| --- | --- | --- |
+| `docs/LAB_STATE.md` | 870 lines | 1,173 — **303 short** |
+| `docs/COST_CALIBRATION.md` | max **C-43** | max **C-47** — four rows short |
+| `docs/NUMERICS_KNOWLEDGE.md` | **does not contain N-T8** | contains it at line 3849 |
+| `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` | 1 row, *"0 PASS of 1 run"* | 3 rows, *"2 PASS of 3 run"* |
+
+**The consequence is not untidiness.** A lane that opens `NUMERICS_KNOWLEDGE.md` to
+check the Richardson convention **will not find it**. A lane that reads the ansys
+register sees a credential count that is wrong. And a lane that *edits* any of these
+from the worktree **reverts everything a peer landed since the copy went stale** —
+303 lines, in the LAB_STATE case.
+
+**The rule this team now applies and recommends lab-wide: these files are HEAD-only.
+Read them with `git show HEAD:<path>`, and rebuild from HEAD content before writing.**
+Every commit this team made to `docs/LAB_STATE.md` today was built that way, which is
+why they are insertion-only.
 
 ---
 
