@@ -211,3 +211,41 @@ These land in their own commit declaring NO GRADED COMPUTE.
 before this amendment is an exact byte-prefix of the file after it (verified in the committing
 invocation by hashing the first N pre-amendment bytes of the amended file and comparing to the
 recorded pre-amendment sha256), not merely asserted.
+
+---
+
+## Amendment (dated 2026-08-25T17:53:46Z) — LAUNCHER REPAIRED before first compute; NO gate/band/reference/cap/label changed
+
+**This amendment records a LAUNCHER repair only. It alters NO gate, NO tolerance band, NO
+reference value, NO cap VALUE and NO verdict label** — rule 2's four protected items are
+untouched. It is legal because it lands **before first compute**, and the premise is shown,
+not asserted.
+
+**Ruling 1 — the amendment window is open (enumerated, not assumed).** The run root
+`verification/runs/ansys_verification/VMFL010/` was enumerated in full: exactly four files —
+`launch.log`, `LAUNCH_RECORD.txt`, `cap_watchdog.sh`, `SESSION_LEADER.txt` — **zero
+subdirectories, zero mesh output, zero solver logs, no time directory, no graded quantity of
+any kind.** A run directory is none of rule 2's four protected items, and the answer-directed-
+change hazard the before-first-compute clause exists to prevent is ABSENT because no answer
+exists. Re-verified in the committing invocation that no solver/mesh artifact had appeared.
+
+**Ruling 2 — `set -u` removed.** The launcher previously set `set -u`, categorically
+incompatible with OpenFOAM v2606: MEASURED `bash -c 'set -u; . etc/bashrc'` → rc 127,
+"WM_PROJECT_DIR: unbound variable" (bashrc line 184, dereferenced before assignment); the
+identical source without `set -u` → rc 0, simpleFoam on PATH. The launcher aborted before any
+compute — its own `|| ABORT` guards never ran because the shell was already dead. `set -u`
+is removed with the reason named in the header; every explicit `|| { echo ABORT; exit 1; }`
+guard is kept exactly.
+
+**Ruling 3 — cap enforcement added to the executable path (rule 12).** The cap of **38.57
+core-minutes** existed ONLY as prose in section 12; it appeared nowhere in the executable path
+(zero `timeout`, zero accounting). Enforcement is now added, enforcing the **existing** number,
+not changing it: a per-level `timeout` derived by the GENERAL formula
+`timeout_s = remaining_core_min * 60 / RANKS` (RANKS in both formulae so a parallel copy inherits
+a correct cap), plus running core-minute accounting that draws a total budget down across levels
+and REFUSES at zero. `RUN_RC.txt` per level and `COST.txt` at close record the spend.
+
+**The grading path `grade_vmfl010.py` was NOT touched** (disk == HEAD blob, verified). Launcher
+changes do not reopen grading review.
+
+**Lines whose number changed above this section: 0.**

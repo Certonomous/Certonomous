@@ -195,3 +195,47 @@ optional, and a launcher without it is incomplete regardless of how short the fo
 tier-ceiling vocabulary, cost/cap rule, or completion/Roache rule moved; only line 13 was
 extended in place to name the launcher freeze check, and this amendment states the
 requirement in full.
+
+---
+
+## AMENDMENT 3 — 2026-08-25T17:54:12Z — REQUIRED LAUNCHER ARTIFACTS checklist (the template described the DOCUMENT, never the MACHINERY)
+
+Frozen-file amendment appended at the foot, not an edit above. **lines whose number
+changed above this section: 0.**
+
+**Why.** This is the THIRD guard the template's children have lost. First the launch-time
+freeze check (Amendment 2). Now, on the same two template-speed cases (VMFL059, VMFL010),
+BOTH shipped with `set -u` — categorically incompatible with OpenFOAM v2606 (sourcing
+etc/bashrc dereferences `WM_PROJECT_DIR` at bashrc line 184 before assigning it; MEASURED
+rc 127) — so both aborted at launch before any compute; AND both shipped **zero** cap
+enforcement, the caps (15 and 38.57 core-min) living only as prose. **The pattern matters
+more than the instances: this template describes the DOCUMENT and says nothing about the
+EXECUTABLE MACHINERY, so every template case reinvents the launcher and loses guards the
+bespoke cases have.** `bash -n` is syntax-only and blob checks are content-only — **only
+EXECUTION could catch these**, and the smoke tests passed by running the solver in scratch
+with their OWN environment, bypassing the launcher entirely. A comparator selftest proves the
+GRADER (L-316); a scratch smoke proves the CASE; **the launcher is the one artifact nothing
+was testing.**
+
+**The requirement (now binding on every case built from this form).** A case MAY NOT FREEZE
+without a launcher that carries ALL of:
+
+1. **Launch-time freeze verification** of the pre-registration AND the comparator against
+   HEAD (Amendment 2), each gating with `|| { echo ABORT...; exit 1; }`.
+2. **Cap enforcement in the executable path**, per level AND in total, by the GENERAL
+   formula `timeout_s = remaining_core_min * 60 / RANKS` with running core-minute accounting
+   (`core_minutes = wall_s * RANKS / 60`) that draws a total budget down across levels and
+   REFUSES at zero — RANKS in both formulae so a parallel copy inherits a correct cap. A
+   comment is a hope; a correct general formula is a guard.
+3. **No `set -u`, with the reason named** in the launcher header (the v2606 bashrc cycle).
+4. **Planted-zero control** (rule 3).
+5. **Mesh birth certificate** (MESH_STANDARD §6).
+6. **A pre-flight smoke test that EXERCISES THE LAUNCHER ITSELF**, not just the solver in a
+   bypass environment.
+
+Items 1, 4, 5 already sat in the non-droppable list (line 13); items 2, 3, 6 join it. A
+launcher missing any of these is incomplete regardless of how short the form is —
+**short must never mean weaker.**
+
+**What did NOT change.** No gate rule, band rule, reference-KIND → score-column mapping,
+tier-ceiling vocabulary, cost/cap rule, or completion/Roache rule moved.
