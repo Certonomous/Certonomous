@@ -5656,6 +5656,124 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+**Section last written:** 2026-08-25T20:32Z by `ansys-verification-supervisor` personally
+(stamp from `date -u` in the writing invocation; built from the HEAD blob, never the shared
+worktree copy). **Supersedes the 2026-08-25T19:17:04Z stamp below**, which is retained
+unedited.
+
+### 2026-08-25 LATE EVENING — post-fleet-kill restart. Cases run 6 of 83. Two commits, one self-correction.
+
+**COMMITS THIS SESSION**
+| sha | what |
+|---|---|
+| `ea33d847` | REGISTER rows #11 and #12 — arms C and D land as `NOT A RESULT`; Sanaa's lifted cost constraint ruled NOT to resurrect them |
+| `0b39535f` | **CORRECTION of `ea33d847`'s own instrument claim** — `RUN_RC.txt` exists everywhere; the claimed gap is withdrawn |
+
+**REGISTER NOW 12 ROWS, 3 PASS.** Rows #11/#12 add no credentials — only the denominator moved.
+
+**VERDICTS LANDED**
+- **VMFL003_M2 arm C (`RNGkEpsilon`) — `NOT A RESULT`**, ladder incomplete. `D_500x3` stopped
+  at `Time = 4085` of `endTime 18000` (**22.7 %**). **39.93 of 40 core-min (99.8 %)**,
+  **$0.034140 derived**. No lab value: the arm never reached `endTime`, so no Δp was graded
+  and no gate was ever evaluated.
+- **VMFL003_M2 arm D (`kOmegaSST`) — `NOT A RESULT`**, ladder incomplete. `L3_1000x5` stopped
+  at `Time = 5949` of `endTime 22000` (**27.0 %**), `ExecutionTime 1662.74 s` against wrapper
+  `timeout 1663`. **39.99 of 40 core-min (100.0 %)**, **$0.034192 derived**.
+- Both were **budget stops, not crashes**. **Contention is FALSIFIED, not assumed away:**
+  `ExecutionTime` tracks `ClockTime` to within **0.3 %** across the rung.
+
+**A RULING SANAA'S NEW DIRECTIVE MAKES NECESSARY — AND IT GOES AGAINST THE EASY READING.**
+Her lifting of cost constraints (*"no team stops anything in the name of saving compute"*) is
+**exactly the ground arms C and D died on**. It is tempting to extend their caps and let them
+finish. **REFUSED.** CLAUDE.md rule 2: after first compute, gates are closed and addenda
+**cannot alter a gate, threshold, cap or label** — and a cap is named in that list. **A
+directive that removes a constraint is not retroactive permission to unfreeze what that
+constraint already decided**, least of all in the direction that rescues two dead arms. The
+lawful route is a NEW prereg with a NEW case id and its own frozen cap, citing rows #11/#12 —
+the route `VMFL001-R2` and `VMFL045-R2` already took. **And it should register the LINEAR
+SOLVER / PRECONDITIONER as the variable, not merely a bigger budget:** arm C ran **4.23×**
+baseline on the shared `L2` mesh; arm D was **1.06×** at `L2` yet **7× over its own mesh
+scaling** at `L3`. Buying more core-minutes alone purchases the same bad convergence for
+longer. This is what Sanaa's *"try different pre conditioners"* anticipated.
+
+**MY OWN BIG CLAIM, CHECKED LATE AND FOUND FALSE — RECORDED, NOT QUIETLY FIXED.**
+I reported, and **committed into the register**, that no `RC.txt`/`record.json` exists under
+`VMFL003_M2` and that rule 4's `rc = 0` conjunct was therefore **unevaluable from disk** for
+the whole rung. **FALSE.** The file is **`RUN_RC.txt`**, present at every level of every arm.
+I searched the wrong filename and reported the absence as a finding — **L-312 on my own hand.**
+**The register already held its own refutation**: row #10 cites *"`RUN_RC.txt` rc=0 each"* two
+rows above my claim. Measured contents **invert** the finding: `rc=0` at every completing
+level, **`rc=124` at exactly the two that stopped and nowhere else** — `timeout`'s exit code,
+the budget-fired signature. **Both verdicts are now confirmable without reading a solver log.**
+The instrument-gap claim is **WITHDRAWN**; the convention was better than I credited, because
+the launcher writes rc on the **aborting** path too. Corrected at `0b39535f`; the batch lane
+was corrected **in flight** before it could create a second rc filename — which would have
+been the real gap, made by my correction rather than by the original.
+
+**INSTRUMENT SWEEP, CLEAN — with its coverage stated.** `scripts/check_grader_self_blindness.py`
+run over **all 21** scripts in this territory: **21/21 PASS**. Coverage caveat carried, not
+buried: **probe B fires on `os.path.join` and is structurally silent on `pathlib` and
+f-strings**, so for `verification/runs/ansys_verification/{append_guards,check_case_map_glance,reaudit_landed_blocks}.py`
+— **f-string-only** — **its silence is the absence of a measurement, not evidence of
+correctness.** 18 comparators are join-bearing and genuinely covered.
+
+**LANES LIVE (cap 4 = 2 opus-class + 2 haiku, Sanaa's disclosed exception)**
+| lane | task | state |
+|---|---|---|
+| `ansys-lane-opus` | BATCH — fire VMFL010/019/050/059, then wave-freeze never-run cases | running; corrected in flight (headroom + `RUN_RC.txt`) |
+| `ansys-lane-opus48` | GPU **offline preparation only** — recipe, script, smoke test, AMI procedure, cost_basis, 10 draft preregs | running; **zero cores, nothing boots** |
+| `ansys-lane-haiku` #1 | blindness sweep + disk census | **COMPLETE** — results above |
+| `ansys-lane-haiku` #2 | 25-min utilisation time series | running |
+
+**UTILISATION — Sanaa's 80–90 % target. THE BOX HAS EMPTIED AND THAT IS THE LIVE DEFECT.**
+20:18Z load **7.05/16 (44 %)**; **20:27Z load 3.33/16 (~21 %)**, 27 GB of 30 available. The
+four dafoam `IPOPT` processes are **gone**; only **three `buoyantBoussinesqSimpleFoam`**
+(heat-transfer, 13 851 s elapsed) remain. **This team's own contribution is still 0 %.**
+**The binding constraint is NOT cores — it is pre-registration drafting throughput.** The four
+ready cases are **3–9 core-min each, serial**: firing all four adds ~4 cores for minutes. Only
+wave-freezing fills a 16-core box, which is why the batch lane's phase 2 matters more than its
+phase 1.
+
+**NEXT ACTIONS, concrete**
+1. Grade the four fired cases the moment they complete; land register + calibration rows.
+2. **Open `VMFL003_M3`** — a NEW frozen prereg registering the linear solver / preconditioner
+   as the variable, citing rows #11/#12. Not a re-run at a bigger cap.
+3. Keep wave-freezing toward ~13 of 16 load; re-read `/proc/loadavg` per wave — heat-transfer
+   and dafoam are entitled to their share and may return.
+4. Land the `CASE_MAP.md` + board amendments correcting the VMFLGPU mischaracterisation.
+
+**ON SANAA'S DESK** — under her 2026-08-25 disposal rule each carries my recommendation and is
+**ADOPTED as `[lab-attributed]` if she does not rule within one day**.
+- **GPU: I AM STILL HOLDING THE BOOT, and the offline phase is now properly resourced.** Her
+  sequence forbids booting while an agent is still working out packages; as of my last check
+  **no GPU solver route was even selected** and **zero sources fetched**. A lane is doing that
+  offline work now at **zero core cost**, exactly as she directed it run in parallel.
+  **Recommendation: instance `3.15.199.152` stays DOWN until the recipe, script, smoke test,
+  AMI procedure and a console-priced `cost_basis` all exist and I have read them.** The lab
+  already carries a **7.88 GPU-h idle-waste row** from booting ahead of readiness. Capacity is
+  **UNKNOWN** and I will not infer it.
+- **Grid standard — her ruling ADOPTED, and it closes an open question.** Three converging
+  levels with observed order and GCI is the gate standard; more levels are research, never
+  owed. **`VMFL045-R2`'s fourth-coarser-level question is CLOSED** — not owed.
+- **`High_order_grid_convergence.pdf` — ALREADY DONE, BY CFD, NOT BY US.** Answered plainly so
+  cfd does not duplicate: **this team has NOT read it and has landed no entries from it, and
+  none are owed.** The cfd supervisor title-page-verified it at `01fcb3d8`: it is **Ekaterinaris
+  2005, *High-order accurate, low numerical diffusion methods for aerodynamics*, Prog. Aero.
+  Sci. 41:192–300** — **not a grid-convergence paper**. Discriminated counts over the full
+  66,033-word sidecar: **Roache 0, GCI 0, Richardson 0** (the 17 naive "Roache" hits are all
+  the substring inside "app-**roache**-s"). **There are no GCI lessons in it to land in any
+  charter, and writing some would have been a fabrication.**
+
+**BLOCKED**
+- **VMFL029 (anisotropic conduction)** — manual Reference field **empty**, conductivity tensor
+  absent from the sidecar, target is a **plotted profile**. Deciding question: axis-aligned
+  (cheap, native `laplacianFoam`) or rotated (no native solver here → defer, do not fake).
+- **VMFL046** — reference analytic (White 1994) but printed **only as a plotted profile**;
+  needs digitisation or reformulation onto a discrete probe before it can carry a gate.
+
+---
+
+
 **Section last written:** 2026-08-25T19:17:04Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob, never the shared
 worktree copy). **Supersedes the 2026-08-25T03:40:29Z stamp below**, which stood through the
