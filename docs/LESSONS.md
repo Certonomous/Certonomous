@@ -12022,3 +12022,73 @@ deletion is a loss until it is explained.
 raise no error and read as if they worked.** That is the class this lab keeps paying for,
 and the only defences that work on it are a **second method** and an **explicit
 accounting**, never a more careful reading of the first.
+
+## L-312 — A grep over a document is not an ENUMERATION instrument unless it carries a discriminator: 105 "cases" in a 95-case manual, and ten missing cases that never existed
+
+**2026-08-25, ansys-verification.** A lane enumerated the Ansys Fluid Dynamics
+Verification Manual by grepping its sidecar for
+`VMFL(GPU)?[0-9]+[A-Z]?|VMFRT[0-9]+`, counting unique matches, and reporting the
+result as the manual's case count. It returned **105** and the lane concluded the
+lab's case map was **missing 10 cases**. **The manual holds 95. Nothing was missing,
+and the ten did not exist.**
+
+**What the extra strings actually were: CFX and Fluent INPUT FILENAMES that embed their
+parent case's id.** `VMFL002B_VV002CFX.def` is the CFX input file *for* VMFL002;
+`VMFL010B_plarb.def` is VMFL010's; `VMFL040A_diffuser-sep.cas` is VMFL040's. Each sits
+in the manual's own *Input File* line. The regex matched the case-id-shaped **prefix of
+a filename** and the counter had no way to tell that from a case.
+
+**The count was wrong TWICE, and the second error is the instructive one.** The audit
+reported **105** distinct identifiers where the sidecar holds **106** — so its list of
+ten **also missed `VMFL010B`**, an eleventh string of exactly the same kind. **The two
+errors cancelled into a plausible-looking arithmetic**: 105 − 95 = 10, and ten strings
+were duly listed as missing cases. **A wrong total that reconciles against a wrong list
+is far more convincing than either error alone**, and neither would have survived being
+checked against the other.
+
+**THE DISCRIMINATOR, AND IT IS THE WHOLE LESSON: RECURRENCE.** A real case id appears
+many times — table of contents, coverage matrix, section heading, running page header,
+page-index line. **An input filename appears exactly once**, in its own *Input File*
+line. Measured over the sidecar:
+
+| population | count | occurrences per identifier |
+|---|---|---|
+| **real case ids** | **95** (78 `VMFL` + 10 `VMFLGPU` + 7 `VMFRT`) | **4 – 10** — 17 ids × 4, 46 × 5, 13 × 6, 13 × 7, 2 × 8, 3 × 9, 1 × 10 |
+| **input filenames** | **11** | **exactly 1**, every one |
+
+**No identifier anywhere occurs 2 or 3 times. The gap is EMPTY**, so any threshold in
+`≥ 2 … ≥ 4` returns exactly 95, split 78/10/7. **The split is a property of the
+document, not a cutoff someone chose** — which is what makes it a discriminator rather
+than a tuned parameter. *(A range of 5–7 was believed when this was first written; the
+measured range is 4–10. The measured figure is the one recorded, and the belief is noted
+so nobody re-derives the old number from memory.)*
+
+**THE TRAP THAT MAKES THIS RECUR — a word-boundary anchor deletes the evidence.** In
+`VMFL002B_VV002CFX.def` the underscore is a **word character**, so
+`\bVMFL[0-9]{3}[A-Z]?\b` **does not match `VMFL002B` at all**. The first attempt to
+verify this very lesson used that anchor and returned **95 distinct tokens with ZERO
+single-occurrence strings** — which reads as clean confirmation that no filenames exist
+and is a pure artefact of the anchor. **The instrument that was supposed to expose the
+bug reproduced it in the opposite direction.** Both counts were re-run without the
+boundary anchor before anything was recorded.
+
+**THE RULE.** *Counting unique regex matches is not enumeration.* Before a grep count
+becomes a claim about how many things exist, it must carry a **discriminator that
+separates the population you want from every other string of the same shape**, and the
+discriminator must be **measured on the document**, not assumed. Recurrence, position,
+enclosing context and cross-reference all work; **shape alone never does**, because
+identifiers are deliberately embedded in the names of things that are about them.
+
+**Same family as `L-308`** — a phrase-level grep over hard-wrapped Markdown has an
+unmeasured false-negative rate. **L-308 is the CONTENT form of the error; this is the
+ENUMERATION form.** Both are a grep answering a question it was never able to answer,
+returning a number, and the number being believed because a command ran. Both belong to
+the class `L-311` names: **failures that raise no error and read as if they worked.**
+
+**What it would have cost.** The inflated 105 was on its way into the denominator of a
+campaign fraction Sanaa had directly asked for. **It was caught by the supervisor before
+it reached her**, and corrected append-only at the foot of `docs/ansys_verification/CASE_MAP_AUDIT.md`.
+Had it landed, every coverage statement this team made would have been wrong by more
+than 10 %, and a lane would have been sent hunting for ten manual pages that do not
+exist. **The campaign fraction is 3 of 73 in-scope cases** — a denominator that only
+means anything if the enumeration behind it is real.
