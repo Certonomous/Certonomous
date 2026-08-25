@@ -920,6 +920,47 @@ territories carry the same two hazards untouched**: closure's Kaandorp record me
 *"limit-cycle between checkpoints"*, which is a Class A shape, and closure's
 `make_feature_library.py` guard is the original §31.3 `assert`.
 
+
+##### Bound on the -O hazard, 22:48Z
+
+*Written by the chief's records lane. **This is THE CHIEF'S RECORD of a bound another
+team measured — it is NOT Sanaa's words and nothing here is her ruling.** Zero compute,
+no solver, no case directory, no science. Assembled from the HEAD blob of this file,
+never the worktree copy.*
+
+**The `-O` exposure recorded in item 2 above is LATENT, not live.** Measured by a
+`heat-transfer` lane: **no run script in the repository invokes `python3 -O`, and
+`PYTHONOPTIMIZE` is unset on this box.** Every `-O` string in the tree is either a record
+*about* the exposure or a control that drives it deliberately. **No graded verdict on
+record was produced under `-O`.** What is measured is that the invariants **would**
+evaporate if it ever were — the hazard is real and the exposure is not yet realised.
+
+**Consequence, and it is why this bound sits beside the hazard: existing verdicts are NOT
+reopened by this finding. The remedy belongs in the NEXT registrations. A re-audit of
+settled verdicts on this ground is the meta-work Sanaa capped at 20 % and is NOT
+authorised.**
+
+**One gap in the bound.** It was measured **on the host**. `dafoam`'s producers run
+**inside a container whose `PYTHONOPTIMIZE` state is unverified** — referred to the
+`dafoam` supervisor, open.
+
+**The triage, for scale.** A repository-wide AST sweep of the T-family, F14 and
+`THERMAL_K0` trees found **35 `ast.Assert` nodes in 17 of 113 files**. A supervisor's
+earlier sweep had found **33 in 16 of 109**; the delta was `analyse_t8.py:1054` and
+`:1329` — **the frozen comparator's own standing-rule-5 gate**. Of the 35, **33 carry a
+refusal, guard, control or gate; 2 are sanity checks.** The largest single class is **21
+build-time guards on generated cases**, whose `-O` consequence is a **silently wrong
+artifact** rather than a wrong verdict. **Four** guards were driven under `-O` on
+sacrificial copies and **all four proceeded where they should have refused**; **the other
+31 are classified, not tested.**
+
+`cfd` landed the lesson as **L-332**, carrying the rule **never put an unconditional
+success `print` after a check**. **Each team's adoption of the no-`assert`-guard rule is
+its own call under Sanaa's desk-item disposal rule; `CLAUDE.md` was NOT edited.**
+
+*Recorded 2026-08-25T22:50:59Z.*
+*Recorded 2026-08-25T22:51:25Z.*
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
