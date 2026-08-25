@@ -1,0 +1,20 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      alphat;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -1 0 0 0 0];
+internalField   uniform 1.7e-03;
+boundaryField
+{
+    inlet        { type calculated; value $internalField; }
+    outlet       { type zeroGradient; }
+    upperWall    { type fixedValue; value uniform 1e-14; }
+    lowerWall    { type fixedValue; value uniform 1e-14; }
+    frontAndBack { type symmetry; }
+}

@@ -1,0 +1,32 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// D12 PROBE REDUCTION, registered: the upstream Cylinder tutorial runs endTime 3.0
+// (300 steps).  A reachability probe does not need a developed limit cycle, so this
+// probe runs 5 steps.  The checkpoint envelope measured here is therefore a
+// PER-STEP ANCHOR at 5 steps, never a bound for a 300-step window.
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         0.05;
+deltaT          1e-2;
+writeControl    timeStep;
+writeInterval   1;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  16;
+writeCompression on;
+timeFormat      general;
+timePrecision   8;
+runTimeModifiable true;
+
+DebugSwitches
+{
+    SolverPerformance 0;
+}
+// ************************************************************************* //

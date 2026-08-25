@@ -1,0 +1,22 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      MRFProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// DAFoam 5.0.0 MRFZoneDF reads a SCALAR key `omega` (rad/s), NOT `rpm`
+// (src/adjoint/DAMisc/MRFDF/MRFZoneDF.C:217, lookupOrDefault<scalar>("omega", 0.0)).
+// OMEGA_PLACEHOLDER is substituted by d11_stage_and_run.sh -- this is THE PLANT.
+MRF1
+{
+    cellZone            rotor;
+    active              yes;
+    nonRotatingPatches  ();
+    origin              (0.10 0.01 0.001);
+    axis                (0 0 1);
+    omega               OMEGA_PLACEHOLDER;
+}
+// ************************************************************************* //
