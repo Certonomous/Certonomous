@@ -1931,111 +1931,183 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T00:11:19Z by `ansys-verification-supervisor` personally
-(stamp from `date -u` in the writing invocation; staged via `scripts/lab_state_section.py`
-+ `hash-object -w` + `update-index --cacheinfo`, never the shared worktree copy).
+**Section last written:** 2026-08-25T01:09:09Z by `ansys-verification-supervisor` personally
+(stamp from `date -u` in the writing invocation; built from the HEAD blob via
+`scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
+shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
 
-**Last commits (this session):** `ea10aa07` COVERAGE_ROWS.md (the team's three rows, a
-FEED to verification, not their file); `c774cecd` CASE_MAP.md GAP-CLOSING PRIORITY table;
-`a89da095` RECORDS_DRAFTS.md. Prior: `c6994175` VMFL005 VERDICT PASS, `90ee8d80` artifacts,
-`2d54a629` prereg frozen.
+**SANAA'S DIRECTIVE OF 2026-08-25, ~01:0xZ, her own session turn, reproduced BYTE-EXACT
+with her typos preserved.** Normalised spelling is the signature of a relayed paraphrase
+rather than a primary source, so it is NOT normalised here and must never be:
 
-**D-6 RULED AND EXECUTED — the chief may stop asking.** Canonical archive home is
-`/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/{FLUENT,CFX,FORTE}_ARCHIVES/`, 123 files
-sha256-verified against `docs/ansys_verification/VM2026R1_SHA256_MANIFEST.txt`. The dead
-partial copy under `docs/papers/verification_validation/` was deleted 2026-08-24T17:39:17Z
-AFTER re-verifying the survivor (manifest 123 OK, exit 0). Commits `e9737c5f` / `17527f40`;
-write-up `docs/ansys_verification/ARCHIVE_HOME_RULING.md`. **CASE_MAP LANDED** (`546a036b`):
-95 cases, 54 2D / 22 axi / 19 3D, 26 analytical / 50 experimental / 19 benchmark, 11 with no
-solver here. Both first-action items are CLOSED.
+> let's re asses, slowly. before i give more detail, the ansys-verification team gets back to work per its instructions and records per its instructios. I want all of the ansys verification cases ran and completed, with the priorirty given to the cases we have never ran before
 
-**Register: 3 rows at HEAD, credential count 2 PASS of 3 run.** #1 VMFL001 run 1
-`NOT A RESULT` (1.9833 core-min, $0.0017 derived, C-37); #2 VMFL001-R2 `PASS` (3.2833
-core-min, $0.002807, C-45); #3 VMFL005 `PASS` (4.0000 core-min, $0.003420, C-47).
+Received via the chief, who stated it is her own session turn and not a relay of a relay.
+**She has said more detail is coming: this is the standing frame, NOT the final scope.**
+The chief's operational reading, labelled by the chief as its own reading and not her words:
+(1) existing instructions and records rules are unchanged; (2) the target is ALL cases, so
+the denominator must be known; (3) never-run cases before ground already held; (4)
+"completed" means CLAUDE.md rule 4's strict completion, not merely "ran".
 
-**THE TEAM'S SHARPEST FINDING, and the one worth carrying lab-wide — `N-AV7`.** Two cases,
-both `PASS`, both `CONVERGING`, both p ~ 2, and Richardson extrapolation behaves in
-**opposite** directions. VMFL001-R2 lands on White's closed form to **3.7 ppm** without
-ever seeing the formula (`N-AV6`). VMFL005 converges cleanly at second order to
-**10.295119 Pa, not to the exact 10.24 Pa** — its deviation from exact is **0.4979 %**
-against **GCI_fine 0.0502 %**, a ratio of **9.92**, and the extrapolate sits **0.5383 %**
-from exact, FURTHER OUT than the finest grid. Roughly 90 % of the residual is not
-discretisation error. **A small GCI is a statement about grid convergence only; it does not
-license the claim that the remaining deviation from a reference is numerical.** Any team
-scoring a V column off a small GCI would have scored VMFL005 HOLDS and been wrong. Verified
-by this supervisor personally from the HEAD blob of `cases/ansys_verification/VMFL005/RESULTS.md`
-§5.2, not relayed.
+**VMFL051 — VERDICT `NOT A RESULT`. The team's first compressible/supersonic case, and it
+RAN TO COMPLETION; it did NOT die with the fleet.** This was the session's first question and
+it is settled with evidence, not inference. Manual pp. 165-166, isentropic Prandtl-Meyer
+expansion over a convex corner, M1 = 2.5, 15 deg turn.
+- **Gate:** manual printed target (Table .51.1) 3.2370, band +/- 0.5000 %. Lab value at the
+  finest level 3.2294355513 -> deviation **-0.233687 %**, INSIDE the band.
+- **Diagnostic, never the gate:** closed-form Prandtl-Meyer 3.2355411372251854 at
+  gamma = 1.3990093734749485, derived from the manual's OWN Cp = 1006.43 and MW = 28.966
+  rather than assumed as 1.4. Deviation **-0.188704 %**, inside its tighter +/- 0.25 % band.
+- **Why it is nevertheless NOT A RESULT — two independent clauses of rule 5, either alone
+  sufficient.** Step 1: L1 AND L2 both fail the frozen plateau clause (peak-to-peak
+  **6.240e-03** and **3.535e-03** against a **1.000e-03** tolerance); only L3 plateaus at
+  8.549e-04. Step 2: the triple is **OSCILLATORY** — coarse 3.2278606097, medium
+  3.2233427020, fine 3.2294355513, d32 = 4.517908e-03, d21 = -6.092849e-03, **R = -1.348600**.
+  No observed order, and **no GCI quoted**, correctly: the three values are not monotone.
+- **All three planted-zero controls FIRED** (dat reader, field reader, reference solve).
+- **Cost: 23.3167 core-min** of a 28 core-min cap (wall 1399 s, 1 rank, serial);
+  **$0.0199 DERIVED**, not measured, at $0.0513/core-h — the box cannot read its billing.
+- **The discipline worked as designed and this is worth saying plainly.** A team scoring this
+  case on its gate deviation alone would have written PASS. The value sits inside BOTH bands
+  and is still NOT A RESULT, because a grid triple that is not monotone is not a measurement
+  of discretisation error. Rule 5 can only turn a PASS INTO NOT A RESULT, never the reverse,
+  and here it did exactly that.
+- **Leading diagnosis, bounded and NOT claimed as established:** the level-to-level
+  differences (4.5e-03, -6.1e-03) are the SAME ORDER as L1's and L2's own residual
+  unsteadiness (6.2e-03, 3.5e-03), so the triple is plausibly measuring transient noise
+  rather than grid error. Remedy is a longer endTime or a per-level plateau precondition
+  before the triple is formed — that is a NEW pre-registration, never an edit to the frozen one.
 
-**Coverage rows fed to verification** (`docs/ansys_verification/COVERAGE_ROWS.md`, `ea10aa07`):
-VMFL001 run 1 **NOT HELD**; **VMFL001-R2 HOLDS** (V exact — White §3-2.3; G CONVERGING
-p = 2.0102, GCI 0.0563 %; P frozen prereg on disk) — a candidate for the lab's first HOLDS
-with a non-empty G column; **VMFL005 GATE REACHED**, not HOLDS, the tier set by this
-supervisor's ruling on the 9.92 ratio. VMFL005's own triple: `CONVERGING`, r = 2.0 exactly,
-p = 1.9340642225610707, GCI_fine 5.021172780104668e-04, planted-zero fired — it earns **G**
-outright; the tier is held down solely by the exact-solution limb, so **no grid spend is
-recommended**. Verification has not yet ingested these rows.
+**The four supervisor checks on VMFL051, all done PERSONALLY, none relayed:**
+- **Check 4, pre-registration committed before compute — PASSES.** Prereg blob
+  `7dad56168d7ad7d599f92e05aa249a3014d0dc63` and comparator blob
+  `acad1aff71da4a960045484f9e6f8470f8beccb7`; worktree bytes identical to HEAD bytes, and
+  both are exactly the hashes the launcher recorded in `.launch.log`. Ordering: prereg frozen
+  `22249c82` at 00:20:33Z, legal before-first-compute Amendment 1 `54d34542` at 00:25:34Z,
+  first mesh written 00:25:59Z. **Zero compute preceded the freeze.**
+- **Check 1, comparator read as code — DONE.** `roache()`, `completion_check()` and `grade()`
+  read personally. The rule-5 ladder is implemented in its stated order and short-circuits
+  before step 3, so only step 3 can emit PASS. `roache()` returns a STATE, not just a number.
+- **Two declared departures from rule 4's literal text, ACCEPTED after personal read.** They
+  are on the face of the FROZEN prereg §8, i.e. declared before the answer was known.
+  D1 (C3): `adjustTimeStep` makes literal `last time == endTime` untestable, replaced by
+  |t_last - endTime| <= maxDeltaT (1e-5 s against 7e-3 s) **AND** the log's own final `Time =`
+  matching the last time directory to 1e-12 relative — a cross-check the literal rule does not
+  have. D2 (C5): `ExecutionTime count == endTime` is a STEADY-ITERATION clause and cannot hold
+  for an adaptive transient; the invariant it protects (log not truncated mid-step) is checked
+  directly as count(ExecutionTime) == count(Time) > 0. C6 age guard is **STRICTER** than the
+  rule — dated from the latest mtime anywhere in `0/`, not just `0/T`. **Tighter or equal
+  throughout, never looser.**
+- **Check 2, crash triage — NOT APPLICABLE, established rather than assumed.** No crash. An
+  INDEPENDENT completion audit (haiku lane, reading the logs, not the launcher's own summary)
+  confirms all three levels: rc=0; one `End` line; last times 0.0070015301 / 0.0069997882 /
+  0.0069999107 against endTime 7e-3, all within maxDeltaT; fields `Ma T U p rho` present;
+  ExecutionTime lines 1693 / 3365 / 6714 matching Time lines; **age guard holds with real
+  margin at every level**; and every level directory was created AFTER the 00:25:34Z prereg
+  amendment. The only log "error" hits are trapFpe initialisation lines.
 
-**IN FLIGHT — VMFL051, the team's first compressible/supersonic case** (manual pp. 165-166),
-chosen to close the lab's biggest declared gap. Isentropic Prandtl-Meyer expansion over a
-convex corner: inlet M = 2.5, 15 deg turn, **exact closed-form target M = 3.2370** (Anderson).
-Picked over the oblique-shock cases deliberately — cfd's F3 suite already covers wedge/cone/
-diamond COMPRESSIONS, and an expansion fan is both the complement and, being smooth and
-shock-free, a case where an observed order means something instead of being smeared to first
-order by shock capturing. Lane is deriving the reference itself to full double precision
-rather than leaning on the manual's four printed decimals, and derives gamma from the manual's
-own Cp and molecular weight. **ZERO COMPUTE until this supervisor verifies the prereg commit**
-(SUPERVISION §3 check 4). Cap 30 core-min. Toolchain present: `rhoCentralFoam`, `sonicFoam`,
-`rhoSimpleFoam`, `rhoPimpleFoam` in v2606. **Manual defect found and to be recorded:** VMFL051's
-"Analysis Assumptions" calls the flow **incompressible** while its own Physics/Models line says
-"Compressible, inviscid" and the case is a M 2.5 -> 3.24 expansion.
+**GENERALISABLE FINDING FOR THE LAB — a cap enforced as a wall-clock `timeout` is NOT a
+core-minute cap.** VMFL051's budget is denominated in core-minutes while its cap was enforced
+by `timeout`. They coincided here ONLY because the run is serial (1 rank). On any PARALLEL
+case they diverge and the timeout must be recomputed as `cap_core_min * 60 / ranks`. Captured
+in `verification/runs/ansys_verification/VMFL051/CONTENTION.txt`; being propagated into the
+VMFL045 launcher. Every team writing a capped parallel run has this trap.
 
-**Next case after VMFL051: VMFL045** (oblique shock over an inclined ramp, p. 153) — accepted
-on the lane's recommendation: closes two declared gaps at once, exact analytical target, same
-solver and class so the tooling transfers, trivial cost. NOT started; VMFL051 clears its freeze
-first.
+**CASE_MAP IS CORRECT AT 95 CASES — a lane's contrary claim of 105 was WRONG and the
+supervisor caught it before it reached Sanaa.** This is check 3 (big-claim verification) doing
+its job on the team's own output, and the denominator of her directive depends on it.
+- **The manual holds exactly 95 verification cases: VMFL001-078 (78), VMFLGPU001-010 (10),
+  VMFRT001-007 (7). No numeric gaps.** `docs/ansys_verification/CASE_MAP.md` enumerates all
+  95 exactly — zero missing, zero extra.
+- A haiku lane greped `VMFL(GPU)?[0-9]+[A-Z]?|VMFRT[0-9]+` over the sidecar, found 105 unique
+  strings and reported 10 "missing cases". **Eleven of those strings are CFX/Fluent input
+  FILENAMES that EMBED their parent case id** — `VMFL002B_VV002CFX.def` is the CFX input file
+  for case VMFL002, sitting in an "Input File" row. The lane's list of 10 was also itself
+  incomplete: it missed VMFL010B.
+- **The cheap discriminator, verified: a real case id recurs 5-7 times** (heading, TOC,
+  results table); **each filename string appears exactly ONCE.** Thresholding at >=3
+  occurrences returns exactly 95, split 78/10/7 — independently reproducing CASE_MAP.
+- **This is the same family as the team's own L-308** (phrase-grep false-UNSOURCED on
+  hard-wrapped Markdown): **a grep over a document is not an enumeration instrument unless it
+  carries a discriminator.** Candidate lesson; the wrong claim is COMMITTED at `eb0feb8b` in
+  `docs/ansys_verification/CASE_MAP_AUDIT.md` and is being corrected by a dated correction
+  appended at the FOOT, never a rewrite.
 
-**TWO RECORD DEFECTS OF THIS TEAM'S OWN, found this session and under repair:**
-1. **`N-AV7` and `N-AV8` are forward-cited from a credentials file and DO NOT EXIST.**
-   `docs/NUMERICS_KNOWLEDGE.md` carries N-AV1..N-AV6 and stops. Both ids are cited in
-   `VMFL005/RESULTS.md` and inside **register row #3**, which is append-only. This is exactly
-   L-292 ("an id in prose before its append is a prediction, not an identifier") committed by
-   this team on a credential row. Repair lane live; landing both plus a new wedge-bias entry.
-2. **Docket-id collision:** register row #3 cites `D510` for VMFL005's open mechanism; `D510`
-   at HEAD is **closure's R3 SpaRTA ratification** (`docs/DOCKET.md:875`). Repair is a fresh id
-   for the question plus a dated correction note at the FOOT of the register striking the wrong
-   citation — the row itself is never edited.
+**PROGRESS AGAINST HER DIRECTIVE, stated as a measurable fraction:** **3 of 95 cases run
+(3.2 %)** — VMFL001, VMFL005, VMFL051 — and **2 PASS credentials** of 4 register rows.
+**92 cases never run.** The real CASE_MAP gap is NOT its enumeration but that it carries **no
+RUN STATUS column**, so "all cases completed" cannot yet be reported as a fraction from the
+document itself. Extraction lane live to add run / never-run / no-lab-solver per case.
 
-**Open mechanism, honestly unresolved:** VMFL005's ~90 % non-discretisation deviation. Leading
-candidate is the planar-wedge area deficit — an OpenFOAM wedge sector is a flat-sided triangle,
-so at 5 deg the modelled area is short by sin(t)/t = 0.9987312439537492, i.e. **0.1268756 %**,
-worth **+0.2542 %** of dP under a fixed-Q R^-4 reading (**51.06 %** of the 0.4979 %) or
-**+0.1270 %** under fixed-V_avg R^-2 (**25.5 %**). A quarter to a half, reported as a quarter to
-a half — **NOT claimed as the resolution.** It is a modelling bias that axial and radial
-refinement cannot remove, because the error lives in the azimuthal direction the wedge holds at
-one cell; every future axisymmetric case here carries it in its error budget.
+**Register: 3 rows at HEAD, row #4 LANDING this session (VERIFY at next read).** #1 VMFL001 run 1 `NOT A RESULT` (1.9833 core-min, $0.0017); #2
+VMFL001-R2 `PASS` (3.2833 core-min, $0.002807, C-45); #3 VMFL005 `PASS` (4.0000 core-min,
+$0.003420, C-47); #4 VMFL051 `NOT A RESULT` (23.3167 core-min, $0.0199 derived) -- this row is being appended now, not yet confirmed at HEAD. Only PASS
+rows are credentials; the two NOT A RESULT rows stay in the register honestly.
 
-**Live jobs:** **no solver compute owned by this team; zero core-minutes spent this session.**
-Lanes: VMFL051 pre-registration (opus, no compute); records repair (opus 4.8).
+**N-AV7 — the team's sharpest standing finding, unchanged and now with a second instance.**
+VMFL005: `CONVERGING`, p ~ 2, and yet its deviation from exact (0.4979 %) is **9.92x** its
+GCI_fine (0.0502 %), with the Richardson extrapolate FURTHER from exact than the finest grid.
+Roughly 90 % of the residual is not discretisation error. **A small GCI is a statement about
+grid convergence ONLY; it does not license the claim that the remaining deviation from a
+reference is numerical.** VMFL051 is the complementary instance: a case where the gate
+deviation is small and the GRID behaviour is what refuses the result.
 
-**Rungs lacking verdicts:** none. Every case run is graded and in the register.
+**Open mechanism, honestly unresolved:** VMFL005's ~90 % non-discretisation deviation.
+Leading candidate is the planar-wedge area deficit — sin(t)/t = 0.9987312439537492 at 5 deg,
+i.e. 0.1268756 %, worth +0.2542 % of dP under fixed-Q R^-4 (51.06 % of the gap) or +0.1270 %
+under fixed-V_avg R^-2 (25.5 %). **A quarter to a half, reported as a quarter to a half, NOT
+claimed as the resolution.** It is azimuthal and no axial or radial refinement removes it.
+**VMFL051 is PLANAR, so this term is exactly zero there** — recorded in its Amendment 1.
 
-**Corrections to this section's previous text:** L-300 and L-301 were carried as "drafted and
-not landed" — **both are at HEAD** and need no re-drafting. A future lane must not be dispatched
-to re-land them.
+**TWO RECORD DEFECTS OF THIS TEAM'S OWN — carried forward, state to be reconfirmed at HEAD:**
+1. `N-AV7` and `N-AV8` are forward-cited from register row #3 and from `VMFL005/RESULTS.md`
+   while `docs/NUMERICS_KNOWLEDGE.md` carries only N-AV1..N-AV6. This is L-292 committed on a
+   credential row. **VERIFY: repair may have landed; the RESULTS lane is checking at HEAD and
+   is under orders to cite no id it has not first confirmed exists.**
+2. **Docket-id collision:** register row #3 cites `D510`, which at HEAD is closure's R3 SpaRTA
+   ratification. Repair is a fresh id plus a dated correction at the FOOT of the register —
+   the append-only row itself is never edited. **VERIFY.**
 
-**On Sanaa's desk (new, via the chief):** the **P-column definition question** — whether a case
-whose ONLY reference is the manual's own printed number can score the P column, given the manual
-is proprietary vendor documentation rather than open literature. VMFL001 and VMFL005 are firm
-(White and Hagen-Poiseuille, public textbook, re-derived independently here), but the distinction
-governs most of the remaining 92 cases and it defines what a credential IS lab-wide, so it is not
-this team's to settle. **SUBMISSIONS PARKED** — nothing from this team's VM2026R1 work is filed,
-sent or registered outside this box, and the manual is proprietary Ansys documentation.
+**Live jobs: no solver compute owned by this team; 23.3167 core-min spent this session, all
+of it VMFL051, all of it already complete.** Lanes: VMFL051 records + register + cost
+calibration (opus 5); VMFL045 pre-registration, ZERO COMPUTE (opus 4.8); run-status
+extraction (haiku).
 
-**For the chief to route, not this team's files to fix:** the shared-ledger truncation has reached
-a credentials file — `ANSYS_VALIDATION_REGISTER.md` worktree **3,305 B vs 13,899 B at HEAD**,
-showing **1 row where HEAD has 3**; `COST_CALIBRATION.md` 143,555 vs 163,546; `LAB_STATE.md`
-109,257 vs 126,208. A lane reading the worktree copy reports this team has run one case, and one
-of mine did exactly that today. Inspected, never reverted (rule 10). The shared index also holds
-staged **deletions** of this team's own `cases/ansys_verification/` files.
+**Next actions, concretely.** (a) Land the VMFL051 records, register row #4 and the
+cost-calibration row. (b) Correct `CASE_MAP_AUDIT.md`'s 105 claim by dated correction at the
+foot. (c) Add the RUN STATUS column to CASE_MAP so her directive is reportable as a fraction.
+(d) **VMFL045** (oblique shock over an inclined ramp, p. 153) pre-registration — never run,
+exact analytical target, reuses the compressible toolchain; ZERO COMPUTE until this supervisor
+verifies the prereg commit. (e) A **VMFL051-R2** pre-registration carrying a longer endTime
+and a per-level plateau precondition. (f) Land the grep-discriminator lesson.
+
+**HARNESS FINDING, small and real: `ansys-lane-haiku` has NO `SendMessage` tool.** Its only
+channel to this supervisor is write-to-disk-and-commit. Both haiku lanes this session were
+given that as a FALLBACK and both needed it. It is now given as the PRIMARY channel in haiku
+briefs. This is an addendum to L-306, whose subject is lane reports reaching the wrong reader.
+
+**On Sanaa's desk (unchanged, via the chief):** (1) the **P-column definition question** —
+whether a case whose ONLY reference is the manual's own printed number can score the P column,
+given the manual is proprietary vendor documentation and not open literature. VMFL001 and
+VMFL005 are firm (White, Hagen-Poiseuille, re-derived here); **VMFL051 is also firm — its
+Prandtl-Meyer reference was derived here from first principles to full double precision and
+matches the manual's four printed decimals rather than depending on them.** The question
+governs most of the remaining 92 cases and defines what a credential IS lab-wide, so it is not
+this team's to settle. (2) The team's own **attribution finding**: all four instances of this
+team's founding quotation trace to one commit, `123a3b92`, and nothing outside the repository,
+and **`teams.yaml` and the generated agent definition state it flatly while the charter
+qualifies it as a chief's relay.** The quote the 4-lane cap rests on is the one this team
+flagged. `harness/` is not this team's to edit and has not been edited by it.
+**SUBMISSIONS PARKED** — nothing from this team's VM2026R1 work is filed, sent, uploaded or
+registered outside this box, and the manual is proprietary Ansys documentation.
+
+**For the chief to route, not this team's files to fix:** the shared-worktree truncation
+persists and has reached a credentials file. `LAB_STATE.md` worktree 269,598 B vs 281,793 B at
+HEAD; `ANSYS_VALIDATION_REGISTER.md` was measured at 3,305 B vs 13,899 B, showing 1 row where
+HEAD has 3. **A lane reading the worktree copy reports this team has run one case, and one of
+mine did exactly that today.** Every lane of this team is now under standing orders to read
+records via `git show HEAD:`. Inspected, never reverted (rule 10). The shared index also holds
+staged DELETIONS of this team's own `cases/ansys_verification/VMFL051/` files — structural
+decay, L-307, untouched.
 
 **Blocked:** none.
