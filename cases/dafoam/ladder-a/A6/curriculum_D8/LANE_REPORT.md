@@ -299,3 +299,127 @@ its twist components — {0.03, 0.1}, {0.03, 0.1}, {0.05, 0.1}, {0.1, 0.2} — p
 frozen for D8 is the arithmetic that produced the published plan, and its negative control refuses a
 gradient too small for the ladder. `d8_grade.py --selftest` reports `SELFTEST PASS` in **both**
 copies — which is precisely why the selftest cannot see the §4 entry-point defect.
+
+---
+
+# UPDATE 2 — 2026-08-25 18:22Z — arm `opt` CLOSED, arm `fd` LAUNCHED
+
+## 10. Arm `opt` completion — every registered clause holds
+
+From `ledger.txt`, the arm's own record:
+
+`ARM=opt TASK=optd8 IMG_ID=sha256:2927768a…f6d35 **rc=0** wall_s=**5251** ranks=1
+**core_min=87.517** inspect(exit,oomkilled)=**[0 false]** cgroup_memory_peak_B=**NOT_MEASURED**
+peak_rss_GiB=**9.97** memavail_pre_kB=26550116 memavail_post_kB=22220384 cap=12g`
+— with `IDWARP_SO_MD5: 85f59e87253e0a71a813f64ca6e4c425`, `transonicPCOption 1;`,
+`primalMinResTolDiff 10000;`, `nProcs : 1` and **`ASSERT_MD5 OK`**.
+
+**Completion, all registered clauses (prereg §7):** `rc = 0` ✔; `D8_OPT_ARM_COMPLETE` present ×1 ✔;
+`ASSERT_MD5 OK` in the ledger ✔; the G8 cold-start guard passed **before** launch ✔. **The arm is
+complete. It is not partially complete and it was not stopped.**
+
+* **G0 identity/activity — `PASS`** on the v1.1 substance: `IDWARP_SO_MD5` matches the registered
+  patch hash; `transonicPCOption 1;` proves the activity; `^nProcs : 1$` ×4; `Global Cells: 41760` ×2
+  in the runtime log and `Mesh region0 size: 41760` ×1 in `base/logMeshGeneration.txt`. **Under the
+  frozen v1.0 text this same arm is VOID** — see §4.
+* **G6 adjoint memory envelope — `PASS`,** with one corroboration missing and named. Peak RSS
+  **9.970 GiB** over **327** samples (`rss_opt.txt`), against a predicted band of 11.0 GiB and a
+  12 GiB cap. `OOMKilled = false` and exit code 0, so the observation is **not right-censored** and
+  the §7.1 censoring rule does not fire. **But `cgroup_memory_peak_B = NOT_MEASURED`** — neither
+  `memory.peak` path the launcher probes was readable — so the kernel's own independent reading of
+  peak memory is **absent**, and G6 rests on the `docker stats` sampler alone. Stated rather than
+  passed over: the sampler is the same instrument for both, and the second, independent channel the
+  launcher was written to provide did not report.
+
+**The endpoint adjoint (9 components, `d8_adj.json` / `ADJ_DERIV` in `opt.log`), CD w.r.t. DV:**
+`twist` = −2.3148087e-03, −1.9664349e-03, −1.7271445e-03, −1.2841462e-03, −8.5846864e-04,
+−5.4199077e-04, −1.9671544e-04; `patchV` = +8.7228404e-04, +1.0564077e-02. No `D8_OF_FALLBACK` — the
+primary `of=` name resolved. The final adjoint converged at **main iteration 510, KSP residual
+1.496666317173e-08**, against the registered ≈517-iteration anchor.
+
+### 10.1 The registered reason for extending the FD ladders did NOT materialise — and that is a point in the item's favour
+
+Prereg §4.1 extended the `twist` ladder to 5e-1 and 1e0 because *"near an optimum the reduced gradient
+shrinks, so a ladder sized for the start design can run out of rungs at the endpoint."* **Measured, it
+grew:**
+
+| component | start-design \|J_adj\| | endpoint \|J_adj\| | ratio |
+|---|---|---|---|
+| `twist` 1 | 1.750730e-03 | 1.966435e-03 | **1.123×** |
+| `twist` 2 | 1.469450e-03 | 1.727145e-03 | **1.175×** |
+| `twist` 4 | 6.277000e-04 | 8.584686e-04 | **1.368×** |
+| `twist` 5 | 3.797300e-04 | 5.419908e-04 | **1.427×** |
+| `twist` 6 (excluded) | 1.361900e-04 | 1.967154e-04 | **1.444×** |
+
+Three majors under a `max_iter 3` cap do not approach an optimum — IPOPT's own dual infeasibility is
+**8.6145e-04**, not small — so the endpoint gradients are **1.12–1.44× larger** than at the start.
+**Consequently no D8-extended rung was used by any `twist` component:** the selected steps are
+s_lo ∈ {0.03, 0.03, 0.03, 0.03, 0.05, 0.1} and s_hi ∈ {0.1, 0.1, 0.1, 0.1, 0.1, 0.2}, all at or below
+0.2 and therefore all inside the `rung_n16_remaining_components` ladder whose top rung is 3e-1. **The
+extension is precautionary and unexercised; it cannot have functioned as a rescue because it was
+never reached.**
+
+## 11. The FD plan — produced mechanically, no human choice
+
+`d8_stepplan.py d8_adj.json fdplan.json`, selftest passing in the same invocation:
+
+| DV, idx | J_adj (endpoint) | s_lo | C(s_lo) | s_hi | C(s_hi) | status |
+|---|---|---|---|---|---|---|
+| `twist` 0 | −2.314809e-03 | 0.03 | 12.73 | 0.1 | 42.43 | PLANNED |
+| `twist` 1 | −1.966435e-03 | 0.03 | 10.81 | 0.1 | 36.05 | PLANNED |
+| `twist` 2 | −1.727145e-03 | 0.03 | 9.50 | 0.1 | 31.66 | PLANNED |
+| `twist` 3 | −1.284146e-03 | 0.03 | 7.06 | 0.1 | 23.54 | PLANNED |
+| `twist` 4 | −8.584686e-04 | 0.05 | 7.87 | 0.1 | 15.74 | PLANNED |
+| `twist` 5 | −5.419908e-04 | 0.1 | 9.94 | 0.2 | 19.87 | PLANNED |
+| `patchV` 0 | +8.722840e-04 | 0.1 | 15.99 | 0.3 | 47.97 | PLANNED |
+| `patchV` 1 | +1.056408e-02 | 0.01 | 19.37 | 0.03 | 58.10 | PLANNED |
+
+`PLANNED_COMPONENTS 8 of 8 gradeable`; `EXCLUDED_BY_NAME_IN_ADVANCE [('twist', 6)]`;
+`PLAN_ENTRIES 16  PERTURBED_PRIMALS 32`. **These clearances are computed on the adjoint proxy; G7 is
+graded on the measured |J_fd| and is not decided here.**
+
+## 12. Arm `fd` launched — and the timeout disclosure
+
+`./d8_run_arm.sh fd fdsub8 4500`, container `d8_fd_20260825T182022Z_2376204`,
+`D8_MEMAVAIL_PRE_KB=22681500` (21.6 GiB, floor 12 GiB), `G8 OK (fd)`.
+
+**Disclosed, because it is a departure from a number in the frozen file.** Prereg §8 gives arm `fd`
+**both** a `timeout 7200 s` backstop **and** a registered ceiling of **75.0 core-min**. At 1 rank those
+disagree: 7200 s is 120 core-min, **45 core-min above the arm's own registered cap**. Running to the
+backstop would let the arm outlive its budget, and CLAUDE.md rule 12 is explicit that **an overrun
+stops the run**. I therefore set the container timeout to **4500 s = exactly the registered 75.0
+core-min**, making the frozen budget stop mechanical instead of dependent on a lane staying alive to
+enforce it. **This cannot make any gate easier to pass**: a shorter arm can only produce a *shorter*
+FD table, which `gate_fd` refuses on a component count ≠ 8. No gate, threshold, band or label is
+touched. The frozen §8 backstop is not otherwise used.
+
+## 13. Two measurements taken while the FD arm ran
+
+**η is independently corroborated, and the G3 caveat sharpens.** CD has now been evaluated **three
+times at the identical endpoint design**, twice in the `opt` container and once in a fresh `fd`
+container: `D8_FINAL_CD 0.03866430994135252`, `D8_ADJPOINT_CD 0.03865796797318573`,
+`FD_BASELINE_CD 0.03865353428107418`. The spread is **1.0776e-05 = 0.988 η** — the registered noise
+floor `1.0910e-05` reproduced to a ratio of **0.988** across a container boundary, which is a genuine
+independent check of η rather than a restatement of it. Against that, **G3's margin over its
+threshold is 0.2054 η, about one fifth of the demonstrated same-design spread.** The verdict remains
+`PASS`; the interval says how much room it has.
+
+**The mechanical 3600-second stall rule MIS-CLASSIFIES this arm, and the row must not be cleaned by
+it.** `COMPUTE_BUDGET_CHARTER.md` §2 defines exactly one cleaning rule — *"a ledger row over 3600 wall
+seconds is an infrastructure stall, not solver cost"* — and the `opt` row is **5251 wall s**, so the
+rule matches it and a mechanically-cleaned figure would be **0.000 core-min**. That is
+demonstrably false. The container's own solver clock reaches **5020.30 s** at the final adjoint's last
+recorded iteration, so **95.6 % of the 5251 s wall is solver-accounted**, leaving 230.7 s (4.4 %) for
+container start, IDWarp import, mesh read, colouring I/O and teardown. **The gross figure 87.517
+core-min is the one with evidence behind it**; the mechanical cleaned figure is unusable for this row
+and is reported as such rather than quoted. The rule was calibrated on short OpenFOAM ledger rows; a
+DAFoam optimisation arm is one long row by construction, and this is flagged upward rather than
+silently worked around.
+
+**CPU pinning, measured live.** This item's own draft note (`CPU_BINDING_DEFECT_PROPOSED_NOTE.md`,
+**NOT FILED**) records that `mpirun -np 1` inside a container binds every rank to CPU 0, and
+`d8_run_arm.sh` sets `--cpus=1` with no `--cpuset-cpus`. Confirmed on this arm: the `fd` solver
+(pid 2376667) has **affinity `0`**. It is nevertheless **the only process on this box pinned to CPU 0**
+and is taking **99.4 %** of it, with peer containers explicitly pinned elsewhere (cpuset 5,6,7,9 and
+11). **The `fd` arm is therefore not CPU-contended**, and its core-minutes are reported gross with
+that check named. Box loadavg at launch: 9.72 on 16 cores.
