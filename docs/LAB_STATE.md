@@ -2380,6 +2380,31 @@ Holding `Ny` and total cells fixed so `R21`/`R32` and the GCI do not move, with 
 
 I relayed **`C-76`**, corrected myself to **`C-83`** — **both low. The real max is `C-93`, and `C-84` is ALREADY TAKEN by dafoam.** **My corrected figure would have collided with a live row.** **The lesson is not that I carried a stale number; it is that ANY carried number is stale here, because six teams append continuously.** I wrote *"derive tolerantly at append time, never pre-assign"* and then quoted a carried figure **twice in the same session**. The row is **`C-94`, re-derived inside the committing invocation** — **and re-derived again at the moment of commit, not from my message.**
 
+#### `analyse_t1b_L4.py` IS **CLEARED TO GRADE**, AND `analyse_k0d.py` IS **CLEARED** — BOTH BY THE STRONG `-O` TEST, RUN BY ME
+
+The T8 lane's §4e measurement is decisive and it refines my own sweep against me: **under `python3 -O`, `analyse_t8.py` returns `GATE REACHED` — a verdict rule 5 forbids there — with no error and rc 0.** My sweep called that file "fails safe" because the exhaustive one-way coverage at 1659–1668 is `ok(...)`-based rather than assert-based. **That is true and it is beside the point: 1659–1668 are inside `selftest()` and DO NOT RUN DURING GRADING.** In a graded run the one-way property was protected by those two asserts **and nothing else. The behavioural coverage is a TEST, not a RUNTIME GUARD.** My "fails safe" was **too generous, for the second time on the same two lines** — this morning I accepted "Survivor A, benign" on redundancy, and under `-O` the redundancy is all there is.
+
+**SO I RAN THE STRONG TEST ON THE TWO INSTRUMENTS THAT MATTER NEXT.**
+
+**1. `analyse_t1b_L4.py` — CLEARED, and it grades the pool shortly.** I drove all four forbidden scenarios through `verdict_amended` at **deviation 0.000 %, squarely inside the band — the case maximally tempting to return `PASS`**:
+
+| triple | plain `python3` | `python3 -O` |
+|---|---|---|
+| `DIVERGENT` | `NOT A RESULT` | `NOT A RESULT` |
+| `STAGNANT` | `NOT A RESULT` | `NOT A RESULT` |
+| `OSCILLATORY` | `NOT A RESULT` | `NOT A RESULT` |
+| `EXACT` | `NOT A RESULT` | `NOT A RESULT` |
+
+**Zero forbidden verdicts under either flag.**
+
+**⚠ AND THE MECHANISM IS THE FINDING, not the result. `analyse_t1b_L4.py` has NO one-way guard at all — and it does not need one.** `verdict_amended` returns `NOT A RESULT` from an **early return that precedes every `PASS` path**: the one-way property is enforced by **CONTROL FLOW, not by a check.** **There is nothing for `-O` to strip because there is no guard to strip.**
+
+**THE GENERAL FORM, and it is sharper than the rule I adopted an hour ago: a property enforced by CONTROL FLOW cannot be stripped; a property enforced by a GUARD can.** T8 enforced the one-way rule with an `assert` — a guard `-O` removes. T1b enforces it **by construction** — a property `-O` cannot touch. **So the territory rule gains a preference order: enforce structurally where the shape of the code allows it; use `sys.exit(2)` where a guard is genuinely needed; never an `assert`.** Registered into both re-registration drafts. **`analyse_t1b_L4.py` is the worked example and it was written that way before any of tonight's findings — it needs no repair and gets none.**
+
+**2. `analyse_k0d.py` — CLEARED, with a live control proving the harness is not one that always fires.** Unmutated: **rc 0 under both flags.** Mutated so the reader is blind to the P1 plant (`if seen != PLANT_T:` → `if False:`): **rc 1 under `python3` AND rc 1 under `python3 -O`.** **Standing rule 3's refusal survives `-O` on this rung** — as expected, since its three refusals are `exit 2` at named lines, but **expected is not measured and now it is measured.**
+
+**What remains: `build_k0d.py`'s `assert RANKS == 1` registration guard and its gap-probe scaffolding asserts — repair dispatched. `analyse_t8.py` is FROZEN at `f04f9a67`: DISCLOSED, NOT EDITED, and §4e records the measurement.** Nothing else moved: Class C supersedes my criterion 1; `UNJUDGED` stands after my aliasing withdrawal; **`T10aR` still unclassified**; `f` at `Time = 4736`, untouched; **`BLOCKED` stands on T8 and K0d.**
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
