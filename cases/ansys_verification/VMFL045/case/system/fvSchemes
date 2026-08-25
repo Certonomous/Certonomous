@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+
+// rhoCentralFoam, density-based central-upwind (Kurganov-Tadmor) with vanLeer
+// reconstruction.  This is the lab's PROVEN compressible shock-capturing scheme
+// set on this box (the F3 supersonic suite verification/runs/F3_runs/ and
+// VMFL051); it is reused here as SETUP KNOWLEDGE only -- none of those cases'
+// gates, bands or reference values is reused, and no F3 or VMFL051 file is
+// touched.
+//
+// WHY THE OBSERVED ORDER IS EXPECTED TO SMEAR TOWARD FIRST ORDER HERE, unlike
+// VMFL051's smooth expansion (PREREGISTRATION.md section 6): this case contains
+// an OBLIQUE SHOCK -- a genuine discontinuity.  A conservative shock-capturing
+// scheme satisfies the Rankine-Hugoniot jump conditions EXACTLY across the
+// captured shock regardless of how many cells it is smeared over, so the
+// UNIFORM post-shock state (M2, T2, rho2) is captured well; but the shock's
+// POSITION/strength error is O(h), which pollutes the downstream field at first
+// order.  An observed order p ~ 1 is therefore EXPECTED and is not a defect; a
+// p ~ 2 would be surprising and would itself be reported as a finding.  The
+// frozen sampling zone (section 5) sits well clear of the smeared shock so the
+// post-shock UNIFORM state is what is averaged.
+
+fluxScheme          Kurganov;
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+    div(tauMC)      Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default          linear;
+    reconstruct(rho) vanLeer;
+    reconstruct(U)   vanLeerV;
+    reconstruct(T)   vanLeer;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}

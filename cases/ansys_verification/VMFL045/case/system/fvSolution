@@ -1,0 +1,37 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+
+// rhoCentralFoam is explicit in the convective fluxes.  With mu = 1e-8 the
+// diffusive correctors U and h carry a negligible contribution, but the entries
+// are kept so the dictionary is complete and the case is portable.
+
+solvers
+{
+    "(rho|rhoU|rhoE)"
+    {
+        solver          diagonal;
+    }
+
+    U
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        nSweeps         2;
+        tolerance       1e-09;
+        relTol          0.01;
+    }
+
+    h
+    {
+        $U;
+        tolerance       1e-10;
+        relTol          0;
+    }
+}

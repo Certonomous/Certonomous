@@ -1,0 +1,74 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+// VMFL045 -- THE FROZEN SAMPLING RULE (PREREGISTRATION.md section 5).
+//
+// Two axis-aligned cell zones, in ABSOLUTE PHYSICAL COORDINATES, identical at
+// every mesh level.  The gated quantity is the volume-average of the Mach number
+// over `gateZone` at endTime.  Nothing about where the answer is read may change
+// after a solver has run.
+//
+// The UNIFORM post-shock region is the wedge between
+//   the ramp wall,           y = +x*tan(15 deg),   tan = 0.2679491924311227
+//   the oblique SHOCK,        y = +x*tan(beta),     tan = 0.7514539998584236
+// where beta = 36.92317760072534 deg is the frozen weak-shock angle for the
+// as-modelled M1 = 2.501814636762496 (velocity BC 852.68 m/s, gamma = 1.4).
+// Between those two rays the exact solution is EXACTLY UNIFORM at M2 =
+// 1.8749769576810524 (flow parallel to the ramp), so any volume weighting
+// returns M2 exactly and the choice of weighting cannot bias the answer.
+//
+// x window: [0.34, 0.46] m.  It contains the manual's sample point (0.38, 0.14)
+// and stops 0.14 m short of the outlet (x = 0.6), so the outflow cells are
+// excluded, and starts 0.34 m from the corner, clear of the shock-formation
+// near-field.
+//
+// INSETS ARE DERIVED PER BOUNDARY at the WORST x in the window, so the box is
+// strictly inside the wedge for EVERY x in [0.34, 0.46]:
+//   * the wall RISES with x, so its inset is taken at x_hi = 0.46 (highest wall)
+//   * the shock RISES with x, so its inset is taken at x_lo = 0.34 (lowest shock)
+// gateZone delta = 0.030 m off both.  The coarsest level L1 has, in this block,
+// dy ~ (0.5 - 0.40*tan15)/76 ~ 0.00517 m at mid-window, so 0.030 m ~ 5.8 coarse
+// cells: even at L1 the zone edge stands clear of the numerically smeared shock
+// and of the wall.  At L3 the same 0.030 m is ~23 fine cells.
+//     y_lo = 0.46*0.2679491924311227 + 0.030 = 0.15325662851831645
+//     y_hi = 0.34*0.7514539998584236 - 0.030 = 0.22549435995186401
+//     band height 0.07223773143 m
+//
+// INSET, gateZoneInner: delta = 0.045 m -- a strictly smaller zone entirely
+// inside gateZone.  Its average is a DECLARED DIAGNOSTIC ONLY and NEVER the gate
+// (PREREGISTRATION.md section 5): if the two averages disagree the gate zone is
+// being contaminated from an edge, and the comparator prints both.
+//     y_lo = 0.16825662851831645
+//     y_hi = 0.21049435995186401
+//     band height 0.04223773143 m
+//
+// The z bounds (-1, +1) enclose the +/-0.01 m slab with room to spare.
+// boxToCell selects cells by CELL CENTRE, so the selected count differs slightly
+// between levels; that is harmless precisely because the exact solution inside
+// the zone is uniform.
+
+actions
+(
+    {
+        name    gateZone;
+        type    cellZoneSet;
+        action  new;
+        source  boxToCell;
+        box     (0.34 0.15325662851831645 -1) (0.46 0.22549435995186401 1);
+    }
+
+    {
+        name    gateZoneInner;
+        type    cellZoneSet;
+        action  new;
+        source  boxToCell;
+        box     (0.34 0.16825662851831645 -1) (0.46 0.21049435995186401 1);
+    }
+);

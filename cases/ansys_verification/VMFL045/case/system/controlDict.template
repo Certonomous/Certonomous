@@ -1,0 +1,127 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+
+// VMFL045.  endTime and writeInterval are substituted by run_vmfl045.sh from the
+// frozen values in PREREGISTRATION.md section 4; they are the SAME at every mesh
+// level (physical time, not iterations), so the Roache triple compares the same
+// physical state.
+//
+// THE PLATEAU HAZARD (PREREGISTRATION.md section 7).  VMFL051 came back NOT A
+// RESULT because its two coarser levels had not reached a steady plateau at
+// endTime (4 flow-throughs): their residual unsteadiness (ptp 6.2e-3, 3.5e-3)
+// was the same order as the level-to-level discretisation differences, so the
+// triple measured transient noise.  VMFL045 addresses this THREE ways, fixed
+// before compute:
+//   1. endTime = 7.0e-3 s = 8.6 flow-throughs at the SLOWEST speed anywhere in
+//      the domain (the post-shock stream, U2 = 734.81 m/s, over the 0.6 m
+//      length) -- more than DOUBLE VMFL051's 4.  The inlet stream is faster
+//      (852.68 m/s), so this count is the conservative one.  The flow is
+//      everywhere supersonic and the shock is attached and unconditionally
+//      stable (deflection 15 deg << detachment 29.82 deg), so there is no
+//      physical unsteadiness: the startup transient simply convects out through
+//      the supersonic outlet, and 8.6 flow-throughs is deliberately generous.
+//   2. The PLATEAU CLAUSE of the comparator is the ACTUAL arbiter, checked PER
+//      LEVEL before the triple is formed: a level whose gate Mach series has a
+//      peak-to-peak over its last 20 % above 1.0e-3 in Mach (= 5.3e-4 relative,
+//      ~19x tighter than the 1 % gate and, by design, far below the expected
+//      level-to-level difference) makes the row NOT A RESULT and re-runs at a
+//      longer endTime as a NEW rung -- never re-graded in place.
+//   3. The gate quantity is a VOLUME AVERAGE over a frozen uniform zone, not a
+//      point probe -- so it does not inherit a single cell's residual jitter.
+//
+// deltaT 1e-8 is only a seed: adjustTimeStep raises it (capped 1.2x/step) to the
+// CFL limit within ~40 steps.  maxDeltaT 1e-5 is above the L1 CFL step
+// (~2.9e-6 s) so it never binds and maxCo 0.4 governs.
+
+application     rhoCentralFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+
+deltaT          1e-8;
+
+writeControl    runTime;
+writeInterval   __WRITEINTERVAL__;
+purgeWrite      0;
+
+writeFormat     ascii;
+writePrecision  10;
+writeCompression off;
+
+timeFormat      general;
+timePrecision   8;
+
+runTimeModifiable false;
+
+adjustTimeStep  yes;
+maxCo           0.4;
+maxDeltaT       1e-5;
+
+functions
+{
+    // Ma = mag(U)/sqrt(gamma*p/rho), stored under the name "Ma"
+    // (v2606 src/functionObjects/field/MachNo/MachNo.C: setResultName("Ma","U")
+    //  and store(resultName_, mag(U)/sqrt(thermo.gamma()*thermo.p()/thermo.rho()))).
+    // It MUST come first: functionObjectList::execute() calls execute() then
+    // write() for each object IN DICTIONARY ORDER (functionObjectList.C:615), so
+    // Ma is in the registry before gateMach reads it.
+    MachNo
+    {
+        type            MachNo;
+        libs            (fieldFunctionObjects);
+        field           U;
+        executeControl  timeStep;
+        executeInterval 1;
+        writeControl    writeTime;
+    }
+
+    // THE GATED INSTRUMENT.  Volume-average of Ma (gate) and of T, rho, p
+    // (declared diagnostics) over the frozen cellZone `gateZone`, written EVERY
+    // timestep so the plateau clause has a dense series.
+    // Output (from the v2606 writer source, N-AV4 / L-286):
+    //   postProcessing/gateMach/0/volFieldValue.dat
+    // Header: "# Region : cellZone gateZone", "# Cells  : N", "# Volume : V",
+    //   then "# Time" + <tab>volAverage(<field>) per field.
+    gateMach
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      cellZone;
+        name            gateZone;
+        operation       volAverage;
+        fields          (Ma T rho p);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    // DECLARED DIAGNOSTIC, NEVER THE GATE (PREREGISTRATION.md section 5): the
+    // same average over a strictly smaller zone inset a further 0.015 m from both
+    // bounding rays.  A material disagreement means the gate zone is being
+    // contaminated from an edge.
+    gateMachInner
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      cellZone;
+        name            gateZoneInner;
+        operation       volAverage;
+        fields          (Ma T rho p);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+}
