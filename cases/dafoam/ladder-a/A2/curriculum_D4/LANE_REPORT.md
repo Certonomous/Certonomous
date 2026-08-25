@@ -477,3 +477,45 @@ standard, and retiring or amending one is not a lane's call.
 **The floor breach is therefore DISCLOSED and CARRIED, not silently absorbed and not waved
 through.** It is reported here with its minimum value, its duration and its attributed cause,
 and the arm's own contribution is stated separately from the aggregate.
+
+---
+
+## 9. CORRECTION, dated 2026-08-25 ~18:24Z — this lane's own §6a claim was PREMATURE and is STRUCK
+
+**Struck, from §6a:**
+
+> ~~"the registered 12 GiB cap is roughly **5.7× oversized**, and even a doubling of the working
+> set would leave the host near 13.8 GiB available"~~
+
+**Why it was wrong.** That sentence was written at 18:16Z from a container peak of **2.114 GiB**
+measured during the *primal and coloring* phases. It generalised a plateau to the whole arm
+before the arm's memory-heaviest phase had run. **The adjoint solve had not started yet.**
+
+**What the instrument now measures**, once `run_driver` entered the adjoint
+(`Solving Linear Equation…`, `Driver total derivatives for iteration: 3`):
+
+| quantity | value |
+|---|---|
+| **container peak** | **10.308 GiB** |
+| container current, steady | 9.72 GiB |
+| registered cap | 12 GiB |
+| **headroom to the cap** | **1.692 GiB** |
+| **fraction of cap used** | **85.9 %** |
+
+**The registered 12 GiB cap is therefore roughly 1.16× the measured peak, not 5.7×.** The cap
+was well chosen and is very nearly binding. The correct reading of §8's arm-P2 memory-envelope
+registration is the opposite of what this lane wrote at 18:16Z: the envelope is **tight**, and
+`OOMKilled false` on P2 was a **meaningful** pass rather than a formality.
+
+**The lesson this lane hands over, against itself.** A memory plateau observed during one
+phase of a multi-phase solve is not the arm's peak, and calling a cap "oversized" from it is
+the same error class as reading a converged tail as a converged run. **The claim should have
+been withheld until the adjoint had allocated**, and the honest statement at 18:16Z was the
+narrow one this lane did also make — that the floor was not breached *at that moment* — not
+the extrapolation attached to it. The decision that rested on the early number (launch rather
+than queue) is **unaffected and remains correct**: the host had 15.9 GiB available then and has
+16.0 GiB now, and the arm has never approached a host-level constraint. It is the *sizing
+claim about the cap* that was wrong, and it is struck here rather than quietly edited.
+
+§6a's **measurements** stand as recorded — they were correctly labelled as the values observed
+at that time. It is the **inference** drawn from them that is withdrawn.
