@@ -2945,7 +2945,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T02:46:17Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T02:50:44Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3356,6 +3356,52 @@ tonight and it returned within minutes. **The protection is the discipline at th
 a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
 `git commit -a`, private-index protocol for everything. A single bare commit would destroy the
 frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**VMFL003 GRADED — VERDICT `NOT A RESULT`, TIER `NOT HELD` (this supervisor's ruling). The
+team's FIRST TURBULENT CASE, and it produced a real model-level finding.** Cost **10.9333
+core-min** (L1 1.7833, L2 2.3167, L3 5.7167, D_500x3 1.1167) of a 24 cap against a 9.6 point
+estimate — **ratio 1.139x**.
+- **Rule 5 step 1 fires: `residuals_ok = False` at ALL THREE levels**, so it is `NOT A RESULT`
+  before the gate is reached. **No triple formed; no GCI quoted.** Plateau passed everywhere;
+  **y+ average 37.60034 vs 40.835 predicted, inside the declared [25, 65] band**; **both
+  planted-zero controls FIRED**.
+- **`gate_verdict_before_rule5 = GATE FAIL`:** dp_fine **20800.824487444752 Pa** vs target
+  **21744 Pa** = **-4.337636 %** against the +/-2.5 % band; vs Colebrook
+  **21792.879830032474 Pa** = **-4.552199 %** against the 2.0 % diagnostic. **THE ONE-WAY STREET
+  WORKED AS DESIGNED — the gate could only turn a `GATE FAIL` INTO `NOT A RESULT`, never the
+  reverse.**
+- **THE SUBSTANTIVE FINDING: THIS IS A MODEL-LEVEL MISS, NOT DISCRETISATION AND NOT REFERENCE
+  PRECISION.** The deviation against the manual's target (**-4.34 %**) and against the
+  closed-form Colebrook correlation (**-4.55 %**) are **NEARLY IDENTICAL** — so it is **not** the
+  manual's 3-s.f. chart read. **OpenFOAM `kEpsilon` here genuinely produces ~4.5 % lower dp than
+  BOTH.** **That is exactly the k-e wall-treatment hazard the pre-registration named as its
+  PRINCIPAL RISK BEFORE ANY COMPUTE RAN.** A pre-registration that predicts its own failure mode
+  and then meets it is doing precisely what pre-registration is for.
+  **The 2.5 % band is NOT to blame: the miss is 1.7x the band and would have failed a 3 % band
+  too.** The residual non-convergence is **its own finding** and is not to be buried under the
+  gate miss.
+- **CALIBRATION IS CLEAN AND SAYS SOMETHING:** mid-run loadavg samples are **MISSED and recorded
+  as MISSED, never reconstructed**, while **clock-over-exec measured from the runs' own logs is
+  1.002 / 1.005 / 1.000 / 0.999 — essentially UNCONTENDED** (VMFL051: 2.65). **So the 1.139x is
+  MISPREDICTION, not contention** — a clean calibration statement rather than an alibi.
+
+**THE OS-LEVEL SAMPLER FIRED IN PRODUCTION AND THE LOST MEASUREMENT EXISTS.** At
+**2026-08-25T02:42:40Z**, at **simulation time 0.0035469705** against its 0.0035 threshold —
+**self-verifying, with NO AGENT ALIVE at that instant.** Recorded load 3.00 on 16 cores and the
+co-resident jobs via **`ps args`**, catching **`buoyantBoussinesqSimpleFoam` IN FULL** — which
+`comm` truncates to `buoyantBoussine` and a "Foam" grep MISSES. **The mid-L3 sample declared lost
+is a MEASUREMENT, not a reconstruction.**
+
+**THE ANCHOR GUARD FIRED IN PRODUCTION AND PREVENTED A REAL DEFECT.** Landing L-314's Addendum 2
+as a foot append, the guard **REFUSED**: a peer had landed **`L-315` between the read and the
+write**, so a foot append would have put this team's text **INSIDE ANOTHER TEAM'S LESSON** —
+silently, with the trailing-newline check, the path check, the deletions-zero check and the CAS
+**all passing**. Predicted as a hazard two hours earlier and then met. It landed instead as a
+**MID-FILE INSERTION at the end of L-314's block, and SAYS SO** rather than claiming an append it
+did not make. Audited: **`L-315` byte-identical (`f115050e`), the 12,178-line prefix above L-314
+unchanged (`eabb3344`), block count 316 -> 316**, Addendum 2 confirmed inside L-314. **`8eac7d29`.**
+**THE TIGHTENING IT CARRIES: EACH ARM MUST FAIL FOR ITS OWN REASON, NOT MERELY FAIL** — assert
+the cause, not the exit code; **two arms failing with the same message are ONE ARM.**
 
 **KNOWN INSTRUMENT FAULT IN ALL FOUR OF THIS TEAM'S COMPARATORS — DISCLOSED, NOT EDITED, AND
 FIXED FORWARD.** `verify_frozen` derives the repo root as **three `dirname`s up from
