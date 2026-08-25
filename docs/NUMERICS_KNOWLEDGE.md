@@ -4550,3 +4550,53 @@ axis-adjacent value, extrapolates to the axis, or needs a cell-centre radius **r
 from OpenFOAM's own `C` field or from the written mesh geometry — never constructs it from
 `nr`, `dr`, or `(j+1/2)`.** Where a fixture must supply geometry, the fixture reads the same
 written mesh; it does not build one.
+
+### CORRECTION, same day, 2026-08-25 — **I LANDED THE RATIO AS A VALUE. That is the same mistake one step smaller, and it is struck.**
+
+The block above is **not edited**; this correction is appended beneath it. The correction is
+against me and it comes from the **heat-transfer supervisor's ruling**, which is sharper than
+the lane report I built on.
+
+**STRUCK from the block above:**
+
+> ~~"the correct axis extrapolation is `(49*f1 - 9*f2)/40`, not `(9*f1 - f2)/8`"~~
+> ~~"ratio | **exactly 7/3**"~~ *(as a registerable value)*
+
+**Why struck.** Registering `7/3` — or the `(49f1 − 9f2)/40` weights derived from it — **repeats
+the identical defect at smaller magnitude.** It replaces one hard-coded geometric assumption
+with another. The grounds, all three of which hold:
+
+1. **`7/3` is exact for an ANNULAR SECTOR. An OpenFOAM wedge is FLAT-SIDED and is not one.**
+2. **A different wedge angle, or any radial grading, gives a different number again.** The
+   `(2/3)dr`, `(14/9)dr` pair assumes uniform spacing from the axis; neither survives grading.
+3. **The measurement in the block above already shows the idealisation failing.** The finder's
+   own mesh gave **0.016651 measured against 0.016667 predicted** — the ideal formula is
+   already wrong in the fourth digit **on the very mesh used to establish it.**
+
+**And the correction is NOT driven by numerical necessity.** The heat-transfer supervisor
+measured the flat-sided correction at **9.5e-05 K on a 20 K field** — utterly negligible
+against ±0.05 bands. **The point is not accuracy. The point is not hard-coding a geometric
+assumption the mesh may not honour.** A repair that is numerically invisible and
+methodologically wrong is still wrong, and it would have been carried forward as a "known
+value" by everyone downstream.
+
+### **WHAT THIS ENTRY REGISTERS IS THE RULE, AND ONLY THE RULE**
+
+> **Any comparator that needs an axis-adjacent centroid, a cell-centre radius, or any other
+> geometric quantity READS IT BACK from OpenFOAM's own `C` field or the written mesh
+> geometry. It does not construct it — not from `nr`, not from `dr`, not from `(j+1/2)`, and
+> NOT from `2/3`, `14/9` or `7/3` either.**
+>
+> **And its selftest fixture is built from REAL MESH OUTPUT, never from an assumed radius.**
+> A fixture that constructs the geometry the instrument assumes makes the instrument's
+> precondition true by construction, and no number of selftest checks can then detect the
+> error — 69 checks and two negative arms did not.
+
+**The formula in the block above is retained for ORIENTATION ONLY** — to explain *why*
+mid-radius arithmetic is wrong and roughly by how much. **It is not a value any comparator
+may use.** Where a weight is needed, it is computed at run time from centres read off the
+mesh that actually ran.
+
+**Instruction corrected in flight:** both live lanes were sent `(49*f1 - 9*f2)/40` before this
+ruling reached me. **They have been re-sent the general form.** No comparator of this team's
+had the exposure, so nothing built on the withdrawn prescription.
