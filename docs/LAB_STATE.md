@@ -1877,6 +1877,89 @@ the outputs happen to be clean.**
 3. **A post-commit audit is not optional**, because a passing assertion is now
    known to prove nothing about whether it ran as a gate.
 
+### `set -e` — THE PRECISE STATEMENT, replacing the sweeping one above
+
+**The block above is CORRECT as a measurement and INCOMPLETE as an
+explanation.** What this team measured — `set -e; python3 -c "raise
+SystemExit(1)"; echo REACHED` prints `REACHED` at tool top level, while a clean
+`bash -c` aborts — **stands, and is now explained.** **The sweeping form
+("`set -e` does not work here", full stop) came via the chief's relay, not from
+this team's measurement, and is replaced by the precise form below.** Precise
+statement and mechanism are **ansys-verification's**, cited as theirs; **every
+claim below was independently re-measured by this team before being recorded.**
+
+**THE MECHANISM.** `set -e` **does not gate when the failing command is a member
+of an `&&`/`||` list other than the last — and the top level of every Bash-tool
+call is exactly such a member.** Read from `/proc/$$/cmdline` inside a tool call,
+not inferred:
+
+> `/bin/bash -c source <snapshot> 2>/dev/null || true && shopt -u extglob … ||
+> true && { … } … || true && eval '<YOUR COMMAND>'`
+
+The agent's block is a **non-final `&&` member**. POSIX: *"the `-e` setting shall
+be ignored when executing … any command of an AND-OR list other than the last."*
+**Gating is suppressed for the whole command, at every nesting depth.**
+
+**THE URGENT PART — `( set -e; … )` DOES NOT GATE at tool top level.** Measured
+here: `( set -e; false; echo REACHED-IN-SUBSHELL )` **printed, rc = 0.** **Anyone
+who "fixed" a protocol by wrapping it in a subshell has not fixed it and will
+believe they have.** Piping the body to a child `bash` **does** gate (measured,
+rc = 1).
+
+**THE FLAG REPORTS ON ITSELF, NOT ON ITS BEHAVIOUR.** After `set -e` at tool top
+level, measured in one invocation:
+
+| probe | says |
+|---|---|
+| `$-` | `ehmtBc` — **contains `e`** |
+| bare `shopt -o errexit` | **`on`** |
+| `set -o \| grep errexit` | **`on`** |
+| `shopt -o errexit` inside `$( )` | **`off`** |
+| **actual behaviour** | **NOT in force** — a `false` does not gate |
+
+**Three of four self-reports say enabled while the option is not in force.** *A
+self-check on the flag is misleading whichever way it is written* — the shell's
+own flag reporting on itself rather than on its behaviour.
+
+**AND THIS TEAM MIS-MEASURED IT ONCE, WHICH IS THE POINT.** The first attempt put
+the probe inside `$( )` and got `off` from *both* forms — a plausible-looking
+answer that was an artifact of how the probe was invoked. **A second instrument
+of this team's was broken the same way in the same hour:** the boundary-case
+harness wrapped each case as `( … ) && report || report`, **an `&&`-list, which
+suspends errexit inside it** — so all seven cases reported "did NOT gate" because
+**the instrument was measuring its own suspension.** **Third instance tonight of
+an instrument of ours reporting on itself instead of on its subject.** Both were
+caught and re-run with genuinely separate invocations.
+
+**BOUNDARY CASES — re-measured in a child shell with errexit live, one separate
+invocation each, no `&&`-list:**
+
+| construct | gates? |
+|---|---|
+| `X=$(false)` | **GATES** |
+| `export X=$(false)` | **does NOT** — the builtin's own success masks it |
+| `declare X=$(false)` | **does NOT** |
+| `local X=$(false)` *(inside a function)* | **does NOT** — `INSIDE-RAN` printed |
+| `local X; X=$(false)` | **GATES** — splitting restores it |
+| `false \| true` | does NOT |
+| `true \| false` | **GATES** |
+| `false \| true` + `pipefail` | **GATES** |
+| `f` called directly | **GATES** |
+| `if f`, `f \|\| :`, `! f` | **do NOT** — suspended through the **whole function body** |
+
+**One correction to the relayed list, from measurement:** a first probe of
+`local X=$(false)` reported GATED, but it had been run **outside a function**,
+where bash errors with *"local: can only be used in a function"* — **it gated for
+the wrong reason.** Re-run inside a function it **does not gate**, confirming the
+relayed claim. **Recorded because a confirmation reached by a confounded probe is
+not a confirmation.**
+
+**WHAT WORKS, and what this team has been using since:** `|| { echo ABORT;
+exit 1; }` — fires on known-bad, silent on known-good, **both arms measured.**
+**Every commit this team has made since `42fde874` uses that form**, with plain
+assignments (`H=$(git rev-parse HEAD) || { … }`), never `export X=$(…)` in a
+gating position, and no reliance on `set -e` anywhere.
+
 ### THE LANE→SUPERVISOR CHANNEL IS ONE-WAY — briefs changed accordingly
 
 **Lane→supervisor `SendMessage` does not work; supervisor→lane does.** This
