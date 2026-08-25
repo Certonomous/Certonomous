@@ -693,6 +693,54 @@ def reported_never_grades():
             "channels changed no verdict")
 
 
+@control("ss8.5 decompose", "PASS", "the launcher calls decomposePar and reconstructPar "
+                                    "-- the frozen ss8.5 reserve names decomposePar")
+def decompose_present():
+    src = open(os.path.join(HERE, "run_f6a_greenblatt.py")).read()
+    assert "decomposePar" in src and "reconstructPar" in src
+    i_dec, i_mpi = src.index('"decomposePar"'), src.index('"mpirun"')
+    i_rec = src.index('"reconstructPar"')
+    assert i_dec < i_mpi < i_rec, "decompose/solve/reconstruct are out of order"
+    return "decomposePar precedes mpirun precedes reconstructPar"
+
+
+@control("ss8.5 decompose", "FAIL",
+         "a decomposition that does not yield `ranks` processor directories -> REFUSAL, "
+         "never an undecomposed parallel launch")
+def decompose_guard():
+    src = open(os.path.join(HERE, "run_f6a_greenblatt.py")).read()
+    assert "processor directories, ss6.1" in src, "no rank-count guard on decomposePar"
+    assert "REFUSING rather than\n                            \"launching an undecomposed" in src \
+        or "launching an undecomposed" in src
+    return "rank-count guard and a non-zero-rc refusal both present"
+
+
+@control("ss9.4 endTime", "PASS",
+         "the (P-a)/ss9.4 clause conflict is SURFACED with BOTH readings, not silently "
+         "resolved")
+def endtime_reconcile():
+    r = G.endtime_reconciliation(_log(1772, times=[1772]), 2000)
+    assert r["declared_endtime_controlDict"] == 2000
+    assert r["effective_endtime_used"] == 1772
+    assert r["residual_control_terminated"] is True
+    assert r["clause_would_fail_on_declared"] is True
+    assert "RULING" in r["DISPOSITION"]
+    return ("declared 2000, effective 1772, both printed; disposition = reported to the "
+            "supervisor, not resolved by the lane")
+
+
+@control("ss9.4 endTime", "FAIL",
+         "a run that reached the cap is NOT relabelled -- effective endTime is the last "
+         "time and (P-a) still refuses it")
+def endtime_no_laundering():
+    r = G.endtime_reconciliation(_log(None, times=[2000]), 2000)
+    assert r["residual_control_terminated"] is False
+    assert r["effective_endtime_used"] == 2000
+    ok, _ = G.clause_p_a(_log(None, times=[2000]))
+    assert ok is False, "the reconciliation laundered a cap-hit into a convergence"
+    return "cap-hit run: effective endTime 2000, and (P-a) still REFUSES it"
+
+
 FORBIDDEN = ("richardson", "extrapolat", "gci_fine", "observed order of")
 
 

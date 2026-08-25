@@ -440,7 +440,49 @@ def clause_p_d(samples):
 # --------------------------------------------------------------------------
 # ss9.4 COMPLETION (rule 4), with the age guard anchored on 0/U
 # --------------------------------------------------------------------------
-def completion_check(case, log, endtime, rc):
+def endtime_reconciliation(log, declared_endtime):
+    """A CONFLICT BETWEEN TWO FROZEN CLAUSES, SURFACED RATHER THAN SILENTLY RESOLVED.
+
+    ss3.1 (P-a) REQUIRES `SIMPLE solution converged in N iterations` with
+    **N < the registered endTime cap** -- reaching the cap is not convergence.
+    ss9.4 (rule 4) REQUIRES **last time == endTime**.
+
+    Read with `endTime` meaning the controlDict literal (2000), those two clauses are
+    MUTUALLY EXCLUSIVE: satisfying (P-a) guarantees failing ss9.4, and every converging
+    run would be `NOT A RESULT` by construction.
+
+    The reconciliation is a FACT ABOUT THE SOLVER, not a choice made to fit an answer:
+    on convergence `simpleControl::loop()` calls `runTime.writeAndEnd()`, which SETS
+    the run's endTime to the current time. The run's EFFECTIVE endTime therefore IS the
+    converged iteration, and `last time == endTime` holds against it. (P-a) independently
+    gates that the termination was a genuine residualControl trip and not a cap hit, so
+    nothing is loosened by reading it this way.
+
+    BOTH READINGS ARE RETURNED AND BOTH ARE PRINTED. This function resolves nothing on
+    its own authority; it makes the choice visible in every record the comparator writes,
+    and the conflict is reported to the supervisor for a ruling.
+    """
+    conv = log.get("converged_at")
+    residual_terminated = conv is not None
+    effective = conv if residual_terminated else log["last_time"]
+    return {
+        "CLAUSE_CONFLICT": ("ss3.1 (P-a) requires convergence BELOW the endTime cap; "
+                            "ss9.4 requires last time == endTime. Read literally against "
+                            "the controlDict endTime the two cannot both hold."),
+        "declared_endtime_controlDict": declared_endtime,
+        "effective_endtime_used": effective,
+        "last_time_in_log": log["last_time"],
+        "residual_control_terminated": residual_terminated,
+        "basis": ("OpenFOAM resets the run's endTime via runTime.writeAndEnd() on "
+                  "convergence, so the effective endTime IS the converged iteration. "
+                  "A solver fact, not a grading choice."),
+        "clause_would_fail_on_declared": (log["last_time"] != declared_endtime),
+        "DISPOSITION": "REPORTED TO THE SUPERVISOR FOR RULING. Not resolved by this lane.",
+    }
+
+
+
+def completion_check(case, log, endtime, rc, declared_endtime=None):
     fails = []
     if rc != 0:
         fails.append("rc = %s, not 0" % rc)
@@ -466,8 +508,12 @@ def completion_check(case, log, endtime, rc):
                 if os.path.exists(fp) and os.path.getmtime(fp) <= a:
                     fails.append("AGE GUARD: %s at endTime is not newer than %s"
                                  % (f, AGE_GUARD_ANCHOR))
-    return (len(fails) == 0), {"ok": len(fails) == 0, "failures": fails,
-                               "age_guard_anchor": AGE_GUARD_ANCHOR}
+    detail = {"ok": len(fails) == 0, "failures": fails,
+              "age_guard_anchor": AGE_GUARD_ANCHOR,
+              "endtime_graded_against": endtime}
+    if declared_endtime is not None:
+        detail["endtime_reconciliation"] = endtime_reconciliation(log, declared_endtime)
+    return (len(fails) == 0), detail
 
 
 # --------------------------------------------------------------------------
@@ -611,6 +657,8 @@ def main(argv=None):
     ap.add_argument("--log")
     ap.add_argument("--endtime", type=int)
     ap.add_argument("--rc", type=int, default=0)
+    ap.add_argument("--declared-endtime", type=int, default=None,
+                    help="controlDict endTime, for the ss9.4 reconciliation")
     ap.add_argument("--scratch")
     ap.add_argument("--out")
     ap.add_argument("--repo", default=REPO)
@@ -627,7 +675,8 @@ def main(argv=None):
         assert_pinned(a.repo)
         log = parse_log(a.log)
         conv = log["converged_at"] if log["converged_at"] is not None else log["last_time"]
-        completion_ok, comp = completion_check(a.case, log, a.endtime, a.rc)
+        completion_ok, comp = completion_check(a.case, log, a.endtime, a.rc,
+                                               a.declared_endtime)
         plant = plant_and_reread(a.case, conv, a.scratch, a.repo)
         wv = os.path.join(a.case, "postProcessing", "wallValues")
         available = sorted(int(d) for d in os.listdir(wv) if d.isdigit()) if os.path.isdir(wv) else []

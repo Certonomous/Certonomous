@@ -27,6 +27,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import f6a_greenblatt_gate as G   # noqa: E402
@@ -297,9 +298,35 @@ def main(argv=None):
             print(json.dumps(report, indent=2))
             return 5
 
+        # ---- ss8.5: decomposePar, inside the 30 s mesh reserve ----
+        # The frozen ss8.5 reserves the 30 s for "checkMesh, the smoke test and
+        # decomposePar", and ss8.2 term 4 prices "decompose / reconstruct / extract /
+        # grade". ss6.1 registers `mpirun -np 4` with the SHIPPED decomposeParDict.
+        # An earlier form of this launcher went straight from the smoke test to
+        # `mpirun -parallel` with no decomposition -- it would have died at wall 0 s
+        # with no processor directories. Found before compute and implemented here;
+        # this ADDS no step the frozen text did not already name.
+        dlog = os.path.join(RUN_CASE, "log.decomposePar")
+        with open(dlog, "w") as lf:
+            dp = subprocess.run(["decomposePar", "-case", RUN_CASE],
+                                stdout=lf, stderr=subprocess.STDOUT,
+                                timeout=MESH_RESERVE_S)
+        report["decomposePar_rc"] = dp.returncode
+        if dp.returncode != 0:
+            raise G.Refusal("decomposePar exited %d; see %s. REFUSING rather than "
+                            "launching an undecomposed parallel run."
+                            % (dp.returncode, dlog))
+        nproc = len([d for d in os.listdir(RUN_CASE) if d.startswith("processor")])
+        if nproc != RANKS:
+            raise G.Refusal("decomposePar produced %d processor directories, ss6.1 "
+                            "registers ranks = %d" % (nproc, RANKS))
+
         # ---- launch, under the ss8.5 cap ----
+        # rule 4: 0/U is touched LAST at launch, AFTER decomposition, so it dates the
+        # run permitted to produce the answer.
         touch_age_anchor(RUN_CASE)
         log = os.path.join(RUN_CASE, "log.simpleFoam")
+        t0 = time.time()
         with open(log, "w") as lf:
             try:
                 pr = subprocess.run(
@@ -308,16 +335,32 @@ def main(argv=None):
                     stdout=lf, stderr=subprocess.STDOUT, timeout=timeout_s)
                 rc = pr.returncode
             except subprocess.TimeoutExpired:
+                report["wall_s"] = time.time() - t0
                 report["VERDICT"] = "NOT A RESULT"
                 report["why"] = ("ss8.3 CAP EXCEEDED at %.0f s wall (%d core-min at "
                                  "ranks = %d). An overrun STOPS THE RUN. It does not "
                                  "get a new budget." % (timeout_s, CAP_CORE_MIN, RANKS))
                 print(json.dumps(report, indent=2))
                 return 7
+        wall = time.time() - t0
         report["solver_rc"] = rc
+        report["solver_wall_s"] = wall
+        report["solver_core_min"] = wall * RANKS / 60.0
+
+        # ---- reconstruct, so ss9.4's field check and age guard can be evaluated ----
+        rlog = os.path.join(RUN_CASE, "log.reconstructPar")
+        with open(rlog, "w") as lf:
+            rp = subprocess.run(["reconstructPar", "-case", RUN_CASE],
+                                stdout=lf, stderr=subprocess.STDOUT, timeout=120)
+        report["reconstructPar_rc"] = rp.returncode
+
+        # ---- ss9.4's endTime, reconciled rather than assumed ----
+        parsed = G.parse_log(log)
+        report["endtime_reconciliation"] = G.endtime_reconciliation(parsed, ENDTIME)
+        eff = report["endtime_reconciliation"]["effective_endtime"]
         report["STATUS"] = ("solver finished; grade with scripts/f6a_greenblatt_gate.py "
-                            "--case %s --log %s --endtime %d --rc %d"
-                            % (RUN_CASE, log, ENDTIME, rc))
+                            "--case %s --log %s --endtime %s --rc %d --declared-endtime %d"
+                            % (RUN_CASE, log, eff, rc, ENDTIME))
     except G.Refusal as e:
         sys.stderr.write("REFUSAL: %s\n" % e)
         report["VERDICT"] = "NOT A RESULT"
