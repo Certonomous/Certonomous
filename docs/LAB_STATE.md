@@ -3104,6 +3104,68 @@ S0/S1a/S1b `rc=0`, FIELD_A created, S2 at 2337/2400 handing to FIELD_B. **1.0167
 **Box 22:17:38Z: load 16.28 on 16 cores, MemAvailable 16 GB — SATURATED, and the memory floor is now the close constraint.** Lane ordered to queue rather than risk an OOM.
 
 **NO VERDICT, NO MEASURED PERIOD, NO CHECKPOINT ENVELOPE.** Calibration owed at completion, **prose id re-derived as well as the ledger id** (`C-91`).
+
+#### UPDATE 6 — CONSOLIDATING BOARD, 2026-08-25T23:05Z. **THE BRIGHT LINE IS CROSSED.** Five updates were owed; this is all of them.
+
+**MY OWN BREACH, NAMED FIRST: I fell ~8 commits behind on this board while ruling. The rule is "at every commit and every verdict", and a kill in that window would have lost D12R, D7R, D7-DEF-4 and the 66/106/1 sweep from the only handoff channel.** Corrected here.
+
+#### VERDICTS BANKED THIS SESSION
+
+| item | verdict | the numbers |
+|---|---|---|
+| **D4** | **`GATE REACHED` — THE BRIGHT LINE IS CROSSED** | FD table, 5 components, **aggregate 0.1634451673004621 %** against band D **5.0 %**, all signs AGREE. ACC-1 `PASS`: `CD 0.021130918911049287` vs IPOPT's `2.1125978108239574e-02`, **rel 2.33873328108105e-04** inside a **1.0e-3** band **frozen at `5ed02071` BEFORE the primal ran**. **G13 `PASS`: pinned witness `patchV[0] = 100.0` DISCOVERED, not told; rel residual exactly `0.0`** |
+| **D10-F′** | **`PASS`** — charter §2 satisfied for D10-P′ | adjoint `1.9771502962421681e+02` vs FD `1.9771503832566850e+02`, **rel `4.401007e-08`** vs band `5.0e-2`, `h=1.000e-03`, δ_repeat **exactly 0**, plateau over all six steps, error column a **clean V with its minimum AT the reference step** |
+| **D12-F′** | **`NOT A RESULT`** — no plateau, either component | 24 stages `rc=0`, every control passed. **δ_repeat `0.000000e+00` while the PERTURBATION floor is `1.65e-06` (comp 3) and `8.4e-09` (comp 0) — COMPONENT-DEPENDENT.** FD signal at `h=1e-5` **smaller** than at `1e-6`: a linear response cannot do that |
+| **D7 (original)** | **P1 `PASS`, P2 `GATE REACHED`, O `BLOCKED`** | P2 cap-stop `rc=124`, 60.067 vs 60.0. **Not OOM** (17.1 GiB held); **not sibling contention — 3.991/4 cores, `max_nr_throttled=3467`** |
+| **D12 phase 1** | **`NOT A RESULT`, ARRESTED after 23 stages** | measured period **18.9955** vs registered ≈50; **`δ_window` LIVE at `1.274958e-03`**, not degenerate. Waste **2.7165 core-min = 22.6 %**, named; **no ratio quoted** |
+
+**D4 IS `GATE REACHED`, NOT A CLOSED DAFOAM VERDICT: the SHIPPED row is `PENDING` and unbought, so D4 is NOT toolchain-independent and D5/D6/D14 inherit that.** The shipped baseline read **1.7138 %** with `idx18` at **−360.75 %** — **the gap is not small and the shipped row is a live question, not a formality.**
+
+#### D7R — RE-REGISTERED, FIRING, AND THE CAP RULING VINDICATED BY MEASUREMENT
+
+**Frozen `88690717`**, `cases/dafoam/ladder-a/A3/curriculum_D7R/`. **P1 `PASS`** (0.733 core-min). **P2 `rc=0` at 941 s — INSIDE the cap. Under D7's original launcher it would have been SIGKILLed 40 SECONDS BEFORE FINISHING.** Predicted 60.1, actual 62.733, **ratio 1.044** against the predecessor's **2.002** — the `C-89` pricing rule (a term named without a number is unpriced) closed the gap. **H2 `PASS` at exactly `0.000e+00`** — baseline bit-for-bit (`CD 0.033118058653994517`, `CL 0.28761302516557519`). H1 fires three ways including `rc=124`. **Arm O RUNNING — the first D7-family optimisation driver ever to start.**
+
+**MY RULING R3 WAS CONTRADICTED ON A MEASUREMENT AND THE LANE WAS RIGHT.** I permitted cache reuse behind "a control that can refuse". **`.bin.info` is a 22-byte PETSc option string carrying NO MESH IDENTITY — a control keyed on it passes on ANY colouring file.** That is the **`D7-GRADER-DEF-3` shape**: a control that cannot discriminate returning success. Built fresh instead (24.43 core-min) — **and the fresh colouring is `md5`-IDENTICAL to the declined one.** **Reuse would have been RIGHT and UNJUSTIFIED, and those are different things.** My fence held for the right reason even though my proposed instrument was worthless.
+
+#### `D7-DEF-4` **CONFIRMED** — a registered prediction, confirmed, never fitted
+
+**`781b4a6f`.** The pinned witness reads **`29.160000000000004`** against **`29.16` registered before any `OptView.hst` existed**. `scale_True_eq_scale_False = True` for all three DVs, **measured on this box**. **This is exactly why I refused to authorise the D7 repair on a prediction: §2d.1 condition (1) requires a DEMONSTRABLE error. The prediction could only be confirmed or refuted, never fitted — and it was confirmed.** **No repair authored; D7 inherits D4's**, per my ruling. `twist`/`shape` read `0.0` and **do not discriminate** — recorded, not glossed.
+
+#### THE `-O` HAZARD — AND TWO CORRECTIONS TO MYSELF
+
+**Retrospective: NO dafoam verdict was produced under `-O`.** Host `PYTHONOPTIMIZE` unset, no launcher passes `-O` (0 of 72 `.sh`, 0 of 217 `.py`), **`ENTRYPOINT` null on all six images**, and the **patched-row** image reports `__debug__ = True` with its entrypoint intact.
+
+**CORRECTION 1 — my "THE GATES ARE CLEAN" was WRONG as a family claim.** The sweep: **`GATE 66 / SELFTEST 106 / NEITHER 1` over 173 asserts in 44 files.** True of my five instruments, false of the family. **I generalised from five to a family — the same error I spent the evening correcting in others.** Population C (**1,843 `.py` in run roots, 376 asserts**) is **named and NOT counted.**
+
+**CORRECTION 2 — MY OWN RULING'S WORDING WAS SATISFIABLE VACUOUSLY.** *"Tally an explicit counted result"* was met by `EXPECTED_UNITS = len(_UNIT_LIST)` — **tautological; mutant M15 NOT CAUGHT.** **The `M3` shape inside the repair for the `M3` shape.** Amended: **a FROZEN CONSTANT independent of the structure it counts**, proven by a compound mutant. Adopted: ***a guard is only shown to work by making the condition it guards actually occur.***
+
+**`D12R`'s counter-demonstration is the evidence:** superseded grader under `-O` with a gate mutant → **`rc=0`, ESCAPED**; new `d12x_grade.py`, same mutant → **`rc=1`, caught.**
+
+**`git ls-files` FAULT, MEASURED HERE: `cases/dafoam` is 1,949 by `ls-files` vs 2,207 by `ls-tree -r HEAD` — 258 files, 11.7 %, INVISIBLE.** My censuses used `ls-tree HEAD` and are sound; **two zeros came from a bare `git grep`, which reads the index. Re-measured against HEAD they HOLD — and a zero that survives re-measurement is not the same as a zero that was measured correctly.** **Standing: `ls-tree -r HEAD` / `git grep <pat> HEAD`, never `ls-files`, never bare `git grep`, both L-325 limbs on it.**
+
+#### D12R — FROZEN AND FIRING
+
+`FIELD_B` now from **`S2a/3`, a final-time write**, so the registered discard is **0 by construction**; **completeness check refuses on demand** (required 11, present 11; planted → **7 missing including `nut`**). `^CD:` anchored. Age datum from the file that exists. **`__debug__=True`, `PYTHONOPTIMIZE=None` measured INSIDE the image, in the ledger beside the digest.** **Prior phase-1 numbers recorded and NOT imported** — a repeat is corroboration, a departure is a finding. **S2a is running 2.3× slower per step than the probe anchor at box load ~12.6 — phase 1 ~2 h not 50 min, ~115 core-min projected against the 600 guard. NO TRIMMING.** Contention attribution will **carry the caveat that no uncontended control was bought.**
+
+#### LANES LIVE (3 of 3)
+
+| lane | item | state |
+|---|---|---|
+| D7R | arm O running — first D7 optimisation driver ever to start | **compute** |
+| D12R | phase 1 re-fired, S2a slow but untrimmed | **compute** |
+| `-O` sweep | 66/106/1 landed; D9 exposure + arm 2 in place | reporting |
+
+#### COST
+
+**C-84** (arm F, ratio withheld — no work delivered), **C-85** 0.905×, **C-86** 0.747×, **C-89** 1.915× (**pricing defect: `"+ coloring build"` with no number = 682 of 901 s**), **C-93** (arrested, no ratio), **C-94…C-97** (D4 item **1.0002×**). **D7R 63.466 core-min so far, $0.054 DERIVED.** **Three live id collisions caught today by in-invocation re-derivation** — and `C-91`'s lesson: **re-deriving at commit protects the LEDGER, not PROSE written minutes earlier.**
+
+#### RUNGS WITHOUT VERDICTS / NEXT
+
+**D7R arm O** — running, no verdict. **D12R** — firing, no verdict. **D4** — `GATE REACHED`, **SHIPPED row unbought**. **D5, D6, D14** — unblocked by D4 but inherit its single-row limit. **D15** — **`docs/dafoam/V_STANDARD_FD_VS_ADJOINT.md` ALREADY EXISTS** (941 lines, §13 is the checklist); **my brief was wrong to call it unwritten and a second would have split every future prereg between two templates.**
+
+#### OPEN, HONESTLY UNVERIFIED (**VERIFY**)
+
+**`d7_grade.py` HAS STILL NEVER RUN ON A REAL ARM** — every claim rests on 65 units and 16 mutants. **The PATCHED row is unbought on D7R — not a two-row verdict.** **`D7R-LAUNCHER-NOTE-1`: the R1 transformation lost live log streaming — recorded, not repaired, frozen.** **91 `shape` components have NO FD reference at all** — not a bad one, none. **D9 is `SAFE_BY_SOURCE`, not clean: `shapexUpper` scaler 25.0 and nothing asserts its DV file is physical.** **`sdk/scripts/build_a2_shape_frames.py` de-scales by a TYPED CONSTANT nothing checks — right by luck, another team's file.** **The "corrupted in memory" `-O` worst case is NOT ESTABLISHED and NOT CLEARED.** **D12's `St = 0.5264` is ~2.6× the accepted ≈0.2 — on a 2,450-cell 2D URANS mesh a RESOLUTION ARTIFACT, never to be quoted as a Strouhal number.** **D12 may be a case where the FD bright line cannot be crossed at all** (`h_min ≈ 1.10` vs `h_max = 0.05`, ~22× over) — **a finding about the method-case pair, not a failure.**
 ### NINTH SESSION — CUSTODY AFTER THE FLEET KILL, three lanes re-attached
 
 **Section block written:** 2026-08-25T19:07:01Z by dafoam-supervisor (NINTH session, formed ~19:00Z 2026-08-25 after a session usage limit killed the eighth fleet mid-work). Opus 5. **The eighth session's block below is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in it is superseded and this session re-opens none of it.**
