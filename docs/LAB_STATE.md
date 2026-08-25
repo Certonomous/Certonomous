@@ -2052,6 +2052,140 @@ removing the block and reproducing HEAD byte-for-byte); **only the message is
 wrong.** Recorded as **L-324**. Consequence to know: **`git log --grep` for the K0d
 ruling will not find it under `3dc99590`.** Correction stamp 2026-08-25T19:11:47Z.
 
+
+### 19:20Z UPDATE — THE UTILISATION DIAGNOSIS IS NOT "IDLE CORES", IT IS "NOTHING FIREABLE"
+
+**Sub-section last written:** 2026-08-25T19:20:07Z by heat-transfer-supervisor.
+
+**THE BOX IS FULL, NOT IDLE — measured 19:05Z: `7 + 9 = 16 of 16 cores, 100 %`,
+above Sanaa's 80–90 % band, not below it.** The background is **7** sustained
+foreign cores (3 of my own T1b EXT2 arms + 4 dafoam IPOPT ranks pinned to cpuset
+5,6,7,9), against the **5** that K0d §9.1 measured at 18:07Z when it justified a
+concurrency of 9. **K0d's registered `5 + 9 = 14` no longer holds, and the
+2-core reserve §9.1 registered is already consumed.** 9 is a **cap, not a floor**:
+staging 7 now and the two L3 cases at first retirement lands on **14/16 = 87.5 %**,
+which is K0d's own registered figure. No frozen text was edited; the measurement
+sits beside it.
+
+**SO THE CAPACITY DEFECT IS REAL BUT MISDIAGNOSED. Thermal is not failing to use
+free cores — there are none. Thermal is failing to have anything it may legally
+fire.** That is the finding, and it is worse than the one reported, because idle
+cores are fixed in minutes and an empty queue is not.
+
+### BUCKET A IS EMPTY EXCEPT K0d — swept, not assumed
+
+Across all five territory folders, **every committed pre-registration in the
+T-family and the DC-cooling spine has already been fired, except K0d.** There is
+**no second committed prereg with unrun compute anywhere in my territory.**
+Full ranking in `docs/campaigns/T-family/THERMAL_SATURATION_QUEUE.md` (`2358a650`).
+
+**And K0d — the one entry — has NO COMPARATOR.** Verified **by me personally**,
+under a live planted control (two files that do exist read back PRESENT from both
+HEAD and disk): `build_k0d.py`, `analyse_k0d.py`, `mark_done_k0d.py`,
+`check_k0d_mesh.py` are **0 in HEAD and 0 anywhere under `/home/ubuntu`**, while
+`analyse_k0c.py`, `analyse_t3.py`, `analyse_t1b_L4.py`, `mark_done_t3.py`,
+`mark_done_t1b_L4.py` and `analyse_t10a.py` all exist. **K0d carries five
+amendments and a full re-registration and has never had one line of executable
+code. It could not have fired on any day of its history.** This is Sanaa's
+prose-to-run complaint in its purest form, in my own territory, and it was
+invisible precisely *because* the prose was excellent.
+
+**T8 CARRIES THE IDENTICAL LATENT DEFECT, caught BEFORE the freeze binds.**
+`T8_PREREGISTRATION.md` is written, complete and **not in HEAD**; its §11 freeze
+set registers `analyse_t8.py` as the grading path and **line 12 asserts that file
+exists — it does not exist on the box.** Because the document is **not committed
+it is not frozen**, so no amendment is owed: the comparator is written and
+committed **in the same commit**, making the freeze condition true at the moment
+it binds. **Committing it without the comparator would freeze a false assertion
+onto a nonexistent grading path.** Dispatched.
+
+### MY RULING CORRECTED BY ITS OWN LANE, and the lane was right
+
+My `I = 12.00` in the K0d ceiling ruling is **WITHDRAWN — it was not derivable
+from §A1.4's enumeration.** The lane refused to substitute its own 11.50 and
+stopped, which is correct: re-choosing a supervisor's ruled figure is the rule-9
+widening a lane may not do, and the stop cost **0.061 %** of a ceiling to hold
+that boundary. It demonstrated rather than asserted — `2.00 + 0.50 + 1.00 = 3.50`
+reproduces §8's frozen bounded instrument line exactly, so with the dual-scheme
+bound it is **11.50**. **Corrected ceiling `3 × 912.38 + 11.50 = 2 748.64`
+core-min; derived `45.8107 core-h × $0.0513 = $2.3501`, DERIVED not measured,
+9.40 % of the $25 pre-authorisation.** Recorded visibly; a ruling quietly
+corrected is worse than one visibly corrected.
+
+### T1b L4 EXTENSION — the live compute is CLEAN, and its provenance is now established
+
+Pre-registration `T1b_L4_EXT2_PREREGISTRATION.md` **committed at `72e9b58a`,
+16:35:28Z — leading first compute by 78 seconds.** Blob verified against HEAD.
+**`ranks == 1` proved three ways**, so the wall-clock timeouts **are** the
+registered core-minute caps (1100 / 1300 / 2750). **No overrun.**
+**`R` is REYNOLDS, not Rayleigh** — these are level `x` at three separate Re, one
+member each of three different ladders, **NOT a grid triple**, and they cannot
+carry **G** among themselves. T1b L4 stands **`NOT A RESULT` ×4**.
+`R_10k_x` runs at **92 % of its own registered rate ceiling with 2.6 % margin**
+and is the arm that trips if contention rises; §10 pre-decides that as
+`NOT A RESULT` with no fresh budget. **A `COST_CALIBRATION.md` row is OWED at
+completion** (rule 12) and is PENDING, not forgotten.
+
+### L-324 — A LAB-WIDE GIT HAZARD I HIT MYSELF, not a thermal one
+
+**`5bca2c50`.** Every agent in this session tree shares **ONE** scratchpad
+directory, so `git commit-tree -F <scratch>/msg` at a fixed filename reads
+whatever another agent wrote there last. **My own board commit `3dc99590` carries
+this team's tree under an ansys-verification subject line.** The tree is correct
+and purely additive; only the message is foreign. **Rule 10's CAS proves the
+parent and says nothing about the message, and rule 10's post-commit `--stat`
+verify passes straight through the defect because the diff is genuinely right.**
+Fix, now used by me and pushed to every lane: a **per-invocation unique suffix**
+on the message file AND `GIT_INDEX_FILE`, plus a post-commit assertion on the
+**subject**. Consequence to know: **`git log --grep` for the K0d ruling will not
+find it.** This one is the chief's to broadcast — it is not mine alone.
+
+### OPEN, AND WHY EACH IS OPEN
+
+- **T5 is MINE TO UNBLOCK, not Sanaa's.** Its draft line 5: *"It freezes on
+  Sanaa's reading **or on the supervisor's promotion** of this file to
+  `T5_PREREGISTRATION.md`."* Its 12 INTERPRETATIONs sat on her desk under my own
+  earlier ruling — **superseded by her desk-item disposal rule of 2026-08-25**,
+  under which each arrives with my recommendation and is adopted by silence in
+  one day. **Charter-reserved exception: any INTERPRETATION that is a TIER
+  DEFINITION still waits for her**, and T5 is tier ACQUIRE, so the tier itself
+  is not mine to move. Next dispatch.
+- **T2 IS MIS-TIERED, pending confirmation.** Indexed **FORMULA** on Zukauskas;
+  a sweep of all 45 sidecars for Zukauskas reportedly returns **zero**.
+  **Algebra with no stated validity range arms no band**, so it behaves as
+  ACQUIRE. **An over-claimed tier is my ruling and I have not made it yet** —
+  under audit.
+- **T12 MAY BE UNBLOCKED BY A ZERO-COMPUTE READ.** Nielsen / Rong / Olmedo 2010
+  Annex 20 is on disk with LDA and hot-wire data for isothermal **and
+  nonisothermal** flow, but carries **no rule-15 title-page verification**, so it
+  is `NOT OBTAINED` for the right reason. **A rung recorded BLOCKED that is not
+  actually blocked is throughput lost to a stale record.** Under audit.
+- **VERIFY, and it is the largest open exposure on this board:** reportedly only
+  **three** PDFs in the whole repository carry a title-page verification record,
+  all in `forced_convection_heat_transfer`. **Ampofo**, **Betts / ERCOFTAC 079**
+  and **Nielsen** carry none — **and every `P` column in this family rests on
+  them.** Rule 15 is explicit that a manifest can be internally consistent and
+  externally false. **A P column resting on unverified PDFs is a claim the lab
+  has not earned.** Audit dispatched; it costs zero core-minutes.
+
+**LANES LIVE: three, at the cap** — K0d (resumed, building its four missing
+scripts), T8 (comparator + joint freeze), thermal reference title-page audit.
+
+**NEXT ACTIONS.** Read the K0d and T8 comparator diffs **personally, as diffs**,
+before any output of theirs is believed — undelegatable, and the reason K0d's
+absence was found at all. Then promote T5 under the disposal rule. Fire when
+cores retire, **not before: there are no free cores and taking them from
+dafoam or ansys-verification is not mine to do.**
+
+**ON SANAA'S DESK:** the K0d ceiling raise, now **2 484.84 → 2 748.64** core-min
+(+10.61 %, derived **$2.3501**), all four arrangements costed. Referred
+2026-08-25; adopted by silence after one day.
+
+**BLOCKED:** K0d until its comparators exist and I have read them; K0d's **P**,
+and therefore **HOLDS**, until Blay 1992 is obtained and title-page verified —
+**and obtaining it from outside the box is Sanaa's alone (rules 7, 8) and is not
+being attempted.**
+
 ### K0d — THE CAP COLLISION ESTABLISHED FROM DISK, AND RULED
 
 The killed lane's last words were *"The cost does not fit… and I am not firing."*
