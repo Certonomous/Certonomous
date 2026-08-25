@@ -1082,12 +1082,87 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## heat-transfer
 
-**Section last written:** 2026-08-25T00:2xZ by heat-transfer-supervisor (session
-`certonomous-64`, the post-kill resume). Earlier history condensed — full text at
-`2bf4915a:docs/LAB_STATE.md` lines 457–711. **Single ownership now holds**; the
-two-session overwrite problem recorded in the previous write has not recurred.
+**Section last written:** 2026-08-25T01:14:08Z by heat-transfer-supervisor (session
+`certonomous-65`, the post-weekly-limit resume, running on **Opus 5** under the
+temporary Fable substitution at `7c469330`). Earlier history condensed — full
+text at `2bf4915a:docs/LAB_STATE.md` lines 457–711.
 
-### THIS SESSION'S COMMITS — four, all zero compute
+**STAMP DEFECT CORRECTED.** The previous write of this section carried
+`2026-08-25T00:2xZ` — **literal `x` placeholder digits, committed as if they were
+a reading.** That is an imprecise stamp presented as a measurement and it is the
+same defect class as a cost called measured without a record behind it. The
+stamp above is a real `date -u` taken inside the invocation that wrote this
+block. **No other content of the previous write is withdrawn by this correction.**
+
+### SESSION certonomous-65 — capacity concentrated on this team
+
+**Sanaa's own session turn, 2026-08-25, recorded BYTE-EXACT — typos, spacing and
+capitalisation as she wrote them, because normalised spelling is the signature of
+a relayed paraphrase rather than a primary source:**
+
+> GOOd. For now dafoam and closure teams can go to rest and heat transfer team goes back to its tasks, bc i want all my tokens used by the cfd, ansys verification and heat transfer teams, that way we can continue building out matrix of things we know the lab can holds, or a gat is reached/ surveyed.
+
+**Relayed to this team by the chief; the wording above is hers and is not
+normalised.** Her term for the three-column standard, also hers and also
+unnormalised: **"our tripple crown standard"** — **V** code verification, **G** a
+CONVERGING Roache triple with GCI at Fs = 1.25 and an observed order, **P**
+validation against a public primary with the pre-registration on disk.
+
+**Why this team is load-bearing:** the verification team's audit found the **G
+column structurally EMPTY across dafoam and closure** — `GCI`, `Roache` and
+`CONVERGING` appear in zero files in either tree. **Grid convergence is a
+heat-transfer and cfd capability, and this is the family that has it.** The
+matrix's grid rows are almost entirely ours, which is exactly why an error in the
+flattering direction here is expensive.
+
+**THE BRIEF THAT OPENED THIS SESSION WAS STALE ON FOUR ITEMS — all four had
+already landed at HEAD before it was written**, and this is recorded so no one
+re-does them: **K0d's three pre-compute items were RULED at `935d4114`**
+(AMENDMENT 1, 288 insertions / 0 deletions, K0d still FROZEN, ARMED AND UNFIRED);
+**the Meinders configuration ruling landed at `fa201acd`** (the matrix, not the
+single cube); **the `MATRIX_CONTRIBUTION` row audit and its corrections landed at
+`efc57dbe`**; **the T1b L4 partial cost calibration landed as C-48 at
+`8cde653f`**. All four verified present by `git log -1` on each sha. **What
+remains open from those items is narrower and is listed under NEXT ACTIONS.**
+
+### CROSS-TEAM FINDINGS RECEIVED THIS SESSION — both ansys-verification's, cited not adopted
+
+**Both are ansys-verification's findings. This team cites them; it does not write
+them up as its own.**
+
+1. **A cap enforced as a wall-clock `timeout` is NOT a core-minute cap.** The
+   lab's unit is core-minutes = wall s × ranks ÷ 60 (rule 12); `timeout N`
+   enforces wall **seconds**. They coincide **only at 1 rank**. On a parallel run
+   a `timeout` set to the core-minute figure lets the run spend **`ranks` times
+   its authorised budget** before firing. Correct enforcement:
+   `timeout = cap_core_min * 60 / ranks`. **Our two live solvers are
+   single-rank and cannot be affected.** A lane is sweeping thermal territory for
+   capped runs enforced with the wrong instrument, including graded ones — an
+   undetected past overspend is a **reportable overrun, not an absorbed one**.
+   **This does not disturb the standing ruling that a registered PREDICTION is not
+   a cap** (C-48); that ruling stands on its own reasoning and concerns rungs with
+   no cap at all, whereas this finding concerns rungs that registered a real cap.
+2. **A comfortable deviation is not a result — VMFL051, worked.** All three
+   levels rc = 0, age guard holding with margin, gate deviation **inside the band
+   at −0.2337 %** against ±0.5 %. **A team scoring on gate deviation alone would
+   have written that up as PASS.** They returned **`NOT A RESULT`** on two
+   independent rule-5 clauses, either alone sufficient: **L1 and L2 both failed
+   the frozen per-level plateau clause** (ptp 6.240e-03 and 3.535e-03 against a
+   registered 1.000e-03; only L3 plateaued), and **the triple was OSCILLATORY,
+   R = −1.3486** (3.2278606097 / 3.2233427020 / 3.2294355513) — **no observed
+   order and, correctly, no GCI quoted, the values not being monotone.** Their
+   bounded, not-established diagnosis: the level-to-level differences (4.5e-03,
+   −6.1e-03) are **the same order as L1's and L2's own residual unsteadiness**, so
+   the triple plausibly measured transient noise rather than grid error.
+   **Adopted as a binding check on our own rows:** rule 5 clause (1) fires
+   **before** the triple is classified, so every thermal row claiming **G** is now
+   audited for **per-level plateau explicitly**, level by level against that
+   level's own registered criterion — **not merely for the triple's
+   monotonicity and not at all on the comfort of its deviation.** A row with a
+   level that did not plateau is `NOT A RESULT` for G however good its number
+   looks.
+
+### CERTONOMOUS-64'S COMMITS — six, all zero compute (heading corrected: it read "four" and listed six)
 
 | sha | what |
 |---|---|
@@ -1162,22 +1237,63 @@ by its shape. §5's *"upper bound on cost"* hedge is **falsified** — it banked
 stale** (C-43 vs C-47 at HEAD). Appended onto the **HEAD blob**; editing in place
 would have reverted C-44…C-47. Diff verified **+1 insertion, 0 deletions**.
 
-### LIVE JOBS — reading 2026-08-25T00:01Z, lane-derived, `readlink /proc/<pid>/cwd`
+### LIVE JOBS — reading 2026-08-25T01:14:27Z, taken BY THE SUPERVISOR PERSONALLY
 
-**Two** single-core `buoyantBoussinesqSimpleFoam`, the only solvers in the whole
-lab. **DO NOT TOUCH THEM.** Both launcher shells survived the ~20:50Z kill, so
-both will write their `STATUS.<case>` on exit.
+**Two** single-core `buoyantBoussinesqSimpleFoam`, still **the only solvers in the
+whole lab. DO NOT TOUCH THEM.** Both survived the ~00:50Z weekly-limit fleet kill
+— `ps` shows elapsed 3-03:41:53 and 3-02:46:12, i.e. both predate the kill and
+neither restarted. Both launcher shells survived, so both will write their
+`STATUS.<case>` on exit.
 
-| pid | cwd (`T1_runs/`) | Time / endTime | rate | ETA (UTC) |
-|---|---|---|---|---|
-| 450274 | `R_100k_x` | **70 580 / 80 000** (0.882) | 2.853 s/step | **2026-08-25T07:20Z** |
-| 488219 | `R_30k_x` | **63 749 / 80 000** (0.797) | 3.339 s/step | **2026-08-25T14:57Z** |
+| pid | cwd (`T1_runs/`) | Time / endTime | rate | ExecutionTime | ETA (UTC) |
+|---|---|---|---|---|---|
+| 450274 | `R_100k_x` | **72 265 / 80 000** (0.903) | 2.615 s/step | 272 558.31 s | **~2026-08-25T06:51Z** |
+| 488219 | `R_30k_x` | **65 156 / 80 000** (0.814) | 3.132 s/step | 269 215.31 s | **~2026-08-25T14:09Z** |
 
-Rates from time-directory mtimes, both windows entirely after 20:11Z, so they are
-current two-solver rates, not contention-loaded. CPU so far: 267 645.87 s
-(4 460.76 core-min) and 264 306.93 s (4 405.12 core-min).
+**Rates are a two-point measurement over a 4 407 s baseline** (00:01:00Z →
+01:14:27Z), not a lane's estimate and not carried forward. Both are **faster**
+than the previous reading's 2.853 / 3.339 s/step, consistent with `R_300k_x`
+having exited at 20:11Z and freed a core. **ETAs are DERIVED from that rate and
+are not a measurement.**
 
-### THE FLEET KILL DESTROYED NOTHING IN T-FAMILY — established, not assumed
+**Cost so far, and the C-48 projection is holding.** These two have burned
+272 558.31 s + 269 215.31 s = **9 029.56 core-min = 150.49 core-h** at 1 rank
+each (`ExecutionTime` read from each `log.solve`; single-rank, so wall ≈ CPU).
+Adding the two closed cases' measured **99.4264 core-h** (C-48) and the
+**18.53 core-h** still to run at the measured rates gives a **rung projection of
+268.45 core-h**, against C-48's projected **270.05 core-h** — **0.6 % low**. At
+$0.0513/core-h that is **$13.77 derived, not measured** (the box cannot read its
+own billing, `COMPUTE_BUDGET_CHARTER.md` §5), inside the $25 pre-authorisation.
+**The rung's calibration row is owed at completion, not now** (rule 12); C-48 is
+a PARTIAL covering only the two closed cases.
+### LANES IN FLIGHT — three, the cap, all zero compute
+
+All three are **read-only audits**. Each was given the standing safety brief
+(never touch a running solver; never execute `mark_done_t1b_L4.py` or
+`analyse_t1b_L4.py` in any mode, **not even `--help`** — a prior lane's `--help`
+probe once ran it in real mode) and each was given an explicit
+**write-your-report-to-the-case-directory-and-commit fallback**, because three
+lane reports reached the chief instead of their supervisors tonight (**L-306**).
+
+| lane | task | fallback report path |
+|---|---|---|
+| A | strict completion rule by hand across the whole T1b L4 pool; independent re-verification of the "fleet kill destroyed nothing" claim; the 8 T3 ext1 cases; **comparator freeze hashes against the committed blobs** (Charter §2d); planted-zero control presence; **plus the wall-clock-`timeout` cap sweep** | `verification/runs/T-family/T1_runs/LANE_REPORT_COMPLETION.md` |
+| B | every thermal matrix row against its artifacts — the K0c pair-not-triple finding, the five HOLDS-that-are-GATE-REACHED, the census arithmetic, **plus per-level plateau checked explicitly** | `docs/campaigns/T-family/LANE_REPORT_MATRIX_AUDIT.md` |
+| C | **recipe-fork sweep across every thermal ladder** — mesh recipe, `fvSchemes`, `fvSolution`, `constant/`, BC types and wall treatment, level by level | `docs/campaigns/T-family/LANE_REPORT_RECIPE_FORK.md` |
+
+**Nothing any lane returns is believed until the supervisor's own check.** Lane
+A's comparator diffs in particular are read **by me, as diffs** — a measurement
+script's change without a supervisor's read is an uncalibrated instrument, and
+"I tested it, it's fine" from the lane that wrote it is evidence, not the read.
+
+### THE FLEET KILL DESTROYED NOTHING IN T-FAMILY — certonomous-64's finding, NOW BEING RE-ESTABLISHED FROM ARTIFACTS
+
+**This claim is load-bearing and is being re-verified independently by lane A, not
+repeated on trust.** It is the claim that decides whether anything in this family
+is gradeable at all, and **a run that stopped when a fleet died is not a completed
+run whatever its last time directory says.** The text below is certonomous-64's
+finding as written; it is carried, and it is marked **VERIFY** until lane A's
+independent sweep for artifacts with mtimes in 2026-08-24T20:40Z-21:10Z returns.
 
 The board's earlier **"12 single-core solvers" is stale and is now explained**:
 8 T3 ext1 + 4 L4 were concurrent **only** in the window 2026-08-22T17:51:46Z →
@@ -1193,7 +1309,7 @@ own instant.
 - **Nothing in T-family shows a truncation at ~20:50Z.** Last event before it is
   `R_300k_x`'s clean exit; next is `R_100k_x`'s ordinary 70 000 write at 23:24Z.
 
-### STRICT COMPLETION RULE — evaluated BY HAND, per case, marker NOT run
+### STRICT COMPLETION RULE — certonomous-64's hand evaluation, NOW UNDER INDEPENDENT RE-CHECK (lane A)
 
 Criteria from `T1b_L4_AMENDMENT.md` §7 and `mark_done_t1b_L4.py` (read as source,
 **not executed** — a prior lane's `--help` probe once ran it in real mode).
@@ -1217,7 +1333,7 @@ exist; **missing `DONE.R_{30k,100k,300k}_x`**. Earliest grading **after
 ~2026-08-25T15:00Z**. Comparator must be hashed against its committed blob first
 (Charter §2d) — **not yet done**.
 
-### RULINGS MADE THIS SESSION
+### RULINGS MADE IN CERTONOMOUS-64 — carried, not re-opened
 
 **K0d — `AMENDMENT 1`, `935d4114`. K0d remains FROZEN, ARMED AND UNFIRED.**
 Condition checked twice in the write's own shell:
@@ -1335,23 +1451,36 @@ still on Sanaa's desk, unanswered — they are hers.**
 
 ### NEXT ACTIONS — concrete enough to act on
 
-1. **~07:20Z** `R_100k_x` lands → mark. **~14:57Z** `R_30k_x` lands → mark. Then
-   mark `R_300k_x` (it already satisfies all six criteria). **Hash
-   `analyse_t1b_L4.py` against its committed blob (Charter §2d) BEFORE running
-   it.** Then four (m,f,x) triples under the amended Roache rule → calibration
-   row → commit. **Grade §3.6's registered `R_10k_x` non-convergence prediction.**
-2. **Cost calibration** — a lane is drafting to
-   `verification/runs/T-family/T1_runs/L4_CALIBRATION_DRAFT.md`. Rung row owed
-   **at completion**, not now; the two completed cases can be calibrated as a
-   partial. Key test: does C-23's **no-fixed-startup-term** signature reproduce?
-3. **`MATRIX_CONTRIBUTION.md` row-by-row audit** — a lane is running it;
-   corrections land as a **dated follow-up commit**, never as silent edits.
-4. **Meinders OCR sidecar** — a lane is re-running it properly if tesseract and
-   pdftoppm are present; result lands as a further dated note at §9.1.
-5. **T5 prereg**: first task is to establish whether the matrix chapter carries a
-   reattachment/recirculation diagnostic. Then re-derive the ladder for the
-   periodic domain (**re-derive, not rescale**), keeping `r = 1.6`.
-6. D468 / D469 — separate, separately pre-registered, not unilateral.
+1. **~06:51Z `R_100k_x` lands. ~14:09Z `R_30k_x` lands.** Then mark those two and
+   `R_300k_x` (which already satisfies all six criteria and lacks only its
+   marker). **Hash `analyse_t1b_L4.py` against its committed blob BEFORE running
+   it** (Charter §2d) — lane A is producing that hash now. Then four (m,f,x)
+   triples under the amended Roache rule, **each level checked for plateau
+   individually before the triple is classified at all** (the VMFL051 lesson), then
+   the rung calibration row, then commit. **Grade §3.6's registered prediction**
+   that `R_10k_x` is NOT CONVERGED at 20 000 — it is a registered prediction and
+   is owed a verdict whichever way it falls.
+2. **Rule on lane B's row-by-row findings.** The correction lands as a **dated
+   follow-up commit**, never as a silent edit, and any tier that drops from HOLDS
+   must **name which of V/G/P is missing** — a bare downgrade is not a matrix row.
+3. **Rule on lane C's recipe-fork findings.** A forked ladder's observed order
+   goes to `NOT A RESULT` under cfd's ruling; **better we find it than an
+   auditor does.** Where a ladder is a PAIR it never had an order to lose.
+4. **Meinders OCR — the honest outcome may be to record the paper as
+   OCR-REFRACTORY.** The thesis is a pure scan with no text layer; the sidecar on
+   disk is 281 bytes and **zero non-whitespace characters**, and the record that
+   claimed a 281-page tesseract sweep was disproved forensically (236 ms between
+   two sidecar writes). **A noisy OCR sidecar is WORSE than an empty one**: 281
+   form-feeds are obviously empty, whereas OCR noise looks like a text layer and
+   will be quoted from. If a re-run does not yield text a human would accept,
+   **record OCR-REFRACTORY and stop** — do not ship noise.
+5. **T5 prereg** — first establish whether the matrix chapter carries a
+   reattachment/recirculation diagnostic (**OPEN**, not established). Then
+   re-derive the ladder for the periodic domain — **re-derive, not rescale** —
+   keeping `r = 1.6`. Cannot freeze until Sanaa answers the 12 INTERPRETATIONs.
+6. **K1 provenance** — one line of attack left: read the ~20 commits in
+   2026-08-17T18:59Z → 08-18T04:07Z for embedded porcelain readings. Not started.
+7. D468 / D469 — separate, separately pre-registered, not unilateral.
 
 ### ON SANAA'S DESK
 
@@ -1375,10 +1504,35 @@ still on Sanaa's desk, unanswered — they are hers.**
   V/G/P schema. **This is the chief's to route.**
 - **T3 gate rows** — on Vogel & Eaton 1985, not on disk.
 
-**VERIFY flags:** nothing on this board is carried unverified from the previous
-session except the T1c / T9a / T10a / K0* rung rows in the table above, which
-were **not re-checked this session** and are carried forward from `2bf4915a`.
+**VERIFY flags — what on this board I have NOT checked myself this session.** A
+confident wrong line here is worse than a blank one.
 
+- **VERIFY** — the T1c / T9a / T10a / K0* rung rows in the table above, carried
+  forward from `2bf4915a` and not re-checked in certonomous-64 or certonomous-65.
+- **VERIFY** — the "fleet kill destroyed nothing" finding and the per-case strict
+  completion table, both certonomous-64's. **Lane A is re-establishing them from
+  artifacts**; they are carried, not confirmed.
+- **VERIFY** — every **HOLDS** tier in the thermal matrix contribution.
+  Verification has already found **K0c tiered HOLDS on a triple it does not
+  have** (built as mesh PAIRS; the orders quoted for it belong to **K0b's**
+  ladder, whose own record says at line 335 that those values *"do not apply to
+  these cases and are not used"*) and **five further claimed HOLDS that are
+  GATE REACHED**. Lane B is re-checking every remaining row to that standard.
+  **Until it returns, no thermal HOLDS on this board should be relied on.**
+- **VERIFY** — every observed order this family has ever quoted, pending lane C's
+  recipe-fork sweep. cfd found **7 of 14 ladders lab-wide recipe-forked**, and an
+  order fitted across a recipe fork is a slope across a change of experiment.
+
+**NOT verified and NOT claimed:** that certonomous-64's readings of `gate_t1b.json`
+and `gate_t1c.json` are complete. Those two files were read for the specific rows
+the audit touched, not exhaustively.
+
+**Direction-of-error note, stated because it is the useful thing to know about
+this family:** every defect found in thermal records in the last two days has run
+in **the flattering direction** — an omitted `NOT A RESULT` row, a tier claiming a
+triple that does not exist, orders borrowed from a neighbouring ladder. That is
+not a coincidence to be explained away; it is the prior this team now audits
+under.
 
 ## cfd
 
