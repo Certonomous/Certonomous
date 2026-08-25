@@ -133,7 +133,15 @@ a scope status is a ruling about **whether the case is in this campaign at all**
   `GATE REACHED`. The rule-1 vocabulary — `PASS` / `GATE REACHED` / `GATE FAIL` /
   `NOT A RESULT` / `BLOCKED` / `PENDING` — is unchanged and is not replaced here.
 
-### The four cases run, and their tiers — the supervisor's rulings, overrulable
+### The SEVEN RUNS across FIVE CASES, and their tiers — the supervisor's rulings, overrulable
+
+**This table DUPLICATES facts derived elsewhere (the register's rows, the row table's tier
+cells, the campaign fraction), and a hand-maintained duplicate DRIFTS — it did: it read "four
+cases run" while listing five rows and omitting `VMFL003` entirely, under-reporting the
+campaign and dropping a `NOT A RESULT`, which is the FLATTERING direction.** It is now checked
+by `verification/runs/ansys_verification/check_case_map_glance.py`, which derives the expected
+rows from the **register** and refuses on any mismatch. **The register is the authority; this
+table is a convenience and is never the source.**
 
 | case | verdict (rule 1) | **tier** | why the tier is what it is |
 |---|---|---|---|
@@ -142,6 +150,8 @@ a scope status is a ruling about **whether the case is in this campaign at all**
 | **VMFL005** | `PASS` | **`GATE REACHED`** | gate genuinely met and triple genuinely `CONVERGING` — **P is the missing limb and is named**: the deviation is **9.92× the fine GCI** and Richardson extrapolates **away** from exact, so ~90 % of the residual is a modelling signature (`N-AV7`); mechanism open at docket **`D512`** |
 | **VMFL051** | `NOT A RESULT` | **`NOT HELD`** | **V present, G ABSENT, G decides it**: `OSCILLATORY` at **R = −1.348600**, no observed order, no quotable GCI, two of three levels failing the frozen plateau clause. **`GATE REACHED` was refused deliberately** — that word fits a case with a *believable measurement* lacking one column (VMFL005). **VMFL051 produced no usable measurement at all; its G column is not missing, it is actively negative** |
 | **VMFL045** run 1 | `NOT A RESULT` | **`NOT HELD`** | **produced NO measurement at all** — `rhoCentralFoam` died at wall 0 s on its first timestep with `Entry 'e' not found in fvSolution/solvers`, a frozen-`fvSolution` `e`/`h` defect inherited from the inviscid VMFL051 (VMFL045 is viscous, μ=1e-8, so the implicit energy corrector runs, the path μ=0 never took). **No triple, no observed order, no GCI, no plateau statistics — nothing to hold.** `GATE REACHED` needs a believable measurement lacking one column; there is no measurement. Repaired as the VMFL045-R2 rung, which RAN: verdict `PASS`, tier `GATE REACHED` (register row #7; `cases/ansys_verification/VMFL045/R2/RESULTS.md`) |
+| **VMFL003** | `NOT A RESULT` | **`NOT HELD`** | **V present, G ACTIVELY NEGATIVE, as in VMFL051.** Rule 5 step 1 fired before any triple: **all three levels failed the frozen iterative-convergence residual leg** (L3 missed on **ε alone, 2.523e−08, by 2.5×**). **`GATE REACHED` was refused deliberately — the gate was not reached, it was MISSED by 3.6× the band** (Δp 20800.8245 Pa vs 21744 = **−4.3376 %** on a 2.5 % band). **The miss is MODEL-LEVEL, not discretisation:** the deviation vs the manual's target and vs the closed-form Colebrook correlation are **nearly identical** (−4.34 % / −4.55 %), so it is not the 3-s.f. chart read — exactly the k-ε wall-treatment hazard its own pre-registration named as principal risk BEFORE compute |
+| **VMFL045-R2** | `PASS` | **`GATE REACHED`** | **G is the missing limb and is NAMED.** Gate met by **24×** (lab **1.874779041082** vs target 1.874 = **+0.041571 %** on a 1 % band) and **V is strong** — the exact closed form derived here, **1.874976957681054**, is matched to **−0.010556 %, about one part in 10⁴**. **But the observed order p = 3.3862 is ABOVE the scheme's formal order**, past the pre-registration's own declared *p ≈ 1 expected, p ≈ 2 suspicious*; and **d21 = −2.447e−04 is only ~3× L3's plateau ptp of 7.77e−05**, so the medium–fine difference sits within a small factor of the NOISE FLOOR — the diagnostic that condemned VMFL051 at ~1×. **So GCI_fine 0.0017 % is NOT a discretisation-uncertainty statement** (`N-AV7` in its second form: a small GCI licenses nothing). Order recorded as **MEASURED BUT NOT TRUSTED** |
 
 ### DEFERRED — the 10 `VMFLGPU` cases, pending re-entry, NOT dropped
 
