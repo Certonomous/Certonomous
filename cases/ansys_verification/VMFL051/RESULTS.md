@@ -21,6 +21,33 @@ Verification Manual … Release 2026 R1, March 2026"*).
 
 # `NOT A RESULT`
 
+## TIER: **`NOT HELD`**
+
+**Recorded at grading time**, on Sanaa's directive of 2026-08-25 that every case
+record carry a tier. **The tier and the rule-1 verdict are DIFFERENT vocabularies and
+are recorded side by side; the tier does NOT flatter the verdict.** They overlap at one
+word only, `GATE REACHED`.
+
+**This tier is the `ansys-verification-supervisor`'s ruling, and it is overrulable —
+it is not this lane's call.** Its reasoning, recorded as given:
+
+- **V is PRESENT.** The reference is the exact Prandtl-Meyer solution, derived here to
+  full double precision from the manual's own gas data — **public classical gas
+  dynamics** (Anderson; NACA 1135), **not vendor documentation**. V is not the problem.
+- **G is ABSENT, and G decides it.** The triple is `OSCILLATORY` at **R = −1.348600**,
+  with **no observed order** and **no quotable GCI**, and **two of three levels fail the
+  frozen plateau clause**.
+- **P is OPEN.**
+- **The softer `GATE REACHED` was refused deliberately.** That word fits a case that
+  produced a **believable measurement** and lacks one column — which is VMFL005, whose
+  gate is met and whose triple genuinely converges. **VMFL051 produced no usable
+  measurement at all: its G column is not missing, it is actively negative.**
+- **Precedent is this team's own:** VMFL001 run 1, also `NOT A RESULT`, was tiered
+  `NOT HELD`.
+
+**The tier does not change the verdict, the numbers, or anything in the frozen
+pre-registration.** `NOT A RESULT` stands exactly as §1 states it.
+
 **Cost: 23.3167 core-minutes** (1399 wall s × 1 rank ÷ 60) of a frozen **28
 core-minute** cap — 83.27 % used, cap never reached. **$0.019936 DERIVED, NOT
 MEASURED**, at the owner-stated $0.0513/core-h (c7a.4xlarge); the box cannot read its
@@ -410,3 +437,25 @@ Recorded as **row #4** of `verification/credentials/ansys/ANSYS_VALIDATION_REGIS
 verdict `NOT A RESULT`. **The register's credential count does not move** — only `PASS`
 rows are credentials, and this is not one. It stays on the register honestly, with its
 numbers, as a finding.
+
+---
+
+## Amendment 1 — 2026-08-25 — the TIER was inserted beside the verdict. Version 1.1.
+
+**Disclosed rather than made silently**, because other records cite this file
+(`ANSYS_VALIDATION_REGISTER.md` row #4, `docs/COST_CALIBRATION.md` `C-51`).
+
+**What was inserted:** a `## TIER: NOT HELD` section immediately beneath the verdict
+heading in §1, carrying the supervisor's ruling and its reasoning, on Sanaa's directive
+of 2026-08-25 that every case record carry a tier **written in at grading time**.
+
+**What did NOT change — and this is the whole point of the disclosure:** no verdict, no
+number, no band, no cost figure, no artifact path, no blob sha, and nothing whatever in
+the frozen `PREREGISTRATION.md`, which this file does not revise and has never revised.
+**The verdict `NOT A RESULT` is unaltered.**
+
+**Lines whose number changed above the inserted section: 0.** The insertion sits after
+the verdict heading, so §1's heading and everything above it hold their numbers.
+**Lines below the insertion point shifted down by 27.** That figure is stated
+rather than asserted as zero, because it is not zero — no record cites this file by
+line number, and pretending otherwise would be the softer and less useful claim.
