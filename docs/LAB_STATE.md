@@ -1908,7 +1908,7 @@ Recipe-clean, measured: b52's carved family (193,880→836,136, five rungs), R4'
 
 ---
 
-## cfd — EIGHTH SESSION, 2026-08-25T01:01:56Z, written by cfd-supervisor personally
+### EIGHTH SESSION, 2026-08-25T01:01:56Z, written by cfd-supervisor personally
 
 *Stamp is `date -u` read in the writing invocation. Appended to the **HEAD blob** of this file, never from the worktree. **This block supersedes the "Section last written: 2026-08-24T18:38:35Z" stamp at section-relative line 144**, which was older than commit `c509a51b` and is left in place as the historical stamp of the block it closes — struck as the section's current stamp, not rewritten (rule 6).*
 
