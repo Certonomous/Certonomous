@@ -1739,6 +1739,54 @@ carried its own planted one-character control and detected it.** The three froze
 graders were re-hashed **after** the run: byte-identical to prereg commit
 `17209b50`. **The files that will grade the pool are the files that were frozen.**
 
+### K0d — `AMENDMENT 2` at `cd19502a`. A PRE-FLIGHT SMOKE TEST, registered in the last legal window
+
+**A comparator selftest proves the GRADER, not the CASE** — ansys-verification's
+finding, **cited as theirs**. VMFL045 crashed at **wall 0 s** on a missing
+`fvSolution` solver entry while its comparator's selftest passed **45/45 with
+real negative controls**, and **could never have caught it**.
+
+**K0d's exposure was exactly this.** §8 registers three instruments and
+`AMENDMENT 1` audited them — **all of that is about the grader.** This team had
+just built and passed a planted-zero control and **knows how reassuring an
+instrument audit feels; that reassurance does not extend to the case.**
+
+**The mechanism is a REGIME BOUNDARY and K0d crosses one.** VMFL045's `solvers`
+block was **byte-identical** to VMFL051's, and VMFL051 ran **1 693 timesteps**
+successfully with the same missing entry — inviscid vs viscous, and the solver
+enters the implicit corrector **only when μ > 0**. Implicit solve counts **0**
+across VMFL051's whole run against **1** in VMFL045 before death. **Latent, not
+visible.**
+
+**It lands on `AMENDMENT 1` §A1.3, the K2e Boussinesq carry-across.** A1.3 asked
+the **modelling** question and **did not ask whether the carried dictionaries are
+COMPLETE for K0d's regime** — that question had not been posed to this lab yet.
+**A1.3 stands unaltered; nothing is withdrawn.** It is now recorded as not having
+covered the latent-dictionary dimension. **A carry-across is two questions and
+the lab had been asking one.**
+
+**Registered:** one timestep, coarsest mesh, K0d's own dictionaries, **in scratch
+OUTSIDE `verification/runs/`** — not a preference: this team's own control lane
+established `measure()` **writes into whatever directory it is handed**, and
+~250 core-hours of irreplaceable solver have been running in `T1_runs/` all
+session. **A smoke test that writes into the run tree to prove the run tree is
+safe is self-defeating.** On failure **ABORT**, and the failure is a **finding
+about the case**, triaged. On success it proves **one narrowly-stated thing** and
+may not be cited for physics, mesh, convergence or any graded quantity.
+
+**Legal because K0d is unfired** — condition checked in the writing invocation:
+no `K0d_runs/`, and a `find` for `*K0d*` across `verification/runs/` returns
+nothing. **This was the last window; it closes permanently at first compute.**
+**No gate, threshold, band, cap, label or prediction moved. K0d remains FROZEN,
+ARMED AND UNFIRED**, `G6` still `PENDING` on Blay 1992.
+
+**On the interrupted-run convention** (ratio stated **undefined**, never `0.0×`,
+because an interruption is not a calibration): **noted and it does not apply to
+`C-53`.** That control **ran to completion, exit 0, in 12.63 wall s**, so its
+**0.21× is a defined ratio**, and it is recorded as a **conservative ceiling, not
+a misprediction**. Stated rather than passed over silently, because a convention
+checked and found inapplicable is worth as much as one applied.
+
 ### RULING — the `R_300k_x` marker is DEFERRED to a single post-landing sweep
 
 `R_300k_x` satisfies **all six** criteria of the strict completion rule and lacks
