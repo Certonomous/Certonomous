@@ -885,3 +885,40 @@ would breach the prereg §2/§9a freeze regardless of the supplement's quality.
 **`RESULTS.md` will therefore state plainly that NO grader selftest was run for D4**, because
 the frozen flag is dead. That disclosure stands even though a working selftest now exists
 beside it.
+
+## 13. TASK 2 — D7 ARMED (drafted and frozen, NOT launched)
+
+Committed at `cases/dafoam/ladder-a/A3/curriculum_D7/PREREGISTRATION.md`. **No container has
+started.** Nothing fires without the supervisor's own read that the pre-registration is committed.
+
+**The finding, caught before any spend.** Every cost anchor is A3 rung 2's own measurement at
+42,120 cells np=4 — D4's A2 anchors are deliberately **not** used, because a price is never
+invented across case classes. From that rung's record: one adjoint `≈ 204 s = 13.60 core-min`;
+one primal `≈ 50.7 s = 3.38 core-min` (**derived**, and labelled so — arm P-B's 152 s covers
+three primals, an assumption from its task definition that arm P2 re-measures directly). Per
+major `≈ 1 adjoint + 1.5 primals = 18.67`, registered at **19.0 core-min/major**.
+
+**At 19.0, the curriculum's `~600–900 core-min` buys 31–47 MAJORS, not 100.** A `max_iter` of 100
+prices arm O at **~1,900 core-min** — more than twice the curriculum's top. `max_iter` is
+therefore registered at **30**, derived from the cap and not from taste, and **prediction P1 says
+in advance that D7 will cap-stop**, so its ceiling verdict is `GATE REACHED` and a cap-stop can
+never afterwards be presented as an expectation that was met.
+
+**Two rows, and the OPPOSITE choice from D4 — which is the whole point.** On this exact mesh A3
+rung 2 measured the rotation patch making the gradient **worse**: `shape[115]` `0.0172 % →
+0.1586 %` (**9.208× worse**), `twist[1]` `0.2740 % → 0.9279 %` (**3.39× worse**), `patchV[1]`
+**bit-identical** because it does not cross the warp. That is `N-D18`. D4 bought **PATCHED** on
+A2 for the mirror-image reason. So D7's **optimisation buys SHIPPED**, and the **endpoint FD
+table buys BOTH rows**, because the gradient claim is where the two-row rule bites. Registered
+consequence: **the optimum is a one-row shipped statement** and D5/D6/D14 must not read it as
+toolchain-independent, while the **endpoint gradient table is two-row and therefore is a verdict
+about DAFoam**. G9 additionally requires the two rows to show **two distinct IDWarp `.so` md5s** —
+identical md5s mean the A/B never happened and the item is `NOT A RESULT`.
+
+**Cost:** ceiling **928.0 core-min = $0.793 DERIVED**, prediction **791.5 = $0.677 DERIVED**. The
+prediction is inside the curriculum's range; **the ceiling is 3.1 % above its top**, disclosed
+before compute, because the curriculum priced neither the memory-envelope probe nor the second
+toolchain row. **Arm P2 gates arm O, and if P2's measured basis implies arm O would exceed its
+600.0 cap, arm O is not launched at a raised cap** — the cap does not move to fit the estimate.
+
+**No record id is allocated anywhere in the draft.**
