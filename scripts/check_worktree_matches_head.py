@@ -256,16 +256,27 @@ def _build_control_repo(root):
     # RULE 10. The `git add -A` below is lawful ONLY because `root` is a throwaway
     # temp repo. Nothing used to say so, and a refactor that hoisted this helper
     # would turn it into a directory sweep of the SHARED tree (L-12, twice).
-    assert (
-        os.path.realpath(root).startswith(
-            os.path.realpath(tempfile.gettempdir()) + os.sep
-        )
-        and os.path.realpath(root)
-        != os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-    ), (
-        "_build_control_repo runs `git add -A`: root must be a throwaway temp repo "
-        "and must not be the Certonomous root; refusing %s" % os.path.realpath(root)
+    #
+    # THIS IS A `raise` AND NOT AN `assert`, AND THAT IS THE WHOLE POINT.
+    # `python3 -O` and PYTHONOPTIMIZE REMOVE every `assert`, and a stripped assert
+    # leaves NO TRACE -- the function simply proceeds. Measured on this box against
+    # this guard's exact former shape: normal mode rc=1 AssertionError (refused);
+    # `python3 -O` rc=0, "PROCEEDED TO add -A on /home/ubuntu/Certonomous"; and
+    # PYTHONOPTIMIZE=1 identically. A refusal that protects the shared tree must
+    # survive every interpreter flag, so it raises. `_o_flag_control()` below runs
+    # THIS path under `-O` so the property is measured and not merely asserted in
+    # a comment. Standing for cfd's instruments: an `assert` may carry an invariant
+    # whose violation is a programming error, NEVER a refusal, guard, control or gate.
+    _r = os.path.realpath(root)
+    _inside_tempdir = _r.startswith(os.path.realpath(tempfile.gettempdir()) + os.sep)
+    _not_the_repo_root = _r != os.path.realpath(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
     )
+    if not (_inside_tempdir and _not_the_repo_root):
+        raise RuntimeError(
+            "_build_control_repo runs `git add -A`: root must be a throwaway temp repo "
+            "and must not be the Certonomous root; refusing %s" % _r
+        )
     env = dict(os.environ)
     env.pop("GIT_INDEX_FILE", None)
     env.update(
@@ -305,6 +316,67 @@ def _build_control_repo(root):
     os.remove(up)
     os.mkdir(up)
     return g("rev-parse", "HEAD").strip()
+
+
+def _o_flag_control(script_path, tmp):
+    """Drive `_build_control_repo`'s refusal path under `python3 -O`.
+
+    WHY THIS EXISTS. An `assert`-based guard passes every normal-mode test and is
+    DELETED by `-O`, leaving no trace: the function just proceeds. No test written
+    in normal mode can see that, which is exactly how the assert form of this
+    guard survived review. Only running the interpreter WITH the flag can.
+
+    EVERY PROBE DRIVES A SACRIFICIAL COPY of this module inside a temp tree, and
+    each sets TMPDIR so the clause under test is the one that fires. So even a
+    FULLY STRIPPED guard cannot reach the shared repository -- the control cannot
+    cause the catastrophe it is testing for.
+    """
+    base = os.path.join(tmp, "oflag")
+    projroot = os.path.join(base, "proj")
+    os.makedirs(os.path.join(projroot, "scripts"), exist_ok=True)
+    copy = os.path.join(projroot, "scripts", os.path.basename(script_path))
+    shutil.copy(script_path, copy)
+    elsewhere = os.path.join(base, "tmpelsewhere")
+    outside = os.path.join(base, "outside", "repo")
+    lawful = os.path.join(base, "lawful_repo")
+    for d in (elsewhere, outside, lawful):
+        os.makedirs(d, exist_ok=True)
+
+    drive = os.path.join(base, "drive.py")
+    with open(drive, "w", encoding="utf-8") as fh:
+        fh.write(
+            "import importlib.util, sys\n"
+            "spec = importlib.util.spec_from_file_location('c', sys.argv[1])\n"
+            "m = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(m)\n"
+            "try:\n"
+            "    m._build_control_repo(sys.argv[2])\n"
+            "    print('PROCEEDED')\n"
+            "except RuntimeError:\n"
+            "    print('REFUSED')\n"
+        )
+
+    # (label, TMPDIR for the child, root handed to the guard, required answer)
+    probes = [
+        ("clause 1: root outside gettempdir()", elsewhere, outside, "REFUSED"),
+        ("clause 2: root IS the module's repo root", base, projroot, "REFUSED"),
+        ("positive: a lawful throwaway temp repo", base, lawful, "PROCEEDED"),
+    ]
+    ok = True
+    for label, tmpdir, root, want in probes:
+        env = dict(os.environ)
+        env["TMPDIR"] = tmpdir
+        env.pop("GIT_INDEX_FILE", None)
+        env.pop("PYTHONOPTIMIZE", None)
+        p = subprocess.run(
+            [sys.executable, "-O", drive, copy, root], capture_output=True, env=env
+        )
+        out = p.stdout.decode().strip().splitlines()
+        have = out[-1] if out else "<no output: %s>" % p.stderr.decode().strip()[-60:]
+        good = have == want
+        ok = ok and good
+        print("  %s %-42s want=%-10s got=%s" % ("ok  " if good else "FAIL", label, want, have))
+    return ok
 
 
 def _run_variant(script_path, repo, head, workdir):
@@ -379,6 +451,12 @@ def selftest():
                     ok = False
                 print("  %s %-32s %-22s pristine=%-10s mutant=%-10s"
                       % ("ok  " if flipped else "FAIL", mname, cname, pristine, have))
+
+        print()
+        print("INTERPRETER-FLAG CONTROL -- the `add -A` guard must refuse under `python3 -O`.")
+        print("(`assert` is REMOVED by -O; a guard that vanishes under a flag is not a guard)")
+        if not _o_flag_control(me, tmp):
+            ok = False
 
         print()
         print("SELFTEST %s" % ("PASS" if ok else "FAIL"))
