@@ -132,6 +132,64 @@ worse than none
       admissibility, which is upstream of grading and cannot substitute for it.
     * whether a PASS ladder converged.  ``PASS`` here means RECIPE-CLEAN only.
 
+THE STATED LIMIT OF ITS REACH: THIS AUDIT IS FOR UNIFORM-BACKGROUND SNAPPY
+LADDERS, AND ITS SIMILARITY RULE IS WRONG FOR A GRADED ONE
+==============================================================================
+*Recorded 2026-08-25 by the cfd supervisor's reading of ``similarity_failures``,
+after the sweep that this file's first commit* ``72bc966d`` *reported.  Measured,
+not argued: the demonstration below was run before this paragraph was written.*
+
+``similarity_failures()`` treats ANY change of a block's grading as a similarity
+failure -- *"regraded cells are not scaled cells"*.  **That is correct for the
+uniform-background snappyHexMesh ladders this file was built for, where the
+background block is ungraded (``simpleGrading (1 1 1)``) and refinement is bought
+by scaling ``(nx ny nz)``.  It is WRONG for a correctly-built GRADED ladder.**
+
+A geometrically similar graded family **MUST** change its grading string as it
+refines, and precisely in order to stay similar: the invariant a wall-resolved
+ladder has to hold is the FIRST CELL scaling with the mesh, and in blockMesh the
+first cell is set by the total expansion ratio over a fixed span at a given cell
+count.  Halve the first cell while doubling the count and the expansion ratio
+must move.  A graded family that held its grading string FIXED would be the
+defective one -- its first cell would stay put while the rest of the mesh
+refined, which is the mirror image of the Ahmed defect in the wall-normal
+direction.
+
+**The live case this matters for.** F12's repaired RAE 2822 ladder,
+``sdk/workflows/rae2822_case9.py`` (``b0c0db35``), is exactly such a family:
+first cells 2.0e-6 / 1.0e-6 / 5.0e-7 chord, wall-normal total expansion
+4.401087e6 / 4.598885e6 / 4.702009e6 -- the similarity invariant held to 6.84 %
+across a x4 cell-count refinement -- with the recipe otherwise untouched.
+
+**Two separate facts, and they are not the same fact:**
+
+    1. Run against F12's ladder AS IT STANDS ON DISK, this file **REFUSES**
+       (exit 2, "no ``system/snappyHexMeshDict``").  F12 is a pure blockMesh
+       O-grid and carries no snappy dict, so the similarity rule is never
+       reached.  A refusal is not a pass and it is not a fork either.
+    2. The moment a graded ladder DOES carry a snappy dict -- or if this file's
+       blockMesh similarity rule is ever lifted out and applied on its own --
+       the rule fires and the verdict is **NOT A RESULT on a correctly-built
+       ladder**.  Measured on F12's three emitted ``blockMeshDict`` files with a
+       byte-identical dummy snappy dict beside each: both gaps come back class
+       ``SCALED`` with ``recipe HELD FIXED``, and every one of the six blocks
+       raises *"grading changed (regraded cells are not scaled cells)"*.
+
+**Note the shape of that wrong answer, because it is not the obvious one.** The
+gap is NOT classified ``RECIPE-FORKED`` -- the recipe half of the audit is
+correct and says so.  The false verdict arrives through the SIMILARITY channel
+on a ``SCALED`` gap.  A reader who saw only ``NOT A RESULT`` would misattribute
+it to the recipe, which is the wrong repair on the wrong file.
+
+**So: do not run this file against a graded ladder and believe a NOT A RESULT.**
+Extending it to graded families needs a different similarity invariant -- the
+per-level first cell, or the total expansion held within a stated band -- and
+that is a change to the classifier, deliberately NOT made here.  The limit is
+pinned as an executable claim by the STATED-LIMIT control in ``--selftest``
+(section (viii-b)), which asserts the wrong answer rather than hiding it: if
+somebody later teaches this file about graded families, that control fails and
+forces this paragraph to be rewritten with it.
+
 USAGE
 =====
     python3 scripts/recipe_audit.py CASE1 CASE2 CASE3 [CASE4 ...]
@@ -1484,11 +1542,75 @@ def selftest(out=sys.stdout):
             _check(label, got, want, failures)
 
         # -------------------------------------------------------------------
+        # (viii-b) STATED-LIMIT CONTROL -- pins the graded-ladder limitation
+        # this file's docstring declares, as an EXECUTABLE claim rather than a
+        # paragraph.  It asserts the WRONG answer on purpose.
+        #
+        # The fixture is F12's repaired RAE 2822 ladder reduced to the two
+        # fields this audit compares: the block-cell triples 48x80x1 ->
+        # 96x160x1 -> 192x320x1 (a clean x4 per gap) and the wall-normal total
+        # expansion 4401087.4 -> 4598884.8 -> 4702008.7, which are the values
+        # sdk/workflows/rae2822_case9.py (b0c0db35) actually emits.  That
+        # expansion MOVES because the first cell is halving with the mesh --
+        # 2.0e-6 / 1.0e-6 / 5.0e-7 chord -- which is what similarity REQUIRES
+        # of a graded family, and this audit reads it as a similarity FAILURE.
+        #
+        # Two things are asserted, and the second is the load-bearing one:
+        #   * the verdict is NOT A RESULT on a correctly-built ladder, and
+        #   * the recipe half of the audit is CORRECT and says so -- both gaps
+        #     are SCALED with recipe_changed False.  The false verdict comes
+        #     through the similarity channel, not the recipe channel, and a
+        #     reader who conflated them would repair the wrong thing.
+        #
+        # If somebody later teaches this file a graded-family similarity
+        # invariant, this control FAILS -- which is the intent.  A stated limit
+        # that cannot fail is a paragraph, not a control.  Do not "fix" it by
+        # relaxing the assertion; fix the docstring alongside the classifier.
+        n_limit_controls = 0
+        graded = [
+            _write_case(root, "lim_graded_coarse", nx=48, ny=80, nz=1,
+                        grading="50 4401087.4 1"),
+            _write_case(root, "lim_graded_medium", nx=96, ny=160, nz=1,
+                        grading="50 4598884.8 1"),
+            _write_case(root, "lim_graded_fine", nx=192, ny=320, nz=1,
+                        grading="50 4702008.7 1"),
+        ]
+        res = audit_ladder(graded)
+        for label, got, want in [
+            ("LIMIT graded ladder verdict (WRONG, and pinned)",
+             res["verdict"], VERDICT_NOT_A_RESULT),
+            ("LIMIT graded ladder gap classes", res["gap_classes"], [SCALED, SCALED]),
+            ("LIMIT graded ladder recipe untouched at gap1",
+             res["gaps"][0]["recipe_changed"], False),
+            ("LIMIT graded ladder recipe untouched at gap2",
+             res["gaps"][1]["recipe_changed"], False),
+            ("LIMIT graded ladder background ratio gap1",
+             round(res["gaps"][0]["background_cell_ratio"], 4), 4.0),
+            ("LIMIT graded ladder background ratio gap2",
+             round(res["gaps"][1]["background_cell_ratio"], 4), 4.0),
+        ]:
+            n_limit_controls += 1
+            _check(label, got, want, failures)
+        for gi in (0, 1):
+            n_limit_controls += 1
+            if not any("grading changed" in w
+                       for w in res["gaps"][gi]["similarity_failures"]):
+                failures.append(
+                    f"LIMIT graded ladder gap{gi + 1}: expected the stated "
+                    f"limitation to fire as a 'grading changed' similarity "
+                    f"failure, got {res['gaps'][gi]['similarity_failures']!r}. "
+                    f"If this file now understands graded families, update the "
+                    f"docstring's STATED LIMIT section with the classifier.")
+
+        # -------------------------------------------------------------------
         print(f"selftest: {n_value_controls} value controls, "
               f"{n_mutation_controls} mutation controls "
               f"(10 must-flip + 2 false-positive), "
               f"{len(refusal_cases)} refusal controls, "
-              f"live ahmed_25 regression fixture PRESENT.", file=out)
+              f"live ahmed_25 regression fixture PRESENT, "
+              f"{n_limit_controls} stated-limit controls (graded-ladder "
+              f"reach, docstring section 'THE STATED LIMIT OF ITS REACH').",
+              file=out)
         if failures:
             print(f"\nSELFTEST FAILED -- {len(failures)} control(s) disagreed:", file=out)
             for f in failures:
