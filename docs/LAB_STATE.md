@@ -1743,6 +1743,43 @@ D4 grade + the six G5/G6 mutation units + cost row. D7 launch when memory frees,
 
 **Nothing.** D5/D6/D14 are *prerequisite-queued* on D4, not blocked. **This family has fireable work at every level and is not waiting on anyone.**
 
+#### CORRECTION TO MY OWN CENSUS, AND TO THE CHIEF'S LIVE READING — both wrong, both mine to fix (2026-08-25T20:38:39Z)
+
+**1. MY CENSUS WAS WRONG AND A LANE CAUGHT IT.** I reported D10, D11 and D12 as having **NO DIRECTORY AT HEAD — completely unarmed**, and dispatched a lane to arm and fire three probes. **All three were already armed, fired, graded and committed — as NINE arms, not three — and all three capabilities are REACHED:** D10 (`DAFunctionWallHeatFlux`) `GATE REACHED` at arm P′; D11 (MRF adjoint) `GATE REACHED` at arm F′; D12 (`DAPimpleFoam` unsteady) `GATE REACHED` first attempt.
+
+**The defect was my instrument, not the record.** I enumerated with `curriculum_D<N>/`, requiring a `/` immediately after the number. The arms are filed `curriculum_D10_probe`, `curriculum_D11_mrf_probe_Fprime`, `curriculum_D12_unsteady_probe_Eprime` — **a suffix after the number, so the pattern returns nothing and reads as "unarmed".** Correct enumeration: `curriculum_D[0-9]+[A-Za-z_'-]*`, **then read the list**; never key on an assumed separator.
+
+**The lane refused to spend and was right to.** It burned **0.000 core-min**, citing that re-firing an answered, frozen, graded pre-registration is not a probe but duplicate spend on a settled question, and would have put a second younger record beside a graded one for the same run. **Cost constraints being lifted is not a reason to buy an answer twice.** It caught this by checking `PRIOR_WORK_INVENTORY.md` before proposing anything as new — which is exactly what that inventory is for. **A lane that refuses its brief on evidence is doing its job; this one was more right than its supervisor.**
+
+**2. THE CHIEF'S READING THAT "THE FOUR IPOPT DRIVERS ARE STILL YOURS AND UNTOUCHED" IS OUT OF DATE.** Pids 2359929–2359932 have **TERMINATED** — confirmed absent from the process table at **20:31Z and again at 20:36Z**. They were never touched or signalled by me. **NO DAFOAM SOLVER IS RUNNING.** Box at 20:36Z: **27 GB of 30 available, load 3.25 on 16 cores ≈ 20 % utilisation** — far under Sanaa's 80–90 % band, and the memory that gated D7 has freed.
+
+#### THE CORRECTED CENSUS — re-derived with the fixed pattern
+
+| state | items |
+|---|---|
+| **graded / closed** | D1, D1-C′, D2, D3, D3-attempt, D8 (`GATE REACHED`), D9 (`NOT A RESULT`), D13, **+ the nine probe arms of D10/D11/D12, all `GATE REACHED`** |
+| **verdict OWED** | **D4** — converged at 80 majors, ranks now exited, lane holds the grade |
+| **firing** | **D7** (armed `337d4d84`), **D12 for real** (probe discharged, newly repriced) |
+| **GENUINELY unarmed — no directory under ANY suffix** | **D5, D6, D14, D15** |
+
+**D5, D6 and D14 all take D4 as prerequisite** and arm the moment it closes. **D15 has NO prerequisite and ~0 standalone compute — it IS a gate template** that folds the endpoint FD check into every pre-registration, and it is the one unarmed item nothing blocks.
+
+#### D12 IS NOW CHEAP, AND THAT IS A REAL FINDING
+
+The probe answered D12's `NEEDS COSTING`: measured **`wall(n) = 19.0 + 2.000·n` s** → **127.6–240.5 core-min = $0.109–0.206** for a 10–20-major D12, against the ratified **~1,000–3,000 core-min**. **The curriculum is 4–23× high**, and D12 changed from a four-figure buy into a cheap one. **Registered with its limitation rather than after it: a two-point fit of an unsteady solver is an extrapolation, not a law**, and the firing lane must verify it and report a departure rather than absorb it. Curriculum **Amendment 2** (`d90fc9d5`, v1.1→v1.2, *lines whose number changed above this section: 0*) carries this, plus D11 staying **UNPRICED deliberately** — its case is unselected and the 720-cell probe substrate is a different case class, so a price would be **invented across classes**. **An honest "unpriced" outranks a fabricated number.**
+
+**A named hazard did NOT occur:** D11's *"MRF interface derivatives silently zero"* did not happen — the derivative is **2.3058711101e-01**, agreeing with central FD to **1.704895e-07**. **Terminology corrected for D11's real prereg: in this build MRF is a CELL-ZONE formulation, not an interface — there is no interface object to plant on**, and the rule-3 control goes on the cell zone.
+
+#### MY BRIGHT-LINE RULING — D10 and D12 probes report a gradient with NO FD TABLE
+
+A lane correctly escalated this rather than deciding it. Both records **explicitly disclaim** correctness, accuracy, FD agreement and sign, so no gradient is *claimed*.
+
+**RULED: buy the FD pairs — one each, on the component already computed.** The honest counter-argument, stated because it is real: those verdicts are `GATE REACHED` on **reachability**, and a reachability probe's gradient is an existence witness, not a gradient result — **§2 may genuinely not bite.** I rule the other way anyway. **This family has been burned twice by this exact mechanism** — `d3_grade.py` returned `PASS` at 0.0000 % over an empty component set while the same file refused an unseen plant citing rule 3 **by name**; D4's supplement runs 21 units and never mutates the FD table. **A disclaimer reads to a later reader exactly like a complete control, and records get quoted onward stripped of their caveats.** And decisively: **the repair costs one FD pair.** When the strict reading costs one FD pair and the loose reading costs permanent ambiguity in the gate that is this family's whole product, you buy the pair. **The probes' reachability verdicts do not move** — the FD pair converts a disclaimed gradient into a verified one, nothing else. The firing lane is invited to tell me on the record if it thinks I am wrong.
+
+#### OPEN, HONESTLY UNVERIFIED (**VERIFY**)
+
+**δ_repeat on D12's time-average is NOT MEASURED BY ANY LANE** and must be bought **before any FD step is sized** — N-D15 at its worst on a limit-cycle flow. **D12's memory envelope is OPEN:** the 32 GiB alarm is *not supported*, but **"flat" is not established either** — the 1.3 MiB difference sits **below a run-to-run RSS noise scale one run per point cannot measure.** **Residual contention is unmeasured; no uncontended control exists.** The nine-arm ledger reconciles **through its one confessed defect**: enforced caps on disk sum to 42.0 core-min against `C-69`'s registered 39.0, and the 3.0 gap lands **exactly** on the disclosed D12-E′ launcher defect (registered 3.0, enforced 6.0). **Independent arithmetic landing precisely on the flaw the record already admitted is the outcome that should most increase confidence in the rest of it.** No verdict affected.
+
 ### NINTH SESSION — CUSTODY AFTER THE FLEET KILL, three lanes re-attached
 
 **Section block written:** 2026-08-25T19:07:01Z by dafoam-supervisor (NINTH session, formed ~19:00Z 2026-08-25 after a session usage limit killed the eighth fleet mid-work). Opus 5. **The eighth session's block below is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in it is superseded and this session re-opens none of it.**
