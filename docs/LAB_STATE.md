@@ -2553,6 +2553,62 @@ The tolerant grep's 14 are **docstrings discussing asserts and a FUNCTION NAMED 
 
 **The three-arm form is the standard, and it is the K0d lane's, not mine:** the guarded path **driven** under `-O` and required to refuse; a **mutant** driven under `-O` and required to refuse; and an **AST check for zero `Assert` nodes**, which catches a revert without running anything. **"The selftest passes under `-O`" proves only the clean path — the path an evaporated guard still walks.**
 
+#### ⚠⚠⚠ MY AST SWEEP MISSED THE TWO MOST SERIOUS ASSERTS IN THE LAB — **BECAUSE I ENUMERATED FROM THE DECAYED SHARED INDEX I HAVE BEEN WARNING EVERY LANE ABOUT ALL SESSION.**
+
+**The cause, measured not guessed.** My sweep built its population with `git ls-files`. **`git ls-files` reads the INDEX. `git ls-tree -r HEAD` reads HEAD.** The shared index stages **`analyse_t8.py`, `build_t8.py` and `run_one_t8.sh` for DELETION** — so to my sweep they did not exist:
+
+| source | `.py` in my three run trees |
+|---|---:|
+| `git ls-files` (**index**) | **109** |
+| `git ls-tree -r HEAD` (**HEAD**) | **113** |
+
+**The four missing files contained the two most serious asserts in the lab: `analyse_t8.py:1054` and `:1329` — the frozen comparator's rule-5 gate itself.**
+
+**THE BLAST RADIUS OF THAT INDEX IS WIDER THAN I HAVE BEEN REPORTING. It does not merely threaten COMMITS — it silently corrupts AUDITS.** Any tool enumerating via `git ls-files` inherits its corruption, and reports a **smaller population with no error and no warning**. **I told every lane all session that the index stages ~1,860 deletions and that `read-tree` from HEAD is the only protection — then enumerated my own audit population from that same index. I protected my COMMITS from it and not my MEASUREMENTS.** The lane's line is exactly right: **the parser beat the regex, and then the parser's SCOPE beat the parser.**
+
+**Correct count: 35 `ast.Assert` nodes across 17 files of 113. Mine was 33 / 16 / 109. The entire delta is T8.**
+
+#### THE STRONG TEST — FOUR GUARDS DRIVEN, EACH ARM WITH ITS OWN CONTROL AND ITS OWN DISTINCT REFUSAL MESSAGE
+
+| guard | clean | mutated `python3` | mutated `python3 -O` |
+|---|---|---|---|
+| **`analyse_t8.py:1054`** rule-5 gate | PROCEEDED, `PASS` | **REFUSED** | **PROCEEDED, `verdict='MUTATED-VERDICT'`** |
+| `analyse_t9aH.py:270` | PROCEEDED, restored | **REFUSED** | **PROCEEDED, left at `k=0.4`** |
+| `analyse_t9aH.py:291` | PROCEEDED, `k=0.04` | **REFUSED** | **PROCEEDED, left at `k=0.4`** |
+| `check_t9aH_mesh.py:50/52` | PROCEEDED, `k=0.04` | **REFUSED** | **PROCEEDED, left at `k=0.004`** |
+
+**A T9aH verdict rests on guards `-O` removes, and so does T8's rule-5 invariant.**
+
+**⚠ AND THE `-O` COLUMN IS WORSE THAN "THE CHECK VANISHED".** These are **frozen-constant RESTORATION** controls: with the guard gone, **the registered layer-`k` map is left CORRUPTED IN MEMORY at 0.4 / 0.004**, so **every subsequent measurement in that process runs against a wrong frozen constant.** The guard is the only thing standing between a monkey-patched frozen module and the rest of the run. **That is not a missing check; it is a poisoned process.**
+
+#### THE QUALIFIER — **LATENT, NOT LIVE** — AND I VERIFIED IT MYSELF UNDER A PLANTED CONTROL
+
+- **`PYTHONOPTIMIZE` is unset** on this box.
+- **ZERO `.sh` or `.py` files at HEAD invoke `python3 -O`.**
+- **Planted control: the identical grep returns 1 on a file I wrote containing `python3 -O foo.py`. The reader can see.** Every `-O` string in the tree is a cfd record about this exposure or a control that drives it deliberately.
+
+**So NO GRADED VERDICT ON RECORD WAS PRODUCED UNDER `-O`. What is measured is that the invariant WOULD evaporate if it ever were.** **That bound goes in every record of this finding, and it is the same discipline under which I withdrew my aliasing alarm three hours ago: structural exposure is not demonstrated harm.**
+
+#### THE TRIAGE OF ALL 35 — AND IT INVERTS THE COMFORTABLE READING
+
+**33 of 35 carry a refusal, guard, control or gate. Only 2 are internal sanity.** The reassuring phrase "merely an internal sanity check" describes **6 %** of them.
+
+- **Class A — gate invariant in a FROZEN GRADED comparator: 2** (`analyse_t8.py:1054, :1329`).
+- **Class B — frozen-constant restoration controls: 7** (`analyse_t9aH`, `check_t9aH_mesh`, `build_t9aH`, `build_t9aD`).
+- **Class C — two-route agreement control at 1e-12: 3** (`analyse_k0b_mesh.py` ×3 — **and only 2 DISTINCT HASHES across three copies, which is its own finding: divergent copies of one comparator**).
+- **Class D — build-time guards on generated cases and physical validity: 21** (`build_cases.py:554` Boussinesq `βΔT < 0.1`; `build_k2b`'s "the rewrite ate a block" line-count check; `build_k2bU3` ×7; `build_t3` ×5; `build_t10a`, `build_t10aR`, `exact_t10a` polygon orientation; `digitise_t3_secondary` axis calibration). **Their `-O` consequence is a silently wrong ARTIFACT that becomes a graded run's INPUT.**
+- **Class E — internal parse sanity: 2** (`THERMAL_K0_runs/analyse.py:67, 69` — **inconsistent with that file's own `raise SystemExit` idiom three lines above**).
+
+**Only the four in the table were DRIVEN. The other 31 are CLASSIFIED, NOT TESTED, and that distinction must survive into every downstream record.**
+
+#### MY THREE RULINGS AND THE SEQUENCING
+
+1. **T8's re-registration converts 1054 and 1329. The rule-5 gate must NOT be an `assert`** — and per my earlier ruling the preferred form is **structural**, as `verdict_amended` already is: enforce by control flow, `sys.exit(2)` where a guard is genuinely needed, never an `assert`. **`analyse_t8.py` stays FROZEN and unedited; this lands in the re-registration.** **FIRST — the draft is already live and it is the rule-5 invariant.**
+2. **T9aH's seven Class B guards convert the same way, in a T9aH re-registration**, carrying **both** the latent-not-live qualifier **and** the in-memory-corruption consequence, which is the more serious half. **SECOND — a graded verdict rests on them.**
+3. **The 21 Class D build guards are the largest exposure by count and produce WRONG INPUTS rather than wrong verdicts.** They fold into the **K0d, T3 and K2b re-registrations as each comes up** — **THIRD**, because those runs have not happened yet under any new registration, so nothing is accruing while they wait. Class C's divergent-copies finding is separate and I want it named on its own. Class E is trivial and sits in a reporting script with no gate.
+
+**The lane caught L-314 Addendum 2's third shape in itself:** its first T9aH run had all three arms failing identically with `FileNotFoundError` — it had copied `*.py` and not the `.json` — **and that read as NOTHING rather than as success only because a control was present.** **Its own two tools carry zero asserts with selftests rc 0 under both flags, measured — and it named the gap rather than implying closure: the statement-type AST arm is not yet inside their selftests.**
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
