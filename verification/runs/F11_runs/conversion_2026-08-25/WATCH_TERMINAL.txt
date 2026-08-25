@@ -1,0 +1,6 @@
+TERMINAL=EXITED
+stamp=2026-08-25T16:40:17Z
+rc_MEASURED=0
+wall_s=330
+cap_core_min=13.0
+loadavg_terminal=6.37 4.58 2.53 7/495 2212350

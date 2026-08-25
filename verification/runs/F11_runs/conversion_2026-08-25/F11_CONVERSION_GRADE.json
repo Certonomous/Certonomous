@@ -1,0 +1,4355 @@
+{
+  "cost": {
+    "actual_core_minutes": 5.8227,
+    "levels_with_timing": 6,
+    "note": "core-minutes = wall s x ranks / 60; a docs/COST_CALIBRATION.md row is MANDATORY at completion (section 7, CLAUDE.md rule 12)"
+  },
+  "coverage_matrix": {
+    "G": "what this run is for -- earned only on a CONVERGING triple",
+    "P": "BLOCKED -- the Ghia primary is not on disk, so rule 15's title-page verification cannot be performed (sections 3.1, 10)",
+    "V": "NOT EARNABLE BY THIS RUN (section 10)"
+  },
+  "diagnostics": {
+    "re100/coarse/uAlongX05": {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/uAlongX05_U.xy",
+      "gated": false,
+      "max_abs_deviation": 0.007442653500000007,
+      "n_interior": 15,
+      "note": "DIAGNOSTIC ONLY -- section 3.4, moves no verdict",
+      "points": [
+        {
+          "boundary_identity": true,
+          "coord": 1.0,
+          "deviation": 0.0,
+          "matched_coord": 1.0,
+          "measured": 1.0,
+          "reference": 1.0
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9766,
+          "deviation": -0.002698975000000048,
+          "matched_coord": 0.9766,
+          "measured": 0.838531025,
+          "reference": 0.84123
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9688,
+          "deviation": -0.00294900720000002,
+          "matched_coord": 0.9688,
+          "measured": 0.7857609928,
+          "reference": 0.78871
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9609,
+          "deviation": -0.0030095031000000327,
+          "matched_coord": 0.9609,
+          "measured": 0.7342104969,
+          "reference": 0.73722
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9531,
+          "deviation": -0.0030664106999999108,
+          "matched_coord": 0.9531,
+          "measured": 0.6841035893,
+          "reference": 0.68717
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8516,
+          "deviation": 0.0007337800999999977,
+          "matched_coord": 0.8516,
+          "measured": 0.2322437801,
+          "reference": 0.23151
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.7344,
+          "deviation": -0.000885360653,
+          "matched_coord": 0.7344,
+          "measured": 0.002434639347,
+          "reference": 0.00332
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.6172,
+          "deviation": 0.0027352984000000025,
+          "matched_coord": 0.6172,
+          "measured": -0.1336747016,
+          "reference": -0.13641
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.5,
+          "deviation": 0.004784268099999989,
+          "matched_coord": 0.5,
+          "measured": -0.2010257319,
+          "reference": -0.20581
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.4531,
+          "deviation": 0.007442653500000007,
+          "matched_coord": 0.4531,
+          "measured": -0.2034573465,
+          "reference": -0.2109
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2813,
+          "deviation": 0.0007669950000000203,
+          "matched_coord": 0.2813,
+          "measured": -0.155853005,
+          "reference": -0.15662
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1719,
+          "deviation": -0.0008149901999999903,
+          "matched_coord": 0.1719,
+          "measured": -0.1023149902,
+          "reference": -0.1015
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1016,
+          "deviation": -0.0010339202500000005,
+          "matched_coord": 0.1016,
+          "measured": -0.06537392025,
+          "reference": -0.06434
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0703,
+          "deviation": 0.0003307501500000032,
+          "matched_coord": 0.0703,
+          "measured": -0.04741924985,
+          "reference": -0.04775
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0625,
+          "deviation": -0.0008576906499999995,
+          "matched_coord": 0.0625,
+          "measured": -0.04277769065,
+          "reference": -0.04192
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0547,
+          "deviation": -0.0007685934299999989,
+          "matched_coord": 0.0547,
+          "measured": -0.03793859343,
+          "reference": -0.03717
+        },
+        {
+          "boundary_identity": true,
+          "coord": 0.0,
+          "deviation": 0.0,
+          "matched_coord": 0.0,
+          "measured": 0.0,
+          "reference": 0.0
+        }
+      ],
+      "rms_abs_deviation": 0.0028900381272112742,
+      "set": "uAlongX05"
+    },
+    "re100/coarse/vAlongY05": {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/vAlongY05_U.xy",
+      "gated": false,
+      "max_abs_deviation": 0.011329397399999996,
+      "n_interior": 15,
+      "note": "DIAGNOSTIC ONLY -- section 3.4, moves no verdict",
+      "points": [
+        {
+          "boundary_identity": true,
+          "coord": 1.0,
+          "deviation": 0.0,
+          "matched_coord": 1.0,
+          "measured": 0.0,
+          "reference": 0.0
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9688,
+          "deviation": -0.005908344179999997,
+          "matched_coord": 0.9688,
+          "measured": -0.06496834418,
+          "reference": -0.05906
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9609,
+          "deviation": -0.0071833283799999925,
+          "matched_coord": 0.9609,
+          "measured": -0.08109332838,
+          "reference": -0.07391
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9531,
+          "deviation": -0.00823544692,
+          "matched_coord": 0.9531,
+          "measured": -0.09687544692,
+          "reference": -0.08864
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9453,
+          "deviation": -0.009043877699999994,
+          "matched_coord": 0.9453,
+          "measured": -0.1121738777,
+          "reference": -0.10313
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9063,
+          "deviation": -0.011329397399999996,
+          "matched_coord": 0.9063,
+          "measured": -0.1804693974,
+          "reference": -0.16914
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8594,
+          "deviation": -0.008905849100000002,
+          "matched_coord": 0.8594,
+          "measured": -0.2333558491,
+          "reference": -0.22445
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8047,
+          "deviation": -0.0019847578000000143,
+          "matched_coord": 0.8047,
+          "measured": -0.2473147578,
+          "reference": -0.24533
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.5,
+          "deviation": 0.0003797526400000015,
+          "matched_coord": 0.5,
+          "measured": 0.05491975264,
+          "reference": 0.05454
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2344,
+          "deviation": -0.000412345500000022,
+          "matched_coord": 0.2344,
+          "measured": 0.1748576545,
+          "reference": 0.17527
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2266,
+          "deviation": -2.0175400000016497e-05,
+          "matched_coord": 0.2266,
+          "measured": 0.1750498246,
+          "reference": 0.17507
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1563,
+          "deviation": 0.0010498650999999914,
+          "matched_coord": 0.1563,
+          "measured": 0.1618198651,
+          "reference": 0.16077
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0938,
+          "deviation": 0.0015302484999999977,
+          "matched_coord": 0.0938,
+          "measured": 0.1247002485,
+          "reference": 0.12317
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0781,
+          "deviation": 0.0017781601000000091,
+          "matched_coord": 0.0781,
+          "measured": 0.1106781601,
+          "reference": 0.1089
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0703,
+          "deviation": 0.001442323199999998,
+          "matched_coord": 0.0703,
+          "measured": 0.1023523232,
+          "reference": 0.10091
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0625,
+          "deviation": 0.0016964863499999983,
+          "matched_coord": 0.0625,
+          "measured": 0.09402648635,
+          "reference": 0.09233
+        },
+        {
+          "boundary_identity": true,
+          "coord": 0.0,
+          "deviation": -3.779806647e-18,
+          "matched_coord": 0.0,
+          "measured": -3.779806647e-18,
+          "reference": 0.0
+        }
+      ],
+      "rms_abs_deviation": 0.005535403900762228,
+      "set": "vAlongY05"
+    },
+    "re100/fine/uAlongX05": {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/uAlongX05_U.xy",
+      "gated": false,
+      "max_abs_deviation": 0.00489492720000001,
+      "n_interior": 15,
+      "note": "DIAGNOSTIC ONLY -- section 3.4, moves no verdict",
+      "points": [
+        {
+          "boundary_identity": true,
+          "coord": 1.0,
+          "deviation": 0.0,
+          "matched_coord": 1.0,
+          "measured": 1.0,
+          "reference": 1.0
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9766,
+          "deviation": 0.002188536199999924,
+          "matched_coord": 0.9766,
+          "measured": 0.8434185362,
+          "reference": 0.84123
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9688,
+          "deviation": 0.002885482599999989,
+          "matched_coord": 0.9688,
+          "measured": 0.7915954826,
+          "reference": 0.78871
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9609,
+          "deviation": 0.0028840153000000424,
+          "matched_coord": 0.9609,
+          "measured": 0.7401040153,
+          "reference": 0.73722
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9531,
+          "deviation": 0.003472058200000072,
+          "matched_coord": 0.9531,
+          "measured": 0.6906420582,
+          "reference": 0.68717
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8516,
+          "deviation": 0.00489492720000001,
+          "matched_coord": 0.8516,
+          "measured": 0.2364049272,
+          "reference": 0.23151
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.7344,
+          "deviation": 0.0008970046850000002,
+          "matched_coord": 0.7344,
+          "measured": 0.004217004685,
+          "reference": 0.00332
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.6172,
+          "deviation": -0.002194399699999988,
+          "matched_coord": 0.6172,
+          "measured": -0.1386043997,
+          "reference": -0.13641
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.5,
+          "deviation": -0.002930488100000017,
+          "matched_coord": 0.5,
+          "measured": -0.2087404881,
+          "reference": -0.20581
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.4531,
+          "deviation": -0.002510203200000005,
+          "matched_coord": 0.4531,
+          "measured": -0.2134102032,
+          "reference": -0.2109
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2813,
+          "deviation": -0.0009671805999999783,
+          "matched_coord": 0.2813,
+          "measured": -0.1575871806,
+          "reference": -0.15662
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1719,
+          "deviation": -0.0002792106999999905,
+          "matched_coord": 0.1719,
+          "measured": -0.1017792107,
+          "reference": -0.1015
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1016,
+          "deviation": -0.0001420060100000009,
+          "matched_coord": 0.1016,
+          "measured": -0.06448200601,
+          "reference": -0.06434
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0703,
+          "deviation": 0.0010851173400000039,
+          "matched_coord": 0.0703,
+          "measured": -0.04666488266,
+          "reference": -0.04775
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0625,
+          "deviation": -9.717960999999775e-05,
+          "matched_coord": 0.0625,
+          "measured": -0.04201717961,
+          "reference": -0.04192
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0547,
+          "deviation": -9.767230999999793e-05,
+          "matched_coord": 0.0547,
+          "measured": -0.03726767231,
+          "reference": -0.03717
+        },
+        {
+          "boundary_identity": true,
+          "coord": 0.0,
+          "deviation": 0.0,
+          "matched_coord": 0.0,
+          "measured": 0.0,
+          "reference": 0.0
+        }
+      ],
+      "rms_abs_deviation": 0.0023121081190511667,
+      "set": "uAlongX05"
+    },
+    "re100/fine/vAlongY05": {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/vAlongY05_U.xy",
+      "gated": false,
+      "max_abs_deviation": 0.00924237209999998,
+      "n_interior": 15,
+      "note": "DIAGNOSTIC ONLY -- section 3.4, moves no verdict",
+      "points": [
+        {
+          "boundary_identity": true,
+          "coord": 1.0,
+          "deviation": 0.0,
+          "matched_coord": 1.0,
+          "measured": 0.0,
+          "reference": 0.0
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9688,
+          "deviation": -0.003290386209999996,
+          "matched_coord": 0.9688,
+          "measured": -0.06235038621,
+          "reference": -0.05906
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9609,
+          "deviation": -0.004245467660000002,
+          "matched_coord": 0.9609,
+          "measured": -0.07815546766,
+          "reference": -0.07391
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9531,
+          "deviation": -0.00494484312,
+          "matched_coord": 0.9531,
+          "measured": -0.09358484312,
+          "reference": -0.08864
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9453,
+          "deviation": -0.005611799400000006,
+          "matched_coord": 0.9453,
+          "measured": -0.1087417994,
+          "reference": -0.10313
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9063,
+          "deviation": -0.008159994699999978,
+          "matched_coord": 0.9063,
+          "measured": -0.1772999947,
+          "reference": -0.16914
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8594,
+          "deviation": -0.00924237209999998,
+          "matched_coord": 0.8594,
+          "measured": -0.2336923721,
+          "reference": -0.22445
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8047,
+          "deviation": -0.007898564300000022,
+          "matched_coord": 0.8047,
+          "measured": -0.2532285643,
+          "reference": -0.24533
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.5,
+          "deviation": 0.0029012130100000005,
+          "matched_coord": 0.5,
+          "measured": 0.05744121301,
+          "reference": 0.05454
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2344,
+          "deviation": 0.004063422599999977,
+          "matched_coord": 0.2344,
+          "measured": 0.1793334226,
+          "reference": 0.17527
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2266,
+          "deviation": 0.00405181269999999,
+          "matched_coord": 0.2266,
+          "measured": 0.1791218127,
+          "reference": 0.17507
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1563,
+          "deviation": 0.0038935684999999998,
+          "matched_coord": 0.1563,
+          "measured": 0.1646635685,
+          "reference": 0.16077
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0938,
+          "deviation": 0.003177493400000009,
+          "matched_coord": 0.0938,
+          "measured": 0.1263474934,
+          "reference": 0.12317
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0781,
+          "deviation": 0.0027960008000000036,
+          "matched_coord": 0.0781,
+          "measured": 0.1116960008,
+          "reference": 0.1089
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0703,
+          "deviation": 0.0026069865999999997,
+          "matched_coord": 0.0703,
+          "measured": 0.1035169866,
+          "reference": 0.10091
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0625,
+          "deviation": 0.0024182578200000054,
+          "matched_coord": 0.0625,
+          "measured": 0.09474825782,
+          "reference": 0.09233
+        },
+        {
+          "boundary_identity": true,
+          "coord": 0.0,
+          "deviation": 4.84449642e-19,
+          "matched_coord": 0.0,
+          "measured": 4.84449642e-19,
+          "reference": 0.0
+        }
+      ],
+      "rms_abs_deviation": 0.005074462949339622,
+      "set": "vAlongY05"
+    },
+    "re100/medium/uAlongX05": {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/uAlongX05_U.xy",
+      "gated": false,
+      "max_abs_deviation": 0.004618972400000004,
+      "n_interior": 15,
+      "note": "DIAGNOSTIC ONLY -- section 3.4, moves no verdict",
+      "points": [
+        {
+          "boundary_identity": true,
+          "coord": 1.0,
+          "deviation": 0.0,
+          "matched_coord": 1.0,
+          "measured": 1.0,
+          "reference": 1.0
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9766,
+          "deviation": 0.0012494163999999808,
+          "matched_coord": 0.9766,
+          "measured": 0.8424794164,
+          "reference": 0.84123
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9688,
+          "deviation": 0.0018086965999999371,
+          "matched_coord": 0.9688,
+          "measured": 0.7905186966,
+          "reference": 0.78871
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9609,
+          "deviation": 0.0016614229000000424,
+          "matched_coord": 0.9609,
+          "measured": 0.7388814229,
+          "reference": 0.73722
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9531,
+          "deviation": 0.002137596400000108,
+          "matched_coord": 0.9531,
+          "measured": 0.6893075964,
+          "reference": 0.68717
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8516,
+          "deviation": 0.004618972400000004,
+          "matched_coord": 0.8516,
+          "measured": 0.2361289724,
+          "reference": 0.23151
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.7344,
+          "deviation": 0.0007642465129999998,
+          "matched_coord": 0.7344,
+          "measured": 0.004084246513,
+          "reference": 0.00332
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.6172,
+          "deviation": -0.001056894700000005,
+          "matched_coord": 0.6172,
+          "measured": -0.1374668947,
+          "reference": -0.13641
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.5,
+          "deviation": -0.0015654491000000048,
+          "matched_coord": 0.5,
+          "measured": -0.2073754491,
+          "reference": -0.20581
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.4531,
+          "deviation": -0.0007991954000000079,
+          "matched_coord": 0.4531,
+          "measured": -0.2116991954,
+          "reference": -0.2109
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2813,
+          "deviation": -0.0006847144999999888,
+          "matched_coord": 0.2813,
+          "measured": -0.1573047145,
+          "reference": -0.15662
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1719,
+          "deviation": -0.00039317639999998655,
+          "matched_coord": 0.1719,
+          "measured": -0.1018931764,
+          "reference": -0.1015
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1016,
+          "deviation": -0.0003107914399999995,
+          "matched_coord": 0.1016,
+          "measured": -0.06465079144,
+          "reference": -0.06434
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0703,
+          "deviation": 0.0009376774700000021,
+          "matched_coord": 0.0703,
+          "measured": -0.04681232253,
+          "reference": -0.04775
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0625,
+          "deviation": -0.00024264414999999873,
+          "matched_coord": 0.0625,
+          "measured": -0.04216264415,
+          "reference": -0.04192
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0547,
+          "deviation": -0.00023700982999999565,
+          "matched_coord": 0.0547,
+          "measured": -0.03740700983,
+          "reference": -0.03717
+        },
+        {
+          "boundary_identity": true,
+          "coord": 0.0,
+          "deviation": 0.0,
+          "matched_coord": 0.0,
+          "measured": 0.0,
+          "reference": 0.0
+        }
+      ],
+      "rms_abs_deviation": 0.0016330282774634508,
+      "set": "uAlongX05"
+    },
+    "re100/medium/vAlongY05": {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/vAlongY05_U.xy",
+      "gated": false,
+      "max_abs_deviation": 0.009562826699999999,
+      "n_interior": 15,
+      "note": "DIAGNOSTIC ONLY -- section 3.4, moves no verdict",
+      "points": [
+        {
+          "boundary_identity": true,
+          "coord": 1.0,
+          "deviation": 0.0,
+          "matched_coord": 1.0,
+          "measured": 0.0,
+          "reference": 0.0
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9688,
+          "deviation": -0.0037845349500000014,
+          "matched_coord": 0.9688,
+          "measured": -0.06284453495,
+          "reference": -0.05906
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9609,
+          "deviation": -0.00481791392,
+          "matched_coord": 0.9609,
+          "measured": -0.07872791392,
+          "reference": -0.07391
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9531,
+          "deviation": -0.005585798619999999,
+          "matched_coord": 0.9531,
+          "measured": -0.09422579862,
+          "reference": -0.08864
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9453,
+          "deviation": -0.0063059684000000005,
+          "matched_coord": 0.9453,
+          "measured": -0.1094359684,
+          "reference": -0.10313
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9063,
+          "deviation": -0.008793889499999985,
+          "matched_coord": 0.9063,
+          "measured": -0.1779338895,
+          "reference": -0.16914
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8594,
+          "deviation": -0.009562826699999999,
+          "matched_coord": 0.8594,
+          "measured": -0.2340128267,
+          "reference": -0.22445
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8047,
+          "deviation": -0.006743101299999998,
+          "matched_coord": 0.8047,
+          "measured": -0.2520731013,
+          "reference": -0.24533
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.5,
+          "deviation": 0.0025215455300000023,
+          "matched_coord": 0.5,
+          "measured": 0.05706154553,
+          "reference": 0.05454
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2344,
+          "deviation": 0.003195754499999981,
+          "matched_coord": 0.2344,
+          "measured": 0.1784657545,
+          "reference": 0.17527
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2266,
+          "deviation": 0.003301470599999995,
+          "matched_coord": 0.2266,
+          "measured": 0.1783714706,
+          "reference": 0.17507
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1563,
+          "deviation": 0.0033973149000000036,
+          "matched_coord": 0.1563,
+          "measured": 0.1641673149,
+          "reference": 0.16077
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0938,
+          "deviation": 0.002886268999999997,
+          "matched_coord": 0.0938,
+          "measured": 0.126056269,
+          "reference": 0.12317
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0781,
+          "deviation": 0.0025210756000000056,
+          "matched_coord": 0.0781,
+          "measured": 0.1114210756,
+          "reference": 0.1089
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0703,
+          "deviation": 0.0024201035000000065,
+          "matched_coord": 0.0703,
+          "measured": 0.1033301035,
+          "reference": 0.10091
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0625,
+          "deviation": 0.0022987926400000053,
+          "matched_coord": 0.0625,
+          "measured": 0.09462879264,
+          "reference": 0.09233
+        },
+        {
+          "boundary_identity": true,
+          "coord": 0.0,
+          "deviation": 0.0,
+          "matched_coord": 0.0,
+          "measured": 0.0,
+          "reference": 0.0
+        }
+      ],
+      "rms_abs_deviation": 0.005083248042987636,
+      "set": "vAlongY05"
+    },
+    "re1000/coarse/uAlongX05": {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/uAlongX05_U.xy",
+      "gated": false,
+      "max_abs_deviation": 0.028606945400000028,
+      "n_interior": 15,
+      "note": "DIAGNOSTIC ONLY -- section 3.4, moves no verdict",
+      "points": [
+        {
+          "boundary_identity": true,
+          "coord": 1.0,
+          "deviation": 0.0,
+          "matched_coord": 1.0,
+          "measured": 1.0,
+          "reference": 1.0
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9766,
+          "deviation": -0.0057450901000000165,
+          "matched_coord": 0.9766,
+          "measured": 0.6535349099,
+          "reference": 0.65928
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9688,
+          "deviation": -0.009699937599999986,
+          "matched_coord": 0.9688,
+          "measured": 0.5652200624,
+          "reference": 0.57492
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9609,
+          "deviation": -0.0033470957000000245,
+          "matched_coord": 0.9609,
+          "measured": 0.5078229043,
+          "reference": 0.51117
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9531,
+          "deviation": -0.007928434699999987,
+          "matched_coord": 0.9531,
+          "measured": 0.4581115653,
+          "reference": 0.46604
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8516,
+          "deviation": -0.017494467700000016,
+          "matched_coord": 0.8516,
+          "measured": 0.3155455323,
+          "reference": 0.33304
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.7344,
+          "deviation": -0.0110078401,
+          "matched_coord": 0.7344,
+          "measured": 0.1761821599,
+          "reference": 0.18719
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.6172,
+          "deviation": -0.007694501530000002,
+          "matched_coord": 0.6172,
+          "measured": 0.04932549847,
+          "reference": 0.05702
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.5,
+          "deviation": 0.005372837630000002,
+          "matched_coord": 0.5,
+          "measured": -0.05542716237,
+          "reference": -0.0608
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.4531,
+          "deviation": 0.00910706900000001,
+          "matched_coord": 0.4531,
+          "measured": -0.097372931,
+          "reference": -0.10648
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2813,
+          "deviation": -0.0021269268999999924,
+          "matched_coord": 0.2813,
+          "measured": -0.2801769269,
+          "reference": -0.27805
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1719,
+          "deviation": 0.028606945400000028,
+          "matched_coord": 0.1719,
+          "measured": -0.3542830546,
+          "reference": -0.38289
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1016,
+          "deviation": 0.023249012600000007,
+          "matched_coord": 0.1016,
+          "measured": -0.2740509874,
+          "reference": -0.2973
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0703,
+          "deviation": 0.014283562500000013,
+          "matched_coord": 0.0703,
+          "measured": -0.2079164375,
+          "reference": -0.2222
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0625,
+          "deviation": 0.011796908299999992,
+          "matched_coord": 0.0625,
+          "measured": -0.1901630917,
+          "reference": -0.20196
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0547,
+          "deviation": 0.010017830199999994,
+          "matched_coord": 0.0547,
+          "measured": -0.1710721698,
+          "reference": -0.18109
+        },
+        {
+          "boundary_identity": true,
+          "coord": 0.0,
+          "deviation": 0.0,
+          "matched_coord": 0.0,
+          "measured": 0.0,
+          "reference": 0.0
+        }
+      ],
+      "rms_abs_deviation": 0.013181654470597779,
+      "set": "uAlongX05"
+    },
+    "re1000/coarse/vAlongY05": {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/vAlongY05_U.xy",
+      "gated": false,
+      "max_abs_deviation": 0.026934714500000012,
+      "n_interior": 15,
+      "note": "DIAGNOSTIC ONLY -- section 3.4, moves no verdict",
+      "points": [
+        {
+          "boundary_identity": true,
+          "coord": 1.0,
+          "deviation": 0.0,
+          "matched_coord": 1.0,
+          "measured": 0.0,
+          "reference": 0.0
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9688,
+          "deviation": -0.010851469700000005,
+          "matched_coord": 0.9688,
+          "measured": -0.2247314697,
+          "reference": -0.21388
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9609,
+          "deviation": -0.007496504800000026,
+          "matched_coord": 0.9609,
+          "measured": -0.2841865048,
+          "reference": -0.27669
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9531,
+          "deviation": -0.0030010280000000167,
+          "matched_coord": 0.9531,
+          "measured": -0.340141028,
+          "reference": -0.33714
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9453,
+          "deviation": 0.005669915500000011,
+          "matched_coord": 0.9453,
+          "measured": -0.3862100845,
+          "reference": -0.39188
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9063,
+          "deviation": 0.026934714500000012,
+          "matched_coord": 0.9063,
+          "measured": -0.4880652855,
+          "reference": -0.515
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8594,
+          "deviation": 0.009482837699999969,
+          "matched_coord": 0.8594,
+          "measured": -0.4171671623,
+          "reference": -0.42665
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8047,
+          "deviation": 0.007220266500000017,
+          "matched_coord": 0.8047,
+          "measured": -0.3124397335,
+          "reference": -0.31966
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.5,
+          "deviation": -0.0019030000100000027,
+          "matched_coord": 0.5,
+          "measured": 0.02335699999,
+          "reference": 0.02526
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2344,
+          "deviation": -0.009670425000000038,
+          "matched_coord": 0.2344,
+          "measured": 0.312679575,
+          "reference": 0.32235
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2266,
+          "deviation": -0.01069771399999997,
+          "matched_coord": 0.2266,
+          "measured": 0.320052286,
+          "reference": 0.33075
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1563,
+          "deviation": -0.02353167610000001,
+          "matched_coord": 0.1563,
+          "measured": 0.3474183239,
+          "reference": 0.37095
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0938,
+          "deviation": -0.021001529899999982,
+          "matched_coord": 0.0938,
+          "measured": 0.3052684701,
+          "reference": 0.32627
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0781,
+          "deviation": -0.01898475490000001,
+          "matched_coord": 0.0781,
+          "measured": 0.2845452451,
+          "reference": 0.30353
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0703,
+          "deviation": -0.01924373239999999,
+          "matched_coord": 0.0703,
+          "measured": 0.2708762676,
+          "reference": 0.29012
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0625,
+          "deviation": -0.017642709899999998,
+          "matched_coord": 0.0625,
+          "measured": 0.2572072901,
+          "reference": 0.27485
+        },
+        {
+          "boundary_identity": true,
+          "coord": 0.0,
+          "deviation": -1.346192502e-17,
+          "matched_coord": 0.0,
+          "measured": -1.346192502e-17,
+          "reference": 0.0
+        }
+      ],
+      "rms_abs_deviation": 0.014901973949210594,
+      "set": "vAlongY05"
+    },
+    "re1000/fine/uAlongX05": {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/uAlongX05_U.xy",
+      "gated": false,
+      "max_abs_deviation": 0.006240018299999983,
+      "n_interior": 15,
+      "note": "DIAGNOSTIC ONLY -- section 3.4, moves no verdict",
+      "points": [
+        {
+          "boundary_identity": true,
+          "coord": 1.0,
+          "deviation": 0.0,
+          "matched_coord": 1.0,
+          "measured": 1.0,
+          "reference": 1.0
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9766,
+          "deviation": 0.004597532899999979,
+          "matched_coord": 0.9766,
+          "measured": 0.6638775329,
+          "reference": 0.65928
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9688,
+          "deviation": 0.005725629900000029,
+          "matched_coord": 0.9688,
+          "measured": 0.5806456299,
+          "reference": 0.57492
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9609,
+          "deviation": 0.005731980800000036,
+          "matched_coord": 0.9609,
+          "measured": 0.5169019808,
+          "reference": 0.51117
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9531,
+          "deviation": 0.006240018299999983,
+          "matched_coord": 0.9531,
+          "measured": 0.4722800183,
+          "reference": 0.46604
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8516,
+          "deviation": 0.003343902600000004,
+          "matched_coord": 0.8516,
+          "measured": 0.3363839026,
+          "reference": 0.33304
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.7344,
+          "deviation": 0.000935104600000014,
+          "matched_coord": 0.7344,
+          "measured": 0.1881251046,
+          "reference": 0.18719
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.6172,
+          "deviation": -0.00028401717999999854,
+          "matched_coord": 0.6172,
+          "measured": 0.05673598282,
+          "reference": 0.05702
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.5,
+          "deviation": -0.0010216014299999979,
+          "matched_coord": 0.5,
+          "measured": -0.06182160143,
+          "reference": -0.0608
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.4531,
+          "deviation": -0.0012485604999999955,
+          "matched_coord": 0.4531,
+          "measured": -0.1077285605,
+          "reference": -0.10648
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2813,
+          "deviation": -0.0022140569999999915,
+          "matched_coord": 0.2813,
+          "measured": -0.280264057,
+          "reference": -0.27805
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1719,
+          "deviation": -0.0046839106000000075,
+          "matched_coord": 0.1719,
+          "measured": -0.3875739106,
+          "reference": -0.38289
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1016,
+          "deviation": -0.0020876856,
+          "matched_coord": 0.1016,
+          "measured": -0.2993876856,
+          "reference": -0.2973
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0703,
+          "deviation": 8.23169000000179e-05,
+          "matched_coord": 0.0703,
+          "measured": -0.2221176831,
+          "reference": -0.2222
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0625,
+          "deviation": 0.00033792530000001375,
+          "matched_coord": 0.0625,
+          "measured": -0.2016220747,
+          "reference": -0.20196
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0547,
+          "deviation": 0.00043335929999999134,
+          "matched_coord": 0.0547,
+          "measured": -0.1806566407,
+          "reference": -0.18109
+        },
+        {
+          "boundary_identity": true,
+          "coord": 0.0,
+          "deviation": 0.0,
+          "matched_coord": 0.0,
+          "measured": 0.0,
+          "reference": 0.0
+        }
+      ],
+      "rms_abs_deviation": 0.0033858646409620162,
+      "set": "uAlongX05"
+    },
+    "re1000/fine/vAlongY05": {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/vAlongY05_U.xy",
+      "gated": false,
+      "max_abs_deviation": 0.0173358287,
+      "n_interior": 15,
+      "note": "DIAGNOSTIC ONLY -- section 3.4, moves no verdict",
+      "points": [
+        {
+          "boundary_identity": true,
+          "coord": 1.0,
+          "deviation": 0.0,
+          "matched_coord": 1.0,
+          "measured": 0.0,
+          "reference": 0.0
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9688,
+          "deviation": -0.013937346200000006,
+          "matched_coord": 0.9688,
+          "measured": -0.2278173462,
+          "reference": -0.21388
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9609,
+          "deviation": -0.016550216200000023,
+          "matched_coord": 0.9609,
+          "measured": -0.2932402162,
+          "reference": -0.27669
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9531,
+          "deviation": -0.0173358287,
+          "matched_coord": 0.9531,
+          "measured": -0.3544758287,
+          "reference": -0.33714
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9453,
+          "deviation": -0.017177762900000004,
+          "matched_coord": 0.9453,
+          "measured": -0.4090577629,
+          "reference": -0.39188
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9063,
+          "deviation": -0.009585656599999992,
+          "matched_coord": 0.9063,
+          "measured": -0.5245856566,
+          "reference": -0.515
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8594,
+          "deviation": 0.00041445789999999816,
+          "matched_coord": 0.8594,
+          "measured": -0.4262355421,
+          "reference": -0.42665
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8047,
+          "deviation": -0.0003505019999999748,
+          "matched_coord": 0.8047,
+          "measured": -0.320010502,
+          "reference": -0.31966
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.5,
+          "deviation": 0.00045031167999999913,
+          "matched_coord": 0.5,
+          "measured": 0.02571031168,
+          "reference": 0.02526
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2344,
+          "deviation": 0.002448066599999965,
+          "matched_coord": 0.2344,
+          "measured": 0.3247980666,
+          "reference": 0.32235
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2266,
+          "deviation": 0.002622074100000038,
+          "matched_coord": 0.2266,
+          "measured": 0.3333720741,
+          "reference": 0.33075
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1563,
+          "deviation": 0.0050788338000000155,
+          "matched_coord": 0.1563,
+          "measured": 0.3760288338,
+          "reference": 0.37095
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0938,
+          "deviation": 0.005947727199999975,
+          "matched_coord": 0.0938,
+          "measured": 0.3322177272,
+          "reference": 0.32627
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0781,
+          "deviation": 0.005581219699999973,
+          "matched_coord": 0.0781,
+          "measured": 0.3091112197,
+          "reference": 0.30353
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0703,
+          "deviation": 0.005296505600000001,
+          "matched_coord": 0.0703,
+          "measured": 0.2954165056,
+          "reference": 0.29012
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0625,
+          "deviation": 0.004999141700000043,
+          "matched_coord": 0.0625,
+          "measured": 0.2798491417,
+          "reference": 0.27485
+        },
+        {
+          "boundary_identity": true,
+          "coord": 0.0,
+          "deviation": 1.939225522e-18,
+          "matched_coord": 0.0,
+          "measured": 1.939225522e-18,
+          "reference": 0.0
+        }
+      ],
+      "rms_abs_deviation": 0.009360842936828746,
+      "set": "vAlongY05"
+    },
+    "re1000/medium/uAlongX05": {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/uAlongX05_U.xy",
+      "gated": false,
+      "max_abs_deviation": 0.004260538100000044,
+      "n_interior": 15,
+      "note": "DIAGNOSTIC ONLY -- section 3.4, moves no verdict",
+      "points": [
+        {
+          "boundary_identity": true,
+          "coord": 1.0,
+          "deviation": 0.0,
+          "matched_coord": 1.0,
+          "measured": 1.0,
+          "reference": 1.0
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9766,
+          "deviation": 0.00333253499999997,
+          "matched_coord": 0.9766,
+          "measured": 0.662612535,
+          "reference": 0.65928
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9688,
+          "deviation": 0.004260538100000044,
+          "matched_coord": 0.9688,
+          "measured": 0.5791805381,
+          "reference": 0.57492
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9609,
+          "deviation": 0.003722228699999941,
+          "matched_coord": 0.9609,
+          "measured": 0.5148922287,
+          "reference": 0.51117
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9531,
+          "deviation": 0.00401446929999999,
+          "matched_coord": 0.9531,
+          "measured": 0.4700544693,
+          "reference": 0.46604
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8516,
+          "deviation": 0.00043347979999996955,
+          "matched_coord": 0.8516,
+          "measured": 0.3334734798,
+          "reference": 0.33304
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.7344,
+          "deviation": -0.0011097699000000016,
+          "matched_coord": 0.7344,
+          "measured": 0.1860802301,
+          "reference": 0.18719
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.6172,
+          "deviation": -0.0016262199399999996,
+          "matched_coord": 0.6172,
+          "measured": 0.05539378006,
+          "reference": 0.05702
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.5,
+          "deviation": 2.7256789999999254e-05,
+          "matched_coord": 0.5,
+          "measured": -0.06077274321,
+          "reference": -0.0608
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.4531,
+          "deviation": 0.0005745793000000027,
+          "matched_coord": 0.4531,
+          "measured": -0.1059054207,
+          "reference": -0.10648
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2813,
+          "deviation": -0.00242303319999998,
+          "matched_coord": 0.2813,
+          "measured": -0.2804730332,
+          "reference": -0.27805
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1719,
+          "deviation": -8.416659999999077e-05,
+          "matched_coord": 0.1719,
+          "measured": -0.3829741666,
+          "reference": -0.38289
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1016,
+          "deviation": 0.002164630400000034,
+          "matched_coord": 0.1016,
+          "measured": -0.2951353696,
+          "reference": -0.2973
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0703,
+          "deviation": 0.002567988000000021,
+          "matched_coord": 0.0703,
+          "measured": -0.219632012,
+          "reference": -0.2222
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0625,
+          "deviation": 0.0024005646999999963,
+          "matched_coord": 0.0625,
+          "measured": -0.1995594353,
+          "reference": -0.20196
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0547,
+          "deviation": 0.002110403099999991,
+          "matched_coord": 0.0547,
+          "measured": -0.1789795969,
+          "reference": -0.18109
+        },
+        {
+          "boundary_identity": true,
+          "coord": 0.0,
+          "deviation": 0.0,
+          "matched_coord": 0.0,
+          "measured": 0.0,
+          "reference": 0.0
+        }
+      ],
+      "rms_abs_deviation": 0.0024630437459141406,
+      "set": "uAlongX05"
+    },
+    "re1000/medium/vAlongY05": {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/vAlongY05_U.xy",
+      "gated": false,
+      "max_abs_deviation": 0.015364273900000003,
+      "n_interior": 15,
+      "note": "DIAGNOSTIC ONLY -- section 3.4, moves no verdict",
+      "points": [
+        {
+          "boundary_identity": true,
+          "coord": 1.0,
+          "deviation": 0.0,
+          "matched_coord": 1.0,
+          "measured": 0.0,
+          "reference": 0.0
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9688,
+          "deviation": -0.013625505400000015,
+          "matched_coord": 0.9688,
+          "measured": -0.2275055054,
+          "reference": -0.21388
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9609,
+          "deviation": -0.015364273900000003,
+          "matched_coord": 0.9609,
+          "measured": -0.2920542739,
+          "reference": -0.27669
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9531,
+          "deviation": -0.015194990899999983,
+          "matched_coord": 0.9531,
+          "measured": -0.3523349909,
+          "reference": -0.33714
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9453,
+          "deviation": -0.013919666200000014,
+          "matched_coord": 0.9453,
+          "measured": -0.4057996662,
+          "reference": -0.39188
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.9063,
+          "deviation": -0.0030822651999999895,
+          "matched_coord": 0.9063,
+          "measured": -0.5180822652,
+          "reference": -0.515
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8594,
+          "deviation": 0.0013156343999999875,
+          "matched_coord": 0.8594,
+          "measured": -0.4253343656,
+          "reference": -0.42665
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.8047,
+          "deviation": 0.0004541949999999906,
+          "matched_coord": 0.8047,
+          "measured": -0.319205805,
+          "reference": -0.31966
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.5,
+          "deviation": 8.469356999999886e-05,
+          "matched_coord": 0.5,
+          "measured": 0.02534469357,
+          "reference": 0.02526
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2344,
+          "deviation": 0.0010254433999999923,
+          "matched_coord": 0.2344,
+          "measured": 0.3233754434,
+          "reference": 0.32235
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.2266,
+          "deviation": 0.0011282126000000114,
+          "matched_coord": 0.2266,
+          "measured": 0.3318782126,
+          "reference": 0.33075
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.1563,
+          "deviation": 0.0011364218000000093,
+          "matched_coord": 0.1563,
+          "measured": 0.3720864218,
+          "reference": 0.37095
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0938,
+          "deviation": 0.0019405731000000093,
+          "matched_coord": 0.0938,
+          "measured": 0.3282105731,
+          "reference": 0.32627
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0781,
+          "deviation": 0.00163267319999999,
+          "matched_coord": 0.0781,
+          "measured": 0.3051626732,
+          "reference": 0.30353
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0703,
+          "deviation": 0.0015752286000000337,
+          "matched_coord": 0.0703,
+          "measured": 0.2916952286,
+          "reference": 0.29012
+        },
+        {
+          "boundary_identity": false,
+          "coord": 0.0625,
+          "deviation": 0.0015289075000000096,
+          "matched_coord": 0.0625,
+          "measured": 0.2763789075,
+          "reference": 0.27485
+        },
+        {
+          "boundary_identity": true,
+          "coord": 0.0,
+          "deviation": 0.0,
+          "matched_coord": 0.0,
+          "measured": 0.0,
+          "reference": 0.0
+        }
+      ],
+      "rms_abs_deviation": 0.00762745516998406,
+      "set": "vAlongY05"
+    }
+  },
+  "dim": 2,
+  "discrimination_test": "UNMEASURABLE, not satisfied (section 3.3): the hypothesis has no runnable null arm and the row is recorded unmeasured",
+  "family": "F11",
+  "freeze": {
+    "instrument": {
+      "blob": "8dee0d31e94d3f59d28658f88a4cd6df80ae8e39",
+      "bytes": 53552,
+      "path": "scripts/roache_triple.py",
+      "sha256": "452f475181c9897000ea530b39a84bd3e7e9927e0a3fd39fe8b1105f538ac051",
+      "verified": true
+    },
+    "self": {
+      "addendum_present": true,
+      "band_tokens_found": 12,
+      "grading_path": "verification/runs/F11_runs/conversion_2026-08-25/grade_f11.py",
+      "grading_path_sha256": "7815de3495c49456296cd68355543247c99c9e92b6b43d7f1b86be969d3b21e5",
+      "launcher": "verification/runs/F11_runs/conversion_2026-08-25/rerun_f11.py",
+      "launcher_sha256": "3df39bfd994ddfe2942079d294cc8718534efc22ff9df985d0b8ae77f4e0017d",
+      "prereg": "verification/campaign/F11_CONVERSION_PREREGISTRATION.md",
+      "prereg_commit": "53298a45",
+      "prereg_freeze_commit_declared": "157793db5ff6bbdda7ab22299abe5725d96e9b37",
+      "prereg_sha256": "aa63b8771792389412715b9d72cdeb22b1c5cf64de61056a4a5b453b3603a821"
+    }
+  },
+  "fs": 1.25,
+  "gates": {
+    "G-F11-1": {
+      "band": [
+        0.80423,
+        0.87823
+      ],
+      "band_can_bite": false,
+      "band_half_width": 0.037,
+      "band_terms": {
+        "B_pos": 0.010198,
+        "B_ref": 0.026504,
+        "B_ref_fraction_pct": 72.2,
+        "max_secant_slope": 6.785,
+        "sum": 0.036702
+      },
+      "band_verdict": "PASS",
+      "component": "u",
+      "declarations": [
+        "WEAK BAR (section 3.2 route 2): 72 % of this band's half-width is the REFERENCE's own resolution, not our mesh. A materially wrong solve could pass this band. The load-bearing content of this row is the triple, the observed order and the GCI -- NOT the band.",
+        "This band is WIDER than the largest deviation anywhere in the 2026-07-30 record (0.01734 lid-speed units); it is not a bar a real solve can fail (section 4.2)."
+      ],
+      "deviation_from_reference": 0.002188536199999924,
+      "gate": "G-F11-1",
+      "instrument_row": {
+        "band": [
+          0.80423,
+          0.87823
+        ],
+        "band_verdict": "PASS",
+        "dim": 2,
+        "fs": 1.25,
+        "iterative_convergence": {
+          "coarse": "CONVERGED",
+          "fine": "CONVERGED",
+          "medium": "CONVERGED"
+        },
+        "levels": [
+          {
+            "cells": 1024,
+            "name": "coarse",
+            "value": 0.838531025
+          },
+          {
+            "cells": 4096,
+            "name": "medium",
+            "value": 0.8424794164
+          },
+          {
+            "cells": 16384,
+            "name": "fine",
+            "value": 0.8434185362
+          }
+        ],
+        "monotone": true,
+        "orders": [
+          2.07188389582558
+        ],
+        "planted_zero": {
+          "after": 0.8446525361999999,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/uAlongX05_U.xy",
+          "before": 0.8434185362,
+          "control": "PZ-1",
+          "gate": "G-F11-1",
+          "level": "fine",
+          "matched_coord": 0.9766,
+          "passed": true,
+          "planted": 0.001234,
+          "read_back_delta": 0.0012339999999999574,
+          "reader": "f11_xy_parser+station_selector",
+          "reader_delta": 0.0012339999999999574
+        },
+        "plateau": {
+          "coarse": "UNMEASURED",
+          "fine": "PLATEAUED",
+          "medium": "PLATEAUED"
+        },
+        "quantity": "G-F11-1 u at (0.5, 0.9766)",
+        "reference": 0.84123,
+        "states": [
+          "CONVERGING"
+        ],
+        "triples": [
+          {
+            "GCI_abs": 0.00036634529712767903,
+            "GCI_pct": 0.04343576544786864,
+            "cells": [
+              1024,
+              4096,
+              16384
+            ],
+            "dim": 2,
+            "e21": -0.0009391197999999434,
+            "e32": -0.003948391400000029,
+            "form": "equal",
+            "levels": [
+              "coarse",
+              "medium",
+              "fine"
+            ],
+            "order": 2.07188389582558,
+            "r21": 2.0,
+            "r32": 2.0,
+            "ratio_gap": 0.0,
+            "richardson": 0.8437116124377021,
+            "richardson_parent_convention": 0.8431254599622978,
+            "state": "CONVERGING",
+            "values": [
+              0.838531025,
+              0.8424794164,
+              0.8434185362
+            ]
+          }
+        ],
+        "value": 0.8434185362,
+        "verdict": "NOT A RESULT",
+        "why": "levels coarse are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "fine": "CONVERGED",
+        "medium": "CONVERGED"
+      },
+      "levels_measured": [
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/uAlongX05_U.xy",
+          "cells": 1024,
+          "matched_coord": 0.9766,
+          "name": "coarse",
+          "value": 0.838531025
+        },
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/uAlongX05_U.xy",
+          "cells": 4096,
+          "matched_coord": 0.9766,
+          "name": "medium",
+          "value": 0.8424794164
+        },
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/uAlongX05_U.xy",
+          "cells": 16384,
+          "matched_coord": 0.9766,
+          "name": "fine",
+          "value": 0.8434185362
+        }
+      ],
+      "monotone": true,
+      "orders": [
+        2.07188389582558
+      ],
+      "plateau": {
+        "coarse": "UNMEASURED",
+        "fine": "PLATEAUED",
+        "medium": "PLATEAUED"
+      },
+      "plateau_detail": {
+        "coarse": {
+          "final": 442,
+          "graded_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles",
+          "reason": "no centerlineSeries sample at least 250 iterations before the converged iteration 442 exists (series on disk: [250]); the criterion cannot be evaluated and an unevaluated step is not a passed one",
+          "samples": [
+            250
+          ],
+          "series_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineSeries"
+        },
+        "fine": {
+          "compared_iteration": 5000,
+          "drift": 6.899999993592587e-08,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineSeries/5000",
+          "final_iteration": 5285,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285",
+          "iteration_gap": 285,
+          "q_earlier": 0.8434184672,
+          "q_final": 0.8434185362,
+          "samples": [
+            250,
+            500,
+            750,
+            1000,
+            1250,
+            1500,
+            1750,
+            2000,
+            2250,
+            2500,
+            2750,
+            3000,
+            3250,
+            3500,
+            3750,
+            4000,
+            4250,
+            4500,
+            4750,
+            5000,
+            5250
+          ],
+          "threshold": 1e-06
+        },
+        "medium": {
+          "compared_iteration": 1250,
+          "drift": 2.013000000022913e-07,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineSeries/1250",
+          "final_iteration": 1505,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505",
+          "iteration_gap": 255,
+          "q_earlier": 0.8424792151,
+          "q_final": 0.8424794164,
+          "samples": [
+            250,
+            500,
+            750,
+            1000,
+            1250,
+            1500
+          ],
+          "threshold": 1e-06
+        }
+      },
+      "profile": "uAlongX05",
+      "quantity": "u at (0.5, 0.9766)",
+      "reference": 0.84123,
+      "rung": "Re 100",
+      "states": [
+        "CONVERGING"
+      ],
+      "station": 0.9766,
+      "triples": [
+        {
+          "GCI_abs": 0.00036634529712767903,
+          "GCI_pct": 0.04343576544786864,
+          "cells": [
+            1024,
+            4096,
+            16384
+          ],
+          "dim": 2,
+          "e21": -0.0009391197999999434,
+          "e32": -0.003948391400000029,
+          "form": "equal",
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "order": 2.07188389582558,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "richardson": 0.8437116124377021,
+          "richardson_parent_convention": 0.8431254599622978,
+          "state": "CONVERGING",
+          "values": [
+            0.838531025,
+            0.8424794164,
+            0.8434185362
+          ]
+        }
+      ],
+      "value": 0.8434185362,
+      "verdict": "NOT A RESULT",
+      "weak_bar": true,
+      "why": "levels coarse are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+    },
+    "G-F11-2": {
+      "band": [
+        -0.25343,
+        -0.23723
+      ],
+      "band_can_bite": true,
+      "band_half_width": 0.0081,
+      "band_terms": {
+        "B_pos": 0.004253,
+        "B_ref": 0.003844,
+        "B_ref_fraction_pct": 47.5,
+        "max_secant_slope": 0.9841,
+        "sum": 0.008097
+      },
+      "band_verdict": "PASS",
+      "component": "v",
+      "declarations": [],
+      "deviation_from_reference": -0.007898564300000022,
+      "gate": "G-F11-2",
+      "instrument_row": {
+        "band": [
+          -0.25343,
+          -0.23723
+        ],
+        "band_verdict": "PASS",
+        "dim": 2,
+        "fs": 1.25,
+        "iterative_convergence": {
+          "coarse": "CONVERGED",
+          "fine": "CONVERGED",
+          "medium": "CONVERGED"
+        },
+        "levels": [
+          {
+            "cells": 1024,
+            "name": "coarse",
+            "value": -0.2473147578
+          },
+          {
+            "cells": 4096,
+            "name": "medium",
+            "value": -0.2520731013
+          },
+          {
+            "cells": 16384,
+            "name": "fine",
+            "value": -0.2532285643
+          }
+        ],
+        "monotone": true,
+        "orders": [
+          2.0419883593572656
+        ],
+        "planted_zero": {
+          "after": -0.2519945643,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/vAlongY05_U.xy",
+          "before": -0.2532285643,
+          "control": "PZ-1",
+          "gate": "G-F11-2",
+          "level": "fine",
+          "matched_coord": 0.8047,
+          "passed": true,
+          "planted": 0.001234,
+          "read_back_delta": 0.0012340000000000129,
+          "reader": "f11_xy_parser+station_selector",
+          "reader_delta": 0.0012340000000000129
+        },
+        "plateau": {
+          "coarse": "UNMEASURED",
+          "fine": "PLATEAUED",
+          "medium": "NOT_PLATEAUED"
+        },
+        "quantity": "G-F11-2 v at (0.8047, 0.5)",
+        "reference": -0.24533,
+        "states": [
+          "CONVERGING"
+        ],
+        "triples": [
+          {
+            "GCI_abs": 0.0004632039365339302,
+            "GCI_pct": 0.18291930762801792,
+            "cells": [
+              1024,
+              4096,
+              16384
+            ],
+            "dim": 2,
+            "e21": 0.0011554630000000232,
+            "e32": 0.004758343499999984,
+            "form": "equal",
+            "levels": [
+              "coarse",
+              "medium",
+              "fine"
+            ],
+            "order": 2.0419883593572656,
+            "r21": 2.0,
+            "r32": 2.0,
+            "ratio_gap": 0.0,
+            "richardson": -0.25359912744922714,
+            "richardson_parent_convention": -0.2528580011507729,
+            "state": "CONVERGING",
+            "values": [
+              -0.2473147578,
+              -0.2520731013,
+              -0.2532285643
+            ]
+          }
+        ],
+        "value": -0.2532285643,
+        "verdict": "NOT A RESULT",
+        "why": "levels coarse,medium are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "fine": "CONVERGED",
+        "medium": "CONVERGED"
+      },
+      "levels_measured": [
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/vAlongY05_U.xy",
+          "cells": 1024,
+          "matched_coord": 0.8047,
+          "name": "coarse",
+          "value": -0.2473147578
+        },
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/vAlongY05_U.xy",
+          "cells": 4096,
+          "matched_coord": 0.8047,
+          "name": "medium",
+          "value": -0.2520731013
+        },
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/vAlongY05_U.xy",
+          "cells": 16384,
+          "matched_coord": 0.8047,
+          "name": "fine",
+          "value": -0.2532285643
+        }
+      ],
+      "monotone": true,
+      "orders": [
+        2.0419883593572656
+      ],
+      "plateau": {
+        "coarse": "UNMEASURED",
+        "fine": "PLATEAUED",
+        "medium": "NOT_PLATEAUED"
+      },
+      "plateau_detail": {
+        "coarse": {
+          "final": 442,
+          "graded_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles",
+          "reason": "no centerlineSeries sample at least 250 iterations before the converged iteration 442 exists (series on disk: [250]); the criterion cannot be evaluated and an unevaluated step is not a passed one",
+          "samples": [
+            250
+          ],
+          "series_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineSeries"
+        },
+        "fine": {
+          "compared_iteration": 5000,
+          "drift": 3.9820000002910305e-07,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineSeries/5000",
+          "final_iteration": 5285,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285",
+          "iteration_gap": 285,
+          "q_earlier": -0.2532281661,
+          "q_final": -0.2532285643,
+          "samples": [
+            250,
+            500,
+            750,
+            1000,
+            1250,
+            1500,
+            1750,
+            2000,
+            2250,
+            2500,
+            2750,
+            3000,
+            3250,
+            3500,
+            3750,
+            4000,
+            4250,
+            4500,
+            4750,
+            5000,
+            5250
+          ],
+          "threshold": 1e-06
+        },
+        "medium": {
+          "compared_iteration": 1250,
+          "drift": 1.1644999999838035e-06,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineSeries/1250",
+          "final_iteration": 1505,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505",
+          "iteration_gap": 255,
+          "q_earlier": -0.2520719368,
+          "q_final": -0.2520731013,
+          "samples": [
+            250,
+            500,
+            750,
+            1000,
+            1250,
+            1500
+          ],
+          "threshold": 1e-06
+        }
+      },
+      "profile": "vAlongY05",
+      "quantity": "v at (0.8047, 0.5)",
+      "reference": -0.24533,
+      "rung": "Re 100",
+      "states": [
+        "CONVERGING"
+      ],
+      "station": 0.8047,
+      "triples": [
+        {
+          "GCI_abs": 0.0004632039365339302,
+          "GCI_pct": 0.18291930762801792,
+          "cells": [
+            1024,
+            4096,
+            16384
+          ],
+          "dim": 2,
+          "e21": 0.0011554630000000232,
+          "e32": 0.004758343499999984,
+          "form": "equal",
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "order": 2.0419883593572656,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "richardson": -0.25359912744922714,
+          "richardson_parent_convention": -0.2528580011507729,
+          "state": "CONVERGING",
+          "values": [
+            -0.2473147578,
+            -0.2520731013,
+            -0.2532285643
+          ]
+        }
+      ],
+      "value": -0.2532285643,
+      "verdict": "NOT A RESULT",
+      "weak_bar": false,
+      "why": "levels coarse,medium are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+    },
+    "G-F11-3": {
+      "band": [
+        -0.21361,
+        -0.19801
+      ],
+      "band_can_bite": true,
+      "band_half_width": 0.0078,
+      "band_terms": {
+        "B_pos": 0.005468,
+        "B_ref": 0.002313,
+        "B_ref_fraction_pct": 29.7,
+        "max_secant_slope": 0.5922,
+        "sum": 0.007781
+      },
+      "band_verdict": "PASS",
+      "component": "u",
+      "declarations": [],
+      "deviation_from_reference": -0.002930488100000017,
+      "gate": "G-F11-3",
+      "instrument_row": {
+        "band": [
+          -0.21361,
+          -0.19801
+        ],
+        "band_verdict": "PASS",
+        "dim": 2,
+        "fs": 1.25,
+        "iterative_convergence": {
+          "coarse": "CONVERGED",
+          "fine": "CONVERGED",
+          "medium": "CONVERGED"
+        },
+        "levels": [
+          {
+            "cells": 1024,
+            "name": "coarse",
+            "value": -0.2010257319
+          },
+          {
+            "cells": 4096,
+            "name": "medium",
+            "value": -0.2073754491
+          },
+          {
+            "cells": 16384,
+            "name": "fine",
+            "value": -0.2087404881
+          }
+        ],
+        "monotone": true,
+        "orders": [
+          2.2177501689909924
+        ],
+        "planted_zero": {
+          "after": -0.2075064881,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/uAlongX05_U.xy",
+          "before": -0.2087404881,
+          "control": "PZ-1",
+          "gate": "G-F11-3",
+          "level": "fine",
+          "matched_coord": 0.5,
+          "passed": true,
+          "planted": 0.001234,
+          "read_back_delta": 0.0012340000000000129,
+          "reader": "f11_xy_parser+station_selector",
+          "reader_delta": 0.0012340000000000129
+        },
+        "plateau": {
+          "coarse": "UNMEASURED",
+          "fine": "PLATEAUED",
+          "medium": "PLATEAUED"
+        },
+        "quantity": "G-F11-3 u at (0.5, 0.5000)",
+        "reference": -0.20581,
+        "states": [
+          "CONVERGING"
+        ],
+        "triples": [
+          {
+            "GCI_abs": 0.0004672647352443535,
+            "GCI_pct": 0.22384959405695357,
+            "cells": [
+              1024,
+              4096,
+              16384
+            ],
+            "dim": 2,
+            "e21": 0.0013650390000000123,
+            "e32": 0.0063497171999999935,
+            "form": "equal",
+            "levels": [
+              "coarse",
+              "medium",
+              "fine"
+            ],
+            "order": 2.2177501689909924,
+            "r21": 2.0,
+            "r32": 2.0,
+            "ratio_gap": 0.0,
+            "richardson": -0.2091142998881955,
+            "richardson_parent_convention": -0.20836667631180453,
+            "state": "CONVERGING",
+            "values": [
+              -0.2010257319,
+              -0.2073754491,
+              -0.2087404881
+            ]
+          }
+        ],
+        "value": -0.2087404881,
+        "verdict": "NOT A RESULT",
+        "why": "levels coarse are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "fine": "CONVERGED",
+        "medium": "CONVERGED"
+      },
+      "levels_measured": [
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/uAlongX05_U.xy",
+          "cells": 1024,
+          "matched_coord": 0.5,
+          "name": "coarse",
+          "value": -0.2010257319
+        },
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/uAlongX05_U.xy",
+          "cells": 4096,
+          "matched_coord": 0.5,
+          "name": "medium",
+          "value": -0.2073754491
+        },
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/uAlongX05_U.xy",
+          "cells": 16384,
+          "matched_coord": 0.5,
+          "name": "fine",
+          "value": -0.2087404881
+        }
+      ],
+      "monotone": true,
+      "orders": [
+        2.2177501689909924
+      ],
+      "plateau": {
+        "coarse": "UNMEASURED",
+        "fine": "PLATEAUED",
+        "medium": "PLATEAUED"
+      },
+      "plateau_detail": {
+        "coarse": {
+          "final": 442,
+          "graded_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles",
+          "reason": "no centerlineSeries sample at least 250 iterations before the converged iteration 442 exists (series on disk: [250]); the criterion cannot be evaluated and an unevaluated step is not a passed one",
+          "samples": [
+            250
+          ],
+          "series_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineSeries"
+        },
+        "fine": {
+          "compared_iteration": 5000,
+          "drift": 3.2399999988497186e-08,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineSeries/5000",
+          "final_iteration": 5285,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285",
+          "iteration_gap": 285,
+          "q_earlier": -0.2087405205,
+          "q_final": -0.2087404881,
+          "samples": [
+            250,
+            500,
+            750,
+            1000,
+            1250,
+            1500,
+            1750,
+            2000,
+            2250,
+            2500,
+            2750,
+            3000,
+            3250,
+            3500,
+            3750,
+            4000,
+            4250,
+            4500,
+            4750,
+            5000,
+            5250
+          ],
+          "threshold": 1e-06
+        },
+        "medium": {
+          "compared_iteration": 1250,
+          "drift": 8.439999998888226e-08,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineSeries/1250",
+          "final_iteration": 1505,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505",
+          "iteration_gap": 255,
+          "q_earlier": -0.2073755335,
+          "q_final": -0.2073754491,
+          "samples": [
+            250,
+            500,
+            750,
+            1000,
+            1250,
+            1500
+          ],
+          "threshold": 1e-06
+        }
+      },
+      "profile": "uAlongX05",
+      "quantity": "u at (0.5, 0.5000)",
+      "reference": -0.20581,
+      "rung": "Re 100",
+      "states": [
+        "CONVERGING"
+      ],
+      "station": 0.5,
+      "triples": [
+        {
+          "GCI_abs": 0.0004672647352443535,
+          "GCI_pct": 0.22384959405695357,
+          "cells": [
+            1024,
+            4096,
+            16384
+          ],
+          "dim": 2,
+          "e21": 0.0013650390000000123,
+          "e32": 0.0063497171999999935,
+          "form": "equal",
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "order": 2.2177501689909924,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "richardson": -0.2091142998881955,
+          "richardson_parent_convention": -0.20836667631180453,
+          "state": "CONVERGING",
+          "values": [
+            -0.2010257319,
+            -0.2073754491,
+            -0.2087404881
+          ]
+        }
+      ],
+      "value": -0.2087404881,
+      "verdict": "NOT A RESULT",
+      "weak_bar": false,
+      "why": "levels coarse are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+    },
+    "G-F11-4": {
+      "band": [
+        0.58028,
+        0.73828
+      ],
+      "band_can_bite": false,
+      "band_half_width": 0.079,
+      "band_terms": {
+        "B_pos": 0.021885,
+        "B_ref": 0.056878,
+        "B_ref_fraction_pct": 72.2,
+        "max_secant_slope": 14.5607,
+        "sum": 0.078763
+      },
+      "band_verdict": "PASS",
+      "component": "u",
+      "declarations": [
+        "WEAK BAR (section 3.2 route 2): 72 % of this band's half-width is the REFERENCE's own resolution, not our mesh. A materially wrong solve could pass this band. The load-bearing content of this row is the triple, the observed order and the GCI -- NOT the band.",
+        "This band is WIDER than the largest deviation anywhere in the 2026-07-30 record (0.01734 lid-speed units); it is not a bar a real solve can fail (section 4.2)."
+      ],
+      "deviation_from_reference": 0.004597532899999979,
+      "gate": "G-F11-4",
+      "instrument_row": {
+        "band": [
+          0.58028,
+          0.73828
+        ],
+        "band_verdict": "PASS",
+        "dim": 2,
+        "fs": 1.25,
+        "iterative_convergence": {
+          "coarse": "CONVERGED",
+          "fine": "CONVERGED",
+          "medium": "CONVERGED"
+        },
+        "levels": [
+          {
+            "cells": 1024,
+            "name": "coarse",
+            "value": 0.6535349099
+          },
+          {
+            "cells": 4096,
+            "name": "medium",
+            "value": 0.662612535
+          },
+          {
+            "cells": 16384,
+            "name": "fine",
+            "value": 0.6638775329
+          }
+        ],
+        "monotone": true,
+        "orders": [
+          2.8431799172114673
+        ],
+        "planted_zero": {
+          "after": 0.6651115328999999,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/uAlongX05_U.xy",
+          "before": 0.6638775329,
+          "control": "PZ-1",
+          "gate": "G-F11-4",
+          "level": "fine",
+          "matched_coord": 0.9766,
+          "passed": true,
+          "planted": 0.001234,
+          "read_back_delta": 0.0012339999999999574,
+          "reader": "f11_xy_parser+station_selector",
+          "reader_delta": 0.0012339999999999574
+        },
+        "plateau": {
+          "coarse": "NOT_PLATEAUED",
+          "fine": "PLATEAUED",
+          "medium": "NOT_PLATEAUED"
+        },
+        "quantity": "G-F11-4 u at (0.5, 0.9766)",
+        "reference": 0.65928,
+        "states": [
+          "CONVERGING"
+        ],
+        "triples": [
+          {
+            "GCI_abs": 0.0002560309813266844,
+            "GCI_pct": 0.03856599578061793,
+            "cells": [
+              1024,
+              4096,
+              16384
+            ],
+            "dim": 2,
+            "e21": -0.0012649979000000089,
+            "e32": -0.009077625099999986,
+            "form": "equal",
+            "levels": [
+              "coarse",
+              "medium",
+              "fine"
+            ],
+            "order": 2.8431799172114673,
+            "r21": 2.0,
+            "r32": 2.0,
+            "ratio_gap": 0.0,
+            "richardson": 0.6640823576850613,
+            "richardson_parent_convention": 0.6636727081149386,
+            "state": "CONVERGING",
+            "values": [
+              0.6535349099,
+              0.662612535,
+              0.6638775329
+            ]
+          }
+        ],
+        "value": 0.6638775329,
+        "verdict": "NOT A RESULT",
+        "why": "levels coarse,medium are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "fine": "CONVERGED",
+        "medium": "CONVERGED"
+      },
+      "levels_measured": [
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/uAlongX05_U.xy",
+          "cells": 1024,
+          "matched_coord": 0.9766,
+          "name": "coarse",
+          "value": 0.6535349099
+        },
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/uAlongX05_U.xy",
+          "cells": 4096,
+          "matched_coord": 0.9766,
+          "name": "medium",
+          "value": 0.662612535
+        },
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/uAlongX05_U.xy",
+          "cells": 16384,
+          "matched_coord": 0.9766,
+          "name": "fine",
+          "value": 0.6638775329
+        }
+      ],
+      "monotone": true,
+      "orders": [
+        2.8431799172114673
+      ],
+      "plateau": {
+        "coarse": "NOT_PLATEAUED",
+        "fine": "PLATEAUED",
+        "medium": "NOT_PLATEAUED"
+      },
+      "plateau_detail": {
+        "coarse": {
+          "compared_iteration": 250,
+          "drift": 0.00032174149999997237,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineSeries/250",
+          "final_iteration": 747,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747",
+          "iteration_gap": 497,
+          "q_earlier": 0.6532131684,
+          "q_final": 0.6535349099,
+          "samples": [
+            250,
+            500
+          ],
+          "threshold": 1e-06
+        },
+        "fine": {
+          "compared_iteration": 4250,
+          "drift": 2.2929999998755335e-07,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineSeries/4250",
+          "final_iteration": 4550,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550",
+          "iteration_gap": 300,
+          "q_earlier": 0.6638773036,
+          "q_final": 0.6638775329,
+          "samples": [
+            250,
+            500,
+            750,
+            1000,
+            1250,
+            1500,
+            1750,
+            2000,
+            2250,
+            2500,
+            2750,
+            3000,
+            3250,
+            3500,
+            3750,
+            4000,
+            4250,
+            4500
+          ],
+          "threshold": 1e-06
+        },
+        "medium": {
+          "compared_iteration": 1250,
+          "drift": 2.0224999999207682e-06,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineSeries/1250",
+          "final_iteration": 1727,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727",
+          "iteration_gap": 477,
+          "q_earlier": 0.6626105125,
+          "q_final": 0.662612535,
+          "samples": [
+            250,
+            500,
+            750,
+            1000,
+            1250,
+            1500
+          ],
+          "threshold": 1e-06
+        }
+      },
+      "profile": "uAlongX05",
+      "quantity": "u at (0.5, 0.9766)",
+      "reference": 0.65928,
+      "rung": "Re 1000",
+      "states": [
+        "CONVERGING"
+      ],
+      "station": 0.9766,
+      "triples": [
+        {
+          "GCI_abs": 0.0002560309813266844,
+          "GCI_pct": 0.03856599578061793,
+          "cells": [
+            1024,
+            4096,
+            16384
+          ],
+          "dim": 2,
+          "e21": -0.0012649979000000089,
+          "e32": -0.009077625099999986,
+          "form": "equal",
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "order": 2.8431799172114673,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "richardson": 0.6640823576850613,
+          "richardson_parent_convention": 0.6636727081149386,
+          "state": "CONVERGING",
+          "values": [
+            0.6535349099,
+            0.662612535,
+            0.6638775329
+          ]
+        }
+      ],
+      "value": 0.6638775329,
+      "verdict": "NOT A RESULT",
+      "weak_bar": true,
+      "why": "levels coarse,medium are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+    },
+    "G-F11-5": {
+      "band": [
+        -0.536,
+        -0.494
+      ],
+      "band_can_bite": false,
+      "band_half_width": 0.021,
+      "band_terms": {
+        "B_pos": 0.008595,
+        "B_ref": 0.012332,
+        "B_ref_fraction_pct": 58.9,
+        "max_secant_slope": 3.1569,
+        "sum": 0.020927
+      },
+      "band_verdict": "PASS",
+      "component": "v",
+      "declarations": [
+        "This band is WIDER than the largest deviation anywhere in the 2026-07-30 record (0.01734 lid-speed units); it is not a bar a real solve can fail (section 4.2)."
+      ],
+      "deviation_from_reference": -0.009585656599999992,
+      "gate": "G-F11-5",
+      "instrument_row": {
+        "band": [
+          -0.536,
+          -0.494
+        ],
+        "band_verdict": "PASS",
+        "dim": 2,
+        "fs": 1.25,
+        "iterative_convergence": {
+          "coarse": "CONVERGED",
+          "fine": "CONVERGED",
+          "medium": "CONVERGED"
+        },
+        "levels": [
+          {
+            "cells": 1024,
+            "name": "coarse",
+            "value": -0.4880652855
+          },
+          {
+            "cells": 4096,
+            "name": "medium",
+            "value": -0.5180822652
+          },
+          {
+            "cells": 16384,
+            "name": "fine",
+            "value": -0.5245856566
+          }
+        ],
+        "monotone": true,
+        "orders": [
+          2.206514662056571
+        ],
+        "planted_zero": {
+          "after": -0.5233516566,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/vAlongY05_U.xy",
+          "before": -0.5245856566,
+          "control": "PZ-1",
+          "gate": "G-F11-5",
+          "level": "fine",
+          "matched_coord": 0.9063,
+          "passed": true,
+          "planted": 0.001234,
+          "read_back_delta": 0.0012339999999999574,
+          "reader": "f11_xy_parser+station_selector",
+          "reader_delta": 0.0012339999999999574
+        },
+        "plateau": {
+          "coarse": "NOT_PLATEAUED",
+          "fine": "PLATEAUED",
+          "medium": "NOT_PLATEAUED"
+        },
+        "quantity": "G-F11-5 v at (0.9063, 0.5)",
+        "reference": -0.515,
+        "states": [
+          "CONVERGING"
+        ],
+        "triples": [
+          {
+            "GCI_abs": 0.002248386080102988,
+            "GCI_pct": 0.4286022791159532,
+            "cells": [
+              1024,
+              4096,
+              16384
+            ],
+            "dim": 2,
+            "e21": 0.006503391400000003,
+            "e32": 0.0300169797,
+            "form": "equal",
+            "levels": [
+              "coarse",
+              "medium",
+              "fine"
+            ],
+            "order": 2.206514662056571,
+            "r21": 2.0,
+            "r32": 2.0,
+            "ratio_gap": 0.0,
+            "richardson": -0.5263843654640824,
+            "richardson_parent_convention": -0.5227869477359176,
+            "state": "CONVERGING",
+            "values": [
+              -0.4880652855,
+              -0.5180822652,
+              -0.5245856566
+            ]
+          }
+        ],
+        "value": -0.5245856566,
+        "verdict": "NOT A RESULT",
+        "why": "levels coarse,medium are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "fine": "CONVERGED",
+        "medium": "CONVERGED"
+      },
+      "levels_measured": [
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/vAlongY05_U.xy",
+          "cells": 1024,
+          "matched_coord": 0.9063,
+          "name": "coarse",
+          "value": -0.4880652855
+        },
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/vAlongY05_U.xy",
+          "cells": 4096,
+          "matched_coord": 0.9063,
+          "name": "medium",
+          "value": -0.5180822652
+        },
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/vAlongY05_U.xy",
+          "cells": 16384,
+          "matched_coord": 0.9063,
+          "name": "fine",
+          "value": -0.5245856566
+        }
+      ],
+      "monotone": true,
+      "orders": [
+        2.206514662056571
+      ],
+      "plateau": {
+        "coarse": "NOT_PLATEAUED",
+        "fine": "PLATEAUED",
+        "medium": "NOT_PLATEAUED"
+      },
+      "plateau_detail": {
+        "coarse": {
+          "compared_iteration": 250,
+          "drift": 0.00048352210000002227,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineSeries/250",
+          "final_iteration": 747,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747",
+          "iteration_gap": 497,
+          "q_earlier": -0.4875817634,
+          "q_final": -0.4880652855,
+          "samples": [
+            250,
+            500
+          ],
+          "threshold": 1e-06
+        },
+        "fine": {
+          "compared_iteration": 4250,
+          "drift": 3.2520000003977145e-07,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineSeries/4250",
+          "final_iteration": 4550,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550",
+          "iteration_gap": 300,
+          "q_earlier": -0.5245853314,
+          "q_final": -0.5245856566,
+          "samples": [
+            250,
+            500,
+            750,
+            1000,
+            1250,
+            1500,
+            1750,
+            2000,
+            2250,
+            2500,
+            2750,
+            3000,
+            3250,
+            3500,
+            3750,
+            4000,
+            4250,
+            4500
+          ],
+          "threshold": 1e-06
+        },
+        "medium": {
+          "compared_iteration": 1250,
+          "drift": 2.9007999999830503e-06,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineSeries/1250",
+          "final_iteration": 1727,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727",
+          "iteration_gap": 477,
+          "q_earlier": -0.5180793644,
+          "q_final": -0.5180822652,
+          "samples": [
+            250,
+            500,
+            750,
+            1000,
+            1250,
+            1500
+          ],
+          "threshold": 1e-06
+        }
+      },
+      "profile": "vAlongY05",
+      "quantity": "v at (0.9063, 0.5)",
+      "reference": -0.515,
+      "rung": "Re 1000",
+      "states": [
+        "CONVERGING"
+      ],
+      "station": 0.9063,
+      "triples": [
+        {
+          "GCI_abs": 0.002248386080102988,
+          "GCI_pct": 0.4286022791159532,
+          "cells": [
+            1024,
+            4096,
+            16384
+          ],
+          "dim": 2,
+          "e21": 0.006503391400000003,
+          "e32": 0.0300169797,
+          "form": "equal",
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "order": 2.206514662056571,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "richardson": -0.5263843654640824,
+          "richardson_parent_convention": -0.5227869477359176,
+          "state": "CONVERGING",
+          "values": [
+            -0.4880652855,
+            -0.5180822652,
+            -0.5245856566
+          ]
+        }
+      ],
+      "value": -0.5245856566,
+      "verdict": "NOT A RESULT",
+      "weak_bar": false,
+      "why": "levels coarse,medium are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+    },
+    "G-F11-6": {
+      "band": [
+        -0.0748,
+        -0.0468
+      ],
+      "band_can_bite": true,
+      "band_half_width": 0.014,
+      "band_terms": {
+        "B_pos": 0.009283,
+        "B_ref": 0.003927,
+        "B_ref_fraction_pct": 29.7,
+        "max_secant_slope": 1.0053,
+        "sum": 0.01321
+      },
+      "band_verdict": "PASS",
+      "component": "u",
+      "declarations": [],
+      "deviation_from_reference": -0.0010216014299999979,
+      "gate": "G-F11-6",
+      "instrument_row": {
+        "band": [
+          -0.0748,
+          -0.0468
+        ],
+        "band_verdict": "PASS",
+        "dim": 2,
+        "fs": 1.25,
+        "iterative_convergence": {
+          "coarse": "CONVERGED",
+          "fine": "CONVERGED",
+          "medium": "CONVERGED"
+        },
+        "levels": [
+          {
+            "cells": 1024,
+            "name": "coarse",
+            "value": -0.05542716237
+          },
+          {
+            "cells": 4096,
+            "name": "medium",
+            "value": -0.06077274321
+          },
+          {
+            "cells": 16384,
+            "name": "fine",
+            "value": -0.06182160143
+          }
+        ],
+        "monotone": true,
+        "orders": [
+          2.349527042806676
+        ],
+        "planted_zero": {
+          "after": -0.06058760143,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/uAlongX05_U.xy",
+          "before": -0.06182160143,
+          "control": "PZ-1",
+          "gate": "G-F11-6",
+          "level": "fine",
+          "matched_coord": 0.5,
+          "passed": true,
+          "planted": 0.001234,
+          "read_back_delta": 0.001233999999999999,
+          "reader": "f11_xy_parser+station_selector",
+          "reader_delta": 0.001233999999999999
+        },
+        "plateau": {
+          "coarse": "NOT_PLATEAUED",
+          "fine": "PLATEAUED",
+          "medium": "NOT_PLATEAUED"
+        },
+        "quantity": "G-F11-6 u at (0.5, 0.5000)",
+        "reference": -0.0608,
+        "states": [
+          "CONVERGING"
+        ],
+        "triples": [
+          {
+            "GCI_abs": 0.00032004147781756304,
+            "GCI_pct": 0.5176855183538766,
+            "cells": [
+              1024,
+              4096,
+              16384
+            ],
+            "dim": 2,
+            "e21": 0.0010488582199999971,
+            "e32": 0.005345580840000003,
+            "form": "equal",
+            "levels": [
+              "coarse",
+              "medium",
+              "fine"
+            ],
+            "order": 2.349527042806676,
+            "r21": 2.0,
+            "r32": 2.0,
+            "ratio_gap": 0.0,
+            "richardson": -0.062077634612254046,
+            "richardson_parent_convention": -0.06156556824774595,
+            "state": "CONVERGING",
+            "values": [
+              -0.05542716237,
+              -0.06077274321,
+              -0.06182160143
+            ]
+          }
+        ],
+        "value": -0.06182160143,
+        "verdict": "NOT A RESULT",
+        "why": "levels coarse,medium are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "fine": "CONVERGED",
+        "medium": "CONVERGED"
+      },
+      "levels_measured": [
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/uAlongX05_U.xy",
+          "cells": 1024,
+          "matched_coord": 0.5,
+          "name": "coarse",
+          "value": -0.05542716237
+        },
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/uAlongX05_U.xy",
+          "cells": 4096,
+          "matched_coord": 0.5,
+          "name": "medium",
+          "value": -0.06077274321
+        },
+        {
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/uAlongX05_U.xy",
+          "cells": 16384,
+          "matched_coord": 0.5,
+          "name": "fine",
+          "value": -0.06182160143
+        }
+      ],
+      "monotone": true,
+      "orders": [
+        2.349527042806676
+      ],
+      "plateau": {
+        "coarse": "NOT_PLATEAUED",
+        "fine": "PLATEAUED",
+        "medium": "NOT_PLATEAUED"
+      },
+      "plateau_detail": {
+        "coarse": {
+          "compared_iteration": 250,
+          "drift": 0.000156030029999997,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineSeries/250",
+          "final_iteration": 747,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747",
+          "iteration_gap": 497,
+          "q_earlier": -0.05527113234,
+          "q_final": -0.05542716237,
+          "samples": [
+            250,
+            500
+          ],
+          "threshold": 1e-06
+        },
+        "fine": {
+          "compared_iteration": 4250,
+          "drift": 1.2178999999473694e-07,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineSeries/4250",
+          "final_iteration": 4550,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550",
+          "iteration_gap": 300,
+          "q_earlier": -0.06182147964,
+          "q_final": -0.06182160143,
+          "samples": [
+            250,
+            500,
+            750,
+            1000,
+            1250,
+            1500,
+            1750,
+            2000,
+            2250,
+            2500,
+            2750,
+            3000,
+            3250,
+            3500,
+            3750,
+            4000,
+            4250,
+            4500
+          ],
+          "threshold": 1e-06
+        },
+        "medium": {
+          "compared_iteration": 1250,
+          "drift": 1.2017100000025205e-06,
+          "earlier_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineSeries/1250",
+          "final_iteration": 1727,
+          "final_read_from": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727",
+          "iteration_gap": 477,
+          "q_earlier": -0.0607715415,
+          "q_final": -0.06077274321,
+          "samples": [
+            250,
+            500,
+            750,
+            1000,
+            1250,
+            1500
+          ],
+          "threshold": 1e-06
+        }
+      },
+      "profile": "uAlongX05",
+      "quantity": "u at (0.5, 0.5000)",
+      "reference": -0.0608,
+      "rung": "Re 1000",
+      "states": [
+        "CONVERGING"
+      ],
+      "station": 0.5,
+      "triples": [
+        {
+          "GCI_abs": 0.00032004147781756304,
+          "GCI_pct": 0.5176855183538766,
+          "cells": [
+            1024,
+            4096,
+            16384
+          ],
+          "dim": 2,
+          "e21": 0.0010488582199999971,
+          "e32": 0.005345580840000003,
+          "form": "equal",
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "order": 2.349527042806676,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "richardson": -0.062077634612254046,
+          "richardson_parent_convention": -0.06156556824774595,
+          "state": "CONVERGING",
+          "values": [
+            -0.05542716237,
+            -0.06077274321,
+            -0.06182160143
+          ]
+        }
+      ],
+      "value": -0.06182160143,
+      "verdict": "NOT A RESULT",
+      "weak_bar": false,
+      "why": "levels coarse,medium are not iteratively converged or not plateaued; no grid claim can be made from this triple"
+    }
+  },
+  "graded_sample_dir": "centerlineProfiles",
+  "levels": {
+    "re100/coarse": {
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse",
+      "cells": 1024,
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C3_converged_before_cap": true,
+        "C4_fields_and_samples": true,
+        "C5_log_step_integrity": true,
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "U": 1.05,
+          "p": 1.051,
+          "uAlongX05_U.xy": 1.051,
+          "vAlongY05_U.xy": 1.052
+        },
+        "_converged_iterations": 442,
+        "_endTime": 4000,
+        "_last_time_dir": 442,
+        "_missing": [],
+        "_n_exec_lines": 442,
+        "_n_time_lines": 442,
+        "ran_before_found": "checked"
+      },
+      "core_minutes": 0.0261,
+      "endTime": 4000,
+      "iterations": 442,
+      "iterative_convergence": "CONVERGED",
+      "iterative_detail": {
+        "reason": "solver printed 'SIMPLE solution converged in 442 iterations'",
+        "solver_type": "openfoam_simple",
+        "status": "CONVERGED"
+      },
+      "mesh_certificate": {
+        "clean": true,
+        "log": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/log.checkMesh",
+        "note": "Mesh OK.",
+        "state": "CLEAN"
+      },
+      "n": 32,
+      "ranks": 1,
+      "status": "COMPLETE",
+      "wall_s": 1.5669054985046387
+    },
+    "re100/fine": {
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine",
+      "cells": 16384,
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C3_converged_before_cap": true,
+        "C4_fields_and_samples": true,
+        "C5_log_step_integrity": true,
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "U": 172.691,
+          "p": 172.701,
+          "uAlongX05_U.xy": 172.702,
+          "vAlongY05_U.xy": 172.703
+        },
+        "_converged_iterations": 5285,
+        "_endTime": 9000,
+        "_last_time_dir": 5285,
+        "_missing": [],
+        "_n_exec_lines": 5285,
+        "_n_time_lines": 5285,
+        "ran_before_found": "checked"
+      },
+      "core_minutes": 2.8915,
+      "endTime": 9000,
+      "iterations": 5285,
+      "iterative_convergence": "CONVERGED",
+      "iterative_detail": {
+        "reason": "solver printed 'SIMPLE solution converged in 5285 iterations'",
+        "solver_type": "openfoam_simple",
+        "status": "CONVERGED"
+      },
+      "mesh_certificate": {
+        "clean": true,
+        "log": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/log.checkMesh",
+        "note": "Mesh OK.",
+        "state": "CLEAN"
+      },
+      "n": 128,
+      "ranks": 1,
+      "status": "COMPLETE",
+      "wall_s": 173.48911833763123
+    },
+    "re100/medium": {
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium",
+      "cells": 4096,
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C3_converged_before_cap": true,
+        "C4_fields_and_samples": true,
+        "C5_log_step_integrity": true,
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "U": 10.756,
+          "p": 10.759,
+          "uAlongX05_U.xy": 10.76,
+          "vAlongY05_U.xy": 10.76
+        },
+        "_converged_iterations": 1505,
+        "_endTime": 4000,
+        "_last_time_dir": 1505,
+        "_missing": [],
+        "_n_exec_lines": 1505,
+        "_n_time_lines": 1505,
+        "ran_before_found": "checked"
+      },
+      "core_minutes": 0.1888,
+      "endTime": 4000,
+      "iterations": 1505,
+      "iterative_convergence": "CONVERGED",
+      "iterative_detail": {
+        "reason": "solver printed 'SIMPLE solution converged in 1505 iterations'",
+        "solver_type": "openfoam_simple",
+        "status": "CONVERGED"
+      },
+      "mesh_certificate": {
+        "clean": true,
+        "log": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/log.checkMesh",
+        "note": "Mesh OK.",
+        "state": "CLEAN"
+      },
+      "n": 64,
+      "ranks": 1,
+      "status": "COMPLETE",
+      "wall_s": 11.330145597457886
+    },
+    "re1000/coarse": {
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse",
+      "cells": 1024,
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C3_converged_before_cap": true,
+        "C4_fields_and_samples": true,
+        "C5_log_step_integrity": true,
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "U": 1.504,
+          "p": 1.505,
+          "uAlongX05_U.xy": 1.505,
+          "vAlongY05_U.xy": 1.506
+        },
+        "_converged_iterations": 747,
+        "_endTime": 4000,
+        "_last_time_dir": 747,
+        "_missing": [],
+        "_n_exec_lines": 747,
+        "_n_time_lines": 747,
+        "ran_before_found": "checked"
+      },
+      "core_minutes": 0.0326,
+      "endTime": 4000,
+      "iterations": 747,
+      "iterative_convergence": "CONVERGED",
+      "iterative_detail": {
+        "reason": "solver printed 'SIMPLE solution converged in 747 iterations'",
+        "solver_type": "openfoam_simple",
+        "status": "CONVERGED"
+      },
+      "mesh_certificate": {
+        "clean": true,
+        "log": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/log.checkMesh",
+        "note": "Mesh OK.",
+        "state": "CLEAN"
+      },
+      "n": 32,
+      "ranks": 1,
+      "status": "COMPLETE",
+      "wall_s": 1.9562692642211914
+    },
+    "re1000/fine": {
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine",
+      "cells": 16384,
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C3_converged_before_cap": true,
+        "C4_fields_and_samples": true,
+        "C5_log_step_integrity": true,
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "U": 148.204,
+          "p": 148.215,
+          "uAlongX05_U.xy": 148.216,
+          "vAlongY05_U.xy": 148.217
+        },
+        "_converged_iterations": 4550,
+        "_endTime": 9000,
+        "_last_time_dir": 4550,
+        "_missing": [],
+        "_n_exec_lines": 4550,
+        "_n_time_lines": 4550,
+        "ran_before_found": "checked"
+      },
+      "core_minutes": 2.4822,
+      "endTime": 9000,
+      "iterations": 4550,
+      "iterative_convergence": "CONVERGED",
+      "iterative_detail": {
+        "reason": "solver printed 'SIMPLE solution converged in 4550 iterations'",
+        "solver_type": "openfoam_simple",
+        "status": "CONVERGED"
+      },
+      "mesh_certificate": {
+        "clean": true,
+        "log": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/log.checkMesh",
+        "note": "Mesh OK.",
+        "state": "CLEAN"
+      },
+      "n": 128,
+      "ranks": 1,
+      "status": "COMPLETE",
+      "wall_s": 148.92901754379272
+    },
+    "re1000/medium": {
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium",
+      "cells": 4096,
+      "completion": {
+        "C1_rc_zero": true,
+        "C2_end_line": true,
+        "C3_converged_before_cap": true,
+        "C4_fields_and_samples": true,
+        "C5_log_step_integrity": true,
+        "C6_age_guard": true,
+        "_age_margin_s": {
+          "U": 11.588,
+          "p": 11.591,
+          "uAlongX05_U.xy": 11.591,
+          "vAlongY05_U.xy": 11.592
+        },
+        "_converged_iterations": 1727,
+        "_endTime": 4000,
+        "_last_time_dir": 1727,
+        "_missing": [],
+        "_n_exec_lines": 1727,
+        "_n_time_lines": 1727,
+        "ran_before_found": "checked"
+      },
+      "core_minutes": 0.2015,
+      "endTime": 4000,
+      "iterations": 1727,
+      "iterative_convergence": "CONVERGED",
+      "iterative_detail": {
+        "reason": "solver printed 'SIMPLE solution converged in 1727 iterations'",
+        "solver_type": "openfoam_simple",
+        "status": "CONVERGED"
+      },
+      "mesh_certificate": {
+        "clean": true,
+        "log": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/log.checkMesh",
+        "note": "Mesh OK.",
+        "state": "CLEAN"
+      },
+      "n": 64,
+      "ranks": 1,
+      "status": "COMPLETE",
+      "wall_s": 12.09040641784668
+    }
+  },
+  "plant": 0.001234,
+  "planted_zero_controls": [
+    {
+      "after": 0.8397650249999999,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/uAlongX05_U.xy",
+      "before": 0.838531025,
+      "control": "PZ-1",
+      "gate": "G-F11-1",
+      "level": "coarse",
+      "matched_coord": 0.9766,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012339999999999574,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012339999999999574
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/uAlongX05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-1",
+      "graded_station_moved_at": [],
+      "level": "coarse",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/uAlongX05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.9766,
+      "dict_lookup_value": 0.838531025,
+      "gate": "G-F11-1",
+      "level": "coarse",
+      "nearest_match_coord": 0.9766,
+      "nearest_match_value": 0.838531025,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": 0.8437134164,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/uAlongX05_U.xy",
+      "before": 0.8424794164,
+      "control": "PZ-1",
+      "gate": "G-F11-1",
+      "level": "medium",
+      "matched_coord": 0.9766,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012339999999999574,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012339999999999574
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/uAlongX05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-1",
+      "graded_station_moved_at": [],
+      "level": "medium",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/uAlongX05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.9766,
+      "dict_lookup_value": 0.8424794164,
+      "gate": "G-F11-1",
+      "level": "medium",
+      "nearest_match_coord": 0.9766,
+      "nearest_match_value": 0.8424794164,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": 0.8446525361999999,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/uAlongX05_U.xy",
+      "before": 0.8434185362,
+      "control": "PZ-1",
+      "gate": "G-F11-1",
+      "level": "fine",
+      "matched_coord": 0.9766,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012339999999999574,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012339999999999574
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/uAlongX05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-1",
+      "graded_station_moved_at": [],
+      "level": "fine",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/uAlongX05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.9766,
+      "dict_lookup_value": 0.8434185362,
+      "gate": "G-F11-1",
+      "level": "fine",
+      "nearest_match_coord": 0.9766,
+      "nearest_match_value": 0.8434185362,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": -0.2460807578,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/vAlongY05_U.xy",
+      "before": -0.2473147578,
+      "control": "PZ-1",
+      "gate": "G-F11-2",
+      "level": "coarse",
+      "matched_coord": 0.8047,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012340000000000129,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012340000000000129
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/vAlongY05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-2",
+      "graded_station_moved_at": [],
+      "level": "coarse",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/vAlongY05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.8047,
+      "dict_lookup_value": -0.2473147578,
+      "gate": "G-F11-2",
+      "level": "coarse",
+      "nearest_match_coord": 0.8047,
+      "nearest_match_value": -0.2473147578,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": -0.2508391013,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/vAlongY05_U.xy",
+      "before": -0.2520731013,
+      "control": "PZ-1",
+      "gate": "G-F11-2",
+      "level": "medium",
+      "matched_coord": 0.8047,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012340000000000129,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012340000000000129
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/vAlongY05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-2",
+      "graded_station_moved_at": [],
+      "level": "medium",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/vAlongY05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.8047,
+      "dict_lookup_value": -0.2520731013,
+      "gate": "G-F11-2",
+      "level": "medium",
+      "nearest_match_coord": 0.8047,
+      "nearest_match_value": -0.2520731013,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": -0.2519945643,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/vAlongY05_U.xy",
+      "before": -0.2532285643,
+      "control": "PZ-1",
+      "gate": "G-F11-2",
+      "level": "fine",
+      "matched_coord": 0.8047,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012340000000000129,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012340000000000129
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/vAlongY05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-2",
+      "graded_station_moved_at": [],
+      "level": "fine",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/vAlongY05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.8047,
+      "dict_lookup_value": -0.2532285643,
+      "gate": "G-F11-2",
+      "level": "fine",
+      "nearest_match_coord": 0.8047,
+      "nearest_match_value": -0.2532285643,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": -0.1997917319,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/uAlongX05_U.xy",
+      "before": -0.2010257319,
+      "control": "PZ-1",
+      "gate": "G-F11-3",
+      "level": "coarse",
+      "matched_coord": 0.5,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012340000000000129,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012340000000000129
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/uAlongX05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-3",
+      "graded_station_moved_at": [],
+      "level": "coarse",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse/postProcessing/centerlineProfiles/442/uAlongX05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.5,
+      "dict_lookup_value": -0.2010257319,
+      "gate": "G-F11-3",
+      "level": "coarse",
+      "nearest_match_coord": 0.5,
+      "nearest_match_value": -0.2010257319,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": -0.20614144909999998,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/uAlongX05_U.xy",
+      "before": -0.2073754491,
+      "control": "PZ-1",
+      "gate": "G-F11-3",
+      "level": "medium",
+      "matched_coord": 0.5,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012340000000000129,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012340000000000129
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/uAlongX05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-3",
+      "graded_station_moved_at": [],
+      "level": "medium",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium/postProcessing/centerlineProfiles/1505/uAlongX05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.5,
+      "dict_lookup_value": -0.2073754491,
+      "gate": "G-F11-3",
+      "level": "medium",
+      "nearest_match_coord": 0.5,
+      "nearest_match_value": -0.2073754491,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": -0.2075064881,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/uAlongX05_U.xy",
+      "before": -0.2087404881,
+      "control": "PZ-1",
+      "gate": "G-F11-3",
+      "level": "fine",
+      "matched_coord": 0.5,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012340000000000129,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012340000000000129
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/uAlongX05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-3",
+      "graded_station_moved_at": [],
+      "level": "fine",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine/postProcessing/centerlineProfiles/5285/uAlongX05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.5,
+      "dict_lookup_value": -0.2087404881,
+      "gate": "G-F11-3",
+      "level": "fine",
+      "nearest_match_coord": 0.5,
+      "nearest_match_value": -0.2087404881,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": 0.6547689098999999,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/uAlongX05_U.xy",
+      "before": 0.6535349099,
+      "control": "PZ-1",
+      "gate": "G-F11-4",
+      "level": "coarse",
+      "matched_coord": 0.9766,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012339999999999574,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012339999999999574
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/uAlongX05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-4",
+      "graded_station_moved_at": [],
+      "level": "coarse",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/uAlongX05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.9766,
+      "dict_lookup_value": 0.6535349099,
+      "gate": "G-F11-4",
+      "level": "coarse",
+      "nearest_match_coord": 0.9766,
+      "nearest_match_value": 0.6535349099,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": 0.6638465349999999,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/uAlongX05_U.xy",
+      "before": 0.662612535,
+      "control": "PZ-1",
+      "gate": "G-F11-4",
+      "level": "medium",
+      "matched_coord": 0.9766,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012339999999999574,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012339999999999574
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/uAlongX05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-4",
+      "graded_station_moved_at": [],
+      "level": "medium",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/uAlongX05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.9766,
+      "dict_lookup_value": 0.662612535,
+      "gate": "G-F11-4",
+      "level": "medium",
+      "nearest_match_coord": 0.9766,
+      "nearest_match_value": 0.662612535,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": 0.6651115328999999,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/uAlongX05_U.xy",
+      "before": 0.6638775329,
+      "control": "PZ-1",
+      "gate": "G-F11-4",
+      "level": "fine",
+      "matched_coord": 0.9766,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012339999999999574,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012339999999999574
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/uAlongX05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-4",
+      "graded_station_moved_at": [],
+      "level": "fine",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/uAlongX05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.9766,
+      "dict_lookup_value": 0.6638775329,
+      "gate": "G-F11-4",
+      "level": "fine",
+      "nearest_match_coord": 0.9766,
+      "nearest_match_value": 0.6638775329,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": -0.4868312855,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/vAlongY05_U.xy",
+      "before": -0.4880652855,
+      "control": "PZ-1",
+      "gate": "G-F11-5",
+      "level": "coarse",
+      "matched_coord": 0.9063,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012340000000000129,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012340000000000129
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/vAlongY05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-5",
+      "graded_station_moved_at": [],
+      "level": "coarse",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/vAlongY05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.9063,
+      "dict_lookup_value": -0.4880652855,
+      "gate": "G-F11-5",
+      "level": "coarse",
+      "nearest_match_coord": 0.9063,
+      "nearest_match_value": -0.4880652855,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": -0.5168482652,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/vAlongY05_U.xy",
+      "before": -0.5180822652,
+      "control": "PZ-1",
+      "gate": "G-F11-5",
+      "level": "medium",
+      "matched_coord": 0.9063,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012339999999999574,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012339999999999574
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/vAlongY05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-5",
+      "graded_station_moved_at": [],
+      "level": "medium",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/vAlongY05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.9063,
+      "dict_lookup_value": -0.5180822652,
+      "gate": "G-F11-5",
+      "level": "medium",
+      "nearest_match_coord": 0.9063,
+      "nearest_match_value": -0.5180822652,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": -0.5233516566,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/vAlongY05_U.xy",
+      "before": -0.5245856566,
+      "control": "PZ-1",
+      "gate": "G-F11-5",
+      "level": "fine",
+      "matched_coord": 0.9063,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012339999999999574,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.0012339999999999574
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/vAlongY05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-5",
+      "graded_station_moved_at": [],
+      "level": "fine",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/vAlongY05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.9063,
+      "dict_lookup_value": -0.5245856566,
+      "gate": "G-F11-5",
+      "level": "fine",
+      "nearest_match_coord": 0.9063,
+      "nearest_match_value": -0.5245856566,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": -0.05419316237,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/uAlongX05_U.xy",
+      "before": -0.05542716237,
+      "control": "PZ-1",
+      "gate": "G-F11-6",
+      "level": "coarse",
+      "matched_coord": 0.5,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.001233999999999999,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.001233999999999999
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/uAlongX05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-6",
+      "graded_station_moved_at": [],
+      "level": "coarse",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse/postProcessing/centerlineProfiles/747/uAlongX05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.5,
+      "dict_lookup_value": -0.05542716237,
+      "gate": "G-F11-6",
+      "level": "coarse",
+      "nearest_match_coord": 0.5,
+      "nearest_match_value": -0.05542716237,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": -0.05953874321,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/uAlongX05_U.xy",
+      "before": -0.06077274321,
+      "control": "PZ-1",
+      "gate": "G-F11-6",
+      "level": "medium",
+      "matched_coord": 0.5,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.001233999999999999,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.001233999999999999
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/uAlongX05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-6",
+      "graded_station_moved_at": [],
+      "level": "medium",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium/postProcessing/centerlineProfiles/1727/uAlongX05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.5,
+      "dict_lookup_value": -0.06077274321,
+      "gate": "G-F11-6",
+      "level": "medium",
+      "nearest_match_coord": 0.5,
+      "nearest_match_value": -0.06077274321,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    },
+    {
+      "after": -0.06058760143,
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/uAlongX05_U.xy",
+      "before": -0.06182160143,
+      "control": "PZ-1",
+      "gate": "G-F11-6",
+      "level": "fine",
+      "matched_coord": 0.5,
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.001233999999999999,
+      "reader": "f11_xy_parser+station_selector",
+      "reader_delta": 0.001233999999999999
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/uAlongX05_U.xy",
+      "control": "PZ-2",
+      "foreign_stations_tested": 16,
+      "gate": "G-F11-6",
+      "graded_station_moved_at": [],
+      "level": "fine",
+      "passed": true,
+      "planted": 0.001234,
+      "reader": "f11_station_selector"
+    },
+    {
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine/postProcessing/centerlineProfiles/4550/uAlongX05_U.xy",
+      "control": "PZ-3",
+      "delta": 0.0,
+      "dict_lookup_coord": 0.5,
+      "dict_lookup_value": -0.06182160143,
+      "gate": "G-F11-6",
+      "level": "fine",
+      "nearest_match_coord": 0.5,
+      "nearest_match_value": -0.06182160143,
+      "passed": true,
+      "reader": "nearest_coordinate_match",
+      "tolerance": 1e-12
+    }
+  ],
+  "plateau_min_iteration_gap": 250,
+  "plateau_series_dir": "centerlineSeries",
+  "plateau_threshold": 1e-06,
+  "pre_registration": "verification/campaign/F11_CONVERSION_PREREGISTRATION.md",
+  "pre_registration_freeze_commit": "157793db5ff6bbdda7ab22299abe5725d96e9b37",
+  "ratio_form": "equal",
+  "sampling_note": "2026-08-25 PRE-COMPUTE AMENDMENT (arm B): the graded value and completion clauses C4/C6 read the FROZEN literal path postProcessing/centerlineProfiles/<N>/ at the CONVERGED iteration; the plateau's earlier samples are read from postProcessing/centerlineSeries/. No band, station, reference, completion clause or verdict logic changed."
+}

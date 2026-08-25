@@ -1,0 +1,146 @@
+{
+  "cap_core_min": 13.0,
+  "cap_core_s": 780.0,
+  "predicted_total_core_s": 481.2,
+  "ranks": 1,
+  "runs": {
+    "re1000/coarse": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 4.0,
+      "actual_core_s": 5.0,
+      "ratio_actual_over_predicted": 1.25,
+      "cost_basis": "ESTIMATE, labelled -- no n = 32 measurement exists",
+      "ranks": 1,
+      "wall_cap_s": 60.0,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/coarse",
+      "stderr_tail": ""
+    },
+    "re1000/medium": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 14.39,
+      "actual_core_s": 15.0,
+      "ratio_actual_over_predicted": 1.042,
+      "cost_basis": "measured, f11_re1000_n64_20260730T041833Z.log",
+      "ranks": 1,
+      "wall_cap_s": 60.0,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/medium",
+      "stderr_tail": ""
+    },
+    "re1000/fine": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 176.73,
+      "actual_core_s": 150.0,
+      "ratio_actual_over_predicted": 0.849,
+      "cost_basis": "measured, f11_re1000_n128_20260730T041833Z.log",
+      "ranks": 1,
+      "wall_cap_s": 441.825,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re1000/fine",
+      "stderr_tail": ""
+    },
+    "re100/coarse": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 4.0,
+      "actual_core_s": 5.0,
+      "ratio_actual_over_predicted": 1.25,
+      "cost_basis": "ESTIMATE, labelled -- no n = 32 measurement exists",
+      "ranks": 1,
+      "wall_cap_s": 60.0,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/coarse",
+      "stderr_tail": ""
+    },
+    "re100/medium": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 12.58,
+      "actual_core_s": 15.0,
+      "ratio_actual_over_predicted": 1.192,
+      "cost_basis": "measured, f11_re100_n64_20260730T041833Z.log",
+      "ranks": 1,
+      "wall_cap_s": 60.0,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/medium",
+      "stderr_tail": ""
+    },
+    "re100/fine": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 269.5,
+      "actual_core_s": 175.0,
+      "ratio_actual_over_predicted": 0.649,
+      "cost_basis": "measured rate x measured iteration count, f11_re100_n128_20260730T041833Z.log",
+      "ranks": 1,
+      "wall_cap_s": 673.75,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F11_runs/conversion_2026-08-25/runs/re100/fine",
+      "stderr_tail": ""
+    }
+  },
+  "waves": {
+    "1": {
+      "runs": [
+        "re1000/coarse",
+        "re1000/medium"
+      ],
+      "load_before": {
+        "loadavg_1min": 1.29296875,
+        "loadavg_5min": 1.26318359375,
+        "loadavg_15min": 0.9853515625,
+        "cpu_count": 16,
+        "note": "recorded, NOT gated; this launcher signals only processes it started itself"
+      },
+      "predicted_core_s": 18.39
+    },
+    "2": {
+      "runs": [
+        "re1000/fine"
+      ],
+      "load_before": {
+        "loadavg_1min": 1.81298828125,
+        "loadavg_5min": 1.38134765625,
+        "loadavg_15min": 1.02880859375,
+        "cpu_count": 16,
+        "note": "recorded, NOT gated; this launcher signals only processes it started itself"
+      },
+      "predicted_core_s": 176.73
+    },
+    "3": {
+      "runs": [
+        "re100/coarse",
+        "re100/medium"
+      ],
+      "load_before": {
+        "loadavg_1min": 4.7080078125,
+        "loadavg_5min": 2.583984375,
+        "loadavg_15min": 1.5283203125,
+        "cpu_count": 16,
+        "note": "recorded, NOT gated; this launcher signals only processes it started itself"
+      },
+      "predicted_core_s": 16.58
+    },
+    "4": {
+      "runs": [
+        "re100/fine"
+      ],
+      "load_before": {
+        "loadavg_1min": 5.13623046875,
+        "loadavg_5min": 2.78466796875,
+        "loadavg_15min": 1.611328125,
+        "cpu_count": 16,
+        "note": "recorded, NOT gated; this launcher signals only processes it started itself"
+      },
+      "predicted_core_s": 269.5
+    }
+  },
+  "stopped_by": null,
+  "cost_basis_note": "core-minutes = wall s x ranks / 60 and are the MEASURED unit. Dollars are DERIVED at the owner-stated $0.0513/core-h; this box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5). A docs/COST_CALIBRATION.md row is MANDATORY at completion.",
+  "spent_core_min": 6.0835,
+  "cap_respected": true
+}

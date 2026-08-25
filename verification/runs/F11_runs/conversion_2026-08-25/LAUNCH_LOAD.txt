@@ -1,0 +1,2 @@
+loadavg at launch: 1.29 1.26 0.99 2/417 2180768
+nproc: 16
