@@ -642,7 +642,10 @@ rule 12 the correct sequence is **probe first, pre-register second, run third.**
 12. **A latent dictionary regime gap (§8.2).** The anchor's `fvSolution` has no
     `residualControl` at all, so a steady MMS limb copied from it would compute an
     error norm on an unconverged field — **and a smoke test cannot detect that.**
-13. **The absent Re-100 pre-registration.** No F5a pre-registration exists anywhere
+13. **Roshko fails Ruling 7 condition 3 on six of seven registered rungs, and the
+    seventh fails condition 4 by threefold (§9.4, §9.5).** The instrument the brief
+    hoped was free is admissible at one rung, where the case then misses it.
+14. **The absent Re-100 pre-registration.** No F5a pre-registration exists anywhere
     for any rung. Everything above is scoping, and none of it is frozen.
 
 ---
@@ -786,29 +789,245 @@ Guard 2 made executable rather than promised.
 
 ---
 
-## 9. THE DECISION THIS MEMO PUTS TO THE SUPERVISOR
+## 9. AMENDMENT — RULING 7, AND WHAT IT DOES TO THIS PROPOSAL
 
-**F5a-MMS is technically sound, cheaper to *verify* than to *validate*, and it does
-not fall over on the fact the survey rested it on — Roshko is held, readable and
-title-page verified by an independent render.**
+*Added after verification's Ruling 7 reached this lane. Nothing above is rewritten;
+where this section corrects an earlier claim it says so.*
 
-**But it is not cheap, and its `P` limb is weaker than the survey believed.** In
-priority order:
+### 9.1 The ruling, recorded
 
-1. **Settle the `P` band question (§4.3) FIRST, at zero compute.** If Roshko's
-   scattered points cannot support a band worth gating, **F5a-MMS buys `V` and `G`
-   and no `P`, and it is then just a more expensive F3** — which already has `V` and
-   is 35.23 core-min from `G`. **That single ruling decides whether this proposal is
-   worth 465 core-minutes or worth nothing.**
-2. **If `P` survives, close the two open measurements before freezing anything:**
-   the three `checkMesh` runs (§3.4) and the L1 MMS cost probe (§5.5). Both are
-   small, bounded and solver-free or nearly so.
-3. **Only then write the pre-registration**, deriving every band and every plateau
+**A correlation scores `V` only as a KNOWN-ANSWER INSTRUMENT, on four conditions,
+all required:**
+
+1. a published **closed form with stated coefficients** — *a table of scattered
+   points is not a correlation, and a curve the lab fitted itself is the data, not
+   an instrument*;
+2. the source **held and title-page verified**;
+3. a **stated validity range covering the case's condition**;
+4. **its own scatter quoted, with the gate band wider than it.**
+
+It establishes **no observed order** and is **`V`'s weakest instrument by a wide
+margin.**
+
+**§4.3's scatter finding is vindicated: it is now the fourth condition of a standing
+ruling.**
+
+### 9.2 The MMS `V` limb is NOT proposed for compute
+
+Two independent grounds, both accepted here:
+
+1. **It is mis-costed and therefore unauthorisable.** §5.5 leaves it **UNCOSTED**,
+   and under rule 12 nothing may be authorised on an uncosted item. **§5.5's refusal
+   to guess is now load-bearing rather than merely careful.**
+2. **An MMS buys no column the lab lacks.** `V` is already green on **7 of cfd's 82
+   rows**, and the rubric's `V` is **binary** — an MMS scores the same green as a
+   Hagen–Poiseuille comparison.
+
+**What an MMS would buy is a capability, not a column:** no row in this lab joins a
+known answer to a converging ladder — the exact-solution rows carry no triple, and
+the one clean triple has no known answer. **Verification named that as a rubric
+defect rather than a reason to spend, and it is on Sanaa's desk as a question about
+whether `V` should be graded by the strength of its instrument. It is not this
+team's to pre-empt.**
+
+> **§2's MMS design is RETAINED as a description of what would be built if a
+> capability argument is ever ruled admissible. It is NOT proposed for compute, and
+> no core-minute is requested for it.** §5.3's **464.82–612.14 core-min is the G+P
+> shedding limb** and was never the MMS limb; the supervisor upheld that costing and
+> did not strike it to `UNCOSTED`.
+
+### 9.3 Roshko as a `V` instrument already in hand — conditions 1 and 2 are MET
+
+**Condition 1 — closed form with stated coefficients: MET**, and the paper carries
+**two** such forms, not one. §1.2 established this and it now becomes load-bearing:
+
+| form | coefficients | **stated validity range** |
+|---|---|---|
+| **(2a)** | `S = 0.212 (1 − 21.2/R)` | **50 < R < 150** |
+| **(2b)** | `S = 0.212 (1 − 12.7/R)` | **300 < R < 2,000** |
+
+**Condition 2 — held and title-page verified: MET.** 26,719,255 B on disk; page 1
+**rendered and read** by this lane (§1.1). **No compute at all was required for
+either condition.**
+
+### 9.4 CONDITION 3 — the range analysis, and it corrects the brief's premise
+
+**The brief states that "F5a spans Re 100–180 while the range clause stops at 150."
+It does not, and the true position is worse, not milder.**
+
+**Read from the registered record**, `verification/campaign/F5a_cylinder_reynolds_ladder.md`
+line 3: *"Ladder: Re 1000 → 2000 → 3900 → 5000 → 10,000 → 1e5 → 1e6. Each rung must
+pass its gate before the next starts."* **There is no Re 180 rung anywhere, and the
+top of the ladder is Re 1e6, not 180.** (The string "Re 100" does occur at line 63,
+but in prose about a laminar/turbulent methodology fork — *"Every rung from Re 100
+through Re 2000 was run laminar"* — not in the registered rung list.)
+
+| registered rung | inside **(2a)** `50 < R < 150` | inside **(2b)** `300 < R < 2,000` |
+|---|---|---|
+| Re 1,000 | **no** | **YES** |
+| Re 2,000 | no | **no — exactly on the endpoint** |
+| Re 3,900 | no | no |
+| Re 5,000 | no | no |
+| Re 10,000 | no | no |
+| Re 1e5 | no | no |
+| Re 1e6 | no | no |
+
+- **ZERO of the seven registered rungs fall inside (2a) `50 < R < 150`** — the range
+  §1.2 corrected the survey on.
+- **Exactly ONE, Re 1,000, falls strictly inside (2b) `300 < R < 2,000`.**
+- **Re 2,000 sits exactly on (2b)'s upper endpoint, and the clause is strict**
+  (`300 < R < 2,000`). It is therefore **not strictly inside**. Stated as a boundary
+  case rather than rounded in, because rounding a case into its reference's range is
+  the same error as trimming the case to fit.
+
+**And the ladder is NOT trimmed to fit.** The five rungs from Re 3,900 upward lie
+outside both ranges by up to four orders of magnitude. Under condition 3 **Roshko
+cannot be quoted as a `V` instrument for any of them.** That is a statement about
+what the instrument covers, **not a reason to shorten the ladder** — choosing the
+experiment to suit the answer is the failure this whole memo exists to avoid.
+
+**The Re-100 asymmetry, stated plainly.** The F5a-MMS proposal's own rung (§4.1) is
+**Re 100, which IS inside (2a)** — but **Re 100 is not a registered F5a rung.** It
+exists on this box only as the filmed demo act, the demo three-level cache (§3.6)
+and the §5.1 anchor. **The one Reynolds number at which Roshko (2a) is admissible is
+the one the ladder does not register.**
+
+### 9.5 CONDITION 4 — the scatter check, and the one admissible rung FAILS it
+
+Condition 4 requires the gate band to be **wider than the correlation's own
+scatter**. §4.3 measured that scatter off the render: **≈ ±4 % at R ≈ 100.**
+
+**At Re 1,000 — the only rung where condition 3 is met:**
+
+| | value |
+|---|---|
+| Roshko **(2b)** at R = 1,000 | **0.209308** |
+| F5a measured `St` (`F5a_cylinder_reynolds_ladder.md`, Measured table) | **0.2343** |
+| corroborating independent value (`R7_STROUHAL_SPACING_RESULTS.md`) | 0.2343330 |
+| **deviation** | **+11.94 %** |
+
+**+11.94 % against a ±4 % band is a miss by roughly threefold.** A band wide enough
+to satisfy condition 4 is ±4 %; the measurement sits three times outside it. **Under
+Ruling 7, the Re-1000 rung graded against Roshko (2b) is a `GATE FAIL`** — and by a
+margin no condition-4-compliant band could absorb.
+
+For completeness, and **explicitly NOT as gradeable claims** because condition 3
+fails for both: Re 2,000 measured 0.2421 against (2b) 0.210654 → **+14.93 %**;
+Re 3,900 corrected-spacing 0.1564 against (2b) 0.211310 → **−25.99 %**. **Diagnostics
+that decide nothing.**
+
+> **So Roshko as a free `V` instrument does not make the MMS limb redundant in the
+> way the brief hoped. It makes it unnecessary for a different and worse reason: at
+> the one rung where the instrument is admissible, the case FAILS against it.**
+
+### 9.6 THE CHARTER CONTRADICTION — reported, and it is not the contradiction the brief describes
+
+**Located.** `docs/charters/VERIFICATION_CHARTER.md`, **§6b** (*"A reference that was
+never obtained is recorded in one vocabulary"*, heading at line **1661**), the row at
+line **1712**, quoted:
+
+> *"No paper was found, despite a genuine search … that reports a point value of Cd
+> or St at exactly Re=2000"*, followed by a fallback to a secondary reproduced as a
+> figure in a 2014 thesis | `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md:562-571`
+> | **`NOT OBTAINED` as a primary.** What is held is SECONDARY, and the row is graded
+> BANDED and LOWER CONFIDENCE, which is the right handling of the state under a
+> different name
+
+**Both readings named, as instructed:**
+
+- **The brief's reading:** §6b records F5a's reference as `NOT OBTAINED` while the
+  paper is demonstrably on disk, so two lab records disagree.
+- **This lane's reading, and it is the one the text supports: THERE IS NO
+  CONTRADICTION.** The row is scoped to *"a point value of Cd or St **at exactly
+  Re = 2000**"*. **It makes no claim about Roshko, and no `NOT OBTAINED` row anywhere
+  in that charter names Roshko or Report 1191** — checked by grep across the whole
+  file. The source it cites names the papers actually searched — **Jiang & Cheng,
+  Norberg, Williamson, and Fey/König/Eckelmann — and Roshko is not among them.**
+  **Both records are true simultaneously:** Roshko is held, **and** no primary
+  reporting a point `St` at exactly Re 2,000 was found. Indeed **Roshko could not
+  have supplied that point either** — (2b)'s range clause is strict at 2,000 (§9.4).
+
+**Not resolved here, and the charter is not this team's to edit.** The report is:
+on the text as written the two records are **consistent**, and **if verification
+intends that row to bear on Roshko it should say so explicitly, because as written
+it does not.**
+
+**A separate and real defect in that row, found while checking it: its citation path
+is stale.** The row cites `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md:562-571`.
+**That path does not exist.** A non-ignoring `find` locates exactly one copy of the
+file, at **`verification/campaign/F5a_cylinder_reynolds_ladder.md`**, which is also
+the only tracked copy at HEAD. **The line numbers 562–571 resolve correctly on the
+real path** — lines 564–567 carry the quoted sentence — so **only the directory is
+stale and the row's substance is intact.** Verification's file, verification's fix.
+
+### 9.7 The OCR claim, checked — and at the load-bearing characters it is the other way round
+
+Verification declined to score Roshko partly because *"the sidecar OCR is degraded at
+exactly the load-bearing characters."* **Checked page by page against the sidecar,
+and then against the renders:**
+
+- **Sidecar page 13 — the page where equations (2a) and (2b) live — is CLEAN.** It
+  reproduces `(2a) S=0.212 (1-21.2/R)` / `50<R < 150` and
+  `(2b) S=0.212 (1-12.7/R)` / `300<R < 2,000` correctly.
+- **Sidecar page 10 IS degraded**, rendering the same constant as `.0.212 (1_ 2~2)`.
+  But page 10's occurrence is the **annotation drawn inside Figure 4**, not the
+  equation block.
+
+**So the degradation is real, and it is not at the coefficients — it is at a figure
+annotation.** The equation block OCRs clean.
+
+**And it decides nothing either way, because under rule 15 the render is the
+authority and this lane rendered both pages** (§1.2, §1.3). Every coefficient and
+both range clauses in this memo are read off the **image**. **A record that had
+relied on the sidecar would have been right at page 13 and wrong at page 10 — which
+is precisely why rule 15 exists.**
+
+---
+
+## 10. THE DECISION THIS MEMO PUTS TO THE SUPERVISOR
+
+*Rewritten after Ruling 7 (§9). The pre-Ruling-7 ordering is superseded and the
+change is stated rather than silently applied: **the `V` limb has left the proposal
+entirely**, and what remains to decide is narrower.*
+
+**What survives Ruling 7:** the case does not fall over on the fact the survey rested
+it on — **Roshko is held, readable and title-page verified by an independent
+render** — and **the `G+P` shedding limb's costing stands as built** (§5.3, upheld,
+not struck to `UNCOSTED`).
+
+**What has left the proposal:** **the MMS `V` limb is not proposed for compute**
+(§9.2), on two independent grounds — it is uncosted and therefore unauthorisable
+under rule 12, and it buys a binary column the lab already holds seven of.
+
+**What Ruling 7 newly costs the proposal:** the free `V` instrument the brief hoped
+would replace the MMS is **admissible at one registered rung and the case fails
+against it there** (§9.4, §9.5).
+
+**In priority order, and item 1 still decides everything:**
+
+1. **Settle the `P` band question (§4.3) FIRST, at zero compute.** Ruling 7's fourth
+   condition has now made this a standing test rather than this lane's observation.
+   If Roshko's scattered points cannot support a band worth gating, **F5a-MMS buys
+   `G` alone** — and F5a is then strictly worse value than **F3**, which already
+   holds `V` and is **35.23 core-min** from `G` under a frozen, armed, unfired
+   pre-registration. **That single zero-compute ruling decides whether this proposal
+   is worth 465 core-minutes or worth nothing.**
+2. **Rule on what §9.5 means for the existing ladder, which is a separate question
+   from the proposal.** The Re-1000 rung's `+11.94 %` against Roshko (2b) is a
+   `GATE FAIL` under Ruling 7 at any condition-4-compliant band. **That is a finding
+   about a rung already run, not about a rung being proposed**, and it needs a
+   verdict independent of whether F5a-MMS ever happens.
+3. **If `P` survives item 1, close the one remaining open measurement before freezing
+   anything:** the three `checkMesh` runs of §3.4. **The L1 MMS cost probe of §5.5 is
+   no longer on the path**, because the limb it would have costed is no longer
+   proposed.
+4. **Only then write the pre-registration**, deriving every band and every plateau
    threshold from principle, and **declaring in its §2 that the medium level's
    settled `St` was already known** (§3.5.4).
 
-**No compute should be authorised on the strength of this memo.** It fixes nothing
-and it is not a pre-registration.
+**No compute should be authorised on the strength of this memo.** It fixes nothing,
+it is not a pre-registration, and after §9 it requests **no core-minute for the `V`
+limb at all.**
 
 ---
 
