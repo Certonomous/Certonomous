@@ -1,0 +1,96 @@
+{
+  "cap_core_min": 39.5,
+  "runs": {
+    "cone/M2.35_th10/coarse": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 16.3,
+      "actual_core_s": 20.0,
+      "stderr_tail": ""
+    },
+    "cone/M2.35_th10/medium": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 118.9,
+      "actual_core_s": 120.0,
+      "stderr_tail": ""
+    },
+    "cone/M2.35_th10/fine": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 1072.7,
+      "actual_core_s": 1155.03,
+      "stderr_tail": ""
+    },
+    "wedge/M2.0_th15/coarse": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 6.1,
+      "actual_core_s": 10.0,
+      "stderr_tail": ""
+    },
+    "wedge/M2.0_th15/medium": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 18.7,
+      "actual_core_s": 30.0,
+      "stderr_tail": ""
+    },
+    "wedge/M2.0_th15/fine": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 146.4,
+      "actual_core_s": 185.01,
+      "stderr_tail": ""
+    },
+    "diamond/M2.0_eps7p125/coarse": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 11.1,
+      "actual_core_s": 15.0,
+      "stderr_tail": ""
+    },
+    "diamond/M2.0_eps7p125/medium": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 35.5,
+      "actual_core_s": 40.0,
+      "stderr_tail": ""
+    },
+    "diamond/M2.0_eps7p125/fine": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 201.2,
+      "actual_core_s": 240.01,
+      "stderr_tail": ""
+    },
+    "wedge/M3.0_th15/fine": {
+      "status": "OK",
+      "killed_reason": null,
+      "rc": 0,
+      "predicted_core_s": 149.0,
+      "actual_core_s": 190.01,
+      "stderr_tail": ""
+    },
+    "wedge/M2.5_th10/fine": {
+      "status": "PENDING",
+      "reason": "budget: wave 6 not launched"
+    },
+    "diamond/M2.5_eps5/fine": {
+      "status": "PENDING",
+      "reason": "budget: wave 6 not launched"
+    }
+  },
+  "stopped_by": "budget check before wave 6",
+  "spent_core_min": 33.4177,
+  "cap_respected": true
+}
