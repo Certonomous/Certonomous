@@ -585,3 +585,234 @@ record and artefact cited in the rows above.
 
 **Submissions are parked.** Nothing here is filed, sent, uploaded or registered
 outside this box.
+
+---
+
+## 11. AMENDMENT 1 — 2026-08-25: three VERIFY items discharged by title-page verification, and one over-broad statement corrected
+
+**Version 2.1.** Appended at the foot under `CLAUDE.md` rule 6 because other records
+— including the dispatch that produced this amendment — cite this file **by line
+number**. Nothing above is edited.
+
+**lines whose number changed above this section: 0**
+
+**ZERO SOLVER COMPUTE.** No solver, no mesher, no case directory, no MPI rank. The
+work in this section is PDF rendering and reading, single-rank, plus filesystem
+sweeps. Cost is closed out in §11.7.
+
+**No score and no tier moves in this amendment.** §11.6 states that positively rather
+than leaving it to be inferred, and §11.5 names the one cell whose re-score is now
+**live and referred to the owner** rather than taken by cfd.
+
+### 11.1 Method — how the title pages were verified, and why the method matters
+
+Rule 15 forbids verifying a paper by file type, filename, hash or sidecar. Each PDF
+below was verified by **rendering its page 1 to a PNG at 150 dpi and reading the
+rendered image** — i.e. by looking at what a human reader would see, not at metadata
+and not at extracted text. Extracted text was used **afterwards**, and only to locate
+and quote body content whose page had already been rendered and read.
+
+That ordering is the point. The Greenblatt PDF's own embedded metadata reads
+`Title: Microsoft Word - PortlandPaperPart1.doc`, `Author: Administrator` — a
+manifest built from metadata would have recorded this paper as authored by
+"Administrator". **The rendered page says something completely different, and the
+rendered page is the paper.**
+
+This lane rendered and read three page images: Greenblatt page 1, Greenblatt page 7
+(Table 2), and Breuer page 1.
+
+### 11.2 VERIFY item at line 511 (C-15, P) — **DISCHARGED**
+
+**Struck**, from the C-15 P cell at line 236 and from the VERIFY table at line 511:
+
+> ~~**VERIFY:** this lane did **not** title-page verify that PDF (rule 15)~~
+> ~~| Title-page verification of `docs/papers/benchmark_test_cases/greenblatt_et_al_cfdval2004_hump.pdf` | C-15, P | … **Rule 15 forbids verifying a paper by filename or hash**, and this lane did not open the title page |~~
+
+**Restated, from the rendered page 1 read by this lane:**
+
+* **AIAA-2004-2220**, printed top-right of the title page.
+* **"A Separation Control CFD Validation Test Case — Part 1: Baseline & Steady
+  Suction."**
+* **David Greenblatt, Keith B. Paschal, Chung-Sheng Yao, Jerome Harris, Norman W.
+  Schaeffler and Anthony E. Washburn.**
+* **Flow Physics and Control Branch, NASA Langley Research Center, Hampton VA**
+  (the printed ZIP reads `2361-2199`, which is a typographic error in the paper
+  itself; recorded as printed and not silently corrected).
+* **2nd AIAA Flow Control Conference, June 28 – July 1, 2004, Portland, OR.**
+* Abstract, first sentence, verbatim: *"Low speed flow separation over a
+  wall-mounted hump, and its control using steady suction, were **studied
+  experimentally** in order to generate a data set for a workshop aimed at
+  validating CFD turbulence models."*
+* The author footnotes place every one of the six authors in the Flow Physics &
+  Control Branch at Mail Stop 170 — **the people who took the measurements are the
+  people who wrote the paper.**
+
+**Sidecar checked and found real, not a stub:**
+`greenblatt_et_al_cfdval2004_hump.txt` is **2,480 lines / 46,845 non-whitespace
+characters**, and its content was confirmed against the rendered pages (title-page
+text at sidecar lines 6–16; Table 2 at line 458; §V "Test Cases" at 346–357).
+
+**Verdict on the item: DISCHARGED.** Under the owner's Ruling 4 this is a **public
+primary experiment**, held on disk, readable, and authored by the experimentalists.
+It is the case C-15 and F6a name. **Rule 15 is satisfied by reading, not by
+inference.**
+
+**What does NOT change: C-15's P cell stays `NO`, and its tier stays `SURVEYED`.**
+The source was never the missing piece — the cell already said so. What is missing
+is a **frozen pre-registration gating agreement with it**, and until one exists and
+fires, the source being verified changes nothing about the score. Recording the
+discharge without moving the cell is the honest outcome, and moving the cell here
+would be exactly the error rule 2 exists to prevent.
+
+### 11.3 VERIFY item at line 512 (C-18) — **DISCHARGED**, and it is the item that forces §11.4
+
+**Struck**, from the VERIFY table at line 512:
+
+> ~~| Title-page verification of `breuer_peller_rapp_manhart_caf2009_periodic_hills.pdf` | C-18 | … that reading came from the pre-registration's source table, not from the PDF's title page |~~
+
+**Restated, from the rendered page 1 read by this lane:**
+
+* **"Flow over periodic hills – Numerical and experimental study in a wide range of
+  Reynolds numbers."**
+* **M. Breuer, N. Peller, Ch. Rapp, M. Manhart** — Lehrstuhl für Strömungsmechanik,
+  Universität Erlangen-Nürnberg; Fachgebiet Hydromechanik, Technische Universität
+  München.
+* **Computers & Fluids 38 (2009) 433–457**, doi `10.1016/j.compfluid.2008.05.002`,
+  received 4 February 2008, available online 28 May 2008.
+* Abstract, verbatim: *"We present results predicted by direct numerical simulations
+  (DNS) and highly resolved large-eddy simulations (LES) achieved by two completely
+  independent codes. **Furthermore, these numerical results are supported by new
+  experimental data from PIV measurements.**"*
+
+**The title page discharges the item and simultaneously falsifies the sentence the
+item was supporting.** The paper's own title contains the words **"Numerical *and
+experimental* study"**. §11.4 corrects it.
+
+### 11.4 THE CORRECTION — an over-broad statement, struck and restated precisely. **The withdrawal it supports STANDS.**
+
+**Struck**, at three places, quoted exactly as they stand above and left standing
+above so a reader can see what changed:
+
+> ~~§0.1, line 72: "the held limb — Breuer, Peller, Rapp & Manhart (2009), x_R/h = **4.69** — is an **LES/DNS Reynolds-number series**, a computation."~~
+>
+> ~~C-18's P cell, line 239: "its **held** limb (Breuer et al. 2009, 4.69) is an **LES/DNS computation**."~~
+>
+> ~~§8 row 13, line 470: "The band's held limb (Breuer 2009, 4.69) is an **LES/DNS computation**."~~
+
+**Restated, and the difference is not cosmetic:**
+
+> **The CITED VALUE 4.69 is a computation. The PAPER is not.**
+
+**Evidence for the first half, measured by this lane in the held sidecar:**
+`4.69` occurs exactly once (sidecar line 2116), inside the sentence *"The
+corresponding values of the reattachment lengths are xR/h = 5.24, 5.19, 5.41, 5.09,
+and 4.69 for Re = 700 to 10,595, respectively"*, which is the series plotted in
+**Fig. 22**, whose caption reads (sidecar line 2176): *"Separation length and
+reattachment length vs. Reynolds number; **comparison of predictions by LESOCC and
+MGLET***." LESOCC and MGLET are the paper's two LES/DNS codes. **The 4.69 the F6b
+band held is an LES prediction at Re = 10,595 and is not a measurement.**
+
+**Evidence for the second half:** the paper's title and abstract, quoted in §11.3.
+It reports **new PIV experiments** performed for this study alongside the
+computations.
+
+**Why the withdrawal still stands, measured and not assumed.** A sidecar sweep for a
+tabulated **experimental** reattachment length found none: every numeric reattachment
+figure in the paper traces to Fig. 22 and to the two codes. The paper's experimental
+content appears as **figures** — Fig. 18 and Fig. 19 compare PIV measurements against
+predictions at x/h = 0.5, 2, 4 and 6 for Re = 5,600 and 10,595 — and **a digitised
+figure is a weaker basis than a tabulated value.** So the F6b band's held limb remains
+a computation, its experimental limb (Rapp & Manhart 2011, 4.21) remains unheld and
+`SECONDARY` under Ruling 3, **and C-18's P cell stays withdrawn from green under
+Ruling 4. Nothing in this correction rescues C-18.**
+
+**Why the correction is made anyway, which is the whole point of this section.** A
+record that overstates its ground invites a correct rebuttal that then *looks like*
+it overturns the conclusion. Anyone reading "Breuer 2009 is an LES/DNS computation"
+against a paper titled *"Numerical **and experimental** study"* can refute cfd's
+sentence in one line — and having refuted the sentence, would reasonably believe the
+withdrawal it justified had fallen with it. **It has not.** The narrow claim — *this
+value, 4.69, is a prediction* — is both true and sufficient, and it is the claim the
+record should have carried.
+
+**One consequence, stated as an opening and NOT as a result.** Because the paper does
+contain public primary experimental data and the lab holds it, a P-green on the
+periodic-hill family is **not categorically closed** by Ruling 4 the way version 2's
+wording implied. It would require a **fresh frozen pre-registration gating a quantity
+the paper reports experimentally** — the PIV profiles of Figs. 18–19 — and would
+inherit the figure-digitisation weakness named above. **This is an open route, not a
+claim. No cell moves on it, and cfd offers it to the owner rather than scoring it.**
+
+### 11.5 VERIFY item at line 510 (C-26, V) — **MEASURED: NOT HELD. The conditional has fired, and the re-score is REFERRED, not taken.**
+
+**The gap, measured rather than searched-for-and-shrugged-at:**
+
+* `/usr/bin/find` over **all of `/home/ubuntu`**, excluding `.git`, for `*womersley*`
+  and the misspellings `*womers*`, `*wormersley*`, `*womersly*`: **zero papers.**
+  Every hit is a lab-generated artefact of our own — `cases/valve/02-womersley.png`,
+  `verification/runs/F9_work/womersley_followup_results.json`,
+  `verification/runs/F9_work/womersley_probe_check`, two `demo-output` copies, and a
+  solve-registry log.
+* **A filename sweep alone would not be evidence** (a paper can be filed under any
+  name), so a content sweep was run as the control: **all 610 PDFs on the box** were
+  passed through `pdftotext` over their first three pages and grepped for
+  "womersley". **Zero hits.** The reader was demonstrated able to see a non-zero on
+  the same instrument in §11.2 and §11.3, where it read two title pages correctly.
+* Instruments named per the standing constraint: `/usr/bin/find` and `/usr/bin/grep`
+  for the disk (`grep -r` in this environment honours ignore files and is blind to
+  gitignored trees).
+
+**Recorded as a plain gap: F9 has a solve with no held primary behind it. Rule 15 has
+nothing to bite on** — there is no artefact to title-page verify.
+
+**The re-score is the OWNER's, and cfd does not take it here.** Line 510's own
+conditional was *"If it is not held, Ruling 3's logic may bear on V and the cell
+should be re-scored"*, and that condition is now met on measurement. Both readings
+are named rather than the kinder one being chosen silently:
+
+* **The non-flattering reading** — the Womersley analytic solution reached this lab
+  through a textbook, a review or a code, not through a source the lab holds and can
+  read; under Ruling 3's logic C-26's **V drops to `NO`** and the row leaves the
+  §8.1 rubric gap for `SURVEYED` at **0 green**.
+* **The alternative** — Ruling 3 is written about **P**, and Ruling 4 puts an
+  **exact/analytic solution** squarely in **V** without conditioning V on holding the
+  originating paper. On that reading C-26's V stands and only the provenance note
+  changes.
+
+**cfd states its own inclination and does not act on it: the non-flattering reading.**
+This file's §0 stance is that cfd applies the owner's rubric and does not invent one,
+and extending a P-clause to V is a rubric extension, not an application. **Referred
+to the verification team as owner of `docs/COVERAGE_MATRIX.md`. C-26's cells are left
+exactly as they stand at line 247 pending that ruling, and this amendment claims no
+authority to move them.**
+
+### 11.6 What this amendment does NOT change
+
+* **No V, G or P cell changes value.** C-15 P stays `NO`; C-18 P stays withdrawn;
+  C-26 V is untouched and referred.
+* **No tier changes.** C-15 stays `SURVEYED`; C-18 stays `NOT HELD`; C-26 stays in
+  the §8.1 rubric gap.
+* **The census in §7 is unchanged**, including *"They cannot see a green P at all.
+  Zero of 82."* **A verified source is not a green P.** Under Ruling 4 a green P
+  needs the measured-reality source **and** a pre-registration on disk gating the
+  comparison; §11.2 supplies the first and not the second.
+* **No gate, threshold, cap or label anywhere in the lab is altered by this section.**
+
+### 11.7 Cost
+
+**Predicted 0 core-minutes of solver time; actual 0 core-minutes of solver time.** No
+solver, no mesher, no MPI rank. The spend is three `pdftoppm` renders, one
+`pdftotext` sweep over 610 PDFs, two `find` sweeps and a handful of greps — all
+single-rank reads. **Not instrumented, and therefore reported as an estimate under 3
+core-minutes — an estimate, not a measurement**, and labelled so rather than quoted
+as if a log backed it.
+
+**No `docs/COST_CALIBRATION.md` row is due, and this is a ruling and not a lapse.**
+Rule 12's estimate-versus-actual duty attaches at the completion of a *compute*
+process; a process with **no core-minutes has no actual to compare against an
+estimate**, and inventing a denominator would corrupt the ledger. The cfd supervisor
+ruled this standing on 2026-08-25: **zero-compute dispatches add no calibration row.**
+Version 2's §10 reached the same conclusion independently and is consistent with it.
+
+**Submissions are parked.** Nothing in this amendment is filed, sent, uploaded or
+registered outside this box.
