@@ -144,3 +144,25 @@ in their pre-registration error budget, that would be a grading-convention chang
 belongs as a dated amendment to `ANSYS_VERIFICATION_CHARTER.md` §5 routed through the
 chief — flagged, not drafted, because widening or setting a grading rule is not this
 lane's call.
+
+---
+
+## SUPERSEDED 2026-08-25 — every draft above has LANDED; do not re-land
+
+This staging file has been discharged. Recorded here so no future lane re-lands its
+contents (the very stale-draft trap this file was created to flag):
+
+- **N-AV9** (wedge area deficit) — **LANDED** as `## N-AV9` in `docs/NUMERICS_KNOWLEDGE.md`,
+  commit `7e2cb666`, transcribed with both dP readings.
+- **N-AV7 / N-AV8 backlog** — **CLOSED**: both landed in `docs/NUMERICS_KNOWLEDGE.md`
+  at the same commit `7e2cb666` (they had been forward-cited from register row #3 and
+  `RESULTS.md` without existing).
+- **D510 docket collision** — **RESOLVED**: the VMFL005 open-mechanism question is now
+  docket **`D512`** (`docs/DOCKET.md`, commit `20afae1b`); the mis-citation is corrected
+  by dated foot-notes on the register (commit `23fed33c`) and on `RESULTS.md`
+  (commit `4bb0f6a1`), neither of which edits the landed body.
+- **L-300 / L-301 already-landed finding** — carried to the supervisor for the
+  LAB_STATE correction (DEFECT 3); LAB_STATE is the supervisor's file, not edited here.
+
+No charter amendment was warranted then or now. Nothing in the section above should be
+committed again.
