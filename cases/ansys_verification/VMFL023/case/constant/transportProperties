@@ -1,0 +1,19 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Manual p.89: Density 1 kg/m3, Viscosity 0.02 kg/m-s, D = 2 m, U = 1 m/s.
+// rho = 1 so nu = mu/rho is NUMERICALLY EQUAL to mu.
+//   Re = rho*U*D/mu = 1*1*2/0.02 = 100  -- and the page ITSELF states Re = 100.
+// The page is INTERNALLY CONSISTENT.  This is asserted by run_vmfl023.sh, not
+// assumed, and NO repair arm is needed here (contrast VMFL036).
+transportModel  Newtonian;
+nu              0.02;
+// ************************************************************************* //

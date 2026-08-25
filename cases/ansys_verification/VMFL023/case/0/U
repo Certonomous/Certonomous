@@ -1,0 +1,30 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+// THE SYMMETRY-BREAKING KICK, FROZEN AND IDENTICAL AT EVERY LEVEL.
+// A perfectly symmetric O-grid with a perfectly symmetric initial field has NO
+// mechanism to start shedding except round-off, and 2D cylinder flow at Re = 100
+// can then sit symmetric for hundreds of seconds before numerical noise breaks it.
+// The transverse component below breaks the symmetry deterministically at t = 0
+// and decays within the declared start-up window; the settled window from which
+// St is measured begins long after it.  IT IS THE SAME AT ALL THREE LEVELS, so it
+// cannot contaminate the Roache triple.
+internalField   uniform (1 0.2 0);
+
+boundaryField
+{
+    cylinder     { type noSlip; }
+    farField     { type freestreamVelocity; freestreamValue uniform (1 0 0); }
+    frontAndBack { type empty; }
+}
+// ************************************************************************* //

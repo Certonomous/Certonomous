@@ -1,0 +1,14 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The manual states "The flow is laminar, and unsteady" (p.89).  No model.
+simulationType  laminar;
+// ************************************************************************* //

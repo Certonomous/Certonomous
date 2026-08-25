@@ -1,0 +1,53 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     pimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+
+// FIXED deltaT, IDENTICAL AT EVERY LEVEL.  adjustTimeStep is DELIBERATELY OFF:
+// a Courant-adjusted step would put a DIFFERENT time discretisation on each grid
+// level and the Roache triple would then be measuring two refinements at once.
+// It also keeps rule 4's "ExecutionTime count == endTime/deltaT" clause exact.
+endTime         __ENDTIME__;
+deltaT          __DELTAT__;
+adjustTimeStep  no;
+writeControl    runTime;
+writeInterval   __ENDTIME__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+
+functions
+{
+    forces
+    {
+        // The GATE CHANNEL.  St is a FREQUENCY, so it depends only on the TIMING
+        // of the lift signal and NOT on any reference area -- the wedge/Aref
+        // sensitivity that dominates a drag case cannot touch this gate.
+        type            forces;
+        libs            (forces);
+        writeControl    timeStep;
+        writeInterval   1;
+        writeFields     false;
+        log             false;
+        patches         (cylinder);
+        rho             rhoInf;
+        rhoInf          1;          // manual p.89: density 1 kg/m3
+        CofR            (0 0 0);
+    }
+}
+// ************************************************************************* //
