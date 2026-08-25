@@ -11719,3 +11719,68 @@ assumes it covers.** The shared discipline: **state the property you actually ch
 the nearest familiar name for it**, and where the reader needs a stronger property, check
 the stronger one before naming it. That correction was made by the measuring lane against
 its own claim, unprompted — recorded here as the behaviour to copy, not as a criticism.
+
+## L-308. A phrase-level grep over hard-wrapped Markdown/YAML has an unmeasured false-UNSOURCED rate — normalise whitespace before concluding anything is unsourced
+
+*2026-08-25, ansys-verification opus-4.8 lane, records-integrity audit. Zero compute.*
+
+**The rule.** An attribution or provenance audit that greps a multi-word phrase against
+hard-wrapped Markdown/YAML **cannot match an instance that wraps across a line break** —
+`grep -F` (and `git grep`, and the pickaxe `git log -S`) all match within a single line.
+Before writing "UNSOURCED", either **normalise whitespace** (`tr '\n' ' ' | tr -s ' '`)
+over each file's HEAD blob, or search on a **short fragment that cannot wrap**. A naive
+phrase grep that returns few hits is not yet a finding; it is an under-count of unknown size.
+
+**Measured here.** Auditing the phrase *"exclusively work on these verification cases"*:
+a naive per-line `git grep -Fl` found **2** files; a whitespace-normalised sweep found
+**4** — a **50 % false-negative rate on this phrase**. The two missed were the ones that
+hard-wrapped across a newline: `harness/teams.yaml` (the roster source of truth) and
+`docs/charters/ANSYS_VERIFICATION_CHARTER.md` (§1). A prior lane had reported the phrase
+"UNSOURCED, 2 hits, high severity" on the strength of the naive count alone; the correct
+count is 4, all four tracing to a single commit `123a3b92`. Note the pickaxe carries the
+**same** blindness: `git log -S'exclusively work on'` returned nothing for the charter,
+because the charter wraps `exclusively`/`work on`; the origin had to be re-derived with
+`--diff-filter=A` and with a non-wrapping fragment.
+
+**Honest scope limit — do NOT over-generalise from this.** Re-tested against a different
+team's *withdrawn* attribution (cfd's *"the early PASSes that lack prereqs convert to
+HOLDS"*), normalisation changed **nothing**: 1 hit naive, 1 hit normalised. So this
+blindness does **not** invalidate phrase audits in general — it means an UNSOURCED verdict
+produced by a naive phrase grep is **not yet a finding** until the normalised sweep confirms
+it. Going looking for a bigger fish here caught none; that negative result is part of the record.
+
+**Cross-reference.** `L-75` ("our own `grep -r` skips ignored files") is a *different*
+blindness in the same class: `L-75` hides whole **files** from the sweep; this hides
+**matches inside files that are being read**. A sweep denominator must account for both —
+name what the tool cannot see (ignored paths) AND normalise what wrapping can hide (matches
+split across lines) before any "found nothing" is trusted.
+
+*Artifacts:* this session's normalised sweep over `git show HEAD:<f>` for every tracked
+`.md`/`.txt`/`.yaml`/`.json`; commit `123a3b92`; the charter's own §1 lines 29–30.
+
+### Dated addendum to L-5 — 2026-08-25, ansys-verification opus-4.8 lane: a lane cannot be used as a watcher; to wait on a long process, detach a shell that re-invokes the supervisor on exit
+
+L-5's rule ("a dispatched agent will orphan its own long job") recurred three more times
+tonight, in a sharper form worth recording: not the agent orphaning its *own* job, but a
+lane dispatched **specifically to wait** and unable to. Two instances: an opus lane
+**completed twice** while its own detached solve kept running; and a haiku lane dispatched
+to poll a solve to termination **returned in 9.9 seconds having made one tool call**,
+reporting only *"polling started"*. A subagent's watcher dies with the subagent, so a
+subagent whose entire job is to sleep and report on exit **has no way to succeed** — it
+either returns immediately (and the wait never happened) or its turn ends (and the watcher
+dies). This is the memory note *"agent watchers die with the agent"* meeting L-5's collector
+problem from the dispatch side.
+
+**The rule (sharpening L-5, point 2).** To wait on a long-running process, use a **detached
+background shell that re-invokes the supervisor on exit** — a process that outlives any
+single agent turn and whose completion is an event, not a poll — **never a subagent whose
+job is to sleep.** Key the wait on the process name or an output artifact (L-6), not a
+launch-time PID.
+
+**The diagnostic tell (sharpening L-5, point 3).** A completion message that **describes
+waiting rather than reporting an outcome** — "polling started", "waiting on my monitor",
+"standing by" — is the dead-watcher signature: treat it as a handoff to the supervisor and
+verify the process by its own evidence, never as work in progress. A 9.9-second "polling
+started" is a completed subagent, not a running poll.
+
+*Lines whose number changed above this section: 0 (appended at the file foot).*
