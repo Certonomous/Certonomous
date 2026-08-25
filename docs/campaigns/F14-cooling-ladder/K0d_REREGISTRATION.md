@@ -1387,3 +1387,107 @@ question, and referred to the supervisor to correct the board.
 *Amendment written by a heat-transfer lane on the supervisor's gap, ceiling and
 condition-C rulings, 2026-08-25, before first compute. Zero core-minutes spent
 in writing it.*
+
+---
+
+# ADDENDUM 1 — 2026-08-25T21:43:04Z, BEFORE FIRST COMPUTE. Version 1.2 → 1.3.
+
+**lines whose number changed above this section: 0.** This addendum is appended
+at the foot; nothing above it is edited (standing rule 6). **The assertion was
+VERIFIED, not typed:** in the invocation that wrote this addendum the first
+1389 lines of this file were compared byte-for-byte against the committed blob
+`27a29bdd3b32f5e850a588014d64063a17659740` at `HEAD`, and the comparison was
+clean.
+
+## AD1.0 The condition under which this addendum is legal, and how it was checked
+
+Standing rule 2. The condition is that **no K0d compute has run**, and it was
+checked by naming the run directory that does not exist:
+`test -e verification/runs/F14-cooling-ladder/K0d_runs` returned **ABSENT** at
+**2026-08-25T21:43:04Z**, in this addendum's own committing shell invocation and not cited from
+any upstream message, **under a planted control** in which the same reader
+returned **PRESENT** on `verification/runs/F14-cooling-ladder/K0cS_runs`, which
+does exist. A zero from a reader not shown able to see a non-zero is not
+evidence (standing rule 3).
+
+**This addendum alters NO gate, NO band, NO threshold, NO cap and NO label.**
+It **adds one registered check** and can only tighten.
+
+## AD1.1 THE EXTRACTION READING, ACCEPTED — AND ITS EQUIVALENCE MADE A REGISTERED CHECK
+
+**The question.** `AMENDMENT 1` §A1.3a registers `setFormat raw`,
+`interpolationScheme cellPoint` (graded) and `cell` (control), `uniform`
+sample sets of **2 081** points at **5.000e-04 m** in the mid-thickness
+cell-centre plane. Those are OpenFOAM `sample` parameters.
+`scripts/analyse_k0d.py` **performs the extraction itself** from the mesh and
+the field files rather than reading `.xy` files written by `postProcess`.
+
+**THE READING IS ACCEPTED, and the reason is binding.** Superseded §8.1 requires
+each plant to be read back *"through the production field reader, the same call
+the graded path uses"*. If the graded number came from a file a separate utility
+wrote, a plant into the field would exercise a reader **the graded path never
+calls** — which is the `AMENDMENT 2` §A2.3 defect one layer up. This lab has
+been burned by exactly that twice: condition C planting into a modified
+specification rather than a mesh, and T8's §9 arm that was analytically
+incapable of catching the mis-weighting it existed to catch. **A third instance
+is not ordered.**
+
+**BUT THE EQUIVALENCE IS ASSERTED, NOT DEMONSTRATED, and it is not left as an
+assumption sitting under every graded number.** `cellPoint` is a specific
+OpenFOAM interpolation — cell-to-point, then inverse-distance weighting — and a
+re-implementation can silently differ.
+
+**REGISTERED NOW, BEFORE COMPUTE, so rule 2 is satisfied:**
+
+> **THE `postProcess` EQUIVALENCE CHECK.** Once `L1` has produced real
+> fields, OpenFOAM's own `postProcess -func sample` is run with the registered
+> §A1.3a parameters — `setFormat raw`, `cellPoint` graded and `cell`
+> control, `uniform` sets of **2 081** points at **5.000e-04 m** on the two
+> registered mid-plane lines, in the mid-thickness cell-centre plane — **on the
+> same `endTime`**, and its output is compared against the in-comparator
+> reader of `analyse_k0d.py`.
+>
+> **CRITERION, fixed now:** agreement within **1e-6 of the field's registered
+> range**. For `T` that is the **same 2.0e-5 K already registered in §7.1**,
+> **reused rather than invented**.
+>
+> **CONSEQUENCE, fixed now:** agreement **vindicates the reading**.
+> **DISAGREEMENT means the comparator's reader is WRONG, EVERY GRADED ROW IS
+> `NOT A RESULT`, and the rung is REPAIRED AND RE-REGISTERED — NOT RESCUED BY
+> AMENDMENT.**
+
+**Why this check cannot be run before the solves, stated so the ordering is not
+mistaken for an evasion:** it needs real fields on a real K0d mesh. **Firing is
+the PREREQUISITE for closing this gap, not a way around it.**
+
+## AD1.2 THE INSTRUMENT PATHS, DISCLOSED RATHER THAN SILENTLY ACCEPTED
+
+The four instruments live in `scripts/`:
+`build_k0d.py`, `check_k0d_mesh.py`, `mark_done_k0d.py`,
+`analyse_k0d.py`. `scripts/check_filing.py` — the binding artifact —
+reports **no violation** on those paths, so the location is legal. It is
+nonetheless **inconsistent with every sibling comparator**, which lives beside
+its run tree under `verification/runs/F14-cooling-ladder/K0c*_runs/`.
+
+**RULED: they stay where they are, and they are NOT moved after first compute.**
+Relocating a grading path after the freeze is a rule-2 problem for no gain.
+Disclosed here rather than silently accepted.
+
+## AD1.3 WHAT THIS ADDENDUM DID NOT DO — each stated explicitly
+
+- **No GATE, BAND, THRESHOLD, CAP or LABEL moved.** The ten graded rows, the
+  thirteen stations, the five guards, the verdict ladder, Roache triple gating
+  and the planted-zero control are untouched. The cap stands at **2 748.64
+  core-min** (§A2.2b).
+- **It adds one check and removes none.** It can turn a row that would have been
+  graded into `NOT A RESULT`; it can never turn a `NOT A RESULT` into a pass.
+- **The physics did not move.** `ν` = 1.569e-5, `β` = 1/298,
+  `T_ref` = 298.00 K, `ΔT` = 20.0 K all stand exactly.
+- **NOTHING WAS LAUNCHED BY THIS ADDENDUM.** No case directory, no mesh, no
+  solver, no pid. **Zero core-minutes.**
+- **Nothing was sent** (standing rule 7). Submissions remain **PARKED**.
+- **No permission setting, `CLAUDE.md` or `.claude/` configuration was
+  touched** (standing rule 9). No agent message is Sanaa's consent.
+
+*Addendum written by a heat-transfer lane on the heat-transfer supervisor's
+extraction and filing rulings, 2026-08-25T21:43:04Z, before first compute. Zero core-minutes.*
