@@ -1780,6 +1780,20 @@ A lane correctly escalated this rather than deciding it. Both records **explicit
 
 **δ_repeat on D12's time-average is NOT MEASURED BY ANY LANE** and must be bought **before any FD step is sized** — N-D15 at its worst on a limit-cycle flow. **D12's memory envelope is OPEN:** the 32 GiB alarm is *not supported*, but **"flat" is not established either** — the 1.3 MiB difference sits **below a run-to-run RSS noise scale one run per point cannot measure.** **Residual contention is unmeasured; no uncontended control exists.** The nine-arm ledger reconciles **through its one confessed defect**: enforced caps on disk sum to 42.0 core-min against `C-69`'s registered 39.0, and the 3.0 gap lands **exactly** on the disclosed D12-E′ launcher defect (registered 3.0, enforced 6.0). **Independent arithmetic landing precisely on the flaw the record already admitted is the outcome that should most increase confidence in the rest of it.** No verdict affected.
 
+#### DISPATCH STATE AND THE UTILISATION DEFECT, 2026-08-25T20:41:55Z — reported plainly, not dressed up
+
+**Dafoam's contribution to box utilisation is ZERO.** Box at 20:39Z: **27 GB of 30 available, load 3.85 on 16 cores (~23 %)**, and the only solvers running are **heat-transfer's three `buoyantBoussinesqSimpleFoam`**. All three of my lanes are in **zero-compute preparation**, which is the exact ratio Sanaa's directive corrects. **`/home/ubuntu/certonomous-runs/CURRICULUM-D7-a3-m6-cdmin/` does not exist.**
+
+**D7 LANE NUDGED** with the material change: **the memory block is gone.** Its brief told it to hold the np=4 driver until D4 arm O's ranks exited; **they have exited** (absent at 20:31Z, 20:36Z, 20:39Z — arm O converged and terminated on its own, never touched or signalled). D7 at ~12 GB now fits with room to spare. Instruction sent: **finish staging and FIRE, or COMMIT THE BLOCKER** — an uncommitted blocker is invisible, lane→supervisor messaging being one-way. **Explicitly told not to trim rigor to go faster:** cost constraints are lifted, caps are runaway guards reported to me, so there is no reason to cut anything.
+
+**THE CHIEF'S SCHEDULING RULE, ADOPTED: STAGGER — one lane fires while others prepare.** Three lanes preparing simultaneously while 13 cores idle is the defect, not the preparation itself.
+
+**THE 3-LANE CAP STANDS** (`SUPERVISION_CHARTER.md` §8, ratified by Sanaa 2026-08-24, the ansys 4-lane carve-out being her explicit exception). **I am NOT referring a dafoam exception upward** — the chief's reasoning is right and I adopt it: **D15 is ~0 compute and is the highest-leverage item in the queue precisely because it is the gate template** that folds the endpoint FD check into every future pre-registration, making every later case cheaper to freeze. **STANDING ORDER: D15 rotates into the first slot that frees.** A compute-bearing lane is never held for a zero-compute template, and the template is never left unstarted either.
+
+**LESSON `L-325` LANDED (`f578bd4b`)** — the census defect, generalised: *"not found" is the return value of two different situations — the record is absent, and the instrument cannot express its name — and nothing in the output distinguishes them.* Rule extracted: **standing rule 3's planted-zero discipline applies to ENUMERATION, not only to comparators** — plant a name you know exists and confirm the pattern returns it, which would have surfaced this in one command. Number derived MAX+1 from the HEAD blob inside the committing invocation; **max and block count both read 324 here, which is exactly the coincidence that makes counting look safe.**
+
+**Three lanes live:** D4 custody-and-grade, D7 (firing), D12-for-real. **Blocked: nothing.**
+
 ### NINTH SESSION — CUSTODY AFTER THE FLEET KILL, three lanes re-attached
 
 **Section block written:** 2026-08-25T19:07:01Z by dafoam-supervisor (NINTH session, formed ~19:00Z 2026-08-25 after a session usage limit killed the eighth fleet mid-work). Opus 5. **The eighth session's block below is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in it is superseded and this session re-opens none of it.**
