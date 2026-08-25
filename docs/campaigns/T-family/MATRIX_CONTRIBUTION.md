@@ -976,3 +976,85 @@ sentence underneath it.
 pooling them double-counts every sub-row against its own parent.
 
 **The banner of `71ecb659` still stands: no row leaves this file un-re-keyed.**
+
+---
+
+## THIRD DATED FOLLOW-UP, 2026-08-25 — SANAA HAS RULED. THE TIERS ARE FINAL, NOT PROVISIONAL
+
+**Appended at the FOOT. Lines whose number changed above this section: 0.**
+
+**Her ruling, byte-exact and unnormalised, on the rubric question this file's two
+previous follow-ups were contingent on:**
+
+> a. Uphold
+
+**(a) is the ruling that an EXACT OR ANALYTIC SOLUTION SCORES `V`, NEVER `P`** —
+`P` requires validation against **measured physical reality** from a **public
+primary source**, with the pre-registration on disk. **UPHELD.**
+
+### WHAT THIS SETTLES — nothing moves, and that is the point
+
+**No tier changes. No verdict changes. No number changes.** What changes is the
+**status** of what was already written: the two previous follow-ups' corrections
+were **provisional, pending her ruling**, and they are now **DECIDED**.
+
+| row / cell | tier | missing | status |
+|---|---|---|---|
+| **S6, S13, S19, S22** | `GATE REACHED` | **P** | **FINAL** — was contingent |
+| **C2, C10, C15** | `GATE REACHED` | **P** | **FINAL** — was contingent |
+| **C1** | `GATE REACHED` | P | already final under Ruling 3 (`P SECONDARY`); `V YES` remains **WITHDRAWN** |
+
+**THE SEVEN CONTINGENT ROWS ARE UNFLAGGED.** They were carried on this team's
+board and in its reports as *"contingent on Sanaa's V/P ruling; overturning it
+restores them."* **It was not overturned. They stay where the audit put them, on
+her authority rather than on this team's interpretation.**
+
+**The corrected headline is therefore FINAL, not provisional: this file carries
+ZERO rows at `HOLDS` in EITHER table.** §2's 19 cells and §3's 37 sub-rows
+remain **separate tallies and are never summed.**
+
+### RECORDED AGAINST THIS TEAM'S OWN INTEREST — because that is the fact worth keeping
+
+**This team argued for the ruling that cost it seven rows.** The argument was:
+if a single artifact could discharge both columns, **every code-verification row
+would become top-tier automatically, and a column that cannot be missing is not
+a column.** Four of the five originally-fallen sub-rows turned on it, and the
+count rose to seven as the audit widened to §2's cells.
+
+**It was flagged for her to overrule, with the restoration it would produce
+stated plainly, precisely so she could.** She upheld it. **A ruling sought
+against one's own interest and then received is worth recording as such — it is
+the only kind whose acceptance proves nothing about the arguer's motives.**
+
+### WHAT IS STILL TRUE OF THESE ROWS, AND MUST TRAVEL WITH THEM
+
+**`S6`, `S13`, `S19` and `S22` are GENUINELY STRONG ON `V` AND `G`.** They carry
+real `CONVERGING` triples, observed orders, GCIs at `Fs = 1.25` and passing
+per-level plateau checks. **They are not `HOLDS` because nothing in them is a
+claim about the world.** Verification's audit found the `G` column
+**structurally empty across dafoam and closure**; **thermal's `G` is the
+strongest in the lab, and what defeats these rows is `P`, not `G`.** A reader
+taking "zero at HOLDS" as "this family has no grid convergence" would draw
+exactly the wrong conclusion.
+
+**The four defects recorded in the first follow-up are NOT corrected by this
+ruling and stand open:** `S19`'s `PASS ×3` is two measurements not three;
+`K0cT`'s denominator is inflated 18 → 14; the 43–722× attribution's finest level
+has no plateau artifact; and the claim that VanGilder & Schmidt 2005 is not held
+**is refuted — the paper is on disk, title-page verified**, the one error this
+audit found in the conservative direction.
+
+### THE BANNER OF `71ecb659` STILL STANDS
+
+**No row leaves this file un-re-keyed into any central matrix.** Her ruling fixes
+this team's `P` column against the lab's; it does not merge three teams'
+incompatible schemas, and `docs/COVERAGE_MATRIX.md`'s schema remains
+verification's to fix.
+
+### NOTED, NOT ADOPTED — the Ansys manual
+
+Sanaa has separately ruled the **Ansys Fluid Dynamics Verification Manual a
+public primary source.** **That affects the ansys-verification team, not this
+one, and no thermal row is re-scored on it here.** It is recorded because it is
+now settled lab-wide and because a future thermal row that cites the manual
+would inherit it. **No such row exists today.**
