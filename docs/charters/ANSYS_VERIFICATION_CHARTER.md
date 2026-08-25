@@ -436,3 +436,227 @@ repairs an apostrophe is indistinguishable, in the record, from a second utteran
 
 **Lines whose number changed above this section: 0** — verified by hashing the prior
 file as an exact prefix of this one, not merely asserted.
+
+---
+
+## Amendment 1.4 — 2026-08-25 — two standing setup obligations, and the record-update duty gets a moment attached
+
+**Version 1.4.** Appended at the foot, below Amendment 1.3 of the same day. **Nothing above
+is rewritten, reworded, widened, struck or renumbered** — not §5, not §7, not the amendment
+table, not either preceding amendment. This amendment **APPENDS clauses only.** Retiring or
+widening a gate, threshold or charter clause is Sanaa's alone (`CLAUDE.md`, reserved matters),
+and nothing here does either.
+
+**The version bump is declared here and no row is added to the amendment table above**, for
+the reason Amendment 1.3 gives: inserting a row would renumber every line beneath it and
+falsify the `lines whose number changed above this section: 0` assertion that 1.3 and the note
+before it both carry.
+
+### The directive this amendment discharges
+
+Sanaa's ruling of 2026-08-25, her own session turn, received via the chief, **byte-exact and
+unnormalised — her missing space in `That'sfine` is preserved and is not corrected**:
+
+> That'sfine the ansys verification team should just make sure to update its charters and respective docs going forward.
+
+It answers this team's one `NOT DONE` of 2026-08-24: **no charter was updated** with that
+day's findings, against §7's record-update duty.
+
+**Her ruling is PROSPECTIVE.** *"going forward"* attaches the duty from here. **The 2026-08-24
+gap is closed by HER, not excused by this team**, and this team does not convert her
+forbearance into a finding that there was nothing to find.
+
+**She wrote "charters AND RESPECTIVE DOCS" — plural, and wider than this charter.** The duty
+therefore reaches `docs/ansys_verification/README.md`, `CASE_MAP.md` and `COVERAGE_ROWS.md` as
+well. The operative distinction, and the reason clauses A and B below are here rather than
+only in `docs/NUMERICS_KNOWLEDGE.md`: **a numerics fact is looked up AFTER a disagreement; a
+setup obligation must be met BEFORE the freeze.** A setup obligation filed only as a numerics
+fact is in the wrong file, because the lane who needs it is writing a pre-registration and
+will not go looking.
+
+---
+
+### CLAUSE A (appends to §5.1, changing nothing in it) — THE AXISYMMETRIC WEDGE CARRIES A MODELLING BIAS INTO THE ERROR BUDGET, BEFORE THE FREEZE
+
+**Every pre-registration for a case run on an OpenFOAM axisymmetric `wedge` states the wedge's
+geometric bias, with its sign and magnitude, in its error budget, BEFORE the case is frozen.**
+
+An N-sided flat wedge does not represent a circular cross-section. **Two deficits, and they do
+not cancel** (derivation and provenance: `N-AV9` in `docs/NUMERICS_KNOWLEDGE.md`, cited here
+rather than restated, so the arithmetic has one home):
+
+| quantity | flat wedge ÷ true circle | at a total wedge angle t = 5° |
+|---|---|---|
+| cross-sectional **AREA** | sin(t) / t | deficit **0.1268756046250763 %** |
+| **WALL ARC** length | sin(t/2) / (t/2) | deficit **0.03172796079918827 %** |
+| their **RATIO** | **sec(t/2)** | pressure drop biased **HIGH by +0.09526851633199218 %** |
+
+**The number that reaches a Δp gate is the third row, not the first.** This is recorded as a
+correction to how the finding was first summarised to this lane: *"sin(t)/t — 0.127 % at
+t = 5°"* is exactly right for the **area** and is **not** the bias on the graded quantity.
+Both figures reproduce the frozen
+`cases/ansys_verification/VMFL003/case/system/blockMeshDict.template` header to full double
+precision.
+
+**Why this is a charter clause and not merely a numerics row: NO GRID REFINEMENT REMOVES IT.**
+The bias is **azimuthal**. Refining axially or radially does not touch it, so it is invisible
+to the Roache triple, invisible to the GCI, and invisible to every convergence check this team
+runs. A case can be `CONVERGING` at a GCI of a few hundredths of a percent and still carry it
+undisclosed. **It is therefore a setup obligation with a deadline — the freeze — and not a
+diagnostic to be recalled afterwards.**
+
+**Two boundaries on the clause, stated so it is not over-read:**
+1. **It binds the DISCLOSURE, never the tolerance.** The clause does not widen, narrow or
+   otherwise touch any gate or band. A team that discloses a +0.095 % bias against a 2.5 %
+   band has discharged it; so has a team that discloses it against a 0.1 % band and says the
+   band is therefore not meetable on a wedge. **What is forbidden is silence.**
+2. **The sign is part of the obligation.** A bias whose direction is unstated cannot be
+   subtracted from a deviation, and a reader cannot tell whether it helps or hurts. VMFL003's
+   is **the wrong sign to help**: the model already under-predicts Δp, and the wedge biases Δp
+   high, so the true model error is **larger** than the measured deviation.
+
+### CLAUSE B (appends to §5, between its steps 1 and 2, and rewrites neither) — THE PRE-FLIGHT SMOKE TEST
+
+**After the pre-registration is committed and BEFORE the graded run starts, the case is smoke
+tested: ONE timestep (or one iteration) on the COARSEST mesh of the family. A failure ABORTS
+the run and is a finding, not a retry.**
+
+**Where it runs is load-bearing:** in a scratch directory **OUTSIDE
+`verification/runs/ansys_verification/`**, so it cannot create a `0/` or a time directory that
+would trip `CLAUDE.md` rule 4's **age guard** — the guard refuses a case where `0` or a time
+directory already exists, and a smoke test run in place would either disarm the guard or
+consume the run it protects. **The smoke directory is deleted or left outside the runs tree;
+it is never the graded artifact and is never cited by a record.**
+
+**The warrant is MEASURED, and it is one sentence: a comparator `--selftest` proves the
+GRADER, never the CASE and never the LAUNCHER.** Two specimens from this team's own work, both
+re-verified from the records before being written into this charter:
+
+| specimen | what passed | what failed | citation |
+|---|---|---|---|
+| **VMFL045 run 1** | comparator `--selftest` **45 checks, 0 failures** | the **solver died on the first timestep** | `cases/ansys_verification/VMFL045/RESULTS.md`, `PREREGISTRATION.md:592` |
+| **VMFL003 run 1** | launcher's comparator `--selftest` **60 checks, 0 failures** | the case was **unrunnable** | `cases/ansys_verification/VMFL003/RESULTS.md:18,179`, `PREREGISTRATION.md:18,746` |
+
+**In both, a green selftest was on the record while the thing it was taken as evidence for was
+broken.** That is `INFRA_FAMILY_SUPERVISION_GUIDELINES.md` §1.8's rule arriving in this team's
+territory — *"evidence is derived from what EXECUTED, never from what was DECLARED"* — and a
+selftest is a declaration about the grader.
+
+**AN HONEST LIMIT ON THIS CLAUSE, DISCLOSED RATHER THAN LEFT TO BE ASSUMED.** The lab's
+standards book requires a new rule that will fire on the lab's own work to be **replayed
+against the archive before it binds, with corpus, fire count, fatal count and behaviour on the
+motivating case** (`MONITOR_STANDARD.md` standing rule 6;
+`INFRA_FAMILY_SUPERVISION_GUIDELINES.md` §1.3). **This clause has a two-specimen warrant, not
+a corpus replay, and it is labelled as such.** The reason it is adopted anyway, stated rather
+than glossed: **a pre-flight smoke test is not a DETECTOR.** It classifies no existing log,
+returns no verdict on any archived run, and cannot produce a false positive against past work
+— the failure mode standing rule 6 exists to price. It costs one timestep and it aborts. **If
+it is ever converted into something that grades or classifies, it acquires the replay
+obligation at that moment.**
+
+**A DEPARTURE ALREADY ON DISK, DISCLOSED.**
+`verification/runs/ansys_verification/VMFL003/SMOKE_ABORT_0215Z/` is a smoke directory that
+sits **INSIDE** the runs tree, holding `log.blockMesh`, `log.checkMesh` and `log.topoSet`. It
+predates this clause, no clause forbade it at the time, and **it is neither moved nor deleted
+here** — an unexpected artifact is inspected, never reverted. It is named so that a future
+reader does not mistake it for a violation of a rule that did not exist, and so that the
+clause's *outside the runs tree* requirement is not silently contradicted by the tree itself.
+
+### CLAUSE C (appends to §7, rewriting none of it) — THE RECORD-UPDATE DUTY GETS A MOMENT ATTACHED
+
+**Every case close-out lands a CHARTER/DOC UPDATE LINE, or an explicit `NONE` with one line of
+reason.** The close-out invocation already lands the verdict, the tier, the register row, the
+`docs/COST_CALIBRATION.md` row and the parent aggregates together; this line joins them and is
+written in the same act.
+
+**Why a moment, and not merely a duty.** §7 already required the updates. It was still the
+one thing this team did not do on 2026-08-24. **A duty with no moment attached is exactly the
+duty that shows up as `NOT DONE`** — nobody decided to skip it; there was simply never a point
+at which not having done it was visible. **A close-out that silently omits the line is
+indistinguishable from one that forgot**, which is why the `NONE` is explicit and carries a
+reason. This is the same discipline as a register row that carries its own caveat, and the
+same discipline as `MONITOR_STANDARD.md`'s refusal to let an absent line and an unrecorded
+value read alike.
+
+**Scope, per Sanaa's plural:** the line names whichever of this charter,
+`docs/NUMERICS_KNOWLEDGE.md`, `docs/LESSONS.md`, `docs/ansys_verification/README.md`,
+`CASE_MAP.md` or `COVERAGE_ROWS.md` the case's findings reached, or states `NONE` and why.
+
+### A CANDIDATE REJECTED FROM THIS CHARTER, WITH ITS REASON — because one rejected silently looks like one overlooked
+
+**The wall-function grid constraint (`N-AV10`) STAYS in `docs/NUMERICS_KNOWLEDGE.md` and does
+NOT enter this charter.** `N-AV10` records that a ratio-2 **radial** grid triple cannot coexist
+with a standard wall function below R⁺ ≈ 600, so a wall-function pipe case must refine
+**axially** and hold N_r fixed — as VMFL003 did, holding its wall treatment identical to
+1.4e−04 across all three levels.
+
+**Why it is not charter-grade, on the same test that admitted clauses A and B:** it is a fact
+about **one model's interaction with one mesh family**, not a rule about how this team works.
+A lane meets it by consulting the numerics file when it designs a wall-bounded triple, which
+is exactly what a numerics fact is for. **Clause A's bias, by contrast, applies to every
+axisymmetric case regardless of model, and clause B's smoke test applies to every case
+regardless of physics.** Generality is the line, and it is drawn here explicitly.
+
+### DISCLOSURES CARRIED WITH THIS AMENDMENT — the standards book was read against these clauses first
+
+`docs/standards/` was read in full before either clause was written, on Sanaa's own instruction
+of the same day. **Her GitHub link to that tree was NOT fetched** — the repository is
+permanently private by her ruling of 2026-08-18 and nothing leaves this box; the local path is
+the authority. The reading of record is `docs/ansys_verification/STANDARDS_READ.md`.
+
+**It turned up NO conflict with clause A, clause B or clause C.** It turned up **four against
+work this team has already frozen. They are DISCLOSED here and are NOT reconciled; no frozen
+file was edited and no verdict changes:**
+
+1. **The frozen plateau clause's SHAPE.** `grade_vmfl051.py` and `grade_vmfl045_r2.py` gate on
+   `PLATEAU_TOL_MA = 1.0e-3` — an **ABSOLUTE** peak-to-peak tolerance over a **20 %-OF-RUN**
+   window. `MONITOR_STANDARD.md` S13 v1.12 argues against both halves: it normalises by *the
+   range the quantity spanned over the run*, and it uses a **fixed** window because *"a
+   fraction-of-run window silently loosens as a run is extended, so the same case passes by
+   being run longer."* Measured both ways on the same series: on **VMFL051** S13's form refuses
+   **all three** levels where the frozen clause refused two, so `NOT A RESULT` is **more**
+   robust. On **VMFL045-R2** the **coarse** level reads **0.06100 % of its run range against
+   S13's 0.02 %** — material, that case being this team's third credential. **The `PASS` is
+   NOT withdrawn and is not in question**: the gate was frozen before compute and applied
+   unmodified, and gates close at first compute. What it supports is the concern this team had
+   **already recorded itself** — that VMFL045-R2's G column is unclean (p = 3.3862 above the
+   scheme's formal order; d21 = 2.447e−04 against an L3 noise floor of 7.769e−05, ratio 3.150).
+   **And the window shape bites exactly where VMFL051's obvious remedy lies:** a longer run
+   makes that clause easier to pass. **A new VMFL051 registration should gate on a fixed
+   window and say so.** `MONITOR_STANDARD.md` S12, applied as an independent diagnostic, fires
+   on **nothing** across all six levels (drift 1.1e−06 to 1.5e−05 against a 1e−3 floor;
+   monotone 0.489 to 0.592 against 0.90) — the series **wobble without travelling**, which is
+   a favourable finding for both cases.
+2. **Family size.** `docs/MESH_STANDARD.md` requires a **six-level** family provisioned up
+   front against this team's three-level triples, citing the lab's own TMR ladder where a
+   fourth rung moved the observed order from 1.0833 to 1.2587. **A tension between a standing
+   rule (`CLAUDE.md` rule 5's triple) and house practice, referred and not resolved here.** It
+   independently prescribes the fourth VMFL045 level this team had already named.
+3. **A measurement the record did not carry.** Neither frozen comparator reads Courant at all
+   (zero mentions in both). Both compressible cases run `rhoCentralFoam` under
+   `adjustTimeStep`, `maxCo 0.4`. Per `docs/standards/MESH_STANDARD.md` §7.4 the figure is the
+   **maximum over the run**, never the final line: **VMFL045-R2 L3 reads 0.412936 max against
+   a 0.400207 final line — +3.23 %, above S8's calibrated 2 % tolerance** and 8.0× the largest
+   overshoot in the archive that tolerance was calibrated on. **Level-dependent** (+1.48 %
+   coarse → +3.23 % fine), which makes it a **candidate** contributor to the above-formal
+   observed order — **a hypothesis for the fourth level to test, not a conclusion.** No verdict
+   changes: the frozen gate has no Courant clause, and S8 is itself unwired with no replay line.
+4. **Research is not publication.** `PROBLEM_RESEARCH_PROTOCOL.md` §4 obliges a **docket
+   proposal, not a memo**, once this team acts on Sanaa's *"see if that's a raised issue
+   online/in the litterature"* — and its own §4.4 reads *"Drafts only: … never post, comment,
+   or create accounts."* **SUBMISSIONS REMAIN PARKED** (`CLAUDE.md` rule 7, §8 above). The same
+   file says **nothing whatever about preconditioners**, so her rule-2 preconditioner clause
+   has no standard behind it in this lab; **reported as a gap, not filled here.**
+
+**One gap in this team's own compliance, measured and named:** `docs/standards/MESH_STANDARD.md`
+§6 requires a `birth_certificate.json` beside every mesh entering a pre-registration or a
+ladder rung. This team has **23 `log.checkMesh` files and zero certificates** — **CHECKED BUT
+UNCERTIFIED**, the infrastructure family's own phrase for exactly this shape. Every metric the
+certificate would carry is measured and on disk, and **all 23 meshes meet every enforced §3
+gate with margin** (worst non-orthogonality 14.976° against 70°; worst skewness 0.39963 against
+4; worst aspect ratio 40.038 against a 1000 advisory). Minting retrospective certificates is a
+change to run directories and is **not done here**; it is named so it is not mistaken for a
+gate that was passed.
+
+**Lines whose number changed above this section: 0** — verified by hashing the prior file as
+an exact byte prefix of this one, not merely asserted.
