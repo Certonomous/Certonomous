@@ -4,7 +4,10 @@
 nine of the fourteen registered gates are met. **The bright line is uncrossed:** arm F, the
 endpoint finite-difference table, has not run, so `DAFOAM_CHARTER.md` §2 and §9 are not
 satisfied and **no optimum, drag reduction or gradient in this file is a validated result.**
-What unblocks it is named in §9 below.
+What unblocks it is named in §9 below — **and §9 is SUPERSEDED by §10:** arm F has since
+been staged and launched, it **crashed**, and the cause is a defect in a frozen instrument.
+**The rung verdict does not change; its REASON does.** See **§10**, added 2026-08-25 by the
+arm-F lane, and the defect note `D4_DEF4_DEF5_ENDPOINT_SCALING.md` beside this file.
 
 Graded 2026-08-25 by the D4 custody/grade lane. Every number below cites an artifact still on
 disk, by path. **Nothing here is sent, filed, uploaded, posted or commented — SUBMISSIONS ARE
@@ -163,6 +166,12 @@ give the other**:
 ---
 
 ## 4. THE BRIGHT LINE — arm F did not run, and what that costs
+
+> **~~SUPERSEDED 2026-08-25T21:26Z by §10.~~** The section below is **struck, not rewritten**
+> (`CLAUDE.md` rules 2 and 6). Its statement *"arm F did not run"* was true when written and is
+> **no longer true**: arm F was staged and launched at 21:13:39Z and failed in 15 wall seconds.
+> Its conclusion — **the bright line is uncrossed and the optimum is `BLOCKED`, not validated** —
+> **STANDS UNCHANGED**. Its account of *why* is superseded. Read §10.
 
 `DAFOAM_CHARTER.md` §2: *"No DAFoam gradient enters a record, a report or an optimisation
 without a finite-difference table beside it."* §9: *"Every optimisation reports a finite-
@@ -328,6 +337,12 @@ Eight HIT, zero MISS, one UNSCORED, three PENDING. **No prediction was adjusted.
 
 ## 9. What is BLOCKED, and exactly what unblocks it
 
+> **~~SUPERSEDED 2026-08-25T21:26Z by §10.~~** Struck, not rewritten. The command pair below
+> **was run** and the first half of it, `d4_stage_F.sh`, **was not in git when this section cited
+> it** — it existed only untracked in the run root. It is now committed beside this file
+> (`3ce489f4`). The pair no longer unblocks the rung: **arm F cannot be run correctly with the
+> currently frozen instrument set.** Read §10.
+
 **`BLOCKED`: arm F, and with it G2, G5, G6, G6b, G7 and predictions P3, P5, P6, P9.**
 
 What unblocks it is one command pair, run with permission to launch a container, from the run
@@ -342,3 +357,162 @@ Everything else is in place: preconditions verified, image digest matched, ranks
 free, cap and memory limits held internally by the launcher, and 252.1 core-min of item
 headroom. **Until arm F runs, D4's rung verdict stays `BLOCKED` and its optimum is not a
 validated result.**
+
+---
+
+## 10. ARM F RAN — added 2026-08-25T21:26Z by the arm-F lane
+
+This section supersedes §4 and §9. It does not alter any gate, threshold, cap or label; the
+pre-registration is untouched and no frozen file was edited.
+
+### 10.1 The rung verdict is UNCHANGED and its reason is NEW
+
+**RUNG VERDICT: `BLOCKED`.** Not because arm F was never launched — it was — but because
+**arm F cannot be run correctly with the currently frozen instrument set.**
+
+### 10.2 What ran
+
+| item | value | artifact |
+|---|---|---|
+| stager | `d4_stage_F.sh` rc 0, 21:12:50Z; copied `O/` → `F/`, asserted **0** pre-existing answer files before and after the copy | `F_STAGING_EVIDENCE.txt` |
+| stager guard, positive control | re-run with `F/` present ⇒ **exit 5**, `ABORT (a) destination … already exists -- refusing to overwrite evidence`, and `F/` **intact** afterwards. A guard shown able to refuse | `F_STAGING_GUARD_CONTROL.txt` |
+| arm | `d4_run_arm.sh F dafoam-idwarp-rot:v1`, launcher **unmodified**, md5 `399957c6…` re-verified at launch; no override passed | `F_driver.out` |
+| outcome | **`rc = 1`, wall 15 s, 4 ranks, 1.0 core-min**; `docker inspect` (exit, OOMKilled) = **`1 false`** | `ledger.txt`, arm `F` row |
+| failure | `AnalysisError: … Mesh quality error!` on the **first primal**; 2989 non-orthogonality errors, 6090 mis-oriented face pyramids | `F_20260825T211339Z_2574215.log` |
+
+**Triage is complete and the crash is attributed.** Not OOM (kernel says `false`), not a
+cap-stop (15 s against an enforced 1800 s), not contention (`siblings_pre=[]`,
+`siblings_post=[]`), not a preflight abort (prereg §7b reserves codes 4/5/64/65).
+
+### 10.3 The age datum after staging — the guard did its job
+
+Arm O's datum `1787681557` came across `cp -a` **unchanged** and still equals `stat -c %Y` of
+the copied `F/0/U`; `O/0/U` was not touched. A **second, strictly later** datum
+`F/.d4_stage_F_copy_epoch = 1787692370` dates arm F. **Measured, and this is the point:** every
+arm-O artifact carried into `F/` (`OptView.hst`, `opt_IPOPT.txt`, `dRdWColoring_4.bin`) is
+**newer than arm O's datum** — so an age guard keyed to the carried-over datum would have passed
+all of them — and **older than the copy epoch**, which therefore is the datum that actually
+discriminates arm F's products. The two live in two files so they can never be conflated.
+
+### 10.4 The two defects
+
+Full evidence in **`D4_DEF4_DEF5_ENDPOINT_SCALING.md`**, committed beside this file.
+
+* **D4-DEF-4.** `d4_extract_endpoint.py` reads the endpoint from `OptView.hst`, which holds
+  **driver-scaled** values (OpenMDAO applies `scaler` before pyOptSparse sees the problem;
+  pyOptSparse's own scale is 1.0 and its `scale` flag is a **no-op** — `scale=True` and
+  `scale=False` return identical values, measured). `d4_fd_endpoint.py` then applies them as
+  **physical** via `prob.set_val`. `shape`'s registered scaler is **10.0**, so arm F set the
+  shape to **ten times** its optimum and destroyed the mesh. The **pinned** `patchV[0]`
+  (`lower = upper = U0 = 100.0`) reads back as **10.0** — exactly `100.0 × 0.1` — and no second
+  explanation exists for a variable that cannot move. The extractor picks the **right row**:
+  `_final_CD` matches arm O's IPOPT objective to all 17 digits. **Only the units are wrong.**
+* **D4-DEF-5.** `d4_major_history.json`'s **125 rows are function calls, not the 80 majors**,
+  and include the `findFeasibleDesign` AoA sweep that runs *before* `run_driver`. Proof, not
+  inference: its worst row has `|CL − 0.5| = 2.8292e-02` while the maximum `inf_pr` over all 81
+  IPOPT rows is `1.08e-02`, and `inf_pr` bounds `|CL − 0.5|` at every major.
+
+### 10.5 Gates — what moved
+
+| gate | was | now | why |
+|---|---|---|---|
+| **G1** | PASS (P1,P2,O) / refuses on the registered set | **refuses, rc 2, `G1-age: {"graded_artifact_absent": ".../F/d4_fd_endpoint.json"}`** | arm F is now IN the ledger, so the old `arm_absent_from_ledger` refusal is gone; the grader refuses one gate later, **on the absence of the FD artifact**. It refused rather than degraded |
+| **G2** band A | `BLOCKED` | **`BLOCKED` — and now for a NAMED instrument reason** | the registered instrument exists but **cannot separate majors from calls** (D4-DEF-5). Graded over it, 37 of 125 rows exceed band A and G2 would read **`GATE FAIL` — and that would be WRONG.** Band A stays **NOT ESTABLISHED**; **P3 stays UNSCORED** |
+| **G2** band B | `BLOCKED` | **PASS** | `|CL − 0.5| = 7.3747727758e-08` ≤ `1.0e-5`, from `F/d4_major_history.json`; the final row is proved to be the accepted optimum by the 17-digit `CD` match, and the figure corroborates the independent `inf_pr` 7.37e-08 in `O/opt_IPOPT.txt` |
+| **G5** THE BRIGHT LINE | `BLOCKED` | **`BLOCKED`** | `d4_fd_endpoint.json` **does not exist**; arm F never reached the FD stage |
+| **G6 / G6b / G7** | `BLOCKED` | **`BLOCKED`** | no FD artifact to plant into, blind-read or mutate |
+| **G10** | PASS (3 arms) | **PASS (4 arms)** | arm F enforced 120.0 == registered 120.0, actual **1.0 ≤ 120.0**; item total **548.866** within the 800.0 ceiling |
+| **G8 / G9 / G11 / G12** | PASS | **PASS**, unchanged | grader-emitted with arm F included |
+
+Grader verdict file: `d4_grade_ARMF_20260825T212030Z.json` in the run root. Graded with
+**`d4_grade_SUPPLEMENT.py`, never by invoking the frozen `d4_grade.py` directly** (D4-DEF-3
+unrepaired there). Supplement selftest **29/29 PASS**, including the D4-DEF-3 repair
+(`G5-rows-key-ABSENT` raises a **named** `SOURCE_MALFORMED` refusal instead of an uncaught
+`KeyError`). `scripts/check_grader_self_blindness.py`: clean on both probes — **and that is not
+a proof of correctness**; probe B fires on `os.path.join` and is silent on `pathlib` and
+f-strings (`3dc99590`). **`d4_grade.py` md5 re-verified after all work: `f162ef69a7385e5d0586ef5f27657cbb`, unchanged.**
+
+**Planted-zero control on the band-B reader** (`CLAUDE.md` rule 3), run before the number was
+believed: a `1.234e-03` plant into `CL[-1]` **on disk**, re-read **through the same reader**,
+moves the graded number **from inside band B to outside it**, matching the exact expectation to
+a residual of `1.28e-17`; the count channel distinguishes 125 rows from a truncated 2; a blind
+reader that ignores its path is **REFUSED**. Its first run **fired and refused** — the naive
+expectation `delta == PLANT` is wrong when `CL[-1] < 0.5`, because the plant flips the
+deviation's sign. **The expectation was corrected, not the reader.**
+
+### 10.6 Two rows — still ONE bought, and it is named as unbought
+
+Unchanged from §5 and prereg §10. **PATCHED is bought** — arm F ran on
+`sha256:2927768a…f6d35` with IDWarp `.so` md5 `85f59e87…c425`, the registered digest.
+**SHIPPED (`sha256:9d45679d…f07fc`) IS NOT BOUGHT and is `PENDING`** — not run, not failed.
+**Consequence, stated rather than dropped: D4 cannot claim a toolchain-independent result, and
+D5, D6 and D14 inherit that qualifier.** D4-DEF-4 is an instrument defect and is **not** a
+toolchain finding — it would occur identically on the shipped row, so nothing here narrows the
+gap the unbought row leaves.
+
+### 10.7 Predictions — none adjusted
+
+**P3 UNSCORED** (band A needs an instrument that separates majors; D4-DEF-5).
+**P5, P6, P9 remain PENDING** — arm F produced no FD table. **Not MISS: unscored.**
+No prediction moved. Eight HIT, zero MISS, one UNSCORED, three PENDING — **unchanged**.
+
+### 10.8 Cost — estimate versus actual (`CLAUDE.md` rule 12)
+
+`cost_basis: c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED` — the box cannot
+read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5). **Dollars DERIVED, not measured.**
+Core-minutes **measured from `ledger.txt`**.
+
+| arm | predicted | actual | ratio | cap |
+|---|---|---|---|---|
+| P1 | 1.0 | 0.333 | 0.333 | 5.0 |
+| P2 | 33.0 | 36.4 | 1.103 | 55.0 |
+| O | 511.0 | 511.133 | 1.0003 | 620.0 |
+| **F** | **53.0** | **1.0** | **— (see below)** | 120.0 |
+| **item** | **598.0** | **548.866** | **0.9178** | ceiling **800.0** |
+
+548.866 core-min = **$0.4693 DERIVED**.
+
+**Arm F's 1.0/53.0 = 0.019 is NOT a calibration signal and must not be read as one.** Arm F
+**delivered no work**: it crashed 15 s in, before a single primal converged. A ratio compares
+the cost of work done against the cost predicted for it, and there is no work here to compare.
+The 1.0 core-min is **WASTE**, named separately and **not absorbed into the ratio**
+(`COMPUTE_BUDGET_CHARTER.md` §6).
+
+* **Cleaned actual (work actually delivered) = 547.866 core-min** against **545.0** predicted
+  for that work (P1+P2+O) — **ratio 1.0053**, unchanged from §7.
+* **Waste = 1.000 core-min = $0.00085 DERIVED** — arm F, failed arm.
+* **Attribution of arm F's gap: 100 % INSTRUMENT DEFECT.** Not misprediction, not contention,
+  not waste in the stall sense. The prediction of 53.0 core-min was **sound and remains the
+  right estimate** for the arm when it can be run; it was never tested.
+* **Contention: none measurable** — no sibling containers at arm F's launch or exit.
+* **No overrun.** Arm F used 1.0 of a 120.0 cap; the item used 548.866 of an 800.0 ceiling.
+  **Nothing was trimmed to fit a budget**, and no cap was moved.
+* **Triage spend, named and NOT MEASURED.** Two single-rank diagnostic containers
+  (`d4_triage_scaling.py`, `d4_triage_majors.py`) ran **outside the launcher and therefore
+  outside its ledger**, so their cost is **`NOT MEASURED`**, bounded above by the enclosing
+  wall time at 1 rank — **≤ ~1 core-min each**. It is recorded here rather than absorbed. **A
+  future diagnostic container should be run through the ledger so this line can be measured.**
+
+Calibration ledger row: **`C-84`** in `docs/COST_CALIBRATION.md`.
+
+### 10.9 What is BLOCKED now, and what would unblock it
+
+**`BLOCKED`: G5 (the bright line), G6, G6b, G7, and band A of G2; predictions P3, P5, P6, P9.**
+
+**The §9 command pair no longer unblocks the rung.** Re-running arm F unchanged reproduces the
+same crash: the frozen launcher asserts `d4_extract_endpoint.py`'s md5
+(`ee7d3c99fd716da23779cb651961918e`) before every launch and aborts with code 4 if it differs,
+so an edited extractor **cannot run under the registered launcher at all**. **The freeze is
+working exactly as designed** — it is why this surfaced as a hard, dated, attributable crash
+instead of a quiet number.
+
+What unblocks it is a **supervisor-level decision on the governed repair path**
+(`VERIFICATION_CHARTER.md` §2d.1's repair exception is the clause to read). **A lane is not
+entitled to re-freeze an instrument, and this lane did not.** Any repaired extractor must, at
+minimum: divide by the **registered `scaler` read from the producer** (never a constant copied
+into the extractor); **assert the reconstructed vector lies inside the registered DV bounds**;
+**assert `patchV[0] == U0` exactly**; and **re-run the primal at the reconstructed endpoint and
+require `CD` to reproduce `2.1125978108239574e-02`** before any FD step is taken. Each of the
+last three is independently sufficient to have caught D4-DEF-4.
+
+**Until then, D4's rung verdict stays `BLOCKED` and its 28.6758 % is not a validated result.**
