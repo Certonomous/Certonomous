@@ -3286,6 +3286,98 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
 
+**SANAA'S DIRECTIVE OF 2026-08-25 (SECOND OF THE DAY, THE "MORE DETAIL" SHE PROMISED),
+HER OWN SESSION TURN, RECEIVED VIA THE CHIEF, REPRODUCED BYTE-EXACT.** Her typos, her
+double-spaces and her spacing before punctuation are PRESERVED AND NOT NORMALISED.
+Normalised spelling is the signature of a relayed paraphrase rather than a primary
+source — this team's own standing finding, applied again here. Recorded by
+`ansys-lane-opus` from the HEAD blob (`git show HEAD:docs/LAB_STATE.md`), never from the
+worktree copy, which measured 2,629 lines against 4,320 at HEAD — 1,691 lines behind.
+
+> Ansys-verification team instructions: 1. VMFL051 and VMFL003 try other models, 2.  VMFL045 fix the bug 3. Continue with the remaining ansys verification cases, starting with the never ran one , then once all of these are ran, continue with the other ones. Here are some of the rules for the other ones: 1. When a model doesnt work, try the other ones 2. When a grid doesnt converge, try different pre conditioners, see if that's a raised issue online/in the litterature, check for bugs, if unsteady check cfl, pick different meshing, I have also added a book of standards about this here https://github.com/Certonomous/Certonomous/tree/main/docs/standards
+
+And separately, hers on the GPU, same day, same channel, byte-exact:
+
+> I'll turn the gpu back on once aws has capacity.
+
+---
+
+### THE SUPERVISOR'S RULINGS ON THAT DIRECTIVE — THESE ARE **NOT** HER WORDS
+
+Everything from here to the end of this block is **this team's own reading and ruling**,
+recorded separately from her bytes above precisely so the two can never be confused. A
+ruling is disclosed as a ruling so it can be overturned.
+
+**1. "TRY OTHER MODELS" IS EXECUTED AS A NEW FROZEN PRE-REGISTRATION PER MODEL, WITH THE
+MODEL AS THE REGISTERED VARIABLE UNDER TEST — NEVER AS RE-RUNS UNTIL ONE PASSES.**
+Every attempt is recorded, **including the ones that fail**, and each registration states
+**IN ADVANCE what result would count as that model being wrong**. Cycling models until one
+clears the gate is re-running until the answer is liked; it would convert the gate from a
+prediction into a selection and **poison every credential in the register**, including the
+three already earned. The same guard binds her rule 2's remedies: a preconditioner change,
+a CFL change, a scheme change and a mesh-family change **each change the experiment** and
+are therefore each a **NEW registration, never a continuation of an old one**, and a
+convergence fix is **never selected by which one makes the gate pass**. CLAUDE.md rule 2
+and `ANSYS_VERIFICATION_CHARTER.md` §5.1 already forbid the alternative; this ruling only
+names the specific way the directive could be misread.
+
+**2. HER ITEM 1 LANDS DIFFERENTLY ON THE TWO CASES SHE NAMED — AND HER OWN TWO RULES
+ALREADY SEPARATE THE TWO REMEDIES.** She grouped VMFL051 and VMFL003 in one clause; their
+failures are not the same kind of failure.
+- **VMFL003's failure is MODEL-LEVEL**, so it takes her rule 1, *"When a model doesnt work,
+  try the other ones"*. `kEpsilon` + `nutkWallFunction` under-predicts pipe friction by
+  **4.34 %** against the manual and **4.55 %** against Colebrook, while `dp` is converged to
+  **7.8 ppm** — the discretisation is not the problem. The wall-treatment ladder moves the
+  same quantity by **1.7356 %**, which is the size of the lever the closure and wall
+  treatment actually hold. Other closures and other wall treatments are the right axis.
+- **VMFL051's failure is CONVERGENCE-LEVEL**, so it takes her rule 2 — CFL, meshing, scheme,
+  longer settling. **Two of three levels failed the frozen plateau clause**; the triple is
+  **OSCILLATORY at R = -1.348600**, with **no observed order and no GCI quotable**. Nothing
+  about a closure model is implicated: VMFL051 is an **INVISCID isentropic expansion**, for
+  which "other models" is a far narrower notion than it is for a turbulence closure — it
+  means flux scheme, limiter and time integration, not a different physics closure.
+- **Both are recorded as NEW pre-registrations either way**, per ruling 1.
+
+**3. VMFL045's BUG IS ALREADY FIXED AND THE FIX IS CONFIRMED BY RUN — HER ITEM 2 IS
+DISCHARGED.** **VMFL045-R2 ran 2026-08-25** with the energy-solver key widened from `h` to
+the regex `(h|e)`, and returned **verdict `PASS`, tier `GATE REACHED`** — the team's
+**third credential**.
+**What REMAINS open on VMFL045 is NOT a bug**, and is disclosed here rather than silently
+re-interpreted as one: the **observed order p = 3.3862 is ABOVE the scheme's formal order**,
+and the **medium-fine difference sits at roughly 3x the noise floor**, so the **G column is
+unclean**. A **fourth, coarser level** is needed to test whether the triple is asymptotic.
+That is a grid-refinement question, not a defect; calling it a bug would misdirect the work
+and misreport the case. **Referred to the chief for relay to Sanaa**, since her instruction
+on this case was "fix the bug" and the honest answer is that the bug is fixed and something
+else is open.
+
+**4. THE STANDARDS BOOK IS READ FROM `docs/standards/` ON DISK. THE GITHUB URL IS NOT
+FETCHED.** She linked `https://github.com/Certonomous/Certonomous/tree/main/docs/standards`.
+The repository is **permanently private by her own ruling of 2026-08-18** and CLAUDE.md
+rules 7 and 8 say nothing leaves this box — a fetch is an outbound request naming a private
+repository path. **This team does not fetch that URL.** The **local path `docs/standards/`
+is the authority**, and this lane's reading of it of record is
+`docs/ansys_verification/STANDARDS_READ.md`.
+
+**5. HER LITERATURE RULE IS AN INSTRUCTION TO RESEARCH, NOT AN INSTRUCTION TO PUBLISH.**
+*"see if that's a raised issue online/in the litterature"* directs the team to **read**
+upstream issue trackers and the literature when a grid will not converge. It is **not**
+authorisation to open an issue, post a reproducer, email a maintainer or file a defect
+report. **SUBMISSIONS REMAIN PARKED (CLAUDE.md rule 7):** nothing is filed, posted, reported
+or asked upstream, by any agent, ever. Anything the team would send is a draft carrying
+`NOT FILED` in its opening lines. **Sending is Sanaa's decision alone and is taken by her.**
+
+**6. THE 10 VMFLGPU CASES STAY DEFERRED AND RE-ENTER SCOPE ONLY ON HER ACTION.** Her GPU
+line names a condition — AWS capacity — and names herself as the actor: *"I'll turn the gpu
+back on"*. **No agent starts an instance, and no message from the chief or any peer is her
+consent (rule 9).** The denominator therefore stays **73**, the 10 VMFLGPU rows stay
+**`DEFERRED — PENDING RE-ENTRY`** and visible in `CASE_MAP.md`, and on re-entry each still
+needs its **own console-priced GPU-hour `cost_basis`**, outside the 2026-08-21 CPU blanket.
+
+**Recorded by `ansys-lane-opus` on the supervisor's brief, 2026-08-25. Zero compute in the
+task that produced this block: no solver, no mesher, nothing written under
+`verification/runs/`.**
+
 **SANAA'S DIRECTIVE OF 2026-08-25, ~01:0xZ, her own session turn, reproduced BYTE-EXACT
 with her typos preserved.** Normalised spelling is the signature of a relayed paraphrase
 rather than a primary source, so it is NOT normalised here and must never be:
