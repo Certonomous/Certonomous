@@ -12370,6 +12370,75 @@ lesson**, where a reader quoting `L-315` would have got this team's text. **No b
 was altered at any point** (its 85 lines hash `9be10424797cc53a11de` before and after). The
 blocks are moved back into `L-314`; nothing is rewritten, added or deleted. **The anchor guard
 caught the original race; it does not police a later reinsertion, and that is the gap.**
+
+### Addendum 3 — 2026-08-25 — the PRECISE mechanism, replacing this lesson's sweeping claim: `set -e` is SUPPRESSED because the agent's command is a NON-FINAL `&&` MEMBER
+
+**This lesson's Instance 1 says *"`set -e` is not in force in the agent harness's Bash context."*
+The OBSERVATION was correct and measured; the CHARACTERISATION was too broad and came from a
+relay rather than from the measurement.** The precise form, established by a cfd lane and
+**re-measured here before being recorded**:
+
+> **`set -e` does not gate when the failing command is a member of an `&&`/`||` list other than
+> the last — and the top level of every Bash-tool call is exactly such a member.** The harness
+> wraps the agent's command as
+> `/bin/bash -c 'source <snapshot> 2>/dev/null || true && shopt … || true && … && eval <YOUR
+> COMMAND>'`. The agent's block is a **non-final `&&` member**. POSIX: *"the -e setting shall be
+> ignored when executing … any command of an AND-OR list other than the last."* **Suppression
+> therefore applies to the agent's ENTIRE command, at EVERY nesting depth inside it.**
+
+**Read from `/proc/$$/cmdline` inside a tool call, not inferred.** Verified here.
+
+**THE INTERPRETER AND THE HEREDOC ARE INNOCENT.** In a **child** shell everything gates
+normally — bare builtin, external command, `python3 -c`, **and the `python3 - <<'PY'` heredoc**.
+Control measured here: `bash -c 'set -e; false; echo REACHED'` → **rc=1, nothing printed.** This
+team saw a heredoc "not gate" and then read a stale file; **that was the wrapper, not Python.**
+
+**THE URGENT PART — ONE OBVIOUS WORKAROUND SILENTLY FAILS.** Measured at tool top level:
+
+| approach | at tool top level |
+|---|---|
+| **`( set -e; … )` subshell** | **DOES NOT GATE** — `( set -e; false; echo REACHED )` **printed REACHED, rc=0** |
+| body piped to a child `bash` | **gates**, rc=1 |
+| `trap … ERR` | fires but **does not stop** — a detector, not a guard |
+| **`\|\| { echo ABORT; exit 1; }`** | **works** — fires on known-bad, silent on known-good |
+
+**Anyone who "fixed" a protocol by wrapping it in `( set -e; … )` has not fixed it and will
+believe they have.**
+
+**WHY IT IS UNDIAGNOSABLE BY INSPECTION — the flag lies, and it lies differently depending on how
+you ask.** Measured here after `set -e` at tool top level:
+- `$-` = **`ehmtBc`** — **contains `e`**;
+- a **direct** `shopt -o errexit` on its own line reports **`on`**;
+- **`$(shopt -o errexit)` reports `off`**;
+- and a bare `false` on the next line **does not stop the script.**
+**So the option is enabled and simultaneously not in force, and a self-check is misleading
+whichever way it is written. That is a guard reporting on ITSELF, in the shell's own flag** —
+this lesson's own subject, expressed in the interpreter rather than in a script.
+**A correction this supervisor owes: on first measuring this, I reported that BOTH forms read
+`off` and briefly believed the relay was wrong. My "direct" test was itself inside `$( )` — I
+captured what I had labelled direct.** The relayed account was right; my counter-measurement was
+an instrument fault, the eighth of the session.
+
+**BOUNDARY CASES, measured in a child shell where errexit is live, and useful regardless:**
+`X=$(false)` **gates**, but `export X=$(false)`, `local X=$(false)` and `declare X=$(false)`
+**do not** — the builtin's own success masks the substitution's failure, and splitting into
+`local X; X=$(false)` restores it. `false | true` does not gate; `true | false` does; `pipefail`
+restores the first. And `if f`, `while f`, `! f`, `f || …`, `f && …` **suspend `set -e`
+throughout the function body**, confirmed two levels deep.
+
+**STATUS CHANGE, and it is the practical point: `|| { echo ABORT; exit 1; }` is not
+belt-and-braces here — at tool top level it is THE ONLY THING THAT WORKS**, and a `set -e` in an
+agent's command is **decorative regardless of what the flag reports.**
+
+**AUDIT OF THIS TEAM'S OWN ARTIFACTS, run rather than assumed:** `append_guards.py`,
+`reaudit_landed_blocks.py`, `check_case_map_glance.py` and `contention_sampler.sh` contain **no
+`set -e` and no `( set -e; … )`** — they gate by Python exceptions, explicit refusals and direct
+`exit`. **One frozen launcher, `run_vmfl003.sh`, carries a decorative `set -e` alongside 28
+explicit refusals**; the refusals did the work, the `set -e` did nothing, and **the file is
+frozen and post-compute so it is disclosed here rather than edited.**
+
+**This is shape 1 of this lesson's catalogue — a guard that stays SILENT when it should fire —
+and it is the cleanest instance the lab has.**
 ## L-315 — A check that penalises the honest action is worse than no check, because it corrupts behaviour rather than merely missing defects
 
 **Found in cfd's own instrument, by the lane writing it, before it was used.** The F6a/Greenblatt
