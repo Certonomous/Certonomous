@@ -935,3 +935,44 @@ conservative direction.
 
 **The banner of `71ecb659` still stands: no row is lifted from this file into any
 central matrix without re-keying.**
+
+---
+
+## SECOND DATED FOLLOW-UP, 2026-08-25 — §2's CELL TIERS ALSO FALL, AND `C1`'s `V` IS WITHDRAWN
+
+**Appended at the FOOT. Lines whose number changed above this section: 0.**
+
+**The first follow-up corrected §3 and did not touch §2.** That was an error of
+scope in the audit, **in the flattering direction**, and it is corrected here.
+Ruling of record: `THERMAL_TIER_AUDIT_RULING_2026-08-25.md` **AMENDMENT 1**.
+
+**§2's four `HOLDS` cells are the cell-level aggregates of the four §3 sub-rows
+already ruled down.** A cell cannot hold more than its sub-rows.
+
+| cell | line | was | **now** | missing |
+|---|---|---|---|---|
+| **C1** | 191 | `HOLDS` | **`GATE REACHED`** — *already corrected in-row under Ruling 3 (`P SECONDARY`); that correction stands* | P |
+| **C2** | 192 | `HOLDS` | **`GATE REACHED`** | **P** — closed-form composite wall |
+| **C10** | 200 | `HOLDS` | **`GATE REACHED`** | **P** — `f·Re`, Graetz `λ₀²` analytic |
+| **C15** | 205 | `HOLDS` | **`GATE REACHED`** | **P** — closed-form view factors |
+
+**Basis:** `COVERAGE_MATRIX.md` **Ruling 4** — *`P` requires validation against
+MEASURED PHYSICAL REALITY; an exact solution scores `V`, never `P`* — so
+**`P ANALYTIC-HELD` does not score P.** **No verdict moves**; every `PASS` stands
+as returned. **All scope caveats in those cells stand unaltered.**
+
+**SEPARATELY — `C1`'s `V YES` IS WITHDRAWN.** Its tier was corrected for a `P`
+reason while its `V` sentence was left standing: *"`V YES` — K0c triples
+CONVERGING, `p` 1.94–2.33 on the Richardson ladder."* **K0c has no triples** (four
+mesh PAIRS; `gate_k0c.json` `gci` 0 / `richardson` 0 / `triple` 0 /
+`observed_order` 0); **`p` 1.94–2.33 is K0b's**, disclaimed at
+`K0c_RESULTS.md:335`, **narrowed** from K0b's true 1.75–2.98, **and itself `NOT A
+RESULT`** (fitted across an iteration-count fork of ~8× the grid step). **There
+is no Richardson ladder here to be on.** Correcting a tier does not correct the
+sentence underneath it.
+
+**Corrected headline: this file carries ZERO rows at `HOLDS` in EITHER table.**
+§2's 19 cells and §3's 37 sub-rows are **separate tallies and are never summed** —
+pooling them double-counts every sub-row against its own parent.
+
+**The banner of `71ecb659` still stands: no row leaves this file un-re-keyed.**

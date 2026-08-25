@@ -312,3 +312,122 @@ the directive has done work.
 5. **S18 / §5** — correct the VanGilder & Schmidt 2005 "not held" claim.
 6. **Convention note** — plateau tolerances stated **numerically in the
    pre-registration**, not only as a comparator default.
+
+---
+
+## AMENDMENT 1 — 2026-08-25 — I AUDITED §3 AND CALLED IT THE FAMILY. §2 WAS NEVER AUDITED.
+
+**Lines whose number changed above this section: 0.**
+
+**This amendment corrects an error in my own audit, and the error ran in the
+flattering direction** — the direction §4 of the ruling above names as this
+family's standing prior. **Found by checking a desk item I had raised, not by an
+auditor**, but it was mine to find before I reported.
+
+### A1.1 The scope error, stated plainly
+
+The ruling above says **"the thermal family has ZERO rows at `HOLDS`"**. That is
+**true of `MATRIX_CONTRIBUTION.md` §3 — the 37 sub-rows — and it is FALSE of the
+file.** The file carries **two** tables with a tier column:
+
+| table | rows | `HOLDS` rows | audited by the ruling above |
+|---|---|---|---|
+| **§3** *Sub-rows inside the occupied cells* | 37 | **5** — S1, S6, S13, S19, S22 | **YES**, all five ruled down |
+| **§2** *The 18 cells* | 19 | **4** — C1, C2, C10, C15 | **NO. Never examined.** |
+
+**I audited the sub-rows, found five over-claims, and generalised to "the family"
+without checking the cell table sitting eleven lines above it.** The census
+`5 → 0` is correct **for §3** and the ruling should have said so.
+
+### A1.2 A cell cannot hold more than its sub-rows — and these four rest on exactly the rows I downgraded
+
+The linkage is not approximate. Each of the four §2 `HOLDS` cells is the cell-level
+aggregate of a sub-row the ruling above downgraded:
+
+| cell | rests on | §3 sub-row I downgraded |
+|---|---|---|
+| **C1** | K0c laminar cavity | **S1** |
+| **C2** | T9a solid conduction | **S6** |
+| **C10** | T1c `f·Re` / constant-`q″` `Nu` | **S19** |
+| **C15** | T10a black box enclosure | **S22** |
+
+**Downgrading a sub-row and leaving its parent cell at `HOLDS` is not a partial
+correction, it is an inconsistent record** — and it is the more visible of the
+two, because §2 is the summary table a reader reaches first.
+
+### A1.3 Disposition — C1 was ALREADY correct; three were not
+
+**C1 needs no tier correction and I record that rather than claiming a fourth
+scalp.** An earlier pass already appended to its tier cell: *"under
+`COVERAGE_MATRIX.md` Ruling 3 (`:168-171`) `P SECONDARY` DOES NOT SCORE P, so
+this maps to matrix tier `GATE REACHED` (missing P), not HOLDS. The `PASS`
+verdict is UNDISTURBED."* **That correction stands and reached the right answer
+by a different route than mine** — via `P SECONDARY`, where mine goes via the
+missing triple.
+
+**C2, C10 and C15 carry `P ANALYTIC-HELD` and are still tiered `HOLDS`.** Under
+**`COVERAGE_MATRIX.md` Ruling 4** — *`P` requires validation against MEASURED
+PHYSICAL REALITY; an exact solution scores `V`, never `P`* — **`P ANALYTIC-HELD`
+does not score P.** Each therefore holds at most two green columns.
+
+**RULED:**
+
+| cell | was | **now** | missing |
+|---|---|---|---|
+| **C2** | `HOLDS` | **`GATE REACHED`** | **P** — closed-form composite wall is analytic; no measured reality |
+| **C10** | `HOLDS` | **`GATE REACHED`** | **P** — `f·Re` = 64, 48/11 and Graetz `λ₀²` are analytic |
+| **C15** | `HOLDS` | **`GATE REACHED`** | **P** — closed-form view factors and the two-surface network are analytic |
+
+**No verdict moves.** Every `PASS` in those cells stands as its frozen comparator
+returned it. **All three parenthetical scope caveats stand unaltered** — C2's
+*"pure solid conduction only, fluid–solid CHT has NEVER RUN"*, C10's
+*"constant-`Ts` `Nu` NOT HELD; turbulent pipe NOT HELD"*, C15's *"ceiling NOT
+HELD, grey spheres NOT HELD, participating media NEVER RUN"*.
+
+### A1.4 A SECOND, INDEPENDENT DEFECT IN C1 THAT ITS TIER CORRECTION DID NOT TOUCH
+
+**C1's `V` cell reads:** *"`V YES` — K0c triples CONVERGING, `p` 1.94–2.33 on the
+Richardson ladder."*
+
+**Every clause of that is false, and it is the single most concentrated
+statement of the K0c defect anywhere in this repository:**
+
+- **"K0c triples"** — K0c has **no triples**. It is **four mesh PAIRS**
+  (`Ra1e3_m32/m64`, `Ra1e4_m40/m80`, `Ra1e5_m64/m128`, `Ra1e6_m128/m192`), and
+  `gate_k0c.json` carries `gci` 0 / `richardson` 0 / `triple` 0 /
+  `observed_order` 0 against a positive control of 4 / 2 / 17 on `gate_t3.json`.
+- **"`p` 1.94–2.33"** — those are **K0b's** orders, whose own record states at
+  `K0c_RESULTS.md:335` that they *"do not apply to these cases and are not
+  used"*; **and the range was NARROWED in the borrowing**, K0b's own table
+  running **1.75–2.98**; **and K0b's orders are themselves `NOT A RESULT`**,
+  fitted across an iteration-count fork whose effect is **~8× the grid step**
+  (`THERMAL_RECIPE_FORK_RULING_2026-08-25.md` §2).
+- **"on the Richardson ladder"** — there is no Richardson ladder here to be on.
+
+**C1's tier was corrected for a `P` reason and its `V` claim was left standing.
+Correcting a tier does not correct the sentence underneath it**, and a reader
+quoting C1's `V` cell today would repeat a three-times-wrong number with a green
+label beside it. **`V YES` on C1 is WITHDRAWN**, by quote-and-strike; the text
+stays visible, struck, citing this amendment.
+
+### A1.5 What this changes about the headline
+
+**Corrected headline: `MATRIX_CONTRIBUTION.md` carries ZERO rows at `HOLDS` in
+EITHER table** — §3's five ruled down by the ruling above, §2's four now
+disposed (C1 already, C2/C10/C15 here.)
+
+**The conclusion is unchanged. The evidence for it was half-gathered when I first
+stated it**, and that is the part worth recording: **the answer came out the same
+is not a defence, because it was not known to come out the same at the time.**
+
+### A1.6 What is unchanged
+
+- **No gate verdict moves.** No gate, threshold, band, cap or label is created,
+  moved or retired.
+- **§3's census stands: `HOLDS` 0 / `GATE REACHED` 6 / `SURVEYED` 13 / `NOT HELD`
+  12 / `NEVER RUN` 6 = 37.** §2's 19 cells are a **different table with its own
+  tally** and the two are **not summed** — pooling them would double-count every
+  sub-row against its own parent.
+- **Ruling 1 (`V` never `P`) stands** and remains **flagged for Sanaa**. It is
+  what turns C2, C10 and C15 as well, so **overruling it restores seven rows, not
+  four.**
