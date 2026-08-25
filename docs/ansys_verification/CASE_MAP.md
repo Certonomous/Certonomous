@@ -85,7 +85,7 @@ committed record and there was no normalised copy to correct.
 
 ---
 
-# **THE CAMPAIGN FRACTION: 3 of 73 run. 70 never run.**
+# **THE CAMPAIGN FRACTION: 4 of 73 run. 69 never run.**
 
 **THE DENOMINATOR IS 73, NOT 95 — BY SANAA'S RULING, NOT BY THIS LAB'S CHOICE.** The
 `VMFLGPU` family (10) and the cases with no lab solver (12) are **out of scope for
@@ -103,8 +103,8 @@ beside it so a reader reproduces it rather than trusting the header.** Let
 |---|---|---|
 | **cases printed in the manual** | **95** | `ROWS \| wc -l` |
 | **IN SCOPE (the denominator)** | **73** | `ROWS \| grep -c 'IN SCOPE'` |
-| **run** | **3** | `ROWS \| grep 'IN SCOPE' \| grep -vc 'NEVER RUN'` |
-| **never run** | **70** | `ROWS \| grep 'IN SCOPE' \| grep -c 'NEVER RUN'` |
+| **run** | **4** | `ROWS \| grep 'IN SCOPE' \| grep -vc 'NEVER RUN'` |
+| **never run** | **69** | `ROWS \| grep 'IN SCOPE' \| grep -c 'NEVER RUN'` |
 | **DEFERRED — the `VMFLGPU` family** | **10** | `ROWS \| grep -c 'DEFERRED'` |
 | **OUT OF SCOPE — no lab solver** | **12** | `ROWS \| grep -c 'OUT OF SCOPE'` |
 | **overlap of the two exclusions** | **0** | `ROWS \| grep 'DEFERRED' \| grep -c 'OUT OF SCOPE'` |
@@ -133,7 +133,7 @@ a scope status is a ruling about **whether the case is in this campaign at all**
   `GATE REACHED`. The rule-1 vocabulary — `PASS` / `GATE REACHED` / `GATE FAIL` /
   `NOT A RESULT` / `BLOCKED` / `PENDING` — is unchanged and is not replaced here.
 
-### The three cases run, and their tiers — the supervisor's rulings, overrulable
+### The four cases run, and their tiers — the supervisor's rulings, overrulable
 
 | case | verdict (rule 1) | **tier** | why the tier is what it is |
 |---|---|---|---|
@@ -141,6 +141,7 @@ a scope status is a ruling about **whether the case is in this campaign at all**
 | **VMFL001-R2** | `PASS` | **`HOLDS`** — **a CANDIDATE, stated as one** | V and G both strong: `CONVERGING`, observed order **2.0102**, GCI **0.0563 %**, Richardson landing on the analytic value to **3.7 ppm**. **A candidate and not a settled hold because the P limb is UNRESOLVED**; calling it settled on V and G alone is the flattery this column exists to prevent |
 | **VMFL005** | `PASS` | **`GATE REACHED`** | gate genuinely met and triple genuinely `CONVERGING` — **P is the missing limb and is named**: the deviation is **9.92× the fine GCI** and Richardson extrapolates **away** from exact, so ~90 % of the residual is a modelling signature (`N-AV7`); mechanism open at docket **`D512`** |
 | **VMFL051** | `NOT A RESULT` | **`NOT HELD`** | **V present, G ABSENT, G decides it**: `OSCILLATORY` at **R = −1.348600**, no observed order, no quotable GCI, two of three levels failing the frozen plateau clause. **`GATE REACHED` was refused deliberately** — that word fits a case with a *believable measurement* lacking one column (VMFL005). **VMFL051 produced no usable measurement at all; its G column is not missing, it is actively negative** |
+| **VMFL045** run 1 | `NOT A RESULT` | **`NOT HELD`** | **produced NO measurement at all** — `rhoCentralFoam` died at wall 0 s on its first timestep with `Entry 'e' not found in fvSolution/solvers`, a frozen-`fvSolution` `e`/`h` defect inherited from the inviscid VMFL051 (VMFL045 is viscous, μ=1e-8, so the implicit energy corrector runs, the path μ=0 never took). **No triple, no observed order, no GCI, no plateau statistics — nothing to hold.** `GATE REACHED` needs a believable measurement lacking one column; there is no measurement. Repaired as the VMFL045-R2 rung, re-run pending |
 
 ### DEFERRED — the 10 `VMFLGPU` cases, pending re-entry, NOT dropped
 
@@ -240,7 +241,7 @@ all.
 | VMFL042 | 143 | Turbulent mixing of two streams, different densities | 2 | SST, mixing layer, density diff, buoyancy | EXP | Salt-water mass fraction at x=10 m — **profile** | simpleFoam + energy / buoyantSimpleFoam | F+C | small | Y* — profile | `NEVER RUN` | `IN SCOPE` |
 | VMFL043 | 147 | Laminar→turbulent transition of BL over flat plate | 2 | SST, transitional | EXP | Skin-friction coefficient on plate — **profile** | simpleFoam (kOmegaSSTLM transition) | F | small | Y* — transition model | `NEVER RUN` | `IN SCOPE` |
 | VMFL044 | 149 | Supersonic nozzle flow | A | Compressible supersonic, SST | EXP | Pressure ratio along nozzle wall — **profile** | rhoSimpleFoam / sonicFoam | F+C | small | Y* — shock capture | `NEVER RUN` | `IN SCOPE` |
-| VMFL045 | 153 | Oblique shock over an inclined ramp | 2 | Compressible supersonic, oblique shock | AN | Mach, T, density downstream — **discrete(3)** | rhoCentralFoam / sonicFoam | F+C | trivial | Y — inviscid, monotone | `NEVER RUN` | `IN SCOPE` |
+| VMFL045 | 153 | Oblique shock over an inclined ramp | 2 | Compressible supersonic, oblique shock | AN | Mach, T, density downstream — **discrete(3)** | rhoCentralFoam / sonicFoam | F+C | trivial | Y — μ=1e-8 (near-inviscid but NONZERO → viscous energy path; run-1 finding), monotone | **`NOT HELD`** (run 1) | `IN SCOPE` |
 | VMFL046 | 155 | Normal shock in a converging-diverging nozzle | 2 | Compressible supersonic, normal shock | AN | Mach along centreline (vs analytic) — **profile** | rhoCentralFoam / sonicFoam | F | small | Y* — shock capture | `NEVER RUN` | `IN SCOPE` |
 | VMFL047 | 157 | Turbulent separated flow in an asymmetric diffuser | 2 | Turbulent separation, standard k-ω | EXP | X-velocity at X=24 (profile) — **profile** | simpleFoam (kOmega) | F+C | small | Y* — separation | `NEVER RUN` | `IN SCOPE` |
 | VMFL048 | 159 | Turbulent flow in a 180° pipe bend | 3 | SST, turbulent, separation/reattachment | EXP | Axial velocity at a section — **profile** | simpleFoam (kOmegaSST) | F | medium | Y* — 3D, y+ | `NEVER RUN` | `IN SCOPE` |
