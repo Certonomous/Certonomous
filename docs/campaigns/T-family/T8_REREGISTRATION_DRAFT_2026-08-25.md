@@ -223,6 +223,131 @@ and does not rest on `f` at all.
 the way back up**. On this case **one residual reading is not evidence of
 convergence.**
 
+## 4b. THE RULE-5 FINDING — standing rule 5's second conjunct HAS independent content, and `f` is the demonstration
+
+**This is the largest result to come out of the dead rung and it is not about T8.**
+
+Standing rule 5 order (1) reads *"any level not iteratively converged **or not
+plateaued**"*. Whether *"or not plateaued"* carries content independent of the
+first conjunct was referred upward this morning as a **canon question**, with
+the lab's own comparators disagreeing: `analyse_e4a.py:346` treats the two as
+**one** test, `analyse_t1b_L4.py:225` treats the plateau as a **separate
+spatial** test, and the dead T8 document registered **no separate content** for
+it at all.
+
+**`f` settles it by counter-example. It is a run that MEETS the convergence
+criterion and is NOT plateaued.**
+
+Measured: **228 CONSECUTIVE iterations at or below the registered `1e-6`,
+iterations 877 to 1104** — and independently confirmed that this is the **only**
+stretch below `1e-6` anywhere in the run (228 consecutive, 228 total, so the
+block is contiguous and unique). The run then **leaves**, peaking at
+`3.85e-05` at 1800, and is still oscillating at iteration 2717 —
+`2.85e-05` (2000), `2.45e-05` (2200), `3.97e-05` (2400), `4.28e-05` (2600),
+**rising into a second excursion**.
+
+**Therefore the registered `1e-6` criterion is satisfiable TRANSIENTLY by a run
+that does not converge.** A check asking *"did it reach 1e-6"* **passes `f`**. A
+check asking *"is it below 1e-6 at `endTime`"* is a **lottery on where `endTime`
+falls in the oscillation.**
+
+**The two conjuncts are independent. "Converged" and "plateaued" are different
+properties, and a run can have the first without the second.** Any comparator
+that folds them into one test — as the dead T8 document did — **can pass an
+oscillating solution.**
+
+### 4b.1 And the defect reaches the ACTUAL registered instrument, not only the residual
+
+The registered T8 convergence gate is **not** the residual: it is the
+**last-two-written-checkpoints relative field change ≤ `1e-6`**. That does not
+make it safe — **it makes it a phase lottery of a different kind.**
+
+`f`'s `writeInterval` is **2000**, so the gate would compare checkpoints
+**18000 and 20000** — two samples **2000 iterations apart on a field whose
+residual oscillates over more than two decades**. Two checkpoints landing at
+**similar phases** of that oscillation show a **small** field change and the
+gate reports **converged**; the same run sampled 500 iterations later reports
+otherwise. **The instrument's answer depends on the phase it happens to
+sample.**
+
+**This is the same defect class as the point-sample error that produced this
+correction, moved from the residual to the field.** A gate built on **two**
+samples of an oscillating quantity is a two-point sample. **Recorded as an open
+instrument question for the re-registration; this lane does not propose the
+fix.**
+
+## 4c. THE RAMP TEST, REPAIRED — a CONTROL, not a window
+
+**Supervisor's ruling, 2026-08-25.** None of the three repair options listed at
+§4a is sufficient alone, because **all three compare ramp against no-ramp and
+none establishes what the difference would be with NO INTERVENTION AT ALL.**
+Without that, any difference looks meaningful and the test cannot separate
+*"the ramp changed it"* from *"it varies anyway"*.
+
+> **That is a comparison with no null — the same defect as a planted zero with
+> no control, applied to a time series instead of a reader.**
+
+Registered in three parts, **in this order**:
+
+### 1. STATIONARITY PRECONDITION — and it can REFUSE
+
+Before any comparison, the oscillation must be shown **statistically
+stationary** over the comparison span: the **window mean** of each graded
+quantity must not trend across consecutive windows by more than the
+**within-window spread**.
+
+**If stationarity fails, the ramp test CANNOT BE RUN and reports
+`NOT A RESULT`.** It does **not** report a pass, and it does **not** get a
+longer run to reach stationarity.
+
+### 2. THE SELF-CONTROL — the load-bearing part
+
+Within the **no-ramp run alone**, compare **two disjoint windows of equal
+length**. Their difference is the **intrinsic window-to-window variability
+`σ_self`** of a single, unchanged configuration.
+
+**This is the null the test has been missing.**
+
+### 3. THE TEST
+
+Compare the ramp run's window statistics against the no-ramp run's — **same
+iteration span, same window length, same quantities**.
+
+- **Neutral if and only if the difference lies within `σ_self`** → the ramp is
+  a numerical aid and may be used on all levels.
+- **Exceeds `σ_self`** → the ramp **changed the solution** and is
+  **FORBIDDEN**.
+
+Compare **window statistics — mean and spread — never instantaneous values.**
+The correction at §4a proves a point sample on this case is worthless.
+
+### The level is registered BEFORE running, and is not chosen to make the test work
+
+**If `f` cannot be shown stationary, the ramp question is unanswerable on `f`,
+and it must NOT be answered by picking whichever level looks quieter.** That is
+**selecting the comparison to fit the answer** — the thing pre-registration
+exists to prevent. **Register the level before running.**
+
+## 4d. THE LARGER POSSIBILITY, NAMED AND NOT SETTLED: the case may not be steady
+
+**`buoyantBoussinesqSimpleFoam` is a STEADY solver.** A steady solver
+oscillating over **more than two decades** and never settling — with a second
+excursion now forming at iteration 2600 — is **evidence that the case is not
+steady.**
+
+**If the physics is genuinely unsteady, no ramp and no number of iterations
+produces a steady answer, and the registered steady formulation is the wrong
+instrument for this case.**
+
+That is a **case-selection finding**. It is **larger than anything the ramp
+test could return** — it would make the ramp question **moot** — and it is
+recorded here **as an open possibility now, rather than discovered later after
+a ramp verdict has been written.**
+
+**This lane does not attempt to settle it and states no view on whether the
+plume is physically unsteady.** It is named so that a re-registration confronts
+it before, not after, committing to a steady formulation.
+
 ## 5. The measurement that refutes the level-specific-setup hypothesis
 
 Reported in full at §APPENDIX 3 of `T8_LANE_STATUS_2026-08-25.md`. In short:
@@ -283,6 +408,25 @@ It leaves cell count, plane count and total volume untouched while breaking the
 geometric similarity the Roache ladder assumes. **A re-registration that adopts
 §6 and stops there still cannot see B7, and should say so rather than claim the
 class is closed.**
+
+## 9. Method note — look at the bytes before believing the number
+
+The `f` history in §4a was **first parsed wrongly by this lane**: a fixed
+**12-character substring** silently **truncated the exponent off scientific
+notation**, turning `3.775818689978888e-06` into `3.7758186899` — making a
+**converged** value look like a residual of **3.8**. It was caught by
+**printing the raw log line before trusting the parse**, and fixed by matching
+`Initial residual = [0-9.eE+-]+` in full and using the whole matched token.
+
+**This was the fourth parsing artifact across teams on 2026-08-25**, and the
+supervisor records committing the same class within the hour by inferring
+convergence from a sampled prefix. The rule is the same every time:
+
+> **Look at the bytes before believing the number.**
+
+A truncating reader and a point sampler are the same failure wearing different
+clothes: **both report a number the data does not support, with no signal that
+anything went wrong.**
 
 ---
 
