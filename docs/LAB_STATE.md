@@ -2300,6 +2300,50 @@ I read `Expected keyword 'uniform' or 'nonuniform', found punctuation '('` and c
 
 **My 228 figure is confirmed AND strengthened: the longest stretch at or below 1e-6 is 228 iterations, and the TOTAL number of iterations at or below 1e-6 anywhere in the entire run is ALSO 228 — so the block is CONTIGUOUS AND UNIQUE. `f` touched the registered criterion exactly once, for 228 iterations, and never again.** That makes the rule-5 counter-example airtight, and the lab's own disagreement — `analyse_e4a.py:346` folds the two conjuncts, `analyse_t1b_L4.py:225` separates them — **is now decided by counter-example from my own family: the conjuncts are INDEPENDENT.**
 
+#### ⚠⚠ MY OWN Δ/2Δ/3Δ TEST WAS INVALID AND I NEARLY REPORTED FIVE GRADED RUNGS AS ALIASED. **THE FINDING IS WITHDRAWN. THE SAME FAILURE CLASS, COMMITTED BY ME, FOR THE THIRD TIME TODAY.**
+
+**My first pass printed `ALIASED: passes at 1d, FAILS wider` against nine cases including T1b's graded `_f` arms.** It is wrong, and I found it by checking my own result before reporting it.
+
+**Defect 1 — the checkpoints are NOT EVENLY SPACED, so my "2Δ" was not 2Δ.** `R_100k_f`'s time directories are `18000, 20000, 56000, 58000`: gaps of **2 000, 36 000, 2 000**. `purgeWrite` and run extensions leave a **hole**. My "2Δ" compared **20000 against 58000 — 38 000 iterations apart** — and called the resulting large difference evidence of aliasing at twice the write interval. **It is evidence of nothing but a gap I did not check for.** Of every case in my sweep, **exactly two have uniform spacing.**
+
+**Defect 2 — my duplicate-checkpoint check tested the wrong channel.** I md5'd the whole `T` file and got "differ", which I took as proof the checkpoints were distinct. **The FoamFile header carries `location "58000"` versus `location "56000"`, so the md5 differs while the DATA can be identical.** The gate reads `internalField`; I tested the file. **That is precisely today's recurring defect — testing the channel I was thinking about rather than the channel the instrument consumes — committed by me, one hour after I wrote it into a lesson.**
+
+**WHAT IS ACTUALLY TRUE, measured through THEIR reader with `rng` and `dmax` separated:** the `_f` arms show **`dmax` exactly `0.000e+00` with `rng` = 1.089e-01 > 0** — so the `rng == 0` fallback did **not** fire and the fields are **genuinely identical between the last two checkpoints.** That is the **strongest** convergence evidence available, not the weakest. **`R_10k_x`, one of the two uniformly-spaced cases, fails at 1Δ anyway at 4.36e-02 — it is still running.**
+
+**SO: NO POSITIVE EVIDENCE OF ALIASING ANYWHERE IN MY TERRITORY, and my alarm is withdrawn in full.** The audit's structural finding stands untouched — **the Class A gate design cannot distinguish convergence from aliasing** — but **structural exposure is not demonstrated harm, and I will not let the two be conflated by a report of mine.**
+
+**AND CRITERION 1 IS NOT "NEARLY FREE" — that was my error too.** It needs **uniformly spaced checkpoints**, and `purgeWrite` plus extension gaps mean **most cases in my territory do not have them.** On the corpus as it sits, the Δ/2Δ/3Δ test is **mostly UNRUNNABLE**, which is a real constraint on the remedy and belongs beside it. **`UNJUDGED` — not clean, not exposed.**
+
+#### K0d — THE REGISTERED READER-EQUIVALENCE CHECK **DISAGREES**, AND I UPHOLD IT AGAINST MY OWN CONVENIENCE
+
+Measured on a **frozen static snapshot** of `M1_c`: worst |diff| **1.209843 K** on vertical `T` against the registered **2.00e-05 K**; **5.03e-02 m/s** on `U.x` against 5.70e-07. **Mechanism identified, not guessed:** `cellPoint` uses **boundary face values** at a wall; `_vertex_value()` averages only **cell** values. At the floor OpenFOAM returns exactly **308.150000 K — the registered `fixedValue` BC —** while the reader returns **306.940157 K**. Error decays within 2–3 cells of each wall.
+
+**The material half, recorded because it is real: 71 of 2 081 points exceed the criterion; median difference 2.86e-06 K; and ALL THIRTEEN registered graded stations AGREE** (station 0.05 differs by 6.31e-07 K). **So the practical impact on the graded numbers is very likely nil.**
+
+**AND THE VERDICT IS STILL `DISAGREE`.** §AD1.1's criterion is written on **the sampled line**, not the station subset. **Re-reading it as "at the registered stations" AFTER seeing which points failed is the same narrowing I refused for condition D three hours ago — "the numbers looked wrong, so the scope was narrowed." I cannot refuse that against a mesh and accept it for my own rung.** And `G5a`'s peak landing outside the bad band is a property of **one snapshot**, not a guarantee: the peak search scans the full upper half **including the wall point**.
+
+**The reader is genuinely wrong — it cannot see a boundary condition.** 308.15 versus 306.94 is not a tolerance question.
+
+**RULED: every graded row is `NOT A RESULT`. The rung is repaired and re-registered. The repair — use the boundary face value at wall vertices — is NAMED BUT NOT TAKEN, because repairing the grading path quietly is exactly the rescue §AD1.1 forbids.**
+
+**This is what registering the check before compute was FOR. A registered check that only ever confirms is not a check — this one refused, and it refused against the rung its author wanted to pass.**
+
+#### ⚠ I AM DOWNGRADING MY OWN EARLIER K0d RULING, VISIBLY RATHER THAN QUIETLY
+
+Three hours ago I ruled **"K0d earns `V` only — `GATE REACHED` naming both `P` and `G`."** **That is now superseded and I am not leaving it standing.** There are **three independent grounds**, and they all point at one document:
+
+| column | ground |
+|---|---|
+| **`P`** | Blay 1992 **NOT OBTAINED** — Sanaa's alone, not being attempted |
+| **`G`** | the **L2 parity contradiction** — §5's two-sided grading and §4's condition D cannot both hold at 17 cells |
+| **`V`** | the **registered reader-equivalence check DISAGREES** at walls |
+
+**With all three columns unreachable, NOTHING is reached. `GATE REACHED` asserts that a gate WAS reached, and none was. K0d as registered earns nothing: its rows are `NOT A RESULT` and the rung is `BLOCKED` pending ONE re-registration that answers all three.** Not `GATE REACHED`, not `HOLDS`, and not a triple assembled from two levels.
+
+**`M1_c` / `M2_c` run to `endTime`** — ~35 min, cheap, and the registered `endTime` instance of the check is owed. **The lane expects `DISAGREE` to survive: the mechanism is geometric, not transient.** I expect the same and will record it either way.
+
+**A FALSE `DISAGREE` CAME FIRST AND NEARLY GOT REPORTED — the mirror image of my own error above, and it is the reason I trust this lane's positive result.** The first dry run flagged **all 2 081 points**. Not the reader: `load_case_fields()` derived `times[-1]` itself, the solver was still writing, `purgeWrite 2` was deleting directories — **OpenFOAM was sampled at time 4000 while the reader read time 12000.** **A comparison of two different times is not a disagreement between two readers**, and reporting it would have condemned a reader never actually tested. **Two guards added and both shown to fire:** an explicit-time loader, and `assert_case_is_quiescent()` refusing at exit 2 while any solver runs — verified against the live `M1_c`. **Against a live case the answer is meaningless in BOTH directions: it can fabricate a disagreement and equally mask a real one.**
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
