@@ -1665,3 +1665,153 @@ of capture**, so no reporting path can lose it.
 
 **Amended 2026-08-25 by a cfd `lab-lane` on the cfd supervisor's Ruling 1.
 PRE-LAUNCH for attempt 3. The frozen body and Amendments 1–3 are untouched.**
+
+---
+
+## ADDENDUM 5 — 2026-08-25 — **CAMPAIGN CLOSURE (cfd supervisor, option 3).** Row `NOT A RESULT`. Nothing further launches under this pre-registration.
+
+**Document version 1.4 → 1.5. Lines whose number changed above this section: 0.**
+**ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.**
+
+### A5.1 THE ROW
+
+> **VERDICT `NOT A RESULT`. TIER `NOT HELD`. `P` COLUMN `PENDING`, NOT GREEN.**
+>
+> A `NOT A RESULT` row has **no admissible measurement**, and a `P` cell certifies a
+> comparison that **actually happened**. `PENDING` is rule 1's display state — *"not yet
+> run"* — never a softened `GATE FAIL`.
+
+**No fourth attempt is authorised and none was taken.** Three run trees stand preserved,
+undeleted and unrenamed: `baseline_Re936k` (attempt 1, `BLOCKED`), `attempt2_Re936k`
+(complete solve, voided on an unmeasured limb), `attempt3_Re936k` (complete solve,
+`NOT A RESULT` on (P-a)).
+
+### A5.2 EVERY ROUTE OUT WAS REFUSED, AND THE REASONS DIFFER
+
+**Option 1 — fix the decomposition: REFUSED. The `REFERENCE_DIR` analogy breaks on the
+one fact that ruling turned on.** F12's `REFERENCE_DIR` repair was ruled in scope because
+it was made when **NO ANSWER EXISTED** — F12 was unfired, nothing had been measured, and
+the repair **could not have been aimed**: *"found with zero compute, which is the only
+reason it cost nothing."*
+
+> **HERE, THREE RUNS HAVE BEEN OBSERVED AND THE DISTRIBUTION IS KNOWN: TWO OF THREE
+> PARTITIONS CONVERGE.** Any change to the decomposition is now made **with the outcome
+> distribution in hand**, and that is precisely the knowledge that makes an intervention
+> **answer-directed — even when the mechanism is innocent and the intent is honest.**
+
+**Option 2 — raise `endTime`: REFUSED. It changes a threshold.** **And loosening omega's
+control is refused on identical grounds**, named explicitly here because it is the
+obvious next suggestion.
+
+**Option 3 — accept `NOT A RESULT` and record the finding: TAKEN.**
+
+**The lane's refusal to re-run is upheld without qualification.** Its reasoning stands as
+the campaign's best argument: *a re-run is not neutral merely because the gate VALUE
+would be unchanged, because it would move the row verdict from `NOT A RESULT` to
+`GATE FAIL`, and the row verdict IS the verdict.* **Rule 5's one-way door is not a
+technicality about values — it is about what the row ASSERTS. A row that says "we could
+not measure this" and a row that says "we measured it and it failed" are different claims
+about the world.**
+
+### A5.3 THE FINDING — and it locates a defect in this lab's instruments, not in this case
+
+**`scotch` decomposition is NOT DETERMINISTIC between invocations.** On a **byte-identical**
+mesh, `0/` directory and `system/controlDict` (`diff -rq` clean):
+
+| run | partition (first three ranks) | converged | omega initial residual |
+|---|---|---|---|
+| C-45 | *(not recorded)* | at **1772** | — |
+| attempt 2 | **12777 / 12906 / 12965** | at **1813** | **9.94318e-11** — met, by **0.568 %** |
+| attempt 3 | **12974 / 12870 / 12865** | **NO — hit the 2000 cap** | **4.63816e-10** — **4.638× the control** |
+
+Different partition → different parallel summation order → different round-off →
+different residual trajectory.
+
+**AND THE SHARPER FORM, WHICH LOCATES THE DEFECT:**
+
+> **THE BINDING CHANNEL IS `omega` ALONE, AND ITS CONTROL IS `1e-10` WHILE EVERY OTHER
+> CHANNEL IS `5e-7` — FIVE THOUSAND TIMES TIGHTER.** At attempt 3's cap, Ux 2.89e-8,
+> Uz 5.92e-8, p 5.78e-8 and k 8.32e-8 were all comfortably inside `5e-7`. Only omega was
+> not.
+>
+> **A CRITERION MET BY 0.568 % ON ONE RUN AND MISSED BY 4.638× ON THE NEXT, ON A
+> BYTE-IDENTICAL CASE, IS NOT MEASURING CONVERGENCE — IT IS MEASURING THE PARTITION.**
+>
+> **The defect is in the frozen case's RESIDUAL CONTROLS — not in the solver, not in the
+> mesh, not in the physics.** That is a finding about **this lab's instruments across
+> every parallel case it runs**, and **no passing row would ever have surfaced it.**
+
+### A5.4 THE ASSET THIS CAMPAIGN ACTUALLY PRODUCED — a reproducibility measurement, independent of any gate
+
+**The graded quantity is stable. The convergence criterion is not.** Two independent runs
+with **different partitions**:
+
+| quantity | attempt 2 | attempt 3 | spread |
+|---|---|---|---|
+| separation x_s/c | 0.6544112 | 0.6544109 | **3e-7 in x/c** |
+| reattachment x_r/c | 1.2534333 | 1.2534550 | **2.17e-5 in x/c** |
+
+**2.17e-5 in x/c is 0.0017 % of the value and 3.95e-4 of Gate P2's half-width.** This is
+a **genuine reproducibility measurement of the case, independent of any gate**, and it is
+the most useful number the campaign produced. **It is recorded here as a measurement in
+its own right, not as a footnote to a failed row.**
+
+### A5.5 THE PHYSICS FINDING IS UNAFFECTED — the row is not a credential; the number is not in doubt
+
+**Had the row been gradeable it would have been `GATE FAIL`**, and by the same margin on
+either limb of Table 2:
+
+* against the gated 2-D PIV centerline limb **1.10**: **+13.9485 %**
+* against the REPORTED oil-film limb **1.11**: **+12.9239 %**
+
+**Both `GATE FAIL`, reproduced across two independent partitions.** §2.1's frozen
+robustness statement — *the instrument choice cannot flip the verdict* — is now
+**measured**, not argued.
+
+> **THE ROW IS NOT A CREDENTIAL. THE NUMBER IS NOT IN DOUBT.** Those are two different
+> statements and this document has kept them apart from §0 onward.
+
+### A5.6 REAL GAINS, recorded as gains
+
+1. **ALL FIVE RULE-4 LIMBS MEASURED AND PASSING on attempt 3** — `rc = 0` read **from
+   disk**, the `End` line, `last time == endTime 2000`, all five fields present, and the
+   age guard. **Addendum 4's repair worked exactly as designed.**
+2. **THE SMOKE TEST FINALLY TESTED THE CASE** — rc = 0, no `FOAM FATAL`. **The VMFL045
+   dictionary-completeness class is GENUINELY EXERCISED for the first time in this
+   campaign**, having been explicitly **untested** at attempt 1, where the smoke test
+   crashed on an empty dictionary of its own making.
+3. **Gate M `PASS` on all three attempts**, re-evaluated from scratch each time, never
+   carried forward — 40.5495° and 0.743352, reproducing §5.2 exactly.
+
+### A5.7 THE ROUTE TO A CREDENTIAL — named, NOT walked, NOT authorised, NOT costed
+
+> A **NEW** pre-registration whose convergence criterion is **calibrated on a stated
+> principle** — omega's control set on the **same basis as the other four channels** —
+> and whose **decomposition is deterministic**.
+>
+> **It must disclose everything now known**: three observed runs, the partition
+> non-determinism, the 0.568 % margin, and the reattachment value already in hand. And it
+> must **derive its criterion FROM PRINCIPLE rather than to fit** — exactly as this
+> document inherited `74797a57`'s ±5 % rather than deriving a band with the answer
+> available.
+>
+> **NOT AUTHORISED BY THIS DOCUMENT. NOT COSTED. NOT WRITTEN.**
+
+### A5.8 Cost at closure
+
+**Campaign cumulative 13.3965 core-min against the 30 core-min CUMULATIVE cap; 16.6035
+remain unspent.** Ledger rows **C-59** (attempt 2) and **C-60** (attempt 3).
+
+**WASTE IS NAMED SEPARATELY AND LEFT VISIBLE, NEVER ABSORBED INTO A RATIO:** attempt 1
+**≤ 0.017 core-min** (bounded) **and attempt 2's FULL 6.1333 core-min** — a complete
+solve voided on an unmeasured limb, **attributable to a launcher defect, not to the
+case**. **That is the honest cost of Ruling 1 and it belongs on the record.**
+
+**The contention finding is now a TWO-ROW result and is stated as one:** loadavg 2.02 at
+attempt 3's launch, contention **absent again**, **1.05× against the uncontended
+subtotal**. **Two rows agree the ×1.0 allowance is the ENTIRE headline miss** — it must be
+**conditioned on measured load at launch, not applied blind.**
+
+**Closed 2026-08-25 by a cfd `lab-lane` on the cfd supervisor's option-3 ruling.
+NOTHING FURTHER LAUNCHES UNDER THIS PRE-REGISTRATION.
+The frozen body and Amendments 1–4 are untouched. SUBMISSIONS PARKED.**

@@ -255,5 +255,26 @@
     "dollars_DERIVED_not_measured": 0.006195
   },
   "PRESERVED": "attempts 1 and 2 are undeleted and unrenamed; the launcher asserted both before starting",
-  "submissions": "PARKED."
+  "submissions": "PARKED.",
+  "CAMPAIGN_CLOSURE_2026_08_25": {
+    "ruling": "option 3 (cfd supervisor): accept NOT A RESULT, record the finding, do NOT re-run, do NOT touch the decomposition",
+    "row": "NOT A RESULT",
+    "tier": "NOT HELD",
+    "P_column": "PENDING, not green",
+    "option_1_refused": "fixing the decomposition. The F12 REFERENCE_DIR analogy BREAKS: that repair was made when NO ANSWER EXISTED and could not have been aimed. Here three runs have been observed and the distribution is known -- two of three partitions converge -- so any change is made WITH THE OUTCOME DISTRIBUTION IN HAND, which is what makes an intervention answer-directed even when the mechanism is innocent.",
+    "option_2_refused": "raising endTime changes a threshold; loosening omega's control is refused on identical grounds",
+    "one_way_door": "rule 5's one-way door is not a technicality about values, it is about what the row ASSERTS. 'We could not measure this' and 'we measured it and it failed' are different claims about the world.",
+    "defect_located": "omega's control is 1e-10 while every other channel is 5e-7 -- 5000x tighter. Met by 0.568 % on attempt 2, missed by 4.638x on attempt 3, on a byte-identical case. A CRITERION THAT BEHAVES THAT WAY IS NOT MEASURING CONVERGENCE, IT IS MEASURING THE PARTITION. The defect is in the frozen case's RESIDUAL CONTROLS -- not the solver, not the mesh, not the physics -- and it bears on every parallel case this lab runs. NO PASSING ROW WOULD EVER HAVE SURFACED IT.",
+    "reproducibility_measurement": {
+      "independent_of_any_gate": true,
+      "separation_spread_xc": 3e-07,
+      "reattachment_spread_xc": 2.17e-05,
+      "as_pct_of_value": 0.00173,
+      "as_fraction_of_P2_half_width": 0.000395,
+      "note": "two independent runs with DIFFERENT partitions; the most useful number the campaign produced"
+    },
+    "physics_unaffected": "had the row been gradeable it would have been GATE FAIL: +13.9485 % against the gated PIV limb 1.10 and +12.9239 % against the reported oil-film 1.11, both GATE FAIL, reproduced across two partitions. THE ROW IS NOT A CREDENTIAL; THE NUMBER IS NOT IN DOUBT.",
+    "route_to_a_credential": "a NEW pre-registration with omega's control set on the same basis as the other four channels and a DETERMINISTIC decomposition, disclosing everything now known and deriving its criterion FROM PRINCIPLE rather than to fit. NOT AUTHORISED, NOT COSTED, NOT WRITTEN.",
+    "nothing_further_launches": true
+  }
 }
