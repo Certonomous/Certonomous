@@ -841,6 +841,13 @@ fixed. It has **never been run**. If the lab wants its first `HOLDS`, F12 is the
 shortest path to it that does not require writing a new pre-registration — and its
 gate could genuinely fail, which is the point.
 
+**ADOPTED 2026-08-25.** The chief has adopted F12 as the lab's shortest path to a
+first `HOLDS` and routed it to cfd. **The chief also withdrew the earlier briefing
+position that the Ansys campaign was a route to `P`**, on this section's evidence.
+That correction is recorded here rather than in a private exchange because the
+withdrawn claim had already been briefed, and a claim that circulated should be seen
+to be withdrawn.
+
 ---
 
 ## 5. The Richardson-sign cross-team audit — one instrument, one convention
@@ -944,9 +951,39 @@ taxonomy. `scripts/roache_triple.py` and eleven others refuse a divergent triple
 before any GCI is formed.
 
 **`sdk/workflows/tmr_verification.py` is the flat-plate ladder's own instrument**, so
-this is not hypothetical for the matrix's own strongest G row. **Nothing here says
-any published number rests on a divergent triple — that trace has NOT been run, and
-it should be.** Referred to cfd and heat-transfer as a docket item.
+this is not hypothetical for the matrix's own strongest G row.
+
+**OWNED, NOT REFERRED — routing corrected 2026-08-25 on the chief's override, and the
+override was right.** This team's first instinct was to refer the trace to cfd and
+heat-transfer. The chief overrode that, on the reasoning that **a defect spanning
+three implementations across two territories has no owner when it is split between
+two families — each will reasonably assume the other holds the load-bearing half.**
+Cross-team gate audit is this team's entire charter purpose, so the trace is this
+team's. Two lanes are running it.
+
+**The question being traced, stated so the answer cannot be softened into a
+reassurance:** *is there any number — in any record, certificate, RESULTS file, JSON
+artifact or published figure — whose uncertainty was quoted from one of these three
+implementations while the triple behind it was NOT CONVERGING?* **Not "could there
+be". Traced.**
+
+**Why it is worth the compute even though the expected answer is nothing.** Under
+rule 5's one-way door a gate may only turn a PASS or GATE FAIL **into**
+`NOT A RESULT`, never the reverse — so a row scored with a negative GCI beside it has
+a tier wrong **in the favourable direction**, which is the direction that costs the
+lab. And a negative GCI is wrong **twice**: it is quoted on a row that is not a
+result, and it points the wrong way, saying the answer is **better**-determined than
+it is.
+
+**Both lanes plant a positive control BEFORE reporting any null** (rule 3 — a zero
+from a reader not shown able to see a non-zero is not evidence), in each shape the
+real artifacts use: a JSON key, a markdown table cell, a prose sentence, a figure
+caption. **Any shape the sweep cannot see is a hole in the null and is reported as
+one.** The sdk lane additionally re-derives the flat plate's own six triples through
+the guarded `scripts/roache_triple.py` — because the row that refuted a lab-wide
+standing fact tonight should not rest on an instrument that cannot refuse.
+
+**A traced null, with its method named, is a real result and closes the item.**
 
 ---
 
@@ -971,6 +1008,130 @@ from the worktree **reverts everything a peer landed since the copy went stale**
 Read them with `git show HEAD:<path>`, and rebuild from HEAD content before writing.**
 Every commit this team made to `docs/LAB_STATE.md` today was built that way, which is
 why they are insertion-only.
+
+---
+
+## 6a. INSTRUMENT VALIDITY — how every row in this file was checked, and the audit of that audit
+
+**`git status`, `git diff HEAD`, and anything else consulting the SHARED git index
+are NOT VALID INSTRUMENTS in this repository.** This is not an incident to be cleared;
+it is structural. Rule 10's private-index protocol **by design never writes the shared
+index**, so **every file any team commits widens the gap by one entry**. The chief
+cleared it tonight — **443 staged deletions and 63 staged modifications, every sampled
+staged blob a HISTORICAL version of its file** — and a re-reading a short while later
+found it **decayed again inside the same session (11,067 against 11,089)**. Clearing
+it is a treadmill, not a fix.
+
+**Four measured misreadings are on record**: a file reported entirely deleted while
+present and correct; a docket misdiagnosed as "47 lines behind HEAD" when the worktree
+copy was in fact **ahead** in a preserved-tail pattern; phantom `D` / `MM` rows with no
+writer; and clean-looking status over genuinely dirty files under concurrency.
+
+**Why this section sits inside the coverage matrix and not only in a lesson.** This
+file's entire value is that its rows were *checked*. Spot-checking a row means asking
+whether an artifact exists and whether a pre-registration is frozen — and **a
+status-based reading can report a present file absent, or an unchanged file
+modified**. **A row scored from a status reading is a row scored from a broken
+instrument**, and it would be indistinguishable, on the page, from a row scored
+properly.
+
+**The instruments that work, and that this file's rows were re-checked with:**
+
+| question | valid instrument |
+| --- | --- |
+| does this file exist in the repository? | `git cat-file -e HEAD:<path>` |
+| what does it actually contain? | `git show HEAD:<path>` |
+| what is in this directory? | `git ls-tree -r HEAD <dir>` |
+| has the worktree copy diverged? | a direct `diff` of the HEAD blob against the worktree file |
+| **never** | `git status`, `git diff HEAD`, `git diff --cached` |
+
+### 6a.1 The audit of this audit — two claims re-checked HEAD-direct, and both survive
+
+Two load-bearing claims in this file were originally read from `git status`. Both were
+**re-derived with HEAD-direct instruments** before this section was written, because a
+finding about broken instruments that does not re-check its own author's work is a
+lecture rather than an audit.
+
+1. **"Both contribution files were untracked."** Re-checked: **NOT a phantom.**
+   `git cat-file -e 2bf4915a:<path>` confirms **both were genuinely absent at HEAD**
+   at this session's start, and each was introduced later by a named commit — dafoam's
+   at **`7d09e4c9`**, heat-transfer's at **`71ecb659`**. §2.1's dated correction is
+   therefore accurate as written: the description was true when written and stopped
+   being true shortly after. **The recovery finding stands.**
+2. **G-16's AGARD artifact "tracked in git".** Re-checked HEAD-direct, not by status:
+   `git ls-tree -r HEAD` lists
+   `cases/dafoam/ladder-a/logs_A3/case_2308.dat`; `git cat-file -e` confirms it;
+   **the HEAD blob and the worktree file are both 22,695 B**; and the title line was
+   read **out of the HEAD blob itself** — `TITLE = "M6 WING - SURFACE PRESSURE
+   DISTRIBUTIONS"`. The artifact is real, tracked, and title-verified from the
+   repository's own object store rather than from a working file.
+
+**No row in this matrix rests on a status reading.** Every other existence and
+freeze check in §3 was made by hashing a file against its committed blob
+(`git cat-file`), by reading a HEAD blob, or by reading the artifact on disk directly.
+
+### 6a.2 The append trap, which is the same mechanism and will bite every team
+
+The same decay makes **the worktree copy of any append-only shared record presumed
+STALE**, and **editing one in place silently reverts peers' rows**. Measured:
+`docs/COST_CALIBRATION.md`'s worktree copy was **four rows stale, carrying C-43
+against HEAD's C-47** — an in-place edit would have reverted **C-44 through C-47**.
+**Every team appends there under rule 12 at every process completion**, so this is
+the whole lab's trap, not one team's.
+
+**Build every append from `git show HEAD:<path>`.** Every commit this team made to
+`docs/LAB_STATE.md` today was built that way, which is why each is insertion-only and
+reverted nothing. §6's four-file staleness table is the same finding measured from
+the other side.
+
+**Not amended into `CLAUDE.md` by anyone.** Rule 9 reserves that to Sanaa, and no
+agent's judgement — chief's included — is her consent. A draft proposal goes to her
+desk through the chief.
+
+---
+
+## 6b. ATTRIBUTION INTEGRITY — a new standing audit class, opened 2026-08-25
+
+**Opened by this team as a cross-team audit pass.** The trigger: heat-transfer found a
+block in its own records marked as **Sanaa's verbatim words** that a non-ignoring
+`find | xargs grep` located **nowhere on disk**. Their supervisor did not hear it said,
+would not vouch for it, and **withdrew the attribution while keeping the text**,
+re-marked as a brief's paraphrase. Nothing depended on it. **That is exactly the right
+handling** — and it establishes that the class exists.
+
+**Why this is a verification matter and ranks above a wrong number.** A wrong number
+meets a gate: some comparator, band or triple can catch it. **A wrong quotation from
+the lab's principal meets nothing.** It becomes standing law and propagates into
+charters, briefs and agent definitions, where every later agent reads it as authority
+and has no instrument that could contradict it. **Nothing downstream can catch it.**
+
+**Grading classes:** **A SOURCED** (traceable to a durable artifact recording her
+saying it) · **B CORROBORATED-BY-REPETITION ONLY** (appears in several places, every
+one a lab document citing another lab document, no originating record — the dangerous
+middle) · **C UNSOURCED** (attributed verbatim, found nowhere else — high severity) ·
+**D HONESTLY LABELLED NON-VERBATIM** (already marked a paraphrase or reconstruction;
+not a defect, counted to establish the honest baseline).
+
+**DRIFT is audited alongside fabrication and is likelier.** Where one quotation appears
+in several places the wordings are diffed against each other. A quote that has gained
+or lost words as it propagated is a defect **even when an originating record exists**.
+One known-good quotation contains a typo — *"I apporve all actually"* — so **a variant
+that silently CORRECTS that typo is itself evidence of drift**, because it proves the
+text was retyped rather than copied.
+
+**Priority is set by blast radius, not by count:** `.claude/agents/*.md` and
+`harness/teams.yaml` first, because they are regenerated into **every agent's standing
+instructions every session**; then `docs/charters/*_CHARTER.md`, which are law; then
+`CLAUDE.md`; then `docs/LAB_STATE.md`.
+
+**Sweep IN PROGRESS. No result is claimed here and none may be quoted from this
+section yet.** **This file's own §0 is a worked example of the honest form** — it
+records the three-column rubric as *the chief's reconstruction of Sanaa's directive,
+explicitly NOT her verbatim words*, which is class **D** by construction.
+
+**Nothing found by this audit will be "fixed" by this team.** A withdrawal or a
+re-marking belongs to the **owning team, or to Sanaa** — never to the auditor, and
+never to the chief by proxy. This team reports the class and the evidence.
 
 ---
 
