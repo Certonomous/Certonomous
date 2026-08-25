@@ -1,0 +1,48 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// relTol is DELIBERATELY TIGHT (1e-3, not the usual 1e-2).  The comparator's
+// iterative-convergence clause (rule 5 step 1) demands a FINAL INITIAL residual
+// <= 1e-6 on Ux, Uy and p; a loose linear solve stalls the outer residual near
+// 1e-6 and would make a converged case read as NOT A RESULT for a linear-solver
+// reason rather than a physical one.
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        tolerance       1e-10;
+        relTol          1e-3;
+        smoother        GaussSeidel;
+    }
+    U
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-11;
+        relTol          1e-3;
+        nSweeps         2;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+    consistent      yes;          // SIMPLEC
+    // residualControl DELIBERATELY ABSENT -- see controlDict.template.
+}
+
+relaxationFactors
+{
+    equations { U 0.9; }
+    fields    { p 1;   }
+}
+// ************************************************************************* //

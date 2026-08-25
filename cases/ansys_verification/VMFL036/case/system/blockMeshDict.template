@@ -1,0 +1,87 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL036 -- Laminar Flow Past Sphere.  Axisymmetric wedge, GENERATED FILE.     |
+| Emitted by make_blockmeshdict_template.py; __NT__, __NR__ and __RGRAD__ are   |
+| substituted by run_vmfl036.sh.  DO NOT HAND-EDIT.                             |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   1;
+
+vertices
+(
+    (0.5 0 0)                              // 0  A0
+    (0 0.499524110791 -0.0218096936827)    // 1  A1-
+    (0 0.499524110791 0.0218096936827)     // 2  A1+
+    (-0.5 0 0)                             // 3  A2
+    (50 0 0)                               // 4  B0
+    (0 49.9524110791 -2.18096936827)       // 5  B1-
+    (0 49.9524110791 2.18096936827)        // 6  B1+
+    (-50 0 0)                              // 7  B2
+);
+
+blocks
+(
+    hex (1 0 4 5 2 0 4 6) (__NT__ __NR__ 1) simpleGrading (1 __RGRAD__ 1)  // theta  90 -> 0
+    hex (3 1 5 7 3 2 6 7) (__NT__ __NR__ 1) simpleGrading (1 __RGRAD__ 1)  // theta 180 -> 90
+);
+
+edges
+(
+    arc 1 0 (0.353553390593 0.353216886106 -0.0154217822986)
+    arc 2 0 (0.353553390593 0.353216886106 0.0154217822986)
+    arc 5 4 (35.3553390593 35.3216886106 -1.54217822986)
+    arc 6 4 (35.3553390593 35.3216886106 1.54217822986)
+    arc 3 1 (-0.353553390593 0.353216886106 -0.0154217822986)
+    arc 3 2 (-0.353553390593 0.353216886106 0.0154217822986)
+    arc 7 5 (-35.3553390593 35.3216886106 -1.54217822986)
+    arc 7 6 (-35.3553390593 35.3216886106 1.54217822986)
+);
+
+boundary
+(
+    sphere
+    {
+        // y-min of each block, ordering (0 1 5 4): normal points INTO the sphere,
+        // i.e. OUT of the fluid domain.  Hand-checked.
+        type wall;
+        faces ( (1 0 0 2) (3 1 2 3) );
+    }
+    farField
+    {
+        // y-max of each block, ordering (3 7 6 2): normal points AWAY from the
+        // origin.  Hand-checked.
+        type patch;
+        faces ( (5 6 4 4) (7 7 6 5) );
+    }
+    axis
+    {
+        // The collapsed wedge axis: every vertex has y = z = 0, so these faces
+        // have EXACTLY zero area.  Declared empty, per the OpenFOAM axisymmetric
+        // convention and the SandiaD_LTS tutorial's `(0 7 7 0)` pattern.
+        // block 1 x-max (1 2 6 5) -> theta = 0 ; block 2 x-min (0 4 7 3) -> theta = 180.
+        type empty;
+        faces ( (0 4 4 0) (3 3 7 7) );
+    }
+    front
+    {
+        // z-max (4 5 6 7): the +alpha wedge plane.
+        type wedge;
+        faces ( (2 0 4 6) (3 2 6 7) );
+    }
+    back
+    {
+        // z-min (0 3 2 1): the -alpha wedge plane.
+        type wedge;
+        faces ( (1 5 4 0) (3 7 5 1) );
+    }
+);
+
+mergePatchPairs ();
+// ************************************************************************* //

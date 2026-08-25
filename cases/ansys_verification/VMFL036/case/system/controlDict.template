@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+
+// FIXED ITERATION COUNT, IDENTICAL AT EVERY LEVEL.  residualControl is DELIBERATELY
+// ABSENT: an early SIMPLE exit would make "last time == endTime" and
+// "ExecutionTime count == endTime" (CLAUDE.md rule 4, strict completion) FALSE, and
+// this case declares NO departure from rule 4.  Iterative convergence is instead
+// judged by the comparator from the achieved final residuals and the Cd plateau
+// (rule 5 step 1): not converged => NOT A RESULT.
+endTime         __ENDTIME__;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   __ENDTIME__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   8;
+runTimeModifiable false;
+
+functions
+{
+    forces
+    {
+        type            forces;
+        libs            (forces);
+        writeControl    timeStep;
+        writeInterval   1;
+        writeFields     false;
+        log             false;
+        patches         (sphere);
+        rho             rhoInf;
+        rhoInf          1;          // manual p.125: density 1 kg/m3
+        CofR            (0 0 0);
+    }
+}
+// ************************************************************************* //

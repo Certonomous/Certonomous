@@ -1,0 +1,18 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// rho = 1 kg/m3 (manual p.125) => nu = mu/rho is NUMERICALLY EQUAL to mu.
+// __NU__ is substituted by run_vmfl036.sh from the ARM:
+//   ARM A  nu = 0.01   -> Re = rho*U*D/mu = 1*1*1/0.01 = 100  (the manual's REFERENCE)
+//   ARM B  nu = 0.02   -> Re = 50          (the manual's STATED viscosity, diagnostic)
+transportModel  Newtonian;
+nu              __NU__;
+// ************************************************************************* //
