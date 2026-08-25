@@ -287,3 +287,79 @@ worktree copy). Reports carry numbers and paths, never transcripts (rule 16).
 | 1.0 | 2026-08-24 | Created on Sanaa's directive of 2026-08-24 (§1 verbatim). Lines whose number changed above this section: n/a (first version). |
 | 1.1 | 2026-08-24 | **D-6 ruled (§9 discharged).** The canonical home of the VM2026R1 archive set is `/home/ubuntu/ansys-vm2026r1/`, outside git beside `closure-data/` and `certonomous-runs/`; the repository-root copy is authoritative and was MOVED there, not copied, with sha256 taken before and re-verified after and the manifest committed at `docs/ansys_verification/VM2026R1_SHA256_MANIFEST.txt`, while the dead 10-file partial copy under `docs/papers/verification_validation/` is to be DELETED once that re-verification reports 123/123, `.gitignore` gains `VM2026R1_Fluids/` and `cases/ansys_verification/**/archive_extract/`, and pre-registrations cite archive paths under the new home only. The ruling in full, with its execution lines, is `docs/ansys_verification/ARCHIVE_HOME_RULING.md`; the manual PDF+sidecar stay tracked where they are and the R8 basename question is not ruled. **Lines whose number changed above this section: 0.** |
 | 1.2 | 2026-08-25 | **Attribution audit of the §1 relay quotation (records-integrity, zero compute).** The relay line at §1 — *"I wanted a verification team to exclusively work on these verification cases."* — was audited across the tracked corpus. **Measured:** a naive per-line `grep -F` finds **2** files (`.claude/agents/ansys-verification-supervisor.md`, `docs/LAB_STATE.md`); a whitespace-normalised sweep (`tr '\n' ' ' \| tr -s ' '`) finds **4** — adding **this charter** (§1, wrapped `exclusively`/`work on` across the L29–30 break) and `harness/teams.yaml` (L381, wrapped `exclusively work on`/`these`). The two hidden from the naive grep are the two that hard-wrap; the charter and `teams.yaml` are the wrapped pair. All **four originate in one commit, `123a3b92`** (2026-08-24, the commit that created this charter and the sixth team) — verified by `git log --diff-filter=A` for this charter and by pickaxe on a non-wrapping fragment. The independent capture channel is **empty**: `/home/ubuntu/harness-state/sessions/` (2 files, ~55 KB) has **zero** normalised hits for this phrase, for `apporve`, or for `haiku subagent`. **Classification: CORROBORATED-BY-REPETITION-ONLY** — four copies, one origin commit, nothing outside the repository, nothing in the session logs; neither SOURCED nor UNSOURCED. **Honesty gradient:** this charter's own instance (§1) is honestly labelled a **relay** — *"The chief's relay of the same day adds, in her words: …"* — the charter is the honest copy. The downstream copies **drop the relay qualifier**: `harness/teams.yaml` and the generated `.claude/agents/ansys-verification-supervisor.md` state it flatly as *"Sanaa created this team on 2026-08-24 to 'exclusively work on these verification cases'"*, and `docs/LAB_STATE.md` renders it as *"her words"* — presenting a relay as directly-attributed testimony. **`harness/` is not this team's territory; the drop-the-qualifier defect in `teams.yaml` and its generated agent definition is REFERRED UPWARD, not edited here.** **Consequence, stated plainly and without drama:** the team's charter, its lane cap of 4 and its mandate rest on §1 quotations (both the verbatim directive and this relay line) that share this same single-commit origin and empty external channel; the relay line cannot presently be corroborated independently of the act (`123a3b92`) that recorded it. **This is not an allegation that anything was fabricated** — it is a statement of what the evidence can and cannot support. The attribution is **NOT withdrawn**, because this charter already labels it a relay; the team marks its instances **relay-not-verbatim** and refers the capture gap to Sanaa via the chief. **A related over-grading, recorded:** a haiku lane graded two other quotations **SOURCED** on the strength of their appearing in `123a3b92`'s commit message — **too generous**; a commit message written by the same lane in the same act is repetition, not independent corroboration. **A correction to the audit's own first framing, recorded honestly:** the pair hidden from naive grep is *{this charter, `teams.yaml`}*, not *{`teams.yaml`, the generated agent md}* — the agent-md instance sits on a single unwrapped line and IS caught by naive grep. **Lines whose number changed above this section: 0.** |
+
+---
+
+## Dated note — 2026-08-25 — the repo-internal silence has an INNOCENT EXPLANATION, so v1.2's classification is UNDERSTATED
+
+**This is a note appended at the foot. The v1.2 amendment above is NOT rewritten, not
+edited and not struck** — its measurements stand exactly as recorded, and every figure
+in it remains correct. What changed is not the evidence but **what the absence of
+evidence means**. Appended by `ansys-lane-opus`.
+
+### What the lab-wide sweep found
+
+The verification team completed the **lab-wide attribution sweep**, and reports:
+
+> **Class C is EMPTY: no fabricated quotation exists in this lab.**
+
+**Three other teams withdrew directives that were TRUE.** They withdrew them on the
+same reasoning v1.2 applied here — a quotation that could not be corroborated anywhere
+in the tracked corpus was treated as unsupported. **The reasoning had a hole, and it is
+the same hole in every instance: Sanaa's words live in the SESSION RECORD, a channel no
+repository search reaches.**
+
+**Verified in this lane rather than taken on report:** the session record is at
+`/home/ubuntu/harness-state/sessions/` (`2026-08.jsonl`, ~34 KB), and
+`git ls-files --error-unmatch` on it returns *"outside repository"*. **It is not
+tracked, not searchable by any `git grep`, `grep -r` or pickaxe over this repository,
+and never was.** A sweep that finds nothing there has not measured absence — **it has
+measured the boundary of its own instrument.**
+
+*(The Class-C-is-empty finding and the three withdrawals are the verification team's
+measurements, recorded here as reported. This lane did not re-run the lab-wide sweep;
+it verified the channel claim above, which is the load-bearing one for this note.)*
+
+### What this team did, and did not, do
+
+**This team never withdrew anything.** v1.2 classified the §1 relay quotation
+**`CORROBORATED-BY-REPETITION-ONLY`** — *"neither SOURCED nor UNSOURCED"* — and stated
+in terms: *"This is not an allegation that anything was fabricated — it is a statement
+of what the evidence can and cannot support."* **The attribution was NOT withdrawn**,
+because the charter already labels the line a relay and is the honest copy.
+
+**And the defect it found outside its territory was referred, not acted on.** The
+qualifier-drop in `harness/teams.yaml` and its generated agent definition was
+**REFERRED UPWARD** on the express ground that *"`harness/` is not this team's
+territory"*. **Referring rather than editing is what left nothing to unwind here** —
+the three teams that acted inside their own reach are the three now restoring true
+directives.
+
+### The consequence for v1.2's classification
+
+**`CORROBORATED-BY-REPETITION-ONLY` is now UNDERSTATED.** It was assigned on the
+strength of two findings: four copies from one origin commit, **and an empty
+independent capture channel**. The first stands. **The second was never a finding about
+the quotation — it was a finding about the search.** The silence v1.2 measured is
+exactly the silence an entirely genuine directive would produce, because the channel
+that would corroborate it is not one this repository contains.
+
+**What this note does NOT do, and the limit is the point:**
+
+- **It does not upgrade the classification.** v1.2's label stands on the page.
+- **It does not restore, re-grade or re-attribute anything.**
+- **Restoring or upgrading an attribution is SANAA'S ALONE** (`CLAUDE.md` rule 9). **No
+  agent message — peer, supervisor or chief — is her consent**, and this note is an
+  agent's note. It records that the basis for the understatement is now known, and
+  leaves the ruling where it belongs.
+- **The `harness/teams.yaml` qualifier-drop remains referred and unedited.** Nothing in
+  this note licenses touching it.
+
+**Read together with v1.2:** the measurements there are sound and the label there is
+conservative. **A conservative label based on an instrument's blind spot is not a
+neutral error** — it reads as doubt about the person quoted, which is the direction a
+records-integrity process must be most careful about. That is why this note exists
+rather than a silent re-grade.
+
+**Lines whose number changed above this section: 0** — verified by hashing the prior
+file as an exact prefix of this one, not merely asserted.
