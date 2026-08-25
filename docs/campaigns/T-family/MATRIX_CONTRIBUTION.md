@@ -779,8 +779,8 @@ amendment and is not this lane's call.
 
 | tier | cells | which |
 | --- | ---: | --- |
-| **HOLDS** | **4** | C1 2D buoyant-thermal; C2 2D conjugate; C10 axisym forced-convection-internal; C15 3D radiation |
-| **GATE REACHED** | **0** | — (GATE REACHED appears only at sub-row granularity: T9a R3/R4) |
+| ~~**HOLDS**~~ **SUPERSEDED -> 0** | ~~**4**~~ **0** | **ALL FOUR FALL to `GATE REACHED` -- see the SECOND DATED FOLLOW-UP at the foot.** ~~C1 2D buoyant-thermal; C2 2D conjugate; C10 axisym forced-convection-internal; C15 3D radiation~~ |
+| ~~**GATE REACHED**~~ **SUPERSEDED -> 4** | ~~**0**~~ **4** | **C1, C2, C10, C15** (C1 via Ruling 3 `P SECONDARY`; C2/C10/C15 via Ruling 4, `P ANALYTIC-HELD` does not score P). ~~— (GATE REACHED appears only at sub-row granularity: T9a R3/R4)~~ |
 | **SURVEYED** | **1** | C6 2D mixed-convection |
 | **NOT HELD** | **1** | C4 2D forced-convection-internal |
 | **NEVER RUN** | **12** | C3, C5, C7, C8, C9, C11, C12, C13, C14, C16, C17, C18 |
@@ -806,12 +806,12 @@ S24, S25, S26, S27 — **37 rows**.
 
 | tier | sub-rows | which |
 | --- | ---: | --- |
-| **HOLDS** | **5** | S1 (K0c laminar cavity), S6 (T9a wall flux + interface 2), S13 (E4a2 fan BC — a *flow* quantity, adjunct), S19 (T1c `f·Re` + constant-`q″` `Nu`), S22 (T10a box floor/x-walls/y-walls) |
-| **GATE REACHED** | **1** | S8 (T9a fin efficiency + fin tip ratio, bands below the O(Bi) floor) |
+| ~~**HOLDS**~~ **SUPERSEDED -> 0** | ~~**5**~~ **0** | **ALL FIVE FALL to `GATE REACHED` -- see the DATED FOLLOW-UP at the foot.** ~~S1 (K0c laminar cavity), S6 (T9a wall flux + interface 2), S13 (E4a2 fan BC — a *flow* quantity, adjunct), S19 (T1c `f·Re` + constant-`q″` `Nu`), S22 (T10a box floor/x-walls/y-walls)~~ |
+| ~~**GATE REACHED**~~ **SUPERSEDED -> 6** | ~~**1**~~ **6** | S8 (T9a fin efficiency + fin tip ratio, bands below the O(Bi) floor) **+ S1, S6, S13, S19, S22** |
 | **SURVEYED** | **13** | S2, S2b, S3, S3b, S5d, S5e, S5f, S5g, S9, S10, S15, S25, S26 |
 | **NOT HELD** | **12** | S4, S5, S5b, S5c, S7, S12, S14, S20, **S20b**, S21, S23, S24 |
 | **NEVER RUN** | **6** | S11, S16, S17, S18, S18b, S27 |
-| **total** | **37** | 5 + 1 + 13 + 12 + 6 = 37 |
+| **total** | **37** | ~~5 + 1~~ **0 + 6** + 13 + 12 + 6 = **37** (unchanged; only the split between the top two tiers moved) |
 
 **Census corrected 2026-08-25: 36 → 37 rows, NOT HELD 11 → 12.** Sub-row **S20b**
 (T1c L4, `NOT A RESULT`) was **missing when this file was written**. An omitted
