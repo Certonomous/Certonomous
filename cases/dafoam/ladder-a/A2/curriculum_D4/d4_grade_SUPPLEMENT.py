@@ -440,14 +440,42 @@ def count_controls(fd_path, workdir):
     """G7.  THE control this grader exists for.  Hand the FD gate (a) an EMPTY
     row list and (b) a SHORT row list, and require a NAMED refusal from each,
     with the count printed.  L-302: an instrument that cannot say "I measured
-    nothing" will report a number it did not measure."""
+    nothing" will report a number it did not measure.
+
+    D4-DEF-3 REPAIR, 2026-08-25, found by the `G5-rows-key-ABSENT` unit added
+    the same day.  THE CONTROL HARNESS ITSELF CRASHED ON A MALFORMED SOURCE.
+    The `short` and `reordered` mutators INDEX the source document, so an
+    artifact carrying no `rows` key at all made `d["rows"][:2]` raise an
+    UNCAUGHT `KeyError`: the grader exited **rc=1 with a traceback**, wrote
+    **NO verdict file**, and named NOTHING -- on the very gate whose whole
+    purpose is to prove that a malformed component set is refused BY NAME.
+    Prereg §7b is explicit that `rc = 1` and `rc = 2` are different failures
+    and that a symptom must distinguish its causes; an unhandled exception is
+    neither of them, and it leaves no record at all to read.  A malformed
+    artifact is a REFUSABLE condition, and it is refused HERE, BY NAME, before
+    any mutation is attempted.  The mutators are additionally made total with
+    `.get`, so no future source shape can turn this control into a traceback.
+
+    NOTE, and it matters: the FROZEN grader `d4_grade.py` (md5
+    f162ef69a7385e5d0586ef5f27657cbb) carries this defect UNREPAIRED and is
+    NOT edited (`CLAUDE.md` rule 6, prereg §9a)."""
     if not os.path.isdir(workdir):
         os.makedirs(workdir)
+    src_doc = read_json(fd_path, "G7-src-validate")
+    if not isinstance(src_doc.get("rows"), list):
+        refuse("G7", {"SOURCE_MALFORMED": "the artifact under control carries "
+                                          "no usable `rows` list, so the count "
+                                          "mutations are undefined and the "
+                                          "control cannot be run",
+                      "rows_type": type(src_doc.get("rows")).__name__,
+                      "n_registered": N_COMPONENTS_REGISTERED,
+                      "defect": "D4-DEF-3"})
     results = {}
     for label, mutate in (
         ("empty", lambda d: d.update({"rows": []})),
-        ("short", lambda d: d.update({"rows": d["rows"][:2]})),
-        ("reordered", lambda d: d.update({"rows": list(reversed(d["rows"]))})),
+        ("short", lambda d: d.update({"rows": (d.get("rows") or [])[:2]})),
+        ("reordered",
+         lambda d: d.update({"rows": list(reversed(d.get("rows") or []))})),
         ("key_absent", lambda d: d.pop("rows", None)),
     ):
         doc = read_json(fd_path, "G7-src")
@@ -723,9 +751,39 @@ def _st_hist(o, cds):
 
 
 def _st_fd(o):
-    """A synthetic endpoint FD table that GRADES CLEAN: per-component relative
-    error 1.0 % (band D is 5.0 %), plateau 1.0 % (tolerance 10 %), no sign
-    flips.  The five components are the registered set in registered order."""
+    """A synthetic endpoint FD table.  With no options it GRADES CLEAN:
+    per-component relative error 1.0 % (band D is 5.0 %), plateau 1.0 %
+    (tolerance 10 %), no sign flips, and the five components are the registered
+    set in registered order.
+
+    G5 MUTATIONS -- added 2026-08-25 by the D4 custody/grade lane, on the
+    supervisor's finding.  UNTIL THIS DATE THIS FIXTURE WAS NEVER MUTATED.
+    G5 is this family's BRIGHT LINE (`DAFOAM_CHARTER.md` §2) and it was the one
+    emitted gate with no end-to-end unit behind it -- while G1, G2, G3, G4, G8,
+    G9, G10, G11 and G12 each had several.  That is the D3 catastrophe's exact
+    shape one rung along: in `A4/curriculum_D3/d3_grade.py` gate G3+G4 returned
+    `PASS` at 0.0000 % with zero sign flips over an EMPTY COMPONENT SET,
+    because the refusal tested key PRESENCE and never NON-EMPTINESS, and the
+    discrimination control fired correctly and certified a result it had not
+    measured.  A partial plant reads on the page exactly like a complete one.
+
+    Each option below violates EXACTLY ONE clause of band D, band E or the
+    count refusal, so a unit that fires names its own cause:
+
+      fd_empty        `rows` present but []           -> count refusal
+      fd_short        3 rows where 5 were registered  -> count refusal
+      fd_reordered    the registered set, reversed    -> count refusal
+      fd_key_absent   `rows` key removed entirely     -> count refusal
+      fd_beyond_band  ONE component at 6.0 % while the AGGREGATE stays inside
+                      5 % -- so the unit can only fail on the PER-COMPONENT
+                      half of band D, and proves that half is live
+      fd_sign_flip    J_adj and the FD difference of OPPOSITE sign
+      fd_plateau_bad  s_lo and s_hi disagreeing by 30 % (band E is 10 %)
+      fd_near_zero_all  every row NEAR_ZERO -> nothing to plant into, so the
+                      planted-zero control CANNOT RUN and must say so rather
+                      than pass (rule 3: a zero from a reader not shown able to
+                      see a non-zero is not evidence)
+    """
     rows = []
     for dv, idx in _ST_COMPS:
         d_hi = 1.0e-4
@@ -738,12 +796,50 @@ def _st_fd(o):
                                      "ok": True},
                             "s_hi": {"step": 3.0e-3, "d": repr(d_hi),
                                      "ok": True}}})
-    return {"eta_used": repr(1.0e-9), "eta_raw": repr(1.0e-9),
-            "eta_floored": False, "rows": rows, "n_rows": len(rows),
-            "components_requested": [[d, i] for (d, i) in _ST_COMPS],
-            "n_components_requested": len(_ST_COMPS),
-            "clearance_floor": 5.0, "ratio_min": 2.0,
-            "plateau_tol_pct": 10.0, "adjoint": {}}
+
+    # ---- band D, PER COMPONENT.  6.0 % on one component; the aggregate over
+    # the five stays at ~2.8 %, inside band D, so ONLY the per-component test
+    # can fail this unit.  If the grader graded on the aggregate alone this
+    # unit would report PASS and the unit would be the finding.
+    if o.get("fd_beyond_band"):
+        rows[0]["J_adj"] = repr(1.0e-4 * 1.06)
+    # ---- band D, SIGN FLIP.  Zero sign flips is a band-D clause in its own
+    # right (§4) and is graded regardless of the aggregate.
+    if o.get("fd_sign_flip"):
+        rows[0]["J_adj"] = repr(-1.0e-4 * 1.01)
+    # ---- band E, PLATEAU.  s_lo and s_hi disagree by 30 %; tolerance is 10 %.
+    if o.get("fd_plateau_bad"):
+        rows[0]["fd"]["s_lo"]["d"] = repr(1.0e-4 * 1.30)
+    # ---- nothing gradeable at all: every component near-zero under §6a.
+    if o.get("fd_near_zero_all"):
+        for r in rows:
+            r["status"] = "NEAR_ZERO"
+            r["max_clearance"] = 0.4
+            r.pop("fd", None)
+            r.pop("s_lo", None)
+            r.pop("s_hi", None)
+
+    doc = {"eta_used": repr(1.0e-9), "eta_raw": repr(1.0e-9),
+           "eta_floored": False, "rows": rows, "n_rows": len(rows),
+           "components_requested": [[d, i] for (d, i) in _ST_COMPS],
+           "n_components_requested": len(_ST_COMPS),
+           "clearance_floor": 5.0, "ratio_min": 2.0,
+           "plateau_tol_pct": 10.0, "adjoint": {}}
+
+    # ---- THE COUNT MUTATIONS.  `n_rows` is left AGREEING with the mutated
+    # list where the key survives, so the grader cannot refuse on an internal
+    # inconsistency instead of on the count it is supposed to check.
+    if o.get("fd_empty"):
+        doc["rows"] = []
+        doc["n_rows"] = 0
+    if o.get("fd_short"):
+        doc["rows"] = doc["rows"][:3]
+        doc["n_rows"] = len(doc["rows"])
+    if o.get("fd_reordered"):
+        doc["rows"] = list(reversed(doc["rows"]))
+    if o.get("fd_key_absent"):
+        doc.pop("rows", None)
+    return doc
 
 
 def _st_ledger(o):
@@ -887,6 +983,28 @@ def selftest():
                                  "got": got}
         return chk
 
+    def gates_are(want):
+        """Several gates at once, each named with what it must read."""
+        def chk(rc, doc):
+            got = dict((k, _st_v(doc, k)) for k in want)
+            return got == want, {"rc": rc, "want": want, "got": got}
+        return chk
+
+    def g5_is(want, **fields):
+        """G5 with its REPORTED CAUSE.  A gate that reads GATE FAIL for the
+        wrong reason is not a working gate, so the unit asserts the counted
+        cause (`n_sign_flips`, `n_without_plateau`, `n_graded`) as well as the
+        verdict -- and asserts `!= PASS` explicitly, because the whole point of
+        these units is that the bright line can never silently pass."""
+        def chk(rc, doc):
+            got = _st_v(doc, "G5_endpoint_fd")
+            rep_ = (doc.get("report") or {}).get("G5_fd_table") or {}
+            gotf = dict((k, rep_.get(k)) for k in fields)
+            ok = (got == want and got != "PASS" and gotf == fields)
+            return ok, {"rc": rc, "want": want, "got": got,
+                        "want_fields": fields, "got_fields": gotf}
+        return chk
+
     def capstop_never_pass(want_g3, want_g4):
         def chk(rc, doc):
             g3, g4 = _st_v(doc, "G3_termination"), _st_v(doc,
@@ -958,6 +1076,34 @@ def selftest():
         ("G12-delivered-cores-below-floor",
          dict(converged=True, delivered_low="O"),
          gate_is("G12_cpu_placement", "GATE FAIL")),
+
+        # ---- G5 / G6: THE BRIGHT LINE.  Added 2026-08-25.  Before this date
+        # the FD fixture was built clean and NEVER MUTATED, so band D, band E,
+        # the sign-flip clause and the TOP-LEVEL count refusal had no
+        # end-to-end unit -- the gate carrying the whole line was the one left
+        # without one.  D3 is what that costs: PASS at 0.0000 % over an EMPTY
+        # component set.  A unit that does not fire is the finding; the fixture
+        # is not tuned until it passes.
+        ("G5-EMPTY-component-set", dict(converged=True, fd_empty=True),
+         refused),
+        ("G5-SHORT-component-set", dict(converged=True, fd_short=True),
+         refused),
+        ("G5-REORDERED-component-set",
+         dict(converged=True, fd_reordered=True), refused),
+        ("G5-rows-key-ABSENT", dict(converged=True, fd_key_absent=True),
+         refused),
+        ("G5-per-component-beyond-band-D",
+         dict(converged=True, fd_beyond_band=True),
+         g5_is("GATE FAIL", n_graded=5, n_sign_flips=0, n_without_plateau=0)),
+        ("G5-sign-flip", dict(converged=True, fd_sign_flip=True),
+         g5_is("GATE FAIL", n_graded=5, n_sign_flips=1)),
+        ("G5-plateau-violation", dict(converged=True, fd_plateau_bad=True),
+         g5_is("GATE FAIL", n_graded=5, n_without_plateau=1)),
+        ("G6-control-cannot-run-must-not-pass",
+         dict(converged=True, fd_near_zero_all=True),
+         gates_are({"G5_endpoint_fd": "NOT A RESULT",
+                    "G6_planted_zero": "GATE FAIL",
+                    "G6b_negative_control": "GATE FAIL"})),
     ]
 
     sys.stdout.write("D4_SELFTEST start units=%d  (this is NOT a grade: no "
