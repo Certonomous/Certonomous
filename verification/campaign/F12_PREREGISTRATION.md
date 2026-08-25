@@ -734,3 +734,155 @@ built and no case directory was created in producing it. Every mesh-grading and
 y+ number above is arithmetic evaluated with this repository's own
 `ratio_for_first_cell` and with named flat-plate correlations; all of it is
 ESTIMATED and none of it is measured.*
+
+---
+
+## CAP-ENFORCEMENT ADDENDUM — 2026-08-25 (POST-COMPUTE)
+
+**Document version 1.2 (MESH-SIMILARITY AMENDMENT, 2026-08-25) -> 1.3.**
+
+**lines whose number changed above this section: 0**
+
+Nothing above this line is struck, rewritten, renumbered or reworded.
+
+**THIS ADDENDUM IS POST-COMPUTE AND IT KNOWS IT.** F12 rung 1 fired at
+**2026-08-25T01:03:06.630Z** and aborted at **01:03:34.350Z**. Under standing
+rule 2 the gates are therefore **CLOSED**, and this addendum **alters no gate,
+no threshold, no cap and no label**. Gates A, B, 1, 2, 3 and 4, the CM reporting
+clause, the overall PASS rule, the three mesh levels and their cell counts, the
+two conditions, the two further medium runs, the four predictions, the
+per-level first-cell resolution of the 2026-08-25 MESH-SIMILARITY AMENDMENT §7,
+and **every core-minute estimate in the 2026-08-23 COSTED ADDENDUM §4 and every
+cap in its §5** all stand exactly as written.
+
+**What it adds is arithmetic derived from the caps that are already frozen**: how
+many seconds of wall clock a core-minute cap is worth. It defines no new row, no
+new quantity and no new gate. It is recorded here because the caps in §5 above
+are denominated in one unit and were, in the grading path, enforced in another.
+
+### 1. The defect, stated in one line
+
+**A wall-clock `timeout` is not a core-minute cap. The two coincide only at
+1 rank.** The correct conversion, which this addendum records and does not
+invent:
+
+    timeout_seconds = cap_core_min * 60 / ranks
+
+**The finding belongs to the `ansys-verification` team and is cited as theirs.**
+They measured it on their own launcher and disclosed it at
+`cases/ansys_verification/VMFL051/RESULTS.md` §7.1, under the heading *"the cap
+unit and the enforcement unit are not the same unit"*, and carried the same
+formula forward into `cases/ansys_verification/VMFL045/PREREGISTRATION.md` §9.1
+as *"the cap-as-timeout instrument trap"*. **It is cited, not adopted, and no
+lesson is assigned from it here** — it is not the cfd team's finding to number.
+
+### 2. What each frozen cap is worth in seconds, at ranks = 1
+
+Derived from §5 above by the formula in §1. **These are conversions of the frozen
+caps, not new caps.** At ranks = 1 the two units coincide exactly, so the
+conversion is `cap_core_min x 60`:
+
+| # | Rung | **CAP (core-min), frozen in §5 above** | timeout_s at ranks = 1 | timeout_s at ranks = 4 | timeout_s at ranks = 8 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | coarse | 120 | **7,200** | 1,800 | 900 |
+| 2 | medium | 160 | **9,600** | 2,400 | 1,200 |
+| 3 | fine | 700 | **42,000** | 10,500 | 5,250 |
+| 4 | medium, tape | 160 | **9,600** | 2,400 | 1,200 |
+| 5 | medium, 2x far-field | 160 | **9,600** | 2,400 | 1,200 |
+
+**A timeout of `cap_core_min x 60` seconds on an 8-rank job would permit 8x the
+registered budget before firing.** That is the failure the formula prevents.
+
+### 3. Where the defect is in the grading path
+
+Read from `sdk/workflows/rae2822_case9.py`, blob
+`a18314f77160b7a58f443073850a44b4d8fada7d` — the blob that ran, recorded in
+`verification/runs/F12_runs/coarse_workshop_M0.734_a2.79/result.json`:
+
+- **`:1145`** — `run_case`'s signature carries `ranks: int = 1, timeout: float =
+  7200.0`. The default is a **bare wall-clock number with no rank term**.
+- **`:1175-1177`** — the parallel branch passes that **unscaled** `timeout`
+  straight to `["mpirun", "-np", str(ranks), "rhoSimpleFoam", "-parallel"]`. The
+  rank count is in the command and **not** in the limit.
+- **`:1180`** — the serial branch passes the same `timeout` to a single-rank
+  `rhoSimpleFoam`, where it is correct by coincidence.
+
+**The module's 7,200 s default measured against the frozen caps of §2:**
+
+- **75.0 %** of rung 2's, rung 4's and rung 5's cap (7,200 / 9,600);
+- **17.14 %** of rung 3's cap (7,200 / 42,000).
+
+**On the default settings the fine rung is bounded at 17 % of its own registered
+budget.** The 2026-08-23 COSTED ADDENDUM §5 already flagged the 7,200 s default
+as a wall-clock trap for the fine rung, against a Basis A estimate of 13,117.6 s;
+this addendum states the general form of the same defect and its arithmetic.
+
+**The ACCOUNTING is right where the ENFORCEMENT is wrong.** At **`:1229-1232`**
+the returned record computes
+
+    "wall_seconds": sum(timings.values()),
+    "core_seconds": sum(v for k, v in timings.items()
+                        if k != "rhoSimpleFoam") + timings.get(
+                            "rhoSimpleFoam", 0.0) * ranks,
+
+which **correctly multiplies solver wall time by the rank count** and correctly
+leaves the serial pre- and post-processing steps unmultiplied. So the module
+**reports** core-seconds in the charter's unit and **enforces** a limit in a
+different one. A reader of the record would see the right number; a run
+approaching its cap would not be stopped at the right place.
+
+### 4. What actually happened on F12, stated so this addendum does not misdescribe its own case
+
+**F12 rung 1 did NOT exercise this defect, for two independent reasons, and both
+are recorded rather than the more dramatic one alone:**
+
+1. **F12 ran serial.** `run_f12_rung.py` sets `RANKS = 1`, and `result.json`
+   records `"ranks": 1`. At 1 rank the two units coincide and **no overspend was
+   possible**.
+2. **F12's own driver already implements the §1 formula.** `run_f12_rung.py`
+   computes `cap_wall_s = spec["cap_core_min"] * 60.0 / RANKS` and then
+   `solver_timeout = cap_wall_s - MESH_RESERVE_S` with `MESH_RESERVE_S = 60.0`,
+   giving **7,140 s** for rung 1 — recorded as `"solver_timeout_s": 7140.0` in
+   `result.json`. The driver **never passed the module's unscaled 7,200 s
+   default**, and it reserved 60 s of the cap for `blockMesh` and `checkMesh`
+   rather than letting meshing eat into the solver's limit.
+
+**The defect is therefore in the module's default and in its parallel branch, and
+it was never reached by this case.** It is recorded here because §5's caps are
+this document's, because the module is this document's frozen grading path, and
+because a future parallel F12 launched through `run_case` directly — rather than
+through this driver — would hit it.
+
+**No repair is made here.** This addendum is a record; changing
+`sdk/workflows/rae2822_case9.py` is not this document's business and the grading
+path that ran is frozen (standing rule 2). The disposition is the cfd
+supervisor's.
+
+### 5. What this addendum changes, and what it does not
+
+**It does not change:** any gate (A, B, 1, 2, 3, 4), any threshold (0.08, 0.04,
+0.020 chord, 5 %, 20 %, 70 degrees, skewness 4), **any cap** (120 / 160 / 700 /
+160 / 160, total 1,300 core-min), any label, any cell count, either condition,
+either of the two further medium runs, the CM reporting clause, the overall PASS
+rule, the per-level first-cell resolution, or any of the four predictions.
+
+**It adds:** the seconds-equivalent of caps that were already frozen, at three
+rank counts, and the location of the enforcement defect in the frozen grading
+path. **A conversion of a frozen number into a different unit is not a new
+number.** Nothing in §2 may be read as authorising a run: F12 has fired and
+**nothing further launches on this pre-registration** (see
+`verification/campaign/F12_RESULTS.md`, which grades the case `GATE FAIL` and
+tiers it `NOT HELD`, and rules that a next F12 needs a fresh pre-registration
+because this ladder fails admission gate A at all three levels).
+
+**Pure append, proven three ways in the committing shell invocation:**
+`git diff-tree --stat` against the parent tree **before** `commit-tree`, showing
+only this path; `--numstat` showing **insertions only and zero deletions**; and
+the pre-addendum blob `41ec748a06b513414101dca9780107f08a25ddec` verified to be
+a **byte prefix** of this file. No line above this section moved.
+
+*Written 2026-08-25 by a `lab-lane` worker for the cfd team, on a
+supervisor-directed **ZERO-COMPUTE** task. No solver was launched, no mesh was
+built and no case directory was created in producing it. Every line number and
+every value above was read from the named blob by this lane. The wall-clock
+finding is `ansys-verification`'s and is cited as theirs.*
