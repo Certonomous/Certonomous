@@ -121,3 +121,39 @@ and standard goes template-speed.
 
 *(VMFL010 sits on the line: its reference kind is code-to-code, disclosed on line 3,
 and it still fits the form — the disclosure IS the honest ceiling, not a dispute.)*
+
+---
+
+## AMENDMENT 1 — 2026-08-25 — tier-ceiling vocabulary and the VMFL059 worked example corrected (category error at the source)
+
+This template is a frozen file (header, rule 6); this correction is a dated amendment
+appended at the foot, not an edit above. **lines whose number changed above this
+section: 0.**
+
+**Why.** The form and its worked example taught a category error — a closed-form case
+given a tier ceiling of `PASS` and called "a validation credential" — which VMFL059
+inherited verbatim, and which every future case copying this form would inherit. `PASS`
+is a **verdict** word, not a **tier**; the tier vocabulary is `HOLDS / GATE REACHED /
+SURVEYED / NOT HELD`, in active use across this team (VMFL045 RESULTS, VMFL007 and
+VMFL003_M2 comparators, COVERAGE_ROWS). The two vocabularies overlap only at `GATE
+REACHED`. Fixed here at the source.
+
+**Struck and corrected.**
+
+- **Line 4 of the standard form**, struck: "4. TIER CEILING : **{PASS | GATE REACHED}**
+  …". Corrected to: **"4. TIER CEILING : {HOLDS | GATE REACHED}"** — the credential tier
+  is `HOLDS`, earned only where the reference is **measured/experimental** (buys
+  P/validation) and the gate is met. `GATE REACHED` is the ceiling for a case that can
+  buy only **V** (closed-form/exact or correlation) or **neither** (code-to-code); such a
+  case **cannot exceed** `GATE REACHED`, whatever the number.
+
+- **Line 98 of the worked example (VMFL059)**, struck: "4. CEILING : **PASS (a real
+  validation credential** if the band is met)." Corrected to: **"4. CEILING : GATE
+  REACHED (closed-form buys V, never P; band met = code verification, NOT a validation
+  credential)."** VMFL059 is closed-form → buys V → its ceiling is `GATE REACHED`,
+  matching the VMFL007 precedent and VMFL059 PREREGISTRATION.md AMENDMENT 1 of this date.
+
+**What did NOT change.** No standing clause, gate rule, band rule, cost/cap rule, control
+or completion rule moved; the ten-line form's structure and the reference-KIND →
+score-column mapping on line 3 (correct as written) are unchanged. Only the tier-ceiling
+vocabulary (line 4) and the VMFL059 worked-example ceiling (line 98) are corrected.

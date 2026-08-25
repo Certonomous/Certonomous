@@ -90,3 +90,50 @@ q'''·L1²/(2k1) = 388 + 25 = 413 K. Slab-2 thickness = 0.07 − 0.05 = 0.02 m.
 **Amendments before first compute** must name the run directory that does not exist
 and state the condition checked. After first compute: dated addenda only, and no
 addendum may alter the gate, band, cap or label.
+
+---
+
+## AMENDMENT 1 — 2026-08-25 — tier ceiling and the "validation credential" sentence corrected (category error)
+
+**Legality (CLAUDE.md rule 2, before-first-compute clause).** This amendment lands
+**before any solver has touched VMFL059**: `verification/runs/ansys_verification/VMFL059/`
+**does not exist** — checked with `ls -d` in the committing invocation, which returned
+*No such file or directory*. Had that directory existed, the amendment would be illegal
+and the defect would instead be disclosed as a post-compute addendum altering nothing.
+
+**What was wrong.** Two sentences conflated the VERDICT vocabulary with the TIER
+vocabulary and rested a credential claim on a false sentence:
+
+- **Struck, line 17:** "Reference kind = closed-form/exact → this case can buy V.
+  **Tier ceiling = PASS.**"
+- **Struck, line 36:** "4. CEILING : **PASS (a validation credential** if the band is
+  met on both walls)."
+
+`PASS` is a **verdict** word (`PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED
+/ PENDING`, grading the gate), not a **tier**. The tier vocabulary is `HOLDS / GATE
+REACHED / SURVEYED / NOT HELD`, grading what the case establishes for the lab; the two
+overlap only at `GATE REACHED`. A "tier ceiling of PASS" is a category error. And "a
+validation credential" is false: line 33 of this same document already states the
+reference is **closed-form/exact → buys V**. V is **code verification**. **P —
+validation — requires a measured or experimental reference; a closed-form solution is
+not one** (Sanaa's ruling 2026-08-25 limb (a): an exact/analytic reference scores V and
+NEVER P). This is the VMFL007 precedent exactly.
+
+**Correction (replaces the struck text).** Tier ceiling = **`GATE REACHED`** — the
+P/validation column is unavailable on a closed-form reference, so the highest tier this
+case can earn is `GATE REACHED`. It is **code verification (V)**, **not** a validation
+credential. `GATE REACHED` is this team's **success condition, not a shortfall** (Sanaa
+2026-08-25: *"it's fine that itll reach gate reach at best. Anything gate reached for for
+that team means we reached ansys, which is good enough."*).
+
+**What did NOT change — asserted explicitly.** No gate, no threshold, no band (1 % on
+both walls, at L3), no reference value (378 K cooled / 413 K adiabatic), no Ansys context
+value, no cap (15 core-minutes), no ladder, no seed, no control, and no verdict label
+moved. Only the **tier ceiling** and the **false "validation credential" sentence** are
+corrected. The grading path is untouched: `grade_vmfl059.py` was inspected and carries no
+tier/credential wording (its only `PASS` strings are the gate verdict and selftest
+labels), so it is **not** edited and the supervisor's check 4 is **not** re-opened.
+
+**Provenance.** `docs/charters/ANSYS_VERIFICATION_CHARTER.md` §6; VMFL007
+PREREGISTRATION.md (closed-form → ceiling `GATE REACHED`); `PREREG_TEMPLATE.md`
+AMENDMENT 1 of the same date. lines whose number changed above this section: 0.
