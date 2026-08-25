@@ -5676,6 +5676,38 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**UPDATE 2026-08-25T22:52:21Z (cfd-supervisor, thirteenth session).** *Appended from the HEAD blob.*
+
+**Commit `b48eb7d2` — THE `-O` BOUND, VERIFIED FOR cfd, AND THE BUILD-GUARD SWEEP.**
+
+**⚠ THE BOUND, AND IT MUST TRAVEL WITH EVERY RECORD CITING `L-332`.** **`PYTHONOPTIMIZE` is UNSET on this box. Exactly EIGHT files in the whole tree mention `python3 -O` or `PYTHONOPTIMIZE`, and every one is an instrument that DRIVES the flag deliberately as a control, a record ABOUT the exposure, or a note discussing it. NO run script invokes `python3 -O` to produce a graded artifact.** → **NO GRADED VERDICT ON RECORD, IN cfd OR ANYWHERE, WAS PRODUCED UNDER `-O`. THE EXPOSURE IS LATENT, NOT LIVE.** What is measured is that these invariants **would** evaporate if it ever were. **A lesson implying existing verdicts are compromised OVERSTATES, and overstatement would provoke exactly the re-audit Sanaa's meta-work cap forbids.** `L-332` amendment dispatched.
+- **RECORDED AGAINST MY OWN PHRASING:** I wrote that the exposure *"manufactures a positive assertion of having checked"* — **true of what `-O` WOULD produce, and I did not bound it at the time.** The measurement stands exactly as taken; **what it licenses is narrower than my wording implied.**
+
+**THE BUILD-GUARD SWEEP — AND THE RESULT INVERTS THE PREDICTION FOR MY TERRITORY.** The relayed extension: build guards are the largest class in thermal territory (**21 of 35**), and under `-O` each produces **a silently wrong artifact that becomes a graded run's input** — so the grader, flag-proof or not, **grades the wrong case correctly.** Measured in cfd:
+
+| instrument | asserts | `raise` | |
+|---|---:|---:|---|
+| `build_ladder_attempt2.py` (F12 ladder) | **0** | 2 | clean |
+| `sdk/workflows/rae2822_case9.py` (F12 case construction) | **0** | 15 | clean |
+| `sdk/workflows/tmr_verification.py` | **0** | 32 | clean |
+| `cases/F13_onera_m6/m6_section.py` | **0** | 0 | clean |
+| **`cases/F13_onera_m6/make_blockmesh_m6.py`** | **6** | 0 | **EXPOSED** |
+| **`cases/F1_onera_m6/make_blockmesh_f1.py`** | **1** | 0 | **EXPOSED** |
+
+> **cfd's build-time exposure is SEVEN asserts in exactly TWO files, both ONERA M6 `blockMesh` generators. The three instruments the extension named FIRST are ALL CLEAN and already use `raise`.** **The prediction for my territory was wrong in the direction that matters, and I am recording that rather than quietly banking it.** The exposure is real but **CONCENTRATED, not distributed.**
+
+**WHAT THE SEVEN GUARD — the exact class named:** **face orientation** (`:360`), **zero-area face** (`:362`), **faces-per-cell 5..6** (`:384`), **collapsed face** (`:420`), chord-station integrity (`:85`/`:86`), **undefined vertex** (`f1:66`). **Under `-O` the generator emits a `blockMeshDict` with inverted, zero-area, collapsed or mis-connected faces — silently.**
+- **AND ZERO-AREA FACES ARE NOT HYPOTHETICAL ON THIS GEOMETRY: THEY OCCURRED.** The M6 amendment records the H-block lens cap **refused by `blockMesh` itself at `rc = 134` with 48 ZERO-AREA FACES.** `:362` guards precisely that, on the geometry where it has already happened.
+- **THE CAVEAT THAT CUTS AGAINST THE ALARM, stated because a record that argues one way is not a record:** `blockMesh` **refused INDEPENDENTLY** there, so for the zero-area case the assert is **not the only line of defence.** **`:360` and `:384` have NO such demonstrated second line — and an inverted or mis-connected cell that `blockMesh` ACCEPTS is a mesh that SOLVES AND GRADES. That is where the real risk sits, and it is narrower than "seven guards could vanish."**
+
+**RULING: NOT EDITABLE, RECORDED NOT REPAIRED.** `make_blockmesh_m6.py` is **named in the frozen `F13_ONERA_M6_PREREGISTRATION.md:317` and that registration HAS FIRED** (`C1.5`: `GATE FAIL` on §5 admission at all three levels; ladder closed and dead). **Same refusal I gave for `launch_f12_rung.py`: rule 2 closed that door, and "the replacement is better" is NOT an exception — it is the argument rule 2 exists to refuse.** **Nothing rests on it today**: the M6 ladder is dead, its `GATE FAIL` rests on `checkMesh`'s own reported maximum, and **the topology study's re-runs reproduced byte-identically under the repaired flag-proof readers.**
+
+**BINDING ON THE SUCCESSOR REGISTRATION:** every build guard is **a gate on the artifact** and must survive the flag (`raise`/`sys.exit`, never `assert`); **each is driven under `-O` and required to REFUSE**; **the success message prints INSIDE the passing branch**, so removing the check removes the claim; and **an AST check requires zero `Assert` nodes**, catching a revert without running anything.
+
+**THE WORST MEASURED FORM, carried for the record and both stronger than cfd's own:** `analyse_t8.py:1054` — **the executable form of standing rule 5, written as an `assert`** — under `-O` gave **`verdict='MUTATED-VERDICT'`, PROCEEDED**. And on frozen-constant restoration guards **the `-O` column was WORSE than "the check vanished": the frozen layer-k map was LEFT CORRUPTED IN MEMORY at 0.4 / 0.004**, so every subsequent measurement in that process ran against a wrong frozen constant. → **A STRIPPED GUARD DOES NOT MERELY FAIL TO CHECK — IT CAN LEAVE THE PROCESS IN THE CORRUPTED STATE THE GUARD EXISTED TO UNDO.**
+
+**Lanes live (2).** **Zero cfd solvers. Zero new compute.** **The two rulings that gate compute — the F4 cap ruling (`6d996408`) and the M6 topology ruling (`3026c90e` + `43daff2f` + `7ddf35e1`) — are LANDED.** **TWELVE lane corrections today, all twelve right; five my own unforced errors.**
+
 **UPDATE 2026-08-25T22:44:55Z (cfd-supervisor, thirteenth session).** *Appended from the HEAD blob.*
 
 **Commits:** `f7c21285` (**`-O` CLOSEOUT — the failure is a manufactured certification, not silence**) · `dcc448a1` (**F12: the function that runs the solver was never pinned**). Lanes landed `aeed6bad` (**L-332**), `eb96b3e3` (both `-O` repairs), `0782e260`/`33637592`/`396ae3b8` (`staging_completeness.py` + `STAGING_COMPLETENESS_STANDARD.md`).
