@@ -300,3 +300,81 @@ arm outside `{P1,P2,O,F}`, so an F2 row in `ledger.txt` would **move a gate**. *
 `5ed02071` before the primal ran. Verdict artifact:
 `/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/ACC/d4_accept_verdict.json`.
 **The D4-DEF-4 repair is FROZEN and §8's condition is met.**
+
+---
+
+## ADDENDUM 2 — 2026-08-25T22:10Z — **D4-DEF-6**, and arm F3
+
+**This addendum alters NO gate, threshold, band, cap or label.** Arm F3 is arm F2 re-staged; it
+carries **the same cap of 120.0 core-min**, the same prediction of **53.0**, the same image
+digest, the same bands C, D and E of `PREREGISTRATION.md` §4, and the same gate G13. It
+registers two scripts by md5 and records a defect.
+
+### D4-DEF-6 — `renameSolution` collides with the staged tree's inherited pseudo-time directories
+
+**Arm F2 ran with CORRECT UNITS and still failed.** `rc = 1`, wall 56 s, **3.733 core-min**,
+`docker inspect` (exit, OOMKilled) = **`1 false`** — **not OOM**, not a cap-stop (56 s against an
+enforced 1800 s), no siblings. **The failure is not the D4-DEF-4 repair, and the evidence that it
+is not is that the repair worked:**
+
+* `C6 CONTROL P` — pinned witness `patchV[0] == 100.0`, **rel residual exactly `0.000e+00`**.
+* `C7 CONTROL B` — **105 components checked, 0 violations**.
+* Both baseline primals converged and returned
+  **`CD = 0.021130918911049287`**, matching the acceptance primal **to all 17 digits**, with
+  `CD_repeat = 0.0211309189110531` and **`eta_raw = 3.812922200197022e-15`**.
+
+It then died inside `prob.compute_totals`, from the log verbatim:
+
+> `pyDAFoam Error: /mnt/F2/processor1/0.0001 already exists, moving failed!`
+
+`DASolver.renameSolution(solution_counter)` (`pyDAFoam.py:1543`) renames the endTime write to a
+pseudo-time `0.000N` counting from 1. **`cp -a O F2` carried across arm O's 84 pseudo-time
+directories `0.0001 … 0.0082` and `1000`, so the first rename collided.** The two primals
+survived because `renameSolution` is first reached on the adjoint.
+
+**AND THE DEFECT IS INHERITED FROM `d4_stage_F.sh`, WHICH MEANS ARM F COULD NEVER HAVE COMPLETED
+EVEN WITH CORRECT UNITS.** The original arm F crashed on mesh quality 15 s in — before the
+adjoint — so **D4-DEF-4 MASKED D4-DEF-6**. Two independent blockers on one arm. **Repairing only
+the first would have bought a second crash at a higher price, and the only reason that did not
+happen quietly is that the ruling made a SOLVE, not an argument, the precondition of the freeze.**
+
+**The staged tree also violated the lab's own cold-start standard**, which the frozen launcher
+enforces on every arm except F: `d4_run_arm.sh` aborts `G-COLD` (exit 5) if the work dir carries
+`processor*`, a time directory or `reports/`. **Arm F was exempted from that guard by the
+`$BASE/$ARM` convention, and it should not have been.**
+
+### The repair, and what it may not touch
+
+`d4_stage_F3.sh` step (f) removes **arm O's OUTPUT time directories from the COPY only**. It
+removes **no input**: `0/`, `constant/`, `system/`, `OptView.hst` and `dRdWColoring_4.bin` all
+stay — **so the arm keeps the colouring its 53.0 core-min prediction was priced on and is not
+silently repriced.** Five post-assertions, none of which can pass by accident:
+
+1. the count removed is **asserted non-zero** — a repair that removes nothing is a no-op wearing
+   the costume of one;
+2. **zero** pseudo-time directories remain;
+3. `processor0/0/U.gz` still present — the repair did not overreach into the inputs;
+4. `OptView.hst`, `dRdWColoring_4.bin` and `constant/polyMesh/points.gz` still present;
+5. **`O/` still carries its time directories** — arm O's evidence is not touched, asserted after
+   the removal, not assumed.
+
+### Instruments registered
+
+| file | md5 |
+|---|---|
+| `d4_stage_F3.sh` | `cbb1d85f0801203ab95726d3dab46ffd` |
+| `d4_run_F3.sh` | `36990d137342c9c3ddab516465b2ba24` |
+
+### Arm F2's cost is WASTE and is NOT a calibration ratio
+
+**3.733 core-min, named as waste, not absorbed** (`COMPUTE_BUDGET_CHARTER.md` §6). Arm F2
+delivered **no FD table**, so 3.733/53.0 is not a ratio between work done and work predicted —
+the same precedent the supervisor set at `c21ada18` for the original arm F. **What arm F2 did
+deliver is the triage that found D4-DEF-6, and that is recorded as the return on the spend rather
+than as a graded quantity.**
+
+### Legality of this addendum
+
+`F3` did not exist when this was written: `test -e /home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/F3`
+returned **ABSENT** at 2026-08-25T22:10Z. **`F/` and `F2/` are both preserved and neither is
+opened for writing by anything registered here.**
