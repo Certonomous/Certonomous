@@ -1,0 +1,21 @@
+FoamFile { version 2.0; format ascii; class dictionary; object thermophysicalProperties; }
+// VMFL033 -- VM2026R1 p.119 material properties, verbatim:
+//   density 1 kg/m3, specific heat 1 J/kg-K, thermal conductivity 1 W/m-K, viscosity 300 kg/m-s
+//   Pr = mu*Cp/k = 300*1/1 = 300  (this is how k enters an OpenFOAM `const` transport model)
+thermoType
+{
+    type            heRhoThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState rhoConst;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+mixture
+{
+    specie          { molWeight 28.96; }
+    equationOfState { rho 1; }
+    thermodynamics  { Cp 1; Hf 0; }
+    transport       { mu 300; Pr 300; }
+}

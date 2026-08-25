@@ -1,0 +1,10 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvOptions; }
+// The viscous-heating term itself.  This is OpenFOAM's OWN shipped fvOption
+// (src/fvOptions/sources/derived/viscousDissipation), NOT lab-written code, and
+// it builds its source from the NUMERICALLY SOLVED U via grad(U) -- never from
+// the closed form.  With a basicThermo present it targets thermo.he() itself.
+viscousHeating
+{
+    type            viscousDissipation;
+    U               U;
+}
