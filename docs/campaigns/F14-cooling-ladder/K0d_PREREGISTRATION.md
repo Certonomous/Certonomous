@@ -1407,3 +1407,548 @@ team's standing ruling that a prediction is not a cap applies.
 **K0d remains FROZEN, ARMED AND UNFIRED.**
 
 *Amendment written by the heat-transfer supervisor, 2026-08-25. Zero compute.*
+
+---
+
+# AMENDMENT 3 — 2026-08-25, BEFORE FIRST COMPUTE. Version 1.2 -> 1.3.
+
+**Lines whose number changed above this section: 0.** Nothing above is edited.
+**No gate, threshold, band, cap, label or registered prediction is created,
+moved, retired or weakened by this amendment.** It replaces one unsatisfiable
+enumeration inside §8.2 clause 4 with a per-closure enumeration registered in
+advance, and it does so in the pre-compute window that rule 2 leaves open.
+
+**Written by the heat-transfer lane on the supervisor's ruling**, implementing
+the disposition of
+`docs/campaigns/F14-cooling-ladder/K0d_PREFLIGHT_EXECUTABILITY_FINDING.md`
+(commit `af7f64c7`), which the supervisor verified personally before ruling.
+
+## A3.0 The condition under which this amendment is legal, how it was checked, and the proof that nothing above moved
+
+Standing rule 2: *"Before first compute, amendments are legal **and must state
+the condition and how it was checked** (name the run directory that does not
+exist)."*
+
+**The run directory that does not exist is
+`verification/runs/F14-cooling-ladder/K0d_runs/`.** Both checks below were run
+**in the same shell invocation that wrote this file**, and their output is
+recorded **verbatim**:
+
+```
+$ ls -d verification/runs/F14-cooling-ladder/K0d_runs
+cannot access 'verification/runs/F14-cooling-ladder/K0d_runs': No such file or directory
+
+$ find verification/runs -iname '*K0d*'
+(no output)
+```
+
+**And the reader was shown able to see a match** — a `find` that reports nothing
+while being incapable of reporting anything is not evidence (rule 3, applied to
+a search). The identical `find`, with the pattern changed one character to the
+sibling rung that does exist:
+
+```
+$ find verification/runs -iname '*K0c*' | head -3
+verification/runs/F14-cooling-ladder/K0cG_runs
+verification/runs/F14-cooling-ladder/K0cR_runs
+verification/runs/F14-cooling-ladder/K0cP_runs
+```
+
+**The pattern matches when there is something to match. `*K0d*` matches
+nothing. K0d has never consumed a core-second, has no case directory, no mesh
+and no partial output.**
+
+**The freeze was re-verified before one byte was appended.** `sha256` of
+`docs/campaigns/F14-cooling-ladder/K0d_PREREGISTRATION.md` **on disk** against
+its **committed blob at `HEAD`** (`21c2c0aeb627b90c641b94afc06deefbe7af4eec`), computed in this same invocation:
+
+```
+disk = 8b1340d69cce6262c2e545692b15aed2da9c174d3930986dc91b35e3c9da0918
+blob = 8b1340d69cce6262c2e545692b15aed2da9c174d3930986dc91b35e3c9da0918
+```
+
+**Identical.** The document this amendment is appended to is the document that
+was frozen, and the appended text was built onto the **`HEAD` blob**, not onto
+the working-tree copy.
+
+**THE `lines whose number changed above this section: 0` ASSERTION IS
+ARITHMETIC HERE, NOT A PROMISE, and this is how it is proved.** The three
+conditions were established mechanically in the writing invocation:
+
+1. **The child file was produced by CONCATENATION onto the `HEAD` blob.** The
+   base was obtained with `git show HEAD:<path>` and no byte of it was read,
+   modified and written back. There is no edit path by which a line above could
+   move.
+2. **The base is a BYTE-EXACT PREFIX of the child.** The first **86688**
+   bytes of the new file were compared byte-for-byte against the `HEAD` blob and
+   are identical. A single changed, inserted or deleted byte anywhere above this
+   section would have failed that comparison and aborted the write.
+3. **The commit is INSERTIONS ONLY, ZERO DELETIONS.** Verified after the commit
+   from `git diff HEAD~1 HEAD --numstat`, which is recorded in the commit
+   message. A pure append cannot renumber a preceding line.
+
+**Other records cite this file by line** — §8.2 clause 4 is cited at lines
+560–562 and the §5 case table at lines 327–329 in the pre-flight finding, and
+§7.2's station list at line 432 and `G7` at line 455 in §A3.6 below. **All of
+those citations remain valid after this commit**, which is exactly what rule 6
+protects and why the assertion above is proved rather than asserted.
+
+**This amendment could legally alter a gate, threshold, cap or label — the
+window is open. It does not, and §A3.8 says so item by item.**
+
+---
+
+## A3.1 THE RULING — the pre-flight lane's refusal is UPHELD, and the exposure it named is confirmed
+
+The dispatched launch lane refused to fire this rung and recorded why in
+`docs/campaigns/F14-cooling-ladder/K0d_PREFLIGHT_EXECUTABILITY_FINDING.md`
+(committed `af7f64c7`). **The heat-transfer supervisor has verified that finding
+personally — `SUPERVISION_CHARTER.md` §3 check 2, crash-and-abort triage, which
+is not delegable — and rules that the refusal was correct.** This amendment
+implements that ruling. It does not re-open it.
+
+**What the frozen document binds, quoted exactly.** §8.2 introduces seven
+conditions as *"this rung's binding conditions, all of which must hold"*.
+Clause 4 reads:
+
+> 4. **`T U p_rgh alphat nut k omega` all present** at `endTime` (`C_lam` is
+>    exempt from `nut k omega` and that exemption is registered here, not
+>    discovered later)
+
+**`omega` is named literally. Exactly one exemption is registered: `C_lam`.**
+
+**What §5 registers against it.** Three of the nine cases — `M2_c`, `M2_m`,
+`M2_f` — run **`RNGkEpsilon`**. A `k`–`ε` closure carries no `ω` field and
+`buoyantBoussinesqSimpleFoam` writes none for it. **Those three cases can
+therefore never satisfy clause 4, however cleanly they solve.**
+
+**And the exposure is the whole rung, not the `M2` leg.** §8.2 closes:
+
+> **`analyse_k0d.py` refuses (exit 2) unless all nine `DONE.<case>` markers are
+> present.**
+
+Nine cases would run to completion; three could not earn a marker; the
+comparator would exit 2 and grade **nothing** — not `GATE FAIL`, not
+`NOT A RESULT` on the `M2` rows alone, but no verdict at all. **The exposure is
+the registered POINT of `829.36` core-min, not `M2`'s `296.32`.** Arithmetic
+re-checked at this amendment from §10.2: `43.50 + 85.27 + 167.55 = 296.32` for
+the `M2` leg, against the registered rung POINT of `829.36`.
+
+**This is an internal contradiction inside one frozen document**, not a defect
+of any lab standard. §A3.3 establishes that, with the evidence, because the
+alternative reading — that the lab's completion rule is itself wrong — would
+escalate as a charter matter and it does not.
+
+---
+
+## A3.2 THE COUNTER-READING, recorded in full and ANSWERED, not suppressed
+
+The refusing lane recorded a second reading of §8.2 and declined to adopt it,
+referring both. **It is reproduced here in full because a ruling that hides the
+argument it defeated is not a ruling**, and a later reader must be able to
+reconstruct the choice and disagree with it.
+
+**The counter-reading, in full.** §8.2's own preamble says:
+
+> `mark_done_k0d.py` applies, **for the thermal field set**, the rule that
+> section states verbatim
+
+On that reading, *"the thermal field set"* is the generic obligation; the
+enumerated `T U p_rgh alphat nut k omega` is merely the **`kOmegaSST` instance**
+of it, quoted from `T1b_L4_AMENDMENT.md` §7 — and `T1b` is a `kOmegaSST` rung —
+and a correctly written `mark_done_k0d.py` would take each case's own model
+field set, `epsilon` for `M2` and `omega` for `M1`. **On that reading there is no
+defect at all, only a script yet to be written correctly, and this amendment is
+unnecessary.**
+
+**It is not frivolous.** §8.2's preamble does say *"for the thermal field set"*,
+`T1b_L4_AMENDMENT.md` is a `kOmegaSST` document, and §A3.3 below shows that
+every other marker script in this lab does exactly what the counter-reading
+describes. The reading is defeated on the clause's own words, not on its
+plausibility.
+
+**THE ANSWER, and it is clause 4's own parenthetical.** Clause 4 says the
+`C_lam` exemption *"is registered here, **not discovered later**"*. **That is an
+explicit, frozen instruction that exemptions to this clause are pre-registered
+rather than inferred at grading time.** A lane writing `mark_done_k0d.py` under
+the counter-reading would be inferring a **second, unregistered** exemption —
+substituting `epsilon` for `omega` on three cases — on its own authority, at
+grading time, against a frozen instrument, and doing precisely what the sentence
+immediately beside it forbids. **The counter-reading is not merely unregistered;
+it is registered against.**
+
+**And the second reason, which is what freezing is for.** Rule 2 makes the
+freeze *"the document's entire evidentiary content"*. **A pre-registration that
+must be reinterpreted in order to be satisfiable has lost that content**: if the
+enumeration can be read as an instance when it fails and as a rule when it
+succeeds, then the completion instrument is decided after the fact by whoever
+writes the script, which is the exact failure freezing exists to prevent. The
+defect is not that the counter-reading gives a bad answer — it may well give the
+right *fields*. The defect is that it must be **chosen**, by an agent, after the
+document was frozen.
+
+**Disposition: the counter-reading is REJECTED as an interpretation and ADOPTED
+as a specification.** The fields it would have inferred are exactly the fields
+§A3.4 now registers. What changes is that they are **registered in advance, in
+the open pre-compute window, by a supervisor's ruling** — not inferred later by a
+script author. **That distinction is the entire content of this amendment**, and
+it costs zero core-seconds to make now and cannot legally be made after first
+compute.
+
+---
+
+## A3.3 THE DEFECT IS K0d's, NOT THE LAB's — evidence re-verified for this amendment
+
+**This section exists because the two readings differ in what they escalate.**
+If clause 4's enumeration were a lab-wide invariant, then this lab's completion
+rule would forbid `k`–`ε` thermal work outright, every `k`–`ε` thermal verdict
+already on the books would be void, and the matter would escalate as a charter
+question under `ESCALATION_CHARTER.md`. **It is not, and it does not.** Each
+item below was re-checked from disk for this amendment rather than carried from
+the lane's report.
+
+**Evidence 1 — `k`–`ε` thermal cases have earned `DONE` markers in this very
+campaign, repeatedly.** Nine of them, found on disk at this amendment:
+
+| marker | rung directory |
+| --- | --- |
+| `DONE.S_KE_x` | `verification/runs/F14-cooling-ladder/K0cG_runs/` |
+| `DONE.S_KE_c`, `DONE.S_KE_f` | `verification/runs/F14-cooling-ladder/K0cS_runs/` |
+| `DONE.X_lo_c_KE`, `DONE.X_hi_c_KE`, `DONE.X_lo_f_KE`, `DONE.X_hi_f_KE`, `DONE.P_hi_f_KE`, `DONE.X_hi_x_KE` | `verification/runs/F14-cooling-ladder/K0cX_runs/` |
+
+**Nine `k`–`ε` markers. Not one of those cases wrote an `omega` field.** If
+clause 4's enumeration were the lab's invariant, none of them could exist.
+
+**Evidence 2 — the field sets on disk, read with the reader shown able to see
+both states** (rule 3 discipline applied to a directory listing; a listing that
+reports "no `omega`" while being unable to see an `omega` anywhere is worthless):
+
+| completed case | closure | `omega` at latest time | `epsilon` at latest time | `nut` | `k` | `alphat` |
+| --- | --- | --- | --- | --- | --- | --- |
+| `K0cS_runs/S_SST_f` | `kOmegaSST` | **PRESENT** | absent | present | present | present |
+| `K0cS_runs/S_KE_f` | `kEpsilon` | **ABSENT** | **PRESENT** | present | present | present |
+| `K0cS_runs/C1_laminar` | laminar | absent | absent | **absent** | **absent** | present |
+
+**Both branches fire.** `S_SST_f` is the non-zero the reader was shown able to
+see; `S_KE_f`'s absent `omega` is therefore a measurement and not a blind spot.
+
+**The laminar row is load-bearing for §A3.4 and is why the `C_lam` exemption is
+carried across unchanged and not narrowed:** `C1_laminar` wrote **neither `nut`
+nor `k`** as well as neither `omega` nor `epsilon`. Clause 4's registered
+exemption — *"exempt from `nut k omega`"* — is exactly right, and any restatement
+that exempted `C_lam` only from `nut` and the second turbulence field, leaving
+`k` required, **would make `C_lam` unsatisfiable and would recreate this
+amendment's own defect on a different case.** §A3.4 therefore carries the
+three-field exemption over verbatim.
+
+**Evidence 3 — `RNGkEpsilon` specifically.** No `RNGkEpsilon` case exists
+anywhere on this box, so its written field set is **not** measured from a
+completed run and this amendment does not pretend otherwise. What was read
+instead, from the model's own source on this box at
+`/usr/lib/openfoam/openfoam2606/src/TurbulenceModels/turbulenceModels/RAS/RNGkEpsilon/RNGkEpsilon.H`:
+the class declares its two transported members as **`volScalarField k_`** and
+**`volScalarField epsilon_`** (lines 120–121), and the string `omega` occurs in
+that header **zero** times — against **four** occurrences in `kOmegaSST.H`, which
+is the control showing the reader can see `omega` in a header when it is there.
+**`RNGkEpsilon` transports `k` and `epsilon` and has no `omega` to write.**
+
+**Evidence 4 — marker scripts in this lab carry a PER-RUNG field tuple, never a
+fixed lab-wide list.** Read from the scripts themselves at this amendment:
+
+| marker script | its registered field tuple |
+| --- | --- |
+| `T-family/T10a_runs/mark_done_t10a.py` | `NEEDED = ("T", "qr")` |
+| `T-family/T10aR_runs/mark_done_t10aR.py` | `NEEDED = ("T", "qr")` |
+| `T-family/T9a_runs/mark_done_t9a.py`, `T9aH_runs/mark_done_t9a.py` | `NEEDED = ("T", "DT")` |
+| `T-family/E4_runs/mark_done_e4a.py` | `NEEDED = ("p", "U", "phi")` |
+| `T-family/T1_runs/mark_done_t1b.py` | `NEEDED = ("T","U","p_rgh","alphat")` **plus** `NEEDED_TURBULENT = ("nut","k","omega")` |
+| `T-family/T3_runs/mark_done_t3.py` | `NEEDED = ("T","U","p_rgh","alphat","phi")` **plus** `NEEDED_TURBULENT = ("nut","k","omega")` |
+| `T-family/T1_runs/mark_done_t1b_ext1.py` | imports both tuples and applies `need = NEEDED if is_laminar(case) else NEEDED + NEEDED_TURBULENT` (line 116) |
+
+**Four different tuples across seven scripts, and the two thermal ones already
+split the list into a base set and a turbulence set with a laminar exemption
+applied per case.** `mark_done_t1b_ext1.py` line 116 is the lab's existing,
+executable statement that the turbulence half of the tuple is selected
+**per case from the case's own closure**. K0d's clause 4 is the only place in
+this lab where that selection was flattened into a literal enumeration and then
+had a differently-closed case registered against it.
+
+**THE CONCLUSION, and it is the operative finding of this section.** Standing
+rule 4's parenthetical — *"fields present (`T U p_rgh alphat nut k omega` for the
+thermal family)"* — **describes the `T1b` instance from which it was drawn. It is
+not a lab-wide invariant, and the evidence above is what establishes that.**
+Therefore:
+
+- **No standing rule is amended by this amendment.** Rule 4's clauses — `rc = 0`,
+  the `End` line, `last time == endTime`, fields present, the `ExecutionTime`
+  count, and the age guard — all stand untouched. What is registered here is
+  *which* fields, for *this* rung's three closures.
+- **No charter clause is amended, and nothing escalates as a charter matter**
+  under `ESCALATION_CHARTER.md`. There is no cross-family arbitration here and
+  no standard is retired.
+- **No prior `k`–`ε` verdict is disturbed.** The nine markers of Evidence 1 stand.
+- **The defect is local and exact:** K0d's clause 4 transcribed the `T1b`
+  `kOmegaSST` field set literally, and §5 then registered three `RNGkEpsilon`
+  cases against it. **One frozen document contradicting itself.**
+
+---
+
+## A3.4 THE REPAIR — clause 4's enumeration becomes PER-CLOSURE, registered in advance
+
+Per rule 6 the frozen text above is **not edited**. Clause 4 is **struck and
+replaced here**, at the foot, and this section governs from this amendment's
+commit.
+
+> ~~4. **`T U p_rgh alphat nut k omega` all present** at `endTime` (`C_lam` is
+>    exempt from `nut k omega` and that exemption is registered here, not
+>    discovered later)~~
+>
+> **REPLACED, 2026-08-25, BEFORE FIRST COMPUTE. Clause 4 now enumerates PER
+> CLOSURE, and every enumeration is registered HERE, not discovered later:**
+>
+> **4.** The **registered completion field set of the case's own closure** is
+> **all present** at `endTime`:
+>
+> | closure | cases | **registered completion field set** |
+> | --- | --- | --- |
+> | `kOmegaSST` | `M1_c`, `M1_m`, `M1_f`, `B_hi`, `I_hi` (five) | **`T U p_rgh alphat nut k omega`** |
+> | `RNGkEpsilon` | `M2_c`, `M2_m`, `M2_f` (three) | **`T U p_rgh alphat nut k epsilon`** |
+> | laminar | `C_lam` (one) | **`T U p_rgh alphat`** — i.e. exempt from `nut`, from `k` **and** from the second turbulence field, which is exactly the exemption clause 4 already registered, carried across **unchanged and no wider** |
+>
+> **Nine cases, three closures, three enumerations, all three fixed at this
+> amendment and none inferable later.**
+>
+> **AND THE GENERALISED FORM OF CLAUSE 4's OWN INSTRUCTION, which is new and is
+> a tightening:** *no exemption and no field substitution may be inferred at
+> grading time.* A case whose closure does not appear in the table above **has
+> no registered completion field set**, and `mark_done_k0d.py` **refuses
+> (exit 2) rather than infer one**. §5 registers no such case today; the clause
+> exists so that adding one later cannot be done silently by a script author.
+
+**Everything else in §8.2 is untouched**: clauses 1, 2, 3, 5, 6 and 7 stand
+verbatim, the extended-case form stands verbatim, and
+**`analyse_k0d.py` still refuses (exit 2) unless all nine `DONE.<case>` markers
+are present** — that refusal is not weakened, and after this amendment all nine
+markers are for the first time *obtainable*.
+
+---
+
+## A3.5 THIS TIGHTENS AND CANNOT LOOSEN — shown, in a form a reader can refuse
+
+**The claim is not asserted; it is shown, case by case, so that a reader who
+thinks it false can point at the cell where it fails.**
+
+| case | closure | clause 4 **AS FROZEN** required | clause 4 **AS AMENDED** requires | satisfiable **before** | satisfiable **after** |
+| --- | --- | --- | --- | --- | --- |
+| `M1_c` | kOmegaSST | `T U p_rgh alphat nut k omega` | **identical** | YES | YES |
+| `M1_m` | kOmegaSST | `T U p_rgh alphat nut k omega` | **identical** | YES | YES |
+| `M1_f` | kOmegaSST | `T U p_rgh alphat nut k omega` | **identical** | YES | YES |
+| `B_hi` | kOmegaSST | `T U p_rgh alphat nut k omega` | **identical** | YES | YES |
+| `I_hi` | kOmegaSST | `T U p_rgh alphat nut k omega` | **identical** | YES | YES |
+| `M2_c` | RNGkEpsilon | `T U p_rgh alphat nut k` **`omega`** | `T U p_rgh alphat nut k` **`epsilon`** | **NO** | YES |
+| `M2_m` | RNGkEpsilon | `T U p_rgh alphat nut k` **`omega`** | `T U p_rgh alphat nut k` **`epsilon`** | **NO** | YES |
+| `M2_f` | RNGkEpsilon | `T U p_rgh alphat nut k` **`omega`** | `T U p_rgh alphat nut k` **`epsilon`** | **NO** | YES |
+| `C_lam` | laminar | `T U p_rgh alphat` | **identical** | YES | YES |
+
+**Read the two columns that differ, and only those.** On the three `M2` rows,
+and nowhere else:
+
+1. **One requirement is REMOVED: `omega`.** It was never a check. A condition no
+   run of that closure can satisfy does not discriminate between a good run and
+   a bad one — **it refuses both**. Removing it removes a guaranteed refusal, not
+   a test.
+2. **One requirement is ADDED: `epsilon`.** **Clause 4 as frozen does not impose
+   this on any case.** Nothing in the frozen text obliged `M2_c`, `M2_m` or
+   `M2_f` to have written their second turbulence field at all. **The amendment
+   is the first instrument in this rung to require it.**
+
+**Counted, because "more checkable" should be a number.** Field-presence
+assertions that a compliant run can actually be tested against:
+
+| | satisfiable assertions | assertions no run could satisfy |
+| --- | ---: | ---: |
+| clause 4 **as frozen** | `5×7 + 0 + 1×4 =` **39** | `3×7 =` **21** |
+| clause 4 **as amended** | `5×7 + 3×7 + 1×4 =` **60** | **0** |
+
+**60 checkable field assertions after, against 39 before — a 54 % increase — and
+zero assertions were removed from any case that was capable of satisfying
+them.** Add the new refusal clause of §A3.4 (an unregistered closure is refused
+outright), which has no counterpart in the frozen text at all.
+
+**The asymmetry that makes this safe, and it is the same one `AMENDMENT 2` §A2.5
+registered for the smoke test.** A completion instrument can only ever **prevent
+a case from being certified**. It produces no graded number, it cannot move a
+value, and **it cannot turn a `GATE FAIL` into a `PASS`**. What this amendment
+changes is *which cases are capable of being certified at all* — from six to
+nine — and it does so by making three cases testable that were previously only
+refusable. **A rung that grades nothing is not a stricter rung. It is a rung
+with no verdict.**
+
+---
+
+## A3.6 CHECKED AND FOUND — three further items, DISCLOSED HERE, NOT REPAIRED HERE, REFERRED
+
+Recorded under the practice `AMENDMENT 1` §A1.4 established: a check that finds
+something must be recorded, and a check that finds nothing must be
+distinguishable from a check never made. **The ruling this amendment implements
+did not anticipate the first two. Neither is repaired by this amendment** — each
+would touch a row definition, a band or a registered prediction, which §A3.8
+forbids this amendment to do — **and both are referred to the supervisor while
+the pre-compute window is still open.**
+
+**FINDING 2 — `G7` is defined on two stations that §7.2 does not register, and
+its own justification says otherwise.** §7.2 (line 432) freezes the eleven graded
+stations:
+
+> `0.05, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.95`
+
+§7.3's `G7` row (line 455) defines stratification as
+`Θ(y/H = 0.75) − Θ(y/H = 0.25)` on `x/H = 0.5`, and justifies itself with
+*"a difference of two graded stations, so it is not a new measurement"*.
+**Neither `0.25` nor `0.75` is in the registered list.** `G7` is therefore two
+new interpolation locations, and its justification is false against §7.2. The
+consequence is narrower than Finding 1 and it is stated narrowly: this is a
+**grading-time** gap, not an executability failure — the cases run and complete
+regardless. But §7.2's `UNMEASURED` machinery is written for *"a registered
+station"* and does not cover a station that was never registered, so the
+reference addendum has no registered rule for what to do if Blay tabulates no
+value at `0.25` or `0.75`. **Checked with a control:** `grep` for `0.75` over the
+frozen file returns lines 455, 695, 699 and 797 — the reader can plainly see the
+string elsewhere in the document, so its absence from line 432 is a measurement
+and not a search failure.
+
+**FINDING 3 — `I_hi`'s perturbation is registered in `k`–`ε` variables on a
+`k`–`ω` case, and no conversion is registered.** §5 (line 332) registers `I_hi`
+as *"kOmegaSST, inlet `k`, `ε` × 4"*, and §3.2 (line 187) registers the inlet
+pair as `k = 1.25e-3`, `ε = 5.76e-3`. **`I_hi`, `M1_*` and `B_hi` are all
+`kOmegaSST` cases: they have no `epsilon` field and no `0/epsilon` boundary
+condition.** Their inlet turbulence must be imposed as `k` and `omega`, and
+**this document registers no `ε → ω` conversion anywhere** — checked by `grep`
+across the whole file for a conversion, a `C_μ`, or an inlet `omega`, which
+returned only line 332 itself, against a control showing the string `omega`
+occurs three times in the file and is therefore visible to the reader. Two
+consequences, both stated because neither is obvious:
+
+- **The inlet `omega` of five of the nine cases is an unregistered free
+  parameter**, chosen by whoever writes `build_k0d.py`.
+- **Under the standard identity `ω = ε / (C_μ k)`, scaling `k` and `ε` by the
+  same factor of four leaves `ω` EXACTLY unchanged** — `4ε / (C_μ · 4k) = ω`.
+  So the registered "× 4" sweep would perturb inlet `k` by 4× and inlet `ω` by
+  nothing, with inlet `ν_t = k/ω` moving 4×. That is a real perturbation and
+  **not** a null one, so this is not a second unexecutable clause; but it is not
+  the "four times the inlet turbulence" a reader of §5 would picture, and §11
+  prediction 6 — *"`I_hi` moves `G5a` by 5–15 %"* — is a prediction about a
+  perturbation the document never fully specifies. **Referred, unruled.**
+
+**FINDING 4, minor — `phi` is depended on but not required.** §7.5's guard `HB`
+computes `Q_adv` *"from the written `phi`"*, and guard `MB` reads mass
+imbalance; **`phi` is not in clause 4's field list, before or after this
+amendment.** Sibling `mark_done_t3.py` puts `phi` in its `NEEDED` tuple for
+exactly this reason and `mark_done_t1b.py` does not — K0d inherited the `T1b`
+list while registering `T3`-style guards. In practice
+`buoyantBoussinesqSimpleFoam` writes `phi`, and all three completed cases
+inspected in §A3.3 have it, so no case is expected to fail on this. It is an
+**under-specification, not a contradiction**, and it is left unrepaired for the
+same reason as Findings 2 and 3: **adding `phi` to clause 4 was not the ruling
+this amendment implements, and this lane does not widen a supervisor's ruling on
+its own authority** (rule 9 — an approval is only as wide as what was approved).
+
+**CHECKED AND FOUND SOUND, recorded so it is distinguishable from unchecked.**
+The `M2` cost arithmetic (`43.50 + 85.27 + 167.55 = 296.32`), the rung POINT
+(`829.36`) and the CEILING (`1 654.23 + 827.11 + 3.50 = 2 484.84`) all reproduce
+from §10.2 and §10.3 exactly. `AMENDMENT 1` §§A1.1–A1.4 and `AMENDMENT 2`
+§§A2.1–A2.6 were re-read in full at this amendment and **nothing in either is
+withdrawn or altered**.
+
+---
+
+## A3.7 CREDIT, and one correction to the record carried rather than dropped
+
+**The finding is the refusing lane's and is credited to it, not to this
+amendment.** `docs/campaigns/F14-cooling-ladder/K0d_PREFLIGHT_EXECUTABILITY_FINDING.md`,
+committed `af7f64c7`, found it, refused to launch, refused equally to
+reinterpret the frozen clause on its own authority, and referred both readings
+upward. **That is the behaviour this lab wants and the record says so.**
+
+**Its sharpest distinction is preserved here because it is the reason the abort
+happened before the smoke test rather than after it.** `AMENDMENT 2`'s
+pre-flight smoke test **could not have caught this defect.** The smoke test is a
+**case** finding, found by **running** — it proves K0d's dictionaries suffice for
+the solver to take one step. This is a **document** finding, found by
+**reading**. They are different instruments aimed at different objects, and the
+smoke test would have passed cleanly on a rung that then graded nothing.
+**Recording that keeps `AMENDMENT 2`'s instrument from being credited with a
+catch it could not have made** — and it is the second time in two amendments that
+this rung has found an instrument audit reassuring about the wrong object
+(§A2.2's own words: *"that reassurance does not extend to the case"*).
+
+**And the smoke test's question remains open.** Nothing in this amendment
+answers it. **It has not been run**, and this amendment does not run it.
+
+**The correction the lane made to its own dispatch brief, carried forward.** The
+brief that dispatched it stated *"THE BOX IS CURRENTLY IDLE — no solver is
+running anywhere."* **That was true at the 15:28Z reading it was built on and
+stale by the time it was dispatched.** The `cfd` team's `pimpleFoam`, **pid
+2150855**, was running then and was re-verified live at this amendment
+(`ps` at 2026-08-25T16:30Z: pid 2150855, `pimpleFoam`, 938 s elapsed).
+
+**It does not obstruct K0d** — one rank of sixteen against §9's registered
+concurrency cap of six — **and the lane was right to correct it anyway.** A
+launch plan resting on a stale read is a defect independent of whether the stale
+read happened to be harmless, and this rung has already recorded what that shape
+of failure costs: `AMENDMENT 2` §A2.4's account of a supervisor reading "no run
+directory", concluding a lane was dead, and dispatching a second launcher
+**79 seconds before** the first had launched. **A stale read is an agent-dispatch
+failure, not only a git-tree one**, and the guard of §9 is what stood between
+that and a corrupted case.
+
+*(Method note for the record: `pgrep -af -i k0d` at this amendment returned only
+this amendment's own shell — the L-41/`pkill` self-match trap. The absence of a
+K0d process is established by §A3.0's directory checks, which cannot self-match,
+not by that `pgrep`.)*
+
+---
+
+## A3.8 WHAT THIS AMENDMENT DID NOT DO — each stated explicitly
+
+- **No GATE moved.** §7.3's ten graded rows `G1, G2, G3, G4, G5a, G5b, G6, G7,
+  G8, S1` stand as registered; §7.4's verdict ladder stands; §8.3's Roache triple
+  gating stands; §8.1's planted-zero control stands.
+- **No THRESHOLD and no BAND moved.** `± 1.00 K`, `± 0.0570 m/s`, `± 0.0208 m`,
+  `± 0.104 m`, `± 10 % of |q_ref|`, `EXACT MATCH REQUIRED`, §7.2's conversion
+  rule and its anti-widening guard — all byte-unchanged.
+- **No CAP moved.** The registered **POINT of 829.36 core-min** and the
+  **CEILING / TOTAL CAP of 2 484.84 core-min** stand exactly, with §10.3's stop
+  rules, the 10× per-case hard stop, the 1.6× re-estimate trigger and the
+  827.11 core-min continuation reserve unchanged. `cost_basis` is unchanged and
+  still says the rate is **reported-by-owner, not measured**.
+- **No LABEL moved**, and no verdict word outside rule 1's vocabulary is used
+  anywhere in this amendment.
+- **No PREDICTION moved.** §11's predictions 1–8 stand as registered, including
+  `AMENDMENT 1` §A1.3's three-way disposition of prediction 3. **Prediction 2's
+  naming of `M2` as the more likely non-`CONVERGING` leg is untouched** — this
+  amendment makes `M2` gradeable; it says nothing about what `M2` will grade to.
+- **The NINE CASES do not change**, the **CLOSURES do not change**, the mesh
+  family of §4 does not change, and the `endTime` of 40 000 does not change.
+- **`G6` remains `PENDING` on Blay 1992**, which is still `NOT OBTAINED`. All ten
+  graded rows remain `BLOCKED` by construction under §7.4 order 4. The rung's
+  tally is still **`0 of 10`**.
+- **`AMENDMENT 1` and `AMENDMENT 2` stand in full.** Nothing in either is
+  withdrawn, and `AMENDMENT 2`'s pre-flight smoke test remains a registered
+  **abort condition on first compute**, unrun.
+- **NO COMPUTE RAN.** `verification/runs/F14-cooling-ladder/K0d_runs/` does not
+  exist at the moment of this write (§A3.0), and **this amendment does not create
+  it**. No case directory was built, no mesh was generated, no smoke test was
+  run. **Zero core-seconds.**
+- **Nothing was sent** (rule 7). Submissions remain **PARKED**.
+
+**One thing this amendment deliberately does NOT do, stated because a reader
+should not have to infer it:** it does not authorise the launch. **The
+supervisor must read this amendment as a diff before any compute** — an
+undelegatable check under `SUPERVISION_CHARTER.md` §3 — and Findings 2 and 3 of
+§A3.6 are referred and unruled while the pre-compute window is still open.
+
+**K0d remains FROZEN, ARMED AND UNFIRED.**
+
+*Amendment drafted by the heat-transfer lane on the supervisor's ruling,
+2026-08-25. Zero compute.*
