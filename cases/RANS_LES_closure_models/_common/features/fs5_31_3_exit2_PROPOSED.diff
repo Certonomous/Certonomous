@@ -1,0 +1,48 @@
+--- a/cases/RANS_LES_closure_models/_common/features/make_feature_library.py
++++ b/cases/RANS_LES_closure_models/_common/features/make_feature_library.py
+@@ -2,7 +2,7 @@
+ """Render FEATURE_LIBRARY.md: every feature, its definition, invariance,
+ normaliser and source table/page. Generated from the manifest + measurements."""
+ from __future__ import annotations
+-import json, os
++import json, os, sys
+ import numpy as np
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+@@ -171,7 +171,10 @@
+     prev = open(DST).read()
+     if AMEND_MARK in prev:
+         carried = AMEND_MARK + prev.split(AMEND_MARK, 1)[1]
+-        assert carried.strip() != AMEND_MARK, "rule 6: amendment marker found but nothing after it"
++        if carried.strip() == AMEND_MARK:
++            sys.stderr.write("rule 6: amendment marker found but nothing after "
++                             "it -- refusing to write.\n")
++            sys.exit(2)
+     else:
+         # Cross-team gate audit pass 6, sec. 31.3: the carry-forward above fires
+         # only when the marker is present, so a hand-written amendment appended
+@@ -180,13 +183,17 @@
+         # overwriting: any line on disk past the end of the generated text is
+         # content this generator did not produce and cannot reproduce.
+         n_extra = len(prev.splitlines()) - len(L)
+-        assert n_extra <= 0, (
+-            f"rule 6: {DST} carries {n_extra} line(s) beyond the generated text and "
+-            f"NO amendment marker -- refusing to overwrite unreproducible content. "
+-            f"Put this marker line above the hand-written section, then re-run:\n"
+-            f"{AMEND_MARK}")
++        if n_extra > 0:
++            sys.stderr.write(
++                f"rule 6: {DST} carries {n_extra} line(s) beyond the generated text "
++                f"and NO amendment marker -- refusing to overwrite unreproducible "
++                f"content. Put this marker line above the hand-written section, "
++                f"then re-run:\n{AMEND_MARK}\n")
++            sys.exit(2)
+ open(DST, "w").write("\n".join(L) + "\n" + carried)
+-if carried:
+-    assert AMEND_MARK in open(DST).read(), "rule 6: amendments lost on write"
++if carried and AMEND_MARK not in open(DST).read():
++    sys.stderr.write("rule 6: amendments lost on write -- the destination no "
++                     "longer carries the marker it carried before this run.\n")
++    sys.exit(2)
+ print(f"wrote FEATURE_LIBRARY.md ({len(L)+1} lines"
+       f"{f' + {len(carried.splitlines())} carried amendment lines' if carried else ''})")

@@ -1,0 +1,68 @@
+--- a/cases/RANS_LES_closure_models/Kaandorp2020_TBRF/aposteriori/run_lane.py
++++ b/cases/RANS_LES_closure_models/Kaandorp2020_TBRF/aposteriori/run_lane.py
+@@ -162,6 +162,52 @@
+ RES = re.compile(r"Solving for (\w+), Initial residual = ([0-9.eE+-]+)")
+ 
+ 
++# ------------------------------------------------------- divergence reader
++# ONE definition, because this predicate has three call sites in closure
++# territory (here; `summarise.py:31`; `R4_sparta_build/score_aposteriori.py:70`)
++# and rule 14 is not satisfied until every one of them asserts the same thing.
++#
++# The banner every OpenFOAM log OPENS with --
++#     trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
++# -- contains the phrase "Floating point exception".  Testing for that phrase
++# therefore marks EVERY run diverged, healthy ones included; it is what this
++# file did until 2026-08-25 and it is why `diverged` is `true` on all six
++# CBFS13700 rows of `results.json` while `FOAM FATAL` and `Foam::sigFpe` are
++# counted at zero in every one of those logs (RESULTS.md sec. A.4).  The
++# signature of a trap that actually FIRED is the handler frame the runtime
++# prints in its stack trace.  `FOAM_SIGFPE` (upper case) is the banner's env
++# name and does not collide with `Foam::sigFpe`.
++FPE_BANNER_LINE = ("trapFpe: Floating point exception trapping enabled "
++                   "(FOAM_SIGFPE).\n")
++FPE_TRAP_LINE = ("#1  Foam::sigFpe::sigHandler(int) at ??:? in "
++                 "/lib/libOpenFOAM.so\n")
++
++
++def line_is_divergence(line):
++    """True iff `line` evidences a solve that actually failed."""
++    return ("Foam::sigFpe" in line) or ("FOAM FATAL" in line)
++
++
++# Rule 3, planted control: a reader is not trusted to report a zero until it has
++# been shown able to report a non-zero.  Both fixtures are literals, so this
++# cannot fire on any property of the data and cannot fire spuriously.
++# SystemExit(2), not `assert`: an assert vanishes under `python -O`, and a
++# refusal that can be switched off at the command line is not a refusal.
++if line_is_divergence(FPE_BANNER_LINE) or not line_is_divergence(FPE_TRAP_LINE):
++    sys.stderr.write(
++        "REFUSING: the divergence reader is miscalibrated -- it either matches "
++        "the trapFpe header banner or fails to match a real sigFpe handler "
++        "frame. No log is parsed and no row is scored.\n")
++    sys.exit(2)
++
++# The exact predicate, recorded into every results.json this driver writes, so
++# a file can say for itself which instrument produced its `diverged` column.
++DIVERGED_TEST = ("Foam::sigFpe | FOAM FATAL  (repaired 2026-08-25; rows written "
++                 "before that date carry a `diverged` produced by a test that "
++                 "also matched the trapFpe header banner and is true on every "
++                 "row -- see RESULTS.md sec. A.4)")
++
++
+ def parse_log(case):
+     hist = {}
+     it = 0
+@@ -172,9 +218,10 @@
+         m = RES.search(line)
+         if m:
+             hist.setdefault(m.group(1), []).append(float(m.group(2)))
+-        if "Floating point exception" in line or "FOAM FATAL" in line:
++        if line_is_divergence(line):
+             diverged = True
+-    out = dict(iterations=it, diverged=diverged, ended="End" in
++    out = dict(iterations=it, diverged=diverged, diverged_test=DIVERGED_TEST,
++               ended="End" in
+                open(os.path.join(case, "log.run"), errors="replace").read()[-4000:])
+     for f in ("Ux", "p", "k", "omega"):
+         h = hist.get(f, [])

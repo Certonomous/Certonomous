@@ -1,0 +1,143 @@
+--- a/cases/RANS_LES_closure_models/_common/features/make_fs2_report.py
++++ b/cases/RANS_LES_closure_models/_common/features/make_fs2_report.py
+@@ -2,7 +2,7 @@
+ """Render FS2_DEGENERACY_REPORT.md from fs2_audit.json + invariance_check.json.
+ Generated: re-running reproduces it."""
+ from __future__ import annotations
+-import json, os
++import json, os, sys
+ import numpy as np
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+@@ -176,5 +176,130 @@
+   "because these flows are two-dimensional; a three-dimensional case would revive them, and "
+   "that is precisely why a model fitted here cannot be trusted there.")
+ A("")
+-open(os.path.join(HERE, "FS2_DEGENERACY_REPORT.md"), "w").write("\n".join(L) + "\n")
++# ========================================================== REFUSAL GUARDS
++# Two guards stand between this generator and its destination. Both run AFTER
++# the document is rendered in memory and BEFORE anything is written, and both
++# REFUSE (exit 2) rather than degrade -- the comparator discipline of CLAUDE.md
++# rule 4. Neither is an `assert`: an assert vanishes under `python -O`, and a
++# refusal that can be switched off from the command line is not a refusal.
++DST = os.path.join(HERE, "FS2_DEGENERACY_REPORT.md")
++body = "\n".join(L) + "\n"
++
++# ---- GUARD 1: docket D491 clause (iv), the scope limit --------------------
++# "`singular_value_ratio_first_to_last` is NOT to be quoted as a number in any
++# closure record until a registered instrument decision adopts verification's
++# recommendation (a)" -- FS5_D476_CLIP_REPAIR_RESULTS.md sec. A2.1, docket D491.
++# Sections 1 of this report render exactly that statistic (the per-family table
++# column, and the duct value in prose), so a re-run writes the forbidden figure
++# into a committed record with nobody choosing to breach anything. It refuses.
++#
++# The scan is over the VALUE, not the key name, and that is the load-bearing
++# design decision. The rendered text never contains the string
++# "singular_value_ratio_first_to_last" -- it renders under the column header
++# `sigma_1/sigma_N` and in prose as "condition number" -- so a name search
++# returns a clean zero from a reader that could not have seen a non-zero.
++# Rule 3 governs sweeps as much as comparators; the planted control below
++# refuses if the scanner is blind.
++#
++# TO RELEASE: a registered instrument decision adopting recommendation (a) sets
++# this to that decision's docket id. Editing this line is a measurement-script
++# change and needs the closure supervisor's own diff read (SUPERVISION sec. 3).
++D491_RELEASE = None          # None == guard armed
++
++_FMTS = (".1e", ".2e", ".3e", ".4e", "g", ".6g")
++
++
++def _renderings(x):
++    out = set()
++    for f in _FMTS:
++        try:
++            out.add(format(float(x), f))
++        except (TypeError, ValueError):
++            pass
++    return out
++
++
++def _scan_forbidden(text):
++    """[(what, line_no)] for every place `text` quotes the forbidden statistic.
++
++    The value itself is never returned and never printed: a refusal message
++    that prints the forbidden figure defeats the refusal it is announcing.
++    """
++    targets = {}
++    for fam, d in a["per_family"].items():
++        v = d.get("singular_value_ratio_first_to_last")
++        if v is not None:
++            targets[fam] = _renderings(v)
++    hits = []
++    for i, ln in enumerate(text.splitlines(), 1):
++        if "singular_value_ratio_first_to_last" in ln:
++            hits.append(("the key name", i))
++        for fam in sorted(targets):
++            if any(r in ln for r in targets[fam]):
++                hits.append((f"per_family[{fam}] ratio, rendered", i))
++    return hits
++
++
++# Rule 3, planted control: this scanner is shown able to see a non-zero before
++# any clean report from it is believed. The plant lives in a local string, is
++# never written to disk and is never printed.
++_pf = sorted(a["per_family"])[0]
++_plant = f"a planted condition number of {format(float(a['per_family'][_pf]['singular_value_ratio_first_to_last']), '.2e')}\n"
++if not _scan_forbidden(_plant):
++    sys.stderr.write(
++        "REFUSING: the D491 scope-limit scanner could not see a planted "
++        "forbidden value, so its clean report on the real text would not be "
++        "evidence (CLAUDE.md rule 3). Nothing written.\n")
++    sys.exit(2)
++
++_hits = _scan_forbidden(body)
++if _hits and D491_RELEASE is None:
++    sys.stderr.write(
++        "REFUSING: this render quotes `singular_value_ratio_first_to_last` as a "
++        "number in a committed closure record. Docket D491 clause (iv) forbids "
++        "that until a registered instrument decision adopts verification's "
++        "recommendation (a).\n"
++        f"  destination: {DST}\n"
++        "  occurrences (the value is withheld here, deliberately):\n"
++        + "".join(f"    line {n}: {w}\n" for w, n in _hits) +
++        "  This is NOT repaired by deleting the figure or by printing it with a "
++        "non-binding label: a printed figure labelled non-binding is worse than "
++        "one never computed, and a silent suppression turns a scope limit into "
++        "invisible behaviour. Either the instrument decision is taken and "
++        "D491_RELEASE names it, or this generator does not write.\n")
++    sys.exit(2)
++
++# ---- GUARD 2: cross-team audit pass 6 sec. 31.3, this file's variant ------
++# make_feature_library.py was repaired to refuse when its destination carries
++# hand-written lines PAST the generated text. That repair does not transfer
++# here, and the reason is the whole point: this destination's rule-6 correction
++# of 2026-08-22 (`fd3aa735`) is a bracketed sentence inserted INSIDE a generated
++# paragraph, so the file on disk has the SAME line count as the render and a
++# line-count guard sees nothing at all. Any difference between destination and
++# render is either content this generator cannot reproduce, or a measured value
++# that has moved since the record was written. Both are disclosures. Neither is
++# made by overwriting.
++if os.path.exists(DST):
++    prev = open(DST).read()
++    if prev != body:
++        pl, bl = prev.splitlines(), body.splitlines()
++        first = next((i + 1 for i in range(min(len(pl), len(bl)))
++                      if pl[i] != bl[i]), min(len(pl), len(bl)) + 1)
++        sys.stderr.write(
++            f"REFUSING: {DST} on disk differs from this render.\n"
++            f"  on disk {len(pl)} lines, render {len(bl)} lines; first "
++            f"difference at line {first}.\n"
++            "  A difference is either (a) a hand-written rule-6 correction this "
++            "generator cannot reproduce -- the 2026-08-22 provenance bracket is "
++            "one, and it carries ZERO line delta -- or (b) a measured value that "
++            "has moved since the record was written, which is a re-grade and not "
++            "a regeneration. Overwriting loses (a) silently and publishes (b) "
++            "without disclosure.\n"
++            "  Land the intended change as a dated amendment, or re-run with "
++            "--regenerate '<reason>' having read the difference first.\n")
++        if not (len(sys.argv) > 2 and sys.argv[1] == "--regenerate"):
++            sys.exit(2)
++        sys.stderr.write(f"  --regenerate accepted, reason: {sys.argv[2]}\n")
++
++open(DST, "w").write(body)
+ print(f"wrote FS2_DEGENERACY_REPORT.md ({len(L)+1} lines)")
