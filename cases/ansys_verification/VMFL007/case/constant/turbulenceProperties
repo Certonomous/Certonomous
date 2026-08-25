@@ -1,0 +1,6 @@
+FoamFile { version 2.0; format ascii; class dictionary; object turbulenceProperties; }
+// Stokes == no additional stress model; nuEff() == nu() from the TRANSPORT model.
+// It is NOT `laminar { model generalizedNewtonian; }` -- that instantiates the
+// OTHER powerLaw class, which has NO `k` key and takes nu0 from transportProperties.
+simulationType  laminar;
+laminar { model Stokes; }

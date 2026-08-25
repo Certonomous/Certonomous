@@ -1,0 +1,85 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : simpleFoam
+Date   : Aug 25 2026
+Time   : 16:45:13
+Host   : ip-172-31-43-247
+PID    : 2221513
+I/O    : uncollated
+Case   : /tmp/claude-1000/vmfl007_smoke_S5tHHg
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: no convergence criteria found. Calculations will run for 1 steps.
+
+Reading field p
+
+Reading field U
+
+Using dynamicCode for patch inlet on field U at line 23 in "/tmp/claude-1000/vmfl007_smoke_S5tHHg/0/U/boundaryField/inlet"
+Could not load "/tmp/claude-1000/vmfl007_smoke_S5tHHg/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libvmfl007PowerLawInlet_7223738edba11e832190c3aecf04dff96ce2bc85.so"
+/tmp/claude-1000/vmfl007_smoke_S5tHHg/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libvmfl007PowerLawInlet_7223738edba11e832190c3aecf04dff96ce2bc85.so: cannot open shared object file: No such file or directory
+Creating new library in "dynamicCode/vmfl007PowerLawInlet/platforms/linux64GccDPInt32Opt/lib/libvmfl007PowerLawInlet_7223738edba11e832190c3aecf04dff96ce2bc85.so"
+Invoking wmake libso /tmp/claude-1000/vmfl007_smoke_S5tHHg/dynamicCode/vmfl007PowerLawInlet
+wmake libso /tmp/claude-1000/vmfl007_smoke_S5tHHg/dynamicCode/vmfl007PowerLawInlet
+    ln: ./lnInclude
+    dep: fixedValueFvPatchFieldTemplate.C
+    Ctoo: fixedValueFvPatchFieldTemplate.C
+    link: /tmp/claude-1000/vmfl007_smoke_S5tHHg/dynamicCode/vmfl007PowerLawInlet/../platforms/linux64GccDPInt32Opt/lib/libvmfl007PowerLawInlet_7223738edba11e832190c3aecf04dff96ce2bc85.so
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model powerLaw
+Selecting turbulence model type laminar
+Selecting laminar stress model Stokes
+No MRF models present
+
+No finite volume options present
+
+Starting time loop
+
+surfaceFieldValue pInlet:
+    operation     = areaAverage
+
+
+surfaceFieldValue pOutlet:
+    operation     = areaAverage
+
+
+surfaceFieldValue QInlet:
+    operation     = sum
+
+
+surfaceFieldValue UmaxInlet:
+    operation     = max
+
+
+Time = 1
+
+smoothSolver:  Solving for Ux, Initial residual = 1, Final residual = 0.0885189603245, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 1, Final residual = 0.0582418233251, No Iterations 2
+smoothSolver:  Solving for Uz, Initial residual = 0.990951211026, Final residual = 0.0487787122596, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.999999999999, Final residual = 0.00998672341264, No Iterations 429
+time step continuity errors : sum local = 0.0832213752667, global = -1.88623614723e-05, cumulative = -1.88623614723e-05
+ExecutionTime = 0.04 s  ClockTime = 6 s
+
+End
+
