@@ -56,3 +56,55 @@ Extracted from: `/home/ubuntu/Certonomous/docs/papers/verification_validation/An
 - UNCLEAR: 1 case (VMFL035)
 
 **Note:** VMFL029 already excluded (ruled BLOCKED on reference form). VMFL030 partially read; full review continues in next batch.
+
+---
+## Batch 3 (VMFL030, 036–044, 047–049)
+
+| Case ID | Manual Page | Short Title | Reference Form | Reference Values | Named Source |
+|---------|-------------|-------------|-----------------|---|---|
+| VMFL030 | 111 | Turbulent Flow in a 90° Pipe-Bend | PROFILE | (figures only, no numeric table) | M.M. Enayet, M.M. Gibson, A.M.K.P. Taylor, M. Yianneskis, "Laser-Doppler Measurements of Laminar and Turbulent Flow in a Pipe Bend". Znt. J. Heat & Fluid Flow, Vol 3. pp. 213-219, 1982. |
+| VMFL036 | 125 | Laminar Flow Past Sphere | DISCRETE | 1.0895 (Drag Coefficient) | Mittal, R. (1999) Int. J. Numerical Methods Fluids 30(7); Tabata, M. & Itakura, K. (1998) Int. J. Computational Fluid Dynamics 9(3-4). |
+| VMFL037 | 127 | Turbulent Flow Over a Forward Facing Step | PROFILE | (figures only, no numeric table) | S. Baker, "Regions of Recirculating Flow Associated with Two-Dimensional Steps". Ph.D. Thesis, Department of Civil Engineering, University of Surrey, UK. 1977. |
+| VMFL038 | 131 | Falling Film Over an Inclined Plane | PROFILE | (figures only, no numeric table) | R.B. Bird, W.E. Steward, E.N. Lightfoot, Transport Phenomena. John Wiley and Sons, Inc., New York, NY, pg. 45, 2005. |
+| VMFL039 | 133 | Boiling in a Pipe with Heated Wall | PROFILE | (figures only, no numeric table) | G.G. Bartolomei, V.M. Chanturiya, "Experimental Study of True Void Fraction When Boiling Subcooled Water in Vertical Tubes". Thermal Engineering, Vol. 14, pp. 123-128, 1967. |
+| VMFL040 | 137 | Separated Turbulent Flow in a Diffuser | PROFILE | (figures only, no numeric table) | D.M. Driver, "Reynolds shear stress measurements in a separated boundary layer flow". AIAA-91-1787. 1991. |
+| VMFL041 | 141 | Transonic Flow Over an Airfoil | PROFILE | (figures only, no numeric table) | P.H. Cook, M.A. McDonald, M.C.P. Firmin. "AEROFOIL RAE 2822 - PRESSURE DISTRIBUTIONS, AND BOUNDARY LAYER AND WAKE MEASUREMENTS." AGARD Advisory Report No. 138. |
+| VMFL042 | 143 | Turbulent Mixing of Two Streams with Different Densities | PROFILE | (figures only, no numeric table) | R.E. Uittenbogaard, "Stably Stratified Mixing Layer" (1989) and "The Importance of Internal Waves for Mixing in a Stratified Estuarine Tidal Flow" (1995). |
+| VMFL043 | 147 | Laminar to Turbulent Transition of Boundary Layer | PROFILE | (figures only, no numeric table) | A.M. Savill, "Some recent progress in the turbulence modeling of bypass transition" (1993); P.E. Roach, D.H. Brierley, "The influence of a turbulent free stream..." (1992). |
+| VMFL044 | 149 | Supersonic Nozzle Flow | PROFILE | (figures only, no numeric table) | L.H. Back, P.F. Massier, H.L. Gier. "Convective Heat Transfer in a Convergent-Divergent Nozzle". Int. J. Heat Mass Transfer, Vol. 7, pp. 549-568, 1964. |
+| VMFL047 | 157 | Turbulent Flow with Separation in an Asymmetric Diffuser | PROFILE | (figures only, no numeric table) | C.U. Buice, J.K. Eaton. "Experimental Investigation of Flow Through an Asymmetric Plane Diffuser". Journal of Fluids Engineering. Vol. 122, pp. 433-435, 2000. |
+| VMFL048 | 159 | Turbulent Flow in a 180° Pipe Bend | PROFILE | (figures only, no numeric table) | T. Takamasa, A. Tomiyama. "Three-dimensional gas-liquid two-phase bubbly flow in a C-shaped tube". NURETH-9. San Francisco, USA. pp. 1-17. 1999. |
+| VMFL049 | 161 | Combustion in an Axisymmetric Natural Gas Furnace | PROFILE | (figures only, no numeric table) | K.C. Westbrook, L.F. Dryer (1981); T.P. Coffee (1985). |
+
+**Batch 3 summary:**
+- DISCRETE: 1 case (VMFL036)
+- PROFILE: 12 cases
+- EMPTY: 0 cases
+- UNCLEAR: 0 cases
+
+---
+
+## Status and Remaining Work
+
+**Extracted and verified:** 38 of 65 never-run VMFL cases (58%)
+- Batch 1: 10 cases (VMFL006, 008, 009, 012, 013, 015, 016, 017, 018, 020)
+- Batch 2: 15 cases (VMFL021–028, 030–035)
+- Batch 3: 13 cases (VMFL030, 036–044, 047–049)
+
+**Total Reference Form Tally (Batches 1–3):**
+- DISCRETE: 8 cases (VMFL006, 017, 021, 022, 023, 024, 034, 036)
+- PROFILE: 29 cases
+- EMPTY: 0 cases
+- UNCLEAR: 1 case (VMFL035)
+
+**Not yet extracted (remaining 27 never-run VMFL cases):**
+VMFL052–058, VMFL060–078 (27 cases; excluding 029, 045, 046, 050, 051, 059)
+
+**Also not yet extracted:**
+- VMFRT001–007 (Ansys Forte test cases, pp. 255–273)
+- VMFLGPU001–010 (GPU-supported cases, pp. 225–251), with CPU parent case mapping
+
+**Recommendation for next session:** 
+Continue extraction from VMFL052 onward through VMFL078, then GPU and Forte cases. Each 10-case batch should be extracted and committed separately to ensure progress resilience against API drops.
+
+Pattern confirmed: DISCRETE cases are table-based with numeric "Target" values; PROFILE cases are figure-based; no EMPTY or EMPTY-only cases found so far in this manual.
