@@ -221,6 +221,92 @@ read in the writing invocation.
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 ## closure
 
+**THIRD WRITE THIS SESSION, 2026-08-25T00:22:12Z (closure-supervisor). NEWEST FIRST.**
+
+**THE R3 PROVENANCE AND RENUMBERING DISCLOSURES ARE LANDED. Commits `67e29318` (the two
+dated disclosures, doctrine +290/0 and `R2_SHORTLIST_MEMO` +131/0, both PURE APPENDS AT
+THE FOOT) and `fc68faec` (**D515** + **L-304**).** Zero compute throughout.
+
+**Supervisor's diff reads, done personally: PASS on both appends.** I re-proved append-only
+**independently of the lane's own hash tables** — not merely re-hashing each prefix against
+itself, but diffing each pre-append prefix **byte-for-byte against the current HEAD blob**,
+so the untouched region is provably still HEAD's text: `git diff --numstat` 290/0 and 131/0,
+doctrine prefix-358 and memo prefix-357 both exactly equal to their HEAD blobs. I
+re-derived FS5's declared-factor line myself at HEAD (single hit, **288**).
+
+**The lane corrected THREE of my own stated facts and I adopted all three** — recorded
+because a supervisor's brief being wrong is worth more on the board than a lane's
+agreement: (1) the renumbering is **two hunks, +36 and +41**, not a uniform +36 — 103
+lines by +36 and 12 by +41, and `317 + 41 = 358` closes the arithmetic; (2)
+`R4b_pair_control/PREREGISTRATION.md`, the document whose line 33 says *"verbatim as
+relayed to this lane"*, is **UNTRACKED at HEAD**, not merely uncommitted-modified, so the
+ruling rests no more weight on it than it can carry, and the disclosures say so; (3) my
+*"no executable check cites the doctrine"* was **too broad** and is narrowed to **"no
+executable check cites it BY LINE"** — there is exactly one machine-read reference,
+`harness/teams.yaml:134`, a reading-list path carrying no line number, with
+`check_harness.py` asserting nothing about this file's line numbers. **The conclusion
+stands; the claim is now the size of its evidence.**
+
+**Both negatives in the disclosures carry a FIRED CONTROL**, which is what makes them
+evidence rather than absence (rule 3's principle, applied to a documentary search): the
+`docs/LAB_STATE.md` history search returns **0** commits for each 2026-08-24 quotation
+while the same reader over the same path returns **1** for `"R3 = SpaRTA"` and **2** for
+`"R3: Sparta"`; the harness-log grep returns **neither quotation** while returning **4 of
+10 files** for `"closure-supervisor"`. And the four stale `:252` citations were verified
+**COMPLETE tree-wide, not sampled**.
+
+**Ids re-derived AT COMMIT TIME and they had moved AGAIN — this is rule 11 earning its
+place.** The lane derived **D514** at its HEAD; by my committing invocation the HEAD
+maximum was **D514**, so the row landed as **D515**. Docket **count 518 vs maximum D514**;
+lessons **count 302 vs maximum L-303** → **L-304**. **Count and maximum differ in BOTH
+files and the count was used in neither.** A number carried forward from a draft would
+have collided twice tonight.
+
+**L-304, the durable half, in one line:** *an in-file "lines whose number changed above
+this section: 0" assertion is TRUE and INSUFFICIENT* — it certifies the lines **above** the
+insertion and says nothing about those **below**, and **every external citation into a file
+points below almost any mid-file insertion point**. The rule that follows: **a rule-6
+append goes at the FOOT.** The failure mode is **silent** — a stale line citation resolves
+to *something*, raises no error, and reads as if it worked — so frozen files should be
+cited **by a quoted string as well as a line number**, and the number re-derived rather
+than copied forward. Both disclosures are appended at the foot and say so in their own
+text, so as not to commit the defect while recording it.
+
+**Both shared ledgers were built FROM THE HEAD BLOB and NEITHER was written on disk.**
+`check_docket_reconciliation.py` returns **FAIL** on the worktree copy; building the row
+from disk would have **deleted 29 rows**. Both stale copies **INSPECTED, NEVER REVERTED**,
+left exactly as found. Refreshing them is a separate dispatch and the **chief's call**.
+
+**Housekeeping note:** `docs/closure/DOCKET_ROW_DRAFT_R3_PROVENANCE.md` is an **untracked
+draft, now SUPERSEDED** — its row landed as **D515**, not the **D514** its own heading
+names. Left on disk, not deleted; a future pass may remove it. It is not a record and
+nothing cites it.
+
+**STATE AT THE END OF THIS SESSION'S WORK.** **Live jobs: none** — no closure solver, no
+driver, no monitor, no GPU node; all three lanes finished and none of them committed
+anything. **Closure compute this session: 0.000 core-minutes, 0.000 GPU-hours, $0.00.** No
+process completed with a cost, so **no new `docs/COST_CALIBRATION.md` row is owed** —
+recorded as a decision, not an omission. **Rungs without verdicts in my ownership: none
+new.** Six commits this session: `f14c7a5e`, `7ecb7286`, `828fcbac`, `67e29318`,
+`fc68faec`, and this board write.
+
+**NEXT ACTIONS, governing:** (1) **nothing launches** — the next R4 increment has no
+committed pre-registration (its draft is untracked and self-labelled `NO COMPUTE
+AUTHORISED`), and it does **not** draw licence from the uncorroborated *"FS gates apply"*
+clause; (2) **arm 2 stays PENDING and unfired** on Sanaa's three-part gate; (3) the **GPU
+comparator's rule-3 shortfall** — in-memory plant, refusal path never exercised — is an
+**open instrument question for arm 2**, deliberately unamended, and any repair is a fourth
+pre-compute amendment needing its own condition, condition check and my diff read; (4) the
+**latent trap** that re-running `make_fs2_report.py` would breach D491 scope limit (iii)
+automatically needs a guard, which is a measurement-script change and needs my diff read;
+(5) the four stale `:252` citations are listed with exact replacements and left unedited
+by design — a future pass has what it needs; (6) the `run_lane.py:175` banner-test
+call-site repair and the FS5 §31.3 `assert`→`sys.exit(2)` tightening remain unstarted.
+
+**ON SANAA'S DESK — the new item, stated as the one line she needs to give:** confirm or
+correct the two 2026-08-24 R3 quotations, and say whether §22.7 is to be marked closed in
+the charter itself. **Everything else on her desk stands unchanged.**
+
 **SECOND WRITE THIS SESSION, 2026-08-25T00:09:16Z (closure-supervisor). NEWEST FIRST — the
 session-resume note immediately below this block is still accurate and still governs
 where this block is silent.**
