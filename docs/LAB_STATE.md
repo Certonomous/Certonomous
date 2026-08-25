@@ -1586,6 +1586,81 @@ Recipe-clean, measured: b52's carved family (193,880→836,136, five rungs), R4'
 **Blocked:** **the F5b `physics_p1` launch — unblocked by Sanaa's word on the classifier denial**, and by nothing else. No agent at any level re-routes it.
 
 **Case tree:** `cases/{committee-grids, demo-surfaces, hlpw6, mega-batch, tmr, unsteady-cylinder, valve}` dormant in git; `tmr` most open; `mega-batch` driver path broken (points into `demo-output/website/...`; on record as D404 — stale paths of that shape are systemic in this team's records; treat as suspect until resolved). `models/tmr/**` is a documented FILING_CHARTER §3 exception: the rule was wrong, not the tree.
+
+---
+
+## cfd — EIGHTH SESSION, 2026-08-25T01:01:56Z, written by cfd-supervisor personally
+
+*Stamp is `date -u` read in the writing invocation. Appended to the **HEAD blob** of this file, never from the worktree. **This block supersedes the "Section last written: 2026-08-24T18:38:35Z" stamp at section-relative line 144**, which was older than commit `c509a51b` and is left in place as the historical stamp of the block it closes — struck as the section's current stamp, not rewritten (rule 6).*
+
+**Formed from disk after a WEEKLY usage limit killed the entire fleet at ~00:50Z.** Fable is exhausted; this supervisor is running on **Opus 5** under the temporary substitution at `7c469330`. Chief's live reading at 00:55Z: HEAD `af2b23b0`; **nothing of cfd's running**; the shared index carries **50 staged paths differing from HEAD** — not cleared, and `git status` is not used as an instrument anywhere in this session.
+
+### WHAT SURVIVED THE KILL — established before anything was rebuilt
+
+**Last commit: `c509a51b`** — three check-1 clearances, F12 found unlaunchable, §3.2 rule 3 mechanised, the F11 C4 probe.
+
+| path | state at 01:00Z |
+|---|---|
+| `verification/campaign/F11_CONVERSION_PREREGISTRATION.md` | **IDENTICAL to the HEAD blob** — the §6.1 arm-B amendment had **not** been written when the kill hit |
+| `verification/runs/F11_runs/conversion_2026-08-25/grade_f11.py` | **DIVERGED and SURVIVED on disk**: 1,898 lines vs 1,691 at HEAD; mtime 00:51Z. HEAD sha256 `acc6b258…`, disk `0f4ceab0…` |
+| `verification/runs/F11_runs/conversion_2026-08-25/rerun_f11.py` | **DIVERGED and SURVIVED on disk**: 1,045 lines vs 564 at HEAD; mtime 00:48Z. HEAD sha256 `ef2661b4…`, disk `a4678cdd…` |
+
+**Nothing was lost that had been committed, and the uncommitted arm-B work is on disk rather than gone.** It is **not** thereby trusted: an edit interrupted mid-write is a finding, not a starting point, and the lane recovering it is instructed to characterise each diff as coherent work or interrupted garbage **before** writing a line, and to reset to the HEAD blob rather than build on an inconsistent intermediate. Nothing was reverted, stashed or checked out (rule 10).
+
+### SUPERVISOR CHECK 4 — PRE-REGISTRATION PRESENCE BEFORE COMPUTE. DONE PERSONALLY. **F12 IS CLEAR TO LAUNCH.**
+
+- **Pre-registration committed and frozen at HEAD**, `verification/campaign/F12_PREREGISTRATION.md`, blob **`41ec748a06b513414101dca9780107f08a25ddec`**, sha256 **`d0fbe81008fe032e2fb972c5d3e35a70a874fec7649cd900ed170ee9dbc47c93`**, 736 lines, v1.2. **The disk copy is byte-identical to the HEAD blob** — checked, not assumed.
+- **Grading path verified against the committed blobs (rule 2: hash the frozen file against the committed blob), all three IDENTICAL:** `sdk/workflows/rae2822_case9.py` sha256 `d5db99d8…` blob `a18314f7` — **this is exactly the freeze identity recorded for the repair `b0c0db35`**; `sdk/workflows/tmr_verification.py` blob `404ce432`; `scripts/roache_triple.py` blob `8dee0d31`, sha256 `452f4751…`.
+- **Selftest re-run by me, not relayed:** `python3 -m sdk.workflows.rae2822_case9 --selftest` → **41/41, exit 0, 10 mutation controls**, and I watched the refusals fire (M2b/M2c/M4/M4b/M5). The file states of itself that it is **UNEXERCISED against a real solve** — that honesty is why it can be trusted this far and no further.
+- **UNFIRED:** `verification/runs/F12_runs/` holds **only `reference/`**. The launching lane re-asserts every registered run directory ABSENT by `test -e` **in its own launching invocation**, and aborts if any exists (rule 4's guard).
+- **Costed before it starts (rule 12):** §4 estimate **383.5 core-min = $0.328 derived**; §5 caps **120 / 160 / 700 / 160 / 160 = 1,300 core-min = $1.111 derived**, at $0.0513/core-h, **derived and reported-by-owner, never measured**. **An overrun stops the run rather than getting a new budget** — stated to the lane as a hard constraint.
+- **Gates frozen and genuinely falsifiable**, which is the point of running it: admission A (mesh, non-orthogonality ≤ 70°, skewness ≤ 4), admission B (the solver's own convergence statement — a small residual is not a substitute, L-14/L-15), **Gate 1** Cp RMS ≤ **0.08** upper / **0.04** lower, **Gate 2** shock location ≤ **0.020** chord by the sonic crossing, **Gate 3** |CN − 0.803|/0.803 ≤ **5 %**, **Gate 4** |CD − 0.0168|/0.0168 ≤ **20 %**, CM **reported and not gated**. Four predictions are recorded before the data is seen, with the falsifier written out: *"If the shock lands upstream of experiment, prediction 1 is falsified and the record will say so in those words."*
+- **Launched in PHASE 1 ONLY: rung 1, the coarse mesh (23,040 cells), cap 120 core-min.** The pre-registration itself designates it the **rate-calibration rung** and sets its cap above **both** cost bases deliberately, so that rungs 2–5 are considered only after rung 1's measured rate updates the estimates. **This supervisor authorizes rung 1 and nothing else**; rungs 2–5 wait on the measured rate. Gates 1–4 are graded on the **fine** mesh, so no rung-1 number is the case verdict.
+
+**The honest statement of what F12 can and cannot deliver is unchanged and is not softened by launching it: its G is registered and geometrically plausible, and its P is NOT green.** No AGARD AR-138 exists under `docs/papers/`; the reference is the AFOSR-HTTM/Stanford digitisation, flow case 8621, evaluator R. E. Melnik (1981), at `verification/runs/F12_runs/reference/f8621.txt` — **secondary, title-page-verified against nothing, and the primary it transcribes is not held by this lab and has not been opened by it.** Whether a secondary transcription can support a **P** is **verification's rubric call**, stated and not decided here.
+
+### THE RECIPE-FORK RULING — HELD, NOT SOFTENED
+
+**Standing: an observed order computed across a RECIPE-FORKED gap is `NOT A RESULT`** — a slope fitted across a change of experiment (§3.2), and under rule 5 a row whose triple is not a valid CONVERGING triple is NOT A RESULT whatever its value. Sweep: **461 candidate directories, 422 parsed, 14 ladders, 7 RECIPE-FORKED, 4 recipe-clean, 3 unauditable**, mechanised in `scripts/recipe_audit.py` (`72bc966d`). Voided orders include **`naca4412_wing` p = 10.467** — §3.2's own worked example, now measured mechanically — and **`motorBike` p = 7.298**, forked on **both** gaps.
+
+**Two things kept explicit wherever this is written, and a lane is now writing them into the stored study blocks where the voided orders actually live:**
+1. **It says nothing against the underlying solves** — only against the grid-convergence claims built on them.
+2. **The affected rows move TOWARD `NOT A RESULT`, which rule 5's one-way door permits — never back.** The gate can turn a PASS or a GATE FAIL *into* NOT A RESULT and not the reverse.
+
+**And the stated limit on the instrument travels with every citation of it:** `similarity_failures()` treats **any** change of a block's grading as a similarity failure, which is right for the uniform-background snappy ladders this sweep covers and **wrong for a correctly-built GRADED ladder**, which must change its grading string as it refines in order to keep the first cell scaling. **F12's repaired RAE 2822 ladder is exactly such a family, so running `recipe_audit.py` against it would report a SPURIOUS FORK.** A check that overstates its reach is worse than none. **`docs/charters/VERIFICATION_CHARTER.md` §3.2 is verification's file and cfd does not edit it** — the note that its worked example is now measured to be this defect goes to the chief to route.
+
+### Live jobs
+
+**NONE of cfd's compute** at the time of writing; rung 1 of F12 is being launched by a lane and its pid/cwd/ETA land at the next board update. Lab-wide, only heat-transfer's two solvers (pids **450274**, **488219**). **F5b `physics_p1` remains NOT RUNNING — BLOCKED on permission** since ~17:45Z on 2026-08-24; the classifier denied its launch, the lane correctly refused to re-route it, and **nobody in cfd re-launches**.
+
+### Lanes live — 3, AT CAP
+
+1. **F12 rung-1 execution** — environment, mesh, `checkMesh`, coarse solve under the 120 core-min cap, strict completion rule limb by limb, cost calibration.
+2. **F11 arm-B recovery** — characterise the surviving diffs first, then the three coordinated pre-compute changes (prereg §6.1 as a foot-appended dated amendment; `rerun_f11.py`'s `apply_section_6_1`, which as committed **refuses if any `onEnd` survives** and so cannot produce arm B; `grade_f11.py`'s plateau reader, which must read the periodic series from `centerlineSeries/` while **the graded value still comes from `centerlineProfiles/<N>/` at the converged iteration**). **Nothing launches until I have read all three diffs personally.**
+3. **`MATRIX_CONTRIBUTION.md` fixed at the source** — verification's audit finding that cfd's rows are *"selected, not exhaustive, and several are families rather than rows"* is **accepted without qualification**; the file goes exhaustive over cfd's whole territory, a never-run family still gets a row tiered NEVER RUN, and the recipe-fork ruling is written into the stored blocks.
+
+### Rungs without verdicts, named including the embarrassing ones
+
+**F12** — armed, costed, rung 1 launching, **no verdict**. **F11** — prereg frozen at `157793db`, comparator cleared at `2e77a59e`, **C4 unsatisfiable as frozen**, arm B pre-compute, **unfired, no verdict**. **F3** — conversion prereg frozen at `2bf4915a`, **ARMED AND UNFIRED, zero compute, no verdict**. **F4** — graded at `5b5f5183`, but the headline is **CONTINGENT on Sanaa's event-1/event-2 ruling**; under verification's reading §9.1 row 4 applies and the elimination of mechanism #7 becomes **NOT A RESULT**. No downstream work treats it as eliminated. **F5b** — frozen, **BLOCKED on permission**, wrapper assertions **UNEXERCISED**. **F4-Q4** — the 3 core-min `wmake` build allowance is **still not closed**; L-285 is the lesson about the gap and does not fill it. **DPW8_V2 L4** — map cell **PENDING**, L4 **NOT GATED**. **The 3D gap:** the lab still has **no 3D PASS against experiment with a pre-registration on disk**.
+
+### Next actions
+
+Read rung 1's measured rate and rule on rungs 2–5 against the caps. Read the three F11 arm-B diffs personally (check 1) before anything launches. Rule on the rebuilt matrix contribution. F4 conversion pre-registration. A `docs/COST_CALIBRATION.md` row at **every** process completion, built from `git show HEAD:` — **the worktree copy has been measured stale repeatedly** — with the ratio actual/predicted, the gap attributed, **waste named separately and never absorbed into the ratio**, and dollars **derived, not measured**.
+
+### On Sanaa's desk
+
+1. **The F5b `physics_p1` launch permission**, since ~17:45Z 2026-08-24 — one command, cap 72.0 core-min = $0.0616 derived. Nobody re-routes it.
+2. **The F4 event-choice ruling**, via the chief since ~18:00Z 2026-08-24 — cross-family, hers alone, zero compute either way.
+3. **Ratification of the two D477 commits** (`3a2f37c3`, `3f2480a1`), landed after a lane's classifier denial — no further such landing until she rules.
+
+### Blocked
+
+**F5b** on permission. **F4's §8.1/§8.3 limbs** on her event ruling. **F12's P** on verification's rubric call about whether a secondary transcription can support a P — that one blocks the *tier*, not the run, and the run proceeds.
+
+### Cost calibration
+
+**No cfd process completed in this session yet**, so no `docs/COST_CALIBRATION.md` row is owed at this stamp. **Every F12 run is costed in its pre-registration before it starts** — §4 and §5 above — and **an overrun stops the run rather than getting a new budget.** The one figure carried forward from the previous session is the F11 C4 probe: **0.2478 core-min actual against a ~1 core-min estimate, ratio 0.25**, misprediction in the conservative direction (rate good to **3.4 %**, iteration count over-predicted **2.0×**), **waste zero and named separately**, **$0.00021 derived, not measured** — landing as **C-50**, re-derived from the HEAD blob's maximum at commit.
+
 ## verification
 
 **Section updated:** 2026-08-25T00:47:24Z by verification-supervisor. Matrix at **`6020fca9`**, 1,305 lines.
