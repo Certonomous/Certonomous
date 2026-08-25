@@ -1449,6 +1449,129 @@ def grade(root):
 # ===========================================================================
 # --selftest
 # ===========================================================================
+# ===========================================================================
+# selftest fixtures -- a REAL endTime directory on disk
+# ===========================================================================
+# 2026-08-25 pre-compute amendment A1.  Added so that the section 9 planted
+# zero and the section 12 S3 centreline reader are EXERCISED rather than
+# described.  Before this, --selftest never called read_mesh, resolve_planes,
+# read_plane_quantities, read_stations or check_planted_zero at all: the
+# extrapolation weights at read_plane_quantities could be changed from
+# (9 f1 - f2)/8 to any other formula and every selftest check still passed.
+# A control never shown able to fire is exactly what CLAUDE.md rule 3 refuses
+# to accept as evidence, and that refusal applies to this file's own controls.
+SYN_NZ = 32                      # planes; dz = H_DOMAIN/32 = 0.25 m
+SYN_NR = 8                       # radial cells; dr = R_DOMAIN/8 = 0.3 m
+
+
+def _foam_header(cls, obj):
+    return ("FoamFile\n{\n    version     2.0;\n    format      ascii;\n"
+            "    class       %s;\n    object      %s;\n}\n\n"
+            "dimensions      [0 0 0 0 0 0 0];\n\n" % (cls, obj))
+
+
+def write_foam_scalar(path, values):
+    """A real OpenFOAM volScalarField, written at full double precision."""
+    with open(path, "w") as fh:
+        fh.write(_foam_header("volScalarField", os.path.basename(path)))
+        fh.write("internalField   nonuniform List<scalar>\n%d\n(\n"
+                 % len(values))
+        fh.write("\n".join("%.17g" % v for v in values))
+        fh.write("\n)\n;\n\nboundaryField\n{\n}\n")
+
+
+def write_foam_vector(path, values):
+    """A real OpenFOAM volVectorField, written at full double precision."""
+    with open(path, "w") as fh:
+        fh.write(_foam_header("volVectorField", os.path.basename(path)))
+        fh.write("internalField   nonuniform List<vector>\n%d\n(\n"
+                 % len(values))
+        fh.write("\n".join("(%.17g %.17g %.17g)" % tuple(v) for v in values))
+        fh.write("\n)\n;\n\nboundaryField\n{\n}\n")
+
+
+def make_synthetic_field_case(root, end_dir="100", nz=SYN_NZ, nr=SYN_NR,
+                              t_curv=-40.0, w_curv=-20.0):
+    """Cx, Cy, Cz, V, T and U on disk, T and U_z EXACTLY quadratic in r.
+
+    Exactly quadratic is the whole point.  With cell centres at
+    r_j = (j + 1/2) dr the two axis-adjacent columns sit at r1 = dr/2 and
+    r2 = 3 dr/2, so r2 = 3 r1 EXACTLY -- the condition resolve_planes
+    enforces -- and the registered extrapolation (9 f1 - f2)/8 then returns
+    the axis value ANALYTICALLY.  Every assertion built on this fixture is an
+    exact identity; none of them is a tolerance chosen to make it pass.
+
+    Returns (root, meta) where meta carries the per-plane analytic axis values
+    the shipped reader must reproduce.
+    """
+    d = os.path.join(root, end_dir)
+    os.makedirs(d, exist_ok=True)
+    dz = H_DOMAIN / float(nz)
+    dr = R_DOMAIN / float(nr)
+    cx, cy, cz, vv, tt, uu = [], [], [], [], [], []
+    axis_T, axis_w, zs = [], [], []
+    for k in range(nz):
+        z = (k + 0.5) * dz
+        a_T = TREF + 8.0 * (z + 1.0) ** (-5.0 / 3.0)
+        a_w = 2.5 * (z + 1.0) ** (-1.0 / 3.0)
+        zs.append(z)
+        axis_T.append(a_T)
+        axis_w.append(a_w)
+        for j in range(nr):
+            r = (j + 0.5) * dr
+            cx.append(r)
+            cy.append(0.0)
+            cz.append(z)
+            vv.append(dz * dr * r)
+            tt.append(a_T + t_curv * r * r)
+            uu.append((0.0, 0.0, a_w + w_curv * r * r))
+    write_foam_scalar(os.path.join(d, "Cx"), cx)
+    write_foam_scalar(os.path.join(d, "Cy"), cy)
+    write_foam_scalar(os.path.join(d, "Cz"), cz)
+    write_foam_scalar(os.path.join(d, "V"), vv)
+    write_foam_scalar(os.path.join(d, "T"), tt)
+    write_foam_vector(os.path.join(d, "U"), uu)
+    return root, dict(nz=nz, nr=nr, dz=dz, dr=dr, z=zs,
+                      axis_T=axis_T, axis_w=axis_w)
+
+
+def mis_weighted_reader(w1, w2, den, tag):
+    """A read_plane_quantities REPLACEMENT with the wrong centreline weights.
+
+    Used ONLY by --selftest, and ONLY to prove that the section 9 control can
+    SEE a broken extrapolation.  It defers to the real reader for every other
+    quantity so that the ONE thing changed is the thing under test.
+    """
+    real = read_plane_quantities
+
+    def patched(mesh, planes, T, Uz, nz):
+        out = real(mesh, planes, T, Uz, nz)
+        for p, o in zip(planes, out):
+            i1, i2 = p["idx"][0], p["idx"][1]
+            o["Tc"] = (w1 * T[i1] - w2 * T[i2]) / den
+            o["wc"] = (w1 * Uz[i1] - w2 * Uz[i2]) / den
+        return out
+    patched.tag = tag
+    return patched
+
+
+def wrong_column_pair_reader():
+    """A reader that uses the SECOND and THIRD columns instead of the first
+    two, with the registered 9/8 weights.  The registered section 9 arm alone
+    cannot distinguish some weight errors; it must distinguish this one."""
+    real = read_plane_quantities
+
+    def patched(mesh, planes, T, Uz, nz):
+        out = real(mesh, planes, T, Uz, nz)
+        for p, o in zip(planes, out):
+            i1, i2 = p["idx"][1], p["idx"][2]
+            o["Tc"] = (9.0 * T[i1] - T[i2]) / 8.0
+            o["wc"] = (9.0 * Uz[i1] - Uz[i2]) / 8.0
+        return out
+    patched.tag = "wrong column pair (idx 1,2 instead of 0,1)"
+    return patched
+
+
 def make_synthetic_case(root, level, end_time, n_exec=None, end_name=None,
                         with_end_line=True, stale_fields=False,
                         rc="0", ranks="1"):
@@ -1691,19 +1814,76 @@ def selftest():
 
     print("")
     print("(v) the centreline extrapolation is the registered instrument")
-    #  a field exactly quadratic in r, sampled at r1 and r2 = 3 r1
+    #  a field exactly quadratic in r, sampled at r1 and r2 = 3 r1.
+    #  THESE THREE ARE ARITHMETIC IDENTITIES ONLY.  They re-derive the formula
+    #  and so cannot see a change to the SHIPPED weights; the checks that DO
+    #  call the shipped reader follow immediately below (amendment A1).
     a, b_, r1 = 3.0, -0.5, 0.0125
     f1 = a + b_ * r1 ** 2
     f2 = a + b_ * (3.0 * r1) ** 2
     ok(abs((9.0 * f1 - f2) / 8.0 - a) < 1e-14,
-       "(9 f1 - f2)/8 recovers the axis value of a quadratic-in-r field "
-       "exactly, with r2 = 3 r1")
+       "IDENTITY ONLY: (9 f1 - f2)/8 recovers the axis value of a "
+       "quadratic-in-r field exactly, with r2 = 3 r1")
     ok(abs(((9.0 * (f1 + PLANT) - (f2 + PLANT)) / 8.0) - (a + PLANT)) < 1e-14,
-       "shifting BOTH columns by PLANT shifts the extrapolate by exactly "
-       "PLANT -- the section 9 response is analytic, not approximate")
+       "IDENTITY ONLY: shifting BOTH columns by PLANT shifts the extrapolate "
+       "by exactly PLANT -- the section 9 response is analytic, not approximate")
     ok(abs(((9.0 * (f1 + PLANT) - f2) / 8.0) - (a + 9.0 * PLANT / 8.0)) < 1e-14,
-       "shifting the INNERMOST column only shifts it by exactly 9*PLANT/8 -- "
-       "supplementary arm (a) distinguishes a wrong column pair")
+       "IDENTITY ONLY: shifting the INNERMOST column only shifts it by exactly "
+       "9*PLANT/8 -- supplementary arm (a) distinguishes a wrong column pair")
+
+    # -- amendment A1: the SHIPPED reader, CALLED, on a real case on disk ----
+    tmp5 = tempfile.mkdtemp(prefix="t8_reader_")
+    try:
+        root5, meta = make_synthetic_field_case(tmp5)
+        mesh = read_mesh(root5, "100")
+        ok(mesh is not None and mesh["n"] == meta["nz"] * meta["nr"],
+           "read_mesh CALLED: %d cells off a real endTime directory"
+           % (mesh["n"] if mesh else -1))
+        planes, why5 = resolve_planes(mesh, meta["nz"], meta["nr"])
+        ok(planes is not None and len(planes) == meta["nz"],
+           "resolve_planes CALLED: %d planes, r2/r1 = 3 accepted (%s)"
+           % (len(planes) if planes else -1, why5))
+        Tf = read_internal(os.path.join(root5, "100", "T"))
+        Uf = read_internal(os.path.join(root5, "100", "U"), vector=True)
+        pq = read_plane_quantities(mesh, planes, Tf, [u[2] for u in Uf],
+                                   meta["nz"])
+        worstT = max(abs(pq[k]["Tc"] - meta["axis_T"][k])
+                     for k in range(meta["nz"]))
+        worstw = max(abs(pq[k]["wc"] - meta["axis_w"][k])
+                     for k in range(meta["nz"]))
+        # 1e-9 is float-noise headroom on values of order 300 K, not a fitted
+        # number: the mis-weightings this must catch are 4 % errors.
+        ok(worstT < 1e-9,
+           "read_plane_quantities CALLED: the SHIPPED Tc reproduces the "
+           "analytic axis value at all %d planes, worst %.3e K"
+           % (meta["nz"], worstT))
+        ok(worstw < 1e-9,
+           "read_plane_quantities CALLED: the SHIPPED wc reproduces the "
+           "analytic axis value at all %d planes, worst %.3e m/s"
+           % (meta["nz"], worstw))
+        st5, why5 = read_stations(pq, STATIONS_ZD)
+        ok(st5 is not None and len(st5["zD"]) == len(STATIONS_ZD),
+           "read_stations CALLED: all %d registered stations resolved (%s)"
+           % (len(STATIONS_ZD), why5))
+        # THE NEGATIVE ARM for ruling 1: a mis-weighted SHIPPED extrapolation
+        # must be visible to this same comparison.
+        _saved = read_plane_quantities
+        try:
+            globals()["read_plane_quantities"] = mis_weighted_reader(
+                7.0, 1.0, 6.0, "(7 f1 - f2)/6")
+            pqm = read_plane_quantities(mesh, planes, Tf,
+                                        [u[2] for u in Uf], meta["nz"])
+            worstm = max(abs(pqm[k]["Tc"] - meta["axis_T"][k])
+                         for k in range(meta["nz"]))
+            ok(worstm > 1e-6,
+               "NEGATIVE ARM FIRES: a (7 f1 - f2)/6 extrapolation misses the "
+               "analytic axis value by %.3e K -- this check, unlike the three "
+               "identities above, CAN see a change to the shipped weights"
+               % worstm)
+        finally:
+            globals()["read_plane_quantities"] = _saved
+    finally:
+        shutil.rmtree(tmp5, ignore_errors=True)
 
     print("")
     print("(vi) the completion checker is SHOWN ABLE TO FIRE on every clause")
@@ -1766,6 +1946,58 @@ def selftest():
        "PLATEAU_MAX_EXPONENT_DRIFT is None and the grading output SAYS SO: "
        "section 7's 'and plateaued' has no separately registered criterion in "
        "T8 and this file does not invent one")
+
+    # -- amendment A1, 2026-08-25 -------------------------------------------
+    print("")
+    print("(x) THE SECTION 9 PLANTED ZERO IS SHOWN ABLE TO FIRE "
+          "(CLAUDE.md rule 3, applied to this file's own control)")
+    tmpx = tempfile.mkdtemp(prefix="t8_plantctl_")
+    try:
+        rootx, mx = make_synthetic_field_case(tmpx)
+        good, reason, plines = check_planted_zero(rootx, "100",
+                                                  mx["nz"], mx["nr"])
+        ok(good and len(plines) == 6,
+           "check_planted_zero CALLED on a real case on disk: all %d arms "
+           "PASS on an intact reader (%s)" % (len(plines), reason))
+        for _state, _name, _detail in plines:
+            ok(_state == "PASS", "  arm PASSES on an intact reader: " + _name)
+
+        # NEGATIVE ARM 1 -- a mis-weighted extrapolation.
+        _saved = read_plane_quantities
+        try:
+            globals()["read_plane_quantities"] = mis_weighted_reader(
+                7.0, 1.0, 6.0, "(7 f1 - f2)/6")
+            bad_ok, bad_why, bad_lines = check_planted_zero(
+                rootx, "100", mx["nz"], mx["nr"])
+        finally:
+            globals()["read_plane_quantities"] = _saved
+        ok(bad_ok is False,
+           "NEGATIVE ARM FIRES: with a (7 f1 - f2)/6 extrapolation the "
+           "planted zero REFUSES -- " + bad_why)
+        reg = [l for l in bad_lines if "registered" in l[1]]
+        sup_a = [l for l in bad_lines if "supplementary (a)" in l[1]]
+        ok(len(sup_a) == 2 and all(l[0] == "FAIL" for l in sup_a),
+           "and it is SUPPLEMENTARY ARM (a) that catches it: both (a) arms "
+           "FAIL")
+        ok(len(reg) == 2 and all(l[0] == "PASS" for l in reg),
+           "while BOTH REGISTERED ARMS PASS -- because (7-1)/6 = 1 exactly, "
+           "so a both-column plant shifts by PLANT under the WRONG weights "
+           "too.  The supplementary arm is LOAD-BEARING, not decoration, and "
+           "this is the measurement that proves it")
+
+        # NEGATIVE ARM 2 -- the right weights on the wrong pair of columns.
+        _saved = read_plane_quantities
+        try:
+            globals()["read_plane_quantities"] = wrong_column_pair_reader()
+            bad2_ok, bad2_why, _ = check_planted_zero(
+                rootx, "100", mx["nz"], mx["nr"])
+        finally:
+            globals()["read_plane_quantities"] = _saved
+        ok(bad2_ok is False,
+           "NEGATIVE ARM FIRES: registered weights on the WRONG column pair "
+           "(idx 1,2) REFUSES -- " + bad2_why)
+    finally:
+        shutil.rmtree(tmpx, ignore_errors=True)
 
     hr("--selftest: %d ok, %d FAILED" % (n_ok, n_bad))
     return 0 if n_bad == 0 else 2

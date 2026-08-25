@@ -475,3 +475,156 @@ forbidden here, and the contract is registered before the run:
 **Nothing in this rung has been sent, filed, submitted, uploaded, registered or
 posted anywhere outside this box, and nothing in it may be
 (`CLAUDE.md` rule 7).**
+
+---
+
+## AMENDMENT A1 — 2026-08-25, PRE-COMPUTE. Document **v1.0 → v1.1**.
+
+**`lines whose number changed above this section: 0`.** This amendment is
+appended at the foot. Nothing in §0–§12 has been edited, struck, reworded or
+renumbered. **No gate, threshold, cap or label is altered by this amendment**,
+and none could be: it adds tests to an instrument, it does not move a band.
+
+### A1.0 Condition, and how it was checked
+
+`CLAUDE.md` rule 2: *"Before first compute, amendments are legal and must state
+the condition and how it was checked (name the run directory that does not
+exist)."*
+
+**Checked at 2026-08-25, immediately before this amendment was written, by
+direct `stat` of each named path in the registered run tree
+`verification/runs/T-family/T8_runs/`:**
+
+- **`verification/runs/T-family/T8_runs/T8_MTT_c` — DOES NOT EXIST.**
+- **`verification/runs/T-family/T8_runs/T8_MTT_m` — DOES NOT EXIST.**
+- **`verification/runs/T-family/T8_runs/T8_MTT_f` — DOES NOT EXIST.**
+
+The run tree's complete contents are `build_t8.py`, `analyse_t8.py` and
+`run_one_t8.sh` — the three files of the §11 freeze set — and nothing else.
+A repository-wide search for `STATUS.T8*`, any `T8_MTT_*` directory and any
+`log.solve` beneath a T8 path returned **nothing**. `docs/COST_CALIBRATION.md`
+contains **no T8 row**, so no core-minutes have ever been booked against this
+rung. **Zero core-minutes have been spent on T8.** We are unambiguously before
+first compute and this amendment is legal.
+
+### A1.1 What was found, and why it justified touching a frozen file
+
+An independent audit of the comparator — by **mutation**, not by reading —
+found that the shipped centreline extrapolation in `read_plane_quantities`
+(`analyse_t8.py` lines 685–686, the `(9f₁ − f₂)/8` of §12 S3) could be changed
+to a **different formula** and **every one of the comparator's 52 selftest
+checks still passed.** Selftest section (v) re-derived the arithmetic inline
+instead of calling the shipped reader.
+
+Compounding it: **`check_planted_zero` was never invoked by `--selftest` at
+all**, and neither were `read_mesh`, `resolve_planes`, `read_plane_quantities`
+or `read_stations`. The §9 planted zero — this rung's `CLAUDE.md` rule 3
+control — **had never been shown able to fire.**
+
+That is the exact defect §9 exists to prevent, turned on the control itself.
+A mis-weighted extrapolation moves **every** T8 graded value silently. The
+supervisor ruled the gap must be closed before any solver starts.
+
+### A1.2 What changed in `analyse_t8.py`
+
+**Selftest and its fixtures only. No grading logic was touched.** The
+diff against the previous blob is **+216 / −7 lines in three hunks, all at old
+line 1449 or below the end of the grading code**; lines 1–1451 of the previous
+blob are **byte-identical** in the new one (verified by md5 of the truncated
+files, not by inspection). **Every instrument keeps its line number:**
+`read_plane_quantities` 669 with the extrapolation still at **685–686**,
+`check_completion` 384 with the age guard at 478–497, `gci_triple` 800,
+`band_verdict` 845, `check_planted_zero` 925, `grade_row` 1009.
+
+Added:
+
+- `write_foam_scalar` / `write_foam_vector` (1473, 1483) and
+  `make_synthetic_field_case` (1493) — a **real** `endTime` directory on disk
+  carrying `Cx Cy Cz V T U` as OpenFOAM fields, with `T` and `U_z` **exactly
+  quadratic in `r`** so that every expected response is an exact identity and
+  no tolerance is fitted to make a fixture pass.
+- `mis_weighted_reader` (1538) and `wrong_column_pair_reader` (1558) — the
+  **negative** fixtures.
+- Selftest **(v)** now **CALLS** `read_mesh`, `resolve_planes`,
+  `read_plane_quantities` and `read_stations`, and requires the **shipped**
+  `Tc` and `wc` to reproduce the analytic axis value at all 32 planes. The
+  three pre-existing inline checks are **retained but relabelled
+  `IDENTITY ONLY`**, because they cannot see a change to the shipped weights
+  and saying so is cheaper than deleting them.
+- Selftest **(x)** (new) — `check_planted_zero` **called on a real case on
+  disk**: all six arms must PASS on an intact reader, and **two negative arms
+  must FIRE.**
+
+### A1.3 The measurement that matters: **§9's registered arm is not sufficient alone**
+
+This is a finding about **this document**, produced by the new negative arm,
+and it is recorded rather than quietly patched.
+
+§9 registers one arm: plant `PLANT` into **both** axis-adjacent columns and
+require the centreline to shift by exactly `PLANT`, because
+`(9·PLANT − PLANT)/8 = PLANT`. **That arm cannot detect a `(7f₁ − f₂)/6`
+mis-weighting**, because `(7·PLANT − PLANT)/6 = PLANT` **also**. Measured, not
+argued: under that mutation **both registered arms PASS** and it is the
+comparator's **supplementary arm (a)** — plant the innermost column only,
+expect exactly `9·PLANT/8` — that FAILS and forces the refusal.
+
+**The supplementary arms are therefore load-bearing, not decoration.** §9's
+registered text is **not weakened, widened or reinterpreted** by this
+amendment — it still binds exactly as written, and the supplementary arms were
+already implemented in the frozen comparator. What is new is the **disclosure**
+that a comparator implementing §9's registered arm *and nothing else* would
+have a blind spot, so that no future rung copies §9's wording believing the
+single arm is sufficient.
+
+### A1.4 Re-freeze — the §11 freeze set, restated
+
+§11 is **not edited**; its table still names the same four paths in the same
+roles. This amendment records the blob shas as they stand at the amending
+commit, since `analyse_t8.py` has changed:
+
+| path | blob at the amending commit |
+|---|---|
+| `docs/campaigns/T-family/T8_PREREGISTRATION.md` | *(this file, as committed with this amendment)* |
+| `verification/runs/T-family/T8_runs/build_t8.py` | `376a41da268c` — **unchanged** |
+| `verification/runs/T-family/T8_runs/analyse_t8.py` | **`f04f9a674e03`** — was `d82c98ae2caf` |
+| `verification/runs/T-family/T8_runs/run_one_t8.sh` | `70a37aa634d6` — **unchanged** |
+
+**The grading path is re-fixed at the amending commit.** `analyse_t8.py
+--check-freeze` must return `0` against the new state before any solver starts.
+
+### A1.5 A named limitation of the freeze instrument itself
+
+`check_freeze_set` (`analyse_t8.py` 224–256) hashes each freeze-set file
+against **`HEAD:`**, not against a pinned sha. `CLAUDE.md` rule 2 fixes the
+grading path *at the pre-registration commit*. The instrument therefore detects
+an **uncommitted** edit to the grading path but **not a committed one**: a later
+commit modifying `analyse_t8.py` would move `HEAD` with it and `--check-freeze`
+would still print `FROZEN`.
+
+**It is not lying today** — the four blobs coincide at `HEAD` and at the
+amending commit, verified. This is recorded as a **named limitation rather than
+left for someone to discover**. Closing it means pinning the amending commit's
+sha in `FREEZE_SET`; that is **not done here** because it would be a change to
+the grading path made to the grading path's own guard, and it is the
+supervisor's call, not this lane's.
+
+### A1.6 Numbers at the amendment
+
+| check | before | after |
+|---|---|---|
+| `--selftest` | 52 ok, 0 FAILED | **69 ok, 0 FAILED**, rc = 0 |
+| mutation: extrapolation → `(7f₁ − f₂)/6` (`Tc`) | **SURVIVED**, 0 FAILED | **CAUGHT**, rc = 2, 3 FAILED |
+| mutation: extrapolation → `(7f₁ − f₂)/6` (`wc`) | not tested | **CAUGHT**, rc = 2, 3 FAILED |
+| mutation: wrong column pair `idx[1],idx[2]` | not tested | **CAUGHT**, rc = 2, 7 FAILED |
+| mutation: planted-zero verdict → `good = True` | not tested | **CAUGHT**, rc = 2, 3 FAILED |
+| mutation: age guard disabled | CAUGHT | **CAUGHT**, rc = 2 |
+| mutation: `OSCILLATORY` branch disabled | CAUGHT | **CAUGHT**, rc = 2 |
+| `scripts/check_grader_self_blindness.py` | rc = 0 | rc = 0, clean on both probes |
+| `--check-freeze` | 0, FROZEN | to be re-verified at the amending commit |
+
+**Cost of this amendment: 0 core-minutes of solver compute.** No solver ran.
+The selftest and the mutation harness are sub-minute Python on the login box.
+
+**Still `PENDING`. No level has been fired. Nothing here has been sent, filed,
+submitted, uploaded, registered or posted anywhere outside this box
+(`CLAUDE.md` rule 7).**
