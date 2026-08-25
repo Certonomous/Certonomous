@@ -474,3 +474,94 @@ against what actually came back, so it cannot be trimmed to fit.
   verified byte-identical to what ran, which is what rule 2 actually asks — but
   a reader should read this as "hashed before compute, committed after", not as
   "committed before compute".
+
+---
+
+## 9. DATED ADDENDUM, 2026-08-25 — `build_t10aR.py:207` ASSERTS AN IDENTITY IT DOES NOT CONSTRUCT. Disclosed, NOT repaired.
+
+**Lines whose number changed above this section: 0.** Appended at the foot.
+**No verdict, gate, threshold, band, cap or label moves.** T10a-R's grading is
+untouched and stands exactly as `gate_t10aR.json` recorded it.
+
+### 9.1 The defect
+
+`verification/runs/T-family/T10aR_runs/build_t10aR.py:207-208` prints, after the
+build loop and **unconditionally**:
+
+> `every other dictionary and every 0.orig field verified byte-identical to the
+> frozen T10a B_f.`
+
+**Both sides of that identity are literals.** The sentence names *"every other
+dictionary"* and *"the frozen T10a `B_f`"* without deriving either from what was
+actually compared — no count, no path, no sha.
+
+**The mechanism behind it is SOUND, and that is the point.** `verify()` genuinely
+refuses on mismatch in both directions — `:186` `REFUSE: {name} {rel} differs
+from B_f but was registered identical` and `:196` `REFUSE: {name} {rel} is
+identical to B_f but was registered CHANGED` — so the sentence prints **only**
+when every check passed. **It is true by CONTROL FLOW, not by construction from
+the values it asserts about.** Change `verify()` to warn instead of raise, or
+hand `main()` an empty case set, and **the sentence still prints, unchanged and
+false.**
+
+**This is the class the ansys-verification team found in their own instrument** —
+a freeze line reading *"X is byte-identical to HEAD:Y"* while naming two
+different files as the same thing — and it is **cited as their finding.** Their
+rule is the right one and this record adopts it: **print from the variable, never
+from a literal.** The reason it matters is not aesthetics: **this is the sentence
+a reader quotes when asserting that a freeze held.**
+
+### 9.2 WHY IT IS NOT REPAIRED — the boundary rule, and it bites here
+
+**`build_t10aR.py` is a FROZEN artifact whose blob IS cited evidence.** Its
+sha256 `2bc6f3c22bad4143bcdec40a0a47b193b6caf93aa76ec2a77b7985fbf74c1e73` appears
+in **three** places as freeze proof:
+
+| citation | what it proves there |
+|---|---|
+| `T10aR_PREREGISTRATION.md:417` | §5.1's repaired-builder hash |
+| `T10aR_PREREGISTRATION.md:576` | the frozen manifest row |
+| `gate_t10aR.json:11` | the grading artifact's own record of the build path |
+
+**Editing that file — even at constant line count, even to make a false sentence
+true — changes the blob that IS the evidence**, and would silently falsify three
+citations including one inside a graded gate artifact.
+
+**The rule, adopted from ansys-verification via the chief:** *the in-place
+correction technique's value is inversely related to how load-bearing the file's
+IDENTITY is.* **Use it on census tables a reader consults; never on freeze
+artifacts.** And the strong assertion *"lines whose number changed: 0"* is
+**only provable for a pure append** — at constant line count one can assert the
+line count held, but **not that the artifact a citation points at is the same
+artifact.**
+
+**This team used the in-place technique correctly earlier the same day** on
+`MATRIX_CONTRIBUTION.md`'s §8.1/§8.2 census tables — a living record, no sha
+cited, and the foot was where nobody looks. **Here the same technique would have
+been a defect.** The boundary is real and it was reached within the hour.
+
+**Disposition: DISCLOSED, NOT REPAIRED.** T10a-R is already graded, so **rule 2
+closes the gates**: changes land only as dated addenda that cannot alter a gate,
+threshold, cap or label — which is what this is. **A repair, if ever wanted, is a
+NEW build script under a NEW pre-registration**, with both shas quoted so the
+original freeze stays quotable. **It is not wanted today**: nothing in T10a-R's
+verdict depends on that sentence, and the checks it describes did run and did
+refuse.
+
+### 9.3 The check that mattered more, and it came back clean
+
+**The T1b L4 grading chain was swept for this same defect class before the pool
+grades** — `analyse_t1b_L4.py`, `analyse_t1b.py`, `analyse_t1c.py`,
+`mark_done_t1b_L4.py` and `planted_zero_control_t1b.py`. **They assert no
+identity in prose at all.** The only matches are tolerance statements
+(`analyse_t1b.py:273`, `analyse_t1b_L4.py:278`, both *"NOT verified to that
+tolerance"*), which claim nothing about file identity. **The instrument that will
+grade the pool is clean of this class.**
+
+**`analyse_t10aR.py:674-675` was checked and is SOUND**, and is recorded so the
+sweep's negative is not read as untested: it prints **both actual sha prefixes**
+beside their labels and derives `IDENTICAL` from `sha_f == sha_s` on the **same
+two variables** it printed. A reader sees the evidence, not a claim about it.
+**That is the shape §9.1 asks for, already present in a sibling instrument** —
+which is why the defect at `:207` reads as an oversight rather than a
+misunderstanding.
