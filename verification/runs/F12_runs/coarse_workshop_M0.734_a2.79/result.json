@@ -1,0 +1,18 @@
+{
+  "rung": "coarse_workshop_M0.734_a2.79",
+  "preregistration": "verification/campaign/F12_PREREGISTRATION.md",
+  "preregistration_blob": "41ec748a06b513414101dca9780107f08a25ddec",
+  "grading_path_blob": {
+    "sdk/workflows/rae2822_case9.py": "a18314f77160b7a58f443073850a44b4d8fada7d",
+    "sdk/workflows/tmr_verification.py": "404ce4323127d1cb24836d67720d94ba9f5d401e",
+    "scripts/roache_triple.py": "8dee0d31e94d3f59d28658f88a4cd6df80ae8e39"
+  },
+  "status": "RuntimeError",
+  "started_utc": "2026-08-25T01:03:06.630220+00:00",
+  "ended_utc": "2026-08-25T01:03:34.349878+00:00",
+  "driver_wall_seconds": 27.7,
+  "ranks": 1,
+  "cap_core_min": 120.0,
+  "solver_timeout_s": 7140.0,
+  "traceback": "Traceback (most recent call last):\n  File \"/home/ubuntu/Certonomous/verification/runs/F12_runs/run_f12_rung.py\", line 83, in main\n    record = W.run_case(\n             ^^^^^^^^^^^\n  File \"/home/ubuntu/Certonomous/sdk/workflows/rae2822_case9.py\", line 1184, in run_case\n    raise RuntimeError(\"rae2822: rhoSimpleFoam failed:\\n\"\nRuntimeError: rae2822: rhoSimpleFoam failed:\n    Cs(r):\t0.003843199624\t0.01207448161\t-0.008231281989\t0\n\n    writing force and moment coefficient files.\n\nTime = 180\n\nDILUPBiCGStab:  Solving for Ux, Initial residual = 0.02104881746, Final residual = 0.0001317796886, No Iterations 1\nDILUPBiCGStab:  Solving for Uy, Initial residual = 0.02656629746, Final residual = 0.0001589810608, No Iterations 1\nDILUPBiCGStab:  Solving for e, Initial residual = 0.1150359479, Final residual = 0.002514167522, No Iterations 1\n\n\n--> FOAM FATAL ERROR: (openfoam-2606)\nNegative initial temperature T0: -1.72234834\n\n    From Foam::scalar Foam::species::thermo<Thermo, Type>::T(Foam::scalar, Foam::scalar, Foam::scalar, Foam::scalar (Foam::species::thermo<Thermo, Type>::*)(Foam::scalar, Foam::scalar) const, Foam::scalar (Foam::species::thermo<Thermo, Type>::*)(Foam::scalar, Foam::scalar) const, Foam::scalar (Foam::species::thermo<Thermo, Type>::*)(Foam::scalar) const) const [with Thermo = Foam::hConstThermo<Foam::perfectGas<Foam::specie> >; Type = Foam::sensibleInternalEnergy; Foam::scalar = double; Foam::species::thermo<Thermo, Type> = Foam::species::thermo<Foam::hConstThermo<Foam::perfectGas<Foam::specie> >, Foam::sensibleInternalEnergy>]\n    in file ./src/thermophysicalModels/specie/lnInclude/thermoI.H at line 57.\n\nFOAM aborting\n\n[stack trace]\n=============\n#1  Foam::error::simpleExit(int, bool) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so\n#2  ? in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so\n#3  ? in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so\n#4  ? in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so\n#5  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam\n#6  ? in /lib/x86_64-linux-gnu/libc.so.6\n#7  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6\n#8  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam\n=============\n"
+}
