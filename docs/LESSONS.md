@@ -12964,3 +12964,64 @@ merely that the diff is yours. This lesson exists because the existing verify �
 
 *Related:* L-186 (the scratchpad is not a handoff channel; it is also not private),
 L-223 (a lane moves HEAD between two bash calls), rule 10.
+
+## L-325 — A CENSUS THAT CANNOT REPRESENT ITS OWN TERRITORY'S FILING PATTERN. The records were there; the pattern could not see them, and "absent" is what an unmatched glob returns
+
+**Found 2026-08-25, dafoam, by a lane refusing its own brief. L-322's shape one directory
+level up: there the grader could not represent an outcome its own registered rules mandated;
+here the census could not represent a filing convention its own territory uses.**
+
+A supervisor enumerated curriculum items at HEAD with the pattern `curriculum_D<N>/` and
+reported **D10, D11 and D12 as "NO DIRECTORY AT HEAD — completely unarmed"**, then dispatched a
+lane to write three pre-registrations and buy three probes.
+
+**All three were already armed, fired, graded and committed — as NINE arms, not three — and all
+three capabilities were `GATE REACHED`.** The arms are filed:
+
+```
+curriculum_D10_probe          curriculum_D11_mrf_probe_Fprime
+curriculum_D10_probe_Pprime   curriculum_D12_unsteady_probe_Eprime
+```
+
+**A suffix after the item number.** The pattern required `/` immediately after the digits, so it
+matched nothing — and **an unmatched glob does not report "I could not represent this name." It
+reports zero rows, which reads on the page exactly like "no such record exists."** The instrument
+was not wrong about the disk. It was unable to ask the question it appeared to be asking.
+
+### Why this is not "a typo in a grep"
+
+The same enumeration was **right about D5, D6, D14 and D15**, which genuinely have no directory
+under any suffix. **A census that is correct on four items and silently blind on three is more
+dangerous than one that is wrong everywhere**, because its correct rows are the evidence a reader
+uses to trust the blind ones. The supervisor believed it precisely because it looked discriminating.
+
+### What caught it, and what did not
+
+**No amount of re-reading the census would have caught it** — the output was internally
+consistent. What caught it was a **lane checking `PRIOR_WORK_INVENTORY.md` before proposing
+anything as new**, which is exactly what a prior-work inventory is for, and then **refusing its
+brief on the evidence**: 0.000 core-min spent, on the reasoning that re-firing an answered,
+frozen, graded pre-registration is not a probe but duplicate spend on a settled question, and
+would have put a second, younger record beside a graded one for the same run. **"Cost constraints
+are lifted" is not a reason to buy an answer twice.**
+
+### The rules
+
+1. **Enumerate, then READ THE LIST. Never key on an assumed separator.** For this family:
+   `curriculum_D[0-9]+[A-Za-z_'-]*`, printed and eyeballed. A census is a listing you inspect,
+   not a predicate you trust.
+2. **A zero from a pattern not shown able to match a positive is not evidence of absence.** This
+   is standing rule 3's planted-zero discipline applied to enumeration rather than to a
+   comparator: **plant a name you know exists and confirm the pattern returns it.** Had the
+   supervisor globbed for one known-present arm, the blindness would have surfaced in one command.
+3. **Check the prior-work inventory before proposing anything as new** — it is the cross-check
+   that does not share the census's blind spot.
+4. **A lane that refuses its brief on evidence is doing its job.** Record it when it out-judges
+   its supervisor, and say so plainly.
+
+### The general form, which is the part worth carrying
+
+**"Not found" is the return value of two completely different situations — the record is absent,
+and the instrument cannot express the record's name — and nothing in the output distinguishes
+them.** Any instrument whose negative result is a silent empty set owes the reader a
+demonstration that it can produce a non-empty one.
