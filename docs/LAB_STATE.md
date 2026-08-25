@@ -3979,6 +3979,259 @@ The M6 pre-registration was frozen as **`F13_ONERA_M6_PREREGISTRATION.md`**. **O
 ### Blocked
 
 **M6/F1's ladder** on its amendments — clearing now. **F12** on my check-1 read of the launcher. **F4's §8.1/§8.3** on her event ruling. **cfd's and the lab's `P` column** on whether any held primary title-page verifies AND publishes a gateable number — **and on M6 that is now a stronger bar: the artifact must also CARRY the coordinate the gate needs.**
+
+### TENTH SESSION (RE-FORMED AFTER AN ACCIDENTAL STOP) — 2026-08-25T18:18:37Z — written by cfd-supervisor personally
+
+*Stamp from `date -u` in the writing invocation. Merged into the **HEAD blob** via
+`scripts/lab_state_section.py`, never the worktree copy, which measured 1,584 lines behind.*
+
+**THE STOP WAS LOSSLESS AND I PROVED IT RATHER THAN ASSUMING IT.** Sanaa: *"nO SORRY I didnt mean
+to stop anybody."* Every frozen document in my territory was hashed against its HEAD blob before
+anything ran: `F13_ONERA_M6_PREREGISTRATION.md` `7456a7b3`, `F12_PREREGISTRATION.md` `462492a8`,
+`F3_CONVERSION_PREREGISTRATION.md` `774dad46`, `F1_CP_PROVENANCE` `e0030a3e`, `F13_RESULTS.md`
+`b3352659`, the gate-B probe `414470b6`, `launch_f12_rung.py` `8233c379`,
+`ATTEMPT2_MESH_REGISTRATION.md` `14044058` — **all eight IDENTICAL to HEAD. Nothing was lost.**
+
+**LIVE READING CORRECTED, and I discriminated with `ps -eo args` rather than `pgrep -f`.** The only
+`simpleFoam` on the box is **ansys-verification's** (`VMFL003_M2/C_RNGkEpsilon/L2_500x5`, cwd read
+from `/proc`). **pid 2343752 named in the brief NO LONGER EXISTS.** **Nothing of cfd's was running
+at re-formation.**
+
+**A CORRECTION TO THE BRIEF I WAS GIVEN, on the record because it changed my scheduling.** The brief
+said *"M6's pre-registration is freezable now and is your second HOLDS path."* **It went further than
+that before the stop: M6/F1 was frozen, amended TWICE, corrected once, FIRED, and CLOSED
+`GATE FAIL`** — §5 admission at all three levels, verdict in
+`verification/runs/F13_ONERA_M6_runs/R0_TERMINAL.md`. There was nothing to freeze. **Acting on the
+brief without checking disk would have re-frozen a closed case.**
+
+### VERDICTS THIS SESSION
+
+**F12 rung 2 — `BLOCKED`.** The launcher's own `rate_calibration_gate()` refused it, **unmodified**,
+before `compose_case()` and before any compute: rung 1 `rc = 134` (not 0), all six completion limbs
+`false`, `not complete` — corroborated at source in rung 1's `RC.txt` and `grade.json`. **Cap
+unconsumed at 0 of 160 core-min, $0.00, WASTE ZERO** — the refusal preceded compute. Rungs 3–5
+asserted **absent before and after**. Gate A medium re-read from existing evidence: 92,160 cells,
+**51.5250°, ZERO faces over 70°, `PASS`**.
+
+**F3's three PENDING rows — `BLOCKED` ×3** (G-F3-1 / G-F3-2 at M2.5_th10, G-F3-5 at M2.5_eps5).
+The frozen **39.5 core-min hard cap fired exactly as registered**: 33.4177 core-min measured over
+ten runs all `rc = 0`, wave 6 refused by **40.54 core-s**. **The decisive part is that the refusal
+survives deleting the headroom rule** — the measured calibration ratio **1.1290** puts wave 6's
+expected *actual* at 381.50 core-s against 364.94 remaining, so the unconditional watchdog kills both
+runs **16.56 core-s short, at ~95.7 % complete. Firing yields a KILLED row, not a result.** **Zero
+core-minutes incurred, and NO `COST_CALIBRATION.md` row added** — a calibration row for zero compute
+puts a fictitious measurement in the ledger. The lane **considered and rejected a wave re-partition**
+that would have slipped the cheaper run past a per-run check, on the ground that it changes what the
+cap does *after* compute, *having seen that it refused* — **the motive is the giveaway.** Escalated,
+not taken. I uphold that.
+
+### ⚠ THE CORRECTION I MADE AGAINST MYSELF, and it is the useful part of this session
+
+**MY GATE-B RULING WAS CORRECT AND WAS NOT THE BINDING CONSTRAINT.** I ruled at length on whether
+rung 2 should fire on gate-B grounds and answered yes. That analysis stands. **But rung 2 was never
+gated on gate B** — it was gated on frozen §5's rate calibration, upstream of everything I examined,
+**and readable in the launcher the whole time.** I reasoned about the gate a run would eventually
+meet without first establishing what was actually stopping it **today**. **Triage the blocker you
+have before you rule on the gate you expect.** The interlock is upheld over my own ruling: §2d is
+live, a post-compute ruling cannot alter a frozen ordering, my ruling says so in its own terms (§6,
+*"nothing wider"*), and opening it needs **launcher bytes changed** — C1.3 in another costume. **The
+lane wrote no diff and stopped; that was right and is RECORDED as right**, so the next lane does not
+read stopping as under-performance.
+
+### ⚠⚠ THE CRASH TRIAGE TURNS THE SEARCH AROUND: THE FPE IS A SYMPTOM, NOT THE DEFECT
+
+`rc = 134` = 128 + 6 = **SIGABRT**. Already refuted and not to be re-tested: the `transonic`
+hypothesis (**arm B′: 600× WORSE** with the pressure equation actually solving) and the
+GAMG-registration claim (**refuted FROM SOURCE** — GAMG *is* registered for symmetric and asymmetric
+matrices, and an unregistered solver raises a **selection-time error, not an FPE**; that numerics row
+must **not** be landed). Arm B established only the narrow thing: an FPE in GAMG's **coarsest-level**
+solve on that asymmetric matrix. **Why is not established**, and three of the last four mechanism
+claims on this line were corrected, twice from source.
+
+**THE NEW EVIDENCE:** first-solve `p` on rung 1 **never got below 9.5548e-03**, at iteration 5, and
+was **RISING at the abort**, median q4/q3 = **1.399**. **Rung 1 was diverging from ~iteration 5 and
+never converged at any point in its life. It did not descend and then blow up — it never descended.**
+
+**MY TRIAGE CONCLUSION, stated falsifiably rather than as a story:** the FPE is a **symptom of an
+already-diverging outer iteration**, not an independent linear-solver defect. A coarsest-level GAMG
+solve trapping on a matrix assembled from a field rising for tens of iterations is doing the expected
+thing with garbage input. ***"Why did GAMG FPE" is very likely the wrong question — and it is the
+question every arm so far has asked.*** **The test: if the outer iteration were made to descend the
+FPE would not occur; if it still occurred on a descending run, my triage is wrong and the linear
+solver is implicated after all.**
+
+**THE NEXT PROBE, AND IT IS DELIBERATELY NOT ANOTHER LEVER SWAP.** My predecessor lane declined to
+propose an arm because *"three of my last four messages have corrected a mechanism, and the next move
+should follow your triage rather than my guess."* **Honoured.** The arm now running: **stop asking
+why the linear solve traps; establish WHERE IN THE DOMAIN the field first goes wrong, and WHEN** —
+every field, every iteration, first ~15 iterations, located spatially. **Every arm to date swapped a
+lever and read a scalar residual afterwards. NO ARM HAS YET LOOKED AT THE FIELD.** A residual is one
+number summarising a whole domain; it cannot say whether the trouble is a boundary, a corner, the far
+field, the trailing edge or the whole flow, and those have entirely different fixes. **A LOCALISED
+departure indicts a boundary condition or the mesh there; a GLOBAL one indicts the initial state or
+the relaxation.** It changes no solver, scheme, relaxation, tolerance or registered value; if it
+cannot run without changing a lever, **that is the finding** and it returns unchanged. The lane is
+told to **attack** my conclusion, not confirm it.
+
+### SANAA'S FOUR RULINGS — landed, not merely acknowledged
+
+**1. GRID STANDARD, 3 LEVELS — LANDED VERBATIM, desk item CLOSED.** `MESH_STANDARD.md` **§9.1**,
+v1.4, quoted in full and attributed to her session turn. Three is **both minimum and sufficient** for
+a gate; a fourth level is research and is **never owed**. **What it does NOT relax, and I wrote the
+distinction into the standard: the family must still CONVERGE, with an OBSERVED ORDER and a GCI at
+Fs = 1.25, never quoted when the three values are not monotone. Three levels that do not converge are
+not a gate — they are three numbers.**
+
+**2. DESK-ITEM DISPOSAL — APPLIED, and my queue is cleared, not parked.** Three rulings made and
+recorded `[lab-attributed]` with reasoning, **overrulable**: the gate-B ruling, the wake far-side
+letter-versus-spirit ruling (`MESH_STANDARD.md` §9.2), and the log policy
+(`docs/standards/RUN_LOG_STANDARD.md` v1.0). **The `analyse_f5b_physics.py` edit is NOT covered and
+is untouched — it was denied by the PERMISSION SYSTEM, not by her, and her silence does not override
+a live denial.**
+
+**3. MAXIMUM CONCURRENCY — accepted, and reported honestly against the target.** Measured load1
+median during the rung-2 attempt was **18.61 = 116 % of 16 cores**, **above** her 80–90 % band — a
+**third bimodality row** for this team. Loadavg is now sampled **throughout** every cfd run, never
+only at launch. **An honest limit: the box is shared with three other teams, so cfd cannot hit a
+target it does not control alone — what cfd controls is measuring and disclosing its share, and it
+now does.**
+
+**4. THE RATIO. I accept the judgement without flinching**, and this session's answer to it is three
+lanes firing concurrently rather than one at a time.
+
+### THE WAKE FAR-SIDE RULING — the hazard is that the defect passes EVERY instrument
+
+`MESH_STANDARD.md` **§9.2**. F12's generator sets the wake blocks' far-side grading from an
+**absolute** 0.3-chord first cell with **no level dependence**; total expansion returned across the
+ladder is **3.747165 / 1.084468 / 1.000000**, because at the fine level the generator's own guard
+`if first_cell >= length/n: return 1.0` **fires** and that level goes **uniform** where the coarse
+level is graded **3.75:1**. **By the LETTER of §3 the ladder is admissible — a uniform block is if
+anything better conditioned. By the SPIRIT it is three different experiments.** **Ruled: a recipe
+that FLIPS A BRANCH across levels is NOT a Roache ladder, whatever §3 says about each mesh
+individually; gate A passing three times does not save it.** §3's gates are **per-mesh** and a triple
+is a claim about a **family** — no gate there can see a relationship *between* levels, and that
+relationship is what the order is computed from, so reading §3 as sufficient is a **category error,
+not a lenient interpretation**. **THE HAZARD: this defect is invisible to every check the lab
+currently runs** — it passes gate A, passes `checkMesh`, passes nesting and cell-count assertions
+(node positions can still nest EXACTLY), and `scripts/roache_triple.py` **cannot detect it**
+(`F12_PREREGISTRATION.md:468`). **A ladder can be dead on arrival while every instrument reports
+green.** Consequence: every cfd ladder must record, **per level**, the **ACTUAL** grading and
+first-cell values **READ BACK** from the written dictionary or built mesh. Deliberately a read-back —
+**in this defect the REQUESTED parameter was IDENTICAL at every level, and that constancy is what
+CAUSED the flip. The requested value is the thing that lied.**
+
+### MONITOR RULE S17 — an instrument that validates itself on the channels that cannot expose it
+
+**A residual criterion is read WHERE THE SOLVER READS IT.** `simpleControl` sees the **FIRST** solve
+of each outer iteration; a tail-read returns the **LAST** corrector. **Why it is hard to see: only
+the corrected field is affected — every single-solve channel's first and last readings COINCIDE
+EXACTLY, so a reader checking itself against `U`, `k`, `omega` or `e` finds perfect agreement.**
+The concrete cost: the claim that *"every single channel sat one to two orders of magnitude below its
+own threshold"* is **STRUCK for `p`**. The truth was the inverse — **iterations out of 2,000 where
+every channel's first solve sat below 1e-4: ZERO.** The run never satisfied its own
+`residualControl` and ran to `endTime`. **No solver anomaly — a READING defect in this lab's own
+reader**, which had turned a run that never converged into one reported as converged. **Id derived by
+hand from the HEAD blob (max S = 16), never from `append_record.py`.**
+
+**A CORRECTION I MADE AGAINST THE PROBE, not for it:** it attributed the first/last divergence to
+`nNonOrthogonalCorrectors 2`. Right for F2, and it **does not transfer** — **F12 runs
+`nNonOrthogonalCorrectors 1`**, checked in its own `fvSolution`. The mechanism survives; the
+multiplicity does not. **F12 measures a 23.8× within-iteration `p` spread on its own mesh, NOT F2's
+130×**, and no F12 number may be quoted from F2's figure.
+
+### A MISREADING OF MY OWN, CORRECTED BEFORE IT COST ANYTHING
+
+I read F3 §3's last column as an *applies-to* restriction (*"M2.0/θ15 only"*) and briefly concluded
+the lane had mis-mapped its rows. **The column is headed `grid triple`.** Waves 4 and 6 are
+**"band only"** — graded against the band, forming **no triple**. **The lane was right and I was
+wrong**, and the open question that falls out of it is now with a lane: **what does a band-only,
+single-mesh row actually produce under standing rule 5, when clause 2 cannot be evaluated at all?**
+That lane is instructed that **"a band-only row cannot become a credential" is a fine answer and it
+should stop rather than manufacture a reason to proceed** — it would tell this team what its
+"band only" waves have been buying all along.
+
+### Commits this session
+
+`43236ec1` gate-B ruling + monitor rule S17. `735b7b8c` MESH_STANDARD v1.4 §9 (Sanaa's grid ruling
++ the wake similarity clause). `d7f22abd` RUN_LOG_STANDARD v1.0. `2dd54922` rung-2 disposition +
+crash triage. **Every one via the private-index protocol with the post-commit `git diff HEAD~1 HEAD
+--stat` verification showing ONLY my paths.**
+
+### Lanes live — 3, AT CAP
+
+1. **M6/F1 successor topology** — the dead ladder's fault is **two COLLAPSED LINES** from Amendment 2's
+   tip fill: **84.6437 / 86.0173 / 86.7767°**, worsening under refinement toward 90°, severe faces
+   **36 / 216 / 1440**. The measured no-fill control gives **51.2554° and ZERO faces over 70°**, so
+   attribution is settled. A **second, independent** fault is the wake-cut aspect ratio **5934.1**,
+   **identical in the control**, hence a defect of §5's own recipe. Lane must **BUILD and `checkMesh`
+   before anything is frozen** (C1.4) and may **not** bypass `blockMesh` (C1.3). **No solver starts.**
+2. **F3 band-only question, then a successor only if it survives.** My ruling on the successor's
+   form: **it CARRIES F3's FROZEN BANDS OVER UNCHANGED AND RE-DERIVES NOTHING** (±0.5 / ±2.0 / ±1.0 %,
+   §3.1 reference values verbatim). **That eliminates the outcome-fitting objection rather than
+   arguing against it** — a successor that re-derives would be in a WORSE position than F3 was; one
+   that carries over is in exactly the same position. **If a lane feels an urge to adjust any band,
+   that urge is the defect the clause exists to catch.**
+3. **F12 rung-1 field observation arm** — the probe above, running outside the repository with the
+   registered rung-1 fingerprint asserted before and after.
+
+### Rungs without verdicts, named including the embarrassing ones
+
+**F12 rungs 2–5** — `BLOCKED` on the rate-calibration interlock, which cannot clear until rung 1
+**succeeds**, which needs the `rc = 134` abort resolved. **That, not gate B, is F12's critical path.**
+**F3 G-F3-1 / G-F3-2 / G-F3-5** — `BLOCKED` on a correctly-fired cap; graded cells stay `PENDING`.
+**F1/M6** — `GATE FAIL`, tier `NOT HELD`, V/G/P `PENDING` with no value computed. **F5b** — status
+**VERIFY**, not re-established this session. **F4** — headline still **CONTINGENT** on Sanaa's event
+ruling. **F4-Q4** — the 3 core-min `wmake` build allowance **still not closed**. **DPW8_V2 L4** — map
+cell `PENDING`, L4 **NOT GATED**. **cfd's P column stands at 0 of 82** — **VERIFY**, carried from the
+last session and not re-counted today.
+
+### Next actions
+
+Read the observation arm's field evidence **personally** and rule on whether my FPE-as-symptom triage
+survives it. Read the M6 successor's measured `checkMesh` numbers before any successor freeze — **C1.4
+means I do not freeze on an assumed mesh line.** Rule on the band-only question when it lands. **Pin
+`scripts/roache_triple.py` before any rung-2 firing ever happens** — the launcher's own docstring
+records it as owed and the triple is the graded object.
+
+### On Sanaa's desk
+
+1. **AGARD AR-138 (1979)** — **one document, BOTH her named HOLDS paths** (F12/RAE 2822 Case 9 and
+   F1/ONERA M6). Zero tracked files match it anywhere. **Procurement is outside the box and hers alone
+   under rules 7 and 8.** Sharpened and unchanged: without it **M6's `P` is not computable at all** —
+   the held artifact `case_2308.dat` carries **no spanwise coordinate**, only `Section, Tap, X/L, Z/L,
+   CP`, with `Z/L` spanning ±0.0489 (thickness on local chord, not span), eleven span tokens returning
+   zero **under a planted control**.
+2. **Three `[lab-attributed]` rulings for her one-day review** — gate B, the wake similarity clause,
+   the run-log standard. **All overrulable, all recorded with reasoning.**
+3. **`scripts/append_record.py`'s id regex** — measured **14 short** at HEAD (320 `## L-` headings,
+   306 seen); `scripts/` is nobody's territory.
+4. **The F4 event ruling** — the one-paragraph re-presentation is done and in front of her, **zero
+   compute either way**.
+5. **The `analyse_f5b_physics.py` permission denial** — untouched, awaiting her words directly.
+6. **The `MESH_STANDARD.md` header still reads v1.2 while §8 says v1.3 and §9 says v1.4.** Recorded
+   in §9 rather than repaired, **because editing line 3 would move every line number above and break
+   the zero-lines-changed assertion other records cite.** Someone should take it as a disclosed edit.
+
+### Blocked
+
+**F12's whole ladder** on rung 1's `rc = 134` — the observation arm is the current attempt.
+**F3's three rows** on a cap that fired correctly; the only lawful route is a new pre-registration
+with its own cap, and the band-only question decides whether that is even worth freezing.
+**M6/F1** on a topology that can express a tip without a collapsed line **and** a wake without a
+5934:1 cell — being built now, **and if those two cannot both be met, that is a finding I want stated
+with numbers, not a failure.** **cfd's `P` column** on whether any held primary title-page verifies
+**and** publishes a gateable number — **on M6 the bar is now stronger: the artifact must also CARRY
+the coordinate the gate needs.**
+
+### Cost calibration
+
+**Solver core-minutes spent by cfd this session: ZERO.** Both verdicts were refusals that **preceded
+compute** — F12 rung 2 at **0 of 160 core-min**, F3 at **0 of the 6.1 remaining core-min**. **Waste
+zero in both.** **No `docs/COST_CALIBRATION.md` row is owed**: the close-out clause binds at rung
+completion (`PASS` / `GATE FAIL` / `NOT A RESULT`), **`BLOCKED` is none of those**, and rule 12's
+calibration duty does not reach zero-compute work — **inventing a denominator corrupts the ledger.**
+The standing figure that IS measured and carried: **F3's calibration ratio 1.1290 over ten runs**,
+every one exceeding its prediction (1.01–1.64).
 ## verification
 
 **Section updated:** 2026-08-25T01:18:13Z by verification-supervisor (stamp from `date -u` in the committing invocation). SEVENTH session spawn, on **Opus 5** under the Fable substitution at `7c469330`. **Zero compute all session — 0 core-minutes, no solver, no mesher, no container, no GPU.**
