@@ -1,0 +1,201 @@
+{
+ "REFUSED": "G2: {\"absent\": \"/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O/d4_major_history.json\"}",
+ "report": {
+  "G10_caps": {
+   "item_ceiling": 800.0,
+   "n_arms": 3,
+   "pass": true,
+   "rows": [
+    {
+     "actual": 0.333,
+     "arm": "P1",
+     "cap_equals_registered": true,
+     "enforced": 5.0,
+     "ledger_cap": 5.0,
+     "registered": 5.0,
+     "within_cap": true
+    },
+    {
+     "actual": 36.4,
+     "arm": "P2",
+     "cap_equals_registered": true,
+     "enforced": 55.0,
+     "ledger_cap": 55.0,
+     "registered": 55.0,
+     "within_cap": true
+    },
+    {
+     "actual": 511.133,
+     "arm": "O",
+     "cap_equals_registered": true,
+     "enforced": 620.0,
+     "ledger_cap": 620.0,
+     "registered": 620.0,
+     "within_cap": true
+    }
+   ],
+   "total_core_min": 547.866,
+   "within_item_ceiling": true
+  },
+  "G11_memory": {
+   "arms_oomkilled": [],
+   "n_arms": 3,
+   "pass": true
+  },
+  "G12_placement": {
+   "COLLISION_all_ranks_share_a_core": false,
+   "affinity_inside_cpuset": true,
+   "affinity_union": [
+    5,
+    6,
+    7,
+    9
+   ],
+   "all_ranks_on_distinct_single_cores": true,
+   "arms_below_floor": [],
+   "cpuset_registered": [
+    5,
+    6,
+    7,
+    9
+   ],
+   "delivered": [
+    {
+     "arm": "P1",
+     "cpuset": "5,6,7,9",
+     "cpuset_as_registered": true,
+     "delivered_cores_mean": null,
+     "raw": "NOT_MEASURED",
+     "siblings_post": "d8_opt_20260825T165153Z_2230005",
+     "siblings_pre": "d8_opt_20260825T165153Z_2230005"
+    },
+    {
+     "arm": "P2",
+     "cpuset": "5,6,7,9",
+     "cpuset_as_registered": true,
+     "delivered_cores_mean": 3.9867,
+     "raw": "3.9867 n=36 max_nr_throttled=670",
+     "siblings_post": "d8_opt_20260825T165153Z_2230005",
+     "siblings_pre": "d8_opt_20260825T165153Z_2230005"
+    },
+    {
+     "arm": "O",
+     "cpuset": "5,6,7,9",
+     "cpuset_as_registered": true,
+     "delivered_cores_mean": 3.988,
+     "raw": "3.9880 n=508 max_nr_throttled=22359",
+     "siblings_post": "",
+     "siblings_pre": "d8_opt_20260825T165153Z_2230005"
+    }
+   ],
+   "delivered_floor": 3.0,
+   "n_arms_with_delivered_measurement": 2,
+   "n_placement_files": 4,
+   "n_ranks_read": 4,
+   "pass": true,
+   "rank_affinity": {
+    "0": [
+     5
+    ],
+    "1": [
+     6
+    ],
+    "2": [
+     7
+    ],
+    "3": [
+     9
+    ]
+   }
+  },
+  "G1_completion": {
+   "age_datum_epoch": 1787681557,
+   "arms": {
+    "O": {
+     "core_min": 511.133,
+     "inspect_exit": "0",
+     "oomkilled": "false",
+     "rc": 0
+    },
+    "P1": {
+     "core_min": 0.333,
+     "inspect_exit": "0",
+     "oomkilled": "false",
+     "rc": 0
+    },
+    "P2": {
+     "core_min": 36.4,
+     "inspect_exit": "0",
+     "oomkilled": "false",
+     "rc": 0
+    }
+   },
+   "arms_required": [
+    "P1",
+    "P2",
+    "O"
+   ],
+   "n_arms_checked": 3
+  },
+  "G3_termination": {
+   "converged": true,
+   "exit_lines": [
+    "EXIT: Optimal Solution Found."
+   ],
+   "final_inf_du": 5.42e-06,
+   "final_inf_pr": 7.37e-08,
+   "final_objective": 0.021125978,
+   "n_majors": 80,
+   "n_rows_parsed": 81,
+   "other_exit_lines": []
+  },
+  "G8_decomposition": {
+   "A": {
+    "processor0": 9504,
+    "processor1": 9600,
+    "processor2": 9608,
+    "processor3": 9592
+   },
+   "B": {
+    "processor0": 9504,
+    "processor1": 9600,
+    "processor2": 9608,
+    "processor3": 9592
+   },
+   "cells_A": 38304,
+   "cells_B": 38304,
+   "cells_expected": 38304,
+   "identical": true,
+   "method_in_dict": true,
+   "method_registered": "scotch",
+   "numberOfSubdomains_in_dict": true,
+   "pass": true
+  },
+  "G9_toolchain": {
+   "digests": [
+    "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35"
+   ],
+   "idwarp_so_md5_by_log": {
+    "O_20260825T181237Z_2359354.log": "85f59e87253e0a71a813f64ca6e4c425",
+    "P1_20260825T174650Z_2319623.log": "85f59e87253e0a71a813f64ca6e4c425",
+    "P2_20260825T174718Z_2320490.log": "85f59e87253e0a71a813f64ca6e4c425"
+   },
+   "idwarp_so_md5_distinct": [
+    "85f59e87253e0a71a813f64ca6e4c425"
+   ],
+   "n_logs_read": 3,
+   "pass": true,
+   "rows": [
+    "PATCHED"
+   ],
+   "single_toolchain": true
+  }
+ },
+ "verdicts": {
+  "G10_cap_discipline": "PASS",
+  "G11_memory_envelope": "PASS",
+  "G12_cpu_placement": "PASS",
+  "G8_decomposition_determinism": "PASS",
+  "G9_toolchain_identity": "PASS"
+ }
+}
