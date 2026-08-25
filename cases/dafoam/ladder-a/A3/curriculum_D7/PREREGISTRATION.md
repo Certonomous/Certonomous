@@ -359,3 +359,355 @@ cannot alter a gate, threshold, cap or label, and the original is struck, never 
 (`CLAUDE.md` rules 2 and 6).
 
 **NOT LAUNCHED. Nothing fires without the dafoam-supervisor's own read that this is committed.**
+
+---
+
+## Addendum 1 — 2026-08-25, PRE-COMPUTE. Instrument freeze, digests, and the launch gate.
+
+**Version 1.0 → 1.1.** `lines whose number changed above this section: 0`.
+
+**CONDITION, AND HOW IT WAS CHECKED** (`CLAUDE.md` rule 2: before first compute, amendments are
+legal and must state the condition and how it was checked). **No compute has occurred for this
+item.** Verified, at the moment this addendum was written, by three independent readings:
+
+| check | reading |
+|---|---|
+| `/home/ubuntu/certonomous-runs/CURRICULUM-D7-a3-m6-cdmin/ledger.txt` | **does not exist** — the launcher writes it, and it has never run |
+| arm directories `P1 P2 O F-S F-P` under the run root | **0 of 5 exist** |
+| `docker ps -a` containers named `d7_*` | **0** — no container has ever been created for this item |
+
+The run root itself **does** exist: it was created by the staging step, which copies the case and
+writes no solver output. Stated exactly this way because "the run directory does not exist" is the
+rule's shorthand for "no compute", and here the more precise statement is available.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** Bands A–F, gates G1–G13, the
+cap table of §8, `max_iter` 30 and the `GATE REACHED` ceiling of §7/§11 are exactly as frozen at
+`337d4d84`. Nothing above this section is rewritten.
+
+### A1.1 The gap this addendum closes
+
+§10 states that the launcher, producer, endpoint extractor, endpoint FD producer and grader are
+committed before any container starts, **"each with its md5 recorded here at freeze time"**. **No
+md5 was recorded, because no instrument existed at the freeze commit** — §10 was a forward
+commitment, not a record. The instruments are written now, before the first container, and their
+md5s are recorded below. **This is disclosed as a gap in the frozen document rather than presented
+as a plan that was followed.**
+
+### A1.2 Frozen instruments — md5 at freeze
+
+| instrument | role | md5 |
+|---|---|---|
+| `d7_opt_runScript.py` | producer (M6 optimisation model) | `e43902ed2cfc99022c6e21e075f88695` |
+| `d7_extract_endpoint.py` | endpoint + per-major history extractor | `651d40c78cc52288a856934c108d1334` |
+| `d7_fd_endpoint.py` | endpoint FD table producer | `92b3fa8d20a41da029590ed3bdde4203` |
+| `d7_run_arm.sh` | launcher | `c55b2cdeaf8a0975641b491b24912d63` |
+| `d7_grade.py` | grader | `f77a84c64c632af478c3dc4885143ed9` |
+
+The launcher re-asserts the first three md5s on the **staged** copies before **every** launch and
+aborts (exit 4) on a mismatch. **The producer's md5 is also embedded in `d7_fd_endpoint.py`**, which
+refuses (exit 2) unless the producer it execs is byte-identical to the frozen one — the FD producer
+does not carry a **copy** of the model, it execs the producer's own bytes up to the literal anchor
+`# OpenMDAO setup`, so the two cannot drift.
+
+### A1.3 Image digests, resolved from the local store 2026-08-25T20:26Z
+
+§9 requires the digests be resolved and written into the launcher before the first container.
+
+| row | tag | digest |
+|---|---|---|
+| **SHIPPED** | `dafoam/opt-packages:latest` | `sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc` |
+| **PATCHED** | `dafoam-idwarp-rot:v1` | `sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35` |
+
+Both are byte-identical to the digests `A2/curriculum_D4/d4_run_arm.sh` registered at its own
+freeze. The launcher aborts (exit 4) unless the resolved digest equals the registered one, and
+**enforces §9a's row assignment**: arms P1/P2/O are SHIPPED-only, F-S is SHIPPED, F-P is PATCHED.
+
+### A1.4 The launch gate — an OPERATIONAL threshold, and it grades nothing
+
+**This is a launch gate, not a grading gate. It cannot change any verdict**, and no band above
+depends on it.
+
+| arm class | container cap | **MemAvailable floor, stated before the reading it gates** |
+|---|---|---|
+| P2, O, F-S, F-P | 12g | **≥ 16.0 GiB** |
+| P1 | 4g | **≥ 6.0 GiB** |
+
+Basis: container cap + ~4 GiB host headroom. A3 rung 2 measured peak container RSS **9.263 GiB** at
+np=4 on this mesh inside a 12 GiB cap. **Enforced with a real refusal path** (launcher exit 5,
+before any rank is claimed).
+
+**Honest disclosure about the ordering.** A `MemAvailable` reading of **28.21 GiB** was taken at
+lane start (2026-08-25T20:23Z) as part of the box-state sweep, **before** these numbers were
+written down. The thresholds were not chosen to clear that reading — they are the container cap
+plus headroom — but the reading did precede them and saying so is cheaper than being asked.
+
+**A3 rung 2's §9.1 mistake is not repeated.** That rung registered a host-memory stop rule as a
+**record-only** watcher with nothing connecting rule to kill path, and its own record calls it what
+it was: *"A stop rule with no enforcement path is a preference, not a control."* Here the
+**pre-launch gate is the control**, and the in-run host-memory sampler is **record-only and is
+declared record-only**, with no threshold and no stop condition attached. **No mid-run memory stop
+is registered**, because killing a running 30-major optimisation to protect a number would destroy
+the run it protects.
+
+### A1.5 CPU placement — the census this cpuset came from
+
+Census 2026-08-25T20:25Z, `mpstat -P ALL` over 5 s on 16 cores:
+
+* cores **5, 14, 15** — **0.0 % idle**, three heat-transfer `buoyantBoussinesqSimpleFoam` solvers
+  (pids 2203927 / 2203944 / 2203947). **Not touched, not signalled** — another team's live custody.
+* core **0** — the default landing core the `--cpus=N` placement defect names.
+* cores **2, 3, 4, 6** — **99.2 % idle each**. **CPUSET = `2,3,4,6`**, pinned at launch.
+
+G12 then **measures** the placement rather than trusting the flag.
+
+### A1.6 The colouring cache — read of §8, stated before it is acted on
+
+§8 prices a **colouring build in arm P2's basis and in no other arm's**: arm O's basis is
+`19.0 core-min/major × 30 majors` and each F arm's is `22 primals × 3.38 + one cold compute_totals`.
+**That is only arithmetically consistent if the colouring is built once, in P2, and inherited by O,
+F-S and F-P.** This item therefore builds it once and inherits it, and the launcher **refuses to
+stage the inherited cache until arm P1 has demonstrated G8** — without a demonstrated-deterministic
+partition the inherited colouring would not be a colouring *of this partition*. A3 rung 2 records
+the same inheritance as a disclosed departure and measures a fresh build at **+28.0 core-min**.
+
+### A1.7 A defect found in this item's own grader, before the freeze
+
+Recorded because the lab's rule is that instruments are shown to work, not asserted to.
+
+**`D7-GRADER-DEF-1`: G11, the OOM gate, could not fail.** The ledger reader's generic
+`(\w+)=(...)` pattern **cannot match the key `inspect(exit,oomkilled)`** — `\w+` matches only the
+trailing `oomkilled` — so `rec.get("inspect(exit,oomkilled)")` returned `None`, `oom` computed
+`False`, and **G11 would have passed on a row the kernel marked `OOMKilled=true`**. Found by this
+grader's own coverage unit `G11_OOMKilled_true_fails`, **repaired before the first container** with
+an explicit parenthesised-key capture, and the repair is demonstrated by mutation `m8` (reinstating
+the blindness → selftest exit 3).
+
+**Attribution corrected before it was committed.** This lane first recorded that
+`A2/curriculum_D4/d4_grade.py` shares the defect, having tested only that file's *generic* regex.
+**It does not**: D4's G11 reads a separate dedicated structured parser (`d4_grade.py:551`) that
+captures the key correctly. **The defect was this lane's alone.** A false defect attribution
+against a peer's committed instrument is worse than the defect it alleges.
+
+### A1.8 Grader selftest — WIRED, and its COVERAGE measured, not its size
+
+`d7_grade.py --selftest` is wired from the first commit with a **distinct exit path** (3, used by
+nothing else; a graded run exits 0 or 2) and writes no `--out`. **D4-DEF-1 — a `--selftest` flag
+declared at argparse and never read, which silently ran a full grade — is not repeated.**
+
+**Per the dafoam-supervisor's ruling of 2026-08-25 that unit count measures a selftest's SIZE and
+not its COVERAGE**, the selftest prints both lists on every run:
+
+* **gates the grader can emit: 14** — G1, G2, G3, G4, G5, G6, G6b, G7, G8, G9, G10, G11, G12, G13
+* **gates the selftest exercises: 14**
+* **UNEXERCISED: 0**
+
+48 units, all passing. An earlier version scored 19/19 while exercising only G5–G8 and the verdict
+mapping — **nine gates had no unit at all**, and the count concealed it. The banner exists so that
+gap cannot silently reopen.
+
+**The selftest is demonstrated able to FAIL**, against ten deliberately broken graders, each
+breaking exactly one thing; **all ten produce exit 3**: count refusal deleted (m1), cap-stop mapped
+to `PASS` (m2), planted-zero reader blinded (m3), plateau band removed (m4), order refusal deleted
+(m5), sign-flip check removed (m6), hard-gate block bypassed (m7), G11 blindness reinstated (m8),
+G9 forced to pass (m9), G12 count refusal deleted (m10).
+
+**Two of those mutants originally ESCAPED** (m1 and m10) and the escape is the reusable part: with
+the *count* refusal deleted, a short component set was still refused — by the *order* check — so
+*"the gate refused"* was **not evidence that the count refusal existed**. That is the D3 defect
+wearing another gate's clothes. Both refusals are now **named** (`COUNT_EMPTY`, `COUNT_MISMATCH`,
+`ORDER_MISMATCH`, `KEY_ABSENT`, `PLACEMENT_COUNT`) and the selftest asserts **the name**, not merely
+that something refused. **An empty-component-set unit is present specifically**, that being the
+exact defect that made `d3_grade.py` return `PASS` at 0.0000 % over nothing.
+
+`scripts/check_grader_self_blindness.py` reports **0 ERROR** on the frozen grader. Its own known
+blind spot stands unrepaired and is not relied on: probe B fires on `os.path.join` and is silent on
+`pathlib` and f-strings. **Clean is not proof.** Noted separately: that script **exited 0 while
+printing `[ERROR]` lines**, so its exit code does not gate and was not treated as if it did.
+
+### A1.9 What is staged, and the identity of the mesh
+
+Staged **by copy, never edited in place**, from `/home/ubuntu/certonomous-runs/A3-rung2-n28-tpc1`:
+`0/`, `0.orig/` (byte-identical to `0/` on all six fields), `FFD/`, `system/`,
+`constant/{polyMesh,thermophysicalProperties,turbulenceProperties,birth_certificate.json}`.
+
+| identity | value |
+|---|---|
+| `constant/polyMesh/owner.gz` md5 | `7e847a4f94e8855c89320c784bed96e6` — **byte-identical to A3 rung 2's** |
+| `system/decomposeParDict` md5 | `1dbd9ead3f40a29f483444dc5fa1288b` — **byte-identical to A3 rung 2's**; `method scotch`, `numberOfSubdomains 4` |
+| birth certificate | `cells: 42120`, verdict `clean`, generator pyHyp N=28 |
+
+Nothing hot was staged: no `processor*`, no time directory, no `reports/`, no colouring cache, no
+`OptView.hst`. The launcher re-verifies all of that per arm and aborts (exit 5) on any of them.
+
+---
+
+## Addendum 2 — 2026-08-25, PRE-COMPUTE. Two further grader defects, MEASURED; two corrections to Addendum 1; grader md5 re-registered.
+
+**Version 1.1 → 1.2.** `lines whose number changed above this section: 0`.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** Bands A–F, gates G1–G13, the
+cap table of §8, `max_iter` 30 and the `GATE REACHED` ceiling of §7/§11 stand exactly as frozen at
+`337d4d84`. Nothing above this section is rewritten. What changes is the **grader's md5**, because
+the grader was repaired, and two statements in Addendum 1 that this lane measured to be false.
+
+### CONDITION, AND HOW IT WAS CHECKED (`CLAUDE.md` rule 2)
+
+**No compute has occurred for this item**, re-verified at **2026-08-25T21:22:10Z**, immediately
+before this addendum was written, by four readings:
+
+| check | reading |
+|---|---|
+| `/home/ubuntu/certonomous-runs/CURRICULUM-D7-a3-m6-cdmin/ledger.txt` | **does not exist** — the launcher writes it and it has never run |
+| arm directories `P1 P2 O F-S F-P` | **0 of 5 exist** |
+| `docker ps -a --filter name=d7_` | **0 containers** — none has ever been created for this item |
+| any `*.log` beneath the run root | **0** |
+
+**The run root itself DOES exist**, created by the staging step, which copies the case and writes
+no solver output. Addendum 1 stated this correctly and this addendum repeats it: the rule's
+shorthand "the run directory does not exist" would be **FALSE** here, and the truthful statement
+is the narrower one — **no container has started and no arm directory exists**, checked by the
+four commands above. Amendments therefore remain legal.
+
+### A2.1 `D7-GRADER-DEF-2` — the D4-DEF-3 class was LIVE in this grader, in FOUR places
+
+**D4-DEF-3**, recorded against `A2/curriculum_D4/d4_grade.py`: with `rows` absent from the FD
+artifact, its G7 mutators indexed `d["rows"][:2]` and raised an **uncaught `KeyError`** — rc=1
+with a traceback and **no verdict file written at all**, on the gate whose entire purpose was to
+prove that malformed input is refused **by name**.
+
+**This grader carried the same shape.** Found by **measurement, not by reading**: four
+well-formed JSON artifacts — each of which parses cleanly, so `read_json`'s absent/empty/
+unparseable guards all pass them through — were handed to `g6_plant` and `g7_count_control` in the
+order the grader calls them.
+
+| artifact | `g6_plant` (before repair) | `g7_count_control` (before repair) |
+|---|---|---|
+| `rows` key absent | refused cleanly | **uncaught `KeyError`** |
+| `rows: []` | refused cleanly | **returned `pass=True`** |
+| `rows: null` | refused cleanly | **uncaught `TypeError`** |
+| `rows: {"a": 1}` (object, not list) | **uncaught `AttributeError`** | **uncaught `KeyError(slice)`** |
+
+**The fourth row is the one that matters and is the reason this was measured rather than
+reasoned about.** Addendum 1 presents `g6_plant` as the defended gate — it opens
+`orig.get("rows") or []` and refuses on a falsy result. **A non-empty dict is truthy.** It passed
+straight through, `enumerate` then yielded the dict's *keys* as strings, and `r.get(...)` raised
+`AttributeError` on a `str`. **The gate the document called defended was the one that crashed
+first.** Reading the code would have confirmed the `.get()` guard and stopped there; only running
+it found this.
+
+**Why a crash is not a refusal, stated plainly:** a gate that dies writes **no verdict file**, so
+the malformed input it exists to catch goes **unrecorded** — strictly worse than a gate that never
+existed, because the record shows an instrument that was supposed to look.
+
+**REPAIRED** by a shared structural validator `require_rows(doc, where, row_label)`, called by
+both gates before any subscript, refusing **by name**: `DOC_NOT_OBJECT`, `ROWS_KEY_ABSENT`,
+`ROWS_NOT_A_LIST`, `ROWS_EMPTY`, `ROW_NOT_AN_OBJECT`. **All eight crash sites now refuse cleanly
+(exit 2).**
+
+**Also repaired, and it is the D3 shape:** `g7_count_control`'s verdict was
+`n == 4 and n_refused == 4`. Over a baseline of **zero** rows all four mutations refuse trivially
+and the gate reads `PASS` — **indistinguishable on the page from a complete control over the full
+registered component set**, which is exactly the defect that let `d3_grade.py` return `PASS` at
+0.0000 % over an empty component set. The verdict now additionally requires
+`n_baseline == N_COMPONENTS_REGISTERED`, and the count is printed beside it.
+
+### A2.2 `D7-GRADER-DEF-3` — the OOM gate reported a clean bill of health for a container that never ran
+
+`g11_oom` computed `pass = not any_oom`. With an arm **absent from the ledger** the loop `continue`s,
+`any_oom` stays `False`, and **the gate returns `pass=True`** — a clean OOM verdict on a container
+that was never created. **Measured** by handing `g11_oom` an empty ledger; it returned `pass=True`.
+
+A second instance one level up: `insp` empty — the kernel bit **never recorded** — was read as
+`False`, i.e. as *not OOM-killed*. **An unread bit is not a clean bit.** This is `D7-GRADER-DEF-1`
+(Addendum 1 §A1.7) repeating one level higher in the same function.
+
+**REPAIRED.** `g11_oom` now counts arms read versus arms expected, emits
+`status: NOT_MEASURED` and `pass = False` if any expected arm is absent or its OOM bit unrecorded,
+and marks the unrecorded case `OOM_BIT_NOT_RECORDED` with `oom_killed: null`, never `false`.
+**`NOT_MEASURED` is not health.**
+
+Sibling gates were checked for the same shape in the same sweep and **do not have it**: `g10_caps`,
+`g13_adjoint_health` and `g9_toolchain` all return `pass=False` over an absent arm.
+
+### A2.3 A defect this lane did NOT report, named because a false attribution is worse than the defect
+
+An initial probe raised `TypeError` from `g12_placement` on an absent arm. **That was the probe's
+error, not the grader's** — `g12_placement(base, work_by_arm, ledger)` takes three positional
+arguments and the probe passed them in the wrong order. **`g12_placement` is not defective and is
+not reported as such.** Recorded because Addendum 1 §A1.7 had to make the identical correction
+against a peer's committed instrument, and the rule it drew is worth keeping: *a false defect
+attribution is worse than the defect it alleges.*
+
+### A2.4 CORRECTION to Addendum 1 §A1.8 — the self-blindness checker does NOT report 0 ERROR
+
+Addendum 1 states: *"`scripts/check_grader_self_blindness.py` reports **0 ERROR** on the frozen
+grader."* **That is false and is struck.** The checker reports **1 ERROR**, and it reported it on
+the **pre-repair** grader too — verified by running it against a byte-copy of the pre-repair file —
+so this is a correction of a mis-statement in Addendum 1, **not** damage introduced by this
+addendum's repairs.
+
+The ERROR concerns `out['arms']` being written with differing key sets across branches, with four
+keys (`actual_within_cap`, `overrun_core_min`, `rc`, `status`) read elsewhere. **Every read site it
+flags is inside the selftest's own hand-built fixtures, not on the grading path**, and the
+production path was probed directly rather than argued about — see §A2.2, where that probe found a
+real defect in `g11` and cleared three sibling gates.
+
+Addendum 1's own caveat stands and is reinforced: the checker **exits 0 while printing `[ERROR]`
+lines**, so its exit code does not gate and was not treated as if it did; and its known blind spot
+is unrepaired — probe B fires on `os.path.join` and is silent on `pathlib` and f-strings
+(`3dc99590`). **Clean is not proof, and in this case it was not even clean.**
+
+### A2.5 CORRECTION to Addendum 1 §A1.8 — the selftest counts have moved
+
+| | Addendum 1 | **now** |
+|---|---|---|
+| units | 48 | **65**, all passing |
+| gate groups exercised | 14 of 14, `UNEXERCISED=0` | **15** (`DEF2` added), 14 of 14 emitted gates still exercised, `UNEXERCISED=0` |
+| mutants demonstrated to force exit 3 | 10 | **10 + 6 = 16** |
+
+The six new mutants, each breaking exactly one repair, **all produce exit 3** while the unmutated
+grader exits 0: `m11` G6's validator removed, `m12` G7's validator removed, `m13` G7's baseline-count
+clause dropped, `m14` the validator itself blinded, `m15` G11's empty-set pass reinstated, `m16`
+G11's unrecorded-bit-as-`False` reinstated. `m13` is the instructive one — it reports
+`n_refused=4 baseline=2 registered=5 pass=True`, the D3 shape reproduced exactly, and the unit
+catches it on the **baseline count**, not on the refusal count.
+
+### A2.6 On the FD component count — a misreading corrected on the record
+
+An instruction to this lane stated that *"the prereg registers `twist` 5, `shape` 120, `patchV` 2 —
+assert the exact registered count"* against the grader's FD component set. **Those are two
+different quantities and conflating them would break the grader.**
+
+* `twist` **5**, `shape` **120**, `patchV` **2** are the **design-variable vector sizes** — 127 DVs
+  total — registered at §1 of this document.
+* §6 registers the **FD spot-check set** as **exactly 5 components**: `shape[115]`, `twist[1]`,
+  `patchV[1]`, `shape[0]`, `shape[119]`, each with its stated reason for selection.
+
+`COMPONENTS_REGISTERED` in the grader is the second of these and its 5 entries are **correct as
+written**; asserting 5/120/2 there would make the grader refuse every correct artifact. The
+sampled indices are consistent with the DV sizes (`shape` indices 0, 115, 119 all < 120;
+`twist[1]` < 5; `patchV[1]` < 2). **No gate is changed by this paragraph** — it records that the
+existing constant was checked against the frozen document and found right.
+
+**A GAP IS NAMED AND NOT CLOSED.** Nothing in the grader asserts that the optimisation actually
+carried **127** design variables. A truncated DV vector would not be caught by any registered gate.
+This is recorded as a **known, unclosed gap** rather than repaired, because closing it would add a
+gate after the freeze, which is not permitted. It is stated so a reader does not infer coverage
+that does not exist.
+
+### A2.7 Instrument md5s — RE-REGISTERED at this addendum
+
+| instrument | md5 at Addendum 1 | **md5 now** | changed? |
+|---|---|---|---|
+| `d7_opt_runScript.py` | `e43902ed2cfc99022c6e21e075f88695` | `e43902ed2cfc99022c6e21e075f88695` | unchanged |
+| `d7_extract_endpoint.py` | `651d40c78cc52288a856934c108d1334` | `651d40c78cc52288a856934c108d1334` | unchanged |
+| `d7_fd_endpoint.py` | `92b3fa8d20a41da029590ed3bdde4203` | `92b3fa8d20a41da029590ed3bdde4203` | unchanged |
+| `d7_run_arm.sh` | `c55b2cdeaf8a0975641b491b24912d63` | `c55b2cdeaf8a0975641b491b24912d63` | unchanged |
+| **`d7_grade.py`** | `f77a84c64c632af478c3dc4885143ed9` | **`10eb6d0928addc56272854f017e01538`** | **CHANGED — §A2.1, §A2.2** |
+
+The launcher asserts the first three on the staged copies before every launch (exit 4). **The
+grader is not one of the three the launcher asserts**, so its md5 is fixed by this commit and the
+grading path is verified against the committed blob at grade time, per `CLAUDE.md` rule 2.
+
+**Nothing above §A2 has been edited. The four unchanged md5s are the proof of that for the
+instruments, and the pre-Addendum-1 body of this document is byte-unchanged from `337d4d84`.**
