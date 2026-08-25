@@ -356,3 +356,64 @@ verdict-bearing arm will not rely on an unmeasured channel. Recorded here so the
 decide whether the verdict line should carry the `NOT_MEASURED` count.
 
 *Arm O verdict: `PENDING` until the arm terminates and G1–G4 can be read from its own files.*
+
+---
+
+## 7. The planted-zero and count controls — PROVED TO FIRE, ahead of arm F needing them
+
+Rule 3 and §7a are discharged by *demonstration*, not assertion. `d4_grade.py`'s gate
+functions were exercised against a **synthetic** endpoint FD artifact carrying the registered
+component set in the registered order.
+
+**The synthetic artifact is scratch-only and is NOT evidence about D4.** Its numbers are
+invented for the sole purpose of proving the controls refuse; it lives in this lane's
+scratchpad, is cited nowhere as a measurement, and no D4 number is derived from it. What is
+being tested is the *instrument*, not the case.
+
+### G7 — count controls: **PASS**, all four mutations produced a NAMED refusal
+
+| mutation | refused? | the refusal, verbatim from the gate |
+|---|---|---|
+| `rows` emptied | **yes** | `COUNT_REFUSAL: "empty component set", n_rows: 0, n_registered: 5` |
+| `rows` shortened to 2 | **yes** | `COUNT_REFUSAL: "short or long component set", n_rows: 2, n_registered: 5` |
+| `rows` reversed | **yes** | `COUNT_REFUSAL: "component set is not the registered set, in the registered order"` |
+| `rows` key removed | **yes** | `rows_key_absent: true, n_rows: 0, n_registered: 5` |
+
+**The count is printed in every refusal**, which is what §7a requires and what the D3 defect
+lacked. The reordered case matters most and is the one a key-presence test would wave through:
+the set was complete and the count correct, and it still refused because the *order* was not
+the registered order.
+
+Baseline sanity on the unmutated synthetic set: `n_rows=5`, `n_graded=5`,
+**`n_plateau_comparisons=5`**, `coverage "5 of 5"`. The plateau loop's trip count equals the
+graded-row count — the D3 defect was a plateau loop that iterated **zero** times while a step
+was nonetheless "selected". Here the assertion `n_plateau_comparisons != len(graded) → refuse`
+is live and the counts agree.
+
+### G6 — planted zero: **PASS**, and the plant was seen on EVERY consumed channel
+
+Plant `1.234e-03` (rule 3's constant) written **into the artifact on disk** and read back
+through the same reader:
+
+* moved `shape[46]` from `2.27e-06` to `2.2728011799999997e-06`
+* channels that saw it: `rel_err_pct` **true**, `plateau_pct` **true**, `aggregate` **true**
+
+All three consumed channels moved. A zero from this reader is now a zero from a reader
+**shown able to see a non-zero**.
+
+### G6b — negative control: **PASS**, the control can fail
+
+A deliberately **blind** reader — one returning the unperturbed document whatever path it is
+handed — was **REFUSED**, with all three channels reading `false`
+(`aggregate: false, plateau_pct: false, rel_err_pct: false`).
+
+This is the clause that makes G6 worth anything. **A planted-zero control that cannot refuse
+is not a control**, and this one refuses when the reader is blinded. The plant is therefore a
+live control rather than a ceremony.
+
+**Standing caveat, kept rather than dropped:** these controls prove the FD *gate* refuses on a
+malformed or unmeasured component set. They prove nothing about whether the FD *values* arm F
+will produce are right, and nothing about the `|J_adj|` step-sizing proxy, whose registered
+limitation (§7, quoted verbatim in the prereg) is that it sizes the step from the very
+quantity under test and **has not been tried where `|J_adj|` is itself wrong**. D4 does not
+repair that and does not claim to.
