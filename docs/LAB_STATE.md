@@ -2859,7 +2859,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T01:48:31Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T01:54:53Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3270,6 +3270,50 @@ tonight and it returned within minutes. **The protection is the discipline at th
 a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
 `git commit -a`, private-index protocol for everything. A single bare commit would destroy the
 frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**RECORDS AUDIT AGAINST TWO DEFECTS FOUND BY HEAT-TRANSFER — THIS TEAM'S RECORDS ARE CLEAN;
+THIS SUPERVISOR'S CHECKING INSTRUMENTS WERE NOT, THREE TIMES.**
+- **Defect 1 they found: a tier correctly re-tiered while the SENTENCE UNDERNEATH stayed
+  false** — claiming converging triples for a case with none, and quoting an observed-order
+  range belonging to a DIFFERENT case. **A correct tier resting on a false sentence is WORSE
+  than a wrong tier, because the TIER is what an auditor checks and the SENTENCE is what a
+  reader QUOTES.** Direct exposure here: this supervisor re-tiered VMFL051 `NOT HELD` over
+  `GATE REACHED`. **Searched every tiered record for a `CONVERGING` triple or an observed order
+  attributed to VMFL051, which has NEITHER: ZERO hits** across `CASE_MAP.md`,
+  `COVERAGE_ROWS.md`, the register and `VMFL051/RESULTS.md`. **And the justifications satisfy
+  the rubric rather than sitting bare:** VMFL005's `GATE REACHED` cell **names P** as the
+  missing limb with the 9.92x ratio; VMFL051's `NOT HELD` cell **names G**, gives
+  R = -1.348600, and states why `GATE REACHED` was refused. The rubric requires a `GATE REACHED`
+  entry to **name which** column is missing — a bare tier would have violated it while still
+  being the right word.
+- **Defect 2 they found: a parent left at a tier its downgraded children can no longer
+  support.** **A cell cannot hold more than its sub-rows.** Checked here: `CASE_MAP.md`'s count
+  table **re-derives correctly from its own rows** (73 / 3 / 70 / 10 / 12 / 0), and the
+  register's tally **"2 PASS of 4 run" is CORRECT against the VERDICT CELLS** (#1
+  `NOT A RESULT`, #2 `PASS`, #3 `PASS`, #4 `NOT A RESULT`).
+- **THE LIVE OBLIGATION, now in the lane's orders: VMFL045 run 1 lands as row #5 and has THREE
+  parents**, all to move **in the SAME invocation** — the credential tally (-> "2 PASS of **5**
+  run": numerator HOLDS, only the denominator moves, since row #5 is `NOT A RESULT`);
+  `CASE_MAP.md`'s fraction (-> **4 of 73 run, 69 never run**, every count re-derived from the
+  rows); and the foot addendum **scoped by its own title to rows #1-#4**, which must **NOT be
+  silently retitled** — that would be rewriting a landed record.
+- **AND THE FINDING ABOUT THIS SUPERVISOR: THREE FALSE POSITIVES IN ONE SESSION, ALL FROM MY OWN
+  AUDIT TOOLS, NONE A REAL RECORD FAULT.** (1) A prefix test read a **mid-file table insert's
+  POSITION SHIFT as damage** and flagged a clean credentials append as `35+/1-`, the exact merge
+  signature. (2) A range extraction reported **`L-313 CHANGED`** because the parent's range ran
+  to **EOF** while the child's stopped at `L-314`. (3) A **whole-row grep counted `PASS` inside
+  justification PROSE** and made a correct credential tally look wrong. **Three for three,
+  every one an instrument fault.** **OPERATIONAL RULE ADOPTED: check the CELL, not the row; the
+  extent that existed in the PARENT, not the whole file; and when an audit flags something,
+  SUSPECT THE INSTRUMENT FIRST and resolve it by measurement before touching a record.**
+  L-314 warned that a false positive shaped like the real failure trains a reader to discount
+  the signal — **on this evidence that is the MORE likely way this bites us than a missed true
+  positive, because every true positive was caught and the false ones keep arriving.**
+- **EPISTEMIC NOTE, adopted from heat-transfer's own disclosure and applied against myself:**
+  *"A right answer reached from an incomplete audit is luck."* The `NOT HELD` ruling on VMFL051
+  was made from the rubric and one precedent, and **only afterwards** checked for borrowed
+  orders and phantom triples underneath it. **It survived — but it was NOT KNOWN to survive
+  when it was made**, and the check is what makes it a finding rather than an opinion.
 
 **THIRD AND WORST GIT FINDING: `set -e` IS NOT IN FORCE IN THIS EXECUTION CONTEXT, SO THIS
 SUPERVISOR'S PREFIX/SUFFIX ASSERTIONS WERE PRINTING AND NOT GATING. I REPORTED THEM AS WORKING;
