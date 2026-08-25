@@ -4463,3 +4463,90 @@ apparatus that pays for it**, and the pre-registration says which one — not as
 swapped when the first arm misbehaves.
 
 ---
+
+---
+
+## N-AV9 COMPANION — the wedge CENTROID bias. **Found by the heat-transfer T8 lane; confirmed independently here and swept across the ansys-verification wedge corpus, 2026-08-25.**
+
+**Finder credit: the heat-transfer team's T8 lane.** This is recorded **beside N-AV9, not as
+a new family** — N-AV9 is the wedge *area* bias, this is the wedge *centroid* bias, and they
+are the same defect family: **two geometric biases of the wedge that grid refinement does not
+remove, because each is a property of the cell SHAPE, not its size.**
+
+### The fact
+
+**OpenFOAM's cell centre is the VOLUME CENTROID, not the arithmetic mid-radius.** For a
+wedge/annular-sector cell spanning `[r1, r2]`:
+
+    r_centroid = (2/3) * (r2^3 - r1^3) / (r2^2 - r1^2)
+
+**Confirmed independently by this team** against the T8 lane's measured mesh values:
+
+| cell | this team's formula | T8's measurement |
+|---|---|---|
+| axis-adjacent `[0, dr]` | **(2/3)·dr** exactly | 0.016651 vs predicted 0.016667 |
+| next out `[dr, 2dr]` | **(14/9)·dr** exactly | 0.038852 vs predicted 0.038889 |
+| **ratio** | **exactly 7/3** | — |
+
+**Mid-radius arithmetic predicts a ratio of 3. The true ratio is 7/3.** Any axis
+extrapolation whose precondition is `r2 = 3*r1` is therefore false on every wedge mesh
+OpenFOAM builds; the correct axis extrapolation is `(49*f1 - 9*f2)/40`, not `(9*f1 - f2)/8`.
+
+### Why it survived a green instrument — the part worth learning
+
+**T8's comparator passed 69 selftest checks and both negative arms, and none could have caught
+this**, because **the synthetic fixture placed cell centres at `(j+1/2)dr`, making the
+comparator's precondition true by construction.** Fixture and instrument agreed because they
+shared one wrong assumption. **That is L-321 at the mesh level.** The rule it yields:
+
+> **A geometric quantity must be READ BACK from the mesh OpenFOAM actually wrote — never
+> constructed in the fixture from the same spec the instrument assumes.** A selftest that
+> builds the geometry it is testing is checking arithmetic, not geometry.
+
+### THE SWEEP OF THIS TEAM'S WEDGE CORPUS — done by the supervisor personally
+
+15 ansys-verification cases reference `wedge`; 21 comparators exist. **Result: exactly one
+exposure, and it is a diagnostic, not a gate. No verdict changes.**
+
+**NOT EXPOSED — and for a reason worth copying:**
+- **VMFL036** (live at the time of the sweep) — carries N-AV9 explicitly, and **reads its
+  wedge areas back off the mesh** via `polymesh_area.py` (points and faces, to 1 part in 1e8),
+  checks the axis patch has **zero** area, and verifies the mesh half-angle from the actual
+  point coordinates. Its `Cd` is a **face-based surface integral over the sphere patch** — it
+  never reads an axis-adjacent cell value and never extrapolates to the axis.
+- **VMFL021 / VMFL022** (live at the time of the sweep) — the gate is a **ratio of two mass
+  flows on the same wedge slice**, with `A_out = 0.5*r2^2*sin(theta)` computed exactly from
+  geometry. **The wedge-slice factor cancels in the ratio** and no cell-centre radius enters.
+- **VMFL005, VMFL051** — patch/volume integrals via `surfaceFieldValue` / `volFieldValue`;
+  no constructed radii.
+
+**EXPOSED — VMFL003, `grade_vmfl003.py`:**
+
+    YPLUS_PRED = 40.835033970764385   # first cell centre, NR = 5, uniform
+    :780  ck(abs(YPLUS_PRED - (R_PIPE / 5 / 2) * U_TAU / NU) < 1e-9, "y+ at NR=5")
+
+**`R_PIPE/5/2` is mid-radius arithmetic, and the selftest asserts the constant equals its own
+construction — the exact T8 pattern, fixture and instrument sharing one wrong assumption.**
+
+Measured correction for that mesh (R = 0.002 m, NR = 5 uniform, wall cell `[1.6e-3, 2.0e-3]`):
+
+| | value |
+|---|---|
+| assumed wall distance (mid-radius) | 2.000000e-4 m |
+| **true volume-centroid wall distance** | **1.925926e-4 m** |
+| ratio true/assumed | **26/27 = 0.9629630** |
+| frozen `YPLUS_PRED` | 40.835034 |
+| **true y+** | **39.322625** |
+| **error** | **3.7037 % HIGH** |
+
+**IMPACT: NONE ON THE VERDICT.** `YPLUS_PRED` is a **predicted diagnostic**, printed beside
+the measured value; the gate applies the frozen one-way band `[25, 65]` to the **measured**
+`yPlus`, which OpenFOAM computes from the true centroid. **Both 40.835 and 39.323 sit inside
+that band**, so VMFL003's recorded verdict is unaffected and is **not** reopened. The constant
+is wrong by 3.7 % and **its selftest can never detect that**, which is the finding.
+
+**Standing instruction for this team, effective now:** any comparator that reads an
+axis-adjacent value, extrapolates to the axis, or needs a cell-centre radius **reads it back
+from OpenFOAM's own `C` field or from the written mesh geometry — never constructs it from
+`nr`, `dr`, or `(j+1/2)`.** Where a fixture must supply geometry, the fixture reads the same
+written mesh; it does not build one.
