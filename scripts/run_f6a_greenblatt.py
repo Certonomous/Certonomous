@@ -154,6 +154,29 @@ def install_pc_sampling(controldict_text, stride=G.SAMPLE_STRIDE):
     return out
 
 
+def rewrite_file(path, transform):
+    """Read FULLY, transform, then write.
+
+    `open(p, "w").write(... open(p).read() ...)` TRUNCATES THE FILE BEFORE IT READS IT:
+    Python evaluates `open(p, "w")` first, which zeroes the file, so the nested read
+    returns "" and the transform is applied to nothing. That defect emptied the smoke
+    case's system/controlDict to 0 bytes and produced a FOAM FATAL IO ERROR --
+    "problem while reading header for object controlDict ... at line 1" -- which looked
+    exactly like a case defect and was not one. Every rewrite in this file goes through
+    here, and the selftest greps the source for the truncating form.
+    """
+    with open(path) as fh:
+        text = fh.read()
+    if not text:
+        raise G.Refusal("refusing to rewrite an empty file: %s" % path)
+    out = transform(text)
+    if not out:
+        raise G.Refusal("refusing to write empty content to %s" % path)
+    with open(path, "w") as fh:
+        fh.write(out)
+    return out
+
+
 def build_case(repo, run_case, dry_run=False):
     """Builds the graded case from the SHIPPED inputs only. Time directories and
     postProcessing from the source case are DELIBERATELY NOT COPIED: rule 4's guard
@@ -176,9 +199,8 @@ def build_case(repo, run_case, dry_run=False):
         raise G.Refusal("rule 4 guard: time directories already present in the fresh "
                         "case: %s" % stale)
     cd = os.path.join(run_case, "system", "controlDict")
-    text = open(cd).read()
-    assert_libs_stock(text)
-    open(cd, "w").write(install_pc_sampling(text))
+    assert_libs_stock(open(cd).read())
+    rewrite_file(cd, install_pc_sampling)
     return steps
 
 
@@ -277,8 +299,10 @@ def main(argv=None):
             shutil.rmtree(smoke)
         shutil.copytree(RUN_CASE, smoke)
         cdp = os.path.join(smoke, "system", "controlDict")
-        open(cdp, "w").write(re.sub(r"\nendTime\s+\d+;", "\nendTime         1;",
-                                    open(cdp).read()))
+        rewrite_file(cdp, lambda t: re.sub(r"\nendTime\s+\d+;",
+                                           "\nendTime         1;", t))
+        if os.path.getsize(cdp) == 0:
+            raise G.Refusal("smoke controlDict is empty after rewrite")
         sm = subprocess.run(["simpleFoam", "-case", smoke],
                             capture_output=True, text=True, timeout=MESH_RESERVE_S)
         fatal = "FOAM FATAL" in (sm.stdout + sm.stderr)

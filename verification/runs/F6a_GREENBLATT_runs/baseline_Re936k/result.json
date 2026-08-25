@@ -1,0 +1,67 @@
+{
+  "campaign": "F6a / C-15 -- NASA wall-mounted hump vs Greenblatt AIAA-2004-2220 Table 2",
+  "preregistration": "verification/campaign/F6a_GREENBLATT_PREREGISTRATION.md",
+  "preregistration_frozen_body_sha256": "9989f1f909b358ae30c663b041598358cf247f6aee2a8b3dcb6bda99543a30cc",
+  "launched_utc": "2026-08-25T02:48:33Z",
+  "VERDICT": "BLOCKED",
+  "verdict_basis": "ss6.3: the pre-flight smoke test returned rc=1 with a FOAM FATAL line and ABORTED the campaign before the graded run started. NOTHING WAS COMPUTED, SO NOTHING WAS GRADED -- which is what BLOCKED means. It is not GATE FAIL and not NOT A RESULT.",
+  "gate_M": {
+    "VERDICT": "PASS",
+    "max_non_orthogonality": 40.5495,
+    "threshold_deg": 70.0,
+    "margin_deg": 29.450499999999998,
+    "max_skewness": 0.743352,
+    "skewness_threshold": 4.0,
+    "cells": 51626,
+    "max_aspect_ratio_REPORTED_NOT_GATED": 99.6138,
+    "note": "Enforced BEFORE any solver process, per ss5.5. Reproduces ss5.2's pre-registered measurement EXACTLY (40.5495 deg / 0.743352) -- forecast item 1 of ss10.2 CONFIRMED.",
+    "log_is_gitignored": "verification/runs/*_runs/**/log.* -- decisive values captured here"
+  },
+  "smoke_test": {
+    "rc": 1,
+    "foam_fatal": true,
+    "kind": "LAUNCH CONDITION, NOT A GATE",
+    "traceback": "--> FOAM FATAL IO ERROR: (openfoam-2606)\nproblem while reading header for object controlDict\n\nfile: system/controlDict at line 1.\n\n    From virtual Foam::autoPtr<Foam::ISstream> Foam::fileOperations::uncollatedFileOperation::readStream(Foam::regIOobject&, const Foam::fileName&, const Foam::word&, bool) const\n    in file global/fileOperations/uncollatedFileOperation/uncollatedFileOperation.C at line 679.",
+    "scratch_outside_verification_runs": true
+  },
+  "TRIAGE": {
+    "conclusion": "THE CRASH IS A DEFECT IN THE LAUNCHER, NOT IN THE CASE. It is a RED WITH AN INNOCENT EXPLANATION and the condition was cleared and demonstrated rather than inferred.",
+    "mechanism": "scripts/run_f6a_greenblatt.py wrote the smoke controlDict as open(p,'w').write(re.sub(..., open(p).read())). Python evaluates open(p,'w') FIRST, which TRUNCATES the file to zero, so the nested read returns '' and the transform is applied to nothing.",
+    "evidence": [
+      "smoke system/controlDict measured 0 bytes after the rewrite",
+      "isolated reproduction: open(p,'w').write(open(p).read()...) yields ''",
+      "the GRADED case's system/controlDict is INTACT at 2748 bytes",
+      "the ss3.1 (P-c) sampling install landed correctly in the graded case: writeControl timeStep / writeInterval 50 on both function objects"
+    ],
+    "so_the_smoke_test_did_not_test_the_case": "It crashed on an empty dictionary of its own making. NO CONCLUSION ABOUT THE CASE'S DICTIONARY COMPLETENESS MAY BE DRAWN FROM THIS RUN, in either direction.",
+    "fixed_at": "rewrite_file() reads fully before writing and refuses to write emptiness",
+    "control_added": "an AST walk over the launcher and comparator asserts ZERO truncating call sites, and is shown able to SEE a planted one. The first form of that control matched its own docstring -- a scan that cannot tell code from prose about code is not a scan."
+  },
+  "cost": {
+    "graded_solver_core_min": 0.0,
+    "graded_solver_started": false,
+    "preflight_wall_s_upper_bound": 1.0,
+    "preflight_core_min_upper_bound": 0.017,
+    "basis": "BOUNDED, NOT MEASURED. The launcher's timing instrumentation covers only the solver phase, which never started. Both UTC stamps around the whole invocation read 02:48:33, so total wall <= 1 s at 1 rank.",
+    "cap_core_min": 30,
+    "point_estimate_core_min": 13.74,
+    "ratio_actual_over_predicted": null,
+    "ratio_note": "UNDEFINED, NOT 0.0x. ss8.6: no total ratio is written for an interrupted run -- an interruption is not a calibration. No row is owed to docs/COST_CALIBRATION.md for this attempt.",
+    "dollars": "DERIVED not measured; the box cannot read its own billing"
+  },
+  "OPEN_ITEMS_FOR_THE_SUPERVISOR": [
+    {
+      "id": "F6a-OPEN-1",
+      "title": "ss9.2 now REFUSES a re-launch, and clearing the tree is not mine to do",
+      "detail": "The graded run root verification/runs/F6a_GREENBLATT_runs/baseline_Re936k NOW EXISTS -- built before the smoke test aborted. ss9.2 refuses (exit 3) if any registered run directory already exists, so the launcher will correctly refuse a second attempt. Both ways forward touch something a lane may not touch alone: DELETING the tree (the supervisor's own instruction is to preserve it whatever happens -- it is the proof of this finding), or AMENDING the registered directory in a frozen document after a solver process has run. RULING REQUIRED. The tree is preserved and untouched pending it.",
+      "state_of_tree": "0/ constant/ system/ caseDef fieldDef log.checkMesh; NO time directory, NO processor directory, NO solver output"
+    },
+    {
+      "id": "F6a-OPEN-2",
+      "title": "ss3.1 (P-a) and ss9.4 contradict each other for every converging run",
+      "detail": "(P-a) requires convergence BELOW the endTime cap; ss9.4 requires last time == endTime. Read against the controlDict literal 2000 they cannot both hold -- C-45 converged at 1772. The comparator surfaces BOTH readings and resolves nothing on its own authority. RULING REQUIRED."
+    }
+  ],
+  "PRESERVED": "This tree is the proof of the finding and has NOT been cleared to make room for a nicer one. F12's failed tree stands and is cited by its own calibration row; this one stands on the same principle.",
+  "submissions": "PARKED. Nothing here is sent, filed, uploaded, registered or posted."
+}

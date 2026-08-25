@@ -49,6 +49,10 @@ import run_f6a_greenblatt as L       # noqa: E402
 REPO = G.REPO
 RESULTS = []
 
+# Snapshot the registered run roots BEFORE any control runs, so the zero-compute
+# control tests what THIS FILE did rather than what the world looks like.
+_ROOTS_AT_IMPORT = {d: os.path.exists(d) for d in L.RUN_ROOTS}
+
 
 def control(clause, arm, description):
     def deco(fn):
@@ -741,6 +745,72 @@ def endtime_no_laundering():
     return "cap-hit run: effective endTime 2000, and (P-a) still REFUSES it"
 
 
+@control("truncate-before-read", "PASS",
+         "every controlDict rewrite goes through rewrite_file(), which reads FULLY first")
+def rewrite_pass():
+    import tempfile as _t
+    d = _t.mkdtemp(); p = os.path.join(d, "cd")
+    open(p, "w").write("endTime         2000;\n")
+    try:
+        out = L.rewrite_file(p, lambda t: t.replace("2000", "1"))
+        assert out.strip() == "endTime         1;", repr(out)
+        assert open(p).read().strip() == "endTime         1;"
+        return "content preserved and transformed; file non-empty after rewrite"
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
+@control("truncate-before-read", "FAIL",
+         "THE TRUNCATING FORM IS ABSENT FROM THE SOURCE, and the control is shown able "
+         "to SEE it -- this defect emptied a controlDict to 0 bytes and produced a "
+         "FOAM FATAL that looked exactly like a case defect")
+def rewrite_fail():
+    # An AST walk, not a regex: the first form of this control matched its OWN
+    # DOCSTRING describing the bug. A scan that cannot tell code from prose about
+    # code is not a scan.
+    import ast as _ast
+
+    def truncating_calls(src):
+        hits = []
+        for node in _ast.walk(_ast.parse(src)):
+            if not (isinstance(node, _ast.Call)
+                    and isinstance(node.func, _ast.Attribute)
+                    and node.func.attr == "write"
+                    and isinstance(node.func.value, _ast.Call)
+                    and getattr(node.func.value.func, "id", None) == "open"):
+                continue
+            mode = [a for a in node.func.value.args[1:]
+                    if isinstance(a, _ast.Constant) and a.value == "w"]
+            if not mode:
+                continue
+            for arg in node.args:
+                for sub in _ast.walk(arg):
+                    if isinstance(sub, _ast.Call) and getattr(sub.func, "id", None) == "open":
+                        hits.append(node.lineno)
+        return hits
+
+    for name in ("run_f6a_greenblatt.py", "f6a_greenblatt_gate.py"):
+        src = open(os.path.join(HERE, name)).read()
+        hits = truncating_calls(src)
+        assert not hits, "%s still contains the truncating form at lines %s" % (name, hits)
+    # the scan must be shown able to SEE a violation
+    planted = 'open(cdp, "w").write(re.sub(r"x", "y", open(cdp).read()))'
+    assert truncating_calls(planted), "the scan cannot see the defect it is meant to catch"
+    assert not truncating_calls('open(p, "w").write(text)'), "the scan false-positives"
+    # and rewrite_file refuses to write emptiness
+    import tempfile as _t
+    d = _t.mkdtemp(); p = os.path.join(d, "cd")
+    open(p, "w").write("endTime 2000;\n")
+    try:
+        try:
+            L.rewrite_file(p, lambda t: "")
+        except G.Refusal:
+            return "0 truncating call sites; the scan SEES a planted one; empty write REFUSED"
+        raise AssertionError("rewrite_file wrote empty content")
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
 FORBIDDEN = ("richardson", "extrapolat", "gci_fine", "observed order of")
 
 
@@ -829,13 +899,20 @@ def main():
         print("  [FAIL] clauses with NO failing control: %s" % missing)
         failed += len(missing)
 
-    # ZERO COMPUTE, asserted rather than claimed.
-    leaked = [d for d in L.RUN_ROOTS if os.path.exists(d)]
-    if leaked:
-        print("  [FAIL] this selftest created a registered run directory: %s" % leaked)
+    # ZERO COMPUTE, asserted rather than claimed. The test is that THIS SELFTEST
+    # created nothing -- not that the roots never exist. Once a launch has legitimately
+    # built the run tree, that tree is EVIDENCE and is preserved; a control that failed
+    # on its presence would be pressure to delete it.
+    after = {d: os.path.exists(d) for d in L.RUN_ROOTS}
+    created = [d for d in L.RUN_ROOTS if after[d] and not _ROOTS_AT_IMPORT[d]]
+    if created:
+        print("  [FAIL] this selftest created a registered run directory: %s" % created)
         failed += 1
     else:
-        print("  [OK]   zero-compute control: both registered run roots still ABSENT")
+        state = ", ".join("%s=%s" % (os.path.basename(d), "PRESENT" if v else "ABSENT")
+                          for d, v in after.items())
+        print("  [OK]   zero-compute control: this selftest created no run directory "
+              "(%s, unchanged)" % state)
 
     print("\n%d controls passed, %d failed, across %d frozen clauses."
           % (passed, failed, len(per_clause)))
