@@ -639,7 +639,10 @@ rule 12 the correct sequence is **probe first, pre-register second, run third.**
     but no attempt is made to account for end effects"*; the CFD is infinite-span
     2D. **Unquantified, and it is a real difference between the reference and the
     computation.**
-12. **The absent Re-100 pre-registration.** No F5a pre-registration exists anywhere
+12. **A latent dictionary regime gap (§8.2).** The anchor's `fvSolution` has no
+    `residualControl` at all, so a steady MMS limb copied from it would compute an
+    error norm on an unconverged field — **and a smoke test cannot detect that.**
+13. **The absent Re-100 pre-registration.** No F5a pre-registration exists anywhere
     for any rung. Everything above is scoping, and none of it is frozen.
 
 ---
@@ -664,7 +667,126 @@ Stated plainly, because an honest gap is worth more than a confident guess.
 
 ---
 
-## 8. THE DECISION THIS MEMO PUTS TO THE SUPERVISOR
+## 8. LAUNCH GUARDS — scoped for both limbs, with what each one actually buys
+
+### 8.1 The mechanism, cited and not owned
+
+From ansys-verification's **VMFL045** crash. **A comparator selftest proves the
+GRADER, not the CASE.** VMFL045's comparator passed **45/45 with real negative
+controls** and could never have caught its crash: nothing in the pre-compute checks
+exercised the actual solver dictionary set, and the case died at **wall 0 s** on
+`FOAM FATAL IO ERROR: Entry 'e' not found in dictionary "system/fvSolution/solvers"`.
+
+**The mechanism is what makes it relevant here.** VMFL045's `fvSolution` solvers
+block was **byte-identical to VMFL051's**, and VMFL051 ran 1,693 timesteps fine with
+the same missing entry — because **VMFL051 is inviscid and VMFL045 is viscous**, and
+the solver only enters the implicit viscous corrector when `μ > 0`, which is the path
+needing the missing key. Implicit solve counts: **0** across VMFL051's whole
+successful run, **1** in VMFL045 before death. **The dictionary was complete for one
+regime and incomplete for another, and the gap was latent, not visible.**
+
+*Cited as another team's finding. This lane assigns no lesson from it.*
+
+### 8.2 F5a is doubly exposed — and here is the AIMED check, not a decorative one
+
+**F5a-MMS pairs an MMS run with a shedding-cylinder run: two different solver
+configurations under one pre-registration.** Any dictionary shared or copied between
+them crosses a regime boundary by construction. The supervisor asked that, if F5a's
+configuration derives from another F case, the case be named so the check is aimed.
+**It does, and it is named.**
+
+**MEASURED by this lane:** the anchor case's `fvSolution` **`solvers` block is
+BYTE-IDENTICAL** to that of the F5a ladder's Re-1000 case at
+`/home/ubuntu/certonomous-runs/f5a-cylinder-ladder/re1000/system/fvSolution`.
+**That is the VMFL045 shape exactly — one solvers block shared across two cases.**
+
+Reading that dictionary against what the two limbs would each need turns up **three
+regime gaps, and the first is WORSE than VMFL045's because it fails silently:**
+
+1. **There is no `SIMPLE` dictionary and no `residualControl` anywhere in the
+   file.** It carries `PIMPLE { nOuterCorrectors 2; nCorrectors 2;
+   nNonOrthogonalCorrectors 1; }` and nothing else. **A steady MMS limb copied from
+   this dictionary would have NO CONVERGENCE CRITERION** — it would run to `endTime`
+   and stop, and the MMS error norm would be computed on a field that was never
+   converged. **VMFL045 died loudly at wall 0 s; this would produce a plausible
+   number.** It is the silent version of the same defect, and it is the one to fear.
+2. **`ddtSchemes { default Euler; }` — first order in time.** The MMS limb claims
+   **spatial** order 2; a first-order temporal error must not contaminate the norm,
+   so the MMS must either run to a steady residual stop or set
+   `ddtSchemes { default steadyState; }`. For the **shedding** limb it is a separate
+   concern in its own right: **a Strouhal ladder that refines only in space while
+   the time scheme stays first-order Euler is refining one axis of a two-axis
+   error.**
+3. **No `fvOptions` file exists in either `system/` or `constant/`.** The MMS limb
+   requires one for its `codedSource`. **So the MMS case is not a copy of the
+   anchor; it is the anchor plus a new dictionary** — a regime-crossing
+   configuration change by construction, which is precisely the situation §8.1
+   describes.
+
+And a fourth, harmless but diagnostic: `constant/turbulenceProperties` reads
+`simulationType laminar`, yet the solvers block carries `"(U|k|omega)"` and the
+relaxation block carries `k` and `omega`. **Extra keys — the inverse of VMFL045's
+missing one, and harmless here.** It is positive evidence that this dictionary was
+**inherited from a turbulent case rather than written for this one**, which is the
+inheritance the supervisor asked to have named.
+
+### 8.3 The two guards, and an honest statement of what each addresses
+
+**Guard 1 — pre-flight smoke test.** One timestep on the coarsest mesh, in a scratch
+directory **outside `verification/runs/`**, aborting on failure. Seconds of cost.
+**It is a launch condition, never a gate: it decides whether the run starts, not
+what the run means.** Scoped for **both** limbs, because they are two
+configurations.
+
+- **What it buys:** the VMFL045 class — a dictionary complete for one regime and
+  incomplete for another, dying at timestep 0. It would catch gap 3 above and any
+  missing solver key.
+- **What it does NOT buy, stated because a guard oversold is worse than none:** it
+  **cannot** catch gap 1. A missing `residualControl` does not throw; the run starts
+  happily and one timestep succeeds. **A smoke test cannot detect a missing
+  convergence criterion.** That gap is closed by an explicit launcher assertion that
+  the steady case's `fvSolution` contains a `residualControl` block — not by a smoke
+  test.
+
+**Guard 2 — the launcher must REFUSE to start the solver when the mesh admission
+gate fails.** F12's frozen `run_case` computes `mesh_gate` and launches anyway:
+**20.5 s of solver wall went into a mesh already known inadmissible**, and F12 then
+failed the gate at **all three levels**, with over-threshold face counts scaling
+**×4.03 and ×4.00** — a fixed *fraction* of the mesh that refinement does not cure.
+
+- **Which risk each addresses, as instructed:** **a smoke test would NOT have saved
+  F12** — it died at iteration 180, not timestep 0 — **gate enforcement would
+  have.** The two guards cover **disjoint** failure modes and neither substitutes
+  for the other. F5a needs both.
+
+**Guard 3 — the rule-4 existing-directory guard, MIRRORED and not reinvented.**
+`verification/runs/F12_runs/run_f12_rung.py:66–70` refuses (`rc=3`) when any
+registered run directory already exists, because `run_case()` `rmtree`s it and a
+rung is fired exactly once. **F5a's launcher mirrors that code rather than inventing
+a new guard.**
+
+**Standing practice carried in, already settled and not re-derived:** a **failed run
+tree is PRESERVED**, never cleared to make room for a nicer one. F12's logs are
+gitignored, so the fatal-error text lives in `result.json`'s **`traceback`** field
+and F5a's launcher must write the same field. And for an **interrupted** run the
+actual/predicted ratio is stated **undefined, not `0.0×`** — cfd practice arrived at
+independently in **C-50**, which calibrates the **rate** instead and writes no total
+ratio.
+
+### 8.4 A guard the mesh limb already half-owns
+
+The anchor mesh carries **`constant/birth_certificate.json`** — `verdict "clean"`,
+`cells 25200`, `max_non_orthogonality 4.436338e-06`, `max_skewness 0.01911846979`,
+`hard_errors []`, provenance `retrospective-from-archived-log`. **The mechanism for
+registering §3.4's three measured admission values per level already exists in this
+lab and should be reused rather than re-invented:** mint a birth certificate at mesh
+build time for each of L1, L2 and L3, register the three verdicts in the
+pre-registration, and have the launcher refuse on any non-`clean` verdict. That is
+Guard 2 made executable rather than promised.
+
+---
+
+## 9. THE DECISION THIS MEMO PUTS TO THE SUPERVISOR
 
 **F5a-MMS is technically sound, cheaper to *verify* than to *validate*, and it does
 not fall over on the fact the survey rested it on — Roshko is held, readable and
