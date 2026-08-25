@@ -56,7 +56,7 @@ This document carries **two distinct verdict columns and they must never be conf
 | column | vocabulary | who fixed it |
 |---|---|---|
 | **lab verdict** | `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` / `PENDING` — and nothing else | `CLAUDE.md` rule 1; `VERIFICATION_CHARTER.md` §2, §9; `DAFOAM_CHARTER.md` §8 |
-| **matrix tier** | `HOLDS` / `GATE REACHED` / `SURVEYED` / `NOT HELD` / `NEVER RUN` — and nothing else | Sanaa's five tier words for the coverage matrix |
+| **matrix tier** | `HOLDS` / `GATE REACHED` / `SURVEYED` / `NOT HELD` / `NEVER RUN` — and nothing else | the coverage matrix's five tier words — attribution to Sanaa WITHDRAWN 2026-08-25, see §7.6 |
 
 > **DISCLOSED COLLISION: `GATE REACHED` is a member of BOTH vocabularies and does not mean the same
 > thing in both.** In the lab vocabulary it is a verdict about a run: a pre-registered gate was
@@ -71,7 +71,7 @@ record's words and the row is flagged in §5.
 
 ### 0.2 The tier mapping this document applied, stated so it can be overruled
 
-The five tier words are Sanaa's; **the mapping from lab verdicts to them is this lane's proposal
+The five tier words are the CHIEF'S RECONSTRUCTION of Sanaa's directive, not her verbatim words (attribution withdrawn 2026-08-25, §7.6); **the mapping from lab verdicts to them is this lane's proposal
 and the verification supervisor may replace it.** It was chosen to be disjoint and exhaustive:
 
 | tier | assigned when |
@@ -214,7 +214,7 @@ It is not the V tier, the G tier or the P tier, and a reader lifting a row must 
 > **design of the two vocabularies**, not in these rows.
 >
 > **This is surfaced, not resolved.** `docs/COVERAGE_MATRIX.md` is the verification supervisor's
-> file and the tier words are Sanaa's, so the ruling is theirs and ultimately hers.
+> file and the tier words are the chief's reconstruction of Sanaa's directive (§7.6), so the ruling is theirs and ultimately hers.
 > **No fix is proposed that renames a lab verdict token**: `CLAUDE.md` rule 1 fixes that set and
 > neither a lane nor a supervisor may widen or retire it. The disambiguation, if one is wanted,
 > has to be on the tier side or in the matrix's column headers.
@@ -531,18 +531,18 @@ as **PATCHED**, because the image carries a patch even where the run does not ex
 are **OTHER**: `G-33` (B2, plain host OpenFOAM, no DAFoam image) and `G-32` (A6 N=29, no image was
 ever started).
 
-| matrix tier | SHIPPED | PATCHED | OTHER | **row total** |
-|---|---|---|---|---|
-| **HOLDS** | 6 | 17 | 1 | **24** |
-| **GATE REACHED** | 2 | 0 | 0 | **2** |
-| **SURVEYED** | 2 | 7 | 0 | **9** |
-| **NOT HELD** | 6 | 9 | 0 | **15** |
-| **NEVER RUN** | 4 | 3 | 1 | **8** |
-| **column total** | **20** | **36** | **2** | **58** |
+| matrix tier | SHIPPED | PATCHED | OTHER | **row total** | **the MATRIX OWNER's tier, as ruled 2026-08-25 (§7.1)** |
+|---|---|---|---|---|---|
+| **HOLDS** | 6 | 17 | 1 | **24** | **all 24 → `SURVEYED`** — 0 of V/G/P green |
+| **GATE REACHED** | 2 | 0 | 0 | **2** | `SURVEYED` — 0 of V/G/P green |
+| **SURVEYED** | 2 | 7 | 0 | **9** | `SURVEYED` — 0 of V/G/P green |
+| **NOT HELD** | 6 | 9 | 0 | **15** | not entered by the owner |
+| **NEVER RUN** | 4 | 3 | 1 | **8** | not entered by the owner |
+| **column total** | **20** | **36** | **2** | **58** | **ZERO `HOLDS`, ZERO `GATE REACHED`** |
 
 **Total rows: 58 = 43 adjoint-gradient rows (`G-01`…`G-43`) + 15 adjoint-optimization rows
 (`O-01`…`O-15`).** The id ranges are contiguous and the census counts every id exactly once; the
-command refuses if that stops being true.
+command refuses if that stops being true. **Columns 2–5 are THIS FAMILY's own tiering under §0.2 and are unchanged; column 6 is the MATRIX OWNER's tier under the V/G/P rubric of `docs/COVERAGE_MATRIX.md`, as ruled against these 58 rows on 2026-08-25 — under which this family contributes ZERO `HOLDS` and ZERO `GATE REACHED` to the lab matrix (§7.1). Both readings are printed so both are legible; neither is a correction of the other.**
 
 **Every G cell is `NEVER RUN` (58 of 58) and every P cell is `NEVER RUN` except two, which are
 `SURVEYED`** (§3.4, §3.5). Those two columns are deliberately **not** folded into the table above,
@@ -711,5 +711,382 @@ figure in the table above is the record's.**
   verified by this audit: **zero occurrences of the string `F6` in any row of §1 or §2**, and none
   anywhere in the first draft at all; the only three occurrences in this file are in this bullet,
   which exists to say they are excluded.
+
+*Nothing here has been filed, sent, uploaded, registered, posted or commented anywhere.*
+
+---
+
+# 7. Dated addendum, 2026-08-25 — this family CONCEDES the verification audit of `docs/COVERAGE_MATRIX.md` §3.2, in full
+
+**What this addendum is, stated before anything else.** It is an **APPEND at the foot of this
+file**. **It alters no existing row's recorded verdict cell, in §1 or §2 or anywhere else.** Every
+`lab verdict` cell above stands exactly as the record it cites states it. What changes here is
+(a) the **matrix-tier reading** of these rows under the matrix owner's rubric, (b) **two rows
+flagged as hollow PASSes** whose frozen records owe dated amendments that this addendum does not
+write, and (c) **one attribution withdrawn** in §0.1, §0.2 and §0.8 (§7.6).
+
+**Three lines above were re-marked in place and the re-markings are itemised in §7.6 with their
+before-and-after text. Each stayed on its own single line: lines whose number changed above this
+section: 0.** No row was renumbered, no cell moved, no verdict touched.
+
+**ZERO COMPUTE.** No solver, no container, no probe, no GPU. **0 core-minutes spent producing this
+addendum**, against **0 core-minutes pre-registered** — ratio 1.00, nothing to attribute
+(`CLAUDE.md` rule 12). **SUBMISSIONS PARKED** is untouched: nothing here is filed, sent, uploaded,
+registered, posted or commented, and the five upstream DAFoam defect drafts remain **NOT FILED**
+drafts carrying that marker in their opening lines.
+
+**Written by a DAFoam `lab-lane` on the dafoam supervisor's rulings, at HEAD `04325b6b`, against
+this file's HEAD blob (105,289 B, 715 lines, landed `7d09e4c9`) and not against a worktree copy.**
+
+---
+
+## 7.1 The verdict on the audit: we concede the substance, and we do not contest the tier
+
+`docs/COVERAGE_MATRIX.md` §3.2 ruled, on these 58 rows:
+
+> **`V` is absent on all 58, `G` on all 58, and `P` on all 58. All 24 rows this family tiers
+> `HOLDS` are `SURVEYED` under the matrix's Ruling 1 as amended. dafoam contributes ZERO `HOLDS`
+> and ZERO `GATE REACHED` rows to the lab matrix.**
+
+**This family accepts that ruling in full.** The matrix belongs to the verification team, the
+rubric is theirs to apply, and §0.2 of this document said in advance that the mapping from lab
+verdicts to tiers was *"this lane's proposal and the verification supervisor may replace it"*. They
+replaced it. That is the mechanism working.
+
+**Nothing below is a defence.** §7.5 lists three places where the audit read a superseded draft and
+one place where it is, on measurement, wrong — because a concession is worth nothing if the
+conceding party will also concede things that are false. **None of the four touches the ruling
+above, and the ruling above stands whole.**
+
+---
+
+## 7.2 RULING 1 — **two hollow PASSes in this family's own territory. This is a `CLAUDE.md` rule-2 violation and it is worse than a tier change.**
+
+The audit alleged two verdicts written without a pre-registered threshold. **The dafoam supervisor
+verified both personally. Both are real. Verification's claim is correct in both cases**, and this
+family states so without mitigation.
+
+> **A `PASS` that could not have been a `GATE FAIL` is not a verdict.** The freeze is the
+> pre-registration's entire evidentiary content precisely because it proves the gate could not have
+> been chosen to fit the answer (`CLAUDE.md` rule 2; `VERIFICATION_CHARTER.md` §2b). Where no
+> threshold was frozen, no threshold could have failed, and what is on the page is a **measurement
+> reported and then narrated into a verdict.**
+
+### 7.2a Row `G-16` — A3 surface `Cp` against AGARD AR-138 Case 2308
+
+| what was checked | what was found |
+| --- | --- |
+| does a pre-registration exist beside the record? | **NO.** `cases/dafoam/ladder-a/A3/grading_confirmation/` contains **exactly one file**, `RESULTS.md` (23,726 B). There is no `PREREGISTRATION.md` |
+| does any pre-registration in the family register a `Cp` band against AGARD 2308? | **NO.** **46** files matching `*PREREGISTRATION*` under `cases/dafoam/` were searched **ignore-blind** (`find … -print0 \| xargs -0 grep`, never `grep -r`, which honours ignore files in this environment). The **only** hit for `AGARD` or `2308` in all 46 is `cases/dafoam/A3_SUBLU_PREREGISTRATION.md:15`, and it is flow-condition provenance only — *"U0=291.6, T0=300K — the A3 ladder's AGARD 2308 matching"*. **No `Cp` band. No RMS threshold. No gate of any kind.** The same reader returned that one hit, so the zero elsewhere is a **measured zero with a live control**, not a grep artifact (`CLAUDE.md` rule 3) |
+| what the record does instead | `cases/dafoam/ladder-a/A3/grading_confirmation/RESULTS.md:45-46` reports pressure-surface RMS deviation **0.0128–0.0265** Cp and suction-surface **0.0491–0.1139**, and then `:50` writes **"Verdict: PASS, with the deviation attributed and quantified"**. The heading at `:42` already reads *"Cp validation — PASS"* |
+
+**Numbers were reported and a verdict was then written, with no pre-registered threshold that could
+have failed.** Attributing and quantifying a deviation is good practice and is not a gate.
+
+### 7.2b Row `G-33` — B2 duct baseline, 0.1290 against a 0.1288 floor
+
+| what was checked | what was found |
+| --- | --- |
+| does a B2 pre-registration exist? | **NO.** The pre-registrations under `cases/dafoam/ladder-b/` are **S1 (five), W4 (two) and B3 (four)** and nothing else. There is no B2 pre-registration **anywhere** under `cases/dafoam/` |
+| do the strings `\bB2\b`, `0.1288` or `0.1290` occur in any of the 46 pre-registrations? | The two numeric strings: **zero occurrences**. `\bB2\b`: four hits in four files, and **all four are defect class `D-B2` or gate id `G-B2`** — `ladder-a/A4/curriculum_D3/PREREGISTRATION.md:612`, `ladder-a/A4/shipped_optimisation_np1/PREREGISTRATION.md:321`, `ladder-a/A4/curriculum_D3_attempt2/PREREGISTRATION.md:613`, `ladder-a/A1/curriculum_D2/PREREGISTRATION.md:291,:614,:683`. **Not one of them is the B2 duct case.** The same reader returns 11 files for `\bB3\b`, so it can see a non-zero |
+
+**The `+0.16 %` (0.1290 against 0.1288) was measured and then narrated.** Verification's claim is
+correct.
+
+### 7.2c What this family proposes be done about it — the supervisor's ruling
+
+1. **Both rows' `lab verdict` cells should be re-read as reporting a MEASUREMENT WITHOUT A GATE.**
+   The measurements stand and are not withdrawn — the AGARD artifact is real, held, tracked and
+   title-verified from its own content, and the duct comparison was really made. **The verdicts do
+   not stand**, because there was never a threshold behind them.
+2. **The two frozen records owe dated `CLAUDE.md` rule-6 amendments saying exactly that.** This
+   addendum **does not write them and does not edit either record.** They are flagged with exact
+   paths and lines for a later, separately-authorised amendment:
+   - `cases/dafoam/ladder-a/A3/grading_confirmation/RESULTS.md` — heading `:42`, numbers `:45-46`,
+     verdict `:50`.
+   - `cases/dafoam/ladder-b/B2_duct_baseline.md` — the cells this document's `G-33` row cites,
+     `:24`, `:26`, `:132`, `:169`.
+3. **The consequence lands on this family's OWN rubric too, not only the matrix owner's, and that
+   is said here rather than left for someone else to find.** §0.2 of this document reserves the
+   tier `HOLDS` for *"the claim was tested against a pre-registered gate and passed"*. Neither of
+   these two rows had a pre-registered gate. **So `G-16`'s and `G-33`'s `HOLDS` fails under this
+   document's own mapping, independently of the matrix's rubric.** This family's internal census
+   reads **24 `HOLDS` today and 22 once those two amendments land** — and the census table in §4.1
+   is left unchanged until they do, because the tier cell follows the record and the record has not
+   yet been amended. **Under the matrix owner's rubric the count is zero either way.**
+
+---
+
+## 7.3 RULING 2 — the `V` outcome and the SHIPPED-only position are both ACCEPTED
+
+### 7.3a We do not contest the tier, and we do not get to be surprised
+
+Verification's reasoning is that FD-vs-adjoint is **not an exact solution, not a manufactured
+solution and not a correlation**, and therefore is not one of the chief's three `V` instruments.
+
+**They quoted this family's own documents accurately.** `docs/dafoam/V_STANDARD_FD_VS_ADJOINT.md`
+§10.4 item 1 says it in the standard's own words — *"FD and adjoint differentiate the same discrete
+function. Both are wrong together wherever the discretisation is wrong. **This is a
+code-verification statement about the derivative, not about the solver.**"* — and §3.1 of this file
+says *"the entire V column of every row above therefore rests on finite differences"*. **An audit
+that believed us is not an audit we may be surprised by.**
+
+### 7.3b The SHIPPED-only position is RIGHT, and this family says so plainly
+
+Verification's position, offered as input rather than as a ruling, is that if FD-vs-adjoint were
+ever admitted it should be admitted **only for the SHIPPED rows**, because *"code verification whose
+instrument cannot be re-run by anyone outside this box is a self-consistency check rather than
+verification."*
+
+**The dafoam supervisor's ruling: that is correct, and this family adopts it as its own reading.**
+This document already carried the sentence that makes it unanswerable, in the patch-provenance cell
+of row **`G-02`**: ***"Nothing a reader can install reproduces this row: not filed upstream, no
+image ever pushed."*** That sentence is repeated in every PATCHED row deliberately (§0.5), and §3.3
+generalises it: *"a reader who installs DAFoam 5.0.0 with OpenFOAM v2506 and PETSc 3.15.5 gets the
+SHIPPED rows and none of the PATCHED ones."* A row whose instrument exists only on this box cannot
+discharge a question about whether the code gets the right answer.
+
+### 7.3c The six SHIPPED rows, RE-DERIVED INDEPENDENTLY — and the answer is the same six
+
+Verification counted that **6 of the 24** `HOLDS` rows would survive a SHIPPED-only admission and
+named them **`G-03`, `G-16`, `G-19`, `G-27`, `O-04`, `O-06`**. A conceded number should still be a
+checked number, so it was re-derived from this file by the §4.0 census command, bucketing on the
+**leading token** of each row's toolchain cell:
+
+**Re-derived set: `G-03`, `G-16`, `G-19`, `G-27`, `O-04`, `O-06` — the same six, exactly, with no
+row added and none dropped.** The seventeen PATCHED `HOLDS` rows are `G-02`, `G-04`, `G-07`,
+`G-09`, `G-10`, `G-20`, `G-23`, `G-35`, `G-36`, `G-41`, `G-42`, `G-43`, `O-03`, `O-05`, `O-07`,
+`O-08`, `O-09`; the one `OTHER` `HOLDS` row is `G-33`.
+
+**One qualification this family owes the matrix owner, offered as a completeness note and not as a
+bid for a seventh row.** The six are the rows whose toolchain cell leads with **SHIPPED**, i.e. the
+stock DAFoam image. **`G-33` is bucketed `OTHER`** because it ran on **plain host OpenFOAM with no
+DAFoam image at all** — which, read as *"could a reader outside this box regenerate it?"* rather
+than as *"is it the shipped DAFoam image?"*, is arguably **more** reproducible, not less. **This
+family does not ask for it to be counted.** `G-33` is one of the two hollow PASSes of §7.2, so
+promoting it would promote a row whose verdict this family has just withdrawn support for; the
+point is recorded only so the number **6** is understood to mean *shipped DAFoam image*, which is
+the reading verification intended and stated.
+
+### 7.3d ONE CORRECTION OFFERED AS INPUT — explicitly NOT a ruling, and NOT a request to move a tier
+
+> **Recording `V absent` identically for a row with NO code verification of any kind and for a row
+> with code verification by an instrument the rubric does not yet name LOSES INFORMATION THE MATRIX
+> EXISTS TO CARRY.**
+>
+> Row `G-24` (A6's 579,072-cell primal, where no adjoint was ever attempted) and row `G-30` (A6
+> N=16, eight of nine components graded at an aggregate **1.0432 %** with zero sign flips against a
+> fixed noise-sized FD reference) both print `V` absent. They are not in the same state, and a
+> reader of the tier alone cannot tell them apart. **This is a suggestion to the matrix's owner
+> about the matrix's own expressiveness — a sub-cell, a footnote marker, anything that survives
+> being lifted — and it is theirs to take or refuse.**
+>
+> **In the same breath, and this is the load-bearing half:** whether FD-vs-adjoint is admitted as a
+> **fourth `V` instrument** is a **RUBRIC WIDENING**. **Verification CORRECTLY ESCALATED IT RATHER
+> THAN DECIDING IT.** It is the chief's call or Sanaa's and **NEVER this family's**
+> (`CLAUDE.md` rule 9; retiring or widening a gate standard is reserved). **This family is not
+> asking for it to be admitted, is not arguing that it should be, and would not be entitled to the
+> tier change if it were.** The suggestion above is about how the matrix *records* an absence; it
+> is not a request to turn one into a presence.
+
+---
+
+## 7.4 RULING 3 — the `G` finding CORROBORATED BY AN INDEPENDENT ROUTE, and this family's cheapest way out of it
+
+### 7.4a The zero is a MEASURED zero with a live planted control, not a grep artifact
+
+**This matters more than the result.** `CLAUDE.md` rule 3 says a zero from a reader not shown able
+to see a non-zero is not evidence, and that applies to a **negative** claim exactly as it applies to
+a comparator's output. It also has a trap specific to this box: **`grep -r` here honours ignore
+files** and would have returned a **false zero** on precisely the gitignored case archives where a
+stray grid study would hide.
+
+**Method: ignore-blind, `find … -print0 | xargs -0 grep`, across `cases/dafoam/` and `docs/dafoam/`
+— 24,131 files swept.**
+
+| probe | result |
+| --- | --- |
+| **`\bGCI\b`** — the positive control | **53 hits, all inside `cases/dafoam/MATRIX_CONTRIBUTION.md`** (this file, where they occur only in cells asserting the absence), and **ZERO in the other 24,130 files**. The reader is demonstrably able to return a non-zero |
+| `observed order`, `grid convergence`, `grid triple` (case-insensitive) | **zero occurrences outside this file** |
+| **`\bRoache\b`** (word-boundary, case-sensitive) | outside this file's own absence assertions, **exactly one hit in 24,131 files**: `cases/dafoam/EXPERTISE_CURRICULUM.md:125`, curriculum item **D14**, a **NEVER-RUN future item**. *(A case-insensitive substring search returns a dozen false hits: `Roache` is a substring of `approaches`. The word boundary matters.)* |
+
+**Conclusion: `G` is absent on all 58 rows, corroborated independently of verification's own sweep,
+and the corroboration is worth something precisely because the zero was planted against.**
+
+### 7.4b A fourth false-positive class, added to the audit's trap list
+
+`docs/COVERAGE_MATRIX.md` §3.1 warns a later reader that every `Richardson` hit in this tree is
+either FD-step Richardson extrapolation or a Richardson **preconditioner** sweep. **A fourth trap
+belongs beside those two**, found on this sweep: **`\bCONVERGING\b` occurs in four A3 rung-3 shell
+scripts** — `cases/dafoam/ladder-a/A3/rung3_patched_idwarp_np4/identity_stop.sh:79` sets
+`DECISION="CONVERGING"`, and `guard_selftest.sh:153` tests that limb. **It is a decision word about
+an adjoint linear-solve residual trajectory, not a Roache triple state.** Reading it as grid
+convergence would be the same category error, and it is named here so nobody makes it.
+
+### 7.4c THE OPPORTUNITY — registered as a CANDIDATE, NOT started, NOT priced, NOT claimed cheap
+
+Verification's own audit notes the fact that makes this actionable: **A3 is DAFoam's only
+three-level grid family, at 21,840 / 42,120 / 79,560 cells** (rows `G-07`/`G-08`, `G-09`/`G-10`,
+`G-11`…`G-14`). **The levels already exist.** Forming a Roache triple with a GCI at Fs = 1.25 and an
+observed order on them is **the cheapest route this family has to its first `G`**, and it may be
+reachable substantially from artifacts already on disk.
+
+**Registered here as a candidate. It requires its own FROZEN, COSTED pre-registration committed
+BEFORE any compute** (`CLAUDE.md` rules 2 and 12). **It is not started and no compute is authorised
+by this addendum.**
+
+**Four honest obstacles, stated so nobody reads "the levels exist" as "the triple holds":**
+
+1. **`CLAUDE.md` rule 5 clause (1) comes first.** A triple yields a `G` only if it is `CONVERGING`
+   **and every level is iteratively converged and plateaued**. Neither has been shown for any of
+   the three levels; demonstrating it is itself unbudgeted work.
+2. **A triple on the ADJOINT GRADIENT is NOT reachable from what is on disk.** Row `G-11` records
+   the finest level's adjoint at `GATE FAIL` — `reason −3` at the 4,000-iteration cap, 1.31×
+   residual reduction — and §3.4 records that **the 79,560 level produced no gradient at all.**
+   There is no third value to put in the triple.
+3. **A triple on a PRIMAL quantity of interest may be reachable, and that is the candidate** — but
+   it is a different claim from the one this family's `V` column is about, and whether the matrix
+   wants a primal-QoI `G` row from an adjoint family is the matrix owner's call.
+4. **The refinement ratios are near-equal but shallow.** Cell-count ratios **1.92857** and
+   **1.88889** give linear ratios **r₂₁ = 1.2447** and **r₃₂ = 1.2361** — close to each other, which
+   is good, but **both below the r ≥ 1.3 usually recommended for a reliable GCI**. That is a
+   registered risk for the pre-registration to state, not a reason not to write one.
+
+**No cost figure is stated here, because none has been measured and a cost is never called cheap
+before somebody prices it** (`DAFOAM_CHARTER.md` §12).
+
+---
+
+## 7.5 What the audit read against a SUPERSEDED DRAFT, and the one place it is wrong
+
+The audit read this file **at 414 lines, untracked**. **It is now 715 lines and TRACKED** — landed
+at **`7d09e4c9`** (*"dafoam MATRIX_CONTRIBUTION: AUDITED, REPAIRED AND LANDED — 58 rows, V/G/P
+columns added, census withdrawn and rebuilt to refuse"*), 105,289 B at HEAD. *(`git ls-files`
+reports this path untracked; the shared index is stale by construction under the rule-10
+private-index protocol. The authority is `git cat-file -s HEAD:<path>`, which returns 105,289.)*
+
+**Three of the audit's readings were made against the superseded draft, and all three are already
+repaired in the tracked file:**
+
+| audit reading | state in the tracked file |
+| --- | --- |
+| §3.2 *"Source: … (untracked on disk)"* | **tracked**, `7d09e4c9` |
+| §3.2a *"the §4.1 census table reports 51 rows … its own derivation command is broken"*, with the three named defects — field shift on literal `\|`, `SHIPPED`-before-`PATCHED` bucketing, `OTHER` is 2 not 1 | **All three were found and disclosed by this family's own adversarial audit before the verification audit was written**, and §4 opens by **WITHDRAWING** the 51-row census rather than quietly correcting it. The rebuilt §4.0 command **refuses with `exit 2`** on any of four conditions, and **its refusals are planted and proved** against mutated copies. Re-run against the tracked file it returns `ROWS 58 (G 43 + O 15)` … `CENSUS OK`, **exit 0**. §4.1 discloses **both** `OTHER` rows, `G-33` and `G-32`, by name |
+| §3.2a *"§0.6 states the V standard is NOT at HEAD … every `sha VERIFY` marker resolves to `4a6ea0b8`"* | **already discharged** — §0.6 of the tracked file cites `4a6ea0b8`, blob `6b96fbd3`, in all sixteen cells |
+
+**And the answer to the question that matters is: NONE OF THE READINGS THAT MATTER.** The `V`
+ruling, the `G` ruling, the `P` ruling and **both hollow-PASS findings** depend on none of the
+above. The `V` ruling turns on what FD-vs-adjoint is, which the tracked file states in the same
+words as the draft; the `G` ruling turns on a tree-wide absence; the two hollow PASSes turn on
+files this document does not own. **The concession in §7.1 is unaffected by the draft/tracked
+distinction in every particular.**
+
+### 7.5a One measured disagreement, handed back rather than conceded — the census column split
+
+**This changes no tier and no verdict. It is recorded because conceding a number that is wrong is
+as bad as defending one.**
+
+`docs/COVERAGE_MATRIX.md` §3.2a prints a corrected census with `HOLDS` at **7 SHIPPED / 16 PATCHED
+/ 1 OTHER** and column totals **21 / 35 / 2**. **The §4.0 command run against the tracked file
+returns `HOLDS` at 6 / 17 / 1 and column totals 20 / 36 / 2** — a difference of **exactly one row**,
+and the row is **`G-07`**.
+
+**The cause is internal to the audit's own §3.2a, and it is the defect that section itself names.**
+Its defect 2 states, correctly, that a `SHIPPED`-first regex buckets `G-07` as SHIPPED because that
+row's toolchain cell contains the string **"SHIPPED-equivalent"**, and that this *"contradicts the
+document's own bucketing rule"* that `‡` rows count as **PATCHED**. **The audit's printed table
+nevertheless carries the uncorrected SHIPPED reading of `G-07`** — moving `G-07` alone from PATCHED
+to SHIPPED turns 6/17/1 into 7/16/1 and 20/36/2 into 21/35/2, reproducing the audit's figures
+exactly. Meanwhile **the audit's own list of the six SHIPPED-surviving rows excludes `G-07`**, which
+is the PATCHED reading. **The prose and the list are right; the table implements the defect its own
+prose diagnoses.**
+
+**Both readings are legitimate and this file already said so before the audit was written** — §4.2
+item 2: counting the `‡` rows as SHIPPED instead moves **three** rows (`G-07`, `G-09`, `G-11`),
+giving **23 / 33 / 2**, and *"the verification supervisor may choose."* **The audit's 21 / 35 / 2 is
+neither of the two coherent readings** — it is one row of the SHIPPED reading grafted onto the
+PATCHED reading. Handed back for the owner to pick a reading; **no tier moves under either, and the
+six SHIPPED-surviving rows are the same six under the PATCHED reading the audit's list uses.**
+
+### 7.5b One claim in the audit that is WRONG on measurement — the "citation defect"
+
+`docs/COVERAGE_MATRIX.md` §3.2 records, as a defect *"owed to dafoam as a dated correction"*:
+
+> *"`A3/grading_confirmation/RESULTS.md:44` cites the AGARD file as `../../logs_A3/case_2308.dat`,
+> which resolves to `cases/dafoam/logs_A3/` — **a directory that does not exist**."*
+
+**Measured: the citation resolves correctly and the file is there.** `RESULTS.md` sits in
+`cases/dafoam/ladder-a/A3/grading_confirmation/`; `../../` from that directory is
+`cases/dafoam/ladder-a/`, so `../../logs_A3/case_2308.dat` resolves to
+**`/home/ubuntu/Certonomous/cases/dafoam/ladder-a/logs_A3/case_2308.dat`** — verified with
+`readlink -f`, present, **22,695 B**, and `git cat-file -s HEAD:` returns **22,695**, so it is
+tracked. **`../../` was resolved as three levels up rather than two.** The audit's own `G-16` row
+cell names the correct path, `cases/dafoam/ladder-a/logs_A3/case_2308.dat`, in the same section —
+**so the audit contains both the right path and the false defect.**
+
+**No correction is owed to this family on that point, and none should be made.** *(Immaterial and
+noted only for completeness: §3.1's *"Neither contribution contains the word `CONVERGING`"* is not
+true of this file — it occurs once, at `:380`, in the sentence stating what `G` requires. Nothing
+turns on it.)*
+
+**Everything else in §3.2 and §3.2a stands, and the parts that go against this family stand
+hardest:** the `V` ruling, the SHIPPED-only position, the `G` absence, the `P` absence, both hollow
+PASSes, the `PATCHED`-over-`SHIPPED` imbalance and the recommendation that the SHIPPED/PATCHED split
+be carried as a **visible column** rather than a footnote — which is this file's own §0.3 demand and
+this family endorses it.
+
+---
+
+## 7.6 ATTRIBUTION WITHDRAWN — the five tier words are not sourceable to Sanaa's own words
+
+**Checked because a sister family found a block marked as Sanaa's verbatim words that it could not
+source on disk, and withdrew the attribution while keeping the text.** This file carries no quoted
+block attributed to Sanaa. **It did carry, in three places, the claim that the five matrix tier
+words are hers.**
+
+**Searched ignore-blind** (`find … -print0 | xargs -0 grep`, never `grep -r`) across every `.md` in
+the repository: the tier word `SURVEYED` occurs in **10 files**, and **not one records Sanaa
+speaking the five words.** The two that define them say the opposite or say nothing:
+
+- **`docs/COVERAGE_MATRIX.md` §0**, the owner's own front matter: *"The three-column rubric and the
+  five tier words below are the **CHIEF'S RECONSTRUCTION** of Sanaa's directive. **They are NOT her
+  verbatim words** … Sanaa has not ruled on the rubric."*
+- **`docs/LAB_STATE.md:155-163`** prints the five tier words with **no attribution to Sanaa at
+  all.**
+
+**So the attribution fails, and it is withdrawn here. The text is kept — the tier words are the
+right tier words and nothing about them changes.** What fails is the claim that *she* fixed them.
+Three lines were re-marked in place, each staying on its own single line so that **lines whose
+number changed above this section: 0**:
+
+| line | before | after |
+| --- | --- | --- |
+| **`:59`** (§0.1 table) | *"Sanaa's five tier words for the coverage matrix"* | *"the coverage matrix's five tier words — attribution to Sanaa WITHDRAWN 2026-08-25, see §7.6"* |
+| **`:74`** (§0.2) | *"The five tier words are Sanaa's;"* | *"The five tier words are the CHIEF'S RECONSTRUCTION of Sanaa's directive, not her verbatim words (attribution withdrawn 2026-08-25, §7.6);"* |
+| **`:217`** (§0.8) | *"the tier words are Sanaa's, so the ruling is theirs and ultimately hers."* | *"the tier words are the chief's reconstruction of Sanaa's directive (§7.6), so the ruling is theirs and ultimately hers."* |
+
+**What is NOT withdrawn.** Every *other* reference to Sanaa in this file is a statement about a
+**decision reserved to her**, not a quotation of her words, and each is sourced to a charter clause
+or a docket item: filing is hers alone (`CLAUDE.md` rule 7, `DAFOAM_CHARTER.md` §10); fork adoption
+is hers (R11, `FAMILY_SUPERVISION_GUIDELINES.md` §3.4); the D464 gate wording and the A3 rung-1 rule
+choice are hers. **Those stand, and rows `G-08`, `G-30`, `G-32` and `G-39` continue to decline to
+read gates reserved to her.**
+
+---
+
+## 7.7 What this addendum did, in figures
+
+| what | figure |
+| --- | --- |
+| existing rows whose **lab verdict** cell was altered | **0** |
+| existing rows whose **matrix tier** cell was altered | **0** |
+| lines whose number changed above this section | **0** |
+| lines re-marked in place, all disclosed in §7.6 with before-and-after text | **3** |
+| frozen records edited | **0** — two are flagged for a later, separately-authorised amendment (§7.2c) |
+| rulings of the matrix owner contested | **0** |
+| rows this family contributes to `docs/COVERAGE_MATRIX.md` at `HOLDS`, under the owner's rubric as ruled | **0** |
+| rows this family contributes at `GATE REACHED`, under the owner's rubric as ruled | **0** |
+| core-minutes spent | **0** — zero compute, no solver, no container, no probe |
+| anything filed, sent, posted, uploaded or reported outside this box | **0** |
 
 *Nothing here has been filed, sent, uploaded, registered, posted or commented anywhere.*
