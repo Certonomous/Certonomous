@@ -239,3 +239,83 @@ launcher missing any of these is incomplete regardless of how short the form is 
 
 **What did NOT change.** No gate rule, band rule, reference-KIND → score-column mapping,
 tier-ceiling vocabulary, cost/cap rule, or completion/Roache rule moved.
+
+---
+
+## AMENDMENT 4 — 2026-08-25 — **THE PLATEAU CLAUSE IS NOW A REQUIRED, SPECIFIED ARTIFACT. The template said NOTHING about settling, so every case invented its own.**
+
+Frozen-file amendment appended at the foot, not an edit above. **lines whose number changed
+above this section: 0.**
+
+**Why.** A heat-transfer audit found a comparator whose gate compared **the last two written
+checkpoints** on a field oscillating over two decades — a two-point sample and a phase
+lottery. I classified all 22 of this team's comparators against it.
+
+**RESULT: ZERO Class A. No comparator of this team compares the last two readings** — the
+`[-1] − [-2]` pattern appears nowhere. **But the exposure arrives here by a different route,
+and it is worse than a code smell because it is invisible in the code.**
+
+### **THE FINDING: a FRACTIONAL window has no fixed class. Its class depends on the RUN.**
+
+Eight comparators use `PLATEAU_FRAC = 0.20` — *the last 20 % of the series*. On a run that
+wrote 900 checkpoints that is 180 samples and sound. **On a run that wrote 10, it is 2 samples
+— and 2 samples IS Class A.** The code is identical in both cases.
+
+> **A fractional plateau window with no minimum-sample refusal is Class C on a long run and
+> Class A on a short one. The class is not a property of the comparator; it is a property of
+> the comparator AND the run — so it cannot be established by reading the code, and it changes
+> silently when `writeInterval` changes.**
+
+**This team has already shipped a case whose `writeInterval` was wrong by a factor that wrote
+NO output at all (VMFL021, register row #18).** The same knob silently sets the plateau sample
+count.
+
+### The classification, all 22 comparators
+
+**Class C — sound, and these are the patterns to copy:**
+
+| case | what makes it sound |
+|---|---|
+| **VMFL007** | **`refuse("V2", "%d plateau samples < %d — CANNOT_TELL, never a pass")`** — an explicit minimum-sample refusal, plus a null-range clause refusing a dead-flat series. **The reference implementation.** |
+| **VMFL023** | **`refuse("W1", …only %d samples)` AND `refuse("W2", …%d upward zero-crossings, fewer than…)`** — a zero-crossing count, which for a shedding case is the physically right stationarity test, plus a two-half-window amplitude comparison. |
+| **VMFL007_R2** | **A FIXED window (`PLATEAU_WINDOW = 1000`, `STRIDE = 100`), NOT a fraction** — so the sample count is 10 deterministically, known at freeze time. Plus a null-range refusal. **The fixed window is what removes the risk; it needs no minimum because it cannot vary.** |
+
+**Class C-minus — right architecture, no minimum-sample refusal:** VMFL001, VMFL003,
+VMFL003_M2 (×2), VMFL005, VMFL036, VMFL045, VMFL051. All use **peak-to-peak over a fractional
+window**, which correctly **rejects a growing series** (a trending series has large ptp).
+VMFL003 and VMFL003_M2 additionally carry a null-range clause. **Their only gap is the sample
+floor.**
+
+**Weakest — windowed coefficient of variation, which does NOT reject a trend:** VMFL017,
+VMFL021, VMFL022. **A monotonically rising series can have a small CoV**, so CoV alone cannot
+distinguish a settled series from a slowly climbing one. No minimum-sample refusal either.
+
+### Note against the already-graded row
+
+**VMFL022 (register row #17, `NOT A RESULT`) rests on a CoV clause with no sample floor.** Its
+actual counts were **n = 361 / 417 / 929**, so the missing floor **did not bite** and the
+verdict is unaffected. Recorded here so no reader has to rediscover it. **Its verdict was
+driven by the Roache triple being `OSCILLATORY`, not by the plateau clause.**
+
+### **THE REQUIREMENT (binding on every case frozen from this form)**
+
+A pre-registration MAY NOT FREEZE without a plateau/settling clause that carries ALL of:
+
+1. **A window that is FIXED, or a fractional window WITH an explicit minimum-sample count.**
+   Prefer fixed — it is knowable at freeze time and cannot move when `writeInterval` does.
+2. **A REFUSAL below that minimum — `CANNOT_TELL`, never a pass.** Too few samples is a
+   `NOT A RESULT`, not a lenient pass.
+3. **A statistic that REJECTS A GROWING SERIES** — peak-to-peak, an explicit trend fit, or a
+   stationarity test comparing sub-windows. **A coefficient of variation alone does not
+   qualify** and may be carried only *beside* one of these, never instead of one.
+4. **A null-range refusal** — a series with no variation at all is REFUSED, never passed. A
+   dead field and a perfectly converged one look identical to a tolerance.
+5. **The realised sample count RECORDED in the grading artifact**, as VMFL021/022 already do
+   with `n_window`, so a reader can check the floor was met without re-running anything.
+
+Items 1–5 join the non-droppable list at line 13 alongside the planted-zero control, the mesh
+birth certificate, the launcher freeze check and the `endTime`/`writeInterval` assertion.
+**Short must never mean weaker.**
+
+**What did NOT change.** No gate rule, band rule, reference-KIND mapping, tier-ceiling
+vocabulary, cost/cap rule or Roache/completion rule moved.
