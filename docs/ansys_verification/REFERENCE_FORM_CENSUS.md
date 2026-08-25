@@ -257,3 +257,83 @@ Source file: `/home/ubuntu/Certonomous/docs/papers/verification_validation/Ansys
 ---
 
 **Next session recommendation:** Complete VMFLGPU005–010 full reads, extract VMFRT001–007, finalize with complete sorted DISCRETE list.
+
+---
+
+## Batch 6 — VMFLGPU005–010, and the GPU family closed out (supervisor-verified, 2026-08-25T21:2xZ)
+
+Extracted by an `ansys-lane-haiku` reading lane; **the reference forms and citations below
+are the lane's, the arithmetic check in the correction at the foot is the supervisor's.**
+
+| Case ID | Manual Page | Short Title | Reference Form | Reference Values | Named Source |
+|---------|-------------|-------------|-----------------|------------------|--------------|
+| VMFLGPU005 | 235 | Turbulent Natural Convection Inside a Tall Cavity | PROFILE | (figures only, no numeric table) | P.L. Betts, I.H. Bokhari. "Experiments on turbulent natural convection in an enclosed tall cavity". International Journal of Heat and Fluid Flow, Vol. 21, pp. 675-683, 2000. |
+| VMFLGPU006 | 239 | Mid-Span Flow Over a Goldman Stator Blade | PROFILE | (figures only, no numeric table) | Goldman, L.G., & McLallin, K.L. (1977). Cold-Air Annular Cascade Investigation of Aerodynamic Performance of Core-Engine-Cooled Turbine Vanes: In Solid Vane Performance and Facility Description, NASA TM X-3224. |
+| VMFLGPU007 | 243 | Turbulent Flow with Heat Transfer in a Backward-Facing Step | PROFILE | (figures only, no numeric table) | J.C. Vogel, J.K. Eaton, "Combined Heat Transfer and Fluid Dynamic Measurements Downstream of a Backward-Facing Step". Journal of Heat Transfer, Vol. 107, pp. 922-929, 1985. |
+| VMFLGPU008 | 247 | Radiative Heat Transfer in a Rectangular Enclosure with Participating Medium | PROFILE | (figures only, no numeric table) | G.D. Raithby, E.H. Chui. "A Finite Volume Method for Predicting a Radiant Heat Transfer in Enclosures with Participating Media". Journal of Heat Transfer, Vol. 112, pp. 415-423, 1990. |
+| VMFLGPU009 | 249 | Two Phase Poiseuille Flow | PROFILE | (figures only, no numeric table) | E. Marchandise, J.F. Remacle, "A stabilized finite element method using a discontinuous level set approach for solving two phase incompressible flows", Journal of Computational Physics, Vol. 219, pp. 180-800, 2006. |
+| VMFLGPU010 | 251 | Surface to Surface Radiative Heat Transfer Between Two Concentric Cylinders | PROFILE | (figures only, no numeric table) | F.P. Incropera, D.P. DeWitt. Fundamentals of Heat and Mass Transfer, 4th Edition, John Wiley & Sons, New York, 1996. |
+
+**The VMFLGPU family is now completely classified: 001–010.**
+
+| | count |
+|---|---|
+| DISCRETE | **2** — VMFLGPU001 (4 tangential velocities), VMFLGPU002 (flow split 0.887) |
+| PROFILE | **8** — VMFLGPU003–010 |
+| EMPTY / UNCLEAR | 0 |
+
+### Reference KIND for the two DISCRETE GPU cases (required close-out field, line 3 of the freeze)
+
+- **VMFLGPU001** (p.225) — **closed-form / exact analytic → buys V, NEVER P.** Deciding
+  line: *"The tangential velocity at various sections can be calculated using analytical
+  equations for laminar flow. These values are used for comparison with simulation
+  results."*
+- **VMFLGPU002** (p.227) — **measured / experimental → CAN buy P.** Deciding line: *"The
+  purpose of this test is to compare prediction of the fractional flow in a dividing
+  tee-junction with experimental results."* The manual presents Hayes, Nandkumar &
+  Nasr-El-Din (1989), *Computers and Fluids* 17:537-553, as an experimental source, not a
+  computational one. So VMFLGPU002 is **not** capped at `GATE REACHED` by its reference
+  kind.
+
+### A DRIVING INPUT THE MANUAL OMITS — VMFLGPU002 is CONTESTED, not standard
+
+**VMFLGPU002's page states no inlet velocity magnitude and no Reynolds number.** It gives
+density 1 kg/m3, viscosity 0.003333 kg/m-s, L = 3.0 m, W = 1.0 m and only the words
+*"fully developed inlet velocity profile"*. **Its parent case VMFL010 carries the same
+omission on its own page.** No dimensionless group can be formed, so the consistency check
+that caught VMFL036 **cannot be run on this case from the manual alone**.
+
+Under this template's own rule — *"a driving input the manual omits"* — **VMFLGPU002 is
+CONTESTED and requires a bespoke frozen document, NOT the ten-line form.** An archive read
+for the missing magnitude is dispatched; **the value is never to be inferred from a
+"typical" Reynolds number.** A fabricated driving input would produce a false gate on a
+case that then looks verified.
+
+---
+
+### SUPERVISOR CORRECTION — the lane's dimensionless group for VMFLGPU001 is WRONG. Recomputed personally.
+
+The lane reported for VMFLGPU001: *"Ta ≈ (1)(0.0178)²(0.02848)/(0.0002) ≈ 22.6"*.
+
+**The stated expression does not evaluate to the stated number, and neither the expression
+nor the number is a Taylor number.** Recomputed by the supervisor from the page's own
+values (ρ = 1, μ = 2e-4 → ν = 2e-4 m²/s; r_i = 0.0178 m, r_o = 0.04628 m, ω = 1 rad/s):
+
+| quantity | value |
+|---|---|
+| gap δ = r_o − r_i | 0.02848 m |
+| radius ratio r_o/r_i | 2.600 |
+| U_inner = ω·r_i | 0.0178 m/s |
+| **gap Reynolds number** ω·r_i·δ/ν | **2.535** |
+| **Taylor number** ω²·r_i·δ³/ν² | **10.28** |
+| the lane's own expression, evaluated | **0.0451** — not 22.6 |
+| Ta_crit for Taylor vortices (narrow gap) | ~1700 |
+
+**The lane's CONCLUSION survives and its NUMBER does not.** The regime is laminar Couette,
+by a margin of roughly two orders of magnitude below the Taylor-vortex threshold — so the
+manual's use of an analytical laminar solution as the reference is sound. But a census that
+feeds gate freezes may not carry a number that matches neither its own formula nor any
+standard group. **The corrected values above are the ones a VMFLGPU001 freeze cites.**
+
+**Next:** VMFRT001–007 (Forte) remain unextracted; the full sorted DISCRETE list is
+otherwise complete.
