@@ -170,3 +170,40 @@ Frozen evidence at launch: pre-registration blob
 `462492a82b6cf848eaaff25661ded45e623e723f`, 7 frozen sentences found verbatim,
 grading module blob `a18314f77160b7a58f443073850a44b4d8fada7d`, **26 grading
 functions hashed individually and matched**.
+
+---
+
+## 12. CORRECTION, 2026-08-25 — §2's `p` evidence was THIS LANE'S OWN READING ARTIFACT
+
+§2 above reports that `p` **"alternates between ~0.21 and ~0.008 on successive
+iterations — a two-level oscillation, not a decay."** **That is wrong, and the
+error is this lane's.**
+
+`p` is solved **twice per iteration** here (`nNonOrthogonalCorrectors 1` → one
+solve plus one corrector). The "alternation" is **the two `p` solves of the SAME
+iteration**, read as if they were successive iterations. The last six raw
+`Solving for p` values in file order are
+`0.2088, 0.00574, 0.2047, 0.00756, 0.2117, 0.01285` — which is not an
+oscillation but a first solve and its corrector, three times over.
+
+Separated by role, and `simpleControl` reads the **first** solve:
+
+| iterations | median first-solve `p` |
+| --- | --- |
+| 0–20 | 6.034e-02 |
+| 40–60 | 1.343e-01 |
+| 80–100 | 1.148e-01 |
+| **120–148** | **1.794e-01** |
+
+**`p` is not oscillating. `p` is GROWING** — roughly tripling from the first
+twenty iterations to the last twenty-eight, while `Ux` 2.18e-2, `Uy` 2.09e-2 and
+`e` 8.05e-2 sit flat. The pressure equation is **losing ground**, and then a
+cell's temperature goes negative.
+
+**This is a materially different input to the crash triage than what §2 handed
+the supervisor**, and the corrected version is the one to use. Same artifact
+class as the F2 misreading recorded in
+`../gateB_probe_2026-08-25/RESULTS_GATE_B_PROBE.md` §2: **a channel solved more
+than once per iteration cannot be read off the log in file order.** Neither the
+verdict (`NOT A RESULT`) nor any gated quantity is affected — §2 is narrative
+evidence, not a graded number.

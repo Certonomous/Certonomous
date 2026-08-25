@@ -217,3 +217,50 @@ inside the 0.4015.
   module to call this builder's dictionary — which is a change to a **grading
   path** after first compute, and therefore a standing-rule-2 question for the
   supervisor and for verification, not a lane's call.
+
+---
+
+## 12. RULING, 2026-08-25 — MESH-SIMILARITY §7 item 2 versus the uniform wake outlet
+
+Recorded here with **both readings** so a future reader sees the choice was
+**made, not missed**.
+
+**The clause.** The frozen MESH-SIMILARITY AMENDMENT §7 item 2 requires that
+*"the `r_y_far` level-independence of §5 must be repaired, so the wake blocks'
+far-side distribution refines with the ladder instead of flipping to uniform at
+the fine level."*
+
+**The collision.** Attempt 2's recipe makes the wake outlet **uniform at every
+level** (§4 of `ATTEMPT2_MESH_REGISTRATION.md`).
+
+**READING A — the plain reading, which fails this recipe.** *"instead of flipping
+to uniform"* can be read as mandating a graded, ladder-scaling distribution;
+uniform-everywhere is uniform, so it fails.
+
+**READING B — the purposive reading, which passes it.** The clause's object is
+the **flip**, not uniformity. The defect it was written for was measured and
+named at the time: the far-side totals ran **3.747 / 1.084 / 1.000** because a
+level-independent 0.3-chord first cell tripped a guard **only at the fine
+level** — recorded then as *"a BRANCH FLIP, not a drift."* **The vice was that
+one level differed IN KIND from the other two, destroying similarity.** The same
+amendment's operative ruling settles the test: *"a ladder is admissible only if
+the first cell and expansion ratio scale WITH the mesh and the recipe is
+otherwise held FIXED."* **Uniform at every level IS the recipe held fixed**, and
+it halves with the ladder like every other spacing, so it is similar by
+construction. Uniform at one level is not.
+
+**RULING: READING B GOVERNS. The uniform wake outlet is COMPLIANT.** Ruled by the
+**cfd supervisor**, 2026-08-25, on the ground that the plain reading would
+condemn a construction that is trivially similar while the clause exists to
+protect similarity, and that the clause attaches to a generator that has since
+been replaced by owner ruling.
+
+**The conflict of interest is stated rather than hidden:** this is the cfd team's
+own clause, ruled on by the cfd supervisor, on the cfd team's own document, and
+**verification is PAUSED by Sanaa, so no independent check exists.** The ruling
+is **overrulable** and is recorded so that it can be.
+
+**Nothing gated turns on it.** Gate A's verdict at §1 is measured from three real
+`checkMesh` logs and does not depend on how this resolves. What would turn on it
+is the ladder's admissibility as a **similar family**, which matters to the
+Roache triple at rungs 2–5 — and those are held shut by the interlock.
