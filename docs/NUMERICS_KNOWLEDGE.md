@@ -3849,3 +3849,104 @@ manual sidecar
 Table .01.1 (printed target 0.0046 at r = 35 mm).
 
 **N-T8. A Richardson extrapolate is the one grid-convergence output whose SIGN a key-presence selftest cannot catch, and four independent implementations in this lab got it wrong the same way.** `f_ext = f_f + (f_f - f_m)/(r^p - 1)`; written with `e21 = f_m - f_f` that is `f_f - e21/den`, and `f_f + e21/den` reflects the limit through the finest value onto the coarse side. **Wrong by construction, right-looking on every printout**: the value has the right magnitude, the right units and a plausible position between the levels, and `GCI` (which takes `|e21|`) and the observed order `p` are both sign-independent, so every neighbouring number stays correct. Defective: `T-family/T1_runs/analyse_t1c.py:337`, `T-family/T3_runs/analyse_t3.py:384`, `T-family/T9a_runs/analyse_t9a.py:241`, and — independently written, not shared code — `F14-cooling-ladder/K0cG_runs/analyse_k0cg.py:107` and `K0cX_runs/grid_convergence.py:106`. Correct: `K0b_*/analyse_k0b_mesh.py:319`, `T9a_runs/analyse_t9aD.py:129`, `E4_runs/analyse_e4a.py:128`, `T10a_runs/analyse_t10a.py:611`, `T10aR_runs/analyse_t10aR.py:146`. **THE STANDING RULE, adopted 2026-08-24: every T-family and F14 comparator's `--selftest` must carry a VALUE-checking Richardson control — a synthetic power-law triple `f_k = f_ex + A (r^p)^k` whose limit `f_ex` is known by construction, asserted to 1e-12 relative — and not merely a check that the key exists.** `analyse_t1c.py`'s and `analyse_t3.py`'s frozen selftests check **existence only**, which is why the defect survived every run of both; `K0cG`/`K0cX` carry no Richardson control at all. Already satisfying the class, at a looser tolerance: `E4_runs/analyse_e4a.py:759-764`, control **"corrected vs frozen (sign-defect) Richardson"** (1e-8 relative, and it asserts the frozen form is *worse*), repeated by `E4a2_runs/analyse_e4a2.py:575-577`; `T10aR_runs/analyse_t10aR.py:383-406`, four controls including **"richardson_corrected recovers the exact value of a clean power law"** and **"the shared gci's own richardson carries the registered SIGN DEFECT"**; `analyse_t9aD.py:214-242`. **A second, free check that needs no synthetic case:** the two forms satisfy `frozen + corrected == 2 f_fine` exactly, so any comparator printing both can assert the identity on real data — verified on T10a (`-3271.6099514453667` + `-3267.5943548617456` = 2 × `-3269.602153153556`, its own fine value) and on E4a2 R1 (`1.506878761e-07` + `1.497435362e-07` = 2 × `1.502157061e-07`, its own G1 fine `Q`). **No verdict in this lab was ever a function of a Richardson value** — the T-family trace of 2026-08-24 read the grading operands of every consuming comparator and found the extrapolate display-only everywhere (`analyse_t1c.py:446-470`, `analyse_t9a.py:409-441`, `analyse_dts.py:944`, `analyse_dts_p.py:639`, `grid_convergence.py`, `analyse_k0cg.py:142`) — but seven published numbers moved when the sign was corrected, one of them materially (T1c's constant-`q″` h→0 excess, +0.0748 % → +0.0013 %). Source: `CROSS_TEAM_GATE_AUDIT.md` §66/§72; `T9a_RESULTS.md` §8 item 1; `verification/runs/T-family/T3_runs/analyse_t3.ADDENDUM_2026-08-24_richardson_sign.md` and `T1_runs/analyse_t1c.ADDENDUM_2026-08-24_richardson_sign.md` (full trace and citer lists).
+
+## N-AV7. A small GCI is a statement about grid convergence ONLY — it does not license the claim that a residual deviation from a reference is numerical; VMFL005 is CONVERGING at 0.05 % GCI yet extrapolates 0.54 % AWAY from the exact value
+
+**The fact, as measured.** VMFL005 (Poiseuille, exact Hagen–Poiseuille 10.24 Pa) and
+VMFL001-R2 (rotating cylinders, exact White §3-2.3) are, on their face, identical
+strength: both `PASS`, both grid triples `CONVERGING`, both observed order p ≈ 2, both
+GCI_fine ≈ 0.05 %. They behave OPPOSITELY under Richardson extrapolation, and that
+pairing is the whole force of the entry:
+
+| case | fine-grid dev vs exact | GCI_fine | dev / GCI | Richardson extrapolate | extrapolate dev vs exact |
+|---|---|---|---|---|---|
+| VMFL001-R2 (`N-AV6`) | 0.0447 % | 0.0563 % | 0.79 | 0.0045478265 m/s | **3.7 ppm** — lands ON exact |
+| VMFL005 | 0.4979 % | 0.0502 % | **9.92** | 10.295119 Pa | **0.5383 %** — *further* than the fine grid |
+
+For VMFL005 the deviation from the analytic reference is **9.92× the fine-grid
+discretisation uncertainty**, and grid refinement moves the answer *away* from exact:
+the extrapolate 10.295119 Pa is 0.5383 % above 10.24 Pa, against the fine level's
+0.4979 %. Roughly **90 %** of the residual deviation is a modelling/setup signature,
+not discretisation error.
+
+**The rule.** A converging Roache triple with a small GCI certifies only that the
+answer has stopped moving with mesh — grid convergence, nothing more. It does NOT
+certify that the code converges to the *exact* solution, nor that a residual deviation
+from a reference is numerical and will shrink with refinement. That claim requires the
+extrapolate to LAND on the reference (VMFL001-R2, 3.7 ppm), and it must be checked, not
+assumed — VMFL005 is genuinely CONVERGING and lands 0.54 % away. A team scoring a
+code-verification column off a small GCI alone would score VMFL005 as fully verified
+and be wrong. See `N-AV6` (the case where the extrapolate does land) and `N-AV9` (one
+arithmetically quantified contributor to VMFL005's gap). The open mechanism is docket
+`D512`.
+
+*Artifacts:* `cases/ansys_verification/VMFL005/RESULTS.md` §5;
+`verification/runs/ansys_verification/VMFL005/GRADING_VMFL005.json`
+(`triple.state=CONVERGING`, `triple.p=1.9340642225610707`,
+`triple.gci_fine=5.021172780104668e-04`, `triple.f_extrapolated=10.29511921045573`),
+committed `90ee8d80`; `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md`
+row #3.
+
+## N-AV8. A gate-EXCLUDED null channel is excluded at the FREEZE and still PRINTED, never silently dropped — VMFL005's wedge `Uz` is the out-of-plane direction the wedge constrains rather than solves
+
+**The fact, as measured.** On an OpenFOAM axisymmetric wedge, the z-component of
+velocity is the out-of-plane direction the wedge transformation constrains rather than
+solves; its solution is identically zero to round-off. VMFL005's final `Uz` initial
+residuals are **1.85e-02 / 8.82e-03 / 2.54e-03** at L1/L2/L3 — three to five orders
+above the gated `Ux`/`Uy`/`p` channels (worst gated 9.49e-08) — because a *relative*
+initial residual normalised by a vanishing scale carries no information. It falls
+monotonically with refinement (7.3× coarse→fine), consistent with a round-off-scale
+quantity and NOT with a physical residual.
+
+**The method point, which is the reason this is recorded.** `Uz` was excluded from the
+convergence gate **by the pre-registration, before any number was seen**, and it is
+**printed beside the verdict rather than dropped**. Excluding a channel silently would
+be worse than printing it: a reader cannot audit an exclusion they cannot see. The
+discipline generalises — every case with a null or non-physical channel names the
+exclusion in the freeze and prints the channel's values anyway.
+
+*Artifacts:* `cases/ansys_verification/VMFL005/RESULTS.md` §2.3;
+`verification/runs/ansys_verification/VMFL005/GRADING_VMFL005.json`
+(`iterative_convergence.L*.uz_final_residual`), committed `90ee8d80`;
+`cases/ansys_verification/VMFL005/PREREGISTRATION.md` (the frozen exclusion).
+
+## N-AV9. An OpenFOAM axisymmetric WEDGE under-represents the true circular cross-section by sin(t)/t (0.127 % at t = 5°), a MODELLING bias grid refinement does not remove — carry it in the error budget of every axisymmetric case run against an exact target
+
+**The fact.** An OpenFOAM wedge cell is a flat-sided triangle, not a circular sector.
+For total included angle `t`, the modelled cross-section area is `½ R² sin(t)` against
+the true sector `½ R² t`, short by the factor **`sin(t)/t`**. At `t = 5°`
+(`= 0.08726646259971647` rad): **`sin(t)/t = 0.9987312439537492`**, an area deficit of
+**0.1268756 %**. This is a property of the mesh, not of the reader: for VMFL005 the
+modelled L3 inlet-patch area `½ R² sin(t) = 6.809042402160794e-08 m²` matches the
+solver's own monitor-header area `6.809042402188e-08 m²` to eleven significant figures.
+
+**Effect on VMFL005's dP, both readings honestly.** VMFL005's fine-grid dP deviates
+0.4979 % from exact while GCI_fine is only 0.0502 % — 90 % of the deviation is not
+discretisation error (`N-AV7`). The wedge area deficit is one arithmetically checkable
+contributor:
+- fixed volumetric flow (dP ∝ R⁻⁴, effective-radius deficit `√(sin t/t)`): dP inflated
+  by `(sin t/t)⁻² = +0.2542349500671337 %` — **51.06 %** of the 0.4979 %;
+- fixed mean velocity (dP ∝ R⁻², as the imposed inlet profile suggests): dP inflated
+  by `(sin t/t)⁻¹ = +0.1270 %` — **25.5 %**.
+
+So the wedge geometry is a **candidate mechanism accounting for a quarter to a half**
+of the deviation, and it is **NOT the resolution** — the remaining candidates in
+VMFL005 RESULTS §5.3 stay open (docket `D512`).
+
+**The forward-looking rule, which is why this is recorded.** The deficit is
+**independent of radial and axial refinement** — the error lives in the AZIMUTHAL
+representation, which the wedge holds fixed at one cell of angle `t` while the Roache
+triple refines only r and x — so it is a MODELLING error a converging triple carries
+to its extrapolate rather than removes. **Every axisymmetric wedge case this team runs
+from here carries `1 − sin(t)/t` as a known modelling bias in its error budget**
+(VMFL002, VMFL007, VMFL028, VMFL036, VMFL044, VMFL058, VMFL073, VMFL076). Mitigation:
+use a **smaller wedge angle** (the deficit is `O(t²)`: `1 − sin(t)/t ≈ t²/6`, so 1° cuts
+it ≈ 25×), or **carry the deficit explicitly** in the pre-registration's error budget so
+a converging-triple `PASS` is not mistaken for convergence to the exact value.
+
+*Artifacts:* `cases/ansys_verification/VMFL005/RESULTS.md` §5.3;
+`verification/runs/ansys_verification/VMFL005/L3_400x40/postProcessing/pInletMonitor/0/surfaceFieldValue.dat`
+(monitor-header area `6.809042402188e-08 m²`), committed `90ee8d80`;
+`cases/ansys_verification/VMFL005/case/system/blockMeshDict.template` and
+`.../constant/polyMesh/boundary` (`wedge1`/`wedge2`, `type wedge`, half-angle 2.5°);
+the arithmetic in `docs/ansys_verification/COVERAGE_ROWS.md`.
