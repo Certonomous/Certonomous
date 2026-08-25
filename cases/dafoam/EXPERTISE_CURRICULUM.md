@@ -212,3 +212,116 @@ approved):**
 | 2026-08-24 | **D1-C′** SHIPPED-image endpoint gradient at arm O's design point (Tier 1 mini-item, the re-buy of D1 arm C) | **GRADED `PASS`.** Prereg FROZEN `c19e0cbc` (re-verified on-disk == HEAD blob before staging; `d1c_endpoint.py` md5 `b20c829f7ea4b63d2a9fec5f673d1cbb` and `d1c_runScript.py` md5 `f7f17c64331df596434f19fbee907233` re-asserted on the STAGED copies). One container, `dafoam/opt-packages:latest`, np=1, `rc=0`, `OOMKilled false`, 89 s wall. **`G-C1 PASS`** — four of four components ≤ **0.2551 %** against this run's own FD, zero sign flips, all GRADED; **G-C2…G-C10 all `PASS`**, none skipped, **no falsifier F1–F7 fired**. **The shipped and patched analytic gradients are indistinguishable here**: 5.16e-08 absolute / 2.80e-06 relative against a predicted 6.76e-03 / 640 % — at the cross-run noise floor, so reported as an **UPPER BOUND** (`patchV[1]`, which cannot cross `warpDeriv`, measures that floor at the same ~1e-6). **The registered verdict `P5 = GATE FAIL` is a `MISS`** and 6 of 13 predictions missed, all reported as misses. **Both hypotheses falsified** (H1 out by 1.3e5, H2 by 1.2e4). **Finding: the stock IDWarp `warpDeriv` defect is DESIGN-POINT DEPENDENT** — 640 % and sign-flipped at the undeformed baseline, unresolvable at the converged point; **no mechanism inferred**, the candidate registered as an **UNTESTED HYPOTHESIS** with the arm that would test it, not costed and not launched. Cost **1.483 core-min gross = $0.001268 derived**, ratio **0.915×** of 1.62 registered, 14.8 % of a 10.0 ceiling, **waste 0.000**; calibration row **C-31** (Addendum 1 corrects §10.2's stale `C-30`). **Expertise banked:** a cold-staged adjoint is priced as *mid-run anchor + the colouring cost read from the log line* (14.47 s here), never a mid-run anchor alone; a cross-run analytic comparison has a resolution floor and `patchV` measures it | `cases/dafoam/ladder-a/A1/curriculum_D1_Cprime/RESULTS.md` §0/§7/§10/§13; graded `5bec45b7`, Addendum 1 `c4ce2b8f`, Addendum 2 this commit; docket D503; L-279, N-D34, N-D35 |
 | 2026-08-24 | **D1** NACA0012 lift-constrained drag min (Tier 1) — **ITEM CLOSED** | **`CLOSED` — a TWO-ROW verdict, `PASS` (patched, arm O) / `PASS` (shipped, D1-C′), ruled by the dafoam supervisor. The item is NO LONGER `PENDING`.** The two rows are **never merged** and neither replaces the other (R11); the toolchain adoption question they inform **remains Sanaa's alone and stays parked**. D1 §3.3's bought deliverable — the toolchain comparison — is **discharged by `G-C2 = PASS`**. **TOTAL ITEM COST: 8.483 core-min gross = $0.007253 DERIVED** (D1 **7.000** + D1-C′ **1.483**), at the reported-by-owner c7a.4xlarge rate of **$0.0513/core-h**; the dollar figure is **derived, not measured** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5). Named waste **0.533 core-min**, all of it in D1 (D1-C′ recorded 0.000). Calibration rows **C-24** (D1, 0.304× of 23.0 registered) and **C-31** (D1-C′, 0.915× of 1.62). `LADDER_A_STATUS.md` rows **38** (`PASS`) and **38b** (`BLOCKED` → `PASS`, by dated addendum, no row above edited). **Reported as misses, not adjusted:** D1's P3 (16.3 % vs a registered [2, 12] %) and D1-C′'s P5 (`GATE FAIL` predicted, `PASS` measured) | `cases/dafoam/ladder-a/A1/curriculum_D1/RESULTS.md` and `cases/dafoam/ladder-a/A1/curriculum_D1_Cprime/RESULTS.md`; docket D497 and D503; `docs/COST_CALIBRATION.md` C-24, C-31 |
 | 2026-08-24 | **D2** optimizer A/B on the D1 NLP (Tier 1) — **ITEM CLOSED** | **DONE — CLOSED, graded.** Both arms ran and were graded (IPOPT / SLSQP, one CLI token apart on a byte-identical script), both per-arm gate sets **`PASS`**: arm A `Optimal Solution Found` in 11 majors at `CD = 0.017527899854535338`, arm B `Inform 0` in 13 iterations at `CD = 0.017657273`, endpoint FD worst 0.2485 % on 4/4 with zero flips. **`AB5` PASS bit-identically** (arm A reproduced D1 arm O, all five identity rows exactly `0.0`, graded before arm B launched); **`AB1`, `AB3`, `AB4`, `AB6` PASS**; **`AB2` GATE FAIL — and it is this item's REGISTERED FINDING, not a defect in it: the two optimizers reached designs 33.259 % apart in relative L2 (registered band 10.0 %; L∞ 1.9379e-02 vs 8.0e-03) while their objectives agree to 0.7381 %.** The objective is near-flat along the separating direction — an **algorithm/conditioning finding, never an aerodynamic claim**; `\|ΔAoA\| = 0.2428°` is inside its 0.25° band. `P8` is a **MISS** by 5.1× its band basis and is reported as a MISS; 14 of 15 predictions HIT. **12.150 core-min gross of a registered 16.733 (0.726×)** against the row's own ~140 ceiling (8.68 %); **waste 0.000 core-min**, named separately; **$0.010389 DERIVED** at the reported-by-owner c7a.4xlarge $0.0513/core-h — **derived, NOT measured**, the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5). Calibration row **C-43**. **The row's "trust-region" half is `NOT DELIVERED BY CONSTRUCTION`: the graded image carries no importable trust-region optimizer (`ParOpt` ships without its compiled extension; `SNOPT` and `NLPQLP` absent), measured by a 0.0333 core-min probe BEFORE the freeze and disclosed on the pre-registration's first screen. This item delivers interior-point vs active-set SQP — both line-search methods. The narrowing is on Sanaa's desk as a supervisor NOTICE and is NOT read into the blanket (`CLAUDE.md` rule 9); nothing about building `ParOpt` was run, costed or prepared.** Both rows are PATCHED (R11); the SHIPPED row stays `BLOCKED` where D1 left it. Records landed: L-296…L-299, N-D36…N-D40, D508. | prereg `cases/dafoam/ladder-a/A1/curriculum_D2/PREREGISTRATION.md` frozen `03580b8f`, authorisation §18 at `641c5938`; results `…/curriculum_D2/RESULTS.md` (+ Addendum 1), graded `a7f00e42`; `docs/COST_CALIBRATION.md` C-43 |
+
+---
+
+## Amendment 1 — 2026-08-25: provenance of the two quoted directives
+
+**Document version 1.1**; the ratified body committed at `43b530cc` (2026-08-23) is v1.0.
+**Lines whose number changed above this section: 0.**
+
+**Why an amendment and not an in-place edit.** Two records outside this file cite it by line
+number: `cases/dafoam/MATRIX_CONTRIBUTION.md` cites `EXPERTISE_CURRICULUM.md:125`, and
+`docs/dafoam/V_STANDARD_FD_VS_ADJOINT.md` cites `EXPERTISE_CURRICULUM.md:126` twice, once inside
+the sentence that claims what it delivers. Both cited lines sit **below** the first heading this
+amendment corrects, so a provenance block inserted near line 10 would move both. Separately, §7's
+ratification quotation and its sequencing disclosure — the latter marked *"never to be smoothed
+over"* — are the evidentiary content of the ratification, and a record of what was approved is not
+rewritten. Either reason alone fixes the form (`CLAUDE.md` rule 6); together they settle it on
+measurement rather than preference. **The execution state ledger above remains the append point for
+item rows: new rows go into that table, never after this amendment.**
+
+### A1.1 The correction — two headings, one word
+
+Neither quotation is withdrawn and neither quoted body is altered; both remain byte-identical to
+v1.0. What is corrected is the word **"verbatim"**, which asserts byte-exactness of Sanaa's own
+words. The measurement in §A1.2 shows both quotes are faithful in substance and **typo-normalised
+in transcription** — so byte-exact is the one thing they are not.
+
+**The heading at line 10 reads:** *"**The directive, verbatim (Sanaa, 2026-08-23, relayed by the
+chief):**"*
+**Corrected reading:** *The directive — Sanaa's own words of 2026-08-23 19:54:49Z, reaching this
+document as a chief relay, transcribed with one obvious typographic slip repaired and the
+surrounding items of her four-part message elided. Faithful in substance; **not byte-verbatim**.*
+
+**The heading at line 174 reads:** *"## 7. RATIFICATION — 2026-08-23, Sanaa, verbatim via the
+chief's session record"*
+**Corrected reading:** *7. RATIFICATION — 2026-08-23, Sanaa's own words of 20:56:07Z, via the
+chief's session record, transcribed with obvious typographic slips repaired and one marked
+elision. Faithful in substance; **not byte-verbatim**.*
+
+### A1.2 The traceability measurement, 2026-08-25
+
+**Method, and why the obvious method is unsafe here.** A plain `grep -r` in this repository
+resolves to a reader that honours ignore files, so the gitignored archives are invisible to exactly
+the sweep that would hunt them. The sweep was therefore run ignore-blind
+(`find -print0 | xargs -0 grep`), and carried a positive control: a file containing both target
+strings was placed where the reader had to cross it, and the reader returned it. A reader not shown
+able to see a non-zero is not evidence (rule 3's principle). The supervisor's ignore-blind sweep
+covered 24,137 files and reported five records; this lane re-derived the same five independently
+from the HEAD tree, and then added the transcript scan below.
+
+**Five in-repository records, and they are not five witnesses.** The directive text appears in
+`docs/DOCKET.md` and this file. The ratification text appears in `docs/DOCKET.md`, this file,
+heat-transfer's independently authored `docs/campaigns/T-family/EXPERTISE_CURRICULUM.md`, and two of
+this family's own pre-registrations (`ladder-a/A1/curriculum_D1/PREREGISTRATION.md`,
+`ladder-a/A4/curriculum_D3/PREREGISTRATION.md`). That spread reads like corroboration and is not:
+every one of them descends from the same single chief relay, and **the typography proves it**.
+Sanaa's own text reads `sothey` and `theheat`; **no in-repository record preserves either form** —
+all five carry the identical normalised spelling. Five records of one relay is one witness quoted
+five times. **Corroboration inside this repository is therefore unavailable in principle for these
+two quotes, and no future count of in-repo occurrences may be read as strengthening them.**
+
+**A primary source does exist off-repository, and both quotes reach it.** The chief session's own
+transcript holds two genuine external user turns — not agent text, not sidechain, not relay:
+
+- **2026-08-23T19:54:49Z** — the four-part message whose item 1 is the directive quoted at line 10.
+- **2026-08-23T20:56:07Z** — the approval quoted in §7, carrying the GPU-cost approval in the same turn.
+
+The first exact-string search **missed** the second turn, because Sanaa's raw text reads
+"for theheat transfer"; it surfaced only on a typo-variant search. **This corrects the prior reading
+that no source in Sanaa's own words could be located: one exists, for both quotes.** That transcript
+sits outside the repository, is unversioned and is not guaranteed durable, so it is named as the
+source while **the on-disk records here remain the lab's authority** — which is why the corrected
+headings say "faithful, not byte-verbatim" rather than directing a reader to a log.
+
+**Every divergence between her words and these quotes, stated in full**, so that "faithful" need not
+be taken on trust. Line 10's quote reads *"can run so they become an expert."* where she wrote
+*"can run sothey become an expert"* — a space inserted, a terminal period added — and drops the
+`1.` enumerator with items 2–4 of her message. §7's quote inserts the space in `theheat`, repairs
+`wortking`, `dafaom`, `formlally` and `tjat`, trims `etcs` to `etc`, closes `logic/ knowledge`, and
+marks with `SO...` the elision of the heat-transfer clause that is not this family's business.
+**No word was added, none reversed, and no elision is unmarked except the enumerator at line 10.**
+
+### A1.3 Why this strengthens the curriculum's standing — and what it does not do
+
+§7's conservative reading was already built on precisely the assumption this measurement confirms:
+that the approval was relayed **without confirmation that Sanaa had read the committed text**. That
+sequencing is now measured rather than assumed. This document was committed PROPOSED at `a721ea6b`
+at 2026-08-23T20:07:47Z; her approval turn is 20:56:07Z, **48 min 20 s later**; the RATIFIED commit
+`43b530cc` follows at 20:58:19Z, **2 min 12 s after her turn**. Her words name *"the dafaom
+proposal"* generically and cite nothing inside it. **The conservative reading stands exactly as
+written — unweakened and unwidened.**
+
+**The finding must not be over-read.** A locatable primary source retires a worry about
+traceability; it does not widen the approval by one line. `CLAUDE.md` rule 9 is untouched: an
+approval is only as wide as what was approved, a blanket is not a per-item cost reading, Tier 6 stays
+behind Sanaa's explicit per-item approval, and anything unusual or above pre-authorised cost still
+goes back to her costed. **Nothing here re-opens the ratification.**
+
+### A1.4 What this amendment changes — the exhaustive list
+
+It states the corrected reading of **two attribution phrasings** and adds this provenance record.
+**It changes nothing else.** No gate, no threshold, no cap, no label, no cost figure, no candidate
+item, no tier, no prerequisite, no falsifier, and not the recommended sequence. The set D1–D16 and
+every authorisation class stand as v1.0 left them, and **the authority of D2–D15 is unchanged by
+this correction** — anyone reading this amendment as having weakened them is reading it wrong. Zero
+compute: a records action at **0.000 core-min**, so no calibration row is owed. No docket row is
+raised — a wording-precision correction whose entire record is this section does not need a second
+one.
+
+**Credit where the record earns it.** The practice this correction was asked to apply — withdraw an
+untraceable *"Sanaa, verbatim"* attribution while keeping its text — **had nothing to withdraw
+here.** Both attributions were already marked as relays in the attribution line itself, and both
+already carried explicit rule-9 provenance notes at v1.0, written before anyone asked for them. This
+amendment sharpens one word in each. It does not repair a lapse.
