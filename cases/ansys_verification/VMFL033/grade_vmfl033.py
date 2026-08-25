@@ -68,7 +68,26 @@ PLANT = 1.234e-03
 
 
 class Refusal(Exception):
+    """Raised by the GRADING path when it will not degrade."""
     pass
+
+
+class ControlFailure(Exception):
+    """Raised ONLY by a selftest control whose subject failed to behave.
+
+    It is a DIFFERENT TYPE from Refusal on purpose.  The controls below match
+    an expected refusal by substring inside `except Refusal:` blocks, and a
+    fall-through written as `refuse(...)` would be caught by that very handler
+    whenever the control's own message happened to contain the substring it
+    matches on -- SWALLOWING the control's failure.  That hazard was
+    DEMONSTRATED, not theorised (ADDENDUM 01 sec.3).  ControlFailure is never
+    caught by any `except Refusal`, so a broken control CANNOT be swallowed.
+    """
+    pass
+
+
+def control_failed(code, msg):
+    raise ControlFailure("CONTROL FAILED [%s]: %s" % (code, msg))
 
 
 def refuse(code, msg):
@@ -440,18 +459,25 @@ def planted_controls(level_dir):
 
 # =================================== selftest ==============================
 def selftest():
+    """Every control below has EXACTLY ONE path that lets the selftest continue:
+    the one where its subject behaved.  Every other path raises ControlFailure,
+    which no `except Refusal` catches.  Break any control and the terminal
+    SELFTEST GREEN line becomes UNREACHABLE -- verified by mutation, not by
+    reading (ADDENDUM 01 sec.2)."""
     print("VMFL033 comparator --selftest   (ZERO compute; no run directory is read)")
     print("-" * 78)
-    # 1. closed form satisfies its own boundary conditions
+
+    # ---- C1  closed form satisfies its own boundary conditions
     for r, want in ((R1, OM1 * R1), (R2, OM2 * R2)):
         if abs(v_exact(r) - want) > 1e-12:
-            refuse("ST1", "v_exact(%g) = %g, want %g" % (r, v_exact(r), want))
+            control_failed("C1", "v_exact(%g) = %g, want %g" % (r, v_exact(r), want))
     for r, want in ((R1, T1), (R2, T2)):
         if abs(T_exact(r) - want) > 1e-9:
-            refuse("ST1", "T_exact(%g) = %g, want %g" % (r, T_exact(r), want))
+            control_failed("C1", "T_exact(%g) = %g, want %g" % (r, T_exact(r), want))
     print("  closed form  BCs exact: v(%g)=%.1e v(%g)=%.12g  T(%g)=%.12g T(%g)=%.12g"
           % (R1, v_exact(R1), R2, v_exact(R2), R1, T_exact(R1), R2, T_exact(R2)))
-    # 2. INDEPENDENT numerical BVP -- the closed form is NOT used to build it
+
+    # ---- C2  an INDEPENDENT numerical BVP that never uses the closed form
     errs = []
     for n in (100, 200, 400):
         rs, w = _bvp_v(n)
@@ -461,70 +487,135 @@ def selftest():
         errs.append((n, ev, et))
     for n, ev, et in errs:
         print("  BVP control  n=%3d  max|v_num-v_ex|=%.3e  max|T_num-T_ex|=%.3e" % (n, ev, et))
-    rat = errs[1][2] / errs[2][2]
+    rat = errs[1][2] / errs[2][2] if errs[2][2] else 0.0
     if not (3.0 < rat < 5.0):
-        refuse("ST2", "the independent BVP does not converge at 2nd order to the closed form "
-                      "(ratio %.3f) -- the derivation is NOT confirmed" % rat)
+        control_failed("C2", "the independent BVP does not converge at 2nd order to the closed "
+                             "form (ratio %.3f) -- THE DERIVATION IS NOT CONFIRMED" % rat)
     print("  BVP control  T error falls %.2fx per doubling -> 2nd order -> DERIVATION CONFIRMED"
           % rat)
-    # 3. Roache classifier sees every state
-    states = {
-        "CONVERGING": roache(1.04, 1.01, 1.0025),
-        "DIVERGENT":  roache(1.0, 1.1, 1.4),
-        "OSCILLATORY": roache(1.0, 1.1, 1.05),
-        "STAGNANT":   roache(1.0, 1.0, 1.1),
-        "EXACT":      roache(1.0, 1.0, 1.0),
-    }
-    for want, got in states.items():
-        if got["state"] != want:
-            refuse("ST3", "Roache classifier returned %s where %s was constructed"
-                   % (got["state"], want))
+
+    # ---- C3  Roache classifier must SEE every state, and be exact on a 2nd-order triple
+    for want, args in (("CONVERGING", (1.04, 1.01, 1.0025)),
+                       ("DIVERGENT", (1.0, 1.1, 1.4)),
+                       ("OSCILLATORY", (1.0, 1.1, 1.05)),
+                       ("STAGNANT", (1.0, 1.0, 1.1)),
+                       ("EXACT", (1.0, 1.0, 1.0))):
+        got = roache(*args)["state"]
+        if got != want:
+            control_failed("C3", "the Roache classifier returned %s where %s was CONSTRUCTED"
+                           % (got, want))
     ex2 = roache(1.0 + 4e-4, 1.0 + 1e-4, 1.0 + 0.25e-4)
-    if abs(ex2["p"] - 2.0) > 1e-9:
-        refuse("ST3", "an exactly-second-order triple returned p=%r" % ex2["p"])
-    print("  roache       every state SEEN: %s; an exact 2nd-order triple returns p=2 to 1e-9"
-          % ", ".join(sorted(states)))
-    # 4. plateau clause: too-few-samples REFUSES; a null range REFUSES; a trend is REJECTED
+    if ex2["p"] is None or abs(ex2["p"] - 2.0) > 1e-9:
+        control_failed("C3", "an exactly-second-order triple returned p=%r" % (ex2["p"],))
+    print("  roache       every state SEEN: CONVERGING, DIVERGENT, EXACT, OSCILLATORY, STAGNANT; "
+          "an exact 2nd-order triple returns p=2 to 1e-9")
+
+    # ---- C4  plateau: too few samples must REFUSE
+    _ok = False
     try:
         plateau([(i, 1.0 + 1e-9 * i) for i in range(PLATEAU_MIN - 1)])
-        refuse("ST4", "the plateau clause did NOT refuse a %d-sample series" % (PLATEAU_MIN - 1))
     except Refusal as e:
-        if "CANNOT_TELL" not in str(e):
-            raise
+        if "CANNOT_TELL" in str(e):
+            _ok = True
+    if not _ok:
+        control_failed("C4", "PLATEAU MINIMUM-SAMPLE CONTROL FAILED: a %d-sample series was NOT "
+                             "refused with CANNOT_TELL" % (PLATEAU_MIN - 1))
+
+    # ---- C5  plateau: a dead-flat series must REFUSE (null range)
+    _ok = False
     try:
         plateau([(i, 5.0) for i in range(PLATEAU_MIN + 10)])
-        refuse("ST4", "the plateau clause did NOT refuse a dead-flat (null-range) series")
     except Refusal as e:
-        if "NULL RANGE" not in str(e):
-            raise
-    grow = [(i, 1.0 + 1e-3 * i) for i in range(PLATEAU_MIN + 10)]
-    ptp_g, _, _ = plateau(grow)
+        if "NULL RANGE" in str(e):
+            _ok = True
+    if not _ok:
+        control_failed("C5", "PLATEAU NULL-RANGE CONTROL FAILED: a dead-flat series was NOT "
+                             "refused -- a dead field and a converged one would look identical")
+
+    # ---- C6  plateau: a monotonically GROWING series must be REJECTED by the statistic
+    ptp_g, n_g, _ = plateau([(i, 1.0 + 1e-3 * i) for i in range(PLATEAU_MIN + 10)])
     if ptp_g / T_SCALE <= PLATEAU_PTP_REL:
-        refuse("ST4", "a MONOTONICALLY GROWING series passed the plateau tolerance -- the "
-                      "statistic does not reject a trend")
+        control_failed("C6", "TREND-REJECTION CONTROL FAILED: a MONOTONICALLY GROWING series "
+                             "passed the plateau tolerance (ptp/scale = %.3e <= %.1e)"
+                       % (ptp_g / T_SCALE, PLATEAU_PTP_REL))
     print("  plateau      %d-sample floor REFUSES; a null range REFUSES; a growing series is "
           "REJECTED (ptp/scale = %.3e > %.1e)" % (PLATEAU_MIN, ptp_g / T_SCALE, PLATEAU_PTP_REL))
-    # 5. field readers refuse a uniform field and a truncated list
+
     tmp = tempfile.mkdtemp(prefix="vmfl033_st_")
     try:
-        p = os.path.join(tmp, "T")
-        open(p, "w").write("internalField   uniform 273;\n")
+        # ---- C7  the scalar reader must REFUSE a UNIFORM internalField
+        pth = os.path.join(tmp, "T")
+        open(pth, "w").write("internalField   uniform 273;\n")
+        _ok = False
         try:
-            read_scalar_field(p)
-            refuse("ST5", "the reader accepted a UNIFORM field as evidence")
+            read_scalar_field(pth)
         except Refusal as e:
-            if "UNIFORM" not in str(e):
-                raise
-        open(p, "w").write("internalField   nonuniform List<scalar> 3 ( 1.0 2.0 );\n")
+            if "UNIFORM" in str(e):
+                _ok = True
+        if not _ok:
+            control_failed("C7", "READER CONTROL FAILED: a UNIFORM internalField was ACCEPTED "
+                                 "as evidence instead of being refused")
+
+        # ---- C8  the scalar reader must REFUSE a count/header mismatch
+        open(pth, "w").write("internalField   nonuniform List<scalar> 3 ( 1.0 2.0 );\n")
+        _ok = False
         try:
-            read_scalar_field(p)
-            refuse("ST5", "the reader accepted a list whose count disagrees with its header")
+            read_scalar_field(pth)
         except Refusal as e:
-            if "header says" not in str(e):
-                raise
+            if "header says" in str(e):
+                _ok = True
+        if not _ok:
+            control_failed("C8", "READER CONTROL FAILED: a list whose count disagrees with its "
+                                 "own header was ACCEPTED")
+
+        # ---- C9  the VECTOR reader must REFUSE a missing internalField
+        pth2 = os.path.join(tmp, "C")
+        open(pth2, "w").write("dimensions [0 1 0 0 0 0 0];\n")
+        _ok = False
+        try:
+            read_vector_field(pth2)
+        except Refusal as e:
+            if "List<vector>" in str(e):
+                _ok = True
+        if not _ok:
+            control_failed("C9", "VECTOR READER CONTROL FAILED: a file with NO internalField was "
+                                 "ACCEPTED")
+        print("  readers      a UNIFORM internalField is REFUSED; a count/header mismatch is "
+              "REFUSED; a headerless vector file is REFUSED")
+
+        # ---- C10  STRICT COMPLETION must refuse an EMPTY directory.
+        #      This control was MISSING from the frozen selftest, and its absence is exactly
+        #      what let a mutated completion() still print SELFTEST GREEN (ADDENDUM 01 sec.2).
+        empty = os.path.join(tmp, "emptylevel")
+        os.makedirs(empty)
+        _ok = False
+        try:
+            completion(empty)
+        except Refusal:
+            _ok = True
+        if not _ok:
+            control_failed("C10", "COMPLETION CONTROL FAILED: an EMPTY directory PASSED the "
+                                  "strict-completion check instead of being refused -- rule 4 "
+                                  "refuses (exit 2) rather than degrades")
+
+        # ---- C11  strict completion must refuse a directory whose RUN_RC records a NON-ZERO rc
+        bad = os.path.join(tmp, "badrc")
+        os.makedirs(bad)
+        open(os.path.join(bad, "RUN_RC.txt"), "w").write("rc = 1\n")
+        _ok = False
+        try:
+            completion(bad)
+        except Refusal as e:
+            if "non-zero exit is a FINDING" in str(e):
+                _ok = True
+        if not _ok:
+            control_failed("C11", "COMPLETION CONTROL FAILED: a level recording rc=1 was NOT "
+                                  "refused as a finding")
+        print("  completion   an EMPTY level dir is REFUSED; a level recording rc=1 is REFUSED "
+              "as a FINDING (rule 4 refuses, never degrades)")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-    print("  readers      a UNIFORM internalField is REFUSED; a count/header mismatch is REFUSED")
+
     print("-" * 78)
     print("SELFTEST GREEN")
     return 0
@@ -711,6 +802,12 @@ def main(argv):
 if __name__ == "__main__":
     try:
         sys.exit(main(sys.argv[1:]))
+    except ControlFailure as e:
+        print("")
+        print(str(e))
+        print("A CONTROL DID NOT BEHAVE.  No SELFTEST GREEN line is printed and the comparator "
+              "exits 2: a selftest that cannot fail is not evidence.")
+        sys.exit(2)
     except Refusal as e:
         print("")
         print(str(e))
