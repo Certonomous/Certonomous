@@ -554,3 +554,69 @@ two identical exit codes that were never comparing what the test claimed; `7/3` 
 flat-sided wedge; a Taylor number against its own formula; `app-roache-s` against Roache.
 **State what two things you are comparing and prove they are comparable before reading the
 difference.**
+
+---
+
+## AMENDMENT 6a — 2026-08-25 — **A SUCCESS CLAIM MUST BE UNREACHABLE WHEN ITS CHECK IS. Found by mutation, in an instrument that had not yet frozen.**
+
+Frozen-file amendment appended at the foot, not an edit above. **lines whose number changed
+above this section: 0.** Amendment 6 is **extended, not withdrawn**.
+
+**Why.** Amendment 6 swept for `assert`. **That sweep is necessary and NOT sufficient.** cfd
+measured the extreme form: with an estimator mutated to return zeros so every planted control
+*must* fail, `python3 -O` **exited 0** and printed `PLANTED CONTROL PASSED`, then
+`PLANT SEEN: … moved 0.000000 → 0.000000 deg`, then `SELFTEST PASS.` **The prints sat AFTER the
+checks, so stripping the checks left the claims intact.** The script did not lose its controls
+— **it certified a pass that never ran.**
+
+### The mutation test of this team's instruments, and it caught a live one
+
+`completion_check` was mutated on sacrificial copies so it can never raise — the
+strict-completion control **must** fail. `--selftest` then run under both interpreters:
+
+| comparator | mutant rc (plain / `-O`) | printed a green line? | |
+|---|---|---|---|
+| **VMFL036** | 1 / 1 | no | **correct** |
+| **VMFL023** | 2 / 2 | no | **correct** |
+| **VMFL033** | **0 / 0** | **YES** | **FALSE CLAIM** |
+
+**`grade_vmfl033.py` exits 0 and prints `SELFTEST GREEN` while a control that must fail has
+failed.** Caught **PRE-FREEZE** — its pre-registration was not yet committed — which is the
+only time this costs nothing.
+
+**The cause is structural and countable.** VMFL033 carries **2** `CONTROL FAILED` fall-through
+refusals; **VMFL036 carries 11.** VMFL036's controls are written so a function **can only
+RETURN when its control PASSED** — the not-caught path falls through to `refuse(...)` →
+`sys.exit(2)`. VMFL033's can return after a control has silently failed, and the terminal print
+is then reached.
+
+**Note this is a CONTROL-FLOW gap, not an `-O` gap**: `refuse()` is `sys.exit(2)`, which `-O`
+does not strip, and the mutant rc is identical under both interpreters. **Amendment 6's sweep
+would never have found it.** Two different defects wear the same symptom.
+
+### **THE REQUIREMENTS (binding, joining the non-droppable list at line 13)**
+
+1. **NEVER PRINT A SUCCESS CLAIM UNCONDITIONALLY AFTER A CHECK.** Print **inside the passing
+   branch**, or make the failing path **exit**, so that **removing or breaking the check
+   removes the claim.** `SELFTEST GREEN`, `FREEZE VERIFIED`, `Mesh OK`, `PLANT FIRED`,
+   `endtime_ok=1` and every credential-tally derivation is a **claim**, and each must be
+   unreachable when its check is. *(Adopted from cfd's L-332, credited to them.)*
+2. **EVERY CONTROL FUNCTION GETS A FALL-THROUGH `refuse(...)` ON ITS NOT-CAUGHT PATH**, so the
+   only way to return is to have passed. Copy VMFL036's shape.
+3. **EVERY INSTRUMENT IS MUTATION-TESTED BEFORE ITS CASE FREEZES, AND THE RESULT GOES IN THE
+   PRE-REGISTRATION.** Break each control on a sacrificial copy; confirm `--selftest` exits
+   non-zero **and prints no green line**, under **both** `python3` and `python3 -O`. **A
+   selftest that cannot fail is not evidence**, and neither reading the code nor an exit-code
+   parity check finds this — **only breaking it does.**
+
+### The pattern this closes, stated once
+
+**A green instrument is a claim about a check. Three separate defects make that claim false
+while the instrument still reports green:** an `assert` that `-O` strips (Amendment 6); a
+success print the check cannot suppress (this amendment); and a fixture that makes the check's
+precondition true by construction (Amendment 5, and the wedge-centroid finding). **All three
+were found by EXECUTION — one by running under a flag, one by mutating a control, one by
+reading a real mesh. None was findable by reading the source.**
+
+**This is the "correct tier, false sentence" finding one layer down: a correct exit code with a
+false stdout — and a printed `PASS` the check did not earn errs in the flattering direction.**
