@@ -886,3 +886,52 @@ is the same shape of defect.
 - **Nothing was sent, filed, uploaded, registered, posted or commented anywhere
   outside this box** (rule 7). The T10a-VF upstream draft remains **NOT FILED**.
 - **No repository path cited here is a scratch path** (rule 13).
+
+---
+
+## DATED FOLLOW-UP, 2026-08-25 — EVERY `HOLDS` TIER IN THIS FILE IS SUPERSEDED
+
+**Appended at the FOOT. Lines whose number changed above this section: 0.**
+Nothing above is rewritten; other records cite this file by line.
+
+**A supervisor's tier audit against artifacts has ruled that this file's tier
+column overstates the family in five places. The ruling of record is
+`docs/campaigns/T-family/THERMAL_TIER_AUDIT_RULING_2026-08-25.md`. Read it before
+lifting ANY row out of this file.**
+
+**NO VERDICT IN THIS FILE MOVES.** Every frozen comparator's output stands
+exactly as returned. **What moves is the TIER.**
+
+| | recorded here | **RULED** |
+|---|---|---|
+| `HOLDS` | 5 | **0** |
+| `GATE REACHED` | 1 | **6** |
+| `SURVEYED` | 13 | 13 |
+| `NOT HELD` | 12 | 12 |
+| `NEVER RUN` | 6 | 6 |
+
+**The five that fall are S1, S6, S13, S19 and S22.** The missing column is **P**
+in all five; **S1 is additionally missing G**, because **K0c was built as mesh
+PAIRS and has no Roache triple** — its quoted orders belong to **K0b's** ladder,
+whose own record states at `K0c_RESULTS.md:335` that those values *"do not apply
+to these cases and are not used."*
+
+**The rubric ruling on which four of the five turn:** an **exact analytic
+solution supplies V and never P**, because P requires a **public primary
+source**. S6, S13, S19 and S22 are **genuinely strong on V and G** — they are not
+`HOLDS` because nothing in them is a claim about the world. **That ruling is
+flagged for Sanaa to overrule; overturning it restores those four.**
+
+**Read alongside this:** thermal's **G column is not empty — it is the strongest
+in the lab.** What defeats these rows is **P**, not **G**.
+
+**Four further defects are recorded in the ruling** and are NOT corrected in the
+text above: S19's `PASS ×3` is two measurements not three (T1c L1 and L3 carry a
+bit-identical band, `0.023589269742053554`); K0cT's denominator is inflated
+**18 → 14**; the 43–722× attribution's finest level has **no plateau artifact**;
+and the claim that VanGilder & Schmidt 2005 is not held **is refuted — the paper
+is on disk**, title-page verified, and that is the one error found in the
+conservative direction.
+
+**The banner of `71ecb659` still stands: no row is lifted from this file into any
+central matrix without re-keying.**
