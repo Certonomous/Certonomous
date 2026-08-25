@@ -1535,3 +1535,82 @@ in the repository. The S6 numbers are READ from the existing replay artifact;
 this pass did not re-run the replay, and re-running it is part of the price
 quoted above.
 
+
+---
+
+## S17. A RESIDUAL READ WHERE THE SOLVER DOES NOT READ IT (adopted 2026-08-25)
+
+**Appended at the foot. Lines whose number changed above this section: 0.**
+
+Id derived by hand from the HEAD blob (`grep -oE '^#+ S[0-9]+'`, max = 16) inside the committing
+invocation, **not** from `scripts/append_record.py`, whose id regex is measured to run 14 short and
+hands out colliding ids.
+
+Adopted by the cfd supervisor, 2026-08-25, under Sanaa's desk-item disposal rule of the same date:
+recommendation and reasoning attached, **ADOPTED unless she rules otherwise within one day**,
+recorded `[lab-attributed]`. **Overrulable.**
+
+### The rule
+
+> **A residual criterion is read WHERE THE SOLVER READS IT. When a field is solved more than once
+> per outer iteration, the criterion sees the FIRST solve; a tail-read of the log returns the LAST
+> corrector's value. Reading the last where the solver reads the first is an INSTRUMENT DEFECT, not
+> a rounding difference, and any convergence claim resting on it is withdrawn.**
+
+### The measurement that produced it
+
+`simpleControl` evaluates `residualControl` against the **initial residual of the first solve of
+each outer iteration**. With `nNonOrthogonalCorrectors` set, pressure is solved repeatedly within
+one iteration, and the *last* corrector's residual is smaller — often by orders of magnitude,
+because that is the entire purpose of the corrector.
+
+Measured on F12's closest analogue, F2 (`nNonOrthogonalCorrectors 2`, three `p` solves per
+iteration), final iteration, the two readings side by side:
+
+| field | FIRST solve — what the criterion reads | LAST solve — what a tail-read returns |
+| --- | --- | --- |
+| Ux | 9.6984e-07 | 9.6984e-07 |
+| Uy | 1.8281e-05 | 1.8281e-05 |
+| e | 7.1092e-06 | 7.1092e-06 |
+| k | 9.9732e-07 | 9.9732e-07 |
+| omega | 8.3760e-07 | 8.3760e-07 |
+| **p** | **4.2657e-04 — ABOVE its 1e-4 threshold** | **3.2756e-06** |
+
+**A factor of 130, on one channel, in the direction that flatters the run.**
+
+### WHY THIS RULE IS HARD TO SEE, which is the reason it needs to be written down
+
+**Only the corrected field is affected.** Every other channel is solved once per iteration, so its
+first and last readings **coincide exactly** — as all five non-`p` rows above show. A reader
+checking itself against `U`, `k`, `omega` or `e` finds perfect agreement and concludes it is
+correct. **The instrument validates itself on precisely the channels that cannot expose it.**
+
+The concrete cost here: a report stating that *"every single channel sat one to two orders of
+magnitude below its own threshold"* was **struck for `p`** on this evidence. The truth was the
+opposite of the claim — **iterations out of 2,000 in which every channel's first solve sat below
+1e-4: ZERO.** The run never satisfied its own `residualControl` and ran to `endTime`. There was no
+solver anomaly and no mechanism defect. **There was a reading defect, in this lab's own reader**,
+and it had converted a run that never converged into a run reported as comfortably converged.
+
+### What a monitor must do to satisfy S17
+
+1. **Determine the solve multiplicity per field before reading anything** — `nNonOrthogonalCorrectors`
+   and `nCorrectors` from the case's own `fvSolution`, read from disk, never assumed and never
+   carried over from a sibling case. Multiplicity does not transfer between cases: F2 runs 2
+   correctors and F12 runs **1**, so F2's 130x spread is **not** F12's number and may not be quoted
+   as one.
+2. **Extract the FIRST solve of each outer iteration** for any field whose multiplicity exceeds one.
+3. **Prove the extractor discriminates, with a planted control** (standing rule 3). Plant
+   distinguishable known values at a first-solve position and at a last-solve position in a copy of
+   a log, and show the reader returns the **first**. A reader not shown able to tell them apart has
+   not been shown to satisfy this rule, and its numbers are not evidence — **refuse rather than
+   degrade.**
+4. **Say which reading was taken**, on the face of any residual figure that leaves the monitor. A
+   residual quoted without its solve position is incomplete.
+
+### Standing of S17
+
+**Not retroactive as a regrade**: closed verdicts are not reopened by this rule. It **is**
+retroactive as a **disclosure** — any *live* convergence claim resting on a tail-read is withdrawn
+until re-read at the first solve. S17 changes no gate and no threshold; it governs **where a number
+is read**, never **what it must be**.
