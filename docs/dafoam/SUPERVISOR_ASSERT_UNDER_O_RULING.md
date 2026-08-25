@@ -288,3 +288,100 @@ after a check; and `__debug__` asserted INSIDE the image the run actually uses, 
 ledger beside the toolchain digest** — because a producer that silently drops its own guards
 while the host-side grader stays flag-proof is the self-consistent-manifest shape, and that is
 the failure `D12` defect 1 already cost this family once.
+
+---
+
+# AMENDMENT 3 (2026-08-25, appended at the foot; **lines whose number changed above this section: 0**)
+
+## A3.1 — **§3's "THE GATES ARE CLEAN" IS WRONG AS A FAMILY CLAIM.** Corrected, not softened.
+
+The commissioned sweep covered the ~25 instruments §6 said I had not checked. **`GATE 66 /
+SELFTEST 106 / NEITHER 1`, over 173 `assert` statements in 44 files.**
+
+**§3 said the exposure was "NOT IN THE GATES". That is true of the five instruments I checked
+and FALSE of the family.** Sixty-six asserts carry a refusal, guard or control **on a path that
+runs during a REAL execution** — removing them lets an instrument proceed with unvalidated
+data, an unmade substitution, a wrong execution mode or a skipped refusal.
+
+**I generalised from five instruments to a family and the generalisation did not hold.** That is
+the same error I have been correcting in others all day, committed by me in the report that
+corrected them. The sweep's own line is the fair statement: *§3's finding is correct for the
+five instruments and does not generalise.* **The classification is deliberately biased toward
+reporting MORE exposure — a parser length-guard is called GATE — and the bias is stated rather
+than buried, which is how a count should be delivered.**
+
+**Population C is named and NOT counted: 1,843 `.py` in run roots outside git, 126 with at
+least one assert, 376 asserts, UNCLASSIFIED — and the lane says so rather than implying
+coverage it did not buy.**
+
+## A3.2 — THE `git ls-files` FAULT, MEASURED IN MY TERRITORY
+
+**`git ls-files` reads the INDEX, not HEAD, and the shared index stages phantom deletions.**
+Measured, `cases/dafoam`: **`ls-files` 1,949 against `ls-tree -r HEAD` 2,207 — 258 files, 11.7 %
+of the tracked population, INVISIBLE to any index-based enumeration, with no error and no
+warning.**
+
+**My file-population censuses used `git ls-tree -r HEAD` throughout and are sound.** **But two
+load-bearing zeros in §2 and A2.1 came from `git grep` WITHOUT a tree-ish, which resolves
+through the index and is exposed to exactly this fault.**
+
+**Re-measured against HEAD: the zeros HOLD.** Six hits exist and **not one is a launcher passing
+`-O`** — they are prose in the sweep record, in this ruling, and in the new `D12R` files.
+Corroborated independently at a larger population: **0 of 72 `.sh` and 0 of 217 `.py` in scope
+turn the flag on.**
+
+**AND I WILL NOT BANK THAT AS VINDICATION. A zero that survives re-measurement is not the same
+as a zero that was measured correctly.** Mine was right because of what happened to be in the
+tree, not because the instrument could not have been wrong. **Standing for this family:
+enumerate and search with `git ls-tree -r HEAD` / `git grep <pattern> HEAD`, never `ls-files`
+and never a bare `git grep` — and put both L-325 limbs on it.** The sweep did exactly that: its
+plant table carries **two negative plants that returned `ABSENT` rather than reading as a
+zero**, which is the specificity limb doing its job.
+
+## A3.3 — A DEFECT IN **MY OWN RULING'S WORDING**, FOUND BY THE LANE IMPLEMENTING IT
+
+§4 required *"every unit tallies an EXPLICIT counted result … exits non-zero by counting, never
+by an assert escaping."* **That wording is satisfiable VACUOUSLY.**
+
+The first counted-exit derived `EXPECTED_UNITS` from **`len(_UNIT_LIST)`** — **tautological**,
+because each entry appends exactly one result, so the count can never disagree with itself.
+**Mutant M15, with the count term deleted, was NOT CAUGHT.** It satisfied my ruling to the
+letter and checked nothing.
+
+**That is the `M3` shape INSIDE THE REPAIR FOR THE `M3` SHAPE**, and it is the fourth time this
+family has met a control that is structurally incapable of firing. **My ruling told the lane to
+count and did not tell it what to count AGAINST.**
+
+**RULING AMENDED: the expected unit count must be a FROZEN CONSTANT, independent of the
+structure it counts.** `EXPECTED_UNITS = 72`, not `len(...)`. **And it must be proven
+load-bearing by a compound mutant**, exactly as the lane then did: **M15a — a unit vanishes —
+caught under both flags; M15b — same, with the count term removed — ESCAPES, and that escape is
+the proof the term is what catches it.** Its line is the general form and I adopt it: ***a guard
+is only shown to work by making the condition it guards actually occur.***
+
+## A3.4 — `D12R` ACCEPTED, AND THE COUNTER-DEMONSTRATION IS WHAT MAKES IT EVIDENCE
+
+**The superseded `d12r_grade.py` under `-O` with a gate mutant: `rc = 0`, ESCAPED. The new
+`d12x_grade.py` under `-O`, same mutant: `rc = 1`, caught.** A `check()` reverted to `assert`:
+caught. Unmutated control: `rc = 0` under both flags.
+
+**That pair is the whole thing.** It does not argue the ruling was necessary — **it measures a
+mutant escaping the old instrument and being caught by the new one.** All 59 asserts converted;
+zero `assert` statements proven by AST **on statement type** and re-proven **inside every
+battery run**.
+
+**The completeness check refused on demand**, which is the control §3 of the phase-1 rulings
+demanded and my md5 order could not have supplied: **required 11, present 11, reference the
+case's own `FIELD_A`; planted at an intermediate per-step write it reported 7 fields missing —
+`U_0 betaFINuTilda fvSource meshPhi nuTilda_0 nut p_0`.** **`nut`, the field whose absence
+killed the superseded run, is present.** And the pipeline was fixed rather than the launcher
+patched: **`FIELD_B` now comes from `S2a/3`, a final-time write**, so the registered discard
+becomes **0 by construction**. **The md5 manifest is kept and SUPERSEDED, not supplemented** —
+it answers *"is this the file we staged?"* and never *"is this enough to start a solve?"*
+
+**The container question is answered inside the image and written to the ledger beside the
+digest: `__debug__ = True`, `PYTHONOPTIMIZE = None`.**
+
+**Prior phase-1 numbers are recorded and NOT imported** — they ran on a `FIELD_B` that could not
+start a solve — **so a repeat is corroboration and a departure is a finding.** That is the right
+disposition and it is the opposite of the convenient one.
