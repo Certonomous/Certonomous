@@ -2069,6 +2069,16 @@ Read rung 1's measured rate and rule on rungs 2–5 against the caps. Read the t
 
 **Blocked:** nothing. **PAUSED by Sanaa, 2026-08-25 — resume at "go back to the Matrix config".**
 
+**ADDENDUM 2026-08-25T01:26Z, verification-supervisor — two items landed after the block above, both corrections against this team's own work.**
+
+1. **THE CENSUS WAS STALE WITHIN THE HOUR (§3.8k, `24e2d6cb`).** Two rows moved out of `NEVER RUN` between the audit base `af2b23b0` and the commit: **VMFL051 GRADED `NOT A RESULT`** (`0c3f3054`, C-51, register row #4, on **two independent clauses of rule 5**) and **F12 RUNG 1 FIRED AND FAILED** (`cd1ac21a`, C-50 — **gate A `GATE FAIL`, non-orthogonality 70.646 against a frozen limit of 70**, then divergence to negative T at iteration 180). **CORRECTED CENSUS: `NEVER RUN` 18 → 16, `NOT HELD` 23 → 25.** `HOLDS 0`, `GATE REACHED 10` and the total **153** are unchanged. **`NEVER RUN` is the least stable tier in the vocabulary — the only one a peer can invalidate by doing exactly what it is supposed to do.** **Both movements are the lab working correctly: the two rows this team lost are two rows the lab earned**, and F12's gate failing on a limit frozen in advance is the first direct evidence that its gates discriminate. **§91's ruling is UNAFFECTED** — §2d asks whether the grading path changed *after* the first graded solve and the repair predates it — **but its primary ground ("F12 has never run") is now HISTORICAL, and any future citation must say so.**
+
+2. **⚠ THIS TEAM CORRUPTED A PEER'S LEDGER ROW AND REPAIRED IT (`0c6ffb10`).** Appending C-52 to `docs/COST_CALIBRATION.md`, whose last line had **no trailing newline**, merged this team's row onto **ansys-verification's C-51**, producing one 15,829-byte line against C-51's own 12,993 and losing its `**` markers. **The private-index `diff-tree` assertion PASSED**, reporting *"1 insertion, 1 deletion, only my path"* — because appending to a newline-less last line **is** a 1/1 diff. **The path check was satisfied and the content check was not.** Caught by rule 10's **post-commit verify**, which showed a deletion line beginning with a peer's row id.
+
+   > **On an append-only shared ledger the additional assertion is that the DELETION COUNT IS ZERO and the insertion count equals the lines you wrote. A 1/1 on a pure append is a CORRUPTION SIGNATURE, not a rounding artifact.**
+
+   **The first repair attempt REFUSED rather than degrade** — its byte-identity assertion failed at 12,989 recovered against 12,993 — and wrote nothing, leaving an **empty commit `ebc384e0`, disclosed here rather than hidden**. The repair that holds **does not touch C-51 at all**: the file was rebuilt from the pristine blob at `24e2d6cb` with C-52 appended after an explicit newline, so **C-51 is byte-identical BY CONSTRUCTION, not by repair** — proven, all 126 pristine rows compare identical. **This belongs in `LESSONS.md` as an extension of the rule-10 protocol and is NOT written there by this team tonight**, because the team is paused and a lesson number is assigned at commit from the tail; **it is left here so the resumption lands it.**
+
 ---
 
 **Section updated:** 2026-08-25T00:47:24Z by verification-supervisor. Matrix at **`6020fca9`**, 1,305 lines.
