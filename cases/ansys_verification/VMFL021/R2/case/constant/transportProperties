@@ -1,0 +1,44 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL022 Nurick sharp-edged orifice, Case A (high inlet pressure).           |
+| interPhaseChangeFoam / SchnerrSauer.  Properties are the manual's, p.87.    |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version 2.0; format ascii; class dictionary; object transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases (water vapour);
+
+phaseChangeTwoPhaseMixture SchnerrSauer;   // FROZEN model choice (prereg line 7)
+
+pSat            3540;     // Pa, vapour pressure (manual Pvapor = 3,540 Pa)
+
+sigma           0.07;     // N/m, water-vapour surface tension (manual silent; standard)
+
+water
+{
+    transportModel  Newtonian;
+    nu              1e-06;      // mu/rho = 0.001/1000  (manual: mu=0.001 kg/m-s, rho=1000)
+    rho             1000;
+}
+
+vapour
+{
+    transportModel  Newtonian;
+    nu              4.925723e-05;   // mu/rho = 1.26e-6/0.02558 (manual)
+    rho             0.02558;
+}
+
+SchnerrSauerCoeffs
+{
+    n               1.6e+13;
+    dNuc            2.0e-06;
+    Cc              1;
+    Cv              1;
+}
+
+KunzCoeffs        { UInf 707.0; tInf 6.8e-5; Cc 1000; Cv 1000; }
+MerkleCoeffs      { UInf 707.0; tInf 6.8e-5; Cc 80; Cv 1e-03; }
+
+// ************************************************************************* //

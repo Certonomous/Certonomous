@@ -1,0 +1,56 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+// VMFL021-R2 Case A (HIGH inlet pressure P1=2.5e8 Pa).  Transient interPhaseChangeFoam, run to
+// a statistically-steady discharge.  dt is Courant-limited (adjustTimeStep),
+// so the Roache family (spatial x2) auto-refines dt with the mesh -- the triple
+// therefore measures the COMBINED space-time discretisation error.
+application     interPhaseChangeFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         0.003;
+deltaT          1e-9;
+writeControl    adjustableRunTime;
+writeInterval   0.0005;   // VMFL021-R2 FIX: was 0.01 > endTime 0.003 under `adjustable` (no endTime field dir ever written). 0.003/0.0005 = 6 EXACT integer multiple; adjustableRunTime forces a write AT endTime. Launcher asserts the multiple before starting (rule 4 gradeability).
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  8;
+writeCompression off;
+timeFormat      general;
+timePrecision   8;
+runTimeModifiable false;
+adjustTimeStep  yes;
+maxCo           2;
+maxAlphaCo      2;
+maxDeltaT       1e-5;
+
+functions
+{
+    outletMassFlow
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            outlet;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        surfaceFormat   none;
+        writeControl    timeStep;
+        writeInterval   1;
+        log             false;
+    }
+    inletMassFlow
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            inlet;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        surfaceFormat   none;
+        writeControl    timeStep;
+        writeInterval   1;
+        log             false;
+    }
+}
