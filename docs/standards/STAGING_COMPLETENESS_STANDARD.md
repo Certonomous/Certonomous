@@ -1,6 +1,6 @@
 # Staging completeness standard — cfd
 
-**Version 1.0, 2026-08-25.** Territory: cfd. Binding artifact:
+**Version 1.1, 2026-08-25.** Territory: cfd. Binding artifact:
 `scripts/staging_completeness.py` (`--selftest`).
 
 > **A HASH CAN ONLY EVER ANSWER "IS THIS THE SAME AS BEFORE". IT CAN NEVER
@@ -57,6 +57,62 @@ Every guard ships a **planted control that makes it FIRE**, and the suite is
 **re-executed under `-O`** and refuses to report success unless every control
 still fires with assertions stripped. **A completeness check never seen to
 refuse is the same defect one level up.**
+
+### 3.1 The three-arm shape, and BOTH DIRECTIONS
+
+Adopted from the cfd supervisor's refinement of 2026-08-25
+(`verification/campaign/CFD_ASSERT_RULE_REFINEMENT_2026-08-25.md`, `44cc8f0f`),
+which **supersedes** the earlier "run the selftest under `-O`" form:
+
+> **"The selftest passes under `-O`" is the WEAK test. The check that bites is:
+> RUN THE SELFTEST UNDER `-O` AND REQUIRE THAT EVERY REFUSAL FIRES — not that
+> the suite exits 0.**
+
+- **(a)** the guarded path **driven** under `-O` and required to **refuse**;
+- **(b)** a **sacrificial mutant** driven under `-O` and required to **refuse**;
+- **(c)** an **AST check requiring zero `Assert` nodes** — *the cheapest of the
+  three, and the only one that **catches a revert without running anything***.
+
+Arm (c) matters because a mutation battery **cannot see this hole unless the
+battery is itself run under `-O`**: had a guard's behavioural coverage been
+asserts, the property would evaporate silently under `-O` and every mutation
+test would still pass, because selftests run under plain `python3`. **The
+battery and the hole live under different flags.**
+
+`require_no_assert_nodes()` implements arm (c) and is run against the instrument
+itself (control C8). **Measured: 0 `Assert` nodes.**
+
+### 3.2 A check must be shown NOT to refuse a correct run
+
+> **Both directions, or it is not a check.**
+
+**THE MAP FROM SOLVER KEYS IN `fvSolution` TO FILES THAT MUST EXIST IN `0/` IS
+NOT THE IDENTITY, IN EITHER DIRECTION:**
+
+- **`e` is solved but not stored** — named in F12's `fvSolution`, absent from its
+  `0/`, derived from `T` by the thermophysical model. A naive *"named in
+  `fvSolution` ⇒ must exist in `0/`"* rule **demands `e` and refuses a correct
+  F12 case.**
+- **`alphat` and `nut` are stored but not solved** — present in `0/`, named
+  nowhere in `fvSolution`. A producer-side manifest would not know they are
+  required.
+
+**Binding form:** enumerate from `fvSolution`/`fvSchemes`, **INTERSECT** with the
+closure named in `turbulenceProperties`, **EXCLUDE** solver-generated and
+thermo-derived quantities, **UNION** the fields required as initial conditions
+but never named as solver keys — **then validate against a KNOWN-GOOD case and
+require it to pass.**
+
+> **A CORRECTION AGAINST MY OWN INSTRUMENT.** The first version of
+> `staging_completeness.py` implemented EXCLUDE and UNION but **not INTERSECT**,
+> and was **measured falsely refusing** a correct `kOmegaSST` case whose
+> `fvSolution` key read `"(U|k|epsilon|omega|e)"` — it demanded `epsilon` of a
+> case that neither solves nor stores it. OpenFOAM solver regexes are written
+> for **breadth** and routinely name more than the case runs. Repaired, and
+> control **C1b** now drives exactly that configuration and **requires it to
+> PASS**. F12 has already been structurally unlaunchable once; a completeness
+> guard that refused its correct configuration would have been **a second
+> unlaunchable state produced by the guard against the first.**
 
 ## 4. Field resolution — registered vs inherited
 

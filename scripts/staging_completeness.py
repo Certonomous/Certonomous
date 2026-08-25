@@ -159,6 +159,11 @@ TURBULENCE_FIELDS = {
     "WALE":                 {"nut"},
 }
 
+# Every field ANY closure owns.  A turbulence field named in `fvSolution` but
+# NOT owned by the closure this case declares is NOT required — see the
+# INTERSECT in `required_fields`.
+TURBULENCE_OWNED = set().union(*TURBULENCE_FIELDS.values())
+
 
 # ---------------------------------------------------------------------------
 # Dictionary reading.  Deliberately small and deliberately strict.
@@ -287,35 +292,52 @@ def required_fields(case_dir: str) -> tuple[set, dict]:
     for f in base:
         prov[f] = f"controlDict application {app}"
 
-    fv_sol = read_dict(case_dir, "system", "fvSolution")
-    if fv_sol:
-        for f in solver_block_fields(fv_sol) - DERIVED_NEVER_STAGED:
-            req.add(f)
-            prov.setdefault(f, "fvSolution solvers block")
-
-    fv_sch = read_dict(case_dir, "system", "fvSchemes")
-    if fv_sch:
-        for f in transported_fields(fv_sch) - DERIVED_NEVER_STAGED:
-            req.add(f)
-            prov.setdefault(f, "fvSchemes divSchemes")
-
+    # WHAT THE CLOSURE OWNS is decided by turbulenceProperties and by nothing
+    # else.  Read FIRST, so the intersect below can use it.
     turb = read_dict(case_dir, "constant", "turbulenceProperties")
     sim, model = turbulence_model(turb)
-    if model != "laminar":
-        if model not in TURBULENCE_FIELDS:
-            refuse(f"turbulence model {model!r} has no consumer map in "
-                   f"staging_completeness.TURBULENCE_FIELDS; this guard "
-                   f"REFUSES rather than claim completeness for a closure it "
-                   f"cannot enumerate")
-        for f in TURBULENCE_FIELDS[model]:
-            req.add(f)
-            prov.setdefault(f, f"turbulenceProperties {sim}/{model}")
+    if model != "laminar" and model not in TURBULENCE_FIELDS:
+        refuse(f"turbulence model {model!r} has no consumer map in "
+               f"staging_completeness.TURBULENCE_FIELDS; this guard REFUSES "
+               f"rather than claim completeness for a closure it cannot "
+               f"enumerate")
+    closure = set(TURBULENCE_FIELDS[model]) if model != "laminar" else set()
+
+    # fvSolution / fvSchemes, INTERSECTED WITH THE CLOSURE on turbulence fields.
+    # An OpenFOAM solver regex is written for BREADTH and routinely names more
+    # than the case runs: `"(U|k|epsilon|omega|e)"` in a kOmegaSST case names
+    # `epsilon`, which that case neither solves nor stores.  Taking the regex
+    # literally DEMANDS `epsilon` AND FALSELY REFUSES A CORRECT CASE.
+    #
+    # THE MAP FROM SOLVER KEYS TO FILES IN `0/` IS NOT THE IDENTITY, IN EITHER
+    # DIRECTION: `e` is solved but not stored; `alphat` and `nut` are stored but
+    # never named as solver keys.  A check must be shown not to refuse a correct
+    # run as well as shown to refuse an incomplete one — both directions, or it
+    # is not a check.
+    dict_derived = set()
+    fv_sol = read_dict(case_dir, "system", "fvSolution")
+    if fv_sol:
+        for f in solver_block_fields(fv_sol):
+            dict_derived.add(f)
+            prov.setdefault(f, "fvSolution solvers block")
+    fv_sch = read_dict(case_dir, "system", "fvSchemes")
+    if fv_sch:
+        for f in transported_fields(fv_sch):
+            dict_derived.add(f)
+            prov.setdefault(f, "fvSchemes divSchemes")
+    dict_derived -= DERIVED_NEVER_STAGED
+    dict_derived -= (TURBULENCE_OWNED - closure)     # <- the INTERSECT
+    req |= dict_derived
+
+    for f in closure:
+        req.add(f)
+        prov.setdefault(f, f"turbulenceProperties {sim}/{model}")
+    if closure and app in COMPRESSIBLE_APPLICATIONS:
         # alphat is demanded by the COMPRESSIBLE wall functions and appears in
-        # no scheme and no solver block.  This is the field a dictionary-only
-        # derivation misses, and it is named here deliberately.
-        if app in COMPRESSIBLE_APPLICATIONS:
-            req.add("alphat")
-            prov.setdefault("alphat", f"compressible {app} + turbulence {model}")
+        # no scheme and no solver block.  This is the UNION limb: a field
+        # required as an initial condition but never named as a solver key.
+        req.add("alphat")
+        prov.setdefault("alphat", f"compressible {app} + turbulence {model}")
 
     req -= DERIVED_NEVER_STAGED
     return req, prov
@@ -438,6 +460,31 @@ def require_pinned_callgraph(py_path: str, pinned: set, alias_map: dict,
             "allowed": sorted(allow)}
 
 
+def require_no_assert_nodes(py_path: str) -> dict:
+    """ARM (c): REFUSE if the file contains ANY `assert` statement.
+
+    The cheapest of the three arms and the only one that CATCHES A REVERT
+    WITHOUT RUNNING ANYTHING. Driving a suite under `-O` proves the refusals
+    that EXIST still fire; it cannot see an `assert` reintroduced on a path the
+    suite does not drive. This can.
+
+    Note the failure mode it defends against, which is why "the selftest passes
+    under -O" is the weak test: had a guard's behavioural coverage itself been
+    asserts, the property would evaporate silently under `-O` AND EVERY
+    MUTATION TEST WOULD STILL PASS — because selftests run under plain
+    `python3`. The battery and the hole live under different flags.
+    """
+    with open(py_path, "r", errors="replace") as fh:
+        tree = ast.parse(fh.read(), filename=py_path)
+    hits = [n.lineno for n in ast.walk(tree) if isinstance(n, ast.Assert)]
+    if hits:
+        refuse(f"{py_path}: {len(hits)} `assert` statement(s) at line(s) "
+               f"{hits} — `python3 -O` STRIPS THESE ENTIRELY. No assert in a "
+               f"cfd instrument may carry a refusal, a guard, a control or a "
+               f"gate. Use `raise` or `sys.exit`.")
+    return {"assert_nodes": 0, "path": py_path}
+
+
 # ---------------------------------------------------------------------------
 # SHARED-TOKEN READING.  D12's third finding: the frozen reader took "the LAST
 # `average:` value" where the solver prints `average:` on TWO lines, so it read
@@ -544,6 +591,23 @@ def selftest() -> int:
         print(f"  C1 consumer-derived required set = {sorted(req)}")
         print(f"     matches the real F12 attempt-2 0/ exactly; PASSES when complete")
 
+        # --- C1b: THE OTHER DIRECTION — a check must be shown NOT to refuse
+        # a correct run.  Regex breadth: a kOmegaSST case whose fvSolution key
+        # also names `epsilon`.  Taking the regex literally would demand a
+        # field this case neither solves nor stores.
+        wide = os.path.join(root, "wide")
+        shutil.copytree(case, wide)
+        _write(os.path.join(wide, "system", "fvSolution"),
+               'solvers\n{\n    p\n    {\n solver GAMG;\n }\n'
+               '    "(U|k|epsilon|omega|e)"\n    {\n solver PBiCGStab;\n }\n}\n')
+        wreq, _ = required_fields(wide)
+        if "epsilon" in wreq:
+            raise SystemExit("C1b FAILED: regex breadth demanded `epsilon` of a "
+                             "kOmegaSST case — this FALSELY REFUSES a correct run")
+        require_staged_complete(wide)
+        print("  C1b regex breadth `(U|k|epsilon|omega|e)` on kOmegaSST -> "
+              "epsilon NOT demanded; correct case still PASSES")
+
         # --- C2: PLANTED CONTROL — remove one required field, must REFUSE ---
         os.remove(os.path.join(case, "0", "nut"))
         msg = _fires(require_staged_complete, case)
@@ -641,6 +705,16 @@ def selftest() -> int:
             raise SystemExit("C7 FAILED: shared token not diagnosed")
         print("  C7 `average:` on two quantities -> REFUSED as SHARED "
               "(a last-match read would have returned Cl)")
+
+        # --- C8: ARM (c) — zero Assert nodes, checked on THIS FILE ---------
+        require_no_assert_nodes(os.path.abspath(__file__))
+        planted = os.path.join(root, "planted.py")
+        _write(planted, "def guard(x):\n    assert x > 0, 'refusal'\n    return x\n")
+        msg = _fires(require_no_assert_nodes, planted)
+        if "STRIPS THESE ENTIRELY" not in msg:
+            raise SystemExit("C8 FAILED: wrong refusal text")
+        print("  C8 arm (c): this file carries ZERO assert nodes; a planted "
+              "`assert` guard -> REFUSED without running it")
 
         print(f"ALL CONTROLS FIRED  [assertions: {opt}]", flush=True)
         return 0
