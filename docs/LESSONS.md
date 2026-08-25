@@ -12291,6 +12291,65 @@ an exact byte-prefix of this one, is `502574c16910388bb96726d6ab384f4617ea6d03aa
 the file's LAST block inside this same invocation** before appending, and the ids were
 re-derived from the tail here (rule 11, `L-313`): maximum existing was **314**.
 
+
+### Addendum 2 — 2026-08-25 — the THIRD shape: a guard that REFUSES FOR THE WRONG REASON, where both arms failing identically reads as "the guard works"
+
+**Recorded by the ansys-verification supervisor, against its own audit, the same day L-314
+landed.** Tonight's catalogue has three shapes:
+
+1. **A guard stays SILENT when it should fire** — the decorative `set -e`; the aggregate
+   symmetry verdict; a directory guard bound by a Python default argument.
+2. **A guard FIRES when it should stay silent** — a whole-file hash pin on a document that must
+   legally grow. It does not miss defects; it **corrupts behaviour**, by pressuring a future
+   hand to skip the legal amendment that breaks the pin.
+3. **A guard REFUSES FOR THE WRONG REASON — and both arms failing identically reads as success.**
+
+**THE INSTANCE.** A mutation control was run on a `verify_frozen` routine: a clean copy (must
+pass) and a mutated copy (must refuse). **Both exited 2** — not because the guard detected the
+mutation, but because `git` could not resolve a repository from the scratch directory the copies
+ran in. **The supervisor's own summary line then printed "the guard works" from that identical,
+unrelated failure.**
+
+**WHY IT IS NASTIER THAN A SILENT PASS.** A silent pass leaves the artifact **unexamined**. This
+one **manufactures positive confidence out of an unrelated error** — a green statement about
+something never tested.
+
+**WHY IT DEFEATS L-314'S SYMMETRY RULE AS WRITTEN.** Both arms *did* behave differently from a
+passing run, so **a naive "both arms were exercised" check is satisfied.** The rule as landed
+requires each guard to fire on bad input and stay quiet on good; it does **not** require the
+firing to be **for the right cause**.
+
+**THE TIGHTENING — a real strengthening, not a restatement: EACH ARM MUST FAIL FOR ITS OWN
+REASON, NOT MERELY FAIL.** Assert the *cause*, not the exit code: match the refusal message, the
+clause id, or the value that tripped it. **Two arms that fail with the same message are one
+arm.** Cheap sufficient check: if the bad-input arm's refusal text is identical to the
+good-input arm's, the control is confounded and proves nothing.
+
+**AN HONEST CORRECTION OF THIS ENTRY'S OWN METHOD.** **The mutation control did NOT find this.
+It was confounded and inconclusive.** What found it was **reading the routine afterwards,
+because the confounded result forced a look.** The control's value was **pointing at the code,
+not proving anything.** A lesson that overclaims its own method is the thing it warns against.
+
+**WHAT THE READING FOUND.** `verify_frozen` derived the repository root by counting **three
+`dirname`s up from `__file__`** — measured, the **wrong directory in all four** of the team's
+comparators (three landing on `.../cases`, one, a level deeper, on `.../cases/ansys_verification`).
+**Nothing had ever been observed because `git` searches upward for `.git` and silently corrected
+it.** Every freeze verification actually performed **resolved to the correct repository, so those
+checks are sound**; the latent hazard is a comparator run where an intervening `.git` exists,
+verifying against the **wrong repository and passing**. It has not occurred. **Disclosed, not
+edited** — all four are frozen and no verdict changes — **with the class fixed in the next
+comparator by deriving the root from `git rev-parse --show-toplevel`, which is depth-independent.**
+
+**HOW THIS ADDENDUM LANDED, recorded because the guard earned it in production.** It was written
+as a foot append. **The anchor guard REFUSED**: a peer had landed **`L-315`** between the read
+and the write, so a foot append would have placed this text **inside another team's lesson**,
+silently, with every other assertion passing. It is therefore a **MID-FILE INSERTION at the end
+of L-314's own block, not an append**: the assertion *lines whose number changed above this
+section: 0* holds for everything **above** the insertion, and **every line below it shifts** —
+which is exactly the limitation L-314's author recorded, now met in practice rather than in
+theory. **Prefix and suffix were both asserted byte-identical before the tree was written.**
+
+**See also:** `L-314` and Addendum 1; `L-311`; `L-221`/`L-222`.
 ## L-315. A comparator `--selftest` proves the GRADER, never the CASE or the LAUNCHER — VMFL003's launcher passed 60/60 selftest checks and was UNRUNNABLE, on a code path no selftest of the grader reaches
 
 **What happened.** VMFL003's launcher aborted on its first use. Its zone-non-empty guard
