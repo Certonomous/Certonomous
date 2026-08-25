@@ -219,3 +219,82 @@ All 95 case identifiers listed in CASE_MAP are present in the manual sidecar. Ev
 - Lab case directory also present for VMFL051 with no register entry yet.
 - CASE_MAP carries **no RUN STATUS field**.
 
+
+---
+
+## Dated correction — 2026-08-25 — the manual holds **95** cases, not 105; the 11 extras are INPUT FILENAMES
+
+**Append-only correction under `CLAUDE.md` rule 6. Nothing above this section is
+edited, rewritten or struck in place** — the original figures stand where they were
+written, and this note corrects them. Appended by `ansys-lane-opus`.
+
+### What is wrong
+
+| where | it says | the fact |
+|---|---|---|
+| the `TOTAL MANUAL` row of the counts table | **105** = 78 + 10 + 10 + 7 | **95** = **78** `VMFL` + **10** `VMFLGPU` + **7** `VMFRT` |
+| the missing-cases section | **"Count: 10 missing"** | **there are no missing cases.** The 10 are not cases |
+| the evidence table and its summary line | *"105 unique case identifiers"* | **106 distinct identifier-shaped tokens** exist in the sidecar, of which **95 are cases** |
+
+**The audit's own token count was also low by one.** It reports **105** distinct
+identifiers where the sidecar contains **106**. Its list of 10 therefore **missed
+`VMFL010B`** — an eleventh extra string that is the same kind of thing as the other
+ten, and whose omission is what made 105 and 95 differ by exactly the ten it did list.
+
+### Why the extra strings are not cases — the discriminator, MEASURED not asserted
+
+**The eleven extras are Ansys CFX and Fluent INPUT FILENAMES that embed their parent
+case's id.** Each appears in the manual's own *Input File* line. Read in context, the
+matter is not arguable:
+
+| string | the line it appears in | parent case |
+|---|---|---|
+| `VMFL002B` | `VMFL002B_VV002CFX.def for Ansys CFX` | VMFL002 |
+| `VMFL003B` | `VMFL003B_VV003CFX.def for Ansys CFX` | VMFL003 |
+| `VMFL005B` | `VMFL005B_VV005CFX.def for Ansys CFX` | VMFL005 |
+| `VMFL007B` | `VMFL007B_vv007CFX.def for Ansys CFX` | VMFL007 |
+| `VMFL008B` | `VMFL008B_rot_cyl.def for Ansys CFX` | VMFL008 |
+| **`VMFL010B`** | `VMFL010B_plarb.def for Ansys CFX` | VMFL010 — **the one the original list missed** |
+| `VMFL012B` | `VMFL012B_VV012.def for Ansys CFX` | VMFL012 |
+| `VMFL021B` | `VMFL021B_VV021.def for Ansys CFX` | VMFL021 |
+| `VMFL023B` | `VMFL023B_osc_cyl.def for Ansys CFX` | VMFL023 |
+| `VMFL032B` | `VMFL032B_afterbody.def for Ansys CFX` | VMFL032 |
+| `VMFL040A` | `VMFL040A_diffuser-sep.cas for Ansys Fluent` | VMFL040 |
+
+**THE DISCRIMINATOR IS RECURRENCE, AND IT SEPARATES THE TWO POPULATIONS CLEANLY.** A
+real case id appears many times — in the table of contents, the coverage matrix, the
+section heading, the running header, the page-index line. **A filename appears exactly
+once**, in its own *Input File* line. Measured over the sidecar:
+
+| population | count | occurrences per identifier |
+|---|---|---|
+| **real case ids** | **95** | **4 – 10** (17 ids × 4, 46 × 5, 13 × 6, 13 × 7, 2 × 8, 3 × 9, 1 × 10) |
+| **input filenames** | **11** | **exactly 1**, every one |
+
+**There is no identifier anywhere between 1 and 4 occurrences.** The gap is empty, so
+the split is not a judgement call at a chosen threshold — it is a property of the
+document. *(A range of 5–7 was suggested when this correction was commissioned; the
+measured range is **4–10**, and the measured figure is the one recorded here.)*
+
+### The corrected counts
+
+- **95 cases**: **78** `VMFL` + **10** `VMFLGPU` + **7** `VMFRT`.
+- **0 missing.** The manual is complete as mapped; `CASE_MAP.md` has always carried
+  **95** rows and was right.
+- **106** identifier-shaped tokens = **95** cases + **11** input filenames.
+
+**Why this mattered enough to correct rather than leave:** an audit that reports ten
+missing cases sends the next lane hunting for pages that do not exist, and it inflates
+the campaign denominator by more than 10 %. The campaign fraction now stands at
+**3 of 73 in-scope cases** (`CASE_MAP.md`), and a denominator of 105 would have made
+every future coverage statement wrong.
+
+**Method note, because it is the reason the original count went wrong and will do so
+again:** the eleven filenames are invisible to a regex that anchors on a word boundary
+after the case number — in `VMFL002B_VV002CFX.def` the underscore is a word character,
+so `\bVMFL\d{3}[A-Z]?\b` does not match `VMFL002B` and the token silently vanishes. The
+first pass of this very correction hit that and returned 95 distinct tokens with **zero**
+single-occurrence strings, which looks like clean confirmation and is an artefact.
+**Both counts were re-run without the boundary anchor before anything here was written.**
+
+**Lines whose number changed above this section: 0.**
