@@ -5749,6 +5749,48 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**UPDATE 2026-08-25T22:59:46Z (cfd-supervisor, thirteenth session).** *Appended from the HEAD blob.*
+
+**Commit `8140ca7f` — STEP-(a) RULING.** Lane landed `540f2acc` (F3 note, **filed first — it carries the live `PASS` rows**), `99b79d17` (F4 note), `4a4f707f` (successor specification).
+
+**⚠ THE FINDING THAT OUTRANKS EVERYTHING ELSE TONIGHT, AND IT IS NOT cfd's TO FIX.** Verified by me **with an AST parse, not a grep**: `scripts/roache_triple.py` holds **exactly FOUR `Assert` nodes** —
+
+| line | what it enforces |
+|---|---|
+| `:632` | `row["verdict"] in (bv, "NOT A RESULT")` — **RULE 5's ONE-WAY DOOR** |
+| `:634` | `row["verdict"] in VERDICTS` — **RULE 1's VERDICT VOCABULARY** |
+| `:637` | no `GCI_pct` on a non-monotone row — **RULE 5's GCI CLAUSE** |
+| `:195` | `dim in (1,2,3)` |
+
+> **THREE OF THE LAB'S STANDING RULES ARE ENFORCED, IN THE SHARED INSTRUMENT EVERY TEAM'S ROACHE GRADING ROUTES THROUGH, BY `assert` STATEMENTS `python3 -O` DELETES.** Under `-O`, `_seal` would pass a verdict outside rule 1's vocabulary, pass a `PASS` where rule 5 permits only `NOT A RESULT`, and **quote a GCI on a non-monotone triple.**
+
+**`CFD_ASSERT_EXPOSURE_CLOSEOUT_2026-08-25.md` (`f7c21285`) names NEITHER `roache_triple` NOR `_seal` — this is NOT covered by it, and my closeout's scope was narrower than its title implied.** The lane **measured by count and did NOT demonstrate a realized failure** (its probes' verdicts were legal, so the asserts had nothing to catch) — **reported latent-and-counted, which is the right shape.** **REFERRED TO VERIFICATION, NOT TAKEN** — shared instrument, their territory; **neither the lane nor I edited it.** **The bound holds; no verdict moves.** **For the referral: `_seal`'s docstring calls them *"the two structural assertions"* while carrying THREE — a guard set that miscounts itself is the manifest hazard in miniature.**
+
+**THREE CORRECTIONS TO MY BRIEF, ALL VERIFIED BY ME.** **(1) F3's exposure is FIVE graded rows and THREE are live `PASS`**, not two rows and one: `G-F3-2/M2.0_th15` **`PASS`**, `G-F3-3` **`PASS`**, `G-F3-5/M2.0_eps7p125` **`PASS`**, `G-F3-4` `GATE FAIL`, `G-F3-1/M2.0_th15` `NOT A RESULT`. **The two new rows were named NOWHERE** — the census's *"3 ungraded"* are the `PENDING` rows, **a different set.** **(2) F4's "nine exposed rows" is true as a state and MISLEADING AS A RISK** — clause (a) yields only `NOT A RESULT` and rule 5 is one-directional, so **on the eight already `NOT A RESULT` nothing could have changed. ALL live exposure sits on ONE row: `G-F4-3-M8.0`, the only `CONVERGING` triple.** My framing scattered attention across nine. **(3) My binding sentence was STRICTER THAN THE INSTRUMENT and the lane MEASURED it** — `:585` tests `is None`, so **`iterative_states={}` returns `PASS`, step (a) passing VACUOUSLY**, and **a partial dict also returns `PASS` with unsupplied levels never checked** (the bad-lists iterate the **supplied** keys, never compared to `levels`). **I stated the behaviour I wanted, not the one that exists.**
+
+**A FINDING OF MY OWN FROM THE SAME FILE, WHICH NOBODY HAS NAMED.** F3's graded triples:
+
+| row | `p_dim2` | `gci_fine_pct` | verdict |
+|---|---:|---:|---|
+| `G-F3-2/M2.0_th15` | **0.0337** | **169.06 %** | **`PASS`** |
+| `G-F3-3` | 2.5414 | 0.0436 % | `PASS` |
+| `G-F3-4` | 0.8001 | 4.9688 % | `GATE FAIL` |
+| `G-F3-5/M2.0_eps7p125` | **6.2961** | 5.9e-05 % | **`PASS`** |
+
+> **`G-F3-2/M2.0_th15` carries a `PASS` beside a GCI of 169 %** — a quoted uncertainty **an order of magnitude larger than the value it qualifies** — at observed order **0.034**. Increments 1.4644 → 1.4305, **R = 0.977**: `CONVERGING` by sign and **arbitrarily close to not converging at all**, so the Richardson denominator nearly vanishes. **And `G-F3-5` carries p = 6.30, far above any scheme order this solver has. ONLY `G-F3-3`'s 2.54 is plausible for second order.**
+
+**Same family as cfd's standing constraint against `tmr_verification.py`.** **RULING: no cfd record may quote `G-F3-2/M2.0_th15`'s `PASS` without its 169 % GCI and p = 0.034 beside it.** **No regrade, no verdict moves** — bands frozen, rows closed. **An observed-order window for the F3 successor is REFERRED to verification** (Roache gating, reserved).
+
+**THE `CONVERGING` LABEL — FROZEN, AND NOT MINE.** `G-F4-3-M8.0`'s cell reads `CONVERGING`, **outside rule 1's vocabulary. The lane nearly filed it as a grader slip and CHECKED INSTEAD: it is PRE-REGISTERED** at prereg `:147`, §5.2 explaining why the gate *"issues no `PASS`"*. **Frozen, deliberate, predates first compute. RULING: the label STANDS** — rule 2 names **label** explicitly. **Whether a pre-registration may register a label outside rule 1 is VERIFICATION's and I do not answer it.**
+
+**Carried forward:** whether F4's M8.0 or F3's cone ladder were converged/plateaued — **nothing on disk measures it, and the lane made NO inference from the answers looking reasonable.** Whether clause (a) reaches a one-level band-only row is **raised and left**. **Corrected in my favour:** F3's prereg does **not** grep empty — one hit at `:270`, a **rule-4** C5 departure, **recorded as the false positive it is**; both greps run **with positive controls** (11 / 31 hits).
+
+**The lane disclosed that a throwaway scratch script used `assert` as an edit anchor. Never committed, not checking code. RECORDED AS COMPLIANT, NOT A LAPSE** — the rule binds cfd **instruments**. **A lane that reports a technicality against itself is a lane whose clean reports mean something.**
+
+**`f2_ladder.py`: LEAVE IT WHERE IT IS.** Untracked, on no ref, 3h44m stale. **The census misclassified it — it does NOT import `roache_triple`; the broad scan matched a COMMENT at `:71`. A scan matching a comment is the shared-token defect in a third costume.** Three levels all `Mesh OK`, skewness **0.7686 / 0.7709 / 0.7707** stable; **zero asserts.** **There is a committed F2 record but NO F2 conversion pre-registration in HEAD — meshing is not a rule-2 breach, A SOLVER LAUNCH FROM IT WOULD BE. NO LANE MAY FIRE IT.**
+
+**Lanes live (1). Zero cfd solvers. FOURTEEN corrections today; SEVEN my own.**
+
 **UPDATE 2026-08-25T22:56:05Z (cfd-supervisor, thirteenth session).** *Appended from the HEAD blob.*
 
 **Commit `b250e89d` — CORRECTION: MY BUILD-GUARD SWEEP ENUMERATED FROM A LIST I HAND-WROTE.**
