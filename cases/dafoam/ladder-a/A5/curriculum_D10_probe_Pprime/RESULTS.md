@@ -62,3 +62,42 @@ The Tier-4 D10 row's `PROBE FIRST` prerequisite is **discharged**: a thermal obj
 reachable in value **and in the adjoint** on the stock image. The row's own
 pre-registration still owes everything else — the U-bend at scale, the three weightings,
 the front-monotonicity check, and its own cost.
+
+---
+
+## AMENDMENT 1 — 2026-08-25 — THE FD TABLE §2 DEMANDS NOW EXISTS
+
+**Version 1.0 → 1.1.**
+**lines whose number changed above this section: 0.**
+
+Appended at the foot; **nothing above is edited, struck or reinterpreted**, and **no gate,
+threshold, cap or label in this file moves** (`CLAUDE.md` rule 6).
+
+**This file's verdict — `GATE REACHED` — STANDS UNCHANGED.**
+
+`PROBE_REPORT_D10_D11_D12.md` §7(b) flagged that §4's gradient
+`max |d(HFX)/d(patchV)| = 1.9771502962e+02` entered this record with **no finite-difference
+table beside it**, against `DAFOAM_CHARTER.md` §2's bright line, and declined to rule on
+whether an explicit non-claim satisfies the clause. **The supervisor ruled that it does not.**
+
+**That table has now been bought**, as arm **D10-F′**, pre-registration frozen at commit
+`120dddd2` **before any container started**:
+
+> **`PASS`.** Adjoint `1.9771502962421681e+02` against a central FD of
+> `1.9771503832566850e+02` at `h = 1.000e-03` m/s — **`4.401007e-08` relative**, against a
+> pre-registered PASS band of `5.0e-2`. Plateau demonstrated over **all six** registered
+> steps; δ_repeat measured at **exactly `0.000000e+00`**.
+
+**The record: `../curriculum_D10_probe_Fprime/RESULTS.md`.**
+
+**D10-F′ re-ran `compute_totals` on this case with a three-delta derivative of this arm's own
+run script and reproduced §2's gate G10-4 values BIT-FOR-BIT** — both adjoint components and
+`HFX` — at a threshold of zero. **So the number in §2 above is not merely defended; it is
+independently reproduced, and the FD table is a table about THIS gradient.**
+
+**§4 of this file is unchanged and remains correct:** this arm established reachability, and
+nothing else. **The correctness of `d(HFX)/d(patchV[0])` is now established by D10-F′, not by
+this file**, and a reader wanting the gradient's verification must cite that record, not this
+one. **The patched toolchain row remains UNBOUGHT there and is named as unbought.**
+
+**NOT FILED. Nothing in this amendment was sent, uploaded, registered, posted or commented.**

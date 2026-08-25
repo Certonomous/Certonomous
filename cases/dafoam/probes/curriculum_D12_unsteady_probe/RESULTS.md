@@ -92,3 +92,46 @@ The Tier-5 D12 row's `PROBE FIRST` prerequisite is **discharged**, and its
 `NEEDS COSTING` is **answered** — see `../LANE_REPORT.md` §7, which prices D12 from these
 anchors and finds the curriculum's `~1,000–3,000 core-min` estimate **4–20× high** for
 this mesh and window.
+
+---
+
+## AMENDMENT 1 — 2026-08-25 — THE FD TABLE §2 DEMANDS WAS BOUGHT, AND IT RETURNED `NOT A RESULT`
+
+**Version 1.0 → 1.1.**
+**lines whose number changed above this section: 0.**
+
+Appended at the foot; **nothing above is edited, struck or reinterpreted**, and **no gate,
+threshold, cap or label in this file moves** (`CLAUDE.md` rule 6).
+
+**This file's verdict — `GATE REACHED` — STANDS UNCHANGED.** Reachability was established and
+is not in question.
+
+`PROBE_REPORT_D10_D11_D12.md` §7(b) flagged that §2's gate G12-2 gradient
+`max |d(obj)/d(shape)| = 1.1622935280e-01` entered this record with **no finite-difference table
+beside it**, against `DAFOAM_CHARTER.md` §2. The supervisor ruled the table must be bought. It
+was bought, as arm **D12-F′**, pre-registration frozen at `120dddd2` **before any container
+started**, on **two** components — the headline `shape[3]` and `shape[0]`.
+
+> **`NOT A RESULT`, on both components.** No plateau: the longest run of consecutive FD steps
+> agreeing to the registered 1 % was **one** on each, and **neither component plateaus at any
+> tolerance up to 5 %.** All 24 stages `rc=0`; **every control PASSED**, including a
+> bit-for-bit reproduction of §2's four adjoint components and `obj`.
+
+**The record: `../curriculum_D12_unsteady_probe_Fprime/RESULTS.md`.**
+
+**CONSEQUENCE FOR THIS FILE, STATED PLAINLY.** §4 of this file already disclaims *"nothing about
+the correctness, accuracy, FD agreement or sign of the unsteady adjoint."* **That disclaimer
+stands, and it is now backed by a measurement instead of by prose.**
+`DAFOAM_CHARTER.md` §2's bright line is **STILL NOT SATISFIED** for this gradient — the table
+was bought and it could not adjudicate. **A reader must not take `NOT A RESULT` as a licence to
+assume the gradient is right, nor as evidence that it is wrong.**
+
+**WHAT D12-F′ DID ESTABLISH, and it bears directly on D12-proper:** δ_repeat on this
+time-average is **exactly `0.000000e+00`**, and the objective nevertheless carries a
+**perturbation-response floor ≈ 1.65e-06 absolute (1.8e-05 relative)** on component 3 —
+**three-plus orders above δ_repeat**, component-dependent, and demonstrated **model-free** by
+the signal at `h = 1e-5` being *smaller* than at `h = 1e-6`. **A step sized on δ_repeat alone is
+a step sized against nothing**, which is the hazard this family named in advance and has now
+measured.
+
+**NOT FILED. Nothing in this amendment was sent, uploaded, registered, posted or commented.**
