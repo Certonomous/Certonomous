@@ -470,3 +470,558 @@ topology, `checkMesh` all three, and report max non-orthogonality and skewness p
 level. ZERO SOLVER COMPUTE.** Only if all three clear §5's thresholds does a `G`
 ladder become registerable, in its own separate pre-registration. **That survey is not
 authorised by this document either.**
+
+---
+
+## 5. GATE M — MESH ADMISSION, ENFORCED **BEFORE** LAUNCH
+
+### 5.1 The thresholds, from the standard rather than from habit
+
+`docs/standards/MESH_STANDARD.md`:
+
+| § | gate | threshold | kind |
+|---|---|---|---|
+| 3.1 | max non-orthogonality | **≤ 70°** (warning band 65–70) | **HARD** |
+| 3.2 | max skewness | **≤ 4**, boundary faces included | **HARD** |
+| 3.3 | max aspect ratio | 1000 | **ADVISORY — never a lone rejection** |
+
+### 5.2 THE EVIDENCE THAT A HUMP MESH CAN ACTUALLY CLEAR IT — measured, not assumed
+
+**This section exists because the supervisor required the question answered before a
+freeze, and because F12 is what happens when it is not.**
+
+The case's mesh is the benchmark's **shipped 51,626-cell `NASA_2DWMH` mesh**
+(`W1_HUMP_CHALLENGE_PREREGISTRATION.md` §1). **Two independent `checkMesh` logs of
+that mesh are on disk** and this lane read both:
+
+* `/home/ubuntu/Certonomous/mission-output/nasa-hump/act6-nasa_hump/log.checkMesh`
+* `/home/ubuntu/Certonomous/verification/runs/MESH_AUDIT_runs/2026-08-08/S1-fiml__hump__constant__polyMesh.log.checkMesh`
+
+**They agree exactly on every figure that matters:**
+
+| quantity | measured | gate | margin |
+|---|---|---|---|
+| cells | **51,626** | — | — |
+| faces / internal faces | **207,209 / 102,547** | — | — |
+| **max non-orthogonality** | **40.5495°** (average 9.19635) | ≤ 70° | **29.45° of margin** |
+| **max skewness** | **0.743352** | ≤ 4 | **factor 5.4** |
+
+> **A hump mesh clears both hard gates, and not narrowly.**
+
+### 5.3 THE DISCREPANCY BETWEEN THE TWO LOGS, RESOLVED RATHER THAN WAVED THROUGH
+
+**The two logs reach opposite verdicts** — `Mesh OK.` and `Failed 2 mesh checks.` — and
+a pre-registration that quoted only the favourable one would be exactly the
+"red with an innocent explanation" failure. So the explanation is established, not
+asserted:
+
+**The two runs differ in DIMENSIONALITY, not in mesh.**
+
+* The `Mesh OK` log reports *"Mesh has **2** geometric (non-empty/wedge) directions
+  (1 0 1)"* and max aspect ratio **99.6138**.
+* The failing log reports *"Mesh has **3** geometric (non-empty/wedge) directions
+  (1 1 1)"*, and its two failures are **max aspect ratio 12131.6 on 18,352 cells** and
+  **cell determinant minimum 0 on all 51,626 cells** — i.e. on *every* cell in the
+  mesh.
+
+**A one-cell-thick 2-D mesh read as 3-D produces exactly those two artefacts by
+construction**: the spanwise extent is a single cell, so aspect ratio and cell
+determinant degenerate. The audit copy ran `checkMesh` against the bare `polyMesh`
+without the case's `empty` front/back patches in force. **A defect that appears on
+100 % of cells and vanishes when the same mesh is read in its own dimensionality is a
+reading artefact, not a mesh defect.**
+
+**And the clinching point: BOTH HARD GATES ARE IDENTICAL IN BOTH READINGS.**
+Non-orthogonality and skewness are angle and face-centre measures that do not depend on
+the dimensionality reading — 40.5495° and 0.743352 in both logs. **The evidence for
+Gate M does not rest on choosing between the two verdicts.**
+
+Two consequences, registered:
+
+* **Aspect ratio is ADVISORY (§3.3) and is never a lone rejection.** The standard's own
+  calibration is the NASA TMR flat plate at max aspect ratio **74,041** with max
+  non-orthogonality 0. **It is REPORTED here, not gated.**
+* **The cell-determinant check is NOT one of §3.1–§3.3's gates and is not made one
+  here.** REPORTED, not gated. Inventing a gate at freeze time to look thorough is
+  still inventing a gate.
+
+### 5.4 The contrast with F12, which is why this section is not a formality
+
+F12 rung 1's mesh measured **max non-orthogonality 70.64625857 against the ≤ 70
+threshold, with 892 severely non-orthogonal faces** (`docs/COST_CALIBRATION.md` C-50,
+read by this lane from the HEAD blob). The supervisor's brief reports the full
+three-level series as **70.6463 / 70.8615 / 72.5422°** — failing at **all three**
+levels and **worsening under refinement**, with face counts scaling ×4.03 and ×4.00,
+i.e. a fixed *fraction* of the mesh that refinement cannot cure.
+
+**Disclosure of read depth:** this lane independently located **rung 1's** figure in
+the committed record. **It did NOT independently locate the level-2 and level-3
+figures**; the three-level series is carried from the supervisor's brief and is
+labelled as carried, not as verified by this lane.
+
+**A structural reason to expect the hump family to behave differently — offered as a
+REASON and explicitly NOT as evidence.** F12's is a `blockMesh` C-grid wrapped around
+an aerofoil with a sharp trailing edge, which is the classic generator of high
+non-orthogonality in the wake cut. The hump mesh is a shipped structured grid over a
+**smooth wall-mounted body** with no wrap and no sharp edge. **That is an argument.
+It is not a measurement, it licenses nothing, and it is why §4 registers no ladder.**
+
+### 5.5 GATE M, AS REGISTERED — and the enforcement clause is the point
+
+> **Gate M.** Before any solver process starts, `checkMesh` is run on the case mesh
+> and its output parsed. **`PASS` iff max non-orthogonality ≤ 70.0° AND max skewness
+> ≤ 4.0.** Aspect ratio, cell determinant and all other checks are **REPORTED and
+> NOT gated**.
+>
+> **ENFORCEMENT — THE SINGLE CHANGE THAT WOULD HAVE SAVED F12's SPEND:**
+> **the launcher REFUSES to start the solver when Gate M fails.** Non-zero exit, no
+> solver process, no MPI rank spawned. **Gate M is enforced before launch, not
+> recorded after it.**
+>
+> **A Gate M failure is `BLOCKED`**, not `GATE FAIL` and not `NOT A RESULT`: nothing
+> was computed, so nothing was graded.
+
+**Why this clause is written in these terms.** `docs/COST_CALIBRATION.md` C-50 records,
+as a finding reported and not repaired, that F12's *"frozen `run_case` computes
+`mesh_gate` and then launches the solver anyway"* — **20.5 s of solver wall went into a
+mesh already known to fail admission gate A.** C-50 is careful that this was **not** a
+departure from F12's frozen text, which gates the admission of *evidence* rather than
+the act of launching. **This document closes that gap by gating the act of launching,
+in the frozen text, in advance.**
+
+**And be clear-eyed about what §6's smoke test would and would not have caught: a
+one-timestep smoke test would NOT have caught F12,** which died at **iteration 180 of
+6,000**. A smoke test would have passed and F12 would have crashed anyway. **Gate M
+enforcement is what would have caught F12. The smoke test catches a different failure
+and is registered for that different failure, not as insurance against this one.**
+
+---
+
+## 6. THE CASE, ITS REGIME PROVENANCE, AND THE PRE-FLIGHT SMOKE TEST
+
+### 6.1 The case, stated completely so the frozen text does not depend on another file
+
+The benchmark's shipped `NASA_2DWMH` OpenFOAM case: **Glauert-Goldschmied
+wall-mounted hump, chord c = 0.42 m**, the **51,626-cell shipped mesh**, shipped
+inlet/outlet profiles (`0/inletOutletFields`), **`simpleFoam`**, **SIMPLEC**, shipped
+`residualControl` (**U/p/k 5e-7, omega 1e-10**), **`kOmegaSST` stock OpenFOAM v2606**,
+**`mpirun -np 4`** with the shipped `decomposeParDict` (the family convention).
+F6a's documented deviations 1–4 are inherited verbatim, including the stock-`kOmegaSST`
+substitution **proven inert to 0.02 %** against the shipped baseline field
+(`W1_HUMP_CHALLENGE_PREREGISTRATION.md` §1).
+
+### 6.2 REGIME PROVENANCE — the supervisor's question, answered directly
+
+**Question put to this draft: "cfd's dictionaries have been copied across regime
+boundaries — the F family spans incompressible, low-speed, transonic, supersonic and
+hypersonic. If the F6a case configuration is inherited from any case in a different
+regime, say so and say which, so the smoke test is aimed rather than decorative."**
+
+**Answer: it is not.** The F6a/W1 hump configuration is the benchmark's **shipped**
+case, used as shipped. The solver is incompressible `simpleFoam`; the case is
+low-speed incompressible (M = 0.1); **no dictionary here was copied from a
+compressible, transonic, supersonic or hypersonic F-family case.** The single
+substitution is stock `kOmegaSST` for the shipped model, and its inertness was measured
+rather than assumed.
+
+**That answer aims the smoke test rather than excusing it.** The VMFL045 mechanism —
+which is **ansys-verification's finding and is cited as theirs, with no lesson assigned
+from it here** — was a dictionary **complete for one regime and incomplete for
+another**: its `fvSolution` solvers block was byte-identical to VMFL051's, and VMFL051
+ran 1,693 timesteps successfully with the same missing entry, because VMFL051 is
+inviscid and VMFL045 viscous, and `rhoCentralFoam` only enters the implicit viscous
+corrector when μ > 0. **The gap was latent until the path that needed the key was
+taken.** The analogue with a foothold here is not a regime boundary but a **model-library
+boundary**: W1 ran this same case with a lab-built `libkOmegaSSTQCRTurbulenceModels.so`,
+so the `libs` entries and the `RASModel` selection are the paths that differ between
+the runs on this case. **The smoke test is aimed there.**
+
+**Rule 14 applies to those `libs` entries and is restated because a lesson is not
+applied until every call site asserts it: `libs` entries are INSERTED WITH AN ASSERT,
+NEVER REPLACED.**
+
+### 6.3 The smoke test — a PRE-FLIGHT CONDITION, explicitly NOT a gate
+
+> **Before the graded run, ONE SIMPLE iteration is executed on the actual mesh with
+> the actual dictionary set and the actual `libs` entries, in a scratch directory
+> OUTSIDE `verification/runs/`. Non-zero rc, or any `FOAM FATAL` line, ABORTS the
+> campaign before the graded run starts.**
+>
+> **It decides whether the run STARTS. It never decides what the run MEANS.** It
+> produces no number that enters any gate, and its scratch directory is not evidence
+> and is not cited by any record.
+
+**Why this is registered even though the comparator will have its own selftests: a
+comparator selftest proves the GRADER, not the CASE.** VMFL045's comparator passed
+**45/45 with real negative controls** and could never have caught its crash, because
+nothing in the pre-compute checks exercised the actual solver dictionary set. The case
+died at **wall 0 s** on `FOAM FATAL IO ERROR: Entry 'e' not found in dictionary
+"system/fvSolution/solvers"`. **Cost of the smoke test: seconds. Cost of not having
+it: the whole campaign's setup, discovered at launch.**
+
+---
+
+## 7. DECLARED DEVIATIONS — including one this lane found and will not paper over
+
+### 7.1 DEVIATION 1 — THE REYNOLDS NUMBER DOES NOT MATCH THE TABLE'S CONDITION
+
+**This is the material one and it is stated first.**
+
+* **Table 2's baseline was measured at Re_c = 929,000, M = 0.100** (§1.3, quoted from
+  §V of the paper).
+* **The case this lab runs is at Re_c = 936,000, M = 0.1**, U_inf = 34.625 m/s from
+  the shipped `caseDef` — stated identically in
+  `W1_HUMP_CHALLENGE_PREREGISTRATION.md` §1, `cases/dafoam/f6a_nasa_hump/F6a_nasa_hump.md:33,35`
+  and `verification/campaign/F6_closure_aligned_flows.md:54`.
+* **Discrepancy: +0.75 % in Reynolds number (936,000 / 929,000 = 1.00753).**
+
+**This is the F12 pattern and it is named as such.** F12's pre-registration solves
+**two** conditions because *"the published corrected conditions for this case do not
+agree and picking one silently is the classic way to be confidently wrong here."*
+**Picking one silently is refused here too.**
+
+**DECISION, with the reason: the graded arm runs the SHIPPED case at Re_c = 936,000,
+and the mismatch is carried as a declared deviation on the face of every result.**
+The reason is that the shipped inlet/outlet profiles (`0/inletOutletFields`) are
+supplied *with* the case at its stated Re_c, and **rescaling measured inflow profiles
+to a different Reynolds number is an unvalidated modification whose error is not
+bounded** — plausibly larger, and certainly less controlled, than a 0.75 % Re
+mismatch on a pressure-gradient-driven separation.
+
+**What is NOT claimed, and this is the honest half:** this document **does not claim
+the 0.75 % is negligible.** No bound is asserted, because none has been measured here.
+The paper does contain baseline data across **370,000 ≤ Re ≤ 1,114,800** (sidecar
+line 349) and a figure of the separated-flow region versus Reynolds number, so the
+sensitivity **is** answerable from the held primary — **and answering it is a
+follow-on item, not a claim made now.**
+
+> **REGISTERED FOLLOW-ON (not authorised by this document):
+> `F6a-RE-SENSITIVITY` — read the baseline bubble's Re-dependence from
+> AIAA-2004-2220's own Re sweep and bound the 936,000-vs-929,000 deviation. ZERO
+> SOLVER COMPUTE.**
+
+**A second arm at Re_c = 929,000 is deliberately NOT registered here**, because
+constructing it requires the profile rescaling this section just called unvalidated.
+**Naming that as the reason is better than registering an arm whose inflow is a
+guess.**
+
+### 7.2 DEVIATION 2 — single mesh level, no grid convergence
+
+Per §4. Travels with every result this document produces.
+
+### 7.3 DEVIATION 3 — stock `kOmegaSST` for the shipped model
+
+Inherited from F6a, **measured inert to 0.02 %** against the shipped baseline field.
+Inherited verbatim, not re-derived.
+
+### 7.4 DEVIATION 4 — `p_ref` convention on the reported Cp
+
+F6a's documented convention carries. **Cp is REPORTED, not gated** (§2.4), so this
+deviation cannot affect any verdict.
+
+---
+
+## 8. COST — in core-minutes, per `CLAUDE.md` rule 12
+
+**A proposal with no cost is disqualified. Every figure below is labelled ESTIMATED or
+MEASURED-ANALOG, and none is called measured for this run, because this run has not
+happened.**
+
+### 8.1 The analog, named as rule 12 requires
+
+**The analog is C-45 / C-46 — prior F6a hump solves on this box, on the SAME case,
+the SAME shipped mesh, the SAME solver and the SAME rank count.** This is the
+strongest analog class available: not a borrowed per-cell rate across geometries, but
+an identical-configuration measurement.
+
+| analog | measured | artifact |
+|---|---|---|
+| **C-45 SST leg** | **5.58 core-min** (83.68 s wall × 4 ranks) | `W1_HUMP_CHALLENGE_RESULTS.md:93` |
+| C-45 QCR arm | 4.71 core-min (70.59 s × 4) | `:94` |
+| C-45 decompose/reconstruct/extraction | < 0.3 core-min | `:95` |
+| **C-46 a1 study** | **20.7 core-min gross against a registered cap of 12** | `W1_HUMP_A1_RESULTS.md:74` |
+
+**C-46 is in this table because it is the cautionary one: a cap was already overrun on
+this exact case family, by 1.7×.** §8.3's cap carries headroom for that reason and for
+no other.
+
+### 8.2 The estimate, term by term
+
+| # | term | figure | basis |
+|---|---|---|---|
+| 1 | `checkMesh` (Gate M) | **0.05 core-min** | **ESTIMATED.** C-50 measured `checkMesh` at 0.407 s on a 23,040-cell mesh; 51,626 cells ≈ 2.24× ⇒ ~0.9 s at 1 rank |
+| 2 | pre-flight smoke test | **0.10 core-min** | **ESTIMATED.** One SIMPLE iteration of a 1,772-iteration / 83.68 s run ≈ 0.05 s wall × 4 ranks, plus process startup |
+| 3 | graded solver run | **6.42 core-min** | **ESTIMATED from a MEASURED analog**: C-45's 5.58 core-min × **1.15** for the §3.1 (P-c) functional-sampling `functionObject`. **The 1.15 is an estimate and is labelled one** |
+| 4 | decompose / reconstruct / extract / grade | **0.30 core-min** | **ESTIMATED**, analog `:95` |
+| | **UNCONTENDED SUBTOTAL** | **6.87 core-min** | |
+| 5 | **CONTENTION ALLOWANCE — NAMED SEPARATELY AND NETTED OFF NOTHING** | **+6.87 core-min** | **ESTIMATED at ×1.0 of the subtotal.** See §8.4 |
+| | **POINT ESTIMATE** | **13.74 core-min ESTIMATED** | |
+
+### 8.3 The cap, and what an overrun does
+
+> **CAP: 30 core-min.** **An overrun STOPS THE RUN. It does not get a new budget.**
+
+**Why 30 and not 15.** C-46 measured **20.7 core-min against a registered cap of 12**
+on this exact case family. A cap set at the point estimate would be a cap the family
+has already demonstrated it can exceed. 30 sits **2.2×** above the uncontended
+subtotal and **1.5×** above the with-contention point estimate.
+
+**DOLLARS, DERIVED — NOT MEASURED**, at **$0.0513/core-h**, c7a.4xlarge,
+**reported-by-owner** (the box cannot read its own billing,
+`COMPUTE_BUDGET_CHARTER.md` §5):
+
+* point estimate 13.74 core-min = 0.2290 core-h ⇒ **$0.011748 DERIVED**
+* cap 30 core-min = 0.5 core-h ⇒ **$0.025650 DERIVED**
+
+**Both are far under the $25 pre-authorisation, and being under it is not a substitute
+for costing it** — a blanket authorisation is not a per-item reading (rule 9).
+**Zero GPU. Zero container.**
+
+### 8.4 The contention term, and the standing gap it is drawn from
+
+`docs/COST_CALIBRATION.md` **C-51** measured contention on this box at **864.48 s of a
+1,399 s run = 62 % of the entire spend on that item**, with `loadavg` read live at
+**68.38 / 64.32 / 56.15 on `nproc = 16`**. C-50 read **3.62 / 8.31 / 31.34** before
+F12's launch. C-51 names the standing gap in its own words: **"the lab's estimating
+method has no CONTENTION TERM AT ALL."**
+
+**This document applies an explicit ×1.0-of-subtotal contention allowance to ITS OWN
+estimate, states it as a separate line, and nets it off nothing.** It **does not**
+propose a lab-wide convention: C-51 flags that change as **PROPOSED AND NOT DECIDED**
+and notes that *"moving an estimating convention is not a lane's call"* (rule 9). **A
+lane does not decide it here either.**
+
+### 8.5 Cap enforcement — the derivation, stated explicitly
+
+**RANKS = 4** (`mpirun -np 4`, shipped `decomposeParDict`).
+
+> **A WALL-CLOCK `timeout` IS NOT A CORE-MINUTE CAP. They coincide only at 1 rank.**
+>
+> `timeout_seconds = cap_core_min × 60 / ranks = 30 × 60 / 4 = **450 s**`
+>
+> A naive `timeout 1800` (= cap × 60) at 4 ranks would permit **4× the registered
+> budget** before firing — **a cap that does not cap.**
+>
+> Mirroring F12's launcher, a **mesh reserve** is subtracted before the remainder is
+> handed to the solver: `MESH_RESERVE_S = 30`, so **solver timeout = 420 s**, with
+> 30 s covering `checkMesh`, the smoke test and `decomposePar`.
+
+**This finding is `ansys-verification`'s and is cited as theirs**
+(`docs/LAB_STATE.md:1298–1303`; `docs/COST_CALIBRATION.md` C-51 item (8);
+`cases/ansys_verification/VMFL045/PREREGISTRATION.md:533–535`). **No lesson is assigned
+from it here, and this document claims no part of it.**
+
+### 8.6 If the run is interrupted
+
+> **No total ratio is written for an interrupted run.** C-50's convention, arrived at
+> independently by cfd and followed here in its own words: *"the run stopped at
+> iteration 180 of the registered 6,000 (3.0 %), so 0.4617 against 11.9 is not a
+> calibration, it is an interruption."* **An interrupted run's ratio is UNDEFINED, not
+> 0.0×.** The **rate** (core-min per 1,000 SIMPLE iterations at 4 ranks on this mesh)
+> is calibrated instead, and that is what enters `docs/COST_CALIBRATION.md`.
+
+### 8.7 The calibration row this run will owe
+
+Rule 12's estimate-versus-actual duty attaches **at completion of the graded run** and
+is not optional: a row in `docs/COST_CALIBRATION.md` comparing **13.74 core-min
+predicted** against the actual read from logs, stating the ratio, and attributing the
+gap across **contention / waste / misprediction** with **waste named separately and
+never absorbed into the ratio**.
+
+**It does NOT attach to the drafting of this document**, which spent zero
+core-minutes. Per the cfd supervisor's standing ruling of 2026-08-25: **a process with
+no core-minutes has no actual to compare against an estimate, and inventing a
+denominator corrupts the ledger. Zero-compute dispatches add no calibration row.**
+
+---
+
+## 9. THE FREEZE CONDITION — rule 2, with the directory named and the check specified
+
+**This is a BEFORE-FIRST-COMPUTE document.** Until the first solver process starts,
+amendments are legal **and each must state its condition and how it was checked**
+(rule 2). After first compute, gates are closed; changes land only as dated addenda
+that **cannot alter a gate, threshold, cap or label**, and originals are struck, never
+rewritten.
+
+### 9.1 The directories that must not exist
+
+> **FREEZE CONDITION, to be evaluated by `test -e` IN THE LAUNCHING SHELL INVOCATION —
+> not read from this file:**
+>
+> * **`/home/ubuntu/Certonomous/verification/runs/F6a_GREENBLATT_runs`**
+> * **`/home/ubuntu/certonomous-runs/f6a-greenblatt-baseline`**
+>
+> **Both verified ABSENT by `test -e` on 2026-08-25 by this lane.** That reading is
+> **evidence of the condition at drafting time and is NOT a substitute for the check
+> at launch time** — the C-30 precedent is explicit: *"Re-check the freeze condition in
+> the same shell invocation as the launch, not from this file."*
+
+### 9.2 The rule-4 existing-directory guard — MIRRORED, not reinvented
+
+> The launcher **refuses (exit 3)** if any registered run directory already exists.
+> **The implementation is mirrored from
+> `verification/runs/F12_runs/run_f12_rung.py:66–70`, which already does exactly this
+> for this family.** A new guard is not invented; rule 14's principle applies —
+> a guard is inserted, and asserted, not re-authored.
+
+### 9.3 Comparator and grading-path freeze
+
+* **The grading path is fixed at the pre-registration commit.** The comparator file's
+  blob sha is recorded in this document at freeze time, and before grading the frozen
+  file **is hashed against the committed blob** to verify it *is* the file that ran.
+* **No GCI, observed order or Richardson value is quoted anywhere in this campaign**,
+  and none could be — §4 registers no triple. Standing cfd constraint: Roache/GCI
+  numbers come from `scripts/roache_triple.py` only, **never** from
+  `sdk/workflows/tmr_verification.py`.
+
+### 9.4 Completion, per rule 4
+
+A run is done only if **all** of: `rc = 0`; an `End` line; **last time == `endTime`**;
+the required fields present (`U p k omega nut` for this incompressible family — the
+`T`/`p_rgh`/`alphat` list is the **thermal** family's and does not apply); and the
+**age guard** — every field at `endTime` **newer** than the case's own `0/U`, which is
+touched last at launch and so dates the run permitted to produce the answer. **The
+comparator refuses (exit 2) rather than degrades on any failed clause.**
+
+*(Note the deliberate substitution: rule 4 names `0/T` for the thermal family. This
+case has no `T`. The age guard's anchor here is **`0/U`**, and it is named explicitly
+rather than left for a launcher to guess.)*
+
+---
+
+## 10. THE HONEST FORECAST — written BEFORE the run, in the fixed vocabulary
+
+> **THIS GATE WILL PROBABLY FAIL, AND THIS DOCUMENT SAYS SO BEFORE THE SOLVER
+> STARTS.**
+
+### 10.1 What this box already knows, all MEASURED and all cited
+
+| solve | separation x/c | reattachment x/c | vs 1.10 | artifact |
+|---|---|---|---|---|
+| **C-45 SST baseline** | 0.6544 (−1.59 %) | **1.2531** | **+13.92 %** | `W1_HUMP_CHALLENGE_RESULTS.md:36` |
+| C-45 SST + QCR2000 | 0.6538 (−1.68 %) | 1.2553 | +14.12 % | `:36` |
+| **C-46 a1 = 0.34** | 0.6558 | **1.2033** | +9.39 % | `W1_HUMP_A1_RESULTS.md` |
+
+**A small discrepancy this lane found and reports rather than smoothing over.** The
+same baseline reattachment appears as **1.2531** (`W1_HUMP_CHALLENGE_RESULTS.md:36`)
+and as **1.2534** (`F6a_epistemic_band.md`, `W1_HUMP_CHALLENGE_PREREGISTRATION.md` §2).
+The results file's own Gate-V table (`:25–26`) shows why: **1.25314 is W1's fresh
+measurement; 1.2534 is F6a's earlier value used as W1's Gate-V reference**; they differ
+by **−0.0003**, inside W1's own ±0.005 band. **Both are correct readings of different
+runs. This document gates against neither and quotes both.**
+
+**And the framing fact that makes this campaign a formalisation rather than a
+discovery:** `verification/campaign/F6a_epistemic_band.md:134` already carries the row
+*"NASA experiment 0.6650 / 1.1000"*. **Those ARE Greenblatt Table 2's baseline
+values. cfd has been comparing against this paper all along — ungated on the primary.**
+
+### 10.2 The predictions, scored clause-by-clause afterwards against this frozen text
+
+1. **Gate M — predicted `PASS`.** Measured margin 29.45° and factor 5.4 (§5.2).
+2. **Gate P1 (separation) — predicted `PASS`.** Band [0.63175, 0.69825]; every closure
+   on record for this case lands **0.6541–0.6679**.
+3. **Gate P2 (reattachment) — predicted `GATE FAIL`.** Band [1.045, 1.155]; SST is
+   expected near **1.25**, roughly **+13 % to +14 %** — about **0.10 in x/c outside the
+   band's upper edge. This is not marginal.**
+4. **Plateau — predicted to HOLD.** C-45's SST leg tripped `residualControl` at
+   **1,772 iterations**; §3's (P-c)/(P-d) clauses have never been evaluated on this
+   case and could still refuse it.
+5. **ROW VERDICT — predicted `GATE FAIL`.**
+6. **ROW TIER — predicted `NOT HELD`** — *a green column's own gate returned FAIL*, in
+   Ruling 1's own words.
+7. **`P` COLUMN — predicted GREEN.** Measured physical reality, public primary source,
+   held and title-page verified, pre-registration on disk frozen before the solve.
+   **Ruling 4 asks for the source and the pre-registration. It does not ask the gate to
+   pass.**
+
+> **Stated once, in the words that must survive into the RESULTS record: the `P` column
+> goes GREEN on the source and the frozen pre-registration; the VERDICT will likely be
+> `GATE FAIL` and the TIER `NOT HELD`.**
+
+### 10.3 The named outcomes
+
+* **OUTCOME A — expected.** P1 `PASS`, P2 `GATE FAIL`, plateau holds.
+  Verdict **`GATE FAIL`**, tier **`NOT HELD`**, **`P` green.** **cfd's first green `P`,
+  earned on a failed gate.** *A pre-registration that predicts its own failure and is
+  proved right is worth more than one that quietly hopes.*
+* **OUTCOME B — surprise.** P1 `PASS` and P2 `PASS`. Verdict **`PASS`**.
+  **This would be treated as a surprise and investigated, not celebrated:** the first
+  action is to diff this run's extraction path against W1's, because a fresh agreement
+  at ±5 % where W1 measured +13.92 % on the same case and mesh is more likely an
+  instrument change than a physics change.
+* **OUTCOME C — refusal.** Any of §3's (P-a)–(P-d) fails. Verdict **`NOT A RESULT`**,
+  whatever the deviations say. **`P` does NOT go green**: Ruling 4 requires a
+  comparison, and a `NOT A RESULT` is not a comparison.
+* **OUTCOME D — blocked.** Gate M fails on the shipped mesh, contradicting §5.2's
+  measurement. Verdict **`BLOCKED`**, no solver launched, ≈ 0.05 core-min spent.
+
+### 10.4 THE CONSTRAINT THAT MAKES A FRESH SOLVE UNAVOIDABLE
+
+> **THE EXISTING NUMBERS CANNOT BE RETRO-GATED, AND NO WORDING AVOIDS IT.**
+
+Rule 2 freezes the gate **before the solver starts**, and the freeze is *"the
+document's entire evidentiary content: it proves the gate could not have been chosen
+to fit the answer."*
+
+**1.2531 already exists.** It is in `W1_HUMP_CHALLENGE_RESULTS.md`, it is in this
+document at §10.1, and it was in this lane's context while §2.3 was being written. **A
+pre-registration written on 2026-08-25 and graded against it is, by rule 2's own
+definition, a gate chosen to fit the answer.**
+
+**This is not a technicality and careful drafting does not dissolve it.** §2.3's band
+is *numerically identical* to `74797a57`'s — deliberately — and **that still does not
+license applying it backwards**, because what rule 2 protects is not the number but
+the **ordering**.
+
+> **A FRESH SOLVE UNDER THE NEW FREEZE IS REQUIRED. This is the shortest path to a
+> green `P` in cfd territory. It is not a free one.** Its price is §8's **13.74
+> core-min** point estimate.
+
+**And the one manoeuvre that is explicitly REFUSED here:** re-labelling `74797a57` as a
+primary-sourced gate by amendment. Rule 2 closes gates after first compute; changes
+land only as dated addenda that **cannot alter a gate, threshold, cap or label** — and
+**re-sourcing a gate's reference IS altering the gate.** **The W1 record is not touched
+by this document, and C-45's cells are not moved by it.**
+
+---
+
+## 11. GRADING PATH AND ARTIFACTS
+
+* **Run root (must not exist at launch, §9.1):**
+  `verification/runs/F6a_GREENBLATT_runs/baseline_Re936k/`
+* **Preserved on failure.** If the run fails, **the tree is the proof of the finding
+  and is NOT cleared to make room for a nicer one** — F12's failed tree stands and is
+  cited by its own calibration row. Note that `log.*`, time directories,
+  `constant/polyMesh/` and `postProcessing/` are **gitignored**, so — following F12's
+  precedent — **any `FOAM FATAL` text is captured into a committed `result.json`
+  `traceback` field**, where git can hold it.
+* **Reported, never gated:** Cp shape check; the oil-film reattachment limb 1.11; the
+  ±2 % separation reading; aspect ratio; cell determinant; `checkMesh`'s full output.
+* **Every reported channel is labelled `REPORTED — NOT A GATE` at the point it is
+  printed.** A printed discrepancy annotated as non-binding is worse than one never
+  computed, so the labelling is on the value, not in a footnote.
+
+---
+
+## 12. WHAT THIS DOCUMENT DOES NOT DO
+
+1. **It is not frozen and it authorises no compute.** §9's condition has never been
+   evaluated in a launching invocation.
+2. **It claims no `V` and no `G`.** No exact solution, no manufactured solution, no
+   correlation; no triple, no GCI, no observed order.
+3. **It does not touch `docs/COVERAGE_MATRIX.md`**, which is the verification team's.
+4. **It does not touch the W1 record** (`74797a57` and its results), and moves no cell
+   of C-45 or C-46.
+5. **It does not edit `MATRIX_CONTRIBUTION.md`'s C-15 row.** That row moves — if it
+   moves — when this document is frozen and its run graded, not before. **A verified
+   source is not a green `P`.**
+6. **It registers no ladder** (§4) and no Re-sensitivity arm (§7.1); both are named as
+   follow-on items and neither is authorised here.
+7. **It sends nothing.** **SUBMISSIONS ARE PARKED.** Nothing here is filed, sent,
+   uploaded, registered, posted or commented outside this box.
+
+---
+
+**Drafted 2026-08-25 by a cfd `lab-lane` at the cfd supervisor's direction.
+ZERO SOLVER COMPUTE: no solver, no mesher, no case directory, no MPI rank.
+NOT FROZEN. `PENDING` the supervisor's ruling.**
