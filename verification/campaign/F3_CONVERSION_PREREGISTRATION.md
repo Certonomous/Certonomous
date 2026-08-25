@@ -425,3 +425,266 @@ the private-index protocol, this file and the two scripts only) · rule 12 (cost
 §7, and a `docs/COST_CALIBRATION.md` row is mandatory at completion) · rule 13
 (no scratch path is cited by this document) · rule 16 (silent background
 operation).
+
+---
+
+## AMENDMENT 1 — 2026-08-25: THE ATTRIBUTION IN §"Why this document exists" IS WITHDRAWN
+
+**Document version 1.0 → 1.1.** Appended at the foot under standing rule 6; the
+original text above is **struck, never rewritten**. **lines whose number changed
+above this section: 0.**
+
+**Rule-2 condition, checked by `test -e` in this commit's own shell invocation and
+not recalled:** `verification/runs/F3_runs/conversion_2026-08-24/runs` — the run
+root §6 registers — **does not exist**. Its parent
+`verification/runs/F3_runs/conversion_2026-08-24/` does exist and holds exactly the
+two grading scripts frozen in §8 plus a `__pycache__/`; **no case directory, no
+`0/`, no time directory and no `log.rhoCentralFoam` exists anywhere beneath it.**
+The case is **UNFIRED**. No graded solve has started, §2b's **pre-compute** limb
+governs, and this amendment is legal under it. **This amendment is ZERO COMPUTE:**
+no solver was launched, no mesh was built and no case directory was created.
+
+---
+
+### A1.1 What is withdrawn
+
+**Line 14** of this document introduces its motivating text as **"Sanaa's
+directive, verbatim"** and sets it as a block quotation at lines 16–18:
+
+> *"CFD team — Re-run under frozen pre-registrations, <40 core-min each: F3
+> (supersonic exact suite), F11 (per capability map), F4 (hypersonic) — the
+> early PASSes that lack prereqs convert to HOLDS."*
+
+**That attribution is WITHDRAWN. It is struck, and the block quotation must not be
+read as Sanaa's words by any future reader of this file.**
+
+**The text is KEPT and re-marked as A cfd BRIEF'S PARAPHRASE**, following the
+precedent this team and heat-transfer both set: withdraw the attribution, keep the
+words, label them honestly. The paraphrase may still be cited as **what motivated
+this document**. **It may never again be cited as her words, and never as a compute
+authorisation.**
+
+#### The source search, redone by this lane rather than inherited — and it does not reproduce the withdrawal note's own citation
+
+The withdrawal recorded on `docs/LAB_STATE.md` sources the text to *"exactly two
+places: `docs/LAB_STATE.md`, and cfd's OWN commit messages `2bf4915a` and
+`157793db`."* This lane re-ran that search rather than taking it on trust — a
+**non-ignoring** `find … -print0 | xargs -0 grep`, because a plain `grep -r` in
+this repository honours ignore files and would have missed occurrences outside the
+tracked walk. Two corrections result, and both are recorded against cfd:
+
+1. **`157793db` does NOT contain the text.** Its full commit message — the F11
+   conversion pre-registration freeze — was read in full at this commit. It
+   *refers* to *"the directive's 40"* and *"the directive's 'early PASSes'"*, i.e.
+   it **consumes** the figure; it never **reproduces** the quotation and is
+   therefore **not a source of it**. Citing it as one was itself an unverified
+   citation inside a withdrawal notice about unverified citation.
+2. **Exactly ONE commit message in this repository's history reproduces the
+   text, and it is `2bf4915a` — THIS DOCUMENT'S OWN FREEZE COMMIT.** The full
+   `--all` commit-message sweep returns that commit and no other.
+
+The text's tracked-file occurrences at this commit are four: `docs/LAB_STATE.md`,
+`verification/campaign/F_FAMILY_TRIPLE_CROWN_SURVEY.md`, this file, and
+`verification/campaign/F11_CONVERSION_PREREGISTRATION.md`. **None of the four is a
+source.** Three are cfd's own documents quoting the paraphrase, and the fourth is
+cfd's own board. **The text is not independently sourceable to anything Sanaa
+said**, and no cfd supervisor heard it said or will vouch for it.
+
+---
+
+### A1.2 Why this correction is made HERE, and not only on the board
+
+**The withdrawal was announced last session on `docs/LAB_STATE.md` and in a commit
+message — and this document, which actually carries the attribution, was never
+corrected.** `F_FAMILY_TRIPLE_CROWN_SURVEY.md` §8.4 named that gap explicitly and
+left it open: *"`F3_CONVERSION_PREREGISTRATION.md` does not"* carry the correction.
+
+**A withdrawal that does not reach the artifact bearing the claim has not been
+made.** That is the defect this amendment repairs, and it is recorded here as **a
+finding against cfd's own process, not as housekeeping.**
+
+**L-309 applies directly: an attribution authorising SPEND must carry its source
+when recorded.** The block quotation at lines 16–18 carries a **core-minute
+figure**, and §7's cap is set by explicit reference to it (*"under the directive's
+40"*). That is precisely the shape the lesson names: a spend authorisation frozen
+into a pre-registration under an owner's name, with no source recorded beside it.
+
+**Two further artifacts still carry the uncorrected reading. REPORTED, NOT FIXED
+by this lane** — a board is the supervisor's to correct, and this lane's scope is
+this file:
+
+- `docs/LAB_STATE.md` **line 1748** carries the withdrawal, while **line 1833** of
+  the same file still reads *"per Sanaa's §2 directive (verbatim in `2bf4915a`)"*
+  and **line 1837** still lists *"F11 freeze then its <40 core-min re-run"* as a
+  next action. The board contradicts itself on its own face.
+- The `157793db` mis-citation above propagates from `docs/LAB_STATE.md` line 1748
+  into `F_FAMILY_TRIPLE_CROWN_SURVEY.md` line 670 and into
+  `F11_CONVERSION_PREREGISTRATION.md`'s AMENDMENT 2. Those documents' **conclusion
+  is unaffected** — the text is still not sourceable to Sanaa, and is if anything
+  sourceable to **fewer** places than claimed — but the citation is wrong in each.
+
+---
+
+### A1.3 The loop this document closed, and it is tighter here than it was for F11
+
+On **2026-08-25** a **40 core-minute** figure reached the cfd supervisor through
+the chief as a **per-item spend authorisation attributed to Sanaa**. F11's
+AMENDMENT 2 named its own lines 22–27 as *"the most likely proximate source"*.
+
+**On the evidence at this commit, the proximate source is THIS file.** F11's
+quotation was itself copied from here: this document was frozen first, at
+`2bf4915a`, and **`2bf4915a` is the only commit message in the repository that
+reproduces the text.** The path is:
+
+> **cfd wrote it → cfd froze it, in this file, as her words → cfd's own freeze
+> commit message reproduced it → it propagated to F11, to the survey and to the
+> board → it returned to cfd as her authorisation.**
+
+**The laundering required no dishonest act by anyone.** It required only that one
+label — *"verbatim"* — was applied to text whose source had never been checked, in
+the one class of document the lab treats as unalterable. **A frozen document is the
+worst possible place to put an unsourced attribution, because freezing is exactly
+what stops anyone from correcting it in place.**
+
+---
+
+### A1.4 What this amendment does NOT change
+
+**No gate, no threshold, no cap, no band and no label is altered by this
+amendment.** All five gate bands (G-F3-1 ±0.5 %, G-F3-2 ±2.0 %, G-F3-3 ±0.5 %,
+G-F3-4 ±2.0 %, G-F3-5 ±1.0 %), the §3.1 frozen reference values, the §4.5 plant
+constants, the §5 completion clauses, the §6 run matrix, the §7 cap and wave order,
+the §8 grading-path sha256 pair and every §9 verdict meaning stand **exactly as
+frozen**.
+
+Two conclusions in this document lean on the withdrawn figure. Standing practice
+is that **a conclusion which survives the removal of a bad premise must be SHOWN to
+survive it, not merely asserted to.** Both are worked below, and the second does
+not come out clean.
+
+#### A1.4.1 §7's cap of 39.5 core-minutes — SURVIVES, on this document's own arithmetic
+
+§7 reads *"**HARD CAP: 39.5 core-minutes** — under the directive's 40"*. **That
+justification is withdrawn: there is no Sanaa-authorised 40 core-minute cap and
+there never was.** The number 39.5 was chosen by reference to a figure that had no
+source.
+
+**The cap nevertheless stands, and the demonstration is arithmetic, not assertion:**
+
+| | this document (F3) | F11, whose cap was set **without** reference to the directive |
+|---|---|---|
+| prediction | 35.23 core-min | 8.02 core-min |
+| cap | **39.5 core-min** | 13.0 core-min |
+| cap ÷ prediction | **1.121** | 1.621 |
+| headroom over prediction | **12.1 %** | 62.1 % |
+
+F11's freeze commit `157793db` states its own standard in terms: its cap was set
+*"at 62 % headroom, **not at the directive's 40**, because a cap 5× the prediction
+is a rubber stamp and a blanket is not a per-item read (rule 9)."* **F3's cap is
+TIGHTER against its own prediction than the cap that team set deliberately without
+the directive** — 12.1 % headroom against 62.1 %. It therefore satisfies, on this
+document's own numbers, the standard cfd applied when it was *not* looking at the
+withdrawn figure.
+
+Three further points, each checkable:
+
+- **A cap constrains; it never authorises.** Removing the reason a self-imposed
+  ceiling was set *low* can make it look unnecessarily tight. It cannot make it
+  unsafe, and it cannot license raising it.
+- **Rule 9 already governs the authority question and is unchanged.** §7 and §10
+  both record that the **$25 pre-authorisation is not a ceiling and the §7 cap
+  binds**. With the directive withdrawn, that sentence is not weakened — it becomes
+  the *only* authority statement in the document, and it is the correct one. The
+  predicted spend is **$0.0301 derived, not measured** (rate owner-stated, box
+  cannot read its own billing), four orders under the pre-authorisation.
+- **Rule 2 forbids altering a cap on a frozen document**, and this amendment does
+  not attempt it even though the pre-compute limb would permit a change. **The cap
+  stays at 39.5 core-minutes.**
+
+#### A1.4.2 §6's exclusion of the cone M3.0/θc12 pair — the STATED reason does NOT survive, and its arithmetic is FALSE. The exclusion stands on a different ground, named here
+
+§6 reads: *"**Deliberately NOT re-run:** the cone M3.0/θc12 pair. … a fine cone
+mesh costs ~17.9 core-min on its own — **more than half this cap**."* This is the
+F11 `n = 256` situation, and unlike F11 it does **not** come out clean. F11's
+exclusion carried **two** reasons and the second was sufficient alone. **This one
+carries exactly one, it chains through the withdrawn figure, and it is also
+arithmetically wrong.**
+
+**The arithmetic, checked:** the fine cone solve measured **1,072.7 core-s =
+17.878 core-min** in the 2026-07-28 record (its §2 cost finding, and its own
+per-case table). Half of §7's 39.5 core-minute cap is **19.75 core-min**.
+**17.878 < 19.75.** The fine cone is **45.3 % of the cap, not more than half** —
+short of the stated threshold by **1.872 core-min**. The claim is false as written,
+under either denominator: it is also below half of the withdrawn 40.
+
+The nearest **true** statement is about a different object: a full cone **grid
+triple** at this pair costs 16.3 + 118.9 + 1,072.7 = **1,207.9 core-s = 20.13
+core-min**, which does exceed half the cap — by 0.38 core-min. The frozen sentence
+does not say that; it says *"a fine cone mesh … on its own"*.
+
+**The stated reason is therefore withdrawn twice over** — once because it chains
+through a cap justified by a sourceless figure, and once because its own comparison
+is wrong. **It is struck and may not be cited again.**
+
+**The exclusion itself STANDS, on a ground independent of every cost figure, and
+this lane states plainly that it is NAMING that ground now rather than pointing at
+one the document already gave.** The ground is this document's own §1 and §4.4:
+
+1. §1's table records the M3.0 cone pair's specific defect: *"the M3.0 pair has
+   **no fine mesh at all** — it was graded PASS on a medium mesh."* The defect is
+   the **absence of refinement evidence**.
+2. §4.4 governs what a single added level could buy: a row carrying no grid triple
+   is graded on the band alone and must carry *"no grid triple — no
+   discretization-error estimate"* **on its face**, and is *"not presented as
+   grid-converged."*
+3. **Therefore adding one fine cone M3.0 run converts nothing.** It would produce
+   exactly the class of row whose deficiency is the thing being repaired. Only a
+   full **grid triple** could convert that pair — and a grid triple is a **new
+   gate-bearing scope item added to a frozen matrix after the freeze**, which is
+   the precise manoeuvre standing rule 2 exists to prevent.
+
+**And the direction of bias is decisive.** §6 states the consequence of the
+exclusion in terms: the pair's old PASS *"is therefore **not converted by this
+exercise and does not become a credential**"*. **The exclusion WITHHOLDS a
+credential from this lab.** A contaminated premise that causes the lab to claim
+**less** cannot inflate any verdict, band, PASS or credential in this conversion.
+**No gate outcome of this document depends on the withdrawn figure in the
+flattering direction**, and that is checkable against §3 and §9 rather than taken
+on this lane's word.
+
+**Open item for the supervisor, flagged and NOT taken by this lane.** The
+pre-compute limb of rule 2 would legally permit widening §6's matrix to restore the
+cone M3.0/θc12 pair as a full triple — 20.13 core-min, taking the campaign to
+**55.36 core-min, 40 % over the §7 cap**, which would additionally require a cap
+change this amendment refuses to make. **Widening a frozen matrix is a scope
+decision above a lane's level and is not taken here.** It is recorded so that no
+future reader is left resting on a reason this amendment has struck.
+
+---
+
+### A1.5 What remains true and is not disturbed
+
+**Every band in this document was derived from a reference class or from mesh
+geometry, and never from the directive's wording.** §4.1 derives ±0.5 % from
+second-order consistency under exact halving; §4.2 derives ±2.0 % from the
+detector's own 2σ quantization floor computed from domain heights and Δy alone;
+§4.3 derives ±1.0 % as two panels of the §4.1 budget. **No withdrawn figure enters
+any band's derivation**, and the withdrawal of the attribution touches none of
+them.
+
+**The paraphrase's phrase *"convert to HOLDS"* was never achievable for this
+family, and that was established before this amendment.**
+`F_FAMILY_TRIPLE_CROWN_SURVEY.md` (rank 4) records F3 as **`GATE REACHED`, missing
+G and P**, with **P `NO — IMPOSSIBLE`**: *"exact theory admits no experiment"*, so
+P can never be bought for this case. **This conversion earns V and G, and cannot
+reach `HOLDS` whatever the five gates return.** That judgement rests on the physics
+of the reference class and is untouched by the withdrawal of the attribution.
+
+*(Tier vocabulary — `HOLDS` / `GATE REACHED` / `SURVEYED` / `NOT HELD` /
+`NEVER RUN` — is separate from and never conflated with the standing rule 1 verdict
+vocabulary used in §3, §4.4 and §9.)*
+
+*Written 2026-08-25 by a cfd lab-lane under cfd-supervisor, as a **ZERO-COMPUTE**
+provenance correction. The rule-2 ABSENT condition was checked by `test -e` in the
+committing shell invocation. Committed under the rule-10 private-index protocol,
+this file alone, as a pure append proven three ways.*
