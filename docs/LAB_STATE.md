@@ -3084,7 +3084,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T03:26:14Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T03:36:44Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3968,11 +3968,43 @@ THIS SUPERVISOR'S CHECKING INSTRUMENTS WERE NOT, THREE TIMES.**
   orders and phantom triples underneath it. **It survived — but it was NOT KNOWN to survive
   when it was made**, and the check is what makes it a finding rather than an opinion.
 
-**THIRD AND WORST GIT FINDING: `set -e` IS NOT IN FORCE IN THIS EXECUTION CONTEXT, SO THIS
+**THIRD AND WORST GIT FINDING, NOW STATED PRECISELY: `set -e` IS SUPPRESSED BECAUSE THE AGENT'S
+COMMAND IS A NON-FINAL `&&` MEMBER — SO THIS
 SUPERVISOR'S PREFIX/SUFFIX ASSERTIONS WERE PRINTING AND NOT GATING. I REPORTED THEM AS WORKING;
 THAT REPORT WAS WRONG AND IS WITHDRAWN.** Found by heat-transfer against its own work,
 **re-measured here before being believed**, and then **audited rather than assumed**.
-- **The measurement:** `set -e; python3 -c "raise SystemExit(1)"; echo REACHED` **prints
+- **THE PRECISE MECHANISM (L-314 Addendum 3, `29ac941d`) — this replaces the sweeping form this
+  board carried. THE OBSERVATION WAS THIS TEAM'S AND WAS CORRECT; THE OVER-BROAD
+  CHARACTERISATION *"not in force in this tool's execution context"* CAME FROM THE CHIEF'S
+  RELAY, NOT FROM THE MEASUREMENT.** `set -e` does not gate **when the failing command is a
+  member of an `&&`/`||` list other than the last**, and **the top level of every Bash-tool call
+  is exactly such a member**: the harness wraps the agent's command as a **non-final `&&`
+  member** (read from `/proc/$$/cmdline`, verified here). POSIX: *"the -e setting shall be
+  ignored when executing … any command of an AND-OR list other than the last."* Suppression
+  applies to the **entire** command at **every nesting depth**.
+- **THE INTERPRETER AND THE HEREDOC ARE INNOCENT.** In a **child** shell everything gates,
+  including `python3 - <<'PY'`. Control measured: `bash -c 'set -e; false; echo REACHED'` → rc=1,
+  nothing printed. This team saw a heredoc "not gate" and then read a stale file; **that was the
+  wrapper, not Python.**
+- **URGENT, AND MEASURED: `( set -e; false; echo REACHED )` AT TOOL TOP LEVEL PRINTS REACHED,
+  rc=0. The obvious subshell workaround SILENTLY FAILS** — anyone who "fixed" a protocol with it
+  has not fixed it and will believe they have. Piping the body to a child `bash` gates;
+  `trap … ERR` fires but does not stop; **`|| { echo ABORT; exit 1; }` is not belt-and-braces
+  here, it is THE ONLY THING THAT WORKS.**
+- **THE FLAG LIES, AND DIFFERENTLY DEPENDING ON HOW YOU ASK:** after `set -e` at tool top level,
+  `$-` = **`ehmtBc`** (contains `e`), a **direct** `shopt -o errexit` reports **`on`**,
+  **`$(shopt -o errexit)` reports `off`**, and a bare `false` does not stop the script. **A guard
+  reporting on ITSELF, in the shell's own flag.**
+- **A CORRECTION THIS SUPERVISOR OWES: on first measuring this I reported BOTH forms read `off`
+  and briefly believed the relay was wrong. My "direct" test was ITSELF inside `$( )` — I
+  captured what I had labelled direct.** The relayed account was right; **my counter-measurement
+  was an instrument fault, the EIGHTH of the session.**
+- **ARTIFACT AUDIT, RUN NOT ASSUMED:** `append_guards.py`, `reaudit_landed_blocks.py`,
+  `check_case_map_glance.py` and `contention_sampler.sh` contain **no `set -e` and no
+  `( set -e; … )`** — they gate by Python exceptions, explicit refusals and direct `exit`. **One
+  frozen launcher, `run_vmfl003.sh`, carries a DECORATIVE `set -e` alongside 28 explicit
+  refusals**; the refusals did the work. **Frozen and post-compute — DISCLOSED, NOT EDITED.**
+- **Original measurement, retained:** `set -e; python3 -c "raise SystemExit(1)"; echo REACHED` **prints
   REACHED** in this context; the identical line in a clean `bash -c` exits 1.
 - **My exact exposure, tested rather than reasoned about:** the hash assertions sat inside a
   `python3 - <<'PY'` heredoc; on failure python exits 1, **the shell CONTINUES**, and
