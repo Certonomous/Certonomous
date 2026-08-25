@@ -202,3 +202,116 @@ row in `docs/COST_CALIBRATION.md` (CLAUDE.md rule 12).
 - It **does not** grade anything. The control produces **PASS** or **REFUSE**,
   and neither is a rung verdict.
 - It **does not** authorise any send. **SUBMISSIONS REMAIN PARKED** (rule 7).
+
+---
+
+## AMENDMENT 1 — 2026-08-25 — THE CONTROL HAS RUN AND PASSED. RULE 3 IS ARMED ON THE T1b CHAIN.
+
+**Version 1.1.** **Lines whose number changed above this section: 0.** Nothing
+above is edited; the frozen §§1–7 stand exactly as committed at `3ae9e504`
+(sha256 `303924c1c1088559262996afe5aaf489205f8a07577422063fe3678c862b16f6`).
+**No gate, threshold, band, cap or label is created, moved or retired by this
+amendment.**
+
+### A1.1 Result — both readers, both arms, exit 0
+
+Run against **`R_10k_x`** at station **80 D**, **production path, no reader
+injected**. Instrument: `verification/runs/T-family/T1_runs/planted_zero_control_t1b.py`.
+Report of record: `verification/runs/T-family/T1_runs/LANE_REPORT_COMPLETION.md`
+(addendum at the foot, commit `48fe29c0`).
+
+| reader | negative arm | positive arm |
+|---|---|---|
+| **`analyse_t1c.iterative_convergence`** — gates Roache step (1) | **`0.0` exactly**, state `CONVERGED` | recovered **`0.0012340000000108375`** against expected **`0.0012340000000108375`** — **exact**; state flipped to `NOT_CONVERGED` |
+| **`analyse_t1b.measure`** — **first exercise of this arm ever** | **`0.0`** on **both** `T_wall` and `Nu`; `Nu` bit-identical at **`32.576755397128444`** | **exact** on `T_wall` |
+
+Plants landed at **`18000/T` line 24** (cell 0, pre-plant `299.9999999999995`)
+and **`20000/T` line 209738** (cell 209714 of 209920, pre-plant
+`300.620284378675`).
+
+**THE AIM WAS PROVED, NOT ASSUMED**, which is the load-bearing part given the
+cancellation trap `measure` presents (`Nu` divides by `|T_wall − T_bulk|`, so a
+uniform shift cancels exactly and an unaimed plant would have libelled a sound
+reader): **`Nu` moved `32.576755397128444` → `32.44621428379953`, −0.40 %**, and
+`T_wall` shifted by **exactly** the planted float change.
+
+### A1.2 The §4 prediction is SCORED, and it was the comfortable one
+
+**§4 predicted both readers would see the plant and both negative arms would
+report no change. PREDICTION CORRECT.** It was registered *because* it was
+comfortable, and it is scored here rather than quietly passed over. **Per §4 and
+§7 this is NOT a rung verdict:** the control **arms an existing gate, it does not
+create one.**
+
+### A1.3 WHAT THIS DOES NOT ESTABLISH — carried from the lane's own limitation statement, because it is the reason to trust the PASS
+
+- **It establishes the two readers are NOT BLIND and NOT NOISY — their zeros are
+  real zeros.**
+- **It does NOT establish that either reader is CORRECT.** *A reader that sees a
+  difference and then computes the wrong `Nu` passes this control unchanged.*
+  Rule 3 is a control against a blind reader, never a proof of correctness, and
+  the distinction is not blurred here.
+- **Only `R_10k_x` was exercised.** It says nothing about the other fifteen cases.
+- **§5's list of fifteen further graders stays OPEN — a lead, not a finding**
+  (D521). Nothing in this result narrows it.
+
+### A1.4 The live solvers were not touched — established by SNAPSHOT, not by assertion
+
+All **1 053** files under `T1_runs/R_*` recorded with `mtime_ns` and size
+**before and after**: 1 053 both times, **none created, none deleted**. The only
+changed entries are `R_100k_x/log.solve` and `R_30k_x/log.solve` — **the
+solvers' own advancing output**. **The differ was given its own planted
+one-character control and detected it**, so that short list is a real result and
+not a blind reader — rule 3's logic applied to the instrument that polices rule
+3's own run. Both pids still running, **neither signalled nor renice'd**.
+
+**The three frozen graders were re-hashed AFTER the run** and remain
+byte-identical to their blobs at pre-registration commit `17209b50`. **The files
+that will grade the pool are the files that were frozen** (Charter §2d),
+confirmed on both sides of the run.
+
+### A1.5 Cost — §6 estimate scored
+
+Estimated **under 1 core-minute**. Measured **12.63 s wall × 1 rank = 0.2105
+core-minutes**, **ratio 0.21 against the ceiling**, **$0.00018 derived, not
+measured**. **Waste nil; gross == cleaned.** Attribution: a **conservative
+ceiling, not a misprediction** — six `postProcess` calls on a 209 920-cell mesh
+plus ~340 MB of scratch copying is a ~0.2 core-minute item. **That is the
+reusable figure for the next copy-and-read control.** Landed as **`C-53`** in
+`docs/COST_CALIBRATION.md`.
+
+### A1.6 Two spec readings ruled at authorisation, recorded so they are not mistaken for departures
+
+1. **The negative arm's construction is a RATIFIED READING, not a departure.**
+   §3.2 said *"copy the field and read it back unmodified"*, which is ambiguous
+   for a reader that measures change **between two checkpoints** — two real
+   checkpoints differ by a real physical amount, so a literal reading would make
+   the negative arm unsatisfiable while §4 predicts it passes: **a contradiction
+   in this document, not in the code.** Copying the latest `T` into **both**
+   slots, so a correct reader must return **exactly `0.0`**, is the faithful
+   implementation. Keeping `judge_negative` an exact `== 0.0` rather than a
+   tolerance is likewise correct: identical bytes must parse identically, so any
+   nonzero is noise by definition.
+2. **The aimed plant is within spec.** §3.2 requires the reader to see the plant;
+   it does not require the plant to be blind to what the reader measures. The aim
+   is recovered from `measure`'s **own** returned `station_xD` / `D_used` and the
+   `Cx`/`Cy` its own `postProcess` wrote. **The safety property is the asymmetry:
+   a mis-aimed plant can only make the positive arm FAIL, never pass falsely** —
+   and `judge_positive` tests *"the plant was distorted on disk"* **before** it
+   concludes blindness, so a mis-aim reports that the plant did not land rather
+   than libelling a working reader.
+
+**The supervisor read the 510-line control personally, as a diff, before it was
+pointed at any data** (`SUPERVISION_CHARTER.md` §3 check 1 — undelegatable).
+Verified at that read: the constants match this freeze; the readers are
+**imported, not reimplemented**; `assert_not_case_tree` `realpath`s and refuses
+on the tree root *or any path beneath it*; the plant is located **structurally**,
+not by value match; and **the `reader=` injection seam is unreachable on the
+production path** — it exists only for `--selftest`, and `main()` passes no
+reader.
+
+### A1.7 Consequence for grading
+
+**The §4 refuse-disposition is NOT engaged.** No T1b number is withdrawn.
+**T1b L4 grading is no longer blocked on this control** — it remains blocked on
+`R_30k_x` and `R_100k_x` finishing and on all sixteen markers existing.
