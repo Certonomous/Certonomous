@@ -635,3 +635,295 @@ per-case contention file is kept.
 
 *Registered by a heat-transfer lane on the supervisor's `ν`-versus-`β` ruling,
 2026-08-25. Resolution class `[lab-attributed]`. Zero compute.*
+
+---
+
+# AMENDMENT 1 — 2026-08-25, BEFORE FIRST COMPUTE. Version 1.0 → 1.1.
+
+**lines whose number changed above this section: 0.** This amendment is appended
+at the foot; nothing above it is edited (standing rule 6). The parent blob
+`498793838939dcca873289bfd5c85b39025a65e0` is a **byte prefix** of this file.
+
+**IT IMPLEMENTS THREE SUPERVISOR RULINGS, ALL OF WHICH TIGHTEN. AND IT REACHES
+ONE CONCLUSION THE RULINGS DID NOT ANTICIPATE: THE RUNG NO LONGER FITS ITS OWN
+REGISTERED CAP, SO IT DOES NOT FIRE UNDER THIS AMENDMENT.** §A1.5 states that
+plainly and §A1.6 records the verdict.
+
+## A1.0 The condition under which this amendment is legal, and how it was checked
+
+Standing rule 2: before first compute, amendments are legal **and must state the
+condition and how it was checked**. The condition is that **no K0d compute has
+run**, and it was checked by naming the run directory that does not exist:
+`test -e verification/runs/F14-cooling-ladder/K0d_runs` returned **ABSENT** in
+the invocation that wrote this amendment, **under a planted control** in which
+the same reader returned PRESENT on a directory that does exist — a zero from a
+reader not shown able to see a non-zero is not evidence (standing rule 3).
+
+**This amendment alters no gate, no band, no threshold and no label.** It alters
+the **cost registration**, which §A1.4 states in full, and the alteration is the
+reason the rung stops.
+
+## A1.1 RULING 1 — `T_ref` = 298.00 K UPHELD; the alternative is marked OVERRULED
+
+§1.2's registered `T_ref = 298.00 K` and `β = 1/298 = 3.3557047e-03 K⁻¹` **stand
+unchanged.** The supervisor re-derived the whole fluid state and the first-cell
+column independently and reproduced every figure.
+
+**§1.2's computed alternative — `T_ref` = 298.15 K, `β` = 3.3540164e-03,
+`Ra` = 2.134896e9 (+0.2298 %), `M0` floors 1.6485 % and 0.03118 % — is
+`OVERRULED`.** It stays in the document, marked overruled, so a later reader can
+see what was considered and rejected rather than only what was chosen. The
+reason it is rejected is recorded in the supervisor's terms: registering
+`T_ref` = 298.15 beside `β` = 1/298 would ship this document with a 0.050 %
+instance of **the exact defect class it exists to eliminate**, and *"160× smaller
+is not a defence — it is the same error at a size chosen for comfort."*
+
+## A1.2 RULING 2 — the initial field is REGISTERED, and the seed dependence is MEASURED rather than assumed away
+
+### A1.2a THE SEED, REGISTERED AND FROZEN — **PER CLOSURE**, and the reason that is not a widening
+
+The ruling registers the smoke test's seed *"verbatim and frozen for all nine
+cases — `T` 288.15, `U` (0 0 0), `p_rgh` 0, `k` 1.25e-3, `omega` 51.2, `nut` 0,
+`alphat` 0"*.
+
+**APPLIED LITERALLY TO ALL CASES, THAT LIST RECREATES §8.2's ORIGINAL CLAUSE-4
+DEFECT EXACTLY.** `RNGkEpsilon` has **no `omega` field**, so `M2_c`, `M2_m` and
+`M2_f` cannot carry an `omega` seed; the laminar case has **no `k`, no `omega`
+and no `nut`**, so `C_lam` cannot carry three of the seven. **This is the same
+failure this document was written to remove, arriving through the initial
+condition instead of the completion check.** It is therefore registered
+**per closure**, on the identical pattern as §7.2, and that is an implementation
+of the ruling rather than a widening of it:
+
+| closure | cases | **registered `internalField` seed** |
+| --- | --- | --- |
+| `kOmegaSST` | `M1_c`, `M1_m`, `M1_f`, `B_hi`, `I_hi`, `M1_m_seed` (six) | `T` **288.15**, `U` **(0 0 0)**, `p_rgh` **0**, `k` **1.25e-3**, `omega` **51.2**, `nut` **0**, `alphat` **0** |
+| `RNGkEpsilon` | `M2_c`, `M2_m`, `M2_f` (three) | `T` **288.15**, `U` **(0 0 0)**, `p_rgh` **0**, `k` **1.25e-3**, `epsilon` **5.76e-3**, `nut` **0**, `alphat` **0** |
+| laminar | `C_lam` (one) | `T` **288.15**, `U` **(0 0 0)**, `p_rgh` **0**, `alphat` **0** |
+
+**`epsilon` = 5.76e-3 IS NOT A NEW NUMBER — IT IS THE SAME SEED.** The registered
+`omega` 51.2 **is** that `epsilon` under the conversion `ω = ε/(C_μ k)`:
+`5.76e-3 / (0.09 × 1.25e-3) =` **51.2000**, exact. The two rows are one physical
+seed expressed in each closure's own variable, and neither is chosen freely.
+
+**`T` = 288.15 K is a physically coherent cold start** — it is the inlet
+temperature and the temperature of the ceiling and both vertical walls (15 °C),
+so the field is seeded at the boundary value that three of four wall groups
+already hold. **That is why it is defensible and not merely convenient**, and it
+is the reason it is registered rather than replaced.
+
+**No exemption and no seed substitution may be inferred at build time.** A case
+whose closure does not appear above **has no registered seed**, and
+`build_k0d.py` **refuses (exit 2) rather than infer one.**
+
+### A1.2b `M1_m_seed` — a seed-perturbation CONTROL, REPORTED, NEVER GRADED
+
+**REGISTERED: a tenth case, `M1_m_seed`.** `kOmegaSST`, L2, 50 176 cells,
+`endTime` 40 000, completion field set `T U p_rgh alphat nut k omega phi` (8).
+**Identical to `M1_m` in every respect — mesh, closure, schemes, solvers,
+boundary types, `β`, `ν`, `T_ref`, `endTime`, convergence criterion — except one
+field: `T`'s `internalField` is a HOT START at 308.15 K, the floor temperature.**
+Every other seed entry is the registered `kOmegaSST` row above, unchanged.
+
+**CLASSIFICATION: `CONTROL — REPORTED, NEVER GRADED`.** It produces no graded
+value and appears in no graded row.
+
+**ITS CRITERION, FROZEN NOW AND NOT CHOSEN AFTERWARDS:** at L2, every graded
+quantity of §3 is extracted from `M1_m` and from `M1_m_seed` and the two are
+differenced. **If ANY graded quantity differs between the two seeds by more than
+that quantity's own registered band, then the rung's graded rows are `REPORTED,
+NOT GRADED`, and SEED-DEPENDENCE IS THE FINDING.**
+
+**Why this control exists rather than an assurance.** §10 item 9 of this document
+already records that a steady SIMPLE solve of a buoyant cavity is **not
+guaranteed to be seed-independent**, and this family built
+`verification/runs/F14-cooling-ladder/K0cS_runs/C2_seed_d100` for exactly that
+question. Having decided once that the risk is real enough to measure, it is not
+now assumed away on a rung whose graded levels are the expensive ones.
+**Registering a seed makes a run REPRODUCIBLE; it does not make it
+SEED-INDEPENDENT, and only the control can tell those two apart.** This is the
+planted-zero principle applied to initial conditions.
+
+**`analyse_k0d.py`'s refusal count moves from NINE to TEN.** It refuses (exit 2)
+unless all **ten** `DONE.<case>` markers are present. §10 item 9's Finding 10 is
+**CLOSED** by this section.
+
+## A1.3 RULING 3 — the extraction method is REGISTERED, and a dual-scheme control measures what it costs
+
+### A1.3a REGISTERED, and every choice named
+
+| item | **registered value** |
+| --- | --- |
+| `setFormat` | **`raw`** |
+| `interpolationScheme` (**graded**) | **`cellPoint`** |
+| `interpolationScheme` (**control**) | **`cell`** |
+| sample set type | **`uniform`**, `axis distance` |
+| vertical mid-plane set | start `(0.52, 0, z_m)` → end `(0.52, 1.04, z_m)` |
+| horizontal mid-plane set | start `(0, 0.52, z_m)` → end `(1.04, 0.52, z_m)` |
+| `nPoints`, both sets | **2081**, i.e. a sample spacing of exactly **5.000e-04 m** |
+| sample plane `z_m` | **the mid-thickness CELL-CENTRE plane**, `z_m = t/2` |
+
+**"FACE CENTRES OR CELL CENTRES" — ANSWERED EXPLICITLY, BECAUSE IT IS NEITHER.**
+The profile is taken at **registered uniform points on the line**, not at face
+centres and not at cell centres. The value at each point is `cellPoint`-
+interpolated from vertex values for the graded extraction, and looked up from the
+containing cell (piecewise-constant) for the control. The line lies in the
+**mid-thickness cell-centre plane**; because the mesh is one cell thick in `z`,
+that plane is the cell-centre plane for any thickness `t`, so this choice is
+independent of `t`. *(`t` itself remains the superseded `AMENDMENT 5` §A5.13
+Finding 15 item — unregistered, and it cancels in every registered quantity.
+This amendment does not register it and does not need to.)*
+
+**WHY `cellPoint` AND NOT `cell`, WITH THE ARITHMETIC.** `cell` is
+piecewise-constant, so it **quantises a peak location to the cell size**. The L3
+uniform interior cell is `1.04/314 =` **3.3121e-03 m**, against `G5b`'s band of
+**±0.0208 m** — **15.92 % of the band, put there by the extraction method
+alone**, which reproduces the supervisor's "about a sixth". The registered
+sample spacing of **5.000e-04 m** puts **2.40 %** into `G5b` and **0.481 %** into
+`G8`'s ±0.104 m, and is **finer than the finest cell anywhere in the domain**
+(the L3 first wall cell is 5.610459e-04 m).
+
+### A1.3b THE DUAL-SCHEME CONTROL
+
+**REGISTERED: `G1`, `G2`, `G3`, `G4`, `G5b` and `G8` are extracted under BOTH
+`cell` AND `cellPoint`, and the difference is reported for every one.**
+
+**FROZEN CRITERION: any graded row where the two schemes differ by more than its
+own registered band is `REPORTED, NOT GRADED`** — because such a number is an
+artefact of an extraction choice and not a property of the solution.
+
+**It requires no additional solve.** It is pure post-processing over time
+directories that already exist. §10 item 9's Finding 11 is **CLOSED** by this
+section.
+
+## A1.4 THE COST, RE-DERIVED — AND IT DOES NOT FIT THE REGISTERED CAP
+
+**Re-derived from the registered per-case figures, not estimated.**
+`M1_m_seed` is an L2 `kOmegaSST` case, so it takes the **identical POINT line to
+`M1_m`: 85.27 core-min** (50 176 cells × 40 000 iterations × 2.549e-6 s).
+
+| line | before | **after** |
+| --- | ---: | ---: |
+| solver subtotal | 827.11 | **912.38** (`+85.27`) |
+| meshing (5 core-s per case) | 0.75 (9 cases) | **0.83** (10 cases), bounded ≤ 2.00 |
+| `check_k0d_mesh.py`, three `polyMesh` reads | 0.50 | 0.50 (unchanged — `M1_m_seed` reuses L2's mesh) |
+| `mark_done_k0d.py` + `analyse_k0d.py` + `--selftest` | 1.00 | 1.00 |
+| **dual-scheme extraction (NEW)** | — | **≤ 8.00** |
+| **POINT TOTAL** | 829.36 | **922.71** (`+93.35`, **+11.26 %**) |
+
+**THE DUAL-SCHEME EXTRACTION IS REGISTERED AS `≤ 8.00 core-min`, NOT AS ZERO,
+AND THE DEPARTURE FROM THE RULING'S WORDING IS DISCLOSED HERE RATHER THAN TAKEN
+SILENTLY.** The ruling says it *"must be registered as zero rather than left
+uncosted."* It is correctly **zero additional SOLVE**, and that is the load-bearing
+claim. But it is **ten cases × two schemes of `postProcess -func sample`**, each
+reading a time directory of up to 98 596 cells and writing thirteen station
+profiles, and that is **not** zero core-minutes. **A cost known to be non-zero
+must not be registered as zero** — `cost_basis` honesty is the clause that makes
+every other figure in this section readable. It is registered as a **bounded
+ESTIMATE**, basis stated: ≤ 24 core-s per extraction × 20 extractions = 480
+core-s = 8.00 core-min. **No measurement backs the 24 core-s** and it is
+therefore not called measured. If the supervisor's intent was that it be
+absorbed into the existing 1.00 comparator line, that is a one-line correction
+and it **does not change §A1.5's conclusion**, which holds at every instrument
+figure tried below.
+
+**THE CEILING, and this is where the rung stops.** The registered structure is
+`CEILING = 2×S (first pass) + S (continuation reserve at the ceiling rate) +
+instruments = 3S + I`:
+
+| arrangement | CEILING | vs the registered cap **2 484.84** |
+| --- | ---: | ---: |
+| `3 × 912.38 + 12.00` (instruments bounded for the new line) | **2 749.14** | **+264.30 (+10.64 %)** |
+| `3 × 912.38 + 3.50` (instruments left at the old bound) | 2 740.64 | **+255.80 (+10.29 %)** |
+| `2×912.38 + 827.11 + 12.00` (seed control denied a continuation reserve) | 2 663.87 | **+179.03 (+7.20 %)** |
+| `2×912.38 + 827.11 + 3.50` (both concessions together) | 2 655.37 | **+170.53 (+6.86 %)** |
+
+**EVERY ARRANGEMENT EXCEEDS THE REGISTERED CAP. There is no way to seat a tenth
+L2 case inside 2 484.84 core-min**, and the two levers that might have done it —
+denying the control a continuation reserve, and shrinking the instruments — are
+worth 93.77 core-min together against a 264.30 core-min gap.
+
+**Moving `M1_m_seed` to L1 would fit (43.50 instead of 85.27), and it is
+REJECTED:** the ruling requires the control to be *"identical to `M1_m` in every
+respect except `T`'s `internalField`"*, and a control on a different mesh
+measures mesh sensitivity confounded with seed sensitivity. **That is not the
+instrument the ruling registered**, and a lane does not narrow a ruling to make a
+budget fit.
+
+Derived dollars at the owner-reported $0.0513/core-h, **derived and not
+measured**: POINT 15.379 core-h = **$0.789**; CEILING 45.819 core-h = **$2.351**.
+**The $25 pre-authorisation is not the binding constraint. The registered cap
+is**, and Sanaa's 2026-08-21 blanket is not a per-item read (standing rule 9).
+
+## A1.5 CONSEQUENCE: THE RUNG DOES NOT FIRE UNDER THIS AMENDMENT
+
+**Standing rule 12: an overrun STOPS THE RUN; it does not get a new budget.**
+The supervisor's ruling anticipated this exact branch and pre-committed the
+response: *"confirm the new total sits inside the 2 484.84 core-min ceiling. If
+it does not, stop and tell me."*
+
+**It does not. The launch authorisation in that ruling is therefore not
+exercised, and no case was built, no mesh generated and no solver started.**
+
+**Raising a registered cap is legal before first compute** — rule 2 closes gates,
+thresholds, caps and labels **after** first compute, and no K0d compute has run.
+**So this is a decision that CAN be taken; it is simply not a lane's to take.**
+A lane that quietly re-registered a cap to fit work it had been told to do would
+be laundering an authorisation whose whole content was the number it changed
+(standing rule 9: *approval of an item is approval of ITS cap, not a new
+ceiling*). **The cap decision is REFERRED to the supervisor, with all four
+arrangements costed above so it can be made from arithmetic.**
+
+## A1.6 VERDICT
+
+**`BLOCKED`** — on the registered compute cap, pending a supervisor ruling on
+§A1.4. Zero core-minutes spent. `verification/runs/F14-cooling-ladder/K0d_runs/`
+does not exist.
+
+**This is a cap decision, not a defect.** Rulings 1, 2 and 3 are implemented
+above **in full and as written**, the document is otherwise ready to fire, and
+nothing in the physics, the gate, the instruments or the mesh is outstanding.
+
+## A1.7 THIS TIGHTENS AND CANNOT LOOSEN — shown, in a form a reader can refuse
+
+- **Registering a seed removes a degree of freedom** that `build_k0d.py` would
+  otherwise have chosen unregistered. Choices before: 7 unregistered
+  `internalField` values × 9 cases. After: **0**.
+- **`M1_m_seed`'s criterion can only move a row from GRADED to REPORTED.** It
+  produces no graded value, appears in no graded row, and **cannot turn a
+  `GATE FAIL` into a `PASS`.**
+- **The dual-scheme criterion has the same one-way property**, for the same
+  reason.
+- **Registering `cellPoint` and the sample geometry removes four unregistered
+  extraction choices** (`setFormat`, `interpolationScheme`, set type, sample
+  plane) that sat directly under `G1`–`G4`, `G5b` and `G8`.
+- **The completion-marker count rises from nine to ten** — a case added to a
+  refusal, never removed from one.
+- **Field-presence assertions rise from 69 to 77** (`6×8 + 3×8 + 1×5`), **eight
+  added, zero removed, and still zero that no run could satisfy.**
+
+## A1.8 WHAT THIS AMENDMENT DID NOT DO — each stated explicitly
+
+- **No GATE moved.** The ten graded rows, the thirteen stations, the five guards,
+  the verdict ladder, Roache triple gating and the planted-zero control are
+  untouched.
+- **No BAND, THRESHOLD or LABEL moved.** Every band adopted in §4 is
+  byte-unchanged.
+- **The physics did not move.** `ν` = 1.569e-5, `β` = 1/298, `T_ref` = 298.00 K,
+  `Pr` = 0.71, `ΔT` = 20.0 K, `Ra` = 2.135970e9 derived-and-reported, and the
+  first wall-cell column of §5.1 all stand exactly as registered.
+- **The CAP was NOT raised.** 2 484.84 core-min stands as the registered cap, and
+  this amendment records that the amended scope does not fit inside it rather
+  than moving it.
+- **NOTHING WAS LAUNCHED.** No case directory, no mesh, no solver, no pid. Zero
+  core-minutes. Rule 12's estimate-versus-actual calibration is **not
+  triggered**, because no process completed.
+- **The superseded `K0d_PREREGISTRATION.md` was not touched.** Blob `e629f5c4`
+  re-verified against HEAD in this amendment's own invocation.
+- **`docs/LAB_STATE.md`, `docs/DOCKET.md`, `docs/LESSONS.md` and
+  `docs/COST_CALIBRATION.md` were not touched**, and `scripts/append_record.py`
+  was not used for any id.
+- **Nothing was sent** (standing rule 7). Submissions remain **PARKED**.
+
+*Amendment written by a heat-transfer lane on the supervisor's three rulings,
+2026-08-25. Zero compute. The rung is `BLOCKED` on its cap.*
