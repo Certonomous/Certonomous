@@ -86,3 +86,53 @@ appended neither and cited neither.
 
 **Lines whose number changed above this section: 1** — the credential-count tally
 described above, and nothing else.
+
+---
+
+## Dated correction — 2026-08-25 — row #4's `C-50` calibration citation is wrong; VMFL051's calibration row is `C-51`
+
+**Append-only correction under `CLAUDE.md` rule 6 and this register's own reading rule
+(a row is never edited after it lands). Row #4 above is NOT edited; this note corrects
+a citation it carries.** This is the same treatment row #3's `D510` mis-citation got.
+
+Row #4 (VMFL051), in its "Cost, core-min (measured)" cell, states: *"Calibration row
+`C-50`"*. **`C-50` is wrong.** `docs/COST_CALIBRATION.md` `C-50` is the **cfd team's
+F12 rung 1** — RAE 2822, AGARD AR-138 Case 9, the coarse workshop rung — an unrelated
+item belonging to another team.
+
+- Struck, verbatim: ~~"Calibration row `C-50`"~~
+- Corrected: VMFL051's calibration row is **`C-51`**, landed at commit `0c3f3054`.
+
+**THE CAUSE, STATED PLAINLY AND NOT SOFTENED — and the two timestamps are the proof.**
+cfd's `C-50` landed at commit `cd1ac21a`, **2026-08-25T01:09:21Z**. Register row #4
+landed at **2026-08-25T01:14:13Z** — **four minutes and fifty-two seconds later**. The
+id was therefore **already taken and already visible at HEAD** when row #4 was written.
+Nothing raced: **the id was derived BEFORE the commit and was not re-derived inside the
+committing shell invocation**, which `CLAUDE.md` rule 11 requires in terms — *"Peers
+commit constantly: re-derive at commit time, in the same shell invocation."*
+
+**A contributing factor, recorded as a factor and NOT as an excuse:** the worktree copy
+of `docs/COST_CALIBRATION.md` is **~19.8 kB shorter than the HEAD blob** (168 635 B
+against 188 448 B). An id derived from that copy is derived from a truncated file and
+is **wrong before any race begins** — it races nothing and is still incorrect.
+
+**THIS IS THE TEAM'S SECOND INSTANCE OF `L-292`** — *an id in prose before its append is
+a prediction, not an identifier* — **and row #4 itself cites `L-292` while committing
+it.** The first instance is row #3's `D510`, corrected in the note above only hours
+earlier. That the defect recurred inside the very row that named it is the part worth
+keeping: **naming a failure mode in prose does not implement it; only the committing
+invocation does.**
+
+**`C-51` was landed with its id re-derived from the HEAD blob's own tail inside the
+shell invocation that wrote its tree**, with a re-derivation on any CAS retry, and its
+building script now refuses to commit at all unless the tree actually changed.
+
+**Every other identifier cited by row #4 was re-checked against HEAD at the time of
+this correction and every one exists:** `L-292`, `L-300`, `N-AV7`, `N-AV8`, `N-AV9` and
+`D512`. Row #4 deliberately cites **no** `N-AV` and **no** docket id of its own, because
+none has been appended for VMFL051. **`C-50` was the single failing citation and it is
+corrected here.**
+
+**Lines whose number changed above this section: 0** — verified by hashing, not
+asserted: the file's entire content up to and including the previous correction section
+is byte-identical to its committed form, and this note is appended below it.
