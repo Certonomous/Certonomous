@@ -957,6 +957,15 @@ sacrificial copies and **all four proceeded where they should have refused**; **
 success `print` after a check**. **Each team's adoption of the no-`assert`-guard rule is
 its own call under Sanaa's desk-item disposal rule; `CLAUDE.md` was NOT edited.**
 
+- **CAUSE of the 33-vs-35 delta, and it is lab-wide.** The supervisor's sweep enumerated
+  with **`git ls-files`, which reads the INDEX, not HEAD.** The shared index stages
+  `analyse_t8.py`, `build_t8.py` and `run_one_t8.sh` for deletion, so to that sweep they
+  did not exist — **109 files where HEAD has 113**, and the missing files carried the
+  rule-5 gate. **Record: `git ls-files` is not a valid enumeration instrument in this
+  repository — it inherits the decayed index's phantom deletions and reports a smaller
+  population with no error and no warning. Enumerate with `git ls-tree -r HEAD
+  --name-only`. The index does not merely threaten commits; it silently corrupts audits.**
+
 *Recorded 2026-08-25T22:51:25Z.*
 
 ## closure
