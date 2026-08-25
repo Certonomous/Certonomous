@@ -115,8 +115,8 @@ mesh_case() {
   ( cd "$dest" && checkMesh > log.checkMesh 2>&1 ) || return 1
   ( cd "$dest" && topoSet   > log.topoSet   2>&1 ) || return 1
   local na nb
-  na=$(grep -oE "Selected [0-9]+ cell" "$dest/log.topoSet" | head -1 | grep -oE "[0-9]+")
-  nb=$(grep -oE "Selected [0-9]+ cell" "$dest/log.topoSet" | sed -n 2p | grep -oE "[0-9]+")
+  na=$(grep -oE "cellZoneSet slabA now size [0-9]+" "$dest/log.topoSet" | tail -1 | grep -oE "[0-9]+$")
+  nb=$(grep -oE "cellZoneSet slabB now size [0-9]+" "$dest/log.topoSet" | tail -1 | grep -oE "[0-9]+$")
   [ -n "$na" ] && [ "$na" -gt 0 ] || return 1
   [ -n "$nb" ] && [ "$nb" -gt 0 ] || return 1
   return 0
@@ -216,3 +216,76 @@ echo "ALL LEVELS COMPLETE: ${TOTAL_WALL}s wall = ${SPENT_CORE_MIN} core-min "\
 "of a ${CAP_CORE_MIN} core-min cap."
 echo "Grade with:  python3 $CASEDIR/grade_vmfl003.py --runroot $RUNROOT "\
 "--json $RUNROOT/GRADING_VMFL003.json"
+
+# ===========================================================================
+# DATED AMENDMENT 1 -- 2026-08-25, ansys-lane-opus (Opus 5), run-and-grade lane.
+#
+# THE ZONE-NON-EMPTY GUARD IN mesh_case() WAS REPAIRED BEFORE ANY GRADED
+# COMPUTE.  Lines whose NUMBER changed above this section: 0.  Lines whose
+# CONTENT changed: exactly TWO, 118 and 119, quoted in full both ways below.
+#
+# STRUCK (the frozen text, blob 5ed5ff81d41322d3b482ac911a6219952c57957a):
+#   na=$(grep -oE "Selected [0-9]+ cell" "$dest/log.topoSet" | head -1 | grep -oE "[0-9]+")
+#   nb=$(grep -oE "Selected [0-9]+ cell" "$dest/log.topoSet" | sed -n 2p | grep -oE "[0-9]+")
+#
+# NOW:
+#   na=$(grep -oE "cellZoneSet slabA now size [0-9]+" "$dest/log.topoSet" | tail -1 | grep -oE "[0-9]+$")
+#   nb=$(grep -oE "cellZoneSet slabB now size [0-9]+" "$dest/log.topoSet" | tail -1 | grep -oE "[0-9]+$")
+#
+# WHY -- A DEMONSTRABLE ERROR, NOT A PREFERENCE.  OpenFOAM v2606's topoSet does
+# not print the string "Selected N cell" at all.  It prints "cellSet <name>
+# now size N" and "cellZoneSet <name> now size N".  MEASURED on the real log of
+# the pre-flight smoke test of 2026-08-25T02:15Z: `grep -c "Selected [0-9]\+
+# cell"` returns 0 while the four "now size" lines are present and correct
+# (slabA 26 cells, slabB 24 cells).  The frozen guard therefore could NEVER
+# report success on this OpenFOAM version, on any mesh, however well populated
+# the zones were.  The launcher as frozen was UNRUNNABLE, and it aborted on its
+# first use at exactly this line.
+#
+# THE REPAIR IS ALSO A STRENGTHENING, and this is the part worth reading.  The
+# frozen guard located its two counts POSITIONALLY -- `head -1` and `sed -n 2p`
+# -- so even had the pattern matched, it would have been asserting "the first
+# and second numbers topoSet happened to print", not "slabA and slabB".  This
+# case's own PREREGISTRATION.md section 5 states the opposite rule in terms:
+# "Every column is located BY HEADER NAME, NEVER BY POSITION (N-AV4/L-286)".
+# That rule was applied to the comparator's readers and NOT to the launcher's
+# guard -- the L-221/L-222 defect exactly: a lesson is not applied until EVERY
+# call site asserts it.  The repaired guard names slabA and slabB explicitly
+# and is order-independent.  " slabA now size" cannot match "slabACells".
+#
+# WHAT DID NOT MOVE.  No gate, threshold, band, cap, label, reference value,
+# endTime, mesh, y+ target, verdict rule or cost figure is touched.  The
+# comparator grade_vmfl003.py is BYTE-IDENTICAL and untouched (blob
+# 15b14d40f166cc31770ead452c27905332670c97).  The guard's SEMANTICS are
+# unchanged and fail-closed in both directions: refuse unless both frozen zones
+# are present and non-empty.  Both refusal arms were exercised on the real log
+# before this commit -- a zone forced to size 0 is refused, a zone whose line is
+# deleted is refused.
+#
+# THE CONDITION, CHECKED AND NOT ASSERTED (CLAUDE.md rule 2; VERIFICATION
+# _CHARTER.md section 2b.1).  At 2026-08-25T02:15Z,
+# verification/runs/ansys_verification/VMFL003/ DID NOT EXIST -- `ls -d`
+# returned "No such file or directory" -- because the launcher aborted at the
+# smoke test, which precedes `mkdir -p "$RUNROOT"`.  NO simpleFoam HAS
+# EXECUTED ANYWHERE FOR THIS CASE: the smoke tree held only `0/` and three mesh
+# logs, and `find /tmp/vmfl003-smoke-* -name log.simpleFoam` returned 0 files.
+# NO VALUE OF THE GATE QUANTITY, OR OF ANY QUANTITY, EXISTED WHEN THIS REPAIR
+# WAS MADE.  This is BEFORE first compute in the only sense rule 2 protects.
+#
+# AGAINST VERIFICATION_CHARTER.md section 2d.1's four conditions, which govern
+# the strictly harder case of a repair AFTER a graded solve, all four hold a
+# fortiori: (1) a demonstrable error -- the pattern matches zero lines of real
+# output; (2) established by an instrument INDEPENDENT OF THE HYPOTHESIS -- the
+# pre-flight smoke test, which grades nothing, produces no gate quantity and
+# cannot know which direction a verdict would want; (3) disclosed here, naming
+# that instrument and quantifying what moved; (4) pre-repair values recorded --
+# there are none, because nothing had been graded.
+#
+# THE SMOKE TEST EARNED ITS KEEP ON ITS FIRST USE, which is the second finding.
+# It was written into this launcher because VMFL045 passed 45/45 comparator
+# selftest checks and still died on its first timestep.  Here the comparator's
+# own --selftest passed 60 checks with 0 failures and could not have seen this:
+# the defect was in the LAUNCHER, on a code path no selftest of the GRADER
+# reaches.  It cost seconds, in /tmp, with no level directory created and no
+# budget consumed.
+# ===========================================================================

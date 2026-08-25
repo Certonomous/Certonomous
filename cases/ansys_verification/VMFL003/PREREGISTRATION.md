@@ -906,3 +906,77 @@ The verdict is a statement about **this lab's OpenFOAM v2606 `simpleFoam` + `kEp
 with `nutkWallFunction`, against the manual's Moody-chart reference**, and **only a
 `PASS` is a credential**; a `GATE FAIL` is a finding that is never removed, never
 re-labelled and never softened.
+
+---
+
+## ADDENDUM 1 — 2026-08-25T02:20:23Z — THE LAUNCHER'S ZONE GUARD WAS REPAIRED BEFORE ANY GRADED COMPUTE
+
+**Lines whose number changed above this section: 0**, proven by prefix hash: the
+sha256 of the first **908** lines of this file is unchanged by this append
+(recorded in the committing invocation and re-derivable with
+`head -n 908 <file> | sha256sum`).
+
+**NO GATE, THRESHOLD, BAND, CAP, LABEL, REFERENCE VALUE OR VERDICT RULE IS ALTERED BY
+THIS ADDENDUM.** The gate G-VMFL003 remains |Δp_lab − 21744| / 21744 ≤ 2.5 % at
+`L3_1000x5`; the 2.0 % Colebrook diagnostic, the [25, 65] y⁺ clause, the 5.0 %
+ladder-spread clause, the 24 core-minute cap and every threshold of §6 stand exactly
+as frozen at `9195d25e`. **The comparator is BYTE-IDENTICAL and untouched** —
+`grade_vmfl003.py` blob `15b14d40f166cc31770ead452c27905332670c97`, re-verified
+`--verify-frozen HEAD` rc=0.
+
+**§10's launcher row is superseded, and BOTH shas are quoted rather than one replaced:**
+
+| what | blob at the freeze `9195d25e` | blob after this addendum |
+|---|---|---|
+| launcher `run_vmfl003.sh` | `5ed5ff81d41322d3b482ac911a6219952c57957a` | **`dd5dc0f03147c842a4e303f4a5ae529dbf70b902`** |
+
+**What was wrong.** `mesh_case()`'s zone-non-empty guard read `topoSet`'s log for the
+string `Selected N cell`. **OpenFOAM v2606 never prints that string.** It prints
+`cellSet <name> now size N` and `cellZoneSet <name> now size N`. Measured on the real
+log of the pre-flight smoke test at 02:15Z: `grep -c "Selected [0-9]\+ cell"` returns
+**0**, while the four `now size` lines are present and correct — **slabA 26 cells,
+slabB 24 cells** on the coarsest mesh. The guard could therefore never report success
+on any mesh, however well populated the zones were: **the launcher as frozen was
+unrunnable and aborted at exactly this line on its first use.**
+
+**The repair is also a strengthening.** The frozen guard located its two counts
+**positionally** — `head -1` and `sed -n 2p` — so even had the pattern matched it
+would have asserted *"the first and second numbers topoSet happened to print"*, not
+*"slabA and slabB"*. **§5 of this pre-registration states the opposite rule in terms:**
+*"Every column is located by header name, never by position"* (`N-AV4`/`L-286`). That
+rule was applied to the comparator's readers and **not** to the launcher's guard — the
+**L-221/L-222 defect exactly: a lesson is not applied until every call site asserts
+it.** The repaired guard names `slabA` and `slabB` explicitly and is order-independent.
+Exactly **two lines** of the launcher changed content (118, 119); **no line number moved**;
+both are quoted struck-and-new in the launcher's own foot amendment.
+
+**The condition, CHECKED and not asserted** (CLAUDE.md rule 2;
+`VERIFICATION_CHARTER.md` §2b.1). At **2026-08-25T02:15Z**,
+`verification/runs/ansys_verification/VMFL003/` **did not exist** — `ls -d` returned
+*No such file or directory* — because the launcher aborts at the smoke test, which
+precedes `mkdir -p "$RUNROOT"`. **No `simpleFoam` had executed anywhere for this
+case**: the smoke tree held only `0/` and three mesh logs, and
+`find /tmp/vmfl003-smoke-* -name log.simpleFoam` returned **0** files. **No value of
+the gate quantity, or of any quantity, existed when this repair was made.** This is
+before first compute in the only sense rule 2 protects.
+
+**Against `VERIFICATION_CHARTER.md` §2d.1's four conditions** — which govern the
+strictly harder case of a repair *after* a graded solve — all four hold a fortiori:
+**(1)** a demonstrable error, the pattern matching zero lines of real output; **(2)**
+established by an instrument **independent of the hypothesis** — the pre-flight smoke
+test, which grades nothing, produces no gate quantity and cannot know which direction
+a verdict would want; **(3)** disclosed here, naming that instrument and quantifying
+what moved; **(4)** pre-repair values recorded — **there are none, because nothing had
+been graded.** Both refusal arms of the repaired guard were exercised on the real log
+before commit: a zone forced to size 0 is refused; a zone whose line is deleted is
+refused.
+
+**A finding recorded, not a mishap tidied away: the smoke test earned its keep on its
+first use.** §8 justified it on the ground that *"a comparator `--selftest` proves the
+GRADER, not the CASE"*, citing VMFL045's 45/45 selftest followed by a first-timestep
+death. Here the comparator's `--selftest` passed **60 checks, 0 failures** and could
+not have seen this defect: **it was in the LAUNCHER, on a code path no selftest of the
+grader reaches.** It cost seconds, in `/tmp`, with **no level directory created and no
+budget consumed** — the cheapest possible place to find it. This is drafted for
+`docs/LESSONS.md` and `docs/NUMERICS_KNOWLEDGE.md` (`N-AV` family) per
+`ANSYS_VERIFICATION_CHARTER.md` §7.
