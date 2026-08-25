@@ -156,3 +156,98 @@ elsewhere** — `E4a2`'s sustained-floor + not-growing + stationarity triad, or
 at all** — the files are already on disk.
 
 **What follows is the supervisor's to rule.**
+
+---
+
+# AMENDMENT A — 2026-08-25. **The aliasing alarm is WITHDRAWN. No rung is shown harmed. Status: `UNJUDGED`.**
+
+**Appended, not edited. §1–§7 above stand as written except where this
+amendment says otherwise.**
+
+## A.1 What was withdrawn, and by whom
+
+The supervisor ran the Δ/2Δ/3Δ test and it **first printed `ALIASED` against
+nine cases including T1b's graded `_f` arms. Both defects were in the test, not
+the rungs**, and the supervisor withdrew it:
+
+- **the checkpoints are not evenly spaced**, so the "2Δ" comparison spanned a
+  gap that is not 2Δ at all;
+- the duplicate check **md5'd whole files** while the gate reads only
+  `internalField`, so a differing `location "58000"` header read as differing
+  data.
+
+## A.2 Independently re-verified by this lane, through the comparators' own reader
+
+Driven through `analyse_t1c.read_internal` — the reader the gate itself uses —
+with `dmax` and `rng` reported **separately** so the `rng == 0` fallback cannot
+hide inside `rel`:
+
+| case | checkpoints compared | `dmax` | `rng` | `rel` |
+|---|---|---|---|---|
+| `R_100k_f` | 56000 → 58000 | **0.000e+00** | 1.089e-01 | 0.000e+00 |
+| `R_300k_f` | 66000 → 68000 | **0.000e+00** | 4.055e-02 | 0.000e+00 |
+| `R_30k_f` | 38000 → 40000 | **0.000e+00** | 3.220e-01 | 0.000e+00 |
+| `R_10k_f` | 18000 → 20000 | 1.821e-07 | 8.699e-01 | 2.093e-07 |
+
+**`rng > 0` in every case — the `rng == 0` fallback did NOT fire anywhere.** The
+fields are **genuinely identical** between the last two checkpoints on three of
+the four `_f` arms.
+
+> **That is the strongest convergence evidence available, not the weakest.
+> There is NO positive evidence of aliasing anywhere in the territory.**
+
+**Spacing, confirmed:** `R_100k_f` holds `0, 18000, 20000, 56000, 58000` — gaps
+of **2,000 / 36,000 / 2,000**. `R_300k_f` and `R_30k_f` have the same shape.
+`purgeWrite` and run extensions leave a hole. **Among the non-zero checkpoints,
+only `R_10k_x` (18000, 20000, 22000, 24000) is uniformly spaced**; every other
+case either has two checkpoints only or a hole.
+
+## A.3 The correct status is `UNJUDGED` — not clean, not exposed
+
+**§1's structural finding stands untouched: the Class A design cannot
+distinguish convergence from aliasing.** But **structural exposure is not
+demonstrated harm.**
+
+**§5 must not be read as showing that five graded rungs are wrong. They were
+not shown to be wrong, and the evidence available points the other way.**
+
+| | |
+|---|---|
+| **Class A design** | **structurally incapable** of separating convergence from aliasing — unchanged |
+| **T1b, T1c, T9a, T9aH, T9aD** | **`UNJUDGED`** — not shown clean, not shown exposed |
+| **Positive evidence of aliasing** | **NONE, anywhere in the territory** |
+
+**With the demonstration withdrawn, §6's caution is now the whole of the
+claim.** The audit counted **verdict words in prose, not rows**; it gives **no
+row counts**; and it shows **no specific verdict is wrong** — only which rest on
+an instrument that cannot tell convergence from aliasing.
+
+## A.4 "Criterion 1 is nearly free" — WITHDRAWN, and it was mine
+
+§7 of this audit said the Δ/2Δ/3Δ test costs no compute because the checkpoints
+already exist. **That was wrong**, and the error is this lane's as much as the
+supervisor's: it requires **uniformly spaced** checkpoints, and on this corpus
+**most cases do not have them.**
+
+> **On the territory as it sits, the Δ/2Δ/3Δ test is mostly UNRUNNABLE.**
+
+## A.5 `THERMAL_K0_runs/analyse.py` — RESOLVED
+
+Read directly by the supervisor. **241 lines. No convergence gate, and it emits
+no verdict vocabulary at all** — not one of `PASS`/`GATE REACHED`/`GATE FAIL`/
+`NOT A RESULT`/`BLOCKED`/`PENDING`. It reports physics measurements and residual
+histories, using `latest_time()` to pick a directory.
+
+**It is a measurement and reporting script, not a grader, so it is out of scope
+for the A/B/C taxonomy.** §6's negative pattern match was right in substance.
+
+**One property worth carrying, and it is not a defect in the script:** it
+reports **residual histories with no gate**, so any convergence judgement on K0
+is made by **a human reading a residual summary** — which is **the point-sample
+failure in human form.**
+
+## A.6 Still open
+
+**`T10aR` is NOT resolved into a class.** It needs a closer read than this sweep
+gave it, and it is stated here plainly rather than left to be inferred from
+silence.
