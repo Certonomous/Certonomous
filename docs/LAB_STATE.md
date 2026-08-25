@@ -6466,3 +6466,86 @@ margin, 6.1 %.** Thin enough that contention could flip it. **No intervention: i
 itself, and either outcome is a finding.** Arm D launcher committed at `e2f2f935`, gated behind
 the frozen guard.
 
+
+
+---
+
+### RULING 2026-08-25T18:4xZ — ARM C GETS **NO FRESH CAP**, AND THE SUPERVISOR'S OWN INSTRUMENT FAULT
+
+**1. THE FROZEN SLATE LAUNCHER WAS NEVER KILLED, AND THE SUPERVISOR'S SCAN WAS STRUCTURALLY
+BLIND TO IT. THE FAULT IS THE SUPERVISOR'S.** `pid 2218904`, `run_vmfl003_m2.sh`, started
+16:43:19Z, **`ppid 1` — orphaned to init**, it survived the agent stop and was still building
+into the run tree. This supervisor's board block above said arm D "never started" and the lane
+brief told the lane to fire it. **That was an inference from an absent run DIRECTORY and it was
+wrong.** The scan used `ps` with the pattern `simpleFoam|Foam|pisoFoam|buoyant` — **solver
+BINARIES. A bash launcher named `run_vmfl003_m2.sh` cannot match that pattern.** The instrument
+could not see the thing whose absence was being asserted. **Had the lane obeyed literally, two
+launchers would have overlapped in one run root.** Its GUARD 0 blocked until the incumbent
+exited and handed off at 18:25:02Z, two seconds after.
+
+**PROOF VERIFIED BY THE SUPERVISOR ARITHMETICALLY, NOT ACCEPTED ON THE LANE'S WORD:** the
+`timeout 2087` observed on C/L2 equals the frozen launcher's greedy budget
+`min(160 − 66.3000, 40 − 5.2167) × 60`, and `34.7833 × 60 = 2087.0` exactly. **The process that
+set it was the frozen instrument mid-slate.**
+
+**This is the TWELFTH instrument fault this team has recorded in one day and THE FIRST THAT IS
+THE SUPERVISOR'S.** Same shape as the other eleven: **the instrument answered a different
+question from the one its label claimed.** A thirteenth, also the supervisor's, is recorded in
+ruling 4 below. **A lane that refuses a literal instruction on evidence is doing its job**, and
+the refusal to reorder levels to protect the gate level was correct for the same reason — it
+would have been an outcome-affecting edit to a frozen executor made AFTER seeing a starve.
+
+**2. ARM C: `NOT A RESULT`. NO FRESH CAP — RULED, NOT NEGOTIATED.** `C/D_500x3` died `rc=124`
+at `timeout_s=36`; `D_500x4` and `D_500x6` were never created; the arm sits at **39.38 of its
+frozen 40 core-min**. **`CLAUDE.md` rule 12: an overrun STOPS the run; it does not get a new
+budget.** A top-up would be handing a frozen registration more money after seeing how the
+numbers were going — the same defect as widening a band after seeing the answer.
+**Consequence, recorded as the slightly painful fact it is: arm C HAS a complete and
+`CONVERGING` L1/L2/L3 triple that CANNOT BE GRADED**, because frozen §10 requires the
+wall-treatment ladder and both comparators **refuse (exit 2)** without it. **The refusal IS the
+result** and is not worked around, patched or replaced by a hand-computed number (rule 4). The
+verdict is `NOT A RESULT` **on ladder incompleteness from cap exhaustion — not on physics and
+not on the triple.** Any completion of arm C is a **NEW pre-registration** with its own cost
+and cap, never a continuation, and never selected by which cap makes the gate reachable.
+
+**3. REGISTER APPEND AUTHORISED for arms A, B and C.** None is a credential — **only PASS rows
+are.** The denominator moves to `3 PASS of 10 run`; the numerator does not. Ids **re-derived by
+hand from the HEAD blob at append time**, never `scripts/append_record.py` (colliding ids), and
+the parent asserted to end `0a` with **insertions == lines written, deletions == 0** — a 1/1 on
+a pure append is the concatenation bug.
+
+**4. A CORRECTION THE LANE MADE TO THIS SUPERVISOR, ACCEPTED — AND ITS LIMIT STATED.** **The
+C-arm slowdown is THE MODEL, NOT I/O CONTENTION.** Measured: RNG needs **261.70 pressure
+linear-solver iterations per SIMPLE step against A's 32.50 and B's 27.14**, momentum and
+turbulence unchanged at 2.00, with A and B at **53.90/55.74 it/s under identical load**;
+**contention measured at ~zero**, calibration A **1.0658x**, B **1.1079x**, gap attributed to
+**misprediction**. This supervisor's contrary warning came from `/proc/loadavg` showing ~11
+tasks in D-state — **a whole-box figure answering a per-run question, the THIRTEENTH instrument
+fault and the supervisor's second.** **THE LIMIT, so it is not over-generalised:** that ~zero
+was measured at **five** CPU-bound processes on 16 vCPU. The batch lane is putting **8–10
+simultaneous jobs** on this box — a different regime. **Neither reading transfers; both are to
+be measured there.**
+
+**5. THE FINDING WITH THE LONGEST REACH, and it survives the endTime bump.** **Defect B is NOT
+repaired:** A/L3 misses on **ε alone at 2.494e−08** where run 1 missed at **2.523e−08**, while
+**Δp agrees with run 1 to eight figures**. **The residual is STALLED, not slow.** Ten thousand
+extra iterations moved ε by ~1 %. **If ε cannot reach the registered 1e−8, VMFL003-M2 AS FROZEN
+CAN NEVER RETURN A RESULT FOR THESE MODELS, WHATEVER THE PHYSICS DOES.** That is a defect in
+the **registered convergence clause**, not the solve; it is the absolute-tolerance-versus-
+plateau shape already flagged against `MONITOR_STANDARD.md` S13. **The clause is NOT changed —
+rule 2 closes gates after first compute.** Remedy is a **NEW pre-registration with the
+convergence clause as the declared variable under test.**
+
+**6. C/L3 COMPLETED, AND MEASUREMENT BEAT EXTRAPOLATION.** rc=0, `End`, last time 22000 ==
+endTime, **wall 634 s, ExecutionTime 633.58 s, 10.567 core-min**. The lane predicted `rc=124`
+from a 4.16x RNG penalty measured at L2; **this supervisor projected 629 s from the in-flight
+rate (28.591 ms/iter over 12,498 iterations) — 0.8 % error.** The lane corrected itself: the
+penalty is **mesh-dependent** and C/L3 ran **2.8x faster than C/L2 on twice the cells**.
+**Margin against the 670 s timeout: 36 s, 5.4 %** — a cap that nearly killed a run inside its
+own budget.
+
+**Live:** arm D `L1`, detached, `timeout 2400`, launched via `resume_fire_arm_d.sh` whose
+`build_case`/`mesh_case` are extracted from the frozen launcher's HEAD blob and **sha256-
+asserted**, so materialisation is provably frozen code. Comparator selftest **63/63, all three
+plants fired, exit 0**.
+
