@@ -158,3 +158,102 @@ Source file: `/home/ubuntu/Certonomous/docs/papers/verification_validation/Ansys
 - UNCLEAR: 1 case (VMFL035)
 
 **Remaining:** VMFRT001–007 (Ansys Forte), VMFLGPU001–010 (GPU-supported with CPU parents), to be extracted in continuation.
+
+---
+
+## Batch 5 (VMFLGPU001–010 and VMFRT001–007)
+
+Source file: `/home/ubuntu/Certonomous/docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt`
+
+### VMFLGPU Family (GPU-supported cases, pp. 225–251, with CPU parent mapping)
+
+| Case ID | Parent CPU Case | Manual Page | Short Title | Reference Form | Reference Values | Named Source |
+|---------|---|---|---|---|---|---|
+| VMFLGPU001 | VMFL001 | 225 | Flow Between Rotating and Stationary Concentric Cylinders | DISCRETE | 0.0151, 0.0105, 0.0072, 0.0046 m/s (tangential velocities at 4 radial locations) | F.M. White, Viscous Fluid Flow, Section 3-2.3, McGraw-Hill Book Co., Inc., New York, NY, 1991. |
+| VMFLGPU002 | VMFL010 | 227 | Laminar Flow in a 90° Tee-Junction | DISCRETE | 0.887 (flow split) | R.E. Hayes, K. Nandkumar, H. Nasr-El-Din, "Steady Laminar Flow in a 90 Degree Planar Branch". Computers and Fluids, Vol 17, pp. 537-553, 1989. |
+| VMFLGPU003 | VMFL011 | 229 | Laminar Flow in a Triangular Cavity | PROFILE | (figures only) | R. Jyotsna, S.P. Vanka, "Multigrid Calculation of Steady, Viscous Flow in a Triangular Cavity". J. Comp. Phys., Vol 122, pp. 107-117, 1995. |
+| VMFLGPU004 | VMFL029 | 233 | Anisotropic Conduction Heat Transfer | EMPTY | No reference provided | [No published reference cited] |
+| VMFLGPU005 | VMFL031 | 235 | Turbulent Natural Convection Inside a Tall Cavity | (partial extraction) | — | — |
+| VMFLGPU006 | VMFL037 | 239 | Mid-Span Flow Over a Goldman Stator Blade | (partial extraction) | — | — |
+| VMFLGPU007 | VMFL041 | 243 | Turbulent Flow with Heat Transfer in a Backward-Facing Step | (partial extraction) | — | — |
+| VMFLGPU008 | VMFL043 | 247 | Radiative Heat Transfer in a Rectangular Enclosure with Participating Medium | (partial extraction) | — | — |
+| VMFLGPU009 | VMFL063 | 249 | Two Phase Poiseuille Flow | (partial extraction) | — | — |
+| VMFLGPU010 | VMFL070 | 251 | Surface to Surface Radiative Heat Transfer Between Two Concentric Cylinders | (partial extraction) | — | — |
+
+**VMFLGPU summary (partial — first 4 fully extracted):**
+- DISCRETE: 2 cases (VMFLGPU001, VMFLGPU002)
+- PROFILE: 1 case (VMFLGPU003)
+- EMPTY: 1 case (VMFLGPU004)
+- PARTIAL: 6 cases (VMFLGPU005–010) — require full read
+
+### VMFRT Family (Ansys Forte cases, pp. 255–273)
+
+| Case ID | Manual Page | Short Title | Reference Form | Reference Notes | Named Source |
+|---|---|---|---|---|---|
+| VMFRT001 | 255 | Large Eddy Simulation in Internal Combustion Engine Case | (requires full read) | pending | — |
+| VMFRT002 | 259 | Engine Combustion Network Nonreacting Flow Case - bklraAL4 | (requires full read) | pending | — |
+| VMFRT003 | 261 | Engine Combustion Network Nonreacting Flow Case - bklfaAL4 | (requires full read) | pending | — |
+| VMFRT004 | 263 | Engine Combustion Network Nonreacting Flow Case - bkldaAL4 | (requires full read) | pending | — |
+| VMFRT005 | 265 | Engine Combustion Network Reacting Flow Case - jkldaAL4 | (requires full read) | pending | — |
+| VMFRT006 | 269 | Adiabatic Compression of Air in Cylinder by a Reciprocating Piston | (requires full read) | pending | — |
+| VMFRT007 | 273 | Small-Bore Direct Injection Diesel Engine | (requires full read) | pending | — |
+
+---
+
+## Complete Extraction Summary (All 78 VMFL Cases Across Batches 1–5)
+
+**Total VMFL family extracted: 65 of 65 never-run cases**
+- Batch 1 (VMFL006, 008, 009, 012–013, 015–018, 020): 10 cases
+- Batch 2 (VMFL021–028, 030–035): 15 cases
+- Batch 3 (VMFL030, 036–044, 047–049): 13 cases  
+- Batch 4 (VMFL052–078): 27 cases
+
+**Final VMFL Reference Form Tally:**
+- **DISCRETE:** 12 cases (VMFL006, 017, 021, 022, 023, 024, 034, 036, 059, 063, 064, 072)
+- **PROFILE:** 51 cases
+- **EMPTY:** 0 cases
+- **UNCLEAR:** 1 case (VMFL035)
+
+**GPU family (VMFLGPU001–010) partial extraction:**
+- DISCRETE: 2 cases (001, 002)
+- PROFILE: 1 case (003)
+- EMPTY: 1 case (004)
+- PARTIAL: 6 cases (005–010)
+
+**Forte family (VMFRT001–007):** Pending full read.
+
+---
+
+## DISCRETE Cases Ordered by Fewest Reference Values (for drafting lane prioritization)
+
+**Four single-value cases (quickest to freeze):**
+1. VMFL021 — Discharge coefficient: 0.620
+2. VMFL022 — Discharge coefficient: 0.780
+3. VMFL023 — Strouhal number: 0.165
+4. VMFL036 — Drag coefficient: 1.0895
+
+**Two-value cases:**
+5. VMFL017 — Drag 0.0168, Lift 0.803 (2 values)
+6. VMFL059 — Temperature 378 K, 413 K (2 values)
+
+**Three-to-six value cases:**
+7. VMFL024 — Non-dimensional swirl velocity at 3 radial locations: 0.21, 0.41, 0.62
+8. VMFL034 — Population balance moments m0–m5: 0.132, 0.225, 0.547, 1.910, 9.073, 53.797 (6 values)
+
+**Multi-value cases (>6):**
+9. VMFL006 — Mass fraction of species A at 10 axial locations: 0.8225, 0.7308, 0.6593, 0.5992, 0.5469, 0.5006, 0.4589, 0.4212, 0.3869, 0.3555 (10 values)
+
+**Reattachment length cases (geometric):**
+10. VMFL063 — Non-dimensionalized reattachment length LR/2t: 4.0
+11. VMFL064 — Non-dimensionalized reattachment length LR/step-height: 5.0
+
+**Single-value other:**
+12. VMFL072 — Film thickness: 0.555 mm
+
+**GPU DISCRETE cases:**
+- VMFLGPU001 — 4 tangential velocities (4 values)
+- VMFLGPU002 — Flow split: 0.887 (1 value)
+
+---
+
+**Next session recommendation:** Complete VMFLGPU005–010 full reads, extract VMFRT001–007, finalize with complete sorted DISCRETE list.
