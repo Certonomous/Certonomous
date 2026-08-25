@@ -1661,6 +1661,88 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
+### TENTH SESSION — D4 arm O CONVERGED, D7 FIRING, THE THREE PROBES ARMED
+
+**Section block written:** 2026-08-25T20:26:52Z by dafoam-supervisor (TENTH session, formed ~20:15Z 2026-08-25 after a weekly usage limit killed the ninth fleet mid-work). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
+
+**Mandate, narrow: fire curriculum D2–D15. Execution, not audit.** Meta-work near zero. **Cost constraints LIFTED** (Sanaa 2026-08-25) — no run stops to save compute; caps are now **RUNAWAY GUARDS** reported to the supervisor, who decides. **Costing and calibration CONTINUE; rigor unchanged.** **The binding constraint for this family is MEMORY, and it is PHYSICAL, not financial: a batch that OOMs is worse than a batch that queues.**
+
+#### THE HEADLINE — D4 ARM O CONVERGED. IT DID NOT CAP-STOP.
+
+Established by me from disk at 20:20Z, from **files, never stdout** (MPI log splicing is a measured defect here, `79679a84`). `/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O/opt_IPOPT.txt` ends:
+
+| quantity | value |
+|---|---|
+| termination | **`EXIT: Optimal Solution Found.`** |
+| majors | **80** |
+| objective (scaled = unscaled) | **2.1125978108239574e-02** |
+| dual infeasibility | 5.4196651597211676e-06 |
+| constraint violation | 7.3747727757922377e-08 |
+| overall NLP error | 5.4196651597211676e-06 |
+| objective / gradient evals | 125 / 81 |
+| CPU secs in NLP function evaluations | 6898.483 |
+
+The four ranks (pids 2359929–2359932, ~2.93 GB RSS each) were **still at 100 % CPU** after that line printed — the script is in a post-driver stage. **NOT TOUCHED, NOT SIGNALLED, NOT RESTARTED.** A lane holds custody and grades at termination.
+
+**This matters beyond D4:** the dead lane's last relayed reading was *"major 5, objective 2.3260617e-02, feasibility recovering"*. The run went on to **80 majors and convergence**. **A verdict is owed and none exists yet** — `RESULTS.md` is absent from `curriculum_D4/` at HEAD. **No number above is a result until the FD table stands beside it** (`DAFOAM_CHARTER.md` §2) and both toolchain rows are recorded.
+
+#### MY §3 CHECK #1, DONE AS A DIFF — D4-DEF-1 ACCEPTED, AND ITS LIMIT IS ON THE BRIGHT LINE
+
+Commit **`0fe012e7`**. The ninth session's acceptance of the D4-DEF-1 supplement **STANDS** and I re-verified each claim rather than inheriting it: frozen grader not edited (rule 6); the defect real (`--selftest` declared at argparse, never read, so it silently ran a **complete grade** and exited clean); the repair **demonstrates rather than asserts**, running its own `main()` as a subprocess and reading verdicts from the JSON `main()` writes — **the real mapping, not a mirror**; `CLEAN-control` a proper discrimination control; `capstop_never_pass` encoding §9; exit path distinct (rc 3, no `--out`).
+
+**But gates EMITTED vs gates EXERCISED:**
+
+| | |
+|---|---|
+| emitted | G1 G2 G3 G4 **G5_endpoint_fd G5_fd_table G6_planted_zero G6b_negative_control G7_count_controls G7_count_refusal_control** G8 G9 G10 G11 G12 |
+| exercised by the 21 units | G1 G2 G3 G4 G8 G9 G10 G11 G12 |
+| **NEVER EXERCISED** | **G5, G6, G6b, G7** |
+
+**G5 is the endpoint FD table — the gate that IS this family's whole line.** `_st_fd()` builds a clean FD table and **never mutates it**: no unit for error beyond band D, no sign-flip unit, no plateau unit, **no empty-component-set unit**. That is the **D3 catastrophe's exact shape one rung along** — `d3_grade.py` G3+G4 returned **`PASS` at 0.0000 % over an EMPTY COMPONENT SET** because its refusal tested key presence and never non-emptiness, while the *same* grader refused an unseen plant citing rule 3 **by name**. **A partial plant reads on the page exactly like a complete one.** **"21/21" is true and is 21/21 of a unit set that omits the bright line.**
+
+**RULING (operational, mine, recorded not parked):** acceptance stands; D4's grade proceeds but **may never be called "grader selftested" without this limitation beside it**; six mutation units (G5 empty set / short set / beyond band D / sign flip / plateau; G6 unseen plant) go into the **SUPPLEMENT, never the frozen grader**, before D4's verdict is believed. **REGISTERED IN ADVANCE: if the empty-component-set unit does not fire, that is D4-DEF-2, the D3 defect reproduced, and D4 is `NOT A RESULT` pending repair.** Record: `cases/dafoam/ladder-a/A2/curriculum_D4/SUPERVISOR_D4DEF1_ACCEPTANCE_AND_ITS_LIMIT.md`.
+
+*Generalisable, offered not asserted:* **counting a selftest's units measures its SIZE, not its COVERAGE.** Emitted-vs-exercised is mechanical and cheap. Twice now the untested gate has been the one carrying the verdict — **the bright-line gate is the hardest to build a fixture for, so it is the one left out.**
+
+#### THE ARMING CENSUS AT HEAD — re-derived from `git ls-tree -r HEAD`, not from the worktree
+
+| item | directory at HEAD | prereg | RESULTS | state |
+|---|---|---|---|---|
+| D1, D2, D3, D8, D9, D13 | present | yes | yes | **graded / closed** — D8 `GATE REACHED` (`9c241fe2`), D9 `NOT A RESULT` (`f8916f36`) |
+| **D4** | `ladder-a/A2/curriculum_D4` | yes | **no** | **CONVERGED, VERDICT OWED** — lane holds custody |
+| **D7** | `ladder-a/A3/curriculum_D7` | **yes, frozen `337d4d84`** | no | **CLEARED TO FIRE — my §3 check #4 done personally: the pre-registration EXISTS AT HEAD.** Lane firing under the memory guard |
+| **D5, D6, D14** | **NO DIRECTORY AT HEAD** | — | — | unarmed; **all three take D4 as prerequisite**, correctly queued behind it |
+| **D10, D11, D12** | **NO DIRECTORY AT HEAD** | — | — | **PROBE FIRST** per `EXPERTISE_CURRICULUM.md` — ≤5 core-min each, ≤15 total. **ARMING + FIRING NOW** |
+| **D15** | **NO DIRECTORY AT HEAD** | — | — | ~0 standalone compute; it **is** a gate template, folds into each prereg |
+
+#### WHY THE PROBES ARE THE RIGHT BATCH — the memory guard answered, not evaded
+
+Live at 20:20Z: **30 GB total, ~18 GB available, load 7.05/16.** D4's four ranks hold **~11.7 GB**. **D7 is np=4 on 42,120 cells and expects a comparable ~12 GB — it does NOT fit beside D4**, so that lane stages everything, records `MemAvailable` against a threshold **stated before measuring**, and launches the driver only when D4's ranks free. **That is a queue, not a stall.**
+
+**D10/D11/D12's probes are np=1 and ≤5 core-min** — they are the only substantial work that fits *now*, and each unblocks a Tier-4/5 item: D11 is **UNPRICED until its probe**, D12 **NEEDS COSTING after its probe**. Each carries the hazard the curriculum named: D10 the **ADF NaN precedent** (a "supported" thermal objective that does not evaluate on the installed image); D11 **MRF interface derivatives silently zero — a planted-perturbation control on the interface is MANDATORY**; D12 **checkpoint-storage envelope in DISK AND RAM**, and **δ_repeat on a time-average measured first**, N-D15 at its worst. **A probe returning "not reachable" is a RESULT, not a failure** — it saves a four-figure core-minute buy for 5 core-min.
+
+#### LIVE JOBS
+
+| pids | cwd | what | state |
+|---|---|---|---|
+| 2359929–2359932 | `/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O` (container `/mnt/O`) | `d4_opt_runScript.py -task run_driver -optimizer IPOPT`, np=4 | **CONVERGED at 80 majors; ranks still at 100 % CPU in a post-driver stage.** ~11.7 GB. Custody held; **untouched** |
+
+#### RUNGS WITHOUT VERDICTS
+
+**D4** — converged, no `RESULTS.md`, FD table and both toolchain rows outstanding. **D7** — firing, cap-stop registered in advance as the expected outcome, so its ceiling verdict is `GATE REACHED` and a convergence would be a **genuine surprise on the record**. **D10, D11, D12** — probes arming.
+
+#### NEXT ACTIONS
+
+D4 grade + the six G5/G6 mutation units + cost row. D7 launch when memory frees, then its endpoint FD. The three probe verdicts, and the **repricing** D11 and D12 owe. Then **D5, D6, D14 arm the moment D4 closes** — they are prerequisite-blocked on it and on nothing else. **D15 is a template and costs nothing.**
+
+#### ON SANAA'S DESK
+
+**Nothing new.** The five upstream defect drafts stay **`NOT FILED`** — SUBMISSIONS PARKED is unchanged and reserved to her. **The D4-DEF-1 ruling above was DECIDED, not parked**, under her 2026-08-25 disposal rule.
+
+#### BLOCKED
+
+**Nothing.** D5/D6/D14 are *prerequisite-queued* on D4, not blocked. **This family has fireable work at every level and is not waiting on anyone.**
+
 ### NINTH SESSION — CUSTODY AFTER THE FLEET KILL, three lanes re-attached
 
 **Section block written:** 2026-08-25T19:07:01Z by dafoam-supervisor (NINTH session, formed ~19:00Z 2026-08-25 after a session usage limit killed the eighth fleet mid-work). Opus 5. **The eighth session's block below is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in it is superseded and this session re-opens none of it.**
