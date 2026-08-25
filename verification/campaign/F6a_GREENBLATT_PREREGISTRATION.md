@@ -1202,3 +1202,172 @@ ZERO SOLVER COMPUTE: no solver, no mesher, no `checkMesh`, no case directory, no
 FROZEN. `PENDING` — rule 1's display state, "not yet run", never a softened verdict.
 SUBMISSIONS PARKED: nothing here is sent, filed, uploaded, registered, posted or
 commented outside this box.**
+<!-- FROZEN-BODY-ENDS-HERE -->
+
+---
+
+## AMENDMENT 1 — 2026-08-25 — PRE-COMPUTE. The §9.3 grading wrapper, its hashes, and the hazard it was written under.
+
+**Document version 1.0 → 1.1.**
+**Lines whose number changed above this section: 0.**
+*(Verified mechanically, not asserted: everything above the `FROZEN-BODY-ENDS-HERE`
+marker is byte-for-byte the document frozen at commit `5b6b1ece`, sha256
+`9989f1f909b358ae30c663b041598358cf247f6aee2a8b3dcb6bda99543a30cc`. The comparator
+hashes the body ABOVE the marker, not the whole file — so a legal amendment can never
+make the frozen text un-verifiable, and no future lane is quietly pressured to skip an
+amendment to keep a hash green.)*
+
+### A1.0 THE RULE-2 CONDITION, AND HOW IT WAS CHECKED
+
+**This is a BEFORE-FIRST-COMPUTE amendment and is legal only because of that.**
+Rule 2: before first compute, amendments are legal **and must state the condition and
+how it was checked, naming the run directory that does not exist.**
+
+> **CONDITION: no solver has run under this document.**
+> **CHECKED BY `test -e` IN THE AMENDING SHELL INVOCATION, on both registered roots:**
+> * `/home/ubuntu/Certonomous/verification/runs/F6a_GREENBLATT_runs` — **ABSENT**
+> * `/home/ubuntu/certonomous-runs/f6a-greenblatt-baseline` — **ABSENT**
+>
+> The amendment aborts before writing a byte if either exists. **That check is still
+> not the launch check**: §9.1's `test -e` is evaluated in the LAUNCHING invocation.
+
+**THIS AMENDMENT ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL**, and it cannot:
+§2.2, §2.3, §3.1, §3.2, §5.5 and §8.5 specify the arithmetic, the thresholds, the
+ordering and the cap completely in the frozen body. Everything below is an
+**IMPLEMENTATION of gates already frozen.** `--show-frozen` on both scripts prints
+every transcribed constant for a line-by-line diff against the body above.
+
+### A1.1 THE ARTIFACTS, PINNED
+
+| role | path | sha256 | git blob |
+|---|---|---|---|
+| **grading wrapper** | `scripts/f6a_greenblatt_gate.py` | `b251333b0a6bac6fb9191f41eb67594de12e6baabc4c81dd1213c1d71dd9038b` | `d58486695b8b2d1b7e17cae98f460fb38e2c3fe3` |
+| **launcher** | `scripts/run_f6a_greenblatt.py` | `461bc34dc82f0af6b9bcc7996aa4466872d6fcb72539b277376aecee325f3781` | `3c40023ce298f8119f2b80698711d9f8e72d7c75` |
+| **mutation controls** | `scripts/f6a_greenblatt_selftest.py` | `3b131218f4baf38a9724b8ce928ce4391032aa6df7d3cdc7545df48e3d13dcd9` | `289f429bf5504e7673ec4be6947f818a5521f3a5` |
+| **extraction path** *(unchanged, re-affirmed)* | `cases/dafoam/f6a_nasa_hump/case/hump_gate_analysis.py` | `9a6ec8553b863b3b43a1a3ca03970923778f7da5c2bf3e1cfacdfa8f6fd2414f` | `ec263bed8623a81b67106c3880febdca1b3d5eff` |
+
+**WHY THESE LIVE IN `scripts/` AND NOT UNDER THE RUN ROOT.** The family convention
+puts a comparator beside its run (`verification/runs/F12_runs/run_f12_rung.py`).
+**Following it here would have destroyed §9.1.** The run root
+`verification/runs/F6a_GREENBLATT_runs` is a directory this document requires **not to
+exist** at launch; creating it to hold a script would trip §9.2's guard permanently and
+kill the campaign. `scripts/` is the filing charter's home for `lower_snake.py` and
+costs the guard nothing. **The convention was departed from to keep a frozen condition
+evaluable, and the departure is recorded rather than quietly taken.**
+
+### A1.2 THE HAZARD, NAMED — because the structure does not obviously guard it
+
+> **THE WRAPPER WAS WRITTEN WITH `1.2531` ALREADY KNOWN.**
+
+**The risk is NOT that a gate moves.** The gates are frozen with explicit numbers and
+the wrapper only transcribes them. **The risk is that an AMBIGUOUS CLAUSE GETS
+IMPLEMENTED IN THE DIRECTION OF THE EXPECTED ANSWER** — nudged, not falsified, by a
+lane that knows what the run will say.
+
+**Three things blunt it, and they are stated as doing so rather than left implicit:**
+
+1. **THE EXTRACTION PATH IS PINNED BY HASH.** The code that actually produces `x_r/c`
+   and `x_s/c` is frozen, invoked as a subprocess, never edited and never
+   re-implemented. A one-byte drift refuses (control `rule 2 / §9.3 FAIL`).
+2. **§3's CLAUSES CARRY EXPLICIT NUMERIC THRESHOLDS** — peak-to-peak ≤ **0.0055** /
+   **0.0033**, at most **one** sign alternation across **10** samples, initial
+   residuals **U/p/k 5e-7, omega 1e-10**. There is little room to implement a number
+   "in a direction".
+3. **EVERY CLAUSE CARRIES A CONTROL THAT MUST FAIL** (§A1.4). A clause that cannot be
+   made to refuse is a clause that cannot bind.
+
+**AND THE ONE PLACE THE FROZEN TEXT LEFT A GENUINE CHOICE, declared rather than
+buried.** §2.2 defines separation as *"the FIRST crossing downstream of the hump
+crest"* and **gives the crest no number.** The extractor reports four sign crossings on
+this case, two of them spurious near `x/c ≈ 0`; where the crest is put decides which
+pair is graded.
+
+> **RESOLVED FROM GEOMETRY ALONE: the crest is the x of MAXIMUM WALL HEIGHT, read from
+> the case's own wall sample.** On the shipped mesh this measures **x/c = 0.51466** at
+> `z_max = 0.053751`.
+>
+> **WHY THIS CANNOT BE ANSWER-DIRECTED:** wall height is a property of the **MESH**. It
+> does not depend on the solution, on `Cf`, or on any closure; it is identical for
+> every run of this case; and it is computed **before any crossing is examined**. It
+> cannot be tuned toward 1.2531 or away from it.
+>
+> **AND IT IS LOAD-BEARING, NOT DECORATIVE** — proved, not asserted: with the crest
+> removed the same reader returns the **spurious** pair `(−0.01290, +0.00717)`
+> (control `§2.2 FAIL`).
+
+### A1.3 TWO DEFECTS THE CONTROLS CAUGHT IN THIS LANE'S OWN CODE, recorded because a control that never caught anything is not evidence that the code was right
+
+1. **A STALE DEFAULT ARGUMENT IN THE §9.2 DIRECTORY GUARD.** `freeze_condition` was
+   written `def freeze_condition(roots=RUN_ROOTS)`. A default binds the module global
+   **once, at definition** — so the guard checked a captured tuple rather than the
+   live one. **The guard passed while pointing at the wrong directories.** In
+   production the two coincide and nothing would have been observed; the control
+   exposed it because it redirected the roots. `roots` is now resolved **at call
+   time**.
+2. **A PLANTED-ZERO WINDOW THAT WAS WRONG IN THE REFUSING DIRECTION.** The §3.3
+   control first required the recovered crossing to lie **within** the flipped block
+   `[lo, hi]`. A sign crossing is **interpolated between the last unflipped sample and
+   the first flipped one**, so it lands **one sample spacing outside** that block. The
+   control refused a reader that had demonstrably seen the plant (crossings **4 → 6**).
+   **A control that is wrong in the refusing direction is still wrong**, and it was
+   corrected to **bracket** the block — never loosened by a fudge factor.
+
+### A1.4 THE MUTATION CONTROLS — **42 controls, 0 failures, across 18 frozen clauses; every clause carries BOTH arms**
+
+`python3 scripts/f6a_greenblatt_selftest.py` → **`SELFTEST PASSED`**. The standard is
+**N-T8** (`docs/NUMERICS_KNOWLEDGE.md` at HEAD — *the worktree copy of that file does
+not contain N-T8*): a control must check the **VALUE**, by construction, not that a key
+exists. **VMFL045 is the second form of the same disease** — 45/45 with real negative
+controls, and it could never have caught its own crash. **A selftest that only ever
+passes proves the grader, not the case.** The file **fails** if any clause lacks a
+failing arm.
+
+| frozen clause | the FAIL arm, and it must actually flip |
+|---|---|
+| **§3.1 (P-a)** | a run that **reached the iteration cap** instead of tripping `residualControl` → refused; `converged_at == cap` also refused |
+| **§3.1 (P-b)** | a reader pointed at **Final** rather than **Initial** → refused, **and the mutated Final-reading comparator PASSES the same log** — the confusion this exact case has already paid for once (`F6a_epistemic_band.md`'s 1.0722) |
+| **§3.1 (P-c)** | a **still-drifting** functional → NOT PLATEAUED; fewer than 10 samples → **REFUSAL** |
+| **§3.1 (P-d)** | an **oscillating** series (8 alternations) → refused — VMFL051's shape, whose deviation still read like a `PASS` |
+| **§3.2** | **an identical dead-centre deviation grades `PASS` when plateaued and `NOT A RESULT` when not.** The gate turned a `PASS` **into** `NOT A RESULT`, never the reverse |
+| **§3.3** | a **blind reader** — one returning the same answer whatever is on disk — → **REFUSAL**; the plant is by **line index** |
+| **§5.5** | **Gate M fails → the launcher returns exit 4 and NO `simpleFoam` or `mpirun` command is invoked at all**, asserted by recording every command the launcher issues |
+| **§9.2** | an **existing** run directory → exit 3, **0 commands run, no case built** |
+| **§8.5** | the naive `timeout 1800` is **4× the correct 450 s**; `ranks = 0` and an over-large reserve both raise |
+| **§9.4** | a field **older than `0/U`** → the **age guard** refuses; `rc ≠ 0`, no `End`, `last ≠ endTime`, a missing field — each refused |
+| **§2.2** | without the crest the reader returns the **spurious** pair |
+| **§4** | the no-triple scan is shown able to **SEE** a planted GCI/Richardson block |
+| **§2.3 / §2.1** | **grading on the REPORTED oil-film limb would FLIP `GATE FAIL` to `PASS` at `x_r/c = 1.16`** — so the code demonstrably used the **gated** band and the reported channel is genuinely non-binding |
+| **rule 1** | a mutated comparator emitting *"roughly converged"* → **REFUSAL**. *(This control found a real gap: only the headline verdict was vocabulary-checked, so a hedge reached the per-gate cells. `grade()` now checks **every** cell.)* |
+| **rule 2 / §9.3** | a **one-comment drift** in the extraction script → **HASH MISMATCH** → the campaign stops |
+| **rule 14** | an **active** top-level `libs` entry → **REFUSAL**, never silently replaced |
+| **§3.1 (P-c) install** | a `controlDict` the sampling install cannot fully patch → **REFUSAL**, rather than launching a run that cannot produce 10 samples |
+| **zero-compute** | the selftest asserts **both registered run roots are still ABSENT** when it finishes |
+
+### A1.5 THE CROSS-FAMILY DEPENDENCY, NAMED SO A FUTURE READER KNOWS WHY AN F6a CAMPAIGN COULD HALT
+
+> **The pinned extraction path lives in DAFOAM'S TERRITORY, not cfd's:**
+> `cases/dafoam/f6a_nasa_hump/case/hump_gate_analysis.py`, blob
+> **`ec263bed8623a81b67106c3880febdca1b3d5eff`**.
+
+**cfd does not reach into another team's tree and has not.** The hash pin means a
+dafoam-side edit is **CAUGHT rather than absorbed** — and under §9.3's standing clause
+the campaign then **STOPS**, which is the right failure mode and not a defect. **But it
+is a genuine cross-family coupling and it is escalated, not resolved here.** Twenty-three
+byte-identical copies of this file exist across the tree; the pin names one.
+
+### A1.6 WHAT THIS AMENDMENT STILL DOES NOT DO
+
+1. **It authorises no compute.** §9.1's condition has not been evaluated in a launching
+   invocation. **No mesh has been built, no `checkMesh` run, no case directory created,
+   no solver started.**
+2. **It moves no gate, threshold, cap or label**, and by §A1.0's construction it could
+   not.
+3. **It does not verify the wrapper against real solver output**, because none exists.
+   The clauses are exercised against synthetic fixtures and against the **real** wall
+   data of the C-45 run for §3.3. **If the case's actual output does not match the
+   contract the wrapper asserts, the comparator REFUSES (exit 2) and the campaign
+   stops — the clause is not relaxed to match the code.**
+4. **It sends nothing. SUBMISSIONS ARE PARKED.**
+
+**Amended 2026-08-25 by a cfd `lab-lane` at the cfd supervisor's direction.
+PRE-COMPUTE. ZERO SOLVER COMPUTE. The frozen body above is untouched.**
