@@ -1,0 +1,65 @@
+VMFL036 -- Laminar Flow Past Sphere.  COMPARATOR OUTPUT.
+manual p.125-126; target Cd = 1.0895; run root /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL036
+VMFL036 comparator --selftest   (ZERO compute; no run directory read)
+------------------------------------------------------------------------------
+  geometry     AREF closed form 0.0108944678435 == quadrature 0.0108944678436
+               azimuthal bias bracket 1-cos(a) = 9.517784e-04  (0.0952% of Cd)
+  roache       every state SEEN: CONVERGING, DIVERGENT, EXACT, OSCILLATORY, STAGNANT
+  force reader PERMUTED-column total_x seen = 7.700000e-03; planted zero seen as 0.0; headerless file REFUSED
+  completion   an empty directory is REFUSED (rule 4 refuses, never degrades): True
+------------------------------------------------------------------------------
+SELFTEST GREEN
+
+==============================================================================
+ARM A   nu = 0.01   Re = 100.0   THE GATE
+==============================================================================
+  L1_32x48     cells=3072    Cd=1.091486  Fx=5.945577e-03  worst final resid=1.05e-11  plateau ptp/Cd=3.20e-12  wall=82s  1.37 core-min
+               mesh: sphere wetted ratio 0.999382, PROJECTED/AREF 1.000000000, half-angle 2.5000 deg, 64 sphere faces
+  L2_64x96     cells=12288   Cd=1.089233  Fx=5.933309e-03  worst final resid=1.22e-11  plateau ptp/Cd=5.06e-13  wall=400s  6.67 core-min
+               mesh: sphere wetted ratio 0.999608, PROJECTED/AREF 1.000000000, half-angle 2.5000 deg, 128 sphere faces
+  L3_128x192   cells=49152   Cd=1.088834  Fx=5.931135e-03  worst final resid=1.04e-11  plateau ptp/Cd=1.50e-11  wall=2004s  33.40 core-min
+               mesh: sphere wetted ratio 0.999664, PROJECTED/AREF 1.000000000, half-angle 2.5000 deg, 256 sphere faces
+  CONTROL force plant : total_x = 7.700000e-03 planted into a copy of the finest level's force.dat; reader saw 7.700000e-03 (Cd would be 1.4136).  The reader is shown able to see a NON-ZERO.
+  CONTROL mesh plant  : every point of a copy of the finest mesh scaled by 2.0; sphere area 0.04360473 -> 0.17441892, required 0.17441892.  The geometry reader is shown able to see a CHANGED geometry.
+
+  ROACHE TRIPLE  f_coarse=1.091486  f_med=1.089233  f_fine=1.088834
+                 d32=2.252e-03  d21=3.992e-04  R=0.177234  state=CONVERGING
+                 observed order p_obs = 2.4963 (formal p_f = 2)  <-- SUSPICIOUSLY HIGH (above the formal order 2)
+                 GCI_fine at Fs = 1.25 : 0.0099%   Richardson f_ex = 1.088748
+  AZIMUTHAL BIAS (N-AV9): Cd on the projected-area normalisation = 1.088834; on the wetted-area normalisation = 1.087798.  The bracket is 0.0952% of Cd and is NOT removed by refinement.
+  Cd(finest) = 1.088834   manual target = 1.0895   |rel| = 0.0611%
+  (context only, never a gate: Ansys Fluent 1.0875)
+
+  ARM A VERDICT: GATE REACHED
+  rule 5 step 3: the triple is CONVERGING and |rel| = 0.0611% is inside the frozen band 3.0%.  The TIER CEILING is GATE REACHED: Mittal 1999 and Tabata & Itakura 1998 are COMPUTED spectral solutions, so this reference is code-to-code and buys NEITHER V NOR P.  PASS is not available to this case whatever the number.
+
+==============================================================================
+ARM B   nu = 0.02   Re = 50.0   DISCLOSED DIAGNOSTIC ABOUT THE MANUAL -- NOT A GATE ON THIS SOLVER
+==============================================================================
+  L1_32x48     cells=3072    Cd=1.577946  Fx=8.595439e-03  worst final resid=1.47e-11  plateau ptp/Cd=2.33e-13  wall=81s  1.35 core-min
+               mesh: sphere wetted ratio 0.999382, PROJECTED/AREF 1.000000000, half-angle 2.5000 deg, 64 sphere faces
+  L2_64x96     cells=12288   Cd=1.577388  Fx=8.592402e-03  worst final resid=1.01e-11  plateau ptp/Cd=0.00e+00  wall=390s  6.50 core-min
+               mesh: sphere wetted ratio 0.999608, PROJECTED/AREF 1.000000000, half-angle 2.5000 deg, 128 sphere faces
+  L3_128x192   cells=49152   Cd=1.577375  Fx=8.592333e-03  worst final resid=9.97e-12  plateau ptp/Cd=2.06e-10  wall=1987s  33.12 core-min
+               mesh: sphere wetted ratio 0.999664, PROJECTED/AREF 1.000000000, half-angle 2.5000 deg, 256 sphere faces
+  CONTROL force plant : total_x = 7.700000e-03 planted into a copy of the finest level's force.dat; reader saw 7.700000e-03 (Cd would be 1.4136).  The reader is shown able to see a NON-ZERO.
+  CONTROL mesh plant  : every point of a copy of the finest mesh scaled by 2.0; sphere area 0.04360473 -> 0.17441892, required 0.17441892.  The geometry reader is shown able to see a CHANGED geometry.
+
+  ROACHE TRIPLE  f_coarse=1.577946  f_med=1.577388  f_fine=1.577375
+                 d32=5.575e-04  d21=1.266e-05  R=0.022707  state=CONVERGING
+                 observed order p_obs = 5.4607 (formal p_f = 2)  <-- SUSPICIOUSLY HIGH (above the formal order 2)
+                 GCI_fine at Fs = 1.25 : 0.0000%   Richardson f_ex = 1.577375
+  AZIMUTHAL BIAS (N-AV9): Cd on the projected-area normalisation = 1.577375; on the wetted-area normalisation = 1.575874.  The bracket is 0.0952% of Cd and is NOT removed by refinement.
+  Cd(finest) = 1.577375   manual target = 1.0895   |rel| = 44.7798%
+  (context only, never a gate: Ansys Fluent 1.0875)
+  ARM B registered prediction (frozen BEFORE the run): Schiller-Naumann at Re = 50 gives Cd = 1.5381.
+  |Cd - SN(Re=50)|/SN = 2.5538%  (registered band 10%)  -> AGREES
+  |Cd - manual target 1.0895|/1.0895 = 44.7798%  (discriminator needs >= 25%)  -> DISCRIMINATES
+
+  ARM B VERDICT: NOT A RESULT -- by construction and by registration.
+  Arm B is evidence about the MANUAL, not a gate on this solver, and it never scores.  Its content is the DIAGNOSTIC sentence above.
+
+==============================================================================
+  ARM A : GATE REACHED   Cd(finest) = 1.088834   triple CONVERGING
+  ARM B : NOT A RESULT   Cd(finest) = 1.577375   triple CONVERGING
+==============================================================================
