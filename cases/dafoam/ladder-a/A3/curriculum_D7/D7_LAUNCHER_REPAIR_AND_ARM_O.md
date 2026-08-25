@@ -130,7 +130,7 @@ and all reusable by a new registration.
 launch gate is the control, exactly as Addendum 1 §A1.4 registered it.
 
 The repair and its selftest are serial Python on artifacts already on disk: **< 0.1 core-min**,
-np=1. Calibration row **`C-90`**.
+np=1. Calibration row **`C-91`**. (Allocated `C-91`, not `C-90`: the id is taken at append time against HEAD, and an `ansys-verification` peer landed `C-90` between this lane deriving the id and committing. Re-derived inside the committing invocation, per `CLAUDE.md` rule 11.)
 
 ## 7. Named as unverified
 
