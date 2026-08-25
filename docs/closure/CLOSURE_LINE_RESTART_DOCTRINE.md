@@ -646,3 +646,107 @@ closure. Drafted at HEAD `d9e9c396`; every fact above **re-verified unchanged at
 `7e2cb666`** after two peer docket rows landed mid-draft — the doctrine, the memo, the charter and
 all four `:252` citations are byte-identical between the two commits, and FS5's declared-factor
 sentence is at line **288** at both. Box clock **2026-08-25 00:10 UTC**.
+
+---
+
+# Appendix C — WITHDRAWAL OF ATTRIBUTION, 2026-08-25. APPENDED AT THE FOOT.
+
+**Appended 2026-08-25T00:39:39Z (box clock, read in the writing invocation) by a
+closure lane at the closure supervisor's direction. Disclosure version 1.0 → 1.1.
+lines whose number changed above this section: 0.**
+
+**That assertion is PROVED, not stated.** The pre-append prefix of this file is
+bytes 1–32149 (648 lines). Its sha256 is
+`a7db8cbd0b807c945b97b786210e58b70887c0b284a64c22e8a0f443f2d7f276` before this
+block was written and the identical value after it, and that same prefix is
+byte-identical to this file's blob at HEAD `72bc966d`
+(`git show 72bc966d:docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md | cmp -` clean).
+Nothing above this line was edited, renumbered, reflowed or restruck.
+
+**This block sits at the FOOT and nowhere else — L-304.** An in-file "lines whose
+number changed above this section: 0" assertion certifies only the lines *above*
+it; every external citation into this file points *below* almost any mid-file
+insertion point. A mid-file insertion in this very document renumbered 115 lines
+and staled four tracked citations. The foot is the only safe place.
+
+**Status term: `ATTRIBUTION WITHDRAWN — TEXT STANDS AS A RELAYED PARAPHRASE`.**
+This is deliberately **not** one of `CLAUDE.md` rule 1's six verdict words. No
+gate is being graded here; nothing in rule 1's vocabulary is being stretched to
+cover a documentary finding.
+
+## C.1 What is withdrawn
+
+Appendix B already recorded the 2026-08-24 R3 ratification as
+**ATTRIBUTED-BUT-UNCORROBORATED**. This appendix takes the further step the
+lab-wide finding of 2026-08-25 established as the right handling, and applies it
+to the two quotations reproduced in the **RATIFICATION — 2026-08-24** block above
+(this file, lines 210 and 214):
+
+1. > R3 is ratified (SpaRTA-class, TBNN fallback) — R4's CPU-minutes run in
+   > parallel; they never displace consolidation work.
+
+2. > R4 (SpaRTA build) runs in parallel on its CPU-minutes; FS gates apply.
+
+The words introducing them above — *"Sanaa ruled this week. Her words, verbatim"*
+and *"and, from her standing section, verbatim"* — **are withdrawn as attributions.**
+Those two blockquotes are to be read from this date as **a relayed paraphrase
+reaching the closure team through an agent brief, not as Sanaa's verbatim words.**
+The text itself is **kept exactly as written and is not altered, struck or moved.**
+
+## C.2 What this withdrawal is, and what it is not
+
+- **It is made against closure's own favour.** These two quotations were the
+  authority under which this team recorded §22.7 closed and under which R4's
+  parallel-capacity rule was registered as a constraint. Withdrawing the
+  attribution removes authority this team was relying on. It is recorded anyway,
+  because a fabricated or drifted quotation from the lab's principal is worse
+  than a wrong number: a wrong number meets a gate, and a wrong quotation meets
+  nothing — it becomes standing law and no downstream instrument can contradict it.
+- **It is NOT a claim that the words are not Sanaa's.** She may well have said
+  exactly this. The finding is narrower and is the only one the evidence supports:
+  **closure cannot source these words to any artefact on this disk independent of
+  the records that assert them, and therefore will not vouch for them.**
+- **It is REVERSIBLE the moment Sanaa confirms.** One line from her restores the
+  verbatim attribution in full, with no further evidence required and nothing else
+  re-opened. Until then the paraphrase reading governs.
+- **It changes no verdict, gate, threshold, cap or label.** No R-rung or FS-rung
+  result moves. **The 2026-08-21 SpaRTA-class pick is untouched and STANDS** — it
+  is separately sourced (§C.3) and nothing here qualifies, narrows or re-dates it.
+
+## C.3 What was traced, and what fired
+
+The search apparatus was **a non-ignoring `find <abs-path> -type f | xargs grep -F`**,
+because a plain `grep -r` in this environment is `ugrep --ignore-files` and silently
+skips gitignored paths — measured on this sweep: it skipped **ten** files entirely
+(the paper `.txt` sidecars under `docs/papers/closure/`). Both methods were run and
+their disagreement is recorded rather than smoothed.
+
+**Every negative below carries a fired positive control** — rule 3's planted-zero
+discipline applied to a documentary search. A search returning zero is not evidence
+until the same apparatus is shown able to return a non-zero.
+
+| quotation | worktree (non-ignoring) | `git log --all -S` | class |
+|---|---|---|---|
+| *"R3 is ratified (SpaRTA-class, TBNN fallback) …"* | only records that assert it | only the commits that wrote them | **SELF-ASSERTED ONLY** and **CONTRADICTED** |
+| *"R4 (SpaRTA build) runs in parallel …"* | only records that assert it | only the commits that wrote them | **SELF-ASSERTED ONLY** and **CONTRADICTED** |
+| **control:** *"R3: Sparta"* | **FIRED** — 6 files, 13 lines | **FIRED** — 8 commits | **TRACEABLE; STANDS** |
+| **control:** *"R3 = SpaRTA"* | **FIRED** — 6 files | — | **TRACEABLE; STANDS** |
+
+**CONTRADICTED, and by closure's own record:** the R4b pair-control
+pre-registration draft introduces quotation 1 with the words *"verbatim as
+relayed to this lane"*. A record that describes the same words as *relayed*
+is a record that does not claim to have heard them.
+
+**The "her standing section" pointer resolves to nothing.** Quotation 2 is
+introduced as coming *"from her standing section"*. Under a control-fired search
+no such section carrying that sentence exists on disk.
+
+## C.4 Scope
+
+Records only. **Zero compute: 0.0 core-minutes** — no solver, no training, no GPU,
+no run directory created, no instance started. Nothing sent, filed, uploaded,
+registered, posted or commented: **SUBMISSIONS PARKED** (`CLAUDE.md` rule 7)
+stands. Arm 2 remains `PENDING` and **unfired**; no gate was loosened by anything
+in this appendix, and the arm-2 pre-registration was not touched. No charter,
+`CLAUDE.md`, `.claude/`, `docs/LAB_STATE.md`, `docs/DOCKET.md`, `docs/LESSONS.md`
+or any frozen pre-registration was edited. Owner: closure.

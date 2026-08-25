@@ -486,3 +486,95 @@ directory. Nothing sent, filed, uploaded, registered, posted or commented — `S
 `docs/DOCKET.md` and every charter were left untouched. Owner: closure. Drafted at HEAD
 `d9e9c396`; every fact above **re-verified unchanged at HEAD `7e2cb666`** after two peer docket rows
 landed mid-draft. Box clock **2026-08-25 00:10 UTC**.
+
+---
+
+# WITHDRAWAL OF ATTRIBUTION — 2026-08-25. APPENDED AT THE FOOT.
+
+**Appended 2026-08-25T00:39:39Z (box clock, read in the writing invocation) by a
+closure lane at the closure supervisor's direction. Disclosure version 1.0 → 1.1.
+lines whose number changed above this section: 0.**
+
+**Proved, not asserted.** The pre-append prefix of this file is bytes 1–30620
+(488 lines); its sha256 is
+`65ff6a910c8951987b3dd13584191cff355d190489f09cf6604d9e083a0c8692` before this
+block was written and the identical value after, and that prefix is byte-identical
+to this file's blob at HEAD `72bc966d`. Nothing above this line was edited,
+renumbered, reflowed or restruck. **The block is at the FOOT** — L-304: an in-file
+"0 lines changed above" assertion certifies only what is above it, and every
+external citation into this memo points below any mid-file insertion point.
+
+**Status term: `ATTRIBUTION WITHDRAWN — TEXT STANDS AS A RELAYED PARAPHRASE`** —
+deliberately not one of `CLAUDE.md` rule 1's six verdict words, because no gate is
+being graded.
+
+## 1. THE 2026-08-21 SPARTA PICK IS UNAFFECTED AND STANDS
+
+Stated first so it cannot be read as qualified by what follows. The **R3 DECISION
+— recorded 2026-08-21** appendix above — Sanaa's *"R3: Sparta"* — is **TRACEABLE**
+and is **not** withdrawn, narrowed, re-dated or put in question by one word below.
+It meets the provenance standard in full: it names the **session** (*"in this
+session"*), the **message** (*"In the same message she approved R4 …"*) and the
+**document it was ruled on** (*"on this memo"*); it is docketed **D443** / **D444**;
+and a control-fired `git log --all -S` over `docs/LAB_STATE.md` returns **1 commit**
+for `"R3 = SpaRTA"` and **2** for `"R3: Sparta"`. Re-verified on this sweep by a
+non-ignoring `find | xargs grep -F`: **6 files, 13 lines** carry it. **STANDS.**
+
+## 2. What is withdrawn
+
+The two quotations reproduced in the **ADDENDUM — 2026-08-24: R3 RATIFIED** block
+above (this file, lines 329 and 333):
+
+1. > R3 is ratified (SpaRTA-class, TBNN fallback) — R4's CPU-minutes run in
+   > parallel; they never displace consolidation work.
+
+2. > R4 (SpaRTA build) runs in parallel on its CPU-minutes; FS gates apply.
+
+The introducing words *"Sanaa ratified R3 on 2026-08-24. Her words, verbatim"* and
+*"and, from her standing section, verbatim"* **are withdrawn as attributions.** From
+this date those two blockquotes read as **a relayed paraphrase reaching the closure
+team through an agent brief, not as Sanaa's verbatim words.** The text is **kept
+exactly as written** and is not altered, struck or moved.
+
+## 3. What this withdrawal is, and what it is not
+
+- **Against closure's own favour.** These quotations are the authority under which
+  this memo recorded the fallback clause and the parallel-capacity clause. Removing
+  the attribution removes authority this team was relying on. Recorded anyway: a
+  fabricated or drifted quotation from the principal is worse than a wrong number,
+  because a wrong number meets a gate and a wrong quotation meets nothing.
+- **NOT a claim the words are not hers.** She may well have said exactly this. The
+  finding is only that **closure cannot source them to any artefact on this disk
+  independent of the records asserting them, and will not vouch for them.**
+- **REVERSIBLE the moment Sanaa confirms.** One line from her restores the verbatim
+  attribution in full, with nothing else re-opened.
+- **No verdict, gate, threshold, cap or label moves.** Clauses (1) and (2) of the
+  addendum's own numbered list now rest on a paraphrase; clause (3), the
+  ratification framing, is a closure characterisation and always was.
+
+## 4. Method and its fired controls
+
+Apparatus: **non-ignoring `find <abs-path> -type f | xargs grep -F`**, because a
+plain `grep -r` here is `ugrep --ignore-files` and silently skips gitignored paths —
+on this sweep it skipped **ten** files outright. Both methods were run; the
+disagreement is recorded, not smoothed.
+
+**Every negative carries a fired positive control** (rule 3's discipline applied to
+a documentary search): a zero from a reader not shown able to see a non-zero is not
+evidence. Controls fired: *"R3: Sparta"* (6 files / 8 commits), *"R3 = SpaRTA"*
+(6 files), *"all the teams have my approval for everything"* (2 files). The two
+withdrawn quotations return only the records that assert them and only the commits
+that wrote them.
+
+**CONTRADICTED by closure's own record:** the R4b pair-control pre-registration
+draft introduces quotation 1 as *"verbatim as relayed to this lane"*. A record
+describing the words as *relayed* does not claim to have heard them.
+
+## 5. Scope
+
+Records only. **Zero compute: 0.0 core-minutes** — no solver, no training, no GPU,
+no run directory, no instance started. Nothing sent, filed, uploaded, registered,
+posted or commented: **SUBMISSIONS PARKED** (`CLAUDE.md` rule 7) stands. Arm 2
+remains `PENDING` and **unfired**; nothing here loosens any gate. No charter,
+`CLAUDE.md`, `.claude/`, `docs/LAB_STATE.md`, `docs/DOCKET.md`, `docs/LESSONS.md`
+or frozen pre-registration was touched. Owner: closure.

@@ -256,3 +256,144 @@ this section supersedes §8's "instance launched" state.
 | idle waste of record | **7.88 GPU-h = $6.34 derived**, 08:03:58Z → 15:56:45Z (the last verified idle read, ledger C-16). The window from 15:56:45Z to Sanaa's stop is **unmeasured** — she reported "stopped" without a clock — and is stated absent, not estimated (ledger correction C-19) |
 | driver self-shutdown | **APPROVED as a standing mechanism** (ruling 1). Every future GPU driver ends with `sudo shutdown -h now` AFTER its completion marker and `spend.json` are written, so a failed halt is visible. **Precondition, VERIFY-by-Sanaa-in-console before first reliance:** the instance's *shutdown behaviour* attribute must read **stop** (the EBS-backed default); with *terminate* the root volume would be lost. This box has no AWS CLI and cannot read the attribute |
 | next GPU item | Ling2016 arm 2 (matched update count) — approved under ruling 2 with per-item costing still required; pre-registration to be frozen BEFORE compute; the instance is started by Sanaa on the chief's request only |
+
+## 11. WITHDRAWAL OF ATTRIBUTION — 2026-08-25. APPENDED AT THE FOOT.
+
+**Written 2026-08-25T00:39:39Z (box clock, read in the writing invocation) by a
+closure lane at the closure supervisor's direction. Version 1.1 → 1.2.
+§1–§10 are NOT edited. lines whose number changed above this section: 0.**
+
+**Proved, not asserted.** The pre-append prefix is bytes 1–14817 (258 lines);
+sha256 `47c4c9c85432907301dc5ed1528a8c67ebf5f5e9e637b9b0cea14f461c566997` before
+this block was written and the identical value after, and byte-identical to this
+file's blob at HEAD `72bc966d`. **Disclosed tension:** rule 6 asks for a version
+bump, and the file's version line is at line 3 — *above* this block. Editing it
+would itself be a mid-file change, so **line 3 is deliberately left alone** and the
+bump is carried here, following this repository's own precedent for foot-appended
+disclosures. **The block is at the FOOT** — L-304.
+
+**Status term: `ATTRIBUTION WITHDRAWN — TEXT STANDS AS A RELAYED PARAPHRASE`.** Not
+one of `CLAUDE.md` rule 1's six verdict words, deliberately: no gate is graded here.
+**This section can only TIGHTEN the GPU apparatus. It loosens nothing.**
+
+### 11.1 WITHDRAWN — §9's GPU cost approval
+
+§9 records, under the heading **"Sanaa's GPU cost approval, verbatim (2026-08-23,
+chief's session record)"**:
+
+> regarding the GPU COST it's fine you have my approval.
+
+**The attribution is WITHDRAWN. The text stands as a relayed paraphrase.** From this
+date that sentence reads as **wording relayed to the closure team, not as Sanaa's
+verbatim words.** §9's text is kept exactly as written and is not altered or struck.
+
+**Why.** Under a control-fired, non-ignoring `find | xargs grep -F` across the whole
+worktree, that sentence exists in **exactly two files, and both are closure's own**:
+this file (§9) and `cases/RANS_LES_closure_models/Ling2016_TBNN/gpu/PREREGISTRATION.md`
+§F.1. `git log --all -S"regarding the GPU COST"` over `docs/ cases/` returns **exactly
+two commits, and both are closure's**: `112b61b8` (2026-08-23 21:07:18Z, this file's
+§9) and `e8309b6c` (2026-08-23 21:18:12Z, the arm-1 freeze). It is carried **nowhere**
+on the chief's standing-directives section of `docs/LAB_STATE.md`, **nowhere** in
+`docs/DOCKET.md`, **nowhere** in `docs/CROSS_TEAM_GATE_AUDIT.md`, **nowhere** in the
+untracked harness session logs under `/home/ubuntu/harness-state/`, and **nowhere**
+under `/home/ubuntu/notes/`.
+
+**Controls fired on every one of those negatives** (rule 3's discipline applied to a
+documentary search — a zero from a reader not shown able to see a non-zero is not
+evidence): on the same worktree apparatus *"all the teams have my approval for
+everything"* returned 2 files and *"R3: Sparta"* returned 6; on the same
+`git log --all -S` apparatus *"R3: Sparta"* returned 8 commits; on `docs/LAB_STATE.md`
+*"i approve of everything"* fired at line 55; on `docs/DOCKET.md` *"apporve"* fired at
+line 861; on `/home/ubuntu/harness-state/` *"GPU quota"* fired in `msg8.txt`; on
+`/home/ubuntu/notes/` *"delegation"* fired in three files. **The apparatus can see.
+It does not see this sentence outside closure's own two records.**
+
+**Class: SELF-ASSERTED ONLY.** Against the audit classes now standing: **C UNSOURCED**.
+
+**This is the load-bearing one, and it is being reported against closure's own
+favour.** That sentence is the *authorisation of record* in §F.1 of the arm-1
+pre-registration and the cost authority under which the lab's first GPU run was
+made. Withdrawing its attribution removes authority this team relied on.
+
+**It is NOT a claim the words are not Sanaa's.** She may well have said exactly this,
+and §8's separate record that **she launched `gpu1` herself** — an owner action no
+agent can take — remains a real, independently meaningful act by her that is not
+withdrawn. The finding is only that **closure cannot source the sentence to any
+artefact on this disk independent of the two records asserting it, and will not
+vouch for it. It is REVERSIBLE the moment Sanaa confirms**, in one line, with nothing
+else re-opened.
+
+**The frozen file is NOT edited.** `Ling2016_TBNN/gpu/PREREGISTRATION.md` §F.1 carries
+the same sentence and is **frozen** (`e8309b6c`, sha registered) with arm 1 already
+graded **NOT A RESULT**. It is left untouched. Whether a dated rule-6 addendum is
+owed at its foot is the closure supervisor's call, not a lane's. Likewise
+`cases/RANS_LES_closure_models/MATRIX_CONTRIBUTION.md`, whose Arm-1 paragraph leans
+on this quotation, carries its own foot note of this date; and closure's section of
+`docs/LAB_STATE.md` (the phrase *"under Sanaa's verbatim GPU cost approval"*) is a
+shared-board section this lane does not write.
+
+### 11.2 NOT WITHDRAWN — §10 ruling 1, the self-shutdown mechanism and the stop
+
+> GPU shutdown suggestion: yes approved (also i stopped that instance).
+
+**This one is TRACEABLE and is NOT withdrawn. Reported loudly, because it is the
+finding that protects the record rather than the one that damages it.** The same
+apparatus finds it carried on **`docs/LAB_STATE.md` line 61 — the CHIEF's
+standing-directives section** (lines 39–221, outside closure territory and not
+closure's to write), landed at commit `123a3b92`, and again in
+`docs/CROSS_TEAM_GATE_AUDIT.md` line 1521 (verification team, commit `9573db65`).
+
+**Two honest caveats, stated rather than smoothed:**
+1. The gate audit **explicitly cites `GPU_CAPABILITY_STATE.md` §10 as its source**,
+   so it is a **relay of this very file** and is **not** independent corroboration.
+2. `docs/LAB_STATE.md`'s row landed at **16:27:21Z**, sixteen minutes **after**
+   closure's own `e88b86e6` at **16:11:47Z**. Ordering therefore cannot establish
+   which record is primary, and **independence is not verifiable from git here** —
+   every commit in this repository shares one Ubuntu identity.
+
+**Class: TRACEABLE, by the letter of the standard (an artefact outside closure
+carries it) — but honestly, B CORROBORATED-BY-REPETITION-ONLY, the dangerous
+middle.** It is not withdrawn, because withdrawal of a quotation that another team's
+board carries is not closure's to make. It is flagged here for the verification
+team's standing **ATTRIBUTION INTEGRITY** sweep.
+
+### 11.3 PARTIALLY WITHDRAWN — §10 ruling 2
+
+> Good for the dispatched work, i approve of everything.
+
+**Split finding.** The operative clause *"i approve of everything"* **is TRACEABLE**:
+it is on the chief's standing-directives section at `docs/LAB_STATE.md` line 55. The
+**prefix *"Good for the dispatched work,"* is SELF-ASSERTED ONLY** — under the same
+control-fired search the full sentence exists only in this file (§10) and in
+`Ling2016_TBNN/gpu/arm2/PREREGISTRATION.md` line 10, both closure's.
+
+**Therefore: the attribution of the PREFIX is withdrawn** and the sentence stands as
+*"i approve of everything"* (attributed) **plus a relayed framing** ("Good for the
+dispatched work,"). §10's text is kept exactly as written. **This narrows the
+approval's recorded scope, it does not widen it** — and rule 9 already governed it:
+a blanket is not a per-item read, and every GPU run still carries its own
+GPU-hour `cost_basis`.
+
+### 11.4 Effect on the arm-2 launch gate — TIGHTENED, never relaxed
+
+Arm 2 remains **`PENDING` and UNFIRED. Nothing launches.** The arm-2
+pre-registration and `run_all_gpu_v2.sh` are **frozen and were not touched.** The
+three components of the launch gate, re-read against this section:
+
+| gate component | rests on a withdrawn attribution? | state |
+|---|---|---|
+| Sanaa's own words giving the go | **Partly — see 11.3.** The go-clause *"i approve of everything"* is traceable; the framing is not; and the **cost** authority behind the GPU line (11.1) is **withdrawn**. | `LAUNCH_CHECKLIST.md` step 1 already requires her authorisation **quoted verbatim with its source**, pasted into the checklist before step 2 and **quotable back to her**. That step now covers the **cost** approval as well as the go. |
+| Sanaa starts the instance | **No.** An owner action; no agent can take it, and no quotation stands in for it. | UNCHANGED. She starts it or it does not start. |
+| Her two console readings (shutdown-behaviour attribute; the g6.xlarge us-east-2 on-demand price) | **No.** Both are registered as readings **still to be taken**, not as quotations already held. The $0.8048/GPU-h figure is labelled *published price list, retrieved 2026-08-23* — an artefact with a URL, a JSON path and a retrieval stamp, **not** an attribution to anyone. | UNCHANGED and still owed. |
+
+**Net effect: strictly tighter.** A gate whose cost authority is now recorded as a
+relayed paraphrase is a gate that needs Sanaa's word more, not less.
+
+### 11.5 Scope
+
+Records only. **Zero compute: 0.0 core-minutes** — no solver, no training, no GPU, no
+run directory created, **no instance started**. Nothing sent, filed, uploaded,
+registered, posted or commented: **SUBMISSIONS PARKED** (`CLAUDE.md` rule 7) stands.
+No charter, `CLAUDE.md`, `.claude/`, `docs/LAB_STATE.md`, `docs/DOCKET.md`,
+`docs/LESSONS.md`, `docs/COST_CALIBRATION.md` or any frozen file was edited. Owner:
+closure.

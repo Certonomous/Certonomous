@@ -1091,3 +1091,81 @@ frozen file was edited.** **Zero compute: 0.000 core-minutes, 0.000 GPU-hours.**
 was sent, filed, uploaded, registered or posted — **submissions are parked**.
 
 **End of Supervisor's Rulings.**
+
+---
+
+## WITHDRAWAL OF ATTRIBUTION — 2026-08-25. APPENDED AT THE FOOT.
+
+**Appended 2026-08-25T00:39:39Z (box clock, read in the writing invocation) by a
+closure lane at the closure supervisor's direction. Version v1.1 → v1.2.
+lines whose number changed above this section: 0.**
+
+**Proved, not asserted.** The pre-append prefix is bytes 1–90977 (1093 lines);
+sha256 `620f57b61f634f43b9b6afaa0d305947278da9067e44d644641bfcee2e86b788` before
+this block was written and the identical value after, and byte-identical to this
+file's blob at HEAD `72bc966d`. Nothing above this line was edited, renumbered,
+reflowed or restruck. **The block is at the FOOT** — L-304.
+
+**Status term: `ATTRIBUTION WITHDRAWN — TEXT STANDS AS A RELAYED PARAPHRASE`** —
+deliberately not one of `CLAUDE.md` rule 1's six verdict words; no gate is graded,
+and **no matrix row, tier, verdict or census figure in this file moves.**
+
+### What is withdrawn
+
+The Arm-1 paragraph above (this file, line 354) reads:
+
+> **Arm 1 — CLOSED, NOT A RESULT.** The lab's first GPU run, on `gpu1`
+> (`g6.xlarge`, NVIDIA L4), the registered class, **under Sanaa's verbatim GPU cost
+> approval.**
+
+**The words "Sanaa's verbatim GPU cost approval" are withdrawn as an attribution**
+and read from this date as **"a relayed GPU cost approval"**. The sentence is kept
+exactly as written and is not altered or struck.
+
+**Why.** The approval it points to is the sentence *"regarding the GPU COST it's
+fine you have my approval"*, recorded at `docs/GPU_CAPABILITY_STATE.md` §9. Under a
+control-fired, non-ignoring `find | xargs grep -F` over the whole worktree that
+sentence exists in **exactly two files, both closure's own** — that §9 and the
+**frozen** `Ling2016_TBNN/gpu/PREREGISTRATION.md` §F.1 — and
+`git log --all -S` returns **exactly two commits, both closure's** (`112b61b8`,
+`e8309b6c`, both 2026-08-23). It is carried nowhere on the chief's
+standing-directives section of `docs/LAB_STATE.md`, nowhere in `docs/DOCKET.md`,
+nowhere in `docs/CROSS_TEAM_GATE_AUDIT.md`, nowhere in `/home/ubuntu/harness-state/`
+and nowhere in `/home/ubuntu/notes/`. **Controls fired on every one of those
+negatives** — *"all the teams have my approval for everything"*, *"R3: Sparta"*,
+*"i approve of everything"*, *"apporve"*, *"GPU quota"*, *"delegation"* — each
+returning a non-zero on the identical apparatus. **Class: SELF-ASSERTED ONLY.**
+
+The full statement, with the fired controls enumerated and the effect on the arm-2
+launch gate, is at `docs/GPU_CAPABILITY_STATE.md` **§11**, appended the same date.
+
+### What this is, and what it is not
+
+- **Against closure's own favour.** It removes recorded authority behind the lab's
+  first GPU run.
+- **NOT a claim the words are not Sanaa's**, and **not** a claim that no approval
+  existed: §8 of the capability state separately records that **she launched `gpu1`
+  herself**, an owner action no agent can take, and that record is not withdrawn.
+  The finding is narrower — closure cannot source the *quotation* independently and
+  will not vouch for it.
+- **REVERSIBLE the moment Sanaa confirms**, in one line, with nothing re-opened.
+- **Arm 1's verdict is untouched.** It was and remains **NOT A RESULT** on its own
+  frozen gates. A withdrawal of attribution cannot move a verdict, and this one
+  moves none — the P-tier row, the census and every cited artefact stand.
+
+### Also noted, and NOT a defect
+
+§5(a) of this file — the chief's V/G/P definitions — is the **honestly-labelled**
+case: it states in its own text that the definitions are **the chief's
+reconstruction of Sanaa's brief and NOT her verbatim words**, and carries that label
+everywhere they are used. **Nothing is owed there.** It is recorded here as the
+worked example of the standard the rest of the corpus is being held to.
+
+### Scope
+
+Records only. **Zero compute: 0.0 core-minutes** — no solver, no training, no GPU,
+no run directory, no instance started. Nothing sent, filed, uploaded, registered,
+posted or commented — **SUBMISSIONS PARKED** (`CLAUDE.md` rule 7) stands. Arm 2
+remains `PENDING` and unfired. No charter, `CLAUDE.md`, `.claude/`,
+`docs/LAB_STATE.md`, `docs/DOCKET.md`, `docs/COVERAGE_MATRIX.md` or any frozen file
+was edited. Owner: closure.

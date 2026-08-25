@@ -57,3 +57,61 @@ baseline-off configuration, and only as far as the registered gate measures it.
 Recorded for: the Wu2018/Kaandorp/Xiao BLOCKED-hump rows (dated notes to be
 added by the closure team), FEASIBILITY.md, and the R4 build ladder, whose
 all-eight-cases requirement this unblocks.
+
+---
+
+## WITHDRAWAL OF ATTRIBUTION — 2026-08-25. APPENDED AT THE FOOT.
+
+**Appended 2026-08-25T00:39:39Z (box clock, read in the writing invocation) by a
+closure lane at the closure supervisor's direction. Version 1.0 → 1.1.
+lines whose number changed above this section: 0.**
+
+**Proved, not asserted.** The pre-append prefix is bytes 1–3099 (59 lines); sha256
+`bb3e1cb8d5f3e784b7a5fad623ea6d40360f149dbe3803b7076edc74b35bc6f2` before this block
+was written and the identical value after, and byte-identical to this file's blob at
+HEAD `72bc966d`. Nothing above this line was edited, renumbered or reflowed. **The
+block is at the FOOT** — L-304: an in-file "0 lines changed above" assertion
+certifies only what is above it.
+
+**Status term: `ATTRIBUTION WITHDRAWN — TEXT STANDS AS A RELAYED PARAPHRASE`** —
+deliberately not one of `CLAUDE.md` rule 1's six verdict words; no gate is graded here.
+
+### What is withdrawn
+
+Line 3–4 of this note reads *"Investigated at Sanaa's request"* and quotes:
+
+> can you pull the benchmark repo / any other repo this might be coming from and check?
+
+**The attribution is WITHDRAWN. The text stands as a relayed paraphrase** — wording
+that reached the closure team through an agent brief, not established as Sanaa's
+verbatim words. The text above is **kept exactly as written** and is not altered or
+struck.
+
+**Why.** Under a non-ignoring `find <abs-path> -type f | xargs grep -F` across the
+whole worktree, that sentence exists in **exactly one file: this one.** It names no
+session, no message and no source document — the three things the 2026-08-21 R3
+appendix in `docs/closure/R2_SHORTLIST_MEMO.md` does name, and which is why that
+attribution stands and this one does not.
+
+**Control fired on the negative** (rule 3, applied to a documentary search): on the
+identical apparatus, over the identical file list, *"bands-vs-corrections"* returned
+**7 files** and *"R3: Sparta"* returned **6**. The apparatus can see. It does not see
+this sentence anywhere but here.
+
+**Class: SELF-ASSERTED ONLY** (audit class **C UNSOURCED**).
+
+### What this is, and what it is not
+
+- **Against closure's own favour**: it removes the stated warrant for this
+  investigation having been commissioned.
+- **NOT a claim the words are not Sanaa's.** She may well have asked exactly this.
+  The finding is only that closure cannot source it and will not vouch for it.
+- **REVERSIBLE the moment Sanaa confirms**, in one line, with nothing else re-opened.
+- **Nothing in the note's finding depends on it.** The equivalence result —
+  `NASA_2DWMH`'s baseline being stock `kOmegaSST` — rests on files and a proof on
+  disk, not on who asked for the check. **No verdict, gate or number moves.**
+
+### Scope
+
+Records only. **Zero compute: 0.0 core-minutes.** Nothing sent, filed, uploaded,
+registered, posted or commented — **SUBMISSIONS PARKED** stands. Owner: closure.
