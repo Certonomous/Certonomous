@@ -94,3 +94,94 @@ confirmed absent after. No gate, threshold, cap or label was touched. The probe'
 own builder **refuses** if any intended `fvSolution` edit fails to apply, and
 asserts `residualControl` still reads `1e-06` — a silently-unapplied edit would
 otherwise have made arm A a re-run of rung 1 wearing arm A's name.
+
+---
+
+## 6. ADDENDUM 2026-08-25 — ARM B′, AND A STRUCK MECHANISM ON BOTH SIDES
+
+### 6.1 The supervisor's cause for arm B is FALSIFIED FROM SOURCE
+
+The triage handed to this lane was: *"`fvm::div` makes the pressure matrix
+ASYMMETRIC … GAMG in OpenFOAM is a symmetric-matrix solver."* **That is not true
+of OpenFOAM 2606 on this box.** `GAMGSolver.C` registers **both** tables:
+
+```
+src/OpenFOAM/matrices/lduMatrix/solvers/GAMG/GAMGSolver.C
+  :40   lduMatrix::solver::addsymMatrixConstructorToTable<GAMGSolver>
+  :43   lduMatrix::solver::addasymMatrixConstructorToTable<GAMGSolver>
+```
+
+The `GaussSeidel` **smoother** is likewise registered for both
+(`GaussSeidelSmoother.C:38,41`). And a solver that is *not* registered for a
+matrix type raises a **`FatalIOError` at selection time** — *"Unknown asymmetric
+matrix solver"* — **not a SIGFPE deep inside `GAMGSolver::solveCoarsestLevel`.**
+Arm B's own traceback is therefore inconsistent with the proposed cause.
+
+**Both readings of arm B are struck:** this lane's *"the first pressure matrix is
+already non-finite from the uniform initial field"* (never demonstrated) and the
+supervisor's *"GAMG cannot represent the matrix"* (falsified above). **What arm B
+established is narrower than either: GAMG, on the asymmetric matrix the transonic
+branch produces for this case, failed with a floating-point exception in its
+coarsest-level solve.** Why it did is not established here.
+
+### 6.2 The prescription was right even though the mechanism was wrong
+
+**Arm B′** — arm B with `p` moved from `GAMG`/`GaussSeidel` to
+`PBiCGStab`/`DILU`, the solver this case already uses for `U`, `k`, `omega` and
+`e`; one change from arm B, nothing else touched, `residualControl` untouched.
+
+| arm | `p` solver | rc | iterations | `p` solves | died on |
+| --- | --- | --- | --- | --- | --- |
+| A | GAMG (no `transonic`) | 134 | **1,803** | 3,606 | `Negative initial temperature T0: −14.4053` |
+| B | GAMG + `transonic` | 136 | 1 | **0** | SIGFPE inside the first `p` solve |
+| **B′** | **PBiCGStab + `transonic`** | 134 | **3** | **6** | **`Negative initial temperature T0: −259152.9888`** |
+
+**The solver swap worked**: `p` now solves — 72, 90, 52, 1, 50, 50 inner
+iterations — where arm B logged none. So GAMG *was* the obstacle to getting past
+the first pressure solve, and the supervisor's prescription was the right
+experiment on a wrong rationale.
+
+### 6.3 AND THE COUNTERFACTUAL IS NEGATIVE FOR `transonic`
+
+With the pressure equation actually solving, `transonic yes` makes this case
+**dramatically worse, not better**:
+
+- arm A reaches **1,803** iterations and fails at **T = −14.4**;
+- arm B′ reaches **3** iterations and fails at **T = −259,152.99**.
+
+That is **600× fewer iterations and an 18,000× larger excursion.** The energy
+residual never moves: `e` reads 1.0000, 0.99476, 0.99384 on the three iterations.
+
+**The missing `transonic` flag is REFUTED as the cause of F12's pathology, by the
+counterfactual the supervisor designed.** It is not an untested switch any more.
+
+**A consequence the supervisor named in advance, and it is confirmed as
+relevant:** `rho.relax()` fires **only** in the non-transonic branch
+(`pEqn.H:107`), so enabling `transonic` silently retires the `rho` relaxation
+factor — the very lever that bought arm A its 12.2× survival. The two are **not
+independent**, and arm B′ is what that looks like when they are changed together.
+
+### 6.4 Still open, and NOT answered by any arm
+
+Where first-solve `p` floors on a **stable** run remains unmeasured, because
+**no arm has been stable.** Arm A's floor of **8.4010e-03** is the floor of a run
+that aborts, not of a converged one. `roache_triple` pins remain owed.
+
+### 6.5 Cost
+
+Arm B′: **0.333 core-min** (20 wall s, ranks 1) against the 6 core-min registered
+per arm; cap not breached; waste **0.00** — it answered its question. Probe total
+across all three arms: **4.33 core-min** of 18 registered. Dollars **$0.00037**,
+DERIVED at \$0.0513/core-h, reported-by-owner, never measured. `rung1_fp_before_Bprime.txt`
+and `rung1_fp_after_Bprime.txt` are equal — rung 1 byte-unchanged; rungs 2–5
+asserted absent before and confirmed absent after.
+
+### 6.6 The interim log policy is applied from here
+
+`scripts/extract_residual_series.py` emits the **first-solve** residual series as
+CSV — the first-class artifact records cite — and the raw log is gzipped beside
+it. The extractor is self-checked against the discrepancy that started this: on
+F2 it returns **4.2657e-04** for the final-iteration `p`, matching the hand
+analysis, where a tail read gives 3.2756e-06. Arm B′'s raw log is gzipped (12K →
+4.0K); series extracted for arms A, B and B′. **Arm A's already-committed 3.4 MB
+log is left exactly as it is**, per the policy's own do-not-rewrite clause.
