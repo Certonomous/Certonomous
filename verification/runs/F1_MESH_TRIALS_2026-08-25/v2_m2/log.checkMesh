@@ -1,0 +1,107 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh
+Date   : Aug 25 2026
+Time   : 19:05:52
+Host   : ip-172-31-43-247
+PID    : 2416988
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/F1_MESH_TRIALS_2026-08-25/v2_m2
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+--> FOAM Warning : 
+    From static Foam::instantList Foam::timeSelector::select0(Foam::Time&, const Foam::argList&)
+    in file db/Time/timeSelector.C at line 284
+    No time specified or available, selecting 'constant'
+Create mesh for time = constant
+
+Check mesh...
+
+Time = constant
+
+Mesh stats 
+    points:           928973
+    faces:            2718720
+    internal faces:   2651136
+    cells:            894976
+    faces per cell:   6
+    boundary patches: 6
+    point zones:      0
+    face zones:       0
+    cell zones:       0
+
+Overall number of cells of each type:
+    hexahedra:     894976
+    prisms:        0
+    wedges:        0
+    pyramids:      0
+    tet wedges:    0
+    tetrahedra:    0
+    polyhedra:     0
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Number of regions: 1 (OK).
+
+Checking patch topology for multiply connected surfaces...
+    Patch               Faces    Points     Surface topology
+    wing                7680     7872     ok (non-closed singly connected)  
+    wingTip             3584     3681     ok (non-closed singly connected)  
+    symmetry            16384    16672    ok (non-closed singly connected)  
+    farfield            13312    13621    ok (non-closed singly connected)  
+    spanOuter           19968    20161    ok (non-closed singly connected)  
+    outlet              6656     6837     ok (non-closed singly connected)  
+    ".*"                67584    67586    ok (closed singly connected)      
+
+
+Checking faceZone topology for multiply connected surfaces...
+    No faceZones found.
+
+Checking basic cellZone addressing...
+    No cellZones found.
+
+Checking basic pointZone addressing...
+    No pointZones found.
+
+Checking geometry...
+    Overall domain bounding box (-16.118 -16.118 0) (16.118 16.118 1.55579)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-3.11821e-16 2.58448e-17 -5.31705e-17) OK.
+ ***High aspect ratio cells found, Max aspect ratio: 6469, number of cells 42950
+  <<Writing 42950 cells with high aspect ratio to set highAspectRatioCells
+    Minimum face area = 3.88556e-08. Maximum face area = 9.31346.  Face area magnitudes OK.
+    Min volume = 1.16252e-09. Max volume = 0.27865.  Total volume = 1440.14.  Cell volumes OK.
+    Mesh non-orthogonality Max: 83.8768 average: 15.8799
+   *Number of severely non-orthogonal (> 70 degrees) faces: 4286.
+    Non-orthogonality check OK.
+  <<Writing 4286 non-orthogonal faces to set nonOrthoFaces
+    Face pyramids OK.
+    Max skewness = 1.44325 OK.
+    Coupled point location match (average 0) OK.
+
+Failed 1 mesh checks.
+
+End
+

@@ -1,0 +1,4 @@
+m1: dict rc=0 blockMesh rc=0 checkMesh rc=0  1s
+m2: dict rc=0 blockMesh rc=0 checkMesh rc=0  10s
+m4: dict rc=0 blockMesh rc=0 checkMesh rc=0  75s
+TRIAL wall 86s

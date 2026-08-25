@@ -1,0 +1,5 @@
+=== TRIAL START ===
+2026-08-25T19:05:38Z
+uptime:  19:05:38 up 4 days,  3:44,  1 user,  load average: 8.17, 8.77, 9.21
+MemAvailable: 18.09 GiB
+nproc: 16
