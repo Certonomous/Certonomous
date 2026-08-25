@@ -18,6 +18,26 @@ extrapolation or rule 5's ordering.  Those live in the shared instrument
 verifies the module it imports IS that blob before it grades anything.  Rule 5
 is applied by ``roache_triple.grade_ladder`` and by nothing here.
 
+WHERE THE TWO HALVES OF THE PLATEAU LIVE (2026-08-25 PRE-COMPUTE AMENDMENT,
+arm B).  A mechanism probe measured that the frozen section 6.1 arrangement --
+the `centerlineProfiles` object itself on `timeStep` / 250 -- writes NOTHING at
+the early `residualControl` stop, so `centerlineProfiles/<N>/` never exists and
+the frozen clause C4 fails by construction on every run.  The amendment leaves
+`centerlineProfiles` at `onEnd` and adds a SEPARATELY NAMED `centerlineSeries`
+object at `timeStep` / 250.  In this file that means, and means only:
+
+  * THE GRADED VALUE and the completion clauses C4 / C6 still read
+    `postProcessing/centerlineProfiles/<N>/` -- the frozen literal path,
+    untouched, at the CONVERGED iteration;
+  * the plateau's EARLIER samples are read from
+    `postProcessing/centerlineSeries/`, its final sample being the same
+    converged artifact the gate grades.
+
+No band, station, reference, completion clause or verdict changed.  An absent
+or too-short series is UNMEASURED, never a pass, and NO FALLBACK to the last
+periodic sample is taken -- that would grade the drift of a materially
+less-converged state.
+
 REFUSAL DISCIPLINE (CLAUDE.md rule 4).  This comparator refuses (exit 2)
 rather than degrade.  A planted-zero control that cannot see its plant
 refuses.  A level failing any clause of the completion rule is NOT graded --
@@ -182,6 +202,16 @@ GATES = (
 BAND_TOKENS = ("0.804230", "0.878230", "0.253430", "0.237230",
                "0.213610", "0.198010", "0.580280", "0.738280",
                "0.536000", "0.494000", "0.074800", "0.046800")
+
+# --- the two sampling directories (2026-08-25 pre-compute amendment) --------
+# PROFILES_DIR is the FROZEN literal path: the graded value and the completion
+# clauses C4/C6 read it, at the converged iteration, and nothing here changes
+# that.  SERIES_DIR carries the periodic samples the PLATEAU's earlier term is
+# read from.  They are deliberately two different names: collapsing them is the
+# defect the amendment repairs, and grade_f11.py --selftest carries a mutation
+# control that FAILS if the plateau reader is pointed back at PROFILES_DIR.
+PROFILES_DIR = "centerlineProfiles"
+SERIES_DIR = "centerlineSeries"
 
 # --- section 5: the completion rule, with its three declared departures ------
 REQUIRED_FIELDS = ("U", "p")
@@ -561,8 +591,13 @@ def _time_dirs(case_dir):
     return sorted(out)
 
 
-def _sample_times(case_dir):
-    base = os.path.join(case_dir, "postProcessing", "centerlineProfiles")
+def _series_times(case_dir):
+    """The iterations at which the PERIODIC series was written.  Reads
+    SERIES_DIR and not PROFILES_DIR: PROFILES_DIR holds exactly one directory,
+    the converged iteration, and reading the periodic series from it would find
+    no earlier sample at all.  An absent directory is [] -- reported, never
+    read as a pass."""
+    base = os.path.join(case_dir, "postProcessing", SERIES_DIR)
     if not os.path.isdir(base):
         return []
     out = []
@@ -665,7 +700,7 @@ def completion_check(case_dir):
     sample_dir = None
     if n_conv is not None:
         sample_dir = os.path.join(case_dir, "postProcessing",
-                                  "centerlineProfiles", str(n_conv))
+                                  PROFILES_DIR, str(n_conv))
     missing = []
     if tds:
         d = os.path.join(case_dir, str(tds[-1]))
@@ -681,7 +716,7 @@ def completion_check(case_dir):
             if not os.path.isfile(p):
                 missing.append(os.path.relpath(p, case_dir))
     else:
-        missing.append("postProcessing/centerlineProfiles/%s/" % n_conv)
+        missing.append("postProcessing/%s/%s/" % (PROFILES_DIR, n_conv))
     c["C4_fields_and_samples"] = not missing
     c["_missing"] = missing
 
@@ -730,43 +765,69 @@ def iterative_state(case_dir):
     return res.get("status", "CANNOT_TELL"), res
 
 
-def plateau_state(case_dir, set_name, component, station):
+def plateau_state(case_dir, set_name, component, station, final_iteration):
     """Section 4.5.  PLATEAUED iff |q(final sample) - q(latest earlier sample
     at least 250 iterations before it)| <= 1.0e-6.
 
-    IF NO SAMPLE AT LEAST 250 ITERATIONS EARLIER EXISTS, THE PLATEAU IS
-    UNMEASURED.  It is reported UNMEASURED and grades that level NOT A RESULT
-    through rule 5 step (a) -- never silently as a pass.
+    THE CRITERION, THE THRESHOLD, THE 250-ITERATION WINDOW AND THE STATION ARE
+    UNCHANGED.  The 2026-08-25 pre-compute amendment changed one thing only:
+    the two terms now live in two directories.
+
+      * q(final) is read from ``postProcessing/centerlineProfiles/<N>/`` at the
+        CONVERGED iteration -- the same artifact, the same station and the same
+        parser the gate grades.  ``final_iteration`` is the converged iteration
+        the completion rule already established; it is passed in rather than
+        re-derived, so this function and clause C3 cannot disagree about what
+        "final" means.
+      * the earlier samples are the periodic series in
+        ``postProcessing/centerlineSeries/``.
+
+    IF NO SERIES SAMPLE AT LEAST 250 ITERATIONS BEFORE THE CONVERGED ITERATION
+    EXISTS -- INCLUDING WHEN THE SERIES DIRECTORY IS ABSENT ENTIRELY -- THE
+    PLATEAU IS UNMEASURED.  It is reported UNMEASURED and grades that level NOT
+    A RESULT through rule 5 step (a); it is never silently a pass, and NO
+    FALLBACK to the last periodic sample is taken in place of the converged
+    one, because that would grade the drift of a materially less-converged
+    state.
     """
-    base = os.path.join(case_dir, "postProcessing", "centerlineProfiles")
-    times = _sample_times(case_dir)
-    if not times:
-        return "UNMEASURED", dict(reason="no sample sets on disk",
-                                  samples=[])
-    final = times[-1]
+    series_base = os.path.join(case_dir, "postProcessing", SERIES_DIR)
+    graded_base = os.path.join(case_dir, "postProcessing", PROFILES_DIR)
+    if final_iteration is None:
+        return "UNMEASURED", dict(
+            reason="the converged iteration is unknown, so the final sample "
+                   "cannot be identified and the criterion cannot be "
+                   "evaluated",
+            samples=[], series_dir=series_base, graded_dir=graded_base)
+    final = int(final_iteration)
+    times = _series_times(case_dir)
     earlier = [t for t in times if t <= final - PLATEAU_MIN_ITER_GAP]
     if not earlier:
         return "UNMEASURED", dict(
-            reason="no sample at least %d iterations before the final sample "
-                   "at %d exists; the criterion cannot be evaluated and an "
-                   "unevaluated step is not a passed one"
-                   % (PLATEAU_MIN_ITER_GAP, final),
-            samples=times, final=final)
+            reason="no %s sample at least %d iterations before the converged "
+                   "iteration %d exists (series on disk: %s); the criterion "
+                   "cannot be evaluated and an unevaluated step is not a "
+                   "passed one"
+                   % (SERIES_DIR, PLATEAU_MIN_ITER_GAP, final,
+                      times if times else "none"),
+            samples=times, final=final, series_dir=series_base,
+            graded_dir=graded_base)
     prev = earlier[-1]
 
-    def q(t):
+    def q(base, t):
         p = os.path.join(base, str(t), "%s_U.xy" % set_name)
         v, _ = select_station(parse_xy(p, set_name), set_name, component,
                               station, p)
         return v
 
-    q_final, q_prev = q(final), q(prev)
+    q_final, q_prev = q(graded_base, final), q(series_base, prev)
     drift = abs(q_final - q_prev)
     state = "PLATEAUED" if drift <= PLATEAU_TOL else "NOT_PLATEAUED"
     return state, dict(final_iteration=final, compared_iteration=prev,
                        iteration_gap=final - prev, q_final=q_final,
                        q_earlier=q_prev, drift=drift,
-                       threshold=PLATEAU_TOL, samples=times)
+                       threshold=PLATEAU_TOL, samples=times,
+                       final_read_from=os.path.join(graded_base, str(final)),
+                       earlier_read_from=os.path.join(series_base, str(prev)))
 
 
 # ===========================================================================
@@ -819,6 +880,15 @@ def grade(root, freeze):
         dim=DIM, ratio_form=FORM, fs=FS,
         plant=PLANT, plateau_threshold=PLATEAU_TOL,
         plateau_min_iteration_gap=PLATEAU_MIN_ITER_GAP,
+        graded_sample_dir=PROFILES_DIR,
+        plateau_series_dir=SERIES_DIR,
+        sampling_note="2026-08-25 PRE-COMPUTE AMENDMENT (arm B): the graded "
+                      "value and completion clauses C4/C6 read the FROZEN "
+                      "literal path postProcessing/%s/<N>/ at the CONVERGED "
+                      "iteration; the plateau's earlier samples are read from "
+                      "postProcessing/%s/. No band, station, reference, "
+                      "completion clause or verdict logic changed."
+                      % (PROFILES_DIR, SERIES_DIR),
         discrimination_test="UNMEASURABLE, not satisfied (section 3.3): the "
                             "hypothesis has no runnable null arm and the row "
                             "is recorded unmeasured",
@@ -883,7 +953,7 @@ def grade(root, freeze):
                 continue
             n_conv = info["completion"]["_converged_iterations"]
             sdir = os.path.join(info["case_dir"], "postProcessing",
-                                "centerlineProfiles", str(n_conv))
+                                PROFILES_DIR, str(n_conv))
             for s in SAMPLE_SETS:
                 report["diagnostics"]["%s/%s" % (key, s)] = \
                     diagnostic_profile(os.path.join(sdir, "%s_U.xy" % s),
@@ -961,7 +1031,7 @@ def grade(root, freeze):
         for k, lv, i in zip(keys, LEVEL_NAMES, infos):
             n_conv = i["completion"]["_converged_iterations"]
             xy = os.path.join(i["case_dir"], "postProcessing",
-                              "centerlineProfiles", str(n_conv),
+                              PROFILES_DIR, str(n_conv),
                               "%s_U.xy" % g["profile"])
             p1, p2, p3 = pz_controls(xy, g["profile"], g["component"],
                                      g["station"])
@@ -977,7 +1047,8 @@ def grade(root, freeze):
                                matched_coord=matched, artifact=xy))
             iteratives[lv] = i["iterative_convergence"]
             st, detail = plateau_state(i["case_dir"], g["profile"],
-                                       g["component"], g["station"])
+                                       g["component"], g["station"],
+                                       n_conv)
             plateaus[lv] = st
             head.setdefault("plateau_detail", {})[lv] = detail
         report["planted_zero_controls"].extend(controls)
@@ -1449,41 +1520,175 @@ def selftest():
                   mutation=True)
 
         # ---------------------------------------------------------------
-        print("\n(viii) the plateau measurement, on a synthetic sample tree")
+        print("\n(viii) the plateau measurement, on a synthetic ARM B sample "
+              "tree")
+        print("      2026-08-25 PRE-COMPUTE AMENDMENT. The tree below is the "
+              "layout the mechanism probe\n      MEASURED at Re 1000, n = 32: "
+              "a periodic series at 250 and 500 under\n      "
+              "postProcessing/%s/, and the graded artifact at the CONVERGED\n"
+              "      iteration 747 under postProcessing/%s/747/ -- the frozen "
+              "literal path.\n      q(final) is read from the GRADED "
+              "directory; the earlier term from the SERIES."
+              % (SERIES_DIR, PROFILES_DIR))
         case = os.path.join(tmpd, "case")
-        base = os.path.join(case, "postProcessing", "centerlineProfiles")
-        for t, v in ((250, -0.20), (500, -0.2058), (750, -0.20581),
-                     (1000, -0.205810000_1)):
-            os.makedirs(os.path.join(base, str(t)))
-            write_xy(os.path.join(base, str(t), "uAlongX05_U.xy"),
+        series = os.path.join(case, "postProcessing", SERIES_DIR)
+        graded = os.path.join(case, "postProcessing", PROFILES_DIR)
+        N_CONV = 747
+        # Values EXACT IN BINARY, so the 1e-12 assertions below are claims
+        # about the reader and not about decimal rounding: the drift is
+        # 2**-22 = 2.384185791015625e-07 exactly, comfortably under the frozen
+        # 1.0e-6 threshold.
+        V_250 = -0.25
+        V_500 = -0.30                 # deliberately FAR from both, to prove
+                                      # the >=250-iteration window picks 250
+                                      # and NOT the nearer sample at 500
+        DRIFT = 2.0 ** -22
+        V_747 = V_250 + DRIFT
+
+        def _write_sample(base, t, v):
+            d = os.path.join(base, str(t))
+            os.makedirs(d, exist_ok=True)
+            write_xy(os.path.join(d, "uAlongX05_U.xy"),
                      _synth_xy("uAlongX05", stations,
                                [0.0, 0.0, 0.0, v, 0.0, 0.0]))
-        st, det = plateau_state(case, "uAlongX05", "u", 0.5000)
-        check("PLATEAUED when the drift over a >=250-iteration gap is under "
-              "1e-6", st == "PLATEAUED",
-              "drift %.3e over %d -> %d" % (det["drift"],
+
+        _write_sample(series, 250, V_250)
+        _write_sample(series, 500, V_500)
+        _write_sample(graded, N_CONV, V_747)
+
+        st, det = plateau_state(case, "uAlongX05", "u", 0.5000, N_CONV)
+        check("PLATEAUED when the drift over a >=%d-iteration gap is under "
+              "%g" % (PLATEAU_MIN_ITER_GAP, PLATEAU_TOL), st == "PLATEAUED",
+              "drift %.6e over %d -> %d" % (det["drift"],
                                             det["compared_iteration"],
                                             det["final_iteration"]))
-        check("the compared sample is at least %d iterations earlier"
-              % PLATEAU_MIN_ITER_GAP,
-              det["iteration_gap"] >= PLATEAU_MIN_ITER_GAP,
+        check("N-T8 VALUE CONTROL: the drift is the CONSTRUCTED 2**-22 = "
+              "%.17g to 1e-12 relative" % DRIFT,
+              abs(det["drift"] - DRIFT) <= 1e-12 * DRIFT,
+              "read %.17g" % det["drift"])
+        check("q(final) is the CONSTRUCTED converged value %.17g and "
+              "q(earlier) the CONSTRUCTED %.17g, both to 1e-12 relative"
+              % (V_747, V_250),
+              abs(det["q_final"] - V_747) <= 1e-12 * abs(V_747)
+              and abs(det["q_earlier"] - V_250) <= 1e-12 * abs(V_250))
+        check("the compared sample is the latest one at least %d iterations "
+              "earlier -- 250, NOT the nearer 500 (%d > %d - %d)"
+              % (PLATEAU_MIN_ITER_GAP, 500, N_CONV, PLATEAU_MIN_ITER_GAP),
+              det["compared_iteration"] == 250
+              and det["iteration_gap"] == N_CONV - 250
+              and abs(det["q_earlier"] - V_500) > 0.04,
               "gap %d" % det["iteration_gap"])
-        print("      MUTATION: widen the drift past the threshold")
-        write_xy(os.path.join(base, "1000", "uAlongX05_U.xy"),
-                 _synth_xy("uAlongX05", stations,
-                           [0.0, 0.0, 0.0, -0.2059, 0.0, 0.0]))
-        st2, det2 = plateau_state(case, "uAlongX05", "u", 0.5000)
-        check("NOT_PLATEAUED once the drift exceeds 1e-6 (mutation control)",
-              st2 == "NOT_PLATEAUED", "drift %.3e" % det2["drift"],
+        check("q(final) is read from postProcessing/%s/%d/ -- the FROZEN "
+              "literal path at the converged iteration -- and the earlier "
+              "term from postProcessing/%s/250/"
+              % (PROFILES_DIR, N_CONV, SERIES_DIR),
+              det["final_read_from"].endswith(os.path.join(PROFILES_DIR,
+                                                           str(N_CONV)))
+              and det["earlier_read_from"].endswith(
+                  os.path.join(SERIES_DIR, "250")))
+
+        print("      THE MUTATION THIS AMENDMENT EXISTS FOR: point the "
+              "plateau reader BACK at %s" % PROFILES_DIR)
+        print("      %s holds exactly ONE directory -- the converged "
+              "iteration -- so a reader pointed\n      there finds no earlier "
+              "sample at all. It must go UNMEASURED, never PLATEAUED."
+              % PROFILES_DIR)
+        _real_series_dir = globals()["SERIES_DIR"]
+        globals()["SERIES_DIR"] = PROFILES_DIR
+        try:
+            st_m, det_m = plateau_state(case, "uAlongX05", "u", 0.5000, N_CONV)
+        finally:
+            globals()["SERIES_DIR"] = _real_series_dir
+        check("the plateau reader pointed back at %s -> UNMEASURED, never a "
+              "pass (mutation control)" % PROFILES_DIR,
+              st_m == "UNMEASURED", det_m["reason"][:64], mutation=True)
+        check("CONTROL ON THAT CONTROL: with %s restored the same tree reads "
+              "PLATEAUED again, so the mutation above is not an artefact of "
+              "the harness" % SERIES_DIR,
+              plateau_state(case, "uAlongX05", "u", 0.5000,
+                            N_CONV)[0] == "PLATEAUED")
+
+        print("      THE MUTATION THE SUPERVISOR'S RULING NAMES: take the "
+              "GRADED value from the PERIODIC series")
+        print("      Arm B's entire content is that the two reads are "
+              "SEPARATE. A comparator whose GRADED\n      read is pointed at "
+              "%s is reading a different artifact at a different\n      "
+              "iteration; it must REFUSE, never return a number."
+              % SERIES_DIR)
+        _real_profiles_dir = globals()["PROFILES_DIR"]
+        globals()["PROFILES_DIR"] = SERIES_DIR
+        try:
+            _st_g, _ = plateau_state(case, "uAlongX05", "u", 0.5000, N_CONV)
+            _g_ref, _gmsg = False, "returned %s without refusing" % _st_g
+        except Refusal as _exc:
+            _g_ref, _gmsg = True, str(_exc)
+        finally:
+            globals()["PROFILES_DIR"] = _real_profiles_dir
+        check("the GRADED read pointed at %s REFUSES: the periodic series has "
+              "no directory at the converged iteration %d, and a comparator "
+              "that grades the series is not grading what C4 names (mutation "
+              "control)" % (SERIES_DIR, N_CONV), _g_ref, _gmsg[:64],
               mutation=True)
-        print("      MUTATION: remove the earlier samples -- the plateau is "
-              "UNMEASURED, never a pass")
-        for t in (250, 500, 750):
-            shutil.rmtree(os.path.join(base, str(t)))
-        st3, det3 = plateau_state(case, "uAlongX05", "u", 0.5000)
-        check("no sample >=250 iterations earlier -> UNMEASURED (reported "
-              "unmeasured, NOT passed)", st3 == "UNMEASURED",
-              det3["reason"][:60], mutation=True)
+        check("CONTROL ON THAT CONTROL: with %s restored the same tree reads "
+              "PLATEAUED again" % PROFILES_DIR,
+              plateau_state(case, "uAlongX05", "u", 0.5000,
+                            N_CONV)[0] == "PLATEAUED")
+
+        print("      THE REJECTED ALTERNATIVE, QUANTIFIED: grade the LAST "
+              "PERIODIC directory instead of the converged one")
+        _fb = os.path.join(series, "500", "uAlongX05_U.xy")
+        _q_fb, _ = select_station(parse_xy(_fb, "uAlongX05"), "uAlongX05",
+                                  "u", 0.5000, _fb)
+        _gap = abs(_q_fb - det["q_final"])
+        check("relaxing C4 to accept the last periodic directory would grade "
+              "iteration 500 and not %d, moving the graded value by the "
+              "CONSTRUCTED %.17g -- %.0fx the %g plateau tolerance.  That is a "
+              "GATE CHANGE, which is why arm B was adopted and the relaxation "
+              "REJECTED" % (N_CONV, abs(V_500 - V_747), _gap / PLATEAU_TOL,
+                            PLATEAU_TOL),
+              abs(_q_fb - V_500) <= 1e-12 * abs(V_500)
+              and _gap > 1.0e4 * PLATEAU_TOL, "gap %.6e" % _gap)
+
+        print("      MUTATION: widen the drift past the threshold")
+        _write_sample(graded, N_CONV, V_250 + 2.0 ** -19)
+        st2, det2 = plateau_state(case, "uAlongX05", "u", 0.5000, N_CONV)
+        check("NOT_PLATEAUED once the drift exceeds %g (mutation control)"
+              % PLATEAU_TOL, st2 == "NOT_PLATEAUED",
+              "drift %.6e" % det2["drift"], mutation=True)
+        _write_sample(graded, N_CONV, V_747)
+
+        print("      MUTATION: a series that is TOO SHORT -- every sample "
+              "inside the 250-iteration window")
+        shutil.rmtree(os.path.join(series, "250"))
+        st4, det4 = plateau_state(case, "uAlongX05", "u", 0.5000, N_CONV)
+        check("only a sample at 500, which is inside the window of 747 -> "
+              "UNMEASURED (reported unmeasured, NOT passed)",
+              st4 == "UNMEASURED" and det4["samples"] == [500],
+              det4["reason"][:64], mutation=True)
+
+        print("      MUTATION: remove the %s directory entirely" % SERIES_DIR)
+        shutil.rmtree(series)
+        st3, det3 = plateau_state(case, "uAlongX05", "u", 0.5000, N_CONV)
+        check("an ABSENT periodic series -> UNMEASURED naming %s, never a pass"
+              % SERIES_DIR,
+              st3 == "UNMEASURED" and SERIES_DIR in det3["reason"]
+              and det3["samples"] == [], det3["reason"][:64], mutation=True)
+        check("an unknown converged iteration -> UNMEASURED, never a pass",
+              plateau_state(case, "uAlongX05", "u", 0.5000, None)[0]
+              == "UNMEASURED", mutation=True)
+
+        print("      and it REFUSES, rather than degrades, if the GRADED "
+              "artifact is missing")
+        _write_sample(series, 250, V_250)
+        shutil.rmtree(os.path.join(graded, str(N_CONV)))
+        try:
+            plateau_state(case, "uAlongX05", "u", 0.5000, N_CONV)
+            check("a missing graded artifact REFUSES", False, "no refusal",
+                  mutation=True)
+        except Refusal:
+            check("a missing graded artifact REFUSES rather than falling back "
+                  "to the last periodic sample", True, mutation=True)
+        shutil.rmtree(case)
 
         # ---------------------------------------------------------------
         print("\n(ix) the completion rule, on a synthetic case")
@@ -1499,6 +1704,11 @@ def selftest():
                   + "SIMPLE solution converged in 1505 iterations\n\nEnd\n")
         open(os.path.join(cc, SOLVER_LOG), "w").write(log_ok)
         os.makedirs(os.path.join(cc, "1505"))
+        # NOTE the LITERAL "centerlineProfiles" here, not PROFILES_DIR: the
+        # completion clause C4 names a literal path in the frozen document and
+        # this control is what proves the constant still equals it.
+        check("PROFILES_DIR is still the frozen literal 'centerlineProfiles'",
+              PROFILES_DIR == "centerlineProfiles")
         sd = os.path.join(cc, "postProcessing", "centerlineProfiles", "1505")
         os.makedirs(sd)
         import time as _t
@@ -1600,6 +1810,44 @@ def selftest():
             check("the four waves sum to the frozen 8.02 core-min prediction",
                   abs(sum(rerun_f11.PRED.values()) / 60.0 - 8.02) < 0.005,
                   "%.4f core-min" % (sum(rerun_f11.PRED.values()) / 60.0))
+
+            # ---- THE 2026-08-25 PRE-COMPUTE AMENDMENT, CHECKED ACROSS BOTH
+            # SCRIPTS.  The launcher writes two separately named sampling
+            # objects and this comparator reads two separately named
+            # directories.  If either side is collapsed the other silently
+            # stops measuring what it claims to measure, so the coupling is
+            # asserted here rather than left to two matching comments.
+            check("the launcher's GRADED object name IS this comparator's "
+                  "graded directory", rerun_f11.PROFILES_OBJECT == PROFILES_DIR,
+                  rerun_f11.PROFILES_OBJECT)
+            check("the launcher's PERIODIC object name IS this comparator's "
+                  "plateau series directory",
+                  rerun_f11.SERIES_OBJECT == SERIES_DIR,
+                  rerun_f11.SERIES_OBJECT)
+            check("the two names are DIFFERENT -- collapsing them back into "
+                  "one is the defect the amendment repairs, and this check "
+                  "FAILS if they are (mutation control)",
+                  PROFILES_DIR != SERIES_DIR
+                  and rerun_f11.PROFILES_OBJECT != rerun_f11.SERIES_OBJECT,
+                  mutation=True)
+            check("the launcher samples every %d iterations, which is <= the "
+                  "plateau's %d-iteration window, so any run converging at N "
+                  ">= %d has an earlier sample to compare against"
+                  % (rerun_f11.SERIES_INTERVAL, PLATEAU_MIN_ITER_GAP,
+                     2 * PLATEAU_MIN_ITER_GAP),
+                  rerun_f11.SERIES_INTERVAL <= PLATEAU_MIN_ITER_GAP)
+            import cavity_ladder as _cl
+            _virgin = _cl.control_dict(4000)
+            try:
+                rerun_f11.assert_arm_b_arrangement(_virgin, 4000)
+                check("the launcher's arrangement asserter REFUSES a "
+                      "single-sampling-object dictionary (cross-script "
+                      "mutation control)", False, "no refusal", mutation=True)
+            except RuntimeError as _exc:
+                check("the launcher's arrangement asserter REFUSES a "
+                      "single-sampling-object dictionary (cross-script "
+                      "mutation control)", "COLLAPSED" in str(_exc),
+                      str(_exc)[:60], mutation=True)
             cap_sum = sum(rerun_f11.wall_cap(k) for k in frozen_caps)
             check("the per-run caps sum ABOVE the budget -- which is why the "
                   "watchdog, not the per-run caps, is the binding enforcement",

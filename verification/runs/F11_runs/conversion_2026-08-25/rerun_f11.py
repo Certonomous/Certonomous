@@ -14,6 +14,26 @@ module does not write -- ``meta.json``, ``run_rc.txt`` and
 ``launch_timing.json`` -- plus the ONE registered change to the case
 dictionaries in section 6.1, applied with an assert and never blind.
 
+SECTION 6.1 AS AMENDED 2026-08-25, PRE-COMPUTE, ARM B.  The frozen section 6.1
+moved the ``centerlineProfiles`` object itself onto ``timeStep`` / 250.  A
+mechanism probe measured that this arrangement CANNOT SATISFY THE FROZEN
+CLAUSE C4: ``simpleFoam`` stops early under ``residualControl``, the ``sets``
+object writes only at multiples of 250, and NOTHING is written at the
+convergence iteration -- so ``centerlineProfiles/<N>/`` never exists and C4
+fails by construction on every run.  What this launcher now writes instead:
+
+  * ``centerlineProfiles`` STAYS at ``onEnd``, so both ``.xy`` files land under
+    ``centerlineProfiles/<N>/`` at the CONVERGED iteration -- the frozen
+    literal path C4 names, unchanged;
+  * a SEPARATELY NAMED ``centerlineSeries`` object, sampling THE SAME POINTS,
+    is added at ``timeStep`` / ``250``, and is what the plateau's earlier
+    samples are read from (``grade_f11.py``).
+
+This alters NO gate, NO threshold, NO cap and NO label.  It changes only how
+the artifact is produced, restoring the path the freeze already names.  The
+arrangement actually written is RE-READ FROM DISK and asserted; the launcher
+REFUSES rather than degrade if what it wrote is not what it intended.
+
 BUDGET (CLAUDE.md rule 12; section 7).  The cap is HARD: **13.0 core-minutes =
 780 core-seconds**.  AN OVERRUN STOPS THE RUN; IT DOES NOT GET A NEW BUDGET.
 Three enforcement points, all here:
@@ -60,9 +80,11 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -177,72 +199,285 @@ def verify_generator():
 
 # ---------------------------------------------------------------------------
 # section 6.1 -- the ONE registered change to the case dictionaries
+#                AS AMENDED 2026-08-25, PRE-COMPUTE: ARM B
 # ---------------------------------------------------------------------------
 
+PROFILES_OBJECT = "centerlineProfiles"   # GRADED artifact; stays at onEnd, so
+                                         # it lands at the CONVERGED iteration
+SERIES_OBJECT = "centerlineSeries"       # PERIODIC series; timeStep / 250
+SERIES_INTERVAL = 250                    # section 6.1's registered interval
+
+
+def find_block(txt, name):
+    """Locate the OpenFOAM sub-dictionary ``name { ... }`` by BRACE COUNTING,
+    never by a regex over nested braces.
+
+    Returns ``(start, end, n_found)``.  ``start`` indexes the first character
+    of the name and ``end`` is one past its closing brace.  When ``n_found``
+    is not 1 both indices are ``None`` -- the caller decides what a wrong count
+    means, and no caller here treats it as anything but a refusal.
+    """
+    hits = list(re.finditer(r"^([ \t]*)%s[ \t]*$" % re.escape(name), txt,
+                            re.M))
+    if len(hits) != 1:
+        return None, None, len(hits)
+    m = hits[0]
+    try:
+        i = txt.index("{", m.end())
+    except ValueError:
+        return None, None, 1
+    depth, j = 0, i
+    while j < len(txt):
+        if txt[j] == "{":
+            depth += 1
+        elif txt[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return m.start(), j + 1, 1
+        j += 1
+    return None, None, 1
+
+
+def sets_body(block):
+    """The ``sets { ... }`` sub-dictionary of one function object, so that the
+    two objects can be proved to sample THE SAME POINTS.  If the plateau were
+    measured at a different station from the graded value the whole
+    arrangement would be worthless, and that is a thing to assert, not to
+    assume."""
+    s, e, n = find_block(block, "sets")
+    if n != 1 or s is None:
+        return None
+    return block[s:e]
+
+
+def build_series_block(profiles_block):
+    """Arm B's periodic object, built FROM the graded object so the two sample
+    the same points by construction, with only the name and the two controls
+    changed."""
+    blk, n = re.subn(r"^([ \t]*)%s[ \t]*$" % re.escape(PROFILES_OBJECT),
+                     lambda m: m.group(1) + SERIES_OBJECT, profiles_block,
+                     count=1, flags=re.M)
+    if n != 1:
+        raise RuntimeError("section 6.1 (arm B): could not rename the copied "
+                           "sampling object exactly once (renamed %d)" % n)
+    blk, n = re.subn(
+        r"^([ \t]*)executeControl(\s+)onEnd;[ \t]*$",
+        lambda m: ("%sexecuteControl%stimeStep;\n%sexecuteInterval%s%d;"
+                   % (m.group(1), m.group(2), m.group(1), m.group(2),
+                      SERIES_INTERVAL)), blk, flags=re.M)
+    if n != 1:
+        raise RuntimeError("section 6.1 (arm B): expected exactly ONE "
+                           "'executeControl onEnd;' in the copied object, "
+                           "found %d" % n)
+    blk, n = re.subn(
+        r"^([ \t]*)writeControl(\s+)onEnd;[ \t]*$",
+        lambda m: ("%swriteControl%stimeStep;\n%swriteInterval%s%d;"
+                   % (m.group(1), m.group(2), m.group(1), m.group(2),
+                      SERIES_INTERVAL)), blk, flags=re.M)
+    if n != 1:
+        raise RuntimeError("section 6.1 (arm B): expected exactly ONE "
+                           "'writeControl onEnd;' in the copied object, "
+                           "found %d" % n)
+    return blk
+
+
+def assert_arm_b_arrangement(txt, end_time, where="<memory>"):
+    """REFUSE unless the dictionary is EXACTLY arm B's arrangement.
+
+    This is the assertion the launcher makes on WHAT IT ACTUALLY WROTE,
+    re-read from disk -- not on the string it meant to write.  It is also the
+    mutation surface ``--selftest`` attacks: a dictionary whose two sampling
+    objects have been COLLAPSED BACK INTO ONE fails here, and catching that is
+    the entire reason this function exists.
+
+    Returns a dict describing the arrangement it verified.
+    """
+    if int(end_time) == SERIES_INTERVAL:
+        raise RuntimeError(
+            "section 6.1 (arm B): endTime equals the sampling interval %d, so "
+            "the interval counts below could not distinguish the top-level "
+            "field write from the sampling write; refusing rather than "
+            "asserting something that cannot discriminate" % SERIES_INTERVAL)
+
+    ps, pe, n_prof = find_block(txt, PROFILES_OBJECT)
+    ss, se, n_ser = find_block(txt, SERIES_OBJECT)
+    if n_prof != 1:
+        raise RuntimeError(
+            "section 6.1 (arm B): expected exactly ONE '%s' function object in "
+            "%s, found %d.  That object is the GRADED artifact and the frozen "
+            "completion clause C4 names its literal path "
+            "postProcessing/centerlineProfiles/<N>/."
+            % (PROFILES_OBJECT, where, n_prof))
+    if n_ser != 1:
+        raise RuntimeError(
+            "section 6.1 (arm B): expected exactly ONE '%s' function object in "
+            "%s, found %d.  THE TWO SAMPLING OBJECTS MUST NOT BE COLLAPSED "
+            "INTO ONE: a single object on timeStep/%d writes nothing at the "
+            "early residualControl stop, so centerlineProfiles/<N>/ never "
+            "exists and C4 fails by construction; a single object on onEnd "
+            "writes no periodic series, so the plateau is UNMEASURED.  Arm B "
+            "needs BOTH." % (SERIES_OBJECT, where, n_ser, SERIES_INTERVAL))
+    pb, sb = txt[ps:pe], txt[ss:se]
+
+    # -- the GRADED object stays at onEnd: that is what puts the .xy under the
+    #    CONVERGED iteration and satisfies C4 WITHOUT CHANGING C4.
+    for key in ("executeControl", "writeControl"):
+        if len(re.findall(r"^\s*%s\s+onEnd;\s*$" % key, pb, re.M)) != 1:
+            raise RuntimeError(
+                "section 6.1 (arm B): '%s' must carry exactly one '%s onEnd;' "
+                "in %s.  Moving the graded object off onEnd is precisely the "
+                "defect this amendment repairs: it would write only at "
+                "multiples of %d and nothing at the convergence iteration."
+                % (PROFILES_OBJECT, key, where, SERIES_INTERVAL))
+    if re.search(r"^\s*(?:execute|write)Interval\b", pb, re.M):
+        raise RuntimeError(
+            "section 6.1 (arm B): the graded '%s' object in %s carries a "
+            "periodic interval; it must be onEnd only" % (PROFILES_OBJECT,
+                                                          where))
+
+    # -- the PERIODIC object is timeStep / 250 and carries no onEnd.
+    for key in ("executeControl", "writeControl"):
+        if len(re.findall(r"^\s*%s\s+timeStep;\s*$" % key, sb, re.M)) != 1:
+            raise RuntimeError(
+                "section 6.1 (arm B): '%s' must carry exactly one '%s "
+                "timeStep;' in %s" % (SERIES_OBJECT, key, where))
+    for key in ("executeInterval", "writeInterval"):
+        if len(re.findall(r"^\s*%s\s+%d;\s*$" % (key, SERIES_INTERVAL), sb,
+                          re.M)) != 1:
+            raise RuntimeError(
+                "section 6.1 (arm B): '%s' must carry exactly one '%s %d;' in "
+                "%s" % (SERIES_OBJECT, key, SERIES_INTERVAL, where))
+    if "onEnd" in sb:
+        raise RuntimeError("section 6.1 (arm B): an 'onEnd' control survived "
+                           "in the periodic '%s' object in %s"
+                           % (SERIES_OBJECT, where))
+
+    # -- the two objects sample THE SAME POINTS.  Otherwise the plateau would
+    #    be measured at a different station from the graded value.
+    p_sets, s_sets = sets_body(pb), sets_body(sb)
+    if p_sets is None or s_sets is None:
+        raise RuntimeError("section 6.1 (arm B): could not locate a single "
+                           "'sets' sub-dictionary in each sampling object in "
+                           "%s" % where)
+    if p_sets != s_sets:
+        raise RuntimeError(
+            "section 6.1 (arm B): '%s' and '%s' in %s do not sample the same "
+            "points.  The plateau would then be measured at a different "
+            "station from the graded value, which is worse than not measuring "
+            "it." % (PROFILES_OBJECT, SERIES_OBJECT, where))
+
+    # -- FIELD WRITES UNTOUCHED, asserted and not assumed.
+    if len(re.findall(r"^\s*writeInterval\s+%d;\s*$" % end_time, txt,
+                      re.M)) != 1:
+        raise RuntimeError("section 6.1 must leave the top-level "
+                           "'writeInterval %d;' intact in %s and it did not"
+                           % (end_time, where))
+    if len(re.findall(r"^\s*purgeWrite\s+1;\s*$", txt, re.M)) != 1:
+        raise RuntimeError("section 6.1 must leave 'purgeWrite 1;' intact in "
+                           "%s" % where)
+    if len(re.findall(r"^\s*endTime\s+%d;\s*$" % end_time, txt, re.M)) != 1:
+        raise RuntimeError("the endTime in %s is not the section 6 value %d"
+                           % (where, end_time))
+
+    # -- and the counting arguments, over the WHOLE dictionary, so a stray
+    #    third copy of anything is caught rather than hidden by the two block
+    #    reads above.
+    counts = dict(
+        onEnd=txt.count("onEnd"),
+        type_sets=len(re.findall(r"^\s*type\s+sets;\s*$", txt, re.M)),
+        writeInterval_250=len(re.findall(r"^\s*writeInterval\s+%d;\s*$"
+                                         % SERIES_INTERVAL, txt, re.M)),
+        executeInterval_250=len(re.findall(r"^\s*executeInterval\s+%d;\s*$"
+                                           % SERIES_INTERVAL, txt, re.M)),
+        writeControl_timeStep=len(re.findall(
+            r"^\s*writeControl\s+timeStep;\s*$", txt, re.M)))
+    want = dict(onEnd=2, type_sets=2, writeInterval_250=1,
+                executeInterval_250=1, writeControl_timeStep=2)
+    if counts != want:
+        raise RuntimeError(
+            "section 6.1 (arm B): the dictionary in %s does not have arm B's "
+            "shape.  expected %r, found %r.  (onEnd twice: executeControl and "
+            "writeControl of the graded object.  type sets twice: the two "
+            "sampling objects.  writeControl timeStep twice: the top-level "
+            "field write and the periodic series.)" % (where, want, counts))
+    if txt.count("onEnd") != pb.count("onEnd"):
+        raise RuntimeError("section 6.1 (arm B): an 'onEnd' control lives "
+                           "outside the graded '%s' object in %s"
+                           % (PROFILES_OBJECT, where))
+    return dict(section="6.1", amendment="2026-08-25 PRE-COMPUTE, arm B",
+                graded_object=PROFILES_OBJECT,
+                graded_executeControl="onEnd", graded_writeControl="onEnd",
+                series_object=SERIES_OBJECT,
+                series_executeControl="timeStep",
+                series_executeInterval=SERIES_INTERVAL,
+                series_writeControl="timeStep",
+                series_writeInterval=SERIES_INTERVAL,
+                same_points=True, field_writes_untouched=True,
+                endTime=end_time, counts=counts)
+
+
 def apply_section_6_1(case, end_time):
-    """The ``centerlineProfiles`` function object carries
-    ``executeControl onEnd; writeControl onEnd;``, which writes ONE sample set
-    per run -- from which no plateau can be measured.  Section 6.1 changes it
-    to ``executeControl timeStep; executeInterval 250; writeControl timeStep;
-    writeInterval 250``.
+    """Section 6.1 AS AMENDED 2026-08-25 (pre-compute, arm B).
+
+    The generator emits ONE sampling object, ``centerlineProfiles``, carrying
+    ``executeControl onEnd; writeControl onEnd;`` -- one sample set per run,
+    from which no plateau can be measured.  The frozen section 6.1 moved THAT
+    object onto ``timeStep`` / 250; a mechanism probe measured that doing so
+    writes nothing at the early ``residualControl`` stop, so
+    ``centerlineProfiles/<N>/`` never exists and the frozen clause C4 fails by
+    construction on every run.
+
+    What is written instead:
+
+      * ``centerlineProfiles`` is LEFT at ``onEnd`` -- the graded ``.xy`` files
+        land under ``centerlineProfiles/<N>/`` at the CONVERGED iteration, the
+        frozen literal path, unchanged;
+      * a separately named ``centerlineSeries`` object sampling THE SAME
+        POINTS is inserted at ``executeControl timeStep; executeInterval 250;
+        writeControl timeStep; writeInterval 250``, and is what the plateau's
+        earlier samples are read from.
 
     FIELD WRITES ARE UNTOUCHED: ``controlDict``'s top-level ``writeControl
     timeStep; writeInterval <endTime>; purgeWrite 1`` is asserted intact
     afterwards, so this adds no field I/O.  It changes WHEN a sample is
-    written, never WHAT the converged field is.
+    written, never WHAT the converged field is -- and the probe measured that
+    too: arm A and arm B both converged at 747 iterations at Re 1000, n = 32.
 
-    Inserted with an assert, never blind (CLAUDE.md rule 14's discipline):
-    exactly one occurrence of each line must be found, or this refuses.
+    Inserted with an assert, never blind (CLAUDE.md rule 14's discipline), and
+    the arrangement is asserted TWICE: once on the text about to be written and
+    once on the text RE-READ FROM DISK.  It REFUSES rather than degrade if the
+    dictionary it wrote is not the one it intended.
     """
     path = os.path.join(case, "system", "controlDict")
     txt = open(path).read()
 
-    txt, n_exec = re.subn(
-        r"^(\s*)executeControl(\s+)onEnd;[ \t]*$",
-        lambda m: ("%sexecuteControl%stimeStep;\n%sexecuteInterval%s250;"
-                   % (m.group(1), m.group(2), m.group(1), m.group(2))),
-        txt, flags=re.M)
-    if n_exec != 1:
+    ps, pe, n_prof = find_block(txt, PROFILES_OBJECT)
+    if n_prof != 1:
         raise RuntimeError(
-            "section 6.1: expected exactly ONE 'executeControl onEnd;' in %s, "
-            "found %d -- refusing to edit a dictionary that is not the one "
-            "the pre-registration describes" % (path, n_exec))
+            "section 6.1: expected exactly ONE '%s' function object in %s, "
+            "found %d -- refusing to edit a dictionary that is not the one the "
+            "pre-registration describes" % (PROFILES_OBJECT, path, n_prof))
+    _, _, n_ser = find_block(txt, SERIES_OBJECT)
+    if n_ser != 0:
+        raise RuntimeError(
+            "section 6.1: '%s' already exists in %s (found %d); this launcher "
+            "always builds into a FRESH case and refuses to edit a dictionary "
+            "it has already edited" % (SERIES_OBJECT, path, n_ser))
 
-    txt, n_write = re.subn(
-        r"^(\s*)writeControl(\s+)onEnd;[ \t]*$",
-        lambda m: ("%swriteControl%stimeStep;\n%swriteInterval%s250;"
-                   % (m.group(1), m.group(2), m.group(1), m.group(2))),
-        txt, flags=re.M)
-    if n_write != 1:
-        raise RuntimeError(
-            "section 6.1: expected exactly ONE 'writeControl onEnd;' in %s, "
-            "found %d" % (path, n_write))
+    profiles_block = txt[ps:pe]
+    series_block = build_series_block(profiles_block)
+    indent = re.match(r"[ \t]*", profiles_block).group(0)
+    new_txt = txt[:pe] + "\n\n" + indent + series_block.lstrip() + txt[pe:]
 
-    # FIELD WRITES UNTOUCHED -- asserted, not assumed.
-    if len(re.findall(r"^\s*writeInterval\s+%d;\s*$" % end_time, txt,
-                      re.M)) != 1:
-        raise RuntimeError(
-            "section 6.1 must leave the top-level 'writeInterval %d;' intact "
-            "in %s and it did not" % (end_time, path))
-    if len(re.findall(r"^\s*writeInterval\s+250;\s*$", txt, re.M)) != 1:
-        raise RuntimeError("section 6.1: the sampling writeInterval 250 was "
-                           "not inserted exactly once in %s" % path)
-    if len(re.findall(r"^\s*executeInterval\s+250;\s*$", txt, re.M)) != 1:
-        raise RuntimeError("section 6.1: the executeInterval 250 was not "
-                           "inserted exactly once in %s" % path)
-    if len(re.findall(r"^\s*purgeWrite\s+1;\s*$", txt, re.M)) != 1:
-        raise RuntimeError("section 6.1 must leave 'purgeWrite 1;' intact in "
-                           "%s" % path)
-    if len(re.findall(r"^\s*endTime\s+%d;\s*$" % end_time, txt, re.M)) != 1:
-        raise RuntimeError("the endTime in %s is not the section 6 value %d"
-                           % (path, end_time))
-    if "onEnd" in txt:
-        raise RuntimeError("an 'onEnd' control survived the section 6.1 edit "
-                           "in %s" % path)
-    open(path, "w").write(txt)
-    return dict(section="6.1", executeControl="timeStep", executeInterval=250,
-                writeControl="timeStep", writeInterval=250,
-                field_writes_untouched=True, endTime=end_time)
+    # assert on what is ABOUT to be written ...
+    assert_arm_b_arrangement(new_txt, end_time, where="<in memory, %s>" % path)
+    open(path, "w").write(new_txt)
+    # ... and again on what IS on disk.  A launcher that trusts its own string
+    # has not checked anything (CLAUDE.md rule 3's discipline, applied to a
+    # dictionary rather than to a number).
+    meta = assert_arm_b_arrangement(open(path).read(), end_time, where=path)
+    meta["controlDict"] = path
+    return meta
 
 
 # ---------------------------------------------------------------------------
@@ -370,6 +605,263 @@ def run_one_child(rung, level):
     return rc
 
 
+
+# ---------------------------------------------------------------------------
+# SELFTEST -- N-T8 value controls AND mutation controls (registered 792acd8f)
+# ---------------------------------------------------------------------------
+
+_CHECKS = []
+_MUTATIONS = []
+
+
+def check(name, ok, detail="", mutation=False):
+    _CHECKS.append((name, bool(ok), detail))
+    if mutation:
+        _MUTATIONS.append(name)
+    print("  [%s] %s%s" % ("ok " if ok else "FAIL", name,
+                           "   " + detail if detail else ""))
+
+
+def _refuses(fn, *a, **k):
+    """Run ``fn`` and report (refused, message).  A control that only proves a
+    call SUCCEEDS proves nothing about a defect; every mutation below is
+    checked for an actual refusal AND for the refusal naming the right thing."""
+    try:
+        fn(*a, **k)
+        return False, ""
+    except RuntimeError as exc:
+        return True, str(exc)
+
+
+def selftest():
+    print("rerun_f11.py --selftest")
+    print("N-T8 (heat-transfer, commit 792acd8f): a control that only checks a "
+          "key EXISTS is what let a\nsign defect survive 45/45.  Every control "
+          "below reads a VALUE off a dictionary whose shape is\nknown by "
+          "construction, and every one is paired with a MUTATION that must "
+          "REFUSE.")
+    tmpd = tempfile.mkdtemp(prefix="f11_rerun_selftest_")
+    try:
+        import cavity_ladder
+        end_time = 4000
+        case = os.path.join(tmpd, "case")
+        os.makedirs(os.path.join(case, "system"))
+        cd_path = os.path.join(case, "system", "controlDict")
+        virgin = cavity_ladder.control_dict(end_time)
+        open(cd_path, "w").write(virgin)
+
+        # ------------------------------------------------------------------
+        print("\n(i) the GENERATOR's dictionary is the one section 6.1 "
+              "describes -- read, not assumed")
+        _, _, n_prof = find_block(virgin, PROFILES_OBJECT)
+        _, _, n_ser = find_block(virgin, SERIES_OBJECT)
+        check("the generator emits exactly ONE '%s' object and NO '%s'"
+              % (PROFILES_OBJECT, SERIES_OBJECT), n_prof == 1 and n_ser == 0,
+              "found %d / %d" % (n_prof, n_ser))
+        ps, pe, _ = find_block(virgin, PROFILES_OBJECT)
+        vb = virgin[ps:pe]
+        check("and it carries 'executeControl onEnd;' and 'writeControl "
+              "onEnd;' exactly once each",
+              len(re.findall(r"^\s*executeControl\s+onEnd;\s*$", vb,
+                             re.M)) == 1
+              and len(re.findall(r"^\s*writeControl\s+onEnd;\s*$", vb,
+                                 re.M)) == 1)
+        check("the untouched generator dictionary is NOT arm B -- so the "
+              "asserter is not vacuous",
+              _refuses(assert_arm_b_arrangement, virgin, end_time)[0],
+              mutation=True)
+
+        # ------------------------------------------------------------------
+        print("\n(ii) N-T8 VALUE CONTROL: apply section 6.1 and read the "
+              "arrangement back OFF DISK")
+        meta = apply_section_6_1(case, end_time)
+        on_disk = open(cd_path).read()
+        ps, pe, n_prof = find_block(on_disk, PROFILES_OBJECT)
+        ss, se, n_ser = find_block(on_disk, SERIES_OBJECT)
+        pb, sb = on_disk[ps:pe], on_disk[ss:se]
+        check("exactly TWO sampling objects on disk: '%s' and '%s'"
+              % (PROFILES_OBJECT, SERIES_OBJECT), n_prof == 1 and n_ser == 1,
+              "found %d / %d" % (n_prof, n_ser))
+        check("'%s' -- the GRADED object -- is still onEnd, which is what "
+              "puts its .xy under the CONVERGED iteration and satisfies the "
+              "frozen C4 WITHOUT CHANGING C4" % PROFILES_OBJECT,
+              len(re.findall(r"^\s*executeControl\s+onEnd;\s*$", pb,
+                             re.M)) == 1
+              and len(re.findall(r"^\s*writeControl\s+onEnd;\s*$", pb,
+                                 re.M)) == 1
+              and not re.search(r"^\s*(?:execute|write)Interval\b", pb, re.M))
+        check("'%s' -- the PERIODIC object -- is timeStep / %d on both "
+              "controls and carries no onEnd"
+              % (SERIES_OBJECT, SERIES_INTERVAL),
+              len(re.findall(r"^\s*executeControl\s+timeStep;\s*$", sb,
+                             re.M)) == 1
+              and len(re.findall(r"^\s*writeControl\s+timeStep;\s*$", sb,
+                                 re.M)) == 1
+              and len(re.findall(r"^\s*executeInterval\s+%d;\s*$"
+                                 % SERIES_INTERVAL, sb, re.M)) == 1
+              and len(re.findall(r"^\s*writeInterval\s+%d;\s*$"
+                                 % SERIES_INTERVAL, sb, re.M)) == 1
+              and "onEnd" not in sb)
+        check("the two objects sample BYTE-IDENTICAL point sets, so the "
+              "plateau is measured at the SAME station as the graded value",
+              sets_body(pb) is not None and sets_body(pb) == sets_body(sb))
+        n_pts_p = len(re.findall(r"^\s*\(\s*[-0-9.eE+]+\s+[-0-9.eE+]+\s+"
+                                 r"[-0-9.eE+]+\s*\)\s*$", pb, re.M))
+        n_pts_s = len(re.findall(r"^\s*\(\s*[-0-9.eE+]+\s+[-0-9.eE+]+\s+"
+                                 r"[-0-9.eE+]+\s*\)\s*$", sb, re.M))
+        want_pts = (len(cavity_ladder.U_ALONG_X05[1000])
+                    + len(cavity_ladder.V_ALONG_Y05[1000]))
+        check("each object samples the CONSTRUCTED %d points (%d + %d, the "
+              "two Ghia stations lists)"
+              % (want_pts, len(cavity_ladder.U_ALONG_X05[1000]),
+                 len(cavity_ladder.V_ALONG_Y05[1000])),
+              n_pts_p == want_pts and n_pts_s == want_pts,
+              "graded %d, series %d" % (n_pts_p, n_pts_s))
+        check("FIELD WRITES UNTOUCHED: the top-level 'writeInterval %d;' and "
+              "'purgeWrite 1;' survive exactly once each" % end_time,
+              len(re.findall(r"^\s*writeInterval\s+%d;\s*$" % end_time,
+                             on_disk, re.M)) == 1
+              and len(re.findall(r"^\s*purgeWrite\s+1;\s*$", on_disk,
+                                 re.M)) == 1)
+        check("the returned meta records arm B and not the frozen text's "
+              "arrangement",
+              meta["graded_writeControl"] == "onEnd"
+              and meta["series_writeControl"] == "timeStep"
+              and meta["series_writeInterval"] == SERIES_INTERVAL
+              and meta["series_object"] == SERIES_OBJECT
+              and meta["field_writes_untouched"] is True,
+              meta["amendment"])
+        check("everything OUTSIDE the inserted object is byte-unchanged from "
+              "the generator's dictionary",
+              on_disk[:ss].rstrip() + on_disk[se:] == virgin[:pe] + virgin[pe:],
+              "insertion only")
+        check("re-applying REFUSES rather than editing an already-edited "
+              "dictionary", _refuses(apply_section_6_1, case, end_time)[0],
+              mutation=True)
+
+        # ------------------------------------------------------------------
+        print("\n(iii) MUTATION CONTROLS -- each one is a way the arrangement "
+              "could silently regress")
+
+        print("      THE ONE THIS AMENDMENT EXISTS FOR: the two sampling "
+              "objects COLLAPSED BACK INTO ONE")
+        collapsed = on_disk[:ss] + on_disk[se:]
+        ref, msg = _refuses(assert_arm_b_arrangement, collapsed, end_time)
+        check("deleting '%s' -- collapsing the two objects into one -- "
+              "REFUSES" % SERIES_OBJECT,
+              ref and "COLLAPSED" in msg, msg[:70], mutation=True)
+        # the pre-amendment arrangement: ONE object, moved onto timeStep/250.
+        # This is exactly what the frozen section 6.1 asked for and what the
+        # probe measured cannot satisfy C4.
+        pre_amendment = re.sub(
+            r"^(\s*)executeControl(\s+)onEnd;[ \t]*$",
+            lambda m: ("%sexecuteControl%stimeStep;\n%sexecuteInterval%s%d;"
+                       % (m.group(1), m.group(2), m.group(1), m.group(2),
+                          SERIES_INTERVAL)), virgin, flags=re.M)
+        pre_amendment = re.sub(
+            r"^(\s*)writeControl(\s+)onEnd;[ \t]*$",
+            lambda m: ("%swriteControl%stimeStep;\n%swriteInterval%s%d;"
+                       % (m.group(1), m.group(2), m.group(1), m.group(2),
+                          SERIES_INTERVAL)), pre_amendment, count=0, flags=re.M)
+        ref, msg = _refuses(assert_arm_b_arrangement, pre_amendment, end_time)
+        check("the FROZEN section 6.1 arrangement itself -- one object moved "
+              "onto timeStep/%d -- REFUSES, which is the defect the "
+              "2026-08-25 amendment repairs" % SERIES_INTERVAL,
+              ref and "COLLAPSED" in msg, msg[:70], mutation=True)
+
+        print("      and the other regressions")
+        moved = on_disk[:ps] + re.sub(
+            r"^(\s*)(executeControl|writeControl)(\s+)onEnd;[ \t]*$",
+            lambda m: "%s%s%stimeStep;" % (m.group(1), m.group(2), m.group(3)),
+            pb, flags=re.M) + on_disk[pe:]
+        ref, msg = _refuses(assert_arm_b_arrangement, moved, end_time)
+        check("moving the GRADED object off onEnd REFUSES", ref,
+              msg[:70], mutation=True)
+        left = on_disk[:ss] + sb.replace("timeStep;", "onEnd;") + on_disk[se:]
+        check("leaving the PERIODIC object on onEnd REFUSES",
+              _refuses(assert_arm_b_arrangement, left, end_time)[0],
+              mutation=True)
+        skew = on_disk[:ss] + sb.replace("0.9766", "0.9765", 1) + on_disk[se:]
+        ref, msg = _refuses(assert_arm_b_arrangement, skew, end_time)
+        check("a series that samples DIFFERENT points from the graded object "
+              "REFUSES", ref and "same points" in msg, msg[:70], mutation=True)
+        touched = on_disk.replace("writeInterval   %d;" % end_time,
+                                  "writeInterval   %d;" % (end_time // 2), 1)
+        check("touching the top-level field 'writeInterval' REFUSES",
+              _refuses(assert_arm_b_arrangement, touched, end_time)[0],
+              mutation=True)
+        no_purge = re.sub(r"^\s*purgeWrite\s+1;\s*$", "", on_disk,
+                          count=1, flags=re.M)
+        check("dropping 'purgeWrite 1;' REFUSES",
+              _refuses(assert_arm_b_arrangement, no_purge, end_time)[0],
+              mutation=True)
+        dup = on_disk[:se] + "\n" + sb + on_disk[se:]
+        ref, msg = _refuses(assert_arm_b_arrangement, dup, end_time)
+        check("a DUPLICATE '%s' object REFUSES -- two periodic objects are "
+              "not arm B either" % SERIES_OBJECT,
+              ref and "found 2" in msg, msg[:70], mutation=True)
+        # and the WHOLE-DICTIONARY counting argument, which the two block
+        # reads above cannot make: a stray control OUTSIDE both objects leaves
+        # each block byte-perfect and must still refuse.
+        stray = re.sub(r"^([ \t]*purgeWrite[ \t]+1;[ \t]*)$",
+                       lambda m: m.group(1) + "\n    writeControl    onEnd;",
+                       on_disk, count=1, flags=re.M)
+        ps_s, pe_s, _ = find_block(stray, PROFILES_OBJECT)
+        ss_s, se_s, _ = find_block(stray, SERIES_OBJECT)
+        check("the stray-control mutant leaves BOTH sampling blocks "
+              "byte-identical, so only the whole-dictionary counts can catch "
+              "it (control on the control below)",
+              stray[ps_s:pe_s] == pb and stray[ss_s:se_s] == sb)
+        ref, msg = _refuses(assert_arm_b_arrangement, stray, end_time)
+        check("an 'onEnd' control living OUTSIDE the graded object REFUSES on "
+              "the whole-dictionary counting argument, not on the block reads",
+              ref and ("does not have arm B's shape" in msg
+                       or "lives outside" in msg), msg[:70], mutation=True)
+        check("an endTime equal to the sampling interval REFUSES rather than "
+              "assert something that cannot discriminate the two writes",
+              _refuses(assert_arm_b_arrangement, on_disk, SERIES_INTERVAL)[0],
+              mutation=True)
+        check("CONTROL ON THE CONTROLS: the UNMUTATED dictionary still "
+              "passes, so the %d refusals above are not vacuous"
+              % len(_MUTATIONS),
+              not _refuses(assert_arm_b_arrangement, on_disk, end_time)[0])
+
+        # ------------------------------------------------------------------
+        print("\n(iv) the budget arithmetic of section 7, unchanged by this "
+              "amendment")
+        frozen_caps = {("re1000", "coarse"): 60, ("re1000", "medium"): 60,
+                       ("re1000", "fine"): 442, ("re100", "coarse"): 60,
+                       ("re100", "medium"): 60, ("re100", "fine"): 674}
+        bad = {k: (round(wall_cap(k)), v) for k, v in frozen_caps.items()
+               if round(wall_cap(k)) != v}
+        check("max(60, 2.5 x predicted) reproduces section 7's frozen per-run "
+              "caps 60/60/442/60/60/674", not bad, str(bad))
+        cap_sum = sum(wall_cap(k) for k in frozen_caps)
+        check("the per-run caps sum ABOVE the %.0f core-s budget, so the "
+              "WATCHDOG is the binding enforcement" % CAP_CORE_S,
+              cap_sum > CAP_CORE_S, "%.3f s" % cap_sum)
+        check("DOCUMENT DEFECT, recorded not repaired: section 7 states the "
+              "caps sum to 1,296 s where its own six caps sum to 1,355.575 s "
+              "-- IMMATERIAL, both are far above 780 s and the conclusion "
+              "holds a fortiori", abs(cap_sum - 1355.575) < 1e-3,
+              "discrepancy %.3f s" % (cap_sum - 1296.0))
+        check("the four waves still sum to the frozen 8.02 core-min "
+              "prediction", abs(sum(PRED.values()) / 60.0 - 8.02) < 0.005,
+              "%.4f core-min" % (sum(PRED.values()) / 60.0))
+    finally:
+        shutil.rmtree(tmpd, ignore_errors=True)
+
+    n_ok = sum(1 for _, ok, _ in _CHECKS if ok)
+    print("\n%d/%d checks passed" % (n_ok, len(_CHECKS)))
+    print("%d of them are MUTATION controls -- each proves the launcher "
+          "REFUSES when the dictionary it\nwrote is not arm B's arrangement, "
+          "including the collapse back into a single sampling object."
+          % len(_MUTATIONS))
+    if n_ok != len(_CHECKS):
+        print("\nFAILED: " + "; ".join(n for n, ok, _ in _CHECKS if not ok))
+    return RC_OK if n_ok == len(_CHECKS) else RC_FAIL
+
+
 # ---------------------------------------------------------------------------
 # parent: waves, pre-wave budget check, global watchdog
 # ---------------------------------------------------------------------------
@@ -394,7 +886,13 @@ def main():
     ap.add_argument("--dry-run", action="store_true",
                     help="print the frozen matrix, caps and budget arithmetic "
                          "and launch NOTHING")
+    ap.add_argument("--selftest", action="store_true",
+                    help="run the value and mutation controls on the section "
+                         "6.1 dictionary surgery and launch NOTHING")
     a = ap.parse_args()
+
+    if a.selftest:
+        return selftest()
 
     total_pred = sum(PRED.values())
     if a.dry_run:
