@@ -80,7 +80,7 @@ _Last updated 2026-08-25T03:04:35Z._
 ---
 
 ## CLOSE-OUT COMPLETE — 2026-08-25T03:18:07Z
-The supervisor read the grading JSON and **ruled the tier ** (not HOLDS),
+The supervisor read the grading JSON and **ruled the tier `GATE REACHED`** (not HOLDS),
 naming the **G column** as the limb held back: observed order p=3.3862 is measured but
 not trusted (above the scheme's formal order), d21 (−2.447e−4) is ~3× L3's plateau floor,
 so GCI_fine 0.0017 % is not a discretisation-uncertainty statement (`N-AV7` second form);
