@@ -2004,6 +2004,133 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+### SESSION certonomous-66 — RESUME AFTER THE FLEET KILL: the chief's reading CORRECTED, and the K0d cap RULED
+
+**Sub-section last written:** 2026-08-25T19:07:58Z by heat-transfer-supervisor.
+
+**CORRECTION TO THE CHIEF'S LIVE READING, and it is the reason this block leads.**
+The resume brief stated *"NOTHING OF THERMAL'S IS RUNNING… Your team was carrying
+~72 core-hours/day and is now at zero."* **That is wrong, and I verified it
+myself rather than relaying it.** Three `buoyantBoussinesqSimpleFoam` solvers are
+live at 99.9 % CPU, all three in my own territory, all started
+**2026-08-25 16:36:46–47Z** and therefore **survivors of the kill**:
+
+| pid | cwd | `timeout` | started |
+|---|---|---|---|
+| `2203927` | `verification/runs/T-family/T1_runs/R_10k_x` | 66 000 s | 16:36:46 |
+| `2203944` | `verification/runs/T-family/T1_runs/R_100k_x` | 78 000 s | 16:36:46 |
+| `2203947` | `verification/runs/T-family/T1_runs/R_300k_x` | 165 000 s | 16:36:47 |
+
+`readlink /proc/<pid>/cwd` and `ps -o lstart=` on each, this session. Box at
+19:02Z: **16 cores, load average 9.20, 17 GB memory available.** Thermal was
+carrying **3 of the 16 cores**, not zero. **A capacity defect reported against
+this team was, in this instance, a reading error — but the utilisation gap it
+names is real: 3 of 16 is 19 %, against Sanaa's 80–90 % target.** Provenance,
+caps and ETA of these three are **VERIFY** pending a lane; whether they are a
+grid triple or a Rayleigh sweep decides whether they can carry **G** at all.
+
+**THE BRIEF WAS STALE ON A SECOND ITEM, recorded so no one re-does it.** It
+directed me to *"make the two pre-compute rulings"* on `AMENDMENT 5` §A5.13
+**Findings 10 and 11**. **Both were already RULED and CLOSED at HEAD** —
+Finding 10 (unregistered initial `internalField`) by `K0d_REREGISTRATION.md`
+`AMENDMENT 1` §A1.2, which registers the seed **per closure** and adds the tenth
+case `M1_m_seed`; Finding 11 (unregistered profile sampling) by §A1.3, which
+registers `setFormat raw`, `cellPoint` for graded and `cell` for the control,
+`uniform` sets of 2 081 points at 5.000e-04 m in the mid-thickness cell-centre
+plane, plus a dual-scheme control. Each section says `is CLOSED` in terms.
+**Nothing was owed here.**
+
+### K0d — THE CAP COLLISION ESTABLISHED FROM DISK, AND RULED
+
+The killed lane's last words were *"The cost does not fit… and I am not firing."*
+**It was right, and the refusal was correct conduct, not a stall.** Established
+from the frozen document and **re-derived by me independently**, not relayed:
+
+- `AMENDMENT 1` §A1.2b registers a **tenth** case, `M1_m_seed` — an L2
+  `kOmegaSST` seed-perturbation **control, REPORTED, NEVER GRADED**, identical to
+  `M1_m` but for `T`'s `internalField` (hot start 308.15 K).
+- It takes `M1_m`'s identical POINT line, **85.27 core-min**, so the solver
+  subtotal goes **827.11 → 912.38**.
+- The registered CEILING structure is `2S + S + I` = `1 654.23 + 827.11 + 3.50` =
+  **2 484.84 core-min**. I reproduced that from §10.2 exactly.
+- Re-costed: **`3 × 912.38 + 12.00 = 2 749.14`**, i.e. **+264.30 core-min,
+  +10.64 % over cap. Every one of the four arrangements exceeds it.** The two
+  available levers are worth **93.77 core-min against a 264.30 gap.** It does
+  not fit, and no arithmetic makes it fit.
+
+**MY RULING — four parts, dispatched for implementation as `AMENDMENT 2`.**
+
+1. **THE CEILING IS RAISED TO 2 749.14 core-min.** Legal: rule 2 closes caps only
+   **after** first compute, and `verification/runs/F14-cooling-ladder/K0d_runs/`
+   is **ABSENT** — the condition rule 2 requires, re-proved by `test -e` under a
+   planted control at the implementing commit rather than cited from the previous
+   lane.
+2. **NEITHER CONCESSION IS TAKEN.** The arrangement is `3S + I` at **I = 12.00**,
+   not the 2 740.64 variant that shaves instrumentation to 3.50 and not either
+   variant that denies the control its continuation reserve. **Shaving a
+   concession to make a disclosed overrun look smaller is choosing a number for
+   comfort, which is the defect class this rung exists to eliminate.**
+3. **`M1_m_seed` STAYS AT L2 AND STAYS IN THE RUNG.** The killed lane's rejection
+   of moving it to L1 is **UPHELD on its own reasoning** — a control on a
+   different mesh confounds mesh sensitivity with seed sensitivity. Dropping it
+   is refused outright: it is **the planted-zero principle applied to initial
+   conditions**, and this team does not trade an instrument for a budget line.
+4. **THIS IS NOT A CHARTER-RESERVED "COMPUTE ABOVE CAPS" RULING, and the reason
+   is stated rather than assumed.** Nothing has run, so nothing is spending above
+   a cap; the ceiling raised is **this team's own contingency envelope, not an
+   authorisation Sanaa set**; and the derived cost at the new ceiling is
+   **45.819 core-h × $0.0513 = $2.3505, DERIVED not measured**
+   (`COMPUTE_BUDGET_CHARTER.md` §5 — the box cannot read its own billing) —
+   **9.4 % of the $25 pre-authorisation, so the authorisation boundary does not
+   move at all.** The POINT, **922.71 core-min / $0.789 derived**, is the expected
+   spend and is **34 % of even the OLD ceiling**: what did not fit was the
+   worst-case envelope, never the expected run.
+
+**Recorded `[lab-attributed]` under Sanaa's desk-item disposal rule of
+2026-08-25, and REFERRED to her desk with all four costed arrangements so it can
+be overruled from arithmetic.** Her silence for one day adopts it.
+
+### WHAT K0d CAN AND CANNOT EARN — unchanged, and scheduled around rather than discovered later
+
+**§0 of the re-registration holds: no graded verdict is reachable while
+Blay 1992 is `NOT OBTAINED`.** K0d can therefore earn **V** and **G** but **not
+P**, and so **not HOLDS**. This is not a reason to defer it — V and G are exactly
+the columns the lab is short of — but it must not be reported as more than it is.
+
+**K0d cannot hold Sanaa's 80–90 % band alone:** its own registered occupancy table
+decays **87.5 % → 31.3 %, mean 62 %.** A saturation queue is therefore being
+built **from the start**, not after the gap appears.
+
+**Sanaa's grid ruling of 2026-08-25 APPLIES DIRECTLY HERE and is recorded as
+received:** *"A converging three-level family with observed order and GCI is the
+lab's gate standard (Roache-standard minimum). More levels are a research option,
+never a gate requirement."* **It relaxes nothing** — convergence, observed order
+and GCI are all still required — **but three is sufficient and a fourth is never
+owed.** My ladders are the lab's only converging triples, so this fixes their
+count.
+
+### LANES LIVE THIS SESSION — three, at the cap
+
+| lane | task |
+|---|---|
+| K0d fire | implement `AMENDMENT 2`, verify frozen script hashes, run `check_grader_self_blindness.py`, assert `ranks == 1` before converting any `timeout`, write a contention file, fire detached |
+| T1 `R_*_x` provenance | which rung, **is the pre-registration COMMITTED**, ETA, `timeout`-vs-core-minute cap correctness, grid triple or Rayleigh sweep |
+| saturation queue | *"what else can start"* — buckets A/B/C with preregs and shas, and a batch plan holding 80–90 % of 16 cores |
+
+**NEXT ACTIONS.** Re-verify the K0d `AMENDMENT 2` diff **personally, as a diff**
+before believing any output. Re-verify the T1 `R_*_x` pre-registration sha
+myself — an uncommitted pre-registration behind live compute is a rule 2 breach
+and would be the largest finding on this board. Then fire from bucket A to the
+80–90 % band.
+
+**ON SANAA'S DESK:** the K0d ceiling raise, 2 484.84 → 2 749.14 core-min
+(+10.64 %, derived $2.3505 against a $25 pre-authorisation), with all four
+arrangements costed. Referred 2026-08-25; adopted by silence after one day.
+
+**BLOCKED:** K0d cannot reach **P** — and therefore cannot reach **HOLDS** —
+until **Blay 1992** is obtained and **title-page verified** (rule 15; a manifest
+can be internally consistent and externally false). Unblocked by that paper
+landing in `docs/papers/`, and by nothing else.
 
 **Section last written:** 2026-08-25T01:14:08Z by heat-transfer-supervisor (session
 `certonomous-65`, the post-weekly-limit resume, running on **Opus 5** under the
