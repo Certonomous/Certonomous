@@ -1,0 +1,125 @@
+{
+  "A2_geom": 6.972459419812653e-07,
+  "V_theo": 17.60681686165901,
+  "ansys_context": {
+    "fluent_cd": 0.777
+  },
+  "case": "VMFL022",
+  "comparator": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/grade_vmfl022_HEAD.py",
+  "completion": {
+    "L1": {
+      "age_guard": "U newer than 0/U",
+      "endTime": 0.06,
+      "fields_at_endTime": [
+        "U",
+        "p_rgh",
+        "alpha.water"
+      ],
+      "n_exec": 1228,
+      "rc": 0
+    },
+    "L2": {
+      "age_guard": "U newer than 0/U",
+      "endTime": 0.06,
+      "fields_at_endTime": [
+        "U",
+        "p_rgh",
+        "alpha.water"
+      ],
+      "n_exec": 1345,
+      "rc": 0
+    },
+    "L3": {
+      "age_guard": "U newer than 0/U",
+      "endTime": 0.06,
+      "fields_at_endTime": [
+        "U",
+        "p_rgh",
+        "alpha.water"
+      ],
+      "n_exec": 2666,
+      "rc": 0
+    }
+  },
+  "gate": {
+    "cd_fine": 0.7591820493346823,
+    "ok": true,
+    "rel": 0.02668968034015099,
+    "tol": 0.05
+  },
+  "levels": {
+    "L1": {
+      "a2_fo": 6.97245941e-07,
+      "cd": 0.7444188615464895,
+      "cov": 9.630062234213091e-05,
+      "inlet_src": "L1/postProcessing/inletMassFlow/0/surfaceFieldValue.dat",
+      "n_window": 361,
+      "outlet_src": "L1/postProcessing/outletMassFlow/0/surfaceFieldValue.dat",
+      "q_mean": 9.138695565789475e-06,
+      "t_window": [
+        0.041999999999999996,
+        0.06
+      ]
+    },
+    "L2": {
+      "a2_fo": 6.97245941e-07,
+      "cd": 0.7609117895464637,
+      "cov": 0.0008131960497948013,
+      "inlet_src": "L2/postProcessing/inletMassFlow/0/surfaceFieldValue.dat",
+      "n_window": 417,
+      "outlet_src": "L2/postProcessing/outletMassFlow/0/surfaceFieldValue.dat",
+      "q_mean": 9.341167394172661e-06,
+      "t_window": [
+        0.041999999999999996,
+        0.06
+      ]
+    },
+    "L3": {
+      "a2_fo": 6.97245941e-07,
+      "cd": 0.7591820493346823,
+      "cov": 0.0022426931661205327,
+      "inlet_src": "L3/postProcessing/inletMassFlow/0/surfaceFieldValue.dat",
+      "n_window": 929,
+      "outlet_src": "L3/postProcessing/outletMassFlow/0/surfaceFieldValue.dat",
+      "q_mean": 9.319932616254038e-06,
+      "t_window": [
+        0.041999999999999996,
+        0.06
+      ]
+    }
+  },
+  "manual_page": "87",
+  "not_plateaued": [],
+  "physics_check": {
+    "K": 1.5900645161290323,
+    "cc": 0.62,
+    "cd_from_correlation": 0.781806114071769
+  },
+  "planted_zero": {
+    "file": "surfaceFieldValue.dat",
+    "passed": true,
+    "planted": 1.234e-06,
+    "reader_delta": 1.2339999999999987e-06
+  },
+  "reference": {
+    "cd_ref": 0.78,
+    "kind": "experimental/correlation",
+    "source": "Nurick 1976"
+  },
+  "triple": {
+    "R": -0.10487769132225136,
+    "d21": 0.0017297402117814054,
+    "d32": -0.01649292799997415,
+    "f_coarse": 0.7444188615464895,
+    "f_extrapolated": null,
+    "f_fine": 0.7591820493346823,
+    "f_med": 0.7609117895464637,
+    "fs": 1.25,
+    "gci_fine": null,
+    "p": null,
+    "ratio": 2.0,
+    "state": "OSCILLATORY"
+  },
+  "verdict": "NOT A RESULT",
+  "why": "grid triple OSCILLATORY, not CONVERGING (rule 5)"
+}
