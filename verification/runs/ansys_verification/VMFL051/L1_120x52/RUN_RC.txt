@@ -1,0 +1,9 @@
+level=L1_120x52
+rc=0
+wall_s=9
+ranks=1
+core_min=0.1500
+cells=6240
+prereg_blob=7dad56168d7ad7d599f92e05aa249a3014d0dc63
+grader_blob=acad1aff71da4a960045484f9e6f8470f8beccb7
+utc=2026-08-25T00:26:09Z

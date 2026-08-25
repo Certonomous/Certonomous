@@ -1,0 +1,9 @@
+level=L3_480x208
+rc=0
+wall_s=1183
+ranks=1
+core_min=19.7167
+cells=99840
+prereg_blob=7dad56168d7ad7d599f92e05aa249a3014d0dc63
+grader_blob=acad1aff71da4a960045484f9e6f8470f8beccb7
+utc=2026-08-25T00:49:24Z

@@ -1,0 +1,45 @@
+==============================================================================
+VMFL051 -- Isentropic Expansion of Supersonic Flow Over a Convex Corner
+Ansys Fluid Dynamics Verification Manual, Release 2026 R1, pp. 165-166
+==============================================================================
+
+gamma  = 1.3990093734749485   (from the manual's own Cp = 1006.43 and MW = 28.966;
+                              NOT 1.4 -- see PREREGISTRATION.md sec. 2)
+R      = 287.04239682750290 J/kg-K
+
+--- controls (CLAUDE.md rule 3) ---
+  PZ-3_reference       FIRED  {'M2': '3.23554', 'identity_deg': '15', 'plant_deg': '5', 'M2_planted': '3.53557', 'delta': '0.300027'}
+  PZ-1_dat_reader      FIRED  {'plant': '0.001234', 'seen': '0.001234', 'base': '3.22944'}
+  PZ-2_field_reader    FIRED  {'plant': '0.0777', 'seen': '0.0777', 'n_cells': 99840, 'field_mean': '2.70065', 'field_min': '2.5', 'field_max': '3.39636'}
+
+--- levels ---
+  L1_120x52      cells   6240  zone   112 cells  Ma = 3.2278606097  (inner 3.2253741032)  plateau ptp 6.240e-03 over 339/1693 rows
+                   diagnostics: M from p = 3.2340274053, M from T = 3.2280776459, <p> = 66561.6930 Pa, <T> = 218.9300 K
+  L2_240x104     cells  24960  zone   455 cells  Ma = 3.2233427020  (inner 3.2219821051)  plateau ptp 3.535e-03 over 673/3365 rows
+                   diagnostics: M from p = 3.2342174838, M from T = 3.2265103977, <p> = 66543.1502 Pa, <T> = 219.0736 K
+  L3_480x208     cells  99840  zone  1816 cells  Ma = 3.2294355513  (inner 3.2301734358)  plateau ptp 8.549e-04 over 1343/6714 rows
+                   diagnostics: M from p = 3.2345160546, M from T = 3.2288963384, <p> = 66514.0348 Pa, <T> = 218.8550 K
+
+--- Roache triple on the post-expansion Mach number, r = 2.0, Fs = 1.25 ---
+  coarse 3.2278606097   medium 3.2233427020   fine 3.2294355513
+  d32 (coarse-medium) = 4.517908e-03   d21 (medium-fine) = -6.092849e-03
+  R = -1.348600   observed order p = n/a   state = OSCILLATORY
+  no GCI quoted -- the three values are not monotone convergent
+
+--- THE GATE (manual printed target, Table .51.1) ---
+  reference   3.2370
+  lab value   3.2294355513   (finest level, L3_480x208)
+  deviation   -0.233687 %   band +/- 0.5000 %
+
+--- DIAGNOSTIC, NEVER THE GATE: the closed-form exact value ---
+  exact       3.2355411372251854   (Prandtl-Meyer, gamma = 1.3990093734749485)
+  deviation   -0.188704 %   diagnostic band +/- 0.2500 %   inside: True
+  exact at gamma = 1.4: 3.2368431056638847
+
+--- CONTEXT ONLY, never the gate: Ansys's own reported values ---
+  Fluent 3.2316 (ratio 0.9980)   CFX 3.2354 (ratio 0.9995)
+
+VERDICT: NOT A RESULT
+  level L1_120x52 has not plateaued: peak-to-peak of the gate Mach series over its last 339 of 1693 rows is 6.240e-03 > 1.000e-03 (rule 5 step 1)
+==============================================================================
+grading JSON: /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL051/GRADING_VMFL051.json

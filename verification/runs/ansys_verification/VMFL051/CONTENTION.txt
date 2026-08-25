@@ -1,0 +1,28 @@
+# VMFL051 contention evidence, captured live during the L3 solve
+# The load on this box is other teams' work and was NOT touched (standing rule).
+utc=2026-08-25T00:30:40Z
+nproc=16
+loadavg=68.38 64.32 56.15
+# foreign CPU consumers at this instant (not this case's):
+#   buoyantBoussine 99.9
+#   buoyantBoussine 99.9
+#   tesseract       89.3
+#   tesseract       85.9
+#   tesseract       85.8
+#   tesseract       85.6
+#   tesseract       84.4
+L1_wall_s=9 L1_exec_s=7.71
+L2_wall_s=207 L2_exec_s=59.31
+
+# --- L3 mid-solve sample, appended live ---
+utc=2026-08-25T00:34:52Z
+loadavg=75.84 70.80 60.75   nproc=16
+L3_exec_s=117.29  L3_clock_s=311  clock_over_exec=2.65
+# NOTE ON THE INSTRUMENT: the cap is enforced as a WALL-CLOCK timeout while the
+# budget is denominated in CORE-MINUTES.  For THIS run they coincide exactly,
+# because the run is SERIAL (1 rank) and core-min = wall_s * ranks / 60.
+# On any future PARALLEL case they would NOT coincide and the timeout would have
+# to be recomputed as cap_core_min * 60 / ranks.
+# The clock/exec gap is CONTENTION from other teams' jobs on a 16-core box.
+# COMPUTE_BUDGET_CHARTER section 6: it is named separately as waste and is NEVER
+# absorbed into the estimate-versus-actual ratio.

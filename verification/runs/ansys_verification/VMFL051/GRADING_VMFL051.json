@@ -1,0 +1,169 @@
+{
+  "M2_exact_gamma14": 3.2368431056638847,
+  "RR_openfoam": 8314.47006650545,
+  "R_specific": 287.0423968275029,
+  "ansys_context_never_the_gate": {
+    "CFX": 3.2354,
+    "CFX_ratio": 0.9995,
+    "Fluent": 3.2316,
+    "Fluent_ratio": 0.998
+  },
+  "case": "VMFL051",
+  "controls": {
+    "PZ-1_dat_reader": {
+      "base": 3.229435551298,
+      "fired": true,
+      "plant": 0.001234,
+      "seen": 0.0012339999999997353
+    },
+    "PZ-2_field_reader": {
+      "field_max": 3.396358576,
+      "field_mean": 2.7006549026427984,
+      "field_min": 2.49999805,
+      "fired": true,
+      "n_cells": 99840,
+      "plant": 0.0777,
+      "seen": 0.0777000000000001
+    },
+    "PZ-3_reference": {
+      "M2": 3.2355411372251854,
+      "M2_planted": 3.5355681530667136,
+      "delta": 0.30002701584152813,
+      "fired": true,
+      "identity_deg": 14.999999999999972,
+      "plant_deg": 5.0
+    }
+  },
+  "diagnostic_exact": {
+    "deviation_pct": -0.18870370266475486,
+    "deviation_rel": -0.0018870370266475486,
+    "inside": true,
+    "reference": 3.2355411372251854,
+    "reference_class": "closed-form Prandtl-Meyer for the manual's own gas, gamma = 1.3990093734749485",
+    "tolerance_rel": 0.0025
+  },
+  "endTime": 0.007,
+  "gamma": 1.3990093734749485,
+  "gate": {
+    "deviation_pct": -0.23368701581711165,
+    "deviation_rel": -0.0023368701581711164,
+    "lab_value": 3.229435551298,
+    "reference": 3.237,
+    "reference_class": "manual printed target, Table .51.1 (analytic Prandtl-Meyer)",
+    "tolerance_rel": 0.005
+  },
+  "levels": {
+    "L1_120x52": {
+      "M_from_T": 3.228077645870859,
+      "M_from_p": 3.2340274053456346,
+      "Ma": 3.227860609667,
+      "Ma_inner": 3.225374103194,
+      "T": 218.9299691854,
+      "cells": 6240,
+      "completion": {
+        "endtime_dir": "0.0070015301",
+        "n_steps": 1693,
+        "rc": 0,
+        "t_last": 0.0070015301,
+        "wall_ok": true
+      },
+      "diag_dat": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL051/L1_120x52/postProcessing/gateMachInner/0/volFieldValue.dat",
+      "diag_ncells": 67,
+      "diag_region": "cellZone gateZoneInner",
+      "endtime_dir": "0.0070015301",
+      "gate_dat": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL051/L1_120x52/postProcessing/gateMach/0/volFieldValue.dat",
+      "gate_ncells": 112,
+      "gate_region": "cellZone gateZone",
+      "gate_volume": 0.00050498864046,
+      "nxA": 24,
+      "nxB": 96,
+      "ny": 52,
+      "p": 66561.69300569,
+      "plateau_ptp": 0.00624021292600041,
+      "plateau_rows": 339,
+      "series_rows": 1693,
+      "t_row": 0.0070015301
+    },
+    "L2_240x104": {
+      "M_from_T": 3.22651039771905,
+      "M_from_p": 3.2342174837647444,
+      "Ma": 3.223342701975,
+      "Ma_inner": 3.221982105135,
+      "T": 219.0735673092,
+      "cells": 24960,
+      "completion": {
+        "endtime_dir": "0.0069997882",
+        "n_steps": 3365,
+        "rc": 0,
+        "t_last": 0.0069997882,
+        "wall_ok": true
+      },
+      "diag_dat": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL051/L2_240x104/postProcessing/gateMachInner/0/volFieldValue.dat",
+      "diag_ncells": 265,
+      "diag_region": "cellZone gateZoneInner",
+      "endtime_dir": "0.0069997882",
+      "gate_dat": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL051/L2_240x104/postProcessing/gateMach/0/volFieldValue.dat",
+      "gate_ncells": 455,
+      "gate_region": "cellZone gateZone",
+      "gate_volume": 0.0005129523050075,
+      "nxA": 48,
+      "nxB": 192,
+      "ny": 104,
+      "p": 66543.15020743,
+      "plateau_ptp": 0.0035354334239996454,
+      "plateau_rows": 673,
+      "series_rows": 3365,
+      "t_row": 0.0069997882
+    },
+    "L3_480x208": {
+      "M_from_T": 3.228896338372582,
+      "M_from_p": 3.234516054641528,
+      "Ma": 3.229435551298,
+      "Ma_inner": 3.230173435811,
+      "T": 218.8550041379,
+      "cells": 99840,
+      "completion": {
+        "endtime_dir": "0.0069999107",
+        "n_steps": 6714,
+        "rc": 0,
+        "t_last": 0.0069999107,
+        "wall_ok": true
+      },
+      "diag_dat": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL051/L3_480x208/postProcessing/gateMachInner/0/volFieldValue.dat",
+      "diag_ncells": 1068,
+      "diag_region": "cellZone gateZoneInner",
+      "endtime_dir": "0.0069999107",
+      "gate_dat": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL051/L3_480x208/postProcessing/gateMach/0/volFieldValue.dat",
+      "gate_ncells": 1816,
+      "gate_region": "cellZone gateZone",
+      "gate_volume": 0.0005117855962484,
+      "nxA": 96,
+      "nxB": 384,
+      "ny": 208,
+      "p": 66514.03480329,
+      "plateau_ptp": 0.0008548798509999678,
+      "plateau_rows": 1343,
+      "series_rows": 6714,
+      "t_row": 0.0069999107
+    }
+  },
+  "manual_page": "165-166",
+  "plateau_tol_Ma": 0.001,
+  "triple": {
+    "R": -1.3485997807765717,
+    "d21": -0.006092849323000138,
+    "d32": 0.0045179076920001116,
+    "f_coarse": 3.227860609667,
+    "f_extrapolated": null,
+    "f_fine": 3.229435551298,
+    "f_med": 3.223342701975,
+    "fs": 1.25,
+    "gci_fine": null,
+    "p": null,
+    "ratio": 2.0,
+    "state": "OSCILLATORY",
+    "why": null
+  },
+  "verdict": "NOT A RESULT",
+  "why": "level L1_120x52 has not plateaued: peak-to-peak of the gate Mach series over its last 339 of 1693 rows is 6.240e-03 > 1.000e-03 (rule 5 step 1)"
+}
