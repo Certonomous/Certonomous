@@ -1,0 +1,48 @@
+VM2026R1 Archive Copy SHA256 Verification Report
+Date: 2026-08-25
+Manifest file: docs/ansys_verification/VM2026R1_SHA256_MANIFEST.txt
+Archive location: /home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/
+Command: cd /home/ubuntu/ansys-vm2026r1 && sha256sum -c /home/ubuntu/Certonomous/docs/ansys_verification/VM2026R1_SHA256_MANIFEST.txt
+
+VERIFICATION RESULTS
+====================
+
+Files reporting ": OK"                  123
+Files reporting ": FAILED"              0
+Files reporting ": FAILED open or read" 0
+Exit code of sha256sum -c               0
+Total lines checked                     123
+Expected line count                     123
+Match: YES
+
+PLANTED CONTROL TEST
+====================
+
+Corrupted one manifest hash (changed first character of first line)
+Verification command run against corrupted manifest
+Result: sha256sum detected FAILED
+Status: CONTROL PASSED (checker can see corruption)
+
+ARCHIVE COPY LOCATIONS
+======================
+
+/home/ubuntu/Certonomous/VM2026R1_Fluids                                          ABSENT
+/home/ubuntu/Certonomous/docs/papers/verification_validation/VM2026R1_Fluids      ABSENT
+
+FILE SIZE CHECK
+===============
+
+/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/VM2026R1_CFX_ARCHIVES/VMFL011B.wbpz
+Size: 670152 bytes
+Previously recorded: truncated at 327,680 of 670,152 bytes
+Current status: COMPLETE (full size)
+
+VERDICT
+=======
+
+All 123 archive files in /home/ubuntu/ansys-vm2026r1 match their committed SHA256 checksums.
+No corrupted files detected.
+No missing files detected.
+Partial copy absence confirmed.
+VMFL011B.wbpz is no longer truncated.
+Verification complete and successful.
