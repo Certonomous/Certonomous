@@ -1,0 +1,259 @@
+{
+  "campaign": "F6a / C-15 -- NASA wall-mounted hump vs Greenblatt AIAA-2004-2220 Table 2",
+  "attempt": 3,
+  "addendum": "ADDENDUM 4 (supervisor's Ruling 1) registered this run root",
+  "purpose": "re-run TO MEASURE THE rc LIMB that attempt 2 could only infer",
+  "launched_utc": "2026-08-25T03:13:27Z",
+  "finished_utc": "2026-08-25T03:15:37Z",
+  "ROW_VERDICT": "NOT A RESULT",
+  "ROW_TIER": "NOT HELD",
+  "P_COLUMN": "PENDING",
+  "WHAT_SUCCEEDED": {
+    "rc_limb": "MEASURED FROM DISK. solver_rc.txt = 0, persisted fsync'd at the moment of capture, before any reporting or formatting. The Addendum 4 repair worked.",
+    "completion_rule_ALL_FIVE_LIMBS_MEASURED": {
+      "rc_equals_0": true,
+      "End_line": true,
+      "last_time_equals_endTime": "2000 == 2000",
+      "fields_present": true,
+      "age_guard": true,
+      "completion_ok": true
+    },
+    "smoke_test": "rc=0, no FOAM FATAL -- the smoke test FINALLY TESTED THE CASE, and the case passed. The VMFL045 dictionary-completeness class is now exercised.",
+    "gate_M": "PASS 40.5495 / 0.743352, re-evaluated from scratch (attempt 2's PASS not carried forward)"
+  },
+  "WHY_IT_IS_NOT_A_RESULT": {
+    "clause": "ss3.1 (P-a)",
+    "fact": "no 'SIMPLE solution converged' line: the run REACHED ITS 2000-ITERATION CAP. The frozen clause is explicit -- reaching the cap is NOT convergence.",
+    "binding_channel": "omega ALONE. At iteration 2000 the initial residuals were Ux 2.88977e-08, Uz 5.92457e-08, p 5.77611e-08, k 8.31752e-08 -- ALL comfortably under their 5e-7 controls -- while omega stood at 4.63816e-10 against its 1e-10 control, 4.6x above.",
+    "P_b_also_fails": "the same omega residual fails (P-b)'s initial-residual check",
+    "ordering": "ss3.2: plateau evaluated FIRST and BINDING. (P-c) and (P-d) both PASSED -- the functional is flat and non-oscillatory -- but a deviation on a non-plateaued run is NOT A RESULT, not a PASS."
+  },
+  "THE_NEW_FINDING": {
+    "title": "CONVERGENCE ON THIS CASE IS MARGINAL ON THE omega CRITERION AND VARIES RUN TO RUN, BECAUSE scotch DECOMPOSITION IS NOT DETERMINISTIC BETWEEN INVOCATIONS",
+    "evidence": [
+      "attempt 2 partitioned to 12777 / 12906 / 12965 cells; attempt 3 to 12974 / 12870 / 12865",
+      "the mesh points, 0/ directory and system/controlDict are BYTE-IDENTICAL between the two (diff -rq clean)",
+      "different partition -> different parallel summation order -> different round-off -> different residual trajectory",
+      "attempt 2 met omega 1e-10 at iteration 1813 with 9.94318e-11 -- A MARGIN OF 0.6 %",
+      "attempt 3 was still at 4.63816e-10 when it hit the 2000 cap",
+      "C-45 converged at 1772, attempt 2 at 1813, attempt 3 not by 2000: two of three tripped it"
+    ],
+    "so_the_answer_is_stable_but_the_CRITERION_is_not": "THE PHYSICS REPRODUCED TO FIVE DECIMALS. separation 0.6544112 -> 0.6544109; reattachment 1.2534333 -> 1.2534550, a difference of 2.2e-5 in x/c. The graded quantity is stable and reproducible. What is NOT reproducible is whether residualControl trips inside 2000 iterations.",
+    "status": "REPORTED TO THE SUPERVISOR. NOT RESOLVED BY THIS LANE."
+  },
+  "gates_REPORTED_NOT_CERTIFIED": {
+    "P1_separation": {
+      "value": 0.6544109177598695,
+      "target": 0.665,
+      "band": [
+        0.63175,
+        0.69825
+      ],
+      "deviation_pct": -1.5923431940045947,
+      "verdict": "PASS"
+    },
+    "P2_reattachment": {
+      "value": 1.2534550444895884,
+      "target": 1.1,
+      "band": [
+        1.045,
+        1.155
+      ],
+      "deviation_pct": 13.950458589962578,
+      "verdict": "GATE FAIL"
+    }
+  },
+  "plateau_clauses": [
+    {
+      "clause": "P-a",
+      "ok": false,
+      "why": "no 'SIMPLE solution converged' line -- the run reached its iteration cap. Reaching the cap is NOT convergence.",
+      "converged_at": null,
+      "cap": 2000
+    },
+    {
+      "clause": "P-b",
+      "ok": false,
+      "iteration": 2000,
+      "asserts_reading_initial_column": true,
+      "fields": {
+        "Ux": {
+          "initial": 2.88977e-08,
+          "limit": 5e-07,
+          "ok": true,
+          "column_read": "Initial"
+        },
+        "Uz": {
+          "initial": 5.92457e-08,
+          "limit": 5e-07,
+          "ok": true,
+          "column_read": "Initial"
+        },
+        "p": {
+          "initial": 5.77611e-08,
+          "limit": 5e-07,
+          "ok": true,
+          "column_read": "Initial"
+        },
+        "k": {
+          "initial": 8.31752e-08,
+          "limit": 5e-07,
+          "ok": true,
+          "column_read": "Initial"
+        },
+        "omega": {
+          "initial": 4.63816e-10,
+          "limit": 1e-10,
+          "ok": false,
+          "column_read": "Initial"
+        }
+      }
+    },
+    {
+      "clause": "P-c",
+      "ok": true,
+      "quantities": {
+        "separation": {
+          "ptp": 5.891438031202512e-06,
+          "limit": 0.0033,
+          "ok": true,
+          "values": [
+            0.6544050263218383,
+            0.65440669178498,
+            0.6544079084978454,
+            0.6544088032207501,
+            0.6544094611069761,
+            0.6544099432252327,
+            0.6544103004536416,
+            0.6544105672680509,
+            0.6544107688826047,
+            0.6544109177598695
+          ]
+        },
+        "reattachment": {
+          "ptp": 0.00046756677659653967,
+          "limit": 0.0055,
+          "ok": true,
+          "values": [
+            1.253922611266185,
+            1.2537908776284281,
+            1.253694647414607,
+            1.2536243166620382,
+            1.2535728959350922,
+            1.2535348617496054,
+            1.2535065137429442,
+            1.2534853148543894,
+            1.2534675697942008,
+            1.2534550444895884
+          ]
+        }
+      }
+    },
+    {
+      "clause": "P-d",
+      "ok": true,
+      "quantities": {
+        "separation": {
+          "sign_alternations": 0,
+          "max_allowed": 1,
+          "ok": true,
+          "increments": [
+            1.665463141731216e-06,
+            1.2167128653484127e-06,
+            8.947229047651106e-07,
+            6.578862259409846e-07,
+            4.821182566505655e-07,
+            3.572284088537714e-07,
+            2.668144093442848e-07,
+            2.0161455382972093e-07,
+            1.488772647384451e-07
+          ]
+        },
+        "reattachment": {
+          "sign_alternations": 0,
+          "max_allowed": 1,
+          "ok": true,
+          "increments": [
+            -0.00013173363775687008,
+            -9.623021382121344e-05,
+            -7.033075256868138e-05,
+            -5.1420726945972106e-05,
+            -3.803418548686821e-05,
+            -2.834800666118298e-05,
+            -2.1198888554785356e-05,
+            -1.774506018858979e-05,
+            -1.2525304612376331e-05
+          ]
+        }
+      }
+    }
+  ],
+  "planted_zero_control": {
+    "line_index_band": [
+      40,
+      60
+    ],
+    "planted_xc_range": [
+      -1.7873761904761905,
+      -1.6734166666666668
+    ],
+    "acceptance_window": [
+      -1.7933761904761907,
+      -1.6674190476190478
+    ],
+    "crossings_before": 4,
+    "crossings_after": 6,
+    "new_crossings_in_planted_range": [
+      -1.7903757257783925,
+      -1.6704176884825783
+    ],
+    "seen": true
+  },
+  "reported_not_gated": {
+    "LABEL": "REPORTED -- NOT A GATE",
+    "separation_2pct_reading": {
+      "band": [
+        0.6517,
+        0.6783
+      ],
+      "inside": true,
+      "note": "ss2.3. It can NEVER turn a PASS into a GATE FAIL or the reverse."
+    },
+    "oilfilm_limb": {
+      "target": 1.11,
+      "band": [
+        1.0545,
+        1.1655
+      ],
+      "deviation_pct": 12.923877881944895,
+      "band_verdict_if_gated": "GATE FAIL",
+      "note": "ss1.5.2 / ss2.1. The oil-film limb is REPORTED, NOT GATED. Printed so the record cannot later be read as resting on the limb."
+    }
+  },
+  "grid_convergence": {
+    "triple": null,
+    "gci": null,
+    "observed_order": null,
+    "note": "ss4 registers NO Roache triple, NO GCI and NO observed order. The G column for C-15 remains NO. The graded value comes from a SINGLE MESH LEVEL; no grid-convergence evidence supports it; it is not asymptotic and nothing here may be read as saying so."
+  },
+  "declared_deviations": [
+    "DEVIATION 1 (ss7.1): Re_c 936,000 run vs Table 2's 929,000 (+0.75 %). NO BOUND IS ASSERTED -- none has been measured.",
+    "DEVIATION 2 (ss7.2): single mesh level, no grid convergence.",
+    "DEVIATION 3 (ss7.3): stock kOmegaSST, measured inert to 0.02 %.",
+    "DEVIATION 4 (ss7.4): p_ref convention on the REPORTED Cp; cannot affect a verdict."
+  ],
+  "I_DID_NOT_RE_RUN": "A fourth attempt might well draw a partition that converges, since two of three runs did. THAT IS RE-RUNNING UNTIL THE ANSWER IS LIKED, and it is exactly the hazard section 9.2 exists to prevent. It is not neutral merely because the GATE value would be unchanged: it would move the ROW VERDICT from NOT A RESULT to GATE FAIL, which is the verdict. THE SUPERVISOR RULES; THIS LANE DOES NOT RE-RUN ON ITS OWN AUTHORITY.",
+  "cost": {
+    "solver_wall_s": 101.5931,
+    "ranks": 4,
+    "solver_core_min": 6.7729,
+    "pre_post_core_min": 0.4733,
+    "total_core_min": 7.2462,
+    "cumulative_campaign_core_min": 13.3965,
+    "cap_core_min": 30,
+    "cap_remaining": 16.6035,
+    "dollars_DERIVED_not_measured": 0.006195
+  },
+  "PRESERVED": "attempts 1 and 2 are undeleted and unrenamed; the launcher asserted both before starting",
+  "submissions": "PARKED."
+}

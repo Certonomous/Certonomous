@@ -1,0 +1,230 @@
+{
+  "campaign": "F6a / C-15 -- NASA wall-mounted hump vs Greenblatt AIAA-2004-2220 Table 2",
+  "preregistration": "verification/campaign/F6a_GREENBLATT_PREREGISTRATION.md",
+  "preregistration_sha256": "9989f1f909b358ae30c663b041598358cf247f6aee2a8b3dcb6bda99543a30cc",
+  "extractor": "cases/dafoam/f6a_nasa_hump/case/hump_gate_analysis.py",
+  "extractor_sha256": "9a6ec8553b863b3b43a1a3ca03970923778f7da5c2bf3e1cfacdfa8f6fd2414f",
+  "extractor_blob": "ec263bed8623a81b67106c3880febdca1b3d5eff",
+  "VERDICT": "NOT A RESULT",
+  "verdict_reason": "ss3.2: plateau evaluated FIRST and BINDING. A deviation inside the band on a non-plateaued run is NOT A RESULT, not a PASS.",
+  "plateaued": false,
+  "completion_ok": true,
+  "gates": {
+    "P1_separation": {
+      "value": 0.6544109177598695,
+      "target": 0.665,
+      "band": [
+        0.63175,
+        0.69825
+      ],
+      "deviation_pct": -1.5923431940045947,
+      "verdict": "PASS"
+    },
+    "P2_reattachment": {
+      "value": 1.2534550444895884,
+      "target": 1.1,
+      "band": [
+        1.045,
+        1.155
+      ],
+      "deviation_pct": 13.950458589962578,
+      "verdict": "GATE FAIL"
+    }
+  },
+  "plateau_clauses": [
+    {
+      "clause": "P-a",
+      "ok": false,
+      "why": "no 'SIMPLE solution converged' line -- the run reached its iteration cap. Reaching the cap is NOT convergence.",
+      "converged_at": null,
+      "cap": 2000
+    },
+    {
+      "clause": "P-b",
+      "ok": false,
+      "iteration": 2000,
+      "asserts_reading_initial_column": true,
+      "fields": {
+        "Ux": {
+          "initial": 2.88977e-08,
+          "limit": 5e-07,
+          "ok": true,
+          "column_read": "Initial"
+        },
+        "Uz": {
+          "initial": 5.92457e-08,
+          "limit": 5e-07,
+          "ok": true,
+          "column_read": "Initial"
+        },
+        "p": {
+          "initial": 5.77611e-08,
+          "limit": 5e-07,
+          "ok": true,
+          "column_read": "Initial"
+        },
+        "k": {
+          "initial": 8.31752e-08,
+          "limit": 5e-07,
+          "ok": true,
+          "column_read": "Initial"
+        },
+        "omega": {
+          "initial": 4.63816e-10,
+          "limit": 1e-10,
+          "ok": false,
+          "column_read": "Initial"
+        }
+      }
+    },
+    {
+      "clause": "P-c",
+      "ok": true,
+      "quantities": {
+        "separation": {
+          "ptp": 5.891438031202512e-06,
+          "limit": 0.0033,
+          "ok": true,
+          "values": [
+            0.6544050263218383,
+            0.65440669178498,
+            0.6544079084978454,
+            0.6544088032207501,
+            0.6544094611069761,
+            0.6544099432252327,
+            0.6544103004536416,
+            0.6544105672680509,
+            0.6544107688826047,
+            0.6544109177598695
+          ]
+        },
+        "reattachment": {
+          "ptp": 0.00046756677659653967,
+          "limit": 0.0055,
+          "ok": true,
+          "values": [
+            1.253922611266185,
+            1.2537908776284281,
+            1.253694647414607,
+            1.2536243166620382,
+            1.2535728959350922,
+            1.2535348617496054,
+            1.2535065137429442,
+            1.2534853148543894,
+            1.2534675697942008,
+            1.2534550444895884
+          ]
+        }
+      }
+    },
+    {
+      "clause": "P-d",
+      "ok": true,
+      "quantities": {
+        "separation": {
+          "sign_alternations": 0,
+          "max_allowed": 1,
+          "ok": true,
+          "increments": [
+            1.665463141731216e-06,
+            1.2167128653484127e-06,
+            8.947229047651106e-07,
+            6.578862259409846e-07,
+            4.821182566505655e-07,
+            3.572284088537714e-07,
+            2.668144093442848e-07,
+            2.0161455382972093e-07,
+            1.488772647384451e-07
+          ]
+        },
+        "reattachment": {
+          "sign_alternations": 0,
+          "max_allowed": 1,
+          "ok": true,
+          "increments": [
+            -0.00013173363775687008,
+            -9.623021382121344e-05,
+            -7.033075256868138e-05,
+            -5.1420726945972106e-05,
+            -3.803418548686821e-05,
+            -2.834800666118298e-05,
+            -2.1198888554785356e-05,
+            -1.774506018858979e-05,
+            -1.2525304612376331e-05
+          ]
+        }
+      }
+    }
+  ],
+  "planted_zero_control": {
+    "line_index_band": [
+      40,
+      60
+    ],
+    "planted_xc_range": [
+      -1.7873761904761905,
+      -1.6734166666666668
+    ],
+    "acceptance_window": [
+      -1.7933761904761907,
+      -1.6674190476190478
+    ],
+    "crossings_before": 4,
+    "crossings_after": 6,
+    "new_crossings_in_planted_range": [
+      -1.7903757257783925,
+      -1.6704176884825783
+    ],
+    "seen": true
+  },
+  "reported_not_gated": {
+    "LABEL": "REPORTED -- NOT A GATE",
+    "separation_2pct_reading": {
+      "band": [
+        0.6517,
+        0.6783
+      ],
+      "inside": true,
+      "note": "ss2.3. It can NEVER turn a PASS into a GATE FAIL or the reverse."
+    },
+    "oilfilm_limb": {
+      "target": 1.11,
+      "band": [
+        1.0545,
+        1.1655
+      ],
+      "deviation_pct": 12.923877881944895,
+      "band_verdict_if_gated": "GATE FAIL",
+      "note": "ss1.5.2 / ss2.1. The oil-film limb is REPORTED, NOT GATED. Printed so the record cannot later be read as resting on the limb."
+    }
+  },
+  "crest_xc": 0.5146595238095238,
+  "grid_convergence": {
+    "triple": null,
+    "gci": null,
+    "observed_order": null,
+    "note": "ss4 registers NO Roache triple, NO GCI and NO observed order. The G column for C-15 remains NO. The graded value comes from a SINGLE MESH LEVEL; no grid-convergence evidence supports it; it is not asymptotic and nothing here may be read as saying so."
+  },
+  "declared_deviations": [
+    "DEVIATION 1 (ss7.1): Re_c 936,000 run vs Table 2's 929,000 (+0.75 %). NO BOUND IS ASSERTED -- none has been measured.",
+    "DEVIATION 2 (ss7.2): single mesh level, no grid convergence.",
+    "DEVIATION 3 (ss7.3): stock kOmegaSST, measured inert to 0.02 %.",
+    "DEVIATION 4 (ss7.4): p_ref convention on the REPORTED Cp; cannot affect a verdict."
+  ],
+  "completion": {
+    "ok": true,
+    "failures": [],
+    "age_guard_anchor": "0/U",
+    "endtime_graded_against": 2000,
+    "endtime_reconciliation": {
+      "CLAUSE_CONFLICT": "ss3.1 (P-a) requires convergence BELOW the endTime cap; ss9.4 requires last time == endTime. Read literally against the controlDict endTime the two cannot both hold.",
+      "declared_endtime_controlDict": 2000,
+      "effective_endtime_used": 2000,
+      "last_time_in_log": 2000,
+      "residual_control_terminated": false,
+      "basis": "OpenFOAM resets the run's endTime via runTime.writeAndEnd() on convergence, so the effective endTime IS the converged iteration. A solver fact, not a grading choice.",
+      "clause_would_fail_on_declared": false,
+      "DISPOSITION": "REPORTED TO THE SUPERVISOR FOR RULING. Not resolved by this lane."
+    }
+  }
+}
