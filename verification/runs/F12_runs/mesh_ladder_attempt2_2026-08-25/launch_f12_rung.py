@@ -39,6 +39,34 @@ WHY THE EXISTING PATH CANNOT BE USED — four measured facts, not preferences
 
 WHAT IT DOES NOT DO
 -------------------
+AMENDMENT 2026-08-25, AFTER RUNG 1 FIRED — TWO DEFECTS THIS LANE FOUND IN ITS
+OWN WORK AND REPORTED AGAINST ITSELF
+------------------------------------------------------------------------------
+Rung 1 fired at 17:06:57Z and aborted with rc = 134. `grade.json` for rung 1 was
+produced by the PRE-AMENDMENT bytes, committed at `f723fac6`, and that record
+stands; `grade_PRE_AMENDMENT.json` preserves it beside the re-grade so the two
+can be compared without git archaeology.
+
+  1. THE RUNGS-2-TO-5 INTERLOCK WAS KEYED ON `RC.txt` EXISTING, NOT ON RUNG 1
+     SUCCEEDING. It therefore OPENED on a crashed rung at 17:07:18Z. Nothing was
+     fired through it. It is now closed on a CONJUNCTION — see
+     `rate_calibration_gate` — and carries a negative control that plants 134 and
+     proves it refuses. The defect class is the one this team catalogued twice in
+     the same day: a guard that passes on the wrong condition. It was not asking
+     "did rung 1 succeed"; it was asking "did rung 1 finish leaving a file", and
+     those two diverge exactly when it matters most.
+  2. THE AGE-GUARD LIMB PRINTED "all newer" ON A CORRECT `False`, because the
+     "no field is older" branch evaluates over an EMPTY list. The verdict was
+     right and the annotation contradicted it, which is worse than no annotation
+     — the next reader believes the sentence, not the boolean. The verdict
+     expression is UNCHANGED (`bool(present) and not older`); only the annotation
+     moved, into `age_guard_detail`, which has its own control.
+
+STILL OWED, and enforced by the interlock above rather than by a promise:
+`scripts/roache_triple.py` is NOT pinned. That is correct for rung 1 — a single
+rung cannot compute a triple — and it is owed before rungs 2-5, where the triple
+IS the graded object.
+
 It does not authorise its own use. Firing needs the cfd supervisor's personal
 reading of this file as a diff (`SUPERVISION_CHARTER.md` §3 check 1, never
 delegable). No agent message authorises a launch (standing rule 9).
@@ -309,6 +337,95 @@ def read_rc(path: pathlib.Path):
 # case composition — the frozen build_case, then ONE substitution
 # ---------------------------------------------------------------------------
 
+def age_guard_detail(present, older) -> str:
+    """The age-guard annotation. Separated out because it was WRONG.
+
+    With no field at endTime the limb correctly returns False, but the previous
+    inline expression annotated it "all newer" — the `not older` branch is
+    vacuously true over an EMPTY list. A printed annotation that contradicts its
+    own verdict is worse than none: the next reader believes the sentence.
+    """
+    if not present:
+        return "no fields exist at endTime — nothing to compare against 0/T"
+    if older:
+        return f"not newer than 0/T: {older}"
+    return f"all {len(present)} fields newer than 0/T"
+
+
+def measured_rate(case: pathlib.Path | None = None):
+    """Seconds per cell-iteration measured from a rung's own log, or None.
+
+    A COST quantity, not a gate quantity. Returns None — never a guess — when
+    the log, the iteration count or the cell count is missing.
+    """
+    case = (RUN_ROOT / RATE_CALIBRATION_RUNG) if case is None else case
+    try:
+        log = (case / "log.rhoSimpleFoam").read_text(errors="replace")
+        chk = (case / "log.checkMesh").read_text(errors="replace")
+    except OSError:
+        return None
+    its = len([l for l in log.splitlines() if l.startswith("Time = ")])
+    ex = [l for l in log.splitlines() if l.startswith("ExecutionTime")]
+    cells = W.parse_check_mesh(chk).get("cells")
+    if not its or not ex or not cells:
+        return None
+    try:
+        secs = float(ex[-1].split("=")[1].split("s")[0])
+    except (IndexError, ValueError):
+        return None
+    if secs <= 0.0:
+        return None
+    return secs / (its * cells)
+
+
+def rate_calibration_gate(case: pathlib.Path | None = None):
+    """The interlock on rungs 2-5. A CONJUNCTION, not a file-existence test.
+
+    THIS GUARD WAS WRONG AND IT OPENED ON A CRASHED RUNG. It asked whether
+    RC.txt EXISTED; RC.txt existed holding 134. It now requires ALL of:
+
+      * RC.txt present, AND
+      * its content parses as an integer, AND
+      * that integer is 0, AND
+      * every one of rung 1's strict-completion limbs passes, AND
+      * a measured rate exists.
+
+    Any one absent REFUSES. Returns (allowed, reasons).
+    """
+    case = (RUN_ROOT / RATE_CALIBRATION_RUNG) if case is None else case
+    why = []
+    rc, rc_why = read_rc(case / "RC.txt")
+    if rc is None:
+        why.append(f"rc NOT MEASURED: {rc_why}")
+    elif rc != 0:
+        why.append(f"rate-calibration rung rc = {rc}, not 0 — IT DID NOT SUCCEED")
+    gp = case / "grade.json"
+    if not gp.exists():
+        why.append("rate-calibration rung grade.json ABSENT — its completion "
+                   "limbs are NOT MEASURED, and absence does not read as pass")
+    else:
+        try:
+            g = json.loads(gp.read_text())
+        except (ValueError, OSError) as exc:
+            why.append(f"grade.json unreadable ({exc}) — refusing")
+            g = None
+        if g is not None:
+            limbs = g.get("strict_completion_rule")
+            if not isinstance(limbs, dict) or not limbs:
+                why.append("completion limbs ABSENT from grade.json")
+            else:
+                failed = sorted(k for k, v in limbs.items()
+                                if not (isinstance(v, dict) and v.get("pass")))
+                if failed:
+                    why.append(f"completion limbs FAILED: {failed}")
+            if g.get("complete") is not True:
+                why.append("the rate-calibration rung is not complete")
+    if measured_rate(case) is None:
+        why.append("no measured rate exists — the frozen section 5 makes that "
+                   "rate replace both estimates BEFORE rungs 2-5 are considered")
+    return (not why), why
+
+
 def compose_case(case: pathlib.Path, spec: dict) -> dict:
     """Everything from the frozen `build_case`; then `system/blockMeshDict` is
     overwritten from the sha256-asserted committed attempt-2 dictionary.
@@ -412,12 +529,11 @@ def launch(key: str) -> int:
         abort(f"unknown rung {key!r}")
     spec = RUNGS[key]
     if key != RATE_CALIBRATION_RUNG:
-        rc1 = RUN_ROOT / RATE_CALIBRATION_RUNG / "RC.txt"
-        if not rc1.exists():
-            abort(f"rung {key!r} is CLOSED until the rate-calibration rung "
-                  f"{RATE_CALIBRATION_RUNG!r} has returned a measured rate. "
-                  "The frozen section 5 makes that measured rate replace both "
-                  "estimates BEFORE rungs 2-5 are considered.")
+        allowed, why = rate_calibration_gate()
+        if not allowed:
+            abort(f"rung {key!r} is CLOSED. The rate-calibration rung "
+                  f"{RATE_CALIBRATION_RUNG!r} has not SUCCEEDED:\n  - "
+                  + "\n  - ".join(why))
     ev = assert_frozen()
     case = RUN_ROOT / key
     if os.path.exists(case):
@@ -560,8 +676,10 @@ def grade(key: str) -> int:
                                       f"missing {missing}" if missing else str(present)),
         "ExecutionTime_count_equals_endTime": (len(exec_lines) == ITERATIONS,
                                                f"{len(exec_lines)} of {ITERATIONS}"),
+        # verdict expression UNCHANGED; only the annotation moved (see the
+        # AMENDMENT note at the head of this file).
         "age_guard_all_fields_newer_than_0_T": (bool(present) and not older,
-                                                f"not newer: {older}" if older else "all newer"),
+                                                age_guard_detail(present, older)),
     }
     complete = all(v[0] for v in limbs.values())
 
@@ -763,14 +881,87 @@ def selftest() -> int:
         _b is not None and not any(
             isinstance(x, _ast.Call) and getattr(getattr(x, "func", None), "id", "")
             in {"open", "print", "eval", "exec"} for x in _ast.walk(_b)))
-    chk("rungs 2-5 are CLOSED until the rate-calibration rung has an rc",
-        not (RUN_ROOT / RATE_CALIBRATION_RUNG / "RC.txt").exists())
-    chk("all five registered run directories ABSENT (UNFIRED)",
-        not any((RUN_ROOT / k).exists() for k in RUNGS))
+    # ---- THE INTERLOCK, WITH A FAILING ARM ---------------------------------
+    # A guard without a failing arm is a paragraph, not a check. The previous
+    # version of THIS check asked only whether RC.txt was absent -- so once rung
+    # 1 crashed and wrote 134 it reported the interlock closed while the
+    # interlock was OPEN. Every conjunct is now planted and dropped in turn.
+    import tempfile as _tf2
+
+    def _fixture(d, rc="0\n", limbs_pass=True, complete=True,
+                 with_grade=True, with_logs=True):
+        c = pathlib.Path(d)
+        if rc is not None:
+            (c / "RC.txt").write_text(rc)
+        if with_grade:
+            limbs = {k: {"pass": limbs_pass, "detail": ""} for k in
+                     ("rc_is_zero", "End_line_present", "last_time_equals_endTime",
+                      "fields_present_at_endTime",
+                      "ExecutionTime_count_equals_endTime",
+                      "age_guard_all_fields_newer_than_0_T")}
+            (c / "grade.json").write_text(json.dumps(
+                {"strict_completion_rule": limbs, "complete": complete}))
+        if with_logs:
+            (c / "log.rhoSimpleFoam").write_text(
+                "".join(f"Time = {i}\n" for i in range(1, 149))
+                + "ExecutionTime = 13.29 s  ClockTime = 14 s\n")
+            (c / "log.checkMesh").write_text("    cells:            23040\n")
+        return c
+
+    with _tf2.TemporaryDirectory() as d:
+        c = _fixture(d)
+        allowed, why = rate_calibration_gate(c)
+        chk("POSITIVE arm: rc 0 + all limbs + complete + a rate -> ALLOWS",
+            allowed, f"reasons: {why}")
+        chk("  and the rate it measured is a real number",
+            measured_rate(c) is not None and measured_rate(c) > 0)
+
+    with _tf2.TemporaryDirectory() as d:
+        c = _fixture(d, rc="134\n")
+        allowed, why = rate_calibration_gate(c)
+        chk("NEGATIVE arm: PLANTED rc = 134 -> REFUSES",
+            not allowed and any("134" in r and "DID NOT SUCCEED" in r for r in why),
+            f"reasons: {why}")
+
+    for label, kw, needle in (
+            ("rc ABSENT", dict(rc=None), "NOT MEASURED"),
+            ("rc non-integer", dict(rc="boom\n"), "NOT MEASURED"),
+            ("a completion limb FAILING", dict(limbs_pass=False), "limbs FAILED"),
+            ("complete = False", dict(complete=False), "not complete"),
+            ("grade.json ABSENT", dict(with_grade=False), "ABSENT"),
+            ("no measured rate", dict(with_logs=False), "no measured rate")):
+        with _tf2.TemporaryDirectory() as d:
+            c = _fixture(d, **kw)
+            allowed, why = rate_calibration_gate(c)
+            chk(f"CONJUNCT dropped -- {label} -> REFUSES",
+                (not allowed) and any(needle in r for r in why), f"reasons: {why}")
+
+    allowed, why = rate_calibration_gate()
+    chk("THE REAL rung 1 (rc = 134) -> rungs 2-5 REFUSED",
+        not allowed, f"reasons: {why}")
+
+    # ---- the age-guard annotation, which contradicted its own verdict -------
+    chk("age-guard annotation on an EMPTY field list does NOT say 'all newer'",
+        "all newer" not in age_guard_detail([], [])
+        and "nothing to compare" in age_guard_detail([], []))
+    chk("age-guard annotation still reads correctly when fields ARE newer",
+        "all 2 fields newer" in age_guard_detail(["T", "U"], []))
+    chk("age-guard annotation names the offenders when a field is NOT newer",
+        "not newer than 0/T: ['T']" == age_guard_detail(["T", "U"], ["T"]))
+
+    # Rung 1 HAS fired (2026-08-25T17:06:57Z, rc = 134) and its directory is
+    # EVIDENCE. What must still hold is that rungs 2-5 are unfired.
+    chk("rung 1 IS fired and its directory is preserved as evidence",
+        (RUN_ROOT / RATE_CALIBRATION_RUNG).exists())
+    chk("rungs 2-5 remain UNFIRED on disk",
+        not any((RUN_ROOT / k).exists() for k in RUNGS if k != RATE_CALIBRATION_RUNG))
 
     bad = [n for n, v in ok if not v]
+    planted = [n for n, _ in ok if n.startswith(("PLANTED", "NEGATIVE", "CONJUNCT"))
+               or "PLANTED" in n]
     print(f"\n{len(ok) - len(bad)}/{len(ok)} checks passed"
-          + (f"; FAILED: {bad}" if bad else "; 4 planted controls fired"))
+          + (f"; FAILED: {bad}" if bad
+             else f"; {len(planted)} controls with a FAILING arm fired"))
     return 1 if bad else 0
 
 

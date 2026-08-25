@@ -1,0 +1,51 @@
+{
+ "rung": "attempt2_coarse_workshop_M0.734_a2.79",
+ "graded_utc": "2026-08-25T17:08:49.683534+00:00",
+ "frozen_evidence": {
+  "checked_utc": "2026-08-25T17:08:49.661016+00:00",
+  "launcher_sha256": "d25295ad9c0dcb71c216e582e7d7ce73a6168e9668523bb4b5c75d2d3905300d",
+  "prereg_blob": "462492a82b6cf848eaaff25661ded45e623e723f",
+  "frozen_sentences_found": 7,
+  "rae_module_blob": "a18314f77160b7a58f443073850a44b4d8fada7d",
+  "grading_functions_pinned": 26
+ },
+ "strict_completion_rule": {
+  "rc_is_zero": {
+   "pass": false,
+   "detail": "rc=134"
+  },
+  "End_line_present": {
+   "pass": false,
+   "detail": null
+  },
+  "last_time_equals_endTime": {
+   "pass": false,
+   "detail": "148"
+  },
+  "fields_present_at_endTime": {
+   "pass": false,
+   "detail": "missing ['T', 'U', 'alphat', 'k', 'nut', 'omega', 'p']"
+  },
+  "ExecutionTime_count_equals_endTime": {
+   "pass": false,
+   "detail": "147 of 6000"
+  },
+  "age_guard_all_fields_newer_than_0_T": {
+   "pass": false,
+   "detail": "all newer"
+  }
+ },
+ "complete": false,
+ "cap_breached": false,
+ "gate_A": {
+  "passed": true,
+  "breaches": [],
+  "max_non_orthogonality": 51.12365363,
+  "max_skewness": 0.9572299919,
+  "max_aspect_ratio": null,
+  "aspect_ratio_gated": false
+ },
+ "gate_B_converged": false,
+ "verdict": "NOT A RESULT",
+ "why": "the strict completion rule is ALL-OR-NOTHING and this run fails at least one limb; no gate value is quoted"
+}
