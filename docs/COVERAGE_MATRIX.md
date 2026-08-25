@@ -985,6 +985,102 @@ standing fact tonight should not rest on an instrument that cannot refuse.
 
 **A traced null, with its method named, is a real result and closes the item.**
 
+### 5.2a RESULT — K0b (×3) and 4G: **TRACED NULL.** Nothing published rests on a non-CONVERGING triple
+
+**Answer: NO.** No number in any record, certificate, RESULTS file, JSON artifact or
+published figure has its uncertainty quoted from these four implementations while the
+triple behind it was not CONVERGING. **Rule 5's one-way door is not breached by any of
+the four.** This closes the K0b and 4G half of the item.
+
+**THE CONTROL FAILED FIRST, AND THAT IS THE MOST IMPORTANT LINE IN THIS SECTION.**
+The lane planted `GCI = −10.714` and `p = −0.5850` in eight shapes and swept for them
+**before** concluding anything. **The first detector missed the markdown-table-cell
+shape** — its numeric-row test required a line to begin with a digit, and a real table
+row begins with a **label**. The detector was rebuilt to carry a "table whose header
+named a GCI/order column" context to the end of the block, and re-controlled: **all
+eight shapes then fired** — JSON key structurally and as text, table cell in row 1 and
+in row 6, prose sentence, plain-text log line, HTML figure caption, whitespace-column
+`.dat` row, CSV row.
+
+**Had the null been reported from the first detector it would have been a FALSE NULL,
+blind to exactly the shape the lab's records use most.** That is rule 3 working as
+intended: *a zero from a reader not shown able to see a non-zero is not evidence* —
+and here the reader **was** shown unable, and was fixed before it was believed. **A
+null is worth precisely what its control is worth.**
+
+**A code-side control was run too**, and it locates the defect precisely: on the
+divergent triple all four functions return `p = −0.5849625007211563`, GCI
+`−10.71428571428572`, `reason = None`; on the sign-change triple 1.00 / 1.05 / 1.02
+**all four correctly REFUSE**. **The guard exists and works — it is simply the wrong
+guard.** It tests increment sign change and never `p <= 0`.
+
+**The trace itself:** all six K0b triples classified from their own stored values are
+**monotone and CONVERGING** (|d32/d21| 0.127–0.297, p 1.7529–2.9824, GCI 0.063 %–0.784 %,
+all positive), and all three `k0b_mesh_sensitivity.json` files are byte-identical to
+their HEAD blobs. The five negative GCIs in `k0b_d403_regrade.json` belong to the
+un-continued 128×128 leg and **reach no record**: `K0b_D403_RERUN_RESULTS.md` §6 prints
+the `p` column and **omits the GCI column entirely**. The direction is the safe one —
+that block is cited to support **`V3 = GATE FAIL`** and to expose the leg as
+*"iteration error wearing a mesh study's clothes"*. For 4G the negatives **are** in a
+HEAD-committed record, and are published **as the demonstration of the defect**: the
+record's own footnote says the n = 2,000 row *"is here to show the pole, not to quote a
+number through it"*. Every row carrying a real conclusion is CONVERGING (matched
+n = 9,000: p 0.516, GCI 4.26 %; published caps p 0.5446, GCI 3.839 %). **Nothing was
+moved from `NOT A RESULT` into a `PASS`.**
+
+**Three residual defects are real and must not be read as harmless:**
+
+1. **The guard is the wrong guard in all four files.** The null holds on today's data,
+   not by construction.
+2. **A negative GCI is sitting in two HEAD-committed artifacts** —
+   `verification/runs/F14-cooling-ladder/K0b_D403_rerun/grade_d403.txt` (in a `GCI %`
+   column) and `verification/campaign/4G_tmr_mesh_aspect_ratio.json` — **where a future
+   reader can lift it** without the surrounding prose.
+3. **Only the surrounding prose, not the instrument, is doing the honest work.** That
+   is the whole finding: the records are honest because their authors were careful,
+   and the instrument would not have stopped a careless one.
+
+**Two defects owed to cfd as dated corrections, found while tracing:**
+
+- **A factual error stated TWICE in HEAD.** `verification/campaign/4G_tmr_mesh_aspect_ratio.md`
+  §10.3 and its JSON's `iterative_error_verdict` both say *"at n = 2,000 the increments
+  cross."* **They do not cross** — both are positive (+7.534e-05 and +7.547e-05); they
+  nearly **equalise**. The footnote gets it right (*"p passes through zero"*); the body
+  sentence does not. **Under rule 5's vocabulary that row is `DIVERGENT`, not
+  `OSCILLATORY`.**
+- **`4G_runs/bump_iteration_matched/ladder.py` carries the D403 blindness the K0b script
+  was repaired for.** Its `PUB` path under `demo-output/website/tmr/runs/` no longer
+  exists after the R20/R21 move, and **it does not refuse** — `os.path.exists` returns
+  False and it silently continues on local re-run histories. `analyse_k0b_mesh.py`
+  **refuses** in the same situation. **Measured consequence today:** a re-run gives
+  n = 3,000 as p = 0.4410 / GCI 5.416 % against the recorded 0.4416 / 5.406 %. A
+  comparator that silently continues on a moved path is the D403 defect exactly.
+
+**One live alarm defused before anyone re-discovers it.** `gate_t1b.json` rows 0/2/4
+read `verdict: PASS` beside `grid.state: DIVERGENT` with a `band_pct`, which looks like
+a rule-5 breach and is not: **that band is NOT a GCI**, it is the pre-registered
+Dittus-Boelter/Gnielinski half-spread from `T1b_band.json` (0.8789 = (31.78566 −
+30.02785)/2). `docs/campaigns/T-family/T1b_L4_AMENDMENT.md:126-129` already records
+those four rows, **is the origin of CLAUDE.md rule 5**, and deliberately leaves the
+JSON un-rewritten. **Known, adjudicated, superseded.** By contrast `gate_t3.json` and
+`gate_t10a.json` return `NOT A RESULT` on their DIVERGENT rows and quote no band —
+the reference behaviour.
+
+**Coverage limits stated rather than glossed:** 35 files over an 8 MB cap (solver logs,
+adjoint dumps, mesh JSON; the two large JSONs spot-checked, zero GCI tokens); ~45.4k
+compressed files under the out-of-repo roots unread (the 533 in-repo `.gz` were
+`zgrep`ped); **binary formats entirely** — a GCI rendered into a PNG would be invisible,
+mitigated by `demo-output/` carrying **no GCI token in any source form**; and
+extensionless OpenFOAM dictionaries. `git status` was **not used as an instrument**;
+HEAD was asked directly.
+
+**Cost: reads only, no solver, no container. No core-minute figure is quoted, because
+none was measured** — rule 12 forbids calling a cost measured without a record behind
+it, and an unmeasured single-core read is not worth inventing one for.
+
+**The sdk / `tmr_verification.py` half of this trace — the flat plate's own instrument
+— is still running and is NOT covered by this null.**
+
 ---
 
 ## 6. A four-file pattern: the worktree copies of the lab's ledgers are STALE
