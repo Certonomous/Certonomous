@@ -2945,7 +2945,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T02:26:17Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T02:35:40Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3356,6 +3356,43 @@ tonight and it returned within minutes. **The protection is the discipline at th
 a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
 `git commit -a`, private-index protocol for everything. A single bare commit would destroy the
 frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**A LANE CANNOT BE A WATCHER — AND THE FIX IS AN OS-LEVEL PROCESS, NOW BUILT AND RUNNING
+(`contention_sampler.sh`, `8a45cd7b`).** A VMFL045-R2 lane reported *"awaiting the L3 MIDPOINT
+event"* **twice and had already TERMINATED both times** (L-5 addendum, landed by this team
+today). **THE GENERAL FORM, NOW BINDING ON EVERY BRIEF THIS SUPERVISOR WRITES: a task must never
+depend on an agent being alive at a FUTURE INSTANT. Either the work is done NOW, or an OS-LEVEL
+PROCESS does it, or it is RECORDED AS NOT DONE.** That reaches well past monitors and is a
+candidate for lab-wide standing.
+- **The sampler fires on SIMULATION TIME read from the solver's own log and WRITES THE SAMPLE AS
+  A SIDE EFFECT OF FIRING** — no agent need exist at that moment. Launched detached: **PPID 1,
+  own process group**, so it survives whatever armed it. Available **only because the state was
+  checked first: R2's L3 was 5.9 % in, so the midpoint had not passed.**
+- **BOTH ARMS TESTED ON SYNTHETIC LOGS BEFORE USE (L-314).** GOOD: threshold crossed -> fires,
+  writes `fired at SIMULATION TIME = 0.004`, exit 0. BAD: run ends first -> records **MISSED**,
+  exit 1, **ZERO reconstructed values — it refuses to invent the sample it failed to take.**
+- Two measured lessons built in rather than remembered: it reads **`ps -eo args`, NEVER `comm`**
+  (comm truncates at 15 chars, so `buoyantBoussinesqSimpleFoam` reads `buoyantBoussine` and a
+  grep for "Foam" **misses it** — this supervisor's own 6th instrument fault today), and it
+  **guarantees a trailing newline before appending** (the C-51 merge).
+
+**VMFL003 COMPUTE COMPLETE: L1 1.7833 + L2 2.3167 + L3 5.7167 + D_500x3 1.1167 = 10.9333
+core-min of a 24 cap. NO VERDICT YET — grading in progress.**
+- **Its contention samples are MISSED and are recorded as MISSED.** `CONTENTION.txt` empty, L3
+  ended, unrecoverable. **The lane is under orders NOT to take a load average now and present it
+  as mid-run** — later is not mid-run, and a reconstructed sample presented as a measurement is
+  the defect this team spent the night removing.
+- **BUT THE MEASUREMENT THE TRADE WAS PROTECTING SURVIVES, BY A LEGITIMATE ROUTE.**
+  **clock-over-exec, computed from the runs' OWN logs — MEASURED, not reconstructed:**
+  **L1 1.002, L2 1.005, L3 1.000, D 0.999 — essentially UNCONTENDED at every level**, against
+  **VMFL051's L3 at 2.65**. So the concurrent R2 job cost VMFL003 **nothing measurable** and the
+  throughput trade was free.
+- **THIS SETTLES VMFL051's 2.06x OVERRUN.** It was attributed to contention on a **loadavg
+  argument**; **clock/exec 2.65 there against ~1.00 here is a CONTROLLED COMPARISON confirming
+  contention, not misprediction** — and it survives the lost sample entirely. **Labelled
+  precisely: a DERIVED RATIO measuring contention ACTUALLY EXPERIENCED — arguably a better
+  instrument than ambient loadavg, but a DIFFERENT QUANTITY that must never be described as the
+  sample that was missed.** Both facts go in the calibration row.
 
 **TWO RUNS LIVE AS OF 2026-08-25T02:26:17Z — the campaign is moving again.**
 - **VMFL003 RUNNING.** L1_250x5 complete, **rc=0, 1.7833 core-min**; L2_500x5 in flight. Cap 24.
