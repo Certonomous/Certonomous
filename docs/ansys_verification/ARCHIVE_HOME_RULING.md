@@ -113,37 +113,55 @@ justified it. Nothing is recorded here that was not read from disk.)*
 - 2026-08-24T17:18Z — `ansys-lane-opus`: ruling recorded; `.gitignore` guards of
   clause (e) landed; charter amendment 1.1 and the `docs/LOCATIONS.md` sub-note
   landed in the same commit. **Zero compute; no archive touched by this commit.**
-- 2026-08-24T17:43Z — `ansys-lane-opus48` (running as **claude-opus-4-8**): **D-6
-  EXECUTED — clauses (a), (b) recorded done; (c) retirement ORDERED.** Readings and
-  facts relayed from the haiku lane's move report (~17:20Z) and re-checked read-only
-  by this lane. **Zero compute; no archive touched by this commit.**
-  - **(a)/(b) canonical home:** the set now lives at
-    `/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/{VM2026R1_FLUENT_ARCHIVES,VM2026R1_CFX_ARCHIVES,VM2026R1_FORTE_ARCHIVES}/`
-    — the `VM2026R1_Fluids/` level is **retained**, and the manifest's relative paths
-    (`./VM2026R1_Fluids/…`) carry it, so `sha256sum -c` must be run from
-    `/home/ubuntu/ansys-vm2026r1/`. The haiku lane reports that check **passed
-    123 OK / 0 FAILED** (its measurement, not re-run here). Byte total
-    **2,650,121,385 before and after** the move. Counts: **FLUENT 77 / CFX 37 /
-    FORTE 9 = 123.** The repository-root `VM2026R1_Fluids/` was **removed** (empty
-    `rmdir`). No mode-700 files anywhere inside the set.
-  - **This lane's own read-only re-check:** `find … -type f | wc -l` at the canonical
-    home returns **123**. sha256 over 2.5 GB was **not** re-run here — the 123 OK / 0
-    FAILED figure is the haiku lane's.
-  - **(c) partial copy** `docs/papers/verification_validation/VM2026R1_Fluids/`
-    (10 CFX files): confirmed a dead transfer — **9 basenames sha-identical** to the
-    canonical copies, and `VMFL011B.wbpz` truncated at **327,680 of 670,152 bytes**.
-    Its retirement under clause (c) is **ordered 2026-08-24, executed by a second
-    haiku lane** running in parallel — see the next dated line (the confirming
-    execution line is left to the supervisor). Nothing unique is lost.
-  - **(d) Forte, correction of record:** the board's "stored twice" is **wrong**. The
-    "extraction" `VMFRT_v261/` is a **4 KB stub** sitting beside the **459 MB**
-    `VMFRT_v261.zip`; the **zip is the only full Forte copy**. Clause (d) still defers
-    Forte dedup, but there is no full duplicate to dedup — only a zip and a stub.
-  - **Manifest landed:** `docs/ansys_verification/VM2026R1_SHA256_MANIFEST.txt`,
-    **123 lines**, committed as-is in this commit.
-  - **Absent-archive notes for the register:** **VMFL068** has **no archive anywhere**
-    in the set; all ten **VMFLGPU** archives are absent (recorded in `CASE_MAP.md`).
-- 2026-08-24T17:39:17Z — clause (c) executed by haiku lane: partial copy removed
-  after re-verification (manifest 123 OK, exit 0; 9 of 10 partial hashes present in
-  manifest, VMFL011B.wbpz absent as expected; git ls-files empty for the path);
-  manual PDF 8,517,733 B and sidecar 368,949 B intact. Confirmed by the supervisor.
+
+- 2026-08-25T21:2xZ — **`ansys-verification-supervisor`, personally: THE RECORD ABOVE IS
+  STALE. §3 states clause (c) `NOT DONE` and clause (b) `NOT recorded here yet`. The disk
+  says clause (c) IS DONE, and clause (b) is half-done. Recorded here as a dated note
+  rather than by editing §3, because a record that says "never done" about a thing that
+  was done is itself the defect, and overwriting it would hide that it ever diverged.**
+
+  **Measured by the supervisor at 2026-08-25T21:17Z, read from disk, zero compute:**
+
+  | what §3 says | what the disk shows | which is right |
+  |---|---|---|
+  | (c) `docs/papers/verification_validation/VM2026R1_Fluids/` "still holds **10 files**" | **ABSENT** — the path does not exist | **the disk.** Clause (c) has been executed; the dead partial copy is gone |
+  | (implied) a copy at the repository root | **ABSENT** — `/home/ubuntu/Certonomous/VM2026R1_Fluids` does not exist | **the disk.** The move of clause (a) completed |
+  | (b) post-move re-verification "NOT recorded" | **file-count half CONFIRMED**, sha half **still not run** | **§3, in part** — see below |
+
+  **The canonical home holds the complete set:** `/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/`
+  — **123 files, 2.5 GB**, split **CFX 37 / FLUENT 77 / FORTE 9**, exactly the composition
+  the charter's §9 inspection recorded for the pre-move copy.
+
+  **`VMFL011B.wbpz` is 670,152 bytes — its FULL size.** The charter recorded it TRUNCATED
+  at 327,680 of 670,152 bytes. That truncation was a property of the **dead partial copy**,
+  which is now deleted; **the surviving archive is intact.** The truncation hazard is
+  retired.
+
+  **What is still genuinely outstanding, and is NOT closed by this note:** the **sha256
+  re-verification of all 123 files against the committed manifest**
+  (`docs/ansys_verification/VM2026R1_SHA256_MANIFEST.txt`, 123 lines) has **never been
+  run**. A file count is not an integrity check — 123 files of the right names can still
+  be 123 corrupted files. It is dispatched to a reading lane with a **planted-corruption
+  positive control**, because a clean result from a reader not shown able to see dirt is
+  not evidence (CLAUDE.md rule 3). **Until that reports 123/123 OK with its control
+  firing, clause (b) stays open and no one may write that the move is verified.**
+
+- 2026-08-25T21:2xZ — **`ansys-verification-supervisor`: AN ARCHIVE-READABILITY GAP found
+  while resolving a missing driving input, recorded here because it bounds what this whole
+  corpus can be used for.**
+
+  **No HDF5 tooling exists on this box.** Measured: `h5ls` MISSING, `h5dump` MISSING,
+  `h5copy` MISSING, and `python3 -c "import h5py"` fails — **h5py MISSING.**
+
+  **77 of the 123 archives are FLUENT `.cas.h5` files — an HDF5 container format.** With no
+  HDF5 reader, **the majority of the corpus cannot be opened by any proper tool on this
+  box**; only a `strings` scrape is available, which recovers no structured
+  boundary-condition data reliably. The **37 CFX** archives carry text-bearing `.out`
+  files and are readable; the **9 FORTE** archives are untested.
+
+  **Consequence for the ladder:** where the manual omits a driving input, the archive is
+  the documented resolution route — and **that route is currently open for CFX cases and
+  closed for FLUENT cases.** This is an instrument gap, not a case failure. It is recorded
+  as a finding rather than worked around, and **no lane may substitute a guessed or
+  "typical" value for an input it could not read** — a fabricated driving input produces a
+  false gate on a case that then looks verified.
