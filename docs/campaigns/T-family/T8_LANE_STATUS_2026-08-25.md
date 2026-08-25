@@ -736,3 +736,120 @@ as load-bearing, not carried as supplementary.**
 
 **Authorisation to re-register is Sanaa's and the chief's. This lane drafted
 and did not register.**
+
+---
+
+# APPENDIX 4 — **DATED CORRECTION, 2026-08-25.** `f` did NOT converge cleanly. It dipped below tolerance for 228 iterations and left.
+
+**This corrects a statement of mine in Appendix 3 and a statement of the
+supervisor's now on the board at `590f86d4` and relayed to Sanaa.** It is
+issued as a correction, not as a new observation, because the earlier readings
+were **snapshots taken during a departure and read as convergence.**
+
+## 1. What was said, and by whom
+
+- **Supervisor (board `590f86d4`, relayed to Sanaa):** `f` is *"alive,
+  advancing and converging, `T` residual `1.09e-06`, at the registered 1e-6
+  target"*.
+- **This lane, Appendix 3:** `f` *"contained, `T` residual `5.11e-06`"*, and
+  `f` listed as *"the healthy one"*.
+
+**Both numbers were real when read. Both were read on the way back up.**
+
+## 2. What the log actually shows — full history, read fresh
+
+`T` initial residual, every 100 iterations:
+
+| iter | residual | | iter | residual |
+|---:|---|---|---:|---|
+| 100 | 1.076e-02 | | 1200 | 3.776e-06 |
+| 400 | 3.061e-03 | | 1300 | 1.093e-05 |
+| 800 | **7.991e-04** | | 1400 | 2.269e-05 |
+| **900** | **2.875e-07** | | 1500 | 3.385e-05 |
+| 1000 | 2.724e-07 | | 1600 | 3.451e-05 |
+| 1100 | 9.311e-07 | | **1800** | **3.846e-05  ← peak** |
+| | | | 1900 | 3.768e-05 |
+| | | | 2000 | 2.846e-05 |
+| | | | 2100 | **2.042e-05** |
+
+- **Minimum ever: `2.3333e-07` at iteration 940.**
+- **Iterations at or below the registered `1e-6`: 228, from iteration 877 to
+  iteration 1104.** Then it left and has not returned.
+- It **dropped three decades between 800 and 900** (`7.99e-04 → 2.87e-07`),
+  held for ~228 iterations, **rose two decades to a peak of `3.85e-05` at
+  1800**, and is now **descending again — `2.04e-05` at 2100.**
+- **Still RUNNING at `Time = 2134` of 20000. No `STATUS` file. Not touched.**
+
+## 3. What this means, stated precisely
+
+**`f` is neither converged nor diverging. It is OSCILLATING**, with an
+amplitude spanning **more than two decades** (`2.33e-07` to `3.85e-05`), and it
+is currently **two decades above the registered `1e-6`**.
+
+The three levels now read:
+
+| level | behaviour | `T` residual |
+|---|---|---|
+| c | **plateau**, tight (spread 1.48× over 2000 iters) | ~**7e-04**, flat |
+| m | **divergence** to SIGFPE | closure blew up; `T` never bounded |
+| f | **oscillation**, >2 decades | min **2.33e-07**, now **2.04e-05** |
+
+**What survives:** the crash is still **non-monotone in resolution** — `m`, the
+middle level, is the only one that destroyed itself, and it remains true that no
+level-specific setup difference explains it (Appendix 3, unchanged).
+
+**What does NOT survive:** the characterisation of `f` as *"the healthy one"*,
+*"converging"*, or *"at the registered target"*. **`f` is UNSETTLED.** A single
+residual reading on this case is not evidence of convergence, because the
+quantity is oscillating over two decades — **exactly the shape that makes a
+snapshot misleading, and both of us took one.**
+
+## 4. Does the supervisor's `epsilon` ruling survive? PARTLY — and the part that fails is the test, not the principle.
+
+**RULING A's principle SURVIVES and is untouched by this.** *"Do not stabilise
+the thing being tested"* — a limiter clips the solution and changes the
+equations, so a limited run answers a different question under the old label.
+That argument **does not depend on `f`'s behaviour at all**, and §9 P1's
+`kEpsilon` claim is testable or not regardless. **Bare `kEpsilon`, no limiter,
+no `limitT`: unaffected.**
+
+**RULING A's ramp-neutrality TEST does NOT survive as written.** It says:
+*"Run level `f` — which converges cleanly — both with and without the ramp. If
+the converged fields agree within the registered band, the ramp is a numerical
+aid."* **`f` has no converged fields to compare.** With the residual
+oscillating over two decades, "the converged fields" is undefined, and two runs
+sampled at the same iteration could differ by the oscillation alone — the test
+would attribute to the ramp whatever phase difference it happened to catch.
+
+**The test needs a settled state before it can discriminate anything.** Options
+exist (compare at a fixed iteration *and* over a window; require the oscillation
+to decay first; use a windowed norm rather than a point value) — but **choosing
+one is a registration decision and this lane does not make it.**
+
+**RULING B is UNAFFECTED and, if anything, strengthened.** `c` has stalled —
+independently re-verified: over its last 2000 iterations, min `5.781e-04`, max
+`8.576e-04`, mean `6.959e-04`, **spread only 1.48×**. That is a plateau, not a
+descent, and `endTime` is not the remedy. `f`'s behaviour changes nothing about
+`c`.
+
+## 5. Method note — how both readings went wrong, and one of mine nearly did
+
+Both misreadings were **single-point samples of an oscillating quantity**.
+
+Separately, my own first attempt at this history was **also wrong, for a
+different reason**: I extracted the residual with a fixed 12-character
+substring, which silently **truncated the exponent** off values in scientific
+notation — turning `3.775818689978888e-06` into `3.7758186899` and making a
+converged value look like a residual of 3.8. I caught it by printing the raw log
+line before trusting the parse. **A truncating reader is a blind reader**, and
+the fix was to match `Initial residual = [0-9.eE+-]+` in full and use the whole
+matched token.
+
+## 6. Status
+
+**`f` NOT TOUCHED, still running, diagnostic only.** It **cannot be graded** —
+§12 S3's weights are wrong under this pre-registration — and **reaching
+`endTime` is not a result and must never be recorded as one.**
+
+**`BLOCKED` stands**, on both original grounds, and this correction adds no new
+verdict. **It removes a claim rather than adding one.**
