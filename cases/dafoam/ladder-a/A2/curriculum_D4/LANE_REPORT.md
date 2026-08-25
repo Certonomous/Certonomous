@@ -700,3 +700,89 @@ this reading: **245.3 core-min** of the **800.0** ceiling.
 **DERIVED**: 245.3 core-min = **$0.210 derived, not measured**.
 
 **Status at this commit: PENDING** — arm O is still running. No verdict is claimed.
+
+## 6. FINDING — `d4_grade.py --selftest` IS A DEAD FLAG (recorded, not routed around)
+
+The custody brief instructed: *"Run its selftest first if it has one."* **It advertises one and
+does not have one.**
+
+`d4_grade.py` declares the option at line 646:
+
+```
+ap.add_argument("--selftest", action="store_true")
+```
+
+and **never reads it again.** Demonstrated, not asserted — an AST walk over the whole 777-line
+file for every `Name` or `Attribute` node called `selftest` returns **`[]`**; the string occurs
+on exactly one line, the declaration. `main()` branches on `a.base`, `a.work`, `a.arms` and
+`a.out`, never on `a.selftest`.
+
+**The consequence, stated plainly.** Invoking `d4_grade.py --selftest` does **not** run a self
+check — it silently runs a **full grade** and writes a verdict file. A lane that ran it and
+reported "selftest passed" would be reporting a check it had not performed, off a flag the
+instrument accepted without complaint. That is the L-302 shape exactly: *an instrument that
+cannot say "I measured nothing" will report a number it did not measure* — here, an instrument
+that accepts a request for a check it does not implement, and answers with something else.
+
+**This lane therefore does NOT claim a grader selftest.** No selftest was run, because none
+exists.
+
+**What the grader DOES have, and it is not nothing.** The real controls are not behind the dead
+flag — they run inside every ordinary grade, and they are the ones prereg §7 registers:
+
+| control | what it proves | where |
+|---|---|---|
+| **G7** `count_controls` | four deliberate mutations (`rows` emptied, shortened to 2, reversed, key removed) must each produce a **NAMED** refusal | `d4_grade.py:431` |
+| **G6b** `negative_control` | a blind reader that ignores the path handed to it must be **REFUSED**; a control that cannot refuse is not a control | `d4_grade.py:416` |
+| **G6** `planted_zero_control` | plants `PLANT = 1.234e-03` into a graded row, re-reads through the **same** reader, refuses if any consumed channel cannot see it (rule 3) | `d4_grade.py:366` |
+
+So the discrimination evidence prereg §7a demands **is** obtained — it simply arrives with the
+grade rather than ahead of it. The defect is the advertised-but-absent flag, and it is recorded
+here rather than fixed: `d4_grade.py` is frozen at md5 `f162ef69a7385e5d0586ef5f27657cbb` in
+prereg §9a and **is not edited by this lane** (`CLAUDE.md` rule 6). Whether it is amended for a
+future item is not a lane's call.
+
+## 7. Grading path traced BEFORE the run ends — so no arrangement is improvised afterwards
+
+Read out of the frozen launcher and the frozen grader, at this commit:
+
+* **Arm F's command** (`d4_run_arm.sh:200`) is `python d4_extract_endpoint.py && mpirun -np 4
+  --bind-to core … python d4_fd_endpoint.py`. The extractor is serial rank 0 and writes
+  `d4_major_history.json` and `d4_endpoint_dvs.json`; the FD producer writes
+  `d4_fd_endpoint.json`. **All four artifacts the grader ages land in one directory.**
+* **The arm-F path defect found by the previous lane is real and already remedied without
+  touching a frozen file.** `d4_run_arm.sh:136` derives `WORK="$BASE/$ARM"`, so arm F resolves
+  to `$BASE/F`, which no arm creates; line 158 then aborts at exit 5. `d4_stage_F.sh` satisfies
+  that precondition by **copying** `$BASE/O` to `$BASE/F` with `cp -a`. Confirmed on disk now:
+  **`$BASE/F` does not yet exist**, and `$BASE/O` is intact.
+* **The `cp -a` choice is what makes the age guard survive the staging**, and it is worth
+  stating because it is not obvious. `g_completion` **refuses** unless
+  `mtime($WORK/0/U) == $WORK/.d4_age_datum`; `cp -a` preserves both, so the staged tree carries
+  arm O's datum `1787681557` and its own `0/U` still matches it. `g_age` then requires the four
+  graded artifacts **strictly newer** than that datum — arm O's `opt_IPOPT.txt` and
+  `OptView.hst` carry their real production mtimes through the copy, and the two JSONs are
+  written fresh by arm F. Plain `cp` would have reset `0/U` to the copy time and the grader
+  would have **refused**, correctly. The remedy works because of a detail, not by luck.
+* **`g_completion` demands a ledger row for every arm in `--arms` (default `P1,P2,O,F`)** and
+  refuses on `arm_absent_from_ledger`. **The grader cannot be made to produce a partial verdict
+  by simply omitting arm F** — it refuses (exit 2) rather than degrade. That is the designed
+  behaviour and this lane will not work around it.
+
+## 8. Budget headroom for arm F — checked BEFORE it is needed, not claimed afterwards
+
+Registered caps (prereg §8): P1 `5.0`, P2 `55.0`, O `620.0`, F `120.0`, **item ceiling `800.0`**.
+Spent and enforced so far, from `ledger.txt`: P1 **`0.333`**, P2 **`36.4`**.
+
+Worst case, arm O consuming its **entire** 620.0 cap: `0.333 + 36.4 + 620.0 + 120.0` =
+**776.73 core-min**, which is **23.27 core-min inside the 800.0 ceiling**. **Arm F is
+affordable even if arm O runs to its cap-stop**, so the endpoint FD table is not at risk from
+budget. Wall-clock: arm O's hard stop is `20:47:37Z`; arm F's 120.0 core-min cap is 30 min wall
+at np=4, landing by ~`21:20Z`.
+
+**The FD table is therefore planned to FIRE, not to be waived.** If it is nevertheless not
+obtained, the reason will be stated and the endpoint verification marked **`PENDING`** with
+that reason — never quietly omitted (`DAFOAM_CHARTER.md` bright line: a DAFoam gradient is not
+a result until an FD table stands beside it at a step proved to lie in the plateau).
+
+**Live at this commit:** arm O at major **29**, `CD = 2.2291356e-02`, `inf_pr = 1.57e-05`,
+delivered cores `3.9967`, container peak `10.308 GiB` of `12g`. Still **PENDING**.
