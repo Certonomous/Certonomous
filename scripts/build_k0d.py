@@ -193,9 +193,31 @@ END_TIME, DELTA_T, WRITE_INTERVAL, PURGE_WRITE = 40000, 1, 4000, 2
 # why it is asserted here rather than assumed.  A later rung that decomposes
 # would silently inherit a timeout 1/ranks too long if this were left implicit.
 RANKS = 1
-assert RANKS == 1, ("K0d is registered SERIAL (re-registration section 6). "
-                    "The core-minute -> timeout conversion below is the "
-                    "identity ONLY at ranks == 1.")
+
+
+def _require(cond, msg):
+    """A refusal that SURVIVES `python3 -O`.
+
+    NO `assert` IN THIS INSTRUMENT MAY CARRY A REFUSAL, GUARD, CONTROL OR GATE.
+    `assert` statements are REMOVED by `python3 -O` / PYTHONOPTIMIZE=1, so a
+    guard written as an assert is not a guard under every interpreter this
+    script can be launched with.  MEASURED ON THIS BOX, not relayed:
+
+        python3     ranks=4 -> REFUSED: K0d is registered SERIAL
+        python3 -O  ranks=4 -> proceeded
+
+    A registration guard that evaporates under an interpreter flag would have
+    let a NON-SERIAL run proceed unregistered, with every core-minute figure in
+    the cost model wrong -- `timeout = cap * 60 / ranks` is the identity ONLY at
+    ranks == 1.  This raises instead, and `raise` is not optimised away."""
+    if not cond:
+        raise SystemExit(f"REFUSE: {msg}")
+
+
+_require(RANKS == 1,
+         "K0d is registered SERIAL (re-registration section 6). The "
+         "core-minute -> timeout conversion below is the identity ONLY at "
+         "ranks == 1.")
 
 # Per-case hard stop: 10x that case's registered POINT line (re-registration
 # 8.1 rule 2).  UNDER SANAA'S 2026-08-25 DIRECTIVE THESE ARE RUNAWAY GUARDS,
@@ -222,8 +244,11 @@ FROZEN_TIMEOUT_S = {435.00: 26100, 852.70: 51161, 1675.50: 100530, 639.50: 38370
 def timeout_for(case):
     """The enforced wall-clock timeout of one case, in seconds.
 
-    cap_core_min * 60 / ranks, with ranks asserted rather than assumed."""
-    assert RANKS == 1
+    cap_core_min * 60 / ranks, with ranks REQUIRED rather than assumed --
+    via _require(), which survives `python3 -O`, never via assert."""
+    _require(RANKS == 1, "ranks != 1; the core-minute -> timeout conversion "
+                         "is not the identity and this refuses rather than "
+                         "emitting a timeout 1/ranks too long")
     cap = CAP_CORE_MIN[case]
     computed = cap * 60.0 / RANKS
     frozen = FROZEN_TIMEOUT_S[cap]
@@ -911,21 +936,22 @@ def selftest():
         mutated = os.path.join(gap_tmp, "build_k0d_gap_reopened.py")
         src = open(os.path.abspath(__file__)).read()
         anchor = '"writeFormat": dict('
-        assert anchor in src, "gap-probe anchor not found"
+        _require(anchor in src, "gap-probe anchor not found")
         # re-open the gap by blanking the value this script would otherwise use
         # THE MUTATION MUST LAND *BEFORE* THE __main__ BLOCK.  Appending it to
         # the end of the file puts it after `sys.exit(main())`, where it never
         # executes -- the probe then proves nothing and reports a pass.  That
         # mistake was made once here and is recorded rather than smoothed over.
         entry = '\nif __name__ == "__main__":'
-        assert entry in src, "__main__ entry point not found"
+        _require(entry in src, "__main__ entry point not found")
         injection = (
             "\n\n# INJECTED BY selftest(): re-open one registration gap so the\n"
             "# REFUSAL PATH ITSELF is exercised on the real code, before main().\n"
             "REGISTRATION_GAPS['writePrecision']['value'] = None\n")
         mutated_src = src.replace(entry, injection + entry, 1)
-        assert "REGISTRATION_GAPS['writePrecision']['value'] = None" in \
-            mutated_src.split(entry)[0], "injection did not land before main()"
+        _require("REGISTRATION_GAPS['writePrecision']['value'] = None" in
+                 mutated_src.split(entry)[0],
+                 "injection did not land before main()")
         open(mutated, "w").write(mutated_src)
         never = os.path.join(gap_tmp, "never_written")
         r = subprocess.run([sys.executable, mutated, "--root", never],
@@ -1061,6 +1087,54 @@ def selftest():
                    "REFUSES -- so the solver arm was shown able to fire on the "
                    "exact defect that reached the launch",
                    r6.returncode != 0, f"rc={r6.returncode}")
+
+        # ------------------------------------------------------------------
+        # THE `python3 -O` ARM.  `assert` IS REMOVED BY -O / PYTHONOPTIMIZE=1,
+        # so a refusal carried by an assert is not a refusal under every
+        # interpreter this script can be launched with.  Measured on this box:
+        # a guard written as `assert RANKS == 1` REFUSED under python3 and
+        # PROCEEDED under python3 -O.
+        #
+        # THIS ARM DOES NOT MERELY RUN THE SELFTEST UNDER -O.  A passing
+        # selftest proves only the CLEAN path, and the clean path is exactly
+        # the one an evaporated guard still walks.  IT DRIVES AN ACTUAL
+        # REFUSAL UNDER -O AND REQUIRES IT TO STILL FIRE.
+        r7 = subprocess.run(
+            [sys.executable, "-O", mutated, "--root",
+             os.path.join(gap_tmp, "never_written_dash_O")],
+            capture_output=True, text=True)
+        check_("THE REGISTERED REFUSAL STILL FIRES UNDER `python3 -O`: the "
+               "re-opened-gap builder refuses with the optimiser on, so the "
+               "refusal is not carried by an assert",
+               r7.returncode == EXIT_REFUSE
+               and not os.path.exists(os.path.join(gap_tmp,
+                                                   "never_written_dash_O")),
+               f"rc={r7.returncode}")
+        # And the RANKS registration guard, driven under -O against a
+        # sacrificial copy with ranks deliberately wrong.
+        ranks_mut = os.path.join(gap_tmp, "build_k0d_ranks4.py")
+        rsrc = open(os.path.abspath(__file__)).read()
+        _require("\nRANKS = 1\n" in rsrc, "RANKS anchor not found")
+        open(ranks_mut, "w").write(rsrc.replace("\nRANKS = 1\n",
+                                                "\nRANKS = 4\n", 1))
+        r8 = subprocess.run([sys.executable, "-O", ranks_mut, "--selftest"],
+                            capture_output=True, text=True)
+        check_("THE SERIAL REGISTRATION GUARD REFUSES UNDER `python3 -O` when "
+               "RANKS is mutated to 4 -- under an assert it would have "
+               "PROCEEDED and every core-minute figure would be wrong",
+               r8.returncode != 0
+               and "registered SERIAL" in (r8.stdout + r8.stderr),
+               f"rc={r8.returncode}")
+        # STATEMENT-TYPE MUTANT: reverting _require -> assert must be caught on
+        # statement type alone.  Cheap and decisive; it needs no execution.
+        import ast as _ast
+        tree = _ast.parse(open(os.path.abspath(__file__)).read())
+        n_assert = sum(1 for n in _ast.walk(tree) if isinstance(n, _ast.Assert))
+        check_("NO `assert` STATEMENT ANYWHERE IN THIS INSTRUMENT carries a "
+               "refusal, guard, control or gate -- checked on STATEMENT TYPE "
+               "via the AST, so a revert of _require() -> assert is caught "
+               "without running anything",
+               n_assert == 0, f"{n_assert} assert statement(s) found")
     finally:
         shutil.rmtree(gap_tmp, ignore_errors=True)
 
