@@ -1985,6 +1985,42 @@ Registered order **`build_k0d.py` → `check_k0d_mesh.py` (A-G) → solve → `m
 
 **Expected outcome, and it is the REGISTERED one, not a failure: `GATE REACHED` naming `P`, tally 0 of 10, every row `BLOCKED` while Blay 1992 is `NOT OBTAINED`. V and G are what this rung is for, and they are the columns the lab is short of.**
 
+#### ⚠⚠⚠ T8 IS `BLOCKED` — §12 S3 REGISTERED A FORMULA WHOSE PRECONDITION ITS OWN REGISTERED MESH CANNOT SATISFY. **I VERIFIED THE GEOMETRY IN EXACT RATIONAL ARITHMETIC.**
+
+`resolve_planes` refuses unless `r₂ = 3·r₁`, the precondition for the registered `(9f₁ − f₂)/8`. Against the **real completed level-`c` mesh, with geometry written by OpenFOAM itself: `r₂/r₁ = 7/3`. The comparator REFUSES.**
+
+**Not a code bug — a registration error, and I re-derived it myself rather than accept it.** OpenFOAM's cell centre is the **volume centroid**; for an annular sector `r_a..r_b` that is `r̄ = (2/3)(r_b³−r_a³)/(r_b²−r_a²)`. The collapsed axis-adjacent wedge cell gives **exactly `(2/3)dr`**, the next **exactly `(14/9)dr`**, **ratio exactly `7/3`**. Arithmetic mid-radius gives `1/2` and `3/2`, **ratio `3`** — which is what §12 registered. **`r₂ = 3r₁` is what mid-radius gives and is not what a wedge mesh produces.** For `f(r) = a + b·r²` the axis value is `a = (k²f₁ − f₂)/(k²−1)`; **`k = 7/3` gives `(49f₁ − 9f₂)/40`.**
+
+**AND IT INDICTS THE LANE'S OWN AMENDMENT A1 — which the lane said itself, against its own work.** `make_synthetic_field_case` places cell centres at `(j+½)dr`, making **`r₂ = 3r₁` true BY CONSTRUCTION**. **The fixture and the instrument agreed because they share one wrong assumption — L-321 exactly, inside the comparator whose own docstrings warn about it.** The **69 checks and both negative arms are real, and NOT ONE could ever have caught this.** It surfaced only from running the frozen instrument **against a real mesh — the one thing no selftest had done**, and it surfaced because the builder mutation audit's first run was **VOID: the UNMUTATED CONTROL FAILED on this same refusal.**
+
+**Rule 2 has closed §12 — compute has started. The lane changed nothing, and that was right.**
+
+#### MY THREE RULINGS
+
+**1. THE RE-REGISTRATION COMPUTES THE WEIGHTS FROM CELL CENTRES READ FROM DISK — NOT `3`, AND NOT `7/3` EITHER.** I measured the flat-sided correction: **`k_measured = 2.333313` vs `k_exact = 7/3 = 2.333333`; `Δw₁ = 4.73e-06`, i.e. `9.5e-05 K` on a 20 K field difference — negligible against ±0.05 bands.** So this is **not** about numerical necessity. **It is about deleting an assumption class: registering `7/3` instead of `3` repeats the identical mistake one step smaller** — a hard-coded constant asserting what the mesh does, which is exactly what just failed. Read `r₁`, `r₂` from the geometry OpenFOAM wrote, derive `w₁ = k²/(k²−1)`, `w₂ = −1/(k²−1)`, and **assert `r₂ > r₁ > 0` rather than assert a ratio.** Immune to wedge-versus-arithmetic, changed `nz`, radial grading and the flat-sided correction at once — **the flat-sided question never needs answering, because a measured centroid already contains it.** And the fixture must **stop agreeing by construction**: centres at annular centroids, plus a selftest arm at a **third ratio** the weights still recover exactly.
+
+**2. THE SIGFPE TRIAGE — IT IS NOT A MESH-RESOLUTION CRASH, AND THE TRUTH IS STRONGER THAN "a bare finer-mesh story does not hold". THE FINEST MESH IS THE HEALTHY ONE.**
+
+| level | cells | state | evidence |
+|---|---:|---|---|
+| **`c`** | 6 400 | **reached `endTime`, NOT CONVERGED** | `T` initial residual **7.32e-04** against a registered **1e-6** — four decades — with **537 bounding events** |
+| **`m`** | 25 600 | **DIVERGED, SIGFPE `rc=136` at `Time = 1086`/12 000** | `epsilon`/`k` bounded at **1e+36 → 1e+43 → 1e+57 → 1e+64 → 1e+70**, `Initial residual = 1` on both every step, while `Ux` and `T` stayed ordinary. **No time directory written — the level has no fields.** |
+| **`f`** | 102 400 | **ALIVE, ADVANCING, CONVERGING** | `Time` lines advanced **1098 → 1111 in 15 s** under my own watch; `bounding` values **O(1e3–1e6)**, ordinary for a turbulent plume; **`T` initial residual `1.09e-06`, at the registered target**; `p_rgh` converging in 136 iterations |
+
+**A failure non-monotone in resolution — coarse unconverged, medium divergent, fine healthy — points AWAY from resolution and TOWARD something level-specific in `m`'s setup.** `checkMesh` reported `Mesh OK` on all three at ratios exactly 4.0000, so it is not gross geometry. **The turbulence closure diverged while momentum and temperature did not** — that is a closure/source interaction, not a cell-size story.
+
+**⚠ AND IT JOINS THE BUILDER MUTATION AUDIT RATHER THAN SITTING BESIDE IT. 6 CAUGHT, 5 SURVIVED, and the survivors are the ones that matter:** `R_STATIONS` on one level; source `w0` 0.6→0.9; source `dT0` 21.14→30; outlet `patch`→`wall`; outlet `U` BC → `fixedValue`. **The lane's own diagnosis: every structural instrument T8 has is geometric or bookkeeping — NOT ONE READS BACK WHAT WAS INITIALISED OR WHAT THE BOUNDARIES DO.** B8/B9 move `Ri₀` off the registered pure-plume **0.192** toward the jet values **the bands exist to discriminate against**; B10/B11 change entrainment; B7 breaks ladder similarity **while leaving cell count, plane count and volume untouched**. **At least four survivors can move a graded value — demonstrated undetectable, not observed present.** **A level-specific initialisation or boundary error in `m` is EXACTLY the defect class the audit proved these instruments cannot see.** Not asserted as the cause — **a hypothesis with a named mechanism and a zero-compute discriminating test**, dispatched: diff `m`'s `0/`, `constant/`, `fvSolution` and `fvSchemes` against `c`'s and `f`'s and report every difference that is not the mesh.
+
+**`m` is `NOT A RESULT`, and the crash is recorded as a FINDING about the case setup — not written off.**
+
+**3. `f` FINISHES.** Healthy, converging, inside its 500 core-min cap, **and cost is not a ground for anything.** Killing it destroys the most informative datum on the box: **a healthy finest level is the control proving `m`'s crash is not resolution.** **But `f` runs for DIAGNOSTIC value and CANNOT BE GRADED** — §12 S3's weights are wrong under this pre-registration and nothing may be adjusted to reach a verdict. **Nobody is to treat `f` reaching `endTime` as a result.**
+
+**4. `BLOCKED` STANDS — AND IT WAS UNREACHABLE ON TWO INDEPENDENT GROUNDS.** Even with correct weights, **standing rule 5 order (1) fires FIRST: `c` is not iteratively converged and `m` crashed, so the triple could never have been `CONVERGING` and no row was ever gradeable.** The extrapolation defect and the convergence failure are **separate findings and both belong on the record.** Run output stays **uncommitted under an unresolved pre-registration.** **Re-registration is Sanaa's and the chief's, not mine to land** — drafted only.
+
+**The fire itself was clean:** pre-compute condition re-verified by `stat` at 21:32:49Z, freeze re-verified by `git cat-file -p HEAD:`, meshes **`Mesh OK`** at 6 400 / 25 600 / 102 400 with ratios exactly 4.0000, launched `setsid nohup` serial at 21:34:54Z, foreign solvers untouched. **`c`: 3.817 core-min actual against 7.13 predicted, ratio 0.54 — the cross-mode rate borrow OVER-predicted, and that goes in the `C-84` calibration row.**
+
+**A method correction I hit myself as well as the lane:** `grep -c '^+[^+]'` **silently drops added blank lines** — 23 of them. `--numstat` is authoritative. **Measured counts from now on, by me too.**
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
