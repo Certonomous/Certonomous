@@ -1,0 +1,65 @@
+VMFL033 -- Viscous Heating in an Annulus.  COMPARATOR OUTPUT.
+manual p.119; reference Bird, Stewart & Lightfoot (1960), CLOSED FORM -> buys V, never P; TIER CEILING GATE REACHED
+run root /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL033
+
+VMFL033 comparator --selftest   (ZERO compute; no run directory is read)
+------------------------------------------------------------------------------
+  closed form  BCs exact: v(1)=0.0e+00 v(2)=1  T(1)=273 T(2)=274
+  BVP control  n=100  max|v_num-v_ex|=3.038e-06  max|T_num-T_ex|=2.599e-03
+  BVP control  n=200  max|v_num-v_ex|=7.595e-07  max|T_num-T_ex|=6.499e-04
+  BVP control  n=400  max|v_num-v_ex|=1.899e-07  max|T_num-T_ex|=1.625e-04
+  BVP control  T error falls 4.00x per doubling -> 2nd order -> DERIVATION CONFIRMED
+  roache       every state SEEN: CONVERGING, DIVERGENT, EXACT, OSCILLATORY, STAGNANT; an exact 2nd-order triple returns p=2 to 1e-9
+  plateau      500-sample floor REFUSES; a null range REFUSES; a growing series is REJECTED (ptp/scale = 2.879e-02 > 1.0e-06)
+  readers      a UNIFORM internalField is REFUSED; a count/header mismatch is REFUSED; a headerless vector file is REFUSED
+  completion   an EMPTY level dir is REFUSED; a level recording rc=1 is REFUSED as a FINDING (rule 4 refuses, never degrades)
+------------------------------------------------------------------------------
+SELFTEST GREEN
+
+==============================================================================
+THE CLOSED FORM, evaluated (no digitisation, zero reference error)
+==============================================================================
+  v(r) = 0.666666666666667 r + (-0.666666666666667)/r
+  T(r) = -(133.333333333333)/r^2 + (-142.826809048007) ln r + (406.333333333333)
+  interior peak  r = 1.36640517879   T = 290.331779356 K   (walls are 273 / 274 K)
+  viscous-heating rise above T1, the T normaliser : 17.3317793559 K
+  volume-average T (the Roache functional)        : 284.133655141 K
+  inner-wall conductive flux -k dT/dr|_R1         : -123.839857619 W/m2
+
+==============================================================================
+THE GRID FAMILY  (radial refinement, r = 2; theta held FIXED at 8 cells because the
+exact solution is theta-invariant and carries no azimuthal discretisation error)
+==============================================================================
+  L1_nr32    cells=256    Tavg=284.153139038  |v-v_ex|max=7.9275e-04 (7.9275e-04 of wall speed)
+             |T-T_ex|max=1.0508e-01 K (6.0629e-03 of the 17.33 K rise)  max|v_r|=1.55e-07
+             worst final residual=9.97e-13   plateau ptp/scale=0.000e+00 over n_window=500 (fixed, floor 500)  full-series range=15.91 K
+  L2_nr64    cells=512    Tavg=284.146240769  |v-v_ex|max=4.3562e-04 (4.3562e-04 of wall speed)
+             |T-T_ex|max=4.8400e-02 K (2.7926e-03 of the 17.33 K rise)  max|v_r|=3.96e-08
+             worst final residual=7.62e-10   plateau ptp/scale=6.521e-05 over n_window=500 (fixed, floor 500)  full-series range=16.57 K
+  L3_nr128   cells=1024   Tavg=286.895530407  |v-v_ex|max=5.1200e-02 (5.1200e-02 of wall speed)
+             |T-T_ex|max=4.8945e+00 K (2.8240e-01 of the 17.33 K rise)  max|v_r|=5.25e-07
+             worst final residual=2.14e-08   plateau ptp/scale=7.847e-03 over n_window=500 (fixed, floor 500)  full-series range=16.9 K
+
+  CONTROL field plant : 0.001234 planted into a COPY of the finest level's T; the reader saw 0.00123400000001.  The reader is shown able to see a NON-ZERO.
+  CONTROL geom  plant : every cell centre of a COPY of the finest level's C scaled by 2; radius 1.00367241 -> 2.00734483 (required 2.00734483).  The geometry reader is shown able to see a CHANGED geometry.
+
+==============================================================================
+ROACHE TRIPLE on the volume-average temperature (rule 5)
+==============================================================================
+  f_coarse=284.153139038  f_med=284.146240769  f_fine=286.895530407
+  d32=-6.8983e-03  d21=2.7493e+00  R=-398.547751  state=OSCILLATORY
+  NO GCI IS QUOTED: the triple is OSCILLATORY, not monotone-CONVERGING.
+
+==============================================================================
+THE GATE, frozen before compute, applied at the finest level
+==============================================================================
+  G1 velocity    : max|v - v_ex| / (Om2*R2)      = 5.119997e-02   band 0.01   -> OUTSIDE
+  G2 temperature : max|T - T_ex| / (Tpeak - T1)  = 2.824010e-01   band 0.01   -> OUTSIDE
+  REGISTERED EXPECTATIONS (reported either way, NEVER the gate):
+    E1 v within 0.001 : NOT MET      E2 T within 0.001 : NOT MET
+
+==============================================================================
+  VMFL033 VERDICT: NOT A RESULT
+  levels not plateaued: L2_nr64, L3_nr128; Roache triple is OSCILLATORY, not CONVERGING
+  TIER CEILING GATE REACHED -- a closed-form reference buys V (code verification), NEVER P.  This is NOT a validation credential.
+==============================================================================
