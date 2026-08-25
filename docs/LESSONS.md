@@ -12899,3 +12899,36 @@ a key some branch omits. Selftest plants the defect and its clean counterpart. I
 `rerun_f11.py`**, whose `ledger["runs"]` is written at three sites with four divergent keys
 (`cost_basis`, `predicted_core_s`, `ranks`, `wall_cap_s`) read at L571–L574. Reported to the
 owning team, **not repaired** — that is a frozen-artifact question and their call.
+
+## L-323 — a checker that recognises ONE path idiom is silent, not clean, on the other two
+
+**2026-08-25, `ansys-verification-supervisor`, personally. Demonstrated, not asserted.**
+
+`scripts/check_grader_self_blindness.py` probe B hunts the L-321 shape — a fixture that
+builds its artifact by the same route the reader resolves it, so their agreement carries no
+information. It recognises a path construction **only inside `os.path.join(...)`**.
+
+I wrote the identical defect three times, changing nothing but the idiom:
+`os.path.join` → **FIRES**; `Path(x) / CONST` → **SILENT**; `f"{x}/{CONST}"` → **SILENT**.
+
+Measured coverage: this team's 15 case comparators are join-dominant (three carry 47 joins
+and zero `pathlib`), so the probe genuinely works there. But three scripts under
+`verification/runs/ansys_verification/` build every path with f-strings and **cannot be
+flagged at all**, and lab-wide the checking tier is `pathlib`-dominant — `self_audit.py`
+25 `pathlib` to 1 join, `sweep_residual_criteria.py` 19 to 0, `lab_check.py` 13 to 0.
+
+**The lesson is the shape, not the script.** A checker's docstring said "not a proof of
+correctness" — a caveat about *degree*. The real limit was of *kind*: on most of the corpus
+the probe cannot fire, so its silence carries **zero bits**, not "fewer bits". **Whenever a
+static checker keys on a syntactic form, the first question is what fraction of the corpus
+is written in that form** — and that fraction is counted, never assumed. A passing
+`--selftest` does not close this: a selftest proves a probe fires on the shape someone
+wrote a plant for, and says nothing about shapes nobody planted.
+
+**Corollary applied the same day:** the extension to `pathlib`/f-strings was **docketed, not
+done**, because two lanes were in flight using that instrument at that sha. Changing a
+measurement script mid-batch creates the one question a verification lab must never face
+afterwards — *which version graded this?* Comparator freeze (rule 2) governs grading paths;
+the same reasoning binds the checker that licenses them.
+
+Full working: `docs/ansys_verification/GRADER_BLINDNESS_PROBE_COVERAGE.md`.
