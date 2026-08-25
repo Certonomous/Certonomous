@@ -4222,3 +4222,69 @@ this lab grades on `nutkWallFunction` should carry this −4.6 % friction bias a
 known, one-signed, unexplained prior until a case isolates it.**
 Source: `cases/ansys_verification/VMFL003/RESULTS.md` §2–§3,
 `verification/runs/ansys_verification/VMFL003/GRADING_VMFL003.json`.
+
+## N-AV12. A NORMALISED RESIDUAL IS BLIND TO COHERENT DIVERGENCE: VMFL007's pressure residual sat unremarkably in [0.157, 0.587] for 9 000 iterations while the time-step continuity error reached 3.316e+105 — a convergence clause built only on normalised residuals cannot tell a converged solution from a diverged one
+
+**THE TRANSFERABLE FACT, first, because it bears on every case this lab grades on
+residuals.** OpenFOAM normalises a linear-system residual by a factor built from the
+current field, so the reported "initial residual" is a statement about the residual
+**relative to the current solution scale**. That makes it **scale-invariant**, and
+scale-invariance is exactly blindness to **uniform growth of the scale itself**. If a
+solution diverges *coherently* — every component inflating together, the field keeping
+its shape while its magnitude runs away — the numerator and the denominator grow in step
+and **the printed residual does not move**. A convergence clause built ONLY on
+normalised residuals therefore **cannot distinguish a converged solution from one that
+has diverged by a hundred orders of magnitude**. It is not that the criterion was set too
+loose. It is that the quantity it reads does not carry the information.
+
+**THE MEASUREMENT.** VMFL007 run 1, level L2_50x50, `simpleFoam`, 9 065 iterations,
+log `verification/runs/ansys_verification/VMFL007/L2_50x50/log.simpleFoam`:
+
+| Channel | Over iterations 66 … 9 064 | Reading |
+|---|---|---|
+| `Solving for p, Initial residual` | min **0.156521242061**, max **0.587117756129** | flat, unremarkable, never approaches a tolerance |
+| `time step continuity errors : sum local` | first > 1e+10 at iteration **777**; first > 1e+100 at iteration **8608**; peak **3.31641662696e+105** | 105 orders of magnitude of divergence |
+
+The two channels are printed **on adjacent lines of the same iteration**. At the final
+two iterations the pressure initial residual reads **0.420006388219** and
+**0.382828288013** — values a reader would call "chugging along" — while `sum local`
+on those same iterations reads **3.25440128362e+105** and **3.02219858509e+105**. The
+run then died: `Foam::sigFpe::sigHandler` at log line 81658, core dumped, last
+`Time = 9065` of an `endTime` of 10000. **Nine thousand iterations of a flat residual
+concealed a divergence of over a hundred orders of magnitude, and this lab's
+convergence clause could not see it.**
+
+**3.316e+105 IS THE LARGEST MAGNITUDE ANYWHERE IN THAT LOG.** Established by scanning
+every number in all 5 804 059 bytes of it in exponent form and taking the maximum
+absolute value, not by grepping a channel that was expected to be large.
+
+**THE CHEAP COMPANION CHECK THAT WOULD HAVE SEEN IT: AN ABSOLUTE BOUND.** A bound on the
+solution itself, or on the continuity error, is **not normalised** and therefore is not
+blind to the growth of the scale. It costs one comparison per iteration against a number
+fixed before the run. Either channel would have fired here at iteration ~777, some
+8 288 iterations and one core dump before the run actually stopped. This is exactly what
+VMFL007-R2's frozen criterion now carries as **`C-BOUNDED`**
+(`cases/ansys_verification/VMFL007_R2/PREREGISTRATION.md`, frozen at `141185ad`): a
+residual criterion is paired with an absolute bound, and the pair is the criterion.
+**Any case this lab grades on residuals alone inherits this blindness until it carries
+an absolute channel beside them.**
+
+**HONESTY NOTE — ONE FIGURE AND ONE MECHANISM ARE NOT CONFIRMED, AND ARE RECORDED AS
+UNCONFIRMED RATHER THAN LAUNDERED INTO THIS ENTRY.**
+- A lane reported the divergence peak as **6.03e+211**. That figure **could not be
+  reproduced**: the string does not occur in the log, and **no value in the e+2xx decade
+  occurs anywhere in it**. The peak is recorded here at **3.31641662696e+105**, the
+  figure that was verified. 6.03e+211 is **not** carried forward.
+- The same lane cited a double-overflow threshold of **1.341e+154** as the SIGFPE
+  mechanism. That threshold is arithmetically right for what it describes —
+  `sqrt(DBL_MAX)` = **1.340781e+154**, the magnitude beyond which squaring a double
+  overflows — but **3.316e+105 is below it**, so **the printed values do not confirm
+  that mechanism**. It is recorded as a **CANDIDATE only**. It is not disproven either:
+  `sum local` is a summed diagnostic, not the largest field value resident in memory, so
+  an unprinted intermediate could still have crossed the threshold. **What is
+  established is the SIGFPE and the 105-order divergence; the specific overflowing
+  operation is NOT established and must not be quoted as though it were.**
+
+Source: `verification/runs/ansys_verification/VMFL007/L2_50x50/log.simpleFoam`
+(lines 81594–81658 for the terminal continuity errors and the `sigFpe` handler);
+`cases/ansys_verification/VMFL007_R2/PREREGISTRATION.md` for `C-BOUNDED`.

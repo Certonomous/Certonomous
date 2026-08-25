@@ -1,0 +1,83 @@
+--- BASELINE at launch --- 2026-08-25T16:57:33Z
+loadavg(1/5/15) = 9.32 8.57 6.12 on 16 cores
+co-resident solvers (ps args, NOT comm):
+  2232287     238 99.9 simpleFoam
+  2203947    1245 99.9 buoyantBoussinesqSimpleFoam
+  2203944    1245 99.9 buoyantBoussinesqSimpleFoam
+  2203927    1246 99.9 buoyantBoussinesqSimpleFoam
+  2237550     116 99.6 rhoCentralFoam
+  2230033     340  0.0 docker run --name d8_opt_20260825T165153Z_2230005 --user 0:0 --cpus=1 --memory=12g --memory-swap=12g --oom-score-adj=
+  2227229     430  0.0 docker run --name d13_s1_20260825T165022Z_2227210 --user 0:0 --cpus=1 --memory=6g --memory-swap=6g --oom-score-adj=50
+  2227855     410  0.0 docker run --name d13_s2_20260825T165042Z_2227836 --user 0:0 --cpus=1 --memory=6g --memory-swap=6g --oom-score-adj=50
+  2228639     390  0.0 docker run --name d13_s3_20260825T165102Z_2228620 --user 0:0 --cpus=1 --memory=6g --memory-swap=6g --oom-score-adj=50
+  2203926    1246  0.0 timeout 66000 buoyantBoussinesqSimpleFoam
+  2203943    1245  0.0 timeout 78000 buoyantBoussinesqSimpleFoam
+  2203946    1245  0.0 timeout 165000 buoyantBoussinesqSimpleFoam
+  2227210     430  0.0 bash /home/ubuntu/certonomous-runs/CURRICULUM-D13-a1-basin-restart/d13_run_arm.sh s1 dafoam-idwarp-rot:v1 d13_start I
+  2227227     430  0.0 timeout 1500 sudo -n docker run --name d13_s1_20260825T165022Z_2227210 --user 0:0 --cpus=1 --memory=6g --memory-swap=
+  2227228     430  0.0 sudo -n docker run --name d13_s1_20260825T165022Z_2227210 --user 0:0 --cpus=1 --memory=6g --memory-swap=6g --oom-scor
+  2227836     410  0.0 bash /home/ubuntu/certonomous-runs/CURRICULUM-D13-a1-basin-restart/d13_run_arm.sh s2 dafoam-idwarp-rot:v1 d13_start I
+  2227853     410  0.0 timeout 1500 sudo -n docker run --name d13_s2_20260825T165042Z_2227836 --user 0:0 --cpus=1 --memory=6g --memory-swap=
+  2227854     410  0.0 sudo -n docker run --name d13_s2_20260825T165042Z_2227836 --user 0:0 --cpus=1 --memory=6g --memory-swap=6g --oom-scor
+  2228620     390  0.0 bash /home/ubuntu/certonomous-runs/CURRICULUM-D13-a1-basin-restart/d13_run_arm.sh s3 dafoam-idwarp-rot:v1 d13_start I
+  2228637     390  0.0 timeout 1500 sudo -n docker run --name d13_s3_20260825T165102Z_2228620 --user 0:0 --cpus=1 --memory=6g --memory-swap=
+  2228638     390  0.0 sudo -n docker run --name d13_s3_20260825T165102Z_2228620 --user 0:0 --cpus=1 --memory=6g --memory-swap=6g --oom-scor
+  2230027     340  0.0 timeout 10800 sudo -n docker run --name d8_opt_20260825T165153Z_2230005 --user 0:0 --cpus=1 --memory=12g --memory-swa
+  2230032     340  0.0 sudo -n docker run --name d8_opt_20260825T165153Z_2230005 --user 0:0 --cpus=1 --memory=12g --memory-swap=12g --oom-sc
+  2232286     238  0.0 timeout 1792 simpleFoam
+PEER ANSYS JOB RESIDENT: VMFL003_M2 four-arm ladder, launcher pid 2218904.
+
+--- VMFL007 L3 MIDPOINT (sim time 5000 of 10000) -- MISSED --- 2026-08-25T17:51Z
+THIS SAMPLE WAS NEVER TAKEN AND IS RECORDED AS MISSED. It is NOT reconstructed.
+No load average, no process listing and no number is supplied for it, because
+none was measured at the instant it was supposed to be measured. A later sample
+is not a mid-run sample, and a reconstructed sample presented as a measurement is
+the defect this lab spent 2026-08-25 removing.
+
+WHY IT COULD NEVER FIRE.  VMFL007 died at L2. The level L3_100x100 was never
+created, so the watched log
+  verification/runs/ansys_verification/VMFL007/L3_100x100/log.simpleFoam
+was never written and the threshold simulation time 5000 could never be observed
+in it. The run's launcher (pid 2241096) was already dead. The sampler (pid
+2241095, started 2026-08-25T16:57:32Z) nonetheless sat in its "log not yet
+present" branch for 54 minutes, and was terminated by pid at 2026-08-25T17:51Z by
+the VMFL007-R2 lane, which wrote this record in its place.
+
+TWO DESIGN GAPS, BOTH MEASURED, FOR THE SAMPLER'S NEXT VERSION.
+
+GAP 1 -- NO LIVENESS CHECK ON THE WATCHED RUN.  The sampler distinguishes "the
+run ENDED before the threshold" (it greps for `^End$` and correctly records
+MISSED) from nothing else. It cannot distinguish "the log has not appeared YET"
+from "the log will NEVER appear", because it never asks whether the run that was
+supposed to write it is still alive. So a run that DIES rather than COMPLETES
+leaves the sampler burning its whole 7200 s deadline before it records anything.
+Measured here: at termination it still had 3998 s (66.6 min) of that deadline to
+burn. THE FIX: take the launcher/solver pid as an argument, and on each pass, if
+that process is gone AND the log still does not exist, emit MISSED and exit
+immediately instead of waiting out the deadline.
+
+This is the INVERSE of the lesson that created the sampler. The sampler exists
+because a lane cannot be a watcher -- a task must never depend on an agent being
+alive at a future instant. It fixed that and introduced the opposite failure: an
+OS-level watcher OUTLIVES its subject.
+
+GAP 2 -- THE SHARED SCRIPT PATH WAS OVERWRITTEN IN PLACE UNDER A RUNNING
+INSTANCE, AND THAT SILENTLY DESTROYED THE MISSED BRANCH.  This is the more
+serious of the two and it is verified by byte offset, not inferred.
+  - pid 2241095 was launched against the 2935-byte text committed at 8a45cd7b
+    (blob e9571c92), whose signature is  <CONTENTION.txt> <log> <threshold> <label>.
+  - The same path now holds an 819-byte text (blob 71a6618b) with an INCOMPATIBLE
+    signature  <SID> <OUT> <PEER_PID> <PEER_NAME>.  Two different samplers were
+    written to ONE shared path.
+  - bash parses the whole `while` loop before running it, but re-reads fd 255 by
+    BYTE OFFSET for the commands AFTER it. The post-loop `emit ... MISSED (no
+    log)` sits at byte 2862 of the old text -- past EOF of the 819-byte file now
+    on disk.
+  - CONSEQUENCE: when this sampler finally hit its deadline and broke out of the
+    loop, it would have read EOF and exited SILENTLY, writing NO MISSED record at
+    all. Its honest "record MISSED rather than reconstruct" branch had already
+    been destroyed by the overwrite, 54 minutes before it was due to run.
+  THE FIX: a running sampler must be copied into its own run directory and
+  executed from there, never executed from a shared path that another lane may
+  rewrite; and the shared path must not carry two incompatible signatures under
+  one name.
