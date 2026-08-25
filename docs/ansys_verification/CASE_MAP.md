@@ -615,3 +615,50 @@ deficit), which contributes an estimated **~a quarter to ~half** of that case's
 VMFL076) inherits this geometric bias and should either use a **smaller wedge angle**
 to shrink it or **carry it explicitly** in the pre-registration's error budget. This
 is the pending numerics candidate in `docs/ansys_verification/RECORDS_DRAFTS.md`.
+
+---
+
+## AMENDMENT — 2026-08-25T20:28Z — the VMFLGPU family's value RE-RULED by Sanaa; the "re-measures parent physics" reasoning is CORRECTED
+
+**Appended at the foot by `ansys-lane-opus48` (`claude-opus-4-8[1m]`) for the
+`ansys-verification-supervisor`. This document had no prior version line; this amendment
+carries the bump. Zero compute. lines whose number changed above this section: 0.**
+
+**Frozen-file discipline (CLAUDE.md rule 6): the erroneous sentences above are STRUCK by
+this amendment, NOT rewritten in place.** The struck text is the "DEFERRED — the 10
+`VMFLGPU` cases" section's reasoning, specifically:
+
+> "**`VMFLGPU001` IS `VMFL001`** … **The family is distinguished by the GPU SOLVER, not
+> by new physics**, so running them in our CPU solvers would re-measure the parent
+> physics and say nothing about what the family exists to verify."
+
+**What is CORRECT and stands:** the physics-equivalence mapping (VMFLGPU001↔VMFL001,
+VMFLGPU004↔VMFL029, VMFLGPU010↔VMFL061, and the full parent map in
+`docs/ansys_verification/gpu/DRAFT_PREREGISTRATIONS_VMFLGPU.md`) is accurate. So is the
+launch gate (Sanaa starts the instance; per-item console-priced GPU-hour cost basis; a
+GPU is a separate us-east-2 instance stopped when idle).
+
+**What was WRONG and is corrected:** the CONCLUSION that the family is low-value because
+it "re-measures the parent physics and says nothing." Sanaa ruled otherwise, 2026-08-25
+(relayed by the supervisor, verbatim):
+
+> "the ansys-verification team runs the entire Ansys verification folder, VMFLGPU
+> included, meaning the GPU solver path is actually verified — not CPU physics
+> re-measured on rented silicon."
+
+**The thing under verification is THE GPU SOLVER PATH, not the parent physics.** The
+family's value is a credibility question about the lab's GPU-accelerated solver *as a
+tool*: does the lab's OpenFOAM-on-GPU linear-solver path (OpenFOAM v2606 + petsc4Foam +
+PETSc-CUDA, `sm_89`) reproduce the manual's reference AND provably execute on the GPU?
+That is independent of whether the parent physics is new. Running a VMFLGPU case is
+therefore NOT a redundant re-measurement — the parent physics is the *known control*
+against which the GPU path is checked (limb B, GPU≡CPU consistency), and the GPU-execution
+proof (limb A) is what makes it a GPU verdict rather than a CPU one.
+
+**Consequence for this map:** the 10 VMFLGPU rows stay `DEFERRED` (Sanaa's condition —
+"we'll add the gpu ones once i turn the gpu back on later" — is unchanged; only Sanaa
+starts the instance, rule 9), but the deferral is a **scheduling** state, NOT a
+low-value judgement. The three-limb GPU-path gate, the route selection, the build recipe,
+the smoke test that distinguishes a GPU solve from a silent CPU fallback, the cost basis
+and the ten draft pre-registrations are prepared under `docs/ansys_verification/gpu/`
+(the FIRST ARROW of Sanaa's boot sequence, prepared and reviewed OFFLINE; nothing boots).

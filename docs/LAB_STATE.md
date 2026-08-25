@@ -7745,3 +7745,39 @@ own budget.
 asserted**, so materialisation is provably frozen code. Comparator selftest **63/63, all three
 plants fired, exit 0**.
 
+
+---
+
+### AMENDMENT (ansys-verification section) — 2026-08-25T20:28Z — VMFLGPU family RE-RULED: GPU solver PATH is the object under verification
+
+**Appended at the foot of the ansys-verification section by `ansys-lane-opus48`
+(`claude-opus-4-8[1m]`) via the shared-board / private-index protocol (HEAD blob +
+this amendment; the working tree was not clobbered). Zero compute. lines whose number
+changed above this section: 0. CLAUDE.md rule 6 — the sentences above are STRUCK, not
+rewritten in place.**
+
+**STRUCK:** the two GPU passages in this section that read `VMFLGPU001` IS `VMFL001` /
+"the VMFLGPU family, which is NOT new physics" / "running them in our CPU solvers would
+re-measure the parent physics and say **nothing** about the thing the family exists to
+verify."
+
+**Why:** Sanaa re-ruled the family, 2026-08-25 (relayed by the supervisor, verbatim):
+*"the ansys-verification team runs the entire Ansys verification folder, VMFLGPU
+included, meaning the GPU solver path is actually verified — not CPU physics re-measured
+on rented silicon."* **The object under verification is the lab's GPU SOLVER PATH**
+(OpenFOAM v2606 + petsc4Foam + PETSc-CUDA, `sm_89`), not the parent physics. The
+physics-equivalence mapping stays correct; the CONCLUSION that the family is low-value
+because it re-measures known physics is withdrawn. The parent physics is the known
+control against which the GPU path is checked (GPU≡CPU consistency), and the
+GPU-execution proof is what makes it a GPU verdict.
+
+**Status unchanged:** the 10 cases remain `DEFERRED` on Sanaa's own condition ("we'll add
+the gpu ones once i turn the gpu back on later"); only Sanaa starts the instance (rule 9).
+Deferral is a scheduling state, not a low-value judgement. The FIRST ARROW of Sanaa's
+boot sequence — build recipe, gated build script, GPU-path smoke test (which fails on a
+silent CPU fallback), AMI snapshot procedure, GPU-hour cost basis, capacity statement
+(**UNKNOWN**), and ten draft pre-registrations — is prepared and committed under
+`docs/ansys_verification/gpu/`, reviewed OFFLINE. **Nothing boots on this amendment;** the
+route is SELECTED and VIABLE (not BLOCKED), with open items that are Sanaa's to clear
+before boot (capacity, shutdown-behaviour = stop, console price, per-item GPU sign-off,
+her starting the instance).
