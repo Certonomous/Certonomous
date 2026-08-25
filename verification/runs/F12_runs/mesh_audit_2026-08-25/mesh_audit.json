@@ -1,0 +1,128 @@
+{
+  "levels": {
+    "coarse": {
+      "blockMesh_rc": 0,
+      "cells_nominal": 23040,
+      "cells_built": 23040,
+      "n_surf_quarter": 48,
+      "ny": 80,
+      "first_cell": 2e-06,
+      "far_first_cell": 0.3,
+      "wall_normal_total_ratio": 4401087.3866123175,
+      "far_total_ratio": 3.747164974176604,
+      "quality": {
+        "failed_checks": [
+          "High aspect ratio cells found, Max aspect ratio: 10606.65276, number of cells 16"
+        ],
+        "cells": 23040,
+        "max_non_orthogonality": 70.64625857,
+        "max_skewness": 0.8270270496
+      },
+      "gate_A_passed": false,
+      "gate_A_breaches": [
+        "max non-orthogonality 70.64625857 > 70.0"
+      ],
+      "polygon": {
+        "n_polylines": 1,
+        "n_points_z0": 960,
+        "n_unique_xy": 960
+      }
+    },
+    "medium": {
+      "blockMesh_rc": 0,
+      "cells_nominal": 92160,
+      "cells_built": 92160,
+      "n_surf_quarter": 96,
+      "ny": 160,
+      "first_cell": 1e-06,
+      "far_first_cell": 0.15,
+      "wall_normal_total_ratio": 4598884.807656664,
+      "far_total_ratio": 3.752709872000798,
+      "quality": {
+        "failed_checks": [],
+        "cells": 92160,
+        "max_non_orthogonality": 70.86145203,
+        "max_skewness": 0.8273655771,
+        "mesh_ok": true
+      },
+      "gate_A_passed": false,
+      "gate_A_breaches": [
+        "max non-orthogonality 70.86145203 > 70.0"
+      ],
+      "polygon": {
+        "n_polylines": 1,
+        "n_points_z0": 960,
+        "n_unique_xy": 960
+      }
+    },
+    "fine": {
+      "blockMesh_rc": 0,
+      "cells_nominal": 368640,
+      "cells_built": 368640,
+      "n_surf_quarter": 192,
+      "ny": 320,
+      "first_cell": 5e-07,
+      "far_first_cell": 0.075,
+      "wall_normal_total_ratio": 4702008.6928811995,
+      "far_total_ratio": 3.7554689819078138,
+      "quality": {
+        "failed_checks": [
+          "High aspect ratio cells found, Max aspect ratio: 2767.113299, number of cells 25"
+        ],
+        "cells": 368640,
+        "max_non_orthogonality": 72.54215374,
+        "max_skewness": 0.8273339689
+      },
+      "gate_A_passed": false,
+      "gate_A_breaches": [
+        "max non-orthogonality 72.54215374 > 70.0"
+      ],
+      "polygon": {
+        "n_polylines": 1,
+        "n_points_z0": 960,
+        "n_unique_xy": 960
+      }
+    }
+  },
+  "timings": {
+    "coarse": {
+      "dict_write_s": 1.563,
+      "blockMesh_s": 0.465,
+      "checkMesh_s": 0.465
+    },
+    "medium": {
+      "dict_write_s": 0.009,
+      "blockMesh_s": 0.916,
+      "checkMesh_s": 1.166
+    },
+    "fine": {
+      "dict_write_s": 0.008,
+      "blockMesh_s": 2.819,
+      "checkMesh_s": 4.071
+    }
+  },
+  "planted_control": {
+    "what": "fine blockMeshDict re-sampled, every 2nd polyLine point kept, written to disk and read back by the SAME extractor",
+    "artifact": "verification/runs/F12_runs/mesh_audit_2026-08-25/PLANTED_CONTROL_blockMeshDict",
+    "unbuilt_unique_xy": 960,
+    "planted_unique_xy": 480,
+    "reader_sees_the_difference": true
+  },
+  "geometric_floor": {
+    "pairs_identical": {
+      "coarse_vs_medium": true,
+      "medium_vs_fine": true,
+      "coarse_vs_fine": true
+    },
+    "unique_xy_per_level": {
+      "coarse": 960,
+      "medium": 960,
+      "fine": 960
+    },
+    "polylines_per_level": {
+      "coarse": 1,
+      "medium": 1,
+      "fine": 1
+    }
+  }
+}
