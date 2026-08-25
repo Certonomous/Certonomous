@@ -403,3 +403,182 @@ if __name__ == "__main__":
     except Refuse as e:
         print("REFUSE: %s" % e)
         sys.exit(2)
+
+
+# =============================================================================
+# AMENDMENT 1 -- 2026-08-25 -- d8_grade.py v1.0 -> v1.1
+# **lines whose number changed above this section: 0**
+#
+# The frozen v1.0 G0 gate tests for the literal `Mesh region0 size: 41760` in the
+# ARM log.  That string is emitted by mesh GENERATION (`base/logMeshGeneration.txt`
+# line 437) and is NEVER emitted by a DAFoam run; the runtime log prints
+# `Global Cells: 41760` instead.  As frozen the check therefore cannot pass on any
+# arm, and G0's failure branch VOIDS the arm -- so v1.0 would have refused to grade
+# a healthy run on the strength of a marker string that does not exist.
+#
+# Repaired under VERIFICATION_CHARTER s2d.1, all four conditions stated:
+#  (1) DEMONSTRABLE ERROR, not a preference: the string occurs ZERO times in the
+#      live arm log, zero times in `P3-a6-n16-rem/rem.log`, and 41,760 is confirmed
+#      by BOTH `Global Cells: 41760` (runtime) and `logMeshGeneration.txt:437`.
+#  (2) INSTRUMENT INDEPENDENT OF THE HYPOTHESIS: found by a plain string-presence
+#      probe that grades nothing, run at 16:58Z -- BEFORE any graded quantity
+#      existed.  No FD table, no endpoint adjoint, no CD, no optimiser exit had
+#      been produced.  The probe cannot have been selected to move a verdict
+#      because no verdict was available to move.  s2d.1's prohibition -- "nothing
+#      a verdict depends on may be repaired on the authority of the verdict it
+#      produces" -- is therefore not engaged: no verdict authorises this.
+#  (3) DISCLOSED, instrument named, and what moved quantified: pre-repair the
+#      grader REFUSES at G0 and grades NOTHING; post-repair G0 is evaluated.  No
+#      gate, threshold, cap or label is altered -- G0's substance ("this arm ran
+#      the 41,760-cell A6 N=16 mesh") is unchanged, and the check is made STRICTLY
+#      STRONGER: it now requires the cell count in the RUNTIME log AND in the mesh
+#      generation record, where v1.0 required it in neither.
+#  (4) PRE-REPAIR VALUES beside the published ones: recorded in RESULTS.md s9.
+#
+# Rule 6 is honoured literally: not one line above this banner is edited or moved.
+# The amended `main` below was produced mechanically from the frozen body and
+# differs from it by exactly the one gate line reproduced here:
+#   -    g0.append(("Mesh region0 size: %d" % MESH_CELLS, "Mesh region0 size: %d" % MESH_CELLS in optlog))
+#   +    g0.append(("Global Cells: %d (runtime)" % MESH_CELLS, "Global Cells: %d" % MESH_CELLS in optlog))
+#   +    _gen = os.path.join(root, "base", "logMeshGeneration.txt")
+#   +    g0.append(("Mesh region0 size: %d (generation record)" % MESH_CELLS,
+#   +               os.path.exists(_gen) and ("Mesh region0 size: %d" % MESH_CELLS)
+#   +               in open(_gen, errors="replace").read()))
+# =============================================================================
+
+def main(root):
+    if selftest() != 0:
+        raise Refuse("selftest failed -- this grader is not entitled to grade anything")
+    print("\n" + "=" * 78 + "\nD8 GRADING\n" + "=" * 78)
+    ledger = open(os.path.join(root, "ledger.txt")).read()
+    optlog = open(os.path.join(root, "opt.log"), errors="replace").read()
+    verdicts = {}
+
+    # ---- G0 identity and activity -----------------------------------------
+    g0 = []
+    g0.append(("IDWARP_SO_MD5", IDWARP_MD5 in optlog))
+    g0.append(("ASSERT_MD5 OK in ledger", "ASSERT_MD5 OK" in ledger))
+    g0.append(("nProcs : 1", bool(re.search(r"^nProcs\s*:\s*1\s*$", optlog, re.M))))
+    g0.append(("transonicPCOption 1;", "transonicPCOption 1;" in optlog))
+    g0.append(("Global Cells: %d (runtime)" % MESH_CELLS, "Global Cells: %d" % MESH_CELLS in optlog))
+    _gen = os.path.join(root, "base", "logMeshGeneration.txt")
+    g0.append(("Mesh region0 size: %d (generation record)" % MESH_CELLS,
+               os.path.exists(_gen) and ("Mesh region0 size: %d" % MESH_CELLS)
+               in open(_gen, errors="replace").read()))
+    for k, v in g0:
+        print("  G0 %-34s %s" % (k, "OK" if v else "FAIL"))
+    verdicts["G0 identity/activity"] = "PASS" if all(v for _, v in g0) else "GATE FAIL"
+    if not all(v for _, v in g0):
+        raise Refuse("G0 failed -- the arm is VOID on identity/activity; nothing below is graded")
+
+    # ---- P-BASE: the twist-only edit must be numerically inert -------------
+    cold = read_scalar(optlog, "D8_COLD_CD")
+    inert = (cold == COLD_CD_STORED)
+    print("  P-BASE cold CD %r vs stored %r -> %s" % (cold, COLD_CD_STORED, "EXACT" if inert else "DIFFERS"))
+    verdicts["P-BASE twist-only edit inert on the primal"] = "PASS" if inert else "GATE FAIL"
+
+    # ---- G1 optimiser termination -----------------------------------------
+    exit_ok = "EXIT: Optimal Solution Found." in optlog
+    capped = bool(re.search(r"Maximum Number of Iterations Exceeded", optlog))
+    complete = "D8_OPT_ARM_COMPLETE" in optlog
+    rc_opt = re.search(r"ARM=opt .*? rc=(-?\d+)", ledger)
+    rc_opt = int(rc_opt.group(1)) if rc_opt else None
+    m_oom = re.search(r"ARM=opt .*?inspect\(exit,oomkilled\)=\[(.*?)\]", ledger)
+    oom = bool(m_oom) and "true" in m_oom.group(1).lower()
+    print("  G1 EXIT-Optimal=%s  cap-stop=%s  arm-complete=%s  rc=%s  oomkilled=%s"
+          % (exit_ok, capped, complete, rc_opt, oom))
+    if oom:
+        verdicts["G1 optimiser termination"] = "PENDING"
+    elif exit_ok and complete:
+        verdicts["G1 optimiser termination"] = "PASS"
+    elif capped and complete:
+        verdicts["G1 optimiser termination"] = "GATE REACHED"
+    else:
+        verdicts["G1 optimiser termination"] = "NOT A RESULT"
+
+    # ---- G2 CL feasibility --------------------------------------------------
+    cl_f = read_scalar(optlog, "D8_FINAL_CL")
+    dcl = abs(cl_f - CL_TARGET)
+    print("  G2 |CL_final - %.3f| = %.6e  band %.1e" % (CL_TARGET, dcl, G2_CL_TOL))
+    verdicts["G2 CL feasibility"] = "PASS" if dcl <= G2_CL_TOL else "GATE FAIL"
+
+    # ---- G3 drag reduction, thresholded on this case's own noise floor ------
+    cd_s = read_scalar(optlog, "D8_START_CD")
+    cd_f = read_scalar(optlog, "D8_FINAL_CD")
+    drop = cd_s - cd_f
+    print("  G3 CD start %r -> final %r ; drop %+.6e ; required >= %.6e (10 eta)"
+          % (cd_s, cd_f, drop, G3_MIN_DROP))
+    print("     relative drop %+.4f %%" % (drop / cd_s * 100.0))
+    verdicts["G3 drag reduction"] = "PASS" if drop >= G3_MIN_DROP else "GATE FAIL"
+
+    # ---- G4/G5/G7 the bright line: endpoint FD vs endpoint adjoint ----------
+    fdpath = os.path.join(root, "fd.log")
+    if not os.path.exists(fdpath):
+        verdicts["G4 endpoint FD-vs-adjoint (8 gradeable)"] = "PENDING"
+        verdicts["G5 plateau"] = "PENDING"
+        verdicts["G7 clearance"] = "PENDING"
+        rows = []
+    else:
+        fdlog = open(fdpath, errors="replace").read()
+        adj = read_adj(optlog)
+        print("  ADJ components parsed: %d" % len(adj))
+        rows, agg, flips, pf = gate_fd(read_fd(fdlog), adj, None)
+        print("\n| DV, idx | adjoint (endpoint) | FD @ graded step | rel err %% | C | plateau %% | sign |")
+        print("|---|---|---|---|---|---|---|")
+        for r in rows:
+            print("| `%s` %d | `%+.6e` | `%+.6e` @ %g | **%.3f** | %.2f | %.2f | %s |"
+                  % (r["dv"], r["idx"], r["J"], r["d_hi"], r["s_hi"], r["rel"], r["C"],
+                     r["plateau"], "FLIP" if r["flip"] else "SAME"))
+        worst = max(r["rel"] for r in rows)
+        minC = min(r["C"] for r in rows)
+        print("\n  aggregate vector-relative error over %d components = %.4f %% (band %.1f %%)"
+              % (len(rows), agg, G4_AGG_BAND))
+        print("  worst component %.4f %% (band %.1f %%) ; sign flips %d ; plateau failures %s"
+              % (worst, G4_COMP_BAND, flips, pf))
+        print("  min clearance at the graded step (measured |J_fd|) = %.2f x (bar %.1f x)" % (minC, G7_MIN_C))
+        verdicts["G5 plateau (<= %.0f %%)" % G5_PLATEAU] = "PASS" if not pf else (
+            "NOT A RESULT" if len(pf) > G5_MAX_FAILS else "GATE FAIL")
+        verdicts["G7 clearance C >= 5 at the graded step"] = "PASS" if minC >= G7_MIN_C else "GATE FAIL"
+        if len(pf) > G5_MAX_FAILS or minC < G7_MIN_C:
+            verdicts["G4 endpoint FD-vs-adjoint (8 gradeable)"] = "NOT A RESULT"
+        elif agg <= G4_AGG_BAND and worst <= G4_COMP_BAND and flips == 0:
+            verdicts["G4 endpoint FD-vs-adjoint (8 gradeable)"] = "PASS"
+        else:
+            verdicts["G4 endpoint FD-vs-adjoint (8 gradeable)"] = "GATE FAIL"
+        # P-eta at the endpoint
+        try:
+            eta_m = read_eta(fdlog)
+            print("  P-eta endpoint: measured %.4e vs registered %.4e (ratio %.3f)"
+                  % (eta_m, ETA, eta_m / ETA))
+            verdicts["P-eta endpoint within +/-50 %% of registered"] = \
+                "PASS" if 0.5 <= eta_m / ETA <= 1.5 else "GATE FAIL"
+        except Refuse as e:
+            print("  P-eta REFUSED: %s" % e)
+            verdicts["P-eta endpoint within +/-50 %% of registered"] = "NOT A RESULT"
+
+    # ---- G6 memory envelope -------------------------------------------------
+    try:
+        peak, nsamp = read_peak_rss(os.path.join(root, "rss_opt.txt"))
+        print("  G6 peak RSS %.3f GiB over %d samples (predicted <= %.1f, cap 12.0)" % (peak, nsamp, G6_RSS_BAND))
+        cg = re.search(r"ARM=opt .*?cgroup_memory_peak_B=(\S+)", ledger)
+        cgv = cg.group(1) if cg else "NOT_MEASURED"
+        print("     cgroup memory.peak = %s B ; registered cap = %d B" % (cgv, G6_CAP_B))
+        censored = oom or (cgv.isdigit() and int(cgv) >= G6_CAP_B)
+        if censored:
+            verdicts["G6 adjoint memory envelope"] = "PENDING"
+            print("     RIGHT-CENSORED at the cap: this measures the cap, not the requirement.")
+        else:
+            verdicts["G6 adjoint memory envelope"] = "PASS" if peak <= G6_RSS_BAND else "GATE FAIL"
+    except Refuse as e:
+        print("  G6 REFUSED: %s" % e)
+        verdicts["G6 adjoint memory envelope"] = "NOT A RESULT"
+
+    verdicts["twist idx6 (FD-ungradeable, named in advance)"] = "NOT A RESULT"
+
+    print("\n" + "-" * 78)
+    for k in sorted(verdicts):
+        print("VERDICT  %-52s %s" % (k, verdicts[k]))
+    print("-" * 78)
+    json.dump({"verdicts": verdicts, "rows": rows},
+              open(os.path.join(root, "d8_grade.json"), "w"), indent=1)
+    return 0
