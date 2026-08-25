@@ -261,3 +261,42 @@ lands only as a dated addendum at the foot, which cannot alter a gate, threshold
 and the original is struck, never rewritten (`CLAUDE.md` rules 2 and 6).
 
 **`PREREGISTRATION.md` is not modified by this document in any way.**
+
+---
+
+## ADDENDUM 1 — 2026-08-25T21:58Z — the arm-F re-run's two launcher scripts, registered by md5
+
+**This addendum alters NO gate, threshold, band, cap or label** (`CLAUDE.md` rule 2). It
+registers the identity of two scripts and nothing else. The originals above are **struck
+nowhere and rewritten nowhere**; every band of §3, every verdict mapping of §4 and both cost
+rows of §7a stand exactly as committed at `5ed02071`.
+
+**Why an addendum and not an edit.** Arm ACC has now run, so first compute has happened and §10's
+freeze is in force. Arm F2 was already registered in §8 — its tree, its chain, its cap of **120.0
+core-min carried over unchanged from `PREREGISTRATION.md` §8**, its bands (C, D and E, unchanged),
+its grader and its new gate G13. What §5b did not carry is the **md5 of the two scripts that
+stage and launch it**, because they did not exist when §5b was written. They are registered here.
+
+| file | md5 | role |
+|---|---|---|
+| `d4_stage_F2.sh` | `cc4128b2acda649cf31fcbf98bdeadae` | stages `F2/` from `O/`; **`F/` is never opened for writing** |
+| `d4_run_F2.sh` | `3c3b825f38abd78ec627c698d2f075f0` | the arm-F re-run launcher |
+
+**Both are derived from the ACC pair registered in §5b and carry every one of its assertions**:
+the internal cap table with the assertion that inverts its own arithmetic, image identity by
+digest, md5 assertions on `d4_opt_runScript.py`, `d4_extract_endpoint.py` **and
+`d4_fd_endpoint.py` (`c6112b0ec3bfdb5287345e350500f64a`)**, the `md5sum -c` registry check, the
+cold-answer-file guard, the memory-headroom guard, `--no-rm` so the kernel's exit verdict
+survives, the passive cgroup sampler, and the undeformed-reference-mesh assertion.
+
+**`d4_run_F2.sh` writes its ledger row to `f2_ledger.txt`, NOT `ledger.txt`** — same measured
+reason as ACC: `d4_grade_SUPPLEMENT.py:630` refuses G10 with `unregistered_arm_in_ledger` on any
+arm outside `{P1,P2,O,F}`, so an F2 row in `ledger.txt` would **move a gate**. **LIMIT 3 holds.**
+
+### The condition under which arm F2 is authorised to run at all
+
+**ACC-1 returned `PASS`** at 2026-08-25T21:53Z — `CD = 0.021130918911049287` against
+`CD_OPT = 2.1125978108239574e-02`, **`rel_CD = 2.3387e-04`** inside the **1.0e-3** band frozen at
+`5ed02071` before the primal ran. Verdict artifact:
+`/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/ACC/d4_accept_verdict.json`.
+**The D4-DEF-4 repair is FROZEN and §8's condition is met.**
