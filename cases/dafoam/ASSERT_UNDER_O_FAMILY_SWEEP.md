@@ -371,3 +371,222 @@ territory (`CLAUDE.md` roster: *"`cases/` outside closure and dafoam"*, general 
    distinguishing them needs the run logs, which I did not read.
 5. **No repair was made to any instrument, frozen or not.** The counts above are a measurement of
    exposure, not a remediation.
+
+---
+---
+
+# PART 2 — THE **SECOND** HAZARD: unconditional success claim-prints (L-332)
+
+**Added 2026-08-25 by the same lane**, commissioned mid-task by Amendment 1 to
+`docs/dafoam/SUPERVISOR_ASSERT_UNDER_O_RULING.md` (commit `40ff9578`).
+**Lines whose number changed above this section: 0.**
+
+Instrument: `cases/dafoam/sweep_claim_prints_under_O.py`.
+
+## P2.0 — WHY THIS IS A DIFFERENT SWEEP, NOT A RESTATEMENT
+
+| | assert hazard (Part 1) | claim-print hazard (Part 2) |
+|---|---|---|
+| how it fails | **silently** — a vacuous battery still printing its count | **loudly and falsely** — an intact battery printing a success it never earned |
+| what it leaves | **no evidence** | **counterfeit evidence** |
+| worse? | invisible to a reader who looks | visible to a reader who looks — **and therefore believed** |
+
+**They compose, and the composition is where the real defects are.** A `raise`-guarded claim is
+`-O`-proof. An **assert**-guarded claim is not — and every one of the ten defects below is a
+claim-print whose only guard is an `assert`. **Neither sweep alone finds them: Part 1 sees the
+assert and cannot see what it was protecting; Part 2 sees the claim and cannot see that its
+guard evaporates.**
+
+## P2.1 — THE COUNTS
+
+| | |
+|---|---|
+| population (tracked `.py`, dafoam folder scope, at HEAD) | **220** |
+| print sites containing a success token | **144** |
+| candidates after excluding guarded / ternary / value-report / tally shapes | **43** |
+| **+ recovered from this scanner's OWN blind spot (P2.3)** | **+1** |
+| **candidates READ** | **44** |
+| **CLEARED by reading** | **34** |
+| **DEFECTS** | **10** |
+
+### The ten, bucketed as the assert census was
+
+| bucket | count | sites |
+|---|---|---|
+| **GATE** | **2** | `r1_sens_vs_error.py:143`, `verify_macro_reader.py:170` |
+| **SELFTEST** | **8** | `d10_grade.py:158`, `d10p_grade.py:158`, `d11_grade.py:181`, `d11p_grade.py:181`, `d11f_grade.py:181`, `d11o_grade.py:181`, `d12_grade.py:161`, `d11c_grade.py:441` |
+| **NEITHER** | **0** | — a measured zero from a bucket the classification can express, not an absence of the question |
+
+**`d12r_grade.py` contributes ZERO here, and that is the supervisor's A1.5 point measured
+independently:** it has **no success claim-print at all**, so under `-O` it prints no falsehood —
+**it goes vacuous silently with its unit count intact.** On the two axes together it is the worst
+instrument in the family: **59 asserts and nothing in the output to notice their removal.**
+
+## P2.2 — THE EIGHT SELFTEST CLAIMS ARE **HARD-CODED STRING LITERALS**, AND THAT IS WORSE THAN A DEGENERATE COUNTER
+
+Seven of the eight print a **frozen literal**:
+
+```
+print("D10 GRADER SELFTEST: 6/6 PASS (A healthy, B blind-plant refuses, ...)")
+```
+
+**There is no counter.** `6/6` is characters in a string. The only thing that can stop the line
+being reached is an exception escaping `selftest()` — and under `-O` the asserts that would raise
+it are gone.
+
+### MEASURED on `d10_grade.py`, with the surgical mutant the discrimination required
+
+**My first mutant was too broad and discriminated nothing** — it short-circuited `grade()`
+entirely, and unit **B**, guarded by an explicit `raise AssertionError` that **survives `-O`**,
+caught it under both flags (`rc=1` either way). **That is the supervisor's own A1.4 failure mode
+reproduced in my hands, and it is recorded rather than quietly retried.**
+
+`d10_grade.py`'s battery is **half `-O`-proof**: units **A, C, F** are guarded by `assert`
+(stripped); units **B, D, E** by explicit `raise AssertionError` (survive). The mutant therefore
+had to break **only what unit A checks**:
+
+| run | rc | closing line |
+|---|---|---|
+| frozen file, `python3 --selftest` | 0 | `D10 GRADER SELFTEST: 6/6 PASS (…)` |
+| frozen file, `python3 -O --selftest` | 0 | **identical** |
+| **surgical mutant** (`return "GATE REACHED"` → `"PASS"`, 1 substitution), `python3` | **1** | `AssertionError: selftest A: healthy record did not reach the gate, got 'PASS'` |
+| **surgical mutant**, `python3 -O` | **0** | **`D10 GRADER SELFTEST: 6/6 PASS (A healthy, …)`** |
+
+**A grader whose healthy verdict is wrong certifies itself `6/6 PASS`, exit 0, under `-O`.**
+That is cfd's L-332 case reproduced inside dafoam, on a **frozen** instrument.
+
+## P2.3 — MY OWN SCANNER'S FALSE **NEGATIVE**, FOUND BY MEASUREMENT AND REPORTED
+
+The supervisor's scanner produced three **false positives** and cleared them by reading. **Mine
+produced a false NEGATIVE, and it is the more dangerous direction** — a false positive costs a
+lane's time; a false negative is a defect reported as clean.
+
+I excluded "tally-shaped" prints (`%d/%d`, `failed=`) because A1.2 established a tally is a count
+and not a claim. **`d11c_grade.py:441` is tally-shaped and IS a false claim**:
+`print("… %d/%d PASS …" % (n, n))` — **the numerator and denominator are the same counter**, and
+`n` increments unconditionally. It can only ever print `N/N`.
+
+**I caught it only because Part 1 had already measured it.** So I went back and asked the
+mechanism question — *is any `%` tuple printed with identical numerator and denominator?* — over
+the whole population: **exactly one hit, `d11c_grade.py:441`.** The blind spot is now bounded by
+a measurement rather than by my confidence.
+
+**The lesson for the family's rule, and I think it should be written down:** *"a tally is not a
+claim"* is true only when the denominator is **independent of the numerator**. `%d/%d % (n, n)`
+is a claim wearing a tally's clothes. **A tally whose denominator is the numerator is the
+degenerate case, and a scanner that whitelists tallies must exclude it.**
+
+## P2.4 — THE TWO `GATE` DEFECTS
+
+**1. `ladder-b/S1_work/scripts/r1_sens_vs_error.py:142–143` — both hazards in two adjacent lines**
+
+```
+assert d_perm < 1e-10, "PERMUTATION CONTROL FAILED -- stop here"
+print("  PERMUTATION CONTROL PASSES. serial[perm[i]] = dv[i]; …")
+```
+
+Under `-O` the assert is gone and **the next line prints that the control passes,
+unconditionally.** A control whose failure message is the word *"stop"*, followed by an
+unconditional print of the word *"PASSES"*. **This is the single clearest instance of L-332 in
+dafoam and it needs no mutant to see.**
+
+**2. `ladder-b/duct_baseline/verify_macro_reader.py:170` — a HYBRID, and the interesting one**
+
+`ROUND-TRIP VERIFICATION: PASS` is **correctly guarded** against every `if`-checked failure
+(`if dup_result is None: print("FAIL"); sys.exit(1)`, three of them — textbook, `-O`-proof).
+**But the same file's two controls at :40 and :118 are `assert`s**, and the final claim is **not**
+guarded against those.
+
+- `:40` — the planted **positive** control (*"plain Ofpp could not parse 0/U at all"*)
+- `:118` — the **negative** control asserting the synthetic file *actually exercises the macro bug*
+
+**Under `-O`, both controls vanish and `ROUND-TRIP VERIFICATION: PASS` still prints — including
+for a test file that exercises nothing.** The author guarded the failures they thought of with
+`if`/`exit` and the controls with `assert`. **The claim is protected against the ordinary
+failures and unprotected against the ones that decide whether the test tested anything.**
+
+## P2.5 — THE 34 CLEARED, AND WHAT CLEARED THEM
+
+**Every one was read. None was cleared by inference.**
+
+| cleared class | n | why |
+|---|---|---|
+| **narrative/exposition prints** (`S1_gp4_replacement`, `s1_zerocompute`) | 18 | multi-line prose printed as analysis text. `s1_zerocompute.py:295` prints *"G-P4: PASS."* **as an exhibit of what the OLD gate wrongly says** — the surrounding text explains it is blind. **A quotation, not a claim.** |
+| **preceded by a `raise`-based refusal** | 5 | `d13_grade.py:275` / `d13_grade_supplement.py:316` — `if not all(v["pass"] …): B._refuse(…)`, and `_refuse` ends `raise Refuse(tag)` (**verified at `d13_basin.py:208`, not assumed**). `d1_fd_endpoint.py:125` (both copies) — `if not seen: … raise SystemExit(2)`. |
+| **arithmetic tally + counted refusal** | 2 | `d3_grade.py:424` (both copies) — `bad` counter, `if bad: … return 2`, **then** `ALL CONTROLS SEEN`. Exactly the form ruling §4.1 requires. |
+| **value reports** | 6 | print the *value*, so they say `False` on failure — `d3_grade.py:376`, `verify_macro_reader.py:164`, `probeHandComposition.py:211`, etc. A1.2's third false positive, avoided. |
+| **vocabulary/label text** | 2 | `d3_grade.py:458` prints the verdict vocabulary as a legend. |
+| **this sweep's own instrument** | 1 | `sweep_assert_under_O.py` — see P2.6. |
+
+## P2.6 — L-332 APPLIED TO THIS LANE'S OWN INSTRUMENT
+
+`sweep_assert_under_O.py` printed `coverage controls passed: …` **after** `if failures: sys.exit(2)`.
+That is *safe* — the exit precedes it and is `-O`-proof — but it is **the shape L-332 forbids**,
+and a later edit that turned the exit into an assert would leave the claim standing.
+**Corrected: the claim now prints inside an explicit `else:`**, so removing the check removes the
+claim. Re-run after the change: 173 hits, coverage controls pass, unchanged.
+
+**I am not exempt from the rule I am enforcing, and finding the shape in my own file an hour
+after writing it is the argument for the rule rather than against it.**
+
+## P2.7 — `d7_g8_token.py`: **ARM 2 ACHIEVED**, and all three arms now measured
+
+The supervisor's A1.4 records arm 2 as **not achieved**: two malformed mutants, each crashing
+under both flags with `rc=1`, discriminating nothing. **The innocent explanation was already
+established there and it is correct — run from a scratch path, the instrument's own C1
+(on-disk md5 == HEAD blob) and `load_grader()` refuse. That is the control WORKING.**
+
+**The way past it is to put the mutant in the DATA, which is where a real failure comes from,
+and to leave the instrument untouched so its own controls pass.** The module was imported
+**from its own directory** (so `HERE`, C1 and C2 resolve to the real committed files) and driven
+against the **C5 write-gate** — not merely against `evaluate()`, which the selftest already
+covers. `mod.TOKEN` was redirected to a scratch path so a refusal that failed to fire **could not
+forge the real token and would still be visible.**
+
+| arm | requirement | result |
+|---|---|---|
+| **1** — guarded path under `-O` | refuses | healthy case: `pass=True`, token written, `rc=0` — **and the failing case refuses**, `rc=2` |
+| **2** — **MUTANT** under `-O` | **refuses** | **`D7_G8_TOKEN REFUSED  G8 did NOT pass -- the token is not written`, `rc=2`, NO token written** — **identical to plain `python3`** |
+| **3** — AST check | zero `Assert` nodes | **0** |
+
+**`d7_g8_token.py`'s C5 gate is `-O`-proof, measured on the gate itself.** The supervisor's
+endorsement of this instrument now rests on all three arms.
+
+**ZERO BYTES of `d7_g8_token.py` or `d7_grade.py` were modified. No mutant was committed.**
+The real token `/home/ubuntu/certonomous-runs/CURRICULUM-D7-a3-m6-cdmin/.d7_g8_pass` was
+**verified byte-unchanged before and after** (605 bytes, mtime 22:02, both readings).
+
+## P2.8 — COMBINED EXPOSURE, AND THE REPAIR LIST THAT IS THE SUPERVISOR'S TO RULE
+
+| instrument | frozen | asserts | claim-print defect | combined |
+|---|---|---|---|---|
+| `d10_grade.py` | **yes** | 3 SELFTEST | **literal `6/6 PASS`** | **battery certifies itself under `-O` — MEASURED** |
+| `d10p_grade.py` | **yes** | 3 SELFTEST | literal `6/6 PASS` | same shape |
+| `d11_grade.py` | **yes** | 4 SELFTEST | literal `7/7 PASS` | same shape |
+| `d11p/f/o_grade.py` | **yes** | 4 each | literal `7/7 PASS` | same shape |
+| `d12_grade.py` | **yes** | 5 SELFTEST | literal `8/8 PASS` | same shape |
+| `d11c_grade.py` | **yes** | 18 SELFTEST | **degenerate `%d/%d % (n,n)`** | **MEASURED (Part 1 §6b)** |
+| `d12r_grade.py` | no | 59 SELFTEST | **none** | **silently vacuous — worst on both axes** |
+| `r1_sens_vs_error.py` | no | 2 GATE | **`CONTROL PASSES` after the assert** | **both hazards, adjacent lines** |
+| `verify_macro_reader.py` | no | 2 GATE | **`VERIFICATION: PASS` unguarded against them** | **hybrid** |
+| `d8_gen_arm.py` | **yes** | 2 GATE | none | **silent wrong-arm generation — MEASURED** |
+| `d13/d1_opt_runScript.py` | **yes** | 4 GATE | none | **FD table at eta = 0.0** |
+
+**NINE frozen instruments carry a claim-print or producer defect. Repairing any of them is a
+§2d.1 question and it is the supervisor's, not this lane's. Nothing was repaired.**
+
+**The one edit this lane made to any instrument is to its OWN sweep (P2.6).**
+
+## P2.9 — WHAT PART 2 DID NOT ESTABLISH
+
+1. **The `-O` limb was measured on `d10_grade.py` and `d7_g8_token.py`.** The other six literal
+   `N/N PASS` closers are classified **by reading**, on the ground that the print is a string
+   literal at the end of the function — strong, but a reading, not a measurement.
+2. **`verify_macro_reader.py`'s hybrid was NOT executed under `-O`.** It needs the CBFS dataset
+   and I did not run it. **The claim that its final PASS survives the two stripped asserts is a
+   READING of the control flow, and it is labelled as such.**
+3. **The scanner's success-token list is a list.** A claim phrased in words not on it is invisible.
+   The 144 sites are what the tokens found, not a proof there are only 144.
+4. **`write()` and `_p()` were scanned alongside `print()`, but a claim written through a logging
+   framework or an f-string built elsewhere and printed by a variable is not detected.**
+5. **The 34 clearances are readings.** None was executed under `-O` with a mutant.

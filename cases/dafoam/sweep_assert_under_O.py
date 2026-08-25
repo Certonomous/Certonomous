@@ -313,12 +313,17 @@ def classify():
         print("NEITHER rationale names a hit not in the census "
               "(the file moved or the line shifted): %s" % stale)
         failures += 1
+    # L-332 (ruling Amendment 1): the success claim is printed INSIDE the
+    # passing branch, so removing the check removes the CLAIM. It is NOT
+    # printed unconditionally after the check -- that shape survives the
+    # check's removal and certifies a pass that never ran.
     if failures:
         print("REFUSED: %d coverage control(s) failed. exit 2" % failures)
         sys.exit(2)
-    print()
-    print("coverage controls passed: %d hits, all classified, all NEITHER "
-          "hits carry a written rationale" % total_class)
+    else:
+        print()
+        print("coverage controls passed: %d hits, all classified, all NEITHER "
+              "hits carry a written rationale" % total_class)
     return buckets
 
 
