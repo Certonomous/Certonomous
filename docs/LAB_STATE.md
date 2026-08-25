@@ -697,6 +697,146 @@ and is her**.
 **Sub-section last written:** by the chief (records lane), zero compute, no solver, no case
 directory; assembled from the HEAD blob, not the worktree copy.
 
+### EVENING RULINGS AND DISPATCH — chief, certonomous-d8, 2026-08-25
+
+**Why this sub-section exists.** Everything below had been living only in the chief's
+relays. Two fleets died tonight (session limit, then the weekly limit). The board is the
+only handoff channel between sessions (L-186); a relay is not durable. This makes it durable.
+
+#### 1. SANAA'S COST-LIFT DIRECTIVE — HER WORDS, BYTE-EXACT
+
+Recorded verbatim. **Every typo and irregular space below is hers and is deliberately
+preserved as provenance — `thelab`, `ressources`, `al of the cases`, `knowlegde`,
+`_-12`, and the space before the comma after `already`. Do not normalise this quotation.**
+
+> I want the three teams to forget about cost constraints for now. We originally had them when thelab did not have discipline, but the lab does now. So no team stops anything in the name of saving compute. The lab having experience running hard and diverse cases primes over saving money. Besides, we have two instances running rn. So ample ressources. Something else, for each team: cfd team completes its tasks per our instructions, that team just like the ansys verification team can also read the High_order_grid_convergence.pdf in docs/standard when they are done, it can be before continuing the tasks (if they bumped into numerical convergence issues), or after, if they did not bump into numerical issues, either way, lessons from that pdf get recorded in the cfd team's own charters and .md files, and the lab's charters and numerics knowlegde and relevant verification/mesh etc standard as well if the ansys verification team did not update these after reading the pdf already , ansys-verification: Does not have to limit itself to _-12 cases? If you are saying we still have almost 40% unused compute, why would we limit ourselves to this small amount? Submit AS MANY cases as our compute allows us, heat transfer: same comment, if you have ran al of the cases I have you, I will give you more, but every team needs to stop sitting on idle compute
+
+**Everything from here down is THE CHIEF'S READING, not Sanaa's words.** It is recorded as
+correctable, and she may overrule any line of it.
+
+#### 2. COST CONSTRAINTS LIFTED — the chief's operational reading, marked correctable
+
+- The directive **overrides `CLAUDE.md` rule 12's "an overrun stops the run" clause, FOR
+  BUDGET REASONS ONLY.** No other clause of rule 12 is touched.
+- **Caps become RUNAWAY GUARDS, not stop conditions.** A crossing is **reported to the
+  supervisor**, who **extends by dated amendment** if the work is sound, or **stops it** if
+  the run is genuinely stuck. A cap crossing is no longer, by itself, a reason to kill a
+  sound run.
+- **COSTING AND CALIBRATION CONTINUE UNCHANGED.** She lifted *constraints*, not
+  *measurement*. Every run is still costed in its pre-registration; every completion still
+  lands its estimate-versus-actual row in `docs/COST_CALIBRATION.md` (rule 12's
+  2026-08-23 clause). A lab that stops measuring cost cannot tell her what the compute bought.
+- **RIGOR IS UNCHANGED.** Pre-registration, gates, thresholds, the verdict vocabulary,
+  Roache triple gating, the planted zero and the completion rule all stand exactly as
+  written. No refusal made on evidence is reopened by this directive.
+- **`CLAUDE.md` WAS NOT EDITED.** Constitutional text is Sanaa's. The directive is recorded
+  here and relayed; the rule file stays as she wrote it until she changes it herself.
+- **THE 8–12 BATCH FIGURE IS WITHDRAWN.** It was a chief-side throttle, not hers. **The
+  limit is now cores and memory**, nothing else.
+- **EXTENSION TO `dafoam` IS THE CHIEF'S READING.** She wrote **"the three teams"** —
+  `cfd`, `ansys-verification`, `heat-transfer` are the three she then addressed by name.
+  Applying the lift to `dafoam` as well is the chief's inference and is **recorded as
+  correctable**, not as her instruction.
+
+#### 3. THE PDF — `docs/standards/High_order_grid_convergence.pdf`
+
+- **`cfd` reads it FIRST**, before continuing its tasks — because `cfd` **did** bump into
+  numerical convergence issues, which is the branch her directive assigns to reading first.
+- **`ansys-verification` must state whether it has already landed the lessons** into the
+  lab's charters, numerics knowledge and the verification/mesh standards, **so `cfd` does
+  not duplicate that work.** Her sentence conditions the lab-level updates on exactly that.
+- **Rule 15 applies on the title page.** The file is verified by its title page, never by
+  filename, file type or hash. **This is not hypothetical here:** commit `01fcb3d8` records
+  that this same PDF was previously found to be Ekaterinaris 2005 on high-order low-diffusion
+  schemes — **zero Roache, zero GCI, zero Richardson** — while two teams were about to write
+  its "lessons" into the mesh and verification standards. Whoever reads it reads the title
+  page first and says what it actually is.
+
+#### 4. DESK-ITEM DISPOSAL RULE APPLIED TONIGHT
+
+Adopted, on the recommending team's evidence:
+
+- **K0d re-registration** — adopted on `heat-transfer`'s recommendation.
+- **The filing conflict and the log policy** — adopted.
+- **The id tool** — approved, **with the constraint that ids are allocated only at append
+  time against HEAD** (rule 11: the number comes from the tail maximum at commit time,
+  never from a count, and peers commit constantly).
+
+**ONE EXCEPTION, HELD OUT EXPLICITLY, AND IT IS NOT A CLOSE CALL:**
+
+> The `analyse_f5b_physics.py` edit was **DENIED BY THE PERMISSION SYSTEM, NOT BY SANAA.**
+
+**Her silence does not override a live denial.** The disposal rule disposes of items on her
+desk; it has no reach over the permission system, which is one of only two things that can
+authorise (rule 9). **The file stays untouched.** No agent may treat this exception as
+disposed of, and no supervisor's or chief's message converts it into consent.
+
+#### 5. TWO NEW RULINGS REFERRED TO SANAA BY `cfd` — charter-level, OUTSIDE the disposal rule
+
+Both are referred **up**, not decided here. The disposal rule does not reach a charter clause.
+
+**(a) Rule 4's completion clauses cannot notice a physically impossible answer.**
+**F12 arm 1 satisfied every limb of the strict completion rule** — `rc = 0`, an `End` line,
+last time == `endTime`, all fields present, the `ExecutionTime` count, and the age guard —
+**on a solution 99.2 K outside the flow's adiabatic ceiling.** The finding is structural:
+**completion and physical admissibility are independent properties.** A run can be perfectly
+complete and still report an answer the physics forbids, and nothing in rule 4 is built to
+see that. Whether an admissibility limb is added to the completion rule is a charter change
+and therefore **Sanaa's alone**.
+
+**(b) ONERA M6 §3.1 scoping — the 70° threshold.**
+**38 mesh variants; NONE clears 70°.** The floor sits at **81.58° at the sharp trailing
+edge**, and — the part that matters — it is **REFINEMENT-RISING**: **444 of 111,872 faces**,
+a **fixed fraction** that refinement does not reduce. That is the signature of a geometric
+feature, not of an under-resolved mesh, so no amount of further structured refinement will
+retire it. **`cfd` recommends the unstructured route and takes NO PART of the threshold
+decision** — retiring or moving a gate threshold is reserved to Sanaa.
+
+#### 6. TWO CONTRADICTIONS FROZEN INTO PRE-REGISTRATIONS — found POST-COMPUTE, referred by `heat-transfer`
+
+Both are pre-registrations that **could not have been satisfied as written**. Found after
+first compute, so under rule 2 the gates are closed and neither original may be rewritten.
+
+- **T8 §12** registered an **axis-extrapolation whose own precondition (`r₂ = 3r₁`) its wedge
+  mesh cannot satisfy** — the **volume centroids give 7/3**, not 3. **Ruling recorded:
+  READ CENTROIDS FROM DISK; NEVER REGISTER A RATIO** taken from the nominal mesh spec. A
+  ratio asserted from geometry-on-paper is not a measured ratio.
+- **K0d L2 block A has an ODD CELL COUNT (17)**, so **two-sided grading and condition D
+  cannot both hold**. Consequence, stated plainly: **G IS UNREACHABLE ON K0d AS REGISTERED.**
+  That is a property of the frozen document, not a failed solve.
+
+#### 7. DISPATCH RECORD — what actually happened tonight
+
+- **Four supervisors re-formed after each of TWO fleet kills**: the **session limit at
+  ~20:45Z**, then the **weekly limit at ~19:40Z**, the latter **restored by Sanaa**.
+- **Repeated mid-response connection drops on long turns.** Each was **resumed from
+  committed state** — which is exactly why pre-registration-first and commit-early make
+  recovery cheap.
+- **Fired tonight:**
+  - **F4 conversion** — graded **8 `NOT A RESULT` / 1 `CONVERGING`**; **cap crossed by 0.46 %**.
+  - **K0d L1** — two cases.
+  - **T8** — **`BLOCKED`** post-fire.
+  - **D7** — **P1 `PASS`**; **P2 cap-stop mid-convergence**; **O unreachable**.
+  - **F12 probes.**
+- **`verification` remains PAUSED by Sanaa. `closure` is at rest.** Neither state was
+  changed tonight, and neither may be changed by an agent.
+
+#### 8. BOARD-HYGIENE NOTE FOR A SUCCESSOR
+
+The **T8 lane reported `f` as "converging" at `590f86d4`** — that reading was **a snapshot
+taken on the way up**. **`f` oscillates over two decades.** The record was **corrected at
+`11f5041f`**.
+
+**The lesson, and it generalises past T8: ONE RESIDUAL READING IS NOT EVIDENCE OF
+CONVERGENCE.** A converging trend is a property of a history, not of a sample. Anyone
+tempted to write "converging" from a single line of a log should read this paragraph first.
+
+**Sub-section written by:** the chief's records lane — **zero compute, no solver, no case
+directory, no science.** Assembled from the HEAD blob of this file, never the worktree copy.
+**Shared index left untouched:** it currently stages `docs/LAB_STATE.md` as
+**525 insertions / 8,336 deletions**, one of **2,508 staged paths** — reported, not changed
+(rule 10).
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
