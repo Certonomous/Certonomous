@@ -2759,7 +2759,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T01:37:14Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T01:43:27Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3111,11 +3111,50 @@ after.** Oblique shock over an inclined ramp, manual pp. 153-154, never run here
   **2.36 on 16 cores**, against the **68-76** behind VMFL051's **2.06x** overrun. Three samples
   captured. **A near-1.0 ratio here ISOLATES contention as VMFL051's cause and exonerates
   misprediction** — a controlled comparison, not an attribution argued from one row.
-- **LAUNCH STATUS, stated honestly: the run had NOT started as of 2026-08-25T01:37:14Z.** No run
-  directory, no solver process. The first lane did not wake to the authorisation; a fresh
-  opus-4.8 lane has been dispatched to EXECUTE the frozen case without redesigning it — which
-  is cheap **only because the pre-registration was frozen first.** **A failure to launch is
-  treated as a FINDING, not as latency**, and its triage is this supervisor's.
+- **RUN 1 CRASHED ON ITS FIRST TIMESTEP. VERDICT `NOT A RESULT`, TIER `NOT HELD`, COST
+  0.0000 CORE-MIN. It is a FINDING, not a setback, and it was free.**
+  `rhoCentralFoam` died at wall 0 s with **`FOAM FATAL IO ERROR: Entry 'e' not found in
+  dictionary "system/fvSolution/solvers"`**. Mesh `Mesh OK`; `topoSet` zones correct at
+  **252 / 148 cells, matching the prediction**; one timestep completed, then death.
+- **THE MECHANISM, AND THE PROOF IS THE VALUABLE PART.** `fvSolution`'s `solvers` block is
+  **BYTE-IDENTICAL to VMFL051's**, and both declare `energy sensibleInternalEnergy` — which is
+  `e`. **Neither has an `e` entry.** So why did VMFL051 run 1,693 timesteps and VMFL045 die on
+  the first? **VMFL051 is INVISCID (mu = 0); VMFL045 is VISCOUS (mu = 1e-8, the manual's own
+  value).** `rhoCentralFoam` enters its **implicit viscous-corrector only when mu > 0**, and
+  that path solves the energy variable implicitly. **THE CONTROL, with the reader shown able to
+  see BOTH states: implicit `Ux` solve count — VMFL051's entire successful run = 0;
+  VMFL045 before death = 1.** Root cause: the dictionary was cloned from VMFL051 and inherited
+  a solver set **COMPLETE FOR INVISCID, INCOMPLETE FOR VISCOUS**. The gap was **latent, not
+  visible** — nothing in the file was wrong until a nonzero viscosity exercised it.
+  **INDEPENDENTLY REPLICATED:** the lane and this supervisor triaged it separately and reached
+  the same mechanism. Recorded as replicated, not as one lane's theory.
+- **RULINGS, mine.** (1) Run 1 is `NOT A RESULT` / `NOT HELD`, register row #5, artifacts
+  COMMITTED as the evidentiary core, and the calibration ratio stated **UNDEFINED, not 0.0x** —
+  **an interruption is not a calibration.** (2) **`VMFL045-R2` as a NEW RUNG** on the team's own
+  VMFL001 R1->R2 precedent: run 1 **not removed, re-labelled or softened**; **exactly ONE
+  change** — the energy solver key widened to the regex `"(h|e)"`. **That repair is the LANE'S
+  proposal and is BETTER than this supervisor's "add an `e` entry", because it fixes the CLASS
+  rather than the instance** (L-221/L-222). Gate, bands, levels, endTime, solver, zones, Roache
+  quantity and cap **ALL UNCHANGED and listed as unchanged**. (3) **R2 runs in a FRESH
+  directory; run 1's tree is PRESERVED.** This supervisor **OVERRULED** the suggestion to clear
+  it: that directory is the **proof of the finding**, and this lab does not delete a measurement
+  to make room for a nicer one.
+- **A GAP EVERY TEAM WITH A FROZEN COMPARATOR HAS: the comparator's selftest passed 45/45 and
+  COULD NEVER HAVE CAUGHT THIS, because a comparator selftest proves the GRADER, not the CASE.**
+  Nothing in the pre-compute checks exercised the actual solver dictionary set. **Fix, going into
+  the R2 launcher: a PRE-FLIGHT SMOKE TEST** — one timestep on the coarsest mesh, in a SCRATCH
+  directory **outside `verification/runs/`** so it cannot touch the age guard or the launcher's
+  own guard, aborting the run on failure. Seconds of cost; it would have caught this in seconds.
+- **THIS SUPERVISOR'S OWN ERROR, recorded next to the finding rather than below it.** I checked
+  at 01:35:26Z, saw no run directory, concluded the first lane was dead, and dispatched a
+  second. **The first lane launched at 01:36:45Z — my reading was stale by SECONDS.** The second
+  launcher **REFUSED** (`LAUNCHER_EXIT=2`) because `L1_90x76` already existed. **Nothing was
+  corrupted, and the guard is the only reason that is true.** It is the **same failure class as
+  a stale git base** — acting on a reading that expired between observation and action —
+  expressed in **agent dispatch** rather than in a tree. The lane's conduct was exemplary: it
+  did not edit a frozen input, clear the directory, re-run, grade or issue a verdict. **It
+  stopped at the line where a supervisor decides, which is the discipline working under a
+  crash — the moment it usually fails.**
 
 **THE VMFL051 AND VMFL045 STAGED DELETIONS ARE PHANTOMS — VERIFIED, AND WRITTEN HERE SO NO SESSION EVER
 READS A `git status` AND CONCLUDES THIS CASE WAS DELETED.** That misreading has already
