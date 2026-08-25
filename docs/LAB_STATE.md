@@ -825,6 +825,73 @@ two-session overwrite problem recorded in the previous write has not recurred.
 | `71ecb659` | landed **two records the killed fleet wrote and never committed** — `MATRIX_CONTRIBUTION.md` (730→805 l) and `PAPER_INTAKE_2026-08-24.md` (690→745 l), each with a dated supervisor banner saying the content is UNAUDITED |
 | `935d4114` | **K0d `AMENDMENT 1`** — the three open items ruled before first compute (288 insertions, **0 deletions**); + `THERMAL_CAPABILITY_STATE.md` quote-and-strike |
 | `fa201acd` | **T5 `CONFIGURATION_RULING`** — the Meinders **matrix**, not the single cube; `r` does not move; what T5 may not gate on |
+| `ef027b6a` | this board section (first CAS **correctly refused** — a peer moved HEAD mid-write; re-based onto the fresh board, all 7 headings asserted preserved) |
+| `efc57dbe` | **`MATRIX_CONTRIBUTION` audit corrections** — the dated follow-up the banner promised, 804→888 l |
+| `8cde653f` | **`C-48`** — T1b L4 PARTIAL cost calibration (two closed cases) |
+
+### `efc57dbe` — the audit, and the two edits I re-verified against artifacts myself
+
+**Diff read personally as a diff** against `git show HEAD:<path>` — **not**
+`git diff HEAD`, which reports the file as 804 deletions because the path is
+missing from the decayed shared index.
+
+- **Band and deviation were TRANSPOSED on B2/B4/B6.** As written the table put
+  the deviation **above** the band on three rows simultaneously labelled `PASS` —
+  **it contradicted its own verdict.** `gate_t1b.json` prints B2 3.8851/1.6346,
+  B4 5.3339/2.4302, B6 5.7488/1.6350; I read the json myself. Corrected;
+  band > deviation now holds on all four. **B0 byte-identical to HEAD.** A
+  transcription error — the comparator was right. **No verdict, tier or triple
+  state moved.**
+- **A `NOT A RESULT` row was MISSING.** `gate_t1c.json` rows[4]: `NOT A RESULT`,
+  value 3.658426543181223, order `None`. Verified by me. New sub-row **S20b**;
+  census **36 → 37**, NOT HELD **11 → 12**. **An omitted `NOT A RESULT` flatters
+  the denominator — the D414/D420 defect shape recurring in this file's own C10
+  row.** I re-derived the census independently by parsing the §3 table: 37
+  distinct ids, no dupes, 5/1/13/12/6 = 37.
+- **C-1, ruled not relayed:** a block marked *"Sanaa, verbatim"* is **nowhere on
+  disk** (non-ignoring `find|xargs grep`; `grep -r` here honours ignore files).
+  **Attribution WITHDRAWN**, re-marked as a brief's paraphrase. Text kept; no
+  verdict, tier or row depends on it.
+- **The lane withdrew its own finding S-3** on the evidence (its "18
+  INTERPRETATIONs" was a count of string *mentions*; the distinct forms run 1–12).
+  **Rule 11's trap, walked into while writing a finding warning about it.**
+- **My ruling on §8.3 line 832:** *"One clean gate PASS"* → **`PASS`**, because
+  §8.3 is headed *"The headline for the verification supervisor"* — the line most
+  likely to be lifted verbatim. Four surviving `GATE PASS` strings are attributed
+  record quotations and are untouched.
+
+### `8cde653f` — C-48, and the ruling two live solvers were waiting on
+
+**NO CAP AND NO STOP THRESHOLD IS REGISTERED FOR THIS RUNG** — cap, ceiling,
+stop, overrun, budget occur nowhere in the frozen amendment. **RULING: §5
+registered a PREDICTION, and a prediction is not a cap, so rule 12's *"an overrun
+stops the run"* is NOT ENGAGED.** Projected rung ~270.05 core-h / **~$13.85
+derived**, ratio ~1.315×, **inside the $25 pre-authorisation**. **THE TWO LIVE
+SOLVERS CONTINUE** — stopping forfeits ~8 866 core-min and yields nothing
+gradeable (partial pools refuse). **The ABSENCE of a cap is the defect, not the
+overrun.**
+
+Measured, two closed cases: predicted 4 520.4 → actual **5 965.58 core-min**
+(99.4264 core-h, **$5.1006 derived**), **ratio 1.3197×** (`R_10k_x` 1.7594×,
+`R_300k_x` 1.1982×). **Waste nil**, and gross==cleaned as a **measurement**:
+`ExecutionTime`/wall 0.99888 / 0.99936.
+**Attribution: misprediction ~90 %.** (a) the rate was **borrowed across a 2.56×
+mesh jump** (81 920-cell rates applied to a 209 920-cell mesh; measured 0.568×
+and 0.523× of assumed — the rate ratio reproduces the wall ratio to four
+figures); (b) **throughput doubles as a steady SIMPLE case converges and it is
+NOT contention** — sar shows host load **flat at 3.78–3.86 busy cores** across
+`R_300k_x`'s 43 000 → 93 000 cell-it/s transition. Contention was **measured**
+from `/var/log/sysstat/` (not reconstructed) at only **5.5–11.3 %** of each miss
+— **it was not the prime suspect, which was the standing hypothesis going in.**
+**C-23's PATTERN reproduces but C-23's MECHANISM does not**: its fixed startup
+term would explain **1.4 % of a 76 % overrun**, and adopting it **would have
+hidden the real cause**. A calibration finding must not be carried across rungs
+by its shape. §5's *"upper bound on cost"* hedge is **falsified** — it banked
+1–4 % of contention against a 75 % mesh-extrapolation error.
+
+**`docs/COST_CALIBRATION.md`'s worktree copy was 19 991 bytes and FOUR ROWS
+stale** (C-43 vs C-47 at HEAD). Appended onto the **HEAD blob**; editing in place
+would have reverted C-44…C-47. Diff verified **+1 insertion, 0 deletions**.
 
 ### LIVE JOBS — reading 2026-08-25T00:01Z, lane-derived, `readlink /proc/<pid>/cwd`
 
