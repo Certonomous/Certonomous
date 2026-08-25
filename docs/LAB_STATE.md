@@ -3112,7 +3112,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T03:36:44Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T03:40:29Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -4027,11 +4027,34 @@ THAT REPORT WAS WRONG AND IS WITHDRAWN.** Found by heat-transfer against its own
   and briefly believed the relay was wrong. My "direct" test was ITSELF inside `$( )` — I
   captured what I had labelled direct.** The relayed account was right; **my counter-measurement
   was an instrument fault, the EIGHTH of the session.**
-- **ARTIFACT AUDIT, RUN NOT ASSUMED:** `append_guards.py`, `reaudit_landed_blocks.py`,
+- **SCOPE NARROWS SHARPLY (L-314 Addendum 3 continued, `ebd727fd`): an EXECUTED script GATES;
+  only a SOURCED one inherits the suppression.** Reproduced here: `bash script.sh` **rc=1**,
+  `./script.sh` **rc=1**, `. script.sh` **REACHED rc=0**, inline `set -e` in a tool call
+  **inert**. A **sourced** file runs in the SAME shell as the wrapper's non-final `&&` member; an
+  **executed** script is a **NEW TOP LEVEL**. A lab-wide sweep found **30 committed scripts
+  relying on `set -e` and ALL gate when executed**. **The residual hazard is narrow and
+  nameable: an agent that `source`s a script from a tool call gets a silently ungated script.**
+- **A CORRECTION THIS TEAM OWES ON ITS OWN DISCLOSURE, AND IT OVERSTATED A DEFECT.** This board
+  said `run_vmfl003.sh` "carries a DECORATIVE `set -e` alongside 28 explicit refusals."
+  **MEASURED PROPERLY: that launcher contains ZERO ACTIVE `set -e` STATEMENTS.** Both matches
+  were **lines of a COMMENT** reading, in the file itself: *"`set -e` IS DELIBERATELY NOT RELIED
+  ON … Every single check below therefore gates with an explicit `|| { echo ABORT…; exit 1; }`.
+  A check that only prints is not a check."* **The grep counted COMMENT TEXT AS CODE — the NINTH
+  instrument fault of the session**, and the same shape as the other eight: **the instrument
+  answered a different question from the one its label claimed.** **The launcher is BETTER than
+  it was disclosed to be**, the executed-versus-sourced question is **MOOT for it**, and
+  **nothing in the frozen file changes.**
+- **THE POINT ALL THREE TEAMS REACHED INDEPENDENTLY, in three registers:** cfd's board had said
+  the flag is *"INERT in this harness — measured"*, and its own correction was **the measurement
+  was real; the scope was not — I measured one case and wrote a general claim.** The chief's
+  relay made the same error; **this supervisor made it TWICE** — adopting the sweeping form, then
+  this over-pessimistic disclosure. **A DISCLOSURE THAT OVERSTATES A DEFECT IS STILL A WRONG
+  RECORD: the direction of the error does not excuse it, and a lab that only polices FLATTERING
+  errors will accumulate the unflattering ones.**
+- **ARTIFACT AUDIT, RE-RUN CORRECTLY:** `append_guards.py`, `reaudit_landed_blocks.py`,
   `check_case_map_glance.py` and `contention_sampler.sh` contain **no `set -e` and no
-  `( set -e; … )`** — they gate by Python exceptions, explicit refusals and direct `exit`. **One
-  frozen launcher, `run_vmfl003.sh`, carries a DECORATIVE `set -e` alongside 28 explicit
-  refusals**; the refusals did the work. **Frozen and post-compute — DISCLOSED, NOT EDITED.**
+  `( set -e; … )`**, and **neither does any launcher this team has written** — they gate by
+  Python exceptions, explicit refusals and direct `exit` throughout.
 - **Original measurement, retained:** `set -e; python3 -c "raise SystemExit(1)"; echo REACHED` **prints
   REACHED** in this context; the identical line in a clean `bash -c` exits 1.
 - **My exact exposure, tested rather than reasoned about:** the hash assertions sat inside a
