@@ -337,3 +337,81 @@ standard group. **The corrected values above are the ones a VMFLGPU001 freeze ci
 
 **Next:** VMFRT001–007 (Forte) remain unextracted; the full sorted DISCRETE list is
 otherwise complete.
+
+---
+
+## Batch 7 — VMFRT001–007 (Ansys Forte). **THE MANUAL IS NOW COMPLETELY CLASSIFIED.**
+
+| Case ID | Manual Page | Short Title | Reference Form | Reference Values | Named Source |
+|---------|-------------|-------------|-----------------|------------------|--------------|
+| VMFRT001 | 255 | Large Eddy Simulation in Internal Combustion Engine Case | PROFILE | LDA velocity profiles and fluctuations at z = 20 mm and z = 70 mm, figures only | Thobois, L., Rymer, G., Soulières, T., Poinsot, T., "Large-Eddy Simulation in IC Engine Geometries", SAE Technical Paper Series 2004-01-1854, 2004. |
+| VMFRT002 | 259 | ECN Nonreacting Flow — bklraAL4 (50 MPa injection) | PROFILE | vapor/liquid penetration length, external `.txt`, figures only | Engine Combustion Network data search utility, https://ecn.sandia.gov/ecn-data-search/, accessed 2020-04-07. |
+| VMFRT003 | 261 | ECN Nonreacting Flow — bklfaAL4 (100 MPa injection) | PROFILE | vapor/liquid penetration length, external `.txt`, figures only | Engine Combustion Network data search utility, as above. |
+| VMFRT004 | 263 | ECN Nonreacting Flow — bkldaAL4 (150 MPa injection) | PROFILE | vapor/liquid penetration length, external `.txt`, figures only | Engine Combustion Network data search utility, as above. |
+| **VMFRT005** | 265 | ECN Reacting Flow jkldaAL4 (150 MPa, O2 = 15%) | **DISCRETE** | **Lift-off length 16.7 mm; ignition delay 0.41 ms** | Engine Combustion Network data search utility, as above. |
+| VMFRT006 | 269 | Adiabatic Compression of Air in Cylinder by a Reciprocating Piston | PROFILE | pressure and temperature vs a **2-D ANALYTICAL SOLUTION**, figures only | Russell, L.D., Adebiyi, G.A., *Classical Thermodynamics*, Saunders College Publishing, Philadelphia, PA, 1993. |
+| VMFRT007 | 273 | Small-Bore DI Diesel Engine (CDC9_SL_SSEp17b, 9 bar IMEPg) | PROFILE | cylinder pressure and apparent heat release rate, external Excel, figures only | Engine Combustion Network, https://ecn.sandia.gov/, file "CDC9 InjRate Pcyl PIntake Fired", worksheet "CDC9_SL_SSEp17b". |
+
+**Forte summary: DISCRETE 1, PROFILE 6, EMPTY 0, UNCLEAR 0.**
+
+### VMFRT005 — reference kind, and a driving input the manual omits
+
+**Reference KIND: measured / experimental → CAN buy P, never V.** The ECN is an
+experimental spray database.
+
+Stated on p.265: n-dodecane; P_inj 150 MPa; P_amb 5.94 MPa; T_amb 900 K; T_fuel 373 K;
+V_amb 0.20 m/s; D_nozzle 0.084 mm; M_inj 14 mg; injection duration 6 ms; rho_amb
+22.8 kg/m3; ambient N2 75.15 / CO2 6.22 / H2O 3.62 / O2 15.00 %. Pressure ratio
+P_inj/P_amb = **25.3**; temperature ratio T_fuel/T_amb = **0.414**.
+
+**The manual states no governing dimensionless group for lift-off or ignition delay**, and
+supplies no chemical-kinetics data, reaction rates or flow timescales from which a
+Damköhler number could be formed; nor a nozzle-exit velocity or viscosity for a jet
+Reynolds number. **So the VMFL036-class consistency check cannot be run on this case from
+the manual alone.**
+
+**It also omits the start-of-injection (SOI) timing.** Under this template's rule — *"a
+driving input the manual omits"* — **VMFRT005 is CONTESTED and requires a bespoke frozen
+document, not the ten-line form.** SOI is resolvable only from the external ECN case
+specification, and **must never be guessed**.
+
+---
+
+## THE COMPLETE MANUAL, CLASSIFIED — and the structural finding that follows
+
+| family | DISCRETE | PROFILE | UNCLEAR | total |
+|---|---|---|---|---|
+| VMFL (never-run) | 12 | 51 | 1 | 64 |
+| VMFLGPU | 2 | 8 | 0 | 10 |
+| VMFRT (Forte) | 1 | 6 | 0 | 7 |
+| **total** | **15** | **65** | **1** | **81** |
+
+**65 of 81 unrun cases compare against a figure, not a number.** That is the ceiling on
+this ladder, and it is not a compute problem.
+
+### **NOT EVERY PROFILE CASE NEEDS DIGITISATION — and this is the crack in the blocker**
+
+`PROFILE` is a statement about **the form the manual prints**, not about **where the
+reference comes from**. Two cases here prove the distinction matters:
+
+- **VMFRT006** (p.269) — the comparison is *"pressure and temperature vs a **2-D analytical
+  solution**"*, sourced to a classical-thermodynamics textbook. **The reference is
+  closed-form.** Adiabatic compression is exactly integrable.
+- **VMFL020** (p.79) — *the same case title and the same Russell & Adebiyi source*, on the
+  Fluent side.
+
+**A PROFILE case whose reference is ANALYTIC does not need its figure digitised at all — the
+reference curve can be EVALUATED.** We generate it ourselves from the closed form, at any
+resolution, with no digitisation error, and gate against it pointwise. Such a case **buys V**
+and is gateable **today**, with no new instrument.
+
+**This splits the 65 into two populations that must not be treated alike:**
+1. **PROFILE / analytic reference** — gateable now by evaluating the closed form. **Buys V.**
+2. **PROFILE / experimental reference** — genuinely needs a digitisation route (or the
+   external data file, which the ECN cases actually name). **Can buy P.**
+
+**A census by reference KIND across all 65 PROFILE cases is the next instrument this ladder
+needs** — it converts an unknown fraction of them from ungateable to gateable without
+digitising anything. **This is the highest-value open item on the ladder.**
+
+**The manual is now fully classified: VMFL001–078, VMFLGPU001–010, VMFRT001–007.**
