@@ -415,3 +415,99 @@ needs** — it converts an unknown fraction of them from ungateable to gateable 
 digitising anything. **This is the highest-value open item on the ladder.**
 
 **The manual is now fully classified: VMFL001–078, VMFLGPU001–010, VMFRT001–007.**
+
+---
+
+## Batch 8 — REFERENCE-KIND CENSUS OF THE PROFILE POPULATION. **The digitisation blocker is smaller than it looked: at least 8 cases never needed a digitiser at all.**
+
+Two reading lanes classified the PROFILE cases by **where the reference comes from**, not by
+the form the manual prints. **Supervisor-verified against the manual's own wording** before
+any of it is acted on.
+
+### The finding
+
+**A PROFILE case whose reference is ANALYTIC does not need its figure digitised.** The
+reference curve is *evaluated* from the closed form at any resolution, with zero
+digitisation error, and gated pointwise. Such a case **buys V** and is gateable **today**,
+with no new instrument.
+
+### THE TWO TIERS — and they must NOT be merged
+
+**TIER 1 — MANUAL-CONFIRMED ANALYTIC (5 cases).** The manual's own case block uses the words
+*analytical / analytical solution / Analytical Result*. Verified by the supervisor by
+reading each case block, not taken from a lane's judgement.
+
+| case | p. | subject | manual's own wording |
+|---|---|---|---|
+| **VMFL033** | 119 | Viscous Heating in an Annulus (Bird/Stewart/Lightfoot) | *"analytical solution provided by"*, *"analytically"* |
+| **VMFL070** | 207 | Radiation Between Two Parallel Surfaces (Incropera) | *"Analytical Result"* |
+| **VMFL074** | 215 | Plug Flow Atomizer | *"analytical"* |
+| **VMFL076** | 219 | Forced Convection Over a Flat Plate (Sparrow & Gregg, *Exact Low Prandtl Number Boundary-Layer Solutions*) | *"analytical results"* |
+| **VMFLGPU004** | 233 | Anisotropic Conduction Heat Transfer | *"analytical solution for"* — **but the page cites NO published source at all** |
+
+**TIER 2 — LAB-JUDGED DERIVABLE, NOT CONFIRMED BY THE MANUAL (4 cases).** The underlying
+physics is genuinely closed-form, but **the case block does NOT say the plotted curve is an
+analytic one.** The manual may be plotting experimental or third-party numerical data for
+physics that merely *happens* to be derivable.
+
+| case | p. | subject | the closed form it would use |
+|---|---|---|---|
+| VMFL020 | 79 | Adiabatic Compression by a Reciprocating Piston | `pV^gamma = const` |
+| VMFL038 | 131 | Falling Film Over an Inclined Plane | Nusselt falling-film solution |
+| VMFL061 | 189 | Concentric-Cylinder Surface-to-Surface Radiation | Stefan-Boltzmann + geometric view factors |
+| VMFLGPU010 | 251 | *the same case as VMFL061*, GPU side | as above |
+
+**NO TIER-2 CASE MAY BE FROZEN AGAINST A LAB-DERIVED CURVE UNTIL ITS PAGE IS READ AND ITS
+FIGURE'S PROVENANCE PINNED.** Gating our solver against *our own derivation* is a legitimate
+exercise, but **it is not "reproducing the manual's reference"** and must never be labelled
+as such. This is the VMFL036 lesson generalised: **pin the provenance of the number before
+the gate freezes on it.**
+
+**VMFL045 is also analytic** (oblique-shock theta-beta-M relations, White) — **but it has
+ALREADY RUN** (`cases/ansys_verification/VMFL045/`, `verification/runs/ansys_verification/VMFL045/`)
+and is excluded from the gateable-new count.
+
+### What this changes
+
+Up to **9 new cases** move from *"ungateable, awaiting an instrument nobody has built"* to
+**gateable now** — **5 of them on the manual's own words.** The remainder of the PROFILE
+population genuinely does need a digitisation route **or the external data file**, which the
+ECN cases (VMFRT002/003/004/007) name **by URL and filename** — a different and possibly
+easier route than digitising a figure, and one no lane may take without a ruling on outside
+retrieval.
+
+### A CPU/GPU DUPLICATE MAPPING, which bears on the GPU family's design
+
+Six VMFLGPU cases are the same physical case as a VMFL parent: **VMFL013 = VMFLGPU007**,
+**VMFL052 = VMFLGPU005**, **VMFL066 = VMFLGPU008**, **VMFL069 = VMFLGPU009**,
+**VMFL071 = VMFLGPU006**, **VMFL061 = VMFLGPU010**. And **VMFL017 (DISCRETE: drag 0.0168,
+lift 0.803) and VMFL041 (PROFILE: surface Cp) are the SAME RAE 2822 case** from the same
+Cook/McDonald/Firmin AGARD AR-138 source — **one solve yields both**, one gated on
+integrated coefficients and one on the pressure distribution.
+
+### SUPERVISOR CORRECTIONS TO BOTH LANES' ARITHMETIC — the tables are sound, the summaries are not
+
+**This is the third time tonight a reading lane has produced a correct table under an
+incorrect summary count** (the first was a Taylor number matching neither its own formula nor
+any standard group). **The tables are the data; the lanes' summary arithmetic is not to be
+quoted.**
+
+- First-half lane: said *"17 cases in my range"* — **its own table has 24 rows**; said
+  code-to-code **1** — **it is 2** (VMFL008 and VMFL026); said experimental **12** in prose
+  and then listed **17** — **it is 18**.
+- Second-half lane: said the remainder is *"21 VMFL + 3 VMFLGPU = 24"* — from its own table
+  it is **22 VMFL and 7 VMFLGPU**.
+
+### AN OPEN GAP, NAMED RATHER THAN PAPERED OVER
+
+**8 PROFILE cases still carry no reference-KIND**: **VMFL011**, **VMFL030**, and the six
+VMFRT PROFILE cases (VMFRT001–004, 006, 007) — **of which VMFRT006 is already known analytic**
+from batch 7, and VMFRT002/003/004/007 are ECN experimental with named external data files.
+**So the genuine unknowns are VMFL011 and VMFL030 only.**
+
+**VERIFY — a 2-case reconciliation gap.** The family totals give **65** PROFILE cases; a
+row-level parse of this census finds **63**, with **55** classified and **8** not. **65 and
+63 do not reconcile**, and the difference is most likely duplicate/superseded rows (VMFL030
+appears twice, once as *"postponed"* and once as PROFILE). **Two cases could be hiding in
+that gap.** It is recorded as open rather than rounded away; a reconciliation pass over the
+whole census is owed before any completeness claim is made from these totals.
