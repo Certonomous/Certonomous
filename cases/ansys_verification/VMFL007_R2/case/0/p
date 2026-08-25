@@ -1,0 +1,18 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object p; }
+// simpleFoam is INCOMPRESSIBLE: p here is KINEMATIC pressure p/rho [m2/s2].
+// The graded quantity is PHYSICAL:  dp_Pa = rho * (p_inlet - p_outlet),
+// rho = 1000 kg/m3 from the manual and from the archive's own material blob
+// `(density (constant . 1000))`.  A SECOND factor of 1000, in the OPPOSITE
+// direction to the k conversion in constant/transportProperties.  Both are
+// asserted by grade_vmfl007.py; neither is left to a comment.
+dimensions      [0 2 -2 0 0 0 0];
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet  { type zeroGradient; }
+    outlet { type fixedValue; value uniform 0; }
+    walls  { type zeroGradient; }
+    wedge1 { type wedge; }
+    wedge2 { type wedge; }
+}

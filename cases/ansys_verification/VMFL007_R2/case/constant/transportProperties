@@ -1,0 +1,13 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// VMFL007. Manual p.29: Density = 1000 kg/m3; Viscosity: Power law, k = 10, n = 0.4.
+// Fluent's power law is DYNAMIC: mu = k*gammaDot^(n-1) [Pa.s].  OpenFOAM's
+// viscosityModels::powerLaw k_ carries dimViscosity (m2/s) -- KINEMATIC.
+//     k_OF = k_manual / rho = 10 / 1000 = 0.01     <-- 1000x, mandatory.
+transportModel  powerLaw;
+powerLawCoeffs
+{
+    k       0.01;
+    n       0.4;
+    nuMin   1e-08;
+    nuMax   1.0;
+}

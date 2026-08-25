@@ -1,0 +1,26 @@
+{
+  "case": "VMFL007-R2",
+  "level": "L1_25x25",
+  "points_sha256": "c77b1d25b17d7dd1e7f1dd19c4e6cba807dde713dd78dfe0b86fd24c346dd650",
+  "verdict": "flagged",
+  "verdict_basis": "plain checkMesh reports 'Mesh OK' and NO hard error (no negative volumes, no wrong-oriented face pyramids, no non-orthogonality error, no skewness error, no pathology-range aspect-ratio flag). checkMesh -allGeometry -allTopology FAILS ONE advisory check: 73 of 625 cells have wellposedness determinant < 0.001. MESH_STANDARD.md section 6 does not list cell determinant among the hard errors, so the verdict is 'flagged', not 'broken' -- and the advisory is RECORDED, never annotated away.",
+  "cells": 625,
+  "max_aspect_ratio": 160.006092542,
+  "max_non_orthogonality": 0.0,
+  "max_skewness": 0.333231796771,
+  "hard_errors": 0,
+  "advisory_failures": {
+    "checkMesh_allGeometry_failed_checks": 1,
+    "min_cell_determinant": 7.61962843538e-05,
+    "avg_cell_determinant": 0.00116937073355,
+    "under_determined_cells": 73,
+    "under_determined_fraction": 0.1168,
+    "measured_cause": "NOT the wedge angle. Held 25x25 topology and varied the wedge total angle 1/5/10 deg in scratch: under-determined cell count is 73 at ALL THREE angles and the minimum determinant moves only 7.61962843538e-05 -> 7.56303252844e-05 (0.7 %) over a 10x angle change. The 1 deg choice made in run 1's registration to push the sec(t/2) pressure-drop bias below the reference's own rounding is therefore EXONERATED: it costs no wellposedness. The cause is the 80:1 axial:radial cell stretching (max aspect ratio 160), which is identical at every angle."
+  },
+  "generator": "blockMesh (OpenFOAM v2606) from cases/ansys_verification/VMFL007_R2/case/system/blockMeshDict.template, __NX__=25 __NR__=25",
+  "created_at": "2026-08-25T17:20:52Z",
+  "created_where": "scratch under /tmp/claude-1000/, OUTSIDE verification/runs/ (charter v1.4 Clause B)",
+  "checkMesh_log": "cases/ansys_verification/VMFL007_R2/mesh/log.checkMesh.L1",
+  "checkMesh_allGeometry_log": "cases/ansys_verification/VMFL007_R2/mesh/log.checkMesh.allGeometry.L1",
+  "note_on_run1": "Run 1 (cases/ansys_verification/VMFL007) ran PLAIN checkMesh only and recorded 'Mesh OK'. That record is TRUE and is not withdrawn. The extended check was simply never run there, so run 1's registration could not have carried this advisory. R2 does not change the mesh -- a mesh change would be a CONFOUND on the registered variable -- so this certificate records the advisory for R3."
+}
