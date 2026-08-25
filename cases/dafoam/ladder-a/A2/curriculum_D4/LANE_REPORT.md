@@ -256,3 +256,103 @@ launcher's `timeout 9300`, which is derived from the cap and asserted against it
 ---
 
 *Appended below as stages close.*
+
+---
+
+## 6. Arm O — LAUNCHED 2026-08-25 18:12:37Z. `PENDING`.
+
+Container `d4_O_20260825T181237Z_2359354`, image `dafoam-idwarp-rot:v1`
+@ `sha256:2927768a…` (registered PATCHED row, digest-matched by the launcher, which aborts
+on mismatch rather than proceeding).
+
+**The frozen launcher was run unmodified**: `bash d4_run_arm.sh O dafoam-idwarp-rot:v1`.
+
+Pre-launch gates, all from the arm's own output:
+
+| gate | result |
+|---|---|
+| cap assertion | `registered_core_min=620.0 ranks=4 enforced_wall_s=9300 enforced_core_min=620.000000` — the launcher derived 9,300 s from the cap and **inverted the arithmetic back to 620.000000**, matching the registered cap exactly |
+| G-COLD | **OK** — no `reports`, `OptView.hst`, `opt_IPOPT.txt`, `dRdWColoring_4.bin`, `d4_fd_endpoint.json`, no `processor*`, no time dir. `O/` did not exist before this launch |
+| age datum | `1787681557` written to `O/.d4_age_datum` |
+| instrument md5s | `d4_opt_runScript.py`, `d4_fd_endpoint.py`, `d4_extract_endpoint.py` re-asserted OK on the staged copies |
+| host pre | `MemAvailable_GiB=17.46 load1=6.86 cpuset=5,6,7,9 siblings_pre=[d8_opt_20260825T165153Z_2230005]` |
+
+**No interrupted tree was deleted.** P1/ and P2/ are untouched; arm O staged its own fresh
+`O/` from `base/`.
+
+### 6a. The memory question — now MEASURED, and the answer is that queueing was not needed
+
+The external sampler (§3a) delivers the channel the frozen instrument lacks. First 10 samples,
+10 s poll, after the initial ramp:
+
+| quantity | measured |
+|---|---|
+| **container peak** | **2.114 GiB** |
+| container current (plateaued) | 2.110 GiB |
+| registered container cap | 12 GiB |
+| **fraction of cap used** | **17.6 %** |
+| **host `MemAvailable` during the arm** | **15.92 – 15.99 GiB** |
+| **margin above the 12 GiB family floor** | **≈ 3.95 GiB** |
+
+**Verdict on the floor guard: arm O does NOT breach the floor and is NOT queued.** The
+decision was taken on this measurement, not on the projection the instruments could not
+support. The container plateaus at ~2.11 GiB — the primal-plus-adjoint working set for
+38,304 cells at np=4 — so the registered 12 GiB cap is roughly **5.7× oversized**, and even a
+doubling of the working set would leave the host near 13.8 GiB available.
+
+**This is the first actual peak-memory measurement in item D4.** It is stated only for arm O.
+**It is NOT retro-applied to P1 or P2**, whose peaks remain `NOT_MEASURED` per §2 — a later
+arm's measurement is not evidence about an earlier arm's cgroup.
+
+Peer D8 (`d8_opt_…`, host pid 2230463) was running throughout and was **not signalled, stopped
+or disturbed**; the sibling census is identical before and during. Host `MemAvailable` moved
+17.46 → ~15.95 GiB, a **1.5 GiB** draw, consistent with the container's own 2.11 GiB against
+freed page cache.
+
+### 6b. Baseline reproduction — an unplanned but load-bearing confirmation
+
+Arm O's iteration-0 primal converged to:
+
+| quantity | arm O measured | prereg §2 registered A2 anchor | agreement |
+|---|---|---|---|
+| `CD` | `0.02961963388` | `2.9619634e-02` | **exact to 8 significant figures** |
+| `CL` | `0.4999999584` | target `0.5` | `\|CL − 0.5\| = 4.16e-08` |
+
+The `CL` residual `4.16e-08` also reproduces the prereg's registered `inf_pr 4.16e-08` at
+iteration 0. **The staged case is the A2 case**, confirmed by its own output rather than by
+the copy having been made. Band A (`|CL − 0.5| ≤ 5.0e-4`) holds at major 0 by four orders of
+magnitude.
+
+### 6c. Grading path dry-run — the grader was exercised before it was needed
+
+`d4_grade.py` was run against the real P1/P2 ledger with `--arms P1,P2`, `--work O/`:
+
+* It **REFUSED with exit code 2** — `D4_GRADER REFUSED read_ipopt: {"absent": ".../opt_IPOPT.txt"}` —
+  rather than degrading or falling back to stdout. Refuse-not-degrade confirmed on real data.
+* Before refusing it wrote a partial report whose verdicts **independently reproduce this
+  lane's hand reading**: `G8_decomposition_determinism PASS`, `G9_toolchain_identity PASS`,
+  `G10_cap_discipline PASS`, `G11_memory_envelope PASS`, `G12_cpu_placement PASS`.
+* G10 detail: `cap_equals_registered true` on both arms, `total_core_min 36.733`,
+  `within_item_ceiling true` against the 800.0 item ceiling.
+* G9 detail: a **single** toolchain across all three logs — one distinct IDWarp `.so` md5
+  `85f59e87…`, one digest, rows `["PATCHED"]`.
+
+**A reportable observation on G12's verdict line, offered as grader-hardening and NOT as a
+defect in this item's verdict.** The grader's `report` is transparent about the §2 gap — it
+prints P1's `delivered_cores_mean: null`, `raw: "NOT_MEASURED"`, and
+`n_arms_with_delivered_measurement: 1` (of 2). So the instrument *can* say "I measured
+nothing" and *does* say it, which is what L-302 asks. But the top-line
+`verdicts["G12_cpu_placement"] = "PASS"` is computed from `arms_below_floor == []`, and an arm
+whose channel was never measured cannot be below a floor — so it passes silently. A reader who
+consults only the `verdicts` block sees an unqualified PASS while half the delivered-cores
+evidence is absent, which is the *"a partial plant reads on the page exactly like a complete
+one"* shape §7a warns about.
+
+This does **not** change D4's verdict, for reasons that are registered rather than convenient:
+G12's registered `GATE FAIL` condition is a *measured* value under 3.0 and no arm met it; the
+delivered-cores claim is affirmatively measured on **P2** at 3.9867/4; and **arm O — the arm
+that actually produces the graded numbers — is long enough to be fully sampled**, so the
+verdict-bearing arm will not rely on an unmeasured channel. Recorded here so the family can
+decide whether the verdict line should carry the `NOT_MEASURED` count.
+
+*Arm O verdict: `PENDING` until the arm terminates and G1–G4 can be read from its own files.*
