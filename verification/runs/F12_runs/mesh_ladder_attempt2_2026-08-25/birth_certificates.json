@@ -1,0 +1,123 @@
+{
+ "attempt": 2,
+ "case": "F12 RAE 2822 AGARD AR-138 Case 9",
+ "frozen_prereg_blob": "080303c57aee52849bb625579565a84ca5469717",
+ "builder_sha256": "ac77bb9fa1c7f1fd5c471d345779f95ade77b03a4ca9090733b60275e967b2ad",
+ "builder_commit": "117d8adc1752e72d7dc39529c68282dfaf4f6c9b",
+ "stamp_utc": "2026-08-25T16:42:27Z",
+ "loadavg_at_launch": [
+  "5.33",
+  "4.79",
+  "2.87"
+ ],
+ "levels": {
+  "coarse": {
+   "level": "coarse",
+   "dict_path": "/home/ubuntu/Certonomous/verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/coarse/system/blockMeshDict",
+   "dict_sha256": "d47f5b9c5e9718cc155b4173f2a898cfe26ce3b9be9c881fe201ce5c116ff637",
+   "dict_bytes": 244727,
+   "cells": 23040,
+   "blockMesh_command": "blockMesh (openfoam2606) in /home/ubuntu/Certonomous/verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/coarse",
+   "blockMesh_rc": 0,
+   "checkMesh_command": "checkMesh (openfoam2606)",
+   "checkMesh_rc": 0,
+   "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/coarse/log.checkMesh",
+   "max_non_orthogonality": 51.1237,
+   "faces_over_70": 0,
+   "max_skewness": 0.95723,
+   "max_aspect_ratio": null,
+   "gate_A": "PASS",
+   "decomposition": {
+    "method": "hierarchical",
+    "ranks": 4,
+    "partition_cells_run1": [
+     5760,
+     5760,
+     5760,
+     5760
+    ],
+    "partition_cells_run2": [
+     5760,
+     5760,
+     5760,
+     5760
+    ],
+    "identical_across_two_runs": true
+   },
+   "first_cell_wall_normal": 2e-06,
+   "y_plus_full_height": 0.46599999999999997
+  },
+  "medium": {
+   "level": "medium",
+   "dict_path": "/home/ubuntu/Certonomous/verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/medium/system/blockMeshDict",
+   "dict_sha256": "7364b20f9d556452dbab451ae792cb621ce311395feff34312e8aa3a9486b276",
+   "dict_bytes": 244751,
+   "cells": 92160,
+   "blockMesh_command": "blockMesh (openfoam2606) in /home/ubuntu/Certonomous/verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/medium",
+   "blockMesh_rc": 0,
+   "checkMesh_command": "checkMesh (openfoam2606)",
+   "checkMesh_rc": 0,
+   "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/medium/log.checkMesh",
+   "max_non_orthogonality": 51.525,
+   "faces_over_70": 0,
+   "max_skewness": 0.956899,
+   "max_aspect_ratio": null,
+   "gate_A": "PASS",
+   "decomposition": {
+    "method": "hierarchical",
+    "ranks": 4,
+    "partition_cells_run1": [
+     23040,
+     23040,
+     23040,
+     23040
+    ],
+    "partition_cells_run2": [
+     23040,
+     23040,
+     23040,
+     23040
+    ],
+    "identical_across_two_runs": true
+   },
+   "first_cell_wall_normal": 1e-06,
+   "y_plus_full_height": 0.23299999999999998
+  },
+  "fine": {
+   "level": "fine",
+   "dict_path": "/home/ubuntu/Certonomous/verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/fine/system/blockMeshDict",
+   "dict_sha256": "00b1fb36fc91f9b08c1d4a098eb5c4a2c38290d982fc27cef7f447e77bbe4982",
+   "dict_bytes": 244759,
+   "cells": 368640,
+   "blockMesh_command": "blockMesh (openfoam2606) in /home/ubuntu/Certonomous/verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/fine",
+   "blockMesh_rc": 0,
+   "checkMesh_command": "checkMesh (openfoam2606)",
+   "checkMesh_rc": 0,
+   "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/fine/log.checkMesh",
+   "max_non_orthogonality": 51.9261,
+   "faces_over_70": 0,
+   "max_skewness": 0.956588,
+   "max_aspect_ratio": null,
+   "gate_A": "PASS",
+   "decomposition": {
+    "method": "hierarchical",
+    "ranks": 4,
+    "partition_cells_run1": [
+     92160,
+     92160,
+     92160,
+     92160
+    ],
+    "partition_cells_run2": [
+     92160,
+     92160,
+     92160,
+     92160
+    ],
+    "identical_across_two_runs": true
+   },
+   "first_cell_wall_normal": 5e-07,
+   "y_plus_full_height": 0.11649999999999999
+  }
+ }
+}
