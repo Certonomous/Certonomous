@@ -2903,6 +2903,25 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ---
 
+### ⏸→ WOKEN 2026-08-25 FOR **TWO NARROW RULINGS ONLY**, then back to rest. **THE PAUSE ABOVE STILL STANDS — the matrix was NOT resumed, no audit was opened, no lane was spawned.**
+
+**Commit `c10abf68`** — `docs/COVERAGE_MATRIX.md` Rulings **6** and **7**, appended at the foot under `verification/runs/T-family/safe_append.py`'s three guards (selftest PASS, **both arms per guard**). **237 insertions, 0 deletions, 1 file. No existing row, cell, tier or ruling was edited and nothing was re-tiered.** Zero compute — **0 core-minutes, $0**.
+
+**Ruling 6 — a dated addendum may RE-SOURCE a citation; it is LEGAL and it is INERT on `P`. Ruling 3 tests the state AT FREEZE, not the state now.** W1's fired `GATE FAIL` does **not** become P-green. **The deciding fact was measured, not argued: "numerically identical" is FALSE as stated.** Greenblatt Table 2 baseline carries reattachment **twice** — oil-film **1.11 ± 0.003** and 2-D PIV centerline **1.10 ± 0.005**, disagreeing by **0.9 %**. The frozen gate uses 1.10; **NASA TMR made that limb choice, not this lab.** Verdict robust to the limb (**+12.89 %** against 1.11, **+13.92 %** against 1.10), so **no gate verdict anywhere moved.** Cost of the ruling: a **13.74 core-min** fresh-freeze solve. **cfd's own draft §10.4 had already refused the manoeuvre against its own interest** — this ruling supplies a ground it lacked, and **upholds** its inherit-the-band-verbatim discipline explicitly.
+
+**Ruling 7 — a correlation scores `V` only as a KNOWN-ANSWER INSTRUMENT**: published closed form with stated coefficients; source **held and title-page verified**; stated validity range covering the case's condition; own scatter quoted with the band wider than it. It establishes **no observed order** and is `V`'s weakest instrument. **The MMS premise is MIS-COSTED** — the **465–612 core-min is the G+P shedding limb; the `V` limb is UNCOSTED**, so rule 12 authorises nothing. **An MMS buys NO column the lab lacks** (`V` green on **7 of cfd's 82** rows).
+
+**RUNGS WITHOUT VERDICTS — added by this waking, and both are for cfd, not for this team:**
+
+1. **Roshko 1954 IS held** (`docs/papers/turbulence_models/roshko_1954_naca_tr_1191.pdf` + sidecar) with a closed-form St–Re relation and a **`50 < R < 150`** range clause at sidecar line 1073 — while **`VERIFICATION_CHARTER.md` §6b records F5a's reference `NOT OBTAINED`.** **Two lab records disagree and this team did NOT reconcile them.** If Roshko is readable, **F5a's `V` may be earnable from the shelf at zero compute**, making the MMS `V` limb redundant. **Not scored — rule 15: this team has not rendered the page, and the sidecar OCR is degraded at the load-bearing characters.** Also: F5a spans **Re 100–180** and the visible range clause stops at **150**.
+2. **Scope NOT traced, named so nobody assumes it was:** heat-transfer's 37 sub-rows, dafoam's 58, closure's 6 and ansys-verification's 4 were **not** swept for Ruling 6's shape (primary HELD but the frozen value routed through a carrier). **One lane's work, not done.**
+
+**ON SANAA'S DESK — one new item, added 2026-08-25.** **Whether `V` should be graded by the STRENGTH of its instrument.** No row in this lab joins a known answer to a converging ladder — the exact-solution rows carry no Roache triple, and the one clean triple (TMR flat plate) has no known answer. **An MMS is the only instrument that joins those halves, and the rubric as written cannot hear that argument.** Widening `V` is a rubric change and is hers alone. **Referred, not taken, not worked around.** *(§3.8i item 1 — code-to-code and numerical benchmarks — remains explicitly UNDECIDED and was not touched.)*
+
+**BLOCKED:** nothing. **The team returns to rest under Sanaa's pause.** **VERIFY on nothing in this block** — every fact above was read to its artifact by the supervisor personally in the waking that wrote it.
+
+---
+
 ## ansys-verification
 
 **Section last written:** 2026-08-25T02:03:40Z by `ansys-verification-supervisor` personally
