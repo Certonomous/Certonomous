@@ -9,11 +9,11 @@ Build  : _481094f-20260618 OPENFOAM=2606 version=2606
 Arch   : "LSB;label=32;scalar=64"
 Exec   : checkMesh
 Date   : Aug 25 2026
-Time   : 17:05:00
+Time   : 17:29:47
 Host   : ip-172-31-43-247
-PID    : 2263293
+PID    : 2305052
 I/O    : uncollated
-Case   : /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/meshgen/VMFL010_L1
+Case   : /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/vmfl010_amend/meshgen/L1
 nProcs : 1
 trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
 memory pool : not available
@@ -33,19 +33,19 @@ Check mesh...
 Time = 0
 
 Mesh stats 
-    points:           5922
+    points:           7602
     internal points:  0
-    faces:            11360
-    internal faces:   5440
-    cells:            2800
+    faces:            14600
+    internal faces:   7000
+    cells:            3600
     faces per cell:   6
     boundary patches: 5
     point zones:      0
     face zones:       0
-    cell zones:       3
+    cell zones:       4
 
 Overall number of cells of each type:
-    hexahedra:     2800
+    hexahedra:     3600
     prisms:        0
     wedges:        0
     pyramids:      0
@@ -66,9 +66,9 @@ Checking patch topology for multiply connected surfaces...
     inlet               20       42       ok (non-closed singly connected)  
     mainOutlet          20       42       ok (non-closed singly connected)  
     branchOutlet        20       42       ok (non-closed singly connected)  
-    walls               260      526      ok (non-closed singly connected)  
-    frontBack           5600     5922     ok (non-closed singly connected)  
-    ".*"                5920     5922     ok (closed singly connected)      
+    walls               340      686      ok (non-closed singly connected)  
+    frontBack           7200     7602     ok (non-closed singly connected)  
+    ".*"                7600     7602     ok (closed singly connected)      
 
 
 Checking faceZone topology for multiply connected surfaces...
@@ -76,27 +76,28 @@ Checking faceZone topology for multiply connected surfaces...
 
 Checking basic cellZone addressing...
     CellZone            Cells        Points       Volume       BoundingBox
-    junction            400          882          1            (0 0 0) (1 1 1)
-    mainleg             1200         2562         3            (0 1 0) (1 4 1)
-    branchleg           1200         2562         3            (1 0 0) (4 1 1)
+    inletleg            800          1722         2            (0 0 0) (1 2 1)
+    junction            400          882          1            (0 2 0) (1 3 1)
+    mainleg             1200         2562         3            (0 3 0) (1 6 1)
+    branchleg           1200         2562         3            (1 2 0) (4 3 1)
 
 Checking basic pointZone addressing...
     No pointZones found.
 
 Checking geometry...
-    Overall domain bounding box (0 0 0) (4 4 1)
+    Overall domain bounding box (0 0 0) (4 6 1)
     Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
     Mesh has 2 solution (non-empty) directions (1 1 0)
     All edges aligned with or perpendicular to non-empty directions.
-    Boundary openness (-1.18424e-16 -8.88178e-17 -7.22801e-18) OK.
-    Max cell openness = 1.73472e-16 OK.
+    Boundary openness (-1.869849305e-16 -7.011934892e-17 2.48396424e-16) OK.
+    Max cell openness = 1.734723476e-16 OK.
     Max aspect ratio = 1 OK.
     Minimum face area = 0.0025. Maximum face area = 0.05.  Face area magnitudes OK.
-    Min volume = 0.0025. Max volume = 0.0025.  Total volume = 7.  Cell volumes OK.
+    Min volume = 0.0025. Max volume = 0.0025.  Total volume = 9.  Cell volumes OK.
     Mesh non-orthogonality Max: 0 average: 0
     Non-orthogonality check OK.
     Face pyramids OK.
-    Max skewness = 4.44094e-14 OK.
+    Max skewness = 7.106554928e-14 OK.
     Coupled point location match (average 0) OK.
 
 Mesh OK.

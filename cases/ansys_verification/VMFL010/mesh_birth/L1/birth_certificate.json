@@ -1,12 +1,12 @@
 {
- "points_sha256": "1be82e183e37d4c373a62115263475a255130927f9c5571fe13cfc54b10fe973",
+ "points_sha256": "be54b9e3c2c11dc7bfc329c29ca4222ded731ca0c88b0b092cfafd53c5a5c54b",
  "verdict": "clean",
- "cells": 2800,
+ "cells": 3600,
  "max_aspect_ratio": 1.0,
  "max_non_orthogonality": 0.0,
- "max_skewness": 4.44094e-14,
+ "max_skewness": 7.106554928e-14,
  "hard_errors": [],
- "generator": "blockMesh, VMFL VMFL010 L1, r=2 grid triple",
- "created_at": "2026-08-25T17:05:00+00:00",
+ "generator": "blockMesh, VMFL VMFL010 L1, r=2 grid triple, SOURCED geometry (archive mesh nodes, prereg Amendment 2026-08-25)",
+ "created_at": "2026-08-25T17:30:33+00:00",
  "provenance": "at-creation"
 }
