@@ -149,11 +149,39 @@ def check_completion(case_dir):
     """CLAUDE.md rule 4, with the ONE declared adaptation named in prereg 6.2.
 
     Clauses: rc == 0; an ``End`` line; the last logged ``Time =`` equals the
-    latest written time directory; that time is >= endTime (the declared
-    adaptation -- ``adjustTimeStep yes`` overshoots endTime by O(1e-5) and can
-    never land on it exactly); the ``Time =`` count equals the
-    ``ExecutionTime`` count; all four fields present at that time; and EVERY
-    one of them NEWER than the case's own ``0/T`` (the age guard).
+    latest written time directory; THE SOLVER REACHED endTime, expressed as
+    ``latest + dt_final > endTime`` (see below); ``latest <= endTime * 1.001``
+    as the runaway guard; the ``Time =`` count equals the ``ExecutionTime``
+    count; all four fields present at that time; and EVERY one of them NEWER
+    than the case's own ``0/T`` (the age guard).
+
+    THE REACH TEST, AND WHY IT IS NOT ``latest >= endTime``.
+    ``adjustTimeStep yes`` sizes the final step from ``maxCo``, so the solver
+    stops on the first step that would pass ``endTime`` and its last written
+    time lands EITHER SIDE of it by O(1e-4).  Four of the nine 2026-07-28 runs
+    land BELOW 6.0 (M6/coarse 5.9998543386, M7/fine 5.9999993531, M8/coarse
+    5.99979092006, M8/fine 5.999927519) and are unambiguously complete: one
+    ``End`` line each, last logged ``Time`` equal to those values, all fields
+    written.  A ``latest >= endTime`` clause REFUSES those four -- 4 of 9,
+    scattered, with no pattern in Mach number or refinement, which would read
+    as a physical finding rather than as an instrument defect.
+
+    The limb's purpose is "the solver stopped because it reached endTime", and
+    that has an exact expression: the solver could not have taken another step
+    without passing endTime, i.e. ``latest + dt_final > endTime``.  ``dt_final``
+    is read from the run's OWN log (the difference of its last two ``Time =``
+    lines); it is a property of maxCo, the mesh and the local wave speed, and
+    IT NEVER LOOKS AT WHETHER THE RUN PASSED -- which is what makes it a
+    derivation rather than a threshold fitted to the answer.  A two-sided band
+    ``|latest - endTime| <= eps`` is REFUSED as a repair: choosing eps after
+    seeing which runs it admits is exactly the fit rule 2 exists to prevent.
+
+    It keeps rule 4's full refusing power: a run that died at the previous
+    write sits at 5.25, four orders of magnitude clear of a dt of order 1e-4.
+    And it is self-scaling -- no registered constant that a later mesh or a
+    different maxCo could silently invalidate.
+
+    Control C1 exercises this path in both directions on every grading run.
     """
     out = {}
     rc_path = os.path.join(case_dir, "RC.txt")
@@ -185,8 +213,16 @@ def check_completion(case_dir):
     if len(times) != execs:
         refuse(f"{case_dir}: {len(times)} Time blocks but {execs} ExecutionTime "
                f"lines -- the log is truncated or interleaved")
+    if len(times) < 2:
+        refuse(f"{case_dir}: only {len(times)} 'Time =' block(s); the final "
+               f"timestep cannot be measured and the reach test has no input")
     out["n_steps"] = len(times)
     out["last_time_logged"] = float(times[-1])
+    dt_final = float(times[-1]) - float(times[-2])
+    if dt_final <= 0.0:
+        refuse(f"{case_dir}: final timestep {dt_final} is not positive; the "
+               f"log's last two Time lines do not advance")
+    out["dt_final"] = dt_final
 
     tdirs = []
     for name in os.listdir(case_dir):
@@ -204,9 +240,12 @@ def check_completion(case_dir):
     if abs(latest_v - out["last_time_logged"]) > 1.0e-6:
         refuse(f"{case_dir}: last logged Time {out['last_time_logged']} != "
                f"latest written time dir {latest_v}")
-    if latest_v < ENDTIME:
-        refuse(f"{case_dir}: latest time {latest_v} < endTime {ENDTIME} -- "
-               f"the run did not reach the registered end")
+    if latest_v + dt_final <= ENDTIME:
+        refuse(f"{case_dir}: THE SOLVER DID NOT REACH endTime.  latest "
+               f"{latest_v}, final dt {dt_final:.6e}, latest + dt = "
+               f"{latest_v + dt_final} <= endTime {ENDTIME} -- it could have "
+               f"taken another step without passing the end, so it did not "
+               f"stop because it got there.")
     if latest_v > ENDTIME * 1.001:
         refuse(f"{case_dir}: latest time {latest_v} overshoots endTime "
                f"{ENDTIME} by more than the declared 0.1 % adjustTimeStep "
@@ -492,6 +531,70 @@ def control_p2(case_dir, tmp):
                 victim=os.path.relpath(victim, case_dir))
 
 
+def _synth_case(root, last_time, dt, n_steps=6, exec_s=12.0):
+    """Build a minimal COMPLETE case on disk: RC.txt, a log whose last two
+    ``Time =`` lines are ``dt`` apart and end at ``last_time``, a time directory
+    named for ``last_time`` holding all four fields, and a ``0/T`` older than
+    them.  Used ONLY by control C1."""
+    os.makedirs(root, exist_ok=True)
+    with open(os.path.join(root, "RC.txt"), "w") as fh:
+        fh.write("0\n")
+    times = [last_time - dt * (n_steps - 1 - i) for i in range(n_steps)]
+    with open(os.path.join(root, "log.rhoCentralFoam"), "w") as fh:
+        for i, t in enumerate(times):
+            fh.write(f"Time = {t!r}\n")
+            fh.write(f"ExecutionTime = {exec_s * (i + 1) / n_steps:.2f} s"
+                     f"  ClockTime = 1 s\n")
+        fh.write("End\n")
+    zero = os.path.join(root, "0")
+    os.makedirs(zero, exist_ok=True)
+    for f in REQUIRED_FIELDS:
+        with open(os.path.join(zero, f), "w") as fh:
+            fh.write("initial\n")
+    tdir = os.path.join(root, f"{last_time:.10g}")
+    os.makedirs(tdir, exist_ok=True)
+    for f in REQUIRED_FIELDS:
+        with open(os.path.join(tdir, f), "w") as fh:
+            fh.write("final\n")
+    # age guard: 0/T stamped OLDER than every written field, explicitly
+    t0 = os.path.getmtime(os.path.join(tdir, REQUIRED_FIELDS[0])) - 100.0
+    for f in REQUIRED_FIELDS:
+        os.utime(os.path.join(zero, f), (t0, t0))
+    return root
+
+
+def control_c1(tmp):
+    """C1 -- THE COMPLETION CONTROL.  A VALUE control on the reach test, in BOTH
+    directions, exercised on every grading run.
+
+    P1/P2/P3 are all about the READERS.  Nothing exercised the completion path
+    against a real landing time, and that is precisely why a
+    ``latest >= endTime`` clause survived a 21-check selftest while refusing
+    four of the nine runs this conversion exists to re-derive.
+
+    ACCEPTS a case landing BELOW endTime by less than one dt (a real, complete
+    adjustTimeStep landing).  REFUSES one landing below it by more than one dt
+    (a run that stopped early).  A checker that cannot do both is not checking.
+    """
+    dt = 2.5e-4
+    ok_root = _synth_case(os.path.join(tmp, "c1_reached"),
+                          last_time=ENDTIME - 0.4 * dt, dt=dt)
+    got = check_completion(ok_root)          # must NOT raise
+    short = ENDTIME - 3.0 * dt
+    bad_root = _synth_case(os.path.join(tmp, "c1_short"),
+                           last_time=short, dt=dt)
+    try:
+        check_completion(bad_root)
+    except Refusal as exc:
+        return dict(accepted_last_time=ENDTIME - 0.4 * dt,
+                    accepted_dt_final=got["dt_final"],
+                    refused_last_time=short,
+                    refusal=str(exc)[:200])
+    refuse("C1 FAILED: the completion checker ACCEPTED a case whose latest time "
+           f"is {short} -- more than one dt below endTime {ENDTIME}.  It is not "
+           "testing whether the solver reached the end.")
+
+
 def control_p3(case_dirs, tmp):
     """P3 -- THE SIMILARITY CONTROL.  Perturb ONE level's WRITTEN blockMeshDict
     cell count and require ``measure_similarity`` to STOP calling the ladder
@@ -566,6 +669,14 @@ def grade_all(root):
         for lv in LEVELS:
             case_path[(M, lv)] = os.path.join(root, "cyl", f"M{M}", lv)
 
+    # C1 FIRST: the completion checker is not trusted until it has been shown
+    # to discriminate a real landing from an early stop, in both directions.
+    tmp0 = tempfile.mkdtemp(prefix="f4c1_")
+    try:
+        report["controls"]["C1_pre"] = control_c1(tmp0)
+    finally:
+        shutil.rmtree(tmp0, ignore_errors=True)
+
     total_core_min = 0.0
     for key, cd in case_path.items():
         comp = check_completion(cd)
@@ -581,6 +692,7 @@ def grade_all(root):
         donor = os.path.join(case_path[(6.0, "fine")], "postProcessing",
                              "sampleDict", snapshot_times(case_path[(6.0, "fine")])[-1],
                              "r0_T_p_rho.xy")
+        report["controls"]["C1"] = control_c1(tmp)
         report["controls"]["P1"] = control_p1(donor, tmp)
         report["controls"]["P2"] = control_p2(case_path[(6.0, "fine")], tmp)
         report["controls"]["P3"] = control_p3(
@@ -782,6 +894,53 @@ def selftest():
            "perturbed_refusal" in p3, p3.get("perturbed_refusal", "")[:70])
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+    print("-- COMPLETION: the reach test, against the REAL 2026-07-28 landings")
+    real = {"M6.0/coarse": (5.9998543386, 1.0e-03),
+            "M6.0/medium": (6.0001706623, 5.693833e-04),
+            "M6.0/fine":   (6.000009029,  2.852090e-04),
+            "M7.0/coarse": (6.000140535443, 9.888836e-04),
+            "M7.0/medium": (6.00024149444,  4.913521e-04),
+            "M7.0/fine":   (5.9999993531,   2.472931e-04),
+            "M8.0/coarse": (5.99979092006,  8.675099e-04),
+            "M8.0/medium": (6.00010974532,  4.355183e-04),
+            "M8.0/fine":   (5.999927519,    2.190330e-04)}
+    below = [k for k, (t, _) in real.items() if t < ENDTIME]
+    ck("four real runs land BELOW endTime (the defect's counterexample)",
+       len(below) == 4, ", ".join(sorted(below)))
+    ck("the reach test accepts ALL NINE real landings",
+       all(t + d > ENDTIME for t, d in real.values()),
+       f"min margin {min(t + d - ENDTIME for t, d in real.values()):.3e}")
+    ck("a run that stopped at the previous write is still REFUSED",
+       not (5.25 + max(d for _, d in real.values()) > ENDTIME),
+       "5.25 + max dt = "
+       f"{5.25 + max(d for _, d in real.values()):.6f} <= 6.0")
+
+    print("-- control C1, the completion control, on synthetic cases")
+    tmpc = tempfile.mkdtemp(prefix="f4c1self_")
+    try:
+        c1 = control_c1(tmpc)
+        ck("C1 accepts a landing under endTime by < one dt", True,
+           f"accepted {c1['accepted_last_time']!r}, dt {c1['accepted_dt_final']:.3e}")
+        ck("C1 refuses a landing under endTime by > one dt",
+           "refusal" in c1, c1["refusal"][:70])
+        # MUTATION: restore the defective clause and require C1 to fail
+        real_cc = globals()["check_completion"]
+        try:
+            def stub(case_dir):
+                """a checker that never refuses -- C1 must catch it"""
+                return dict(rc=0, dt_final=1.0, core_min=0.1)
+            globals()["check_completion"] = stub
+            try:
+                control_c1(tmpc)
+                ck("C1 FAILS a checker that never refuses (mutation)", False,
+                   "the control accepted a checker that accepts everything")
+            except Refusal:
+                ck("C1 FAILS a checker that never refuses (mutation)", True)
+        finally:
+            globals()["check_completion"] = real_cc
+    finally:
+        shutil.rmtree(tmpc, ignore_errors=True)
 
     print("-- the production-tree guard")
     try:
