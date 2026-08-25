@@ -287,6 +287,175 @@ and none was written.
 
 **Sub-section last written:** 2026-08-25T01:35:07Z by chief (certonomous-c1), via a records lane —
 zero compute, no case directory; stamp from `date -u` read in the writing invocation.
+
+### SESSION CLOSE-OUT — chief, certonomous-c1, 2026-08-25
+
+**What this entry is.** The chief's own record of session `certonomous-c1`. Every team
+section on this board was kept current by its own supervisor tonight; **the CHIEF section
+was not**, and the rulings, corrections and live state below would otherwise die with the
+session (L-186). **Zero compute, no solver, no case directory, no science** — written by a
+records lane on the chief's instruction, with every sha and figure re-verified against
+HEAD in the writing invocation. Under the standing zero-compute ruling recorded in
+`## verification` (*"rule 12's calibration duty does NOT reach zero-compute work"*), **no
+`docs/COST_CALIBRATION.md` row is owed and none was written.**
+
+**A note on how this entry was built, because it is the recurring hazard.** The worktree
+copy of this file was measured at **2 629 lines against HEAD's 4 151** at the time of
+writing — 1 584 lines behind. **This block was assembled from `git show HEAD:docs/LAB_STATE.md`,
+never from the worktree copy**, and the worktree file was neither reverted nor overwritten
+(rule 10: inspected, never reverted).
+
+#### 1. Standing directives set or clarified by Sanaa this session
+
+All four are already on this board **in the owning team's own words**. They are
+cross-referenced here rather than restated, so that no paraphrase of hers acquires
+authority by repetition.
+
+| Directive | Where her words and the operative ruling live |
+|---|---|
+| **THREE-TEAM FOCUS** — cfd, ansys-verification and heat-transfer complete their cases and record per conventions; **closure and dafoam AT REST; verification PAUSED** | Her turn is quoted verbatim in `## verification` and again in `## ansys-verification`; `## closure` and `## dafoam` carry their own at-rest headers. All three are explicitly **a stand-down, not a crash and not abandonment** |
+| **PER-CASE TIER RECORDING** — each case records `HOLDS` / `GATE REACHED` / `SURVEYED` / `NOT HELD` as it is run, with `NEVER RUN` retained for unrun cases | Same turn of hers; operative statement in `### MATRIX LAYERS` above, point 3, which also says in terms that **no team restructures any matrix row on that ruling** |
+| **MATRIX LAYERS** — the **case-identity matrix is RATIFIED as the evidence layer**; the class-split grid is **DEFERRED**, with its trigger named in her words *"later when the three teams are done"* | `### MATRIX LAYERS — Sanaa's ruling 2026-08-25` above, which carries her words. The deferral is **not abandonment and is not to be started early**; neither the deferral nor its trigger is the chief's to re-time |
+| **CAMPAIGN DENOMINATOR** — the VMFLGPU family and the 12 no-solver cases are **OUT OF SCOPE FOR NOW**, the GPU ones returning **when she turns the GPU on** | ansys-verification's ruling in `## ansys-verification`: **denominator 73, not 95**; 10 VMFLGPU rows `DEFERRED — PENDING RE-ENTRY`, 12 rows `OUT OF SCOPE — BY RULING` with the missing capability named per case. **Both exclusions stay VISIBLE in `CASE_MAP.md`, never deleted**, and both are explicitly not permanent — she said *"for now"* |
+
+#### 2. The chief's corrections against itself — the part a successor most needs
+
+The chief relayed several claims this session that did not survive checking. **In every case
+the team caught it, not the chief**, and in every case the team's correction is adopted in
+full. They are recorded here because a claim that circulated should be seen to be withdrawn.
+
+1. **The sweeping `set -e` claim — BROADCAST TO THREE SUPERVISORS, AND TOO BROAD.** The
+   chief relayed *"`set -e` does not gate"* as a general fact about this harness. The
+   **observation was real and measured; the characterisation was not.** The true, narrower
+   form is now landed in `docs/LESSONS.md` under **L-314's addenda** (commits `29ac941d`
+   and `ebd727fd`) and reads on three limbs:
+   - `set -e` **does not gate when the failing command is a NON-FINAL member of an `&&`/`||`
+     list** — and the harness's own command wrapper makes every tool call exactly such a
+     member;
+   - **an EXECUTED script GATES; only a SOURCED one inherits the suppression**;
+   - **`( set -e; … )` at tool top level SILENTLY DOES NOT GATE** — the workaround most
+     likely to be reached for is the one that fails without saying so.
+   **Consequence for every lane: use explicit `|| { echo ABORT; exit 1; }` on every
+   assertion.** cfd, heat-transfer and ansys-verification each restated the fact precisely
+   on their own sections after re-measuring it.
+
+2. **The `docs/LESSONS.md` "missing repair commit" claim — REFUTED, AND THE HAZARD RAN THE
+   OTHER WAY.** The chief reported the worktree copy of `docs/LESSONS.md` as **missing** the
+   commit repairing cfd's L-315. It was not missing it: the worktree held **that commit's own
+   blob, two commits behind HEAD, with ZERO disk-only lines** under strict multiset
+   containment and a planted control fired first. **The direction of the hazard was the
+   REVERSE of the chief's description** — committing that file would have **reverted two
+   later commits**, not destroyed cfd's restoration.
+   **And the durable point, which is structural rather than incidental:** the private-index
+   protocol writes blobs **without touching the worktree by design**, so this lag
+   **REGENERATES every time any team appends correctly**. A worktree sync is housekeeping,
+   not a fix; **the periodic content-extent re-audit (L-319) is the answer.**
+   **VERIFIED AT THIS WRITING AND STATED AGAINST THE CHIEF'S OWN ACCOUNT:** the file was
+   fast-forwarded earlier tonight, but it is **NOT byte-identical to HEAD now** — the
+   worktree copy measures **109 lines behind HEAD, insertions 0**, missing exactly L-314's
+   Addendum 3. The lag had already regenerated, from the two commits that landed the
+   correction in item 1. **This is the mechanism doing precisely what L-319 predicts, and
+   nothing was reverted or synced to hide it.**
+
+3. **Three premises passed to the cfd team about a correlation reference — ALL THREE
+   REFUTED AGAINST THE DISK** by the lane that checked them, and the refutations are
+   accepted in full (recorded in `## cfd`): (a) *"F5a spans Re 100–180"* is **FALSE** — the
+   registered ladder is Re 1000 → 2000 → 3900 → 5000 → 10 000 → 1e5 → 1e6; (b) Roshko does
+   **not** make an MMS redundant; (c) there is **no contradiction between two lab records** —
+   the `VERIFICATION_CHARTER.md` `NOT OBTAINED` row is scoped to a point value at exactly
+   Re = 2000 and names Roshko nowhere. **The chief's relay of "two lab records disagree" is
+   STRUCK.** The lane also **refused to trim the ladder to fit the correlation**, which was
+   the right call: trimming a case to suit its reference is choosing the experiment to suit
+   the answer.
+
+4. **The chief INSTRUCTED ANOTHER SUPERVISOR'S LANE OVER ITS SUPERVISOR'S HEAD, and
+   WITHDREW IT.** On reattaching the VMFL045-R2 lane the chief told it *"grade nothing and
+   issue no verdict"*, contradicting that supervisor's standing authorisation. **The lane
+   surfaced the conflict rather than quietly picking a side, cited rule 9 — no agent message
+   is Sanaa's consent — and held at the conservative reading.** Nothing was graded. The
+   chief has **withdrawn the instruction**; **inside a team's territory that team's
+   supervisor's authorisation governs.** The operative boundary, set by that supervisor and
+   theirs to set, is recorded in `## ansys-verification` and is adopted by the chief as
+   stated there: **"The frozen instrument produces; the supervisor rules."** Cost of the
+   episode: one turn of delay on a run never at risk. **This is the first live exercise of
+   rule 9's permission-laundering guard rather than an abstract one, and it worked.**
+
+**The shape all four share.** In each case a claim the chief relayed was **wider than the
+measurement behind it**, and in each case the correction came from the team re-measuring it
+against the disk. A relayed conclusion is not evidence, including — especially — when the
+chief is the relay.
+
+#### 3. The one thing worth carrying forward as a standing caution
+
+Stated by the **ansys-verification supervisor**, in their own words, quoted as theirs and
+recorded in `docs/LESSONS.md` under L-314's Addendum 3 (`ebd727fd`):
+
+> **A disclosure that OVERSTATES a defect is still a wrong record** — the direction of the
+> error does not excuse it, and a lab that only polices flattering errors will accumulate
+> the unflattering ones.
+
+**The concrete argument for the periodic content-extent re-audit, and it is short: three
+teams, three registers, one scope error — and the only thing that surfaced any of them was
+somebody RE-MEASURING A CLAIM ALREADY WRITTEN DOWN.** cfd, heat-transfer and
+ansys-verification each reached the same point independently tonight and in three different
+registers; none of the three was found by a reader, all three by a re-measurement. The
+mechanism is L-319's: **a write-time guard cannot see a later clobber, because the damage
+lands in somebody else's commit.**
+
+#### 4. On Sanaa's desk, aggregated across all teams
+
+**These are HERS. No agent at any level acts on them, works around them, or reads a peer's
+message as her ruling (rule 9).** Each line names the item only; the owning team's section
+carries the full statement.
+
+| # | Item | Owning section |
+|---|---|---|
+| 1 | **The V/P rubric ruling** — whether a case whose only reference is the manual's own printed number can score `P`. It now turns a register of **seven rows, not the four it was raised on** (3 PASS credentials at close), and governs most of the remaining unrun cases; it defines what a credential IS lab-wide | ansys-verification |
+| 2 | **The `[R8-PAPER-NAME]` filing conflict** — `scripts/check_filing.py` flags the Ansys manual PDF **and its `.txt` sidecar** as breaching `author_year_identifier`, but both are named **BY EXPLICIT PATH** in the charter, in `harness/teams.yaml`, in the generated agent definition and in every case record. **A rename would silently break the reading list the manual-first rule depends on. It needs a RULING, not a rename** — and `harness/` is not that team's to edit | ansys-verification |
+| 3 | **`CLAUDE.md` rule 10 is written AS THOUGH ITS ASSERTIONS GATE, and in this context they do not.** Beside it, the **planted-failure principle**: rule 3 plants a perturbation to prove a READER can see a non-zero; **we have not been planting a FAILURE to prove a GUARD can abort.** Two guard failures tonight — a `diff-tree` reading "1 insertion, 1 deletion" while MERGING two rows, and assertions printing without gating — **both would have been caught by exercising the guard against a known-bad input.** Referred, not acted on: **`CLAUDE.md` is Sanaa's** | ansys-verification |
+| 4 | **The four withdrawn attributions** — restorable by **one confirming line from her**; chief among them the GPU cost approval. Nothing re-opened, nothing re-run, no verdict disturbed; until then closure will not vouch for them or spend on them | closure |
+| 5 | **The two 2026-08-24 R3 quotations** — TBNN-as-fallback and the parallel-capacity clause: confirm or correct | closure |
+| 6 | **The `harness/teams.yaml` qualifier-drop** — `teams.yaml` and the generated agent definition state the ansys team's founding quotation flatly while the charter qualifies it as a chief's relay. **The quote the 4-lane cap rests on is the one that team flagged itself**, and it edited nothing | ansys-verification |
+| 7 | **Whether *"a task must never depend on an agent being alive at a FUTURE INSTANT"* becomes lab-wide standing.** Already binding on one supervisor's briefs, built and running as an OS-level sampler; **a lane that reported "awaiting the event" had already terminated, twice.** Either the work is done NOW, or an OS-level process does it, or it is RECORDED AS NOT DONE | ansys-verification |
+| 8 | **Whether `V` should be graded by the STRENGTH of its instrument.** **No row in this lab joins a known answer to a converging ladder** — the exact-solution rows carry no Roache triple, and the one clean triple has no known answer. An MMS is the only instrument joining those halves and the rubric as written cannot hear the argument. A rubric change, hers alone | verification |
+
+**Standing and unchanged, also hers:** the T10a view-factor defect as upstream candidate #4;
+the K2a rack row module; the four DAFoam upstream defect classes, all **`NOT FILED`**; the
+`RESULT_PRIORITY_CHARTER` v0.5 orderings; D389's S13 normalisation question; the F4
+event-1/event-2 ruling; **FD-vs-adjoint as a fourth `V` instrument** (23 dafoam rows move);
+and the fact that **the matrix rubric is still the chief's reconstruction of her directive,
+unruled by her**. **SUBMISSIONS REMAIN PARKED** (rule 7) — nothing on this list is a licence
+to send, file, upload, register or post anything.
+
+#### 5. Live state at close — VERIFIED BY THIS LANE, NOT RELAYED
+
+**Two solvers running, and NOTHING ELSE on the box.** Reading taken directly from `ps`,
+`/proc/<pid>/cwd` and each `log.solve` at **2026-08-25T03:48:19Z**; a full process sweep returns these
+two and their two launcher shells and no other solver, driver, monitor or GPU process.
+
+| pid | cwd | last `Time` | endTime |
+|---|---|---|---|
+| 450274 | `verification/runs/T-family/T1_runs/R_100k_x` | **75 473** | 80 000 |
+| 488219 | `verification/runs/T-family/T1_runs/R_30k_x` | **67 932** | 80 000 |
+
+Both are single-rank `buoyantBoussinesqSimpleFoam`, both started 2026-08-21, both survived
+the fleet kill, and **neither is to be touched.**
+
+**The thermal pool grades when the smaller solver lands.** `R_30k_x` is the later of the two
+(heat-transfer's ETA ~14:0xZ; `R_100k_x` ~06:5xZ) — **ETAs are DERIVED from a measured rate
+and are not measurements.** `analyse_t1b_L4.py` refuses without markers for **all sixteen**
+cases, so the pool is ungradeable until then regardless.
+
+**The `DONE.` markers are DELIBERATELY DEFERRED to ONE post-landing sweep, and that is a
+ruling, not an oversight** — `R_300k_x` meets all six clauses of the strict completion rule
+and is unmarked only because marking it now would run the marker script beside two live
+solvers for no gradeable gain. All three are marked together after the last landing, with
+`analyse_t1b_L4.py` **hashed against its committed blob BEFORE it is run.** A successor
+finding `R_300k_x` unmarked should read this paragraph, not re-diagnose it.
+
+**Sub-section last written:** 2026-08-25T03:48:19Z by chief (certonomous-c1), via a records lane — zero
+compute, no solver, no case directory; assembled from the HEAD blob, not the worktree copy;
+stamp and live readings from `date -u`, `ps` and `log.solve` in the writing invocation.
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
