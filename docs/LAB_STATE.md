@@ -219,6 +219,74 @@ read in the writing invocation.
 ~~**Section last written:** 2026-08-22T21:05Z by chief (ubuntu-fb) — GPU grant recorded, GPU pre-registrations dispatched~~
 
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
+
+---
+
+### MATRIX LAYERS — Sanaa's ruling 2026-08-25, chief, certonomous-c1
+
+**SANAA'S WORDS, 2026-08-25, HER OWN SESSION TURN, REPRODUCED BYTE-EXACT.** The only
+characters added below are the markdown blockquote marker `> ` at the head of the line;
+everything after it is her text as she typed it, on one line, nothing normalised:
+
+> cool. In this case every team knows what to do and what to record, I like the way you built the matrix (usingthe cases with their identity), later when the three teams are done, we can build a matri with the split i suggested originally instead). For now the teams just work on running their cases and recording everything
+
+**`usingthe` and `matri` are HERS and are preserved deliberately.** So is the unbalanced
+`)` after *"instead"*, and so is the lower-case `i` in *"the split i suggested"*. **No
+future editor may correct any of them.** The reason is evidentiary, not pedantic:
+tonight the lab established that **normalised spelling is the signature of a relayed
+paraphrase rather than a primary source**, and that **the chief's own relay corrupted
+one of her words inside the same message that carried it correctly**. A quote that has
+been tidied cannot be distinguished from a quote that has been reconstructed. This one
+can.
+
+---
+
+**EVERYTHING BELOW THIS LINE IS THE CHIEF'S READING OF THAT RULING. IT IS A PARAPHRASE
+AND IS LABELLED AS ONE. IT IS NOT HER WORDS AND NOTHING IN IT MAY BE QUOTED AS HERS.**
+
+1. **The escalation is CLOSED, and the answer is BOTH, SEQUENCED — not one instead of
+   the other.** *(Chief's reading.)* The verification team found that her original
+   consolidation-week directive specified rows as **problem classes** while the file as
+   built is **one row per case**, and it **escalated rather than restructure 153 rows on
+   its own reading. That was the right call, and her answer vindicates it.** She has
+   **ratified the case-identity matrix as built** and **deferred the class-split matrix**
+   to *"later when the three teams are done"*.
+   The two strings the escalation turns on are on disk and were re-read against the HEAD
+   blob before this entry was written, so this entry does not rest on relay:
+   `docs/COVERAGE_MATRIX.md:1884` carries her directive's row specification —
+   *"Rows = problem classes: dimension (2D / axisym / 3D) × regime (…)"* — and that same
+   file's **title line 1** carries *"one row per case"*; the escalation itself is that
+   file's §6b.8 item 2, *"Escalated, not decided."* at `:1024`. The file holds **153
+   table rows** at that blob.
+
+2. **The case rows are the EVIDENCE layer; the class grid is the DELIVERABLE layer above
+   them.** *(Chief's reading.)* Her own standing rule — *"the matrix is derived from
+   records, never asserted"* — is what makes the case rows **load-bearing rather than
+   superseded**: the class layer will be **derived FROM them**, not built beside them and
+   not built instead of them. Restructuring the case rows now would destroy the
+   derivation the class layer needs.
+
+3. **For now the three working teams — cfd, ansys-verification, heat-transfer — run
+   their cases and record everything**, *(chief's reading of "For now the teams just work
+   on running their cases and recording everything")*, **each case carrying its own
+   tier** from **HOLDS / GATE REACHED / SURVEYED / NOT HELD**, with **NEVER RUN retained
+   for unrun cases**. **NO TEAM RESTRUCTURES ANY MATRIX ROW ON THIS RULING.** A team that
+   reads this entry as licence to re-cut rows has misread it.
+
+4. **The class layer is NOT started now.** *(Chief's reading.)* It is recorded here as a
+   **deferred deliverable with its trigger named — *"when the three teams are done"*** —
+   so that a future session **does not read the deferral as abandonment, and does not
+   start it early**. Neither the deferral nor the trigger is the chief's to re-time.
+
+**Scope of this entry.** This is a board record only. **`docs/COVERAGE_MATRIX.md` was
+NOT edited** — it is the verification team's file and that team is at rest; her ruling is
+recorded here and **verification folds it in when it resumes**. No charter, no
+`CLAUDE.md`, no harness file and nothing under `.claude/` was touched. Zero compute, no
+solver, no case directory, so **no `docs/COST_CALIBRATION.md` row is owed** under rule 12
+and none was written.
+
+**Sub-section last written:** 2026-08-25T01:35:07Z by chief (certonomous-c1), via a records lane —
+zero compute, no case directory; stamp from `date -u` read in the writing invocation.
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
