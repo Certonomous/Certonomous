@@ -1,0 +1,26 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+
+// Static temperature at inlet, manual p. 153: 289 K.
+// Wall is adiabatic (manual p. 153, Boundary Conditions) -> zeroGradient.
+// Age-guard marker (CLAUDE.md rule 4): touched last before launch.
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 289;
+
+boundaryField
+{
+    inlet   { type fixedValue; value uniform 289; }
+    outlet  { type zeroGradient; }
+    top     { type zeroGradient; }
+    wall    { type zeroGradient; }
+    defaultFaces { type empty; }
+}

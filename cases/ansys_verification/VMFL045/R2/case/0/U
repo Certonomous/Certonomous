@@ -1,0 +1,42 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+
+// VMFL045 -- Oblique Shock Over an Inclined Ramp.
+// Ansys Fluid Dynamics Verification Manual, Release 2026 R1, p. 153.
+//
+// The manual states the inlet BOUNDARY CONDITION as a VELOCITY:
+//   "Inlet velocity = 852.68 m/s"   (p. 153, Boundary Conditions)
+// and describes the inlet Mach number only as "about 2.5" (Test Case text).
+// This case is therefore driven by the stated velocity, NOT by an imposed
+// Mach number.  With gamma = 1.4 (see thermophysicalProperties) and
+// R = 287.1018669373429 J/kg-K (from OpenFOAM v2606's own RR / MW = 28.96),
+// the as-modelled inlet Mach number is
+//   M1 = U1 / sqrt(gamma*R*T1) = 852.68 / 340.82461085 = 2.501814636762496,
+// i.e. 2.5018, NOT exactly 2.5 -- see PREREGISTRATION.md sections 2 and 1a.
+//
+// Flow is in +x; the ramp (wall) deflects it upward by 15 deg, producing an
+// attached weak oblique shock from the corner at the origin.
+//
+// Age-guard marker (CLAUDE.md rule 4): run_vmfl045.sh touches every file in 0/
+// immediately before the solver launches, so every field at endTime must be
+// strictly newer than the newest mtime in 0/.
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (852.68 0 0);
+
+boundaryField
+{
+    inlet   { type fixedValue; value uniform (852.68 0 0); }
+    outlet  { type zeroGradient; }
+    top     { type zeroGradient; }
+    wall    { type noSlip; }
+    defaultFaces { type empty; }
+}

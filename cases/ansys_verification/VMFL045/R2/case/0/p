@@ -1,0 +1,30 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p;
+}
+
+// Static pressure at inlet, manual p. 153: 101226.4 Pa.
+// NOTE (PREREGISTRATION.md section 2): the GATED quantity, the post-shock Mach
+// number, is a function of M1, gamma and the deflection angle only; p1 and T1
+// set the scale of the solution.  They are used verbatim as the manual states
+// them; the manual's own ideal-gas check rho1 = p1/(R*T1) = 1.2200003 kg/m3
+// reproduces its stated inlet density 1.22 kg/m3 to 2.3e-5 relative.
+// Supersonic outlet -> zeroGradient (no pressure is imposed downstream).
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 101226.4;
+
+boundaryField
+{
+    inlet   { type fixedValue; value uniform 101226.4; }
+    outlet  { type zeroGradient; }
+    top     { type zeroGradient; }
+    wall    { type zeroGradient; }
+    defaultFaces { type empty; }
+}

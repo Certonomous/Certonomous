@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      thermophysicalProperties;
+}
+
+// The manual's OWN material properties, verbatim (p. 153):
+//   Density: Ideal Gas         -> equationOfState perfectGas
+//   Viscosity: 1 x 10-8 kg/m-s -> mu = 1e-8 (Re ~ 1.22*852.68*0.4/1e-8 ~ 4e13:
+//                                 effectively inviscid; the analytic oblique-
+//                                 shock target is inviscid)
+//   MW: 0.02896 kg/mol         -> molWeight = 28.96 kg/kmol (= g/mol)
+//
+// UNDER-SPECIFICATION FOUND IN THE MANUAL (PREREGISTRATION.md section 1a): the
+// VMFL045 section gives NO specific heat, so gamma cannot be DERIVED from the
+// manual's own Cp as VMFL051 did.  The case's over-determined inlet data
+// (velocity 852.68, T 289, MW 0.02896, "Mach about 2.5", and the three
+// downstream targets) are internally consistent ONLY with gamma = 1.4 (standard
+// air): the target table reproduces the oblique-shock relations at gamma = 1.4
+// to better than 0.03 % on Mach, temperature AND density (section 2).  gamma is
+// therefore FIXED at 1.4 as a declared modelling choice, and Cp is set to
+// REALIZE it:
+//   Cp = gamma*R/(gamma-1) = 1.4 * 287.1018669373429 / 0.4
+//      = 1004.8565342807003 J/kg-K
+// so the solver's gamma = Cp/(Cp-R) = 1004.8565342807003/717.7546673433574
+//    = 1.4 exactly.
+//
+// This is the INVERSE of VMFL051's derivation (there Cp was given and gamma
+// derived); here Cp is absent and is chosen to pin the gamma the case implies.
+
+thermoType
+{
+    type            hePsiThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleInternalEnergy;
+}
+
+mixture
+{
+    specie
+    {
+        molWeight       28.96;
+    }
+    thermodynamics
+    {
+        Cp              1004.8565342807003;
+        Hf              0;
+    }
+    transport
+    {
+        mu              1e-8;
+        Pr              1;
+    }
+}

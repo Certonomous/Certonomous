@@ -1,0 +1,105 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+
+// VMFL045 geometry, frozen in PREREGISTRATION.md section 4.  Single trapezoidal
+// block; the whole bottom edge is the 15 deg ramp.
+//
+//   corner (ramp apex) at (0, 0)  -- the compression corner; the wall deflects
+//                                    the flow up by 15 deg, forming an attached
+//                                    weak oblique shock from this point
+//   inlet plane   x = 0            (left, x = 0, height 0 -> 0.5)
+//   outlet plane  x = 0.6 m        (right, supersonic, zeroGradient)
+//   top           y = 0.5 m        (horizontal)
+//   ramp / wall   y = x*tan(15 deg),  x in [0, 0.6]
+//                 tan(15 deg) = 0.2679491924311227
+//                 y(x=0.6)    = 0.16076951545867362
+//   2-D slab      z in [-0.01, +0.01], one cell, `empty`
+//
+// GEOMETRY IS RECONSTRUCTED, NOT COPIED (PREREGISTRATION.md section 1a): the
+// manual gives the ramp angle (15 deg), the ramp length (0.4572 m) and the
+// sample point (0.38, 0.14) but NOT the domain extent, inlet-to-corner distance
+// or top height (its flow-domain figure is not in the text sidecar).  This
+// domain is chosen so that (a) the sample point (0.38, 0.14) lies in the uniform
+// post-shock region, (b) the frozen sampling zone (section 5) is > 6 coarse
+// cells clear of both the shock and the wall, and (c) the shock LEAVES through
+// the supersonic outlet and never reaches the top -- no wave is reflected.
+//
+// WHY THE TOP IS AT 0.5 AND THE OUTLET AT 0.6: the oblique shock leaves the
+// corner at beta = 36.92317760072534 deg (the frozen weak-shock angle for the
+// as-modelled M1 = 2.501814636762496).  At the outlet x = 0.6 the shock stands
+// at y = 0.6*tan(beta) = 0.4508724 < 0.5, so the ENTIRE shock leaves through the
+// outlet; it would reach the top only at x = 0.5/tan(beta) = 0.6654 > 0.6.  The
+// top boundary sees undisturbed M = 2.5018 freestream along its whole length and
+// cannot reflect anything, because nothing arrives at it.
+//
+// Two cell counts are substituted by run_vmfl045.sh from the frozen level table:
+// cells along x (__NX__) and cells across the block height (__NY__).  Every
+// level DOUBLES both:
+//   L1  90 x  76  ->   6840 cells,  h_x = 0.006667
+//   L2 180 x 152  ->  27360 cells,  h_x = 0.003333
+//   L3 360 x 304  -> 109440 cells,  h_x = 0.001667
+// so h halves EXACTLY and the Roache refinement ratio is r = 2 BY CONSTRUCTION,
+// never inferred from a cell count.
+
+scale   1;
+
+vertices
+(
+    ( 0.0   0.0                  -0.01)   //  0
+    ( 0.6   0.16076951545867362  -0.01)   //  1
+    ( 0.6   0.5                  -0.01)   //  2
+    ( 0.0   0.5                  -0.01)   //  3
+    ( 0.0   0.0                   0.01)   //  4
+    ( 0.6   0.16076951545867362   0.01)   //  5
+    ( 0.6   0.5                   0.01)   //  6
+    ( 0.0   0.5                   0.01)   //  7
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (__NX__ __NY__ 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces ((0 3 7 4));
+    }
+    outlet
+    {
+        type patch;
+        faces ((1 2 6 5));
+    }
+    top
+    {
+        type patch;
+        faces ((3 2 6 7));
+    }
+    wall
+    {
+        type wall;
+        faces ((0 1 5 4));
+    }
+    defaultFaces
+    {
+        type empty;
+        faces ();
+    }
+);
+
+mergePatchPairs
+(
+);
