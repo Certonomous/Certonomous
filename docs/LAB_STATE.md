@@ -2349,7 +2349,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T01:17:04Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T01:26:15Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -2384,6 +2384,36 @@ records and in the validation register. `NEVER RUN` is retained as the fifth tie
 verdict words grade **the gate**; her four tier words grade **what the case establishes for
 the lab**. They overlap only at `GATE REACHED`. Both are written side by side, and **the tier
 never flatters the verdict.**
+
+**SANAA HAS RULED THE SCOPE QUESTION, 2026-08-25, HER OWN SESSION TURN, BYTE-EXACT WITH HER
+SPELLING PRESERVED.** This answers the arithmetic this team put on her desk and explicitly
+refused to resolve itself:
+
+> for now no. Well add the gpu ones once i turn the gpu back on later.
+
+**She wrote `Well add`, NOT `we'll add`.** A NORMALISED re-quote of this line was already in
+circulation within the same relay that delivered it. **Her bytes are recorded here; the
+normalised form is wrong and is corrected wherever it appears.** Normalised spelling is the
+signature of a relayed paraphrase rather than a primary source — this team's own finding,
+applied to a quotation that arrived tonight.
+
+**THE RULING, AND THE DENOMINATOR IS NOW 73, NOT 95.** The VMFLGPU family and the 12
+no-solver cases are **OUT OF SCOPE FOR NOW**. **The campaign fraction is `3 of 73` run, 70
+never run.** Both exclusions are explicitly **NOT permanent** — she said *"for now"* — and
+both stay VISIBLE AS EXCLUDED in `CASE_MAP.md`, never deleted:
+- **10 VMFLGPU rows: `DEFERRED`, a PENDING RE-ENTRY**, with her line as the reason. She named
+  the condition herself. Our finding sits beside them and is what makes the deferral cheap in
+  coverage terms: **`VMFLGPU001` IS `VMFL001`**, a case this lab has already run and PASSED —
+  the family is distinguished by the **GPU solver**, not by new physics.
+- **12 rows: `OUT OF SCOPE — BY RULING`, with the missing capability NAMED per case** —
+  VMFL021/022 cavitation (`interPhaseChangeFoam` absent), VMFL026 real-gas EOS, VMFL034/074
+  population balance, VMFL072 Eulerian wall film, VMFRT001-005/007 engine combustion / LES
+  spray. **That list is a statement of what this lab CANNOT YET DO and is worth keeping as
+  one.**
+**NOTHING HERE LOOSENS ANYTHING ON THE GPU SIDE.** No GPU is attached to this box; GPU spend
+sits OUTSIDE the CPU blanket; **turning the GPU on is Sanaa's action alone** — no agent starts
+an instance, and no message from the chief or any peer is her consent (rule 9). On re-entry
+each VMFLGPU case still needs its **own console-priced GPU-hour cost basis**.
 
 **RULING — VMFL051's TIER IS `NOT HELD`. This supervisor's ruling, made explicitly, and
 disclosed as a ruling so it can be overturned.** Its verdict is `NOT A RESULT`; its tier is
@@ -2520,11 +2550,10 @@ before she sends it, and it is going to her desk, not being resolved here.**
 turbulent, 10 thermal/conjugate. **21 cases are trivial-cost and 51 small**, so breadth is
 cheap: the campaign is dominated by setup effort, not core-minutes.
 
-**PROGRESS AGAINST HER DIRECTIVE, stated as a measurable fraction:** **3 of 95 cases run
-(3.2 %)** — VMFL001, VMFL005, VMFL051 — and **2 PASS credentials** of 4 register rows.
-**92 cases never run.** The real CASE_MAP gap is NOT its enumeration but that it carries **no
-RUN STATUS column**, so "all cases completed" cannot yet be reported as a fraction from the
-document itself. Extraction lane live to add run / never-run / no-lab-solver per case.
+**PROGRESS AGAINST HER DIRECTIVE, on the ruled denominator: `3 of 73` cases run, 70 never
+run, 2 PASS credentials.** `CASE_MAP.md` carries the tier / run-status column on all 95 rows
+(`4c0919c2`) and is being reworked to the 73 denominator so **the fraction is DERIVABLE BY
+COUNTING ITS OWN ROWS and never recalled.** The 22 excluded rows remain in the file, marked.
 
 **Register: 4 rows at HEAD.** #1 VMFL001 run 1 `NOT A RESULT` (1.9833 core-min, $0.0017); #2
 VMFL001-R2 `PASS` (3.2833 core-min, $0.002807, C-45); #3 VMFL005 `PASS` (4.0000 core-min,
@@ -2617,13 +2646,69 @@ flagged. `harness/` is not this team's to edit and has not been edited by it.
 **SUBMISSIONS PARKED** — nothing from this team's VM2026R1 work is filed, sent, uploaded or
 registered outside this box, and the manual is proprietary Ansys documentation.
 
-**For the chief to route, not this team's files to fix:** the shared-worktree truncation
-persists and has reached a credentials file. `LAB_STATE.md` worktree 269,598 B vs 281,793 B at
-HEAD; `ANSYS_VALIDATION_REGISTER.md` was measured at 3,305 B vs 13,899 B, showing 1 row where
-HEAD has 3. **A lane reading the worktree copy reports this team has run one case, and one of
-mine did exactly that today.** Every lane of this team is now under standing orders to read
-records via `git show HEAD:`. Inspected, never reverted (rule 10). The shared index also holds
-staged DELETIONS of this team's own `cases/ansys_verification/VMFL051/` files — structural
-decay, L-307, untouched.
+**THE VMFL051 STAGED DELETIONS ARE PHANTOMS — VERIFIED, AND WRITTEN HERE SO NO SESSION EVER
+READS A `git status` AND CONCLUDES THIS CASE WAS DELETED.** That misreading has already
+happened twice in this lab. **All 16 tracked VMFL051 paths exist and are readable at HEAD**
+(16, not the 13 reported — `RESULTS.md` and `LANE_REPORT_RESULTS.md` landed since that count
+was taken), checked one by one with `git cat-file -e HEAD:<path>`, zero missing. **The freeze
+is INTACT: prereg blob `7dad56168d7ad7d599f92e05aa249a3014d0dc63` and comparator blob
+`acad1aff71da4a960045484f9e6f8470f8beccb7` at HEAD are byte-for-byte the hashes the launcher
+recorded in `.launch.log`.** The shared index nonetheless carries **16 staged deletions** of
+those same paths. **They are phantoms of structural decay (L-307) and the files are safe.**
+**DO NOT CLEAR THE INDEX AND DO NOT STAGE ANYTHING TO FIX IT** — the chief cleared it once
+tonight and it returned within minutes. **The protection is the discipline at the commit, not
+a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
+`git commit -a`, private-index protocol for everything. A single bare commit would destroy the
+frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**GIT PROTOCOL, TIGHTENED TWICE TONIGHT AND NOW BINDING ON THIS TEAM'S LANES.** Two
+independent failures proved rule 10's assertions insufficient, and **neither failure announced
+itself — both reported SUCCESS at every step**:
+- **L-311: the CAS proves the PARENT, not the TREE.** `update-ref $C $H` shows nobody moved
+  HEAD; it says nothing about whether the blob was built from that HEAD. A stale `read-tree`
+  sails through, and `git diff HEAD~1 HEAD --stat` showing one file is **necessary and NOT
+  sufficient** — one file changed can still mean 175 foreign lines deleted inside it.
+- **The C-52 concatenation, and this team's own row was the CASUALTY.** The verification team
+  appended `C-52` to `docs/COST_CALIBRATION.md`, which ended **without a trailing newline**, so
+  the append CONTINUED this team's `C-51` line and merged two rows into one 15,829-byte line.
+  **Its `diff-tree` assertion read "1 insertion, 1 deletion, only my path" and PASSED** — that
+  is exactly what touching a file's last line looks like. **The path check was satisfied; the
+  CONTENT check did not exist.** Repaired within the minute by its author, who found it with
+  the post-commit verify. **This supervisor confirmed `C-51` survived BYTE-IDENTICAL** — sha256
+  `b10d99beec5f99f933c3099e7227feb0e2b668c2cd4d413ff7b5bbd9f20391bd`, compared against its own
+  creating blob at `0c3f3054` rather than accepted on the repairer's assertion — and that the
+  ledger now ends with a trailing newline.
+**THE ADOPTED RULE, used for THIS board write:** capture the base sha **in the same shell
+invocation as the commit** (a base from an earlier tool call IS the stale-base condition);
+after building the blob, **assert the PREFIX and the SUFFIX around your own section
+byte-identical to that base, by hash, BEFORE `commit-tree`, aborting if not**; assert the list
+of `## ` section headings unchanged; on an append-only ledger additionally assert
+**insertions == lines written and deletions == 0**, because a 1/1 on a "pure append" is the
+concatenation bug. **The CAS proves the parent; the prefix/suffix assert proves the tree.
+Both are needed and neither substitutes.** Repair caution: on `LAB_STATE.md` a commit touching
+the path is not necessarily a commit touching YOUR section — **reconstruct per section**, from
+the last commit that legitimately wrote that section, or a whole-file replay reintroduces the
+stale blob it was meant to repair.
+
+**ATTRIBUTION — THIS TEAM HAS NOTHING TO RESTORE, AND THAT IS ITSELF THE FINDING.** Verification
+reports **Class C is EMPTY: no fabricated quotation exists in this lab**, and three teams
+withdrew directives that were TRUE — Sanaa's words are in the session record, a channel no
+repository search can reach. **This team did NOT withdraw its attribution.** Its audit
+classified the §1 relay line **"CORROBORATED-BY-REPETITION-ONLY. Attribution NOT withdrawn
+(charter self-labels the relay)"** and referred the `harness/teams.yaml` drop-the-qualifier
+defect upward instead of acting on it — `harness/` is not this team's to edit and has not been
+edited by it. **So there is no over-withdrawal here to correct.** What IS now known is that the
+repo-internal silence has an innocent explanation, so the charter's v1.2 classification is
+UNDERSTATED; that lands as a **dated note, never a rewrite of the amendment.** **L-308 stands
+and is sharpened, not weakened:** the search instruments were genuinely blind AND the
+conclusion drawn from their silence was wrong anyway — **a search's zero is not evidence
+unless the search is shown able to see a near-miss, and even a well-run repository search
+cannot see a channel outside the repository.** Restoring a withdrawn attribution is Sanaa's,
+in one line; no agent does it on a peer's or the chief's say-so (rule 9).
+
+**Also for the chief, not this team's files to fix:** the shared-worktree truncation persists —
+`COST_CALIBRATION.md` was measured 168,635 B against 188,448 B at HEAD. **Every lane of this
+team is under standing orders to read records via `git show HEAD:`.** Inspected, never
+reverted.
 
 **Blocked:** none.
