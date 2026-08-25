@@ -1,0 +1,31 @@
+# VMFL045 run 1 -- contention evidence around the L1 launch and its immediate crash.
+# The load on this box is other teams' work and was NOT touched (standing rule).
+#
+# HONESTY NOTE. This file was written TWICE. The FIRST lane (report of record
+# cases/ansys_verification/VMFL045/LANE_REPORT.md, commit f1f58fd) launched at
+# 01:36:38Z and wrote its own launch+end samples here. The run-and-grade lane
+# (this file's author) then wrote its own launch sample with '>' at 01:38:50Z,
+# INADVERTENTLY OVERWRITING the first lane's samples. The first lane's values are
+# recovered below FROM ITS COMMITTED REPORT f1f58fd (a legitimate source), clearly
+# attributed, so no evidence is lost. Neither lane consumed real compute: the
+# solver crashed at wall 0 s on the first timestep (frozen-fvSolution e/h defect),
+# so there is no mid-L3 sample and no contention experiment -- there was nothing
+# to time. See RESULTS.md and both lane reports.
+
+# --- FIRST LANE launch sample, recovered from committed report f1f58fd (LANE_REPORT.md sec.3) ---
+utc=2026-08-25T01:36:38Z   [FIRST-LANE LAUNCH, recovered from f1f58fd]
+nproc=16
+loadavg=2.07 2.39 5.68
+
+# --- run-and-grade lane launch sample (this lane), as originally written 01:38:50Z ---
+utc=2026-08-25T01:38:50Z   [RUN-AND-GRADE LANE LAUNCH; launcher then REFUSED at guard 1, L1 pre-existing]
+nproc=16
+loadavg=2.87 2.46 5.26
+
+# --- end/now sample (this lane), no solver running ---
+utc=2026-08-25T01:45:42Z   [END; no solver process; run 1 crashed, R2 not launched]
+nproc=16
+loadavg=2.06 2.14 4.10
+# Box load through this whole episode stayed ~2.1-2.9 on 16 cores -- far below the
+# 68-76 that gave VMFL051 its 2.06x cost overrun. No contention penalty applies
+# because no real compute ran.

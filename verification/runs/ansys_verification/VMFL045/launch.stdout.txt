@@ -1,0 +1,4 @@
+pre-registration frozen at blob 7a7f9d52fe8666a5ef3dd72c6dd4262e93b75b74
+comparator        frozen at blob 0c83eeef1199e1376d7ef400d9e4fb5f3d30e526
+REFUSE: /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL045/L1_90x76 already exists -- this script never runs into an existing case
+LAUNCHER_EXIT=2
