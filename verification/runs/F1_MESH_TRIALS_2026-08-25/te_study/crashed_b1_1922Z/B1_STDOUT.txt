@@ -1,0 +1,15 @@
+b1_CTRL: GENERATOR rc=1 -- no mesh attempted
+b1_TS8: GENERATOR rc=1 -- no mesh attempted
+b1_TS3: GENERATOR rc=1 -- no mesh attempted
+b1_U2_080: GENERATOR rc=1 -- no mesh attempted
+b1_TS6: GENERATOR rc=1 -- no mesh attempted
+b1_TS2: GENERATOR rc=1 -- no mesh attempted
+b1_TS4: GENERATOR rc=1 -- no mesh attempted
+b1_U2_095: GENERATOR rc=1 -- no mesh attempted
+b1_CS075: GENERATOR rc=1 -- no mesh attempted
+b1_U2_098: GENERATOR rc=1 -- no mesh attempted
+b1_TS235: GENERATOR rc=1 -- no mesh attempted
+b1_NR8: GENERATOR rc=1 -- no mesh attempted
+b1_NR2: GENERATOR rc=1 -- no mesh attempted
+b1_CS025: GENERATOR rc=1 -- no mesh attempted
+BATCH wall 1s over 14 variants

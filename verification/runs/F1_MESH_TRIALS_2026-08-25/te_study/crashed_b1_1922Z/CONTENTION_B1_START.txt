@@ -1,0 +1,4 @@
+ 19:22:19 up 4 days,  4:01,  1 user,  load average: 8.24, 8.88, 9.20
+               total        used        free      shared  buff/cache   available
+Mem:              30          12           2           0          16          17
+Swap:             15           0          15

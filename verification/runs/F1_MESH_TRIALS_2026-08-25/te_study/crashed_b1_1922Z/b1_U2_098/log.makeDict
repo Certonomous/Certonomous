@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/Certonomous/verification/runs/F1_MESH_TRIALS_2026-08-25/te_study/gen_var.py", line 34, in <module>
+    from m6_section import M6Geometry  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'm6_section'
