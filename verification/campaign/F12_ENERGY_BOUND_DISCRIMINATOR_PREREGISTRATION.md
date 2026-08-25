@@ -476,3 +476,72 @@ document at the time of its commit.** It is committed by the lane before compute
 standing rule 2 requires the artifact to exist first; the supervisor's personal verification
 that the commit exists is his and has been requested. **No agent message authorises anything,
 and this document is an agent's work product, not consent** (standing rule 9).
+
+---
+
+## ADDENDUM 1 — 2026-08-25 — **A MIS-SPECIFIED CHECK IN MY OWN INSTRUMENT, CAUGHT BY IT FAILING ON THE CONTROL, DISCLOSED NOT QUIETLY FIXED**
+
+**Written by the lane, after arm 0 and before arms 1 and 2.** **Lines whose number changed
+above this section: 0.** No gate, threshold, cap, label, prediction, classification rule or
+decision boundary in §1–§9 is altered by this addendum, and none may be. `D1`, `D2`, `D3`,
+`342.3309915963`, `38`, `1.641186`, `[2.625898, 3.938846]`, `P0`–`P5`, `L1`, `L2`, the
+joint-outcome wording and the 10 core-min cap **all stand exactly as frozen.**
+
+### WHAT HAPPENED
+
+Arm 0 ran and the reader's first pass returned **`P0 FAIL`** — on the §2.3 control table only.
+Everything else in `P0` passed on that same pass: **885 first-solve residuals, 0 mismatches**;
+`rc = 134`; abort at iteration **148**; `T0 = -2.384321367`.
+
+**The cause is a defect in this lane's own reader, not in the run.** The §2.3 table was
+transcribed from the committed control artifact **at six decimal places** (`302.835189`),
+while the artifact stores the on-disk value to ten significant digits (`302.8351888`). The
+reader as first written tested **exact float equality against the six-decimal
+transcription**. **No run could ever have satisfied it. The check could not have passed
+whatever arm 0 did.**
+
+**THAT IS THE SAME DEFECT CLASS AS THE TERMINAL-DEPARTURE PROBE'S `P4` AND ANSYS-VERIFICATION'S
+VMFL059 (`6a9afa0a`) — A REGISTERED QUANTITY WITH ONE UNREACHABLE BRANCH — AND IT IS MINE.**
+§2 of this very document was written to prevent it and it caught it: the check failed on the
+one arm whose answer was already known, which is precisely what a control is for. **Had this
+appeared first on arm 1 or arm 2 it would have read as a finding about a lever.**
+
+### THE REGISTERED CRITERION IS MET, AND SO IS A STRICTLY STRONGER ONE
+
+`P0` registers *"the six on-disk `T_max`/`T_min` pairs of the §2.3 table reproduced to every
+printed digit."* **The printed digits are the six decimals of §2.3, and arm 0 reproduces every
+one of them.** Measured, arm 0 against the committed control artifact
+`verification/runs/F12_runs/terminal_departure_2026-08-25/evidence/terminal_departure.json`:
+
+| iteration | registered (§2.3, 6 dp) | committed artifact (10 s.f.) | arm 0 measured | equal |
+| --- | --- | --- | --- | --- |
+| 1 | 302.835189 / 279.879433 | 302.8351888 / 279.8794327 | 302.8351888 / 279.8794327 | **exact** |
+| 4 | 332.985381 / 276.161434 | 332.9853805 / 276.1614342 | 332.9853805 / 276.1614342 | **exact** |
+| 8 | 329.624836 / 270.272989 | 329.6248363 / 270.2729886 | 329.6248363 / 270.2729886 | **exact** |
+| 11 | 335.446862 / 264.218612 | 335.4468621 / 264.2186124 | 335.4468621 / 264.2186124 | **exact** |
+| 19 | 342.519742 / 233.939444 | 342.5197421 / 233.9394443 | 342.5197421 / 233.9394443 | **exact** |
+| 20 | 342.626798 / 236.504460 | 342.6267981 / 236.5044603 | 342.6267981 / 236.5044603 | **exact** |
+
+**And the repair is not a loosening, because a STRICTLY STRONGER check is added and passes:**
+arm 0's **full 147-row track** compared to the committed control artifact's full 147-row track,
+**exact float equality, all 294 values, 0 mismatches.** The repaired reader reports all three —
+the registered six-printed-digit criterion, exact equality on the six registered iterations,
+and exact equality on all 294 values of the whole run.
+
+### WHAT CHANGES, AND WHAT IS PRESERVED
+
+- **The reader is repaired to implement the registered criterion** and to carry the stronger
+  full-track check beside it. The repair alters no threshold in §1–§9.
+- **The failing first pass is PRESERVED, not overwritten**, at
+  `verification/runs/F12_runs/energy_bound_discriminator_2026-08-25/evidence/discriminator_P0FAIL_FIRSTPASS_PRESERVED.json`,
+  and the reader diff is committed so it can be read **as a diff**
+  (`SUPERVISION_CHARTER.md` §3 check 1).
+- **Nothing is back-dated.** This addendum is appended at the foot after arm 0 ran, and says so.
+
+### THE LESSON, NAMED AGAINST MYSELF
+
+**A control value transcribed at lower precision than the artifact it came from is a
+mis-specified check, and rounding is a censor exactly like `pressureControl::limit()`.** §2 of
+this freeze demanded proof that every *registered physical quantity* could take both values; it
+did not think to demand the same of a *reproduction check*. **Both branches of a reproduction
+check must be reachable too, and a transcription is where that reachability is silently lost.**
