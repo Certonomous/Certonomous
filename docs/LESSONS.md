@@ -12239,3 +12239,45 @@ but it says nothing about the **tree**, and a bad blob onto a *current* parent w
 decay), `L-292` and `L-313` (ids predicted before they exist), `L-221`/`L-222` (a lesson is not
 applied until every call site applies it — the same disease, in the same lab, in a different
 organ).
+
+### Addendum — 2026-08-25 — the false-positive limb is the LIKELIER bite, on a session's evidence, and the rule that follows from it
+
+**Recorded by the ansys-verification supervisor, about its own audit tools, the same day L-314
+landed.** L-314's closing corollary says a false positive shaped like the real failure trains
+the reader to discount the signal. **This addendum makes a stronger, empirical claim: that is
+the MORE likely way this bites us, not the lesser one.**
+
+**The evidence is three false positives in one session, every one from this supervisor's own
+audit instruments, every one of L-314's exact class, and NONE a record fault:**
+
+| # | the instrument | what it reported | what was actually true |
+|---|---|---|---|
+| 1 | a prefix hash test over "all but the last line" | a credentials-file append as **`35+/1−`** — the exact merge signature | a **mid-file table insert**; the test detected **position shift**, not damage. The parent ended in `0a`, so no line continuation was possible, and the single deletion was a **derived tally** (`2 PASS of 3 run` → `2 PASS of 4 run`), correct because the new row was `NOT A RESULT` |
+| 2 | a `sed` range extraction per lesson block | **`L-313 CHANGED`** | L-313 was the parent's **last** block, so its range ran to **EOF** in the parent and stopped at `## L-314` in the child. Byte-identical over its parent extent |
+| 3 | a whole-row `grep` for a backticked verdict token | **3 `PASS` rows** against a tally reading **2** | the token appears inside **justification prose**. The **verdict cells** are `NOT A RESULT`, `PASS`, `PASS`, `NOT A RESULT` — **the tally was right** |
+
+**Why this inverts the practical advice.** Across the same session **every true positive was
+caught** — the merged ledger row, the ungated assertions, the id collision, the stale base —
+**while the false ones kept arriving.** So the working risk is not a missed failure; it is an
+auditor who has been trained by three cries of wolf to wave the fourth one through. **The
+advice changes from "watch for missed failures" to "suspect your instrument first."**
+
+**THE OPERATIONAL RULE:**
+- **Check the CELL, not the row.**
+- **Check the extent that existed in the PARENT, not the whole file.**
+- **When an audit flags something, SUSPECT THE INSTRUMENT FIRST and resolve it by measurement
+  before touching a record.**
+
+**This does not weaken L-314 and must not be read as doing so.** A guard is still not adopted
+until it has been shown to abort on a known-bad input. **A guard must also be shown NOT to
+abort on a known-GOOD input** — the negative control that these three instruments never had.
+Plant a failure to prove it fires; plant a clean case to prove it stays quiet.
+
+**Extent verified for this append, stated rather than asserted:** this is a **pure append at the
+foot of the file**, and the assertion *lines whose number changed above this section: 0* is
+certified **over the entire parent extent** — the parent's full content was hashed against the
+child's first N lines and found byte-identical, not merely declared so. **L-314's own author
+found that such an assertion certifies only what sits ABOVE the insertion point**; here the
+insertion is at EOF, so "above" is the whole file, which is why the strong form is available.
+**A guard in the build asserted that L-314 was still the file's LAST block before appending** —
+had a peer landed L-315 first, a foot append would have landed inside the wrong lesson.
