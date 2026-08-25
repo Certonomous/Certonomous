@@ -1272,3 +1272,138 @@ number"*, and that stands.
 **K0d remains FROZEN, ARMED AND UNFIRED.**
 
 *Amendment written by the heat-transfer supervisor, 2026-08-24. Zero compute.*
+
+---
+
+# AMENDMENT 2 — 2026-08-25, BEFORE FIRST COMPUTE. Version 1.1 -> 1.2.
+
+**Lines whose number changed above this section: 0.** Nothing above is edited.
+**No gate, threshold, band, cap, label or prediction is created, moved, retired
+or weakened by this amendment.** It adds one **pre-compute abort condition** and
+nothing else.
+
+## A2.1 The condition, and how it was checked
+
+Rule 2 permits amendment **only before first compute**, and requires the
+condition be stated with the check that established it.
+
+**Checked in the shell invocation that wrote this file:**
+`verification/runs/F14-cooling-ladder/K0d_runs/` **does not exist**, and a
+`find` across `verification/runs/` for any path matching `*K0d*` returns
+**nothing**. **K0d has no case directory and has never consumed a core-second.**
+The prereg on disk is byte-identical to its blob at HEAD (sha256
+`90365bde…5b5b44`, the post-`AMENDMENT 1` hash; the original v1.0 freeze at
+`193b62a1` was `829542…312751`, and the difference is `AMENDMENT 1` appended at
+the foot at `935d4114`, which is disclosed there).
+
+**This is the last window in which this amendment is legal. After first compute
+it closes permanently.**
+
+## A2.2 The gap being closed — A COMPARATOR SELFTEST PROVES THE GRADER, NOT THE CASE
+
+**This finding is the ansys-verification team's and is cited as theirs.**
+
+VMFL045 **crashed at wall 0 s** on a missing `fvSolution` solver entry. Its
+comparator's selftest had passed **45 / 45 with real negative controls** — and
+**could never have caught it**, because **nothing in the pre-compute checks
+exercised the actual solver dictionary set.**
+
+**K0d's exposure is exactly this.** §8 of this pre-registration registers three
+instruments — the planted-zero control, the strict completion rule with its age
+guard, and Roache triple gating — and `AMENDMENT 1` audited them. **All of that
+is about the GRADER. None of it establishes that K0d's case dictionaries survive
+contact with the solver.** This team has now built and passed a planted-zero
+control on the T1b chain and knows precisely how reassuring an instrument audit
+feels; **that reassurance does not extend to the case, and this amendment exists
+to stop it being read as though it did.**
+
+## A2.3 THE MECHANISM IS A REGIME BOUNDARY, AND K0d CROSSES ONE
+
+**The part worth understanding, not merely recording.** VMFL045's `solvers`
+block was **byte-identical to VMFL051's**, and **VMFL051 ran 1 693 timesteps
+successfully with the same missing entry.** The difference is physical:
+**VMFL051 is inviscid, VMFL045 viscous**, and the solver enters the implicit
+corrector — the path that needs the missing key — **only when μ > 0**. Proved
+with the reader shown able to see both states: **implicit solve counts of 0
+across VMFL051's entire successful run against 1 in VMFL045 before it died.**
+
+**A dictionary can be complete for one regime and incomplete for another, and the
+defect is LATENT rather than visible.** It does not announce itself in review; it
+announces itself as a crash at wall 0 s, or worse, does not announce itself at
+all.
+
+**K0d is turbulent mixed convection.** Any configuration inherited across a
+regime change — **Boussinesq to compressible, laminar to turbulent, steady to
+transient** — carries this defect class.
+
+**And it lands directly on `AMENDMENT 1` §A1.3, the K2e Boussinesq
+carry-across.** A1.3 examined that carry-across as a **modelling** question:
+whether the K2e arithmetic transfers, and how `M0` is disposed. **It did not ask
+whether the carried dictionaries are COMPLETE for K0d's regime, because that
+question had not been posed to this lab yet.** **A1.3's ruling stands unaltered**
+— nothing in it is withdrawn — **but it is now explicitly recorded as NOT having
+covered the latent-dictionary dimension**, which this amendment covers instead.
+**A carry-across is two questions, and the lab had been asking one.**
+
+## A2.4 REGISTERED: a pre-flight smoke test, as an ABORT CONDITION on first compute
+
+**Before any graded K0d solve, and as a precondition of it:**
+
+1. **One timestep on the COARSEST mesh**, with K0d's own `constant/`, `system/`
+   and `0/` dictionaries as they will be used for the graded run.
+2. **In a scratch directory OUTSIDE `verification/runs/`.** This is not a
+   preference. **This team's own control lane established that `measure()` writes
+   into whatever directory it is handed** (`log.writeCellCentres`, `Cx`, `Cy`,
+   `V`), and **two irreplaceable single-rank solvers have been running in
+   `verification/runs/T-family/T1_runs/` throughout this session** — at the time
+   of writing, ~250 core-hours that cannot be re-bought. A smoke test that writes
+   into the run tree to prove the run tree is safe is self-defeating.
+3. **On failure: ABORT. No graded solve starts.** The failure is a **finding
+   about the case**, triaged, not worked around (`SUPERVISION_CHARTER.md` §3
+   check 2 — a crash is a finding until triage says otherwise).
+4. **On success it proves ONE thing and it is stated narrowly: the dictionaries
+   are sufficient for the solver to take a step in this regime.** It is **not**
+   evidence about the physics, the mesh quality, convergence, or any graded
+   quantity, and it may not be cited as such.
+
+**The existing guard is unchanged and remains absolute:** a run refuses where
+`0/` or a time directory already exists. **That guard is what stands between this
+lab and a corrupted case**, and this session supplied fresh evidence for it — the
+ansys-verification supervisor read "no run directory", concluded a lane was dead
+and dispatched a second **at 01:35:26Z, when the first had launched at
+01:36:45Z**; **the second launcher refused at exit 2 because the directory
+existed, and that refusal is the only reason nothing was corrupted.** *A stale
+read is not only a git-tree failure; it is an agent-dispatch failure with the
+same shape.*
+
+## A2.5 Why this is an amendment and not a gate change
+
+**The smoke test can only ever PREVENT a graded run from starting. It can never
+turn a `GATE FAIL` into a `PASS`, and it produces no graded number.** That is the
+same asymmetry rule 5 fixes for the triple gate and that this team registered for
+the T1b planted-zero control: **an instrument admitted late is safe precisely
+when it can only subtract.**
+
+**Cost:** one timestep on the coarsest mesh — **seconds**, well inside the $25
+pre-authorisation, **$-negligible, derived not measured**
+(`COMPUTE_BUDGET_CHARTER.md` §5). **It is charged to K0d's rung and appears in
+K0d's calibration row.** **No cap is registered and none is claimed** — this
+team's standing ruling that a prediction is not a cap applies.
+
+## A2.6 What is unchanged
+
+- **Every gate, threshold, band, cap, label and verdict of §§1–11 stands
+  byte-unchanged**, including §7.2's conversion rule, §7.4's verdict ladder,
+  §7.5's guards, §8's instruments and §10's cost.
+- **No prediction is weakened.** §11's predictions 1–8 stand as registered, and
+  `AMENDMENT 1`'s three-way disposition of prediction 3 stands.
+- **`AMENDMENT 1` §§A1.1–A1.4 stand in full.** A2.3 adds a dimension A1.3 did not
+  cover; it withdraws nothing.
+- **`G6` remains `PENDING` on Blay 1992**, which is still NOT OBTAINED.
+- **No compute ran.** `verification/runs/F14-cooling-ladder/K0d_runs/` does not
+  exist at the moment of this write, and this amendment does not create it.
+- **Nothing was sent** (rule 7).
+
+**K0d remains FROZEN, ARMED AND UNFIRED.**
+
+*Amendment written by the heat-transfer supervisor, 2026-08-25. Zero compute.*
