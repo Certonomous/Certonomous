@@ -11458,3 +11458,45 @@ re-derive the number rather than copying it forward.
 **Applied the same day:** the two disclosures recording this defect are themselves appended
 at the FOOT of their files and each says so in its own text, so as not to commit the defect
 while recording it. Docket **D515**.
+
+## L-305. A drafts/staging file must carry its own DISPOSITION per item — a draft that landed and a draft that never landed are indistinguishable from outside, and the reader who cannot tell re-does the work or cites an id that does not exist
+
+*2026-08-25. Paid for twice in one night on the `ansys-verification` team, in opposite
+directions, from the same root.*
+
+**The two incidents.**
+1. `docs/ansys_verification/RECORDS_DRAFTS.md` held drafts of two lessons that had
+   ALREADY landed — `L-300` (a gate value read from a gitignored artifact) and `L-301`
+   (extending a converging SIMPLE run is sub-linear in cost). A brief written from a
+   **stale `docs/LAB_STATE.md` board** — which still listed them as
+   drafted-and-not-landed — sent an opus lane to re-land them. The re-work was avoided
+   only because the lane read the HEAD blob first and found `## L-300` and `## L-301`
+   already there.
+2. The same staleness in the other direction: `N-AV7` and `N-AV8` were **forward-cited
+   from register row #3** (append-only, a credential) and from
+   `cases/ansys_verification/VMFL005/RESULTS.md` while `docs/NUMERICS_KNOWLEDGE.md`
+   stopped at `N-AV6` — an id cited before it existed (the `L-292` class), which cost a
+   whole second repair task to land the two entries and correct the citations.
+
+**The common root.** A staging or record file whose **disposition is not written IN the
+file**. From the outside, a draft that landed and a draft that never landed look
+**identical** — same prose, same ids — and a green `git status` distinguishes
+**neither**. The reader who cannot tell will either do the work twice or cite an id
+that is not yet an identifier.
+
+**The rule.** Every drafts/staging file carries its own disposition, **per item**, in
+the file itself: `LANDED` (with the landed id and the commit that landed it),
+`NEVER LANDED`, or `SUPERSEDED`. A record that promises an id elsewhere is not
+discharged until that id exists at HEAD; a draft is not safe to leave lying around
+until it states whether it landed. The fix applied here was the `SUPERSEDED` banner
+appended to `RECORDS_DRAFTS.md` (commit `991b12b1`), naming each landed id and its
+commit.
+
+**Relation to standing lessons.** `L-186` says the scratchpad is not a handoff channel;
+this is its on-disk twin — a *legitimate* staging file under a case directory still
+becomes a re-work trap unless it states its own disposition. `L-292` (an id in prose is
+a prediction, not an identifier) is the forward-citation half of the same defect.
+
+*Artifacts:* `docs/ansys_verification/RECORDS_DRAFTS.md` (the `SUPERSEDED` banner,
+`991b12b1`); `docs/NUMERICS_KNOWLEDGE.md` `N-AV7`/`N-AV8` (landed `7e2cb666`);
+`verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` foot-note (`23fed33c`).
