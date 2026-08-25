@@ -1,0 +1,71 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL050 -- 1-D conduction bar.  x is the through-thickness (heat-flux)
+  direction, 0 <= x <= 0.75 m.  y and z are each one cell (0.01 m) and their
+  four side faces are `empty`, so the problem is solved in x alone -- the exact
+  1-D semi-infinite-slab model (laterals are symmetry planes in the manual).
+
+  __NX__  cells through the thickness (the refined direction).  Substituted by
+  run_vmfl050.sh; this template is never edited by a run.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   1;
+
+vertices
+(
+    (0.0  0     0    )   // 0
+    (0.75 0     0    )   // 1
+    (0.75 0.01  0    )   // 2
+    (0.0  0.01  0    )   // 3
+    (0.0  0     0.01 )   // 4
+    (0.75 0     0.01 )   // 5
+    (0.75 0.01  0.01 )   // 6
+    (0.0  0.01  0.01 )   // 7
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (__NX__ 1 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    heatedWall
+    {
+        type wall;
+        faces ( (0 4 7 3) );   // x = 0
+    }
+    adiabaticWall
+    {
+        type wall;
+        faces ( (1 2 6 5) );   // x = 0.75
+    }
+    sides
+    {
+        type empty;
+        faces
+        (
+            (0 1 5 4)   // y = 0
+            (3 7 6 2)   // y = 0.01
+            (0 3 2 1)   // z = 0
+            (4 5 6 7)   // z = 0.01
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

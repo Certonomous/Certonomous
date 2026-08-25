@@ -1,0 +1,18 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL050.  laplacianFoam thermal diffusivity DT = alpha = k/(rho*cp) [m2/s].
+  k = 401 W/m-K, rho = 8995.67 kg/m3, cp = 381 J/kg-K (manual p. 163) ->
+  alpha = 401 / (8995.67 * 381) = 1.170000053714965e-4 m2/s.  The comparator
+  recomputes alpha from k, rho, cp and REFUSES if this value disagrees.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+DT              DT [ 0 2 -1 0 0 0 0 ] 1.170000053714965e-04;
+
+// ************************************************************************* //

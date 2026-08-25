@@ -1,0 +1,47 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL050 -- laplacianFoam.  ddt Euler (implicit, first order in time; the time
+  step is refined with the mesh so its error enters the Roache triple).  The
+  Laplacian is Gauss linear corrected (second order), the term that sets the
+  diffusion profile the Roache triple measures.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+}
+
+laplacianSchemes
+{
+    default         none;
+    laplacian(DT,T) Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+// ************************************************************************* //

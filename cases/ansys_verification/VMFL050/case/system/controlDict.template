@@ -1,0 +1,74 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL050 -- laplacianFoam, transient conduction.  endTime 120 s (the "2 minutes"
+  of the manual).  deltaT is refined WITH the mesh across the Roache triple
+  (space and time both refined by 2), so the triple measures the combined
+  space-time discretisation error and Richardson extrapolates toward the exact
+  analytic value.  Number of timesteps = 120/__DT__ (the strict-completion
+  ExecutionTime-count clause checks exactly this per level).
+
+  Fields written only at 0 and 120.  The two gate function objects write EVERY
+  step; their row at t = 120 is the gate value:
+    * wallT  -- surfaceFieldValue areaAverage(T) on heatedWall (the boundary
+      temperature, mesh-convergent, = analytic wall temperature).
+    * probe150 -- probes, cellPoint interpolation at (0.15, 0.005, 0.005),
+      the temperature 150 mm from the heated wall.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     laplacianFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         120;
+deltaT          __DT__;
+
+writeControl    runTime;
+writeInterval   120;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   8;
+runTimeModifiable false;
+
+functions
+{
+    wallT
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            heatedWall;
+        operation       areaAverage;
+        fields          (T);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        writePrecision  12;
+        log             false;
+    }
+
+    probe150
+    {
+        type            probes;
+        libs            (sampling);
+        name            probe150;
+        interpolationScheme cellPoint;
+        fields          (T);
+        probeLocations  ( (0.15 0.005 0.005) );
+        writeControl    timeStep;
+        writeInterval   1;
+        log             false;
+    }
+}
+
+// ************************************************************************* //

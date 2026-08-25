@@ -1,0 +1,46 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL050 -- Transient heat conduction in a semi-infinite slab (manual p. 163).
+  Copper slab, initially 293 K, one wall exposed to constant heat flux
+  q'' = 3e5 W/m2, opposite wall adiabatic, laterals symmetry (1-D through the
+  0.75 m thickness).  laplacianFoam solves dT/dt = DT*lap(T) with DT = alpha =
+  k/(rho*cp) = 401/(8995.67*381) = 1.17e-4 m2/s.
+
+  The heat-flux BC is expressed as a TEMPERATURE GRADIENT (laplacianFoam has no
+  k of its own): dT/dx|wall = -q''/k = -748.1296758 K/m.  The heatedWall patch
+  (x=0) has outward normal -x, so its surface-normal (outward) gradient is
+  snGrad = -dT/dx = +748.1296758 K/m -> fixedGradient uniform 748.1296758104738.
+
+  THIS FILE IS THE AGE-GUARD MARKER: run_vmfl050.sh touches it immediately
+  before the solver launches, so every field at endTime must be strictly newer.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 293;
+
+boundaryField
+{
+    heatedWall
+    {
+        type            fixedGradient;
+        gradient        uniform 748.1296758104738;
+    }
+    adiabaticWall
+    {
+        type            zeroGradient;
+    }
+    sides
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //
