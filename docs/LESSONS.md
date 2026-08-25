@@ -13025,3 +13025,133 @@ are lifted" is not a reason to buy an answer twice.**
 and the instrument cannot express the record's name — and nothing in the output distinguishes
 them.** Any instrument whose negative result is a silent empty set owes the reader a
 demonstration that it can produce a non-empty one.
+
+---
+
+## L-326 — A CONTROL THAT PLANTS UNIFORMLY INTO EVERY INPUT OF A WEIGHTED STENCIL VERIFIES ONLY THAT THE WEIGHTS SUM TO ONE. It never verifies what the individual weights ARE
+
+**Found 2026-08-25, heat-transfer, on T8's centreline reader. The instrument had passed 69
+selftest checks carrying two negative arms, and was blind to the defect it existed to catch.**
+
+### The arithmetic, and it is exact
+
+T8's section 12 S3 recovers the axis value of a field quadratic in `r` from the two
+axis-adjacent columns at `r1` and `r2 = k*r1`:
+
+```
+a = w1*f1 + w2*f2      w1 = k^2/(k^2 - 1)      w2 = -1/(k^2 - 1)
+```
+
+so for **every** `k`,
+
+```
+w1 + w2 = (k^2 - 1)/(k^2 - 1) = 1        exactly
+```
+
+Therefore a plant of `P` into **both** columns shifts the extrapolated value by
+`P*(w1 + w2) = P` **at any ratio whatsoever**. The both-column arm returns the identical
+number on a correctly weighted stencil and on an arbitrarily mis-weighted one. It is not
+merely insensitive — it is **blind in general**.
+
+A plant into a strict **SUBSET** of the inputs — the innermost column only — shifts the
+extrapolate by `P*w1`, which **does** depend on `k`. It **discriminates**.
+
+| k | w1 | uniform-plant shift | subset-plant shift |
+|---|---|---|---|
+| 3 | 9/8 = 1.125 | **P** | 1.125 P |
+| 7/3 | 49/40 = 1.225 | **P** | 1.225 P |
+| 5/2 | 25/21 | **P** | 1.190476 P |
+| 11/7 | 121/72 | **P** | 1.680556 P |
+| 9/4 | 81/65 | **P** | 1.246154 P |
+
+Five ratios, **one** distinct uniform shift and **five** distinct subset shifts. At T8's
+registered `PLANT = 1.234e-03` with tolerance `1e-09`, an instrument shipping `k = 3` weights
+run on a `k = 7/3` mesh leaves the uniform arm with residual **exactly 0** — green — and the
+subset arm with residual **1.234e-04**, which is **123,400 times the tolerance**. One stencil,
+one plant magnitude, two arms, and only one of them can see anything.
+
+### How it was found, and this is the part that matters
+
+T8's section 9 registered **exactly one** planted-zero arm: the both-column one. The comparator
+passed **69 selftest checks** with two negative arms. Its fixture `make_synthetic_field_case`
+placed cell centres at `(j + 1/2)*dr`, which makes the assumed ratio `r2 = 3*r1` **true by
+construction** — `(3/2)/(1/2) = 3`.
+
+The real mesh gives `r2/r1 = 7/3` **exactly**, because an OpenFOAM cell centre is the **volume
+centroid**: for an annular sector `rbar = (2/3)(rb^3 - ra^3)/(rb^2 - ra^2)`, giving `(2/3)dr`
+and `(14/9)dr`, whose ratio is `7/3`.
+
+**The fixture and the instrument agreed because they shared one wrong assumption.** Not one of
+the 69 checks could ever have caught it. **It surfaced only from running the frozen instrument
+against a real mesh — the one thing no selftest had done.**
+
+### THE RULE
+
+**A planted-zero control on a weighted stencil MUST include at least one arm that plants into a
+strict SUBSET of the stencil's inputs, and the selftest MUST show that arm FIRING on a
+mis-weighted stencil where the uniform arm STAYS GREEN.** A uniform arm alone is a check that
+the weights sum to one, and it should be described in the registration as exactly that and
+nothing more.
+
+**Scope: every interpolation, extrapolation and reconstruction comparator in this lab** — not
+only T8's centreline reader. Anywhere a value is formed as a weighted combination of samples,
+a uniform plant is blind to the weights.
+
+### Relation to L-321 — its thesis, confirmed
+
+L-321 said: *a fixture that builds its artifact by the same route the reader resolves it shares
+one wrong assumption with the checker, so they agree and their agreement carries no
+information.* This is that thesis, confirmed on a second, independent instrument in a different
+family, with the shared assumption now a **number** (`r2 = 3*r1`) rather than a path string.
+L-314 said *plant a failure*; L-320 added *plant it into the load-bearing operand*; L-321 added
+*plant it by a route the code under test does not share*; this adds **plant it into a strict
+SUBSET, because a plant into all of it can be cancelled by the structure of the thing you are
+testing.**
+
+### The same-day companions, and the generalisation
+
+Three instruments, one day, all green on their own selftests and all blind to the defect they
+existed to catch:
+
+1. **This one** — T8's section 9 uniform plant, blind to the weights it was checking.
+2. **`scripts/check_k0d_mesh.py` condition C** — planted into a modified **specification**
+   rather than a modified **mesh**, so a real hole passed a green selftest.
+3. **`scripts/check_grader_self_blindness.py`** — went **RED on correct code**.
+
+**Each was found only by running the instrument against something real.**
+
+> **A selftest proves an instrument is SELF-CONSISTENT. Only a real artifact proves it is
+> RIGHT.**
+
+A green selftest is therefore never a reason to skip the first run against a real artifact; it
+is the reason that first run is the *only* remaining source of information about the instrument.
+
+### Executable check: `scripts/check_stencil_plant_arms.py`
+
+Landed in the same commit as this lesson. A lesson whose executable check does not exist
+asserts a falsehood at the moment it binds.
+
+- **`--selftest` PROVES the arithmetic** in `fractions.Fraction` — exact, no tolerance. It
+  asserts `w1 + w2 == 1` for all five ratios above; shows the uniform shift is the **identical
+  Fraction** at every ratio (the set of uniform shifts has **one** element, so the arm cannot
+  distinguish *any* two of them, and the k=3 versus k=7/3 difference is **exactly 0**); shows
+  the subset shifts are **five distinct** Fractions with the k=7/3 versus k=3 difference exactly
+  `P/10`; reproduces the operational case at T8's own `PLANT` and tolerance; and derives
+  `7/3` and `3` from the centroid formula and the `(j+1/2)dr` fixture respectively.
+- **Scan mode** over comparator files reports plant application sites (control **drivers**
+  excluded, so a single-arm control cannot read as clean), the number of **distinct plant
+  target expressions**, and literally weighted stencils. It exits **2** where a literally
+  weighted stencil and a plant-like control coexist with only **one** distinct plant target.
+- **It states its own reach and refuses to overstate it.** A static scan **cannot** prove one
+  target expression denotes a strict subset of another — that needs runtime values — so where
+  two or more distinct targets are found it says "consistent with a subset arm; inspect
+  manually" and never reports a subset arm as proven. Stencils that are loop-accumulated,
+  table-driven, imported, or **variable-weighted** are invisible to it; the variable-weight
+  blind spot is carried as a **declared case in the selftest** so it is on the record rather
+  than discovered later. A checker that overstates its own reach is the failure mode this
+  lesson is about.
+
+At the commit: `analyse_t8.py` scans clean — 8 literally weighted stencils and **3** distinct
+plant targets, the uniform arm plus the two supplementary arms added by its pre-compute
+amendment A1 — and `scripts/analyse_k0d.py`, `analyse_t1b_L4.py` and `analyse_t3.py` all exit 0
+with the scan stating, in each case, exactly which of them it was not competent to judge.
