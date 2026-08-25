@@ -2155,6 +2155,81 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+### SESSION certonomous-68 — THE BRIEF IS STALE ON THREE ITEMS THAT ARE ALREADY AT HEAD, AND THE SHARED INDEX WOULD DELETE 7 133 LINES OF THIS BOARD
+
+**Sub-section written:** 2026-08-25T21:10Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; this session re-opens none of them.**
+
+#### THE HEADLINE, AND IT IS NOT A THERMAL FINDING — THE SHARED INDEX STAGES A BOARD THAT DESTROYS 85 % OF ITSELF
+
+Measured by me this session, not relayed: the **worktree** `docs/LAB_STATE.md` is **byte-identical to HEAD** (`git diff --stat ed726454 -- docs/LAB_STATE.md` is empty). The **shared index** is not:
+
+`git diff --cached --stat ed726454 -- docs/LAB_STATE.md` → **`523 insertions(+), 7 133 deletions(-)`**
+
+HEAD's board is **7 783 lines**; the staged one is **~1 173**. **A bare `git commit` by any agent in this tree right now would delete 7 133 lines — about 85 % — of the lab's ONLY handoff channel.** This is rule 10's stale-in-the-reverting-direction hazard at a magnitude an order above the 402 lines the rule was written from. **I have not cleared it and I will not — the index is the chief's call (rule 10).** The private-index protocol (`read-tree` from HEAD) immunises anyone who follows it; nothing else does. **Escalated to the chief as lab-wide.**
+
+#### THE BRIEF IS STALE ON THREE ITEMS, EACH ALREADY SETTLED AT HEAD — recorded so the fifth relay does not happen either
+
+1. **"Your predecessor's two corrections are not on the record."** **They are.** Both sit at HEAD in this section, block `SESSION certonomous-66`, stamped 19:07:58Z: (a) the correction that thermal was *not* at zero compute — three solvers live, with pids, cwds and `ps -o lstart=`; (b) the correction that `A5.13` Findings 10 and 11 were **already RULED AND CLOSED**. Nothing was lost. Nothing is redone.
+2. **"Make the A5.13 Findings 10 and 11 pre-compute rulings."** **This is the FOURTH relay of an item closed at HEAD before the first relay.** Finding 10 (unregistered initial `internalField`) is closed by `K0d_REREGISTRATION.md` `AMENDMENT 1` **§A1.2**; Finding 11 (unregistered profile sampling) by **§A1.3**. Each says `is CLOSED` in terms. **I am not re-ruling them, and re-ruling a closed registered clause after first compute would itself breach rule 2.** The live pre-compute rulings were never these two — they are the **four registration gaps**, and my predecessor ruled all four at HEAD (`writeFormat ascii`, `writePrecision 16`, `writeCompression off`, `domain_thickness_t = 0.010 m`), each with its derivation, referred to Sanaa's desk under the disposal rule.
+3. **"Land or redo K0d AMENDMENT 2 with both cap figures."** The **two-figure discrepancy is already carried exactly as the dead lane framed it**, at HEAD, in **two** places: `SESSION certonomous-66` ("MY RULING CORRECTED BY ITS OWN LANE") and `SESSION certonomous-67` ("THE CEILING COLLISION, RULED"). Both record **`2 749.14` as SUPERSEDED rather than deleted** and **`2 748.64` as the ruling**, with the derivation that decides it: §A1.4's enumeration gives meshing 2.00 + mesh reader 0.50 + comparators 1.00 + dual-scheme extraction ≤ 8.00 = **`I` = 11.50**, and the first three summing to **3.50** reproduces §8's frozen "instruments, bounded 3.50" line exactly — which is the check that this is the right enumeration. The `12.00` is not reproducible from its own enumeration. **Ceiling = 3 × 912.38 + 11.50 = `2 748.64` core-min**; derived **45.8107 core-h × $0.0513 = $2.3501, DERIVED NOT MEASURED** (`COMPUTE_BUDGET_CHARTER.md` §5). Whether the **AMENDMENT 2 document** itself landed on disk is under forensic verification by a lane; the **ruling** is not at risk either way.
+
+#### THE THREE LIVE SOLVERS — RE-MEASURED BY ME AT 21:04Z, AND `R_10k_x`'s MARGIN HAS IMPROVED
+
+T1b L4 EXT2, `buoyantBoussinesqSimpleFoam`, all serial, all started 16:36:46–47Z, **survivors of the fleet kill**. Elapsed **16 315 s** each.
+
+| pid | case | iter now | `endTime` | s/iter | projected total | registered cap | margin | ETA (derived) |
+|---|---|---:|---:|---:|---:|---:|---:|---|
+| 2203927 | `R_10k_x` | 23 312 | 32 000 | 4.883 | **976.5 core-min** | **1 100** | **11.2 %** | ~2026-08-26T08:51Z |
+| 2203944 | `R_100k_x` | 85 222 | 94 000 | 3.096 | 722.4 core-min | 1 300 | 44.4 % | ~2026-08-26T04:37Z |
+| 2203947 | `R_300k_x` | 86 966 | 110 000 | 2.321 | 1 160.4 core-min | 2 750 | 57.8 % | ~2026-08-26T11:55Z |
+
+**Burned to date: 815.8 core-min = 13.60 core-h across the three; derived $0.698 (DERIVED, not measured).** `ranks == 1` is proved, so the `timeout` wrappers (66 000 / 78 000 / 165 000 s) **are** the registered core-minute caps (1 100 / 1 300 / 2 750) — no unit mismatch.
+
+**`R_10k_x`'s margin has WIDENED from 9.7 % to 11.2 %** since the 20:27Z reading: its rate improved 4.968 → 4.883 s/iter when the dafoam ranks retired. **This is contention relief, not a modelling change, and it is exactly why the §9.4-style contention record matters** — the arm at risk is at risk from the box's other tenants, not from its own physics. It is still the arm that trips first if load returns.
+
+**`R` is REYNOLDS, not Rayleigh.** Three separate Re at level `x`, one member each of three different ladders — **NOT a grid triple; they cannot carry `G` among themselves.** T1b L4 stands **`NOT A RESULT` ×4**. Pre-registration `T1b_L4_EXT2_PREREGISTRATION.md` **freeze re-verified by me personally this session**: worktree blob `9d4beec421f1485ed4f7c400be8554191d23528f` is **byte-identical to the blob at HEAD**. Rule 2 satisfied.
+
+**VERIFY, carried forward unresolved:** the **2.1× spread in per-iteration cost** across three arms reportedly at the same mesh level `x` (4.883 / 3.096 / 2.321 s/iter). Either the meshes differ or contention was very unevenly distributed. **Named rather than smoothed over**; it is not established and it bears on the cost calibration rows owed at completion.
+
+#### THE STAGING RULING IS REVISED — 7 WAS DERIVED UNDER A FOREIGN LOAD THAT NO LONGER EXISTS
+
+`SESSION certonomous-67` pre-decided **stage seven**, derived to land 7 mine + **7 foreign** = 14/16 = 87.5 %. **Measured by me at 21:08Z: foreign sustained compute is ZERO.** 16 cores; the only processes above 50 % CPU on this box are my own three solvers; 27 GB of 30 available.
+
+Holding at 7 would now land **3 + 7 = 10/16 = 62.5 %**, *below* Sanaa's 80–90 % band, for no measurement benefit — the benefit 7 bought was headroom against foreign tenants who have left. **Revised ruling: stage NINE, hold ONE until first retirement.** Nine is K0d §9.1's **registered concurrency cap**, so this **raises nothing and touches rule 2 not at all** — 9 was always a cap, never a floor. That lands **3 + 9 = 12/16 = 75 %** with **4 cores of headroom**, which is what preserves the wall-clock timing basis the cost calibration depends on. **Firing all ten is still refused, and the reason is still a MEASUREMENT argument, not a cost argument** — it survives Sanaa's directive intact. T8 landing on top carries the box to ~87 %.
+
+#### WHAT K0d CAN EARN, RESTATED PLAINLY BECAUSE THE BRIEF ASKED FOR IT PLAINLY
+
+**§0 holds: no graded verdict against the reference is reachable while Blay 1992 is `NOT OBTAINED`.** Under Sanaa's V/P ruling *"a. Uphold"* — analytic scores **V**, never **P** — **K0d earns `V` and `G`; it CANNOT earn `P`, and therefore never `HOLDS`. Its rung verdict is `GATE REACHED`, naming `P` as the unreached column.** **This is not a reason to withhold the run.** `V` and `G` are exactly the columns the lab is short of, and obtaining Blay 1992 from outside the box is Sanaa's alone (rules 7, 8) and is not being attempted.
+
+#### RUNGS WITHOUT VERDICTS
+
+- **K0d** — `BLOCKED` on my own non-delegable read of the condition-C repair diff, and on forensic confirmation that `AMENDMENT 2` landed. **Zero core-minutes spent.** Can reach `GATE REACHED` (V, G); never `P`.
+- **T1b L4 EXT2** ×3 live + 1 — `NOT A RESULT` ×4. A `docs/COST_CALIBRATION.md` row is **OWED at completion** under rule 12 and is `PENDING`, not forgotten. **Hazard for whoever writes it: `append_record.py` hands out colliding ids, and the real max is `C-83`, not `C-76` — a bold-id row format defeats its regex. Derive the id tolerantly, by hand, inside the committing invocation, and allocate it only at append time.**
+- **T8** — `PENDING`; not committed, therefore not frozen. Comparator under repair by a lane; **I read `analyse_t8.py` and `build_t8.py` as diffs before any output is believed.**
+- **T5** — mine to promote; any **TIER-DEFINITION** interpretation stays reserved to Sanaa.
+- **T2** — mis-tiering under audit; my ruling, not yet made.
+- **T12** — possibly unblocked by a zero-compute title-page read; under audit.
+
+#### NEXT ACTIONS
+
+1. Read the K0d condition-C repair **as a diff, personally** → fire order → stage nine.
+2. Read `analyse_t8.py` and `build_t8.py` as diffs → joint prereg+comparator freeze commit → fire.
+3. Rule T2's tier and T12's block once the audit returns numbers.
+4. Promote T5, holding the tier definition back.
+5. **Ask Sanaa for more cases the moment the queue is genuinely empty.** Bucket A is K0d and T8 and nothing else; stretching a thin queue to look busy is the opposite of what she asked for.
+
+#### ON SANAA'S DESK
+
+- The **four K0d registration-gap rulings**, each with its derivation — carried forward, adopted by silence in one day.
+- The **ceiling ruling** `I` = 11.50 → **2 748.64** core-min, **superseding 2 749.14, which is recorded as superseded rather than deleted.** No longer a budget question; it is this team's own runaway guard.
+- The **rule-2 boundary**, unchanged and unanswered: **Sanaa's cost directive relaxed rule 12's stop-on-budget clause; it did NOT relax rule 2.** If `R_10k_x` trips its cap, raising that cap now would alter a registered cap **after** first compute, which rule 2 forbids — so the arm is `NOT A RESULT` under its own frozen §10 and that stands. **My recommendation: no rescue amendment; a fresh, separately pre-registered re-run at a correctly sized cap, which is legal and now cheap.**
+- **The largest open exposure, unchanged and VERIFY:** reportedly only **three** PDFs in the whole repository carry a rule-15 title-page verification, all in `docs/papers/forced_convection_heat_transfer/`; **Ampofo**, **Betts / ERCOFTAC 079** and **Nielsen** carry none — **and every `P` column in this family rests on them.**
+
+#### BLOCKED
+
+- **K0d's `P`, and therefore `HOLDS`** — until **Blay 1992** is obtained and title-page verified. Sanaa's alone; not being attempted. Unblocked by that paper landing in `docs/papers/` and by nothing else.
+- **Nothing else in this territory is blocked on Sanaa.** The queue is thin, not blocked.
+
 
 ### SESSION certonomous-67 — THE K0d BLOCKER IS NEITHER COST NOR THE TWO NAMED FINDINGS. IT IS FOUR REGISTRATION GAPS, AND I HAVE RULED THEM
 
