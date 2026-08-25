@@ -1,0 +1,33 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      MRFProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// CORRECTED FORMAT, D11-D' re-buy.  The D11 probe as registered used a bare named
+// zone (`MRF1 { ... }`), which is OpenFOAM's own IOMRFZoneList layout.  DAFoam's
+// differentiable list is NOT that: IOMRFZoneListDF -> MRFZoneListDF looks up a
+// SINGLE top-level sub-dictionary `MRF`, and the frozen run died with
+//   --> FOAM FATAL IO ERROR: Entry 'MRF' not found in dictionary "constant/MRFProperties"
+// The layout below is the upstream DAFoam tutorial's own
+// (/home/ubuntu/dafoam-tutorials/UAV_Propeller/constant/MRFProperties), copied key
+// for key, `selectoinMode` misspelling included -- that is upstream's spelling and
+// changing it is not this probe's business.
+//
+// DAFoam 5.0.0 reads a SCALAR key `omega` in rad/s, NOT `rpm`
+// (src/adjoint/DAMisc/MRFDF/MRFZoneDF.C:217).
+// OMEGA_PLACEHOLDER is substituted by d11p_stage_and_run.sh -- this is THE PLANT.
+MRF
+{
+    active              true;
+    selectoinMode       cellZone;
+    cellZone            rotor;
+    nonRotatingPatches  (inlet outlet lowerWall upperWall frontAndBack);
+    axis                (0 0 1);
+    origin              (0.10 0.01 0.001);
+    omega               OMEGA_PLACEHOLDER;
+}
+// ************************************************************************* //
