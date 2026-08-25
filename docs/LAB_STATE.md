@@ -2905,7 +2905,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T01:54:53Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T02:03:40Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3316,6 +3316,50 @@ tonight and it returned within minutes. **The protection is the discipline at th
 a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
 `git commit -a`, private-index protocol for everything. A single bare commit would destroy the
 frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**THE GUARDS ARE NOW A TOOL, ADOPTED BY IMPORT AND PINNED — `append_guards.py` (`0794b682`),
+`verification/runs/ansys_verification/`.** heat-transfer built tonight's findings into
+`verification/runs/T-family/safe_append.py` (`5c137f0b`) and offered it rather than imposing it.
+**This supervisor READ IT AS CODE and ran its selftest personally (10/10, exit 0) before trusting
+it** — it gates this team's CREDENTIAL appends, so it is an instrument, not a convenience.
+- **ADOPTED BY IMPORT, NEVER BY COPY — a forked guard drifts** — and the upstream blob sha is
+  **PINNED (`1c874c62`)**: if their tool changes, mine **REFUSES** until it is re-read,
+  re-selftested and re-pinned. **A guard that changed under you is a guard you have not read.**
+- **`check_prefix` works on BYTES and REFUSES text**, which structurally kills the `split()`
+  artifact behind two of this supervisor's four false alarms. **`check_anchor_is_last` is this
+  team's finding, built better than it was reported** — it names the peer race in its failure
+  message.
+- **ADDED, because theirs does not carry them:** **`check_aggregates_moved`** — a cell cannot
+  hold more than its sub-rows; it refuses a stale parent AND refuses an aggregate it cannot
+  locate **exactly once**, since an aggregate that cannot be located cannot be checked; and
+  **`enforce_per_guard_symmetry`**, applied to **its own results**, so it cannot ship in the
+  state that caused the problem.
+- **THE FINDING IN THEIR TOOL, PROVEN BY PLANTING RATHER THAN ASSERTED FROM READING.** Their
+  `--selftest` prints *"SYMMETRY HELD: every guard fires on bad input and stays quiet on good"*
+  — **a claim it has not checked.** The refusal is **AGGREGATE**:
+  `pos = sum(... "BAD-input"); neg = len(results) - pos; if neg == 0: REFUSE`. It refuses only
+  when **no** good-input arm exists **anywhere in the whole suite**, so **a guard added with
+  only a bad-input arm PASSES** and the "every guard" line still prints. Reproduced by feeding
+  their tail logic that exact results set. **This is L-314's own shape — a check reporting on the
+  AGGREGATE rather than on each ITEM — INSIDE THE TOOL BUILT TO CURE IT**, which is the measure
+  of how hard the class is to see even while hunting it. **REFERRED UPWARD, NOT PATCHED:
+  `safe_append.py` is heat-transfer's territory and this team does not edit it.**
+- **SCOPE MIRRORED:** written in this team's own run tree, **NOT `scripts/`**, which is not this
+  team's. **Promotion lab-wide is Sanaa's decision, not a team's** — and the promotion candidate
+  is THEIR file with the per-guard fix, with this one as a thin team-specific layer.
+
+**FILING CONFLICT IN THIS TEAM'S TERRITORY — REFERRED, DELIBERATELY NOT FIXED.**
+`scripts/check_filing.py` flags **`[R8-PAPER-NAME]`** on
+`docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.pdf` **and its
+`.txt` sidecar**: neither matches the FILING_CHARTER's `author_year_identifier` convention.
+**They are NOT being renamed.** Both are named **BY EXPLICIT PATH** in this team's charter, in
+`harness/teams.yaml`, in the generated agent definition, and in every citation across the
+register, CASE_MAP and every case record — and **`harness/` is not this team's to edit.** A
+unilateral rename would silently break the reading list that the charter's manual-first rule
+depends on. **This is a genuine conflict between the filing rule and the harness's explicit-path
+reading list and it needs a RULING, not a rename.** (26 filing violations exist repo-wide; the
+other 24 are other teams' misnamed papers and missing sidecars.) `append_guards.py` itself is
+**clean** under the checker.
 
 **RECORDS AUDIT AGAINST TWO DEFECTS FOUND BY HEAT-TRANSFER — THIS TEAM'S RECORDS ARE CLEAN;
 THIS SUPERVISOR'S CHECKING INSTRUMENTS WERE NOT, THREE TIMES.**
