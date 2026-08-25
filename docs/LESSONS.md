@@ -11500,3 +11500,36 @@ a prediction, not an identifier) is the forward-citation half of the same defect
 *Artifacts:* `docs/ansys_verification/RECORDS_DRAFTS.md` (the `SUPERSEDED` banner,
 `991b12b1`); `docs/NUMERICS_KNOWLEDGE.md` `N-AV7`/`N-AV8` (landed `7e2cb666`);
 `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` foot-note (`23fed33c`).
+
+## L-306. A lane's report of record lives on disk in its own case directory, committed — a message that fails to address EVAPORATES, and the scratchpad is not a fallback
+
+*2026-08-25. Paid for by two lane reports that failed to reach their supervisor and
+surfaced at the chief instead.*
+
+**The incident.** Twice tonight a lane's `SendMessage` to its supervisor did not
+deliver; one returned outright *"No agent named 'ansys-verification-supervisor' is
+reachable"* — the supervisor session was not separately addressable at that moment. A
+report that lives **only** in a message that fails to address is lost: the chief sees a
+mis-route, the supervisor does not, and nothing durable records it.
+
+**The rule.** A lane's report of record **exists on disk, committed, in the case/team
+directory it belongs to** — the message is a *notification*, not the artifact. If
+`SendMessage` to the named supervisor fails, the lane **writes its report to a
+committed file in team territory** (this team: `docs/ansys_verification/LANE_REPORT.md`)
+and: (a) does **not** route it to the chief as a first resort; (b) does **not** leave
+it in the scratchpad — the scratchpad is not a fallback (CLAUDE.md rule 13 / `L-186`;
+it was wiped three times in one day). Operationally, every brief this team issues
+carries the **literal supervisor id** plus the **write-to-case-directory fallback**, so
+a lane always has a durable channel that does not depend on a live session being
+addressable.
+
+**Relation to adjacent lessons.** The memory note "agent watchers die with the agent"
+is about a *monitor* dying with its process; this is about a *report* failing to
+deliver — a different failure with the same remedy family: **durability lives on disk,
+not in a live channel or a live session.** `L-186` is the same principle for handoffs
+between sessions. No existing lesson covered report-delivery addressing, so this is a
+new entry rather than an addendum (checked against `docs/LESSONS.md` HEAD before
+drafting).
+
+*Artifacts:* this session's `SendMessage` failure to `ansys-verification-supervisor`
+(2026-08-25); CLAUDE.md rule 13; `L-186`.
