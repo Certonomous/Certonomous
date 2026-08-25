@@ -34,7 +34,7 @@ from collections import defaultdict
 
 EXIT_OK, EXIT_REFUSE = 0, 2
 UPSTREAM = "verification/runs/T-family/safe_append.py"
-UPSTREAM_PIN = "1c874c62c39a05371b565194f3c92a3cb6281d09"  # safe_append.py, read and selftested by this supervisor 2026-08-25
+UPSTREAM_PIN = "6c8035a32f51f140b051ab90b873ffa40bacccaa"  # safe_append.py v1.1 (13f0577c): symmetry_verdict now PER-FAMILY and itself meta-tested in both directions, with this team's v1.0 defect planted as a named regression. Re-read as code, selftest 6/6 + meta 6/6 run by this supervisor, 2026-08-25. Re-pinned DELIBERATELY, not to silence a refusal.
 
 
 class GuardFailure(Exception):
