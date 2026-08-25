@@ -3292,6 +3292,255 @@ changing it re-grades the whole thermal corpus, **not to be settled
 unilaterally**); D495; the T10a upstream draft (**filing is hers**). Vogel &
 Eaton 1985 and Blay 1992 both **NOT OBTAINED**. **Nothing on that list blocks a
 run** — under her rule, blocked is not idle.
+
+### SESSION certonomous-c2, SECOND BLOCK — two lanes returned, both big claims VERIFIED PERSONALLY, two physics rulings issued
+
+**Appended 2026-08-25T18:22:01Z** — *this stamp is approximate to the minute and is
+marked as such rather than presented as a reading; the exact `date -u` sits in the
+commit.*
+
+#### THE VERIFICATION TEAM'S K2bU / K2bU3 QUESTION — SETTLED, AND THEIR PREMISE WAS FALSE
+
+Their audit recorded: *"Two heat-transfer rows cannot be tiered from HEAD at all —
+K2bU and K2bU3 … no results record, no sub-row … NEVER RUN cannot be separated
+from completed-but-unfiled."* **The answer is NEITHER. Both are COMPLETED AND
+FILED.** They were written into the **parent rung's** results document, not into
+files named after the rung: `K2b_PILOT_RESULTS.md` **§14** (K2bU, outcome **O1
+PHYSICALLY UNSTEADY**) and **§15** (K2bU3, outcome **P3**). The audit searched for
+`K2bU_RESULTS.md`, which never existed. **A search-name defect, not an
+evidentiary gap.**
+
+**I verified this personally rather than relaying it** — §14.5 and §15 read at
+lines 1501 and 1548, and the four case directories read from disk with `find` and
+`stat` (`git` and `grep` are both blind here; the run output is gitignored):
+
+| case | `End` | `ExecutionTime` count | last time / `endTime` | age guard |
+|---|---|---|---|---|
+| `K2bU_trans` | 1 | 1 978 | 40 / 40.0 | **PASS** — `0/T` 05:24:20Z vs fields 05:52:18Z |
+| `K2bU3_M` | 1 | 459 | 80 / 80.0 | **PASS** — 06:05:24Z vs 06:05:27Z |
+| `K2bU3_L050` | 1 | 927 | 80 / 80.0 | **PASS** — 06:07:05Z vs 06:07:20Z |
+| `K2bU3_L025` | 1 | 1 918 | 80 / 80.0 | **PASS** — 06:07:20Z vs 06:12:23Z |
+
+Fields `T U p_rgh alphat nut k omega` present in all four. **`K2bU3_D` NEVER RAN,
+and that is the pre-registered refusal being HONOURED, not a gap**: control M
+damped at ratio **0.482** against a registered 0.5, so the frozen prereg declared
+**P3 without running Test D**. **Firing it today would be a rule-2 violation.**
+The un-confounded 3D experiment was measured at **22 064 core-min ≈ 368 core-h,
+32–59x the graded pair it would check.**
+
+**TWO CLAUSES I WILL NOT WAVE THROUGH, and the lane was right to flag both.**
+**(1) `rc = 0` is EVIDENCED, NOT RECORDED** — no exit code was persisted by this
+chain; a clean `End` with intact final writes and no fatal is strong, but it is an
+**inference from the log**, and the difference is exactly what the strict rule
+exists to forbid. **(2) Clause 5 — `ExecutionTime` count == `endTime` — IS NOT
+APPLICABLE AS WRITTEN to these runs.** They are transient PIMPLE on
+`adjustableRunTime` at maxCo 2.0, so the count is the **adaptive step count**, not
+the physical end time (459 steps to `endTime` 80.0). The **substantive** form —
+one `ExecutionTime` per advanced step, no truncated tail — holds exactly:
+1978/1978, 459/459, 927/927, 1918/1918.
+
+**RULING, and its limit.** Locally: clause 5 is satisfied in its substantive form
+and these four cases are complete. **Generally: I am NOT re-writing the completion
+rule.** This is the second time this family has found that a clause of rule 4
+describes the **T1b steady-state INSTANCE** rather than a lab-wide invariant — the
+first was the field tuple (`T,qr`; `T,DT`; `p,U,phi` are the per-rung tuples
+elsewhere). **CLAUDE.md rule 4 states clause 5 lab-wide, so narrowing its scope is
+a charter-clause change and is NOT mine — REFERRED to the chief.** Recorded here
+so the local ruling is not mistaken for the general one.
+
+**A CORRECTION AGAINST THIS TEAM'S OWN RECORD, escalated not taken:**
+`MATRIX_CONTRIBUTION.md` cell **C18** repeats the audit's error — its tier
+`NEVER RUN` is **correct**, but its parenthetical *"no results — PENDING"* is
+**wrong**. And the general defect underneath: **a diagnostic arm filed under its
+parent rung is invisible to every rung-name search.** That wants an index-stub
+convention, which is a filing rule and therefore not this team's to impose.
+
+#### THE DIVERGENT-TRIPLE TRACE — DONE AT LAST, AND VERIFIED BY MY OWN SCAN
+
+The verification team referred two traces to this family. **Both now answer NO,
+and I re-derived the load-bearing one myself rather than believing a reassuring
+summary — a conclusion that clears our own instruments is the most expensive kind
+to get wrong.**
+
+**Trace (a) — the negative GCI on a divergent triple. The defect is CONFIRMED; the
+published exposure is NO.** Planted `1.00/1.02/1.05` on all three frozen K0b
+copies reproduces **`p = −0.5850`, `GCI_fine_pct = −10.714 %`, `reason = None`**,
+identically. The guard is `(d21 * d32) <= 0` — **increment sign change only, no
+`p <= 0` test** — and the instrument **has no `state` field at all, so it cannot
+represent the `NOT A RESULT` that rule 5 mandates.** Controls fire, stay quiet and
+refuse as they should, so the negative value is a measurement, not an artefact.
+
+**My independent scan, run separately from the lane's:** 134 JSON artifacts, 80
+GCI-bearing nodes. **Numeric GCI on a non-CONVERGING triple: NONE.** Every
+negative GCI in the family — five of them, −11.376 / −30.902 / −14.197 / −6.965 /
+−19.202 % — sits under the single JSON path
+**`/richardson/script_alone_L32_L64_L128a/`**, the **deliberately defective
+control arm**. Three further confirmations of my own: **zero tracked `.md` files
+quote any of the five values**; the verdict operands in `grade_d403.py` are
+`leg[k]` and `p[k]` fed to `verdict(pct)`, and **`richardson` is a separate
+top-level key no verdict operand reads**; and K0b's own published ladder is clean
+at **`p` ∈ [1.7529, 2.9824]**, GCIs **+0.0631…+0.7840 %**. **NO GRADED
+HEAT-TRANSFER NUMBER RESTS ON A DIVERGENT TRIPLE.** This is distinct from the
+2026-08-24 sidecar, which cleared these files on the **sign** and never examined
+the **guard**.
+
+**Trace (b) — T1c Richardson exposure: NO, and it was already done.**
+`grep -n 'richardson' analyse_t1c.py` returns **exactly one line, 337 — the write,
+with no consumer**; `gate_t1c.json` contains the token **zero** times; the verdict
+operands at `:462–472` are `dev` and `band = GCI_pct`, both **sign-independent**.
+
+**THE CAVEAT WAS CHECKED AND IT IS ALREADY DISCLOSED — no new work is owed.**
+`analyse_dts_p.py:374` derives `h0_excess_pct` from the defective extrapolate and
+it feeds the **P1/P2/P3 prediction-consistency flags**, which **do move with the
+sign**. I read the code: the derivation is guarded by
+`if conv["state"] == "CONVERGING" and not disc`, so **rule 5 is respected and only
+the value is defective, never the gating.** And the existing dated addendum
+**already names this exposure at lines 73–76**. **Nothing here is an undisclosed
+diagnostic-only discrepancy** — which matters, because a printed discrepancy
+labelled non-binding is worse than one never computed, and that is precisely the
+trap this family has fallen into before.
+
+**One real defect neither probe can see, and it is worth more than the seven
+flags:** `analyse_t3.py:1088–1100` selftest control (iv) cross-checks
+`gci_unequal` against `T1C.gci` across `richardson` — **both carry the identical
+sign defect, so the 1e-12 agreement carries NO INFORMATION.** Sound as a reduction
+check; **misleading only if read as validation**. Its planted triple is
+`(1.0, 1.02, 1.05)` — the very divergent triple of trace (a).
+
+**And the check's own scope, stated so a PASS is not over-read:**
+`scripts/check_grader_self_blindness.py` is **two static AST smells, not a
+correctness proof.** All **seven** flags it raised on 111 thermal comparators are
+**FALSE POSITIVES** — five are bare `{}` container initialisers counted as schema
+branches, and its reads map keys on the subscript string while ignoring the
+container. **A PASS from it says nothing about arithmetic, guard completeness,
+extrapolation sign or triple classification. Every defect above was invisible to
+it.** `D528`–`D530` docketed at `672cd59e`; `D529` referred to verification as the
+tool's owner.
+
+#### K0d — THE `ν`-vs-`β` PHYSICS RULING, WHICH IS MINE AND WAS NOT DELEGATED
+
+**RULED: OPTION A. `ν` moves to 1.569e-5; `β` stays 1/298.**
+
+**`β` IS NOT A FREE PARAMETER IN A BOUSSINESQ AIR MODEL — IT IS `1/T_ref` BY
+IDENTITY.** Registered `TRef` is 298.15 K, and `1/298` = 3.3557e-3 is that
+identity's value. Option B's `β` = 3.26577e-3 is **`1/306.21`** — it silently
+redefines the reference temperature to **306.21 K (33.06 °C)** while leaving
+`TRef` at 298.15, an **8.06 K contradiction inside the one coefficient Boussinesq
+validity rests on.** The lane's measured internal fluid-state spreads say the same:
+**Option A 1.86 K, Option B 8.40 K.** `ν` by contrast is a genuinely free material
+property — 1.55e-5 vs 1.569e-5 is air at 297.81 K vs 299.86 K, both room air.
+
+**THE DEEPER CORRECTION IS THE ACTUAL RESOLUTION: STOP ANCHORING ON
+`Ra` = 2.13e9.** The contradiction existed **only because the document treated a
+secondary-source number as a target to be hit.** The lane's decisive find:
+**Oulghelou defines `Ra` = 2.13e9 at `ΔT` = 20.5 K, while §3.3 froze `ΔT` = 20.0 K
+for all time.** Option B buys exactness against a target inconsistent with the
+frozen `ΔT`, and pays with a fluid that does not exist at the registered reference
+temperature. **In the new registration `Ra` is DERIVED and REPORTED — never a
+target, and no gate depends on matching it.** Residual stated openly:
+**`Ra` = 2.135970e9, +0.28 % from a published figure taken at a different `ΔT`.**
+**A derived quantity that no longer has to hit anything cannot generate this
+contradiction a seventh time.**
+
+**The arithmetic price is paid, not dodged:** Option A breaks §4's first-cell 1 %
+tolerance at **+1.23 %**, so the whole first-cell column is **re-derived from
+`ν` = 1.569e-5 with the arithmetic shown**, never copied across. **Paying
+arithmetic to keep the physics coherent is the right trade; the reverse never is.**
+
+**The lane corrected my brief and the correction is accepted:** amendments A3.4 and
+A5.8 had **already repaired** the `omega`/`epsilon` field defect in the frozen
+document, so the new registration carries the **post-repair per-closure tuples**
+(kOmegaSST ×5 with `omega`; RNGkEpsilon ×3 with `epsilon`; laminar ×1) — **69
+assertions, zero unsatisfiable.** Batch of nine, serial, `nProcs = 1`. **Its
+utilisation finding is registered as an expectation, not buried: mean occupancy
+4.94 cores, mean utilisation 62 % — K0d ALONE CANNOT HOLD SANAA'S 80–90 % BAND
+for its own window**, and retiring cores must be backfilled from the queue.
+Contention 5–11 % → 868.5–918.1 core-min, **named separately at completion, never
+absorbed into the ratio.**
+
+#### T8 ARMED — SIX RULINGS, AND THE ONE THAT MATTERS WAS NOT AMONG THE FOUR ASKED
+
+The next never-run case is **T8, the MTT pure-plume entry rung** — chosen because
+it is the next DC-spine item **neither stalled nor on Sanaa's desk** (T3 is stopped
+at gate (1); T5's 12 INTERPRETATIONs are hers), its reference is **closed form so
+no paper acquisition blocks it**, and it moves matrix cell **C7
+(`axisymmetric × buoyant-thermal`, currently `V NONE / G NONE / P NONE /
+NEVER RUN`) off zero** — Sanaa's own headline metric. **335.3 core-min predicted,
+$0.287 derived, cap 595 core-min.**
+
+**RULING 1, which the draft did not ask about and which is the important one:
+GRADE THE FINE VALUE, NEVER THE RICHARDSON EXTRAPOLATE.** The draft's criterion
+(3) read *"PASS if the Richardson-extrapolated value lies inside its §4 band."*
+**The extrapolate sign inversion is a known LIVE defect in this family's own
+comparators, and it is survivable ONLY because it is display-only everywhere it
+lives.** A new prereg gating on the extrapolate would make a display-only defect
+**LOAD-BEARING — in a document written after the defect was known.** The band
+grades the **fine value**; the extrapolate is reported beside it.
+
+**RULING 2 — the ±0.05 band stands, with the honesty it requires.** A PASS here is
+a **JOINT code-plus-closure statement and is NOT a code-verification claim**; a
+modelling-tolerance band grades the closure and the code together, and calling
+that "verified code" is exactly the overstatement this family has been caught in.
+**Deviation AND band-utilisation fraction printed for every exponent, not just the
+verdict** — the draft itself says the band clears the wrong answers by *twelve band
+widths*, which is a loose gate, and **this is D389's shape; I will not register a
+second normalisation that is far looser than it reads, blind.**
+
+**RULING 3 — fit window TIGHTENS to `z/D ∈ [10, 25]`.** 30 D in a 40 D domain is
+75 % of the height and too close to the outlet to defend; `[10, 30]` is retained as
+**reported control C5, not a gate**. **The cost is disclosed up front: `[10, 25]`
+is only 0.40 decades, thin for a log-log slope** — registered now rather than
+discovered at grading.
+
+**RULING 4 — `kEpsilon`, and the reason becomes a TESTABLE PREDICTION.** Standard
+`kEpsilon` carries the documented **round-jet/plane-jet anomaly**. Registered
+before the run: **that deficiency will bias `α` (REPORT-ONLY) and will NOT move
+the graded exponents, because `n_w`, `n_T`, `n_Q` are consequences of the MTT
+conservation equations and are independent of the entrainment coefficient.** If
+`α` lands off 0.11–0.13 while the exponents stay in band, **the prediction is
+confirmed, not failed**; if the exponents move instead, **the prediction is wrong
+and is reported as wrong.** This converts a closure preference into a claim that
+can lose.
+
+**RULING 5 — serial, `nProcs = 1`.** Three single-rank cases running concurrently
+**is** Sanaa's *"small single-core cases in parallel batches"*; a decomposition
+would put partition-dependence inside a gate run for no benefit.
+
+**RULING 6 — a cost hazard the draft did not name.** The 1.196e5 cell·steps/(core·s)
+rate is **borrowed from a TRANSIENT PIMPLE case while T8 is a STEADY SIMPLE-family
+run.** **This is the exact error shape that made T1b L4 miss by 31.4 % on a rate
+borrowed across a mesh jump.** Registered as a named misprediction risk. I checked
+the lane's arithmetic myself and it is **exact** (6 400×8 000 ÷ 1.196e5 = 428
+core-s = 7.13 core-min; 42.8; 285.4; total 335.3) — **the arithmetic is right, the
+RATE is the exposure.** Caps absorb 1.75–2.1x and stand.
+
+**Registered ceiling, stated before it runs: T8 reaches `GATE REACHED` at best and
+can NEVER reach `HOLDS`** — MTT is analytic, so under Sanaa's *"a. Uphold"* it
+scores **V, never P**, and no measured plume primary is on disk.
+
+#### WHAT IS NOT COMPRESSED, UNDER A DIRECTIVE THAT PRESSES ON THROUGHPUT
+
+**Both K0d and T8 stop before compute for my diff read.** That check is
+undelegatable and firing without it is a rule-2 violation **no throughput
+directive overrides.** Sanaa flagged the rigor standard unchanged twice and called
+it *"Very important."* **Raising the denominator is not a reason to fire into a
+document that does not determine what physics is being simulated.**
+
+#### LIVE AND NEXT
+
+**Live compute:** the three T1b L4 extension solvers, pids 2203927 / 2203944 /
+2203947, 3 of 16 cores, ETAs 2026-08-26T09:04Z / 04:21Z / 11:25Z.
+**`R_10k_x`'s 1.9 h `timeout` margin remains the item to watch.**
+**Lanes:** 2 live — K0d phase 2 (write the superseding registration, then STOP),
+T8 phases A–C (freeze, mesh, comparator, then STOP). **Both return for a diff read
+before any solver starts.** On firing, K0d's nine plus T8's three plus the three
+live = **15 of 16 cores**, which meets Sanaa's 80–90 % band.
+
+**On Sanaa's desk, unchanged and none of it blocking a run:** T5's 12
+INTERPRETATIONs; K2a; **D389's S13 normalisation**; D495; the T10a upstream draft
+(**filing is hers**). **Newly referred to the chief, not to her:** whether rule 4's
+clause 5 is a lab-wide invariant or a description of the T1b steady-state instance.
+Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
 **THREE CHECK-1 DIFF READS DONE PERSONALLY THIS SESSION, ALL THREE CLEARED — and each was re-run by the supervisor rather than believed on its lane's own test.**
@@ -6026,7 +6275,7 @@ takes the criticism: we are at **5 of 83**.
 
 ---
 
-### VERDICTS 2026-08-25T18:2xZ — VMFL003-M2 ARMS A AND B: **`NOT A RESULT`**, AND ARM 4 **REFUTED**
+### VERDICTS 2026-08-25T18:22:01Z — VMFL003-M2 ARMS A AND B: **`NOT A RESULT`**, AND ARM 4 **REFUTED**
 
 **Commits:** `fafa97f3` (the 10-line standard-case pre-registration template), `e2f2f935`
 (the resume-fire lane report and the arm-D launcher). Graded with the frozen comparator
