@@ -2945,7 +2945,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T02:50:44Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T02:59:16Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3356,6 +3356,57 @@ tonight and it returned within minutes. **The protection is the discipline at th
 a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
 `git commit -a`, private-index protocol for everything. A single bare commit would destroy the
 frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**THIS TEAM CLOBBERED CFD'S WORK, AND ITS OWN REPAIR LEFT A SECOND DEFECT. BOTH ARE FIXED;
+BOTH ARE THIS TEAM'S FAULT AND ARE RECORDED AS SUCH.**
+- **`288a5862` overwrote 86 lines of cfd's work and TOOK THEIR LESSON ID.** Cause: ids derived
+  in the **BUILD** invocation, not the **COMMITTING** one — **L-313's exact defect, committed by
+  the team that wrote L-313, four hours later.** Its post-commit verify checked **PATH NAMES
+  ONLY**, which is **structurally blind to a clobber**: the path is right and the content is
+  destroyed. **Self-reported by the lane**, repaired at `06f3578e`, renumbered L-316/317/318,
+  mechanism recorded as **L-318**, and `288a5862` **not rewritten**.
+- **THE REPAIR LEFT A SECOND DEFECT, FOUND BY THIS SUPERVISOR ON AUDIT.** It reinserted cfd's
+  `L-315` heading **AHEAD of** L-314's Addendum 2, **orphaning this team's text — and an
+  ansys-authored note — INSIDE CFD'S LESSON.** A reader quoting `L-315` would have been quoting
+  this team. **The lane reported "`8eac7d29` preserved", and the COMMIT was — but its CONTENT had
+  MIGRATED.** That is **L-223's distinction between a commit surviving and its content
+  surviving**, in a new form.
+- **REPAIRED AT `f14fdc41`.** Assertions before `commit-tree`, audited after: **cfd's block back
+  to its exact pre-clobber size of 6165 B**, its 85 lines byte-identical across **all three**
+  revisions (`9be10424797cc53a11de` under the sed instrument, `6461ca364d586bfbcdd5` under the
+  python one — **the same content; a hash without its instrument is not a citation**),
+  **Addendum 2 back inside L-314**, L-316/317/318 untouched, heading list unchanged, and the file
+  proven a **PERMUTATION** of its prior content plus a dated note. **NO BYTE OF CFD'S LESSON WAS
+  EVER ALTERED — the damage was PLACEMENT, not content.**
+- **THE NEW GAP, recorded rather than papered over: a placement guard validates at WRITE time and
+  says NOTHING about a LATER REINSERTION.** The anchor guard caught the **original** race; it
+  cannot catch a heading moved **ahead of already-placed text afterwards.**
+
+**THIS SUPERVISOR WAS WRONG TWICE AND THE LANE WAS RIGHT BOTH TIMES.**
+- **I ordered VMFL003's contention samples recorded as MISSED. THEY WERE NOT MISSED.** The lane's
+  sampler was already `setsid nohup` — an OS-level process meeting this team's own design rule
+  **by construction** — with **82 samples at 10 s, 35 spanning L3, mid-L3 at 02:28:26Z, loadavg
+  3.64**. I read an **empty `CONTENTION.txt` at a moment before it was written** and generalised
+  from it. **Recording them as missed would have been a FALSE NEGATIVE ABOUT REAL EVIDENCE**, and
+  the lane said so instead of complying. **Second time tonight a lane correctly refused an
+  instruction of mine.**
+- **VMFL051's L3 clock/exec is 2.5305, not the 2.65 I quoted.** Mine came from a **MID-SOLVE
+  sample**; the lane's is computed from the **TERMINAL** figures. Both real; **mine was not the
+  quantity I implied.** Conclusion unchanged and strengthened: VMFL003 measured **0.9985-1.0055**
+  against VMFL051's **1.1673 / 3.4901 / 2.5305**.
+
+**VMFL003 COST CORRECTED TO THE LANE'S MEASURED FIGURE: 13.5 core-min vs a 9.6 estimate =
+1.406x, 56 % of cap, $0.011543 derived — MISPREDICTION, not contention.** (The 10.9333 figure on
+this board earlier was the four level rows only and omitted meshing/overhead.)
+**Triple is `CONVERGING` at R = 0.0804, p = 3.6364 — AND THE LANE DECLINED TO TRUST THE ORDER**,
+correctly: d21 = 0.161 Pa is too small to extract an order from, and the prereg had flagged a
+suspiciously GOOD order as the tell. **dp is converged to 7.8 ppm while the wall-treatment ladder
+moves it 1.7356 % — ~2200x larger — so the miss is THE MODEL**, and a longer run only converts
+this to `GATE FAIL`. **y+ min 23.812 is BELOW the [25, 65] floor while the clause is on the
+AVERAGE (37.60014): held as written, VOLUNTEERED not buried.**
+**The launcher was UNRUNNABLE as frozen** — a guard searching for `Selected N cell`, which v2606
+never prints — **repaired pre-compute under §2d.1** with the run tree absent and zero solvers,
+the finding instrument being the smoke test, which grades nothing.
 
 **VMFL003 GRADED — VERDICT `NOT A RESULT`, TIER `NOT HELD` (this supervisor's ruling). The
 team's FIRST TURBULENT CASE, and it produced a real model-level finding.** Cost **10.9333
