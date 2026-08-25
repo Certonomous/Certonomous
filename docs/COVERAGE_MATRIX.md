@@ -315,9 +315,11 @@ record working rather than as a row failing.
 
 ## 3. The matrix
 
-**PARTIAL — dafoam and closure audited 2026-08-25; heat-transfer, cfd and
-ansys-verification still under audit.** Nothing is entered until this team has
-checked the row's load-bearing evidence against the artifacts itself.
+~~**PARTIAL — dafoam and closure audited 2026-08-25; heat-transfer, cfd and
+ansys-verification still under audit.**~~ — **STRUCK 2026-08-25. ALL FIVE FAMILIES
+ARE NOW AUDITED; the exhaustive pass is §3.8 and the measured census is §3.8g.**
+Nothing is entered until this team has checked the row's load-bearing evidence
+against the artifacts itself.
 
 ### 3.1 The headline, before the rows
 
@@ -742,10 +744,302 @@ behaviour the audit exists to produce.**
 | **NOT HELD** | 0 | 2 | 11–12 | 2 | 1 | **16–17** |
 | **NEVER RUN** | 9 | 0 | 6 | 1 | 0 | **16** |
 
-**Read as a claim, not as an authority.** dafoam's row is its corrected 58-row census
-re-tiered wholesale (24 claimed-HOLDS → SURVEYED, plus its own SURVEYED and GATE
-REACHED rows, which hold no green column either); cfd's rows are selected, not
-exhaustive, and several are families rather than rows. **Re-derive before quoting.**
+~~**Read as a claim, not as an authority.**~~ — **SUPERSEDED 2026-08-25 by §3.8g,
+which is exhaustive across all five families (153 rows) under stated enumeration
+rules.** The caveat was correct for this table and is kept visible because the
+table was circulated under it. Its ground: dafoam's row is its corrected 58-row
+census re-tiered wholesale; **cfd's rows here are selected, not exhaustive**, and
+several are families rather than rows. **Quote §3.8g, not this table.**
+
+---
+---
+
+
+---
+
+## 3.8 THE EXHAUSTIVE PASS — heat-transfer, cfd and ansys-verification completed 2026-08-25. **The zero is now a MEASURED zero**
+
+**§3.4, §3.5 and §3.6 were a first pass. §3.5 said so in its own words — *"Selected
+rows; the family is larger"* — and the §3.7 census was correctly labelled *"a claim,
+not an authority"*. This section removes that partiality.** The earlier sections are
+**kept, not rewritten**; where a row moves, this section names it and says why.
+
+**All three audits were read-only against HEAD `af2b23b0`, zero compute, no worktree
+reads.** No solver, no mesher, no container, no GPU.
+
+### 3.8a Enumeration rules, so the next auditor re-derives rather than trusts
+
+**cfd — 48 rows.** Territory: `cases/` minus closure/dafoam/ansys; `verification/runs/`
+minus T-family, F14-cooling-ladder, THERMAL_K0, ansys; all of `verification/campaign/`;
+`models/`. A **row** is one distinct case or campaign evidenced at HEAD by a run tree
+(27 exist), a case directory with a record (7), or a `verification/campaign/` grading
+artefact. Rows are keyed by **case identity**, so prereg + results + json + run tree for
+one case is **one** row. Excluded as non-rows: administrative records with no case
+identity, `cases/demo-surfaces/` (geometry assets), `models/` (inputs).
+
+**heat-transfer — 37 sub-rows.** The open **VERIFY is RESOLVED at 37** (S1…S27 with
+S2b, S3b, S5b–S5g, S18b, S20b). This team's earlier 36 was scored against the
+pre-correction file; the delta is **S20b**. **The 11–12 ambiguity is RESOLVED: NOT HELD
+= 12.**
+
+**ansys-verification — 4 rows.** Four pre-registered cases, three run, one armed and
+unfired.
+
+### 3.8b ⚠ THE EARLIER PASS WAS WRONG THAT cfd HAD NO CONTRIBUTION FILE
+
+`verification/campaign/MATRIX_CONTRIBUTION.md` **exists at HEAD** — 521 lines, 19 rows,
+landed `9060e751`, 2026-08-25 00:14:07Z. §2.1's *"cfd has no `MATRIX_CONTRIBUTION.md`"*
+is **struck by this section**. It applies the owner's rubric verbatim and defines no
+private V/G/P — **but it was written against Ruling 1's ORIGINAL form and predates
+Ruling 4 entirely**, so its tiers are not liftable. Its evidence clauses are, and were
+used.
+
+### 3.8c RULING 5 — `GATE REACHED` REQUIRES A FROZEN PRE-REGISTRATION. The clause in Ruling 1 is a CONDITION, not a description
+
+**The cfd audit asked this team to rule it, and gave both counts rather than pick.
+Ruling, and it goes against this lab's own favour:**
+
+Ruling 1's second amendment reads *"1–2 green columns **under a frozen
+pre-registration** → GATE REACHED"*. **That clause is a condition and is now read as
+one.** Sanaa's own directive text — recovered at §6b.8 — settles it independently:
+**`GATE REACHED = passed a gate but missing one of V/G/P`**. A row with **no
+pre-registration for the graded work has not passed a gate** in this lab's sense,
+because CLAUDE.md rule 2 makes a gate a thing frozen before the run. **A green column
+earned without a frozen gate is breadth evidence, and breadth evidence is `SURVEYED`.**
+
+**This resolves an internal contradiction §3.5 was already carrying:** it tiered
+`flat-plate-tmr` **GATE REACHED** while that row's own P cell says *"no
+pre-registration on disk"*. **Under Ruling 5 `flat-plate-tmr` is `SURVEYED`**, and so
+are `F3`, `F4`, `DPW8_V2` and `F9`. **`DMR` is the only cfd row whose green column sits
+under a frozen pre-registration** (`74797a57`, frozen before any mesh existed).
+
+**The movement is toward the more conservative tier in every case**, which is the only
+direction a rubric may be tightened on rows already scored.
+
+**VERIFY — and it is named rather than glossed.** The frozen-prereg condition was
+**verified individually** for ansys (VMFL005 at +194 s, VMFL001-R2 at +295 s, both blob-
+hashed at HEAD) and for cfd (each row read to source). **It was NOT individually
+verified for heat-transfer's seven `GATE REACHED` rows.** One is confirmed —
+**S5d/K0cG, prereg `3b454b37` before any case reported**. The other six carry the tier
+**pending that check**, and the check is the first item of the handover list in §3.8g.
+
+### 3.8d heat-transfer — 37 sub-rows. **HOLDS 0 · GATE REACHED 7 · SURVEYED 12 · NOT HELD 12 · NEVER RUN 6**
+
+Full table in the audit record; the movements against §3.4 are:
+
+- **S5d / K0cG re-tiered SURVEYED → GATE REACHED (missing V and P).** Five kOmegaSST
+  quantities CONVERGING, **p 1.516–4.078**, and **`Fs: 1.25` read directly out of
+  `verification/runs/F14-cooling-ladder/K0cG_runs/gate_k0cg.json`** rather than from
+  prose. Prereg `3b454b37` before any case reported. **Exactly the VMFL005 shape.**
+- **NOT HELD settled at 12; SURVEYED 13 → 12.**
+
+**The 12 `NOT HELD` rows remain the family's most valuable holding**, and §3.4's reading
+of them stands: they are measured negatives with model-error attribution, not absences.
+
+**⚠ THE OPTIMISTIC-OMISSION FAILURE HAS REPEATED, and twice.** The contribution omits
+three rows the territory holds, **two of them negatives**:
+
+1. **K0b D403 re-run** — `K0b_D403_RERUN_RESULTS.md` plus a 71-file run tree. **V3 GATE
+   FAIL**: run unaided, the committed `build_and_run.sh` produced a 128×128 leg **4.490 %
+   below** the published `Nu_avg_hot` at observed order **−1.25** against the published
+   **+1.94**. **The contribution carries S2b — the D406 *repair*, 4 × PASS — and omits
+   the re-run that FOUND the defect.** Tier **NOT HELD**.
+2. **T1b attempt 1** — `NOT A RESULT`, all 19 cases, **56.6 core-hours discarded**. The
+   contribution carries attempt 2 and omits attempt 1. Tier **NOT HELD**.
+3. **K1a / K1c standing thermal checks** — executed against planted defects. Tier
+   **SURVEYED**, neutral direction.
+
+**This is the S20b failure mode repeated: the row carrying the negative was dropped and
+the row carrying the PASS was kept.** Adding the three resolvable rows gives **40 rows
+at 0 / 7 / 13 / 14 / 6**. **37 is carried here as the settled figure and the correction
+is the family's to make**, but the pattern is named because it has now happened twice in
+the same file and it moves the census in the flattering direction both times.
+
+**Two rows that cannot be tiered at all: K2bU and K2bU3** carry a pre-registration,
+tracked case inputs and tracked comparators, and **no results record and no sub-row**.
+Their run output would be gitignored, so **NEVER RUN cannot be separated from
+completed-but-unfiled from HEAD.** Not guessed at.
+
+**`NEVER RUN 6` is a SUB-ROW figure, not a count of never-run classes** — eleven
+never-run cells (C3, C5, C7–C9, C11–C13, C16–C18) carry no sub-row at all.
+
+### 3.8e cfd — 48 rows. **HOLDS 0 · GATE REACHED 1 · SURVEYED 37 · NOT HELD 8 · NEVER RUN 2** (Ruling 5)
+
+**Column census: V green 5 of 48 · G green 1 of 48 · P green 0 of 48.**
+
+**THE P ZERO IS NOW MEASURED, NOT PARTIAL.** Every P-candidate was read to its source
+and each fails for a **named** reason: **F6b** on Rulings 3 **and** 4 (Breuer et al. is
+LES/DNS *and* reached via KBwiki); **F7a** and **F5a** on `VERIFICATION_CHARTER.md`
+§6b's `NOT OBTAINED` (Martin & Moyce not held as a primary; a 2021 figure digitised at
+600 dpi); **F8** on a secondary reference and no gateable number; **F11** on Ruling 4
+(Ghia et al. is a numerical benchmark); **F1** on a missing pre-registration; **F12** on
+not having run.
+
+**⚠ TWO ROWS CORRECTED AGAINST §3.5, BOTH IN THE UNFAVOURABLE DIRECTION:**
+
+- **F7a's P cell was GREEN in §3.5 and is now RED.** `VERIFICATION_CHARTER.md:1713`
+  records Martin & Moyce as **`NOT OBTAINED` as a primary**. **§3.5's green P
+  contradicted this file's own Ruling 3 and the charter simultaneously.** The tier
+  **NOT HELD** does not move — the row still GATE FAILED at +8.2 % mean / +11.0 % max
+  on a 5 % band, 389.8 core-min — but **the lab's one green P is withdrawn, and the
+  correct count of green P cells in cfd is zero.**
+- **W1 moves GATE REACHED → SURVEYED.** `verification/runs/W1_runs/ladder_fit.json`
+  records `conclusive: false` and **`reportable_band: null`** on cd and cd_pressure
+  (`guards_failed: ["order_window"]`) and on cd_viscous (`extrapolation_sanity`).
+  **No band was issued, so there is no GCI. A contested G is not a green column.**
+
+**Three rows newly enumerated that no pass had ever carried:** **F9** (pulsatile valve
+vs Womersley — V green on an exact solution, though **Womersley (1955) is NOT held on
+disk**), **F1** (ONERA M6 — the experiment is right and **no prereg exists**, so
+SURVEYED), and **bump-tmr-blockmesh**.
+
+**`bump-tmr-blockmesh` is the sharpest find in the family and it is a refusal.**
+`cases/tmr/bump_sst.json` publishes a monotone triple, `observed_order` **0.5446** and
+`gci_fine_pct` **3.8393 %** — and the safety factor **back-solves to Fs = 1.2500**, so
+it is formally a GCI. **But there is no `certifier` block, no `conclusive` field and no
+plateau evidence at any level**, p sits **on the very edge** of the [0.5, 2.5] window,
+and 4G §10 records the pressure component's increments changing sign at every matched
+iteration count. **Rule 5 clause (1) is unmet on the artefact. Scored SURVEYED, handed
+to cfd as a G *candidate*, not a G *result*.**
+
+**The two filing defects re-checked at HEAD: both NARROW, neither clears.** `FPE_DIAG`
+**does** have a pre-registration — inside the run tree, not under `verification/campaign/`
+— so the earlier *"could not be located"* is wrong on the id; **what does not exist
+anywhere at HEAD is a grading record.** Five `record.json` and no landed grade. **The
+defect is a missing verdict, not a missing id.** And `F4_SIGFPE_STEP01_RESULTS.md`
+**still opens with `CERTONOMOUS MORNING REPORT`** — the F4 grade *is* inside the file,
+so no content is lost, but a sweep for F4's record of grade meets a filename that does
+not describe its contents.
+
+### 3.8f ansys-verification — 4 rows. **HOLDS 0 · GATE REACHED 2 · SURVEYED 0 · NOT HELD 1 · NEVER RUN 1**
+
+**⚠ THIS TEAM'S OWN §3.6 IS WRONG ON VMFL001-R2's V COLUMN, and the correction makes it
+the lab's nearest-to-HOLDS row anywhere.** §3.6 scores V `NO` with no reason given.
+**The exact White §3-2.3 formula IS a registered comparison in the frozen
+pre-registration** — blob `c6b4a7c4…` lines 95–96, *"against the exact formula,
+|v_lab − v_exact|/|v_exact| ≤ 0.005 at all four radii"* — and it was **met at all four**:
+0.0529 / 0.0456 / 0.0420 / 0.0447 %. Decisively, **the CONVERGING triple's Richardson
+extrapolate 0.004547826544889741 m/s lands on the exact 0.00454781 to 3.7 ppm, with the
+closed form never given to the solver.** That is code verification in the strict sense,
+under a frozen pre-registration.
+
+**The tier word does not move — GATE REACHED either way — but the cell must read
+"missing P", not "missing V and P". VMFL001-R2 is then ONE COLUMN SHORT OF HOLDS, and
+it is the closest any row in this lab comes.**
+
+**The contrast with VMFL005 is the whole point and the ansys team wrote it down
+themselves (N-AV7):** same machinery, p ≈ 2 on both, GCI ≈ 0.05 % on both — and **one
+code converges to exact while the other is measured NOT to** (VMFL005's extrapolate is
+**0.5383 % from exact, FURTHER than the fine grid's 0.4979 %**; deviation/GCI **9.92**).
+**Their V columns must differ, and §3.6 collapsed them to the same `NO`.**
+
+**VMFL051 — NEVER RUN, and it is the best-armed unfired pre-registration in the lab.**
+Frozen `22249c82`, Amendment 1 at `54d34542` **before first compute** (legal under rule
+2), its condition-check genuine: at 2026-08-25T00:15:28Z the run directory did not
+exist, `find` returned 0 files, `pgrep -a rhoCentralFoam` returned nothing. **Its gate
+can genuinely fail, priced in advance:** the manual's own literal *"incompressible"*
+instruction leaves M at 2.5 and **fails by 45×** (−22.77 %); sampling inside the fan
+fails by up to 22 %; **Fluent's own −0.1668 % and CFX's −0.0494 % pass with 3× and 10×
+margin, so a lab result three times worse than Fluent's fails.** The band was **derived,
+not rounded to** — it must exceed a 0.0605 % systematic floor and sit ≈2× under the
+O(1 %) failure mode. **One blind spot declared BEFORE the freeze:** γ = 1.4 against the
+manual's derived γ = 1.3990094 differ by 0.005 % and this gate cannot separate them.
+
+**Register recomputed, not read: 3 rows, 2 PASS of 3 run**, every cited artifact
+verified present at HEAD by `git cat-file -e` — including **both PASS rows' gate-source
+files**. No non-PASS row is carried as a credential. Both PASS preregs re-verified by
+**blob hash at HEAD**, neither amended.
+
+**⚠ THE STRUCTURAL FINDING §3.6 WAS MISSING, and it names the lab's shortest path to a
+first HOLDS.** The family's own `CASE_MAP.md` classifies all 95 VM cases by reference
+type: **`AN` analytical 26 · `EXP` experimental 50 · `NUM` numerical benchmark 19.**
+**Every case this family has run or armed — VMFL001, VMFL005, VMFL051 — is `AN`, so all
+three are P-capped at GATE REACHED BY CONSTRUCTION, however well they are run.** But the
+family is **not** structurally capped: **it holds 50 experimental-reference cases, the
+largest reservoir of P-capable rows anywhere in this lab, and has run none of them.**
+**This SHARPENS §4's Fact-2 remedy rather than reversing it:** §4 correctly withdrew
+"the Ansys cases are a route to P" **on the cases the family had run**; the `EXP` half
+of the manual is a different population, and **VMFL071 / VMFLGPU006 (Goldman stator
+blade, pressure ratio vs experiment) is already named in the family's own map.**
+
+### 3.8g THE MEASURED CENSUS — 153 rows, and the zero survives
+
+| tier | dafoam | closure | heat-transfer | cfd | ansys | **total** |
+| --- | --- | --- | --- | --- | --- | --- |
+| **HOLDS** | 0 | 0 | 0 | 0 | 0 | **0** |
+| **GATE REACHED** | 0 | 0 | 7 | 1 | 2 | **10** |
+| **SURVEYED** | 49 | 4 | 12 | 37 | 0 | **102** |
+| **NOT HELD** | 0 | 2 | 12 | 8 | 1 | **23** |
+| **NEVER RUN** | 9 | 0 | 6 | 2 | 1 | **18** |
+| **total** | 58 | 6 | 37 | 48 | 4 | **153** |
+
+**Under the permissive reading Ruling 5 rejects** (counting green columns without the
+frozen-gate condition), cfd's row would read GATE REACHED **6** / SURVEYED **32** and
+the totals GATE REACHED **15** / SURVEYED **97**. **Both are printed so the ruling can
+be overturned without re-auditing.**
+
+**THE ZERO IS NOW MEASURED.** **HOLDS 0 across 153 rows in five families, every row
+enumerated by a stated rule, every green column read to an artifact.** It is no longer a
+partial count with a caveat attached.
+
+**And the reason is unchanged and now better evidenced: `P` green appears on ZERO rows
+in the entire lab.** V is green on a handful, G on a few, **P on none.**
+
+### 3.8h ⚠ A CORRECTION AGAINST THIS FILE'S OWN HEADLINE, and it matters more than the census
+
+**§3.1 and §4 say the lab *"has NEVER CLOSED A VALIDATION LOOP AGAINST MEASURED PHYSICAL
+REALITY UNDER A FROZEN PRE-REGISTRATION — in any dimension."* That sentence is FALSE as
+written, and the family it is wrong about is heat-transfer.**
+
+**K0cS closed exactly that loop** — Ampofo & Karayiannis (2003), **read in full**, Fig.
+11 digitised to ±0.15, under a frozen pre-registration — and returned **GATE FAIL, 14 of
+20 rows, 0 models passing.** **K0cT and K0cX closed it too** — ERCOFTAC Case 079, the
+primary files **on disk**, Betts & Bokhari Table 1 read in full — returning **GATE FAIL
+8 of 18** and **24 of 42, 0 of 3 models.**
+
+**The loop WAS closed. The answer was NO.** Those rows are tiered `NOT HELD` **because
+their gates failed, not because no comparison was made** — and the difference is the
+whole distinction between a lab that has not tried and a lab that tried and reported an
+honest negative. **The corrected sentence is Ruling 4's own wording: HOLDS requires that
+the lab compared something to measured physical reality under a frozen pre-registration
+AND WAS RIGHT.**
+
+**This is the second time in two sessions this team has published a sentence stronger
+than its evidence** (§6a.0 was the first). **The pattern is the finding: a headline
+sharpened for force outruns the rows beneath it, and this team is not exempt from the
+scepticism it applies to others.**
+
+### 3.8i FOUR ITEMS THIS PASS REFUSES TO DECIDE, named so nobody assumes they were
+
+1. **THE `V` COLUMN IS SCORED TWO DIFFERENT WAYS ON THE SAME EVIDENCE CLASS, and Ruling
+   4's text arguably makes both green.** `flat-plate-tmr` scores V `NO` because the
+   reference is *"CFL3D/FUN3D, code-to-code"*; `K0c` scores V `YES` on a **numerical
+   benchmark** that is additionally **SECONDARY** (de Vahl Davis 1983, paywalled, never
+   read, reached through Han & Xie Table 3). **Ruling 4 as written admits *"another
+   code's result or a numerical benchmark"* — which would make BOTH green.** Moving
+   either row is a **rubric widening in the flattering direction**, and this pass will
+   not take it. **If K0c's V goes the way of flat-plate-tmr, K0c holds ZERO green
+   columns.** To the chief and to Sanaa; no row moved.
+2. **The class-vs-case row structure** (§6b.8). Her directive says rows are **problem
+   classes**; this file is one row per case. **Escalated, not decided.**
+3. **`GATE REACHED` = missing one, or missing one-or-two** (§6b.8). Her text says
+   **one**; Ruling 1's second amendment says **one or two**. Disclosed; **every GATE
+   REACHED row already names its missing letters, so the strict reading is recoverable
+   from the tables without re-auditing.**
+4. **Six of heat-transfer's seven `GATE REACHED` rows have not had their frozen-prereg
+   condition individually verified** (§3.8c). **The tier is carried pending that check,
+   and the check is one lane's work.**
+
+### 3.8j ⚠⚠ A HAZARD TO A FROZEN PRE-REGISTRATION, REPORTED TO THE CHIEF AND NOT ACTED ON
+
+**All thirteen `cases/ansys_verification/VMFL051/*` paths appear in the session's opening
+`git status` snapshot as STAGED DELETIONS (`D `), while every one of them exists at
+HEAD.** Under §6a's ruling `git status` is not a valid instrument here and this is
+**not treated as a fact** — it has the exact shape of the phantom `D` rows §6a
+measured. **But if that staged deletion is ever committed, a FROZEN, ARMED, UNFIRED
+pre-registration leaves HEAD and its rule-2 freeze is destroyed.** VMFL051's is the
+cleanest unfired freeze in the lab. **The shared index is the chief's to clear and
+nothing was touched here (rule 10).**
 
 ---
 ---
