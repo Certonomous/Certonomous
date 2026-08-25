@@ -76,3 +76,33 @@ value is a `GATE FAIL`, never narrated as agreement with Ansys. The `"(h|e)"` fi
 confirmed by the run (smoke rc=0; run-1 `Entry 'e' not found` gone; `e` solved cleanly).
 
 _Last updated 2026-08-25T03:04:35Z._
+
+---
+
+## CLOSE-OUT COMPLETE — 2026-08-25T03:18:07Z
+The supervisor read the grading JSON and **ruled the tier ** (not HOLDS),
+naming the **G column** as the limb held back: observed order p=3.3862 is measured but
+not trusted (above the scheme's formal order), d21 (−2.447e−4) is ~3× L3's plateau floor,
+so GCI_fine 0.0017 % is not a discretisation-uncertainty statement (`N-AV7` second form);
+V is strong (exact matched to 0.0106 %). Verdict `PASS` unchanged (comparator's,
+mechanical); order not re-run, verdict not softened. **First compressible PASS, third credential.**
+
+**Landed after the ruling:**
+- RESULTS.md tier updated DEFERRED → `GATE REACHED` (G named) — commit `f4332fe3`.
+- **THREE PARENTS in one invocation** — commit `96535662`: register **row #7**
+  (`PASS`, tier `GATE REACHED` inline) + credential tally **2→3 PASS of 6→7 run**;
+  CASE_MAP VMFL045 ladder tier cell **NOT HELD (run 1) → GATE REACHED (R2)** and the
+  now-false "re-run pending" clause corrected; campaign fraction re-derived, unchanged at
+  **5 of 73** (a re-run adds no distinct case). Guards: `check_anchor_is_last` (row #6
+  VMFL003 was last), `check_aggregates_moved` on both parents, `append_guards --selftest`
+  inside the invocation.
+- Calibration **C-58** (measured contention ClockTime/ExecutionTime 1.021/1.004/1.000 —
+  L3 idle-wait 0.0 %; VMFL003 co-resident but not core-starved) — commit `5703f2c3`.
+- `reaudit_landed_blocks.py`: **19 blocks intact** at HEAD.
+
+**Flagged for the supervisor, NOT touched (not this lane's records):** the CASE_MAP
+"cases run and their tiers" glance table (~line 138) is missing VMFL003's row and its
+header still reads "four cases run"; it needs VMFL003 + a standalone VMFL045-R2 entry and
+a header refresh. Left to VMFL003's/the supervisor's hand.
+
+_Case CLOSED at HEAD `96535662`._
