@@ -1,0 +1,99 @@
+{
+  "levels": [
+    1,
+    2,
+    4
+  ],
+  "gates": {
+    "m1_nonortho<=70": "GATE FAIL",
+    "m1_skew<=4": "PASS",
+    "m1_MeshOK": "GATE FAIL",
+    "m2_nonortho<=70": "GATE FAIL",
+    "m2_skew<=4": "PASS",
+    "m2_MeshOK": "GATE FAIL",
+    "m4_nonortho<=70": "GATE FAIL",
+    "m4_skew<=4": "PASS",
+    "m4_MeshOK": "GATE FAIL",
+    "r_L1_L2_2.000+-0.002": "PASS",
+    "r_L2_L4_2.000+-0.002": "PASS",
+    "L1_in_L2_max_m<=1e-12c": "PASS",
+    "L2_in_L4_max_m<=1e-12c": "PASS",
+    "L1_in_L4_max_m<=1e-12c": "PASS",
+    "m1_yplus<=300_ESTIMATE": "PASS",
+    "m4_S2cell<=0.00650c": "PASS"
+  },
+  "checkMesh": {
+    "m1": {
+      "present": true,
+      "nonortho_max": 84.6437,
+      "nonortho_avg": 16.765,
+      "skew_max": 1.44254,
+      "aspect_max": 5934.1,
+      "aspect_cells": 4992,
+      "nonortho_severe": 36,
+      "mesh_ok": false,
+      "failed_checks": 1,
+      "cells": 108216
+    },
+    "m2": {
+      "present": true,
+      "nonortho_max": 86.0173,
+      "nonortho_avg": 16.7575,
+      "skew_max": 1.44298,
+      "aspect_max": 6469.0,
+      "aspect_cells": 40032,
+      "nonortho_severe": 216,
+      "mesh_ok": false,
+      "failed_checks": 1,
+      "cells": 865728
+    },
+    "m4": {
+      "present": true,
+      "nonortho_max": 86.7767,
+      "nonortho_avg": 16.7543,
+      "skew_max": 1.44318,
+      "aspect_max": 6748.52,
+      "aspect_cells": 311216,
+      "nonortho_severe": 1440,
+      "mesh_ok": false,
+      "failed_checks": 1,
+      "cells": 6925824
+    }
+  },
+  "cells": {
+    "1": 108216,
+    "2": 865728,
+    "4": 6925824
+  },
+  "r": {
+    "r_L1_L2": 2.0,
+    "r_L2_L4": 2.0
+  },
+  "nesting": {
+    "L1_in_L2_max_m": 0.0,
+    "L2_in_L4_max_m": 0.0,
+    "L1_in_L4_max_m": 0.0,
+    "planted_control_m": 1.000000082740371e-09,
+    "planted_control_seen": true
+  },
+  "yplus_estimate": {
+    "m1": 39.71878953317981,
+    "m2": 18.222937112266095,
+    "m4": 8.73540924775393
+  },
+  "yplus_basis": "flat-plate cf = 0.0592 Re^-0.2 at Re = 11.72e6 -> cf = 0.002283, u_tau = 9.6520 m/s. ESTIMATE, NOT A MEASUREMENT: no solve exists under this registration.",
+  "S2_cell_over_c": {
+    "m1": 0.025,
+    "m2": 0.0125,
+    "m4": 0.00625
+  },
+  "admission": "GATE FAIL",
+  "failing_channels": [
+    "m1_nonortho<=70",
+    "m1_MeshOK",
+    "m2_nonortho<=70",
+    "m2_MeshOK",
+    "m4_nonortho<=70",
+    "m4_MeshOK"
+  ]
+}

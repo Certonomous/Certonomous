@@ -1,0 +1,7 @@
+mesh m1 built in 1s rc=0
+checkMesh m1 in 1s rc=0
+mesh m2 built in 7s rc=0
+checkMesh m2 in 4s rc=0
+mesh m4 built in 66s rc=0
+checkMesh m4 in 35s rc=0
+R0 wall 131s
