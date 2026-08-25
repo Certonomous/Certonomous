@@ -1,0 +1,143 @@
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d1_base.py	2026-08-25 16:43:32.532198620 +0000
++++ ./d13_opt_runScript.py	2026-08-25 16:43:32.553765051 +0000
+@@ -1,6 +1,26 @@
+ #!/usr/bin/env python
+ """
+ DAFoam run script for the NACA0012 airfoil at low-speed
++
++CURRICULUM ITEM D13 PRODUCER -- basin/restart robustness on D1's problem.
++
++DERIVED FROM the frozen D1 producer `curriculum_D2/d1_opt_runScript.py`
++(md5 4c9811d16f344bc23136981cd6092d8f), which is NOT EDITED: D1's file is
++frozen by `curriculum_D1/PREREGISTRATION.md` and CLAUDE.md rule 6 forbids
++editing it.  This is a SEPARATE FILE with exactly TWO registered changes and
++no others:
++  (1) this header block;
++  (2) the task name `d13_start` added to the guard tuple, and one new
++      `elif args.task == "d13_start":` branch appended inside it.
++Every line of the D1 case setup, daOptions, meshOptions, DV/constraint
++definition, IPOPT settings and the whole `_fd_suite` instrument is BYTE
++IDENTICAL to the D1 file.  `d13_script.diff` in the run root carries the proof
++and the registered hunk count.
++
++The finite-difference instrument `d1_fd_endpoint.py`
++(md5 7e454d2f1830a40086465d9b5c57a941) is staged UNCHANGED and imported
++UNCHANGED.  D13 selects no step: every step is chosen inside this process by
++that frozen file from |J_adj| and the inherited eta alone.
+ """
+ 
+ # =============================================================================
+@@ -248,7 +268,7 @@
+     # verify the total derivatives against the finite-difference
+     prob.run_model()
+     prob.check_totals(compact_print=False, step=1e-3, form="central", step_calc="abs")
+-elif args.task in ("d1_eta", "d1_opt", "d1_endpoint_shipped"):
++elif args.task in ("d1_eta", "d1_opt", "d1_endpoint_shipped", "d13_start"):
+     # ---------------------------------------------------------------------
+     # Curriculum item D1.  Frozen in
+     #   cases/dafoam/ladder-a/A1/curriculum_D1/PREREGISTRATION.md
+@@ -466,6 +486,104 @@
+                 _json.dump(out, fh, indent=1)
+         _p("D1_SHIPPED_MAXRSS_GiB %.4f" % _rss())
+ 
++    elif args.task == "d13_start":
++        # -------------------------------------------------------------------
++        # Curriculum item D13.  ONE perturbed start of the D1 problem.
++        # Frozen in cases/dafoam/ladder-a/A1/curriculum_D13/PREREGISTRATION.md
++        #
++        # The start vector comes from the FROZEN LITERAL TABLE in d13_basin.py
++        # and from nowhere else.  The seed regeneration below is PRINTED FOR
++        # THE RECORD and never sets a design variable: a start set whose
++        # identity depends on an RNG implementation detail is not a registered
++        # experiment, so the table is the authority and the seed documents it.
++        # -------------------------------------------------------------------
++        import d13_basin as _d13b
++
++        _eta13 = float(_os.environ.get("D13_ETA", "0") or 0)
++        assert _eta13 > 0.0, "D13_ETA must be exported (D1 arm E run 2 value)"
++        _k = int(_os.environ["D13_START_ID"])
++        assert _k in _d13b.START_IDS, "D13_START_ID must be one of %s" % (
++            _d13b.START_IDS,)
++
++        _p("D13_START_ID %d" % _k)
++        _p("D13_ETA %.17g" % _eta13)
++        _p("D13_SEED %d DELTA_SHAPE %.17g DELTA_AOA %.17g"
++           % (_d13b.SEED, _d13b.DELTA_SHAPE, _d13b.DELTA_AOA))
++
++        _sh0, _pv0 = _d13b.start_vectors(_k)
++        try:
++            _rg = _np.random.default_rng(_d13b.SEED)
++            _rs = _rg.uniform(-_d13b.DELTA_SHAPE, _d13b.DELTA_SHAPE,
++                              size=(5, 8))
++            _ra = _rg.uniform(-_d13b.DELTA_AOA, _d13b.DELTA_AOA, size=5)
++            _dev_s = max(abs(a - b)
++                         for a, b in zip(_rs[_k - 1].tolist(), _sh0))
++            _dev_a = abs(float(_ra[_k - 1]) - (_pv0[1] - _d13b.AOA0))
++            _p("D13_SEED_REGEN numpy=%s max_shape_dev=%.6e aoa_dev=%.6e"
++               % (_np.__version__, _dev_s, _dev_a))
++        except Exception as _e:
++            _p("D13_SEED_REGEN UNAVAILABLE %s" % _e)
++
++        _setv("shape", _np.asarray(_sh0))
++        _setv("patchV", _np.asarray(_pv0))
++        prob.run_model()
++        _p("D13_START_SHAPE %s" % _json.dumps(_vec("shape").tolist()))
++        _p("D13_START_PATCHV %s" % _json.dumps(_vec("patchV").tolist()))
++        _p("D13_START_CD %.17g" % _CD())
++        _p("D13_START_CL %.17g" % _CL())
++        _start_cons = _cons()
++        _p("D13_START_CONS %s" % _json.dumps(_start_cons))
++
++        # restore the CL equality by AoA, exactly as D1 arm O did
++        optFuncs.findFeasibleDesign(["scenario1.aero_post.CL"], ["patchV"],
++                                    targets=[CL_target], designVarsComp=[1])
++        _feas_cd, _feas_cl = _CD(), _CL()
++        _feas_pv = _vec("patchV").tolist()
++        _p("D13_FEASIBLE_CD %.17g" % _feas_cd)
++        _p("D13_FEASIBLE_CL %.17g" % _feas_cl)
++        _p("D13_FEASIBLE_PATCHV %s" % _json.dumps(_feas_pv))
++
++        _t0 = _time.time()
++        prob.run_driver()
++        _wall = _time.time() - _t0
++        _p("D13_DRIVER_WALL_S %.2f" % _wall)
++
++        # IPOPT's own statement, embedded here as ONE channel; the grader reads
++        # opt_IPOPT.txt INDEPENDENTLY and refuses if the two disagree.
++        import re as _re
++        _exit_line, _majors = "NOT READ", -1
++        try:
++            with open("opt_IPOPT.txt") as _fh:
++                _txt = _fh.read()
++            _me = _re.findall(r"^(EXIT:.*)$", _txt, _re.M)
++            _mi = _re.findall(r"^Number of Iterations\.*:\s*(\d+)\s*$",
++                              _txt, _re.M)
++            if _me:
++                _exit_line = _me[-1].strip()
++            if _mi:
++                _majors = int(_mi[-1])
++        except Exception as _e:
++            _exit_line = "UNREADABLE %s" % _e
++        _p("D13_IPOPT_EXIT %s" % _exit_line)
++        _p("D13_IPOPT_MAJORS %d" % _majors)
++
++        out = _fd_suite("ENDPOINT_S%d" % _k, _eta13)
++        out["start_id"] = _k
++        out["start_shape"] = _sh0
++        out["start_patchV"] = _pv0
++        out["start_cons"] = _start_cons
++        out["feasible_CD"] = _feas_cd
++        out["feasible_CL"] = _feas_cl
++        out["feasible_patchV"] = _feas_pv
++        out["driver_wall_s"] = _wall
++        out["ipopt_exit"] = _exit_line
++        out["ipopt_majors"] = _majors
++        if _rank == 0:
++            with open(_os.environ.get("D13_ENDPOINT_JSON",
++                                      "endpoint_d13.json"), "w") as fh:
++                _json.dump(out, fh, indent=1)
++        _p("D13_MAXRSS_GiB %.4f" % _rss())
++
+ else:
+     print("task arg not found!")
+     exit(1)
