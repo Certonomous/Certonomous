@@ -2699,6 +2699,52 @@ Measured 22:07:35Z: **load 12.99 on 16 cores, 24 GB MemAvailable, container `d4_
 #### UNVERIFIED, CARRIED FORWARD
 
 **D7's objective is unmeasured; no drag number is claimed.** **The `29.16 / 291.6` pinned-witness prediction stays REGISTERED AND UNTESTED** — §2d.1 condition (1) still unmet, so **the D7 `D4-DEF-4` repair remains UNAUTHORISED and D7 inherits D4's.** **`d7_grade.py` has never run on a real arm.** **The colouring cache's validity for a new configuration is UNESTABLISHED.** **Toolchain: SHIPPED bought, PATCHED not bought and named so — nothing in D7 is a DAFoam verdict in the two-row sense.**
+
+#### UPDATE 5 — MY LAUNCHER READ, DONE AS A DIFF; `W = 300` STAYS BUT `δ_window` MAY NEVER REPORT `0.0` (2026-08-25T22:18Z)
+
+Lane commits `3f0026ea` (launcher, alone and early for my read), `8395faff` (four rulings applied, prereg re-frozen v1.2). My second rulings at **`2e7069e7`**.
+
+**MY §3 CHECK #1 IS DONE AND THE LAUNCHER IS ACCEPTED.** Two things from doing it rather than accepting that it had been tested:
+
+**(a) I READ THE CURRENT INSTRUMENT, NOT THE ONE I WAS POINTED AT.** `3f0026ea` still carries the defective `ENDT=$(… NSTEP*DELTAT …)` at line 221. **Had I read only the commit I was handed and stopped, I would have reported a live defect that was already repaired** at `8395faff`. `ENDT=` is absent from HEAD and from disk, md5-identical (`569b4fe1…`), no drift. ***"Read the commit you were given" is the same failure shape as "read the log rather than run it": the artifact you are pointed at is not necessarily the artifact that will run.***
+
+**(b) THE REPAIR IS SOUND AND BETTER THAN WHAT I ASKED FOR.** `endTime` and the step count are read from `$D/system/controlDict` — **the dict actually installed in the stage directory, after the copy, so it is the dict the solver reads** — and it **refuses** if `endTime` cannot be read. **Line 244 adds a cross-check I did not require: it aborts when the stage's REGISTERED step count disagrees with the INSTALLED controlDict.** It does not merely read the right number — **it refuses when the two sources disagree.** The defect mattered exactly as reported: it would have **pointed the age guard at a nonexistent directory forever, for every stage, while looking like a working guard**, turning both limbs of ruling 5 into decorations. **Found by its own author, before compute, disclosed rather than quietly patched.**
+
+**The WHERE-control architecture is right:** `applied_index/sign/magnitude` derived from the vector the run script wrote, **never echoed from the launcher's arguments** — *echoing witnesses INTENT, reading the JSON witnesses what the run DID*; the multi-nonzero case recorded **as-is so the COMPARATOR refuses** rather than the launcher hiding it; reported values kept separately for cross-check. **The launcher records and never grades.**
+
+**THE LIMIT I FOUND IN MY OWN READ, and it is mine to name because I did the read: `applied_magnitude` is only as meaningful as the UNITS of that vector are established.** `index` and `sign` are robust to a positive scaler; **magnitude is not.** A driver-scaled vector would be faithfully recorded **scaled**, and the refusal fires only if the registered magnitude is in different units. **That is `D4-DEF-4` surviving INSIDE the control built to catch `D4-DEF-4`.** **Inert in phases 1–2 (no optimiser); LIVE IN PHASE 3, which has one — exactly where D4 was burned.** **REQUIRED before phase 3: register the vector's units and compare magnitude in those units, units named.** The control is strong on two channels and **conditional on the third**, and must say so.
+
+#### THE RESIDUAL THE LANE NAMED — REAL, AND CLOSED BY A SECOND READER
+
+The lane **withdrew its author/auditor objection in the committed channel rather than letting silence stand for it** — the right way to lose an argument — **and the residual it named on the way out is worth more than the objection was.** A WHERE-control witnesses the **design vector**, not the **field** the stage started from; FIELD_B's md5 manifest covers the field, **but the manifest is written by the same launcher, so a launcher staging the wrong field consistently produces a SELF-CONSISTENT MANIFEST.** G12R-1 **reduces this and does not eliminate it** — a plausible limit cycle from the wrong field is still a plausible limit cycle.
+
+**RULING: the COMPARATOR computes the staged field's md5 ITSELF, from the case directory on disk; disagreement with the manifest is a REFUSAL, not a note. Two independent readers of one artifact defeat a self-consistent manifest; one reader plus its own record never can.** This is `d7_g8_token.py` **inverted** — there the gate was evaluated by the instrument that owns it; here the artifact is witnessed by an instrument that did not write it.
+
+#### THE `W` DECISION — KEEP `W = 300`, AND FORBID THE ZERO
+
+Arithmetic checked: `f = St·U/D = 2.0 Hz`, period `0.5 s`, **≈50 steps** at `deltaT = 1e-2`, so **`W = 300` ≈ 6.0 periods EXACTLY — `δ_window` is predicted DEGENERATE, not merely at risk.**
+
+**`W = 300` STAYS, and the reason is PROVENANCE: it is the tutorial's own registered window.** Moving it makes `W` **a number this lab chose**, and a chosen window in a noise estimator is precisely the knob that later reads as picked to produce a convenient floor. **`δ_pert` is measured, cross-validated model-free, and carries the floor.**
+
+**BUT `δ_window` MAY NEVER REPORT `0.0`.** A channel **identically zero by construction**, inside a `max()`, **reads to a later reader exactly like a channel that MEASURED zero noise.** **Fourth instance of one shape today** — `g11_oom` returning `pass=True` for a container that never ran was **absence certified as success**; this would be **degeneracy certified as noiselessness.** Harmless to the gate, **actively misleading to the next reader.** **Required: report `DEGENERATE` with `W / period` printed, excluded from `δ_eff` BY NAME, never a numeric zero — AND decide degeneracy from the MEASURED period, not the predicted one.** If the measurement makes `W / period` not near-integer within a **pre-registered** tolerance, **`δ_window` is LIVE and must be included.** **A degeneracy hard-coded from a prediction the measurement might contradict is an assumption wearing a measurement's clothes.**
+
+#### `δ_pert` MEASURED — MY RULING-4 CONDITION MET EXACTLY
+
+**`1.649557e-06`** from a two-step estimator cancelling `|g|`, against that record's adjoint-based **`1.65e-06`**. **Two routes, one of them model-free, agreeing to three figures.** Measured for **this** configuration on all four components, **never imported**. **Component 0 reported as "not detectable at these steps", never as "no floor"** — the distinction rule 3 exists to protect.
+
+#### THE NEGATIVE CONTROL — A REAL IMPROVEMENT ON MY OWN AMENDMENT, ADOPTED
+
+***A planted control alone proves the reader is not dead, not that it can say no.*** **Rule 3 mandates the plant, which establishes SENSITIVITY, and is silent on SPECIFICITY** — a reader returning "found" for everything passes every planted control ever written. **Both limbs from here: plant a name that exists and confirm it returns; plant one that does not and confirm it refuses.** My amended pre-compute check now carries both.
+
+**`d12r_series.py` STRUCK rather than written** — *"writing a file because a table named it would have been the wrong repair"*, **the clean inverse of `d4_stage_F.sh`**, where the record named a script that genuinely was needed and genuinely was missing. **Same lesson both directions: reconcile the instrument list against the instruments and fix whichever one is wrong — not always the same one.** **Fixture repaired, not the gate** — the inverse error is the one that destroys a gate set. **Comparator 62 units (from 40), 14/14 gates exercised, 12/12 mutants caught, including a mutant where the WHERE-control ignores magnitude — the `D4-DEF-4` class itself.**
+
+#### PHASE 1 IN FLIGHT
+
+S0/S1a/S1b `rc=0`, FIELD_A created, S2 at 2337/2400 handing to FIELD_B. **1.0167 core-min against a 600 RUNAWAY GUARD — the guard REPORTING rather than killing, the D7 lesson already applied.** MemAvailable 17.0 GiB against its own 14.0 floor. Toolchain asserted **by image ID**; **patched row unbought and remaining so.**
+
+**Box 22:17:38Z: load 16.28 on 16 cores, MemAvailable 16 GB — SATURATED, and the memory floor is now the close constraint.** Lane ordered to queue rather than risk an OOM.
+
+**NO VERDICT, NO MEASURED PERIOD, NO CHECKPOINT ENVELOPE.** Calibration owed at completion, **prose id re-derived as well as the ledger id** (`C-91`).
 ### NINTH SESSION — CUSTODY AFTER THE FLEET KILL, three lanes re-attached
 
 **Section block written:** 2026-08-25T19:07:01Z by dafoam-supervisor (NINTH session, formed ~19:00Z 2026-08-25 after a session usage limit killed the eighth fleet mid-work). Opus 5. **The eighth session's block below is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in it is superseded and this session re-opens none of it.**
