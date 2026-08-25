@@ -1159,3 +1159,166 @@ stamp.
 
 *Addendum 1 ends. Status: `PENDING` — frozen, nothing launched, 0 core-minutes consumed,
 launch BLOCKED on a permission decision that is Sanaa's alone.*
+
+---
+
+## ADDENDUM 2 — the §3 pre-launch pin on THIS DOCUMENT, re-scoped from WHOLE FILE to FROZEN BODY
+
+**Stamp:** 2026-08-25T16:07:27Z (`date -u`, read in the shell invocation that appended this section).
+**Document version:** the text frozen at `c1ba1845` is **v1.0**; Addendum 1 made it **v1.1**; this addendum makes it **v1.2**.
+**Appended at HEAD:** 4a507a8912f295cec00f3364368b3df406b77220.
+**Wrapper commit this addendum discloses:** `2d5e2411` (blob `23c338242bc535b383fbbb112b45848335e01162`).
+
+> **lines whose number changed above this section: 0.**
+> Asserted by measurement, not by intention, and verified by diff rather than by
+> assertion: the file as it stood immediately before this append (blob
+> `85b645c2d3abeb27d67cd1dfe64238824b0261e6`, 93081 bytes, 1161 lines) was diffed against the file
+> carrying this addendum. The diff is a **single trailing hunk beginning after the last
+> line of Addendum 1, with ZERO deletions and ZERO modifications**, and the byte prefix
+> of the new file over the old file's full length is **identical**. The numeric result
+> of both checks is printed in the commit message for this addendum. **No line above
+> this heading changed number, content or position.** Other records cite this document
+> by line, and one citation sits inside an executable check.
+
+### Freeze condition, checked in the writing invocation
+
+**The run directory that must not exist:** `verification/runs/F5b_runs/physics_p1`.
+Checked with `test -e /home/ubuntu/Certonomous/verification/runs/F5b_runs/physics_p1`
+in the same shell invocation that appended this section: **ABSENT** at **2026-08-25T16:07:27Z**.
+The check is written so that ABSENT is its success path and it is **not** `&&`-chained
+behind a command whose non-zero exit is the expected result — the §9 lesson, applied.
+**F5b is UNFIRED. Zero core-minutes of solver compute have been consumed by this rung.**
+
+### What happened: the wrapper's FIRST EXECUTION refused, and the refusal was correct
+
+`launch_f5b_physics.sh` @ `83e0a309` was committed with every assertion **UNEXERCISED**,
+a status Addendum 1 recorded explicitly. Its first execution — 2026-08-25T15:59:17Z, under
+Sanaa's approval of this run — produced:
+
+```
+A1  physics_p1 ABSENT                                          OK
+A2a git status --porcelain over E2-E5 EMPTY                    OK
+A2b E1-E5 md5s equal section 1 (5/5)                           OK
+REFUSE (exit 2): verification/campaign/F5b_PHYSICS_PREREGISTRATION.md hashes to
+85b645c2d3abeb27d67cd1dfe64238824b0261e6, not the frozen blob f1cbc96d26846ea583da6d897e914b37a5f576a4
+```
+
+Exit code 2, **before `mkdir`**; `physics_p1` was not created and no solver process
+existed. The cause: the wrapper pinned the **v1.0** blob `f1cbc96d`, and **Addendum 1
+itself** (commit `45995a5e`) moved this document's blob to `85b645c2`. **The amendment
+broke the very assertion it describes**, and because the wrapper had never been run,
+nothing caught it.
+
+**This is L-316's exact shape.** The reader's self-tests are comprehensive and all green —
+four §4 controls, seven §5 completion clause-breakers each firing exactly its own clause,
+both grading directions on the same frozen bands, and G3's three limbs each shown able to
+fire and not to. **Every one of them proves the GRADER and reaches no line of the
+LAUNCHER.** A comparator selftest is not a launcher test.
+
+### Why the pin was NOT re-pointed — L-315
+
+The obvious repair — set the constant to `85b645c2` — was **put to the cfd supervisor and
+REFUSED**, and the refusal is recorded here because it is the substantive ruling:
+
+> Re-pointing would make the wrapper run today and **re-arm the identical trap at the next
+> legal amendment**. The cheapest way to keep the check green would once again be **not to
+> write the amendment** — and rule 2 *requires* post-freeze departures to be written, as
+> dated addenda appended at the foot. **A check that penalises the honest action is worse
+> than no check, because it corrupts behaviour rather than merely missing defects. That is
+> L-315**, cfd's own lesson.
+
+**The general rule applied instead**, the L-315 refinement already on the lab's record:
+**pin by whole file only where the artifact may NOT legally grow; pin by body wherever it
+MAY.** Failing to apply it at the very next call site would be the L-221/L-222 shape — *a
+lesson is not applied until every call site asserts it*.
+
+### What changed: ONE of four call sites, and the instrument is untouched
+
+The wrapper applies one instrument, `check_blob`, to four artifacts. **Three of them —
+the reader, the fixture generator and the C-N1 fixture — are CODE and may not legally
+grow.** Whole-blob equality is exactly right for those, and `check_blob` and its three
+calls are **deliberately left completely alone**.
+
+Only this document may legally grow. For it alone, `check_frozen_body` asserts that the
+**sha256 of the first `FROZEN_BODY_BYTES` bytes** equals `FROZEN_BODY_SHA256`:
+
+| constant | value |
+| --- | --- |
+| `FROZEN_BODY_BLOB` | `f1cbc96d26846ea583da6d897e914b37a5f576a4` — **kept**, the identity of the frozen text (v1.0 @ `c1ba1845`); nothing is lost from the record |
+| `FROZEN_BODY_BYTES` | `85802` |
+| `FROZEN_BODY_SHA256` | `c44b913051b05b85d617a94809cef916b5fc762631da13ab6cc6f9ed8177b9df` |
+
+**Bytes, never a line count and never `head -n`** — a line-count check is not a pin.
+**Two failure modes, each refused separately with its own message**, because a truncation
+must never read as a pass.
+
+This is **strictly stronger** than the whole-file check it replaces in the way that
+matters: it proves the frozen text is unchanged **and** permits the legal growth the
+charter requires. Honesty then costs nothing, which is the entire point of L-315.
+
+**No marker was inserted into this document.** An inserted marker would shift Addendum 1's
+line numbers, and other records cite these files by line. The prefix assertion needs none.
+
+### The equivalence, PROVEN rather than asserted — and re-derived by this lane
+
+| quantity | v1.0 `f1cbc96d` | v1.1 `85b645c2` |
+| --- | --- | --- |
+| bytes | **85,802** | **93,081** |
+| lines | **1,049** | **1,161** |
+| `git diff --numstat` v1.0 → v1.1 | **112 added** | **0 deleted** |
+| sha256 | `c44b9130…8177b9df` | `3cb68f43…29a351040` |
+
+**Prefix proof:** `sha256(first 85,802 bytes of v1.1)` = `c44b913051b05b85d617a94809cef916b5fc762631da13ab6cc6f9ed8177b9df` = `sha256(v1.0 in full)`. **Identical.**
+The frozen body is byte-for-byte unchanged across Addendum 1, so **every gate, band, cap
+and label is bit-identical between the two blobs.** The supervisor's independent proof of
+the same fact was re-derived here rather than quoted.
+
+### The new assertion was EXERCISED, in every mode, before it was trusted
+
+Driven on the **literal function text extracted from the committed wrapper**, in isolation,
+so that nothing could launch:
+
+| fixture | bytes | result |
+| --- | --- | --- |
+| the live file (already grown by Addendum 1) | 93,081 | **PASS** |
+| **one byte short** of the frozen body | 85,801 | **REFUSE** — truncation message |
+| badly truncated | 200 | **REFUSE** — truncation message |
+| one byte flipped **inside** the frozen body | 93,081 | **REFUSE** — *"THE FROZEN TEXT MOVED"* |
+| a legal future addendum appended | 93,149 | **PASS** |
+
+The **one-byte-short** case is the one that matters: the boundary refuses, so a truncation
+cannot read as a pass. The final row is the point of the whole re-scoping — a future legal
+amendment does not break the launcher.
+
+**A quoting defect was caught in this process and is disclosed rather than quietly fixed.**
+The first draft of the hash line emitted `cut -d\' \' -f1`, which makes the delimiter a
+literal quote character. **It passed `bash -n`.** Syntax checking is not semantic checking,
+and it was caught only because the function was exercised instead of trusted. Replaced with
+`awk '{print $1}'` before commit.
+
+### What this addendum does NOT do
+
+**Gate quantities, bands, cap and labels are UNCHANGED.** G1's `A_L ≥ +2.00 C_L·deg`,
+G2's `0.40` over `≤ 2.00°`, G3's `2.00×` / `1.00 %` / `5 consecutive`, the §8 point
+estimate 35.0 core-min, band 28.8–48.0 and **RUN CAP 72.0 core-min**, and every label in
+the §7 outcome map stand exactly as frozen at `c1ba1845`. Nothing here moves a threshold
+in either direction, and an addendum could not lawfully do so (rule 2). This addendum
+changes only **how the launcher verifies that the frozen text is the text that ran.**
+
+The reader, generator and fixture pins are **unchanged and still whole-blob**. The §10
+grading path is **unchanged**: `analyse_f5b_physics.py` still hashes to
+`6c6d34d02e6de925457dbfdbf75a0e004168f345`, the stage-2 freeze blob at `a80d5f36`.
+
+### Correction to Addendum 1's closing line
+
+Addendum 1 ends *"launch BLOCKED on a permission decision that is Sanaa's alone."* That
+sentence is **struck as to the word "BLOCKED"** only: **Sanaa APPROVED this run in her own
+session turn of 2026-08-25** — *"F5b: APPROVED. The 72-core-min capped run fires as
+specced."* The original line is **not rewritten** (rule 6); it stands above with this
+strike recorded against it. *"Nothing launched"* and *"0 core-minutes consumed"* remain
+**true** as of this addendum's stamp: the launch that followed the approval refused at A3,
+on the defect this addendum repairs.
+
+*Addendum 2 ends. Status: `PENDING` — frozen, nothing launched, 0 core-minutes of solver
+compute consumed, launch APPROVED by Sanaa and held pending the supervisor's check-1 read
+of the wrapper diff.*
