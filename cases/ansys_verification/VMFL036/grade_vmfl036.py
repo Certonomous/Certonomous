@@ -292,7 +292,15 @@ def completion_check(level_dir):
     if not os.path.isfile(rc_path):
         refuse("C1", "no RUN_RC.txt in %s -- the run's own exit code is not on disk"
                      % level_dir)
-    rcd = dict(re.findall(r"(\w+)=(.*)", open(rc_path).read()))
+    # REPAIRED 2026-08-25 under VERIFICATION_CHARTER.md 2d.1 -- see the case's
+    # PREREG_ADDENDUM_02.  The launcher writes "rc = 0" WITH SPACES; the original
+    # pattern r"(\w+)=(.*)" required the "=" to abut the key, so NO key matched,
+    # every field fell back to its default, rc defaulted to "1" and the strict-
+    # completion guard REFUSED every level (exit 2).  The guard refused in the
+    # SAFE direction -- it produced no number at all -- which is why this repair
+    # cannot have been selected to move a verdict.
+    rcd = dict((k, v.strip()) for k, v in
+               re.findall(r"(\w+)\s*=\s*(.*)", open(rc_path).read()))
     if int(rcd.get("rc", "1")) != 0:
         refuse("C1", "%s records rc=%s -- a non-zero exit is a finding, triage it"
                      % (rc_path, rcd.get("rc")))
