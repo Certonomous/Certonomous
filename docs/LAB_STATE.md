@@ -920,7 +920,6 @@ territories carry the same two hazards untouched**: closure's Kaandorp record me
 *"limit-cycle between checkpoints"*, which is a Class A shape, and closure's
 `make_feature_library.py` guard is the original §31.3 `assert`.
 
-
 ##### Bound on the -O hazard, 22:48Z
 
 *Written by the chief's records lane. **This is THE CHIEF'S RECORD of a bound another
@@ -958,7 +957,6 @@ sacrificial copies and **all four proceeded where they should have refused**; **
 success `print` after a check**. **Each team's adoption of the no-`assert`-guard rule is
 its own call under Sanaa's desk-item disposal rule; `CLAUDE.md` was NOT edited.**
 
-*Recorded 2026-08-25T22:50:59Z.*
 *Recorded 2026-08-25T22:51:25Z.*
 
 ## closure
