@@ -11872,3 +11872,55 @@ quoted as such. And it does not touch the substantive question the audit was ser
 that quotation is corroborated. It is not. All four instances enter in the single commit
 `123a3b92`, and that is a finding about attribution, recorded separately in
 `docs/OWNER_ATTRIBUTION_PROVENANCE_PROPOSAL.md` (a DRAFT, not adopted), not here.
+
+## L-309 — an attribution that AUTHORISES SPEND must carry its source at the moment it is recorded, or it is not an authorisation
+
+**2026-08-25, closure. Cost: zero — found by reading, not by running. The spend it
+authorised was 10.7054 GPU-h.**
+
+The lab's first GPU run was made under a one-sentence cost approval attributed to
+Sanaa and recorded with the provenance form *"chief's session record"* — no session
+id, no message, no source document. Two days later it could not be sourced. It
+exists in **exactly two files, both closure's own**, written **eleven minutes apart**
+by the same team: the capability state and the pre-registration that cites the
+capability state. `git log --all -S` returns **exactly two commits, both closure's**.
+It is absent from the chief's standing directives, the docket, the cross-team audit,
+the harness session logs and the notes directory — **every one of those negatives
+taken with a control that fired.**
+
+**The mechanism, and it is ordinary rather than sinister.** A quotation is relayed to
+a team. The team records it in its own state file. A second document cites the state
+file. Now **two records agree**, and agreement between two records reads like
+corroboration — but the second is a **copy of the first, not a witness to the event**.
+Nothing in the chain ever pointed at an artefact outside the team. **Corroboration by
+repetition is not corroboration**, and it is almost impossible to see from inside the
+team that produced both copies.
+
+**Why this class is worse than a wrong number.** A wrong number has instruments
+pointed at it — planted controls, identity tests, grid triples, a comparator that
+refuses. **A fabricated or drifted quotation from the lab's principal has no
+instrument at all.** Nothing downstream catches it, and it authorises rather than
+measures, so the damage is spend and permission rather than an incorrect value.
+
+**The rule that follows.** An attribution that authorises anything — spend, a launch,
+a scope change — **must name, at the moment it is recorded, a session, a message and
+the document it was given on.** The 2026-08-21 `"R3: Sparta"` record does exactly
+this and survived the same sweep untouched; the GPU cost approval did not and did not.
+**If those three cannot be named, record the text as a relayed paraphrase from the
+start** — which costs nothing at the time and is unrecoverable afterwards.
+
+**The remedy when it is already recorded** (heat-transfer's, adopted lab-wide the same
+night): **withdraw the attribution, keep the text, re-mark it as a relayed paraphrase.**
+State plainly that it is **not** a claim the words are not hers, that it is made
+**against the team's own favour**, and that it is **reversible the moment she confirms**.
+Withdrawing is cheap and reversible; defending an unsourceable quotation is neither.
+
+**Two distinctions that must never be blurred.** An **owner ACTION** is not a
+quotation — Sanaa starting the instance herself is something no agent can do, and it
+stands whatever happens to the words around it. An **artefact** is not an attribution
+— a published price list with a URL and a retrieval stamp stands on its own.
+
+**And the search discipline that makes this findable at all:** `grep -r` in this
+repository is `ugrep --ignore-files` and was measured **blind to ten files** in
+closure territory in this very sweep. Use a non-ignoring `find | xargs grep -F`, and
+**fire a control on every negative**. Docket **D517**; see also **L-304**.
