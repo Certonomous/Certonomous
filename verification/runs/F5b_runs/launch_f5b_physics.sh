@@ -20,7 +20,19 @@ RUN="$REPO/verification/runs/F5b_runs/physics_p1"
 CASE="$RUN/case"
 
 # Frozen blobs, from the two freeze commits c1ba1845 (stage 1) and a80d5f36 (stage 2).
-PREREG_BLOB=f1cbc96d26846ea583da6d897e914b37a5f576a4
+#
+# THE PRE-REGISTRATION IS PINNED BY ITS FROZEN BODY, NOT BY THE WHOLE FILE.  See
+# ADDENDUM 2 of that document.  It is the ONE artifact checked here that MAY LEGALLY
+# GROW: rule 2 requires a post-freeze departure to land as a dated addendum APPENDED AT
+# THE FOOT, so a whole-file pin makes the cheapest way to keep this check green "do not
+# write the amendment".  That is L-315, and re-pointing the pin at each new blob would
+# re-arm the same trap at the next legal amendment.  The general rule (the L-315
+# refinement): pin by whole file only where the artifact may NOT legally grow; pin by
+# body wherever it MAY.  The three CODE artifacts below may not grow -- whole-blob
+# equality is exactly right for them and they are deliberately left untouched.
+FROZEN_BODY_BLOB=f1cbc96d26846ea583da6d897e914b37a5f576a4   # identity of the frozen text (v1.0 @ c1ba1845)
+FROZEN_BODY_BYTES=85802
+FROZEN_BODY_SHA256=c44b913051b05b85d617a94809cef916b5fc762631da13ab6cc6f9ed8177b9df
 READER_BLOB=6c6d34d02e6de925457dbfdbf75a0e004168f345
 GENER_BLOB=10f5e475fd2887e0120b4c44dd5fe2dce808349b
 FIXTURE_BLOB=641b2e1c2db75238d428b6b45b15af878b948116
@@ -88,19 +100,48 @@ check_blob () {                       # rule 2: verify the frozen file IS the fi
     fail=1
   fi
 }
-check_blob verification/campaign/F5b_PHYSICS_PREREGISTRATION.md "$PREREG_BLOB"
+check_frozen_body () {                # the pre-registration MAY legally grow (rule 2:
+  # a dated addendum appends at the FOOT).  So pin the FROZEN BODY by BYTES -- never a
+  # line count, never `head -n`: bytes, or it is not a pin.  This is STRICTLY STRONGER
+  # than the whole-blob check it replaces in the way that matters: it proves the frozen
+  # text is unchanged AND permits the legal growth the charter REQUIRES, so honesty
+  # costs nothing.  Two failure modes, each refused with its own message.
+  local p="$1" nbytes="$2" want="$3" size got
+  size=$(wc -c < "$p")
+  if [ "$size" -lt "$nbytes" ]; then
+    echo "REFUSE (exit 2): $p is $size bytes, SHORTER than the frozen body's $nbytes."
+    echo "  The frozen text is not all present.  A TRUNCATION MUST NEVER READ AS A PASS."
+    fail=1; return
+  fi
+  got=$(head -c "$nbytes" "$p" | sha256sum | awk '{print $1}')
+  if [ "$got" != "$want" ]; then
+    echo "REFUSE (exit 2): $p FROZEN BODY (first $nbytes bytes) hashes to"
+    echo "    $got"
+    echo "  not the frozen $want"
+    echo "  THE FROZEN TEXT MOVED -- a gate, band, cap or label may have changed."
+    fail=1; return
+  fi
+}
+check_frozen_body verification/campaign/F5b_PHYSICS_PREREGISTRATION.md \
+                  "$FROZEN_BODY_BYTES" "$FROZEN_BODY_SHA256"
 check_blob verification/runs/F5b_runs/analyse_f5b_physics.py     "$READER_BLOB"
 check_blob verification/runs/F5b_runs/make_theodorsen_fixture.py "$GENER_BLOB"
 check_blob verification/runs/F5b_runs/controls/theodorsen_attached_fixture.dat "$FIXTURE_BLOB"
 [ "$fail" -eq 0 ] || exit 2
-echo "A3  frozen prereg + reader + generator + fixture match blobs   OK"
+echo "A3  frozen BODY ($FROZEN_BODY_BYTES B) + reader + generator + fixture  OK"
 
 # The run directory is created HERE, by the launcher, after every assertion above.
 mkdir -p "$RUN" || { echo "REFUSE (exit 2): cannot create $RUN"; exit 2; }
 
 {
   echo "HEAD at launch: $HEAD"
-  echo "frozen pre-registration blob: $PREREG_BLOB  (verified against the disk file)"
+  echo "frozen pre-registration BODY: $FROZEN_BODY_BYTES bytes"
+  echo "  frozen body sha256:         $FROZEN_BODY_SHA256"
+  echo "  frozen-text blob identity:  $FROZEN_BODY_BLOB  (v1.0 @ c1ba1845)"
+  echo "  live file blob at launch:   $(git hash-object verification/campaign/F5b_PHYSICS_PREREGISTRATION.md)"
+  echo "  live file bytes at launch:  $(wc -c < verification/campaign/F5b_PHYSICS_PREREGISTRATION.md)"
+  echo "  (the live file MAY be LONGER than the frozen body -- rule 2 addenda append at"
+  echo "   the foot.  The pin proves the frozen TEXT did not move, not that nothing grew.)"
   echo "frozen reader blob:           $READER_BLOB  (verified against the disk file)"
   echo "fixture generator blob:       $GENER_BLOB"
   echo "C-N1 fixture blob:            $FIXTURE_BLOB"
