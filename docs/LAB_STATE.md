@@ -569,6 +569,134 @@ taken, and not worked around.**
   duty is **"going forward"**, with **NO BACK-FILL DEMANDED** for the records already
   written.
 
+### EXECUTION REBALANCE AND GPU RESTART — Sanaa, 2026-08-25
+
+**What this entry is.** Sanaa's own session turn of 2026-08-25, in two parts that ran on
+directly into one another: a **GPU restart notice** and a **binding execution-rebalance
+directive tagged `[SANAA-DIRECT]`**. Her words are reproduced **BYTE-EXACT** below — every
+typo, every irregular capital, the tag, **`relentlenstly`**, **`resutls`**,
+**`Prereg goes template-speed`**, the **`≈$2.50/day`**, the **`≠`** in **`Blocked ≠ idle`**,
+and the en-dashes and em-dashes as she typed them. **Nothing is normalised, and nothing here
+may ever be "corrected".** The lab has established that **normalised spelling is the
+signature of a relayed paraphrase rather than a primary source**, and that **the chief's own
+relay has corrupted her words before** — **the typos are the provenance.** This entry exists
+because the directive was living only in relayed messages and not in the repository, which is
+the **L-186** failure exactly; a lane had already flagged it **UNVERIFIED** because its
+signature word returned zero at HEAD. Everything after the quote is **the CHIEF'S READING,
+labelled as such — it is NOT her words.** Zero compute, no solver, no case directory, no
+science; written by a records lane from the HEAD blob, never the worktree copy. Under the
+standing zero-compute ruling recorded in `## verification` (*"rule 12's calibration duty does
+NOT reach zero-compute work"*), **no `docs/COST_CALIBRATION.md` row is owed and none was
+written.**
+
+**HER WORDS, VERBATIM — reproduced byte-exact. PART ONE, on the GPU:**
+
+> Also, for the ansys-verification team: GPU instance is back up , 3.15.199.152  meaning GPU cases can run and should be sent there immediately since that instance is back up and idle. when i come back, i want to see that the teams worked relentlenstly on RUNNING STUFF and producing concrete resutls instead of
+
+**PART TWO, which her message ran on into directly:**
+
+> [SANAA-DIRECT] EXECUTION REBALANCE — binding, all teams:
+>
+> Compute floor: every team with an armed case keeps at least one solver running at all times. An idle queue with armed cases is a defect; report it as one. Lab-wide daily floor: 80 core-hours of case execution (≈$2.50/day) until the never-run backlog clears.
+> Meta-work cap: audits, instrument repairs, re-sweeps, and record archaeology are capped at 20% of any session. New lessons still ship with their executable check, but audits-of-audits and voluntary re-sweeps need a docket reason. The standing re-audit is weekly, scheduled — not continuous.
+> Blocked ≠ idle: any lane blocked on a ruling or relay immediately picks up the next never-run case in its family. The waiting-on-Sanaa list keeps growing while solvers keep running.
+> Prereg goes template-speed: standard verification/validation cases use the 10-line prereg form (case, reference, quantities, bands, ladder, decomposition seed, criteria) — minutes to freeze, not sessions. Bespoke frozen documents are reserved for novel or contested cases only.
+> Fire everything armed, today: the four-model ladder (113 core-min, guard already registered), K0d's pre-flight per its re-brief, the ansys never-run queue in order, the conversion batch, curriculum D2–D15. Nothing armed stays unfired overnight without a named blocker.
+> Progress redefined in the morning report: the headline is cases run / gates fired / matrix cells moved / core-hours burned. Lessons and instrument findings move to an appendix. A day with zero gates fired is a failed day regardless of how much was learned about our own tools.
+> Rigor standard unchanged: every run still lands under its gate, its prereg, its deterministic decomposition. We are raising the denominator — core-hours — not lowering the bar. Very important
+
+---
+
+**═══ THE CHIEF'S READING — NOT SANAA'S WORDS. EVERYTHING BELOW THIS LINE IS THE CHIEF'S, AND SHE MAY CORRECT ANY OF IT. ═══**
+
+**Recorded first, because it is a fact about her text and not an interpretation of it:** the
+last sentence of PART ONE **is incomplete as she typed it** — it ends *"producing concrete
+resutls instead of"* and **runs on directly into the `[SANAA-DIRECT]` directive block**. It
+is **recorded unfinished, exactly as written**. **No agent may complete it, and the chief has
+not guessed what she meant.**
+
+#### 1. THE GPU IS LIVE AT `3.15.199.152`, AND WAS IDLE WHEN SHE REPORTED IT
+
+**THE CHIEF'S READING.** The GPU instance is **up and reachable at `3.15.199.152`**, and she
+reported it **idle**. The operational consequence for **ansys-verification**: its denominator
+moves **73 → 83** as the **10 `DEFERRED` VMFLGPU cases re-enter scope**, per her earlier
+ruling, her words: *"Well add the gpu ones once i turn the gpu back on later"*. She has now
+turned it back on, so the condition attached to that ruling is met.
+
+**The standing GPU constraints are UNCHANGED by the restart, and none of them is relaxed by
+the instance being up:**
+
+- The GPU is a **SEPARATE INSTANCE**, not an attachment to this box.
+- **Every driver STOPS ITS OWN INSTANCE when its run ends** — her approval of 2026-08-24.
+- **Every GPU run carries a console-priced GPU-hour `cost_basis`**, priced from the console
+  and never from recall. GPU spend sits **OUTSIDE** the 2026-08-21 blanket, which was given
+  when no GPU could launch (standing rule 9: a blanket is not a per-item read).
+
+#### 2. THE SEVEN REBALANCE CLAUSES, listed as she wrote them, with the chief's operational readings marked as such
+
+1. **Compute floor.** Every team with an armed case keeps **at least one solver running at
+   all times**; an **idle queue with armed cases is a defect and is reported as one**.
+   Lab-wide daily floor **80 core-hours of case execution (≈$2.50/day)** until the never-run
+   backlog clears.
+2. **Meta-work cap — 20% of any session.** Audits, instrument repairs, re-sweeps and record
+   archaeology are capped there. New lessons still ship with their executable check;
+   audits-of-audits and voluntary re-sweeps need a **docket reason**. The standing re-audit
+   is **weekly and scheduled, not continuous**. — **THE CHIEF'S OPERATIONAL READING, RECORDED
+   AS SUCH:** repairing a defect that **BLOCKS A RUN** is **case work, not meta-work**, and
+   does not draw against the 20%. What the cap bites is work that is *about* the lab's own
+   instruments while nothing is solving.
+3. **Blocked ≠ idle.** Any lane blocked on a ruling or relay **immediately picks up the next
+   never-run case in its family**. — **THE CHIEF'S OPERATIONAL READING, RECORDED AS SUCH:**
+   this means **a blocked item never leaves a lane idle**. Blocking is a property of the
+   *item*, never of the *lane*; "waiting on Sanaa" is a queue state for one case and is never
+   a reason for a team to stop executing.
+4. **Prereg goes template-speed.** Standard verification/validation cases use the **10-line
+   prereg form — case, reference, quantities, bands, ladder, decomposition seed, criteria** —
+   **minutes to freeze, not sessions**. Bespoke frozen documents are **reserved for novel or
+   contested cases only**. — **THE CHIEF'S OPERATIONAL READING, RECORDED AS SUCH:** the
+   template now carries **`decomposition seed` as a REQUIRED FIELD**, which **folds cfd's
+   parallel-gate doctrine into the form itself** — determinism of the decomposition stops
+   being a separate discipline and becomes a line every standard pre-registration must fill.
+5. **Fire everything armed, today.** Named by her: **the four-model ladder (113 core-min,
+   guard already registered)**, **K0d's pre-flight per its re-brief**, **the ansys never-run
+   queue in order**, **the conversion batch**, **curriculum D2–D15**. **Nothing armed stays
+   unfired overnight without a named blocker.**
+6. **Progress redefined in the morning report.** The headline is **cases run / gates fired /
+   matrix cells moved / core-hours burned**; lessons and instrument findings move to an
+   **appendix**. **A day with zero gates fired is a failed day regardless of how much was
+   learned about our own tools.**
+7. **Rigor standard UNCHANGED — and she flagged this clause herself as "Very important".**
+   Every run still lands **under its gate, its prereg, its deterministic decomposition**. Her
+   own framing: *"We are raising the denominator — core-hours — not lowering the bar."* —
+   **THE CHIEF'S OPERATIONAL READING, RECORDED AS SUCH:** the **denominator rises, the bar
+   does not**, and **no refusal made on evidence is reopened** by this directive. A
+   `NOT A RESULT`, a `GATE FAIL` or a `BLOCKED` stands on its evidence; the rebalance changes
+   how much the lab runs, never what counts as a result.
+
+#### 3. THE CHIEF'S DISPATCH RECORD, so a successor knows what was acted on
+
+- The directive was **relayed to `cfd`, `ansys-verification` and `heat-transfer`**.
+- The **`dafoam` team was RE-FORMED with a narrow mandate: fire curriculum D2–D15 only**,
+  because **she named it in the "fire everything armed" list**.
+- **ONE-LINE NOTE, AND IT IS THE CHIEF'S READING — SHE MAY CORRECT IT:** she had **rested
+  dafoam the previous day to concentrate tokens**, so re-forming that team is the chief's
+  inference from her naming D2–D15, not an instruction she gave in those terms.
+
+#### 4. ONE ITEM HER DIRECTIVE DOES NOT REACH — recorded so it is not lost
+
+**Closure's Ling 2016 GPU arm 2** is **frozen, armed and unfired** behind a **four-part gate
+that only Sanaa can open**: (i) **her own words**, (ii) **her start of the instance**, and
+two console readings — (iii) **the shutdown-behaviour attribute** and (iv) **the g6.xlarge
+price**. **She has now started an instance, which satisfies part (ii). The other three parts
+are OUTSTANDING, and closure is at rest.**
+
+**Status: AWAITING SANAA — the only armed case in the lab that no team can unblock.** The
+"fire everything armed, today" clause **does not reach it**, because its blocker is **named
+and is her**.
+
+**Sub-section last written:** by the chief (records lane), zero compute, no solver, no case
+directory; assembled from the HEAD blob, not the worktree copy.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
