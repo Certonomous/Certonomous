@@ -314,3 +314,85 @@ identical.** `d13_script.diff` carries the proof and `RESULTS.md` asserts the hu
 
 *Ends. Frozen before any container started. Amendments below this line only, dated, never by
 editing above.*
+
+---
+
+## ADDENDUM 1 — 2026-08-25, AFTER first compute: the age-guard clause of G0 is recorded `NOT EXERCISED`, and a supplementary grader is filed under `VERIFICATION_CHARTER.md` §2d.1
+
+**Lines whose number changed above this section: 0.** Version 1.0 → 1.1.
+**This addendum alters NO gate, threshold, cap, band, label or start vector.** Every
+equivalence-band edge in §4, every per-start gate in §7, every cost figure in §8 and every
+frozen md5 in §9 stands exactly as committed at `90f5527c`.
+
+### A1.1 What happened, in order, and the frozen instrument's refusal is published FIRST
+
+All five starts ran to completion. The **frozen grader `d13_grade.py`
+(md5 `f0b2ccfd0271d1301eec70df820d32e3`) was then run, and it REFUSED with exit 2**:
+
+> `D13_REFUSE AGE_GUARD_NO_REFERENCE {"path": ".../s1/0/U"}`
+
+That refusal is the primary grading outcome of the frozen path and is preserved verbatim in the run
+root as `D13_GRADE_FROZEN_REFUSAL.txt`. **The comparator refused rather than degraded, which is what
+it was written to do.**
+
+### A1.2 The cause, MEASURED — and it is a defect in this lane's grader, not in any run
+
+`CLAUDE.md` rule 4's age guard presumes **a field the run does not rewrite**: *"`0/T` is touched
+last at launch and so dates the run allowed to produce the answer."* **A DAFoam optimisation
+rewrites `0/` IN PLACE — it gzips `0/U` to `0/U.gz` during the solve.** Measured:
+
+| fact | measurement |
+|---|---|
+| `0/U` on the five D13 arms | **absent on all five** (`ls` refuses) |
+| `0/U` on **D1's own closed arm O** | **also absent** — the guard is unsatisfiable on this FAMILY, not merely on this item |
+| `0/U.gz` mtime vs endpoint JSON mtime | s1 `17:05:11` vs `17:05:12`; s2 `17:10:24` vs `17:10:25`; s3/s4/s5 **equal to the second** |
+
+`0/U.gz` carries an **END-of-run** mtime, so it does not date the launch. **Handing it to the guard
+would manufacture a meaningless green on one second of I/O ordering, and this lane will not do
+that.** The clause is therefore recorded **`NOT EXERCISED`**, with the reason measured, rather than
+satisfied on a reference that cannot bear the weight.
+
+### A1.3 The clause's evidentiary PURPOSE is discharged by a STRONGER, PRE-LAUNCH assertion
+
+The age guard exists to prove *the answer was not produced by an earlier run in a reused directory*.
+G8's cold start proves something stronger and proves it **in advance**: the launcher `rm -rf`'d the
+arm directory, re-copied it from `base/`, and asserted **`no stale endpoint`** before the container
+started. Each arm's launch record carries the line, and all five read:
+
+`G8 OK (s<k>): no 0.0001, no processor*, no reports/, no stale endpoint, 0/ present, age reference touched`
+
+**"The answer file did not exist at all, asserted before the run" is a stronger statement than "the
+answer is newer than `0/T`", and it is an assertion rather than an inference.**
+
+### A1.4 `VERIFICATION_CHARTER.md` §2d.1 — the four conditions, each with its evidence
+
+`d13_grade_supplement.py` differs from the frozen grader in **exactly two hunks** — a header block
+and the age-guard limb of `completion()` — proved by `d13_grade_supplement.diff`.
+
+| condition | evidence |
+|---|---|
+| **(1) repairs a DEMONSTRABLE ERROR, not a preference** | `0/U` absent on all five arms **and on D1's arm O**; `0/U.gz` end-of-run mtime. The frozen grader cannot make the measurement it was written to make, on any arm, ever, on this family. |
+| **(2) established by an instrument INDEPENDENT OF THE HYPOTHESIS, one that grades nothing** — *the load-bearing condition* | **The frozen grader's own guard**, `_refuse("AGE_GUARD_NO_REFERENCE")`. §2d.1 names "a guard" explicitly. It fires **before any number is read**, identically whatever the answer is, so **it cannot have been selected to move a verdict in a wanted direction.** |
+| **(3) the record discloses it, names the instrument, and QUANTIFIES WHAT MOVED** | This addendum and `RESULTS.md` §3. **What moved: nothing.** Not one CD, not one shape component, not one FD number, not one band edge, not one threshold. The only thing that changes is whether G0's completion clause can be **evaluated at all**. |
+| **(4) pre-repair values recorded beside the published ones** | Pre-repair value is **a refusal, no value, on every arm**, published verbatim in `D13_GRADE_FROZEN_REFUSAL.txt` and quoted in A1.1 above. |
+
+### A1.5 The check §2d.1 cannot make, made here anyway, because it is the strongest defence available
+
+**The repair moves this item TOWARD `GATE FAIL`, not toward `PASS`.** Under the frozen grader the
+item has no verdict at all; under the supplement the frozen §4 band returns **`GATE FAIL`** on the
+same-optimum claim (15 of 15 pairs `DIFFERENT`). **A repair that can only produce the less
+flattering outcome cannot be suspected of having been chosen to flatter**, and that is checkable by
+anyone who reads `D13_GRADE.json`.
+
+### A1.6 The second defect in the frozen grader, disclosed and NOT repaired
+
+`read_ipopt`'s regexes for `Overall NLP error` and `Constraint violation` anchor `\s*$` after one
+number, but **IPOPT prints those lines in two columns**, so both return `None`. Consequence, stated
+precisely: **G2's third limb — IPOPT's own constraint-violation scalar — is `NOT EXERCISED`.** G2's
+other two limbs (`|CL − 0.5| ≤ 1e-5`, and all 23 constraint rows in bound) **do** gate and are
+unaffected; G1 reads only `exit` and `majors` and is unaffected. The scalar's value is read directly
+from each arm's `opt_IPOPT.txt` and reported in `RESULTS.md` **as a directly-read figure, never as a
+gated one.** This defect is **not** repaired, here or in the supplement: it is not blocking, and
+§2d.1's exception is not a licence to tidy.
+
+*Ends Addendum 1.*

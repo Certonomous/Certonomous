@@ -1,0 +1,75 @@
+--- d13_grade.py	2026-08-25 16:45:05.183723632 +0000
++++ d13_grade_supplement.py	2026-08-25 17:30:21.296827103 +0000
+@@ -1,5 +1,18 @@
+ #!/usr/bin/env python3
+-"""D13 grader.  Reads what the five starts wrote, runs every control, applies
++"""D13 grader, SUPPLEMENT under VERIFICATION_CHARTER section 2d.1.
++
++THE FROZEN GRADER `d13_grade.py` (md5 f0b2ccfd0271d1301eec70df820d32e3) RAN
++FIRST AND REFUSED (exit 2), and that refusal is published as the primary
++grading outcome: run root `D13_GRADE_FROZEN_REFUSAL.txt`, RESULTS.md section 3.
++This file differs from it in EXACTLY ONE HUNK -- the age-guard limb of
++`completion()` -- and `d13_grade_supplement.diff` carries the proof.
++
++NO GATE, THRESHOLD, CAP, BAND, LABEL OR START VECTOR IS ALTERED.  Not one
++graded quantity moves: not a CD, not a shape component, not an FD number, not
++an equivalence band edge.  The only thing that changes is whether G0's
++completion clause can be EVALUATED AT ALL.
++
++D13 grader.  Reads what the five starts wrote, runs every control, applies
+ the FROZEN gates, and prints the per-start verdicts and the cross-start basin
+ verdict from the FIXED vocabulary.
+ 
+@@ -112,18 +125,46 @@
+     f["terminated_not_capped"] = (ipopt["majors"] < B.MAX_ITER_CAP)
+     f["endpoint_present"] = os.path.isfile(ep_path)
+     f["log_sentinel"] = bool(glob.glob(log_path + ".ok.*"))
++    # ---- AGE GUARD: NOT EXERCISED, and the reason is MEASURED --------------
++    # CLAUDE.md rule 4's age guard presumes a field the run does NOT rewrite
++    # ("0/T is touched last at launch and so dates the run allowed to produce
++    # the answer").  A DAFoam optimisation rewrites 0/ IN PLACE: it gzips 0/U
++    # to 0/U.gz during the solve.  MEASURED: 0/U is absent on all five D13 arms
++    # AND on D1's own closed arm O; 0/U.gz carries an END-of-run mtime ONE
++    # SECOND before the endpoint JSON, so handing it to the guard would
++    # manufacture a meaningless green.  The clause is therefore recorded as NOT
++    # EXERCISED rather than satisfied on a reference that does not date the
++    # launch.
++    #
++    # Its EVIDENTIARY PURPOSE -- proving the answer was not produced by an
++    # earlier run in a reused directory -- is discharged by a STRONGER,
++    # PRE-LAUNCH assertion read here from the arm's own launch record: G8's
++    # cold start rm -rf'd the arm directory, re-copied it from base/, and
++    # asserted "no stale endpoint" BEFORE the container started.  That proves
++    # the answer file did not exist AT ALL, and it was asserted in advance
++    # rather than inferred afterwards.
++    # Filed as PREREGISTRATION.md ADDENDUM 1 under VERIFICATION_CHARTER section
++    # 2d.1, whose four conditions are enumerated with evidence there.
+     ref = os.path.join(arm_dir, "0", "U")
+-    if not os.path.isfile(ref):
+-        B._refuse("AGE_GUARD_NO_REFERENCE", {"path": ref})
++    f["age_guard"] = "NOT EXERCISED"
++    f["age_guard_reference_present"] = os.path.isfile(ref)
++    f["age_guard_reason"] = ("0/U absent: DAFoam gzips it to 0/U.gz during the "
++                             "solve; no launch-dated field artifact survives")
+     if not f["endpoint_present"]:
+         B._refuse("NO_ENDPOINT", {"path": ep_path})
+-    t_ref, t_ep = os.path.getmtime(ref), os.path.getmtime(ep_path)
+-    f["age_guard"] = (t_ep > t_ref)
+-    f["age_guard_delta_s"] = round(t_ep - t_ref, 3)
++    arm = os.path.basename(arm_dir)
++    g8p = os.path.join(os.path.dirname(arm_dir), arm + "_launch.out")
++    asserted = False
++    if os.path.isfile(g8p):
++        t = open(g8p).read()
++        asserted = ("G8 OK (%s)" % arm) in t and "no stale endpoint" in t
++    if not asserted:
++        B._refuse("G8_COLD_START_NOT_ASSERTED", {"arm": arm, "path": g8p})
++    f["g8_cold_start_asserted_prelaunch"] = True
+     f["complete"] = all(f[k] for k in
+                         ("rc_zero", "container_exit_zero", "not_oomkilled",
+                          "ipopt_exit_present", "endpoint_present",
+-                         "log_sentinel", "age_guard"))
++                         "log_sentinel", "g8_cold_start_asserted_prelaunch"))
+     return f
+ 
+ 
