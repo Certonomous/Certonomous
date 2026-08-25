@@ -2738,6 +2738,80 @@ T5's 12 INTERPRETATIONs remain hers; K2a rack module; D389 S13 normalisation;
 D495; the T10a upstream draft (**filing is hers**). Vogel & Eaton 1985 and
 Blay 1992 both **NOT OBTAINED**.
 
+
+### SANAA'S EXECUTION REBALANCE — BINDING, RECORDED BYTE-EXACT AND UNNORMALISED
+
+**Her session turn, 2026-08-25. Reproduced verbatim; her own emphasis kept.**
+
+> [SANAA-DIRECT] EXECUTION REBALANCE — binding, all teams:
+>
+> Compute floor: every team with an armed case keeps at least one solver running at all times. An idle queue with armed cases is a defect; report it as one. Lab-wide daily floor: 80 core-hours of case execution (≈$2.50/day) until the never-run backlog clears.
+> Meta-work cap: audits, instrument repairs, re-sweeps, and record archaeology are capped at 20% of any session. New lessons still ship with their executable check, but audits-of-audits and voluntary re-sweeps need a docket reason. The standing re-audit is weekly, scheduled — not continuous.
+> Blocked ≠ idle: any lane blocked on a ruling or relay immediately picks up the next never-run case in its family. The waiting-on-Sanaa list keeps growing while solvers keep running.
+> Prereg goes template-speed: standard verification/validation cases use the 10-line prereg form (case, reference, quantities, bands, ladder, decomposition seed, criteria) — minutes to freeze, not sessions. Bespoke frozen documents are reserved for novel or contested cases only.
+> Fire everything armed, today: the four-model ladder (113 core-min, guard already registered), K0d's pre-flight per its re-brief, the ansys never-run queue in order, the conversion batch, curriculum D2–D15. Nothing armed stays unfired overnight without a named blocker.
+> Progress redefined in the morning report: the headline is cases run / gates fired / matrix cells moved / core-hours burned. Lessons and instrument findings move to an appendix. A day with zero gates fired is a failed day regardless of how much was learned about our own tools.
+> Rigor standard unchanged: every run still lands under its gate, its prereg, its deterministic decomposition. We are raising the denominator — core-hours — not lowering the bar. Very important
+
+#### THE DEFECT SHE ASKED TO HAVE REPORTED — THIS TEAM HAS IT, AND IT IS REPORTED
+
+**REPORTED AS A DEFECT: this team ran an IDLE QUEUE WITH AN ARMED CASE for
+approximately two hours.** `R_30k_x` reached `End` at **14:56:05Z**; from that
+moment until the launches below, **thermal case execution on this box was
+ZERO**, while **K0d sat FROZEN, ARMED AND UNFIRED — as it had for over a day.**
+The only case execution on 16 cores was one serial cfd run.
+
+**Named cause, not an excuse:** the session spent the interval on the pool grade,
+its corrections and the K0d executability triage. **All of that was legitimate
+work — the grade was hers to have and the K0d finding prevented a 829.36
+core-min null run — but NONE OF IT REQUIRED THE BOX TO BE EMPTY.** Under her
+floor the correct shape was **grade AND fire concurrently**, not grade THEN fire.
+**That is the defect and it is this supervisor's.**
+
+#### K0d — SHE NAMES IT. THE BLOCKER IS NAMED, AND IT IS BEING CLEARED TODAY
+
+**"Nothing armed stays unfired overnight without a named blocker."** K0d's
+blocker is **named, specific and already in repair**: §8.2 clause 4 requires
+`omega` while §5 registers three cases on `RNGkEpsilon`, which writes `epsilon`.
+**Those three could never complete, and the comparator refuses without all nine
+markers, so the whole 829.36 core-min would have produced NOTHING.** Firing it
+unrepaired would have burned the floor's budget and delivered a null.
+**AMENDMENT 3 is in flight, pre-compute and legal; it TIGHTENS; and the
+supervisor reads it AS A DIFF before compute — the one step not delegable.**
+**This is case work under her cap, not meta-work: it BLOCKS A RUN.**
+
+#### FIRED THIS TURN, WITHOUT COMING BACK FOR CLEARANCE
+
+**The T1b L4 §4 EXTENSION** — three x cases that failed iterative convergence
+(`R_10k_x` 48 320x tolerance, `R_300k_x` 127x, `R_100k_x` 19.5x). The protocol
+is **already registered in the frozen amendment §4**, and §3.6 **predicted this
+case in advance**. Template pre-registration (10-line form, **decomposition seed
+recorded as `serial, 1 rank, no decomposition` — required, not optional**),
+committed **before** the solver starts, costed from **THIS RUNG'S OWN MEASURED
+RATES** rather than the frozen §5 estimate that missed by **31.4 %** on a
+borrowed rate. Real cap, enforced as `timeout = cap_core_min x 60 / ranks`.
+
+#### THIS SUPERVISOR'S READING OF THE 20 % META-WORK CAP — stated so it can be corrected
+
+**Repairing a defect that BLOCKS A RUN is case work, not meta-work.** The
+planted-zero control was blocking work: the T1b chain could not be trusted to
+grade until rule 3 was armed on it. **The K0d clause-4 repair is the same class.**
+What the cap now limits is **sweeps, re-audits and record archaeology beyond a
+fifth of a session**, and the standing content-extent re-audit becomes **weekly
+and scheduled, not continuous**. **Audits-of-audits and voluntary re-sweeps need
+a docket reason.** *This reading is the supervisor's, not hers, and is recorded
+as a reading so she can overrule it.*
+
+#### THE RIGOR CLAUSE, WHICH SHE FLAGGED HERSELF
+
+> We are raising the denominator — core-hours — not lowering the bar. Very important
+
+**Nothing done yesterday changes.** The refusal to edit a frozen comparator; the
+marker sweep deferred beside two live 250-core-hour solvers; the control's stated
+limitation; the over-claimed tiers found in this team's own records; **today's
+refusal to fire K0d into an unsatisfiable completion clause.** **All of it keeps
+happening — on top of many more core-hours, not instead of them.**
+
 ## cfd
 
 **THREE CHECK-1 DIFF READS DONE PERSONALLY THIS SESSION, ALL THREE CLEARED — and each was re-run by the supervisor rather than believed on its lane's own test.**
