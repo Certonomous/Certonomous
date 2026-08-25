@@ -1402,36 +1402,175 @@ by its shape. §5's *"upper bound on cost"* hedge is **falsified** — it banked
 stale** (C-43 vs C-47 at HEAD). Appended onto the **HEAD blob**; editing in place
 would have reverted C-44…C-47. Diff verified **+1 insertion, 0 deletions**.
 
-### LIVE JOBS — reading 2026-08-25T01:14:27Z, taken BY THE SUPERVISOR PERSONALLY
+### LIVE JOBS — reading 2026-08-25T01:34:52Z, taken BY THE SUPERVISOR PERSONALLY
 
 **Two** single-core `buoyantBoussinesqSimpleFoam`, still **the only solvers in the
-whole lab. DO NOT TOUCH THEM.** Both survived the ~00:50Z weekly-limit fleet kill
-— `ps` shows elapsed 3-03:41:53 and 3-02:46:12, i.e. both predate the kill and
-neither restarted. Both launcher shells survived, so both will write their
-`STATUS.<case>` on exit.
+whole lab. DO NOT TOUCH THEM.** Both confirmed alive by `ps` in the reading
+invocation; both predate the ~00:50Z weekly-limit fleet kill and neither restarted.
 
-| pid | cwd (`T1_runs/`) | Time / endTime | rate | ExecutionTime | ETA (UTC) |
-|---|---|---|---|---|---|
-| 450274 | `R_100k_x` | **72 265 / 80 000** (0.903) | 2.615 s/step | 272 558.31 s | **~2026-08-25T06:51Z** |
-| 488219 | `R_30k_x` | **65 156 / 80 000** (0.814) | 3.132 s/step | 269 215.31 s | **~2026-08-25T14:09Z** |
+| pid | cwd (`T1_runs/`) | Time / endTime | ExecutionTime | ETA (UTC) |
+|---|---|---|---|---|
+| 450274 | `R_100k_x` | **72 647 / 80 000** (0.908) | 273 613.12 s | **~2026-08-25T06:5xZ** |
+| 488219 | `R_30k_x` | **65 470 / 80 000** (0.818) | 270 270.54 s | **~2026-08-25T14:0xZ** |
 
-**Rates are a two-point measurement over a 4 407 s baseline** (00:01:00Z →
-01:14:27Z), not a lane's estimate and not carried forward. Both are **faster**
-than the previous reading's 2.853 / 3.339 s/step, consistent with `R_300k_x`
-having exited at 20:11Z and freed a core. **ETAs are DERIVED from that rate and
-are not a measurement.**
+**Combined 543 883.66 s = 9 064.73 core-min = 151.08 core-h** at 1 rank each.
+With the two closed cases' measured 99.4264 core-h (C-48) the rung stands at
+**250.5 core-h**, projecting to **~268 core-h against C-48's 270.05 — under 1 %
+low**. **$13.7 derived, not measured** (`COMPUTE_BUDGET_CHARTER.md` §5), inside
+the $25 pre-authorisation. **The rung calibration row is owed at completion.**
 
-**Cost so far, and the C-48 projection is holding.** These two have burned
-272 558.31 s + 269 215.31 s = **9 029.56 core-min = 150.49 core-h** at 1 rank
-each (`ExecutionTime` read from each `log.solve`; single-rank, so wall ≈ CPU).
-Adding the two closed cases' measured **99.4264 core-h** (C-48) and the
-**18.53 core-h** still to run at the measured rates gives a **rung projection of
-268.45 core-h**, against C-48's projected **270.05 core-h** — **0.6 % low**. At
-$0.0513/core-h that is **$13.77 derived, not measured** (the box cannot read its
-own billing, `COMPUTE_BUDGET_CHARTER.md` §5), inside the $25 pre-authorisation.
-**The rung's calibration row is owed at completion, not now** (rule 12); C-48 is
-a PARTIAL covering only the two closed cases.
-### LANES IN FLIGHT — three, the cap, all zero compute
+**ETAs carry an honest `x` in the minutes digit because they are DERIVED from a
+rate, not measured** — unlike the previous write's stamp defect, where an `x`
+stood in a field that should have been a reading. A derived quantity may be
+stated to the precision it has; a measurement may not.
+
+### THE THREE RULINGS OF certonomous-65 — and NOT ONE VERDICT MOVED
+
+**Every gate verdict in the thermal corpus stands exactly as its frozen
+comparator returned it. What moved is what this team CLAIMS.** Records of
+record: `THERMAL_TIERING_DIRECTIVE.md` (`439d0d40`),
+`THERMAL_TIER_AUDIT_RULING_2026-08-25.md` (`4d243a6a`),
+`THERMAL_RECIPE_FORK_RULING_2026-08-25.md` (`b1e46f0a`),
+`T1b_L4_PLANTED_ZERO_CONTROL_PREREGISTRATION.md` (`3ae9e504`).
+
+#### THE HEADLINE — the family has ZERO rows at `HOLDS`
+
+Honest §3 census **`HOLDS` 0 / `GATE REACHED` 6 / `SURVEYED` 13 / `NOT HELD` 12 /
+`NEVER RUN` 6 = 37**, against the recorded **5 / 1 / 13 / 12 / 6**.
+
+**BUT THE SENTENCE THAT SHOULD TRAVEL IS NOT THAT ONE.** Thermal's **`G` column
+is NOT empty — it is the strongest in the lab.** Verification found `G`
+**structurally empty across dafoam and closure**. Here **S6, S8, S13, S19 and S22
+carry genuine `CONVERGING` triples with observed orders, GCIs at Fs = 1.25 and
+passing per-level plateau checks.** **What defeats those rows is `P`, not `G`.**
+**The lab can converge a grid; it cannot yet point at the world on those rows.**
+
+**RULING 1 — an exact analytic solution supplies `V` and NEVER `P`**, because `P`
+requires a **public primary source**. If one artifact could discharge both, every
+code-verification row would become `HOLDS` automatically and **a column that
+cannot be missing is not a column.** **Four of the five fallen rows turn on this
+one interpretation, and it is FLAGGED FOR SANAA TO OVERRULE** — overturning it
+restores them.
+
+**K0c CONFIRMED and worse than reported.** Four mesh **pairs**, no third level at
+any Rayleigh number; `gate_k0c.json` carries `gci` 0 / `richardson` 0 / `triple`
+0 / `observed_order` 0 **against a positive control of 4 / 2 / 17 on
+`gate_t3.json`, same reader, same invocation**. Orders borrowed from **K0b**,
+whose record at `K0c_RESULTS.md:335` says they *"do not apply to these cases and
+are not used."* **New defect: the borrowed range was NARROWED in the borrowing** —
+quoted *"1.94–2.33"* where K0b's own table runs **1.75–2.98**. **A vocabulary gap
+is ESCALATED, not papered over:** `GATE REACHED` is defined as *one* column
+missing and K0c is missing two, while `SURVEYED` means *ungated* and K0c was
+gated and passed. Tiered `GATE REACHED` naming **both**, **with the contrary
+argument recorded in full** — it is the higher tier and this family's errors have
+all run flattering. **Sanaa's to settle.**
+
+#### RULING 2 — the recipe forks, and the one that compounds K0c
+
+**T3's ladder is NOT GEOMETRICALLY SIMILAR.** `build_t3.py:72` sets
+`X_STEP_CELL = 0.03 * H` as a **module constant with no level index** (read
+personally), so the streamwise cell at the step lip is **the same physical size
+on all three grids** — local `r = 1.000` — while the wall-normal cell refines by
+exactly 1.6. **`p = 4.304464` is `NOT A RESULT` as an observed order.** It **is**
+disclosed in the prereg, and **disclosure is not sufficiency: a pre-registration
+can freeze a mistake as easily as a method.** **`p = 4.304` on a second-order
+scheme was itself the tell — the lab had the diagnostic and did not read it.**
+
+**K0b's ORDERS ARE `NOT A RESULT`, and this is the consequential finding.** Its
+triple grades legs at **t = 1386 / 4000 / 16000**, and **both readings of the
+finest level are on disk** — read personally: `Nu_avg_hot` **4.325464885013862**
+at t = 4000 vs **4.528816741169209** at t = 16000. **A 4.5 % swing from the
+ITERATION COUNT ALONE against the 0.552 % grid step the order is fitted on —
+roughly 8× the effect being measured.** `stratification_S` swings **11.69 %**;
+**at a common count of 4000 the m→f step REVERSES SIGN**; the plateau instrument
+is itself forked (drift window **6 / 10 / 2000**). Iterating each level to its
+own convergence is defensible — **quoting the order without stating that the
+finest value moves 8× the fitted step is not, especially when BOTH choices are on
+disk. The lab measured the thing that invalidates its own number and filed it.**
+
+**SO THE K0c DEFECT IS TWO LAYERS DEEP: the borrowed number was never a result to
+borrow.** An order taken from a different experiment, **against that experiment's
+own written prohibition**; **the borrowed order itself `NOT A RESULT`**; **and
+narrowed in the borrowing.** **A number can be wrong in three independent ways at
+once, and each was individually discoverable from artifacts already on disk.**
+
+**T1b-L4 — the ladder about to be graded — is RECIPE-CLEAN.** Exhaustively:
+`fvSchemes`, `fvSolution`, `constant/` and every `0.orig` field **identical**
+across `_c/_m/_f/_x` at all four Reynolds numbers; all `kOmegaSST`,
+**`wall_treatment resolved`, no wall-function switch anywhere**; first cell
+shrinks by **exactly 1.6 per level**; `endTime` **pre-registered before any `_x`
+case solved**, and **no unregistered `endTime` anywhere in the pool.** Its
+(m,f,x) triple ran **20000 / 40000 / 80000** iterations — *superficially K0b's
+failure*, and legitimate here for one reason: **`analyse_t1b_L4.py` gates
+iterative convergence and plateau PER LEVEL as step (1), before the triple is
+formed. That is exactly the protection K0b lacked.** Carry its **+3.09 %**
+expansion-ratio drift as a stated uncertainty when it is graded.
+
+#### RULING 3 — rule 3 was NOT ARMED on the T1b chain
+
+`analyse_t1b_L4.py`, `analyse_t1b.py` and `analyse_t1c.py` carry **zero** plant
+machinery, against a **positive control of 27 and 38** on `analyse_t3.py` and
+`analyse_t10a.py` — same reader, same invocation. **Most exposed:
+`analyse_t1c.py`, whose `iterative_convergence()` gates step (1) of Roache** — a
+blind reader there **reports convergence everywhere and raises nothing**, the one
+failure a refusal path cannot catch. **The frozen comparator is NOT edited**;
+**§2d.1 does not apply and was NOT invoked** (it repairs a produced *value*; a
+control produces none). **The control can only ever turn the rung into `NOT A
+RESULT`, never into a `PASS`.** Frozen **before the pool is gradeable**, with the
+**comfortable** prediction registered *because* it is comfortable and the
+refuse-disposition fixed in advance: **rung to `NOT A RESULT`, dependent T1b
+numbers WITHDRAWN, not re-graded.**
+
+#### THE ONE ERROR FOUND IN THE CONSERVATIVE DIRECTION — recorded as prominently
+
+The matrix calls K2c-B **BLOCKED — no primary**, claiming VanGilder & Schmidt
+2005 has *"no repository copies found"*. **The paper IS on disk** —
+`docs/papers/data_center_indoor_airflow/vangilder_schmidt_2005_ipack.pdf`,
+693 825 B, with its 39 407 B sidecar, dated **2026-08-18, six days before the
+matrix was written**, **title-page verified per L-144, not by filename.** Tier
+`NEVER RUN` is unaffected; **the "no primary exists" reasoning is refuted by an
+artifact. A team that only reports the errors running against it is not auditing,
+it is negotiating.**
+
+#### THREE MORE DEFECTS, all verified personally
+
+- **S19's `PASS ×3` is TWO measurements.** `gate_t1c.json` rows 1 and 3 carry a
+  band **bit-identical to sixteen figures** (`0.023589269742053554`); the
+  momentum field does not depend on the thermal BC. **First instance of the
+  D414/D420 shape found inflating a NUMERATOR.** The *"no observed order"*
+  addendum is a **JSON-persistence artifact** — `gci()` cannot return
+  `CONVERGING` **and** a `GCI_pct` without computing `p`. The back-derived
+  `p = 2.005054` is **arithmetic on an artifact, NOT a re-execution**, and no
+  tier rests on it.
+- **K0cT's denominator inflated 18 → 14.** `gate_k0ct.json` records
+  `graded_rows` **14** and `reported_never_graded` **4**, while `RESULTS.md` says
+  *"8 of 18"* at lines **19 and 217**. **D420 was applied to K0cX and never
+  here.** 8/18 = 44 % reads better than **8/14 = 57 %**. **Verdict and tier do
+  not move; the denominator does.** Also **73 bare `FAIL` strings against 1
+  `GATE FAIL`** — the D-5 conflict, **docketed, not swept**.
+- **The 43–722× attribution's FINEST level has no plateau artifact** — the
+  VMFL051 mode on the family's headline positive finding. **The record already
+  admits it.** Tiers do not inflate, so nothing is downgraded, **but the
+  attribution's `G` is not verifiable from artifacts and may not be called
+  grid-established.**
+
+#### K0cT / K0c / T10a — the smaller forks, and one lesson that WORKED
+
+**K0cT's pair stops on different `residualControl` criteria** (coarse 1e-07/1e-08,
+fine 1e-30) — **real in the dictionary, NIL in these runs**, both coarse levels
+having reached `endTime` anyway. Pair regardless. **Binding forward: no future
+triple borrows a K0cT level without re-running under one criterion.** **Recorded
+beside it: `K0cX_runs/build_cases.py:497-501` ALREADY absorbed this lesson** —
+*"`residualControl` is DELIBERATELY ABSENT"* — **because a lesson that was
+applied is evidence the process works and belongs beside the failures.**
+**K0c's Ra1e6 pair** was built by different procedures and carries `r = 1.5`
+where the others carry 2.0. **T10a-S's `r` is NOT constant** while the comparator
+uses one `R_REFINE = 1.6`; **RULED that the frozen registered denominator
+governs** (radiating-face edge, 1.600/1.625), making it a **1.6 % disclosed
+near-similarity, not a fork** — binding forward, any future claim on T10a's
+orders **carries that drift**.
+
+### LANES — three dispatched, ALL THREE RETURNED, all zero solver compute
 
 All three are **read-only audits**. Each was given the standing safety brief
 (never touch a running solver; never execute `mark_done_t1b_L4.py` or
