@@ -1,26 +1,33 @@
-# F6a / C-15 — NASA wall-mounted hump vs Greenblatt et al. Table 2 — PRE-REGISTRATION **DRAFT**
+# F6a / C-15 — NASA wall-mounted hump vs Greenblatt et al. Table 2 — PRE-REGISTRATION
 
-## ⚠ THIS DOCUMENT IS A DRAFT. IT IS NOT FROZEN. IT AUTHORISES NO COMPUTE.
+## ⚠ THIS DOCUMENT IS FROZEN. IT IS THE `CLAUDE.md` RULE-2 FREEZE FOR C-15.
 
-**Status: `PENDING` — drafted 2026-08-25 by a cfd `lab-lane` at the cfd supervisor's
-direction, under a dispatch whose first line reads "ZERO COMPUTE in this dispatch: no
-solver, no mesher, no case directory. You DRAFT; you do not freeze and you do not
-run."**
+**Status: `PENDING` — frozen 2026-08-25 by a cfd `lab-lane` at the cfd supervisor's
+direction. `PENDING` here is rule 1's DISPLAY/QUEUE state — "not yet run" — and is NOT a
+softened verdict. No solver has run under this document.**
 
-* **No gate in this document is frozen.** Nothing here has been committed as a
-  `CLAUDE.md` rule-2 freeze, and nothing here may be graded against.
-* **No solver may be launched on the strength of this file.** The freeze condition is
-  in §9 and is unmet by construction: this file has not been frozen, so §9's `test -e`
-  has never been evaluated in a launching invocation.
-* **The filename carries `_DRAFT` deliberately.** cfd's own coverage survey enumerates
-  `*PREREGISTRATION*` across the tree and counts what it finds as frozen
-  pre-registrations (`MATRIX_CONTRIBUTION.md` §3, C-31's cell). A draft named like a
-  freeze would be miscounted by that enumeration. **On freeze, this file is renamed to
-  `F6a_GREENBLATT_PREREGISTRATION.md` and the rename is the freeze event's own
-  signal.**
-* **The supervisor rules on this draft before anything is frozen.** Zero compute has
-  been spent producing it.
-
+* **The freeze commit spent ZERO CORE-MINUTES, and the freeze and the launch are SEPARATE
+  DISPATCHES BY CONSTRUCTION.** The dispatch that produced this freeze opens *"ZERO
+  COMPUTE IN THIS DISPATCH"* and closes *"a lane that freezes and launches in the same
+  dispatch has destroyed the evidentiary value of the freeze."* Between the two sits the
+  cfd supervisor's own §3 check — **pre-registration committed before compute** — which
+  `SUPERVISION_CHARTER.md` §3 forbids him to delegate to the lane that wrote it.
+* **What this freeze closes on first compute:** every gate, threshold, cap and label
+  below — **Gate M** (§5.5), **Gates P1 and P2** (§2.3), the plateau clauses
+  **(P-a)–(P-d)** (§3.1), the ordering rule (§3.2), the **30 core-min cap** (§8.3) and
+  the forecast (§10). After first compute, changes land only as dated addenda that
+  **cannot alter a gate, threshold, cap or label**; originals are struck, never rewritten.
+* **Amendments BEFORE first compute remain legal**, and each must state its condition and
+  how it was checked. **One is already registered and owed: §9.3's grading wrapper.**
+* **THE FREEZE CONDITION IS NOT SATISFIED BY READING THIS FILE.** §9.1's `test -e` is
+  evaluated **in the launching shell invocation**, and it has not been evaluated in one.
+* **This file supersedes and renames `F6a_GREENBLATT_PREREGISTRATION_DRAFT.md`**, whose
+  own text pre-committed to that rename as the freeze event's signal. The rename also
+  removes a double-count the draft itself identified: cfd's coverage survey enumerates
+  `*PREREGISTRATION*` across the tree, and `..._DRAFT.md` matches that glob, so leaving
+  both would count one item twice. **`c10abf68` (Ruling 6) cites the draft under its
+  pre-freeze path; that citation resolves to THIS file, and to the draft blob preserved
+  in git history at that commit.**
 ---
 
 ## 0. What this pre-registration is for, and the one thing it must not be read as claiming
@@ -181,6 +188,84 @@ community's own CFD-comparison page picked the centerline PIV limb for compariso
 against 2-D CFD. §2.1 reaches the same choice from first principles and did not need
 this; that the two agree is corroboration, not the reason.
 
+
+### 1.5 VERIFICATION'S RULING 6 — the ground this document did not have, and the two corrections it makes to the record
+
+**Folded in AT FREEZE from `c10abf68` (2026-08-25), the coverage-matrix owner's Ruling 6.**
+It was written after this document's draft. **It alters no gate, threshold, cap or label
+here** — it supplies the *ground* §1.4 was reasoning towards, and it corrects two things
+§1.4 had wrong.
+
+#### 1.5.1 The ruling
+
+**A sourcing addendum to W1's existing pre-registration is LEGAL but INERT on `P`.**
+Legal, because a citation is none of rule 2's four protected items. **Inert, because
+Ruling 3's operative test is the route the VALUE travelled** — a historical fact about a
+run that has already fired — and because **L-44** holds that a frozen artifact's
+evidentiary value is *"its TIMESTAMP RELATIVE TO WHAT IT JUDGES"*. A citation written on
+2026-08-25 has no standing against a run graded on 2026-08-07.
+
+> **`W1` STAYS `GATE FAIL`. C-45's cells do not move. The row converts ONLY under a fresh
+> freeze — this one.**
+
+#### 1.5.2 THE DECIDING FACT — and it sharpens §1.4's "corroboration" into something harder
+
+§1.4 records the agreement between TMR's 1.100 and Table 2's PIV limb as *"corroboration
+that arrives for free."* **Ruling 6 measured the same fact and found the sharper thing in
+it.** Greenblatt Table 2's baseline carries reattachment **TWICE**:
+
+| quantity | Greenblatt Table 2, baseline | frozen at `74797a57` |
+|---|---|---|
+| separation — 2-D PIV centerline | **0.665 ± 0.005** | 0.665 |
+| reattachment — **oil-film (OFF centerline)** | **1.11 ± 0.003** | *(absent)* |
+| reattachment — **2-D PIV (ON centerline)** | **1.10 ± 0.005** | 1.100 |
+
+**The primary does not carry one reattachment value. It carries two, and they disagree by
+0.9 %.** The frozen W1 gate uses **1.10** — and **this lab never made that limb choice.
+NASA TMR made it, and the pre-registration inherited it.** So an honest re-sourcing
+addendum to W1 could never have been a re-labelling: to be true it would have had to
+declare **which limb it adopts**, **why**, **the ±0.005 it sits inside**, and **the Re
+condition mismatch** — four selections made today with **1.2531 already in hand**.
+Verification's sentence is the whole ruling:
+
+> **"A citation is not one of rule 2's four protected items; but a citation that must
+> carry a limb choice to be true is a threshold choice wearing a citation's clothes."**
+
+**§2.1 of this document is precisely that choice made PROSPECTIVELY** — the limb, the
+reason, the interval, and (in §7.1) the condition mismatch, all declared under a freeze
+that predates its own run. That is the difference between this document and an addendum,
+and it is the only difference that matters.
+
+#### 1.5.3 CORRECTION 1 — the lab HELD this primary at W1's freeze. It failed to READ it.
+
+**Greenblatt entered this box at `03814b0a`, 2026-08-05** — verified at freeze by this
+lane against the commit itself, which adds
+`greenblatt_et_al_cfdval2004_hump.pdf` together with its **2,480-line** sidecar.
+**W1's freeze is `74797a57`, 2026-08-07 — two days later.** And
+`W1_HUMP_CHALLENGE_PREREGISTRATION.md:60` **already NAMES the paper**: *"Reference: the
+CFDVAL2004 experiment (Greenblatt et al., AIAA-2004-2220 / AIAA J 44(12), 2006), as
+carried by NASA TMR's hump validation page"*.
+
+> **The lab did not fail to hold the primary. It failed to read its table.**
+
+**This correction is recorded because it makes the defect worse, not better**, and a
+frozen document that states the flattering version of its own origin is not worth
+freezing. §1.4's framing — that the missing piece "was never the gate, it was the
+sourcing" — survives; what does not survive is any implication that the paper was
+unavailable. It was on this box, named in the very document that then gated against a
+carrier.
+
+#### 1.5.4 CORRECTION 2 — §10.4 refused this manoeuvre FIRST, and verification affirmed rather than corrected it
+
+Ruling 6 records that **this document's own §10.4 had already refused the re-labelling
+manoeuvre, unprompted and against its own interest**, in its own words — *"re-sourcing a
+gate's reference IS altering the gate"* — and states that the ruling *"supplies a ground
+that draft did not have — the two-limb table — not a correction to it."*
+
+**§10.4 stands unchanged in this frozen text.** It is not rewritten to cite the ruling
+that later agreed with it, because the value of §10.4 is that it was written **before**
+anyone asked.
+
 ---
 
 ## 2. THE GATES
@@ -241,6 +326,28 @@ and the choice cannot flip the verdict.** The choice matters for the *record* �
 being able to say afterwards which number was the target and to have said it first —
 not for the arithmetic. Claiming otherwise would be overstating the ground, which is
 the failure mode this lane spent Task A correcting elsewhere.
+
+**AND THE FINDING IS ROBUST TO THE LIMB — stated numerically, in the frozen text, before
+the solver starts.** Against the oil-film limb **1.11** the ±5 % band is
+**[1.0545, 1.1655]**; against the gated PIV limb **1.10** it is **[1.045, 1.155]**. The
+value already on this box for this case, mesh and closure — **1.2531** — misses the first
+by **+12.89 %** and the second by **+13.92 %**.
+
+> **THE INSTRUMENT CHOICE CANNOT FLIP THE VERDICT. Both limbs return `GATE FAIL` on the
+> SST baseline.**
+>
+> *Arithmetic re-derived at freeze by this lane rather than carried from the ruling:*
+> `(1.2531 − 1.11)/1.11 = +12.8919 %`; `(1.2531 − 1.10)/1.10 = +13.9182 %`.
+> Verification reached the same two figures independently at `c10abf68` and concluded
+> *"no gate verdict anywhere in this lab moves because of this ruling."*
+
+**AND WHAT THIS ROBUSTNESS DOES NOT LICENSE, stated so it cannot be misread later: it
+does NOT make the limb choice optional.** A gate that would return the same verdict
+either way is still a gate that must name its comparator in advance — because **1.2531 is
+not this run's answer**, this run has not happened, and a document that declined to
+choose would be a document choosing after the fact. The robustness protects the *record*
+against a reader who suspects the limb was picked to fail. It does not excuse the
+picking.
 
 ### 2.2 The two gated quantities
 
@@ -311,6 +418,26 @@ argument. **The construction principle above is retained because it is the reaso
 the lab should use when no prediction-first precedent exists — and because, applied to
 reattachment, it independently lands on ±5 % (11× the instrument uncertainty on the
 closure-set quantity), which is why adopting the precedent costs nothing there.**
+
+**AND VERIFICATION'S REASON, WHICH IS SHARPER THAN THE ONE ABOVE AND IS RECORDED
+ALONGSIDE IT RATHER THAN IN PLACE OF IT.** Ruling 6 (`c10abf68`) endorses this
+inheritance explicitly — *"Inheriting a band from a freeze that predates the answers
+preserves a prediction-first property a fresh derivation cannot manufacture"* — and then
+names the asymmetry this document's own argument had not isolated:
+
+> **"And note the asymmetry that makes it legitimate rather than convenient: the
+> inherited band is the one under which the row ALREADY FAILED. A lane inheriting a band
+> that had already passed would be a different question and is not decided here."**
+
+**That is the load-bearing half, and it is the half this document did not have.**
+Inheritance is not virtuous in itself. It is legitimate *here* because the transplanted
+band is the one that has **already refused this lab's own answer** — so adopting it
+cannot be self-serving, whatever the lane's intentions were.
+
+**This document therefore does NOT read Ruling 6 as blanket licence to inherit bands.**
+Were the precedent a band this case had already **passed**, §2.3 would owe a fresh
+derivation and nothing above would license skipping it. The endorsement is of *this*
+inheritance, on *this* asymmetry, and it is recorded with its limit attached.
 
 **Where the principle and the precedent DISAGREE, the disagreement is registered as a
 REPORTED channel and NOT as a gate.** On separation the principle would give a tighter
@@ -855,6 +982,11 @@ rewritten.
 > **evidence of the condition at drafting time and is NOT a substitute for the check
 > at launch time** — the C-30 precedent is explicit: *"Re-check the freeze condition in
 > the same shell invocation as the launch, not from this file."*
+>
+> **RE-READ AT FREEZE TIME by this lane, in the freezing invocation: BOTH ABSENT.** That
+> is now two readings, both at zero compute, and **neither of them is the check that
+> authorises a launch.** The launching invocation evaluates `test -e` itself, or it does
+> not launch.
 
 ### 9.2 The rule-4 existing-directory guard — MIRRORED, not reinvented
 
@@ -864,11 +996,51 @@ rewritten.
 > for this family.** A new guard is not invented; rule 14's principle applies —
 > a guard is inserted, and asserted, not re-authored.
 
-### 9.3 Comparator and grading-path freeze
+### 9.3 Comparator and grading-path freeze — PINNED HERE, with the one gap NAMED
 
-* **The grading path is fixed at the pre-registration commit.** The comparator file's
-  blob sha is recorded in this document at freeze time, and before grading the frozen
-  file **is hashed against the committed blob** to verify it *is* the file that ran.
+**The EXTRACTION path — the code that turns a `Cf` trace into `x_s/c` and `x_r/c`, and
+therefore the code that produces both gated numbers — is PINNED BY HASH NOW, at freeze:**
+
+| item | value |
+|---|---|
+| canonical path | `cases/dafoam/f6a_nasa_hump/case/hump_gate_analysis.py` |
+| **sha256** | **`9a6ec8553b863b3b43a1a3ca03970923778f7da5c2bf3e1cfacdfa8f6fd2414f`** |
+| **git blob id** (`HEAD:<path>` at HEAD `dd4ba663`) | **`ec263bed8623a81b67106c3880febdca1b3d5eff`** |
+
+**Twenty-three copies of this file exist in the tree and ALL TWENTY-THREE ARE
+BYTE-IDENTICAL** — verified at freeze by hashing every copy and finding exactly **one**
+distinct digest. §2.2's phrase *"the unmodified `hump_gate_analysis.py` used by F6a and
+W1"* is therefore unambiguous — **and it is pinned to one path and one digest here
+anyway, because a name is not a hash.** Before grading, the file that ran is hashed
+against the digest above. **A mismatch is `NOT A RESULT`, not a repair.**
+
+> **THE GAP, NAMED RATHER THAN GLOSSED. It is the one thing this freeze could not fully
+> satisfy, and it is stated in the frozen text rather than discovered at launch.**
+>
+> **The extraction path exists and is pinned. THE GRADING WRAPPER DOES NOT EXIST YET.**
+> Nothing on disk today implements §3.1's (P-a)–(P-d) plateau clauses, §3.2's ordering
+> rule, §3.3's planted-zero control, §5.5's **pre-launch** Gate M enforcement, §9.2's
+> existing-directory guard or §8.5's `timeout` derivation. **No blob sha can be recorded
+> at freeze for a file that has not been written, and inventing one would be worse than
+> admitting it.**
+>
+> **REGISTERED CONDITION, binding on the launching dispatch:** the grading wrapper and
+> the launcher are written and **COMMITTED BEFORE THE FIRST SOLVER PROCESS STARTS**, and
+> their paths, sha256 digests and blob ids land in this document as a **dated pre-compute
+> amendment under rule 2**. That amendment is legal *precisely because* it is before
+> first compute, and it must state its condition and how it was checked: **the §9.1 run
+> directories do not exist, checked by `test -e` in the amending invocation.**
+>
+> **It may not alter any gate, threshold, cap or label — and it cannot**, because §2.2,
+> §2.3, §3.1, §3.2, §5.5 and §8.5 specify the arithmetic, the thresholds, the ordering
+> and the cap **completely, here, in the frozen text**. The wrapper is an
+> **implementation of gates already frozen. It is not a gate.**
+>
+> **AND THE CLAUSE THAT MAKES THAT MORE THAN A PROMISE: if the wrapper as written cannot
+> implement a clause of §3 as frozen, THE CLAUSE IS NOT RELAXED TO MATCH THE CODE.** The
+> campaign stops, the conflict goes to the supervisor, and the row stays `PENDING`.
+> Bending a frozen clause to fit an implementation is how a freeze becomes decorative.
+
 * **No GCI, observed order or Richardson value is quoted anywhere in this campaign**,
   and none could be — §4 registers no triple. Standing cfd constraint: Roache/GCI
   numbers come from `scripts/roache_triple.py` only, **never** from
@@ -1005,8 +1177,10 @@ by this document, and C-45's cells are not moved by it.**
 
 ## 12. WHAT THIS DOCUMENT DOES NOT DO
 
-1. **It is not frozen and it authorises no compute.** §9's condition has never been
-   evaluated in a launching invocation.
+1. **It is FROZEN, and it still authorises no compute in the dispatch that froze it.**
+   §9.1's condition has never been evaluated in a launching invocation, and §9.3's
+   grading wrapper does not yet exist. **A freeze is a permission to be GRADED AGAINST.
+   It is not a permission to LAUNCH.**
 2. **It claims no `V` and no `G`.** No exact solution, no manufactured solution, no
    correlation; no triple, no GCI, no observed order.
 3. **It does not touch `docs/COVERAGE_MATRIX.md`**, which is the verification team's.
@@ -1022,6 +1196,9 @@ by this document, and C-45's cells are not moved by it.**
 
 ---
 
-**Drafted 2026-08-25 by a cfd `lab-lane` at the cfd supervisor's direction.
-ZERO SOLVER COMPUTE: no solver, no mesher, no case directory, no MPI rank.
-NOT FROZEN. `PENDING` the supervisor's ruling.**
+**Drafted and FROZEN 2026-08-25 by a cfd `lab-lane` at the cfd supervisor's direction, in
+TWO SEPARATE DISPATCHES, neither of which spent a core-minute.
+ZERO SOLVER COMPUTE: no solver, no mesher, no `checkMesh`, no case directory, no MPI rank.
+FROZEN. `PENDING` — rule 1's display state, "not yet run", never a softened verdict.
+SUBMISSIONS PARKED: nothing here is sent, filed, uploaded, registered, posted or
+commented outside this box.**
