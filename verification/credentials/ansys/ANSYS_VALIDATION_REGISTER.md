@@ -231,3 +231,28 @@ checked by anything, because only the PRODUCT feeds the cap.
 table at the established insertion point (immediately before the credential-count line),
 exactly as row #5 was, so lines below that point shifted by **1**. This is the register's
 own append convention for the main table and is stated rather than glossed.
+
+## Dated note — 2026-08-25 — row #7 contains a LITERAL PIPE and breaks pipe-splitting readers; the row is NOT edited
+
+**Found while building `verification/runs/ansys_verification/check_case_map_glance.py`, not by
+reading.** Row **#7** (`VMFL045-R2`) quotes the repaired `fvSolution` key — the regex
+`"(h|e)"` — inside its description. **That is a LITERAL `|` inside a Markdown table cell.** It
+shifts every field after it, so **any reader that splits the row on `|` mis-parses row #7**, and
+a renderer may show an extra column. Measured consequence: a naive extractor read row #7's
+verdict as `NOT A RESULT` instead of **`PASS`**, which would under-count the credentials.
+
+**THE ROW IS NOT EDITED.** It is append-only, it landed correctly, and its *content* is right —
+the verdict is **`PASS`**, the tier **`GATE REACHED`**, and the credential tally **3 PASS of 7
+run** is correct as written. The defect is *encoding*, not fact.
+
+**What a reader must do instead:** anchor on the **ISO date cell** and take the next cell as the
+verdict. The date moves with the shift; a fixed field index does not. `check_case_map_glance.py`
+does exactly this and carries row #7 as its regression case.
+
+**A second trap in the same file, recorded together:** several rows mention a verdict *in prose*
+before their own verdict cell — row #2 reads *"Re-run of row #1 after that row's `NOT A
+RESULT`"* before its `PASS`. **So "the first backticked verdict in the row" is also wrong.** Both
+traps are now selftest fixtures.
+
+**For future rows:** escape a literal pipe as `\|` inside a table cell, or name the key without
+the pipe. This note does not require any existing row to change.
