@@ -311,6 +311,76 @@ is owed. Rungs **already graded** under such a gate are the exposed ones — a
 verdict there may rest on a two-point sample. **Audit reported separately; no
 rung is re-graded by this draft and no frozen file is touched by it.**
 
+
+### 4b.3 SUPERSESSION — criterion 1 is REPLACED by Class C's sustained window. Recorded visibly, with the reason.
+
+**Supervisor's ruling, 2026-08-25, superseding part of the supervisor's own
+ruling of three hours earlier. Recorded as a visible supersession, not a silent
+edit.**
+
+| | |
+|---|---|
+| **Criterion 1** — three distinct spacings | **SUPERSEDED** |
+| **Criterion 2** — non-increasing differences | **STANDS** — it is Class C's **C2 (not growing)** |
+| **Criterion 3** — refuse on non-stationarity | **STANDS** — it is Class C's **C3 (stationarity)** |
+
+**Why criterion 1 fell.** The Δ/2Δ/3Δ test **requires uniformly spaced
+checkpoints**, and on this corpus most cases do not have them: `purgeWrite` and
+run extensions leave holes, so `R_100k_f` holds `0, 18000, 20000, 56000, 58000`
+— gaps of **2,000 / 36,000 / 2,000**. Among non-zero checkpoints **only
+`R_10k_x` is uniformly spaced.** On the territory as it sits the test is
+**mostly UNRUNNABLE**, and the claim that it "costs no compute" was wrong.
+
+> **A remedy that cannot run on the cases it is meant to protect is not a
+> remedy.**
+
+**What replaces it.** A **sustained window with a registered minimum sample
+count** delivers the same protection **without requiring uniform spacing** — so
+it is runnable on the corpus that actually exists.
+
+**Adopt the shape already registered and frozen in this territory rather than
+invent one:**
+
+- **`analyse_e4a2.py:300`** — *"C1 sustained floor AND C2 not growing AND C3
+  graded-quantity stationarity."*
+- **`analyse_k0cx.py:644`** — peak-to-peak over a registered window, refusing
+  below nine samples, with its own line worth carrying: ***"the criterion is not
+  loosened to fit the data available."***
+
+**Disposal:** the supervisor records this as theirs — it retires no gate
+threshold and no charter clause, and adopts an existing registered shape across
+rungs in their own family. **Referred to Sanaa's desk; adopted by silence in a
+day. No rung is re-graded and no frozen comparator is edited** — this draft
+records the shape Class A must adopt **at its next legitimate re-registration**.
+
+### 4b.4 ⚠ AND THE ALARM THAT PROMPTED THIS WAS WITHDRAWN — status is `UNJUDGED`
+
+**No rung in the territory was shown to be harmed.** The supervisor's first
+Δ/2Δ/3Δ pass printed `ALIASED` against nine cases including T1b's graded `_f`
+arms; **both defects were in the test** — non-uniform spacing misread as 2Δ, and
+a whole-file md5 where the gate reads only `internalField`.
+
+**Re-verified by this lane through the comparators' own reader**, `dmax` and
+`rng` separated so the `rng == 0` fallback cannot hide inside `rel`:
+`R_100k_f`, `R_300k_f` and `R_30k_f` all give **`dmax` exactly `0.000e+00` with
+`rng` of `1.089e-01`, `4.055e-02`, `3.220e-01`** respectively — **the fallback
+did not fire, and the fields are genuinely identical between the last two
+checkpoints.**
+
+> **That is the strongest convergence evidence available, not the weakest.
+> There is NO positive evidence of aliasing anywhere in the territory.**
+
+**§4b.1's structural finding stands untouched — the Class A design cannot
+distinguish convergence from aliasing. But structural exposure is not
+demonstrated harm.** The correct status of `T1b`, `T1c`, `T9a`, `T9aH` and
+`T9aD` is **`UNJUDGED`: not shown clean, not shown exposed.** Nothing in this
+draft may be read as showing that any graded rung is wrong.
+
+Territory audit and its withdrawal:
+`docs/campaigns/T-family/CHECKPOINT_GATE_AUDIT_2026-08-25.md`, Amendment A. It
+counted **verdict words in prose, not rows**, gives **no row counts**, and
+**`T10aR` remains unresolved into a class.**
+
 ## 4c. THE RAMP TEST, REPAIRED — a CONTROL, not a window
 
 **Supervisor's ruling, 2026-08-25.** None of the three repair options listed at
