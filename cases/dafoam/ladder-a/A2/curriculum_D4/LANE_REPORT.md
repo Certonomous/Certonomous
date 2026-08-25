@@ -417,3 +417,63 @@ will produce are right, and nothing about the `|J_adj|` step-sizing proxy, whose
 limitation (§7, quoted verbatim in the prereg) is that it sizes the step from the very
 quantity under test and **has not been tried where `|J_adj|` is itself wrong**. D4 does not
 repair that and does not claim to.
+
+---
+
+## 8. The 12 GiB floor WAS breached — and the cause was not this arm
+
+**Disclosed, with the numbers, rather than reported as a clean run.**
+
+At 18:19:19Z the floor watch fired: host `MemAvailable` **11.35 GiB**, against this family's
+standing **12 GiB floor**. Minimum observed across the arm so far: **11.288 GiB**, i.e.
+**0.71 GiB below the floor**.
+
+**This lane's contribution was flat when the breach happened.** The container's own cgroup had
+been pinned at `container_peak_gib 5.962` for roughly five minutes and did not move across the
+breach — the same 5.962 before, during and after. The growth came from elsewhere, and the
+discrimination was done by `ps -eo pid,rss,args`, never by `pgrep`:
+
+| pid | RSS | what it is |
+|---|---|---|
+| 2230463 | **9.94 GiB** | peer **D8** CRM optimisation — stable, unchanged, **not touched** |
+| 2359929–32 | 1.80–1.82 GiB ×4 | **this arm's four ranks** (`d4_opt_runScript.py -task run_driver`) |
+| **2370843** | **1.12 GiB** | **a D9 lane — `runScript.py -task=run_driver -optimizer=SLSQP -maxit=1 -out=d9_out.json`** |
+| 2203927 | 0.47 GiB | a `buoyantBoussinesqSimpleFoam` (cfd) |
+
+**The D9 lane launched AFTER arm O.** It was not in the launcher's `siblings_pre` census
+(`[d8_opt_20260825T165153Z_2230005]` only) and it is not in any census this arm took before
+committing to its buy.
+
+Note the cgroup/RSS discrepancy, so neither figure is misread: the four ranks sum to ~7.25 GiB
+of RSS while the cgroup reports **5.962 GiB**. RSS double-counts pages shared between ranks;
+the cgroup counts them once. **The cgroup figure is the correct one for a container footprint**
+and is what the cap is enforced against.
+
+### The finding, which is larger than this item
+
+**A per-lane memory guard cannot enforce a family-wide floor when lanes launch
+independently.** This lane sized its buy against a floor with 5.75 GiB of headroom, pinned its
+own container to a 12 GiB cgroup cap, measured its own peak continuously, and stayed flat at
+5.962 GiB — and the floor was breached anyway, by a peer that arrived afterwards. Every
+individual guard held; the aggregate invariant did not. The launcher's sibling census is taken
+**once, before the arm**, so it cannot see an arrival mid-arm, and nothing reconciles the sum
+of concurrent caps against the floor.
+
+**Recorded as a coordination gap for the family to rule on, not repaired here** — a floor is a
+standard, and retiring or amending one is not a lane's call.
+
+### Why this arm was not stopped, stated as a decision with its reasoning
+
+* **OOM risk is nil, measured not assumed.** `MemAvailable` 11.43 GiB with **`Cached`
+  10.18 GiB** — the page cache is reclaimable, so the kernel's own availability estimate is
+  healthy and no OOM killer is near firing. `MemFree` 0.45 GiB alone would misread this badly.
+* **The peer is safe.** D8 sits unchanged at 9.94 GiB. Stopping arm O protects nothing that is
+  currently at risk.
+* **This arm is bounded and flat**, at 49.7 % of its own registered cap, and a breach of that
+  cap kills only this container — a registered G11 outcome, not a host event.
+* **The breach is not this arm's to cure.** Killing arm O would surrender the completed
+  `dRdW` coloring — the expensive one-time phase — while the two larger consumers continued.
+
+**The floor breach is therefore DISCLOSED and CARRIED, not silently absorbed and not waved
+through.** It is reported here with its minimum value, its duration and its attributed cause,
+and the arm's own contribution is stated separately from the aggregate.
