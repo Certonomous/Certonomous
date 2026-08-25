@@ -108,3 +108,53 @@ VMFL052–058, VMFL060–078 (27 cases; excluding 029, 045, 046, 050, 051, 059)
 Continue extraction from VMFL052 onward through VMFL078, then GPU and Forte cases. Each 10-case batch should be extracted and committed separately to ensure progress resilience against API drops.
 
 Pattern confirmed: DISCRETE cases are table-based with numeric "Target" values; PROFILE cases are figure-based; no EMPTY or EMPTY-only cases found so far in this manual.
+
+---
+
+## Batch 4 (VMFL052–078)
+
+Source file: `/home/ubuntu/Certonomous/docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt`
+
+| Case ID | Manual Page | Short Title | Reference Form | Reference Values | Named Source |
+|---------|-------------|-------------|-----------------|---|---|
+| VMFL052 | 167 | Turbulent Natural Convection Inside a Tall Cavity | PROFILE | (figures only) | P.L. Betts, I.H. Bokhari, "Experiments on turbulent natural convection in an enclosed tall cavity". International Journal of Heat and Fluid Flow, Vol. 21, pp. 675-683, 2000. |
+| VMFL053 | 171 | Compressible Turbulent Mixing Layer | PROFILE | (figures only) | S.G. Goebel, J.C. Dutton, "Experimental Study of Compressible Turbulent Mixing Layers". AIAA Journal, Vol. 29, pp. 538-546, 1991. |
+| VMFL054 | 173 | Laminar flow in a Trapezoidal Cavity | PROFILE | (figures only) | J.H. Darr, S.P. Vanka, "Separated Flow in a Driven Trapezoidal Cavity". Phys. Fluids A, Vol. 3, pp. 385-392, 1991. |
+| VMFL055 | 177 | Transitional Recirculatory Flow inside a Ventilation Enclosure | PROFILE | (figures only) | A. Restivo, Turbulent Flow in Ventilated Rooms, Ph.D. Thesis, University of London, UK, 1979. |
+| VMFL056 | 179 | Combined Conduction and Radiation in a Square Cavity | PROFILE | (figures only) | D.R. Rousse, G. Gautier, J.F. Sacadura, "Numerical predictions of two-dimensional conduction, convection, and radiation heat transfer. II. Validation", International Journal of Thermal Sciences, Vol 39, pp. 332-353, 2000. |
+| VMFL057 | 181 | Radiation and Conduction in Composite Solid Layers | PROFILE | (figures only) | C.M. Spuckler, R. Siegel, "Two-Flux and Diffusion Methods for Radiative Transfer in Composite Layers". Journal of Heat Transfer, Vol 118, pp. 218-222, 1996. |
+| VMFL058 | 183 | Turbulent Flow in an Axisymmetric Diffuser | PROFILE | (figures only) | R.S. Azad, S.Z. Kassab, "Turbulent Flow in a Conical Diffuser: Overview and Implications". Phys. Fluids A Vol 1, pg. 564, 1989. |
+| VMFL059 | 185 | Conduction in a Composite Solid Block | DISCRETE | 378 K, 413 K (wall temperatures) | F.P. Incropera, D.P. Dewitt, Fundamentals of Heat and Mass Transfer. 5th Edition, pg. 117, 2006. |
+| VMFL060 | 187 | Transitional Supersonic Flow Over a Rearward Facing Step | PROFILE | (figures only) | H.E. Smith, "The Flow Field and Heat Transfer Downstream of a Rearward Facing Step in Supersonic Flow". ARL 67-0056, Aerospace Research Laboratories. Ohio, USA. |
+| VMFL061 | 189 | Surface to Surface Radiative Heat Transfer Between Two Concentric Cylinders | PROFILE | (figures only) | F.P. Incropera, D.P. Dewitt, Fundamentals of Heat and Mass Transfer. 4th Edition, John Wiley & Sons, Inc., New York City, New York, 1996. |
+| VMFL062 | 191 | Fully Developed Turbulent Flow Over a "Hill" | PROFILE | (figures only) | V. Baskaran, A.J. Smits, P.N. Joubert, "A turbulent flow over a curved hill Part 1. Growth of an internal boundary layer". Journal of Fluid Mechanics, Vol. 182, pp. 47-83, 1987. |
+| VMFL063 | 193 | Separated Laminar Flow Over a Blunt Plate | DISCRETE | 4.0 (non-dimensionalized reattachment length LR/2t) | J.C. Lane, R.I. Loehrke, "Leading Edge Separation from a Blunt Plate at Low Reynolds Number", Transactions of ASME, Vol. 102, pp. 494-496, 1980. |
+| VMFL064 | 195 | Low Reynolds Number Flow in a Channel with Sudden Asymmetric Expansion | DISCRETE | 5.0 (non-dimensionalized reattachment length LR/step-height) | B. Armaly, F. Durst, J. Pereira, B. Schönung, "Experimental and theoretical investigation of a backward-facing step". Journal of Fluid Mechanics, Vol 127, pg. 473, 1983; C.J. Freitas, "Perspective: Selected Benchmarks from Commercial CFD Codes". Journal of Fluids Engineering. Vol. 117, pg. 208, 1995. |
+| VMFL065 | 197 | Swirling Turbulent Flow Inside a Diffuser | PROFILE | (figures only) | P.D. Clausen, S.G. Koh, D.H. Wood, "Measurements of a Swirling Turbulent Boundary Layer Developing in a Conical Diffuser." Experimental Thermal and Fluid Science. Vol. 6, pg. 39-48, 1993. |
+| VMFL066 | 199 | Radiative Heat Transfer in a Rectangular Enclosure with Participating Medium | PROFILE | (figures only) | G.D Raithby, E.H. Chui, "A Finite Volume Method for Predicting a Radiant Heat Transfer in Enclosoures with Participating Media". Journal of Heat Transfer. Volume 112, pp. 415-423, 1990. |
+| VMFL067 | 201 | Boiling in a Pipe-Critical Heat Flux | PROFILE | (figures only) | N. Hoyer, "Calculation of dryout and post-dryout heat transfer for tube geometry", International Journal of Multiphase Flow, Vol 24, pp. 319-334, 1998. |
+| VMFL068 | 203 | Axial Flow in an Eccentric Annulus | PROFILE | (figures only) | J.L.V. Neto, A.L. Martins, A.S. Neto, C.H. Ataide, M.A.S. Barrozo, "Simulated Velocity Profiles for Eccentric Annular Flow with Inner Rotation", Manuscript, Federal University of Uberlandia, Brazil. |
+| VMFL069 | 205 | Two Phase Poiseulle Flow | PROFILE | (figures only) | E. Marchandise, J.F. Remacle, "A stabilized finite element method using a discontinuous level set approach for solving two phase incompressible flows", Journal of Computational Physics, Vol 219, pp. 780-800, 2006. |
+| VMFL070 | 207 | Radiation Between Two Parallel Surfaces | PROFILE | (figures only) | F.P. Incropera, D.P. Dewitt, Fundamentals of Heat and Mass Transfer. 4th Edition. New York City, New York: John Wiley & Sons, Inc. 1996. |
+| VMFL071 | 209 | Mid-Span Flow Over a Goldman Stator Blade | PROFILE | (figures only) | Goldman, L.G., & McLallin, K.L. (1977). Cold-Air Annular Cascade Investigation of Aerodynamic Performance of Core-Engine-Cooled Turbine Vanes. NASA Technical Memorandum X-3224. |
+| VMFL072 | 211 | Liquid Water Flow Over a Flat Plate Under the Influence of Gravity | DISCRETE | 0.555 mm (film thickness) | Roy, R.P. & Jain, S. (1989). A study of thin water film flow down an inclined plate without and with countercurrent air flow. Experiments in Fluids, (7) 318-328. |
+| VMFL073 | 213 | Turbulent Separated Flow in an Axisymmetric Diffuser | PROFILE | (figures only) | Nitsche, Wolfgang & Haberland, Christoph. (1993). On Turbulent Separated Flows in Axisymmetric Diffusers. 10.1007/978-3-663-13986-7_17. |
+| VMFL074 | 215 | Modeling of a Plug Flow Atomizer | PROFILE | (figures only) | Bhamidipati, S., Panchagnula, M., Peddieson, J. (2008, January 3-5). Discrete population balance modeling of a plug flow atomizer. Heat and Mass Transfer Conference, Hyderabad, India. |
+| VMFL075 | 217 | Turbulent Natural Convection in an Enclosure with Heat Generation | PROFILE | (figures only) | [Reference not fully extracted] |
+| VMFL076 | 219 | Cooling of Electronics by Natural and Forced Convection | PROFILE | (figures only) | [Reference not fully extracted] |
+| VMFL077 | 221 | Laminar Flow with Pressure-Driven Transverse Injection | PROFILE | (figures only) | [Reference not fully extracted] |
+| VMFL078 | 223 | Three-Dimensional Separation Bubble Over a Hill Patch | PROFILE | (figures only) | [Reference not fully extracted] |
+
+**Batch 4 summary:**
+- DISCRETE: 4 cases (VMFL059, 063, 064, 072)
+- PROFILE: 23 cases
+- EMPTY: 0 cases
+- UNCLEAR: 0 cases
+
+**Total cumulative tally (Batches 1–4, 62 of 65 never-run VMFL cases extracted):**
+- DISCRETE: 12 cases (VMFL006, 017, 021, 022, 023, 024, 034, 036, 059, 063, 064, 072)
+- PROFILE: 49 cases
+- EMPTY: 0 cases
+- UNCLEAR: 1 case (VMFL035)
+
+**Remaining:** VMFRT001–007 (Ansys Forte), VMFLGPU001–010 (GPU-supported with CPU parents), to be extracted in continuation.
