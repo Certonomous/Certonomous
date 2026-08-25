@@ -59,10 +59,10 @@ instead from each case's own `Physics/Models` line, which is authoritative.
 
 ---
 
-## RUN STATUS AND TIER — the whole suite at a glance (appended 2026-08-25, `ansys-lane-opus`)
+## SCOPE, RUN STATUS AND TIER — the campaign at a glance (revised 2026-08-25, `ansys-lane-opus`)
 
-**Added on Sanaa's directive of 2026-08-25**, quoted byte-exact, typos preserved, and
-**not normalised**:
+**Sanaa's directive of 2026-08-25**, quoted byte-exact, typos preserved, **not
+normalised**:
 
 > *"i just meant for now cfd, ansys verification and heat transfer teams work on
 > completeing all the tasks/ running all the cases and recording per our conventions,
@@ -70,160 +70,210 @@ instead from each case's own `Physics/Models` line, which is authoritative.
 > is done we will go back to the Matrix config. But for now these three teams work on
 > that"*
 
-**Every case row below now carries a TIER, in two new columns.** Per the supervisor's
-ruling, **the tier and the rule-1 verdict are DIFFERENT vocabularies, recorded side by
-side, and the tier NEVER flatters the verdict.** They overlap at one word only,
-`GATE REACHED`. The verdict vocabulary remains `PASS` / `GATE REACHED` / `GATE FAIL` /
-`NOT A RESULT` / `BLOCKED` / `PENDING` and is **not** replaced by this column.
+**Sanaa's SCOPE RULING of 2026-08-25**, asked whether the `VMFLGPU` family and the
+no-solver cases count toward "completed". Quoted byte-exact, **not normalised**:
 
-**Tier values:** `HOLDS` · `GATE REACHED` · `SURVEYED` · `NOT HELD` · `NEVER RUN`
-(the fifth is retained for cases not yet run).
+> *"for now no. Well add the gpu ones once i turn the gpu back on later."*
+
+**She wrote `Well add`, not `we'll add`.** The bytes are kept as she typed them.
+**Normalised spelling is the signature of a relayed paraphrase** — this team's own
+finding — so a re-quote that silently repairs her apostrophe is evidence that the line
+passed through a summariser rather than coming from her turn. **At the time this
+section was written, neither form appeared anywhere at `HEAD`** (checked with
+`git grep` over all tracked files in both spellings), so this is the line's first
+committed record and there was no normalised copy to correct.
+
+---
+
+# **THE CAMPAIGN FRACTION: 3 of 73 run. 70 never run.**
+
+**THE DENOMINATOR IS 73, NOT 95 — BY SANAA'S RULING, NOT BY THIS LAB'S CHOICE.** The
+`VMFLGPU` family (10) and the cases with no lab solver (12) are **out of scope for
+now**. All **95** rows remain in the tables below; **22 of them are marked out of scope
+and excluded from the denominator.** Nothing is deleted — an exclusion that hides the
+excluded rows cannot be audited.
 
 ### The counts — DERIVED BY COUNTING THIS DOCUMENT'S OWN ROWS, never recalled
 
-**Every figure below is reproducible from this file. The rule is printed beside each
-one so a reader can re-derive it rather than trust it.**
+**Every figure is reproducible from this file, and the rule that derives it is printed
+beside it so a reader reproduces it rather than trusting the header.** Let
+`ROWS` = `grep -E '^\| *(VMFL|VMFLGPU|VMFRT)[0-9]'` over Tables A + B + C.
 
 | figure | value | the rule that derives it from this file |
 |---|---|---|
-| **cases in the manual** | **95** | `grep -cE '^\| *(VMFL\|VMFLGPU\|VMFRT)[0-9]'` over Tables A + B + C |
-| **run by this lab** | **3** | the same row set, `grep -vc 'NEVER RUN'` |
-| **never run** | **92** | the same row set, `grep -c 'NEVER RUN'` |
-| **no lab solver on this box** | **12** | the same row set, `grep -c 'no lab solver'` — **the row set matters: this header's own prose contains the phrase, so an unscoped `grep -c` over the whole file returns 15, not 12** |
-| **VMFLGPU family** | **10** | `grep -cE '^\| *VMFLGPU'` |
-| **overlap of the two exclusions** | **0** | `grep -E '^\| *VMFLGPU' \| grep -c 'no lab solver'` |
+| **cases printed in the manual** | **95** | `ROWS \| wc -l` |
+| **IN SCOPE (the denominator)** | **73** | `ROWS \| grep -c 'IN SCOPE'` |
+| **run** | **3** | `ROWS \| grep 'IN SCOPE' \| grep -vc 'NEVER RUN'` |
+| **never run** | **70** | `ROWS \| grep 'IN SCOPE' \| grep -c 'NEVER RUN'` |
+| **DEFERRED — the `VMFLGPU` family** | **10** | `ROWS \| grep -c 'DEFERRED'` |
+| **OUT OF SCOPE — no lab solver** | **12** | `ROWS \| grep -c 'OUT OF SCOPE'` |
+| **overlap of the two exclusions** | **0** | `ROWS \| grep 'DEFERRED' \| grep -c 'OUT OF SCOPE'` |
+| **check: 73 + 10 + 12** | **95** | the three groups partition the table exactly |
 
-# **3 of 95 run. 92 never run.**
+**A NOTE ON THE ROW SET, because it is the part that breaks silently.** Each rule is
+scoped to `ROWS`. An **unscoped** `grep -c` over the whole file returns the wrong
+answer, because this header's own prose contains the same phrases — e.g. unscoped
+`grep -c 'OUT OF SCOPE'` counts this sentence too. **A count rule that is true only
+until someone edits the prose above it is not a derivation.** Scope every count to the
+row set.
 
-**The three, and their tiers — the tier is the supervisor's ruling in each case:**
+### The two axes are SEPARATE and must not be read as one
+
+**`Tier` and `Scope status` are different questions and are carried in different
+columns.** A tier is a judgement about **evidence** and is written **at grading time**;
+a scope status is a ruling about **whether the case is in this campaign at all**.
+**An out-of-scope case has NO TIER — it has a scope status**, and its tier cell reads
+`—` rather than `NEVER RUN`, because "never run" would imply it was in the queue.
+
+- **Tier vocabulary** (in-scope rows only, unchanged): `HOLDS` · `GATE REACHED` ·
+  `SURVEYED` · `NOT HELD` · `NEVER RUN`.
+- **Scope status vocabulary:** `IN SCOPE` · `DEFERRED` · `OUT OF SCOPE — BY RULING`.
+- **The tier and the rule-1 verdict are also different vocabularies**, recorded side by
+  side, and **the tier never flatters the verdict**. They overlap at one word only,
+  `GATE REACHED`. The rule-1 vocabulary — `PASS` / `GATE REACHED` / `GATE FAIL` /
+  `NOT A RESULT` / `BLOCKED` / `PENDING` — is unchanged and is not replaced here.
+
+### The three cases run, and their tiers — the supervisor's rulings, overrulable
 
 | case | verdict (rule 1) | **tier** | why the tier is what it is |
 |---|---|---|---|
-| **VMFL001** run 1 | `NOT A RESULT` | **`NOT HELD`** | comparator refused on the v2606 sampled-file naming, and L3 independently failed the registered convergence clause |
-| **VMFL001-R2** | `PASS` | **`HOLDS`** — **stated as a CANDIDATE, not as settled** | V and G both present: `CONVERGING` triple, observed order 2.0102, GCI 0.0563 %, Richardson landing on the analytic value to 3.7 ppm. **It is a candidate and not a hold because the P limb is UNRESOLVED**, and this document does not resolve it |
-| **VMFL005** | `PASS` | **`GATE REACHED`** | the gate is genuinely met and the triple is genuinely `CONVERGING` — **but the P limb is the missing one**: the deviation from the analytic reference is 9.92× the fine-grid GCI and Richardson extrapolates *away* from the exact value (`N-AV7`), so ~90 % of the residual is a modelling/setup signature whose mechanism is open at docket `D512` |
-| **VMFL051** | `NOT A RESULT` | **`NOT HELD`** | **V present, G ABSENT, and G decides it.** The exact Prandtl-Meyer reference is public classical gas dynamics (Anderson / NACA 1135), derived here to full double precision — so V is not the problem. But the triple is `OSCILLATORY` at R = −1.348600 with no observed order and no quotable GCI, and two of three levels fail the frozen plateau clause. **The softer `GATE REACHED` was refused deliberately:** that word fits a case that produced a *believable measurement* and lacks one column, as VMFL005 does. **VMFL051 produced no usable measurement at all — its G column is not missing, it is actively negative.** Precedent is this team's own VMFL001 run 1 |
+| **VMFL001** run 1 | `NOT A RESULT` | **`NOT HELD`** | the comparator refused on the v2606 sampled-file naming and produced no number, and L3 independently failed the registered convergence clause. **Nothing was measured**, so there is nothing to hold |
+| **VMFL001-R2** | `PASS` | **`HOLDS`** — **a CANDIDATE, stated as one** | V and G both strong: `CONVERGING`, observed order **2.0102**, GCI **0.0563 %**, Richardson landing on the analytic value to **3.7 ppm**. **A candidate and not a settled hold because the P limb is UNRESOLVED**; calling it settled on V and G alone is the flattery this column exists to prevent |
+| **VMFL005** | `PASS` | **`GATE REACHED`** | gate genuinely met and triple genuinely `CONVERGING` — **P is the missing limb and is named**: the deviation is **9.92× the fine GCI** and Richardson extrapolates **away** from exact, so ~90 % of the residual is a modelling signature (`N-AV7`); mechanism open at docket **`D512`** |
+| **VMFL051** | `NOT A RESULT` | **`NOT HELD`** | **V present, G ABSENT, G decides it**: `OSCILLATORY` at **R = −1.348600**, no observed order, no quotable GCI, two of three levels failing the frozen plateau clause. **`GATE REACHED` was refused deliberately** — that word fits a case with a *believable measurement* lacking one column (VMFL005). **VMFL051 produced no usable measurement at all; its G column is not missing, it is actively negative** |
 
-### SCOPE ARITHMETIC — A STATEMENT OF FACT, EXPLICITLY NOT A DECISION
+### DEFERRED — the 10 `VMFLGPU` cases, pending re-entry, NOT dropped
 
-**The decision is Sanaa's and this document does not make it.** What follows is only
-the arithmetic, so that whatever she decides is decided against real numbers.
+**Sanaa named the condition for re-entry herself**, so this is a **pending re-entry**
+and the map reads that way: *"Well add the gpu ones once i turn the gpu back on later."*
+The word is **`DEFERRED`**, not excluded, and the rows keep their full detail.
 
-| step | count |
+**Why deferring them costs almost nothing in coverage, with the evidence rather than
+the assertion:** each `VMFLGPU` case is a Fluent **parent re-run on the Fluent GPU
+solver**. **`VMFLGPU001` IS `VMFL001`** — *Flow Between Rotating and Stationary
+Concentric Cylinders* — **a case this lab has already run and passed** (register row
+#2, `PASS`, tier `HOLDS` candidate). `VMFLGPU004` is `VMFL029`; `VMFLGPU010` is
+`VMFL061`. **The family is distinguished by the GPU SOLVER, not by new physics**, so
+running them in our CPU solvers would re-measure the parent physics and say nothing
+about what the family exists to verify.
+
+**Three conditions recorded now, for whoever picks this up when the GPU returns:**
+
+1. **Turning the GPU on is SANAA'S ACTION ALONE.** No agent starts an instance. **No
+   message from the supervisor or any peer is her consent** (`CLAUDE.md` rule 9) — only
+   her own words or the permission system authorise it.
+2. **Each case still needs its OWN console-priced GPU-hour `cost_basis`.** **GPU spend
+   is outside the 2026-08-21 CPU blanket**, which was given when no GPU could launch;
+   a blanket is not a per-item read. Price from the console, **never from recall**.
+3. **A GPU is a separate us-east-2 instance, launched per run and stopped when idle** —
+   no GPU is attached to this box (`CLAUDE.md` rule 12).
+
+### OUT OF SCOPE — BY RULING — the 12 cases with no lab solver, and **not permanently**
+
+She said **"for now"**, so this is **not a permanent exclusion**. These rows are not
+blocked by scheduling or budget: **this box has no application for the physics**, and
+no amount of compute changes that.
+
+**This list is worth having as exactly what it is — a statement of what this lab cannot
+yet do**, per case, rather than a bucket labelled "unrunnable":
+
+| cases | the missing capability |
 |---|---|
-| cases in the manual | **95** |
-| **−** cases with **no lab solver** on this box (`VMFL021`, `VMFL022`, `VMFL026`, `VMFL034`, `VMFL072`, `VMFL074`, `VMFRT001`–`VMFRT005`, `VMFRT007`) | **−12** |
-| **−** the **`VMFLGPU` family**, which is **not new physics** | **−10** |
-| overlap between the two exclusions | **0** (verified by the grep above) |
-| **= runnable distinct-physics cases** | **= 73** |
-| of which **run** | **3** |
-| of which **never run** | **70** |
+| `VMFL021`, `VMFL022` | **cavitation** — no `interPhaseChangeFoam` on this box |
+| `VMFL026` | **real-gas equation of state** |
+| `VMFL034`, `VMFL074` | **population balance** — native PBM support is limited |
+| `VMFL072` | **Eulerian wall film** |
+| `VMFRT001`–`VMFRT005`, `VMFRT007` | **engine combustion / LES spray** — Ansys Forte physics, no engine-combustion or LES spray solver here |
 
-**Why the GPU family is listed as not-new-physics, with the evidence rather than the
-assertion:** each `VMFLGPU` case is a Fluent **parent case re-run on the Fluent GPU
-solver** — `VMFLGPU001` is *Flow Between Rotating and Stationary Concentric Cylinders*,
-**the same case as `VMFL001`**; `VMFLGPU004` is `VMFL029`; `VMFLGPU010` is `VMFL061`.
-The family is distinguished by **the GPU solver**, not by the physics. **No GPU is
-attached to this box** — a GPU is a separate us-east-2 instance launched per run
-(`CLAUDE.md` rule 12) — so running these in our CPU solvers **re-measures the parent
-physics and says nothing about what the family exists to verify.** Each such row is
-flagged `parent-physics only` in the *Runnable here* column rather than being dropped,
-so the count stays derivable and the exclusion stays visible.
-
-**This is the arithmetic; whether the GPU family and the 12 no-solver cases count
-toward "completed" is SCOPE, and scope is Sanaa's.** Both readings are defensible —
-**3 of 95** if every printed case counts, **3 of 73** if only cases this box can
-distinctly verify count — and this document prints **both** rather than choosing.
-
-**The 12 no-solver cases are `NEVER RUN` *and* structurally unrunnable here**, which
-are two different facts and are carried in two different columns so neither hides
-inside the other. They are not blocked by scheduling or budget; **this box has no
-application for the physics**, and no amount of compute changes that.
+**Read as a capability gap rather than a scope loss, that table is the lab's shopping
+list**: six of the twelve turn on **two** capabilities (cavitation and population
+balance), and the Forte seven are a single physics domain this box does not address at
+all.
 
 ---
 
 ## Table A — Ansys Fluent & CFX cases (VMFL001–078)
 
-| Case | Pg | Title | Dim | Regime / physics (Physics-Models line) | Ref | Quantity & N targets | Lab solver (OpenFOAM v2606) | Arch | Cost | Ladder | Tier / run status | Runnable here |
+| Case | Pg | Title | Dim | Regime / physics (Physics-Models line) | Ref | Quantity & N targets | Lab solver (OpenFOAM v2606) | Arch | Cost | Ladder | Tier (in-scope only) | Scope status |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| VMFL001 | 15 | Flow between rotating & stationary concentric cylinders | 2 | Laminar, rotating wall | AN | Tangential velocity at r=20/25/30/35 mm — **discrete(4)** | simpleFoam / icoFoam (rotatingWallVelocity) | F+C | trivial | Y — structured annulus, monotone | **`NOT HELD`** (run 1) → **`HOLDS`** *candidate* (R2) | `yes` |
-| VMFL002 | 17 | Laminar flow through pipe, uniform heat flux | A | Laminar + heat transfer (Mercury) | AN | Pressure drop + centreline outlet T — **discrete(2)** | simpleFoam + energy / buoyantSimpleFoam | F+C | trivial | Y — axisym wedge, monotone | `NEVER RUN` | `yes` |
-| VMFL003 | 19 | Pressure drop, turbulent pipe flow | A | Turbulent, standard k-ε | AN | Pressure drop — **discrete(1)** | simpleFoam (kEpsilon) | F+C | trivial | Y* — hold y+ band across levels | `NEVER RUN` | `yes` |
-| VMFL004 | 21 | Plain Couette flow with pressure gradient | 2 | Laminar, moving wall, periodic | AN | X-velocity profile at X=0.75 m — **profile** | pimpleFoam/simpleFoam (cyclic + pressureGradient) | F+C | trivial | Y* — gate on profile / centre value | `NEVER RUN` | `yes` |
-| VMFL005 | 25 | Poiseuille flow in a pipe | A | Steady laminar | AN | Pressure drop (Hagen-Poiseuille) — **discrete(1)** | icoFoam / simpleFoam | F+C | trivial | Y — axisym, exact analytic | **`GATE REACHED`** | `yes` |
-| VMFL006 | 27 | Multicomponent species transport in pipe flow | A | Laminar, species transport | AN | Mass fraction of species A along axis — **profile** | reactingFoam (inert) / scalarTransportFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `yes` |
-| VMFL007 | 29 | Non-Newtonian flow in a pipe | A | Laminar, power-law viscosity | AN | Pressure drop — **discrete(1)** | nonNewtonianIcoFoam (powerLaw) | F+C | trivial | Y — axisym, analytic | `NEVER RUN` | `yes` |
-| VMFL008 | 31 | Flow inside a rotating cavity | A | Laminar, rotating reference frame | NUM | Radial & swirl velocity at X=0.6 m — **profile** | SRFSimpleFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `yes` |
-| VMFL009 | 35 | Natural convection in concentric annulus | 2 | Natural convection, laminar, heat | EXP | Wall static-temperature distribution — **profile** | buoyantSimpleFoam / buoyantBoussinesqSimpleFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `yes` |
-| VMFL010 | 39 | Laminar flow in a 90° tee-junction | 2 | Laminar | NUM | Flow split (fractional flow) — **discrete(1)** | simpleFoam / icoFoam | F+C | trivial | Y — 2D, monotone | `NEVER RUN` | `yes` |
-| VMFL011 | 41 | Laminar flow in a triangular cavity | 2 | Laminar (driven) | NUM | Normalized X-velocity on bisector — **profile** | icoFoam / simpleFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `yes` |
-| VMFL012 | 45 | Turbulent flow in a wavy channel | 2 | Turbulent, separation, periodic | EXP | Normalized X-velocity at crest/trough — **profile** | simpleFoam/pimpleFoam (kEpsilon) | F+C | small | Y* — y+ band | `NEVER RUN` | `yes` |
-| VMFL013 | 51 | Turbulent flow + heat, backward-facing step | 2 | Incompressible turbulent, heat, reattachment | EXP | Local Nusselt number along heated wall — **profile** | rhoSimpleFoam / simpleFoam + energy | F+C | small | Y* — y+ band + profile | `NEVER RUN` | `yes` |
-| VMFL014 | 55 | Species mixing in co-axial turbulent jets | A | Multi-species, turbulent, jet mixing | EXP | Propane & X-velocity along jet axis — **profile** | reactingFoam (inert) / simpleFoam+scalarTransport | F+C | small | Y* — profile | `NEVER RUN` | `yes` |
-| VMFL015 | 61 | Flow through an engine inlet valve | 3 | 3D turbulent | EXP | Z-velocity at Z=−5/+10 mm — **profile** | simpleFoam (kEpsilon) | F+C | large | Y* — 3D, y+; costly | `NEVER RUN` | `yes` |
-| VMFL016 | 65 | Turbulent flow in a transition duct | 3 | 3D turbulent, Reynolds stress model | EXP | Pressure coefficient (station 5, centreline) — **profile** | simpleFoam (RSM: LRR/SSG) | F+C | large | Y* — 3D RSM; costly | `NEVER RUN` | `yes` |
-| VMFL017 | 69 | Transonic flow over an RAE 2822 airfoil | 2 | Compressible, turbulent | EXP | Drag & lift coefficient — **discrete(2)** | rhoSimpleFoam (SST) | F+C | small | Y* — y+ + shock capture | `NEVER RUN` | `yes` |
-| VMFL018 | 71 | Shock reflection in supersonic flow | 2 | Reflecting shocks, compressible turbulent | EXP | Afterbody static pressure & heat flux — **profile** | sonicFoam / rhoCentralFoam | F+C | small | Y* — shock capture | `NEVER RUN` | `yes` |
-| VMFL019 | 77 | Transient flow near a wall set in motion | 2 | Unsteady, moving wall (Stokes 1st problem) | AN | Near-wall velocity profile at outlet — **profile** | pimpleFoam / icoFoam (transient) | F+C | trivial | Y* — space+time refinement | `NEVER RUN` | `yes` |
-| VMFL020 | 79 | Adiabatic compression of air by a piston | 2 | Dynamic mesh, transient, ideal gas | AN | Static T & p vs time — **profile** | rhoPimpleFoam (dynamicMesh) | F+C | small | Y* — mesh-motion + time | `NEVER RUN` | `yes` |
-| VMFL021 | 85 | Cavitation over a sharp-edged orifice A (high p) | A | Turbulent multiphase, cavitation, phase change | EXP | Discharge coefficient — **discrete(1)** | **BLOCKED** — no cavitation solver (interPhaseChangeFoam absent) | F+C | — | N — no solver | `NEVER RUN` | **`NO` — no lab solver** |
-| VMFL022 | 87 | Cavitation over a sharp-edged orifice B (low p) | A | Turbulent multiphase, cavitation, phase change | EXP | Discharge coefficient — **discrete(1)** | **BLOCKED** — no cavitation solver | F | — | N — no solver | `NEVER RUN` | **`NO` — no lab solver** |
-| VMFL023 | 89 | Oscillating laminar flow around a circular cylinder | 2 | Laminar, transient (vortex shedding) | AN | Strouhal / drag (from table) — **discrete(1)** | pimpleFoam / icoFoam | F+C | small | Y* — time-accurate | `NEVER RUN` | `yes` |
-| VMFL024 | 91 | Interface of two immiscible liquids in rotating cylinder | A | Multiphase (VOF), transient, body force | EXP | Non-dim swirl velocity at 3 radii (t=80 s) — **discrete(3)** | interFoam (SRF/MRF) | F | small | Y* — VOF interface | `NEVER RUN` | `yes` |
-| VMFL025 | 93 | Turbulent non-premixed methane combustion, swirling air | A | Turbulent swirl, non-premixed combustion | EXP | Axial/swirl velocity, T, CO at X=40 mm — **profile** | reactingFoam (hard — combustion model) | F | medium | Y* — hard physics | `NEVER RUN` | `yes` |
-| VMFL026 | 99 | Supersonic real-gas flow inside a shock tube | 3 | Transient compressible, real gas, shock | NUM | Centreline static T & p — **profile** | sonicFoam/rhoCentralFoam (perfect-gas; **real-gas EOS BLOCKED**) | F+C | medium | Y* — perfect-gas only | `NEVER RUN` | **`NO` — no lab solver** |
-| VMFL027 | 103 | Turbulent flow over a backward-facing step | 2 | 2D turbulent, realizable k-ε | EXP | Skin-friction coefficient along wall — **profile** | simpleFoam (realizableKE) | F+C | small | Y* — y+ + reattachment | `NEVER RUN` | `yes` |
-| VMFL028 | 107 | Turbulent heat transfer in a pipe expansion | A | Heat transfer, turbulent, recirculation | EXP | Nusselt number along heated wall — **profile** | rhoSimpleFoam / simpleFoam + energy | F | small | Y* — y+ band | `NEVER RUN` | `yes` |
-| VMFL029 | 109 | Anisotropic conduction heat transfer | 2 | Heat conduction, anisotropic conductivity | AN | Normalized T at X=0.5 m — **profile** | laplacianFoam (isotropic only; **anisotropic tensor DT not native** → custom) | F | trivial | Y* — needs tensor diffusivity | `NEVER RUN` | `yes` |
-| VMFL030 | 111 | Turbulent flow in a 90° pipe-bend | 3 | 3D turbulent, RNG k-ε, non-equilibrium wall fns | EXP | Velocity magnitude at 75° along bend — **profile** | simpleFoam (RNGkEpsilon) | F | medium | Y* — 3D, half-domain, y+ | `NEVER RUN` | `yes` |
-| VMFL031 | 113 | Turbulent flow behind an open-slit V-gutter | 2 | Turbulent | EXP | X-velocity 22 mm downstream — **profile** | simpleFoam / pimpleFoam | F | small | Y* — profile | `NEVER RUN` | `yes` |
-| VMFL032 | 115 | Turbulent separated flow along axisymmetric afterbody | A | Turbulent, separation | EXP | Pressure & skin-friction along afterbody — **profile** | simpleFoam (kOmegaSST) | F+C | small | Y* — y+ + separation | `NEVER RUN` | `yes` |
-| VMFL033 | 119 | Viscous heating in an annulus | 2 | Viscous flow + heating, moving wall (dissipation) | AN | Velocity & temperature profiles — **profile** | rhoSimpleFoam / chtMultiRegion (viscous dissipation) | F | trivial | Y* — profile | `NEVER RUN` | `yes` |
-| VMFL034 | 121 | Particle aggregation inside a turbulent stirred tank | 2 | Multiphase, population balance, turbulent | AN | Moments m0–m5 of PBE — **discrete(6)** | reactingMultiphaseEulerFoam (PBM, hard) / **NONE (native PBM limited)** | F | medium | N — no clean PBM solver | `NEVER RUN` | **`NO` — no lab solver** |
-| VMFL035 | 123 | 3-D single-stage axial compressor | 3 | Compressible transonic, turbulent, moving ref frame | NUM | Stator-outlet pressure & mass-flow — **discrete(2)** | rhoSimpleFoam (MRF) | F | large | Y* — 3D turbomachinery; costly | `NEVER RUN` | `yes` |
-| VMFL036 | 125 | Laminar flow past a sphere | A | Laminar | NUM | Drag coefficient (Re≈50) — **discrete(1)** | simpleFoam (axisym) | F | small | Y — axisym, monotone (large far-field) | `NEVER RUN` | `yes` |
-| VMFL037 | 127 | Turbulent flow over a forward-facing step | 2 | SST, turbulent, separation/reattachment | EXP | Pressure coefficient along wall — **profile** | simpleFoam (kOmegaSST) | F+C | small | Y* — y+ band | `NEVER RUN` | `yes` |
-| VMFL038 | 131 | Falling film over an inclined plane | 2 | Laminar, free-surface (VOF) | AN | Velocity profile at outlet — **profile** | interFoam | F | small | Y* — VOF interface | `NEVER RUN` | `yes` |
-| VMFL039 | 133 | Boiling in a pipe with heated wall | A | Multiphase, phase change, RPI wall boiling | EXP | Temperature along pipe wall — **profile** | reactingTwoPhaseEulerFoam (wall boiling, hard) | F+C | medium | N* — RPI boiling hard/partial | `NEVER RUN` | `yes` |
-| VMFL040 | 137 | Separated turbulent flow in a diffuser | A | SST, adverse pressure gradient, separation | EXP | (profile) — **profile** | simpleFoam (kOmegaSST) | F+C | small | Y* — separation | `NEVER RUN` | `yes` |
-| VMFL041 | 141 | Transonic flow over an airfoil | 2 | Transonic, shock, SST | EXP | Pressure coefficient on airfoil — **profile** | rhoSimpleFoam (SST) | F | small | Y* — shock + y+ | `NEVER RUN` | `yes` |
-| VMFL042 | 143 | Turbulent mixing of two streams, different densities | 2 | SST, mixing layer, density diff, buoyancy | EXP | Salt-water mass fraction at x=10 m — **profile** | simpleFoam + energy / buoyantSimpleFoam | F+C | small | Y* — profile | `NEVER RUN` | `yes` |
-| VMFL043 | 147 | Laminar→turbulent transition of BL over flat plate | 2 | SST, transitional | EXP | Skin-friction coefficient on plate — **profile** | simpleFoam (kOmegaSSTLM transition) | F | small | Y* — transition model | `NEVER RUN` | `yes` |
-| VMFL044 | 149 | Supersonic nozzle flow | A | Compressible supersonic, SST | EXP | Pressure ratio along nozzle wall — **profile** | rhoSimpleFoam / sonicFoam | F+C | small | Y* — shock capture | `NEVER RUN` | `yes` |
-| VMFL045 | 153 | Oblique shock over an inclined ramp | 2 | Compressible supersonic, oblique shock | AN | Mach, T, density downstream — **discrete(3)** | rhoCentralFoam / sonicFoam | F+C | trivial | Y — inviscid, monotone | `NEVER RUN` | `yes` |
-| VMFL046 | 155 | Normal shock in a converging-diverging nozzle | 2 | Compressible supersonic, normal shock | AN | Mach along centreline (vs analytic) — **profile** | rhoCentralFoam / sonicFoam | F | small | Y* — shock capture | `NEVER RUN` | `yes` |
-| VMFL047 | 157 | Turbulent separated flow in an asymmetric diffuser | 2 | Turbulent separation, standard k-ω | EXP | X-velocity at X=24 (profile) — **profile** | simpleFoam (kOmega) | F+C | small | Y* — separation | `NEVER RUN` | `yes` |
-| VMFL048 | 159 | Turbulent flow in a 180° pipe bend | 3 | SST, turbulent, separation/reattachment | EXP | Axial velocity at a section — **profile** | simpleFoam (kOmegaSST) | F | medium | Y* — 3D, y+ | `NEVER RUN` | `yes` |
-| VMFL049 | 161 | Combustion in axisymmetric natural-gas furnace | A | Turbulent non-premixed combustion, EDM, k-ε | EXP | Mole fraction of CH4 along axis — **profile** | reactingFoam (EDM, hard) | F | medium | Y* — hard physics | `NEVER RUN` | `yes` |
-| VMFL050 | 163 | Transient heat conduction in a semi-infinite slab | 2 | Transient heat transfer, conduction | AN | Wall T & T at 150 mm, t=120 s — **discrete(2)** | laplacianFoam | F | trivial | Y* — space + time refinement | `NEVER RUN` | `yes` |
-| VMFL051 | 165 | Isentropic expansion over a convex corner | 2 | Compressible inviscid (Prandtl-Meyer) | AN | Mach after expansion — **discrete(1)** | rhoCentralFoam / sonicFoam | F+C | trivial | Y — inviscid, monotone | **`NOT HELD`** | `yes` |
-| VMFL052 | 167 | Turbulent natural convection inside a tall cavity | 2 | Turbulent, buoyancy, Boussinesq | EXP | Vertical velocity at Y/h — **profile** | buoyantBoussinesqSimpleFoam / buoyantSimpleFoam | F+C | small | Y* — y+ + buoyancy | `NEVER RUN` | `yes` |
-| VMFL053 | 171 | Compressible turbulent mixing layer | 2 | RNG k-ε, compressible, energy | EXP | (profile) — **profile** | rhoSimpleFoam (RNGkEpsilon) | F | small | Y* — profile | `NEVER RUN` | `yes` |
-| VMFL054 | 173 | Laminar flow in a trapezoidal cavity | 2 | Viscous, driven by moving walls | NUM | X-velocity (profile) — **profile** | icoFoam / simpleFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `yes` |
-| VMFL055 | 177 | Transitional recirculatory flow in ventilation enclosure | 2 | Transitional (k-kl model) | EXP | X-velocity at Y=2 — **profile** | simpleFoam (kkLOmega) | F | small | Y* — transition model | `NEVER RUN` | `yes` |
-| VMFL056 | 179 | Combined conduction & radiation in a square cavity | 2 | Radiation (discrete-ordinate), conduction | NUM | Non-dim T at X=0 — **profile** | chtMultiRegionSimpleFoam + fvDOM | F | small | Y* — radiation model | `NEVER RUN` | `yes` |
-| VMFL057 | 181 | Radiation & conduction in composite solid layers | 2 | Radiation (DO), participating medium, conduction | NUM | (profile) — **profile** | chtMultiRegion + fvDOM | F | small | Y* — radiation model | `NEVER RUN` | `yes` |
-| VMFL058 | 183 | Turbulent flow in an axisymmetric diffuser | A | Turbulent, adverse pressure gradient | EXP | Pressure coefficient along diffuser — **profile** | simpleFoam (kOmegaSST) | F | small | Y* — separation | `NEVER RUN` | `yes` |
-| VMFL059 | 185 | Conduction in a composite solid block | 2 | Conduction with heat source | AN | Side-wall temperatures — **discrete(2)** | chtMultiRegionSimpleFoam / laplacianFoam | F+C | trivial | Y — pure conduction, monotone | `NEVER RUN` | `yes` |
-| VMFL060 | 187 | Transitional supersonic flow over rearward-facing step | 2 | Compressible, transitional (Transition SST) | EXP | Non-dim static pressure on stepped wall — **profile** | rhoSimpleFoam / sonicFoam (transition SST) | F | small | Y* — shock + transition | `NEVER RUN` | `yes` |
-| VMFL061 | 189 | Surface-to-surface radiation between two concentric cylinders | 2 | Radiation modeling (S2S) | AN | Temperature along radius — **profile** | chtMultiRegion + viewFactor (S2S) radiation | F | trivial | Y* — radiation only | `NEVER RUN` | `yes` |
-| VMFL062 | 191 | Fully developed turbulent flow over a "hill" | 2 | Low-Re k-ε turbulent | EXP | Skin-friction along wall — **profile** | simpleFoam (low-Re kEpsilon) | F | small | Y* — low-Re mesh | `NEVER RUN` | `yes` |
-| VMFL063 | 193 | Separated laminar flow over a blunt plate | 2 | Laminar, high-resolution schemes | EXP | Non-dim reattachment length (LR/2t) — **discrete(1)** | icoFoam / simpleFoam | F+C | small | Y — laminar, gate on LR | `NEVER RUN` | `yes` |
-| VMFL064 | 195 | Low-Re flow in a channel with sudden asymmetric expansion | 2 | Laminar, separation, reattachment | EXP | Non-dim reattachment length — **discrete(1)** | icoFoam / simpleFoam | F | small | Y — laminar, gate on LR | `NEVER RUN` | `yes` |
-| VMFL065 | 197 | Swirling turbulent flow inside a diffuser | A | Turbulent, swirl, Reynolds stress model | EXP | Swirl velocity at X=0 — **profile** | simpleFoam (RSM) | F | small | Y* — RSM, swirl | `NEVER RUN` | `yes` |
-| VMFL066 | 199 | Radiative heat transfer in enclosure, participating medium | 2 | Radiation (discrete-ordinate) | NUM | Non-dim heat flux along hot wall — **profile** | fireFoam / chtMultiRegion + fvDOM | F | small | Y* — radiation model | `NEVER RUN` | `yes` |
-| VMFL067 | 201 | Boiling in a pipe — critical heat flux | A | Multiphase, heat & mass transfer, boiling | NUM | Wall temperature — **profile** | reactingTwoPhaseEulerFoam (boiling, hard) | F | medium | N* — boiling hard/partial | `NEVER RUN` | `yes` |
-| VMFL068 | 203 | Axial flow in an eccentric annulus | 3 | Steady, periodic, turbulent, RSM | EXP | Normalized axial velocity at plane 2 — **profile** | simpleFoam (RSM) | **ABSENT** | medium | Y* — 3D RSM; **no archive** | `NEVER RUN` | `yes` |
-| VMFL069 | 205 | Two-phase Poiseuille flow | 3 | Steady, laminar, two-phase | NUM | Velocity profile (two-phase) — **profile** | interFoam (or viscosity-stratified simpleFoam) | F | small | Y* — 3D, laminar, interface fixed | `NEVER RUN` | `yes` |
-| VMFL070 | 207 | Radiation between two parallel surfaces | 2 | Heat transfer, radiation | AN | Normalized T (vs analytic) — **profile** | chtMultiRegion + fvDOM / viewFactor | F | trivial | Y* — radiation only | `NEVER RUN` | `yes` |
-| VMFL071 | 209 | Mid-span flow over a Goldman stator blade | 2 | Turbomachinery (transonic cascade) | EXP | Pressure ratio (vs experiment) — **profile** | rhoSimpleFoam (cascade) | F | small | Y* — transonic cascade | `NEVER RUN` | `yes` |
-| VMFL072 | 211 | Liquid water flow over flat plate under gravity | 3 | Eulerian wall film | EXP | Film thickness — **discrete(1)** | **NONE** — no Eulerian wall-film solver on box | F | small | N — no solver | `NEVER RUN` | **`NO` — no lab solver** |
-| VMFL073 | 213 | Turbulent separated flow in axisymmetric diffuser | A | Turbulence, separation | EXP | Skin-friction along diffuser wall — **profile** | simpleFoam (kOmegaSST) | F | small | Y* — separation | `NEVER RUN` | `yes` |
-| VMFL074 | 215 | Modeling of a plug-flow atomizer | 2 | Multiphase, population balance, turbulence | NUM | Number density of bin-2 fraction — **profile** | reactingParcelFoam / **NONE (native PBM limited)** | F | medium | N — no clean PBM solver | `NEVER RUN` | **`NO` — no lab solver** |
-| VMFL075 | 217 | Supersonic flow over a circular-arc bump | 2 | Inviscid, compressible, supersonic | NUM | Mach along lower wall (vs reference) — **profile** | rhoCentralFoam / sonicFoam | F | small | Y* — shock capture | `NEVER RUN` | `yes` |
-| VMFL076 | 219 | Forced convection over a flat plate | 2 | Laminar, convection (low Prandtl) | AN | Normalized T (vs analytic) — **profile** | simpleFoam + energy / rhoSimpleFoam | F | trivial | Y* — Blasius/low-Pr, profile | `NEVER RUN` | `yes` |
-| VMFL077 | 221 | Free-surface flow around a ship | 3 | Turbulent, free surface (VOF) | EXP | Water level on hull — **profile** | interFoam | F | large | Y* — 3D VOF; costly | `NEVER RUN` | `yes` |
-| VMFL078 | 223 | Polyhedral mesh accuracy (3D lid-driven cubic cavity, Re=1000) | 3 | Laminar, driven by moving wall | NUM | X-velocity on vertical centreline (symmetry plane) — **profile** | icoFoam / simpleFoam | F | medium | Y — structured hex triple, benchmark | `NEVER RUN` | `yes` |
+| VMFL001 | 15 | Flow between rotating & stationary concentric cylinders | 2 | Laminar, rotating wall | AN | Tangential velocity at r=20/25/30/35 mm — **discrete(4)** | simpleFoam / icoFoam (rotatingWallVelocity) | F+C | trivial | Y — structured annulus, monotone | **`NOT HELD`** (run 1) → **`HOLDS`** *candidate* (R2) | `IN SCOPE` |
+| VMFL002 | 17 | Laminar flow through pipe, uniform heat flux | A | Laminar + heat transfer (Mercury) | AN | Pressure drop + centreline outlet T — **discrete(2)** | simpleFoam + energy / buoyantSimpleFoam | F+C | trivial | Y — axisym wedge, monotone | `NEVER RUN` | `IN SCOPE` |
+| VMFL003 | 19 | Pressure drop, turbulent pipe flow | A | Turbulent, standard k-ε | AN | Pressure drop — **discrete(1)** | simpleFoam (kEpsilon) | F+C | trivial | Y* — hold y+ band across levels | `NEVER RUN` | `IN SCOPE` |
+| VMFL004 | 21 | Plain Couette flow with pressure gradient | 2 | Laminar, moving wall, periodic | AN | X-velocity profile at X=0.75 m — **profile** | pimpleFoam/simpleFoam (cyclic + pressureGradient) | F+C | trivial | Y* — gate on profile / centre value | `NEVER RUN` | `IN SCOPE` |
+| VMFL005 | 25 | Poiseuille flow in a pipe | A | Steady laminar | AN | Pressure drop (Hagen-Poiseuille) — **discrete(1)** | icoFoam / simpleFoam | F+C | trivial | Y — axisym, exact analytic | **`GATE REACHED`** | `IN SCOPE` |
+| VMFL006 | 27 | Multicomponent species transport in pipe flow | A | Laminar, species transport | AN | Mass fraction of species A along axis — **profile** | reactingFoam (inert) / scalarTransportFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `IN SCOPE` |
+| VMFL007 | 29 | Non-Newtonian flow in a pipe | A | Laminar, power-law viscosity | AN | Pressure drop — **discrete(1)** | nonNewtonianIcoFoam (powerLaw) | F+C | trivial | Y — axisym, analytic | `NEVER RUN` | `IN SCOPE` |
+| VMFL008 | 31 | Flow inside a rotating cavity | A | Laminar, rotating reference frame | NUM | Radial & swirl velocity at X=0.6 m — **profile** | SRFSimpleFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `IN SCOPE` |
+| VMFL009 | 35 | Natural convection in concentric annulus | 2 | Natural convection, laminar, heat | EXP | Wall static-temperature distribution — **profile** | buoyantSimpleFoam / buoyantBoussinesqSimpleFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `IN SCOPE` |
+| VMFL010 | 39 | Laminar flow in a 90° tee-junction | 2 | Laminar | NUM | Flow split (fractional flow) — **discrete(1)** | simpleFoam / icoFoam | F+C | trivial | Y — 2D, monotone | `NEVER RUN` | `IN SCOPE` |
+| VMFL011 | 41 | Laminar flow in a triangular cavity | 2 | Laminar (driven) | NUM | Normalized X-velocity on bisector — **profile** | icoFoam / simpleFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `IN SCOPE` |
+| VMFL012 | 45 | Turbulent flow in a wavy channel | 2 | Turbulent, separation, periodic | EXP | Normalized X-velocity at crest/trough — **profile** | simpleFoam/pimpleFoam (kEpsilon) | F+C | small | Y* — y+ band | `NEVER RUN` | `IN SCOPE` |
+| VMFL013 | 51 | Turbulent flow + heat, backward-facing step | 2 | Incompressible turbulent, heat, reattachment | EXP | Local Nusselt number along heated wall — **profile** | rhoSimpleFoam / simpleFoam + energy | F+C | small | Y* — y+ band + profile | `NEVER RUN` | `IN SCOPE` |
+| VMFL014 | 55 | Species mixing in co-axial turbulent jets | A | Multi-species, turbulent, jet mixing | EXP | Propane & X-velocity along jet axis — **profile** | reactingFoam (inert) / simpleFoam+scalarTransport | F+C | small | Y* — profile | `NEVER RUN` | `IN SCOPE` |
+| VMFL015 | 61 | Flow through an engine inlet valve | 3 | 3D turbulent | EXP | Z-velocity at Z=−5/+10 mm — **profile** | simpleFoam (kEpsilon) | F+C | large | Y* — 3D, y+; costly | `NEVER RUN` | `IN SCOPE` |
+| VMFL016 | 65 | Turbulent flow in a transition duct | 3 | 3D turbulent, Reynolds stress model | EXP | Pressure coefficient (station 5, centreline) — **profile** | simpleFoam (RSM: LRR/SSG) | F+C | large | Y* — 3D RSM; costly | `NEVER RUN` | `IN SCOPE` |
+| VMFL017 | 69 | Transonic flow over an RAE 2822 airfoil | 2 | Compressible, turbulent | EXP | Drag & lift coefficient — **discrete(2)** | rhoSimpleFoam (SST) | F+C | small | Y* — y+ + shock capture | `NEVER RUN` | `IN SCOPE` |
+| VMFL018 | 71 | Shock reflection in supersonic flow | 2 | Reflecting shocks, compressible turbulent | EXP | Afterbody static pressure & heat flux — **profile** | sonicFoam / rhoCentralFoam | F+C | small | Y* — shock capture | `NEVER RUN` | `IN SCOPE` |
+| VMFL019 | 77 | Transient flow near a wall set in motion | 2 | Unsteady, moving wall (Stokes 1st problem) | AN | Near-wall velocity profile at outlet — **profile** | pimpleFoam / icoFoam (transient) | F+C | trivial | Y* — space+time refinement | `NEVER RUN` | `IN SCOPE` |
+| VMFL020 | 79 | Adiabatic compression of air by a piston | 2 | Dynamic mesh, transient, ideal gas | AN | Static T & p vs time — **profile** | rhoPimpleFoam (dynamicMesh) | F+C | small | Y* — mesh-motion + time | `NEVER RUN` | `IN SCOPE` |
+| VMFL021 | 85 | Cavitation over a sharp-edged orifice A (high p) | A | Turbulent multiphase, cavitation, phase change | EXP | Discharge coefficient — **discrete(1)** | **BLOCKED** — no cavitation solver (interPhaseChangeFoam absent) | F+C | — | N — no solver | — | **`OUT OF SCOPE — BY RULING`** — cavitation (no `interPhaseChangeFoam`) |
+| VMFL022 | 87 | Cavitation over a sharp-edged orifice B (low p) | A | Turbulent multiphase, cavitation, phase change | EXP | Discharge coefficient — **discrete(1)** | **BLOCKED** — no cavitation solver | F | — | N — no solver | — | **`OUT OF SCOPE — BY RULING`** — cavitation (no `interPhaseChangeFoam`) |
+| VMFL023 | 89 | Oscillating laminar flow around a circular cylinder | 2 | Laminar, transient (vortex shedding) | AN | Strouhal / drag (from table) — **discrete(1)** | pimpleFoam / icoFoam | F+C | small | Y* — time-accurate | `NEVER RUN` | `IN SCOPE` |
+| VMFL024 | 91 | Interface of two immiscible liquids in rotating cylinder | A | Multiphase (VOF), transient, body force | EXP | Non-dim swirl velocity at 3 radii (t=80 s) — **discrete(3)** | interFoam (SRF/MRF) | F | small | Y* — VOF interface | `NEVER RUN` | `IN SCOPE` |
+| VMFL025 | 93 | Turbulent non-premixed methane combustion, swirling air | A | Turbulent swirl, non-premixed combustion | EXP | Axial/swirl velocity, T, CO at X=40 mm — **profile** | reactingFoam (hard — combustion model) | F | medium | Y* — hard physics | `NEVER RUN` | `IN SCOPE` |
+| VMFL026 | 99 | Supersonic real-gas flow inside a shock tube | 3 | Transient compressible, real gas, shock | NUM | Centreline static T & p — **profile** | sonicFoam/rhoCentralFoam (perfect-gas; **real-gas EOS BLOCKED**) | F+C | medium | Y* — perfect-gas only | — | **`OUT OF SCOPE — BY RULING`** — real-gas EOS |
+| VMFL027 | 103 | Turbulent flow over a backward-facing step | 2 | 2D turbulent, realizable k-ε | EXP | Skin-friction coefficient along wall — **profile** | simpleFoam (realizableKE) | F+C | small | Y* — y+ + reattachment | `NEVER RUN` | `IN SCOPE` |
+| VMFL028 | 107 | Turbulent heat transfer in a pipe expansion | A | Heat transfer, turbulent, recirculation | EXP | Nusselt number along heated wall — **profile** | rhoSimpleFoam / simpleFoam + energy | F | small | Y* — y+ band | `NEVER RUN` | `IN SCOPE` |
+| VMFL029 | 109 | Anisotropic conduction heat transfer | 2 | Heat conduction, anisotropic conductivity | AN | Normalized T at X=0.5 m — **profile** | laplacianFoam (isotropic only; **anisotropic tensor DT not native** → custom) | F | trivial | Y* — needs tensor diffusivity | `NEVER RUN` | `IN SCOPE` |
+| VMFL030 | 111 | Turbulent flow in a 90° pipe-bend | 3 | 3D turbulent, RNG k-ε, non-equilibrium wall fns | EXP | Velocity magnitude at 75° along bend — **profile** | simpleFoam (RNGkEpsilon) | F | medium | Y* — 3D, half-domain, y+ | `NEVER RUN` | `IN SCOPE` |
+| VMFL031 | 113 | Turbulent flow behind an open-slit V-gutter | 2 | Turbulent | EXP | X-velocity 22 mm downstream — **profile** | simpleFoam / pimpleFoam | F | small | Y* — profile | `NEVER RUN` | `IN SCOPE` |
+| VMFL032 | 115 | Turbulent separated flow along axisymmetric afterbody | A | Turbulent, separation | EXP | Pressure & skin-friction along afterbody — **profile** | simpleFoam (kOmegaSST) | F+C | small | Y* — y+ + separation | `NEVER RUN` | `IN SCOPE` |
+| VMFL033 | 119 | Viscous heating in an annulus | 2 | Viscous flow + heating, moving wall (dissipation) | AN | Velocity & temperature profiles — **profile** | rhoSimpleFoam / chtMultiRegion (viscous dissipation) | F | trivial | Y* — profile | `NEVER RUN` | `IN SCOPE` |
+| VMFL034 | 121 | Particle aggregation inside a turbulent stirred tank | 2 | Multiphase, population balance, turbulent | AN | Moments m0–m5 of PBE — **discrete(6)** | reactingMultiphaseEulerFoam (PBM, hard) / **NONE (native PBM limited)** | F | medium | N — no clean PBM solver | — | **`OUT OF SCOPE — BY RULING`** — population balance (native PBM limited) |
+| VMFL035 | 123 | 3-D single-stage axial compressor | 3 | Compressible transonic, turbulent, moving ref frame | NUM | Stator-outlet pressure & mass-flow — **discrete(2)** | rhoSimpleFoam (MRF) | F | large | Y* — 3D turbomachinery; costly | `NEVER RUN` | `IN SCOPE` |
+| VMFL036 | 125 | Laminar flow past a sphere | A | Laminar | NUM | Drag coefficient (Re≈50) — **discrete(1)** | simpleFoam (axisym) | F | small | Y — axisym, monotone (large far-field) | `NEVER RUN` | `IN SCOPE` |
+| VMFL037 | 127 | Turbulent flow over a forward-facing step | 2 | SST, turbulent, separation/reattachment | EXP | Pressure coefficient along wall — **profile** | simpleFoam (kOmegaSST) | F+C | small | Y* — y+ band | `NEVER RUN` | `IN SCOPE` |
+| VMFL038 | 131 | Falling film over an inclined plane | 2 | Laminar, free-surface (VOF) | AN | Velocity profile at outlet — **profile** | interFoam | F | small | Y* — VOF interface | `NEVER RUN` | `IN SCOPE` |
+| VMFL039 | 133 | Boiling in a pipe with heated wall | A | Multiphase, phase change, RPI wall boiling | EXP | Temperature along pipe wall — **profile** | reactingTwoPhaseEulerFoam (wall boiling, hard) | F+C | medium | N* — RPI boiling hard/partial | `NEVER RUN` | `IN SCOPE` |
+| VMFL040 | 137 | Separated turbulent flow in a diffuser | A | SST, adverse pressure gradient, separation | EXP | (profile) — **profile** | simpleFoam (kOmegaSST) | F+C | small | Y* — separation | `NEVER RUN` | `IN SCOPE` |
+| VMFL041 | 141 | Transonic flow over an airfoil | 2 | Transonic, shock, SST | EXP | Pressure coefficient on airfoil — **profile** | rhoSimpleFoam (SST) | F | small | Y* — shock + y+ | `NEVER RUN` | `IN SCOPE` |
+| VMFL042 | 143 | Turbulent mixing of two streams, different densities | 2 | SST, mixing layer, density diff, buoyancy | EXP | Salt-water mass fraction at x=10 m — **profile** | simpleFoam + energy / buoyantSimpleFoam | F+C | small | Y* — profile | `NEVER RUN` | `IN SCOPE` |
+| VMFL043 | 147 | Laminar→turbulent transition of BL over flat plate | 2 | SST, transitional | EXP | Skin-friction coefficient on plate — **profile** | simpleFoam (kOmegaSSTLM transition) | F | small | Y* — transition model | `NEVER RUN` | `IN SCOPE` |
+| VMFL044 | 149 | Supersonic nozzle flow | A | Compressible supersonic, SST | EXP | Pressure ratio along nozzle wall — **profile** | rhoSimpleFoam / sonicFoam | F+C | small | Y* — shock capture | `NEVER RUN` | `IN SCOPE` |
+| VMFL045 | 153 | Oblique shock over an inclined ramp | 2 | Compressible supersonic, oblique shock | AN | Mach, T, density downstream — **discrete(3)** | rhoCentralFoam / sonicFoam | F+C | trivial | Y — inviscid, monotone | `NEVER RUN` | `IN SCOPE` |
+| VMFL046 | 155 | Normal shock in a converging-diverging nozzle | 2 | Compressible supersonic, normal shock | AN | Mach along centreline (vs analytic) — **profile** | rhoCentralFoam / sonicFoam | F | small | Y* — shock capture | `NEVER RUN` | `IN SCOPE` |
+| VMFL047 | 157 | Turbulent separated flow in an asymmetric diffuser | 2 | Turbulent separation, standard k-ω | EXP | X-velocity at X=24 (profile) — **profile** | simpleFoam (kOmega) | F+C | small | Y* — separation | `NEVER RUN` | `IN SCOPE` |
+| VMFL048 | 159 | Turbulent flow in a 180° pipe bend | 3 | SST, turbulent, separation/reattachment | EXP | Axial velocity at a section — **profile** | simpleFoam (kOmegaSST) | F | medium | Y* — 3D, y+ | `NEVER RUN` | `IN SCOPE` |
+| VMFL049 | 161 | Combustion in axisymmetric natural-gas furnace | A | Turbulent non-premixed combustion, EDM, k-ε | EXP | Mole fraction of CH4 along axis — **profile** | reactingFoam (EDM, hard) | F | medium | Y* — hard physics | `NEVER RUN` | `IN SCOPE` |
+| VMFL050 | 163 | Transient heat conduction in a semi-infinite slab | 2 | Transient heat transfer, conduction | AN | Wall T & T at 150 mm, t=120 s — **discrete(2)** | laplacianFoam | F | trivial | Y* — space + time refinement | `NEVER RUN` | `IN SCOPE` |
+| VMFL051 | 165 | Isentropic expansion over a convex corner | 2 | Compressible inviscid (Prandtl-Meyer) | AN | Mach after expansion — **discrete(1)** | rhoCentralFoam / sonicFoam | F+C | trivial | Y — inviscid, monotone | **`NOT HELD`** | `IN SCOPE` |
+| VMFL052 | 167 | Turbulent natural convection inside a tall cavity | 2 | Turbulent, buoyancy, Boussinesq | EXP | Vertical velocity at Y/h — **profile** | buoyantBoussinesqSimpleFoam / buoyantSimpleFoam | F+C | small | Y* — y+ + buoyancy | `NEVER RUN` | `IN SCOPE` |
+| VMFL053 | 171 | Compressible turbulent mixing layer | 2 | RNG k-ε, compressible, energy | EXP | (profile) — **profile** | rhoSimpleFoam (RNGkEpsilon) | F | small | Y* — profile | `NEVER RUN` | `IN SCOPE` |
+| VMFL054 | 173 | Laminar flow in a trapezoidal cavity | 2 | Viscous, driven by moving walls | NUM | X-velocity (profile) — **profile** | icoFoam / simpleFoam | F+C | small | Y* — gate on profile | `NEVER RUN` | `IN SCOPE` |
+| VMFL055 | 177 | Transitional recirculatory flow in ventilation enclosure | 2 | Transitional (k-kl model) | EXP | X-velocity at Y=2 — **profile** | simpleFoam (kkLOmega) | F | small | Y* — transition model | `NEVER RUN` | `IN SCOPE` |
+| VMFL056 | 179 | Combined conduction & radiation in a square cavity | 2 | Radiation (discrete-ordinate), conduction | NUM | Non-dim T at X=0 — **profile** | chtMultiRegionSimpleFoam + fvDOM | F | small | Y* — radiation model | `NEVER RUN` | `IN SCOPE` |
+| VMFL057 | 181 | Radiation & conduction in composite solid layers | 2 | Radiation (DO), participating medium, conduction | NUM | (profile) — **profile** | chtMultiRegion + fvDOM | F | small | Y* — radiation model | `NEVER RUN` | `IN SCOPE` |
+| VMFL058 | 183 | Turbulent flow in an axisymmetric diffuser | A | Turbulent, adverse pressure gradient | EXP | Pressure coefficient along diffuser — **profile** | simpleFoam (kOmegaSST) | F | small | Y* — separation | `NEVER RUN` | `IN SCOPE` |
+| VMFL059 | 185 | Conduction in a composite solid block | 2 | Conduction with heat source | AN | Side-wall temperatures — **discrete(2)** | chtMultiRegionSimpleFoam / laplacianFoam | F+C | trivial | Y — pure conduction, monotone | `NEVER RUN` | `IN SCOPE` |
+| VMFL060 | 187 | Transitional supersonic flow over rearward-facing step | 2 | Compressible, transitional (Transition SST) | EXP | Non-dim static pressure on stepped wall — **profile** | rhoSimpleFoam / sonicFoam (transition SST) | F | small | Y* — shock + transition | `NEVER RUN` | `IN SCOPE` |
+| VMFL061 | 189 | Surface-to-surface radiation between two concentric cylinders | 2 | Radiation modeling (S2S) | AN | Temperature along radius — **profile** | chtMultiRegion + viewFactor (S2S) radiation | F | trivial | Y* — radiation only | `NEVER RUN` | `IN SCOPE` |
+| VMFL062 | 191 | Fully developed turbulent flow over a "hill" | 2 | Low-Re k-ε turbulent | EXP | Skin-friction along wall — **profile** | simpleFoam (low-Re kEpsilon) | F | small | Y* — low-Re mesh | `NEVER RUN` | `IN SCOPE` |
+| VMFL063 | 193 | Separated laminar flow over a blunt plate | 2 | Laminar, high-resolution schemes | EXP | Non-dim reattachment length (LR/2t) — **discrete(1)** | icoFoam / simpleFoam | F+C | small | Y — laminar, gate on LR | `NEVER RUN` | `IN SCOPE` |
+| VMFL064 | 195 | Low-Re flow in a channel with sudden asymmetric expansion | 2 | Laminar, separation, reattachment | EXP | Non-dim reattachment length — **discrete(1)** | icoFoam / simpleFoam | F | small | Y — laminar, gate on LR | `NEVER RUN` | `IN SCOPE` |
+| VMFL065 | 197 | Swirling turbulent flow inside a diffuser | A | Turbulent, swirl, Reynolds stress model | EXP | Swirl velocity at X=0 — **profile** | simpleFoam (RSM) | F | small | Y* — RSM, swirl | `NEVER RUN` | `IN SCOPE` |
+| VMFL066 | 199 | Radiative heat transfer in enclosure, participating medium | 2 | Radiation (discrete-ordinate) | NUM | Non-dim heat flux along hot wall — **profile** | fireFoam / chtMultiRegion + fvDOM | F | small | Y* — radiation model | `NEVER RUN` | `IN SCOPE` |
+| VMFL067 | 201 | Boiling in a pipe — critical heat flux | A | Multiphase, heat & mass transfer, boiling | NUM | Wall temperature — **profile** | reactingTwoPhaseEulerFoam (boiling, hard) | F | medium | N* — boiling hard/partial | `NEVER RUN` | `IN SCOPE` |
+| VMFL068 | 203 | Axial flow in an eccentric annulus | 3 | Steady, periodic, turbulent, RSM | EXP | Normalized axial velocity at plane 2 — **profile** | simpleFoam (RSM) | **ABSENT** | medium | Y* — 3D RSM; **no archive** | `NEVER RUN` | `IN SCOPE` |
+| VMFL069 | 205 | Two-phase Poiseuille flow | 3 | Steady, laminar, two-phase | NUM | Velocity profile (two-phase) — **profile** | interFoam (or viscosity-stratified simpleFoam) | F | small | Y* — 3D, laminar, interface fixed | `NEVER RUN` | `IN SCOPE` |
+| VMFL070 | 207 | Radiation between two parallel surfaces | 2 | Heat transfer, radiation | AN | Normalized T (vs analytic) — **profile** | chtMultiRegion + fvDOM / viewFactor | F | trivial | Y* — radiation only | `NEVER RUN` | `IN SCOPE` |
+| VMFL071 | 209 | Mid-span flow over a Goldman stator blade | 2 | Turbomachinery (transonic cascade) | EXP | Pressure ratio (vs experiment) — **profile** | rhoSimpleFoam (cascade) | F | small | Y* — transonic cascade | `NEVER RUN` | `IN SCOPE` |
+| VMFL072 | 211 | Liquid water flow over flat plate under gravity | 3 | Eulerian wall film | EXP | Film thickness — **discrete(1)** | **NONE** — no Eulerian wall-film solver on box | F | small | N — no solver | — | **`OUT OF SCOPE — BY RULING`** — Eulerian wall film |
+| VMFL073 | 213 | Turbulent separated flow in axisymmetric diffuser | A | Turbulence, separation | EXP | Skin-friction along diffuser wall — **profile** | simpleFoam (kOmegaSST) | F | small | Y* — separation | `NEVER RUN` | `IN SCOPE` |
+| VMFL074 | 215 | Modeling of a plug-flow atomizer | 2 | Multiphase, population balance, turbulence | NUM | Number density of bin-2 fraction — **profile** | reactingParcelFoam / **NONE (native PBM limited)** | F | medium | N — no clean PBM solver | — | **`OUT OF SCOPE — BY RULING`** — population balance (native PBM limited) |
+| VMFL075 | 217 | Supersonic flow over a circular-arc bump | 2 | Inviscid, compressible, supersonic | NUM | Mach along lower wall (vs reference) — **profile** | rhoCentralFoam / sonicFoam | F | small | Y* — shock capture | `NEVER RUN` | `IN SCOPE` |
+| VMFL076 | 219 | Forced convection over a flat plate | 2 | Laminar, convection (low Prandtl) | AN | Normalized T (vs analytic) — **profile** | simpleFoam + energy / rhoSimpleFoam | F | trivial | Y* — Blasius/low-Pr, profile | `NEVER RUN` | `IN SCOPE` |
+| VMFL077 | 221 | Free-surface flow around a ship | 3 | Turbulent, free surface (VOF) | EXP | Water level on hull — **profile** | interFoam | F | large | Y* — 3D VOF; costly | `NEVER RUN` | `IN SCOPE` |
+| VMFL078 | 223 | Polyhedral mesh accuracy (3D lid-driven cubic cavity, Re=1000) | 3 | Laminar, driven by moving wall | NUM | X-velocity on vertical centreline (symmetry plane) — **profile** | icoFoam / simpleFoam | F | medium | Y — structured hex triple, benchmark | `NEVER RUN` | `IN SCOPE` |
 
 ## Table B — Ansys Fluent GPU cases (VMFLGPU001–010)
 
@@ -232,18 +282,18 @@ solver. The lab has **no GPU attached** (a GPU is a separate us-east-2 instance,
 launched per run — CLAUDE.md rule 12); every GPU case runs on the **same OpenFOAM CPU
 application** as its parent. **No GPU `.wbpz` archive exists in the set** (all ABSENT).
 
-| Case | Pg | Title | Dim | Parent | Ref | Quantity & N targets | Lab solver | Arch | Cost | Ladder | Tier / run status | Runnable here |
+| Case | Pg | Title | Dim | Parent | Ref | Quantity & N targets | Lab solver | Arch | Cost | Ladder | Tier (in-scope only) | Scope status |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| VMFLGPU001 | 225 | Rotating & stationary concentric cylinders | 2 | VMFL001 | AN | Tangential velocity, 4 radii — **discrete(4)** | simpleFoam / icoFoam | ABSENT | trivial | Y | `NEVER RUN` | `parent-physics only` — no GPU here |
-| VMFLGPU002 | 227 | Laminar flow in a 90° tee-junction | 2 | VMFL010 | NUM | Flow split — **discrete(1)** | simpleFoam / icoFoam | ABSENT | trivial | Y | `NEVER RUN` | `parent-physics only` — no GPU here |
-| VMFLGPU003 | 229 | Laminar flow in a triangular cavity | 2 | VMFL011 | NUM | Normalized X-velocity on bisector — **profile** | icoFoam / simpleFoam | ABSENT | small | Y* | `NEVER RUN` | `parent-physics only` — no GPU here |
-| VMFLGPU004 | 233 | Anisotropic conduction heat transfer | 2 | VMFL029 | AN | Normalized T at X=0 — **profile** | laplacianFoam (anisotropic → custom) | ABSENT | trivial | Y* | `NEVER RUN` | `parent-physics only` — no GPU here |
-| VMFLGPU005 | 235 | Turbulent natural convection in a tall cavity | 2 | VMFL052 | EXP | Vertical velocity at Y/h — **profile** | buoyantBoussinesqSimpleFoam | ABSENT | small | Y* | `NEVER RUN` | `parent-physics only` — no GPU here |
-| VMFLGPU006 | 239 | Mid-span flow over a Goldman stator blade | 2 | VMFL071 | EXP | Pressure ratio (vs experiment) — **profile** | rhoSimpleFoam (cascade) | ABSENT | small | Y* | `NEVER RUN` | `parent-physics only` — no GPU here |
-| VMFLGPU007 | 243 | Turbulent flow + heat, backward-facing step | 2 | VMFL013 | EXP | Surface Nusselt number — **profile** | rhoSimpleFoam / simpleFoam + energy | ABSENT | small | Y* | `NEVER RUN` | `parent-physics only` — no GPU here |
-| VMFLGPU008 | 247 | Radiative heat transfer, participating medium | 2 | VMFL066 | NUM | Non-dim heat flux vs x* (vs analytic) — **profile** | chtMultiRegion + fvDOM | ABSENT | small | Y* | `NEVER RUN` | `parent-physics only` — no GPU here |
-| VMFLGPU009 | 249 | Two-phase Poiseuille flow | 3 | VMFL069 | NUM | Velocity magnitude vs position — **profile** | interFoam | ABSENT | small | Y* | `NEVER RUN` | `parent-physics only` — no GPU here |
-| VMFLGPU010 | 251 | Surface-to-surface radiation, concentric cylinders | 2 | VMFL061 | AN | Non-dim T vs normalized radius — **profile** | chtMultiRegion + viewFactor (S2S) | ABSENT | trivial | Y* | `NEVER RUN` | `parent-physics only` — no GPU here |
+| VMFLGPU001 | 225 | Rotating & stationary concentric cylinders | 2 | VMFL001 | AN | Tangential velocity, 4 radii — **discrete(4)** | simpleFoam / icoFoam | ABSENT | trivial | Y | — | **`DEFERRED`** — GPU off; Sanaa: *"Well add the gpu ones once i turn the gpu back on later."* |
+| VMFLGPU002 | 227 | Laminar flow in a 90° tee-junction | 2 | VMFL010 | NUM | Flow split — **discrete(1)** | simpleFoam / icoFoam | ABSENT | trivial | Y | — | **`DEFERRED`** — GPU off; Sanaa: *"Well add the gpu ones once i turn the gpu back on later."* |
+| VMFLGPU003 | 229 | Laminar flow in a triangular cavity | 2 | VMFL011 | NUM | Normalized X-velocity on bisector — **profile** | icoFoam / simpleFoam | ABSENT | small | Y* | — | **`DEFERRED`** — GPU off; Sanaa: *"Well add the gpu ones once i turn the gpu back on later."* |
+| VMFLGPU004 | 233 | Anisotropic conduction heat transfer | 2 | VMFL029 | AN | Normalized T at X=0 — **profile** | laplacianFoam (anisotropic → custom) | ABSENT | trivial | Y* | — | **`DEFERRED`** — GPU off; Sanaa: *"Well add the gpu ones once i turn the gpu back on later."* |
+| VMFLGPU005 | 235 | Turbulent natural convection in a tall cavity | 2 | VMFL052 | EXP | Vertical velocity at Y/h — **profile** | buoyantBoussinesqSimpleFoam | ABSENT | small | Y* | — | **`DEFERRED`** — GPU off; Sanaa: *"Well add the gpu ones once i turn the gpu back on later."* |
+| VMFLGPU006 | 239 | Mid-span flow over a Goldman stator blade | 2 | VMFL071 | EXP | Pressure ratio (vs experiment) — **profile** | rhoSimpleFoam (cascade) | ABSENT | small | Y* | — | **`DEFERRED`** — GPU off; Sanaa: *"Well add the gpu ones once i turn the gpu back on later."* |
+| VMFLGPU007 | 243 | Turbulent flow + heat, backward-facing step | 2 | VMFL013 | EXP | Surface Nusselt number — **profile** | rhoSimpleFoam / simpleFoam + energy | ABSENT | small | Y* | — | **`DEFERRED`** — GPU off; Sanaa: *"Well add the gpu ones once i turn the gpu back on later."* |
+| VMFLGPU008 | 247 | Radiative heat transfer, participating medium | 2 | VMFL066 | NUM | Non-dim heat flux vs x* (vs analytic) — **profile** | chtMultiRegion + fvDOM | ABSENT | small | Y* | — | **`DEFERRED`** — GPU off; Sanaa: *"Well add the gpu ones once i turn the gpu back on later."* |
+| VMFLGPU009 | 249 | Two-phase Poiseuille flow | 3 | VMFL069 | NUM | Velocity magnitude vs position — **profile** | interFoam | ABSENT | small | Y* | — | **`DEFERRED`** — GPU off; Sanaa: *"Well add the gpu ones once i turn the gpu back on later."* |
+| VMFLGPU010 | 251 | Surface-to-surface radiation, concentric cylinders | 2 | VMFL061 | AN | Non-dim T vs normalized radius — **profile** | chtMultiRegion + viewFactor (S2S) | ABSENT | trivial | Y* | — | **`DEFERRED`** — GPU off; Sanaa: *"Well add the gpu ones once i turn the gpu back on later."* |
 
 ## Table C — Ansys Forte cases (VMFRT001–007)
 
@@ -251,15 +301,15 @@ All are **Ansys Forte** engine / spray / combustion cases. The lab has **no Fort
 solver and no engine-combustion CFD application** on the box; most are `NONE`. Forte
 archives ARE present in the canonical home (`VMFRT_v261/`).
 
-| Case | Pg | Title | Dim | Regime / physics | Ref | Quantity & N targets | Lab solver | Arch | Cost | Ladder | Tier / run status | Runnable here |
+| Case | Pg | Title | Dim | Regime / physics | Ref | Quantity & N targets | Lab solver | Arch | Cost | Ladder | Tier (in-scope only) | Scope status |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| VMFRT001 | 255 | LES in an internal-combustion engine | 3 | LES, IC engine, reacting | EXP | (validation profiles) — **profile** | **NONE** — no LES engine-combustion solver | Forte | large | N — no solver | `NEVER RUN` | **`NO` — no lab solver** |
-| VMFRT002 | 259 | ECN nonreacting flow — bklraAL4 | 3 | Non-reacting spray, gas-phase | EXP | (spray/gas profiles) — **profile** | reactingParcelFoam (spray, no reaction) — partial / **NONE** | Forte | large | N* — engine spray hard | `NEVER RUN` | **`NO` — no lab solver** |
-| VMFRT003 | 261 | ECN nonreacting flow — bklfaAL4 | 3 | ECN non-reacting spray | EXP | (spray/gas profiles) — **profile** | reactingParcelFoam — partial / **NONE** | Forte | large | N* | `NEVER RUN` | **`NO` — no lab solver** |
-| VMFRT004 | 263 | ECN nonreacting flow — bkldaAL4 | 3 | ECN non-reacting spray | EXP | (spray/gas profiles) — **profile** | reactingParcelFoam — partial / **NONE** | Forte | large | N* | `NEVER RUN` | **`NO` — no lab solver** |
-| VMFRT005 | 265 | ECN reacting flow — jkldaAL4 | 3 | ECN reacting spray combustion | EXP | (combustion profiles) — **profile** | sprayFoam / reactingParcelFoam (hard) / **NONE** | Forte | large | N — no clean solver | `NEVER RUN` | **`NO` — no lab solver** |
-| VMFRT006 | 269 | Adiabatic compression of air by a reciprocating piston | 3 | Dynamic mesh, transient, ideal gas (no reaction) | AN | Static T & p vs crank angle — **profile/discrete** | rhoPimpleFoam (dynamicMesh) — **feasible** | Forte | small | Y* — mesh-motion + time | `NEVER RUN` | `yes` |
-| VMFRT007 | 273 | Small-bore direct-injection diesel engine | 3 | Engine combustion (light-duty diesel) | EXP | (engine profiles) — **profile** | **NONE** — no engine-combustion solver | Forte | large | N — no solver | `NEVER RUN` | **`NO` — no lab solver** |
+| VMFRT001 | 255 | LES in an internal-combustion engine | 3 | LES, IC engine, reacting | EXP | (validation profiles) — **profile** | **NONE** — no LES engine-combustion solver | Forte | large | N — no solver | — | **`OUT OF SCOPE — BY RULING`** — engine combustion / LES spray |
+| VMFRT002 | 259 | ECN nonreacting flow — bklraAL4 | 3 | Non-reacting spray, gas-phase | EXP | (spray/gas profiles) — **profile** | reactingParcelFoam (spray, no reaction) — partial / **NONE** | Forte | large | N* — engine spray hard | — | **`OUT OF SCOPE — BY RULING`** — engine combustion / LES spray |
+| VMFRT003 | 261 | ECN nonreacting flow — bklfaAL4 | 3 | ECN non-reacting spray | EXP | (spray/gas profiles) — **profile** | reactingParcelFoam — partial / **NONE** | Forte | large | N* | — | **`OUT OF SCOPE — BY RULING`** — engine combustion / LES spray |
+| VMFRT004 | 263 | ECN nonreacting flow — bkldaAL4 | 3 | ECN non-reacting spray | EXP | (spray/gas profiles) — **profile** | reactingParcelFoam — partial / **NONE** | Forte | large | N* | — | **`OUT OF SCOPE — BY RULING`** — engine combustion / LES spray |
+| VMFRT005 | 265 | ECN reacting flow — jkldaAL4 | 3 | ECN reacting spray combustion | EXP | (combustion profiles) — **profile** | sprayFoam / reactingParcelFoam (hard) / **NONE** | Forte | large | N — no clean solver | — | **`OUT OF SCOPE — BY RULING`** — engine combustion / LES spray |
+| VMFRT006 | 269 | Adiabatic compression of air by a reciprocating piston | 3 | Dynamic mesh, transient, ideal gas (no reaction) | AN | Static T & p vs crank angle — **profile/discrete** | rhoPimpleFoam (dynamicMesh) — **feasible** | Forte | small | Y* — mesh-motion + time | `NEVER RUN` | `IN SCOPE` |
+| VMFRT007 | 273 | Small-bore direct-injection diesel engine | 3 | Engine combustion (light-duty diesel) | EXP | (engine profiles) — **profile** | **NONE** — no engine-combustion solver | Forte | large | N — no solver | — | **`OUT OF SCOPE — BY RULING`** — engine combustion / LES spray |
 
 ---
 
