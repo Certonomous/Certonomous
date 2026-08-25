@@ -697,146 +697,6 @@ and is her**.
 **Sub-section last written:** by the chief (records lane), zero compute, no solver, no case
 directory; assembled from the HEAD blob, not the worktree copy.
 
-### EVENING RULINGS AND DISPATCH — chief, certonomous-d8, 2026-08-25
-
-**Why this sub-section exists.** Everything below had been living only in the chief's
-relays. Two fleets died tonight (session limit, then the weekly limit). The board is the
-only handoff channel between sessions (L-186); a relay is not durable. This makes it durable.
-
-#### 1. SANAA'S COST-LIFT DIRECTIVE — HER WORDS, BYTE-EXACT
-
-Recorded verbatim. **Every typo and irregular space below is hers and is deliberately
-preserved as provenance — `thelab`, `ressources`, `al of the cases`, `knowlegde`,
-`_-12`, and the space before the comma after `already`. Do not normalise this quotation.**
-
-> I want the three teams to forget about cost constraints for now. We originally had them when thelab did not have discipline, but the lab does now. So no team stops anything in the name of saving compute. The lab having experience running hard and diverse cases primes over saving money. Besides, we have two instances running rn. So ample ressources. Something else, for each team: cfd team completes its tasks per our instructions, that team just like the ansys verification team can also read the High_order_grid_convergence.pdf in docs/standard when they are done, it can be before continuing the tasks (if they bumped into numerical convergence issues), or after, if they did not bump into numerical issues, either way, lessons from that pdf get recorded in the cfd team's own charters and .md files, and the lab's charters and numerics knowlegde and relevant verification/mesh etc standard as well if the ansys verification team did not update these after reading the pdf already , ansys-verification: Does not have to limit itself to _-12 cases? If you are saying we still have almost 40% unused compute, why would we limit ourselves to this small amount? Submit AS MANY cases as our compute allows us, heat transfer: same comment, if you have ran al of the cases I have you, I will give you more, but every team needs to stop sitting on idle compute
-
-**Everything from here down is THE CHIEF'S READING, not Sanaa's words.** It is recorded as
-correctable, and she may overrule any line of it.
-
-#### 2. COST CONSTRAINTS LIFTED — the chief's operational reading, marked correctable
-
-- The directive **overrides `CLAUDE.md` rule 12's "an overrun stops the run" clause, FOR
-  BUDGET REASONS ONLY.** No other clause of rule 12 is touched.
-- **Caps become RUNAWAY GUARDS, not stop conditions.** A crossing is **reported to the
-  supervisor**, who **extends by dated amendment** if the work is sound, or **stops it** if
-  the run is genuinely stuck. A cap crossing is no longer, by itself, a reason to kill a
-  sound run.
-- **COSTING AND CALIBRATION CONTINUE UNCHANGED.** She lifted *constraints*, not
-  *measurement*. Every run is still costed in its pre-registration; every completion still
-  lands its estimate-versus-actual row in `docs/COST_CALIBRATION.md` (rule 12's
-  2026-08-23 clause). A lab that stops measuring cost cannot tell her what the compute bought.
-- **RIGOR IS UNCHANGED.** Pre-registration, gates, thresholds, the verdict vocabulary,
-  Roache triple gating, the planted zero and the completion rule all stand exactly as
-  written. No refusal made on evidence is reopened by this directive.
-- **`CLAUDE.md` WAS NOT EDITED.** Constitutional text is Sanaa's. The directive is recorded
-  here and relayed; the rule file stays as she wrote it until she changes it herself.
-- **THE 8–12 BATCH FIGURE IS WITHDRAWN.** It was a chief-side throttle, not hers. **The
-  limit is now cores and memory**, nothing else.
-- **EXTENSION TO `dafoam` IS THE CHIEF'S READING.** She wrote **"the three teams"** —
-  `cfd`, `ansys-verification`, `heat-transfer` are the three she then addressed by name.
-  Applying the lift to `dafoam` as well is the chief's inference and is **recorded as
-  correctable**, not as her instruction.
-
-#### 3. THE PDF — `docs/standards/High_order_grid_convergence.pdf`
-
-- **`cfd` reads it FIRST**, before continuing its tasks — because `cfd` **did** bump into
-  numerical convergence issues, which is the branch her directive assigns to reading first.
-- **`ansys-verification` must state whether it has already landed the lessons** into the
-  lab's charters, numerics knowledge and the verification/mesh standards, **so `cfd` does
-  not duplicate that work.** Her sentence conditions the lab-level updates on exactly that.
-- **Rule 15 applies on the title page.** The file is verified by its title page, never by
-  filename, file type or hash. **This is not hypothetical here:** commit `01fcb3d8` records
-  that this same PDF was previously found to be Ekaterinaris 2005 on high-order low-diffusion
-  schemes — **zero Roache, zero GCI, zero Richardson** — while two teams were about to write
-  its "lessons" into the mesh and verification standards. Whoever reads it reads the title
-  page first and says what it actually is.
-
-#### 4. DESK-ITEM DISPOSAL RULE APPLIED TONIGHT
-
-Adopted, on the recommending team's evidence:
-
-- **K0d re-registration** — adopted on `heat-transfer`'s recommendation.
-- **The filing conflict and the log policy** — adopted.
-- **The id tool** — approved, **with the constraint that ids are allocated only at append
-  time against HEAD** (rule 11: the number comes from the tail maximum at commit time,
-  never from a count, and peers commit constantly).
-
-**ONE EXCEPTION, HELD OUT EXPLICITLY, AND IT IS NOT A CLOSE CALL:**
-
-> The `analyse_f5b_physics.py` edit was **DENIED BY THE PERMISSION SYSTEM, NOT BY SANAA.**
-
-**Her silence does not override a live denial.** The disposal rule disposes of items on her
-desk; it has no reach over the permission system, which is one of only two things that can
-authorise (rule 9). **The file stays untouched.** No agent may treat this exception as
-disposed of, and no supervisor's or chief's message converts it into consent.
-
-#### 5. TWO NEW RULINGS REFERRED TO SANAA BY `cfd` — charter-level, OUTSIDE the disposal rule
-
-Both are referred **up**, not decided here. The disposal rule does not reach a charter clause.
-
-**(a) Rule 4's completion clauses cannot notice a physically impossible answer.**
-**F12 arm 1 satisfied every limb of the strict completion rule** — `rc = 0`, an `End` line,
-last time == `endTime`, all fields present, the `ExecutionTime` count, and the age guard —
-**on a solution 99.2 K outside the flow's adiabatic ceiling.** The finding is structural:
-**completion and physical admissibility are independent properties.** A run can be perfectly
-complete and still report an answer the physics forbids, and nothing in rule 4 is built to
-see that. Whether an admissibility limb is added to the completion rule is a charter change
-and therefore **Sanaa's alone**.
-
-**(b) ONERA M6 §3.1 scoping — the 70° threshold.**
-**38 mesh variants; NONE clears 70°.** The floor sits at **81.58° at the sharp trailing
-edge**, and — the part that matters — it is **REFINEMENT-RISING**: **444 of 111,872 faces**,
-a **fixed fraction** that refinement does not reduce. That is the signature of a geometric
-feature, not of an under-resolved mesh, so no amount of further structured refinement will
-retire it. **`cfd` recommends the unstructured route and takes NO PART of the threshold
-decision** — retiring or moving a gate threshold is reserved to Sanaa.
-
-#### 6. TWO CONTRADICTIONS FROZEN INTO PRE-REGISTRATIONS — found POST-COMPUTE, referred by `heat-transfer`
-
-Both are pre-registrations that **could not have been satisfied as written**. Found after
-first compute, so under rule 2 the gates are closed and neither original may be rewritten.
-
-- **T8 §12** registered an **axis-extrapolation whose own precondition (`r₂ = 3r₁`) its wedge
-  mesh cannot satisfy** — the **volume centroids give 7/3**, not 3. **Ruling recorded:
-  READ CENTROIDS FROM DISK; NEVER REGISTER A RATIO** taken from the nominal mesh spec. A
-  ratio asserted from geometry-on-paper is not a measured ratio.
-- **K0d L2 block A has an ODD CELL COUNT (17)**, so **two-sided grading and condition D
-  cannot both hold**. Consequence, stated plainly: **G IS UNREACHABLE ON K0d AS REGISTERED.**
-  That is a property of the frozen document, not a failed solve.
-
-#### 7. DISPATCH RECORD — what actually happened tonight
-
-- **Four supervisors re-formed after each of TWO fleet kills**: the **session limit at
-  ~20:45Z**, then the **weekly limit at ~19:40Z**, the latter **restored by Sanaa**.
-- **Repeated mid-response connection drops on long turns.** Each was **resumed from
-  committed state** — which is exactly why pre-registration-first and commit-early make
-  recovery cheap.
-- **Fired tonight:**
-  - **F4 conversion** — graded **8 `NOT A RESULT` / 1 `CONVERGING`**; **cap crossed by 0.46 %**.
-  - **K0d L1** — two cases.
-  - **T8** — **`BLOCKED`** post-fire.
-  - **D7** — **P1 `PASS`**; **P2 cap-stop mid-convergence**; **O unreachable**.
-  - **F12 probes.**
-- **`verification` remains PAUSED by Sanaa. `closure` is at rest.** Neither state was
-  changed tonight, and neither may be changed by an agent.
-
-#### 8. BOARD-HYGIENE NOTE FOR A SUCCESSOR
-
-The **T8 lane reported `f` as "converging" at `590f86d4`** — that reading was **a snapshot
-taken on the way up**. **`f` oscillates over two decades.** The record was **corrected at
-`11f5041f`**.
-
-**The lesson, and it generalises past T8: ONE RESIDUAL READING IS NOT EVIDENCE OF
-CONVERGENCE.** A converging trend is a property of a history, not of a sample. Anyone
-tempted to write "converging" from a single line of a log should read this paragraph first.
-
-**Sub-section written by:** the chief's records lane — **zero compute, no solver, no case
-directory, no science.** Assembled from the HEAD blob of this file, never the worktree copy.
-**Shared index left untouched:** it currently stages `docs/LAB_STATE.md` as
-**525 insertions / 8,336 deletions**, one of **2,508 staged paths** — reported, not changed
-(rule 10).
-
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
@@ -2245,6 +2105,60 @@ file: 0/U/internalField at line 9.
 **I am NOT re-deriving it in parallel.** The lane is on it, and **two readers on one log is how a stale reading gets committed twice.** When its dated correction lands I will re-read `f`'s history **from that correction forward**, not from my memory of the earlier tail, and **rule again on `epsilon` with the corrected premise stated on the face of the ruling — including if the ruling comes out unchanged. A ruling that survives a corrected premise is worth more than one never tested against it, and one quietly left standing is worth nothing.**
 
 **Unaffected and proceeding:** the partition-of-unity lesson (L-326, dispatched with its executable check, landing atomically); K0d's §2d.1 parse repair and re-fire. **`f` is not to be touched: if it is departing that is diagnostic, and if it aborts its tree is evidence.** **`BLOCKED` stands on T8 regardless — under either reading, no gate verdict is reachable under that pre-registration.**
+
+#### L-326 IS LANDED — `d1f9882b`, WITH ITS EXECUTABLE CHECK, IN ONE COMMIT. **AND I DEMONSTRATED THE CHECKER FIRING MYSELF RATHER THAN ACCEPT THAT IT DOES.**
+
+`docs/LESSONS.md` **+130** and `scripts/check_stencil_plant_arms.py` **+655**, measured with `--numstat`. **Number derived at commit time from `max = 325`** — and at that HEAD the three figures were **again distinct: max 325, blocks 325, distinct 323**, so a count would have given the wrong answer. The lane also asserted HEAD's `LESSONS.md` was a **byte-exact prefix** of the worktree file before staging — **a plain `read-tree` would have silently reverted a peer's concurrent lesson**, and that catch is worth more than the lesson's prose.
+
+**The proof, in exact rational arithmetic:** over `k = 3, 7/3, 5/2, 11/7, 9/4`, `w1 + w2 = 1` **for all five**, so the five uniform-plant shifts form a set of size **ONE** — `{1·P}` — and **the arm cannot distinguish ANY two of those ratios; the `k=3` vs `k=7/3` uniform difference is exactly 0.** The five subset shifts are **five distinct** values `9/8, 25/21, 49/40, 81/65, 121/72`. **Operationally, at T8's own `PLANT = 1.234e-03` and `tol = 1e-09`, an instrument shipping `k=3` weights on a `k=7/3` mesh gives: uniform arm residual exactly 0.0 → STAYS GREEN; subset arm residual 1.234e-04 = 123 400 × tol → FIRES.** One stencil, one plant magnitude, two arms, opposite answers.
+
+**MY §3 CHECK-1 READ: I built a violation and a clean counterpart and ran them, because a checker never shown to fire is precisely what this lesson is about.**
+
+| case I constructed | rc |
+|---|---:|
+| weighted stencil + **ONE** uniform arm, actually called | **2 — FIRES** |
+| same stencil + a strict-subset arm | **0** |
+
+**⚠ AND I FOUND A REAL GAP: SEVERITY IS NON-MONOTONE IN HOW WELL-ARMED THE INSTRUMENT IS.** A third case — **a weighted stencil with NO control of any kind** — returns **rc = 0**:
+
+| stencil + **ZERO** controls | **0** |
+| stencil + **ONE** uniform arm | **2** |
+| stencil + **TWO** arms | **0** |
+
+**The WORST case scores the same as the BEST case.** The prose is honest — *"no plant-APPLYING callable found… Nothing this scan is competent to judge"* — **and that is exactly the problem: the prose says "not competent to judge" while the EXIT CODE says "clean", and when those disagree the exit code wins, because exit codes get automated into sweeps while prose gets skimmed.** **The instrument written for this lesson exhibited the lesson's own shape on its first independent test — a green a reader would misread — and it was found by running it against a case its author had not thought to construct.**
+
+**Ruled, on lab law rather than invention: CLAUDE.md rule 1 reserves `PENDING` for "not yet run" and forbids using it to soften a `GATE FAIL`. The analogue is UNASSESSED IS NOT CLEAN.** Dispatched: **exit `3` = NOT ASSESSED** (a weighted stencil found, no plant-applying callable — **not a pass**), distinct from `0` assessed-clean and `2` assessed-violating; `0` retained where there is **no stencil at all**, since there is genuinely nothing to assess. With a positive and a negative selftest arm, and the four comparators re-run to see if any moves off 0.
+
+#### K0d — FIRED, TWO L1 CASES RUNNING, AND A REGISTERED CONTRADICTION THAT MAKES **G** UNREACHABLE
+
+**`M1_c` pid 2729793, `M2_c` pid 2729792**, `setsid`, ranks 1, `0/T` touched last. **13.5–13.9 it/s → projected 49.5 / 47.8 core-min, 11 % of the 435 cap**, ~97 of the rung's **2 748.64** ceiling — **the superseded 2 484.84 never quoted.** Launch contention recorded: load 8.57, 8.10 of 16 cores, 26 GB free, foreign solvers untouched.
+
+**⚠⚠ SIX CASES FAIL CONDITION D, ALL SIX L2, BYTE-IDENTICAL — and my earlier sweep found nothing because `check_k0d_mesh.py` prints per-condition lines and never a summary: rc=1, 46 ok, 6 FAILED.** **Not a builder bug.** The floor cell is *exactly* the design value; only *"smallest in its block"* fails. **Block A carries 12 cells at L1 (even), 17 at L2 (ODD), 24 at L3 (even), and two-sided grading over an odd count cannot put the same first cell at both ends** — the smaller lands at the slot lip. **§5's two-sided grading and §4's condition D cannot both hold at the registered L2 count.** It could not have been caught pre-compute: **the parity only expresses itself at the registered count.**
+
+**MY RULINGS:**
+- **Condition D is NOT relaxed and is not to be touched.** It underwrites the near-wall resolution the whole thermal claim rests on, and **relaxing a refusal condition because a registered mesh cannot satisfy it is exactly the move §2d.1 forbids — "the numbers looked wrong, so the band was widened." If anything moves, the mesh moves, never condition D.**
+- **NOT mine to land — REFERRED.** Changing L2's count changes the registered refinement ratios `R21`/`R32`, which feed `observed_order` and hence the GCI: **grading-path-adjacent, the pre-compute window spent, and §2d.1 does not stretch from repairing a parse defect to redefining a mesh family.** Recommendation with its arithmetic: 17 was almost certainly `√(12·24) = 16.97`, the geometric mean giving equal `√2` ratios; **the comparator already handles UNEQUAL ratios, so an even L2 is tractable without touching the grader's mathematics.** I deliberately **name no number** — block A interacts with `nA+nB+nC = Ny` and total cells, so the replacement must be **DERIVED and condition D re-checked against it. Choosing a number because it is even is how the first one got in.**
+- **L3 DOES NOT FIRE, and the ground is the registered CEILING, not cost.** Two L3 caps at **1 675.50 each = 3 351 core-min, which exceeds the rung's ENTIRE 2 748.64 ceiling on its own.** A cap is a runaway guard reported to me, **not a number I may fire past**, and rule 2 forbids raising it after first compute. **This is the identical boundary I put on Sanaa's desk for `R_10k_x` this morning, applied against my own rung rather than only someone else's. Sanaa lifted COST; she did not lift RULE 2.** And with L2 unresolved **there is no triple to complete, so L3 buys nothing — holding it is arithmetic, not caution.**
+- **L1 FINISHES** — running, cheap, and it produces **`V`-column evidence, which is real and is what this lab is short of.**
+- **THE HONEST VERDICT, recorded now rather than left blank for someone to fill in optimistically: K0d earns `V` ONLY. `P` is unreachable while Blay 1992 is `NOT OBTAINED`; `G` is now unreachable because L2 cannot produce a condition-D-satisfying mesh. Rung verdict `GATE REACHED`, naming BOTH `P` AND `G`. Never `HOLDS`, and never a triple assembled from two levels.**
+
+#### ⚠ MY `0/U` DIAGNOSIS WAS WRONG AND THE LANE CORRECTED ME — THE SECOND TIME TODAY
+
+I read `Expected keyword 'uniform' or 'nonuniform', found punctuation '('` and concluded a missing `nonuniform List<vector>` declaration, **and pointed the lane at `analyse_t8.py` as the reference.** **That would have been wrong twice: §A1.2a registers a UNIFORM seed, so `(0 0 0)` is the uniform VALUE, not a list opening; and writing a nonuniform list would have expanded every `0/` file to one entry per cell.** The repair was the keyword `uniform` at one formatting point. **I inferred the shape of the defect from the shape of the error message instead of looking at the file.**
+
+**TWO READ-BACK ARMS WERE NEEDED, AND THIS IS THE DAY'S LESSON AT ITS SHARPEST: the `blockMesh` arm PASSED while `0/U` was unreadable — because `blockMesh` NEVER READS `0/`.** The solver arm runs the real solver for two iterations. **The lane's own first repair was also wrong (`uniform uniform 0.00125`, solver refused `0/k`) and was caught by the new solver arm rather than by a launch.** **The one-sentence diagnosis to keep: every check exercised the channel the AUTHOR was thinking about, not the channel that CONSUMES the artifact.** Both defects landed under §2d.1 with all four conditions named, the independent instrument being **the solver's own parser**, zero iterations run. Both failed attempts preserved, ~0.17 core-min.
+
+#### ⚠⚠ §4b.1 — T8's REGISTERED GATE IS A **TWO-POINT SAMPLE**, AND IT BEARS ON EVERY CHECKPOINT-DIFFERENCE GATE IN THE T-FAMILY
+
+**The registered gate is not the residual at all — it is the last-two-written-checkpoints relative field change.** `f`'s `writeInterval` is 2000, so it compares **18000 against 20000**: one spacing, two samples, on a field swinging over two decades. **Checkpoints landing at similar phases show a small change and the gate reports CONVERGED — with nothing in the output signalling anything went wrong.** That is **the same failure as my point-sampled residual and as the lane's truncating reader, arriving a third way.** The lane's line, landed in the lesson: ***a truncating reader and a point sampler are the same failure in different clothes — both report a number the data does not support, with no signal that anything went wrong.***
+
+**MY RULING — a convergence gate built on checkpoint differences must satisfy ALL THREE:** (1) **at least THREE distinct checkpoint SPACINGS, passing at all of them** — an oscillation aliased at Δ is not generally aliased at 2Δ and 3Δ, and this reuses checkpoints already written so it costs nothing; (2) **successive differences NON-INCREASING across the window, not merely small** — *"small" is satisfiable by luck; "shrinking" is not*; (3) **REFUSE with `NOT A RESULT`, never a pass, when the quantity is not shown stationary** — an instrument that cannot distinguish convergence from aliasing must say so rather than pick one.
+
+**T-FAMILY AUDIT DISPATCHED, and it is the important half:** per rung across all three of my run trees — does its convergence gate compare written checkpoints, at how many spacings, does it require non-increasing differences, does it refuse on non-stationarity. **Rungs already GRADED under such a gate to be reported separately and prominently — those are where a verdict may rest on a two-point sample.** No re-grading, no frozen file touched; bring the table and I rule.
+
+**`f` RUNS TO ITS CAP, and the lane's reason is better than my original one.** I let it run as a healthy-level control; **that premise is gone. The stronger reason: only more iterations can distinguish a PERIODIC oscillation from an APERIODIC drift, and that distinction is exactly what §4c's stationarity precondition needs to be answerable at all.** ~2 800 of 20 000 cannot judge it. A **second excursion is forming** — 2.85e-05 → 2.45e-05 → 3.97e-05 → **4.28e-05 rising** at `Time = 2840`. **That is data, not a failure.**
+
+**My 228 figure is confirmed AND strengthened: the longest stretch at or below 1e-6 is 228 iterations, and the TOTAL number of iterations at or below 1e-6 anywhere in the entire run is ALSO 228 — so the block is CONTIGUOUS AND UNIQUE. `f` touched the registered criterion exactly once, for 228 iterations, and never again.** That makes the rule-5 counter-example airtight, and the lab's own disagreement — `analyse_e4a.py:346` folds the two conjuncts, `analyse_t1b_L4.py:225` separates them — **is now decided by counter-example from my own family: the conjuncts are INDEPENDENT.**
 
 #### RUNGS WITHOUT VERDICTS
 
