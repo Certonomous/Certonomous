@@ -78,7 +78,7 @@ run_stage () {
       --user 0:0 --cpus=1 --memory=6g --memory-swap=6g --oom-score-adj=500 \
       -v "$BASE":/mnt -w "/mnt/$STAGE" "$IMG" bash -lc \
       "source /home/dafoamuser/dafoam/loadDAFoam.sh && \
-       mpirun --allow-run-as-root -np 1 python d11_run_script.py -task $TASK -uOffset $UOFF -out d11_${STAGE}.json" \
+       mpirun --allow-run-as-root --bind-to none -np 1 python d11_run_script.py -task $TASK -uOffset $UOFF -out d11_${STAGE}.json" \
       > "$LOG" 2>&1
   rc=$?
   T1=$(date -u +%s); WALL=$((T1-T0))

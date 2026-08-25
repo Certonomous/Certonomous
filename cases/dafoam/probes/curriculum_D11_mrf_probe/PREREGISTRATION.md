@@ -129,3 +129,48 @@ UNPRICED and why.
 - A registered instrument reduction: the substrate is a purpose-built box, not a real
   ducted fan or swirl passage. That is deliberate — cost is deterministic and the
   capability question is image-level — and it is exactly why §8 says what it says.
+
+---
+
+## Amendment 1 — 2026-08-25 — `--bind-to none`, BEFORE FIRST COMPUTE
+
+**Document version 1.1.** The body above is v1.0, committed `c2913dcd`.
+**Lines whose number changed above this section: 0.**
+
+**This is a before-first-compute amendment, which `CLAUDE.md` rule 2 permits, and it
+therefore states its condition and how the condition was checked.**
+
+**Condition:** no compute had started for any of the three probes.
+**How it was checked:** the run root `/home/ubuntu/certonomous-runs/CURRICULUM-PROBES-D10-D11-D12`
+**did not exist** — `ls` on it returned *No such file or directory* at 2026-08-25 ~16:58Z,
+after the v1.0 freeze and before this amendment. No container of this probe had ever run.
+
+**What changed, and why.** At `ab89210f` (2026-08-25 16:57:52Z), minutes after the
+v1.0 freeze, a peer dafoam lane **measured** a defect this probe's launcher was about
+to walk into: `mpirun -np 1` inside a container binds every rank to **CPU 0**, because
+OpenMPI binds by default and `docker --cpus=1` is a CFS **quota, not a placement**. With
+four DAFoam containers live the peer measured each running at **0.2504 of one core** on
+a 61 %-idle 16-core box, and **0.9994** after the affinity was corrected — **3.99×, at
+zero compute cost** (`cases/dafoam/ladder-a/A6/curriculum_D8/CPU_BINDING_DEFECT_PROPOSED_NOTE.md`,
+NOT FILED). Peer containers were live when this probe was about to launch.
+
+The single-token change the peer's note recommends is applied to `d11_stage_and_run.sh`:
+
+    mpirun --allow-run-as-root -np 1 python …
+    mpirun --allow-run-as-root --bind-to none -np 1 python …
+
+**What this amendment does NOT do.** It changes **no gate, no threshold, no cap and no
+label** — §3, §4, §5, §6 and §7 stand exactly as frozen. It changes only how many host
+cores one rank is allowed to land on. Its whole effect is on **wall time**, and
+therefore on whether the registered cap in §6 is honest rather than a lottery on peer
+scheduling. The cap itself is **unchanged**; had the fix not been applied, an overrun
+would still have stopped the probe.
+
+**Instrument hash superseded (§9 of the frozen body is struck for this one row, not
+rewritten):**
+
+| file | md5 at v1.0 | md5 at v1.1, the file that ran |
+|---|---|---|
+| `d11_stage_and_run.sh` | `5d50149f915f966931d230a0db85ae88` | `31cff5d1af0616eb5a3984b52982d58a` |
+
+All other instrument hashes in §9 are unchanged and still bind.

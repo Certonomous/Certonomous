@@ -82,7 +82,7 @@ run_stage () {
       --user 0:0 --cpus=1 --memory=12g --memory-swap=12g --oom-score-adj=500 \
       -v "$BASE":/mnt -w "/mnt/$STAGE" "$IMG" bash -lc \
       "source /home/dafoamuser/dafoam/loadDAFoam.sh && \
-       mpirun --allow-run-as-root -np 1 python d12_run_script.py -task $TASK -shapePlant $PLANT -out d12_${STAGE}.json" \
+       mpirun --allow-run-as-root --bind-to none -np 1 python d12_run_script.py -task $TASK -shapePlant $PLANT -out d12_${STAGE}.json" \
       > "$LOG" 2>&1
   rc=$?
   T1=$(date -u +%s); WALL=$((T1-T0))
