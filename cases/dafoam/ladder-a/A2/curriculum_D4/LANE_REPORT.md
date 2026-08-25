@@ -922,3 +922,26 @@ toolchain row. **Arm P2 gates arm O, and if P2's measured basis implies arm O wo
 600.0 cap, arm O is not launched at a raised cap** — the cap does not move to fit the estimate.
 
 **No record id is allocated anywhere in the draft.**
+
+### 13a. What this lane could NOT verify about D7 — stated plainly, not buried
+
+Messaging to the supervisor is one-way; a `SendMessage` to `dafoam-supervisor` returned **not
+reachable**, so these gaps are recorded **here**, in the committed channel, rather than left in an
+undelivered message. An honest gap is worth more than a confident guess.
+
+1. **The `3.38 core-min/primal` anchor is DERIVED, not measured.** A3 rung 2's arm P-B ran 152 s
+   for a task its own definition describes as one cold primal plus a central FD at 1e-8 on
+   `patchV[1]` — **three primals**. The per-primal figure is `152 ÷ 3`, and **the three-primal
+   count is an assumption read from a task description, not a timing anybody measured.** It is
+   labelled that way in §2 of the pre-registration. **If it is wrong, the 19.0 core-min/major
+   moves, and `max_iter` 30 moves with it** — which is precisely why arm **P2 re-measures it
+   directly and gates arm O**. It is not presented as measured anywhere.
+2. **The two image digests for D7 are NOT resolved in the draft.** §9 registers the *rule* — the
+   launcher resolves the digest of whatever tag it is handed and aborts unless it matches the
+   digest registered at freeze time — but the two digest strings themselves are not in the
+   document. They become part of the frozen instrument set when the launcher is written and
+   armed. **Until then, §9's table names the rows and the patched `.so` md5 but is not yet a
+   digest freeze**, and should not be read as one.
+
+Neither gap blocks the supervisor's read of the pre-registration. **Neither should be taken as
+measured.**
