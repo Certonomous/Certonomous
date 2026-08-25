@@ -4797,6 +4797,120 @@ measures in, and it is bigger than F3.** Goes to the chief and to verification.
 field observation arm; **F3 successor — the INCUMBENT lane resumed, not a rival spawned.** **cfd
 solver core-minutes this session: still ZERO** — the F3 successor is the first compute cfd will spend,
 at a ~6.4 core-min cap.
+
+---
+
+### ELEVENTH SESSION, 2026-08-25T19:12:40Z — written by cfd-supervisor personally, after the usage-limit kill
+
+**Section last written:** 2026-08-25T19:12:40Z by cfd-supervisor personally. Stamp is `date -u` read in the committing shell invocation. Section rebuilt from the HEAD blob via `scripts/lab_state_section.py`; bytes outside `## cfd` asserted byte-identical to the committed blob.
+
+**THE KILL WAS LOSSLESS FOR COMMITTED WORK, AND I ESTABLISHED THAT BY HASH BEFORE FIRING ANYTHING.**
+Seven frozen documents checked worktree-vs-HEAD-blob: `F13_ONERA_M6_PREREGISTRATION.md`, `F12_PREREGISTRATION.md`, `F3_CONVERSION_PREREGISTRATION.md`, `F5b_PHYSICS_PREREGISTRATION.md`, `F1_CP_PROVENANCE_2026-08-25.md`, `analyse_f13.py`, `MESH_STANDARD.md` — **ALL SEVEN BYTE-IDENTICAL.** `F13_ONERA_M6_PREREGISTRATION.md` carried a worktree mtime of 17:42 today, which looked like a freeze breach and **was not** — a checkout touch, not an edit. **No freeze breach anywhere in cfd.**
+
+**THREE ITEMS THE INCOMING BRIEF LISTED AS OWED WERE ALREADY AT HEAD.** Verified by content, not by commit subject: `MESH_STANDARD.md` **§9 carries Sanaa's three-level grid ruling quoted verbatim** (`735b7b8c`, v1.4, §9.1, and the §9 similarity clause with it); `docs/standards/RUN_LOG_STANDARD.md` **exists** (`d7f22abd`, v1.0); `verification/campaign/F12_GATE_B_RULING_2026-08-25.md` **exists** (`43236ec1`). The wake far-side letter-versus-spirit ruling landed inside `735b7b8c`. **Corrected upward rather than re-done.**
+
+**`roache_triple.py` PIN — DISCHARGED, AND IT VERIFIES EXACTLY.** The owed pin is now a measurement, not an intention. blob `8dee0d31e94d3f59d28658f88a4cd6df80ae8e39`, md5 `ae64dc482ae2069d233719e68e9192b8`, sha256 `452f475181c9897000ea530b39a84bd3e7e9927e0a3fd39fe8b1105f538ac051` — **recorded identity == HEAD blob == worktree**, all three, and `git log` on the path shows **exactly one commit, its own creation `9c69a79a`.** The instrument has not drifted since it was written.
+
+### VERDICT — F1 (ONERA M6) BUTTERFLY TIP FILL: **`GATE FAIL`**, AND IT REFUTES THIS TEAM'S OWN DIAGNOSIS
+
+Mesh trial, **not a registered rung** (`MESH_STANDARD.md` §8.1 build-before-freeze). **86 s wall × 1 rank = 1.4333 core-min**, $0.0012 **derived not measured** at $0.0513/core-h. Artifacts `verification/runs/F1_MESH_TRIALS_2026-08-25/v2_m{1,2,4}/log.checkMesh`, every rc read from `RC_*.txt` on disk.
+
+| channel | gate | v1 lens (R0) | **v2 butterfly** | |
+|---|---|---|---|---|
+| `blockMesh` accepts topology | required | **rc 134, REFUSED** | **rc 0 ×3** | **FIXED** |
+| cells | 111,872 / 894,976 / 7,159,808 | — | **exact ×3** | PASS |
+| **max non-orthogonality** | **≤ 70°** | 84.6437 / 86.0173 / 86.7767 | **81.9396 / 83.8768 / 83.6438** | **GATE FAIL ×3** |
+| **severely non-orth faces (>70°)** | — | 36 / 216 / 1,440 | **598 / 4,286 / 31,358** | **16–22× WORSE** |
+| max skewness | ≤ 4 | 1.44254 / 1.44298 / 1.44318 | 1.4431 / 1.44325 / 1.44331 | PASS |
+| `checkMesh` prints `Mesh OK` | required | NO | **NO — `Failed 1 mesh checks`** | **GATE FAIL ×3** |
+| max aspect ratio (not gated) | — | 5,934.1 / 6,469.0 / 6,748.5 | **5,934.1 / 6,469.0 / 6,748.5** | **IDENTICAL** |
+
+**THE BUTTERFLY LEGALISED THE TOPOLOGY AND DID NOT FIX THE GATE.** Max non-orthogonality improved by **2.70 / 2.14 / 3.13°** against a **11.9–13.9° deficit**. That is not a near miss; it is the wrong lever.
+
+**THE REFUTATION, AND IT IS AGAINST THIS TEAM'S OWN RECORD.** `R0_TERMINAL.md` states that *"all severely non-orthogonal faces lie on the tip fill's two collapsed lines."* **Removing the collapsed lines entirely did not bring the max down.** So the collapsed-line tip fill was **NOT the dominant source**, and the R0 attribution is **STRUCK as a cause** — it remains true as a *location* of v1's 36/216/1,440 faces, and that is all it ever measured. **VERIFY-flagged as my reading, not the lane's:** I read the three `log.checkMesh` files myself rather than accept a summary (§3 check 3).
+
+**TWO SIGNATURES THAT POINT AT WHERE IT REALLY COMES FROM**, and both are hypotheses I have NOT yet confirmed — **VERIFY**:
+1. **Max non-orth does not improve under refinement in EITHER topology** (v2: 81.94 → 83.88 → 83.64, non-monotone and essentially flat). That is the signature of a **geometric/topological** source, not an unresolved one. Refining will never fix it.
+2. **Severe-face count scales ≈ ×7.2 per level** (598→4,286→31,358), against ×4 for a surface feature and ×8 for a volumetric one. **The bad faces look distributed through a VOLUME, not along a line or over a surface** — which would exonerate the tip region a second time and implicate the wall-normal grading or far-field block structure.
+3. **Aspect ratio is bit-for-bit unchanged from v1** (5,934.1 / 6,469.0 / 6,748.5), which is independent evidence that the wall-normal grading (β = 10.575549 over 20 c_root) was untouched by the tip redesign and is the sole author of the one `checkMesh` failure.
+
+**`checkMesh` prints `Non-orthogonality check OK` at 83.88°** — its own warning threshold is looser than this lab's §5 gate of ≤ 70°. **The lab gate is the binding one. Do not read checkMesh's "OK" as admission.**
+
+**NO SUCCESSOR LADDER IS FROZEN, AND NONE WILL BE UNTIL THE BAD FACES ARE LOCALISED.** C1.4: I do not freeze on an assumed mesh line, and I have now been wrong once about where these faces live.
+
+### VERDICT — the two ARMED latent-crash files, TRIAGED. One **LIFTED**, one **UPHELD with its defect CORRECTED**
+
+Commit **`497efa83`**. §3 check 2 and check 1, both personal, both reads of the code. **Zero compute. Nothing already graded reopened.**
+
+- **F9 `f9_criteria.py` — FALSE POSITIVE, blocker `LIFTED`.** `status` is **not** read unconditionally at L816/L826; both sites sit behind `if "status" in rec:` (L815, L825). No `KeyError` reachable. Independently, `f9_criteria.json` is written at **L809, before** the console summary at L812 — the blocked region is a print, not the grading path.
+- **F6b `relax_invariance.py` — blocker `BLOCKED` UPHELD, stated defect WRONG.** The `r[...]` reads the blocker names are **guarded** by `.get()` at L92/L96 and unreachable. **The real exposure is the incumbent arm `A`**, bound at L87 and subscripted **unguarded at L102, L103, L107, L109, L135**. Two reach routes; **route 2 (L135, `medium_relax_PC` with two crossings) does not involve arms B or C at all.** A repair aimed at `r[...]` fixes **nothing**.
+- **THE INSTRUMENT DEFECT, worth more than either triage: `scripts/check_grader_self_blindness.py` HAS NO GUARD AWARENESS** in any of its 323 lines — no membership test, no `.get()`, no `try`/`except` modelling. **Its ERROR class reports a defensive read and an armed crash IDENTICALLY, and is NOT SOUND.** It manufactured one blocker against a file with no reachable defect. **It is NOT retired** — the same probe found `grade_f3.py`, the defect that had already fired, and F6b, which is real; both found **by the instrument, not by reading**. Repair recommended in the record, **NOT made here** (`scripts/` is nobody's territory; an instrument change is a check-1 diff item).
+- **Against myself:** I blocked a file on an instrument's ERROR without asking whether the crash could be reached. **An audit instrument's finding is a LEAD, NOT A VERDICT** — the same relationship a lane's test has to a supervisor's read.
+
+### Live jobs
+
+**cfd compute this session: 1.4333 core-min, all of it spent, all of it graded.** The M6 trial completed at 19:07Z (86 s wall, rc 0). **Nothing of cfd's is running as of 2026-08-25T19:12:40Z.** Box-wide: heat-transfer 3 × `buoyantBoussinesqSimpleFoam` (pids 2203927 / 2203944 / 2203947), dafoam 2 containers (D4 arm O, D8 `fd`), ansys-verification 1 × `simpleFoam` (pid 2396481). **Load average 7.97 on 16 cores ≈ 50 % — UNDERLOADED against Sanaa's 80–90 % saturation target, and cfd is contributing almost none of it.** That is this team's defect to fix, and the three lanes below are the fix.
+
+### Lanes live — 3, AT CAP
+
+1. **M6 topology** — trial FIRED and COMPLETE; now localising the 598/4,286/31,358 non-orthogonal faces via `locate_bad_faces.py`. Two orphaned files from the killed lane (`cases/F1_onera_m6/make_blockmesh_f1.py`, `run_trials.sh`) were **not at HEAD** and are being committed.
+2. **F12 field-localisation probe** — **STAGE 1 ONLY: register and STOP.** Writing a short costed pre-registration for the probe my own §3.4 triage specified. **It will not launch until I verify the freeze personally (§3 check 4).**
+3. **F2 conversion** — building a **reusable N-case parallel batch harness** (per-case cap, contention file, memory guard) plus a three-level Roache ladder registration under `MESH_STANDARD.md` §9. **Freeze and STOP; no launch before my check-1 diff read and check-4 verify.**
+
+### Rungs without verdicts, named including the embarrassing ones
+
+**F1 (M6)** — R0 `GATE FAIL`; v2 butterfly **also `GATE FAIL`**; **no admissible ladder exists and the cause is now openly unknown.** **F12 rung 1** `NOT A RESULT`, **rungs 2–5 `BLOCKED`** on the rate-calibration interlock, which cannot clear until rung 1 produces a measured rate. **F3** — 5 PASS / 1 GATE FAIL / 1 NOT A RESULT, **3 rows `BLOCKED`** on a correctly-fired cap. **F11** `NOT A RESULT` ×6. **F5b** `NOT A RESULT`. **F4** headline still **CONTINGENT** on the event-1/event-2 choice. **F4-Q4** — the 3 core-min `wmake` build allowance still not closed. **DPW8_V2 L4** — map cell `PENDING`, L4 **NOT GATED**. **The lab still has NO 3D PASS against experiment with a pre-registration on disk, and NO converging Roache triple outside the thermal family.** F2 is the cheapest shot at the second of those and it is now in registration.
+
+### Next actions
+
+Read the M6 bad-face localisation **personally** and rule on whether hypothesis 1 (geometric source) or 2 (volumetric distribution) survives it — **then and only then** authorise a v3 topology. Verify the F12 probe freeze and release it to fire. **Read the F2 harness and comparator as a diff** before any number from them is believed, then release the batch. **Push cfd's share of the box up** — the batch harness is the instrument for that.
+
+### On Sanaa's desk
+
+1. **AGARD AR-138 (1979)** — **one document, BOTH her named HOLDS paths** (F12/RAE 2822 Case 9, F1/ONERA M6). Zero tracked files match anywhere on the box. **Procurement is outside the box and hers alone under rules 7 and 8.** Without it **M6's `P` is not computable at all.** **UNCHANGED and still the single largest blocker in this territory.**
+2. **`analyse_f5b_physics.py`** — denied by the **PERMISSION SYSTEM**, not by her. **Her desk-item silence rule does NOT override a live denial** and cfd leaves the file untouched. Recorded so no future lane reads the disposal rule as clearance.
+3. **`scripts/append_record.py`** — hands out **colliding ids**, measured **14 short** at HEAD. `scripts/` is nobody's territory. cfd derives ids by hand from the HEAD blob inside the committing invocation and recommends that as the lab-wide rule.
+4. **`scripts/check_grader_self_blindness.py` guard-awareness repair** — recommended with reasoning above, **`[lab-attributed]`, overrulable**, not made by cfd.
+
+### Blocked
+
+**F1/M6** on an unlocated non-orthogonality source — **not on procurement for the mesh question**, though `P` is. **F12 rungs 2–5** on the rate-calibration interlock, upheld. **F3's three rows** on a correctly-fired cap. **F4's §8.1/§8.3** on the event ruling. **cfd's `P` column** on AGARD AR-138.
+
+### Cost calibration
+
+**M6 v2 butterfly trial: 1.4333 core-min MEASURED** (86 s × 1 rank ÷ 60, wall read from `TRIAL_WALL_S.txt`). **No pre-registered estimate exists** — it is a §8.1 build, not a registered rung — so **no ratio is claimed and none is invented.** Waste **ZERO** (rc 0 at all three levels, no re-runs). Contention **DISCLOSED**: load average 9.39 at start, 7.97 at end, on a 16-core box shared with three other teams. Dollars **$0.0012, DERIVED NOT MEASURED** at $0.0513/core-h — the box cannot read its own billing.
+
+### UPDATE 1, 2026-08-25T19:17:36Z — THE M6 FACES ARE LOCALISED, AND MY OWN F12 MECHANISM IS STRUCK
+
+**Section last written:** 2026-08-25T19:17:36Z by cfd-supervisor personally. Stamp is `date -u` read in the committing shell invocation.
+
+**M6 — THE BAD FACES ARE LOCATED, AND MY SECOND HYPOTHESIS IS REFUTED.** At m=4, **98.4 % of the severely non-orthogonal faces lie in the tip fill at x/c 0.9030 → 0.9983 of the tip section** — the aft strip from the U2 = 0.90 block break to the TE, where the M6 half-thickness closes 0.005851 → 0.001497 → **0.000000**. **It is the SHARP TRAILING EDGE, not the O-grid interior.** My hypothesis that the faces were volumetrically distributed (from the ×7.2 count scaling) is **REFUTED** — I record it as refuted rather than quietly dropping it. Hypothesis 1, a **geometric** source, is **CONFIRMED**: refinement will never fix this. Locator `locate_bad_faces.py` carried a planted control — it displaces a flagged face by a known offset and asserts the centroid moves by exactly that, and asserts an empty faceSet reports `NO FLAGGED FACES` — **both passed before any count was believed.**
+
+**Read both ways, honestly:** the butterfly **removed the 90° singularity** (v1 marched monotonically toward 90°; v2 is bounded and non-monotone) but **multiplied the severe-face count 16–22×**. It traded a narrow singularity for a broad low-80s region. **Neither is admissible.**
+
+**THE QUESTION THIS RAISES IS ABOUT THE GATE, NOT THE MESH:** §5's **≤ 70°**, applied to a sharp-TE 3D wing with a closed tip cap, **may be UNSATISFIABLE by a structured `blockMesh` hex topology** — two constraints collide in one corner. A third lane is measuring that directly (blunt-TE sweep, block-break moves, with the unmodified v2 rebuilt in the same batch as a **baseline-reproduction control**). **I have NOT widened the gate and will not: retiring or widening a gate threshold is reserved to Sanaa and is not available to me.** If the measurement says unsatisfiable, that is the finding and it ships as one.
+
+**F12 — I STRIKE MY OWN MECHANISM. Commit `ed050ff1`.** Rung 1 was **NEVER an FPE.** Verified by me **at source**, not relayed: the log ends `FOAM FATAL ERROR: Negative initial temperature T0: -2.384321367`, `thermoI.H:57`, last solve `Solving for e` — the **energy** equation, pressure not yet run that iteration. `thermoI.H:54-60` is an explicit `if (T0 < 0) { … abort(FatalError); }` — a **physical range check**, not a trap. Stack frame #1 is `Foam::error::simpleExit`; **GAMG is not on the stack.** `kill -l 6` = `ABRT`, `kill -l 8` = `FPE`: **rc 134 = 128+6 = SIGABRT; a SIGFPE would be 136.**
+
+**Named against myself:** `128+6` is consistent with an FPE-induced abort **and with every other `abort()` OpenFOAM raises, which is most of them.** I chose the reading that fitted the story the previous arms were telling, and **the log's last twenty lines would have refuted it at any point.** **Fourth corrected mechanism claim on this line; the first that is mine.** The lane read the log to its end when I had not — credit recorded there.
+
+**What SURVIVES and is STRENGTHENED:** §3.3's conclusion (crash is downstream of an already-diverging outer iteration) and §3.4's direction (stop interrogating the linear solver, look at the field). `T = -2.384321367 K` is unambiguous divergence and the check that caught it is a **physical bound on a field**. Residuals re-derived independently: first-solve `p` min **0.009554815904 at iteration 5**, rising to **0.2006112477 by iteration 10**.
+
+**⚠ AN UNTRACKED, FINISHED RUN WAS FOUND — and it is one session-limit event from being lost.** `verification/runs/F12_runs/field_observation_2026-08-25/` holds a **completed execution of exactly the commissioned probe** (18:20:07Z, rc 0, `End`, endTime 15, 2.995 s at 1 rank), with readers, evidence and a 19 KB results record. **`git ls-files` returns ZERO for it.** Its own `PROBE_PREREGISTRATION.md` was **never committed and so never frozen by sha**, and the mtimes (prose 18:28:52, run 18:20:07) **cannot establish** that registration preceded compute. **The lane refused to write a document that back-dates the freeze. That was exactly right and I am recording it as right.**
+
+**MY RULING: COMMIT IT, LABELLED `NOT A RESULT` ON RULE 2. NOTHING IS BACK-DATED.** Reasoning, `[lab-attributed]`, overrulable: (1) **rule 2 governs what may be CLAIMED, not what may be PRESERVED** — absent the freeze the run cannot support a gate, but it does not follow that the artifacts are destroyed, and losing a finished run is how this session began; (2) the verdict is **`NOT A RESULT` and is permanent and unrepairable** — §2d closes gates at first compute and §2d.1's four-condition repair exception **does not apply, because there is no frozen original to repair**; (3) its diagnostic content is a **LEAD, not a verdict** — which is precisely the rule I issued today on `check_grader_self_blindness.py`, and **I will not apply that standard to a script and a different one here.** A `PROVENANCE_AND_STATUS.md` stating all of this lands in the directory's opening lines; `PROBE_PREREGISTRATION.md` is preserved exactly as found.
+
+**RULING: NO EXTENSION PAST ITERATION 15.** The lane asked to run to the `T ≤ 0` abort at 148. **Refused.** Extending the window after the freeze is the gate-widening rule 2 forbids, and **the fact that the extension looks scientifically attractive is what makes it dangerous, not what excuses it.** The registered question is *first* departure and the lead puts it at iteration 1. What happens between 15 and 148 is a **different question needing its own registration.**
+
+**CHECK 4, F12 probe — CLEARED, AND I RECOMPUTED RATHER THAN ACCEPTED.** `56d72ac3`, one path, ancestor of HEAD. Blob sha256 **recomputed by me from the commit object**: `bca4074a7de26f478115a1efc1706c9cba6daedab8174cf72c202566d534b667`, git blob `0b6a5c59ff076cb4d6bd11f4ab0c67a13b353ec7`, worktree still byte-identical. **The freeze is real and precedes its compute.** Cap **6.0 core-min**, ranks 1, basis measured from rung 1's own `ExecutionTime = 1.64 s` at `Time = 15`.
+
+### Commits this session
+
+`497efa83` latent-crash triage (3 paths) · `ed050ff1` F12 triage AMENDMENT 1 (1 path) · `c90f9411` M6 orphan rescue (2 paths) · `d846815c` M6 trial record + 31 artifacts · `56d72ac3` F12 probe registration (1 path). **Every one via the private-index protocol with the `diff-tree --stat` assert before and the `git diff HEAD~1 HEAD --stat` verify after. Shared index never touched.**
+
+### Live jobs and utilisation
+
+**cfd measured compute this session: 1.4333 core-min** (M6 v2 trial, 86 wall s × 1 rank), **$0.0012 derived not measured.** Three lanes live at cap: F12 firing the frozen replication (1 rank, ≤ 6.0 core-min), F2 conversion in registration, M6 TE study firing an m=1 variant batch. **Box load ~8–9 of 16 ≈ 50–56 %, still under Sanaa's 80–90 % target, and cfd's share is still small.** The F2 batch harness and the M6 variant batch are this team's instruments for closing that gap and both are being built to run 8–12 abreast.
 ## verification
 
 **Section updated:** 2026-08-25T01:18:13Z by verification-supervisor (stamp from `date -u` in the committing invocation). SEVENTH session spawn, on **Opus 5** under the Fable substitution at `7c469330`. **Zero compute all session — 0 core-minutes, no solver, no mesher, no container, no GPU.**
