@@ -6022,3 +6022,78 @@ an underloaded box with a never-run queue is the same defect as an idle one at l
 does not.** This team reads the whole rebalance as aimed at its **prose-to-run ratio**, and
 takes the criticism: we are at **5 of 83**.
 
+
+
+---
+
+### VERDICTS 2026-08-25T18:2xZ — VMFL003-M2 ARMS A AND B: **`NOT A RESULT`**, AND ARM 4 **REFUTED**
+
+**Commits:** `fafa97f3` (the 10-line standard-case pre-registration template), `e2f2f935`
+(the resume-fire lane report and the arm-D launcher). Graded with the frozen comparator
+`grade_vmfl003_m2.py`, blob `6dcc99940154ea204a598ba2118042bf972a786d`, verified unchanged.
+
+| arm | model | Δp at L3_1000x5 | dev vs 21744 Pa | gate (±2.5 %) | **VERDICT** |
+|---|---|---|---|---|---|
+| M2-A | `kEpsilon` | 20800.824488 Pa | **−4.337636 %** | `GATE FAIL` | **`NOT A RESULT`** |
+| M2-B | `realizableKE` | 20278.128649 Pa | **−6.741498 %** | `GATE FAIL` | **`NOT A RESULT`** |
+
+**THE REASON IS NEITHER THE GATE NOR THE TRIPLE, AND THAT IS THE WHOLE POINT.** Both triples
+are **`CONVERGING`** and monotone (A observed order **3.6364**, B **2.5930**). What makes both
+rows `NOT A RESULT` is **rule 5 step 1 — iterative non-convergence — which precedes both the
+triple and the band.** The gate can only turn a verdict **into** `NOT A RESULT`, never the
+reverse, and it did.
+
+**THE SUPERVISOR VERIFIED THE LOAD-BEARING FACT PERSONALLY (§3 check 3)**, by extracting final
+initial-residuals from the logs rather than believing the lane: **A/L3** ε = **2.494e−08**
+against the registered 1e−8, with U, p, k all below; **B/L3** k = **1.377e−07** AND ε =
+**7.490e−08**, both above; **A/L1** all four above, in the **1e−6** range. **The verdict
+holds.** One discrepancy disclosed rather than smoothed: the lane reported ε = 2.523e−08 where
+this supervisor measures **2.4944e−08**, ~1.1 % apart, an extraction-point difference that does
+not touch the verdict.
+
+**GCI IS NOT QUOTED, CORRECTLY.** The comparator refuses to attach a discretisation-uncertainty
+number to a row that is `NOT A RESULT`, and both observed orders sit **outside the frozen trust
+window [0.5, 2.5]** anyway. Orders reported, not trusted; no GCI stands on them.
+
+**THE ADVANCE DISCRIMINATOR — the entire evidentiary value of this ladder, frozen before any
+number existed:**
+- **Arm 3 (M2-A prediction) — CONFIRMED ON BOTH LIMBS.** Registered `GATE FAIL` at −4.0…−4.6 %
+  with f_dev within 0.3 % of 0.027147. Measured **−4.337636 %**, inside the window; f_dev
+  **+0.001139 %**, inside 0.3 % **by a factor of 263**.
+- **Arm 4 (M2-B/C prediction) — REFUTED. THE REPORTABLE FINDING.** It registered that B stays
+  `GATE FAIL` **within ~1 % of M2-A**, and that **either** landing in-band **or** moving f_dev
+  > 1 % refutes it. **B moved f_dev by −2.5219 % and Δp by −2.5129 % from M2-A — both over the
+  threshold by 2.5x.** The other limb held (B did stay `GATE FAIL`), but the registration said
+  *either* condition refutes, and one did. **Recorded as REFUTED, not as half-held.**
+- **Arm 5 (falsification arm) — PERMANENTLY UNFIREABLE, AND FINAL BEFORE C AND D EXIST.** It
+  required all four models' deviations inside a band **≤ 1.0 % wide**. A and B alone already
+  span **2.403862 percentage points** (−4.3376 % to −6.7415 %), and **adding C and D can only
+  widen a max−min spread, never narrow it.** B at −6.7415 % is also outside the registered
+  −4.0…−5.0 % window. The arm cannot fire whatever C and D return.
+
+**THE PHYSICS THIS BUYS, and it is the opposite of what the team expected.** **Model selection
+is NOT irrelevant here — it moved Δp by 2.5 % — but it moved it the WRONG WAY.**
+`realizableKE` is **worse** than `kEpsilon` (−6.74 % against −4.34 %). So the ~4.6 % friction
+deficit is **not a wall-function artefact common to all closures**: the interior closure
+reaches wall shear through the first-cell k it feeds the wall function, and **the wall function
+does not insulate the friction from the model.** The wall-treatment ladder moves A by
+**1.7356 %** (y+ 60.02 → 31.66) and B by **0.6746 %**, both inside the frozen 5 % ladder cap.
+
+**THE OPEN QUESTION THIS RAISES AGAINST OUR OWN FROZEN DOCUMENT, STATED PLAINLY.** ε plateaus
+near **2.5e−08** and **ten thousand extra iterations moved its residual by 1 %**. If ε cannot
+reach the registered **1e−8** for this setup, then **VMFL003-M2 as frozen can never return a
+result for these models, whatever the physics does.** That is a defect in the REGISTERED
+CONVERGENCE CLAUSE, not in the solve — and **the clause cannot be changed after first compute
+(rule 2), so it is not changed.** It is exactly the shape this team already flagged against
+`MONITOR_STANDARD.md` S13: an **absolute** residual tolerance where a **plateau** criterion is
+the defensible form. **Any remedy is a NEW pre-registration with the convergence clause as the
+declared variable — never an amendment to this one, and never selected by which clause makes
+the gate pass.**
+
+**Live:** arm C `L3_1000x5`, pids 2360988/2360989, `timeout 670`. **A live disagreement under
+test:** the lane predicted `rc=124` on a 4.16x RNG penalty; this supervisor measures
+**28.591 ms/iter over 12,498 iterations, projecting 629 s against the 670 s timeout — a 41 s
+margin, 6.1 %.** Thin enough that contention could flip it. **No intervention: it resolves
+itself, and either outcome is a finding.** Arm D launcher committed at `e2f2f935`, gated behind
+the frozen guard.
+
