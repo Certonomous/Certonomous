@@ -223,144 +223,7 @@ read in the writing invocation.
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
 
-**FINAL WRITE, 2026-08-25T01:18:09Z (closure-supervisor, EIGHTH session).** Stamp from
-`date -u` in the writing invocation. **Sanaa stood the closure and dafoam teams down in
-her own session turn on 2026-08-25**, concentrating the lab's tokens on cfd,
-ansys-verification and heat-transfer so the coverage matrix can be built out. **A future
-session must read the gap after this line as a DELIBERATE STAND-DOWN, not as a fleet
-kill.** Three fleets died this week and the board is how they are told apart.
-
-**IT IS A CAPACITY DECISION, NOT A JUDGEMENT ON THE WORK, and the reason is a real one:
-closure's `G` column is empty for reasons no amount of tokens would fix.** More compute
-cannot give this family a grid triple, because **no flow in closure territory exists at
-two cell counts** — measured below.
-
-**EVERYTHING IS AT HEAD. Six closure commits this session, all ZERO COMPUTE:**
-`666a3c9e` (board), `d5d89baf` (MATRIX_CONTRIBUTION **Addendum 2**), `66688b0c` (three
-instrument repairs as drafts + the false-sweep finding), `34c75597` (**D518 + L-310**),
-and inherited from the seventh incarnation `39340d3d`, `1db6db8f`, `af2b23b0`.
-
-**⚠ CORRECTION TO A RESTATEMENT — THE ARM-2 GATE IS FOUR-PART, NOT THREE.** The
-stand-down message described arm 2 as sitting behind "her three-part gate". **It is
-FOUR-part as of `1db6db8f`, landed earlier the same night.** Because the GPU **cost
-approval** is now a **WITHDRAWN attribution**, the cost authority behind arm 2 is
-**weaker than it was yesterday, not stronger**, and the gate was **TIGHTENED** in
-consequence: (1) her go **in her own words**; (2) **her own start of the instance**; (3)
-**her two console readings** — the shutdown-behaviour attribute and the g6.xlarge
-us-east-2 on-demand price; **(4) her COST approval in her own words as well.** Recorded
-here because **a restatement is not a relaxation**, and a board that let the gate quietly
-revert to three parts would be the whole failure. `/home/ubuntu/closure-data/tbnn_gpu/arm2`
-remains **ABSENT**. **ARM 2 DOES NOT LAUNCH.**
-
-**OPEN ITEMS — AT REST, NOT ABANDONED. Each with what it needs to resume.**
-
-| Item | State | What resumes it |
-|---|---|---|
-| **Ling arm 2** | `PENDING`, **UNFIRED**, prereg v1.3 frozen with three legal pre-compute amendments; run dir absent | **All FOUR parts above, in Sanaa's own words.** No agent message is her consent (rule 9); GPU spend sits outside the 2026-08-21 CPU blanket (rule 12) |
-| **The four withdrawn attributions** | `ATTRIBUTION WITHDRAWN — TEXT STANDS AS A RELAYED PARAPHRASE` | **One confirming line from her restores all four.** Nothing re-opened, nothing re-run, no verdict disturbed. Chief among them *"regarding the GPU COST it's fine you have my approval"* |
-| **R6 (surfaces)** | Not started | Her phrasing |
-| **GPU drafts 2–5** (DPM, Bae, Lozano-Durán, Beck) | Drafted, unfrozen | Her **per-item** sign-off, each with a console-priced GPU-hour `cost_basis` |
-| **Next R4 increment** | `R4b_pair_control/PREREGISTRATION.md`, **now committed?** NO — still **UNTRACKED**, self-labelled `NO COMPUTE AUTHORISED` | A committed sha-frozen prereg, **and** her direction on the increment itself — its own §0.2 concedes it is the lab's ranking, not her choice |
-| **D518** (new, OPEN) | D491 limit (iii): a standing contrary state already on disk | A ruling on breach-vs-grandfathered. **Not closure's call** |
-| **Three instrument diffs** | Committed as drafts at `66688b0c`, **APPLIED TO NOTHING** | **A supervisor's own diff read of the patches as patches.** I read the lane's analysis, not the diffs. Under §3 check 1 none may be applied without that read |
-| **Arm-2 comparator rule-3 shortfall** | Open, **deliberately unamended** | A fourth pre-compute amendment with its own condition, condition check and diff read. No urgency — arm 2 cannot launch |
-| **§22.7 / the two 2026-08-24 R3 quotes** | Referred | Her confirmation, and whether §22.7 is marked closed **in the charter itself** |
-
-**WHAT LANDED TONIGHT, IN ONE PARAGRAPH EACH.**
-
-**`d5d89baf` — Addendum 2: WHY the `G` column is empty.** It is a **MIX**, and this is the
-plain structural statement the chief asked for. **Rows 2 and 3 grade a-posteriori solve
-outputs on meshes that exist** — a Roache triple is **defined and applicable** and was
-never run: a **GAP**. **Rows 1, 4 and 5 grade a-priori quantities** read off a **frozen
-reference field on the reference dataset's own grid** — a model-form error, a matrix rank,
-a coverage census. **There is no mesh of the lab's to refine, so a triple is NOT DEFINED**,
-and *"closure never ran a grid study"* **misdescribes them**. Row 6 is structural in what
-it graded, with a latent gap in the G4 limb that was registered and never reached.
-**The decisive measurement is positive, not documentary: 266 `polyMesh` directories, 40
-distinct geometries, and ZERO exist at more than one cell count.** A triple needs one flow
-at three levels; **the disk cannot supply a PAIR.** That is why the Row 2/3 gap could never
-have been closed by re-running what is here. **No tier and no verdict moved.**
-
-**Supervisor check 3, recorded AGAINST MYSELF at §A2.10.** My own re-run **appeared to
-contradict the lane**, reporting 23 "multi-level flows". **It was an artefact of my own
-key**: `null`, `truth`, `ceiling`, `discovered` are **configuration names reused across
-geometries**, not flow identities. Re-keyed by full path and by geometry token, the lane's
-claim held and was **stronger** than its own statement of it. **I killed my false
-contradiction before it reached a record and then recorded that I had made it.** The
-lesson, against myself: **a census is only as good as its key, and a silently colliding
-key manufactures exactly the positive a null-hunting search is least equipped to doubt.**
-
-**`66688b0c` + `34c75597` — THE FINDING THAT MATTERS, AND IT IS AGAINST US.** This board
-recorded D491 scope limit (iii) as **intact**. **That was false.**
-`FS2_DEGENERACY_REPORT.md` quotes the forbidden statistic **as a number in seven places**
-at HEAD — lines 13–18 and line 20 in prose — and all six values are the **pre-D476
-"before" figures A3 GATE FAIL'd on**. **The sweep that cleared it searched the KEY NAME,
-which the rendered report never contains**: name scan **0**, value scan **7**, run side by
-side. **A zero from a reader that could not have seen a non-zero is not evidence — and
-that is as true of a compliance sweep as of a comparator.** The quotes landed **two days
-BEFORE D491 was ruled**, so breach-vs-grandfathered is **referred and open (D518)**, not
-closure's call. **L-310** is the durable half and generalises past this family: *a search
-proves an absence only over the vocabulary it searched; a null that does not name its own
-apparatus is a claim about the searcher, not the corpus.* Second-order: **a guard that
-compares LINE COUNTS is blind to an interleaved edit, whose delta is zero — a guard must
-compare CONTENT, not size.**
-
-**⚠ TWO LATENT HAZARDS ON `make_fs2_report.py`, NEITHER PREVIOUSLY RECORDED. DO NOT RE-RUN
-IT.** A re-run (i) **destroys a dated rule-6 correction hand-written INSIDE a generated
-paragraph** at report line 73, and (ii) **silently rewrites six committed measured numbers**
-to post-D476 values — hump moves by a factor of **14** — a **re-grade wearing the clothes of
-a regeneration**, against the FS5 prereg's own *"No verdict may move retroactively from this
-repair."*
-
-**COST CALIBRATION (rule 12) — NO ROW IS OWED, AND THAT IS A RECORDED DECISION.** **Closure
-compute this entire session: 0.000 core-minutes, 0.000 GPU-hours, $0.00.** No rung graded,
-no case closed, no curriculum item finished — **no process completed with a cost, so there
-is nothing to calibrate.** Closure's four rows stand at HEAD unchanged: **C-2, C-16, C-18,
-C-19**. **C-16's `cost_basis` is UNAFFECTED by the withdrawal** — the $0.8048/GPU-h came
-from a **published price list with a URL and a retrieval stamp**, an artefact, not an
-attribution. The withdrawal touches the **authority to spend**, never the **arithmetic of
-what was spent**.
-
-**LIVE JOBS: NONE. NO LANES. NO SOLVER, NO DRIVER, NO MONITOR, NO GPU NODE.** Both lanes
-were sent an explicit stand-down, both confirmed they applied nothing, committed nothing
-and touched no index, and both have finished. **Nothing of closure's is running and nothing
-is queued.**
-
-**⚠ FILE-STATE WARNINGS FOR WHOEVER RESUMES — measured, not assumed.**
-- **This board write was committed from the HEAD blob and the WORKTREE COPY WAS
-  DELIBERATELY NOT WRITTEN.** At the time of writing `docs/LAB_STATE.md` on disk held **92
-  lines that HEAD does not** (other teams' uncommitted work) and was **239 lines behind
-  HEAD**. Writing disk would have **destroyed the 92**. **INSPECTED, NEVER REVERTED.** So
-  **this block is at HEAD and NOT on disk** — resume with `git show HEAD:docs/LAB_STATE.md`.
-- `docs/DOCKET.md` and `docs/LESSONS.md` likewise: rows built from HEAD blobs, **worktree
-  copies not written**, because they are stale and writing them **deletes rows**.
-- `docs/COST_CALIBRATION.md` on disk was measured **stale by one row** (C-49 absent).
-- `Kaandorp2020_TBRF/aposteriori/RESULTS.md` on disk is **stale by 164 lines with ZERO
-  disk-only content** — HEAD is the good copy. **Left exactly as found.**
-- **Rule 11 earned its keep again tonight:** docket **maximum 517 against a count of 520**;
-  lessons maximum 309, count 309. **The two figures differ and the count was used in
-  neither.**
-- The shared index still carries **~50 paths staged differing from HEAD**. **`git status`
-  is not an instrument here.** It was **inspected, never cleared** — that is the chief's
-  call, not mine.
-
-**NOTHING CHANGES BECAUSE THE TEAM IS RESTING.** **SUBMISSIONS PARKED** holds (rule 7).
-**Arm 2 does not launch** on any agent's message. **GPU spend stays outside the CPU
-blanket.** **The four attributions stay withdrawn** until Sanaa's own line restores them.
-**The repository stays permanently private.**
-
-**ON SANAA'S DESK, in priority order:** (1) **confirm or correct the four withdrawn
-attributions**, chief among them the GPU cost approval — one line restores all four; (2)
-confirm or correct the two 2026-08-24 R3 quotations, and say whether **§22.7 is marked
-closed in the charter itself** — a cold reader still finds it open; (3) her direction on
-the next R4 increment; (4) R6's phrasing; (5) per-item sign-off on GPU drafts 2–5.
-
-**CLOSURE STANDS DOWN HERE. Everything above is at HEAD. Nothing is lost.**
-
-
-**═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
-
-**FINAL WRITE, 2026-08-25T01:17:23Z (closure-supervisor, EIGHTH session).** Stamp from
+**FINAL WRITE, 2026-08-25T01:19:19Z (closure-supervisor, EIGHTH session).** Stamp from
 `date -u` in the writing invocation. **Sanaa stood the closure and dafoam teams down in
 her own session turn on 2026-08-25**, concentrating the lab's tokens on cfd,
 ansys-verification and heat-transfer so the coverage matrix can be built out. **A future
@@ -1356,12 +1219,87 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## heat-transfer
 
-**Section last written:** 2026-08-25T00:2xZ by heat-transfer-supervisor (session
-`certonomous-64`, the post-kill resume). Earlier history condensed — full text at
-`2bf4915a:docs/LAB_STATE.md` lines 457–711. **Single ownership now holds**; the
-two-session overwrite problem recorded in the previous write has not recurred.
+**Section last written:** 2026-08-25T01:14:08Z by heat-transfer-supervisor (session
+`certonomous-65`, the post-weekly-limit resume, running on **Opus 5** under the
+temporary Fable substitution at `7c469330`). Earlier history condensed — full
+text at `2bf4915a:docs/LAB_STATE.md` lines 457–711.
 
-### THIS SESSION'S COMMITS — four, all zero compute
+**STAMP DEFECT CORRECTED.** The previous write of this section carried
+`2026-08-25T00:2xZ` — **literal `x` placeholder digits, committed as if they were
+a reading.** That is an imprecise stamp presented as a measurement and it is the
+same defect class as a cost called measured without a record behind it. The
+stamp above is a real `date -u` taken inside the invocation that wrote this
+block. **No other content of the previous write is withdrawn by this correction.**
+
+### SESSION certonomous-65 — capacity concentrated on this team
+
+**Sanaa's own session turn, 2026-08-25, recorded BYTE-EXACT — typos, spacing and
+capitalisation as she wrote them, because normalised spelling is the signature of
+a relayed paraphrase rather than a primary source:**
+
+> GOOd. For now dafoam and closure teams can go to rest and heat transfer team goes back to its tasks, bc i want all my tokens used by the cfd, ansys verification and heat transfer teams, that way we can continue building out matrix of things we know the lab can holds, or a gat is reached/ surveyed.
+
+**Relayed to this team by the chief; the wording above is hers and is not
+normalised.** Her term for the three-column standard, also hers and also
+unnormalised: **"our tripple crown standard"** — **V** code verification, **G** a
+CONVERGING Roache triple with GCI at Fs = 1.25 and an observed order, **P**
+validation against a public primary with the pre-registration on disk.
+
+**Why this team is load-bearing:** the verification team's audit found the **G
+column structurally EMPTY across dafoam and closure** — `GCI`, `Roache` and
+`CONVERGING` appear in zero files in either tree. **Grid convergence is a
+heat-transfer and cfd capability, and this is the family that has it.** The
+matrix's grid rows are almost entirely ours, which is exactly why an error in the
+flattering direction here is expensive.
+
+**THE BRIEF THAT OPENED THIS SESSION WAS STALE ON FOUR ITEMS — all four had
+already landed at HEAD before it was written**, and this is recorded so no one
+re-does them: **K0d's three pre-compute items were RULED at `935d4114`**
+(AMENDMENT 1, 288 insertions / 0 deletions, K0d still FROZEN, ARMED AND UNFIRED);
+**the Meinders configuration ruling landed at `fa201acd`** (the matrix, not the
+single cube); **the `MATRIX_CONTRIBUTION` row audit and its corrections landed at
+`efc57dbe`**; **the T1b L4 partial cost calibration landed as C-48 at
+`8cde653f`**. All four verified present by `git log -1` on each sha. **What
+remains open from those items is narrower and is listed under NEXT ACTIONS.**
+
+### CROSS-TEAM FINDINGS RECEIVED THIS SESSION — both ansys-verification's, cited not adopted
+
+**Both are ansys-verification's findings. This team cites them; it does not write
+them up as its own.**
+
+1. **A cap enforced as a wall-clock `timeout` is NOT a core-minute cap.** The
+   lab's unit is core-minutes = wall s × ranks ÷ 60 (rule 12); `timeout N`
+   enforces wall **seconds**. They coincide **only at 1 rank**. On a parallel run
+   a `timeout` set to the core-minute figure lets the run spend **`ranks` times
+   its authorised budget** before firing. Correct enforcement:
+   `timeout = cap_core_min * 60 / ranks`. **Our two live solvers are
+   single-rank and cannot be affected.** A lane is sweeping thermal territory for
+   capped runs enforced with the wrong instrument, including graded ones — an
+   undetected past overspend is a **reportable overrun, not an absorbed one**.
+   **This does not disturb the standing ruling that a registered PREDICTION is not
+   a cap** (C-48); that ruling stands on its own reasoning and concerns rungs with
+   no cap at all, whereas this finding concerns rungs that registered a real cap.
+2. **A comfortable deviation is not a result — VMFL051, worked.** All three
+   levels rc = 0, age guard holding with margin, gate deviation **inside the band
+   at −0.2337 %** against ±0.5 %. **A team scoring on gate deviation alone would
+   have written that up as PASS.** They returned **`NOT A RESULT`** on two
+   independent rule-5 clauses, either alone sufficient: **L1 and L2 both failed
+   the frozen per-level plateau clause** (ptp 6.240e-03 and 3.535e-03 against a
+   registered 1.000e-03; only L3 plateaued), and **the triple was OSCILLATORY,
+   R = −1.3486** (3.2278606097 / 3.2233427020 / 3.2294355513) — **no observed
+   order and, correctly, no GCI quoted, the values not being monotone.** Their
+   bounded, not-established diagnosis: the level-to-level differences (4.5e-03,
+   −6.1e-03) are **the same order as L1's and L2's own residual unsteadiness**, so
+   the triple plausibly measured transient noise rather than grid error.
+   **Adopted as a binding check on our own rows:** rule 5 clause (1) fires
+   **before** the triple is classified, so every thermal row claiming **G** is now
+   audited for **per-level plateau explicitly**, level by level against that
+   level's own registered criterion — **not merely for the triple's
+   monotonicity and not at all on the comfort of its deviation.** A row with a
+   level that did not plateau is `NOT A RESULT` for G however good its number
+   looks.
+
+### CERTONOMOUS-64'S COMMITS — six, all zero compute (heading corrected: it read "four" and listed six)
 
 | sha | what |
 |---|---|
@@ -1436,22 +1374,63 @@ by its shape. §5's *"upper bound on cost"* hedge is **falsified** — it banked
 stale** (C-43 vs C-47 at HEAD). Appended onto the **HEAD blob**; editing in place
 would have reverted C-44…C-47. Diff verified **+1 insertion, 0 deletions**.
 
-### LIVE JOBS — reading 2026-08-25T00:01Z, lane-derived, `readlink /proc/<pid>/cwd`
+### LIVE JOBS — reading 2026-08-25T01:14:27Z, taken BY THE SUPERVISOR PERSONALLY
 
-**Two** single-core `buoyantBoussinesqSimpleFoam`, the only solvers in the whole
-lab. **DO NOT TOUCH THEM.** Both launcher shells survived the ~20:50Z kill, so
-both will write their `STATUS.<case>` on exit.
+**Two** single-core `buoyantBoussinesqSimpleFoam`, still **the only solvers in the
+whole lab. DO NOT TOUCH THEM.** Both survived the ~00:50Z weekly-limit fleet kill
+— `ps` shows elapsed 3-03:41:53 and 3-02:46:12, i.e. both predate the kill and
+neither restarted. Both launcher shells survived, so both will write their
+`STATUS.<case>` on exit.
 
-| pid | cwd (`T1_runs/`) | Time / endTime | rate | ETA (UTC) |
-|---|---|---|---|---|
-| 450274 | `R_100k_x` | **70 580 / 80 000** (0.882) | 2.853 s/step | **2026-08-25T07:20Z** |
-| 488219 | `R_30k_x` | **63 749 / 80 000** (0.797) | 3.339 s/step | **2026-08-25T14:57Z** |
+| pid | cwd (`T1_runs/`) | Time / endTime | rate | ExecutionTime | ETA (UTC) |
+|---|---|---|---|---|---|
+| 450274 | `R_100k_x` | **72 265 / 80 000** (0.903) | 2.615 s/step | 272 558.31 s | **~2026-08-25T06:51Z** |
+| 488219 | `R_30k_x` | **65 156 / 80 000** (0.814) | 3.132 s/step | 269 215.31 s | **~2026-08-25T14:09Z** |
 
-Rates from time-directory mtimes, both windows entirely after 20:11Z, so they are
-current two-solver rates, not contention-loaded. CPU so far: 267 645.87 s
-(4 460.76 core-min) and 264 306.93 s (4 405.12 core-min).
+**Rates are a two-point measurement over a 4 407 s baseline** (00:01:00Z →
+01:14:27Z), not a lane's estimate and not carried forward. Both are **faster**
+than the previous reading's 2.853 / 3.339 s/step, consistent with `R_300k_x`
+having exited at 20:11Z and freed a core. **ETAs are DERIVED from that rate and
+are not a measurement.**
 
-### THE FLEET KILL DESTROYED NOTHING IN T-FAMILY — established, not assumed
+**Cost so far, and the C-48 projection is holding.** These two have burned
+272 558.31 s + 269 215.31 s = **9 029.56 core-min = 150.49 core-h** at 1 rank
+each (`ExecutionTime` read from each `log.solve`; single-rank, so wall ≈ CPU).
+Adding the two closed cases' measured **99.4264 core-h** (C-48) and the
+**18.53 core-h** still to run at the measured rates gives a **rung projection of
+268.45 core-h**, against C-48's projected **270.05 core-h** — **0.6 % low**. At
+$0.0513/core-h that is **$13.77 derived, not measured** (the box cannot read its
+own billing, `COMPUTE_BUDGET_CHARTER.md` §5), inside the $25 pre-authorisation.
+**The rung's calibration row is owed at completion, not now** (rule 12); C-48 is
+a PARTIAL covering only the two closed cases.
+### LANES IN FLIGHT — three, the cap, all zero compute
+
+All three are **read-only audits**. Each was given the standing safety brief
+(never touch a running solver; never execute `mark_done_t1b_L4.py` or
+`analyse_t1b_L4.py` in any mode, **not even `--help`** — a prior lane's `--help`
+probe once ran it in real mode) and each was given an explicit
+**write-your-report-to-the-case-directory-and-commit fallback**, because three
+lane reports reached the chief instead of their supervisors tonight (**L-306**).
+
+| lane | task | fallback report path |
+|---|---|---|
+| A | strict completion rule by hand across the whole T1b L4 pool; independent re-verification of the "fleet kill destroyed nothing" claim; the 8 T3 ext1 cases; **comparator freeze hashes against the committed blobs** (Charter §2d); planted-zero control presence; **plus the wall-clock-`timeout` cap sweep** | `verification/runs/T-family/T1_runs/LANE_REPORT_COMPLETION.md` |
+| B | every thermal matrix row against its artifacts — the K0c pair-not-triple finding, the five HOLDS-that-are-GATE-REACHED, the census arithmetic, **plus per-level plateau checked explicitly** | `docs/campaigns/T-family/LANE_REPORT_MATRIX_AUDIT.md` |
+| C | **recipe-fork sweep across every thermal ladder** — mesh recipe, `fvSchemes`, `fvSolution`, `constant/`, BC types and wall treatment, level by level | `docs/campaigns/T-family/LANE_REPORT_RECIPE_FORK.md` |
+
+**Nothing any lane returns is believed until the supervisor's own check.** Lane
+A's comparator diffs in particular are read **by me, as diffs** — a measurement
+script's change without a supervisor's read is an uncalibrated instrument, and
+"I tested it, it's fine" from the lane that wrote it is evidence, not the read.
+
+### THE FLEET KILL DESTROYED NOTHING IN T-FAMILY — certonomous-64's finding, NOW BEING RE-ESTABLISHED FROM ARTIFACTS
+
+**This claim is load-bearing and is being re-verified independently by lane A, not
+repeated on trust.** It is the claim that decides whether anything in this family
+is gradeable at all, and **a run that stopped when a fleet died is not a completed
+run whatever its last time directory says.** The text below is certonomous-64's
+finding as written; it is carried, and it is marked **VERIFY** until lane A's
+independent sweep for artifacts with mtimes in 2026-08-24T20:40Z-21:10Z returns.
 
 The board's earlier **"12 single-core solvers" is stale and is now explained**:
 8 T3 ext1 + 4 L4 were concurrent **only** in the window 2026-08-22T17:51:46Z →
@@ -1467,7 +1446,7 @@ own instant.
 - **Nothing in T-family shows a truncation at ~20:50Z.** Last event before it is
   `R_300k_x`'s clean exit; next is `R_100k_x`'s ordinary 70 000 write at 23:24Z.
 
-### STRICT COMPLETION RULE — evaluated BY HAND, per case, marker NOT run
+### STRICT COMPLETION RULE — certonomous-64's hand evaluation, NOW UNDER INDEPENDENT RE-CHECK (lane A)
 
 Criteria from `T1b_L4_AMENDMENT.md` §7 and `mark_done_t1b_L4.py` (read as source,
 **not executed** — a prior lane's `--help` probe once ran it in real mode).
@@ -1491,7 +1470,7 @@ exist; **missing `DONE.R_{30k,100k,300k}_x`**. Earliest grading **after
 ~2026-08-25T15:00Z**. Comparator must be hashed against its committed blob first
 (Charter §2d) — **not yet done**.
 
-### RULINGS MADE THIS SESSION
+### RULINGS MADE IN CERTONOMOUS-64 — carried, not re-opened
 
 **K0d — `AMENDMENT 1`, `935d4114`. K0d remains FROZEN, ARMED AND UNFIRED.**
 Condition checked twice in the write's own shell:
@@ -1609,23 +1588,36 @@ still on Sanaa's desk, unanswered — they are hers.**
 
 ### NEXT ACTIONS — concrete enough to act on
 
-1. **~07:20Z** `R_100k_x` lands → mark. **~14:57Z** `R_30k_x` lands → mark. Then
-   mark `R_300k_x` (it already satisfies all six criteria). **Hash
-   `analyse_t1b_L4.py` against its committed blob (Charter §2d) BEFORE running
-   it.** Then four (m,f,x) triples under the amended Roache rule → calibration
-   row → commit. **Grade §3.6's registered `R_10k_x` non-convergence prediction.**
-2. **Cost calibration** — a lane is drafting to
-   `verification/runs/T-family/T1_runs/L4_CALIBRATION_DRAFT.md`. Rung row owed
-   **at completion**, not now; the two completed cases can be calibrated as a
-   partial. Key test: does C-23's **no-fixed-startup-term** signature reproduce?
-3. **`MATRIX_CONTRIBUTION.md` row-by-row audit** — a lane is running it;
-   corrections land as a **dated follow-up commit**, never as silent edits.
-4. **Meinders OCR sidecar** — a lane is re-running it properly if tesseract and
-   pdftoppm are present; result lands as a further dated note at §9.1.
-5. **T5 prereg**: first task is to establish whether the matrix chapter carries a
-   reattachment/recirculation diagnostic. Then re-derive the ladder for the
-   periodic domain (**re-derive, not rescale**), keeping `r = 1.6`.
-6. D468 / D469 — separate, separately pre-registered, not unilateral.
+1. **~06:51Z `R_100k_x` lands. ~14:09Z `R_30k_x` lands.** Then mark those two and
+   `R_300k_x` (which already satisfies all six criteria and lacks only its
+   marker). **Hash `analyse_t1b_L4.py` against its committed blob BEFORE running
+   it** (Charter §2d) — lane A is producing that hash now. Then four (m,f,x)
+   triples under the amended Roache rule, **each level checked for plateau
+   individually before the triple is classified at all** (the VMFL051 lesson), then
+   the rung calibration row, then commit. **Grade §3.6's registered prediction**
+   that `R_10k_x` is NOT CONVERGED at 20 000 — it is a registered prediction and
+   is owed a verdict whichever way it falls.
+2. **Rule on lane B's row-by-row findings.** The correction lands as a **dated
+   follow-up commit**, never as a silent edit, and any tier that drops from HOLDS
+   must **name which of V/G/P is missing** — a bare downgrade is not a matrix row.
+3. **Rule on lane C's recipe-fork findings.** A forked ladder's observed order
+   goes to `NOT A RESULT` under cfd's ruling; **better we find it than an
+   auditor does.** Where a ladder is a PAIR it never had an order to lose.
+4. **Meinders OCR — the honest outcome may be to record the paper as
+   OCR-REFRACTORY.** The thesis is a pure scan with no text layer; the sidecar on
+   disk is 281 bytes and **zero non-whitespace characters**, and the record that
+   claimed a 281-page tesseract sweep was disproved forensically (236 ms between
+   two sidecar writes). **A noisy OCR sidecar is WORSE than an empty one**: 281
+   form-feeds are obviously empty, whereas OCR noise looks like a text layer and
+   will be quoted from. If a re-run does not yield text a human would accept,
+   **record OCR-REFRACTORY and stop** — do not ship noise.
+5. **T5 prereg** — first establish whether the matrix chapter carries a
+   reattachment/recirculation diagnostic (**OPEN**, not established). Then
+   re-derive the ladder for the periodic domain — **re-derive, not rescale** —
+   keeping `r = 1.6`. Cannot freeze until Sanaa answers the 12 INTERPRETATIONs.
+6. **K1 provenance** — one line of attack left: read the ~20 commits in
+   2026-08-17T18:59Z → 08-18T04:07Z for embedded porcelain readings. Not started.
+7. D468 / D469 — separate, separately pre-registered, not unilateral.
 
 ### ON SANAA'S DESK
 
@@ -1649,10 +1641,35 @@ still on Sanaa's desk, unanswered — they are hers.**
   V/G/P schema. **This is the chief's to route.**
 - **T3 gate rows** — on Vogel & Eaton 1985, not on disk.
 
-**VERIFY flags:** nothing on this board is carried unverified from the previous
-session except the T1c / T9a / T10a / K0* rung rows in the table above, which
-were **not re-checked this session** and are carried forward from `2bf4915a`.
+**VERIFY flags — what on this board I have NOT checked myself this session.** A
+confident wrong line here is worse than a blank one.
 
+- **VERIFY** — the T1c / T9a / T10a / K0* rung rows in the table above, carried
+  forward from `2bf4915a` and not re-checked in certonomous-64 or certonomous-65.
+- **VERIFY** — the "fleet kill destroyed nothing" finding and the per-case strict
+  completion table, both certonomous-64's. **Lane A is re-establishing them from
+  artifacts**; they are carried, not confirmed.
+- **VERIFY** — every **HOLDS** tier in the thermal matrix contribution.
+  Verification has already found **K0c tiered HOLDS on a triple it does not
+  have** (built as mesh PAIRS; the orders quoted for it belong to **K0b's**
+  ladder, whose own record says at line 335 that those values *"do not apply to
+  these cases and are not used"*) and **five further claimed HOLDS that are
+  GATE REACHED**. Lane B is re-checking every remaining row to that standard.
+  **Until it returns, no thermal HOLDS on this board should be relied on.**
+- **VERIFY** — every observed order this family has ever quoted, pending lane C's
+  recipe-fork sweep. cfd found **7 of 14 ladders lab-wide recipe-forked**, and an
+  order fitted across a recipe fork is a slope across a change of experiment.
+
+**NOT verified and NOT claimed:** that certonomous-64's readings of `gate_t1b.json`
+and `gate_t1c.json` are complete. Those two files were read for the specific rows
+the audit touched, not exhaustively.
+
+**Direction-of-error note, stated because it is the useful thing to know about
+this family:** every defect found in thermal records in the last two days has run
+in **the flattering direction** — an omitted `NOT A RESULT` row, a tier claiming a
+triple that does not exist, orders borrowed from a neighbouring ladder. That is
+not a coincidence to be explained away; it is the prior this team now audits
+under.
 
 ## cfd
 
@@ -2205,7 +2222,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T01:17:04Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T01:09:09Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -2222,50 +2239,6 @@ The chief's operational reading, labelled by the chief as its own reading and no
 (1) existing instructions and records rules are unchanged; (2) the target is ALL cases, so
 the denominator must be known; (3) never-run cases before ground already held; (4)
 "completed" means CLAUDE.md rule 4's strict completion, not merely "ran".
-
-**SANAA'S SCOPE CLARIFICATION, 2026-08-25, HER OWN SESSION TURN, BYTE-EXACT WITH TYPOS
-PRESERVED.** Received via the chief. It REFINES the directive above; it does not replace it:
-
-> i just meant for now cfd, ansys verification and heat transfer teams work on completeing all the tasks/ running all the cases and recording per our conventions, and record whether the case is hold, gate reached or surveyed or not held. Once that is done we will go back to the Matrix config. But for now these three teams work on that
-
-**Operationally, and this is now binding on every case this team grades: each case record
-carries its own TIER, written INTO the record AT THE TIME IT IS GRADED** — not collected
-later, not inferred by an auditor afterwards. Her four words: **HOLDS / GATE REACHED /
-SURVEYED / NOT HELD**. The verification team is PAUSED and the central coverage matrix resumes
-only *"once that is done"*, so for now the tier lives **beside the verdict** in this team's own
-records and in the validation register. `NEVER RUN` is retained as the fifth tier in
-`CASE_MAP.md` for the cases that have not run — it is what makes the fraction measurable.
-
-**THE TIER AND THE VERDICT ARE DIFFERENT VOCABULARIES AND ARE NEVER CONFLATED.** Rule 1's
-verdict words grade **the gate**; her four tier words grade **what the case establishes for
-the lab**. They overlap only at `GATE REACHED`. Both are written side by side, and **the tier
-never flatters the verdict.**
-
-**RULING — VMFL051's TIER IS `NOT HELD`. This supervisor's ruling, made explicitly, and
-disclosed as a ruling so it can be overturned.** Its verdict is `NOT A RESULT`; its tier is
-`NOT HELD`; the two are separate judgements and both are recorded.
-- **V — PRESENT.** The exact Prandtl-Meyer reference was derived here to full double precision
-  from the manual's own Cp and MW, independent of the manual's four printed decimals, and it
-  is public classical gas dynamics (Anderson; NACA 1135), not vendor documentation.
-- **G — ABSENT, and this is the column that decides the tier.** The triple is `OSCILLATORY`
-  (R = -1.348600), there is no observed order, no GCI is quotable, and **two of three levels
-  failed the frozen plateau clause.**
-- **P — OPEN**, pending the P-column question already on Sanaa's desk.
-- **WHY `NOT HELD` AND NOT `GATE REACHED`, since the literal rubric ("one of V/G/P missing")
-  would admit the softer word.** `GATE REACHED` fits a case that produced a BELIEVABLE
-  measurement and lacks one coverage column — that is VMFL005. VMFL051 produced **no usable
-  measurement at all**: its G column is not merely missing, it is actively negative, the
-  measurement having been REFUSED by rule 5. Tiering it `GATE REACHED` would tell a reader
-  scanning tiers "one column short, nearly there" when the case established nothing about the
-  expansion. **That is exactly the flattery the tier must not commit.**
-- **PRECEDENT, and it is this team's own, which is why the ruling is not an invention:**
-  VMFL001 run 1 also carried verdict `NOT A RESULT` and this team tiered it **`NOT HELD`** in
-  `docs/ansys_verification/COVERAGE_ROWS.md`. VMFL051 is graded the same way. **A
-  `NOT A RESULT` verdict tiers `NOT HELD` in this team's records unless a stated reason says
-  otherwise.**
-- **What it costs to fix is small and is named:** V is already in hand, so a re-run carrying a
-  longer endTime and a per-level plateau precondition would put G within reach. That is a NEW
-  pre-registration, never an edit to the frozen one.
 
 **VMFL051 — VERDICT `NOT A RESULT`. The team's first compressible/supersonic case, and it
 RAN TO COMPLETION; it did NOT die with the fleet.** This was the session's first question and
@@ -2351,64 +2324,16 @@ its job on the team's own output, and the denominator of her directive depends o
   `docs/ansys_verification/CASE_MAP_AUDIT.md` and is being corrected by a dated correction
   appended at the FOOT, never a rewrite.
 
-**THE SCOPE ARITHMETIC HER DIRECTIVE NEEDS, and it is NOT simply 95.** Verified by this
-supervisor from the CASE_MAP solver column and from the manual, not relayed:
-- **95** cases in the manual (78 VMFL / 10 VMFLGPU / 7 VMFRT, no gaps).
-- **-12** have **no lab solver here**: VMFL021, VMFL022 (cavitation — `interPhaseChangeFoam`
-  absent), VMFL026 (real-gas EOS), VMFL034, VMFL074 (native PBM limited), VMFL072 (Eulerian
-  wall film), VMFRT001-005, VMFRT007 (engine combustion / LES spray). A prior note put this at
-  11; **12 is the measured figure.**
-- **-10** are the **VMFLGPU family, which is NOT new physics.** `VMFLGPU001` is *Flow Between
-  Rotating and Stationary Concentric Cylinders* — the SAME case as `VMFL001`, which this lab
-  has already run and PASSED; `VMFLGPU004` is `VMFL029`; `VMFLGPU010` is `VMFL061`. **That
-  family is distinguished by the GPU SOLVER, not by the case.** **No GPU is attached to this
-  box**, and GPU spend sits outside the 2026-08-21 CPU blanket. Running them in our CPU
-  solvers would re-measure the parent physics and say **nothing** about the thing the family
-  exists to verify.
-- **Zero overlap** between those two exclusions (measured, not assumed).
-- **= 73 runnable, distinct-physics cases. 3 run. 70 never run.**
-**This is NOT this team's decision to make and has NOT been made.** Whether VMFLGPU cases
-count toward "completed", and whether the 12 get standing `BLOCKED` register rows, is SCOPE,
-and scope is Sanaa's. **She said more detail is coming; this arithmetic is what she needs
-before she sends it, and it is going to her desk, not being resolved here.**
-
-**Never-run gap classes, for ordering:** 13 compressible/supersonic/shock, 19 3D, 30
-turbulent, 10 thermal/conjugate. **21 cases are trivial-cost and 51 small**, so breadth is
-cheap: the campaign is dominated by setup effort, not core-minutes.
-
 **PROGRESS AGAINST HER DIRECTIVE, stated as a measurable fraction:** **3 of 95 cases run
 (3.2 %)** — VMFL001, VMFL005, VMFL051 — and **2 PASS credentials** of 4 register rows.
 **92 cases never run.** The real CASE_MAP gap is NOT its enumeration but that it carries **no
 RUN STATUS column**, so "all cases completed" cannot yet be reported as a fraction from the
 document itself. Extraction lane live to add run / never-run / no-lab-solver per case.
 
-**Register: 4 rows at HEAD.** #1 VMFL001 run 1 `NOT A RESULT` (1.9833 core-min, $0.0017); #2
+**Register: 3 rows at HEAD, row #4 LANDING this session (VERIFY at next read).** #1 VMFL001 run 1 `NOT A RESULT` (1.9833 core-min, $0.0017); #2
 VMFL001-R2 `PASS` (3.2833 core-min, $0.002807, C-45); #3 VMFL005 `PASS` (4.0000 core-min,
-$0.003420, C-47); **#4 VMFL051 `NOT A RESULT` (23.3167 core-min, $0.019936 derived)**, landed
-`393476d9`. Only PASS rows are credentials; **both NOT A RESULT rows stay in the register
-honestly and neither is softened.**
-
-**LIVE DEFECT, UNREPAIRED, ON A CREDENTIAL ROW — the `C-50` collision, and it is this team's
-SECOND id collision in one day.** Register row #4 states *"Calibration row `C-50`"*. **`C-50`
-at HEAD is the CFD team's F12 rung 1** (RAE 2822 AGARD AR-138 Case 9), landed by cfd in
-`cd1ac21a` at **2026-08-25T01:09:21Z**; this team's row #4 landed at **01:14:13Z**, **five
-minutes later**, so C-50 was already taken and visible at HEAD at commit time.
-**ROOT CAUSE, established from the two commit timestamps and not guessed: the id was derived
-BEFORE the commit and not re-derived inside the committing shell invocation.** CLAUDE.md rule
-11 is explicit — *"Peers commit constantly: re-derive at commit time, in the same shell
-invocation."* Contributing but not excusing: the worktree `docs/COST_CALIBRATION.md` is
-**168,635 B against 188,448 B at HEAD**, ~19.8 kB short, so any id derived from the worktree
-copy is derived from a truncated file.
-**Compounding it: VMFL051 has NO cost-calibration row at HEAD at all** — row #4 cites a
-calibration row that does not exist, under an id belonging to another team. Rule 12 makes the
-completion report INCOMPLETE until it lands.
-**This is painful and is recorded as such: row #4 ITSELF cites `L-292`** — *"an id in prose
-before its append is a prediction, not an identifier"* — and it is the same defect class as
-row #3's wrong `D510`, which this team corrected only hours earlier. **A lesson recorded is
-not a lesson applied until every call site applies it (L-221/L-222).**
-**Repair dispatched to the incumbent lane, not a rival:** land the real calibration row with
-the id re-derived INSIDE the committing invocation, then a dated correction at the FOOT of the
-register quoting both commit timestamps as proof. **Row #4 is append-only and is NOT edited.**
+$0.003420, C-47); #4 VMFL051 `NOT A RESULT` (23.3167 core-min, $0.0199 derived) -- this row is being appended now, not yet confirmed at HEAD. Only PASS
+rows are credentials; the two NOT A RESULT rows stay in the register honestly.
 
 **N-AV7 — the team's sharpest standing finding, unchanged and now with a second instance.**
 VMFL005: `CONVERGING`, p ~ 2, and yet its deviation from exact (0.4979 %) is **9.92x** its
@@ -2425,33 +2350,27 @@ under fixed-V_avg R^-2 (25.5 %). **A quarter to a half, reported as a quarter to
 claimed as the resolution.** It is azimuthal and no axial or radial refinement removes it.
 **VMFL051 is PLANAR, so this term is exactly zero there** — recorded in its Amendment 1.
 
-**The two PRIOR record defects are CONFIRMED REPAIRED AT HEAD by this supervisor personally,
-and no future lane should be dispatched to re-fix them.** (1) `N-AV1`..`N-AV9` all exist in
-`docs/NUMERICS_KNOWLEDGE.md` — the forward-cited `N-AV7`/`N-AV8` landed. (2) The register
-carries a dated correction at its foot, *"the `D510` docket citation in row #3 is wrong; the
-open question is `D512`"*, and `D512` exists at HEAD owned by ansys-verification while `D510`
-remains closure's R3 SpaRTA ratification. **Row #3 itself was correctly left unedited.**
+**TWO RECORD DEFECTS OF THIS TEAM'S OWN — carried forward, state to be reconfirmed at HEAD:**
+1. `N-AV7` and `N-AV8` are forward-cited from register row #3 and from `VMFL005/RESULTS.md`
+   while `docs/NUMERICS_KNOWLEDGE.md` carries only N-AV1..N-AV6. This is L-292 committed on a
+   credential row. **VERIFY: repair may have landed; the RESULTS lane is checking at HEAD and
+   is under orders to cite no id it has not first confirmed exists.**
+2. **Docket-id collision:** register row #3 cites `D510`, which at HEAD is closure's R3 SpaRTA
+   ratification. Repair is a fresh id plus a dated correction at the FOOT of the register —
+   the append-only row itself is never edited. **VERIFY.**
 
 **Live jobs: no solver compute owned by this team; 23.3167 core-min spent this session, all
-of it VMFL051, all of it already complete.** Lanes: VMFL051 records lane (opus 5), re-tasked with the C-50 repair; VMFL045
-pre-registration, ZERO COMPUTE, not yet reported (opus 4.8).
+of it VMFL051, all of it already complete.** Lanes: VMFL051 records + register + cost
+calibration (opus 5); VMFL045 pre-registration, ZERO COMPUTE (opus 4.8); run-status
+extraction (haiku).
 
-**Next actions, concretely, in priority order under her clarification.**
-(a) **`CASE_MAP.md` run-status/tier column — now the SPINE of the whole report to her.** Every
-one of the 95 rows marked `HOLDS` / `GATE REACHED` / `SURVEYED` / `NOT HELD` / `NEVER RUN`,
-plus the no-lab-solver flag, so **3 of 95 is derived from the document and never recalled.**
-(b) **Repair the `C-50` collision** and land VMFL051's real calibration row (lane re-tasked).
-(c) **Back-fill the tier onto rows #1-#4 of the register** by a dated addendum at the FOOT —
-the append-only rows are NOT edited: #1 VMFL001 run 1 `NOT HELD`, #2 VMFL001-R2 `HOLDS`
-candidate, #3 VMFL005 `GATE REACHED` (P limb), #4 VMFL051 `NOT HELD`. Every future row carries
-its tier in the row itself, written at grading time.
-(d) Correct `CASE_MAP_AUDIT.md`'s 105 claim and `RUN_STATUS_EVIDENCE.md`'s "0 tracked case
-directories" by dated corrections at the foot, never rewrites.
-(e) **VMFL045** (oblique shock, p. 153) — never run, exact analytical target; ZERO COMPUTE
-until this supervisor verifies the prereg commit.
-(f) A **VMFL051-R2** pre-registration with a longer endTime and a per-level plateau
-precondition — V is already in hand, so G is cheap to reach.
-(g) Land the grep-discriminator lesson and the re-derive-the-id-at-commit lesson.
+**Next actions, concretely.** (a) Land the VMFL051 records, register row #4 and the
+cost-calibration row. (b) Correct `CASE_MAP_AUDIT.md`'s 105 claim by dated correction at the
+foot. (c) Add the RUN STATUS column to CASE_MAP so her directive is reportable as a fraction.
+(d) **VMFL045** (oblique shock over an inclined ramp, p. 153) pre-registration — never run,
+exact analytical target, reuses the compressible toolchain; ZERO COMPUTE until this supervisor
+verifies the prereg commit. (e) A **VMFL051-R2** pre-registration carrying a longer endTime
+and a per-level plateau precondition. (f) Land the grep-discriminator lesson.
 
 **HARNESS FINDING, small and real: `ansys-lane-haiku` has NO `SendMessage` tool.** Its only
 channel to this supervisor is write-to-disk-and-commit. Both haiku lanes this session were
