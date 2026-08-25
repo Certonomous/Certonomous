@@ -39,7 +39,32 @@ flow class is a conclusion about that flow class.
 | **K0d** | turbulent **mixed** convection | Blay 1992 | **NOT RUN.** Primary data **NOT OBTAINED** |
 
 **No turbulence model has passed a turbulent thermal gate in this lab.** Three
-models, two geometries, three Rayleigh decades, zero passes.
+models, two geometries, **three Rayleigh numbers from 8.6e5 to 1.58e9, at two
+effectively distinct conditions**, zero passes.
+
+> **CORRECTED 2026-08-25 by the heat-transfer supervisor, by quote-and-strike
+> (rule 6), under K0d `AMENDMENT 1` §A1.1.** The struck wording was:
+>
+> > ~~*"Three models, two geometries, three Rayleigh decades, zero passes."*~~
+>
+> **The ground.** The three Rayleigh numbers are **8.6e5** and **1.43e6** (tall
+> cavity AR 28.7, Betts & Bokhari, K0cT / K0cX) and **1.58e9** (square cavity,
+> Ampofo & Karayiannis, K0cS). Their `log10` values are **5.93, 6.16 and 9.20**.
+> **The two low values differ by a factor of 1.66, not by a decade** — they are
+> essentially one Rayleigh condition sampled twice. The true coverage is **two
+> effectively distinct conditions about 1100x apart**, not three decades of it.
+>
+> **The defence for the old wording is recorded rather than suppressed:** under a
+> *bin* reading the three values fall in the `1e5`, `1e6` and `1e9` bins, which
+> makes "three decades" literally defensible. It is corrected anyway, because the
+> phrase *reads* as three decades of coverage and this sentence is the lab's
+> headline honest prior — it is quoted into `K0d_PREREGISTRATION.md` §11, where
+> prediction 1 rests on it. **A prior must not be stronger than its evidence at
+> the moment the prediction it supports is graded**, and correcting it before
+> K0d's first compute weakens the prior slightly in the direction of the truth.
+>
+> **Unchanged: "zero passes".** That half is not touched, is not in doubt, and is
+> the load-bearing half of the sentence.
 
 ---
 

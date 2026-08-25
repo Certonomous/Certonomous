@@ -984,3 +984,291 @@ addendum can prove the file that ran is the file that was frozen** (rule 2).
 **Submissions remain PARKED** (rule 7): nothing about this rung, its reference,
 its acquisition or its result is sent, filed, requested or shown outside this box
 by any agent, at any level, ever. That is Sanaa's decision and hers alone.
+
+---
+
+# AMENDMENT 1 — 2026-08-24, BEFORE FIRST COMPUTE. Version 1.0 -> 1.1.
+
+**lines whose number changed above this section: 0.**
+
+## A1.0 The condition under which this amendment is legal, and how it was checked
+
+Standing rule 2: *"Before first compute, amendments are legal and must state the
+condition and how it was checked (name the run directory that does not exist)."*
+
+**The run directory that does not exist is
+`verification/runs/F14-cooling-ladder/K0d_runs/`.** Checked by the heat-transfer
+supervisor **in the same shell invocation as this write**, twice, by two
+independent means:
+
+```
+ls -d verification/runs/F14-cooling-ladder/K0d_runs
+    -> No such file or directory
+find verification/runs -maxdepth 2 -iname '*K0d*'
+    -> no output
+```
+
+**K0d has never run. No solver, no mesh, no case directory, no partial output.**
+The frozen document's own sha256 was re-verified against the commit that froze
+it (`193b62a1`) before this amendment was written:
+`829542696ffa5b1a512bfb6c8b3d29716b32b8971a704eb9d14f6c59f4312751` — identical.
+
+**This amendment therefore alters no gate, threshold, cap or label**, and could
+legally do so; it does not, and each ruling below says so explicitly. Every
+section above this line is byte-unchanged.
+
+Three items were left open by the drafting lane for the supervisor to rule on.
+All three are ruled here. A fourth matter was checked and found sound, and that
+is recorded too, because a check that finds nothing is worth as much as one that
+finds something and is the only way to tell a checked claim from an unchecked one.
+
+---
+
+## A1.1 RULING on the "18 combinations" figure — the drafting lane's refusal is RATIFIED, and the number is now IDENTIFIED
+
+**§11's refusal stands, unchanged.** The lane was right not to assert a figure it
+could not reproduce, and right to say so in the document rather than silently
+dropping it. What the records support is the registered sentence — *"Three
+models, two geometries, three Rayleigh decades, zero passes"* — plus the three
+per-rung tallies. **No gate, threshold, cap or label moves.**
+
+**The supervisor's ruling adds what the lane could not: 18 is now identified.**
+It is reconstructible, exactly, as a **grid size**:
+
+| axis | count | members |
+| --- | ---: | --- |
+| turbulence models | **3** | `kOmegaSST`, `kEpsilon`, `LaunderSharmaKE` |
+| geometry x Rayleigh condition | **3** | square cavity Ra 1.58e9 (K0cS); tall cavity AR 28.7 Ra 8.6e5; tall cavity AR 28.7 Ra 1.43e6 (K0cT / K0cX) |
+| graded quantity class | **2** | one **velocity** quantity, one **heat** quantity |
+
+`3 x 3 x 2 = 18`. **That is where the number comes from, and it is a grid size.**
+
+**And a grid size is not a denominator.** This is the ruling, and it binds:
+
+1. **At least one of the 18 cells is unpopulated by refusal.**
+   `LaunderSharmaKE` **REFUSED** on the square cavity (K0cS). A cell that refused
+   produced no measurement, so it can be neither a pass nor a fail. **18 is
+   therefore a strict upper bound on any tally, never a tally.**
+2. **This lab has already corrected exactly this error twice, in this campaign.**
+   **D419** cut K0c's denominator from 24 to 20; **D420** cut K0cX's from 60 to
+   42, and its own wording is the precedent verbatim: *"EIGHTEEN OF SIXTY K0cX
+   ROWS THAT GRADED NOTHING LEFT THE TALLY."* Publishing 18 as a denominator
+   would reintroduce, in a headline, the defect two docket items were spent
+   removing from the rows beneath it. **The coincidence that D420's own
+   correction is also the number 18 is a coincidence and must not be read as a
+   derivation** — D420's 18 counts non-discriminating *rows* in one rung; this
+   18 is a product of three axes across three rungs. They are different
+   quantities that happen to share a value.
+3. **Therefore:** if a combination count is ever wanted, it is derived from the
+   three results files, published **with its denominator**, and the denominator
+   **excludes every cell that graded nothing**. `18` may be quoted only as *"the
+   grid is 3 x 3 x 2 = 18 cells, of which N were populated and 0 passed"*, with
+   `N` measured. **`18` is never quoted bare.**
+
+**A correction this ruling forces on a record outside this document.** The
+registered sentence's phrase **"three Rayleigh decades" over-reads the coverage
+it describes** and is corrected in `docs/THERMAL_CAPABILITY_STATE.md` §1 by
+quote-and-strike in the same commit as this amendment. The three Rayleigh
+numbers are **8.6e5, 1.43e6 and 1.58e9** — `log10` = 5.93, 6.16, 9.20. The two
+low values differ by a factor of **1.66**, not by a decade; they are essentially
+one Rayleigh condition sampled twice. A *bin* reading (they fall in the `1e5`,
+`1e6` and `1e9` bins) makes "three decades" literally defensible, and that
+defence is recorded here rather than suppressed — but the phrase reads as
+**three decades of coverage**, and the true span is **two effectively distinct
+Rayleigh conditions ~1100x apart**. The honest wording, which is what the
+corrected record now carries: *"three Rayleigh numbers from 8.6e5 to 1.58e9, at
+two effectively distinct conditions."*
+
+**This weakens the prior slightly and is registered before the run for exactly
+that reason.** §11's prediction 1 rests on that prior, and a prior stated in
+this document must not be stronger than its evidence at the moment the
+prediction is graded.
+
+---
+
+## A1.2 RULING on the derived `Ri ~ 2.1` — INDEPENDENTLY REPRODUCED, STANDS, and is now FENCED
+
+**§3.4's `Ri` row stands unchanged. No gate, threshold, cap or label moves.**
+
+**The supervisor re-derived it independently, by a different route than the
+document uses, and it holds.** §3.4 forms `Re_H` by scaling the slot-based
+Reynolds number: `654 x (H/h_in) = 654 x 57.78 = 3.78e4`. The check formed it
+directly from the primitive quantities instead:
+
+- `Re_H = u H / nu = 0.57 x 1.04 / 1.569e-5 =` **3.7782e4** — against the
+  document's 3.7788e4, agreeing to **0.02 %**. The two routes are algebraically
+  the same identity but are arithmetically independent, and the agreement
+  confirms the geometry, the velocity and the viscosity are mutually consistent.
+- `Ri = Gr / Re_H^2 = 3.00e9 / (3.7782e4)^2 =` **2.102**, against the document's
+  **2.10**.
+
+**A stronger check the document does not perform, done here.** `Ra` itself was
+re-derived from first principles rather than taken from the secondary:
+
+`Ra = g beta dT H^3 / (nu alpha)`, with `g = 9.81`, `beta = 1/298 = 3.356e-3`,
+`dT = 20.0 K`, `H = 1.04 m`, `nu = 1.569e-5`, `alpha = nu/Pr = 2.2099e-5`:
+
+`Ra = 9.81 x 3.356e-3 x 20.0 x 1.124864 / (1.569e-5 x 2.2099e-5) =` **2.136e9**
+
+against Oulghelou's stated **2.13e9** — agreeing to **0.3 %**. **The entire
+non-dimensional set of §3.4 is therefore reproducible from the geometry and the
+fluid properties alone, without trusting the secondary's arithmetic.** That is a
+materially stronger statement than "derived, not read", and it is recorded.
+
+**THE FENCE, which is the operative part of this ruling and is new:**
+
+**No gate, threshold, band, cap or label in this rung may depend on `Ri`.** `Ri`
+is **descriptive**: it establishes that the case sits in the mixed-convection
+regime, which is why the rung exists. It is **not** a graded quantity and it is
+**not** an input to any band. The reason this must be written down is that `Ri`
+inherits the provisional status of its parents: `Ra` and `Re` are both marked
+*"secondary, to be confirmed against the primary on receipt"*. **A gate resting
+on `Ri` would be a gate resting on an unconfirmed secondary, laundered through
+two divisions until it looked like a property of the case.** It was checked, at
+this amendment, that no such dependence exists today: `Ri` appears in §3.4 and in
+§11.1's prose and nowhere in §7's rows, bands or conversion rule. **This fence
+keeps it that way.**
+
+If the primary moves `Ra` or `Re`, `Ri` moves with them and **nothing graded
+moves**, which is the property the fence buys.
+
+---
+
+## A1.3 RULING on the K2e Boussinesq carry-across — ARITHMETIC REPRODUCED, TREATMENT UPHELD, and one REGISTERED DEFECT REPAIRED
+
+**§3.5's `M0` treatment stands: the floor is REPORTED beside every velocity row
+and G6, is never a correction, and is never subtracted from a deviation. No
+gate, threshold, cap or label moves.**
+
+**The arithmetic reproduces.** At `epsilon = 20.0/298 = 0.06711`:
+
+- `D(u_max*) = 24.91 x epsilon^1.005 = 24.91 x 0.066216 =` **1.6495 %** -> §3.5's **1.65 %**
+- `D(Nu_h)  = 6.355 x epsilon^1.968 = 6.355 x 4.8974e-3 =` **0.03112 %** -> §3.5's **0.031 %**
+
+**The document's honesty about the extrapolation is upheld and is the right
+treatment.** K2e measured those exponents on the **de Vahl Davis differentially
+heated laminar cavity at Ra 1e5**. This rung is a **turbulent mixed-convection
+cavity with a jet**. §3.5 says so in its own words — *"carrying them across flow
+classes is this document's extrapolation"* — and that sentence is why the
+treatment survives review. Note also, correctly stated in §3.5 and re-checked
+here: `epsilon = 0.0671` is **interpolated** against K2e's own swept point
+0.0667, so the *`epsilon`-dependence* is interpolated even though the *flow
+class* is extrapolated. Those are two different axes and the document does not
+conflate them.
+
+**THE DEFECT, and it is the substantive finding of this amendment.**
+
+§11 prediction 3 reads, in its closing clause:
+
+> *"If the ordering comes out the other way, that is a finding about the closure
+> and not about the Boussinesq assumption, and the record will say so."*
+
+**As written, that clause makes the carry-across unfalsifiable by this rung.**
+Trace the two branches. If the temperature rows land closer than the velocity
+rows, the prediction is confirmed and `M0` is credited. If they do not, the
+clause **pre-assigns** the outcome to the closure — so `M0` is credited in that
+branch too. **No possible result of K0d can count against the carry-across.**
+
+An estimate that no outcome can disconfirm is not reported evidence. It is an
+assumption wearing a number, and printing it beside every velocity row gives it
+the appearance of a measured floor while insulating it from the one experiment
+that could test it. **That is the `evidence-annotated-as-non-binding` failure
+class**: a figure whose status is declared rather than earned.
+
+**THE REPAIR, registered now, before first compute, and it adds a branch rather
+than changing a prediction:**
+
+Prediction 3's closing clause is **struck** — struck, not rewritten, per rule 6 —
+and replaced by a **three-way** disposition. **The prediction itself is
+unchanged**: the temperature rows still land closer than the velocity rows.
+Only the *disposition of a contrary outcome* is disambiguated, and it was
+ambiguous, not registered.
+
+> ~~*"If the ordering comes out the other way, that is a finding about the
+> closure and not about the Boussinesq assumption, and the record will say so."*~~
+>
+> **REPLACED, 2026-08-24, before first compute:** If the ordering comes out the
+> other way, the record **names both live hypotheses and states which the
+> evidence discriminates**, rather than pre-assigning the outcome:
+>
+> **(i)** it is a finding about the **closure** — the model's thermal error
+> exceeds its momentum error on this flow, which is what §11 prediction 3
+> expects to be false; **or**
+>
+> **(ii)** it is a finding about the **carry-across itself** — the K2e exponents
+> measured on a laminar differentially heated cavity **do not transfer** to a
+> turbulent mixed-convection cavity with a jet, i.e. `M0` is the wrong floor for
+> this flow class.
+>
+> **The discriminator, registered here so it is not chosen afterwards:** the two
+> hypotheses are separated by **magnitude**, not by sign. `M0` predicts a floor
+> of **1.65 % on velocity against 0.031 % on Nusselt — a ratio of ~53x**.
+> Hypothesis (ii) is preferred over (i) **only if** the observed velocity-to-heat
+> deviation ratio is **inverted AND the heat deviation exceeds 1.65 %**, i.e.
+> the thermal row misses by more than the floor `M0` assigns to *velocity* — a
+> magnitude `M0` cannot produce under any closure, because `M0` is a bound on the
+> Boussinesq model form and not on the turbulence model. **Below that magnitude
+> the outcome does not discriminate**, and the record says **NEITHER
+> hypothesis is established** rather than defaulting to (i).
+>
+> **`M0` remains REPORTED and is still never subtracted from a deviation**, in
+> every branch. This clause changes what the *record must say*; it changes no
+> number, no band and no verdict.
+
+**Why this is legal here and would not be after first compute.** It adds a
+registered branch to the *interpretation* of an outcome. Rule 2 permits that
+before compute and forbids it after, which is precisely why it is being done
+now, at zero compute, with the run directory absent.
+
+---
+
+## A1.4 CHECKED AND FOUND SOUND — §7.6's unarmed `G6` band is NOT a defect
+
+Recorded because a supervisor's check that finds nothing must be
+distinguishable from a check never made.
+
+`G6`'s row in §7.3 reads *"± 10 % of |q_ref|"* and *"to be armed by addendum on
+receipt of the primary"*, and §7.6 registers a reference slot whose file does not
+exist. **On a first reading this looks like an unarmed gate**, which would be
+fatal: rule 2 closes gates at first compute and permits only addenda that
+*"cannot alter a gate, threshold, cap or label"* — so a band armed by addendum
+*after* first compute could never be legally graded.
+
+**It is not an unarmed gate, and the design is sound.** The **threshold is
+frozen**: it is the *relative* band **± 10 %**, fixed now, in §7.2's registered
+**band conversion rule** — which is registered *"in a form that does not need the
+reference value"*. What §7.6 supplies later is **data**, not a threshold: the
+reference value the frozen rule is applied *to*. Filling a registered schema slot
+with a number read from a printed page is not amending a gate.
+
+**The distinction that makes it safe, and it is the whole point:** the band
+cannot be widened or narrowed by what arrives, because ± 10 % is already frozen;
+`q_ref` can only move where the band sits, not how wide it is. **The freeze is
+on the rule; the reference is evidence.** §7.6's own sentence — *"Nothing in the
+comparator changes when it appears"* — is the correct test and it is satisfied.
+
+**One condition attached, which is a restatement of the existing design and not
+a new gate:** if the primary has not arrived when the comparator runs, `G6` is
+`PENDING` — a queue state, per rule 1 — and is **never** graded against a
+reference taken from a secondary, nor softened into a pass. K0d's secondaries
+(Zou 2018, Oulghelou 2020) may not fill §7.6's slot; §7.6 already says the person
+who fills it *"reads it from the printed page (L-144) and writes the page
+number"*, and that stands.
+
+---
+
+## A1.5 What this amendment did NOT do
+
+- **No gate moved. No threshold moved. No cap moved. No label moved.** The rows
+  of §7.3, the conversion rule of §7.2, the verdict ladder of §7.4, the guards of
+  §7.5, the instruments of §8 and the cost of §10 are all byte-unchanged.
+- **No prediction was weakened.** §11's predictions 1-8 stand as registered.
+  Prediction 3's *prediction* is unchanged; only the disposition of a contrary
+  outcome was disambiguated, and it was ambiguous rather than registered.
+- **No compute ran.** `verification/runs/F14-cooling-ladder/K0d_runs/` still does
+  not exist at the moment of this write, and this amendment does not create it.
+- **Nothing was sent** (rule 7).
+
+**K0d remains FROZEN, ARMED AND UNFIRED.**
+
+*Amendment written by the heat-transfer supervisor, 2026-08-24. Zero compute.*
