@@ -1254,131 +1254,111 @@ were **not re-checked this session** and are carried forward from `2bf4915a`.
 
 ## ansys-verification
 
-**Section last written:** 2026-08-24T18:28:14Z by `ansys-lane-opus`, on the
-`ansys-verification-supervisor`'s launch authorisation (stamp from `date -u` in the
-writing invocation; the section is staged via `scripts/lab_state_section.py` +
-`hash-object -w` + `update-index --cacheinfo`, never the shared worktree copy).
+**Section last written:** 2026-08-25T00:11:19Z by `ansys-verification-supervisor` personally
+(stamp from `date -u` in the writing invocation; staged via `scripts/lab_state_section.py`
++ `hash-object -w` + `update-index --cacheinfo`, never the shared worktree copy).
 
-**Last commit:** this commit (opus lane) — the board rewrite. Immediately prior ansys
-commits: `5e789196` (**VMFL001-R2 VERDICT `PASS`**; register row #2; calibration
-C-45), `fd2321ef` (R2 run artifacts, three levels, 3.2833 core-min measured),
-`4507fc66` (VMFL001-R2 PRE-REGISTRATION FROZEN), `a37170a9` (R2 inputs + comparator,
-NO COMPUTE).
+**Last commits (this session):** `ea10aa07` COVERAGE_ROWS.md (the team's three rows, a
+FEED to verification, not their file); `c774cecd` CASE_MAP.md GAP-CLOSING PRIORITY table;
+`a89da095` RECORDS_DRAFTS.md. Prior: `c6994175` VMFL005 VERDICT PASS, `90ee8d80` artifacts,
+`2d54a629` prereg frozen.
 
-**Team status:** formed 2026-08-24 ~17:15Z. Manual **title-page verified** against the
-PDF (rule 15): "Ansys Fluid Dynamics Verification Manual, ANSYS, Inc., Release 2026 R1,
-March 2026". The **Opus 4.8 pin is LOAD-VERIFIED**.
+**D-6 RULED AND EXECUTED — the chief may stop asking.** Canonical archive home is
+`/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/{FLUENT,CFX,FORTE}_ARCHIVES/`, 123 files
+sha256-verified against `docs/ansys_verification/VM2026R1_SHA256_MANIFEST.txt`. The dead
+partial copy under `docs/papers/verification_validation/` was deleted 2026-08-24T17:39:17Z
+AFTER re-verifying the survivor (manifest 123 OK, exit 0). Commits `e9737c5f` / `17527f40`;
+write-up `docs/ansys_verification/ARCHIVE_HOME_RULING.md`. **CASE_MAP LANDED** (`546a036b`):
+95 cases, 54 2D / 22 axi / 19 3D, 26 analytical / 50 experimental / 19 benchmark, 11 with no
+solver here. Both first-action items are CLOSED.
 
-**D-6 RULED AND EXECUTED.** Canonical archive home is
-`/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/{FLUENT,CFX,FORTE}_ARCHIVES/`; **123
-files sha256-verified** (manifest `docs/ansys_verification/VM2026R1_SHA256_MANIFEST.txt`).
-The repository-root partial copy (`docs/papers/verification_validation/VM2026R1_Fluids/`)
-was **deleted 2026-08-24T17:39:17Z after re-verification** (manifest 123 OK, exit 0).
-Ruling commits `e9737c5f` / `17527f40`. The manual PDF (8,517,733 B) and its sidecar
-(368,949 B) are intact. **Nothing this team runs touches the archive copies** — R2
-confirmed this: it read only the sidecar and its own case tree.
+**Register: 3 rows at HEAD, credential count 2 PASS of 3 run.** #1 VMFL001 run 1
+`NOT A RESULT` (1.9833 core-min, $0.0017 derived, C-37); #2 VMFL001-R2 `PASS` (3.2833
+core-min, $0.002807, C-45); #3 VMFL005 `PASS` (4.0000 core-min, $0.003420, C-47).
 
-**CASE_MAP** `546a036b`: **95 cases** — 54 2D / 22 axi / 19 3D; 26 analytical /
-50 experimental / 19 benchmark; 11 no-solver. VMFLGPU archives are absent; VMFL068 is
-absent. First tranche selected: **VMFL001 → VMFL005, VMFL003, VMFL007, VMFL050**;
-3D-gap candidates **VMFL078, VMFL030, VMFL069**.
+**THE TEAM'S SHARPEST FINDING, and the one worth carrying lab-wide — `N-AV7`.** Two cases,
+both `PASS`, both `CONVERGING`, both p ~ 2, and Richardson extrapolation behaves in
+**opposite** directions. VMFL001-R2 lands on White's closed form to **3.7 ppm** without
+ever seeing the formula (`N-AV6`). VMFL005 converges cleanly at second order to
+**10.295119 Pa, not to the exact 10.24 Pa** — its deviation from exact is **0.4979 %**
+against **GCI_fine 0.0502 %**, a ratio of **9.92**, and the extrapolate sits **0.5383 %**
+from exact, FURTHER OUT than the finest grid. Roughly 90 % of the residual is not
+discretisation error. **A small GCI is a statement about grid convergence only; it does not
+license the claim that the remaining deviation from a reference is numerical.** Any team
+scoring a V column off a small GCI would have scored VMFL005 HOLDS and been wrong. Verified
+by this supervisor personally from the HEAD blob of `cases/ansys_verification/VMFL005/RESULTS.md`
+§5.2, not relayed.
 
-**VMFL001-R2: `PASS` — THE LAB'S FIRST ANSYS CREDENTIAL.** Graded 2026-08-24 at
-commit `5e789196`, register row **#2** citing row #1. Comparator exit 0.
-**Gate MET at all four radii** (frozen 2 % vs the manual's printed targets, at L3
-64×256): v_θ = **0.0151121317 / 0.0105287949 / 0.0071835454 / 0.0045457781 m/s** at
-r = 20/25/30/35 mm, deviations **0.0803 / 0.2742 / 0.2285 / 1.1787 %**. Against the
-exact White §3-2.3 formula the deviations are **0.0529 / 0.0456 / 0.0420 / 0.0447 %**,
-so the frozen 0.5 % diagnostic is met too. **Roache triple on v_θ(35 mm): coarse
-0.0045145840, medium 0.0045395745, fine 0.0045457781; R = 0.2482366; state
-`CONVERGING`; p = 2.0102; GCI_fine = 5.6328e-04 (0.0563 %); Richardson extrapolated
-0.0045478265 m/s, 0.000374 % from the analytic value.** **Planted-zero control fired:**
-planted 1.234e-03, read_back_delta 1.234e-03, reader_delta 1.234e-03, exact to 1e-15,
-no other radius moved. Strict completion holds at all three levels with the per-level
-endTime (3000/3000/**6000**). **Cost: 3.2833 core-min MEASURED** (197 wall s, serial;
-L1 2 s, L2 12 s, L3 183 s) against the 3.7167 point estimate — **ratio 0.8834×**, 32.8 %
-of the 10 core-min cap, **$0.002807 derived, not measured**; waste 0.000. Shas: prereg
-`c6b4a7c4`, comparator `64b02be8`, run script `116c7c2d`, HEAD at run `1fb3bf74`.
-Record `cases/ansys_verification/VMFL001/R2/RESULTS.md`; artifacts
-`verification/runs/ansys_verification/VMFL001/R2/`.
+**Coverage rows fed to verification** (`docs/ansys_verification/COVERAGE_ROWS.md`, `ea10aa07`):
+VMFL001 run 1 **NOT HELD**; **VMFL001-R2 HOLDS** (V exact — White §3-2.3; G CONVERGING
+p = 2.0102, GCI 0.0563 %; P frozen prereg on disk) — a candidate for the lab's first HOLDS
+with a non-empty G column; **VMFL005 GATE REACHED**, not HOLDS, the tier set by this
+supervisor's ruling on the 9.92 ratio. VMFL005's own triple: `CONVERGING`, r = 2.0 exactly,
+p = 1.9340642225610707, GCI_fine 5.021172780104668e-04, planted-zero fired — it earns **G**
+outright; the tier is held down solely by the exact-solution limb, so **no grid spend is
+recommended**. Verification has not yet ingested these rows.
 
-**Both run-1 mechanisms are repaired and MEASURED to be repaired.** (1) The reader now
-parses v2606's headerless `gateAxis_p_U.xy` — the planted-zero control proves it can
-see a non-zero in that exact format. (2) **The N = 6000 extrapolation HELD**: the freeze
-predicted L3's `Ux` residual ≈ **1.57e-9** at iteration 6000 from a log-linear decay
-fit of run 1's last 1000 iterations; the measured value is **1.61027e-09** — ratio
-**1.026**, a 2.6 % miss on a two-decade extrapolation across 3000 unrun iterations, and
-620× inside the registered 1e-6 clause. L3 plateau ptp **1.772e-07 m/s** (run 1:
-2.772e-05). **Run 1's `NOT A RESULT` (register row #1) stands unremoved and
-unsoftened.**
+**IN FLIGHT — VMFL051, the team's first compressible/supersonic case** (manual pp. 165-166),
+chosen to close the lab's biggest declared gap. Isentropic Prandtl-Meyer expansion over a
+convex corner: inlet M = 2.5, 15 deg turn, **exact closed-form target M = 3.2370** (Anderson).
+Picked over the oblique-shock cases deliberately — cfd's F3 suite already covers wedge/cone/
+diamond COMPRESSIONS, and an expansion fan is both the complement and, being smooth and
+shock-free, a case where an observed order means something instead of being smeared to first
+order by shock capturing. Lane is deriving the reference itself to full double precision
+rather than leaning on the manual's four printed decimals, and derives gamma from the manual's
+own Cp and molecular weight. **ZERO COMPUTE until this supervisor verifies the prereg commit**
+(SUPERVISION §3 check 4). Cap 30 core-min. Toolchain present: `rhoCentralFoam`, `sonicFoam`,
+`rhoSimpleFoam`, `rhoPimpleFoam` in v2606. **Manual defect found and to be recorded:** VMFL051's
+"Analysis Assumptions" calls the flow **incompressible** while its own Physics/Models line says
+"Compressible, inviscid" and the case is a M 2.5 -> 3.24 expansion.
 
-**VMFL001 run 1: `NOT A RESULT`** (register row #1), 1.9833 core-min, $0.0017 derived;
-commits `dee5870d` (VERDICT; calibration C-37) and `ae30f914` (artifacts).
+**Next case after VMFL051: VMFL045** (oblique shock over an inclined ramp, p. 153) — accepted
+on the lane's recommendation: closes two declared gaps at once, exact analytical target, same
+solver and class so the tooling transfers, trivial cost. NOT started; VMFL051 clears its freeze
+first.
 
-**Docket / lessons / calibration:** docket **D504** (VMFL001-R2). Lessons **L-280**,
-**L-288**, **L-289**, numerics **N-AV1…N-AV5**. Calibration rows **C-37** (run 1) and
-**C-45** (R2, landed at `5e789196`). **Two calibration findings from R2 are worth
-carrying forward:** (a) extending a converging steady SIMPLE run's `endTime` is
-**sub-linear in wall time** — 34.67 ms/iter over run 1's first 3000 vs 30.50 ms/iter
-over R2's 6000, because the inner linear solves converge in fewer sweeps as residuals
-fall, so price a continuation at ≈ 0.88 × linear; (b) a log-linear residual-decay fit
-over the last 1000 iterations is a sound basis for choosing N, and it held to 2.6 %.
-**Two lesson candidates are DRAFTED AND NOT LANDED, awaiting the supervisor's read**
-— the sub-linear continuation rule, and "a gate value read from a gitignored artifact
-is a number with no artifact" (the six R2 `.xy` sampled files match
-`.gitignore:67` `**/postProcessing/` and are invisible to `git add`; they were
-filed deliberately via `update-index --add`, which does not consult the ignore rules).
+**TWO RECORD DEFECTS OF THIS TEAM'S OWN, found this session and under repair:**
+1. **`N-AV7` and `N-AV8` are forward-cited from a credentials file and DO NOT EXIST.**
+   `docs/NUMERICS_KNOWLEDGE.md` carries N-AV1..N-AV6 and stops. Both ids are cited in
+   `VMFL005/RESULTS.md` and inside **register row #3**, which is append-only. This is exactly
+   L-292 ("an id in prose before its append is a prediction, not an identifier") committed by
+   this team on a credential row. Repair lane live; landing both plus a new wedge-bias entry.
+2. **Docket-id collision:** register row #3 cites `D510` for VMFL005's open mechanism; `D510`
+   at HEAD is **closure's R3 SpaRTA ratification** (`docs/DOCKET.md:875`). Repair is a fresh id
+   for the question plus a dated correction note at the FOOT of the register striking the wrong
+   citation — the row itself is never edited.
 
-**Live jobs:** none. R2 finished 2026-08-24T18:14:02Z; zero solvers of this team are
-running.
+**Open mechanism, honestly unresolved:** VMFL005's ~90 % non-discretisation deviation. Leading
+candidate is the planar-wedge area deficit — an OpenFOAM wedge sector is a flat-sided triangle,
+so at 5 deg the modelled area is short by sin(t)/t = 0.9987312439537492, i.e. **0.1268756 %**,
+worth **+0.2542 %** of dP under a fixed-Q R^-4 reading (**51.06 %** of the 0.4979 %) or
+**+0.1270 %** under fixed-V_avg R^-2 (**25.5 %**). A quarter to a half, reported as a quarter to
+a half — **NOT claimed as the resolution.** It is a modelling bias that axial and radial
+refinement cannot remove, because the error lives in the azimuthal direction the wedge holds at
+one cell; every future axisymmetric case here carries it in its error budget.
 
-**Rungs lacking verdicts:** **none.** Both VMFL001 rungs are graded and filed. The
-register holds **2 rows**: #1 `NOT A RESULT` (run 1), #2 `PASS` (R2).
-**Credential count: 1 PASS of 2 run** — only `PASS` rows are credentials
-(`ANSYS_VERIFICATION_CHARTER.md` §6).
+**Live jobs:** **no solver compute owned by this team; zero core-minutes spent this session.**
+Lanes: VMFL051 pre-registration (opus, no compute); records repair (opus 4.8).
 
-**Next actions, in order:**
-1. **VMFL005 pre-registration** — draft, supervisor freezes by sha before any compute.
-   This is the next case in the first tranche.
-2. Then **VMFL003, VMFL007, VMFL050**, each pre-registered and frozen before compute.
-3. Then the **3D tranche: VMFL078, VMFL030, VMFL069** — the first 3D cases this team
-   attempts, and the cost model above is 2D-serial only and does not transfer to them.
-4. Supervisor's read of the two drafted lesson candidates above, and of whether the R2
-   comparator's repaired reader should be lifted into a shared helper before VMFL005
-   repeats the same v2606-writer parsing from scratch.
-5. **Reconciliation dispatch (not this team's file to fix):**
-   `docs/COST_CALIBRATION.md`'s worktree copy is **3,892 bytes SHORTER than the HEAD
-   blob** — a truncation, not an append. `scripts/append_record.py` refused on it and
-   C-45 landed by the disclosed hash-object fallback onto the HEAD blob. The stale copy
-   was **inspected, never reverted** (rule 10). `docs/LAB_STATE.md`'s worktree copy is
-   likewise 8,383 bytes short of HEAD.
+**Rungs lacking verdicts:** none. Every case run is graded and in the register.
 
-**On Sanaa's desk:** none from this team. **SUBMISSIONS PARKED** — nothing from this
-team's VM2026R1 work is filed, sent or registered outside this box, and the manual is
-proprietary Ansys documentation.
+**Corrections to this section's previous text:** L-300 and L-301 were carried as "drafted and
+not landed" — **both are at HEAD** and need no re-drafting. A future lane must not be dispatched
+to re-land them.
+
+**On Sanaa's desk (new, via the chief):** the **P-column definition question** — whether a case
+whose ONLY reference is the manual's own printed number can score the P column, given the manual
+is proprietary vendor documentation rather than open literature. VMFL001 and VMFL005 are firm
+(White and Hagen-Poiseuille, public textbook, re-derived independently here), but the distinction
+governs most of the remaining 92 cases and it defines what a credential IS lab-wide, so it is not
+this team's to settle. **SUBMISSIONS PARKED** — nothing from this team's VM2026R1 work is filed,
+sent or registered outside this box, and the manual is proprietary Ansys documentation.
+
+**For the chief to route, not this team's files to fix:** the shared-ledger truncation has reached
+a credentials file — `ANSYS_VALIDATION_REGISTER.md` worktree **3,305 B vs 13,899 B at HEAD**,
+showing **1 row where HEAD has 3**; `COST_CALIBRATION.md` 143,555 vs 163,546; `LAB_STATE.md`
+109,257 vs 126,208. A lane reading the worktree copy reports this team has run one case, and one
+of mine did exactly that today. Inspected, never reverted (rule 10). The shared index also holds
+staged **deletions** of this team's own `cases/ansys_verification/` files.
 
 **Blocked:** none.
-
-**VERIFY (items this lane did NOT personally check):**
-(a) **Item (a) of the previous board is now ANSWERED and needs no further verification**
-— "that R2 actually converges L3 below 1e-6 by 6000 iterations" was an extrapolation
-then; it is now a **measurement**, 1.61027e-09 at iteration 6000, read from
-`L3_64x256/log.simpleFoam` and recomputed by the frozen comparator.
-(b) the 123/123 post-move archive re-verification and the partial-copy deletion — this
-lane did **not** re-run `sha256sum` and carries the haiku lane's and supervisor's
-report unverified.
-(c) the CASE_MAP counts and the VMFLGPU / VMFL068 absences (from `546a036b`, not
-re-derived here).
-(d) lesson numbers L-280 / L-288 / L-289 and the `N-AV` ids as carried forward — this
-lane did **not** re-derive the LESSONS tail; it re-derived only the `C-` tail, inside
-the commit invocation that used it.
-(e) **the manual's printed targets themselves.** This lane read them from the sidecar
-(lines 896–960) and not from the PDF; the title-page verification of the PDF is carried
-from a previous lane's report.
-(f) **whether the R2 comparator is correct beyond its own controls.** It passed its
-`--selftest`, its planted-zero control fired, and it refused nothing at grade time —
-but this lane did not independently re-implement the extraction, and the supervisor's
-personal diff read (`8cb29610` → `64b02be8`) is the check that stands behind it.
-
-*Section rewritten by `ansys-lane-opus`, 2026-08-24T18:28:14Z, on the supervisor's launch
-authorisation and its own graded run.*
