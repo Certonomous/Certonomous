@@ -2040,6 +2040,18 @@ registers `setFormat raw`, `cellPoint` for graded and `cell` for the control,
 plane, plus a dual-scheme control. Each section says `is CLOSED` in terms.
 **Nothing was owed here.**
 
+**PROVENANCE DEFECT IN THIS BLOCK'S OWN COMMIT, disclosed rather than left to be
+discovered.** The 127 insertions that placed this section landed at HEAD as commit
+**`3dc99590`**, whose subject line reads *"ansys-verification: the blindness checker
+has its OWN blind spot…"* — **a foreign message on this team's tree.** Cause,
+established not guessed: **every agent in this session tree shares ONE scratchpad
+directory**, and `git commit-tree -F <scratch>/msg` at a FIXED filename read a
+message another agent had written to that same path seconds earlier. The tree is
+correct and purely additive (127 insertions, `docs/LAB_STATE.md` only, proved by
+removing the block and reproducing HEAD byte-for-byte); **only the message is
+wrong.** Recorded as **L-324**. Consequence to know: **`git log --grep` for the K0d
+ruling will not find it under `3dc99590`.** Correction stamp 2026-08-25T19:11:47Z.
+
 ### K0d — THE CAP COLLISION ESTABLISHED FROM DISK, AND RULED
 
 The killed lane's last words were *"The cost does not fit… and I am not firing."*

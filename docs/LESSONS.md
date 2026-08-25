@@ -12932,3 +12932,35 @@ afterwards — *which version graded this?* Comparator freeze (rule 2) governs g
 the same reasoning binds the checker that licenses them.
 
 Full working: `docs/ansys_verification/GRADER_BLINDNESS_PROBE_COVERAGE.md`.
+
+## L-324 — the scratchpad is SHARED ACROSS AGENTS, so a fixed message filename crosses commit messages between teams
+
+**Measured 2026-08-25, heat-transfer.** A board commit carrying this team's K0d cap
+ruling landed at HEAD as `3dc99590` under the subject *"ansys-verification: the
+blindness checker has its OWN blind spot…"*. The tree was this team's and was
+correct; the **message belonged to another team**.
+
+**Cause.** Every agent in one session tree — supervisors and lanes alike — resolves
+the same scratchpad directory. The private-index protocol of rule 10 is usually
+written with a literal `-F msg`, and **`msg` is a fixed filename**. Two agents
+committing within the same few seconds write that one path; `commit-tree` reads
+whichever write landed last. The CAS in rule 10 does not protect against this:
+**the CAS proves the parent is current and says nothing about the message.**
+
+**Why it matters more than it looks.** A commit message is the lab's search index
+for its own rulings. A ruling filed under a foreign subject is not retrievable by
+`git log --grep`, and the team that owns it appears not to have made it — the
+provenance defect is invisible from the diff, which is entirely correct.
+
+**The rule.** **Never `-F msg`.** Every scratch file consumed by a committing
+invocation — the message AND `GIT_INDEX_FILE` — carries a **per-invocation unique
+suffix** (`$$` plus `date +%s%N`). The same applies to any fixed scratch name a
+concurrent agent might also choose: `idx`, `out`, `A.json`, `tmp.py`.
+
+**Verification, and it is not optional.** The rule-10 post-commit check must read
+`git log -1 --format='%s'` and **assert the subject is the one you wrote**, not
+merely that the diff is yours. This lesson exists because the existing verify —
+`git diff HEAD~1 HEAD --stat` — **passed**: it was looking only at the tree.
+
+*Related:* L-186 (the scratchpad is not a handoff channel; it is also not private),
+L-223 (a lane moves HEAD between two bash calls), rule 10.
