@@ -83,10 +83,17 @@ the supervisor **as source**, and each consequence re-derived from
    `continue`s before `verdict_amended()` runs, so `deviation_pct` is absent for
    X0, X3 and X4. **Re-derived by the supervisor from the artifact's own values:
    X0 is +5.4034 % against a 2.8437 % band — 1.90 × the band, OUTSIDE it — and
-   that number appears NOWHERE in the artifact.** The three deviations a reader
-   *can* see are +0.2989 %, −0.6255 % and +0.0828 %, all comfortably inside.
-   **The row is correctly `NOT A RESULT` and is NOT regraded. The defect is that
-   the artifact reads far rosier than the case is.**
+   that number appears NOWHERE in the artifact.**
+   ~~The three deviations a reader *can* see are +0.2989 %, −0.6255 % and
+   +0.0828 %, all comfortably inside.~~ **STRUCK 2026-08-25 — SEE THE DATED
+   CORRECTION AT THE FOOT. That sentence was FALSE and it contradicted this
+   supervisor's own measurement.** −0.6255 % and +0.0828 % are **NOT in the
+   artifact**; they were re-derived here. **Corrected statement: the artifact
+   prints exactly ONE amended `Nu` deviation — X1 at +0.2989 % — and every
+   deviation figure it prints ANYWHERE, amended or frozen, lies INSIDE its
+   band.** **The row is correctly `NOT A RESULT` and is NOT regraded. The defect
+   is that the artifact reads far rosier than the case is** — and it is WORSE
+   than first written, not better.
 3. **THREE OF FOUR REGISTERED FRICTION ROWS WERE NEVER EMITTED**, by the same
    `continue` — the friction row is written after it. **Only X2 (3e4) exists.**
    §3.4 registers friction as `REPORTED` at all four Reynolds numbers **as the
@@ -169,3 +176,62 @@ No frozen file edited. No pre-registration amended. No verdict from the frozen
 comparator moved. No tier assigned to any of the seven contingent rows. No case
 selected and none launched. No send. The rung's cost calibration row is owed
 under rule 12 and lands separately.
+
+---
+
+## DATED CORRECTION, 2026-08-25 — DEFECT 2 WAS MIS-STATED IN THIS FILE AND IN ITS COMMIT MESSAGE
+
+**Found by the ledger lane, re-verified by this supervisor, and it is an error
+this supervisor made WHILE HOLDING THE CORRECT MEASUREMENT.**
+
+**What §4 defect 2 said:** *"The three deviations a reader can see are +0.2989 %,
+−0.6255 % and +0.0828 %, all comfortably inside."*
+
+**What the artifact actually holds**, re-read field by field:
+
+| row | quantity | amended `deviation_pct` | frozen `deviation_pct` | inside its band? |
+|---|---|---|---|---|
+| X0 | `Nu` @1e4 | **KEY ABSENT** | 2.3054 % | frozen: **INSIDE** (band 2.8437 %) |
+| X1 | `Nu` @3e4 | **+0.2989 %** | 1.6346 % | both **INSIDE** (band 3.8851 %) |
+| X2 | `f` @3e4 | +1.0843 % | — | `REPORTED`, no band |
+| X3 | `Nu` @1e5 | **KEY ABSENT** | 2.4302 % | frozen: **INSIDE** (band 5.3339 %) |
+| X4 | `Nu` @3e5 | **KEY ABSENT** | 1.6350 % | frozen: **INSIDE** (band 5.7488 %) |
+
+**THREE of four amended `Nu` deviations are absent, not one.** Only **X1** is
+printed. **−0.6255 % and +0.0828 % are figures THIS SUPERVISOR COMPUTED from the
+`value` and `reference` fields — they are not in the artifact and no reader
+"sees" them.** (Precision note against the lane's own wording: the key is
+**ABSENT**, not present-and-`null`.)
+
+**THE CONCLUSION SURVIVES AND THE MECHANISM IS DIFFERENT — AND WORSE.** The
+artifact does not lull a reader with three small deviations. It prints **six**
+deviation figures across its five rows, and **every single one of them lies
+inside its band.** The one figure that is **1.90 × OUTSIDE** its band — X0's
+amended +5.4034 % against 2.8437 % — **appears nowhere at all.** *Every number a
+reader can see says "close"; the only number that says "far" is the one that was
+never computed.*
+
+**HOW THIS HAPPENED, recorded because the mechanism matters more than the fix.**
+The supervisor's own verification pass, run before writing this file, printed a
+per-row column headed *"dev printed?"* which read **NO / yes / NO / NO** — the
+correct answer, in hand, minutes earlier. **The sentence was then written from
+the derived values rather than from that column.** **This is the third instance
+in two days of an instrument of this team's being right while the prose written
+from it was wrong**, and it is the same shape this file charges the comparator
+with at defect 2 and charged cell `C1` with yesterday: **CORRECTING OR COMPUTING
+A NUMBER DOES NOT CORRECT THE SENTENCE THAT REPORTS IT.**
+
+**DIRECTION OF ERROR.** This one ran **against** this team's standing prior: it
+made the defect look **smaller** than it is, not larger. **That is recorded
+without relief.** The prior says defects here run flattering; an error that runs
+the other way is not evidence the prior is wrong, and it is not a credit.
+
+**THE COMMIT MESSAGE OF `048ee7b4` CARRIES THE SAME FALSE SENTENCE** — *"while
+the three deviations a reader CAN see are all comfortably inside"* — and **a
+commit message cannot be edited.** It is corrected here and nowhere else, which
+is why this correction is a numbered section of the record rather than a note.
+
+**NOTHING ELSE IN THIS FILE IS WITHDRAWN.** The verdict stands: `NOT A RESULT`
+× 4. X0's +5.4034 % against a 2.8437 % band, 1.90 × outside, is **re-verified
+and unchanged**. No row is regraded, no tier moves, no frozen file is touched.
+`D523` on the docket states the corrected framing.
