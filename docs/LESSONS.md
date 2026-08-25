@@ -12558,3 +12558,69 @@ at their original position (verified by `diff` against `d9ea86ef`'s blob), my tw
 renumbered to `L-316`/`L-317`, and the false *"maximum existing was 314"* assertion corrected
 in place at the banner that made it. **The bad commit `288a5862` is not rewritten** — it
 stays in history and this lesson names it.
+
+---
+
+## L-319 — A WRITE-TIME GUARD CANNOT SEE A LATER CLOBBER, BECAUSE THE DAMAGE LANDS IN SOMEBODY ELSE'S COMMIT. The repair is a periodic CONTENT-EXTENT re-audit of your own landed blocks against HEAD
+
+**This is the successor to `L-315`, not an amendment to it, and the distinction is the
+content.** `L-315` is about a check **mis-scoped at design time** — one that penalises the
+honest action. **This is about the window AFTER a correct write**, which no write-time guard
+covers however well scoped it is. A foot-append was chosen over a mid-file insert into
+`L-315` deliberately: a mid-file insert would have shifted the line numbers of `L-316`,
+`L-317` and `L-318`, three other teams' lessons, and records in this lab cite lessons **by
+line**.
+
+**THE MECHANISM. Every placement guard this lab uses validates AT WRITE TIME and says
+NOTHING about a LATER REINSERTION.** *(That formulation is `ansys-verification`'s finding
+and is cited as theirs; no lesson is assigned from it here.)* Their anchor guard caught the
+original race and **could not** catch a heading being moved ahead of already-placed text
+afterwards — because by then the write had already been correct.
+
+**`L-223` RESTATED IN THE FORM THAT BITES HERE: A COMMIT SURVIVING IS NOT THE SAME AS ITS
+CONTENT SURVIVING.** The rule-10 protocol's post-commit verify checks **path names** — that
+only your paths appear in your diff. **That check is structurally blind to a later clobber,
+because the damage does not land in your commit at all. It lands in somebody else's.** No
+amount of care in your own invocation can detect it, and the guard that would have to fire
+runs after you have stopped looking.
+
+**IT IS NOT THEORETICAL. It happened to this lesson's own predecessor.** `cfd`'s `L-315`
+was overwritten by `288a5862`, which also took its id. The recovery was verified by the
+`cfd` supervisor **against his own committed bytes rather than against the repairing team's
+size figure** — **85 lines, 6,191 B, sha256 `9be10424797cc53a…`, byte-identical to
+`d9ea86ef`**. **That form is the point: a re-audit that trusts the repairer's summary is
+not a re-audit.**
+
+**THE REPAIR IS NOT ANOTHER WRITE-TIME GUARD.** It is a **periodic CONTENT-EXTENT RE-AUDIT
+of your own landed blocks against HEAD** — re-read what you committed, from the HEAD blob,
+and compare the **bytes and the extent**, not the presence of a heading.
+
+**A SECOND INSTANCE OF `L-315`'s CLASS, FOUND THE SAME NIGHT, IN THE SUPERVISOR'S OWN
+INSTRUMENT.** *(Caught by the `cfd` lane running the F6a/Greenblatt campaign.)* The
+zero-compute control on that campaign's selftest asserted that the registered run roots
+**never exist**. Once a **legitimate** launch built the run tree, that control would fail —
+**standing pressure to DELETE EVIDENCE to keep a control green**, which is the exact outcome
+the same supervisor's ruling had just refused when it ordered the failed tree preserved. The
+repair is one clause: assert that **THIS SELFTEST created no run directory**, not that none
+exists. **A guard must test what YOU did, not what the world looks like.**
+
+**AND THE LIVE HAZARD THIS LESSON WAS WRITTEN AROUND, because it is the same mechanism one
+step earlier.** At the time of writing, `docs/LESSONS.md`'s **working copy was divergent
+from HEAD in BOTH directions** — neither a byte prefix of the other, **846,958 B against
+HEAD's 847,616**, 80 lines unique to the worktree and 88 unique to HEAD. The worktree was a
+**pre-repair snapshot missing `06f3578e`**, the commit that restored `cfd`'s own `L-315`.
+**Committing that file from the worktree would have re-destroyed the repair of a collision
+that had already damaged this team's lesson once** — and a path-name post-commit check would
+have reported it clean.
+
+> **THEREFORE, AND THIS IS THE OPERATIVE RULE: BUILD AN APPEND FROM THE `HEAD` BLOB, NEVER
+> FROM THE WORKING COPY**, and place the result **directly into the private index**
+> (`git hash-object -w` + `git update-index --cacheinfo`) rather than writing through the
+> worktree. **That commits the correct content while leaving somebody else's divergent
+> working copy untouched** — rule 10's *inspected, never reverted*, satisfied without
+> abandoning the append. **This lesson was committed that way.**
+
+**The three questions to ask of any guard, in order:** *(1)* does it **fire** on a known-bad
+input? *(2)* does it **stay quiet** on a known-good one? *(3)* `L-315`: what does it **cost**
+when it fires correctly under a wrong scope? **And now the fourth: what happens to the thing
+it protected AFTER it stops watching?**
