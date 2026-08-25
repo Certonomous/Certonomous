@@ -965,3 +965,108 @@ prediction is altered by this amendment.
 The probe itself was compute spent **outside** this document's §7 cap and is not
 drawn against it; it is a mechanism probe, not a run in §6's matrix, and it
 produced no graded value.
+
+---
+
+## AMENDMENT 2 — 2026-08-25: THE ATTRIBUTION IN §"Why this document exists" IS WITHDRAWN
+
+**Document version 1.1 → 1.2.** Appended at the foot under standing rule 6; the
+original text above is **struck, never rewritten**. **lines whose number changed
+above this section: 0.**
+
+**Rule-2 condition, checked in this commit's own shell invocation, not recalled:**
+`verification/runs/F11_runs/conversion_2026-08-25/runs` — the run root this
+document registers — **does not exist**. The case is **UNFIRED**; no graded solve
+has started; §2b's pre-compute limb governs and this amendment is legal.
+
+### 1. What is withdrawn
+
+Lines 22–27 of this document introduce its motivating text as **"Sanaa's
+directive, verbatim"** and set it as a block quotation:
+
+> *"CFD team — Re-run under frozen pre-registrations, <40 core-min each: F3
+> (supersonic exact suite), F11 (per capability map), F4 (hypersonic) — the
+> early PASSes that lack prereqs convert to HOLDS."*
+
+**That attribution is WITHDRAWN. It is struck, and the block quotation must not
+be read as Sanaa's words by any future reader of this file.**
+
+The cfd team searched for the text with a **non-ignoring** `find | xargs grep` — a
+plain `grep -r` in this repository honours ignore files and would have missed it —
+and found it in exactly **two** places: `docs/LAB_STATE.md`, and cfd's **own**
+commit messages `2bf4915a` and `157793db`. **It is not independently sourceable to
+anything Sanaa said.** No cfd supervisor heard it said and none will vouch for it.
+
+**The text is KEPT and re-marked as A cfd BRIEF'S PARAPHRASE**, following the
+precedent this team and heat-transfer both set: withdraw the attribution, keep the
+words, label them honestly. The paraphrase may still be cited as what motivated
+this document. **It may never again be cited as her words, and never as a compute
+authorisation.**
+
+### 2. Why this correction is being made HERE and not only on the board
+
+**The withdrawal was announced last session on `docs/LAB_STATE.md` and in a commit
+message — and this document, which actually carries the attribution, was never
+corrected.** A withdrawal that does not reach the artifact bearing the claim has
+not been made. That is the defect this amendment repairs, and it is recorded as a
+finding against cfd's own process rather than as housekeeping.
+
+**Standing rule L-309 applies directly: an attribution authorising SPEND must
+carry its source when recorded.** This block quotation carries a core-minute
+figure and was written into a frozen pre-registration as the owner's own words.
+That is exactly the shape the lesson names.
+
+### 3. THE LOOP THIS DOCUMENT CLOSED, recorded because it actually happened
+
+On **2026-08-25**, a **40 core-minute** figure reached the cfd supervisor through
+the chief as a per-item spend authorisation attributed to Sanaa. It was withdrawn
+by the chief before it was written to any record, and **no cfd artifact ever
+carried it** — verified across `verification/campaign/` and `docs/LAB_STATE.md`.
+
+**The most likely proximate source of that figure is this file, lines 22–27** —
+an unsourced cfd paraphrase, frozen into a pre-registration under the label
+"verbatim", from which it could be read back as the owner's own instruction. The
+path is: **cfd wrote it → cfd froze it as her words → it circulated → it returned
+to cfd as her authorisation.**
+
+**The laundering did not require a single dishonest act by anyone.** It required
+only that one label — "verbatim" — was applied to text whose source had never been
+checked. It is recorded here so that the next reader of this file understands why
+the label matters more than the words.
+
+### 4. What this amendment does NOT change
+
+**No gate, no threshold, no cap, no band and no label is altered by this
+amendment.** All six gate bands, the instrument blob identity in §8.1, the
+completion clauses and every verdict rule stand exactly as frozen.
+
+**One consequence must be stated precisely rather than waved past.** §"Levels not
+run" (near line 531) gives **two** reasons for excluding the **n = 256** level:
+that its ≈ 51.5 core-min is *"over the directive's whole 40 core-min cap"*, and
+that it is *"4× this document's own cap"*. **The first reason is withdrawn with the
+attribution — there is no Sanaa-authorised 40 core-minute cap and there never
+was.** The second reason is unaffected and is sufficient on its own: **this
+document's own cap governs, and n = 256 exceeds it fourfold.** The exclusion of
+n = 256 therefore stands, on this document's own arithmetic, and does not depend
+on the withdrawn figure. **A conclusion that survives the removal of a bad premise
+must be shown to survive it, not merely asserted to.**
+
+### 5. What remains true and is not disturbed
+
+§10's triple-crown analysis is unaffected and is **reaffirmed**: this conversion is
+intended to earn **G, and G alone**. **F11 cannot reach `HOLDS` by this run,
+whatever the six gates return** — the lid-driven cavity has no exact solution and
+Ghia is a *numerical* benchmark, so **V is not earnable by this case**; and no Ghia
+document exists on this box, so rule 15's title-page verification cannot be
+performed and **P is BLOCKED** — independently of which, comparison against a
+numerical benchmark is code-to-code verification, not validation against the world.
+
+**The paraphrase's phrase *"convert to HOLDS"* was not achievable for this family
+even when it was believed to be hers**, and §10 said so before any core-minute was
+spent rather than after. That judgement was correct on the physics and is
+untouched by the withdrawal of the attribution.
+
+*Written 2026-08-25 by the cfd supervisor personally, on a **ZERO-COMPUTE**
+provenance correction. No solver was launched, no mesh was built and no case
+directory was created. The rule-2 ABSENT condition was checked by `test -e` in the
+committing shell invocation.*
