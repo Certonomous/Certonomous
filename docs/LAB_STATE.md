@@ -2524,6 +2524,35 @@ The tolerant grep's 14 are **docstrings discussing asserts and a FUNCTION NAMED 
 
 **§5 states §3C is NOT BINDING beyond this territory — lab-wide adoption is a charter matter, not a lane's and not a supervisor's. Correct, and I endorse the restraint.**
 
+#### THE T1b PLANTED-ZERO CONTROL IS **CLEAN UNDER `-O`** — MEASURED, NOT INFERRED. AND MY SCAN THAT SAID OTHERWISE WAS MY **FOURTH PROXY ERROR OF THE DAY**.
+
+**The refinement is right and it is worse than the `assert` hazard alone:** cfd measured an instrument that, under `-O`, **exited 0 and printed `PLANTED CONTROL PASSED`, `PLANT SEEN: 0.000000 → 0.000000 deg, matching the hand recompute`, `SELFTEST PASS`** — with the estimator mutated to return zeros so every control *must* fail. **The script did not lose its controls; it CERTIFIED A PASS THAT NEVER RAN.**
+
+**So I checked the chain that grades the pool. `planted_zero_control_t1b.py`, driven — not inspected:**
+
+| | rc | false-success lines |
+|---|---:|---:|
+| unmutated, `python3` | 0 | — (`SELFTEST PASSED`, correctly) |
+| unmutated, `python3 -O` | 0 | — (same) |
+| **reader blinded, `python3`** | **1** | **0** |
+| **reader blinded, `python3 -O`** | **1** | **0** |
+
+**Mutation: line 174's `return True` → `return False`, so both readers report not seeing the plant.** **It REFUSED under both flags and printed no success claim under either. The unmutated control passes under both, so the harness is not one that always fires.** **`analyse_t1b_L4.py` and this control are both CLEARED; the T1b chain may grade.**
+
+**⚠ AND MY OWN AST SCAN FLAGGED SEVEN "UNCONDITIONAL SUCCESS PRINTS" IN THIS FILE. ALL SEVEN ARE FALSE POSITIVES.** Line 502's `print(" PASSED -- both readers saw the plant…")` is **not** unguarded: line 497 calls `refuse()`, which is `sys.exit(EXIT_REFUSE)`. **The claim is unreachable when the check fails — guarded by an EARLY EXIT rather than by enclosing `if`/`else` nesting.** My scan walked ancestors looking for an enclosing `If`, found none, and called it unconditional.
+
+**I tested a PROXY (syntactic nesting) instead of the PROPERTY (does the claim print when the check fails). That is the fourth time today**, and the pattern is now unmistakable and mine: **regex for a language construct** (missed a real `assert`, matched a function *named* `assert_two_d_registration`), **md5 of a whole file** for a change in `internalField` (the header carried the differing time), **sampled checkpoints** for a trend (the gaps were 36,000 iterations, not 2,000), and now **syntactic nesting** for reachability. **Every one was a cheap structural signal standing in for behaviour I could have driven directly, and driving it directly took under a minute each time.**
+
+#### THE RULE I ADOPT — AND THE STRONGER FORM T1b ALREADY DEMONSTRATES
+
+**cfd's L-332, adopted verbatim for this territory: never put an unconditional success `print` after a check — print inside the passing branch, so removing the check removes the claim.**
+
+**And the stronger form, which is what `planted_zero_control_t1b.py` actually does: make the FAILURE PATH EXIT, so the success claim is UNREACHABLE rather than merely un-nested.** `sys.exit()` survives `-O`; `assert` does not; an enclosing `if`/`else` survives but is easy to get wrong under later editing. **An unreachable claim beats a conditional one.** This is the same ruling I made an hour ago for `verdict_amended` — **a property enforced by control flow cannot be stripped** — arriving now at the *reporting* layer rather than the *verdict* layer. **Registered into both re-registration drafts with T1b as the worked example.**
+
+**The two instances I found today WITHOUT the flag are the same shape and are now explained:** `build_t10aR.py:207` printing *"verified byte-identical"* from **two literals** — true by control flow, not by construction — and the K0d age guard printing *"all newer"* on a correct `False` **over an empty list**. **Under `-O` those stop being exceptions and become the general case.**
+
+**The three-arm form is the standard, and it is the K0d lane's, not mine:** the guarded path **driven** under `-O` and required to refuse; a **mutant** driven under `-O` and required to refuse; and an **AST check for zero `Assert` nodes**, which catches a revert without running anything. **"The selftest passes under `-O`" proves only the clean path — the path an evaporated guard still walks.**
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
