@@ -1283,8 +1283,319 @@ text was retyped rather than copied.
 instructions every session**; then `docs/charters/*_CHARTER.md`, which are law; then
 `CLAUDE.md`; then `docs/LAB_STATE.md`.
 
-**Sweep IN PROGRESS. No result is claimed here and none may be quoted from this
-section yet.** **This file's own §0 is a worked example of the honest form** — it
+### 6b.1 RESULT — **CLASS C IS EMPTY. There is no fabricated quotation anywhere in this lab.**
+
+**41 distinct person-attributed quotations / 78 instances**, graded against **481
+genuine Sanaa messages** (2026-07-26 → 2026-08-24) reconstructed from the session
+transcripts:
+
+| class | distinct | instances |
+| --- | --- | --- |
+| **A — SOURCED**, byte-exact against her own messages | **18** | 31 |
+| **B — corroborated by repetition only** | **1** | 2 |
+| **C — UNSOURCED** | **0** | **0** |
+| **D — honestly labelled non-verbatim** | 68 marker lines | 42 files |
+| **DRIFT** — sourced, but the wording changed | **17** | **~68 locations** |
+
+**The audit's own premise was wrong, and that inversion is the finding.** It was opened
+because heat-transfer appeared to have found a fabricated quotation. **It had not.**
+
+### 6b.2 THE REAL DEFECT — three teams withdrew TRUE directives, because the lab has no instrument that can see what Sanaa said
+
+**All three withdrawals standing in the record are OVER-CORRECTIONS. In every case the
+words are genuinely hers.** Each team behaved correctly in procedure — searched, found
+nothing, and withdrew rather than asserted — and each was **factually wrong for the
+same reason: they searched THE REPOSITORY, and her words live in THE SESSION RECORD,
+which is not in git.**
+
+| team | what was withdrawn | the fact |
+| --- | --- | --- |
+| **heat-transfer** | the 18-combination zero-pass block, re-marked *"a brief's paraphrase, not Sanaa's words"* | **byte-identical to a message she sent three times on 2026-08-24** (18:56:35Z, 18:59:19Z, 19:00:48Z) |
+| **cfd** | the conversion-batch directive, `docs/LAB_STATE.md:1212` | **ratio 1.0000** against §2 of the same message |
+| **closure** | D514 draft: clauses (b) TBNN-fallback and (c) parallel-capacity, ruled `ATTRIBUTED-BUT-UNCORROBORATED`, consequence *"NOTHING IN CLOSURE MAY LEAN ON THEM AS AUTHORITY TO RUN"* | **ratio 1.0000.** **This one is BLOCKING WORK on a false premise** |
+
+**This supervisor verified the closure case personally rather than relaying it**, since
+it would unblock another team's work. The message is a **genuine `user`-role,
+non-sidechain record** — not a task-notification, not a system-reminder — carrying
+*"R3 is ratified (SpaRTA-class, TBNN fallback) — R4's CPU-minutes run in parallel; they
+never displace consolidation work."* and *"R4 (SpaRTA build) runs in parallel on its
+CPU-minutes; FS gates apply."* **The premise of the block — that the words cannot be
+found — is false.**
+
+**THE HONEST CAVEAT, WHICH THIS TEAM WILL NOT RESOLVE AND CANNOT.** The message is a
+block Sanaa **pasted**. This supervisor confirmed at the source that it is written **in
+the third person about her** (`"Sanaa's directive"`) and carries **agent-role tags**
+(`[FABLE...`, `[OPUS...`). **She issued it — it is an instruction sent under her name.
+It is not her original prose.**
+
+**So both the attribution and the withdrawal are wrong, in opposite directions.**
+Marking it *"Sanaa, verbatim"* overclaims; marking it *"a brief's paraphrase"*
+underclaims to the point of blocking work she authorised. **The accurate label is a
+third thing the lab has no vocabulary for — a directive ISSUED by her, from
+lab-drafted text she adopted and sent.** Whether that counts as "her words" is
+**Sanaa's to rule, not this team's and not the chief's.**
+
+**But authority and verbatimness are different questions, and only one of them is
+open.** She sent it under her name; that is not in doubt. **The `ATTRIBUTED-BUT-
+UNCORROBORATED` finding rested on "we cannot find it", and that premise is now
+falsified.** Closure's supervisor should re-decide on the corrected facts.
+
+### 6b.3 THE INSTRUMENT FAILED THREE TIMES IN ONE AUDIT — including twice for us
+
+**This is the most transferable thing in this section.**
+
+1. **The three teams' instrument** searched the repository. Her words are not there.
+2. **The audit lane's own first-pass corpus missed 240 of her 481 messages** — every
+   message she **queued** while an agent was working is stored as a `queue-operation`
+   record, not a `user` record. Rebuilding against that channel **moved nine
+   quotations from "unsourced" to "sourced", including the one about to be reported as
+   the audit's worst finding.** *(This supervisor confirmed the channel exists
+   independently: 10,330 `queue-operation` records against 106,870 `user` records.)*
+3. **This supervisor's own verification grep was blind to 13 of 24 locations.** A
+   line-based `grep` found **11** files carrying the rule-16 directive; a
+   newline-tolerant scan found **24** — because **twelve charters wrap the quotation
+   across lines** and a line-anchored pattern cannot see it. The lane's first detector
+   failed the same way on markdown table cells (§5.2a).
+
+**Three independent instrument failures of one class — a reader that cannot see the
+shape the thing is actually stored in — in a single audit.** Each would have produced
+a confident, wrong, *reassuring* answer. **A null is worth precisely what its control
+is worth**, and here the controls were what caught all three.
+
+### 6b.4 DRIFT — the lab retypes Sanaa rather than copying her, and silently fixes her spelling
+
+**17 drifted quotations across ~68 locations.** The dominant mechanism is **silent
+typo-correction**, verified by this supervisor at the source for the highest-blast-radius
+case:
+
+**Rule 16, the silent-background directive — 24 locations, and NOT ONE preserves her
+spelling.**
+
+- **She typed** (2026-08-23T19:54:49Z, as **item 4 of a numbered list**): *"...act in a
+  silent way on the **backrgound** without showing bash or ssh on the screen, the
+  screen must always remain clean **wit** only discussion and results."*
+- **Every one of the 24 says** *"back**g**round"* and *"wit**h**"*. **Zero files carry
+  `backrgound`.** Every copy also presents it as a standalone directive with **no
+  elision mark** for the list it came from.
+- Distribution, counted newline-tolerant at HEAD: **12 charters + 10 agent definitions
+  + `CLAUDE.md` + `harness/teams.yaml` = 24.**
+
+**And it is ONE error copied 24 times, not 24 errors.** The session record shows the
+corrected form already in circulation **about 90 seconds after she typed it** — the
+drift entered **at first transcription**, and all 24 locations inherited it from that
+single retype. **The ten agent definitions and `teams.yaml` are regenerated into every
+agent's standing instructions every session, so two corrupted words are read as law by
+every agent the lab spawns.**
+
+**Other drift worth naming:**
+
+- **A FALSE PROVENANCE CLAIM in a charter.** `docs/charters/SUPERVISION_CHARTER.md:603`
+  says a second quotation came *"earlier in the same message"*. It was a **separate
+  message 89 seconds later** (18:59:19Z vs 19:00:48Z). **Both halves of the clause are
+  wrong**, inside a dated addendum that presents itself as the careful record.
+- **A SEMANTIC substitution, not a typo fix** — `docs/DOCKET.md:836` and
+  `docs/campaigns/T-family/EXPERTISE_CURRICULUM.md:10`: she wrote *"the designated heat
+  transfer **case** can run them"*; the repo says *"**team**"*. **The lab corrected her
+  meaning.**
+- **An ellipsis that elides the load-bearing detail** —
+  `.claude/agents/ansys-verification-supervisor.md:119` and `harness/teams.yaml:434`
+  quote the lane-cap authority with `...` where **`(5 and 4.8)`** stood: the model
+  identities, **which is exactly what the cap clause turns on.**
+- **`R3:Sparta` → `R3: Sparta`** — a space inserted into closure's two-word founding
+  authority, at 14 locations.
+- **Five silent corrections in one "verbatim" quotation** at
+  `docs/inventory/2026-08-24/LAB_INVENTORY.md:5`, plus a dropped opening sentence with
+  no ellipsis.
+- **A LIVE INTERNAL CONTRADICTION inside one file**: `docs/LAB_STATE.md:1212` records
+  cfd's withdrawal while **`:1297` of the same file still cites the withdrawn text as
+  "Sanaa's §2 directive (verbatim)"** — and that surviving copy is itself abridged.
+
+### 6b.5 The exemplar, and the one Class B item
+
+**`docs/charters/ANSYS_VERIFICATION_CHARTER.md:12-25` is the only long quotation in the
+lab with ZERO drift** — ratio **1.0000**, byte-identical, preserving `ansy-verification`,
+`anf`, `th everification`, `lessosns`, `verfication`, `bc` — **and it is the only record
+that states the copying rule**: *"Recorded character for character, spelling included;
+the spelling is hers and is not corrected because the quotation is the authority."*
+**That is the standard, it already exists in this lab, and it should simply be copied.**
+
+**Class B, the single item: the compute rate**, `CLAUDE.md:140-143`. `c7a` appears **0
+times** in her 481 messages; `0.0513` appears 3 times, **all three inside lab-authored
+reports she pasted back**. The cited corroboration is a lab pre-registration reusing the
+same figure, so the chain runs **constitution → lab document → same number** and
+**terminates without an originating record**. **Mitigating and material: the
+constitution already labels it *"reported-by-owner, not measured"*, so nothing treats
+it as measured.** A provenance defect, not a numerical one.
+
+### 6b.6 What this team will NOT do, and what goes to Sanaa
+
+**Nothing here is fixed by this team.** No attribution is restored, no withdrawal
+reversed, no quotation normalised. Each belongs to its owning team, and **the two
+governing questions belong to Sanaa alone:**
+
+1. **Does a work order she pastes and sends count as "her words, verbatim"?** No
+   current record draws the distinction, and three teams' withdrawals turn on it.
+2. **May the lab silently correct her spelling when quoting her?** The ANSYS charter
+   says no and is the only record that asks. **24 locations currently say yes by
+   default.**
+
+**Coverage limits, stated plainly:** nothing before 2026-07-26 (earliest transcript);
+deleted or rotated transcripts are undetectable; **other machines are invisible** — she
+confirmed on 2026-08-24 she runs multiple windows; verbal or out-of-band instruction is
+unreachable, **which is why the compute rate is class B and not class C**; PDFs and
+binaries unsearched. **And the corpus was wrong once already** — the
+`queue-operation` discovery — **so every absence in this section is provisional on
+there being no further message channel nobody has found.**
+
+**Cost: 0.0 core-minutes**, predicted 0.0, actual 0.0, ratio 1.000 — reads, greps and
+diffs; no solver, no run directory, no GPU. **No verdict-vocabulary word applies to an
+audit report and none is claimed.**
+
+---
+
+
+### 6b.7 THE SUPERVISOR'S OWN VERIFICATION OF §6b.1–§6b.6, and the NEAR-MISS CONTROL it establishes
+
+**§6b.1–§6b.6 above were written by a lane that was killed by the weekly usage limit at
+~00:50Z. Its work survived on disk, uncommitted, and is recovered here.** The
+supervisor who commissioned it was killed with it. **A relayed check is a summary, not
+a check** (`SUPERVISION_CHARTER.md` §3), and the verification recorded inside §6b.2 was
+performed by that predecessor. **It does not transfer.** This successor re-verified the
+load-bearing claims personally, at source, before committing any of it.
+
+**Two defects in the recovered draft, repaired here, disclosed rather than tidied.**
+(1) The dying lane appended a **byte-identical duplicate of §6a and §6b** (182 lines)
+after its own results — the `L-185`/`L-205` duplication shape the file had explicitly
+set out to avoid. Verified byte-identical against the HEAD blob and **dropped**; no
+content is lost. (2) Its results were numbered §6b.1–§6b.6 inside §6b, which is kept.
+
+#### What this supervisor re-measured, and it holds
+
+| claim in §6b.4 | this supervisor's independent measurement | result |
+| --- | --- | --- |
+| She typed `backrgound` and `wit` | Her message located at source, **2026-08-24, `user` role, `isSidechain: false`**, as **item 4 of a numbered list**: *"…must always act in a silent way on the `backrgound` without showing bash or ssh on the screen, the screen must always remain clean `wit` only discussion and results."* | **CONFIRMED to the character** |
+| **Zero** repository files preserve her spelling | Newline-tolerant sweep over every tracked `.md`/`.yaml` at HEAD | **CONFIRMED — 0 files** |
+| **24** locations carry the corrected form | Same sweep | **CONFIRMED — exactly 24** |
+| closure's two withdrawn clauses are genuinely hers | Located at source: *"R3 is ratified (SpaRTA-class, TBNN fallback) — R4's CPU-minutes run in parallel; they never displace consolidation work."* | **CONFIRMED present** |
+
+#### THE NEAR-MISS CONTROL — rule 3 applied to a search, and it fired on this supervisor's own grep
+
+> **An audit that reports a phrase UNSOURCED must first demonstrate, on the same
+> corpus and with the same command, that its search can find a NEAR-MISS: an
+> instance it would plausibly have missed and did not. A control that fires on an
+> easy hit proves only that the tool runs. Until the near-miss fires, a zero is an
+> under-count of unknown size, not a finding.**
+
+**This is CLAUDE.md rule 3 applied to a search**, and a documentary sweep needs it more
+than a comparator does, because **an UNSOURCED verdict is the loudest negative the lab
+can publish about its own principal and is produced by the instrument least able to
+refuse.**
+
+**It fired against this supervisor, on this very check.** Searching the 24 rule-16
+locations: a **line-anchored** grep found **11 files**; the **newline-tolerant** scan
+found **24**. **Thirteen of twenty-four invisible to the obvious command** — because
+twelve charters wrap the quotation across a line break. Had this supervisor reported
+from the line-anchored count, the drift finding would have been understated by more
+than half.
+
+**Measured in both directions, by three teams, this session:**
+
+- **FALSE UNSOURCED at a 50 % rate.** `L-308` (ansys-verification): a naive
+  `git grep -Fl` found **2** files for *"exclusively work on these verification
+  cases"*; whitespace-normalised found **4**. The two missed were
+  **`harness/teams.yaml`, the roster source of truth, and `ANSYS_VERIFICATION_CHARTER.md` §1**.
+  A prior lane had already reported *"UNSOURCED, 2 hits, high severity"* on the naive
+  count. **`git log -S` is line-bounded too** (`L-61` addendum, `dee8f024`).
+- **A MISS CAUSED BY THE PRINCIPAL'S OWN TYPING.** dafoam's exact-string search missed a
+  genuine user turn because her raw text reads *"for theheat transfer"*; it surfaced
+  only on a typo-variant search, and the team **corrected itself** (`ae21ae6c`).
+- **THE HONEST SCOPE LIMIT, stated against its own interest.** `L-308` re-tested on a
+  different withdrawn attribution: normalisation changed **nothing**, 1 hit either way.
+  **The blindness does not invalidate phrase audits in general.**
+
+**PRIOR ART, credited — and this team was already caught once this session presenting
+settled prior art as new (§6a.0).** The discipline was **already practised,
+independently and unprompted, by closure** at `39340d3d`: *"EVERY NEGATIVE CARRIES A
+FIRED CONTROL, rule 3's discipline applied to a documentary search."* Closure ran three
+paired controls **before** withdrawing four attributions. **This section names an
+existing practice; it does not introduce one.**
+
+**Scope, and where the wider version goes.** This binds **THIS TEAM'S OWN AUDITS**. It
+constrains what a verification audit may **conclude**; it gates no commit and obliges no
+other family. **A lab-wide binding form is a gate on lab process, and adding a gate is
+reserved to Sanaa exactly as retiring one is** — the same ruling this team applied to
+itself over `check_threshold_resolution.py`. It goes to her desk as a proposal, **not
+into a charter on this team's say-so** (rule 9).
+
+### 6b.8 ⚠ THE CONSOLIDATION-WEEK DIRECTIVE IS **NOT LOST**. It is recoverable, and this file's §0 rests on a reconstruction that is now checkable
+
+**The single most consequential recovery of this session, and it is against this file's
+own foundation.** `docs/LAB_STATE.md`'s chief section records the week's directive as
+irrecoverable: *"the directive was issued in a session transcript that has since been
+compacted"* and *"the chief does not hold her wording."* **That is false.** Located by
+this supervisor at source: **three `user`-role, `isSidechain: false` records** on
+2026-08-24 at **18:56:35Z, 18:59:19Z and 19:00:48Z**, ~5,700–5,800 characters each.
+
+**The three sends are NOT identical to each other** — send 3 closes *"for now this
+means we are using ops 5 for anything needig fable temporarily"* where send 2 reads
+*"this set of instructions mean that for now anything requiering Fable 5 uses OPus 5
+temporaril"*. **Any future citation must name which send.**
+
+**THE RECONSTRUCTION IS SUBSTANTIALLY FAITHFUL, AND IT LOST ONE STRUCTURAL THING.** The
+three columns V / G / P, the five tier words and their glosses, the derived-not-asserted
+rule and the HOLDS spot-check all match her text. **But the ROWS do not.**
+
+> **Her text:** *"Rows = problem classes: dimension (2D / axisym / 3D) × regime
+> (laminar steady / laminar unsteady / turbulent RANS steady external / internal /
+> URANS / transonic / supersonic / hypersonic / multiphase-free-surface /
+> buoyant-thermal / conjugate / radiation / adjoint-gradient / adjoint-optimization)"*
+
+**This file's own title is *"one row per case"*. Her directive says one row per PROBLEM
+CLASS**, and her opening sentence says why: *"this week is about being able to POINT at
+problem classes — by dimension, regime, difficulty, physics type — and say: 'the lab ran
+this class; it is verified, validated, and converged; this is a category the lab knows
+how to handle.'"* **The matrix as built answers a different question from the one she
+asked.** The case rows are not wasted — *"the matrix is derived from records, never
+asserted"* is her rule, and the case rows **are** that derivation — but they are the
+**evidence layer**, and the deliverable she named is the **class layer above them**.
+**Escalated to the chief, not decided here.**
+
+**Three further items her text settles that were open:**
+
+1. **§7's hold is HER design, not merely the chief's caution.** Her §7: *"every HOLDS
+   row of the matrix as a manual entry… Grows automatically as matrix rows convert."*
+   **With zero HOLDS rows the Verification Manual has nothing to draw on by her own
+   construction.** The hold is correct and is now sourced.
+2. **`GATE REACHED` in her words is *"passed a gate but missing ONE of V/G/P (name
+   which)"*.** Ruling 1's second amendment tiers **1–2 green** columns as GATE REACHED,
+   i.e. missing one **or two**. **That is a widening of her text and is disclosed here
+   as such**, now against her words rather than against a reconstruction. It is not
+   corrected unilaterally — but every GATE REACHED row already names its missing
+   letters, so the strict reading is recoverable from the table without re-auditing.
+3. **Two withdrawn attributions are confirmed OVER-CORRECTIONS from her own text.**
+   cfd withdrew *"the early PASSes that lack prereqs convert to HOLDS"* — **it is her
+   §2, verbatim.** heat-transfer withdrew the 18-combination zero-pass block — **it is
+   her §5**: *"the 18-combination zero-pass finding enters the matrix as NOT HELD with
+   its model-error attribution (43-722x GCI proof) — that's a defensible scientific
+   position, stated as one."* **Both teams should re-decide on the corrected facts.
+   Neither is restored by this team** (§6b.6).
+
+**THE CAVEAT THAT DOES NOT GO AWAY, and it is §6b.6's open question in its sharpest
+form.** The block is written **in the third person about her** (*"Sanaa's directive:"*)
+and carries **agent-role tags** (`[FABLE+HAIKU]`, `[OPUS]`, `[SONNET]`, `[ORCH]`). It is
+a work order she **sent**, not her original prose throughout. **But she interleaved her
+own sentences in her own voice, with her own typos** — *"In that sense, the most
+important teams this week are the cfd team, the verification team, the ansys
+verification team and the heat transfer team."*, *"Sanaa confirms these are PUBLIC Ansys
+resources."*, *"Priority should be given to cases we never ran before"*, *"I added
+additional papers in…"*, *"for now this means we are using ops 5 for anything needig
+fable temporarily"*. **Its authority as an instruction she issued is not in doubt.
+Whether the agent-drafted paragraphs count as "her words, verbatim" is Sanaa's to rule
+and nobody else's.**
+~~**Sweep IN PROGRESS. No result is claimed here and none may be quoted from this
+section yet.**~~ — **STRUCK 2026-08-25: the sweep COMPLETED and its result is
+§6b.1–§6b.6 above, verified by the supervisor in §6b.7.** The line is struck in
+place rather than rewritten, per CLAUDE.md rule 6. **This file's own §0 is a worked example of the honest form** — it
 records the three-column rubric as *the chief's reconstruction of Sanaa's directive,
 explicitly NOT her verbatim words*, which is class **D** by construction.
 
