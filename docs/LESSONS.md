@@ -12281,3 +12281,52 @@ found that such an assertion certifies only what sits ABOVE the insertion point*
 insertion is at EOF, so "above" is the whole file, which is why the strong form is available.
 **A guard in the build asserted that L-314 was still the file's LAST block before appending** —
 had a peer landed L-315 first, a foot append would have landed inside the wrong lesson.
+
+## L-315 — A check that penalises the honest action is worse than no check, because it corrupts behaviour rather than merely missing defects
+
+**Found in cfd's own instrument, by the lane writing it, before it was used.** The F6a/Greenblatt
+grading wrapper pinned its pre-registration by **hashing the whole file**. That looks like the
+strictest possible pin. It is a trap.
+
+**Standing rule 2 makes pre-compute amendments LEGAL, and rule 6 requires a departure to be
+disclosed as a dated amendment appended at the foot.** So the charter *requires* a
+pre-registration to grow. **A whole-file hash pin reports MISMATCH on a document that did exactly
+what the charter told it to do**, and the cheapest way to keep the pin green is **to not write the
+amendment**.
+
+**The failure mode is behavioural, not evidential, and that is what makes it a separate lesson
+rather than an addendum to the four instrument faults recorded alongside it.** Those guards
+**stayed silent when they should have fired** — their cost is a missed defect. **This one fires
+when it should stay silent, and its cost is a SUPPRESSED DISCLOSURE.** A check that is merely weak
+lets a bad thing through. A check that is mis-scoped **teaches the next agent to do the wrong
+thing**, and it does so silently, because the agent who skips the amendment to keep a hash green
+leaves no trace of the amendment that was never written.
+
+**The repair: scope the pin to the FROZEN BODY, not the file.** Everything above an explicit
+marker is pinned byte-for-byte; everything below it is free to grow. The frozen text stays
+verifiable **and** amendment stays free, so honesty costs nothing.
+
+**The test to apply before adopting any check: can an agent OBEYING the charter make this check
+fail?** If yes, **the check is scoped wrong, not the charter.** Ask what behaviour a check rewards
+before asking whether it is strict.
+
+**This does not weaken L-314 or the negative-control rule, and must not be read as doing so.** A
+guard must still be shown to **fire** on a known-bad input and to **stay quiet** on a known-good
+one. This adds a third question those two do not ask: **what does it COST when it fires correctly
+under a wrong scope?** A guard can be sound on both arms and still be mis-scoped.
+
+**Provenance, checkable:** `9e590948`; `scripts/f6a_greenblatt_gate.py:48-55`, marker
+`<!-- FROZEN-BODY-ENDS-HERE -->`, frozen-body sha256
+`9989f1f909b358ae30c663b041598358cf247f6aee2a8b3dcb6bda99543a30cc`. Demonstrated across a real
+v1.0 -> v1.1 amendment of **169 insertions, zero deletions**, after which the frozen body still
+hashed identically and the 1,204 body lines diffed clean against the parent blob.
+
+**Extent verified for this append, stated rather than asserted:** a **pure append at the foot**,
+so *lines whose number changed above this section: 0* is certified over the **entire parent
+extent** — the parent's full content was compared byte-for-byte against the child's first N lines,
+not declared identical. **A guard asserted L-314 was still the file's LAST block before
+appending**, per L-314's own warning: a foot append is a bet on nobody else appending, and two
+teams were committing. **The maximum id was re-derived from the HEAD blob inside the committing
+invocation** (never a count, never recall — it moved at least four times this session), and the
+file was confirmed to end in a newline first, because an append to a file lacking one merges rows
+while a diff-stat assertion still passes.
