@@ -136,3 +136,58 @@ corrected here.**
 **Lines whose number changed above this section: 0** — verified by hashing, not
 asserted: the file's entire content up to and including the previous correction section
 is byte-identical to its committed form, and this note is appended below it.
+
+---
+
+## Dated addendum — 2026-08-25 — TIER back-filled onto rows #1–#4, on Sanaa's directive
+
+**Append-only addendum. Rows #1–#4 above are NOT edited** — the same treatment the
+`D510` and `C-50` corrections got. This addendum adds a fact the rows were written
+before the directive existed; it corrects nothing in them and moves no number.
+
+**Sanaa's directive, 2026-08-25, quoted byte-exact with typos preserved and NOT
+normalised:**
+
+> *"i just meant for now cfd, ansys verification and heat transfer teams work on
+> completeing all the tasks/ running all the cases and recording per our conventions,
+> and record whether the case is hold, gate reached or surveyed or not held. Once that
+> is done we will go back to the Matrix config. But for now these three teams work on
+> that"*
+
+**EVERY FUTURE ROW CARRIES ITS TIER IN THE ROW ITSELF, WRITTEN AT GRADING TIME.** This
+addendum exists only because rows #1–#4 predate the directive. It is a back-fill and
+must not become a pattern: a tier appended afterwards is weaker evidence than one
+written when the number was first graded, for exactly the reason a pre-registration is
+frozen before a run.
+
+**The tier and the rule-1 verdict are DIFFERENT VOCABULARIES and are recorded side by
+side. The tier NEVER flatters the verdict.** They overlap at one word only,
+`GATE REACHED`. The verdict vocabulary — `PASS` / `GATE REACHED` / `GATE FAIL` /
+`NOT A RESULT` / `BLOCKED` / `PENDING` — is unchanged and is not replaced by this
+column. Tier values are `HOLDS` / `GATE REACHED` / `SURVEYED` / `NOT HELD` /
+`NEVER RUN`.
+
+**All four tiers below are the `ansys-verification-supervisor`'s rulings, recorded as
+such and overrulable. They are not this lane's calls.**
+
+| row | case | verdict (rule 1, unchanged) | **tier** | the reason, as ruled |
+|---|---|---|---|---|
+| **#1** | VMFL001 run 1 | `NOT A RESULT` | **`NOT HELD`** | The comparator refused (exit 2) on the v2606 sampled-file naming and never produced a number, and independently L3 failed the registered iterative-convergence clause. **Nothing was measured**, so there is nothing to hold |
+| **#2** | VMFL001-R2 | `PASS` | **`HOLDS`** — **a CANDIDATE, stated plainly as one and NOT as settled** | V and G are both present and strong: triple `CONVERGING`, observed order **2.0102**, GCI_fine **0.0563 %**, Richardson extrapolate landing on the analytic value to **3.7 ppm**. **It is a candidate rather than a hold because the P limb is UNRESOLVED**, and neither this register nor this addendum resolves it. Calling it a settled hold on the strength of V and G alone is exactly the flattery this column is built to prevent |
+| **#3** | VMFL005 | `PASS` | **`GATE REACHED`** | The gate is genuinely met (0.4979 % inside a frozen 2 %) and the triple is genuinely `CONVERGING` (observed order 1.9341, GCI_fine 0.0502 %). **P is the missing limb, and it is named rather than left implicit:** the deviation from the analytic reference is **9.92× the fine-grid GCI**, and Richardson extrapolation moves the answer **FURTHER from** the exact value — so roughly **90 % of the residual deviation is a modelling/setup signature, not discretisation error** (`N-AV7`). The mechanism is **unresolved and not claimed**, open at docket **`D512`** |
+| **#4** | VMFL051 | `NOT A RESULT` | **`NOT HELD`** | **V present, G ABSENT, and G decides it.** The reference is the exact Prandtl-Meyer solution derived here to full double precision — **public classical gas dynamics** (Anderson; NACA 1135), **not vendor documentation** — so V is not the problem. But the triple is `OSCILLATORY` at **R = −1.348600** with **no observed order** and **no quotable GCI**, and **two of three levels fail the frozen plateau clause**. P is open. **The softer `GATE REACHED` was refused deliberately:** that word fits a case that produced a **believable measurement** and lacks one column, as row #3 does. **VMFL051 produced no usable measurement at all — its G column is not missing, it is actively negative.** Precedent is this team's own row #1 |
+
+**The credential count is unchanged: `2 PASS of 4 run`.** A tier is not a credential and
+does not create one. Only `PASS` rows are credentials, and no row's verdict moved.
+
+**The suite-wide picture, derivable rather than recalled**, lives in
+`docs/ansys_verification/CASE_MAP.md`, where all **95** case rows now carry this same
+tier column and the counts are printed with the grep rule that derives each:
+**3 of 95 run, 92 never run**; **12** cases have no lab solver on this box and **10**
+are the `VMFLGPU` family, with **zero overlap**, giving **73 runnable distinct-physics
+cases — 3 run, 70 never run**. **Whether the GPU family and the 12 count toward
+"completed" is scope, and scope is Sanaa's**; that document prints both readings and
+chooses neither.
+
+**Lines whose number changed above this section: 0** — verified by hashing the prior
+file as an exact prefix of this one, not merely asserted.
