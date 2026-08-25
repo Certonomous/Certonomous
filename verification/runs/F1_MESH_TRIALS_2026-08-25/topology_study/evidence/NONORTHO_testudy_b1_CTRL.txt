@@ -1,0 +1,44 @@
+../te_study/b1_CTRL
+  cells 111872  faces 344064  internal 327168
+  CONTROL (a) AGREEMENT: recomputed 81.9396 vs checkMesh 81.9396  |diff| 0.00002 deg
+  CONTROL (b) DISPLACEMENT: 81.939583 -> 81.939721 deg.  PLANT SEEN.
+
+  [0] face 45904  angle 81.9396 deg   area 2.821007e-01
+      owner     15352  blk01[8x32x20] i=0 j=31 k=19
+      neigh     15353  blk01[8x32x20] i=1 j=31 k=19
+      face pts:
+        (    1.125683   -11.582029     1.136925)
+        (    1.125637   -16.118000     1.136925)
+        (    1.142585   -16.118000     1.196763)
+        (    1.142630   -11.582023     1.196763)
+      face centroid  (1.134134 -13.850016 1.166844)
+      unit normal    (-0.962154 0.000010 0.272506)
+      owner  centre  (1.134814 -13.861646 1.166653)   vol 3.985937e-04
+      neigh  centre  (1.133057 -13.849717 1.166653)   vol 5.552248e-04
+      d = neigh-owner (-1.757210e-03 1.192988e-02 4.819994e-09)  |d| 1.205860e-02
+      d.n (through-face) 1.690823e-03   |d_tangential| 1.193947e-02   ratio t/n 7.0613   atan(t/n) 81.9396 deg
+      d_tangential   (-1.303782e-04 1.192986e-02 -4.607550e-04)
+
+  PER-BLOCK-PAIR MAXIMUM (deg), pairs above 70:
+      blk01|blk01   81.9396
+      blk06|blk06   81.9396
+      blk14|blk14   81.7804
+      blk09|blk09   81.7804
+      blk21|blk21   81.5834
+      blk18|blk18   81.5834
+      blk09|blk21   81.2247
+      blk14|blk18   81.2247
+      blk16|blk16   59.4334
+      blk19|blk19   59.4334
+      blk11|blk19   59.2898
+      blk12|blk16   59.2898
+      MAX EXCLUDING every face touching blk16-23 (the tip fill): 81.9396 deg
+
+  faces above  70.0 deg: 598
+
+  faces above  80.0 deg: 146
+
+  faces above  85.0 deg: 0
+
+  faces above  89.0 deg: 0
+  >70 deg by OWNER block: blk18:222, blk21:222, blk09:48, blk14:48, blk01:29, blk06:29

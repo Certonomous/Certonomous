@@ -1,0 +1,11 @@
+AGE GUARD (mesh analogue of CLAUDE.md rule 4): for every variant, is log.checkMesh NEWER
+than the polyMesh it grades, and is that polyMesh NEWER than the blockMeshDict it came from?
+  t0_REPRO           dict=1787693591 mesh=1787693591 check=1787693592  PASS
+  t1_SHELL           dict=1787693398 mesh=1787693398 check=1787693399  PASS
+  t2_SIMCORE         dict=1787693247 mesh=1787693248 check=1787693248  PASS
+  t3_SHELL_SIMCORE   dict=1787693398 mesh=1787693398 check=1787693399  PASS
+  t4_CORE2           dict=1787693591 mesh=1787693591 check=1787693592  PASS
+  t5_SHELL_CORE2     dict=1787693591 mesh=1787693591 check=1787693592  PASS
+  t6_SHELL_NR16      dict=1787693685 mesh=1787693686 check=1787693686  PASS
+  t7_SHELL_NR32      dict=1787693685 mesh=1787693686 check=1787693686  PASS
+  t8_SHELL_NR64      dict=1787693685 mesh=1787693686 check=1787693687  PASS

@@ -1,0 +1,21 @@
+TOPOLOGY-STUDY COST, MEASURED FROM WALL_S.txt AND THE DIAGNOSTIC BATCH CLOCKS.
+builds (generator + blockMesh + checkMesh), 1 core each, serial per variant:
+  t0_REPRO 1 s
+  t1_SHELL 2 s
+  t2_SIMCORE 2 s
+  t3_SHELL_SIMCORE 2 s
+  t4_CORE2 1 s
+  t5_SHELL_CORE2 1 s
+  t6_SHELL_NR16 1 s
+  t7_SHELL_NR32 1 s
+  t8_SHELL_NR64 2 s
+  BUILD WALL TOTAL 13 s x 1 core = 0.217 core-min
+diagnostics (outer_face_geom.py over 13 built meshes), 1 core:
+  369 s x 1 core = 6.150 core-min
+  (batch 1 was killed by a 120 s tool timeout after 4 of 9 meshes; those 120 s are
+   counted IN FULL.  Those 4 files were KEPT and not recomputed, so no mesh was diagnosed twice.)
+WASTE, NAMED SEPARATELY (COMPUTE_BUDGET_CHARTER 6), NOT absorbed into the ratio:
+  2 refused first cuts of the shell (t1_SHELL, t3_SHELL_SIMCORE, blockMesh rc=1 on a
+  patch-assignment defect of mine): ~4 s
+  3 rebuilds of t0_REPRO to re-check byte-identity after each generator edit: ~4 s
+  0 diagnostic meshes wasted: the timed-out batch's 4 completed files were kept.

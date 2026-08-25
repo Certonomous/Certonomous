@@ -1,0 +1,10 @@
+VARIANT              DIALS                                   CELLS MAXNONORTH       SKEW        MAXAR
+t0_REPRO             F1_SHELL=0 F1_SIMCORE=0                111872    81.9396     1.4431       5934.1
+t1_SHELL             F1_SHELL=1 F1_SIMCORE=0                111872    81.5834      1.443      5622.42
+t2_SIMCORE           F1_SHELL=0 F1_SIMCORE=1                111872    87.0192    1.62811       5934.1
+t3_SHELL_SIMCORE     F1_SHELL=1 F1_SIMCORE=1                111872    87.0192    1.62811      5622.42
+t4_CORE2             F1_SHELL=0 F1_SIMCORE=2                111872     84.875     1.4712       5934.1
+t5_SHELL_CORE2       F1_SHELL=1 F1_SIMCORE=2                111872     84.875     1.4712      5622.42
+t6_SHELL_NR16        F1_SHELL=1 F1_NR=16                    118784    81.9764      1.443      5622.42
+t7_SHELL_NR32        F1_SHELL=1 F1_NR=32                    128000    82.0355      1.443      5622.42
+t8_SHELL_NR64        F1_SHELL=1 F1_NR=64                    146432    82.0645    1.82473      5622.42
