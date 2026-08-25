@@ -3584,3 +3584,207 @@ this reading.**
 **Cost of this read:** four `git show`/`git ls-tree` reads, one `find`, three
 sha256 comparisons. **Zero solver, zero mesher, no case directory.** Under
 0.1 core-min; not separately metered, and stated as such rather than invented.
+
+### 92. cfd's RECIPE-FORK ruling (`72bc966d`, `c509a51b`) — **RULING: the mechanism is SOUND and the direction is PERMITTED. But it is NOT LOAD-BEARING on either named casualty, the corpus contains a counterexample that breaks the equivalence it implies, and "7 of 14" is not a census of the lab's ladders**
+
+**The question put to this team was not whether the ruling is convenient. It was:
+does a recipe fork genuinely void the observed order, or does it depend on WHICH
+recipe element changed?** Evidence gathered by a verification lane, every verdict
+below **re-measured** by running `scripts/recipe_audit.py` and
+`scripts/roache_triple.py` rather than read from cfd's commit message. Zero
+compute — script execution and disk reads only.
+
+#### (a) CONFIRMED — for the forks that exist, the void is real, and I could not find a counterexample inside the fork set
+
+**All thirteen forked gaps across all seven ladders are THE SAME FORK.** Every one
+moves exactly three fields, always together, always by exactly **+1 snappy
+refinement level**: `refinementSurfaces.<name>`, the `features` eMesh level, and
+the `refinementRegions` level — **with the blockMesh background held byte-identical.**
+`motorBike` is the purest case: the background is `(20 8 8)` = **1,280 cells,
+unchanged across all three rungs**, so the entire refinement is snappy levels.
+
+**On the merits that genuinely does change the discretisation.** snappy refines
+only near the wetted surface, so **the far field is bit-identical between rungs
+while the near-wall region halves.** The three meshes are not a geometrically
+similar family, and a Richardson fit assumes they are. **The mechanism cfd asserts
+is real.** The direction — **toward `NOT A RESULT`** — is the only direction rule 5
+permits a gate to move a row, and it is permitted here.
+
+#### (b) BUT THE ANSWER TO THE QUESTION AS ASKED IS: **YES IT DEPENDS, AND THIS INSTRUMENT CANNOT TELL YOU**
+
+**`recipe_audit.py` reads exactly two dictionaries — `snappyHexMeshDict` and
+`blockMeshDict` — and nothing else.** It cannot see `fvSchemes`, `fvSolution`,
+`constant/turbulenceProperties`, boundary-condition types, relaxation factors,
+iteration caps, `decomposeParDict` or `writeInterval`. **The file says so itself**
+under *"WHAT THIS FILE CANNOT SEE"*: *"the solver setup: schemes, models,
+relaxation, iteration counts. Two rungs can share a mesh recipe and still not be one
+experiment."*
+
+**So the three-way classification collapses, and it collapses for a reason that is
+itself the finding.** Every fork this instrument can report is **by construction a
+mesh-geometry fork**. **13 of 13 forked gaps are "changes the discretised
+equations"; the other two classes are not empty, they are UNREACHABLE.**
+
+> **A scheme change, a turbulence-model change or a boundary-condition change
+> between rungs is a fork of the WORST kind, and this sweep would call that ladder
+> CLEAN.** No instrument in this lab currently compares `fvSchemes`, `fvSolution` or
+> `turbulenceProperties` across a ladder. **That gap is more dangerous than the one
+> just closed**, and it is named here rather than left to be re-derived.
+
+#### (c) THE RULING IS NOT LOAD-BEARING ON EITHER NAMED CASUALTY — both die on their own values first
+
+**`naca4412_wing`, published p = 10.467.** Triple 27,237 / 67,826 / 137,569 cells,
+Cd 0.0302438522 / 0.0289256779 / 0.0216722488. Re-derived through
+`scripts/roache_triple.py --dim 3`, **granting the ladder every benefit by declaring
+all three levels converged and plateaued**:
+
+> **`state DIVERGENT, order −7.2339` → `NOT A RESULT`**, increments growing
+> (|e32/e21| = 5.50), **no GCI quoted because the three values are not monotone**.
+> Planted-zero control **PASSED** (planted 0.001234, reader saw 0.0012340000000000025).
+
+**It is `NOT A RESULT` at CLAUDE.md rule 5 step (2), on the values alone, before any
+dictionary is opened.**
+
+**`motorBike`, published p = 7.298.** Triple 14,714 / 66,302 / 353,688 cells. Under
+the most generous assumption the order **reproduces exactly** — `CONVERGING, order
+7.2979, GCI 0.0066 %` → **`GATE FAIL`** against the 0.5–2.5 window. **Under the state
+actually MEASURED it does not get that far:** `mb-iterfix/coarse/log.simpleFoam` and
+`mb-iterfix/medium/log.simpleFoam` each contain **zero** `SIMPLE solution converged`
+lines and each ends at `Time = 300` — **they ran to the iteration cap.** Supplying
+that: **`NOT A RESULT`** at rule 5 step (a), *"levels coarse,medium are not
+iteratively converged or not plateaued"*.
+
+**Both rows were already dead. Voiding them by the recipe argument is correct and
+REDUNDANT — and the redundancy matters**, because a ruling that appears to do work it
+does not do will be cited later for a case where it is the only thing standing.
+**Rule 5's own steps (a) and (2) reach every row the recipe ruling reaches, on the
+values, and reach one it does not.**
+
+#### (d) ⚠ THE COUNTEREXAMPLE, and it breaks the equivalence the ruling implies
+
+**`b52` is RECIPE-CLEAN and published an order of 28.675.** The carved sub-family
+`finer2`/`rung7`/`rung8` (330,950 / 441,057 / 836,136 cells) audits **PASS —
+recipe-clean**, every gap a pure background scaling with the recipe held fixed. Run
+through `roache_triple.py` on its stored values: **`CONVERGING, order 28.6747, GCI
+0.0016 %` → `GATE FAIL`** on the 0.5–2.5 band.
+
+**And `ahmed_25` is RECIPE-FORKED and produced a perfectly respectable p = 1.95** —
+the very case `L-303` was built on. The corpus therefore holds all four cells:
+
+| | recipe-CLEAN | recipe-FORKED |
+| --- | --- | --- |
+| **plausible p** | *(none measured)* | `ahmed_25` **p = 1.95** |
+| **implausible p** | **`b52` p = 28.67** | `naca4412` 10.467 · `motorBike` 7.298 · `naca0012` 3.173 · `ahmed_35` 3.169 |
+
+> **Recipe-cleanliness neither implies nor is implied by a credible order.
+> "Recipe-clean" is a NECESSARY CONDITION and must never be reported as a quality
+> mark on a ladder.** A clean ladder produced 28.67; a forked one produced 1.95.
+
+**And the two sets are nearly disjoint.** Of the four CLEAN ladders — `R4_runs/c1…c5`,
+`w3-naca0012_wing-family`, `w3-naca4412_wing-family`, and the b52 carved sub-family —
+**only b52 underwrites a published order, and that order is 28.67.** The published
+`ahmed_25`, `naca0012_wing` and `naca4412_wing` orders are all fitted on the *other*,
+forked, three-rung ladders. **"4 recipe-clean families" buys the lab far less
+published-order protection than the count suggests.**
+
+#### (e) THE INSTRUMENT'S CONTROL IS GENUINE — and this is the strongest part of cfd's work
+
+`--selftest` re-run by this team: **53 value controls, 12 mutation controls (10
+must-flip + 2 false-positive), 6 refusal controls, a live regression fixture, 8
+stated-limit controls.**
+
+- **Positive control** — ten mutations each move one knob and must flip the verdict.
+- **NEGATIVE control, which is the one that decides whether "7 of 14" means anything**
+  — **M11 and M12 are explicit false-positive controls** (a comment-only edit, a
+  whitespace-only re-indentation) that **must not** flip the verdict, and **each is
+  itself asserted to have actually changed the file on disk**, so the control cannot
+  pass vacuously: *"M11 control is VACUOUS: the comment was not actually inserted"*.
+  **Independently, four real CLEAN verdicts were measured on four live ladders**, so
+  the CLEAN branch is reachable on real data and not only on fixtures.
+- **The 3 UNAUDITABLE ladders are unauditable for a STATED reason, not by silent
+  failure** — their rungs (53,861 / 103,934; 63,920 / 156,089; 40,656 / 107,489 /
+  135,779 cells) return **zero matches anywhere on disk**, and pointing the instrument
+  at what survives produces an explicit refusal: *"a ladder needs at least 3 rungs; 2
+  given… A refusal is not a pass."* All **39** sweep refusals carry one stated reason;
+  none is reason-free.
+
+**A detector firing on 7 of 14 is worth exactly what its negative control is worth.
+This one's is real.**
+
+#### (f) ⚠ "7 OF 14" IS NOT A CENSUS OF THE LAB'S LADDERS, and the instrument has a structural false-CLEAN
+
+Referred into this audit from §91's reading of the F12 repair: cfd's own
+*"REPORTED, NOT REPAIRED"* list names three sibling ladders holding a wall-normal
+first cell **fixed across a refining ladder** — `sdk/workflows/transonic_airfoil.py:87`
+(`FIRST_CELL = 8.0e-6`), `sdk/workflows/backstep_case.py:198` (`4.0e-4`),
+`verification/runs/F5_runs/cylinder_ladder_3d.py:119` (`0.00447`, annotated *"matches
+re1000 rung exactly"*). All three confirmed at HEAD.
+
+1. **None of the three is in the fourteen, and none could be.** They build
+   **structured blockMesh** ladders with **no `snappyHexMeshDict` at all** — verified
+   empirically: pointing the instrument at three F5 rungs returns *"REFUSED: no
+   `system/snappyHexMeshDict`"*. **They were never in the 461-candidate population.**
+   Not a false-CLEAN — a **silent absence from the survey**, which is worse for a
+   reader who takes "7 of 14" as a census. **It is not one.** The flat-plate TMR
+   ladder — the matrix's only green G — is likewise outside this instrument's reach.
+2. **AND THE STRUCTURAL FALSE-CLEAN IS REAL.** `addLayersControls.firstLayerThickness`
+   **is** a compared field. If a snappy ladder carried `firstLayerThickness 1e-5`
+   identically on all three rungs, `recipe_differences()` would return **no
+   difference**, the gap would classify `SCALED`, and the ladder would grade **PASS —
+   recipe-clean**. **A held-fixed dimensionless recipe and a held-fixed absolute
+   length are indistinguishable to a diff, and this instrument's rule is that a
+   held-fixed recipe is the GOOD outcome.** That is a false-CLEAN by construction, not
+   a bug.
+3. **Measured today it does not bite, and I say so on evidence rather than assume it.**
+   All eight end rungs of the four CLEAN ladders carry **`addLayers false;` with
+   `relativeSizes true;`** — layers are switched **off** everywhere in the clean set and
+   the declared sizes are **relative, not absolute**. Near-wall spacing is background
+   size ÷ 2^level, and the background scales while the level is held, **so the first
+   cell genuinely refines with the ladder. The four CLEAN verdicts survive the
+   challenge on the evidence.** But that is a **fact about today's disk, not a property
+   of the instrument**, and it will not survive the first snappy ladder that turns
+   layers on.
+
+#### (g) THE MOST ACTIONABLE LOOSE END, and it is not about recipes at all
+
+**`models/curriculum/uq-studies/naca4412_wing.json` records `observed_order` =
+10.467. The lab's canonical `scripts/roache_triple.py` returns −7.2339 / DIVERGENT on
+the same three stored values.** Two instruments disagree about the same numbers.
+**That is precisely the class §5 standardised the lab onto one instrument to prevent**,
+and it is measured but unexplained. **Docketed rather than resolved here.**
+
+#### (h) THE REACH INTO THIS TEAM'S TIERED ROWS — net zero
+
+**No row in `docs/COVERAGE_MATRIX.md` §3 is scored on any of the seven forked
+ladders.** The near-misses all resolve to "no movement": the 10 bucketed SURVEYED
+cfd rows have no green column to withdraw; `flat-plate-tmr` and `W1` are blockMesh
+and NASA point grids respectively, outside the population; and §4's Fact-1 ladders
+(TMR flat plate, VMFL005, VMFL001-R2, W1) are none of them snappy-built. **Ahmed 25°,
+W3 cube/wings and B52 rung 6 are already recorded as failed candidates, so the ruling
+CORROBORATES them rather than moving them.**
+
+**The exposure is FORWARD-LOOKING**, and that is where the ruling earns its keep: any
+future row proposing a `G` from a snappy-built 3D ladder now meets it before it is
+scored.
+
+#### The ruling, stated so it can be acted on
+
+1. **cfd's ruling STANDS.** A +1-snappy-level fork with the background held fixed
+   voids the observed order; the movement is toward `NOT A RESULT`, which rule 5
+   permits in that direction only. **`naca4412_wing` and `motorBike` are `NOT A
+   RESULT` — but on rule 5's own steps, with the recipe finding as corroboration, not
+   as the ground.**
+2. **"Recipe-clean" is a NECESSARY CONDITION and is never reported as a quality mark.**
+   `b52` is recipe-clean at p = 28.67.
+3. **"7 of 14" is never quoted as a census of the lab's ladders.** The population is
+   snappy-built ladders only.
+4. **The instrument's false-CLEAN on a fixed absolute `firstLayerThickness` is
+   recorded as a stated limit**, and any snappy ladder that turns layers on must be
+   checked by hand until it is closed.
+5. **The scheme/model/BC fork class is UNTESTED, not empty.** A ladder that changes
+   `fvSchemes` between rungs would grade CLEAN today. **Referred to cfd as the next
+   instrument, and named on the board.**
+
+**Cost of this pass:** zero solver, zero mesher, zero container. Script execution and
+disk reads, single-rank, **under ~5 core-min, not separately instrumented** — stated
+as unmetered rather than invented (rule 12).
