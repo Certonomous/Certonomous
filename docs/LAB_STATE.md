@@ -2945,7 +2945,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T02:38:05Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T02:46:17Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -3356,6 +3356,48 @@ tonight and it returned within minutes. **The protection is the discipline at th
 a sweep before it**: never a bare `git commit`, never `git add -A` / `git add .` /
 `git commit -a`, private-index protocol for everything. A single bare commit would destroy the
 frozen pre-registration and comparator whose identity this supervisor verified this session.
+
+**KNOWN INSTRUMENT FAULT IN ALL FOUR OF THIS TEAM'S COMPARATORS — DISCLOSED, NOT EDITED, AND
+FIXED FORWARD.** `verify_frozen` derives the repo root as **three `dirname`s up from
+`__file__`** and passes it as git's `cwd`. **Measured: it yields the WRONG directory in every
+case** — VMFL003, VMFL045 and VMFL051 land on `.../Certonomous/cases`; **R2, sitting one level
+deeper, lands on `.../cases/ansys_verification`.** **NOTHING WAS EVER OBSERVED because git
+SEARCHES UPWARD for `.git` and silently corrects it** (`git -C .../cases rev-parse
+--show-toplevel` returns the repo root). **Consequence TODAY: NONE — every freeze verification
+performed resolved to the correct repository, so those checks are SOUND.** The latent fault:
+a comparator run anywhere with an intervening `.git` would verify against the **WRONG REPOSITORY
+AND PASS**. **DISPOSITION: DISCLOSE, DO NOT EDIT — all four are FROZEN** (VMFL003 grading, R2
+mid-run, the other two post-compute) and **the defect changes no verdict.** **THE FIX GOES INTO
+THE NEXT COMPARATOR WRITTEN: derive the root with `git rev-parse --show-toplevel` from the
+file's own directory, which is DEPTH-INDEPENDENT and fixes the CLASS**, not the instance.
+
+**THE WHOLE-FILE-PIN TENSION DOES NOT EXIST HERE, AND IT IS STRUCTURE RATHER THAN LUCK.** A cfd
+lane found that pinning a document **that must legally grow** by whole-file hash **penalises the
+legal amendment and pressures a future lane to SKIP it**. Checked here:
+- **The thing that legally GROWS — the pre-registration — is NOT hash-pinned.** Launchers read
+  `PREREG_SHA=$(git rev-parse "HEAD:${PREREG}")` **at launch**, never against a hardcoded value;
+  VMFL003's also compares **disk against HEAD**, an identity check that **moves WITH a legal
+  amendment rather than against it.** That is why **two frozen preregs were amended tonight and
+  no launcher fought it.**
+- **The thing that IS hash-pinned — the comparator — does NOT legally grow**: a change is never
+  an append, it requires a deliberate **re-freeze** (exactly what R2 was made to do). **So
+  whole-file hashing is CORRECT there and a `FROZEN-BODY-ENDS-HERE` marker would solve a problem
+  this team does not have.**
+- **THE RULE, offered back: pin by WHOLE FILE only where the artifact may not legally grow; pin
+  by BODY wherever it may.**
+
+**A NEW AND NASTIER INSTRUMENT-FAULT INSTANCE, AND IT IS THIS SUPERVISOR'S OWN: A GUARD THAT
+REFUSES FOR THE WRONG REASON LOOKS EXACTLY LIKE A GUARD THAT WORKS.** The mutation control run
+against `verify_frozen` was **CONFOUNDED and INCONCLUSIVE** — both arms exited 2 for the same
+unrelated reason (git could not resolve from a scratch directory) — and **this supervisor's own
+summary line then drew the FALSE conclusion "the guard works" from that identical failure.**
+**The defect was found by READING the function afterwards, not by the mutation control**; the
+control's only value was pointing at the code. **Tonight's other faults were guards that stayed
+SILENT when they should have fired, and one that FIRES when it should stay silent; this is a
+third kind — a guard that fires for a reason unrelated to what it tests, which is
+indistinguishable from success from the outside.** (Two further instrument faults the same
+hour: a pipeline where `$?` captured `tail` rather than `python3`, and a fixed-index `awk`
+mis-slicing a row.)
 
 **A ROUTING PRECEDENT WORTH KEEPING: THE CHIEF INSTRUCTED A LANE OF THIS TEAM OVER THIS
 SUPERVISOR'S HEAD, AND THE LANE'S HANDLING IS THE MODEL.** On reattaching the VMFL045-R2 lane the
