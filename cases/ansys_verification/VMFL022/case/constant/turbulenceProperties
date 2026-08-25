@@ -1,0 +1,15 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL022 -- standard k-epsilon with standard wall functions (manual p.87).  |
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object turbulenceProperties; }
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType RAS;
+
+RAS
+{
+    RASModel        kEpsilon;
+    turbulence      on;
+    printCoeffs     on;
+}
+// ************************************************************************* //
