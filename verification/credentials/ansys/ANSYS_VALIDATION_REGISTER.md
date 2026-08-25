@@ -359,3 +359,66 @@ freeze exists to prevent.
 
 **Recorded so the reasoning survives:** a directive that removes a constraint is not
 retroactive permission to unfreeze what that constraint already decided.
+
+---
+
+## Dated correction — 2026-08-25T20:28Z — **the `RC.txt` claim carried by rows #11 and #12 is WRONG, and it was the supervisor's own**
+
+**Append-only correction under CLAUDE.md rule 6 and this register's reading rule (a row is
+never edited after it lands). Rows #11 and #12 are NOT edited. Their VERDICTS are unaffected —
+both remain `NOT A RESULT`, and the correction makes the evidence for them STRONGER.**
+
+### What the rows claim
+
+Rows #11 and #12 each state, in their "Artifact path" cell, that **no `RC.txt` or
+`record.json` exists anywhere under `VMFL003_M2`**, that the launcher's `rc=` printf runs
+only on the completing path, and that **rule 4's `rc = 0` conjunct is therefore UNEVALUABLE
+FROM DISK for the entire rung** — recorded there as an instrument finding of charter grade.
+
+### That is false. Measured 2026-08-25T20:27Z.
+
+**The file exists at every level of every arm. It is named `RUN_RC.txt`.** The supervisor
+searched for `RC.txt` and `record.json`, did not search for `RUN_RC.txt`, and reported the
+resulting absence as a finding. **A grep for the wrong filename is not an enumeration
+instrument** — this is L-312 firing again, on the supervisor's own hand, one day after the
+same class of error was recorded against a document grep.
+
+**The register itself already contained the refutation.** Row #10, written by the grading
+lane, cites *"six level dirs, `RUN_RC.txt` rc=0 each"* — in this same file, two rows above
+the claim that no such file exists. The contradiction was committed unnoticed.
+
+### The measured contents, and why they strengthen both verdicts
+
+| level | `rc=` |
+|---|---|
+| `C_RNGkEpsilon/L1_250x5`, `L2_500x5`, `L3_1000x5` | **0** |
+| **`C_RNGkEpsilon/D_500x3`** | **124** |
+| `D_kOmegaSST/L1_250x5`, `L2_500x5` | **0** |
+| **`D_kOmegaSST/L3_1000x5`** | **124** |
+
+Each file also carries `arm=`, `level=` and `nx=`.
+
+**`rc=124` is `timeout`'s exit code** — the budget-fired signature. It appears on **exactly
+the two levels that stopped**, and nowhere else. So:
+
+1. **Rule 4's `rc = 0` conjunct is FULLY EVALUABLE from disk for this rung**, and it is
+   **met** at every completing level and **violated** at exactly the two stopped ones.
+2. **Both `NOT A RESULT` rulings are now independently confirmed without reading a solver
+   log at all** — the machine-readable rc alone distinguishes a budget stop from a crash.
+3. **The claim of a charter-grade instrument gap is WITHDRAWN.** There is no gap here. The
+   convention was already correct and better than the supervisor credited: the launcher
+   writes its rc on the ABORTING path too, which is the property that made this evidence
+   exist.
+
+### What is corrected downstream
+
+The same false claim was carried in this team's `docs/LAB_STATE.md` section as instrument
+finding #1 and was briefed to the batch lane as a standing instruction. **The lane has been
+corrected in flight** and instructed to match `RUN_RC.txt` rather than introduce a second
+convention. **A second rc filename would have been the real instrument gap** — created by the
+correction, not by the original.
+
+**Recorded rather than quietly fixed:** the supervisor's own big-claim check
+(`SUPERVISION_CHARTER.md` §3, item 3 — *assume it is wrong until it has been defended against
+its own evidence*) was NOT applied to this claim before it was committed. It was applied
+afterwards, by an independent disk census, and it caught it. The check works; it was run late.
