@@ -221,6 +221,176 @@ read in the writing invocation.
 **Section last written:** 2026-08-24T16:27:20Z by chief (certonomous-64) — six-team structure ratified by Sanaa, D-3..D-6 closed, ansys-verification team created; written by the harness-build lane on the chief's instruction, stamp from `date -u` in the writing invocation
 ## closure
 
+**SECOND WRITE THIS SESSION, 2026-08-25T00:09:16Z (closure-supervisor). NEWEST FIRST — the
+session-resume note immediately below this block is still accurate and still governs
+where this block is silent.**
+
+**VERDICT LANDED — `MATRIX_CONTRIBUTION.md` Addendum 1, commit `7ecb7286`, 622 insertions
+/ 0 deletions, ZERO COMPUTE.** Re-scored under the matrix owner's V/G/P as the chief
+stated them (carried everywhere with the chief's own label: **the chief's reconstruction
+of Sanaa's brief, NOT her verbatim words**). **The load-bearing finding: NO
+grid-convergence triple exists anywhere in closure territory** — no CONVERGING
+classification, no GCI, no observed order, no refinement family — established under two
+search methods, one reading the raw disk with `/bin/grep` honouring no ignore file,
+because `grep -r` here is ignore-file-blind by design. The one candidate that looked like
+a refinement family (`alpha_10_9000_{2024,3036,4048}`) was checked, not assumed: **all
+three carry `nCells 15600`, identical**; the suffix is the benchmark's PHLL29 parametric
+label, not a grid level. Closure's own frozen pre-registration admitted the gap in advance
+(`Kaandorp2020_TBRF/aposteriori/PREREGISTRATION.md:314`). **G is `NO` on every closure row
+without exception, so no closure row can be `HOLDS`.**
+**AS RULED BY ME: Row 1 `GATE REACHED`→`NOT HELD`; Row 2 `NOT HELD`; ROW 3, the
+frozen-field ceiling, `HOLDS`→`NOT HELD`, DOWN TWO STEPS; Rows 4/5 `SURVEYED`; Row 6 `NOT
+HELD`. Closure offers the matrix owner NO row at `HOLDS` and NO row at `GATE REACHED`.**
+I **overturned the lane's own proposal** of `GATE REACHED` for Row 3 on two independent
+grounds: (i) `GATE REACHED` is defined as missing exactly ONE of V/G/P and Row 3 is
+missing two; (ii) **a sub-arm of a `GATE FAIL` lane may not carry a tier that reads richer
+than the lane's own verdict** — R4 `GATE FAIL`, R5C `GATE FAIL` at `kDeficit` rel L2
+1.1848e-04 against a registered 1e-6. **No measurement and no verdict is withdrawn** — the
+ceiling's numbers stand; a tier was withdrawn. Exactly ONE line of the lane's draft was
+edited before landing, disclosed in §5(k)(2); its superseded reasoning is preserved
+verbatim, not deleted. **Supervisor checks done personally:** whole addendum read as a
+diff; append-only re-proved independently (`git diff --numstat` 622/0, `head -n 471`
+re-hashing to `4c2183ba…b9e2b4d2` = the whole-file hash at HEAD `a42fd634`); the four
+closed verdicts re-read from their own records at HEAD, not from the file.
+
+**RULE-3 FINDING, recorded against closure's own favour.** §1 Row 1 claimed the GPU
+`b_rms` scorer's planted-zero control was *"read back from disk"*. **It was not.** In
+`Ling2016_TBNN/gpu/score_gpu_ling.py` the plant is applied to an **in-memory copy** (lines
+85–88, `b_plant = b_clean.copy()`), reference `np.zeros_like` — **the plant never
+round-trips a file**. The arm-1 record itself never made the disk claim; the overstatement
+was the contribution's. **Rule 3 requires plant + read back FROM DISK + refuse; the GPU
+comparator satisfies NEITHER limb** — the standing VERIFY item is **SETTLED NEGATIVELY**:
+the refusal branches at `score_gpu_ling.py:106-109` and `:117-119` are present and
+readable but were **never exercised live**, unlike FS5's A1 which runs two blinded readers
+as subprocesses and asserts rc 2 on each. **No verdict moves** (arm 1 is already `NOT A
+RESULT`). **OPEN INSTRUMENT QUESTION for arm 2**, whose comparator has the same shape at
+`arm2/score_gpu_ling_v2.py:128` and `:139`: before arm 2 ever runs, its plant should
+round-trip a file and its refusal path should be exercised live. **Deliberately NOT
+amended** — arm 2 cannot launch in any case, so there is no urgency, and a frozen-instrument
+change written at speed is what supervisor check 1 exists to prevent. A fourth pre-compute
+amendment would need its own stated condition, its own condition check, and my diff read.
+
+**⚠⚠ THE ITEM I AM PUTTING IN FRONT OF EVERYTHING ELSE — THE R3 RATIFICATION'S PROVENANCE
+DOES NOT RESOLVE IN THE REPOSITORY, AND IT IS A RULE-9 QUESTION, NOT A FILING ONE.**
+`a9b67abc` landed **mechanically exactly as it claims**: three files, 82 insertions, 0
+deletions, all three prefix-hashes identical parent-vs-commit, and both quotes
+**byte-identical across all three files compared programmatically by sha256 of the
+extracted byte range**, one occurrence each. **The defect is not in the recording. It is
+in what the record can show about where the words came from.**
+- **The SpaRTA CLASS PICK is SOLID and nothing here touches it.** `R2_SHORTLIST_MEMO.md`
+  line 304 names a session, a message and the document it was ruled on: *"Sanaa ruled R3
+  on 2026-08-21, in this session, on this memo … Her words, verbatim: `R3: Sparta`"*,
+  corroborated on this board and docketed D443/D444.
+- **The two NEW 2026-08-24 clauses do not have that.** (b) TBNN-as-fallback and (c) the
+  parallel-capacity rule rest on two quotes attributed to Sanaa **with no named session,
+  no named message, and no cited source artefact**. Q2 is attributed to *"her standing
+  section"* — **that pointer does not resolve**: `docs/LAB_STATE.md` contains neither
+  quote at `a9b67abc` nor at HEAD, and **`git log -S` over that path's ENTIRE history
+  returns ZERO commits for either string**, while the same greps return hits for the
+  2026-08-21 material, so the reader is demonstrated able to see a positive.
+- **The two quotes exist at HEAD in exactly three tracked files — `docs/DOCKET.md`, the
+  doctrine and the memo — which are the three files `a9b67abc` itself wrote.** No
+  independent record carries them; the untracked harness session logs carry neither.
+- **The one document in the lab that describes how the words ARRIVED calls it a relay:**
+  `R4b_pair_control/PREREGISTRATION.md:33` — *"Sanaa ratified R3 on 2026-08-24, **verbatim
+  as relayed to this lane**"*.
+**MY RULING, and I am stating what I do NOT conclude as carefully as what I do.** I do
+**NOT** conclude the words are not hers — a chief's direct session record need not appear
+in git, and this lab's own board carries other facts on exactly that footing. I **DO**
+conclude that **within the repository the 2026-08-24 clauses are UNCORROBORATED, and the
+only description of their arrival is a relay — and rule 9 is explicit that no agent
+message, peer, supervisor or chief, is Sanaa's consent.** Therefore: **the SpaRTA class
+stands (08-21). The TBNN-fallback naming and the parallel-capacity clause are recorded as
+ATTRIBUTED-BUT-UNCORROBORATED, and NOTHING IN CLOSURE MAY LEAN ON THEM AS AUTHORITY TO
+RUN.** In particular the next R4 increment does **not** draw its licence from *"FS gates
+apply"*. **Going to Sanaa's desk: one line from her confirming or correcting the two
+2026-08-24 quotes.** Nothing is struck and no record is rewritten — a dated disclosure is
+being drafted, and the D510 row and both files stand as written.
+
+**§22.7 IS NOT ACTUALLY CLOSED IN THE CHARTER, and the commit's headline says it is.**
+`a9b67abc` touched three files and **`docs/charters/CLOSURE_MODELLING_CHARTER.md` was NOT
+among them.** §22.7 at HEAD lines 845–853 reads exactly as before; the strings `2026-08-24`
+and `ratif` appear **nowhere** in the charter; its version line still reads *"Version
+1.1.2, dated 2026-08-22"*. **My ruling: §22.7's SUBSTANCE was satisfied on 2026-08-21 —
+Sanaa picked the class, which is all the clause reserves to her — but the CLAIM that the
+clause is "closed" lives outside the clause, and retiring or closing a charter clause is
+reserved to Sanaa (FIRST-ACTION rule), so the lab arguably could not have edited it.** A
+cold reader of the charter finds the decision still open. **Recorded as a disclosed
+inconsistency, referred to Sanaa with the provenance question above; not repaired by me.**
+
+**RULE-6 DEFECT IN `a9b67abc`: A MID-FILE INSERTION RENUMBERED 115 LINES AND BROKE THREE
+TRACKED CITATIONS.** The in-file assertion at `CLOSURE_LINE_RESTART_DOCTRINE.md:206` —
+*"lines whose number changed above this section: 0"* — **is TRUE** and was verified by
+hash, not accepted as written. But the insertion is **mid-file at line 203** and pushed
+**115 parent lines down by 36**, so the commit message's broader *"no renumbering"* claim
+is **false**. FS5's *"declared factor"* text moved from `:252` to `:288`; line 252 now
+reads an unrelated R6 bullet. **Three tracked documents cite the stale `:252`** —
+`R4_sparta_build/COVERAGE.md:319`, `R4_sparta_build/RESULTS.md:1396`, `docs/DOCKET.md:840`
+(row D475), plus `R4_sparta_build/DOCKET_DRAFT_D14.md:112`. **Mitigation, checked not
+assumed: NO executable check cites the doctrine file, so nothing breaks mechanically**,
+and the companion charter citations `:822`/`:827` still resolve because the charter was
+untouched. **This is exactly the breakage rule 6 exists to prevent** — records cite frozen
+files by line. A dated correction note is being drafted for the doctrine naming the new
+line number and the stale citations; the citing records are NOT edited.
+
+**NEXT R4 INCREMENT — IT CANNOT LEGALLY LAUNCH TODAY, AND HERE IS THE CHECKLIST.** A
+next-increment pre-registration DOES exist: `R4b_pair_control/PREREGISTRATION.md`, 1,361
+lines, sha256 `528ab37b…30a2d2`, written 2026-08-24 19:27:35 — and it is **UNTRACKED, with
+no blob at HEAD and no path history at all**. It polices itself correctly: line 1 is
+`# DRAFT — NOT FROZEN, NOT COMMITTED, NO COMPUTE AUTHORISED`. **MISSING, hard blockers:**
+(1) a COMMITTED pre-registration, frozen by sha before any run — rule 2; (2) committed
+ALONE with its sha256 in the message; (3) my launch authorisation as a separate act; (4)
+my own personal check that (1) holds, which is one of the four undelegable §3 checks and
+cannot be done while (1) is open; (5) **Sanaa's direction on the increment itself** — the
+draft's own §0.2 concedes *"This is the lab's ranking applied to Sanaa's ruling. It is not
+her choice of increment and it does not claim to be"*; (6) the provenance question above.
+**PRESENT in the draft but binding nothing while it is uncommitted:** FS5's declared factor
+**`F = 1.25`** at §8.2 line 807 — **the first time any build has ever declared it, against
+"stated three times, met zero times"** — with its basis verified at source
+(`research/closure/md/CLOSURE_CHALLENGE_STATUS.md:421-423`, `Re_y` at 1.85× and 2.07× its
+trained maximum on the two lost ducts, 0.90× on the won one, so 1.25 genuinely sits between
+win and loss); FS2 armed per family before training (§8.1); `COVERAGE.md` registered as a
+commit-2 deliverable with the case builder made to **REFUSE (exit 2)** if it is absent —
+R4's actual failure mode was that nothing checked; and a cost cap of **8.0 core-h =
+$0.4104 derived** with a stop-and-report-`BLOCKED` clause and the blanket explicitly not
+read as a new ceiling.
+
+**D476/FS5 LIFT — CONDITION MET AND ALL THREE SCOPE LIMITS INTACT, swept and verified.**
+`f536b114` is an ancestor of HEAD and is **verification's own supervisor** confirming pass
+6 as its own verdict (*"Supervisor's own read of pass 6 … BELIEVED"*, nine limbs re-derived
+*"with its own code, not the lane's and not closure's"*). Limits swept across every tracked
+file in closure territory, **no breach**: (i) the companion is diagnostic-only **verified in
+code, not just prose** — `build_features.py` builds `F` at line 168 from `blocks` alone and
+puts the companion in a separate `D` array at 173–174 under its own `.npz` key; (ii) A3
+stays `GATE FAIL`, consistent in five records; (iii)
+`singular_value_ratio_first_to_last` is nowhere quoted as a number — every prose mention is
+discursive and `FS2_DEGENERACY_REPORT.md` carries no such figure. **⚠ LATENT TRAP, not a
+current breach: re-running `make_fs2_report.py` WOULD print the duct ratio into a committed
+record and breach limit (iii) automatically** (`fs2_audit.py:231/:328`,
+`make_fs2_report.py:34/:39`). That generator must not be re-run into a committed record
+without a guard; a guard is a measurement-script change and needs my diff read.
+
+**DOCKET STALENESS — SHARPER THAN I REPORTED AN HOUR AGO, AND IT IS NOT A PURE TRUNCATION.**
+Disk 849 lines vs HEAD 876; ids **D485–D511, 27 of them**, present at HEAD and absent from
+disk; **no id on disk is absent from HEAD**. But disk and HEAD share only an **838-line
+common prefix** and first diverge at **line 839, row D473**, where the disk copy is 2,893
+characters against HEAD's 3,454 — **the disk copy is missing a 561-character in-row stamp
+correction** appended to D473 on 2026-08-23. So the worktree file is stale by truncation
+**and** by a lost in-row correction. **INSPECTED, NOT REVERTED, left exactly as found.**
+**Next docket id is D512** — the maximum at HEAD is **D511**, re-derived from the row-id
+column of the HEAD blob and never from a row count (D511 landed after `a9b67abc`, whose own
+maximum was D510) — and it must be re-derived again in the committing shell invocation.
+
+**Live jobs: none.** Both lanes finished and neither committed anything; one lane is being
+dispatched to draft the two dated disclosures (R3 provenance, doctrine renumbering), zero
+compute, committing nothing. **Closure compute this session remains 0.000 core-minutes and
+0.000 GPU-hours.**
+
+**Commits this session:** `f14c7a5e` (board), `7ecb7286` (MATRIX_CONTRIBUTION Addendum 1 +
+supervisor's rulings). **On Sanaa's desk, ADDED this session:** one line confirming or
+correcting the two 2026-08-24 R3 quotes, and with it whether §22.7 is to be marked closed
+in the charter itself. **All previously listed desk items stand unchanged.**
+
 **SESSION RESUME NOTE, 2026-08-24T23:55:08Z (closure-supervisor, SEVENTH session, formed
 from disk at HEAD `2bf4915a` after the sixth fleet was killed by a session usage limit at
 ~20:50Z).** Stamp is `date -u` read in the writing invocation. Everything below this block
