@@ -753,3 +753,263 @@ reverse.**
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-08-25 | Frozen. Gate 0.5 % on the manual's 60.52 kPa; cap 60 core-min; ceiling `GATE REACHED`. No graded compute had run at this commit and none existed to run against. |
+
+---
+
+## ADDENDUM 1 — 2026-08-25, POST-COMPUTE. A DISCLOSURE. IT ALTERS NOTHING.
+
+**Version 1.1. Filed while the graded run is LIVE** (launcher pid `2241096`,
+`--prereg-sha 48f7a9bf930fbd06bf23ba4b6469754f879cb74e`; `L1_25x25` complete,
+`L2_50x50` running at the time of writing).
+
+> **THIS IS A POST-COMPUTE ADDENDUM AND IT CHANGES NO GATE, NO THRESHOLD, NO BAND,
+> NO CAP AND NO LABEL.** `CLAUDE.md` rule 2 closed those the moment the first
+> graded solver started. **The registered cap remains 60 core-minutes.** The gate
+> remains `|Δp − 60520| / 60520 ≤ 0.005`, the band remains
+> `[60217.40, 60822.60] Pa`, the ceiling remains `GATE REACHED`. Nothing above
+> this line was edited, and §16's amendment table was deliberately **not** touched,
+> because editing it would move line numbers above this section; **this addendum
+> IS the version-1.1 amendment record.**
+
+**`lines whose number changed above this section: 0`** — and this is **proved, not
+asserted**: the sha256 of the first 755 lines of this file, taken before this
+addendum was appended, was
+`5bb43d94817653a88d43e07ff351de45e62e205b7bfaa1ff95dafd8ea615bbf1`. That is the
+sha256 of `head -n 755` of this file as it now stands. The check is reproducible:
+
+```
+head -n 755 cases/ansys_verification/VMFL007/PREREGISTRATION.md | sha256sum
+```
+
+---
+
+### A1.1 THE DEFECT — an internally inconsistent sentence, inconsistent in the PERMISSIVE direction
+
+The frozen §10 cost table carries this row. **Quoted verbatim, struck, and NOT
+rewritten** (`CLAUDE.md` rule 6 — originals are struck, never edited):
+
+```
+| **CAP** | **60 core-minutes** — enforced by `timeout 3600` per level in the launcher |
+```
+
+~~**CAP** — **60 core-minutes** — enforced by `timeout 3600` per level in the
+launcher~~
+
+**The two halves of that sentence do not describe the same quantity.** The
+launcher runs **three levels sequentially** (`run_vmfl007.sh:33`,
+`LEVELS=("L1_25x25 25 25" "L2_50x50 50 50" "L3_100x100 100 100")`), each under its
+own fixed `timeout "$CAP_WALL_S"` at `run_vmfl007.sh:231`, with
+`CAP_WALL_S=3600` derived from `CAP_CORE_MIN=60` at lines 36–37. `CAP_WALL_S` is
+**a constant**: it is not decremented by what earlier levels already spent.
+
+```
+3 levels  ×  3600 s each  =  10 800 s  =  180 core-minutes at 1 rank
+registered cap                          =   60 core-minutes
+ratio the frozen mechanism admits       =    3.0 ×
+```
+
+**The enforcement mechanism named in the sentence permits exactly three times the
+cap the same sentence registers.** The error is in the permissive direction: the
+frozen text would have licensed a 180-core-minute spend while reading as a
+60-core-minute cap.
+
+**A SECOND LIMB, which is the part most likely to mislead a reader.** The launcher
+*does* compute the aggregate — `TOTAL_CORE_MIN` at `run_vmfl007.sh:269` — and
+prints it beside `cap_core_min` in `COST.txt` and to stdout as
+`total %.4f core-min against a cap of %.0f (%.1f %%)`. **That print is
+post-hoc REPORTING, not a gate.** It executes only *after* all three levels have
+already been spent, it compares nothing, and it exits zero at any total. A reader
+scanning the launcher for the word "cap" finds an aggregate figure computed
+against it and may reasonably conclude the aggregate was enforced. **It was not.**
+The only `exit 1` on a cost condition is the per-level `RC -eq 124` arm at
+`run_vmfl007.sh:249`, which fires at 3600 s **per level**.
+
+---
+
+### A1.2 THE FAMILY — this is the SECOND member of a disease this team has already named
+
+**Member 1 — VMFL051, propagated into VMFL045's launcher:**
+*a cap enforced as a wall-clock `timeout` is NOT a core-minute cap; they coincide
+only at 1 rank.* There the uncounted dimension was **RANKS**.
+
+**Member 2 — VMFL007, this document.** The uncounted dimension is **LEVELS**.
+
+**They are the same disease in a different organ.** A core-minute total is
+`wall_s × ranks ÷ 60`, summed over every invocation. A `timeout` bounds **one
+invocation's wall seconds** and nothing else. Standing in for a total budget it
+must therefore survive **two** conversions, and each omission multiplies the
+permit by the dimension left uncounted:
+
+| omitted conversion | what a fixed `timeout C×60` then admits | member |
+|---|---|---|
+| wall → core-minutes (divide by **ranks**) | `C × R` core-min at R ranks | **VMFL051 / VMFL045** |
+| per-invocation → total (subtract **what is already spent**) | `C × L` core-min over L invocations | **VMFL007 (here)** |
+| both | `C × R × L` | not yet observed in this team |
+
+> ### THE GENERAL STATEMENT, WHICH IS THE TRANSFERABLE PART
+> **A total budget enforced per-invocation is not enforced at all unless the
+> invocations are counted.** A per-invocation limit is a *rate* limit; a budget is
+> a *running total*. Substituting one for the other is silent, reads correct in
+> prose, and always errs toward permission — never toward refusal. **The test that
+> catches it in one line: multiply the per-invocation limit by the number of
+> invocations the script will make, and compare that product to the registered
+> cap. If they differ, the registered cap is not the binding number.**
+
+**This team already holds the correct pattern**, in a case running at this moment —
+`cases/ansys_verification/VMFL003_M2/run_vmfl003_m2.sh:222-227` derives each
+invocation's timeout from the **remaining** budget
+(`min(slate_cap − slate_spent, arm_cap − arm_spent)`, converted at
+`× 60 / RANKS`) and **aborts before launching** when that remainder reaches zero.
+Both conversions are applied and the invocations are counted. See §A1.5.
+
+---
+
+### A1.3 WHAT ACTUALLY BOUND THE SPEND — a detached OS process, not the frozen text
+
+**No overspend occurred, and the reason must be recorded precisely, because it is
+not the reason a reader would assume.** Before launching, the launching lane armed
+an **aggregate** cap watchdog as a detached OS-level process against the
+launcher's session. Verified in this lane from the live process table and from the
+script itself, not inherited:
+
+| | measured |
+|---|---|
+| watchdog | `verification/runs/ansys_verification/VMFL007/cap_watchdog.sh` |
+| pid / parent | **`2245240`**, ppid **`1`** — detached; it does **not** die with any agent |
+| watches | session id **`2241096`** (the launcher, itself the session leader) |
+| aggregate cap | **`3600` s total = 60 core-minutes at 1 rank** — the registered cap, in full |
+| epoch `T0` | **`1787677053`** → deadline **`1787680653` = 2026-08-25T17:57:33Z** |
+| poll | every 10 s, via `kill -0` on the session leader |
+| on expiry | writes `CAP_STOP.txt`, `TERM`s **every pid in session 2241096**, sleeps 15 s, then `KILL`s |
+
+**Why this mechanism is legitimate, and the property that makes it so: IT CAN ONLY
+STOP.** It cannot extend a budget, cannot alter a value, cannot write a field,
+cannot touch a frozen file and cannot turn a refusal into a result. Its entire
+authority is to end a run early. **A stop-only mechanism cannot manufacture a
+verdict**, so arming it after the freeze is not a post-hoc change to the
+instrument.
+
+**It is CONSERVATIVE relative to the registered cap, and the direction is stated
+because it matters.** `T0` is the launcher's start, so meshing, `checkMesh`, the
+in-launcher smoke test and every non-solver second count against the 3600 s. The
+registered 60 core-minutes counts solver core-minutes. **The watchdog therefore
+stops EARLIER than the frozen cap would require, never later.** It errs toward
+refusal — the opposite direction to the defect it covers.
+
+**A near-miss, disclosed rather than smoothed over.** The watchdog's own header
+records that its **first** arming was broken in two independent ways: it watched
+the pid of `setsid`, which forks and exits immediately, so it saw a dead pid and
+exited within seconds; and it signalled only **one** process group, which would
+have killed the launcher shell and **left `simpleFoam` running**. The mechanism
+described above is the **second** arming. **The claim "no overspend occurred"
+rests on the corrected arming, not on the first, and would have been false under
+the first.**
+
+> **THE HONEST SUMMARY: the true 60-core-minute cap is what binds this run, and it
+> binds because of a PROCESS, not because of the frozen TEXT.** That is a real
+> weakness in the frozen instrument and it is disclosed here rather than repaired,
+> because rule 2 forbids repairing it now.
+
+---
+
+### A1.4 THE SUPERVISOR'S RULING, RECORDED AS A RULING — THE RUN CONTINUES
+
+> ### **THE RUN IS NOT STOPPED EARLY, AND IT IS NOT RE-REGISTERED WITH A BIGGER CAP.**
+
+**1. A measured projection, made and stated BEFORE the fact.** The projection that
+this run needs **≈ 78–83 core-minutes against its 60 cap** was made from a
+**measured** rate and stated **before** the outcome was known. It is reproducible
+from an artifact on disk: `L1_25x25/RUN_RC.txt` records `rc = 0`, `wall_s = 233`,
+`core_min = 3.8833`, `finished_utc = 2026-08-25T17:01:38Z`. Scaling by cell count
+(625 → 2 500 → 10 000, i.e. ×4 and ×16 at fixed `endTime = 10000`):
+
+```
+L1 measured   233 s      L2 ≈  932 s      L3 ≈ 3 728 s      total ≈ 4 893 s ≈ 81.6 core-min
+aggregate cap 3 600 s  ->  bites 2 435 s into L3's projected 3 728 s, ≈ 65 % through L3
+```
+
+**Consequence, stated in advance:** `L3_100x100` yields no field at `endTime`, so
+clause C3 (`last time == endTime`) fails, so there is **no fine level**, so there
+is **no grid triple**, so the row is an honest **`NOT A RESULT`** — the outcome
+§14 risk 1 already named before the freeze.
+
+**2. But the measured rate was taken under HEAVY CONTENTION, and core-minutes are
+wall × ranks, so contention inflates the graded number directly.** The
+`VMFL003_M2` four-arm ladder (pid `2218904`) is resident on the same 16-core box;
+loadavg at the writing of this addendum measured **7.51 / 8.69 / 7.17**, and the
+rate underlying the projection was sampled at loadavg ≈ **9.45**. **This team has
+already MEASURED this effect: a 2.06× contention penalty on VMFL051 against ≈ 1.00
+uncontended on VMFL003.** A projection built on a contended rate is therefore an
+**upper** bound on the uncontended requirement. **The run MAY yet fit inside its
+cap once the peer ladder finishes**, and stopping it now on an uncertain
+projection would destroy a real chance of a legitimate result. **It is not
+stopped.**
+
+**3. Rule 12 is honoured on either branch.** The cap binds; the run gets **no new
+budget**; and if the watchdog stops it, the verdict is **whatever the frozen
+instrument says** — `NOT A RESULT`, kept with its numbers, never softened.
+
+> **Registering a fresh case with a larger cap the moment a cap bites would defeat
+> rule 12 entirely, and this team does not do it.** A cap that is replaced whenever
+> it binds is not a cap; it is a formality. The 60 stands.
+
+**4. If the run IS truncated, the rule-12 calibration row must SEPARATE contention
+from misprediction rather than blaming one.** The pre-registered estimate was
+**15 core-min** (§10) against a measured requirement of **≈ 78–82**, a ratio of
+**≈ 5.2×**. **That is too large for contention alone** on this team's own measured
+2.06× penalty: `5.2 / 2.06 ≈ 2.5×` remains after the contention factor is removed,
+and that residue is **misprediction of the point estimate** — §10's `×4` multiplier
+for the power-law viscosity update and the stiffer pressure solve was too small.
+**Both components are named; waste is reported, never absorbed into the ratio**
+(`COMPUTE_BUDGET_CHARTER.md` §6). The row lands in `docs/COST_CALIBRATION.md` at
+close-out; **a close-out without it is incomplete.**
+
+---
+
+### A1.5 THE OTHER LIVE CASE, CHECKED FOR THE SAME DEFECT — VMFL003_M2 IS CLEAN
+
+Checked because a named defect is worth nothing until every sibling is swept.
+**`cases/ansys_verification/VMFL003_M2/run_vmfl003_m2.sh` does NOT carry this
+defect. Its 160-core-minute slate cap and 40-core-minute per-arm sub-cap are
+enforced as RUNNING TOTALS, not per-invocation.** Read at lines 222–227: each
+level's `TIMEOUT_S` is derived as
+`min(CAP_CORE_MIN − SPENT_CORE_MIN, PER_ARM_CAP − ARM_SPENT) × 60 / RANKS`, and
+the level is refused outright when that remainder is not positive. Both
+conversions are present — the `/ RANKS` that member 1 omitted, and the
+subtraction of prior spend that member 2 omitted.
+
+**Confirmed against the live run, which is the strongest available evidence
+because it shows the counter actually moving:** the arm's successive timeouts
+**decrease monotonically as budget is consumed** — `2400` s at `A_kEpsilon/L1`
+(= the 40-core-min per-arm cap, correctly binding at arm start), `2126` s at
+`L2` after 4.567 core-min was spent, and `1792` s on the level running now. **A
+constant would be the defect; a decreasing sequence is the running total working.**
+Per `RUN_RC.txt` under `verification/runs/ansys_verification/VMFL003_M2/`.
+
+**Reported, not fixed.** VMFL003_M2 is running (pid `2218904`) and needs no
+change; **nothing was touched, and no repair was attempted on either case.**
+
+---
+
+### A1.6 WHAT THIS ADDENDUM DID NOT DO
+
+1. **It repaired nothing.** The frozen §10 sentence stands as written and struck.
+   `run_vmfl007.sh` was **not edited** — rule 2 closes the instrument at first
+   compute, and the launcher is a frozen grading-path artifact (§11, blob
+   `71d26af229d24a6467de0b78e4a2e2da08bf259d`).
+2. **It changed no cap, gate, threshold, band or label.** The cap is 60.
+3. **It did not stop the run** and did not touch the watchdog.
+4. **It ran no solver and no mesher**, and wrote nothing under
+   `verification/runs/` — that tree was **read only**.
+5. **It did not grade anything.** The case's state is unchanged: `PENDING` until
+   the comparator runs. The `NOT A RESULT` of §A1.4 is a **projected consequence**,
+   not a verdict; only `grade_vmfl007.py` issues the verdict.
+6. **A defect it could not close:** the frozen instrument still has no textual
+   aggregate cap. Any future case in this campaign must adopt the VMFL003_M2
+   remaining-budget pattern **at registration**, and a `LESSONS` entry stating the
+   §A1.2 general form is drafted for the supervisor — **this lane lands no record
+   ids.**
+
+| Version | Date | Change |
+|---|---|---|
+| 1.1 | 2026-08-25 | **Post-compute DISCLOSURE addendum.** §10's cap-enforcement clause struck as internally inconsistent in the permissive direction (3 × `timeout 3600` = 180 core-min admitted against a registered 60). Aggregate cap shown to be bound by a detached stop-only OS watchdog, not by the frozen text. Supervisor's ruling recorded: the run continues, the cap is not raised. VMFL003_M2 swept and found clean. **No gate, threshold, band, cap or label altered; lines whose number changed above §ADDENDUM 1: 0.** |
