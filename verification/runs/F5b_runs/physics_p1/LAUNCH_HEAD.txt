@@ -1,0 +1,14 @@
+HEAD at launch: 2db96bd421396d34a7c987b40a50d4a244b60141
+frozen pre-registration BODY: 85802 bytes
+  frozen body sha256:         c44b913051b05b85d617a94809cef916b5fc762631da13ab6cc6f9ed8177b9df
+  frozen-text blob identity:  f1cbc96d26846ea583da6d897e914b37a5f576a4  (v1.0 @ c1ba1845)
+  live file blob at launch:   04425a364b36fd1b11c49b414c698a0ff77180f3
+  live file bytes at launch:  102652
+  (the live file MAY be LONGER than the frozen body -- rule 2 addenda append at
+   the foot.  The pin proves the frozen TEXT did not move, not that nothing grew.)
+frozen reader blob:           6c6d34d02e6de925457dbfdbf75a0e004168f345  (verified against the disk file)
+fixture generator blob:       10f5e475fd2887e0120b4c44dd5fe2dce808349b
+C-N1 fixture blob:            641b2e1c2db75238d428b6b45b15af878b948116
+stage 1 freeze commit: c1ba18453b1333c052075f5cc366aeba5c27df79
+stage 2 freeze commit: a80d5f36ab7d36cc51c8991e97aada10abc30b61
+launcher md5: 80ce8cea47d9fff492d181be4951e124

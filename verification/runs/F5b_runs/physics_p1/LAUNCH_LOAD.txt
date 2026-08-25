@@ -1,0 +1,5 @@
+uptime at launch:  16:14:24 up 4 days, 53 min,  1 user,  load average: 0.24, 0.14, 0.16
+nproc: 16
+NOTE section 8: the BASIS load is NOT RECORDED (E1 gives contention only
+  qualitatively).  This figure bounds the contention attribution at close-out;
+  it does not measure it.

@@ -1,0 +1,10 @@
+TERMINAL=COMPLETE
+stamp=2026-08-25T16:53:56Z
+wall_s=2372
+ExecutionTime_s=2365.55
+core_min=39.426
+cap_core_min=72.0
+cap_breached=NO
+last_time=21.944
+steps=42200
+loadavg_terminal=9.69 7.73 5.26 10/603 2232561

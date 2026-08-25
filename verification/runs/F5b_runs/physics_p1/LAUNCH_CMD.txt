@@ -1,0 +1,8 @@
+resolved command:
+  python3  /home/ubuntu/Certonomous/verification/runs/F5b_runs/run_pitch.py  --level  coarse  --out  /home/ubuntu/Certonomous/verification/runs/F5b_runs/physics_p1  --end-time  21.9440  --dt0  0.002  --max-co  1.0  --timeout  4200
+resolved --timeout: 4200 s   (E3's DEFAULT IS 1800 s -- defect D-3;
+  launching on the default would kill a healthy run and manufacture a false
+  NOT A RESULT)
+ranks: 1 (serial; no decomposePar, no mpirun) -- core-minutes = wall s / 60
+cap: 72.0 core-min (section 8).  The timeout fires at 70.0 core-min,
+  INSIDE the cap.  An overrun stops the run; it does not get a new budget.
