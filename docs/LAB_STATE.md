@@ -1661,6 +1661,63 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
+### NINTH SESSION — CUSTODY AFTER THE FLEET KILL, three lanes re-attached
+
+**Section block written:** 2026-08-25T19:07:01Z by dafoam-supervisor (NINTH session, formed ~19:00Z 2026-08-25 after a session usage limit killed the eighth fleet mid-work). Opus 5. **The eighth session's block below is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in it is superseded and this session re-opens none of it.**
+
+**Mandate, narrow: fire curriculum D2–D15. Execution, not audit.** Meta-work near zero. Sanaa's saturation directive governs scheduling: 80–90 % core utilisation, small single-core cases in parallel batches, **memory guard enforced — dafoam is the memory-limited family and a batch that OOMs is worse than a batch that queues.**
+
+#### CORRECTION TO THE CHIEF'S LIVE READING — DAFOAM *IS* RUNNING
+
+The chief's 18:58Z reading said **"NOTHING OF DAFOAM'S IS RUNNING."** That is **wrong**, and I establish the correction from the process table at 19:02Z. **The usage limit killed the agents; it did not kill the containers**, which were launched detached under `sudo docker run` wrapped in `timeout`. Two dafoam runs never stopped:
+
+| arm | container | ranks | launched | hard cap | state at 19:02Z |
+|---|---|---|---|---|---|
+| **D4 arm O** | `d4_O_20260825T181237Z_2359354` | 4 (`--cpuset-cpus=5,6,7,9`, `--memory=12g`) | 18:12:37Z | `timeout 9300` → ~20:47Z | LIVE, pids 2359929–32 each ~99 % CPU, ~11 GiB resident; log at an adjoint linear solve, `Main iteration 0 KSP Residual norm 1.075916862345e-01 2985.75 s` |
+| **D8 arm fd** | `d8_fd_20260825T182022Z_2376204` | 1 (`--memory=12g`) | 18:20:22Z | `timeout 4500` → ~19:35Z | LIVE, pid 2376667 ~99 % CPU |
+
+**The operational lesson, and it is general:** a detached container under `timeout` OUTLIVES the agent that launched it. After a fleet kill the correct first act is a process-table reading, not a relaunch — **relaunching D4 or D8 would have doubled the spend and produced two records for one run.** Both lanes are under standing orders NOT to relaunch and NOT to kill.
+
+**D9 is the opposite case and is handled as such:** no D9 process survives. Its lane died mid-FD-phase, leaving four FD stage trees (`fd_1p0em2/3/4/5`, all stamped `20260825T181838Z_2370464`) that are **partial until the strict completion rule says otherwise**. A run interrupted by a fleet kill is not a completed run.
+
+#### CORE BUDGET AT DISPATCH (16 cores, 30 GiB)
+
+9 cores busy: 3 heat-transfer `buoyantBoussinesqSimpleFoam`, 4 D4 arm O, 1 D8 arm fd, 1 `simpleFoam`. Load average 9.25. Memory 13 GiB used / 17 available. **D9's lane is capped at 5 concurrent cores and 8 GiB total resident**, with a hold if free memory would fall below 6 GiB — that lands the box at ~14/16 = **87 %**, inside Sanaa's 80–90 % band, without risking the OOM that would cost more than it buys.
+
+#### MY PERSONAL CHECKS THIS SESSION (SUPERVISION §3, non-delegable)
+
+1. **Measurement-script diff — D9-DEF-1 repair, READ AS A DIFF AND ACCEPTED.** `d9_grade_SUPPLEMENT.py` + `d9_grade_D9DEF1_REPAIR.diff` at `beb90c52`. What I verified myself, not by relay: the plant **genuinely round-trips through the filesystem** (`json.dump` to `.d9_reader_plant.json`, then a separate `open`/`json.load`) — it is not an in-memory echo; the two formerly-silent `None` paths now return tagged statuses `NO_ENDPOINT` and `NO_J_AN`; `require_plant_fired` is called **before** the G9-4 PASS emit, so it can only convert an outcome **into** a refusal and never the reverse; and selftest units **R** and **S** exercise both paths and **prove the refusal fires** — a control not shown to fire is ceremony, not a control. **Caveat recorded, not blocking:** `seen` is differenced against the in-memory `d`, so the round-trip proves the writer/reader pair transports the perturbation, not that the grader's own downstream table reader sees it. Narrower than the strongest form, consistent with the lab's other comparators, and disclosed here rather than left implicit.
+2. **`scripts/check_grader_self_blindness.py` over all 14 dafoam D-graders: clean on both probes** (which the script itself correctly labels *not* a proof of correctness). Note for whoever runs it next: it takes a **file**, not a directory — handing it `cases/dafoam/` raises `IsADirectoryError`.
+3. **Crash triage:** the fleet kill is an external session-limit event, not a case finding. D9's four partial FD trees ARE treated as a finding until the strict completion rule clears them, per-stage, clause by clause.
+4. **Pre-registration before compute:** nothing new launches this session without a committed prereg. D4, D8 and D9 all have theirs at HEAD.
+
+#### LANES LIVE (3 of 3 — at cap)
+
+| lane | scope | first duty |
+|---|---|---|
+| **D4 custody** | `cases/dafoam/ladder-a/A2/curriculum_D4/` | attach to the live arm O, never relaunch; parse from files not stdout (MPI log splicing measured at `79679a84`); grade at termination; §9 cap-stop is GATE REACHED/NOT A RESULT, never PASS |
+| **D8 close** | `cases/dafoam/ladder-a/A6/curriculum_D8/` | attach to the live arm fd; close the rung with the FD table beside arm `opt`'s adjoint (`opt` already closed at 87.517 core-min, ratio 0.980, `6d6eeb41`); idx6 stays NOT A RESULT **by prior construction**, 8-of-9 by design |
+| **D9 recovery** | `cases/dafoam/ladder-a/A5/curriculum_D9/` | strict-completion-rule each of the four killed FD stages; re-fire ONLY the incomplete ones into FRESH timestamped dirs, leaving partials as evidence; batch the independent single-core FD components under the 5-core / 8 GiB cap |
+
+**The guard that refuses a case whose run directory exists is the guard WORKING, not an obstacle.** All three lanes are ordered not to disable it, not to edit it, and not to delete a completed stage to get past it.
+
+#### RUNGS WITHOUT VERDICTS
+
+**D4, D8, D9** — all three running or recovering, all three with committed preregs, none graded. **D5, D6, D7, D14, D15 have NO pre-registration anywhere at HEAD** — established from `git ls-tree -r`, not the worktree. They are unarmed, and an unarmed item is not a blocked item; it is un-drafted work.
+
+#### NEXT ACTIONS
+
+Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into `docs/COST_CALIBRATION.md`, id derived **by hand from the HEAD blob inside the committing invocation** (`scripts/append_record.py` hands out colliding ids — three collisions this week). Then arm **D7** (ONERA M6 lift-constrained transonic, A3 rung-2 mesh, prerequisites met, ~600–900 core-min) as the next firable item, and **D5** behind it.
+
+#### ON SANAA'S DESK
+
+**Nothing new.** The five upstream defect drafts remain **NOT FILED** — submissions are parked and that is a charter-reserved class no reading of "be faster" touches.
+
+#### BLOCKED
+
+**None.** D4 and D8 are running, D9 is recovering, and the next two items need drafting rather than unblocking.
+
+
 ### EIGHTH SESSION — EXECUTION REBALANCE, the curriculum FIRED
 
 **Section block written:** 2026-08-25T16:38:55Z by dafoam-supervisor (EIGHTH session, formed ~16:30Z 2026-08-25 under Sanaa's EXECUTION REBALANCE directive; the seventh fleet did not survive the session that ended ~03:50Z). *Stamp is `date -u` in the committing invocation.* Opus 5; Fable exhausted. **The seventh session's block below this one is a CLOSED HISTORICAL BLOCK and is carried BYTE-FOR-BYTE — every finding in it stands, nothing in it is superseded, and this session re-opens none of it.**
