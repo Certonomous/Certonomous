@@ -2624,7 +2624,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T01:26:15Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T01:37:14Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -2791,9 +2791,14 @@ its job on the team's own output, and the denominator of her directive depends o
   FILENAMES that EMBED their parent case id** — `VMFL002B_VV002CFX.def` is the CFX input file
   for case VMFL002, sitting in an "Input File" row. The lane's list of 10 was also itself
   incomplete: it missed VMFL010B.
-- **The cheap discriminator, verified: a real case id recurs 5-7 times** (heading, TOC,
-  results table); **each filename string appears exactly ONCE.** Thresholding at >=3
-  occurrences returns exactly 95, split 78/10/7 — independently reproducing CASE_MAP.
+- **The discriminator, and a lane MEASURED IT BETTER THAN THIS SUPERVISOR STATED IT.** I gave
+  the lane "a real case id recurs 5-7 times"; **measured, the range is 4-10.** The stronger
+  fact, which is the lane's and not mine: **NO identifier occurs 2 or 3 times AT ALL — the gap
+  is EMPTY.** So the 95/11 split is **a property of the document, not a threshold anybody
+  chose**, which is a far better warrant than my ">=3" cut. Thresholding returns exactly 95,
+  split 78/10/7. **The sidecar holds 106 identifier-shaped tokens, not 105** — which is why the
+  original audit's list of ten missed `VMFL010B`: **its two errors cancelled into arithmetic
+  that looked plausible.** Corrected here; my 5-7 figure is withdrawn.
 - **This is the same family as the team's own L-308** (phrase-grep false-UNSOURCED on
   hard-wrapped Markdown): **a grep over a document is not an enumeration instrument unless it
   carries a discriminator.** Candidate lesson; the wrong claim is COMMITTED at `eb0feb8b` in
@@ -2901,6 +2906,18 @@ until this supervisor verifies the prereg commit.
 precondition — V is already in hand, so G is cheap to reach.
 (g) Land the grep-discriminator lesson and the re-derive-the-id-at-commit lesson.
 
+**HARNESS FINDING, LARGER THAN FIRST MEASURED AND IT CHANGES HOW THIS TEAM IS RUN: the lane
+-> supervisor `SendMessage` channel IS ONE-WAY.** An opus lane reported that `SendMessage` to
+`ansys-verification-supervisor` **failed twice as unreachable while this supervisor's messages
+to it arrived normally.** So supervisor -> lane works and lane -> supervisor does not. This is
+not the haiku tool-list gap below; it is a genuine one-way channel affecting **every lane type**.
+**Consequence: the write-to-the-case-directory-and-commit fallback is not a fallback, it is the
+ONLY reporting path**, and every brief from this supervisor now gives it as the PRIMARY channel.
+It also explains L-306 mechanically: three lane reports reached the chief instead of their
+supervisors tonight **because the direct path does not exist**, not because lanes chose wrongly.
+Reports of record for VMFL051 are on disk at
+`cases/ansys_verification/VMFL051/LANE_REPORT_RESULTS.md` (`1bc2a284`, `dc1aa4b1`).
+
 **HARNESS FINDING, small and real: `ansys-lane-haiku` has NO `SendMessage` tool.** Its only
 channel to this supervisor is write-to-disk-and-commit. Both haiku lanes this session were
 given that as a FALLBACK and both needed it. It is now given as the PRIMARY channel in haiku
@@ -2921,7 +2938,51 @@ flagged. `harness/` is not this team's to edit and has not been edited by it.
 **SUBMISSIONS PARKED** — nothing from this team's VM2026R1 work is filed, sent, uploaded or
 registered outside this box, and the manual is proprietary Ansys documentation.
 
-**THE VMFL051 STAGED DELETIONS ARE PHANTOMS — VERIFIED, AND WRITTEN HERE SO NO SESSION EVER
+**VMFL045 IS FROZEN, AUTHORISED, AND ITS FREEZE IS VERIFIED INTACT AT 2026-08-25T01:37:14Z — the second
+compressible gap-closer and the team's first case to be audited BEFORE it ran rather than
+after.** Oblique shock over an inclined ramp, manual pp. 153-154, never run here.
+- **Freeze ordering is evidentiary and correct:** inputs + comparator `2198f9b2`
+  (01:29:25Z) declaring NO COMPUTE, pre-registration frozen **SEPARATELY** at `6a9701e1`
+  (01:30:16Z). **Blobs, re-verified at 2026-08-25T01:37:14Z against the values checked at
+  authorisation and found UNCHANGED:** prereg `7a7f9d52fe8666a5ef3dd72c6dd4262e93b75b74`,
+  comparator `0c83eeef1199e1376d7ef400d9e4fb5f3d30e526`, launcher
+  `db3932616f6643180276b64e5cd7f360b0ba8a9f`. **All 13 tracked paths readable at HEAD, both
+  freeze commits reachable.** 13 of the shared index's 133 staged rows are VMFL045
+  deletions — **PHANTOMS, files intact, index untouched.**
+- **All four supervisor checks done PERSONALLY before compute was unlocked.** The comparator's
+  rule-5 ladder read as code: stated order, short-circuits before step 3, only step 3 emits
+  `PASS`. **The instrument proved itself — selftest 45 ok, 0 FAIL, run by this supervisor**,
+  with real negative controls (an incompressible no-shock treatment fails at 33.5 %, a
+  1.5 %-off value fails, no GCI quoted for a non-CONVERGING triple).
+- **THE DECLARED RISK, frozen in §3 BEFORE any number existed, and it is not to be softened:**
+  **Ansys Fluent's own reported Mach (1.902, point-sampled) would FAIL our 1 % gate at
+  1.494 %**; CFX's would pass at -0.160 %. The gate is against the manual's **target 1.874**
+  and our sampling is a **volume average**, not a point probe. **A lab value near Fluent's is a
+  `GATE FAIL`.** A number agreeing with a commercial code FEELS like corroboration, and that is
+  precisely when it gets narrated as agreement instead of graded. **This box has no Fluent and
+  no CFX; nothing here is a statement about Ansys.**
+- **Expected observed order fixed BEFORE the fact: p ~ 1** for shock capture, with **p ~ 2
+  declared SUSPICIOUS.** A suspiciously GOOD order is the failure mode nobody reports.
+- **VMFL051's plateau failure is addressed quantitatively, not gesturally** (§7): **8.6
+  flow-throughs against VMFL051's 4** at the same endTime, because the domain is 0.6 m rather
+  than 1.5 m; a steady solver declined WITH REASONS; plateau checked per level before the
+  triple is formed.
+- **Cost: point estimate 20.4 core-min, cap 48, $0.04104 at the ceiling, DERIVED not
+  measured.** Serial. **The launcher closes the timeout trap STRUCTURALLY, not by comment:** it
+  computes `BUDGET_S = CAP_CORE_MIN*60/RANKS` and `core_min = wall*RANKS/60`, the GENERAL
+  formulae, so a future parallel copy inherits a correct cap automatically. A comment is a
+  hope; a correct general formula is a guard (L-221/L-222).
+- **A CONTROLLED CONTENTION EXPERIMENT, deliberately not wasted:** box load at authorisation
+  **2.36 on 16 cores**, against the **68-76** behind VMFL051's **2.06x** overrun. Three samples
+  captured. **A near-1.0 ratio here ISOLATES contention as VMFL051's cause and exonerates
+  misprediction** — a controlled comparison, not an attribution argued from one row.
+- **LAUNCH STATUS, stated honestly: the run had NOT started as of 2026-08-25T01:37:14Z.** No run
+  directory, no solver process. The first lane did not wake to the authorisation; a fresh
+  opus-4.8 lane has been dispatched to EXECUTE the frozen case without redesigning it — which
+  is cheap **only because the pre-registration was frozen first.** **A failure to launch is
+  treated as a FINDING, not as latency**, and its triage is this supervisor's.
+
+**THE VMFL051 AND VMFL045 STAGED DELETIONS ARE PHANTOMS — VERIFIED, AND WRITTEN HERE SO NO SESSION EVER
 READS A `git status` AND CONCLUDES THIS CASE WAS DELETED.** That misreading has already
 happened twice in this lab. **All 16 tracked VMFL051 paths exist and are readable at HEAD**
 (16, not the 13 reported — `RESULTS.md` and `LANE_REPORT_RESULTS.md` landed since that count
