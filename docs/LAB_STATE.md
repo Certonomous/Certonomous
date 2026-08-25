@@ -2142,6 +2142,34 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+### 20:40Z CORRECTION — "K0d IS BLOCKED" AT HEAD IS WRONG, AND IT WOULD HAVE STRUCK TEN CASES OFF AN EMPTY BOX
+
+**Written 2026-08-25T20:40Z by heat-transfer-supervisor. This is a big-claim check under SUPERVISION §3, done personally against disk, and it OVERTURNS a claim committed by this team's own lane 9 minutes earlier.**
+
+Commit **`107489e4`** carries the subject *"THE QUEUE RUNS OUT AFTER T8 — and K0d is BLOCKED, so it supplies ZERO cores"*, and `docs/campaigns/T-family/THERMAL_SATURATION_QUEUE_2026-08-25b.md` §3 rules that K0d **"MUST BE STRUCK FROM THE SCHEDULE"** because its defining parameter is over-determined.
+
+**IT IS WRONG. K0d IS NOT BLOCKED ON `Ra`.** The lane cited `K0d_FIRE_RULING_2026-08-25.md` — **a SUPERSEDED document.** `K0d_REREGISTRATION.md` exists *because of* that fire ruling and **dissolves the contradiction structurally rather than patching it**:
+
+- **§1.1** registers the fluid state once and consistently — `T_ref` = 298.00 K, **`β` = 1/298 = 3.3557047e-03 K⁻¹ BY IDENTITY** (β is not a free parameter in a Boussinesq air model), `ν` = 1.569e-5 m²/s. `AMENDMENT 5`'s `β = 3.26577e-3` is rejected because it is `1/306.21` — an **8.06 K internal contradiction** inside the one coefficient Boussinesq validity rests on.
+- **§1.3**, in terms: **"`Ra` IS DERIVED AND REPORTED. IT IS NOT A TARGET, AND NO GATE DEPENDS ON MATCHING IT."** `Ra` = **2.135970e9**, derived. The **+0.2803 %** residual against the published 2.13e9 is disclosed and explained — that published figure was taken at **ΔT = 20.5 K** while this rung runs at **ΔT = 20.0 K**. The document's own words: *"A 0.28 % residual against a target taken at a different `ΔT` is not a defect to be closed; **closing it was the defect**."*
+
+**There is ONE registered `(ν, β, T_ref)` triple and `Ra` is an output. The over-determination is gone.** `build_k0d.py` already carries exactly those values (`NU = 1.569e-05`, `BETA = 3.3557047e-03`, `TREF = 298.00`).
+
+**THE DEFECT CLASS, NAMED SO IT IS NOT REPEATED: reading a SUPERSEDED document as current.** This lab's standing caution is against re-measuring a claim already written down; **this is its inverse and it is just as expensive** — a lane correctly quoted a real document, verified from disk that `K0d_runs/` does not exist, and reached a conclusion a later frozen document had already overturned. **Both halves of its evidence were true. The verdict was still wrong.** A superseded record cited by line looks exactly like a current one.
+
+**The other lane's committed file is NOT edited** — an unexpected record is inspected, never reverted. It is corrected here and in `AMENDMENT 2` §A2.5.
+
+**K0d's REAL blocker is unchanged and is the four `REGISTRATION_GAPS` entries still `value=None` at `build_k0d.py:51,56,64,70`, on which the builder REFUSES (exit 2) — correctly, since §A5.11 clause 2 forbids it choosing. All four are RULED above. `AMENDMENT 2` re-dispatched; the previous lane died mid-draft at "Drafting AMENDMENT 2" and NOTHING landed.**
+
+#### BOX RE-MEASURED 20:36:50Z — MUCH EMPTIER THAN MY 20:19Z READING
+
+**16 cores, load average 3.46 (was 7.07), 26 GB of 30 available.** The dafoam IPOPT drivers have retired. **The only load lab-wide is my own three T1b arms.** That is **3 of 16 = 19 %**, far below Sanaa's 80–90 % band.
+
+All three arms are **still running, not finished** — 4 h 00 m elapsed, ~14 393 s CPU each, no `End` line, `timeout` parents 2203926 / 2203943 / 2203946 alive. **A solver that ended when a lane died is not the same as one that completed; these completed neither and are mid-run.**
+
+**Staging REVISED UPWARD: fire ALL TEN K0d cases, not the seven I pre-decided at 20:19Z.** Ten serial cases + three arms = **13 of 16 = 81 %, inside the band.** The arms retire in ~26 / ~64 / ~93 min, after which K0d alone holds 62.5 % and T8 fills the rest. **Not more than 13 CPU-bound processes:** the headroom is deliberate, because oversubscribing corrupts the wall-clock timing basis the cost calibration depends on — a **MEASUREMENT argument, not a cost argument, and it survives Sanaa's directive intact.**
+
+
 ### SESSION certonomous-67 — THE K0d BLOCKER IS NEITHER COST NOR THE TWO NAMED FINDINGS. IT IS FOUR REGISTRATION GAPS, AND I HAVE RULED THEM
 
 **Sub-section written:** 2026-08-25T20:30Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; this session re-opens none of them.**
