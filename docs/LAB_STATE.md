@@ -3405,6 +3405,109 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
 
+**SANAA'S RULING OF 2026-08-25 ON THIS TEAM'S ONE `NOT DONE` — HER OWN SESSION TURN,
+RECEIVED VIA THE CHIEF, REPRODUCED BYTE-EXACT.** Her missing space in `That'sfine` is
+PRESERVED and must never be corrected. Normalised spelling is the signature of a relayed
+paraphrase rather than a primary source. Recorded by `ansys-lane-opus` from the HEAD blob,
+never the worktree copy.
+
+> That'sfine the ansys verification team should just make sure to update its charters and respective docs going forward.
+
+**Context, stated as context and not as her words:** this is her reply to the one `NOT DONE`
+this team carried from 2026-08-24 — that **no charter was updated** with the day's findings,
+against `ANSYS_VERIFICATION_CHARTER.md` §7's record-update duty.
+
+**AN ORDERING AMBIGUITY, DISCLOSED RATHER THAN RESOLVED BY GUESS.** Three of her turns
+reached this lane on 2026-08-25 and this lane cannot establish their order among themselves
+from anything on disk: the scope/never-run directive (recorded further down this section),
+the instructions directive (recorded immediately below this block), and this ruling. **They
+are recorded by receipt order into this lane, and no claim is made about the order she spoke
+them.** Nothing here depends on that order.
+
+---
+
+### THE SUPERVISOR'S RULINGS ON THAT RULING — THESE ARE **NOT** HER WORDS
+
+**1. HER RULING IS PROSPECTIVE AND NO BACK-FILL IS DEMANDED.** *"going forward"* attaches the
+duty from here. **Yesterday's gap is closed by HER, not excused by US** — the distinction
+matters, and this team does not get to convert her forbearance into a finding that there was
+nothing to find.
+
+**2. SHE WROTE "charters AND RESPECTIVE DOCS" — PLURAL, AND WIDER THAN THE CHARTER.** The
+duty covers `docs/charters/ANSYS_VERIFICATION_CHARTER.md` **and** this team's own docs —
+`docs/ansys_verification/README.md`, `CASE_MAP.md`, `COVERAGE_ROWS.md`. **A finding parked
+only in `NUMERICS_KNOWLEDGE.md` when it governs how a case is SET UP is in the wrong file:**
+a numerics fact is looked up after a disagreement; a setup obligation must be met before the
+freeze, so it has to live where a lane writing a pre-registration will meet it.
+
+**3. THE DUTY IS ATTACHED TO THE CASE CLOSE-OUT, NOT LEFT FREE-FLOATING. BINDING ON EVERY
+CASE THIS TEAM CLOSES FROM HERE.** The close-out invocation already lands verdict, tier,
+register row, calibration row and the three parent aggregates together. It now also lands a
+**CHARTER/DOC UPDATE LINE — or an EXPLICIT `NONE` WITH ONE LINE OF REASON.** **A duty with no
+moment attached is exactly the duty that shows up as `NOT DONE`, which is how this one was
+missed.** A close-out that silently omits the line is indistinguishable from one that forgot,
+which is the same discipline as a register row that carries its own caveat.
+
+**4. THE THREE CANDIDATE FINDINGS ALREADY IN HAND, RULED — AND THE RULING IS DISCLOSED AS
+VOLUNTARY.** Her ruling is prospective and does not demand these; **this team is doing them
+anyway, because leaving them out means the next case repeats the mistake.**
+- **THE WEDGE-GEOMETRY BIAS IS CHARTER-GRADE** and enters the charter as a standing setup
+  obligation on every axisymmetric registration. It is a **MODELLING bias that no grid
+  refinement removes**, so it belongs in the error budget **before** the freeze. It stays in
+  `NUMERICS_KNOWLEDGE.md` as `N-AV9` as well; the charter clause **cites** `N-AV9` rather
+  than restating its derivation, so there is one home for the arithmetic.
+- **THE PRE-FLIGHT SMOKE TEST IS CHARTER-GRADE** and enters §5. Its warrant is **measured,
+  not theoretical**: a comparator `--selftest` proves the **GRADER**, never the **CASE** or
+  the **LAUNCHER**. VMFL045's grader passed **45/45** and its solver died on the first
+  timestep; VMFL003's launcher passed **60/60** and was unrunnable. Both figures were
+  re-verified from the records before being written into a charter.
+- **THE WALL-FUNCTION GRID CONSTRAINT STAYS IN `NUMERICS_KNOWLEDGE.md` AS `N-AV10` AND DOES
+  NOT ENTER THE CHARTER.** It is a fact about one model's interaction with one mesh family,
+  not a rule about how this team works. **This rejection is stated explicitly with its
+  reason, because a candidate rejected silently looks like one overlooked.**
+
+**5. THE AMENDMENT APPENDS AND WEAKENS NOTHING.** No existing clause is reworded, widened or
+retired — retiring or widening a charter clause is Sanaa's alone. It lands as a dated
+amendment at the foot with a version bump and the assertion `lines whose number changed above
+this section: 0` (CLAUDE.md rule 6; `VERIFICATION_CHARTER.md` §2b).
+
+**6. THE STANDARDS READ WAS CHECKED AGAINST THE CLAUSES BEFORE THEY WERE WRITTEN, AND IT
+TURNED UP NO CONFLICT WITH EITHER — BUT IT DID TURN UP FOUR AGAINST FROZEN WORK, AND THEY ARE
+DISCLOSED, NEVER RECONCILED.** Full report of record:
+`docs/ansys_verification/STANDARDS_READ.md`. In one line each:
+- **The frozen plateau clause's SHAPE** (absolute tolerance, fraction-of-run window) is the
+  shape `MONITOR_STANDARD.md` S13 v1.12 argues against on both axes. Measured both ways:
+  VMFL051's `NOT A RESULT` becomes **more** robust (S13's form refuses all three levels, the
+  frozen clause refused two), while **VMFL045-R2's COARSE level reads 0.06100 % of its run
+  range against S13's 0.02 %** — material, because that case is the team's third credential.
+  **The `PASS` is NOT withdrawn**; what this supports is the concern this team had already
+  recorded itself, that its G column is unclean.
+- **`docs/MESH_STANDARD.md` requires a SIX-level family provisioned up front**, against this
+  team's three-level triples. A tension between a standing rule and house practice, not this
+  lane's to resolve — and it independently prescribes the fourth VMFL045 level already named.
+- **NEW MEASUREMENT the record did not carry: neither frozen comparator reads Courant at
+  all.** Both compressible cases run `rhoCentralFoam` under `adjustTimeStep`, `maxCo 0.4`.
+  **VMFL045-R2 L3: max over run 0.412936 against a final line of 0.400207 — +3.23 %, above
+  S8's calibrated 2 % tolerance** and level-dependent (+1.48 % coarse → +3.23 % fine).
+  Changes no verdict; the frozen gate has no Courant clause. A candidate contributor to the
+  above-formal observed order, offered as a hypothesis for the fourth level to test.
+- **`PROBLEM_RESEARCH_PROTOCOL.md` §4 obliges a docket proposal, not a memo**, once this team
+  acts on her literature rule — and its own words are *"Drafts only: … never post, comment,
+  or create accounts."* **SUBMISSIONS REMAIN PARKED.** It also says **nothing whatever about
+  preconditioners**: her rule-2 clause has no standard behind it, reported as a gap.
+
+**A CORRECTION THIS LANE MADE TO ITS OWN BRIEF, RECORDED RATHER THAN QUIETLY APPLIED.** The
+brief described the wedge bias as *"sin(t)/t — 0.127 % at t = 5 deg"*. That is exactly right
+for the **cross-sectional AREA** deficit, and it is **not** the bias on the graded quantity: a
+flat-sided wedge also under-represents the **wall arc** by sin(t/2)/(t/2) = 0.031728 %, and
+the two deficits do not cancel. Their ratio is **sec(t/2)**, so at fixed wall shear the
+modelled pressure drop is high by **sec(2.5°) − 1 = +0.09526851633199218 %**, not 0.127 %.
+Both figures reproduce the frozen `VMFL003/case/system/blockMeshDict.template` header to full
+precision. **The charter clause carries the pair and the net, not the single number.**
+
+**Recorded by `ansys-lane-opus`, 2026-08-25. Zero compute: no solver, no mesher, nothing
+written under `verification/runs/`.**
+
 **SANAA'S DIRECTIVE OF 2026-08-25 (SECOND OF THE DAY, THE "MORE DETAIL" SHE PROMISED),
 HER OWN SESSION TURN, RECEIVED VIA THE CHIEF, REPRODUCED BYTE-EXACT.** Her typos, her
 double-spaces and her spacing before punctuation are PRESERVED AND NOT NORMALISED.
