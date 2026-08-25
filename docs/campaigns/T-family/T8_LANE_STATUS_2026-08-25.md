@@ -397,3 +397,234 @@ repair is committed and frozen, and no compute has started.**
 **What this lane still could not verify:** anything about T8 physics — no
 solver ran; and `build_t8.py` is **unchanged and unaudited by mutation** — this
 lane audited the comparator, not the case builder.
+
+---
+
+# APPENDIX 2 — T8 FIRED, AND IT CANNOT GRADE (2026-08-25, 21:32–21:45Z)
+
+**Read §2.1 first. It invalidates the grading of all three levels, it is a
+defect in the FROZEN pre-registration rather than in any code, and my own
+amendment-A1 fixtures could never have caught it.**
+
+## 1. The fire, as ordered
+
+**Step 1 — pre-compute condition re-verified 21:32:49Z.** `T8_MTT_c`,
+`T8_MTT_m`, `T8_MTT_f` all **ABSENT**; run tree held only the three freeze-set
+scripts; no `STATUS.T8*`, no `log.solve` under any T8 path.
+
+**Step 2 — freeze re-verified via `git cat-file -p HEAD:<path>`** (not
+`git diff`): `analyse_t8.py` = `f04f9a674e03773b34ac0b511611414c33204773`,
+`build_t8.py` = `376a41da268c7a97e59cb284f77ec54027652992` — **both match the
+supervisor's shas exactly**; `run_one_t8.sh` = `70a37aa634d6…`.
+
+**Mesh.** `build_t8.py` writes `0.orig/` only; `blockMesh` + `checkMesh` were
+run per level. **`Mesh OK` on all three**, cells **6400 / 25600 / 102400**
+exactly as registered, ratios exactly **4.0000 = r^dim**.
+
+*(A reader bug of mine here: I first grepped lowercase `cells:` against
+`nCells:` in the blockMesh log and got an empty string, which I nearly read as
+a mismatch. Re-read from `checkMesh` and required three **distinct non-zero**
+values before believing any of them.)*
+
+**Step 3–4 — launched 21:34:54Z**, `setsid nohup`, serial, `ranks = 1`.
+
+| level | solver pid | `timeout` | registered cap | case |
+|---|---:|---:|---:|---|
+| c | 2635183 | **900 s** | 15 core-min | `…/T8_runs/T8_MTT_c` |
+| m | 2635190 | **4800 s** | 80 core-min | `…/T8_runs/T8_MTT_m` |
+| f | 2635179 | **30000 s** | 500 core-min | `…/T8_runs/T8_MTT_f` |
+
+Registered total **335.3 core-min** point estimate against a **595 core-min**
+cap. `timeout = cap × 60 ÷ ranks` in every case, as registered.
+
+**Step 5 — contention at launch.** loadavg **5.80 / 4.87 / 4.36** on 16 cores,
+27 GB of 30 GB available. Foreign solvers, untouched: **pids 2203927
+(`T1_runs/R_10k_x`), 2203944 (`R_100k_x`), 2203947 (`R_300k_x`)** — the T1b
+arms, 4 h 56 m elapsed at launch — plus a dafoam D10F docker probe. Load rose
+to **10.65** with T8's three added.
+
+*(My first process census used `pgrep -x buoyantBoussinesqSimpleFoam`, which
+**silently matched nothing** — the name exceeds 15 characters. My second
+classified by `cwd` and labelled **my own solvers "foreign"**, because the
+solver runs from the launcher directory and takes the case as a `-case`
+argument. Both corrected; the table above classifies by the `-case` argument.)*
+
+## 2. Outcomes
+
+| level | result |
+|---|---|
+| **c** | `rc=0`, reached `endTime` 8000/8000, wall 229 s, **3.817 core-min** |
+| **m** | **`rc=136` — CRASHED (SIGFPE)** at `Time = 1086` of 12000, wall 150 s |
+| **f** | still running at last check (823 of 20000) |
+
+### 2.1 THE FINDING — §12 S3's extrapolation precondition is FALSE on the mesh §5 registers
+
+`resolve_planes` enforces, as a refusal condition, that the two axis-adjacent
+cell-centre radii satisfy **`r₂ = 3·r₁`** — the precondition for §12 S3's
+registered axis extrapolation `(9f₁ − f₂)/8`.
+
+**Measured on the real, completed level-c mesh** (the frozen instrument, run on
+the live case at its `endTime`, geometry written by OpenFOAM itself):
+
+- first four cell-centre radii in plane 0: `0.016650804, 0.038851875,
+  0.063273054, 0.088011391`
+- **`r₂/r₁ = 2.333333333333` = 7/3, not 3.**
+- `resolve_planes` → **REFUSAL**: *"the section 12 S3 centreline extrapolation
+  is not applicable"*.
+
+**Cause, and it is not a bug in anyone's code.** OpenFOAM's cell centre is the
+**volume centroid**. On a wedge, the axis-adjacent cell is a collapsed
+triangular prism whose centroid sits at `(2/3)dr`, and the next cell — an
+annular sector over `[dr, 2dr]` — has its centroid at
+`(2/3)(r_b³−r_a³)/(r_b²−r_a²) = (14/9)dr`. The ratio is
+`(14/9)/(2/3) = 7/3` **exactly**, and the predicted radii `0.016667` and
+`0.038889` match the measured `0.016651` and `0.038852` to 0.1 % (the residual
+is the flat-sided wedge correction, which cancels in the ratio).
+
+`r₂ = 3r₁` is what you get from cell centres at **arithmetic mid-radius**. That
+is not what a wedge mesh produces. **The pre-registration registered a formula
+whose precondition its own registered mesh cannot satisfy.**
+
+For `r₂ = k·r₁` the quadratic axis extrapolation is `(k²f₁ − f₂)/(k² − 1)`:
+`k = 3` gives the registered `(9f₁ − f₂)/8`; **`k = 7/3` gives
+`(49f₁ − 9f₂)/40`.**
+
+**Consequence: `analyse_t8.py` will REFUSE (exit 2) on all three levels.** T8
+**cannot grade as frozen.** The direction is safe — it refuses rather than
+returning a wrong number — but no T8 verdict is reachable under this document.
+
+**Nothing was changed to accommodate this.** §12 S3 is frozen and **compute has
+started**, so rule 2 closes it: altering the extrapolation now would change the
+grading instrument after first compute. That is the supervisor's and Sanaa's
+call, not this lane's.
+
+### 2.2 My own amendment-A1 fixtures shared the false assumption
+
+This is the part I most need on the record. `make_synthetic_field_case` places
+cell centres at **`r_j = (j+½)dr`** — arithmetic mid-radius — which makes
+`r₂ = 3r₁` **true by construction**. The fixture and the instrument agreed
+because **they share one wrong assumption**, which is the L-321 shape the
+comparator's own docstrings warn about.
+
+So the 69-check selftest, the two negative arms and the closed mutation gap are
+all real **and none of them could ever have caught this**. A fixture that
+reproduces the instrument's premise tests the implementation, not the premise.
+**The defect was found by running the frozen instrument against a real mesh —
+which is the one thing no selftest had done.**
+
+### 2.3 Level m crashed — a finding, not a triage verdict
+
+`rc=136` = 128+8 = **SIGFPE**. The stack terminates in
+`PBiCGStab::scalarSolve` called from `libincompressibleTurbulenceModels` — a
+floating-point exception in a **turbulence scalar equation** (`k` or
+`epsilon`). Crashed at `Time = 1086`; `writeInterval` is 1200, so **no time
+directory was ever written** and level m has **no fields on disk**.
+
+**Crash triage is the supervisor's non-delegable §3 check.** Evidence recorded,
+verdict withheld. Level c reached `endTime` on the same physics with the same
+schemes, so a bare "finer mesh, smaller effective step" story does not
+自-evidently hold and should not be assumed.
+
+### 2.4 Level c completed but its residual is not small
+
+At `endTime` the `T` equation's initial residual is **7.32e-04**, four
+decades above the registered `1e-6` iterative-convergence tolerance. The
+registered gate is a last-two-checkpoint field change, not a residual, so this
+is **not** itself a gate result — but it is a signal that the run had not
+settled, and it is recorded now rather than discovered at grading.
+
+### 2.5 The running level f was NOT killed
+
+`f` was still inside its 30000 s cap and not overrunning. Killing a solver
+destroys evidence, and whether `f` crashes near the same step as `m` is
+diagnostic information about the case setup. **Cost is trivial** ($0.29 derived
+for the whole rung) and the supervisor has removed cost as a ground. Left
+running, deliberately, and flagged rather than decided.
+
+## 3. Builder mutation audit — 6 CAUGHT, 5 SURVIVED
+
+Method as before: mutate `build_t8.py` on **copies**, build into a scratch
+root, `blockMesh` + `checkMesh`, then run the **frozen comparator's own**
+structural instruments (hash-verified identical to `f04f9a674e03`) against the
+result. Level `c` only, for cost. `PYTHONDONTWRITEBYTECODE=1` throughout.
+
+**The first run of this suite was VOID: the unmutated control FAILED**, on the
+same `r₂/r₁` refusal — every row read "CAUGHT" for a reason that had nothing to
+do with the mutation. That is how §2.1 was found. The table below is the re-run
+**with the `r₂/r₁` precondition corrected to 7/3 in the scratch copy of the
+instrument**, so the control passes and the remaining instruments can be judged.
+
+| id | category | verdict | caught by |
+|---|---|---|---|
+| **B0 control (unmutated)** | control | **SURVIVED** ✓ | *(as required — the control must pass)* |
+| B1 radial divisions 8→9 | mesh generation | **CAUGHT** | `grade()`: mesh 6560 cells, registered 6400 |
+| B2 wedge half-angle 2.5→3.0° | mesh generation | **CAUGHT** | `check_scale_against_mesh`: 1.662e-01 relative > 1e-6 |
+| B3 radial grading 1→2 | mesh generation | **CAUGHT** | `resolve_planes`: r₂/r₁ = 2.5667 |
+| B4 `EXPECT_CELLS` 6400→6401 | registered constant | **CAUGHT** | `grade()`: mesh 6400, registered 6401 |
+| B5 `CASE.txt` nz doubled | registered constant | **CAUGHT** | `resolve_planes`: 320 planes × 40 ≠ 6400 |
+| B6 `CASE.txt` endTime +1 | registered constant | **CAUGHT** | `check_completion`: CASE.txt ≠ controlDict |
+| **B7 `R_STATIONS` 0.1→0.15** | mesh generation | **SURVIVED** | — |
+| **B8 source `w0` 0.6→0.9** | field initialisation | **SURVIVED** | — |
+| **B9 source `dT0` 21.14→30** | field initialisation | **SURVIVED** | — |
+| **B10 outlet `patch`→`wall`** | boundary assignment | **SURVIVED** | — |
+| **B11 outlet U BC → `fixedValue`** | boundary assignment | **SURVIVED** | — |
+
+**The survivors, said plainly, because a survivor named is worth more than a
+green suite.** Every structural instrument T8 has is **geometric or
+bookkeeping**. Not one of them looks at **what was initialised or what the
+boundaries do**:
+
+- **B8/B9 move the source Richardson number** away from the registered pure-plume
+  `Ri₀ = 0.192`, turning the plume into a forced plume or jet — which moves
+  `n_w`, `n_T`, `n_Q` **toward the jet values the ±0.05 bands exist to
+  discriminate against**. Invisible.
+- **B10/B11 confine or fix the outlet**, changing entrainment — the physics the
+  exponents measure. Invisible.
+- **B7 changes near-axis resolution on one level only**, breaking the geometric
+  similarity the Roache ladder assumes, while leaving cell count, plane count
+  and total volume untouched. Invisible.
+
+**At least four of the five survivors can move a graded value**, which is the
+condition the supervisor pre-declared. **They were not observed — they were
+demonstrated to be undetectable**, which is the weaker and more useful claim:
+this is a statement about the instrument's blind spots, not an allegation about
+the shipped builder. `build_t8.py` on disk is the frozen, hash-verified file
+and none of these mutations is present in it.
+
+The gap is real: T8 registers **no control that reads the initialised fields or
+the boundary conditions back and checks them against the registered case
+constants**, though `CASE.txt` carries `w0`, `dT0`, `T_source`, `F0`, `k0` and
+`epsilon0` precisely so that such a control could exist.
+
+## 4. Cost — estimate vs actual (rule 12)
+
+| level | predicted | actual | ratio | note |
+|---|---:|---:|---:|---|
+| c | 7.13 core-min | **3.817** | **0.54** | completed |
+| m | 42.81 core-min | **2.50** | — | **crashed; not a calibration point** |
+| f | 285.40 core-min | in progress | — | — |
+
+Level c came in at **54 % of prediction**, i.e. the §8 cross-mode rate borrow
+(PIMPLE rate applied to a SIMPLE run) **over-predicted**, in the direction §8
+declined to guess. A `docs/COST_CALIBRATION.md` row is **owed at rung
+completion**, not now — the rung is not complete and one level crashed.
+**Derived spend so far: well under $0.05.**
+
+## 5. Verdict
+
+**BLOCKED.** The solves ran, but the frozen comparator **cannot grade this
+mesh**: §12 S3's `r₂ = 3r₁` precondition is false for the OpenFOAM wedge the
+document itself registers, measured at **7/3** on the real level-c mesh. Level
+**m crashed (SIGFPE)** and wrote no fields. No T8 gate verdict is reachable
+under this pre-registration, and **nothing may be adjusted to reach one** —
+compute has started and rule 2 has closed §1–§10 and §12.
+
+**On the supervisor's desk, and reserved to the supervisor and Sanaa:** whether
+T8 is re-registered fresh with the corrected extrapolation `(49f₁ − 9f₂)/40`;
+the triage of the level-m SIGFPE; and whether level f is allowed to finish.
+
+**What I could not verify:** whether level f completes or crashes; whether the
+level-m crash is mesh-related or setup-related (triage is not mine); and
+whether `(49f₁ − 9f₂)/40` is right for the **flat-sided** wedge — I derived it
+for the exact annular centroid ratio, and the 0.1 % flat-sided correction on
+the radii themselves has **not** been carried through that derivation.
