@@ -354,3 +354,95 @@ never rewritten. This is a **frozen file**: a departure is a dated amendment at 
 a version bump and `lines whose number changed above this section: 0`.
 
 <!-- addenda, if any, below this line; nothing above it is ever edited -->
+
+---
+
+## AMENDMENT 1 — 2026-08-25 — **THE CASE ID IS `F1`. `F13` WAS NEVER ALLOCATED AND IS NOT CLAIMED HERE.** v1.1
+
+**lines whose number changed above this section: 0** — **VERIFIED BY DIFF, NOT ASSERTED.** In the
+invocation that wrote this amendment, the parent blob was compared line-for-line against the first
+356 lines of the child and the diff was **empty**, and the parent blob was proved a **byte prefix**
+of the child (`cmp -n <parent_bytes>` clean, child strictly longer). This amendment is
+**insertions-only**, appended below the foot marker at line 356. Nothing above it is edited.
+
+### A1.1 The correction
+
+**This case's allocated id in the F-family is `F1` — ONERA M6 Transonic Wing (3D).** It has carried
+that id since the family summary was written:
+
+- `verification/campaign/CAMPAIGN_STATUS.md:7` — `## F1 — ONERA M6 Transonic Wing (3D)`
+- `verification/campaign/CAMPAIGN_STATUS.md:453` — the summary-table row `**F1** | ONERA M6 | …`
+- `verification/campaign/CHALLENGE_SLATE_2026-08.md:32` — `| ONERA M6 | **F1 + A3** | …`
+- `verification/campaign/CHALLENGE_SLATE_2026-08.md:122` — `| ONERA M6 | Schmitt & Charpin (1979),
+  AGARD AR-138 | On disk, already graded against (F1) |`
+
+**`F13` is not a case in this family and this document does not claim it.**
+`verification/campaign/F_FAMILY_TRIPLE_CROWN_SURVEY.md:657` records `| F13 | **never allocated** |
+not a case |`, and that survey's own scope line (`:64`) reads **F1–F12**. The same survey line 644
+records the other half: `| F1 | AGARD AR-138 **not on disk**; **no pre-registration exists at all** |
+missing primary + missing prereg` — **the gap this document was written to close.**
+
+**The id was taken from a reading the lab had already superseded in writing.**
+`verification/campaign/THERMAL_K0_PREREGISTRATION.md:237` states: *"§0's guess that 'F13 is the next
+unused' is wrong and is superseded"*, and `docs/campaigns/F14-cooling-ladder/README.md:43` records the
+same correction. So the freeze at `2eabe5971b1c45624c189c669b69b5f17788a56e` did two things it did
+not intend: **it gave one case a second identity, and it allocated an id the lab had recorded as
+non-existent.** Both are corrected here, in the only direction that is legal on a frozen document.
+
+**`F13` remains UNALLOCATED after this amendment.** Nothing here allocates it, reserves it, or
+recommends it. A future allocator reads `F_FAMILY_TRIPLE_CROWN_SURVEY.md:657` as still standing.
+
+### A1.2 The filename is retained UNCHANGED, and that is the ruling, not an oversight
+
+**This file is NOT renamed and NOT moved. Nothing is deleted.** This lab's own precedent — set on
+F6a and upheld by the cfd supervisor — is **preserve the path, register the correction beside it,
+delete and rename nothing.** The registered path is itself the historical record that the freeze
+happened where it says it did, and **`D527` cites this path**; renaming would silently invalidate
+that docket entry and every future citation of it while destroying the evidence of what was frozen.
+A reader arriving at `F13_ONERA_M6_PREREGISTRATION.md` is a reader who followed a real citation, and
+this amendment is what they must find there.
+
+**Consequence, stated so no later reader has to infer it:** the string `F13` appears in this file's
+name, in its title line, in §9's registered paths (`cases/F13_onera_m6/`,
+`verification/runs/F13_ONERA_M6_runs/`, `analyse_f13.py`, `verification/campaign/F13_RESULTS.md`)
+and in `D527`. **Every one of those is a PATH TOKEN, not an id claim.** The paths are frozen by
+rule 2 and are used verbatim; the **case id is `F1`**.
+
+### A1.3 This registration is F1's SUCCESSOR, and the link is restored here
+
+Sanaa's instruction was: *"The old favorable comparison is history and cannot score P; this one
+can."* **The old favourable comparison IS `F1`'s `GATE REACHED`** —
+`CAMPAIGN_STATUS.md:453`, *"Cp distribution (AGARD AR-138) | RMS 0.049–0.114, shock ±0.02–0.10
+x/c | **GATE REACHED** | 127.5"* core-min, on a 399,360-cell solve. §4 of this document already
+discloses those numbers and states that they **did not set any band here**. This amendment adds the
+part the freeze left out:
+
+> **This pre-registration is the SUCCESSOR to `F1`'s ungated `GATE REACHED` comparison. It is not a
+> new case. The earlier comparison was made without a pre-registration — the survey records `F1` as
+> having *"no pre-registration exists at all"* — and therefore CANNOT SCORE `P`. This document does
+> not revive it, does not inherit its verdict, and does not carry it forward as evidence.**
+
+**And as frozen, this document cannot score `P` either** — §2 gates `P` `PENDING` and NOT CLAIMED,
+because the held artifact carries **no spanwise coordinate** and `P` is therefore **not computable**
+from it, not merely unattributed. **So `F1`'s `P` column is open, and both the old comparison and
+this registration leave it open — for different reasons, and neither reason is a failure.**
+
+**NO VERDICT MOVES HERE.** `F1`'s existing `GATE REACHED` cell at `CAMPAIGN_STATUS.md:453` is **not
+edited by this amendment** and is not regraded by it. Whether that cell must move is a separate
+question, referred, and it is not this lane's to answer.
+
+### A1.4 Rule-2 legality — CHECKED, not asserted
+
+**This document is UNFIRED.** In the invocation that wrote this amendment, **every one of the 22 run
+directories and artifacts registered by name in §9 was tested with `test -e` and every one returned
+ABSENT**, under a **planted control** confirming the same reader returns non-ABSENT on a path that
+does exist (`sdk/geometry/onera_m6_wing.stl`). Any single non-ABSENT would have aborted the
+invocation before this text was written. **No compute has been spent under this registration.**
+
+**This amendment alters NO gate, NO band, NO threshold, NO cap and NO label, and by construction
+cannot** — it changes an identifier and restores a supersession link. §3's quantities, §4's bands,
+§5's ladder, §6's seeds, §7's criteria and §8's caps stand **exactly as frozen at
+`2eabe5971b1c45624c189c669b69b5f17788a56e`**.
+
+**Vocabulary unchanged:** `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` /
+`PENDING`.
