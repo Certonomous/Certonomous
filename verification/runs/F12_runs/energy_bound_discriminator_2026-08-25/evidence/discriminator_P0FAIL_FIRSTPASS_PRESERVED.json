@@ -1,0 +1,112 @@
+{
+ "grades_no_F12_gate": true,
+ "issues_no_verdict_from_the_fixed_vocabulary": true,
+ "prereg": "verification/campaign/F12_ENERGY_BOUND_DISCRIMINATOR_PREREGISTRATION.md",
+ "prereg_commit": "54acad46f8b038310cfd4c52218a102d2a83e580",
+ "prereg_blob": "e976f90a55ef077d623af5d609fbe32d245641d5",
+ "arms_present": [
+  "arm0"
+ ],
+ "frozen_constants": {
+  "dynamic_temperature_K": 32.3309915963,
+  "T0_K": 332.3309915963,
+  "generous_ceiling_K": 342.3309915963,
+  "S20_control": 3.282372,
+  "i_gen_control": 19
+ },
+ "L2_planted_zero": {
+  "planted_into": "/home/ubuntu/certonomous-runs/f12_energy_bound_discriminator_2026-08-25/arm0/case/147/T",
+  "n_cells_clean": 23040,
+  "clean_min": -8.156073387,
+  "clean_max": 608.5052971,
+  "A1_negative_clean_has_no_plant": true,
+  "plant_cell_index_negative": 12345,
+  "plant_cell_index_positive": 4321,
+  "A2_negative_plant_returned": true,
+  "A3_positive_plant_returned": true,
+  "A4_localisation_exact_cells": true,
+  "A5_cell_count_preserved": true,
+  "A6_min_moved_to_negative_plant": true,
+  "A6_max_moved_to_positive_plant": true,
+  "PASSED": true
+ },
+ "P0": {
+  "residuals_compared": 885,
+  "mismatches": 0,
+  "first_mismatches": [],
+  "rc": 134,
+  "abort_iteration": 148,
+  "abort_T0": -2.384321367,
+  "control_table_reproduced_exactly": false,
+  "control_table": {
+   "1": {
+    "registered": [
+     302.835189,
+     279.879433
+    ],
+    "measured": [
+     302.8351888,
+     279.8794327
+    ],
+    "exact": false
+   },
+   "4": {
+    "registered": [
+     332.985381,
+     276.161434
+    ],
+    "measured": [
+     332.9853805,
+     276.1614342
+    ],
+    "exact": false
+   },
+   "8": {
+    "registered": [
+     329.624836,
+     270.272989
+    ],
+    "measured": [
+     329.6248363,
+     270.2729886
+    ],
+    "exact": false
+   },
+   "11": {
+    "registered": [
+     335.446862,
+     264.218612
+    ],
+    "measured": [
+     335.4468621,
+     264.2186124
+    ],
+    "exact": false
+   },
+   "19": {
+    "registered": [
+     342.519742,
+     233.939444
+    ],
+    "measured": [
+     342.5197421,
+     233.9394443
+    ],
+    "exact": false
+   },
+   "20": {
+    "registered": [
+     342.626798,
+     236.50446
+    ],
+    "measured": [
+     342.6267981,
+     236.5044603
+    ],
+    "exact": false
+   }
+  },
+  "PASS": false
+ },
+ "P0_FAILED_ARMS_1_AND_2_ARE_VOID": true
+}

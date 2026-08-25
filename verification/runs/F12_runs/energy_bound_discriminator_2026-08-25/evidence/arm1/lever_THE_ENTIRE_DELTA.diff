@@ -1,0 +1,4 @@
+29c29
+<     div(phi,e)      $energy;
+---
+>     div(phi,e)      bounded Gauss upwind;

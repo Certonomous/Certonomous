@@ -1,0 +1,411 @@
+{
+ "grades_no_F12_gate": true,
+ "issues_no_verdict_from_the_fixed_vocabulary": true,
+ "prereg": "verification/campaign/F12_ENERGY_BOUND_DISCRIMINATOR_PREREGISTRATION.md",
+ "prereg_commit": "54acad46f8b038310cfd4c52218a102d2a83e580",
+ "prereg_blob": "e976f90a55ef077d623af5d609fbe32d245641d5",
+ "arms_present": [
+  "arm0",
+  "arm1",
+  "arm2"
+ ],
+ "frozen_constants": {
+  "dynamic_temperature_K": 32.3309915963,
+  "T0_K": 332.3309915963,
+  "generous_ceiling_K": 342.3309915963,
+  "S20_control": 3.282372,
+  "i_gen_control": 19
+ },
+ "L2_planted_zero": {
+  "planted_into": "/home/ubuntu/certonomous-runs/f12_energy_bound_discriminator_2026-08-25/arm0/case/147/T",
+  "n_cells_clean": 23040,
+  "clean_min": -8.156073387,
+  "clean_max": 608.5052971,
+  "A1_negative_clean_has_no_plant": true,
+  "plant_cell_index_negative": 12345,
+  "plant_cell_index_positive": 4321,
+  "A2_negative_plant_returned": true,
+  "A3_positive_plant_returned": true,
+  "A4_localisation_exact_cells": true,
+  "A5_cell_count_preserved": true,
+  "A6_min_moved_to_negative_plant": true,
+  "A6_max_moved_to_positive_plant": true,
+  "PASSED": true
+ },
+ "P0": {
+  "residuals_compared": 885,
+  "mismatches": 0,
+  "first_mismatches": [],
+  "rc": 134,
+  "abort_iteration": 148,
+  "abort_T0": -2.384321367,
+  "registered_criterion_printed_digits_MET": true,
+  "control_table": {
+   "1": {
+    "registered_6dp": [
+     302.835189,
+     279.879433
+    ],
+    "committed_artifact_full": [
+     302.8351888,
+     279.8794327
+    ],
+    "arm0_measured": [
+     302.8351888,
+     279.8794327
+    ],
+    "meets_registered_printed_digits": true,
+    "exact_vs_committed_artifact": true
+   },
+   "4": {
+    "registered_6dp": [
+     332.985381,
+     276.161434
+    ],
+    "committed_artifact_full": [
+     332.9853805,
+     276.1614342
+    ],
+    "arm0_measured": [
+     332.9853805,
+     276.1614342
+    ],
+    "meets_registered_printed_digits": true,
+    "exact_vs_committed_artifact": true
+   },
+   "8": {
+    "registered_6dp": [
+     329.624836,
+     270.272989
+    ],
+    "committed_artifact_full": [
+     329.6248363,
+     270.2729886
+    ],
+    "arm0_measured": [
+     329.6248363,
+     270.2729886
+    ],
+    "meets_registered_printed_digits": true,
+    "exact_vs_committed_artifact": true
+   },
+   "11": {
+    "registered_6dp": [
+     335.446862,
+     264.218612
+    ],
+    "committed_artifact_full": [
+     335.4468621,
+     264.2186124
+    ],
+    "arm0_measured": [
+     335.4468621,
+     264.2186124
+    ],
+    "meets_registered_printed_digits": true,
+    "exact_vs_committed_artifact": true
+   },
+   "19": {
+    "registered_6dp": [
+     342.519742,
+     233.939444
+    ],
+    "committed_artifact_full": [
+     342.5197421,
+     233.9394443
+    ],
+    "arm0_measured": [
+     342.5197421,
+     233.9394443
+    ],
+    "meets_registered_printed_digits": true,
+    "exact_vs_committed_artifact": true
+   },
+   "20": {
+    "registered_6dp": [
+     342.626798,
+     236.50446
+    ],
+    "committed_artifact_full": [
+     342.6267981,
+     236.5044603
+    ],
+    "arm0_measured": [
+     342.6267981,
+     236.5044603
+    ],
+    "meets_registered_printed_digits": true,
+    "exact_vs_committed_artifact": true
+   }
+  },
+  "ADDENDUM1_stronger_full_track": {
+   "rows": 147,
+   "values_compared": 294,
+   "mismatches": 0,
+   "first_mismatches": [],
+   "PASS": true,
+   "why": "strictly stronger than the registered criterion: exact float equality against the committed control artifact over EVERY written iteration, not the six registered ones"
+  },
+  "control_artifact_blob": "4890b9f3acdb9517ee6835f9520c7e11d9bed2aa",
+  "PASS": true
+ },
+ "arms": {
+  "arm0": {
+   "D1_i_gen_first_iteration_T_max_gt_342.331": 19,
+   "D2_S20": 3.282371884076229,
+   "D3_i_T0_first_iteration_T_max_gt_332.331": 4,
+   "D3_DEGENERACY_DISCLOSED": "T0 is a bound a HEALTHY converged adiabatic solve touches from below at its stagnation cell; a sub-Kelvin crossing is expected of any run. Reported, never used to classify alone.",
+   "reported_iterations": {
+    "1": {
+     "T_max": 302.8351888,
+     "T_min": 279.8794327,
+     "span_over_dyn": 0.7100232614772977
+    },
+    "4": {
+     "T_max": 332.9853805,
+     "T_min": 276.1614342,
+     "span_over_dyn": 1.7575689298222157
+    },
+    "8": {
+     "T_max": 329.6248363,
+     "T_min": 270.2729886,
+     "span_over_dyn": 1.8357571101157413
+    },
+    "11": {
+     "T_max": 335.4468621,
+     "T_min": 264.2186124,
+     "span_over_dyn": 2.2030951165800756
+    },
+    "19": {
+     "T_max": 342.5197421,
+     "T_min": 233.9394443,
+     "span_over_dyn": 3.358396771611114
+    },
+    "20": {
+     "T_max": 342.6267981,
+     "T_min": 236.5044603,
+     "span_over_dyn": 3.282371884076229
+    }
+   },
+   "T_max_over_run": 608.5052971,
+   "T_min_over_run": -8.156073387,
+   "n_written_iterations": 147,
+   "completion_REPORTED_not_claimed": {
+    "rc": 134,
+    "End_line_present": false,
+    "endTime_registered": 148,
+    "last_written_time": 147,
+    "last_time_equals_endTime": false,
+    "fields_at_last_time": [
+     "T",
+     "U",
+     "alphat",
+     "k",
+     "nut",
+     "omega",
+     "p",
+     "phi",
+     "rho"
+    ],
+    "ExecutionTime_count": 147,
+    "ExecutionTime_count_equals_endTime": false,
+    "last_iteration_started": 148,
+    "abort_message_present": true,
+    "abort_T0": -2.384321367,
+    "ALL_LIMBS_HOLD": false,
+    "NOTE": "Reported, NOT claimed. This probe grades nothing and no completed run is claimed from any arm."
+   },
+   "wall_s": 27.861256,
+   "classification": "N/A -- arm 0 is the control"
+  },
+  "arm1": {
+   "D1_i_gen_first_iteration_T_max_gt_342.331": 53,
+   "D2_S20": 2.7701255847114026,
+   "D3_i_T0_first_iteration_T_max_gt_332.331": 9,
+   "D3_DEGENERACY_DISCLOSED": "T0 is a bound a HEALTHY converged adiabatic solve touches from below at its stagnation cell; a sub-Kelvin crossing is expected of any run. Reported, never used to classify alone.",
+   "reported_iterations": {
+    "1": {
+     "T_max": 302.8351888,
+     "T_min": 279.8794327,
+     "span_over_dyn": 0.7100232614772977
+    },
+    "4": {
+     "T_max": 331.0422528,
+     "T_min": 276.6671931,
+     "span_over_dyn": 1.681824683231267
+    },
+    "8": {
+     "T_max": 329.0774828,
+     "T_min": 273.6143722,
+     "span_over_dyn": 1.7154781793437865
+    },
+    "11": {
+     "T_max": 333.241178,
+     "T_min": 267.463904,
+     "span_over_dyn": 2.0344960284956928
+    },
+    "19": {
+     "T_max": 335.9768812,
+     "T_min": 240.4161894,
+     "span_over_dyn": 2.955699379506073
+    },
+    "20": {
+     "T_max": 334.3028063,
+     "T_min": 244.7418993,
+     "span_over_dyn": 2.7701255847114026
+    }
+   },
+   "T_max_over_run": 431.5574594,
+   "T_min_over_run": 221.9745014,
+   "n_written_iterations": 148,
+   "completion_REPORTED_not_claimed": {
+    "rc": 0,
+    "End_line_present": true,
+    "endTime_registered": 148,
+    "last_written_time": 148,
+    "last_time_equals_endTime": true,
+    "fields_at_last_time": [
+     "Ma",
+     "T",
+     "U",
+     "alphat",
+     "k",
+     "nut",
+     "omega",
+     "p",
+     "phi",
+     "rho",
+     "yPlus"
+    ],
+    "ExecutionTime_count": 148,
+    "ExecutionTime_count_equals_endTime": true,
+    "last_iteration_started": 148,
+    "abort_message_present": false,
+    "abort_T0": null,
+    "ALL_LIMBS_HOLD": true,
+    "NOTE": "Reported, NOT claimed. This probe grades nothing and no completed run is claimed from any arm."
+   },
+   "wall_s": 29.923741,
+   "L1_lever_effect": {
+    "residuals_compared_vs_arm0": 885,
+    "mismatches_vs_arm0": 870,
+    "first_divergent_iteration": 2,
+    "PASS": true,
+    "why": "an arm whose residuals are IDENTICAL to arm 0's did not reach the solver and is VOID"
+   },
+   "classification": "MITIGATED"
+  },
+  "arm2": {
+   "D1_i_gen_first_iteration_T_max_gt_342.331": 9,
+   "D2_S20": 8.812328745048623,
+   "D3_i_T0_first_iteration_T_max_gt_332.331": 9,
+   "D3_DEGENERACY_DISCLOSED": "T0 is a bound a HEALTHY converged adiabatic solve touches from below at its stagnation cell; a sub-Kelvin crossing is expected of any run. Reported, never used to classify alone.",
+   "reported_iterations": {
+    "1": {
+     "T_max": 302.8351888,
+     "T_min": 279.8794327,
+     "span_over_dyn": 0.7100232614772977
+    },
+    "4": {
+     "T_max": 316.9409635,
+     "T_min": 282.5222831,
+     "span_over_dyn": 1.064572371604555
+    },
+    "8": {
+     "T_max": 331.3563656,
+     "T_min": 238.4910775,
+     "span_over_dyn": 2.872330340484442
+    },
+    "11": {
+     "T_max": 386.8553756,
+     "T_min": 263.8368845,
+     "span_over_dyn": 3.8049711755230664
+    },
+    "19": {
+     "T_max": 447.5843228,
+     "T_min": 206.0951323,
+     "span_over_dyn": 7.46927881196308
+    },
+    "20": {
+     "T_max": 467.6587568,
+     "T_min": 182.7474302,
+     "span_over_dyn": 8.812328745048623
+    }
+   },
+   "T_max_over_run": 509.0161488,
+   "T_min_over_run": -124.6127376,
+   "n_written_iterations": 52,
+   "completion_REPORTED_not_claimed": {
+    "rc": 134,
+    "End_line_present": false,
+    "endTime_registered": 148,
+    "last_written_time": 52,
+    "last_time_equals_endTime": false,
+    "fields_at_last_time": [
+     "T",
+     "U",
+     "alphat",
+     "k",
+     "nut",
+     "omega",
+     "p",
+     "phi",
+     "rho"
+    ],
+    "ExecutionTime_count": 52,
+    "ExecutionTime_count_equals_endTime": false,
+    "last_iteration_started": 53,
+    "abort_message_present": true,
+    "abort_T0": -124.6127376,
+    "ALL_LIMBS_HOLD": false,
+    "NOTE": "Reported, NOT claimed. This probe grades nothing and no completed run is claimed from any arm."
+   },
+   "wall_s": 11.22297,
+   "L1_lever_effect": {
+    "residuals_compared_vs_arm0": 315,
+    "mismatches_vs_arm0": 310,
+    "first_divergent_iteration": 1,
+    "PASS": true,
+    "why": "an arm whose residuals are IDENTICAL to arm 0's did not reach the solver and is VOID"
+   },
+   "classification": "EXONERATED"
+  }
+ },
+ "PREDICTIONS": {
+  "P1_arm1_EXONERATED": {
+   "measured": "MITIGATED",
+   "PASS": false
+  },
+  "P2_arm2_EXONERATED": {
+   "measured": "EXONERATED",
+   "PASS": true
+  },
+  "P3_arm1_S20_within_20pc_of_3.282372": {
+   "band": [
+    2.625898,
+    3.938846
+   ],
+   "measured": 2.7701255847114026,
+   "rel_change": -0.15605982968676235,
+   "PASS": true
+  },
+  "P4_arm2_S20_moves_by_at_least_20pc": {
+   "measured": 8.812328745048623,
+   "rel_change": 1.6847440646729324,
+   "direction_NOT_predicted": true,
+   "PASS": true
+  },
+  "P5_at_least_one_arm_dies_differently": {
+   "arm1": [
+    0,
+    148
+   ],
+   "arm2": [
+    134,
+    53
+   ],
+   "PASS": true
+  }
+ },
+ "JOINT_OUTCOME": "NOT the both-exonerated outcome: arm1 MITIGATED, arm2 EXONERATED."
+}
