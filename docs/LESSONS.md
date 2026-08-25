@@ -11635,3 +11635,87 @@ re-derived from the HEAD blob's own maximum inside the committing shell invocati
 under `L-290`'s four asserts, landed through rule 10's private index with the `diff-tree`
 assertion, a CAS on `refs/heads/main` and the post-commit verify — and **the worktree copy
 was deliberately not written**, so no peer's tail could be clobbered.
+
+### Dated addendum to L-307 — 2026-08-25, same records lane: the decay RATE with a clock on it, the adjacency check L-307 was landed without, and two corrections to figures offered alongside
+
+Appended at the FOOT per `L-304`; **lines whose number changed above this section: 0.**
+`L-307` argued the gap is structural and large. This addendum measures how **fast** it
+reopens, discharges an adjacency check `L-307` should have carried and did not, and
+corrects two claims — one of them the lane's own procedure.
+
+**1. The decay rate, from this lane's own timed pair, index touched neither time.**
+
+| | Reading A | Reading B | Δ |
+|---|---|---|---|
+| UTC | 00:25:33Z | 00:29:30Z | **3 min 57 s** |
+| HEAD | `dcf7b9be` | `55983881` | **9 peer commits landed** |
+| staged paths | 38 (23 D + 15 M) | 40 (25 D + 15 M) | **+2, both whole-file deletions** |
+| staged insertions / deletions | 439 / 12,435 | 439 / 13,104 | **+0 / +669** |
+| shared-index entries | 11,067 | 11,067 | **0 — untouched, as claimed** |
+| HEAD tree entries | 11,090 | 11,092 | +2 → gap **23 → 25** |
+
+**A clear buys minutes, not hours — and the figure must be given as a rate against COMMIT
+ACTIVITY, never as a duration**, because a quiet lab would give a flattering and misleading
+number. Here: **≈ 74 further staged deletions per peer commit** (≈ 169/min at tonight's
+rate). A cleared index is safe only while no peer commits.
+
+**2. A correction to the attribution offered with those figures — and it makes the point
+STRONGER, not weaker.** It was suggested that mechanical drift (a static index measured
+against a moving HEAD) could not account for a whole new file or for hundreds of lines, so
+the bulk must be a separate category of "fresh staleness". **The measurement does not
+support that split and there is no second category.** Across those 9 commits the tree
+gained **672 insertions against 3 deletions over 7 paths**, and the staged deletion count
+grew by **669 = 672 − 3**, the new whole-file rows drawn from those same 7 paths.
+**Mechanical widening IS the peers' commits** — not two additive causes but one cause
+described twice. The sharper finding: the decay rate does not merely *correlate with* the
+lab's commit rate, it **equals** it, line for line. Every line any team lands becomes a
+staged deletion the moment it lands.
+
+**3. Demonstrated by this lane's own act, the cleanest control available.** The `L-307`
+commit added 102 lines to `docs/LESSONS.md` and left **no shared-index entry whatever** —
+11,067 entries before and after, while HEAD tree entries rose. The lane writing the lesson
+about the mechanism widened the gap by writing it. That is `L-92`'s "grows on its own"
+clause reproduced inside a single commit, and it is why clearing is not a fix.
+
+**4. The adjacency check `L-307` was landed WITHOUT, discharged here, with the finding
+stated either way.** `L-305` and `L-306` landed while `L-307` was being drafted; `L-307`
+cites `L-92`, `L-253` and `L-294` but **not** `L-305`, because its author had not read
+`L-305` at the time it committed. That is a real procedural miss and is recorded rather
+than smoothed over — the `L-306` lane checked HEAD for its class first and said so, which
+is the standard. Discharged now by reading `L-305` in full at HEAD: **it is NOT a read-side
+lesson and `L-307` does not duplicate it.** `L-305`'s subject is that a drafts/staging file
+must carry its own **disposition per item**; `git status` appears in it as a single
+subordinate clause (*"a green `git status` distinguishes neither"*), as a symptom of that
+defect, not as its subject. The two are **adjacent and mutually reinforcing**: `L-305` is
+about a record that cannot say whether it landed, `L-307` about instruments that cannot say
+what is at HEAD. **Read them together; neither is redundant.** Had `L-305` in fact covered
+the read side, the honest outcome would have been to narrow `L-307` to the write side — it
+did not, so `L-307` stands as written.
+
+**5. Three ledgers measured stale tonight, in three territories, by three agents — and the
+`LESSONS.md` figure has GROWN since `L-307` quoted it.** `docs/COST_CALIBRATION.md` (four
+rows, `C-43` against `C-47`, on the reading recorded in its own `C-49` row).
+`docs/NUMERICS_KNOWLEDGE.md`: worktree **254,652 bytes against HEAD's 312,617**, and the
+worktree copy **does not contain `N-T8` at all** (HEAD: 2 occurrences) — confirmed by this
+lane. `docs/LESSONS.md`: `L-307` quoted **41 ids / 112,947 bytes** stale at 00:22:35Z; at
+**00:30:34Z, HEAD `55983881`, it is 44 ids and 126,049 bytes** (worktree 655,485 vs HEAD
+781,534, max `L-263` against `L-307`). **The gap grew by three ids in eight minutes, and one
+of the three was this lane's own lesson.** The file most likely to be opened by someone
+recording a mistake is among the stalest in the repository — that is the write-side hazard
+at its sharpest, and it is why every block in this session was built from
+`git show HEAD:docs/LESSONS.md` and the worktree copy was never written.
+
+**6. A second instance of `L-307`'s instrument point, with no instrument in it.** Two
+docket rows were described by their measuring lane as *"strict prefixes"* of HEAD's. Acted
+on, that lane re-checked the property that actually mattered — worktree-unique characters
+per differing row, **0, delete-only opcodes** — and **corrected its own wording**: a
+markdown table row closes with a trailing `|`, so the removed block sits just **inside** the
+end rather than at it, and the rows were **not literally prefixes**. The conclusion held, so
+the correction cost nothing this time. **The transferable point: the claim was true enough
+FOR THE SPEAKER'S PURPOSE and false for the purpose of whoever acted on it, and the actor
+could not have detected the difference from the wording.** Same defect as `L-307`'s passing
+planted control — **the gap between what a claim or an instrument covers and what its reader
+assumes it covers.** The shared discipline: **state the property you actually checked, not
+the nearest familiar name for it**, and where the reader needs a stronger property, check
+the stronger one before naming it. That correction was made by the measuring lane against
+its own claim, unprompted — recorded here as the behaviour to copy, not as a criticism.
