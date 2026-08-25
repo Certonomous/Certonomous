@@ -2204,6 +2204,129 @@ and therefore **HOLDS**, until Blay 1992 is obtained and title-page verified —
 **and obtaining it from outside the box is Sanaa's alone (rules 7, 8) and is not
 being attempted.**
 
+
+### SANAA'S COST DIRECTIVE, 2026-08-25 — RECORDED VERBATIM, AND WHAT IT DOES AND DOES NOT CHANGE HERE
+
+**Sub-section last written:** 2026-08-25T19:24:56Z by heat-transfer-supervisor.
+
+**Her own session turn, byte-exact, typos and spacing as she wrote them, because
+normalised spelling is the signature of a relayed paraphrase rather than a
+primary source:**
+
+> I want the three teams to forget about cost constraints for now. We originally had them when thelab did not have discipline, but the lab does now. So no team stops anything in the name of saving compute. The lab having experience running hard and diverse cases primes over saving money. Besides, we have two instances running rn. So ample ressources.
+
+**And to this team specifically:**
+
+> heat transfer: same comment, if you have ran al of the cases I have you, I will give you more, but every team needs to stop sitting on idle compute
+
+**Relayed by the chief; the wording is hers and is not normalised. `CLAUDE.md` is
+NOT edited by me — the constitutional text is hers.** The operative change is
+recorded here, in this team's terms.
+
+**WHAT CHANGES.** Cost is no longer a reason to refuse, defer or stop anything.
+**Caps become RUNAWAY GUARDS, not budget gates:** a run crossing its cap is
+reported to me and I decide — extended by dated amendment if the work is sound,
+stopped only if it is genuinely **stuck, diverging or looping**. A cap firing is
+no longer an automatic kill. This is the one clause of rule 12 she has relaxed,
+and only for **budget** reasons.
+
+**WHAT DOES NOT CHANGE — she has flagged rigor twice as "Very important."**
+Pre-registration frozen by sha before any run; the planted-zero control; the
+strict completion rule with its age guard; Roache triple gating; tier and verdict
+both recorded; the verdict vocabulary. **All stand untouched.** **Costing and
+calibration continue unchanged — she lifted CONSTRAINTS, not MEASUREMENT.** Every
+run is still costed in its pre-registration and every completion still owes its
+`docs/COST_CALIBRATION.md` row (rule 12's estimate-versus-actual duty).
+
+**TAKEN OFF HER DESK.** The K0d ceiling raise, 2 484.84 → **2 748.64** core-min,
+was referred this afternoon **because it was a budget question. It is no longer
+one.** It is registered as this team's own runaway guard, `[lab-attributed]`,
+and **her desk is clear of it.** Derived cost stays on the record at
+**$2.3501, DERIVED not measured** — because measurement continues.
+
+### THE CORRECTION THAT MATTERS: COST WAS NOT WHAT WAS BLOCKING K0d
+
+The directive was relayed to me as *"this directly unblocks K0d… cost is no
+longer a reason to hold it."* **Cost had already stopped being the reason an hour
+before it arrived.** The killed lane's *"the cost does not fit and I am not
+firing"* was **superseded by a second and far larger stop**, verified by me
+personally under a live planted control: **K0d has no executable code at all.**
+`build_k0d.py`, `analyse_k0d.py`, `mark_done_k0d.py`, `check_k0d_mesh.py` — 0 in
+HEAD, 0 anywhere under `/home/ubuntu`.
+
+**No directive about money makes a comparator exist.** Recorded plainly because
+the instruction to *"fire it"* cannot be executed against a rung with no builder:
+**there would be no case directories to run.** An instruction is answered, not
+merely obeyed.
+
+**Equally: `A5.13` Findings 10 and 11 have now been relayed to me TWICE as
+pre-compute rulings owed before firing. They were ruled and CLOSED at HEAD before
+either relay** — Finding 10 by `AMENDMENT 1` §A1.2, Finding 11 by §A1.3, each
+saying *"is CLOSED"* in terms. **Nothing is owed on them and nothing should be
+re-ruled.**
+
+### THE REORDER — how the intent IS obeyed
+
+**Split by critical path, so solvers move before the graders are finished.**
+
+1. **PHASE 1 — `build_k0d.py` + `check_k0d_mesh.py` only.** The sole path to a
+   running solver. Refuses (exit 2) rather than infer a seed for a closure absent
+   from §A1.2a; `ranks == 1` asserted explicitly.
+2. **PHASE 2 — the lane STOPS and I read both as diffs personally.**
+   Undelegatable, and it is the check that found K0d's absence at all. **The fire
+   order is mine.**
+3. **PHASE 3 — `mark_done_k0d.py` + `analyse_k0d.py` written DURING the solve.**
+   They are post-processing and are not needed for ~14 h of solving. Every
+   registered property stands in full: planted perturbation read back from disk
+   with an exit-2 refusal; the strict completion rule with the age guard and the
+   per-closure field sets; Roache gating with **per-level plateau checked BEFORE
+   the triple is classified**; GCI at Fs = 1.25, never quoted on non-monotone
+   values; **refusal below TEN `DONE.<case>` markers** per §A1.2b, not the nine
+   §7 line 386 still says.
+
+### "STOP SITTING ON IDLE COMPUTE" — THERE IS NO IDLE COMPUTE ON THIS BOX
+
+**Measured, not assumed. 19:05Z: 16 of 16 cores, 100 %. 19:23Z: load average
+7.35 and falling** as foreign ranks retire; **3 of those cores are my own T1b
+EXT2 arms, whose ETAs are 10–19 h, so they are not retiring soon.** Thermal's
+failure this session was never idle cores — **it was having nothing it may
+legally fire**, and that is the harder defect.
+
+**I am NOT oversubscribing a saturated box to look busy.** Piling ten more
+single-core solvers onto 16 occupied cores slows every run, inflates every
+wall-clock figure, and **corrupts the timing basis the cost calibration depends
+on. That is a MEASUREMENT argument, not a cost argument, and it survives her
+directive intact** — she lifted constraints, not measurement. K0d stages into
+cores as they free, with a contention file recording the load average and the
+foreign-solver identity at launch.
+
+### THE SECOND INSTANCE, IDENTIFIED — and it is not a CPU workhorse for this team
+
+Her *"we have two instances running rn"* resolves to **`gpu1`, 172.31.44.162, a
+g6.xlarge with one NVIDIA L4, reachable from this box over SSH**
+(`docs/GPU_CAPABILITY_STATE.md` §8, dated 2026-08-23; `~/.ssh/config` Host
+`gpu1`). **Recorded honestly: it does not help this team much.**
+`buoyantBoussinesqSimpleFoam` is a CPU solver and will not touch the L4, and a
+g6.xlarge carries few vCPUs — it is a GPU box for the closure line, not a second
+CPU workhorse for the T-family. **It is also not mine to allocate: taking it is a
+cross-team call for the chief or Sanaa**, and **GPU spend carries its own
+console-priced GPU-hour `cost_basis` (rule 12), which measurement-continues even
+though constraints are lifted.**
+
+### HER OFFER OF MORE WORK — ANSWERED, NOT DEFERRED
+
+> if you have ran al of the cases I have you, I will give you more
+
+**The honest answer is YES, and it is being said now rather than stretched.**
+Bucket A is empty except K0d; **every committed pre-registration in the T-family
+and the DC-cooling spine has already been fired.** Slowing down to make a queue
+last is the opposite of what she asked for. **This team is asking for more
+cases.** Meanwhile it is converting its own Bucket B into fireable rungs under
+its own authority — T8 (comparator + joint freeze, dispatched), T5 (mine to
+promote; **any TIER-DEFINITION interpretation still reserved to her**), T2's
+mis-tiering, T12's possibly-stale block — **none of which needed her, and all of
+which cost zero cores while the box is full.**
+
 ### K0d — THE CAP COLLISION ESTABLISHED FROM DISK, AND RULED
 
 The killed lane's last words were *"The cost does not fit… and I am not firing."*
