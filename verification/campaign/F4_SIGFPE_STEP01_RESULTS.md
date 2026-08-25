@@ -571,3 +571,86 @@ is **not struck** — it is what the next rung inherits and registers pre-comput
 
 **Stamp:** written at 2026-08-24T18:35:39Z (box clock, `date -u`, read in the same shell
 invocation as the append), at HEAD `091ca90704eec02a3b536cf599aec57ec91a7c3a`.
+
+---
+
+## FOR SANAA'S RULING — the F4 event-choice in one paragraph — 2026-08-25T16:11:47Z
+
+**Appended at the foot under `CLAUDE.md` rule 6. Insertions only. Alters no gate,
+no threshold, no cap and no label.** Written at the cfd supervisor's instruction,
+relaying Sanaa's request of 2026-08-25: *"F4: re-present the event-choice as one
+paragraph — the two (or more) event definitions, what the headline finding says
+under each, and the team's recommended default with reasoning. Zero compute until
+my ruling."* **Zero compute: a read of artifacts already on disk.**
+
+### The paragraph
+
+**First, the concession, because it is real and it is the whole of what is
+contested: the frozen pre-registration text does not name the ordinal.** No
+sentence of prereg §§0–13 selects an event by ordinal, by line number or by
+position within a `Time =` block; the `EVENT_GRADED = 1` selector first exists in
+the reader at `4bf8138d`, **after both runs had completed**, which makes it a
+post-compute row definition, disclosed as one (this is the L-284 gap, and L-284
+now binds every future rung of the family). The ambiguity itself is mechanical:
+the diagnostic `boundE.H` is included **twice per timestep**, so each `Time =`
+block emits **two** clamp-report sets — **event 1** at `rhoCentralFoamBoundedDiag.C:267`,
+immediately after the convective `rhoE` solve and **before** `thermo.correct()` at
+`:270`, and **event 2** at `:282`, after the viscous solve and **after** that same
+`thermo.correct()` — and §8 presumed there was only one. **The choice is
+material, and it moves two clauses:** under **event 1** the baseline fraction is
+`2668/29700 = 8.9832 %`, inside the frozen `[6, 24] %` band, so §8.1 reads
+**`BASELINE-RECOVERED`** and §8.3 reads **`INDETERMINATE`** (worst cell 12960; `rho`
+and `|U|` deviations `+2.8007` and `+18.2293`, both outside their `0.10`/`0.05`
+bands), which attributes nothing; under **event 2** the fraction is
+`749/29700 = 2.5219 %`, outside the band, so §8.1 reads
+**`BASELINE-NOT-RECOVERED`** — and prereg **§9.1 row 4** then makes the
+discrimination question **`NOT A RESULT`** whatever Step 1 showed, so **the
+elimination of mechanism #7 (the inlet-face dissipation-deficit variant), which is
+the headline finding and the one thing §3.3 licenses, is not licensed at all** —
+while §8.3, which would then carry the experiment's entire surviving content,
+flips to **`E-FIRST`**, an affirmative attribution to the energy, which is
+precisely the parent-record §8.7 claim this experiment was built to probe.
+(`S0b`, §8.2 and §8.4 read the same under both and are not in question.) **cfd's
+recommended default is EVENT 1**, on mechanism rather than on prose: §8.3's frozen
+clause is written on the `e = rhoE/rho − ½|U|²` cancellation, which is the
+quantity computed at `:266` and standing at `:267`, and prereg §4.2's **frozen**
+instrument comment states *"T is NOT current: `thermo.correct()` has not yet run
+for this step, so T lags by one correction"* — **a sentence that is true at `:267`
+and false at `:282`**, so the frozen material describes the event-1 state and no
+other. **A second, weaker indication points the same way, and its limit is stated
+rather than hidden:** in the `Time = 1.8993308e-05` block the two `BOUNDDIAG:`
+lines (file lines 28744 and 28748) carry `TprevLow=[139.583003,139.593102]` for
+event 1 against `TprevLow=[139.583003,139.583003]` for event 2, and the collapse
+of that range to a single value is **consistent with** the two sets reading
+different `T` states within one timestep — **but it is not proof**, because
+event 2's set is the smaller one (749 cells against 2668) and a subset can carry a
+narrower range without any `T` update; the step from *"range collapsed"* to
+*"`thermo.correct()` ran between them"* rests on the source ordering tabulated at
+prereg §14.1, not on the log line alone. **The recommendation therefore rests on
+the frozen-comment argument, which stands on its own; the `TprevLow` observation
+corroborates and does not carry it.** **The contest is narrow and both readings
+remain available on the same evidence:** whether the *frozen material* — the §8.3
+identity, the §4.2 comment, and the C1 fixture's event-1 log shape committed
+19.5 h before first compute — constrains the reading even though the *frozen
+prose* does not name the ordinal; verification's cross-team audit (pass 11, §90)
+recommends **`NOT A RESULT` with both values printed**, on the ground that a row
+definition fixed on the grading path after compute is exactly what
+`VERIFICATION_CHARTER.md` §2d forbids and that §2d.1's condition (2) fails because
+the C1 fixture models only one event set per block and so cannot discriminate the
+ambiguity it was meant to control. **Both readings stay printed beside every §8.1
+and §8.3 number until Sanaa rules, and no agent's recommendation — the audit's,
+this team's, or the chief's relay — is her consent.**
+
+### Assertions
+
+- **lines whose number changed above this section: 0** — appended at the foot,
+  **insertions only**, verified **by diff** against `git show HEAD:<path>` in the
+  same shell invocation as the write, not asserted from intent.
+- **Alters no gate, threshold, cap or label.** The ruling remains `PENDING` and
+  reserved to Sanaa; this section re-presents the choice and does not decide it.
+- **Both mechanism claims were re-verified against artifacts before being
+  repeated**, and the second was **weakened** as a result — see the paragraph.
+- **Zero solver compute.**
+
+**Stamp:** 2026-08-25T16:11:47Z (box clock, `date -u`, same shell invocation as the append), at
+HEAD `048ee7b4513a781eaa136f96babc46d909ad18f5`. Previous last line: 573.
