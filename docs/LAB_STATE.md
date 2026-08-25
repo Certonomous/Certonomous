@@ -1954,6 +1954,95 @@ Read rung 1's measured rate and rule on rungs 2–5 against the caps. Read the t
 
 ## verification
 
+**Section updated:** 2026-08-25T01:18:13Z by verification-supervisor (stamp from `date -u` in the committing invocation). SEVENTH session spawn, on **Opus 5** under the Fable substitution at `7c469330`. **Zero compute all session — 0 core-minutes, no solver, no mesher, no container, no GPU.**
+
+### ⏸ THE TEAM IS PAUSED BY SANAA, 2026-08-25. **This is a PAUSE, not a crash and not abandonment — do not read the gap as either**
+
+**Her instruction, relayed by the chief as her byte-exact session turn:** *"i just meant for now cfd, ansys verification and heat transfer teams work on completeing all the tasks/ running all the cases and recording per our conventions, and record whether the case is hold, gate reached or surveyed or not held. **Once that is done we will go back to the Matrix config.** But for now these three teams work on that"*.
+
+**The matrix is SEQUENCED, not cancelled, and its ownership is NOT reassigned.** The three producing teams run their cases and each records its own case's tier as it goes; the matrix as a central artifact **resumes after**. The chief's reading, recorded because it is the chief's and not Sanaa's: *"the matrix was scoring rows faster than the lab was earning them"* — which this team accepts as the better ordering. **This entry is the resumption point. Everything below is at HEAD; nothing is owed from memory.**
+
+### ✅ THE MATRIX IS COMPLETE. **All five families audited, 153 rows, and the ZERO IS NOW A MEASURED ZERO**
+
+`docs/COVERAGE_MATRIX.md` at **`2cd70f8d`, 1,909 lines.** §3's `PARTIAL` marker and §3.7's *"a claim, not an authority"* caveat are **STRUCK IN PLACE** (rule 6, kept visible because the table was circulated under them) and **SUPERSEDED by §3.8g**.
+
+| tier | dafoam | closure | heat-transfer | cfd | ansys | **total** |
+| --- | --- | --- | --- | --- | --- | --- |
+| **HOLDS** | 0 | 0 | 0 | 0 | 0 | **0** |
+| **GATE REACHED** | 0 | 0 | 7 | 1 | 2 | **10** |
+| **SURVEYED** | 49 | 4 | 12 | 37 | 0 | **102** |
+| **NOT HELD** | 0 | 2 | 12 | 8 | 1 | **23** |
+| **NEVER RUN** | 9 | 0 | 6 | 2 | 1 | **18** |
+| **total** | 58 | 6 | 37 | 48 | 4 | **153** |
+
+**⚠ THE CHIEF SHOWED SANAA THE OLD PARTIAL CENSUS (HOLDS 0 · GATE REACHED 15 · SURVEYED 76 · NOT HELD 16–17 · NEVER RUN 16) AND SHE IS DECIDING AGAINST IT. THOSE FIGURES ARE SUPERSEDED.** The **HOLDS 0** headline is unchanged and is now stronger. The others moved: the total is **153, not ~123**; `GATE REACHED` fell **15 → 10** under Ruling 5; `NOT HELD` rose **16–17 → 23**, and the ranges are gone. **Under the permissive reading Ruling 5 rejects, GATE REACHED is 15 and SURVEYED 97 — both printed in §3.8g so the ruling can be overturned without re-auditing.**
+
+**THE ZERO'S REASON, now better evidenced: `P` IS GREEN ON ZERO ROWS IN THE ENTIRE LAB.** V green on a handful, G on a few, **P on none**. In cfd every P-candidate was read to source and each fails for a **named** reason.
+
+### THE HANDOVER LIST — what remains between this matrix and one whose every row this team has checked against artifacts
+
+**Family audits COMPLETE: all five.** dafoam (58) and closure (6) at `93d1a02e`; **heat-transfer (37), cfd (48) and ansys-verification (4) completed this session at `2cd70f8d`.** Every row was read to an artifact; **no tier was transcribed from a family's own claim.**
+
+**What a resumption still owes, concretely, smallest first:**
+
+1. **Six of heat-transfer's seven `GATE REACHED` rows have NOT had their frozen-pre-registration condition individually verified.** Only **S5d/K0cG** is confirmed (prereg `3b454b37` before any case reported). **One lane's work**: hash each prereg blob at HEAD and compare its commit time against the earliest run artifact, the way §3.6 did for VMFL005 (+194 s) and VMFL001-R2 (+295 s).
+2. **Two heat-transfer rows cannot be tiered from HEAD at all — K2bU and K2bU3.** Prereg, case inputs and comparators are tracked; **no results record, no sub-row**, and their run output would be gitignored. **NEVER RUN cannot be separated from completed-but-unfiled.** Ask the family; do not guess.
+3. **Three heat-transfer rows are MISSING from the contribution, two of them negatives** — K0b D403 re-run (**V3 GATE FAIL**, 4.490 % low at order **−1.25** against the published **+1.94**), T1b attempt 1 (**NOT A RESULT**, 19 cases, **56.6 core-hours discarded**), K1a/K1c standing checks (SURVEYED). Adding them gives **40 rows at 0 / 7 / 13 / 14 / 6**. **The family's correction to make.**
+4. **The `V`-column inconsistency, which is a RULING and not a check.** `flat-plate-tmr` scores V `NO` on code-to-code; `K0c` scores V `YES` on a numerical benchmark that is additionally **SECONDARY**. **Ruling 4's own text admits *"another code's result or a numerical benchmark"*, which would make BOTH green.** Moving either is a widening in the flattering direction and this team refused it. **If K0c's V goes the way of flat-plate-tmr, K0c holds ZERO green columns.**
+5. **The class-vs-case row structure** — see §6b.8 below. **The largest open item and it is not a check either.**
+
+### ⚠⚠ THE CONSOLIDATION-WEEK DIRECTIVE IS **NOT LOST**, and this matrix's own rubric rests on a reconstruction that is now checkable against her words
+
+**The chief's own board section records it as irrecoverable** — *"the directive was issued in a session transcript that has since been compacted"*, *"the chief does not hold her wording"*. **That is FALSE.** Located at source by this supervisor: **three `user`-role, `isSidechain: false` records, 2026-08-24 at 18:56:35Z, 18:59:19Z and 19:00:48Z**, ~5,700–5,800 characters each. **The three sends are NOT identical to each other — any citation must name which send.**
+
+**The reconstruction is substantially faithful and it lost ONE STRUCTURAL THING.** V/G/P, the five tier words, their glosses, the derived-not-asserted rule and the HOLDS spot-check **all match**. **But the ROWS do not.** Her text: *"Rows = problem classes: dimension (2D / axisym / 3D) × regime (laminar steady / … / adjoint-optimization)"*. **This file's own title is "one row per case".** Her opening sentence says why: the week *"is about being able to POINT at problem classes — by dimension, regime, difficulty, physics type"*. **THE MATRIX AS BUILT ANSWERS A DIFFERENT QUESTION FROM THE ONE SHE ASKED.** The case rows are the **evidence layer** — *"the matrix is derived from records, never asserted"* is her rule and they are that derivation — and the deliverable she named is the **class layer above them**. **This is what "go back to the Matrix config" should build. Escalated, not decided.**
+
+**Three items her text settles:** **§7's hold is HER DESIGN** (*"every HOLDS row of the matrix as a manual entry… Grows automatically as matrix rows convert"* — with zero HOLDS it has nothing to draw on **by her own construction**); **`GATE REACHED` in her words is "missing ONE of V/G/P"** where Ruling 1's second amendment says one **or two**, a widening now disclosed against her words; and **two withdrawn attributions are confirmed OVER-CORRECTIONS from her own text** — cfd's *"the early PASSes that lack prereqs convert to HOLDS"* **is her §2 verbatim**, and heat-transfer's 18-combination zero-pass block **is her §5**. **Neither is restored by this team; a withdrawal belongs to the owning team or to Sanaa.**
+
+**The caveat that does not go away:** the block is written **in the third person about her** and carries **agent-role tags**, so it is a work order she **sent**, not her original prose throughout — **but she interleaved her own sentences in her own voice with her own typos.** Its authority as an instruction she issued is not in doubt. **Whether the agent-drafted paragraphs count as "her words, verbatim" is Sanaa's to rule and nobody else's.**
+
+### ATTRIBUTION INTEGRITY — **CLASS C IS EMPTY. There is no fabricated quotation anywhere in this lab**
+
+**The sweep was written by a lane killed at ~00:50Z with the supervisor that commissioned it. Its 341 lines survived UNCOMMITTED on disk and are recovered at `3d62bc52`.** 41 distinct quotations / 78 instances against **481 genuine Sanaa messages**. **The audit's own premise was wrong and the inversion is the finding**: it opened because heat-transfer appeared to have found a fabrication. **It had not.**
+
+**THE REAL DEFECT IS THE OPPOSITE ONE — three teams WITHDREW TRUE DIRECTIVES**, because they searched **the repository** and her words live in **the session record, which is not in git**. All three withdrawals are **over-corrections**, and closure's was **blocking work on a false premise**.
+
+**A relayed check is a summary, not a check.** The verification inside that draft was the **predecessor's** and does not transfer. This successor re-verified personally: she typed **`backrgound`** and **`wit`** (`user` role, non-sidechain, item 4 of a numbered list) — **CONFIRMED to the character**; **ZERO** repository files preserve her spelling; **exactly 24** carry the corrected form; closure's two withdrawn clauses **CONFIRMED present at source**.
+
+**Two defects in the dying lane's draft, repaired and disclosed:** a **byte-identical duplicate of §6a and §6b** (182 lines) — the `L-185`/`L-205` shape the file had set out to avoid — verified against the HEAD blob and **dropped**, no content lost; and the stale *"Sweep IN PROGRESS"* line **struck in place**.
+
+**THE NEAR-MISS CONTROL (§6b.7) — rule 3 applied to a search, and IT FIRED AGAINST THIS SUPERVISOR.** No audit may report a phrase UNSOURCED until it has shown, on the same corpus with the same command, that its search can find a **near-miss**. Searching the 24 rule-16 locations: **line-anchored grep found 11 files; newline-tolerant found 24. Thirteen of twenty-four invisible to the obvious command.** Reporting from the line-anchored count would have understated the finding by more than half. **Measured elsewhere: a 50 % false-UNSOURCED rate (`L-308`), and a miss caused by her own typo `theheat` (dafoam, self-corrected).** **PRIOR ART CREDITED — closure was already practising it at `39340d3d`; this names an existing practice, it does not introduce one.** **Scope: it binds THIS TEAM'S OWN AUDITS. A lab-wide binding form is a gate on lab process and adding a gate is Sanaa's, exactly as retiring one is.**
+
+### RULINGS MADE THIS SESSION — both personally, neither delegated
+
+**§91 — F12's grading-path repair is OUTSIDE `VERIFICATION_CHARTER` §2d. The freeze is INTACT and F12 IS GRADEABLE** (`6c906f58`). **cfd's ground is correct and NARROWER THAN THE REPAIR IT WAS ASKED TO COVER.** Primary ground, which cfd did not state: **§2d has not been TRIGGERED** — it freezes the grading path *"once the first graded solve has started"*, and **F12 has never run** (verified on disk: `verification/runs/F12_runs/` holds only `reference/`; no `F12` path under `/home/ubuntu/certonomous-runs/`). Second ground, stronger than the clause cited: **the repaired path is the path the FROZEN pre-registration itself names** (lines 168–178, 707), where the pre-repair constant pointed at a location the frozen document never names — **the repair moves the code TOWARD the frozen document.** Third, cfd's boundary clause 1, **confirmed by measurement**: exactly **one** of the three resolver candidates exists in the tree. **CONTESTED: boundary clause 1 does NOT cover defects 1 and 2** — a first cell going from fixed 2.0e-6 to **2.0e-6 / 1.0e-6 / 5.0e-7** and an outlet column going from **UNIFORM at fine** to graded both plainly change numbers and **fail that clause's own test**. They are legal on the **first** ground. **Recorded so a clause written for a dangling path constant does not become precedent for changing a mesh.**
+
+**§92 — cfd's RECIPE-FORK ruling: mechanism SOUND, direction PERMITTED, but NOT LOAD-BEARING on either named casualty** (`06aa4985`). All 13 forked gaps are **the same fork** (+1 snappy level, background byte-identical), which genuinely does change the discretisation. **But both casualties were already dead on their own values:** `naca4412_wing` returns **DIVERGENT, p = −7.2339 → NOT A RESULT** at rule 5 step (2) before any dictionary is opened; `motorBike`'s coarse and medium logs contain **zero** `SIMPLE solution converged` lines and end at `Time = 300`, so **NOT A RESULT** at step (a). **THE COUNTEREXAMPLE: `b52` is RECIPE-CLEAN and published p = 28.6747 → GATE FAIL, while RECIPE-FORKED `ahmed_25` produced a respectable p = 1.95.** **Recipe-cleanliness neither implies nor is implied by a credible order; it is a NECESSARY CONDITION and never a quality mark.** **"7 of 14" is NOT a census of the lab's ladders** — blockMesh ladders, including the flat plate (the matrix's only green G), are outside the population entirely. **Structural false-CLEAN named:** a snappy ladder holding `firstLayerThickness` fixed in absolute length would grade **recipe-clean**, because a held-fixed recipe is this instrument's GOOD outcome. **Measured today it does not bite** (all eight clean-ladder end rungs carry `addLayers false` / `relativeSizes true`) — **a fact about today's disk, not a property of the instrument.** **The scheme/model/BC fork class is UNTESTED, NOT EMPTY.** cfd's negative control is **genuine** (M11/M12 false-positive controls carry anti-vacuity assertions; four real CLEAN verdicts on live data).
+
+### ⚠⚠ TWO HAZARDS FOR THE CHIEF, NEITHER ACTED ON (the index is the chief's, rule 10)
+
+1. **A FROZEN, ARMED, UNFIRED PRE-REGISTRATION IS AT RISK.** All thirteen `cases/ansys_verification/VMFL051/*` paths appear in the session's opening `git status` snapshot as **staged deletions**, while every one exists at HEAD. Under §6a `git status` is not a valid instrument and **this is not treated as a fact** — it has the exact shape of the phantom `D` rows §6a measured. **But if that staged deletion is ever committed, VMFL051's rule-2 freeze is destroyed, and it is the cleanest unfired freeze in the lab.**
+2. **`models/curriculum/uq-studies/naca4412_wing.json` records `observed_order` 10.467 where `scripts/roache_triple.py` returns −7.2339 / DIVERGENT on the same three stored values.** Two instruments disagreeing about the same numbers is **exactly the class §5 standardised the lab onto one instrument to prevent.** Measured, unexplained, docketed rather than resolved.
+
+### CORRECTION AGAINST THIS TEAM'S OWN HEADLINE — §3.8h, and it matters more than the census
+
+**§3.1 and §4 say the lab *"has NEVER CLOSED A VALIDATION LOOP AGAINST MEASURED PHYSICAL REALITY UNDER A FROZEN PRE-REGISTRATION — in any dimension."* THAT SENTENCE IS FALSE AS WRITTEN.** **K0cS** closed exactly that loop (Ampofo & Karayiannis 2003, read in full, Fig. 11 digitised to ±0.15, frozen prereg) → **GATE FAIL 14 of 20**; **K0cT** and **K0cX** closed it too (ERCOFTAC Case 079 primary on disk) → **GATE FAIL 8 of 18** and **24 of 42**. **The loop WAS closed. The answer was NO.** Those rows are `NOT HELD` **because their gates failed, not because no comparison was made** — and that difference is the whole distinction between a lab that has not tried and one that tried and reported an honest negative. **Second time in two sessions this team has published a sentence stronger than its evidence** (§6a.0 was the first). **The pattern is the finding, and this team is not exempt from the scepticism it applies to others.**
+
+### CLOSED AND STANDING — need nothing further
+
+- **The negative-GCI trace: TRACED NULL** (§5.2a, `6020fca9`). **Nothing published rests on a non-CONVERGING triple.** **The control FAILED ON ITS FIRST PASS** — the first detector missed the markdown-table-cell shape, was rebuilt, and **all eight planted shapes then fired** — so a null from the first detector **would have been a FALSE NULL, blind to exactly the shape the lab's records use most.** **A null is worth precisely what its control is worth.**
+- **Standing fact 1 is FALSE** (refuted on four counts, each re-derived by running `scripts/roache_triple.py` on values already on disk). **Fact 2 is TRUE and true more broadly than stated**, and §3.8f **sharpens rather than reverses** its remedy: the ansys family's `CASE_MAP.md` holds **50 experimental-reference cases**, the largest reservoir of P-capable rows in the lab, **none run** — the withdrawal was correct **for the cases the family had run**.
+
+**Live jobs:** **none of this team's.** Zero compute all session. Lab-wide, heat-transfer's two solvers (pids 450274, 488219) are the only live compute; not this team's to report on.
+
+**Rungs without verdicts:** none in this team's territory. **The four items §3.8i refuses to decide are RULINGS, not unverdicted rungs**, and are listed in the handover above.
+
+**On Sanaa's desk, via the chief:** the **class-vs-case row structure** (§6b.8, the largest item); **whether a work order she pastes and sends counts as "her words, verbatim"** and **whether the lab may silently correct her spelling when quoting her** (§6b.6 — 24 locations currently say yes by default); the **near-miss control as a lab-wide rule** (a gate on lab process, hers to add); **FD-vs-adjoint as a fourth `V` instrument** (23 dafoam rows move); the four §2.2 rulings plus **Ruling 5**, all disclosed as overrulable; and `RESULT_PRIORITY_CHARTER` v0.5.
+
+**Blocked:** nothing. **PAUSED by Sanaa, 2026-08-25 — resume at "go back to the Matrix config".**
+
+---
+
 **Section updated:** 2026-08-25T00:47:24Z by verification-supervisor. Matrix at **`6020fca9`**, 1,305 lines.
 
 ### VERDICT — K0b (×3) + 4G negative-GCI trace: **TRACED NULL.** Half the item is CLOSED
