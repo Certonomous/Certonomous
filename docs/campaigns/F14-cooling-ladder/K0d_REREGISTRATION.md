@@ -927,3 +927,463 @@ nothing in the physics, the gate, the instruments or the mesh is outstanding.
 
 *Amendment written by a heat-transfer lane on the supervisor's three rulings,
 2026-08-25. Zero compute. The rung is `BLOCKED` on its cap.*
+
+---
+
+# AMENDMENT 2 — 2026-08-25, BEFORE FIRST COMPUTE. Version 1.1 → 1.2.
+
+**lines whose number changed above this section: 0.** This amendment is appended
+at the foot; nothing above it is edited (standing rule 6). **The assertion was
+VERIFIED, not typed:** in the invocation that wrote this amendment the first 929
+lines of this file were compared byte-for-byte against the committed blob of
+v1.1 at the captured HEAD, and the comparison was clean. Other records cite this
+file by line and one citation sits inside an executable check, so the assertion
+is made only because it was checked.
+
+## A2.0 The condition under which this amendment is legal, and how it was checked
+
+Standing rule 2: before first compute, amendments are legal **and must state the
+condition and how it was checked**. The condition is that **no K0d compute has
+run**, and it was checked by naming the run directory that does not exist:
+`test -e verification/runs/F14-cooling-ladder/K0d_runs` returned **ABSENT** at
+**2026-08-25 20:39:05Z**, re-proved inside this amendment's own committing shell
+invocation and not cited from any upstream message, **under a planted control**
+in which the same reader returned PRESENT on
+`verification/runs/F14-cooling-ladder/K0cS_runs`, which does exist — a zero from
+a reader not shown able to see a non-zero is not evidence (standing rule 3).
+
+**This amendment alters no gate, no band, no threshold and no label.** It:
+
+1. closes the four `REGISTRATION_GAPS` on which `build_k0d.py` refuses (§A2.1);
+2. **raises the registered CEILING** from 2 484.84 to **2 748.64 core-min**, and
+   records the intermediate figure 2 749.14 as **SUPERSEDED** rather than
+   deleting it (§A2.2) — a cap change, legal only because no compute has run;
+3. registers a **defect and repair in `check_k0d_mesh.py` condition C** (§A2.3);
+4. states plainly **what this rung can and cannot earn** (§A2.4);
+5. **corrects a claim standing elsewhere in the repository that K0d is `BLOCKED`
+   on an over-determined `Ra`** (§A2.5).
+
+**Attribution.** The four gap rulings of §A2.1 and the ceiling ruling of §A2.2
+are the **heat-transfer supervisor's**. None is a tier definition, an external
+send, a constitutional change, or compute above a cap, so all sit inside the
+supervisor's authority. They were referred to Sanaa's desk under her desk-item
+disposal rule of 2026-08-25 and **adopted by silence within one day**; they are
+recorded **`[lab-attributed]`**. No agent message is Sanaa's consent (standing
+rule 9) and this amendment does not claim otherwise.
+
+---
+
+## A2.1 THE FOUR REGISTRATION GAPS, CLOSED — with the derivation, not only the value
+
+`build_k0d.py`'s `REGISTRATION_GAPS` table carries four entries at `value=None`,
+and the builder **refuses (exit 2) and writes nothing** while any is unresolved.
+**The builder is correct to refuse.** Superseded §A5.11 clause 2 forbids the
+script choosing what this document leaves open: *"If the builder reaches a value
+this document does not fix, that is a finding, it is referred upward, and it is
+registered by amendment while the window is open — IT IS NOT CHOSEN BY THE
+SCRIPT."* The refusal is the clause working, not a fault. **These four values are
+registered here, and the builder reads them from this registration.**
+
+### A2.1a RULING 1 — `writeFormat` = **`ascii`**
+
+**Registered because it is the one setting under which every registered
+instrument on this rung has been SHOWN ABLE TO SEE.**
+
+- `check_k0d_mesh.py` reads `constant/polyMesh/points` and `constant/polyMesh/owner`
+  through an **ASCII regex reader** (`read_points`, `read_n_cells`) and **refuses
+  what it cannot parse**. A binary mesh would not fail loudly; it would **silently
+  disarm refusal conditions A–F**, which is the worse failure.
+- The planted-zero control (standing rule 3) must plant a known perturbation
+  **into a field on disk** and read it back **through the same reader that
+  produces the graded number**. Binary cannot carry that readback through a
+  parser this lab has neither written nor verified. **A control that cannot be
+  read back is not a control.**
+- Sibling **K0cS** used `ascii`, so the choice is the family's demonstrated path
+  and not a new one.
+
+*Cost note:* `ascii` is larger on disk than `binary`. Disk is not a registered
+constraint on this rung and no cap in §8 or §A2.2 is denominated in bytes.
+
+### A2.1b RULING 2 — `writePrecision` = **`16`**, **and the arithmetic is the ruling**
+
+**This entry registers the arithmetic, not merely the integer**, because the
+integer without the arithmetic is a preference and the arithmetic is a
+constraint.
+
+§7.1's iterative-convergence criterion is **at most `1e-6` of the field's range
+between two written checkpoints**. The registered `T` range is
+**308.15 − 288.15 = 20.0 K**, so the criterion is:
+
+```
+  criterion = 1e-6 * 20.0 K = 2.0e-5 K
+```
+
+An ASCII field written at **8 significant digits** near 300 K resolves to
+`300.00000`, i.e. a **last-digit quantum of ~1e-5 K — the same order of magnitude
+as the criterion itself.** Two successive checkpoints could then differ by **one
+quantum of the WRITER**, and the criterion could not distinguish that from
+convergence. **A convergence criterion sitting at the write quantum is not a
+criterion; it is a coin toss the document would have called a gate.**
+
+At **16 significant digits** the quantum near 300 K is **~1e-13 K**.
+
+```
+  2.0e-5 / 1e-13 = 2e8   ->  EIGHT orders of magnitude below the criterion
+```
+
+**A CORRECTION MADE VISIBLY RATHER THAN QUIETLY (this document's own standard,
+§A2.2):** the supervisor's ruling as transmitted described 1e-13 K as *"five
+orders below"* the criterion. The correct separation is **eight orders**. **The
+registered value `16` is unchanged and the ruling's substance is unchanged** —
+the correction makes the margin larger, never smaller, so it cannot have been
+chosen to make a threshold fit. It is recorded here rather than silently
+propagated. Sibling **K0cS** also writes at 16.
+
+### A2.1c RULING 3 — `writeCompression` = **`off`**, **and the selftest is extended anyway**
+
+`mark_done_k0d.py`'s `field_path` accepts **either** `T` or `T.gz`, so the
+completion reader does not depend on the answer. **But its `.gz` branch is never
+exercised by its selftest, and a reader branch not shown able to see is exactly
+standing rule 3's defect class.** `off` puts every instrument on the path it has
+been demonstrated on. Disk is cheap and no registered cap is denominated in
+bytes.
+
+**REGISTERED AS REQUIRED, NOT OPTIONAL:** `mark_done_k0d.py`'s selftest is
+extended to exercise the `.gz` branch **even though this rung will not produce a
+gzipped field** —
+
+1. a **gzipped clean case** that must still **PASS** every clause of the strict
+   completion rule; and
+2. a **gzipped case whose fields are older than its own `0/T`**, on which the
+   **age guard must still FIRE**.
+
+**A branch kept alive in the code and dead in the test is a branch that will be
+believed the first time it is used.** Registering `off` closes the exposure on
+this rung; extending the selftest closes it on the next.
+
+### A2.1d RULING 4 — `domain_thickness_t` = **`0.010 m`**
+
+**The builder's finding is right and is why this ruling is owed.** §A1.3a's
+*"cancels in every registered quantity"* is **true of the GRADED quantities and
+false of the MESH FILE**: `blockMeshDict` cannot be written without a z-extent,
+and the registered sampling plane `z_m = t/2` puts `t` into the extraction
+dictionaries as well.
+
+The case is registered **2D: one cell in z, `empty` front and back patches.**
+Under that construction:
+
+- **no graded quantity depends on `t`** — the fields are z-invariant by
+  construction, and `Ra`, `Ri`, `Re` and `Re_H` are every one of them built on
+  the 1.040 m cavity dimension or the 0.018 m slot height, **never on `t`**
+  (§1.3's derivation contains no `t`);
+- the registered sampling plane `z_m = t/2` is the **single cell's centre plane
+  for ANY `t`**, so the sampling geometry is `t`-invariant too.
+
+`0.010 m` is registered because the scratch smoke test used it and no registered
+quantity distinguishes it from any other positive value.
+
+**REGISTERED WITH THE TWO ASSERTIONS THAT MAKE IT REFUTABLE**, because a claim of
+invariance that nothing can contradict is not a claim:
+
+- **A1.** `build_k0d.py` asserts **exactly one cell in z** and **`empty` front and
+  back patches** on every case it writes.
+- **A2.** The extraction dictionaries assert the **sampling `z` equals that
+  single cell's centre plane**.
+
+**If a graded number is ever found to move with `t`, that is a finding against
+the 2D registration, not against this ruling** — and the two assertions are what
+would make that finding possible instead of invisible.
+
+---
+
+## A2.2 THE CEILING — RE-DERIVED, RAISED, AND BOTH FIGURES ON THE RECORD
+
+**Two figures for the same cap were standing in two places. Both are recorded
+here and the superseding one is named. A ruling quietly corrected is worse than
+one visibly corrected.**
+
+### A2.2a The instrument enumeration, and the check that it is the right one
+
+§A1.4's instrument enumeration is:
+
+| instrument | bounded core-min |
+| --- | ---: |
+| meshing (10 cases) | 2.00 |
+| `check_k0d_mesh.py` mesh reader | 0.50 |
+| `mark_done_k0d.py` + `analyse_k0d.py` + `--selftest` | 1.00 |
+| dual-scheme extraction (§A1.3b) | ≤ 8.00 |
+| **`I` = instruments, bounded** | **11.50** |
+
+**The check that this is the right enumeration:** the first three lines sum to
+**3.50**, which **reproduces §8's frozen `instruments, bounded | 3.50` line
+exactly.** The frozen line is therefore accounted for term by term, and the only
+new term is the dual-scheme extraction the ruling itself added.
+
+**The `12.00` that appears in §A1.4's arrangement table is NOT reproducible from
+§A1.4's own enumeration.** `3.50 + 8.00 = 11.50`; the remaining **0.50 is
+unexplained** and no line of §A1.4 accounts for it.
+
+### A2.2b The registered ceiling
+
+The registered structure is `CEILING = 2S (first pass at the ceiling rate) + S
+(continuation reserve) + I = 3S + I`, with the solver subtotal
+**`S` = 912.38 core-min** after `M1_m_seed`'s 85.27 line (§A1.4).
+
+```
+  CEILING = 3 * 912.38 + 11.50 = 2 737.14 + 11.50 = 2 748.64 core-min
+```
+
+| figure | status |
+| --- | --- |
+| **2 748.64 core-min** | **REGISTERED CEILING, current, from `3S + I` at `I` = 11.50** |
+| 2 749.14 core-min | **SUPERSEDED.** It stands in §A1.4's arrangement table and on the board at `docs/LAB_STATE.md`, and it carries the unexplained 0.50 of §A2.2a. **Recorded as superseded with its reason, not deleted.** |
+| 2 484.84 core-min | **SUPERSEDED** — the v1.0 §8 cap, raised here. It predates `M1_m_seed` and the dual-scheme extraction and could never have held them (§A1.4). |
+
+**The POINT is unchanged at 922.71 core-min** (§A1.4).
+
+**Derived dollars at the owner-reported $0.0513/core-h — DERIVED, NOT MEASURED**
+(`COMPUTE_BUDGET_CHARTER.md` §5; this box cannot read its own billing):
+
+```
+  CEILING  2 748.64 / 60 = 45.8107 core-h  x $0.0513 = $2.3501   (9.40 % of $25)
+  POINT      922.71 / 60 = 15.3785 core-h  x $0.0513 = $0.7889   (3.16 % of $25)
+```
+
+**`cost_basis`:** the per-cell-iteration rate is **MEASURED** (K0cS pilot on this
+box, 2026-08-18). The $0.0513/core-h rate is **REPORTED-BY-OWNER**. The dollar
+figures are **DERIVED, NOT MEASURED**. The `C_lam` 0.75 laminar scale factor, the
+1.6× developed-flow contingency, the §9.2 memory estimates and the ≤ 24 core-s
+per extraction remain **named calibration items** and none is called measured.
+
+**The POINT against both ceilings, stated both ways so no reader has to guess
+which denominator was used:**
+
+```
+  922.71 / 2 748.64 = 33.57 %   (against the ceiling registered here)
+  922.71 / 2 484.84 = 37.13 %   (against the SUPERSEDED v1.0 cap)
+```
+
+**A CORRECTION MADE VISIBLY:** the supervisor's ruling as transmitted gave *"34 %
+of even the OLD ceiling"*. **34 % is the fraction of the NEW ceiling (33.57 %);
+against the OLD cap it is 37.13 %.** Both are recorded. **Neither reading changes
+the conclusion**, which does not depend on the denominator: **what never fit was
+the worst-case envelope, never the expected run.**
+
+### A2.2c A cap is a RUNAWAY GUARD, not a budget gate
+
+Under Sanaa's directive of 2026-08-25, **a case reaching its cap is REPORTED TO
+THE SUPERVISOR, who decides** — extended by dated amendment if the work is sound,
+stopped only if it is genuinely stuck, diverging or looping. `build_k0d.py`'s
+header already states this correctly and is left as it stands. **Standing rule
+12's "an overrun stops the run" is not thereby retired**: the run still stops at
+the cap; what the directive changes is that the stop is a report to a decision,
+not an automatic abandonment.
+
+### A2.2d Neither concession of §A1.4 is taken
+
+**`M1_m_seed` STAYS AT L2 AND STAYS IN THE RUNG.** Moving it to L1 would fit
+inside the old cap (43.50 instead of 85.27) and is **REJECTED**: a control on a
+different mesh **confounds mesh sensitivity with seed sensitivity**, which is not
+the instrument §A1.2b registered. It is the planted-zero principle applied to
+initial conditions — a control that varies two things at once measures neither.
+**The continuation reserve is likewise not denied to it.**
+
+---
+
+## A2.3 AN INSTRUMENT DEFECT IN `check_k0d_mesh.py` CONDITION C, AND ITS REPAIR
+
+**This section exists because condition C as frozen was DESCRIBED as reading from
+disk and DID NOT.**
+
+### A2.3a The defect, stated exactly
+
+`check_k0d_mesh.py`'s module docstring asserts *"refusal conditions A-G, every
+one READ FROM DISK"*. **That assertion is FALSE for condition C.** In `main()`
+the call is `condition_C(None, LEVELS[lo], None, LEVELS[hi])` — **both mesh
+arguments are `None`** — and the body computes its refinement ratio from the
+hard-coded `LEVELS` specification constants. **At run time condition C is a
+tautology over the script's own constants and cannot fail on any real mesh.**
+
+**Why a passing selftest hid it:** the selftest's condition-C "FIRES" check
+plants into a **modified specification** — `dict(LEVELS["L2"], nB=400)` — **not
+into a modified mesh.** It is a planted control planted **into the wrong
+channel**. It proves the arithmetic reacts to its own constants; it proves
+nothing about the instrument's ability to see a mesh.
+
+**Both selftests PASS and `scripts/check_grader_self_blindness.py` reports both
+scripts clean on both probes. A GREEN SELFTEST IS NOT A GREEN INSTRUMENT**, and
+that is the general lesson this section records.
+
+### A2.3b The hole is exploitable, not theoretical
+
+A mesh that **redistributes cells between blocks A / B / C** while holding
+`Ny = nA + nB + nC` and `Nx * Ny` fixed:
+
+- **passes condition A** (total cell count, genuinely read from disk — unchanged);
+- **passes condition B** (per-slot resolution, tested with `>=` minimums, so a
+  LARGER slot passes);
+- **is never looked at by condition C.**
+
+**Block B is the cavity interior.** Such a mesh would be **under-resolved in the
+cavity** and **nothing in the instrument would catch it**. **Condition C
+underwrites the refinement ratio that the entire Roache triple rests on**
+(standing rule 5), so a condition C that cannot see the mesh puts every observed
+order and every GCI on this rung on an unchecked footing.
+
+### A2.3c The repair, registered
+
+**Required before any solver fires:**
+
+1. **Condition C counts each block's cells FROM THE MESH.** For a level's
+   already-read `y_lines`, cells are counted in each of the three registered
+   `BLOCK_Y` bands with `_count_between` — the same disk-reading helper condition
+   B already uses; `Nx` is taken as `len(x_lines) - 1`; each block's 2D cell count
+   is formed from the mesh; and the linear refinement ratio between consecutive
+   levels is computed from **mesh-derived counts, never from `LEVELS`.**
+2. **The specification check is KEPT and LABELLED for what it is.** Verifying that
+   the REGISTERED table scales by 1.40 is worth doing — it is simply **not a check
+   on the mesh**. The two are reported **separately**, so no reader can mistake
+   one for the other.
+3. **The planted control plants into the MESH.** A synthetic mesh is built with
+   cells redistributed between blocks (`nB` reduced, `nA`/`nC` raised by the same
+   total) so that `Ny`, `Nx*Ny` and **both** slot minimums still hold, and the
+   selftest **asserts repaired condition C REFUSES it while conditions A and B
+   both stay quiet.** That assertion **is** the proof the hole is closed. If A or
+   B fires on the synthetic mesh, the control is wrong and the proof is not made.
+4. **The module docstring is corrected.** An instrument may not assert something
+   false about itself.
+5. **Condition C is not in `judge()`**, so a `--case` invocation never evaluates
+   it. A single-level invocation must **say plainly that C was not evaluated**
+   rather than silently omitting it. **A check omitted in silence reads as a check
+   passed.**
+6. **All selftests and `scripts/check_grader_self_blindness.py` are re-run after
+   the repair**, and the rung does not fire unless they are clean **after** it.
+
+### A2.3d This tightens and cannot loosen
+
+Repaired condition C **adds** a refusal channel that reads the mesh and **removes
+none**. It can turn a mesh that would have passed into one that is refused; it
+can never turn a refusal into a pass. **No graded band, threshold or label is
+touched**, and no number this rung will produce is changed by the repair — only
+the set of meshes allowed to produce one.
+
+---
+
+## A2.4 WHAT THIS RUNG CAN AND CANNOT EARN — stated plainly, and NOT a reason to withhold the run
+
+**§0 stands, unsoftened.** The primary — Blay, D., Mergui, S. and Niculae, C.
+(1992) — is **`NOT OBTAINED`**, and **no graded verdict against the reference is
+reachable while that holds.**
+
+**Sanaa settled the `V`/`P` question on 2026-08-25: *"a. Uphold."* `V` and `P`
+are SEPARATE COLUMNS and one artifact cannot discharge both.** Therefore:
+
+| column | reachable on this rung | why |
+| --- | --- | --- |
+| **`V`** | **YES** | verification is a property of the numerics and the grid, measurable without any reference |
+| **`G`** | **YES** | a **CONVERGING three-level Roache triple** with observed order and GCI at `Fs = 1.25` is a **grid property**, measurable without any reference |
+| **`P`** | **NO** | prediction against the primary is unreachable while Blay 1992 is `NOT OBTAINED` |
+
+**The rung verdict is therefore `GATE REACHED`, naming `P` as the unreached
+column. It can never read `HOLDS` in this state.** Nobody may later read a
+completed run of this rung as a graded result against the reference.
+
+**Obtaining Blay 1992 is from OUTSIDE THE BOX, is Sanaa's alone (standing rules 7
+and 8), and IS NOT TO BE ATTEMPTED by any agent.**
+
+**`V` and `G` are exactly the columns this lab is short of. That is a reason to
+RUN this rung, not a reason to withhold it.** A rung that cannot reach `P` still
+produces the solves, the convergence histories, the achieved `y⁺`, the five
+guards, the Roache triples and the discrimination control — every one of which is
+an artifact this lab keeps.
+
+**Sanaa's grid ruling, recorded as received:** *"A converging three-level family
+with observed order and GCI is the lab's gate standard (Roache-standard
+minimum). More levels are a research option, never a gate requirement."*
+**It relaxes nothing.** K0d's `L1`/`L2`/`L3` family is **exactly three** —
+**confirmed, not extended.** Standing rule 5 continues to bind in full: a triple
+that is not `CONVERGING` is **`NOT A RESULT`**, whatever its value, and no GCI is
+quoted when the three values are not monotone.
+
+---
+
+## A2.5 CORRECTION: **K0d IS NOT `BLOCKED` ON AN OVER-DETERMINED `Ra`**
+
+**A claim standing elsewhere in this repository is wrong, and this section
+corrects it in the document that actually settles the question.**
+
+`docs/campaigns/T-family/THERMAL_SATURATION_QUEUE_2026-08-25b.md` §3 states that
+K0d *"MUST BE STRUCK FROM THE SCHEDULE"* because its defining parameter is
+over-determined, and commit `107489e4` carries that claim in its subject line.
+**That reading cites `docs/campaigns/F14-cooling-ladder/K0d_FIRE_RULING_2026-08-25.md`,
+which is SUPERSEDED.**
+
+**THIS DOCUMENT EXISTS BECAUSE OF THAT FIRE RULING, AND IT DISSOLVES THE
+CONTRADICTION STRUCTURALLY RATHER THAN PATCHING IT:**
+
+- **§1.1** registers the fluid state **once and consistently**: `T_ref` = 298.00 K;
+  **`β` = 1/298 = 3.3557047e-03 K⁻¹ BY IDENTITY** — in a Boussinesq air model `β`
+  is **not a free parameter**, it is the reciprocal of the registered reference
+  temperature; `ν` = 1.569e-5 m²/s. **`AMENDMENT 5`'s rejected
+  `β = 3.26577e-3` is `1/306.21`**, an **8.06 K internal contradiction inside the
+  one coefficient Boussinesq validity rests on** — which is why it is
+  **rejected**, not merely disagreed with.
+- **§1.3** is the structural repair, in its own registered heading: **"`Ra` IS
+  DERIVED AND REPORTED. IT IS NOT A TARGET, AND NO GATE DEPENDS ON MATCHING IT."**
+  `Ra` = **2.135970e9**, derived from `(g, β, ΔT, H, Pr, ν)`. The **+0.2803 %**
+  residual against the published 2.13e9 is **disclosed and explained**: the
+  published figure was taken at **ΔT = 20.5 K** (Oulghelou 2020, `θ_hot` = 35.5 °C
+  against `θ_cold` = 15 °C) while this rung runs — and has always run — at
+  **ΔT = 20.0 K**. §1.3's own words: *"A 0.28 % residual against a target taken
+  at a different `ΔT` is not a defect to be closed; closing it was the defect."*
+
+**There is ONE registered `(ν, β, T_ref)` triple and `Ra` is an OUTPUT. The
+over-determination is gone.** `build_k0d.py` already carries exactly those values
+(`NU = 1.569e-05`, `BETA = 3.3557047e-03`, `TREF = 298.00`).
+
+**The real blocker was never `Ra`. It was the four `REGISTRATION_GAPS` of §A2.1**,
+on which the builder refused correctly — and they are closed above.
+
+**`K0d_FIRE_RULING_2026-08-25.md` and the T-family queue document were NOT
+edited by this amendment.** An unexpected or mistaken record in another team's
+committed file is **inspected, never reverted** (standing rule 10). The
+correction is made **here**, in the frozen registration that governs the
+question, and referred to the supervisor to correct the board.
+
+---
+
+## A2.6 WHAT THIS AMENDMENT DID NOT DO — each stated explicitly
+
+- **No GATE moved.** The ten graded rows, the thirteen stations, the five guards,
+  the verdict ladder, Roache triple gating and the planted-zero control are
+  untouched.
+- **No BAND, THRESHOLD or LABEL moved.** Every band adopted in §4 is
+  byte-unchanged.
+- **The physics did not move.** `ν` = 1.569e-5, `β` = 1/298, `T_ref` = 298.00 K,
+  `Pr` = 0.71, `Pr_t` = 0.85, `ΔT` = 20.0 K, `Ra` = 2.135970e9
+  derived-and-reported, and the first wall-cell column of §5.1 all stand exactly
+  as registered.
+- **The CAP WAS RAISED, and that is stated rather than buried**: 2 484.84 →
+  **2 748.64 core-min** (§A2.2). It is legal **only** because no K0d compute has
+  run (§A2.0) and it is the supervisor's ruling, `[lab-attributed]`.
+- **The POINT did not move**: 922.71 core-min.
+- **The rung count did not move**: **ten** cases — `M1_c`, `M1_m`, `M1_f`,
+  `M2_c`, `M2_m`, `M2_f`, `C_lam`, `B_hi`, `I_hi`, `M1_m_seed`. **Serial,
+  `ranks = 1`, asserted and not assumed.**
+- **The grid family did not move**: **exactly three levels**, `L1`/`L2`/`L3`.
+- **NOTHING WAS LAUNCHED BY THIS AMENDMENT.** No case directory, no mesh, no
+  solver, no pid. **Zero core-minutes.** Rule 12's estimate-versus-actual
+  calibration is **not triggered**, because no process completed.
+- **No other repository file was edited** — not
+  `K0d_FIRE_RULING_2026-08-25.md`, not the T-family queue document, not
+  `docs/LAB_STATE.md`, not `docs/DOCKET.md`, not `docs/LESSONS.md`, not
+  `docs/COST_CALIBRATION.md`. **`scripts/append_record.py` was not used and no
+  lesson, docket or record id was pre-assigned or reserved.**
+- **Nothing was sent** (standing rule 7). Submissions remain **PARKED**. Nothing
+  was fetched from outside the box (standing rule 8).
+- **No permission setting, `CLAUDE.md` or `.claude/` configuration was touched**
+  (standing rule 9).
+
+*Amendment written by a heat-transfer lane on the supervisor's gap, ceiling and
+condition-C rulings, 2026-08-25, before first compute. Zero core-minutes spent
+in writing it.*
