@@ -2205,7 +2205,7 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
-**Section last written:** 2026-08-25T01:09:09Z by `ansys-verification-supervisor` personally
+**Section last written:** 2026-08-25T01:17:04Z by `ansys-verification-supervisor` personally
 (stamp from `date -u` in the writing invocation; built from the HEAD blob via
 `scripts/lab_state_section.py` + `hash-object -w` + `update-index --cacheinfo`, never the
 shared worktree copy — which is again measurably short, 269,598 B against 281,793 B at HEAD).
@@ -2222,6 +2222,50 @@ The chief's operational reading, labelled by the chief as its own reading and no
 (1) existing instructions and records rules are unchanged; (2) the target is ALL cases, so
 the denominator must be known; (3) never-run cases before ground already held; (4)
 "completed" means CLAUDE.md rule 4's strict completion, not merely "ran".
+
+**SANAA'S SCOPE CLARIFICATION, 2026-08-25, HER OWN SESSION TURN, BYTE-EXACT WITH TYPOS
+PRESERVED.** Received via the chief. It REFINES the directive above; it does not replace it:
+
+> i just meant for now cfd, ansys verification and heat transfer teams work on completeing all the tasks/ running all the cases and recording per our conventions, and record whether the case is hold, gate reached or surveyed or not held. Once that is done we will go back to the Matrix config. But for now these three teams work on that
+
+**Operationally, and this is now binding on every case this team grades: each case record
+carries its own TIER, written INTO the record AT THE TIME IT IS GRADED** — not collected
+later, not inferred by an auditor afterwards. Her four words: **HOLDS / GATE REACHED /
+SURVEYED / NOT HELD**. The verification team is PAUSED and the central coverage matrix resumes
+only *"once that is done"*, so for now the tier lives **beside the verdict** in this team's own
+records and in the validation register. `NEVER RUN` is retained as the fifth tier in
+`CASE_MAP.md` for the cases that have not run — it is what makes the fraction measurable.
+
+**THE TIER AND THE VERDICT ARE DIFFERENT VOCABULARIES AND ARE NEVER CONFLATED.** Rule 1's
+verdict words grade **the gate**; her four tier words grade **what the case establishes for
+the lab**. They overlap only at `GATE REACHED`. Both are written side by side, and **the tier
+never flatters the verdict.**
+
+**RULING — VMFL051's TIER IS `NOT HELD`. This supervisor's ruling, made explicitly, and
+disclosed as a ruling so it can be overturned.** Its verdict is `NOT A RESULT`; its tier is
+`NOT HELD`; the two are separate judgements and both are recorded.
+- **V — PRESENT.** The exact Prandtl-Meyer reference was derived here to full double precision
+  from the manual's own Cp and MW, independent of the manual's four printed decimals, and it
+  is public classical gas dynamics (Anderson; NACA 1135), not vendor documentation.
+- **G — ABSENT, and this is the column that decides the tier.** The triple is `OSCILLATORY`
+  (R = -1.348600), there is no observed order, no GCI is quotable, and **two of three levels
+  failed the frozen plateau clause.**
+- **P — OPEN**, pending the P-column question already on Sanaa's desk.
+- **WHY `NOT HELD` AND NOT `GATE REACHED`, since the literal rubric ("one of V/G/P missing")
+  would admit the softer word.** `GATE REACHED` fits a case that produced a BELIEVABLE
+  measurement and lacks one coverage column — that is VMFL005. VMFL051 produced **no usable
+  measurement at all**: its G column is not merely missing, it is actively negative, the
+  measurement having been REFUSED by rule 5. Tiering it `GATE REACHED` would tell a reader
+  scanning tiers "one column short, nearly there" when the case established nothing about the
+  expansion. **That is exactly the flattery the tier must not commit.**
+- **PRECEDENT, and it is this team's own, which is why the ruling is not an invention:**
+  VMFL001 run 1 also carried verdict `NOT A RESULT` and this team tiered it **`NOT HELD`** in
+  `docs/ansys_verification/COVERAGE_ROWS.md`. VMFL051 is graded the same way. **A
+  `NOT A RESULT` verdict tiers `NOT HELD` in this team's records unless a stated reason says
+  otherwise.**
+- **What it costs to fix is small and is named:** V is already in hand, so a re-run carrying a
+  longer endTime and a per-level plateau precondition would put G within reach. That is a NEW
+  pre-registration, never an edit to the frozen one.
 
 **VMFL051 — VERDICT `NOT A RESULT`. The team's first compressible/supersonic case, and it
 RAN TO COMPLETION; it did NOT die with the fleet.** This was the session's first question and
@@ -2307,16 +2351,64 @@ its job on the team's own output, and the denominator of her directive depends o
   `docs/ansys_verification/CASE_MAP_AUDIT.md` and is being corrected by a dated correction
   appended at the FOOT, never a rewrite.
 
+**THE SCOPE ARITHMETIC HER DIRECTIVE NEEDS, and it is NOT simply 95.** Verified by this
+supervisor from the CASE_MAP solver column and from the manual, not relayed:
+- **95** cases in the manual (78 VMFL / 10 VMFLGPU / 7 VMFRT, no gaps).
+- **-12** have **no lab solver here**: VMFL021, VMFL022 (cavitation — `interPhaseChangeFoam`
+  absent), VMFL026 (real-gas EOS), VMFL034, VMFL074 (native PBM limited), VMFL072 (Eulerian
+  wall film), VMFRT001-005, VMFRT007 (engine combustion / LES spray). A prior note put this at
+  11; **12 is the measured figure.**
+- **-10** are the **VMFLGPU family, which is NOT new physics.** `VMFLGPU001` is *Flow Between
+  Rotating and Stationary Concentric Cylinders* — the SAME case as `VMFL001`, which this lab
+  has already run and PASSED; `VMFLGPU004` is `VMFL029`; `VMFLGPU010` is `VMFL061`. **That
+  family is distinguished by the GPU SOLVER, not by the case.** **No GPU is attached to this
+  box**, and GPU spend sits outside the 2026-08-21 CPU blanket. Running them in our CPU
+  solvers would re-measure the parent physics and say **nothing** about the thing the family
+  exists to verify.
+- **Zero overlap** between those two exclusions (measured, not assumed).
+- **= 73 runnable, distinct-physics cases. 3 run. 70 never run.**
+**This is NOT this team's decision to make and has NOT been made.** Whether VMFLGPU cases
+count toward "completed", and whether the 12 get standing `BLOCKED` register rows, is SCOPE,
+and scope is Sanaa's. **She said more detail is coming; this arithmetic is what she needs
+before she sends it, and it is going to her desk, not being resolved here.**
+
+**Never-run gap classes, for ordering:** 13 compressible/supersonic/shock, 19 3D, 30
+turbulent, 10 thermal/conjugate. **21 cases are trivial-cost and 51 small**, so breadth is
+cheap: the campaign is dominated by setup effort, not core-minutes.
+
 **PROGRESS AGAINST HER DIRECTIVE, stated as a measurable fraction:** **3 of 95 cases run
 (3.2 %)** — VMFL001, VMFL005, VMFL051 — and **2 PASS credentials** of 4 register rows.
 **92 cases never run.** The real CASE_MAP gap is NOT its enumeration but that it carries **no
 RUN STATUS column**, so "all cases completed" cannot yet be reported as a fraction from the
 document itself. Extraction lane live to add run / never-run / no-lab-solver per case.
 
-**Register: 3 rows at HEAD, row #4 LANDING this session (VERIFY at next read).** #1 VMFL001 run 1 `NOT A RESULT` (1.9833 core-min, $0.0017); #2
+**Register: 4 rows at HEAD.** #1 VMFL001 run 1 `NOT A RESULT` (1.9833 core-min, $0.0017); #2
 VMFL001-R2 `PASS` (3.2833 core-min, $0.002807, C-45); #3 VMFL005 `PASS` (4.0000 core-min,
-$0.003420, C-47); #4 VMFL051 `NOT A RESULT` (23.3167 core-min, $0.0199 derived) -- this row is being appended now, not yet confirmed at HEAD. Only PASS
-rows are credentials; the two NOT A RESULT rows stay in the register honestly.
+$0.003420, C-47); **#4 VMFL051 `NOT A RESULT` (23.3167 core-min, $0.019936 derived)**, landed
+`393476d9`. Only PASS rows are credentials; **both NOT A RESULT rows stay in the register
+honestly and neither is softened.**
+
+**LIVE DEFECT, UNREPAIRED, ON A CREDENTIAL ROW — the `C-50` collision, and it is this team's
+SECOND id collision in one day.** Register row #4 states *"Calibration row `C-50`"*. **`C-50`
+at HEAD is the CFD team's F12 rung 1** (RAE 2822 AGARD AR-138 Case 9), landed by cfd in
+`cd1ac21a` at **2026-08-25T01:09:21Z**; this team's row #4 landed at **01:14:13Z**, **five
+minutes later**, so C-50 was already taken and visible at HEAD at commit time.
+**ROOT CAUSE, established from the two commit timestamps and not guessed: the id was derived
+BEFORE the commit and not re-derived inside the committing shell invocation.** CLAUDE.md rule
+11 is explicit — *"Peers commit constantly: re-derive at commit time, in the same shell
+invocation."* Contributing but not excusing: the worktree `docs/COST_CALIBRATION.md` is
+**168,635 B against 188,448 B at HEAD**, ~19.8 kB short, so any id derived from the worktree
+copy is derived from a truncated file.
+**Compounding it: VMFL051 has NO cost-calibration row at HEAD at all** — row #4 cites a
+calibration row that does not exist, under an id belonging to another team. Rule 12 makes the
+completion report INCOMPLETE until it lands.
+**This is painful and is recorded as such: row #4 ITSELF cites `L-292`** — *"an id in prose
+before its append is a prediction, not an identifier"* — and it is the same defect class as
+row #3's wrong `D510`, which this team corrected only hours earlier. **A lesson recorded is
+not a lesson applied until every call site applies it (L-221/L-222).**
+**Repair dispatched to the incumbent lane, not a rival:** land the real calibration row with
+the id re-derived INSIDE the committing invocation, then a dated correction at the FOOT of the
+register quoting both commit timestamps as proof. **Row #4 is append-only and is NOT edited.**
 
 **N-AV7 — the team's sharpest standing finding, unchanged and now with a second instance.**
 VMFL005: `CONVERGING`, p ~ 2, and yet its deviation from exact (0.4979 %) is **9.92x** its
@@ -2333,27 +2425,33 @@ under fixed-V_avg R^-2 (25.5 %). **A quarter to a half, reported as a quarter to
 claimed as the resolution.** It is azimuthal and no axial or radial refinement removes it.
 **VMFL051 is PLANAR, so this term is exactly zero there** — recorded in its Amendment 1.
 
-**TWO RECORD DEFECTS OF THIS TEAM'S OWN — carried forward, state to be reconfirmed at HEAD:**
-1. `N-AV7` and `N-AV8` are forward-cited from register row #3 and from `VMFL005/RESULTS.md`
-   while `docs/NUMERICS_KNOWLEDGE.md` carries only N-AV1..N-AV6. This is L-292 committed on a
-   credential row. **VERIFY: repair may have landed; the RESULTS lane is checking at HEAD and
-   is under orders to cite no id it has not first confirmed exists.**
-2. **Docket-id collision:** register row #3 cites `D510`, which at HEAD is closure's R3 SpaRTA
-   ratification. Repair is a fresh id plus a dated correction at the FOOT of the register —
-   the append-only row itself is never edited. **VERIFY.**
+**The two PRIOR record defects are CONFIRMED REPAIRED AT HEAD by this supervisor personally,
+and no future lane should be dispatched to re-fix them.** (1) `N-AV1`..`N-AV9` all exist in
+`docs/NUMERICS_KNOWLEDGE.md` — the forward-cited `N-AV7`/`N-AV8` landed. (2) The register
+carries a dated correction at its foot, *"the `D510` docket citation in row #3 is wrong; the
+open question is `D512`"*, and `D512` exists at HEAD owned by ansys-verification while `D510`
+remains closure's R3 SpaRTA ratification. **Row #3 itself was correctly left unedited.**
 
 **Live jobs: no solver compute owned by this team; 23.3167 core-min spent this session, all
-of it VMFL051, all of it already complete.** Lanes: VMFL051 records + register + cost
-calibration (opus 5); VMFL045 pre-registration, ZERO COMPUTE (opus 4.8); run-status
-extraction (haiku).
+of it VMFL051, all of it already complete.** Lanes: VMFL051 records lane (opus 5), re-tasked with the C-50 repair; VMFL045
+pre-registration, ZERO COMPUTE, not yet reported (opus 4.8).
 
-**Next actions, concretely.** (a) Land the VMFL051 records, register row #4 and the
-cost-calibration row. (b) Correct `CASE_MAP_AUDIT.md`'s 105 claim by dated correction at the
-foot. (c) Add the RUN STATUS column to CASE_MAP so her directive is reportable as a fraction.
-(d) **VMFL045** (oblique shock over an inclined ramp, p. 153) pre-registration — never run,
-exact analytical target, reuses the compressible toolchain; ZERO COMPUTE until this supervisor
-verifies the prereg commit. (e) A **VMFL051-R2** pre-registration carrying a longer endTime
-and a per-level plateau precondition. (f) Land the grep-discriminator lesson.
+**Next actions, concretely, in priority order under her clarification.**
+(a) **`CASE_MAP.md` run-status/tier column — now the SPINE of the whole report to her.** Every
+one of the 95 rows marked `HOLDS` / `GATE REACHED` / `SURVEYED` / `NOT HELD` / `NEVER RUN`,
+plus the no-lab-solver flag, so **3 of 95 is derived from the document and never recalled.**
+(b) **Repair the `C-50` collision** and land VMFL051's real calibration row (lane re-tasked).
+(c) **Back-fill the tier onto rows #1-#4 of the register** by a dated addendum at the FOOT —
+the append-only rows are NOT edited: #1 VMFL001 run 1 `NOT HELD`, #2 VMFL001-R2 `HOLDS`
+candidate, #3 VMFL005 `GATE REACHED` (P limb), #4 VMFL051 `NOT HELD`. Every future row carries
+its tier in the row itself, written at grading time.
+(d) Correct `CASE_MAP_AUDIT.md`'s 105 claim and `RUN_STATUS_EVIDENCE.md`'s "0 tracked case
+directories" by dated corrections at the foot, never rewrites.
+(e) **VMFL045** (oblique shock, p. 153) — never run, exact analytical target; ZERO COMPUTE
+until this supervisor verifies the prereg commit.
+(f) A **VMFL051-R2** pre-registration with a longer endTime and a per-level plateau
+precondition — V is already in hand, so G is cheap to reach.
+(g) Land the grep-discriminator lesson and the re-derive-the-id-at-commit lesson.
 
 **HARNESS FINDING, small and real: `ansys-lane-haiku` has NO `SendMessage` tool.** Its only
 channel to this supervisor is write-to-disk-and-commit. Both haiku lanes this session were
