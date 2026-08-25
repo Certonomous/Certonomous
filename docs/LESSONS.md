@@ -11784,3 +11784,91 @@ verify the process by its own evidence, never as work in progress. A 9.9-second 
 started" is a completed subagent, not a running poll.
 
 *Lines whose number changed above this section: 0 (appended at the file foot).*
+
+## L-61, addendum 2026-08-25 — the line-bounded reader is now FOUR-plus instances, and one of them is `git log -S` itself: a measured 50 % FALSE-UNSOURCED rate on a real provenance audit
+
+**2026-08-25, records lane, chief-directed. Cost: zero compute — found by reading and
+searching, not by running.** Filed at the FOOT per `L-304`, not under `L-61`, because
+records cite `L-61` and every citation into this file points below any mid-file insertion.
+
+`L-61` already names this defect and already counted three instances of it in one night
+(*"a line-bounded grep returning zero against a file demonstrably containing the string —
+which had made three prior verifications unsound"*). `L-75` separately names the
+ignore-files half. This addendum exists because tonight's instance adds three things
+neither lesson carries, and because the lab was about to write a **new numbered lesson**
+for a defect it had already recorded — which would itself have repeated `L-185`/`L-205`.
+
+**FIRST, AND NEW: `git log -S` is line-bounded too.** The pickaxe is this lab's standard
+provenance instrument — it is what "trace the string to the commit that introduced it"
+means in practice. Measured tonight, on the same command in the same shell:
+
+- `git log -S'exclusively work on' -- docs/charters/ANSYS_VERIFICATION_CHARTER.md`
+  → **no commits.**
+- `git log -S'exclusively' -- docs/charters/ANSYS_VERIFICATION_CHARTER.md`
+  → **`123a3b92`**, which `--diff-filter=A` confirms CREATED that charter.
+
+The charter's line 29 ends `...a verification team to exclusively` and wraps. The pickaxe
+is a diff over lines, so a phrase spanning the wrap is invisible to it exactly as it is to
+`grep -F`. **A provenance audit that concludes "this string was never committed" from a
+multi-word `-S` has measured its own line-bounding, not the history.** Use a single
+line-safe token for `-S` and widen afterwards, or normalise and scan the blobs.
+
+**SECOND: the rate, measured on a real audit rather than asserted.** The quotation the
+`ansys-verification` team's existence rests on — *"exclusively work on these verification
+cases"* — occurs in **4 tracked files, 4 occurrences**, under a whitespace-normalised
+non-ignoring scan of **11,028 of 11,067 tracked files**:
+
+| file | line | line-bounded `grep -F` |
+|---|---|---|
+| `docs/LAB_STATE.md` | 118 | **VISIBLE** — phrase intact on one line |
+| `.claude/agents/ansys-verification-supervisor.md` | 13 | **VISIBLE** — one long unwrapped line |
+| `harness/teams.yaml` | 381 | **INVISIBLE** — wraps after `exclusively work on` |
+| `docs/charters/ANSYS_VERIFICATION_CHARTER.md` | 29 | **INVISIBLE** — wraps after `exclusively` |
+
+**Two of four. A 50 % false-UNSOURCED rate on the phrase that a team's mandate rests on.**
+The rate is the transferable number: on hard-wrapped prose at this repo's ~80-column
+convention, a phrase long enough to be diagnostic is long enough to be wrapped, and roughly
+half of its instances vanish. **The longer and more specific the phrase — i.e. the more
+evidential weight it carries — the likelier a line-bounded reader misses it.** That is the
+wrong way round, and it is why this is a standing hazard rather than a nuisance.
+
+**THIRD, and it is a second-order instance of the same class: the report of this defect got
+its own misses wrong.** The brief that dispatched this lane named the two invisible
+instances as `harness/teams.yaml:381` and `.claude/agents/ansys-verification-supervisor.md:13`.
+**Only the first is right.** The agent definition at line 13 is a single ~1,400-character
+unwrapped line and a line-bounded `grep -F` returns it — verified by running exactly that
+grep, which listed `docs/LAB_STATE.md` and `.claude/agents/ansys-verification-supervisor.md`
+and neither of the two wrapped files. The second true miss is the **charter**, which the
+brief does not name. So a report *about* a search defect reproduced the defect's shape:
+**the rate was right, the mechanism was right, and the identity of the evidence was wrong** —
+because the misses were reconstructed from what the phrase looked like rather than re-derived
+by running both searches side by side. Anyone who had acted on the brief would have "fixed"
+a file that was never broken and left the charter unfound.
+
+Related and NOT the cause here, stated so the two mechanisms are not conflated: `.claude/`
+is **not** gitignored and the agent file **is** tracked (`git check-ignore` rc=1,
+`git ls-files --error-unmatch` succeeds). `L-75`'s ignore-files blindness contributed
+nothing to this instance. Two different mechanisms produce the same clean confident zero,
+and a sweep must clear both.
+
+**The standing form, and it is cheap enough that there is no excuse:**
+
+- **Normalise before concluding anything is unsourced.** `tr '\n' ' ' | tr -s ' '` per file,
+  or `re.sub(r'\s+', ' ', text)` in a scanner. Do it *before* the word "unsourced",
+  "absent" or "never committed" is written down.
+- **Non-ignoring reach**, per `L-75`: `git ls-files` or `find … | xargs /usr/bin/grep`,
+  never the shell's `grep -r`.
+- **A positive control**, per `L-43`: search for a specimen you know is present, in the
+  wrapped form, and see it come back.
+- **State both searches' counts when they disagree**, and take the normalised one. Tonight
+  the two counts were **2 and 4**; the un-normalised 2 was the one that would have become a
+  finding.
+- **For provenance specifically:** `-S` on one token, then confirm with `--diff-filter=A`
+  and a normalised blob scan. Two instruments, because they fail the same way.
+
+**What this addendum does NOT establish.** It does not show the 50 % rate generalises beyond
+this phrase in this repo at this wrap width — it is one measurement on one phrase, and it is
+quoted as such. And it does not touch the substantive question the audit was serving: whether
+that quotation is corroborated. It is not. All four instances enter in the single commit
+`123a3b92`, and that is a finding about attribution, recorded separately in
+`docs/OWNER_ATTRIBUTION_PROVENANCE_PROPOSAL.md` (a DRAFT, not adopted), not here.
