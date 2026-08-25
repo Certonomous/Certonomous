@@ -1,0 +1,112 @@
+{
+ "what": "F12 roache_triple pin -- discharges the debt recorded in launch_f12_rung.py's docstring",
+ "grades_nothing": true,
+ "moves_no_gate": true,
+ "prereg": {
+  "path": "verification/campaign/F12_PREREGISTRATION.md",
+  "blob": "462492a82b6cf848eaaff25661ded45e623e723f",
+  "version": "1.4"
+ },
+ "instrument": {
+  "path": "scripts/roache_triple.py",
+  "sha256": "452f475181c9897000ea530b39a84bd3e7e9927e0a3fd39fe8b1105f538ac051",
+  "blob": "8dee0d31e94d3f59d28658f88a4cd6df80ae8e39",
+  "selftest": "53/53 checks passed"
+ },
+ "grading_path": {
+  "path": "sdk/workflows/rae2822_case9.py",
+  "sha256": "d5db99d877f5389a7b2bfdb52c35822be0781bd7c65d31b573cc282b975c82ed",
+  "blob": "a18314f77160b7a58f443073850a44b4d8fada7d",
+  "function_sha256": {
+   "shock_location": "59c75739ca9a1a12c85aac2d4e9436263326b8bbadf7b71e90f9ec6902a5263d",
+   "cp_deviation": "6513b0f7142982765ba522d28e7d7958273e6018e6b11a9cd6596fdcfb3a10c0",
+   "sonic_cp": "f395c50f680d40175c5eec0bbbc00f303b3d871d588d8fd6708c19ee076cc54f",
+   "solver_converged": "aff97421a70be7af4ed134df408876d6cc47765398e27d5e9449b9f50b744bf8",
+   "final_coefficient": "c5391c236e986ac3d23a8255120e13634498b06ad17e8e1ba158d069b2e6788b"
+  }
+ },
+ "call": {
+  "entry": "roache_triple.grade_ladder",
+  "dim": 2,
+  "fs": 1.25,
+  "form": "equal",
+  "equal_tol": 0.0,
+  "levels_coarse_first": [
+   {
+    "name": "coarse",
+    "cells": 23040,
+    "run_dir": "attempt2_coarse_workshop_M0.734_a2.79"
+   },
+   {
+    "name": "medium",
+    "cells": 92160,
+    "run_dir": "attempt2_medium_workshop_M0.734_a2.79"
+   },
+   {
+    "name": "fine",
+    "cells": 368640,
+    "run_dir": "attempt2_fine_workshop_M0.734_a2.79"
+   }
+  ],
+  "r21": 2.0,
+  "r32": 2.0,
+  "representative_h": {
+   "coarse": 0.0065880784586841235,
+   "medium": 0.0032940392293420617,
+   "fine": 0.0016470196146710309
+  },
+  "iterative_states_source": "rae2822_case9.solver_converged() on each level's log.rhoSimpleFoam -- admission gate B, F12_PREREGISTRATION.md:54",
+  "plateau_states": null,
+  "plateau_states_note": "ABSENT, not passed. The frozen pre-registration carries no plateau clause, so none is invented here. grade_ladder's own docstring requires an absent measurement be recorded as absent and never as a pass (VERIFICATION_CHARTER.md section 9).",
+  "plant_control_source": "roache_triple.external_plant_control(), planted into the OpenFOAM surface sample the case comparator actually reads, not into a synthetic series"
+ },
+ "bands_derived_from_frozen_thresholds": {
+  "gate1_cp_rms_upper": {
+   "band": [
+    0.0,
+    0.08
+   ],
+   "from": "F12_PREREGISTRATION.md:60 'upper surface RMS <= 0.08'"
+  },
+  "gate1_cp_rms_lower": {
+   "band": [
+    0.0,
+    0.04
+   ],
+   "from": "F12_PREREGISTRATION.md:61 'lower surface RMS <= 0.04'"
+  },
+  "gate2_x_shock_sonic": {
+   "band": [
+    0.5771756632448648,
+    0.6171756632448648
+   ],
+   "x_experiment": 0.5971756632448648,
+   "cp_star": -0.6474932070950008,
+   "steepest_resolution": 0.025035999999999947,
+   "from": "F12_PREREGISTRATION.md:69-72, +/- 0.020 c about the experimental sonic crossing derived by the frozen shock_location() from reference/rae2822_case9_cp_upper.dat"
+  },
+  "gate3_CN": {
+   "band": [
+    0.76285,
+    0.8431500000000001
+   ],
+   "from": "F12_PREREGISTRATION.md:86 '|CN - 0.803|/0.803 <= 5%'"
+  },
+  "gate4_CD": {
+   "band": [
+    0.01344,
+    0.020159999999999997
+   ],
+   "from": "F12_PREREGISTRATION.md:88 '|CD - 0.0168|/0.0168 <= 20%'"
+  }
+ },
+ "CM": {
+  "band": null,
+  "handling": "REPORTED, NOT GATED (F12_PREREGISTRATION.md:94-98). grade_ladder REFUSES without a band, so CM must NOT be passed to it. Its triple, state, observed order and GCI are printed via all_triples() and no verdict is emitted for it."
+ },
+ "rungs_4_and_5": {
+  "triple": null,
+  "why": "Rung 4 (medium, tape M = 0.730) and rung 5 (medium, 2x far-field) are SINGLE-MESH sensitivity runs at one level each. A Roache triple needs three levels of ONE experiment; all_triples() refuses fewer than three. Neither rung owes a triple and neither can carry one. They are reported as sensitivities beside the graded ladder, never graded as a grid family, and the frozen text's 'A single-mesh result is not shipped' (:119) is what forbids promoting either."
+ },
+ "verified_utc": "2026-08-25T20:45:23Z"
+}

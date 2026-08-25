@@ -1,0 +1,202 @@
+{
+ "what": "MESH_STANDARD.md sec 9.2 similarity read-back, from the WRITTEN dictionaries",
+ "rules_nothing": true,
+ "dict_paths": {
+  "coarse": "/home/ubuntu/Certonomous/verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/coarse/system/blockMeshDict",
+  "medium": "/home/ubuntu/Certonomous/verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/medium/system/blockMeshDict",
+  "fine": "/home/ubuntu/Certonomous/verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/fine/system/blockMeshDict"
+ },
+ "n_blocks": {
+  "coarse": 18,
+  "medium": 18,
+  "fine": 18
+ },
+ "planted_control": {
+  "arm": "wall-normal grading of the fine level's block 0 scaled x1.5",
+  "unperturbed_reads_similar": false,
+  "perturbed_reads_NOT_similar": true,
+  "PASSED": true
+ },
+ "measured": {
+  "topology_identical_all_levels": true,
+  "every_block_doubles_in_x_and_y": true,
+  "streamwise_grading_max_relative_deviation": 0.0,
+  "streamwise_blocks_compared": 16,
+  "wall_normal_total_expansion": {
+   "coarse": [
+    4401087.387
+   ],
+   "medium": [
+    4598884.808
+   ],
+   "fine": [
+    4702008.693
+   ]
+  },
+  "wall_normal_max_relative_deviation": 0.06837430833317827,
+  "wake_far_side_BRANCH_FLIP": false,
+  "wake_streamwise_max_relative_deviation": 0.0432116518153429,
+  "wake_blocks": [
+   {
+    "block": 16,
+    "grading": {
+     "coarse": [
+      728.8480902,
+      728.8480902,
+      728.8480902,
+      728.8480902,
+      4401087.387,
+      1.0,
+      1.0,
+      4401087.387,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "medium": [
+      749.6801178,
+      749.6801178,
+      749.6801178,
+      749.6801178,
+      4598884.808,
+      1.0,
+      1.0,
+      4598884.808,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "fine": [
+      760.3428201,
+      760.3428201,
+      760.3428201,
+      760.3428201,
+      4702008.693,
+      1.0,
+      1.0,
+      4702008.693,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "unity_slots": {
+     "coarse": [
+      5,
+      6,
+      8,
+      9,
+      10,
+      11
+     ],
+     "medium": [
+      5,
+      6,
+      8,
+      9,
+      10,
+      11
+     ],
+     "fine": [
+      5,
+      6,
+      8,
+      9,
+      10,
+      11
+     ]
+    }
+   },
+   {
+    "block": 17,
+    "grading": {
+     "coarse": [
+      0.001372028017,
+      0.001372028017,
+      0.001372028017,
+      0.001372028017,
+      1.0,
+      4401087.387,
+      4401087.387,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "medium": [
+      0.001333902255,
+      0.001333902255,
+      0.001333902255,
+      0.001333902255,
+      1.0,
+      4598884.808,
+      4598884.808,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "fine": [
+      0.001315196216,
+      0.001315196216,
+      0.001315196216,
+      0.001315196216,
+      1.0,
+      4702008.693,
+      4702008.693,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "unity_slots": {
+     "coarse": [
+      4,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "medium": [
+      4,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "fine": [
+      4,
+      7,
+      8,
+      9,
+      10,
+      11
+     ]
+    }
+   }
+  ]
+ },
+ "reading": {
+  "exactly_similar": [
+   "topology",
+   "block count",
+   "per-block cell-count doubling in x and y",
+   "all 16 streamwise gradings (deviation 0.000e+00)"
+  ],
+  "residual_drift": {
+   "wall_normal_total_expansion": "6.8374 % coarse->fine",
+   "wake_streamwise_edge_grading": "4.3212 % coarse->fine"
+  },
+  "sec_9_2_branch_flip": "ABSENT -- the unity slots of both wake blocks are identical at all three levels, so the guard that fired at the fine level in attempt 1 does not fire in attempt 2.",
+  "NOT_RULED": "Whether the wall-normal residual drift is admissible is the supervisor's and verification's call. This file measures; it does not rule."
+ }
+}
