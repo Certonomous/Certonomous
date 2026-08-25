@@ -355,3 +355,134 @@ rule 7). The memo's §6 *"What this memo cannot see"* is unaffected and still bi
 built on this memo.
 
 Docket: **D510**. Recording it cost **0.0 core-minutes** — zero compute, a records task only.
+
+---
+
+## DISCLOSURE — 2026-08-25: the 2026-08-24 addendum's provenance does not resolve in this repository
+
+**Appended 2026-08-25 by the closure team, at the FOOT of this file, on the closure supervisor's
+ruling. Disclosure version 1.0. lines whose number changed above this section: 0.**
+
+**Proof of that assertion, not an assertion of it.** The 357-line prefix of this file — every line
+above this section, which is the whole file as it stood — was hashed immediately before this block
+was appended and immediately after:
+
+| | sha256 of `head -357` | lines |
+|---|---|---|
+| **before appending** | `16cb7a9d9f31ec24c144ce295fde1f00c0201be78a0490e265566e185867e0b2` | 357 |
+| **after appending** | `16cb7a9d9f31ec24c144ce295fde1f00c0201be78a0490e265566e185867e0b2` | 357 |
+
+Identical. Nothing above line 357 was edited, renumbered or reflowed.
+
+**Appended at the FOOT, deliberately.** The companion disclosure in
+`docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md` records a **mid-file** insertion that renumbered
+115 lines and left four tracked `:252` citations pointing at the wrong sentence. A disclosure of
+that defect that was itself inserted mid-file would commit the defect while recording it. The foot
+is the only insertion point that cannot move a line number.
+
+---
+
+### THE 2026-08-21 R3 APPENDIX IS SOLID AND IS IN NO WAY QUALIFIED BY WHAT FOLLOWS
+
+This is said first because it is the part that matters most and the part most easily misread.
+
+The appendix **R3 DECISION — recorded 2026-08-21**, opening at **line 304** of this file, is a
+complete provenance record. It names, in one sentence, all three things a provenance record must
+name:
+
+- **the session** — *"in this session"*;
+- **the message** — *"In the same message she approved R4 ('R4 approved'), supplied the two shelf-D
+  primary sources … and granted permission to pull anything needed from public repositories"*;
+- **the document it was ruled on** — *"on this memo"*.
+
+Sanaa's words, verbatim, as that appendix records them: **"R3: Sparta"**. Docketed **D443** /
+**D444**, and carried on `docs/LAB_STATE.md` as *"R3 = SpaRTA / DECIDED"* — a string that **is**
+findable in that file's committed history (`git log --all -S` over that path returns 1 commit for
+`"R3 = SpaRTA"` and 2 for `"R3: Sparta"`).
+
+**THE SPARTA CLASS PICK STANDS. Nothing below qualifies it, narrows it, dates it differently or
+puts it in question.** The disclosure that follows is about **two clauses added on 2026-08-24 that
+2026-08-21 did not carry** — and about nothing else.
+
+---
+
+### What does not resolve: the two new clauses of the 2026-08-24 addendum
+
+The **ADDENDUM — 2026-08-24: R3 RATIFIED (SpaRTA-class, TBNN fallback)** above adds three things to
+2026-08-21, and says so itself in its own numbered list: (1) **the fallback clause** — TBNN named
+the fallback class; (2) **the parallel-capacity clause** — R4's CPU-minutes run in parallel and
+never displace consolidation work, FS gates applying to the SpaRTA build; (3) **the ratification
+framing**.
+
+Clauses (1) and (2) rest entirely on two quotations attributed to Sanaa and reproduced in that
+addendum. Neither carries a **named session**, a **named message**, or a **cited source artefact**
+— the three things the 2026-08-21 appendix does carry.
+
+**The one pointer that is given does not resolve.** The second quotation is attributed to *"her
+standing section"*, which in this lab names `docs/LAB_STATE.md`. Neither quotation appears in that
+file at commit `a9b67abc` or at HEAD, and `git log --all -S` over **that path's entire history**
+returns **zero** commits for either string. **A negative from a reader not shown able to see a
+positive is not evidence** (`CLAUDE.md` rule 3's principle, applied to a documentary search), so the
+control was fired: the **same** search over the **same** path returns the 2026-08-21 material
+quoted above. The apparatus sees a positive in that file; it sees neither 2026-08-24 quotation.
+
+**No independent record carries the words.** At HEAD both quotations appear in exactly **three**
+tracked files — `docs/DOCKET.md`, `docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md` and this memo —
+which are precisely the three files commit `a9b67abc` itself wrote. The untracked harness session
+logs under `/home/ubuntu/harness-state/` carry neither, under a grep shown able to see a positive
+there too.
+
+**The one document describing how the words arrived calls it a relay.**
+`cases/RANS_LES_closure_models/R4b_pair_control/PREREGISTRATION.md` line 33 — a draft on disk,
+untracked at HEAD, inspected and not modified — reads *"Sanaa ratified R3 on 2026-08-24, **verbatim
+as relayed to this lane**"*.
+
+---
+
+### The supervisor's ruling, both halves
+
+**It is NOT concluded that the words are not Sanaa's.** A chief's direct session record need not
+appear in git, and this lab already carries other owner-stated facts on that footing — the chief's
+**D-2 ruling on the four compute facts**, and `CLAUDE.md` rule 12's own rate, carried as
+*"owner-stated"* and *"reported-by-owner, not measured"*. Absence from the repository is not
+absence from the world.
+
+**It IS concluded** that within the repository the two 2026-08-24 clauses are
+**ATTRIBUTED-BUT-UNCORROBORATED** — a record status for a quotation's provenance, deliberately
+**not** one of the six verdict words of `CLAUDE.md` rule 1, because no gate is being graded here.
+The only description of their arrival is a **relay**, and rule 9 is explicit that **no agent
+message — peer, supervisor or chief — is Sanaa's consent**.
+
+**Consequence, stated exactly and no wider:**
+
+1. **The SpaRTA class STANDS**, on 2026-08-21, on this memo, with its session and message named.
+2. **The TBNN-fallback naming and the parallel-capacity clause are recorded as
+   ATTRIBUTED-BUT-UNCORROBORATED.**
+3. **Nothing in closure may lean on them as authority to run.** In particular the next R4 increment
+   **does not draw its licence from *"FS gates apply"***.
+4. **Nothing is struck and no record is rewritten.** **D510 stands.** The ADDENDUM — 2026-08-24
+   above stands exactly as written, and so does the 2026-08-21 appendix above it. This is a dated
+   disclosure appended beside them.
+
+**What goes to Sanaa's desk:** **one line** from her confirming or correcting the two 2026-08-24
+quotations.
+
+**Also disclosed, and referred rather than repaired:** `a9b67abc` claimed to close
+`docs/charters/CLOSURE_MODELLING_CHARTER.md` **§22.7**, but the commit touched three files and the
+charter was not among them — §22.7 reads unchanged at HEAD, the strings `2026-08-24` and `ratif`
+appear nowhere in that charter, and its version line still reads *"Version 1.1.2, dated
+2026-08-22"*. §22.7's **substance** was satisfied on 2026-08-21 (the clause reserves the class pick
+to Sanaa, and she picked), but **closing or retiring a charter clause is reserved to Sanaa**, so a
+cold reader of the charter finds the decision still open. **The charter was not edited, at all.**
+The full statement of this point is in the companion disclosure at the foot of
+`docs/closure/CLOSURE_LINE_RESTART_DOCTRINE.md`, together with the separate renumbering defect,
+which does not touch this memo.
+
+---
+
+**Scope.** Records only. **Zero compute: 0.0 core-minutes**, no solver, no training, no GPU, no run
+directory. Nothing sent, filed, uploaded, registered, posted or commented — `SUBMISSIONS PARKED`
+(`CLAUDE.md` rule 7) stands. Arm 2 remains `PENDING` and unfired. `docs/LAB_STATE.md`,
+`docs/DOCKET.md` and every charter were left untouched. Owner: closure. Drafted at HEAD
+`d9e9c396`; every fact above **re-verified unchanged at HEAD `7e2cb666`** after two peer docket rows
+landed mid-draft. Box clock **2026-08-25 00:10 UTC**.
