@@ -667,3 +667,123 @@ distinguish γ = 1.3990094 from γ = 1.4; it is a blind spot, stated before the 
 The verdict is a statement about this lab's `rhoCentralFoam` against the manual's
 Prandtl-Meyer reference, and **only a `PASS` is a credential**; a `GATE FAIL` is a
 finding that is never removed, never re-labelled and never softened.
+
+---
+
+## Amendment 1 — 2026-08-25, BEFORE FIRST COMPUTE. Version 1.1.
+
+**Lines whose number changed above this section: 0.** Nothing above is edited;
+this section is appended at the foot (CLAUDE.md rule 6).
+
+**Legality, and the condition CHECKED not asserted** (CLAUDE.md rule 2;
+`VERIFICATION_CHARTER.md` §2b.1). Amendments before first compute are legal and must
+name the run directory that does not exist. At **2026-08-25T00:22:35Z**, read with
+`date -u` in the same invocation, **`verification/runs/ansys_verification/VMFL051/`
+does not exist** — `ls -d` returned *No such file or directory* and `find` beneath it
+returned **0 files**. No `blockMesh`, no `topoSet`, no `rhoCentralFoam` has run and no
+mesh exists. **This amendment therefore precedes all compute.**
+
+**It changes NO gate, NO threshold, NO cap and NO label.** The gate stays
+|M_lab − 3.2370| / 3.2370 ≤ 0.005 at L3; the exact-value diagnostic stays 0.25 %; the
+cap stays 28 core-minutes; the verdict vocabulary is untouched. What it adds is
+(A) a **reading rule** — what each Roache outcome will be taken to MEAN — registered
+before the answer exists, and (B) a **modelling-bias declaration** that §9's error
+budget did not address. Both are additions to the *interpretation and the budget*,
+never to the gate.
+
+**Occasion.** Two team facts landed in `docs/NUMERICS_KNOWLEDGE.md` after this
+document was drafted and were relayed by the `ansys-verification-supervisor`:
+**N-AV7** (a small GCI licenses no claim that a residual deviation is numerical) and
+**N-AV9** (an axisymmetric wedge carries a `sin(t)/t` modelling bias refinement never
+removes). Both bear directly on this case, which is the cleanest exact-target case
+this team has attempted.
+
+### A1.1 What each Roache outcome will MEAN — registered in advance, and NOT a prediction
+
+**No prediction of which outcome will occur is registered here, and none may be
+inferred from the order below.** What is registered is the *reading*, so that the
+interpretation cannot be chosen to fit the number once it exists. This is the
+VMFL051 form of the error N-AV7 names.
+
+**The comparison that matters is against `M₂_EXACT_GAS = 3.2355411372251863`, NOT
+against the printed 3.2370.** This is the load-bearing point and it is stated before
+any compute: the printed target sits **0.04507 % above** the exact answer for the gas
+actually modelled (§1a Defect 2, §3.3), and that offset is a **bookkeeping term of the
+manual's own table, not a property of the solver**. Comparing a Richardson extrapolate
+against 3.2370 would silently attribute that 0.04507 % to discretisation error — which
+is precisely N-AV7's failure in this case's clothing. The extrapolate is therefore read
+against the exact value only.
+
+Two quantities, both **already computed and printed by the frozen comparator** and
+neither of them a gate — `triple.f_extrapolated` and `triple.gci_fine` are in the
+grading JSON at blob `acad1aff…`, so nothing new is being added to the grading path:
+
+- **ρ ≡ |dev of the fine level vs `M₂_EXACT_GAS`| / GCI_fine** — how many times the
+  fine-grid discretisation uncertainty the residual deviation is. (N-AV7's own column:
+  VMFL001-R2 = 0.79; VMFL005 = 9.92.)
+- **dev_extrap ≡ |M_extrapolated − `M₂_EXACT_GAS`| / `M₂_EXACT_GAS`** — whether
+  refinement closes the gap or not.
+
+**The threshold on dev_extrap is SELF-SCALING and carries no chosen constant.** A
+Richardson extrapolate's own uncertainty is of the order of the GCI that produced it,
+so the criterion is **dev_extrap ≤ GCI_fine** — the extrapolate lands on the exact
+value *within its own convergence uncertainty*. There is no arbitrary number to
+choose, and the two precedents sit three orders of magnitude apart on it
+(VMFL001-R2 landed at 3.7 ppm; VMFL005 landed 0.5383 % away against a 0.0502 % GCI),
+so it separates them robustly.
+
+| reading | condition | what it will be taken to mean |
+|---|---|---|
+| **(a) the VMFL001-R2 pattern** | triple `CONVERGING` **and** dev_extrap ≤ GCI_fine **and** ρ ≤ 1 | The residual deviation from the closed-form answer is **consistent with discretisation error**, and refinement carries the solution ONTO the exact Prandtl-Meyer value. On a smooth, shock-free, exactly-solvable target this is the strongest code-verification evidence this team can produce, and it is what would be put forward for a V-column hold. **Putting it forward is a recommendation to the supervisor, not a verdict this lane may issue.** |
+| **(b) the VMFL005 pattern** | triple `CONVERGING` **and** dev_extrap > GCI_fine | Grid refinement does **not** close the gap: a **modelling or setup bias the grid cannot remove** is present, and ρ quantifies how much of the residual is not discretisation. The row may still be a `PASS` on the gate — the two are independent — but **it is NOT evidence of convergence to the exact solution and will not be presented as such**, and the open mechanism goes to the docket as VMFL005's did (`D512`). |
+| **(c) indeterminate** | triple `CONVERGING` **and** dev_extrap ≤ GCI_fine **but** ρ > 1 | Recorded as **indeterminate**, with both numbers printed and **neither (a) nor (b) claimed**. An honest third cell exists precisely so a borderline row cannot be rounded into the flattering one. |
+| **(d)** | triple not `CONVERGING` | Rule 5 step 2 already governs: **`NOT A RESULT`**, no GCI quoted, and none of the readings above is available at all. |
+
+**None of (a)–(d) can change the verdict**, which comes only from §6 in rule 5's stated
+order. They fix what `RESULTS.md` may claim about the number, not what the number is.
+
+### A1.2 N-AV9 does not apply to this case, and what stands in its place
+
+**This case is a PLANAR 2-D slab, NOT an axisymmetric wedge.** Verified against the
+committed dictionary (`case/system/blockMeshDict.template`, blob
+`7557bfec1e18f6956e3ed09185f45627af4c32a0`): every vertex sits at z = −0.01 or
+z = +0.01 exactly, the front and back faces are a single `defaultFaces` patch of
+**`type empty`**, and the word `wedge` appears nowhere in the dictionary — there is no
+`wedge1`/`wedge2` pair and no included angle `t`. The mesh is one cell thick between
+two parallel planes.
+
+**Therefore the `sin(t)/t` area deficit of N-AV9 is EXACTLY ZERO here and is absent
+from this case's error budget** — the term arises from representing a circular sector
+by a flat-sided triangle, and there is no sector. This is stated explicitly rather than
+left unaddressed, as the supervisor's relay requires, because every axisymmetric case
+this team runs from now on carries that term.
+
+**What stands in its place — the analogous "modelling error the grid cannot remove"
+for VMFL051, declared now.** N-AV9's real lesson is structural: *an error living in a
+direction the Roache triple does not refine is carried to the extrapolate rather than
+removed by it.* Its VMFL051 counterparts are two, and both are already quantified above:
+
+1. **The gas-model term, 0.04507 %.** γ = 1.3990094 from the manual's own Cp and MW
+   against the γ = 1.4 the manual's printed target implies (§1a Defect 2). It is
+   **invariant under mesh refinement** and is carried straight to the extrapolate.
+   Against the **printed target** it is a real 0.04507 % offset; against
+   **`M₂_EXACT_GAS` it is zero by construction**, which is exactly why A1.1 reads the
+   extrapolate against the exact value and not against 3.2370.
+2. **The corner singularity.** The expansion is centred on a single point at which the
+   exact solution is not differentiable. Refinement moves the singular cell but never
+   removes it, so any error it injects into the far field is a candidate for surviving
+   to the extrapolate. It is **not** quantified in advance — no honest pre-compute
+   bound exists for it — and saying so now is the point: if reading (b) occurs, this is
+   a named candidate mechanism and not a mechanism invented afterwards.
+
+**Neither term moves the gate, the band or the cap.** Both are recorded so that a
+converging-triple `PASS` cannot be mistaken for convergence to the exact value — the
+mistake N-AV7 exists to prevent.
+
+### A1.3 What this amendment does NOT do
+
+It registers **no prediction** of which reading will occur; it adds **no clause** that
+can turn a `GATE FAIL` into a `PASS`; it touches **no** frozen blob — the comparator,
+the sampling rule and every case dictionary remain exactly as committed at
+`dd49dcee476be1b92d48c86155f9f7311aa29427`, and `--verify-frozen` still passes against
+that commit. The grading path is unchanged and unchanged-able.
