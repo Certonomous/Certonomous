@@ -446,3 +446,134 @@ cannot** — it changes an identifier and restores a supersession link. §3's qu
 
 **Vocabulary unchanged:** `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` /
 `PENDING`.
+
+---
+
+## AMENDMENT 2 — 2026-08-25 — **TIP-CAP H-BLOCK FILL BEYOND THE FLAT TIP.** v1.2
+
+**Class: pre-first-compute amendment (rule 2), insertions-only.**
+**lines whose number changed above this section: 0 — VERIFIED BY DIFF, NOT ASSERTED**
+(parent blob compared line-for-line against the child's first 448 lines, diff empty; parent proved
+a **byte prefix** of the child by `cmp -n` over its full byte length, child strictly longer).
+
+### A2.1 What the amendment does
+
+The C-grid registered in §5 wraps the wing section. **Beyond the wing tip there is no wing, and the
+region enclosed by the extruded tip outline is FLUID that §5 left unmeshed.** This amendment
+registers an **H-block fill** of that region, at every level:
+
+| | chordwise | across the lens | spanwise (outboard) | cells added |
+|---|---|---|---|---|
+| **tip fill** | **47m** (= 11m S1 + 36m S2, matching the surface exactly) | **12m** | **6m** | **3 384 m³** |
+
+| level | §5 as frozen | **+ tip fill** | **amended total** | change |
+|---|---|---|---|---|
+| **L1** m=1 | 104,832 | 3,384 | **108,216** | **+3.2280 %** |
+| **L2** m=2 | 838,656 | 27,072 | **865,728** | **+3.2280 %** |
+| **L3** m=4 | 6,709,248 | 216,576 | **6,925,824** | **+3.2280 %** |
+
+**The increase is IDENTICAL at every level by construction** (the fill scales as m³ exactly as the
+C-grid does), so **`h = (N_ref/N)^(1/3)` is UNCHANGED at `r = 2.000000000` for BOTH consecutive
+pairs**: 865 728 / 108 216 = 8 exactly, 6 925 824 / 865 728 = 8 exactly. **Nesting is unaffected** —
+the fill's interior points are sampled at the same `ξ = a/47m` and `η = b/12m` at every level, so a
+coarse fill node is a fill node of the finer level exactly as §5's mapping guarantees.
+
+**COST.** Estimate **3 224.7 → 3 328.8 core-min** (×1.03228, the cell-count ratio, on §8's own rate
+basis). **THE HARD CAP OF 6 000 CORE-MIN IS UNCHANGED AND STILL BINDING**, and so is every rung cap
+in §8's table. Dollars **DERIVED, never measured**: 3 328.8 core-min = 55.48 core-h → **$2.846
+derived** at the owner-reported $0.0513/core-h. Cap/estimate falls 2.05× → **1.80×**.
+
+**THIS AMENDMENT ALTERS NO GATE, NO BAND, NO THRESHOLD, NO CAP AND NO LABEL.** §3, §4, §6, §7 and
+every cap in §8 stand exactly as frozen at `2eabe5971b1c45624c189c669b69b5f17788a56e`.
+
+### A2.2 FOUR DISCLOSURES. The first two are departures; the third is a choice; **the fourth is the one that matters**
+
+**(1) THE M6 TIP IS NOT A FLAT CUT ON THE REGISTERED GEOMETRY, AND §5 SAYS IT IS.**
+§5 states *"the M6 tip is a flat cut, so the cap is geometry, not a simplification."* **Measured from
+the registered STL** (`sdk/geometry/onera_m6_wing.stl`, header `Certonomous patch-extracted STL`,
+12,480 triangles), by slicing it: the planform is linear to **z = 1.19676 m** — `xle(z) = 0.5773499 z
++ 9.84e-7` (max residual **2.79e-8 m**, LE sweep **30.0000°**) and `c(z) = 0.8062163 − 0.2950627 z`
+(max residual **9.62e-8 m**) — and then **the STL CLOSES OVER A ROUNDED CAP** from z = 1.19676 to
+**z = 1.21640 m**, a length of **0.01964 m = 2.44 % of c_root**, over which the chord falls from
+0.45309 m to 0.0335 m. **The registered geometry has a rounded tip closure, not a flat cut.**
+**This mesh cuts the wing flat at z = 1.19676 m and DOES NOT REPRODUCE that rounded closure.** The
+departure is registered here rather than discovered later: it is a **wing-tip geometry difference of
+2.44 % c_root in span**, it is where the tip vortex forms, and **it would matter to `P`. `P` is not
+claimed** (§2). V and G are self-referential and grade the solver and the mesh **against themselves
+on the geometry actually meshed**, which is the flat-cut wing this amendment registers.
+
+**(2) THE INSTRUMENT WRITES `constant/polyMesh` DIRECTLY, NOT A `blockMeshDict` — MEASURED, NOT
+PREFERRED.** The fill registered above is a **lens whose leading- and trailing-edge ends are single
+lines**, so its end faces are collapsed. **OpenFOAM v2606 `blockMesh` cannot express that:**
+- written as a **repeated-vertex prism block** (`hex (0 1 2 0 4 5 6 4)`), `blockMesh` **ABORTS,
+  rc = 134** (core dumped, `FOAM FATAL ERROR`);
+- written with **two distinct but coincident vertices**, `blockMesh` succeeds and `checkMesh` then
+  reports **`***Zero or negative face area detected. Minimum area: 0`, 48 zero-area faces, max
+  skewness 3.35e+148, `Failed 2 mesh checks`**.
+Written as `polyMesh` the collapsed ends are ordinary **prism cells with five real faces and no
+zero-area face exists** — confirmed: `checkMesh` reports `hexahedra 108072, prisms 144`,
+`Minimum face area = 2.96538e-07`, `Upper triangular ordering OK`, `Number of regions: 1 (OK)`.
+**The registered filename `cases/F13_onera_m6/make_blockmesh_m6.py` (§9) is RETAINED UNCHANGED as a
+frozen PATH TOKEN**, on the same F6a precedent Amendment 1 applies to the document's own name.
+
+**(3) WHAT THE FREEZE DOES NOT FIX, AND WHAT THIS LANE CHOSE — registered NOW, before the gates run.**
+§5 fixes the counts and the distributions; it does not fix the domain. Chosen here:
+- **outboard spanwise extent:** §5's *"spanwise 20 + tip cap 6, uniform"* is read as **ONE uniform
+  spanwise distribution of 26m cells**, `Δz = z_tip/20m`, so the outboard 6m cells carry the same Δz
+  as the on-wing cells and `z_out = 1.3 z_tip = 1.55579 m`. **This is a CLOSE outboard boundary
+  (0.44 c_root outboard of the tip) and it is a physics compromise**, taken because the alternative
+  reading — 6 uniform cells reaching 20 c_root outboard — puts a 2.7 m cell against a 161 µm cell
+  and is not a mesh. **It would matter to `P`; `P` is not claimed.**
+- **outer boundary:** semicircle of radius **20 c_root = 16.118 m** about the origin plus straight
+  lines at y = ±16.118 to a downstream exit at **x = 16.118 m**, fixed in x–y at every span station.
+- **outer-boundary parameterisation:** pure transfinite — inner and outer curves carry the **same**
+  relative distribution, so the radial lines cannot cross.
+Measured consequence of the frozen wall-normal recipe on this domain: **δ₀ = 161.66 µm at L1**
+against §5's registered 161.18 µm (**+0.30 %**, from the swept LE radial being slightly longer than
+20 c_root), and **`simpleGrading` E = 28 143.3 at L1 — reproducing §5's registered value exactly.**
+
+**(4) THE ADMISSION CHANNELS WERE MEASURED AT L1 IN SCRATCH BEFORE THIS AMENDMENT WAS COMMITTED,
+AND THE NUMBERS ARE PUT ON THE FACE OF IT SO NOTHING HERE CAN BE READ AS CHOSEN TO FIT.**
+Instrument development required dry-runs. They were executed **outside every registered path**, in
+the session scratchpad, and **no registered run directory was created and no gated quantity of the
+case was computed** by them. What they measured, at **L1 only**:
+
+| channel | frozen gate (§5) | **measured, WITH the fill** | **CONTROL, C-grid alone, no fill** |
+|---|---|---|---|
+| max non-orthogonality | **≤ 70°** | **84.6437°**, 36 faces > 70° | **51.2554°**, 0 faces > 70° |
+| max skewness | **≤ 4** | **1.44254** | **1.44254** |
+| `checkMesh` prints `Mesh OK` | required | **NO** — `Failed 1 mesh checks` | **NO** |
+| max aspect ratio (not gated) | — | **5934.1** on 4992 cells | **5934.1** on 4992 cells |
+
+**Read plainly: the tip fill this amendment registers is what carries non-orthogonality from 51.26°
+to 84.64°** — all 36 severely non-orthogonal faces lie on the fill's two collapsed lines, at the tip
+section's LE (x = 0.6915) and TE (x = 1.1384), z ∈ [1.2267, 1.5259]. **The aspect-ratio failure is
+NOT the amendment's** — it is identical in the control, sits on the **wake cut** (4992 cells at
+|y| ≈ 6e-4, x from 1.15 to 15.8), and is the arithmetic of §5's own frozen recipe: a 16m **uniform**
+wake over 15.3 m against a first normal cell of 161 µm gives 0.958 / 1.616e-4 ≈ 5934.
+**A camber-blended fill interior was TRIED and MEASURED WORSE** — severely non-orthogonal faces
+**36 → 1956**, max **84.64 → 84.99°** — and was **rejected for that measured reason**; the rejection
+is recorded in the instrument beside the code it rejects.
+
+**NOTHING IN THIS AMENDMENT WEAKENS THOSE GATES.** `≤ 70°`, `≤ 4`, `Mesh OK`, `r = 2.000 ± 0.002`,
+`L1 max y⁺ ≤ 300` and `L3 S2 cell ≤ 0.00650 c` **stand exactly as frozen**. If the built ladder does
+not clear them at all three levels, **that is a NAMED BLOCKER and no solver starts** — an
+inadmissible ladder is not fired, and this amendment does not lower the bar to let one be.
+
+### A2.3 Rule-2 legality — CHECKED, and the two PRESENT paths are NAMED
+
+In the invocation that wrote this amendment, all **22** paths registered in §9 were tested with
+`test -e` under a **planted control** (the same reader returned non-ABSENT on
+`sdk/geometry/onera_m6_wing.stl`):
+
+- **20 ABSENT** — every run directory, every `checkMesh` log, every field directory, every
+  determinism directory, and `verification/campaign/F13_RESULTS.md`. **No compute has been spent
+  under this registration, no gate has been evaluated, and no graded quantity of this case exists.**
+- **2 PRESENT, and they are the INSTRUMENT, not a result:** `cases/F13_onera_m6/` and
+  `cases/F13_onera_m6/make_blockmesh_m6.py`, written 2026-08-25 during the development disclosed in
+  A2.2(4), together with the helper `cases/F13_onera_m6/m6_section.py`. **They are stated here
+  rather than allowed to pass as ABSENT**, because a registry that reports a present path as absent
+  is worth nothing.
+
+**Vocabulary unchanged:** `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` /
+`PENDING`.
