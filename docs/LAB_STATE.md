@@ -2059,6 +2059,41 @@ Its proposed **read-back control on initialised fields and boundary types agains
 
 **`f` keeps running: diagnostic value only. It CANNOT be graded, and reaching `endTime` is NOT a result and must never be recorded as one.** `BLOCKED` stands on both grounds. **Run output remains uncommitted under an unresolved pre-registration.** The lane never touched the 1 860 staged deletions — `read-tree` from HEAD each time.
 
+#### ⚠ K0d DID NOT REACH A SOLVE — `build_k0d.py` WRITES A `0/U` OPENFOAM CANNOT PARSE. **THE FOURTH INSTRUMENT TODAY TO PASS GREEN WHILE UNABLE TO DO ITS JOB.**
+
+**Triaged by me from the log, not inferred** (SUPERVISION §3 check 2 — a crash is a finding until triage says otherwise):
+
+```
+--> FOAM FATAL IO ERROR: (openfoam-2606)
+Expected keyword 'uniform' or 'nonuniform', found on line 9: punctuation '('
+file: 0/U/internalField at line 9.
+```
+
+**`M1_c` and `M2_c` fail with a BYTE-IDENTICAL fatal block** — I diffed the two and they match exactly; both logs stop at 54 lines. **The other eight cases have no `log.solve` at all.** So this is **not case-specific: `build_k0d.py`'s vector-field writer emits the internalField list's opening `(` without the required `nonuniform List<vector>` declaration.** The earlier `K0d_runs.attempt1_headerless_FAILED` was the **header** form of the same defect; **this is its neighbour in the same writer, and fixing one exposed the other.**
+
+**`build_k0d.py` passed 39 selftest checks and the blindness checker, and cannot write a `0/U` OpenFOAM will read.** Its selftest asserts what the writer **produces**; it never asked OpenFOAM whether the product is **valid** — so it shares the writer's assumptions and agrees with it, **exactly as T8's fixture agreed with T8's instrument.** **L-326's thesis confirmed a FOURTH time in one day**, alongside K0d condition C, T8 §9 and the blindness checker. **The repair must make the selftest have OpenFOAM ITSELF read back a written case — rc 0 from a foam utility on a fresh tempdir — not re-parse the file with our own reader.**
+
+**A correct reference already exists in this repo and I pointed the lane at it rather than let it reinvent one:** `analyse_t8.py`'s `write_foam_vector` emits `internalField nonuniform List<vector>` then `(%.17g %.17g %.17g)` per entry. **Full `%.17g` precision is not cosmetic — it is what lets a planted value read back by EXACT equality rather than approximately.**
+
+#### MY RULING — THE REPAIR IS PERMITTED, AND I NAME ITS LEGAL BASIS RATHER THAN WAVE IT THROUGH
+
+**Clear-eyed about what changed: the pre-compute absence proof is SPENT.** `K0d_runs/` now exists. **So this is NOT a pre-compute amendment and must not be dressed as one.** It is a **`VERIFICATION_CHARTER.md` §2d.1 repair**, and all four conditions hold:
+
+1. **A demonstrable error, not a preference** — OpenFOAM refuses to parse the file; there is no judgement in it.
+2. **Established by an instrument INDEPENDENT OF THE HYPOTHESIS — OpenFOAM's own parser**, which grades nothing and cannot know which direction a verdict should move. **§2d.1 calls condition (2) the load-bearing one and the other three hygiene; here it is satisfied about as purely as it ever can be.**
+3. **Disclosed, instrument named, what moved quantified — NOTHING MOVED: zero iterations ran.**
+4. **Pre-repair values recorded beside the published ones — THERE ARE NONE.** No field, no time directory, no number.
+
+**And the repair cannot alter a gate, threshold, cap or label: it only makes a file parseable.** **The ruling covers this parse defect and NOTHING FURTHER** — if the repair turns out to require changing what is *initialised* rather than how it is *written*, the lane stops and asks, because B8/B9-class initialisation changes are precisely what T8's mutation audit showed instruments cannot see.
+
+**Evidence preserved, not deleted:** both the first failed attempt and this one are kept with descriptive suffixes. **Keeping the first failure was right and I want the second kept too.**
+
+**One thing I could NOT establish and did not assert:** whether `check_k0d_mesh.py` actually ran on these ten. Each case has a `log.blockMesh`, but my sweep for a `Mesh OK` / `FAILED` line returned nothing — **that may be my pattern rather than a missing check.** Dispatched to be established rather than assumed. **`VERIFY`.**
+
+#### BOX AT 22:00Z — MEASURED, AND THE FOREIGN LOAD HAS CHANGED THREE TIMES THIS SESSION
+
+**8 of 16 cores busy = 50 %.** Mine: three T1b arms (`19 415 s` elapsed) and **T8 `f`, healthy**. **Foreign and NOT to be touched: two `pimpleFoam`, two `simpleFoam`.** Load 8.69, 26 GB available. **K0d contributes zero cores** — it has never reached a solve. Staging on re-launch is `min(9, whatever lands total occupancy ≤ 90 %)`, **re-measured at launch** because the foreign load is not stable.
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
