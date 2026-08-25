@@ -1,0 +1,15 @@
+# F12 rung-2 attempt, 2026-08-25 — loadavg samples, ncpu=16.
+# NO SOLVE RAN (rung 2 BLOCKED by the launcher interlock); these
+# sample the BOX, not a run, and are recorded so the scheduling
+# decision has a measured contention figure rather than a recalled one.
+# utc	load1	load5	load15	load1_over_ncpu
+2026-08-25T18:09:52Z	20.83	13.91	9.96	1.302
+2026-08-25T18:10:00Z	20.95	14.16	10.08	1.309
+2026-08-25T18:10:08Z	21.28	14.34	10.16	1.330
+2026-08-25T18:10:16Z	20.85	14.47	10.25	1.303
+2026-08-25T18:10:24Z	19.66	14.33	10.23	1.229
+2026-08-25T18:10:32Z	17.56	14.06	10.18	1.097
+2026-08-25T18:10:40Z	15.93	13.83	10.15	0.996
+2026-08-25T18:10:48Z	15.13	13.70	10.12	0.946
+2026-08-25T18:10:56Z	13.73	13.44	10.08	0.858
+2026-08-25T18:11:04Z	13.03	13.30	10.05	0.814
