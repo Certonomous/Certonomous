@@ -2021,6 +2021,44 @@ Registered order **`build_k0d.py` → `check_k0d_mesh.py` (A-G) → solve → `m
 
 **A method correction I hit myself as well as the lane:** `grep -c '^+[^+]'` **silently drops added blank lines** — 23 of them. `--numstat` is authoritative. **Measured counts from now on, by me too.**
 
+#### MY LEVEL-SPECIFIC-SETUP HYPOTHESIS IS **REFUTED BY MEASUREMENT**, AND I RECORD IT AS REFUTED RATHER THAN QUIETLY DROP IT
+
+The discriminating test I dispatched came back **negative**. md5 across all three levels: **all seven initial fields, all three `constant/` files, `fvSchemes` and `fvSolution` IDENTICAL.** `controlDict` differs **only** in `endTime` and `writeInterval`; `blockMeshDict`, with the division triples normalised, gives **one md5 across all three** — identical vertices, patches, **patch types** and grading, only the counts doubled. **There is no level-specific initialisation, boundary, scheme or relaxation difference in `m`. My named mechanism was wrong, and the measurement was worth more than my guess.** It does **not** retract the builder audit — **B7–B11 remain invisible** — it says **that blind spot is not what happened here.**
+
+#### ⚠⚠ THE STRUCTURAL RESULT — §9's REGISTERED PLANTED-ZERO ARM IS BLIND TO A WEIGHT ERROR **IN GENERAL**, AND THIS GENERALISES PAST T8
+
+**Verified by me in exact arithmetic** over `k = 3, 7/3, 5/2, 11/7, 9/4`:
+
+`w1 + w2 = k²/(k²−1) − 1/(k²−1) = (k²−1)/(k²−1) = **1**, for EVERY k.`
+
+So a **both-column plant** shifts the axis value by `P·(w1+w2) = P` **at any ratio whatsoever**, while an **innermost-only plant** shifts it by `P·w1`, which **does** depend on `k`. **§9's registered arm therefore tests only PARTITION OF UNITY — a property true by construction — and can never see a weight error.** This is A1.3 upgraded from a specific defect to a structural one: **the innermost-only arm is LOAD-BEARING and must be REGISTERED as such, not carried as supplementary.**
+
+**⚠ CANDIDATE LESSON, LAB-WIDE, ESCALATED TO THE CHIEF (number is the chief's to assign): a control that plants UNIFORMLY into every input of a weighted stencil verifies only that the weights SUM TO ONE — never what the individual weights ARE.** That applies to **every interpolation, extrapolation and reconstruction comparator in this lab**, not just T8's centreline reader.
+
+#### MY THREE RULINGS ON THE RE-REGISTRATION
+
+**A — THE `epsilon` REMEDY: the graded configuration stays BARE `kEpsilon`. NO `epsilon` limiter, NO `limitT`. Do not stabilise the thing being tested.** §9 P1 made `kEpsilon` on this case a **testable claim**; a limiter clips the solution and so changes the equations being solved, meaning **a limited run answers a different question while keeping the old label.** That is the failure this lab exists to prevent, and **cost being free is not a reason to buy a comfortable answer.**
+
+**A relaxation RAMP is a different category and I am not banning it — I am converting its admissibility from a judgement into a MEASUREMENT.** A limiter changes the steady state; a ramp changes only the path to it, *if* it lands in the same place. **Registered test: run level `f` — which converges cleanly — with and without the ramp. Agreement of the converged fields within the registered band makes the ramp a numerical aid, admissible on all three levels. Disagreement makes it a physical change and FORBIDDEN.** Both arms and the criterion pre-registered **before** either runs.
+
+**`epsilon` going negative on every level from `Time = 24` is itself a FINDING and is recorded as one, not designed around.** Bounding rates **3.8 % / 38.6 % / 8.4 %** for c / m / f — **non-monotone in resolution**, confirming the finest mesh is the healthy one. **`T` never bounds anywhere: the closure diverged; the momentum and thermal fields did not.**
+
+**B — `endTime` VERSUS 1e-6: I measured `c`'s history and it changes the question. `c` has STALLED; it is not slow. Raising `endTime` will NOT rescue it.**
+
+`c`'s `T` initial residual, iterations 5601 → 7601: **7.04e-04, 6.32e-04, 6.94e-04, 7.18e-04, 6.93e-04, 6.88e-04** — **a plateau oscillating around 7e-04, not a descent.** `f`, meanwhile: **1.0 → 3.05e-03 at 400 → 7.98e-04 at 800 → 3.82e-06 at 1200.** **`f` converges four decades in 1 200 iterations while `c` goes nowhere in 8 000.**
+
+**So the criterion governs and `endTime` is not the remedy.** Register explicitly that **reaching `endTime` without meeting the criterion is `NOT A RESULT`** — rule 5 order (1) already gives it, but state it so nobody reads `endTime` as a stopping *success*. **Do NOT raise `endTime` for `c` on the theory it needs longer: the plateau refutes that theory.** And the consequence, recorded honestly rather than deferred: **if `c` still stalls under the new registration, `c` is `NOT A RESULT`, the three-level triple is unreachable at that level, and the LADDER needs re-choosing — a finer coarse level — not a longer run.** Sanaa's grid ruling fixes three levels as the gate standard, so that is a **case-selection** question and I will take it as one rather than pretend a fourth level or more iterations fixes it.
+
+**C — REUSE OF EXISTING SOLVES: no graded number may come from them; they MAY inform the DESIGN of the new registration.** Rule 2 is unambiguous — the grading path was fixed at a registration now known defective, so **`c`, `m` and `f` cannot supply a graded value, a band, a plateau claim or a triple.** But characterising the stall, choosing `endTime`, choosing the ladder and sizing the ramp test are **pre-compute design work, not grading**, and that is legitimate. **The line, written into the draft in terms: they may tell us what to REGISTER; they may never tell us what the ANSWER is.** So that nobody later mines them for a value on the strength of being "already paid for".
+
+#### THE DRAFT AND WHAT STAYS OPEN UNDER IT
+
+`T8_REREGISTRATION_DRAFT_2026-08-25.md` — **DRAFT, not frozen, no rung id claimed**, which is exactly right; **re-registration is Sanaa's and the chief's to land, not mine.** It carries weights from **disk-read `r₁`, `r₂`**, `w1 = k²/(k²−1)`, `w2 = −1/(k²−1)`, **asserting `r₂ > r₁ > 0` and never a ratio**, with my flat-sided measurement recorded honestly (`Δw₁ = 4.73e-06`) and the statement that this is about **deleting an assumption class, not numerical necessity.**
+
+Its proposed **read-back control on initialised fields and boundary types against `CASE.txt`'s constants closes FOUR of the five surviving mutations at zero compute** — and it **states plainly that B7 (`R_STATIONS`) stays OPEN even under the draft**, because B7 changes the mesh rather than a constant. **A lane naming what its own proposed fix does not fix is worth more than the fix.**
+
+**`f` keeps running: diagnostic value only. It CANNOT be graded, and reaching `endTime` is NOT a result and must never be recorded as one.** `BLOCKED` stands on both grounds. **Run output remains uncommitted under an unresolved pre-registration.** The lane never touched the 1 860 staged deletions — `read-tree` from HEAD each time.
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
