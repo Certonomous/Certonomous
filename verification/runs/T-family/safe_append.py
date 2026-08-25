@@ -31,6 +31,13 @@ because it proves the reader is neither BLIND nor NOISY -- pointed at a checking
 tool instead of at a field reader.
 
 Every guard below therefore ships with BOTH arms in --selftest.
+
+v1.1 -- AND THE CHECKER ITSELF OWES THE SAME.  v1.0 computed that verdict in
+AGGREGATE and so passed a suite in which one guard had only a bad-input arm,
+while still printing "every guard".  A check reporting on the AGGREGATE rather
+than on each ITEM -- L-314's shape, inside the tool built to cure it.  Fixed by
+grouping per guard family; and symmetry_verdict is now itself exercised in both
+directions by _meta_selftest, because a guard that is not tested is a guard.
 """
 import re
 import sys
@@ -79,6 +86,118 @@ def check_anchor_is_last(base: bytes, block_re: str, anchor: str) -> None:
             "YOUR READ AND YOUR WRITE. Re-read the blob and rebuild.")
 
 
+def symmetry_verdict(results):
+    """THE VERDICT, AS A PURE FUNCTION SO IT CAN ITSELF BE TESTED.
+
+    v1.0 of this file computed the verdict IN AGGREGATE:
+
+        pos = sum(1 for r in results if r[2] == "BAD-input")
+        neg = len(results) - pos
+        if neg == 0: REFUSE
+
+    which refuses only when the WHOLE SUITE has no good-input arm anywhere.  Add
+    a fourth guard carrying only a bad-input arm and it PASSED -- while still
+    printing "every guard fires on bad input and stays quiet on good", a claim it
+    had never checked.  Found by the ansys-verification team, who planted exactly
+    that results set and ran the tail logic verbatim rather than inferring the
+    bug from reading.
+
+    That is L-314's own shape -- A CHECK REPORTING ON THE AGGREGATE RATHER THAN
+    ON EACH ITEM -- sitting inside the tool built to cure it, written by the hand
+    that had just diagnosed four instances of it.  The lesson is not that
+    aggregate checks are careless; it is that this class of defect survives
+    active hunting, so the remedy has to be structural: GROUP BY ITEM, REQUIRE
+    BOTH ARMS PER ITEM, and never print a per-item claim from a whole-suite sum.
+
+    Guards are grouped by FAMILY -- the name before any "/" -- because
+    "anchor/peer-raced-us" is a further arm of "anchor", not a separate guard.
+    """
+    from collections import defaultdict
+    arms = defaultdict(set)
+    failed = []
+    for ok, name, kind, note in results:
+        arms[name.split("/")[0]].add(kind)
+        if not ok:
+            failed.append((name, kind, note))
+
+    lines, refuse = [], False
+    if not results:
+        return False, ["  REFUSED: empty suite -- a guard suite that checks "
+                       "nothing cannot report symmetry"]
+
+    missing_good = sorted(f for f, k in arms.items() if "GOOD-input" not in k)
+    missing_bad = sorted(f for f, k in arms.items() if "BAD-input" not in k)
+
+    for fam in sorted(arms):
+        kinds = arms[fam]
+        mark = "OK  " if {"GOOD-input", "BAD-input"} <= kinds else "GAP "
+        lines.append(f"  {mark}{fam:<24} arms: {', '.join(sorted(kinds))}")
+
+    if missing_good:
+        refuse = True
+        lines.append(f"  REFUSED: {len(missing_good)} guard(s) have NO GOOD-INPUT "
+                     f"arm -- {', '.join(missing_good)}. A guard shown only to "
+                     "fire is untested in the direction that matters: it may be "
+                     "firing on everything.")
+    if missing_bad:
+        refuse = True
+        lines.append(f"  REFUSED: {len(missing_bad)} guard(s) have NO BAD-INPUT "
+                     f"arm -- {', '.join(missing_bad)}. A guard never shown to "
+                     "fire has not been shown to work at all.")
+    if failed:
+        refuse = True
+        for name, kind, note in failed:
+            lines.append(f"  REFUSED: {name} failed its {kind} arm -- {note}")
+
+    if not refuse:
+        lines.append(f"  SYMMETRY HELD across {len(arms)} guard(s), CHECKED "
+                     "PER GUARD: each fires on bad input and stays quiet on good")
+    return (not refuse), lines
+
+
+def _meta_selftest():
+    """THE SYMMETRY REQUIREMENT, APPLIED TO THE SYMMETRY CHECKER ITSELF.
+
+    symmetry_verdict is a guard, so it owes what every guard owes: proof that it
+    REFUSES a known-bad suite AND proof that it stays QUIET on a known-good one.
+    v1.0 had neither, which is why its defect survived.
+    """
+    G, B = "GOOD-input", "BAD-input"
+    cases = [
+        ("good suite stays quiet", True, [
+            (True, "prefix", G, ""), (True, "prefix", B, ""),
+            (True, "anchor", G, ""), (True, "anchor", B, "")]),
+        ("sub-named arms roll up to family", True, [
+            (True, "anchor", G, ""), (True, "anchor/peer-raced-us", B, "")]),
+        # THE v1.0 DEFECT, planted exactly as ansys-verification planted it
+        ("v1.0 REGRESSION: guard with only a bad arm", False, [
+            (True, "prefix", G, ""), (True, "prefix", B, ""),
+            (True, "newline", G, ""), (True, "newline", B, ""),
+            (True, "NEWGUARD", B, "")]),
+        ("guard with only a good arm", False, [
+            (True, "prefix", G, ""), (True, "prefix", B, ""),
+            (True, "NEWGUARD", G, "")]),
+        ("a failing arm refuses", False, [
+            (True, "prefix", G, ""), (False, "prefix", B, "did not fire")]),
+        ("empty suite refuses", False, []),
+    ]
+    ok_all = True
+    for name, want_pass, res in cases:
+        got, _ = symmetry_verdict(res)
+        good = (got == want_pass)
+        ok_all &= good
+        print(f"  {'PASS' if good else 'FAIL'}  meta: {name:<44} "
+              f"expected {'pass' if want_pass else 'REFUSE'}, got "
+              f"{'pass' if got else 'REFUSE'}")
+    pos = sum(1 for _, w, _ in cases if not w)
+    neg = len(cases) - pos
+    print(f"\n  meta: {len(cases)} cases -- {pos} must REFUSE, {neg} must PASS")
+    if pos == 0 or neg == 0:
+        print("  REFUSED: the meta-suite itself lacks an arm")
+        return False
+    return ok_all
+
+
 def _selftest():
     """BOTH ARMS on every guard.  A guard is not tested until it has been shown
     to stay QUIET on a known-good input as well as to fire on a known-bad one."""
@@ -125,18 +244,17 @@ def _selftest():
     width = max(len(n) for _, n, _, _ in results)
     for ok, name, kind, note in results:
         print(f"  {'PASS' if ok else 'FAIL'}  {name:<{width}}  {kind:<10} {note}")
-    bad = [r for r in results if not r[0]]
-    pos = sum(1 for r in results if r[2] == "BAD-input")
-    neg = len(results) - pos
-    print(f"\n  {len(results)} checks: {pos} bad-input (must fire), "
-          f"{neg} good-input (must stay quiet)")
-    if neg == 0:
-        print("  REFUSED: no negative control -- a guard shown only to fire is untested")
+    print()
+    passed, lines = symmetry_verdict(results)
+    for l in lines:
+        print(l)
+    print()
+    meta_ok = _meta_selftest()
+    if not passed or not meta_ok:
+        print("\n  OVERALL: REFUSED")
         return EXIT_REFUSE
-    if bad:
-        print(f"  REFUSED: {len(bad)} check(s) failed")
-        return EXIT_REFUSE
-    print("  SYMMETRY HELD: every guard fires on bad input and stays quiet on good")
+    print("\n  OVERALL: PASS -- guards symmetric, and the symmetry checker is "
+          "itself checked in both directions")
     return EXIT_OK
 
 
