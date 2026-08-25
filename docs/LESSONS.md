@@ -11970,3 +11970,55 @@ The guard shape adopted elsewhere in this family compares **line COUNTS** to det
 hand-edit before an overwrite. The correction it must protect here was written
 **interleaved inside a generated paragraph**, so the line delta is **zero** and a
 count-based guard waves it through. **A guard must compare CONTENT, not size.**
+
+## L-311 — The private-index protocol protects the PARENT, not the CONTENT: three ways to lose a peer's work while every step reports success
+
+**2026-08-25, closure.** Landing one board write took **four commits**. Nobody
+interrupted, nothing crashed, and **every individual step of `CLAUDE.md` rule 10
+reported success each time.** The sequence is recorded because the failure is invisible
+from inside the protocol.
+
+**Failure 1 — a STALE CONTENT BLOB.** `docs/LAB_STATE.md` was read with
+`git show HEAD:`, then other work happened, then it was committed. Peers landed board
+writes in between. `read-tree` captured HEAD correctly; the CAS passed. **175 lines of
+another team's section were silently reverted.** The CAS is not a defence here:
+**it proves the PARENT is current and says NOTHING about the TREE.** Rule 10 already
+says capture HEAD once *"all in one shell invocation"* — the unstated half is that
+**this governs the CONTENT you are about to commit, not merely the refs.** A file read
+early and committed late reopens exactly the race the protocol exists to close.
+
+**Failure 2 — a RELATIVE REF resolved after HEAD moved.** The repair rebuilt from
+`24e2d6cbdf64f44f6911f84702e8a8ece89543d0~1`, re-reading `H` at that moment. HEAD had **already advanced past the bad
+commit**, so `24e2d6cbdf64f44f6911f84702e8a8ece89543d0~1` addressed a commit that *already contained the damage*. Result: the
+new block **duplicated** and the 175 lines **still missing**. **On a continuously
+committed repository a relative ref is not a stable address.** Resolve an **absolute
+sha** for any base you did not create in the same invocation.
+
+**Failure 3 — a base old enough to be SAFE was old enough to be STALE.** The clean
+rebuild used an absolute sha chosen precisely because it predated the damage — and so
+**silently dropped a third team's write that had landed after it.** This is the trap
+with no local escape: **on a shared file under continuous commit there is no single base
+that is both current and safe.**
+
+**The repair that actually works, and the rule:** **reconstruct from a known-good
+absolute sha AND THEN ENUMERATE AND RE-APPLY EVERY INTERVENING COMMIT TO THAT PATH.**
+The instrument is `git log <base>..<head> -- <path>`, and each patch is re-applied and
+checked. **Skipping it trades your own bug for someone else's loss** — which is not a
+repair, only a change of victim.
+
+**What caught all three: the post-commit verify.** `git diff HEAD~1 HEAD --stat` showing
+**deletions on a write that could only be additive** is the entire tell. Rule 10 calls it
+"not optional" and this is the second time in this repository it has paid for itself
+(L-223; `c46309f5` lost nine files).
+
+**The check that makes it decisive, and it is cheap:** before committing a shared
+append-only document, assert **`diff <(sort base) <(sort new) | grep -c '^<'` == 0** —
+every line of the base still present. Then after committing, account for **every**
+deleted line against a specific peer's own patch. Tonight that closed at **22 dropped
+lines, 22 of them in the peer's own deletion list, 0 unaccounted.** An unexplained
+deletion is a loss until it is explained.
+
+**The family this belongs to:** L-304, L-309, L-310 and this one are all **failures that
+raise no error and read as if they worked.** That is the class this lab keeps paying for,
+and the only defences that work on it are a **second method** and an **explicit
+accounting**, never a more careful reading of the first.
