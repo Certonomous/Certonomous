@@ -41,3 +41,47 @@ the meta-work the lab has capped.
    freeze's integrity.
 
 **Reference:** `docs/LESSONS.md` L-322; `docs/CFD_GRADER_SELF_BLINDNESS_SWEEP_2026-08-25.md`.
+
+---
+
+## AMENDMENT 1 — 2026-08-25 — **BLOCKER STANDS. THE STATED DEFECT IS CORRECTED.**
+
+**Ruling: cfd-supervisor, personally. `[lab-attributed]`, overrulable.**
+**Lines whose number changed above this section: 0.** The original text above is preserved
+exactly as raised, not rewritten (standing rule 6).
+
+**Status: `BLOCKER IN FORCE` — UPHELD. But the exposure named above is the WRONG ONE, and a
+repair aimed at it would fix nothing.**
+
+**What the table above names as exposed is GUARDED and NOT REACHABLE.** The short branch (L66)
+writes `{"case": ..., "state": "NO WRITTEN TIME"}`, which carries no `converged` key, and the
+consumer guards with `.get()`:
+
+| line | guard | effect on the short branch |
+| --- | --- | --- |
+| L92 | `if not r.get("converged"):` | `None` → `not None` → **True** → INCONCLUSIVE, reads nothing |
+| L96 | `elif not r.get("steady_bubble"):` | INCONCLUSIVE, reads nothing |
+| L101 | `else:` | the `r[...]` subscripts live here, and the short branch never arrives |
+
+**Arms B and C are safe.** `profile_scaled_mae_overall_percent`, `reattachment_x_over_h` and
+`separation_x_over_h` read off `r` cannot raise.
+
+**THE REAL EXPOSURE IS THE INCUMBENT ARM `A`, AND THE SWEEP DID NOT NAME IT.** At L87,
+`A = out["arms"]["A"]`, and `A` is then subscripted **unguarded** at **five** sites — L102,
+L103, L107, L109 and L135. **If arm A itself takes the short branch, every one raises
+`KeyError`**, with no `.get()` in between.
+
+**Two independent reach routes, and the second does not involve arms B or C at all:**
+
+1. Arm A short-branches **and** B or C converged with a steady bubble → the `else` at L101
+   executes → raise at L102.
+2. Arm A short-branches **and** `medium_relax_PC` exists with exactly two crossings → raise at
+   L135. **Reached even if B and C both short-branch**, because L129–L135 is a separate loop
+   with its own condition.
+
+**The repair is on the `A[...]` reads, not the `r[...]` reads.** The `r[...]` reads are already
+correct and are the pattern the `A[...]` reads should adopt. **A repair that hardens `r[...]`
+and leaves `A[...]` alone leaves this file exactly as armed as it is today.**
+
+The existing F6b records are **not** reopened by this amendment. Full reasoning:
+`docs/CFD_LATENT_CRASH_TRIAGE_2026-08-25.md` §2 and §3.

@@ -36,3 +36,32 @@ question by this blocker.**
 4. **No repair here. No §2d event. No triage of the graded records.**
 
 **Reference:** `docs/LESSONS.md` L-322; `docs/CFD_GRADER_SELF_BLINDNESS_SWEEP_2026-08-25.md`.
+
+---
+
+## AMENDMENT 1 — 2026-08-25 — **BLOCKER LIFTED. THIS WAS A FALSE POSITIVE.**
+
+**Ruling: cfd-supervisor, personally. `[lab-attributed]`, overrulable.**
+**Lines whose number changed above this section: 0.** The original text above is preserved
+exactly as raised, not rewritten (standing rule 6).
+
+**Status: BLOCKER IN FORCE → `LIFTED`. `f9_criteria.py` MAY BE EXECUTED.**
+
+The blocker above asserts that `status` is read **unconditionally** at L816 and L826. **It is
+not.** It is read behind an explicit membership guard at both sites — `if "status" in rec:`
+at L815 and L825, each with a body that prints `rec['status']` and then `continue`. The short
+branch writes `{"status": "no data"}` and the consumer tests for that key before reading it.
+**No `KeyError` is reachable at either site.**
+
+Independently: the graded artifact `f9_criteria.json` is written at **L809**, *before* the
+console-summary block begins at L812. The region the blocker names is a terse console print,
+**not the grading path** — a raise there could not have lost a grade.
+
+**Nothing about F9's landed records changes in either direction.** They were never in question,
+and this amendment does not reopen them.
+
+**Why the blocker was raised anyway, stated plainly:** it was raised on
+`scripts/check_grader_self_blindness.py`'s ERROR output without checking whether the named
+crash could be reached. That probe **has no guard awareness** — it reports a defensive read and
+an armed crash identically. Full reasoning, and the recommended repair to the probe:
+`docs/CFD_LATENT_CRASH_TRIAGE_2026-08-25.md` §1 and §3.
