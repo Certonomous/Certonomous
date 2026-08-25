@@ -2578,6 +2578,41 @@ Read rung 1's measured rate and rule on rungs 2–5 against the caps. Read the t
 
 **Lanes live (1):** F6a — both addenda, then the L-315 evidence append, then re-launch into the newly registered root with **Gate M re-evaluated from scratch, not carried forward**.
 
+
+### EIGHTH SESSION, UPDATE 7 — 2026-08-25T03:23:40Z — F6a CLOSES `NOT A RESULT`, and the finding is worth more than the PASS would have been
+
+**VERDICT: F6a/C-15 attempt 3 — row `NOT A RESULT`, tier `NOT HELD`, P column `PENDING` and NOT green.** The campaign closes without a credential and with a finding about the lab's instruments that no passing row could have surfaced.
+
+**WHAT ATTEMPT 3 FIXED, and it worked exactly as specified.** `rc = 0` is now **MEASURED from disk** — `solver_rc.txt`, fsync'd at the moment of capture before any formatting — so **all five rule-4 limbs are measured and passing.** And **the smoke test FINALLY TESTED THE CASE** (rc = 0, no fatal error), so the **VMFL045 dictionary-completeness class is genuinely exercised for the first time in this campaign** — it was explicitly UNTESTED at attempt 1 and that gap is now closed. **Gate M `PASS` again, re-evaluated from scratch, not carried forward.**
+
+**WHY IT IS STILL `NOT A RESULT`: the run hit its 2,000-iteration cap without converging, and the binding channel is `omega` ALONE.** At 2000: Ux **2.89e-8**, Uz **5.92e-8**, p **5.78e-8**, k **8.32e-8** — all comfortably under their **5e-7** controls — while **omega stood at 4.638e-10 against 1e-10.** Plateau and non-oscillation both PASSED; the functional is flat. **§3.2's ordering is binding and it bound.**
+
+**THE FINDING, AND IT REACHES BEYOND THIS CASE: `scotch` DECOMPOSITION IS NOT DETERMINISTIC BETWEEN INVOCATIONS.** On a **byte-identical** mesh, `0/` and `controlDict`, attempt 2 partitioned **12777/12906/12965** and attempt 3 **12974/12870/12865**. Different summation order → different round-off → **different residual trajectory.** Across three runs of the same case: **C-45 converged at 1772, attempt 2 at 1813, attempt 3 not by 2000 — two of three.**
+
+**THE SHARPER FORM, WHICH LOCATES THE DEFECT: omega's control is 1e-10 while every other channel is 5e-7 — FIVE THOUSAND TIMES TIGHTER.** Attempt 2 met it at **9.943e-11 — a 0.6 % margin.** Attempt 3 missed it by **4.6×**. **A criterion met by 0.6 % on one run and missed by 4.6× on the next, on a byte-identical case, is not measuring convergence — it is measuring the partition.** The defect sits in the frozen case's residual controls, **not in the solver, the mesh or the physics**, and it applies to every parallel case this lab runs.
+
+**THE ASSET THIS CAMPAIGN ACTUALLY PRODUCED, and it is the most useful number in it: THE GRADED QUANTITY IS STABLE AND THE CONVERGENCE CRITERION IS NOT.** Separation **0.6544112 → 0.6544109**, reattachment **1.2534333 → 1.2534550** — **2.2e-5 in x/c across two independent runs with different partitions.** A genuine reproducibility measurement of the case, **independent of any gate.**
+
+**THE LANE REFUSED TO RE-RUN AND ITS ARGUMENT IS THE BEST MADE IN THIS CAMPAIGN — UPHELD WITHOUT QUALIFICATION.** A fourth attempt might draw a converging partition, since two of three did, **and that is re-running until the answer is liked.** It then **pre-empted the defence this supervisor would have reached for**: it is **not** neutral merely because the gate VALUE would be unchanged, because it would move the row from `NOT A RESULT` to `GATE FAIL` — **and the row verdict IS the verdict.** Correct, and for a reason worth stating: **rule 5's one-way door is not a technicality about values, it is about what the row ASSERTS.** *"We could not measure this"* and *"we measured it and it failed"* are different claims about the world.
+
+**RULING — OPTION 3. ACCEPT `NOT A RESULT`, RECORD THE FINDING, DO NOT RE-RUN, DO NOT TOUCH THE DECOMPOSITION.**
+
+- **Option 2 (raise `endTime`) refused** — it changes a **threshold**. The lane refused it outright and I uphold that without argument. **Loosening omega's control is refused on identical grounds**, named explicitly because it is the obvious next suggestion.
+- **OPTION 1 (fix the decomposition) IS ALSO REFUSED, AND THE `REFERENCE_DIR` ANALOGY BREAKS ON THE ONE FACT THAT RULING TURNED ON.** The F12 `REFERENCE_DIR` repair was made when **NO ANSWER EXISTED** — the case was unfired, nothing had been measured, and I said so at the time: *"found with zero compute, which is the only reason it cost nothing."* **Here three runs have been observed and the distribution is known: two of three partitions converge. Any change to the decomposition is now made WITH THE OUTCOME DISTRIBUTION IN HAND** — precisely the knowledge that makes an intervention answer-directed **even when the mechanism is innocent and the intent honest.**
+- **The route to a credential is NAMED AND NOT WALKED:** a **new** pre-registration whose convergence criterion is calibrated on a **stated principle** (omega's control set on the same basis as the other four channels) and whose decomposition is deterministic, **disclosing everything now known** and deriving its criterion from principle rather than to fit — exactly as this document inherited `74797a57`'s ±5 % rather than deriving a band with the answer in hand. **Not authorised, not costed, not written.**
+
+**THE PHYSICS FINDING IS UNAFFECTED AND THE ROW IS NOT A CREDENTIAL — both true, and neither softens the other.** Had the row been gradeable: **+13.9485 % PIV / +12.9219 % oil-film, both `GATE FAIL`**, reproduced across partitions. **The number is not in doubt; the row is not evidence.**
+
+**COST — C-59 and C-60. Campaign cumulative 13.3965 core-min of the 30 cap, 16.6035 remaining.** Waste named and **left visible rather than absorbed: attempt 1's ≤0.017 AND attempt 2's FULL 6.1333** — a complete solve voided on an unmeasured limb, **attributed to a launcher defect, not to the case. That is the honest cost of this supervisor's Ruling 1 and it belongs on the record where I can be judged for it.**
+
+**THE CONTENTION FINDING IS NOW A TWO-ROW RESULT:** loadavg **2.02**, contention absent again, **1.05× against the uncontended subtotal**. Against an earlier row measuring contention at **62 % of spend at loadavg 68**, **the ×1.0 allowance is the entire headline miss and is BIMODAL — it must be conditioned on measured load at launch, never applied blind.**
+
+**`L-319` LANDED ALONE, and its technique is the durable general answer to a divergent shared file: the lane NEVER WROTE THROUGH THE WORKTREE AT ALL** — blob created with `hash-object -w`, placed with `update-index --cacheinfo`, the divergent working copy **left exactly as found and verified by hash afterwards.** Written into the lesson as its operative rule.
+
+**Attempts 1, 2 and 3 are ALL preserved, undeleted and unrenamed**, and the launcher asserted the earlier trees before starting. Another team's solver ran throughout and was untouched.
+
+**Lanes live: 1** (F6a closing records). **Next:** the recalibrated F6a pre-registration is the named route and is unwritten; F5b remains **BLOCKED on permission**; F4's headline stays **CONTINGENT on Sanaa's event ruling**; F12 needs an admissible mesh; **cfd's P column stands at 0 of 82 and the lab's at 0 of 153.**
+
 ## verification
 
 **Section updated:** 2026-08-25T01:18:13Z by verification-supervisor (stamp from `date -u` in the committing invocation). SEVENTH session spawn, on **Opus 5** under the Fable substitution at `7c469330`. **Zero compute all session — 0 core-minutes, no solver, no mesher, no container, no GPU.**
