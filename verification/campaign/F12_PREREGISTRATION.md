@@ -397,3 +397,340 @@ product, not consent (standing rule 9).
 
 *Written 2026-08-23 by a `lab-lane` worker for the cfd team, on a chief-directed
 zero-compute task. No solver was launched in producing it.*
+
+---
+
+## MESH-SIMILARITY AMENDMENT — 2026-08-25
+
+**Document version 1.1 (COSTED ADDENDUM, 2026-08-23) -> 1.2.**
+
+**lines whose number changed above this section: 0**
+
+Nothing above this line is struck, rewritten, renumbered or reworded. This
+addendum resolves **one ambiguity in the frozen §"Mesh study"** and reports one
+consequence of resolving it. It alters **no gate, no threshold, no cap and no
+label**. Gates A, B, 1, 2, 3 and 4, the CM reporting clause, the overall PASS
+rule, the three mesh levels and their cell counts, the two conditions, the two
+further medium runs, the four predictions, and every core-minute estimate and
+cap in the 2026-08-23 addendum §4 and §5, all stand exactly as written.
+
+### 1. Why this amendment is legal, and how that was checked
+
+Standing rule 2: *"Before first compute, amendments are legal and must state the
+condition and how it was checked (name the run directory that does not exist)."*
+
+The condition is that **no compute has ever been spent on F12**. It was
+re-checked on **2026-08-25 at 00:19 UTC**, on the disk, in the same shell
+invocation that committed this amendment, by `test -e` on each of the five run
+directories the 2026-08-23 addendum §1 named, plus a name sweep of the whole of
+`verification/runs/`:
+
+- `verification/runs/F12_runs/coarse_workshop_M0.734_a2.79/` — **does not exist**
+- `verification/runs/F12_runs/medium_workshop_M0.734_a2.79/` — **does not exist**
+- `verification/runs/F12_runs/fine_workshop_M0.734_a2.79/` — **does not exist**
+- `verification/runs/F12_runs/medium_tape_M0.730_a2.79/` — **does not exist**
+- `verification/runs/F12_runs/medium_farfield2x_M0.734_a2.79/` — **does not exist**
+
+`verification/runs/F12_runs/` still holds exactly one subdirectory, `reference/`,
+with the same eight files listed in the 2026-08-23 addendum and nothing else: no
+`0/`, no `constant/`, no `system/`, no time directory, no `log.*`, no
+`postProcessing/`, no `DONE.*`, no `result.json`. A sweep of the entire
+`verification/runs/` tree for any path whose name contains `F12` returns exactly
+one path, the directory `verification/runs/F12_runs` itself, so no F12 case
+exists under any other spelling. F12 is **UNFIRED**.
+
+The pre-amendment content of this file is git blob
+`7e84b5d35e4b07f511dd41dca465c4724d9b4566`, which was the blob at HEAD when this
+addendum was written; the worktree copy had no uncommitted drift. This addendum
+is a pure append: insertions only, no line above it moved.
+
+### 2. The ambiguity, stated before it is resolved
+
+§"Mesh study" registers three levels at a clean factor two in every direction —
+coarse 48/48/80 = 23,040 cells, medium 96/96/160 = 92,160, fine 192/192/320 =
+368,640 — and then says, **once, for the ladder as a whole**:
+
+> "Wall-normal first cell 2e-6 chord, targeting y+ below 1 so the boundary layer
+> is resolved rather than bridged."
+
+The table has **no per-level first-cell column**. The frozen text therefore does
+not say whether 2e-6 chord is the **fine** level's first cell, or a value held
+**fixed** on all three. That single unstated word decides whether the ladder is
+gradeable as a Roache triple at all.
+
+**Why.** If the first cell is held fixed at 2e-6 while the wall-normal count
+goes 80 -> 160 -> 320 over the same 50-chord radial extent, the wall-normal
+**expansion ratio changes between levels** and the three meshes are not a
+geometrically similar family. That is `VERIFICATION_CHARTER.md` §3.2's second
+failure mode — an order fitted across a change of mesh recipe. It also silently
+defeats the representative-h convention `h = (N_ref/N)**(1/dim)`, which assumes
+uniform refinement and would otherwise return an `h` that no region of the mesh
+actually has. `scripts/roache_triple.py` **cannot detect this**; its own
+docstring says the caller establishes similarity and the file cannot. The
+observed order would come back monotone, plausible and worthless.
+
+This is not a hypothetical failure mode in this lab. The cfd supervisor verified
+from the dictionaries on 2026-08-24 that the **Ahmed ladder** carries exactly
+it: `study-ahmed_25` at 45,753 cells and `act7-ahmed_25` at 79,439 cells refine
+`body { level (2 3); }` to `level (3 4); }` while **both carry the identical
+background block `hex (60 13 36)` = 28,080 cells**. Refinement there was local to
+the wetted surface, the far field never changed, and the stored `observed_order`
+of 1.95 is worthless. (A lesson recording that finding is being landed by a peer
+lane; as of this writing the highest lesson on `docs/LESSONS.md` is **L-263**,
+which is a different subject, so no lesson number is cited here rather than a
+guessed one.)
+
+### 3. What the generator actually does — the prose is not the authority, the code is
+
+F12's mesh is built by `sdk/workflows/rae2822_case9.py`. Read on 2026-08-25:
+
+- **`FIRST_CELL = 2.0e-6`** is a module-level constant at **:254**, with the
+  comment *"wall-normal first cell in chords; y+ ~ 0.5 at Re 6.5e6"*.
+- It appears as a **keyword default only**, on `blockmesh_dict(..., first_cell:
+  float = FIRST_CELL)` at **:269**. Those two lines are its only two occurrences
+  in the entire repository; nothing overrides it anywhere.
+- **`build_case` does not expose `first_cell` at all** (**:892-894**), and its
+  call to the generator at **:903** is
+  `blockmesh_dict(section, level, farfield_r=farfield_r, wake_len=wake_len)` —
+  the first-cell argument is not passed. `run_case` (**:925**) likewise has no
+  such parameter.
+
+**Therefore the code, as it stands, fixes the wall-normal first cell at 2.0e-6
+chord on ALL THREE LEVELS, and there is no argument by which a launch could
+choose otherwise.** The ambiguity in the prose is resolved **against**
+similarity by the implementation. The frozen ladder as it would actually be
+built is **not a geometrically similar family**.
+
+### 4. How far from similar — the numbers
+
+The generator sets the wall-normal grading as
+`r_y = ratio_for_first_cell(R, level.ny, first_cell)` at **:281**, with
+`R = FARFIELD_R = 50.0` chords. `ratio_for_first_cell`
+(`sdk/workflows/tmr_verification.py:184`) returns the blockMesh **total**
+expansion ratio (last cell / first cell) that puts `level.ny` geometric cells
+across `R` with the requested first cell.
+
+**The similarity invariant of a geometric wall-normal distribution is that total
+expansion ratio.** Under a similar refinement every cell in the column halves,
+so last/first is preserved. Evaluated with the repository's own function:
+
+| Level | ny | **As the code stands** (first cell fixed 2e-6) | | **Similar family** (first cell scales) | |
+| --- | --- | --- | --- | --- | --- |
+| | | total expansion | cell-to-cell r | total expansion | cell-to-cell r |
+| coarse | 80 | 4.4011e6 | 1.213656 | 4.4011e6 | 1.213656 |
+| medium | 160 | 2.1935e6 | 1.096179 | 4.5989e6 | 1.101295 |
+| fine | 320 | 1.0643e6 | 1.044464 | 4.7020e6 | 1.049340 |
+
+As the code stands the total expansion ratio **falls by a factor of 4.135**
+across the ladder and the near-wall cell-to-cell growth rate falls from **21.4%
+per cell to 4.4% per cell**. The coarse and fine meshes are not the same mesh at
+two resolutions; they are two different wall-normal recipes. In the similar
+family (right-hand columns, anchored per §7 below) the invariant is held to
+within **6.8%** across the three levels, and the cell-to-cell ratios stand in the
+square-root relation a factor-two refinement requires: `1.213656**0.5 = 1.1017`
+against a built 1.101295, `1.101295**0.5 = 1.0494` against a built 1.049340.
+
+### 5. A SECOND non-similarity, found while checking the first, and reported not repaired
+
+`blockmesh_dict` also sets, at **:282**,
+
+    r_y_far = ratio_for_first_cell(R, level.ny, min(0.3, 0.3 * farfield_r / 25.0))
+
+which is the far-side wall-normal grading of the two wake blocks (**:328-334**,
+inside their `edgeGrading` entries). At `farfield_r = 50` the requested first
+cell is `min(0.3, 0.6) = 0.3` **chord**, an absolute length with **no dependence
+on the level**. Evaluated:
+
+| Level | ny | 50/ny | requested first cell | total expansion returned |
+| --- | --- | --- | --- | --- |
+| coarse | 80 | 0.625 | 0.3 | 3.747165 |
+| medium | 160 | 0.3125 | 0.3 | 1.084468 |
+| fine | 320 | **0.15625** | 0.3 | **1.000000** |
+
+At the fine level the requested first cell **exceeds the uniform spacing**
+`length / n`, so `ratio_for_first_cell`'s guard
+(`if first_cell >= length / n: return 1.0`,
+`sdk/workflows/tmr_verification.py:189-190`) fires and the fine level's wake
+blocks get a **uniform** far-side distribution where the coarse level's are
+graded 3.75:1. That is not a gradual drift of recipe across the ladder; it is a
+**branch flip**, and it is a second change of experiment across the levels,
+independent of and unfixed by §7.
+
+This is reported, **not repaired**. It is read from the dictionary-writing code,
+not from a built mesh — no mesh was built for this amendment — and the precise
+geometric role of that edge should be confirmed against a built `blockMeshDict`
+by whoever repairs it. **It is a pre-launch blocker on F12's triple** (§8).
+
+### 6. The y+ consequence, worked
+
+`Re = 6.5e6` on chord. For a wall distance `y/c`,
+`y+ = (y/c) * Re * sqrt(cf/2)`. Three standard flat-plate correlations at
+`Re_c = 6.5e6` give:
+
+    Schlichting 1/5-power  cf = 0.0592 Re^-0.2      = 0.002569  -> y+ per chord = 2.330e5
+    1/7-power              cf = 0.0576 Re^-0.2      = 0.002500  -> y+ per chord = 2.298e5
+    Prandtl-Schlichting    cf = 0.455/ln(0.06 Re)^2 = 0.002750  -> y+ per chord = 2.408e5
+
+**2.330e5 per chord** is carried below. It reproduces the generator's own stated
+figure — `2.0e-6 * 2.330e5 = 0.466`, against the `# y+ ~ 0.5` comment at
+`rae2822_case9.py:254` and the *"first cell sits at y+ ~ 0.5"* note at **:692** —
+which fixes the convention the generator used: **y+ quoted on the FULL first-cell
+height**, not on the cell centre. Both conventions are tabulated; the cell-centre
+figure is exactly half.
+
+| first cell (chord) | y+ (full height) | y+ (cell centre) | y+ (full height) x LE factor 1.71 |
+| --- | --- | --- | --- |
+| 5.0e-7 | 0.116 | 0.058 | 0.20 |
+| 1.0e-6 | 0.233 | 0.116 | 0.40 |
+| **2.0e-6** | **0.466** | 0.233 | 0.80 |
+| 4.0e-6 | 0.932 | 0.466 | 1.59 |
+| 8.0e-6 | **1.864** | 0.932 | **3.19** |
+
+**The LE factor is why a chord-Reynolds flat-plate number is a floor, not a
+bound.** Near the suction peak the local edge velocity and the thinner local
+boundary layer both raise y+. With `U_e/U_inf = 1.30` at `x/c = 0.05` (consistent
+with this case's measured `Cp_min`) and `cf_x = 0.0592 Re_x^-0.2` at
+`Re_x = U_e/U_inf * Re * x/c = 4.225e5`, the local-to-chord-Reynolds ratio is
+`(U_e/U_inf) * sqrt(cf_x/cf_c) = 1.30 * sqrt(0.004438/0.002569) = 1.709`. The
+same estimate gives 1.59 at `x/c = 0.10`, 1.33 at 0.30 and 1.12 at 0.50. **The
+1.71 column is ESTIMATED, from a flat-plate correlation with an assumed edge
+velocity; it is not measured and it is not a gate.**
+
+**Consequence for the two candidate anchorings.**
+
+- **Anchored at the FINE level** (fine 2e-6, medium 4e-6, coarse 8e-6): the
+  coarse level's first cell reaches `y+ = 1.86` on the generator's own
+  convention, and `~3.2` near the suction peak. That crosses the frozen text's
+  own *"y+ below 1"* clause and moves the coarse level from **resolved** to
+  **bridged** wall treatment — which is itself a change of experiment across the
+  ladder, and it would put a wall-function-regime coarse rung into a triple with
+  two wall-resolved rungs. Under this anchoring the ladder **cannot** be both
+  similar and y+ < 1 at every level.
+- **Anchored at the COARSE level** (coarse 2e-6, medium 1e-6, fine 5e-7): y+ =
+  0.47 / 0.23 / 0.12 on the full-height convention, 0.23 / 0.12 / 0.06 on the
+  cell-centre convention, and 0.80 / 0.40 / 0.20 with the 1.71 leading-edge
+  factor applied to the full-height figure. **Every level is below 1 under every
+  convention tabulated here**, and the family is similar (§4, right-hand columns).
+
+### 7. The resolution
+
+The cfd supervisor's ruling, which this amendment implements and does not
+re-decide: *a mesh ladder is admissible as a Roache ladder only if the refinement
+is geometrically similar — the first cell height and the expansion ratio scale
+WITH the mesh, and the refinement recipe is otherwise held FIXED.*
+
+Applied to F12, the frozen sentence is read as a whole, and its **second** clause
+selects the anchoring its first clause left open:
+
+> **The wall-normal first cell of 2e-6 chord named in §"Mesh study" is the
+> COARSE level's first cell. The medium level's is 1e-6 chord and the fine
+> level's is 5e-7 chord — the first cell halves with each factor-two refinement,
+> as every other spacing in the ladder does.**
+
+This is not a free choice between two readings. The frozen sentence says *"2e-6
+chord, targeting y+ below 1"*. Once similarity is required, 2e-6 can attach to
+exactly one level, and **only the coarse anchoring satisfies the second half of
+the same frozen sentence at all three levels** (§6). Anchoring at the fine level
+would leave the coarse level at y+ 1.86, in contradiction with the text being
+interpreted. The frozen document therefore determines its own reading; this
+amendment records that reading rather than supplying one.
+
+**What must change in the implementation before F12 may be launched.** These are
+recorded as pre-launch blockers and are **not made here** — this amendment is a
+zero-compute record and touches no code:
+
+1. `sdk/workflows/rae2822_case9.py` must carry a **per-level** first cell —
+   2.0e-6 / 1.0e-6 / 5.0e-7 chord for coarse / medium / fine — and `build_case`
+   (**:892**) and `run_case` (**:925**) must thread it through to
+   `blockmesh_dict` (**:903**), which today they do not. Until they do, a launch
+   silently builds the non-similar ladder of §3-§4.
+2. The `r_y_far` level-independence of §5 must be repaired, so the wake blocks'
+   far-side distribution refines with the ladder instead of flipping to uniform
+   at the fine level.
+3. Both repairs are changes to a **grading path**. Standing rule 2 fixes the
+   grading path at the pre-registration commit; the repaired generator must be
+   committed, and hashed against its committed blob, **before** the first solver
+   starts, exactly as the comparator freeze requires.
+
+**A record, not an authorisation.** Neither this amendment nor these three items
+schedules, approves or authorizes any run. F12 remains **PENDING**, on the same
+three conditions the 2026-08-23 addendum §6 already stated.
+
+### 8. What this amendment changes, and what it does not
+
+**It does not change:** any gate (A, B, 1, 2, 3, 4), any threshold (0.08, 0.04,
+0.020 chord, 5%, 20%), any cap (§5 of the 2026-08-23 addendum: 120 / 160 / 700 /
+160 / 160, total 1,300 core-min), any label, any of the three cell counts
+(23,040 / 92,160 / 368,640), either condition, either of the two further medium
+runs, the CM reporting clause, the overall PASS rule, or any of the four
+predictions. The first-cell height does not enter the cell count, so **every
+core-minute figure in the 2026-08-23 addendum §4 and every cap in its §5 stands
+verbatim**.
+
+**It changes:** the per-level wall-normal first cell, from a value the frozen text
+left unstated per level (and the code fixed at 2e-6 on all three) to 2.0e-6 /
+1.0e-6 / 5.0e-7 chord. That is a resolution of an ambiguity in a construction
+parameter, not an alteration of a gate, threshold, cap or label. **If the
+verification supervisor rules otherwise — that fixing a per-level construction
+parameter is itself a gate change — this amendment is the record of the
+ambiguity and the ruling stands over it; F12 has not been fired and nothing is
+lost by re-freezing.**
+
+**Two consequences carried forward honestly, neither of them a gate change.**
+The coarse-anchored fine mesh has a steeper total expansion (4.70e6 against the
+1.06e6 the code would have built) and a much higher near-wall cell aspect ratio.
+Gate A gates max non-orthogonality <= 70 degrees and max skewness <= 4 and
+records **aspect ratio as advisory, not gated** — that clause is unchanged and is
+what carries this. And a steeper near-wall grading can slow convergence at equal
+cell count; the 2026-08-23 addendum §5 already states that a rate miss is caught
+by the cap and that stopping is the designed behaviour. Neither figure is
+measured; no mesh was built.
+
+### 9. Rule 15 on the primary reference — reported, not repaired, and not papered over
+
+§"The reference" already discloses that F12's reference data is *"a transcription
+made by the experiment's own AGARD evaluator, not the AR-138 document itself,
+and it is labelled secondary everywhere it is used."* Checked on 2026-08-25:
+**no AGARD AR-138 document exists anywhere under `docs/papers/`.** A full-text
+sweep of that library returns three files that merely **cite** AR-138 in their
+own reference lists — `docs/papers/uncertainty_quantification/schaefer_2017_uq_closure_transonic.txt`,
+`docs/papers/uncertainty_quantification/schaefer_2017_uq_sa_model.txt` and
+`docs/papers/turbulence_models/spalart_allmaras_1992_turbulence_model.txt` — and
+no copy of the report.
+
+**Standing rule 15 title-page verification of F12's primary is therefore
+currently IMPOSSIBLE**, because the primary is not held. The strongest honest
+statement available about F12's P is:
+
+> F12's reference values are taken from the AFOSR-HTTM/Stanford digitisation,
+> flow case 8621, evaluator R. E. Melnik (1981), retained on disk at
+> `verification/runs/F12_runs/reference/f8621.txt` with the decoder that produced
+> the graded `.dat` files beside it. That artifact is **secondary**, it is
+> **title-page-verified against nothing**, and Cook, McDonald and Firmin, AGARD
+> AR-138 (1979), the primary it transcribes, **is not held by this lab and has
+> not been opened by it.**
+
+Whether a secondary transcription can support a P at all is
+`VERIFICATION_CHARTER.md`'s rubric — a **verification-team ruling**. It is
+neither this lane's call nor the cfd supervisor's, it is not decided here, and no
+wording in this document should be read as having decided it.
+
+### 10. What this amendment refused to decide
+
+- Whether a secondary transcription can support a P (§9) — referred to
+  verification.
+- Whether resolving a per-level construction parameter counts as a gate change
+  (§8) — referred to verification; the amendment states its own reading and does
+  not insist on it.
+- The repair of `r_y_far` (§5) — reported as a pre-launch blocker; its geometric
+  role is stated from the dictionary-writing code and should be confirmed against
+  a built `blockMeshDict` before anyone edits it.
+- Any change to `sdk/workflows/rae2822_case9.py` — named precisely (§7) and not
+  made.
+
+*Written 2026-08-25 by a `lab-lane` worker for the cfd team, on a
+supervisor-directed **ZERO-COMPUTE** task. No solver was launched, no mesh was
+built and no case directory was created in producing it. Every mesh-grading and
+y+ number above is arithmetic evaluated with this repository's own
+`ratio_for_first_cell` and with named flat-plate correlations; all of it is
+ESTIMATED and none of it is measured.*
