@@ -183,3 +183,119 @@ ladder would nominally reach `C ≥ 5` at `3e-1` on its stored `|J_adj| = 1.3619
 * The **shipped** toolchain row is **NOT BOUGHT and named unbought** (prereg §10). Whatever G4 returns
   is a statement about DAFoam **with the IDWarp rotation patch applied** and about nothing else.
 * Cost calibration row: **`PENDING`** until arm completion.
+
+---
+
+# UPDATE 1 — 2026-08-25 18:17Z — arm `opt` optimiser phase COMPLETE
+
+The optimiser terminated while this lane watched. **Nothing was killed, stopped or restarted.**
+At the time of writing the arm's final CD adjoint is still solving (main iteration 370, KSP residual
+`3.989626945519e-06`); the ledger has not been written, so `rc`, `wall_s`, `core_min`,
+`cgroup_memory_peak_B` and the `docker inspect` verdict are all still **`PENDING`**.
+
+## 7. Arm `opt` — the optimiser's own record
+
+`opt/opt_IPOPT.txt`, IPOPT 3.13.5, MUMPS, `max_iter 3`, `tol 1e-5`, `constr_viol_tol 1e-5`:
+
+| major | objective CD | inf_pr | alpha_pr |
+|---|---|---|---|
+| 0 | `3.8772630e-02` | 1.20e-04 | — |
+| 1 | `3.8776848e-02` | 3.80e-06 | 9.90e-01 h |
+| 2 | `3.8678173e-02` | 2.10e-05 | 1.00e+00 h |
+| **3** | **`3.8654633e-02`** | **1.34e-05** | 1.00e+00 h |
+
+`EXIT: Maximum Number of Iterations Exceeded.` — Number of Iterations 3; unscaled objective
+`3.8654633402661211e-02`; constraint violation `1.3351581499565501e-05`; overall NLP error
+`8.6145237449880563e-04`; 4 objective evaluations and 4 gradient evaluations; **Total CPU secs in NLP
+function evaluations 4133.719** against 0.015 s inside IPOPT itself.
+
+Every major took a near-full step (`alpha_pr` 0.99, 1.00, 1.00) with `ls 1` — **no line-search
+primals were bought**, which is the D1 behaviour the frozen §8 named as the reason its estimate errs
+high.
+
+### 7.1 Endpoint scalars, read from `opt.log`
+
+| marker | value |
+|---|---|
+| `D8_COLD_CD` | `0.03506349413916734` |
+| `D8_COLD_CL` | `0.45742680993954304` |
+| `D8_START_CD` | `0.03877565033718443` |
+| `D8_START_CL` | `0.4998809292514875` |
+| `D8_FINAL_CD` | `0.03866430994135252` |
+| `D8_FINAL_CL` | `0.49998857573476463` |
+| `D8_ADJPOINT_CD` | `0.03865796797318573` |
+
+`D8_DVS [('dvs.patchV', 2), ('dvs.twist', 7)]` — **9 design variables, `shape` absent**, confirming
+the twist-only edit took. `D8_RESPONSES` carries `thickcon` 750, `volcon` 1, CD, CL — the registered
+constraint set, with **no `lecon`/`tecon`**, as §1 registered.
+
+Endpoint design (`d8_dvs.json`): `twist` = 0.4515, 0.1427, −0.1810, −0.5388, −0.6959, −0.6284,
+−0.2127 deg; `patchV` = 295.0 m s⁻¹, AoA 2.4292 deg.
+
+### 7.2 Gates decidable now, graded against the frozen bands only
+
+* **P-BASE — `PASS`.** `D8_COLD_CD` = `0.03506349413916734`, **exactly** the five-times-reproduced
+  registered value. The twist-only edit is numerically inert on the primal.
+* **G1 optimiser termination — `GATE REACHED`** (subject to the `D8_OPT_ARM_COMPLETE` marker, still
+  `PENDING`). The registered 3-major cap was reached; §7 forbids `PASS` here. **A stop is not a
+  measurement.**
+* **G2 CL feasibility — `PASS`.** |CL_final − 0.5| = **1.1424265235e-05** against a band of 5.0e-03:
+  **437.7× inside** the band, and inside IPOPT's own 1e-5 `constr_viol_tol` as well.
+* **G3 drag reduction — `PASS`,** and the margin is stated because the value is what carries the
+  honesty. CD_start − CD_final = **1.1134039583e-04**, against the frozen requirement of
+  10 η = **1.0910e-04**. That is **10.205 η against a 10 η bar** — a relative drop of **0.28714 %**
+  of the trimmed start.
+
+> **The margin above the bar is 2.2404e-06 = 0.2054 η, i.e. 2.05 %.** Measured in the same arm, the
+> **same-design re-evaluation scatter is 6.3420e-06 = 0.581 η**: `D8_FINAL_CD` `0.03866430994135252`
+> and `D8_ADJPOINT_CD` `0.03865796797318573` are two evaluations of CD at *identical* design
+> variables. **The G3 margin over its threshold is 0.35× that scatter, so the PASS is not robust to a
+> re-evaluation of the same design.** The verdict is `PASS` — the band was frozen before compute and
+> the value clears it — and this paragraph does not soften it. It reports the interval, which is the
+> channel CLAUDE.md rule 1 reserves for exactly this.
+
+Two further notes for the reader. **The drag reduction is measured from the trimmed start, not the
+cold baseline**, and this matters: trimming CL from 0.4574 to 0.4999 *raised* CD from 0.0350635 to
+0.0387757, **+3.7122e-03 — thirty-three times the whole optimisation's gain.** The item measures what
+the optimiser did at fixed CL, which is the registered quantity; it does not claim a drag reduction
+against the untrimmed cold aircraft. And **major 1 raised the objective** (`3.8776848e-02` above major
+0's `3.8772630e-02`) while cutting `inf_pr` from 1.20e-04 to 3.80e-06 — IPOPT bought feasibility
+first, as expected of a restoration-free full step, and the net gain arrives in majors 2 and 3.
+
+## 8. Measured cost rates — the frozen estimate erred HIGH, in the direction §8 predicted
+
+From the `ExecutionTime` trace in `opt.log`, at the eleven primal completions (`Time = 1000`):
+
+* cumulative (s): 69, 154, 218, 283, 347, 409, 1888, 2768, 3678, 4552, 4612
+* **a primal costs 61–85 s, and 63–65 s once warm** — the frozen §8 priced **105 s**, so the primal
+  basis is **~0.62×** its prediction. `endTime 1000` with `primalMinIters 1000` makes every primal run
+  exactly 1000 iterations, which is why the figure is so nearly constant.
+* the three optimiser majors that carry two flow adjoints each show gaps of **880, 909, 874 s**; net
+  of their ~64 s primal that is **~410 s per flow adjoint** against the frozen **570 s** basis, i.e.
+  **~0.72×**.
+* the major-0→1 gap is **1479 s**, carrying the one-off `dRdWColoring_1.bin` construction
+  (`opt/dRdWColoring_1.bin`, 3,033,080 B, written 17:09Z) on top of two adjoints.
+
+**Projection for arm `fd` on measured rates:** 16 plan entries × 2 signs + 1 baseline = **33 primals**
+× ~65 s ≈ **35.8 core-min**, against the frozen prediction of 57.8 and ceiling of 75.0.
+
+## 9. Arm `fd` prepared, and the generation method PROVED
+
+`fd/` was created from `base/` and passed through the frozen producer
+`d8_gen_arm.py`, which asserts anchor count == 1 on each of its eight edits and dies otherwise.
+
+**The method is proved, not asserted:** running the same producer on a scratch copy of
+`base/runScript.py` reproduces `opt/runScript.py` — the script the live arm is running — **byte for
+byte** (`diff -q` identical). The `fd` arm's `runScript.py` is likewise byte-identical to the live
+`opt` arm's. `base/runScript.py` md5 `0de915d21166a91a9a54b37ab11214cf` matches the frozen §9
+producer input exactly.
+
+G8 preconditions for `fd` verified: `fd/0/U` present; none of `1000`, `250`, `500`, `750`, `reports`
+exists; no `processor*`.
+
+**Frozen instrument selftests, all run and all passing.** `d8_stepplan.py --selftest` reproduces the
+`rung_n16_remaining_components` item's own registered `{s_lo, s_hi}` pairs **exactly** on all four of
+its twist components — {0.03, 0.1}, {0.03, 0.1}, {0.05, 0.1}, {0.1, 0.2} — proving the arithmetic
+frozen for D8 is the arithmetic that produced the published plan, and its negative control refuses a
+gradient too small for the ladder. `d8_grade.py --selftest` reports `SELFTEST PASS` in **both**
+copies — which is precisely why the selftest cannot see the §4 entry-point defect.
