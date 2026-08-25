@@ -1757,6 +1757,50 @@ My predecessor carried, correctly, an open `VERIFY`: *"an unexplained 2.1x sprea
 
 **`docs/COST_CALIBRATION.md` id hazard verified by me, not relayed.** Tolerant derivation over the whole file: **max is `C-83`; ids 1-83 are complete with no gaps (83 distinct, 305 occurrences — three different figures, rule 11).** **Next id is `C-84`, and it is to be allocated at append time, never pre-assigned.** Cause of the regex miss confirmed: rows through `C-76` are plain `| C-76 |`; **from `C-77` the format changes to bold `| **C-77** |`**, so a pattern anchored on the plain form stops dead at 76 and under-reports by seven.
 
+#### I REFUSE THE K0d FIRE ORDER — ON **RIGOR**, NOT COST. THE GRADER DOES NOT EXIST.
+
+**This is not the refusal Sanaa overrode.** That one was *"the cost does not fit"*, and **cost is no longer a ground for anything in this lab.** Rigor is unchanged and she flagged it "Very important" twice. Here is what the fire order runs into:
+
+**`analyse_k0d.py` DOES NOT EXIST** — not tracked, not untracked, nowhere on the box. The lane established this **under a live planted control**: it ran the identical grep against `analyse_t3.py`, got **15 hits**, and only then believed the K0d zero. Standing rule 3 applied to a lane's own reading, which is why I trust it. Consequences, each independently sufficient to stop the fire:
+
+1. **Rule 2 cannot be satisfied.** The grading path is fixed at the pre-registration commit and verified by hashing the frozen file against the committed blob. **You cannot hash a file that does not exist.**
+2. **The three REGISTERED plants P1/P2/P3 are unimplemented.** Standing rule 3 is not partially armed on this rung; it is absent.
+3. **My SUPERVISION §3 check-1 diff read cannot be performed — and I will not record it as performed.** A check whose object does not exist is not a check that passed.
+4. **The three K0d scripts that DO exist are untracked**, so none can be hash-verified, and two carry uncommitted edits with mtimes *after* AMENDMENT 2's commit — completeness unknown.
+
+**Firing now would produce ten solves whose grading path does not exist**, on a rung whose own §0 already says *"AS REGISTERED, THIS RUNG CANNOT REACH A GRADED VERDICT"* — tally **0 of 10**. That is not filling the box; that is manufacturing 2 748 core-minutes of ungradeable output. **The queue is not served by firing something that cannot be read.**
+
+**UNBLOCKED BY, and it is dispatched, not deferred:** write `analyse_k0d.py` with the three registered plants and rule-5 gating; repair `check_k0d_mesh.py` condition C; land all four scripts in **one** commit so the freeze binds on a true assertion; **I read the diff**; then fire. **Zero core-minutes spent, and the lane was right not to run `build_k0d.py`** — running it creates `K0d_runs/` and destroys the pre-compute absence proof every amendment's legality rests on.
+
+#### THE BRIEF'S K0d CAP PREMISE WAS FALSE, AND THE REAL TRAP IS ELSEWHERE
+
+I was told `docs/LAB_STATE.md:2427` carries `2 749.14` and that I must reconcile two figures. **Line 2427 carries no cap figure at all** — it is a sentence about the thermal reference title-page audit. **The board's current cap line is 2438 and it already reads `2 748.64`.** The `2 749.14` occurrences (2583, 2590, 2653) are **older entries further down a reverse-chronological board** — superseded history, correctly retained. **There was never a live conflict to reconcile, and `AMENDMENT 2` landed COMMITTED at HEAD, `802418fc`, 20:43:01Z — about two minutes before the lane died. Nothing was lost and nothing was redone.**
+
+**The 0.50 is attributed and the attribution is honest:** §A2.2a enumerates instruments to `I = 11.50` and checks that its first three terms reproduce the frozen §8 `3.50` line exactly. The `12.00` behind 2 749.14 **is not reproducible from its own enumeration, and the residual 0.50 is recorded as UNEXPLAINED.** That is *why* 2 749.14 was superseded rather than defended — the right way round.
+
+**⚠ THE REAL TRAP, and it is worse than the one I was sent to fix.** `K0d_PREREGISTRATION.md` is **SUPERSEDED** by `K0d_REREGISTRATION.md` (its own line 3 says so), because AMENDMENT 1 §A1.2 and AMENDMENT 5 §A5.7 reconciled the same 2.7539 % `Ra` inconsistency **two mutually exclusive ways**. **The superseded file's §10.3 still reads `CAP 2 484.84`, and all five of its amendments say "No CAP moved."** The operative cap **2 748.64 exists ONLY in the re-registration.** **Anyone who opens the obvious filename gets a cap 264 core-min too low and five amendments assuring them it never moved.** Cite the re-registration by name whenever quoting a K0d cap. **Occupancy 62 % confirmed** at `K0d_REREGISTRATION.md:551–552`.
+
+#### T8 — IT CAN FIRE, BUT NOT YET, AND THE WINDOW SHUTS AT FIRST COMPUTE
+
+**The brief was stale here too:** all four T8 files were already landed in **one** commit, `96c2fe3c`, an ancestor of HEAD, every path byte-identical to its blob. `analyse_t8.py` is **COMPLETE, not truncated** — 1 793 lines, `py_compile` rc=0, all 38 defs resolve, `main()` reachable. **`--selftest` 52 ok / 0 FAILED; `--check-freeze` rc=0, all four blobs FROZEN; blindness checker clean on both probes** (its caveat kept, not upgraded). §8 registers **335.3 core-min predicted against a 595 core-min cap**, bands ±0.05.
+
+**An ordering defect I am recording rather than papering over: my §3 check-1 diff read did not precede `96c2fe3c`. That cannot be repaired, only disclosed.** The lane compensated correctly — **it audited by MUTATION instead of by reading**: six mutations against scratch copies, 51 comparable checks. **Four caught** (age guard, `ExecutionTime` count, `End` line, the `OSCILLATORY` branch — each rc=2). **Two survived**, and one is real:
+
+- **Survivor A, benign:** the one-way-gate assert is redundant; the property is covered behaviourally and exhaustively at 1659–1668. **The lane declined to inflate it, and that is worth as much as the finding.**
+- **⚠ Survivor B, REAL — centreline extrapolation, lines 685–686.** Change `(9·T[i1] − T[i2])/8` to `(7·T[i1] − T[i2])/6` and **all 51 checks still pass**, because selftest section (v) **re-derives the arithmetic inline at line 1698 instead of calling `read_plane_quantities`**. **A mis-weighted extrapolation silently moves EVERY T8 graded value and nothing can see it.**
+- **⚠ Compounding, independently confirmed: `check_planted_zero` has exactly one call site — 1209, inside `grade()` — and is NEVER invoked by `--selftest`.** Nor are `read_mesh`, `resolve_planes`, `read_plane_quantities`, `read_stations`. **The standing-rule-3 instrument on this rung has never been shown able to fire.** The lane read it and found it correct — it plants into the field **on disk** (862–903) and reads back through the shipped station reader (905–923), so the K0d defect class is genuinely absent — **but "read and found correct" is the standard this lab refuses everywhere else.**
+
+#### MY FOUR T8 PRE-COMPUTE RULINGS — the window closes the instant a solver starts, so they are made now
+
+1. **Gap 5.2 MUST be closed before firing.** A defect that moves a graded number while every test passes is the single worst class this lab grades for. Selftest (v) must **CALL** `read_plane_quantities`, not re-derive it, plus a **negative arm with a mis-weighted extrapolation that must FIRE**.
+2. **`check_planted_zero` MUST be exercised by `--selftest` before firing** — a tiny synthetic case on disk with one deliberately mis-weighted negative arm that must FIRE. An unexercised control is exactly the thing standing rule 3 exists to forbid.
+3. **`epsilon` not `omega` in `FIELDS_REQUIRED` (149): CORRECT AS REGISTERED, no change, not a defect.** Standing rule 4's list (`… k omega`) was written for a k-omega closure; T8's is `kEpsilon` (`build_t8.py:337`), disclosed at §7 248–249. **Requiring `omega` would demand a field that cannot exist and make the completion rule permanently unsatisfiable.** The general point — **a standing rule whose literal field list is closure-specific** — is lab-wide wording, **referred to the chief**, not rewritten by me.
+4. **The plateau conjunct is NOT MINE and does not block T8.** Whether rule 5's "or not plateaued" has independent content — `analyse_t1b_L4.py:225` treats plateau as a separate spatial test while T8 declares it has none registered — is a **canon question about the standard itself**. Cross-family → **the chief, for verification**. T8 is faithful to its frozen document, which is what T8 is answerable for.
+
+**LEGAL BASIS, stated because this edits a frozen file and I will not hand-wave it.** Rule 2: *"Before first compute, amendments are legal and must state the condition and how it was checked (name the run directory that does not exist)."* **T8 has zero core-minutes and no case directory**, so the window is open — and the lane must **verify that itself and STOP if any T8 run directory exists**, because then these rulings are void. The repairs **may not alter a gate, threshold, cap or label**; they only make existing instruments demonstrable. Landing under rule 6: dated amendment at the foot, version bump, `lines whose number changed above this section: 0`, and **the new `analyse_t8.py` blob sha recorded**, since §11's freeze set now points at a changed file.
+
+**A named limitation, recorded rather than left to be discovered:** `check_freeze_set` (224–256) hashes against `HEAD:` rather than the **pinned pre-registration commit**, so it detects an *uncommitted* edit but not a *committed* one. Today the two coincide, so it is not lying.
+
 #### RUNGS WITHOUT VERDICTS
 
 **D4** — `BLOCKED`, arm F firing now, and its FD table is the whole remaining question. **D7** — armed, not fired, mesh reconcile outstanding. **D12 proper** — armed on disk, uncommitted, not fired. **D5, D6, D14** — prerequisite-queued on D4, not blocked. **D15** — unarmed, unstarted, zero-compute, next in.
