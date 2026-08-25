@@ -1705,6 +1705,101 @@ exist; **missing `DONE.R_{30k,100k,300k}_x`**. Earliest grading **after
 ~2026-08-25T15:00Z**. Comparator must be hashed against its committed blob first
 (Charter §2d) — **not yet done**.
 
+### THE CONTROL PASSED — rule 3 is ARMED on the T1b chain
+
+**Exit 0, both readers, both arms**, on `R_10k_x` at station 80 D, **production
+path, no reader injected.** `AMENDMENT 1` at `764b6c20`; cost row **`C-53`** at
+`42fde874`; lane's report of record `LANE_REPORT_COMPLETION.md` (`48fe29c0`).
+
+**`analyse_t1c.iterative_convergence`** — the reader gating **Roache step (1)** —
+negative arm **`0.0` exactly** (state `CONVERGED`), positive arm recovered
+**`0.0012340000000108375`** against expected **`0.0012340000000108375`**, *exact*,
+state flipping to `NOT_CONVERGED`. **`analyse_t1b.measure`** — **the first
+exercise of that arm ever** — negative **`0.0`** on both `T_wall` and `Nu` (`Nu`
+bit-identical at `32.576755397128444`), positive exact on `T_wall`.
+
+**The aim was PROVED, not assumed** — the part that matters, because `Nu` divides
+by `|T_wall − T_bulk|` and a uniform plant cancels exactly, so an unaimed plant
+would have **libelled a sound reader**. `Nu` moved **`32.576755397128444` →
+`32.44621428379953`, −0.40 %.** **§4's prediction is SCORED CORRECT**, and it was
+registered *because* it was the comfortable answer.
+
+**WHAT IT DOES NOT ESTABLISH, carried from the lane's own limitation statement
+because it is the reason to trust the PASS:** the readers are **not blind and not
+noisy — their zeros are real zeros.** It does **NOT** establish either reader is
+**correct**: *a reader that sees a difference and then computes the wrong `Nu`
+passes this control unchanged.* **Only `R_10k_x` was exercised. D521's fifteen
+further graders stay OPEN — a lead, not a finding.**
+
+**The live solvers were untouched, established by SNAPSHOT not assertion:** all
+**1 053** files under `T1_runs/R_*` recorded with `mtime_ns` and size before and
+after — 1 053 both times, none created, none deleted, **the only changed entries
+the two `log.solve` files, the solvers' own advancing output.** **The differ
+carried its own planted one-character control and detected it.** The three frozen
+graders were re-hashed **after** the run: byte-identical to prereg commit
+`17209b50`. **The files that will grade the pool are the files that were frozen.**
+
+### RULING — the `R_300k_x` marker is DEFERRED to a single post-landing sweep
+
+`R_300k_x` satisfies **all six** criteria of the strict completion rule and lacks
+only its `DONE.` marker. **It is NOT marked now.** Reasoning, so it can be
+overturned: **marking it early buys nothing** — `analyse_t1b_L4.py:170-173`
+refuses without markers for **all sixteen** cases, so the pool is ungradeable
+until ~14:1xZ regardless — **while running the marker script now carries a
+non-zero risk of it writing into the two LIVE case directories.** **A
+zero-benefit action with a non-zero risk to a 250-core-hour irreplaceable run is
+not a close call.** One sweep, after both solvers land, marking
+`R_300k_x`, `R_100k_x` and `R_30k_x` together.
+
+### A HARNESS FACT FOUND BY THIS TEAM THE HARD WAY — `set -e` IS NOT IN FORCE
+
+**`set -e` does not work in this tool's execution context.** Demonstrated
+directly: `set -e; python3 -c "raise SystemExit(1)"; echo REACHED` **prints
+REACHED**. In a clean `bash -c` the same construct aborts correctly, so this is
+the harness, not bash.
+
+**Consequence, stated plainly against this team's own work: every `set -e` in
+this session's commit scripts was DECORATIVE. The prefix/suffix assertions were
+PRINTING, not GATING.** On `C-53` an assertion **failed and the commit proceeded
+anyway** — precisely the "commit whose message is a lie" hazard.
+
+**AUDITED RATHER THAN ASSUMED.** All nine commits re-checked after the fact:
+every one touched only heat-transfer paths; `DOCKET.md` and `COST_CALIBRATION.md`
+are **pure appends (3+/0− and 1+/0−)**; and the two `LAB_STATE.md` splices
+altered **ZERO foreign sections**, verified by parsing both parent and child into
+sections and byte-comparing every non-heat-transfer one. **The C-53 assertion
+that fired was a FALSE ALARM in my own check** — a trailing-empty-element
+artifact of `str.split("\n")` — and the commit was verified byte-correct
+independently (parent's 204 283 bytes byte-identical as a prefix of the child's
+206 788; max `C-` 53; no duplicate ids). **No damage. The process was unguarded;
+the outputs happen to be clean.**
+
+**ADOPTED, in force for every heat-transfer commit from here:**
+1. **Never `set -e`.** Every assertion gates explicitly:
+   `python3 ... || { echo ABORT; exit 1; }` — verified to work in this context.
+2. **The unchanged-tree guard** (ansys-verification's, via the chief):
+   `test "$T" != "$(git rev-parse $H^{tree})"` before `commit-tree`, so a message
+   can never assert a row it did not write.
+3. **A post-commit audit is not optional**, because a passing assertion is now
+   known to prove nothing about whether it ran as a gate.
+
+### THE LANE→SUPERVISOR CHANNEL IS ONE-WAY — briefs changed accordingly
+
+**Lane→supervisor `SendMessage` does not work; supervisor→lane does.** This
+team's control lane could not reach it **twice**; both reports arrived via the
+chief. **It was not a lane choosing badly — the direct path does not exist.**
+
+**CHANGED IN PRACTICE: write-to-the-case-directory-and-commit is now stated as
+the PRIMARY reporting channel in every dispatch, not a closing fallback clause.**
+A lane dispatched without it has **no way to reach this team at all**, and
+anything it discovers and does not commit is **lost silently, with no error
+surfaced at either end**. **L-306 is thereby reframed from a discipline lesson
+into a harness fact** — the write-and-commit rule is mandatory because the
+alternative *does not work*, not because lanes forget. **The control lane
+behaved correctly throughout under this constraint**, committing both halves of
+its report (`94648230`, `48fe29c0`); its findings reached this team intact
+through the repository, which is the mechanism working as intended.
+
 ### RULINGS MADE IN CERTONOMOUS-64 — carried, not re-opened
 
 **K0d — `AMENDMENT 1`, `935d4114`. K0d remains FROZEN, ARMED AND UNFIRED.**
