@@ -484,14 +484,59 @@ def control_reader_parses_real_solver_output():
 
 
 # ---------------------------------------------------------------------------
+# AMENDMENT 1, 2026-08-26, PRE-FIRST-COMPUTE (run root F17b_runs ABSENT when
+# written).  G-F17-2's REFERENCE is the exact field sampled at the fine level's
+# own cell centres and interpolated by the SAME bilinear() stencil the solved
+# field goes through -- so the stencil's own O(h^2) error (prereg section 5.1:
+# 1.06x the band half-width, enough to fail a zero-error solver) cancels in
+# value - reference.  Band WIDTH, threshold logic and one-way gate UNCHANGED.
+# ---------------------------------------------------------------------------
+def u_probe_reference(nx, ny):
+    h = EX.h_of(nx)
+    xg = EX.X0 + (np.arange(nx) + 0.5) * h
+    yg = EX.Y0 + (np.arange(ny) + 0.5) * h
+    X, Y = np.meshgrid(xg, yg)
+    return float(EX.bilinear(xg, yg, EX.u_exact(X, Y), EX.PROBE[0], EX.PROBE[1]) / EX.U0)
+
+
+def control_probe_reference_same_stencil():
+    """Driven: the exact field written in the real format and read through the
+    real probe reader returns ZERO error against the reference (to round-off);
+    a planted Ux perturbation in that file is read back exactly."""
+    nx, ny = SHAPE["fine"]
+    ref = u_probe_reference(nx, ny)
+    d = RT.PLANT
+    tmp = tempfile.mkdtemp(prefix="f17_ref_")
+    try:
+        z = np.zeros((ny, nx))
+        up, xc, yc = synth_case(tmp, nx, ny, z, z)
+        v0 = u_probe_from_files(up, xc, yc, nx, ny)
+        work = os.path.join(tmp, "U_planted")
+        if FIO.plant_into_vector_file(up, work, 0, d) == 0:
+            refuse("nothing to plant into %s" % up)
+        v1 = u_probe_from_files(work, xc, yc, nx, ny)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    if abs(v0 - ref) > 1e-12:
+        refuse("AMENDMENT 1 CONTROL FAILED: the exact field through the probe reader returned "
+               "%.17g against reference %.17g; a zero-error solver would not read zero" % (v0, ref))
+    if abs((v1 - ref) - d / EX.U0) > 1e-12:
+        refuse("AMENDMENT 1 CONTROL FAILED: a planted Ux offset of %.6e was read back as %.6e"
+               % (d / EX.U0, v1 - ref))
+    return dict(control="PZ-F17-AMEND1_probe_reference_same_stencil_zero_error_and_plant_read_back",
+                reference=ref, pointwise_exact=EX.u_probe_exact(), stencil_error=ref - EX.u_probe_exact(),
+                zero_error_readback=v0 - ref, planted_readback=v1 - ref, plant=d / EX.U0, passed=True)
+
+
+# ---------------------------------------------------------------------------
 # BANDS -- both from ONE declared parameter applied to the model prediction
 # ---------------------------------------------------------------------------
 def bands():
     tab = dict((r["name"], r) for r in EX.predictions())
     fine = tab["fine"]
     e2p = fine["E2_pred"]
-    up = EX.u_probe_exact()
-    tol = BAND_FACTOR * abs(fine["probe_err_pred"])
+    up = u_probe_reference(*SHAPE["fine"])          # AMENDMENT 1: same-stencil reference
+    tol = BAND_FACTOR * abs(fine["probe_err_pred"])  # width UNCHANGED
     return {
         "G-F17-1_E2_velocity_L2": dict(
             band=(e2p / BAND_FACTOR, e2p * BAND_FACTOR), reference=0.0, dim=DIM,
@@ -500,9 +545,11 @@ def bands():
                        "times [1/%g, %g]" % (e2p, fine["h"], BAND_FACTOR, BAND_FACTOR))),
         "G-F17-2_u_at_probe": dict(
             band=(up - tol, up + tol), reference=up, dim=DIM,
-            principle=("exact u(%g, %g)/U0 = %.15f +/- %g x the model's predicted pointwise "
-                       "error there (%.9e) = +/- %.9e" % (EX.PROBE[0], EX.PROBE[1], up, BAND_FACTOR,
-                                                           fine["probe_err_pred"], tol))),
+            principle=("exact field sampled at the fine level's cell centres and interpolated by "
+                       "the grader's own bilinear() at (%g, %g): u/U0 = %.15f (pointwise exact "
+                       "%.15f; AMENDMENT 1) +/- %g x the model's predicted pointwise error there "
+                       "(%.9e) = +/- %.9e" % (EX.PROBE[0], EX.PROBE[1], up, EX.u_probe_exact(),
+                                              BAND_FACTOR, fine["probe_err_pred"], tol))),
     }
 
 
@@ -746,7 +793,7 @@ def main(argv=None):
                 EX.control_model_is_second_order_and_solved(),
                 control_class_c_can_say_no(), control_grade_ladder_is_called(),
                 control_solver_dicts_match(), control_reader_parses_real_solver_output(),
-                control_field_classes_separate()]
+                control_field_classes_separate(), control_probe_reference_same_stencil()]
     bnd = bands()
     demo = demonstrate(bnd)
 

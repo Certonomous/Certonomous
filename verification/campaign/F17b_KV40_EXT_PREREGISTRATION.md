@@ -441,3 +441,162 @@ drops it into `verification/queue/cfd/`.
 - No re-grade of F17; no claim about p (not graded); no turbulence claim.
 - No amendment to any standard, charter or to F17's frozen record.
 - **Nothing is sent, filed, uploaded or submitted** (rule 7).
+
+---
+
+## AMENDMENT 1 — 2026-08-26T20:48:05Z (pre-compute)
+
+**Version 1.1. Lines whose number changed above this section: 0** (this block is
+appended at the foot; the frozen text at `9b354fad` is untouched — disk blob
+`c25c90e21db0da5340cef82888b4316ae4669201` == `HEAD:` blob at the writing
+invocation, 443 lines before this block). Decided and recorded `[lab-attributed]`
+on the cfd supervisor's ruling of 2026-08-26 on the §5.1 disclosure.
+
+**Condition (rule 2 §2b): before first compute.** Checked in the writing
+invocation, `date -u` = 2026-08-26T20:48:05Z:
+
+- `ls -d verification/runs/F17b_runs` → **`ls: cannot access
+  'verification/runs/F17b_runs': No such file or directory`** (the run root is
+  ABSENT; the launcher has never created it).
+- `find cases/F17b_kovasznay_ext -name RC.txt -o -name 'log.*' | wc -l` → **0**.
+- `verification/queue/cfd/` holds no `F17b*` entry and `launched/` holds none;
+  the entry was HELD in the case directory (§12) and never dropped.
+- Core-minutes spent on this case: **0**.
+
+**What changes — G-F17-2's REFERENCE only.** §5.1 disclosed, before compute, that
+the grader's bilinear interpolation of the **exact** field at the probe (0.5, 0)
+carries its own O(h²) error of **+1.135312e−05** at 768×512 — **1.06×** the band
+half-width 1.067295e−05 — so a solver with zero pointwise error would land
+**outside** the band by 6 %, and the registered PASS prediction rested on the
+solver's negative discretisation error partly cancelling it. Ruling: the
+reference moves
+
+| | old (`9b354fad`) | new (this amendment) |
+|---|---|---|
+| reference | pointwise exact u(0.5, 0)/U0 = **0.382372819953864** | exact field sampled at the fine level's own cell centres, interpolated by the grader's own `bilinear()` — the same stencil the solved field goes through = **0.382384173078692** (= pointwise + 1.1353124828e−05, the §5.1 figure) |
+| band half-width | 3 × 3.557649e−06 = 1.067295e−05 | **1.067295e−05 — UNCHANGED** |
+| band | [0.382362147006, 0.382383492902] | **[0.382373500131, 0.382394846027]** (shifted by the stencil error; same width) |
+| threshold logic | `band_verdict` in `grade_ladder`, one-way | **UNCHANGED** |
+| `BAND_FACTOR`, `bands()` E2 branch, G-F17-1 | | **UNCHANGED** |
+
+The correction is one-directional: it removes a known instrument artefact from
+the reference; it does not widen the band, and a solver reading the old band's
+"PASS by cancellation" path now has to be within ±3× the model's pointwise error
+of the interpolated exact value.
+
+**How `grade_f17.py` changes — 55 changed lines, the diff read-able below.**
+`bands()` calls the new `u_probe_reference(nx, ny)` for G-F17-2 instead of
+`EX.u_probe_exact()`; the `principle` string prints both the interpolated and
+the pointwise values; one new driven control
+`control_probe_reference_same_stencil()` is appended to the control list.
+**Driven in the writing invocation** (`grade_f17.py --selftest`, rc 0, 11
+controls green; `python3 -O` → rc 2): the exact field written in the pinned
+format and read through the real `u_probe_from_files()` returns
+`zero_error_readback` = **0.0** against the reference; a planted Ux offset of
+`RT.PLANT` = 1.234e−03 in that file is read back as **1.234000000000013e−03**
+(`planted_readback`); `stencil_error` = **1.1353124828472616e−05**. The §7
+demonstration rows are unchanged in value (G-F17-2: 0.3823806152 inside,
+0.3822418565 outside) and both sides still hold against the new band. Registered
+prediction under the new reference: model path value − reference = −3.558e−06
+(33 % of the half-width, inside); F17-trend path −7.5e−06 (inside); a zero-error
+solver **0** (inside — the case §5.1 said would fail). sha256 of `grade_f17.py`
+after this amendment:
+`5b9a77ee4c718054babb6898b0a64c410803b4bd51dca72b9815da3e516682e3`.
+
+```diff
+--- a/cases/F17b_kovasznay_ext/grade_f17.py (9b354fad)
++++ b/cases/F17b_kovasznay_ext/grade_f17.py (AMENDMENT 1)
+@@ -484,14 +484,59 @@
+ 
+ 
+ # ---------------------------------------------------------------------------
++# AMENDMENT 1, 2026-08-26, PRE-FIRST-COMPUTE (run root F17b_runs ABSENT when
++# written).  G-F17-2's REFERENCE is the exact field sampled at the fine level's
++# own cell centres and interpolated by the SAME bilinear() stencil the solved
++# field goes through -- so the stencil's own O(h^2) error (prereg section 5.1:
++# 1.06x the band half-width, enough to fail a zero-error solver) cancels in
++# value - reference.  Band WIDTH, threshold logic and one-way gate UNCHANGED.
++# ---------------------------------------------------------------------------
++def u_probe_reference(nx, ny):
++    h = EX.h_of(nx)
++    xg = EX.X0 + (np.arange(nx) + 0.5) * h
++    yg = EX.Y0 + (np.arange(ny) + 0.5) * h
++    X, Y = np.meshgrid(xg, yg)
++    return float(EX.bilinear(xg, yg, EX.u_exact(X, Y), EX.PROBE[0], EX.PROBE[1]) / EX.U0)
++
++
++def control_probe_reference_same_stencil():
++    """Driven: the exact field written in the real format and read through the
++    real probe reader returns ZERO error against the reference (to round-off);
++    a planted Ux perturbation in that file is read back exactly."""
++    nx, ny = SHAPE["fine"]
++    ref = u_probe_reference(nx, ny)
++    d = RT.PLANT
++    tmp = tempfile.mkdtemp(prefix="f17_ref_")
++    try:
++        z = np.zeros((ny, nx))
++        up, xc, yc = synth_case(tmp, nx, ny, z, z)
++        v0 = u_probe_from_files(up, xc, yc, nx, ny)
++        work = os.path.join(tmp, "U_planted")
++        if FIO.plant_into_vector_file(up, work, 0, d) == 0:
++            refuse("nothing to plant into %s" % up)
++        v1 = u_probe_from_files(work, xc, yc, nx, ny)
++    finally:
++        shutil.rmtree(tmp, ignore_errors=True)
++    if abs(v0 - ref) > 1e-12:
++        refuse("AMENDMENT 1 CONTROL FAILED: the exact field through the probe reader returned "
++               "%.17g against reference %.17g; a zero-error solver would not read zero" % (v0, ref))
++    if abs((v1 - ref) - d / EX.U0) > 1e-12:
++        refuse("AMENDMENT 1 CONTROL FAILED: a planted Ux offset of %.6e was read back as %.6e"
++               % (d / EX.U0, v1 - ref))
++    return dict(control="PZ-F17-AMEND1_probe_reference_same_stencil_zero_error_and_plant_read_back",
++                reference=ref, pointwise_exact=EX.u_probe_exact(), stencil_error=ref - EX.u_probe_exact(),
++                zero_error_readback=v0 - ref, planted_readback=v1 - ref, plant=d / EX.U0, passed=True)
++
++
++# ---------------------------------------------------------------------------
+ # BANDS -- both from ONE declared parameter applied to the model prediction
+ # ---------------------------------------------------------------------------
+ def bands():
+     tab = dict((r["name"], r) for r in EX.predictions())
+     fine = tab["fine"]
+     e2p = fine["E2_pred"]
+-    up = EX.u_probe_exact()
+-    tol = BAND_FACTOR * abs(fine["probe_err_pred"])
++    up = u_probe_reference(*SHAPE["fine"])          # AMENDMENT 1: same-stencil reference
++    tol = BAND_FACTOR * abs(fine["probe_err_pred"])  # width UNCHANGED
+     return {
+         "G-F17-1_E2_velocity_L2": dict(
+             band=(e2p / BAND_FACTOR, e2p * BAND_FACTOR), reference=0.0, dim=DIM,
+@@ -500,9 +545,11 @@
+                        "times [1/%g, %g]" % (e2p, fine["h"], BAND_FACTOR, BAND_FACTOR))),
+         "G-F17-2_u_at_probe": dict(
+             band=(up - tol, up + tol), reference=up, dim=DIM,
+-            principle=("exact u(%g, %g)/U0 = %.15f +/- %g x the model's predicted pointwise "
+-                       "error there (%.9e) = +/- %.9e" % (EX.PROBE[0], EX.PROBE[1], up, BAND_FACTOR,
+-                                                           fine["probe_err_pred"], tol))),
++            principle=("exact field sampled at the fine level's cell centres and interpolated by "
++                       "the grader's own bilinear() at (%g, %g): u/U0 = %.15f (pointwise exact "
++                       "%.15f; AMENDMENT 1) +/- %g x the model's predicted pointwise error there "
++                       "(%.9e) = +/- %.9e" % (EX.PROBE[0], EX.PROBE[1], up, EX.u_probe_exact(),
++                                              BAND_FACTOR, fine["probe_err_pred"], tol))),
+     }
+ 
+ 
+@@ -746,7 +793,7 @@
+                 EX.control_model_is_second_order_and_solved(),
+                 control_class_c_can_say_no(), control_grade_ladder_is_called(),
+                 control_solver_dicts_match(), control_reader_parses_real_solver_output(),
+-                control_field_classes_separate()]
++                control_field_classes_separate(), control_probe_reference_same_stencil()]
+     bnd = bands()
+     demo = demonstrate(bnd)
+ 
+```
+
+**Queue entry:** `cases/F17b_kovasznay_ext/queue_entry_F17b_KV40_EXT.json` is
+refreshed in the FOLLOWING commit so that `prereg_commit` and the launch argv's
+`--prereg-commit=` cite the sha of the commit carrying this amendment, and gains
+`cap_core_min_registered: 150` for the runner's cap watch. Cost, cap (150
+core-min), estimate (32.1 core-min), ladder, launcher and every other gate block
+are unchanged. Nothing is sent, filed or submitted (rule 7).
