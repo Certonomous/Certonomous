@@ -13857,3 +13857,103 @@ assumption into evidence, and it converts it **only for the runs it makes**.
 **An instrument's guarantees are only as strong as the weakest invocation anybody can
 give it. If a flag, an environment variable or an optimisation level can delete your
 refusal, then your refusal is a default setting, not a property of the instrument.**
+
+---
+
+## L-333 — THE PRIVATE-INDEX PROTOCOL ASSERTS THE **PATH** SET, NOT THE **CONTENT**. A peer's uncommitted edit to the same file rides into your commit, and BOTH path assertions pass
+
+**Measured 2026-08-26, heat-transfer, from commit `8f31acd9` on `main`. Sibling of
+L-223 (stale `read-tree`) and NOT covered by it: L-223 is about a tree that is too
+OLD; this is about a tree that is too WIDE inside a single path. Standing rule 10 is
+quoted, not amended — extending a standing rule is reserved, and this lesson does not
+take it.**
+
+### What happened
+
+1. A chief liaison lane wrote a long **CHIEF addendum** into the **worktree** copy of
+   `docs/LAB_STATE.md`. Its own stamp inside the text reads
+   `Recorded 2026-08-26T03:08:58Z`.
+2. That lane's commit **was denied by the permission classifier**, so its lines sat
+   uncommitted in the shared worktree. *(Reported in the brief that ordered this
+   lesson; the denial itself leaves no git artifact and this lane did not witness it.
+   Everything numbered below IS in git and was re-measured here.)*
+3. At **2026-08-26T03:13:54Z** the heat-transfer supervisor ran its own, correct,
+   private-index commit of ITS block of the same file, using the textbook line:
+
+   ```
+   git update-index --add -- docs/LAB_STATE.md
+   ```
+
+   **`update-index` reads the WORKTREE.** It staged the file as it stood on disk —
+   the supervisor's block *and* the liaison's uncommitted block.
+
+4. Commit `8f31acd9` therefore carries **136 insertions in one path**, in two
+   disjoint hunks by two different authors:
+
+   | Hunk (new-file lines) | Lines | Author |
+   |---|---|---|
+   | `@@ -1019,0 +1020,91 @@` — lines 1020–1110 (content through 1109) | **91** | the liaison lane — **FOREIGN to the committer** |
+   | `@@ -3834,0 +3926,45 @@` | **45** | the heat-transfer supervisor — its own |
+
+   *(The brief that ordered this lesson said "90 lines, ~1020–1109". Re-measured from
+   the blob, the hunk is **91** lines, `1020–1110`, the last being the blank separator
+   before `## closure`. One line, and it is stated because a lesson about miscounted
+   content may not itself carry an unchecked count.)*
+
+### Why both guards passed
+
+Standing rule 10's two assertions are the ones that were supposed to catch this. Both
+ran. Both passed. Both are **path-level**:
+
+- `git diff-tree --stat $H $T` → **one path**, `docs/LAB_STATE.md`. Correct, and
+  useless here: the foreign content is *inside* that one permitted path.
+- `git diff HEAD~1 HEAD --stat` (the L-223 post-commit verify) → **one path**.
+  Same blindness. It was designed to catch a tree that lost OTHER files; it cannot see
+  another author's lines inside a file you were entitled to commit.
+
+**A path allow-list answers "which files did I touch?". It never answers "whose lines
+are in them?".** The commit message of `8f31acd9` names only the heat-transfer
+finding, so the 91 foreign lines were landed **silently and unattributed**.
+
+### The rule
+
+When committing a file **two agents may both be editing** — and on a board file you
+must assume they are — do all three:
+
+**(a) Stage the blob you built, not the file on disk.** Never let `update-index` read
+the worktree for a contended path:
+
+```bash
+B=$(git hash-object -w <your-built-file>)
+git update-index --add --cacheinfo 100644,$B,<path>
+```
+
+Build `<your-built-file>` from the **HEAD blob** (`git show $H:<path>`) plus your own
+edit, in the same invocation that captured `$H`. The index then holds YOUR content by
+construction, and a peer's concurrent worktree write cannot reach it.
+
+**(b) If you must stage from the worktree, assert the CONTENT first and refuse.**
+Before `update-index`, run `git diff HEAD -- <path>` and check that every hunk is
+yours — count the added lines and compare against the number you intended. A count you
+did not compute is not an assertion. Refuse the commit on any surplus; **inspect, never
+revert** (rule 10) — the surplus is somebody's unfinished work.
+
+**(c) Say it in the message if you carried foreign content.** Rule 10 already requires
+disclosing foreign rows you *left*; this is the mirror case — foreign rows you *took*.
+An unattributed landing is worse than an uncommitted one, because the author now has no
+uncommitted change to notice and the record credits the wrong agent.
+
+### Where the risk is highest
+
+**`docs/LAB_STATE.md` is the worst case in the repository**: it is the single handoff
+channel (FIRST-ACTION rule), **every** supervisor writes it, and the chief's liaison
+lanes write it too. Its blocks are append-only and disjoint, which is exactly why the
+collision is silent — no merge conflict, no overwrite, no lost text, nothing that
+looks wrong. `docs/DOCKET.md` and `docs/LESSONS.md` carry the same shape.
+
+### The general form worth carrying
+
+**An allow-list over paths is not an allow-list over content. If your only check is
+"which files changed", then any file that more than one agent writes is a shared
+channel your commit will empty into its own name — and every guard you have will
+report clean.**
