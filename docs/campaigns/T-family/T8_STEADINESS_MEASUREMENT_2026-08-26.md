@@ -360,3 +360,130 @@ and says why.**
 call is theirs. **What is recorded here is that §4d's evidence, read at
 completion, points the other way, and that a successor registered on the unsteady
 hypothesis would be registered against the direction of its own data.**
+
+---
+
+## 7. ⚠ CORRECTION TO §0, §3 AND §6 OF THIS FILE, SAME DAY, BY THE LANE THAT WROTE THEM — **`f` IS NOT CONVERGED, AND THE REGISTERED INSTRUMENT SAYS SO**
+
+**Recorded as a visible supersession, not a silent edit.** Sections 0, 3 and 6
+above stand on the page as written. **What follows overrides their reading of
+`f`, and the correction was forced by the registered instrument that those
+sections did not consult.**
+
+### 7.1 What I got wrong, and it is the exact error the instrument exists to prevent
+
+§0–§6 characterise `f` from the **`T` initial residual**. **T8's registered
+convergence gate is not the residual.** `T8_PREREGISTRATION.md:234` registers
+*"last-two-checkpoint relative change"*, implemented in the frozen comparator at
+`analyse_t8.py:506` (`check_iterative_convergence`, `CONV_REL_TOL = 1.0e-6`) with
+the lab's standing norm `rel = max_cells |a − b| / (max(b) − min(b))`.
+
+**Called on the completed cases, through the frozen comparator's own function:**
+
+| level | field | checkpoints | `dmax` | `rng` | **`rel`** | registered tol | state |
+|---|---|---|---|---|---|---|---|
+| `c` | `T` | 7200 → 8000 | `1.926391e+00` | `2.113749e+01` | **`9.113625e-02`** | `1e-6` | **NOT_CONVERGED** |
+| `c` | `U` | 7200 → 8000 | — | — | **`2.406859e-01`** | `1e-6` | **NOT_CONVERGED** |
+| `f` | `T` | 18000 → 20000 | `1.012327e-01` | `6.171651e+00` | **`1.640285e-02`** | `1e-6` | **NOT_CONVERGED** |
+| `f` | `U` | 18000 → 20000 | — | — | **`1.467659e-01`** | `1e-6` | **NOT_CONVERGED** |
+
+`dmax` and `rng` are reported **separately** so that the `rng == 0` fallback
+cannot hide inside `rel` (§4b.4's practice). **Both are non-zero on both levels;
+the fallback did not fire.**
+
+> **`f`'s `T` INITIAL RESIDUAL IS `5.932e-07` — BELOW THE REGISTERED `1e-6` — WHILE
+> `f`'s `T` FIELD IS STILL MOVING BY `0.101 K` BETWEEN ITS LAST TWO CHECKPOINTS,
+> A RELATIVE CHANGE OF `1.64e-02`. The residual says converged by a factor of
+> 1.7. The field says not converged by a factor of 16,400.**
+
+**This is verbatim the failure `analyse_t1c.iterative_convergence`'s docstring was
+written about:** *"THIS CHECK EXISTS BECAUSE A NON-CONVERGED CASE IMPERSONATED A
+DISCRETISATION FAILURE… the reported `T` residual on the offending case was a
+merely unremarkable 4e-05. Comparing the written fields is the direct test."*
+**T8's `f` is that case again, a decade worse — and this lane walked into it by
+reading the residual instead of the fields, in a document that had already quoted
+§4b.1 saying the residual is not the registered gate.** The warning was on the
+page above the error.
+
+### 7.2 The planted control, and the reason it had to be escalated
+
+**Rule 3: a zero from a reader not shown able to see a non-zero is not
+evidence** — and the same applies to a non-zero read from a reader never
+challenged. The gate was driven against a **scratch copy** of `f` (the run tree
+was not touched) with a known amount added to one cell of `20000/T`:
+
+| plant into one cell | `rel` returned | seen? |
+|---|---|---|
+| `1.234e-03` (the comparator's registered `PLANT`) | `1.640285227e-02` | **no** |
+| `1.5e-01` | `1.640285227e-02` | **no** |
+| `1.0` | `1.403697556e-01` | **yes** |
+| `10.0` | `6.386130489e-01` | **yes** |
+
+**The reader is live** — it moves, and it moves by the right amount: cell 0's own
+baseline difference is `a − b = +8.368e-02`, so a `+1.0` plant gives
+`|8.368e-02 − 1.0| = 9.163e-01`, and the measured `dmax` after the plant is
+`9.163197745e-01`. **Exact.** `write_internal` round-trips to `5.7e-14` over all
+102,400 cells. The negative control — an untouched copy — returns the baseline
+`rel` bit-identically.
+
+**But the registered `PLANT` could not be seen, and the reason generalises:**
+
+> **A MAX-NORM RELATIVE-CHANGE GATE HAS A DETECTION FLOOR EQUAL TO ITS OWN
+> CURRENT `dmax`. A single-cell plant smaller than that floor is invisible — not
+> because the reader is broken, but because a maximum cannot see anything smaller
+> than its maximum. On `f` the floor is `1.012e-01 K` and the registered `PLANT`
+> is `1.234e-03 K`, **82× below it.**
+>
+> **THE INVERSION IS THE DANGEROUS PART: THE CONTROL GETS WEAKER EXACTLY AS THE
+> CASE GETS WORSE.** On a well-converged field `dmax → 0` and any plant is
+> trivially visible; on a badly unconverged field the plant is swamped. **A
+> planted-zero control sized against a converged field is blind precisely on the
+> cases where a reader most needs checking.**
+
+This does **not** impugn `analyse_t8.py`'s registered planted-zero control, which
+plants into the **centreline station reader** (`check_planted_zero`,
+`analyse_t8.py:925`) — a different code path with a different norm. **It is a
+finding about max-norm change gates generally**, and any successor registering
+one owes a plant sized **relative to the gate's own `dmax`**, not an absolute
+constant fixed in advance.
+
+### 7.3 What this changes, item by item
+
+| claim | status |
+|---|---|
+| §0: `f` "converged and stayed", "the excursion resolved" | **WITHDRAWN.** True of the residual, false of the field. `f` is `NOT_CONVERGED` under the registered gate. |
+| §0: the draft's §4b counter-example is withdrawn as stated | **STANDS.** There really are two stretches below `1e-6` (877–1104 and 4487–20000, 15,742 iterations total), and the draft's "228 total, only stretch" is false at completion. That correction was right; the conclusion drawn from it was not. |
+| §3.1–§3.2: §4c part 1 is **non-directional** and **divides a trend by a spread**, so it refuses smooth runs hardest | **STANDS.** This is an analysis of the criterion's **form** and does not depend on `f`'s status. `analyse_e4a2.py:308`'s `c2 = not cl["growing"]` remains the directional shape the territory already registered. |
+| §3.3: "the criterion passes the stall and refuses the **convergence**" | **WITHDRAWN.** `f` is not a convergence. What survives is the weaker and still-real half: **the criterion PASSES `c`, a run that never once reached the registered criterion in 8,000 iterations.** A stationarity precondition that admits a four-decade-high plateau is admitting the wrong thing. |
+| §4: ruling A2's `σ_self` widths | **STANDS.** Arithmetic on the residual series, unaffected. |
+| §6: "the finest grid is the only one that settled", and the ranking built on it | **WITHDRAWN.** No level settled. |
+| §6: "the coarse converges" is wrong | **STANDS**, and the supervisor has withdrawn it themselves. |
+| §5: costs | **STANDS.** |
+
+### 7.4 What the corrected picture supports — and it is stronger, not weaker
+
+**No level reached the registered convergence criterion at any resolution.**
+
+| level | cells | rc | registered gate on `T` | how it failed |
+|---|---:|---:|---|---|
+| `c` | 6,400 | 0 | `9.113625e-02` | reached `endTime` **unconverged**; residual plateau `~7e-04`, never once below `1e-6` |
+| `m` | 25,600 | **136** | — (no checkpoint written) | **diverged**, SIGFPE at `Time = 1086` of 12,000 |
+| `f` | 102,400 | 0 | `1.640285e-02` | reached `endTime` **unconverged**; residual below `1e-6` while the field still moved `0.101 K` |
+
+On a mesh family of **identical quality** (non-orthogonality Max 0, skewness
+identical to thirteen significant figures) with **byte-identical relaxation
+factors**, across **16× in cell count**, the registered steady formulation reaches
+a converged state at **no resolution, in three different ways.**
+
+> **ONE LEVEL'S FAILURE IS A CASE. THREE LEVELS FAILING THREE DIFFERENT WAYS IS A
+> FORMULATION.**
+
+**And it removes the objection §6.1 raised.** §6.1 argued that the unsteady
+hypothesis predicts the ordering backwards because the finest grid was the
+calmest. **It was not calm; it only looked calm through the residual.** The
+directional objection is therefore withdrawn, and §4d's hypothesis is no longer
+contradicted by its own data. **It is still not proved** — the honest limit the
+supervisor named stands: grid-dependence rules out a setup error but does not by
+itself separate *"the physics is unsteady"* from *"the closure is unrealizable on
+this grid"*. The discriminators named at §6.2 remain the right ones, and the
+**unsteady run at one level** is now the sharpest of them.
