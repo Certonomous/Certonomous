@@ -1,0 +1,56 @@
+D4S_F3S_GRADE SELFTEST mode=python3 grader_md5=2ed0651c786cb5bd8832f8660ba6c670 accept_md5=7377fd5e1eb0a558c2d38fc8da125fc2
+  [OK ] 0_ast_counter_sees_planted_assert 
+  [OK ] 0_ast_Assert_zero_in_grader_and_accept 
+  [OK ] 1_clean_fixture_ITEM_PASS {'G_ACC_stationarity_F-S': 'PASS', 'G5_endpoint_fd_F-S': 'PASS', 'G_ACC_stationarity_F-P': 'PASS', 'G5_endpoint_fd_F-P': 'PASS', 'G9_two_rows_distinct': 'PASS', 'ITEM_two_row_endpoint_fd': 'PASS'}
+  [OK ] 1_G_ACC_n_primals_22_all_accepted 
+  [OK ] 1_G5_both_rows_PASS_aggregate_0.1634 0.1634451673004621
+  [OK ] 1_NOT_MEASURED_empty_on_full_rows 
+  [OK ] 1_P3_HIT_on_the_reference_itself 
+  [OK ] 1_P2_MISS_on_a_passing_fixture 
+  [OK ] 1_P4_HIT_at_ratio_1.0 
+  [OK ] 2_rc1_G1_NOT_A_RESULT_item_NOT_A_RESULT None
+  [OK ] 2b_harness_vs_kernel_rc_disagree_REFUSES G1: {"arm": "F-P", "harness_rc_vs_kernel_rc_disagree": [0, "1"]}
+  [OK ] 3_terminal_not_last_G1_NOT_A_RESULT None
+  [OK ] 4_stale_artefacts_age_clause_fails None
+  [OK ] 4b_absent_graded_artefact_REFUSES G1-age: {"arm": "F-S", "graded_artifact_absent": "/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a
+  [OK ] 5_planted_5pct_drift_G_ACC_NOT_A_RESULT_item_NOT_A_RESULT None
+  [OK ] 5b_capture_count_mismatch_REFUSES G-ACC: {"COUNT_REFUSAL": "capture / record / log counts disagree", "arm": "F-S", "counts": {"accept_
+  [OK ] 5c_disarm_readback_1e3_G_ACC_NOT_A_RESULT None
+  [OK ] 6_shipped_arm_with_patched_so_G9_GATE_FAIL_and_rows_not_distinct None
+  [OK ] 7_shape18_sign_flip_G5_GATE_FAIL_item_GATE_FAIL_P2_HIT None
+  [OK ] 8_infra_absent_NOT_MEASURED_disclosed_grade_proceeds {'F-S': ['memavail_post_GiB', 'delivered']}
+  [OK ] 8b_infra_garbage_REFUSES ledger: {"present_but_unparseable_infrastructure_field": "memavail_post_GiB", "value": "abc"}
+  [OK ] 9_physics_field_absent_REFUSES ledger: {"line": "ARM=F-P ROW=PATCHED IMG=x DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf
+  [OK ] 10_oom_row_G11_NOT_A_RESULT None
+  [OK ] 11_cap_crossing_G10_GATE_FAIL_P4_MISS None
+  [OK ] 12_two_ranks_on_one_core_G12_GATE_FAIL None
+  [OK ] 13_every_verdict_in_the_fixed_vocabulary 
+D4S_F3S_GRADE SELFTEST pass=26 fail=0
+D4S_F3S_GRADE SELFTEST mode=python3 -O grader_md5=2ed0651c786cb5bd8832f8660ba6c670 accept_md5=7377fd5e1eb0a558c2d38fc8da125fc2
+  [OK ] 0_ast_counter_sees_planted_assert 
+  [OK ] 0_ast_Assert_zero_in_grader_and_accept 
+  [OK ] 1_clean_fixture_ITEM_PASS {'G_ACC_stationarity_F-S': 'PASS', 'G5_endpoint_fd_F-S': 'PASS', 'G_ACC_stationarity_F-P': 'PASS', 'G5_endpoint_fd_F-P': 'PASS', 'G9_two_rows_distinct': 'PASS', 'ITEM_two_row_endpoint_fd': 'PASS'}
+  [OK ] 1_G_ACC_n_primals_22_all_accepted 
+  [OK ] 1_G5_both_rows_PASS_aggregate_0.1634 0.1634451673004621
+  [OK ] 1_NOT_MEASURED_empty_on_full_rows 
+  [OK ] 1_P3_HIT_on_the_reference_itself 
+  [OK ] 1_P2_MISS_on_a_passing_fixture 
+  [OK ] 1_P4_HIT_at_ratio_1.0 
+  [OK ] 2_rc1_G1_NOT_A_RESULT_item_NOT_A_RESULT None
+  [OK ] 2b_harness_vs_kernel_rc_disagree_REFUSES G1: {"arm": "F-P", "harness_rc_vs_kernel_rc_disagree": [0, "1"]}
+  [OK ] 3_terminal_not_last_G1_NOT_A_RESULT None
+  [OK ] 4_stale_artefacts_age_clause_fails None
+  [OK ] 4b_absent_graded_artefact_REFUSES G1-age: {"arm": "F-S", "graded_artifact_absent": "/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a
+  [OK ] 5_planted_5pct_drift_G_ACC_NOT_A_RESULT_item_NOT_A_RESULT None
+  [OK ] 5b_capture_count_mismatch_REFUSES G-ACC: {"COUNT_REFUSAL": "capture / record / log counts disagree", "arm": "F-S", "counts": {"accept_
+  [OK ] 5c_disarm_readback_1e3_G_ACC_NOT_A_RESULT None
+  [OK ] 6_shipped_arm_with_patched_so_G9_GATE_FAIL_and_rows_not_distinct None
+  [OK ] 7_shape18_sign_flip_G5_GATE_FAIL_item_GATE_FAIL_P2_HIT None
+  [OK ] 8_infra_absent_NOT_MEASURED_disclosed_grade_proceeds {'F-S': ['memavail_post_GiB', 'delivered']}
+  [OK ] 8b_infra_garbage_REFUSES ledger: {"present_but_unparseable_infrastructure_field": "memavail_post_GiB", "value": "abc"}
+  [OK ] 9_physics_field_absent_REFUSES ledger: {"line": "ARM=F-P ROW=PATCHED IMG=x DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf
+  [OK ] 10_oom_row_G11_NOT_A_RESULT None
+  [OK ] 11_cap_crossing_G10_GATE_FAIL_P4_MISS None
+  [OK ] 12_two_ranks_on_one_core_G12_GATE_FAIL None
+  [OK ] 13_every_verdict_in_the_fixed_vocabulary 
+D4S_F3S_GRADE SELFTEST pass=26 fail=0

@@ -1,0 +1,40 @@
+D4S_F3S_ACCEPT SELFTEST d4s_f3s_accept.py constants EQUATIONS=U0,U1,U2,he,p,nuTilda WINDOW_ITERS=200 STATIONARITY_TOL=0.001 MIN_WINDOW_SAMPLES=3 CONTINUITY_BOUND=1e-06 END_TIME=1000 mode=python3
+  [OK ] 0_ast_counter_sees_a_planted_assert 
+  [OK ] 0_ast_Assert_zero_in_this_module 
+  [OK ] 1_PATCHED_D4_F3_has_primal_blocks n=22
+  [OK ] 1_PATCHED_D4_F3_primal001_accepted nuTilda r_end=9.780100659e-06 max_drift=1.022e-10 cont=1.891e-09 failures=[]
+  [OK ] 1_PATCHED_D4_F3_all_22_complete_primals_accepted accepted=22
+  [OK ] 1_SHIPPED_D4S_F3r2_has_primal_blocks n=1
+  [OK ] 1_SHIPPED_D4S_F3r2_primal001_accepted nuTilda r_end=1.115891818e-05 max_drift=1.326e-07 cont=1.959e-09 failures=[]
+  [OK ] 1_SHIPPED_D4S_F3r2_all_1_complete_primals_accepted accepted=1
+  [OK ] 1_measured_worst_drift_below_tol_by_>=100x worst per eq {'U0': '2.63e-07', 'U1': '4.08e-07', 'U2': '5.22e-07', 'he': '1.94e-06', 'p': '1.85e-07', 'nuTilda': '1.33e-07'} ; tol 1e-03 ; margin 516x
+  [OK ] 1_blind_to_the_1e-5_side SHIPPED nuTilda 1.115891818e-05 (> 1e-5) ACCEPTED; PATCHED 9.780100659e-06 (< 1e-5) ACCEPTED
+  [OK ] 2a_planted_1.2pct_drift_at_800_REJECTED ['R2:nuTilda_drift_1.200e-02_>_1.0e-03']
+  [OK ] 2b_planted_0.09pct_drift_ACCEPTED []
+  [OK ] 2c_planted_nan_REJECTED ['R4:U0_r_end_not_finite_positive']
+  [OK ] 2d_planted_continuity_2.5e-5_REJECTED ['R3:continuity_sum_local_2.500e-05_>_1.0e-06']
+  [OK ] 2e_missing_End_REJECTED ['R1:no_End_line']
+  [OK ] 2f_truncated_at_700_REJECTED ['R1:no_End_line', 'R1:endTime_700_!=_registered_1000']
+  [OK ] 2g_empty_capture_REFUSES READER SAW ZERO `Time =` SAMPLES -- the capture is empty or is not a primal; ref
+  [OK ] 2h_equation_absent_in_window_REJECTED ['R2:he_absent_in_window']
+D4S_F3S_ACCEPT SELFTEST pass=18 fail=0
+D4S_F3S_ACCEPT SELFTEST d4s_f3s_accept.py constants EQUATIONS=U0,U1,U2,he,p,nuTilda WINDOW_ITERS=200 STATIONARITY_TOL=0.001 MIN_WINDOW_SAMPLES=3 CONTINUITY_BOUND=1e-06 END_TIME=1000 mode=python3 -O
+  [OK ] 0_ast_counter_sees_a_planted_assert 
+  [OK ] 0_ast_Assert_zero_in_this_module 
+  [OK ] 1_PATCHED_D4_F3_has_primal_blocks n=22
+  [OK ] 1_PATCHED_D4_F3_primal001_accepted nuTilda r_end=9.780100659e-06 max_drift=1.022e-10 cont=1.891e-09 failures=[]
+  [OK ] 1_PATCHED_D4_F3_all_22_complete_primals_accepted accepted=22
+  [OK ] 1_SHIPPED_D4S_F3r2_has_primal_blocks n=1
+  [OK ] 1_SHIPPED_D4S_F3r2_primal001_accepted nuTilda r_end=1.115891818e-05 max_drift=1.326e-07 cont=1.959e-09 failures=[]
+  [OK ] 1_SHIPPED_D4S_F3r2_all_1_complete_primals_accepted accepted=1
+  [OK ] 1_measured_worst_drift_below_tol_by_>=100x worst per eq {'U0': '2.63e-07', 'U1': '4.08e-07', 'U2': '5.22e-07', 'he': '1.94e-06', 'p': '1.85e-07', 'nuTilda': '1.33e-07'} ; tol 1e-03 ; margin 516x
+  [OK ] 1_blind_to_the_1e-5_side SHIPPED nuTilda 1.115891818e-05 (> 1e-5) ACCEPTED; PATCHED 9.780100659e-06 (< 1e-5) ACCEPTED
+  [OK ] 2a_planted_1.2pct_drift_at_800_REJECTED ['R2:nuTilda_drift_1.200e-02_>_1.0e-03']
+  [OK ] 2b_planted_0.09pct_drift_ACCEPTED []
+  [OK ] 2c_planted_nan_REJECTED ['R4:U0_r_end_not_finite_positive']
+  [OK ] 2d_planted_continuity_2.5e-5_REJECTED ['R3:continuity_sum_local_2.500e-05_>_1.0e-06']
+  [OK ] 2e_missing_End_REJECTED ['R1:no_End_line']
+  [OK ] 2f_truncated_at_700_REJECTED ['R1:no_End_line', 'R1:endTime_700_!=_registered_1000']
+  [OK ] 2g_empty_capture_REFUSES READER SAW ZERO `Time =` SAMPLES -- the capture is empty or is not a primal; ref
+  [OK ] 2h_equation_absent_in_window_REJECTED ['R2:he_absent_in_window']
+D4S_F3S_ACCEPT SELFTEST pass=18 fail=0

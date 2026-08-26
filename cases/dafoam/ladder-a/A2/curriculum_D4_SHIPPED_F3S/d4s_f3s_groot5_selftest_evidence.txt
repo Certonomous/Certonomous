@@ -1,0 +1,18 @@
+D4S-F3S G-ROOT.5 SELFTEST 2026-08-26T22:39:04Z launcher_md5=d65da2e06d5ec171d1ae6501728d80b3
+  [OK ] G-ROOT.5 completes at :209, first destructive op at :290
+  [OK ] zero backticks on any executable line (297 executable lines)
+  [OK ] (a) live container d4sf3s_F-S_selftest_20260826T223904Z -> rc=3: ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [d4sf3s_F-S_selftest_20260826T223904Z]
+  [OK ] (b) live pid 548410 cwd=/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3S-a2-wing-cdmin -> rc=3: ABORT G-ROOT.5 driver pidfile /home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3S-a2-wing-cdmin/d4s_f3s_driver.pid names LIVE pid 548410 (ances
+  [OK ] (b2) stale pidfile ignored; instrument md5s passed; bogus image aborted at the digest check (rc=4) -- nothing staged
+  [OK ] (c) F-S with the SHIPPED image -> G-ROOT.5, md5s, digest, G-ROW all PASS; stopped at WORK absent (rc=5), nothing staged
+  [OK ] (c2) F-P with the PATCHED image -> G-ROW PASS; stopped at WORK absent (rc=5)
+  [OK ] (d) F-S with the PATCHED image -> G-ROW rc=4: ABORT G-ROW arm F-S is registered on row SHIPPED; got ROW=PATCHED (dafoam-idwarp-rot:v1).
+  [OK ] (d2) F-P with the SHIPPED image -> G-ROW rc=4
+  [OK ] (e) BASE=D4-SHIPPED root -> G-ROOT.1 rc=3 (its evidence protected)
+  [OK ] (e2) BASE=D4 root -> G-ROOT.1 rc=3
+  [OK ] (f) arm F3 is not this item's -> rc=64 usage
+  [OK ] sacrificial root unchanged (12 entries), no arm directory staged by any leg
+  [OK ] D4-SHIPPED O/ untouched (7962 entries, OptView.hst [1787728010 20471808])
+  [OK ] no d4sf3s_ container survives
+  [OK ] registered root REMOVED and ABSENT at 2026-08-26T22:39:07Z: /home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3S-a2-wing-cdmin
+D4S-F3S G-ROOT5 SELFTEST pass=16 fail=0 2026-08-26T22:39:07Z

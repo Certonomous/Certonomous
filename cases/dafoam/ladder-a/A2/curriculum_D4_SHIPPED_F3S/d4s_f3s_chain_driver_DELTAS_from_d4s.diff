@@ -1,0 +1,189 @@
+--- ../curriculum_D4_SHIPPED/d4s_chain_driver.sh	2026-08-26 17:31:18.067683198 +0000
++++ d4s_f3s_chain_driver.sh	2026-08-26 22:38:05.265677493 +0000
+@@ -1,36 +1,44 @@
+ #!/usr/bin/env bash
+-# D4-SHIPPED chain driver (PREREGISTRATION.md ADDENDUM 2).  Runs the named
+-# arms IN ORDER through the frozen launcher and STOPS AT THE FIRST NON-ZERO
+-# rc.  Started ONLY as
+-#   setsid nohup bash d4s_chain_driver.sh ACC F3 > <root>/chain_launch.out 2>&1 &
+-# so it is its own session leader and outlives the agent that started it --
+-# the failure this file exists not to repeat is D4-SHIPPED arm O, whose host
+-# poller died with the agent fleet and whose ledger row was never written.
+-#
+-# rc per arm = the launcher's exit = `docker inspect .State.ExitCode`, written
+-# HERE into STATUS.<arm> as `rc=<n> stamp=<utc> ...`.  Nothing trusts `$?` of a
+-# detached line.  Before each arm: the WINDOWED H5 gate (45 samples over 60 s,
+-# refuse on ANY sample below the floor -- never fire on one sample) and an
+-# aggregate-memory check (live container caps + this cap + host non-container
+-# RSS under the ceiling).  cwd is the CASE directory, never the run root
+-# (G-ROOT.5 b).  The driver's own pidfile is written so a second driver or a
+-# queue-runner re-fire is refused by the launcher's G-ROOT.5.
+-# Permission for detached launches: bc0e687e (Sanaa, boarded verbatim).
++# D4S-F3S chain driver -- D4-SHIPPED's d4s_chain_driver.sh (Addendum 2b/2d,
++# md5 01ddb189...) parameterised for the two endpoint arms F-S (SHIPPED image)
++# and F-P (PATCHED image) under ONE stationarity acceptance rule.  Runs the
++# named arms IN ORDER through the frozen launcher and STOPS AT THE FIRST
++# NON-ZERO rc.  Started ONLY detached (the queue runner's setsid nohup form;
++# permission bc0e687e) so it outlives the agent that filed it.
++#   rc per arm = the launcher's exit = docker inspect .State.ExitCode, written
++#   HERE into STATUS.<arm>; nothing trusts $? of a detached line.
++#   Before each arm: WINDOWED H5 (45 samples / 60 s, refuse on ANY sample below
++#   the floor), ALREADY_BOUGHT, AGGREGATE wait-and-retry (bounded 4 h).
++#   FIRST FIRE creates the run root (mode 777, ITEM= ledger header); a later
++#   fire finds it and stages nothing over a present arm (the stager refuses an
++#   existing destination; the launcher refuses a live arm, G-ROOT.5).
++#   At chain end the FROZEN grader runs on the artefacts; its rc is
++#   INFRASTRUCTURE (L-342) and is labelled so.  CHAIN_DONE is written at exit.
+ set -uo pipefail
+ HERE="$(cd "$(dirname "$0")" && pwd)"
+-LAUNCHER="$HERE/d4s_run_arm.sh"
+-IMG=dafoam/opt-packages:latest
+-BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin
++LAUNCHER="$HERE/d4s_f3s_run_arm.sh"
++STAGER="$HERE/d4s_f3s_stage_arm.sh"
++GRADER="$HERE/d4s_f3s_grade.py"
++BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3S-a2-wing-cdmin
++ITEM=D4S-F3S
+ PERMISSION=bc0e687e
+ H5_FLOOR_GIB=16.0; H5_SAMPLES=45; H5_WINDOW_S=60; AGG_CEILING_GIB=30.6
+-# The launcher is FROZEN (Addendum 2 md5); asserted before EVERY arm so a
+-# mid-chain edit cannot change what the later arms run.
+-# MD5_LAUNCHER=51987c2f5c583bc910ffe0f4415b09f5   # STRUCK (Addendum 2d): the Addendum-2 launcher blob
+-MD5_LAUNCHER=506c99e6c8688805a3f8e9d8b1508aaf     # Addendum 2d launcher blob (F3/ACC staged-copy path, D4-DEF-4 step)
+-STAGER="$HERE/d4s_stage_endpoint_arm.sh"
+-test $# -ge 1 || { echo "ABORT usage: d4s_chain_driver.sh <ARM...>"; exit 64; }
+-ARMS="$*"; STATUS="$BASE/STATUS.chain"; PIDFILE="$BASE/d4s_driver.pid"
++# FROZEN instrument md5s (PREREGISTRATION.md section 6); asserted before EVERY arm.
++MD5_LAUNCHER=d65da2e06d5ec171d1ae6501728d80b3
++MD5_GRADER=2ed0651c786cb5bd8832f8660ba6c670
++img_of() { case "$1" in F-S) echo dafoam/opt-packages:latest ;; F-P) echo dafoam-idwarp-rot:v1 ;; *) echo "" ;; esac; }
++cap_mem_gib() { case "$1" in F-S|F-P) echo 12 ;; *) echo 12 ;; esac; }
++test $# -ge 1 || { echo "ABORT usage: d4s_f3s_chain_driver.sh <F-S|F-P ...>"; exit 64; }
++for A in "$@"; do test -n "$(img_of "$A")" || { echo "ABORT unknown arm $A (F-S|F-P)"; exit 64; }; done
++ARMS="$*"; STATUS="$BASE/STATUS.chain"; PIDFILE="$BASE/d4s_f3s_driver.pid"
+ cd "$HERE" || exit 4
++# ---- FIRST FIRE: create the registered root (asserted ABSENT at freeze) ----
++if [ ! -d "$BASE" ]; then
++  mkdir "$BASE" || { echo "ABORT cannot create run root $BASE"; exit 4; }
++  chmod 777 "$BASE" || { echo "ABORT cannot chmod run root"; exit 4; }
++  echo "ITEM=$ITEM" > "$BASE/ledger.txt"
++  echo "D4SF3S_ROOT_CREATED base=$BASE stamp=$(date -u +%Y%m%dT%H%M%SZ)"
++fi
+ if [ -f "$PIDFILE" ]; then
+   OLD=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
+   if [ -n "$OLD" ] && kill -0 "$OLD" 2>/dev/null; then
+@@ -38,34 +46,34 @@
+   fi
+ fi
+ echo "$$" > "$PIDFILE"
+-trap 'rm -f "$PIDFILE"' EXIT
+-echo "D4S_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] permission=$PERMISSION"
+-echo "chain=started arms=[$ARMS] pid=$$ stamp=$(date -u +%Y%m%dT%H%M%SZ) permission=$PERMISSION" > "$STATUS"
++trap 'rm -f "$PIDFILE"; echo "chain_done stamp=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ arms=[$ARMS]" >> "$BASE/CHAIN_DONE"' EXIT
++echo "D4SF3S_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] permission=$PERMISSION"
++echo "chain=started arms=[$ARMS] pid=$$ stamp=$(date -u +%Y%m%dT%H%M%SZ) permission=$PERMISSION" >> "$STATUS"
+ mem_gib() { python3 -c "print('%.2f' % ($(awk '/MemAvailable/{print $2}' /proc/meminfo)/1048576.0))"; }
+-cap_mem_gib() { case "$1" in P1) echo 4;; ACC) echo 8;; *) echo 12;; esac; }
+ for ARM in $ARMS; do
+   echo "$MD5_LAUNCHER  $LAUNCHER" | md5sum -c - || { echo "ABORT launcher md5 drifted before arm $ARM"; echo "chain=ABORT arm=$ARM reason=launcher_md5 stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 4; }
+-  # ---- STATUS.<arm> is OPENED here (preflight line) and APPENDED from now on;
+-  # ---- the LAST line carries the rc.  Every AGGREGATE_WAIT is a line in it.
+-  echo "preflight arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ) driver_pid=$$ permission=$PERMISSION" > "$BASE/STATUS.$ARM"
+-  # ---- ADDENDUM 2d: the ENDPOINT arms F3/ACC run in a staged COPY of O/.
+-  # ---- Stage it here (D4's frozen path) if absent; a present copy without
+-  # ---- its epoch, or a stale copy, is REFUSED -- never re-staged over.
+-  if [ "$ARM" = "F3" ] || [ "$ARM" = "ACC" ]; then
+-    if [ ! -d "$BASE/$ARM" ]; then
+-      bash "$STAGER" "$ARM" > "$BASE/${ARM}_stage.out" 2>&1
+-      src=$?
+-      if [ "$src" -ne 0 ]; then
+-        echo "ABORT staging of $ARM failed rc=$src (see ${ARM}_stage.out)"
+-        echo "rc=$src stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=STAGING_REFUSED stage_out=${ARM}_stage.out permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+-        echo "chain=STOPPED_STAGING arm=$ARM rc=$src stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit "$src"
+-      fi
+-      echo "D4S_STAGED arm=$ARM copy_epoch=$(cat "$BASE/$ARM/.d4_stage_${ARM}_copy_epoch") evidence=${ARM}_STAGING_EVIDENCE.txt"
+-    elif [ ! -f "$BASE/$ARM/.d4_stage_${ARM}_copy_epoch" ]; then
+-      echo "ABORT $BASE/$ARM exists without a copy epoch -- not a staged copy; REFUSED, nothing removed"
+-      echo "rc=5 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=UNSTAGED_DIR_PRESENT permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+-      echo "chain=STOPPED_STAGING arm=$ARM rc=5 stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 5
++  IMG=$(img_of "$ARM")
++  echo "preflight arm=$ARM image=$IMG stamp=$(date -u +%Y%m%dT%H%M%SZ) driver_pid=$$ permission=$PERMISSION" > "$BASE/STATUS.$ARM"
++  # ---- ALREADY BOUGHT: a launcher-written rc=0 row for this arm refuses a re-fire
++  if grep -aq "^ARM=$ARM .* rc=0 " "$BASE/ledger.txt" 2>/dev/null; then
++    echo "ABORT ALREADY_BOUGHT arm $ARM has an rc=0 ledger row; a second record for one run is the defect."
++    echo "chain=REFUSED_ALREADY_BOUGHT arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 3
++  fi
++  # ---- STAGE the arm's copy of its source O/ if absent; a present copy without
++  # ---- its epoch is REFUSED, never re-staged over.
++  if [ ! -d "$BASE/$ARM" ]; then
++    bash "$STAGER" "$ARM" > "$BASE/${ARM}_stage.out" 2>&1
++    src=$?
++    if [ "$src" -ne 0 ]; then
++      echo "ABORT staging of $ARM failed rc=$src (see ${ARM}_stage.out)"
++      echo "rc=$src stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=STAGING_REFUSED stage_out=${ARM}_stage.out permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
++      echo "chain=STOPPED_STAGING arm=$ARM rc=$src stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit "$src"
+     fi
++    echo "D4SF3S_STAGED arm=$ARM copy_epoch=$(cat "$BASE/$ARM/.d4s_f3s_stage_${ARM}_copy_epoch") evidence=${ARM}_STAGING_EVIDENCE.txt"
++  elif [ ! -f "$BASE/$ARM/.d4s_f3s_stage_${ARM}_copy_epoch" ]; then
++    echo "ABORT $BASE/$ARM exists without a copy epoch -- not a staged copy; REFUSED, nothing removed"
++    echo "rc=5 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=UNSTAGED_DIR_PRESENT permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
++    echo "chain=STOPPED_STAGING arm=$ARM rc=5 stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 5
+   fi
+   # ---- H5: a WINDOW of MemAvailable, every sample above the floor
+   H5_FILE="$BASE/${ARM}_h5_window_$(date -u +%Y%m%dT%H%M%SZ).txt"; BELOW=0; N=0; MIN=999; MAX=0
+@@ -78,27 +86,18 @@
+   done
+   echo "D4S_H5_WINDOW arm=$ARM n=$N window_s=$H5_WINDOW_S floor_GiB=$H5_FLOOR_GIB min_GiB=$MIN max_GiB=$MAX samples_below_floor=$BELOW file=$(basename "$H5_FILE")"
+   if [ "$BELOW" -gt 0 ] || [ "$N" -ne "$H5_SAMPLES" ]; then
+-    echo "ABORT H5 $BELOW of $N samples below $H5_FLOOR_GIB GiB.  A batch that OOMs is worse than a batch that queues.  REFUSED."
++    echo "ABORT H5 $BELOW of $N samples below $H5_FLOOR_GIB GiB.  REFUSED."
+     echo "rc=6 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=H5_REFUSED below=$BELOW min_GiB=$MIN permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+     echo "chain=STOPPED_H5 arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 6
+   fi
+-  # ---- AGGREGATE: live container caps + this cap + host non-container RSS
+-  # ---- ALREADY BOUGHT (Addendum 2b): a launcher-written rc=0 row for this
+-  # ---- arm means a re-fire (e.g. the queue runner re-launching this entry
+-  # ---- after completion) would re-stage a graded arm.  REFUSED.
+-  if grep -aq "^ARM=$ARM .* rc=0 " "$BASE/ledger.txt" 2>/dev/null; then
+-    echo "ABORT ALREADY_BOUGHT arm $ARM has an rc=0 ledger row; a second record for one run is the defect."
+-    echo "chain=REFUSED_ALREADY_BOUGHT arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 3
+-  fi
+-  # ---- AGGREGATE: WAIT-AND-RETRY (Addendum 2b), poll 30 s, bounded 4 h;
+-  # ---- every wait written to STATUS.<arm>; refuse-and-BLOCK at the bound.
++  # ---- AGGREGATE: WAIT-AND-RETRY, poll 30 s, bounded 4 h; refuse-and-BLOCK at the bound
+   WAITED=0; AGG_BOUND_S=14400; AGG_SERIES="$BASE/${ARM}_aggregate_series.txt"
+   while true; do
+     AGG=$(python3 "$HERE/d4s_aggregate_memory.py" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
+     echo "$(date -u +%s) $AGG" >> "$AGG_SERIES"
+     if [ "$(printf '%s' "$AGG" | python3 -c "import sys,json; print(1 if json.load(sys.stdin).get('ok') else 0)")" = "1" ]; then break; fi
+     if [ "$WAITED" -ge "$AGG_BOUND_S" ]; then
+-      echo "ABORT AGGREGATE still over $AGG_CEILING_GIB GiB after ${WAITED}s.  BLOCKED.  Series: $(basename "$AGG_SERIES")"
++      echo "ABORT AGGREGATE still over $AGG_CEILING_GIB GiB after ${WAITED}s.  BLOCKED."
+       echo "rc=6 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=AGGREGATE_BLOCKED_AT_BOUND waited=$WAITED series=$(basename "$AGG_SERIES") permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+       echo "chain=BLOCKED_AGGREGATE arm=$ARM waited=$WAITED stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 6
+     fi
+@@ -106,13 +105,22 @@
+     sleep 30; WAITED=$((WAITED+30))
+   done
+   echo "D4S_AGGREGATE arm=$ARM waited=$WAITED $AGG"
+-  echo "D4S_DRIVER arm=$ARM begin=$(date -u +%Y%m%dT%H%M%SZ) ppid_now=$PPID permission=$PERMISSION"
++  echo "D4SF3S_DRIVER arm=$ARM image=$IMG begin=$(date -u +%Y%m%dT%H%M%SZ) ppid_now=$PPID permission=$PERMISSION"
+   bash "$LAUNCHER" "$ARM" "$IMG" > "$BASE/${ARM}_launch.out" 2>&1
+   rc=$?
+-  echo "D4S_DRIVER arm=$ARM end=$(date -u +%Y%m%dT%H%M%SZ) rc=$rc"
++  echo "D4SF3S_DRIVER arm=$ARM end=$(date -u +%Y%m%dT%H%M%SZ) rc=$rc"
+   echo "rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM source=launcher_exit=docker_inspect_ExitCode launch_out=${ARM}_launch.out h5_min_GiB=$MIN permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+   echo "arm=$ARM rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"
+   if [ "$rc" -ne 0 ]; then echo "chain=STOPPED_AT_FIRST_NONZERO arm=$ARM rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit "$rc"; fi
+ done
++# ---- chain end: the FROZEN grader on the artefacts (rc is INFRASTRUCTURE, L-342)
++GST=$(date -u +%Y%m%dT%H%M%SZ)
++if echo "$MD5_GRADER  $GRADER" | md5sum -c - ; then
++  python3 "$GRADER" --base "$BASE" --out "$BASE/d4s_f3s_grade_$GST.json" > "$BASE/grade_$GST.out" 2>&1
++  grc=$?
++  echo "grade_rc=$grc stamp=$GST out=d4s_f3s_grade_$GST.json note=grader-exit-status-INFRASTRUCTURE-L-342-not-the-verdict" >> "$STATUS"
++else
++  echo "grade_rc=NOT_RUN stamp=$GST reason=grader_md5_drift note=INFRASTRUCTURE-L-342" >> "$STATUS"
++fi
+ echo "chain=COMPLETE stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"
+ exit 0
