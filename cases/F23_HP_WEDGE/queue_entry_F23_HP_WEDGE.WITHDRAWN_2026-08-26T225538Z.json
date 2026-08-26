@@ -14,7 +14,6 @@
   "cost_basis": "derived, not measured: 131072 / 524288 / 2097152 cells x 4000 SIMPLE iterations at 1.11 / 1.88 / 3.18 us per cell-iteration, the rate DERIVED from F17's MEASURED simpleFoam record of a DIFFERENT case (verification/runs/F17_runs/fine/log.simpleFoam: 24576 cells x 4000 iterations, ClockTime 58 s = 0.59 us/cell-iteration) grown +30 % per doubling of the cell count (F17b_KV40_EXT_PREREGISTRATION.md section 8); VMFL005's simpleFoam wedge measured 2.1 us/cell-iteration at 16k cells and is disclosed against it = 583 + 3940 + 26637 core-s = 519.4 core-min (9.7 / 65.7 / 444.0 per level), ideal 4-rank scaling assumed for the wall projection (~2.2 h on 4 ranks); registered CAP 1100 core-min (prereg section 7); dollars at the owner-stated $0.0513/core-h, reported-by-owner: $0.44 estimate, $0.94 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
   "memory_floor_gb": 4.0,
   "enqueued_by": "cfd lab-lane, 2026-08-26, for cfd-supervisor. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is NOT discharged by this file. HELD under the case directory until the supervisor acknowledges the freeze sha and moves it into verification/queue/cfd/.",
-
   "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
   "capability_grid_cell_068c2bf0": "axisym . steady . incompressible",
   "run_root": "/home/ubuntu/Certonomous/verification/runs/F23_HP_WEDGE_runs -- ABSENT at registration (rule-2 absence condition, prereg section 8); the launcher creates it and REFUSES any pre-existing 0/, numeric time or processor* directory in the run root or a level directory.",
@@ -25,6 +24,15 @@
   "registered_prediction": "G-F23-1 normalised-profile E2 CONVERGING with observed order ~2 (model 2.003 / 2.009), fine value in [2.376227e-06, 2.138605e-05]; G-F23-2 f.Re CONVERGING (model orders 2.017 / 2.072), fine value in [63.998628773, 64.001371227] (exact 64); Class C plateau on the graded quantity (40 checkpoints, window 12); rule 5 limb 1 is a Ux initial-residual census (<= 1e-8) plus a transverse-field floor; Uy/Uz/p residuals printed, excluded at freeze (N-AV8); N-AV9 wedge bias carried (half angle 0.04 deg; bias < 1/10 of the fine discretisation error)",
   "mesh_admission": "coarse level built and checkMesh'd on a scratch copy: 131072 cells, Mesh OK, max non-orthogonality 0 deg (gate 70), max skewness 0.333 (gate 4), max aspect ratio 2.0 (advisory 1000), wedge patches 0.0400002766821 deg (registered 0.04)",
   "smoke_arm": "one real simpleFoam iteration on 4 ranks at the coarse level (131072 cells) in scratch: rc 0, Ux initial residual 1 -> 7.2e-05, max|Ux| after one iteration 1.139e-03 (non-zero: the driven component moves), max|Uz| 0",
-  "grade_cmd": ["python3", "/home/ubuntu/Certonomous/cases/F23_HP_WEDGE/grade_f23.py", "--prereg-commit=a5f335a640994da21c0ae570c30090c935215b84"],
-  "verdict_state": "PENDING"
+  "grade_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/cases/F23_HP_WEDGE/grade_f23.py",
+    "--prereg-commit=a5f335a640994da21c0ae570c30090c935215b84"
+  ],
+  "verdict_state": "WITHDRAWN-PRE-COMPUTE",
+  "withdrawn": {
+    "utc": "2026-08-26T22:55:38Z",
+    "by": "cfd-supervisor",
+    "reason": "L-346 pre-compute: the registered SIMPLE 0.7/0.3 + central form at 4000 fixed iterations was measured NON-CONVERGING at fine cross-sections by the F25_DUCT3D instrument arms (fc4c479b prereg section 5.1); F23 Amendment 1 (solver form + iteration floor registered from a measured scratch arm) ordered before any compute. Entry was HELD by the runner from 22:08Z to withdrawal, never LAUNCHED; run root ABSENT."
+  }
 }
