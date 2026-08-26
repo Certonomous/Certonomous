@@ -12,7 +12,9 @@ ONE valid entry per tick, only when the box is under the ceiling, round-robin ac
 teams, oldest entry first within a team.
 
 WHAT IT NEVER DOES.  It never kills anything: a cap is a runaway guard that REPORTS
-(CAP_OVERRUN.txt beside the run) and never terminates (COMPUTE_BUDGET_CHARTER).  It never
+(CAP_OVERRUN.txt beside the run at 1.00 x the entry's `cap_core_min_registered`, or
+ESTIMATE_OVERRUN.txt at 1.10 x the estimate when no cap is registered) and never terminates
+(COMPUTE_BUDGET_CHARTER).  It never
 deletes anything: a refused entry is MOVED to <team>/refused/ with its reasons beside it.
 It never edits, stages or commits in git; the only git it runs is the validator's
 read-only allowlist.  It never dispatches to another host: an entry carrying `host`
@@ -205,7 +207,7 @@ def launch(entry: dict, path: Path, root: Path, log: Log) -> tuple[int, int]:
         physics_critical=[f"STATUS.{case_id} (rc inside the detached wrapper)",
                           "the case's own log End line, endTime fields and 0/ age guard"],
         infrastructure=["_launch.pid", "_launch.sid", "_launch.utc", "_launch.started_epoch",
-                        "LAUNCH_LOG.tsv row", "CAP_OVERRUN.txt", "cost_core_min_estimate",
+                        "LAUNCH_LOG.tsv row", "CAP_OVERRUN.txt", "ESTIMATE_OVERRUN.txt", "cost_core_min_estimate",
                         "memory_floor_gb", "runner.log lines"],
         rule="a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT "
              "reported beside the verdict and voids only the cost claim; only a "
@@ -221,8 +223,20 @@ def launch(entry: dict, path: Path, root: Path, log: Log) -> tuple[int, int]:
     return pid, sid
 
 
-def cap_watch(root: Path, log: Log) -> None:
-    """Runaway guard that REPORTS. Never kills."""
+def cap_watch(root: Path, log: Log, now: float | None = None) -> None:
+    """Runaway guard that REPORTS. Never kills.
+
+    Two flags, keyed on what the entry actually registered (cfd supervisor's order,
+    2026-08-26 17:46Z, after F20's flag fired at 1.10 x its ESTIMATE while the run sat at
+    29 % of its CAP):
+      * entry carries a numeric `cap_core_min_registered` > 0  ->  `CAP_OVERRUN.txt` at
+        1.00 x cap x 60 / ranks seconds elapsed, and NOT before;
+      * no such field  ->  `ESTIMATE_OVERRUN.txt` at 1.10 x cost_core_min_estimate x 60 /
+        ranks, whose text says it is an ESTIMATE overrun and not a cap.
+    Both say REPORTED NOT ENFORCED; neither kills (COMPUTE_BUDGET_CHARTER).  `now` is
+    injectable so --selftest can drive the clock; the daemon passes nothing.
+    """
+    t_now = time.time() if now is None else float(now)
     for team in TEAMS:
         d = root / team / "launched"
         if not d.is_dir():
@@ -237,16 +251,31 @@ def cap_watch(root: Path, log: Log) -> None:
             if status.exists() or "started_epoch" not in li:
                 continue
             ranks = max(1, int(meta.get("ranks", 1)))
-            allowed_wall = float(meta["cost_core_min_estimate"]) * 60.0 / ranks * 1.10
-            elapsed = time.time() - float(li["started_epoch"])
-            flag = Path(meta["cwd"]) / "CAP_OVERRUN.txt"
+            est = float(meta["cost_core_min_estimate"])
+            elapsed = t_now - float(li["started_epoch"])
+            cap = meta.get("cap_core_min_registered")
+            has_cap = isinstance(cap, (int, float)) and not isinstance(cap, bool) and cap > 0
+            if has_cap:
+                allowed_wall = float(cap) * 60.0 / ranks * 1.00
+                flag = Path(meta["cwd"]) / "CAP_OVERRUN.txt"
+                text = (f"{utc()} CAP OVERRUN REPORTED, NOT ENFORCED: case {meta['case_id']} "
+                        f"elapsed {elapsed:.0f} s > 1.00 x registered CAP {allowed_wall:.0f} s "
+                        f"({cap} core-min cap / {ranks} ranks; estimate {est} core-min). "
+                        f"The run was NOT killed (caps report; COMPUTE_BUDGET_CHARTER).\n")
+                word = "CAP-OVERRUN"
+            else:
+                allowed_wall = est * 60.0 / ranks * 1.10
+                flag = Path(meta["cwd"]) / "ESTIMATE_OVERRUN.txt"
+                text = (f"{utc()} ESTIMATE OVERRUN REPORTED, NOT ENFORCED -- THIS IS AN ESTIMATE "
+                        f"OVERRUN, NOT A CAP: the entry for case {meta['case_id']} carries no "
+                        f"cap_core_min_registered, so the only registered figure is the estimate; "
+                        f"elapsed {elapsed:.0f} s > 1.10 x estimate {allowed_wall/1.1:.0f} s "
+                        f"({est} core-min / {ranks} ranks). No cap was crossed by this record. "
+                        f"The run was NOT killed (caps report; COMPUTE_BUDGET_CHARTER).\n")
+                word = "ESTIMATE-OVERRUN"
             if elapsed > allowed_wall and not flag.exists():
-                flag.write_text(
-                    f"{utc()} CAP OVERRUN REPORTED, NOT ENFORCED: case {meta['case_id']} "
-                    f"elapsed {elapsed:.0f} s > 1.10 x registered {allowed_wall/1.1:.0f} s "
-                    f"({meta['cost_core_min_estimate']} core-min / {ranks} ranks). "
-                    f"The run was NOT killed (caps report; COMPUTE_BUDGET_CHARTER).\n")
-                log(f"CAP-OVERRUN reported for {meta['case_id']} -> {flag}")
+                flag.write_text(text)
+                log(f"{word} reported for {meta['case_id']} -> {flag}")
 
 
 def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
@@ -420,6 +449,53 @@ def selftest() -> int:
     check("remote-host entry -> SKIP, stays queued, no launch", r6 == "HELD" and
           (root / "cfd" / "SELFTEST_REMOTE.json").exists() and
           len((root / "LAUNCH_LOG.tsv").read_text().splitlines()) == 2)
+
+    # control 7: cap watch keys on the registered CAP when the entry carries one --
+    # CAP_OVERRUN.txt at 1.00 x cap x 60 / ranks, and NOT before; never ESTIMATE_OVERRUN.txt
+    cap_dir = tmp / "case_cap"; cap_dir.mkdir()
+    t0 = 1_000_000.0
+    capped = dict(good); capped["case_id"] = "SELFTEST_CAP"; capped["cwd"] = str(cap_dir)
+    capped["cost_core_min_estimate"] = 0.01           # 0.66 s at 1.10x -- long past at every probe below
+    capped["cap_core_min_registered"] = 1.0           # 60 s at 1.00x, ranks 1
+    capped["_launch"] = dict(status_file=str(cap_dir / "STATUS.SELFTEST_CAP"), started_epoch=t0)
+    (root / "cfd" / "launched" / "SELFTEST_CAP.json").write_text(json.dumps(capped))
+    cap_watch(root, log, now=t0 + 59.0)
+    before = not (cap_dir / "CAP_OVERRUN.txt").exists() and not (cap_dir / "ESTIMATE_OVERRUN.txt").exists()
+    cap_watch(root, log, now=t0 + 61.0)
+    cap_txt = (cap_dir / "CAP_OVERRUN.txt").read_text() if (cap_dir / "CAP_OVERRUN.txt").exists() else ""
+    check("entry WITH cap_core_min_registered -> CAP_OVERRUN.txt at 1.00 x cap, not at 59 s, present at 61 s",
+          before and "1.00 x registered CAP 60 s" in cap_txt and "NOT ENFORCED" in cap_txt,
+          f"before={before} text={cap_txt.strip()[:60]!r}")
+    check("entry WITH cap never gets ESTIMATE_OVERRUN.txt (estimate long exceeded, cap governs)",
+          not (cap_dir / "ESTIMATE_OVERRUN.txt").exists())
+    # control 7b: the guard mutated -- strip the cap field and the SAME record must flip to the
+    # estimate path, so the CAP file above is coming from the field and not from elsewhere
+    est_dir = tmp / "case_est"; est_dir.mkdir()
+    uncapped = dict(capped); uncapped["case_id"] = "SELFTEST_EST"; uncapped["cwd"] = str(est_dir)
+    uncapped.pop("cap_core_min_registered")
+    uncapped["cost_core_min_estimate"] = 1.0          # 66 s at 1.10x, ranks 1
+    uncapped["_launch"] = dict(status_file=str(est_dir / "STATUS.SELFTEST_EST"), started_epoch=t0)
+    (root / "cfd" / "launched" / "SELFTEST_EST.json").write_text(json.dumps(uncapped))
+    cap_watch(root, log, now=t0 + 65.0)
+    before_e = not (est_dir / "ESTIMATE_OVERRUN.txt").exists() and not (est_dir / "CAP_OVERRUN.txt").exists()
+    cap_watch(root, log, now=t0 + 67.0)
+    est_txt = (est_dir / "ESTIMATE_OVERRUN.txt").read_text() if (est_dir / "ESTIMATE_OVERRUN.txt").exists() else ""
+    check("entry WITHOUT cap -> ESTIMATE_OVERRUN.txt at 1.10 x estimate, not at 65 s, present at 67 s, says NOT A CAP",
+          before_e and "ESTIMATE OVERRUN" in est_txt and "NOT A CAP" in est_txt and "NOT ENFORCED" in est_txt,
+          f"before={before_e} text={est_txt.strip()[:60]!r}")
+    check("entry WITHOUT cap never gets CAP_OVERRUN.txt", not (est_dir / "CAP_OVERRUN.txt").exists())
+    # control 7c: a STATUS file (run finished) silences both watches
+    fin_dir = tmp / "case_fin"; fin_dir.mkdir()
+    finished = dict(uncapped); finished["case_id"] = "SELFTEST_FIN"; finished["cwd"] = str(fin_dir)
+    finished["_launch"] = dict(status_file=str(fin_dir / "STATUS.SELFTEST_FIN"), started_epoch=t0)
+    (fin_dir / "STATUS.SELFTEST_FIN").write_text("launcher_rc=0\n")
+    (root / "cfd" / "launched" / "SELFTEST_FIN.json").write_text(json.dumps(finished))
+    cap_watch(root, log, now=t0 + 10_000.0)
+    check("finished entry (STATUS present) -> neither overrun file, however late",
+          not (fin_dir / "ESTIMATE_OVERRUN.txt").exists() and not (fin_dir / "CAP_OVERRUN.txt").exists())
+    watch_log = (tmp / "runner.log").read_text()
+    check("runner.log carries one CAP-OVERRUN and one ESTIMATE-OVERRUN line, and they do not read alike",
+          watch_log.count("CAP-OVERRUN reported") == 1 and watch_log.count("ESTIMATE-OVERRUN reported") == 1)
 
     full_log = (tmp / "runner.log").read_text()
     check("EMPTY and LAUNCHED outputs do not read alike",

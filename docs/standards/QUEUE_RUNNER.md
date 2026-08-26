@@ -32,9 +32,21 @@ HEAD `bc0e687e`; permission rules added by her 2026-08-26 (`Bash(setsid *)`,
    every outcome; measured `4225ef0c`, `83769288`). The entry is moved to
    `<team>/launched/<id>.json` with `_launch` (utc, pid, sid, status file) appended,
    and one line goes to `verification/queue/LAUNCH_LOG.tsv`.
-5. Cap watch: if a launched case has no STATUS after 1.10 × (registered core-min × 60 /
-   ranks) seconds, `CAP_OVERRUN.txt` is written beside it. **Caps report; they never
-   kill** (`COMPUTE_BUDGET_CHARTER.md`).
+5. Cap watch — two flags, keyed on what the entry registered (*edited 2026-08-26T20:52:53Z on the cfd
+   supervisor's 17:46Z order, after F20's flag fired at 1.10 × its ESTIMATE while the run
+   sat at 29 % of its CAP; this document is not frozen*):
+   - the entry carries the **optional numeric field `cap_core_min_registered`** →
+     `CAP_OVERRUN.txt` is written beside the run when it has no STATUS after
+     **1.00 × cap × 60 / ranks** seconds, and not before;
+   - the field is absent → `ESTIMATE_OVERRUN.txt` at **1.10 × `cost_core_min_estimate` × 60 /
+     ranks** seconds, and its text says it is an **ESTIMATE overrun, not a cap**.
+   Both files say REPORTED, NOT ENFORCED; the runner log line is `CAP-OVERRUN` or
+   `ESTIMATE-OVERRUN`; a STATUS file silences both. **Caps report; they never kill**
+   (`COMPUTE_BUDGET_CHARTER.md`). `scripts/queue_entry_check.py` accepts the optional field
+   unchanged (measured: F20's entry carrying it → `ACCEPTED`, rc 0). Both cases are planted
+   controls in `--selftest` (cap file at the cap time and not at cap − 1 s; estimate file
+   at 1.10 × estimate and not before; the same record with the cap field stripped flips
+   to the estimate path).
 
 ## What it never does
 
@@ -69,7 +81,7 @@ directory (rule 4).
 - Start: `setsid nohup python3 scripts/queue_runner.py --daemon > verification/queue/runner.out 2>&1 < /dev/null &`
 - Lock: `verification/queue/runner.pid` (refuses to start if that pid is alive).
 - Log: `verification/queue/runner.log` (one line per tick; `EMPTY`, `HELD`, `LAUNCHED`,
-  `REFUSED`, `SKIP`, `CAP-OVERRUN` are the only event words).
+  `REFUSED`, `SKIP`, `CAP-OVERRUN`, `ESTIMATE-OVERRUN` are the only event words).
 - Options: `--busy-ceiling`, `--core-fraction`, `--interval`, `--root`, `--once`.
 - Stop: `kill $(cat verification/queue/runner.pid)` — launched solvers are in their own
   sessions and are unaffected.
