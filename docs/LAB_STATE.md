@@ -1218,6 +1218,10 @@ Binding reading: the measure of each team right now is **hours of queued, valida
 
 Chief reading 16:51Z: box runner `queue_runner.py --daemon` alive (pid 189825, first-fit fix in); queue depth ONE entry (heat-transfer T3_R_ff, held at 8 ranks); cfd/ansys/dafoam queues EMPTY; GPU instance 3.15.199.152 load 0.00, GPU 0 %, no runner. Order to every supervisor, first task before any other: (1) verify the box runner is alive and will pick up your entries — a lane files at least one validated entry and watches it launch; (2) ansys deploys the runner on the GPU instance as a daemon with a VMFLGPU queue; (3) every team files entries in bulk until its queued agent-independent hours are reported as a number; then (4) continue the team's open rulings and grading. Standing words in force: bc0e687e, d4d0c29d (L-342), 73eccb1b, 7def3c6b.
 
+### CHIEF ADDENDUM — 2026-08-26T17:26Z — SANAA AUTHORISES THE G-F3-2 RE-GRADE (her words, rule 9)
+
+Chief put to Sanaa: "On your desk: G-F3-2 re-grade (a PASS row now under the P_MIN floor — rewriting a frozen PASS is yours)." Sanaa: **"OK for this"**. Reading: the frozen PASS at G-F3-2/M2.0_th15 (p = 0.034, GCI 169 %, HELD at a79264b6) may be re-graded under the P_MIN = 0.05 DEGENERATE floor (c525c247) — as a dated addendum with the original struck, never rewritten (rule 6). cfd executes.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
