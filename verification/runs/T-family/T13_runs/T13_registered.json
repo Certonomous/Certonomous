@@ -1,0 +1,194 @@
+{
+  "rung": "T13",
+  "title": "natural convection in a vertical slot, conduction regime (Batchelor 1954 parallel flow), EXACT tier",
+  "capability_grid_cell": "natural convection x laminar x 2D (docs/capability/heat-transfer_GRID.md)",
+  "solver": "buoyantBoussinesqSimpleFoam",
+  "turbulence": "laminar",
+  "dimensionality": 2,
+  "ranks": 1,
+  "physics": {
+    "L_m": 0.02,
+    "H_m": 0.32,
+    "aspect": 16,
+    "depth_m": 0.001,
+    "nu": 1.5e-05,
+    "Pr": 0.71,
+    "beta": 0.0033333333333333335,
+    "TRef": 300.0,
+    "g": 9.81,
+    "Ra_L": 100.0,
+    "Gr_L": 140.84507042253523,
+    "dT_K": 0.12113968212947407,
+    "T_hot": 300.06056984106476,
+    "T_cold": 299.93943015893524,
+    "u_ref": 0.1056338028169014,
+    "v_max_exact": 0.0008470514512758595,
+    "xi_star": 0.21132486540518713,
+    "phi_max": 0.008018753738744803,
+    "Nu_exact": 1.0
+  },
+  "cases": {
+    "T13_VS_c": {
+      "level": "c",
+      "N": 20,
+      "Ny": 320,
+      "cells": 6400,
+      "dx_m": 0.001,
+      "endTime": 10000,
+      "writeInterval": 1000,
+      "cap_core_min": 8,
+      "timeout_s": 480,
+      "point_core_min": 2.957,
+      "ceiling_core_min": 6.266,
+      "expected_G1_rel_error": 0.011250000000000414,
+      "expected_xi_max_error": -0.001080509583748862,
+      "scratch_point_core_min": 1.908
+    },
+    "T13_VS_m": {
+      "level": "m",
+      "N": 40,
+      "Ny": 640,
+      "cells": 25600,
+      "dx_m": 0.0005,
+      "endTime": 20000,
+      "writeInterval": 2000,
+      "cap_core_min": 64,
+      "timeout_s": 3840,
+      "point_core_min": 23.659,
+      "ceiling_core_min": 50.125,
+      "expected_G1_rel_error": 0.0028124999999982105,
+      "expected_xi_max_error": -0.0002705061982841983,
+      "scratch_point_core_min": 15.267
+    },
+    "T13_VS_f": {
+      "level": "f",
+      "N": 80,
+      "Ny": 1280,
+      "cells": 102400,
+      "dx_m": 0.00025,
+      "endTime": 40000,
+      "writeInterval": 4000,
+      "cap_core_min": 500,
+      "timeout_s": 30000,
+      "point_core_min": 189.276,
+      "ceiling_core_min": 400.998,
+      "expected_G1_rel_error": 0.0007031249999974433,
+      "expected_xi_max_error": -6.765030782882042e-05,
+      "scratch_point_core_min": 122.133
+    }
+  },
+  "refinement_ratio": 2.0,
+  "factor_of_safety": 1.25,
+  "roache_floors": {
+    "source": "scripts/roache_triple.py, imported by name (MESH_STANDARD.md section 10.5, chief ruling 01967a7b); the comparator defines neither and REFUSES if these numbers differ from the import",
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05
+  },
+  "graded_rows": {
+    "G1": {
+      "quantity": "v(xi*)/u_ref at mid-height, 4-point Lagrange at xi* = 1/2 - sqrt(3)/6",
+      "reference": 0.008018753738744803,
+      "band_rel": 0.0015,
+      "grading": "Roache triple, rule 5",
+      "band_ground": "2.1x the DERIVED fine-level discretisation error 7.031e-04 (exact_t13.discrete_expectation); the coarse (1.125e-02) and medium (2.812e-03) levels are predicted OUTSIDE it"
+    },
+    "G1b": {
+      "quantity": "xi_max, location of the maximum upflow from the cubic through the 4 cells around it",
+      "reference": 0.21132486540518713,
+      "band_abs": 0.00015,
+      "grading": "Roache triple, rule 5",
+      "band_ground": "2.2x the DERIVED fine-level error 6.765e-05; coarse (1.081e-03) and medium (2.705e-04) predicted OUTSIDE"
+    },
+    "G2": {
+      "quantity": "RMS over the mid-height row of (T - T_lin)/dT",
+      "reference": 0.0,
+      "floor_abs": 1e-06,
+      "grading": "ABSOLUTE FLOOR (EXACT-class row): a linear T is in the null space of the scheme's truncation error, so its triple is EXACT/DEGENERATE by construction and rule 5 (2) would return NOT A RESULT for a row that cannot be wrong by discretisation; the triple states are PRINTED, the verdict is the floor"
+    },
+    "G3": {
+      "quantity": "Nu_L = -(dT/dx)_wall L/dT from the half-cell wall gradient, hot and cold walls, mid-height row",
+      "reference": 1.0,
+      "floor_abs": 0.0002,
+      "grading": "ABSOLUTE FLOOR (EXACT-class row), as G2",
+      "floor_ground": "the half-cell gradient amplifies a temperature deviation delta by 2N; at N_f = 80 the witness floor 1e-6 on delta gives 1.6e-4; registered 2.0e-4"
+    }
+  },
+  "controls": {
+    "C_CONV": {
+      "what": "iterative convergence: initial residuals of Uy, T and p_rgh <= 1e-6 at EVERY iteration of the final 10 percent; Ux is a degenerate (~0) channel and is REPORTED, never gated (L-338)",
+      "floor": 1e-06
+    },
+    "C_PLAT": {
+      "what": "plateau: |G1(endTime) - G1(endTime - writeInterval)| / G1 <= 1e-7",
+      "floor": 1e-07
+    },
+    "W0": {
+      "what": "y-invariance mirror: the rows just above and just below mid-height agree in v (per u_ref phi_max) and T (per dT) to 1e-6",
+      "floor": 1e-06
+    },
+    "W1": {
+      "what": "end-effect witness: rows at H/2 +- L, +- 2L, +- 4L agree with the graded row in v (per u_ref phi_max) and T (per dT) to 1e-6; exceeding it means the level is NOT in the parallel-flow regime -> gate (1) NOT A RESULT",
+      "floor": 1e-06
+    },
+    "C_RA": {
+      "what": "operand identity (L-331): nu, Pr, beta, TRef, g, T_hot, T_cold, L, N are READ FROM THE CASE FILES, printed, and Ra_L recomputed from them must equal 100 to 1e-9",
+      "floor": 1e-09
+    },
+    "C_ORDER": {
+      "what": "cell-ordering control: the graded row's T must fall monotonically from hot to cold with the registered slope -dT/L to 1e-6 relative; a transposed ordering (y-fastest) shows a constant row and REFUSES"
+    },
+    "C_PZ": {
+      "what": "planted-zero control per reader (rule 3, L-340 sizing): point plant for G1/G1b/G3/W1, ALL-ROW plant for the RMS reader G2; both arms; measured detection ladder; REFUSES on a blind or noisy reader"
+    }
+  },
+  "predictions": {
+    "P1": "G1 and G1b triples CONVERGING with observed order p in [1.5, 2.5]; derived expectation p = 2.000 / 2.000",
+    "P2": "G1 relative deviation at f in [+4.9e-4, +9.1e-4] (the derived +7.03e-4 within 30 percent), POSITIVE sign; c and m OUTSIDE the +-1.5e-3 band",
+    "P2b": "xi_max error at f in [-8.8e-5, -4.7e-5] (the derived -6.77e-5 within 30 percent), NEGATIVE sign",
+    "P3": "|Nu - 1| < 1e-4 on both walls at f",
+    "P4": "witness W1 < 1e-7 on every level (a priori bound ~1e-9 relative at 8L from the ends)",
+    "P5": "G2 RMS < 1e-7 at f",
+    "P6": "all three levels meet C_CONV and C_PLAT within their registered endTime"
+  },
+  "cost": {
+    "rate_point_core_s_per_cell_it": 2.772590481505102e-06,
+    "rate_point_source": "K0f C_lam, LAMINAR buoyantBoussinesqSimpleFoam, MEASURED: ExecutionTime 5564.7 s over 50 176 cells x 40 000 iterations (verification/runs/F14-cooling-ladder/K0f_runs/STATUS.C_lam, C_lam/log.solve)",
+    "rate_ceiling_core_s_per_cell_it": 5.874e-06,
+    "rate_ceiling_source": "T4 level c, kOmegaSST on the same solver, MEASURED (STATUS.T4_IJ_c, C-119)",
+    "overhead_floor": "C-118: below ~1e3 cells the per-iteration cost is overhead-dominated and linear cell-step scaling over-predicts 2.2-2.4x; the coarsest level here has 6 400 cells, above that regime, and the same over-prediction direction is expected (T4's ratio 0.423 at 5k-83k cells)",
+    "usd_per_core_h": 0.0513,
+    "usd_basis": "derived, not measured, reported-by-owner rate (COMPUTE_BUDGET_CHARTER section 5)",
+    "rate_scratch_measured_core_s_per_cell_it": 1.7890625e-06,
+    "rate_scratch_source": "MEASURED 2026-08-26T20:52Z on a SCRATCH COPY of T13_VS_c (6 400 cells) run 400 iterations through run_one_t13.sh under the queue runner's setsid/nohup/cd form: ExecutionTime 4.58 s, wall 5 s, rc=0 -> 1.789e-06 core-s per cell-iteration; the scratch copy was outside the repository and no registered case was touched",
+    "scratch_point_total_core_min": 139.308,
+    "cap_total_core_min": 572,
+    "note": "caps are UNCHANGED from the K0f/T4 derivation (ceiling rate); the scratch rate is the POINT estimate that the calibration ledger row compares against (rule 12)"
+  },
+  "completion": {
+    "needed_fields": [
+      "T",
+      "U",
+      "p_rgh",
+      "phi"
+    ],
+    "infrastructure_fields": [
+      "wall_s",
+      "timeout_s",
+      "ranks",
+      "core_min",
+      "capped",
+      "checkmesh_rc",
+      "solver",
+      "solver_path",
+      "note",
+      "started_utc",
+      "ended_utc"
+    ],
+    "note": "capped is an INFRASTRUCTURE field and never a completion conjunct (L-342)"
+  },
+  "launcher": {
+    "file": "run_one_t13.sh",
+    "guard": "lineage-aware foreign-process scan (T10aR2 AMENDMENT 1, 9fa66065); driven on scratch 2026-08-26T20:52Z: ARM A (runner form, no foreign process) launched, solver rc=0, 400 iterations; ARM B (planted foreign `sleep` with cwd in the case) REFUSED exit 2 naming the pid, no STATUS written",
+    "queue_mode": "--no-detach"
+  }
+}

@@ -1,0 +1,106 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh -case /home/ubuntu/Certonomous/verification/runs/T-family/T13_runs/T13_VS_f
+Date   : Aug 26 2026
+Time   : 17:48:36
+Host   : ip-172-31-43-247
+PID    : 325240
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/T-family/T13_runs/T13_VS_f
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+--> FOAM Warning : 
+    From static Foam::instantList Foam::timeSelector::select0(Foam::Time&, const Foam::argList&)
+    in file db/Time/timeSelector.C at line 284
+    No time specified or available, selecting 'constant'
+Create mesh for time = constant
+
+Check mesh...
+
+Time = constant
+
+Mesh stats 
+    points:           207522
+    internal points:  0
+    faces:            410960
+    internal faces:   203440
+    cells:            102400
+    faces per cell:   6
+    boundary patches: 5
+    point zones:      0
+    face zones:       0
+    cell zones:       0
+
+Overall number of cells of each type:
+    hexahedra:     102400
+    prisms:        0
+    wedges:        0
+    pyramids:      0
+    tet wedges:    0
+    tetrahedra:    0
+    polyhedra:     0
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Number of regions: 1 (OK).
+
+Checking patch topology for multiply connected surfaces...
+    Patch               Faces    Points     Surface topology
+    hot                 1280     2562     ok (non-closed singly connected)  
+    cold                1280     2562     ok (non-closed singly connected)  
+    bottom              80       162      ok (non-closed singly connected)  
+    top                 80       162      ok (non-closed singly connected)  
+    frontAndBack        204800   207522   ok (non-closed singly connected)  
+    ".*"                207520   207522   ok (closed singly connected)      
+
+
+Checking faceZone topology for multiply connected surfaces...
+    No faceZones found.
+
+Checking basic cellZone addressing...
+    No cellZones found.
+
+Checking basic pointZone addressing...
+    No pointZones found.
+
+Checking geometry...
+    Overall domain bounding box (0 0 0) (0.02 0.3200000000000001 0.001)
+    Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
+    Mesh has 2 solution (non-empty) directions (1 1 0)
+    All edges aligned with or perpendicular to non-empty directions.
+    Boundary openness (-4.951301874303987e-16 2.199269521800696e-19 -3.201753515209006e-16) OK.
+    Max cell openness = 2.363221922839495e-16 OK.
+    Max aspect ratio = 1.000000000000779 OK.
+    Minimum face area = 6.249999999995154e-08. Maximum face area = 2.500000000001945e-07.  Face area magnitudes OK.
+    Min volume = 6.249999999995638e-11. Max volume = 6.250000000004414e-11.  Total volume = 6.400000000008878e-06.  Cell volumes OK.
+    Mesh non-orthogonality Max: 0 average: 0
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.552579565785458e-12 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+End
+
