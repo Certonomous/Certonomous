@@ -102,3 +102,37 @@ for s in 0cbaea26 6753e912 a74b2f61 b698dfc3 6becf266 f5f67de7 4b336fad 2d639d3b
 ```
 
 (38 shas listed; 38 distinct commits — several records share a commit. A `MISSING` line is a defect in this file, not in the record.) Reading at write time, 2026-08-26: 38 ok, 0 MISSING, 38 distinct shas.
+
+---
+
+## Heat-transfer supervisor corrections 2026-08-26T21:20:27Z [lab-attributed]
+
+**Applied by a heat-transfer lane on the supervisor's dispatch; every line above this section is untouched (the file was absent from the working tree at write time and was re-materialised from the HEAD blob `7e2fc497` before appending). Quote-and-strike only; no cell is rewritten. Verdict tally BEFORE this section: CAN DO 0 · CAN DO, CAVEATS 5 · CAN NOT DO, attempted 5 · not attempted 26. AFTER: unchanged — 0 / 5 / 5 / 26. Cells moved: 0. Caveat text corrected in 2 cells; 4 items of the dated "CAN DO 0" section superseded by records now at HEAD.**
+
+### HT-1 — conduction · laminar (no flow) · 2D: the T11 caveat is stale, and T11 is 1-D evidence, not 2-D
+
+The cell reads *"~~T11 gate file uncommitted~~"* and item 2 of the dated section reads *"~~T11 would carry CAN DO for conduction·2D on its own … the moment heat-transfer commits T11_RESULTS.md and gate_t11.json … the gate file lives on disk only~~"*. **Superseded:** `docs/campaigns/T-family/T11_RESULTS.md` and `verification/runs/T-family/T11_runs/gate_t11.json` are at HEAD since `7b2a12f0` — "`PASS` ×3 (G1, G2, G3), every triple CONVERGING, planted-zero control PASS" (`T11_RESULTS.md:3`), p 2.000 / 2.000 / 2.005, GCI ≤ 3.41e-06 on a ±1e-04 band (`:24-26`), pre-registration frozen at `ca9aad86` before compute.
+
+**But the cell does not move to CAN DO on it.** T11 is a one-dimensional plane wall solved on a one-cell-wide OpenFOAM mesh (`T11_RESULTS.md:37`: "1-D plane wall solved on a 2-D OpenFOAM mesh"; `T11_PREREGISTRATION.md:61`). The taxonomy has no 1-D column; the honest statement is that T11 is **supporting evidence of 1-D transient conduction**, not evidence for the 2-D cell, and the 2-D evidence in this cell remains T9a (fin, 2-D) whose rung headline is GATE FAIL. The cell stays **CAN DO, CAVEATS**; its caveat list is corrected to: R1 interface `GATE FAIL` (−2.41 mK vs 0.92 mK band, cause named — see HT-4); R3/R4 `GATE REACHED` below the O(Bi) floor; T11 `PASS` ×3 is 1-D. **What would lift it:** a graded 2-D conduction rung — **T14** (2-D transient conduction in a square, product of T11's series, EXACT tier) is **PENDING**, frozen at `5a870e54` (`docs/campaigns/T-family/T14_PREREGISTRATION.md`), four entries in `verification/queue/heat-transfer/`.
+
+### HT-2 — radiation · laminar (no flow) · 3D: T10aR2 is graded at HEAD and does NOT close B1
+
+Item 4 of the dated section reads *"~~T10aR2 ×3 sit at STATUS rc=0 ungraded — a graded T10aR2 that closes B1 is the move~~"*. **Superseded:** `docs/campaigns/T-family/T10aR2_RESULTS.md` is at HEAD since `122f6da3` — "2 PASS, 5 GATE FAIL, 2 NOT A RESULT against this arm's own registered rows … the B1 2LI c/m/f triple is OSCILLATORY" (`:3`), B1 ceiling −3268.222601 → −3268.384010 → −3268.097795 W/m², no band armed (`:40`); "the registered expectation 'the 2LI ladder is CONVERGING at p ≈ 1.48' is refuted by measurement". The cell stays **CAN DO, CAVEATS**; the caveat "B1 ceiling GATE FAIL" now carries: *its H-3(a) refinement arm T10aR2 returned OSCILLATORY on B1 (NOT A RESULT) and does not close it*. No further T10a-B1 registration is made by this family (a "T10a-B1b" would duplicate T10aR2).
+
+### HT-3 — forced conv · laminar · axisym: "a wider registered band" is struck
+
+Item 4 reads for T1c *"~~needs a level pair that closes it, or a wider registered band grounded before compute~~"*. **Struck:** the supervisor's standing rule for successor rungs is *no band widening*. The record names **no cause** — `verification/runs/T-family/T1_runs/DIAGNOSTIC_PREDICTION.md:140`: "The T1c constant-`Ts` GATE FAIL therefore still has NO identified cause" — and specifies the next diagnostic as a Péclet-scaling sweep (Re 25/50/100/200/400 at the fine mesh, registered prediction: log–log slope −2 if axial conduction; `:166-190`). That arm is **not yet registered**; the cell stays **CAN DO, CAVEATS** and its fix line is: *register the Pe-sweep diagnostic arm (T1c-L0b); no band moves.*
+
+### HT-4 — conduction · 2D, T9a R1: the corrected re-run is registered
+
+Item 4 reads for T9a *"a corrected re-run is a new rung, not a repair of this one"*. **Done:** **T9a-R1b** is frozen at `3c39d08d` (`docs/campaigns/T-family/T9aR1b_PREREGISTRATION.md`): the parent's three wall levels byte-for-byte from `0cbaea26`, one line moved (`Gauss linear corrected` → `Gauss harmonic corrected`), T9a's row rule unchanged with the EXACT case made operational as a 1e-06 K floor (900× tighter than the parent's 0.92 mK band), three entries in `verification/queue/heat-transfer/` — **PENDING**. The cell does not move until it is graded.
+
+### HT-5 — natural conv · laminar · 2D: a PENDING EXACT-tier registration is on the queue
+
+**T13** (Batchelor vertical-slot conduction regime, `Ra_L` 100, `buoyantBoussinesqSimpleFoam`, laminar, 2-D, analytic reference, V-column only) is frozen at `0d2dc150` (`docs/campaigns/T-family/T13_PREREGISTRATION.md`), three entries enqueued, **PENDING**. The cell stays **CAN DO, CAVEATS** on K0c until T13 is graded; a T13 PASS with CONVERGING triples would be the first EXACT-tier evidence in this cell.
+
+### HT-6 — sha audit of this file
+
+Every 8-hex commit sha cited above this section resolves under `git cat-file -e <sha>^{commit}` at HEAD (38 listed in the footer: 38 ok, 0 MISSING, re-run at write time). Two 8-hex tokens in the conjugate·turbulent·3D cell — `dc2b4f74` and `f4e5c350` — are **not commit shas** (they are the T5 A8 region-map identifiers quoted from the record) and are excluded from the count. This section adds six commit shas, each resolved at write time: `7b2a12f0`, `122f6da3`, `ca9aad86`, `5a870e54`, `3c39d08d`, `0d2dc150` (and re-cites `0cbaea26`, `7e2fc497`). **Distinct commit shas cited in this file after this section: 46; 46 resolve.**
+
+**Lines whose number changed above this section: 0.**
