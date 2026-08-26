@@ -1,0 +1,10 @@
+F17b -- KOVASZNAY FLOW, LADDER EXTENSION -- TALLY
+==============================================================================
+G-F17-1_E2_velocity_L2                   NOT A RESULT
+    levels fine,medium are not iteratively converged or not plateaued; no grid claim can be made from this triple
+G-F17-2_u_at_probe                       NOT A RESULT
+    levels medium are not iteratively converged or not plateaued; no grid claim can be made from this triple
+==============================================================================
+cost actual: 26.867 core-min of cap 150.0 (ClockTime x ranks / 60; dollars derived, not measured)
+gated by: scripts/roache_triple.py::grade_ladder
+written: /home/ubuntu/Certonomous/verification/runs/F17b_runs/F17b_GRADED.json
