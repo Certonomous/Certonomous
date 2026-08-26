@@ -221,3 +221,20 @@ for s in f018c8bf 4ad083fb a1fbe127 14018d5b 193b522c b8fe7eea a1ac1c21 c69ce11c
 ```
 
 (32 shas listed; 32 distinct commits — several records share `a1fbe127`, the vocabulary-fix commit. A `MISSING` line is a defect in this file, not in the record.) Reading at write time, 2026-08-26: 32 ok, 0 MISSING, 32 distinct shas; 20 of the cited verdict tokens were additionally re-read from `git show <sha>:<path>` and matched.
+
+---
+
+## Ruling R-1D (chief, 2026-08-26, [lab-attributed]) — applied by the verification supervisor
+
+**Appended 2026-08-26 by a verification-supervisor lane (lane `metrics`), append-only, on the HEAD blob `825b1259` of this file. Lines whose number changed above this section: 0.** The ruling sits on Sanaa's desk to overrule; until then it binds the mapping. Quoted verbatim as relayed by the verification supervisor:
+
+> Sanaa's taxonomy has no 1-D class. A case solved on a one-cell-wide mesh verifies a 1-D PDE, not a 2-D field, so it cannot carry CAN DO in a 2D cell in ANY family. Binding treatment for both cfd and heat-transfer: such cases enter the 2D row as CAN DO, CAVEATS with the caveat '1-D exact-solution on a one-cell-wide mesh; no 2-D field verified', cited with their full verdicts. A genuine 2-D case (F17 Kovasznay, F18 Taylor-Green, T5, T13 if 2-D) stays CAN DO on its own record.
+
+**Consequence per affected cell of the family table above (cells are not rewritten; this section is the amendment of record):**
+
+- **2D · unsteady · incompressible — the cell HOLDS `CAN DO`, on F18 alone.** F18-TG2D Taylor–Green (`verification/campaign/F18_TG2D_RESULTS.md` @ `3f87e759`) is a genuine 2-D case — its headline reads *"F18-TG2D — 2-D decaying Taylor–Green vortex (`icoFoam`, periodic box) — GRADED RECORD"*, `Verdict PASS × 2, as predicted` (`:35`), G-F18-1 `E2_velocity_L2_at_T` **PASS** CONVERGING p 1.2894 and G-F18-2 `mean_kinetic_energy_at_T` **PASS** CONVERGING p 0.9638 (`:20-21`) — and carries the cell by itself. F16b-SL2 Stokes' second problem (`verification/runs/F16b_runs/RESULTS.md` @ `49c95cc7`, G-F16-1 PASS p 1.8252, G-F16-2 PASS p 1.9930) is a one-cell-wide slab (derivation row above: "(1-D slab)") and is **re-filed as CAN DO, CAVEATS evidence** with the caveat *1-D exact-solution on a one-cell-wide mesh; no 2-D field verified*. The cell's count becomes **CAN DO — 1 case at the bar (F18), plus 1 caveated (F16b)**.
+- **2D · unsteady · supersonic — stays `CAN DO, CAVEATS`.** F19 Sod (`verification/campaign/F19_SOD_RESULTS.md` @ `08aa454c`, G-F19-1 PASS CONVERGING p 1.018; G-F19-2 NOT A RESULT DEGENERATE |p| = 0.032) is a 1-D Euler slab (derivation row: "(1-D slab)"); the existing caveat "1-D slab filed in the 2D row" is restated in the ruling's wording: *1-D exact-solution on a one-cell-wide mesh; no 2-D field verified*.
+- **2D · steady · supersonic — stays `CAN DO, CAVEATS`, one caveat added.** The F3 suite is registered as "single-cell slabs" (derivation row above; `F3_SUCCESSOR_TRIPLE_PREREGISTRATION.md:57,81`, `F3_CONVERSION_PREREGISTRATION.md:92-93`), so the ruling applies: the strongest row G-F3-5 diamond wave drag **PASS** CONVERGING p 6.296 (`verification/runs/F3_runs/conversion_2026-08-24/RESULTS.md:19` @ `5adb9c5d`) carries the added caveat *1-D exact-solution on a one-cell-wide mesh; no 2-D field verified* (the wedge/diamond shock-expansion comparison is a 2-D inviscid theory evaluated on a one-cell-deep slab; no 2-D field was verified). Verdict unchanged.
+- **Untouched by this ruling:** every other cell. F17 Kovasznay (genuine 2-D) is named by the ruling as CAN DO-eligible on its own record where it is cited above.
+
+**Census after R-1D: unchanged — CAN DO 3 · CAN DO, CAVEATS 6 · CAN NOT DO (attempted) 4 · not attempted 23.** The 2D·unsteady·incompressible cell holds CAN DO on F18; no cell changed verdict class.

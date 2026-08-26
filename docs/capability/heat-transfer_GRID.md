@@ -140,3 +140,19 @@ Every 8-hex commit sha cited above this section resolves under `git cat-file -e 
 ## Supervisor note 2026-08-26T21:22:09Z — chief's cross-family ruling on 1-D cases in the 2D row `[lab-attributed, on Sanaa's desk]`
 
 Chief, ~21:25Z 2026-08-26: *1-D cases on a one-cell-wide mesh enter the 2D row as **CAN DO, CAVEATS** ("1-D exact-solution; no 2-D field verified") in every family.* The **conduction · laminar · 2D** cell above already reads CAN DO, CAVEATS on T11 (`7b2a12f0`, PASS ×3, p 2.000 / 2.000 / 2.005, GCI ≤ 3.4e-06, planted control seen at 1e-07); this note fixes its caveat wording to the ruling's: **"1-D exact-solution; no 2-D field verified."** The cell moves to CAN DO only when T14 (`5a870e54`, 2-D square, queued at 7.24 core-min POINT) grades PASS ×3. No other cell moves. Heat-transfer supervisor, Fable.
+
+---
+
+## Ruling R-1D (chief, 2026-08-26, [lab-attributed]) — applied by the verification supervisor
+
+**Appended 2026-08-26 by a verification-supervisor lane (lane `metrics`), append-only, on the HEAD blob `825b1259` of this file. Lines whose number changed above this section: 0.** The ruling sits on Sanaa's desk to overrule; until then it binds the mapping. Quoted verbatim as relayed by the verification supervisor:
+
+> Sanaa's taxonomy has no 1-D class. A case solved on a one-cell-wide mesh verifies a 1-D PDE, not a 2-D field, so it cannot carry CAN DO in a 2D cell in ANY family. Binding treatment for both cfd and heat-transfer: such cases enter the 2D row as CAN DO, CAVEATS with the caveat '1-D exact-solution on a one-cell-wide mesh; no 2-D field verified', cited with their full verdicts. A genuine 2-D case (F17 Kovasznay, F18 Taylor-Green, T5, T13 if 2-D) stays CAN DO on its own record.
+
+**Consequence per affected cell of the family table above (cells are not rewritten; this section is the amendment of record):**
+
+- **conduction · laminar (no flow) · 2D — stays `CAN DO, CAVEATS`, on T9a; T11 enters as caveated evidence.** T11 (`docs/campaigns/T-family/T11_RESULTS.md` @ `7b2a12f0`) reads *"Rung verdict, as printed by the frozen comparator: `PASS` ×3 (G1, G2, G3), every triple CONVERGING, planted-zero control PASS"* (`:3`), G1/G2/G3 CONVERGING p 2.000 / 2.000 / 2.005, GCI ≤ 3.41e-06 (`:24-26`), and describes itself as a *"1-D plane wall solved on a 2-D OpenFOAM mesh"* (`:37`). Under R-1D it **enters the cell as CAN DO, CAVEATS evidence** with the caveat *1-D exact-solution on a one-cell-wide mesh; no 2-D field verified*; it cannot lift the cell to CAN DO, which is what section HT-1 above already concluded by a different route (no 1-D column). The cell's verdict is unchanged: CAN DO, CAVEATS on T9a (Correction 1).
+- **natural conv · laminar · 2D — no change now.** T13 (frozen `0d2dc150`, PENDING, HT-5 above) is registered as a 2-D vertical slot; if its record lands PASS on a genuine 2-D mesh it may carry CAN DO on its own record per the ruling's last sentence. Nothing is entered until a graded record is at HEAD.
+- **Untouched by this ruling:** every other cell.
+
+**Census after R-1D: unchanged — CAN DO 0 · CAN DO, CAVEATS 5 · CAN NOT DO (attempted) 5 · not attempted 26.**
