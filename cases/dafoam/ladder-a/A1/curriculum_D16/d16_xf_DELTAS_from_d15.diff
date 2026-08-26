@@ -1,0 +1,133 @@
+--- ../curriculum_D15/d15_xf.py	2026-08-26 20:57:03.496131975 +0000
++++ d16_xf.py	2026-08-26 21:08:03.129156761 +0000
+@@ -1,19 +1,20 @@
+ #!/usr/bin/env python
+-"""Curriculum D15 -- NACA0012 SUBSONIC (DARhoSimpleFoam) baseline gradient instrument.
++"""Curriculum D16 -- NACA0012 TRANSONIC (DARhoSimpleCFoam) baseline gradient instrument.
+ 
+-DERIVED FROM `curriculum_D5/d5_fd_endpoint.py` (md5 91b9f3526a39cb02eafbd5be504d7107)
+-with EXACTLY these registered deltas and no other (d15_xf_DELTAS_from_d5_fd_endpoint.diff):
+-  * PRODUCER is `d15_runScript.py` -- a BYTE COPY of the shipped tutorial
+-    `/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/subsonic/runScript.py`
+-    (md5 6537fa7641c4ccb20056f60f96f63b11) -- and PRODUCER_MD5 is that md5.
++DERIVED FROM `curriculum_D15/d15_xf.py` (d16_xf_DELTAS_from_d15.diff: item, producer = the
++TRANSONIC tutorial runScript.py, its md5, this header), itself derived from
++`curriculum_D5/d5_fd_endpoint.py` (md5 91b9f3526a39cb02eafbd5be504d7107) with these deltas:
++  * PRODUCER is `d16_runScript.py` -- a BYTE COPY of the shipped tutorial
++    `/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/transonic/runScript.py`
++    (md5 420cf2e79aaabe7d67b4701bbb99a314) -- and PRODUCER_MD5 is that md5.
+     D4's instrument REFUSES any producer but its own, by md5; the refusal is
+     kept, re-pointed.
+   * TWO MODES, selected by `-mode X|F`.  X = the adjoint (compute_totals) of
+     CD AND CL w.r.t. `shape` and `patchV` at the tutorial's BASELINE design
+-    (shape = 0, patchV = [U0, aoa0]), written to `d15_X.json`.  F = a CENTRAL
++    (shape = 0, patchV = [U0, aoa0]), written to `d16_X.json`.  F = a CENTRAL
+     finite-difference table over the REGISTERED STEP SET (three steps per DV
+     kind, not the D4 clearance ladder) on the REGISTERED SUBSET of components,
+-    written to `d15_F.json` / `d15_F.jsonl`.  The design point is the BASELINE,
++    written to `d16_F.json` / `d16_F.jsonl`.  The design point is the BASELINE,
+     not an optimiser endpoint: no endpoint file is read (D4's `d4_endpoint_dvs.json`
+     clause is removed), so no optimiser runs in this item.
+   * PLANTED-ZERO CONTROL COMPONENT `CTRL` (CLAUDE.md rule 3): a synthetic row
+@@ -39,10 +40,10 @@
+ import sys
+ import time
+ 
+-PRODUCER = "d15_runScript.py"
+-PRODUCER_MD5 = "6537fa7641c4ccb20056f60f96f63b11"
++PRODUCER = "d16_runScript.py"
++PRODUCER_MD5 = "420cf2e79aaabe7d67b4701bbb99a314"
+ ANCHOR = "# OpenMDAO setup"
+-ITEM = "D15"
++ITEM = "D16"
+ 
+ # ---- registered constants (PREREGISTRATION.md section 3) --------------------
+ ETA_FLOOR = 1.0e-14          # a measured eta below this is replaced by this and FLAGGED
+@@ -65,9 +66,9 @@
+ CTRL_STEP = 1.0e-3
+ PLANT = 1.234e-03            # rule 3
+ 
+-OUT_X = "d15_X.json"
+-OUT_F = "d15_F.json"
+-JSONL_F = "d15_F.jsonl"
++OUT_X = "d16_X.json"
++OUT_F = "d16_F.json"
++JSONL_F = "d16_F.jsonl"
+ 
+ 
+ def md5_of(path):
+@@ -91,7 +92,7 @@
+         if a == "-mode" and i + 1 < len(argv):
+             mode = argv[i + 1]
+     if mode not in ("X", "F"):
+-        sys.stderr.write("D15_XF usage: d15_xf.py -mode X|F\n")
++        sys.stderr.write("D16_XF usage: d16_xf.py -mode X|F\n")
+         sys.exit(64)
+     return mode
+ 
+@@ -100,14 +101,14 @@
+     mode = parse_mode(sys.argv)
+     got = md5_of(PRODUCER)
+     if got != PRODUCER_MD5:
+-        sys.stderr.write("D15_XF REFUSE producer md5 %s != frozen %s\n"
++        sys.stderr.write("D16_XF REFUSE producer md5 %s != frozen %s\n"
+                          % (got, PRODUCER_MD5))
+         sys.exit(2)
+ 
+     with open(PRODUCER) as fh:
+         src = fh.read()
+     if src.count(ANCHOR) != 1:
+-        sys.stderr.write("D15_XF REFUSE anchor %r appears %d times\n"
++        sys.stderr.write("D16_XF REFUSE anchor %r appears %d times\n"
+                          % (ANCHOR, src.count(ANCHOR)))
+         sys.exit(2)
+     header = src.split(ANCHOR)[0]
+@@ -115,7 +116,7 @@
+     # the producer header parses sys.argv; give it the registered task
+     saved_argv = list(sys.argv)
+     sys.argv = [PRODUCER, "-task", "run_model", "-optimizer", "IPOPT"]
+-    ns = {"__name__": "d15_frozen_header", "__file__": PRODUCER}
++    ns = {"__name__": "d16_frozen_header", "__file__": PRODUCER}
+     exec(compile(header, PRODUCER, "exec"), ns)
+     sys.argv = saved_argv
+ 
+@@ -126,7 +127,7 @@
+     rank = MPI.COMM_WORLD.rank
+     nprocs = MPI.COMM_WORLD.size
+     Top = ns["Top"]
+-    jsonl = JSONL_F if mode == "F" else "d15_X.jsonl"
++    jsonl = JSONL_F if mode == "F" else "d16_X.jsonl"
+ 
+     def emit(rec):
+         if rank != 0:
+@@ -190,7 +191,7 @@
+                 json.dump(out, fh, indent=1, sort_keys=True)
+                 fh.flush()
+                 os.fsync(fh.fileno())
+-            sys.stdout.write("D15_X_WRITTEN %s\n" % OUT_X)
++            sys.stdout.write("D16_X_WRITTEN %s\n" % OUT_X)
+         MPI.COMM_WORLD.Barrier()
+         return
+ 
+@@ -262,10 +263,10 @@
+                     seen_plant = float(r["planted"]["dCD"])
+         want = PLANT / (2.0 * CTRL_STEP)
+         if seen_zero != 0.0 or seen_plant is None or abs(seen_plant - want) > 1e-12 * abs(want):
+-            sys.stderr.write("D15_XF REFUSE planted-zero control not seen on read-back: zero=%r plant=%r want=%r\n"
++            sys.stderr.write("D16_XF REFUSE planted-zero control not seen on read-back: zero=%r plant=%r want=%r\n"
+                              % (seen_zero, seen_plant, want))
+             sys.exit(2)
+-        sys.stdout.write("D15_PLANTED_ZERO_CONTROL_SEEN zero=%r plant=%r\n" % (seen_zero, seen_plant))
++        sys.stdout.write("D16_PLANTED_ZERO_CONTROL_SEEN zero=%r plant=%r\n" % (seen_zero, seen_plant))
+         out = {
+             "item": ITEM, "mode": "F", "producer_md5": got, "nprocs": nprocs,
+             "identity": ident,
+@@ -283,7 +284,7 @@
+             json.dump(out, fh, indent=1, sort_keys=True)
+             fh.flush()
+             os.fsync(fh.fileno())
+-        sys.stdout.write("D15_F_WRITTEN %s n_rows=%d\n" % (OUT_F, len(rows)))
++        sys.stdout.write("D16_F_WRITTEN %s n_rows=%d\n" % (OUT_F, len(rows)))
+     MPI.COMM_WORLD.Barrier()
+ 
+ 

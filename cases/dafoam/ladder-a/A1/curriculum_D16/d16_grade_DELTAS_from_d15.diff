@@ -1,0 +1,190 @@
+--- ../curriculum_D15/d15_grade.py	2026-08-26 21:04:50.562739708 +0000
++++ d16_grade.py	2026-08-26 21:08:03.129052830 +0000
+@@ -1,9 +1,10 @@
+ #!/usr/bin/env python3
+-"""Curriculum D15 COMPARATOR -- NACA0012 SUBSONIC (DARhoSimpleFoam) baseline gradient,
++"""Curriculum D16 COMPARATOR -- NACA0012 TRANSONIC (DARhoSimpleCFoam) baseline gradient,
+ TWO ROWS (SHIPPED + PATCHED), adjoint X against a central-FD table F.  FROZEN by md5 in
+ PREREGISTRATION.md section 7 before any container starts.  Computes nothing about
+ physics; renders verdicts from the FIXED vocabulary only (PASS / GATE REACHED / GATE FAIL /
+-NOT A RESULT / BLOCKED / PENDING).  Shape: curriculum_D14/d14m_grade.py (built-in
++NOT A RESULT / BLOCKED / PENDING).  Derived from curriculum_D15/d15_grade.py (d16_grade_DELTAS_from_d15.diff: item, caps, ceiling,
++predictions, cpuset).  Shape: curriculum_D14/d14m_grade.py (built-in
+ --selftest counted against a FROZEN unit count); machinery: curriculum_D5/d5_grade.py
+ (ledger regex, L-342 field classes, arm-kind-aware completion).
+ 
+@@ -11,7 +12,7 @@
+   G1   completion, ARM-KIND AWARE: every arm needs kernel rc == 0 (docker inspect, and
+        the harness rc must agree), OOMKilled false, and the AGE GUARD on its registered
+        artefact (strictly newer than the arm's own datum).  SOLVER arms (X-*, F-*) also
+-       need the instrument's TERMINAL MARKER in the arm log (D15_X_WRITTEN / D15_F_WRITTEN);
++       need the instrument's TERMINAL MARKER in the arm log (D16_X_WRITTEN / D16_F_WRITTEN);
+        the SCRIPT arm MESH needs `Mesh OK.` in checkMesh.log.  Any clause fails -> REFUSE
+        (NOT A RESULT).  An arm with no ledger row is read from the launcher's surviving
+        `<ARM>_<stamp>.inspect.txt` (the container itself is removed after inspect), with
+@@ -57,18 +58,18 @@
+ import time
+ 
+ # ---- REGISTERED CONSTANTS (PREREGISTRATION.md; the document governs) ----------------
+-ITEM = "D15"
+-BASE = "/home/ubuntu/certonomous-runs/CURRICULUM-D15-a1-naca0012-subsonic"
++ITEM = "D16"
++BASE = "/home/ubuntu/certonomous-runs/CURRICULUM-D16-a1-naca0012-transonic"
+ ARMS_REQUIRED = ["MESH", "X-S", "F-S", "X-P", "F-P"]
+ ARM_KIND = {"MESH": "SCRIPT", "X-S": "SOLVER", "F-S": "SOLVER", "X-P": "SOLVER", "F-P": "SOLVER"}
+ ARM_ROW = {"MESH": "SHIPPED", "X-S": "SHIPPED", "F-S": "SHIPPED", "X-P": "PATCHED", "F-P": "PATCHED"}
+ ARM_RANKS = {"MESH": 1, "X-S": 2, "F-S": 2, "X-P": 2, "F-P": 2}
+-ARTEFACT = {"MESH": "checkMesh.log", "X-S": "d15_X.json", "F-S": "d15_F.json", "X-P": "d15_X.json", "F-P": "d15_F.json"}
+-TERMINAL = {"X-S": "D15_X_WRITTEN", "F-S": "D15_F_WRITTEN", "X-P": "D15_X_WRITTEN", "F-P": "D15_F_WRITTEN"}
++ARTEFACT = {"MESH": "checkMesh.log", "X-S": "d16_X.json", "F-S": "d16_F.json", "X-P": "d16_X.json", "F-P": "d16_F.json"}
++TERMINAL = {"X-S": "D16_X_WRITTEN", "F-S": "D16_F_WRITTEN", "X-P": "D16_X_WRITTEN", "F-P": "D16_F_WRITTEN"}
+ DATUM_REF = {"MESH": "0.orig/U", "X-S": "0/U", "F-S": "0/U", "X-P": "0/U", "F-P": "0/U"}
+-CAPS = {"MESH": 5.0, "X-S": 20.0, "F-S": 60.0, "X-P": 20.0, "F-P": 60.0}
+-ITEM_CEILING_CORE_MIN = 165.0
+-PREDICTED_CORE_MIN = {"MESH": 0.3, "X-S": 4.0, "F-S": 10.0, "X-P": 4.0, "F-P": 10.0}
++CAPS = {"MESH": 5.0, "X-S": 30.0, "F-S": 90.0, "X-P": 30.0, "F-P": 90.0}
++ITEM_CEILING_CORE_MIN = 245.0
++PREDICTED_CORE_MIN = {"MESH": 0.3, "X-S": 6.0, "F-S": 14.0, "X-P": 6.0, "F-P": 14.0}
+ CELLS_EXPECTED = 4032
+ FD_BAND_PCT = 5.0            # band D, per component (D4 PREREGISTRATION.md:82; D7FR:228-229)
+ AGG_BAND_PCT = 5.0           # band E, aggregate vector-relative (same sources)
+@@ -82,10 +83,10 @@
+ IMG_DIGEST = {"SHIPPED": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+               "PATCHED": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35"}
+ SO_MD5 = {"SHIPPED": "f0fcb488e0e98156575cd19548e91663", "PATCHED": "85f59e87253e0a71a813f64ca6e4c425"}
+-CPUSET_REGISTERED = "2,3"
++CPUSET_REGISTERED = "4,14"
+ DELIVERED_CORES_FLOOR = 1.5
+-PRED = {"P2_CL_band": (0.35, 0.55), "P3_CD_band": (0.012, 0.030), "P4_patched_min_pass": 4,
+-        "P6_core_min_band": (12.0, 80.0), "P6_mesh_wall_s_max": 120.0}
++PRED = {"P2_CL_band": (0.30, 0.60), "P3_CD_band": (0.012, 0.045), "P4_patched_min_pass": 4,
++        "P6_core_min_band": (15.0, 120.0), "P6_mesh_wall_s_max": 120.0}
+ FIELDS_PHYSICS = ("rc", "inspect_exit", "oomkilled", "terminal_statement", "age_guard",
+                   "core_min", "cap_core_min", "DIGEST", "cpuset")
+ FIELDS_INFRASTRUCTURE = ("memavail_pre_GiB", "memavail_post_GiB", "delivered", "siblings_pre",
+@@ -194,7 +195,7 @@
+ # ================= G1: COMPLETION, ARM-KIND AWARE =====================================
+ def arm_datum(base, arm):
+     d = os.path.join(base, arm)
+-    p = os.path.join(d, ".d15_age_datum")
++    p = os.path.join(d, ".d16_age_datum")
+     if not os.path.isfile(p):
+         refuse("G1", {"age_datum_absent": p, "arm": arm})
+     datum = int(open(p).read().strip())
+@@ -466,13 +467,13 @@
+     cells = int(m.group(1))
+     gm2 = "PASS" if cells == CELLS_EXPECTED else "GATE FAIL"
+     # ---- rows
+-    X = {"S": read_X(os.path.join(root, "X-S", "d15_X.json")), "P": read_X(os.path.join(root, "X-P", "d15_X.json"))}
+-    F = {"S": read_F(os.path.join(root, "F-S", "d15_F.json")), "P": read_F(os.path.join(root, "F-P", "d15_F.json"))}
++    X = {"S": read_X(os.path.join(root, "X-S", "d16_X.json")), "P": read_X(os.path.join(root, "X-P", "d16_X.json"))}
++    F = {"S": read_F(os.path.join(root, "F-S", "d16_F.json")), "P": read_F(os.path.join(root, "F-P", "d16_F.json"))}
+     rows["X-S"]["artefact_so_md5"] = X["S"]["so_md5"]; rows["X-P"]["artefact_so_md5"] = X["P"]["so_md5"]
+     rows["F-S"]["artefact_so_md5"] = F["S"]["so_md5"]; rows["F-P"]["artefact_so_md5"] = F["P"]["so_md5"]
+     controls = {"S": ctrl_control(F["S"]), "P": ctrl_control(F["P"]),
+-                "grader_plant_S": grader_plant_control(root, os.path.join(root, "F-S", "d15_F.json"), "S"),
+-                "grader_plant_P": grader_plant_control(root, os.path.join(root, "F-P", "d15_F.json"), "P")}
++                "grader_plant_S": grader_plant_control(root, os.path.join(root, "F-S", "d16_F.json"), "S"),
++                "grader_plant_P": grader_plant_control(root, os.path.join(root, "F-P", "d16_F.json"), "P")}
+     g5 = {}
+     for rk in ("S", "P"):
+         cd = grade_components(X[rk], F[rk], "CD")
+@@ -522,7 +523,7 @@
+             "field_classes": {"physics": list(FIELDS_PHYSICS), "infrastructure": list(FIELDS_INFRASTRUCTURE),
+                               "rule": "absent infrastructure -> NOT_MEASURED beside the verdict; absent physics -> REFUSE (L-342)"},
+             "no_gci": "no grid family; standing rule 5 has no row; NO GCI IS QUOTED",
+-            "capability_grid_cell": "2D . steady . subsonic-compressible -- gradients computed + FD-verified; this item moves ONLY that column"}
++            "capability_grid_cell": "2D . steady . transonic -- gradients computed + FD-verified; this item moves ONLY that column"}
+ 
+ 
+ # ================= selftest: planted fixtures, counted against a FROZEN unit count ======
+@@ -544,21 +545,21 @@
+         tweak(k)
+     root = os.path.join(tmp, "root_%d" % int(time.time() * 1e6))
+     os.makedirs(root)
+-    led = ["ITEM=D15\n", "STAGED stamp=x\n"]
++    led = ["ITEM=D16\n", "STAGED stamp=x\n"]
+     for arm in ARMS_REQUIRED:
+         d = os.path.join(root, arm)
+         os.makedirs(os.path.join(d, "0.orig" if arm == "MESH" else "0"))
+         ref = os.path.join(d, DATUM_REF[arm])
+         open(ref, "w").write("U\n")
+         t0 = int(os.path.getmtime(ref))
+-        open(os.path.join(d, ".d15_age_datum"), "w").write("%d\n" % t0)
++        open(os.path.join(d, ".d16_age_datum"), "w").write("%d\n" % t0)
+         log = "%s_x.log" % arm
+         so = k["so"][arm]
+         text = "D4S_CONTAINER_UID: 0\nD4S_IDWARP_SO_MD5: %s\nD4S_DEADLINE_IN_CONTAINER_S: 600\n" % so
+         if arm == "MESH":
+             art = os.path.join(d, "checkMesh.log")
+             open(art, "w").write("Mesh stats\n    cells:            %d\n\nMesh OK.\n" % k["cells"])
+-            text += "D15_CHECKMESH_RC 0\n"
++            text += "D16_CHECKMESH_RC 0\n"
+         else:
+             rk = "S" if arm.endswith("-S") else "P"
+             art = os.path.join(d, ARTEFACT[arm])
+@@ -567,7 +568,7 @@
+             if arm.startswith("X"):
+                 adj = {"CD": {dv: [repr(v) for v in J[dv]] for dv in J},
+                        "CL": {dv: [repr(v * 10.0) for v in J[dv]] for dv in J}}
+-                json.dump({"item": "D15", "mode": "X", "identity": ident, "nprocs": 2, "CD_baseline": repr(k["CD"]),
++                json.dump({"item": "D16", "mode": "X", "identity": ident, "nprocs": 2, "CD_baseline": repr(k["CD"]),
+                            "CL_baseline": repr(k["CL"]), "adjoint": adj}, open(art, "w"))
+             else:
+                 rows_ = []
+@@ -589,7 +590,7 @@
+                 rows_.append({"dv": "CTRL", "idx": 0, "status": "CONTROL",
+                               "fd": {repr(CTRL_STEP): {"step": CTRL_STEP, "ok": True, "dCD": repr(0.0), "dCL": repr(0.0)}},
+                               "planted": {"step": CTRL_STEP, "plant": PLANT, "dCD": repr(planted), "ok": True}})
+-                json.dump({"item": "D15", "mode": "F", "identity": ident, "components_requested": COMPONENTS_REGISTERED,
++                json.dump({"item": "D16", "mode": "F", "identity": ident, "components_requested": COMPONENTS_REGISTERED,
+                            "CD_baseline": repr(k["CD"]), "CL_baseline": repr(k["CL"]), "eta_used": repr(1e-9),
+                            "rows": rows_}, open(art, "w"))
+             if k["terminal"][arm]:
+@@ -659,10 +660,10 @@
+     unit("U11 instrument CTRL planted row broken -> REFUSAL (a reader not shown to see a non-zero)", refused(_fix(tmp, tw(ctrl_ok=False))))
+     r = grade(_fix(tmp, tw(so={"X-P": SO_MD5["SHIPPED"]})))
+     unit("U12 X-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL", r["gates"]["G9_toolchain"]["verdict"] == "GATE FAIL" and r["verdict"] == "GATE FAIL")
+-    r = grade(_fix(tmp, tw(cm={"F-S": 61.0})))
+-    unit("U13 F-S core_min 61.0 > cap 60.0 -> G10 GATE FAIL", r["gates"]["G10_caps"]["verdict"] == "GATE FAIL" and r["gates"]["G10_caps"]["per_arm"]["F-S"]["crossed"])
+-    r = grade(_fix(tmp, tw(cs={"X-S": "4,14"})))
+-    unit("U14 X-S on cpuset 4,14 -> G12 GATE FAIL", r["gates"]["G12_placement"]["verdict"] == "GATE FAIL")
++    r = grade(_fix(tmp, tw(cm={"F-S": 91.0})))
++    unit("U13 F-S core_min 91.0 > cap 90.0 -> G10 GATE FAIL", r["gates"]["G10_caps"]["verdict"] == "GATE FAIL" and r["gates"]["G10_caps"]["per_arm"]["F-S"]["crossed"])
++    r = grade(_fix(tmp, tw(cs={"X-S": "2,3"})))
++    unit("U14 X-S on cpuset 2,3 -> G12 GATE FAIL", r["gates"]["G12_placement"]["verdict"] == "GATE FAIL")
+     r = grade(_fix(tmp, tw(cells=4033)))
+     unit("U15 cells 4033 -> G-M2 GATE FAIL, P1 MISS", r["gates"]["G-M2_mesh_identity"] == "GATE FAIL" and r["predictions"]["P1_cells_4032"] == "MISS")
+     r = grade(_fix(tmp, tw(mpost="NOT_MEASURED", dl="NOT_MEASURED")))
+@@ -674,15 +675,15 @@
+     unit("U20 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS",
+          r["verdict"] == "PASS" and r["completion"]["arms"]["F-P"]["source"] == "inspect_record" and "F-P" in r["not_measured"]["G10"])
+     here = os.path.dirname(os.path.abspath(__file__))
+-    unit("U21 ast.Assert count = 0 in d15_grade.py and d15_xf.py", count_asserts(os.path.abspath(__file__)) == 0 and count_asserts(os.path.join(here, "d15_xf.py")) == 0)
++    unit("U21 ast.Assert count = 0 in d16_grade.py and d16_xf.py", count_asserts(os.path.abspath(__file__)) == 0 and count_asserts(os.path.join(here, "d16_xf.py")) == 0)
+     p = os.path.join(tmp, "planted_assert.py")
+     open(p, "w").write("x = 1\nassert x == 1\n")
+     unit("U22 the assert counter sees a planted assert (=1)", count_asserts(p) == 1)
+-    print("D15 GRADER SELFTEST units=%d expected=%d failures=%d python_O=%s" % (n, EXPECTED_UNITS, len(fails), not __debug__))
++    print("D16 GRADER SELFTEST units=%d expected=%d failures=%d python_O=%s" % (n, EXPECTED_UNITS, len(fails), not __debug__))
+     if n != EXPECTED_UNITS or fails:
+         print("SELFTEST FAIL: %s" % (fails or "unit count %d != %d" % (n, EXPECTED_UNITS)))
+         return 2
+-    print("D15 GRADER SELFTEST PASS %d/%d (counted against the frozen EXPECTED_UNITS)" % (n, EXPECTED_UNITS))
++    print("D16 GRADER SELFTEST PASS %d/%d (counted against the frozen EXPECTED_UNITS)" % (n, EXPECTED_UNITS))
+     return 0
+ 
+ 
+@@ -697,10 +698,10 @@
+     if count_asserts(os.path.abspath(__file__)) != 0:
+         print("REFUSAL: this comparator carries an assert statement (L-332)"); return 2
+     if a.selftest:
+-        d = os.path.join(a.tmpdir, "d15_selftest_%d" % os.getpid()); os.makedirs(d, exist_ok=True)
++        d = os.path.join(a.tmpdir, "d16_selftest_%d" % os.getpid()); os.makedirs(d, exist_ok=True)
+         return selftest(d)
+     if not a.root:
+-        print("usage: d15_grade.py --root <run root> [--out FILE] | --selftest"); return 64
++        print("usage: d16_grade.py --root <run root> [--out FILE] | --selftest"); return 64
+     try:
+         r = grade(a.root)
+     except Refusal as e:
