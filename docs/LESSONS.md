@@ -14832,3 +14832,58 @@ of 2026-08-26T17:46Z; the classification of the model triple above, re-run by th
 landing lane at HEAD on 2026-08-26.
 
 ---
+
+## L-346 — An iterative floor inherited from a coarser ladder is not a convergence criterion at a finer level: register the floor FROM the predicted fine-level discretisation error of the ladder being registered
+
+**Cost:** 26.87 core-min bought `NOT A RESULT` × 2 on F17b_KV40_EXT, the
+extension of F17 to 192×128 / 384×256 / 768×512
+(`verification/campaign/F17b_KV40_EXT_RESULTS.md` @ `f2943b0b`; ledger C-142).
+cfd, 2026-08-26.
+
+**What happened.** F17b inherited F17's iterative floor byte-for-byte: a fixed
+4,000-iteration count, no `residualControl`, and a rule 5 limb 1 census of Ux/Uy/p
+initial residuals ≤ 1e−6 / 1e−6 / 1e−5 over the window. On F17's ladder that
+floor was two orders below the discretisation error (E2 at F17's fine level
+1.4e−04) and the same instrument read PASS × 2 at p 2.10 / 2.07
+(`verification/campaign/F17_KV40_RESULTS.md` @ `f018c8bf`). At F17b's 768×512 the
+discretisation error is E2 = 6.2e−06, and the field's per-iteration movement at a
+~1e−9 initial residual, integrated over the 1,100-iteration Class C window, is
+~1e−06 — **the same order as the quantity being graded**. The residual census read
+CONVERGED at every level (worst fine Ux 7.8e−10), while the graded quantity still
+drifted **13.5 % of itself** over the window at fine (1.46 % at medium), and the
+registered plateau limb — correctly — refused: `NOT A RESULT` × 2. The fine
+values sat inside both bands and the raw triples were CONVERGING at p 1.86 /
+3.47; a ladder without a plateau gate on the graded quantity would have printed
+PASS × 2 at those orders and called it verification.
+
+**Why.** A residual tolerance and an iteration count are statements about the
+solver, not about the answer. Whether they are "converged enough" depends on the
+size of the discretisation error they must sit below, and that size falls by 4×
+per level on a second-order ladder. A floor that was adequate on the parent is
+therefore inadequate on the extension by construction, and inheritance carries
+the number without carrying the reason it was adequate.
+
+**The fix.** At registration, state the predicted discretisation error at the
+FINE level of the ladder being registered (the discretisation model already
+computes it for the band), and derive the iterative floor from it — a
+`residualControl` / final-residual target, an iteration count, and a plateau
+window sized so that the iterative contribution to the graded quantity is at
+least an order below that predicted error; write the derivation into the
+pre-registration and have the launcher/grader check the dictionaries against
+it. Never carry a parent's floor into an extension. Keep the Class C plateau
+gate on the graded quantity itself: it is what caught this, and it is the only
+limb that reads the answer rather than the solver.
+
+**Scope.** Every extension ladder and every ladder whose fine level is finer than
+the case the instrument was tuned on; steady SIMPLE ladders especially (the
+initial-residual scale is normalised and does not track the error). F25's
+registration derives its floor by this rule and states the predicted fine-level
+error it is derived from.
+
+**Provenance:** `verification/campaign/F17b_KV40_EXT_RESULTS.md` §1, §5 @
+`f2943b0b` (plateau_detail per level in
+`verification/runs/F17b_runs/F17b_GRADED.json`); contrast
+`verification/campaign/F17_KV40_RESULTS.md` @ `f018c8bf`; the cfd-supervisor's
+acceptance of the record and this lesson's wording, 2026-08-26.
+
+---
