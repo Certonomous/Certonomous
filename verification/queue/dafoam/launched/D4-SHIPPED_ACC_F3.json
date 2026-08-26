@@ -1,0 +1,51 @@
+{
+  "team": "dafoam",
+  "case_id": "D4-SHIPPED_ACC_F3",
+  "prereg_commit": "aecad338037952fcd3145291fcbebea88a0c658e",
+  "prereg_path": "cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/PREREGISTRATION.md",
+  "launch_cmd": [
+    "setsid",
+    "nohup",
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/d4s_chain_driver.sh",
+    "ACC",
+    "F3"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED",
+  "ranks": 4,
+  "cost_core_min_estimate": 50.267,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 50.267 core-min = ACC 3.000 + F3 47.267, PREREGISTRATION.md section 4 (frozen 94ddfc48; Addendum 1 c416662e; Addendum 2 8b91be2b; A2.6 aecad338). Dollars DERIVED, NOT MEASURED: 50.267 core-min = 0.8378 core-h = $0.0430. Caps ACC 80.0 (8g), F3 120.0 (12g); deadline INSIDE each container at its cap wall (ACC 1200 s, F3 1800 s). Arms P1, P2, O are NOT re-run: O's 731.667 core-min is read from the kernel record (L-342).",
+  "memory_floor_gb": 16.0,
+  "enqueued_by": "dafoam lab-lane (D4-SHIPPED lane), 2026-08-26, for dafoam-supervisor, on the supervisor's route-(iii)/L-342 ruling. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS. Fields below are dafoam annotations the validator ignores.",
+  "image_row": "SHIPPED",
+  "image": "dafoam/opt-packages:latest",
+  "image_digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+  "container_memory_caps": {
+    "ACC": "8g",
+    "F3": "12g"
+  },
+  "cpuset": "5,6,7,9 -- REGISTERED (PREREGISTRATION.md section 5b by citation), NOT MOVABLE",
+  "why_in_launched_not_the_drop_path": "THIS CHAIN IS ALREADY OWNED BY A LIVE DETACHED DRIVER (d4s_chain_driver.sh, pid 173518, its own session). scripts/queue_runner.py launches every valid entry in the drop path; a second driver would be refused by the launcher's G-ROOT.5 (live same-arm container, or live driver pidfile) -- and that guard was DRIVEN and shown to fire (d4s_groot5_selftest_evidence.txt, 7/7) -- but two records for one run is the defect, not the remedy, so this entry records the launch without creating a second one.",
+  "rc_capture": "INSIDE the chain driver: rc per arm is the frozen launcher's exit, which is `docker inspect .State.ExitCode` read before any removal (no --rm, no docker rm); written to STATUS.ACC / STATUS.F3 in the run root as rc=<n> stamp=<utc> source=launcher_exit=docker_inspect_ExitCode ...; STATUS.chain carries the chain state. Never the $? of a setsid/timeout line.",
+  "guards_before_each_arm": "windowed H5 (45 samples over 60 s, refuse on ANY sample < 16.0 GiB); aggregate memory (live container caps + this cap + host non-container RSS < 30.6 GiB, d4s_aggregate_memory.py); launcher md5 asserted; then the launcher's own G-ROOT.1-.3, G-ROOT.5, cap assertion, instrument md5s, digest-only image identity, G-ROW, G-COLD.",
+  "permission": "Sanaa's words boarded verbatim at bc0e687e (detached launches of frozen cases); Sanaa's universal rule at d4d0c29d / L-342 (bookkeeping failure never invalidates the physics artefacts).",
+  "_launch": {
+    "utc": "2026-08-26T16:36:24Z",
+    "pid": 173518,
+    "sid": 173518,
+    "launched_by": "d4s_chain_driver.sh (detached, setsid nohup), NOT scripts/queue_runner.py",
+    "status_files": [
+      "/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin/STATUS.chain",
+      "/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin/STATUS.ACC",
+      "/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin/STATUS.F3"
+    ],
+    "wrapper_out": "/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin/chain_launch.out",
+    "per_arm_out": [
+      "ACC_launch.out",
+      "F3_launch.out"
+    ],
+    "eta": "ACC ~2 min after its 60 s H5 window; F3 ~12-15 min after its own window; chain complete ~16:55Z if uncontended",
+    "outcome_20260826T163731Z": "REFUSED before staging by the driver's AGGREGATE check: live caps 20.0 GiB (d12y_S3b_c1_bp 8g + d7fr_F_P 12g) + ACC 8g + host non-container RSS 3.68 = 31.68 GiB > 30.6 ceiling. H5 window passed (45/45, min 17.48 GiB). STATUS.ACC rc=6 note=AGGREGATE_REFUSED; STATUS.chain chain=STOPPED_AGGREGATE. No container started, 0 core-min. Re-fire needs a peer container to end; same command, same guards."
+  }
+}
