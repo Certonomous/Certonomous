@@ -1,0 +1,63 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   __WRITEINTERVAL__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  15;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    // Energy as a PASSIVE scalar: constant properties, no buoyancy, Ec = 4.7e-04
+    // so viscous dissipation is negligible and Sparrow-Gregg carry none.
+    // D = alpha = k/(rho cp) = 142/(900*42.6) = 1/270 m2/s  ->  Pr = nu/alpha = 0.003.
+    scalarTransportT
+    {
+        type            scalarTransport;
+        libs            (solverFunctionObjects);
+        field           T;
+        schemesField    T;
+        D               3.703703703703704e-03;
+        nCorr           0;
+        writeControl    writeTime;
+    }
+
+    // THE GATE LINE. Fixed physical points, identical at every grid level:
+    // x = 0.75 m, y = 0 .. 0.5 m, 201 uniform points (spacing 0.0025 m).
+    sampleLine
+    {
+        type            sets;
+        libs            (sampling);
+        writeControl    timeStep;
+        writeInterval   __SAMPLEINTERVAL__;
+        interpolationScheme cellPoint;
+        setFormat       raw;
+        fields          (T);
+        sets
+        (
+            gateLine
+            {
+                type    uniform;
+                axis    y;
+                start   (0.75 0    0.025);
+                end     (0.75 0.5  0.025);
+                nPoints 201;
+            }
+        );
+    }
+}
