@@ -37,7 +37,9 @@ import math
 import os
 import re
 import shutil
+import subprocess
 import sys
+from datetime import datetime
 
 # ================= REGISTERED CONSTANTS (PREREGISTRATION.md) ===============
 N_COMPONENTS_REGISTERED = 5           # §6 -- named in advance, by name
@@ -70,6 +72,25 @@ ITEM_CEILING_CORE_MIN = 880.0         # sum of the five registered arm caps
 # of this clause would have PASSED arm F -- the very arm that motivated
 # D4-DEF-7 -- so it would have been a second dead lever inside the repair.
 TERMINAL_STATEMENT = "Finalising parallel run"
+
+# ---- ADDENDUM 2 (L-342, d4d0c29d): FIELD CLASSES.  "a bookkeeping failure
+# invalidates the bookkeeping, never the physics artifacts".  Gates read
+# PHYSICS fields only; an INFRASTRUCTURE field that is absent reads
+# NOT_MEASURED, is disclosed in the verdict line, and the grade PROCEEDS.  An
+# absent PHYSICS field still REFUSES.  Absent != present-but-garbage: a
+# present value that does not parse REFUSES exactly as before.
+FIELDS_PHYSICS = ("rc", "inspect_exit", "oomkilled", "terminal_statement",
+                  "age_guard", "wall_s", "core_min", "cap_core_min",
+                  "enforced_core_min", "DIGEST", "cpuset")
+FIELDS_INFRASTRUCTURE = ("memavail_pre_GiB", "memavail_post_GiB",
+                         "delivered", "siblings_pre", "siblings_post",
+                         "cpu_series", "log")
+NOT_MEASURED = "NOT_MEASURED"
+# When an arm has NO ledger row, G1 takes its PHYSICS fields from the KERNEL
+# RECORD of the arm's container, found by the launcher's own naming pattern
+# d4_<ARM>_<stamp>; the record survives because the launcher registered no
+# --rm.  Exactly one candidate container may stand in; zero or several refuse.
+KERNEL_RECORD_NAME_PREFIX = "d4_%s_"
 MD5_RUNSCRIPT = "2906d52a5dbed2bacbaeaf85a37d3fe8"
 PLANT = 1.234e-03                     # rule 3
 
@@ -150,6 +171,13 @@ def terminal_statement_ok(log_path):
         text = raw.decode("utf-8", errors="replace")
     except OSError as exc:
         return False, {"log_unreadable": log_path, "error": str(exc)}
+    return terminal_statement_ok_text(text, log_path)
+
+
+def terminal_statement_ok_text(text, log_path):
+    """ADDENDUM 2: the positional clause on a TEXT, so a kernel-held `docker
+    logs` stream is checked by the SAME rule as a log file.  Body moved
+    verbatim from terminal_statement_ok()."""
     lines = [ln.rstrip() for ln in text.splitlines()]
     nonempty = [ln for ln in lines if ln.strip()]
     if not nonempty:
@@ -252,7 +280,13 @@ def g_completion(work, base, ledger_rows, arms_required):
 
         # ---- CLAUSE 2: a terminal statement from the producer's log FILE --
         logname = r.get("log")
-        if not logname:
+        if r.get("log_text") is not None:
+            # ADDENDUM 2: the producer's log is the container's own stream,
+            # read from the kernel record; the source is recorded beside it.
+            t_ok, t_detail = terminal_statement_ok_text(
+                r["log_text"], "docker logs " + str(r.get("container")))
+            t_detail["source"] = "kernel_record"
+        elif not logname:
             t_ok, t_detail = False, {
                 "log_not_named_in_ledger": arm,
                 "note": "the ledger row carries no log= field, so the "
@@ -264,6 +298,10 @@ def g_completion(work, base, ledger_rows, arms_required):
             terminal_failures.append({"arm": arm, "detail": t_detail})
 
         out["arms"][arm] = {"rc": harness_rc, "kernel_rc": kernel_rc,
+                            "source": r.get("source", "ledger_row"),
+                            "field_sources": r.get("field_sources"),
+                            "infrastructure_not_measured":
+                                r.get("infra_not_measured", []),
                             "core_min": r["core_min"],
                             "oomkilled": r["oomkilled"],
                             "inspect_exit": r["inspect_exit"],
@@ -672,7 +710,7 @@ LEDGER_RE = re.compile(
     r"cap_core_min=(?P<cap>[\d.]+)\s+enforced_wall_s=(?P<ewall>\d+)\s+"
     r"enforced_core_min=(?P<ecore>[\d.]+)\s+memory=(?P<mem>\S+)\s+"
     r"inspect\(exit,oomkilled\)=\[(?P<inspect>[^\]]*)\]\s+"
-    r"memavail_pre_GiB=(?P<mempre>[\d.]+)\s+memavail_post_GiB=(?P<mempost>[\d.]+)\s+"
+    r"memavail_pre_GiB=(?P<mempre>[\d.]+|NOT_MEASURED)\s+memavail_post_GiB=(?P<mempost>[\d.]+|NOT_MEASURED)\s+"
     r"cpuset=(?P<cpuset>\S+)\s+delivered_cores_mean=\[(?P<delivered>[^\]]*)\]\s+"
     r"siblings_pre=\[(?P<sibpre>[^\]]*)\]\s+siblings_post=\[(?P<sibpost>[^\]]*)\]"
     r"(?:\s+log=(?P<log>\S+))?")
@@ -697,16 +735,134 @@ def read_ledger(path):
                      "memory": g["mem"],
                      "inspect_exit": (parts[0] if parts else None),
                      "oomkilled": (parts[1] if len(parts) > 1 else None),
-                     "memavail_pre_GiB": float(g["mempre"]),
-                     "memavail_post_GiB": float(g["mempost"]),
+                     "memavail_pre_GiB": (None if g["mempre"] == NOT_MEASURED
+                                          else float(g["mempre"])),
+                     "memavail_post_GiB": (None if g["mempost"] == NOT_MEASURED
+                                           else float(g["mempost"])),
                      "cpuset": g["cpuset"], "delivered": g["delivered"],
                      "siblings_pre": g["sibpre"], "siblings_post": g["sibpost"],
-                     "log": g.get("log")})
+                     "log": g.get("log"), "source": "ledger_row",
+                     "infra_not_measured": [k for k, v in (
+                         ("memavail_pre_GiB", g["mempre"]),
+                         ("memavail_post_GiB", g["mempost"]),
+                         ("delivered", g["delivered"]),
+                         ("siblings_pre", g["sibpre"]),
+                         ("siblings_post", g["sibpost"]))
+                         if NOT_MEASURED in str(v)]})
     if not rows:
         refuse("ledger", {"no_rows_parsed": path,
                           "note": "a ledger with zero parsed rows is a parser "
                                   "failure, not a costless run"})
     return rows
+
+
+# ================= ADDENDUM 2: THE KERNEL-RECORD FALLBACK FOR G1 ===========
+def docker_ps_a_names(prefix):
+    out = subprocess.run(["sudo", "-n", "docker", "ps", "-a", "--format",
+                          "{{.Names}}", "--filter", "name=^%s" % prefix],
+                         capture_output=True, text=True)
+    if out.returncode != 0:
+        return None
+    return [n for n in out.stdout.split() if n.startswith(prefix)]
+
+
+def docker_inspect(name):
+    out = subprocess.run(["sudo", "-n", "docker", "inspect", name],
+                         capture_output=True, text=True)
+    if out.returncode != 0:
+        refuse("G1", {"kernel_record_inspect_failed": name,
+                      "stderr": out.stderr[:300]})
+    try:
+        return json.loads(out.stdout)[0]
+    except (ValueError, IndexError) as exc:
+        refuse("G1", {"kernel_record_unparseable": name, "error": str(exc)})
+
+
+def docker_logs(name):
+    out = subprocess.run(["sudo", "-n", "docker", "logs", name],
+                         capture_output=True)
+    if out.returncode != 0:
+        refuse("G1", {"kernel_record_logs_failed": name})
+    return (out.stdout + out.stderr).replace(b"\x00", b"").decode(
+        "utf-8", errors="replace")
+
+
+def parse_docker_ts(s):
+    s = s.strip()
+    if s.endswith("Z"):
+        s = s[:-1]
+    if "." in s:
+        head, frac = s.split(".", 1)
+        s = head + "." + (frac + "000000")[:6]
+    return datetime.fromisoformat(s)
+
+
+def kernel_record_row(arm, name, insp, log_text, registered_cap):
+    """A ledger-shaped row whose PHYSICS fields come from `docker inspect` and
+    the container's own log stream, with the SOURCE recorded per field, and
+    whose INFRASTRUCTURE fields -- the ones only a live poller could have
+    measured -- are NOT_MEASURED.  Nothing is invented.  Pure function of the
+    inspect dict so the selftest can drive it."""
+    st, hc = insp["State"], insp["HostConfig"]
+    if st.get("Running"):
+        refuse("G1", {"kernel_record_still_running": name})
+    for k in ("ExitCode", "StartedAt", "FinishedAt"):
+        if k not in st:
+            refuse("G1", {"kernel_record_physics_field_absent": k,
+                          "container": name})
+    t0, t1 = parse_docker_ts(st["StartedAt"]), parse_docker_ts(st["FinishedAt"])
+    wall = int(round((t1 - t0).total_seconds()))
+    if wall <= 0:
+        refuse("G1", {"kernel_record_wall_nonpositive": wall, "container": name})
+    src = "docker inspect %s" % name
+    return {"ARM": arm, "ROW": "SHIPPED",
+            "IMG": insp.get("Config", {}).get("Image", ""),
+            "DIGEST": insp.get("Image", ""), "rc": int(st["ExitCode"]),
+            "wall_s": wall, "ranks": RANKS,
+            "core_min": round(wall * RANKS / 60.0, 3),
+            "cap_core_min": registered_cap, "enforced_core_min": registered_cap,
+            "memory": "%dg" % (int(hc.get("Memory", 0)) // 2**30),
+            "inspect_exit": str(st["ExitCode"]),
+            "oomkilled": str(bool(st.get("OOMKilled"))).lower(),
+            "memavail_pre_GiB": None, "memavail_post_GiB": None,
+            "cpuset": hc.get("CpusetCpus", ""), "delivered": NOT_MEASURED,
+            "siblings_pre": NOT_MEASURED, "siblings_post": NOT_MEASURED,
+            "log": None, "log_text": log_text, "source": "kernel_record",
+            "container": name, "started": st["StartedAt"],
+            "finished": st["FinishedAt"],
+            "field_sources": {
+                "rc": src + " .State.ExitCode",
+                "inspect_exit": src + " .State.ExitCode",
+                "oomkilled": src + " .State.OOMKilled",
+                "wall_s": src + " .State.StartedAt/.State.FinishedAt",
+                "core_min": "wall_s x %d / 60" % RANKS,
+                "DIGEST": src + " .Image",
+                "cpuset": src + " .HostConfig.CpusetCpus",
+                "memory": src + " .HostConfig.Memory",
+                "terminal_statement": "docker logs %s (positional)" % name,
+                "cap_core_min": "registered CAPS table"},
+            "infra_not_measured": ["memavail_pre_GiB", "memavail_post_GiB",
+                                   "delivered", "siblings_pre",
+                                   "siblings_post", "cpu_series", "log"]}
+
+
+def kernel_record_fallback(arm, ledger_rows):
+    """If `arm` has no ledger row, find its container by the launcher's naming
+    pattern.  Exactly one must exist; zero or several refuse."""
+    if any(r.get("ARM") == arm for r in ledger_rows):
+        return None
+    names = docker_ps_a_names(KERNEL_RECORD_NAME_PREFIX % arm)
+    if names is None:
+        refuse("G1", {"arm_absent_from_ledger": arm,
+                      "kernel_record_lookup_failed": "docker ps -a"})
+    if len(names) != 1:
+        refuse("G1", {"arm_absent_from_ledger": arm,
+                      "kernel_record_candidates": names,
+                      "note": "exactly one container may stand in for a "
+                              "missing row; zero or several is a refusal"})
+    name = names[0]
+    return kernel_record_row(arm, name, docker_inspect(name),
+                             docker_logs(name), CAPS.get(arm))
 
 
 def g_caps(ledger_rows):
@@ -737,7 +893,7 @@ def g_caps(ledger_rows):
                          and total <= ITEM_CEILING_CORE_MIN)}
 
 
-def g_toolchain(ledger_rows, work, logs):
+def g_toolchain(ledger_rows, work, logs, extra_texts=None):
     """G9.  DAFOAM_CHARTER §11: the identity is the image hash, never a version
     string.  Also records the IDWarp .so md5 the run actually imported."""
     so = {}
@@ -747,9 +903,14 @@ def g_toolchain(ledger_rows, work, logs):
             continue
         n_logs += 1
         for line in open(lp, errors="replace"):
-            if "D4_IDWARP_SO_MD5:" in line:
+            if "D4S_IDWARP_SO_MD5:" in line:   # D4S-GRADER-DEF-1: the string the container prints
                 so.setdefault(os.path.basename(lp),
-                              line.split("D4_IDWARP_SO_MD5:")[1].strip())
+                              line.split("D4S_IDWARP_SO_MD5:")[1].strip())
+    for label, text in (extra_texts or {}).items():
+        n_logs += 1
+        for line in text.splitlines():
+            if "D4S_IDWARP_SO_MD5:" in line:
+                so.setdefault(label, line.split("D4S_IDWARP_SO_MD5:")[1].strip())
     if n_logs == 0:
         refuse("G9", {"no_arm_logs_found": logs})
     digests = sorted({r["DIGEST"] for r in ledger_rows})
@@ -766,7 +927,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", required=True)
     ap.add_argument("--work", required=True)
-    ap.add_argument("--arms", default="P1,P2,O,F")
+    ap.add_argument("--arms", default="P1,P2,O,F3")   # ADDENDUM 2: the arm list is REGISTERED
     ap.add_argument("--out", required=True)
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
@@ -775,6 +936,19 @@ def main():
     try:
         ledger_rows = read_ledger(os.path.join(a.base, "ledger.txt"))
         arms = [x for x in a.arms.split(",") if x]
+        # ---- ADDENDUM 2: kernel-record fallback for arms with no ledger row
+        report["G1_kernel_record_fallback"] = {}
+        for arm in arms:
+            fb = kernel_record_fallback(arm, ledger_rows)
+            if fb is not None:
+                ledger_rows.append(fb)
+                report["G1_kernel_record_fallback"][arm] = {
+                    k: v for k, v in fb.items() if k != "log_text"}
+        report["field_classes"] = {"physics": list(FIELDS_PHYSICS),
+                                   "infrastructure": list(FIELDS_INFRASTRUCTURE)}
+        report["NOT_MEASURED"] = {r["ARM"]: r.get("infra_not_measured", [])
+                                  for r in ledger_rows
+                                  if r.get("infra_not_measured")}
         report["G1_completion"] = g_completion(a.work, a.base, ledger_rows, arms)
         datum = report["G1_completion"]["age_datum_epoch"]
 
@@ -784,7 +958,10 @@ def main():
 
         logs = [os.path.join(a.base, f) for f in sorted(os.listdir(a.base))
                 if f.endswith(".log")]
-        report["G9_toolchain"] = g_toolchain(ledger_rows, a.work, logs)
+        report["G9_toolchain"] = g_toolchain(
+            ledger_rows, a.work, logs,
+            extra_texts={"docker_logs:" + r["container"]: r["log_text"]
+                         for r in ledger_rows if r.get("log_text") is not None})
         verdicts["G9_toolchain_identity"] = (
             "PASS" if report["G9_toolchain"]["pass"] else "GATE FAIL")
 
@@ -908,8 +1085,12 @@ def main():
                           "delivered_cores_floor": DELIVERED_CORES_FLOOR}}
     with open(a.out, "w") as fh:
         json.dump(out, fh, indent=1, sort_keys=True, default=str)
-    sys.stdout.write("D4_GRADER OK gates=%d %s\n"
-                     % (len(verdicts), json.dumps(verdicts, sort_keys=True)))
+    # ADDENDUM 2: NOT_MEASURED infrastructure fields are NAMED in the verdict
+    # line, beside the verdicts, never composed into any of them.
+    sys.stdout.write("D4_GRADER OK gates=%d %s NOT_MEASURED=%s\n"
+                     % (len(verdicts), json.dumps(verdicts, sort_keys=True),
+                        json.dumps(report.get("NOT_MEASURED", {}),
+                                   sort_keys=True)))
 
 
 if __name__ == "__main__":

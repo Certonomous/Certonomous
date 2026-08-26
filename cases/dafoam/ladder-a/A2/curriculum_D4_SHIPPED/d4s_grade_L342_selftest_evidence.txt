@@ -1,0 +1,42 @@
+=== python3 ===
+  [OK ] 1_infra_absent_row_PARSES
+  [OK ] 1_infra_absent_reads_None_and_is_DISCLOSED
+  [OK ] 1_G1_PROCEEDS_and_passes_on_physics_fields
+  [OK ] 2_physics_absent_REFUSES
+  [OK ] 2_physics_garbage_REFUSES_not_treated_as_absent
+  [OK ] 3_kernel_exit_1_rc_clause_FAILS
+  [OK ] 3_rc_disagreement_REFUSES
+  [OK ] 4_G9_PASSES_on_real_D4S_line
+  [OK ] 4_G9_FAILS_on_old_D4_line
+  [OK ] 4_G9_reads_kernel_held_text_too
+  [OK ] 5_kernel_record_wall_10975_core_min_731_667
+  [OK ] 5_kernel_record_sources_named_per_physics_field
+  [OK ] 5_G1_PASSES_on_kernel_record_exit_0_terminal_positional
+  [OK ] 5_G1_rc_clause_FAILS_on_kernel_record_exit_1
+  [OK ] 5_terminal_clause_FAILS_when_not_last_line
+  [OK ] 5_running_container_REFUSES
+  [OK ] 5_G10_frozen_clause_within_cap_False_for_731_667
+  [OK ] 5_G11_oomkilled_reads_false
+L342_SELFTEST mode=python3 pass=18 fail=0
+rc=0
+=== python3 -O ===
+  [OK ] 1_infra_absent_row_PARSES
+  [OK ] 1_infra_absent_reads_None_and_is_DISCLOSED
+  [OK ] 1_G1_PROCEEDS_and_passes_on_physics_fields
+  [OK ] 2_physics_absent_REFUSES
+  [OK ] 2_physics_garbage_REFUSES_not_treated_as_absent
+  [OK ] 3_kernel_exit_1_rc_clause_FAILS
+  [OK ] 3_rc_disagreement_REFUSES
+  [OK ] 4_G9_PASSES_on_real_D4S_line
+  [OK ] 4_G9_FAILS_on_old_D4_line
+  [OK ] 4_G9_reads_kernel_held_text_too
+  [OK ] 5_kernel_record_wall_10975_core_min_731_667
+  [OK ] 5_kernel_record_sources_named_per_physics_field
+  [OK ] 5_G1_PASSES_on_kernel_record_exit_0_terminal_positional
+  [OK ] 5_G1_rc_clause_FAILS_on_kernel_record_exit_1
+  [OK ] 5_terminal_clause_FAILS_when_not_last_line
+  [OK ] 5_running_container_REFUSES
+  [OK ] 5_G10_frozen_clause_within_cap_False_for_731_667
+  [OK ] 5_G11_oomkilled_reads_false
+L342_SELFTEST mode=python3 -O pass=18 fail=0
+rc=0

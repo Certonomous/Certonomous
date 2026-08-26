@@ -1,0 +1,90 @@
+--- /tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/l.frozen.sh	2026-08-26 16:32:05.116436932 +0000
++++ cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/d4s_run_arm.sh	2026-08-26 16:31:53.197369986 +0000
+@@ -164,6 +164,41 @@
+ test -n "$ARM" || { echo "ABORT usage: d4_run_arm.sh <P1|P2|O|F> <image>"; exit 64; }
+ test -n "$IMG" || { echo "ABORT usage: d4_run_arm.sh <P1|P2|O|F> <image>"; exit 64; }
+ 
++# ---- G-ROOT.5 (ADDENDUM 2) -- A LIVE ARM IS NEVER RE-STAGED.  G-ROOT.1-.3
++# ---- see only ledger rows; a queue-runner re-firing this launcher on a
++# ---- RUNNING arm would pass them and reach `rm -rf "$WORK"` (the shape the
++# ---- D7FR lane found at d7fr_run_arm.sh:319).  Two live readings, taken
++# ---- BEFORE any destructive act:
++# ----   (a) a RUNNING container carrying this item's prefix and this arm;
++# ----   (b) a driver pidfile in the run root naming a LIVE pid that is not an
++# ----       ancestor of this process (a second driver), or whose cwd is the
++# ----       run root.  A stale pidfile (dead pid) does not block.
++LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d4_${ARM}_" 2>/dev/null | grep "^d4_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
++if [ -n "$LIVE_SAME_ARM" ]; then
++  echo "ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [$LIVE_SAME_ARM]"
++  echo "  Re-staging would remove the live arm directory under it.  REFUSED."
++  exit 3
++fi
++PIDFILE="$BASE/d4s_driver.pid"
++if [ -f "$PIDFILE" ]; then
++  DPID=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
++  if [ -n "$DPID" ] && kill -0 "$DPID" 2>/dev/null; then
++    ANCESTOR=no; p=$$
++    for _ in $(seq 1 64); do
++      if [ "$p" = "$DPID" ]; then ANCESTOR=yes; break; fi
++      p=$(ps -o ppid= -p "$p" 2>/dev/null | tr -d ' ')
++      if [ -z "$p" ] || [ "$p" = "0" ]; then break; fi
++    done
++    DCWD=$(readlink -f "/proc/$DPID/cwd" 2>/dev/null)
++    if [ "$ANCESTOR" = "no" ] || [ "$DCWD" = "$(realpath -m "$BASE")" ]; then
++      echo "ABORT G-ROOT.5 driver pidfile $PIDFILE names LIVE pid $DPID (ancestor_of_this_launcher=$ANCESTOR cwd=$DCWD)."
++      echo "  Another driver owns this run root, or a process sits inside it.  REFUSED."
++      exit 3
++    fi
++  fi
++fi
++echo "D4S_G_ROOT5_PASS arm=$ARM live_same_arm_containers=none driver_pidfile=$([ -f "$PIDFILE" ] && echo present_owner_is_ancestor_or_stale || echo absent)"
++
+ CAP=$(cap_core_min "$ARM")
+ MEM=$(cap_memory "$ARM")
+ test -n "$CAP" || { echo "ABORT unknown arm $ARM -- no registered cap"; exit 64; }
+@@ -289,6 +324,13 @@
+   F3) CMD="python d4_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_fd_endpoint.py" ;;
+ esac
+ 
++# ---- ADDENDUM 2: the arm command goes to a FILE the container executes under
++# ---- its OWN `timeout` at the registered cap wall (TMO), so the deadline is
++# ---- INSIDE the container and survives every host shell.  `-k 60` escalates
++# ---- TERM to KILL; the kernel exit code (124/137) is then the record.
++CMDFILE="$WORK/d4s_cmd.sh"
++printf '%s\n' "$CMD" > "$CMDFILE" || { echo "ABORT cmd file"; exit 4; }
++echo "D4S_CMDFILE arm=$ARM md5=$(md5sum "$CMDFILE" | cut -d' ' -f1) deadline_in_container_s=$TMO"
+ CPUSAMPLE="$BASE/${ARM}_${STAMP}.cpu.jsonl"
+ # DELIVERED CORES ARE MEASURED, NOT INFERRED FROM THE QUOTA FLAG.  This sampler
+ # polls the container's own cgroup cpu.stat and writes cores-delivered to a
+@@ -355,6 +397,12 @@
+ #   Closing it properly needs the deadline somewhere that survives the shell --
+ #   inside the container's own entrypoint, or written to a file a later poller
+ #   can pick up and enforce.  NOT BUILT HERE.  Named, and left open.
++#
++#   ADDENDUM 2 (2026-08-26, after arm O realised exactly this exposure): the
++#   deadline NOW LIVES INSIDE THE CONTAINER -- `timeout -k 60 $TMO` wraps the
++#   arm command file on the `docker run` line below -- and the bookkeeping
++#   runs in d4s_chain_driver.sh, a `setsid nohup` session that outlives the
++#   agent.  The text above is kept as the record of what was open and why.
+ # ===========================================================================
+ sudo -n docker run -d --name "$NAME" \
+     --user 0:0 --cpus=$RANKS --cpuset-cpus=$CPUSET --memory=$MEM --memory-swap=$MEM --oom-score-adj=500 \
+@@ -362,7 +410,8 @@
+     "source /home/dafoamuser/dafoam/loadDAFoam.sh && \
+      echo D4S_CONTAINER_UID: \$(id -u) && \
+      python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"D4S_IDWARP_IMPORTED_FROM:\",p); print(\"D4S_IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' && \
+-     $CMD" > /dev/null 2>&1 \
++     echo D4S_DEADLINE_IN_CONTAINER_S: $TMO && \
++     timeout -k 60 $TMO bash /mnt/$ARM/d4s_cmd.sh" > /dev/null 2>&1 \
+   || { echo "ABORT could not start container"; exit 4; }
+ 
+ # The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25), not a budget
+@@ -421,7 +470,7 @@
+ LEDGER="$BASE/ledger.txt"
+ {
+   echo "ARM=$ARM ROW=$ROW IMG=$IMG DIGEST=$GOT_DIGEST rc=$rc wall_s=$WALL ranks=$RANKS core_min=$CORE_MIN cap_core_min=$CAP enforced_wall_s=$TMO enforced_core_min=$BACKCHECK memory=$MEM inspect(exit,oomkilled)=[$INSPECT] memavail_pre_GiB=$MEMAVAIL_GIB memavail_post_GiB=$MEMAVAIL_POST cpuset=$CPUSET delivered_cores_mean=[$DELIVERED] siblings_pre=[$SIBLINGS_PRE] siblings_post=[$SIBLINGS_POST] log=$(basename "$LOG") stamp=$STAMP"
+-  grep -a "D4_CONTAINER_UID\|D4_IDWARP_SO_MD5\|D4_USRBIN_TIME" "$LOG" | head -3
++  grep -a "D4S_CONTAINER_UID\|D4S_IDWARP_SO_MD5\|D4S_DEADLINE_IN_CONTAINER_S" "$LOG" | head -3   # ADDENDUM 2: the strings the container prints
+ } | tee -a "$LEDGER"
+ test -s "$LOG" && touch "$LOG.ok.${STAMP}"   # L-252 provenance sentinel
+ echo "STAMP=$STAMP RC=$rc CORE_MIN=$CORE_MIN"
