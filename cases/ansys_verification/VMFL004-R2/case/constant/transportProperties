@@ -1,0 +1,4 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// rho = 1 kg/m3, mu = 1 kg/m-s  ->  nu = mu/rho = 1 m2/s   (manual p.21)
+transportModel  Newtonian;
+nu              [0 2 -1 0 0 0 0] 1.0;

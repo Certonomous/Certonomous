@@ -1,0 +1,16 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object fvOptions; }
+// The imposed streamwise pressure gradient, manual p.21: dp/dx = -12 Pa/m across
+// the periodic boundaries.  rho = 1 kg/m3, so in the KINEMATIC momentum equation
+// solved by simpleFoam the equivalent body force is
+//     -(1/rho) dp/dx = +12 m/s2  in +x.
+// volumeMode `specific' makes the injection rate a PER-UNIT-VOLUME source, so the
+// value below is 12 m/s2 on every cell and is IDENTICAL at every grid level --
+// mesh-independent by construction, which `absolute' would NOT be.
+pressureGradient
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   all;
+    volumeMode      specific;
+    sources { U ((12 0 0) 0); }   // (explicit Su, implicit Sp)
+}

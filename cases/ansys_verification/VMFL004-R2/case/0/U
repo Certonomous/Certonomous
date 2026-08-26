@@ -1,0 +1,18 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL004 -- Plain Couette flow with pressure gradient (Ansys VM2026R1 p.21)   |
+| Patch names reconciled to blockMeshDict (movingWall/fixedWall/left/right)    |
+| by ansys-lane-opus48 2026-08-26: the 03:10Z rewrite used inlet/outlet/top/   |
+| bottomWall, which do NOT exist in the mesh -- simpleFoam would abort on them.|
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+dimensions      [0 1 -1 0 0 0 0];
+internalField   uniform (0 0 0);
+boundaryField
+{
+    movingWall  { type fixedValue; value uniform (3 0 0); }   // top y=1, U=3 m/s (manual p.21)
+    fixedWall   { type noSlip; }                              // bottom y=0, fixed
+    left        { type cyclic; }                              // streamwise periodic
+    right       { type cyclic; }
+    frontAndBack{ type empty; }
+}
