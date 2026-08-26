@@ -43,8 +43,16 @@ SMOKE_CASE_SRC="${SMOKE_CASE_SRC:-$HOME/gpu_build/smoke_case}"
 # GPU-aware" -- and names the switch itself. Ubuntu's Open MPI 5.0.10 is not CUDA-aware; for a
 # single-rank solve no device buffer ever crosses MPI, so the option changes nothing physical.
 # It is part of BOTH arms so the forced-CPU control differs from the GPU arm ONLY in mat/vec type.
-GPU_MAT="aijcusparse"; GPU_VEC="cuda";     GPU_ENV="-use_gpu_aware_mpi 0 -ksp_view -log_view -log_view_gpu_time"
-CPU_MAT="aij";         CPU_VEC="standard"; CPU_ENV="-use_gpu_aware_mpi 0 -ksp_view -log_view"
+# PIN 5 2026-08-26T17:4xZ (supervisor, MEASURED on build attempt 4, GPU arm rc=0, 300 iterations):
+# petsc4Foam registers every KSP under a per-equation option prefix (-eqn_p_, -eqn_Ux_, -eqn_Uy_;
+# the log shows "-eqn_p_mat_type aijcusparse # (source: code)"), so an UNPREFIXED -ksp_view is
+# never consulted and "Mat Object ... type:" never prints -- tell 3 read NO while -log_view's
+# event table showed KSPSolve/MatMult/PCApply at GPU %F = 100. The view option is therefore
+# passed with the prefixes. (-eqn_*_vec_type is reported "Option left" unused by petsc4Foam
+# main 090b5a74: vectors come from MatCreateVecs and inherit the cusparse matrix's device type.)
+KSPVIEW="-eqn_p_ksp_view -eqn_Ux_ksp_view -eqn_Uy_ksp_view"
+GPU_MAT="aijcusparse"; GPU_VEC="cuda";     GPU_ENV="-use_gpu_aware_mpi 0 $KSPVIEW -log_view -log_view_gpu_time"
+CPU_MAT="aij";         CPU_VEC="standard"; CPU_ENV="-use_gpu_aware_mpi 0 $KSPVIEW -log_view"
 
 log() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] SMOKE: $*"; }
 
@@ -87,9 +95,11 @@ run_solver() {  # $1 = mat type, $2 = vec type, $3 = PETSC_OPTIONS string, $4 = 
 }
 
 # ---- the three tells, evaluated from a run's artifacts ------------------------------
-tell1_gpu_flops() {  # $1 solverlog -> 0 if NON-ZERO GPU flops present
-  # -log_view prints a "GPU Mflop/s" / "GPU flops" column; a CPU run shows 0.
-  grep -Eiq 'GPU .*[1-9][0-9]*' "$1" && grep -Eiq 'CpuToGpu|GpuToCpu' "$1"
+tell1_gpu_flops() {  # $1 solverlog -> 0 if the KSPSolve EVENT ROW shows GPU %F > 0
+  # PIN 5: the draft regex 'GPU .*[1-9]' also matched -log_view's LEGEND ("GPU Mflop/s: 1e-6 * ...")
+  # and so could read YES on a CPU run. The tell now parses the KSPSolve row of the event table:
+  # its LAST column is "GPU %F" (percent of flops on the GPU); a CPU run prints 0 there.
+  awk '$1=="KSPSolve" && $NF+0 > 0 {hit=1} END {exit hit?0:1}' "$1"
 }
 tell2_pid_on_gpu() { # $1 gpusample -> 0 if a PID held non-zero device memory
   grep -Eq '[0-9]+, *[1-9][0-9]* MiB' "$1"
