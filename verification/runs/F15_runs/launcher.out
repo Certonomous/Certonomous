@@ -1,0 +1,22 @@
+PATHS RESOLVED against disk in this invocation: 12 files, 4 directories.
+INSTRUMENT GREEN: exact_osr and grade_f15 selftests pass; grade_f15 exits 2 under -O.
+CAP AGREES between launcher and grader: 200 core-minutes.
+level coarse: free cores 3.960000000000001, ranks 1 -> PROJECTED 1.6666666666666667 core-min (cumulative would be 1.6666666666666667 of 200)
+level coarse runs SERIAL on 1 rank: decomposePar NOT invoked. Decomposition seed: none (identity decomposition: every level runs SERIAL on 1 rank and decomposePar is NOT invoked at any level; there is no partition and no RNG)
+level coarse COMPLETE: ClockTime 68s x 1 ranks -> cumulative 1.1333333333333333 core-min of 200
+  QUANTISATION: ClockTime has INTEGER-SECOND resolution, so this level's
+  actual carries +/- 0.008333333333333333 core-min of read-out quantisation alone.
+level medium: free cores 4.52, ranks 1 -> PROJECTED 13.383333333333333 core-min (cumulative would be 14.516666666666666 of 200)
+level medium runs SERIAL on 1 rank: decomposePar NOT invoked. Decomposition seed: none (identity decomposition: every level runs SERIAL on 1 rank and decomposePar is NOT invoked at any level; there is no partition and no RNG)
+level medium COMPLETE: ClockTime 524s x 1 ranks -> cumulative 9.866666666666665 core-min of 200
+  QUANTISATION: ClockTime has INTEGER-SECOND resolution, so this level's
+  actual carries +/- 0.008333333333333333 core-min of read-out quantisation alone.
+level fine: free cores 4.289999999999999, ranks 1 -> PROJECTED 107.11666666666666 core-min (cumulative would be 116.98333333333332 of 200)
+level fine runs SERIAL on 1 rank: decomposePar NOT invoked. Decomposition seed: none (identity decomposition: every level runs SERIAL on 1 rank and decomposePar is NOT invoked at any level; there is no partition and no RNG)
+level fine COMPLETE: ClockTime 4299s x 1 ranks -> cumulative 81.51666666666667 core-min of 200
+  QUANTISATION: ClockTime has INTEGER-SECOND resolution, so this level's
+  actual carries +/- 0.008333333333333333 core-min of read-out quantisation alone.
+
+ALL THREE LEVELS COMPLETE. Cumulative spend: 81.51666666666667 core-min of 200.
+Grading is a SEPARATE invocation and is not run from here:
+  python3 /home/ubuntu/Certonomous/cases/F15_oblique_shock_reflection/grade_f15.py --prereg-commit=2aea29d97c74f54183c1d99a28d86568ee254815

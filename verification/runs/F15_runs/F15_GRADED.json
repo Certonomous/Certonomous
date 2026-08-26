@@ -1,0 +1,176 @@
+{
+  "rung": "F15-OSR29",
+  "prereg_commit": "2aea29d9",
+  "prereg": "verification/campaign/F15_OSR29_PREREGISTRATION.md",
+  "assert_census": {
+    "files_checked": 2,
+    "assert_nodes": 0
+  },
+  "controls": [
+    {
+      "control": "paper_top_bc_agreement",
+      "residuals": {
+        "p": 0.00019362586852555985,
+        "rho": 3.7088576034793874e-06,
+        "u": 2.099454203374762e-06,
+        "v": 0.0003202554788354073
+      },
+      "tolerances": {
+        "rho": 0.0001,
+        "u": 0.0001,
+        "v": 0.0005,
+        "p": 0.001
+      },
+      "passed": true
+    },
+    {
+      "control": "rankine_hugoniot_residuals",
+      "worst": 8.881784197001252e-16,
+      "detail": [
+        {
+          "residual": "mass",
+          "value": 4.440892098500626e-16
+        },
+        {
+          "residual": "normal_momentum",
+          "value": -4.440892098500626e-16
+        },
+        {
+          "residual": "tangential_velocity",
+          "value": 0.0
+        },
+        {
+          "residual": "energy",
+          "value": 0.0
+        },
+        {
+          "residual": "mass",
+          "value": 0.0
+        },
+        {
+          "residual": "normal_momentum",
+          "value": 0.0
+        },
+        {
+          "residual": "tangential_velocity",
+          "value": 0.0
+        },
+        {
+          "residual": "energy",
+          "value": -8.881784197001252e-16
+        }
+      ],
+      "passed": true
+    },
+    {
+      "control": "geometry_and_outflow",
+      "exit_y": 0.9447769855544786,
+      "mach3": 1.9424194439230202,
+      "passed": true
+    },
+    {
+      "control": "PZ-F15-CLASSC_four_limbs_each_shown_able_to_refuse",
+      "flat": "PLATEAUED",
+      "ramp": "NOT_PLATEAUED_TREND",
+      "step": "NOT_PLATEAUED_TREND",
+      "short_series": "exit 2",
+      "passed": true
+    },
+    {
+      "control": "PZ-F15-GRADE_LADDER_CALLSITE_ast_census_plus_grep_both_ways",
+      "ast_call_nodes": [
+        701
+      ],
+      "grep_lines": [
+        462,
+        701
+      ],
+      "grep_lines_note": "grep also matches prose in this file; the AST census is the binding count",
+      "negative_control": "miss on a file with no call",
+      "positive_control": "hit on a planted call",
+      "passed": true
+    }
+  ],
+  "gate_demonstration": [
+    {
+      "gate": "G-F15-1_E1_pressure_L1_y0.5",
+      "construction": "ideal capture over 1 cells",
+      "value": 0.001167711635312496,
+      "band": [
+        0.0009711165159119011,
+        0.007768932127295209
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F15-1_E1_pressure_L1_y0.5",
+      "construction": "ideal capture over 60 cells",
+      "value": 0.05826699095614994,
+      "band": [
+        0.0009711165159119011,
+        0.007768932127295209
+      ],
+      "inside": false,
+      "intended": "outside"
+    },
+    {
+      "gate": "G-F15-2_x_wall_impingement",
+      "construction": "impingement displaced by 0",
+      "value": -0.19595224472853973,
+      "band": [
+        -0.2159522447285762,
+        -0.1759522447285762
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F15-2_x_wall_impingement",
+      "construction": "impingement displaced by 0.35",
+      "value": 0.15404775527146028,
+      "band": [
+        -0.2159522447285762,
+        -0.1759522447285762
+      ],
+      "inside": false,
+      "intended": "outside"
+    }
+  ],
+  "write_path": "OpenFOAM `sets` functionObject, `setFormat raw`, writing <case>/postProcessing/<setName>/<time>/<setName>_p.xy with THREE coordinate columns (x y z) followed by the field. Format pinned against REAL solver output already on this box -- 2690 such files exist under verification/runs and /home/ubuntu/certonomous-runs; verification/runs/F6b_runs/coarse/postProcessing/singleGraph_x0/3418/line_k_nut_omega_p_U.xy carries 10 columns = 3 coordinates + k + nut + omega + p + 3 U components, which is where the three-coordinate layout was measured rather than assumed.",
+  "cap_core_min": 200.0,
+  "rows": [
+    {
+      "gate": "G-F15-1_E1_pressure_L1_y0.5",
+      "verdict": "PENDING",
+      "note": "level 'coarse' is not complete: no `Time =` lines in the log",
+      "completion": {
+        "case": "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse",
+        "log": "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse/log.rhoCentralFoam",
+        "n_times": 0,
+        "latest": null,
+        "dt_final": null,
+        "clock_time_s": null,
+        "end_line": true,
+        "done": false,
+        "why": "no `Time =` lines in the log"
+      }
+    },
+    {
+      "gate": "G-F15-2_x_wall_impingement",
+      "verdict": "PENDING",
+      "note": "level 'coarse' is not complete: no `Time =` lines in the log",
+      "completion": {
+        "case": "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse",
+        "log": "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse/log.rhoCentralFoam",
+        "n_times": 0,
+        "latest": null,
+        "dt_final": null,
+        "clock_time_s": null,
+        "end_line": true,
+        "done": false,
+        "why": "no `Time =` lines in the log"
+      }
+    }
+  ]
+}

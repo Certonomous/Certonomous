@@ -1,0 +1,9 @@
+F15 -- OBLIQUE SHOCK REFLECTION M=2.9 -- TALLY
+==============================================================================
+G-F15-1_E1_pressure_L1_y0.5              PENDING
+    level 'coarse' is not complete: no `Time =` lines in the log
+G-F15-2_x_wall_impingement               PENDING
+    level 'coarse' is not complete: no `Time =` lines in the log
+==============================================================================
+gated by: scripts/roache_triple.py::grade_ladder
+written: /home/ubuntu/Certonomous/verification/runs/F15_runs/F15_GRADED.json

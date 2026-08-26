@@ -1,0 +1,1 @@
+REFUSED: /home/ubuntu/Certonomous/verification/runs/F15_runs/coarse/postProcessing/lineWall/0.05/lineWall_p.xy: the wall pressure never crosses the half-rise value 1.824133; min 0.714286 max 0.714286. The gate quantity is ABSENT, which is reported as absent and never graded as a pass.
