@@ -14887,3 +14887,100 @@ error it is derived from.
 acceptance of the record and this lesson's wording, 2026-08-26.
 
 ---
+
+## L-347 — A planted-zero control is BLIND when the plant does not cross the reader's SELECTION: a `min()`/`max()`/argmin reader moves only if the planted value undercuts (or overshoots) the extremum — and a control standing behind another control's refusal has never run at all
+
+**Cost:** a second completed 3-level verification run that could not be graded — VMFL011-R2
+(triangular cavity, VM2026R1 p.41), **9.0833 core-min**, `NOT A RESULT`, register row #31 —
+on top of the 8.2167 core-min of attempt 1 that L-340 already priced. **17.30 core-min on one
+manual case for zero graded values, and the cause both times was the grading instrument, not
+the solver.** `ansys-verification`, 2026-08-26.
+
+**What happened.** VMFL011-R2 was registered specifically to repair L-340: the
+`rms_vs_benchmark` channel's plant was sized to the averaging reader (`K·U_wall·base`,
+`K = 4`, applied to every data row) and the repair **worked**, measured on the real attempt-1
+bytes before any level was read — sized plant 0.322114 moved the RMS by **1.185698e-01**
+against a threshold of **3.221137e-02**, inside the derived bounds [8.052843e-02,
+1.610569e-01], while the parent's single-row plant still refused at 3.677091e-07 <
+1.234000e-04. The run then refused **on the other channel**:
+
+> REFUSING (exit 2): planted-zero control FAILED for u_min_norm.
+>   planted -0.1234 into …/L1/postProcessing/bisector/20000/bisect_U.xy, reader moved by only 0.
+
+**Not diluted — exactly zero.** `_perturb` plants into the **first data row** of the sampled
+profile. On the real bisector that row is the sample at **y = −4 m, the collapsed-hex apex,
+where the no-slip solution is `u ≡ 0` exactly**. Adding −0.1234 there gives −0.1234, which is
+**above** the profile minimum **`min(u) = −0.528988913215` m/s** (401 samples, L1). A `min()`
+reader returns the identical number. The plant never entered the reader's answer.
+
+**Why this is NOT L-340 again.** L-340 is about plant **MAGNITUDE** — an averaging reader
+dilutes a correctly placed plant by ~1/√N, and the fix is to size the plant. This is about
+plant **LOCATION** — a correctly *sized* point plant landed on a row **outside the point
+reader's support**. Sizing does not help when the plant is not on the row the reader reads.
+A selecting reader (`min`, `max`, `argmin`, `argmax`, a peak-picker, a first/last
+zero-crossing, an extremum-of-a-profile) has support of **exactly one row**, and which row
+that is **depends on the data**, not on the file layout.
+
+**And the second half, which is the more dangerous half.** This defect had been sitting in the
+frozen comparator since before attempt 1, and **no test could have seen it**, because both
+comparators build their channels in the same dict order — `rms_vs_benchmark` first,
+`u_min_norm` second (attempt-1 blob `e369496bf2e28ccb7145756e1c2442eb11e8e3f7` lines 262–265;
+R2 blob `45aa4613253d1d594b69b7f774e18cd7a312a20e`, `controls()`) — and **attempt 1 exited 2
+inside the FIRST entry**. The `u_min_norm` plant had therefore **never once executed on a real
+VMFL011 bisector file**. The R2 pre-registration recorded, in good faith, that *"`u_min_norm`
+— a point reader — passed the identical control"*; that was true of the **selftest fixtures**,
+whose synthetic profiles happen to put the minimum at or near the first row, and was never
+true of the real output. **Repairing the first channel is what carried execution past it for
+the first time.** A control standing behind another control's refusal is an **untested
+control**, and its green light is a report about the fixture, not about the instrument.
+
+**The rule.**
+1. **Plant where the reader selects, not where the file starts.** For a selecting reader,
+   plant into the row the reader would return — for a `min`, at the argmin row and at a value
+   `min − |plant|` (for a `max`, `max + |plant|`), so the plant is guaranteed to change the
+   selection. Size it so the read must move by more than `0.1·plant`. The threshold rule
+   `delta > 0.1·|plant|` is **never** loosened to accommodate a badly placed plant — a control
+   repaired by weakening its own threshold is no control at all (L-340's rule, carried).
+2. **Drive EVERY channel's control on a REAL output before freezing**, not only the first.
+   A per-channel control is only registered if it has been observed to fire on a real file
+   from the real solver in the real format. Selftest fixtures certify the code path; they do
+   not certify the plant against the data.
+3. **A comparator whose channels can refuse in sequence must run ALL controls and report ALL
+   of them before exiting.** Exiting at the first refusal hides every control behind it and
+   converts a multi-channel instrument into a one-channel one. Collect the failures, print
+   each with its channel, its plant, its move and its threshold, and exit 2 once at the end.
+   This costs nothing and is the difference between "one control is broken" and "one control
+   is broken and the others are unknown".
+4. Using an existing run's output to **DRIVE a control** is legitimate and is what item 2
+   requires; using it to **set a band, a threshold or a gate quantity** is gate-fitting and is
+   refused (rule 2).
+
+**Scope.** Any comparator pairing a planted-zero control with a selecting reader: `min`/`max`
+over a sampled profile, argmin/argmax positions, peak-pickers, first/last sign-change or
+zero-crossing readers, extremum-of-a-time-series, `Cp_min`, separation/reattachment points.
+Averaging readers are L-340's case; **point-probe readers at a FIXED index are safe** (the
+plant and the read address the same row by construction). Any multi-channel comparator that
+exits on the first failing control is exposed to the second half of this lesson regardless of
+reader type.
+
+**Per rule 2** the frozen comparator is not edited after compute; the `NOT A RESULT` (refusal)
+stands as register row #31 and the corrected re-run is a NEW row and a NEW registration
+(`ANSYS_VERIFICATION_CHARTER` §6).
+
+**Sibling of:** **L-340** (same control, same file, same case — magnitude where this is
+location; this lesson is the measurement that L-340's repair was necessary but not
+sufficient), **L-338** (an inherited grader control frozen without checking it against the
+specific channel's nature), and **L-343** (a proof obtained in one environment certifies the
+toolchain, not the launch path — here, a control proven on a fixture certifies the code, not
+the data). All three are the same shape: **a guard verified against something other than what
+it will actually meet.**
+
+**Provenance:** `cases/ansys_verification/VMFL011-R2/RESULTS.md`;
+`verification/runs/ansys_verification/VMFL011-R2/GRADING.txt` (the refusal, verbatim, at HEAD);
+register row #31; calibration row `C-144`; pre-registration
+`cases/ansys_verification/VMFL011-R2/PREREGISTRATION.md` (blob
+`a8c9b6f30e4383e23594b4203eea3bd28ded0a2a`, frozen `9f9d6925`); comparator blob
+`45aa4613253d1d594b69b7f774e18cd7a312a20e`; parent comparator blob
+`e369496bf2e28ccb7145756e1c2442eb11e8e3f7` (register row #26, L-340).
+
+---
