@@ -145,9 +145,12 @@ cap_core_min() {
   esac
 }
 cap_memory() {
+  # D5 ADDENDUM 1 (pre-compute, 2026-08-26): EVERY arm 12g, never 8g -- the
+  # D4-SHIPPED ACC arm (compute_totals, the same shape as ACC48/ACC192) was
+  # OOM-killed by its 8g container cgroup (rc=137 at 16:56:28Z); the 8g row
+  # in the table above is STRUCK by that addendum.
   case "$1" in
-    ACC48|ACC192) echo 8g ;;
-    O48|O192|F48|F192) echo 12g ;;
+    O48|O192|ACC48|ACC192|F48|F192) echo 12g ;;
     *) echo "" ;;
   esac
 }

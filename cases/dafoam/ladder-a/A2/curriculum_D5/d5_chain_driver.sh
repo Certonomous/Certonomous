@@ -3,7 +3,7 @@
 # commit 8b91be2b (Addendum 2) with the REGISTERED DELTAS listed in
 # PREREGISTRATION.md section 7 and recorded in d5_chain_driver_DELTAS_from_d4s.diff:
 #   (1) item names, run root, launcher, pidfile, PATCHED image (the row D4 was
-#       graded on, C-97), per-arm memory caps (ACC 8g, O/F 12g), MD5_LAUNCHER;
+#       graded on, C-97), per-arm memory caps, MD5_LAUNCHER;
 #   (2) AGGREGATE in the WAIT-AND-RETRY form ruled for D4-SHIPPED in UPDATE F
 #       (dafoam-supervisor, 2026-08-26 [lab-attributed]): poll 30 s, bounded 4 h,
 #       EVERY wait written to STATUS.<arm>, refuse-and-BLOCK at the bound with
@@ -19,6 +19,9 @@
 #   (5) STATUS.<arm> is OPENED at preflight and APPENDED; the LAST line carries
 #       the rc, source=launcher_exit=docker_inspect_ExitCode -- never the $? of
 #       a setsid/timeout line.
+#   ADDENDUM 1 (pre-compute): every arm's memory cap is 12g, never 8g -- the
+#       D4-SHIPPED ACC arm (the same compute_totals shape as ACC48/ACC192) was
+#       OOM-killed by its 8g cgroup (rc=137, 16:56:28Z 2026-08-26).
 # Runs the named arms IN ORDER through the frozen launcher and STOPS AT THE
 # FIRST NON-ZERO rc.  Started ONLY detached (the queue runner's own form, or
 #   setsid nohup bash d5_chain_driver.sh O48 ACC48 F48 O192 ACC192 F192 > <root>/chain_launch.out 2>&1 &
@@ -37,9 +40,9 @@ D4_CASE_DIR="$HERE/../curriculum_D4"
 PERMISSION=bc0e687e
 H5_FLOOR_GIB=16.0; H5_SAMPLES=45; H5_WINDOW_S=60; AGG_CEILING_GIB=30.6
 AGG_POLL_S=30; AGG_BOUND_S=14400
-# The launcher is FROZEN (PREREGISTRATION.md section 8 md5); asserted before
-# EVERY arm so a mid-chain edit cannot change what the later arms run.
-MD5_LAUNCHER=b4517d4a8ce1c0d7c3e1df2180f56fb0
+# The launcher is FROZEN (PREREGISTRATION.md section 8 + Addendum 1 md5);
+# asserted before EVERY arm so a mid-chain edit cannot change what runs.
+MD5_LAUNCHER=50a976780e357998238ede3bbb8e5521
 MD5_RUNSCRIPT=fa1d91c82d11aacd0ae072652b346952
 MD5_FD=91b9f3526a39cb02eafbd5be504d7107
 MD5_EXTRACT=ee7d3c99fd716da23779cb651961918e
@@ -76,7 +79,7 @@ trap 'rm -f "$PIDFILE"' EXIT
 echo "D5_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] permission=$PERMISSION"
 echo "chain=started arms=[$ARMS] pid=$$ stamp=$(date -u +%Y%m%dT%H%M%SZ) permission=$PERMISSION" >> "$STATUS"
 mem_gib() { python3 -c "print('%.2f' % ($(awk '/MemAvailable/{print $2}' /proc/meminfo)/1048576.0))"; }
-cap_mem_gib() { case "$1" in ACC48|ACC192) echo 8;; *) echo 12;; esac; }
+cap_mem_gib() { echo 12; }   # ADDENDUM 1: every arm 12g
 for ARM in $ARMS; do
   echo "$MD5_LAUNCHER  $LAUNCHER" | md5sum -c - || { echo "ABORT launcher md5 drifted before arm $ARM"; echo "chain=ABORT arm=$ARM reason=launcher_md5 stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 4; }
   # ---- (5) STATUS.<arm> is OPENED here (preflight line) and APPENDED from now

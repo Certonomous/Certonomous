@@ -1,9 +1,9 @@
-D5 G-ROOT.5 SELFTEST 2026-08-26T17:15:48Z launcher_md5=b4517d4a8ce1c0d7c3e1df2180f56fb0
-  [OK ] G-ROOT.5 completes at :208, first destructive op at :272
+D5 G-ROOT.5 SELFTEST 2026-08-26T17:38:52Z launcher_md5=50a976780e357998238ede3bbb8e5521
+  [OK ] G-ROOT.5 completes at :211, first destructive op at :275
   [OK ] zero backticks on executable lines of the launcher
   [OK ] run root ABSENT before the test: /home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density
-  [OK ] (a) live container d5_ACC48_selftest_20260826T171548Z -> rc=3: ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [d5_ACC48_selftest_20260826T171548Z]
-  [OK ] (b) live pid 250511 cwd=/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density -> rc=3: ABORT G-ROOT.5 driver pidfile /home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/d5_driver.pid names LIVE pid 250511 (ancestor_
+  [OK ] (a) live container d5_ACC48_selftest_20260826T173852Z -> rc=3: ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [d5_ACC48_selftest_20260826T173852Z]
+  [OK ] (b) live pid 304733 cwd=/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density -> rc=3: ABORT G-ROOT.5 driver pidfile /home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/d5_driver.pid names LIVE pid 304733 (ancestor_
   [OK ] (b2) stale pidfile ignored; launcher went on to abort at the L-251 mode check (rc=4) -- nothing staged
   [OK ] (c) clear -> G-ROOT.5 passes; L-251 mode check aborts (rc=4) before any staging
   [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin -> rc=3 G-ROOT.1 REFUSED
@@ -11,4 +11,4 @@ D5 G-ROOT.5 SELFTEST 2026-08-26T17:15:48Z launcher_md5=b4517d4a8ce1c0d7c3e1df218
   [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint -> rc=3 G-ROOT.1 REFUSED
   [OK ] temporary run root still EMPTY after every invocation (0 entries)
   [OK ] run root ABSENT after the test (freeze condition): test -e /home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density -> false
-D5 G-ROOT5 SELFTEST pass=12 fail=0 2026-08-26T17:15:50Z
+D5 G-ROOT5 SELFTEST pass=12 fail=0 2026-08-26T17:38:53Z
