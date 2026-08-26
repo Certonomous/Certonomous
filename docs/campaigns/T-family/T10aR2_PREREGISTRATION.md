@@ -415,3 +415,23 @@ supervisor's check 4.**
 - `R2_f`: built 16:30:31Z, 37 044 / 7 056, Mesh OK, F 885.4 MB
   (sha `801700cf…` == R_q's); POINT 11.07 / cap 120, timeout 7 200 s.
 - Solver core-minutes on the rung at the freeze: **0**.
+
+---
+
+## AMENDMENT 1 — 2026-08-26 (PRE-FIRST-COMPUTE): the launcher's cwd-holder guard refused its own parent shell under the queue runner's `cd` form — three zero-compute refusals; guard re-frozen
+
+**Document version 1.0 -> 1.1 (1.0 = the `fb4bf7e2` freeze; this amendment declares the numbering). Lines whose number changed above this section: 0** (appended to the worktree copy after verifying it byte-identical to the HEAD blob `1c28eec7`). Ruled by the heat-transfer supervisor `[lab-attributed]` after crash triage (check 2) and a personal read of the diff; drafted by the T5 lane. **Condition (`CLAUDE.md` rule 2), and how it was checked:** no solver has run on this rung — `R2_c`, `R2_m`, `R2_f` hold only `0.orig BUILD.txt CASE.txt constant log.* system viewFactorField.build` plus the runner's two infrastructure files (`ls` at 17:40Z); no `0/`, no numeric time directory, no in-wrapper `T10aR2_runs/STATUS.R2_*`, no `DONE.*`; `mark_done_t10aR2.py` refuses `no STATUS.R2_c`. **Solver core-minutes on the rung: 0.**
+
+**What happened.** The queue runner (`scripts/queue_runner.py`, pid 189825) launched the three entries and `launch_t10aR2.sh` (blob `dd58c649`) refused each within one second, verbatim from `<case>/launcher.queue.out`:
+
+- `R2_c` (runner `17:24:17Z LAUNCHED … pid=280743`): `REFUSE: pid 280744 is already running in R2_c`
+- `R2_m` (`17:25:22Z … pid=284859`): `REFUSE: pid 284860 is already running in R2_m`
+- `R2_f` (`17:26:27Z … pid=286905`): `REFUSE: pid 286906 is already running in R2_f`
+
+**Ground.** The runner's fixed launch form is `setsid nohup bash -c 'cd <cwd>; <argv> > <cwd>/launcher.queue.out 2>&1; …'` (`docs/standards/QUEUE_RUNNER.md` §4; `scripts/queue_runner.py` line 26). That wrapper shell — pid = launch pid + 1 in every row — holds the case directory as cwd and is the launcher's own parent. The frozen guard (lines 133–135) scanned `/proc/*/cwd` for the case directory and excluded only `$$`, so it refused its own launch by construction. The runner's `<case>/STATUS.T10aR2_R2_*` files (`launcher_rc=2`) are INFRA records of the argv's exit (L-342), left in place; the consumed entries sit in `verification/queue/heat-transfer/launched/`.
+
+**The repair — the only change in the file.** The four-line guard is replaced by a lineage-aware one (a `ppid_of()` reader of `/proc/<pid>/stat`, the launcher's ancestor chain `LINEAGE` walked from `$PPID` to pid 1, an `own_lineage()` test that also walks a candidate's ancestors to `$$`, and the same `/proc` scan, which now `continue`s on the launcher's own lineage and still refuses, naming the pid, on any foreign process). Nothing else moves: `--timeout` must still equal the registered cap, `--ranks` 1, the `0/` / time-dir / mesh / field / `F` refusals, `0/T` touched last, solver in the foreground under `timeout`, rc in-wrapper, `capped` witness, `exit "$RC"`. **Driven on a scratch copy of `R2_c` (`endTime 1`, outside the run tree, deleted afterwards):** (a) a planted foreign `sleep` with cwd = the scratch case dir → `REFUSE: pid 299723 is already running in R2_c`, rc 2, the planted pid named; (b) the runner's exact form `bash -c 'cd <scratch case> && launch_t10aR2.sh --case-dir … --timeout 600 --ranks 1 --no-detach'` → guard passed, `checkMesh` rc 0, `buoyantSimpleFoam` reached `Time = 1` and `End`, in-wrapper `STATUS.R2_c` `rc=0 wall_s=1 capped=no note=clean`. No field of the scratch copy was read.
+
+**Freeze set, §9 row for the launcher — STRUCK, not deleted:** ~~`launch_t10aR2.sh` | `dd58c649` | `72a1cc25879787a3` | 161~~ → **`launch_t10aR2.sh` | `59fe37c1` | `602eef12be713d13` | 181; 0 `assert`; the two guard arms above driven.** Every other row of §9 is unchanged. No gate, band, interval, floor, cap, timeout or cost moves; §4's POINT 11.32 / caps 10 / 30 / 120 stand.
+
+**Status after this amendment: PRE-REGISTERED, BUILT, NOT FIRED (three zero-compute refusals on record); re-enqueued as `T10aR2_R2_{c,m,f}_v2.json` citing this amendment's commit.**

@@ -15,3 +15,5 @@ Written 2026-08-26T17:28:27Z by the T5 lane on the heat-transfer supervisor's ex
 **Registered marker applied:** `mark_done_t10aR2.py` (invoked once, without arguments — it executes its check on the registered case list rather than printing usage; disclosed) → `REFUSE: no STATUS.R2_c -- the solver's exit status was never recorded. An absent STATUS is not inferred from an End line (K0d L1); it is refused.` rc 2. That is the correct reading: nothing ran. **Verdict for the rung at this write: `PENDING` (not run); no level is DONE; no CAP_OVERRUN.txt was written (the runner saw a STATUS within 1 s).**
 
 **Cost:** predicted POINT 11.32 core-min (§4: 0.03 + 0.22 + 11.07), caps 10 / 30 / 120; actual 0.000 core-min; waste 0.000 core-min (nothing armed, nothing to clean); no calibration row is owed until a level runs.
+
+## 2026-08-26T17:40:38Z — AMENDMENT 1 applied `[lab-attributed]`: launcher guard re-frozen at blob `59fe37c1` (was `dd58c649`); both guard arms driven in scratch (foreign `sleep` refused naming pid 299723; the runner's `cd` form passed, one iteration to `End`, in-wrapper STATUS rc=0); entries re-issued as `_v2` citing the amendment commit.
