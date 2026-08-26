@@ -1,0 +1,38 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+dimensions [0 1 -1 0 0 0 0];
+internalField uniform (0.0051155456 0 0);
+boundaryField
+{
+    inlet
+    {
+        // Fully developed laminar profile (manual p.17: "Fully developed velocity
+        // profile at inlet").  The MAGNITUDE is not printed in the manual; it is
+        // SOURCED from the case archive's own inlet profile file
+        //   VMFL002_WB.wbpz : .../Fluent/VMFL002_laminar-pipe-hotflow.set.prof
+        // (20 radial points), least-squares fitted to u = umax*(1-(r/R)^2):
+        //   umax = 1.0231091246e-02 m/s, U_mean = 5.1155456228e-03 m/s,
+        //   max |residual| = 2.535e-05 m/s (0.248 % of umax).
+        type            codedFixedValue;
+        value           uniform (0.0051155456 0 0);
+        name            vmfl002ParabolicInlet;
+        code
+        #{
+            const fvPatch& pp = patch();
+            const scalar R    = 0.0025;
+            const scalar umax = 1.0231091246e-02;
+            vectorField vals(pp.size(), Foam::vector::zero);
+            forAll(pp, i)
+            {
+                const Foam::point& c = pp.Cf()[i];
+                const scalar r = Foam::sqrt(Foam::sqr(c.y()) + Foam::sqr(c.z()));
+                vals[i] = Foam::vector(umax*(1.0 - Foam::sqr(r/R)), 0.0, 0.0);
+            }
+            operator==(vals);
+        #};
+    }
+    outlet { type zeroGradient; }
+    wall   { type noSlip; }
+    front  { type wedge; }
+    back   { type wedge; }
+}

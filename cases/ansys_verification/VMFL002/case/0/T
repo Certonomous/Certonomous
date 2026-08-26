@@ -1,0 +1,12 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object T; }
+dimensions [0 0 0 1 0 0 0];
+internalField uniform 300;
+boundaryField
+{
+    inlet  { type fixedValue; value uniform 300; }        // manual p.17: 300 K
+    outlet { type zeroGradient; }
+    // Uniform wall heat flux 5000 W/m2 (manual p.17).  dT/dn = q"/k = 5000/8.54.
+    wall   { type fixedGradient; gradient uniform 585.4800936768150; }
+    front  { type wedge; }
+    back   { type wedge; }
+}

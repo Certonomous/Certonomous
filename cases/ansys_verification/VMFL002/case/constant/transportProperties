@@ -1,0 +1,6 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// VMFL002 -- Mercury, manual p.17: rho=13529 kg/m3, mu=0.001523 kg/m-s,
+// cp=139.3 J/kg-K, k=8.54 W/m-K.  nu = mu/rho.  alpha = k/(rho*cp).
+transportModel  Newtonian;
+nu              1.1257299e-07;   // = 0.001523 / 13529

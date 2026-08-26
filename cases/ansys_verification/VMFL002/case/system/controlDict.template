@@ -1,0 +1,45 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     simpleFoam;
+startFrom       startTime;   startTime 0;
+stopAt          endTime;     endTime   __ENDTIME__;
+deltaT          1;
+writeControl    runTime;     writeInterval __ENDTIME__;
+writePrecision  12;  writeCompression off;  timeFormat general;  runTimeModifiable false;
+functions
+{
+    // Passive-scalar temperature: constant properties, no buoyancy -> T is
+    // advected by phi and diffused with alpha = k/(rho*cp) = 4.53151...e-06 m2/s.
+    Tsolve
+    {
+        type            scalarTransport;
+        libs            (solverFunctionObjects);
+        field           T;
+        D               4.5315176e-06;
+        nCorr           2;
+        writeControl    writeTime;
+    }
+    // GATE CHANNEL 1 -- pressure drop.  p is KINEMATIC (m2/s2); dP[Pa] = rho * dp.
+    pInlet
+    {
+        type            surfaceFieldValue;  libs (fieldFunctionObjects);
+        regionType      patch;  name inlet;  operation areaAverage;  fields (p);
+        writeFields     false;  writeControl writeTime;  log true;
+    }
+    pOutlet
+    {
+        type            surfaceFieldValue;  libs (fieldFunctionObjects);
+        regionType      patch;  name outlet; operation areaAverage;  fields (p);
+        writeFields     false;  writeControl writeTime;  log true;
+    }
+    // GATE CHANNEL 2 -- outlet temperature field, sampled face-by-face so the
+    // comparator can extrapolate T(r) to the axis (r=0) itself.
+    outletT
+    {
+        type            surfaces;  libs (sampling);
+        surfaceFormat   raw;  fields (T);  interpolate false;
+        surfaces { outletPatch { type patch; patches (outlet); triangulate false; } }
+        writeControl    writeTime;
+    }
+    resid { type solverInfo; libs (utilityFunctionObjects); fields (U p); }
+}
