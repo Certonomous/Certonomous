@@ -179,6 +179,7 @@ MD5_PHYSICAL=26b8265f30bcdd1a7612cd4a5d030e7f
 MD5_ACCPRIMAL=2bfc49e764e999054386e858ec4a0cd8
 MD5_ACCCOMPARE=ef416652abd8e9b64f5a0886915789bf
 MD5_GRADE=cda7c0492663a3926f2a023476ce9b83
+MD5_MEMGATE=d78caea6af6bf997d734959b6954c517
 # GATE H4's identifiers: D7R arm O's endpoint artifacts, BY HASH.
 MD5_OPTVIEW=ed90aa4f0a38b2fadf93cdc0b601ec41
 MD5_IPOPT=175969fb3e4fa609af708f4f49aa4a6a
@@ -228,6 +229,7 @@ echo "D7_CAP_ASSERT arm=$ARM registered_core_min=$CAP ranks=$RANKS enforced_wall
 MEMAVAIL_KB=$(awk '/MemAvailable/{print $2}' /proc/meminfo)
 MEMAVAIL_GIB=$(python3 -c "print('%.2f' % ($MEMAVAIL_KB/1048576.0))")
 FLOOR=$(mem_floor_gib "$ARM")
+
 LOAD=$(awk '{print $1}' /proc/loadavg)
 SIBLINGS_PRE=$(container_census)
 echo "D7_HOST_PRE arm=$ARM MemAvailable_GiB=$MEMAVAIL_GIB floor_GiB=$FLOOR load1=$LOAD cpuset=$CPUSET siblings_pre=[$SIBLINGS_PRE]"
@@ -250,6 +252,38 @@ echo "$MD5_PHYSICAL  $BASE/d7fr_endpoint_physical.py" | md5sum -c - || { echo "A
 echo "$MD5_ACCPRIMAL  $BASE/d7fr_accept_primal.py"    | md5sum -c - || { echo "ABORT accept-primal md5"; exit 4; }
 echo "$MD5_ACCCOMPARE  $BASE/d7fr_accept_compare.py"  | md5sum -c - || { echo "ABORT accept-compare md5"; exit 4; }
 echo "$MD5_GRADE  $BASE/d7fr_grade.py"                | md5sum -c - || { echo "ABORT grader md5"; exit 4; }
+echo "$MD5_MEMGATE  $BASE/d7fr_mem_gate.py"           | md5sum -c - || { echo "ABORT memgate md5"; exit 4; }
+
+# ==================== H5 -- THE WINDOWED MEMORY GATE ========================
+# PREREGISTRATION.md Amendment 1 (pre-compute).  The single-sample floor check
+# below is RETAINED and is no longer the only gate: MEASURED on this box,
+# MemAvailable OSCILLATES (median 17.35 GiB, min 1.96, below the lab's ABSOLUTE
+# 12 GiB floor in 19 of 45 samples), so a one-shot reading passes about three
+# times in five while the true minimum is catastrophic.  A SINGLE-SAMPLE GATE ON
+# A TIME-VARYING QUANTITY IS THE WRONG INSTRUMENT FOR THE QUANTITY.
+#
+# H5 samples a WINDOW and refuses on ANY sample below this arm's REGISTERED
+# floor -- never the median, never the mean, never the last reading.
+#
+# PLACEMENT.  This block sits BELOW the frozen-instrument md5 assertions and
+# not above them, DELIBERATELY.  I first wired it 35 lines higher, where it
+# would have EXECUTED d7fr_mem_gate.py BEFORE that file's identity was
+# asserted -- the G-ROOT lesson in its dual form: not a guard that runs after
+# the act it guards, but an INSTRUMENT USED BEFORE ITS IDENTITY IS CHECKED.
+# Caught by an ordering audit of my own wiring, before the freeze.
+H5_SAMPLES=45
+H5_INTERVAL=1.4
+H5_SERIES="$BASE/${ARM}_h5_memwindow.txt"
+: > "$H5_SERIES"
+for _i in $(seq 1 $H5_SAMPLES); do
+  awk '/MemAvailable/{printf "%.2f\n", $2/1048576}' /proc/meminfo >> "$H5_SERIES"
+  sleep $H5_INTERVAL
+done
+H5_SPAN=$(python3 -c "print('%.1f' % ($H5_SAMPLES * $H5_INTERVAL))")
+python3 "$BASE/d7fr_mem_gate.py" --replay "$H5_SERIES" --floor "$FLOOR" \
+        --span "$H5_SPAN" --arm-wall "$TMO" \
+  || { echo "ABORT H5 WINDOWED MEMORY GATE arm=$ARM floor=$FLOOR series=$H5_SERIES"; exit 6; }
+echo "D7FR_H5_PASS arm=$ARM floor_GiB=$FLOOR samples=$H5_SAMPLES span_s=$H5_SPAN series=$(basename "$H5_SERIES")"
 
 # ---- image identity by DIGEST, resolved from the local store -------------
 GOT_DIGEST=$(sudo -n docker image inspect --format '{{.Id}}' "$IMG" 2>/dev/null)

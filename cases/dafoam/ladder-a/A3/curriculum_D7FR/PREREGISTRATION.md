@@ -537,3 +537,99 @@ wrote.**
 **All of it identical under `python3 -O`**, and `ast.Assert` nodes across all five instruments: **0**.
 
 **FROZEN. Nothing fires before this document and every instrument above are committed.**
+
+---
+
+## AMENDMENT 1 — 2026-08-26T04:37:32Z. **PRE-COMPUTE.** GATE `H5`: THE MEMORY GATE SAMPLES A WINDOW, NOT A READING.
+
+**`CLAUDE.md` rule 2: before first compute, amendments are legal AND MUST STATE THE CONDITION AND HOW
+IT WAS CHECKED.** This one ADDS a gate. It moves no existing gate, threshold, cap or label, and §7's
+cap table is byte-unchanged — `assert_caps_against_document()` still reads **15 values, all
+agreeing**.
+
+### A1.1 The condition, checked by name
+
+| check | reading |
+|---|---|
+| `ls -d /home/ubuntu/certonomous-runs/CURRICULUM-D7FR-a3-m6-fd` — **the run directory that does not exist** | **0** |
+| `sudo -n docker ps -a --filter name=d7fr_` | **0** containers, none ever created |
+| arm directories `P1 X ACC F-S F-P` | **0 of 5** |
+
+### A1.2 Why — and it is a wrong-instrument finding, not a weak-threshold one
+
+**MEASURED on this box, `MEMORY_CENSUS.md` and `HOLD_RECORD.md`:** `MemAvailable` does not sit low,
+it **OSCILLATES** — median **17.35 GiB**, minimum **1.96 GiB**, below the lab's **absolute 12 GiB**
+floor in **19 of 45 samples**.
+
+The frozen launcher gates on **one reading taken immediately before launch**. At that duty cycle it
+reads the comfortable mode about **three times in five** and **passes** — and the run then meets an
+excursion it has no rule to survive, because D7R §8 registered the in-run sampler **record-only with
+no mid-run stop**, deliberately.
+
+> **A SINGLE-SAMPLE GATE ON A TIME-VARYING QUANTITY IS NOT A WEAK GATE. IT IS THE WRONG INSTRUMENT
+> FOR THE QUANTITY.** This is heat-transfer's Class A → Class C shape, and that team already built
+> the answer (`analyse_e4a2.py:300`, `analyse_k0cx.py:644`): a sustained window, a trend rejection, a
+> stationarity check, and a refusal below a minimum sample count. It is the same shape as cfd's T8
+> lesson — **one residual reading is not evidence of convergence, because a converging trend is a
+> property of a HISTORY and not of a sample. Memory headroom is a history too.**
+
+### A1.3 The gate, with its window and sample minimum NAMED
+
+**`H5` — `d7fr_mem_gate.py`, invoked by the launcher after the frozen-instrument md5 assertions and
+before any container is created.**
+
+| parameter | registered value |
+|---|---|
+| **minimum sample count** | **45** |
+| **minimum window span** | **30.0 s** (the launcher samples **45 × 1.4 s ≈ 63 s**) |
+| **floor** | **the arm's own REGISTERED floor** — 6.0 GiB for `P1`, 16.0 GiB for `X`/`ACC`/`F-S`/`F-P`. **The gate holds no threshold of its own** |
+
+| refusal | fires when |
+|---|---|
+| **`R1_COUNT`** | fewer than 45 readings — a window that is not a window cannot show an excursion (L-302) |
+| **`R2_SPAN`** | window shorter than 30 s — *N* samples taken instantaneously are one sample with extra steps |
+| **`R3_EXCURSION`** | **ANY** sample below the floor. **Never the median, never the mean, never the last reading** |
+| **`R4_TREND`** | a downward slope projecting below the floor inside the arm's registered wall budget, **even if no sample has crossed yet** |
+
+**`H5` CAN ONLY REFUSE.** It cannot turn a refusal into a launch.
+
+### A1.4 DEMONSTRATED ON THE DATA THAT MOTIVATED IT
+
+**A gate that has never seen the data that motivated it is a gate nobody has tested.** The 45-sample
+series is committed beside this document as `d7fr_mem_series_windowA.txt`; the clean census series as
+`d7fr_mem_series_windowC.txt`.
+
+| replay | required | measured |
+|---|---|---|
+| **window A**, floor 16.0 | **REFUSE** | **`R3_EXCURSION`, exit 2** — `n_below_floor: 19`, `min: 1.96`, **`median: 17.35`** |
+| **window A**, floor 6.0 (`P1`) | **REFUSE** | **`R3_EXCURSION`, exit 2** — first excursion at index 6 |
+| **window C**, floor 16.0 | **CLEAR** | **exit 0** — `min 17.31`, `n_below_floor: 0`, slope −0.016 GiB/min |
+
+> **THE UNIT THAT MATTERS IS THE ONE ABOUT THE STATISTIC.** Window A's **median is 17.35 GiB and
+> would PASS a median gate.** Its minimum is **1.96**. The selftest asserts both facts side by side,
+> so the record carries the reason the median is not the statistic rather than asserting it.
+
+**Selftest: 10 units, 10 passed**, each mutant first asserting *that the mutation applied*.
+**Identical under `python3 -O`; `ast.Assert` nodes: 0.**
+
+### A1.5 A PLACEMENT DEFECT IN MY OWN WIRING, CAUGHT BEFORE THE COMMIT
+
+**I first wired `H5` thirty-five lines too high — above the frozen-instrument md5 assertions — where
+it would have EXECUTED `d7fr_mem_gate.py` BEFORE that file's identity was checked.**
+
+> That is the `G-ROOT` lesson **in its dual form**: not a guard that runs after the act it guards,
+> but **an instrument used before its identity is asserted.** Same error, mirrored. Caught by an
+> ordering audit of my own wiring. **Ordering now: `TMO` 218 → `FLOOR` 231 → single-sample check 241
+> → md5 assertions …255 → `H5` 274–286 → container creation.**
+
+**The single-sample check is RETAINED and not replaced.** It is cheap, it fails fast, and `H5` sits
+after it: two instruments asking the same question at different time scales.
+
+### A1.6 The struck row
+
+**§14's `d7fr_run_arm.sh` row is STRUCK, not rewritten.** At the freeze its md5 was
+`43bc15a84455ef23be377676d48431bf`; **at this amendment it is `91a561eaf41110be8b914dab7e63086c`**.
+**`d7fr_mem_gate.py` is ADDED to the frozen grading path at `d78caea6af6bf997d734959b6954c517`**, and the launcher
+asserts it before every launch. Every other §14 row is unchanged.
+
+**STILL FROZEN. STILL NOTHING FIRED.**
