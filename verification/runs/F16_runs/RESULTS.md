@@ -83,6 +83,6 @@ Source: no queue refill performed by this lane; ranking is the supervisor's.
 ## 6. WAITING LIST
 
 - F16-SL2 gate rows G-F16-1 and G-F16-2: **PENDING** on the comparator's `completion()` regex defect (§3). Waits on the supervisor's ruling — §2d.1 repair route or re-registration — and, if repaired, a re-grade against the retained field data at zero further compute.
-- Cost-calibration row landed as `docs/COST_CALIBRATION.md` C-118.
+- Cost-calibration row landed as `docs/COST_CALIBRATION.md` C-123 (id re-derived at commit time from the HEAD blob; an earlier read of the tail gave C-117 as the maximum, peers landed C-118 to C-122 in between).
 
 Source: this file §3; `docs/COST_CALIBRATION.md`.
