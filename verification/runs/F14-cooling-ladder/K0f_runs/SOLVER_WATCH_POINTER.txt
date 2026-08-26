@@ -1,0 +1,3 @@
+Solver-watch state for this rung is held with T4 at
+verification/runs/T-family/T4_runs/SOLVER_WATCH_STATE.md
+(one watch covers both rungs; do not duplicate it here).
