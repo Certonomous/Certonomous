@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# AV2 G-ROOT.5 SELFTEST -- the av1_groot5_selftest.sh pattern (0b3ebaa4, md5 dbb22dae4266f026d40fb10d386760f3),
+# driven against AV2's OWN launcher (G-ROOT.5 from birth, standing rule of 2026-08-26).
+# (a) a sacrificial RUNNING container carrying this item's prefix and the arm;
+# (b) a sacrificial LIVE pid whose cwd is the run root, named in the driver
+#     pidfile; (b2) a STALE pidfile must not block; (c) clear must pass;
+# (d) G-ROOT.1 refusals on D4's, D5's, D13's, D15's, D16's and AV1's roots;
+# (e) G-ROW from birth (the row in the ARM NAME and the row of the IMAGE must
+#     agree), driven with the REAL images on the temporary root made 777 and
+#     holding ONLY the three staged instruments (no base/0.orig, no MESH/), so
+#     a launcher that got past G-ROW still refuses at G-COLD with nothing to
+#     remove; the copies are removed afterwards and the root's emptiness asserted.
+# SAFETY: (a)-(d) pass a BOGUS IMAGE NAME and the run root is a temporary EMPTY
+# directory (mode 775), so a launcher that got past G-ROOT.5 aborts at the
+# L-251 mode check (exit 4) BEFORE any staging.  The run root is created empty
+# for the test and removed with rmdir (which refuses a non-empty directory), and
+# its ABSENCE afterwards is asserted -- that absence is the freeze condition of
+# PREREGISTRATION.md section 8.
+set -uo pipefail
+HERE="$(cd "$(dirname "$0")" && pwd)"; L="$HERE/av2_run_arm.sh"
+BASE=/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality
+IMG=dafoam/opt-packages:latest; IMG_P=dafoam-idwarp-rot:v1; BOGUS=no-such-image:selftest; ARM=X-S
+PASS=0; FAIL=0
+ok()  { echo "  [OK ] $1"; PASS=$((PASS+1)); }
+bad() { echo "  [BAD] $1"; FAIL=$((FAIL+1)); }
+echo "AV2 G-ROOT.5 SELFTEST $(date -u +%Y-%m-%dT%H:%M:%SZ) launcher_md5=$(md5sum "$L" | cut -d' ' -f1)"
+G5=$(grep -n 'G_ROOT5_PASS' "$L" | head -1 | cut -d: -f1)
+FIRSTOP=$(grep -nE '^[[:space:]]*[^#]*((sudo -n )?rm -rf|cp -a|docker run)' "$L" | grep -v '^[0-9]*:[[:space:]]*#' | head -1 | cut -d: -f1)
+if [ -n "$G5" ] && [ -n "$FIRSTOP" ] && [ "$FIRSTOP" -gt "$G5" ]; then ok "G-ROOT.5 completes at :$G5, first destructive op at :$FIRSTOP"; else bad "order G5=$G5 FIRSTOP=$FIRSTOP"; exit 2; fi
+NBT=$(grep -vE '^[[:space:]]*#' "$L" | grep -c '`' || true)
+if [ "$NBT" = "0" ]; then ok "zero backticks on executable lines of the launcher"; else bad "$NBT backticks on executable lines"; fi
+if [ -e "$BASE" ]; then bad "run root $BASE already EXISTS -- refusing to test over a real root (freeze condition violated)"; exit 2; else ok "run root ABSENT before the test: $BASE"; fi
+mkdir -p "$BASE" || { bad "could not create the temporary empty run root"; exit 2; }
+# (a) sacrificial RUNNING container with this item's prefix and the arm
+CN="av2_${ARM}_selftest_$(date -u +%Y%m%dT%H%M%SZ)"
+sudo -n docker run -d --name "$CN" --cpus=0.1 --cpuset-cpus=1 --memory=64m --memory-swap=64m "$IMG" bash -c "sleep 180" >/dev/null 2>&1 || { bad "could not start sacrificial container"; rmdir "$BASE"; exit 2; }
+out=$(bash "$L" $ARM "$BOGUS" 2>&1); rc=$?
+if [ "$rc" -eq 3 ] && echo "$out" | grep -q "ABORT G-ROOT.5 a RUNNING container"; then ok "(a) live container $CN -> rc=3: $(echo "$out" | grep 'ABORT G-ROOT.5' | cut -c1-120)"; else bad "(a) rc=$rc: $(echo "$out" | tail -2)"; fi
+sudo -n docker rm -f "$CN" >/dev/null 2>&1
+# (b) sacrificial LIVE pid, cwd = run root, named in the pidfile
+( cd "$BASE" && exec sleep 180 ) & SPID=$!
+echo "$SPID" > "$BASE/av2_driver.pid"
+out=$(bash "$L" $ARM "$BOGUS" 2>&1); rc=$?
+if [ "$rc" -eq 3 ] && echo "$out" | grep -q "ABORT G-ROOT.5 driver pidfile"; then ok "(b) live pid $SPID cwd=$BASE -> rc=3: $(echo "$out" | grep 'ABORT G-ROOT.5' | cut -c1-140)"; else bad "(b) rc=$rc: $(echo "$out" | tail -2)"; fi
+kill "$SPID" 2>/dev/null; wait "$SPID" 2>/dev/null; rm -f "$BASE/av2_driver.pid"
+# (b2) STALE pidfile (dead pid) must NOT block
+echo "999999" > "$BASE/av2_driver.pid"
+out=$(bash "$L" $ARM "$BOGUS" 2>&1); rc=$?
+if [ "$rc" -eq 4 ] && echo "$out" | grep -q "G_ROOT5_PASS" && echo "$out" | grep -q "ABORT L-251 run root mode"; then ok "(b2) stale pidfile ignored; launcher went on to abort at the L-251 mode check (rc=4) -- nothing staged"; else bad "(b2) rc=$rc: $(echo "$out" | tail -2)"; fi
+rm -f "$BASE/av2_driver.pid"
+# (c) clear: guard passes, mode check aborts BEFORE staging
+out=$(bash "$L" $ARM "$BOGUS" 2>&1); rc=$?
+if [ "$rc" -eq 4 ] && echo "$out" | grep -q "G_ROOT5_PASS"; then ok "(c) clear -> G-ROOT.5 passes; L-251 mode check aborts (rc=4) before any staging"; else bad "(c) rc=$rc"; fi
+# (d) G-ROOT.1/.2 from birth: D4's, D5's, D13's and D16's roots REFUSE
+for forb in /home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin /home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density /home/ubuntu/certonomous-runs/CURRICULUM-D13-a1-basin-restart /home/ubuntu/certonomous-runs/CURRICULUM-D15-a1-naca0012-subsonic /home/ubuntu/certonomous-runs/CURRICULUM-D16-a1-naca0012-transonic /home/ubuntu/certonomous-runs/CURRICULUM-AV1-a1-naca0012-npinv; do
+  out=$(BASE="$forb" bash "$L" $ARM "$BOGUS" 2>&1); rc=$?
+  if [ "$rc" -eq 3 ] && echo "$out" | grep -q "ABORT G-ROOT.1"; then ok "(d) BASE=$forb -> rc=3 G-ROOT.1 REFUSED"; else bad "(d) $forb rc=$rc"; fi
+done
+# (e) G-ROW from birth, with the REAL images, on the 777 root holding only the
+# three staged instruments.
+chmod 777 "$BASE"; mkdir -p "$BASE/base/system"
+cp -a "$HERE/av2_runScript.py" "$HERE/av2_xf.py" "$BASE/" && cp -a /home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible/system/decomposeParDict "$BASE/base/system/decomposeParDict"
+out=$(bash "$L" FAD-P "$IMG" 2>&1); rc=$?
+if [ "$rc" -eq 4 ] && echo "$out" | grep -q "ABORT G-ROW arm FAD-P is registered on the PATCHED row; got ROW=SHIPPED"; then ok "(e1) FAD-P on the SHIPPED image -> rc=4 G-ROW REFUSED before any staging"; else bad "(e1) rc=$rc: $(echo "$out" | tail -2)"; fi
+out=$(bash "$L" MESH "$IMG_P" 2>&1); rc=$?
+if [ "$rc" -eq 4 ] && echo "$out" | grep -q "ABORT G-ROW arm MESH is registered on the SHIPPED row; got ROW=PATCHED"; then ok "(e2) MESH on the PATCHED image -> rc=4 G-ROW REFUSED before any staging"; else bad "(e2) rc=$rc: $(echo "$out" | tail -2)"; fi
+out=$(bash "$L" FAD-S "$IMG" 2>&1); rc=$?
+if [ "$rc" -eq 5 ] && echo "$out" | grep -q "D4S_G_ROW_PASS row=SHIPPED" && echo "$out" | grep -q "ABORT arm FAD-S expects an existing MESH/"; then ok "(e3) FAD-S on the SHIPPED image -> G-ROW passes, then the arm REFUSES (rc=5) for want of the MESH arm's output -- nothing staged"; else bad "(e3) rc=$rc: $(echo "$out" | tail -2)"; fi
+test -e "$BASE/FAD-S" && bad "(e3) left a FAD-S directory" || ok "(e3) no arm directory was created"
+rm -rf "$BASE/base" "$BASE/av2_runScript.py" "$BASE/av2_xf.py"
+chmod 775 "$BASE"
+N=$(find "$BASE" -mindepth 1 | wc -l)
+if [ "$N" = "0" ]; then ok "temporary run root EMPTY after every invocation and after the (e) copies were removed ($N entries)"; else bad "run root gained $N entries"; fi
+rmdir "$BASE" 2>/dev/null
+if [ ! -e "$BASE" ]; then ok "run root ABSENT after the test (freeze condition): test -e $BASE -> false"; else bad "run root still present"; fi
+sudo -n docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "^av2_" && bad "an av2_ container survives" || ok "no av2_ container survives"
+echo "AV2 G-ROOT5 SELFTEST pass=$PASS fail=$FAIL $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+[ "$FAIL" -eq 0 ]
