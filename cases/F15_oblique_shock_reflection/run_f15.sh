@@ -32,18 +32,19 @@ CAP_CORE_MIN=200            # must equal grade_f15.py::CAP_CORE_MIN
 END_TIME=10                 # must equal grade_f15.py::END_TIME
 
 # name  nx  ny  ranks   -- DECOMPOSITION SEED IS A REQUIRED FIELD, recorded below
-LEVELS=("coarse 200 50 1" "medium 400 100 4" "fine 800 200 8")
+LEVELS=("coarse 200 50 1" "medium 400 100 1" "fine 800 200 1")
 # projected SERIAL seconds per level from the lab-measured 1.03 us/cell/step
 # (VMFL045/R2, ClockTime). Used ONLY by the pre-level projected-cap check.
 declare -A PROJ_SERIAL_S=( [coarse]=100 [medium]=803 [fine]=6427 )
-# DECOMPOSITION SEED: `simple` geometric partition, coefficients (ranks 1 1).
-#   There is NO random number generator in `simple`, so the seed is `none` and
-#   the partition is bit-reproducible from the rank count alone.  `scotch` is
-#   NOT used precisely because its partition is not reproducible from a recorded
-#   field.  At the coarse level ranks = 1 and `decomposePar` IS NOT INVOKED --
-#   recorded here explicitly rather than left to be inferred from its absence.
-DECOMP_METHOD="simple"
-DECOMP_SEED="none (simple geometric partition; no RNG; coarse level runs serial and decomposePar is not invoked)"
+# DECOMPOSITION SEED -- AMENDMENT 1, 2026-08-26 (pre-first-compute).
+#   `none`, identity decomposition. EVERY LEVEL RUNS SERIAL ON 1 RANK and
+#   `decomposePar` IS NOT INVOKED AT ANY LEVEL. There is no partition and no RNG.
+#   The struck 1/4/8 configuration would have changed the floating-point
+#   summation order ACROSS the ladder, injecting a non-mesh difference into
+#   exactly the level-to-level differences the observed-order fit consumes.
+#   A grid-convergence ladder must differ ONLY in mesh. Wording matches F16.
+DECOMP_METHOD="none"
+DECOMP_SEED="none (identity decomposition: every level runs SERIAL on 1 rank and decomposePar is NOT invoked at any level; there is no partition and no RNG)"
 
 PREREG_COMMIT=""
 PREFLIGHT=0
@@ -218,25 +219,14 @@ for L in "${LEVELS[@]}"; do
   cp "$CASE_SRC/0/U" "$CASE_SRC/0/p" "$CD/0/" || { echo "ABORT: copy failed"; exit 1; }
   cp "$CASE_SRC/0/T" "$CD/0/T" || { echo "ABORT: copy failed"; exit 1; }
 
-  if [ "$RANKS" -gt 1 ]; then
-    cat > "$CD/system/decomposeParDict" <<EOF
-FoamFile { version 2.0; format ascii; class dictionary; object decomposeParDict; }
-numberOfSubdomains $RANKS;
-method             $DECOMP_METHOD;
-coeffs { n ($RANKS 1 1); }
-// DECOMPOSITION SEED: $DECOMP_SEED
-EOF
-    decomposePar -case "$CD" > "$CD/log.decomposePar" 2>&1 \
-      || { echo "ABORT: decomposePar failed at level $NAME"; exit 1; }
-    mpirun -np "$RANKS" rhoCentralFoam -case "$CD" -parallel > "$CD/log.rhoCentralFoam" 2>&1
-    RC=$?
-    reconstructPar -case "$CD" > "$CD/log.reconstructPar" 2>&1 \
-      || { echo "ABORT: reconstructPar failed at level $NAME"; exit 1; }
-  else
-    say "level $NAME runs SERIAL: decomposePar is NOT invoked; decomposition seed: $DECOMP_SEED"
-    rhoCentralFoam -case "$CD" > "$CD/log.rhoCentralFoam" 2>&1
-    RC=$?
-  fi
+  # AMENDMENT 1 forbids any parallel level. The parallel branch is REMOVED
+  # rather than left unreachable: dead code in a launcher is the hazard class
+  # the check_launcher_can_launch GLOB:76 caveat named. A registered rank count
+  # other than 1 is now a REFUSAL, not a silently-taken other path.
+  [ "$RANKS" -eq 1 ] || { echo "ABORT: level $NAME is registered with $RANKS ranks; AMENDMENT 1 registers 1 rank at every level and decomposePar is not invoked."; exit 1; }
+  say "level $NAME runs SERIAL on 1 rank: decomposePar NOT invoked. Decomposition seed: $DECOMP_SEED"
+  rhoCentralFoam -case "$CD" > "$CD/log.rhoCentralFoam" 2>&1
+  RC=$?
   echo "$RC" > "$CD/RC.txt"
   probe_box "$NAME-post" "$CD/box_after.txt" > /dev/null
   [ "$RC" -eq 0 ] || { echo "ABORT: rhoCentralFoam exited $RC at level $NAME (rc recorded in $CD/RC.txt). A crash is a FINDING until triage says otherwise; it is not retried here."; exit 1; }

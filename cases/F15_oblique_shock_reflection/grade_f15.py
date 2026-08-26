@@ -83,7 +83,9 @@ SAMPLE_INTERVAL = 0.05                  # functionObject write interval
 CAP_CORE_MIN = 200.0                    # wall_s(ClockTime) * ranks / 60, summed
 #                                       over levels. 1.6x the estimate built from
 #                                       the lab-MEASURED 1.03 us/cell/step.
-RANKS = dict(coarse=1, medium=4, fine=8)
+RANKS = dict(coarse=1, medium=1, fine=1)   # AMENDMENT 1, 2026-08-26:
+#   serial at every level; decomposePar is not invoked. A ladder must differ
+#   ONLY in mesh, and a changing rank count changes the summation order.
 
 # CLASS C, all four elements, registered here and nowhere else.
 CLASS_C = dict(

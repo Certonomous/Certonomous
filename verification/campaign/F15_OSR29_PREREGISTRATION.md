@@ -293,3 +293,92 @@ separately.
 - No re-grade of any existing row, in any team.
 - No amendment to any standard or charter.
 - **Nothing is sent, filed, uploaded or submitted** (rule 7).
+
+---
+
+# AMENDMENT 1 — 2026-08-26 — **F15 RUNS SERIAL, 1 RANK, AT ALL THREE LEVELS**
+
+**Version 1.0 → 1.1.** Pre-first-compute amendment under rule 2 §2b.
+**lines whose number changed above this section: 0** — verified by diff below,
+not asserted.
+
+**CONDITION, AND HOW IT WAS CHECKED.** `test -e` **in the same shell invocation
+that wrote this amendment**, naming the directories:
+`verification/runs/F15_runs` → **ABSENT**; `verification/runs/F16_runs` → **ABSENT**;
+count of `RC.txt`/`log.*` artifacts under `cases/F15_oblique_shock_reflection`
+→ **0**. Checked at **2026-08-26T04:33:57Z**. **First compute has not occurred.**
+
+**IT ALTERS NO GATE, NO BAND, NO THRESHOLD, NO CAP AND NO LABEL.** The
+**200 core-minute cap stands untouched**, and so does every band descending from
+`N_CAPTURE_CELLS = 8`: G-F15-1 remains [9.711165159e−04, 7.768932127e−03] and
+G-F15-2 remains −0.195952244729 ± 0.020000000000. **Only the rank column moves.**
+
+## What changes
+
+| level | grid | cells | Δy = Δx | ranks **§4 (struck)** | ranks **AS AMENDED** |
+|---|---|---|---|---|---|
+| coarse | 200 × 50 | 10 000 | 0.020 | ~~1~~ | **1** |
+| medium | 400 × 100 | 40 000 | 0.010 | ~~4~~ | **1** |
+| fine | 800 × 200 | 160 000 | 0.005 | ~~8~~ | **1** |
+
+**DECOMPOSITION SEED, AS AMENDED — worded to match F16 word for word:**
+**`none`**, identity decomposition. Every level runs **serial on 1 rank** and
+**`decomposePar` IS NOT INVOKED AT ANY LEVEL.** There is no partition and no
+RNG. §4's `simple`/`(ranks 1 1)` entry is **struck**, not rewritten.
+
+## Why — and the first reason is not cost
+
+**(a) THE DECOMPOSITION CONFOUND, WHICH IS DECISIVE.** A grid-convergence ladder
+must differ **only in mesh**. Different rank counts mean different
+floating-point summation orders, injecting a **non-mesh difference into exactly
+the level-to-level differences the observed-order fit consumes**. F16 runs
+serial at every level. **These two rungs exist to be compared** — they are this
+lab's first attempt to show the ladder instrument can distinguish p ≈ 1 from
+p ≈ 2. If F15's ladder changed decomposition across its levels and F16's did
+not, **any difference in fitted order between them would be confounded** and the
+comparison would be worth much less.
+
+**(b) SERIAL IS CHEAPER IN THE UNIT THE CAP GOVERNS.** Core-minutes =
+wall × ranks ÷ 60. Eight ranks on a contended box run each rank at a fraction of
+a core: the wall inflates and the core-minute figure inflates **with the rank
+multiplier still applied**. At 1 rank there is no oversubscription penalty and
+no communication overhead. **Serial costs more WALL and less CORE-MINUTE, and
+the cap governs core-minutes.**
+
+**(c) IT STRENGTHENS THE REPRODUCIBILITY §4 ALREADY ARGUED FOR.** §4 chose
+`simple` over `scotch` because `scotch`'s partition is not reproducible from a
+recorded field. **One rank is trivially reproducible — there is no partition at
+all.** This moves in the direction the frozen document's own reasoning points.
+
+**(d) IT CANNOT BE FITTING.** Nothing has run. **There is no result to fit a rank
+count to.** An amendment before first compute, to a field no measurement has yet
+touched, is what rule 2 permits.
+
+## The re-projection at 1 rank, reported before re-issue
+
+Measured in the launcher's own unit, from the lab-measured 1.03 µs/cell/step:
+
+| free cores | coarse | medium | fine | cumulative | vs cap 200 |
+|---|---|---|---|---|---|
+| **≥ 1** (drained) | 1.67 | 13.38 | 107.12 | **122.17** | **FITS**, 1.64× headroom |
+| **0.50** (the reading at 2026-08-26, load1 = 16.01 of 16) | 3.33 | 26.77 | 214.23 | **244.33** | **WOULD HALT at the fine level** |
+
+> **STATED PLAINLY BECAUSE IT WAS ASKED FOR: serial still projects OVER the cap
+> on a box in this state.** The ladder is **not** quietly trimmed to fit. The
+> projected-cap check halts before the fine level's spend and leaves it
+> `PENDING`, and the launch waits for the box to drain rather than for the cap
+> to move.
+
+For contrast, the 1/4/8 configuration this amendment replaces projects
+**1824.27 core-min at the same reading — 9.1× the cap.**
+
+**Not changed by this amendment:** the estimate of record in §8 remains
+**122.2 core-min**, because it was always the work-conserving figure and serial
+is the configuration that realises it.
+
+## Version-line note, disclosed rather than glossed
+
+The v1.0 document carries **no version line in its header**. Bumping one would
+change the line numbers of every section above this point and **falsify the
+"lines whose number changed above this section: 0" assertion** this amendment is
+required to make. **The version is therefore declared here and only here.**
