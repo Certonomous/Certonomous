@@ -17,14 +17,18 @@ HEAD `bc0e687e`; permission rules added by her 2026-08-26 (`Bash(setsid *)`,
    that exists and holds `prereg_path`, age guard on `cwd`, `ranks`). **An entry that
    fails is MOVED to `<team>/refused/<id>.json` with the reasons in
    `<id>.REFUSED.txt`. Nothing is ever deleted.**
-3. Launches **at most ONE** entry per tick, round-robin across teams, oldest first
-   within a team, and only when: busy < 85 % (default; the midpoint of Sanaa's 80–90 %
+3. Launches **at most ONE** entry per tick, **first-fit over the whole queue** (a held
+   wide entry never blocks a narrow one behind it; every HELD is logged), round-robin
+   across teams, oldest first within a team, and only when: busy < 85 % (default; the midpoint of Sanaa's 80–90 %
    band read as a *launch* ceiling), busy-cores + `ranks` ≤ 0.9 × cores, and
    `MemAvailable` ≥ the entry's `memory_floor_gb`. Otherwise the entry is `HELD` and
    stays queued.
 4. The launch form is fixed:
-   `setsid nohup bash -c 'cd <cwd> && <argv> > <cwd>/launcher.queue.out 2>&1; echo "rc=$? end=<utc>" > <cwd>/STATUS.<case_id>'`
-   — **the rc is captured inside the detached wrapper** (`setsid`/`timeout` return 0 for
+   `setsid nohup bash -c 'cd <cwd> && <argv> > <cwd>/launcher.queue.out 2>&1; R=$?; echo "launcher_rc=$R end=<utc> note=exit-status-of-the-launch-argv-NOT-the-solver-rc" > <cwd>/STATUS.<case_id>'`
+   — **the launch argv's exit status is captured inside the detached wrapper and is
+   labelled as such**: it is an INFRASTRUCTURE record (L-342) and never claims the
+   solver's rc — a launcher that refuses at zero compute and exits 0 must not read as
+   a completed solve. Rule 4 is applied from the case's own RC/log files (`setsid`/`timeout` return 0 for
    every outcome; measured `4225ef0c`, `83769288`). The entry is moved to
    `<team>/launched/<id>.json` with `_launch` (utc, pid, sid, status file) appended,
    and one line goes to `verification/queue/LAUNCH_LOG.tsv`.
@@ -56,6 +60,11 @@ Optional: `host` (default local). `cwd` must not already hold `0/` or a numeric 
 directory (rule 4).
 
 ## Operating it
+
+- **Self-restart ("even if the lab dies", Sanaa 73eccb1b):** `scripts/queue_runner.sh` starts the
+  runner only if the pidfile's process is not alive; installed in the `ubuntu` crontab as
+  `@reboot` and `* * * * *`, so a killed runner is back within 60 s and a rebooted box
+  starts one. Restarts are logged to `verification/queue/runner.restarts.log`.
 
 - Start: `setsid nohup python3 scripts/queue_runner.py --daemon > verification/queue/runner.out 2>&1 < /dev/null &`
 - Lock: `verification/queue/runner.pid` (refuses to start if that pid is alive).

@@ -174,8 +174,13 @@ def launch(entry: dict, path: Path, root: Path, log: Log) -> tuple[int, int]:
     quoted = " ".join("'" + str(a).replace("'", "'\"'\"'") + "'" for a in argv)
     status = cwd / f"STATUS.{case_id}"
     out = cwd / "launcher.queue.out"
-    inner = (f"cd '{cwd}' && {quoted} > '{out}' 2>&1; "
-             f"echo \"rc=$? end=$(date -u +%Y-%m-%dT%H:%M:%SZ)\" > '{status}'")
+    # The STATUS file records the LAUNCH ARGV's exit status -- an INFRASTRUCTURE
+    # record (L-342). It never claims the solver's rc: a launcher that refused at zero
+    # compute and exited 0 would otherwise read as a completed solve (heat-transfer
+    # T5_X_2d, 2026-08-26). Rule 4 is applied from the case's own RC/log files.
+    inner = (f"cd '{cwd}' && {quoted} > '{out}' 2>&1; R=$?; "
+             f"echo \"launcher_rc=$R end=$(date -u +%Y-%m-%dT%H:%M:%SZ) "
+             f"note=exit-status-of-the-launch-argv-NOT-the-solver-rc\" > '{status}'")
     with open(os.devnull, "rb") as devnull:
         proc = subprocess.Popen(
             ["setsid", "nohup", "bash", "-c", inner],
@@ -283,9 +288,11 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
                 log(f"HELD {path.name}: busy {busy:.1f}% >= ceiling {busy_ceiling}%")
                 return "HELD"
             if busy_cores + ranks > core_fraction * ncpu:
+                # first-fit over the WHOLE queue: a held wide entry must not block a
+                # narrow one behind it (heat-transfer T5 lane, 2026-08-26 16:4xZ)
                 log(f"HELD {path.name}: {busy_cores:.1f} busy + {ranks} ranks > "
-                    f"{core_fraction} x {ncpu} cores")
-                return "HELD"
+                    f"{core_fraction} x {ncpu} cores; trying the next entry")
+                continue
             if mem < floor:
                 log(f"HELD {path.name}: MemAvailable {mem:.1f} GB < registered floor {floor} GB")
                 continue
@@ -345,8 +352,8 @@ def selftest() -> int:
         time.sleep(0.1)
     st = (case_dir / "STATUS.SELFTEST_OK").read_text() if (case_dir / "STATUS.SELFTEST_OK").exists() else ""
     n_launch = len((root / "LAUNCH_LOG.tsv").read_text().splitlines()) if (root / "LAUNCH_LOG.tsv").exists() else 0
-    check("valid entry -> LAUNCHED once, STATUS rc=0, entry moved to launched/",
-          r == "LAUNCHED" and n_launch == 1 and st.startswith("rc=0") and
+    check("valid entry -> LAUNCHED once, STATUS launcher_rc=0 (labelled as launcher rc), entry moved to launched/",
+          r == "LAUNCHED" and n_launch == 1 and st.startswith("launcher_rc=0") and "NOT-the-solver-rc" in st and
           (root / "cfd" / "launched" / "SELFTEST_OK.json").exists() and
           not (root / "cfd" / "SELFTEST_OK.json").exists(),
           f"tick={r} launches={n_launch} status={st.strip()!r}")
@@ -389,6 +396,20 @@ def selftest() -> int:
     check("busy ceiling 0% -> HELD, entry stays queued", r5 == "HELD" and
           (root / "cfd" / "SELFTEST_HELD.json").exists())
 
+    # control 5b: a held WIDE entry must not block a narrow one queued behind it
+    wide = dict(good); wide["case_id"] = "SELFTEST_WIDE"; wide["ranks"] = 10 ** 6
+    (root / "cfd" / "SELFTEST_HELD.json").unlink()
+    (root / "cfd" / "SELFTEST_WIDE.json").write_text(json.dumps(wide))
+    time.sleep(0.05)
+    narrow_dir = tmp / "case_narrow"; narrow_dir.mkdir()
+    narrow = dict(good); narrow["case_id"] = "SELFTEST_NARROW"; narrow["cwd"] = str(narrow_dir)
+    (root / "cfd" / "SELFTEST_NARROW.json").write_text(json.dumps(narrow))
+    r5b = tick(root, log, 100.0, 1.0, 0.2, rr)
+    check("held wide entry does not block the narrow entry behind it (first-fit over the queue)",
+          r5b == "LAUNCHED" and (root / "cfd" / "launched" / "SELFTEST_NARROW.json").exists()
+          and (root / "cfd" / "SELFTEST_WIDE.json").exists())
+    (root / "cfd" / "SELFTEST_WIDE.json").unlink()
+    (root / "cfd" / "SELFTEST_HELD.json").write_text(json.dumps(good2))
     # control 6: remote host entry is skipped, not launched
     good3 = dict(good)
     good3["case_id"] = "SELFTEST_REMOTE"
@@ -398,7 +419,7 @@ def selftest() -> int:
     r6 = tick(root, log, 100.0, 1.0, 0.2, rr)
     check("remote-host entry -> SKIP, stays queued, no launch", r6 == "HELD" and
           (root / "cfd" / "SELFTEST_REMOTE.json").exists() and
-          len((root / "LAUNCH_LOG.tsv").read_text().splitlines()) == 1)
+          len((root / "LAUNCH_LOG.tsv").read_text().splitlines()) == 2)
 
     full_log = (tmp / "runner.log").read_text()
     check("EMPTY and LAUNCHED outputs do not read alike",
@@ -409,7 +430,7 @@ def selftest() -> int:
     if n_fail:
         print(f"SELFTEST FAIL: {n_fail} of {len(checks)} checks failed")
         return 1
-    if len(checks) >= 9:
+    if len(checks) >= 10:
         print(f"SELFTEST PASS: {len(checks)}/{len(checks)} checks, 0 asserts")
         return 0
     print("SELFTEST FAIL: too few checks ran")
