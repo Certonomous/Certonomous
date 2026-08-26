@@ -246,3 +246,66 @@ claim it for the team.** Whether it is adopted lab-wide, rehomed, or wired into
 **Zero core-minutes.** AST parsing and sub-second `-O` drives on the login box.
 No solver was launched. `docs/COST_CALIBRATION.md` gains no row: there is no
 compute to calibrate.
+
+---
+
+## 7. ADDENDUM, same day — the ten owed amendments: **EIGHT WRITTEN, THREE HAVE NOTHING TO AMEND**
+
+§4 named A2–A11 as owed and not written. **Eight of the eleven Class A instances are now
+disclosed.** The remaining three produced a finding of their own.
+
+### 7.1 Written
+
+| instances | record amended | commit |
+|---|---|---|
+| A2, A3 — `analyse_t9aH.py:270`, `:291` | `docs/campaigns/T-family/T9aH_PREREGISTRATION.md` | `080095bd` |
+| A4 — `exact_t10a.py:296` | `docs/campaigns/T-family/T10a_PREREGISTRATION.md` | `b2a13fd6` |
+| A5, A6 — `digitise_t3_secondary.py:190`, `:191` | `docs/campaigns/T-family/T3_PREREGISTRATION.md` | `196c9ba5` |
+| A7 — `K0b_D403_rerun/analyse_k0b_mesh.py:270` | `docs/campaigns/F14-cooling-ladder/K0b_D403_RERUN_PREREGISTRATION.md` | `9a16a899` |
+| A8 — `K0b_D406_repair/analyse_k0b_mesh.py:270` | `docs/campaigns/F14-cooling-ladder/K0b_D406_REPAIR_PREREGISTRATION.md` | `efa53c8a` |
+| A1 — `analyse_t8.py:1054` | `docs/campaigns/T-family/T8_PREREGISTRATION.md` (Amendment A2) | `40adda9f` |
+
+Each is a dated foot-amendment, **v1.0 → v1.1** (T8: v1.1 → v1.2), post-compute,
+disclosure only, altering no gate, threshold, cap or label, reopening no verdict, and
+editing no instrument. **The rule-6 assertion `lines whose number changed above this
+section: 0` was MEASURED in every case** — each file was rebuilt from its blob at
+`HEAD` plus the amendment, and the prefix compared byte-for-byte before the commit was
+allowed (821 / 525 / 513 / 222 / 295 / 630 lines respectively). **A claimed assertion
+and a measured one are different artifacts, and this is the measured one.**
+
+**A version convention was introduced and is stated rather than assumed:** none of the
+five records outside T8 carried an explicit version string. Each amendment names the
+document **v1.0 as it stood** and takes it to **v1.1**, and says so in its own text, so
+that no earlier version is implied to have existed.
+
+### 7.2 **A9, A10 AND A11 HAVE NO REGISTRATION TO AMEND — AND THAT IS THE FINDING**
+
+| instance | instrument | record to amend |
+|---|---|---|
+| **A9** | `verification/runs/F14-cooling-ladder/K0b_mesh_sensitivity/analyse_k0b_mesh.py:350` | **NONE EXISTS** |
+| **A10** | `verification/runs/THERMAL_K0_runs/analyse.py:67` | **NONE EXISTS** |
+| **A11** | `verification/runs/THERMAL_K0_runs/analyse.py:69` | **NONE EXISTS** |
+
+Searched: there is **no `K0b_MESH_SENSITIVITY_PREREGISTRATION.md`** and **no THERMAL_K0
+pre-registration of any kind** in `docs/campaigns/`. `THERMAL_K0_runs/analyse.py` appears
+in `docs/FAIL_OPEN_GATE_AUDIT.md:509` and in `CHECKPOINT_GATE_AUDIT_2026-08-25.md` — **in
+audits of it, never in a freeze set naming it.**
+
+> **AN INSTRUMENT WITH NO PRE-REGISTRATION HAS NO FOOT TO APPEND A DISCLOSURE TO. The
+> `-O` exposure is the smaller problem here: the larger one is that the disclosure
+> mechanism this lab relies on ASSUMES a registration exists, and for these two
+> instruments it does not.**
+
+**Inventing a record to hold the disclosure would be worse than naming the gap**, because
+a pre-registration written after the compute is not a pre-registration — it is a
+document with a misleading name, and rule 2's entire evidentiary content is the freeze
+that these would not have.
+
+**Referred upward, not resolved here.** Whether these two instruments are retrospectively
+registered (they cannot be), retired, superseded by a registered successor, or simply
+recorded as unregistered legacy is a **supervisor's call at minimum** and touches
+`VERIFICATION_CHARTER` §2d's scope. **This lane states the gap and stops.**
+
+**Neither instrument is re-graded and no verdict resting on either is reopened** — the
+2026-08-25T22:48Z bound holds regardless of whether a registration exists to disclose
+against.
