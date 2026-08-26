@@ -947,3 +947,353 @@ actual/predicted ratio.**
 *Registered by a heat-transfer lane on the heat-transfer supervisor's ruling
 R1–R7 of 2026-08-26 and its same-day addendum. Zero solver core-minutes. Zero
 verdicts assigned.*
+
+---
+
+# AMENDMENT 1 — 2026-08-26, BEFORE FIRST COMPUTE. Version 1.0 → 1.1.
+
+**lines whose number changed above this section: 0.** This amendment is
+appended at the foot; nothing above it is edited (standing rule 6). **THE
+ASSERTION WAS VERIFIED, NOT TYPED:** in the invocation that wrote this
+amendment the first **949** lines of this file were compared **byte-for-byte**
+against the committed blob `9b54abfe41af9c0755f2cd4268634ad01d8166e1` at the
+captured `HEAD`, and the comparison was clean.
+
+**IT IMPLEMENTS THE HEAT-TRANSFER SUPERVISOR'S REVERSAL OF R7 AND THE
+AMENDMENTS TO R3, R4 AND R6 OF 2026-08-26**, on this lane's contradictions of
+the same day. **It LOOSENS one thing — it authorises L3 — and that is the whole
+point: without L3 this rung could earn nothing at all.**
+
+## A1.0 The condition under which this amendment is legal, and HOW IT WAS CHECKED
+
+Standing rule 2: before first compute, amendments are legal **and must state the
+condition and how it was checked**. The condition is that **no K0f compute has
+run.**
+
+**THE METHOD, NOT ONLY THE CONCLUSION, as the ruling directs.** The check is a
+`test -e` on the run directory that must not exist —
+`verification/runs/F14-cooling-ladder/K0f_runs` — **re-proved inside this
+amendment's own committing shell invocation and not cited from any upstream
+message.** A bare `ABSENT` from that reader would be worthless on its own: **a
+zero from a reader not shown able to see a non-zero is not evidence** (standing
+rule 3). So the **identical reader, in the same invocation, is first pointed at
+`verification/runs/F14-cooling-ladder/K0cS_runs`, which does exist, and must
+return `PRESENT`.** Only then is the `ABSENT` on `K0f_runs` believed.
+
+```
+  PRESENT  verification/runs/F14-cooling-ladder/K0cS_runs   <- the planted control
+  ABSENT   verification/runs/F14-cooling-ladder/K0f_runs    <- the condition
+```
+
+**The control is what makes the zero admissible.** Had the same reader returned
+`ABSENT` on `K0cS_runs` too, the `ABSENT` on `K0f_runs` would have proved
+nothing except that the reader was broken.
+
+**This amendment alters NO band, NO threshold and NO label.** It alters **the
+authorised level set** and, in consequence, **the cost registration** and **which
+verdict columns are reachable**. §A1.7 states exactly what moved.
+
+## A1.1 RULING — **R7 IS REVERSED. L3 IS AUTHORISED. THE FAMILY IS THREE LEVELS.**
+
+**REGISTERED: L1, L2 and L3, all three, and all TEN cases** — `M1_c`, `M1_m`,
+`M1_f`, `M2_c`, `M2_m`, `M2_f`, `C_lam`, `B_hi`, `I_hi`, `M1_m_seed`. §5's
+"**TWO ARE AUTHORISED**" and its list of eight are **STRUCK**; §5's `M1_f` and
+`M2_f` are no longer "defined and NOT authorised".
+
+| case | closure | level | cells | `endTime` | purpose |
+| --- | --- | --- | ---: | ---: | --- |
+| `M1_f` | `kOmegaSST` | **L3** | 98 596 | 40 000 | ladder, **graded level** |
+| `M2_f` | `RNGkEpsilon` | **L3** | 98 596 | 40 000 | ladder, **graded level** |
+
+**§7.3 ROACHE TRIPLE GATING IS NOW REACHABLE AND IS IN FORCE, UNCHANGED**, in
+the standing-rule-5 order, at **`Fs = 1.25`**, with the observed order and the
+GCI printed and **no GCI quoted when the three values are not monotone**. A
+triple that is not `CONVERGING` is **`NOT A RESULT`**, whatever its value, and
+the gate can only turn a `PASS` or `GATE FAIL` **into** `NOT A RESULT`, never the
+reverse.
+
+**Sanaa's standing grid ruling, recorded as received and relaxing nothing:** *"A
+converging three-level family with observed order and GCI is the lab's gate
+standard (Roache-standard minimum). More levels are a research option, never a
+gate requirement."* K0f's family is **exactly three — confirmed, not extended.**
+
+### A1.1a THE GROUND ON WHICH L3 WAS EXCLUDED WAS CIRCULAR, AND IT IS RECORDED AS CIRCULAR
+
+R7 excluded L3 because *"two L3 caps at 1 675.50 each exceed the whole
+ceiling"*. **Every step of that fails on inspection, and the supervisor accepted
+all of it:**
+
+1. **1 675.50 core-min is the per-case 10× RUNAWAY GUARD, not an expected
+   cost.** An L3 case's POINT line is **167.55**; both together **335.10
+   core-min**.
+2. **335.10 is 12.2 % of the carried 2 748.64 ceiling**, not an overrun of it.
+3. **AND THAT CEILING WAS ITSELF DERIVED WITH BOTH L3 CASES INSIDE IT.**
+   `K0d_REREGISTRATION.md` §A2.2b's solver subtotal `S = 912.38` is
+   `577.30 + 335.10` — the eight L1/L2 cases **plus the two L3 cases**.
+
+> **L3 WAS EXCLUDED ON THE AUTHORITY OF A CEILING THAT EXISTS BECAUSE OF L3.**
+> Recorded here in those terms, on the supervisor's own instruction that it be
+> recorded as circular rather than quietly reversed.
+
+4. **And there was never a cost argument to make.** Sanaa lifted cost
+   constraints this session; a cap is a **runaway guard, not a budget gate**
+   (`K0d_REREGISTRATION.md` §A2.2c).
+
+**THE CONSEQUENCE HAD IT STOOD IS THE SHARPER POINT, and it is registered so the
+class of error is not repeated:** without L3 there is no Roache triple, so no
+`G`; `P` is unreachable while Blay 1992 is `NOT OBTAINED`; and `V` was closed by
+measurement in §V. **K0f would have run eight cases and 577.30 core-min to earn
+NOTHING** — the compute-that-cannot-become-a-result that this same supervisor
+refused for K0d hours earlier.
+
+## A1.2 THE COST, RE-DERIVED WITH L3 IN
+
+**Re-derived from the registered per-case lines, not scaled.** The rate basis is
+unchanged (K0cS, 1.593e-6 s per cell-iteration **MEASURED** on this box, × 1.6
+developed-flow contingency, POINT rate 2.549e-6; CEILING rate 2 × POINT).
+
+| case | cells | core-min |
+| --- | ---: | ---: |
+| `M1_c`, `M2_c` | 25 600 | 43.50 each |
+| `M1_m`, `M2_m`, `B_hi`, `I_hi`, `M1_m_seed` | 50 176 | 85.27 each |
+| `C_lam` | 50 176 | 63.95 (ESTIMATE, 0.75 × the L2 turbulent line) |
+| **`M1_f`, `M2_f`** | **98 596** | **167.55 each** |
+| **SOLVER SUBTOTAL `S`** | | **912.40** |
+
+**`I` = 13.50 core-min, UNCHANGED, and the reason is stated rather than
+assumed:** every line of §8's instrument enumeration was **already sized for TEN
+cases** — meshing 2.00 (ten), the mesh reader 0.50 (three levels), the
+comparators 1.00, the dual-scheme extraction ≤ 8.00 (ten cases × two schemes),
+and this document's new ≤ 2.00. Adding L3 adds no instrument.
+
+```
+  REGISTERED POINT   = S + I  =  912.40 + 13.50 =   925.90 core-min
+  REGISTERED CEILING = 3S + I = 2737.20 + 13.50 = 2 750.70 core-min
+```
+
+**Derived dollars at the owner-reported $0.0513/core-h — DERIVED, NOT MEASURED**
+(`COMPUTE_BUDGET_CHARTER.md` §5; this box cannot read its own billing):
+
+```
+  POINT     925.90 / 60 = 15.4317 core-h  x $0.0513 = $0.7916
+  CEILING  2750.70 / 60 = 45.8450 core-h  x $0.0513 = $2.3518
+```
+
+### A1.2a A 2.06 core-min DISCREPANCY AGAINST THE CARRIED GUARD, DECOMPOSED RATHER THAN ABSORBED
+
+**The derived CEILING 2 750.70 is 2.06 core-min ABOVE the carried outer guard of
+2 748.64** (§8.1). A reader is owed the cause, not the difference:
+
+| component | core-min |
+| --- | ---: |
+| **this document's own new instrument line** (§8, the equivalence gate, the instrument standard, the launcher selftest) | **+2.00** |
+| K0d's §8 subtotal rounding (`827.11` where its own per-case lines sum to `827.13`), tripled by `3S` | **+0.06** |
+| **total** | **+2.06** |
+
+**THE OPERATIVE RUNAWAY GUARD IS THE LOWER OF THE TWO — 2 748.64 core-min**
+(derived $2.3501). Taking the **tighter** figure means the cap can stop the run
+2.00 core-min before this document's own envelope, which is a **tightening**;
+taking the higher one could be read as a ceiling chosen to make room for the
+work it was about to authorise. **A cap is a runaway guard: a case that reaches
+it is REPORTED TO THE SUPERVISOR, who decides** (`K0d_REREGISTRATION.md`
+§A2.2c). **An overrun does not get a new budget** (standing rule 12).
+
+### A1.2b PER-CASE HARD STOPS, WITH L3
+
+**A CAP ENFORCED AS A WALL-CLOCK `timeout` IS NOT A CORE-MINUTE CAP UNLESS IT IS
+CONVERTED:** `timeout = cap_core_min × 60 ÷ ranks`, `ranks = 1` throughout.
+
+| case | 10× POINT (core-min) | enforced `timeout` (s) |
+| --- | ---: | ---: |
+| `M1_c`, `M2_c` | 435.00 | 26 100 |
+| `M1_m`, `M2_m`, `B_hi`, `I_hi`, `M1_m_seed` | 852.70 | 51 161 |
+| `C_lam` | 639.50 | 38 370 |
+| **`M1_f`, `M2_f`** | **1 675.50** | **100 530** |
+
+These reproduce `build_k0f.py`'s frozen `FROZEN_TIMEOUT_S` table exactly, **the
+L3 row included — it was already there.**
+
+**THE TWO L3 ROWS EXCEED 3 600 WALL s BY DESIGN**: 10 052.8 wall s at the POINT
+rate, 20 105.6 at the CEILING rate. `COMPUTE_BUDGET_CHARTER.md`'s over-3600
+stall rule does **not** apply to them and **they are not to be cleaned as
+stalls.** A stall here means `ExecutionTime` stops advancing, which
+`STATUS.<case>` and the log detect separately. **Registered in advance so a
+legitimate row is not cleaned later.**
+
+### A1.2c CALIBRATION EXPECTATION, REGISTERED IN ADVANCE
+
+K0d's row **`C-99`** measured **1.208 × POINT** on two L1 cases under 5–9 foreign
+solvers, attributed to **rate** (3.140e-06 / 3.019e-06 s per cell-iteration
+against the registered 2.549e-06), not to iteration count. **K0f is expected at
+≈ 1.2 × its POINT lines under comparable contention**, i.e. ≈ **1 111 core-min**
+against the 2 748.64 guard. That expectation is registered **now**, not
+discovered afterwards, and **contention and waste are named separately at
+completion and never absorbed into the actual/predicted ratio**
+(`COMPUTE_BUDGET_CHARTER.md` §6).
+
+## A1.3 §G.5's RATIONALE IS **STRUCK**; ITS DISPOSITION **STANDS**, WITH A NEW REASON
+
+**STRUCK, and reproduced here so a reader sees what was withdrawn rather than
+only what replaced it:** the draft's reason, adopted into §G.5, that *"a 0.06 %
+margin sits well inside the range where the real geometry of a rebuilt graded
+mesh could flip it"*, with the T8 `7/3` centroid analogy beside it.
+
+**IT IS FALSE, and the correction was accepted by the supervisor.**
+`condition_C` computes `r = (hi_cells / lo_cells) ** 0.5` from **INTEGER cell
+counts counted off the mesh**. There is no floating geometry in it. **`r21` for
+block A will read exactly `sqrt(4032/1920) = 1.449138` or it will not read 4032
+cells at all.** The margin is **exact and cannot drift**. **The T8 analogy does
+not transfer: that was a CENTROID ratio and this is a COUNT ratio.**
+
+**THE REPLACEMENT REASON, which is the risk that is actually live:** condition C
+can only flip **DISCRETELY**, if `_count_between` counts a different number of
+`y` rows inside a registered block band — a **topology** question about whether
+`blockMesh` places a `y` line exactly on 0.024 and on 1.022, **not a rounding
+question**. §G.6's re-check on the built mesh measures precisely that.
+
+**THE PRE-DECIDED FAILURE DISPOSITION IS UNCHANGED AND STANDS:**
+
+> **If condition C reads the rebuilt mesh and `r21` lands ABOVE 1.45, the answer
+> is NOT to widen condition C.** It is that **no `nA` satisfies all four
+> conditions**, and **the mesh family must be re-chosen at a level above
+> `nA`** — which is **a re-registration, not a repair**.
+
+**A pre-decided disposition costs nothing and a disposition written after seeing
+a failure is an accommodation.** The reason moved; the disposition did not.
+
+## A1.4 §0's REACHABILITY TABLE IS AMENDED
+
+| column | reachable | why |
+| --- | --- | --- |
+| **`V`** | **YES** | the extraction equivalence is **CLOSED BY MEASUREMENT** (§V.3, 8 of 8 AGREE); and with three levels the Roache/GCI arm is reachable too |
+| **`G`** | **YES — CHANGED BY THIS AMENDMENT** | a CONVERGING three-level Roache triple with observed order and GCI at `Fs = 1.25` is a **grid property**, measurable without any reference |
+| **`P`** | **NO** | Blay, Mergui and Niculae (1992) is **`NOT OBTAINED`** |
+
+**THE BEST VERDICT THIS RUNG CAN REACH IS `GATE REACHED`, NAMING `P` — AND ONLY
+`P` — AS THE UNREACHED COLUMN. IT CAN NEVER READ `HOLDS` IN THIS STATE.** §0's
+"naming BOTH `P` AND `G`" is **STRUCK**.
+
+**Obtaining Blay 1992 is from OUTSIDE THE BOX, is Sanaa's alone (standing rules
+7 and 8), and IS NOT TO BE ATTEMPTED BY ANY AGENT.** No search was made and none
+is authorised. **`V` and `G` are exactly the columns this lab is short of, and
+that is a reason to RUN this rung, not a reason to withhold it.**
+
+## A1.5 §5's COMPARATOR CONSEQUENCE IS **STRUCK**
+
+§5 registered that *"`analyse_k0f.py` REFUSES (exit 2) unless all TEN `DONE`
+markers are present, and its graded level is `M1_f` — an L3 case. UNDER THIS
+REGISTRATION THE COMPARATOR CANNOT RUN AT ALL."* **That consequence is removed
+by this amendment**: all ten cases are authorised, so the ten markers are
+obtainable and `M1_f` exists. **The comparator can run.**
+
+**AND NO INSTRUMENT CHANGES, WHICH IS THE PART THAT MATTERS FOR THE FREEZE.**
+The refusal at ten markers, the graded level `M1_f`, the three-level `LEVELS`
+tables in `build_k0f.py` and `check_k0f_mesh.py`, and the L3 rows of
+`FROZEN_TIMEOUT_S` were **all already present** — the restriction to two levels
+lived **only in the prose of §5**, never in the code. **THE GRADING PATH IS
+THEREFORE BYTE-UNCHANGED AND EVERY BLOB SHA IN §7.7 REMAINS VALID.** This
+amendment cannot be accused of moving the grading path, because it does not
+touch it.
+
+## A1.6 SCHEDULING, WITH TEN CASES
+
+**REGISTERED CONCURRENCY CAP: 9** — `K0d_REREGISTRATION.md` §9.1's figure,
+carried unchanged, so **this amendment raises no concurrency cap.** Ten cases
+against a cap of nine means **one case QUEUES and is launched as the first
+retires.** Serial, `nProcs = 1`. Memory from
+the **MEASURED** 2.4 kB/cell rate (the ~60 MB baseline remains **INFERRED from a
+different solver** — the two statuses are not the same status):
+
+| level | cases | estimate | conservative bound |
+| --- | ---: | ---: | ---: |
+| L1 | 2 | ~113 MB each | ~162 MB each |
+| L2 | 6 | ~164 MB each | ~220 MB each |
+| L3 | 2 | ~265 MB each | ~337 MB each |
+| **all ten concurrent** | | **~1.70 GB** | **~2.26 GB** |
+
+against this family's standing **12 GiB floor**. **If `MemAvailable` is under
+14 GiB at launch the batch drops to the eight non-L3 cases and the two L3 cases
+queue behind them** — a batch that OOMs is worse than a batch that queues.
+
+**AND THE HEADROOM IS A MEASUREMENT ARGUMENT, NOT A COST ONE, WHICH IS WHY IT
+SURVIVES SANAA'S LIFTING OF COST CONSTRAINTS INTACT.** Nine of sixteen cores
+plus the five held by other teams is `14/16 =` **87.5 %**, inside Sanaa's 80–90 %
+band. Saturating the box past that would inflate the per-cell-iteration rate
+that **§A1.2c's calibration expectation is measured against**, and a cost
+calibration taken on a contended box measures the contention, not the estimate.
+**Leaving headroom preserves the wall-clock basis the calibration depends on.**
+
+**THE UTILISATION DECAY IS REGISTERED IN ADVANCE, INCLUDING THE UNFLATTERING
+PART.** The ladder is imbalanced (167.55 against 43.50), so mean K0f occupancy
+over its own critical path is `912.40 / 167.55 =` **5.45 cores. K0f ALONE CANNOT
+HOLD SANAA'S 80–90 % SATURATION BAND FOR ITS OWN WINDOW**, and the retiring
+cores **must be backfilled from the team's queue** rather than the batch being
+inflated. **Under-loaded-with-a-queue is the same defect as idle, at lower
+severity.**
+
+**Contention measured at this write, and NOT rationalised:** four foreign
+solvers are live on the box (three `buoyantBoussinesqSimpleFoam`, one
+`simpleFoam`), untouched and not reniced. **The box is not idle**, and the
+staging arithmetic must be re-taken at launch rather than carried from this
+document.
+
+## A1.7 WHAT MOVED, AND IN WHICH DIRECTION
+
+**THIS AMENDMENT LOOSENS ONE THING AND THAT IS ITS PURPOSE.** It is stated
+plainly rather than dressed as a tightening:
+
+- **THE AUTHORISED LEVEL SET WIDENS**, from two levels and eight cases to three
+  levels and ten. **This is a LOOSENING**, taken by the supervisor, legal only
+  because no compute has run (§A1.0), and taken because the narrower scope could
+  **earn nothing**.
+- **THE COST REGISTRATION RISES**: POINT 590.80 → **925.90**; CEILING 1 745.40 →
+  **2 750.70**, with the operative runaway guard at the **lower** 2 748.64.
+- **THE REACHABLE COLUMN SET WIDENS**: `G` becomes reachable (§A1.4).
+- **§G.5's RATIONALE IS WITHDRAWN AND REPLACED** by a strictly more accurate
+  one (§A1.3), and the **disposition it supported is unchanged**.
+
+**AND WHAT DID NOT MOVE:**
+
+- **NO BAND, THRESHOLD OR LABEL.** Every band of §4 stands byte-unchanged.
+- **NO REFUSAL CONDITION.** Condition D is untouched. Conditions A–G stand.
+- **THE PHYSICS.** `ν` = 1.569e-5, `β` = 1/298, `T_ref` = 298.00 K, `Pr` = 0.71,
+  `Pr_t` = 0.85, `ΔT` = 20.0 K, `Ra` = 2.135970e9 derived-and-reported.
+- **THE MESH.** `nA` = 18, `nB` = 192, `Ny` = 224, 50 176 cells, `R21` =
+  1.400000, `R32` = 1.401786, the first-wall-cell column — all as §G.4.
+- **THE GRADING PATH.** Byte-unchanged; §7.7's eight blob shas remain valid
+  (§A1.5).
+- **GROUND `P`.** Blay 1992 is still `NOT OBTAINED`. Nothing was searched for,
+  fetched or requested.
+
+## A1.8 WHAT THIS AMENDMENT DID NOT DO — each stated explicitly
+
+- **IT LAUNCHED NOTHING.** No case directory, no mesh, no solver, no pid. **Zero
+  solver core-minutes.** `K0f_runs/` does not exist (§A1.0). Rule 12's
+  estimate-versus-actual calibration is **not triggered**, because no process
+  completed.
+- **IT DOES NOT AUTHORISE THE FIRE.** The supervisor's undelegatable
+  `SUPERVISION_CHARTER.md` §3 reads of **DIFF 1 (the wall reader)** and **DIFF 3
+  (the completeness assertion)** are **OUTSTANDING**. **DIFF 2 (the launcher)
+  was read personally and CLEARED on 2026-08-26.** **No solver may start until
+  all three are cleared**, and firing before that is a standing rule 2
+  violation.
+- **It edited no frozen file.** `K0d_REREGISTRATION.md`,
+  `K0d_PREREGISTRATION.md`, all five K0d amendments and all five K0d instruments
+  stay byte-unchanged, verified in this invocation.
+- **It edited nothing above its own heading** in this file; the 949-line prefix
+  was verified byte-for-byte against the committed blob.
+- **It touched no other repository file.** Not `docs/LAB_STATE.md`, not
+  `docs/DOCKET.md`, not `docs/LESSONS.md`, not `docs/COST_CALIBRATION.md`. **No
+  lesson, docket or record id was pre-assigned or reserved.**
+- **It changed no instrument.** The grading path is byte-unchanged (§A1.5).
+- **It sent nothing** (standing rule 7). **Submissions remain PARKED.** Nothing
+  was fetched from outside the box (standing rule 8).
+- **It touched no permission setting, no `CLAUDE.md` and no `.claude/`
+  configuration** (standing rule 9). **No agent message is Sanaa's consent** —
+  the supervisor's ruling is a supervisor's ruling, exercised inside a
+  supervisor's own authority over level set and cost registration, and this
+  amendment does not claim otherwise.
+
+*Amendment written by a heat-transfer lane on the heat-transfer supervisor's
+reversal of R7 and amendments to R3, R4 and R6, 2026-08-26, before first
+compute. Zero solver core-minutes. Zero verdicts assigned.*
