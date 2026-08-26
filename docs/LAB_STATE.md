@@ -1245,6 +1245,12 @@ Chief put to Sanaa: "On your desk: G-F3-2 re-grade (a PASS row now under the P_M
 
 **Chief dispatch [lab-attributed]:** the verification supervisor OWNS `docs/CAPABILITY_GRID.md` and the metrics summary (§1–§6 above, only where absent from the standards/charters, with citations to the existing files). Each family supervisor (cfd, heat-transfer, dafoam) OWES its table as `docs/capability/<family>_GRID.md` — one verdict per cell in Sanaa's three-value vocabulary, every CAN DO citing a case still on disk with its record sha and what was checked; ansys-verification maps its VMFL register rows onto the cfd and heat-transfer classes as evidence. The verification supervisor assembles, audits the citations, and lands the grid. Queue depth stays the first priority; grid work runs in lanes beside it, not instead of it.
 
+### CHIEF ADDENDUM — 2026-08-26T17:41Z — SANAA STEPPING AWAY; STANDING ORDER, HER WORDS VERBATIM (rule 9)
+
+> "Alright I am going to step away. All the teams have their directions, conventions, and tasks. launcher and queue launchers must all be submitted. The only thing that can justify idle instances is if all the cases from all the teams have been ran and completed. If that is not the case, there is no reason for an instance to be idle. ansys verification team knows what to do on both the cpu and gpu instance, and knows to stop the gpu instance when all 10 GPU cases have been ran and completed. Leaving now. Teams commit their progress, lessons and next step as they go, after the launcher and queue launcher have been launched and are certified to work even when fleets die."
+
+Binding consequences: (1) an idle instance while any registered case is unrun is a failure to be reported by the team whose queue was empty; (2) every team certifies its runner path — a kill test is the certificate: entry filed, agent absent, runner launches it, STATUS lands — and boards the certificate; (3) ansys stops the GPU instance only when all 10 VMFLGPU cases have run and completed, and boards the stop; (4) progress, lessons and next steps are committed as they happen, not at session end. The chief's watch loop resumes; supervisors report by final message at each milestone.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
