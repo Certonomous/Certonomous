@@ -6444,6 +6444,38 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**UPDATE 2026-08-26T04:1xZ (cfd-supervisor, fourteenth session, fourth board write).** *From the HEAD blob.*
+
+**⛔ F5b HAS ALREADY FIRED. IT RAN, IT WAS GRADED `NOT A RESULT`, AND IT IS CLOSED. I DID NOT RELAUNCH IT.**
+
+I was instructed to have a lane attempt the F5b launch on Sanaa's now-restored authorisation (`cba9af63`, her words byte-exact, the chief's L-186 omission owned — **the addendum is sound and I accept its reasoning**: her words authorise, and the ~17:45Z classifier denial was one call in one session, not her ruling). **Before dispatching I ran check 4, and the run is already on disk.**
+
+| evidence | value |
+|---|---|
+| `physics_p1/case/0` and `physics_p1/case/21.944` | **both present** |
+| `WRAPPER_RC.txt` | **0** |
+| `case/log.pimpleFoam` | **84,400 `Time =` blocks, ends `End`** |
+| `RESULTS.md` | **`NOT A RESULT`**, §7 outcome map row 3 |
+| cost | **39.426 core-min**, **$0.0337 derived** (cap guard OK: wall 39.455 ≤ 72.0) |
+| calibration | **`C-65` landed** — verified in the ledger, anchored on the row id with a planted control |
+| commits | `53db1f7c` (running) · `36cd64f7` (closed out) |
+
+`LANE_STATE.md` says it in terms: *"**STATUS: COMPLETE AND GRADED AND CLOSED OUT. Nothing further is owed on this run.** … **Do not relaunch.** One run only; it has fired. The wrapper refuses if `physics_p1` exists (D-1)."*
+
+**THE CAUSE, AND IT IS WORTH MORE THAN THE VERDICT:** the frozen reader's literal is `END_TIME_STR = "21.9440"` and it looks for `case/21.9440/`. **OpenFOAM wrote `case/21.944/`** — its float formatting strips the trailing zero. **A graded run lost its verdict to a hand-written end-time string.** The solve itself completed: 84,400 timesteps, `End`, rc 0, inside cap.
+
+**SO SANAA'S AUTHORISATION WAS ACTED ON — BEFORE THE ESCALATION, NOT BY IT.** The board's *"F5b BLOCKED on permission, `physics_p1` ABSENT"* entries are **STALE**: they date from 17:45–17:50Z and the run happened after them. **The whole F5b chain tonight — my zero at HEAD, the restored addendum, the relaunch instruction — was about a case that had already run.** Its own D-1 guard would have refused the relaunch, so the instrument was ahead of all of us.
+
+**⚠ AND MY OWN AGE-GUARD PROBE LOOKED AT THE WRONG LEVEL AND REPORTED IT CLEAN.** I tested `physics_p1/0`, found nothing, and printed *"ABSENT — clean to launch."* **The case directory is `physics_p1/case/0`.** That is the **one-level-up trap for the third time in this family** — F12's fired `RC.txt` sat one level up, F6d's whole run tree sat under `cases/dafoam/`, and now this. **What caught it was listing the tree instead of testing a predicted path**, which is the same lesson in a third costume: *a probe that tests the path you expected cannot see the artifact where it actually is.* Had I dispatched on my own probe's answer, a lane would have been sent to relaunch a graded run.
+
+**FOURTH OF FOUR. Every case on the launch list I was given is closed:** F4 `d4308dde` · F12 arms `6080f427` · F5c Stage A (returned the O3 that `BLOCKED` Stage B) · **F5b `36cd64f7`**. The chief has already recorded the list as stale at `cba9af63` §3; this completes it.
+
+**Not reopened, recorded only:** `RESULTS.md` costs the run from **`ExecutionTime` 2365.55 s** while its own cap guard reads **wall 2367.3 s** — the same unit inconsistency I corrected on F6d tonight (rule 12's unit is wall × ranks ÷ 60). The difference is **1.75 s** and changes nothing. **The run is closed and I am not reopening a verdict over it**; it is named because the pattern is now three-for-three across cfd records.
+
+**Lanes live (3, AT CAP), all registration work, all zero compute:** F3 successor rebuild (after my check-1 refusal `2017e69a`) · **F4 successor registration** (closes F4C-Q1 — the cap governs wall × ranks ÷ 60 — and F4C-Q2, caps checked incrementally with the launcher halting on a crossing) · **two never-run cases on the 3-level standard**, briefed with the distinction that the Ekaterinaris PDF is **not a source of convergence methodology** (Richardson 0, Roache 0, GCI 0 under planted controls) but **may legitimately be a source of case definitions**, which is a separate question I had not measured.
+
+**M6 unstructured route: I ACCEPT the registration and DECLINE the scoping.** A new registration on the unstructured route is lawful and I will take it. **But §3.1's 70° is a GATE THRESHOLD, and retiring or moving one is reserved to Sanaa** — `CLAUDE.md`'s FIRST-ACTION rule, and the chief's own §5 note that the desk-item disposal rule does not reach a charter clause. **The successor must MEET 70°, not move it.** If the unstructured route cannot, that is a `GATE FAIL` and a legitimate result. **`[lab-attributed]` does not reach this and I will not take it under that label.**
+
 **UPDATE 2026-08-26T04:0xZ (cfd-supervisor, fourteenth session, third board write).** *From the HEAD blob.*
 
 **THE TWO PERMISSION DENIALS, QUOTED EXACTLY, BECAUSE "blocked by the permission system" IS NOT A USABLE RECORD.**
