@@ -1,0 +1,87 @@
+diff --git a/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d4s_run_arm.sh.HEAD b/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/d4s_run_arm.sh
+index 86b30dd8..6f893d3c 100644
+--- a/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d4s_run_arm.sh.HEAD
++++ b/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/d4s_run_arm.sh
+@@ -260,7 +260,13 @@ WORK="$BASE/$ARM"
+ LOG="$BASE/${ARM}_${STAMP}.log"
+ 
+ # ---- stage a pristine copy of base/ for arms that need a cold case -------
+-if [ "$ARM" != "F3" ]; then
++# ADDENDUM 2d (D4S-LAUNCHER-DEF-4): the ENDPOINT arms F3 and ACC run in a
++# COPY of O/ staged by d4s_stage_endpoint_arm.sh (D4's frozen F3/ACC path,
++# step for step), never in O/ and never from base/; their age datum is the
++# copy epoch that script writes.  The frozen F3 branch below (WORK "from arm
++# O", no copy epoch, no D4-DEF-4 repair step) is STRUCK by the `false &&`
++# guard, kept in the file as the record, and replaced by the branch after it.
++if [ "$ARM" != "F3" ] && [ "$ARM" != "ACC" ]; then
+   sudo -n rm -rf "$WORK" 2>/dev/null
+   cp -a "$BASE/base" "$WORK" || { echo "ABORT stage copy"; exit 4; }
+   cp -a "$BASE/d4_opt_runScript.py" "$BASE/d4_fd_endpoint.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
+@@ -277,11 +283,34 @@ if [ "$ARM" != "F3" ]; then
+   AGE_DATUM=$(stat -c '%Y' "$WORK/0/U")
+   echo "$AGE_DATUM" > "$WORK/.d4_age_datum"
+   echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM"
+-else
++elif false; then
++  # ---- STRUCK (ADDENDUM 2d, D4S-LAUNCHER-DEF-4): the frozen F3 branch, kept
++  # ---- byte-for-byte as the record and never executed.  It expected a
++  # ---- $BASE/F3 nothing created, carried no copy-epoch datum, and its command
++  # ---- (below, also struck) omitted the D4-DEF-4 repair step.
+   test -d "$WORK" || { echo "ABORT arm F3 expects an existing $WORK from arm O"; exit 5; }
+   test -f "$WORK/OptView.hst" || { echo "ABORT arm F: no OptView.hst to read an endpoint from"; exit 5; }
+   cp -a "$BASE/d4_fd_endpoint.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage F instruments"; exit 4; }
+   rm -f "$WORK/d4_fd_endpoint.json" "$WORK/d4_fd_endpoint.jsonl" "$WORK/d4_endpoint_dvs.json"
++else
++  # ---- ADDENDUM 2d: F3 / ACC run in the COPY of O/ that d4s_stage_endpoint_arm.sh
++  # ---- staged (D4's frozen d4_run_F3.sh / d4_run_acc.sh path, step for step):
++  # ---- the copy epoch is this arm's datum; the frozen D4-DEF-4 repair
++  # ---- instruments are md5-asserted; the answer files must not pre-exist.
++  test -d "$WORK" || { echo "ABORT arm $ARM: $WORK absent -- run d4s_stage_endpoint_arm.sh $ARM first"; exit 5; }
++  test -f "$WORK/.d4_stage_${ARM}_copy_epoch" || { echo "ABORT $WORK carries no copy epoch -- the age guard would have no datum"; exit 5; }
++  AGE_DATUM=$(cat "$WORK/.d4_stage_${ARM}_copy_epoch")
++  test -f "$WORK/OptView.hst" || { echo "ABORT arm $ARM: no OptView.hst to read an endpoint from"; exit 5; }
++  ( cd "$BASE" && md5sum -c d4_repair_instruments.md5 ) || { echo "ABORT repair-instrument md5"; exit 4; }
++  for bad in "$WORK/d4_fd_endpoint.json" "$WORK/d4_fd_endpoint.jsonl" "$WORK/d4_endpoint_dvs.json" \
++             "$WORK/d4_endpoint_dvs_PHYSICAL.json" "$WORK/d4_endpoint_dvs_DRIVERSCALED.json" "$WORK/d4_accept_primal.json"; do
++    test -e "$bad" && { echo "ABORT G-COLD $bad exists BEFORE the arm that must produce it"; exit 5; }
++  done
++  echo "D4_G_COLD OK arm=$ARM -- no answer file present"
++  echo "D4_AGE_DATUM arm=$ARM copy_epoch=$AGE_DATUM"
++  cp -a "$BASE/d4_opt_runScript.py" "$BASE/d4_extract_endpoint.py" \
++        "$BASE/d4_endpoint_locus.py" "$BASE/d4_endpoint_physical.py" \
++        "$BASE/d4_fd_endpoint.py" "$BASE/d4_accept_primal.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
+ fi
+ 
+ case "$ARM" in
+@@ -320,8 +349,29 @@ json.dump({'rank':r,'affinity':aff,'n_cores':len(aff),'pid':os.getpid()}, open('
+ \" && cat d4_placement_rank*.json" ;;
+   P2) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_opt_runScript.py -task compute_totals" ;;
+   O)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_opt_runScript.py -task run_driver -optimizer IPOPT" ;;
+-  ACC) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_opt_runScript.py -task compute_totals" ;;
+-  F3) CMD="python d4_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_fd_endpoint.py" ;;
++  # ---- STRUCK (ADDENDUM 2d): the two frozen endpoint-arm commands, kept as
++  # ---- the record.  ACC duplicated P2's baseline compute_totals
++  # ---- (D4S-LAUNCHER-DEF-2); F3 omitted `d4_endpoint_physical.py`, the
++  # ---- D4-DEF-4 repair, so it would have differentiated at the DRIVER-SCALED
++  # ---- endpoint (D4S-LAUNCHER-DEF-4).
++  # ACC) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_opt_runScript.py -task compute_totals" ;;
++  # F3) CMD="python d4_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_fd_endpoint.py" ;;
++  # ---- ADDENDUM 2d: D4's frozen d4_run_acc.sh:122-127 and d4_run_F3.sh:141-146
++  # ---- commands, verbatim -- placement probe, the D4-DEF-4 repair
++  # ---- (`d4_endpoint_physical.py --age-datum <copy epoch>`), then the
++  # ---- acceptance primal (ACC) or the endpoint FD (F3).
++  ACC) CMD="rm -f d4_placement_rank*.json && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings python -c \"
++import json,os
++from mpi4py import MPI
++r=MPI.COMM_WORLD.rank
++json.dump({'rank':r,'affinity':sorted(os.sched_getaffinity(0)),'n_cores':len(os.sched_getaffinity(0)),'pid':os.getpid()}, open('d4_placement_rank%d.json'%r,'w'))
++\" && python d4_endpoint_physical.py --age-datum $AGE_DATUM && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_accept_primal.py" ;;
++  F3) CMD="rm -f d4_placement_rank*.json && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings python -c \"
++import json,os
++from mpi4py import MPI
++r=MPI.COMM_WORLD.rank
++json.dump({'rank':r,'affinity':sorted(os.sched_getaffinity(0)),'n_cores':len(os.sched_getaffinity(0)),'pid':os.getpid()}, open('d4_placement_rank%d.json'%r,'w'))
++\" && python d4_endpoint_physical.py --age-datum $AGE_DATUM && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_fd_endpoint.py" ;;
+ esac
+ 
+ # ---- ADDENDUM 2: the arm command goes to a FILE the container executes under

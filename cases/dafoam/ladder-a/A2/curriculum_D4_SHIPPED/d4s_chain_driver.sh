@@ -25,7 +25,9 @@ PERMISSION=bc0e687e
 H5_FLOOR_GIB=16.0; H5_SAMPLES=45; H5_WINDOW_S=60; AGG_CEILING_GIB=30.6
 # The launcher is FROZEN (Addendum 2 md5); asserted before EVERY arm so a
 # mid-chain edit cannot change what the later arms run.
-MD5_LAUNCHER=51987c2f5c583bc910ffe0f4415b09f5
+# MD5_LAUNCHER=51987c2f5c583bc910ffe0f4415b09f5   # STRUCK (Addendum 2d): the Addendum-2 launcher blob
+MD5_LAUNCHER=506c99e6c8688805a3f8e9d8b1508aaf     # Addendum 2d launcher blob (F3/ACC staged-copy path, D4-DEF-4 step)
+STAGER="$HERE/d4s_stage_endpoint_arm.sh"
 test $# -ge 1 || { echo "ABORT usage: d4s_chain_driver.sh <ARM...>"; exit 64; }
 ARMS="$*"; STATUS="$BASE/STATUS.chain"; PIDFILE="$BASE/d4s_driver.pid"
 cd "$HERE" || exit 4
@@ -46,6 +48,25 @@ for ARM in $ARMS; do
   # ---- STATUS.<arm> is OPENED here (preflight line) and APPENDED from now on;
   # ---- the LAST line carries the rc.  Every AGGREGATE_WAIT is a line in it.
   echo "preflight arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ) driver_pid=$$ permission=$PERMISSION" > "$BASE/STATUS.$ARM"
+  # ---- ADDENDUM 2d: the ENDPOINT arms F3/ACC run in a staged COPY of O/.
+  # ---- Stage it here (D4's frozen path) if absent; a present copy without
+  # ---- its epoch, or a stale copy, is REFUSED -- never re-staged over.
+  if [ "$ARM" = "F3" ] || [ "$ARM" = "ACC" ]; then
+    if [ ! -d "$BASE/$ARM" ]; then
+      bash "$STAGER" "$ARM" > "$BASE/${ARM}_stage.out" 2>&1
+      src=$?
+      if [ "$src" -ne 0 ]; then
+        echo "ABORT staging of $ARM failed rc=$src (see ${ARM}_stage.out)"
+        echo "rc=$src stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=STAGING_REFUSED stage_out=${ARM}_stage.out permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+        echo "chain=STOPPED_STAGING arm=$ARM rc=$src stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit "$src"
+      fi
+      echo "D4S_STAGED arm=$ARM copy_epoch=$(cat "$BASE/$ARM/.d4_stage_${ARM}_copy_epoch") evidence=${ARM}_STAGING_EVIDENCE.txt"
+    elif [ ! -f "$BASE/$ARM/.d4_stage_${ARM}_copy_epoch" ]; then
+      echo "ABORT $BASE/$ARM exists without a copy epoch -- not a staged copy; REFUSED, nothing removed"
+      echo "rc=5 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=UNSTAGED_DIR_PRESENT permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+      echo "chain=STOPPED_STAGING arm=$ARM rc=5 stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 5
+    fi
+  fi
   # ---- H5: a WINDOW of MemAvailable, every sample above the floor
   H5_FILE="$BASE/${ARM}_h5_window_$(date -u +%Y%m%dT%H%M%SZ).txt"; BELOW=0; N=0; MIN=999; MAX=0
   STEP=$(python3 -c "print('%.3f' % ($H5_WINDOW_S/float($H5_SAMPLES)))")

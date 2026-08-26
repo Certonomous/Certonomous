@@ -1,0 +1,37 @@
+diff --git a/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d4s_grade.py.HEAD b/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/d4s_grade.py
+index c250fb66..573315aa 100644
+--- a/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d4s_grade.py.HEAD
++++ b/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/d4s_grade.py
+@@ -137,13 +137,27 @@ def parse_arm_kinds(launcher_path):
+                       "note": "arm kinds are read out of the launcher, never "
+                               "typed; without it no kind can be established"})
+     kinds = {}
+-    for line in open(launcher_path, errors="replace"):
+-        m = re.match(r'\s*(P1|P2|O|ACC|F3)\)\s+CMD="(.*)$', line)
++    lines = open(launcher_path, errors="replace").read().splitlines()
++    branches = []
++    i = 0
++    while i < len(lines):
++        m = re.match(r'\s*(P1|P2|O|ACC|F3)\)\s+CMD="(.*)$', lines[i])
+         if not m:
++            i += 1
+             continue
+-        arm, cmd = m.group(1), m.group(2)
+-        solver = ("mpirun" in cmd) and ("-task" in cmd or "d4_fd_endpoint.py" in cmd)
+-        script = ("decomposePar" in cmd) and ("-task" not in cmd) and ("d4_fd_endpoint.py" not in cmd)
++        # a branch may span several lines (an embedded python -c body); it
++        # ends on the line carrying the case terminator `;;`
++        j = i
++        while j < len(lines) and not lines[j].rstrip().endswith(";;"):
++            j += 1
++        branches.append((m.group(1), "\n".join(lines[i:j + 1])))
++        i = j + 1
++    for arm, cmd in branches:
++        # ADDENDUM 2d: the endpoint arms' programs are d4_fd_endpoint.py (F3)
++        # and d4_accept_primal.py (ACC) -- DAFoam primals under mpirun.
++        solver_progs = ("-task", "d4_fd_endpoint.py", "d4_accept_primal.py")
++        solver = ("mpirun" in cmd) and any(p in cmd for p in solver_progs)
++        script = ("decomposePar" in cmd) and not any(p in cmd for p in solver_progs)
+         if solver and not script:
+             kinds[arm] = "SOLVER"
+         elif script and not solver:

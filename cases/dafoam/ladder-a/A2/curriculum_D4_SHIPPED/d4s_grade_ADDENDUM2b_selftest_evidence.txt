@@ -77,3 +77,83 @@ L342_SELFTEST mode=python3 pass=37 fail=0
   [OK ] 6h_unregistered_arm_kind_REFUSES
   [OK ] 6h_SCRIPT_kind_with_EMPTY_artefact_list_REFUSES
 L342_SELFTEST mode=python3 -O pass=37 fail=0
+
+# Addendum 2d re-run -- 2026-08-26T17:33:39Z, grader md5 f825c2cd81631b83b7d0954981540c15, launcher md5 506c99e6c8688805a3f8e9d8b1508aaf
+## python3
+  [OK ] 1_infra_absent_row_PARSES
+  [OK ] 1_infra_absent_reads_None_and_is_DISCLOSED
+  [OK ] 1_G1_PROCEEDS_and_passes_on_physics_fields
+  [OK ] 2_physics_absent_REFUSES
+  [OK ] 2_physics_garbage_REFUSES_not_treated_as_absent
+  [OK ] 3_kernel_exit_1_rc_clause_FAILS
+  [OK ] 3_rc_disagreement_REFUSES
+  [OK ] 4_G9_PASSES_on_real_D4S_line
+  [OK ] 4_G9_FAILS_on_old_D4_line
+  [OK ] 4_G9_reads_kernel_held_text_too
+  [OK ] 5_kernel_record_wall_10975_core_min_731_667
+  [OK ] 5_kernel_record_sources_named_per_physics_field
+  [OK ] 5_G1_PASSES_on_kernel_record_exit_0_terminal_positional
+  [OK ] 5_G1_rc_clause_FAILS_on_kernel_record_exit_1
+  [OK ] 5_terminal_clause_FAILS_when_not_last_line
+  [OK ] 5_running_container_REFUSES
+  [OK ] 5_G10_frozen_clause_within_cap_False_for_731_667
+  [OK ] 5_G11_oomkilled_reads_false
+  [OK ] 6a_kinds_read_from_launcher_match_registered_table
+  [OK ] 6a_ACC_is_SOLVER_by_its_own_command_not_SCRIPT
+  [OK ] 6a_absent_launcher_REFUSES
+  [OK ] 6a_launcher_mutation_APPLIED
+  [OK ] 6a_launcher_table_DISAGREEMENT_REFUSES
+  [OK ] 6a_unparseable_launcher_REFUSES
+  [OK ] 6b_P1_REAL_BYTES_PASS_script_rule
+  [OK ] 6c_P2_REAL_BYTES_PASS_solver_rule
+  [OK ] 6d_ACC_REAL_BYTES_rc137_OOM_FAILS_both_clauses_as_SOLVER
+  [OK ] 6e_SCRIPT_fixture_all_artefacts_PASS_without_any_terminal_statement
+  [OK ] 6e_SCRIPT_fixture_one_artefact_REMOVED_FAILS
+  [OK ] 6e_SCRIPT_fixture_artefact_RESTORED_PASSES_again
+  [OK ] 6e_SCRIPT_fixture_artefact_OLDER_than_datum_FAILS
+  [OK ] 6e_SCRIPT_fixture_bookkeeping_marker_ABSENT_FAILS
+  [OK ] 6f_SCRIPT_fixture_rc_1_FAILS_clause_1_artefacts_do_not_rescue_it
+  [OK ] 6g_SOLVER_fixture_with_statement_PASSES
+  [OK ] 6g_SOLVER_fixture_without_statement_FAILS_clause_strict
+  [OK ] 6h_unregistered_arm_kind_REFUSES
+  [OK ] 6h_SCRIPT_kind_with_EMPTY_artefact_list_REFUSES
+L342_SELFTEST mode=python3 pass=37 fail=0
+## python3 -O
+  [OK ] 1_infra_absent_row_PARSES
+  [OK ] 1_infra_absent_reads_None_and_is_DISCLOSED
+  [OK ] 1_G1_PROCEEDS_and_passes_on_physics_fields
+  [OK ] 2_physics_absent_REFUSES
+  [OK ] 2_physics_garbage_REFUSES_not_treated_as_absent
+  [OK ] 3_kernel_exit_1_rc_clause_FAILS
+  [OK ] 3_rc_disagreement_REFUSES
+  [OK ] 4_G9_PASSES_on_real_D4S_line
+  [OK ] 4_G9_FAILS_on_old_D4_line
+  [OK ] 4_G9_reads_kernel_held_text_too
+  [OK ] 5_kernel_record_wall_10975_core_min_731_667
+  [OK ] 5_kernel_record_sources_named_per_physics_field
+  [OK ] 5_G1_PASSES_on_kernel_record_exit_0_terminal_positional
+  [OK ] 5_G1_rc_clause_FAILS_on_kernel_record_exit_1
+  [OK ] 5_terminal_clause_FAILS_when_not_last_line
+  [OK ] 5_running_container_REFUSES
+  [OK ] 5_G10_frozen_clause_within_cap_False_for_731_667
+  [OK ] 5_G11_oomkilled_reads_false
+  [OK ] 6a_kinds_read_from_launcher_match_registered_table
+  [OK ] 6a_ACC_is_SOLVER_by_its_own_command_not_SCRIPT
+  [OK ] 6a_absent_launcher_REFUSES
+  [OK ] 6a_launcher_mutation_APPLIED
+  [OK ] 6a_launcher_table_DISAGREEMENT_REFUSES
+  [OK ] 6a_unparseable_launcher_REFUSES
+  [OK ] 6b_P1_REAL_BYTES_PASS_script_rule
+  [OK ] 6c_P2_REAL_BYTES_PASS_solver_rule
+  [OK ] 6d_ACC_REAL_BYTES_rc137_OOM_FAILS_both_clauses_as_SOLVER
+  [OK ] 6e_SCRIPT_fixture_all_artefacts_PASS_without_any_terminal_statement
+  [OK ] 6e_SCRIPT_fixture_one_artefact_REMOVED_FAILS
+  [OK ] 6e_SCRIPT_fixture_artefact_RESTORED_PASSES_again
+  [OK ] 6e_SCRIPT_fixture_artefact_OLDER_than_datum_FAILS
+  [OK ] 6e_SCRIPT_fixture_bookkeeping_marker_ABSENT_FAILS
+  [OK ] 6f_SCRIPT_fixture_rc_1_FAILS_clause_1_artefacts_do_not_rescue_it
+  [OK ] 6g_SOLVER_fixture_with_statement_PASSES
+  [OK ] 6g_SOLVER_fixture_without_statement_FAILS_clause_strict
+  [OK ] 6h_unregistered_arm_kind_REFUSES
+  [OK ] 6h_SCRIPT_kind_with_EMPTY_artefact_list_REFUSES
+L342_SELFTEST mode=python3 -O pass=37 fail=0

@@ -1,0 +1,9 @@
+G-ROOT.5 SELFTEST 2026-08-26T17:32:32Z launcher_md5=506c99e6c8688805a3f8e9d8b1508aaf
+  [OK ] G-ROOT.5 completes at :200, first destructive op at :270
+  [OK ] (a) live container d4_ACC_selftest_20260826T173232Z -> rc=3: ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [d4_ACC_selftest_20260826T173232Z]
+  [OK ] (b) live pid 291787 cwd=/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin -> rc=3: ABORT G-ROOT.5 driver pidfile /home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin/d4s_driver.pid names LIVE pid 291787 (ancest
+  [OK ] (b2) stale pidfile ignored; launcher went on to abort at the digest check (rc=4) -- nothing staged
+  [OK ] (c) clear -> G-ROOT.5 passes; bogus image aborts at digest (rc=4) before any staging
+  [OK ] run root unchanged: 38 top-level entries, O/OptView.hst [1787728010 20471808]
+  [OK ] no ACC/ staged by any selftest invocation
+G-ROOT5 SELFTEST pass=7 fail=0 2026-08-26T17:32:34Z
