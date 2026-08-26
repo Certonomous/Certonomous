@@ -170,12 +170,24 @@ def check_case(case_dir):
 
     # C6 -- the series the Class C gate consumes must exist and be non-trivial.
     ser = sorted(glob.glob(os.path.join(case_dir, "series_*.json")))
-    c["C6_series_present"] = bool(ser)
+    instrumented = "UNINSTRUMENTED" not in case_dir
     c["_series"] = {os.path.basename(s): len(json.load(open(s))["t"]) for s in ser}
-    if not ser and "UNINSTRUMENTED" not in case_dir:
-        problems.append(fail(name, "C6_series_present", "no series_*.json"))
+    if instrumented:
+        c["C6_series_present"] = bool(ser)
+        if not ser:
+            problems.append(fail(name, "C6_series_present", "no series_*.json"))
+    else:
+        # NOT APPLICABLE, NOT PASSED. The uninstrumented control arm carries no
+        # plateau series by registration -- that is what makes it the control.
+        # Marking it True would be claiming a check that never ran.
+        c["C6_series_present"] = "N/A_uninstrumented_control_run"
 
-    c["ALL"] = all(v for k, v in c.items() if k.startswith("C") and not k.startswith("_"))
+    clauses = {k: v for k, v in c.items() if k.startswith("C") and not k.startswith("_")}
+    c["_clauses_evaluated"] = sorted(k for k, v in clauses.items() if isinstance(v, bool))
+    c["_clauses_not_applicable"] = sorted(k for k, v in clauses.items() if not isinstance(v, bool))
+    # Only BOOLEAN clauses can pass or fail. A clause recorded as N/A is neither,
+    # and is listed above so it can never be mistaken for a check that passed.
+    c["ALL"] = all(v for v in clauses.values() if isinstance(v, bool))
     return c, problems
 
 
@@ -209,17 +221,22 @@ def main():
             for cl in sorted(x for x in c if x.startswith("C") and not c[x] and not x.startswith("_")):
                 print("      failed: %s" % cl)
     print("-" * 70)
-    if problems:
-        # THE CLAIM IS INSIDE THE PASSING BRANCH: no "all complete" is printed
-        # unless the predicate that establishes it was evaluated and held.
-        sys.stderr.write("REFUSED: %d of %d cases are NOT DONE. A run that fails "
-                         "any clause of the completion rule is not graded -- it is "
-                         "labelled. See COMPLETION.json\n"
-                         % (len(cases) - out["n_complete"], len(cases)))
+    # ONE PREDICATE, NOT TWO. `problems` and `ALL` are both consulted and BOTH
+    # must be clean. Keying the refusal on a different predicate from the one
+    # that prints the verdict is how a checker certifies a case it just called
+    # NOT DONE.
+    incomplete = sorted(k for k, c in report.items() if not c["ALL"])
+    if problems or incomplete:
+        sys.stderr.write("REFUSED: %d of %d cases are NOT DONE (%s). A run that "
+                         "fails any clause of the completion rule is not graded "
+                         "-- it is labelled. %d clause-level problems recorded. "
+                         "See COMPLETION.json\n"
+                         % (len(incomplete), len(cases), ", ".join(incomplete) or "-",
+                            len(problems)))
         sys.exit(2)
     print("ALL %d CASES COMPLETE under the strict completion rule "
-          "(%s declared inapplicable and not silently dropped)."
-          % (len(cases), ", ".join(DECLARED_INAPPLICABLE)))
+          "(%s declared inapplicable WITH ITS REASON, not silently dropped)."
+          % (len(cases), ", ".join(d["clause"] for d in DECLARED_INAPPLICABLE)))
     return 0
 
 

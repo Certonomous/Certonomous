@@ -757,3 +757,103 @@ Live progress is visible only through written time directories. This is a real m
 not a nuisance. **It is not fixed here** — changing the runner mid-rung would alter what is
 being measured after compute began. `stdbuf -oL` or an unbuffered redirect belongs in the next
 rung's launcher.
+
+---
+
+## ADDENDUM 2 — 2026-08-26T04:07Z: the completion checker CRASHED, and the crash was hiding a FAIL-OPEN. **v3.1 → v3.2.**
+
+**`lines whose number changed above this section: 0`** — verified **by diff**: the file was copied
+before this section was appended and the copy is byte-identical to the first **48073 bytes /
+759 lines**.
+
+**Blob change: `f972d071` → `0cd7f158cdba8040d7f516d13ae4ba87f619da94`** for
+`check_complete_f3s.py`. `grade_f3s.py` is **untouched**, still `d67d415f`.
+
+### 1. NO RESULT HAD BEEN SEEN. Verified before the fix was written, not after.
+
+```
+$ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-08-26T04:07:03Z
+$ find . -type f \( -iname '*GRADED*' -o -iname '*RESULT*' -o -iname '*VERDICT*' \) \
+      -not -name 'result.json' | wc -l
+0
+$ touch ./PLANT_GRADED.json; find . -type f -iname '*GRADED*' | wc -l; rm ./PLANT_GRADED.json
+1
+$ find . -type f -iname '*GRADED*' | wc -l          # after removing the plant
+0
+$ ls F3S_GRADED.json
+ls: cannot access 'F3S_GRADED.json': No such file or directory
+```
+
+**`grade_f3s.py` had never been run.** No verdict, no deviation, no triple existed anywhere.
+
+### 2. The two defects, and the second is the serious one
+
+**Defect A — a crash, not a refusal.** `DECLARED_INAPPLICABLE` became a list of dicts in
+ADDENDUM 1 so the inapplicable limb could carry its reason. One `", ".join()` was updated; a
+**second one was not**, and the edit that should have updated it was an **unguarded
+`str.replace()` that silently matched nothing.** The other two edits in the same script were
+guarded with an explicit failure. That one was not, so it reported success while doing nothing.
+The checker exited **rc 1 with a traceback** instead of a verdict. **This is the same class as
+the `RT.Refusal` defect found earlier in this rung: a refusal that does not look like a
+refusal.** Every edit in the repair is guarded and raises on a missing target.
+
+**Defect B — TWO PREDICATES FOR ONE QUESTION, and it was FAIL-OPEN.** The per-case verdict
+printed from `c["ALL"]`; the refusal branched on `problems`. These could disagree, and did:
+the uninstrumented control arm has no plateau series **by registration**, which set
+`C6_series_present = False` (so `ALL` was false and the case printed **NOT DONE**) while
+appending **no problem** (so `problems` was empty). Control flow then fell into the success
+branch.
+
+**Demonstrated, not argued.** Three variants against a case that exercises exactly this path:
+
+| variant | rc | printed "NOT DONE" | printed "ALL CASES COMPLETE" |
+|---|---|---|---|
+| as shipped | **1 (crash)** | yes | no |
+| **crash fixed, predicate NOT fixed** | **0** | **yes** | **YES** |
+| both fixed | 0 | no | yes — correctly; the case *is* complete |
+
+**The middle row is the finding: it certifies a case it has just called NOT DONE.** The
+`TypeError` is the only reason that did not happen on the live invocation. A crash saved this
+rung from a completion certificate issued over a failed case.
+
+### 3. The repair
+
+**One predicate, both halves consulted:** the refusal now fires if `problems` is non-empty **or**
+any case's `ALL` is false, and it names the incomplete cases.
+
+**`C6` is recorded `N/A_uninstrumented_control_run` for the uninstrumented arm — NOT `True`.**
+Marking it true would claim a check that never ran. `ALL` now evaluates **only boolean**
+clauses, and each case records `_clauses_evaluated` and `_clauses_not_applicable` so an N/A can
+never be read as a pass.
+
+**Re-driven:** `python3 -O` → **rc 2**; an instrumented case with a missing series → **rc 2**;
+the real eight-case tree → **rc 0, all eight COMPLETE**.
+
+### 4. Scope
+
+Alters **no gate, no threshold, no cap and no label**. It changes which *clause* applies to a
+**control** run that produces no graded row, and it makes the refusal **stricter**, never
+looser. The cap stays 17.6541 core-min, the bands stay ±0.5 % / ±2.0 % / ±1.0 %.
+
+### 5. Provenance of the finding
+
+Found by **running the instrument and reading its exit code**, not by reading its source — the
+same way the `RT.Refusal` defect and the missing completion rule were found. **This is the
+third defect in this rung found that way, and the second in this lane's own work.**
+
+### 6. A REGISTERED GUARD THAT DOES NOT EXIST IN THE CODE — disclosed, not repaired
+
+Annex B registers **three** cap enforcement points. `launch_f3s.py` implements **two**.
+Enforcement point 3 — *"an unconditional polled watchdog on `spent + live` → terminate and mark
+`KILLED`"* — **is absent**: the launcher calls `subprocess.run()`, which blocks; there is no
+`Popen`, no `poll()`, no timeout. A hung run would have consumed budget unbounded.
+
+**No breach occurred and the exposure is quantified:** points 1 and 2 fired correctly at all
+eight boundaries, headroom at the final launch was 363.42 core-s against a claim of 295.71, and
+the run landed at 253.97. **Total spend 949.79 core-s = 15.8298 core-min against the 17.6541
+cap, `cap_respected: true`.**
+
+**Deliberately NOT repaired.** The runs are complete; changing the launcher now would alter an
+instrument after its compute, and it can no longer affect this rung's spend. **It is carried to
+the successor's launcher**, with the buffered-log gap already recorded in ADDENDUM 1 §7.
