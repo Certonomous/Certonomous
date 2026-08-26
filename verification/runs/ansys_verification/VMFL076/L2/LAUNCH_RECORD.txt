@@ -1,0 +1,17 @@
+utc            = 2026-08-26T03:25:29Z
+mode           = graded
+level          = L2
+HEAD           = ab168c0e802e89cd32cce0467f0ce67b63c5685c
+prereg_blob    = a0d5cb5b04d8e41096b8915e957f67d73577a93f
+comparator_blob= 42c8945544721e60a41fbe1a01513405b64d5f3c
+prereg_disk    = a0d5cb5b04d8e41096b8915e957f67d73577a93f
+comparator_disk= 42c8945544721e60a41fbe1a01513405b64d5f3c
+nx             = 320
+ny             = 120
+gy             = 200
+endTime        = 3000
+writeInterval  = 375
+sampleInterval = 50
+ranks          = 1
+cap_core_min   = 30
+pid            = 3066610

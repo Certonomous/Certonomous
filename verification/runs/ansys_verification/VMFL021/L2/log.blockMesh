@@ -1,0 +1,93 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : blockMesh
+Date   : Aug 25 2026
+Time   : 21:32:35
+Host   : ip-172-31-43-247
+PID    : 2629532
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL021/L2
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Creating block mesh from "system/blockMeshDict"
+Creating block edges
+No non-planar block faces defined
+Creating topology blocks
+
+Creating topology patches - from boundary section
+
+Creating block mesh topology
+
+Check topology
+
+	Basic statistics
+		Number of internal faces : 2
+		Number of boundary faces : 14
+		Number of defined boundary faces : 14
+		Number of undefined boundary faces : 0
+	Checking patch -> block consistency
+
+Creating block offsets
+Creating merge list (topological search)...
+
+Creating polyMesh from blockMesh
+Creating patches
+Creating cells
+Creating points with scale (1 1 1)
+    Block 0 cell size :
+        i : 0.0005 .. 0.0005
+        j : 0.00016666667 .. 0.00016666667
+        k : 0 .. 0
+
+    Block 1 cell size :
+        i : 0.0005 .. 0.0005
+        j : 0.00020492516 .. 0.00061477548
+        k : 0.0003489551 .. 0.0003489551
+
+    Block 2 cell size :
+        i : 0.00018447658 .. 0.00073790634
+        j : 0.00016666667 .. 0.00016666667
+        k : 0 .. 0
+
+No patch pairs to merge
+
+Writing polyMesh with 0 cellZones
+----------------
+Mesh Information
+----------------
+  boundingBox: (0 0 -0.00050162296) (0.048 0.011489055 0.00050162296)
+  nPoints: 6970
+  nCells: 3328
+  nFaces: 13468
+  nInternalFaces: 6500
+----------------
+Patches
+----------------
+  patch 0 (start: 6500 size: 44) name: inlet
+  patch 1 (start: 6544 size: 24) name: outlet
+  patch 2 (start: 6568 size: 80) name: orificeWall
+  patch 3 (start: 6648 size: 20) name: stepWall
+  patch 4 (start: 6668 size: 32) name: pipeWall
+  patch 5 (start: 6700 size: 3328) name: wedgeFront
+  patch 6 (start: 10028 size: 3328) name: wedgeBack
+  patch 7 (start: 13356 size: 112) name: axis
+
+End
+

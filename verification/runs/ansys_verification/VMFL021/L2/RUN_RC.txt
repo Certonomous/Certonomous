@@ -1,0 +1,9 @@
+level=L2
+rc=0
+wall_s=169
+ranks=1
+core_min=2.8167
+timeout_s=10777
+remaining_core_min=176.8000
+prereg_blob=46b52092b3d2b0bfb8b44b8ded409d9256898f50
+utc=2026-08-25T21:35:48Z

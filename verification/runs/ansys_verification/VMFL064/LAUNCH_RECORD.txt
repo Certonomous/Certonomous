@@ -1,0 +1,21 @@
+launched_utc = 2026-08-26T16:07:19Z
+mode = graded
+prereg = cases/ansys_verification/VMFL064/PREREGISTRATION.md
+prereg_sha_head = 7b9fd0dcaa141cacf4e0f3dee5a6ceab0b9f48b5
+prereg_sha_disk = 7b9fd0dcaa141cacf4e0f3dee5a6ceab0b9f48b5
+comparator = cases/ansys_verification/VMFL064/grade_vmfl064.py
+comparator_sha_head = 0be9126cd6a3e3c860b98854a4e21ba1102edfdc
+comparator_sha_disk = 0be9126cd6a3e3c860b98854a4e21ba1102edfdc
+launcher_sha_disk = e3300d3624bd663336b7bf33ce59308b49033803
+cap_core_min = 90
+endTime = 20000
+ranks = 1
+-- appended by ansys-lane-opus at 2026-08-26T16:07:57Z --
+compute_authority = bc0e687e  (Sanaa, verbatim: "anything that leads to the lab having more runs under its belts")
+amendment_commit = a7c42398  (PRE-COMPUTE AMENDMENT 1, observed-order floor P_MIN=0.05)
+launch_form = setsid nohup bash -c '<launcher>; rc=$?; -> STATUS.VMFL064'  (rc captured INSIDE the detached wrapper, FINDING_setsid_rc.md sec.5 rule 2)
+wrapper_pid = 98454
+wrapper_sid = 98454  (SID == PID: session leader, L-336 valid detachment test; ppid is NOT the test)
+status_file = /home/ubuntu/Certonomous/verification/runs/ansys_verification/STATUS.VMFL064
+launch_log = /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064.LAUNCH.log
+ranks = 1 ; cap_core_min = 90 ; box contention at launch: 11 of 16 cores busy (5x buoyantBoussinesqSimpleFoam K0f, 1x rhoCentralFoam F4, 1x dafoam d12y, 4x d7_fd_endpoint)

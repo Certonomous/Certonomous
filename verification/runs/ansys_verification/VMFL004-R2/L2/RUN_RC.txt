@@ -1,0 +1,10 @@
+rc = 0
+level = L2
+endTime = 20000
+wall_s = 128
+ranks = 1
+core_min = 2.1333333333333333
+timeout_s = 1772
+prereg_sha = 3c78d0f52a86c99e42f3c1cbd3285550160f38ef
+comparator_sha = 417b4bbe60f49e67d0a33c2379fce20e38e72ee2
+finished_utc = 2026-08-26T04:33:05Z

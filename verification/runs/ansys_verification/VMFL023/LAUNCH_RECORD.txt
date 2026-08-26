@@ -1,0 +1,42 @@
+VMFL023 LAUNCH RECORD
+launched_utc = 2026-08-25T21:49:00Z
+prereg_sha = 754f4f66decd10709d52e1210bfbb4e682b0cbd7
+prereg_blob = 131469a793b2dd9cb2e198947cebc359ea9f22a0
+grader_blob = 804d163261c2afd37eb7eb18e4b0a2c3175f62c5
+head_at_launch = 754f4f66decd10709d52e1210bfbb4e682b0cbd7
+nu = 0.02
+Re = 100 (derived from the manual's own rho=1 U=1 D=2)
+endTime = 300
+deltaT = 0.005
+total_cap_core_min = 20
+ranks = 1
+levels_selected = L1_96x32
+openfoam = /usr/lib/openfoam/openfoam2606/etc/bashrc
+VMFL023 LAUNCH RECORD
+launched_utc = 2026-08-25T21:49:02Z
+prereg_sha = 754f4f66decd10709d52e1210bfbb4e682b0cbd7
+prereg_blob = 131469a793b2dd9cb2e198947cebc359ea9f22a0
+grader_blob = 804d163261c2afd37eb7eb18e4b0a2c3175f62c5
+head_at_launch = 54ae328e624a1424ebcc2743bbbc025d2e5eb51c
+nu = 0.02
+Re = 100 (derived from the manual's own rho=1 U=1 D=2)
+endTime = 300
+deltaT = 0.005
+total_cap_core_min = 70
+ranks = 1
+levels_selected = L2_192x64
+openfoam = /usr/lib/openfoam/openfoam2606/etc/bashrc
+VMFL023 LAUNCH RECORD
+launched_utc = 2026-08-25T21:49:04Z
+prereg_sha = 754f4f66decd10709d52e1210bfbb4e682b0cbd7
+prereg_blob = 131469a793b2dd9cb2e198947cebc359ea9f22a0
+grader_blob = 804d163261c2afd37eb7eb18e4b0a2c3175f62c5
+head_at_launch = 54ae328e624a1424ebcc2743bbbc025d2e5eb51c
+nu = 0.02
+Re = 100 (derived from the manual's own rho=1 U=1 D=2)
+endTime = 300
+deltaT = 0.005
+total_cap_core_min = 260
+ranks = 1
+levels_selected = L3_384x128
+openfoam = /usr/lib/openfoam/openfoam2606/etc/bashrc

@@ -1,0 +1,11 @@
+rc=124
+arm=D_kOmegaSST
+level=L3_1000x5
+nx=1000
+nr=5
+endTime=22000
+wall_s=1664
+ranks=1
+core_min=27.733333333333334
+timeout_s=1663
+launched_by=resume_fire_arm_d.sh

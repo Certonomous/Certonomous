@@ -1,0 +1,16 @@
+rc                 = 0
+dir                = /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL033/L2_nr64
+mode               = graded
+level              = L2_nr64
+nr                 = 64
+endTime            = 20000
+writeInterval      = 20000
+wall_s             = 38
+ranks              = 1
+core_min           = 0.6333
+cap_core_min       = 8
+remaining_core_min = 7.3667
+timeout_s_granted  = 480
+prereg_blob        = 49044189ec57be7b68b158f52e824f810889fc5b
+comparator_blob    = 0ac96be5abafb9257737672e10bc2c484381587b
+finished_utc       = 2026-08-25T22:54:50Z

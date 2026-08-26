@@ -1,0 +1,7 @@
+launched_utc = 2026-08-25T19:19:56Z
+prereg = cases/ansys_verification/VMFL059/PREREGISTRATION.md
+prereg_sha_head = f853d8cad11b3347d409b4d54760cf6e31263983
+prereg_sha_disk = f853d8cad11b3347d409b4d54760cf6e31263983
+comparator = cases/ansys_verification/VMFL059/grade_vmfl059.py
+comparator_sha_head = f700c48d56735ec244d75b7bec19feac01bb2240
+comparator_sha_disk = f700c48d56735ec244d75b7bec19feac01bb2240

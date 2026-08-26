@@ -1,0 +1,6 @@
+rc=0
+level=L3
+wall_s=9
+ranks=1
+core_min=0.15
+timeout_s=884

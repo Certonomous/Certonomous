@@ -1,0 +1,10 @@
+rc=0
+arm=C_RNGkEpsilon
+level=L3_1000x5
+nx=1000
+nr=5
+endTime=22000
+wall_s=634
+ranks=1
+core_min=10.566666666666666
+timeout_s=670

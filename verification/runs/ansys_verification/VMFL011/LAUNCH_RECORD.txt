@@ -1,0 +1,12 @@
+launched_utc = 2026-08-26T03:49:48Z
+mode = graded
+prereg = cases/ansys_verification/VMFL011/PREREGISTRATION.md
+prereg_sha_head = 4bd8c4285e379e93e1ad4e6c2b9967604d042523
+prereg_sha_disk = 4bd8c4285e379e93e1ad4e6c2b9967604d042523
+comparator = cases/ansys_verification/VMFL011/grade_vmfl011.py
+comparator_sha_head = e369496bf2e28ccb7145756e1c2442eb11e8e3f7
+comparator_sha_disk = e369496bf2e28ccb7145756e1c2442eb11e8e3f7
+launcher_sha_disk = 17f8bd4b452dccbc3291700e6f9633eb4e6bf636
+cap_core_min = 50
+endTime = 20000
+ranks = 1
