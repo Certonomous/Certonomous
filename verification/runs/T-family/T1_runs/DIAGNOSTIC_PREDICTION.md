@@ -862,3 +862,22 @@ Found by verification's audit pass 9 (`CROSS_TEAM_GATE_AUDIT.md` §66/§72).
 `60893b28…7e6c5135` is a registered frozen import that
 `E4a2_runs/analyse_e4a2.py:139-141` refuses on. The derivation and citer list:
 `analyse_t1c.ADDENDUM_2026-08-24_richardson_sign.md`, beside this file.
+
+---
+
+# DATED ADDENDUM (2026-08-26): a lane was dispatched to REGISTER the Péclet-scaling arm. **IT IS ALREADY REGISTERED AND ALREADY RUN, ON BOTH THERMAL BOUNDARY CONDITIONS, AND SO IT WAS NOT REGISTERED AGAIN**
+
+**Appended at the foot by a heat-transfer lane, `[lab-attributed]`, ZERO COMPUTE. Lines whose number changed above this section: 0** — verified by byte-comparing everything above against `git show HEAD:verification/runs/T-family/T1_runs/DIAGNOSTIC_PREDICTION.md`. **No registered prediction, band, threshold or falsifier in this file is altered; no verdict moves; nothing is regraded here.** Nothing has been sent, filed, submitted, uploaded, registered or posted outside this box (`CLAUDE.md` rule 7).
+
+A lane was dispatched to freeze a new rung, `T1c-L0b`, for the arm this file registers at **`:166–:200`** — five cases at `Re` 25/50/100/200/400 on T1c's fine mesh, `Pr` = 0.71, log–log slope of the `Nu` excess against `Pe`, predicted **−2** if axial conduction, with `Re` = 25 near **+1.2 %**. **That rung was not frozen, and the reason is `CLAUDE.md` rule 2: the gate, threshold, cap and label are committed BEFORE the solver starts, and here the solvers finished on 2026-08-20.** A pre-registration written on top of results already on disk is a pre-registration in name only.
+
+**What is on disk, in HEAD, and was read before the decision:**
+
+| arm | artifact (all in HEAD) | cases | fitted slope | registered `Re` = 25 point | measured |
+|---|---|---|---|---:|---:|
+| constant `q″` (this file `:166`) | `pesweep.json`, `analyse_pesweep.py` | `D_Re25`, `D_Re50`, `L_q_f`, `D_Re200`; `D_Re400` **discarded** on this file's own registered development check | **+0.00170 ± 0.00106**, `R²` 0.563 | +1.197 % | **+0.03808 %** |
+| constant `Ts` (this file `:327`, "NEXT TEST, REGISTERED BEFORE IT IS BUILT") | `dts.json`, `analyse_dts.py` | three-level `c/m/f` ladders at `Re` 25, 50, 200 plus the `L_Ts` `Re` = 100 ladder — twelve completed cases | **−0.9782 ± 0.1863** (`f`), **−0.8359 ± 0.1763** (`h→0`), `R²` 0.93 / 0.92 | +1.78 % | **+0.5068 %** (`h→0`, frozen sign; **+0.5034 %** corrected by the 2026-08-24 addendum above) |
+
+The `q″` arm's slope sits **1 894 standard errors** from −2; the constant-`Ts` arm's sits **5.5 σ** (`f`) and **6.6 σ** (`h→0`) from it. **Both are already scored against this file's own registered falsifiers** at `:249` and `:417`, and this addendum re-scores neither.
+
+**Two further consequences, stated so that the next dispatch does not repeat this one.** First, the brief's five-point set is not quite either arm as executed: `Re` = 400 has **no constant-`Ts`** case on disk at all, and the constant-`q″` `Re` = 400 point was **discarded by this file's registered development check**, not lost. A single new `Re` = 400 constant-`Ts` point could be registered as an *extension* — but its slope prediction could no longer be honest, because the four-point slope is now visible to whoever writes it, and rule 2 exists precisely to stop a gate being chosen once the answer is in view. Second, **this line already has a successor that IS registered and has NOT been built**: the unheated-upstream test at `:786` (`D_Ts_Re25_U` and `L_Ts_U`, six cases, about 5 core-hours), with its predictions and falsifiers frozen on 2026-08-21. **That, and not a re-registration of a finished sweep, is where this diagnostic's next compute belongs**, and placing it is the supervisor's call.
