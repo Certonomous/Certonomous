@@ -99,3 +99,60 @@ retire. Infrastructure records only (L-342).
 
 Nothing in this test was sent, filed or uploaded (rule 7). No process other than the runner
 pid was signalled.
+
+---
+
+# SECOND KILL — 2026-08-26T22:16:42Z, on the re-armed-cwd fix (`257d1116`)
+
+**Written 2026-08-26T22:20Z by a cfd lab-lane for the cfd supervisor; stamps from `date -u`.**
+Criterion fixed before the kill: **restart within 120 s, `EXIT` line present, launched solvers
+unaffected, new code loaded.** The first kill above is not rewritten. `kill` (SIGTERM, once) of
+the runner pid ran without a classifier denial.
+
+## VERDICT: **PASS** (all four clauses)
+
+| clause | measured | artifact |
+|---|---|---|
+| restart within 120 s | kill **22:16:42Z** → restart line **22:17:01Z**: **19 s** by timestamps (poll granularity 5 s, seen at the 20-s poll, ≤ 23 s from the kill stamp) | `verification/queue/runner.restarts.log:5` |
+| `EXIT` line present | `2026-08-26T22:16:42Z EXIT reason=SIGTERM pid=459727` — the **first** `EXIT` line the file has ever carried (0 before the kill, 1 after) | `verification/queue/runner.log:582` |
+| launched solvers unaffected | `icoFoam` **pid 359655** (`F18b_runs/fine`) alive before and after, `log.icoFoam` 188,496 → 190,996 bytes, last `Time = 0.28125` → `0.285`; `pimpleFoam` **pid 481754** (`F21_runs/medium`) alive before and after, `log.pimpleFoam` 819,748 → 918,793 bytes, last `Time = 5.00520833333` → `5.609375` | `pgrep -a`, the two logs |
+| new code loaded | new START line `HEAD=77096fe8`, a descendant of the fix commit `257d1116` (`git merge-base --is-ancestor`: yes; `scripts/queue_runner.py` unchanged between the two, mtime 22:14:17Z < process start 22:17:01Z); and a field that exists only in the new code — `_launch.status_seen_utc` — was written by the new daemon into **34 of 41** launched records within its first three ticks | `verification/queue/runner.log:583`; `verification/queue/*/launched/*.json` |
+
+## Prior finding recorded first: the 21:15–21:16Z stop of pid 419529 left NO `EXIT` line
+
+`runner.log:464` is `2026-08-26T21:14:41Z HELD F17b_KV40_EXT.json …` and `runner.log:465` is the
+cron restart's `2026-08-26T21:16:02Z START pid=459727 … HEAD=0cf8f4f6 exit_logging=SIGTERM+SIGINT+SIGHUP+exception+normal`;
+nothing between them. `grep -c 'EXIT reason'` over the whole file read **0** before this kill.
+Pid 419529 ran `HEAD=53fb4b19`, which predates `29d1a3fe` (the EXIT path), so the absence is
+expected of that code and says nothing about how it was stopped; `runner.restarts.log:4`
+(`21:16:02Z … pid 459727`) is the only record of the event. This kill is the first exercise of the
+EXIT path on the live runner.
+
+## What was done (one script, one shell invocation; commands as prose)
+
+1. Pre-kill at **22:16:41Z**: `runner.pid` = **459727**, `ps -o pid,ppid,sid,etime`: PPID 1, SID
+   459727, elapsed 01:00:39 (started 21:16:02Z by cron, HEAD 0cf8f4f6). `pgrep -a`: icoFoam 359655,
+   pimpleFoam 481754; their logs' sizes and last `Time =` as in the table. `runner.log` 581 lines,
+   `runner.restarts.log` 4 lines.
+2. `kill 459727` once (rc 0) at **22:16:42Z**; `kill -0` one second later: gone. Three seconds
+   later the `EXIT reason=SIGTERM pid=459727` line was on the log, stamped 22:16:42Z.
+3. Polled `runner.restarts.log` every 5 s: new line at the 20-s poll, `2026-08-26T22:17:01Z
+   queue_runner.sh: (re)started runner pid 502797`; `runner.pid` then read 502797.
+4. `ps` on 502797: **PPID 1, SID 502797** (its own session — L-336, detachment by session id),
+   `python3 /home/ubuntu/Certonomous/scripts/queue_runner.py --daemon`.
+5. START line: `2026-08-26T22:17:01Z START pid=502797 sid=502797 … HEAD=77096fe8
+   exit_logging=SIGTERM+SIGINT+SIGHUP+exception+normal`.
+6. Three ticks under the new pid, all `HELD` at the ceiling (the box was at 94.8–99.9 % busy):
+   `22:17:06Z box busy=94.8% (~15.2/16 cores) MemAvailable=21.6 GB; 27 entries queued`,
+   `22:18:11Z box busy=99.9% … 27 entries queued`, `22:19:16Z box busy=96.9% … 27 entries queued`.
+   No launch occurred during the test (nothing was launchable); the queue of 27 entries was
+   carried across the restart intact.
+7. Post at **22:19:20Z**: both solver pids alive, both logs grown, both last `Time =` advanced
+   (table). No process other than the runner pid was signalled; nothing sent, filed or uploaded.
+
+## Between the kills (for the record)
+
+Pid 419529 (from the first kill) ran 20:54:01Z until a stop between 21:14:41Z and 21:16:02Z with
+no `EXIT` line (pre-EXIT-path code; see above). Pid 459727 ran 21:16:02Z until this kill,
+60 min 39 s, and left the EXIT line. Restart lines so far: 16:41:57Z (189825), 20:48:01Z
+(399517), 20:54:01Z (419529), 21:16:02Z (459727), 22:17:01Z (502797).
