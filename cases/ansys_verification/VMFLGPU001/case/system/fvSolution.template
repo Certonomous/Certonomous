@@ -1,0 +1,94 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU001 -- flow between rotating and stationary concentric cylinders, with
+  EVERY linear solve routed through petsc4Foam.
+
+  __MATTYPE__ / __VECTYPE__ are substituted by run_vmflgpu001.sh, exactly as
+  docs/ansys_verification/gpu/smoke_case/system/fvSolution.template does:
+
+      GPU arm            : aijcusparse / cuda
+      forced-CPU control : aij        / standard
+
+  BOTH ARMS ARE OTHERWISE BYTE-IDENTICAL.  That is what makes limb B
+  (|q_GPU - q_CPU|/|q_CPU|) a statement about WHERE the linear algebra ran and
+  about nothing else: same mesh, same schemes, same relaxation, same Krylov
+  method, same preconditioner, same tolerances, same fixed iteration count.
+
+  The Krylov/preconditioner choices below replace the parent's GAMG (p) and
+  smoothSolver (U) because petsc4Foam supplies the solver: CG+Jacobi for the
+  symmetric pressure system, BiCGStab+Jacobi for the asymmetric momentum
+  system.  The OUTER tolerances (p 1e-10, U 1e-11, relTol 0.01) are the parent
+  VMFL001 values, unchanged, and are what the limb-B bound is derived from in
+  PREREGISTRATION.md section 6.2.
+
+  NO residualControl: the run always reaches endTime, so the strict-completion
+  clauses "last time == endTime" and "ExecutionTime count == endTime" are
+  meaningful and BOTH ARMS TAKE THE SAME NUMBER OF OUTER ITERATIONS.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          petsc;
+        petsc
+        {
+            options
+            {
+                ksp_type        cg;
+                pc_type         jacobi;
+                mat_type        __MATTYPE__;
+                vec_type        __VECTYPE__;
+            }
+            caching { matrix { update always; } preconditioner { update always; } }
+        }
+        tolerance       1e-10;
+        relTol          0.01;
+    }
+
+    U
+    {
+        solver          petsc;
+        petsc
+        {
+            options
+            {
+                ksp_type        bcgs;
+                pc_type         jacobi;
+                mat_type        __MATTYPE__;
+                vec_type        __VECTYPE__;
+            }
+            caching { matrix { update always; } preconditioner { update always; } }
+        }
+        tolerance       1e-11;
+        relTol          0.01;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+    pRefCell        0;
+    pRefValue       0;
+}
+
+relaxationFactors
+{
+    equations
+    {
+        U               0.7;
+    }
+    fields
+    {
+        p               0.3;
+    }
+}
+
+// ************************************************************************* //
