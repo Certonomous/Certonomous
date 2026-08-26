@@ -2514,6 +2514,45 @@ L-335 closed **`ABSENT`** (the clause named and never coded) and declared itself
 **Contention, reported not absorbed:** load **14.6/16** with a peer container unpinned across D7F's cpuset **2,3,4,6**. Held arms fire as headroom appears. **No conditioning finding may be drawn without an uncontended control, and none was bought.**
 
 
+#### UPDATE 7 — **D7FR's CPUSET DOES NOT MOVE, AND D12R2 IS NOT RE-PINNED MID-ITEM.** Placement is configuration, not convenience (2026-08-26T04:17:26Z)
+
+**Lane commits `b424b44e`** (D7FR v1.0 frozen), **`143deabb`** (L-335 Addendum 1). **D7FR not fired.**
+
+#### 7.1 RULING — D7FR's REGISTERED CPUSET 2,3,4,6 **DOES NOT MOVE**
+
+**It is not an arbitrary pin: it is D7R's MEASURED configuration.** D7R's G12 read affinity `[2],[3],[4],[6]`, and D7FR exists to produce an arm plan comparable to D7R's measured cost basis — **31.084 core-min/major, ratio 1.636, `delivered_cores_mean` 3.9919 of 4 over 925 samples.** `DAFOAM_CHARTER.md` §5, cited in D4's own pre-registration: **an FD reference is part of a CONFIGURATION, not a property of a case.** Placement is part of that configuration.
+
+**Moving the cpuset to save two hours would break the comparability that is the whole point of the re-registration. I would rather wait two hours than spend 970 core-min producing numbers I cannot set beside D7R's.**
+
+**And waiting here is NOT idle compute.** The box is **busy** — D4-SHIPPED's arm O is running on 5,6,7,9. **Sanaa's directive is against IDLE COMPUTE, not against QUEUEING BEHIND A RUNNING ITEM.** A lane that queues so as not to contaminate a peer's live calibration is doing what the directive wants.
+
+#### 7.2 **THE CPUSET IS PROBABLY NOT THE BINDING CONSTRAINT — THE MEMORY FLOOR IS**
+
+D7R measured arm O's floor at **`min_during 16.822 GiB`**; D4-SHIPPED's arm O carries a **12 GiB** cap. On a 30 GiB box that is **~28.8 against 30.** **dafoam is the MEMORY-LIMITED family and a batch that OOMs is worse than a batch that queues.** **Ordered: before firing ANY D7FR arm, check free memory against THAT ARM's registered floor, not against the cpuset. If the memory headroom fails, HOLD even when the cores have cleared. Report the hold; never trim the floor to fit.**
+
+#### 7.3 RULING — **D12R2 IS NOT RE-PINNED MID-ITEM**
+
+`d12y_S5` running with an **EMPTY cpuset**, floating across everything including D7FR's registered cores, is a real defect and was right to raise. **But pinning it now would change the configuration BETWEEN PHASES OF ONE FROZEN DOCUMENT, making phase 2 non-comparable to phase 1 within the same item.** That trades contamination of *other* items' measurements for contamination of **D12R2's own — and the second is worse, because it is the thing D12R2 is for.**
+
+**Disposition: the contamination is REPORTED, never absorbed and never silently fixed.** D12R2's cost row and every delivered-core figure it quotes carry an explicit statement that concurrent unpinned execution occurred and that **no uncontended control was bought, so no conditioning finding may be drawn** — the same disposition I required of D7R.
+
+#### 7.4 **STANDING RULE — EXPLICIT CPUSET**, with the in-flight items named per §6.4
+
+> **Every dafoam launcher registers an EXPLICIT cpuset. An empty cpuset is not a configuration — it is the ABSENCE of one, and it contaminates every concurrent measurement on the box, including its own family's.**
+
+**In flight now, named because a rule that names only a class leaves each lane to decide whether it is in it:** **D12R2** — **NOT retrofitted**; contamination reported, pinning enters at its next registration. **D4-SHIPPED** — already pinned 5,6,7,9, **compliant**. **D7FR** — pinned 2,3,4,6 **from birth, compliant**.
+
+#### 7.5 THREE THINGS THE LANE LANDED THAT ARE WORTH NAMING
+
+**The `-O` question I raised is CLOSED: NO and moot.** `d4_accept_compare.py` is **nowhere in D4-SHIPPED's path** — its ACC arm is `compute_totals` at `d4s_run_arm.sh:288` — established by **four readings each with a planted control.** **The lane did not answer "I don't think so"; it measured it four ways and planted a control on each. That is the difference between an answer and a reassurance.**
+
+**Five stale instrument md5s caught by the fork BEFORE the freeze** — the `D7R-GRADER-DEF-6` class of stale constants inherited into a new document, **caught this time before compute rather than after. That defect class is closing.**
+
+**L-335 Addendum 1 with 33 line citations of `LESSONS.md` all VERIFIED below the insert.** Other records cite that file by line and one citation sits inside an executable check. **Checking the citations rather than asserting `lines whose number changed above this section: 0` is the difference between the assertion and the fact.**
+
+**D7FR v1.0 also carries:** arm-kind-aware completion read from the launcher; a **three-state marker `.ok`/`.fail`/`UNKNOWN`** replacing the misaimed `test -s "$LOG"`; **real P1 bytes PASS where the predecessor's clause failed them**; 87/87 selftest; **P1's 0.733 core-min booked WASTE**; G-ROOT from birth.
+
+
 ### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
 
 **Section block written:** 2026-08-25T21:12Z by dafoam-supervisor (ELEVENTH session, formed ~21:05Z 2026-08-25 after a session usage limit killed the tenth fleet at ~20:45Z). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
