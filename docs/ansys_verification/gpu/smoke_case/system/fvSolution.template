@@ -1,0 +1,47 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU001 SMOKE case (2026-08-26): VMFL001's L1 mesh (16x16 per block) with the
+  linear solves routed through petsc4Foam. __MATTYPE__/__VECTYPE__ are templated by
+  smoke_test_gpu_path.sh: aijcusparse/cuda for the GPU run, aij/standard for the
+  forced-CPU control. Grades nothing; the frozen VMFLGPU001 comparator grades.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+solvers
+{
+    p
+    {
+        solver          petsc;
+        petsc
+        {
+            options
+            {
+                ksp_type        cg;
+                ksp_cg_single_reduction true;
+                pc_type         jacobi;
+                mat_type        __MATTYPE__;
+                vec_type        __VECTYPE__;
+            }
+            caching { matrix { update always; } preconditioner { update always; } }
+        }
+        tolerance       1e-10;
+        relTol          0.01;
+    }
+    U
+    {
+        solver          petsc;
+        petsc
+        {
+            options
+            {
+                ksp_type        bcgs;
+                pc_type         jacobi;
+                mat_type        __MATTYPE__;
+                vec_type        __VECTYPE__;
+            }
+            caching { matrix { update always; } preconditioner { update always; } }
+        }
+        tolerance       1e-11;
+        relTol          0.01;
+    }
+}
+SIMPLE { nNonOrthogonalCorrectors 1; pRefCell 0; pRefValue 0; }
+relaxationFactors { equations { U 0.7; } fields { p 0.3; } }

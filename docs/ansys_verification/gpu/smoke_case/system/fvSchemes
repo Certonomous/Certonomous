@@ -1,0 +1,52 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL001.  Every term is CENTRAL, second order.  Cell Peclet number at the
+  coarsest level is |u| dx / nu ~ 0.0151 * 1.78e-3 / 2e-4 = 0.134 << 2, so
+  central differencing of the convection term is stable here and preserves the
+  formal second-order accuracy that the Roache triple is meant to measure.
+  `default Gauss linear` is deliberate rather than `default none`: it makes a
+  term this dict does not name impossible to run with the WRONG scheme (every
+  term is the same second-order scheme), at the cost of not aborting on an
+  unnamed term.  Stated in PREREGISTRATION.md section 6.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         steadyState;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         Gauss linear;
+    div(phi,U)      Gauss linear;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+// ************************************************************************* //
