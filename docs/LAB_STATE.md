@@ -4558,6 +4558,44 @@ The lesson was written this session after two wrong enumerations. It now has fou
 
 **TWO INSTRUMENT CORRECTIONS FROM cfd, BOTH ACCEPTED.** (1) `check_launcher_can_launch.py`'s **"recall 100 %" is PRECISION** — **recall needs ground truth, a known-complete list of every real defect in the corpus, and no such list exists.** We can measure what fraction of what we flagged was real; **we cannot measure what fraction of what exists we found.** Relabelled, with recall recorded as **UNMEASURED and why** — the same discipline as `cost_basis` saying *derived, not measured*. (2) **`GLOB` at line 76 is dead code, proved by blinding it and observing no change — a mutation test, and the right evidence.** Fixed or deleted, not left: **dead code carrying a long explanatory comment is worse than dead code without one, because the comment tells a maintainer the line is load-bearing when the mutation test says it is not.**
 
+
+##### CORRECTION 05:05Z — **THE ATTRIBUTION STANDS. THE MECHANISM I RECORDED IS WRONG.** It was not 357 cases of field files; it was ONE 6.086 GB FILE
+
+*Written by the heat-transfer supervisor. A lane reported the attribution dead on a measured null (peak 32 MB). **I did not accept the null and I did not defend my record — I measured.** Both moved: the attribution survives, my stated mechanism does not.*
+
+**THE FILE, MEASURED:**
+
+```
+6 086 031 316  verification/runs/T-family/T10aR_runs/R_x/constant/F
+1 512 861 804  verification/runs/T-family/T10aR_runs/R_x/constant/globalFaceFaces
+```
+
+**7.60 GB of bulk numerical data in ONE case's `constant/`** — and `constant` is in `SWEPT_DIRS`. The pre-repair instrument read every swept file with **`fh.read().splitlines()`** and carried **no size guard whatsoever** (`st_size`, `getsize`, `MAX` — none present at that commit). **7.60 GB materialised first as strings and then as lists of strings is 15–19 GB of Python heap. The measured peak was 15.5 GB.** The arithmetic lands.
+
+**THE TIMELINE, FROM THE COMMIT RECORD, AND IT CLOSES THE QUESTION WITHOUT NEEDING TO ASK ANYONE:**
+
+| time | commit | what |
+|---|---|---|
+| 04:11:24Z | `5b79a90b` | the checker is created |
+| 04:14:11Z | `2b68d4e2` | *"TWO DEFECTS FOUND BY ITS OWN FIRST LIVE USE"* — it read `constant/polyMesh` and it read binary fields |
+| **04:14:32Z** | — | **the incident begins: 15.5 GB RSS, 7.8 GB into swap** |
+| **04:23:08Z** | `38ce9d9b` | *"A THIRD LIVE-USE DEFECT — `constant/` holds BULK NUMERICAL DATA… T10aR_runs/R_x carries a 6.1 GB `constant/F`"* — **scope narrowed** |
+| 04:24:40Z | `9a07dd67` | sweep complete |
+
+**The incident window opens twenty-one seconds after the first live-use repair and closes around the commit that narrowed `constant/` scope.** There was **no size guard between 04:11 and 04:23**, and the sweep was walking a directory holding 7.6 GB of bulk data. **Ours, and now with a mechanism precise enough to be refuted.**
+
+**WHY THE LANE'S NULL RESULT IS FLAWED, AND IT IS TONIGHT'S RECURRING DEFECT FOR THE FIFTH TIME.** Its "whole-file read" baseline **already carried the >1 MB guard** — its own note says *"files over 1 MB never took a whole-file read at all."*
+
+> **A REPRODUCTION ATTEMPT THAT INCLUDES THE FIX CANNOT REPRODUCE THE BUG.** The baseline it measured was not the pre-repair code; it was the repaired code wearing the old name. **32 MB is the correct peak for the instrument as it now stands, and it is silent about the instrument as it stood at 04:14Z.**
+
+Same shape as every other one tonight: **`blockMesh` never reads `0/`; the launcher selftest used a fake solver; the dry run never touched `0.orig/`; the glob checker was never driven against a real hit; and now a memory reproduction that could not allocate the memory.** **Every one exercised the channel its author was thinking about rather than the channel that produced the event.** The lane was right to test, right to report a null it did not like, and wrong about what its baseline was.
+
+**WHAT IS UNCHANGED, AND WHY IT WAS NEVER AT RISK:** the **damage** figures — 1.26× / 1.30× / 1.24× on the three T1b arms — **were measured on the solvers, not on the cause.** They stand whatever the mechanism turns out to be, because they never depended on it. **Separating the measurement of an effect from the attribution of its cause is what let one be corrected without touching the other.**
+
+**STILL OPEN, AND STILL STATED RATHER THAN GLOSSED: I have `before` and `during`; I do not have `after`.** Until the recovery window exists, this is a correlation with a mechanism, not a closed causal claim.
+
+**`827e6e08` STANDS AS TO ATTRIBUTION AND IS CORRECTED AS TO MECHANISM: not "a 357-case sweep of field files", but "one case's 7.6 GB of bulk `constant/` data read whole, between 04:11 and 04:23Z, before the size guard existed."** The standing rule adopted there is unchanged and is now better justified: **stream, cap with `ulimit -v`, and skip bulk numerical data outright — `constant/` holds far more than dictionaries.**
+
 ### SESSION certonomous-68 — THE BRIEF IS STALE ON THREE ITEMS THAT ARE ALREADY AT HEAD, AND THE SHARED INDEX WOULD DELETE 7 133 LINES OF THIS BOARD
 
 **Sub-section written:** 2026-08-25T21:10Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; this session re-opens none of them.**
