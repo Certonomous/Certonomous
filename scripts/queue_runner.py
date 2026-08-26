@@ -46,6 +46,15 @@ daemon loop logs `EXIT reason=<signal name|ExceptionClass: msg|normal> pid=<pid>
 runner.log before the process ends; an escaping exception is logged and RE-RAISED,
 never swallowed.  `--selftest` sends SIGTERM to a scratch-root daemon and requires
 that line.
+RE-ARMED CWD (2026-08-26, ansys VMFL064-R2 20:45Z and heat-transfer T5_C 20:52/20:54Z): a
+launched record keyed on case_id alone was read by cap_watch as governing a cwd whose
+owner had removed STATUS for a re-run, and the relaunch then overwrote the record the
+flag was about.  Now (1) a launch ARCHIVES any current record of the same name or
+case_id as `<name>.<its utc, colons stripped>.json` (log word `ARCHIVED`; nothing
+deleted) and cap_watch watches only current records; (2) a record whose STATUS has been
+seen is stamped `_launch.status_seen_utc` and never fires again; (3) every flag names
+the launch it judges (`launch_utc= pid= started_epoch=`) and is written at most once per
+launch record.  `--selftest` plants the sequence and both mutations (each must flip).
 
 USAGE
     python3 scripts/queue_runner.py --daemon            # loop forever, 60 s ticks
@@ -58,6 +67,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -77,6 +87,25 @@ EXIT_REFUSE = 2
 DEFAULT_ROOT = REPO / "verification" / "queue"
 TEAMS = tuple(qec.TEAMS)
 SKIP_DIRS = ("launched", "refused")
+
+# A launched record is CURRENT while it is `launched/<name>.json`. When the same case_id is
+# launched again (its owner removed STATUS and re-enqueued -- ansys VMFL064-R2 20:45Z and
+# heat-transfer T5_C -> T5_C_v2 20:54Z, 2026-08-26), the previous record is ARCHIVED, never
+# deleted, as `launched/<name>.<its _launch.utc with the colons stripped>.json`, e.g.
+# `VMFL064-R2.2026-08-26T174913Z.json`. cap_watch watches ONLY current records: a file
+# whose name matches ARCHIVED_RE is never watched, so a stale record cannot judge a cwd
+# that somebody else has re-armed. The optional `.<n>` guards a same-second collision.
+ARCHIVED_RE = re.compile(r"\.\d{4}-\d{2}-\d{2}T\d{6}Z(\.\d+)?\.json$")
+
+
+def is_current_record(p: Path) -> bool:
+    return p.suffix == ".json" and ARCHIVED_RE.search(p.name) is None
+
+
+def _write_json(p: Path, obj: dict) -> None:
+    tmp = p.with_name(p.name + ".tmp")
+    tmp.write_text(json.dumps(obj, indent=2) + "\n")
+    os.replace(tmp, p)
 
 
 class Refusal(RuntimeError):
@@ -206,7 +235,44 @@ def move_refused(path: Path, reasons: list[str], log: Log) -> None:
     log(f"REFUSED {path} -> {dst}: " + " | ".join(reasons))
 
 
-def launch(entry: dict, path: Path, root: Path, log: Log) -> tuple[int, int]:
+def archive_previous_records(launched_dir: Path, case_id: str, new_name: str, log: Log) -> list[Path]:
+    """Before a new launch record is written, every CURRENT record the new launch would
+    shadow -- the same file name, or the same case_id under another name (heat-transfer's
+    T5_C.json beside T5_C_v2.json) -- is RENAMED to `<stem>.<its _launch.utc, colons
+    stripped>.json`. Nothing is deleted. A record keyed on case_id alone was read by
+    cap_watch as governing a cwd its owner had already re-armed: ansys VMFL064-R2,
+    2026-08-26 -- CAP_OVERRUN stamped 20:45:38Z against the 17:49:13Z record (elapsed
+    10,585 s), and the 20:45:43Z relaunch then OVERWROTE that record, so the flag named a
+    launch nobody could find any more."""
+    archived: list[Path] = []
+    for p in sorted(launched_dir.glob("*.json")):
+        if not is_current_record(p):
+            continue
+        try:
+            old = json.loads(p.read_text())
+        except (OSError, json.JSONDecodeError):
+            old = {}
+        if p.name != new_name and old.get("case_id") != case_id:
+            continue
+        li = old.get("_launch") or {}
+        old_utc = str(li.get("utc") or datetime.fromtimestamp(
+            p.stat().st_mtime, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
+        stamp = old_utc.replace(":", "")
+        dst = p.with_name(f"{p.stem}.{stamp}.json")
+        n = 1
+        while dst.exists():
+            n += 1
+            dst = p.with_name(f"{p.stem}.{stamp}.{n}.json")
+        os.replace(p, dst)
+        log(f"ARCHIVED previous launch record for {case_id} ({old_utc}, pid {li.get('pid', 'unknown')}) "
+            f"-> {dst.name}")
+        archived.append(dst)
+    return archived
+
+
+def launch(entry: dict, path: Path, root: Path, log: Log, archive: bool = True) -> tuple[int, int]:
+    """`archive` is True in every real call; --selftest passes False ONLY for the mutation
+    control that must reproduce the stale-flag defect (the control has to flip)."""
     cwd = Path(entry["cwd"])
     case_id = entry["case_id"]
     argv = entry["launch_cmd"]
@@ -233,6 +299,8 @@ def launch(entry: dict, path: Path, root: Path, log: Log) -> tuple[int, int]:
     launched_dir = path.parent / "launched"
     launched_dir.mkdir(exist_ok=True)
     dst = launched_dir / path.name
+    if archive:
+        archive_previous_records(launched_dir, case_id, dst.name, log)
     shutil.move(str(path), str(dst))
     meta = dict(entry)
     meta["_launch"] = dict(utc=utc(), pid=pid, sid=sid, status_file=str(status),
@@ -260,7 +328,7 @@ def launch(entry: dict, path: Path, root: Path, log: Log) -> tuple[int, int]:
     return pid, sid
 
 
-def cap_watch(root: Path, log: Log, now: float | None = None) -> None:
+def cap_watch(root: Path, log: Log, now: float | None = None, retire_seen: bool = True) -> None:
     """Runaway guard that REPORTS. Never kills.
 
     Two flags, keyed on what the entry actually registered (cfd supervisor's order,
@@ -272,30 +340,57 @@ def cap_watch(root: Path, log: Log, now: float | None = None) -> None:
         ranks, whose text says it is an ESTIMATE overrun and not a cap.
     Both say REPORTED NOT ENFORCED; neither kills (COMPUTE_BUDGET_CHARTER).  `now` is
     injectable so --selftest can drive the clock; the daemon passes nothing.
+
+    WHICH LAUNCH A FLAG IS ABOUT (2026-08-26, after VMFL064-R2 and T5_C):
+      * only CURRENT records are watched -- `launched/<name>.json`, never a name matching
+        ARCHIVED_RE (a record retired by a later launch of the same case_id);
+      * a record whose STATUS has been SEEN is stamped `_launch.status_seen_utc` once and is
+        finished for good: if STATUS later vanishes, that is somebody re-arming the cwd for
+        a re-run, not this launch running on (`retire_seen=False` only in the selftest's
+        mutation control, which must reproduce the stale flag);
+      * the flag text names the launch it judges -- `launch_utc=<_launch.utc> pid=<pid>
+        started_epoch=<epoch>` -- and is written AT MOST ONCE PER LAUNCH RECORD: an existing
+        flag that already names this launch is left alone; one that names another launch of
+        the same cwd is superseded, its text kept beneath the new one, not deleted.
+      Before this change the flag was written once per FILE (`not flag.exists()`): a stale
+      flag from an earlier launch silenced every later launch of the same cwd for ever.
     """
     t_now = time.time() if now is None else float(now)
     for team in TEAMS:
         d = root / team / "launched"
         if not d.is_dir():
             continue
-        for p in d.glob("*.json"):
+        for p in sorted(d.glob("*.json")):
+            if not is_current_record(p):
+                continue  # archived record: a launch that a later launch has retired
             try:
                 meta = json.loads(p.read_text())
             except (OSError, json.JSONDecodeError):
                 continue
             li = meta.get("_launch") or {}
             status = Path(li.get("status_file", "/nonexistent"))
-            if status.exists() or "started_epoch" not in li:
+            if "started_epoch" not in li:
                 continue
+            if status.exists():
+                if retire_seen and "status_seen_utc" not in li:
+                    li["status_seen_utc"] = utc()
+                    meta["_launch"] = li
+                    _write_json(p, meta)
+                continue
+            if retire_seen and "status_seen_utc" in li:
+                continue  # this launch finished; the missing STATUS is a re-armed cwd
             ranks = max(1, int(meta.get("ranks", 1)))
             est = float(meta["cost_core_min_estimate"])
             elapsed = t_now - float(li["started_epoch"])
+            ident = (f"launch_utc={li.get('utc', '?')} pid={li.get('pid', '?')} "
+                     f"started_epoch={float(li['started_epoch']):.3f}")
             cap = meta.get("cap_core_min_registered")
             has_cap = isinstance(cap, (int, float)) and not isinstance(cap, bool) and cap > 0
             if has_cap:
                 allowed_wall = float(cap) * 60.0 / ranks * 1.00
                 flag = Path(meta["cwd"]) / "CAP_OVERRUN.txt"
                 text = (f"{utc()} CAP OVERRUN REPORTED, NOT ENFORCED: case {meta['case_id']} "
+                        f"[{ident}] "
                         f"elapsed {elapsed:.0f} s > 1.00 x registered CAP {allowed_wall:.0f} s "
                         f"({cap} core-min cap / {ranks} ranks; estimate {est} core-min). "
                         f"The run was NOT killed (caps report; COMPUTE_BUDGET_CHARTER).\n")
@@ -304,15 +399,23 @@ def cap_watch(root: Path, log: Log, now: float | None = None) -> None:
                 allowed_wall = est * 60.0 / ranks * 1.10
                 flag = Path(meta["cwd"]) / "ESTIMATE_OVERRUN.txt"
                 text = (f"{utc()} ESTIMATE OVERRUN REPORTED, NOT ENFORCED -- THIS IS AN ESTIMATE "
-                        f"OVERRUN, NOT A CAP: the entry for case {meta['case_id']} carries no "
+                        f"OVERRUN, NOT A CAP: the entry for case {meta['case_id']} "
+                        f"[{ident}] carries no "
                         f"cap_core_min_registered, so the only registered figure is the estimate; "
                         f"elapsed {elapsed:.0f} s > 1.10 x estimate {allowed_wall/1.1:.0f} s "
                         f"({est} core-min / {ranks} ranks). No cap was crossed by this record. "
                         f"The run was NOT killed (caps report; COMPUTE_BUDGET_CHARTER).\n")
                 word = "ESTIMATE-OVERRUN"
-            if elapsed > allowed_wall and not flag.exists():
-                flag.write_text(text)
-                log(f"{word} reported for {meta['case_id']} -> {flag}")
+            if elapsed <= allowed_wall:
+                continue
+            prior = flag.read_text() if flag.exists() else ""
+            if ident in prior:
+                continue  # already flagged for THIS launch record; one flag per launch
+            if prior:
+                text += ("--- the text below judged ANOTHER launch of this cwd; superseded, "
+                         "kept, not deleted ---\n" + prior)
+            flag.write_text(text)
+            log(f"{word} reported for {meta['case_id']} [{ident}] -> {flag}")
 
 
 def measure_box(busy_window: float) -> tuple[float, float]:
@@ -568,6 +671,123 @@ def selftest() -> int:
     watch_log = (tmp / "runner.log").read_text()
     check("runner.log carries one CAP-OVERRUN and one ESTIMATE-OVERRUN line, and they do not read alike",
           watch_log.count("CAP-OVERRUN reported") == 1 and watch_log.count("ESTIMATE-OVERRUN reported") == 1)
+
+    # control 9: the RE-ARMED cwd (ansys VMFL064-R2, 2026-08-26: first launch 17:49:13Z pid
+    # 326419 finished; its owner removed STATUS for a re-run; CAP_OVERRUN stamped 20:45:38Z
+    # with elapsed 10,585 s from the FIRST record; the 20:45:43Z relaunch pid 390178 then
+    # overwrote that record. Same class: heat-transfer T5_C 17:41Z vs T5_C_v2 20:54Z).
+    # Launch A goes through the REAL launch path (argv `true`), so its record carries a real
+    # `_launch`. The `true` argv writes STATUS within milliseconds; where a control needs "a
+    # run still going", STATUS is removed and the comment says so.
+    def launch_case(name: str, entry: dict, status: Path, launch_fn=launch) -> dict:
+        (root / "cfd" / name).write_text(json.dumps(entry))
+        tick(root, log, 100.0, 1.0, 0.2, rr, launch_fn=launch_fn, measure=quiet)
+        for _ in range(50):
+            if status.exists():
+                break
+            time.sleep(0.1)
+        return json.loads((root / "cfd" / "launched" / name).read_text())
+
+    def flag_text(d: Path) -> str:
+        f = d / "CAP_OVERRUN.txt"
+        return f.read_text() if f.exists() else ""
+
+    def archived_for(stem: str) -> list[Path]:
+        return sorted(p for p in (root / "cfd" / "launched").glob(f"{stem}.*.json")
+                      if not is_current_record(p))
+
+    rearm_dir = tmp / "case_rearm"; rearm_dir.mkdir()
+    rearm = dict(good); rearm["case_id"] = "SELFTEST_REARM"; rearm["cwd"] = str(rearm_dir)
+    rearm["cap_core_min_registered"] = 1.0                   # 60 s at 1.00x, ranks 1
+    rearm_status = rearm_dir / "STATUS.SELFTEST_REARM"
+    rec_a = launch_case("SELFTEST_REARM.json", rearm, rearm_status)
+    a_utc, a_pid, a_epoch = rec_a["_launch"]["utc"], rec_a["_launch"]["pid"], rec_a["_launch"]["started_epoch"]
+    cap_watch(root, log, now=a_epoch + 10_000.0)                     # finished: nothing, however late
+    quiet_finished = flag_text(rearm_dir) == ""
+    stamped = "status_seen_utc" in json.loads((root / "cfd" / "launched" / "SELFTEST_REARM.json").read_text())["_launch"]
+    # 9a: STATUS removed by the owner; the watcher runs BEFORE the relaunch (the 20:45:38Z window)
+    rearm_status.unlink()
+    cap_watch(root, log, now=a_epoch + 10_001.0)
+    quiet_window = flag_text(rearm_dir) == ""
+    check("re-armed cwd: launch A (real launch path, STATUS landed) -> no flag at +10,000 s; record stamped "
+          "status_seen_utc; STATUS removed -> the finished record still writes nothing at +10,001 s",
+          rearm_status.exists() is False and quiet_finished and stamped and quiet_window,
+          f"finished_quiet={quiet_finished} stamped={stamped} window_quiet={quiet_window}")
+    # 9b: mutation control -- the stamp not consulted -> the SAME window fires the STALE flag naming A
+    cap_watch(root, log, now=a_epoch + 10_001.0, retire_seen=False)
+    stale = flag_text(rearm_dir)
+    check("mutation control (status_seen not consulted): the same window writes the STALE flag, "
+          "elapsed 10001 s, naming launch A -- the control flips on the retirement alone",
+          f"launch_utc={a_utc} pid={a_pid}" in stale and "elapsed 10001 s" in stale, f"text={stale.strip()[:90]!r}")
+    # 9c: the same case_id, same file name, launched again (VMFL064-R2): A is ARCHIVED, B is fresh
+    time.sleep(1.1)                                                  # so B's utc differs from A's
+    rec_b = launch_case("SELFTEST_REARM.json", rearm, rearm_status)
+    b_utc, b_pid, b_epoch = rec_b["_launch"]["utc"], rec_b["_launch"]["pid"], rec_b["_launch"]["started_epoch"]
+    arch = archived_for("SELFTEST_REARM")
+    arch_name = f"SELFTEST_REARM.{a_utc.replace(':', '')}.json"
+    arch_ok = (len(arch) == 1 and arch[0].name == arch_name and
+               json.loads(arch[0].read_text())["_launch"]["started_epoch"] == a_epoch)
+    arch_line = f"ARCHIVED previous launch record for SELFTEST_REARM ({a_utc}, pid {a_pid})"
+    check("relaunch of the same case_id -> previous record ARCHIVED as <id>.<utc>.json holding A's epoch "
+          "(kept, not deleted), ARCHIVED line logged, new record has a fresh started_epoch and no stamp",
+          arch_ok and arch_line in (tmp / "runner.log").read_text() and b_epoch > a_epoch and
+          b_utc != a_utc and "status_seen_utc" not in rec_b["_launch"],
+          f"archived={[p.name for p in arch]} b-a={b_epoch - a_epoch:.2f}s")
+    # 9d: B is a long run -- its `true` STATUS is removed to stand in for a run still going
+    rearm_status.unlink()
+    cap_watch(root, log, now=b_epoch + 1.0)
+    t1 = flag_text(rearm_dir)
+    check("cap_watch at B + 1 s writes nothing about B (the archived A record is not watched; the "
+          "flag on disk still names only A)",
+          f"launch_utc={b_utc}" not in t1 and t1.count("CAP OVERRUN REPORTED") == 1)
+    cap_watch(root, log, now=b_epoch + 61.0)
+    t2 = flag_text(rearm_dir)
+    top = t2.splitlines()[0] if t2 else ""
+    check("cap_watch at B + cap + 1 s writes the flag naming the NEW launch (launch_utc=B pid=B) on top; "
+          "A's superseded text kept beneath",
+          f"launch_utc={b_utc} pid={b_pid}" in top and "elapsed 61 s" in top and
+          f"launch_utc={a_utc} pid={a_pid}" in t2 and "superseded, kept" in t2, f"top={top[:100]!r}")
+    cap_watch(root, log, now=b_epoch + 3_600.0)
+    check("a flag naming this launch is written once: a later watch (B + 3600 s) leaves the file unchanged",
+          flag_text(rearm_dir) == t2)
+    # 9e: the T5_C class -- the same case_id re-enqueued under ANOTHER file name (T5_C.json,
+    # then T5_C_v2.json, same cwd), the first launch never having written STATUS. First the
+    # MUTATION (archive step disabled): the old record persists and fires the stale flag at
+    # C + 1 s. Then the real path: the old record is archived by case_id and nothing fires.
+    def no_archive(entry, path, root_, log_):
+        return launch(entry, path, root_, log_, archive=False)
+
+    results = {}
+    for tag, fn in (("mut", no_archive), ("fix", launch)):
+        d2 = tmp / f"case_rearm2_{tag}"; d2.mkdir()
+        e2 = dict(rearm); e2["case_id"] = f"SELFTEST_REARM2_{tag}"; e2["cwd"] = str(d2)
+        s2 = d2 / f"STATUS.SELFTEST_REARM2_{tag}"
+        r_old = launch_case(f"SELFTEST_REARM2_{tag}.json", e2, s2)
+        s2.unlink()                                              # never seen by the watcher (T5_C)
+        time.sleep(1.1)
+        r_new = launch_case(f"SELFTEST_REARM2_{tag}_v2.json", e2, s2, launch_fn=fn)
+        # the first launch was hours ago (T5_C 17:41Z vs T5_C_v2 20:54Z): the file now
+        # holding the old record -- current (mutation) or archived (fixed) -- has its
+        # started_epoch set back 10,000 s, so "now = C + 1 s" is 10,001 s after it either way
+        p_old = root / "cfd" / "launched" / f"SELFTEST_REARM2_{tag}.json"
+        for h in ([p_old] if p_old.exists() else archived_for(f"SELFTEST_REARM2_{tag}")):
+            rec = json.loads(h.read_text())
+            rec["_launch"]["started_epoch"] -= 10_000.0
+            h.write_text(json.dumps(rec))
+        s2.unlink()                                              # the re-run is "still going"
+        cap_watch(root, log, now=r_new["_launch"]["started_epoch"] + 1.0)
+        results[tag] = dict(old=r_old["_launch"], new=r_new["_launch"], flag=flag_text(d2),
+                            old_current=(root / "cfd" / "launched" / f"SELFTEST_REARM2_{tag}.json").exists(),
+                            archived=[p.name for p in archived_for(f"SELFTEST_REARM2_{tag}")])
+    m, f_ = results["mut"], results["fix"]
+    check("T5_C class, mutation (archive disabled): old record under its own name persists beside the _v2 "
+          "record and fires the STALE flag at C + 1 s naming the OLD launch",
+          m["old_current"] and not m["archived"] and f"launch_utc={m['old']['utc']} pid={m['old']['pid']}" in m["flag"]
+          and f"launch_utc={m['new']['utc']}" not in m["flag"], f"flag={m['flag'].strip()[:80]!r}")
+    check("T5_C class, fixed: the old record is ARCHIVED by case_id when _v2 launches; nothing fires at C + 1 s "
+          "-- the control flips on the archive step alone",
+          not f_["old_current"] and f_["archived"] == [f"SELFTEST_REARM2_fix.{f_['old']['utc'].replace(':', '')}.json"]
+          and f_["flag"] == "", f"archived={f_['archived']} flag={f_['flag'].strip()[:60]!r}")
 
     full_log = (tmp / "runner.log").read_text()
     check("EMPTY and LAUNCHED outputs do not read alike",

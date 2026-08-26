@@ -47,6 +47,32 @@ HEAD `bc0e687e`; permission rules added by her 2026-08-26 (`Bash(setsid *)`,
    controls in `--selftest` (cap file at the cap time and not at cap − 1 s; estimate file
    at 1.10 × estimate and not before; the same record with the cap field stripped flips
    to the estimate path).
+   - **Which launch a flag is about (added 2026-08-26T22:15Z, cfd supervisor's 22:05Z finding):**
+     ansys `VMFL064-R2`'s `CAP_OVERRUN.txt` was stamped 20:45:38Z with elapsed 10,585 s — the
+     time since the case's FIRST launch (17:49:13Z, pid 326419), which had finished; its owner
+     had removed STATUS to re-run, the watcher fired the instant STATUS vanished, and the
+     20:45:43Z relaunch (pid 390178) then overwrote `launched/VMFL064-R2.json`, so the flag
+     named a launch that no longer had a record. Same class: heat-transfer `T5_C` (17:41Z
+     record, never a STATUS) flagged 20:52:11Z and 20:54:01Z beside the 20:54:06Z `T5_C_v2`
+     relaunch of the same cwd. A launched record keyed on `case_id` alone was governing a cwd
+     somebody else had re-armed. Now: (i) a launch **ARCHIVES** any current record of the same
+     file name or the same `case_id` as `launched/<name>.<its _launch.utc, colons stripped>.json`
+     (e.g. `VMFL064-R2.2026-08-26T174913Z.json`; log word `ARCHIVED previous launch record for
+     <id> (<utc>, pid <pid>)`; nothing deleted), and the cap watch reads **only current records**
+     — a name matching `\.\d{4}-\d{2}-\d{2}T\d{6}Z(\.\d+)?\.json$` is never watched; (ii) a
+     record whose STATUS the watch has **seen** is stamped `_launch.status_seen_utc` once and
+     never fires again — STATUS vanishing afterwards is a re-armed cwd, not this launch running
+     on; (iii) both flag texts name the launch they judge, `[launch_utc=<_launch.utc> pid=<pid>
+     started_epoch=<epoch>]`, and a flag is written **at most once per launch record** (before:
+     once per FILE, `not flag.exists()`, so a stale flag silenced every later launch of the same
+     cwd for ever); a flag naming another launch of the same cwd is superseded with its text kept
+     beneath. Planted in `--selftest`: launch A through the real launch path, STATUS seen, watch
+     at +10,000 s and again after STATUS is removed → nothing; the same watch with the stamp not
+     consulted → the stale flag naming A (flips); relaunch of the same `case_id` → A archived
+     under its utc, B fresh; watch at B + 1 s → nothing; at B + cap + 1 s → the flag names B on
+     top, A's text beneath; at B + 3,600 s → unchanged; the `T5_C` shape (same `case_id` under
+     `_v2.json`) with the archive step disabled → the stale flag naming the old launch, with it
+     enabled → archived, nothing fires (flips).
 
 ## What it never does
 
@@ -60,6 +86,12 @@ HEAD `bc0e687e`; permission rules added by her 2026-08-26 (`Bash(setsid *)`,
 - Never dispatches off-box: `host` ≠ this box → `SKIP` with a logged reason.
 - Never kills, never deletes, never edits/stages/commits in git, never runs under
   `python3 -O` (refuses, rc 2), carries no `assert`.
+- Never lets a superseded launch record judge a cwd (added 2026-08-26T22:15Z, after
+  `VMFL064-R2` and `T5_C`): a relaunch of a `case_id` archives the previous record instead of
+  overwriting it, a record whose STATUS has been seen is finished for good, and every overrun
+  flag names the launch it is about. The runner still never removes STATUS and never decides
+  whether a re-run is legitimate — that is the owning team's; it only stops mistaking the
+  owner's re-arming for its own launch running on.
 
 ## Filling a queue
 
@@ -81,7 +113,8 @@ directory (rule 4).
 - Start: `setsid nohup python3 scripts/queue_runner.py --daemon > verification/queue/runner.out 2>&1 < /dev/null &`
 - Lock: `verification/queue/runner.pid` (refuses to start if that pid is alive).
 - Log: `verification/queue/runner.log` (one line per tick; `EMPTY`, `HELD`, `LAUNCHED`,
-  `REFUSED`, `SKIP`, `CAP-OVERRUN`, `ESTIMATE-OVERRUN`, `START`, `EXIT` are the only event words).
+  `REFUSED`, `SKIP`, `CAP-OVERRUN`, `ESTIMATE-OVERRUN`, `START`, `EXIT`, `ARCHIVED` (added
+  2026-08-26T22:15Z) are the only event words).
 - **Exit path (added 2026-08-26T21:15Z, cfd supervisor's order after runner pid 189825 died
   between 20:47:43Z and 20:48:01Z with no recorded reason):** the daemon handles SIGTERM,
   SIGINT and SIGHUP and every way out of its loop writes one line
