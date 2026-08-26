@@ -1,0 +1,9 @@
+case            T14_SQ_m
+date            2026-08-26T21:03:51Z
+blockMesh_rc    0   wall 0.584 s
+checkMesh_rc    0   wall 0.528 s
+checkMesh       cells:            10000
+checkMesh       Max aspect ratio = 1 OK.
+checkMesh       Mesh non-orthogonality Max: 0 average: 0
+checkMesh       Max skewness = 9.4274607211864e-14 OK.
+checkMesh       Mesh OK.

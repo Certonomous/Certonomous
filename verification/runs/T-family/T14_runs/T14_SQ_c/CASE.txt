@@ -1,0 +1,14 @@
+case=T14_SQ_c
+level=c
+N=50
+cells=2500
+dx=0.00020000000000000001
+valueFraction=0.0099009900990099011
+Bi=1
+L=0.01
+alpha=1e-05
+endTime=2
+deltaT=0.0001
+Fo_end=0.20000000000000001
+solver=laplacianFoam
+ranks=1

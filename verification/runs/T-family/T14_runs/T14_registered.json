@@ -1,0 +1,175 @@
+{
+  "rung": "T14",
+  "title": "2-D transient conduction in a square (T11b), Robin faces, EXACT tier",
+  "capability_grid_cell": "conduction x (laminar, n/a: no flow) x 2D transient (docs/capability/heat-transfer_GRID.md)",
+  "solver": "laplacianFoam",
+  "turbulence": "none (solid)",
+  "dimensionality": 2,
+  "ranks": 1,
+  "physics": {
+    "L_half_side_m": 0.01,
+    "alpha_m2_s": 1e-05,
+    "Bi": 1.0,
+    "T_init": 1.0,
+    "T_inf": 0.0,
+    "endTime_s": 2.0,
+    "Fo_end": 0.2,
+    "referent": "theta(x,y,Fo) = f(x,Fo) f(y,Fo), f the plane-wall series (exact_t14.py); cross-checked against T11's registered 1-D values"
+  },
+  "cases": {
+    "T14_SQ_c": {
+      "level": "c",
+      "N": 50,
+      "cells": 2500,
+      "dx_m": 0.0002,
+      "endTime": 2.0,
+      "deltaT": 0.0001,
+      "steps": 20000,
+      "cell_steps": 50000000,
+      "cap_core_min": 2,
+      "timeout_s": 120,
+      "point_core_min_T11rate": 0.438,
+      "role": "graded level",
+      "scratch_point_core_min": 0.137
+    },
+    "T14_SQ_m": {
+      "level": "m",
+      "N": 100,
+      "cells": 10000,
+      "dx_m": 0.0001,
+      "endTime": 2.0,
+      "deltaT": 0.0001,
+      "steps": 20000,
+      "cell_steps": 200000000,
+      "cap_core_min": 8,
+      "timeout_s": 480,
+      "point_core_min_T11rate": 1.752,
+      "role": "graded level",
+      "scratch_point_core_min": 0.547
+    },
+    "T14_SQ_f": {
+      "level": "f",
+      "N": 200,
+      "cells": 40000,
+      "dx_m": 5e-05,
+      "endTime": 2.0,
+      "deltaT": 0.0001,
+      "steps": 20000,
+      "cell_steps": 800000000,
+      "cap_core_min": 30,
+      "timeout_s": 1800,
+      "point_core_min_T11rate": 7.007,
+      "role": "graded level",
+      "scratch_point_core_min": 2.187
+    },
+    "T14_SQ_f_CT": {
+      "level": "f_CT",
+      "N": 200,
+      "cells": 40000,
+      "dx_m": 5e-05,
+      "endTime": 2.0,
+      "deltaT": 5e-05,
+      "steps": 40000,
+      "cell_steps": 1600000000,
+      "cap_core_min": 60,
+      "timeout_s": 3600,
+      "point_core_min_T11rate": 14.013,
+      "role": "C-T temporal-bias control, REPORTED never gated",
+      "scratch_point_core_min": 4.373
+    }
+  },
+  "refinement_ratio": 2.0,
+  "factor_of_safety": 1.25,
+  "dim": 2,
+  "roache_floors": {
+    "source": "scripts/roache_triple.py, imported by name (MESH_STANDARD.md section 10.5, chief ruling 01967a7b); the comparator defines neither and REFUSES if these numbers differ from the import",
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05
+  },
+  "graded_rows": {
+    "G1": {
+      "quantity": "theta_mean, volume average over the quarter square (mesh-independent by construction)",
+      "reference": 0.7252148236,
+      "band_rel": 5e-05,
+      "grading": "Roache triple, rule 5",
+      "band_ground": "T11 measured +4.4e-6 relative at N=100 on the 1-D mean (T11_PREREGISTRATION.md 6.1); the product doubles the relative error and N=50 quadruples it: coarse ~3.5e-5, medium ~9e-6, fine ~2.2e-6 predicted; the band 5e-5 is cleared by the fine level ~20x and by the coarse level ~1.4x -- a 1e-4 band would be cleared by every level and is not a gate"
+    },
+    "G2": {
+      "quantity": "theta at (x*,y*) = (0,0), the centre of the full square, separable linear extrapolation from the four nearest centres",
+      "reference": 0.903719791,
+      "band_rel": 0.0001,
+      "grading": "Roache triple, rule 5",
+      "band_ground": "T11's registered band for a pointwise row (interpolation error enters the triple and is disclosed)"
+    },
+    "G3": {
+      "quantity": "theta at (x*,y*) = (1,0), mid-face on the symmetry plane, separable linear extrapolation",
+      "reference": 0.6116341596,
+      "band_rel": 0.0001,
+      "grading": "Roache triple, rule 5",
+      "band_ground": "as G2"
+    }
+  },
+  "controls": {
+    "C_CONV": {
+      "what": "every timestep's T solve final residual <= 1e-10 and an End line (gate (1) for a transient rung, T11 form)",
+      "floor": 1e-10
+    },
+    "W0": {
+      "what": "transposition symmetry witness: max |theta(x,y) - theta(y,x)| <= 1e-9 on every level; exceeding it means solver or reader asymmetry -> gate (1) NOT A RESULT",
+      "floor": 1e-09
+    },
+    "C_VF": {
+      "what": "valueFraction on each level READ FROM CASE.txt must equal Bi/(Bi+2N) (L-341); refuses otherwise"
+    },
+    "C_REF": {
+      "what": "Route B on the referent (PDE residual at two stencil widths falling as h^2, symmetry-plane gradients, Robin faces, initial condition, Simpson mean) plus CROSS-CHECK against T11's registered 1-D values to 1e-9; a 1 percent mutation of C_n is REFUSED (exact_t14.py --selftest)"
+    },
+    "C_PZ": {
+      "what": "planted-zero control per reader (rule 3, L-340): ALL-CELL plant for the averaging reader G1 (N_f^2 = 40 000 cells), one-cell plant for the point readers G2 (cell 0) and G3 (cell N_f-1); both arms; measured detection ladder; refuses a blind or noisy reader or a read below 0.1 x plant"
+    },
+    "C_T": {
+      "what": "temporal-bias control: T14_SQ_f_CT, deltaT halved at the fine level; movement of G1 REPORTED as a fraction of the band, never gated"
+    }
+  },
+  "predictions": {
+    "P1": "G1, G2, G3 all PASS: G1 inside +-5e-5 relative, G2/G3 inside +-1e-4",
+    "P2": "all three triples CONVERGING with observed order p in [1.5, 2.5]",
+    "P3": "C-T moves G1 by less than 10 percent of the G1 band (|move| < 5e-6 relative)",
+    "P4": "W0 < 1e-12 on every level (the discrete problem is exactly symmetric)"
+  },
+  "cost": {
+    "rate_T11_core_s_per_cell_step": 5.255e-07,
+    "rate_T11_source": "T11 MEASURED on its own coarse case: 5.255e-07 core-s per cell-step (T11_PREREGISTRATION.md section 10)",
+    "usd_per_core_h": 0.0513,
+    "usd_basis": "derived, not measured, reported-by-owner rate (COMPUTE_BUDGET_CHARTER section 5)",
+    "rate_scratch_measured_core_s_per_cell_step": 1.6399999999999999e-07,
+    "rate_scratch_source": "MEASURED 2026-08-26T21:03Z on a SCRATCH COPY of T14_SQ_c (2 500 cells) run 2 000 steps through run_one_t14.sh under the queue runner's setsid/nohup/cd form: ExecutionTime 0.82 s, wall 1 s, rc=0 -> 1.64e-07 core-s per cell-step; outside the repository, no registered case touched",
+    "scratch_point_total_core_min": 7.244,
+    "cap_total_core_min": 100,
+    "note": "caps are hang guards (rule 12 stops at the cap); the scratch rate is the POINT the calibration ledger compares against"
+  },
+  "completion": {
+    "needed_fields": [
+      "T"
+    ],
+    "infrastructure_fields": [
+      "wall_s",
+      "timeout_s",
+      "ranks",
+      "core_min",
+      "capped",
+      "checkmesh_rc",
+      "solver",
+      "solver_path",
+      "note",
+      "started_utc",
+      "ended_utc"
+    ],
+    "note": "capped is an INFRASTRUCTURE field and never a completion conjunct (L-342)"
+  },
+  "launcher": {
+    "file": "run_one_t14.sh",
+    "guard": "lineage-aware foreign-process scan (T10aR2 AMENDMENT 1, 9fa66065); driven on scratch 2026-08-26T21:03Z: ARM A (runner form) launched, solver rc=0, 2000 steps; ARM B (planted foreign sleep, cwd in the case) REFUSED exit 2 naming the pid, no STATUS written",
+    "queue_mode": "--no-detach"
+  }
+}
