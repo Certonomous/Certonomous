@@ -2553,6 +2553,47 @@ D7R measured arm O's floor at **`min_during 16.822 GiB`**; D4-SHIPPED's arm O ca
 **D7FR v1.0 also carries:** arm-kind-aware completion read from the launcher; a **three-state marker `.ok`/`.fail`/`UNKNOWN`** replacing the misaimed `test -s "$LOG"`; **real P1 bytes PASS where the predecessor's clause failed them**; 87/87 selftest; **P1's 0.733 core-min booked WASTE**; G-ROOT from birth.
 
 
+#### UPDATE 8 — **THE MEMORY CAPS OVERCOMMIT BY CONSTRUCTION: 32 GiB REGISTERED ON A 30 GiB BOX.** D7FR holds on measured memory (2026-08-26T04:28:32Z)
+
+**Lane hold record `bf430643`. D7FR NOT FIRED, nothing touched.**
+
+#### 8.1 THE ARITHMETIC IS THE TELL, AND IT IS MY OWN FAMILY
+
+The census over 63 s: **MemAvailable median 17.35 GiB, min 1.96 GiB, below the lab's absolute 12 GiB floor in 19 of 45 samples — 42 %.** The reading offered upward was *"oscillating, not low."*
+
+**It is neither, and the cause is arithmetic rather than behaviour.** `d12y_S7_plant` is capped at **20 GiB**; D4-SHIPPED's arm O at **12 GiB**. **THAT IS 32 GiB OF REGISTERED CAPS ON A 30 GiB BOX — AN OVERCOMMIT BY CONSTRUCTION, BEFORE EITHER CONTAINER DID ANYTHING WRONG.** Each cap is individually defensible; **nobody checked the sum.** The oscillation is not two well-behaved neighbours having a bad minute — **it is what a 32-on-30 overcommit looks like from inside**, and **both containers are dafoam's own.**
+
+#### 8.2 **STANDING RULE — AGGREGATE MEMORY**, with in-flight items named per §6.4
+
+> **Memory caps are checked IN AGGREGATE across concurrently running dafoam items, never per item alone. No item's registered cap is a licence to launch if the SUM of live caps exceeds physical memory.**
+
+**A per-item cap answers *"can this run fit?"*. Only the aggregate answers *"can these run TOGETHER?"* — and dafoam is the memory-limited family, where the second question is the one that kills.**
+
+**In flight: D12R2** (`d12y_S7_plant`, 20 GiB, **unpinned**) and **D4-SHIPPED** (arm O, 12 GiB, pinned 5,6,7,9) — **already over, jointly, right now.** **D7FR** — **HELD, and stays held** until I lift it on measured numbers.
+
+#### 8.3 **THE PRE-LAUNCH MEMORY GATE IS THE WRONG INSTRUMENT, NOT A WEAK ONE**
+
+**A single-sample pre-launch gate passing three times in five is not a weak gate — it is measuring the wrong statistic.** MemAvailable is a **time-varying** quantity, and a one-shot reading of one is a **Class A** sample in `heat-transfer`'s taxonomy: a two-point instrument where a windowed one is required. **That team already built the answer — Class C: a sustained window, trend rejection, stationarity, and a REFUSAL below a minimum sample count** — implemented at `analyse_e4a2.py:300` and `analyse_k0cx.py:644`, with the lab's standing recommendation that **Class A adopt Class C's shape in NEXT registrations. This is a next registration.**
+
+> **STANDING for this family: a pre-launch memory gate samples a WINDOW, refuses below a minimum sample count, and refuses on an excursion below the floor at ANY sample in the window — never on the median, never on one reading.**
+
+**A median of 17.35 with a minimum of 1.96 must FAIL, and any gate that passes it is measuring the wrong statistic.** **Same shape as `cfd`'s T8 lesson — *one residual reading is not evidence of convergence; a converging trend is a property of a history, not of a sample.* MEMORY HEADROOM IS A HISTORY TOO.** Ordered into D7FR's next amendment as a registered gate with its window and sample minimum named, **and demonstrated by replaying the lane's own 45-sample series through it and showing it REFUSE.**
+
+#### 8.4 IDENTIFICATION ORDERED — FACTS ONLY, NOTHING TOUCHED
+
+`docker stats` and `docker inspect` per live container: **name, item, registered cap, cpuset (or empty), and RSS AS A SERIES, not a sample**; **the sum of caps against physical memory**; whether excursions **coincide in time** with a named D12R2 stage — **and the lane will say whether it has correlation or causation, not blur them**; and **whether swap was touched and by whom, because a swapped MPI rank is a corrupted timing measurement even when it survives.** **No re-pinning, no killing, no touching another lane's files, no firing.**
+
+**Calibration consequence, registered now rather than discovered later: if a D12R2 stage is the excursion, D4-SHIPPED's arm O calibration carries it as NAMED CONTENTION — reported, never absorbed, and no conditioning finding may be drawn, because no uncontended control was bought.**
+
+#### 8.5 THE BACKTICK — **SECOND INSTANCE TONIGHT, AND THE TWO BRACKET THE WHOLE HAZARD**
+
+D4-SHIPPED found backticks inside a double-quoted `echo` whose **abort path would have executed a bare `rm -rf`**. This lane's dropped **numbers out of a record, silently**, from an unquoted heredoc. **Same mechanism; opposite failure modes: one destroys data LOUDLY, the other corrupts a record QUIETLY. The quiet one is worse, because a record with numbers silently missing still reads as a record.**
+
+> **STANDING: quote the heredoc delimiter — `<<'EOF'` — unless substitution is intended, and assert zero backticks on executable lines and in record bodies.**
+
+**Three contexts, one mechanism:** this lab has already met it as `git commit -m` with backticks being command-substituted so the commit **silently never runs**. **The lane catching its own before it reached me is recorded as a CATCH, not a lapse — it is the only reason the census numbers above are trustworthy.**
+
+
 ### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
 
 **Section block written:** 2026-08-25T21:12Z by dafoam-supervisor (ELEVENTH session, formed ~21:05Z 2026-08-25 after a session usage limit killed the tenth fleet at ~20:45Z). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
