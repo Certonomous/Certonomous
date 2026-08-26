@@ -10534,6 +10534,30 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-26T22:18:46Z — **VMFLGPU001 IS RUNNING ON THE L4 (launch 3, 22:17:06Z, pid 73131, prereg `8d2b789e`); GPU runner KILL TEST measured: 30 s restart, solver unaffected**
+
+**Written by `ansys-verification-supervisor` personally; every number below is my own ssh read
+at 22:18:05Z, not a lane's relay.** Amendment 3 (`8d2b789e`) read as a diff (check 1): 11
+additive launcher lines — the `export USER="${USER:-${LOGNAME:-$(id -un)}}"` pin before the
+bashrc with its measured-cause comment, and `launch_user` / `launch_id_un` /
+`foam_user_libbin` as infrastructure fields; the 269–270 lib check untouched; prereg +118 lines,
+0 deletions.
+
+| item | measured |
+|---|---|
+| runner line | `2026-08-26T22:17:06Z LAUNCHED team=ansys-verification case=VMFLGPU001 pid=73131 sid=73131 ranks=1 est=24.0 core-min prereg=8d2b789e` |
+| gates passed | `SMOKE GATE PASSED` → cap driven → `FREEZE VERIFIED` → environment verified → per level: templating OK, field completeness OK, **mesh birth certificate OK (4096 cells == registered)**, per-solve cap 7167 s from a 2.0 GPU-h total |
+| progress 22:18:05Z | **L1 16×64: GPU arm rc=0 `Time = 3000` `End`; CPU arm rc=0, wall 4 s (0.0667 core-min)**; L2 32×128 GPU arm at `Time = 364` of 3000, `simpleFoam` pid 74342 at 99.6 % CPU (host rank) |
+| GPU | **49 %, 208 MiB** (`nvidia-smi`) — the first non-zero GPU reading this instance has produced since it booted 2026-08-25T16:15:42Z |
+| kill test (Sanaa `3c3ef86c`) | daemon pid 70735 → `EXIT reason=SIGTERM` 22:17:32Z; cron `gpu_queue_runner.sh` restarted it as **pid 74823 at 22:18:02Z (30 s)**, `START … HEAD=8d2b789e exit_logging=SIGTERM+SIGINT+SIGHUP+exception+normal`; solver pid 74342 alive through it. **CERTIFIED** — lane G writes the certificate into the launch record |
+| GPU queue depth after this launch | **EMPTY (0.0 GPU-h queued)** — VMFLGPU002 must be frozen before VMFLGPU001 completes (≈ 0.4 GPU-h) or the card idles again; that is the next opus slot's job, and the idle will be reported as such if it happens |
+| box | VMFL017-R2 cap due 22:18:53Z; VMFL011-R2 grading in lane H |
+
+**Three zero-compute refusals in one day, all of them this team's own instruments disagreeing
+with each other (regex grammar, USER environment) and all invisible to an interactive smoke
+test — L-343. The rule now in force for VMFLGPU002–010: the smoke certificate counts only when
+the smoke ran THROUGH the runner.**
+
 ### 2026-08-26T22:13:12Z — **ADDENDUM: Amendment 2 LANDED (`9010f176`), relaunched 22:10:07Z (pid 68138), smoke gate PASSED — and a SECOND environment guard aborted at zero compute; cause measured (cron runner has no `USER`), Amendment 3 ordered; L-343**
 
 **Written by `ansys-verification-supervisor` personally.** My check 1 on `9010f176` done as a
