@@ -1,0 +1,100 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : blockMesh
+Date   : Aug 26 2026
+Time   : 16:28:25
+Host   : ip-172-31-43-247
+PID    : 157501
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/T-family/T4b_runs/T4b_IJ_m
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Creating block mesh from "system/blockMeshDict"
+Creating block edges
+No non-planar block faces defined
+Creating topology blocks
+
+Creating topology patches - from boundary section
+
+Creating block mesh topology
+--> FOAM Warning : 
+    From Foam::polyMesh::polyMesh(const Foam::IOobject&, Foam::pointField&&, const Foam::cellShapeList&, const Foam::faceListList&, const Foam::wordList&, const Foam::PtrList<Foam::dictionary>&, const Foam::word&, const Foam::word&, bool)
+    in file meshes/polyMesh/polyMeshFromShapeMesh.C at line 905
+    Found 2 undefined faces in mesh; adding to default patch defaultFaces
+
+Check topology
+
+	Basic statistics
+		Number of internal faces : 2
+		Number of boundary faces : 14
+		Number of defined boundary faces : 14
+		Number of undefined boundary faces : 0
+	Checking patch -> block consistency
+
+
+Detected collapsed blocks - using merge points instead of merge topology
+
+Creating block offsets
+Creating merge list (geometric search)...
+
+Creating polyMesh from blockMesh
+Creating patches
+Creating cells
+Creating points with scale (1 1 1)
+    Block 0 cell size :
+        i : 0.000643332480998 .. 6.00571611086e-06
+        j : 6.00000000015e-06 .. 0.00246024859146
+        k : 0 .. 0
+
+    Block 1 cell size :
+        i : 1.20114322226e-05 .. 0.00447732791512
+        j : 6.00000000015e-06 .. 0.00246024859146
+        k : 0.0008732188582 .. 0.0008732188582
+
+    Block 2 cell size :
+        i : 0.000643332480998 .. 6.00571611086e-06
+        j : 0.0012289438598 .. 0.00983155087844
+        k : 0 .. 0
+
+No patch pairs to merge
+
+Writing polyMesh with 0 cellZones
+----------------
+Mesh Information
+----------------
+  boundingBox: (0 0 -0.005239313149) (0.12 0.24 0.005239313149)
+  nPoints: 48961
+  nCells: 24192
+  nFaces: 96984
+  nInternalFaces: 48024
+----------------
+Patches
+----------------
+  patch 0 (start: 48024 size: 216) name: plate
+  patch 1 (start: 48240 size: 48) name: pipeWall
+  patch 2 (start: 48288 size: 72) name: inlet
+  patch 3 (start: 48360 size: 144) name: entrainment
+  patch 4 (start: 48504 size: 96) name: farfield
+  patch 5 (start: 48600 size: 24192) name: front
+  patch 6 (start: 72792 size: 24192) name: back
+  patch 7 (start: 96984 size: 0) name: defaultFaces
+
+End
+

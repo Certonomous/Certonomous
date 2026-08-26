@@ -1,0 +1,9 @@
+case            T4b_IJ_m
+date            2026-08-26T16:28:26Z
+blockMesh_rc    0   wall .210003061 s
+checkMesh_rc    0   wall .349096437 s
+checkMesh           cells:            24192
+checkMesh        ***High aspect ratio cells found, Max aspect ratio: 1639.08353806, number of cells 52
+checkMesh           Mesh non-orthogonality Max: 0 average: 0
+checkMesh           Max skewness = 0.330796465394 OK.
+checkMesh       Failed 1 mesh checks.

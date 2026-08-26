@@ -1,0 +1,23 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      k;
+}
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 1.115859375;
+
+boundaryField
+{
+    inlet { type mapped; field k; setAverage true; average 1.115859375; interpolationScheme cell; value uniform 1.115859375; }
+    plate { type kLowReWallFunction; value uniform 1e-12; }
+    pipeWall { type kLowReWallFunction; value uniform 1e-12; }
+    entrainment { type inletOutlet; inletValue uniform 1.115859375; value uniform 1.115859375; }
+    farfield { type inletOutlet; inletValue uniform 1.115859375; value uniform 1.115859375; }
+    front { type wedge; }
+    back  { type wedge; }
+}

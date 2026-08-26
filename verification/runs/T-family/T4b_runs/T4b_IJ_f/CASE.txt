@@ -1,0 +1,11 @@
+case              T4b_IJ_f
+rung              T4b (wall-resolved successor of T4; ERCOFTAC case025 ij2lr, H/D 2, Re 23000)
+level             f   N = 192
+solver            buoyantBoussinesqSimpleFoam (ESI v2606), kOmegaSST, beta 0, wedge 2.5 deg
+first_cell        3.000e-06 m (plate AND pipe wall / nozzle lip)
+divisions         jet-core/pipe radial 144 (3N/4), wall-jet radial 288, axial 192, pipe axial 96
+cells             96768  (2.625 N^2)
+grading           plate 415.262  jet-core radial 0.00922248 (INVERTED: fine at r0, cell growth 1.0333)  wall-jet 375.845  pipe axial 8
+endTime           40000   writeInterval 4000   purgeWrite 2
+residualControl   none (L-141; removed from the frozen build_t4 fvSolution by registration)
+fields / BCs      build_t4.fields() and constant_files() FROZEN, called unchanged (T4 AMENDMENT 2 table)

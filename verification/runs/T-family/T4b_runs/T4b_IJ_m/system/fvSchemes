@@ -1,0 +1,29 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+
+ddtSchemes      { default steadyState; }
+gradSchemes     { default Gauss linear; }
+divSchemes
+{
+    default         none;
+    div(phi,U)      bounded Gauss linearUpwind grad(U);
+    div(phi,T)      bounded Gauss limitedLinear 1;
+    div(phi,k)      bounded Gauss limitedLinear 1;
+    div(phi,omega)  bounded Gauss limitedLinear 1;
+    // AMENDMENT 2: this used to read div(((rho*nuEff)*dev2(T(grad(U))))),
+    // which is the COMPRESSIBLE spelling. buoyantBoussinesqSimpleFoam is
+    // incompressible and looks up div((nuEff*dev2(T(grad(U))))). Same root
+    // cause as the alphat defect: compressible conventions in an
+    // incompressible case, invisible to blockMesh and checkMesh.
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+laplacianSchemes { default Gauss linear corrected; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default corrected; }
+wallDist        { method meshWave; }

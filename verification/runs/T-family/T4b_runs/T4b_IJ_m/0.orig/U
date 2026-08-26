@@ -1,0 +1,23 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    inlet { type mapped; field U; setAverage true; average (0 -17.25 0); interpolationScheme cell; value uniform (0 -17.25 0); }
+    plate { type noSlip; }
+    pipeWall { type noSlip; }
+    entrainment { type pressureInletOutletVelocity; value uniform (0 0 0); }
+    farfield { type pressureInletOutletVelocity; value uniform (0 0 0); }
+    front { type wedge; }
+    back  { type wedge; }
+}
