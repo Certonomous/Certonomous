@@ -1,0 +1,22 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T4b_IJ_f",
+  "prereg_commit": "91614764480718ebf545d4c752b99198eb43345b",
+  "prereg_path": "docs/campaigns/T-family/T4b_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T4b_runs/launch_t4b.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T4b_runs/T4b_IJ_f",
+    "--timeout",
+    "51600",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T4b_runs/T4b_IJ_f",
+  "ranks": 1,
+  "cost_core_min_estimate": 429.41,
+  "cost_basis": "derived: T4's MEASURED wall 22084 s on 82944 cells x 40000 iterations (STATUS.T4_IJ_f, C-119) = 6.656e-06 core-s per cell-iteration, x 96768 cells x 40000 iterations = 429.41 core-min POINT at ranks 1 (CEILING 1.5x, cap 860 core-min = timeout 51600 s; the wrapper's timeout is the stop); USD 0.3671 at the owner-stated $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5); T4b_PREREGISTRATION.md section 9",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "heat-transfer-supervisor; check 4 performed personally on commit 91614764 (prereg exists at that sha; check 1 on the freeze set read: shared floors imported, C6.2 5% directional tolerance accepted with its ground) at 2026-08-26T17:20Z; entry prepared by lane"
+}
