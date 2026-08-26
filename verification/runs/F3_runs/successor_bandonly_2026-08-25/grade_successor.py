@@ -79,6 +79,32 @@ IN_SCOPE = [
 
 VERDICTS = ("PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING")
 
+# The control census, REGISTERED as a number so that a missing control is a
+# COUNT MISMATCH and not a silently shorter list. selftest_annotator() emits one
+# row per planted annotator case (5), one for the ruling-search discrimination
+# control, and one for the wording match against the ruling on disk.
+EXPECTED_CONTROLS = 7
+EXPECTED_FROZEN_ARTIFACTS = 7
+
+
+def controls_all_passed(controls, frozen):
+    """The success PREDICATE. Separate from any print, so the claim can only be
+    made by evaluating it. Returns (ok, why)."""
+    if not isinstance(controls, list) or len(controls) != EXPECTED_CONTROLS:
+        return False, ("expected %d controls, got %r -- a control that did not "
+                       "run cannot have passed"
+                       % (EXPECTED_CONTROLS, len(controls) if isinstance(controls, list)
+                          else type(controls).__name__))
+    for c in controls:
+        if not isinstance(c, dict) or c.get("passed") is not True:
+            return False, "control %r did not report passed=True" % (c,)
+    if not isinstance(frozen, dict) or len(frozen) != EXPECTED_FROZEN_ARTIFACTS:
+        return False, ("expected %d frozen artifacts asserted, got %r"
+                       % (EXPECTED_FROZEN_ARTIFACTS,
+                          len(frozen) if isinstance(frozen, dict) else frozen))
+    return True, "%d controls passed; %d frozen artifacts byte-asserted" % (
+        len(controls), len(frozen))
+
 
 def refuse(msg):
     sys.stderr.write("REFUSED: %s\n" % msg)
@@ -235,10 +261,27 @@ def main():
     controls = selftest_annotator()
 
     if a.selftest:
+        # THE CLAIM IS MADE INSIDE THE PASSING BRANCH, AND NOWHERE ELSE.
+        # Measured defect, 2026-08-26: this block previously printed
+        # "SELFTEST GREEN" at rc=0 in sequence after the controls ran, without
+        # inspecting them. A mutation replacing `controls = selftest_annotator()`
+        # with `controls = []` -- the whole planted-zero control deleted -- still
+        # printed SELFTEST GREEN and still exited 0 under `python3 -O`. That is
+        # the manufactured-certification shape: a certificate issued by a run in
+        # which nothing was checked. The rule that fixes the CLASS, not the
+        # instance: PRINT INSIDE THE PASSING BRANCH, SO REMOVING THE CHECK
+        # REMOVES THE CLAIM.
+        ok, why = controls_all_passed(controls, frozen)
         print(json.dumps(dict(frozen_bytes_asserted=frozen,
                               annotator_controls=controls,
-                              limitation_string=LIMITATION), indent=2))
-        print("\nSELFTEST GREEN")
+                              limitation_string=LIMITATION,
+                              control_census=dict(expected=EXPECTED_CONTROLS,
+                                                  seen=len(controls) if
+                                                  isinstance(controls, list) else None),
+                              selftest_predicate=dict(ok=ok, why=why)), indent=2))
+        if not ok:
+            refuse("SELFTEST DID NOT ESTABLISH ITS CLAIM: %s" % why)
+        print("\nSELFTEST GREEN -- %s" % why)
         return
 
     if not a.prereg_commit:
