@@ -487,10 +487,47 @@ def strict_completion(level_dir):
             refuse("C6", "%s: field %s missing at endTime (clause 4) -- neither %s nor %s.gz"
                    % (name, f, f, f))
 
+    # ---- clause 5, AS REPAIRED BY POST-COMPUTE AMENDMENT 4 (L-342) --------
+    # TWO COUNTS, AND THEY ARE NOT THE SAME KIND OF FACT.
+    #
+    #   n_time -- `Time = ` lines -- is PHYSICS-CRITICAL.  It is the number of
+    #     outer iterations the solver ACTUALLY TOOK, and if it is not endTime
+    #     the run did not do the work the freeze registered.  REFUSES.
+    #
+    #   n_exec -- `ExecutionTime` lines -- is INFRASTRUCTURE.  It is a count of
+    #     TIMING-REPORT lines: a property of what the libraries chose to print.
+    #     MEASURED 2026-08-26 on all six logs of the first completed run: every
+    #     one carries endTime + 2, because petsc4Foam emits an ExecutionTime
+    #     line on EITHER SIDE of `Initializing PETSc... success`, inside
+    #     `Time = 1`, BEFORE the first solve (0.05 s, then init, then 0.22 s,
+    #     then the iteration's own 0.37 s).  BOTH ARMS carry them -- the
+    #     forced-CPU arm initialises PETSc too -- so this is petsc4Foam
+    #     initialisation and nothing GPU-specific.
+    #
+    # The original clause required n_exec == endtime.  It was inherited from the
+    # CPU parent VMFL001, whose logs count exactly endTime, and it had NEVER
+    # BEEN DRIVEN ON A petsc4Foam LOG.  It refused a COMPLETE run -- six solves,
+    # rc 0, every `End` line present, every last time == endTime -- on a count
+    # of log lines.  Under L-342 (Sanaa's universal rule) a bookkeeping failure
+    # invalidates the bookkeeping and NEVER the physics, so n_exec is REPORTED
+    # and never refused on.  Completion is established by the `Time =` count,
+    # the last time, the `End` line, the fields at endTime and the age guard --
+    # every one of which is checked here and holds.
+    n_time = len(re.findall(r"^Time = ", text, re.M))
+    if n_time != endtime:
+        refuse("C7", "%s: %d `Time = ` lines, the registered endTime is %d (clause 5, "
+                     "PHYSICS-CRITICAL: this is the number of outer iterations the solver "
+                     "actually took)" % (name, n_time, endtime))
     n_exec = len(re.findall(r"^ExecutionTime", text, re.M))
+    exec_note = None
     if n_exec != endtime:
-        refuse("C7", "%s: %d ExecutionTime lines, the registered endTime is %d (clause 5)"
-               % (name, n_exec, endtime))
+        exec_note = "INFRA: ExecutionTime lines %d != endTime %d" % (n_exec, endtime)
+        if n_exec < endtime:
+            exec_note += (" -- and FEWER than endTime, a stronger oddity than more: it "
+                          "would mean iterations that reported no timing at all")
+        warn_infra("%s: %s (L-342: a count of TIMING-REPORT lines is a property of what "
+                   "the libraries print, not of the physics. It does not touch the "
+                   "verdict.)" % (name, exec_note))
 
     marker = _resolve(os.path.join(level_dir, "0", "U"))
     if marker is None:
@@ -503,8 +540,9 @@ def strict_completion(level_dir):
                          "The field did not come from this run." % (name, times[-1], f))
     return dict(level=name, arm=arm_name, rc=rc, rc_status=rc_status,
                 rc_source=(rc_path if rc_status == "MEASURED" else None),
-                endtime=endtime, latest_time=times[-1], execution_lines=n_exec,
-                completed=True)
+                endtime=endtime, latest_time=times[-1],
+                time_lines=n_time, execution_lines=n_exec,
+                execution_note=exec_note, completed=True)
 
 
 def mesh_birth_certificate(level_dir):
@@ -937,7 +975,7 @@ def _write(path, text):
 
 
 def _build_level(root, arm, level, *, gpu_tells=True, end_line=True, with_rc=True,
-                 vfun=None, gpusample=True):
+                 vfun=None, gpusample=True, petsc_init=False):
     """Construct a synthetic level directory good enough to drive the guards."""
     d = os.path.join(root, arm, level)
     et = ENDTIME_BY_LEVEL[level]
@@ -952,6 +990,15 @@ def _build_level(root, arm, level, *, gpu_tells=True, end_line=True, with_rc=Tru
                      "Final residual = 1e-20, No Iterations 1\n"
                      "GAMG:  Solving for p, Initial residual = %g, Final residual = "
                      "1e-20, No Iterations 1\nExecutionTime = %g s\n" % (i, res, res, res, i * 0.01))
+        if petsc_init and i == 1:
+            # THE REAL petsc4Foam SHAPE, copied from the measured logs: two extra
+            # ExecutionTime lines inside Time = 1, on either side of the init
+            # line, BEFORE the iteration's own. Gives endTime + 2 ExecutionTime
+            # lines and exactly endTime `Time = ` lines -- which is precisely
+            # what the six real logs carry.
+            lines[-1] = ("Time = 1\nExecutionTime = 0.05 s  ClockTime = 0 s\n"
+                         "Initializing PETSc... success\n"
+                         "ExecutionTime = 0.22 s  ClockTime = 0 s\n" + lines[-1][len("Time = 1\n"):])
     tail = ""
     if gpu_tells:
         tail += ("Mat Object: 1 MPI process\n  type: seqaijcusparse\n"
@@ -1002,12 +1049,12 @@ def _build_level(root, arm, level, *, gpu_tells=True, end_line=True, with_rc=Tru
 
 def _build_run(root, *, gpu_tells=True, cpu_leaks_gpu=False, end_line=True,
                with_rc=True, gpu_vfun=None, cpu_vfun=None, launch_record=True,
-               cost=True):
+               cost=True, petsc_init=False):
     for lvl in LEVELS:
         _build_level(root, GPU_ARM, lvl, gpu_tells=gpu_tells, end_line=end_line,
-                     with_rc=with_rc, vfun=gpu_vfun)
+                     with_rc=with_rc, vfun=gpu_vfun, petsc_init=petsc_init)
         _build_level(root, CPU_ARM, lvl, gpu_tells=cpu_leaks_gpu, end_line=True,
-                     with_rc=with_rc, vfun=cpu_vfun or gpu_vfun)
+                     with_rc=with_rc, vfun=cpu_vfun or gpu_vfun, petsc_init=petsc_init)
     if launch_record:
         _write(os.path.join(root, "LAUNCH_RECORD.txt"),
                "case_id = %s\nlaunched_utc = 2026-01-01T00:00:00Z\nhead = %s\n"
@@ -1116,6 +1163,21 @@ def drive_refusal(kind):
                 return vtheta_from_raw(src, cols0)
 
             planted_zero_control(lvl_dir, reader=blind)
+        elif kind == "time-count-short":
+            # The repaired clause 5's PHYSICS-CRITICAL half: delete `Time = `
+            # lines only, leaving every ExecutionTime line in place, so nothing
+            # but n_time can be what refuses.
+            _build_run(tmp)
+            f = os.path.join(tmp, GPU_ARM, LEVELS[0], "log.simpleFoam")
+            txt = open(f).read().splitlines()
+            keep, dropped = [], 0
+            for ln in txt:
+                if ln.startswith("Time = ") and dropped < 5:
+                    dropped += 1
+                    continue
+                keep.append(ln)
+            _write(f, "\n".join(keep) + "\n")
+            grade(tmp)
         elif kind == "gpusample":
             _build_run(tmp)
             os.remove(os.path.join(tmp, GPU_ARM, LEVELS[0], "gpusample.txt"))
@@ -1138,12 +1200,34 @@ def drive_verdict(kind):
     ROUTE, to NOT A RESULT or GATE FAIL.  A floor nobody drives is a floor
     nobody has (FINDING_p_floor.md section 4), and a routing decision is
     invisible to an exit-code check."""
-    if kind not in DRIVEN_TRIPLES:
-        refuse("D1", "unknown --drive-verdict kind %r" % kind)
     tmp = tempfile.mkdtemp(prefix="vmflgpu001verd_")
     try:
-        _build_run_scaled(tmp, DRIVEN_TRIPLES[kind])
-        grade(tmp)
+        if kind == "petsc-exec-shape":
+            # POST-COMPUTE AMENDMENT 4: an otherwise CLEAN, CONVERGING, IN-BAND
+            # run -- the SAME 4x/1x/0.25x offsets selftest check (1) uses, so the
+            # ONLY thing distinguishing this drive is the log shape -- whose logs
+            # carry the real petsc4Foam shape: endTime + 2 ExecutionTime lines
+            # and exactly endTime `Time =` lines.  Before the repair this refused
+            # at C7; after it, it must GRADE and DISCLOSE the surplus.
+            for lvl, sc in zip(LEVELS, (4e-3, 1e-3, 2.5e-4)):
+                _build_level(tmp, GPU_ARM, lvl, vfun=_converging_vfun(sc),
+                             petsc_init=True)
+                _build_level(tmp, CPU_ARM, lvl, gpu_tells=False,
+                             vfun=_converging_vfun(sc), petsc_init=True)
+            _write(os.path.join(tmp, "LAUNCH_RECORD.txt"),
+                   "case_id = %s\nlaunched_utc = 2026-01-01T00:00:00Z\nhead = %s\n"
+                   "prereg_sha_head = %s\nprereg_sha_disk = %s\n"
+                   "comparator_sha_head = %s\ncomparator_sha_disk = %s\nhost = selftest\n"
+                   % (CASE, "0" * 40, "a" * 40, "a" * 40, "b" * 40, "b" * 40))
+            _write(os.path.join(tmp, "COST.txt"),
+                   "case_id = %s\ntotal_wall_s = 60\ntotal_gpu_h = 0.016667\n"
+                   "cost_basis = derived, not measured\n" % CASE)
+            grade(tmp)
+        elif kind in DRIVEN_TRIPLES:
+            _build_run_scaled(tmp, DRIVEN_TRIPLES[kind])
+            grade(tmp)
+        else:
+            refuse("D1", "unknown --drive-verdict kind %r" % kind)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -1165,6 +1249,18 @@ def _drives_verdict(kind, expected, forbid=None):
     if forbid is not None and forbid in proc.stdout:
         return False
     return True
+
+
+def _capture_verdict(kind):
+    """The STDOUT of `python3 -O <this file> --drive-verdict <kind>`.
+
+    Separate from _drives_verdict because an INFRASTRUCTURE note is not a
+    verdict: it is something the grading must SAY, and the only way to check
+    that it is said is to read what was printed."""
+    proc = subprocess.run([sys.executable, "-O", os.path.abspath(__file__),
+                           "--drive-verdict", kind],
+                          capture_output=True, text=True)
+    return proc.stdout + proc.stderr
 
 
 def selftest():
@@ -1285,6 +1381,17 @@ def selftest():
                "comparator_sha_head = %s\ncomparator_sha_disk = %s\n"
                % ("a" * 40, "a" * 40, "b" * 40, "b" * 40))
         v5 = grade(bad)
+        # (9c) THE REPAIRED CLAUSE 5 (POST-COMPUTE AMENDMENT 4, L-342), both halves.
+        chk("the REAL petsc4Foam log shape (endTime + 2 ExecutionTime lines, exactly "
+            "endTime `Time =` lines) GRADES rather than refusing, and the surplus is "
+            "reported as an INFRASTRUCTURE note -- the defect Amendment 4 repaired",
+            _drives_verdict("petsc-exec-shape", TIER_CEILING))
+        chk("...and that grading actually PRINTS the INFRA note, so the surplus is "
+            "disclosed and not silently swallowed",
+            "INFRA: ExecutionTime lines" in _capture_verdict("petsc-exec-shape"))
+        chk("but a SHORT `Time =` count still REFUSES (C7): the number of outer "
+            "iterations the solver took is PHYSICS-CRITICAL and is not reclassified",
+            _drives_exit2("time-count-short"))
         chk("a GPU arm that does NOT match the forced-CPU arm is GATE FAIL",
             v5 == "GATE FAIL")
 

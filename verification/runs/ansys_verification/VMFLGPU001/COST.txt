@@ -1,0 +1,10 @@
+case_id = VMFLGPU001
+total_wall_s = 1590
+total_gpu_h = 0.441667
+cap_gpu_h = 2.0
+cpu_arm_core_min = 9.1500
+cap_cpu_arm_core_min = 40
+ranks = 1
+vcpu_on_instance = 4
+cost_basis = GPU-hours at the AWS PUBLISHED PRICE LIST $0.8048/GPU-h for g6.xlarge us-east-2 (retrieved 2026-08-23, GPU_CAPABILITY_STATE.md section 9); dollars DERIVED, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). The CONSOLE figure is STILL OWED and supersedes. The CPU arm runs on the same billed instance, so its core-minutes are work, not a separate charge.
+utc = 2026-08-26T22:43:36Z

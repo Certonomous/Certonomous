@@ -1,0 +1,10 @@
+case_id = VMFLGPU001
+launched_utc = 2026-08-26T22:10:08Z
+head = 9010f176900917f3dc85ca0f18ea96ec65e0159a
+prereg = cases/ansys_verification/VMFLGPU001/PREREGISTRATION.md
+prereg_sha_head = 21fbdc99309807c61148e910c173f4b4b2bfa600
+prereg_sha_disk = 21fbdc99309807c61148e910c173f4b4b2bfa600
+comparator = cases/ansys_verification/VMFLGPU001/grade_vmflgpu001.py
+comparator_sha_head = f4b07b7fc59d9facd46ad91d3ad9848d33c4f098
+comparator_sha_disk = f4b07b7fc59d9facd46ad91d3ad9848d33c4f098
+host = ip-172-31-44-162

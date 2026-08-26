@@ -1,0 +1,38 @@
+case_id = VMFLGPU001
+launched_utc = 2026-08-26T22:17:08Z
+head = 8d2b789e60d1d40140ada008c9aa60c003235a5d
+prereg = cases/ansys_verification/VMFLGPU001/PREREGISTRATION.md
+prereg_sha_head = b9bb3779e2b03d6cd7c437895d6b0cd7f84490ea
+prereg_sha_disk = b9bb3779e2b03d6cd7c437895d6b0cd7f84490ea
+comparator = cases/ansys_verification/VMFLGPU001/grade_vmflgpu001.py
+comparator_sha_head = f4b07b7fc59d9facd46ad91d3ad9848d33c4f098
+comparator_sha_disk = f4b07b7fc59d9facd46ad91d3ad9848d33c4f098
+host = ip-172-31-44-162
+openfoam = v2606
+of_bashrc = /usr/lib/openfoam/openfoam2606/etc/bashrc
+petsc_dir = /home/ubuntu/gpu_build/petsc
+petsc_arch = arch-cuda-opt
+petsc_arch_path = /home/ubuntu/gpu_build/petsc/arch-cuda-opt
+libpetscFoam_sha256 = 477b7ac2618c9e85338b8dea72ed0c5ec82edf82527ac62b3bc2a7e46363a705
+gpu = GPU 0: NVIDIA L4 (UUID: GPU-4d81b3ea-475c-3eba-d5d1-0bfde0963615)
+driver = 595.91.07
+mpi_resolved = /usr/lib/x86_64-linux-gnu/libmpi.so.40.40.7
+mpi_openfoam = /usr/lib/x86_64-linux-gnu/libmpi.so.40
+mpi_petsc = /usr/lib/x86_64-linux-gnu/libmpi.so.40
+mpi_petsc4foam = /usr/lib/x86_64-linux-gnu/libmpi.so.40
+mpirun = /usr/bin/mpirun
+mpirun_version = --------------------------------------------------------------------------
+ldd_simpleFoam_libmpi = 	libmpi.so.40 => /usr/lib/x86_64-linux-gnu/libmpi.so.40 (0x0000724cfb000000);
+ldd_libpetsc_libmpi = 	libmpi_mpifh.so.40 => /usr/lib/x86_64-linux-gnu/libmpi_mpifh.so.40 (0x00007d1b5d8b1000);	libmpi.so.40 => /usr/lib/x86_64-linux-gnu/libmpi.so.40 (0x00007d1b37a00000);
+ldd_libpetscFoam_libmpi = 	libmpi.so.40 => /usr/lib/x86_64-linux-gnu/libmpi.so.40 (0x00007a23b9c00000);	libmpi_mpifh.so.40 => /usr/lib/x86_64-linux-gnu/libmpi_mpifh.so.40 (0x00007a23be0b1000);
+status_smoke = smoke_rc=0 end=2026-08-26T17:41:33Z note=build_gpu_solver.sh-exit-0-and-build.log-carries-smoke-proven 
+toolchain_manifest_sha256 = fccd535ff1a50e94b5745176f64778aa255999c53765198dc2b9948fb8b8b4e7
+launch_user = ubuntu
+launch_id_un = ubuntu
+foam_user_libbin = /home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/lib
+solve rc = 0  arm = gpu  level = L1_16x64  wall_s = 25  cap_fired = 0  utc = 2026-08-26T22:17:34Z
+solve rc = 0  arm = cpu  level = L1_16x64  wall_s = 4  cap_fired = 0  utc = 2026-08-26T22:17:38Z
+solve rc = 0  arm = gpu  level = L2_32x128  wall_s = 131  cap_fired = 0  utc = 2026-08-26T22:19:50Z
+solve rc = 0  arm = cpu  level = L2_32x128  wall_s = 27  cap_fired = 0  utc = 2026-08-26T22:20:18Z
+solve rc = 0  arm = gpu  level = L3_64x256  wall_s = 879  cap_fired = 0  utc = 2026-08-26T22:34:57Z
+solve rc = 0  arm = cpu  level = L3_64x256  wall_s = 518  cap_fired = 0  utc = 2026-08-26T22:43:36Z

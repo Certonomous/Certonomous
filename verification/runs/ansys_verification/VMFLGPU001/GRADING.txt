@@ -1,0 +1,5 @@
+REFUSE (VMFLGPU001 C7): L1_16x64: 3002 ExecutionTime lines, the registered endTime is 3000 (clause 5)
+VMFLGPU001 -- GPU SOLVER PATH on the concentric-cylinder case (manual p.225, CPU parent VMFL001 / VMFL001-R2)
+  tier ceiling GATE REACHED (closed-form/exact reference buys V, NEVER P)
+  FREEZE PROVEN AT LAUNCH: prereg b9bb3779e2b03d6cd7c437895d6b0cd7f84490ea ; comparator f4b07b7fc59d9facd46ad91d3ad9848d33c4f098
+grader_rc=2

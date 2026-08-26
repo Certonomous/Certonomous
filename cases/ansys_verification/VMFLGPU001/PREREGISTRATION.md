@@ -1172,3 +1172,168 @@ are below it; and the `libpetscFoam.so` guard moves from **269-270 to 277-278**,
 why this section cites it by its former numbers *and* its text.
 
 **Gate, bands, thresholds, cap and label: unchanged character for character. lines whose number changed above this section: 0**
+
+---
+
+## POST-COMPUTE AMENDMENT 4 (2026-08-26T22:55:47Z) — clause 5 reclassified INFRASTRUCTURE under L-342; comparator repaired; re-grade on preserved artefacts
+
+**Ruled by `ansys-verification-supervisor` `[lab-attributed]`, executed and driven by lane G
+(`ansys-lane-opus`).**
+
+### The condition: COMPUTE HAS OCCURRED, and this amendment is therefore POST-compute
+
+**Unlike Amendments 1–3, this one is made AFTER first compute**, and it is bound by the
+harder rule (CLAUDE.md rule 2; `VERIFICATION_CHARTER.md` §2d): **after first compute the
+gates are closed, and a change may land only as a dated addendum that cannot alter a gate,
+threshold, cap or label. Originals are struck, never rewritten.** Nothing below alters any
+of them, and §12's original rows stand as written.
+
+The run completed at **2026-08-26T22:43:36Z**: **six of six solves `rc = 0`**,
+`launcher_rc=0`, **0.441667 GPU-h** of the 2.0 GPU-h cap (cap never fired), CPU arm
+**9.15** of 40 core-min. Every log carries one `End` line and a last time equal to its
+registered `endTime`.
+
+### The refusal, verbatim
+
+The frozen comparator `f4b07b7fc59d9facd46ad91d3ad9848d33c4f098` **refused**. From
+`GRADING.txt` in the run root on `ip-172-31-44-162`:
+
+```
+REFUSE (VMFLGPU001 C7): L1_16x64: 3002 ExecutionTime lines, the registered endTime is 3000 (clause 5)
+VMFLGPU001 -- GPU SOLVER PATH on the concentric-cylinder case (manual p.225, CPU parent VMFL001 / VMFL001-R2)
+  tier ceiling GATE REACHED (closed-form/exact reference buys V, NEVER P)
+  FREEZE PROVEN AT LAUNCH: prereg b9bb3779e2b03d6cd7c437895d6b0cd7f84490ea ; comparator f4b07b7fc59d9facd46ad91d3ad9848d33c4f098
+grader_rc=2
+```
+
+### The triage, MEASURED on all six logs
+
+| arm | level | `Time =` lines | `ExecutionTime` lines | `End` | registered `endTime` |
+|---|---|---|---|---|---|
+| gpu | L1_16x64 | **3000** | 3002 | 1 | 3000 |
+| gpu | L2_32x128 | **3000** | 3002 | 1 | 3000 |
+| gpu | L3_64x256 | **6000** | 6002 | 1 | 6000 |
+| cpu | L1_16x64 | **3000** | 3002 | 1 | 3000 |
+| cpu | L2_32x128 | **3000** | 3002 | 1 | 3000 |
+| cpu | L3_64x256 | **6000** | 6002 | 1 | 6000 |
+
+**Every log has exactly `endTime` `Time =` lines and exactly `endTime` + 2
+`ExecutionTime` lines.** The two extras sit **inside `Time = 1`, before the first
+solve** — read from `gpu/L1_16x64/log.simpleFoam`, lines 55, 57 and 58:
+
+```
+Time = 1
+ExecutionTime = 0.05 s  ClockTime = 0 s
+Initializing PETSc... success
+ExecutionTime = 0.22 s  ClockTime = 0 s
+… (the iteration's own solves) …
+ExecutionTime = 0.37 s  ClockTime = 0 s
+Time = 2
+```
+
+**BOTH ARMS carry them** — the forced-CPU arm initialises PETSc too (its own first three
+are 0.05 s / 0.2 s / 0.21 s) — **so this is petsc4Foam initialisation and nothing
+GPU-specific**, and the reclassification does not privilege the arm under test. The CPU
+parent VMFL001's logs count exactly `endTime`, which is why the clause was written that
+way and why **it had never been driven on a petsc4Foam log**.
+
+### The basis: L-342, and the named precedent
+
+**L-342 (Sanaa's universal rule, `d4d0c29d`): a bookkeeping failure invalidates the
+bookkeeping, never the physics; graders separate PHYSICS-CRITICAL from INFRASTRUCTURE
+fields.** The **count of `ExecutionTime` lines is a count of TIMING-REPORT lines** — a
+property of what the libraries chose to print, not of the flow. It is INFRASTRUCTURE.
+Completion is PHYSICS-CRITICAL and is established by clauses that all hold: the `Time =`
+count == `endTime`, the last time == `endTime`, the `End` line, the fields present at
+`endTime`, and the age guard.
+
+**The named precedent is D4-SHIPPED arm O, re-graded on preserved artefacts under a
+repaired grader.** The artefacts here are likewise **preserved and unmodified**: no solve
+was re-run and no field was touched.
+
+### The change to the comparator, restricted to the C7 block
+
+```diff
++    n_time = len(re.findall(r"^Time = ", text, re.M))
++    if n_time != endtime:
++        refuse("C7", "%s: %d `Time = ` lines, the registered endTime is %d (clause 5, "
++                     "PHYSICS-CRITICAL: this is the number of outer iterations the solver "
++                     "actually took)" % (name, n_time, endtime))
+     n_exec = len(re.findall(r"^ExecutionTime", text, re.M))
++    exec_note = None
+     if n_exec != endtime:
+-        refuse("C7", "%s: %d ExecutionTime lines, the registered endTime is %d (clause 5)"
+-               % (name, n_exec, endtime))
++        exec_note = "INFRA: ExecutionTime lines %d != endTime %d" % (n_exec, endtime)
++        if n_exec < endtime:
++            exec_note += (" -- and FEWER than endTime, a stronger oddity than more: it "
++                          "would mean iterations that reported no timing at all")
++        warn_infra("%s: %s (L-342: a count of TIMING-REPORT lines is a property of what "
++                   "the libraries print, not of the physics. It does not touch the "
++                   "verdict.)" % (name, exec_note))
+```
+
+The only other edit is the returned record, which now carries `time_lines`,
+`execution_lines` and `execution_note` so both counts are in the grading JSON.
+**Comparator blob `f4b07b7fc59d9facd46ad91d3ad9848d33c4f098` →
+`21fa23871de61e04d344ea04e5b1f2ab1da6c39c`.**
+
+**Selftest: 40 checks GREEN** (37 before; **+3**), byte-identical output under `python3`
+and `python3 -O`, **zero `ast.Assert` nodes**. The three new checks drive **both halves**
+of the repaired clause: a run carrying **the real petsc4Foam log shape** (`endTime` + 2
+`ExecutionTime`, exactly `endTime` `Time =`) now **reaches the tier ceiling instead of
+refusing**; that grading **actually prints** the `INFRA: ExecutionTime lines` note, so the
+surplus is disclosed and not silently swallowed; and a **short `Time =` count still
+REFUSES at C7**, so the physics-critical half is not reclassified along with the other.
+
+### NOTHING MOVED
+
+**No gate, band, threshold, cap, label or limb definition moves.** Limb A's three tells and
+the forced-CPU discriminator, limb B at **1e-4**, limb C at **0.02** against the
+lab-evaluated closed form, the reference values, the levels and per-level `endTime`s, the
+caps (2.0 GPU-h / 40 core-min), `P_MIN = 0.05`, the Roache thresholds, the planted-zero
+control and the ceiling `GATE REACHED`: **unchanged, character for character.**
+
+### The re-grade, and WHAT IT ACTUALLY DID — reported, not tidied
+
+The repaired comparator was run against the **preserved run root on
+`ip-172-31-44-162`** — **not** the lab-box copy, and the reason is measured: the box copy
+holds **45** of the instance's **75** artefact files. The 45 in common are **byte-identical
+by sha256, 0 mismatched**, but the **30 absent** are every `0/U`, `0/p`,
+`<endTime>/U`, `<endTime>/p` and `postProcessing/gateProbes/0/U` — precisely what the age
+guard, the field-presence clause and the plateau leg read. **The box copy cannot ground a
+grade, and was not used for one.**
+
+**The C7 repair worked**, and the run root's `GRADING_regrade.txt` records it:
+
+```
+WARNING(INFRASTRUCTURE): L1_16x64: INFRA: ExecutionTime lines 3002 != endTime 3000 (L-342: a count of TIMING-REPORT lines is a property of what the libraries print, not of the physics. It does not touch the verdict.)
+```
+
+**The re-grade then REFUSED AT A DIFFERENT CLAUSE, and this rung therefore still has NO
+VERDICT:**
+
+```
+REFUSE (VMFLGPU001 I5): L1_16x64: the plateau window has NULL RANGE (peak-to-peak exactly 0 over 600 samples). A dead field and a perfectly converged one look identical to a tolerance (Amendment 4 item 4).
+```
+
+**Triage of that refusal, measured, and NOT acted on here:**
+
+| arm | level | last-600 peak-to-peak | distinct values in the window |
+|---|---|---|---|
+| gpu / cpu | L1_16x64 | **exactly 0** | **1** |
+| gpu / cpu | L2_32x128 | 1.093e-11 | 585 |
+| gpu / cpu | L3_64x256 | 3.53e-08 | 600 |
+
+At L1 the r = 35 mm probe is **bit-identical from iteration 1338 through 3000** — 1663
+consecutive iterations at the same double — while over the last **2000** samples its
+peak-to-peak is 9.0e-14 across 10 distinct values. **The field moved and then settled: it
+is a converged fixed point in double precision, not a dead channel.** But that is the
+exact ambiguity the clause was written to refuse rather than guess at, and **resolving it
+is a gate decision, not a lane's.** **This amendment changes clause 5 and nothing else.**
+The I5 refusal stands on the record, unrepaired, and the rung remains **`PENDING`**;
+`RESULTS.md`, the register row and the calibration row are **withheld**, because a
+document asserting a verdict this run has not produced would be the very thing this
+laboratory exists to refuse.
+
+**Gate, bands, thresholds, cap and label: unchanged character for character. lines whose number changed above this section: 0**

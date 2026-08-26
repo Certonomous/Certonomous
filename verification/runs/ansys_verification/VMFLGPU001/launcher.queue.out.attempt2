@@ -1,0 +1,6 @@
+[2026-08-26T22:10:07Z] VMFLGPU001: === START (run_root=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU001 build_root=/home/ubuntu/gpu_build repo=/home/ubuntu/Certonomous) ===
+[2026-08-26T22:10:07Z] VMFLGPU001: SMOKE GATE PASSED: /home/ubuntu/gpu_build/STATUS.smoke reads smoke_rc=0, /home/ubuntu/gpu_build/TOOLCHAIN_MANIFEST.txt exists, /home/ubuntu/gpu_build/env.sh exists
+[2026-08-26T22:10:08Z] VMFLGPU001: CAP MECHANISM DRIVEN: timeout passes a child rc through (7) and reports an overrun as 124 on this host
+[2026-08-26T22:10:08Z] VMFLGPU001: FREEZE VERIFIED: prereg 21fbdc99309807c61148e910c173f4b4b2bfa600 ; comparator f4b07b7fc59d9facd46ad91d3ad9848d33c4f098 ; HEAD 9010f176900917f3dc85ca0f18ea96ec65e0159a
+[2026-08-26T22:10:08Z] VMFLGPU001: PETSC_OPTIONS composed: base='-use_gpu_aware_mpi 0' ; gpu='-use_gpu_aware_mpi 0 -use_gpu_aware_mpi 0 -ksp_view -log_view -log_view_gpu_time' ; cpu='-use_gpu_aware_mpi 0 -use_gpu_aware_mpi 0 -ksp_view -log_view'
+ABORT: libpetscFoam.so not found in FOAM_USER_LIBBIN=/home/ubuntu/OpenFOAM/user-v2606/platforms/linux64GccDPInt32Opt/lib -- petsc4Foam is not built for this OpenFOAM

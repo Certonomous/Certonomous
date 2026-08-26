@@ -1,0 +1,3 @@
+[2026-08-26T20:59:02Z] VMFLGPU001: === START (run_root=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU001 build_root=/home/ubuntu/gpu_build repo=/home/ubuntu/Certonomous) ===
+REFUSE (exit 2): /home/ubuntu/gpu_build/STATUS.smoke does not read smoke_rc=0. Contents follow, and this script does not interpret them charitably:
+    | smoke_rc=0 end=2026-08-26T17:41:33Z note=build_gpu_solver.sh-exit-0-and-build.log-carries-smoke-proven

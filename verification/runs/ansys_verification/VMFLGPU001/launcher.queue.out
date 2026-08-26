@@ -1,0 +1,46 @@
+[2026-08-26T22:17:07Z] VMFLGPU001: === START (run_root=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU001 build_root=/home/ubuntu/gpu_build repo=/home/ubuntu/Certonomous) ===
+[2026-08-26T22:17:07Z] VMFLGPU001: SMOKE GATE PASSED: /home/ubuntu/gpu_build/STATUS.smoke reads smoke_rc=0, /home/ubuntu/gpu_build/TOOLCHAIN_MANIFEST.txt exists, /home/ubuntu/gpu_build/env.sh exists
+[2026-08-26T22:17:08Z] VMFLGPU001: CAP MECHANISM DRIVEN: timeout passes a child rc through (7) and reports an overrun as 124 on this host
+[2026-08-26T22:17:08Z] VMFLGPU001: FREEZE VERIFIED: prereg b9bb3779e2b03d6cd7c437895d6b0cd7f84490ea ; comparator f4b07b7fc59d9facd46ad91d3ad9848d33c4f098 ; HEAD 8d2b789e60d1d40140ada008c9aa60c003235a5d
+[2026-08-26T22:17:08Z] VMFLGPU001: PETSC_OPTIONS composed: base='-use_gpu_aware_mpi 0' ; gpu='-use_gpu_aware_mpi 0 -use_gpu_aware_mpi 0 -ksp_view -log_view -log_view_gpu_time' ; cpu='-use_gpu_aware_mpi 0 -use_gpu_aware_mpi 0 -ksp_view -log_view'
+[2026-08-26T22:17:08Z] VMFLGPU001: ONE MPI VERIFIED: all three of OpenFOAM, PETSc and petsc4Foam resolve /usr/lib/x86_64-linux-gnu/libmpi.so.40.40.7 ; mpirun=/usr/bin/mpirun (--------------------------------------------------------------------------)
+[2026-08-26T22:17:08Z] VMFLGPU001: ENVIRONMENT VERIFIED: OpenFOAM v2606 from /usr/lib/openfoam/openfoam2606/etc/bashrc ; PETSC_ARCH_PATH=/home/ubuntu/gpu_build/petsc/arch-cuda-opt ; libpetscFoam.so present ; L4 visible
+[2026-08-26T22:17:08Z] VMFLGPU001: no level directory of either arm pre-exists
+[2026-08-26T22:17:08Z] VMFLGPU001: --- gpu / L1_16x64 : 16x16 per block (1024 cells), endTime=3000, mat=aijcusparse vec=cuda
+[2026-08-26T22:17:08Z] VMFLGPU001:   templating OK: mat_type=aijcusparse vec_type=cuda endTime=3000, no placeholder survived
+[2026-08-26T22:17:08Z] VMFLGPU001:   FIELD COMPLETENESS OK: closure=laminar required={} all present in 0/
+[2026-08-26T22:17:09Z] VMFLGPU001:   MESH BIRTH CERTIFICATE OK: Mesh OK, 1024 cells == registered 1024
+[2026-08-26T22:17:09Z] VMFLGPU001:   per-solve cap: 7197s (remaining budget 119.966640 core-min at RANKS=1, of a 2.0 GPU-h total)
+[2026-08-26T22:17:34Z] VMFLGPU001:   gpu/L1_16x64: rc=0 wall=25s core_min=0.4167 gpu_h=0.006944
+[2026-08-26T22:17:34Z] VMFLGPU001: --- cpu / L1_16x64 : 16x16 per block (1024 cells), endTime=3000, mat=aij vec=standard
+[2026-08-26T22:17:34Z] VMFLGPU001:   templating OK: mat_type=aij vec_type=standard endTime=3000, no placeholder survived
+[2026-08-26T22:17:34Z] VMFLGPU001:   FIELD COMPLETENESS OK: closure=laminar required={} all present in 0/
+[2026-08-26T22:17:34Z] VMFLGPU001:   MESH BIRTH CERTIFICATE OK: Mesh OK, 1024 cells == registered 1024
+[2026-08-26T22:17:34Z] VMFLGPU001:   per-solve cap: 7171s (remaining budget 119.533320 core-min at RANKS=1, of a 2.0 GPU-h total)
+[2026-08-26T22:17:38Z] VMFLGPU001:   cpu/L1_16x64: rc=0 wall=4s core_min=0.0667 gpu_h=0.001111
+[2026-08-26T22:17:38Z] VMFLGPU001: --- gpu / L2_32x128 : 32x32 per block (4096 cells), endTime=3000, mat=aijcusparse vec=cuda
+[2026-08-26T22:17:38Z] VMFLGPU001:   templating OK: mat_type=aijcusparse vec_type=cuda endTime=3000, no placeholder survived
+[2026-08-26T22:17:38Z] VMFLGPU001:   FIELD COMPLETENESS OK: closure=laminar required={} all present in 0/
+[2026-08-26T22:17:39Z] VMFLGPU001:   MESH BIRTH CERTIFICATE OK: Mesh OK, 4096 cells == registered 4096
+[2026-08-26T22:17:39Z] VMFLGPU001:   per-solve cap: 7167s (remaining budget 119.466660 core-min at RANKS=1, of a 2.0 GPU-h total)
+[2026-08-26T22:19:50Z] VMFLGPU001:   gpu/L2_32x128: rc=0 wall=131s core_min=2.1833 gpu_h=0.036389
+[2026-08-26T22:19:50Z] VMFLGPU001: --- cpu / L2_32x128 : 32x32 per block (4096 cells), endTime=3000, mat=aij vec=standard
+[2026-08-26T22:19:50Z] VMFLGPU001:   templating OK: mat_type=aij vec_type=standard endTime=3000, no placeholder survived
+[2026-08-26T22:19:50Z] VMFLGPU001:   FIELD COMPLETENESS OK: closure=laminar required={} all present in 0/
+[2026-08-26T22:19:51Z] VMFLGPU001:   MESH BIRTH CERTIFICATE OK: Mesh OK, 4096 cells == registered 4096
+[2026-08-26T22:19:51Z] VMFLGPU001:   per-solve cap: 7035s (remaining budget 117.266640 core-min at RANKS=1, of a 2.0 GPU-h total)
+[2026-08-26T22:20:18Z] VMFLGPU001:   cpu/L2_32x128: rc=0 wall=27s core_min=0.4500 gpu_h=0.007500
+[2026-08-26T22:20:18Z] VMFLGPU001: --- gpu / L3_64x256 : 64x64 per block (16384 cells), endTime=6000, mat=aijcusparse vec=cuda
+[2026-08-26T22:20:18Z] VMFLGPU001:   templating OK: mat_type=aijcusparse vec_type=cuda endTime=6000, no placeholder survived
+[2026-08-26T22:20:18Z] VMFLGPU001:   FIELD COMPLETENESS OK: closure=laminar required={} all present in 0/
+[2026-08-26T22:20:18Z] VMFLGPU001:   MESH BIRTH CERTIFICATE OK: Mesh OK, 16384 cells == registered 16384
+[2026-08-26T22:20:18Z] VMFLGPU001:   per-solve cap: 7008s (remaining budget 116.800020 core-min at RANKS=1, of a 2.0 GPU-h total)
+[2026-08-26T22:34:57Z] VMFLGPU001:   gpu/L3_64x256: rc=0 wall=879s core_min=14.6500 gpu_h=0.244167
+[2026-08-26T22:34:57Z] VMFLGPU001: --- cpu / L3_64x256 : 64x64 per block (16384 cells), endTime=6000, mat=aij vec=standard
+[2026-08-26T22:34:57Z] VMFLGPU001:   templating OK: mat_type=aij vec_type=standard endTime=6000, no placeholder survived
+[2026-08-26T22:34:57Z] VMFLGPU001:   FIELD COMPLETENESS OK: closure=laminar required={} all present in 0/
+[2026-08-26T22:34:58Z] VMFLGPU001:   MESH BIRTH CERTIFICATE OK: Mesh OK, 16384 cells == registered 16384
+[2026-08-26T22:34:58Z] VMFLGPU001:   per-solve cap: 6129s (remaining budget 102.150000 core-min at RANKS=1, of a 2.0 GPU-h total)
+[2026-08-26T22:43:36Z] VMFLGPU001:   cpu/L3_64x256: rc=0 wall=518s core_min=8.6333 gpu_h=0.143889
+[2026-08-26T22:43:36Z] VMFLGPU001: === COMPLETE: six solves (3 levels x {GPU, forced-CPU}), 0.441667 GPU-h of a 2.0 GPU-h cap, CPU arm 9.1500 core-min ===
+[2026-08-26T22:43:36Z] VMFLGPU001: grade with: python3 cases/ansys_verification/VMFLGPU001/grade_vmflgpu001.py --run-root /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU001

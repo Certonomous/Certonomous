@@ -1,0 +1,6 @@
+REFUSE (VMFLGPU001 I5): L1_16x64: the plateau window has NULL RANGE (peak-to-peak exactly 0 over 600 samples). A dead field and a perfectly converged one look identical to a tolerance (Amendment 4 item 4).
+VMFLGPU001 -- GPU SOLVER PATH on the concentric-cylinder case (manual p.225, CPU parent VMFL001 / VMFL001-R2)
+  tier ceiling GATE REACHED (closed-form/exact reference buys V, NEVER P)
+  FREEZE PROVEN AT LAUNCH: prereg b9bb3779e2b03d6cd7c437895d6b0cd7f84490ea ; comparator f4b07b7fc59d9facd46ad91d3ad9848d33c4f098
+  WARNING(INFRASTRUCTURE): L1_16x64: INFRA: ExecutionTime lines 3002 != endTime 3000 (L-342: a count of TIMING-REPORT lines is a property of what the libraries print, not of the physics. It does not touch the verdict.)
+grader_rc=2
