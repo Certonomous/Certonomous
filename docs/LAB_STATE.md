@@ -1108,6 +1108,58 @@ owed** under rule 12 and none was written.
 
 *Recorded 2026-08-26T03:08:58Z by a liaison lane on the chief's instruction — stamp from `date -u` read in the writing invocation, not from the heading. Built from the HEAD blob, not the worktree: at write time the worktree copy of this file was STALE-BEHIND HEAD by three committed blocks (dafoam, cfd, ansys-verification) and carried NO lines of its own, so nothing uncommitted was landed and nothing was destroyed.*
 
+#### Addendum 2026-08-26 ~03:50Z — F5b authorisation RESTORED to the record; queue-runner classifier denial referred with a precise ask
+
+**(1) F5b — the authorisation exists and was Sanaa's own, and the board is what lost it.**
+Sanaa's words, 2026-08-25 (chief session, in the same message as her V/P and
+manual-as-primary rulings), verbatim:
+
+> *"Finally F5b can be launched. the teams need to be more pro active and launch/ run
+> stuff more automatically"*
+
+The chief failed to place this on the board at the time — **L-186: what is not on the
+board is lost** — and cfd's search at HEAD therefore correctly found **zero** instances
+of it. This addendum repairs that omission; the fault is the chief's record-keeping, not
+cfd's search.
+
+**Consequence.** The launch of **F5b is authorised by Sanaa in her own words** (standing
+rule 9: her words authorise; no agent's relay does). The **~17:45Z 2026-08-25 classifier
+denial** of `bash verification/runs/F5b_runs/launch_f5b_physics.sh` was a
+**permission-system event on one call, not a ruling by Sanaa**. cfd may **attempt the
+launch again, by a lane, on the frozen pre-registration**; a renewed classifier denial
+**stands and is recorded** — it is not routed around. **Nobody edits
+`analyse_f5b_physics.py`** — that denial is separate and is untouched by this addendum.
+
+**(2) Queue runner — denied by the classifier, referred with a precise ask.**
+The **~03:1xZ** Agent-tool dispatch to build and launch the detached runner was denied by
+the auto-mode classifier (*"Blocked by classifier"*), **with no command or path reached**.
+A second dispatch **without the daemon** — validator, standard, and six queue directories
+(`0d895da0` / `ee575e58` / `bb469c0d`) — was permitted and landed. Sanaa approved the
+daemon **in her own words at ~03:00Z** (recorded above in this section). **A relayed
+approval cannot lift a classifier denial**; the fix is a **permission rule**, and only
+Sanaa may add one.
+
+**Precise ask, on Sanaa's desk:** *may an unattended process on this box select and launch
+pre-registered, costed cases from the per-team queues, given each entry was checked by its
+supervisor at enqueue time — if yes, add a permission rule allowing `scripts/queue_runner.py`
+to be launched detached (`setsid` / `nohup`), and re-run the dispatch.*
+
+Until that rule exists, **the chief's overnight loop and the supervisors refill by hand**,
+and **every idle hour is reported** rather than quietly absorbed.
+
+**(3) The chief's launch list was stale.** cfd reported **three** of its launch candidates
+already closed at HEAD — **F4** (`d4308dde`), the **F12** arms (`6080f427`), and **F5c**
+(Stage A ran; Stage B **BLOCKED**). The list the chief dispatched from was out of date at
+the time it was sent. **cfd is to register new cases** rather than re-run closed ones.
+
+*Recorded 2026-08-26T03:36:54Z by a liaison lane on the chief's instruction — stamp from
+`date -u` in the writing invocation, not from the heading. Built from the HEAD blob per
+L-333 (content-safe private-index variant): the staged blob is `git show $H:docs/LAB_STATE.md`
+plus this block alone, so no worktree content — foreign or stale — could ride into the
+commit. Board record only: no charter, no `CLAUDE.md`, no harness or `.claude/` file was
+touched, and no permission rule was added by an agent (rule 9). Zero compute, no case
+directory, so no `docs/COST_CALIBRATION.md` row is owed under rule 12 and none was written.*
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
