@@ -1,0 +1,44 @@
+{
+  "team": "dafoam",
+  "case_id": "W2R_phase2",
+  "prereg_commit": "b168779c7bbae57ecfa78e6f23af18432e56ea4d",
+  "prereg_path": "cases/dafoam/curriculum_D12R2/W2R_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/d12y_w2r_stage_and_run.sh",
+    "--phase",
+    "2",
+    "--image",
+    "shipped"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2",
+  "ranks": 1,
+  "cost_core_min_estimate": 30.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Core-minutes DERIVED from this item's OWN phase-1 ledger at W=900: the first W=900 window stage S3_r2 measured 2.7667 core-min (/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W2R-cylinder-unsteady/ledger.txt, stamp 20260826T160035Z_23510). Phase 2 launches at most 5 steps x 2 signs = 10 such stages (d12y_grade.py g4_step_sizing raw list of five decades clipped at H_MAX; launcher :23-28) => 27.7 core-min; 30.0 is the rounded-up upper reading. Dollars DERIVED, NOT MEASURED: 30.0 core-min = 0.5 core-h = $0.0257. IF P3 HITS (admissible:false) THE LAUNCHER EXITS 0 LAUNCHING NOTHING (d12y_w2r_stage_and_run.sh:914-922) and the spend is 0.0 -- a registered outcome, not a failure.",
+  "memory_floor_gb": 14.0,
+  "enqueued_by": "dafoam lab-lane, 2026-08-26, for dafoam-supervisor, at a teammate's request while W2R phase 1 runs. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is NOT discharged by this file.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS. Fields below are dafoam annotations the validator ignores.",
+  "permission_record": "Sanaa's verbatim permission boarded at bc0e687e; any launch from this entry begins with setsid/nohup and captures rc INSIDE the wrapper into STATUS.phase2, never from the setsid line.",
+  "cost_core_min_cap_registered": 600.0,
+  "cost_core_min_cap_scope": "CUMULATIVE ACROSS ALL PHASES (CAP_CORE_MIN=600.0, W2R_PREREGISTRATION.md section 6); the launcher recovers spend from the ledger before every stage (:243-247).",
+  "image": "dafoam/opt-packages:latest",
+  "image_digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+  "container_memory_cap": "8g",
+  "cpuset": "12 (registered, W2 section 4; W2R section 4 UNCHANGED)",
+  "rc_capture": "d12y_w2r_stage_and_run.sh:421 rc=$? of the FOREGROUND timeout/docker run, AND :423 docker inspect .State.ExitCode|.State.OOMKilled written to the manifest row; no setsid on the rc path (docs/dafoam/A3_SETSID_RC_AUDIT.md section 0 for the hazard shape).",
+  "preconditions": [
+    "PHASE 1 MUST HAVE COMPLETED: /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W2R-cylinder-unsteady/STATUS.phase1 reads rc=0 and ledger.txt carries PHASE1_COMPLETE.",
+    "The FROZEN COMPARATOR (d12y_grade.py md5 33f7a006e15dce2988a63b2e937cf07b, hashed against the b168779c blob) must have been run in --plan mode and written step_plan.json in the run root; the launcher ABORTS (exit 1) if it is absent.",
+    "The run root MUST already exist (phase 2 continues phase 1; phase 1 refuses a pre-existing root). The queue AGE-GUARD is therefore pointed at the CASE directory, not the run root.",
+    "G12R-6 (this sweep) runs ONLY IF P3 MISSES. If step_plan.json carries admissible:false the launcher launches nothing and exits 0; no adjoint-versus-FD comparison is bought and the entry is then spent at 0.0 core-min."
+  ],
+  "verdict_state": "PENDING",
+  "_launch": {
+    "utc": "2026-08-26T16:17:27Z",
+    "pid": 127455,
+    "sid": 127455,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/STATUS.W2R_phase2",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/launcher.queue.out",
+    "started_epoch": 1787761047.198641
+  }
+}
