@@ -48,12 +48,20 @@ def sample(case, t):
     out = {}
     base = os.path.join(case, "postProcessing", "t5InflowSample", t)
     for s in STATIONS_H:
-        fu = os.path.join(base, "L%d_U.xy" % s)
-        fk = os.path.join(base, "L%d_k_omega.xy" % s)
-        if not (os.path.isfile(fu) and os.path.isfile(fk)):
-            refuse("sample files missing for station %d: %s" % (s, base))
-        U = [[float(v) for v in l.split()] for l in open(fu) if l.strip()]
-        KW = [[float(v) for v in l.split()] for l in open(fk) if l.strip()]
+        # PROPOSED (2026-08-26, lane, for the supervisor's read): openfoam-2606's
+        # `sets` writer emits ONE raw file per set carrying every sampled field,
+        # named L<s>_k_omega_U.xy with columns (y k omega Ux Uy Uz) -- measured on
+        # DONE.X_2d at time 5000 (34 files, 400 rows x 6 columns).  The committed
+        # reader expected two files (L<s>_U.xy, L<s>_k_omega.xy) and REFUSED.
+        fc = os.path.join(base, "L%d_k_omega_U.xy" % s)
+        if not os.path.isfile(fc):
+            refuse("sample file missing for station %d: %s" % (s, fc))
+        rows = [[float(v) for v in l.split()] for l in open(fc) if l.strip()]
+        if not rows or any(len(r) != 6 for r in rows):
+            refuse("station %d: expected 6 columns (y k omega Ux Uy Uz) in %s, got %s"
+                   % (s, fc, sorted(set(len(r) for r in rows))))
+        U = [[r[0], r[3], r[4], r[5]] for r in rows]
+        KW = [[r[0], r[1], r[2]] for r in rows]
         out[s] = (U, KW)
     return out
 
