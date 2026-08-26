@@ -1188,6 +1188,12 @@ commit. Board record only: no charter, no `CLAUDE.md`, no harness or `.claude/` 
 touched, and no permission rule was added by an agent (rule 9). Zero compute, no case
 directory, so no `docs/COST_CALIBRATION.md` row is owed under rule 12 and none was
 written.*
+### CHIEF ADDENDUM — SANAA'S PERMISSION, HER WORDS VERBATIM (received 2026-08-26T16:00Z, rule 9 satisfied)
+
+> "I am giving you permission! I have told you many time you have permission to do anything that leads to the lab having more runs under its belts"
+
+Scope, as stated by her: **anything that leads to the lab having more runs under its belt.** This authorises, in her own words: detached `setsid`/`nohup`/`docker run -d` launches of frozen cases; the detached queue-runner daemon; headroom watchers; use of the GPU instance. Every team re-issues its denied launches once, with this addendum's commit id cited in the launch record. If the auto-mode classifier denies again, that denial is a **system** event, not a lab one: record the exact denial text on the board and report it to the chief — do not route around it, the chief takes it back to Sanaa. Pre-registration, costing, rc-capture-in-wrapper and G-ROOT rules are unchanged: permission to launch is not permission to launch unfrozen.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
@@ -2152,55 +2158,6 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-### THIRTEENTH SESSION — THE BOX REBOOTED, EVERY CONTAINER HAD ALREADY FINISHED, AND ONE ARM'S LEDGER ROW DIED WITH ITS SHELL
-
-**Section block written:** 2026-08-26T16:00:07Z by dafoam-supervisor (THIRTEENTH session, formed ~15:55Z 2026-08-26 after a session usage limit killed the twelfth fleet at ~05:00Z). *Stamp is `date -u` in the committing invocation.* **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE.** Sanaa's standing order in force: the remaining dafoam cases get run; no idle compute; her silence is approval; every decision below is `[lab-attributed]`; nothing leaves the box (rule 7).
-
-#### 1. THE DISK READING BEFORE ANY LAUNCH — and it changed the dispatch a fourth time
-
-**The host rebooted at 15:19Z** (`last -x reboot`: previous boot ended 12:35Z; kernel **7.0.0-1010 → 7.0.0-1011-aws**). Docker is reachable only through `sudo -n docker` on this boot. **No dafoam container was running at either the fleet kill or the reboot** — `docker ps -a` shows every dafoam container `Exited` before 07:10Z. **The image digest, which is the toolchain identity (§11), is unchanged: `sha256:9d45679d…f07fc` present.** The kernel change is a host-identity note for every ledger written today, not a toolchain change.
-
-| item | state on disk at 15:55Z | verdict state |
-|---|---|---|
-| **D4-SHIPPED arm O** | container `d4_O_20260826T040414Z_3177545` **ExitCode 0, OOMKilled false, 04:04:14Z → 07:07:09Z = 10,975 s × 4 = ~731.7 core-min** vs lower-bound 511.133 and cap 620.0 (report-then-stop, ceiling 2480); `opt_IPOPT.txt`: **100 iterations, `EXIT: Maximum Number of Iterations Exceeded`**; `OptView.hst` present. **`ledger.txt` HAS NO `ARM=O` ROW** — only P1, P2. The `-d` poller shell died with the fleet at ~05:00Z while the container ran on to 07:07Z. | **ungraded — triage ordered (§2 R2)** |
-| **D4-SHIPPED ACC, F3** | not run | PENDING → firing |
-| **D7FR P1, X** | `rc=0`, 0.667 + 0.733 core-min, graded at `965acb8c` (C3 REFUTED) | done |
-| **D7FR ACC** | **REFUSED by H5 `R4_TREND`** at ~04:5xZ (window min 17.34 ≥ floor 16.0, slope reaching floor inside the arm wall); nothing spent | PENDING → H5 re-run on today's empty box |
-| **D7FR F-S, F-P** | not run (LIMIT 1 precondition) | PENDING |
-| **W2** | `BLOCKED` at S2a, 1.2 core-min WASTE, run root preserved | `BLOCKED` — closed |
-| **W2R** | frozen `b168779c`, run root absent, unfired | PENDING → firing |
-| **D12R phase 3/4 queue entries** | `c3b94f0c`, validator-accepted, never fired | PENDING (behind W2R; same case family) |
-
-**Cap crossing on D4-SHIPPED arm O — 731.7 against 620.0, +18 % — is REPORTED here, named, and never absorbed**, under the same three grounds as D7R's R1: the reporting-cap mode was registered before compute, the run terminated on its registered `max_iter`, and the ceiling was never approached.
-
-#### 2. RULINGS `[lab-attributed]`
-
-**R1 — W2R IS ADMISSIBLE AND FIRES.** I read the W2 → W2R launcher diff myself as a diff (SUPERVISION §3 check 1): 74 diff lines; the only functional changes are (i) the aggregate guard returns 0/1 cleanly, (ii) a bounded wait `AGG_WAIT_MAX_S=1200`, poll 30 s, that never launches over-committed and BLOCKS at the limit, (iii) the blocked manifest row written before the return — and I checked the one thing that would have been the night's sixth placement defect: **`MA` is assigned at `:325`, above the row write at `:334`, so the JSON is never written with an empty value.** Comparator byte-unchanged, predictions P1–P4 cited not re-derived, floor 14.0 not lowered. **The W2 aggregate-guard defect (`W2-DEF-1`) stands as a finding at this family's expense; W2's 1.2 core-min is WASTE, its own row.**
-
-**R2 — D4-SHIPPED ARM O: THE LEDGER ROW IS A TRANSCRIPTION, NOT THE EVIDENCE.** The evidence is the container's own kernel record (present — no `--rm`, exactly why that rule exists) and the `O/` artifacts. The lane is ordered to establish four facts from disk first (launcher bookkeeping path, age guard on `O/`, the PATCHED row's major count, what `d4s_grade.py` G1 does on an absent row), and only then to write a **RECONSTRUCTED row carrying `RECONSTRUCTED_FROM_INSPECT=yes`**, every field sourced from what the launcher itself would have read, live-only fields `NOT_MEASURED`, disclosed in a dated post-compute addendum that alters no gate, threshold, cap or label and names the reconstruction as a LIMITATION of G1 for that arm. **If the grader cannot consume it without a grading-path change, the lane STOPS and reports — rule 2 is not bent for $0.63.** Re-buying 732 core-min to obtain a ledger line the kernel already holds would be waste dressed as rigor.
-
-**R3 — D7FR: H5 IS RE-RUN, NOT WAIVED.** The refusal at 04:5xZ was the gate working on a trend. On a box with 28 GiB free the same gate is re-run with the same floor; the ACC → F-S → F-P chain then runs as a DETACHED DRIVER with `rc` read from `docker inspect` into `STATUS.<arm>` inside the driver — never from the `$?` of a `setsid`/`timeout` line, which returns 0 for every outcome (heat-transfer's lab-wide measurement, UPDATE 11).
-
-**Placement plan, so the aggregate rule holds:** D4-SHIPPED 12 GiB on 5,6,7,9 + D7FR 12 GiB on 2,3,4,6 + W2R 8 GiB on 12 = **32 GiB of caps on 30.6** — so W2R's registered 20-min bounded wait is expected to absorb D4-SHIPPED's short ACC/F3 window (~15 min) and that wait is REGISTERED BEHAVIOUR, reported, not intervened in. Cores in use at full fire: **9 of 16**.
-
-#### 3. LANES LIVE (3 of 3)
-
-| lane | item | duty |
-|---|---|---|
-| D4-SHIPPED | arm O triage (R2), ACC → F3 fire, grade, two-row table, C-rows | first two-row verdict this family would hold |
-| D7FR | H5 re-run, ACC fire, detached F-S → F-P chain, ACC-1 verdict, C-rows | STATUS.ACC / STATUS.F-S / STATUS.F-P in the run root |
-| W2R | fire phase 1, A3-era run-root `setsid` rc audit (`docs/dafoam/A3_SETSID_RC_AUDIT.md`), score P1–P4, C-row | the NOT ESTABLISHED half of UPDATE 11 §11.3 |
-
-#### 4. NEXT / QUEUE (so it never empties)
-
-After the first lane frees: **D5, D6 short-form pre-registrations** (same case, mesh and launcher as D4; only parametrisation or weights change; G-ROOT from birth, explicit cpuset, windowed H5, `rc` from inspect, no `--rm`, no bare `assert`); **D14** (pyHyp regeneration; `GENERATOR_FINDING_pyhyp_aspect_ratio.md` is a named contaminant whose check runs first); **D12R phase 3/4** from the validator-accepted entries once W2R is graded. Queue entries for each into `verification/queue/dafoam/` with frozen sha and cost.
-
-#### 5. ON SANAA'S DESK
-R2 of the twelfth session (reporting-cap versus rule 12) unchanged; the five upstream defect drafts remain `NOT FILED`; the queue-runner permission ask is the chief's. **Nothing new waits on her — decisions were taken and are labelled.**
-
-#### 6. BLOCKED
-None at the time of writing. (**VERIFY**: the D4-SHIPPED grader's tolerance of a reconstructed row is the one thing that could block, and it is being measured, not assumed.)
-
 ### TWELFTH SESSION — BOTH RUNS SURVIVED THE KILL AND COMPLETED. THE DEFECT IS THE IDLE QUEUE, NOT THE DETACH
 
 **Section block written:** 2026-08-26T03:06:53Z by dafoam-supervisor (TWELFTH session, formed ~02:55Z 2026-08-26 after a session usage limit killed the eleventh fleet at ~23:00Z 2026-08-25). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
@@ -2641,110 +2598,6 @@ D4-SHIPPED found backticks inside a double-quoted `echo` whose **abort path woul
 > **STANDING: quote the heredoc delimiter — `<<'EOF'` — unless substitution is intended, and assert zero backticks on executable lines and in record bodies.**
 
 **Three contexts, one mechanism:** this lab has already met it as `git commit -m` with backticks being command-substituted so the commit **silently never runs**. **The lane catching its own before it reached me is recorded as a CATCH, not a lapse — it is the only reason the census numbers above are trustworthy.**
-
-
-#### UPDATE 9 — **D12R2 GRADED: EVERY GATE RETURNED A NUMBER FOR THE FIRST TIME IN THIS CASE'S HISTORY, AND THE BRIGHT LINE CANNOT BE CROSSED** (2026-08-26T04:35:53Z)
-
-**Lane commit `37779471` (RESULTS), cost row C-115.**
-
-#### 9.1 THE VERDICT — **ACCEPTED**
-
-**`G12R-4` = `NOT A RESULT`, AND IT IS A RESULT.** `h_min` **1.743e-01** against registered `h_max` **5.0e-02** — over by **3.49×**. **THERE IS NO ADMISSIBLE FD STEP ON THIS CASE AT W=300.** G12R-0b/0/W/1/3/2/3b all **PASS**.
-
-**The branch was pre-registered in TWO frozen documents, so it reads as a FINDING rather than a failure — which is the entire reason pre-registration exists, and this is the cleanest example this family has produced.** **The item's verdict is `NOT A RESULT` on the bright line, and that is a finding ABOUT THE METHOD–CASE PAIR, not a failure of the item.** D12R2 did the hard thing: **every gate returned a number for the first time in this case's history**, and what they establish is that **the FD bright line cannot be crossed here.**
-
-**Prediction scored as measured, NOT adjusted: §8.2 predicted `h_min ≈ 1.10` (22×); measured 0.174 (3.49×). DIRECTION HELD, MAGNITUDE SIX TIMES SMALLER.** Both halves stated — **a prediction right about the conclusion and wrong about the magnitude is a PARTIAL hit and is never written up as a clean one.**
-
-**Three things adopted rather than merely accepted.** **`δ_repeat = 0.0` IS NOT A CLEARANCE** at np=1 deterministic, and two `δ_pert` components carry `detectable: false` — **a zero from a reader not shown able to see a non-zero is not evidence** (rule 3), and the lane said so instead of banking three free zeros. **The corroboration rule applied in BOTH directions:** mean CD **−0.004 %** and period **−0.16 %** corroborate; **sign changes +14.5 % and `δ_window` +40.9 % DEPART**, with the candidate explanation labelled **untested** — the registered rule working rather than being quoted. **C-115 ratio 0.793 attributed to A QUIETER BOX, NOT A BETTER ESTIMATOR**, like-for-like stated at 63.95: **refusing to claim an estimator improvement you did not earn is the whole of cost calibration.**
-
-#### 9.2 ONE TIGHTENING — **A LABEL IS NOT POSITIONAL PROTECTION**
-
-The `g_implied` figures are labelled *"diagnostic only"*. **This lab's standing hazard is that a printed discrepancy labelled "diagnostic only" is WORSE than one never computed: the label lives in prose, the number lives in a table, and the next reader quotes the number.** **Ordered: `g_implied` appears in NO table, row or heading that could read as a results table** — prose only, inside the sentence saying what it is not, with the explicit line that **any use of it as an adjoint-versus-FD comparison is a misreading.** **Same principle as the terminal-statement clause: placement is part of the claim.**
-
-#### 9.3 **THE FOURTH FACE — `UNREACHABLE`** — and W2 is BOUGHT
-
-**`W_CONTINGENCY` is defined, reported, consumed by no gate and run by no phase.** After **`ABSENT`** (`D4-DEF-7`), **`VACUOUS`** (`0.0 == 0.0`) and **`MISAIMED`** (`test -s "$LOG"`), this is the fourth face in one night: **UNREACHABLE — a provision that reads as one and has no execution path**, exactly like `elif kind == "mesh": pass`. **Lands as L-335 Addendum 2.**
-
-> **STANDING: a contingency named in a frozen document must NAME THE PHASE THAT RUNS IT AND THE GATE THAT CONSUMES IT, or it does not go in the document. An unreachable contingency is worse than an absent one, because it reads as coverage.**
-
-**W2 = 900 IS BOUGHT AS A NEW REGISTRATION, because the experiment is genuinely two-sided.** As it stands `G12R-4` has an innocent explanation available to any critic — *"you just needed a longer window."* **W2 either crosses the bright line, or kills that explanation and upgrades the finding from "cannot cross at W=300" to "cannot cross, and tripling the window does not help — the obstruction is not window noise."** **Both outcomes are informative, which is the mark of an experiment worth running**, at ~3× of 55.52 core-min ≈ **$0.14**.
-
-**CONDITION OF APPROVAL: the prediction is REGISTERED BEFORE THE RUN.** From the **measured** `δ_window` behaviour, predict `h_min` at W=900 and freeze it. **My own arithmetic — if noise falls as `1/√W`, tripling buys ~1.73×, putting `h_min` near 0.101, still ~2× over `h_max` — is MINE, is NOT a registered prediction, and may be wrong about the scaling.** The lane derives its own number from its own measurements and scores it **HIT or MISS**. **A contingency that becomes a registered prediction with a frozen threshold stops being a contingency and becomes an experiment.**
-
-#### 9.4 D7FR RELEASED — **ON A WINDOW, NOT A SAMPLE**
-
-With D12R2 graded, `d12y_S7_plant` is gone and the **32-on-30 overcommit with it**. **But I will not lift a hold using the exact instrument I condemned in UPDATE 8.** **Four conditions, all of which must hold:** a **windowed census** (≥45 samples, ≥60 s); the **MINIMUM over the window** clears the arm's registered floor of **16.822 GiB**, never the median; the **AGGREGATE** of live caps plus this arm's is under physical memory; and the registered cpuset **2,3,4,6 is clear of unpinned floaters**. **A hold with a named cause is a measurement; a hold with a shrug is a delay.**
-
-**Still owed even though the overcommit cleared — because a cause that disappears on its own is not a cause that has been ESTABLISHED:** whether excursions **coincided in time with a named D12R2 stage**, stated as **correlation or causation and never blurred**; and **whether any dafoam container was SWAPPED, because a swapped MPI rank is a corrupted timing measurement even when it survives** — and D7R's arm O calibration is the number that would be corrupted.
-
-
-#### UPDATE 10 — **CONDITION 4 MEANS CONTAINERS ONLY. D7FR FIRES.** And my own aggregate-memory rule is CORRECTED BY MY OWN LANE within the hour (2026-08-26T04:43:41Z)
-
-**Lane commits `bd0047ca`** (census), **`9feb0815`** (H5 windowed memory gate), **`674ae5d4`** (release check).
-
-#### 10.1 THE AMBIGUITY THE LANE REFUSED TO RESOLVE IN ITS OWN FAVOUR
-
-Release condition 4 — *"cpuset clear of unpinned floaters"* — read **FAILED**, because **ten host-side heat-transfer and ansys solvers run with affinity 0-15**: unpinned floaters that **are not containers**. **The lane refused to decide whether that counted, and referred it. That was correct** — the reading that let it fire was the reading it wanted.
-
-**RULING: CONDITION 4 MEANS UNPINNED CONTAINERS ONLY. HOST PROCESSES ARE MEASURED, NOT EXCLUDED.**
-
-**The evidence that settles it is the evidence the lane itself surfaced, and it runs OPPOSITE to the cautious reading: D7R's measured basis was taken BESIDE HOST SOLVERS TOO.** Arm O measured **`delivered_cores_mean = 3.9919 of 4 over 925 samples` — 99.8 % delivery — WHILE host-side solvers ran.** **Host load is therefore part of the REFERENCE CONFIGURATION, not a departure from it.** Demanding an empty box now would force D7FR into a **CLEANER** configuration than the one that produced the reference — **breaking comparability in the opposite direction**, and comparability with D7R is the whole purpose of the re-registration (`DAFOAM_CHARTER.md` §5).
-
-Three reasons, by weight: **(1) 99.8 % is not an assumption, it is a MEASUREMENT of exactly the thing in question** — ten host solvers at affinity 0-15 did not materially steal cores from a cpuset-pinned container, because the kernel honours the cpuset. **(2) `delivered_cores_mean` is the instrument that MEASURES this contention per run**; the lab's standing move is never to assume a confounder absent but to **measure its effect and report it**. **(3) A reading under which D7FR never fires on a saturated box contradicts Sanaa's own saturation directive — a condition satisfiable only by an idle box is not a scheduling condition, it is a veto.**
-
-**THE PROTECTION IS NOT OPTIONAL: `delivered_cores_mean` GATES, at D4's registered floor of 3.0 of 4 — and delivery materially below D7R's 3.9919 is a FINDING, carried into the cost comparison as named contention, reported and never absorbed into a ratio. I traded an unsatisfiable precondition for a MEASURED one, not for a WAIVED one.**
-
-#### 10.2 **MY OWN STANDING RULE, CORRECTED BY MY OWN LANE — RECORDED AS A CORRECTION AGAINST ME**
-
-UPDATE 8's aggregate-memory rule summed **container caps**. **The lane is right that this is NECESSARY BUT NOT SUFFICIENT: host-side solvers sit OUTSIDE every container cap and held 45 % of physical memory tonight.** **A rule that sums only the capped share of a box whose uncapped share is nearly half of it is measuring the wrong denominator.**
-
-> **AMENDED STANDING RULE: the aggregate memory check is the SUM OF LIVE CONTAINER CAPS ***PLUS MEASURED HOST-SIDE RSS***, against physical memory — never the container caps alone.**
-
-**Issued by me in UPDATE 8 and corrected by my own lane inside the hour.** Measured tonight: **aggregate 24 of 30.6 GiB**, carrying the host term explicitly. Memory clear on release: **min 17.43 GiB, 0 samples below floor.**
-
-#### 10.3 THE THREE FACTUAL ANSWERS
-
-**NO DAFOAM CONTAINER SWAPPED** — `d4_O` swap **0.000 across 50 samples**. **Arm O's timing is NOT swap-corrupted**, which clears the D7R and D4-SHIPPED calibration concern I raised in UPDATE 8. **That was the one that would have poisoned a cost basis silently.**
-
-**THE D12R2 STAGE CORRELATION IS *NOT ESTABLISHED* — AND IS *NOT REFUTED*.** Window B with a `d12y` container live was clean, **and the sampler did not record container identity, so the instrument COULD NOT ANSWER THE QUESTION.** **Recorded in exactly those terms.** **It must NOT settle into the record as "D12R2 was cleared" — that is the collapse of *absent* into *passing* this family has spent the night correcting.** The standing consequence **does not trigger**. **Instrument gap named: the sampler records CONTAINER IDENTITY per sample, or it cannot answer the only question it exists to answer.**
-
-#### 10.4 **PLACEMENT WAS THE DEFECT FOR THE FIFTH TIME TONIGHT**
-
-The lane caught its own **H5 gate wired ABOVE the md5 assertions** — so **the memory gate would have run BEFORE the instrument-integrity check, and a tampered instrument could clear the memory gate and proceed.**
-
-**Five times, from five directions, in one night: `G-COLD` after the `rm -rf`; the terminal-statement clause needing to be POSITIONAL; `g_completion`'s verdict line reading one limb of three; presence-before-value; and now H5 above the md5s.** **ORDER IS PART OF CORRECTNESS.** A check in the right file, with the right logic, in the wrong place, is not a weak check — **it is a check that protects nothing while reading as protection.**
-
-**The H5 gate itself is the UPDATE 8 ruling implemented: `R3_EXCURSION` on ANY sample below floor, and the replay of window A — median 17.35, min 1.96 — REFUSES.** **The gate was demonstrated against the very data that motivated it**, which is the standard this family now holds.
-
-
-#### UPDATE 11 — **THE `setsid` rc HAZARD: DAFOAM IS CLEAN, MEASURED NOT ASSERTED — AND I STATE THE ONE PLACE I DID NOT LOOK** (2026-08-26T04:49:02Z)
-
-`heat-transfer` measured lab-wide that **`setsid timeout … cmd` returns 0 for EVERY outcome, core dump included** — so any `$?` taken from a `setsid` line is a meaningless rc. **I verified dafoam at source rather than asserting immunity.**
-
-#### 11.1 THE CENSUS — TRACKED `.sh` AT HEAD, ENUMERATED WITH `ls-tree`, NEVER `ls-files`
-
-**EXACTLY ONE tracked dafoam shell script contains `setsid` at all:** `cases/dafoam/f6d_random_matrix_uq/run_option_a_queue.sh` (2 occurrences). **It is not an adjoint arm launcher and its rc is not an arm rc:** line 91 is `setsid nohup simpleFoam … &` — **backgrounded**, so `$?` is the background-launch status and is read as nothing; and **the F6 series is plain `simpleFoam` with NO ADJOINT ANYWHERE** (this family's standing hazard note). **Zero adjoint launchers in this family use `setsid`.**
-
-#### 11.2 THE THREE ITEMS THE CHIEF NAMED — ALL THREE CLEAN, WITH LINE CITATIONS
-
-| item | launcher | rc source | `setsid`? |
-|---|---|---|---|
-| **D4-SHIPPED** | `d4s_run_arm.sh` | **`:394` `docker inspect .State.ExitCode`**; `.State.OOMKilled` from the SAME inspect at `:415` | **none** |
-| **D7F** | `d7f_run_arm.sh` | **`:530` `.State.ExitCode`**, detached, no `--rm` | **none** |
-| **D7FR** | `d7fr_run_arm.sh` | **`:564` `.State.ExitCode`**, detached, no `--rm` | **none** |
-| **W2** | `d12y_w2_stage_and_run.sh` | `:384` `rc=$?` **and** `:386` `INSPECT` from `.State.ExitCode` | **none** |
-
-**All four take the kernel's record. None wraps anything in `setsid`. The hazard cannot reach them.** `d4s_run_arm.sh:338-342` states the closure in the file itself: *"`rc` is read from `docker inspect .State.ExitCode` … the frozen `d4_run_arm.sh` took `rc=$?`."*
-
-**W2 and D12R2 carry `rc=$?` BESIDE the inspect, not instead of it** — a dual capture. **That is not the `setsid` hazard** (no `setsid` on those lines; a foreground `docker run` does propagate the container's exit) **but it IS the harness-`$?` reading already named in UPDATE 2 as latent in 35 of 36 launchers**, where harness rc and kernel exit **agreed 32/32 and 5/5**. **Two separate hazards, and I am not letting the clean answer on one imply a clean answer on the other.**
-
-**`--rm` check, since it destroys the kernel record: `d12y_w2_stage_and_run.sh:209` uses `--rm` on a short `DBG` PROBE container, never on a solve.** Consistent with this family's standing rule.
-
-#### 11.3 **THE ONE PLACE I DID NOT LOOK, STATED RATHER THAN GLOSSED**
-
-**This census covers TRACKED files at HEAD.** The historical **A3-era pre-registrations describe a `setsid + .t0/.rc/.t1` self-ledger convention** — eleven documents reference it — **and those A3-era launchers may live in run roots OUTSIDE git, which I did NOT enumerate.**
-
-**So the answer is: CLEAN for every tracked launcher and for all four live and pending items, and NOT ESTABLISHED for A3-era run-root launchers.** **I am not converting "I found none where I looked" into "there are none"** — that is the collapse of *absent* into *passing* this family has spent the night correcting, and it would be a poor night's work to commit it in the summary. **Those A3 rungs are graded and settled; they are NAMED, NOT REOPENED**, per the standing bound, and the exposure — if it exists there — belongs to a next registration.
 
 
 ### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
@@ -6970,45 +6823,6 @@ INTERPRETATIONs; K2a; **D389's S13 normalisation**; D495; the T10a upstream draf
 clause 5 is a lab-wide invariant or a description of the T1b steady-state instance.
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
-
-**UPDATE 2026-08-26T16:00:36Z (cfd-supervisor, fifteenth session, first board write). RE-ISSUE ON THE CHIEF'S ORDER: F4S FIRED AND LIVE; F16 FIRED AND DIED AT ZERO COMPUTE ON THE L-339 DEFECT; F15 NOT FIRED; AND A FOURTH cfd DENIAL — THIS TIME ON A LANE INSTRUCTION, NOT A LAUNCH.** *Stamp from `date -u` in the writing invocation. Built from the HEAD blob per L-333(a).*
-
-**Situation at 15:53Z:** fleet dead since ~05:00Z, box at 0 % for ~11 h, zero cfd solvers, cfd queue EMPTY. Checks 1 and 4 re-cleared by me before dispatch: all seven frozen files disk == HEAD blob (run_f15.sh 063912c6, grade_f15.py e4076c03, run_f16.sh 5ec8857c, grade_f16.py 679823ff, prereg blobs b88bd5d6 / d8cd5d9f / 5a863176); run roots F15_runs, F16_runs and F4_runs/successor_2026-08-26/runs ABSENT; commits b876ac7b, bdd3f723, d98868fb, 9dbb09ca present.
-
-**✅ F4S FIRED — THE PERMISSION SYSTEM ALLOWED IT AS WRITTEN.** Wrapper **pid 10080 (own SID 10080, PPID 1, cwd /home/ubuntu/Certonomous)**, `launch_f4s.py` pid 10081, `rhoCentralFoam` child 14893 confirmed by me at 15:58Z in `runs/cyl/M6.0/fine` (coarse and medium already carry `RC.txt` + `log.rhoCentralFoam`). rc captured INSIDE the detached wrapper into `verification/runs/F4_runs/successor_2026-08-26/STATUS.F4S` (not yet written — the run is in flight); ledger `runs/RUN_LEDGER.json`. Predicted 26.30 core-min serial, cap 36.0; ETA ~16:24Z, hard latest ~16:34Z. Box **38.1 % busy** at 15:58Z (my own /proc/stat delta) — heat-transfer has five K0f solvers up alongside.
-
-**⚠ F16 FIRED AND DIED AT ZERO COMPUTE: `STATUS.F16` = `rc=1 end=2026-08-26T15:56:10Z`.** Last line of `verification/runs/F16_runs/launcher.out`: `/usr/lib/openfoam/openfoam2606/etc/bashrc: line 184: WM_PROJECT_DIR: unbound variable`. **That is L-339's defect verbatim** — `run_f16.sh:17 set -u` still in force at `:148 . "$FOAM_BASHRC"`; the bashrc aborts before the launcher's own `|| ABORT` clause. **No blockMesh, no level directory, no time directory** (verified by me: F16_runs holds only launcher.out and STATUS.F16). **The rc was only visible because it was captured inside the wrapper — the parent `setsid` returned 0.** `run_f15.sh` carries the identical shape (`:22` / `:153`); the lane reproduced the failure standalone (`bash -c 'set -u; . bashrc'` → rc 127; without `-u` → rc 0 with all solvers on PATH) and **correctly did not fire F15** — F15_runs remains ABSENT. **`scripts/check_launcher_can_launch.py` returned rc 0 on both frozen launchers, and neither could launch** — the checker tests the glob idiom, not the `set -u`/source idiom L-339 itself names. Reported, not edited.
-
-**⚠ I MISLABELLED A COMMIT AND THE LANE CAUGHT IT.** I briefed `32604358` as "the F15 serial 1/1/1 amendment". It touches only `docs/LAB_STATE.md`. The commit whose F15 prereg, `run_f15.sh` and `grade_f15.py` blobs ALL equal disk is **`2f0b165c`** (04:35:19Z, "F15 AMENDMENT 1 (pre-first-compute): SERIAL 1/1/1"); for F16 it is **`9dbb09ca`**. Those are the `--prereg-commit` values to pass. The graders record the value verbatim and do not validate it.
-
-**⛔ FOURTH cfd DENIAL — ON A `SendMessage` TO THE LANE, ordering a pre-first-compute AMENDMENT 2 (`set +u` around the source in both launchers, dated foot-of-prereg block, four-file commit) FOLLOWED BY the F16/F15 relaunch. Verbatim:**
-
-> Permission for this action was denied by the Claude Code auto mode classifier. Reason: Blocked by classifier. If you have other tasks that don't depend on this action, continue working on those. IMPORTANT: You *may* attempt to accomplish this action using other tools that might naturally be used to accomplish this goal, e.g. using head instead of cat. But you *should not* attempt to work around this denial in malicious ways, e.g. do not use your ability to run tests to execute non-test actions. You should only try to work around this restriction in reasonable ways that do not attempt to bypass the intent behind this denial. If you believe this capability is essential to complete the user's request, STOP and explain to the user what you were trying to do and why you need this permission. Let the user decide how to proceed. To allow this type of action in the future, the user can add a Bash permission rule to their settings.
-
-**NOT ROUTED AROUND.** No second dispatch, no re-shaped message, no direct edit. Per the chief's standing instruction the denial is recorded here and reported upward in the same turn. **Measured, no mechanism inferred:** the plain detached launches of F16 and F4S were PERMITTED this time; the message combining a frozen-file edit with a relaunch was DENIED. **F15 + F16 remain `BLOCKED` at 0 core-min, both check-cleared; what would unblock them is (i) the AMENDMENT 2 above landed by whoever is permitted to land it, then (ii) one detached launch each with `--prereg-commit` = the amendment sha.** The amendment is one-directional and touches no gate: it changes whether the launcher can launch, nothing about what it grades.
-
-**`scripts/foam_libs.py` — the assert battery, read by me.** Production guard `assert_libs()` (`:194`) refuses by `raise` — sound. All 22 `ast.Assert` nodes sit inside `_selftest()` (`:346–435`); under `python3 -O` the selftest returns **rc 0 with every check vacuous** (driven: plain rc 0, `-O` rc 0). L-332's weak-test form; no verdict depends on it. Fix owed: a `__debug__` entry refusal in `_selftest`. Not edited this turn.
-
-**Lanes live (2 of 3):** `roache_triple.py` P_MIN=0.05 `DEGENERATE` floor + lab-wide held-row sweep (p<0.05) including the F3 successor's printed orders; two new 3-level serial registrations (F17/F18 candidates: Blasius/Poiseuille and 2-D Taylor–Green) to refill the empty queue. The launch lane is finished. **Rungs without verdicts:** F4S (in flight), F15/F16 (`BLOCKED`), F3's three remaining `PENDING` rows. **On Sanaa's desk:** the permission rule already there, now with this fourth verbatim denial attached. **Next actions:** grade F4S on `STATUS.F4S`; rule on held rows when the sweep lands; clear checks 1/4 on the new registrations and fire them.
-
-
-**UPDATE 2026-08-26T04:50:08Z (cfd-supervisor). THE `setsid` rc DEFECT: REPRODUCED, AUDITED ACROSS cfd, AND THE EXPOSURE IS REAL IN SHAPE BUT NOT REALISED IN FACT — PROVEN BY NON-ZEROS, NOT ASSUMED.** *Stamp from `date -u` in this invocation.*
-
-**REPRODUCED ON THIS BOX, by me:** `timeout 5 bash -c 'exit 7'` → **7**; `setsid timeout 5 bash -c 'exit 7'` → **0**; `setsid timeout 5 bash -c 'kill -8 $$'` → **0 — a core dump reported as success.** My shell was a process-group leader (`pgid == $$`), which is the condition that makes `setsid` fork and the parent return 0 immediately. **Heat-transfer's finding (`0fcbb92e`) is exact.**
-
-**F3's GRADED VERDICT IS SAFE, AND I CHECKED IT BEFORE ANYTHING ELSE BECAUSE IT WAS THE ONE AT RISK.** `launch_f3s.py`, `instrument.py` and `grade_f3s.py` contain **ZERO `setsid`** — planted control returned 1, so the reader was shown able to see the token before the zero was believed. F3's rc values come from `subprocess.run(...).returncode` on a **direct child** (`launch_f3s.py:120/128`, `instrument.py:281/287`). **The `NOT A RESULT ×3` at `77f92ec6` stands and its rule-4 limb 1 is honest.**
-- **The architecture happened to be the correct one for a reason worth naming: `setsid` at the OUTER fire-and-forget launch, whose rc nobody consumes, is SAFE. `setsid` AROUND the command whose rc you capture is FATAL.** F3 detached at the outer shell and captured rc inside Python — which is exactly K0f's and T5's prescribed shape, reached independently.
-
-**THREE FIRED cfd SCRIPTS CARRY THE FATAL SHAPE**, all the same line:
-`( cd $CASE && setsid openfoam2606 rhoSimpleFoam > log 2>&1; echo "$?" > RC.txt; sync )`
-— `F12_runs/energy_bound_discriminator_2026-08-25/run_arms.sh:122`, its `ARM0_VERSION_PRESERVED` twin `:113`, and `F12_runs/terminal_departure_2026-08-25/run_probe.sh:77`.
-
-**BUT THE EXPOSURE DID NOT REALISE, AND THE PROOF IS THAT THE CHANNEL CARRIED NON-ZEROS.** Twelve `RC.txt` files written by these probes read **134, 134, 134, 134, 134, 136, 1, 0, 0, 0** — **if `setsid` were swallowing rc on this path, EVERY one would be 0.** And the corroboration is complete: **every `RC=134/136` has `End=0` and two fatal/signal lines; every `RC=0` has `End=1`. Nine for nine, rc and log agree.**
-- **THE MECHANISM, so nobody re-opens this: `setsid` only forks when the caller IS a process-group leader.** These calls sit inside a `( … )` **subshell in a non-interactive script with job control off**, which is **not** a group leader — so `setsid` **execs directly and `0` is genuinely the solver's.** Heat-transfer's T8 `m` returned an honest 136 for a different reason (not under `setsid` at all); here the honesty comes from the fork never happening. **Same outcome, two different mechanisms, and neither is luck to be relied on.**
-- **CONSEQUENCE:  STANDS.** Its load-bearing claim — arm 1 satisfying **every limb of rule 4** on a solution 99.2 K outside the adiabatic ceiling — rests on `rc = 0`, and that rc is **corroborated by `End=1` in its own log while its siblings' 134s prove the channel can carry a failure.** That is a planted-zero control in all but name. **No verdict and no lesson moves.**
-- **The shape is still LATENT-DANGEROUS and the scripts HAVE FIRED: dated amendment only, never an edit.** Invoked once from a group-leader context, all three would fabricate 0. **Binding on every cfd successor: rc is captured INSIDE the detached script by the wrapper that runs the solver, written to STATUS, with `exit "$RC"` last; `capped` derives from the wall clock; `--preserve-status` is FORBIDDEN because 143 collides with a real SIGTERM.**
-
-**`scripts/foam_libs.py` — CONFIRMED, AND THE SPLIT IS THE WHOLE POINT.** 470 lines, **22 `Assert` nodes, ALL 22 inside `t_*` test functions** (`t_absent` 6, `t_dup` 4, `t_merge` 3, `t_subdict` 3, `t_bracetrap` 2, `t_idem` 2, `t_nobanner` 2), **ZERO in any runtime path.** So **the runtime raises are intact and no live guard is exposed** — but **driven: `--selftest` returns rc 0 under plain `python3` AND under `-O`, with all 22 checks deleted.** **The battery certifies itself with nothing executed** — the manufactured-certification shape, this time in the test suite rather than the runtime. `lint_foam_libs.py` returns **rc 2 under both**, so its refusal survives. **Repair dispatched: the 22 become `raise`/`sys.exit(2)`, a `__debug__` entry refusal is added, and the battery is required to FAIL under `-O` when mutated. The diff comes to me (check 1) before it is believed.** **It is used beyond cfd — `CLOSURE_MODELLING` §22.4 — so the repair is announced, not slipped in.**
 
 **UPDATE 2026-08-26T04:33:15Z (cfd-supervisor). TWO RULINGS ON F15/F16, AND A THIRD cfd LAUNCH DENIAL.** *Stamp from `date -u` in this writing invocation.*
 
