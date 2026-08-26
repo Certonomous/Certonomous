@@ -1,0 +1,18 @@
+D14M SELFTEST 2026-08-26T17:37:00Z driver_md5=0dc3e2470937233eda8903b919216264 contam_md5=28ce514d6683948f0883e4a5278c7f5a grader_md5=c2a8cadb3d7863697412e6741cdea51e sacrificial_root=/home/ubuntu/certonomous-runs/_d14m_selftest_20260826T173700Z
+  [OK ] S10 registered run root absent before: /home/ubuntu/certonomous-runs/CURRICULUM-D14M-a2-wing-remesh
+  [OK ] S0 bash -n and py_compile clean
+  [OK ] S1 G14-0 clean generator PASS (rc 0); planted refinement (N 39->78, s0 1e-3->5e-4) REFUSED by the same reader
+  [OK ] S1b s0 halved -> rc 2, both the md5 and the s0 reason named
+  [OK ] S2 grader selftest 14/14 under python3 and python3 -O; ast.Assert count over both instruments = 0
+  [OK ] S3 guard block clear -> exit 40 after G-ROOT.1-.5, G14-0 (+planted control) and md5s; nothing staged
+  [OK ] S4 G-ROOT.5(a) live container d14m_selftest_20260826T173700Z -> rc 3
+  [OK ] S5 G-ROOT.5(b) live pid 303063 cwd=/home/ubuntu/certonomous-runs/_d14m_selftest_20260826T173700Z/root_clear -> rc 3
+  [OK ] S5b stale pidfile ignored -> exit 40
+  [OK ] S6 G-ROOT.3 foreign ITEM in ledger -> rc 3
+  [OK ] S7 G-ROOT.4 ALREADY_BOUGHT rc=0 row -> rc 3
+  [OK ] S8 G-ROOT.1 a non-sacrificial selftest root (the baseline's!) -> rc 3, nothing touched
+  [OK ] S9 usage -> 64
+  [OK ] sacrificial root removed: /home/ubuntu/certonomous-runs/_d14m_selftest_20260826T173700Z
+  [OK ] S10 registered run root still absent after: /home/ubuntu/certonomous-runs/CURRICULUM-D14M-a2-wing-remesh
+  [OK ] no d14m_ container survives
+D14M SELFTEST pass=16 fail=0 2026-08-26T17:37:03Z
