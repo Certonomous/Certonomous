@@ -14233,21 +14233,6 @@ the fix was ordered forward.
 
 ---
 
-
-**AMENDMENT, 2026-08-26 (same day, by the supervisor who wrote it): THIS LESSON'S OWN TEST WAS
-ALSO AN INADEQUATE PROXY, AND IT MISJUDGED THE CASE THAT PROMPTED IT.** The lesson says assert
-`SID == own PID` on the wrapper. **A wrapper that is a non-leader member of an ALREADY-DETACHED
-session fails that test while being perfectly detached** — which is exactly what a correctly
-`setsid`'d launcher produces, and exactly what VMFL076 was. Corroborated by `LAUNCH_RECORD.txt`
-(launcher `pid = 3066609`) against an independently measured run `SID` of 3066609.
-**THE VALID TEST IS A COMPARISON BETWEEN TWO SESSIONS, NOT A PROPERTY OF ONE PROCESS: find the
-process whose PID equals the run's SID; the run is detached iff that leader is not in the
-agent's session (`ppid = 1`, `tty_nr = 0`).** The supervisor had both SIDs in one output — run
-3066609, own shell 3086237 — and misread the deciding datum while testing the wrong process.
-**The `ppid` test this lesson corrected and the `sid == own pid` test it prescribed fail
-IDENTICALLY: both ask about one process where the question is about two.** Full record:
-`docs/ansys_verification/FINDING_launcher_detachment.md` Amendment 1.
-
 ## L-337 — A ZERO FROM A SEARCH NOT SHOWN ABLE TO FIND A KNOWN INSTANCE IS NOT EVIDENCE OF ABSENCE. Standing rule 3, applied to the enumeration instead of the reader
 
 **Measured 2026-08-26, heat-transfer. THREE confident zeros in twenty-four hours, from
@@ -14582,3 +14567,58 @@ the specific channel's nature — a degenerate field there, an averaging reader 
 **Provenance:** `cases/ansys_verification/VMFL011/RESULTS.md`; register row #26; comparator
 blob `e369496bf2e28ccb7145756e1c2442eb11e8e3f7`; the refusal line is quoted verbatim in
 that RESULTS.md.
+
+---
+
+## L-341. An OpenFOAM `mixed` (Robin) boundary condition is MESH-DEPENDENT, and hardcoding it turns a grid-convergence study into a measurement of the boundary condition
+
+**2026-08-26, heat-transfer, found while pre-registering T11 (transient conduction).**
+
+OpenFOAM's `mixed` patch field forms
+
+    T_face = f*refValue + (1-f)*(T_cell + refGrad/deltaCoeff)
+
+so matching it to a convective (Robin) condition `-k dT/dx = h (T - T_inf)` gives
+
+    f = (h/k) / ((h/k) + deltaCoeff),   deltaCoeff = 1/(dx/2)
+
+**`f` contains the mesh spacing.** For a plane wall at `Bi` = 1 it reduces to
+`f = Bi/(Bi + 2N)`, which at `N` = 100 / 200 / 400 is
+**4.975e-03 / 2.494e-03 / 1.248e-03** — every level a different number.
+
+**Why this is worse than an ordinary wrong constant.** A hardcoded `f` is correct
+on exactly one level. In a three-level Roache study every level then carries a
+**different effective boundary condition while the dictionaries look
+identical**, and the triple measures **boundary-condition error instead of
+discretisation error**. It does not diverge, it does not oscillate, and it does
+not refuse: it **converges cleanly to the wrong answer and reports a respectable
+observed order.** A `CONVERGING` triple with a plausible `p` and a small GCI is
+exactly the evidence a grid study exists to produce, and here it would be
+produced by the defect.
+
+**Measured, before the rung was registered.** A plausible guess of `f = 0.3333`
+— the value one writes when treating `valueFraction` as "the fraction that is
+Dirichlet" without deriving it — put the centreplane solution **18 % out at
+`Fo` = 0.2**, while the field still looked entirely converged. With `f` derived
+per level, the same solver matched the analytic series to **1.4e-05–4.9e-05**.
+
+**The fix is a guard, not a comment.** Compute `f` per level from the mesh, and
+add a check that **REFUSES (exit 2) unless the three levels differ** — so that
+if somebody later replaces the formula with a literal, the build stops. Shown
+able to fire before it was trusted: with the formula replaced by a constant the
+guard returns exit 2 naming the identical values, in-process and as a
+subprocess.
+
+**Scope.** Any mesh-refinement study whose boundary condition is expressed
+through a coefficient containing `deltaCoeff` — `mixed`, and hand-rolled Robin
+or contact-resistance conditions built on it. Conditions whose parameters are
+purely physical (`fixedValue`, `fixedGradient`, `zeroGradient`,
+`totalPressure`) are unaffected. It is a sibling of the T4 finding of the same
+night — a registration that under-specifies what its own graded number depends
+on — with the sharper edge that here the under-specification **survives every
+convergence check the study performs on itself.**
+
+**Provenance:** `docs/campaigns/T-family/T11_PREREGISTRATION.md` §5;
+`verification/runs/T-family/T11_runs/build_t11.py` (`value_fraction()`,
+`check_levels()`); the 18 % figure and the 1.4e-05–4.9e-05 agreement are scratch
+measurements disclosed in that pre-registration §0 and §1.3.

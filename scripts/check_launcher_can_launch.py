@@ -294,24 +294,34 @@ def one_iteration_arm(case_dir, solver, foam_bashrc, keep=False):
         shutil.copytree(orig, z)
         cd = os.path.join(dst, "system", "controlDict")
         txt = open(cd).read()
-        txt = re.sub(r"^\s*endTime\s+[0-9.eE+-]+\s*;", "endTime 1;", txt, flags=re.M)
-        txt = re.sub(r"^\s*writeInterval\s+[0-9.eE+-]+\s*;", "writeInterval 1;", txt, flags=re.M)
+        # ONE TIMESTEP, whatever deltaT is.  The first version hardcoded
+        # `endTime 1`, which is one iteration only when deltaT == 1 -- true of
+        # the steady SIMPLE rungs and FALSE of any transient case, where it
+        # would silently run endTime/deltaT steps instead.  Generalised when
+        # T11 (deltaT = 1e-4) would have run 10 000 steps for a smoke test.
+        mdt = re.search(r"^\s*deltaT\s+([0-9.eE+-]+)\s*;", txt, re.M)
+        dt = mdt.group(1) if mdt else "1"
+        txt = re.sub(r"^\s*endTime\s+[0-9.eE+-]+\s*;", "endTime %s;" % dt, txt, flags=re.M)
+        txt = re.sub(r"^\s*writeInterval\s+[0-9.eE+-]+\s*;", "writeInterval %s;" % dt, txt, flags=re.M)
+        txt = re.sub(r"^\s*writeControl\s+\w+\s*;", "writeControl runTime;", txt, flags=re.M)
         open(cd, "w").write(txt)
+        want_time = float(dt)
 
         log = os.path.join(dst, "log.arm2")
         cmd = ("source %s > /dev/null 2>&1; %s -case %s > %s 2>&1"
                % (foam_bashrc, solver, dst, log))
         r = subprocess.run(["bash", "-lc", cmd])
         body = open(log, errors="replace").read() if os.path.isfile(log) else ""
-        reached = bool(re.search(r"^Time = 1\s*$", body, re.M))
+        seen = [float(t) for t in re.findall(r"^Time = ([0-9.eE+-]+)\s*$", body, re.M)]
+        reached = any(abs(t - want_time) <= 1e-12 * max(want_time, 1.0) for t in seen)
         if r.returncode != 0 or not reached:
             fatal = ""
             m = re.search(r"--> FOAM FATAL[\s\S]{0,400}", body)
             if m:
                 fatal = " | " + " ".join(m.group(0).split())[:300]
-            return False, ("solver rc=%d, reached Time=1: %s%s"
-                           % (r.returncode, reached, fatal))
-        return True, "solver rc=0 and reached Time = 1"
+            return False, ("solver rc=%d, reached Time=%g: %s%s"
+                           % (r.returncode, want_time, reached, fatal))
+        return True, "solver rc=0 and reached Time = %g (one timestep)" % want_time
     finally:
         if not keep:
             import shutil as _s
