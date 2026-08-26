@@ -1,0 +1,3 @@
+REFUSE (VMFL017-R2): no End line in solver log: /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL017/R2/L1
+VMFL017-R2  p-floor planted control OK (P_MIN = 0.05): (1.0,1.1,1.2) -> NOT A RESULT, no GCI
+rc = 2

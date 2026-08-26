@@ -1,0 +1,21 @@
+=== VMFL017-R2 launcher  utc=2026-08-26T17:18:52Z  run_root=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL017/R2
+  freeze OK  cases/ansys_verification/VMFL017/R2/PREREGISTRATION.md  9a58eed3413b7b54b92bbfbee527c7a913cbd8ec
+  freeze OK  cases/ansys_verification/VMFL017/R2/grade_vmfl017_r2.py  97c556f4a0d07f021480c75144d1b72a811fc391
+  mesh birth certificate OK  cases/ansys_verification/VMFL017/mesh_birth/BIRTH_CERTIFICATE.md  2a7e82c280c2bad9c191996a26013ca4decf4e6c
+  blockMeshDict L1/L2/L3 identical to the birth-certified attempt-1 family
+  registered OK  controlDict endTime = 0.05
+  registered OK  controlDict deltaT = 1e-9
+  registered OK  controlDict maxCo = 0.2
+  registered OK  controlDict maxDeltaT = 1e-5
+  registered OK  controlDict writeControl adjustableRunTime, writeInterval = 0.05, adjustTimeStep yes
+  registered OK  forceCoeffs1 executeInterval = 1e-4  (~500 samples over 0.05 s)
+  registered OK  comparator ENDTIME_PHYS = 0.05 == controlDict endTime
+  registered OK  500 forceCoeffs samples over the run, 100 in the final 20% window >= PLATEAU_MIN_SAMPLES 20
+  planted-zero + p-floor controls OK (comparator --selftest green)
+  rhoCentralFoam = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/rhoCentralFoam
+--- L1  cap 300 core-min  ranks 1  timeout 18000s
+STOP L1: rc=124 after 18000s = 300.0 core-min (cap 300 core-min).
+  A non-zero rc is a FINDING, not a retry. rc=124 means the per-level cap stopped it;
+  an overrun does NOT get a new budget and endTime is NOT shrunk to fit (rule 12).
+=== VMFL017-R2 launcher done, overall rc=124, total 300.0 core-min
+grade with: python3 /home/ubuntu/Certonomous/cases/ansys_verification/VMFL017/R2/grade_vmfl017_r2.py --run-root /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL017/R2
