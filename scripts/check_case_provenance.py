@@ -87,6 +87,8 @@ COMPRESSIBLE_SOLVERS = (
     "sonicFoam", "chtMultiRegionSimpleFoam", "chtMultiRegionFoam",
 )
 SWEPT_DIRS = ("0", "0.orig", "constant", "system")
+LARGE_FILE_BYTES = 1 << 20        # 1 MB: above this, head+tail only (see sweep())
+SCAN_EDGE_BYTES = 512 << 10       # 512 KB scanned at each end
 
 
 def refuse(msg):
@@ -129,9 +131,10 @@ def sweep(case, family):
     elif family == "compressible":
         tokens, label = INCOMPRESSIBLE_TOKENS, "incompressible/Boussinesq"
     else:
-        return None, None
+        return None, None, []
     pats = [(re.compile(p), why) for p, why in tokens]
     out = []
+    partial = []
     for d in SWEPT_DIRS:
         root = os.path.join(case, d)
         if not os.path.isdir(root):
@@ -154,9 +157,33 @@ def sweep(case, family):
                             continue
                 except OSError:
                     continue
+                # LARGE FILES ARE SCANNED HEAD+TAIL ONLY, AND THIS IS A STATED
+                # NARROWING OF SCOPE -- not a correctness-preserving speedup like
+                # the polyMesh prune above.  `constant/` holds BULK NUMERICAL DATA
+                # as well as dictionaries: T10aR_runs/R_x carries a 6.1 GB
+                # `constant/F` view-factor matrix and a 1.5 GB
+                # `globalFaceFaces`, neither under polyMesh, and reading them
+                # line-by-line stalled a territory sweep indefinitely.
+                # In an OpenFOAM field file the `FoamFile` header is at the START
+                # and the `boundaryField` block -- where every wall-function type
+                # lives -- is at the END; the bulk between them is numeric data
+                # that cannot carry a namespace token.  So head+tail is sound in
+                # practice.  IT IS NOT SOUND IN PRINCIPLE, and the count of
+                # partially scanned files is REPORTED rather than buried, so a
+                # reader can see exactly how much of the corpus was skimmed.
                 try:
-                    with open(p, errors="replace") as fh:
-                        lines = fh.read().splitlines()
+                    size = os.path.getsize(p)
+                    if size > LARGE_FILE_BYTES:
+                        with open(p, errors="replace") as fh:
+                            headtxt = fh.read(SCAN_EDGE_BYTES)
+                        with open(p, "rb") as bh:
+                            bh.seek(max(0, size - SCAN_EDGE_BYTES))
+                            tailtxt = bh.read().decode("utf-8", "replace")
+                        lines = (headtxt + "\n" + tailtxt).splitlines()
+                        partial.append(os.path.relpath(p, case))
+                    else:
+                        with open(p, errors="replace") as fh:
+                            lines = fh.read().splitlines()
                 except OSError:
                     continue
                 for i, line in enumerate(lines, 1):
@@ -166,14 +193,14 @@ def sweep(case, family):
                             out.append((os.path.relpath(p, case), i,
                                         line.strip()[:160], why))
                             break
-    return out, label
+    return out, label, partial
 
 
 def check_case(case, quiet=False):
     case = case.rstrip(os.sep) or case
     app = read_application(case)
     family = classify(app)
-    findings, label = sweep(case, family)
+    findings, label, partial = sweep(case, family)
     if family == "unknown":
         print("%s: application `%s` -- UNCLASSIFIED solver, no sweep performed. "
               "Add it to the tables in this script rather than assuming it is "
@@ -186,9 +213,14 @@ def check_case(case, quiet=False):
             print("      ^ %s, in a %s case" % (why, family))
         return findings
     if not quiet:
-        print("%s: application `%s` (%s) -- no %s-family tokens found in %s"
+        note = ""
+        if partial:
+            note = ("  [%d file(s) over %d MB scanned HEAD+TAIL only: %s]"
+                    % (len(partial), LARGE_FILE_BYTES >> 20,
+                       ", ".join(sorted(partial)[:3])))
+        print("%s: application `%s` (%s) -- no %s-family tokens found in %s%s"
               % (os.path.basename(case), app, family, label,
-                 "/".join(SWEPT_DIRS)))
+                 "/".join(SWEPT_DIRS), note))
     return []
 
 
