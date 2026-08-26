@@ -162,3 +162,55 @@ sub-second Python selftest. `docs/COST_CALIBRATION.md` gains no row.
 > **NO PRE-REGISTRATION WAS WRITTEN. NOTHING WAS FROZEN. NO SOLVER WAS LAUNCHED AND
 > NOTHING IS QUEUED. T6 IS `BLOCKED` UNTIL ITS REFERENCE IS ACQUIRED, AND THE
 > DECISION ABOUT WHAT FIRES INSTEAD IS THE SUPERVISOR'S.**
+
+---
+
+## 9. ADDENDUM — the territory provenance sweep, COMPLETED and reported as a number
+
+**`UNMEASURED` is now measured.** `scripts/check_case_provenance.py` driven over every
+case directory holding a `system/controlDict` under `verification/runs/T-family/`,
+`verification/runs/F14-cooling-ladder/` and `verification/runs/THERMAL_K0_runs/`:
+
+| | |
+|---|---|
+| **cases swept** | **357** |
+| **cases with findings** | **0** |
+| solver not in the classification tables | **63** — `application none` ×38, `laplacianFoam` ×25 |
+| files scanned head+tail only (>1 MB) | **35** |
+| elapsed | **4 s** |
+
+> **ZERO SOLVER-NAMESPACE CONTAMINATIONS ACROSS 357 CASES. The T4 defect class is not
+> present anywhere else in this territory.**
+
+**The 63 unclassified are reported as unclassified, never as clean.** The tool prints
+*"UNCLASSIFIED solver, no sweep performed — add it to the tables rather than assuming it
+is clean"* and returns no verdict on them. `application none` is a mesh-only or utility
+case; `laplacianFoam` solves a bare scalar Laplacian and belongs to neither family in a
+way this check can discriminate. **Guessing a family for them would manufacture exactly
+the false confidence this instrument exists to prevent.**
+
+**The 35 partially scanned files are declared in the tool's own output**, with the first
+three named per case — see §10.
+
+## 10. THE INSTRUMENT'S OWN DEFECT LOG — four defects in four live uses, none findable by its selftest
+
+| # | defect | found by | status |
+|---|---|---|---|
+| 1 | descended into `constant/polyMesh/` — hundreds of MB of `points`/`faces` | sweep timed out at 170 s | **fixed**, correctness-preserving |
+| 2 | scanned binary/compressed field files line by line | same timeout | **fixed**, correctness-preserving |
+| 3 | **`constant/` holds BULK NUMERICAL DATA too** — `T10aR_runs/R_x` carries a **6,086 MB `constant/F`** view-factor matrix and a **1,513 MB `globalFaceFaces`**, neither under `polyMesh` | sweep stalled indefinitely at case 186 of 357 | **fixed** by head+tail scanning above 1 MB — **a declared NARROWING OF SCOPE, printed in the tool's output, not a correctness-preserving speedup** |
+| 4 | **`p_rgh` was in the Boussinesq-only token list and produced 109 FALSE POSITIVES across 31 cases** — every K2e `buoyantSimpleFoam` case flagged | the first clean full sweep | **fixed** — `p_rgh` is solved by **both** `buoyantSimpleFoam` and `buoyantBoussinesqSimpleFoam`; it is **shared**, and had no business in a discriminating list |
+
+**Defect 4 is the one that mattered most, and it is the opposite failure from the first
+three.** They made the tool slow; **it made the tool WRONG, in the direction of a
+finding.**
+
+> **A TOKEN BOTH FAMILIES USE DISCRIMINATES NOTHING. A CHECKER THAT CRIES WOLF ON
+> LEGITIMATE CASES TRAINS READERS TO IGNORE IT — WHICH IS WORSE THAN NOT HAVING THE
+> CHECKER AT ALL.**
+
+**None of the four could have been found by the selftest**, whose fixtures are two-file
+synthetic cases with no mesh, no bulk data and no second solver family. **A passing
+selftest exercises the clean path.** Every one was found by pointing the instrument at
+the real corpus — **which is the only thing that ever finds them, and is why the
+`0-findings` result above is worth more than the `109-findings` result that preceded it.**

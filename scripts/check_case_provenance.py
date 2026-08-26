@@ -73,10 +73,19 @@ COMPRESSIBLE_TOKENS = [
     (r"\bhePsiThermo\b|\bheRhoThermo\b", "a compressible thermo package"),
 ]
 # Tokens that belong to the INCOMPRESSIBLE/Boussinesq family.
+# NOTE ON `p_rgh`, AND IT IS THE REASON THIS LIST IS SHORT.
+# `p_rgh` WAS in this list and produced 109 FALSE POSITIVES across 31 cases on the
+# first clean territory sweep -- every K2e `buoyantSimpleFoam` case was flagged.
+# `p_rgh` is the buoyant pressure and is solved by BOTH `buoyantSimpleFoam`
+# (compressible) and `buoyantBoussinesqSimpleFoam` (Boussinesq).  It is SHARED, not
+# Boussinesq-specific, and had no business in a discriminating list.
+#     A TOKEN THAT BOTH FAMILIES USE DISCRIMINATES NOTHING, AND A CHECKER THAT
+#     CRIES WOLF ON LEGITIMATE CASES TRAINS READERS TO IGNORE IT -- which is worse
+#     than not having the checker at all.
+# Only tokens genuinely exclusive to the Boussinesq transport model remain.
 INCOMPRESSIBLE_TOKENS = [
-    (r"\bp_rgh\b", "the Boussinesq buoyant pressure field"),
-    (r"\bTRef\b", "the Boussinesq reference temperature"),
-    (r"\bbeta\b\s*\[", "the Boussinesq expansion coefficient"),
+    (r"\bTRef\b", "the Boussinesq reference temperature, in `transportProperties`"),
+    (r"\bbeta\b\s*\[", "the Boussinesq expansion coefficient with dimensions"),
 ]
 INCOMPRESSIBLE_SOLVERS = (
     "buoyantBoussinesqSimpleFoam", "buoyantBoussinesqPimpleFoam",
@@ -89,6 +98,18 @@ COMPRESSIBLE_SOLVERS = (
 SWEPT_DIRS = ("0", "0.orig", "constant", "system")
 LARGE_FILE_BYTES = 1 << 20        # 1 MB: above this, head+tail only (see sweep())
 SCAN_EDGE_BYTES = 512 << 10       # 512 KB scanned at each end
+
+# MESH AND FIELD DATA, SKIPPED OUTRIGHT WHEREVER THEY SIT.
+# A provenance sweep is looking for TOKENS IN DICTIONARIES.  It has no business
+# reading a `points` or an `owner` file at all, and the pre-existing exclusion
+# of `constant/polyMesh` was the right instinct at the wrong scope: these names
+# also appear outside that one directory, and `constant/` carries bulk numeric
+# data of its own (a 6.1 GB view-factor matrix `F` and a 1.5 GB
+# `globalFaceFaces` in T10aR_runs/R_x, neither under polyMesh).
+DATA_BASENAMES = frozenset((
+    "points", "faces", "owner", "neighbour", "cellZones", "faceZones",
+    "pointZones", "cells", "F", "globalFaceFaces", "meshPhi",
+    "points.gz", "faces.gz", "owner.gz", "neighbour.gz"))
 
 
 def refuse(msg):
@@ -147,6 +168,8 @@ def sweep(case, family):
             # is a correctness-preserving speedup, not a narrowing of scope.
             dirnames[:] = [d for d in dirnames if d != "polyMesh"]
             for fn in sorted(filenames):
+                if fn in DATA_BASENAMES:
+                    continue
                 p = os.path.join(dirpath, fn)
                 # a file with a NUL byte in its first block is binary (a
                 # compressed or binary-format field); it carries no readable
@@ -171,19 +194,28 @@ def sweep(case, family):
                 # practice.  IT IS NOT SOUND IN PRINCIPLE, and the count of
                 # partially scanned files is REPORTED rather than buried, so a
                 # reader can see exactly how much of the corpus was skimmed.
+                # STREAMED, NEVER READ WHOLE.  This file previously did
+                # `fh.read().splitlines()`, which materialises the entire file
+                # AND a Python list of one string object per line -- roughly
+                # 5-10x the file size resident at once.  On 2026-08-26 a sweep
+                # from this territory coincided with the box going 7.8 GB into
+                # swap with 544k major faults, and three live T1b solver arms
+                # each slowed by ~1.2x for twenty minutes.  The cost landed
+                # against WALL-CLOCK CAPS, not against a budget line.
+                #
+                # THE RULE, adopted from cfd and now standing for this team:
+                # never load file contents into memory on a box carrying
+                # solves.  Iterate the handle; cap the process with `ulimit -v`
+                # so a runaway dies instead of taking the box; and skip binary
+                # and mesh data outright.
                 try:
                     size = os.path.getsize(p)
-                    if size > LARGE_FILE_BYTES:
-                        with open(p, errors="replace") as fh:
-                            headtxt = fh.read(SCAN_EDGE_BYTES)
-                        with open(p, "rb") as bh:
-                            bh.seek(max(0, size - SCAN_EDGE_BYTES))
-                            tailtxt = bh.read().decode("utf-8", "replace")
-                        lines = (headtxt + "\n" + tailtxt).splitlines()
-                        partial.append(os.path.relpath(p, case))
-                    else:
-                        with open(p, errors="replace") as fh:
-                            lines = fh.read().splitlines()
+                except OSError:
+                    continue
+                if size > LARGE_FILE_BYTES:
+                    partial.append(os.path.relpath(p, case))
+                try:
+                    lines = _scan_lines(p, size)
                 except OSError:
                     continue
                 for i, line in enumerate(lines, 1):
@@ -194,6 +226,38 @@ def sweep(case, family):
                                         line.strip()[:160], why))
                             break
     return out, label, partial
+
+
+def _scan_lines(path, size):
+    """Yield lines WITHOUT ever holding the file, or a list of its lines, in
+    memory.
+
+    Small file: iterate the handle -- one line resident at a time.
+    Large file: the same, but only the first and last SCAN_EDGE_BYTES.  In an
+    OpenFOAM field file the `FoamFile` header is at the START and the
+    `boundaryField` block -- where every wall-function token lives -- is at the
+    END; the bulk between is numeric data that cannot carry a namespace token.
+    **THAT IS SOUND IN PRACTICE AND NOT IN PRINCIPLE**, which is why every
+    partially scanned file is COUNTED AND REPORTED rather than silently
+    skimmed: a silently skipped file is a hole in the sweep.
+    """
+    if size <= LARGE_FILE_BYTES:
+        with open(path, errors="replace") as fh:
+            for line in fh:
+                yield line.rstrip("\n")
+        return
+    with open(path, errors="replace") as fh:
+        consumed = 0
+        for line in fh:
+            consumed += len(line)
+            if consumed > SCAN_EDGE_BYTES:
+                break
+            yield line.rstrip("\n")
+    with open(path, "rb") as bh:
+        bh.seek(max(0, size - SCAN_EDGE_BYTES))
+        bh.readline()                      # drop the partial first line
+        for raw in bh:
+            yield raw.decode("utf-8", "replace").rstrip("\n")
 
 
 def check_case(case, quiet=False):
