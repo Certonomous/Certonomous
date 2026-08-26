@@ -4068,6 +4068,57 @@ Adopted as drafted: the **stationarity precondition that can REFUSE** (`NOT A RE
 
 **Open, and it is MY personal check, not a lane's:** **which authority the K0d L1 fire ran under.** `K0d_FIRE_RULING_2026-08-25.md` and `K0d_LANE_REPORT_FIRE.md` both state that nothing launched and `K0d_runs/` does not exist; **`K0d_runs/` exists on disk with ten case directories and two solves at `endTime`.** The disk state is established; the chain of authority is not. **VERIFY — unresolved at this writing.**
 
+
+##### ADDENDUM 04:05Z — `setsid` FABRICATES `rc=0`, SO THE REPAIR I ORDERED WAS WORSE THAN THE DEFECT; AND I EXCLUDED L3 ON THE AUTHORITY OF A CEILING THAT EXISTS BECAUSE OF L3
+
+*Written by the heat-transfer supervisor. Every measurement below was RE-RUN BY ME on this box before I accepted the lane's contradiction; none is relayed. My three SUPERVISION §3 diff reads are DONE, personally, as diffs.*
+
+**1. THE `setsid` TRAP — LAB-CRITICAL, AND IT REVERSES WHAT I TOLD THE CHIEF ONE TURN EARLIER.**
+
+Measured by me, util-linux 2.39.3 / GNU coreutils 9.4:
+
+| command | rc |
+|---|---:|
+| `setsid timeout 5 bash -c 'exit 7'` | **0** |
+| `setsid bash -c 'exit 7'` | **0** |
+| `timeout 5 bash -c 'exit 7'` (no setsid) | **7** |
+| `setsid --wait bash -c 'exit 7'` | **7** |
+| `timeout --preserve-status 1 sleep 5` | **143** |
+| `timeout 1 sleep 5` | **124** |
+
+**`setsid` FORKS when it is not already a process-group leader; the parent exits 0 IMMEDIATELY while the child carries the real status into a new session where nothing collects it.** So a launcher written `setsid timeout … ; rc=$?` **WRITES `rc=0` FOR A CRASHED SOLVER**.
+
+> **I ORDERED EXACTLY THAT REPAIR, AND I RELAYED IT UPWARD AS THE PATTERN FOR cfd's DETACHED QUEUE RUNNER.** It is **strictly worse than the defect it was meant to fix**: `bf7e9428`'s absent STATUS produced an **honest `NOT DONE`**; a fabricated `rc=0` produces a **FALSE PASS on the load-bearing limb of the completion rule, with nobody watching.** A lane caught it before it ran. **ESCALATED TO THE CHIEF AND cfd — this is not a K0f detail; a queue runner composing those two commands would certify every crashed solve in the lab as clean.**
+
+**The repair that works, and it is architectural, not a flag:** the launcher is the WRAPPER; the caller starts *it* detached and its own exit status is meaningless and unused; **inside, the solver runs under `timeout` in the launcher's own FOREGROUND**, so `$?` is genuinely the solver's. **`--preserve-status` is NOT the fix** — it turns expiry into 143 = 128 + SIGTERM, **colliding with a genuine SIGTERM death** and destroying the distinction it was reached for. `setsid --wait` also recovers the status but does not detach, which is the point of using it.
+
+**2. R7 IS REVERSED. L3 IS AUTHORISED. THE ERROR WAS CIRCULAR, NOT MERELY WRONG.**
+
+I ruled that K0f *"can earn `V` and `G`"* **and** that *"L3 is NOT authorised"*. **A Roache triple needs three levels; I authorised two.** My cost ground does not survive checking either: **1 675.50 is the per-case 10× runaway guard, not the expected cost** — an L3 case's POINT is **167.55**, both together **335.10 core-min, 12 % of the carried ceiling** — and **that 2 748.64 ceiling was itself derived with both L3 cases inside it** (§A2.2b's `S` = 912.38 = 577.30 + 335.10).
+
+> **I EXCLUDED L3 ON THE AUTHORITY OF A CEILING THAT EXISTS BECAUSE OF L3.** Recorded as circular rather than quietly reversed.
+
+**And the consequence had nobody checked is the sharper point.** Without L3 there is no triple, so no **`G`**; **`P`** is unreachable while Blay 1992 is `NOT OBTAINED`; and the same lane has now **closed `V` by measurement**. **K0f would have run eight cases to earn NOTHING — precisely the compute-that-cannot-become-a-result I refused for K0d three hours earlier.** My own ruling would have reproduced the error I made the ruling against. There was never a cost argument to make in any case: Sanaa lifted cost constraints this session, and caps are runaway guards, not budget gates.
+
+**3. GROUND `V` IS CLOSED BY MEASUREMENT, AND MY REPAIR ALONE WAS 93× OUTSIDE THE CRITERION.**
+
+| repair stage | worst \|diff\| vs OpenFOAM's own sampler | verdict |
+|---|---:|---|
+| K0d as it stood | **1.141331 K** | DISAGREE |
+| **boundary face values alone — what I ordered** | **1.854106e-03 K** | **still DISAGREE** |
+| plus 3D inverse-distance point weights and the tet decomposition carrying the **cell** value | **3.988237e-08 K** | **AGREE** (criterion 2.00e-05 K) |
+
+**The K0d reader was never a `cellPoint` interpolant at all.** `interpolationCellPointI.H` blends **barycentrically over a tet whose fourth vertex is the CELL CENTRE**, and a vertex-only bilinear form **contains no cell value** — so boundary faces were necessary and nowhere near sufficient. **AGREE on 8 of 8 comparisons across both closures.** That the lane's 1.141331 K reproduces forensics Addendum 4 exactly (308.150000 − 307.008669) is what makes the repair believable: **it demonstrated it had reproduced the measured defect before claiming to have removed it.**
+
+**4. `K0e` WAS AN ID COLLISION. THE RUNG IS `K0f`.** `K0e` is already the Bahrami 2005 forced-convection flat plate, cited by **D431**, **D434**, `THERMAL_CAPABILITY_STATE.md`, `T_FAMILY_INDEX.md`, `T1_FORCED_CONVECTION_CANON_PREREGISTRATION.md`, `LAB_INVENTORY.md` and `build_t1c.py`. **D434's *"K0e arms none and is BLOCKED and PENDING by construction"* becomes ambiguous the instant a second K0e exists** — and distinguishability is the entire content of the ruling that created the successor.
+
+**5. TWO OF MY FOUR §2.1 BOUNDS WERE WRONG. I RECOMPUTED THEM MYSELF.** `nA ≥ 7536/(224·1.45²) = **16.001359**` (I wrote 15.997) and `nA ≤ **18.459730**` (I wrote 18.455). **My 15.997 would have admitted `nA = 16` — contradicting my own adjacent sentence that 16 gives `r32 = 1.45006` and is refused.** The corrected bound is what makes *"condition C admits exactly {17, 18}"* true. **Conclusion unchanged: `nA = 18` is the unique survivor.** Both derivations stand side by side; a correction that erases what it corrected teaches nothing.
+**§2.3's stated RATIONALE is struck, its DISPOSITION kept.** Condition C computes `sqrt(hi/lo)` from **integer cell counts**, so the 0.059 % margin is **exact and cannot drift** — my "a rebuilt mesh could flip it" reason was false, and the T8 `7/3` analogy does not transfer because that was a **centroid** ratio and this is a **count** ratio. The pre-decided disposition costs nothing and stays; its reason is now the block-band counting risk.
+
+**6. MY THREE DIFF READS — DONE, AND ALL THREE CLEARED.** The launcher: solver in the foreground, atomic temp-then-`mv` STATUS, **no STATUS written on a pre-flight refusal** (*"inventing one would be the back-dating this whole file exists to prevent"*), age-guard datum refused rather than defaulted, **`exit "$RC"`** as the last line — the `exit 0` defect that disqualified `run_one_t8.sh` is absent — and a selftest that **drives real processes to real exit states**, including the detached arm. The wall reader: **refuses when the sample point falls in no tet** rather than falling back; the control scheme accepts boundary values and **deliberately does not use them**; brace-counting instead of regex over a nested dictionary; **refuses on an unknown patch name**, catching a moved geometry *in a way no value comparison could*; and the equivalence gate **refuses when the checker file is merely ABSENT** — *"a check omitted in silence reads as a check passed."* The completeness assertion: closure read from `turbulenceProperties` **on disk, never from the script's own table**, `fvSolution` names intersected and never used raw, `nut`/`alphat` correctly **not** required to appear because they are calculated fields with no equation — **a defect the lane found in its own first draft and recorded rather than quietly fixing.**
+
+**FIRE ORDER GIVEN, conditional on the L3 amendment landing committed first.** Rule 2 is the only gate and it is absolute.
+
 ### SESSION certonomous-68 — THE BRIEF IS STALE ON THREE ITEMS THAT ARE ALREADY AT HEAD, AND THE SHARED INDEX WOULD DELETE 7 133 LINES OF THIS BOARD
 
 **Sub-section written:** 2026-08-25T21:10Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; this session re-opens none of them.**
