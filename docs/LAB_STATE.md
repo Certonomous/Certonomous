@@ -4538,6 +4538,48 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+### SESSION certonomous-71 — RE-FORMED 16:52Z AFTER THE SECOND KILL: QUEUE-FILLING IS THE LANE, R_ff STAYS, T5 REFERENCE PATH RULED
+
+**Sub-section written:** 2026-08-26T17:02Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. Built from the HEAD blob per L-333 (staged blob = `git show $H:docs/LAB_STATE.md` plus this block); every block below is carried byte-for-byte.
+
+#### 0. MEASURED AT 16:53Z, NOT RELAYED
+
+Box `uptime` 1 h 33 min (the 15:19Z reboot), load 11.1, 16 cores. **K0f five arms live** (M2_m at 20 888 / 40 000, I_hi 19 857; pids 12544/12823/13146/13483/13798, each ~100 % of one core; landing ≈ 17:45Z). **T5 X_2d is DONE**: `T5_runs/STATUS.X_2d` rc=0, wall 313 s, 5.217 core-min, `Time = 5000` = `endTime`, fired directly at 16:44:07Z (`dde7a42a`) — the runner-written `X_2d/STATUS.T5_X_2d rc=0` remains the FALSE bookkeeping file named by amendment 1. Runner pid 189825 live (restarted 16:41:57Z); **the lab queue holds ONE entry, this team's `T3_R_ff.json`**, HELD every tick since 16:30Z by the core band (11.0 busy + 8 > 14.4), "trying the next entry" — first-fit confirmed in the log, so it blocks nothing. HEAD `0b041d1a`.
+
+**Landed between my last board write and the kill, verified by me from `git log`:** T5 amendments A1–A5 (`5cf90e52` `05a03a43` `c6bef4fe` `9f1cb468` `19385198`), **A3 FROZEN at `503a9a13`**, the L-342 field-class audit `6812b444`, the R_ff grading-path freeze `32980e09`, and the X_2d fire `dde7a42a`.
+
+#### 1. CHECK 1 — T5 AMENDMENT 3, read by me as a diff (blob 17703b78 → 9c2c1d44)
+
+One tuple element removed (`cube_side_s`, a patch that does not exist on the registered half domain) and a six-line comment; `YPLUS_MAX`, `YPLUS_TARGET`, every band and every branch untouched. **The freeze at `503a9a13` stands.** The prereg blob at HEAD is `3a514849` (A3-freeze note appended); `git cat-file -e 503a9a13:docs/campaigns/T-family/T5_PREREGISTRATION.md` OK — **check 4 for every T5 queue entry is discharged on `503a9a13`** and the entries cite that sha.
+
+#### 2. RULING `[lab-attributed]` — `T3_R_ff` STAYS IN THE QUEUE; IT IS NOT HELD BEHIND THE SMALLER CASES
+
+Ground: (a) the runner is first-fit — measured in `runner.log` ("HELD T3_R_ff.json … trying the next entry") — so an 8-rank entry never delays a 1-rank entry behind it; (b) every T5 3-D case is SERIAL (A2), so C/H_c/M/P_m/L_m/F fit beside R_ff under the 0.9 × 16 ceiling: 8 + 6 = 14 ≤ 14.4; (c) R_ff fires only when busy ≤ 6.4 cores, i.e. when the box is otherwise emptying — exactly the state Sanaa named as the failure ("idle compute"); a 38–45 h, 18 218 core-min solve is the deepest single item this lab can put under a dead fleet; (d) its registered CEILING 27 400 core-min is a runaway guard that reports, not a budget gate (my cost ruling at `32980e09`, recorded so it can be overruled). What would reverse this: a measured memory shortfall (its 3 GB floor is estimated, not measured) or a second team's 8-rank entry — neither is on the board.
+
+#### 3. RULING `[lab-attributed]` — THE T5 REFERENCE PATH (§7.5(3) BLOCKED rows)
+
+Order, stopping at the first that yields a reference with a passing control: **PATH 1** a TABLE in the thesis (transcription, increment 0, twice blind and diffed) — a reading, not a digitisation; **PATH 2** AMENDMENT 6 to `digitise_t5.py` for closed-box frames / inward ticks / line-connected series with a NEW planted raster control of that exact shape, its recovered-vs-planted MAX/RMS becoming the measured increment and §16.7's 0.2514 % struck-not-deleted; per L-340 the plant is sized to the reader; by a lane that did not write `build_t5.py` and reads no T5 solver output (§10 separation); the frozen digitiser and `T5_reference_primary.json` untouched, everything landed as `*_A6_PROPOSED` for my diff read; **PATH 3** rows stay BLOCKED, T5 earns V/G only, the attempt recorded. **Legality condition, stated so it can be checked:** X_2d is the registered UNGRADED precursor (A1) and its completion is not first GRADED compute; the amendment is pre-first-compute for the graded rows only while no graded case directory holds a time directory — the lane measures and stamps that state at its commit, and if the runner has fired a graded case first, the amendment is post-compute for that case and the record says so; I rule on it then rather than pretend.
+
+#### 4. LANES LIVE — THREE, AT THE CAP (all spawned 16:58Z)
+
+| lane | task | gate on me |
+|---|---|---|
+| T5 queue + K0f | X_2d strict rule → `map_inflow_t5.py` → arming check on C (previously failed for want of the map) → six entries C, H_c, M, P_m, L_m, F validated and dropped oldest-first → watch `runner.log` for the first heat-transfer LAUNCHED → queued core-hours → at ~17:45Z `mark_done_k0f` on all ten + `analyse_k0f` + C-row | K0f verdicts come to me with numbers |
+| T10aR2 + T4b | the dead lane's uncommitted instruments and cases read, check-1 table vs the parents, the two MISSING pre-registrations written and frozen by sha, entries validated in scratch, NOT dropped | I perform check 4 on each commit, then drop |
+| T5 reference | §3 above | I read the A6 diff before any reference is believed |
+
+`S_m` is enqueued only after `M` lands (its launcher refuses without M's surface T — an early entry would burn a launch on a refusal).
+
+#### 5. RUNGS WITHOUT VERDICTS
+
+K0f (`PENDING`, five arms live, grade at ten) · T5 (X_2d DONE ungraded; six graded cases queueing; reference BLOCKED pending §3) · T3 R_ff (queued, HELD) · T10aR2 / T4b (registering) · T8 (successor unwritten) · T2/T6/T7/T12 (ACQUIRE-blocked). K2b class-read: RULED in the previous block §3 (14 of 16 covered; `K2bU3_L050`/`K2bU3_L025` unregistered exploratory compute, never a control, never graded). T4 `NOT A RESULT` ×3 and T1b L4 ext1 `NOT A RESULT` ×4 stand at `7422591b` / `71388f4e`. L-342 audit of this territory's graders: DONE at `6812b444`, no amendment owed; open rungs CLEAN.
+
+#### 6. QUEUE ACCOUNT AT THIS WRITE
+
+Entries: **1** (`T3_R_ff`, 18 218 core-min = **303.6 core-h**, $15.58 derived). Expected within the hour: +6 T5 (registered Model B POINT ≈ 72 core-h less X_2d's 0.44), then +6 (T4b ×3, T10aR2 ×3) after the freezes.
+
+#### 7. ON SANAA'S DESK — nothing blocking. #### 8. BLOCKED — T5 `P`-column rows on §3 until a reference exists; K0e/K0f `P` on Blay 1992 (not being attempted).
+
 ### SESSION certonomous-70 — RESUME AFTER THE 05:00Z FLEET DEATH AND A ~15:19Z BOX REBOOT: everything landed, the box is refilled, T11 is the family's first EXACT-tier PASS ×3
 
 **Sub-section written:** 2026-08-26T16:11:20Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. Built from the HEAD blob per L-333; every block below this one is carried byte-for-byte.
