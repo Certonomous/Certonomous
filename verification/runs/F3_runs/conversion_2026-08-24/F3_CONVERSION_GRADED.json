@@ -420,7 +420,17 @@
         "basis": "grid triple CONVERGING, p(dim=2)=0.034, GCI(fine)=169.060%",
         "secondary_all_station_fit_deg": 45.174090372752595,
         "secondary_all_station_dev_pct": -0.37387046118032236,
-        "detector_quantization_1sigma_pct": 0.7875760337216526
+        "detector_quantization_1sigma_pct": 0.7875760337216526,
+        "regrade_2026-08-26": {
+          "verdict": "NOT A RESULT",
+          "state": "DEGENERATE",
+          "p": 0.033745037001710325,
+          "floor_P_MIN": 0.05,
+          "instrument": "scripts/roache_triple.py blob 78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8 (c525c247), gci_equal(r=2.0, dim=2)",
+          "authority": "e94a19ad -- Sanaa: 'OK for this'",
+          "addendum": "verification/runs/F3_runs/conversion_2026-08-24/RESULTS.md, ADDENDUM 2026-08-26 (re-grade)",
+          "original_verdict_field": "untouched"
+        }
       },
       "M3.0_th15": {
         "verdict": "PASS",

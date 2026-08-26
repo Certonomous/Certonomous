@@ -175,3 +175,9 @@ conversion pre-registration anywhere in HEAD — meshing is not a rule-2 breach,
 a SOLVER LAUNCH FROM IT WOULD BE.** **No lane may fire it. If F2 is worth doing it
 is worth a pre-registration first**, and the mesh work already spent is a head start
 on one, not a substitute for it.
+
+---
+
+## ADDENDUM 2026-08-26 — quote-and-strike: G-F3-2 / M2.0_th15 is no longer `PASS`
+
+Stamped `2026-08-26T17:31:34Z`. Appended at the foot; **lines whose number changed above this section: 0**; no gate, band, threshold, cap or label of this document is altered. Where this document cites **G-F3-2 / M2.0_th15** as `PASS` — lines 51 and 89 (the `G-F3-2/M2.0_th15` | `PASS` | `CONVERGING` row, and the `0.0337` | `169.06 %` | `PASS` row) — that citation reads, quoted and struck: ~~`G-F3-2 / M2.0_th15 — PASS, CONVERGING, p = 0.034, GCI 169.06 %`~~ → **`NOT A RESULT` — triple `DEGENERATE`, |p| = 0.034 < P_MIN = 0.05** (`scripts/roache_triple.py`, c525c247). Re-graded under Sanaa's own authorisation ("OK for this", boarded at `e94a19ad`); the re-grade, both triples' values and the verbatim instrument output are in `verification/runs/F3_runs/conversion_2026-08-24/RESULTS.md`, ADDENDUM 2026-08-26 (re-grade). The lines cited above are not rewritten in place.

@@ -98,3 +98,51 @@ Stamped `2026-08-26T16:05:15Z` (`date -u`). Appended at the foot; lines whose nu
 (d) The F3 successor re-ran this triple on 2026-08-26 and graded G-F3S-2 `NOT A RESULT` (rule 5 limb (1): coarse and medium NOT_PLATEAUED; the triple OSCILLATORY) — see `verification/runs/F3_runs/successor_triple_2026-08-26/RESULTS.md:18`.
 
 (e) RULING: the row is **HELD** — its `PASS` may not be cited. The printed verdict at line 14 is NOT rewritten, because re-grading a frozen record is reserved to Sanaa (VERIFICATION_CHARTER; CLAUDE.md rule 2). It is placed on her desk with the recommendation that the successor's `NOT A RESULT` supersedes it. Decided `[lab-attributed]` under her silence-is-approval directive, as to the HOLD only.
+
+## ADDENDUM 2026-08-26 — G-F3-2 / M2.0_th15 RE-GRADED under the P_MIN = 0.05 DEGENERATE floor (Sanaa: 'OK for this', e94a19ad)
+
+Stamped `2026-08-26T17:31:34Z` (`date -u`). Appended at the foot, after the HELD addendum above (line 88); **lines whose number changed above this section: 0**. Authority: Sanaa's own words **"OK for this"**, boarded by the chief at `e94a19adde18d49c38d447b55c1d0511f733e5da` (2026-08-26 17:26:59Z, `docs/LAB_STATE.md:1223`), verified by this lane with `git show e94a19ad | grep 'OK for this'` before any file was touched. Executed by a cfd lab-lane at zero compute.
+
+**(a) The original row (line 14), quoted verbatim and struck — never rewritten in place:**
+
+~~`| G-F3-2 wedge shock angle / M2.0_th15 | **PASS** | −1.435 % | ±2.0 % | CONVERGING, p = 0.034, **GCI 169.06 %** |`~~
+
+**(b) The re-graded row:**
+
+| gate / pair | verdict | deviation | band | triple |
+| --- | --- | --- | --- | --- |
+| G-F3-2 wedge shock angle / M2.0_th15 | **NOT A RESULT** | −1.435 % | ±2.0 % | **DEGENERATE**, \|p\| = 0.034 < P_MIN = 0.05 (`scripts/roache_triple.py`, c525c247) — no GCI quoted |
+
+Fine value 44.692792746510406° against exact 45.343616761855984° (deviation −1.4353 %, inside ±2.0 %) — the band verdict is unchanged; rule 5 turns it to NOT A RESULT because the triple is not CONVERGING. The gate can only turn a PASS into NOT A RESULT, never the reverse.
+
+**(c) Both triples for M2.0_th15, values read from `F3_CONVERSION_GRADED.json` in this directory (`gates/*/M2.0_th15/triple/triple_coarse_medium_fine`):**
+
+| row | coarse | medium | fine | increments c→m, m→f | state under P_MIN = 0.05 | observed order |
+|---|---|---|---|---|---|---|
+| G-F3-2 wedge shock angle β (deg) | 47.58767882153372 | 46.12330850878531 | 44.692792746510406 | 1.4643703127484144, 1.4305157622749007 (R = 0.9769) | **DEGENERATE** | 0.033745037001710325 |
+| G-F3-1 wedge surface pressure p2/p1 | 2.294626109090909 | 2.18680091969697 | 2.196237603787879 | 0.10782518939393881, −0.009436684090908809 (R = −0.0875) | **OSCILLATORY** (unchanged from line 11) | none — no order exists for an OSCILLATORY triple |
+
+No GCI is printed beside either row: neither state is CONVERGING.
+
+**(d) How the re-grade was computed — NOT by the frozen `grade_f3.py` (untouched, blob `6fea2e1d` at `48b7812a`), but by the shared instrument's own function on the three recorded values, in a scratch invocation at `2026-08-26T17:31:34Z` against `scripts/roache_triple.py` blob `78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8` (== the blob at c525c247, == HEAD, == disk):**
+
+    python3 -c "import sys; sys.path.insert(0,'scripts'); import roache_triple as rt
+    print('roache_triple.P_MIN =', rt.P_MIN)
+    print('G-F3-2/M2.0_th15:', rt.gci_equal(47.58767882153372, 46.12330850878531, 44.692792746510406, 2.0, 2))
+    print('G-F3-1/M2.0_th15:', rt.gci_equal(2.294626109090909, 2.18680091969697, 2.196237603787879, 2.0, 2))"
+
+Printed, verbatim:
+
+    roache_triple.P_MIN = 0.05
+    G-F3-2/M2.0_th15: {'dim': 2, 'r21': 2.0, 'r32': 2.0, 'e21': 1.4305157622749007, 'e32': 1.4643703127484144, 'fs': 1.25, 'values': (47.58767882153372, 46.12330850878531, 44.692792746510406), 'form': 'equal', 'state': 'DEGENERATE', 'order': 0.033745037001710325}
+    G-F3-1/M2.0_th15: {'dim': 2, 'r21': 2.0, 'r32': 2.0, 'e21': -0.009436684090908809, 'e32': 0.10782518939393881, 'fs': 1.25, 'values': (2.294626109090909, 2.18680091969697, 2.196237603787879), 'form': 'equal', 'state': 'OSCILLATORY', 'ratio': -11.426173468900622}
+
+(`r = 2.0` is the record's `refinement_ratio_h`; `dim = 2` is the dimension the frozen grader used for its `p_dim2 = 0.03374503700171001`, which the instrument reproduces to the printed digits. `gci_equal` returns a state and no reason string; the reason is the instrument's rule at `roache_triple.py:262`: `if abs(p) < P_MIN: return dict(common, state="DEGENERATE", order=p)`.)
+
+**(e) Corroborating row — the successor re-ran this triple:** `verification/runs/F3_runs/successor_triple_2026-08-26/RESULTS.md:18` — `G-F3S-2 wedge shock angle | NOT A RESULT | 32.2531525441 | 31.8505922313 | +1.2639 % | ±2.0 % | band PASS | OSCILLATORY | rule 5 limb (1) — coarse and medium NOT_PLATEAUED`; calibration row C-112. Two independent gradings of the wedge shock-angle triple, under two instruments, now agree that the grid gives the value no support.
+
+**(f) The JSON.** `F3_CONVERSION_GRADED.json` → `gates/G-F3-2_wedge_shock_angle/M2.0_th15` keeps its original `"verdict": "PASS"` field **byte-untouched**; a sibling key `"regrade_2026-08-26"` is added beside it carrying verdict, state, p, floor, authority `e94a19ad` and the path of this addendum. Nothing else in the file changes.
+
+**(g) Citing rows at HEAD, each given a dated quote-and-strike note pointing here (appended at the foot of each record under rule 6, lines above unchanged):** `verification/campaign/CFD_STEP_A_RULING_2026-08-25.md` lines 51 and 89; `verification/campaign/F3_SUCCESSOR_TRIPLE_PREREGISTRATION.md` line 350; `verification/runs/F3_runs/conversion_2026-08-24/STEP_A_ABSENT_NOTE_2026-08-25.md` lines 90 and 106. **Not touched, and why:** `docs/COST_CALIBRATION.md` C-66 names `wedge/M2.0_th15` only as a cost line (1.60 / 1.64 ratios), never as a PASS — nothing to strike; `docs/LAB_STATE.md:7613, 7956–7969` — the chief's handoff file, left for the chief; `docs/PHASE2_MOVE_MAP.tsv`, `LANE_REPORT_CONVERSION_BATCH_2026-08-25.md:155`, `rerun_f3.py`, `grade_f3.py`, `instrument.py`, the run ledgers and `result.json` files — paths and inputs, no verdict. **The 2026-07-28 legacy record** (`verification/campaign/F3_supersonic_exact_theory.md:94,108`, `.json` `M2.0_th15.0`) reports a wedge-β `PASS (method-sensitive, documented)` on a **different triple** (1,800 / 7,200 / 28,800 cells, β 47.273 / — / 44.847) from the 2026-07-28 runs, not the conversion triple this authority covers; **not struck**, reported to the supervisor.
+
+**Alters no band, no threshold, no cap. Nothing is sent (rule 7).**

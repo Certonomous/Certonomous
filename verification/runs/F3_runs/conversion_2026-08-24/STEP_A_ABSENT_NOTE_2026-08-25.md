@@ -166,3 +166,9 @@ lab knew and wrote it down beside them.
 rule 12's estimate-versus-actual comparison attaches to a process completion
 with a solver spend. This is a records item with no solver run, and **saying so
 is more honest than filing a row of zeroes.**
+
+---
+
+## ADDENDUM 2026-08-26 — quote-and-strike: G-F3-2 / M2.0_th15 is no longer `PASS`
+
+Stamped `2026-08-26T17:31:34Z`. Appended at the foot; **lines whose number changed above this section: 0**; no gate, band, threshold, cap or label of this document is altered. Where this document cites **G-F3-2 / M2.0_th15** as `PASS` — line 90 (the `G-F3-2 wedge shock angle / M2.0_th15` | `PASS` | `CONVERGING` | `ABSENT` | YES row) and line 106 ("graded, published, live PASS") — that citation reads, quoted and struck: ~~`G-F3-2 / M2.0_th15 — PASS, CONVERGING, p = 0.034, GCI 169.06 %`~~ → **`NOT A RESULT` — triple `DEGENERATE`, |p| = 0.034 < P_MIN = 0.05** (`scripts/roache_triple.py`, c525c247). Re-graded under Sanaa's own authorisation ("OK for this", boarded at `e94a19ad`); the re-grade, both triples' values and the verbatim instrument output are in `verification/runs/F3_runs/conversion_2026-08-24/RESULTS.md`, ADDENDUM 2026-08-26 (re-grade). The lines cited above are not rewritten in place.
