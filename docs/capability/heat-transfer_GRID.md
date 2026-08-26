@@ -156,3 +156,28 @@ Chief, ~21:25Z 2026-08-26: *1-D cases on a one-cell-wide mesh enter the 2D row a
 - **Untouched by this ruling:** every other cell.
 
 **Census after R-1D: unchanged — CAN DO 0 · CAN DO, CAVEATS 5 · CAN NOT DO (attempted) 5 · not attempted 26.**
+
+---
+
+## Heat-transfer lane note 2026-08-26 `[lab-attributed]` — appended at the foot, **lines whose number changed above this section: 0** (verified by byte-comparing everything above against `git show HEAD:docs/capability/heat-transfer_GRID.md`)
+
+### HT-7 — forced conv · laminar · axisym: **the Pe-sweep already ran, on BOTH thermal boundary conditions, and HT-3's fix line is struck**
+
+**HT-3 above says of this cell:** *"That arm is **not yet registered**; the cell stays CAN DO, CAVEATS and its fix line is: ~~register the Pe-sweep diagnostic arm (T1c-L0b); no band moves.~~"*
+
+**STRUCK. The premise is false at HEAD.** The Péclet-scaling arm was registered in advance and **has already been executed and analysed — twice, once on each thermal boundary condition** — and a lane dispatched to register it as `T1c-L0b` correctly refused under `CLAUDE.md` rule 2, because a pre-registration written on top of results already on disk is one in name only. Both artefact sets are in HEAD and were read before this note was written.
+
+| arm | artefact | cases | fitted log–log slope of the `Nu` excess against `Pe` | registered `Re` = 25 point | measured |
+|---|---|---|---|---:|---:|
+| constant `q″` | `verification/runs/T-family/T1_runs/pesweep.json`, `analyse_pesweep.py` | `D_Re25`, `D_Re50`, `L_q_f`, `D_Re200`; `D_Re400` **discarded by that file's own registered development check** | **+0.00170 ± 0.00106**, `R²` 0.563 — **1 894 standard errors from −2** | +1.197 % | **+0.03808 %** |
+| constant `Ts` | `verification/runs/T-family/T1_runs/dts.json`, `analyse_dts.py` | **twelve completed cases**: three-level `c/m/f` ladders at `Re` 25, 50, 200 plus the existing `L_Ts` `Re` = 100 ladder | **−0.9782 ± 0.1863** at `f` (`R²` 0.932, **5.485 σ** from −2); **−0.8359 ± 0.1763** at `h → 0` (`R²` 0.918, **6.603 σ**) | +1.78 % | **+0.5068 %** at `h → 0` (frozen sign; **+0.5034 %** under the 2026-08-24 Richardson-sign addendum) |
+
+**What the two slopes refute, against the falsifiers registered before either arm was built** (`DIAGNOSTIC_PREDICTION.md:194-200`, `:249`, `:417`):
+
+- **`1/Pe²` axial conduction is refuted on both arms.** The `q″` slope is **indistinguishable from zero**, which is that file's registered *"Slope ≈ 0 — the excess does not depend on Péclet at all, so axial conduction is refuted and the cause remains unidentified"*. The constant-`Ts` slope is **≈ −1 and significantly different from −2**, which is its registered *"Slope significantly different from −2 — some other Péclet-dependent mechanism, and `1/Pe²` is the wrong form; the fitted slope is then the finding"*.
+- **The two arms disagree with each other**, and that is itself the information: the excess is **Péclet-dependent under a fixed wall temperature and Péclet-independent under a fixed wall flux**. A mechanism that acts only when the wall temperature is imposed is a **boundary-condition** effect, not a bulk one — which is why the successor below moves the 300 K / 310 K corner rather than the Péclet number.
+- **Nothing here moves a verdict.** The arm is diagnostic and ungraded by its own registration, the `L0` constant-`Ts` `GATE FAIL` (0.0865 % against a 0.0301 % band) stands exactly as `T1c_RESULTS.md:14` records it, and **no band is widened, narrowed or reinterpreted.**
+
+**The cell's fix line, replacing HT-3's:** ~~register the Pe-sweep diagnostic arm (T1c-L0b); no band moves~~ → **run the UNHEATED-UPSTREAM arm** — `D_Ts_Re25_U_{c,m,f}` and `L_Ts_U_{c,m,f}`, the parabolic inlet moved to `x = −10 D` with the wall adiabatic for `−10 D < x < 0` and 310 K for `x > 0`, so the 300 K / 310 K corner does not exist. Registered in advance at `DIAGNOSTIC_PREDICTION.md:786`, **frozen `6a0d7f45d5bc19a3fa06fffac4a20c2a3ecbf82c`** (2026-08-21); **built, instrumented and queued 2026-08-26** under the pre-first-compute build/run amendment at **`994daa49905f7826d8dc5bb47f28e574c8588f70`**, six entries dropped at **`3fafc67ac7132fbe27951e81164ad565ae71ad31`** (`verification/queue/heat-transfer/`, 234.122 core-min POINT, cap 735, validator `ACCEPTED` rc 0 on all six). **No band moves.**
+
+**The cell's verdict is UNCHANGED — `CAN DO, CAVEATS`, on T1c — and the 36-cell census is UNCHANGED.** This note strikes a stale fix line and records what two completed diagnostic arms measured; it enters no new evidence in any cell, and no rung is a capability until it has reported.
