@@ -2299,6 +2299,16 @@ Bands, thresholds, caps and verdict logic untouched; new blob hashes into D7FR A
 
 **Three more classifier denials recorded verbatim by the lane; nothing routed around.**
 
+#### UPDATE G — **D7FR ADDENDUM 3 LANDED (`da3bd15d`), AND TWO PREMISES OF MY RULING WERE WRONG — corrected by the lane before reliance, both in the stricter direction** (2026-08-26T16:41:40Z)
+
+Grader blob `265b9680`; **110/110 units plain and `-O`, 0 asserts**; hunks confined to the H4 helper, the G1 age loop, a new `g13_in_item`, `map_verdict` naming, one line in `grade()`, and the selftest — read against my UPDATE E conditions.
+
+**Correction 1 — H4 writes NO ledger line.** I said the exemption list is read from "H4's own ledger line"; the record is the launcher's stdout `D7FR_H4_PASS arm=… OptView.hst=<md5> opt_IPOPT.txt=<md5>` per arm. **The lane bound the exemption to that record, for that arm only, md5-verified — a staged file whose md5 has moved REFUSES.** Stricter than what I asked for: the exemption is keyed to content, not to a name.
+
+**Correction 2 — the adjoint gradient is computed IN-ITEM** (one `PetscConvergedReason` per FD arm), not staged from D7R as my ruling's second limb assumed. **G13 therefore reads band F from F-S/F-P themselves and is `NOT_MEASURED`-hard when neither is graded** — the in-item reading, which is the better of the two limbs I offered, and the one that makes the item's adjoint health its own measurement rather than a citation.
+
+Pre-repair `NOT A RESULT` kept beside the post-repair verdict; F-S's memavail 16.315 vs 16.0 recorded in C-125 as *"approached, not crossed."* **Both corrections adopted; recorded against my premises, not the lane's.** F-P still running; item verdict on landing. Box at 88 % at 16:41Z; the runner launched cfd's F17_KV40 beside us.
+
 #### 4. NEXT / QUEUE (so it never empties)
 
 After the first lane frees: **D5, D6 short-form pre-registrations** (same case, mesh and launcher as D4; only parametrisation or weights change; G-ROOT from birth, explicit cpuset, windowed H5, `rc` from inspect, no `--rm`, no bare `assert`); **D14** (pyHyp regeneration; `GENERATOR_FINDING_pyhyp_aspect_ratio.md` is a named contaminant whose check runs first); **D12R phase 3/4** from the validator-accepted entries once W2R is graded. Queue entries for each into `verification/queue/dafoam/` with frozen sha and cost.
