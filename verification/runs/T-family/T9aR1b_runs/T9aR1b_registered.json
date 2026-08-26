@@ -1,0 +1,165 @@
+{
+  "rung": "T9a-R1b",
+  "title": "one-row successor of T9a: R1 (interface-1 temperature) with the harmonic interface scheme",
+  "parent": {
+    "rung": "T9a",
+    "freeze_sha": "0cbaea26573924a27d489a8472fad233e198ca6d",
+    "result": "GATE FAIL on R1, 2.41 mK against a 0.92 mK GCI band (T9a_RESULTS.md section 1.1); cause named there: arithmetic face conductivity at the material interfaces under Gauss linear"
+  },
+  "capability_grid_cell": "conduction x (n/a) x 1D steady, layered wall (docs/capability/heat-transfer_GRID.md)",
+  "solver": "laplacianFoam",
+  "dimensionality": 1,
+  "ranks": 1,
+  "what_moves": "system/fvSchemes laplacianSchemes: Gauss linear corrected -> Gauss harmonic corrected; NOTHING else (build_t9aR1b.py refuses any other diff against the parent's blobs at the freeze sha)",
+  "wall": {
+    "layers": [
+      {
+        "L": 0.05,
+        "k": 0.8
+      },
+      {
+        "L": 0.1,
+        "k": 0.04
+      },
+      {
+        "L": 0.02,
+        "k": 16.0
+      }
+    ],
+    "T_hot": 350.0,
+    "T_cold": 300.0,
+    "interfaces_x": [
+      0.05,
+      0.15
+    ],
+    "T_i1_registered_T9a": 348.781082,
+    "q_registered_T9a": 19.502682
+  },
+  "cases": {
+    "W1b_c": {
+      "level": "c",
+      "parent_case": "W_c",
+      "cells_per_layer": [
+        10,
+        20,
+        5
+      ],
+      "cells": 35,
+      "endTime": 1000,
+      "deltaT": 1,
+      "cap_core_min": 1,
+      "timeout_s": 60,
+      "point_core_min": 0.0015,
+      "point_source": "T9a MEASURED: STATUS.W_c wall 0.09 s, STATUS.W_f wall 0.09 s (2026-08-20), serial; scratch harmonic runs 2026-08-26 W_c 0.12 s, W_f 0.11 s wall"
+    },
+    "W1b_m": {
+      "level": "m",
+      "parent_case": "W_m",
+      "cells_per_layer": [
+        16,
+        32,
+        8
+      ],
+      "cells": 56,
+      "endTime": 1000,
+      "deltaT": 1,
+      "cap_core_min": 1,
+      "timeout_s": 60,
+      "point_core_min": 0.0015,
+      "point_source": "T9a MEASURED: STATUS.W_c wall 0.09 s, STATUS.W_f wall 0.09 s (2026-08-20), serial; scratch harmonic runs 2026-08-26 W_c 0.12 s, W_f 0.11 s wall"
+    },
+    "W1b_f": {
+      "level": "f",
+      "parent_case": "W_f",
+      "cells_per_layer": [
+        26,
+        51,
+        13
+      ],
+      "cells": 90,
+      "endTime": 1000,
+      "deltaT": 1,
+      "cap_core_min": 1,
+      "timeout_s": 60,
+      "point_core_min": 0.0015,
+      "point_source": "T9a MEASURED: STATUS.W_c wall 0.09 s, STATUS.W_f wall 0.09 s (2026-08-20), serial; scratch harmonic runs 2026-08-26 W_c 0.12 s, W_f 0.11 s wall"
+    }
+  },
+  "dim": 1,
+  "factor_of_safety": 1.25,
+  "roache_floors": {
+    "source": "scripts/roache_triple.py, imported by name (MESH_STANDARD.md section 10.5); the comparator defines neither and REFUSES if these differ from the import",
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05
+  },
+  "graded_rows": {
+    "R1": {
+      "quantity": "wall interface-1 temperature T_i1 [K], conductance-weighted mean of the two cells adjacent to the interface face (the parent's reader form)",
+      "reference": 348.78108239883,
+      "band_rule": "T9a's registered row rule, unchanged: CONVERGING -> band = the triple's own GCI (Fs 1.25, unequal ratios from cell counts, dim 1); EXACT -> T9a's 'zero band grades only a literally exact value' made operational as the absolute floor below; other states NOT A RESULT",
+      "exact_floor_K": 1e-06,
+      "floor_ground": "a piecewise-linear exact solution is in the null space of the harmonic scheme's truncation error, so the triple is predicted EXACT; scratch (2026-08-26, outside the repository) measured |T_i1 - exact| = 5.7e-14 K at c and 2.9e-12 K at f; the floor 1e-6 K is ~1000x the round-off and 900x TIGHTER than T9a's R1 band of 0.92 mK -- no widening",
+      "exact_roundoff_K": 1e-09,
+      "roundoff_ground": "a triple whose level differences |e21|, |e32| are both below 1e-9 K is classified EXACT (T9a's byte-identical EXACT made operational: the harmonic scheme reproduces the exact solution to ~1e-12 K, not to the bit); above it the imported roache_triple classifier rules"
+    }
+  },
+  "reported_rows": {
+    "R0": "hot-face flux q, relative deviation from the series-resistance q; REPORTED, not graded (T9a's R0 PASSED at 1.8 percent under linear; predicted exact under harmonic)"
+  },
+  "controls": {
+    "C_CONV": {
+      "what": "gate (1): End line and the last two written checkpoints (900, 1000) agree in T to the floor (the parent's checkpoint form, L-140/L-141)",
+      "floor": 1e-09
+    },
+    "C_MAP": {
+      "what": "every cell's DT equals the registered layer conductivity for its centre position (the parent's C_MAP)"
+    },
+    "C_SCHEME": {
+      "what": "CASE.txt and system/fvSchemes on disk carry the harmonic scheme; the parent's linear scheme is REFUSED"
+    },
+    "C_REF": {
+      "what": "the referent derived from the series-resistance law is cross-checked to T9a's registered T_i1 and q to 1e-6; a 1 mK planted error is REFUSED (selftest)"
+    },
+    "C_PZ": {
+      "what": "planted-zero control (rule 3): one-cell plant in the cell adjacent to interface 1 (the point reader's own station), both arms, measured ladder, refuses a blind/noisy reader or a read below 0.1 x plant"
+    }
+  },
+  "predictions": {
+    "P1": "the R1 triple is EXACT to round-off: |e21|, |e32| < 1e-9 K",
+    "P2": "|T_i1 - 348.781082399| < 1e-9 K on every level -> PASS by the floor",
+    "P3": "R0 (reported) q within 1e-9 relative of 19.502682 on every level (the 1.8 percent linear-scheme excess vanishes)",
+    "P4": "if instead the triple is CONVERGING, p in [1.5, 2.5] and R1 inside its GCI band"
+  },
+  "cost": {
+    "point_total_core_min": 0.0045,
+    "cap_total_core_min": 3,
+    "usd_per_core_h": 0.0513,
+    "usd_basis": "derived, not measured, reported-by-owner rate (COMPUTE_BUDGET_CHARTER section 5)",
+    "rate_source": "parent T9a MEASURED wall 0.09 s per level (STATUS.W_c/W_f); scratch harmonic 0.11-0.12 s"
+  },
+  "completion": {
+    "needed_fields": [
+      "T",
+      "DT"
+    ],
+    "infrastructure_fields": [
+      "wall_s",
+      "timeout_s",
+      "ranks",
+      "core_min",
+      "capped",
+      "checkmesh_rc",
+      "solver",
+      "solver_path",
+      "note",
+      "started_utc",
+      "ended_utc"
+    ],
+    "note": "capped is an INFRASTRUCTURE field and never a completion conjunct (L-342)"
+  },
+  "launcher": {
+    "file": "run_one_t9aR1b.sh",
+    "guard": "lineage-aware foreign-process scan (9fa66065), inherited from run_one_t14.sh (freeze 5a870e54) with the field set and rung name changed",
+    "queue_mode": "--no-detach"
+  }
+}

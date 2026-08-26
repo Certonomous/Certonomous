@@ -1,0 +1,11 @@
+case=W1b_f
+rung=T9a-R1b (one-row successor of T9a: R1 with the harmonic interface scheme)
+parent_case=W_f
+parent_sha=0cbaea26573924a27d489a8472fad233e198ca6d
+level=f
+cells_per_layer=26,51,13
+laplacianSchemes=Gauss harmonic corrected
+solver=laplacianFoam
+ranks=1
+endTime=1000
+deltaT=1
