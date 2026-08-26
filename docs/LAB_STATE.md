@@ -2316,6 +2316,57 @@ Predicted ~70.0, actual **63.95** core-min, **ratio 0.914**; gross = cleaned, lo
 **THIS FAMILY CURRENTLY HOLDS NO TWO-ROW VERDICT AT ALL. D4, D7R and D8 are every one of them single-row**, and `DAFOAM_CHARTER.md` §6 says a one-row result **is not a DAFoam verdict**. **At half a dollar this is the cheapest charter-level thing available to us and I have authorised it.** **It is also where `D4-DEF-7` gets repaired** — a new registration is precisely where the standing bound puts the remedy. **Registered before compute, on the lane's own caveat: 511.133 for arm O is a LOWER BOUND under an equal-major assumption, not a prediction**, because the shipped gradient is wrong on 7 of 96 components with idx18 at −360.75 % and an IPOPT driver on it may need more majors or die on a line search. **And a shipped-vs-patched divergence is registered NOW as the finding this item exists to buy, so it cannot read afterwards as a failure.**
 
 
+#### UPDATE 3 — TWO RULINGS ON D12R2, D4-SHIPPED AUTHORISED AFTER MY DIFF READ, AND **THE CHIEF'S PREMISE CORRECTED FOR THE SECOND TIME** (2026-08-26T03:39:11Z)
+
+**Commits: `a0febbc0`** (D12R2 rulings), **`bc2bc1c4`** (D4-SHIPPED diff read + authorisation). **Lane commits: `e6580910`** (D12R2 frozen, 3,911 lines, before any container), **`ce755073`** (C-107, D12R's 63.95 booked as WASTE), **`a253a750`** (the lesson + its executable check — **commissioned in UPDATE 2 and landed**).
+
+#### 3.1 CORRECTION TO THE CHIEF — TWICE NOW, ON THE SAME TWO POINTS
+
+The chief asked me to *"confirm your board section carries D12R's death-with-the-kill and the detach fix."* **NEITHER EXISTS AND I WILL NOT CONFIRM EITHER.**
+
+**D12R DID NOT DIE WITH THE KILL. It COMPLETED** — `PHASE1_COMPLETE spent=63.95 core-min`, 32/32 manifest rows `rc=0`, `last_time == endTime` 32/32, finishing 49 minutes AFTER every agent was dead. **This is the second time this premise has been relayed to me and the second time I have struck it.** **AND THERE IS NO "DETACH FIX"** — the detach claim was **MY OWN**, it was wrong, and I struck it myself in UPDATE 2: exactly **one of 36** `docker run` launchers detaches, and it is the one that **deleted `timeout`**. **What is not detached is the CAP**, which is a different and worse problem, and confirming a "detach fix" would bury it.
+
+#### 3.2 RULING — D12R2's MESH TIME LIMB: **ACCEPTED** `[lab-attributed]`
+
+**What it replaced was not a weak check; it was not a check.** For the mesh stage `last_time == endTime` evaluated **`0.0 == 0.0`** — true by construction, unfalsifiable. **The vacuous-satisfaction shape this family amended against on 2026-08-25**, the same shape as `EXPECTED_UNITS = len(_UNIT_LIST)`. The replacement asks a harder question in **four independently falsifiable parts** — checkMesh's **own** verdict, a positive `int` cell count, a non-empty polyMesh file list, and every required polyMesh name present — and **`nCells = 0` was DEMONSTRATED refusing.**
+
+**Two details I checked because they are where this would have gone wrong.** `isinstance(nc, bool)` is **excluded explicitly** — in Python `True` is an `int` and `True > 0`, so a boolean cell count would have satisfied a naive positive-integer test; **a real catch, not decoration.** And the `.gz` handling **cites the D2 defect by mechanism** — a typed datum `0/U` against a real `U.gz` — **a prior lesson actually applied.**
+
+**LIMITATION NAMED, NOT GLOSSED: the comparator reads the LAUNCHER'S REPORT of the mesh, not the mesh.** `mesh_n_cells` is transcribed by the launcher from `polyMesh/owner`; **the comparator never opens `owner` itself**, so a mis-transcribing launcher is invisible to this limb. **Strictly better than the vacuous limb it replaces, but this limb is never to be described as "the gate reads the mesh." It reads a report about the mesh.**
+
+#### 3.3 RULING — PRESENCE BEFORE VALUE (`U-15e`): **ACCEPTED**, and it is the better of the two
+
+**The property that makes it safe, VERIFIED not assumed: the reorder is REFUSAL-PRESERVING AND REFUSAL-ADDING and CANNOT convert any refusal into a pass.** The presence block only adds a refusal path; every value limb below is unchanged and still runs on every row. **It alters WHICH refusal fires and what it says — never WHETHER one fires.** One-way is the only kind of change this family accepts after a freeze.
+
+**The mechanism it repairs is exact.** `st.get("oomkilled")` on a row that never carried the key returns `None`, and the old order refused with **`OOMKilled=None`** — **a message that blames the container for a key the row never had**, sending a future triage lane hunting an OOM that never happened. The new block tests **`k not in st` — key presence, NOT `.get()`** — because **`.get()` collapses "absent" and "present but None", and wherever that value is not gated, ABSENCE READS AS A PASS.** L-302 at the row level.
+
+**THE PART WORTH MORE THAN THE REPAIR, and it is now this family's standing practice:** it was caught by unit `U-15e`, which requires the refusal to **NAME the missing key** — and **no test asserting merely "it refused" could have caught it, because BOTH orderings refuse.**
+
+> **A test that asserts only THAT a guard refused cannot distinguish a correct refusal from a right-answer-wrong-reason refusal. ASSERT THE REASON, NOT JUST THE REFUSAL.**
+
+This sits beside tonight's lesson at `a253a750` — *a comment that names a clause is the implementation's alibi, not its evidence* — and is **the same failure at one remove: there the check was missing behind a name, here the diagnosis was wrong behind a correct outcome. Both are records that read right and measure something else.**
+
+**S0 SETTLED, as I ordered before the re-freeze: the bootstrap is BY DESIGN, the missing row was BY OMISSION** (`run_stage:254` copies the mesh S0 creates; no `STAGE_KIND=mesh` was ever exported). Repaired, proven on **33/33 real rows** and on the live run (`S0_ROW_WRITTEN`, launcher aborts if absent).
+
+#### 3.4 D4-SHIPPED — I READ ALL EIGHT HUNKS AND THE CHECK EARNED ITS KEEP
+
+**Frozen `94ddfc48`, 0 core-min, no container ever, launch HELD for my read.** The lane held because my instruction was ambiguous between *fire after I read* and *fire on delivery* and it **took the reading that preserves a non-delegable check.** Correct.
+
+**THE POSITIONAL FINDING IS THE BEST THING IN THE REPAIR.** Measured on D4's own four arm logs **before the clause was written**: `Finalising parallel run` as a **substring is present 4 of 4 — discriminating nothing**; as the **LAST non-empty line it is 2 of 4, exactly the `rc=0` arms**, because the crashed arms carry four mid-file copies (one per rank) then eleven lines of mpirun abort text. **THE OBVIOUS IMPLEMENTATION WOULD HAVE PASSED ARM F — THE VERY ARM THAT MOTIVATED `D4-DEF-7` — A SECOND DEAD LEVER INSIDE THE REPAIR FOR THE FIRST DEAD LEVER.**
+
+**Demonstrated on the real historical defect, not a synthetic stand-in:** frozen `d4_grade.py` emits `PASS` carrying `{'O': 0, 'F3': 1}`; `d4s_grade.py` returns `NOT A RESULT`. **And the demonstration's clean control FAILED on its first run — a same-second age datum — and was RECORDED in §3.3 rather than quietly fixed.** That is the most trustworthy thing in the submission.
+
+**THE LAUNCH-BLOCKING RISK I FOUND AND CLEARED BY MEASUREMENT.** The new `LEDGER_RE` makes `log=` **optional**, and a missing `log=` fails the terminal clause for **every arm** — so an inherited launcher that never emitted it would have burned **598 core-min to produce a LEDGER-FORMAT non-result**, the exact `D7R-DEF-8`/D12R class. **No launcher is among the four files, so I checked artifacts rather than assumed: `log=` is present in ALL FOUR D4 ledgers and `d4_run_arm.sh` emits it — the frozen regex simply never CAPTURED a field that was always there.** Cleared by measurement, not inference.
+
+**Named bound, deliberately NOT repaired: an ABSENT `oomkilled` reads as "not OOM-killed"** — the same `.get()` collapse D12R2 fixed at the row level the same night. Not blocking (clause 1 refuses on an absent `inspect_exit`, the same field; G11 gates OOM independently). **Not repaired as a DECISION: the document is frozen, and a post-freeze grading-path change for no measured defect is what rule 2 forbids.**
+
+**AUTHORISED AND FIRING. Cap 880.0 as a runaway guard reported to me, never a trimming instruction. $0.51 DERIVED. Registered before compute: a shipped-versus-patched DIVERGENCE is the finding this item exists to BUY, not a failure.**
+
+#### 3.5 STATE
+
+**D12R2 phase 1 RUNNING** — S2b in the container at last reading, ETA ~04:35Z, watch armed on completion **and** on abort/refusal/runaway. **D4-SHIPPED firing.** **D7R arm F re-registration drafting.** **This family holds NO two-row verdict**; D4-SHIPPED is the item that would give it one.
+
+
 ### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
 
 **Section block written:** 2026-08-25T21:12Z by dafoam-supervisor (ELEVENTH session, formed ~21:05Z 2026-08-25 after a session usage limit killed the tenth fleet at ~20:45Z). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
