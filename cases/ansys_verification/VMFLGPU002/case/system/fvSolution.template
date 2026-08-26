@@ -1,0 +1,106 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU002 -- laminar flow in a 90 deg planar dividing tee-junction, with
+  EVERY linear solve routed through petsc4Foam.
+
+  __MATTYPE__ / __VECTYPE__ are substituted by run_vmflgpu002.sh, exactly as
+  VMFLGPU001 and docs/ansys_verification/gpu/smoke_case do:
+
+      GPU arm            : aijcusparse / cuda
+      forced-CPU control : aij        / standard
+
+  BOTH ARMS ARE OTHERWISE BYTE-IDENTICAL.  That identity is the entire basis on
+  which limb B (|split_GPU - split_CPU|/|split_CPU|) is a statement about WHERE
+  the linear algebra ran and about nothing else: same mesh, same schemes, same
+  relaxation, same outer loop, same tolerances, same outer iteration count.
+
+  THE OUTER NUMERICS ARE THE CPU PARENT'S, CHARACTER FOR CHARACTER.  VMFL010's
+  frozen system/fvSolution carries `consistent yes`, two non-orthogonal
+  correctors and relaxation 0.9/0.9, and it is what the parent's MEASURED
+  convergence points (729 / 1125 / 1575 SIMPLE iterations at L1/L2/L3,
+  VMFL010/RESULTS.md) were obtained under.  Those measurements are this case's
+  endTime basis and its cost basis, so changing the outer loop would silently
+  invalidate both.  ONLY the linear solvers change -- and the linear solver IS
+  the object under verification.
+
+  What changed, and why:
+    p : GAMG        -> petsc, ksp_type cg    + pc_type jacobi  (symmetric)
+    U : smoothSolver-> petsc, ksp_type bcgs  + pc_type jacobi  (asymmetric)
+  The OUTER tolerances (1e-9) and relTol (p 0.01, U 0.1) are the parent's own
+  values, unchanged; limb B's 1e-4 bound is derived from them in
+  PREREGISTRATION.md section 6.2.
+
+  NO residualControl.  The parent stopped on residualControl, which makes "last
+  time == endTime" meaningless; here the run ALWAYS reaches endTime, so rule 4's
+  "last time == endTime" and "ExecutionTime count == endTime" clauses bite, and
+  BOTH ARMS TAKE THE SAME NUMBER OF OUTER ITERATIONS.  Iterative convergence is
+  judged AFTER the run, by the comparator, from the residual history and the
+  flow-split plateau.
+
+  NO pRefCell / pRefValue: both outlets carry fixedValue p, so the pressure
+  level is set by the boundary conditions and a reference cell would be a second
+  specification of an already-determined datum.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          petsc;
+        petsc
+        {
+            options
+            {
+                ksp_type        cg;
+                pc_type         jacobi;
+                mat_type        __MATTYPE__;
+                vec_type        __VECTYPE__;
+            }
+            caching { matrix { update always; } preconditioner { update always; } }
+        }
+        tolerance       1e-9;
+        relTol          0.01;
+    }
+
+    U
+    {
+        solver          petsc;
+        petsc
+        {
+            options
+            {
+                ksp_type        bcgs;
+                pc_type         jacobi;
+                mat_type        __MATTYPE__;
+                vec_type        __VECTYPE__;
+            }
+            caching { matrix { update always; } preconditioner { update always; } }
+        }
+        tolerance       1e-9;
+        relTol          0.1;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 2;
+    consistent      yes;
+}
+
+relaxationFactors
+{
+    equations
+    {
+        U               0.9;
+        p               0.9;
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,112 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU002 -- laminar flow in a 90 deg planar dividing tee-junction.
+  Steady laminar, simpleFoam + petsc4Foam.  Run to a FIXED iteration count:
+  there is NO residualControl, so the run always ends at endTime and rule 4's
+  "last time == endTime" and "ExecutionTime count == endTime" clauses are
+  meaningful.  Iterative convergence is judged AFTER the run by the comparator.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+libs            (petscFoam);   // the petsc4Foam external linear-solver module
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+
+writeControl    timeStep;
+writeInterval   __ENDTIME__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    // ---------------------------------------------------------------------
+    // THE GATE READER, and it is the ONLY one.
+    //
+    // The gate quantity is the upper-branch flow fraction
+    //     split = |sum(phi) over mainOutlet| / |sum(phi) over inlet|
+    // and these three function objects ARE how it is read.  They write one row
+    // PER SIMPLE ITERATION (writeControl timeStep, writeInterval 1), so the
+    // SAME files serve two purposes and cannot disagree with each other:
+    //
+    //   * the GATE value  -- the row at t == endTime;
+    //   * the PLATEAU leg of the iterative-convergence test -- the tail of the
+    //     series, which is the gate quantity's OWN history rather than a proxy
+    //     point probe. A plateau in something else is not a plateau in this.
+    //
+    // The parent VMFL010 instead read the split post hoc with
+    // `postProcess -func "flowRatePatch(name=<p>)"`.  That is deliberately NOT
+    // done here: postProcess RECONSTRUCTS phi from the written fields in a
+    // second process, so it is a different reader of a different object, and
+    // running both would leave two numbers with no registered rule for which
+    // one is the gate.  One reader, registered in advance.
+    //
+    // `writeFields false`: only the scalar sum is wanted, never a field dump.
+    // ---------------------------------------------------------------------
+    qInlet
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            inlet;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        log             false;
+    }
+    qMain
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            mainOutlet;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        log             false;
+    }
+    qBranch
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            branchOutlet;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        log             false;
+    }
+
+    // Residual history for the iterative-convergence clause.
+    resid
+    {
+        type            solverInfo;
+        libs            (utilityFunctionObjects);
+        fields          (U p);
+        writeControl    timeStep;
+        writeInterval   1;
+    }
+}
+
+// ************************************************************************* //

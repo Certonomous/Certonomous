@@ -1,0 +1,33 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+dimensions      [ 0 1 -1 0 0 0 0 ];
+internalField   uniform (0 0 0);
+boundaryField
+{
+    inlet                                   // bottom of junction, flow +y
+    {
+        type            codedFixedValue;    // fully-developed parabolic, Uc = 1.0 m/s
+        value           uniform (0 0 0);
+        name            vmfl010ParabolicInlet;
+        // Uc = 1.0 m/s (archive profile plarb_r4.set.prof peak, NOT from the 0.887 target).
+        // Width W runs x in [0,1]; U_y = Uc*(1 - (2x-1)^2).
+        code
+        #{
+            const vectorField& Cf = patch().Cf();
+            vectorField v(Cf.size(), vector::zero);
+            const scalar Uc = 1.0;
+            forAll(Cf, i)
+            {
+                const scalar x = Cf[i].x();
+                const scalar s = 2.0*x - 1.0;      // -1 at x=0, +1 at x=1
+                v[i] = vector(0, Uc*(1.0 - s*s), 0);
+            }
+            operator==(v);
+        #};
+    }
+    mainOutlet  { type pressureInletOutletVelocity; value uniform (0 0 0); }
+    branchOutlet{ type pressureInletOutletVelocity; value uniform (0 0 0); }
+    walls       { type noSlip; }
+    frontBack   { type empty; }
+}
+// ************************************************************************* //
