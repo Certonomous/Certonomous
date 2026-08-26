@@ -214,4 +214,28 @@ manifest rows' own `core_min`. Longest row **S5 at 654 wall s**, so **no row mat
 3600-s stall rule and gross = cleaned**. Guard `CAP_CORE_MIN = 600.0`, **no overrun, no cap
 moved**. Phase 2 spent **0.0**. **$0.0475 DERIVED, NOT MEASURED** at $0.0513/core-h,
 c7a.4xlarge, reported-by-owner (`COMPUTE_BUDGET_CHARTER.md` §5 — the box cannot read its own
-billing). Calibration row **`C-108`** in `docs/COST_CALIBRATION.md`.
+billing). Calibration row **`C-115`** in `docs/COST_CALIBRATION.md` (see §8).
+
+---
+
+## 8. CORRECTION, 2026-08-26 — A CALIBRATION-ROW ID I PREDICTED INSTEAD OF DERIVING
+
+**Same day, same lane. Sections 1–7 are otherwise byte-unchanged; lines whose number changed
+above this section: 0.** One cell in §7 was corrected, and this section says exactly what and why.
+
+§7 as first committed (`37779471`) read **"Calibration row `C-108`"**. **The row actually landed
+as `C-115`.** Between writing that sentence and committing the row, peers landed six further
+rows, so the maximum id moved from 107 to 114.
+
+**The id itself was never at risk**: it is re-derived by hand from the HEAD blob **inside the
+committing shell invocation**, with an explicit collision assert, exactly as `CLAUDE.md` rule 11
+requires — which is why `C-115` is correct and unique. **What was wrong was the CITATION**, which
+I wrote in advance by adding one to a number I had read earlier.
+
+> **THE LESSON, AND IT IS A SMALL ONE THAT GENERALISES: RULE 11 BINDS THE CITATION AS WELL AS THE
+> ASSIGNMENT.** A record that names a row id it has not yet created is predicting, and this file
+> is written by six teams committing constantly. The same trap took `C-100` → the next dafoam row
+> was `C-107`, not `C-101`. **Cite the id the commit actually produced, not the one you expect.**
+
+**Nothing else in this record depends on that cell**, and no gate verdict, number or artifact
+path is affected.
