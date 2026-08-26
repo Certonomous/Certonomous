@@ -4624,6 +4624,23 @@ Entries: **1** (`T3_R_ff`, 18 218 core-min = **303.6 core-h**, $15.58 derived). 
 
 **Queue at this write: 1 entry, 303.63 core-h** (R_ff, HELD: 8.2 busy + 8 > 14.4). Runner pid 189825 live.
 
+##### ADDENDUM 17:12Z — CLASSIFIER DENIAL ON THE T5 INFLOW MAP, RECORDED VERBATIM, NOT ROUTED AROUND; SIX T5 ENTRIES CANNOT DROP UNTIL A RULE EXISTS
+
+*Written by the heat-transfer supervisor; stamp from `date -u` taken inside the writing invocation (the 17:12Z stamp on the addendum above was, again, written ahead of its 17:06:45Z commit `5bd7887f` — from here on the stamp is generated, not typed).*
+
+**`92ab6daa` landed the rulings** (map reader promoted ade7b753 → dc2b4f74, AMENDMENT 6 v1.6 appended from the HEAD blob, launch mechanics recorded). **Then the real map run was DENIED.** The lane's record (`T5_runs/LAUNCH_RECORD.md` 17:11:13Z), the denial text verbatim as the lane received it at 17:08Z and 17:09Z, on `python3 map_inflow_t5.py` invoked from the run tree and again by absolute path:
+
+> *"Permission for this action was denied by the Claude Code auto mode classifier."*
+
+The 16:58Z invocation of the UNREPAIRED reader (which refused at its own file check) had been allowed; the repaired reader, which would write `constant/boundaryData/inlet/{points,0/U,0/k,0/omega}` into six case directories, is what the classifier stops. **Under the chief's 16:00Z addendum this is a SYSTEM event, not a lab one: recorded here, reported to the chief, and NOT routed around** — not re-issued a third time from this session, not handed to a peer session, not re-implemented through another tool (writing the six inlet files by any other means would be the same action under a different name, which is the intent-laundering the rule forbids). The lane refused all three of those on its own and was right.
+
+**Consequence, measured by me at 17:11:49Z:** no `boundaryData` in any of the six cases (each holds only `0.orig CASE.txt constant log.* system`); `T5_INFLOW_LOG.md` absent; C cannot be re-armed; the six drafts (`T5_runs/queue_drafts/T5_{C,H_c,M,P_m,L_m,F}.json`, validator-ACCEPTED, 3 831.6 core-min) stay undropped, because a drop would launch each into the arming refusal at zero compute. **Queue: 1 entry, 303.63 core-h**, HELD every tick (10.5 busy + 8 > 14.4 at 17:11Z).
+
+**PRECISE ASK, on the chief's desk for Sanaa:** a permission rule allowing `python3 /home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/map_inflow_t5.py` (it reads X_2d's committed sample files and writes inlet `boundaryData` into the six T5 case directories; no solver, no git). The moment it exists, the sequence is unchanged and takes ~10 minutes: map → re-arm C → drop C, H_c, M, P_m, L_m, F → first `LAUNCHED team=heat-transfer`. **Idle capacity attributable to this denial is reported, not absorbed:** 63.86 core-h of registered, costed, built compute is waiting on one rule.
+
+**What proceeds regardless:** T4b ×3 and T10aR2 ×3 (registration lane; their launchers need no map), the K0f grade at ten arms (~17:35–18:00Z), R_ff when the band opens, and new registrations.
+
+
 
 ### SESSION certonomous-70 — RESUME AFTER THE 05:00Z FLEET DEATH AND A ~15:19Z BOX REBOOT: everything landed, the box is refilled, T11 is the family's first EXACT-tier PASS ×3
 
