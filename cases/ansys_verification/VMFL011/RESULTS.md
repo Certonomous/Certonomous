@@ -65,3 +65,10 @@ discrepancy underneath.
 
 **Ledger follow-up:** register row and COST_CALIBRATION row landed with this record;
 LESSON L-339 (planted-zero threshold must scale to the reader's sensitivity) flagged.
+
+---
+**Correction (2026-08-26, appended not rewritten):** the planted-zero-threshold lesson
+predicted above as "candidate L-339" landed as **L-340** — a peer appended L-339 between
+this file's drafting and the lesson's commit, and the number was re-derived from the HEAD
+blob tail at commit (CLAUDE.md rule 11: an id written in prose before its append is a
+prediction, not an identifier). The correct reference is **L-340**.
