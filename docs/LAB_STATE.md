@@ -2158,6 +2158,70 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
+### THIRTEENTH SESSION — THE BOX REBOOTED, EVERY CONTAINER HAD ALREADY FINISHED, AND ONE ARM'S LEDGER ROW DIED WITH ITS SHELL
+
+**Section block written:** 2026-08-26T16:00:07Z by dafoam-supervisor (THIRTEENTH session, formed ~15:55Z 2026-08-26 after a session usage limit killed the twelfth fleet at ~05:00Z). *Stamp is `date -u` in the committing invocation.* **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE.** Sanaa's standing order in force: the remaining dafoam cases get run; no idle compute; her silence is approval; every decision below is `[lab-attributed]`; nothing leaves the box (rule 7).
+
+#### 1. THE DISK READING BEFORE ANY LAUNCH — and it changed the dispatch a fourth time
+
+**The host rebooted at 15:19Z** (`last -x reboot`: previous boot ended 12:35Z; kernel **7.0.0-1010 → 7.0.0-1011-aws**). Docker is reachable only through `sudo -n docker` on this boot. **No dafoam container was running at either the fleet kill or the reboot** — `docker ps -a` shows every dafoam container `Exited` before 07:10Z. **The image digest, which is the toolchain identity (§11), is unchanged: `sha256:9d45679d…f07fc` present.** The kernel change is a host-identity note for every ledger written today, not a toolchain change.
+
+| item | state on disk at 15:55Z | verdict state |
+|---|---|---|
+| **D4-SHIPPED arm O** | container `d4_O_20260826T040414Z_3177545` **ExitCode 0, OOMKilled false, 04:04:14Z → 07:07:09Z = 10,975 s × 4 = ~731.7 core-min** vs lower-bound 511.133 and cap 620.0 (report-then-stop, ceiling 2480); `opt_IPOPT.txt`: **100 iterations, `EXIT: Maximum Number of Iterations Exceeded`**; `OptView.hst` present. **`ledger.txt` HAS NO `ARM=O` ROW** — only P1, P2. The `-d` poller shell died with the fleet at ~05:00Z while the container ran on to 07:07Z. | **ungraded — triage ordered (§2 R2)** |
+| **D4-SHIPPED ACC, F3** | not run | PENDING → firing |
+| **D7FR P1, X** | `rc=0`, 0.667 + 0.733 core-min, graded at `965acb8c` (C3 REFUTED) | done |
+| **D7FR ACC** | **REFUSED by H5 `R4_TREND`** at ~04:5xZ (window min 17.34 ≥ floor 16.0, slope reaching floor inside the arm wall); nothing spent | PENDING → H5 re-run on today's empty box |
+| **D7FR F-S, F-P** | not run (LIMIT 1 precondition) | PENDING |
+| **W2** | `BLOCKED` at S2a, 1.2 core-min WASTE, run root preserved | `BLOCKED` — closed |
+| **W2R** | frozen `b168779c`, run root absent, unfired | PENDING → firing |
+| **D12R phase 3/4 queue entries** | `c3b94f0c`, validator-accepted, never fired | PENDING (behind W2R; same case family) |
+
+**Cap crossing on D4-SHIPPED arm O — 731.7 against 620.0, +18 % — is REPORTED here, named, and never absorbed**, under the same three grounds as D7R's R1: the reporting-cap mode was registered before compute, the run terminated on its registered `max_iter`, and the ceiling was never approached.
+
+
+#### 1a. PERMISSION BOARDED — `bc0e687e` (2026-08-26T16:01:34Z)
+
+Sanaa's own words, boarded verbatim by the chief in the CHIEF section at **`bc0e687e`**, give explicit permission for detached `docker run -d` launches of frozen arms and for queue-runner entries (rule 9 satisfied by her words, not by any relay). **Every dafoam launch record from this point cites `bc0e687e`.** Relayed to all three live lanes at ~16:05Z with the guards named as UNCHANGED: G-ROOT placement, explicit cpuset, aggregate memory (caps + host RSS), the windowed H5 gate, `rc` from `docker inspect`, no `--rm`. **Permission to launch is not permission to launch unguarded.** A classifier denial, if one occurs, is recorded with its exact text and reported to the chief — never reworded and retried.
+
+#### 2a. RULING R4 — **D4-SHIPPED = `NOT A RESULT` ON ITS GRADER PATH; RE-REGISTERED AS D4-SHIPPED-R. §2d.1 REFUSED FOR THE THIRD TIME ON THE SAME GROUND** (2026-08-26T16:02:47Z)
+
+The lane established the four facts I ordered before applying R2, and R2 **cannot be applied honestly**: the frozen grader's `LEDGER_RE` (`d4s_grade.py:669-679`) requires a numeric `memavail_post_GiB`, so a reconstructed row carrying the honest value `NOT_MEASURED` is **silently skipped and indistinguishable from an absent row** — and no MemAvailable record from ~07:07Z exists anywhere on disk, so a number there would be invention. The lane stopped, as instructed. **Nothing written, nothing fired, 0 core-min.**
+
+**Two further defects in the frozen instrument, found by reading rather than running:** the grader greps `D4_IDWARP_SO_MD5:` while this launcher's container prints `D4S_IDWARP_SO_MD5:` — **G9 = `GATE FAIL` on every arm, an instrument defect, not a finding about the toolchain (`D4S-GRADER-DEF-1`)**; and the grader's default arm list is `P1,P2,O,F` while the launcher writes `F3`, with no invocation line registered.
+
+**RULING.** The ordinary path is open, so §2d.1 is refused on exactly the ground it was refused on D12R and D7F: conditions 3 and 4 are satisfiable only vacuously, and a repair authored knowing which regex fails is the fitting objection this family pays to remove. **D4-SHIPPED closes `NOT A RESULT` on its grader path.** Its **731.667 core-min are WASTE** (own C-row; the +18 % cap crossing named, never absorbed). **The `O/` artifacts and the un-removed container are PRESERVED as evidence**; the hand reading — 100 majors, `EXIT: Maximum Number of Iterations Exceeded`, CD 2.11206e-02, against the PATCHED row's 80 majors `Optimal Solution Found` — is recorded **labelled NOT A VERDICT** and is never quoted as one.
+
+**What the shell death actually was:** the cap-dies-with-shell exposure **registered OPEN in ADDENDUM 1 §A1.3 last night, realised** — `enforced_wall_s=9300` was computed and enforced by nothing after ~05:00Z. **D4-SHIPPED-R closes it rather than re-registering it open**: the deadline runs INSIDE the container command, and the post-container bookkeeping (logs, inspect → ledger row, `.ok`, `STATUS.<arm>`) runs in a `setsid nohup` driver that outlives any agent — **demonstrated by killing the driver's parent on a sacrificial container and showing the row still lands.** Also carried: the `D4S_` string and the arm list registered; O's cost MEASURED-DERIVED at 731.667; G-ROOT refusing both prior roots; the chain O → ACC → F3 as one detached driver; launch record cites `bc0e687e`. Predicted ≈ 785 core-min, ≈ $0.67 DERIVED. **This is the item that gives the family its first two-row verdict, or does not; it is not bought by bending rule 2.**
+
+#### 2. RULINGS `[lab-attributed]`
+
+**R1 — W2R IS ADMISSIBLE AND FIRES.** I read the W2 → W2R launcher diff myself as a diff (SUPERVISION §3 check 1): 74 diff lines; the only functional changes are (i) the aggregate guard returns 0/1 cleanly, (ii) a bounded wait `AGG_WAIT_MAX_S=1200`, poll 30 s, that never launches over-committed and BLOCKS at the limit, (iii) the blocked manifest row written before the return — and I checked the one thing that would have been the night's sixth placement defect: **`MA` is assigned at `:325`, above the row write at `:334`, so the JSON is never written with an empty value.** Comparator byte-unchanged, predictions P1–P4 cited not re-derived, floor 14.0 not lowered. **The W2 aggregate-guard defect (`W2-DEF-1`) stands as a finding at this family's expense; W2's 1.2 core-min is WASTE, its own row.**
+
+**R2 — D4-SHIPPED ARM O: THE LEDGER ROW IS A TRANSCRIPTION, NOT THE EVIDENCE.** The evidence is the container's own kernel record (present — no `--rm`, exactly why that rule exists) and the `O/` artifacts. The lane is ordered to establish four facts from disk first (launcher bookkeeping path, age guard on `O/`, the PATCHED row's major count, what `d4s_grade.py` G1 does on an absent row), and only then to write a **RECONSTRUCTED row carrying `RECONSTRUCTED_FROM_INSPECT=yes`**, every field sourced from what the launcher itself would have read, live-only fields `NOT_MEASURED`, disclosed in a dated post-compute addendum that alters no gate, threshold, cap or label and names the reconstruction as a LIMITATION of G1 for that arm. **If the grader cannot consume it without a grading-path change, the lane STOPS and reports — rule 2 is not bent for $0.63.** Re-buying 732 core-min to obtain a ledger line the kernel already holds would be waste dressed as rigor.
+
+**R3 — D7FR: H5 IS RE-RUN, NOT WAIVED.** The refusal at 04:5xZ was the gate working on a trend. On a box with 28 GiB free the same gate is re-run with the same floor; the ACC → F-S → F-P chain then runs as a DETACHED DRIVER with `rc` read from `docker inspect` into `STATUS.<arm>` inside the driver — never from the `$?` of a `setsid`/`timeout` line, which returns 0 for every outcome (heat-transfer's lab-wide measurement, UPDATE 11).
+
+**Placement plan, so the aggregate rule holds:** D4-SHIPPED 12 GiB on 5,6,7,9 + D7FR 12 GiB on 2,3,4,6 + W2R 8 GiB on 12 = **32 GiB of caps on 30.6** — so W2R's registered 20-min bounded wait is expected to absorb D4-SHIPPED's short ACC/F3 window (~15 min) and that wait is REGISTERED BEHAVIOUR, reported, not intervened in. Cores in use at full fire: **9 of 16**.
+
+#### 3. LANES LIVE (3 of 3)
+
+| lane | item | duty |
+|---|---|---|
+| D4-SHIPPED | arm O triage (R2), ACC → F3 fire, grade, two-row table, C-rows | first two-row verdict this family would hold |
+| D7FR | H5 re-run, ACC fire, detached F-S → F-P chain, ACC-1 verdict, C-rows | STATUS.ACC / STATUS.F-S / STATUS.F-P in the run root |
+| W2R | fire phase 1, A3-era run-root `setsid` rc audit (`docs/dafoam/A3_SETSID_RC_AUDIT.md`), score P1–P4, C-row | the NOT ESTABLISHED half of UPDATE 11 §11.3 |
+
+#### 4. NEXT / QUEUE (so it never empties)
+
+After the first lane frees: **D5, D6 short-form pre-registrations** (same case, mesh and launcher as D4; only parametrisation or weights change; G-ROOT from birth, explicit cpuset, windowed H5, `rc` from inspect, no `--rm`, no bare `assert`); **D14** (pyHyp regeneration; `GENERATOR_FINDING_pyhyp_aspect_ratio.md` is a named contaminant whose check runs first); **D12R phase 3/4** from the validator-accepted entries once W2R is graded. Queue entries for each into `verification/queue/dafoam/` with frozen sha and cost.
+
+#### 5. ON SANAA'S DESK
+R2 of the twelfth session (reporting-cap versus rule 12) unchanged; the five upstream defect drafts remain `NOT FILED`; the queue-runner permission ask is the chief's. **Nothing new waits on her — decisions were taken and are labelled.**
+
+#### 6. BLOCKED
+None at the time of writing. (**VERIFY**: the D4-SHIPPED grader's tolerance of a reconstructed row is the one thing that could block, and it is being measured, not assumed.)
+
 ### TWELFTH SESSION — BOTH RUNS SURVIVED THE KILL AND COMPLETED. THE DEFECT IS THE IDLE QUEUE, NOT THE DETACH
 
 **Section block written:** 2026-08-26T03:06:53Z by dafoam-supervisor (TWELFTH session, formed ~02:55Z 2026-08-26 after a session usage limit killed the eleventh fleet at ~23:00Z 2026-08-25). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
