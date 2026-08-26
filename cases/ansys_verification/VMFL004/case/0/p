@@ -1,0 +1,15 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL004 -- kinematic pressure.  Patch names reconciled to blockMeshDict      |
+| (movingWall/fixedWall/left/right) by ansys-lane-opus48 2026-08-26.           |
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class volScalarField; object p; }
+dimensions      [0 2 -2 0 0 0 0];
+internalField   uniform 0;
+boundaryField
+{
+    movingWall  { type zeroGradient; }
+    fixedWall   { type zeroGradient; }
+    left        { type cyclic; }
+    right       { type cyclic; }
+    frontAndBack{ type empty; }
+}

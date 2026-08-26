@@ -1,0 +1,36 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     simpleFoam;
+startFrom       startTime;   startTime 0;
+stopAt          endTime;     endTime   __ENDTIME__;
+deltaT          1;
+writeControl    runTime;     writeInterval __ENDTIME__;
+writePrecision  12;  writeCompression off;  timeFormat general;  runTimeModifiable false;
+functions
+{
+    // GATE CHANNEL -- X-velocity on the section X = 0.75 m (manual Figure .04.2).
+    // 201 UNIFORM points in y, at FIXED physical locations, so the sample set is
+    // identical at all three grid levels (a mesh-tied sample cannot be Roache-graded).
+    profile
+    {
+        type            sets;  libs (sampling);
+        setFormat       raw;  fields (U);  interpolationScheme cellPoint;
+        writeControl    writeTime;
+        sets
+        (
+            bisector { type uniform; axis y; start (0.75 0 0.05); end (0.75 1 0.05); nPoints 201; }
+        );
+    }
+    // FROZEN GATE CHANNEL (supervisor Ruling 2, 2026-08-26): the volume-average of
+    // U.  For plane Couette-Poiseuille u(y)=9y-6y^2 the exact section mean is
+    // <u> = INT_0^1 (9y-6y^2) dy = 2.5 m/s EXACT.  Cell-centre values are exact for the
+    // quadratic (central differencing), but the cell-midpoint QUADRATURE of the mean
+    // carries an O(h^2) error (+h_y^2/2), so the grid triple CONVERGES and does NOT
+    // collapse to EXACT.  writePrecision 12 keeps that ~2e-5..3e-4 signal above roundoff.
+    volAvgU
+    {
+        type            volFieldValue;  libs (fieldFunctionObjects);
+        fields          (U);  operation volAverage;  regionType all;
+        writeControl    writeTime;  writeFields false;  log false;
+    }
+    resid { type solverInfo; libs (utilityFunctionObjects); fields (U p); }
+}
