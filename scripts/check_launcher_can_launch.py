@@ -1,5 +1,35 @@
 #!/usr/bin/env python3
-"""Flag SHELL GLOBS used as OpenFOAM time-directory matchers.
+"""A FROZEN LAUNCHER THAT CANNOT LAUNCH -- two checks for one defect class.
+
+Renamed from check_time_dir_globs.py, which named only its first check.  What
+this file actually enforces is broader and is worth naming for what it is:
+**a launcher can be frozen, hashed, committed and reviewed, and still be unable
+to start a single solve.**  T4 shipped one twice in one night.
+
+FOUR INSTANCES OF ONE DEFECT, and the pattern is the finding:
+
+  * T4 guard      -- `[0-9]*` matched `0.orig`, so the guard refused the exact
+                     state the next line required.  Caught by ARM 1.
+  * T4 alphat     -- a `compressible::` wall function in a case run by an
+                     INCOMPRESSIBLE solver; every arm exited rc=1 at zero
+                     iterations.  The mesh dry run could not see it, because
+                     `blockMesh` and `checkMesh` NEVER READ `0.orig/`.
+  * K0d readability -- a readability arm passed while `0/U` was unreadable,
+                     because `blockMesh` never reads `0/`.
+  * K0f selftest  -- passed with a FAKE SOLVER on PATH.
+
+**Every one of those checks exercised the channel its author was thinking about
+rather than the channel that consumes the artifact.**  So ARM 2 runs the REAL
+solver for ONE ITERATION and requires it to reach `Time = 1` -- the only arm
+that actually consumes `0/`.
+
+  ARM 1  no shell glob is used as a time-directory matcher
+  ARM 2  the real solver reaches Time = 1 on the coarse case, in scratch
+
+Exit codes: 0 clean   1 a check failed   2 refusal
+
+--- ARM 1 ---
+Flag SHELL GLOBS used as OpenFOAM time-directory matchers.
 
 WHY THIS IS A CHECK AND NOT A THIRD LESSON.  `0.orig` starts with a digit, so
 the shell glob `[0-9]*` matches it as readily as it matches `0`, `200` or
@@ -137,9 +167,65 @@ def selftest():
     return 0 if ok else 1
 
 
+def one_iteration_arm(case_dir, solver, foam_bashrc, keep=False):
+    """ARM 2 -- run the REAL solver for ONE iteration in a SCRATCH root.
+
+    This is the only arm that consumes `0/`.  A mesh check cannot substitute:
+    `blockMesh` and `checkMesh` never open a field file, so a bad boundary
+    condition, a missing library or a wrong solver name survives them intact
+    and is discovered only when the campaign fires.
+
+    Copies first and never touches the case it inspects.
+    """
+    import shutil, subprocess, tempfile
+    tmp = tempfile.mkdtemp(prefix="arm2_")
+    try:
+        dst = os.path.join(tmp, os.path.basename(case_dir))
+        shutil.copytree(case_dir, dst, symlinks=True)
+        if os.path.realpath(dst).startswith(os.path.realpath(case_dir)):
+            return False, "scratch copy resolved inside the case tree"
+        # arm 0/ exactly as the launcher does
+        z = os.path.join(dst, "0")
+        if os.path.isdir(z):
+            shutil.rmtree(z)
+        orig = os.path.join(dst, "0.orig")
+        if not os.path.isdir(orig):
+            return False, "no 0.orig to arm from"
+        shutil.copytree(orig, z)
+        cd = os.path.join(dst, "system", "controlDict")
+        txt = open(cd).read()
+        txt = re.sub(r"^\s*endTime\s+[0-9.eE+-]+\s*;", "endTime 1;", txt, flags=re.M)
+        txt = re.sub(r"^\s*writeInterval\s+[0-9.eE+-]+\s*;", "writeInterval 1;", txt, flags=re.M)
+        open(cd, "w").write(txt)
+
+        log = os.path.join(dst, "log.arm2")
+        cmd = ("source %s > /dev/null 2>&1; %s -case %s > %s 2>&1"
+               % (foam_bashrc, solver, dst, log))
+        r = subprocess.run(["bash", "-lc", cmd])
+        body = open(log, errors="replace").read() if os.path.isfile(log) else ""
+        reached = bool(re.search(r"^Time = 1\s*$", body, re.M))
+        if r.returncode != 0 or not reached:
+            fatal = ""
+            m = re.search(r"--> FOAM FATAL[\s\S]{0,400}", body)
+            if m:
+                fatal = " | " + " ".join(m.group(0).split())[:300]
+            return False, ("solver rc=%d, reached Time=1: %s%s"
+                           % (r.returncode, reached, fatal))
+        return True, "solver rc=0 and reached Time = 1"
+    finally:
+        if not keep:
+            import shutil as _s
+            _s.rmtree(tmp, ignore_errors=True)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--one-iteration", metavar="CASE_DIR",
+                    help="ARM 2: run the real solver for one iteration in scratch")
+    ap.add_argument("--solver", default="buoyantBoussinesqSimpleFoam")
+    ap.add_argument("--foam-bashrc",
+                    default="/usr/lib/openfoam/openfoam2606/etc/bashrc")
     ap.add_argument("--root", default=".")
     ap.add_argument("--worktree", action="store_true",
                     help="scan the given paths on disk instead of HEAD")
@@ -147,6 +233,12 @@ def main():
     a = ap.parse_args()
     if a.selftest:
         return selftest()
+
+    if a.one_iteration:
+        ok, why = one_iteration_arm(a.one_iteration, a.solver, a.foam_bashrc)
+        print("ARM 2 one-iteration: %s -- %s" % ("PASS" if ok else "FAIL", why))
+        if not ok:
+            return 1
 
     if a.worktree:
         items = [(p, open(p).read()) for p in a.paths if os.path.isfile(p)]

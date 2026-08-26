@@ -648,3 +648,154 @@ are evidence.
 The exposure is shell. Of the 8 measured hits, **7 lie outside this team's
 territory** (`F12_runs`, `F6b_runs`) and are **reported, not repaired** — they
 belong to cfd, and a lane does not edit another team's instruments.
+
+---
+
+## AMENDMENT 2 — 2026-08-26 — THE NEAR-WALL TREATMENT IS REGISTERED, AND THE BOUNDARY CONDITIONS ARE NOW PART OF THE REGISTRATION
+
+**Version 1.1 → 1.2. Lines whose number changed above this section: 0.**
+Nothing above is edited. **No gate, threshold, band, cap or label is created,
+moved or retired.**
+
+### A2.1 THE GROUND FOR LEGALITY IS "NOTHING HAS RUN" — AND EXPLICITLY NOT "NOTHING MOVES"
+
+All three arms exited **rc = 1 at ZERO iterations**, 0.034 core-min, no
+`Time = 1` on any arm, no time directory, no field written. Rule 2's
+**pre-compute** clause applies and the gates are not yet closed. **That is the
+whole licence.**
+
+**The "can this amendment move a number?" test is NOT available here, and must
+not be borrowed.** `alphat` is the turbulent thermal **diffusivity**, and its
+wall treatment **is** the wall heat-transfer model, on a rung whose reported
+quantity is a Nusselt-class number. The three amendments authorised earlier
+today — T8's `assert`→`exit 2`, T4's AMENDMENT 1 glob idiom, K0f's missing
+`etc/bashrc` — were **plumbing**, each provably unable to change a computed
+value. **This one is PHYSICS.** Reaching for the same sentence a fourth time,
+when the fourth case differs in kind, is how a narrow test becomes a rubber
+stamp. **Legal because nothing has run; not legal because nothing moves.**
+
+### A2.2 THE REAL FINDING — the registration had no opinion about the boundary conditions
+
+§3 named the solver; §9.2 registered the completion field set. **Neither said
+anything about wall-function types.** That is *why* a `compressible::` wall
+function survived into a frozen case: **nothing in the document was capable of
+noticing it, and nothing would have noticed the next one.**
+
+**Registered here, per field, per patch. This is a TIGHTENING** — it adds a
+refusal channel and removes none.
+
+| field | `plate` | `pipeWall` | `inlet` | `entrainment` / `farfield` |
+|---|---|---|---|---|
+| `U` | `noSlip` | `noSlip` | `mapped` (recycling) | `pressureInletOutletVelocity` |
+| `p_rgh` | `fixedFluxPressure` | `fixedFluxPressure` | `zeroGradient` | `totalPressure`, `p0 = 0` |
+| `T` | `fixedGradient`, `q" = 1000 W/m²` | `zeroGradient` | `fixedValue` 293.15 K | `inletOutlet` |
+| `k` | **`kLowReWallFunction`** | **`kLowReWallFunction`** | `mapped` | `inletOutlet` |
+| `omega` | `omegaWallFunction` | `omegaWallFunction` | `mapped` | `inletOutlet` |
+| `nut` | **`nutLowReWallFunction`** | **`nutLowReWallFunction`** | `calculated` | `calculated` |
+| `alphat` | **`calculated`** | **`calculated`** | `calculated` | `calculated` |
+
+### A2.3 THE REPAIR IS NOT A NAMESPACE SWAP, AND THAT IS THE POINT
+
+The failing entry was `compressible::alphatWallFunction`, which does not exist
+for this incompressible solver. **The obvious substitution is the wrong one.**
+The available incompressible alternative, `alphatJayatillekeWallFunction`, is a
+**HIGH-Re wall function**, and this mesh is **wall-resolved**: `nut` carries
+`nutLowReWallFunction` and `k` carries `kLowReWallFunction`.
+
+> **A high-Re thermal wall function running quietly on a low-Re resolved mesh
+> would produce a case that RUNS AND IS SILENTLY WRONG on exactly the quantity
+> this rung reports. The crash was honest. Trading an honest refusal for a
+> plausible wrong number is the worst trade available here.**
+
+`calculated` is the consistent low-Re choice: on a resolved wall `nut → 0`, so
+`alphat = nut/Pr_t → 0` and no wall function is wanted. `Pr_t = 0.85` still
+governs `alphat` in the interior via `constant/transportProperties`; it is the
+**wall** treatment that changes, not `Pr_t`.
+
+**This is also this lab's own established convention on this exact solver.**
+`verification/runs/T-family/T1_runs/R_10k_x/0/alphat` carries
+`wall { type calculated; value uniform 0; }` beside `nutLowReWallFunction` and
+`kLowReWallFunction` — a wall-resolved `buoyantBoussinesqSimpleFoam` case that
+has been running all night.
+
+### A2.4 NEAR-WALL SPACING, MEASURED OFF THE BUILT MESHES
+
+Read from `constant/polyMesh/points`, not assumed:
+
+| level | cells | first-cell **height** (m) | first-cell **centre** `y_p` (m) | `y_p/D` |
+|---|---:|---:|---:|---:|
+| `T4_IJ_c` | 5 184 | 2.400000e-05 | **1.200000e-05** | 6.000e-04 |
+| `T4_IJ_m` | 20 736 | 1.200000e-05 | **6.000000e-06** | 3.000e-04 |
+| `T4_IJ_f` | 82 944 | 6.000000e-06 | **3.000000e-06** | 1.500e-04 |
+
+Centres are in exact ratio **4 : 2 : 1**, confirming the family refines
+systematically at `r = 2` in the wall-normal direction.
+
+**ACHIEVED `y+` IS A SOLUTION QUANTITY AND CANNOT BE READ OFF A MESH** —
+`y+ = y_p u_τ/ν` and `u_τ` is not known until the case runs. Reported against
+three stated bases rather than asserted:
+
+| level | `y+` at `u_τ` = 0.94 m/s | at 1.50 m/s | at 2.50 m/s |
+|---|---:|---:|---:|
+| `c` | 0.752 | **1.200** | **2.000** |
+| `m` | 0.376 | 0.600 | **1.000** |
+| `f` | 0.188 | 0.300 | 0.500 |
+
+*(a) the freeze-time estimate approximately 0.055 `U_bulk`; (b) the wall-jet peak
+`U_max = 1.089 U_bulk` at `c_f` approximately 0.006; (c) a deliberately pessimistic
+stagnation-region bound.*
+
+**REGISTERED RISK, disclosed now rather than discovered at grading: the COARSE
+level is marginal.** Under bases (b) and (c) it exceeds `y+ = 1` and **control
+C1 would fire**, sending the rung to `NOT A RESULT` on gate (1). C1 is
+unchanged and measures `y+` from the run; **no threshold is relaxed to
+accommodate this.** If C1 fires on `c`, that is the registered answer.
+
+### A2.5 A THIRD DEFECT OF THE SAME ROOT CAUSE, FOUND BY THE NEW ARM
+
+With `alphat` repaired, ARM 2 (below) failed again on
+`div(((rho*nuEff)*dev2(T(grad(U)))))` — the **compressible** spelling of a
+scheme this incompressible solver looks up as
+`div((nuEff*dev2(T(grad(U)))))`. Same root cause, same blind spot, and
+**invisible to `blockMesh` and `checkMesh`**. Repaired. Note that the arm
+printed `Time = 1` *and* returned rc = 1 on this one: **requiring both is what
+caught it**, and either alone would have passed it.
+
+### A2.6 THE ONE-ITERATION ARM IS ADOPTED — `scripts/check_launcher_can_launch.py`
+
+`scripts/check_time_dir_globs.py` is **renamed** for what it actually enforces:
+**a frozen launcher that cannot launch.** Two arms:
+
+- **ARM 1** — no shell glob is used as a time-directory matcher (AMENDMENT 1).
+- **ARM 2** — the **real solver** runs for **one iteration** on the coarse case
+  in a **scratch root** and must reach **`Time = 1`** with **rc = 0**.
+
+**ARM 2 exists because every prior check exercised the channel its author was
+thinking about rather than the channel that consumes the artifact.** Four
+instances: T4's guard; T4's `alphat` (the mesh dry run could not see it —
+`blockMesh` and `checkMesh` **never read `0.orig/`**); K0d's readability arm,
+which passed while `0/U` was unreadable because `blockMesh` never reads `0/`;
+and K0f's selftest, which passed **with a fake solver on PATH**. ARM 2 is the
+only arm that consumes `0/`.
+
+**Shown able to see the defect it was built for**, so its PASS is evidence: with
+the original `compressible::alphatWallFunction` planted back in, ARM 2 returns
+**FAIL** naming `Unknown patchField type compressible::alphatWallFunction`; with
+the repair it returns **PASS — solver rc = 0 and reached `Time = 1`**.
+
+### A2.7 Freeze-set update
+
+`build_t4.py`'s §13 entry read `88e0207c25e0b029`, 434 lines, and is **struck
+and superseded by `5f72576625a4d083`, 461 lines**. `run_one_t4.sh`'s entry stands as
+superseded by AMENDMENT 1. `analyse_t4.py`, `mark_done_t4.py` and
+`launch_t4.sh` are unchanged.
+
+### A2.8 The `capped` witness proved itself in the field
+
+Recorded because it is the one instrument from this rung that has now answered a
+real question: on its **first live exercise, on a real failure**, the witness
+read `capped=no` on all three arms, and `mark_done_t4.py` classified them
+**CRASH, not cap-stop** — *"rc=1 at wall_s=0, BELOW the registered
+timeout_s=3000, so this is not a cap-stop."* That is the discriminator built
+after the measured `124`/`137`/OOM collisions, and it worked the first time it
+was asked.

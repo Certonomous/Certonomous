@@ -308,12 +308,34 @@ def fields(level):
             "    entrainment { type calculated; value uniform 0; }\n"
             "    farfield { type calculated; value uniform 0; }\n" + common_wedge)
 
+    # AMENDMENT 2, 2026-08-26.  This used to read
+    #     plate/pipeWall { type compressible::alphatWallFunction; Prt ...; }
+    # which does not exist for this INCOMPRESSIBLE Boussinesq solver and made
+    # every arm exit rc=1 at zero iterations.
+    #
+    # THE REPAIR IS NOT A NAMESPACE SWAP.  The available incompressible
+    # alternative, alphatJayatillekeWallFunction, is a HIGH-Re wall function,
+    # and this mesh is WALL-RESOLVED: nut carries nutLowReWallFunction and k
+    # carries kLowReWallFunction.  Dropping a high-Re thermal wall function
+    # beside a low-Re resolved near-wall treatment produces a case that RUNS
+    # AND IS SILENTLY WRONG on exactly the quantity this rung grades.  Trading
+    # an honest refusal for a plausible wrong number is the worst trade
+    # available here.
+    #
+    # `calculated` is the consistent low-Re choice: on a resolved wall nut -> 0,
+    # so alphat = nut/Prt -> 0 and no wall function is wanted.  This is also
+    # this lab's own established convention for a wall-resolved case on this
+    # exact solver -- T1_runs/R_10k_x/0/alphat carries
+    #     wall { type calculated; value uniform 0; }
+    # beside nutLowReWallFunction and kLowReWallFunction.  Prt still governs
+    # alphat in the interior via constant/transportProperties; it is the WALL
+    # treatment, not Prt, that changes here.
     alphat = f("volScalarField", "alphat", "[0 2 -1 0 0 0 0]", "0",
                "    inlet { type calculated; value uniform 0; }\n"
-               "    plate { type compressible::alphatWallFunction; Prt %.4g; value uniform 0; }\n"
-               "    pipeWall { type compressible::alphatWallFunction; Prt %.4g; value uniform 0; }\n"
+               "    plate { type calculated; value uniform 0; }\n"
+               "    pipeWall { type calculated; value uniform 0; }\n"
                "    entrainment { type calculated; value uniform 0; }\n"
-               "    farfield { type calculated; value uniform 0; }\n" % (PRT, PRT)
+               "    farfield { type calculated; value uniform 0; }\n"
                + common_wedge)
 
     return {"U": U, "p_rgh": p, "T": T, "k": k, "omega": om,
@@ -342,7 +364,12 @@ divSchemes
     div(phi,T)      bounded Gauss limitedLinear 1;
     div(phi,k)      bounded Gauss limitedLinear 1;
     div(phi,omega)  bounded Gauss limitedLinear 1;
-    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+    // AMENDMENT 2: this used to read div(((rho*nuEff)*dev2(T(grad(U))))),
+    // which is the COMPRESSIBLE spelling. buoyantBoussinesqSimpleFoam is
+    // incompressible and looks up div((nuEff*dev2(T(grad(U))))). Same root
+    // cause as the alphat defect: compressible conventions in an
+    // incompressible case, invisible to blockMesh and checkMesh.
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
 }
 laplacianSchemes { default Gauss linear corrected; }
 interpolationSchemes { default linear; }
