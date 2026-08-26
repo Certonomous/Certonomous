@@ -1,0 +1,27 @@
+{
+  "team": "cfd",
+  "case_id": "F19_SOD",
+  "prereg_commit": "3053d9ec9695666e2491bed0d2398b101de2895f",
+  "prereg_path": "verification/campaign/F19_SOD_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F19_SOD/run_f19.sh",
+    "--prereg-commit=3053d9ec9695666e2491bed0d2398b101de2895f"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/F19_SOD",
+  "ranks": 1,
+  "cost_core_min_estimate": 0.2,
+  "cost_basis": "derived, not measured: 8.4 M cell-steps x 0.75 us/cell-step + 7000 steps x 0.4 ms/step (rates DERIVED from two lab rhoCentralFoam records of DIFFERENT cases, verification/runs/F15_runs/{coarse,medium,fine}/log.rhoCentralFoam = 0.74/0.70/0.69 us/cell-step and verification/runs/F4_runs/successor_2026-08-26/runs/cyl/M6.0/{coarse,medium,fine}/log.rhoCentralFoam = 0.98/0.65/0.65 us/cell-step with ~0.33 ms/step fixed overhead at 1000 cells) = ~10 s serial incl. blockMesh/checkMesh/postProcess = 0.2 core-min; registered CAP 5 core-min (prereg section 8); dollars at the owner-stated $0.0513/core-h, reported-by-owner: $0.0002 estimate, $0.004 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "cfd lab-lane, 2026-08-26, for cfd-supervisor. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is NOT discharged by this file. HELD under the case directory until the supervisor acknowledges the freeze sha and moves it into verification/queue/cfd/.",
+
+  "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs -- ABSENT at registration (rule-2 absence condition, prereg section 9); the launcher creates it and REFUSES any pre-existing 0/ or numeric time directory in the run root or a level directory.",
+  "cwd_note": "cwd is the CASE directory (no time directory as a direct child; case/0 holds only *.template files). The launcher uses absolute paths and ignores cwd. A queue runner's wrapper writes launcher.queue.out and STATUS.F19_SOD into cwd; both are INFRASTRUCTURE fields under L-342 and untracked.",
+  "levels": "coarse 400 / medium 800 / fine 1600 cells (1-D, dim 1), dt 2e-4 / 1e-4 / 5e-5 (classical Co 0.175; solver prints 0.088), t_end 0.2, all SERIAL 1 rank, decomposePar never invoked, decomposition seed none",
+  "cap_core_min_registered": 5.0,
+  "cap_behaviour": "checked incrementally after each level in ClockTime x ranks / 60 and PROJECTED before each level; a crossing HALTS at exit 3; the cap is never raised",
+  "registered_prediction": "G-F19-1 L1 density error CONVERGING with observed order ~0.8 (model 0.79-0.89; expected range 0.6-1.2, band independent of p), fine value in [1.466760e-04, 1.320084e-03]; G-F19-2 shock position CONVERGING, fine value in [0.850106024, 0.850756269] (exact 0.850431146); NO plateau gate (transient value at t = 0.2), recorded ABSENT; rule 5 limb 1 is a Courant stability census (explicit inviscid solver, no residual exists)",
+  "grade_cmd": ["python3", "/home/ubuntu/Certonomous/cases/F19_SOD/grade_f19.py", "--prereg-commit=3053d9ec9695666e2491bed0d2398b101de2895f"],
+  "verdict_state": "PENDING"
+}
