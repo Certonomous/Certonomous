@@ -1,0 +1,38 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL011-R3",
+  "prereg_commit": "45c3e8a4ec3a805f98e7e2464cbbe770102c3f38",
+  "prereg_path": "cases/ansys_verification/VMFL011-R3/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL011-R3/run_vmfl011_r3.sh",
+    "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R3"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R3",
+  "ranks": 1,
+  "cost_core_min_estimate": 9.1,
+  "cost_basis": "derived: estimate 9.1 core-min from the R2's MEASURED 9.0833 core-min on these byte-identical inputs (0.2833 + 1.0500 + 7.7500 at ranks 1, from RUN_RC.L1/.L2/.L3 and COST.txt under verification/runs/ansys_verification/VMFL011-R2/, register row #31, calibration C-144), rounded up; nothing in this R3 changes a mesh, a scheme or an iteration count. The R2 figure is PREFERRED over attempt 1's 8.2167 because it is the more recent measurement on a comparably loaded box. Cap 50 core-min RUNNING TOTAL, byte-identical to attempts 1 and 2 (prereg line 12), enforced in the executable path as timeout_s = remaining_core_min * 60 / RANKS. $0.0078 at the owner-stated $0.0513/core-h (c7a.4xlarge), REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5).",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "ansys-lane-opus (lane H of the ansys-verification team) -- THIS FIELD NAMES THE LANE THAT DROPPED THE FILE AND NOTHING MORE. The supervisor's SUPERVISION_CHARTER section 3 check 4 is undelegable and is NOT recorded by this field; a lane cannot perform it and does not claim to (CLAUDE.md rule 9). What the lane DID do, and what it measured: gate freeze committed at 45c3e8a4 with the run root ABSENT at 2026-08-26T22:36:15Z, plus PRE-COMPUTE AMENDMENT 1 at da9ceef2 registering the launcher smoke BEFORE it ran, with the run root still absent and no gate, threshold, cap or label altered. THE GATE SECTION DIFF AGAINST THE R2 COMPARATOR IS EMPTY OVER 77 LINES (gate constants, the whole verdict path, roache() with P_MIN, and both gate readers) and the extraction command is published in the prereg so it can be re-run. Comparator --selftest 50/50 exit 0, byte-identical under python3 and python3 -O and run to run; ast.Assert 0; six mutants each with no green line under both interpreters. The L-347 placement repair DRIVEN on the real bytes of row #31's refusal (blob 11c15779, 401 rows, min(u)/U_wall -0.2644944566075 at row 300, row 0 u=0.0 at the apex): the R2 row-0 pair moves the min() reader by EXACTLY 0.0 (REFUSES), the registered argmin pair by 0.0617 > threshold 0.01234 (PASSES, = |plant|/U_WALL to 1e-12), a fixture whose argmin IS row 0 lets the parent pair PASS (the defect is data-dependent), a blind reader is STILL refused. The launcher argv usage guard DRIVEN (no argument -> rc 1 with 'usage: run_vmfl011_r3.sh <run_root> [levels...]'), and THE EXACT ARGV OF THIS ENTRY driven end to end as the REGISTERED VMFL_SMOKE in a scratchpad root: rc 0, 0.0167 core-min, L1 only at endTime 20, End line present, last time == endTime, age guard yes, freeze OK printed against both blobs, nine input blobs verified, --selftest 50/50 gated under both interpreters, L-343 USER pin resolved to USER=ubuntu with FOAM_USER_LIBBIN=/home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/lib (NOT the user-v2606 path L-343 names), grades nothing, and NOTHING was written under verification/runs/ -- verified after the smoke: the run root is still ABSENT. VMFL064R2-ENTRY-DEF-1 is therefore not repeated: launch_cmd[2] IS the run root and equals cwd.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.VMFL011-R3 (rc inside the detached wrapper)",
+      "the case's own log.simpleFoam End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines",
+      "LAUNCH_RECORD.txt user_env / id_un / foam_user_libbin / wm_project_user_dir (L-343)"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_note": "ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD section 1). Presence in this directory causes nothing to happen. PREDICTED VERDICT: GATE FAIL -- attempt 1 published rms 0.0403/0.0348/0.0341 against the byte-identical 0.030 band, the R2 reproduced its L1 minimum to six decimals, and prereg line 9 says GATE FAIL in advance. This run buys a GRADED verdict where TWO frozen instruments produced no number; it cannot buy a credential (tier ceiling GATE REACHED, code-to-code reference). WRITTEN DOWN BEFORE THE RUN, in the pre-registration and repeated here: IF THIS ATTEMPT ALSO PRODUCES NO VERDICT, the honest next step is a DIAGNOSIS, NOT a fourth registration. The box was at load average ~15 of 16 when this entry was dropped, so it is expected to be HELD rather than launched, and that is correct."
+}
