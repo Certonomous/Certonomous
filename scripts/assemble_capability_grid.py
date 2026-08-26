@@ -70,7 +70,7 @@ def tables(text):
 
 
 def census_line(text):
-    m = re.search(r"^\*\*Census:?\*\*.*$", text, re.M)
+    m = re.search(r"^\*\*Census[^*]*\*\*.*$", text, re.M)
     return m.group(0) if m else "**Census:** (no census line found in source)"
 
 
@@ -87,8 +87,10 @@ def verdict_census(table_lines):
     """Count cells per Sanaa's three-value verdict across every verdict column."""
     c = {"CAN DO": 0, "CAN DO, CAVEATS": 0, "CAN NOT DO": 0, "CAN NOT DO — not attempted": 0,
          "unclassified": 0}
+    ncol = len(table_lines[0].strip().strip("|").split("|")) if table_lines else 2
     for ln in table_lines[2:]:
-        cells = [x.strip() for x in ln.strip().strip("|").split("|")][1:]
+        # split on pipes that are not inside a backtick code span, then keep only the verdict columns
+        cells = [x.strip() for x in re.split(r"\|(?=(?:[^`]*`[^`]*`)*[^`]*$)", ln.strip().strip("|"))][1:ncol]
         for cell in cells:
             t = cell.replace("*", "")
             if re.match(r"CAN DO, CAVEATS", t):
