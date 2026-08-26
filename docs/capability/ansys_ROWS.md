@@ -172,3 +172,101 @@ for s in 87afd1d6 3e7c792c b847b97f 8c7e1854; do printf '%s ' "$s"; git cat-file
 ```
 
 Reading at write time, 2026-08-26: `87afd1d6 ok` · `3e7c792c ok` · `b847b97f ok` · `8c7e1854 ok` — 4 ok, 0 MISSING. The original 26-sha loop re-run at the same time: 26 ok, 0 MISSING. **Distinct commit shas cited by this file: 26 + 4 = 30.** The three blob ids cited above (`abe17c3b`, `e04fdf93`, `c17ee2e2`) are blobs, not commits, and are deliberately outside the `^{commit}` loop; `git cat-file -t` on each reads `blob` (3 of 3). A `MISSING` line is a defect in this file, not in the record.
+
+---
+
+## Correction 3 — 2026-08-26, ansys-verification lane `ansys-lane-opus`: register rows #31 and #32 mapped; row #30 CONFIRMED already mapped by Correction 2; census recomputed at HEAD `c7aea761`
+
+**Lines whose number changed above this section: 0.**
+
+Appended by the `ansys-verification` team's Opus lane on the supervisor's dispatch. Zero compute
+beyond the two gradings this section records. Everything below was read with
+`git show <sha>:<path>`; neither the worktree nor the shared index was used (L-333: the worktree
+copies of these ledgers have repeatedly been behind HEAD, and one of them — `docs/COST_CALIBRATION.md`
+— was measured stale by exactly one row during this lane's own work).
+
+**The dispatch asked for row #30 to be mapped here. It is already mapped, and I am not mapping it
+twice.** Correction 2 above maps row #30 (VMFL064-R2, `GATE REACHED`, `87afd1d6`, backward-facing
+step, `2D · steady · incompressible`) in §C2.1/§C2.2, and I re-read that entry against the register
+row at HEAD `c7aea761` and against `cases/ansys_verification/VMFL064-R2/RESULTS.md`: **it is
+correct and complete — verdict token, `LR/s` = 4.853056, 2.9389 % of a 10 % band, `CONVERGING`
+4.714416 / 4.800738 / 4.853056, `p_obs` 0.722431, `GCI_fine` 2.0733 %, prereg `3e7c792c`, comparator
+blob `e04fdf93`, 5.3 core-min, C-141 — all match.** A duplicate entry would put two rows numbered 30
+in this file and would be a defect, so this section maps **#31 and #32 only** and records the check
+instead.
+
+### C3.1 Rows #31 and #32 in the §2 format (appended here, not inserted above)
+
+| # | case | class (cfd cell / heat cell) | register verdict | what the record says (lab value → reference; triple) | record path @ sha; grading artifact |
+|---|---|---|---|---|---|
+| 31 | VMFL011-R2 | 2D·steady·incompressible (laminar) | **`NOT A RESULT`** | **Comparator refusal (exit 2) on the planted-zero control for `u_min_norm`**, verbatim: `planted -0.1234 into …/L1/postProcessing/bisector/20000/bisect_U.xy, reader moved by only 0.` **No value, no triple, no `p_obs`, no GCI** — the refusal preceded every channel read, so nothing is quoted against the digitised Jyotsna & Vanka (1995) `u_min/U_wall` = −0.318062 (band: `rms_vs_benchmark` ≤ 0.030 at L3). Re-registration of row #26: the **L-340 plant SIZING repair worked and is measured on the real attempt-1 bytes** (sized plant delta 1.185698e-01 > threshold 3.221137e-02, inside the derived bounds [8.052843e-02, 1.610569e-01]; the parent pair still refuses at 3.677091e-07 < 1.234000e-04). **The refusal came from the OTHER channel — a SECOND, DISTINCT L-340 failure mode: plant LOCATION, not plant MAGNITUDE.** `_perturb` plants into the FIRST data row of the bisector, which on the real profile is the collapsed-hex apex at y = −4 m where `u ≡ 0`, so −0.1234 sits above `min(u) = −0.528988913215` and a `min()` reader cannot move. It was never caught at the freeze because both comparators build channels in the same dict order (rms first) and attempt 1 exited 2 inside the first entry — **the `u_min` plant had never once run on real VMFL011 bytes.** Strict completion (rule 4) HOLDS at all three levels (rc = 0, one `End`, last `Time` 20000 == `endTime`, `U`/`p` present, `ExecutionTime` count 20000, age guard): **the instrument refused; the solver did not fail.** 9.0833 core-min vs 8.3 predicted, ratio 1.094. | `cases/ansys_verification/VMFL011-R2/RESULTS.md` @ `77096fe8`; `verification/runs/ansys_verification/VMFL011-R2/GRADING.txt` (**at HEAD** `c7aea761`; no grading JSON exists — the comparator exited before writing one); prereg `9f9d6925`, prereg blob `a8c9b6f3…`, comparator blob `45aa4613…`; calibration **C-144** |
+| 32 | VMFL017-R2 | **2D·unsteady·transonic (turbulent)** — see §C3.2, this CORRECTS §1's cell for the R2 | **`NOT A RESULT`** | **Registered per-level cap fired (`rc = 124` after 18 000 wall s = 300.0 core-min), launcher stopped without launching L2 or L3, and the frozen comparator REFUSED (exit 2) on strict completion**, verbatim: `REFUSE (VMFL017-R2): no End line in solver log: …/VMFL017/R2/L1`. **No `Cd`, no `Cl`, no plateau window, no triple, no GCI** — L1 reached **1.778 %** of its registered `endTime`, so nothing is quoted against AGARD AR-138 `Cd` = 0.0168 / `Cl` = 0.803 (bands 10 % and 5 %). **A MEASURED INSTRUMENT LIMIT, NOT A FAILED SOLVE, and predicted by name before compute** (PRE-COMPUTE AMENDMENT 2 §E at `45328f8a`). **What it buys is a cost measurement, and all three of §E's pre-compute figures held:** physical time reached 8.89114e-04 s vs projected ~9.0e-04 s (**0.988**); 27.04 steps/wall-s (486 748 steps in 17 999 s) vs projected ~27.7 (**0.976**); **16 871 core-min for L1 ALONE to reach `endTime`** vs projected ~16 700 (**1.010**) — **about 56× L1's own cap**. Realised Δt at the stop 1.852520264e-09 s. **Contention falsified as the cause, measured:** `ExecutionTime` 17 761.7 s vs `ClockTime` 17 999 s = **98.68 % CPU-bound**. Cites row #19 (attempt 1, `PENDING`), which is unchanged. 300.0 core-min vs 300.0 registered, ratio 1.000 — **a cap, not a forecast, and not banked as a calibration win.** | `cases/ansys_verification/VMFL017/R2/RESULTS.md` @ `fd975fcf`; `verification/runs/ansys_verification/VMFL017/R2/GRADING.txt` (**at HEAD** `c7aea761`; no grading JSON, no `COST.txt` — the launcher stopped on the cap before writing one; `L1/log.rhoCentralFoam` is 504 MB and stays on disk only); prereg `45328f8a`, prereg blob `9a58eed3…`, comparator blob `97c556f4…`, mesh birth certificate `2a7e82c2…`; calibration **C-149** |
+
+### C3.2 Their classes, and one correction to §1
+
+**Row #31 — `2D · steady · incompressible (laminar)`; heat cell: —.** Unchanged from §1's VMFL011
+line and confirmed from the R2 pre-registration `cases/ansys_verification/VMFL011-R2/PREREGISTRATION.md
+@ 9f9d6925` (= HEAD blob `a8c9b6f3…`): line 1 "Solver = simpleFoam (OpenFOAM v2606), steady
+incompressible laminar SIMPLEC, Re = U_wall*base/nu = 2*2/0.01 = 400, 2-D"; line 8 "SERIAL, RANKS = 1";
+line 11 "N/A (planar 2-D Cartesian, not an axisymmetric wedge)".
+
+**Row #32 — `2D · unsteady · transonic (turbulent)`; heat cell: —. THIS CORRECTS §1's VMFL017 cell for
+the R2, and the correction is a solver change, not a re-reading.** §1 maps VMFL017 as
+"`rhoSimpleFoam` + kOmegaSST, **steady**, 2-D C-mesh, transonic" — which is right for **attempt 1
+(register row #19, `PENDING`)** and wrong for the R2. The supervisor's ladder ruling switched the
+instrument to **`rhoCentralFoam`, which is explicit and TRANSIENT**:
+`cases/ansys_verification/VMFL017/R2/PREREGISTRATION.md @ 45328f8a` line 1 "Solver = rhoCentralFoam
+(OpenFOAM v2606), kOmegaSST RAS, hePsiThermo/perfectGas, **TRANSIENT explicit** (adjustTimeStep,
+maxCo), shock-capturing. 2D C-mesh"; line 8 "TRANSIENT; endTime a **physical settling time** (not
+iterations), adjustTimeStep, maxCo"; line 11 "N/A (2D Cartesian C-mesh, planar in z, empty
+frontAndBack — not axisymmetric)". **The time axis of the cell therefore moves from `steady` to
+`unsteady` for row #32 while row #19 keeps `steady`** — the same manual case occupying two different
+grid cells because the lab ran it on two different instruments. **Nothing above is edited**; §1's
+line stands as written and is corrected here by appending, which is what this file's own convention
+requires.
+
+**Consequence for §3's grid reading, stated and NOT applied above.** The `2D · unsteady · transonic`
+cell is now **occupied and empty-handed**: one row, `NOT A RESULT`, no value. That is a genuine
+capability statement — **the lab has attempted transonic RAE 2822 twice, on two different solvers,
+and has produced no number either time** — and it should not be read as "CAN DO". The
+`2D · steady · incompressible` cell gains row #31 as a further `NOT A RESULT` and its "CAN DO — 2
+cases" reading (from §C2.4) is **unchanged**, because #31 adds no credential and removes none.
+
+### C3.3 Census recomputed at HEAD `c7aea761` from the Verdict column
+
+Same method as §C2.3 — `git show HEAD:verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md`
+split on **unescaped** pipes only (`re.split(r'(?<!\\)\|', …)`, because the Case cells of rows #7 and
+#21 contain `\|` and a naive `split('|')` mis-columns exactly those two), keeping lines whose first
+cell is a bare `**n**`, and reading the first backticked fixed-vocabulary token.
+
+**Totals at HEAD `c7aea761`: 32 numbered rows, 32 entries, no row number missing or duplicated.**
+**`PASS` 6** (#2, #3, #7, #13, #15, #28) · **`GATE REACHED` 5** (#20, #22, #23, #24, #30) ·
+**`NOT A RESULT` 20** (#1, #4, #5, #6, #8–#12, #14, #16, #17, #18, #21, #25, #26, #27, #29, **#31**,
+**#32**) · **`PENDING` 1** (#19) · `GATE FAIL` 0 · `BLOCKED` 0; sum **32**. Row #31 is register line
+`:549`, row #32 is `:574`.
+
+**The credential count does NOT move: 6 `PASS` of 32 run.** Both new rows are `NOT A RESULT`. The
+register's own headline still reads "6 PASS of 30 run" and is **deliberately not struck** — the
+standing instruction strikes it only when the `PASS` count changes — so its **denominator is two
+behind by design**, recorded in the register's own dated notes for rows #31 and #32 and repeated
+here so a reader of this file alone is not misled.
+
+**The reading these two rows share, and it is worth the space.** Neither is a solver failure. Row
+#31's instrument refused because a control had never been exercised on real bytes; row #32's
+instrument ran flawlessly for five hours and simply cannot afford the physics at the registered
+`endTime`. **Two different ways to spend compute and buy no number — one a grading defect, one an
+honest cost measurement — and the point of this file is that neither of them reads as a capability.**
+
+### C3.4 Footer extension — the planted control on the shas this section adds
+
+New commit shas cited in this section: `77096fe8` (row #31 + RESULTS + C-144), `fd975fcf` (row #32 +
+RESULTS + C-149), `9f9d6925` (VMFL011-R2 prereg freeze), `45328f8a` (VMFL017-R2 prereg freeze),
+`db2c7f9a` (the run records landed at HEAD for the rows that cited them). `3e7c792c` and `87afd1d6`
+were already in §C2.5's list. Run from the repository root, same form as the footer:
+
+```
+for s in 77096fe8 fd975fcf 9f9d6925 45328f8a db2c7f9a; do printf '%s ' "$s"; git cat-file -e "$s^{commit}" 2>/dev/null && echo ok || echo MISSING; done
+```
+
+Reading at write time, 2026-08-26: 77096fe8 ok · fd975fcf ok · 9f9d6925 ok · 45328f8a ok · db2c7f9a ok  — 5 ok, 0 MISSING. **Distinct commit shas cited by
+this file: 26 + 4 + 5 = 35.**
