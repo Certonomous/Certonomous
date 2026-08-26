@@ -14203,6 +14203,43 @@ point in opposite directions — **the marker limb is a TIGHTENING, one-way and 
 the `End`-line limb is a RELAXATION, and a relaxation adopted after seeing that the gate would fail
 an arm you believe is healthy is precisely the shape rule 2 exists to prevent.** A legitimate
 tightening does not get to carry a relaxation through on its back.
+### ADDENDUM 2 — 2026-08-26 — **UNREACHABLE**: THE FOURTH FACE, AND THE ONLY ONE THAT READS AS COVERAGE
+
+**Ruled by the dafoam-supervisor, 2026-08-26, on a D12R2 finding.** L-335's parent class is *a
+provision that is named where it is not carried*. Four faces are now on the record in one night:
+
+| face | shape | instance |
+|---|---|---|
+| **ABSENT** | the docstring names a clause the code never had | `D4-DEF-7`, `D7R-GRADER-DEF-7` |
+| **VACUOUS** | the code carries a clause that cannot fail | `last_time == endTime` on a mesh row: `0.0 == 0.0` |
+| **MISAIMED** | the code carries a clause that checks the wrong thing | `test -s "$LOG"` as a completion proxy |
+| **UNREACHABLE** | the provision exists, is well-formed, and **no path reaches it** | `W_CONTINGENCY = 900`; `elif kind == "mesh": pass` |
+
+**THE MEASURED INSTANCE.** `d12y_grade.py` defines `W_CONTINGENCY = 900` and `G12R-4`'s own
+refusal text says *"the contingency window fires"*. **It cannot fire.** `W_CONTINGENCY` occurs at
+exactly **two** lines — its definition and a reporting dictionary — **no gate consumes it**, and
+**no launcher phase runs it**. Its sibling: `elif kind == "mesh": pass` is a live, correct branch
+in a gate that **was never handed a mesh row**, because the launcher emitted none.
+
+> **STANDING RULE: A CONTINGENCY NAMED IN A FROZEN DOCUMENT MUST NAME THE PHASE THAT RUNS IT AND
+> THE GATE THAT CONSUMES IT, OR IT DOES NOT GO IN THE DOCUMENT.**
+
+**WHY UNREACHABLE IS THE WORST OF THE FOUR, AND IT IS NOT A RANKING FOR ITS OWN SAKE.** ABSENT,
+VACUOUS and MISAIMED all fail *while being executed* — they can be caught by a mutation, a
+planted control, or a demonstration that makes the guarded condition occur. **An unreachable
+provision is never executed at all, so no behavioural test can reach it and every such test
+passes.** And it is the only one of the four that **reads as coverage**: a reviewer sees the
+contingency in the document and the branch in the code, and concludes the case is handled.
+**An absent provision is a gap you can see. An unreachable one is a gap that looks like a wall.**
+
+**HOW IT WAS FOUND, which is the transferable part.** Not by reading the comparator — the branch
+is correct in isolation and survives every unit that runs. It was found by **reconciling two
+independent artifacts that should have agreed**: the ledger's 33 `STAGE=` lines against the
+manifest's 32 rows, a 0.0667 core-min residue in a *cost* total. **The instrument that caught a
+verification defect was the COST CALIBRATION** (`CLAUDE.md` rule 12), which is not what it was
+written for. **Cross-artifact reconciliation finds what unit tests structurally cannot.**
+
+
 ## L-336 — Detachment is proved by SESSION ID, never by parent pid; and a true conclusion from an invalid test is a coin, not a finding
 
 **2026-08-26, `ansys-verification`.** Three launchers ignored a binding `setsid` order and ran
