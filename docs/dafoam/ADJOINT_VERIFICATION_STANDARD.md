@@ -148,3 +148,17 @@ for s in 1fa8bc44 fd9bf1b6 e6580910 5d1f89cd 65882eb3 15767999 b840fcd5 b10260a0
 ```
 
 Reading at write time, 2026-08-26: 27 ok, 0 MISSING, 27 distinct shas. (Image IDs and file md5s above are docker/md5 identities, not git shas, and are not in this loop.)
+
+---
+
+## Amendment v1.0a — 2026-08-26, dafoam lane G, on the supervisor's own read inside the SHIPPED image (dated addendum; the v1.0 sentence struck in place, never rewritten; no band, gate or verdict mapping changed)
+
+**What v1.0 §2 said, struck:** ~~"every mphys linear hook raises `"the forward mode functions are not implemented for DAFoam!"`"~~ and, in the exposure table, ~~"`check_partials` in forward mode is refused by the raises above"~~.
+
+**What the code does (`mphys_dafoam.py` md5 `3a4530dd…`, read at `:375-386`, `:433-442`, `:671-678`, `:751-758`, `:839-846`, `:909-915`, `:1062-1070`, `:1390-1395`):** on `mode == "fwd"` each hook calls **`om.issue_warning(" mode = fwd, but the forward mode functions are not implemented for DAFoam!", category=om.OpenMDAOWarning)` and falls through** — a **silent no-op**, not an exception. An instrument that reaches that path reads zeros or unchanged seeds with only a warning on stderr. That is a sharper hazard than v1.0 described, and it changes nothing about the two verdict states: the residual-level random-seed form stays **`BLOCKED`** at the Python API (no forward Jacobian-vector product is bound; the fall-through is not one), and the total-level form via `useAD.mode == "forward"` (`pyDAFoam.py:811`, `self.solverAD.solvePrimal()`; `tests/testFuncs.py:33-50`) stays the exposed one. **Consequence carried into AV-2's freeze:** the forward channel gets a planted control that distinguishes a silent no-op from a true forward product — a forward total that is exactly `0.0` on every component, or equal to its input seed (`1.0`), or equal to the baseline function value, is **`NOT A RESULT`** (refuse, never `PASS`), and the AV-2 grader's selftest shows the silent-zero plant refusing. The v3 names `calcdRdWTPsiAD` / `calcdRdXvTPsiAD` / `calcdFdW` are confirmed 0 hits in v4's `pyDAFoam.py` (the supervisor's own read, and this lane's).
+
+| what this amendment did | figure |
+|---|---|
+| bands, gates, verdict mappings changed | 0 |
+| sentences struck in place | 2 |
+| lines whose number changed above this section | 0 |
