@@ -635,3 +635,186 @@ anything went wrong.**
 
 **DRAFT. NOT A REGISTRATION. NOT FROZEN. Authorisation is Sanaa's and the
 chief's.**
+
+---
+
+## 4f. 2026-08-26 — RULINGS A2 AND A3 FOLDED IN, AND WHAT THE COMPLETED RUNS CHANGED
+
+**Appended, not edited.** Everything above stands on the page as written; this
+section supersedes the parts it names, in the visible-supersession style of
+§4b.3. **This file remains a DRAFT and registers nothing.**
+
+### 4f.1 SUPERSESSION TABLE
+
+| | |
+|---|---|
+| §4c part 2 — `σ_self` from **two** disjoint windows | **SUPERSEDED** by ruling A2 (§4f.2) |
+| §4c part 3 — "the difference lies within `σ_self`" | **AMENDED** — `σ_self` is now A2's statistic |
+| §4c part 1 — the stationarity precondition | **DEFECTIVE AS WRITTEN** (§4f.3). Not repaired here; a repair is a registration decision. |
+| §4c "the level is registered before running" | **STANDS**, and A2 extends it to `K` and the window length |
+| §4a / §4b — `f` "oscillating", "228 iterations, never again" | **FALSE AT COMPLETION** (§4f.4) |
+| §4d — the case may not be steady | **PROMOTED** from an open possibility to the leading formulation question, on three-level evidence (§4f.5) |
+
+### 4f.2 RULING A2 — `σ_self` FROM TWO WINDOWS IS ONE SAMPLE OF A DIFFERENCE, NOT AN ESTIMATE OF ITS SPREAD
+
+**Supervisor's ruling, 2026-08-26, and it is not optional.**
+
+§4c part 2 as drafted takes two disjoint windows and calls their single
+difference `σ_self`, then part 3 passes the ramp when its difference *"lies
+within `σ_self`"*. **With n = 2 there is exactly one number and no distribution:**
+a ramp difference at 0.9 of that one number would be called neutral **on a null
+with no width.** That is the failure class this team logged five times in one
+day — *state what two things you are comparing and show they are comparable
+before reading the difference.*
+
+**REGISTERED INSTEAD:**
+
+- `σ_self` is estimated from **at least K = 4 disjoint equal-length windows**
+  within the **no-ramp run alone**;
+- the neutrality criterion is the **maximum pairwise window-to-window
+  difference** across those K windows (a stated quantile is acceptable **only if
+  the quantile is registered before running**);
+- **`K` and the window length are REGISTERED BEFORE THE RUN**, never chosen after
+  seeing the series — choosing the window length that makes the answer come out
+  is the same move as choosing the level that makes the test work, which §4c
+  already forbids for the level;
+- if the run is too short to yield **K = 4 disjoint stationary windows**, the ramp
+  test **CANNOT BE RUN** and reports **`NOT A RESULT`**. It does not get a shorter
+  window to manufacture `K`.
+
+**MEASURED, so this is not pedantry.** On the completed T8 residual series
+(`T8_STEADINESS_MEASUREMENT_2026-08-26.md` §4):
+
+| level | drafted two-window `σ_self` | ruling A2's max-pairwise `σ_self` | ratio |
+|---|---|---|---|
+| `c` | `2.661025e-06` | **`2.197400e-05`** | **8.26×** |
+| `f` | `2.098389e-08` | **`3.572086e-08`** | **1.70×** |
+
+**On `c` the drafted null was 8.26× too narrow.** A ramp difference anywhere
+between `2.7e-06` and `2.2e-05` would read **FORBIDDEN** under the drafted form
+and **NEUTRAL** under A2's, **on the same data with no other difference.** A
+verdict flip produced by the width of a null is the whole reason a null needs a
+width.
+
+### 4f.3 §4c PART 1 IS DEFECTIVE AS WRITTEN — reported, not repaired
+
+The criterion — *"the window mean must not trend across consecutive windows by
+more than the within-window spread"* — has two structural problems, and they are
+about its **form**, so they hold regardless of what any particular run did.
+
+1. **IT IS NON-DIRECTIONAL.** It asks whether the mean *trends*, not whether it
+   *grows*, so it refuses a **decaying** series exactly as it refuses a wandering
+   one and **prints the same word for both.** A test that cannot separate *"still
+   settling"* from *"will never settle"* cannot carry a case-selection finding —
+   those two states call for opposite decisions.
+2. **IT DIVIDES A TREND BY A SPREAD.** As a series gets **smoother** the
+   within-window spread tends to zero while the trend does not, so the test
+   becomes **arbitrarily sensitive on exactly the best-behaved runs.** `f`'s final
+   within-window sd is `1.155e-09`, three orders below its mean.
+
+**And it admits the wrong thing.** Measured: level **`c` — which never once
+reached the registered `1e-6` in 8,000 iterations and sat on a plateau four
+decades above it — PASSES this precondition.** A stationarity gate that admits a
+stalled run is admitting a stall as a valid comparison basis.
+
+**THE TERRITORY ALREADY HAS THE RIGHT SHAPE AND §4b.3 ALREADY ADOPTED IT.**
+`analyse_e4a2.py:299-300` — *"C1 sustained floor AND C2 **not growing** AND C3
+graded-quantity stationarity"* — implemented at `:308` as
+`c2 = not cl["growing"]`. **"Not growing" is directional. "Not trending" is
+not.** `analyse_k0cx.py:644` takes the other admissible route, peak-to-peak
+amplitude over a registered window with a registered minimum sample count, and
+likewise never divides a trend by a spread.
+
+> **§4b.3 ruled that this territory ADOPTS AN EXISTING REGISTERED SHAPE RATHER
+> THAN INVENT ONE. §4c part 1, written the same day, invented one — and the
+> invented one has a defect neither registered shape has.**
+
+**No repair is chosen here. Choosing is a registration decision.**
+
+### 4f.4 THE COMPLETED RUNS — `f`'s residual settled and `f` STILL DID NOT CONVERGE
+
+§4a and §4b were written while `f` was at iteration 2134, then 2717.
+**At completion:**
+
+- **The residual claim in §4b is false.** There are **two** stretches at or below
+  `1e-6` — iterations 877–1104 (228) and **4487–20000 (15,514)** — **15,742 of
+  20,000 in total.** *"228 total, the only stretch anywhere in the run"* did not
+  survive the rest of the run. **§4b's counter-example is withdrawn as stated.**
+- **And it does not rescue `f`.** The registered gate is **not** the residual
+  (§4b.1 said so on this page). Through the frozen comparator's own
+  `check_iterative_convergence`: **`f`'s `T` relative change between checkpoints
+  18000 and 20000 is `1.640285e-02` against the registered `1e-6`** — `dmax`
+  `1.012327e-01 K` over `rng` `6.171651e+00`. `U`: `1.467659e-01`. **`c`:** `T`
+  `9.113625e-02`, `U` `2.406859e-01`.
+
+> **`f`'s RESIDUAL SAYS CONVERGED (`5.932e-07`) WHILE ITS TEMPERATURE FIELD IS
+> STILL MOVING BY `0.101 K` BETWEEN ITS LAST TWO CHECKPOINTS. Optimistic by 1.7×
+> on the residual; wrong by 16,400× on the field.**
+
+**This is verbatim the failure `analyse_t1c.iterative_convergence` exists to
+catch**, and any successor that reads convergence from residuals inherits it.
+
+### 4f.5 RULING A3 — §4d IS ANSWERED FIRST, AND IT IS NOW EVIDENCED
+
+**Supervisor's ruling, 2026-08-26.** The stationarity precondition of §4c part 1
+and the §4d question are **the same measurement read two ways**, and the draft
+treats one as a gate and the other as an open possibility. **Registered as one:**
+
+> **If the registered level fails the stationarity precondition, the finding is
+> NOT merely "the ramp test cannot be run". It is that T8's REGISTERED STEADY
+> FORMULATION IS UNDER CHALLENGE, and it is reported as a CASE-SELECTION FINDING
+> BEFORE any ramp verdict is written.**
+
+A ramp verdict on a case whose steady formulation is wrong is a verdict about
+nothing.
+
+**§4d is promoted from possibility to leading formulation question**, on evidence
+the draft did not have: on **identical mesh quality** (non-orthogonality Max 0,
+skewness identical to thirteen significant figures), **byte-identical relaxation
+factors**, across **16×** in cell count, **the registered steady formulation
+reaches a converged state at NO resolution, in three different ways** — `c`
+unconverged at `endTime`, `m` SIGFPE at iteration 1086, `f` unconverged at
+`endTime`. **One level's failure is a case. Three levels failing three different
+ways is a formulation.**
+
+**THE HONEST LIMIT, WHICH THE SUCCESSOR MUST CARRY:** this establishes that the
+failure is **grid-dependent and not attributable to mesh quality or setup**. It
+does **not** separate *"the physics is unsteady"* from *"the closure is
+unrealizable on this grid"*. **Both are live**, and the `epsilon` bounding rate is
+**non-monotone in resolution** (`c` 3.8 %, `m` 38.6 %, `f` 8.4 %) — the middle
+level is the only one that destroyed itself, which **neither hypothesis
+explains.** `epsilon` goes negative on **every** level from `Time = 24`;
+**`T` never bounds on any level.**
+
+**THE DISCRIMINATING MEASUREMENT, REGISTERED BEFORE THE FORMULATION IS CHOSEN:**
+
+1. **An unsteady run at one level** (`buoyantBoussinesqPimpleFoam` on the fine
+   mesh). Under *unsteady physics* it develops a persistent, statistically
+   stationary fluctuation; under *unrealizable closure* it settles. **This is the
+   sharpest of the three because it does not ask a steady solver's residual
+   anything.**
+2. **A fourth, finer level.** A pure resolution test, and the same move RULING B
+   already pointed at when it said a ladder that cannot produce three gradeable
+   levels needs **re-choosing with a finer coarse level**, not a longer run.
+3. **The `epsilon` bounding rate extended past `m`.** Three points are already
+   non-monotone; a fourth makes the shape readable.
+
+**The successor must confront the steady/unsteady question BEFORE committing to a
+formulation.** That is what §4d said when it had one residual trace; it now has a
+three-level result and can demand it.
+
+### 4f.6 WHAT THIS LANE DID NOT DO, AND WHY
+
+**No successor registration is written and no rung id is claimed.** This file's
+own header reserves that: *"Re-registering a rung after first compute is not a
+supervisor's call and is emphatically not a lane's"* — it is **Sanaa's and the
+chief's**. `CLAUDE.md` rule 9 is explicit that **no agent message is Sanaa's
+consent**, and a directive not to leave compute idle is not an authorisation to
+re-register a dead rung.
+
+**No solver was fired.** Firing requires a **committed and frozen**
+pre-registration (rule 2), and there is none. Firing a successor tonight would
+also mean firing **against two open defects this lane has just measured** — §4c
+part 1's criterion (§4f.3) and the unchosen formulation (§4f.5). **A run
+registered on a defective precondition spends its compute buying an answer that
+cannot be read.** Cost is not the objection; **readability is.**
