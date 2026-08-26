@@ -160,3 +160,41 @@ comparison is bought.
 ### A1.3 The struck line
 
 **§4's "THE COMPARATOR IS BYTE-UNCHANGED — `d12y_grade.py` md5 `33f7a006e15dce2988a63b2e937cf07b`" is STRUCK, not rewritten.** At this addendum `d12y_grade.py` is md5 `02a9ab62fc26d963886ecd0ee97457ef`, blob `aecceb4e874eb6d306fb273d7408e762718c87a2`, and that is the grading path for W2R. `d12y_run_script.py` and `d12y_w2r_stage_and_run.sh` are unchanged.
+
+---
+
+## ADDENDUM 2 — 2026-08-26T17:13:31Z. THE LATER-PHASE WAIT-THEN-LAUNCH WRAPPER IS REGISTERED FOR PHASES 2, 3 AND 4 — IT ALTERS NO GATE, THRESHOLD, CAP, LABEL OR COMPARATOR
+
+**Version 1.2. This addendum ALTERS NO GATE, THRESHOLD, CAP, LABEL OR COMPARATOR. Lines whose number changed above this section: 0.** Post-compute addendum: at this write phase 1 is **RUNNING** (`29` of 33 `STAGE=` ledger lines, `SPENT_CORE_MIN=70.8 of cap 600.0`, live container `d12y_S4_n80_r2_20260826T160035Z_23510` on cpu 12, stamp `20260826T160035Z_23510`); **nothing has been graded**. Decision `[lab-attributed]` by dafoam lane Q2 for dafoam-supervisor under the UPDATE K dispatch (`1f9a90ee`); permission for anything that leads to a launch is Sanaa's own words at **`bc0e687e`**.
+
+### A2.1 Why a wrapper, and what the premature fire left behind
+
+`scripts/queue_runner.py` at HEAD evaluates **no** `precondition_artifact` (0 hits, measured 2026-08-26). The held entry `verification/queue/dafoam/held/W2R_phase2.json` was launched on drop at **16:17:27Z** while phase 1 was at its second stage; the launcher aborted at `d12y_w2r_stage_and_run.sh:915` (`ABORT: … step_plan.json absent`), rc=1, zero stages, `cases/dafoam/curriculum_D12R2/STATUS.W2R_phase2` reads `rc=1 end=2026-08-26T16:17:27Z`. **It also wrote one line into the live phase-1 ledger** — `ledger.txt:46`: `PHASE 2 RESUMING: cumulative spend so far 14.4667 core-min (S8: 0.0000)` (launcher `:247`, executed before the `:915` abort). **That line is NAMED HERE AS LEDGER CONTAMINATION, NOT A STAGE**: it carries no `STAGE=` prefix, so `G12R-0b`'s registered count of 33 `STAGE=` lines is untouched; the phase-1 grade must record it as contamination from the 16:17:27Z premature fire and must not read it as a phase-2 event. Nothing in the run root was removed or edited.
+
+### A2.2 The wrapper — one file, generic, dafoam-owned
+
+**`cases/dafoam/_common/dafoam_wait_then_launch.sh`, blob `c331ea56ef06e841f5d35e9f79a196fc3e38b7f7`, md5 `41ba9caadee12bbc2397e708b4396673`.** It sits in front of the FROZEN launcher, which is **not edited** (md5 `736aa849b4aa91c77d41b061bf4d10f9` stands, §4). It: **(a)** polls every **30 s** for the named precondition artifact until a **bounded deadline passed on its argv**, writing every wait to `STATUS.<case_id>` in the cwd (the case directory) and identically to `WRAPPER.<case_id>.log` (the runner overwrites `STATUS.<case_id>` with its one `launcher_rc=` line at exit — `queue_runner.py` `launch()`, `>` — so the series survives in the second file); **(b)** applies **G-ROOT.5** immediately before the launch: refuses **rc 3** if `sudo -n docker ps` shows a RUNNING container whose name carries this item's prefix **`d12y_`** (launcher `:343`), or if `<run root>/driver.pid` names a LIVE pid that is not an ancestor of the wrapper or whose `/proc/<pid>/cwd` is the run root (a stale pidfile never blocks), or if its own `<run root>/<case_id>.wrapper.pid` names a live pid (a duplicate wrapper); **(c)** runs the registered launcher argv **UNCHANGED** as a foreground child, captures its exit status **inside the wrapper** into `STATUS.<case_id>` as `rc=<n> event=LAUNCHER_EXIT … NOT-the-solver-rc-L-342` and exits with it; **(d)** at the bound with the artifact still absent it **refuses-and-BLOCKS, rc 6**, with the wait series on record — nothing launched. No `assert` (L-332). **Selftest** `cases/dafoam/_common/dafoam_wait_then_launch_selftest.sh` (blob `548930b55eb55a2931bbb27059285810253e829d`), evidence `dafoam_wait_then_launch_selftest_evidence.txt`: **12 of 12** at 2026-08-26T17:09:59Z — `bash -n`; assert count 0 with a planted positive; absent→3 waits→present→`true` executed, rc 0 labelled; launcher exit 7 passed through; G-ROOT.5 (a) fired on a sacrificial `sleep` container `dwtl_selftest_20260826T170948Z` (rc 3, named, nothing launched); G-ROOT.5 (b) fired on a sacrificial live pid whose cwd was the sacrificial run root (rc 3); stale pidfile did not block; bound reached → rc 6 with 3 WAIT lines; duplicate wrapper → rc 3; usage → rc 64; sacrificial root removed, no container survives.
+
+### A2.3 The precondition per phase — read from the launcher, cited by line, never invented
+
+| phase | precondition artifact (must exist on disk) | who writes it | launcher line that requires it | registered no-launch outcome (unchanged) | wrapper deadline |
+|---|---|---|---|---|---|
+| **2** | `<root>/step_plan.json` | the FROZEN comparator in `--plan` mode (`d12y_grade.py:1957-2061`, blob `aecceb4e…` per Addendum 1) — the step the `PHASE1_COMPLETE` ledger line itself names next (`:904-906`) | `:914-915` | `admissible:false` → launcher exits 0 **launching nothing** (`:919-923`) — **P3 HIT** is the primary prediction | **43,200 s** |
+| **3** | `<root>/step_plan2.json` | `--plan2` (`:2065-2107`) after `PHASE2_COMPLETE` (`:934-935`) | `:944-945` | `h_star=None` → **NOT LAUNCHED**, gradient `NOT A RESULT` (`:949`) | **86,400 s** |
+| **4** | `<root>/step_plan3.json` | `--plan3` (`:2110-2150`) after `PHASE3_COMPLETE` (`:973-976`) | `:974-975` | `optimisation_authorised` not `True` → **S8 NOT LAUNCHED** (`:984-986`) | **129,600 s** |
+
+`<root>` = `/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W2R-cylinder-unsteady`. **The comparator is never run by the wrapper**: a `--plan*` run is grading, issued by a lane under the supervisor's grade, and the wrapper only waits for its artifact. **Each deadline exceeds the predecessor phase's cap wall** — `CAP_CORE_MIN = 600.0` at np=1 is 36,000 s for a whole phase, and no single stage can exceed the launcher's own `timeout 7200` (`:416`) — plus the comparator step; phases 3 and 4 add one predecessor each. **A wrapper that reaches its bound writes `rc=6 … verdict=BLOCKED` and launches nothing**; a launcher that fires its registered no-launch branch exits 0 and the wrapper's `rc=0 event=LAUNCHER_EXIT` line **is the launcher's exit, not a completed sweep** (L-342 labelling; the ledger's `PHASE<n>_COMPLETE` / `NO ADMISSIBLE FD STEP` lines are the physics record).
+
+### A2.4 Queue-entry costs for phases 2–4 — DERIVED, NOT MEASURED, and not gates
+
+Phase 2: **30.0 core-min** (held entry's own arithmetic: at most 5 steps × 2 signs = 10 stages × 2.7667 measured at W=900, `S3_r2`, = 27.7 → 30.0 upper). Phase 3: **30.0 core-min** (the same 10 stages at W=900: `S6b` × 2 + `S6c` 4 components × 2 signs). Phase 4: **120.0 core-min upper bound** — `S8` is one stage and the launcher's `timeout 7200` at np=1 caps it at 120 core-min; `CAP_S8 = 350.0` and the cumulative `CAP_CORE_MIN = 600.0` are unchanged and still evaluated before every stage. Dollars derived at $0.0513/core-h, reported-by-owner, **NOT MEASURED** (`COMPUTE_BUDGET_CHARTER.md` §5).
+
+### A2.5 What this addendum changes
+
+| | figure |
+|---|---|
+| gates, thresholds, caps, labels, comparators altered | **0** |
+| predictions P1–P4 re-derived | **0** (cited unchanged, §4) |
+| launcher bytes changed | **0** (md5 `736aa849…` stands) |
+| files added | 3 (`cases/dafoam/_common/` wrapper, selftest, evidence) |
+| lines whose number changed above this section | **0** |

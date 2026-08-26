@@ -1,0 +1,14 @@
+DWTL SELFTEST 2026-08-26T17:09:48Z wrapper_md5=41ba9caadee12bbc2397e708b4396673 sacrificial_root=/home/ubuntu/certonomous-runs/_dwtl_selftest_20260826T170948Z
+  [OK ] L0 bash -n clean on wrapper and selftest
+  [OK ] L0 assert count in wrapper code lines = 0; planted positive counted = 1 (the counter can see one, and ignores a commented one)
+  [OK ] L1 absent->present: rc=0, WAIT lines=3, PRECONDITION_PRESENT, GROOT5_PASS, LAUNCHER_EXIT rc=0 labelled; STATUS == WRAPPER log
+  [OK ] L1b launcher exit 7 -> wrapper rc=7, labelled LAUNCHER_EXIT
+  [OK ] L2 G-ROOT.5(a) live container dwtl_selftest_20260826T170948Z -> rc=3, named, nothing launched
+  [OK ] L3 G-ROOT.5(b) live pid 245063 cwd=/home/ubuntu/certonomous-runs/_dwtl_selftest_20260826T170948Z/runroot in driver.pid -> rc=3, nothing launched
+  [OK ] L3b stale driver.pid (999999) ignored -> rc=0
+  [OK ] L4 bound reached (deadline 3 s, poll 1 s): rc=6, 3 WAIT lines recorded, BLOCKED, nothing launched
+  [OK ] L5 second wrapper for case L5 -> rc=3 DUPLICATE_WRAPPER_REFUSED while the first waits
+  [OK ] L6 missing arguments -> rc=64
+  [OK ] sacrificial root removed: /home/ubuntu/certonomous-runs/_dwtl_selftest_20260826T170948Z
+  [OK ] no dwtl_selftest_ container survives
+DWTL SELFTEST pass=12 fail=0 2026-08-26T17:09:59Z
