@@ -2219,6 +2219,49 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
+### FIFTEENTH SESSION — FOURTH FLEET KILL (~21:30Z); THE RUNNER AND EVERY DAFOAM ENTRY SURVIVED IT; D4-SHIPPED F3 r2 DIED AT 41 s ON A STAGING DEFECT; THREE LANES RE-SPAWNED, QUEUE FIRST
+
+**Section block written:** 2026-08-26T22:1xZ (`date -u` at write) by dafoam-supervisor (FIFTEENTH session, formed ~22:00Z after the fourth fleet kill at ~21:30Z; Sanaa: "all teams continue their work"). **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE.** Lane UPDATE blocks of this session are spliced at the END of the fourteenth-session span (immediately before `### THIRTEENTH SESSION`), as UPDATE Q-A/N were — disclosed. Standing words in force: `bc0e687e`, `d4d0c29d`/L-342, `73eccb1b`, `7def3c6b`, `0b041d1a`, `3c3ef86c`, `068c2bf0`; silence is approval; every decision here is `[lab-attributed]`; nothing leaves the box (rule 7).
+
+#### 1. DISK READING BEFORE ANY DISPATCH (21:59–22:05Z, mine — `docker ps -a`, STATUS files, `git log`, runner log, `/proc`)
+
+| item | state on disk | verdict state |
+|---|---|---|
+| **runner** | pid 459727 alive (started 21:16Z by cron after cfd's EXIT-path change `29d1a3fe`), ticking every minute through the ~21:30Z kill; 21:59:27Z `busy=89.0 % (~14.2/16) MemAvailable=25.9 GB; 26 entries queued`; **every tick since 20:58Z `HELD D5_chain_r3.json: busy ≥ 85 %`** — the box is full of heat-transfer/cfd ranks (T3_R_ff 8, F18b, F21, chtMultiRegion ×2, buoyantBoussinesq); a 4-rank dafoam entry also needs ≤ 10.4 busy cores | not idle; HELD is the runner's registered behaviour |
+| **drop path** | 4 entries, validator-accepted, all survived the kill: `D5_chain_r3` 813.434 (`b5b428bc`), `D6_chain_wait` 1,694.7 (`e43bdf61`), `D15_chain` 28.3 (`8fc2bdeb`), `D16_chain` 40.3 (`3ccb0c81`); no `LAUNCHED` line for any of them | **2,576.734 core-min = 42.95 core-hours queued, agent-independent** |
+| **D5 chain** | r2: O48 `rc=0` (684.533 core-min, bought), ACC48 `rc=124` (C-139 WASTE 10.8); r3 queued, `CHAIN_DONE` absent (D6's precondition) | O48 ungraded pending F48; unchanged since UPDATE S-1 |
+| **D4-SHIPPED F3_ACC_r2** (runner-launched 20:50:06Z, `08039792`) | **`STATUS.F3 rc=1` at 20:52:01Z, 41 s wall, 2.733 core-min, `inspect [1 false]`; `STATUS.chain STOPPED_AT_FIRST_NONZERO arm=F3 rc=1`; ACC never started** | **crash triaged §2** |
+| **D7FR** | ITEM `PASS` at `2a93ff27` — done; `docs/dafoam/README.md` ON DISK is OLDER than HEAD (lacks the two D7FR rows; the shared index stages that stale copy as `M`) — not mine, not touched, reported again | done |
+| **W2R** | phase 1 `rc=0` 17:46:04Z, 105.2334 core-min, `step_plan.json admissible:false`, phase 2 not launched by the registered branch; wrappers still waiting at 0 core-min: pids 251172 (phase3, bound 86,400 s from 17:16:42Z → 2026-08-27T17:16Z), 251492 (phase4, 129,600 s → 2026-08-28T05:17Z), 290211 (plan2, 86,400 s → 2026-08-27T17:29Z), 290739 (plan3, 129,600 s → 2026-08-28T05:30Z) — their preconditions can never be written; they close `BLOCKED` at their bounds; **ruling: leave them, do not kill, record** | PENDING → V2 scores P1–P4 and writes `RESULTS_W2R.md` |
+| **lane G's unlanded work** | on disk, uncommitted, inspected not reverted: `docs/capability/dafoam_GRID.md` 106 lines with `## Correction 1` (HEAD `6fcfe713` = 76 lines), `docs/dafoam/ADJOINT_VERIFICATION_STANDARD.md` 122 lines (untracked), `cases/dafoam/curriculum_D12R2/W3_PREREGISTRATION_DRAFT.md` 129 lines (untracked, DRAFT) | lane G re-spawned to land them |
+| **D17** | nothing on disk (lane N2 died at start) | N2 re-spawned |
+| **shared index** | decayed: stages phantom deletions of `cases/dafoam/_common/dafoam_wait_then_launch*`, `curriculum_D12R2/d12y_plan_step*`, ALL of `curriculum_D15/` and `curriculum_D16/`, and `docs/capability/*` — every one present on disk and at HEAD (`git ls-tree -r HEAD` 32 D15/D16 paths). Never touched; every lane enumerates from HEAD (L-333) | — |
+
+#### 2. CRASH TRIAGE, MINE (SUPERVISION §3 check 2) — D4-SHIPPED F3 r2 `rc=1`: a STAGING DEFECT FIRST, and a primal failure whose independence from it is NOT YET DEMONSTRATED
+
+Read from the container log `F3_20260826T205120Z_411184.log` and `F3_STAGING_EVIDENCE.txt` in the run root: (i) the F3 staging copied arm O with `cp -a`, step (f) removed 413 arm-O output directories from the copy but **left `processor*` with their `constant/polyMesh`**; inside the container `decomposePar` refused (`FOAM FATAL ERROR … Case is already decomposed with 4 domains, use the -force option`) — the F3 command does not carry the P1 arm's `rm -rf processor*; decomposePar -force` (`d4s_run_arm.sh:317`) and G-COLD's `processor*` abort (`:279`) is not on the F3 path; (ii) the primal then ran on the inherited decomposition to `Time = 1000` (CD 0.02112851374, CL 0.499935, U0 initRes 1.5e-07, p 5.6e-06 against `primalMinResTol` 1.0e-8, `d4_opt_runScript.py:36`) and DAFoam raised `Primal solution failed!`; mpirun exit 1. **Candidate `D4S-LAUNCHER-DEF-3` (staging leaves `processor*`).** Whether the primal failure is caused by (i) or is an independent condition at the SHIPPED endpoint (the registered acceptance instrument `d4s_primal_accept_wrap.py` / D4 §11 `d4_accept_primal.py` is on record) decides whether a re-fire buys anything: **RULING `[lab-attributed]`: if caused, Addendum 2e repairs ONLY the staging step (no gate/band/cap/label moved, diff read by me) and `D4-SHIPPED_F3_ACC_r3` goes on the drop path, r2's 2.733 core-min WASTE on its own C-row; if independent, no re-fire, the defect is recorded found-not-repaired at 0 core-min and the arm is graded as it stands.** Lane V2 establishes (a)–(e) from disk; the crash is a finding until then.
+
+#### 3. DISPATCH `[lab-attributed]` — three lanes (cap), queue first
+
+| lane | task, in order | queue effect |
+|---|---|---|
+| **V2** | D4-SHIPPED F3 triage facts (a)–(e) → Addendum 2e + `D4-SHIPPED_F3_ACC_r3` entry OR found-not-repaired; arm O re-grade under the L-342 grader on its preserved artefacts, two-row G5 table, G9, C-rows, C-117 quote-and-strike only if O grades; W2R P1–P4 scoring, `RESULTS_W2R.md`, `W2R-GRADER-DEF-1` disclosure (comparator read `δ_window` at W=300; `h_min(900)=0.0867` from the S2b series), C-row, ruling on the four waiting wrappers and the `held/` entries | + ~50 core-min |
+| **N2** | **D17** `Cone_Supersonic` (dimension established before the cell is named; D16 family; cpuset 12,15; 2 ranks; 4g) frozen + filed; then **D8R** CRM N=16 twist-only optimisation TO CONVERGENCE, two rows + endpoint FD each, budget from D8's measured s/major, in-container deadline (the D5-PREREG-DEF-1 class), frozen + filed | + ~100 + ~1,500–2,500 core-min |
+| **G** | land the grid Correction 1 on the HEAD blob; land `ADJOINT_VERIFICATION_STANDARD.md` (five checks, bands with derivations, complex-step `BLOCKED` named); freeze **AV-1** (np-invariance, A1 NACA0012, both rows) and **AV-2** (dot-product/duality, both rows) on the D15 family and file them; freeze **W3** prediction-first (δ_window-vs-W law from the D12R2/W2R pair, W registered where `h_min < h_max` with margin, `W` key written to the manifest, one detached driver for phases 1→4) and file it | + ~100 (AV) + ~300–400 (W3) core-min |
+
+My checks: check 4 (`git cat-file -e`) on every freeze sha and check 1 (diffs read as diffs) on every DELTAS file before an entry is believed — recorded in the next block. Cpuset map at full fire: D5 8,10,11,13 · D4-SHIPPED 5,6,7,9 · D15 2,3 · D16 4,14 · D17 12,15 · AV/D8R 0,1,(12,15) · W3 1 · D6 2,3,4,14 after `CHAIN_DONE` — overlaps disclosed; the aggregate guard (Σ caps + host RSS ≤ 30.6 GiB, wait-and-retry) and the runner's 85 %/14.4-core ceiling gate the launches.
+
+#### 4. QUEUED HOURS, AS A NUMBER (22:05Z)
+
+**Drop path: 4 entries / 2,576.734 core-min = 42.95 core-hours** (chief's formula: ÷ dafoam's 8-core share = **5.37 h**; ÷ 16 = 2.68 box-hours). Live agent-free dafoam work: W2R's four wrappers (0 core-min, close at their bounds). **Target this session: ≥ 20 h at the 8-core share = ≥ 9,600 core-min on the drop path** — D8R, W3, D17, AV-1/AV-2, F3 r3 are the fills, in that order of size; a target, not a claim. Deficit named under `3c3ef86c` (1): no dafoam launch since 20:50Z because the box is ≥ 85 % busy with other teams' ranks — the instance is in use, not idle; dafoam's queue is not empty.
+
+#### 5. ON SANAA'S DESK
+Nothing new. R2 of the twelfth session (reporting-cap vs rule 12) and the five `NOT FILED` upstream drafts unchanged.
+
+#### 6. BLOCKED
+None. (**VERIFY**: the runner's first-fit will reach a 2-rank dafoam entry (D15/D16) only when busy cores ≤ 12.4 — not measured yet; whether D8R at N=16 CRM fits 12g beside D5 — N2 measures from D8's record.)
+
+
 ### FOURTEENTH SESSION — THE RUNNER CARRIED D5 THROUGH THE THIRD KILL; ONE ARM DIED AT ITS OWN UNDER-REGISTERED DEADLINE; THE QUEUE WAS EMPTY AND IS BEING REFILLED
 
 **Section block written:** 2026-08-26T20:52Z (`date -u` at write) by dafoam-supervisor (FOURTEENTH session, formed ~20:45Z after the third fleet kill at ~17:50Z). **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE.** Standing words in force: `bc0e687e`, `d4d0c29d`/L-342, `73eccb1b`, `7def3c6b`, `0b041d1a`, `3c3ef86c`; silence is approval; every decision here is `[lab-attributed]`; nothing leaves the box (rule 7).
