@@ -14256,3 +14256,55 @@ wrong. Fix the enumeration, not the instinct.**
 > **EVERY ZERO YOU REPORT IS A CLAIM ABOUT YOUR INSTRUMENT, NOT ABOUT THE WORLD. Ship it
 > with the control that shows the instrument could have found a non-zero, or do not ship
 > it as a finding.**
+
+## L-338 — A 1-D fully-developed flow's transverse-momentum and pressure residuals are normalization NOISE, not a convergence signal — do not gate iterative convergence on them
+
+**Cost:** one PASS-quality verification run graded `NOT A RESULT`. VMFL004 (Plain
+Couette flow with pressure gradient, Ansys VM2026R1 p.21), `ansys-verification`,
+2026-08-26.
+
+**What happened.** The gate quantity `volAverage(U)_x` converged textbook-cleanly to
+the exact section mean 2.5 m/s (2.50125 / 2.5003125 / 2.5000781 across the L1/L2/L3
+triple, CONVERGING, observed order p = 1.99999997, Richardson-extrapolated
+2.4999999993, fine-grid rel_dev 3.1e-5 — a clean PASS inside a 0.1 % band). But the
+frozen `iterative_convergence` check required `Ux_initial`, `Uy_initial`, `p_initial`
+ALL below a 1e-7 floor, and the case was graded `NOT A RESULT` because Uy and p never
+reached it: at endTime Ux_initial = 3.2e-13 (converged to machine precision) but
+Uy_initial = 4.9e-2 and p_initial = 9.2e-2 — and those two even ROSE from ~8e-4 at
+iter 10001, bouncing rather than converging.
+
+**Why.** In a 1-D fully-developed flow (streamwise-cyclic, driven by a fixed body
+force) the transverse velocity Uy and the pressure p are physically ~zero fields.
+OpenFOAM normalizes each residual by the field's own scale; when the field is ~zero the
+normalization denominator is ~zero, so the reported "initial residual" is meaningless
+noise floating at O(1e-2 .. 1e-1). It is not a measure of convergence and cannot fall
+below a floor no matter how long the solver runs — it also wastes the full iteration
+budget (VMFL004 ran all 20000 SIMPLE iters, cost 11.4 core-min, because nothing could
+trip an early-stop on those channels).
+
+**The fix (in the pre-registration, BEFORE compute).** Gate iterative convergence on
+the DRIVEN channel(s) only — here `Ux_initial` — or on a residual normalized against a
+non-degenerate reference. Never require a degenerate (near-zero) transverse-field
+residual below an absolute floor.
+
+**The contrast that proves the scope.** A genuinely 2-D flow does NOT have this
+problem: VMFL011's triangular driven cavity (real recirculation) drove Uy/p to
+1.2e-13 / 8.9e-13 in a measured 3000-iter check, so the identical all-three-channels
+check is harmless there. The trap is specific to fields that are degenerate (near-zero)
+for the case's physics.
+
+**How it was missed, and the general form.** The check was inherited from a prior
+lane's grader and frozen without scrutinizing the channel set for degenerate-field
+cases. The EXACT-collapse risk (central differencing being exact for the quadratic
+solution) WAS named in the prereg and correctly dodged by gating on the volAverage; this
+degenerate-residual risk was not. **General form: before freezing, check BOTH the gate
+quantity AND every iterative-convergence channel against the case's own degeneracies —
+a quantity or a residual that is structurally ~zero for this physics cannot be gated
+the ordinary way.** Per CLAUDE.md rule 2 the frozen comparator is not edited after
+compute; the honest verdict stands and a corrected re-run gating on the driven channel
+is a NEW register row (ANSYS_VERIFICATION_CHARTER §6).
+
+**Provenance:** `cases/ansys_verification/VMFL004/RESULTS.md`;
+`verification/runs/ansys_verification/VMFL004/GRADING_VMFL004.json`; register row #25;
+prereg blob `0e61889534d0e7180a105190f7ead06e3c00b432`, comparator
+`ddea9d473b6d6092427d29c5997c25af956a7fb6`.
