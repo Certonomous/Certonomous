@@ -1,0 +1,148 @@
+T10aR2 comparator.  shared floors STAGNANT_FLOOR = 0.5, P_MIN = 0.05.  provenance:
+  analyse_t10aR.py (frozen)        sha256 a3014a64f1a2e5ce507f029c45b7c1f54eaf108348cf37a63be1ca604649c5ef  blob bf13efee7b5bbaa33216d099a108273f41375990
+  analyse_t10a.py (frozen)         sha256 ad6a32861dda217259b16231e7f044e12d9dc4be96de130046cceba0b434de65  blob 3c70263bc50700709c52cd9c2419f8363b0e0e2a
+  exact_t10a.py (frozen)           sha256 8efb4d61d445b765c98076378f3decbea5553815b4594e36fe9e09603fe689c6  blob 63c2cdefd49bd1a234e7b6b6b02fc55fe9c94477
+  analyse_t1c.py (frozen)          sha256 60893b28e284127f61b41842c520897a2202cb024d5a4d260272c6ee7e6c5135  blob 3d56680271d5fabb30e60cdc2eb1a6551196711d
+  roache_triple.py (shared)        sha256 6dddbb87c4c9a4292bb6ecbc9cf0f3754f55b94b789b0732efd30b5f46a36358  blob 78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8
+  analyse_t10aR2.py                sha256 efe25789f09f77a9a5e17de2853dd8b956cf0e588fba80871afca93c7fd10931  blob a252463b015f81f0c45cd9ddc6079c1f4d476d17
+  T10aR2_registered.json           sha256 d53dafab8be89e7f1c5b76b68de92319402e766fe45831aaedf712d5d291ee5a  blob d52c2ac66004bc7abb0764855ea17f5f0ef29bbe
+sigma: 2 pi^5 k^4 / (15 h^3 c^2) from the v2606 six-digit constants
+  etc/controlDict read: k 1.38065e-23  h 6.62607e-34  c 299792000.0
+  sigma_OF       5.670408558e-08  vs  5.670408558e-08   rel 0.00e+00  agree (transcribed vs read from etc/controlDict)
+  sigma_OF reg   5.670408558e-08  vs  5.670408558e-08   rel 1.07e-11  agree 
+  sigma_OF / sigma_SI - 1 = +6.021e-06
+T10a-1 concentric spheres: closed form vs numerical network + cone integral
+  F21            0.25  vs  0.25   rel 4.44e-16  agree 
+  q1             3374.471705  vs  3374.471705   rel 1.35e-16  agree 
+  q2             -843.6179263  vs  -843.6179263   rel 1.35e-16  agree 
+  closure        1  vs  1   rel 0.00e+00  agree (A1 q1 + A2 q2 = 0)
+  registered decimals
+  A1             0.03141593  vs  0.03141592654   rel 1.10e-07  agree 
+  A2             0.12566371  vs  0.1256637061   rel 3.07e-08  agree 
+  F21            0.25  vs  0.25   rel 0.00e+00  agree 
+  F22            0.75  vs  0.75   rel 0.00e+00  agree 
+  denom          2.041666667  vs  2.041666667   rel 1.63e-10  agree 
+  q1             3374.471705  vs  3374.471705   rel 4.87e-11  agree 
+  q2             -843.617926  vs  -843.6179263   rel 3.45e-10  agree 
+  Q              106.012155  vs  106.0121552   rel 1.76e-09  agree 
+  q1 (SI sigma)  3374.451389  vs  3374.451389   rel 1.79e-11  agree 
+  OpenFOAM qr (INTO the wall): inner -3374.471705  outer 843.617926
+T10a-2 black box: Howell closed form vs Stokes contour integral
+  F floor->ceil  0.4152532836  vs  0.4152532836   rel 4.01e-16  agree 
+  F floor->wall  0.1461866791  vs  0.1461866791   rel 0.00e+00  agree 
+  F floor->ywall 0.1461866791  vs  0.1461866791   rel 0.00e+00  agree (square floor: same as x-wall)
+  F wall->floor  0.2923733582  vs  0.2923733582   rel 0.00e+00  agree 
+  F wall->opp    0.1166536918  vs  0.1166536918   rel 2.86e-15  agree 
+  F wall->adj    0.1492997959  vs  0.1492997959   rel 1.86e-16  agree 
+  row sums: floor 1.000000000000000  wall 1.000000000000000  max reciprocity defect 0.0e+00
+  row floor      1  vs  1   rel 2.22e-16  agree 
+  row wall       1  vs  1   rel 2.22e-16  agree 
+  fluxes: direct black sum vs viewFactor.C assembly with eps = 1
+  q floor        6484.920941  vs  6484.920941   rel 0.00e+00  agree 
+  q ceiling      -3265.532221  vs  -3265.532221   rel 0.00e+00  agree 
+  q x0           -1254.691645  vs  -1254.691645   rel 0.00e+00  agree 
+  q y0           -1964.697075  vs  -1964.697075   rel 0.00e+00  agree 
+  closure sum A_i q_i = -2.501e-12 W
+  registered decimals
+  F_fc           0.415253284  vs  0.4152532836   rel 1.02e-09  agree 
+  F_fw           0.146186679  vs  0.1461866791   rel 7.23e-10  agree 
+  F_wf           0.292373358  vs  0.2923733582   rel 7.23e-10  agree 
+  F_wo           0.116653692  vs  0.1166536918   rel 1.68e-09  agree 
+  F_wa           0.149299796  vs  0.1492997959   rel 7.58e-10  agree 
+  B0 floor       6484.920941  vs  6484.920941   rel 2.02e-12  agree 
+  B1 ceiling     -3265.532221  vs  -3265.532221   rel 6.18e-11  agree 
+  B2 x-wall      -1254.691645  vs  -1254.691645   rel 2.11e-10  agree 
+  B3 y-wall      -1964.697075  vs  -1964.697075   rel 2.44e-10  agree 
+  B0 (SI sigma)  6484.881898  vs  6484.881898   rel 1.57e-11  agree 
+controls (reference-side plants)
+  C1 black       6889.546  vs  6889.546398   rel 5.78e-08  agree 
+  C2 plates      2175.646  vs  2175.646231   rel 1.06e-07  agree 
+  outer black    4133.728  vs  4133.727839   rel 3.90e-08  agree 
+  eps swapped    2583.58  vs  2583.579899   rel 3.90e-08  agree 
+    C1           6889.546  departure +104.17 %
+    C2           2175.646  departure -35.53 %
+    outer black  4133.728  departure +22.50 %
+    swapped      2583.580  departure -23.44 %
+  cube opposite  0.1998249  vs  0.1998248957   rel 2.15e-08  agree 
+  cube adjacent  0.20004378  vs  0.2000437761   rel 1.96e-08  agree 
+    C2 box (cube matrix) departures: floor -2.30 %  ceiling -40.89 %  x0 -40.95 %  y0 -25.59 %
+    C2b box (opposite only) departures: floor +6.24 %  ceiling +110.98 %  x0 -100.00 %  y0 -100.00 %
+T10a-3 Hottel 2D rectangle (REPORTED ONLY): crossed strings vs strip integral
+  H F_fc         0.6180339887  vs  0.6180339887   rel 8.98e-16  agree 
+  H row floor    1  vs  1   rel 0.00e+00  agree 
+  H row wall     1  vs  1   rel 0.00e+00  agree 
+  H F_fc reg     0.618033989  vs  0.6180339887   rel 4.05e-10  agree 
+  H F_fw reg     0.190983006  vs  0.1909830056   rel 1.96e-09  agree 
+  H F_wf reg     0.381966011  vs  0.3819660113   rel 6.55e-10  agree 
+  H F_ww reg     0.236067977  vs  0.2360679775   rel 2.12e-09  agree 
+  H B0 reg       6510.513314  vs  6510.513314   rel 4.54e-11  agree 
+  H B1 reg       -4637.006925  vs  -4637.006925   rel 8.62e-11  agree 
+  H B2 reg       -1873.506388  vs  -1873.506388   rel 1.63e-10  agree 
+AGREE: every constant reproduced two ways and matches the registered decimals.
+[B_c] time 20 cells 2048 closure_raw 3.402e-03  convergence CONVERGED (max change 0.0)  plant OK recovered 0.0012340000002950546
+   B0 floor          q_leaving 6480.760108 W/m2
+   B1 ceiling        q_leaving -3275.664195 W/m2
+   B2 ['x0', 'x1']   q_leaving -1269.196506 W/m2
+   B3 ['y0', 'y1']   q_leaving -1980.140054 W/m2
+[B_m] time 20 cells 8788 closure_raw 2.178e-03  convergence CONVERGED (max change 0.0)  plant OK recovered 0.0012340000002950546
+   B0 floor          q_leaving 6482.287424 W/m2
+   B1 ceiling        q_leaving -3271.619602 W/m2
+   B2 ['x0', 'x1']   q_leaving -1264.163771 W/m2
+   B3 ['y0', 'y1']   q_leaving -1974.800564 W/m2
+[B_f] time 20 cells 37044 closure_raw 1.410e-03  convergence CONVERGED (max change 0.0)  plant OK recovered 0.0012340000002950546
+   B0 floor          q_leaving 6483.263010 W/m2
+   B1 ceiling        q_leaving -3269.602153 W/m2
+   B2 ['x0', 'x1']   q_leaving -1260.793300 W/m2
+   B3 ['y0', 'y1']   q_leaving -1971.177941 W/m2
+[R_q] time 20 cells 37044 closure_raw 8.939e-04  convergence CONVERGED (max change 0.0)  plant OK recovered 0.0012340000002950546
+   B0 floor          q_leaving 6483.897576 W/m2
+   B1 ceiling        q_leaving -3268.097795 W/m2
+   B2 ['x0', 'x1']   q_leaving -1258.581024 W/m2
+   B3 ['y0', 'y1']   q_leaving -1968.820598 W/m2
+[R2_c] time 20 cells 2048 closure_raw 2.026e-03  convergence CONVERGED (max change 0.0)  plant OK recovered 0.0012340000002950546
+   B0 floor          q_leaving 6482.230561 W/m2
+   B1 ceiling        q_leaving -3268.222601 W/m2
+   B2 ['x0', 'x1']   q_leaving -1264.811415 W/m2
+   B3 ['y0', 'y1']   q_leaving -1975.520269 W/m2
+[R2_m] time 20 cells 8788 closure_raw 1.339e-03  convergence CONVERGED (max change 0.0)  plant OK recovered 0.0012340000002950546
+   B0 floor          q_leaving 6483.266713 W/m2
+   B1 ceiling        q_leaving -3268.384010 W/m2
+   B2 ['x0', 'x1']   q_leaving -1260.913455 W/m2
+   B3 ['y0', 'y1']   q_leaving -1971.351036 W/m2
+[R2_f] time 20 cells 37044 closure_raw 8.939e-04  convergence CONVERGED (max change 0.0)  plant OK recovered 0.0012340000002950546
+   B0 floor          q_leaving 6483.897576 W/m2
+   B1 ceiling        q_leaving -3268.097795 W/m2
+   B2 ['x0', 'x1']   q_leaving -1258.581024 W/m2
+   B3 ['y0', 'y1']   q_leaving -1968.820598 W/m2
+F-side: lean instrument validated against the frozen one (REGISTERED refusal), then used
+  R2_c n=1024 bit-identical True radiosity 0.00e+00 reciprocity 0.00e+00
+  R2_m n=2704 bit-identical True radiosity 0.00e+00 reciprocity 0.00e+00
+  R2_f n=7056 bit-identical True radiosity 0.00e+00 reciprocity 0.00e+00
+  R2_c rowsum max defect 0.018976 closure_F 2.026e-03 excess 8.80e-17 reciprocity 8.27e-19 python-vs-solver 3.32e-15 ok
+  R2_m rowsum max defect 0.038700 closure_F 1.339e-03 excess 1.02e-15 reciprocity 8.34e-16 python-vs-solver 6.36e-15 ok
+  R2_f rowsum max defect 0.029235 closure_F 8.939e-04 excess 1.01e-15 reciprocity 2.23e-14 python-vs-solver 1.20e-14 ok
+RR1 identity: sha256(F) R2_f 801700cf89dbd7b5... R_q 801700cf89dbd7b5... IDENTICAL True; max |qr(R2_f) - qr(R_q)| over 7056 faces = 0.000000e+00 W/m2 (t=20 / 20)
+B1 2LI triple c/m/f -3268.222601 -> -3268.384010 -> -3268.097795  exact -3265.532221  errors -2.6904 / -2.8518 / -2.5656  state OSCILLATORY
+   dev_f 0.07857 %  band none %  Richardson shared None / corrected None
+reported B0: 2LI triple ['6482.2306', '6483.2667', '6483.8976'] state CONVERGING dev_f 0.01578 % band 0.01893127196842836
+reported B2: 2LI triple ['-1264.8114', '-1260.9135', '-1258.5810'] state CONVERGING dev_f 0.30999 % band 0.3451322411836375
+reported B3: 2LI triple ['-1975.5203', '-1971.3510', '-1968.8206'] state CONVERGING dev_f 0.20988 % band 0.24806756671939553
+REGISTERED PREDICTIONS -- graded against T10aR2_registered.json ONLY
+  RR1               0  predicted          0  [0.0, 0.0]            PASS
+  RR2            None  predicted       1.48  [1.0, 2.0]            NOT A RESULT  [triple is OSCILLATORY]
+        falsifier as registered: p outside [1.0, 2.0]; a non-CONVERGING triple is NOT A RESULT, no verdict
+  RR3       0.0785653  predicted    0.07857  [0.078, 0.0792]       PASS  [triple OSCILLATORY]
+  RR4a       0.943401  predicted      1.883  [1.7, 2.1]            GATE FAIL  [triple OSCILLATORY]
+        falsifier as registered: outside [1.70, 2.10]; H2 gives 1.664
+  RR4b        1.11156  predicted      1.786  [1.7, 2.1]            GATE FAIL  [triple OSCILLATORY]
+        falsifier as registered: outside [1.70, 2.10]; H2 gives 1.495
+  RR5            None  predicted      1.024  [0.85, 1.3]           NOT A RESULT  [no band armed (triple OSCILLATORY)]
+        falsifier as registered: > 1.30 (H2: the band-smaller-than-error pattern persists at the 2AI strength) or < 0.85 (the band covers the error, as at T10a-R's fourth level)
+  RR6a        7.44159  predicted      1.504  [1.0, 2.0]            GATE FAIL
+        falsifier as registered: outside [1.0, 2.0]; H2 gives 3.75
+  RR6b        3.23559  predicted      1.504  [1.0, 2.0]            GATE FAIL
+        falsifier as registered: outside [1.0, 2.0]; H2 gives 2.25
+  RR7         1.54063  predicted          1  [0.7, 1.3]            GATE FAIL
+        falsifier as registered: outside [0.7, 1.3] (the defect DOES move with the mesh under 2LI)
+  2 PASS, 5 GATE FAIL, 2 NOT A RESULT (against this arm's own predictions)
+wrote /home/ubuntu/Certonomous/verification/runs/T-family/T10aR2_runs/gate_t10aR2.json

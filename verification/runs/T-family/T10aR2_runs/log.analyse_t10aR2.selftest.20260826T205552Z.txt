@@ -1,0 +1,19 @@
+  [ok ] zero `assert` nodes in analyse_t10aR2.py (AST)
+  [ok ] the AST counter sees a planted assert
+  [ok ] shared floors imported, not defined here: STAGNANT_FLOOR = 0.5, P_MIN = 0.05, and no local definition
+  [ok ] the frozen analyse_t1c.gci floor DRIVEN at p = 0.49 -> STAGNANT and 0.51 -> CONVERGING (== STAGNANT_FLOOR)
+  [ok ] |p| = 0.02 < P_MIN is labelled DEGENERATE beside the frozen state 'STAGNANT' (both NOT A RESULT)
+  [ok ] the frozen module's Fs/r equal the registered 1.25/1.6
+  [ok ] r2_names restores the frozen analyse_t10aR routing helpers
+  [ok ] H1 (registered point): p = 1.4798 in [1.0, 2.0], band 0.07680 %, dev/band 1.023, ratios 1.882 / 1.786 -> every row PASS
+  [ok ] H2 (the excluded branch): ratios 1.664 / 1.496, dev/band 1.62, move_c 3.75 -> RR4a, RR4b, RR5, RR6a GATE FAIL; RR2, RR3 PASS
+  [ok ] an OSCILLATORY triple -> RR2 and RR5 NOT A RESULT, the single-level rows still graded
+  [ok ] a VOID level (closure guard) withdraws every row -> NOT A RESULT x9
+  [ok ] RR1 identity: exact 0 -> PASS; 1e-14 -> GATE FAIL; precondition failed (None) -> NOT A RESULT
+  [ok ] RR5 at exactly 0.85 and 1.30 -> PASS (closed interval); 0.84 and 1.31 -> GATE FAIL
+  [ok ] richardson_corrected (frozen, reported only) on the H1 triple lands within 0.1 % of exact (-3266.0898 vs -3265.5322)
+  [ok ] refusal 'missing DONE' FIRES (rc 2, REFUSE printed) under python3 AND python3 -O: {'python3': (2, True), 'python3 -O': (2, True)}
+  [ok ] refusal 'floor mismatch' FIRES (rc 2, REFUSE printed) under python3 AND python3 -O: {'python3': (2, True), 'python3 -O': (2, True)}
+  [ok ] refusal 'unconverged level' FIRES (rc 2, REFUSE printed) under python3 AND python3 -O: {'python3': (2, True), 'python3 -O': (2, True)}
+
+selftest 17/17

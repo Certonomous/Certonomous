@@ -1,0 +1,13 @@
+case=R2_m
+rc=0
+wall_s=12
+ranks=1
+core_min=0.200
+timeout_s=1800
+capped=no
+checkmesh_rc=0
+solver=buoyantSimpleFoam
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantSimpleFoam
+note=clean
+started_utc=2026-08-26T17:47:05Z
+ended_utc=2026-08-26T17:47:17Z
