@@ -1,0 +1,12 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object p; }
+// F17 Kovasznay -- kinematic pressure. Graded quantity is U; p is not graded.
+dimensions      [0 2 -2 0 0 0 0];
+internalField   uniform 0;
+boundaryField
+{
+    inlet        { type fixedFluxPressure; value uniform 0; }
+    outlet       { type fixedFluxPressure; value uniform 0; }
+    top          { type cyclic; }
+    bottom       { type cyclic; }
+    frontAndBack { type empty; }
+}
