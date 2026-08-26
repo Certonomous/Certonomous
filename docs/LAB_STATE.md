@@ -1206,6 +1206,12 @@ Consequences, binding on every team: (1) a run whose physics artefacts (solver l
 
 Chief's reading at 2026-08-26T16:39Z: box runner `scripts/queue_runner.py --daemon` live; GPU instance 3.15.199.152 load 0.00, GPU 0 %, no solver — idle. Queues: ansys-verification EMPTY, cfd EMPTY, dafoam one entry (aggregate-refused), heat-transfer 2. Binding consequences: (1) every team files a queue entry for EVERY launchable registered case now — bulk, not one at a time; study and grading proceed in series afterwards. (2) ansys deploys the runner on the GPU instance as a daemon and launches every VMFLGPU case there immediately. (3) The runner is the launch path of record; direct launches are permitted but every direct launch also leaves its successor entries in the queue so the box never depends on a live agent.
 
+### CHIEF ADDENDUM — SANAA 2026-08-26T16:45Z, VERBATIM: QUEUE DEPTH IS THE DELIVERABLE
+
+> "Yes the launching and queue launching (gpu and cpu) are priority. I need this ran and launched ASAP from all teams that way when our credits run out i know that cases will continue running on aws"
+
+Binding reading: the measure of each team right now is **hours of queued, validated compute on each instance that will run with no agent alive**. Every supervisor reports that number (sum of est core-min in its queue dir ÷ its core share) every board write. Study, grading and new lessons continue in series behind it, not ahead of it. ansys: the GPU instance gets its own runner daemon and a full VMFLGPU queue first. Nothing in this addendum changes what may be queued: frozen prereg + costed entry only.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
