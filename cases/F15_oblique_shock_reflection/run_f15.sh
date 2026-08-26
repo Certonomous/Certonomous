@@ -33,6 +33,9 @@ END_TIME=10                 # must equal grade_f15.py::END_TIME
 
 # name  nx  ny  ranks   -- DECOMPOSITION SEED IS A REQUIRED FIELD, recorded below
 LEVELS=("coarse 200 50 1" "medium 400 100 4" "fine 800 200 8")
+# projected SERIAL seconds per level from the lab-measured 1.03 us/cell/step
+# (VMFL045/R2, ClockTime). Used ONLY by the pre-level projected-cap check.
+declare -A PROJ_SERIAL_S=( [coarse]=100 [medium]=803 [fine]=6427 )
 # DECOMPOSITION SEED: `simple` geometric partition, coefficients (ranks 1 1).
 #   There is NO random number generator in `simple`, so the seed is `none` and
 #   the partition is bit-reproducible from the rank count alone.  `scotch` is
@@ -53,6 +56,35 @@ for a in "$@"; do
 done
 
 say() { printf '%s\n' "$*"; }
+
+# --------------------------------------------------------------------------
+# PRE-FIRST-COMPUTE AMENDMENT, 2026-08-26.  Legal under rule 2 sec.2b: this
+# changes NO gate, NO threshold, NO cap and NO label.  CONDITION AND HOW IT WAS
+# CHECKED: neither run root existed when this was written --
+#   verification/runs/F15_runs and verification/runs/F16_runs were both ABSENT,
+#   and neither case tree held an RC.txt, a log.* or a numeric time directory.
+# It adds four things, all of them STRENGTHENING what is already registered:
+#   1. a per-level RC.txt, so a non-zero rc is visible and never swallowed;
+#   2. a load and memory probe taken BY THIS INVOCATION before each level and
+#      recorded beside it -- never a figure relayed from a message;
+#   3. a PROJECTED cap check BEFORE each level, alongside the registered
+#      post-level one.  The registered cap is unchanged at its frozen value.
+#      The post-level check discovers a crossing only AFTER the core-minutes
+#      have been spent; on a contended box that is how a cap gets blown and then
+#      reported.  This halts before the spend instead.
+#   4. ClockTime's INTEGER-SECOND resolution stated as a quantisation bound on
+#      every actual, so no calibration ratio is quoted tighter than its input.
+# --------------------------------------------------------------------------
+probe_box() {   # $1 = label, $2 = destination file
+  local L1 MEMKB NP FREE
+  L1=$(awk '{print $1}' /proc/loadavg)
+  MEMKB=$(awk '/^MemAvailable/{print $2}' /proc/meminfo)
+  NP=$(nproc)
+  FREE=$(python3 -c "print(max(0.5, $NP - $L1))")
+  printf 'label=%s\nload1=%s\nnproc=%s\nfree_cores=%s\nMemAvailable_kB=%s\nutc=%s\n' \
+    "$1" "$L1" "$NP" "$FREE" "$MEMKB" "$(date -u +%FT%TZ)" > "$2"
+  echo "$FREE"
+}
 
 # --------------------------------------------------------------------------
 # PATH RESOLUTION -- every path this file will write to or read from is
@@ -128,7 +160,6 @@ for L in "${LEVELS[@]}"; do
   set -- $L
   NAME=$1; NX=$2; NY=$3; RANKS=$4
   CD="$RUN_ROOT/$NAME"
-
   # ---- THE GUARD.  REFUSE, NEVER DELETE. -------------------------------
   if [ -e "$CD/0" ]; then
     echo "ABORT: $CD/0 already exists. A pre-existing 0/ means an earlier run"
@@ -146,6 +177,23 @@ for L in "${LEVELS[@]}"; do
       *) echo "ABORT: $CD already holds numeric time directory $b. REFUSED, not deleted."; exit 1 ;;
     esac
   done
+
+  mkdir -p "$CD" || { echo "ABORT: cannot create $CD"; exit 1; }
+
+  # ---- PROBE THIS BOX, IN THIS INVOCATION. Never a relayed figure. ------
+  FREE=$(probe_box "$NAME-pre" "$CD/box_before.txt")
+  PROJ=$(python3 -c "r=$RANKS; f=$FREE; print(${PROJ_SERIAL_S[$NAME]} / min(r, f) * r / 60.0)")
+  say "level $NAME: free cores $FREE, ranks $RANKS -> PROJECTED $PROJ core-min (cumulative would be $(python3 -c "print($SPENT + $PROJ)") of $CAP_CORE_MIN)"
+  python3 -c "import sys; sys.exit(0 if $SPENT + $PROJ <= $CAP_CORE_MIN else 1)" || {
+    echo "HALT BEFORE SPENDING: level $NAME is PROJECTED to take $PROJ core-min"
+    echo "      with only $FREE cores free against $RANKS ranks; cumulative"
+    echo "      $(python3 -c "print($SPENT + $PROJ)") would cross the registered cap of $CAP_CORE_MIN."
+    echo "      The cap is NOT raised and the level is NOT run. Levels not"
+    echo "      launched stay PENDING. An overrun stops the run; it does not get"
+    echo "      a new budget (CLAUDE.md rule 12). Contention, not the ladder, is"
+    echo "      the binding constraint -- report it as a NAMED contention term."
+    exit 3
+  }
 
   mkdir -p "$CD/system" "$CD/constant" || { echo "ABORT: cannot create $CD"; exit 1; }
   cp "$CASE_SRC/constant/thermophysicalProperties" "$CD/constant/" || { echo "ABORT: copy failed"; exit 1; }
@@ -189,13 +237,17 @@ EOF
     rhoCentralFoam -case "$CD" > "$CD/log.rhoCentralFoam" 2>&1
     RC=$?
   fi
-  [ "$RC" -eq 0 ] || { echo "ABORT: rhoCentralFoam exited $RC at level $NAME. A crash is a FINDING until triage says otherwise; it is not retried here."; exit 1; }
+  echo "$RC" > "$CD/RC.txt"
+  probe_box "$NAME-post" "$CD/box_after.txt" > /dev/null
+  [ "$RC" -eq 0 ] || { echo "ABORT: rhoCentralFoam exited $RC at level $NAME (rc recorded in $CD/RC.txt). A crash is a FINDING until triage says otherwise; it is not retried here."; exit 1; }
 
   # ---- INCREMENTAL CAP, ClockTime NOT ExecutionTime --------------------
   CLOCK=$(grep "ClockTime = " "$CD/log.rhoCentralFoam" | tail -1 | sed 's/.*ClockTime = \([0-9][0-9]*\) s.*/\1/')
   [ -n "$CLOCK" ] || { echo "ABORT: no ClockTime in $CD/log.rhoCentralFoam; the cap cannot be checked and an unchecked cap is not a cap"; exit 1; }
   SPENT=$(python3 -c "print($SPENT + $CLOCK * $RANKS / 60.0)")
   say "level $NAME COMPLETE: ClockTime ${CLOCK}s x $RANKS ranks -> cumulative $SPENT core-min of $CAP_CORE_MIN"
+  say "  QUANTISATION: ClockTime has INTEGER-SECOND resolution, so this level's"
+  say "  actual carries +/- $(python3 -c "print(0.5*$RANKS/60.0)") core-min of read-out quantisation alone."
   python3 -c "import sys; sys.exit(0 if $SPENT <= $CAP_CORE_MIN else 1)" || {
     echo "HALT: THE REGISTERED CAP OF $CAP_CORE_MIN CORE-MINUTES HAS BEEN CROSSED"
     echo "      at level $NAME; cumulative spend $SPENT core-min."
