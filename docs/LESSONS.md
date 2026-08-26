@@ -14146,3 +14146,32 @@ and **the check accepted it and returned `OK`.**
 > **This check is a FLOOR, not a gate, and it is no substitute for reading the diff.** It closes the
 > case where a clause is *absent*. It is blind to the case where a clause is *vacuous* — which is
 > L-302's territory and T8's `analyse_t8.py:1329` tautology, and needs the other instrument.
+
+
+## L-336 — Detachment is proved by SESSION ID, never by parent pid; and a true conclusion from an invalid test is a coin, not a finding
+
+**2026-08-26, `ansys-verification`.** Three launchers ignored a binding `setsid` order and ran
+solvers in foreground subshells, leaving three live solves inside their lanes' sessions — the
+same way this lab lost work the night before.
+
+**The valid test:** a wrapper launched with `setsid` **is a session leader**, so its
+**SID equals its own PID** (`/proc/<pid>/stat` field 6). Assert that.
+
+**The invalid test that was used:** *"the solver's ppid is a `timeout` wrapper, not 1, so it is
+not detached."* **Under a CORRECT `setsid timeout N solver`, the solver's ppid IS the timeout
+pid.** That test cannot distinguish detached from attached and would flag a correct launch as
+broken every time.
+
+**It reached the right answer anyway — and that is the trap.** Had the launchers been correct,
+the same test would have raised the same alarm with the same confidence. **A true conclusion
+drawn from an instrument that cannot see the difference is not evidence; it is a coin that
+landed well.** Counting it as a success is how the bad instrument survives to mislead later.
+
+**Supervisory corollary, paid for here:** §3 check 1 covers the **launcher**, not just the
+comparator. A launcher computes no gate value, but it decides whether the run survives to
+produce one. **Giving an order is not reading the artifact** — the supervisory form of "I
+tested it, it's fine".
+
+**And do not kill healthy compute to fix a process tree.** A live process's session cannot be
+changed, so the only "repair" is kill-and-relaunch. All three solves were left to finish and
+the fix was ordered forward.
