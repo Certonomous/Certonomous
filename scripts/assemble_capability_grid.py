@@ -36,6 +36,8 @@ EVIDENCE = ("ansys-verification (VMFL register rows mapped onto cfd / heat-trans
             "ansys_ROWS.md")
 METRICS = "METRICS_SUMMARY.md"
 SHA_RE = re.compile(r"\b[0-9a-f]{7,10}\b")
+STRUCK = re.compile(r"~~.*?~~")
+AUDIT = {"dafoam": ("dafoam_GRID_AUDIT.md", "verification audit of the dafoam table")}
 
 
 def git(*args):
@@ -92,7 +94,7 @@ def verdict_census(table_lines):
         # split on pipes that are not inside a backtick code span, then keep only the verdict columns
         cells = [x.strip() for x in re.split(r"\|(?=(?:[^`]*`[^`]*`)*[^`]*$)", ln.strip().strip("|"))][1:ncol]
         for cell in cells:
-            t = cell.replace("*", "")
+            t = STRUCK.sub("", cell).replace("*", "").strip()   # a struck ~~old~~ form is never the verdict
             if re.match(r"CAN DO, CAVEATS", t):
                 c["CAN DO, CAVEATS"] += 1
             elif re.match(r"CAN DO", t):
@@ -172,7 +174,21 @@ def main():
     all_shas, census = set(), {}
     for label, fname, axes, cols in FAMILIES:
         blk, cen, shas, present = family_block(label, fname, axes, cols)
-        L += blk + ["---", ""]
+        L += blk
+        if label in AUDIT:   # ruling: the audit is its OWN subsection under the table, never folded into cells
+            afile, atitle = AUDIT[label]
+            atext = show(CAP + afile)
+            L += [f"### {atitle}", ""]
+            if atext is None:
+                L.append(f"**at HEAD: NOT YET LANDED** — `{CAP + afile}`; picked up on re-run.")
+            else:
+                L.append(f"**at HEAD: `{last_commit(CAP + afile)}`** (`{CAP + afile}`, reproduced verbatim; "
+                         "its own footer is superseded by the merged footer below):")
+                abody = atext.split("\n", 1)[1] if atext.startswith("# ") else atext
+                L += ["", re.sub(r"^(#+) ", lambda m: "#" * (len(m.group(1)) + 2) + " ", abody.rstrip(), flags=re.M)]
+                shas |= footer_shas(atext)
+            L.append("")
+        L += ["---", ""]
         census[label] = (cen, present)
         all_shas |= shas
     # ansys evidence rows
