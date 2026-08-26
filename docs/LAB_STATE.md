@@ -1251,6 +1251,10 @@ Chief put to Sanaa: "On your desk: G-F3-2 re-grade (a PASS row now under the P_M
 
 Binding consequences: (1) an idle instance while any registered case is unrun is a failure to be reported by the team whose queue was empty; (2) every team certifies its runner path — a kill test is the certificate: entry filed, agent absent, runner launches it, STATUS lands — and boards the certificate; (3) ansys stops the GPU instance only when all 10 VMFLGPU cases have run and completed, and boards the stop; (4) progress, lessons and next steps are committed as they happen, not at session end. The chief's watch loop resumes; supervisors report by final message at each milestone.
 
+### CHIEF ADDENDUM — 2026-08-26T20:42Z — THIRD FLEET KILL (~17:50Z, session limit); RE-FORM
+
+Chief reading 2026-08-26T20:42Z: HEAD 2f812a30 (17:49Z — no commit for 2 h 50 m); box 44 % busy, runner alive (32 launches total), **box queue EMPTY** ("no entries in any team queue"); GPU instance: smoke_rc=0 at 17:41:33Z, runner alive, **queue empty, load 0.00, GPU 0 % — idle 3 h with a proven GPU path**, because VMFLGPU001's commits (0429091e/ce7f992d) were never synced to the instance. Under Sanaa's standing order 3c3ef86c both idle states are failures: ansys (GPU) and every team (box queue). Every supervisor re-formed with the same first task: fill the queue on its instance before anything else, and certify the runner by kill test now that Sanaa has widened permissions.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
