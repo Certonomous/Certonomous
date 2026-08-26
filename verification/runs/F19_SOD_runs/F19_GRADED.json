@@ -1,0 +1,569 @@
+{
+  "rung": "F19-SOD",
+  "prereg_commit": "3053d9ec9695666e2491bed0d2398b101de2895f",
+  "prereg": "verification/campaign/F19_SOD_PREREGISTRATION.md",
+  "assert_census": {
+    "files_checked": 4,
+    "assert_nodes": 0,
+    "planted_assert_seen": true
+  },
+  "controls": [
+    {
+      "control": "own_iteration_reproduces_Toro_Table_4.3_Test_1",
+      "derived": {
+        "p_star": 0.30313017805064685,
+        "u_star": 0.9274526200489499,
+        "rho_star_L": 0.4263194281784952,
+        "rho_star_R": 0.2655737117053071
+      },
+      "textbook": {
+        "p_star": 0.30313,
+        "u_star": 0.92745,
+        "rho_star_L": 0.42632,
+        "rho_star_R": 0.26557
+      },
+      "tolerance": 6e-06,
+      "newton_iterations": 6,
+      "residual": 1.1102230246251565e-16,
+      "shock_speed": 1.7521557320301782,
+      "shock_position_at_T": 0.8504311464060357,
+      "passed": true
+    },
+    {
+      "control": "PZ-F19-STAR_planted_pR_and_gamma_must_move_p_star",
+      "p_star": 0.30313017805064685,
+      "p_star_pR_times_1p1": 0.3118877176853498,
+      "p_star_gamma_5_3": 0.29394518766601785,
+      "passed": true
+    },
+    {
+      "control": "profile_conserves_mass_momentum_energy_RH_isentropic_fan",
+      "mass": 0.5625,
+      "momentum": 0.18000000145361564,
+      "energy": 1.3750000013905235,
+      "targets": {
+        "mass": 0.5625,
+        "momentum": 0.18000000000000002,
+        "energy": 1.3750000000000002
+      },
+      "rh_mass_flux": [
+        -0.2190194665037723,
+        -0.21901946650377227
+      ],
+      "fan_entropy_spread": 2.220446049250313e-16,
+      "cell_average_vs_brute": {
+        "smooth_cells": 8.590905764549461e-12,
+        "jump_cells": 3.825669367962803e-06,
+        "n_sub": 20000
+      },
+      "passed": true
+    },
+    {
+      "control": "constant_ratio_refinement_h_and_dt",
+      "h_ratios": [
+        2.0,
+        2.0
+      ],
+      "dt_ratios": [
+        2.0,
+        2.0
+      ],
+      "courant_classical": 0.17532528822406163,
+      "courant_foam_reported": 0.08766264411203081,
+      "max_signal_speed": 2.1915661028007705,
+      "passed": true
+    },
+    {
+      "control": "model_forced_monotone_mass_conserving_order_in_range",
+      "model_orders": [
+        0.8885960868187801,
+        0.787094624443464
+      ],
+      "E1_pred": [
+        0.0014057675612029164,
+        0.000759310562732458,
+        0.00044002803795215067
+      ],
+      "xs_err_pred": [
+        0.0003250896790930602,
+        0.00021792927421215857,
+        0.00010837405820740553
+      ],
+      "passed": true
+    },
+    {
+      "control": "PZ-F19-GRADE_LADDER_CALLSITE_ast_census_plus_grep_both_ways",
+      "ast_call_nodes": [
+        530
+      ],
+      "passed": true
+    },
+    {
+      "control": "solver_dictionaries_agree_with_registration",
+      "molWeight": 8314.47006650545,
+      "Cp": 3.5000000000000004,
+      "endTime": 0.2,
+      "flux": "Kurganov",
+      "limiters": "vanLeer/vanLeerV/vanLeer",
+      "ddt": "Euler",
+      "passed": true
+    },
+    {
+      "control": "reader_parses_real_solver_written_rho_on_this_box",
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse/4/rho",
+      "cells": 10000,
+      "passed": true
+    },
+    {
+      "control": "PZ-F19-L342_infrastructure_vs_physics_fields_driven_both_ways",
+      "infrastructure_deleted": "verdict channel unchanged, cost claim refused, defect lines printed",
+      "physics_corrupted": "NOT A RESULT; Courant ceiling and nan both flip limb 1",
+      "passed": true
+    }
+  ],
+  "gate_demonstration": [
+    {
+      "gate": "G-F19-1_L1_density_error_at_T",
+      "construction": "model fine field shifted 0 cells",
+      "value": 0.0004400280379521687,
+      "band": [
+        0.0001466760126507169,
+        0.001320084113856452
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F19-2_shock_position_at_T",
+      "construction": "model fine field shifted 0 cells",
+      "value": 0.8505395204642431,
+      "band": [
+        0.8501060242314135,
+        0.8507562685806579
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F19-1_L1_density_error_at_T",
+      "construction": "model fine field shifted 32 cells",
+      "value": 0.017543226909489566,
+      "band": [
+        0.0001466760126507169,
+        0.001320084113856452
+      ],
+      "inside": false,
+      "intended": "outside"
+    },
+    {
+      "gate": "G-F19-2_shock_position_at_T",
+      "construction": "model fine field shifted 32 cells",
+      "value": 0.8705395204642431,
+      "band": [
+        0.8501060242314135,
+        0.8507562685806579
+      ],
+      "inside": false,
+      "intended": "outside"
+    }
+  ],
+  "write_path": "OpenFOAM ascii volScalarField `rho` at endTime: `internalField nonuniform List<scalar>` NEWLINE N NEWLINE `(` one value per line `)`; pinned against REAL rhoCentralFoam output on this box, verification/runs/F15_runs/coarse/4/rho, parsed at selftest.",
+  "cap_core_min": 5.0,
+  "field_classes": {
+    "PHYSICS_CRITICAL": [
+      "log.rhoCentralFoam `End` line and `Time =` count (fixed-deltaT identity)",
+      "RC.txt (solver rc, written by the launcher in the shell that ran the solver)",
+      "<endTime>/rho, U, p, T present and NEWER than 0/U (age guard)",
+      "0/C cell centres",
+      "every time step's `max Courant Number` in log.rhoCentralFoam (rule 5 limb 1 stability census)"
+    ],
+    "INFRASTRUCTURE": [
+      "ClockTime in log.rhoCentralFoam (cost actual)",
+      "box_before.txt / box_after.txt",
+      "MESH_LINE.txt",
+      "STATUS.* / launcher.queue.out / LAUNCH_LOG rows written by a queue runner",
+      "calibration figures derived from any of the above"
+    ]
+  },
+  "cost_claim": {
+    "fields": "INFRASTRUCTURE",
+    "core_min_claim": 0.1,
+    "partial_sum_core_min": 0.1,
+    "cap_core_min": 5.0,
+    "defects": [],
+    "note": "ClockTime x ranks / 60; dollars at $0.0513/core-h DERIVED, NOT MEASURED"
+  },
+  "rows": [
+    {
+      "quantity": "G-F19-1_L1_density_error_at_T",
+      "dim": 1,
+      "fs": 1.25,
+      "value": 0.0004400280379553866,
+      "reference": 0.0,
+      "band": [
+        0.0001466760126507169,
+        0.001320084113856452
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 400,
+          "value": 0.0014057675612102782
+        },
+        {
+          "name": "medium",
+          "cells": 800,
+          "value": 0.0007593105627481319
+        },
+        {
+          "name": "fine",
+          "cells": 1600,
+          "value": 0.0004400280379553866
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 1.0177208144805254,
+          "dim": 1,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.0014057675612102782,
+            0.0007593105627481319,
+            0.0004400280379553866
+          ],
+          "cells": [
+            400,
+            800,
+            1600
+          ],
+          "e21": 0.0003192825247927453,
+          "e32": 0.0006464569984621463,
+          "GCI_pct": 88.51167281445524,
+          "GCI_abs": 0.0003894761772469387,
+          "richardson": 0.00012844709615783567,
+          "richardson_parent_convention": 0.0007516089797529375
+        }
+      ],
+      "orders": [
+        1.0177208144805254
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.001021772774850362,
+        "read_back_delta": 0.001021772774850362,
+        "reader_delta": 0.001021772774850362,
+        "reader": "e1_from_files",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/fine/0.2/rho",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": null,
+      "verdict": "PASS",
+      "order": 1.0177208144805254,
+      "GCI_pct": 88.51167281445524,
+      "GCI_abs": 0.0003894761772469387,
+      "richardson": 0.00012844709615783567,
+      "richardson_parent_convention": 0.0007516089797529375,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 1, observed order 1.0177, GCI 88.5117 % = 0.000389476 absolute at Fs = 1.25",
+      "gate": "G-F19-1_L1_density_error_at_T",
+      "band_principle": "discretisation-model prediction E1(T) = 4.400280380e-04 at h_fine = 0.000625, dt = 5e-05 (numpy re-implementation of rhoCentralFoam's Kurganov/vanLeer/Euler scheme integrated on the fine grid itself), times [1/3, 3]; value band independent of the observed order",
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 400,
+          "value": 0.0014057675612102782,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/coarse/0.2/rho",
+          "h": 0.0025,
+          "dt": 0.0002,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/coarse/log.rhoCentralFoam",
+            "rc": "0",
+            "n_times": 1000,
+            "latest": 0.2,
+            "dt": 0.0002,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/coarse/0.2",
+            "why": "rc 0; End; latest + dt > endTime; 1000 `Time` lines == endTime/dt; rho, U, p, T at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "explicit inviscid rhoCentralFoam: NO iterative residual exists; per-time-step solver-reported max Courant census over ALL steps against the registered ceiling",
+            "n_readings": 1000,
+            "expected": 1000,
+            "ceiling": 0.25,
+            "n_above_ceiling": 0,
+            "n_non_finite": 0,
+            "worst": 0.0900412236647,
+            "fatal": false
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test"
+        },
+        {
+          "name": "medium",
+          "cells": 800,
+          "value": 0.0007593105627481319,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/medium/0.2/rho",
+          "h": 0.00125,
+          "dt": 0.0001,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/medium/log.rhoCentralFoam",
+            "rc": "0",
+            "n_times": 2000,
+            "latest": 0.2,
+            "dt": 0.0001,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/medium/0.2",
+            "why": "rc 0; End; latest + dt > endTime; 2000 `Time` lines == endTime/dt; rho, U, p, T at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "explicit inviscid rhoCentralFoam: NO iterative residual exists; per-time-step solver-reported max Courant census over ALL steps against the registered ceiling",
+            "n_readings": 2000,
+            "expected": 2000,
+            "ceiling": 0.25,
+            "n_above_ceiling": 0,
+            "n_non_finite": 0,
+            "worst": 0.0900412236647,
+            "fatal": false
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test"
+        },
+        {
+          "name": "fine",
+          "cells": 1600,
+          "value": 0.0004400280379553866,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/fine/0.2/rho",
+          "h": 0.000625,
+          "dt": 5e-05,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/fine/log.rhoCentralFoam",
+            "rc": "0",
+            "n_times": 4000,
+            "latest": 0.2,
+            "dt": 5e-05,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/fine/0.2",
+            "why": "rc 0; End; latest + dt > endTime; 4000 `Time` lines == endTime/dt; rho, U, p, T at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "explicit inviscid rhoCentralFoam: NO iterative residual exists; per-time-step solver-reported max Courant census over ALL steps against the registered ceiling",
+            "n_readings": 4000,
+            "expected": 4000,
+            "ceiling": 0.25,
+            "n_above_ceiling": 0,
+            "n_non_finite": 0,
+            "worst": 0.0900412236647,
+            "fatal": false
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test"
+        }
+      ],
+      "plateau_note": "ABSENT by construction (transient value at t = T); reported as absent, not as a pass",
+      "iterative_note": "explicit inviscid solver: no iterative residual exists; limb (1) is a per-step solver-reported Courant census against ceiling 0.25, named as such",
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    },
+    {
+      "quantity": "G-F19-2_shock_position_at_T",
+      "dim": 1,
+      "fs": 1.25,
+      "value": 0.8505395204642462,
+      "reference": 0.8504311464060357,
+      "band": [
+        0.8501060242314135,
+        0.8507562685806579
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 400,
+          "value": 0.8507562360851347
+        },
+        {
+          "name": "medium",
+          "cells": 800,
+          "value": 0.8506490756802525
+        },
+        {
+          "name": "fine",
+          "cells": 1600,
+          "value": 0.8505395204642462
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "DEGENERATE",
+          "order": -0.03188623654828636,
+          "dim": 1,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.8507562360851347,
+            0.8506490756802525,
+            0.8505395204642462
+          ],
+          "cells": [
+            400,
+            800,
+            1600
+          ],
+          "e21": 0.00010955521600630735,
+          "e32": 0.00010716040488223388
+        }
+      ],
+      "orders": [
+        -0.03188623654828636
+      ],
+      "states": [
+        "DEGENERATE"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 1.0127142515026222e-05,
+        "read_back_delta": 1.0127142515026222e-05,
+        "reader_delta": 1.0127142515026222e-05,
+        "reader": "xs_from_files",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/fine/0.2/rho",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": null,
+      "verdict": "NOT A RESULT",
+      "why": "finest triple ('coarse', 'medium', 'fine') is DEGENERATE at dim = 1, observed order -0.0319; the value, every triple and every order are printed beside it, and NO GCI is quoted because |p| < P_MIN = 0.05: e21 ~ e32 and the fitted order is rounding residual",
+      "gate": "G-F19-2_shock_position_at_T",
+      "band_principle": "exact shock position x0 + S t = 0.850431146 (S = 1.752155732 from the exact Riemann solver) +/- 3 x the model's predicted midpoint-crossing error at fine (+1.083741e-04) = +/- 3.251222e-04 (0.52 fine cells)",
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 400,
+          "value": 0.8507562360851347,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/coarse/0.2/rho",
+          "h": 0.0025,
+          "dt": 0.0002,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/coarse/log.rhoCentralFoam",
+            "rc": "0",
+            "n_times": 1000,
+            "latest": 0.2,
+            "dt": 0.0002,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/coarse/0.2",
+            "why": "rc 0; End; latest + dt > endTime; 1000 `Time` lines == endTime/dt; rho, U, p, T at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "explicit inviscid rhoCentralFoam: NO iterative residual exists; per-time-step solver-reported max Courant census over ALL steps against the registered ceiling",
+            "n_readings": 1000,
+            "expected": 1000,
+            "ceiling": 0.25,
+            "n_above_ceiling": 0,
+            "n_non_finite": 0,
+            "worst": 0.0900412236647,
+            "fatal": false
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test"
+        },
+        {
+          "name": "medium",
+          "cells": 800,
+          "value": 0.8506490756802525,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/medium/0.2/rho",
+          "h": 0.00125,
+          "dt": 0.0001,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/medium/log.rhoCentralFoam",
+            "rc": "0",
+            "n_times": 2000,
+            "latest": 0.2,
+            "dt": 0.0001,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/medium/0.2",
+            "why": "rc 0; End; latest + dt > endTime; 2000 `Time` lines == endTime/dt; rho, U, p, T at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "explicit inviscid rhoCentralFoam: NO iterative residual exists; per-time-step solver-reported max Courant census over ALL steps against the registered ceiling",
+            "n_readings": 2000,
+            "expected": 2000,
+            "ceiling": 0.25,
+            "n_above_ceiling": 0,
+            "n_non_finite": 0,
+            "worst": 0.0900412236647,
+            "fatal": false
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test"
+        },
+        {
+          "name": "fine",
+          "cells": 1600,
+          "value": 0.8505395204642462,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/fine/0.2/rho",
+          "h": 0.000625,
+          "dt": 5e-05,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/fine/log.rhoCentralFoam",
+            "rc": "0",
+            "n_times": 4000,
+            "latest": 0.2,
+            "dt": 5e-05,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/fine/0.2",
+            "why": "rc 0; End; latest + dt > endTime; 4000 `Time` lines == endTime/dt; rho, U, p, T at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "explicit inviscid rhoCentralFoam: NO iterative residual exists; per-time-step solver-reported max Courant census over ALL steps against the registered ceiling",
+            "n_readings": 4000,
+            "expected": 4000,
+            "ceiling": 0.25,
+            "n_above_ceiling": 0,
+            "n_non_finite": 0,
+            "worst": 0.0900412236647,
+            "fatal": false
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test"
+        }
+      ],
+      "plateau_note": "ABSENT by construction (transient value at t = T); reported as absent, not as a pass",
+      "iterative_note": "explicit inviscid solver: no iterative residual exists; limb (1) is a per-step solver-reported Courant census against ceiling 0.25, named as such",
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    }
+  ]
+}

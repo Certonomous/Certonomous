@@ -1,0 +1,10 @@
+F19 -- SOD SHOCK TUBE -- TALLY
+==============================================================================
+G-F19-1_L1_density_error_at_T            PASS
+    finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 1, observed order 1.0177, GCI 88.5117 % = 0.000389476 absolute at Fs = 1.25
+G-F19-2_shock_position_at_T              NOT A RESULT
+    finest triple ('coarse', 'medium', 'fine') is DEGENERATE at dim = 1, observed order -0.0319; the value, every triple and every order are printed beside it, and NO GCI is quoted because |p| < P_MIN = 0.05: e21 ~ e32 and the fitted order is rounding residual
+==============================================================================
+cost actual: 0.100 core-min of cap 5.0 (ClockTime x ranks / 60; dollars derived, not measured)
+gated by: scripts/roache_triple.py::grade_ladder
+written: /home/ubuntu/Certonomous/verification/runs/F19_SOD_runs/F19_GRADED.json
