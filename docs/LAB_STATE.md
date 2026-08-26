@@ -2629,6 +2629,45 @@ With D12R2 graded, `d12y_S7_plant` is gone and the **32-on-30 overcommit with it
 **Still owed even though the overcommit cleared — because a cause that disappears on its own is not a cause that has been ESTABLISHED:** whether excursions **coincided in time with a named D12R2 stage**, stated as **correlation or causation and never blurred**; and **whether any dafoam container was SWAPPED, because a swapped MPI rank is a corrupted timing measurement even when it survives** — and D7R's arm O calibration is the number that would be corrupted.
 
 
+#### UPDATE 10 — **CONDITION 4 MEANS CONTAINERS ONLY. D7FR FIRES.** And my own aggregate-memory rule is CORRECTED BY MY OWN LANE within the hour (2026-08-26T04:43:41Z)
+
+**Lane commits `bd0047ca`** (census), **`9feb0815`** (H5 windowed memory gate), **`674ae5d4`** (release check).
+
+#### 10.1 THE AMBIGUITY THE LANE REFUSED TO RESOLVE IN ITS OWN FAVOUR
+
+Release condition 4 — *"cpuset clear of unpinned floaters"* — read **FAILED**, because **ten host-side heat-transfer and ansys solvers run with affinity 0-15**: unpinned floaters that **are not containers**. **The lane refused to decide whether that counted, and referred it. That was correct** — the reading that let it fire was the reading it wanted.
+
+**RULING: CONDITION 4 MEANS UNPINNED CONTAINERS ONLY. HOST PROCESSES ARE MEASURED, NOT EXCLUDED.**
+
+**The evidence that settles it is the evidence the lane itself surfaced, and it runs OPPOSITE to the cautious reading: D7R's measured basis was taken BESIDE HOST SOLVERS TOO.** Arm O measured **`delivered_cores_mean = 3.9919 of 4 over 925 samples` — 99.8 % delivery — WHILE host-side solvers ran.** **Host load is therefore part of the REFERENCE CONFIGURATION, not a departure from it.** Demanding an empty box now would force D7FR into a **CLEANER** configuration than the one that produced the reference — **breaking comparability in the opposite direction**, and comparability with D7R is the whole purpose of the re-registration (`DAFOAM_CHARTER.md` §5).
+
+Three reasons, by weight: **(1) 99.8 % is not an assumption, it is a MEASUREMENT of exactly the thing in question** — ten host solvers at affinity 0-15 did not materially steal cores from a cpuset-pinned container, because the kernel honours the cpuset. **(2) `delivered_cores_mean` is the instrument that MEASURES this contention per run**; the lab's standing move is never to assume a confounder absent but to **measure its effect and report it**. **(3) A reading under which D7FR never fires on a saturated box contradicts Sanaa's own saturation directive — a condition satisfiable only by an idle box is not a scheduling condition, it is a veto.**
+
+**THE PROTECTION IS NOT OPTIONAL: `delivered_cores_mean` GATES, at D4's registered floor of 3.0 of 4 — and delivery materially below D7R's 3.9919 is a FINDING, carried into the cost comparison as named contention, reported and never absorbed into a ratio. I traded an unsatisfiable precondition for a MEASURED one, not for a WAIVED one.**
+
+#### 10.2 **MY OWN STANDING RULE, CORRECTED BY MY OWN LANE — RECORDED AS A CORRECTION AGAINST ME**
+
+UPDATE 8's aggregate-memory rule summed **container caps**. **The lane is right that this is NECESSARY BUT NOT SUFFICIENT: host-side solvers sit OUTSIDE every container cap and held 45 % of physical memory tonight.** **A rule that sums only the capped share of a box whose uncapped share is nearly half of it is measuring the wrong denominator.**
+
+> **AMENDED STANDING RULE: the aggregate memory check is the SUM OF LIVE CONTAINER CAPS ***PLUS MEASURED HOST-SIDE RSS***, against physical memory — never the container caps alone.**
+
+**Issued by me in UPDATE 8 and corrected by my own lane inside the hour.** Measured tonight: **aggregate 24 of 30.6 GiB**, carrying the host term explicitly. Memory clear on release: **min 17.43 GiB, 0 samples below floor.**
+
+#### 10.3 THE THREE FACTUAL ANSWERS
+
+**NO DAFOAM CONTAINER SWAPPED** — `d4_O` swap **0.000 across 50 samples**. **Arm O's timing is NOT swap-corrupted**, which clears the D7R and D4-SHIPPED calibration concern I raised in UPDATE 8. **That was the one that would have poisoned a cost basis silently.**
+
+**THE D12R2 STAGE CORRELATION IS *NOT ESTABLISHED* — AND IS *NOT REFUTED*.** Window B with a `d12y` container live was clean, **and the sampler did not record container identity, so the instrument COULD NOT ANSWER THE QUESTION.** **Recorded in exactly those terms.** **It must NOT settle into the record as "D12R2 was cleared" — that is the collapse of *absent* into *passing* this family has spent the night correcting.** The standing consequence **does not trigger**. **Instrument gap named: the sampler records CONTAINER IDENTITY per sample, or it cannot answer the only question it exists to answer.**
+
+#### 10.4 **PLACEMENT WAS THE DEFECT FOR THE FIFTH TIME TONIGHT**
+
+The lane caught its own **H5 gate wired ABOVE the md5 assertions** — so **the memory gate would have run BEFORE the instrument-integrity check, and a tampered instrument could clear the memory gate and proceed.**
+
+**Five times, from five directions, in one night: `G-COLD` after the `rm -rf`; the terminal-statement clause needing to be POSITIONAL; `g_completion`'s verdict line reading one limb of three; presence-before-value; and now H5 above the md5s.** **ORDER IS PART OF CORRECTNESS.** A check in the right file, with the right logic, in the wrong place, is not a weak check — **it is a check that protects nothing while reading as protection.**
+
+**The H5 gate itself is the UPDATE 8 ruling implemented: `R3_EXCURSION` on ANY sample below floor, and the replay of window A — median 17.35, min 1.96 — REFUSES.** **The gate was demonstrated against the very data that motivated it**, which is the standard this family now holds.
+
+
 ### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
 
 **Section block written:** 2026-08-25T21:12Z by dafoam-supervisor (ELEVENTH session, formed ~21:05Z 2026-08-25 after a session usage limit killed the tenth fleet at ~20:45Z). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
