@@ -1,0 +1,54 @@
+  [OK ] U1 clean fixture (spreads 1e-4 / 1e-7) -> item PASS, both rows PASS, G-M2/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> P1, P2, P3 (0 < spread <= 2.2e-5), P4 (ratio 1.6), P5, P6, P7 HIT
+  [OK ] U3 grader-level plant SEEN on X2-S; sign-flipped X4-S copy read as GATE FAIL with every component flipped (rule 3)
+  [OK ] U4 PLANTED gradient spread 2e-3 at np=4 SHIPPED -> G-NP SHIPPED GATE FAIL (np 4 named), PATCHED PASS, item GATE FAIL, P2 MISS
+  [OK ] U5 gradient spread 9e-4 at np=2 PATCHED (inside 1e-3) -> PASS
+  [OK ] U6 PLANTED objective spread 5e-5 at np=2 PATCHED -> objective GATE FAIL, row GATE FAIL, P1 MISS
+  [OK ] U7 PLANTED sign flip on shape[6] at np=4 PATCHED -> flip counted, row GATE FAIL
+  [OK ] U8 objectives BIT-IDENTICAL across np -> P3 MISS (the B3 G4 finding not reproduced), verdict still PASS
+  [OK ] U9 rc=1 on X4-P -> REFUSAL
+  [OK ] U10 OOMKilled=true on X2-S -> REFUSAL
+  [OK ] U11 terminal marker absent in X1-P log -> REFUSAL
+  [OK ] U12 instrument planted-control line absent in X4-S log -> REFUSAL
+  [OK ] U13 artefact OLDER than the age datum (X1-S) -> REFUSAL (rule 4)
+  [OK ] U14 np=4 partition record with 3 entries -> REFUSAL
+  [OK ] U15 np=4 partition cells summing to 4033 -> REFUSAL
+  [OK ] U16 artefact nprocs 2 on the np=4 arm -> REFUSAL
+  [OK ] U17 X2-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL
+  [OK ] U18 X4-S core_min 21.0 > cap 20.0 -> G10 GATE FAIL
+  [OK ] U19 X4-S on cpuset 0,1 (registered 0,1,12,15) -> G12 GATE FAIL
+  [OK ] U20 cells 4033 -> G-M2 GATE FAIL, P7 MISS (partition sums follow the fixture's cells)
+  [OK ] U21 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)
+  [OK ] U22 harness rc 0 vs kernel exit 1 disagreement -> REFUSAL
+  [OK ] U23 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS
+  [OK ] U24 ast.Assert count = 0 in av1_grade.py and av1_x.py, and the counter sees a planted assert (=1)
+AV1 GRADER SELFTEST units=24 expected=24 failures=0 python_O=False
+AV1 GRADER SELFTEST PASS 24/24 (counted against the frozen EXPECTED_UNITS)
+rc_plain=0
+  [OK ] U1 clean fixture (spreads 1e-4 / 1e-7) -> item PASS, both rows PASS, G-M2/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> P1, P2, P3 (0 < spread <= 2.2e-5), P4 (ratio 1.6), P5, P6, P7 HIT
+  [OK ] U3 grader-level plant SEEN on X2-S; sign-flipped X4-S copy read as GATE FAIL with every component flipped (rule 3)
+  [OK ] U4 PLANTED gradient spread 2e-3 at np=4 SHIPPED -> G-NP SHIPPED GATE FAIL (np 4 named), PATCHED PASS, item GATE FAIL, P2 MISS
+  [OK ] U5 gradient spread 9e-4 at np=2 PATCHED (inside 1e-3) -> PASS
+  [OK ] U6 PLANTED objective spread 5e-5 at np=2 PATCHED -> objective GATE FAIL, row GATE FAIL, P1 MISS
+  [OK ] U7 PLANTED sign flip on shape[6] at np=4 PATCHED -> flip counted, row GATE FAIL
+  [OK ] U8 objectives BIT-IDENTICAL across np -> P3 MISS (the B3 G4 finding not reproduced), verdict still PASS
+  [OK ] U9 rc=1 on X4-P -> REFUSAL
+  [OK ] U10 OOMKilled=true on X2-S -> REFUSAL
+  [OK ] U11 terminal marker absent in X1-P log -> REFUSAL
+  [OK ] U12 instrument planted-control line absent in X4-S log -> REFUSAL
+  [OK ] U13 artefact OLDER than the age datum (X1-S) -> REFUSAL (rule 4)
+  [OK ] U14 np=4 partition record with 3 entries -> REFUSAL
+  [OK ] U15 np=4 partition cells summing to 4033 -> REFUSAL
+  [OK ] U16 artefact nprocs 2 on the np=4 arm -> REFUSAL
+  [OK ] U17 X2-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL
+  [OK ] U18 X4-S core_min 21.0 > cap 20.0 -> G10 GATE FAIL
+  [OK ] U19 X4-S on cpuset 0,1 (registered 0,1,12,15) -> G12 GATE FAIL
+  [OK ] U20 cells 4033 -> G-M2 GATE FAIL, P7 MISS (partition sums follow the fixture's cells)
+  [OK ] U21 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)
+  [OK ] U22 harness rc 0 vs kernel exit 1 disagreement -> REFUSAL
+  [OK ] U23 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS
+  [OK ] U24 ast.Assert count = 0 in av1_grade.py and av1_x.py, and the counter sees a planted assert (=1)
+AV1 GRADER SELFTEST units=24 expected=24 failures=0 python_O=True
+AV1 GRADER SELFTEST PASS 24/24 (counted against the frozen EXPECTED_UNITS)
+rc_O=0

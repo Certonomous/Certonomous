@@ -1,0 +1,300 @@
+--- ../curriculum_D15/d15_run_arm.sh	2026-08-26 21:06:05.514596304 +0000
++++ av1_run_arm.sh	2026-08-26 22:33:23.285736695 +0000
+@@ -1,15 +1,20 @@
+ #!/usr/bin/env bash
+-# Curriculum D15 arm launcher -- NACA0012 SUBSONIC (DARhoSimpleFoam) baseline
+-# gradient, TWO ROWS (shipped + patched), adjoint X + central-FD table F.
++# Curriculum AV1 arm launcher -- NACA0012 INCOMPRESSIBLE (DASimpleFoam) baseline
++# gradient at np = 1 / 2 / 4 (scotch), TWO ROWS (shipped + patched): the family's
++# first np-INVARIANCE rung (ADJOINT_VERIFICATION_STANDARD.md section 3).
+ #
+-# DERIVED from `cases/dafoam/ladder-a/A2/curriculum_D5/d5_run_arm.sh` (Addendum 1
+-# md5 50a976780e357998238ede3bbb8e5521) with the REGISTERED DELTAS listed in
+-# PREREGISTRATION.md section 7 and recorded in d15_run_arm_DELTAS_from_d5.diff:
+-# item/root names; forbidden roots; G-ROOT.3 accepts BOTH rows (this item BUYS
+-# both); arms MESH X-S F-S X-P F-P; RANKS 2 (MESH 1); cpuset 2,3; 4g; cap table;
+-# G-ROW derived from the arm suffix; the staged instruments; solver arms stage
+-# from the MESH arm's output; the arm commands.  Container-printed strings
+-# (D4S_*) are inherited UNCHANGED so the grader greps what the launcher writes.
++# DERIVED from `cases/dafoam/ladder-a/A1/curriculum_D15/d15_run_arm.sh` (frozen at
++# 8fc2bdeb, md5 796a2de5b894e8fcdbfab99af6fbf09d) with the REGISTERED DELTAS listed
++# in PREREGISTRATION.md section 7 and recorded in av1_run_arm_DELTAS_from_d15.diff:
++# item/root names; forbidden roots (+ D15, D16, AV2); arms MESH X1-S X2-S X4-S
++# X1-P X2-P X4-P; RANKS from the arm name (1/2/4, MESH 1); cpuset PER ARM (0,1 for
++# np <= 2; 0,1,12,15 for np = 4 -- the supervisor's placement, the 12,15 overlap
++# with lane N2's D17 DISCLOSED); memory 4g (6g at np = 4); cap table; G-ROW from
++# the arm suffix; the registered decomposeParDict overlaid PER np at staging; the
++# X-only instrument av1_x.py.  No F arm: this rung grades the adjoint against
++# ITSELF across np, never against an FD table (the FD rows are D13's / D15's).
++# Container-printed strings (D4S_*) are inherited UNCHANGED so the grader greps
++# what the launcher writes.
+ #
+ # CAP DISCIPLINE (the failure this file exists not to repeat).  A peer lane
+ # today registered a 3.0 core-min cap and its launcher enforced 6.0 by
+@@ -48,8 +53,8 @@
+ # fire is ceremony -- and this is the guard standing between a re-fire and
+ # 384 MB of irreplaceable graded evidence.
+ # ===========================================================================
+-ITEM=D15
+-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D15-a1-naca0012-subsonic
++ITEM=AV1
++REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-AV1-a1-naca0012-npinv
+ BASE="${BASE:-$REGISTERED_BASE}"
+ 
+ # ---- G-ROOT.1 -- BASE must be THIS item's registered root, normalised, so a
+@@ -82,9 +87,11 @@
+ /home/ubuntu/certonomous-runs/CURRICULUM-D12R2-cylinder-unsteady
+ /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W2R-cylinder-unsteady
+ /home/ubuntu/certonomous-runs/CURRICULUM-D13-a1-basin-restart
++/home/ubuntu/certonomous-runs/CURRICULUM-D15-a1-naca0012-subsonic
+ /home/ubuntu/certonomous-runs/CURRICULUM-D16-a1-naca0012-transonic
++/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality
+ /home/ubuntu/certonomous-runs/A2-mach-wing
+-/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/subsonic
++/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible
+ /home/ubuntu/dafoam-tutorials
+ /home/ubuntu/certonomous-runs
+ /home/ubuntu/Certonomous"
+@@ -100,8 +107,8 @@
+ done <<< "$FORBIDDEN_ROOTS"
+ 
+ # ---- G-ROOT.3 -- the LEDGER must belong to this item and to no other.  A root
+-# ---- can be correct and its ledger still be a foreign one moved in.  D15
+-# ---- REGISTERED DELTA: this item BUYS BOTH ROWS, so a ROW=SHIPPED row is NOT
++# ---- can be correct and its ledger still be a foreign one moved in.  AV1
++# ---- (inherited from D15): this item BUYS BOTH ROWS, so a ROW=SHIPPED row is NOT
+ # ---- foreign here; only a foreign ITEM= line refuses.
+ if [ -f "$BASE/ledger.txt" ]; then
+   FOREIGN_ITEM=$(grep -a "^ITEM=" "$BASE/ledger.txt" 2>/dev/null | grep -av "^ITEM=$ITEM$" | head -1)
+@@ -124,42 +131,54 @@
+ # four distinct cores.  So: PIN, and MEASURE the placement rather than infer it
+ # from the flag that was passed.
+ #
+-# D15 REGISTERED DELTA (PREREGISTRATION.md section 5): cpuset 2,3 -- the
+-# dafoam-supervisor's FOURTEENTH-session placement; DISJOINT from D5 8,10,11,13,
+-# D4-SHIPPED 5,6,7,9, W2R 12, D16 4,14; not core 0.
+-CPUSET=2,3
++# AV1 REGISTERED DELTA (PREREGISTRATION.md section 5): cpuset PER ARM -- 0,1 for
++# every arm at np <= 2 (MESH, X1-*, X2-*) and 0,1,12,15 for the np = 4 arms; the
++# supervisor's placement for this rung.  DISCLOSED: 12,15 is lane N2's D17
++# placement; the aggregate guard absorbs a co-tenancy, the cpuset is not re-pinned.
++cpuset_of() {
++  case "$1" in
++    MESH|X1-S|X1-P|X2-S|X2-P) echo "0,1" ;;
++    X4-S|X4-P)                echo "0,1,12,15" ;;
++    *) echo "" ;;
++  esac
++}
+ 
+ # For containerised MPI the conditioning variable is CONCURRENT CONTAINERS, not
+ # loadavg -- `uptime` will lie.  Censused before and after every arm.
+ container_census() {
+-  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d15_" | tr '\n' ',' | sed 's/,$//'
++  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^av1_" | tr '\n' ',' | sed 's/,$//'
+ }
+ 
+ # ---- REGISTERED CAP TABLE (PREREGISTRATION.md §4, verbatim) ---------------
+-#   arm    ranks  core-min cap   in-container wall   memory cap
+-#   MESH     1        5.0            300 s              4g
+-#   X-S      2       20.0            600 s              4g
+-#   X-P      2       20.0            600 s              4g
+-#   F-S      2       60.0           1800 s              4g
+-#   F-P      2       60.0           1800 s              4g
++#   arm    ranks  core-min cap   in-container wall   memory cap   cpuset
++#   MESH     1        5.0            300 s              4g         0,1
++#   X1-S     1       10.0            600 s              4g         0,1
++#   X2-S     2       15.0            450 s              4g         0,1
++#   X4-S     4       20.0            300 s              6g         0,1,12,15
++#   X1-P     1       10.0            600 s              4g         0,1
++#   X2-P     2       15.0            450 s              4g         0,1
++#   X4-P     4       20.0            300 s              6g         0,1,12,15
+ cap_core_min() {
+   case "$1" in
+-    MESH)     echo 5.0 ;;
+-    X-S|X-P)  echo 20.0 ;;
+-    F-S|F-P)  echo 60.0 ;;
++    MESH)       echo 5.0 ;;
++    X1-S|X1-P)  echo 10.0 ;;
++    X2-S|X2-P)  echo 15.0 ;;
++    X4-S|X4-P)  echo 20.0 ;;
+     *)  echo "" ;;
+   esac
+ }
+ cap_memory() {
+   case "$1" in
+-    MESH|X-S|X-P|F-S|F-P) echo 4g ;;
++    MESH|X1-S|X1-P|X2-S|X2-P) echo 4g ;;
++    X4-S|X4-P)                echo 6g ;;
+     *) echo "" ;;
+   esac
+ }
+ ranks_of() {
+   case "$1" in
+-    MESH) echo 1 ;;
+-    X-S|X-P|F-S|F-P) echo 2 ;;
++    MESH|X1-S|X1-P) echo 1 ;;
++    X2-S|X2-P)      echo 2 ;;
++    X4-S|X4-P)      echo 4 ;;
+     *) echo "" ;;
+   esac
+ }
+@@ -173,14 +192,16 @@
+ IMG_SHIPPED_DIGEST=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc
+ 
+ # ---- FROZEN INSTRUMENT HASHES (PREREGISTRATION.md §7, verbatim) ----------
+-MD5_RUNSCRIPT=6537fa7641c4ccb20056f60f96f63b11   # d15_runScript.py = byte copy of the shipped subsonic tutorial runScript.py
+-MD5_XF=8a664a976de77c5fe7c3fed5746be4de                                 # d15_xf.py (set at freeze)
+-MD5_DECOMP=68ecc827562886fb43c3aedb0627b344      # d15_decomposeParDict (numberOfSubdomains 2, scotch)
++MD5_RUNSCRIPT=0557da51f6f179f6de865144343c499f   # av1_runScript.py = byte copy of the shipped INCOMPRESSIBLE tutorial runScript.py
++MD5_XF=74011a9c5e6c760b8aec1c78e928b4d2                             # av1_x.py (set at freeze)
++MD5_DECOMP_NP2=68ecc827562886fb43c3aedb0627b344  # av1_decomposeParDict_np2 (numberOfSubdomains 2, scotch) = D15's dict
++MD5_DECOMP_NP4=816f5ba44075fde47fa5db4269877bc8  # av1_decomposeParDict_np4 (numberOfSubdomains 4, scotch) = the tutorial's own
+ 
+ ARM="${1:-}"; IMG="${2:-}"
+-test -n "$ARM" || { echo "ABORT usage: d15_run_arm.sh <MESH|X-S|F-S|X-P|F-P> <image>"; exit 64; }
+-test -n "$IMG" || { echo "ABORT usage: d15_run_arm.sh <MESH|X-S|F-S|X-P|F-P> <image>"; exit 64; }
++test -n "$ARM" || { echo "ABORT usage: av1_run_arm.sh <MESH|X1-S|X2-S|X4-S|X1-P|X2-P|X4-P> <image>"; exit 64; }
++test -n "$IMG" || { echo "ABORT usage: av1_run_arm.sh <MESH|X1-S|X2-S|X4-S|X1-P|X2-P|X4-P> <image>"; exit 64; }
+ RANKS=$(ranks_of "$ARM"); test -n "$RANKS" || { echo "ABORT arm $ARM carries no registered rank count"; exit 64; }
++CPUSET=$(cpuset_of "$ARM"); test -n "$CPUSET" || { echo "ABORT arm $ARM carries no registered cpuset"; exit 64; }
+ 
+ # ---- G-ROOT.5 (ADDENDUM 2) -- A LIVE ARM IS NEVER RE-STAGED.  G-ROOT.1-.3
+ # ---- see only ledger rows; a queue-runner re-firing this launcher on a
+@@ -191,13 +212,13 @@
+ # ----   (b) a driver pidfile in the run root naming a LIVE pid that is not an
+ # ----       ancestor of this process (a second driver), or whose cwd is the
+ # ----       run root.  A stale pidfile (dead pid) does not block.
+-LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d15_${ARM}_" 2>/dev/null | grep "^d15_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
++LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^av1_${ARM}_" 2>/dev/null | grep "^av1_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+ if [ -n "$LIVE_SAME_ARM" ]; then
+   echo "ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [$LIVE_SAME_ARM]"
+   echo "  Re-staging would remove the live arm directory under it.  REFUSED."
+   exit 3
+ fi
+-PIDFILE="$BASE/d15_driver.pid"
++PIDFILE="$BASE/av1_driver.pid"
+ if [ -f "$PIDFILE" ]; then
+   DPID=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
+   if [ -n "$DPID" ] && kill -0 "$DPID" 2>/dev/null; then
+@@ -246,9 +267,11 @@
+ test "$(stat -c '%a' "$BASE")" = "777" || { echo "ABORT L-251 run root mode $(stat -c '%a' "$BASE")"; exit 4; }
+ 
+ # ---- staged-instrument identity, re-asserted before EVERY launch ---------
+-echo "$MD5_RUNSCRIPT  $BASE/d15_runScript.py"       | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
+-echo "$MD5_XF  $BASE/d15_xf.py"                     | md5sum -c - || { echo "ABORT xf md5"; exit 4; }
+-echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict" | md5sum -c - || { echo "ABORT decomposeParDict md5"; exit 4; }
++echo "$MD5_RUNSCRIPT  $BASE/av1_runScript.py"       | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
++echo "$MD5_XF  $BASE/av1_x.py"                      | md5sum -c - || { echo "ABORT x instrument md5"; exit 4; }
++echo "$MD5_DECOMP_NP2  $BASE/av1_decomposeParDict_np2" | md5sum -c - || { echo "ABORT decomposeParDict_np2 md5"; exit 4; }
++echo "$MD5_DECOMP_NP4  $BASE/av1_decomposeParDict_np4" | md5sum -c - || { echo "ABORT decomposeParDict_np4 md5"; exit 4; }
++echo "$MD5_DECOMP_NP4  $BASE/base/system/decomposeParDict" | md5sum -c - || { echo "ABORT base decomposeParDict is not the tutorial's"; exit 4; }
+ 
+ # ---- image identity by DIGEST, resolved from the local store -------------
+ GOT_DIGEST=$(sudo -n docker image inspect --format '{{index .RepoDigests 0}}' "$IMG" 2>/dev/null | sed 's/.*@//')
+@@ -261,7 +284,7 @@
+ test "$GOT_DIGEST" = "$WANT" || { echo "ABORT digest mismatch $IMG got=$GOT_DIGEST want=$WANT"; exit 4; }
+ 
+ # ---- G-ROW.  THE ROW A RUN CLAIMS AND THE ROW IT RAN MUST BE THE SAME HASH.
+-# DAFOAM_CHARTER.md §11 makes the HASH the identity.  D15 REGISTERED DELTA: the
++# DAFOAM_CHARTER.md §11 makes the HASH the identity.  Inherited from D15: the
+ # row is carried in the ARM NAME (-S shipped, -P patched; MESH on shipped --
+ # mesh generation does not touch IDWarp), and a mismatch refuses.
+ case "$ARM" in
+@@ -277,14 +300,18 @@
+ echo "D4_IMAGE_OK row=$ROW image=$IMG digest=$GOT_DIGEST"
+ 
+ STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
+-NAME="d15_${ARM}_${STAMP}"
++NAME="av1_${ARM}_${STAMP}"
+ WORK="$BASE/$ARM"
+ LOG="$BASE/${ARM}_${STAMP}.log"
+ 
+ # ---- stage a pristine copy for the arm ------------------------------------
+-# D15 REGISTERED DELTA: MESH stages from base/ (the tutorial's inputs, no mesh);
++# Inherited from D15: MESH stages from base/ (the tutorial's inputs, no mesh);
+ # every solver arm stages a COLD copy of the MESH arm's OUTPUT (mesh + 0/), so
+-# all four gradient arms run on ONE mesh generated once inside the SHIPPED image.
++# all six gradient arms run on ONE mesh generated once inside the SHIPPED image.
++# AV1 REGISTERED DELTA: the np = 2 / np = 4 arms overlay their REGISTERED
++# decomposeParDict (md5-asserted above) so DAFoam's own decomposePar partitions
++# into exactly `ranks` scotch subdomains; the np = 1 arms keep the tutorial's
++# dict, which DAFoam does not read at one rank.
+ if [ "$ARM" = "MESH" ]; then
+   sudo -n rm -rf "$WORK" 2>/dev/null
+   cp -a "$BASE/base" "$WORK" || { echo "ABORT stage copy"; exit 4; }
+@@ -293,7 +320,7 @@
+   test -f "$WORK/0.orig/U" || { echo "ABORT G-COLD 0.orig/U missing"; exit 5; }
+   touch "$WORK/0.orig"/* || { echo "ABORT age-guard datum"; exit 5; }
+   AGE_DATUM=$(stat -c '%Y' "$WORK/0.orig/U")
+-  echo "$AGE_DATUM" > "$WORK/.d15_age_datum"
++  echo "$AGE_DATUM" > "$WORK/.av1_age_datum"
+   echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM datum_file=0.orig/U"
+ else
+   test -d "$BASE/MESH" || { echo "ABORT arm $ARM expects an existing MESH/ from arm MESH"; exit 5; }
+@@ -301,12 +328,19 @@
+   test -f "$BASE/MESH/0/U" || { echo "ABORT arm $ARM: MESH/ carries no 0/U"; exit 5; }
+   sudo -n rm -rf "$WORK" 2>/dev/null
+   cp -a "$BASE/MESH" "$WORK" || { echo "ABORT stage copy from MESH"; exit 4; }
+-  rm -f "$WORK/d15_cmd.sh" "$WORK/checkMesh.log" "$WORK/logMeshGeneration.txt" "$WORK/volumeMesh.xyz" "$WORK/surfaceMesh.xyz" "$WORK/.d15_age_datum" 2>/dev/null
+-  cp -a "$BASE/d15_runScript.py" "$BASE/d15_xf.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
++  rm -f "$WORK/av1_cmd.sh" "$WORK/checkMesh.log" "$WORK/logMeshGeneration.txt" "$WORK/volumeMesh.xyz" "$WORK/surfaceMesh.xyz" "$WORK/.av1_age_datum" 2>/dev/null
++  cp -a "$BASE/av1_runScript.py" "$BASE/av1_x.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
++  case "$ARM" in
++    X2-*) cp -a "$BASE/av1_decomposeParDict_np2" "$WORK/system/decomposeParDict" || { echo "ABORT overlay np2 dict"; exit 4; }
++          echo "$MD5_DECOMP_NP2  $WORK/system/decomposeParDict" | md5sum -c - || { echo "ABORT overlaid np2 dict md5"; exit 4; } ;;
++    X4-*) cp -a "$BASE/av1_decomposeParDict_np4" "$WORK/system/decomposeParDict" || { echo "ABORT overlay np4 dict"; exit 4; }
++          echo "$MD5_DECOMP_NP4  $WORK/system/decomposeParDict" | md5sum -c - || { echo "ABORT overlaid np4 dict md5"; exit 4; } ;;
++  esac
++  echo "D4S_DECOMP_DICT arm=$ARM ranks=$RANKS md5=$(md5sum "$WORK/system/decomposeParDict" | cut -d' ' -f1)"
+   # COLD START, verified BEFORE the launch (D2 G8), and the AGE GUARD's datum:
+   # 0/ is touched LAST at stage time, so every artifact the run produces must
+   # be strictly newer than 0/U or it did not come from this run.
+-  for bad in "$WORK/reports" "$WORK/d15_X.json" "$WORK/d15_F.json" "$WORK/d15_F.jsonl" "$WORK/d15_X.jsonl" "$WORK/dRdWColoring_2.bin"; do
++  for bad in "$WORK/reports" "$WORK/av1_X.json" "$WORK/av1_X.jsonl" "$WORK/av1_X_planted.json" "$WORK/dRdWColoring_1.bin" "$WORK/dRdWColoring_2.bin" "$WORK/dRdWColoring_4.bin"; do
+     test -e "$bad" && { echo "ABORT G-COLD $bad exists"; exit 5; }
+   done
+   test -n "$(ls -d "$WORK"/processor* 2>/dev/null)" && { echo "ABORT G-COLD processor* present"; exit 5; }
+@@ -317,21 +351,20 @@
+   test -f "$WORK/0/U" || { echo "ABORT G-COLD 0/U missing"; exit 5; }
+   touch "$WORK/0"/* || { echo "ABORT age-guard datum"; exit 5; }
+   AGE_DATUM=$(stat -c '%Y' "$WORK/0/U")
+-  echo "$AGE_DATUM" > "$WORK/.d15_age_datum"
++  echo "$AGE_DATUM" > "$WORK/.av1_age_datum"
+   echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM datum_file=0/U"
+ fi
+ 
+ case "$ARM" in
+-  MESH)     CMD="bash preProcessing.sh && checkMesh > checkMesh.log 2>&1; echo D15_CHECKMESH_RC \$?; sha256sum constant/polyMesh/points* ; grep -a 'cells:' checkMesh.log" ;;
+-  X-S|X-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d15_xf.py -mode X" ;;
+-  F-S|F-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d15_xf.py -mode F" ;;
++  MESH)     CMD="bash preProcessing.sh && checkMesh > checkMesh.log 2>&1; echo AV1_CHECKMESH_RC \$?; sha256sum constant/polyMesh/points* ; grep -a 'cells:' checkMesh.log" ;;
++  X1-S|X1-P|X2-S|X2-P|X4-S|X4-P) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python av1_x.py -mode X" ;;
+ esac
+ 
+ # ---- ADDENDUM 2: the arm command goes to a FILE the container executes under
+ # ---- its OWN `timeout` at the registered cap wall (TMO), so the deadline is
+ # ---- INSIDE the container and survives every host shell.  `-k 60` escalates
+ # ---- TERM to KILL; the kernel exit code (124/137) is then the record.
+-CMDFILE="$WORK/d15_cmd.sh"
++CMDFILE="$WORK/av1_cmd.sh"
+ printf '%s\n' "$CMD" > "$CMDFILE" || { echo "ABORT cmd file"; exit 4; }
+ echo "D4S_CMDFILE arm=$ARM md5=$(md5sum "$CMDFILE" | cut -d' ' -f1) deadline_in_container_s=$TMO"
+ CPUSAMPLE="$BASE/${ARM}_${STAMP}.cpu.jsonl"
+@@ -382,7 +415,7 @@
+ # until the record is read.  THE CAP LIVES INSIDE THE CONTAINER: `timeout -k 60
+ # $TMO` wraps the arm command file on the `docker run` line below, so the
+ # deadline survives every host shell (the D4-SHIPPED Addendum 2 form, inherited
+-# from d5_run_arm.sh unchanged).  The host poller REPORTS a crossing and
++# from d5_run_arm.sh via d15_run_arm.sh unchanged).  The host poller REPORTS a crossing and
+ # hard-stops only at 4x cap, while this shell lives.
+ # ===========================================================================
+ sudo -n docker run -d --name "$NAME" \
+@@ -392,7 +425,7 @@
+      echo D4S_CONTAINER_UID: \$(id -u) && \
+      python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"D4S_IDWARP_IMPORTED_FROM:\",p); print(\"D4S_IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' && \
+      echo D4S_DEADLINE_IN_CONTAINER_S: $TMO && \
+-     timeout -k 60 $TMO bash /mnt/$ARM/d15_cmd.sh" > /dev/null 2>&1 \
++     timeout -k 60 $TMO bash /mnt/$ARM/av1_cmd.sh" > /dev/null 2>&1 \
+   || { echo "ABORT could not start container"; exit 4; }
+ 
+ # The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25), not a budget
