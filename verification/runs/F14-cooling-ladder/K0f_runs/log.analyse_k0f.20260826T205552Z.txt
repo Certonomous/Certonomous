@@ -1,0 +1,100 @@
+==========================================================================
+K0d COMPARATOR -- analyse_k0f.py
+  this file's git blob sha1: 764dedc6dadf38660becbc5d727184a363eb2d77
+  the OPERATIVE registration is K0d_REREGISTRATION.md;
+  the OPERATIVE cap is 2 748.64 core-min (AMENDMENT 2 A2.2b).
+==========================================================================
+
+ALL 10 DONE markers present.
+
+PRE-GRADING EQUIVALENCE GATE (K0f section V) on M1_f: running OpenFOAM's own postProcess -func sample against this file's reader.
+   | ======================================================================
+   | K0d EXTRACTION EQUIVALENCE CHECK -- registered AD1.1, before compute
+   |   OpenFOAM postProcess -func sample  vs  analyse_k0f.py's reader
+   |   criterion: T 2.00e-05 K, U 5.70e-07 m/s
+   | ======================================================================
+   | 
+   | case M1_f at time 40000
+   |   set                   field     worst |diff|     criterion   verdict
+   |   vertical_midplane     T         8.082526e-08      2.00e-05   agree
+   |   vertical_midplane     U.x       2.656690e-09      5.70e-07   agree
+   |   horizontal_midplane   T         1.859553e-08      2.00e-05   agree
+   |   horizontal_midplane   U.x       8.100912e-11      5.70e-07   agree
+   | 
+   | ======================================================================
+   | VERDICT: AGREE -- the in-comparator reader of analyse_k0f.py
+   | reproduces OpenFOAM's own cellPoint sampling within the
+   | registered criterion.  AD1.1's reading is VINDICATED.
+   | ======================================================================
+   GATE PASSED -- the reader reproduces OpenFOAM's cellPoint within the registered criterion, ON THIS LEVEL, IN THIS INVOCATION.
+
+PLANTED-ZERO CONTROL (superseded 8.1) -- run BEFORE any graded value is read:
+  P1  PLANT_T 1.234000e-03 K -> cell 0 (line 23) of a COPY of T; production scalar reader SAW IT.
+  P2  PLANT_U 1.234000e-03 m/s -> x-component of cell 0 (line 23) of a COPY of U; production VECTOR reader SAW IT.
+  P3  NEGATIVE CONTROL: a 0.0 plant onto a 0.0 background is NOT DISTINGUISHABLE FROM THE BACKGROUND, as registered.
+  M1_c       converged=False  y+max=3.0462  (T: max|d|=8.713258e+00 vs 1e-6*range=1.970891e-05)
+  M1_m       converged=False  y+max=2.2599  (T: max|d|=3.444386e+00 vs 1e-6*range=1.973170e-05)
+  M1_f       converged=False  y+max=1.6392  (T: max|d|=6.539194e+00 vs 1e-6*range=1.992684e-05)
+  M2_c       converged=False  y+max=3.6284  (T: max|d|=1.607065e+00 vs 1e-6*range=1.953026e-05)
+  M2_m       converged=False  y+max=2.7889  (T: max|d|=2.924288e+00 vs 1e-6*range=1.965777e-05)
+  M2_f       converged=False  y+max=2.0438  (T: max|d|=1.378619e-01 vs 1e-6*range=1.975792e-05)
+  C_lam      converged=False  y+max=2.1928  (T: max|d|=1.367543e+01 vs 1e-6*range=1.987831e-05)
+  B_hi       converged=False  y+max=2.2338  (T: max|d|=7.927992e+00 vs 1e-6*range=2.029005e-05)
+  I_hi       converged=False  y+max=2.2547  (T: max|d|=9.968168e+00 vs 1e-6*range=1.975055e-05)
+  M1_m_seed  converged=False  y+max=2.4642  (T: max|d|=5.074385e+00 vs 1e-6*range=1.988889e-05)
+
+GUARDS (each withdraws the run, never the hypothesis):
+  B   worst |dTheta| 1.60174 K at G1@0.95  -> guard B: |dTheta| 1.6017 K at G1@0.95 exceeds 1.0 K; the floor temperature of section 3.3 awaits the primary
+  I   dG5a 0.032747 m/s, dG8 0.000000 m  (quiet)
+  DC  UNMEASURED  -> guard DC UNMEASURED: C_lam is not converged
+  SEED worst 1.75591 at G1@0.95  -> SEED DEPENDENCE IS THE FINDING: G1 differs between M1_m and M1_m_seed by more than its registered band (worst 1.75591 at G1@0.95)
+  y+  1.6392 on M1_f  inside the window
+  M0  REPORTED beside every velocity row: 1.65 % on velocity, 0.031 % on Nusselt -- NEVER SUBTRACTED
+
+REFERENCE: NOT OBTAINED  (verification/runs/F14-cooling-ladder/K0f_runs/K0d_reference_primary.json)
+
+THE TEN GRADED ROWS:
+  G1   NOT A RESULT band +/-1 K             level(s) NOT CONVERGED: L1, L2, L3
+       M1: OSCILLATORY @station 0.1  [290.433, 290.226, 290.451]  p=n/a  GCI=NOT QUOTED (values not monotone)
+       M2: DIVERGENT @station 0.05  [291.164, 291.321, 291.969]  p=4.2409  GCI=NOT QUOTED (values not monotone)
+  G2   NOT A RESULT band +/-1 K             level(s) NOT CONVERGED: L1, L2, L3
+       M1: OSCILLATORY @station 0.95  [289.998, 289.93, 290.382]  p=n/a  GCI=NOT QUOTED (values not monotone)
+       M2: DIVERGENT @station 0.05  [292.113, 292.252, 293.025]  p=5.1214  GCI=NOT QUOTED (values not monotone)
+  G3   NOT A RESULT band +/-0.057 m/s       level(s) NOT CONVERGED: L1, L2, L3
+       M1: DIVERGENT @station 0.05  [-0.489102, -0.484406, -0.453787]  p=5.5973  GCI=NOT QUOTED (values not monotone)
+       M2: DIVERGENT @station 0.05  [-0.375644, -0.374397, -0.370962]  p=3.0266  GCI=NOT QUOTED (values not monotone)
+  G4   NOT A RESULT band +/-0.057 m/s       level(s) NOT CONVERGED: L1, L2, L3
+       M1: OSCILLATORY @station 0.05  [0.447281, 0.459335, 0.44473]  p=n/a  GCI=NOT QUOTED (values not monotone)
+       M2: DIVERGENT @station 0.05  [0.368237, 0.367201, 0.340813]  p=9.6613  GCI=NOT QUOTED (values not monotone)
+  G5a  NOT A RESULT band +/-0.057 m/s       level(s) NOT CONVERGED: L1, L2, L3
+       M1: CONVERGING  [0.714303, 0.526305, 0.476772]  p=3.9437  GCI=4.6890 %
+       M2: DIVERGENT  [0.614428, 0.575937, 0.332725]  p=5.5037  GCI=NOT QUOTED (values not monotone)
+  G5b  NOT A RESULT band +/-0.0208 m        level(s) NOT CONVERGED: L1, L2, L3
+       M1: DIVERGENT  [0.017, 0.0205, 0.0275]  p=2.0757  GCI=NOT QUOTED (values not monotone)
+       M2: DIVERGENT  [0.018, 0.0185, 0.0935]  p=14.9487  GCI=NOT QUOTED (values not monotone)
+  G6   NOT A RESULT band REF-scaled (+/-10 % of |q_ref|) level(s) NOT CONVERGED: L1, L2, L3
+       M1: CONVERGING  [173.379, 161.642, 155.143]  p=1.7416  GCI=6.5719 %
+       M2: DIVERGENT  [213.079, 208.274, 194.419]  p=3.1654  GCI=NOT QUOTED (values not monotone)
+  G7   NOT A RESULT band +/-1 K             level(s) NOT CONVERGED: L1, L2, L3
+       M1: OSCILLATORY  [0.0105342, -0.00849967, -0.00271193]  p=n/a  GCI=NOT QUOTED (values not monotone)
+       M2: CONVERGING  [0.00232381, -0.00593317, -0.0115231]  p=1.1458  GCI=128.9107 %
+  G8   NOT A RESULT band +/-0.104 m         level(s) NOT CONVERGED: L1, L2, L3
+       M1: CONVERGING  [0.0122837, 0.006432, 0.00384112]  p=2.4050  GCI=67.6607 %
+       M2: CONVERGING  [0.0154574, 0.0083692, 0.00511869]  p=2.3009  GCI=67.9134 %
+  S1   NOT A RESULT band EXACT MATCH, no band level(s) NOT CONVERGED: L1, L2, L3
+       M1: DIVERGENT (STRUCTURAL -- EXACT MATCH REQUIRED across L1/L2/L3; no numeric triple, no order, no GCI)
+       M2: DIVERGENT (STRUCTURAL -- EXACT MATCH REQUIRED across L1/L2/L3; no numeric triple, no order, no GCI)
+
+REPORTED, NEVER GRADED:
+  R1   turbulent kinetic energy on both mid-planes -- REPORTED
+  M0   Boussinesq model-form floor 1.65 % velocity, 0.031 % Nusselt -- REPORTED, NEVER SUBTRACTED
+
+==========================================================================
+TALLY: 0 of 10
+RUNG VERDICT: GATE REACHED
+  UNREACHED COLUMN: P -- Blay, Mergui and Niculae (1992) is NOT OBTAINED.
+  V is reachable.  G is reachable (a CONVERGING three-level triple with
+  observed order and GCI at Fs = 1.25 is a GRID property).  P IS NOT.
+  THIS RUNG CAN NEVER READ `HOLDS` IN THIS STATE, and nobody may later
+  read a completed run of it as a graded result against the reference.
+==========================================================================
