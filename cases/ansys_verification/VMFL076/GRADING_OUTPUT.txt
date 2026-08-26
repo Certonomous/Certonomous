@@ -1,0 +1,16 @@
+REFUSED[S2]: PLATEAU NULL RANGE: the estimator saw NO variation at all across the whole sampled series (40 identical samples) -- a dead series and a converged one look the same to a tolerance
+REFUSED[S1]: PLATEAU CANNOT_TELL: only 3 samples in the fixed window [1000, 2000], below the registered floor 12
+REFUSED[C1]: /tmp/vmfl076_selftest_v46fubzf/emptylevel: RUN_RC.txt reports rc = 1 (default on an unparseable record is the REFUSING value)
+REFUSED[V0]: verdict 'FAIL' is outside the fixed vocabulary ('PASS', 'GATE REACHED', 'GATE FAIL', 'NOT A RESULT', 'BLOCKED', 'PENDING')
+REFUSED[E4]: gate line /tmp/vmfl076_selftest_v46fubzf/short.xy returned 50 points, below the registered floor 195
+REFUSED[E5]: gate line /tmp/vmfl076_selftest_v46fubzf/offgrid.xy carries y = 0.0001, which is not one of the registered 201 fixed points
+VMFL076 GRADING
+  reference theta'(0) = 0.029370785745 (similarity ODE, evaluated here)
+  gate station x      = 0.75 m ; 201 fixed sample points
+  L1   I_lab = 6.080627762560e-02 m   I_ref = 6.131186321895e-02 m   rel = -0.824613 %   max|dTheta| = 6.3258e-03 at y = 0.0675   n_window = 21  n_distinct = 6  pp = 2.039e-10  trend = 7.979e-11  settled = True
+  L2   I_lab = 6.075620301094e-02 m   I_ref = 6.131186321895e-02 m   rel = -0.906285 %   max|dTheta| = 5.6925e-03 at y = 0.0625   n_window = 21  n_distinct = 17  pp = 1.758e-09  trend = 9.386e-10  settled = True
+  L3   I_lab = 6.075971480062e-02 m   I_ref = 6.131186321895e-02 m   rel = -0.900557 %   max|dTheta| = 5.3969e-03 at y = 0.0675   n_window = 21  n_distinct = 21  pp = 4.573e-05  trend = 4.027e-05  settled = True
+  Roache triple: class = OSCILLATORY  R = -0.070131  p_obs = n/a  GCI_fine = n/a
+  GATE A |I_lab - I_ref|/I_ref = 0.900557 %  against band 3.0000 %
+  GATE B max|dTheta|           = 5.396919e-03     against band 1.000000e-02
+VERDICT: NOT A RESULT -- the grid triple is OSCILLATORY, not CONVERGING (rule 5). I_lab = 6.080627762560e-02 / 6.075620301094e-02 / 6.075971480062e-02 m
