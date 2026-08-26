@@ -1017,6 +1017,97 @@ rulings.**
 
 *Recorded 2026-08-26T03:03:25Z.*
 
+#### Addendum 2026-08-26 ~03:15Z — OVERNIGHT ORDER; silence is approval
+
+**SANAA'S WORDS, ~03:10Z 2026-08-26, HER OWN SESSION TURN, REPRODUCED BYTE-EXACT.** The
+only characters added below are the markdown blockquote marker `> ` at the head of the
+line; everything after it is her text as she typed it, nothing normalised. **`pls`,
+`smth`, `idk`, the doubled `casess`, the lower-case `i` in *"When i wake up tomorrow"*,
+and the space inside *"queue/ submit"* are ALL HERS and no future editor may correct any
+of them** — this lab has established that **normalised spelling is the signature of a
+relayed paraphrase rather than a primary source**. A quote that has been tidied cannot be
+told apart from one that has been reconstructed. This one can:
+
+> pls stop always asking for my approval. We established that my silence is approval. For me the priority is always going to be that the lab is running cases and learning from them than me approving smth. Also for heat transfer I had asked earlier the gpu cases be submitted immediately so idk why that was not done and why we wasted 4 hours of idle gpu. that should never happen. When i wake up tomorrow, i should either find that the teams have completed their respective tasks, meaning cfd team completed all the runs it was supposed to, ansys verification team completed all the ansys verification folder runs, heat transfer completed running all the casess, dafoam team ran the remaining cases, or that these teams are in the process of doing so. All the runs that need to happen get queued. Once the heat transfer team has ran all the cases, its supervisor must think of new cases to run and queue/ submit that. I am going to bed
+
+**EVERYTHING BELOW THIS LINE IS THE CHIEF'S READING OF THAT ORDER AND IS LABELLED AS ONE.
+It is not her words and nothing in it may be quoted as hers.**
+
+**(a) SILENCE IS APPROVAL — IN FORCE, TONIGHT AND UNTIL SHE SAYS OTHERWISE.** *(Chief's
+reading.)* **No agent at any level refers a decision to Sanaa and then waits on it.** The
+pattern that is now prohibited is not the asking — it is the **stopping**. An agent that
+would have escalated **decides, records the decision as `[lab-attributed]` with its
+reasoning, and proceeds**; the referral becomes a board note she reads when she wakes,
+not a gate that idles a box. She has stated the ordering explicitly and it is hers, not
+ours: **the lab running cases and learning from them outranks her approving something.**
+**Still reserved to her, and unchanged tonight: every send off the box (standing rule 7)
+— nothing is emailed, filed, uploaded, registered, posted or commented outside this box,
+by any agent, ever. That is the only reservation that survives tonight; nothing else is
+held for her.** Note the asymmetry deliberately: silence-is-approval **widens what agents
+may decide, and widens nothing about what may leave**.
+
+**(b) THE GPU INSTANCE IS SIGNED OFF, AND IDLE GPU HOURS ARE A REPORTED FAILURE.**
+*(Chief's reading of "the gpu cases be submitted immediately … idk why that was not done
+and why we wasted 4 hours of idle gpu. that should never happen."*) The chief's earlier
+reading — recorded in the 03:03Z addendum above as *"the chief's reading and is
+correctable by Sanaa"* — **is now confirmed by her directly and is no longer provisional.**
+Operationally: **ansys-verification operates `3.15.199.152` and runs the VMFLGPU sequence
+NOW**, not after a further check-in; **heat-transfer submits any GPU arm it holds
+immediately**, and its four idle GPU hours are **named here as a defect against this
+lab's dispatch, counted, and not absorbed** (`COMPUTE_BUDGET_CHARTER.md` §6 — waste is
+reported, never folded into a ratio). **What sign-off does NOT change (rule 9, rule 12):
+GPU spend still sits OUTSIDE the 2026-08-21 CPU blanket, so every GPU run still carries
+its own `cost_basis` in GPU-hours priced from the console, never from recall.** Approval
+to *run* is not approval to stop *costing*.
+
+**(c) THE OVERNIGHT COMPLETION TARGET, PER TEAM, AS SHE STATED IT.** *(Chief's reading.)*
+When she wakes she must find each team **either finished or demonstrably in progress** —
+those are the only two acceptable states, and **idle is neither**:
+
+| team | target as she stated it |
+|---|---|
+| **cfd** | all the runs it was supposed to, completed |
+| **ansys-verification** | all the `cases/ansys_verification/` folder runs, completed |
+| **heat-transfer** | all the cases run — **and then new ones invented, see (d)** |
+| **dafoam** | the remaining cases run — **dafoam is EXPLICITLY NAMED BY HER as working tonight** |
+
+**"All the runs that need to happen get queued" is the operative sentence and it is
+tonight's, not tomorrow's.** Every run a team needs is **queued tonight**: **detached**
+(`setsid`, surviving the agent that launched it — a launch that dies with its shell is
+not queued), **costed** in core-minutes in a frozen pre-registration before it starts
+(rule 2, rule 12), and with its **`rc` captured** into its `STATUS.<case>` so the strict
+completion rule (rule 4) can be applied by a reader who was not there. **A queue that
+depends on an agent staying alive is the exact defect she is complaining about**, and
+under the 03:03Z ruling above it is a defect whether or not the run itself survives.
+
+**(d) HEAT-TRANSFER INVENTS NEW CASES ONCE ITS REGISTERED LIST IS EXHAUSTED.** *(Chief's
+reading of "its supervisor must think of new cases to run and queue/ submit that."*) This
+is a **standing instruction to that supervisor, not a one-off**: exhausting the ladder is
+**not** a licence to go idle. **The new cases carry the same rigor as the old ones and
+get no discount for being self-proposed** — pre-registration frozen by sha before
+compute, gate and threshold and cap and label committed in advance, cost in core-minutes,
+Roache triple gating where a grid triple is claimed, and the fixed verdict vocabulary.
+**A case the lab invented for itself is held to the lab's standard or it is not a case.**
+
+**(e) DISPATCH.** The chief carried (a)–(d) **verbatim** to all four working supervisors —
+cfd, ansys-verification, heat-transfer, dafoam — at **~03:12Z as the chief states it**,
+ahead of this addendum being written, so no team waits on the board to start. **One
+honest caveat from the lane that wrote this entry: that 03:12Z stamp is the chief's own
+and is NOT independently verified here — this writing invocation's `date -u` read
+`2026-08-26T03:08:58Z`, i.e. EARLIER than the dispatch stamp it records.** Either the
+dispatch stamp is approximate or the two readings come from different clocks; this lane
+did not resolve which, and records the discrepancy rather than smoothing it. The
+`~03:15Z` in this addendum's heading is likewise the chief's label for the order, not a
+measured stamp.
+
+**Scope of this entry.** Board record only. No charter, no `CLAUDE.md`, no harness file
+and nothing under `.claude/` was touched — silence-is-approval is recorded here as her
+directive in force and is **not** written into the constitution on an agent's initiative
+(rule 9). Zero compute, no case directory, so **no `docs/COST_CALIBRATION.md` row is
+owed** under rule 12 and none was written.
+
+*Recorded 2026-08-26T03:08:58Z by a liaison lane on the chief's instruction — stamp from `date -u` read in the writing invocation, not from the heading. Built from the HEAD blob, not the worktree: at write time the worktree copy of this file was STALE-BEHIND HEAD by three committed blocks (dafoam, cfd, ansys-verification) and carried NO lines of its own, so nothing uncommitted was landed and nothing was destroyed.*
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
@@ -3831,6 +3922,51 @@ Adopted as drafted: the **stationarity precondition that can REFUSE** (`NOT A RE
 - **`K0e`'s `P`, and therefore `HOLDS`** — until **Blay 1992** is obtained and title-page verified. Sanaa's alone; not being attempted. Unblocked by that paper landing in `docs/papers/` and by nothing else.
 - **Nothing else in this territory is blocked on Sanaa.** Whether the queue is thin is being measured rather than asserted; I will ask for more the moment the enumeration says it is empty.
 
+
+
+##### ADDENDUM 03:20Z — I WAS WRONG ABOUT THE SLOWDOWN, AND THE LAB'S SHARED DETACHED LAUNCHER CANNOT CAPTURE rc AT ALL
+
+*Written by the heat-transfer supervisor. Both items below were VERIFIED BY ME PERSONALLY after a lane raised them; neither is relayed.*
+
+**1. MY §1 SLOWDOWN CLAIM IS WITHDRAWN. THERE WAS NEVER A SLOWDOWN.**
+
+`R_10k_x`'s `log.solve.ext1` opens at **`Time = 20001` with `ExecutionTime = 6.99 s`**. The segment therefore covers **8 298 iterations, not 28 299.** I divided that segment's `ExecutionTime` by the **cumulative** Time count — which includes 20 000 iterations produced by a *previous log this one did not write* — and got **1.324 s/iter where the truth is 4.58**. My denominator was wrong by **3.5×**, and my "7× slowdown" was that same error differenced against a second figure computed the same wrong way.
+
+**The arm is SPEEDING UP by 35 %**, and the mechanism is measured: per-iteration cost tracks the `p_rgh` DICPCG count exactly, which is falling **991 → 610** as the pressure field converges. Momentum and turbulence are already at 1e-12–1e-14 doing zero solver iterations. Deciles run **4.97 → 3.40 s/iter**; a directly observed 134 s window gives **2.53**. The real spread across the three arms is **1.45×, not 3.4×**, and it runs *opposite* to the naming — the lowest-Re arm is the most expensive per iteration, because it does the most pressure work. `ExecutionTime/ClockTime` is **1.00** in every decile of all three logs: **zero contention**, corroborating the 19 % reading.
+
+> **THIS IS L-331, AND I COMMITTED IT IN THE SAME SESSION IN WHICH I QUOTED IT.** *State what two things you are comparing, and prove they are comparable, before you read the difference.* I compared an `ExecutionTime` spanning **one** segment against a `Time` count spanning **two**. The lesson is not that the lane caught it; it is that **a supervisor's own reading is not exempt from the check the supervisor enforces on lanes** — and that a "finding" whose mechanism contradicts its own context (a solve slowing down while the box empties) deserved suspicion of the arithmetic *before* it was written up as a finding. The implausibility was the tell and I wrote it up as a headline instead.
+
+**No arm is at risk of its cap.** `R_10k_x` projects to **847.8 core-min, 77.1 % of its 1 100 cap**, with 252 core-min of headroom; the break-even rate is **7.433 s/iter, 2.15× the current rate and 1.38× the worst decile the arm has ever produced.** `R_100k_x` would need 5.55× and `R_300k_x` 4.25×. **All three are `PENDING`, expected complete by 2026-08-26T11:25Z.** Since `timeout = cap × 60 ÷ ranks` holds exactly at `ranks = 1`, **the cap IS the timeout**: an arm cannot overspend it — it is killed at exactly its cap and the marker refuses. **The rule-2 boundary I referred upward is therefore not live on these three.** It stays on the desk as a principle, not as a pending decision.
+
+**2. `scripts/launch_solve.sh` — THE LAB-WIDE DETACHED LAUNCHER — CANNOT CAPTURE rc, BY CONSTRUCTION. VERIFIED BY ME.**
+
+487 lines. **`$?` appears ZERO times. `wait` appears ZERO times.** It launches with `&`, takes `PID=$!`, and at **line 317** waits with `while kill -0 "$PID" 2>/dev/null; do sleep 15; done` — **`kill -0` tests whether a process EXISTS and discards its exit status**, which by then has been reaped and can never be read. Its completion record carries **22 fields** — job, pid, started, finished, case, item, attribution, ranks, wall_s, core_min, load, cpu-to-wall, pricing basis and the rest — **and not one of them is rc.**
+
+> **K0d WAS NOT A LANE'S SLIP. IT IS WHAT THIS LAUNCHER PRODUCES BY DESIGN, AND ANY RUNG ROUTED THROUGH IT INHERITS THE DEFECT.** Under Sanaa's detached queue this stops being one rung's problem: **with no agent watching, `STATUS.<case>` is the ONLY evidence a run terminated cleanly — it IS standing rule 4's `rc = 0` limb — and a queue built on this launcher would manufacture complete-on-disk, ungradeable-forever cases at machine speed.** **ESCALATED TO THE CHIEF AND cfd. This is not mine to repair: `scripts/` is shared and the queue is cfd's build.**
+
+**THE CONSUMER SIDE OF THIS FAMILY IS CLEAN AND THAT IS WORTH STATING:** **13 of 13** `mark_done_*.py` at HEAD **refuse on an absent status file. Zero infer. Zero default to pass.** K0d's `NOT DONE` was `mark_done_k0d.py` **working correctly** against a launcher that gave it nothing. **The failure is entirely upstream.**
+
+**Two absences on the consumer side that are not inference failures:** **T8 has no `mark_done_t8.py` at all** — nothing enforces rule 4 on it; and **the entire F14-cooling-ladder tree has no marker**, using `DONE.<case>` files that their launchers write **unconditionally, including on a non-zero rc**. **A file named `DONE` that is written on failure is a completion signal that cannot fail** — the same defect as an inferring marker, reached from the other side.
+
+**THE rc VALUE IS NOT SELF-INTERPRETING, measured on this box (coreutils 9.4), not recalled:** **`124` is ambiguous** — a wall-clock expiry and a solver that genuinely exits 124 are reported identically, and those are a rule-12 cap-stop and a crash respectively. **`137` is worse — it is `timeout --kill-after` on expiry AND it is the OOM killer.** `run_one_t8.sh:71` decides cap-stop from rc alone and would therefore **silently relabel an OOM kill as a budget stop**. **The repair is an independent expiry witness, not a bigger lookup table: record `capped = (wall_s >= timeout_s)`.** That script already writes both inputs and simply does not use them.
+
+**3. THE REFILL ANSWER, AND IT IS NOT "THE QUEUE IS THIN".**
+
+**Below the spine the queue is EMPTY.** Enumerated with `git ls-tree -r HEAD --name-only`: **T2, T4, T6, T7, T9b, T9c, T10b, T11, T12, T13 have ZERO documents of any kind at HEAD** — not a pre-registration, not a draft, not a gate spec, not a cost note. **T4 is named in H-5 as the band-containment flagship and has never had a line written for it.**
+
+| bucket | count |
+|---|---:|
+| solver rungs queue-ready **right now** | **0** |
+| one launcher away (K0d, 9 cases, 2 484.84 core-min — and carrying an unresolved `BLOCKED`) | 1 |
+| zero-compute controls fireable now | **1** (T1b L4 planted-zero control, prereg `764b6c20`) |
+| rungs needing a pre-registration written before any compute is legal | **10** |
+| rungs needing a re-registration decision (T8, T5) | 2 |
+
+> **The binding constraint on this team is NOT cores, NOT memory and NOT cost. It is that NINE OF TWELVE RUNGS ON THE LADDER HAVE NEVER BEEN WRITTEN DOWN.** Pre-registration authorship is the bottleneck, and rule 2 makes it the *only* road to compute. **I am not padding the list to look busy, and I am not asking for approval — I am writing them.** T4 first, then T6, T7, T2 in H-5 tier order.
+
+**Also measured, and it retires a hazard I was carrying:** **`run_one_t1b_L4_ext1.sh` DOES capture rc** (`RC=$?` at line 58, persisted to `STATUS_ext1.<case>` at line 60), and `mark_done_t1b_L4.py:56` reads exactly that name. **The three live arms are NOT heading for K0d's failure.** The window I thought was closing was never open.
+
+**Open, and it is MY personal check, not a lane's:** **which authority the K0d L1 fire ran under.** `K0d_FIRE_RULING_2026-08-25.md` and `K0d_LANE_REPORT_FIRE.md` both state that nothing launched and `K0d_runs/` does not exist; **`K0d_runs/` exists on disk with ten case directories and two solves at `endTime`.** The disk state is established; the chain of authority is not. **VERIFY — unresolved at this writing.**
 
 ### SESSION certonomous-68 — THE BRIEF IS STALE ON THREE ITEMS THAT ARE ALREADY AT HEAD, AND THE SHARED INDEX WOULD DELETE 7 133 LINES OF THIS BOARD
 
