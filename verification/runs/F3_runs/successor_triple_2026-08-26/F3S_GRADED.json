@@ -1,0 +1,681 @@
+{
+  "rung": "F3-SUCCESSOR-TRIPLE",
+  "prereg": "verification/campaign/F3_SUCCESSOR_TRIPLE_PREREGISTRATION.md",
+  "prereg_commit": "5891db27",
+  "frozen_bytes_asserted": {
+    "conversion_2026-08-24/grade_f3.py": "e7602996cb75fd61e95a51a85910b24cf0a675b6eee05e8b7c3d2e5ae0b88570",
+    "exact_theory.py": "1e1879a3034c4eaabf092a4a05bd76ef01f216473e366c32cd4f7b0ecc4ca8d6",
+    "make_diamond_case.py": "c2a5a70dd7d9f1d981cc98c4c02a76768c43956c7317abb57a7727bd46a5ad68",
+    "make_wedge_case.py": "5741fd6229157287291edc94a36b9fa072bf98126ce57e857ddba3f19d891e3a"
+  },
+  "inherited_value_crosschecks": [
+    {
+      "kind": "band",
+      "quantity": "p_wall_mean",
+      "value": 0.5,
+      "cited": "F3_CONVERSION_PREREGISTRATION.md:150,158 -- reference class + second-order requirement; exact analytic reference contributes zero uncertainty",
+      "agrees": true
+    },
+    {
+      "kind": "band",
+      "quantity": "beta_deg",
+      "value": 2.0,
+      "cited": "F3_CONVERSION_PREREGISTRATION.md:162,179 -- rounded-up 2-sigma detector quantization floor from MESH GEOMETRY ONLY (wedge M2.5 th10: H=0.9940, dy=H/80, 2sigma=1.937%)",
+      "agrees": true
+    },
+    {
+      "kind": "band",
+      "quantity": "cd",
+      "value": 1.0,
+      "cited": "F3_CONVERSION_PREREGISTRATION.md:190,196 -- 2 x the surface-pressure band, one band per panel",
+      "agrees": true
+    },
+    {
+      "kind": "reference",
+      "family": "diamond",
+      "pair": "M2.5_eps5",
+      "quantity": "cd",
+      "value": 0.01343027834624868,
+      "cited": "F3_CONVERSION_PREREGISTRATION.md:111",
+      "agrees": true
+    },
+    {
+      "kind": "reference",
+      "family": "wedge",
+      "pair": "M2.5_th10",
+      "quantity": "beta_deg",
+      "value": 31.85059223127216,
+      "cited": "F3_CONVERSION_PREREGISTRATION.md:108",
+      "agrees": true
+    },
+    {
+      "kind": "reference",
+      "family": "wedge",
+      "pair": "M2.5_th10",
+      "quantity": "p_wall_mean",
+      "value": 1.8638705181801498,
+      "cited": "F3_CONVERSION_PREREGISTRATION.md:108",
+      "agrees": true
+    }
+  ],
+  "crosscheck_control": {
+    "control": "PZ-XCHECK_band_disagreement_is_seen",
+    "planted_band": 99.0,
+    "refused": true,
+    "passed": true
+  },
+  "assert_census": {
+    "files_checked": 2,
+    "assert_nodes": 0
+  },
+  "gate_is": "scripts/roache_triple.py::grade_ladder, supplied with iterative_states AND plateau_states. grade_f3.py::apply_gate is NOT called: it reimplements the triple at :377-395 and supplies no states, which is the ABSENT defect ruled on at 887ddfaf.",
+  "does_not_alter_F3": "F3 is CLOSED at 5 PASS, 1 GATE FAIL, 1 NOT A RESULT, 3 PENDING. This rung produces its own rows under its own registration and changes none of F3's.",
+  "rows": [
+    {
+      "quantity": "G-F3S-1_wedge_surface_pressure / wedge M2.5_th10",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 1.8640752446969697,
+      "reference": 1.8638705181801498,
+      "band": [
+        1.854551165589249,
+        1.8731898707710504
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 1800,
+          "value": 1.919712981818182
+        },
+        {
+          "name": "medium",
+          "cells": 7200,
+          "value": 1.856484465151515
+        },
+        {
+          "name": "fine",
+          "cells": 28800,
+          "value": 1.8640752446969697
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "OSCILLATORY",
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            1.919712981818182,
+            1.856484465151515,
+            1.8640752446969697
+          ],
+          "cells": [
+            1800,
+            7200,
+            28800
+          ],
+          "e21": -0.007590779545454618,
+          "e32": 0.06322851666666685
+        }
+      ],
+      "orders": [
+        null
+      ],
+      "states": [
+        "OSCILLATORY"
+      ],
+      "monotone": false,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012339999999999574,
+        "reader_delta": 0.0012339999999999574,
+        "reader": "p_wall_mean_from_raw",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/wedge/M2.5_th10/fine/postProcessing/surfaceSampleDict/3.11989651/p_wedgeSurface.raw",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "PLATEAUED"
+      },
+      "verdict": "NOT A RESULT",
+      "why": "finest triple ('coarse', 'medium', 'fine') is OSCILLATORY at dim = 2; the value, every triple and every order are printed beside it, and NO GCI is quoted because the three values are not monotone",
+      "gate": "G-F3S-1_wedge_surface_pressure",
+      "family": "wedge",
+      "pair": "M2.5_th10",
+      "band_pct": 0.5,
+      "band_citation": "F3_CONVERSION_PREREGISTRATION.md:150,158 -- reference class + second-order requirement; exact analytic reference contributes zero uncertainty",
+      "reference_citation": "F3_CONVERSION_PREREGISTRATION.md:108",
+      "deviation_pct": 0.010983945227042914,
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 1800,
+          "value": 1.919712981818182,
+          "iterative": "CONVERGED",
+          "iterative_basis": "diagonal (DIRECT) solver: every step solved exactly; final residual identically zero by construction, NOT by tolerance",
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "quantity": "p_wall_mean",
+            "n_total": 156,
+            "n_window": 39,
+            "window_from": 2.34,
+            "window_to": 3.12,
+            "window_fraction": 0.25,
+            "min_window_samples": 30,
+            "slope": -2.170083425347743e-05,
+            "window_span": 0.7600000000000002,
+            "drift_over_window_frac": 8.59035378718373e-06,
+            "drift_tolerance_frac": 0.0005,
+            "trend_ok": true,
+            "mean_first_half": 1.9197946156299839,
+            "mean_second_half": 1.9198036075757574,
+            "half_step_frac": 4.683545107282413e-06,
+            "window_scatter_frac": 9.184978370828202e-05,
+            "stationary": true,
+            "state": "PLATEAUED",
+            "why": "drift 8.590e-06 and half-step 4.684e-06 both within 5.000e-04"
+          },
+          "plateau_control": {
+            "control": "PZ-PLATEAU_p_wall_mean",
+            "planted_ramp": 0.0959950803030303,
+            "graded": "NOT_PLATEAUED",
+            "required": "NOT_PLATEAUED",
+            "passed": true
+          }
+        },
+        {
+          "name": "medium",
+          "cells": 7200,
+          "value": 1.856484465151515,
+          "iterative": "CONVERGED",
+          "iterative_basis": "diagonal (DIRECT) solver: every step solved exactly; final residual identically zero by construction, NOT by tolerance",
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "quantity": "p_wall_mean",
+            "n_total": 203,
+            "n_window": 50,
+            "window_from": 2.34,
+            "window_to": 3.12,
+            "window_fraction": 0.25,
+            "min_window_samples": 30,
+            "slope": 1.2530987090563276e-05,
+            "window_span": 0.7536713000000002,
+            "drift_over_window_frac": 5.087229774083272e-06,
+            "drift_tolerance_frac": 0.0005,
+            "trend_ok": true,
+            "mean_first_half": 1.8565754630909093,
+            "mean_second_half": 1.856574529878788,
+            "half_step_frac": 5.026833085122061e-07,
+            "window_scatter_frac": 6.580209280209436e-05,
+            "stationary": true,
+            "state": "PLATEAUED",
+            "why": "drift 5.087e-06 and half-step 5.027e-07 both within 5.000e-04"
+          },
+          "plateau_control": {
+            "control": "PZ-PLATEAU_p_wall_mean",
+            "planted_ramp": 0.09282306628787879,
+            "graded": "NOT_PLATEAUED",
+            "required": "NOT_PLATEAUED",
+            "passed": true
+          }
+        },
+        {
+          "name": "fine",
+          "cells": 28800,
+          "value": 1.8640752446969697,
+          "iterative": "CONVERGED",
+          "iterative_basis": "diagonal (DIRECT) solver: every step solved exactly; final residual identically zero by construction, NOT by tolerance",
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "quantity": "p_wall_mean",
+            "n_total": 406,
+            "n_window": 102,
+            "window_from": 2.34,
+            "window_to": 3.12,
+            "window_fraction": 0.25,
+            "min_window_samples": 30,
+            "slope": -2.305334413093348e-05,
+            "window_span": 0.7767428000000001,
+            "drift_over_window_frac": 9.606128349729576e-06,
+            "drift_tolerance_frac": 0.0005,
+            "trend_ok": true,
+            "mean_first_half": 1.8640902690433752,
+            "mean_second_half": 1.8640834663844328,
+            "half_step_frac": 3.649353325779615e-06,
+            "window_scatter_frac": 1.8310344146022653e-05,
+            "stationary": true,
+            "state": "PLATEAUED",
+            "why": "drift 9.606e-06 and half-step 3.649e-06 both within 5.000e-04"
+          },
+          "plateau_control": {
+            "control": "PZ-PLATEAU_p_wall_mean",
+            "planted_ramp": 0.09320362178030304,
+            "graded": "NOT_PLATEAUED",
+            "required": "NOT_PLATEAUED",
+            "passed": true
+          }
+        }
+      ],
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    },
+    {
+      "quantity": "G-F3S-2_wedge_shock_angle / wedge M2.5_th10",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 32.25315254405538,
+      "reference": 31.85059223127216,
+      "band": [
+        31.213580386646715,
+        32.4876040758976
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 1800,
+          "value": 34.44492133927923
+        },
+        {
+          "name": "medium",
+          "cells": 7200,
+          "value": 32.2196007811532
+        },
+        {
+          "name": "fine",
+          "cells": 28800,
+          "value": 32.25315254405538
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "OSCILLATORY",
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            34.44492133927923,
+            32.2196007811532,
+            32.25315254405538
+          ],
+          "cells": [
+            1800,
+            7200,
+            28800
+          ],
+          "e21": -0.03355176290218509,
+          "e32": 2.225320558126036
+        }
+      ],
+      "orders": [
+        null
+      ],
+      "states": [
+        "OSCILLATORY"
+      ],
+      "monotone": false,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.05742636002639756,
+        "read_back_delta": 0.05742636002639756,
+        "reader_delta": 0.05742636002639756,
+        "reader": "beta_5station_lstsq",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/wedge/M2.5_th10/fine/result.json",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "NOT_PLATEAUED",
+        "medium": "NOT_PLATEAUED",
+        "fine": "PLATEAUED"
+      },
+      "verdict": "NOT A RESULT",
+      "why": "levels coarse,medium are not iteratively converged or not plateaued; no grid claim can be made from this triple",
+      "gate": "G-F3S-2_wedge_shock_angle",
+      "family": "wedge",
+      "pair": "M2.5_th10",
+      "band_pct": 2.0,
+      "band_citation": "F3_CONVERSION_PREREGISTRATION.md:162,179 -- rounded-up 2-sigma detector quantization floor from MESH GEOMETRY ONLY (wedge M2.5 th10: H=0.9940, dy=H/80, 2sigma=1.937%)",
+      "reference_citation": "F3_CONVERSION_PREREGISTRATION.md:108",
+      "deviation_pct": 1.2639021273456046,
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 1800,
+          "value": 34.44492133927923,
+          "iterative": "CONVERGED",
+          "iterative_basis": "diagonal (DIRECT) solver: every step solved exactly; final residual identically zero by construction, NOT by tolerance",
+          "plateau": "NOT_PLATEAUED",
+          "plateau_detail": {
+            "quantity": "beta_deg",
+            "n_total": 156,
+            "n_window": 39,
+            "window_from": 2.34,
+            "window_to": 3.12,
+            "window_fraction": 0.25,
+            "min_window_samples": 30,
+            "slope": 0.10720107320242014,
+            "window_span": 0.7600000000000002,
+            "drift_over_window_frac": 0.0022820747017720227,
+            "drift_tolerance_frac": 0.002,
+            "trend_ok": false,
+            "mean_first_half": 34.78261594236822,
+            "mean_second_half": 34.68090199995366,
+            "half_step_frac": 0.0028490339139002814,
+            "window_scatter_frac": 0.0236276820795182,
+            "stationary": false,
+            "state": "NOT_PLATEAUED",
+            "why": "drift 2.282e-03 (ok=False) / half-step 2.849e-03 (ok=False) against tol 2.000e-03"
+          },
+          "plateau_control": {
+            "control": "PZ-PLATEAU_beta_deg",
+            "planted_ramp": 7.140240901893001,
+            "graded": "NOT_PLATEAUED",
+            "required": "NOT_PLATEAUED",
+            "passed": true
+          }
+        },
+        {
+          "name": "medium",
+          "cells": 7200,
+          "value": 32.2196007811532,
+          "iterative": "CONVERGED",
+          "iterative_basis": "diagonal (DIRECT) solver: every step solved exactly; final residual identically zero by construction, NOT by tolerance",
+          "plateau": "NOT_PLATEAUED",
+          "plateau_detail": {
+            "quantity": "beta_deg",
+            "n_total": 203,
+            "n_window": 50,
+            "window_from": 2.34,
+            "window_to": 3.12,
+            "window_fraction": 0.25,
+            "min_window_samples": 30,
+            "slope": 0.14912999901904053,
+            "window_span": 0.7536713000000002,
+            "drift_over_window_frac": 0.003466784029761748,
+            "drift_tolerance_frac": 0.002,
+            "trend_ok": false,
+            "mean_first_half": 32.40160876257194,
+            "mean_second_half": 32.441193776202994,
+            "half_step_frac": 0.0012209857448605829,
+            "window_scatter_frac": 0.006378085772108824,
+            "stationary": true,
+            "state": "NOT_PLATEAUED",
+            "why": "drift 3.467e-03 (ok=False) / half-step 1.221e-03 (ok=True) against tol 2.000e-03"
+          },
+          "plateau_control": {
+            "control": "PZ-PLATEAU_beta_deg",
+            "planted_ramp": 6.484107418563555,
+            "graded": "NOT_PLATEAUED",
+            "required": "NOT_PLATEAUED",
+            "passed": true
+          }
+        },
+        {
+          "name": "fine",
+          "cells": 28800,
+          "value": 32.25315254405538,
+          "iterative": "CONVERGED",
+          "iterative_basis": "diagonal (DIRECT) solver: every step solved exactly; final residual identically zero by construction, NOT by tolerance",
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "quantity": "beta_deg",
+            "n_total": 406,
+            "n_window": 102,
+            "window_from": 2.34,
+            "window_to": 3.12,
+            "window_fraction": 0.25,
+            "min_window_samples": 30,
+            "slope": 0.03039139076963324,
+            "window_span": 0.7767428000000001,
+            "drift_over_window_frac": 0.0007303886698997069,
+            "drift_tolerance_frac": 0.002,
+            "trend_ok": true,
+            "mean_first_half": 32.201768882666634,
+            "mean_second_half": 32.21093970661136,
+            "half_step_frac": 0.00028374915239013314,
+            "window_scatter_frac": 0.0026795660946046,
+            "stationary": true,
+            "state": "PLATEAUED",
+            "why": "drift 7.304e-04 and half-step 2.837e-04 both within 2.000e-03"
+          },
+          "plateau_control": {
+            "control": "PZ-PLATEAU_beta_deg",
+            "planted_ramp": 6.46403618652534,
+            "graded": "NOT_PLATEAUED",
+            "required": "NOT_PLATEAUED",
+            "passed": true
+          }
+        }
+      ],
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    },
+    {
+      "quantity": "G-F3S-5_diamond_wave_drag / diamond M2.5_eps5",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 0.013406094445714287,
+      "reference": 0.01343027834624868,
+      "band": [
+        0.013295975562786192,
+        0.013564581129711166
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 2000,
+          "value": 0.013427730971428572
+        },
+        {
+          "name": "medium",
+          "cells": 8000,
+          "value": 0.01339532681142857
+        },
+        {
+          "name": "fine",
+          "cells": 32000,
+          "value": 0.013406094445714287
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "OSCILLATORY",
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.013427730971428572,
+            0.01339532681142857,
+            0.013406094445714287
+          ],
+          "cells": [
+            2000,
+            8000,
+            32000
+          ],
+          "e21": -1.0767634285717767e-05,
+          "e32": 3.2404160000002596e-05
+        }
+      ],
+      "orders": [
+        null
+      ],
+      "states": [
+        "OSCILLATORY"
+      ],
+      "monotone": false,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.001233999999999999,
+        "reader_delta": 0.001233999999999999,
+        "reader": "cd_from_force",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/diamond/M2.5_eps5/fine/postProcessing/forces1/0/force.dat",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "PLATEAUED"
+      },
+      "verdict": "NOT A RESULT",
+      "why": "finest triple ('coarse', 'medium', 'fine') is OSCILLATORY at dim = 2; the value, every triple and every order are printed beside it, and NO GCI is quoted because the three values are not monotone",
+      "gate": "G-F3S-5_diamond_wave_drag",
+      "family": "diamond",
+      "pair": "M2.5_eps5",
+      "band_pct": 1.0,
+      "band_citation": "F3_CONVERSION_PREREGISTRATION.md:190,196 -- 2 x the surface-pressure band, one band per panel",
+      "reference_citation": "F3_CONVERSION_PREREGISTRATION.md:111",
+      "deviation_pct": -0.18006998746341984,
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 2000,
+          "value": 0.013427730971428572,
+          "iterative": "CONVERGED",
+          "iterative_basis": "diagonal (DIRECT) solver: every step solved exactly; final residual identically zero by construction, NOT by tolerance",
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "quantity": "cd",
+            "n_total": 240,
+            "n_window": 60,
+            "window_from": 3.5999999999999996,
+            "window_to": 4.8,
+            "window_fraction": 0.25,
+            "min_window_samples": 30,
+            "slope": -5.11954463541041e-07,
+            "window_span": 1.1800000000000002,
+            "drift_over_window_frac": 4.498451608371023e-05,
+            "drift_tolerance_frac": 0.001,
+            "trend_ok": true,
+            "mean_first_half": 0.013426120860952379,
+            "mean_second_half": 0.013426628370285715,
+            "half_step_frac": 3.779146652837318e-05,
+            "window_scatter_frac": 0.0002055089836737226,
+            "stationary": true,
+            "state": "PLATEAUED",
+            "why": "drift 4.498e-05 and half-step 3.779e-05 both within 1.000e-03"
+          },
+          "plateau_control": {
+            "control": "PZ-PLATEAU_cd",
+            "planted_ramp": 0.0013429204525714287,
+            "graded": "NOT_PLATEAUED",
+            "required": "NOT_PLATEAUED",
+            "passed": true
+          }
+        },
+        {
+          "name": "medium",
+          "cells": 8000,
+          "value": 0.01339532681142857,
+          "iterative": "CONVERGED",
+          "iterative_basis": "diagonal (DIRECT) solver: every step solved exactly; final residual identically zero by construction, NOT by tolerance",
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "quantity": "cd",
+            "n_total": 240,
+            "n_window": 60,
+            "window_from": 3.5999999999999996,
+            "window_to": 4.8,
+            "window_fraction": 0.25,
+            "min_window_samples": 30,
+            "slope": 8.551868217355552e-07,
+            "window_span": 1.1799999999999997,
+            "drift_over_window_frac": 7.531424491260005e-05,
+            "drift_tolerance_frac": 0.001,
+            "trend_ok": true,
+            "mean_first_half": 0.013409436466285713,
+            "mean_second_half": 0.013408295399619045,
+            "half_step_frac": 8.516185993955974e-05,
+            "window_scatter_frac": 0.00048120837874606083,
+            "stationary": true,
+            "state": "PLATEAUED",
+            "why": "drift 7.531e-05 and half-step 8.516e-05 both within 1.000e-03"
+          },
+          "plateau_control": {
+            "control": "PZ-PLATEAU_cd",
+            "planted_ramp": 0.0013398799268571429,
+            "graded": "NOT_PLATEAUED",
+            "required": "NOT_PLATEAUED",
+            "passed": true
+          }
+        },
+        {
+          "name": "fine",
+          "cells": 32000,
+          "value": 0.013406094445714287,
+          "iterative": "CONVERGED",
+          "iterative_basis": "diagonal (DIRECT) solver: every step solved exactly; final residual identically zero by construction, NOT by tolerance",
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "quantity": "cd",
+            "n_total": 437,
+            "n_window": 109,
+            "window_from": 3.5999999999999996,
+            "window_to": 4.8,
+            "window_fraction": 0.25,
+            "min_window_samples": 30,
+            "slope": -4.1513217127179156e-07,
+            "window_span": 1.1895213999999998,
+            "drift_over_window_frac": 3.684051241668827e-05,
+            "drift_tolerance_frac": 0.001,
+            "trend_ok": true,
+            "mean_first_half": 0.013407981156402116,
+            "mean_second_half": 0.013407330049662337,
+            "half_step_frac": 4.8575715076310775e-05,
+            "window_scatter_frac": 0.00027513610521421846,
+            "stationary": true,
+            "state": "PLATEAUED",
+            "why": "drift 3.684e-05 and half-step 4.858e-05 both within 1.000e-03"
+          },
+          "plateau_control": {
+            "control": "PZ-PLATEAU_cd",
+            "planted_ramp": 0.0013403955840000001,
+            "graded": "NOT_PLATEAUED",
+            "required": "NOT_PLATEAUED",
+            "passed": true
+          }
+        }
+      ],
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    }
+  ]
+}

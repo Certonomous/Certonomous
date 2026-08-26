@@ -1,0 +1,217 @@
+{
+  "declared_inapplicable": [
+    {
+      "clause": "ExecutionTime_count_equals_endTime",
+      "reason": "endTime is a PHYSICAL TIME for this explicit time-marcher under adjustTimeStep, not an iteration count; the step count is set by the Courant condition (8,071 steps to t=2.6 on the fine wedge), so no correct run can satisfy this limb and it tests nothing. Inapplicable by construction, not by convenience.",
+      "evidence_carried_instead_by": "C3_completion_limb"
+    }
+  ],
+  "cases": {
+    "_control/armA_M3.0_th15_fine_UNINSTRUMENTED": {
+      "C1_rc_zero": true,
+      "C2_end_line": true,
+      "C3_completion_limb": true,
+      "_latest_time": "2.5999683",
+      "_endTime": 2.6,
+      "_maxDeltaT": 0.001,
+      "_shortfall": 3.170000000007889e-05,
+      "C4_fields_present": true,
+      "C5_age_guard": true,
+      "_series": {},
+      "C6_series_present": "N/A_uninstrumented_control_run",
+      "_clauses_evaluated": [
+        "C1_rc_zero",
+        "C2_end_line",
+        "C3_completion_limb",
+        "C4_fields_present",
+        "C5_age_guard"
+      ],
+      "_clauses_not_applicable": [
+        "C6_series_present"
+      ],
+      "ALL": true
+    },
+    "_control/armB_M3.0_th15_fine_INSTRUMENTED": {
+      "C1_rc_zero": true,
+      "C2_end_line": true,
+      "C3_completion_limb": true,
+      "_latest_time": "2.5999683",
+      "_endTime": 2.6,
+      "_maxDeltaT": 0.001,
+      "_shortfall": 3.170000000007889e-05,
+      "C4_fields_present": true,
+      "C5_age_guard": true,
+      "_series": {
+        "series_beta_deg.json": 403,
+        "series_p_wall_mean.json": 403
+      },
+      "C6_series_present": true,
+      "_clauses_evaluated": [
+        "C1_rc_zero",
+        "C2_end_line",
+        "C3_completion_limb",
+        "C4_fields_present",
+        "C5_age_guard",
+        "C6_series_present"
+      ],
+      "_clauses_not_applicable": [],
+      "ALL": true
+    },
+    "diamond/M2.5_eps5/coarse": {
+      "C1_rc_zero": true,
+      "C2_end_line": true,
+      "C3_completion_limb": true,
+      "_latest_time": "4.79966377",
+      "_endTime": 4.8,
+      "_maxDeltaT": 0.001,
+      "_shortfall": 0.0003362299999993823,
+      "C4_fields_present": true,
+      "C5_age_guard": true,
+      "_series": {
+        "series_cd.json": 240
+      },
+      "C6_series_present": true,
+      "_clauses_evaluated": [
+        "C1_rc_zero",
+        "C2_end_line",
+        "C3_completion_limb",
+        "C4_fields_present",
+        "C5_age_guard",
+        "C6_series_present"
+      ],
+      "_clauses_not_applicable": [],
+      "ALL": true
+    },
+    "diamond/M2.5_eps5/fine": {
+      "C1_rc_zero": true,
+      "C2_end_line": true,
+      "C3_completion_limb": true,
+      "_latest_time": "4.80011212",
+      "_endTime": 4.8,
+      "_maxDeltaT": 0.001,
+      "_shortfall": -0.0001121199999998268,
+      "C4_fields_present": true,
+      "C5_age_guard": true,
+      "_series": {
+        "series_cd.json": 437
+      },
+      "C6_series_present": true,
+      "_clauses_evaluated": [
+        "C1_rc_zero",
+        "C2_end_line",
+        "C3_completion_limb",
+        "C4_fields_present",
+        "C5_age_guard",
+        "C6_series_present"
+      ],
+      "_clauses_not_applicable": [],
+      "ALL": true
+    },
+    "diamond/M2.5_eps5/medium": {
+      "C1_rc_zero": true,
+      "C2_end_line": true,
+      "C3_completion_limb": true,
+      "_latest_time": "4.79958",
+      "_endTime": 4.8,
+      "_maxDeltaT": 0.001,
+      "_shortfall": 0.00042000000000008697,
+      "C4_fields_present": true,
+      "C5_age_guard": true,
+      "_series": {
+        "series_cd.json": 240
+      },
+      "C6_series_present": true,
+      "_clauses_evaluated": [
+        "C1_rc_zero",
+        "C2_end_line",
+        "C3_completion_limb",
+        "C4_fields_present",
+        "C5_age_guard",
+        "C6_series_present"
+      ],
+      "_clauses_not_applicable": [],
+      "ALL": true
+    },
+    "wedge/M2.5_th10/coarse": {
+      "C1_rc_zero": true,
+      "C2_end_line": true,
+      "C3_completion_limb": true,
+      "_latest_time": "3.11965859",
+      "_endTime": 3.12,
+      "_maxDeltaT": 0.001,
+      "_shortfall": 0.0003414100000003195,
+      "C4_fields_present": true,
+      "C5_age_guard": true,
+      "_series": {
+        "series_beta_deg.json": 156,
+        "series_p_wall_mean.json": 156
+      },
+      "C6_series_present": true,
+      "_clauses_evaluated": [
+        "C1_rc_zero",
+        "C2_end_line",
+        "C3_completion_limb",
+        "C4_fields_present",
+        "C5_age_guard",
+        "C6_series_present"
+      ],
+      "_clauses_not_applicable": [],
+      "ALL": true
+    },
+    "wedge/M2.5_th10/fine": {
+      "C1_rc_zero": true,
+      "C2_end_line": true,
+      "C3_completion_limb": true,
+      "_latest_time": "3.11989651",
+      "_endTime": 3.12,
+      "_maxDeltaT": 0.001,
+      "_shortfall": 0.00010349000000031694,
+      "C4_fields_present": true,
+      "C5_age_guard": true,
+      "_series": {
+        "series_beta_deg.json": 406,
+        "series_p_wall_mean.json": 406
+      },
+      "C6_series_present": true,
+      "_clauses_evaluated": [
+        "C1_rc_zero",
+        "C2_end_line",
+        "C3_completion_limb",
+        "C4_fields_present",
+        "C5_age_guard",
+        "C6_series_present"
+      ],
+      "_clauses_not_applicable": [],
+      "ALL": true
+    },
+    "wedge/M2.5_th10/medium": {
+      "C1_rc_zero": true,
+      "C2_end_line": true,
+      "C3_completion_limb": true,
+      "_latest_time": "3.11997126",
+      "_endTime": 3.12,
+      "_maxDeltaT": 0.001,
+      "_shortfall": 2.8740000000304633e-05,
+      "C4_fields_present": true,
+      "C5_age_guard": true,
+      "_series": {
+        "series_beta_deg.json": 203,
+        "series_p_wall_mean.json": 203
+      },
+      "C6_series_present": true,
+      "_clauses_evaluated": [
+        "C1_rc_zero",
+        "C2_end_line",
+        "C3_completion_limb",
+        "C4_fields_present",
+        "C5_age_guard",
+        "C6_series_present"
+      ],
+      "_clauses_not_applicable": [],
+      "ALL": true
+    }
+  },
+  "problems": [],
+  "n_cases": 8,
+  "n_complete": 8
+}

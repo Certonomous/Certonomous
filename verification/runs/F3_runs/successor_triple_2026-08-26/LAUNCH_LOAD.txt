@@ -1,0 +1,10 @@
+{
+  "utc": "2026-08-26T03:48:41Z",
+  "head": "501c26900a45e75b7188cd891ba0c70842dc7459",
+  "prereg_commit": "5891db27",
+  "cpu_busy_pct_measured_here": 33.57,
+  "method": "/proc/stat delta over 3.0 s (NOT loadavg)",
+  "cap_core_s": 1059.24,
+  "ranks": 1,
+  "n_runs": 8
+}

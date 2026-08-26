@@ -1,0 +1,19 @@
+[2026-08-26T03:48:41Z] LAUNCH head=501c2690 prereg=5891db27 cpu_busy=33.57% cap=1059.24 core-s
+[2026-08-26T03:48:41Z] START armA_M3.0_th15_fine_UNINSTRUMENTED -> /home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/_control/armA_M3.0_th15_fine_UNINSTRUMENTED (per-run cap 201.87 core-s)
+[2026-08-26T03:51:25Z] DONE  armA_M3.0_th15_fine_UNINSTRUMENTED rc=0 actual=164.09 core-s (pred 201.87) ClockTime=162.0 cumulative=164.09/1059.24
+[2026-08-26T03:51:25Z] START armB_M3.0_th15_fine_INSTRUMENTED -> /home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/_control/armB_M3.0_th15_fine_INSTRUMENTED (per-run cap 232.14 core-s)
+[2026-08-26T03:54:57Z] DONE  armB_M3.0_th15_fine_INSTRUMENTED rc=0 actual=212.47 core-s (pred 232.14) ClockTime=209.0 cumulative=376.56/1059.24
+[2026-08-26T03:54:57Z] BIT-IDENTITY: PROCEED -- arm A == F3's record and arm B == arm A, bitwise. Instrumentation is an observation, not an intervention.
+[2026-08-26T03:54:57Z] START wedge_M2.5_th10_coarse -> /home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/wedge/M2.5_th10/coarse (per-run cap 9.50 core-s)
+[2026-08-26T03:55:06Z] DONE  wedge_M2.5_th10_coarse rc=0 actual=8.62 core-s (pred 9.50) ClockTime=7.0 cumulative=385.18/1059.24
+[2026-08-26T03:55:06Z] START wedge_M2.5_th10_medium -> /home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/wedge/M2.5_th10/medium (per-run cap 29.45 core-s)
+[2026-08-26T03:55:33Z] DONE  wedge_M2.5_th10_medium rc=0 actual=27.40 core-s (pred 29.45) ClockTime=25.0 cumulative=412.57/1059.24
+[2026-08-26T03:55:33Z] START wedge_M2.5_th10_fine -> /home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/wedge/M2.5_th10/fine (per-run cap 230.74 core-s)
+[2026-08-26T03:59:30Z] DONE  wedge_M2.5_th10_fine rc=0 actual=236.29 core-s (pred 230.74) ClockTime=233.0 cumulative=648.87/1059.24
+[2026-08-26T03:59:30Z] START diamond_M2.5_eps5_coarse -> /home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/diamond/M2.5_eps5/coarse (per-run cap 14.18 core-s)
+[2026-08-26T03:59:41Z] DONE  diamond_M2.5_eps5_coarse rc=0 actual=11.38 core-s (pred 14.18) ClockTime=10.0 cumulative=660.25/1059.24
+[2026-08-26T03:59:41Z] START diamond_M2.5_eps5_medium -> /home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/diamond/M2.5_eps5/medium (per-run cap 45.65 core-s)
+[2026-08-26T04:00:17Z] DONE  diamond_M2.5_eps5_medium rc=0 actual=35.57 core-s (pred 45.65) ClockTime=35.0 cumulative=695.82/1059.24
+[2026-08-26T04:00:17Z] START diamond_M2.5_eps5_fine -> /home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/diamond/M2.5_eps5/fine (per-run cap 295.71 core-s)
+[2026-08-26T04:04:31Z] DONE  diamond_M2.5_eps5_fine rc=0 actual=253.97 core-s (pred 295.71) ClockTime=253.0 cumulative=949.79/1059.24
+[2026-08-26T04:04:31Z] END spent=949.79 core-s = 15.8298 core-min; cap_respected=True; stopped_by=None

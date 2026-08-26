@@ -1,0 +1,108 @@
+{
+  "cap_core_s": 1059.24,
+  "prereg_commit": "5891db27",
+  "launch": {
+    "utc": "2026-08-26T03:48:41Z",
+    "head": "501c26900a45e75b7188cd891ba0c70842dc7459",
+    "prereg_commit": "5891db27",
+    "cpu_busy_pct_measured_here": 33.57,
+    "method": "/proc/stat delta over 3.0 s (NOT loadavg)",
+    "cap_core_s": 1059.24,
+    "ranks": 1,
+    "n_runs": 8
+  },
+  "runs": {
+    "armA_M3.0_th15_fine_UNINSTRUMENTED": {
+      "status": "OK",
+      "rc": 0,
+      "predicted_core_s": 201.87,
+      "actual_core_s": 164.09,
+      "clocktime_s": 162.0,
+      "cumulative_core_s": 164.09,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/_control/armA_M3.0_th15_fine_UNINSTRUMENTED"
+    },
+    "armB_M3.0_th15_fine_INSTRUMENTED": {
+      "status": "OK",
+      "rc": 0,
+      "predicted_core_s": 232.14,
+      "actual_core_s": 212.47,
+      "clocktime_s": 209.0,
+      "cumulative_core_s": 376.56,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/_control/armB_M3.0_th15_fine_INSTRUMENTED"
+    },
+    "wedge_M2.5_th10_coarse": {
+      "status": "OK",
+      "rc": 0,
+      "predicted_core_s": 9.5,
+      "actual_core_s": 8.62,
+      "clocktime_s": 7.0,
+      "cumulative_core_s": 385.18,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/wedge/M2.5_th10/coarse"
+    },
+    "wedge_M2.5_th10_medium": {
+      "status": "OK",
+      "rc": 0,
+      "predicted_core_s": 29.45,
+      "actual_core_s": 27.4,
+      "clocktime_s": 25.0,
+      "cumulative_core_s": 412.57,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/wedge/M2.5_th10/medium"
+    },
+    "wedge_M2.5_th10_fine": {
+      "status": "OK",
+      "rc": 0,
+      "predicted_core_s": 230.74,
+      "actual_core_s": 236.29,
+      "clocktime_s": 233.0,
+      "cumulative_core_s": 648.87,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/wedge/M2.5_th10/fine"
+    },
+    "diamond_M2.5_eps5_coarse": {
+      "status": "OK",
+      "rc": 0,
+      "predicted_core_s": 14.18,
+      "actual_core_s": 11.38,
+      "clocktime_s": 10.0,
+      "cumulative_core_s": 660.25,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/diamond/M2.5_eps5/coarse"
+    },
+    "diamond_M2.5_eps5_medium": {
+      "status": "OK",
+      "rc": 0,
+      "predicted_core_s": 45.65,
+      "actual_core_s": 35.57,
+      "clocktime_s": 35.0,
+      "cumulative_core_s": 695.82,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/diamond/M2.5_eps5/medium"
+    },
+    "diamond_M2.5_eps5_fine": {
+      "status": "OK",
+      "rc": 0,
+      "predicted_core_s": 295.71,
+      "actual_core_s": 253.97,
+      "clocktime_s": 253.0,
+      "cumulative_core_s": 949.79,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/F3_runs/successor_triple_2026-08-26/runs/diamond/M2.5_eps5/fine"
+    }
+  },
+  "stopped_by": null,
+  "spent_core_s": 949.79,
+  "bit_identity": {
+    "armA": {
+      "p_wall_mean": 2.821769172727273,
+      "beta_computed_deg": 31.931111435642887
+    },
+    "armB": {
+      "p_wall_mean": 2.821769172727273,
+      "beta_computed_deg": 31.931111435642887
+    },
+    "f3_record": {
+      "p_wall_mean": 2.821769172727273,
+      "beta_deg": 31.931111435642887
+    },
+    "verdict": "PROCEED",
+    "why": "arm A == F3's record and arm B == arm A, bitwise. Instrumentation is an observation, not an intervention."
+  },
+  "cap_respected": true,
+  "spent_core_min": 15.8298
+}
