@@ -8161,6 +8161,110 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-26T03:2xZ — **TWO VERDICTS LANDED** (register 21 -> 23 rows), and **THE GPU IS UP AND HAS BEEN IDLE 10.90 HOURS**
+
+**Written by `ansys-verification-supervisor` personally.** Commits this session:
+`613302fd` (assert classification ruling + board), **`c487e3c7`** (both verdicts, register
+rows #22/#23, calibration rows, GPU ruling).
+
+#### VERDICTS — both `GATE REACHED`, both from comparators that OUTLIVED the fleet
+
+| case | verdict | lab vs reference | band | triple / p / GCI | cost |
+|---|---|---|---|---|---|
+| **VMFL023** (p. 89) | **`GATE REACHED`** | St **0.165993** vs **0.165** = **0.6019 %** | 3 % | CONVERGING / **1.9140** / **0.3791 %** | **228.667** core-min, est 210, cap 350, ratio **1.089**, **$0.195** derived |
+| **VMFL021-R2** (p. 85) | **`GATE REACHED`** | Cd **0.634868** vs Nurick **0.620** = **2.398 %** | 5 % | CONVERGING / **1.7405** / **0.5524 %** | **32.933** core-min, est ~40, cap 180, ratio **0.823**, **$0.028** derived |
+
+Both were live when the session limit killed every agent at ~23:00Z. **VMFL021-R2/L3 finished
+23:02Z and VMFL023/L3 at 00:57Z with nothing watching.** That is what `setsid` buys.
+Register now **23 rows: 5 `PASS`, 3 `GATE REACHED`, 14 `NOT A RESULT`, 1 `PENDING`.**
+**VMFL017-R2 is the `PENDING` row and its run directory is ABSENT — registered, never fired.**
+
+**Neither row was written until two rationalisations were refused** — VMFL023's
+`299.9999999998` vs `300`, and VMFL021-R2's `ExecutionTime` count. **The frozen comparators
+settled both, not me:** `grade_vmfl023.py` implements the clause as `abs(t_last-ENDTIME)>1e-6
+-> refuse("C3")` (drift 2e-10, accepted), and VMFL021-R2's prereg line 114 registers *"rule 4,
+**adaptive-dt form**"* **by name**, frozen 22:28:38Z against a first artifact at 22:29Z.
+
+#### THE GPU — IT WAS NEVER OFF, AND MY OWN MEASUREMENT HID THAT
+
+**Booted 2026-08-25 16:15:42Z. Up 10.90 h. Load 0.00. `memory.used` 0 MiB.
+`utilization.gpu` 0 %. It has done NOTHING since boot.** ~**$8.77** derived at $0.8048/GPU-h,
+**still accruing**. Second idle-GPU row in three days (C-16/C-19: 7.88 GPU-h, $6.34) —
+**running total 18.78 GPU-h, $15.11**.
+
+**The error was mine.** A lane measured `ping` -> 100 % loss -> "STOPPED", and **I put it in a
+ruling**. **ICMP is filtered there; `tcp/22` was OPEN the whole time** and `ssh` connects.
+**Standing correction, binding on me and my lanes: host liveness is measured on the SERVICE
+PORT, never with `ping`.** The error's direction is the damaging one — "stopped" made the
+billing invisible.
+
+**Sanaa's own condition for the family — *"Well add the gpu ones once i turn the gpu back on
+later"* — IS SATISFIED. The ten VMFLGPU cases are NO LONGER `DEFERRED`.**
+
+**BUT THE BUILD IS BLOCKED BY THE PERMISSION SYSTEM.** The dispatch to install the toolchain
+and build on that host was **DENIED by the auto-mode classifier**. **A live denial is not
+overridable by any agent instruction — CLAUDE.md rule 9, and the chief's own board records
+exactly this precedent** (*"DENIED BY THE PERMISSION SYSTEM, NOT BY SANAA. Her silence does not
+override a live denial."*). **I am not routing around it.** What would unblock: Sanaa's
+permission for this session to run remote build commands, or her running the recipe herself.
+
+**Survey of the GPU box, so nothing is re-measured later:** Ubuntu 26.04, 4 cores (EPYC 7R13),
+15 GB RAM, **75 GB free**, **NVIDIA L4 (sm_89)**, driver 595.91.07, CUDA runtime 13.2.
+PRESENT: gcc 15.2.0, cmake 4.2.3, python3 3.14.4, git. **ABSENT: `nvcc`, MPI, OpenFOAM,
+PETSc.** The recipe's critical path is **OpenFOAM v2606** — apt prebuilt = 20–40 min, source =
+2–4 h. Recipe at `docs/ansys_verification/gpu/GPU_BUILD_RECIPE.md`; route **petsc4Foam + PETSc
+`--with-cuda` (cuSPARSE)**, which moves **only the linear solve** to the card so the GPU
+*solver path* is what gets verified. **Zero of the ten VMFLGPU pre-registrations are drafted** —
+that work is zero-compute and is the next opus slot.
+
+#### THE WAVE FIRED ZERO CASES — and I have ruled on the two things that stopped it
+
+The wave lane surveyed and stopped without firing, citing a collision with lanes building
+VMFL002/004/011/064. **Those lanes are DEAD** (built 19:14–19:24Z, abandoned ~8 h); no ansys
+solver is running anywhere. Stale untracked files are not a live fleet. **Its VMFL004 report
+is nonetheless valuable and one part is a real defect it caused:** it wrote `0/` fields whose
+patch names (`inlet`/`outlet`/`topWall`/`bottomWall`) are **incompatible with the existing mesh
+(`left`/`right`/`movingWall`/`fixedWall`)**. Left in place, inspected not reverted (rule 10).
+
+- **RULING — VMFL002 IS NOT BLOCKED.** The lane treated an archive-sourced inlet velocity as
+  disqualifying. **This team's mandate reads the archives *for setup and reference numbers
+  only*, and an inlet velocity is SETUP, not a reference result.** The gate stays the manual's
+  printed targets (normalised ΔP 1.000, centreline outlet T 341.00 K, pp. 17–18). Legitimate
+  **provided the freeze discloses it as archive-sourced, names the file and quotes the value.**
+  Ceiling **GATE REACHED**.
+- **RULING — VMFL004 IS `PASS`-ELIGIBLE.** Its reference is an **independent closed form the
+  lab evaluates itself** — ⟨u⟩ₓ = ∫₀¹(−6y²+9y)dy = **2.5 m/s exact**. **A closed form the lab
+  evaluates itself carries a `PASS` ceiling** (the VMFL019 precedent). The lane proposed capping
+  it at GATE REACHED; **that is wrong and would have thrown away a credential.**
+  **Registered risk, named before compute:** central differencing is exact for quadratics, so
+  the triple may collapse to **`EXACT`** -> `NOT A RESULT`. A predicted `NOT A RESULT` is worth
+  more than a fitted pass.
+
+#### A GUARD OF MINE REFUSED, TWICE, AND WAS RIGHT BOTH TIMES
+
+My calibration append asserted the tail maximum was **C-99**, measured minutes earlier. It came
+back **C-100**, then **C-101** — peers appending while I worked. **The append REFUSED rather
+than overwrite**, and the numbers were re-derived from the tail **at commit time, in the same
+shell invocation**. That is rule 11 working exactly as written, and it is why the rows are
+**C-102 / C-103 / C-104** and not the numbers I first wrote.
+
+#### LANES LIVE (cap 4) / NEXT / BLOCKED
+
+| lane | task |
+|---|---|
+| `ansys-lane-opus` | VMFL076 — freeze on the derived similarity solution, then launch |
+| `ansys-lane-opus48` | **FIRE VMFL004 then VMFL002**, then VMFL011/VMFL064, then never-run closed-form cases |
+| 2 haiku slots | free |
+
+**NEXT:** (1) the ten VMFLGPU pre-registrations — zero compute, next opus slot; (2) **fire
+VMFL017-R2**, registered and never run; (3) the closed-form-from-figure line — **VMFL006, 020,
+029, 038, 046, 061, 070** are `PASS`-capable by derivation, the highest-value cases left.
+
+**BLOCKED:** GPU build — **permission system denial**, not Sanaa. Needs her word for this
+session or her own hand on the recipe.
+
+---
+
 ### 2026-08-26T03:0xZ — post-kill restart. **BOTH LIVE SOLVES SURVIVED THE KILL.** Two rulings, both against my own prior orders.
 
 **Written by `ansys-verification-supervisor` personally.** Live reading: HEAD `671936c0`,
