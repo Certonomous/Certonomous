@@ -1,0 +1,27 @@
+{
+  "team": "cfd",
+  "case_id": "F20_ISENTROPIC_VORTEX",
+  "prereg_commit": "548fc02e2ac8d1c27868af67a343f3a5495e8ecb",
+  "prereg_path": "verification/campaign/F20_ISENTROPIC_VORTEX_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F20_ISENTROPIC_VORTEX/run_f20.sh",
+    "--prereg-commit=548fc02e2ac8d1c27868af67a343f3a5495e8ecb"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/F20_ISENTROPIC_VORTEX",
+  "ranks": 1,
+  "cost_core_min_estimate": 60.0,
+  "cost_basis": "derived, not measured: 4.78 G cell-steps x 0.75 us/cell-step + 28000 steps x 0.4 ms/step (rates DERIVED from two lab rhoCentralFoam records of DIFFERENT cases, verification/runs/F15_runs/{coarse,medium,fine}/log.rhoCentralFoam = 0.74/0.70/0.69 us/cell-step and verification/runs/F4_runs/successor_2026-08-26/runs/cyl/M6.0/{coarse,medium,fine}/log.rhoCentralFoam = 0.98/0.65/0.65 us/cell-step) = 51 + 396 + 3152 s serial = ~60 core-min (0.85 / 6.6 / 52.5 per level); registered CAP 240 core-min (prereg section 8); dollars at the owner-stated $0.0513/core-h, reported-by-owner: $0.05 estimate, $0.21 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd lab-lane, 2026-08-26, for cfd-supervisor. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is NOT discharged by this file. HELD under the case directory until the supervisor acknowledges the freeze sha and moves it into verification/queue/cfd/.",
+
+  "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F20_ISENTROPIC_VORTEX_runs -- ABSENT at registration (rule-2 absence condition, prereg section 9); the launcher creates it and REFUSES any pre-existing 0/ or numeric time directory in the run root or a level directory.",
+  "cwd_note": "cwd is the CASE directory (no time directory as a direct child; case/0 holds only *.template files). The launcher uses absolute paths and ignores cwd. A queue runner's wrapper writes launcher.queue.out and STATUS.F20_ISENTROPIC_VORTEX into cwd; both are INFRASTRUCTURE fields under L-342 and untracked.",
+  "levels": "coarse 128^2 / medium 256^2 / fine 512^2 (dim 2), dt 2.5e-3 / 1.25e-3 / 6.25e-4 (solver-reported max Courant ~0.10), t_end 10 (one period), all SERIAL 1 rank, decomposePar never invoked, decomposition seed none",
+  "cap_core_min_registered": 240.0,
+  "cap_behaviour": "checked incrementally after each level in ClockTime x ranks / 60 and PROJECTED before each level; a crossing HALTS at exit 3; the cap is never raised",
+  "registered_prediction": "G-F20-1 L2 density error CONVERGING with observed order in [1.0, 1.6] (model 1.50; explicit Euler in time), fine value in [1.391017e-04, 1.251915e-03]; G-F20-2 box-mean KE fine value in [1.004915893, 1.006351204] (exact 1.005633549) but the triple predicted NON-MONOTONE (dissipative spatial and anti-dissipative Euler parts cancel inside the ladder) -> NOT A RESULT with the band verdict printed beside it; NO plateau gate, recorded ABSENT; rule 5 limb 1 is a Courant stability census",
+  "grade_cmd": ["python3", "/home/ubuntu/Certonomous/cases/F20_ISENTROPIC_VORTEX/grade_f20.py", "--prereg-commit=548fc02e2ac8d1c27868af67a343f3a5495e8ecb"],
+  "verdict_state": "PENDING"
+}
