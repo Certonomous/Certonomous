@@ -1,0 +1,137 @@
+{
+  "rung": "T4",
+  "reference": "ERCOFTAC case025 ij2lr (H/D=2, Re=23000)",
+  "refinement_ratio": 2.0,
+  "factor_of_safety": 1.25,
+  "planted_zero_control": {
+    "status": "PASS",
+    "plant": 0.001234,
+    "planted_line": 30996,
+    "planted_cell": 30972,
+    "aim_distance_m": 8.467899431116138e-05,
+    "station_r_over_D": 1.0,
+    "recovered_max_abs_change": 1.8140012706835407e-05,
+    "negative_arm": 0.0,
+    "demonstrated_detection_floor": 1e-06,
+    "ladder": {
+      "1": 0.014700204907334369,
+      "0.1": 0.0014700176018118682,
+      "0.01": 0.00014700173319726062,
+      "0.001234": 1.8140012706835407e-05,
+      "0.0001": 1.4700193282646268e-06,
+      "1e-05": 1.47002512385086e-07,
+      "1e-06": 1.4699091943626286e-08
+    }
+  },
+  "iterative": {
+    "c": {
+      "c1": true,
+      "c2": false,
+      "c3": true,
+      "final_residual": 5.46555982217e-09,
+      "field_change": 1.839036256612303e-08,
+      "converged": false,
+      "checkpoints": [
+        "18000",
+        "20000"
+      ]
+    },
+    "m": {
+      "c1": true,
+      "c2": true,
+      "c3": true,
+      "final_residual": 7.23517805284e-10,
+      "field_change": 1.2577116037526537e-07,
+      "converged": true,
+      "checkpoints": [
+        "27000",
+        "30000"
+      ]
+    },
+    "f": {
+      "c1": true,
+      "c2": false,
+      "c3": true,
+      "final_residual": 9.03914097154e-10,
+      "field_change": 1.0168451154424218e-06,
+      "converged": false,
+      "checkpoints": [
+        "36000",
+        "40000"
+      ]
+    }
+  },
+  "convergence_criterion": {
+    "resid_floor": 1e-06,
+    "sustain": 200,
+    "field_tol": 0.0002
+  },
+  "rows": [
+    {
+      "row": "G1",
+      "r_over_D": 1.0,
+      "reference": 1.089,
+      "band": [
+        1.069,
+        1.109
+      ],
+      "value_fine": 1.0628656010142254,
+      "triple": {
+        "c": 1.0029022113658947,
+        "m": 1.0314953516600782,
+        "f": 1.0628656010142254
+      },
+      "triple_state": "DIVERGENT",
+      "observed_order": null,
+      "gci": null,
+      "verdict": "NOT A RESULT",
+      "note": "gate (1): a level is not iteratively converged or not plateaued",
+      "deviation": -0.02613439898577452,
+      "band_utilisation": 1.306719949288726
+    },
+    {
+      "row": "G2",
+      "r_over_D": 2.0,
+      "reference": 0.7888,
+      "band": [
+        0.7687999999999999,
+        0.8088
+      ],
+      "value_fine": 0.8176022371448683,
+      "triple": {
+        "c": 0.8158635580946006,
+        "m": 0.8242201434959622,
+        "f": 0.8176022371448683
+      },
+      "triple_state": "OSCILLATORY",
+      "observed_order": null,
+      "gci": null,
+      "verdict": "NOT A RESULT",
+      "note": "gate (1): a level is not iteratively converged or not plateaued",
+      "deviation": 0.028802237144868403,
+      "band_utilisation": 1.4401118572434202
+    },
+    {
+      "row": "G3",
+      "r_over_D": 3.0,
+      "reference": 0.4632,
+      "band": [
+        0.4432,
+        0.4832
+      ],
+      "value_fine": 0.5399825618134236,
+      "triple": {
+        "c": 0.5429484731641899,
+        "m": 0.5449864571894333,
+        "f": 0.5399825618134236
+      },
+      "triple_state": "OSCILLATORY",
+      "observed_order": null,
+      "gci": null,
+      "verdict": "NOT A RESULT",
+      "note": "gate (1): a level is not iteratively converged or not plateaued",
+      "deviation": 0.07678256181342363,
+      "band_utilisation": 3.8391280906711818
+    }
+  ]
+}
