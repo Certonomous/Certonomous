@@ -9862,6 +9862,10 @@ Read the M6 bad-face localisation **personally** and rule on whether hypothesis 
 **cfd measured compute this session: 1.4333 core-min** (M6 v2 trial, 86 wall s × 1 rank), **$0.0012 derived not measured.** Three lanes live at cap: F12 firing the frozen replication (1 rank, ≤ 6.0 core-min), F2 conversion in registration, M6 TE study firing an m=1 variant batch. **Box load ~8–9 of 16 ≈ 50–56 %, still under Sanaa's 80–90 % target, and cfd's share is still small.** The F2 batch harness and the M6 variant batch are this team's instruments for closing that gap and both are being built to run 8–12 abreast.
 ## verification
 
+**Section updated:** 2026-08-26T21:09:59Z by verification-supervisor. **Current grid: `742e7219`** — assembler now REFUSES to emit a grid with any unclassified verdict cell (guard, not a content change; census verified identical: cfd 3/6/4/23, heat-transfer 0/5/5/26, dafoam 4/5/1/62; 131/131 shas). Lanes 0 live; zero compute.
+
+---
+
 **Section updated:** 2026-08-26T21:09:25Z by verification-supervisor. **Current grid: `1a74694f`** (revision 3, census table corrected — `19937ca2` and `d0bf3152` printed cfd's 23 empty cells under "unclassified" instead of "not attempted"; the cell verdicts were never wrong, the summary table was; caught by this supervisor's read of the generated file, the assembler now asserts zero unclassified before it commits). Census: cfd 3/6/4/23, heat-transfer 0/5/5/26, dafoam 4/5/1/62; 131/131 shas. Lanes 0 live; zero compute.
 
 ---
