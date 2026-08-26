@@ -386,3 +386,78 @@ is orphaned (`ladder-a/A6_crm_wingbody.md` §2 and §5.1).
 ---
 
 *Lane A, Phase 0. No solve was run. Nothing filed, sent or registered.*
+
+---
+
+## AMENDMENT 1 — 2026-08-26. THE PATCHED ROW'S IDENTIFIERS, AND THIS FILE WAS MEASURED INCOMPLETE.
+
+**Appended at the foot. `lines whose number changed above this section: 0` — nothing above is
+edited, reordered or renumbered** (`CLAUDE.md` rule 6). This amendment **adds identifiers and a
+disclosure**; it retires no statement, moves no threshold and creates no gate.
+
+**Why it exists.** `DAFOAM_CHARTER.md` §11 makes **the hash the identity and the version string
+never**, and `DAFOAM_CHARTER.md` §6 makes a DAFoam verdict **two rows**. This file was measured, on
+2026-08-26 during the D7R grading, to name **`dafoam-idwarp-rot:v1` nowhere at all** and to carry
+neither its digest nor its `libidwarp.so` md5 — so **the family's own toolchain record could settle
+only half of a two-row charter.** A record that cannot identify one of the two rows it exists to
+distinguish is incomplete, and it is named here rather than quietly patched into §3.
+
+### A1.1 The two rows, by hash, each with where it was MEASURED
+
+| row | image | digest | `libidwarp.so` md5, printed from inside the process that loaded it |
+|---|---|---|---|
+| **SHIPPED** | `dafoam/opt-packages:latest` | `sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc` | **`f0fcb488e0e98156575cd19548e91663`**, 491,344 B |
+| **PATCHED-ROT** | `dafoam-idwarp-rot:v1` | `sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35` | **`85f59e87253e0a71a813f64ca6e4c425`**, 491,344 B |
+
+**Where each figure was measured, cited rather than asserted:**
+
+* **Both digests, re-measured live for this amendment on 2026-08-26**, by
+  `sudo -n docker inspect --format '{{.Id}}'` on each tag. Both returned exactly the values above.
+* **Both `.so` md5s** are recorded at `cases/dafoam/MATRIX_CONTRIBUTION.md:113` (SHIPPED) and `:114`
+  (PATCHED-ROT), with the patch that produced the second named beside it
+  (`cases/dafoam/rotation_branch/idwarp_v2.6.2_degenerate_branch_fix.patch`, 4,061 B, 2 files,
+  +44 lines).
+* **The PATCHED md5 printed from inside the loading process**, which is the only reading that
+  identifies what a run actually imported:
+  `cases/dafoam/ladder-a/A1/curriculum_D1/RESULTS.md:361-363` — three containers (armE run 1, armE
+  run 2, armO) each printed `85f59e87253e0a71a813f64ca6e4c425`, against `:364` where armC printed
+  `f0fcb488e0e98156575cd19548e91663`. **The same file's F2 falsifier — "any arm's printed
+  `IDWARP_SO_MD5` ≠ §3's row → that arm void" — did not fire on any of the four containers**
+  (`:635`).
+* **The SHIPPED md5 printed from inside the loading process**, most recently:
+  `D7_IDWARP_SO_MD5: f0fcb488e0e98156575cd19548e91663` on all three D7R arms
+  (`/home/ubuntu/certonomous-runs/CURRICULUM-D7R-a3-m6-cdmin/ledger.txt`).
+
+> **THE VERSION STRING DISCRIMINATES NOTHING AND IS NOT USED HERE.** §4 above already measures that
+> **both** libraries report IDWarp `2.6.2` and **both are 491,344 bytes**. The md5 is the only
+> reading that separates them, which is precisely `DAFOAM_CHARTER.md` §11's point.
+
+### A1.2 §3's image list is STALE, and by more than the row this amendment adds
+
+§3 was measured 2026-08-21 and lists **four** images. `sudo -n docker images --no-trunc` on
+2026-08-26 returns **seven**:
+
+| present in §3 | absent from §3 |
+|---|---|
+| `alpine:latest`, `dafoam-kspopts:v1`, `dafoam-subpclu:v1`, `dafoam/opt-packages:latest` | **`dafoam-idwarp-rot:v1`** (`sha256:2927768a16ac…f6d35`), **`dafoam-subpclu:v2`** (`sha256:8352629516bb363345fd802ed6092f878bad0a612c05c98d492a14bd94729d46`), **`dafoam-team:v1`** (`sha256:0b3c94c33a15cc9b6be48ff1c7e8fa50e870f53d7626bd56b7e173bfd7e9dc1d`) |
+
+**The three absent images are recorded here by digest and NOT characterised.** This amendment did
+not run a container to establish what `dafoam-subpclu:v2` or `dafoam-team:v1` contain, so it says
+nothing about them beyond their existence and their hash. **An identifier is not a description, and
+inventing one would be the defect this amendment exists to close.**
+
+### A1.3 What this amendment does NOT change
+
+* **§4's statement stands as written for what it was about.** §4 says the IDWarp rotation **patch
+  source** is in no container image and that `idwarp` ships as a built package with no Fortran
+  sources — that remains true. `dafoam-idwarp-rot:v1` is an image carrying a **rebuilt
+  `libidwarp.so`**, which is a different claim from carrying the patch source, and §4 is not
+  contradicted by it. The two statements are separated here so neither is read as retiring the
+  other.
+* **§7's row** *"W5 regrade 'patched' columns … `dafoam/opt-packages:latest` + `-v W5-patch` +
+  `PYTHONPATH` … not installable by any reader"* describes the **bind-mount route** and stays
+  correct for the results it names. The image route recorded in A1.1 is a **later, separate** way of
+  reaching a patched IDWarp, and rows measured on it cite `2927768a16ac`, not the mount.
+* **Nothing here was sent, filed, uploaded, registered, posted or commented** (`CLAUDE.md` rule 7).
+  **No image was pushed anywhere and none is installable by any reader** — every PATCHED-ROT row in
+  this lab carries that qualifier and this amendment does not weaken it.
