@@ -63,6 +63,13 @@ PLANT_TOL = 1e-9
 COL_CD, COL_CL = 1, 4
 VERDICTS = ("PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING")
 
+# OBSERVED-ORDER FLOOR (PRE-COMPUTE AMENDMENT 1, 2026-08-26). A triple whose observed
+# order falls below this is NOT A RESULT and NO GCI is quoted: R = e32/e21 near 1 is a
+# STAGNANT family, and ln(R)/ln(r) of it returns a floating-point crumb that reads as a
+# valid, very small order, from which a meaningless GCI would then be computed.
+# docs/ansys_verification/FINDING_p_floor.md sec.4.
+P_MIN = 0.05
+
 
 def refuse(msg):
     sys.stderr.write("REFUSE (VMFL017-R2): %s\n" % msg); sys.exit(2)
@@ -189,7 +196,89 @@ def roache(vals):
     if R >= 1:
         return dict(triple="DIVERGENT", p=None, gci=None)
     p = math.log(e21 / e32) / math.log(2.0)
+    if p < P_MIN:      # observed-order floor -- NOT A RESULT, and NO GCI (FINDING_p_floor sec.4)
+        return dict(triple="STAGNANT", p=p, gci=None, p_below_floor=True, p_floor=P_MIN)
     return dict(triple="CONVERGING", p=p, gci=1.25 * abs((f3 - f2) / f3) / (2.0 ** p - 1.0))
+
+
+def verdict_for(rcd, rcl, rel_cd, rel_cl):
+    """The ONE verdict path. grade() decides through it and the planted p-floor control
+    below DRIVES it, so the control exercises the code that actually decides rather than a
+    paraphrase of it. Rule 5: the triple gate can only turn a verdict INTO NOT A RESULT."""
+    if rcd["triple"] != "CONVERGING" or rcl["triple"] != "CONVERGING":
+        return "NOT A RESULT"
+    return "GATE REACHED" if (rel_cd <= TOL_CD and rel_cl <= TOL_CL) else "GATE FAIL"
+
+
+def check_vocabulary(verdict):
+    """PRE-COMPUTE AMENDMENT 1. This was `assert verdict in VERDICTS`. `python3 -O` STRIPS
+    `assert`, so the vocabulary guard vanished under exactly the interpreter this lab uses
+    to prove its guards survive optimisation (L-332 form). It is now an explicit REFUSAL."""
+    if verdict not in VERDICTS:
+        refuse("verdict %r is not in the fixed vocabulary %s (CLAUDE.md rule 1)"
+               % (verdict, list(VERDICTS)))
+    return verdict
+
+
+def p_floor_control():
+    """PLANTED CONTROL for the observed-order floor (PRE-COMPUTE AMENDMENT 1).
+
+    A floor nobody tests is a floor nobody has (FINDING_p_floor.md sec.4). Three
+    constructed triples are PLANTED into this comparator's OWN roache() and OWN
+    verdict_for(), and the control REFUSES (exit 2) if any grades the wrong way:
+
+      (a) the equally spaced (1.0, 1.1, 1.2) -- e21 == e32, R = 1, a family that is not
+          converging at all: NOT A RESULT with NO GCI, even though both bands are met.
+      (b) p = 0.01, genuinely COMPUTED and below the floor: NOT A RESULT, NO GCI. This is
+          the probe that drives the floor itself -- a control feeding only (a) could be
+          satisfied by the ratio test and would leave the floor untested.
+      (c) p = 0.5, above the floor: still CONVERGING, GCI produced, GATE REACHED inside
+          the bands. A floor that swallows real results is as bad as no floor.
+
+    NO `assert` anywhere: `python3 -O` strips them, so every branch refuses via refuse().
+    """
+    def bad(tag, detail):
+        refuse("P-FLOOR PLANTED CONTROL FAILED [%s]: %s (P_MIN = %.3g, FINDING_p_floor.md sec.4)"
+               % (tag, detail, P_MIN))
+
+    out = {"P_MIN": P_MIN, "probes": {}}
+
+    tri_a = roache([1.0, 1.1, 1.2])
+    v_a = verdict_for(tri_a, tri_a, 0.0, 0.0)      # both rel devs 0 -> would be GATE REACHED
+    out["probes"]["equally_spaced_1.0_1.1_1.2"] = dict(triple=tri_a["triple"], p=tri_a.get("p"),
+                                                       gci=tri_a.get("gci"), verdict=v_a)
+    if v_a != "NOT A RESULT":
+        bad("equally-spaced (1.0, 1.1, 1.2)", "graded %r with both bands met, expected NOT A RESULT" % v_a)
+    if tri_a.get("gci") is not None:
+        bad("equally-spaced (1.0, 1.1, 1.2)", "a GCI was produced (%r) for a non-converging triple" % (tri_a["gci"],))
+
+    p_lo = 0.01
+    tri_b = roache([1.0, 1.1, 1.1 + 0.1 * (2.0 ** (-p_lo))])
+    v_b = verdict_for(tri_b, tri_b, 0.0, 0.0)
+    out["probes"]["below_floor_p_0.01"] = dict(triple=tri_b["triple"], p=tri_b.get("p"),
+                                               gci=tri_b.get("gci"), verdict=v_b)
+    if tri_b.get("p") is None or abs(tri_b["p"] - p_lo) > 1e-9:
+        bad("below-floor probe", "constructed p = %.4g was not recovered (got %r)" % (p_lo, tri_b.get("p")))
+    if not tri_b.get("p_below_floor"):
+        bad("below-floor probe", "p = %r is under P_MIN and the floor did NOT fire" % (tri_b.get("p"),))
+    if v_b != "NOT A RESULT" or tri_b.get("gci") is not None:
+        bad("below-floor probe", "graded %r with gci %r, expected NOT A RESULT and no GCI"
+            % (v_b, tri_b.get("gci")))
+
+    p_hi = 0.5
+    tri_c = roache([1.0, 1.1, 1.1 + 0.1 * (2.0 ** (-p_hi))])
+    v_c = verdict_for(tri_c, tri_c, 0.0, 0.0)
+    out["probes"]["above_floor_p_0.5"] = dict(triple=tri_c["triple"], p=tri_c.get("p"),
+                                              gci=tri_c.get("gci"), verdict=v_c)
+    if tri_c["triple"] != "CONVERGING" or tri_c.get("p_below_floor"):
+        bad("above-floor probe", "p = %r is above P_MIN and the floor fired anyway" % (tri_c.get("p"),))
+    if tri_c.get("gci") is None:
+        bad("above-floor probe", "no GCI for a converging triple above the floor")
+    if v_c != "GATE REACHED":
+        bad("above-floor probe", "graded %r, expected GATE REACHED inside both bands" % v_c)
+
+    out["passed"] = True
+    return out
 
 
 def selftest():
@@ -271,6 +360,31 @@ def selftest():
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
+    print("  --- PLANTED CONTROL: observed-order floor P_MIN = %.3g ---" % P_MIN)
+    # The control REFUSES (exit 2) on failure, so reaching the next line is itself the
+    # evidence; the chk()s below record the three probes it drove.
+    pf = p_floor_control()
+    chk("(1.0, 1.1, 1.2) -> NOT A RESULT, no GCI, though both bands are met",
+        pf["probes"]["equally_spaced_1.0_1.1_1.2"]["verdict"] == "NOT A RESULT"
+        and pf["probes"]["equally_spaced_1.0_1.1_1.2"]["gci"] is None,
+        "%s p=%.3g" % (pf["probes"]["equally_spaced_1.0_1.1_1.2"]["triple"],
+                       pf["probes"]["equally_spaced_1.0_1.1_1.2"]["p"]))
+    chk("p = 0.01 (below floor) -> NOT A RESULT, no GCI",
+        pf["probes"]["below_floor_p_0.01"]["verdict"] == "NOT A RESULT"
+        and pf["probes"]["below_floor_p_0.01"]["gci"] is None,
+        "p=%.4g" % pf["probes"]["below_floor_p_0.01"]["p"])
+    chk("p = 0.5 (above floor) -> floor does NOT over-fire, GCI quoted",
+        pf["probes"]["above_floor_p_0.5"]["verdict"] == "GATE REACHED"
+        and pf["probes"]["above_floor_p_0.5"]["gci"] is not None,
+        "p=%.4g gci=%.3g%%" % (pf["probes"]["above_floor_p_0.5"]["p"],
+                               100 * pf["probes"]["above_floor_p_0.5"]["gci"]))
+
+    print("  --- vocabulary guard is a REFUSAL, not an assert (survives python3 -O) ---")
+    chk("a legal verdict passes the vocabulary guard",
+        check_vocabulary("GATE REACHED") == "GATE REACHED")
+    chk("a verdict outside the fixed vocabulary REFUSES (exit 2)",
+        refuses(lambda: check_vocabulary("looks fine")))
+
     print("  --- Roache classifier ---")
     chk("CONVERGING triple", roache([0.030, 0.020, 0.017])["triple"] == "CONVERGING")
     chk("DIVERGENT triple flagged", roache([0.017, 0.020, 0.030])["triple"] == "DIVERGENT")
@@ -288,6 +402,11 @@ def grade(run_root):
     present = [l for l in LEVELS if os.path.isdir(os.path.join(run_root, l))]
     if not present:
         refuse("no level dirs under " + run_root)
+    # PLANTED CONTROL for the observed-order floor, driven on the FROZEN grading path
+    # before any level is read. It REFUSES (exit 2) rather than grading.
+    pfc = p_floor_control()
+    print("VMFL017-R2  p-floor planted control OK (P_MIN = %.3g): (1.0,1.1,1.2) -> %s, no GCI"
+          % (P_MIN, pfc["probes"]["equally_spaced_1.0_1.1_1.2"]["verdict"]))
     cds, cls, per = [], [], {}
     for lvl in present:
         d = os.path.join(run_root, lvl)
@@ -320,17 +439,20 @@ def grade(run_root):
 
     rcd, rcl = roache(cds), roache(cls)
     cdf, clf = cds[-1], cls[-1]
-    if rcd["triple"] != "CONVERGING" or rcl["triple"] != "CONVERGING":
-        print("  NOT A RESULT  Cd triple=%s  Cl triple=%s  (rule 5)" % (rcd["triple"], rcl["triple"]))
-        _dump(run_root, "NOT A RESULT", per, rcd, rcl)
-        return
     rel_cd = abs(cdf - REF_CD) / REF_CD
     rel_cl = abs(clf - REF_CL) / REF_CL
-    passed = rel_cd <= TOL_CD and rel_cl <= TOL_CL
     # team ceiling is GATE REACHED (Sanaa); a met gate on a measured reference is
-    # reported as GATE REACHED, a missed gate as GATE FAIL.
-    verdict = "GATE REACHED" if passed else "GATE FAIL"
-    assert verdict in VERDICTS
+    # reported as GATE REACHED, a missed gate as GATE FAIL. The vocabulary guard is an
+    # explicit REFUSAL, not an `assert` -- `python3 -O` strips asserts.
+    verdict = check_vocabulary(verdict_for(rcd, rcl, rel_cd, rel_cl))
+    if verdict == "NOT A RESULT":
+        def _p(t):
+            return "none" if t.get("p") is None else "%.4g" % t["p"]
+        print("  NOT A RESULT  Cd triple=%s (p=%s)  Cl triple=%s (p=%s)  -- no GCI is quoted "
+              "(rule 5; observed-order floor P_MIN=%.3g)"
+              % (rcd["triple"], _p(rcd), rcl["triple"], _p(rcl), P_MIN))
+        _dump(run_root, "NOT A RESULT", per, rcd, rcl)
+        return
     print("  %s  Cd=%.5f rel=%.2f%% tol=%.0f%% GCI=%.3g%% p=%.2f | Cl=%.4f rel=%.2f%% tol=%.0f%% GCI=%.3g%% p=%.2f"
           % (verdict, cdf, 100 * rel_cd, 100 * TOL_CD, 100 * rcd["gci"], rcd["p"],
              clf, 100 * rel_cl, 100 * TOL_CL, 100 * rcl["gci"], rcl["p"]))

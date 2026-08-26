@@ -200,3 +200,123 @@ Amendment-3 item-6 launcher smoke test on the box. Those are not committed by th
 freeze because the box is at capacity and none could be smoke-tested; committing
 an unverified case as "frozen" would overclaim. Run root:
 `verification/runs/ansys_verification/VMFL017/R2/`. VMFL017-R2 is `NOT YET RUN`.
+
+---
+
+## PRE-COMPUTE AMENDMENT 1 — 2026-08-26T16:12:19Z — comparator hardened; **the LAUNCH is BLOCKED**
+
+**Author:** `ansys-lane-opus`. **Lines whose number changed above this section: 0** (appended
+at the foot; nothing above is edited — rule 6).
+
+### A. Legality, with the evidence (rule 2)
+
+The run root `verification/runs/ansys_verification/VMFL017` **does not exist** at
+**2026-08-26T16:12:19Z** (`ls -d` returns *No such file or directory*), so neither it nor
+`.../VMFL017/R2` holds a level directory, a `RUN_RC.txt` or a `LAUNCH_RECORD.txt`. **First
+compute has not happened**, so this amendment is pre-compute and the comparator may still be
+hardened. **Nothing gated is touched:** the quantities (Cd, Cl), the bands (10 % / 5 %), the
+references (0.0168 / 0.803), the level family, the per-level caps (300/600/1500 core-min),
+RANKS = 1 and the tier ceiling label (`GATE REACHED`) are unchanged character for character.
+Both changes below are **refusals**, which can only turn a would-be verdict into
+`NOT A RESULT` or an exit-2, never the reverse.
+
+### B. `assert verdict in VERDICTS` was VACUOUS under `python3 -O` — now an explicit refusal
+
+`grade_vmfl017_r2.py:333` carried `assert verdict in VERDICTS` as the rule-1 vocabulary
+guard. **Measured on this box:** `python3 -c 'assert False'` raises `AssertionError`;
+`python3 -O -c 'assert False'` **raises nothing**. The guard therefore did not exist under the
+interpreter this lab uses to prove its guards survive optimisation (the `554d0686` /
+L-332 form — 22 test asserts found vacuous under `-O` the same night). It is replaced by
+`check_vocabulary()`, an explicit `refuse()` → **exit 2**, driven by the selftest in **both**
+directions (a legal verdict passes; `"looks fine"` refuses).
+**`grep -nE '^\s*assert ' grade_vmfl017_r2.py` → 0**, from 1.
+
+### C. Observed-order floor `P_MIN = 0.05`, with a planted control that DRIVES it
+
+Per `docs/ansys_verification/FINDING_p_floor.md` §4, binding on every comparator this team
+freezes. A triple whose observed order falls below `P_MIN` is **`NOT A RESULT`** and **NO GCI
+is printed**. **This comparator carried the defect the FINDING names:** measured here, its
+`roache()` classified the equally spaced triple `(1.0, 1.1, 1.2)` as **`CONVERGING` with
+`p = 3.2e-15`** — the FINDING's own number — and would have quoted a GCI off it. It now
+returns `STAGNANT`, `gci = None`.
+
+The floor is **driven, not declared**, by `p_floor_control()`, planted into the comparator's
+own `roache()` and its own (now single, shared) `verdict_for()`:
+
+| probe | constructed | required |
+|---|---|---|
+| (a) equally spaced | `(1.0, 1.1, 1.2)` | `NOT A RESULT`, **no GCI**, *though both bands are met* |
+| (b) below the floor | `p = 0.01`, genuinely computed | `NOT A RESULT`, **no GCI** — the probe that drives the floor itself, since (a) can be caught one step earlier by the ratio test |
+| (c) above the floor | `p = 0.5` | `CONVERGING`, **GCI quoted**, `GATE REACHED` — the floor must not swallow real results |
+
+It runs in `--selftest` **and** in `grade()` before any level is read. No `assert` carries any
+of it.
+
+**MEASURED at this amendment:** `--selftest` **20/20 PASS, 0 FAIL, exit 0, identical under
+`python3` and `python3 -O`**. Three ad-hoc mutations (not added to any frozen file): defanging
+`if p < P_MIN` → **exit 2 under both**; `P_MIN = 0.0` → **exit 2 under both**; defanging the
+vocabulary refusal → **exit 1 under both**, no green line in any case.
+
+**Comparator blob:** `0191d7ffa26dff86693328e38a9977d8b3db08ab` (freeze `f8871113`) →
+**`97c556f4a0d07f021480c75144d1b72a811fc391`** (this amendment).
+
+### D. **BLOCKED** — VMFL017-R2 is NOT launched, and this is why
+
+`BLOCKED` is used here in its rule-1 sense: the lane was ordered to build
+`run_vmfl017_r2.sh` **using only what this frozen pre-registration states**, and to stop
+rather than guess. It stops. Four independent reasons, each sufficient:
+
+**D.1 — `maxCo` is not registered anywhere, and it is THE driving input of this instrument.**
+Line 8 says *"TRANSIENT; endTime a physical settling time (not iterations), adjustTimeStep,
+maxCo"* and line 1 says *"(adjustTimeStep, maxCo)"* — **the parameter is named and its value
+is never given**, in this document or in the frozen comparator. For an *explicit* solver the
+Courant cap sets the timestep, and therefore sets both stability and the entire cost: at
+`maxCo` 0.2 versus 0.5 the same physical `endTime` costs ~2.5× — against per-level caps of
+300/600/1500 core-min this is the difference between a graded row and an rc-124 refusal. There
+is no frozen predecessor to inherit it from: **VMFL017 attempt 1 was a STEADY pressure-based
+`rhoSimpleFoam` run with no Courant control at all**, and this document states in as many
+words that VMFL045/F3/VMFL051 are reused as *setup knowledge only*, with none of their
+parameters entering this gate. `maxDeltaT` and the initial `deltaT` are unstated on the same
+footing.
+
+**D.2 — `writeInterval` is unstated, yet line 13 requires the launcher to ASSERT it.** Line 13
+registers an *"endTime/writeInterval assertion"* as a required launcher artifact. A launcher
+cannot assert a value the freeze never fixed. The comparator constrains the sampling only
+indirectly (`PLATEAU_MIN_SAMPLES = 20` in a `WINDOW_FRAC = 0.20` window ⇒ ≥ 100 samples over
+the run); it does not fix an interval.
+
+**D.3 — This document's own REGISTERED REMAINING GATE has not been met.** Its closing section
+states, unsoftened, that the `rhoCentralFoam` **case inputs** and the **launcher** *"MUST be
+built and MUST pass the Amendment-3 item-6 launcher smoke test on the box"* before
+VMFL017-R2 may run. **No smoke test has been run.** Launching now would breach the freeze's
+own precondition — the one thing a pre-registration is for.
+
+**D.4 — The case inputs on disk are UNCOMMITTED, i.e. NOT FROZEN.** `cases/.../VMFL017/R2/case/`
+holds `0/{T,U,alphat,k,nut,omega,p}`, `constant/{thermophysicalProperties,turbulenceProperties}`
+and `system/{blockMeshDict.L1,L2,L3, controlDict, fvSchemes, fvSolution}` — **none of them is
+in `HEAD`** (checked path by path with `git rev-parse HEAD:<path>`; all report *not in HEAD*),
+and their mtimes are **2026-08-26T04:29:54Z / 04:30:13Z**, another lane's work in progress.
+Running against them would be running against unfrozen driving inputs, which rule 2 exists to
+forbid, and the launch-time freeze check (which hashes disk against `HEAD`) structurally
+cannot cover a path that has no `HEAD` blob. **This lane did not commit them:** they are
+another agent's unfinished work, this lane cannot attest to them, and landing them would
+launder unverified inputs into the freeze (rule 10; L-333 (c)).
+*Recorded for whoever clears this:* the uncommitted `controlDict` carries `endTime 0.05`,
+`maxCo 0.2`, `maxDeltaT 1e-5`, `deltaT 1e-9`, `writeInterval 0.05` (adjustableRunTime) and a
+`forceCoeffs1` FO at `executeInterval 1e-4`; its `0/` fields match VMFL017 attempt 1's frozen
+blobs byte for byte (`k` 0.024092, `omega` 61.7461, `T` 300, `p` 43765, `U` (253.16591
+12.33759 0)). **Those are a peer's proposals, not a freeze**, and this amendment neither
+adopts nor endorses them — it records them so the next lane knows the values exist and where.
+
+**What clears the block, in one step:** a supervisor-cleared amendment to *this* document that
+registers `maxCo`, `maxDeltaT`, `deltaT` and `writeInterval` as numbers (and confirms
+`endTime = 0.05 s`, which today lives only in the comparator's `ENDTIME_PHYS`), committed
+together with the case inputs, followed by the Amendment-3 item-6 launcher smoke test. All of
+that is still pre-compute and therefore still legal — **until the first solver runs, and not
+after.**
+
+**Compute authority is NOT the obstacle.** Sanaa's permission at `bc0e687e` (*"anything that
+leads to the lab having more runs under its belts"*) covers this launch. The obstacle is that
+the freeze does not yet say what to run.
+
+**Status:** VMFL017-R2 = `BLOCKED`. Attempt 1's register row #19 (`PENDING`) is untouched.
