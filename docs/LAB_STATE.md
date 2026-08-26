@@ -1200,6 +1200,12 @@ Scope, as stated by her: **anything that leads to the lab having more runs under
 
 Consequences, binding on every team: (1) a run whose physics artefacts (solver logs, fields, histories, kernel/container record) are intact is GRADED on them; missing ledger/poller/host-side rows mark the INFRASTRUCTURE fields NOT MEASURED and cannot return NOT A RESULT on their own. (2) Every grader carries two labelled field classes — physics-critical (gates depend on them) and infrastructure (cost, memory, pids, timestamps) — and an absent infrastructure field never refuses a grade. (3) Existing graders that conflate them (d4s_grade.py LEDGER_RE is the named instance) are repaired by pre-registered amendment; D4-SHIPPED arm O is RE-GRADED on its preserved O/ artefacts under the repaired grader, C-117's WASTE label is struck by quote-and-strike when that grade lands. (4) Rule 2 is unchanged for physics fields: this rule licenses no change to bands, thresholds or verdict logic. Lesson L-342.
 
+### CHIEF ADDENDUM — SANAA'S ORDER 2026-08-26T16:39Z, HER WORDS VERBATIM (rule 9)
+
+> "all team must have the queue launcher ready and launched IMMEDIATELY. I do NOT want the instances to be idle at any point even if the lab dies. 2. Why did the ansys team not launch the gpu runs already? I have been asking for this for a day alrzeady. Also, its cases must be queued. SAME for the cfd team. While cases should be studies and investigated somehwat in series to build up the lab's knowledge and conventions and standards, the runs and launching should be as parallelized and in bulk as posible"
+
+Chief's reading at 2026-08-26T16:39Z: box runner `scripts/queue_runner.py --daemon` live; GPU instance 3.15.199.152 load 0.00, GPU 0 %, no solver — idle. Queues: ansys-verification EMPTY, cfd EMPTY, dafoam one entry (aggregate-refused), heat-transfer 2. Binding consequences: (1) every team files a queue entry for EVERY launchable registered case now — bulk, not one at a time; study and grading proceed in series afterwards. (2) ansys deploys the runner on the GPU instance as a daemon and launches every VMFLGPU case there immediately. (3) The runner is the launch path of record; direct launches are permitted but every direct launch also leaves its successor entries in the queue so the box never depends on a live agent.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
