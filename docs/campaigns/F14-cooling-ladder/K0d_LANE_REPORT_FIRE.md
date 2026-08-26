@@ -260,3 +260,217 @@ dispatched before a cap is raised** — and the §2.3 nine-versus-ten marker tra
 handed to them here rather than left to be discovered.
 
 *Written by a heat-transfer lane, 2026-08-25. Zero compute. Nothing fired.*
+
+---
+
+# PHASE 1 REPORT — 2026-08-25T19:24Z. THE BUILDER AND THE MESH CHECKER EXIST AND PASS. THE BUILDER REFUSES TO RUN, AND THAT REFUSAL IS THE FINDING.
+
+**Verdict: `GATE REACHED` on Phase 1 — the two scripts on the critical path to a
+running solver are written, self-tested and committed.** Still zero core-minutes.
+`verification/runs/F14-cooling-ladder/K0d_runs/` **still does not exist and this
+work did not create it** (§P1.6). Nothing was launched. **`PENDING`: the fire
+order is the supervisor's and was not taken.**
+
+Written under the supervisor's reorder of 2026-08-25 (Sanaa's directive: cost is
+no longer a reason to refuse, defer or stop; rigor untouched). **Cost played no
+part in anything below.** The one refusal in this report is a refusal about
+*registration completeness*, and no directive about money makes an unregistered
+input registered.
+
+## P1.1 WHAT WAS BUILT
+
+| script | path | lines | `--selftest` |
+| --- | --- | ---: | --- |
+| `build_k0d.py` | `/home/ubuntu/Certonomous/scripts/build_k0d.py` | 560 | **PASS**, 32 checks |
+| `check_k0d_mesh.py` | `/home/ubuntu/Certonomous/scripts/check_k0d_mesh.py` | 448 | **PASS**, 29 checks |
+| `mark_done_k0d.py` | `/home/ubuntu/Certonomous/scripts/mark_done_k0d.py` | 396 | **PASS**, 15 checks |
+
+**`mark_done_k0d.py` is a PHASE 3 item and was already finished when the reorder
+arrived.** It is reported rather than held back, but it does **not** consume the
+Phase 2 gate: it is offered for the same personal diff read as the other two.
+**`analyse_k0d.py` was NOT started** — Phase 2 says stop, and it is Phase 3 work.
+
+**Location.** `scripts/`, per `FILING_CHARTER.md` ("Scripts | `scripts/`, as
+`lower_snake.{py,sh}`"). §7.5 registers the four **by name and not by path**.
+Putting them beside the run — the T3 sibling's habit — would have **created
+`K0d_runs/` and destroyed the pre-compute absence proof** that §A1.0, §A4.0,
+§A5.0 and this report all rest on. **The path is a disclosed lane choice with a
+charter behind it, not a physics choice**, and `AMENDMENT 2` should register it.
+
+## P1.2 STOP AND ASK — FOUR INPUTS THE FROZEN REGISTRATION DOES NOT FIX
+
+Superseded §A5.11 clause 2, binding on this file and quoted in its docstring:
+*"It may not choose anything this document leaves open. If the builder reaches a
+value this document does not fix, that is a finding, it is referred upward, and
+it is registered by amendment while the window is open — **it is not chosen by
+the script**."*
+
+**That clause is implemented literally. `build_k0d.py` REFUSES (exit 2) and
+writes nothing while any gap is unresolved** — and it does not accept them from a
+command-line flag, an environment variable or a default, because each of those is
+the script choosing by proxy.
+
+| gap | finding | why it is load-bearing |
+| --- | --- | --- |
+| `writePrecision` | FINDING 14 | **The heaviest of the four.** §7.1's convergence criterion is *"at most `1e-6` of that field's range"* between two checkpoints — on the registered 20.0 K range that is **2e-5 K**, which a coarse write precision cannot represent. The sibling K0cS writes at **16**; the scratch smoke test wrote at **8**. A criterion the rung cannot resolve is not a criterion. |
+| `writeFormat` | FINDING 14 | §6 fixes `endTime`, `deltaT`, `writeInterval`, `purgeWrite` and nothing else about writing. |
+| `writeCompression` | FINDING 14 | Decides whether the completion reader and the age guard must find `T` or `T.gz`. `mark_done_k0d.py` accepts **either**, so grading does not depend on the answer — but the builder must emit a `controlDict` that states one. |
+| `domain_thickness_t` | FINDING 15 | **`blockMeshDict` cannot be written without a z-extent.** §A1.3a records `t` as unregistered and says it *"cancels in every registered quantity"* — true of the **graded quantities**, not of the mesh file, and §A1.3a's own registered sampling plane `z_m = t/2` needs it too. The scratch smoke test used 0.01 m. |
+
+**All four are `AMENDMENT 5` §A5.13 items that were referred and never ruled.**
+They are minor in physics and absolute in effect: **the rung cannot build until
+they are registered.**
+
+**RECOMMENDATION, and it saves a round trip: fold them into `AMENDMENT 2`
+alongside the ceiling correction.** The builder needs an amendment before it can
+run; the ceiling correction needs an amendment; **these should be one amendment,
+not two.** `AMENDMENT 2` was not written in this phase — the reorder put Phase 2
+before it, and writing it before the supervisor's diff read would have
+pre-committed the gap values this lane is refusing to choose.
+
+## P1.3 ONE READING DISCLOSED RATHER THAN TAKEN SILENTLY
+
+§4 registers *"two-sided geometric grading to every wall and to both slot lips"*
+and one design first-cell per level. **Read as: symmetric two-sided grading with
+the registered first cell at BOTH ends of every block, in x and in y.**
+
+It is a reading, so it is flagged. It is defensible because it introduces **no
+free parameter**: the single registered first cell fixes both ends; condition D
+is satisfied at the floor (block A) and the ceiling (block C); and cell size is
+**continuous across both slot lips** as a consequence rather than as a further
+choice. The alternative — a separate lip-side expansion — would have been a fifth
+registration gap. **Overrule it and the builder changes in one function
+(`grading_pair`).**
+
+## P1.4 THE PROPERTIES THE SUPERVISOR SPECIFIED, EACH WITH ITS MEASUREMENT
+
+- **Seed refusal.** `registered_seed()` REFUSES (exit 2) for any closure absent
+  from §A1.2a's table. Verified in a subprocess so exit 2 is **observed, not
+  inferred**. The `RNGkEpsilon` seed carries `epsilon` and **no `omega`**; the
+  laminar seed carries **no `k`, `omega` or `nut`** — the per-closure defect this
+  document exists to remove, checked in both directions.
+- **`ranks == 1` ASSERTED, not assumed.** `RANKS = 1` with a module-level
+  `assert` and the reason written beside it: `timeout = cap_core_min × 60 ÷ ranks`
+  is the identity **only** at one rank, and a later decomposed rung would
+  silently inherit a timeout `1/ranks` too long. All ten caps carry the
+  conversion; `M1_m_seed` takes `M1_m`'s line exactly.
+- **The one-second observation is carried forward as code, not prose.** §8.1
+  registers **51 161 s** on the L2 row where `852.70 × 60 = 51 162`. The builder
+  reproduces **the frozen table, not the recomputed value**, with the reason in
+  the comment: it is a rounding artefact, it binds *tighter* so it cannot license
+  an overrun, and standing rule 6 says a frozen file is not edited.
+- **Caps as runaway guards.** The cap block records Sanaa's 2026-08-25 directive
+  in terms — reaching a cap is **reported, not an automatic kill** — while
+  keeping the **conversion** unchanged, because a guard set in the wrong units is
+  not a guard.
+- **Condition G actually fires, and the first version did not.** The planted
+  inverted grading was **not refused** on the first run, because *reversing a
+  symmetric two-sided distribution reproduces it exactly*. The plant was rebuilt
+  to reverse **each half of each block independently** — a real inversion, coarse
+  at the walls — and condition D now refuses it on all three levels while
+  accepting the clean synthetic mesh. **A control that passes on the first try is
+  the one to distrust; this one did not.**
+- **Condition G is not a mode.** It runs on **every** invocation, before any real
+  mesh is judged, and a run in which the plants are not refused REFUSES the whole
+  check (exit 2).
+- **`0/T` is touched LAST** by the builder, so its mtime dates the run allowed to
+  produce the answer — the age guard of §7.2 clause 6 rests on that ordering, and
+  it is now a property of the writer rather than a hope about it.
+- **Clause 7 in both scripts.** The builder refuses a case directory that already
+  exists; `mark_done_k0d.py --launch-guard` refuses a case in which `0` or any
+  numeric time directory already exists.
+- **TEN `DONE.<case>` markers, not nine.** `CASES` carries ten in both graders,
+  the 77 field-presence assertions (`6×8 + 3×8 + 1×5`) are asserted arithmetically
+  in the selftest, and §A1.2b is cited **in the code** as the governing clause —
+  §7.5 line 386 still reads "all nine", and this author is the author that trap
+  was flagged for.
+
+## P1.5 THE BLINDNESS CHECKER — AND WHY ITS "CLEAN" MEANS SOMETHING HERE
+
+`scripts/check_grader_self_blindness.py --selftest` **PASSES (rc = 0)**: both
+probes shown able to fire on planted defects and to stay quiet on clean
+counterparts. Over all three scripts: **rc = 0, zero findings.**
+
+**That result would have been worthless without this next line**, per the
+ansys-verification finding (`3dc99590`,
+`docs/ansys_verification/GRADER_BLINDNESS_PROBE_COVERAGE.md`) that probe B fires
+on `os.path.join` and is **silent on `pathlib` and f-string path construction**:
+
+| script | `os.path.join` | `pathlib` | f-string paths |
+| --- | ---: | ---: | ---: |
+| `build_k0d.py` | 18 | **0** | **0** |
+| `check_k0d_mesh.py` | 4 | **0** | **0** |
+| `mark_done_k0d.py` | 32 | **0** | **0** |
+
+**Every path in all three scripts is built with `os.path.join` — the one idiom
+probe B can see.** The idiom was chosen for that reason. A clean report here is
+therefore a statement about the code and not about the checker's blind spot.
+
+Probe B's own defect shape is also guarded directly: `mark_done_k0d.py`'s fixture
+builds time directories **numerically from `endtime`**, never from a shared
+format constant that the checker then resolves the same way (L-321).
+
+## P1.6 CONTENTION AND CAPACITY, RE-READ AT 2026-08-25T19:24Z
+
+Load **7.31 / 8.31 / 8.95**, 16 cores, `MemAvailable` **18 869 192 kB = 17.99 GiB**.
+
+**SEVEN sustained foreign cores at ≥ 99 %, unchanged in identity from 19:07Z:**
+three T-family `buoyantBoussinesqSimpleFoam` (pids 2203927 / 2203944 / 2203947,
+elapsed 2h47m) and four dafoam IPOPT ranks (pids 2359929–2359932, elapsed 1h11m).
+
+**The box is 7 of 16 committed. Nine cores are nominally free, and K0d wants ten
+single-rank cases.** §9.1 registered `5 + 9 = 14 of 16`; the live figure is
+`7 + 10 = 17 of 16`. **A staged launch of at most SEVEN cases seats inside the
+supervisor's ~14/16 ceiling**, with the remaining three queued behind the first
+retirements. Memory is not the constraint (17.99 GiB against §9.2's ~2.15 GiB
+conservative bound for all ten, and §9.2's drop-to-seven trigger at 14 GiB is not
+tripped).
+
+**No contention file was written, because there was no launch.** The file is
+written *at* launch and records the load average, the count and identity of
+foreign solvers, and the cores taken — `build_k0d.py` does not write it, because
+building is not launching.
+
+## P1.7 STATED PLAINLY FOR A LATER READER: THIS RUNG CANNOT PRODUCE A CREDENTIAL
+
+**§0 of the re-registration holds unchanged.** Blay, Mergui and Niculae (1992) is
+**`NOT OBTAINED`**. Every graded row is `BLOCKED` at §7.4 order 4 until a dated
+reference addendum arms §7.6, and the tally stands at **0 of 10**.
+
+**K0d therefore earns V and G but NOT P. Its verdict is `GATE REACHED` naming the
+missing limb — never `HOLDS`.** What a completed fire produces is the solves and
+the physics-stage instruments: convergence, achieved `y⁺`, the five guards, the
+Roache triples, the discrimination control, the seed control and the dual-scheme
+control. **On a converging triple that is real coverage and it is worth having.
+It is not a candidate credential, and nobody may later read a completed run of
+this rung as a graded result.**
+
+Obtaining the primary is outside this box and is **Sanaa's alone** (standing
+rules 7 and 8). It was not attempted.
+
+## P1.8 WHAT PHASE 1 DID NOT DO
+
+- **Nothing was launched.** No case directory, no mesh, no solver, no pid, no
+  contention file. **Zero core-minutes.** `K0d_runs/` re-proved ABSENT under a
+  live planted control in this phase's own committing invocation.
+- **`AMENDMENT 2` was not written**, and `K0d_REREGISTRATION.md` is byte-unchanged
+  at blob `36b302f1`. No cap was raised and no ceiling registered.
+- **`analyse_k0d.py` was not started** (Phase 3).
+- **No registration gap was chosen, defaulted or flagged past.** The builder
+  refuses.
+- **No comparator was repaired to make a fire possible**, and nothing was copied
+  from the scratch smoke-test dictionaries.
+- **`docs/LAB_STATE.md`, `docs/DOCKET.md`, `docs/LESSONS.md` and
+  `docs/COST_CALIBRATION.md` untouched**; no id assigned or reserved;
+  `scripts/append_record.py` not used.
+- **Nothing was sent** (standing rule 7). Submissions remain **PARKED**.
+
+## P1.9 VERDICT
+
+**`GATE REACHED`** — the two Phase 1 scripts exist, are self-tested against
+planted controls in both directions, and are committed. **`BLOCKED`** on the
+builder actually running, on **four unregistered inputs that only an amendment
+can close**. **`PENDING`** the supervisor's personal diff read and fire order,
+neither of which is this lane's.
+
+*Phase 1 by a heat-transfer lane, 2026-08-25. Zero compute. Nothing fired.*

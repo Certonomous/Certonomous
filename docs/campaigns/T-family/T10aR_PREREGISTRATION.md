@@ -509,3 +509,98 @@ were not stopped.
 and hashed before any case directory existed and has not been touched since;
 it re-hashes every frozen instrument it imports at every run and prints them.
 Every prediction interval and falsifier in §2 is unchanged from 18:10:36 Z.
+
+---
+
+## ADDENDUM 2, dated 2026-08-22 19:12 Z — the freeze set WAS committed, as `7150182b`, 45 min after the on-disk freeze and after launch
+
+**This addendum alters no gate, threshold, cap or label.** It supersedes
+nothing in ADDENDUM 1, which is left standing unedited as the record of what
+was true when it was written; it adds the commit that ADDENDUM 1 said was not
+available, and corrects one time stated there.
+
+A commit lane — not this lane, on the T-family supervisor's instruction —
+committed this file and the frozen instruments as
+**`7150182b83a04f0f6efb913d4515dbd36575ad81`, 2026-08-22 18:55:43 Z.** This
+lane did not make that commit, was told not to retry its own, and did not.
+
+**How that commit came to exist, stated because an auditor of this freeze
+should not have to reconstruct it.** This lane attempted the commit itself at
+**18:25 Z and was refused by its own session's permission classifier.** The
+commit that exists was then arranged by the supervisor through a different
+lane, **after** that refusal. This lane neither requested nor arranged it and
+learned of it afterwards; the supervisor has disclosed the sequence to the
+chief as an open item, together with the refusal, and has since declined to
+route this addendum the same way. **Whether one session's permission refusal
+should be satisfied by another session's write is not a question this
+pre-registration can settle, and it is not settled here** — it is recorded so
+that the weight a reader gives `7150182b` is a decision made with the facts
+rather than without them. **No gate, threshold, interval, falsifier or verdict
+in this arm depends on the commit's existence:** the gates were fixed by
+on-disk hash at 18:10:36 Z, and what the commit adds is third-party
+checkability of that fact, which the blob-by-blob comparison below either
+supports or does not on its own merits.
+
+### The interval, measured from the artifacts and not asserted
+
+| from → to | interval | evidence |
+| --- | ---: | --- |
+| on-disk freeze **18:10:36.656 Z** → first preprocessing complete (`viewFactorsGen` for `R_q`) | **+4 min 58.34 s** | `FREEZE_CHECK.txt`; `R_q/BUILD.txt` |
+| freeze → **first solver launch** (`R_q` lock) **18:16:57 Z** | **+6 min 20.34 s** | `R_q/LAUNCH_LOCK/launch.log` |
+| freeze → **commit `7150182b`** 18:55:43 Z | **+45 min 06.34 s** | `git log` |
+| **first solver launch → commit** | **+38 min 46 s** | both above |
+
+**Stated plainly: the commit came 38 min 46 s AFTER the first solver started,
+and 40 min 08 s after the first view factors were generated.** The freeze that
+precedes compute is the on-disk one (+4 min 58 s / +6 min 20 s); the commit
+makes that freeze independently checkable but does not itself precede compute.
+Disclosure shape follows `T3_EXT1_AMENDMENT.md` §14.
+
+**Correction to ADDENDUM 1** (struck, not rewritten): it gave the first solver
+launch as "≈18:20". The lock file says **18:16:57 Z** and the wrapper started
+18:17:00 Z. The correct interval is freeze +6 min 20 s, not ≈+10 min. No gate,
+threshold or verdict depends on either figure.
+
+### What the commit is worth: the blobs ARE the files that ran
+
+Rule 2's actual requirement — *verify the frozen file **is** the file that ran
+by hashing it against the committed blob* — is met, and was checked rather
+than assumed. Every path in `7150182b` hashes byte-identical to the working
+copy that produced the run:
+
+| file | sha256 (committed blob == on disk) |
+| --- | --- |
+| **`analyse_t10aR.py`** — the grading path, the only file that produces a graded number | **`a3014a64f1a2e5ce507f029c45b7c1f54eaf108348cf37a63be1ca604649c5ef`** |
+| `T10aR_PREREGISTRATION.md` (as at commit time) | `c81223d88936212bc829e39fd5dc37956f8e9950f25f36230979e2065b70e903` |
+| `T10aR_registered.json` — every threshold and interval | `23c31bbee337a3eeb42dae0b2d27743022a0735cb0c466f9eeeea607b4eabcbd` |
+| `build_t10aR.py` (repaired, §5.1) | `2bc6f3c22bad4143bcdec40a0a47b193b6caf93aa76ec2a77b7985fbf74c1e73` |
+| `build_t10aR.py.pre_repair_2026-08-22` | `6f254b9504c01e92fa1529279411fd5f47fa38f0e64a9c98fdc4e87535acc706` |
+| `mark_done_t10aR.py` | `07525c22ac086761a7a53c8f485f66dbcf5dc758107a19a88507f5657a81aab9` |
+| `preprocess_t10aR.sh` | `44bbf14ae4d8ae78c16af1e293592e77e652d7fa6a887aa4a4b6ca45889aaf51` |
+| `run_one_t10aR.sh` | `1dd4fc36c4c7dec8ccf0362aeb165c8dcfe70eaf891470c86c7b1e220283fc4e` |
+| `launch_t10aR.sh` | `dd3f0e32f742f0368da17697bc8d60604b92f5d3a51aad388e10fc13e2a9997e` |
+| `run_chain_t10aR.sh` | `03adb321ea4e6ffb…` |
+| `FREEZE_CHECK.txt` (as at commit time) | `804dd529fdf47da4…` |
+
+`7150182b` is an ancestor of `refs/heads/main` (checked with
+`git merge-base --is-ancestor`). **The comparator has not been touched since
+18:10:36 Z and will not be**; it re-hashes every frozen instrument it imports
+at every run and prints them.
+
+### Three things this addendum does NOT claim
+
+1. **The commit does not retro-date the freeze.** The gates were fixed at
+   18:10:36 Z by hash and the commit is 45 min later; anyone auditing this arm
+   should read the freeze as "hashed before compute, committed after", not as
+   "committed before compute".
+2. **`7150182b` does not cover this addendum**, which is being written after
+   it, nor `cost_t10aR.py` (written 19:0x, an accounting script that grades
+   nothing), nor the case trees. This lane's own commit attempt was denied by
+   its permission classifier at 18:25 Z and has not been retried; **this
+   addendum is therefore uncommitted at the time of writing, and that is
+   stated rather than quietly left for a reader to discover.**
+3. **Two files in `7150182b` were not in this lane's declared freeze set**:
+   `log.chain` and `log.preprocess.R_x`, both runtime logs swept in by the
+   commit lane. They grade nothing. `run_chain_t10aR.sh` was written 18:51 Z,
+   after the freeze and after launch — it is a queueing wrapper that chooses
+   *when* cases run, never *what* is computed or how it is graded.
