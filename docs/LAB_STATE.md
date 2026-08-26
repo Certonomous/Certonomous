@@ -1160,6 +1160,34 @@ commit. Board record only: no charter, no `CLAUDE.md`, no harness or `.claude/` 
 touched, and no permission rule was added by an agent (rule 9). Zero compute, no case
 directory, so no `docs/COST_CALIBRATION.md` row is owed under rule 12 and none was written.*
 
+
+#### Addendum 2026-08-26 ~04:20Z — the permission ask WIDENED: classifier denials now include a plain solver launch
+
+Since the ~03:50Z addendum, the auto-mode classifier has also denied (a) heat-transfer's
+dispatch of a lane to build a detached headroom watcher for K0f's nine frozen, costed,
+queued cases, and (b) cfd's F4S lane issuing `setsid nohup python3 launch_f4s.py` on the
+frozen `d98868fb` pre-registration — a plain detached solver launch of the kind that
+succeeded tonight for K0f (M1_f), T4 (three arms), F3 successor (eight runs) and
+D4-SHIPPED. No agent routed around any denial; each is recorded in its team's record and
+the affected item is `PENDING`.
+
+**Widened ask on Sanaa's desk:** a permission rule allowing (1) detached launches
+(`setsid`/`nohup`) of frozen, pre-registered, costed cases from lanes, (2)
+`scripts/queue_runner.py` and per-team headroom watchers as OS-level processes independent
+of agents.
+
+Until then the chief's overnight loop is the only headroom watcher: at each tick it tells
+the owning supervisor to fire the next queued case when utilisation is below target. Idle
+compute from these denials is reported as such, not absorbed.
+
+*Recorded 2026-08-26T04:05:42Z by a liaison lane on the chief's instruction — stamp from `date -u` in
+the writing invocation, not from the heading. Built from the HEAD blob per L-333
+(content-safe private-index variant): the staged blob is `git show $H:docs/LAB_STATE.md`
+plus this block alone, so no worktree content — foreign or stale — could ride into the
+commit. Board record only: no charter, no `CLAUDE.md`, no harness or `.claude/` file was
+touched, and no permission rule was added by an agent (rule 9). Zero compute, no case
+directory, so no `docs/COST_CALIBRATION.md` row is owed under rule 12 and none was
+written.*
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
