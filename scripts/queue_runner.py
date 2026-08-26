@@ -193,6 +193,18 @@ def launch(entry: dict, path: Path, root: Path, log: Log) -> tuple[int, int]:
     meta = dict(entry)
     meta["_launch"] = dict(utc=utc(), pid=pid, sid=sid, status_file=str(status),
                            wrapper_out=str(out), started_epoch=time.time())
+    # L-342 (Sanaa, 2026-08-26): a bookkeeping failure invalidates the bookkeeping,
+    # never the physics artefacts. The completion record therefore names which of
+    # its fields a grader may refuse on and which it may only REPORT on.
+    meta["_field_classes"] = dict(
+        physics_critical=[f"STATUS.{case_id} (rc inside the detached wrapper)",
+                          "the case's own log End line, endTime fields and 0/ age guard"],
+        infrastructure=["_launch.pid", "_launch.sid", "_launch.utc", "_launch.started_epoch",
+                        "LAUNCH_LOG.tsv row", "CAP_OVERRUN.txt", "cost_core_min_estimate",
+                        "memory_floor_gb", "runner.log lines"],
+        rule="a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT "
+             "reported beside the verdict and voids only the cost claim; only a "
+             "PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)")
     dst.write_text(json.dumps(meta, indent=2) + "\n")
     with open(root / "LAUNCH_LOG.tsv", "a") as f:
         f.write("\t".join(str(x) for x in (
@@ -342,6 +354,11 @@ def selftest() -> int:
     r2 = tick(root, log, 100.0, 1.0, 0.2, rr)
     n_launch2 = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
     check("second tick does not relaunch a launched entry", r2 == "EMPTY" and n_launch2 == 1)
+    rec = json.loads((root / "cfd" / "launched" / "SELFTEST_OK.json").read_text())
+    fc = rec.get("_field_classes", {})
+    check("launched record carries the L-342 field-class split (physics_critical / infrastructure)",
+          any("STATUS.SELFTEST_OK" in x for x in fc.get("physics_critical", [])) and
+          "_launch.pid" in fc.get("infrastructure", []) and "L-342" in fc.get("rule", ""))
 
     # control 3: entry missing prereg_commit -> REFUSED and moved, never launched
     bad = dict(good)
@@ -392,7 +409,7 @@ def selftest() -> int:
     if n_fail:
         print(f"SELFTEST FAIL: {n_fail} of {len(checks)} checks failed")
         return 1
-    if len(checks) >= 8:
+    if len(checks) >= 9:
         print(f"SELFTEST PASS: {len(checks)}/{len(checks)} checks, 0 asserts")
         return 0
     print("SELFTEST FAIL: too few checks ran")
