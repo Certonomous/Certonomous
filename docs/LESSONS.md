@@ -14175,3 +14175,84 @@ tested it, it's fine".
 **And do not kill healthy compute to fix a process tree.** A live process's session cannot be
 changed, so the only "repair" is kill-and-relaunch. All three solves were left to finish and
 the fix was ordered forward.
+
+---
+
+## L-337 — A ZERO FROM A SEARCH NOT SHOWN ABLE TO FIND A KNOWN INSTANCE IS NOT EVIDENCE OF ABSENCE. Standing rule 3, applied to the enumeration instead of the reader
+
+**Measured 2026-08-26, heat-transfer. THREE confident zeros in twenty-four hours, from
+three different wrong enumerations, none of which produced an error or a warning.
+Standing rule 3 is quoted, not amended — extending a standing rule is reserved, and this
+lesson does not take it.**
+
+### The three instances, because one would be an anecdote
+
+| # | the sweep | what it enumerated | what it missed | how it was caught |
+|---|---|---|---|---|
+| 1 | `-O` `assert` population | **the wrong SOURCE** — `git ls-files`, which reads the decayed shared index | **4 tracked `.py` files** HEAD has (109 vs 113), including `analyse_t8.py` — the file carrying the most serious `assert` in the lab — and `planted_zero_control_t1b.py`, a rule-3 control | a supervisor knew the T8 asserts existed and the count did not contain them |
+| 2 | "is there a THERMAL_K0 pre-registration?" | **the wrong PLACE** — `docs/campaigns/` and `verification/runs/`, two of the three registered locations | `verification/campaign/THERMAL_K0_PREREGISTRATION.md`, a real prediction-first freeze dated 2026-08-17 with gates, bands and a scope clause. `FILING_CHARTER` puts pre-registrations in `verification/campaign/` | a supervisor checked before ruling, because the ruling would have re-graded a spine |
+| 3 | "how many copies of `analyse_k0b_mesh.py` carry the assert?" | **the wrong KEY** — rung-named directories (`K0b_D403_rerun`, `K0b_D406_repair`) | a **third** copy in `K0b_mesh_sensitivity/`, a directory named for the STUDY rather than the rung | re-enumerating from `git ls-tree` while writing this lesson |
+
+**Instance 2 nearly cost the most.** A ruling was proposed that every THERMAL_K0 row
+without a freeze predating its compute becomes `NOT A RESULT` under rule 2. **The ground
+did not exist.** The file was there the whole time.
+
+### The mechanism
+
+> **An absence is the ONE claim that cannot be verified by looking harder at what you
+> found.** Every other finding can be checked against its own evidence: a number has an
+> artifact, a verdict has a gate, a diff has two sides. **A zero has nothing to inspect.
+> Its entire content is a claim about the instrument, and the instrument is exactly what
+> is not being examined when a sweep returns nothing.**
+
+A wrong enumeration and a correct one are **indistinguishable from their output** when
+the answer is zero. Both print nothing. Both exit 0. **There is no error, no warning and
+no partial result to look sideways at** — which is precisely the profile of a false zero
+in a field reader, and the lab already has a rule for that.
+
+### The repair, and it is a rule this team already owns
+
+**Standing rule 3 exists for readers:** *a zero from a reader not shown able to see a
+non-zero is not evidence.* Every comparator in this lab plants a known perturbation,
+reads it back, and refuses if the reader cannot see it.
+
+> **THE SAME CONTROL APPLIES TO A SEARCH. Before believing a sweep's zero, point it at
+> an instance you KNOW exists and require it to come back. If it cannot find the known
+> one, its zero says nothing about the unknown ones.**
+
+Concretely, for a file search: name a file you are certain of, run the same sweep, and
+show it returned. It costs one line. The sweep that finally answered instance 2
+correctly opened with exactly that:
+
+```
+=== SEARCH CONTROL: can this sweep find the file I MISSED? ===
+git ls-tree -r HEAD --name-only | grep -iE 'PREREGISTRATION' | grep -i thermal_k0
+  CONTROL PASSES: the known instance IS returned. A zero from this sweep is now evidence.
+```
+
+### The three axes a sweep can be wrong on, and they are independent
+
+1. **SOURCE** — `git ls-files` (the decayed index) vs `git ls-tree -r HEAD` (the commit).
+   **Enumerate from HEAD.**
+2. **PLACE** — the registered locations are plural. `FILING_CHARTER` names **three** homes
+   for a pre-registration (`verification/campaign/`, `docs/campaigns/<FAMILY>/`, or
+   beside the case). **Searching two of three and reporting absence from all three is
+   the error, and it reads exactly like diligence.**
+3. **KEY** — enumerating by rung name misses a directory named for the study; enumerating
+   by filename prefix (`build_*.py`) misses the files that *check* rather than *build*.
+   **A census keyed on a naming convention measures the convention, not the population.**
+
+### What NOT to conclude
+
+**Do not let this teach a lane to refuse less readily.** Instance 2 arrived with a
+refusal attached — a refusal to write a retrospective "pre-registration" to hold a
+disclosure — and **that refusal was correct on false facts and would have been correct
+on true ones.** A freeze written after its compute is not a freeze, and manufacturing one
+is worse than any gap it would paper over. **The instinct was right; the enumeration was
+wrong. Fix the enumeration, not the instinct.**
+
+### The general form worth carrying
+
+> **EVERY ZERO YOU REPORT IS A CLAIM ABOUT YOUR INSTRUMENT, NOT ABOUT THE WORLD. Ship it
+> with the control that shows the instrument could have found a non-zero, or do not ship
+> it as a finding.**
