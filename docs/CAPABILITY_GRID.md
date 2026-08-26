@@ -1,6 +1,6 @@
 # CAPABILITY GRID — Sanaa's taxonomy, assembled from the family tables at HEAD
 
-**Owner:** verification-supervisor. **Directive:** Sanaa's [SANAA-DIRECT] CAPABILITY GRID, boarded verbatim at commit `068c2bf0` (`docs/LAB_STATE.md`, CHIEF ADDENDUM 2026-08-26T17:35Z). **Assembled from HEAD `87afd1d6`** on 2026-08-26T21:21Z by `scripts/assemble_capability_grid.py` (idempotent; reads only `git show HEAD:` blobs; zero compute). **FIRST DRAFT** — re-run when a family table lands.
+**Owner:** verification-supervisor. **Directive:** Sanaa's [SANAA-DIRECT] CAPABILITY GRID, boarded verbatim at commit `068c2bf0` (`docs/LAB_STATE.md`, CHIEF ADDENDUM 2026-08-26T17:35Z). **Assembled from HEAD `430b41d6`** on 2026-08-26T22:11Z by `scripts/assemble_capability_grid.py` (idempotent; reads only `git show HEAD:` blobs; zero compute). **REVISION 4** — re-run when a family table lands.
 
 **The verdict vocabulary (Sanaa's, exactly three):** `CAN DO — X cases` (ran successfully, metrics verified; strongest case cited by path + record sha + what was checked); `CAN DO, CAVEATS` (runs, credible results, named missing items each ≤ 1 line); `CAN NOT DO` (does not converge / does not reproduce literature / not enough compute / documented model defect — what was attempted, what would fix it; empty cell = `CAN NOT DO — not attempted`). One verdict per cell. The lab's fixed gate vocabulary (PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING) appears inside a cell as what the record says.
 
@@ -12,7 +12,7 @@
 
 ## cfd
 
-**family table at HEAD: `2adfa8b3`** (`docs/capability/cfd_GRID.md`; every cell below is copied verbatim from that file — the family supervisor's words, not this script's).
+**family table at HEAD: `9ba115f5`** (`docs/capability/cfd_GRID.md`; every cell below is copied verbatim from that file — the family supervisor's words, not this script's).
 
 *The family file also carries, below its own table, the **verification supervisor's prior draft, superseded by the family table above** (marker line: `## Verification supervisor's draft — `c5d96403`, retained verbatim below, superseded by the cfd table above`). Only the family's FIRST derivation table, FIRST cell table, FIRST census and FIRST footer are read here; the prior draft is neither counted nor reproduced.*
 
@@ -85,11 +85,30 @@
 
 **Census (36 cells): CAN DO 3** (2D·steady·incompressible, 2D·steady·hypersonic, 2D·unsteady·incompressible); **CAN DO, CAVEATS 6** (2D·steady·supersonic, 2D·unsteady·subsonic-compressible, 2D·unsteady·supersonic, 2D·unsteady·hypersonic, axisym·steady·supersonic, axisym·unsteady·incompressible); **CAN NOT DO 4** (2D·steady·transonic, 2D·unsteady·multiphase-free-surface, 3D·steady·incompressible, 3D·steady·transonic); **not attempted 23**. Every `CAN DO` rests on an exact solution or a correlation — **validation against measured experiment (Sanaa §3) is green in no cfd cell**; the family's only experiment-gated rows (W1 hump reattachment, F6b hill reattachment, F7 dam-break front) are FAIL / GATE FAIL. **Not performed anywhere in the family**, stated so the grid cannot imply them: method of manufactured solutions; ASME V&V 20 `u_val` (used once lab-wide, K0cT, heat-transfer); spectra / phase-averaged statistics on any unsteady case; any 3-D CONVERGING triple.
 
+**Census after R-1D: unchanged — CAN DO 3 · CAN DO, CAVEATS 6 · CAN NOT DO (attempted) 4 · not attempted 23.** The 2D·unsteady·incompressible cell holds CAN DO on F18; no cell changed verdict class.
+
+### rulings applied to the cfd table (appended to the family file at `9ba115f5`; amendments of record, reproduced verbatim; a ruling supersedes the cell text above where it says so)
+
+### Ruling R-1D (chief, 2026-08-26, [lab-attributed]) — applied by the verification supervisor
+
+**Appended 2026-08-26 by a verification-supervisor lane (lane `metrics`), append-only, on the HEAD blob `825b1259` of this file. Lines whose number changed above this section: 0.** The ruling sits on Sanaa's desk to overrule; until then it binds the mapping. Quoted verbatim as relayed by the verification supervisor:
+
+> Sanaa's taxonomy has no 1-D class. A case solved on a one-cell-wide mesh verifies a 1-D PDE, not a 2-D field, so it cannot carry CAN DO in a 2D cell in ANY family. Binding treatment for both cfd and heat-transfer: such cases enter the 2D row as CAN DO, CAVEATS with the caveat '1-D exact-solution on a one-cell-wide mesh; no 2-D field verified', cited with their full verdicts. A genuine 2-D case (F17 Kovasznay, F18 Taylor-Green, T5, T13 if 2-D) stays CAN DO on its own record.
+
+**Consequence per affected cell of the family table above (cells are not rewritten; this section is the amendment of record):**
+
+- **2D · unsteady · incompressible — the cell HOLDS `CAN DO`, on F18 alone.** F18-TG2D Taylor–Green (`verification/campaign/F18_TG2D_RESULTS.md` @ `3f87e759`) is a genuine 2-D case — its headline reads *"F18-TG2D — 2-D decaying Taylor–Green vortex (`icoFoam`, periodic box) — GRADED RECORD"*, `Verdict PASS × 2, as predicted` (`:35`), G-F18-1 `E2_velocity_L2_at_T` **PASS** CONVERGING p 1.2894 and G-F18-2 `mean_kinetic_energy_at_T` **PASS** CONVERGING p 0.9638 (`:20-21`) — and carries the cell by itself. F16b-SL2 Stokes' second problem (`verification/runs/F16b_runs/RESULTS.md` @ `49c95cc7`, G-F16-1 PASS p 1.8252, G-F16-2 PASS p 1.9930) is a one-cell-wide slab (derivation row above: "(1-D slab)") and is **re-filed as CAN DO, CAVEATS evidence** with the caveat *1-D exact-solution on a one-cell-wide mesh; no 2-D field verified*. The cell's count becomes **CAN DO — 1 case at the bar (F18), plus 1 caveated (F16b)**.
+- **2D · unsteady · supersonic — stays `CAN DO, CAVEATS`.** F19 Sod (`verification/campaign/F19_SOD_RESULTS.md` @ `08aa454c`, G-F19-1 PASS CONVERGING p 1.018; G-F19-2 NOT A RESULT DEGENERATE |p| = 0.032) is a 1-D Euler slab (derivation row: "(1-D slab)"); the existing caveat "1-D slab filed in the 2D row" is restated in the ruling's wording: *1-D exact-solution on a one-cell-wide mesh; no 2-D field verified*.
+- **2D · steady · supersonic — stays `CAN DO, CAVEATS`, one caveat added.** The F3 suite is registered as "single-cell slabs" (derivation row above; `F3_SUCCESSOR_TRIPLE_PREREGISTRATION.md:57,81`, `F3_CONVERSION_PREREGISTRATION.md:92-93`), so the ruling applies: the strongest row G-F3-5 diamond wave drag **PASS** CONVERGING p 6.296 (`verification/runs/F3_runs/conversion_2026-08-24/RESULTS.md:19` @ `5adb9c5d`) carries the added caveat *1-D exact-solution on a one-cell-wide mesh; no 2-D field verified* (the wedge/diamond shock-expansion comparison is a 2-D inviscid theory evaluated on a one-cell-deep slab; no 2-D field was verified). Verdict unchanged.
+- **Untouched by this ruling:** every other cell. F17 Kovasznay (genuine 2-D) is named by the ruling as CAN DO-eligible on its own record where it is cited above.
+
+**Census after R-1D: unchanged — CAN DO 3 · CAN DO, CAVEATS 6 · CAN NOT DO (attempted) 4 · not attempted 23.** The 2D·unsteady·incompressible cell holds CAN DO on F18; no cell changed verdict class.
+
 ---
 
 ## heat-transfer
 
-**family table at HEAD: `b082fa84`** (`docs/capability/heat-transfer_GRID.md`; every cell below is copied verbatim from that file — the family supervisor's words, not this script's).
+**family table at HEAD: `9ba115f5`** (`docs/capability/heat-transfer_GRID.md`; every cell below is copied verbatim from that file — the family supervisor's words, not this script's).
 
 **Regime / mode per case, as derived by the family (their table):**
 
@@ -155,7 +174,9 @@
 
 **Census (36 cells), as corrected 2026-08-26 (Correction 1):** ~~CAN DO 3 · CAN DO, CAVEATS 2~~ **CAN DO 0** · **CAN DO, CAVEATS 5** (conduction·no-flow·2D; forced conv·laminar·axisym; radiation·no-flow·3D; natural conv·laminar·2D; mixed conv·turbulent·2D) · **CAN NOT DO, attempted 5** (forced conv·turbulent·2D; forced conv·turbulent·axisym; natural conv·turbulent·2D; natural conv·turbulent·axisym; conjugate·turbulent·3D) · **CAN NOT DO — not attempted 26** (of which 6 are the conduction/radiation "turbulent" cells that have no flow regime). **10 of 36 cells carry evidence.** Every `CAN DO, CAVEATS` cell with a `PASS` row rests on an EXACT / analytic reference; **no cell in this family reaches `CAN DO`, because no strongest case carries a rung-level `PASS` at HEAD** (the T11 `PASS` ×3 gate file is uncommitted); **no cell in this family closes a validation against experiment with a `PASS`** — the three experiment-backed loops that closed (K0cS, K0cT, K0cX) closed `GATE FAIL` with the error attributed to the closure model, and the two pending experiment loops (T5 Meinders, T4b ERCOFTAC case025) have no verdict. Checks never performed anywhere in the family, stated so the grid cannot imply them: ASME V&V 20 `u_val` was used once (K0cT) and nowhere else; no heat-transfer case has a partition/round-off reproducibility row; no 3D natural-convection or 3D forced-convection case has ever run. Sanaa's §5 internal-physicality check (heat-balance closure) exists as an instrument (KV1) and is applied in the K-family records.
 
-### heat-transfer family's corrections (appended below its footer at `b082fa84`; supersede the table above where they strike it; reproduced verbatim)
+**Census after R-1D: unchanged — CAN DO 0 · CAN DO, CAVEATS 5 · CAN NOT DO (attempted) 5 · not attempted 26.**
+
+### heat-transfer family's corrections (appended below its footer at `9ba115f5`; supersede the table above where they strike it; reproduced verbatim)
 
 ### Heat-transfer supervisor corrections 2026-08-26T21:20:27Z [lab-attributed]
 
@@ -188,6 +209,28 @@ Item 4 reads for T9a *"a corrected re-run is a new rung, not a repair of this on
 Every 8-hex commit sha cited above this section resolves under `git cat-file -e <sha>^{commit}` at HEAD (38 listed in the footer: 38 ok, 0 MISSING, re-run at write time). Two 8-hex tokens in the conjugate·turbulent·3D cell — `dc2b4f74` and `f4e5c350` — are **not commit shas** (they are the T5 A8 region-map identifiers quoted from the record) and are excluded from the count. This section adds six commit shas, each resolved at write time: `7b2a12f0`, `122f6da3`, `ca9aad86`, `5a870e54`, `3c39d08d`, `0d2dc150` (and re-cites `0cbaea26`, `7e2fc497`). **Distinct 8-hex commit shas cited in this file after this section (excluding the two region-map tokens): 53; 53 resolve, 0 unresolved (re-derived by grep + `git cat-file -e` at write time; the figure 46 first written here was a hand count and is corrected in the same day).**
 
 **Lines whose number changed above this section: 0.**
+
+### Supervisor note 2026-08-26T21:22:09Z — chief's cross-family ruling on 1-D cases in the 2D row `[lab-attributed, on Sanaa's desk]`
+
+Chief, ~21:25Z 2026-08-26: *1-D cases on a one-cell-wide mesh enter the 2D row as **CAN DO, CAVEATS** ("1-D exact-solution; no 2-D field verified") in every family.* The **conduction · laminar · 2D** cell above already reads CAN DO, CAVEATS on T11 (`7b2a12f0`, PASS ×3, p 2.000 / 2.000 / 2.005, GCI ≤ 3.4e-06, planted control seen at 1e-07); this note fixes its caveat wording to the ruling's: **"1-D exact-solution; no 2-D field verified."** The cell moves to CAN DO only when T14 (`5a870e54`, 2-D square, queued at 7.24 core-min POINT) grades PASS ×3. No other cell moves. Heat-transfer supervisor, Fable.
+
+---
+
+### rulings applied to the heat-transfer table (appended to the family file at `9ba115f5`; amendments of record, reproduced verbatim; a ruling supersedes the cell text above where it says so)
+
+### Ruling R-1D (chief, 2026-08-26, [lab-attributed]) — applied by the verification supervisor
+
+**Appended 2026-08-26 by a verification-supervisor lane (lane `metrics`), append-only, on the HEAD blob `825b1259` of this file. Lines whose number changed above this section: 0.** The ruling sits on Sanaa's desk to overrule; until then it binds the mapping. Quoted verbatim as relayed by the verification supervisor:
+
+> Sanaa's taxonomy has no 1-D class. A case solved on a one-cell-wide mesh verifies a 1-D PDE, not a 2-D field, so it cannot carry CAN DO in a 2D cell in ANY family. Binding treatment for both cfd and heat-transfer: such cases enter the 2D row as CAN DO, CAVEATS with the caveat '1-D exact-solution on a one-cell-wide mesh; no 2-D field verified', cited with their full verdicts. A genuine 2-D case (F17 Kovasznay, F18 Taylor-Green, T5, T13 if 2-D) stays CAN DO on its own record.
+
+**Consequence per affected cell of the family table above (cells are not rewritten; this section is the amendment of record):**
+
+- **conduction · laminar (no flow) · 2D — stays `CAN DO, CAVEATS`, on T9a; T11 enters as caveated evidence.** T11 (`docs/campaigns/T-family/T11_RESULTS.md` @ `7b2a12f0`) reads *"Rung verdict, as printed by the frozen comparator: `PASS` ×3 (G1, G2, G3), every triple CONVERGING, planted-zero control PASS"* (`:3`), G1/G2/G3 CONVERGING p 2.000 / 2.000 / 2.005, GCI ≤ 3.41e-06 (`:24-26`), and describes itself as a *"1-D plane wall solved on a 2-D OpenFOAM mesh"* (`:37`). Under R-1D it **enters the cell as CAN DO, CAVEATS evidence** with the caveat *1-D exact-solution on a one-cell-wide mesh; no 2-D field verified*; it cannot lift the cell to CAN DO, which is what section HT-1 above already concluded by a different route (no 1-D column). The cell's verdict is unchanged: CAN DO, CAVEATS on T9a (Correction 1).
+- **natural conv · laminar · 2D — no change now.** T13 (frozen `0d2dc150`, PENDING, HT-5 above) is registered as a 2-D vertical slot; if its record lands PASS on a genuine 2-D mesh it may carry CAN DO on its own record per the ruling's last sentence. Nothing is entered until a graded record is at HEAD.
+- **Untouched by this ruling:** every other cell.
+
+**Census after R-1D: unchanged — CAN DO 0 · CAN DO, CAVEATS 5 · CAN NOT DO (attempted) 5 · not attempted 26.**
 
 ---
 
@@ -295,7 +338,7 @@ Reading at write time, 2026-08-26: 8 ok, 0 MISSING, 8 distinct shas.
 
 ## Evidence: ansys-verification (VMFL register rows mapped onto cfd / heat-transfer classes)
 
-**at HEAD: `b847b97f`** (`docs/capability/ansys_ROWS.md`, reproduced verbatim):
+**at HEAD: `430b41d6`** (`docs/capability/ansys_ROWS.md`, reproduced verbatim):
 
 # ansys-verification — EVERY REGISTER ROW MAPPED ONTO Sanaa's cfd / heat-transfer CLASSES — VERIFICATION SUPERVISOR'S DRAFT FROM THE RECORDS
 
@@ -393,6 +436,84 @@ for s in eadbe157 ebb7da5a 5e789196 4bb0f6a1 63c8d044 64b02355 288a5862 f4332fe3
 ```
 
 (26 shas listed; 26 distinct commits. A `MISSING` line is a defect in this file, not in the record.) Reading at write time, 2026-08-26: 26 ok, 0 MISSING, 26 distinct shas; 27 verdict tokens re-read from `git show <sha>:<path>` and matched.
+
+---
+
+## Correction 2 — 2026-08-26, verification lane ansys-rows: register row #30 (87afd1d6) mapped; census recomputed at HEAD 8c7e1854
+
+**Lines whose number changed above this section: 0.**
+
+Appended by verification lane `ansys-rows` for the verification-supervisor. Zero compute. Everything below was read with `git show <sha>:<path>`; neither the worktree nor the shared index was used. **Numbering note:** no "Correction 1" section exists in this file at HEAD `8c7e1854` (the file's only prior commit is `b847b97f`); this section carries the number its supervisor assigned. **Blob identity, checked:** the register blob at HEAD `8c7e1854` is `0dabcdda…`, identical to the blob at `87afd1d6` (the last commit that touched the register), so "`@ 8c7e1854`" and "`@ 87afd1d6`" cite the same register bytes; likewise `cases/ansys_verification/VMFL064-R2/RESULTS.md` is blob `48c19ae6…` at both shas, and `VMFL064-R2/PREREGISTRATION.md` at HEAD is blob `abe17c3b…`, the blob its own RESULTS names, with `3e7c792c` the only commit that ever touched it.
+
+### C2.1 Register row #30, read from the register at HEAD
+
+Row #30 is one physical line — `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md:513 @ 8c7e1854`; the column header that names the 13 columns is `:22`. Every field below is from `:513` unless another line is named.
+
+| field | reading (`ANSYS_VALIDATION_REGISTER.md:513 @ 8c7e1854`) |
+|---|---|
+| case | **VMFL064-R2** — Low Reynolds Number Flow in a Channel with Sudden Asymmetric Expansion (VM2026R1, p. 195/196); "Re-registration of row #29 under `ANSYS_VERIFICATION_CHARTER` §6: a NEW row that CITES row #29 and does NOT overwrite it — row #29 stands as `NOT A RESULT` and is unchanged by this row" |
+| date | 2026-08-26 |
+| verdict token, verbatim | **`GATE REACHED`** |
+| lab value | `LR/s` = **4.853056** at L3 (49 152 cells; `LR` = 0.023779973479 m); deviation **2.9389 %** of a 10 % band ("consuming 29 % of the tolerance"); triple 4.714416 / 4.800738 / 4.853056, d21 = 0.086322377043, d32 = 0.052317864523, R = 0.606075, **`CONVERGING` and monotone**; `p_obs` = 0.722431; `GCI_fine` = 2.0733 % at Fs = 1.25; Richardson `f_ex` = 4.933550 |
+| reference (source, manual page) | `LR/s` = **5** — "**EXPERIMENTAL**: Armaly, Durst, Pereira & Schoenung, *J. Fluid Mech.* **127**:473, 1983 (also Freitas, *J. Fluids Eng.* **117**, p. 208, 1995). **REFERENCE KIND: measured/experimental — CAN buy P**, and this row still does **not**, because the ceiling was lowered in advance"; Ansys Fluent 4.91 "CONTEXT ONLY, never the gate"; manual **p. 195** |
+| tolerance (frozen) | `abs(LR/s − 5.0) / 5.0 ≤ 0.10` (10 %) at the finest level **and** a `CONVERGING` triple (rule 5); "BYTE-IDENTICAL to attempt 1's band"; tier ceiling **`GATE REACHED`** "declared on pre-registration line 4 and hard-coded in the comparator, which cannot print `PASS` or `HOLDS`"; "NOT A CREDENTIAL"; cap **90 core-min** |
+| artifact path | `verification/runs/ansys_verification/VMFL064-R2/GRADING_VMFL064_R2.json` (with `{L1,L2,L3}/`, `RUN_RC.{L1,L2,L3}`, `COST.txt`, `LAUNCH_RECORD.txt`, `CONTENTION.txt`, `CAP_OVERRUN.txt`, `STATUS.VMFL064-R2`, `STATUS.VMFL064-R2.attempt1-refused-no-run_root`, `launcher.queue.out`, `launcher.queue.out.attempt1`). **This grading artifact IS at HEAD** (`git ls-tree HEAD` lists `GRADING_VMFL064_R2.json` plus `CAP_OVERRUN.txt`, `CONTENTION.txt`, `COST.txt`, `LAUNCH_RECORD.txt`, `RUN_RC.L1/L2/L3`, both `STATUS.*` files) — unlike the eight on-disk-only artifacts flagged in §2. |
+| prereg sha | **`3e7c792cbde23a7cc105d63d01487dc5d01c8040`** ("the only commit that has ever touched that pre-registration, and it landed before any R2 solver started"); prereg blob `abe17c3b990acd31bba12fde01aaf757c6ab398e` |
+| comparator sha | blob **`e04fdf937d557b4919928ab72b9fe5eb42f8b49a`** ("the launcher printed `freeze OK` against this blob before every level"); launcher blob `c17ee2e2693b382fd043aadc326bdae8e51fd7b6` |
+| cost, core-min | **5.3** MEASURED (L1 0.0167 + L2 0.2833 + L3 5.0; wall 318 s × RANKS 1 ÷ 60) vs **5.4** predicted → ratio **0.98**; 5.9 % of the 90 core-min cap; WASTE 0.000; $0.0045 derived, not measured |
+| RESULTS path | `cases/ansys_verification/VMFL064-R2/RESULTS.md`; calibration **C-141** (`docs/COST_CALIBRATION.md:217 @ 87afd1d6`) |
+
+**From the record itself — `cases/ansys_verification/VMFL064-R2/RESULTS.md @ 87afd1d6` (214 lines):**
+
+- Verdict headline, `:20`: `## VERDICT — \`GATE REACHED\``.
+- Value vs reference, `:22-23`: "**`LR/s = 4.853056`** at the finest level against the experimental reference **5.0** — **2.9389 %** deviation inside the frozen **10 %** band, on a **`CONVERGING`** triple." Per level, `:40-42`: L1 3 072 cells 4.714416 (corner vortex resolved: no; crossings 1/0), L2 12 288 cells 4.800738 (no; 1/0), L3 49 152 cells 4.853056 (**yes**; 1/1). Gate at L3, `:44-45`: 2.9389 % against 10.00 % — met.
+- Triple / order / GCI, `:51-54`: d21 = 0.086322377043, d32 = 0.052317864523, R = 0.606075 → `CONVERGING` (monotone, 0 < R < 1); `p_obs = 0.722431`, `GCI_fine (Fs = 1.25) = 2.0733 %`, `f_extrapolated = 4.933550`. `:57`: "**`p_obs = 0.7224` is BELOW the formal `p_f = 2`, and that is reported as what it is.**" `:61-64`: above the registered floor `P_MIN = 0.05` so a GCI is quoted; "2.0733 % is of the same order as the 2.9389 % deviation itself … not that the reattachment length has been pinned to three digits."
+- What changed relative to row #29 (the refusal), `:68-72`: row #29 died at "`REFUSED (exit 2): L3: wall shear never changes sign -- no reattachment found`"; "The R2 changed the reader to the **last** crossing inside a registered window, and nothing else." `:74-79`: `corner_vortex_resolved` false at L1 and L2, true at L3; crossing census `n→p = 1, p→n = 0` at the coarse levels, `n→p = 1, p→n = 1` at L3 with the profile starting positive — "the mechanism named in row #29's triage, measured here rather than argued." `:81-84`: L1 4.714416 and L2 4.800738 "identical to the values row #29 published as the only two that existed."
+- Reference kind — **experiment**, not analytic and not a correlation. `:25-26`: "The reference is experimental (Armaly et al. 1983) and experimental references *can* buy P". Pre-registration `cases/ansys_verification/VMFL064-R2/PREREGISTRATION.md:31 @ 3e7c792c`: `3. REFERENCE KIND  : measured/experimental -- CAN buy P.` The manual's own source: `docs/papers/verification_validation/Ansys_Fluid_Dynamics_Verification_Manual.txt:5071-5073 @ 8c7e1854` — "Reference  B. Armaly, F. Durst, J. Pereira, B. Schönung. "Experimental and theoretical investigation of a backward-facing step". Journal of Fluid Mechanics, Vol 127, pg. 473, 1983" (Freitas 1995 at `:5075-5076`); `:5086`: "The reattachment length predicted by the solvers is validated against experimental results"; the results table `:5123`: "Non-dimensionalized Reattachment length (LR/Step-height)  5.0  4.91  0.982" (Target / Ansys Fluent / Ratio).
+- Why `GATE REACHED` and not `PASS`, `:25-30`: "**`GATE REACHED` is the ceiling, and it is not a `PASS`.** … pre-registration line 4 declared the ceiling `GATE REACHED` in advance because this team's product is **reproducing the Ansys manual**, and the comparator hard-codes that string: it cannot print `PASS` or `HOLDS` whatever the number. **This row is not a credential and must not be counted as one.**" (`PREREGISTRATION.md:32-35 @ 3e7c792c` says the same: "Sanaa's ruling caps that at GATE REACHED. The comparator hard-codes GATE REACHED as the in-band verdict; it cannot print HOLDS or PASS.") `:182`: "It is not a credential. Ceiling `GATE REACHED`, declared before compute."
+- Cost, `:125-131`: total 318 s, 5.3 core-min measured vs 5.4 predicted, ratio 0.98, 5.9 % of cap; `:133`: waste 0.000; `:136-138`: $0.0045 derived, C-141.
+
+### C2.2 Its class
+
+**cfd cell: 2D · steady · incompressible (laminar)** — confirmed from the R2 pre-registration `cases/ansys_verification/VMFL064-R2/PREREGISTRATION.md @ 3e7c792c` (= HEAD blob): `:24-25` "Solver = simpleFoam (OpenFOAM v2606), steady laminar SIMPLEC, Re_D = 200, 2-D Cartesian"; `:60` "simpleFoam, laminar (momentumTransport = laminar), SIMPLEC consistent yes"; `:63` "Inlet uniform 0.288462 m/s (Re_D = 200.0 on D = 10.4 mm)"; `:70` "z = 1 cell (2-D). SERIAL, RANKS = 1"; `:87` "WEDGE/GEOM BIAS: N/A (Cartesian planar 2-D, not an axisymmetric wedge; N-AV9 does not apply)". The attempt-1 lines §1 cites, `cases/ansys_verification/VMFL064/PREREGISTRATION.md:4,41-44,66 @ 8c7e1854`, agree: `:4` "laminar, Re_D = 200"; `:41` "z is 1 empty cell (2-D)"; `:43-44` "Solver `simpleFoam` (steady incompressible laminar, SIMPLEC `consistent yes`)"; `:66` "Cartesian planar 2-D, not an axisymmetric wedge". The §1 row "VMFL064 / -R2" therefore stands as written; this section adds the R2 prereg citation beside it. **Heat-transfer cell: —** (none; isothermal momentum solve, no temperature gate — the file's convention for "none").
+
+**Row #30 in the §2 format (appended here, not inserted above):**
+
+| # | case | class (cfd cell / heat cell) | register verdict | what the record says (lab value → reference; triple) | record path @ sha; grading artifact |
+|---|---|---|---|---|---|
+| 30 | VMFL064-R2 | 2D·steady·incompressible | **`GATE REACHED`** (not a credential; ceiling frozen on prereg line 4) | `LR/s` = 4.853056 at L3 (49 152 cells) vs **experimental** Armaly et al. (1983) 5.0 — 2.9389 %, band 10 %; **CONVERGING** 4.714416 / 4.800738 / 4.853056, `p_obs` 0.7224 (below formal 2, above floor 0.05), **GCI_fine 2.0733 %** — the same order as the deviation. Re-registration of row #29: reader changed from FIRST to LAST wall-shear crossing in a window `0 < x ≤ 0.05 m`; corner vortex present at L3 only, confirming #29's diagnosis; L1/L2 values unchanged. 5.3 core-min. | `cases/ansys_verification/VMFL064-R2/RESULTS.md` @ `87afd1d6`; `verification/runs/ansys_verification/VMFL064-R2/GRADING_VMFL064_R2.json` (at HEAD `8c7e1854`) |
+
+### C2.3 Census recomputed at HEAD `8c7e1854` from the Verdict column
+
+Method: `git show HEAD:verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` piped to a small python that takes every line beginning `|`, splits it on **unescaped** pipes only (`re.split(r'(?<!\\)\|', …)` — the Case cell of rows #7 and #21 contains `\|`, and a naive `split('|')` mis-columns exactly those two rows), keeps lines whose first cell is a bare integer (`**n**`), and reads the FIRST backticked fixed-vocabulary token (`PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` / `PENDING`) in the 4th cell, the `Verdict` column named at `:22`. Row #7's cell reads `PASS` first with `GATE REACHED` as an inline tier, so it counts as `PASS` — the same reading §2 made.
+
+Per row (#, register line, case → token): #1 `:24` VMFL001 → NOT A RESULT · #2 `:25` VMFL001-R2 → PASS · #3 `:26` VMFL005 → PASS · #4 `:27` VMFL051 → NOT A RESULT · #5 `:28` VMFL045 run 1 → NOT A RESULT · #6 `:29` VMFL003 → NOT A RESULT · #7 `:30` VMFL045-R2 → PASS · #8 `:32` VMFL007 run 1 → NOT A RESULT · #9 `:34` VMFL003-M2 arm A → NOT A RESULT · #10 `:36` arm B → NOT A RESULT · #11 `:37` arm C → NOT A RESULT · #12 `:38` arm D → NOT A RESULT · #13 `:39` VMFL019 → PASS · #14 `:40` VMFL010 → NOT A RESULT · #15 `:41` VMFL050 → PASS · #16 `:42` VMFL059 → NOT A RESULT · #17 `:43` VMFL022 → NOT A RESULT · #18 `:44` VMFL021 attempt 1 → NOT A RESULT · #19 `:45` VMFL017 → PENDING · #20 `:433` VMFL036 → GATE REACHED · #21 `:460` VMFL033 → NOT A RESULT · #22 `:461` VMFL023 → GATE REACHED · #23 `:462` VMFL021-R2 → GATE REACHED · #24 `:463` VMFL002 → GATE REACHED · #25 `:464` VMFL004 → NOT A RESULT · #26 `:465` VMFL011 → NOT A RESULT · #27 `:466` VMFL076 → NOT A RESULT · #28 `:467` VMFL004-R2 → PASS · #29 `:468` VMFL064 → NOT A RESULT · #30 `:513` VMFL064-R2 → GATE REACHED.
+
+**Totals at HEAD `8c7e1854`: 30 numbered rows, 30 entries, no row number missing or duplicated. `PASS` 6** (#2, #3, #7, #13, #15, #28) · **`GATE REACHED` 5** (#20, #22, #23, #24, #30) · **`NOT A RESULT` 18** (#1, #4, #5, #6, #8–#12, #14, #16, #17, #18, #21, #25, #26, #27, #29) · **`PENDING` 1** (#19) · `GATE FAIL` 0 · `BLOCKED` 0; sum 30. **This matches the supervisor's expectation (30: 6 / 5 / 18 / 1) exactly**, and it matches the register's own re-derived count in its struck-headline paragraph at `:47 @ 8c7e1854` ("30 rows … `PASS` 6 … `GATE REACHED` 5 … `NOT A RESULT` 18 … `PENDING` 1 … Credential count: 6 PASS of 30 run"). Relative to the §2 census at `eadbe157`: one row added, `GATE REACHED` 4 → 5, every other class unchanged; the breakdown of the 18 `NOT A RESULT` (refusals 7, cap-fired 2, crash/divergence 2, uncertifiable 1, rule 5 on a clean solve 6) is unchanged because row #30 is not in that class. **Credentials remain 6; row #30 adds none.**
+
+### C2.4 The `2D · steady · incompressible` cell in §3, re-read
+
+Old line (§3, struck here, not edited above):
+
+~~| **2D · steady · incompressible** | #2 `PASS`, #28 `PASS`, #1/#14/#25/#26/#29 `NOT A RESULT` | **CAN DO — 2 cases**; strongest **VMFL001-R2** (`cases/ansys_verification/VMFL001/R2/RESULTS.md` @ `5e789196`): exact-solution check at four radii, p = 2.0102, GCI 0.056 %, extrapolate on exact to 3.7 ppm — the lab's nearest row to HOLDS (coverage §3.8f). Checked: error vs exact + GCI + order. Caveat: exact-solution references only (V, never P); VMFL064's experimental reattachment is unread (refusal). |~~
+
+New line:
+
+| cell | rows | reading in Sanaa's words |
+|---|---|---|
+| **2D · steady · incompressible** | #2 `PASS`, #28 `PASS`, **#30 `GATE REACHED`**, #1/#14/#25/#26/#29 `NOT A RESULT` | **CAN DO — 2 cases**; strongest **VMFL001-R2** (`cases/ansys_verification/VMFL001/R2/RESULTS.md` @ `5e789196`): exact-solution check at four radii, p = 2.0102, GCI 0.056 %, extrapolate on exact to 3.7 ppm — the lab's nearest row to HOLDS (coverage §3.8f). Checked: error vs exact + GCI + order. **New beside it, row #30 VMFL064-R2 (`cases/ansys_verification/VMFL064-R2/RESULTS.md` @ `87afd1d6`): the first experiment-referenced row in this cell to reach its gate — the P channel — `LR/s` 4.853 vs Armaly et al. (1983) 5.0, 2.94 % of a 10 % band, CONVERGING, GCI 2.07 %; still `GATE REACHED`, not `PASS`, because the tier ceiling was frozen at `GATE REACHED` on prereg line 4 before compute (this team's product is reproducing the Ansys manual, and Sanaa's ruling caps that tier) and the comparator hard-codes that string and cannot print `PASS` or `HOLDS` (RESULTS `:25-30`). Not a credential; P is reached, not banked.** Caveat: the two `PASS` rows are exact-solution references only (V); the one P-channel row is capped by ruling, and its GCI (2.07 %) is the same order as its deviation (2.94 %), so the reattachment length is not pinned to three digits (RESULTS `:61-64`). VMFL064 attempt 1 (#29) stays a refusal on record. |
+
+**Structural note (§3), updated for row #30 — the old sentence is otherwise unchanged:** "every `PASS` row is an `AN` (analytic) reference — P is green in no ansys row" is **still true at HEAD `8c7e1854`** (the six `PASS` rows are unchanged). The list of experiment-referenced rows now reads: **VMFL064 (#29 refused; #30 R2 `GATE REACHED`, experimental Armaly 1983, in band on a CONVERGING triple, ceiling-capped)**, VMFL023 (correlation, `GATE REACHED`), VMFL021/022 (Nurick, `GATE REACHED` / `NOT A RESULT`), VMFL017 (`PENDING`). Row #30 is the first experiment-referenced ansys row in the 2D·steady·incompressible cell to reach its gate; per the register `:513` it "CAN buy P, and this row still does not, because the ceiling was lowered in advance."
+
+### C2.5 Footer extension — the planted control on the shas this section adds
+
+New commit shas cited in this section: `87afd1d6` (row #30 + RESULTS + C-141), `3e7c792c` (R2 prereg freeze), `b847b97f` (this file's own commit), `8c7e1854` (HEAD at write time). `eadbe157` was already in the footer list. Run from the repository root, same form as the footer:
+
+```
+for s in 87afd1d6 3e7c792c b847b97f 8c7e1854; do printf '%s ' "$s"; git cat-file -e "$s^{commit}" 2>/dev/null && echo ok || echo MISSING; done
+```
+
+Reading at write time, 2026-08-26: `87afd1d6 ok` · `3e7c792c ok` · `b847b97f ok` · `8c7e1854 ok` — 4 ok, 0 MISSING. The original 26-sha loop re-run at the same time: 26 ok, 0 MISSING. **Distinct commit shas cited by this file: 26 + 4 = 30.** The three blob ids cited above (`abe17c3b`, `e04fdf93`, `c17ee2e2`) are blobs, not commits, and are deliberately outside the `^{commit}` loop; `git cat-file -t` on each reads `blob` (3 of 3). A `MISSING` line is a defect in this file, not in the record.
 
 ---
 
@@ -686,10 +807,12 @@ Reading at write time, 2026-08-26: 2 ok, 0 MISSING.
 
 ## Footer — merged planted control: every distinct sha cited by every source, resolved
 
-Run from the repository root; every line must read `ok`; 140 distinct shas across all sources:
+Run from the repository root; every line must read `ok`; 142 distinct shas across all sources:
 
 ```
-for s in 0686c7b2 068c2bf0 08aa454c 0cbaea26 0d2dc150 0dfd9c64 0f56460d 11e6a187 122f6da3 14018d5b 15767999 1697ea49 16b81323 17209b50 1799861d 193b522c 2793f23e 288a5862 28a770a5 299296a2 2a93ff27 2aea29d9 2b50394a 2d639d3b 2dcea996 2e83a89b 2f1d6cb7 3053d9ec 311feb37 31fd2268 336a364d 33dbe337 35171866 3574cdcb 3663520c 3b9bcf31 3c21d87c 3c39d08d 3d28328c 3f87e759 3f8c6b13 49c95cc7 4ad083fb 4b336fad 4bb0f6a1 4d9d902b 4e6ba646 4eae12f4 52a213ad 548fc02e 5889677b 5a870e54 5adb9c5d 5c3fe5a8 5d1718df 5d1f89cd 5e789196 60cfd4c8 61b47973 63c8d044 64b02355 64b367ef 65684e7c 65882eb3 66f42398 6753e912 6a0a1a99 6a9afa0a 6a9b8c41 6b8d6355 6becf266 6d149d51 6fcfe713 71388f4e 7422591b 7b2a12f0 7e2fc497 8273e4ad 8590c96a 85e2230f 878f1556 8974eb75 8b407ea2 8f5bf878 959a31b1 9c241fe2 9c86962e a1ac1c21 a1fbe127 a74b2f61 a86357e6 aba61e53 b10260a0 b26b875c b2a13fd6 b698dfc3 b70b49c6 b840fcd5 b845b603 b8b5e2bf b8fe7eea ba023a53 bb5088c4 be35dcad bff31cff c487e3c7 c4f72b27 c557f847 c5d96403 c69ce11c c83d9501 ca6a3164 ca9aad86 cadb4887 cb5b6eb8 cccf7a9f cffd90e7 d4308dde d846815c d98868fb d9fa4161 da65ae38 db76091e dc2b4f74 ddb99eca e6d53dbd eadbe157 ebb7da5a f018c8bf f279aac5 f3fad674 f4332fe3 f4e5c350 f5a81a69 f5f67de7 f63d347e f746233a f8916f36 f9a59d47 fcf31542; do printf '%s ' "$s"; git cat-file -e "$s^{commit}" 2>/dev/null && echo ok || echo MISSING; done
+for s in 0686c7b2 068c2bf0 08aa454c 0cbaea26 0d2dc150 0dfd9c64 0f56460d 11e6a187 122f6da3 14018d5b 15767999 1697ea49 16b81323 17209b50 1799861d 193b522c 2793f23e 288a5862 28a770a5 299296a2 2a93ff27 2aea29d9 2b50394a 2d639d3b 2dcea996 2e83a89b 2f1d6cb7 3053d9ec 311feb37 31fd2268 336a364d 33dbe337 35171866 3574cdcb 3663520c 3b9bcf31 3c21d87c 3c39d08d 3d28328c 3f87e759 3f8c6b13 49c95cc7 4ad083fb 4b336fad 4bb0f6a1 4d9d902b 4e6ba646 4eae12f4 52a213ad 548fc02e 5889677b 5a870e54 5adb9c5d 5c3fe5a8 5d1718df 5d1f89cd 5e789196 60cfd4c8 61b47973 63c8d044 64b02355 64b367ef 65684e7c 65882eb3 66f42398 6753e912 6a0a1a99 6a9afa0a 6a9b8c41 6b8d6355 6becf266 6d149d51 6fcfe713 71388f4e 7422591b 7b2a12f0 7e2fc497 825b1259 8273e4ad 8590c96a 85e2230f 878f1556 87afd1d6 8974eb75 8b407ea2 8f5bf878 959a31b1 9c241fe2 9c86962e a1ac1c21 a1fbe127 a74b2f61 a86357e6 aba61e53 b10260a0 b26b875c b2a13fd6 b698dfc3 b70b49c6 b840fcd5 b845b603 b8b5e2bf b8fe7eea ba023a53 bb5088c4 be35dcad bff31cff c487e3c7 c4f72b27 c557f847 c5d96403 c69ce11c c83d9501 ca6a3164 ca9aad86 cadb4887 cb5b6eb8 cccf7a9f cffd90e7 d4308dde d846815c d98868fb d9fa4161 da65ae38 db76091e dc2b4f74 ddb99eca e6d53dbd eadbe157 ebb7da5a f018c8bf f279aac5 f3fad674 f4332fe3 f4e5c350 f5a81a69 f5f67de7 f63d347e f746233a f8916f36 f9a59d47 fcf31542; do printf '%s ' "$s"; git cat-file -e "$s^{commit}" 2>/dev/null && echo ok || echo MISSING; done
 ```
 
-Reading at assembly time (2026-08-26T21:21Z, HEAD `87afd1d6`): **138 ok, 2 MISSING, 140 distinct shas.** MISSING lines: dc2b4f74, f4e5c350
+That loop is the reader's own control and peels every token to a commit, so it honestly prints `MISSING` for the 2 non-commit token(s) classified below with `git cat-file -t`.
+
+Reading at assembly time (2026-08-26T22:11Z, HEAD `430b41d6`): **140 ok, 0 MISSING, 2 non-commit tokens, 142 distinct shas.** Non-commit tokens: `dc2b4f74` (blob), `f4e5c350` (blob) — disclosed by the citing family file as not a commit sha.

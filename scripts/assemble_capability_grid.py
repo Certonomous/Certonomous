@@ -85,6 +85,25 @@ def split_corrections(text):
     return (text, None) if not m else (text[:m.start()], text[m.start():])
 
 
+RULING_RE = re.compile(r"^## Ruling .*$", re.M)
+
+
+def split_rulings(text):
+    """A ruling appended to the family file is an amendment of record WHEREVER it sits — including below
+    the prior-draft cut, which split_authority() would otherwise discard. Applied to the FULL family text
+    first. Returns (text_without_rulings, [ruling_blocks]); a block runs from its `## Ruling ` heading to
+    the next H1/H2 heading or EOF."""
+    keep, blocks, pos = [], [], 0
+    for m in RULING_RE.finditer(text):
+        if m.start() < pos:
+            continue
+        nxt = re.search(r"^#{1,2} ", text[m.end():], re.M)
+        stop = m.end() + nxt.start() if nxt else len(text)
+        keep.append(text[pos:m.start()]); blocks.append(text[m.start():stop]); pos = stop
+    keep.append(text[pos:])
+    return "".join(keep), blocks
+
+
 def tables(text):
     """Every markdown table as a list of raw lines, in order."""
     out, cur = [], []
@@ -101,6 +120,14 @@ def tables(text):
 def census_line(text):
     ms = re.findall(r"^\*\*Census[^*]*\*\*.*$", text, re.M)
     return ms[-1] if ms else "**Census:** (no census line found in source)"   # LAST: a later correction supersedes
+
+
+def census_lines(own, full):
+    """The family's FIRST census line (its named-cell prose stays under its table) AND the LAST census line of
+    the full text (a later correction or ruling supersedes), separated by a blank line; once when they coincide."""
+    ms = re.findall(r"^\*\*Census[^*]*\*\*.*$", own, re.M)
+    first, last = (ms[0] if ms else None), census_line(full)
+    return [last] if first in (None, last) else [first, "", last]
 
 
 def footer_shas(text):
@@ -159,6 +186,7 @@ def family_block(label, fname, axes, cols):
     sha = last_commit(path)
     out.append(f"**family table at HEAD: `{sha}`** (`{path}`; every cell below is copied verbatim "
                f"from that file — the family supervisor's words, not this script's).")
+    text, rulings = split_rulings(text)   # BEFORE the prior-draft cut: a ruling may sit below it
     text, prior = split_authority(text)
     if prior is not None:
         marker = prior.strip().splitlines()[0][:120]
@@ -173,6 +201,10 @@ def family_block(label, fname, axes, cols):
         rev = [tb for tb in tables(corr) if re.match(r"\|\s*cell\b", tb[0], re.I) and len(tb) >= 38]
         if rev:   # the family's corrections carry a revised 36-row table: it replaces the draft table
             tbs = tbs[:1] + rev[:1]
+    for rb in rulings:   # a ruling carrying a revised 36-row cell table replaces it the same way (R-1D does not)
+        rev = [tb for tb in tables(rb) if re.match(r"\|\s*cell\b", tb[0], re.I) and len(tb) >= 38]
+        if rev:
+            tbs = tbs[:1] + rev[:1]
     if not tbs:
         out.append("\n(no markdown tables found in the family file)")
         return out, verdict_census([]), footer_shas(text), True
@@ -182,25 +214,46 @@ def family_block(label, fname, axes, cols):
     deriv = [tb for tb in tbs if tb is not cell_tbl and tbs.index(tb) < tbs.index(cell_tbl)]
     if deriv:
         out += ["", "**Regime / mode per case, as derived by the family (their table):**", "", *deriv[0], ""]
-    full = text + (corr or "")
-    out += ["**The table:**", "", *cell_tbl, "", census_line(full), ""]
+    rul = "\n".join(rulings)
+    full = text + (corr or "") + "\n" + rul   # LAST census line wins: a ruling's "Census after …" supersedes
+    out += ["**The table:**", "", *cell_tbl, "", *census_lines(text, full), ""]
     if corr:
         out += [f"### {label} family's corrections (appended below its footer at `{sha}`; supersede the table above where they strike it; reproduced verbatim)", "",
                 re.sub(r"^(#+) ", lambda m: "#" * (len(m.group(1)) + 1) + " ", corr.rstrip(), flags=re.M), ""]
-    return out, verdict_census(cell_tbl), footer_shas(text) | corr_shas | set(re.findall(r"`([0-9a-f]{8})`", corr or "")), True
+    if rulings:
+        out.append(f"### rulings applied to the {label} table (appended to the family file at `{sha}`; amendments of "
+                   "record, reproduced verbatim; a ruling supersedes the cell text above where it says so)")
+        for rb in rulings:
+            out += ["", re.sub(r"^(#+) ", lambda m: "#" * (len(m.group(1)) + 1) + " ", rb.rstrip(), flags=re.M), ""]
+    rul_shas = footer_shas(rul) | set(re.findall(r"`([0-9a-f]{8})`", rul))
+    return out, verdict_census(cell_tbl), footer_shas(text) | corr_shas | set(re.findall(r"`([0-9a-f]{8})`", corr or "")) | rul_shas, True
+
+
+def head_census(out_path):
+    """The per-family census table in the grid blob at HEAD, {label: (CAN DO, CAVEATS, CAN NOT DO, not attempted)};
+    None when no grid is at HEAD yet."""
+    prev = show(out_path)
+    if prev is None:
+        return None
+    rows = re.findall(r"^\| (\S+) \| yes \| (\d+) \| (\d+) \| (\d+) \| (\d+) \| (\d+) \|$", prev, re.M)
+    return {r[0]: tuple(int(x) for x in r[1:5]) for r in rows}
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="docs/CAPABILITY_GRID.md")
+    ap.add_argument("--revision", type=int, default=None, help="stamp the header **REVISION N** instead of **FIRST DRAFT**")
+    ap.add_argument("--allow-census-change", action="store_true",
+                    help="permit a per-family census that differs from the grid at HEAD (otherwise the run refuses)")
     a = ap.parse_args()
+    stamp = f"REVISION {a.revision}" if a.revision is not None else "FIRST DRAFT"
     H = head()
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
     L = ["# CAPABILITY GRID — Sanaa's taxonomy, assembled from the family tables at HEAD", "",
          f"**Owner:** verification-supervisor. **Directive:** Sanaa's [SANAA-DIRECT] CAPABILITY GRID, "
          f"boarded verbatim at commit `{DIRECTIVE}` (`docs/LAB_STATE.md`, CHIEF ADDENDUM 2026-08-26T17:35Z). "
          f"**Assembled from HEAD `{H[:8]}`** on {now} by `scripts/assemble_capability_grid.py` "
-         f"(idempotent; reads only `git show HEAD:` blobs; zero compute). **FIRST DRAFT** — re-run when a "
+         f"(idempotent; reads only `git show HEAD:` blobs; zero compute). **{stamp}** — re-run when a "
          f"family table lands.", "",
          "**The verdict vocabulary (Sanaa's, exactly three):** `CAN DO — X cases` (ran successfully, metrics "
          "verified; strongest case cited by path + record sha + what was checked); `CAN DO, CAVEATS` (runs, "
@@ -237,6 +290,13 @@ def main():
         L += ["---", ""]
         census[label] = (cen, present)
         all_shas |= shas
+    prev = head_census(a.out)   # the census must not move under a re-assembly unless a family's table moved it
+    key = lambda c: (c["CAN DO"], c["CAN DO, CAVEATS"], c["CAN NOT DO"], c["CAN NOT DO — not attempted"])
+    moved = {lab: (prev[lab], key(c)) for lab, (c, present) in census.items()
+             if present and prev and lab in prev and prev[lab] != key(c)}
+    if moved and not a.allow_census_change:
+        sys.exit(f"REFUSED: per-family census differs from the grid at HEAD `{H[:8]}` (HEAD -> now): {moved} — "
+                 "read the family diff first; re-run with --allow-census-change only if a family table really moved")
     # ansys evidence rows
     ev_label, ev_file = EVIDENCE
     ev = show(CAP + ev_file)
@@ -270,22 +330,33 @@ def main():
           "---", "", "## Footer — merged planted control: every distinct sha cited by every source, resolved", ""]
     shas = sorted(all_shas)
     ok = missing = 0
-    lines = []
+    lines, noncommit = [], []
     for s in shas:
-        r = git("cat-file", "-e", f"{s}^{{commit}}")
-        st = "ok" if r.returncode == 0 else "MISSING"
-        ok += st == "ok"; missing += st != "ok"
+        r = git("cat-file", "-t", s)   # classify: commit -> ok; blob/tree/tag -> non-commit object; absent -> MISSING
+        typ = r.stdout.strip() if r.returncode == 0 else ""
+        if typ == "commit":
+            st = "ok"; ok += 1
+        elif typ:
+            st = f"non-commit object ({typ})"; noncommit.append(f"`{s}` ({typ})")
+        else:
+            st = "MISSING"; missing += 1
         lines.append(f"{s} {st}")
     L += [f"Run from the repository root; every line must read `ok`; {len(shas)} distinct shas across all sources:", "",
           "```", "for s in " + " ".join(shas) + "; do printf '%s ' \"$s\"; git cat-file -e \"$s^{commit}\" 2>/dev/null && echo ok || echo MISSING; done",
-          "```", "",
-          f"Reading at assembly time ({now}, HEAD `{H[:8]}`): **{ok} ok, {missing} MISSING, {len(shas)} distinct shas.**"
-          + (" MISSING lines: " + ", ".join(l.split()[0] for l in lines if l.endswith("MISSING")) if missing else ""), ""]
+          "```", ""]
+    if noncommit:
+        L += [f"That loop is the reader's own control and peels every token to a commit, so it honestly prints "
+              f"`MISSING` for the {len(noncommit)} non-commit token(s) classified below with `git cat-file -t`.", ""]
+    L += [f"Reading at assembly time ({now}, HEAD `{H[:8]}`): **{ok} ok, {missing} MISSING, {len(noncommit)} non-commit "
+          f"tokens, {len(shas)} distinct shas.**"
+          + (" MISSING lines: " + ", ".join(l.split()[0] for l in lines if l.endswith("MISSING")) if missing else "")
+          + (" Non-commit tokens: " + ", ".join(noncommit) + " — disclosed by the citing family file as not a commit sha."
+             if noncommit else ""), ""]
     bad = [lab for lab, (c, _) in census.items() if c["unclassified"]]
     if bad:   # refuse to emit a grid with unclassified verdict cells; the census row must be 4-way exact
         sys.exit(f"REFUSED: unclassified verdict cells in {bad} — fix the classifier, not the family file")
     open(f"{REPO}/{a.out}", "w").write("\n".join(L))
-    print(f"wrote {a.out}: HEAD {H[:8]}, shas {ok} ok / {missing} MISSING", file=sys.stderr)
+    print(f"wrote {a.out}: HEAD {H[:8]}, {stamp}, shas {ok} ok / {missing} MISSING / {len(noncommit)} non-commit", file=sys.stderr)
     for label, _, _, _ in FAMILIES:
         print(label, census[label], file=sys.stderr)
 
