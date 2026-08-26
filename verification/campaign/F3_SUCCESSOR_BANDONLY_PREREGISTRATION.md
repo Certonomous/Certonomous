@@ -81,9 +81,16 @@ below are the registration, and the annexes are the derivations a grader needs t
 
 ## ANNEX A — the bands, and the principle each came from
 
-Reproduced from `F3_CONVERSION_PREREGISTRATION.md` §4.1–§4.3 (blob `774dad46…`), so a reader
+Reproduced from `F3_CONVERSION_PREREGISTRATION.md` §4.1–§4.3, so a reader
 can check the derivations here rather than being told they exist elsewhere. **This rung
 re-derives nothing; these are shown, not chosen.**
+
+**Blob citation, corrected.** That document's blob at HEAD is `e5f48c68`, **not** the
+`774dad46` recorded in `PENDING_ROWS_DISPOSITION.md` §1 — ADDENDUM 3 has landed since, under
+rule 6 as a dated post-compute addendum. **§4.1–§4.3 are unmoved by it**; ADDENDUM 3 records the
+post-repair sha256 of `grade_f3.py` and alters no gate, threshold, cap or label. The band text
+reproduced here is therefore identical in both blobs. Cited so the next reader who hashes the
+file does not read a stale citation as a freeze breach.
 
 - **±0.5 % on `p2/p1`** — *principle: the reference class plus the second-order requirement.*
   The reference is exact analytic (zero uncertainty), and `p2/p1` is read from patch face
