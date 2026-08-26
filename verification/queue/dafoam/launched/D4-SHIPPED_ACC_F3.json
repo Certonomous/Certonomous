@@ -47,5 +47,13 @@
     ],
     "eta": "ACC ~2 min after its 60 s H5 window; F3 ~12-15 min after its own window; chain complete ~16:55Z if uncontended",
     "outcome_20260826T163731Z": "REFUSED before staging by the driver's AGGREGATE check: live caps 20.0 GiB (d12y_S3b_c1_bp 8g + d7fr_F_P 12g) + ACC 8g + host non-container RSS 3.68 = 31.68 GiB > 30.6 ceiling. H5 window passed (45/45, min 17.48 GiB). STATUS.ACC rc=6 note=AGGREGATE_REFUSED; STATUS.chain chain=STOPPED_AGGREGATE. No container started, 0 core-min. Re-fire needs a peer container to end; same command, same guards."
+  },
+  "_refire": {
+    "utc": "2026-08-26T17:3xZ (see STATUS.chain)",
+    "arms": [
+      "F3"
+    ],
+    "why": "ACC OOM-killed at its registered 8g after 525 s (rc=137, 35.0 core-min WASTE); ACC branch duplicates P2 (D4S-LAUNCHER-DEF-2, PREREGISTRATION.md Addendum 2c) so ACC is NOT re-bought; F3 alone via d4s_chain_driver.sh F3 on its registered path; the runner ignores this note.",
+    "previous_status_preserved": "STATUS.ACC.oom_20260826T165628Z"
   }
 }

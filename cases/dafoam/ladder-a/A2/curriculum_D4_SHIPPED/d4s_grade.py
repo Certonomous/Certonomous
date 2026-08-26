@@ -91,6 +91,80 @@ NOT_MEASURED = "NOT_MEASURED"
 # d4_<ARM>_<stamp>; the record survives because the launcher registered no
 # --rm.  Exactly one candidate container may stand in; zero or several refuse.
 KERNEL_RECORD_NAME_PREFIX = "d4_%s_"
+# ---- ADDENDUM 2b (D4S-GRADER-DEF-2): COMPLETION IS ARM-KIND AWARE -- the
+# L-335 misaimed face, the same shape D7FR cured for D7F-DEF-1.  SOLVER arms
+# (an mpirun DAFoam program: compute_totals / run_driver / d4_fd_endpoint.py)
+# keep the STRICT clause: rc=0 + the POSITIONAL terminal statement + the age
+# guard.  SCRIPT arms (P1: decomposePar + an mpi4py placement probe; no
+# OpenFOAM solver, so `Finalising parallel run` is printed ZERO times by
+# construction -- measured on this item's P1 log and on the PATCHED item's):
+# rc=0 from the kernel record + the launcher's bookkeeping marker
+# `<log>.ok.<stamp>` PRESENT + every REGISTERED output artefact present and
+# strictly newer than the arm's own `.d4_age_datum`.  The terminal statement
+# is read and REPORTED for a script arm, never composed.
+#
+# THE MARKER IS NOT A SUCCESS MARKER AND IS NOT READ AS ONE.  d4s_run_arm.sh:475
+# writes it as `test -s "$LOG" && touch "$LOG.ok.$STAMP"` -- a non-emptiness
+# sentinel wearing a success name (the D7F-DEF-1 shape): this item's ACC arm
+# carries one, 0 bytes, for rc=137.  Here it means only "the launcher reached
+# its bookkeeping"; SUCCESS is the kernel's rc==0 in clause 1, and the
+# artefact + age limbs are what the script arm must PRESENT.  A kind with an
+# empty artefact list REFUSES: every kind must present something.
+#
+# THE KINDS ARE REGISTERED HERE AND READ OUT OF THE LAUNCHER, and the two must
+# AGREE or the grade REFUSES (parse_arm_kinds / assert_arm_kinds): a table
+# typed by hand drifts from the file that actually runs the arms.  ACC is a
+# SOLVER by its own command (d4s_run_arm.sh:323 is byte-identical to P2's
+# :322 -- `-task compute_totals`), whatever a brief calls it.
+# A relaxation on SCRIPT arms ONLY, bounded by this table; strict on every
+# SOLVER arm; an arm absent from the table REFUSES.
+ARM_KIND = {"P1": "SCRIPT", "P2": "SOLVER", "O": "SOLVER", "ACC": "SOLVER",
+            "F3": "SOLVER"}
+SCRIPT_ARTEFACTS = {
+    "P1": ["d4_placement_rank0.json", "d4_placement_rank1.json",
+           "d4_placement_rank2.json", "d4_placement_rank3.json",
+           "d4_decomp_A.json", "d4_decomp_B.json"]}
+
+
+def parse_arm_kinds(launcher_path):
+    """Read each arm's KIND out of the frozen launcher's own `case "$ARM" in`
+    command branches.  SOLVER = the branch runs an mpirun DAFoam program
+    (`-task` or `d4_fd_endpoint.py`); SCRIPT = it runs decomposePar / a plain
+    python probe and no solver.  Absent or unparseable launcher -> REFUSE;
+    a branch that fits neither rule -> REFUSE (never a default)."""
+    if not launcher_path or not os.path.isfile(launcher_path):
+        refuse("G1", {"launcher_absent": launcher_path,
+                      "note": "arm kinds are read out of the launcher, never "
+                              "typed; without it no kind can be established"})
+    kinds = {}
+    for line in open(launcher_path, errors="replace"):
+        m = re.match(r'\s*(P1|P2|O|ACC|F3)\)\s+CMD="(.*)$', line)
+        if not m:
+            continue
+        arm, cmd = m.group(1), m.group(2)
+        solver = ("mpirun" in cmd) and ("-task" in cmd or "d4_fd_endpoint.py" in cmd)
+        script = ("decomposePar" in cmd) and ("-task" not in cmd) and ("d4_fd_endpoint.py" not in cmd)
+        if solver and not script:
+            kinds[arm] = "SOLVER"
+        elif script and not solver:
+            kinds[arm] = "SCRIPT"
+        else:
+            refuse("G1", {"arm_kind_undeterminable": arm, "cmd": cmd[:160]})
+    if not kinds:
+        refuse("G1", {"launcher_unparseable": launcher_path,
+                      "note": "no `<ARM>) CMD=` branch found"})
+    return kinds
+
+
+def assert_arm_kinds(launcher_path):
+    """The registered table and the launcher's own branches must agree on every
+    registered arm, or the grade REFUSES naming the disagreement."""
+    parsed = parse_arm_kinds(launcher_path)
+    bad = {a: {"registered": k, "launcher": parsed.get(a)}
+           for a, k in ARM_KIND.items() if parsed.get(a) != k}
+    if bad:
+        refuse("G1", {"arm_kind_disagreement": bad, "launcher": launcher_path})
+    return parsed
 MD5_RUNSCRIPT = "2906d52a5dbed2bacbaeaf85a37d3fe8"
 PLANT = 1.234e-03                     # rule 3
 
@@ -199,8 +273,12 @@ def terminal_statement_ok_text(text, log_path):
                     if anywhere else None)}
 
 
-def g_completion(work, base, ledger_rows, arms_required):
+def g_completion(work, base, ledger_rows, arms_required, launcher=None):
     """G1.  Strict completion, DAFoam analogue of CLAUDE.md rule 4.
+
+    ADDENDUM 2b: arm-kind aware (see ARM_KIND).  When `launcher` is given the
+    registered kind table is ASSERTED against the launcher's own branches
+    before any arm is read; the grade refuses on a disagreement.
 
     Rule 4's field list (`T U p_rgh alphat nut k omega`) is the THERMAL
     family's and does not apply to a compressible DAFoam optimisation.  The
@@ -231,6 +309,9 @@ def g_completion(work, base, ledger_rows, arms_required):
     only known to work because the demonstration below MAKES it occur.
     """
     out = {"arms_required": arms_required, "arms": {}}
+    if launcher is not None:
+        out["arm_kinds_from_launcher"] = assert_arm_kinds(launcher)
+        out["arm_kinds_registered"] = dict(ARM_KIND)
     datum_path = os.path.join(work, ".d4_age_datum")
     if not os.path.isfile(datum_path):
         refuse("G1", {"age_datum_absent": datum_path})
@@ -280,7 +361,54 @@ def g_completion(work, base, ledger_rows, arms_required):
 
         # ---- CLAUSE 2: a terminal statement from the producer's log FILE --
         logname = r.get("log")
-        if r.get("log_text") is not None:
+        kind = ARM_KIND.get(arm)
+        if kind is None:
+            refuse("G1", {"arm_kind_unregistered": arm,
+                          "registered": sorted(ARM_KIND)})
+        if kind == "SCRIPT":
+            # ADDENDUM 2b: SCRIPT arm -- the launcher's bookkeeping marker
+            # PRESENT (not read as success; see ARM_KIND) + every REGISTERED
+            # artefact present and strictly newer than the ARM'S OWN datum.
+            # The terminal statement is read and REPORTED, never composed.
+            import glob as _glob
+            oks = (_glob.glob(os.path.join(base, logname + ".ok.*"))
+                   if logname else [])
+            arm_dir = os.path.join(base, arm)
+            dpath = os.path.join(arm_dir, ".d4_age_datum")
+            arm_datum = (int(open(dpath).read().strip())
+                         if os.path.isfile(dpath) else None)
+            arts = SCRIPT_ARTEFACTS.get(arm) or []
+            if not arts:
+                refuse("G1", {"script_arm_without_registered_artefacts": arm,
+                              "note": "every kind must PRESENT something; a "
+                                      "script arm with no registered artefact "
+                                      "cannot be shown complete"})
+            art_rows = []
+            for f in arts:
+                ap = os.path.join(arm_dir, f)
+                present = os.path.isfile(ap)
+                mt = int(os.path.getmtime(ap)) if present else None
+                art_rows.append({"artefact": os.path.relpath(ap, base),
+                                 "present": present, "mtime": mt,
+                                 "newer_than_arm_datum": bool(
+                                     present and arm_datum is not None
+                                     and mt > arm_datum)})
+            info_ok, info_detail = ((terminal_statement_ok(
+                os.path.join(base, logname)) if logname else (False, {})))
+            t_ok = bool(oks and arm_datum is not None and art_rows
+                        and all(a["newer_than_arm_datum"] for a in art_rows))
+            t_detail = {"arm_kind": "SCRIPT",
+                        "bookkeeping_marker_present_NOT_SUCCESS":
+                            [os.path.basename(x) for x in oks],
+                        "marker_note": "d4s_run_arm.sh:475 touches .ok on a "
+                                       "non-empty log whatever the rc; success "
+                                       "is clause 1 (kernel rc==0)",
+                        "arm_datum": arm_datum, "artefacts": art_rows,
+                        "n_artefacts_checked": len(art_rows),
+                        "all_artefacts_present_and_newer": bool(
+                            art_rows and all(a["newer_than_arm_datum"] for a in art_rows)),
+                        "terminal_statement_INFORMATIONAL_not_composed": info_detail}
+        elif r.get("log_text") is not None:
             # ADDENDUM 2: the producer's log is the container's own stream,
             # read from the kernel record; the source is recorded beside it.
             t_ok, t_detail = terminal_statement_ok_text(
@@ -298,6 +426,7 @@ def g_completion(work, base, ledger_rows, arms_required):
             terminal_failures.append({"arm": arm, "detail": t_detail})
 
         out["arms"][arm] = {"rc": harness_rc, "kernel_rc": kernel_rc,
+                            "arm_kind": kind,
                             "source": r.get("source", "ledger_row"),
                             "field_sources": r.get("field_sources"),
                             "infrastructure_not_measured":
@@ -935,6 +1064,10 @@ def main():
     ap.add_argument("--work", required=True)
     ap.add_argument("--arms", default="P1,P2,O,F3")   # ADDENDUM 2: the arm list is REGISTERED
     ap.add_argument("--out", required=True)
+    ap.add_argument("--launcher", default=os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "d4s_run_arm.sh"),
+        help="ADDENDUM 2b: the FROZEN launcher whose case branches define each "
+             "arm's KIND; asserted against ARM_KIND, refuses on disagreement")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
 
@@ -955,7 +1088,8 @@ def main():
         report["NOT_MEASURED"] = {r["ARM"]: r.get("infra_not_measured", [])
                                   for r in ledger_rows
                                   if r.get("infra_not_measured")}
-        report["G1_completion"] = g_completion(a.work, a.base, ledger_rows, arms)
+        report["G1_completion"] = g_completion(a.work, a.base, ledger_rows, arms,
+                                               launcher=a.launcher)
         datum = report["G1_completion"]["age_datum_epoch"]
 
         report["G10_caps"] = g_caps(ledger_rows)
