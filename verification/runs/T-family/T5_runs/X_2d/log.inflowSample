@@ -1,0 +1,76 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : postProcess -func t5InflowSample -time 5000
+Date   : Aug 26 2026
+Time   : 16:58:58
+Host   : ip-172-31-43-247
+PID    : 213253
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/X_2d
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 5000
+
+Sampled set:
+    L8 -> raw
+    L10 -> raw
+    L12 -> raw
+    L14 -> raw
+    L16 -> raw
+    L18 -> raw
+    L20 -> raw
+    L22 -> raw
+    L24 -> raw
+    L26 -> raw
+    L28 -> raw
+    L30 -> raw
+    L32 -> raw
+    L34 -> raw
+    L36 -> raw
+    L38 -> raw
+    L40 -> raw
+    L42 -> raw
+    L44 -> raw
+    L46 -> raw
+    L48 -> raw
+    L50 -> raw
+    L52 -> raw
+    L54 -> raw
+    L56 -> raw
+    L58 -> raw
+    L60 -> raw
+    L62 -> raw
+    L64 -> raw
+    L66 -> raw
+    L68 -> raw
+    L70 -> raw
+    L72 -> raw
+    L74 -> raw
+
+Time = 5000
+
+Reading fields:
+    volScalarField: k omega
+    volVectorField: U
+
+Executing functionObjects
+
+End
+

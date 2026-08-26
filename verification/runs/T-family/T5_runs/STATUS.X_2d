@@ -1,0 +1,11 @@
+case=X_2d
+rc=0
+wall_s=313
+ranks=1
+core_min=5.217
+timeout_s=4752
+capped=0
+checkMesh_rc=0
+solver=simpleFoam
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam
+note=clean

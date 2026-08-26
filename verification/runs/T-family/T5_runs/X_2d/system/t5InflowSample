@@ -1,0 +1,42 @@
+type sets;
+libs (sampling);
+interpolationScheme cellPoint;
+setFormat raw;
+fields (U k omega);
+sets
+{
+    L8 { type uniform; axis y; start (0.12 1e-6 0.0005); end (0.12 0.050999 0.0005); nPoints 400; }
+    L10 { type uniform; axis y; start (0.15 1e-6 0.0005); end (0.15 0.050999 0.0005); nPoints 400; }
+    L12 { type uniform; axis y; start (0.18 1e-6 0.0005); end (0.18 0.050999 0.0005); nPoints 400; }
+    L14 { type uniform; axis y; start (0.21 1e-6 0.0005); end (0.21 0.050999 0.0005); nPoints 400; }
+    L16 { type uniform; axis y; start (0.24 1e-6 0.0005); end (0.24 0.050999 0.0005); nPoints 400; }
+    L18 { type uniform; axis y; start (0.27 1e-6 0.0005); end (0.27 0.050999 0.0005); nPoints 400; }
+    L20 { type uniform; axis y; start (0.3 1e-6 0.0005); end (0.3 0.050999 0.0005); nPoints 400; }
+    L22 { type uniform; axis y; start (0.33 1e-6 0.0005); end (0.33 0.050999 0.0005); nPoints 400; }
+    L24 { type uniform; axis y; start (0.36 1e-6 0.0005); end (0.36 0.050999 0.0005); nPoints 400; }
+    L26 { type uniform; axis y; start (0.39 1e-6 0.0005); end (0.39 0.050999 0.0005); nPoints 400; }
+    L28 { type uniform; axis y; start (0.42 1e-6 0.0005); end (0.42 0.050999 0.0005); nPoints 400; }
+    L30 { type uniform; axis y; start (0.45 1e-6 0.0005); end (0.45 0.050999 0.0005); nPoints 400; }
+    L32 { type uniform; axis y; start (0.48 1e-6 0.0005); end (0.48 0.050999 0.0005); nPoints 400; }
+    L34 { type uniform; axis y; start (0.51 1e-6 0.0005); end (0.51 0.050999 0.0005); nPoints 400; }
+    L36 { type uniform; axis y; start (0.54 1e-6 0.0005); end (0.54 0.050999 0.0005); nPoints 400; }
+    L38 { type uniform; axis y; start (0.57 1e-6 0.0005); end (0.57 0.050999 0.0005); nPoints 400; }
+    L40 { type uniform; axis y; start (0.6 1e-6 0.0005); end (0.6 0.050999 0.0005); nPoints 400; }
+    L42 { type uniform; axis y; start (0.63 1e-6 0.0005); end (0.63 0.050999 0.0005); nPoints 400; }
+    L44 { type uniform; axis y; start (0.66 1e-6 0.0005); end (0.66 0.050999 0.0005); nPoints 400; }
+    L46 { type uniform; axis y; start (0.69 1e-6 0.0005); end (0.69 0.050999 0.0005); nPoints 400; }
+    L48 { type uniform; axis y; start (0.72 1e-6 0.0005); end (0.72 0.050999 0.0005); nPoints 400; }
+    L50 { type uniform; axis y; start (0.75 1e-6 0.0005); end (0.75 0.050999 0.0005); nPoints 400; }
+    L52 { type uniform; axis y; start (0.78 1e-6 0.0005); end (0.78 0.050999 0.0005); nPoints 400; }
+    L54 { type uniform; axis y; start (0.81 1e-6 0.0005); end (0.81 0.050999 0.0005); nPoints 400; }
+    L56 { type uniform; axis y; start (0.84 1e-6 0.0005); end (0.84 0.050999 0.0005); nPoints 400; }
+    L58 { type uniform; axis y; start (0.87 1e-6 0.0005); end (0.87 0.050999 0.0005); nPoints 400; }
+    L60 { type uniform; axis y; start (0.9 1e-6 0.0005); end (0.9 0.050999 0.0005); nPoints 400; }
+    L62 { type uniform; axis y; start (0.93 1e-6 0.0005); end (0.93 0.050999 0.0005); nPoints 400; }
+    L64 { type uniform; axis y; start (0.96 1e-6 0.0005); end (0.96 0.050999 0.0005); nPoints 400; }
+    L66 { type uniform; axis y; start (0.99 1e-6 0.0005); end (0.99 0.050999 0.0005); nPoints 400; }
+    L68 { type uniform; axis y; start (1.02 1e-6 0.0005); end (1.02 0.050999 0.0005); nPoints 400; }
+    L70 { type uniform; axis y; start (1.05 1e-6 0.0005); end (1.05 0.050999 0.0005); nPoints 400; }
+    L72 { type uniform; axis y; start (1.08 1e-6 0.0005); end (1.08 0.050999 0.0005); nPoints 400; }
+    L74 { type uniform; axis y; start (1.11 1e-6 0.0005); end (1.11 0.050999 0.0005); nPoints 400; }
+}
