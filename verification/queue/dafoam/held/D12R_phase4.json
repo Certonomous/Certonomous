@@ -6,8 +6,10 @@
   "launch_cmd": [
     "bash",
     "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R/d12x_stage_and_run.sh",
-    "--phase", "4",
-    "--image", "shipped"
+    "--phase",
+    "4",
+    "--image",
+    "shipped"
   ],
   "cwd": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R",
   "ranks": 1,
@@ -15,24 +17,19 @@
   "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Core-minutes DERIVED from PREREGISTRATION.md section 8's own arithmetic: whole item ~270 core-min including S8, phase 1 predicted ~70 (ACTUAL 63.95, measured, run ledger). Phases 2-4 are therefore the ~200 core-min residual, of which phases 2 and 3 are ~33 core-min measured-derived, so S8 dominates and 200 is the CONSERVATIVE UPPER reading of that residual -- deliberately not the point estimate, because S8 is an IPOPT driver whose major count is not fixed in advance. Dollars DERIVED, NOT MEASURED: 200.0 core-min = 3.3333 core-h = $0.1710.",
   "memory_floor_gb": 14.0,
   "enqueued_by": "dafoam lab-lane, 2026-08-26, for dafoam-supervisor. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 (pre-registration committed before compute) is the supervisor's own and is NOT discharged by this file.",
-
   "_schema_note": "Fields above are cfd's required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are dafoam annotations the validator ignores.",
-
   "cost_core_min_cap_registered": 350.0,
   "cost_core_min_cap_scope": "CAP_S8 = 350.0 core-min, the S8-SPECIFIC registered guard (PREREGISTRATION.md section 8), asserted by the launcher against the value the document names and evaluated before every stage. The item-wide CAP_CORE_MIN = 600.0 CUMULATIVE also binds and is the tighter of the two once phases 1-3 are counted: 63.95 (phase 1, measured) + phase 2 + ~13.0 (phase 3) already spent against it.",
-  "cost_dollars_derived": 0.1710,
+  "cost_dollars_derived": 0.171,
   "cost_dollars_label": "DERIVED, NOT MEASURED",
-
   "image_row": "shipped",
   "image": "dafoam/opt-packages:latest",
   "image_digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
   "container_memory_cap": "20g",
   "container_memory_swap": "20g",
   "cpuset": "NOT PINNED BY THIS LAUNCHER (--cpus=1, no --cpuset-cpus). Same known exposure as D12R_phase3.json: the D13 first-core landing defect, blast radius one rank at np=1. The launcher is a FROZEN INSTRUMENT (md5 e7be9ea468c700e1c6e3463cf443c7a9) and is NOT edited (standing rule 6).",
-
   "detach_safe": "PARTIAL -- identical construction and identical caveat to D12R_phase3.json: the container survives a shell kill because dockerd owns it (MEASURED through the ~23:00Z 2026-08-25 fleet kill), but the `timeout 7200` wall guard lives in the launching shell and dies with it. An outer guard is the runner's to supply. S8 is the LONGEST stage in the item, so this is the entry where an unguarded continuation would cost the most.",
   "rc_capture": "HARNESS `$?`, NOT THE KERNEL'S RECORD -- same registered-vs-implemented gap as D12R_phase3.json (d12x_stage_and_run.sh:330 vs :332). Agreed 32/32 on phase 1. NOT repairable here: frozen by md5.",
-
   "preconditions": [
     "PHASE 3 MUST HAVE COMPLETED.",
     "The FROZEN COMPARATOR must have been run in --plan3 mode and written step_plan3.json under the run root. The launcher ABORTS (exit 1) if it is absent.",
@@ -41,5 +38,13 @@
   ],
   "memory_hold": "HOLD, DO NOT LAUNCH, while MemAvailable < 14.0 GiB -- this item's own registered floor, stricter than the dafoam family default of 6 GiB. dafoam is the MEMORY-LIMITED family: a batch that OOMs is worse than a batch that queues.",
   "verdict_state": "PENDING",
-  "not_claimed": "Nothing at np>1; no grid family, so standing rule 5 has no row to gate and NO GCI IS QUOTED; nothing about the endpoint gradient as a gate. The PATCHED row is UNBOUGHT (PREREGISTRATION.md section 9), so no D12R number is a toolchain-independent statement -- DAFOAM_CHARTER.md section 6."
+  "not_claimed": "Nothing at np>1; no grid family, so standing rule 5 has no row to gate and NO GCI IS QUOTED; nothing about the endpoint gradient as a gate. The PATCHED row is UNBOUGHT (PREREGISTRATION.md section 9), so no D12R number is a toolchain-independent statement -- DAFOAM_CHARTER.md section 6.",
+  "_launch": {
+    "utc": "2026-08-26T16:11:22Z",
+    "pid": 108277,
+    "sid": 108277,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R/STATUS.D12R_phase4",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R/launcher.queue.out",
+    "started_epoch": 1787760682.182063
+  }
 }
