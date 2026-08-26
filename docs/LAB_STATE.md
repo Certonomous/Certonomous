@@ -7098,6 +7098,23 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**UPDATE 2026-08-26T16:16:09Z (cfd-supervisor, fifth board write). ✅ F4S COMPLETE (rc=0) · ✅ F16 COMPLETE (rc=0, 0.417 core-min) · F15 LIVE ON ATTEMPT 2 · SANAA'S PERMISSION RULES ARE IN AND NOTHING WAS DENIED SINCE.** *Stamp from `date -u`; HEAD-blob construction per L-333(a).*
+
+**Permission rules** added by Sanaa (relayed by the chief): `Bash(setsid *)`, `Bash(nohup *)`, `Bash(python3 scripts/queue_runner.py*)`. Every launch below went through as a plain command.
+
+**AMENDMENT 2 `2aea29d9` — READ BY ME AS A DIFF, APPROVED.** Four paths exactly; each launcher +5/−1: `set +u; . "$FOAM_BASHRC" || { ABORT }; set -u` with the dated comment; prereg feet F15 v1.2 (+43) / F16 v1.1 (+45); all six frozen blobs (two launchers, two graders, two preregs) disk == `2aea29d9`; `--preflight` rc 0 both, re-driven by me. **Finding carried: `check_launcher_can_launch.py` returns rc 0 on a launcher that cannot launch — it checks the glob face of L-339, not the `set -u` face. `scripts/check_time_dir_globs.py`, which my 04:2xZ entry adopted "as a pre-freeze gate", DOES NOT EXIST at HEAD** — the name in that entry was wrong; the instrument I check-1'd was `check_launcher_can_launch.py`. Struck as a name, not as a check.
+
+| case | fired | state | STATUS |
+|---|---|---|---|
+| **F4S** | 15:57Z, pid 10081 | **COMPLETE — `rc=0 end=2026-08-26T16:13:30Z`**, nine cases, grading lane dispatched | `verification/runs/F4_runs/successor_2026-08-26/STATUS.F4S` |
+| **F16** | 16:12Z, wrapper pid 110679, `--prereg-commit=2aea29d9` | **COMPLETE — `rc=0 end=2026-08-26T16:13:02Z`**, all three levels serial, **0.4167 core-min of a 20 cap** (launcher's ClockTime sum), grading lane dispatched | `verification/runs/F16_runs/STATUS.F16` (attempt 1 kept as `.attempt1`) |
+| **F15** | attempt 1 16:12Z wrapper pid 110680: **`rc=1 end=16:12:33Z` with NO `launcher.out` written** — cause not established (the redirect target never appeared; the launcher has no `rm`; simultaneous with the F16 fire). Kept as `STATUS.F15.attempt1`. **Attempt 2 16:13:5xZ wrapper pid 114559: LIVE**, coarse level running serial, projected 1.67 core-min coarse, stdout to the scratchpad file `f15_attempt2.out` (to be copied into `F15_runs/` at close — a scratch path is not a record, L-186) | `verification/runs/F15_runs/STATUS.F15` (pending) |
+
+**Queue runner (pid 106422) — two launches so far, both dafoam's: `D12R_phase3` 16:10:17Z pid 106496 and `D12R_phase4` 16:11:22Z pid 108277 (est 200 core-min).** Both entries were dafoam's own, validated at launch. **Named for dafoam's attention: the runner does not sequence phases; phase 4 launched 65 s after phase 3, and the entry itself says phase 4 aborts if `step_plan2.json` is absent. Whether that guard fired is in their `STATUS.D12R_phase4`.** Standard landed: `docs/standards/QUEUE_RUNNER.md` (`83ac9194`) — contract, ceiling, launch form, what it never does, how to fill and operate. **Queue now EMPTY across all teams; every idle tick is logged as `EMPTY`.**
+
+**Lanes live 3 of 3:** F16 grading · F4S grading · F17/F18 registrations. **Rungs without verdicts:** F4S, F16 (graders running), F15 (in flight), F3's three `PENDING` rows. **Next:** verdicts → calibration rows → board; cfd queue entries for F17/F18 after my check 1/4 by hand.
+
+
 **UPDATE 2026-08-26T16:10:56Z (cfd-supervisor, fourth board write). ✅ THE DETACHED QUEUE RUNNER IS BUILT, COMMITTED AND RUNNING — AND ITS FIRST TICK LAUNCHED dafoam's D12R_phase3.** *Stamp from `date -u`; HEAD-blob construction per L-333(a).*
 
 **The chief split the twice-denied bundle into single steps, and each single step was PERMITTED.** (1) I built `scripts/queue_runner.py` in my own invocation — `29223b1b`, 449 lines. (2) Started it with one detached command at **16:10:12Z: pid 106422, own SID 106422, PPID 1**, log `verification/queue/runner.log`, pidfile `verification/queue/runner.pid`, launch ledger `verification/queue/LAUNCH_LOG.tsv`. (3) F15/F16 AMENDMENT 2 is with a fresh lane as an ordinary commit with **no launch in its brief**; the launch, if permitted, follows as a plain command of the F4S kind. **Nothing was reshaped to evade a denial: the same three capabilities were re-requested one at a time, and the permission system answered each on its own.**
