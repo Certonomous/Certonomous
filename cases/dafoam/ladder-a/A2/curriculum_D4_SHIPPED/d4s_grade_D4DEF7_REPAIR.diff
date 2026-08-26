@@ -1,0 +1,247 @@
+D4-DEF-7 REPAIR -- INSTRUMENT DIFF, for the supervisor's SUPERVISION_CHARTER section 3
+check 1 (measurement-script changes read AS DIFFS, personally, never as a lane's summary).
+
+  FROM  cases/dafoam/ladder-a/A2/curriculum_D4/d4_grade.py          (FROZEN, NOT EDITED)
+  TO    cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/d4s_grade.py (NEW FILE, this item)
+
+The frozen file is CITED AND COPIED, never modified (standing rule 6).  This diff is
+the complete difference between the graded D4 instrument and the instrument that will
+grade the SHIPPED row.  Everything not shown here is byte-identical, deliberately:
+the bands, the gates, the ladder, the component set and the planted-zero controls are
+INHERITED BY CITATION and a second copy of them would split the two rows between two
+definitions of the same gate.
+
+WHAT CHANGED, IN FOUR PLACES:
+  1. CAPS / ITEM_CEILING_CORE_MIN  -- the shipped arm set (P1,P2,O,ACC,F3), ceiling 880.0
+  2. TERMINAL_STATEMENT constant   -- with the measurement that forced it to be positional
+  3. LEDGER_RE + read_ledger       -- capture `log=`, so the producer's own log FILE is
+                                      identifiable; the frozen regex stopped at siblings_post
+  4. terminal_statement_ok() NEW, g_completion() REPAIRED, and THE VERDICT LINE REPAIRED
+
+--- curriculum_D4/d4_grade.py (FROZEN at HEAD)
++++ curriculum_D4_SHIPPED/d4s_grade.py (NEW)
+@@ -56,8 +56,20 @@
+ DECOMP_METHOD = "scotch"
+ CPUSET_REGISTERED = [5, 6, 7, 9]      # §5b -- pinned before compute
+ DELIVERED_CORES_FLOOR = 3.0           # §5b -- of a 4-core quota
+-CAPS = {"P1": 5.0, "P2": 55.0, "O": 620.0, "F": 120.0}
+-ITEM_CEILING_CORE_MIN = 800.0
++CAPS = {"P1": 5.0, "P2": 55.0, "O": 620.0, "ACC": 80.0, "F3": 120.0}
++ITEM_CEILING_CORE_MIN = 880.0         # sum of the five registered arm caps
++
++# ---- D4-DEF-7 REPAIR: the two clauses g_completion() NAMED AND NEVER RAN.
++# TERMINAL_STATEMENT is checked POSITIONALLY -- as the LAST non-empty line of
++# the producer's own log FILE -- and NOT as a substring anywhere in it.
++# MEASURED, ON D4'S OWN FOUR ARM LOGS, BEFORE THIS WAS WRITTEN:
++#   substring present : O yes, F3 yes, F yes, F2 yes   -> 4 of 4, DISCRIMINATES NOTHING
++#   LAST non-empty    : O yes, F3 yes, F  no, F2 no    -> 2 of 4, exactly the rc=0 arms
++# The crashed arms carry FOUR copies of the line mid-file (one per rank) and
++# then eleven further lines of mpirun abort text.  The obvious implementation
++# of this clause would have PASSED arm F -- the very arm that motivated
++# D4-DEF-7 -- so it would have been a second dead lever inside the repair.
++TERMINAL_STATEMENT = "Finalising parallel run"
+ MD5_RUNSCRIPT = "2906d52a5dbed2bacbaeaf85a37d3fe8"
+ PLANT = 1.234e-03                     # rule 3
+ 
+@@ -124,7 +136,42 @@
+ 
+ 
+ # ------------------------------------------------------------------- gates
+-def g_completion(work, ledger_rows, arms_required):
++def terminal_statement_ok(log_path):
++    """D4-DEF-7 clause 2, POSITIONAL.  The producer's own log FILE must END on
++    the terminal statement -- not merely contain it somewhere.
++
++    Returns (ok, detail).  Never raises on a readable file: an absent or
++    unreadable log is reported as a FAILED clause, not as a passing one.
++    """
++    if not os.path.isfile(log_path):
++        return False, {"log_absent": log_path}
++    try:
++        raw = open(log_path, "rb").read().replace(b"\x00", b"")
++        text = raw.decode("utf-8", errors="replace")
++    except OSError as exc:
++        return False, {"log_unreadable": log_path, "error": str(exc)}
++    lines = [ln.rstrip() for ln in text.splitlines()]
++    nonempty = [ln for ln in lines if ln.strip()]
++    if not nonempty:
++        return False, {"log_empty": log_path}
++    last = nonempty[-1]
++    ok = TERMINAL_STATEMENT in last
++    # The non-discriminating reading is computed and REPORTED BESIDE the
++    # verdict, never used as the verdict, so a reader can see for himself that
++    # the substring form would not have caught this.
++    anywhere = any(TERMINAL_STATEMENT in ln for ln in nonempty)
++    return ok, {"log": os.path.basename(log_path),
++                "last_nonempty_line": last[:160],
++                "terminal_ok_POSITIONAL": bool(ok),
++                "substring_anywhere_NOT_THE_TEST": bool(anywhere),
++                "n_lines_after_last_occurrence": (
++                    len(nonempty) - 1 - max(
++                        (k for k, ln in enumerate(nonempty)
++                         if TERMINAL_STATEMENT in ln), default=-1)
++                    if anywhere else None)}
++
++
++def g_completion(work, base, ledger_rows, arms_required):
+     """G1.  Strict completion, DAFoam analogue of CLAUDE.md rule 4.
+ 
+     Rule 4's field list (`T U p_rgh alphat nut k omega`) is the THERMAL
+@@ -133,6 +180,27 @@
+     statement from the producer's own log FILE, and the AGE GUARD -- every
+     graded artifact strictly NEWER than the case's own `0/` reference, which
+     the launcher touches LAST at stage time and records in `.d4_age_datum`.
++
++    D4-DEF-7 REPAIR.  In `curriculum_D4/d4_grade.py` this docstring named three
++    clauses and the code implemented ONE.  `rc` was written into the output and
++    NEVER COMPARED TO ZERO; there was no terminal-statement check at all; and
++    `main()` consumed the age half alone, so `G1_completion_and_age` emitted
++    PASS on a run whose required arm F reads `rc: 1`
++    (`curriculum_D4/ARMF3_d4_grade_verdict.json` at HEAD carries both
++    simultaneously).  All three clauses now run, ALL THREE reach the verdict,
++    and `out["pass"]` is the conjunction.
++
++    THE EXIT CODE IS READ FROM THE KERNEL'S RECORD.  `curriculum_D4/
++    PREREGISTRATION.md`:256-257 registered that the exit comes from
++    `docker inspect .State.ExitCode` "the kernel's own record, not from the
++    harness's `$?`", with `OOMKilled` from the same place -- and no D4-family
++    launcher except `A3/curriculum_D7R/d7r_run_arm.sh` ever implemented it.
++    This grader cannot fix a frozen launcher (rule 6), so it does the next
++    honest thing: it reads BOTH, requires the KERNEL's to be zero, and REFUSES
++    on a disagreement between them rather than silently preferring either.  On
++    every D4 arm graded to date the two agreed, so this clause is expected to
++    be quiet -- and a clause that is quiet because the condition is absent is
++    only known to work because the demonstration below MAKES it occur.
+     """
+     out = {"arms_required": arms_required, "arms": {}}
+     datum_path = os.path.join(work, ".d4_age_datum")
+@@ -147,19 +215,74 @@
+                       "recorded": datum, "on_disk": int(os.path.getmtime(ref))})
+     out["age_datum_epoch"] = datum
+     n_checked = 0
++    rc_failures, terminal_failures = [], []
+     for arm in arms_required:
+         hits = [r for r in ledger_rows if r.get("ARM") == arm]
+         if not hits:
+             refuse("G1", {"arm_absent_from_ledger": arm})
+         r = hits[-1]
+-        out["arms"][arm] = {"rc": r["rc"], "core_min": r["core_min"],
++
++        # ---- CLAUSE 1: rc == 0, FROM THE KERNEL'S OWN RECORD ------------
++        kernel_exit = r.get("inspect_exit")
++        if kernel_exit is None:
++            refuse("G1", {"kernel_exit_absent": arm,
++                          "note": "no inspect(exit,oomkilled) field in the "
++                                  "ledger row; the kernel's record was not "
++                                  "captured and rc cannot be established. A "
++                                  "launcher using --rm destroys it by "
++                                  "construction."})
++        try:
++            kernel_rc = int(kernel_exit)
++        except (TypeError, ValueError):
++            refuse("G1", {"kernel_exit_unparseable": arm, "value": kernel_exit})
++        harness_rc = r["rc"]
++        if kernel_rc != harness_rc:
++            refuse("G1", {"rc_disagreement": arm, "kernel": kernel_rc,
++                          "harness": harness_rc,
++                          "note": "the kernel's .State.ExitCode and the "
++                                  "harness's $? disagree. This grader refuses "
++                                  "rather than choose one silently."})
++        oom = str(r.get("oomkilled")).lower()
++        if oom not in ("false", "true", "none", "null"):
++            refuse("G1", {"oomkilled_unparseable": arm, "value": r.get("oomkilled")})
++        rc_ok = bool(kernel_rc == 0 and oom != "true")
++        if not rc_ok:
++            rc_failures.append({"arm": arm, "kernel_rc": kernel_rc,
++                                "oomkilled": oom})
++
++        # ---- CLAUSE 2: a terminal statement from the producer's log FILE --
++        logname = r.get("log")
++        if not logname:
++            t_ok, t_detail = False, {
++                "log_not_named_in_ledger": arm,
++                "note": "the ledger row carries no log= field, so the "
++                        "producer's own log FILE cannot be identified. "
++                        "Reported as a FAILED clause, never as a passing one."}
++        else:
++            t_ok, t_detail = terminal_statement_ok(os.path.join(base, logname))
++        if not t_ok:
++            terminal_failures.append({"arm": arm, "detail": t_detail})
++
++        out["arms"][arm] = {"rc": harness_rc, "kernel_rc": kernel_rc,
++                            "core_min": r["core_min"],
+                             "oomkilled": r["oomkilled"],
+-                            "inspect_exit": r["inspect_exit"]}
++                            "inspect_exit": r["inspect_exit"],
++                            "rc_clause_pass": rc_ok,
++                            "terminal_clause_pass": bool(t_ok),
++                            "terminal_detail": t_detail}
+         n_checked += 1
+     if n_checked != len(arms_required):
+         refuse("G1", {"arms_checked": n_checked,
+                       "arms_required": len(arms_required)})
+     out["n_arms_checked"] = n_checked
++    out["rc_failures"] = rc_failures
++    out["terminal_failures"] = terminal_failures
++    out["rc_clause_pass"] = bool(not rc_failures)
++    out["terminal_clause_pass"] = bool(not terminal_failures)
++    # `pass` here is the TWO clauses this function owns.  The age limb is
++    # computed by g_age() and conjoined at the verdict, so neither half can
++    # carry the gate alone -- which is exactly how D4-DEF-7 happened.
++    out["pass"] = bool(not rc_failures and not terminal_failures)
+     return out
+ 
+ 
+@@ -551,7 +674,8 @@
+     r"inspect\(exit,oomkilled\)=\[(?P<inspect>[^\]]*)\]\s+"
+     r"memavail_pre_GiB=(?P<mempre>[\d.]+)\s+memavail_post_GiB=(?P<mempost>[\d.]+)\s+"
+     r"cpuset=(?P<cpuset>\S+)\s+delivered_cores_mean=\[(?P<delivered>[^\]]*)\]\s+"
+-    r"siblings_pre=\[(?P<sibpre>[^\]]*)\]\s+siblings_post=\[(?P<sibpost>[^\]]*)\]")
++    r"siblings_pre=\[(?P<sibpre>[^\]]*)\]\s+siblings_post=\[(?P<sibpost>[^\]]*)\]"
++    r"(?:\s+log=(?P<log>\S+))?")
+ 
+ 
+ def read_ledger(path):
+@@ -576,7 +700,8 @@
+                      "memavail_pre_GiB": float(g["mempre"]),
+                      "memavail_post_GiB": float(g["mempost"]),
+                      "cpuset": g["cpuset"], "delivered": g["delivered"],
+-                     "siblings_pre": g["sibpre"], "siblings_post": g["sibpost"]})
++                     "siblings_pre": g["sibpre"], "siblings_post": g["sibpost"],
++                     "log": g.get("log")})
+     if not rows:
+         refuse("ledger", {"no_rows_parsed": path,
+                           "note": "a ledger with zero parsed rows is a parser "
+@@ -650,7 +775,7 @@
+     try:
+         ledger_rows = read_ledger(os.path.join(a.base, "ledger.txt"))
+         arms = [x for x in a.arms.split(",") if x]
+-        report["G1_completion"] = g_completion(a.work, ledger_rows, arms)
++        report["G1_completion"] = g_completion(a.work, a.base, ledger_rows, arms)
+         datum = report["G1_completion"]["age_datum_epoch"]
+ 
+         report["G10_caps"] = g_caps(ledger_rows)
+@@ -693,8 +818,22 @@
+                                  ["opt_IPOPT.txt", "OptView.hst",
+                                   "d4_major_history.json",
+                                   "d4_fd_endpoint.json"], datum)
++        # D4-DEF-7 REPAIR AT THE VERDICT.  The frozen grader read the age limb
++        # ALONE here -- `report["G1_completion"]` was computed and consumed by
++        # NO verdict in either file -- so a gate named for completion could
++        # emit PASS on a required arm that exited non-zero.  All three clauses
++        # now reach the label, and each is reported separately so a future
++        # reader can see WHICH one failed rather than only THAT the gate did.
++        report["G1_limbs"] = {
++            "rc_clause_pass": report["G1_completion"]["rc_clause_pass"],
++            "terminal_clause_pass":
++                report["G1_completion"]["terminal_clause_pass"],
++            "age_clause_pass": report["G1_age"]["pass"]}
+         verdicts["G1_completion_and_age"] = (
+-            "PASS" if report["G1_age"]["pass"] else "NOT A RESULT")
++            "PASS" if (report["G1_completion"]["rc_clause_pass"]
++                       and report["G1_completion"]["terminal_clause_pass"]
++                       and report["G1_age"]["pass"])
++            else "NOT A RESULT")
+ 
+         cap_stopped = not report["G3_termination"]["converged"]
+         if report["G3_termination"]["converged"]:
