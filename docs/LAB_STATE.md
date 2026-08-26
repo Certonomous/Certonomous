@@ -4608,6 +4608,23 @@ Entries: **1** (`T3_R_ff`, 18 218 core-min = **303.6 core-h**, $15.58 derived). 
 
 #### 7. ON SANAA'S DESK — nothing blocking. #### 8. BLOCKED — T5 `P`-column rows on §3 until a reference exists; K0e/K0f `P` on Blay 1992 (not being attempted).
 
+##### ADDENDUM 17:12Z — X_2d DONE, THE INFLOW MAP REFUSED (F10), MY TWO RULINGS, SIX T5 ENTRIES ABOUT TO DROP; §10.5 FLOOR-SYMBOL RULING ADOPTED
+
+*Written by the heat-transfer supervisor; stamp from `date -u`. The 17:02Z stamp on the block above was written ~3 min ahead of its commit (`5da3afc0` at 16:59:04Z) — disclosed, not corrected.*
+
+**X_2d DONE under the strict rule** (`e6037d08`): `STATUS.X_2d` rc=0 in-wrapper, `End`, `Time = 5000` = `endTime`, five fields at 5000 all 313 s newer than the `0/U` datum; `DONE.X_2d` 16:58:41Z. **5.217 core-min measured vs POINT 26.4, ratio 0.198, $0.0045 derived, not measured.** UNGRADED precursor (A1); a C-row is owed with the rung, not now.
+
+**F10 — `map_inflow_t5.py` REFUSED rc 2:** *"sample files missing for station 8: …/t5InflowSample/5000"* — openfoam-2606's `sets` writer emits ONE `L<s>_k_omega_U.xy` per station (34 files, 400 rows × 6 columns) where the committed reader expected two. Not worked around. **CHECK 1 DONE BY ME on the proposed reader (blob ade7b753 → dc2b4f74):** the change is confined to the sample reader — one file per station, columns `(y k omega Ux Uy Uz)`, which I verified against the first rows (k 5.1e-06 / ω 1.9e6 / Ux 0.0044 at y = 1e-6, wall-adjacent values in the right slots) — plus a new 6-column refusal; plane selection, the 2 H guard and the mapping arithmetic untouched. The script is not in the §16.9 freeze set. **RULING `[lab-attributed]`: ADOPTED as AMENDMENT 6 (v1.5 → v1.6, pre-first-graded-compute, disclosure-only).** Dry-run on a scratch copy: Re_θ crossing x/H 63.79, plane x_p/H 55.79, station 56 (Re_θ 592.1); Ux mean 4.4578 m/s, k mean 0.0531, ω mean 1.10e4, 400/400 samples non-zero per field.
+
+**RULING `[lab-attributed]` — launch mechanics for the graded cases:** `run_one_t5.sh --case-dir … --timeout <s> --ranks 1 --solver chtMultiRegionSimpleFoam --no-detach` under the runner's own `setsid nohup`. §15's `launch_t5.sh` is superseded visibly for runner launches: its G2 refuses under the runner's `cd <cwd>` form, and a self-detaching wrapper would hand the runner `launcher_rc=0` before the first iteration (the F8 shape) and blind its cap watch. The solver still runs in the wrapper's foreground under `timeout` with rc captured in-wrapper (§16.1 arms unchanged); no gate, band, cap or label moves. Carried in the same amendment.
+
+**Six entries drafted and validator-ACCEPTED, dropping now** (C, H_c, M, P_m, L_m, F; prereg `503a9a13`; ranks 1; POINT 45.6 / 45.6 / 530.4 / 530.4 / 371.4 / 2 308.2 core-min = **3 831.6 core-min = 63.86 core-h, $3.276 derived**; timeouts 8 208 / 8 208 / 95 472 / 95 472 / 66 852 / 415 476 s; memory floors ESTIMATED 2.0 / 2.0 / 2.2 / 2.2 / 2.2 / 9.0 GB at ~1 GB per 100k cells). The lane was right not to drop them before the map existed: each would have burned a launch on the arming refusal at zero compute and left an armed `0/`.
+
+**CHIEF'S RULING ADOPTED — MESH_STANDARD §10.5 (`01967a7b`):** `P_MIN` carries 0.5 in this family's `analyse_t3_rff` / `analyse_t11` and 0.05 in `analyse_t5` and `roache_triple.py` (where 0.5 is `STAGNANT_FLOOR`); verdicts equivalent, frozen files untouched. **From now on every heat-transfer freeze imports `STAGNANT_FLOOR` / `P_MIN` from `scripts/roache_triple.py` or calls `grade_ladder` and defines neither.** Relayed to the T4b / T10aR2 registration lane mid-task at 17:05Z as a binding course correction; held at check 1 on each new registration.
+
+**Queue at this write: 1 entry, 303.63 core-h** (R_ff, HELD: 8.2 busy + 8 > 14.4). Runner pid 189825 live.
+
+
 ### SESSION certonomous-70 — RESUME AFTER THE 05:00Z FLEET DEATH AND A ~15:19Z BOX REBOOT: everything landed, the box is refilled, T11 is the family's first EXACT-tier PASS ×3
 
 **Sub-section written:** 2026-08-26T16:11:20Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. Built from the HEAD blob per L-333; every block below this one is carried byte-for-byte.
