@@ -10746,6 +10746,53 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-26T22:57:51Z — **CLOSING BLOCK ON SANAA'S ORDER ("EVERYBODY commits everything before we run out of credits") — progress, lessons, next steps; lanes G and H ordered to land in-progress artefacts as they stand**
+
+**Written by `ansys-verification-supervisor` personally.** Sanaa's order relayed by the chief at
+~23:0xZ; both opus lanes were told to stop new work and commit every artefact by private index,
+one commit per item, unfinished ones headed IN PROGRESS / NOT FROZEN. Their shas land in git and
+are reported to the chief as they arrive; **this block is written BEFORE they land, so their commit
+ids are not here — read `git log --oneline | grep '^[0-9a-f]* ansys'`.** Uncommitted files in
+this team's territory at this write (excluding run outputs): **18 paths** listed in the scratch
+only — every one is a lane's in-progress item under the order above.
+
+#### PROGRESS TONIGHT (22:00Z → now), measured
+- **GPU instance: from 4 h 20 m idle on a self-refused launch to TWO cases run.** VMFLGPU001
+  complete (6/6 rc 0, 0.4417 GPU-h; comparator refusal on clause 5 ruled INFRASTRUCTURE under
+  L-342, re-grade in progress). **VMFLGPU002 RUNNING since 22:46:12Z (pid 103102, prereg
+  `eca61c2d`, ≈ 0.5 GPU-h)** — it finishes in its own session with no agent alive; its STATUS,
+  RUN_RC and logs land in `verification/runs/ansys_verification/VMFLGPU002/` on the instance,
+  UNGRADED until an opus lane runs `grade_vmflgpu002.py`.
+- **GPU runner certified by kill test** (30 s cron restart, solver unaffected, `07f21ade`).
+- **Register 30 → 32** (rows #31 VMFL011-R2, #32 VMFL017-R2, both `NOT A RESULT`); **6 PASS of 32.**
+- **200 run records landed at HEAD**; all 92 register-cited paths resolve.
+- **Box queue: 9.7 core-min** agent-independent (VMFL011-R3, VMFL076-R2), HELD at ≥ 85 % busy.
+- Lessons: **L-343** (cron runner has no USER; smoke certificate valid only through the runner),
+  **L-347** (planted-zero blind when the plant does not cross the reader's selection; a control
+  behind a refusal has never run). Amendments: VMFLGPU001 A2/A3 (pre-compute), A4 (post-compute,
+  L-342); VMFL011-R3 A1.
+
+#### WHAT THE NEXT INCARNATION PICKS UP, in order
+1. **VMFLGPU002**: read its STATUS on the instance; run the frozen comparator (blob in
+   `eca61c2d`'s entry text) → RESULTS, register row, GPU calibration row. If lane G's A4 re-grade
+   of VMFLGPU001 did not land, finish it first: row #33.
+2. **GPU queue is EMPTY behind 002 → the card idles when 002 ends.** Freeze VMFLGPU003 (triangular
+   cavity, parent VMFL011/R3 — bespoke profile gate, plant at the argmin row per L-347) and drop it
+   on `/home/ubuntu/gpu_queue/ansys-verification/` with `host ip-172-31-44-162`. Then 004–010
+   (008–010 partial-coverage per the draft doc's honesty note). **Stop the GPU instance only after
+   all 10 complete** (Sanaa `3c3ef86c`), and board the stop.
+3. **Box**: VMFL006 (real surfaceFieldValue first, then freeze), then 020/029/038/046/061/070, one
+   full freeze at a time, each entry with an explicit `host`.
+4. Chief items still open: `queue_entry_check.py:274` AGE-GUARD on absent `cwd`; `export USER` in
+   `scripts/queue_runner.sh` (cfd); console GPU-hour price for the calibration rows.
+
+#### IDLE, NAMED, NOT ABSORBED
+GPU idle 17:41:33Z → 22:17:06Z (4 h 36 m, ≈ $3.70 derived) on this team's own launcher guards;
+2 min 36 s between 001 and 002. Whatever idles after 002 ends is the next incarnation's first
+line.
+
+**BLOCKED:** none. **No classifier denial in any lane this session.**
+
 ### 2026-08-26T22:48:38Z — **VMFLGPU001 COMPLETE (6/6 rc 0, 0.4417 GPU-h) and its frozen comparator REFUSED on an inherited clause; ruled under L-342; VMFLGPU002 FROZEN (`eca61c2d`) and LAUNCHED 22:46:12Z — the card idled 2 min 36 s between cases**
 
 **Written by `ansys-verification-supervisor` personally.** Commit since the 22:3xZ block:
