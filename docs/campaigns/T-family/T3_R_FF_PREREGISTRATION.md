@@ -312,3 +312,80 @@ stands regardless and is not addressed by a fourth level.
 Frozen inherited instruments, by HEAD blob: `build_t3.py` `340a5079`,
 `check_t3_mesh.py` `0e4afc3c`, `mark_done_t3.py` `5da28c73`,
 `mark_done_t3_ext1.py` `e4cbb992`, `analyse_t3.py` `d5e4a9eb`.
+
+---
+
+## AMENDMENT 1 — 2026-08-26 (PRE-FIRST-COMPUTE): the grading path, frozen. Document v1.0 -> v1.1
+
+**Condition (`CLAUDE.md` rule 2), and how it was checked.** Immediately before
+this commit `ls verification/runs/T-family/T3_runs/` shows **no `STATUS.R_ff`,
+no `DONE.R_ff`, no `gate_t3_rff.json`**, and `R_ff/` holds no `0/`, no time
+directory and no `processor*` — `R_ff` has not iterated; zero core-minutes
+spent. Both new instruments **refuse** on the live tree today (`exit 2`:
+"no completion marker DONE.R_ff" / "no STATUS.R_ff"). The supervisor's ruling
+(2026-08-26) is the reason: a comparator written after the data exist is the
+Charter §2d hazard, so §8's owed reader is delivered and frozen **now**.
+
+**The frozen grading path — two files, named by git blob (content-safe staged):**
+
+| file | git blob | sha256 (first 16) | lines |
+|---|---|---|---:|
+| `verification/runs/T-family/T3_runs/analyse_t3_rff.py` | `44e3e2b8038b9274` | `e1aaf61b236fa72a` | 230 |
+| `verification/runs/T-family/T3_runs/mark_done_t3_rff.py` | `9436399f8682efb6` | `0ad4f08ee0ee10b6` | 157 |
+
+**`analyse_t3_rff.py`** grades the triple `{"c": "R_m", "m": "R_f", "f": "R_ff"}`
+by **importing** the frozen `analyse_t3.py` (blob `d5e4a9eb`), which is not
+edited. Reused from it, by name: `measure` (the reader every graded number
+passes through), `planted_zero_control` (`PLANT = 1.234e-03` K, planted into
+`R_f`, the medium level, refusal if unseen), `gci_unequal` (Celik unequal
+ratios, `Fs = 1.25`; **its `p < 0.5 -> STAGNANT` branch is the observed-order
+floor `P_MIN = 0.5` that T11 adopted at `352aef0d` — it is the frozen file's
+own floor, stated here, not re-implemented**; exactly equal steps return
+`DIVERGENT` at `p = 0`), `graded_verdict` (the ordered gate: level not
+CONVERGED → NOT A RESULT; triple not CONVERGING → NOT A RESULT; outlet test;
+no primary → **BLOCKED**; band), `ratios_from_ncells`, `triple_of`,
+`load_secondary`, `load_primary`, `GRADED`, `VERDICTS`. Not reused: `main()`'s
+c/m/f wiring and eight-case loop, and `read_status` (single-line pool format;
+`launch_t3_rff.sh` writes key=value lines). The G4 outlet-independence input is
+the graded record's own `gate_t3.json` row `DO` (`criterion_met`), not
+re-measured; absent → NOT MEASURED, disclosed. Refuses on any absent
+`DONE.R_m` / `DONE.R_f` / `DONE.R_ff`. Writes `gate_t3_rff.json` only; the
+decomposition-confound caveat of §5 is carried on every row. `--selftest`
+(**PASS under `python3` and `python3 -O`, 13/13**) drives: the P1-shaped
+triple → CONVERGING `p = 1.993` → BLOCKED; equal steps → `p < P_MIN` → NOT A
+RESULT with no GCI; `p = 0.6` CONVERGING vs `p = 0.4` STAGNANT (the floor is
+live); a NOT_CONVERGED fine level → NOT A RESULT at gate (1); DIVERGENT and
+OSCILLATORY → NOT A RESULT; the outlet guard → NOT A RESULT; the closed
+vocabulary; **refusal `exit 2` on an absent `DONE.R_ff` driven in a scratch
+root**; the plant read back at `1.2340000000108e-03`; the negative arm
+(identical checkpoints → change 0). AST `assert` count **0**.
+
+**`mark_done_t3_rff.py`** calls the frozen `mark_done_t3.check(root, "R_ff")`
+(blob `5da28c73`; clauses 1–6: rc from the in-wrapper `STATUS.R_ff`, `End`
+line, last time == `endTime`, fields present, `ExecutionTime` count, age guard
+vs `0/T`) and, if `log.solve.ext1` exists, the frozen
+`mark_done_t3_ext1.check_ext` (blob `e4cbb992`) verbatim; adds
+**`reconstructpar_rc = 0`** as physics-critical (the fields are reconstructed).
+**Field classes per L-342 (Sanaa's rule, `LESSONS.md:14663`): physics-critical**
+= solver rc, End, last time, fields, age guard, reconstructPar rc — any failure
+is NOT DONE, an **absent `STATUS.R_ff` is a refusal (`exit 2`)**;
+**infrastructure** = `wall_s`, `ranks`, `core_min`, `timeout_s`, `capped`,
+`checkmesh_rc`, `decomposepar_rc`, the `log.launch` / `log.decomposePar` /
+`log.reconstructPar` / `log.checkMesh.run` presence — reported, **absent →
+NOT MEASURED, disclosed in the marker, never a refusal**. Never retracts;
+`--dry-run`. `--selftest` (**PASS under `python3` and `python3 -O`, 8/8**):
+clean → DONE; `rc=1`, `reconstructpar_rc=3`, no `End`, short
+`ExecutionTime` count, fields older than `0/T` → each NOT DONE with no marker;
+absent STATUS → `exit 2`; infrastructure fields absent → DONE with NOT MEASURED
+disclosed. AST `assert` count **0**.
+
+**Cost ruling recorded [lab-attributed, from the heat-transfer supervisor's
+ruling of 2026-08-26; not Sanaa's words as read by this lane]:** the POINT
+**USD 15.58 derived** is inside the rung's authorisation under Sanaa's
+2026-08-25 CPU cost directive — caps are runaway guards, not budget gates; the
+USD 25 line predates it and is superseded for CPU spend. **The CEILING 27 400
+core-min stands as the registered stop** (timeout 205 500 s at 8 ranks). §6's
+figures are unchanged.
+
+**No gate, threshold, cap or label moves. Lines whose number changed above
+this section: 0.** The launch remains the supervisor's order; nothing here fires.
