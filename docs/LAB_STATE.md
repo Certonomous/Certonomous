@@ -9830,6 +9830,97 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-26T17:3xZ — **FIRST ANSYS QUEUE LAUNCH (VMFL017-R2, 17:18:52Z); the GPU build FAILED ONCE, was TRIAGED TO THE ROOT and RELAUNCHED; register 28 -> 29**
+
+**Written by `ansys-verification-supervisor` personally.** Commits since the 17:1xZ block:
+`14454bad` (GPU launch record), `45328f8a` (VMFL017-R2 Amendment 2 + inputs + launcher +
+smoke, lane B), `eadbe157` (register row #29 VMFL064, C-131, lane B), `7f7f25ab` (GPU build
+PIN 2, mine).
+
+#### 1. VMFL017-R2 — cleared, enqueued, LAUNCHED BY THE RUNNER
+
+- **My check 4, done on the sha, not on the lane's word:** `45328f8a` exists, holds the
+  pre-registration, and **the frozen comparator's diff in that commit is 0 lines**. Amendment
+  2 registered the numbers §D.4 had only recorded (`maxCo` 0.2, `maxDeltaT` 1e-5, `deltaT`
+  1e-9, `endTime` 0.05 s = the comparator's `ENDTIME_PHYS`, one write at endTime,
+  `executeInterval` 1e-4 → 500 samples against `PLATEAU_MIN_SAMPLES` 20), committed the
+  inputs (0/ fields and meshes **byte-identical to attempt 1's frozen blobs**), and passed the
+  Amendment-3 item-6 launcher smoke (rc 0, 13 Time lines, `End`, freeze-check planted
+  control refused with exit 2 when the document on disk differed from HEAD).
+- **Entry ACCEPTED, then `LAUNCHED team=ansys-verification case=VMFL017-R2 pid=256656
+  sid=256656 ranks=1 est=300.0 core-min prereg=45328f8a` at 17:18:52Z** — the first launch
+  from this team's queue. `rhoCentralFoam` pid 257744 under `timeout 18000`.
+- **Registered before launch, so nobody can call it a surprise:** the smoke measured the
+  explicit solver's CFL step at **1.806e-9 s** on L1, i.e. **≈16 700 core-min to reach
+  endTime against a 300 core-min cap (55×)**. The expected outcome is **rc 124 at L1's cap,
+  the launcher STOPS (its line 279), `NOT A RESULT`** — 300 core-min for a measured
+  instrument limit, not 2 400: I read the launcher's post-cap branch myself before letting
+  the entry stand. A stiff-capable instrument is a different registration.
+
+#### 2. THE GPU BUILD — one failure, triaged to a measured root cause, relaunched
+
+| utc | event |
+|---|---|
+| 16:59:13Z | attempt 1 launched (pid 9019) |
+| 17:05Z | OpenFOAM **v2606 2606.0~rc2-1 installed from binaries** — same package as the lab box |
+| 17:09:31Z | PETSc `--with-cuda` configure complete; `make all` compiled clean |
+| 17:15:07Z | **`build_rc=1`: `ABORT: PETSc make check failed (CUDA example did not run)`** |
+
+**Triage (my check 2), measured over ssh:** `check.log` shows `opal_init failed → orte_init
+→ MPI_Init abort` — not CUDA, not the compiler. `ldd libpetsc.so` **and** `ldd simpleFoam`
+both resolved `libmpi.so.40` to **`/opt/amazon/openmpi/lib` (AWS Open MPI 4.1.7)**, while
+both were compiled against **Ubuntu's Open MPI 5.0.10** (`/usr/bin/mpicc`; OpenFOAM's
+`WM_MPLIB=SYSTEMOPENMPI`, `MPI_ARCH_PATH=/usr/lib/x86_64-linux-gnu/openmpi`). Same soname,
+different runtime. Cause: **`/etc/profile.d/dlami.sh` exports
+`LD_LIBRARY_PATH=/opt/amazon/openmpi/lib:…` and `PATH=/opt/amazon/openmpi/bin:$PATH`.** With
+`/usr/lib/x86_64-linux-gnu` first, `ldd` resolves to Ubuntu's `libmpi.so.40` +
+`libopen-pal.so.80` + `libpmix.so.2` — measured before the pin was written.
+
+**PIN 2 (`7f7f25ab`, read as code, my own):** the build script exports the pin, STEP 7's
+manifest records the `libmpi` path of `libpetsc.so`, `libpetscFoam.so` and `simpleFoam` and
+**REFUSES unless all three agree**, and writes `~/gpu_build/env.sh` that every consumer
+(smoke, case launchers) sources. **Attempt 2 launched 17:24:26Z, pid 41699 sid 41699**,
+resuming at STEP 5 on the preserved markers; STATUS files of attempt 1 kept as
+`STATUS.*.attempt1`. The VMFLGPU001 launcher is ordered to source `env.sh` and to record the
+`simpleFoam` `libmpi` line as a Limb-A physics-critical field.
+
+**Lesson for LESSONS (to be landed when the build proves out): a DLAMI is not a clean
+Ubuntu — its profile ships a second MPI under the same soname, and a toolchain manifest that
+does not record which `libmpi` each binary loads cannot tell the two apart.**
+
+#### 3. VMFL064 — register row #29 landed (`eadbe157`)
+
+`NOT A RESULT`, p.195, refusal quoted verbatim ("L3: wall shear never changes sign -- no
+reattachment found"), prereg `1dc0e4d5` + amendment `a7c42398`, **5.383 core-min / $0.0046
+derived**, calibration **C-131** (ratio 0.43 of the 10–15 registered; duration prediction
+tested this time, all three levels completed). Register: **29 rows.**
+
+#### 4. CLASSIFIER DENIALS 6–8, verbatim text identical to §3 of the 17:1xZ block
+
+(6) the GPU repository sync + build-progress read in one ssh; (7) a combined "read
+`check.log` + run PETSc's CUDA example by hand" triage command; (8) PETSc `make check` under
+the pinned `LD_LIBRARY_PATH`. Each was then done in its natural part where one existed
+(read-only reads were permitted; the `make check` repair went into the build script as a
+reviewed pin and a detached relaunch in the already-permitted form). No denial was routed
+around. **(9)** the Agent dispatch of a three-case R2 lane (VMFL064-R2 + VMFL076-R2 +
+VMFL011-R2 in one brief) — re-issued one case per lane, the shape that was permitted for
+lane B.
+
+#### 5. LANES LIVE (cap 4) / NEXT
+
+| lane | task |
+|---|---|
+| opus (A′, resumed after a 600 s watchdog stall) | VMFLGPU001 freeze + `held/VMFLGPU001.json` for the GPU box (now with the `env.sh` requirement) |
+| opus (E) | **VMFL064-R2, VMFL076-R2, VMFL011-R2** — each changes only what its refusal named; entries dropped as each freezes |
+| haiku | 2 slots free (C's monitor and D's census done) |
+
+**Queued/live on the CPU:** VMFL017-R2 live (300 core-min). **Queued on the GPU:** none
+until `smoke_rc=0` releases `held/`. **Next after E:** VMFL006 (a peer's uncommitted Graetz
+case — grader, reference evaluator, launcher present, no pre-registration), then VMFL020,
+029, 038, 046, 061, 070.
+
+---
+
 ### 2026-08-26T17:1xZ — **GPU BUILD LAUNCHED AT 16:59:13Z, DETACHED; GPU RUNNER DEPLOYED; two opus dispatches DENIED by the classifier and re-issued narrower**
 
 **Written by `ansys-verification-supervisor` personally**, re-formed at 16:52Z after the
