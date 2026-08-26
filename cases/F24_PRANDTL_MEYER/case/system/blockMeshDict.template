@@ -1,0 +1,57 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F24 -- Prandtl-Meyer expansion around a convex corner, M1 = 2, deflection
+  15 deg.  Two structured blocks sharing the vertical edge above the corner:
+    A: x in [-0.5, 0], y in [0, 1]                  (uniform squares, h x h)
+    B: x in [0, 1.5], sheared parallelogram whose bottom and top edges both
+       slope at -15 deg (the deflected wall and a parallel inflow top), so
+       EVERY cell of B is the same parallelogram (h wide, h tall, 15 deg shear)
+       and the ladder is geometrically similar at every level.
+  __N__ = cells per unit length (h = 1/__N__): A is (0.5 N) x N, B is (1.5 N) x N.
+  The horizontal top of A (y = 1, x < 0) is undisturbed tangential freestream
+  (fixedValue state 1).  The sloped top of B is an OUTFLOW boundary (state-1
+  flow is horizontal, so U.n = sin 15 deg |U| > 0 through it, supersonic: all
+  characteristics leave) and is zeroGradient like the outlet; the head Mach
+  line (30 deg) crosses it at x = 1.18, which an outflow boundary carries.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+
+scale   1;
+yb      __YB__;      // 1.5 tan(15 deg)
+yt      __YT__;      // 1 - yb
+
+vertices
+(
+    (-0.5  0     0)   // 0
+    ( 0    0     0)   // 1  the corner
+    ( 1.5 -$yb   0)   // 2
+    ( 1.5  $yt   0)   // 3
+    ( 0    1     0)   // 4
+    (-0.5  1     0)   // 5
+    (-0.5  0     0.1) // 6
+    ( 0    0     0.1) // 7
+    ( 1.5 -$yb   0.1) // 8
+    ( 1.5  $yt   0.1) // 9
+    ( 0    1     0.1) // 10
+    (-0.5  1     0.1) // 11
+);
+
+blocks
+(
+    hex (0 1 4 5  6 7 10 11) (__NXA__ __NY__ 1) simpleGrading (1 1 1)
+    hex (1 2 3 4  7 8 9 10)  (__NXB__ __NY__ 1) simpleGrading (1 1 1)
+);
+
+edges ();
+
+boundary
+(
+    inlet    { type patch; faces ((0 6 11 5)); }
+    outlet   { type patch; faces ((2 3 9 8)); }
+    topA     { type patch; faces ((5 11 10 4)); }   // horizontal, tangential state-1 freestream
+    topB     { type patch; faces ((4 10 9 3)); }    // sloped at -15 deg: supersonic OUTFLOW (U.n > 0), zeroGradient
+    wallUp   { type wall;  faces ((0 1 7 6)); }
+    wallDown { type wall;  faces ((1 2 8 7)); }
+    frontAndBack { type empty; faces ((0 5 4 1) (1 4 3 2) (6 7 10 11) (7 8 9 10)); }
+);
+
+mergePatchPairs ();

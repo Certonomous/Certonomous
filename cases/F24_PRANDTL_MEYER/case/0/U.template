@@ -1,0 +1,18 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// F24 -- state 1 (U1 = (M1 c1, 0, 0)) everywhere at t = 0, at the mesh's own
+// cell centres; written by build_f24.py LAST of all: the age guard dates every
+// endTime field against it.  Walls are inviscid: slip.
+
+dimensions      [0 1 -1 0 0 0 0];
+internalField   nonuniform List<vector> __INTERNALFIELD__;
+
+boundaryField
+{
+    inlet    { type fixedValue; value uniform (__U1__ 0 0); }
+    topA     { type fixedValue; value uniform (__U1__ 0 0); }
+    topB     { type zeroGradient; }
+    outlet   { type zeroGradient; }
+    wallUp   { type slip; }
+    wallDown { type slip; }
+    frontAndBack { type empty; }
+}

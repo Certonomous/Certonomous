@@ -1,0 +1,22 @@
+FoamFile { version 2.0; format ascii; class dictionary; object thermophysicalProperties; }
+// NONDIMENSIONAL perfect gas: molWeight = RR = 1e3 * NA * k (OpenFOAM v2606
+// constants) so the specific gas constant RR/W is exactly 1 and p = rho T;
+// Cp = gamma/(gamma - 1) = 3.5 -> gamma = 1.4; Tref = 0 and Hsref = 0 so
+// e = Cv T with no 298.15 K offset.  Checked against exact_f20 by the launcher
+// and the grader.
+thermoType
+{
+    type            hePsiThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleInternalEnergy;
+}
+mixture
+{
+    specie         { molWeight 8314.47006650545; }
+    thermodynamics { Cp 3.5; Hf 0; Tref 0; Hsref 0; }
+    transport      { mu 0; Pr 1; }
+}

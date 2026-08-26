@@ -1,0 +1,16 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object T; }
+// F24 -- state 1 (T1 = 1) everywhere at t = 0, at the mesh's own cell centres.
+
+dimensions      [0 0 0 1 0 0 0];
+internalField   nonuniform List<scalar> __INTERNALFIELD__;
+
+boundaryField
+{
+    inlet    { type fixedValue; value uniform __T1__; }
+    topA     { type fixedValue; value uniform __T1__; }
+    topB     { type zeroGradient; }
+    outlet   { type zeroGradient; }
+    wallUp   { type zeroGradient; }
+    wallDown { type zeroGradient; }
+    frontAndBack { type empty; }
+}
