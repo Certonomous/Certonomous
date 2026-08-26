@@ -779,12 +779,18 @@ def docker_inspect(name):
 
 
 def docker_logs(name):
+    # stderr is MERGED INTO stdout in stream order (2>&1), exactly as the
+    # launcher's `docker logs "$NAME" > "$LOG" 2>&1` writes the log FILE, so
+    # the positional clause reads the same last line either way.  (A2.2
+    # correction: the first cut appended stderr AFTER stdout and read a
+    # matplotlib warning as the last line -- caught on the LIVE record in the
+    # pre-F3 grade, NOT by the text fixtures, which cannot model a stream; the
+    # live re-grade in d4s_grade_ARM_O_PREF3_*.json is the evidence.)
     out = subprocess.run(["sudo", "-n", "docker", "logs", name],
-                         capture_output=True)
+                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if out.returncode != 0:
         refuse("G1", {"kernel_record_logs_failed": name})
-    return (out.stdout + out.stderr).replace(b"\x00", b"").decode(
-        "utf-8", errors="replace")
+    return out.stdout.replace(b"\x00", b"").decode("utf-8", errors="replace")
 
 
 def parse_docker_ts(s):

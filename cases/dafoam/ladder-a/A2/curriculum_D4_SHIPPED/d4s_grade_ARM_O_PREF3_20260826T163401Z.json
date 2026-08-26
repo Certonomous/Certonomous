@@ -1,0 +1,378 @@
+{
+ "REFUSED": "G2: {\"absent\": \"/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin/O/d4_major_history.json\"}",
+ "report": {
+  "G10_caps": {
+   "item_ceiling": 880.0,
+   "n_arms": 3,
+   "pass": false,
+   "rows": [
+    {
+     "actual": 0.667,
+     "arm": "P1",
+     "cap_equals_registered": true,
+     "enforced": 5.0,
+     "ledger_cap": 5.0,
+     "registered": 5.0,
+     "within_cap": true
+    },
+    {
+     "actual": 41.133,
+     "arm": "P2",
+     "cap_equals_registered": true,
+     "enforced": 55.0,
+     "ledger_cap": 55.0,
+     "registered": 55.0,
+     "within_cap": true
+    },
+    {
+     "actual": 731.667,
+     "arm": "O",
+     "cap_equals_registered": true,
+     "enforced": 620.0,
+     "ledger_cap": 620.0,
+     "registered": 620.0,
+     "within_cap": false
+    }
+   ],
+   "total_core_min": 773.467,
+   "within_item_ceiling": true
+  },
+  "G11_memory": {
+   "arms_oomkilled": [],
+   "n_arms": 3,
+   "pass": true
+  },
+  "G12_placement": {
+   "COLLISION_all_ranks_share_a_core": false,
+   "affinity_inside_cpuset": true,
+   "affinity_union": [
+    5,
+    6,
+    7,
+    9
+   ],
+   "all_ranks_on_distinct_single_cores": true,
+   "arms_below_floor": [],
+   "cpuset_registered": [
+    5,
+    6,
+    7,
+    9
+   ],
+   "delivered": [
+    {
+     "arm": "P1",
+     "cpuset": "5,6,7,9",
+     "cpuset_as_registered": true,
+     "delivered_cores_mean": null,
+     "raw": "NOT_MEASURED",
+     "siblings_post": "d12y_S3b_c2_am_20260826T033053Z_3069758",
+     "siblings_pre": "d12y_S3b_c2_am_20260826T033053Z_3069758"
+    },
+    {
+     "arm": "P2",
+     "cpuset": "5,6,7,9",
+     "cpuset_as_registered": true,
+     "delivered_cores_mean": 3.9689,
+     "raw": "3.9689 n=40 max_nr_throttled=2007",
+     "siblings_post": "d12y_S4_n20_r2_20260826T033053Z_3069758",
+     "siblings_pre": "d12y_S3b_c2_am_20260826T033053Z_3069758"
+    },
+    {
+     "arm": "O",
+     "cpuset": "5,6,7,9",
+     "cpuset_as_registered": true,
+     "delivered_cores_mean": null,
+     "raw": "NOT_MEASURED",
+     "siblings_post": "NOT_MEASURED",
+     "siblings_pre": "NOT_MEASURED"
+    }
+   ],
+   "delivered_floor": 3.0,
+   "n_arms_with_delivered_measurement": 1,
+   "n_placement_files": 4,
+   "n_ranks_read": 4,
+   "pass": true,
+   "rank_affinity": {
+    "0": [
+     5
+    ],
+    "1": [
+     6
+    ],
+    "2": [
+     7
+    ],
+    "3": [
+     9
+    ]
+   }
+  },
+  "G1_completion": {
+   "age_datum_epoch": 1787717054,
+   "arms": {
+    "O": {
+     "core_min": 731.667,
+     "field_sources": {
+      "DIGEST": "docker inspect d4_O_20260826T040414Z_3177545 .Image",
+      "cap_core_min": "registered CAPS table",
+      "core_min": "wall_s x 4 / 60",
+      "cpuset": "docker inspect d4_O_20260826T040414Z_3177545 .HostConfig.CpusetCpus",
+      "inspect_exit": "docker inspect d4_O_20260826T040414Z_3177545 .State.ExitCode",
+      "memory": "docker inspect d4_O_20260826T040414Z_3177545 .HostConfig.Memory",
+      "oomkilled": "docker inspect d4_O_20260826T040414Z_3177545 .State.OOMKilled",
+      "rc": "docker inspect d4_O_20260826T040414Z_3177545 .State.ExitCode",
+      "terminal_statement": "docker logs d4_O_20260826T040414Z_3177545 (positional)",
+      "wall_s": "docker inspect d4_O_20260826T040414Z_3177545 .State.StartedAt/.State.FinishedAt"
+     },
+     "infrastructure_not_measured": [
+      "memavail_pre_GiB",
+      "memavail_post_GiB",
+      "delivered",
+      "siblings_pre",
+      "siblings_post",
+      "cpu_series",
+      "log"
+     ],
+     "inspect_exit": "0",
+     "kernel_rc": 0,
+     "oomkilled": "false",
+     "rc": 0,
+     "rc_clause_pass": true,
+     "source": "kernel_record",
+     "terminal_clause_pass": false,
+     "terminal_detail": {
+      "last_nonempty_line": "  ax.set_ylim([ymin_plot, ymax_plot])",
+      "log": "docker logs d4_O_20260826T040414Z_3177545",
+      "n_lines_after_last_occurrence": 46,
+      "source": "kernel_record",
+      "substring_anywhere_NOT_THE_TEST": true,
+      "terminal_ok_POSITIONAL": false
+     }
+    },
+    "P1": {
+     "core_min": 0.667,
+     "field_sources": null,
+     "infrastructure_not_measured": [
+      "delivered"
+     ],
+     "inspect_exit": "0",
+     "kernel_rc": 0,
+     "oomkilled": "false",
+     "rc": 0,
+     "rc_clause_pass": true,
+     "source": "ledger_row",
+     "terminal_clause_pass": false,
+     "terminal_detail": {
+      "last_nonempty_line": "{\"rank\": 0, \"affinity\": [5], \"n_cores\": 1, \"pid\": 287}{\"rank\": 1, \"affinity\": [6], \"n_cores\": 1, \"pid\": 288}{\"rank\": 2, \"affinity\": [7], \"n_cores\": 1, \"pid\": 28",
+      "log": "P1_20260826T035214Z_3130694.log",
+      "n_lines_after_last_occurrence": null,
+      "substring_anywhere_NOT_THE_TEST": false,
+      "terminal_ok_POSITIONAL": false
+     }
+    },
+    "P2": {
+     "core_min": 41.133,
+     "field_sources": null,
+     "infrastructure_not_measured": [],
+     "inspect_exit": "0",
+     "kernel_rc": 0,
+     "oomkilled": "false",
+     "rc": 0,
+     "rc_clause_pass": true,
+     "source": "ledger_row",
+     "terminal_clause_pass": true,
+     "terminal_detail": {
+      "last_nonempty_line": "Finalising parallel run",
+      "log": "P2_20260826T035301Z_3131586.log",
+      "n_lines_after_last_occurrence": 0,
+      "substring_anywhere_NOT_THE_TEST": true,
+      "terminal_ok_POSITIONAL": true
+     }
+    }
+   },
+   "arms_required": [
+    "P1",
+    "P2",
+    "O"
+   ],
+   "n_arms_checked": 3,
+   "pass": false,
+   "rc_clause_pass": true,
+   "rc_failures": [],
+   "terminal_clause_pass": false,
+   "terminal_failures": [
+    {
+     "arm": "P1",
+     "detail": {
+      "last_nonempty_line": "{\"rank\": 0, \"affinity\": [5], \"n_cores\": 1, \"pid\": 287}{\"rank\": 1, \"affinity\": [6], \"n_cores\": 1, \"pid\": 288}{\"rank\": 2, \"affinity\": [7], \"n_cores\": 1, \"pid\": 28",
+      "log": "P1_20260826T035214Z_3130694.log",
+      "n_lines_after_last_occurrence": null,
+      "substring_anywhere_NOT_THE_TEST": false,
+      "terminal_ok_POSITIONAL": false
+     }
+    },
+    {
+     "arm": "O",
+     "detail": {
+      "last_nonempty_line": "  ax.set_ylim([ymin_plot, ymax_plot])",
+      "log": "docker logs d4_O_20260826T040414Z_3177545",
+      "n_lines_after_last_occurrence": 46,
+      "source": "kernel_record",
+      "substring_anywhere_NOT_THE_TEST": true,
+      "terminal_ok_POSITIONAL": false
+     }
+    }
+   ]
+  },
+  "G1_kernel_record_fallback": {
+   "O": {
+    "ARM": "O",
+    "DIGEST": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+    "IMG": "dafoam/opt-packages:latest",
+    "ROW": "SHIPPED",
+    "cap_core_min": 620.0,
+    "container": "d4_O_20260826T040414Z_3177545",
+    "core_min": 731.667,
+    "cpuset": "5,6,7,9",
+    "delivered": "NOT_MEASURED",
+    "enforced_core_min": 620.0,
+    "field_sources": {
+     "DIGEST": "docker inspect d4_O_20260826T040414Z_3177545 .Image",
+     "cap_core_min": "registered CAPS table",
+     "core_min": "wall_s x 4 / 60",
+     "cpuset": "docker inspect d4_O_20260826T040414Z_3177545 .HostConfig.CpusetCpus",
+     "inspect_exit": "docker inspect d4_O_20260826T040414Z_3177545 .State.ExitCode",
+     "memory": "docker inspect d4_O_20260826T040414Z_3177545 .HostConfig.Memory",
+     "oomkilled": "docker inspect d4_O_20260826T040414Z_3177545 .State.OOMKilled",
+     "rc": "docker inspect d4_O_20260826T040414Z_3177545 .State.ExitCode",
+     "terminal_statement": "docker logs d4_O_20260826T040414Z_3177545 (positional)",
+     "wall_s": "docker inspect d4_O_20260826T040414Z_3177545 .State.StartedAt/.State.FinishedAt"
+    },
+    "finished": "2026-08-26T07:07:09.642351339Z",
+    "infra_not_measured": [
+     "memavail_pre_GiB",
+     "memavail_post_GiB",
+     "delivered",
+     "siblings_pre",
+     "siblings_post",
+     "cpu_series",
+     "log"
+    ],
+    "inspect_exit": "0",
+    "log": null,
+    "memavail_post_GiB": null,
+    "memavail_pre_GiB": null,
+    "memory": "12g",
+    "oomkilled": "false",
+    "ranks": 4,
+    "rc": 0,
+    "siblings_post": "NOT_MEASURED",
+    "siblings_pre": "NOT_MEASURED",
+    "source": "kernel_record",
+    "started": "2026-08-26T04:04:14.841346421Z",
+    "wall_s": 10975
+   }
+  },
+  "G3_termination": {
+   "converged": false,
+   "exit_lines": [
+    "EXIT: Maximum Number of Iterations Exceeded."
+   ],
+   "final_inf_du": 3.52e-05,
+   "final_inf_pr": 6.59e-05,
+   "final_objective": 0.021120596,
+   "n_majors": 100,
+   "n_rows_parsed": 101,
+   "other_exit_lines": [
+    "EXIT: Maximum Number of Iterations Exceeded."
+   ]
+  },
+  "G8_decomposition": {
+   "A": {
+    "processor0": 9504,
+    "processor1": 9600,
+    "processor2": 9608,
+    "processor3": 9592
+   },
+   "B": {
+    "processor0": 9504,
+    "processor1": 9600,
+    "processor2": 9608,
+    "processor3": 9592
+   },
+   "cells_A": 38304,
+   "cells_B": 38304,
+   "cells_expected": 38304,
+   "identical": true,
+   "method_in_dict": true,
+   "method_registered": "scotch",
+   "numberOfSubdomains_in_dict": true,
+   "pass": true
+  },
+  "G9_toolchain": {
+   "digests": [
+    "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc"
+   ],
+   "idwarp_so_md5_by_log": {
+    "P1_20260826T035214Z_3130694.log": "f0fcb488e0e98156575cd19548e91663",
+    "P2_20260826T035301Z_3131586.log": "f0fcb488e0e98156575cd19548e91663",
+    "docker_logs:d4_O_20260826T040414Z_3177545": "f0fcb488e0e98156575cd19548e91663"
+   },
+   "idwarp_so_md5_distinct": [
+    "f0fcb488e0e98156575cd19548e91663"
+   ],
+   "n_logs_read": 3,
+   "pass": true,
+   "rows": [
+    "SHIPPED"
+   ],
+   "single_toolchain": true
+  },
+  "NOT_MEASURED": {
+   "O": [
+    "memavail_pre_GiB",
+    "memavail_post_GiB",
+    "delivered",
+    "siblings_pre",
+    "siblings_post",
+    "cpu_series",
+    "log"
+   ],
+   "P1": [
+    "delivered"
+   ]
+  },
+  "field_classes": {
+   "infrastructure": [
+    "memavail_pre_GiB",
+    "memavail_post_GiB",
+    "delivered",
+    "siblings_pre",
+    "siblings_post",
+    "cpu_series",
+    "log"
+   ],
+   "physics": [
+    "rc",
+    "inspect_exit",
+    "oomkilled",
+    "terminal_statement",
+    "age_guard",
+    "wall_s",
+    "core_min",
+    "cap_core_min",
+    "enforced_core_min",
+    "DIGEST",
+    "cpuset"
+   ]
+  }
+ },
+ "verdicts": {
+  "G10_cap_discipline": "GATE FAIL",
+  "G11_memory_envelope": "PASS",
+  "G12_cpu_placement": "PASS",
+  "G8_decomposition_determinism": "PASS",
+  "G9_toolchain_identity": "PASS"
+ }
+}

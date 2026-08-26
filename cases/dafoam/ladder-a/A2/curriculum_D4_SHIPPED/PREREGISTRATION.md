@@ -463,3 +463,43 @@ arms will be measured live; the O row's cost is 731.667 core-min from the kernel
 Every band, threshold, cap (P1 5.0, P2 55.0, O 620.0, ACC 80.0, F3 120.0, ceiling 880.0), label,
 component and prediction in §§1–8 and Addendum 1 stands exactly as frozen. **No gate moves. The
 grader learns to read a record the launcher could not write; it does not learn a new answer.**
+
+## A2.6 CORRECTION AND THE PRE-F3 RE-GRADE — 2026-08-26, before ACC/F3 fire
+
+**Correction to A2.2(ii), found on the LIVE record, not by the fixtures.** The first cut of
+`docker_logs()` appended stderr AFTER stdout, so the positional clause read a matplotlib warning
+(`ax.set_ylim([ymin_plot, ymax_plot])`) as the last line, 46 lines after the last terminal
+statement — the file `d4s_grade_ARM_O_PREF3_20260826T163401Z.json` shows `terminal_clause_pass:
+false` for O. The launcher writes its log file as `docker logs > LOG 2>&1`, stream-interleaved.
+The capture now merges stderr into stdout in stream order (`stderr=subprocess.STDOUT`), and the
+re-grade `d4s_grade_ARM_O_PREF3_20260826T163508Z.json` reads the last line `Finalising parallel
+run` → `terminal_clause_pass: true`. **Both files are kept.** `d4s_grade.py` md5 is now
+**`27cd4d94c06a055b768bc89ecb46eb82`**; the diff against the original frozen blob (`01d38008`) is
+regenerated. The fixtures cannot model a stream; the live re-grade is the evidence for this line.
+
+**The pre-F3 gate table for arm O, from the kernel record** (`--arms P1,P2,O`; the grade then
+refuses at G2 on the absent `d4_major_history.json`, which F3's extractor writes — expected):
+
+| gate | reading | verdict |
+|---|---|---|
+| G1 rc clause, O | kernel exit 0, OOM false (`docker inspect d4_O_20260826T040414Z_3177545`) | clause PASS |
+| G1 terminal clause, O | last line of the interleaved stream = `Finalising parallel run` | clause PASS |
+| G1 terminal clause, P2 | ledger log file | clause PASS |
+| **G1 terminal clause, P1** | **P1's log contains the terminal statement 0 times** (so does the PATCHED item's P1 log) | **clause FAIL — D4S-GRADER-DEF-2, below** |
+| G10 | O 731.667 > 620.0, `within_cap=False`; P1 0.667, P2 41.133; total 773.467 ≤ 880 | **`GATE FAIL`** as registered in A2.3 |
+| G9 | one distinct `libidwarp.so` md5 `f0fcb488e0e98156575cd19548e91663` across 3 sources incl. the kernel-held O stream | `PASS` (S6 HIT) |
+| G11 | no arm OOM-killed | `PASS` |
+| G12 | affinity {5,6,7,9}, distinct single cores, P2 delivered 3.9689 ≥ 3.0 | `PASS` |
+| G8 | decomposition A == B, 38,304 cells, scotch | `PASS` |
+| G3 | `converged=False`, 100 majors, final objective 2.1120596e-02, `EXIT: Maximum Number of Iterations Exceeded.` | composed after F3 |
+| NOT_MEASURED, named | O: memavail_pre/post, delivered, siblings_pre/post, cpu_series, log; P1: delivered | disclosure only |
+
+**D4S-GRADER-DEF-2 — recorded, NOT repaired, referred to the supervisor.** `g_completion()`
+composes the terminal-statement clause over **every** required arm, and arm P1 (decomposition +
+placement, an mpi4py script, no OpenFOAM solver) never prints `Finalising parallel run`. So
+`G1_completion_and_age` will read **`NOT A RESULT` by construction** for this item, and would have
+in the frozen 94ddfc48 grader for any run whatsoever; §3.3's demonstration drove the clause on O,
+F3, F and F2 logs and never on a P1 log. Whether the clause should apply to solver arms only is a
+gate-composition question and is **not** decided here: **the prediction registered now is that
+G1 reads `NOT A RESULT` after F3 for this reason alone, with the O and P2 limbs PASS, and the
+record will say so beside the label.**

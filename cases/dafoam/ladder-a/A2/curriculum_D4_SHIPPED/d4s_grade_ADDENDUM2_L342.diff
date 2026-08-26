@@ -1,5 +1,5 @@
---- /tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/g.frozen.py	2026-08-26 16:30:36.116934500 +0000
-+++ cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/d4s_grade.py	2026-08-26 16:27:57.786042118 +0000
+--- /tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/g.orig.py	2026-08-26 16:36:11.668826879 +0000
++++ cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/d4s_grade.py	2026-08-26 16:34:54.289390385 +0000
 @@ -37,7 +37,9 @@
  import os
  import re
@@ -109,7 +109,7 @@
      if not rows:
          refuse("ledger", {"no_rows_parsed": path,
                            "note": "a ledger with zero parsed rows is a parser "
-@@ -709,6 +756,115 @@
+@@ -709,6 +756,121 @@
      return rows
  
  
@@ -136,12 +136,18 @@
 +
 +
 +def docker_logs(name):
++    # stderr is MERGED INTO stdout in stream order (2>&1), exactly as the
++    # launcher's `docker logs "$NAME" > "$LOG" 2>&1` writes the log FILE, so
++    # the positional clause reads the same last line either way.  (A2.2
++    # correction: the first cut appended stderr AFTER stdout and read a
++    # matplotlib warning as the last line -- caught on the LIVE record in the
++    # pre-F3 grade, NOT by the text fixtures, which cannot model a stream; the
++    # live re-grade in d4s_grade_ARM_O_PREF3_*.json is the evidence.)
 +    out = subprocess.run(["sudo", "-n", "docker", "logs", name],
-+                         capture_output=True)
++                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 +    if out.returncode != 0:
 +        refuse("G1", {"kernel_record_logs_failed": name})
-+    return (out.stdout + out.stderr).replace(b"\x00", b"").decode(
-+        "utf-8", errors="replace")
++    return out.stdout.replace(b"\x00", b"").decode("utf-8", errors="replace")
 +
 +
 +def parse_docker_ts(s):
@@ -225,7 +231,7 @@
  def g_caps(ledger_rows):
      """G10.  The enforced cap must EQUAL the registered cap, per arm, read back
      from the ledger the launcher wrote -- not from the launcher's own claim."""
-@@ -737,7 +893,7 @@
+@@ -737,7 +899,7 @@
                           and total <= ITEM_CEILING_CORE_MIN)}
  
  
@@ -234,7 +240,7 @@
      """G9.  DAFOAM_CHARTER §11: the identity is the image hash, never a version
      string.  Also records the IDWarp .so md5 the run actually imported."""
      so = {}
-@@ -747,9 +903,14 @@
+@@ -747,9 +909,14 @@
              continue
          n_logs += 1
          for line in open(lp, errors="replace"):
@@ -251,7 +257,7 @@
      if n_logs == 0:
          refuse("G9", {"no_arm_logs_found": logs})
      digests = sorted({r["DIGEST"] for r in ledger_rows})
-@@ -766,7 +927,7 @@
+@@ -766,7 +933,7 @@
      ap = argparse.ArgumentParser()
      ap.add_argument("--base", required=True)
      ap.add_argument("--work", required=True)
@@ -260,7 +266,7 @@
      ap.add_argument("--out", required=True)
      ap.add_argument("--selftest", action="store_true")
      a = ap.parse_args()
-@@ -775,6 +936,19 @@
+@@ -775,6 +942,19 @@
      try:
          ledger_rows = read_ledger(os.path.join(a.base, "ledger.txt"))
          arms = [x for x in a.arms.split(",") if x]
@@ -280,7 +286,7 @@
          report["G1_completion"] = g_completion(a.work, a.base, ledger_rows, arms)
          datum = report["G1_completion"]["age_datum_epoch"]
  
-@@ -784,7 +958,10 @@
+@@ -784,7 +964,10 @@
  
          logs = [os.path.join(a.base, f) for f in sorted(os.listdir(a.base))
                  if f.endswith(".log")]
@@ -292,7 +298,7 @@
          verdicts["G9_toolchain_identity"] = (
              "PASS" if report["G9_toolchain"]["pass"] else "GATE FAIL")
  
-@@ -908,8 +1085,12 @@
+@@ -908,8 +1091,12 @@
                            "delivered_cores_floor": DELIVERED_CORES_FLOOR}}
      with open(a.out, "w") as fh:
          json.dump(out, fh, indent=1, sort_keys=True, default=str)
