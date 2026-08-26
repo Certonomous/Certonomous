@@ -14771,3 +14771,64 @@ Sibling of L-342 (an infrastructure record voiding what it does not own) and of 
 ESTIMATE_OVERRUN}.txt` (20:52:11Z, 20:54:01Z) beside `launched/T5_C.json` and
 `launched/T5_C_v2.json`; the fix and its planted controls in the cfd commit of
 2026-08-26T22:15Z naming both instances; `docs/standards/QUEUE_RUNNER.md` §5.
+
+## L-345 — A gate quantity whose own registered model predicts a DEGENERATE triple must be registered REPORTED-NOT-GATED, or with an absolute band and no order claim; a DEGENERATE prediction is a registration defect, not a run finding
+
+**Cost:** one gate of a completed, otherwise clean three-level ladder (F19_SOD,
+`rhoCentralFoam`, Toro Test 1, 5.6 core-min) returned `NOT A RESULT` on a triple
+the registration had already, in its own numbers, shown could not read an order.
+cfd, 2026-08-26; the cfd-supervisor's 17:46Z ruling, landed here.
+
+**What happened.** F19 registered G-F19-2, the shock position x_s at t = 0.2, as
+"CONVERGING → PASS" with a value band exact ± 3 × |model error at fine| and the
+prose "the model's three x_s values are monotone with a sign-stable error (order
+≈ 0.58, 1.0)" (`verification/campaign/F19_SOD_PREREGISTRATION.md:137-139` @
+`3053d9ec`). The run reproduced the model to the printed digit at every level
+(x_s 0.850756236 / 0.850649076 / 0.850539520 against model 0.850756 / 0.850649 /
+0.850540) and the frozen grader read the triple **DEGENERATE, |p| = 0.032 <
+P_MIN 0.05 → `NOT A RESULT`** (`verification/campaign/F19_SOD_RESULTS.md:22` @
+`08aa454c`). The "orders ≈ 0.58, 1.0" in the registration were orders of the
+*error against the exact value*; the classifier reads orders of the *value
+differences* e21 = f_m − f_f and e32 = f_c − f_m, and those were 1.09e−04 and
+1.07e−04 — equal increments, p ≈ 0. Run through `scripts/roache_triple.py::
+triple_from_cells` at zero compute, the registered model's own x_s triple
+(0.850756, 0.850649, 0.850540; 400/800/1600 cells; dim 1) reads **DEGENERATE,
+order −0.027** — the miss was latent in the pre-registration before any solver
+started, and nothing about the run put it there.
+
+**Why.** A captured shock's position is sub-cell-quantised: the midpoint crossing
+moves by a fraction of a cell per refinement, and the *values* of such a quantity
+across an r = 2 ladder need not have differences that shrink geometrically even
+when the *error* is shrinking. Roache's fitted order is a statement about value
+differences. So a quantity can be monotone, sign-stable and converging toward the
+exact answer and still be unreadable by the instrument — and the registered model
+already said so, in the numbers, to anyone who classified them instead of reading
+the error column.
+
+**The fix — at registration, not after.** Run the registered discretisation
+model's own triple for **every gated quantity** through the same
+`roache_triple.py` classifier that will grade the run (`triple_from_cells`, the
+same `dim`, the same P_MIN / STAGNANT_FLOOR), and print the state beside the
+prediction. If the model's own triple is DEGENERATE, STAGNANT, OSCILLATORY or
+EXACT, the quantity is registered either **REPORTED-NOT-GATED** (the value is
+printed, no verdict is attached to it, and the case's verdict is composed from the
+other gates) or **with an absolute band and NO order claim** — never as
+"CONVERGING → PASS". A DEGENERATE prediction that reaches the freeze is a
+**registration defect**, and its NOT A RESULT is not a finding of the run. F25's
+registration (`verification/campaign/F25_DUCT3D_PREREGISTRATION.md`) is the first
+to carry this check as a refusing control in its exact-solution module.
+
+**Scope.** Every gate whose quantity is a position, a crossing, a count, an
+argmax, or anything else read at cell resolution (shock position, reattachment
+point, separation location, a peak's index). Norm-type quantities (L1/L2 error, an
+integral) are unaffected unless their model triple is itself degenerate — which the
+same check discovers. Sibling of L-338 and L-340: an instrument frozen without
+being run against the specific quantity it was going to read.
+
+**Provenance:** `verification/campaign/F19_SOD_RESULTS.md:22` @ `08aa454c`;
+`verification/campaign/F19_SOD_PREREGISTRATION.md:82-91,125-142` @ `3053d9ec`;
+`scripts/roache_triple.py` (`P_MIN = 0.05`, line 171); the cfd-supervisor's ruling
+of 2026-08-26T17:46Z; the classification of the model triple above, re-run by the
+landing lane at HEAD on 2026-08-26.
+
+---
