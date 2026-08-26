@@ -14388,3 +14388,85 @@ is a NEW register row (ANSYS_VERIFICATION_CHARTER §6).
 `verification/runs/ansys_verification/VMFL004/GRADING_VMFL004.json`; register row #25;
 prereg blob `0e61889534d0e7180a105190f7ead06e3c00b432`, comparator
 `ddea9d473b6d6092427d29c5997c25af956a7fb6`.
+
+---
+
+## L-339 — A checker that buries one real hit under thirty false ones is not a degraded instrument; it is a RETIRED one
+
+**MEASURED, on this box, 2026-08-26.** A static checker written to catch *a
+frozen launcher that cannot launch* was run over the heat-transfer territory on
+its first build:
+
+| build | files | findings | **true** | **precision** |
+| --- | ---: | ---: | ---: | ---: |
+| first | 65 | **32** | **1** | **3.1 %** |
+| after one exclusion | 79 | 13 | 1 | 7.7 % |
+
+**Thirty of the thirty-two were two idioms that are not the defect at all:**
+`/proc/[0-9]*` is a **process-id** glob, and `[0-9]*` inside
+`sed 's/^writePrecision  [0-9]*;/.../'` is a **regex quantifier**, not a glob.
+The one real hit — `verification/runs/THERMAL_K0_runs/run_controls.sh:141`,
+`ls -d "$BASE"/[0-9]*`, which really does match `0.orig` — was **invisible
+inside its own report.**
+
+**THE LESSON IS NOT "TUNE YOUR REGEX". IT IS ABOUT WHAT A BAD PRECISION DOES TO
+A CHECK'S FUTURE.** A 94 % false-positive rate does not make an instrument
+*somewhat* less useful. **It teaches its users to skip it** — and a check that
+is skipped is worse than one that was never written, because the register still
+says it exists. **The real hit then becomes invisible twice: once in the noise,
+and once in the belief that the check is running.**
+
+**THE RIGHT METHOD IS TO DRIVE THE PATTERN, NOT TO JUDGE ITS SHAPE**, and a peer
+lane found it independently the same night: match the glob against `0.orig` with
+`fnmatch` and ask whether it *actually* hits. **That is a measurement, and it
+immediately corrected two of this lane's own claimed true positives** — `[1-9]*`
+in `K2b_runs/run_k2b.sh:57` and `KV1_runs/run_kv1.sh:26` **cannot** match
+`0.orig`, so they are not this defect, whatever they look like.
+
+**AND THE DRIVEN METHOD HAD THE OPPOSITE FAILURE, WHICH IS WHY BOTH HALVES ARE
+NEEDED:** it `fnmatch`es the **whole segment**, so the path-qualified
+`"$BASE"/[0-9]*` returns `False` and **the one genuine hit in the territory was
+MISSED**. Shape-matching over-fires; whole-segment driving under-fires. The
+correct form takes the **basename** of the segment before driving it, and still
+excludes non-case absolute paths such as `/proc`.
+
+### The reason such a checker has to exist at all
+
+**THREE TIMES IN ONE NIGHT THE LAB ALREADY HELD THE ANSWER AND COULD NOT REACH
+IT:** the `[0-9]*`-matches-`0.orig` trap was known at
+`THERMAL_K0_runs/run_cases.sh:70` and `K2e_runs/build_cases.py:76`; the
+Richardson sign question was settled at commit `2f1d6cb7`; and
+`THERMAL_K0_runs/run_cases.sh:14` **carries a comment saying in as many words
+that the OpenFOAM bashrc dereferences unset variables so `set -u` must not be in
+force** — the exact defect a later lane then shipped into a frozen launcher.
+
+> **THE RECURRING COST IN THIS LAB IS NOT IGNORANCE. IT IS THAT WHAT ONE RUNG
+> LEARNED WAS NEVER MADE CHECKABLE FOR THE NEXT.** Every one of those three was
+> a comment or a commit message that a later author could not reasonably have
+> been expected to find. **A comment is a note to whoever is already reading
+> that file. Only an executable check reaches someone who is not.**
+
+### The failure that illustrates why the check must be DRIVEN and not merely present
+
+The same night, a launcher was repaired to source the OpenFOAM environment. The
+repair **appeared applied and loaded nothing**: under `set -u` the bashrc aborts
+at `line 184: WM_PROJECT_DIR: unbound variable`, and the solver was still not on
+`PATH`. **The danger is the SILENCE, not the variable.** A loud `rc=127` — seven
+cases, zero iterations, an honest STATUS file — is a *good* failure. **A fix
+that appears applied and does nothing converts that into a quiet wrong state,
+and the next failure would have looked like physics.** It was caught only by an
+arm that resolved the **real** binary on the **real** `PATH` with no fixture.
+
+**GENERAL FORM.** Before a check is registered anywhere: (1) **state its
+precision as a number** on a real corpus, not as an impression — "it improved"
+is not a measurement; (2) **drive the pattern against a real positive and a real
+negative** rather than judging it by shape; and (3) treat a high false-positive
+rate as **disqualifying, not cosmetic** — the instrument's users are part of the
+instrument.
+
+**Provenance:** `scripts/check_launcher_can_launch.py` (peer-authored, the
+driven method); `verification/runs/THERMAL_K0_runs/run_controls.sh:141` (the
+genuine hit); `run_cases.sh:14` (the answer the lab already held);
+`docs/campaigns/F14-cooling-ladder/K0f_PREREGISTRATION.md` AMENDMENT 2 §A2.3a
+(the silent-load finding); `scripts/compute_stage_count.py` (the governor
+repair from the same session).
