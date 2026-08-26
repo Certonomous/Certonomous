@@ -286,3 +286,38 @@ bash /home/ubuntu/Certonomous/cases/dafoam/_common/dafoam_wait_then_launch.sh
 `held/D6_chain.json` (prereg `a1283284`, cost 1,694.7, floor 24.0) stays in `held/` as the record and is marked **SUPERSEDED** in `held/README.md`. The live entry is **`verification/queue/dafoam/D6_chain_wait.json`**: `case_id D6_chain_wait`, `prereg_commit` = the commit that lands this addendum, `launch_cmd` = the wrapper argv above, `cwd` = this case directory, `ranks 4`, `cost_core_min_estimate 1694.7` (§4, unchanged), `memory_floor_gb 24.0`, `permission bc0e687e`. The runner's own `memory_floor_gb` check is evaluated at launch of the **wrapper**, which then waits; the driver's H5 window re-checks 24.0 GiB at each arm. Enqueueing is not authorisation (`SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own).
 
 **Condition, and how it was checked:** `test -e /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint` → **false** (20:58Z); `sudo -n docker ps -a` carries no `d6_` name; no `d6_chain_driver` process exists; `test -e …/CURRICULUM-D5-a2-wing-ffd-density/CHAIN_DONE` → false. **0 core-min; this item has never fired.**
+
+
+---
+
+# ADDENDUM 3 — 2026-08-26 — **PRE-COMPUTE** — `CHAIN_DONE`: the driver gains the fixed-name chain-end marker of D5 Addendum 3 A3.5, so a later item (D8R) can wait on this chain's end with no agent alive
+
+**Version 1.2 → 1.3. Lines whose number changed above this section: 0.** Written 2026-08-26T22:52:12Z by dafoam `lab-lane` N2 on the supervisor's placement ruling (`docs/LAB_STATE.md` `## dafoam`, FIFTEENTH session, `[lab-attributed]`: D8R is re-filed as a wait-wrapper behind THIS chain's end); permission `bc0e687e`. `CLAUDE.md` rule 2, pre-first-compute: **no gate, threshold, band, cap, label, cost, prediction, cpuset, memory cap, floor or arm moves**; one executable line of the driver changes. Zero compute.
+
+## A3.1 What the driver wrote at chain end, and why it is not a usable precondition
+
+`d6_chain_driver.sh` (`63458a976455636c796e60a3b3fd3566`, Addendum 2) appends `chain=COMPLETE` (or `STOPPED_AT_FIRST_NONZERO` / `STOPPED_H5` / `BLOCKED_AGGREGATE` / `REFUSED_ALREADY_BOUGHT` / `ABORT`) to `STATUS.chain` — a file that **exists from `chain=started`**, so `dafoam_wait_then_launch.sh`'s existence test on it would fire at chain START. D5 Addendum 3 (`b5b428bc`, A3.5) solved exactly this for D6's own wrapper with a fixed-name, append-only **`CHAIN_DONE`** written by the driver's EXIT trap on **every** exit of a started chain; D17's and D8R's drivers carry the same line from birth. This addendum gives D6's driver the same line.
+
+## A3.2 The change — one line, shown as the diff
+
+```diff
+@@ -66 +66 @@
+-trap 'rm -f "$PIDFILE"' EXIT
++trap 'rm -f "$PIDFILE"; echo "chain_done stamp=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ arms=[$ARMS] last=[$(tail -n 1 "$STATUS" 2>/dev/null)] permission=$PERMISSION" >> "$BASE/CHAIN_DONE"' EXIT   # ADDENDUM 3: the D5 Addendum 3 A3.5 / D17 / D8R form
+```
+
+**Registered semantics (D5 A3.5, verbatim in substance):** the trap is armed immediately after the driver's pidfile is written — i.e. after the launcher-md5, root-staging, staged-md5 and second-driver checks — and **appends** one line `chain_done stamp=<utc> pid=<pid> arms=[…] last=[<last STATUS.chain line>] permission=bc0e687e` to `<D6 run root>/CHAIN_DONE` on every exit of a started chain: `chain=COMPLETE`, a stop at the first non-zero rc, an H5 stop, an aggregate BLOCK, an `ALREADY_BOUGHT` refusal, a launcher-md5 abort mid-chain. **A pre-chain abort (exit 4 before the pidfile; exit 3 on a second live driver) writes NO marker** — the chain never started — and a D8R wrapper waiting on it then closes at its own bound with `rc=6 verdict=BLOCKED`, zero compute: the registered consequence, not a defect. The marker is append-only and the wrapper tests existence, so a later re-fire of this chain does not remove it.
+
+| file | md5 before (`e43bdf61`) | md5 after (this commit) | change |
+|---|---|---|---|
+| `d6_chain_driver.sh` | `63458a976455636c796e60a3b3fd3566` | **`b4ddca654d8d5165a13447df4d0c1469`** | the one trap line above; nothing else |
+| `d6_run_arm.sh` (`98472772…`), `d6_grade.py` (`a76a7d5e…`), every other file of §7 / A1.2 / A2.2 | unchanged | unchanged | — |
+| `d6_chain_driver_DELTAS_from_d5.diff` | unchanged | unchanged | the Addendum-1 diff against D5's `a1dcdb7d` driver is the record of that derivation; this addendum's one line is shown above in full |
+
+**Control, zero compute (2026-08-26T22:52:12Z):** the trap line, evaluated verbatim from the corrected driver (`grep -m1 '^trap ' d6_chain_driver.sh`) in a scratch subshell with `BASE` pointed at a scratch directory, `STATUS` holding a `chain=STOPPED_AT_FIRST_NONZERO arm=O_mp rc=124` line and an `exit 124` — wrote **`chain_done stamp=20260826T225212Z pid=603054 arms=[O_mp ACC_mp] last=[chain=STOPPED_AT_FIRST_NONZERO arm=O_mp rc=124] permission=bc0e687e`** to the scratch `CHAIN_DONE` and removed the pidfile (subshell rc 124 preserved); the same subshell with the trap line REMOVED wrote nothing (the planted flip). `bash -n` clean. `d6_groot5_selftest.sh` is not re-driven (it exercises the launcher, which is unchanged).
+
+## A3.3 The queue entry
+
+`verification/queue/dafoam/D6_chain_wait.json` (`prereg_commit e43bdf61…`) is re-filed with **`prereg_commit` = the commit that lands this addendum**, every other field unchanged (the wrapper argv, precondition `<D5 run root>/CHAIN_DONE`, bound 86,400 s, cost 1,694.7, floor 24.0, ranks 4); `scripts/queue_entry_check.py` rc 0 on the new file; the previous file moves to `held/D6_chain_wait.e43bdf61.json` as the record, marked SUPERSEDED in `held/README.md`; nothing deleted. Enqueueing is not authorisation — check 4 is the supervisor's.
+
+**Condition, and how it was checked:** `test -e /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint` → **false** (2026-08-26T22:52:12Z); `sudo -n docker ps -a` carries no `d6_` name; no `d6_chain_driver` or `dafoam_wait_then_launch` process for `D6_chain_wait` exists; `verification/queue/dafoam/launched/` holds no `D6_chain_wait*`; D5's `CHAIN_DONE` does not exist (D5 r3 is HELD, not launched). First compute on this item has not occurred.
