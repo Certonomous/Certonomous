@@ -523,3 +523,128 @@ match the committed blob.
 **Ordering note:** `T_FAMILY_INDEX.md` recommends pulling T10a forward; that
 recommendation is recorded, not applied, and this rung displaces nothing. **A
 plan is not a capability**: T10a is a capability only when it has reported.
+
+---
+
+## AMENDMENT A2 — 2026-08-26, **POST-COMPUTE. DISCLOSURE ONLY.** Document **v1.0 → v1.1**.
+
+**`lines whose number changed above this section: 0`.** This amendment is appended
+at the foot. Nothing above it has been edited, struck, reworded or renumbered — the
+assertion is **measured**, by comparing every line above this section byte-for-byte
+against this file's blob at `HEAD` before the amendment was written. **No gate,
+threshold, cap or label is altered, and none could be:** this amendment adds no test,
+changes no instrument and moves no number.
+
+**Version convention, stated so it is not read as an invented history:** this document
+carried no explicit version string. It is named **v1.0** as it stood, and this
+amendment takes it to **v1.1**. No earlier version is claimed to have existed.
+
+**Condition — POST-COMPUTE.** This rung has graded and published. `CLAUDE.md` rule 2
+therefore governs in its post-compute limb: *"changes land only as dated addenda that
+cannot alter a gate, threshold, cap or label."* **This is such an addendum.** No
+original is struck and **no verdict in this rung is reopened.**
+
+### The defect — `assert` is not a guard, because `python3 -O` deletes it
+
+`python3 -O` and `PYTHONOPTIMIZE=1` **remove every `assert` statement outright.** A
+check written as an `assert` therefore cannot carry a refusal, a guard, a control or a
+gate: under one interpreter flag it is gone and the surrounding code walks on. Measured
+elsewhere in this lab, not hypothesised — `analyse_t8.py` under `-O` returns
+`GATE REACHED` where `CLAUDE.md` rule 5 forbids it, with no error and rc 0; and a
+planted-control selftest under `-O` **printed `PLANTED CONTROL PASSED` on an estimator
+returning zeros** (L-332).
+
+**This rung's exposure, re-derived 2026-08-26 by an AST parse of the blob at `HEAD`
+(never `grep`, so a docstring mentioning the word is not miscounted):**
+
+**`verification/runs/T-family/T10a_runs/exact_t10a.py` — ONE `ast.Assert` node, in the
+ANALYTIC REFERENCE MODULE:**
+
+```
+296:        assert inward > 0, f"polygon {name} is not oriented inward"
+```
+
+**This is not a comparator gate. It is a guard on the REFERENCE ITSELF, which is
+worse.** `exact_t10a.py` is imported by the comparator at `analyse_t10a.py:72` as
+`EXACT` — the module that supplies the exact values every T10a row is measured against.
+The guard checks that each of the six box patches has its normal oriented **inward**,
+by testing the sign of `nrm · (centre − c)` for the polygon's own vertex ordering.
+
+> **A SIGN-FLIPPED PATCH NORMAL DOES NOT CRASH ANYTHING. It produces a REFERENCE that is
+> wrong in sign on that patch — and a verdict measured against a sign-flipped reference
+> is confidently, quietly wrong.**
+
+Under `-O` the orientation check disappears and the vertex orderings at `:283-286` are
+accepted **whatever they are**. Nothing downstream re-derives the orientation; the
+polygons are returned and used.
+
+**`UNJUDGED`, not shown harmed.** No graded T10a verdict on record was produced under
+`-O` (the 2026-08-25T22:48Z bound), and **T10a is not re-graded on this ground.**
+
+### §2d.1 is **NOT** invoked, and that is deliberate
+
+`VERIFICATION_CHARTER.md` §2d.1 permits a grading-path change after first compute only
+when all four of its conditions hold, including (3) *"the record discloses it, names
+that instrument, and QUANTIFIES WHAT MOVED"* and (4) *"the pre-repair values are
+recorded beside the published ones."*
+
+**Conditions (3) and (4) are vacuous here, and that is the tell that §2d.1 is the wrong
+instrument.** Converting `assert X, msg` into `if not X: refuse(...)` **cannot move any
+number and cannot move any verdict on any run on record**: under plain `python3` both
+forms refuse in exactly the same state, and only the mechanism and the return code
+differ. The lab-wide bound of 2026-08-25T22:48Z measured that **no graded verdict on
+record was produced under `-O`** — no run script invokes it, `PYTHONOPTIMIZE` is unset
+on the host, and `__debug__ = True` was measured inside the DAFoam container too.
+**There is nothing to quantify and nothing to record beside.**
+
+> **INVOKING A NARROW EXCEPTION WHERE IT IS NOT NEEDED STRETCHES IT, AND A STRETCHED
+> EXCEPTION IS HOW THE NEXT REAL ONE GETS WAVED THROUGH.**
+
+§2d.1 was cut to fit a repair that moved every Nusselt number in a rung by 10–27 %.
+**Reaching for it to authorise a change that moves nothing teaches the lab that the
+exception is available for changes that are merely desirable.**
+
+### What happens instead
+
+1. **The instrument is NOT edited and stays byte-identical to its blob at `HEAD`**,
+   verified at this amendment.
+2. **This amendment is the disclosure**, so that a reader auditing the instrument does
+   not have to rediscover the exposure.
+3. **The repaired form lands in the SUCCESSOR's instrument and is never retrofitted
+   here.**
+
+### The form the successor must take — specified, not applied
+
+**Territory rule, adopted from cfd under the disposal rule: no `assert` in an
+instrument may carry a refusal, guard, control or gate.** The three-arm shape is cfd's
+already-registered one (`verification/campaign/CFD_ASSERT_RULE_REFINEMENT_2026-08-25.md`
+§1), adopted rather than invented:
+
+1. **The guard becomes `raise` or `sys.exit(2)`, never an `assert`**, and becomes the
+   **primary** runtime check rather than belt-and-braces beside a selftest. A selftest
+   is a **test, not a runtime guard** — it does not run during grading.
+2. **The refusal is DRIVEN under `python3 -O` and shown to FIRE identically**, against
+   a sacrificial mutant, on the guarded path. **Not "the selftest passes under `-O`"**:
+   a passing selftest exercises the clean path, and the clean path is the one an
+   evaporated guard still walks. **A mutation battery cannot see this hole unless the
+   battery is itself run under `-O`, because the battery and the hole live under
+   different flags.**
+3. **A statement-type check over the instrument's own AST requiring ZERO `Assert`
+   nodes**, catching a revert **without running anything**. Committed implementation:
+   `scripts/check_assert_guards.py --require-clean <path>`, whose own selftest plants an
+   `assert` into a sacrificial fixture and **refuses if the checker cannot see it**.
+
+**Specific to this rung:** because this guard protects a **reference** and
+not a gate, its successor form should also **report the six `inward` values rather
+than only testing them**. A printed number a reader can check is stronger than a guard
+that is silent when it passes — and a guard whose only output is its own absence is
+indistinguishable from a guard that was removed.
+
+### Cost
+
+**Zero core-minutes.** No solver ran for this amendment. AST parsing on the login box.
+`docs/COST_CALIBRATION.md` gains no row: there is no compute to calibrate.
+
+**No verdict in this rung is reopened by this amendment. Nothing here has been sent,
+filed, submitted, uploaded, registered or posted anywhere outside this box
+(`CLAUDE.md` rule 7).**
