@@ -81,8 +81,14 @@ REGEXY = re.compile(r"(re\.|regex|-regex|regextype|\bs/\^|\bsed\b|\bawk\b)")
 SHELL_EXT = (".sh", ".bash")
 
 
-# a glob whose LAST path segment is what we test
-SEG = re.compile(r"""[\w"'$}{./\\-]*/(?P<seg>\[[0-9!^-]+\][^\s"';)|&]*)""")
+# a glob whose LAST path segment is what we test.
+# THE LEADING PATH IS OPTIONAL, AND THAT IS A REPAIR, NOT A LOOSENING.  The
+# original form REQUIRED a `/` before the bracket, so a BARE glob -- `for d in
+# [0-9]*` or `rm -rf [0-9]*` -- was never extracted and could not be flagged.
+# Every fixture in this file's own selftest carried a `/`, so the selftest could
+# not see the gap.  MEASURED: `for d in [0-9]*; do :; done` -> 0 hits before.
+SEG = re.compile(
+    r"""(?:[\w"'$}{./\\-]*/)?(?P<seg>[\w.$-]*\[[0-9!^-]+\][^\s"';)|&]*)""")
 
 
 def glob_hits_0orig(seg):
@@ -105,22 +111,59 @@ def glob_hits_0orig(seg):
 
 
 def scan_text(path, text):
+    """THIS CHECKER DOES NOT SCAN ITSELF, and that is a precision decision with
+    a number behind it.
+
+    Its selftest fixtures are LITERAL defective patterns held in string
+    constants, so scanning its own source flags four of them.  Measured on a
+    462-file corpus: including this file gives 11 hits of which 7 are real
+    (63.6 %); excluding it gives 7 of 7 (100 %).  NONE of the four is a launcher
+    defect -- they are the controls.  A tool that reports its own test data as
+    findings trains its readers to skim, which is exactly the failure L-339
+    records.
+
+    REGEXY IS APPLIED PER PIPELINE STAGE, NOT PER LINE, AND THAT IS THE
+    REPAIR THAT MATTERS.
+
+    The original vetoed the WHOLE LINE if `sed`/`awk`/`regex` appeared anywhere
+    on it.  The one genuine hit in this lab reads
+
+        LAST=$(ls -d "$BASE"/[0-9]* 2>/dev/null | sed 's#.*/##' | sort -g | tail -1)
+
+    -- `THERMAL_K0_runs/run_controls.sh:141` -- where the glob and the `sed` are
+    SEPARATE STAGES OF A PIPELINE.  One word in a later stage was suppressing a
+    real defect in an earlier one.  MEASURED: 0 hits before this change, 1 after.
+
+    Splitting on `|` keeps the suppression exactly where it belongs: a
+    `sed 's/^writePrecision  [0-9]*;/.../'` still has its quantifier and its
+    `sed` in the SAME stage and is still correctly suppressed.
+
+    KNOWN LIMIT, stated rather than discovered: a pipe inside a quoted regex
+    would split mid-argument.  It cannot produce a false
+    NEGATIVE on a glob, because a glob in a different stage is still scanned.
+    """
     hits = []
+    if os.path.abspath(path) == os.path.abspath(__file__):
+        return hits
     for i, line in enumerate(text.splitlines(), 1):
         stripped = line.strip()
         if stripped.startswith("#"):
             continue
-        if REGEXY.search(line):
-            continue
-        for m in SEG.finditer(line):
-            seg = m.group("seg")
-            around = line[max(0, m.start() - 40):m.end() + 10]
-            if PROC.search(around):
+        for stage in line.split("|"):
+            if REGEXY.search(stage):
                 continue
-            bad, times = glob_hits_0orig(seg)
-            if bad and times:
-                hits.append((i, line.rstrip(), seg))
-                break
+            for m in SEG.finditer(stage):
+                seg = m.group("seg")
+                around = stage[max(0, m.start() - 40):m.end() + 10]
+                if PROC.search(around):
+                    continue
+                bad, times = glob_hits_0orig(seg)
+                if bad and times:
+                    hits.append((i, line.rstrip(), seg))
+                    break
+            else:
+                continue
+            break
     return hits
 
 
@@ -149,8 +192,34 @@ def selftest():
     good = ("while IFS= read -r d; do :; done < <(find \"$CDIR\" -maxdepth 1 "
             "-type d -regextype posix-extended -regex '.*/[0-9]+(\\.[0-9]+)?')\n")
     proc = 'for p in /proc/[0-9]*; do :; done\n'
+    # ------------------------------------------------------------------
+    # THE PERMANENT POSITIVE-CONTROL FIXTURE (registered 2026-08-26).
+    #
+    # THIS CHECKER REPORTED "NO HITS" WHILE UNABLE TO FIND THE ONE KNOWN HIT IN
+    # THE LAB.  That is standing rule 3 turned on the instrument that hunts
+    # absences: A READER NOT SHOWN ABLE TO SEE A NON-ZERO IS NOT EVIDENCE.  The
+    # fixture below is a BYTE-COPY of the genuine defect at
+    # verification/runs/THERMAL_K0_runs/run_controls.sh:141.  If this checker
+    # cannot find it, the checker REFUSES (exit 2) rather than reporting a
+    # clean sweep it has not earned.
+    #
+    # TWO THINGS HID IT, AND EACH HAS ITS OWN FIXTURE BELOW:
+    #   * REGEXY vetoed the WHOLE LINE because a LATER PIPELINE STAGE contains
+    #     `sed`.  One word downstream suppressed a real defect upstream.
+    #   * SEG required a `/` before the bracket, so a BARE `[0-9]*` was never
+    #     extracted at all.
+    # Every pre-existing fixture in this selftest had a slash and no sed, so
+    # none of them could have exposed either.  THAT IS THE SAME DEFECT CLASS
+    # THIS FILE EXISTS TO POLICE, ARRIVING IN THE FILE ITSELF.
+    KNOWN_HIT = ('LAST=$(ls -d "$BASE"/[0-9]* 2>/dev/null '
+                 "| sed 's#.*/##' | sort -g | tail -1)\n")
+    KNOWN_HIT_SOURCE = "verification/runs/THERMAL_K0_runs/run_controls.sh:141"
+    bare_glob = 'for d in [0-9]*; do :; done\n'
+
     ok = True
-    for label, text, want in (("the T4 defect verbatim", bad, 1),
+    for label, text, want in (("POSITIVE CONTROL: the known lab hit", KNOWN_HIT, 1),
+                              ("a BARE glob, no leading slash", bare_glob, 1),
+                              ("the T4 defect verbatim", bad, 1),
                               ("the repaired find -regex form", good, 0),
                               ("a /proc pid scan", proc, 0),
                               ("a rm -rf trim", 'rm -rf "$c"/[0-9]*\n', 1),
@@ -163,6 +232,16 @@ def selftest():
         ok &= good_
         print("  %-34s expected %d found %d  %s"
               % (label, want, got, "OK" if good_ else "FAIL"))
+    # THE REFUSAL, and it is exit 2 rather than exit 1 on purpose: an
+    # instrument that cannot find a defect it is KNOWN to contain has not
+    # failed a test, it is UNFIT TO REPORT.  A clean sweep from it would be a
+    # planted zero with no control.
+    if len(scan_text("x.sh", KNOWN_HIT)) != 1:
+        print("REFUSE: this checker CANNOT FIND the known hit at "
+              + KNOWN_HIT_SOURCE + ".  A checker not shown able to see a "
+              "non-zero cannot have its zero believed (standing rule 3). "
+              "Refusing rather than reporting a clean sweep it has not earned.")
+        return 2
     print("SELFTEST", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
