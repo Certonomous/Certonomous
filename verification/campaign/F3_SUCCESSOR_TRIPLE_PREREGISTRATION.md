@@ -643,3 +643,117 @@ and checked) · Rule 3 (planted zeros, Annex E and D.3) · Rule 4 (strict comple
 Rule 5 (enforced **only** through `grade_ladder`, Annex D and H) · Rule 6 (no frozen file
 edited) · Rule 7 (**submissions parked**) · Rule 10 (private-index git protocol) · Rule 12
 (core-minutes, Annex B) · L-332 (no `assert` carries a refusal, Annex F and H).
+
+---
+
+## ADDENDUM 1 — 2026-08-26T03:54Z: the completion rule Annex C ALREADY REGISTERED is IMPLEMENTED, in a second graded-path file. **v3 → v3.1.**
+
+**`lines whose number changed above this section: 0`** — verified **by diff, not asserted**: the
+file was copied before this section was appended, and the copy is byte-identical to the first
+**41,126 bytes / 645 lines** of this file. Nothing above line 645 moved. Rule 6.
+
+### 1. What this addendum does, and the three grounds on which it is lawful
+
+**Compute has started, so rule 2 has closed the gates.** Only a dated addendum **altering no
+gate, no threshold, no cap and no label** may land. This is one.
+
+1. **Annex C ALREADY REGISTERED the completion rule, before compute.** This addendum
+   **implements a requirement this document already carries.** `grade_f3s.py` — frozen at
+   `5891db27` and cleared on check 1 — checks only that the artifacts it reads exist. It
+   implements **none** of Annex C's clauses. That is an **instrument defect**, not a gate change.
+2. **The remedy is ONE-DIRECTIONAL.** A completion check can only turn a would-be graded row
+   into **`NOT A RESULT`**. It cannot manufacture a `PASS` and cannot soften a `GATE FAIL`. Same
+   asymmetry standing rule 5 has, and the same reason it is safe to add after a freeze.
+3. **NO RESULT HAD BEEN SEEN WHEN THIS WAS WRITTEN**, and that is the whole defence — it is what
+   separates a repair from a fit. Evidence, recorded here rather than in a lane report:
+
+```
+$ date -u +%Y-%m-%dT%H:%M:%SZ
+2026-08-26T03:54:15Z
+$ find . -type f \( -iname '*GRADED*' -o -iname '*RESULTS*' -o -iname 'F3S_GRADED.json' \
+      -o -iname '*VERDICT*' \) | wc -l
+0
+# PLANTED CONTROL on the search itself -- a zero from a reader not shown able to see a
+# non-zero is not evidence (standing rule 3):
+$ touch ./PLANT_GRADED.json && find . -type f -iname '*GRADED*' | wc -l && rm ./PLANT_GRADED.json
+1
+$ find . -type f -iname '*GRADED*' | wc -l      # after removing the plant
+0
+$ pgrep -fa 'launch_f3s|rhoCentralFoam' | wc -l  # runs still in flight
+4
+$ tail -1 LAUNCH_LOG.txt
+[2026-08-26T03:51:25Z] START armB_M3.0_th15_fine_INSTRUMENTED -> ... (per-run cap 232.14 core-s)
+```
+
+**Zero graded artifacts, a search proven able to see one, and four live processes.** A
+completion check written after a value is in hand is a threshold chosen to suit an answer. One
+written while the solver is still marching cannot be.
+
+### 2. THE GRADED PATH, PINNED BY BLOB AND ORDERED
+
+| order | file | blob |
+|---|---|---|
+| **1st** | `verification/runs/F3_runs/successor_triple_2026-08-26/check_complete_f3s.py` | **`f972d071`** |
+| **2nd** | `verification/runs/F3_runs/successor_triple_2026-08-26/grade_f3s.py` | **`d67d415f`** (unchanged from the `5891db27` freeze) |
+
+**A REFUSAL FROM THE FIRST MEANS THE SECOND NEVER RUNS.** `check_complete_f3s.py` exits **2** if
+any case fails any clause, and grading is not attempted. A run that fails the completion rule is
+**labelled, never graded** — Annex C, and standing rule 4's "refuse rather than degrade".
+
+`grade_f3s.py` is **not modified** by this addendum. Its blob is identical to the frozen one.
+
+### 3. The clauses, and the ONE declared inapplicable **WITH ITS REASON**
+
+`C1` rc = 0, read from the launcher's own `RC.txt` and **never inferred**. `C2` an `^End$` line.
+**`C3` the completion limb `latest + maxDeltaT > endTime`, NOT `latest >= endTime`** — the naive
+form refused four of nine genuinely complete F4 runs; the allowance is `maxDeltaT` read from the
+case's **own** `controlDict`, an input frozen at build time, not an epsilon chosen after seeing
+which runs it admits. `C4` fields present. `C5` the age guard. `C6` the plateau series exists.
+
+**`ExecutionTime count == endTime` is declared INAPPLICABLE, and here is why** — a limb declared
+inapplicable without its reason is indistinguishable from a limb dropped because it failed:
+
+> That clause assumes a **steady** solver, where `endTime` is an **iteration count** and one
+> `ExecutionTime` line is printed per iteration, so the two are commensurable. `rhoCentralFoam`
+> is an explicit density-based **time-marcher** under `adjustTimeStep yes`. Here `endTime` is a
+> **PHYSICAL TIME** (2.6 wedge, 6.0 diamond) and the step count is set by the Courant condition —
+> **8,071 steps to reach t = 2.6 on the fine wedge, measured.** An `ExecutionTime` line count
+> therefore **cannot equal `endTime` for any correct run**, and a limb no correct run can satisfy
+> tests nothing. **Inapplicable by construction, not by convenience.** The real completion
+> evidence for a time-marcher — did it reach `endTime` — is carried by `C3`.
+
+The reason is carried **in the code**, in `DECLARED_INAPPLICABLE`, not only in this prose.
+
+### 4. The `-O` entry refusal, added for PATH UNIFORMITY
+
+`check_complete_f3s.py` carries **zero `assert` statements**, so `python3 -O` weakens nothing in
+it today. The guard is there because **a path is flag-proof or it is not.** This file is now the
+first half of the graded path and `grade_f3s.py` is the second; one half refusing `-O` while the
+other accepts it invites a later reader to assume the wrong half. **Driven: `python3 -O
+check_complete_f3s.py` → rc 2, refuses.** Both halves refuse, so the path is flag-proof end to
+end.
+
+### 5. Scope, stated so this addendum cannot be cited for more than it does
+
+It **alters no gate, no threshold, no cap and no label.** It regrades nothing. It adds no
+quantity, moves no band, and changes no run in the frozen matrix. It **cannot make any row pass**
+— it can only withhold grading from a run that did not complete. The cap stays **17.6541
+core-min**, the bands stay **±0.5 % / ±2.0 % / ±1.0 %**, and no row of this rung is a credential.
+
+### 6. Found by the lane, not by the supervisor who signed the freeze
+
+Recorded because the pattern matters more than the instance. Check 1 verified the `grade_ladder`
+call and its two state sets, the `-O` guard's placement, zero `Assert` nodes and the
+`RT.Refusal` catch — and **did not check that the grader implements the completion rule its own
+Annex C registers.** This is the **second** defect in this rung found by the lane rather than the
+signer, and both were found the same way: **by checking behaviour, not by reading intent.** The
+first was the `RT.Refusal` exit code, found by mutating a guard rather than reading it.
+
+### 7. Noted for the SUCCESSOR, deliberately NOT fixed inside this fired rung
+
+The inherited `sh()` **buffers solver stdout and writes the log only on exit**, so a running
+solver's `log.rhoCentralFoam` is empty and **a stall is indistinguishable from slow progress**.
+Live progress is visible only through written time directories. This is a real monitoring gap,
+not a nuisance. **It is not fixed here** — changing the runner mid-rung would alter what is
+being measured after compute began. `stdbuf -oL` or an unbuffered redirect belongs in the next
+rung's launcher.

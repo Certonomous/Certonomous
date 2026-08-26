@@ -15,19 +15,59 @@ REFUSES (exit 2) rather than degrade. No `assert` carries any clause: `python3 -
 deletes every one, and a completion rule that vanishes under a flag is worse than
 none, because it certifies.
 """
+import sys
+
+# ---------------------------------------------------------------------------
+# `-O` ENTRY REFUSAL. This file carries zero `assert` statements, so `python3 -O`
+# weakens nothing in it TODAY. It is here for PATH UNIFORMITY: this file is now
+# the first half of the graded path, and `grade_f3s.py` is the second. A path is
+# flag-proof or it is not. Having one half refuse `-O` and the other half accept
+# it invites a later reader to assume the wrong half, and the second half's
+# refusal exists because `roache_triple.py` reaches its gate through four
+# asserts that `-O` deletes.
+# ---------------------------------------------------------------------------
+if not __debug__:
+    sys.stderr.write(
+        "REFUSED: the graded path must not run under `python3 -O`.\n"
+        "  This file carries no asserts, but grade_f3s.py -- the second half of\n"
+        "  the same path -- refuses because roache_triple.py:195,632,634,637\n"
+        "  carry rule 1's vocabulary and rule 5's one-way asymmetry as asserts.\n"
+        "  Both halves refuse, so the path is flag-proof end to end.\n")
+    sys.exit(2)
+
 import os
 import re
-import sys
 import json
 import glob
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RUNS = os.path.join(HERE, "runs")
 
-# rhoCentralFoam is explicit and density-based, so the STEADY-ITERATION clause
-# "ExecutionTime count == endTime" DOES NOT APPLY and is declared inapplicable
-# rather than silently dropped (Annex C, F3 section 5).
-DECLARED_INAPPLICABLE = ["ExecutionTime_count_equals_endTime"]
+# THE ONE INAPPLICABLE LIMB, DECLARED **WITH ITS REASON**.
+#
+# Standing rule 4 requires `ExecutionTime count == endTime`. That clause assumes
+# a STEADY solver, where `endTime` is an ITERATION COUNT and one ExecutionTime
+# line is printed per iteration, so the two are commensurable.
+#
+# `rhoCentralFoam` is an explicit density-based TIME-MARCHER run under
+# `adjustTimeStep yes`. Here `endTime` is a **PHYSICAL TIME** (2.6 for the wedge,
+# 6.0 for the diamond) and the number of steps taken to reach it is set by the
+# Courant condition -- 8,071 steps to reach t = 2.6 on the fine wedge. An
+# ExecutionTime line count therefore CANNOT equal endTime for any correct run,
+# and a limb that no correct run can satisfy tests nothing.
+#
+# **It is inapplicable BY CONSTRUCTION, not by convenience**, and the distinction
+# is the point: a limb declared inapplicable without its reason is
+# indistinguishable from a limb dropped because it failed. C3 below carries the
+# real completion evidence for a time-marcher -- did it reach endTime.
+DECLARED_INAPPLICABLE = [
+    dict(clause="ExecutionTime_count_equals_endTime",
+         reason="endTime is a PHYSICAL TIME for this explicit time-marcher under "
+                "adjustTimeStep, not an iteration count; the step count is set by "
+                "the Courant condition (8,071 steps to t=2.6 on the fine wedge), so "
+                "no correct run can satisfy this limb and it tests nothing. "
+                "Inapplicable by construction, not by convenience.",
+         evidence_carried_instead_by="C3_completion_limb")]
 REQUIRED_FIELDS = ("p", "T", "U", "rho")
 
 
