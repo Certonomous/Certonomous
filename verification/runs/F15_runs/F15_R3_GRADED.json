@@ -1,0 +1,826 @@
+{
+  "rung": "F15-OSR29-R3",
+  "parent_grader_blob": "133820b314baeae42281da26b1d1469a7e0189fb",
+  "grandparent_grader_blob": "e4076c03ca68d67e8247f73a4038d179cd7a20f2",
+  "t_arrival": 0.8132264850773079,
+  "t_arrival_note": "R3: T_ARRIVAL = 1 / (u1 sin sigma cos sigma) = 2 / (u1 sin 2 sigma), the shock-line path (Y_MAX - Y_MIN)/sin sigma from the top-left corner to the wall foot x_w, travelled at the shock-tangential velocity u1 cos sigma; u1 and sigma from exact_osr.solve()",
+  "prereg_commit": "f3f92a89e8b5581c85321421d21bc2d73d34c82d",
+  "prereg": "verification/campaign/F15_OSR29_R2_PREREGISTRATION.md (ADDENDUM R3 at the foot)",
+  "field_classes": {
+    "physics_critical": [
+      "log.rhoCentralFoam `Time =` and `deltaT =` lines (final-step limb)",
+      "log.rhoCentralFoam `End` line",
+      "fields T, U, p at endTime and newer than 0/T (age guard)",
+      "postProcessing/lineY05 and lineWall <t>/<set>_p.xy series",
+      "postProcessing/pAvg volFieldValue.dat monitor",
+      "the series window t >= T_ARRIVAL (R3; computed from the frozen geometry)"
+    ],
+    "infrastructure": [
+      "ClockTime / cost in core-minutes (CAP_CORE_MIN)",
+      "STATUS.F15 rc/end line written by the launcher",
+      "launcher.out running tally",
+      "RC.txt per level (the launcher's copy of the solver rc)"
+    ]
+  },
+  "infrastructure_census": {
+    "coarse": {
+      "clock_time_s": 68,
+      "core_min": 1.1333333333333333,
+      "rc_txt": "0"
+    },
+    "medium": {
+      "clock_time_s": 524,
+      "core_min": 8.733333333333333,
+      "rc_txt": "0"
+    },
+    "fine": {
+      "clock_time_s": 4299,
+      "core_min": 71.65,
+      "rc_txt": "0"
+    },
+    "status_file": "rc=0 end=2026-08-26T17:35:22Z",
+    "total_core_min": 81.51666666666667,
+    "cap_core_min": 200.0
+  },
+  "bookkeeping_defects": [],
+  "assert_census": {
+    "files_checked": 2,
+    "assert_nodes": 0
+  },
+  "controls": [
+    {
+      "control": "paper_top_bc_agreement",
+      "residuals": {
+        "p": 0.00019362586852555985,
+        "rho": 3.7088576034793874e-06,
+        "u": 2.099454203374762e-06,
+        "v": 0.0003202554788354073
+      },
+      "tolerances": {
+        "rho": 0.0001,
+        "u": 0.0001,
+        "v": 0.0005,
+        "p": 0.001
+      },
+      "passed": true
+    },
+    {
+      "control": "rankine_hugoniot_residuals",
+      "worst": 8.881784197001252e-16,
+      "detail": [
+        {
+          "residual": "mass",
+          "value": 4.440892098500626e-16
+        },
+        {
+          "residual": "normal_momentum",
+          "value": -4.440892098500626e-16
+        },
+        {
+          "residual": "tangential_velocity",
+          "value": 0.0
+        },
+        {
+          "residual": "energy",
+          "value": 0.0
+        },
+        {
+          "residual": "mass",
+          "value": 0.0
+        },
+        {
+          "residual": "normal_momentum",
+          "value": 0.0
+        },
+        {
+          "residual": "tangential_velocity",
+          "value": 0.0
+        },
+        {
+          "residual": "energy",
+          "value": -8.881784197001252e-16
+        }
+      ],
+      "passed": true
+    },
+    {
+      "control": "geometry_and_outflow",
+      "exit_y": 0.9447769855544786,
+      "mach3": 1.9424194439230202,
+      "passed": true
+    },
+    {
+      "control": "PZ-F15-CLASSC_four_limbs_each_shown_able_to_refuse",
+      "flat": "PLATEAUED",
+      "ramp": "NOT_PLATEAUED_TREND",
+      "step": "NOT_PLATEAUED_TREND",
+      "short_series": "exit 2",
+      "passed": true
+    },
+    {
+      "control": "PZ-F15-GRADE_LADDER_CALLSITE_ast_census_plus_grep_both_ways",
+      "ast_call_nodes": [
+        1126
+      ],
+      "grep_lines": [
+        866,
+        1126
+      ],
+      "grep_lines_note": "grep also matches prose in this file; the AST census is the binding count",
+      "negative_control": "miss on a file with no call",
+      "positive_control": "hit on a planted call",
+      "passed": true
+    },
+    {
+      "control": "PZ-F15-R2-REAL_LOG_EXCERPT_completion_reader_driven_both_ways",
+      "excerpt_source": "verification/runs/F15_runs/coarse/log.rhoCentralFoam",
+      "planted": {
+        "time": 5,
+        "deltaT": 5,
+        "clock": 5,
+        "end": 1
+      },
+      "counted": {
+        "time": 5,
+        "deltaT": 5,
+        "clock": 5,
+        "end": 1
+      },
+      "parent_form_without_MULTILINE_count": 0,
+      "completion_positive": {
+        "done": true,
+        "n_times": 5,
+        "latest": 10.0,
+        "dt_final": 0.00113636363636,
+        "clock_time_s": 68
+      },
+      "negative_why": "no `Time =` lines in the log",
+      "passed": true
+    },
+    {
+      "control": "PZ-F15-R2-REAL_XY_EXCERPT_read_xy_p_driven_both_ways",
+      "excerpt_source": "verification/runs/F15_runs/coarse/postProcessing/lineWall/9.95/lineWall_p.xy",
+      "rows": 39,
+      "p_min": 0.714285714285,
+      "p_max": 3.16647879369,
+      "x_first": -1.99,
+      "x_last": 1.99,
+      "negative": "4-column layout refused (exit 2)",
+      "passed": true
+    },
+    {
+      "control": "PZ-F15-R3-WINDOW_GUARD_driven_both_ways",
+      "t_arrival": 0.8132264850773079,
+      "formula": "1/(u1 sin sigma cos sigma) = 2/(u1 sin 2 sigma)",
+      "u1": 2.9,
+      "sigma_deg": -29.000000000000004,
+      "first_admitted_sample": 0.8500000000000001,
+      "spurious_pre_arrival": {
+        "t": 0.5,
+        "x": 0.27
+      },
+      "true_post_arrival": {
+        "t": 0.95,
+        "x": -0.1959522447285762
+      },
+      "windowed": {
+        "t": [
+          0.95
+        ],
+        "x": [
+          -0.19595224472853973
+        ]
+      },
+      "guard_mutated_with_no_crossing_sample": "REFUSED",
+      "guard_mutated_without": {
+        "t": [
+          0.5,
+          0.95
+        ],
+        "x": [
+          0.2700000000000485,
+          -0.19595224472853973
+        ]
+      },
+      "passed": true
+    },
+    {
+      "control": "PZ-F15-R3-GATE_BLOCKS_ast_identical_to_R2_plus_planted_diff",
+      "compared": [
+        "N_CAPTURE_CELLS",
+        "END_TIME",
+        "SAMPLE_INTERVAL",
+        "CAP_CORE_MIN",
+        "RANKS",
+        "LEVELS",
+        "CELLS",
+        "DX",
+        "CLASS_C",
+        "DIM",
+        "VERDICTS",
+        "SETS",
+        "bands",
+        "smeared_profile",
+        "demonstrate",
+        "class_c",
+        "x_wall_from_xy",
+        "e1_from_xy",
+        "read_xy_p",
+        "grade_one",
+        "completion",
+        "iterative_series",
+        "plant_control_e1",
+        "plant_control_x_wall"
+      ],
+      "differing": [],
+      "diff": "EMPTY",
+      "planted_change_seen": [
+        "CAP_CORE_MIN"
+      ],
+      "parent": "grade_f15_r2.py",
+      "passed": true
+    }
+  ],
+  "gate_demonstration": [
+    {
+      "gate": "G-F15-1_E1_pressure_L1_y0.5",
+      "construction": "ideal capture over 1 cells",
+      "value": 0.001167711635312496,
+      "band": [
+        0.0009711165159119011,
+        0.007768932127295209
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F15-1_E1_pressure_L1_y0.5",
+      "construction": "ideal capture over 60 cells",
+      "value": 0.05826699095614994,
+      "band": [
+        0.0009711165159119011,
+        0.007768932127295209
+      ],
+      "inside": false,
+      "intended": "outside"
+    },
+    {
+      "gate": "G-F15-2_x_wall_impingement",
+      "construction": "impingement displaced by 0",
+      "value": -0.19595224472853973,
+      "band": [
+        -0.2159522447285762,
+        -0.1759522447285762
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F15-2_x_wall_impingement",
+      "construction": "impingement displaced by 0.35",
+      "value": 0.15404775527146028,
+      "band": [
+        -0.2159522447285762,
+        -0.1759522447285762
+      ],
+      "inside": false,
+      "intended": "outside"
+    }
+  ],
+  "write_path": "OpenFOAM `sets` functionObject, `setFormat raw`, writing <case>/postProcessing/<setName>/<time>/<setName>_p.xy with THREE coordinate columns (x y z) followed by the field. Format pinned against REAL solver output already on this box -- 2690 such files exist under verification/runs and /home/ubuntu/certonomous-runs; verification/runs/F6b_runs/coarse/postProcessing/singleGraph_x0/3418/line_k_nut_omega_p_U.xy carries 10 columns = 3 coordinates + k + nut + omega + p + 3 U components, which is where the three-coordinate layout was measured rather than assumed.",
+  "cap_core_min": 200.0,
+  "rows": [
+    {
+      "quantity": "G-F15-1_E1_pressure_L1_y0.5",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 0.0075129927207501866,
+      "reference": 0.0,
+      "band": [
+        0.0009711165159119011,
+        0.007768932127295209
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 10000,
+          "value": 0.03155165054494033
+        },
+        {
+          "name": "medium",
+          "cells": 40000,
+          "value": 0.013830112589496563
+        },
+        {
+          "name": "fine",
+          "cells": 160000,
+          "value": 0.0075129927207501866
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 1.488164959897325,
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.03155165054494033,
+            0.013830112589496563,
+            0.0075129927207501866
+          ],
+          "cells": [
+            10000,
+            40000,
+            160000
+          ],
+          "e21": 0.006317119868746376,
+          "e32": 0.017721537955443768,
+          "GCI_pct": 58.21865264960434,
+          "GCI_abs": 0.00437396313568361,
+          "richardson": 0.0040138222122032986,
+          "richardson_parent_convention": 0.011012163229297075
+        }
+      ],
+      "orders": [
+        1.488164959897325
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.0009845301018019462,
+        "read_back_delta": 0.0009845301018019548,
+        "reader_delta": 0.0009845301018019548,
+        "reader": "e1_from_xy",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F15_runs/fine/postProcessing/lineY05/10/lineY05_p.xy",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "NOT_PLATEAUED_TREND",
+        "medium": "NOT_STATIONARY_MEAN",
+        "fine": "NOT_STATIONARY_MEAN"
+      },
+      "verdict": "NOT A RESULT",
+      "why": "levels coarse,fine,medium are not iteratively converged or not plateaued; no grid claim can be made from this triple",
+      "gate": "G-F15-1_E1_pressure_L1_y0.5",
+      "band_principle": "one-cell conservative smearing floor x [1, 8] declared capture cells; c = (dp_i + dp_r)/(4 L p1) = 0.194223303182, dx_fine = 0.005",
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 10000,
+          "value": 0.03155165054494033,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse/postProcessing/lineY05/10/lineY05_p.xy",
+          "dx": 0.02,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse/log.rhoCentralFoam",
+            "n_times": 9233,
+            "latest": 10.0,
+            "dt_final": 0.00113636363636,
+            "clock_time_s": 68,
+            "end_line": true,
+            "done": true,
+            "why": "rc handled by the launcher; End present; latest + dt_final > endTime; T U p present at endTime and all newer than 0/T"
+          },
+          "iterative": "PLATEAUED",
+          "iterative_detail": {
+            "samples": 200,
+            "window": 60,
+            "window_span": 2.95,
+            "window_mean": 1.7102389206570168,
+            "scale": 1.7102389206570168,
+            "fitted_slope": 4.262858270136379e-06,
+            "relative_drift_over_window": 7.3530263783678e-06,
+            "trend_tol": 0.002,
+            "half_mean_first": 1.7102366379371667,
+            "half_mean_second": 1.710241203376867,
+            "half_mean_split": 2.6694747997748875e-06,
+            "stat_tol": 0.001,
+            "variance_ratio": 0.8911194574618247,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          },
+          "plateau": "NOT_PLATEAUED_TREND",
+          "plateau_detail": {
+            "samples": 184,
+            "window": 60,
+            "window_span": 2.95,
+            "window_mean": 0.031368482928672094,
+            "scale": 0.031368482928672094,
+            "fitted_slope": -8.780704475977459e-05,
+            "relative_drift_over_window": 0.008257676427334335,
+            "trend_tol": 0.002
+          }
+        },
+        {
+          "name": "medium",
+          "cells": 40000,
+          "value": 0.013830112589496563,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F15_runs/medium/postProcessing/lineY05/10/lineY05_p.xy",
+          "dx": 0.01,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F15_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F15_runs/medium/log.rhoCentralFoam",
+            "n_times": 18760,
+            "latest": 10.0,
+            "dt_final": 0.000568181818181,
+            "clock_time_s": 524,
+            "end_line": true,
+            "done": true,
+            "why": "rc handled by the launcher; End present; latest + dt_final > endTime; T U p present at endTime and all newer than 0/T"
+          },
+          "iterative": "PLATEAUED",
+          "iterative_detail": {
+            "samples": 200,
+            "window": 60,
+            "window_span": 2.95,
+            "window_mean": 1.7097221722799836,
+            "scale": 1.7097221722799836,
+            "fitted_slope": -2.1451344816789833e-08,
+            "relative_drift_over_window": 3.701271951403754e-08,
+            "trend_tol": 0.002,
+            "half_mean_first": 1.7097221730581666,
+            "half_mean_second": 1.7097221715018,
+            "half_mean_split": 9.103038004616316e-10,
+            "stat_tol": 0.001,
+            "variance_ratio": 0.9839720897955426,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          },
+          "plateau": "NOT_STATIONARY_MEAN",
+          "plateau_detail": {
+            "samples": 184,
+            "window": 60,
+            "window_span": 2.95,
+            "window_mean": 0.01386743464557419,
+            "scale": 0.01386743464557419,
+            "fitted_slope": -6.02457975246393e-07,
+            "relative_drift_over_window": 0.00012816004346875154,
+            "trend_tol": 0.002,
+            "half_mean_first": 0.013874493424336906,
+            "half_mean_second": 0.013860375866811473,
+            "half_mean_split": 0.0010180367087533886,
+            "stat_tol": 0.001,
+            "variance_ratio": 1.1466472504769611,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          }
+        },
+        {
+          "name": "fine",
+          "cells": 160000,
+          "value": 0.0075129927207501866,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F15_runs/fine/postProcessing/lineY05/10/lineY05_p.xy",
+          "dx": 0.005,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F15_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F15_runs/fine/log.rhoCentralFoam",
+            "n_times": 37851,
+            "latest": 10.0,
+            "dt_final": 0.0002833557174,
+            "clock_time_s": 4299,
+            "end_line": true,
+            "done": true,
+            "why": "rc handled by the launcher; End present; latest + dt_final > endTime; T U p present at endTime and all newer than 0/T"
+          },
+          "iterative": "PLATEAUED",
+          "iterative_detail": {
+            "samples": 200,
+            "window": 60,
+            "window_span": 2.95,
+            "window_mean": 1.709473364046083,
+            "scale": 1.709473364046083,
+            "fitted_slope": 2.1014544988048487e-07,
+            "relative_drift_over_window": 3.626433088610082e-07,
+            "trend_tol": 0.002,
+            "half_mean_first": 1.7094732296297666,
+            "half_mean_second": 1.7094734984624003,
+            "half_mean_split": 1.5726049867978253e-07,
+            "stat_tol": 0.001,
+            "variance_ratio": 1.041340762958566,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          },
+          "plateau": "NOT_STATIONARY_MEAN",
+          "plateau_detail": {
+            "samples": 184,
+            "window": 60,
+            "window_span": 2.95,
+            "window_mean": 0.007480169681550976,
+            "scale": 0.007480169681550976,
+            "fitted_slope": -3.774439292464767e-07,
+            "relative_drift_over_window": 0.0001488548574002717,
+            "trend_tol": 0.002,
+            "half_mean_first": 0.007485182109311478,
+            "half_mean_second": 0.007475157253790474,
+            "half_mean_split": 0.001340190924509246,
+            "stat_tol": 0.001,
+            "variance_ratio": 0.8895757018227411,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          }
+        }
+      ],
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    },
+    {
+      "quantity": "G-F15-2_x_wall_impingement",
+      "dim": 2,
+      "fs": 1.25,
+      "value": -0.19416890030775802,
+      "reference": -0.1959522447285762,
+      "band": [
+        -0.2159522447285762,
+        -0.1759522447285762
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 10000,
+          "value": -0.18971101345258262
+        },
+        {
+          "name": "medium",
+          "cells": 40000,
+          "value": -0.19304150340896134
+        },
+        {
+          "name": "fine",
+          "cells": 160000,
+          "value": -0.19416890030775802
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 1.562738927159963,
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            -0.18971101345258262,
+            -0.19304150340896134,
+            -0.19416890030775802
+          ],
+          "cells": [
+            10000,
+            40000,
+            160000
+          ],
+          "e21": 0.0011273968987966787,
+          "e32": 0.0033304899563787183,
+          "GCI_pct": 0.37140792966458885,
+          "GCI_abs": 0.0007211586926855436,
+          "richardson": -0.19474582726190645,
+          "richardson_parent_convention": -0.1935919733536096
+        }
+      ],
+      "orders": [
+        1.562738927159963
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000000129,
+        "reader_delta": 0.0012340000000000129,
+        "reader": "x_wall_from_xy",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F15_runs/fine/postProcessing/lineWall/10/lineWall_p.xy",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "PLATEAUED"
+      },
+      "verdict": "PASS",
+      "order": 1.562738927159963,
+      "GCI_pct": 0.37140792966458885,
+      "GCI_abs": 0.0007211586926855436,
+      "richardson": -0.19474582726190645,
+      "richardson_parent_convention": -0.1935919733536096,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.5627, GCI 0.3714 % = 0.000721159 absolute at Fs = 1.25",
+      "gate": "G-F15-2_x_wall_impingement",
+      "band_principle": "exact impingement -0.195952244729 +/- (N_CAPTURE_CELLS/2)*dx_fine = +/- 0.020000000000",
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 10000,
+          "value": -0.18971101345258262,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse/postProcessing/lineWall/10/lineWall_p.xy",
+          "dx": 0.02,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse/log.rhoCentralFoam",
+            "n_times": 9233,
+            "latest": 10.0,
+            "dt_final": 0.00113636363636,
+            "clock_time_s": 68,
+            "end_line": true,
+            "done": true,
+            "why": "rc handled by the launcher; End present; latest + dt_final > endTime; T U p present at endTime and all newer than 0/T"
+          },
+          "iterative": "PLATEAUED",
+          "iterative_detail": {
+            "samples": 200,
+            "window": 60,
+            "window_span": 2.95,
+            "window_mean": 1.7102389206570168,
+            "scale": 1.7102389206570168,
+            "fitted_slope": 4.262858270136379e-06,
+            "relative_drift_over_window": 7.3530263783678e-06,
+            "trend_tol": 0.002,
+            "half_mean_first": 1.7102366379371667,
+            "half_mean_second": 1.710241203376867,
+            "half_mean_split": 2.6694747997748875e-06,
+            "stat_tol": 0.001,
+            "variance_ratio": 0.8911194574618247,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "samples": 184,
+            "window": 60,
+            "window_span": 2.95,
+            "window_mean": -0.18953495709744997,
+            "scale": 0.18953495709744997,
+            "fitted_slope": 2.161389198683589e-05,
+            "relative_drift_over_window": 0.0003364075014847154,
+            "trend_tol": 0.002,
+            "half_mean_first": -0.18950679458737493,
+            "half_mean_second": -0.189563119607525,
+            "half_mean_split": 0.0002971748378907873,
+            "stat_tol": 0.001,
+            "variance_ratio": 1.0447021049876246,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          }
+        },
+        {
+          "name": "medium",
+          "cells": 40000,
+          "value": -0.19304150340896134,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F15_runs/medium/postProcessing/lineWall/10/lineWall_p.xy",
+          "dx": 0.01,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F15_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F15_runs/medium/log.rhoCentralFoam",
+            "n_times": 18760,
+            "latest": 10.0,
+            "dt_final": 0.000568181818181,
+            "clock_time_s": 524,
+            "end_line": true,
+            "done": true,
+            "why": "rc handled by the launcher; End present; latest + dt_final > endTime; T U p present at endTime and all newer than 0/T"
+          },
+          "iterative": "PLATEAUED",
+          "iterative_detail": {
+            "samples": 200,
+            "window": 60,
+            "window_span": 2.95,
+            "window_mean": 1.7097221722799836,
+            "scale": 1.7097221722799836,
+            "fitted_slope": -2.1451344816789833e-08,
+            "relative_drift_over_window": 3.701271951403754e-08,
+            "trend_tol": 0.002,
+            "half_mean_first": 1.7097221730581666,
+            "half_mean_second": 1.7097221715018,
+            "half_mean_split": 9.103038004616316e-10,
+            "stat_tol": 0.001,
+            "variance_ratio": 0.9839720897955426,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "samples": 184,
+            "window": 60,
+            "window_span": 2.95,
+            "window_mean": -0.19260557522115465,
+            "scale": 0.19260557522115465,
+            "fitted_slope": -1.0018890452047056e-05,
+            "relative_drift_over_window": 0.00015345208361493263,
+            "trend_tol": 0.002,
+            "half_mean_first": -0.19261293717513717,
+            "half_mean_second": -0.1925982132671721,
+            "half_mean_split": 7.644590738431194e-05,
+            "stat_tol": 0.001,
+            "variance_ratio": 1.0888886237606321,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          }
+        },
+        {
+          "name": "fine",
+          "cells": 160000,
+          "value": -0.19416890030775802,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F15_runs/fine/postProcessing/lineWall/10/lineWall_p.xy",
+          "dx": 0.005,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F15_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F15_runs/fine/log.rhoCentralFoam",
+            "n_times": 37851,
+            "latest": 10.0,
+            "dt_final": 0.0002833557174,
+            "clock_time_s": 4299,
+            "end_line": true,
+            "done": true,
+            "why": "rc handled by the launcher; End present; latest + dt_final > endTime; T U p present at endTime and all newer than 0/T"
+          },
+          "iterative": "PLATEAUED",
+          "iterative_detail": {
+            "samples": 200,
+            "window": 60,
+            "window_span": 2.95,
+            "window_mean": 1.709473364046083,
+            "scale": 1.709473364046083,
+            "fitted_slope": 2.1014544988048487e-07,
+            "relative_drift_over_window": 3.626433088610082e-07,
+            "trend_tol": 0.002,
+            "half_mean_first": 1.7094732296297666,
+            "half_mean_second": 1.7094734984624003,
+            "half_mean_split": 1.5726049867978253e-07,
+            "stat_tol": 0.001,
+            "variance_ratio": 1.041340762958566,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "samples": 184,
+            "window": 60,
+            "window_span": 2.95,
+            "window_mean": -0.19427934804401967,
+            "scale": 0.19427934804401967,
+            "fitted_slope": -1.6633031166749763e-06,
+            "relative_drift_over_window": 2.525612857769841e-05,
+            "trend_tol": 0.002,
+            "half_mean_first": -0.19427668269844287,
+            "half_mean_second": -0.19428201338959644,
+            "half_mean_split": 2.7438280019185703e-05,
+            "stat_tol": 0.001,
+            "variance_ratio": 0.9794089307172535,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          }
+        }
+      ],
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    }
+  ]
+}

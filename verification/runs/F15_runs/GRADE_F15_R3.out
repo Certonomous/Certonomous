@@ -1,0 +1,9 @@
+F15-R3 -- OBLIQUE SHOCK REFLECTION M=2.9 -- TALLY (L-342 third registration; series windowed to t >= 0.813226)
+==============================================================================
+G-F15-1_E1_pressure_L1_y0.5              NOT A RESULT
+    levels coarse,fine,medium are not iteratively converged or not plateaued; no grid claim can be made from this triple
+G-F15-2_x_wall_impingement               PASS
+    finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.5627, GCI 0.3714 % = 0.000721159 absolute at Fs = 1.25
+==============================================================================
+gated by: scripts/roache_triple.py::grade_ladder
+written: /home/ubuntu/Certonomous/verification/runs/F15_runs/F15_R3_GRADED.json
