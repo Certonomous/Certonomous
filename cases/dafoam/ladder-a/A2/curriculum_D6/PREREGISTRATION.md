@@ -237,3 +237,52 @@ cost and prediction are unchanged. The corrected form was shown to pass G-ROOT.3
 G-ROOT.3 bytes.
 
 **Queue.** `D6_chain.json` returns to the drop path citing **the commit that lands this addendum** as `prereg_commit`.
+
+---
+
+# ADDENDUM 2 — 2026-08-26 — **PRE-COMPUTE** — D6 is filed as a WAIT-WRAPPER entry behind D5's chain end (`CHAIN_DONE`, 24 h bound); the driver's H5 gate in the wait-and-retry form (lane Q1's unlanded edit completed and registered)
+
+**Version 1.1 → 1.2. Lines whose number changed above this section: 0.** `CLAUDE.md` rule 2, pre-first-compute: the condition and how it was checked are stated below. Written 2026-08-26T20:58Z by dafoam `lab-lane` Q-A for `dafoam-supervisor` under the FOURTEENTH-session dispatch (`docs/LAB_STATE.md` `## dafoam` §3, `[lab-attributed]`); permission `bc0e687e`. **No gate, threshold, band, cap, label, cost or prediction moves.** Zero compute.
+
+## A2.1 Why a wrapper, and the bound — stated, not implied
+
+Every D6 arm is registered at **20g** (§4, P7). The driver's aggregate rule (live container caps + this cap + host non-container RSS **< 30.6 GiB**, wait-and-retry bounded **14,400 s**) cannot clear while D5 (12g, cpuset 8,10,11,13) and D4-SHIPPED (12g, cpuset 5,6,7,9 — its `F3 ACC` chain runner-fired 20:50:06Z) both run: 12 + 12 + 20 + ~3 ≈ 47 GiB, and even beside D5 alone 12 + 20 + 3 = 35 > 30.6. D5's remaining chain (`D5_chain_r3`: ACC48 F48 O192 ACC192 F192, 813.4 core-min predicted, ceiling wall up to 1,960 × 60 ÷ 4 = 29,400 s ≈ 8.2 h) outlasts a 4 h aggregate bound, so a bare `D6_chain.json` on the drop path would be launched by the runner, wait 4 h at O_mp, and **BLOCK at zero compute** — consuming the entry (the W2-DEF-2 shape UPDATE F ruled against). The registered route (W2R Addendum 2, `331d1a2d`, held/README.md supersession note) is a launch argv that evaluates its own precondition: **`cases/dafoam/_common/dafoam_wait_then_launch.sh`** (blob unchanged since `331d1a2d`; selftest 12/12 on record), in front of the frozen `d6_chain_driver.sh`, unchanged.
+
+**Registered wrapper form (the entry's argv, verbatim):**
+
+```
+bash /home/ubuntu/Certonomous/cases/dafoam/_common/dafoam_wait_then_launch.sh
+     --case-id D6_chain_wait
+     --precondition /home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/CHAIN_DONE
+     --prefix d6_
+     --run-root /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint
+     --deadline-s 86400
+     --driver-pidfile d6_driver.pid
+     -- bash /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6/d6_chain_driver.sh O_mp ACC_mp F_mp REF_off
+```
+
+* **Precondition:** `<D5 run root>/CHAIN_DONE`, the fixed-name marker D5 Addendum 3 (`b5b428bc`) registers: D5's driver appends one `chain_done stamp=… last=[<last STATUS.chain line>]` line on **every** exit of a started chain (complete, stop at first non-zero, H5 stop, aggregate block, `ALREADY_BOUGHT`, mid-chain md5 abort). It is absent at this commit (`test -e … /CHAIN_DONE` → false, 20:58Z) and will be written by the r3 chain's end whichever way it ends. A D5 pre-chain abort (exit before the driver's pidfile) writes no marker; that branch closes this wrapper at its bound — registered consequence, below.
+* **Bound: 86,400 s (24 h)**, polled every 30 s (the wrapper's registered poll). Derivation: D5 r3's ceiling wall ≈ 8.2 h plus D5's own aggregate wait bound 4 h plus the runner's launch latency ≤ 12.2 h < 24 h; at the bound the wrapper writes `rc=6 event=BLOCKED_AT_BOUND … verdict=BLOCKED` to `STATUS.D6_chain_wait` / `WRAPPER.D6_chain_wait.log` in this case directory and **launches nothing** (zero compute) — not a defect, a re-fireable BLOCK.
+* **G-ROOT.5 before exec (the wrapper's clause a/b):** refuses (`rc=3`) if a RUNNING container's name starts with `d6_`, or if `<D6 run root>/d6_driver.pid` names a live pid that is not this wrapper's ancestor or whose cwd is the run root. The D6 run root is **absent** at this commit (the freeze condition, re-checked 20:58Z), so the wrapper records `OWN_PIDFILE_NOT_APPLICABLE reason=run-root-absent-at-start` and the pidfile clause is `absent`; the driver creates the root on first fire (mode 777, L-251) exactly as §5b registers.
+* **rc capture:** the wrapper records the driver's exit inside itself as `rc=<n> event=LAUNCHER_EXIT … note=exit-status-of-the-registered-launcher-NOT-the-solver-rc-L-342`; per-arm rc from `docker inspect` lands in `<D6 run root>/STATUS.<arm>` written by the driver, as §5b registers; the runner's `STATUS.D6_chain_wait launcher_rc=` is an infrastructure record.
+* **After D5 ends, D4-SHIPPED (12g) may still be live** (its chain is ~50 core-min, expected to finish first, not assumed): 12 + 20 + 3 = 35 > 30.6 → the driver's aggregate wait-and-retry (4 h) absorbs it; the H5 floor 24.0 GiB beside a 12g sibling is the case A2.2 exists for.
+
+## A2.2 The driver's H5 gate in the WAIT-AND-RETRY form — an uncommitted edit found on disk, completed, registered
+
+**Found, not made:** at 20:47Z `cases/dafoam/ladder-a/A2/curriculum_D6/d6_chain_driver.sh` on disk (mtime **2026-08-26T17:49:14Z** — the minute of the third fleet kill) differed from the HEAD blob `11dced563a8c4695a2144e6d46862735` registered in Addendum 1: the one-shot H5 window (`REFUSED`, `rc=6`, `chain=STOPPED_H5`) had been rewritten by lane Q1 as a bounded retry loop whose comment header names "D6 ADDENDUM 2" — an addendum that was never written — and which references **`H5_RETRY_S` and `H5_BOUND_S` without defining them** (`set -u`: the first failed window would have aborted the driver on an unbound variable). Rule 10: the change was **inspected, never reverted**, and is disclosed here as foreign content carried by this lane (L-333 c). Q1's intent is correct and is exactly what A2.1 needs: a 24.0 GiB floor beside a running 12g sibling cannot clear at launch, and a one-shot refusal would discard the entry at zero compute.
+
+**Completed by this lane — one line:** `H5_RETRY_S=60; H5_BOUND_S=14400` (re-take the 60 s / 45-sample window every 60 s until every sample clears the unchanged 24.0 GiB floor; bounded 4 h; every failed window a `H5_WAIT waited=… below=… of=… min_GiB=…` line in `STATUS.<arm>`; refuse-and-BLOCK at the bound with `rc=6 … note=H5_BLOCKED_AT_BOUND` and `chain=BLOCKED_H5`). The floor, the any-sample rule, the window and sample count are unchanged.
+
+**Controls, zero compute, 20:57Z** (the H5 block extracted verbatim from the driver into a scratch script with `mem_gib()` planted at 20.00 GiB, floor 9999, 3 samples / 1 s, retry 1 s, bound 2 s): two windows taken, `H5_WAIT waited=0 … below=3 of=3`, then `ABORT H5 3 of 3 samples below 9999 GiB after 2s of waiting. BLOCKED.` **rc=6**, `STATUS.O_mp` last line `rc=6 … note=H5_BLOCKED_AT_BOUND waited=2`, `STATUS.chain` `chain=BLOCKED_H5 arm=O_mp waited=2`; with the floor at 1 GiB the same block passes on the first window (`samples_below_floor=0`) and control reaches the statement after the loop. `bash -n` clean.
+
+| file | md5 at Addendum 1 (`a1283284`) | on disk at 20:47Z (Q1, unlanded) | md5 now | change |
+|---|---|---|---|---|
+| `d6_chain_driver.sh` | `11dced563a8c4695a2144e6d46862735` | `2560742b29a9a3e3b21f1c7e5134d70a` (unbound names) | **`63458a976455636c796e60a3b3fd3566`** | H5 loop (Q1's 27 lines replacing 14) + this lane's one definition line; 42 changed lines against the HEAD blob |
+| `d6_chain_driver_DELTAS_from_d5.diff` | 146 lines | — | regenerated, **181** lines against `d5_chain_driver.sh` @ `a1dcdb7d` | record only |
+| `d6_run_arm.sh`, `d6_grade.py`, `d6_aggregate_memory.py`, every gate, band, cap, label, cost, prediction | — | — | **unchanged** (`98472772…`, `a76a7d5e…`, `709ab0b9…`) | — |
+
+## A2.3 Queue
+
+`held/D6_chain.json` (prereg `a1283284`, cost 1,694.7, floor 24.0) stays in `held/` as the record and is marked **SUPERSEDED** in `held/README.md`. The live entry is **`verification/queue/dafoam/D6_chain_wait.json`**: `case_id D6_chain_wait`, `prereg_commit` = the commit that lands this addendum, `launch_cmd` = the wrapper argv above, `cwd` = this case directory, `ranks 4`, `cost_core_min_estimate 1694.7` (§4, unchanged), `memory_floor_gb 24.0`, `permission bc0e687e`. The runner's own `memory_floor_gb` check is evaluated at launch of the **wrapper**, which then waits; the driver's H5 window re-checks 24.0 GiB at each arm. Enqueueing is not authorisation (`SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own).
+
+**Condition, and how it was checked:** `test -e /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint` → **false** (20:58Z); `sudo -n docker ps -a` carries no `d6_` name; no `d6_chain_driver` process exists; `test -e …/CURRICULUM-D5-a2-wing-ffd-density/CHAIN_DONE` → false. **0 core-min; this item has never fired.**

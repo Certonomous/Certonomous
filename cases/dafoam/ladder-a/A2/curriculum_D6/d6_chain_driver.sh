@@ -26,6 +26,7 @@ D4_CASE_DIR="$HERE/../curriculum_D4"
 PERMISSION=bc0e687e
 H5_FLOOR_GIB=24.0; H5_SAMPLES=45; H5_WINDOW_S=60; AGG_CEILING_GIB=30.6
 AGG_POLL_S=30; AGG_BOUND_S=14400
+H5_RETRY_S=60; H5_BOUND_S=14400   # D6 ADDENDUM 2: H5 in the WAIT-AND-RETRY form (re-take the 60 s window every 60 s, bounded 4 h); the loop below was found on disk uncommitted from lane Q1 (17:49:14Z) with these two names unbound -- completed and registered here
 MD5_LAUNCHER=98472772c9cdfd9007fcf6367b0a2a37
 MD5_RUNSCRIPT=ae4b0305f0395b0047f1ce042d4956a5
 MD5_FD=629bdef27a0dfb838f31ccdb5617aa3d
@@ -75,21 +76,34 @@ for ARM in $ARMS; do
     echo "rc=3 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=ALREADY_BOUGHT permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
     echo "chain=REFUSED_ALREADY_BOUGHT arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 3
   fi
-  # ---- H5: a WINDOW of MemAvailable, every sample above the floor
-  H5_FILE="$BASE/${ARM}_h5_window_$(date -u +%Y%m%dT%H%M%SZ).txt"; BELOW=0; N=0; MIN=999; MAX=0
-  STEP=$(python3 -c "print('%.3f' % ($H5_WINDOW_S/float($H5_SAMPLES)))")
-  for _ in $(seq 1 $H5_SAMPLES); do
-    s=$(mem_gib); N=$((N+1)); echo "$(date -u +%s) $s" >> "$H5_FILE"
-    MIN=$(python3 -c "print(min($MIN,$s))"); MAX=$(python3 -c "print(max($MAX,$s))")
-    [ "$(python3 -c "print(1 if $s < $H5_FLOOR_GIB else 0)")" = "1" ] && BELOW=$((BELOW+1))
-    sleep "$STEP"
+  # ---- H5: a WINDOW of MemAvailable, every sample above the floor -- in the
+  # ---- WAIT-AND-RETRY form (D6 ADDENDUM 2): a 24.0 GiB floor beside a running
+  # ---- 12g sibling (D5) cannot clear at launch, and a one-shot refusal would
+  # ---- discard the entry at zero compute (the W2-DEF-2 shape UPDATE F ruled
+  # ---- against).  The window is re-taken every H5_RETRY_S until every sample
+  # ---- clears, bounded H5_BOUND_S (D5's ceiling wall is 7.75 h); every wait is
+  # ---- a line in STATUS.<arm>; refuse-and-BLOCK at the bound.  The floor and
+  # ---- the any-sample rule are unchanged.
+  H5_WAITED=0
+  while true; do
+    H5_FILE="$BASE/${ARM}_h5_window_$(date -u +%Y%m%dT%H%M%SZ).txt"; BELOW=0; N=0; MIN=999; MAX=0
+    STEP=$(python3 -c "print('%.3f' % ($H5_WINDOW_S/float($H5_SAMPLES)))")
+    for _ in $(seq 1 $H5_SAMPLES); do
+      s=$(mem_gib); N=$((N+1)); echo "$(date -u +%s) $s" >> "$H5_FILE"
+      MIN=$(python3 -c "print(min($MIN,$s))"); MAX=$(python3 -c "print(max($MAX,$s))")
+      [ "$(python3 -c "print(1 if $s < $H5_FLOOR_GIB else 0)")" = "1" ] && BELOW=$((BELOW+1))
+      sleep "$STEP"
+    done
+    echo "D6_H5_WINDOW arm=$ARM n=$N window_s=$H5_WINDOW_S floor_GiB=$H5_FLOOR_GIB min_GiB=$MIN max_GiB=$MAX samples_below_floor=$BELOW waited_s=$H5_WAITED file=$(basename "$H5_FILE")"
+    if [ "$BELOW" -eq 0 ] && [ "$N" -eq "$H5_SAMPLES" ]; then break; fi
+    if [ "$H5_WAITED" -ge "$H5_BOUND_S" ]; then
+      echo "ABORT H5 $BELOW of $N samples below $H5_FLOOR_GIB GiB after ${H5_WAITED}s of waiting.  BLOCKED."
+      echo "rc=6 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=H5_BLOCKED_AT_BOUND waited=$H5_WAITED below=$BELOW min_GiB=$MIN permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+      echo "chain=BLOCKED_H5 arm=$ARM waited=$H5_WAITED stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 6
+    fi
+    echo "H5_WAIT waited=$H5_WAITED stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM below=$BELOW of=$N min_GiB=$MIN floor_GiB=$H5_FLOOR_GIB" >> "$BASE/STATUS.$ARM"
+    sleep "$H5_RETRY_S"; H5_WAITED=$((H5_WAITED+H5_RETRY_S+H5_WINDOW_S))
   done
-  echo "D6_H5_WINDOW arm=$ARM n=$N window_s=$H5_WINDOW_S floor_GiB=$H5_FLOOR_GIB min_GiB=$MIN max_GiB=$MAX samples_below_floor=$BELOW file=$(basename "$H5_FILE")"
-  if [ "$BELOW" -gt 0 ] || [ "$N" -ne "$H5_SAMPLES" ]; then
-    echo "ABORT H5 $BELOW of $N samples below $H5_FLOOR_GIB GiB.  A batch that OOMs is worse than a batch that queues.  REFUSED."
-    echo "rc=6 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=H5_REFUSED below=$BELOW min_GiB=$MIN permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
-    echo "chain=STOPPED_H5 arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 6
-  fi
   # ---- AGGREGATE: WAIT-AND-RETRY (UPDATE F ruling)
   WAITED=0; AGG_SERIES="$BASE/${ARM}_aggregate_series.txt"
   while true; do
