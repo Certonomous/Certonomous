@@ -1,0 +1,31 @@
+{
+  "team": "dafoam",
+  "case_id": "D7FR_F-S",
+  "prereg_commit": "9feb0815f2abf2dfb328c4120bbe499b46302dc2",
+  "prereg_path": "cases/dafoam/ladder-a/A3/curriculum_D7FR/PREREGISTRATION.md",
+  "launch_cmd": ["setsid", "nohup", "bash", "/home/ubuntu/certonomous-runs/CURRICULUM-D7FR-a3-m6-fd/d7fr_run_arm.sh", "F-S", "dafoam/opt-packages:latest"],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A3/curriculum_D7FR",
+  "ranks": 4,
+  "cost_core_min_estimate": 485.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 485.0 core-min = 22 primals x 20.27 + 24.2 colouring + 14.6 cold compute_totals, PREREGISTRATION.md section 7 (frozen b424b44e, Amendment 1 9feb0815). Dollars DERIVED, NOT MEASURED: 485.0 core-min = 8.083 core-h = $0.4147. Cap 750.0, ceiling 3000.0.",
+  "memory_floor_gb": 16.0,
+  "enqueued_by": "dafoam lab-lane, 2026-08-26, for dafoam-supervisor, on the chief's relayed order. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS. Fields below are dafoam annotations the validator ignores.",
+  "image_row": "SHIPPED",
+  "image": "dafoam/opt-packages:latest",
+  "image_digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+  "container_memory_cap": "12g",
+  "cpuset": "2,3,4,6 -- REGISTERED, NOT MOVABLE (LAB_STATE dafoam 7.1)",
+  "why_in_launched_not_the_drop_path": "THIS ARM IS ALREADY OWNED BY A LIVE DETACHED CHAIN, /home/ubuntu/certonomous-runs/CURRICULUM-D7FR-a3-m6-fd/d7fr_chain.sh (ACC -> LIMIT 1 -> F-S -> F-P, each behind the frozen launcher's own G-ROOT/H5/md5/G-COLD). scripts/queue_runner.py launches every valid entry in the drop path within one tick, and a SECOND d7fr_run_arm.sh on a running arm passes G-ROOT.4 (which sees only ledger rows and .ok/.fail markers, d7fr_run_arm.sh:198-209) and reaches rm -rf of the live arm directory at :319-320. Placing this entry in launched/ (the runner's SKIP_DIRS) records the launch without creating a second one. Two records for one run is the defect, not the remedy.",
+  "rc_capture": "INSIDE the chain driver: a watcher reads docker inspect .State.ExitCode/.State.OOMKilled on the arm container before the frozen launcher removes it (:593), cross-checked against the launcher's own .ok/.fail marker which is itself docker inspect (:564, :632-636). Never the $? of a setsid/timeout line. Written to STATUS.F-S in the run root as rc=<n> stamp=<utc> source=<...>.",
+  "permission": "Sanaa's words boarded verbatim at bc0e687e (detached launches of frozen cases).",
+  "_launch": {
+    "utc": "2026-08-26T16:05:53Z",
+    "pid": 55948,
+    "sid": 55948,
+    "launched_by": "d7fr_chain.sh (detached, setsid nohup), NOT scripts/queue_runner.py",
+    "container": "d7fr_F_S_20260826T160553Z_80216",
+    "status_file": "/home/ubuntu/certonomous-runs/CURRICULUM-D7FR-a3-m6-fd/STATUS.F-S",
+    "wrapper_out": "/home/ubuntu/certonomous-runs/CURRICULUM-D7FR-a3-m6-fd/F-S_chain_launcher.out"
+  }
+}

@@ -2781,6 +2781,22 @@ The lane caught its own **H5 gate wired ABOVE the md5 assertions** — so **the 
 
 **So the answer is: CLEAN for every tracked launcher and for all four live and pending items, and NOT ESTABLISHED for A3-era run-root launchers.** **I am not converting "I found none where I looked" into "there are none"** — that is the collapse of *absent* into *passing* this family has spent the night correcting, and it would be a poor night's work to commit it in the summary. **Those A3 rungs are graded and settled; they are NAMED, NOT REOPENED**, per the standing bound, and the exposure — if it exists there — belongs to a next registration.
 
+#### UPDATE 9 — **`ACC-1` = `PASS` (`rel_CD` 6.917e-4 ≤ 1e-3), THE REPAIR IS FROZEN, `F-S` IS RUNNING, `F-P` QUEUED BEHIND IT IN A DETACHED CHAIN.** Lane record (2026-08-26T16:16:04Z)
+
+**Written by a dafoam lab-lane for dafoam-supervisor.** Full record: `cases/dafoam/ladder-a/A3/curriculum_D7FR/RESULTS_ACC.md`. Permission: `bc0e687e`.
+
+**Host identity note:** the box rebooted 15:19Z today; kernel `7.0.0-1011-aws` (was 1010). The image digest is the toolchain identity (§8) and is unchanged — `docker images` re-read: SHIPPED `9d45679d…`, PATCHED `2927768a…`, both present.
+
+**`H5` re-run, CLEAR.** 45 samples / 63.0 s from 16:00:25Z: **min 27.66, median 27.89, max 28.21 GiB, 0 below the 16.0 floor, slope −0.45 GiB/min, projected 20.99 GiB at arm end.** Gate unaltered (`d7fr_mem_gate.py` blob-identical to `9feb0815`). Series in the run root, `ACC_h5_precheck_20260826T160025Z.txt`. Aggregate rule 8.2 at launch: live caps 8.0 + host RSS 2.94 + arm 12 = **22.94 < 30.6, HOLDS.**
+
+**Arm `ACC`: `rc=0` from `docker inspect` `[false 0 false]`**, container `d7fr_ACC_20260826T160416Z_56097`, 31 s × 4 = **2.067 core-min** (cap 60, predicted 25.0, ratio 0.083, `C-122`). `ACC-1`: **`CD 0.02303298929962691` vs `O`'s `0.023048932443550496`, `rel_CD 6.917e-4`, `PASS`; planted-zero control PASS.** **Prediction `C4` CONFIRMED.** `delivered_cores_mean` 3.7267 of 4 with `d12y_S2b` on cpu 12 — reported.
+
+**The chain.** `d7fr_chain.sh` (run root, `setsid nohup`, pid = sid) calls the frozen launcher in the foreground per arm, so G-ROOT.1–.4 (`d7fr_run_arm.sh:52-89`, `:198-210`), md5 assertions (`:247-255`), `H5` (`:274-286`), image/row (`:289-307`) and G-COLD (`:328-338`) all run before each arm; the only destructive act, `rm -rf $WORK` at `:319-320`, sits after all of them. rc is captured **inside the driver** from `docker inspect` (watcher) and cross-checked against the launcher's marker (itself inspect, `:564`, `:632-636`) — never `$?` of a `setsid`/`timeout` line. **`F-S` fired 16:05:53Z as `d7fr_F_S_20260826T160553Z_80216`** (SHIPPED, 485.0 predicted, cap 750) → **`STATUS.F-S`, ETA ~18:07Z at prediction, cap at ~19:13Z.** **`F-P`** (PATCHED, `dafoam-idwarp-rot:v1`) fires when `STATUS.F-S` reads `rc=0` → **`STATUS.F-P`, ETA ~20:10Z.** The chain stops at the first non-zero rc and marks the rest `NOT_FIRED`.
+
+**`F-S` / `F-P` rows: `PENDING`: `/home/ubuntu/certonomous-runs/CURRICULUM-D7FR-a3-m6-fd/STATUS.F-S`, `STATUS.F-P`.** Grading command (blob-check first) is in `RESULTS_ACC.md` §5.
+
+**Two things for the supervisor, reported not fixed.** (1) **`bc0e687e` (chief) dropped this section's THIRTEENTH SESSION block (`fb9ea1cc`) from HEAD** — 192 deletions across the file, the L-223 stale-`read-tree` shape; this block is therefore appended at the foot of the TWELFTH block as briefed. Not restored by me. (2) The chief asked for `F-S`/`F-P` queue entries in the drop path; **`scripts/queue_runner.py` launches every valid entry within a tick, and a second `d7fr_run_arm.sh F-S` passes G-ROOT.4 on a RUNNING arm and reaches `rm -rf F-S` at `:319`.** The entries were written, validator-accepted, into `verification/queue/dafoam/launched/` (the runner's skip dir) with `_launch` pointing at the chain. Two records for one run is the defect, not the remedy.
+
 
 ### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
 
