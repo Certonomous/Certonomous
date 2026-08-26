@@ -1,0 +1,20 @@
+D8R G-ROOT.5 SELFTEST 2026-08-26T22:41:39Z launcher_md5=95beeed3a5dad0d715f3f1b2836ab973
+  [OK ] G-ROOT.5 completes at :234, first destructive op at :315
+  [OK ] zero backticks on executable lines of the launcher
+  [OK ] run root ABSENT before the test: /home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv
+  [OK ] (a) live container d8r_O-S_selftest_20260826T224140Z -> rc=3: ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [d8r_O-S_selftest_20260826T224140Z]
+  [OK ] (b) live pid 558946 cwd=/home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv -> rc=3: ABORT G-ROOT.5 driver pidfile /home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv/d8r_driver.pid names LIVE pid 558946 (ancestor_
+  [OK ] (b2) stale pidfile ignored; launcher went on to abort at the L-251 mode check (rc=4) -- nothing staged
+  [OK ] (c) clear -> G-ROOT.5 passes; L-251 mode check aborts (rc=4) before any staging
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D8-a6-twist-opt -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D17-cone-supersonic -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (e1) O-P on the SHIPPED image -> rc=4 G-ROW REFUSED before any staging
+  [OK ] (e2) F-S on the PATCHED image -> rc=4 G-ROW REFUSED before any staging
+  [OK ] (e3) O-S on the SHIPPED image -> G-ROW passes, then the arm REFUSES (rc=5) for want of D8's staged mesh -- nothing staged
+  [OK ] (e3) no arm directory was created
+  [OK ] temporary run root EMPTY after every invocation and after the (e) copies were removed (0 entries)
+  [OK ] run root ABSENT after the test (freeze condition): test -e /home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv -> false
+  [OK ] no d8r_ container survives
+D8R G-ROOT5 SELFTEST pass=18 fail=0 2026-08-26T22:41:42Z

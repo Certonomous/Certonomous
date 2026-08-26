@@ -1,0 +1,75 @@
+D8R GRADER SELFTEST EVIDENCE 2026-08-26T22:45:20Z grader_md5=3f6eafac2ad4897417521d00c1cc5f3e of_md5=5a399b427331ab8eab1fcdc1a243b3aa
+== python3
+  [OK ] U1 clean fixture (both rows Optimal) -> item PASS, both rows PASS, G-M2/G-BASE/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> P1, P3, P5, P6, P7 HIT; P2 and P4 MISS (shipped clean by construction)
+  [OK ] U19 grader-level plant SEEN on both F tables (rule 3)
+  [OK ] U3 PLANTED 7 % error on shipped twist[3] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL, P4 HIT
+  [OK ] U4 PLANTED sign flip on shipped twist[0] -> flip counted, SHIPPED GATE FAIL, P4 HIT, PATCHED PASS
+  [OK ] U5 PLANTED no-plateau on one component -> that component NOT A RESULT, row still PASS on 4 graded
+  [OK ] U6 three no-plateau components on PATCHED -> 2 graded < 3 -> row NOT A RESULT, item NOT A RESULT
+  [OK ] U7 rc=1 on O-P -> REFUSAL
+  [OK ] U8 OOMKilled=true on F-S -> REFUSAL (G11 hard)
+  [OK ] U9 terminal marker absent in F-P log -> REFUSAL
+  [OK ] U10 artefact OLDER than the age datum (O-S) -> REFUSAL (rule 4)
+  [OK ] U11 instrument CTRL planted row broken -> REFUSAL (a reader not shown to see a non-zero)
+  [OK ] U12 O-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL
+  [OK ] U13 O-P core_min 1001.0 > cap 1000.0 -> G10 GATE FAIL
+  [OK ] U14 O-S on cpuset 8,10,11,13 (D5's) -> G12 GATE FAIL
+  [OK ] U15 F-S points.gz with another md5 -> G-M2 GATE FAIL, item GATE FAIL
+  [OK ] U16 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)
+  [OK ] U17 harness rc 0 vs kernel exit 1 disagreement -> REFUSAL
+  [OK ] U18 ledger row absent, no inspect record -> REFUSAL
+  [OK ] U20 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS
+  [OK ] U21 ast.Assert count = 0 in d8r_grade.py and d8r_of.py
+  [OK ] U22 the assert counter sees a planted assert (=1)
+  [OK ] U23 SHIPPED exit = max_iter exceeded, drop 1 % >= 10 eta -> SHIPPED GATE REACHED, P2 HIT, item GATE REACHED (PATCHED PASS)
+  [OK ] U24 SHIPPED exit = max_iter exceeded, drop 0.0001 % < 10 eta -> G-O NOT A RESULT, row NOT A RESULT, item NOT A RESULT
+  [OK ] U25 PATCHED exit = Restoration Failed -> G-O NOT A RESULT, P1 MISS, item NOT A RESULT
+  [OK ] U26 PATCHED CL_final 0.51 (|dev| 1e-2 > 5e-3) -> G2 GATE FAIL, row GATE FAIL
+  [OK ] U27 PATCHED drag reduction 6 % outside [0.29, 5.0] -> G3 GATE FAIL, P5 MISS, row GATE FAIL (never a silent widen)
+  [OK ] U28 cold CD 2e-4 off the registered value (> 10 eta) -> G-BASE GATE FAIL, item GATE FAIL
+  [OK ] U29 n_iter 31 > registered MAX_ITER 30 -> REFUSAL (instrument defect)
+  [OK ] U30 F arm whose endpoint md5 is not this row's O artefact -> REFUSAL
+  [OK ] U31 nprocs 1 in an artefact (registered 4) -> REFUSAL
+D8R GRADER SELFTEST units=31 expected=31 failures=0 python_O=False
+D8R GRADER SELFTEST PASS 31/31 (counted against the frozen EXPECTED_UNITS)
+rc=0
+== python3 -O
+  [OK ] U1 clean fixture (both rows Optimal) -> item PASS, both rows PASS, G-M2/G-BASE/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> P1, P3, P5, P6, P7 HIT; P2 and P4 MISS (shipped clean by construction)
+  [OK ] U19 grader-level plant SEEN on both F tables (rule 3)
+  [OK ] U3 PLANTED 7 % error on shipped twist[3] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL, P4 HIT
+  [OK ] U4 PLANTED sign flip on shipped twist[0] -> flip counted, SHIPPED GATE FAIL, P4 HIT, PATCHED PASS
+  [OK ] U5 PLANTED no-plateau on one component -> that component NOT A RESULT, row still PASS on 4 graded
+  [OK ] U6 three no-plateau components on PATCHED -> 2 graded < 3 -> row NOT A RESULT, item NOT A RESULT
+  [OK ] U7 rc=1 on O-P -> REFUSAL
+  [OK ] U8 OOMKilled=true on F-S -> REFUSAL (G11 hard)
+  [OK ] U9 terminal marker absent in F-P log -> REFUSAL
+  [OK ] U10 artefact OLDER than the age datum (O-S) -> REFUSAL (rule 4)
+  [OK ] U11 instrument CTRL planted row broken -> REFUSAL (a reader not shown to see a non-zero)
+  [OK ] U12 O-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL
+  [OK ] U13 O-P core_min 1001.0 > cap 1000.0 -> G10 GATE FAIL
+  [OK ] U14 O-S on cpuset 8,10,11,13 (D5's) -> G12 GATE FAIL
+  [OK ] U15 F-S points.gz with another md5 -> G-M2 GATE FAIL, item GATE FAIL
+  [OK ] U16 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)
+  [OK ] U17 harness rc 0 vs kernel exit 1 disagreement -> REFUSAL
+  [OK ] U18 ledger row absent, no inspect record -> REFUSAL
+  [OK ] U20 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS
+  [OK ] U21 ast.Assert count = 0 in d8r_grade.py and d8r_of.py
+  [OK ] U22 the assert counter sees a planted assert (=1)
+  [OK ] U23 SHIPPED exit = max_iter exceeded, drop 1 % >= 10 eta -> SHIPPED GATE REACHED, P2 HIT, item GATE REACHED (PATCHED PASS)
+  [OK ] U24 SHIPPED exit = max_iter exceeded, drop 0.0001 % < 10 eta -> G-O NOT A RESULT, row NOT A RESULT, item NOT A RESULT
+  [OK ] U25 PATCHED exit = Restoration Failed -> G-O NOT A RESULT, P1 MISS, item NOT A RESULT
+  [OK ] U26 PATCHED CL_final 0.51 (|dev| 1e-2 > 5e-3) -> G2 GATE FAIL, row GATE FAIL
+  [OK ] U27 PATCHED drag reduction 6 % outside [0.29, 5.0] -> G3 GATE FAIL, P5 MISS, row GATE FAIL (never a silent widen)
+  [OK ] U28 cold CD 2e-4 off the registered value (> 10 eta) -> G-BASE GATE FAIL, item GATE FAIL
+  [OK ] U29 n_iter 31 > registered MAX_ITER 30 -> REFUSAL (instrument defect)
+  [OK ] U30 F arm whose endpoint md5 is not this row's O artefact -> REFUSAL
+  [OK ] U31 nprocs 1 in an artefact (registered 4) -> REFUSAL
+D8R GRADER SELFTEST units=31 expected=31 failures=0 python_O=True
+D8R GRADER SELFTEST PASS 31/31 (counted against the frozen EXPECTED_UNITS)
+rc=0
+== instrument py_compile + ast.Assert
+d8r_of.py ast.Assert = 0
+d8r_cpuset_overlap.py ast.Assert = 0
+d8r_aggregate_memory.py ast.Assert = 0

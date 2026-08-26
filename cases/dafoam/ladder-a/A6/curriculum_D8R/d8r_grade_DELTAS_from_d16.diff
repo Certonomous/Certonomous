@@ -1,0 +1,764 @@
+--- ../../A1/curriculum_D16/d16_grade.py	2026-08-26 21:08:03.129052830 +0000
++++ d8r_grade.py	2026-08-26 22:45:19.936316560 +0000
+@@ -1,47 +1,64 @@
+ #!/usr/bin/env python3
+-"""Curriculum D16 COMPARATOR -- NACA0012 TRANSONIC (DARhoSimpleCFoam) baseline gradient,
+-TWO ROWS (SHIPPED + PATCHED), adjoint X against a central-FD table F.  FROZEN by md5 in
+-PREREGISTRATION.md section 7 before any container starts.  Computes nothing about
+-physics; renders verdicts from the FIXED vocabulary only (PASS / GATE REACHED / GATE FAIL /
+-NOT A RESULT / BLOCKED / PENDING).  Derived from curriculum_D15/d15_grade.py (d16_grade_DELTAS_from_d15.diff: item, caps, ceiling,
+-predictions, cpuset).  Shape: curriculum_D14/d14m_grade.py (built-in
+---selftest counted against a FROZEN unit count); machinery: curriculum_D5/d5_grade.py
+-(ledger regex, L-342 field classes, arm-kind-aware completion).
++"""Curriculum D8R COMPARATOR -- A6 CRM wing-alone N=16, twist-only constrained drag
++minimisation TO CONVERGENCE on TWO ROWS (PATCHED first, then SHIPPED), each followed by an
++ENDPOINT central-FD table beside the endpoint adjoint.  FROZEN by md5 in PREREGISTRATION.md
++section 7 before any container starts.  Computes nothing about physics; renders verdicts
++from the FIXED vocabulary only (PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED /
++PENDING).  Derived from curriculum_D16/d16_grade.py (d8r_grade_DELTAS_from_d16.diff): the
++ledger regex, L-342 field classes, arm-kind-aware completion, the inspect-record fallback,
++the FD machinery (plateau, band D with the sign-flip rule, band E, >= 3 graded), the
++planted controls, G9/G10/G12 and the selftest shape are D16's; NEW here are the
++optimisation gates G-O / G2 / G3 / G-BASE and the four-arm, no-MESH chain.
+ 
+ WHAT IT GRADES (PREREGISTRATION.md section 3):
+-  G1   completion, ARM-KIND AWARE: every arm needs kernel rc == 0 (docker inspect, and
+-       the harness rc must agree), OOMKilled false, and the AGE GUARD on its registered
+-       artefact (strictly newer than the arm's own datum).  SOLVER arms (X-*, F-*) also
+-       need the instrument's TERMINAL MARKER in the arm log (D16_X_WRITTEN / D16_F_WRITTEN);
+-       the SCRIPT arm MESH needs `Mesh OK.` in checkMesh.log.  Any clause fails -> REFUSE
+-       (NOT A RESULT).  An arm with no ledger row is read from the launcher's surviving
+-       `<ARM>_<stamp>.inspect.txt` (the container itself is removed after inspect), with
+-       the source named per field and every infrastructure field NOT_MEASURED (L-342).
+-  G-M2 mesh identity: cells == 4,032 (A1's mesh; same generator, same profiles) ->
+-       PASS else GATE FAIL (a different mesh is a different item).
+-  G5   per ROW, the bright line: per registered component, the FD reference is the
+-       MIDDLE step of the registered three; PLATEAU = the middle step agrees with at least
+-       one neighbour to 10 % (else the component is NOT A RESULT); band D = per-component
+-       |d_FD - J_adj| / |d_FD| <= 5.0 % AND the same sign (a SIGN FLIP is GATE FAIL whatever
+-       the magnitude); band E = aggregate vector-relative error over graded components
+-       <= 5.0 %.  Fewer than 3 graded components -> the row is NOT A RESULT.  G5 is graded
+-       on CD (the objective) and G5c on CL (the constraint) with the same bands; a row is
+-       PASS only if both are.
+-  G6   dot-product / duality test: NOT MEASURED -- the tutorial exposes none; named.
+-  G9   toolchain per row: the ledger DIGEST, the container's `D4S_IDWARP_SO_MD5:` print
+-       and the artefact's in-process libidwarp.so md5 must all name the row's registered
+-       toolchain (shipped f0fcb488..., patched 85f59e87...).
+-  G10  caps: every row core_min <= its registered cap and the sum <= the ceiling;
+-       a crossing is GATE FAIL exactly as the frozen text says (report mode).
+-  G12  placement: cpuset == the registered 2,3 on every row; delivered cores >= 1.5
+-       of 2 where MEASURED, NOT_MEASURED disclosed otherwise.
+-  DIVERGENCE shipped-vs-patched per component on the adjoint is REPORTED with its number.
+-
+-PLANTED CONTROLS (rule 3): (i) the instrument's CTRL component (derivative exactly 0.0)
+-and its PLANTED row (exactly PLANT/(2 s)) are re-read here and the grade REFUSES if the
+-reader cannot see them; (ii) this grader writes a copy of the F table with PLANT added to
+-every physical derivative into <root>/grader_controls/, re-reads it through the same
+-reader, and REFUSES unless every value moved by exactly PLANT.
++  G1    completion, every arm SOLVER: kernel rc == 0 (docker inspect, harness rc must agree),
++        OOMKilled false (G11, hard), the AGE GUARD on the registered artefact, the instrument's
++        TERMINAL MARKER (D8R_O_WRITTEN / D8R_F_WRITTEN) in the arm log.  Any clause fails ->
++        REFUSE (NOT A RESULT).  A missing ledger row is read from the surviving
++        `<ARM>_<stamp>.inspect.txt` with the source named and every infrastructure field
++        NOT_MEASURED (L-342).
++  G-M2  mesh identity: md5(<arm>/constant/polyMesh/points.gz) == D8's frozen
++        11b84f0de5fdf2d3e947fee8cea412a9 on every arm -> PASS else GATE FAIL.
++  G-BASE per O arm: the cold CD lies within 10 eta of D8's five-times-reproduced
++        0.03506349413916734 (np=1 gave 17-digit equality; np=4 decomposition is registered to
++        move it by no more than the case's own noise floor) -> PASS else GATE FAIL.
++  G-O   per O arm, the optimiser's OWN terminus (DAFOAM_CHARTER.md section 9):
++        `EXIT: Optimal Solution Found.` -> PASS; `EXIT: Maximum Number of Iterations
++        Exceeded.` with the registered intermediate threshold met (CD_start - CD_final >=
++        10 eta, D8's G3) -> GATE REACHED; any other EXIT, or none -> NOT A RESULT.  A
++        `Number of Iterations` above the registered MAX_ITER is an instrument defect ->
++        REFUSE.
++  G2    per O arm: |CL_final - 0.5| <= 5.0e-3 (D8 section 4) -> PASS else GATE FAIL.
++  G3    per O arm: the drag reduction (CD_start - CD_final) / CD_start lies inside the
++        REGISTERED band [0.29 %, 5.0 %] (P5; the lower edge is D8's measured 3-major drop,
++        the upper the induced-drag bound of a twist-only reload) -> PASS else GATE FAIL --
++        outside the band is a GATE FAIL, never a silent widening.
++  G5    per row, the bright line at the ENDPOINT: per registered component the FD
++        reference is the MIDDLE step of the registered three; PLATEAU = the middle step agrees
++        with at least one neighbour to 10 % (else NOT A RESULT); band D = per-component
++        |d_FD - J_adj| / |d_FD| <= 5.0 % AND the same sign (a SIGN FLIP is GATE FAIL whatever
++        the magnitude); band E = aggregate vector-relative error <= 5.0 %.  Fewer than 3
++        graded components -> the row is NOT A RESULT.  G5 on CD (the objective), G5c on CL
++        (the constraint) with the same bands.  The F arm must have consumed the SAME ROW's
++        endpoint (endpoint_source md5 == md5 of that row's d8r_O.json) or it REFUSES.
++  G6    dot-product / duality test: NOT MEASURED -- the tutorial exposes none; named.
++  G9    toolchain per row: ledger DIGEST, the container's `D4S_IDWARP_SO_MD5:` print and the
++        artefact's in-process libidwarp.so md5 must all name the row's registered toolchain.
++  G10   caps: every arm core_min <= its registered cap and the sum <= the ceiling; a crossing
++        is GATE FAIL exactly as the frozen text says (report mode).
++  G12   placement: cpuset == the registered 0,1,12,15 on every arm; delivered cores >= 3.0
++        of 4 where MEASURED, NOT_MEASURED disclosed otherwise.
++  ROW   = NOT A RESULT if any of G-O/G2/G3/G5/G5c is; else GATE FAIL if any is; else
++        GATE REACHED if G-O is; else PASS.  ITEM = NOT A RESULT if any row is; else GATE FAIL
++        if any row or G-M2/G-BASE/G9/G10/G12 is; else GATE REACHED if any row is; else PASS.
++  DIVERGENCE shipped-vs-patched per component on the endpoint adjoint is REPORTED with its
++        number (the two rows sit at DIFFERENT endpoints, so it is a reading, not a gate).
++
++PLANTED CONTROLS (rule 3): (i) the instrument's CTRL component and its PLANTED row are
++re-read here and the grade REFUSES if the reader cannot see them; (ii) this grader writes a
++copy of each F table with PLANT added to every physical derivative into
++<root>/grader_controls/, re-reads it through the same reader, and REFUSES unless every
++value moved by exactly PLANT.
+ 
+ L-342 (Sanaa, d4d0c29d): FIELDS_PHYSICS absent -> REFUSE; FIELDS_INFRASTRUCTURE absent
+ -> NOT_MEASURED, disclosed beside the verdict, never composed to PASS; present-but-garbage
+@@ -50,6 +67,7 @@
+ """
+ import ast
+ import glob
++import hashlib
+ import json
+ import math
+ import os
+@@ -58,42 +76,53 @@
+ import time
+ 
+ # ---- REGISTERED CONSTANTS (PREREGISTRATION.md; the document governs) ----------------
+-ITEM = "D16"
+-BASE = "/home/ubuntu/certonomous-runs/CURRICULUM-D16-a1-naca0012-transonic"
+-ARMS_REQUIRED = ["MESH", "X-S", "F-S", "X-P", "F-P"]
+-ARM_KIND = {"MESH": "SCRIPT", "X-S": "SOLVER", "F-S": "SOLVER", "X-P": "SOLVER", "F-P": "SOLVER"}
+-ARM_ROW = {"MESH": "SHIPPED", "X-S": "SHIPPED", "F-S": "SHIPPED", "X-P": "PATCHED", "F-P": "PATCHED"}
+-ARM_RANKS = {"MESH": 1, "X-S": 2, "F-S": 2, "X-P": 2, "F-P": 2}
+-ARTEFACT = {"MESH": "checkMesh.log", "X-S": "d16_X.json", "F-S": "d16_F.json", "X-P": "d16_X.json", "F-P": "d16_F.json"}
+-TERMINAL = {"X-S": "D16_X_WRITTEN", "F-S": "D16_F_WRITTEN", "X-P": "D16_X_WRITTEN", "F-P": "D16_F_WRITTEN"}
+-DATUM_REF = {"MESH": "0.orig/U", "X-S": "0/U", "F-S": "0/U", "X-P": "0/U", "F-P": "0/U"}
+-CAPS = {"MESH": 5.0, "X-S": 30.0, "F-S": 90.0, "X-P": 30.0, "F-P": 90.0}
+-ITEM_CEILING_CORE_MIN = 245.0
+-PREDICTED_CORE_MIN = {"MESH": 0.3, "X-S": 6.0, "F-S": 14.0, "X-P": 6.0, "F-P": 14.0}
+-CELLS_EXPECTED = 4032
++ITEM = "D8R"
++BASE = "/home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv"
++ARMS_REQUIRED = ["O-P", "F-P", "O-S", "F-S"]
++ARM_KIND = {"O-P": "SOLVER", "F-P": "SOLVER", "O-S": "SOLVER", "F-S": "SOLVER"}
++ARM_ROW = {"O-P": "PATCHED", "F-P": "PATCHED", "O-S": "SHIPPED", "F-S": "SHIPPED"}
++ARM_RANKS = {"O-P": 4, "F-P": 4, "O-S": 4, "F-S": 4}
++ARTEFACT = {"O-P": "d8r_O.json", "F-P": "d8r_F.json", "O-S": "d8r_O.json", "F-S": "d8r_F.json"}
++TERMINAL = {"O-P": "D8R_O_WRITTEN", "F-P": "D8R_F_WRITTEN", "O-S": "D8R_O_WRITTEN", "F-S": "D8R_F_WRITTEN"}
++DATUM_REF = {"O-P": "0/U", "F-P": "0/U", "O-S": "0/U", "F-S": "0/U"}
++CAPS = {"O-P": 1000.0, "F-P": 120.0, "O-S": 1000.0, "F-S": 120.0}
++ITEM_CEILING_CORE_MIN = 2240.0
++PREDICTED_CORE_MIN = {"O-P": 458.0, "F-P": 61.0, "O-S": 458.0, "F-S": 61.0}
++POINTS_MD5 = "11b84f0de5fdf2d3e947fee8cea412a9"   # D8 PREREGISTRATION.md section 9, the fixed-reference tree's points.gz
++NPROCS_REGISTERED = 4
++MAX_ITER = 30
++CL_TARGET = 0.5
++G2_CL_TOL = 5.0e-3           # D8 PREREGISTRATION.md section 4, G2
++ETA_D8 = 1.0910e-05          # N-D13; D8 section 2; endpoint reproduced at ratio 0.989 (D8 RESULTS section 4)
++G3_MIN_DROP_ABS = 10.0 * ETA_D8   # D8's G3 threshold: the intermediate threshold for GATE REACHED
++CD_COLD_REGISTERED = 0.03506349413916734
++GBASE_TOL_ABS = 10.0 * ETA_D8
++DROP_BAND_PCT = (0.29, 5.0)  # P5 / G3: registered band on (CD_start - CD_final) / CD_start
+ FD_BAND_PCT = 5.0            # band D, per component (D4 PREREGISTRATION.md:82; D7FR:228-229)
+ AGG_BAND_PCT = 5.0           # band E, aggregate vector-relative (same sources)
+ PLATEAU_TOL_PCT = 10.0
+ MIN_GRADED = 3
+ NEAR_ZERO_ABS = 1.0e-14
+-COMPONENTS_REGISTERED = [["shape", 0], ["shape", 3], ["shape", 6], ["shape", 7], ["patchV", 1]]
+-STEPS_REGISTERED = {"shape": [1.0e-2, 1.0e-3, 1.0e-4], "patchV": [1.0e-1, 1.0e-2, 1.0e-3]}
+-CTRL_STEP = 1.0e-3
++COMPONENTS_REGISTERED = [["twist", 0], ["twist", 1], ["twist", 3], ["twist", 4], ["twist", 5]]
++STEPS_REGISTERED = {"twist": [3.0e-2, 1.0e-1, 3.0e-1]}
++DVS = ("twist", "patchV")
++CTRL_STEP = 1.0e-1
+ PLANT = 1.234e-03
+ IMG_DIGEST = {"SHIPPED": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+               "PATCHED": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35"}
+ SO_MD5 = {"SHIPPED": "f0fcb488e0e98156575cd19548e91663", "PATCHED": "85f59e87253e0a71a813f64ca6e4c425"}
+-CPUSET_REGISTERED = "4,14"
+-DELIVERED_CORES_FLOOR = 1.5
+-PRED = {"P2_CL_band": (0.30, 0.60), "P3_CD_band": (0.012, 0.045), "P4_patched_min_pass": 4,
+-        "P6_core_min_band": (15.0, 120.0), "P6_mesh_wall_s_max": 120.0}
++CPUSET_REGISTERED = "0,1,12,15"
++DELIVERED_CORES_FLOOR = 3.0
++EXIT_OPTIMAL = "EXIT: Optimal Solution Found."
++EXIT_MAXITER = "EXIT: Maximum Number of Iterations Exceeded."
++PRED = {"P6_core_min_band": (500.0, 1800.0), "P7_majors_band": (8, 30)}
+ FIELDS_PHYSICS = ("rc", "inspect_exit", "oomkilled", "terminal_statement", "age_guard",
+                   "core_min", "cap_core_min", "DIGEST", "cpuset")
+ FIELDS_INFRASTRUCTURE = ("memavail_pre_GiB", "memavail_post_GiB", "delivered", "siblings_pre",
+                          "siblings_post", "log", "wall_s")
+ NOT_MEASURED = "NOT_MEASURED"
+ VOCAB = {"PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING"}
+-EXPECTED_UNITS = 22
++EXPECTED_UNITS = 31
+ 
+ 
+ class Refusal(Exception):
+@@ -108,6 +137,10 @@
+     return sum(1 for n in ast.walk(ast.parse(open(path).read())) if isinstance(n, ast.Assert))
+ 
+ 
++def md5_of(path):
++    return hashlib.md5(open(path, "rb").read()).hexdigest()
++
++
+ # ================= LEDGER (physics vs infrastructure, L-342) -- D5's regex ============
+ LEDGER_RE = re.compile(
+     r"ARM=(?P<ARM>\S+)\s+ROW=(?P<ROW>\S+)\s+IMG=(?P<IMG>\S+)\s+"
+@@ -192,10 +225,10 @@
+             "infra_not_measured": list(FIELDS_INFRASTRUCTURE) + ["core_min"]}
+ 
+ 
+-# ================= G1: COMPLETION, ARM-KIND AWARE =====================================
++# ================= G1: COMPLETION =====================================================
+ def arm_datum(base, arm):
+     d = os.path.join(base, arm)
+-    p = os.path.join(d, ".d16_age_datum")
++    p = os.path.join(d, ".d8r_age_datum")
+     if not os.path.isfile(p):
+         refuse("G1", {"age_datum_absent": p, "arm": arm})
+     datum = int(open(p).read().strip())
+@@ -228,7 +261,7 @@
+             refuse("G1", {"oomkilled_unparseable": arm, "value": r.get("oomkilled")})
+         if kernel_rc != 0 or oom != "false":
+             refuse("G1", {"arm": arm, "kernel_rc": kernel_rc, "oomkilled": oom,
+-                          "note": "a run that fails any clause is not done (rule 4)"})
++                          "note": "a run that fails any clause is not done (rule 4); OOMKilled is G11, hard"})
+         adir, datum = arm_datum(base, arm)
+         art = os.path.join(adir, ARTEFACT[arm])
+         if not os.path.isfile(art):
+@@ -236,22 +269,15 @@
+         if os.path.getmtime(art) <= datum:
+             refuse("G1", {"artefact_not_newer_than_datum": art, "arm": arm, "datum": datum,
+                           "artefact_mtime": os.path.getmtime(art), "note": "age guard, rule 4"})
+-        kind = ARM_KIND[arm]
+-        if kind == "SOLVER":
+-            logname = r.get("log")
+-            logpath = os.path.join(base, logname) if logname else None
+-            if not logpath or not os.path.isfile(logpath):
+-                refuse("G1", {"log_absent": logname, "arm": arm, "note": "a missing log is a FAILED clause"})
+-            text = open(logpath, errors="replace").read()
+-            if TERMINAL[arm] not in text:
+-                refuse("G1", {"terminal_marker_absent": TERMINAL[arm], "arm": arm, "log": logname})
+-            r["log_text"] = text
+-        else:
+-            text = open(art, errors="replace").read()
+-            if not re.search(r"^Mesh OK\.$", text, re.M):
+-                refuse("G1", {"mesh_ok_absent": art, "arm": arm})
+-            r["log_text"] = open(os.path.join(base, r["log"]), errors="replace").read() if r.get("log") and os.path.isfile(os.path.join(base, r["log"])) else ""
+-        out["arms"][arm] = {"kind": kind, "kernel_rc": kernel_rc, "oomkilled": oom, "artefact": ARTEFACT[arm],
++        logname = r.get("log")
++        logpath = os.path.join(base, logname) if logname else None
++        if not logpath or not os.path.isfile(logpath):
++            refuse("G1", {"log_absent": logname, "arm": arm, "note": "a missing log is a FAILED clause"})
++        text = open(logpath, errors="replace").read()
++        if TERMINAL[arm] not in text:
++            refuse("G1", {"terminal_marker_absent": TERMINAL[arm], "arm": arm, "log": logname})
++        r["log_text"] = text
++        out["arms"][arm] = {"kind": ARM_KIND[arm], "kernel_rc": kernel_rc, "oomkilled": oom, "artefact": ARTEFACT[arm],
+                             "source": r["source"], "field_sources": r["field_sources"]}
+         if r.get("infra_not_measured"):
+             out["not_measured"][arm] = r["infra_not_measured"]
+@@ -259,13 +285,20 @@
+ 
+ 
+ # ================= readers with planted controls ======================================
+-def read_X(path):
++def read_O(path):
+     j = json.load(open(path))
+     adj = {}
+     for of in ("CD", "CL"):
+-        adj[of] = {dv: [float(v) for v in j["adjoint"][of][dv]] for dv in ("shape", "patchV")}
+-    return {"CD": float(j["CD_baseline"]), "CL": float(j["CL_baseline"]), "adjoint": adj,
+-            "so_md5": (j.get("identity") or {}).get("libidwarp_so_md5"), "nprocs": j.get("nprocs")}
++        adj[of] = {dv: [float(v) for v in j["adjoint"][of][dv]] for dv in DVS}
++    ip = j.get("ipopt") or {}
++    return {"CD_cold": float(j["CD_cold"]), "CL_cold": float(j["CL_cold"]),
++            "CD_start": float(j["CD_start"]), "CL_start": float(j["CL_start"]),
++            "CD_final": float(j["CD_final"]), "CL_final": float(j["CL_final"]),
++            "CD_endpoint": float(j["CD_endpoint"]), "adjoint": adj,
++            "exit_line": ip.get("exit_line"), "n_iter": ip.get("n_iter"),
++            "max_iter_registered": j.get("max_iter_registered"),
++            "so_md5": (j.get("identity") or {}).get("libidwarp_so_md5"), "nprocs": j.get("nprocs"),
++            "md5": md5_of(path)}
+ 
+ 
+ def read_F(path):
+@@ -286,7 +319,8 @@
+                                     "dCL": (float(v["dCL"]) if v.get("ok") else None)}
+         table[key] = {"status": row.get("status"), "fd": fd}
+     return {"table": table, "ctrl": ctrl, "CD": float(j["CD_baseline"]), "eta": float(j["eta_used"]),
+-            "so_md5": (j.get("identity") or {}).get("libidwarp_so_md5"), "raw": j}
++            "endpoint_md5": (j.get("endpoint_source") or {}).get("md5"),
++            "so_md5": (j.get("identity") or {}).get("libidwarp_so_md5"), "nprocs": j.get("nprocs"), "raw": j}
+ 
+ 
+ def ctrl_control(F):
+@@ -389,11 +423,53 @@
+     return out
+ 
+ 
+-def compose_row(g_cd, g_cl):
+-    if "NOT A RESULT" in (g_cd["verdict"], g_cl["verdict"]):
++# ================= the optimisation gates, per O arm ==================================
++def g_optimiser(O):
++    """G-O: the optimiser's OWN terminus (DAFOAM_CHARTER.md section 9)."""
++    ex, n = O["exit_line"], O["n_iter"]
++    if n is not None and n > MAX_ITER:
++        refuse("G-O", {"n_iter_above_registered_max_iter": n, "max_iter": MAX_ITER,
++                       "note": "the optimiser ran past the registered budget: an instrument defect, refused"})
++    drop = O["CD_start"] - O["CD_final"]
++    out = {"exit_line": ex, "n_iter": n, "max_iter": MAX_ITER, "CD_start": O["CD_start"], "CD_final": O["CD_final"],
++           "drop_abs": drop, "intermediate_threshold_abs": G3_MIN_DROP_ABS}
++    if ex == EXIT_OPTIMAL:
++        out["verdict"] = "PASS"
++    elif ex == EXIT_MAXITER:
++        out["verdict"] = "GATE REACHED" if drop >= G3_MIN_DROP_ABS else "NOT A RESULT"
++        out["reason"] = "registered budget reached; intermediate threshold %s" % ("met" if drop >= G3_MIN_DROP_ABS else "NOT met")
++    else:
++        out["verdict"] = "NOT A RESULT"
++        out["reason"] = "no convergence statement, or an EXIT this registration did not map"
++    return out
++
++
++def g_cl(O):
++    dev = abs(O["CL_final"] - CL_TARGET)
++    return {"CL_final": O["CL_final"], "abs_dev": dev, "tol": G2_CL_TOL, "verdict": "PASS" if dev <= G2_CL_TOL else "GATE FAIL"}
++
++
++def g_drop(O):
++    rel = (O["CD_start"] - O["CD_final"]) / O["CD_start"] * 100.0
++    ok = DROP_BAND_PCT[0] <= rel <= DROP_BAND_PCT[1]
++    return {"CD_start": O["CD_start"], "CD_final": O["CD_final"], "reduction_pct": rel, "band_pct": DROP_BAND_PCT,
++            "verdict": "PASS" if ok else "GATE FAIL"}
++
++
++def g_base(O):
++    dev = abs(O["CD_cold"] - CD_COLD_REGISTERED)
++    return {"CD_cold": O["CD_cold"], "registered": CD_COLD_REGISTERED, "abs_dev": dev, "tol": GBASE_TOL_ABS,
++            "verdict": "PASS" if dev <= GBASE_TOL_ABS else "GATE FAIL"}
++
++
++def compose_row(g_o, g2, g3, g5cd, g5cl):
++    vs = [g_o["verdict"], g2["verdict"], g3["verdict"], g5cd["verdict"], g5cl["verdict"]]
++    if "NOT A RESULT" in vs:
+         return "NOT A RESULT"
+-    if "GATE FAIL" in (g_cd["verdict"], g_cl["verdict"]):
++    if "GATE FAIL" in vs:
+         return "GATE FAIL"
++    if g_o["verdict"] == "GATE REACHED":
++        return "GATE REACHED"
+     return "PASS"
+ 
+ 
+@@ -405,10 +481,8 @@
+         row = ARM_ROW[arm]
+         m = re.search(r"D4S_IDWARP_SO_MD5:\s*([0-9a-f]{32})", r.get("log_text", ""))
+         printed = m.group(1) if m else None
+-        ok = (r.get("DIGEST") == IMG_DIGEST[row]) and (printed == SO_MD5[row])
+         art_md5 = r.get("artefact_so_md5")
+-        if arm != "MESH":
+-            ok = ok and (art_md5 == SO_MD5[row])
++        ok = (r.get("DIGEST") == IMG_DIGEST[row]) and (printed == SO_MD5[row]) and (art_md5 == SO_MD5[row])
+         out["per_arm"][arm] = {"row": row, "digest": r.get("DIGEST"), "printed_so_md5": printed,
+                                "artefact_so_md5": art_md5, "ok": bool(ok)}
+         if not ok:
+@@ -448,7 +522,7 @@
+             dl = float(m.group(1))
+         if dl is None:
+             out["not_measured"].append(arm)
+-        dl_ok = True if (dl is None or ARM_RANKS[arm] == 1) else dl >= DELIVERED_CORES_FLOOR
++        dl_ok = True if dl is None else dl >= DELIVERED_CORES_FLOOR
+         out["per_arm"][arm] = {"cpuset": r.get("cpuset"), "delivered_cores_mean": (dl if dl is not None else NOT_MEASURED)}
+         if not (cs_ok and dl_ok):
+             out["verdict"] = "GATE FAIL"
+@@ -459,76 +533,87 @@
+ def grade(root):
+     rows = read_ledger(os.path.join(root, "ledger.txt"))
+     g1 = g_completion(root, rows)
+-    # ---- MESH identity
+-    cm_txt = open(os.path.join(root, "MESH", "checkMesh.log"), errors="replace").read()
+-    m = re.search(r"^\s*cells:\s+(\d+)", cm_txt, re.M)
+-    if not m:
+-        refuse("G-M2", {"cells_absent_in_checkMesh": True})
+-    cells = int(m.group(1))
+-    gm2 = "PASS" if cells == CELLS_EXPECTED else "GATE FAIL"
++    # ---- mesh identity by hash, every arm
++    gm2, mesh = "PASS", {}
++    for arm in ARMS_REQUIRED:
++        p = os.path.join(root, arm, "constant", "polyMesh", "points.gz")
++        if not os.path.isfile(p):
++            refuse("G-M2", {"points_absent": p})
++        h = md5_of(p)
++        mesh[arm] = h
++        if h != POINTS_MD5:
++            gm2 = "GATE FAIL"
+     # ---- rows
+-    X = {"S": read_X(os.path.join(root, "X-S", "d16_X.json")), "P": read_X(os.path.join(root, "X-P", "d16_X.json"))}
+-    F = {"S": read_F(os.path.join(root, "F-S", "d16_F.json")), "P": read_F(os.path.join(root, "F-P", "d16_F.json"))}
+-    rows["X-S"]["artefact_so_md5"] = X["S"]["so_md5"]; rows["X-P"]["artefact_so_md5"] = X["P"]["so_md5"]
+-    rows["F-S"]["artefact_so_md5"] = F["S"]["so_md5"]; rows["F-P"]["artefact_so_md5"] = F["P"]["so_md5"]
++    O = {"S": read_O(os.path.join(root, "O-S", "d8r_O.json")), "P": read_O(os.path.join(root, "O-P", "d8r_O.json"))}
++    F = {"S": read_F(os.path.join(root, "F-S", "d8r_F.json")), "P": read_F(os.path.join(root, "F-P", "d8r_F.json"))}
++    for rk, oa, fa in (("S", "O-S", "F-S"), ("P", "O-P", "F-P")):
++        rows[oa]["artefact_so_md5"] = O[rk]["so_md5"]
++        rows[fa]["artefact_so_md5"] = F[rk]["so_md5"]
++        if F[rk]["endpoint_md5"] != O[rk]["md5"]:
++            refuse("G5", {"F_arm_endpoint_is_not_this_rows_O_artefact": fa, "endpoint_md5": F[rk]["endpoint_md5"], "O_md5": O[rk]["md5"]})
++        for a, art in ((oa, O[rk]), (fa, F[rk])):
++            if art.get("nprocs") != NPROCS_REGISTERED:
++                refuse("G12", {"nprocs_not_registered": a, "nprocs": art.get("nprocs"), "registered": NPROCS_REGISTERED})
+     controls = {"S": ctrl_control(F["S"]), "P": ctrl_control(F["P"]),
+-                "grader_plant_S": grader_plant_control(root, os.path.join(root, "F-S", "d16_F.json"), "S"),
+-                "grader_plant_P": grader_plant_control(root, os.path.join(root, "F-P", "d16_F.json"), "P")}
+-    g5 = {}
++                "grader_plant_S": grader_plant_control(root, os.path.join(root, "F-S", "d8r_F.json"), "S"),
++                "grader_plant_P": grader_plant_control(root, os.path.join(root, "F-P", "d8r_F.json"), "P")}
++    g = {}
+     for rk in ("S", "P"):
+-        cd = grade_components(X[rk], F[rk], "CD")
+-        cl = grade_components(X[rk], F[rk], "CL")
+-        g5[rk] = {"G5_CD": cd, "G5c_CL": cl, "row_verdict": compose_row(cd, cl),
+-                  "CD_baseline": X[rk]["CD"], "CL_baseline": X[rk]["CL"], "eta_F": F[rk]["eta"]}
+-    # ---- divergence shipped vs patched on the adjoint (reported with its number)
++        go, g2, g3, gb = g_optimiser(O[rk]), g_cl(O[rk]), g_drop(O[rk]), g_base(O[rk])
++        cd = grade_components(O[rk], F[rk], "CD")
++        cl = grade_components(O[rk], F[rk], "CL")
++        g[rk] = {"G-O_terminus": go, "G2_CL": g2, "G3_drop": g3, "G-BASE_cold_CD": gb, "G5_CD": cd, "G5c_CL": cl,
++                 "row_verdict": compose_row(go, g2, g3, cd, cl), "eta_F": F[rk]["eta"], "CD_endpoint_F": F[rk]["CD"]}
++    gbase = "GATE FAIL" if "GATE FAIL" in (g["S"]["G-BASE_cold_CD"]["verdict"], g["P"]["G-BASE_cold_CD"]["verdict"]) else "PASS"
++    # ---- divergence shipped vs patched on the endpoint adjoint (reported; different endpoints)
+     div = []
+     for dv, idx in COMPONENTS_REGISTERED:
+-        a, b = X["S"]["adjoint"]["CD"][dv], X["P"]["adjoint"]["CD"][dv]
++        a, b = O["S"]["adjoint"]["CD"][dv], O["P"]["adjoint"]["CD"][dv]
+         if idx < len(a) and idx < len(b):
+             den = max(abs(a[idx]), abs(b[idx]), 1e-300)
+             div.append({"dv": dv, "idx": idx, "J_shipped": a[idx], "J_patched": b[idx],
+-                        "divergence_pct": abs(a[idx] - b[idx]) / den * 100.0})
++                        "divergence_pct": abs(a[idx] - b[idx]) / den * 100.0, "note": "different endpoints; a reading"})
+     g9, g10, g12 = g_toolchain(rows), g_caps(rows), g_placement(rows)
+     # ---- predictions, scored never adjusted
+-    preds = {"P1_cells_4032": "HIT" if gm2 == "PASS" else "MISS",
+-             "P2_CL_baseline_in_band": "HIT" if PRED["P2_CL_band"][0] <= X["S"]["CL"] <= PRED["P2_CL_band"][1] else "MISS",
+-             "P3_CD_baseline_in_band": "HIT" if PRED["P3_CD_band"][0] <= X["S"]["CD"] <= PRED["P3_CD_band"][1] else "MISS",
+-             "P4_patched_row_CD_PASS_ge4": "HIT" if (g5["P"]["G5_CD"]["verdict"] == "PASS" and g5["P"]["G5_CD"]["n_pass"] >= PRED["P4_patched_min_pass"]) else "MISS"}
+-    s6 = [c for c in g5["S"]["G5_CD"]["components"] if c["dv"] == "shape" and c["idx"] == 6]
+-    preds["P5_shipped_shape6_outside_band_D_or_flipped"] = "HIT" if (s6 and s6[0].get("verdict") == "GATE FAIL") else ("NOT_MEASURED" if (s6 and s6[0].get("verdict") == "NOT A RESULT") else "MISS")
++    preds = {"P1_patched_exit_optimal_within_budget": "HIT" if g["P"]["G-O_terminus"]["verdict"] == "PASS" else "MISS",
++             "P2_shipped_terminus_max_iter_exceeded": "HIT" if O["S"]["exit_line"] == EXIT_MAXITER else "MISS",
++             "P3_patched_endpoint_FD_PASS_5of5": "HIT" if (g["P"]["G5_CD"]["verdict"] == "PASS" and g["P"]["G5_CD"]["n_pass"] == 5) else "MISS",
++             "P5_patched_drag_reduction_in_band": "HIT" if g["P"]["G3_drop"]["verdict"] == "PASS" else "MISS"}
++    s = g["S"]["G5_CD"]
++    preds["P4_shipped_endpoint_FD_GATE_FAIL"] = "HIT" if s["verdict"] == "GATE FAIL" else ("NOT_MEASURED" if s["verdict"] == "NOT A RESULT" else "MISS")
+     tot = g10["total_core_min"]
+-    if g10["not_measured"]:
+-        preds["P6_total_core_min_band"] = NOT_MEASURED
+-    else:
+-        preds["P6_total_core_min_band"] = "HIT" if PRED["P6_core_min_band"][0] <= tot <= PRED["P6_core_min_band"][1] else "MISS"
+-    mw = rows["MESH"].get("wall_s")
+-    preds["P6b_mesh_wall_le_120s"] = NOT_MEASURED if mw is None else ("HIT" if mw <= PRED["P6_mesh_wall_s_max"] else "MISS")
++    preds["P6_total_core_min_band"] = NOT_MEASURED if g10["not_measured"] else ("HIT" if PRED["P6_core_min_band"][0] <= tot <= PRED["P6_core_min_band"][1] else "MISS")
++    n = O["P"]["n_iter"]
++    preds["P7_patched_majors_in_band"] = NOT_MEASURED if n is None else ("HIT" if PRED["P7_majors_band"][0] <= n <= PRED["P7_majors_band"][1] else "MISS")
+     # ---- item verdict (composition registered here)
+-    if "NOT A RESULT" in (g5["S"]["row_verdict"], g5["P"]["row_verdict"]):
++    rv = (g["S"]["row_verdict"], g["P"]["row_verdict"])
++    if "NOT A RESULT" in rv:
+         verdict = "NOT A RESULT"
+-    elif "GATE FAIL" in (g5["S"]["row_verdict"], g5["P"]["row_verdict"], gm2, g9["verdict"], g10["verdict"], g12["verdict"]):
++    elif "GATE FAIL" in rv + (gm2, gbase, g9["verdict"], g10["verdict"], g12["verdict"]):
+         verdict = "GATE FAIL"
++    elif "GATE REACHED" in rv:
++        verdict = "GATE REACHED"
+     else:
+         verdict = "PASS"
+     if verdict not in VOCAB:
+         refuse("VOCAB", {"verdict": verdict})
+     return {"item": "CURRICULUM-%s" % ITEM, "verdict": verdict,
+-            "rows": {"SHIPPED": g5["S"]["row_verdict"], "PATCHED": g5["P"]["row_verdict"]},
+-            "gates": {"G1_completion": "PASS", "G-M2_mesh_identity": gm2, "G5_SHIPPED": g5["S"], "G5_PATCHED": g5["P"],
++            "rows": {"SHIPPED": g["S"]["row_verdict"], "PATCHED": g["P"]["row_verdict"]},
++            "gates": {"G1_completion": "PASS", "G-M2_mesh_identity": gm2, "G-BASE": gbase, "SHIPPED": g["S"], "PATCHED": g["P"],
+                       "G6_dot_product_duality": "NOT MEASURED -- the tutorial exposes no dot-product/duality test; named, never composed",
+                       "G9_toolchain": g9, "G10_caps": g10, "G12_placement": g12},
+-            "mesh_cells": cells, "divergence_shipped_vs_patched_CD": div, "predictions": preds,
++            "mesh_points_md5": mesh, "divergence_shipped_vs_patched_CD_endpoint": div, "predictions": preds,
+             "controls": controls, "completion": g1,
+             "not_measured": {"G1": g1["not_measured"], "G10": g10["not_measured"], "G12": g12["not_measured"]},
+             "field_classes": {"physics": list(FIELDS_PHYSICS), "infrastructure": list(FIELDS_INFRASTRUCTURE),
+                               "rule": "absent infrastructure -> NOT_MEASURED beside the verdict; absent physics -> REFUSE (L-342)"},
+             "no_gci": "no grid family; standing rule 5 has no row; NO GCI IS QUOTED",
+-            "capability_grid_cell": "2D . steady . transonic -- gradients computed + FD-verified; this item moves ONLY that column"}
++            "capability_grid_cell": "3D . steady . transonic -- optimization converged; the gradient column is re-evidenced at the endpoint"}
+ 
+ 
+ # ================= selftest: planted fixtures, counted against a FROZEN unit count ======
+ ROWFMT = ("ARM={arm} ROW={row} IMG={img} DIGEST={dig} rc={rc} wall_s={wall} ranks={ranks} core_min={cm} "
+-          "cap_core_min={cap} enforced_wall_s=600 enforced_core_min={cap} memory=4g inspect(exit,oomkilled)=[{ke} {oom}] "
++          "cap_core_min={cap} enforced_wall_s=600 enforced_core_min={cap} memory=14g inspect(exit,oomkilled)=[{ke} {oom}] "
+           "memavail_pre_GiB=20.00 memavail_post_GiB={mpost} cpuset={cs} delivered_cores_mean=[{dl}] "
+           "siblings_pre=[] siblings_post=[] log={log} stamp=x\n")
+ 
+@@ -537,69 +622,75 @@
+     """Build a clean fixture; `tweak` mutates the dict of knobs before writing."""
+     k = {"rc": {a: 0 for a in ARMS_REQUIRED}, "ke": {}, "oom": {a: "false" for a in ARMS_REQUIRED},
+          "cm": dict(PREDICTED_CORE_MIN), "cs": {a: CPUSET_REGISTERED for a in ARMS_REQUIRED},
+-         "so": {a: SO_MD5[ARM_ROW[a]] for a in ARMS_REQUIRED}, "cells": CELLS_EXPECTED,
++         "so": {a: SO_MD5[ARM_ROW[a]] for a in ARMS_REQUIRED}, "points": {a: b"points-fixture-bytes" for a in ARMS_REQUIRED},
+          "err": {"S": {}, "P": {}}, "flip": {"S": set(), "P": set()}, "noplateau": {"S": set(), "P": set()},
+          "terminal": {a: True for a in ARMS_REQUIRED}, "stale": set(), "ctrl_ok": True, "mpost": "20.00",
+-         "drop_row": set(), "inspect_file": set(), "dl": "1.99 n=10 max_nr_throttled=0", "CL": 0.45, "CD": 0.02}
++         "drop_row": set(), "inspect_file": set(), "dl": "3.98 n=10 max_nr_throttled=0",
++         "exit": {"S": EXIT_OPTIMAL, "P": EXIT_OPTIMAL}, "n_iter": {"S": 18, "P": 16},
++         "CD_cold": CD_COLD_REGISTERED, "CD_start": 0.03877565, "drop_pct": {"S": 1.0, "P": 1.0},
++         "CL_final": {"S": 0.49999, "P": 0.50001}, "nprocs": 4, "endpoint_ok": True}
+     if tweak:
+         tweak(k)
+     root = os.path.join(tmp, "root_%d" % int(time.time() * 1e6))
+     os.makedirs(root)
+-    led = ["ITEM=D16\n", "STAGED stamp=x\n"]
++    led = ["ITEM=D8R\n", "STAGED stamp=x\n"]
++    J = {"twist": [-0.0023, -0.0020, -0.0017, -0.0013, -0.00086, -0.00054, -0.00020], "patchV": [0.00087, 0.0106]}
++    omd5 = {}
+     for arm in ARMS_REQUIRED:
+         d = os.path.join(root, arm)
+-        os.makedirs(os.path.join(d, "0.orig" if arm == "MESH" else "0"))
++        os.makedirs(os.path.join(d, "0"))
++        os.makedirs(os.path.join(d, "constant", "polyMesh"))
++        open(os.path.join(d, "constant", "polyMesh", "points.gz"), "wb").write(k["points"][arm])
+         ref = os.path.join(d, DATUM_REF[arm])
+         open(ref, "w").write("U\n")
+         t0 = int(os.path.getmtime(ref))
+-        open(os.path.join(d, ".d16_age_datum"), "w").write("%d\n" % t0)
++        open(os.path.join(d, ".d8r_age_datum"), "w").write("%d\n" % t0)
+         log = "%s_x.log" % arm
+         so = k["so"][arm]
+         text = "D4S_CONTAINER_UID: 0\nD4S_IDWARP_SO_MD5: %s\nD4S_DEADLINE_IN_CONTAINER_S: 600\n" % so
+-        if arm == "MESH":
+-            art = os.path.join(d, "checkMesh.log")
+-            open(art, "w").write("Mesh stats\n    cells:            %d\n\nMesh OK.\n" % k["cells"])
+-            text += "D16_CHECKMESH_RC 0\n"
++        rk = "S" if arm.endswith("-S") else "P"
++        art = os.path.join(d, ARTEFACT[arm])
++        ident = {"libidwarp_so_md5": so, "idwarp_file": "/x/idwarp/__init__.py"}
++        if arm.startswith("O"):
++            adj = {"CD": {dv: [repr(v) for v in J[dv]] for dv in J},
++                   "CL": {dv: [repr(v * 10.0) for v in J[dv]] for dv in J}}
++            cd_f = k["CD_start"] * (1.0 - k["drop_pct"][rk] / 100.0)
++            json.dump({"item": "D8R", "mode": "O", "identity": ident, "nprocs": k["nprocs"], "max_iter_registered": MAX_ITER,
++                       "CD_cold": repr(k["CD_cold"]), "CL_cold": repr(0.457), "CD_start": repr(k["CD_start"]), "CL_start": repr(0.4999),
++                       "CD_final": repr(cd_f), "CL_final": repr(k["CL_final"][rk]), "CD_endpoint": repr(cd_f),
++                       "ipopt": {"exit_line": k["exit"][rk], "n_iter": k["n_iter"][rk]}, "adjoint": adj}, open(art, "w"))
++            omd5[rk] = md5_of(art)
+         else:
+-            rk = "S" if arm.endswith("-S") else "P"
+-            art = os.path.join(d, ARTEFACT[arm])
+-            ident = {"libidwarp_so_md5": so, "idwarp_file": "/x/idwarp/__init__.py"}
+-            J = {"shape": [-0.011, 0.02, -0.03, 0.041, 0.05, -0.06, 0.007, -0.008], "patchV": [0.0, 0.0123]}
+-            if arm.startswith("X"):
+-                adj = {"CD": {dv: [repr(v) for v in J[dv]] for dv in J},
+-                       "CL": {dv: [repr(v * 10.0) for v in J[dv]] for dv in J}}
+-                json.dump({"item": "D16", "mode": "X", "identity": ident, "nprocs": 2, "CD_baseline": repr(k["CD"]),
+-                           "CL_baseline": repr(k["CL"]), "adjoint": adj}, open(art, "w"))
+-            else:
+-                rows_ = []
+-                for dv, idx in COMPONENTS_REGISTERED:
+-                    j = J[dv][idx]
+-                    e = k["err"][rk].get((dv, idx), 0.5)          # default 0.5 % error
+-                    dref = j * (1.0 + e / 100.0)
+-                    if (dv, idx) in k["flip"][rk]:
+-                        dref = -dref
+-                    fd = {}
+-                    for s in STEPS_REGISTERED[dv]:
+-                        scale = 1.0 if s == sorted(STEPS_REGISTERED[dv])[1] else 1.01
+-                        if (dv, idx) in k["noplateau"][rk]:
+-                            scale = 1.0 if s == sorted(STEPS_REGISTERED[dv])[1] else 1.5
+-                        fd[repr(s)] = {"step": s, "ok": True, "dCD": repr(dref * scale), "dCL": repr(dref * 10.0 * scale),
+-                                       "CD_plus": repr(0.0), "CD_minus": repr(0.0), "CL_plus": repr(0.0), "CL_minus": repr(0.0)}
+-                    rows_.append({"dv": dv, "idx": idx, "status": "MEASURED", "fd": fd})
+-                planted = PLANT / (2.0 * CTRL_STEP) if k["ctrl_ok"] else 0.0
+-                rows_.append({"dv": "CTRL", "idx": 0, "status": "CONTROL",
+-                              "fd": {repr(CTRL_STEP): {"step": CTRL_STEP, "ok": True, "dCD": repr(0.0), "dCL": repr(0.0)}},
+-                              "planted": {"step": CTRL_STEP, "plant": PLANT, "dCD": repr(planted), "ok": True}})
+-                json.dump({"item": "D16", "mode": "F", "identity": ident, "components_requested": COMPONENTS_REGISTERED,
+-                           "CD_baseline": repr(k["CD"]), "CL_baseline": repr(k["CL"]), "eta_used": repr(1e-9),
+-                           "rows": rows_}, open(art, "w"))
+-            if k["terminal"][arm]:
+-                text += TERMINAL[arm] + " ok\n"
++            rows_ = []
++            for dv, idx in COMPONENTS_REGISTERED:
++                j = J[dv][idx]
++                e = k["err"][rk].get((dv, idx), 0.5)          # default 0.5 % error
++                dref = j * (1.0 + e / 100.0)
++                if (dv, idx) in k["flip"][rk]:
++                    dref = -dref
++                fd = {}
++                for s in STEPS_REGISTERED[dv]:
++                    scale = 1.0 if s == sorted(STEPS_REGISTERED[dv])[1] else 1.01
++                    if (dv, idx) in k["noplateau"][rk]:
++                        scale = 1.0 if s == sorted(STEPS_REGISTERED[dv])[1] else 1.5
++                    fd[repr(s)] = {"step": s, "ok": True, "dCD": repr(dref * scale), "dCL": repr(dref * 10.0 * scale),
++                                   "CD_plus": repr(0.0), "CD_minus": repr(0.0), "CL_plus": repr(0.0), "CL_minus": repr(0.0)}
++                rows_.append({"dv": dv, "idx": idx, "status": "MEASURED", "fd": fd})
++            planted = PLANT / (2.0 * CTRL_STEP) if k["ctrl_ok"] else 0.0
++            rows_.append({"dv": "CTRL", "idx": 0, "status": "CONTROL",
++                          "fd": {repr(CTRL_STEP): {"step": CTRL_STEP, "ok": True, "dCD": repr(0.0), "dCL": repr(0.0)}},
++                          "planted": {"step": CTRL_STEP, "plant": PLANT, "dCD": repr(planted), "ok": True}})
++            json.dump({"item": "D8R", "mode": "F", "identity": ident, "nprocs": k["nprocs"], "components_requested": COMPONENTS_REGISTERED,
++                       "endpoint_source": {"md5": (omd5.get(rk) if k["endpoint_ok"] else "0" * 32)},
++                       "CD_baseline": repr(0.0386), "CL_baseline": repr(0.5), "eta_used": repr(1.08e-5),
++                       "rows": rows_}, open(art, "w"))
++        if k["terminal"][arm]:
++            text += TERMINAL[arm] + " ok\n"
+         os.utime(art, (t0 - 5, t0 - 5) if arm in k["stale"] else (t0 + 5, t0 + 5))
+         open(os.path.join(root, log), "w").write(text)
+         ke = k["ke"].get(arm, k["rc"][arm])
+         if arm in k["inspect_file"]:
+-            open(os.path.join(root, "%s_x.inspect.txt" % arm), "w").write("%d %s 2026-08-26T00:00:00Z 2026-08-26T00:01:00Z %s 4294967296 %s\n" % (ke, k["oom"][arm], k["cs"][arm], IMG_DIGEST[ARM_ROW[arm]]))
++            open(os.path.join(root, "%s_x.inspect.txt" % arm), "w").write("%d %s 2026-08-26T00:00:00Z 2026-08-26T00:01:00Z %s 15032385536 %s\n" % (ke, k["oom"][arm], k["cs"][arm], IMG_DIGEST[ARM_ROW[arm]]))
+         if arm in k["drop_row"]:
+             continue
+         led.append(ROWFMT.format(arm=arm, row=ARM_ROW[arm], img="img", dig=IMG_DIGEST[ARM_ROW[arm]], rc=k["rc"][arm],
+@@ -633,57 +724,85 @@
+                 else:
+                     k[key] = val
+         return f
+-    r = grade(_fix(tmp))
+-    unit("U1 clean fixture -> item PASS, both rows PASS, G-M2/G9/G10/G12 PASS",
+-         r["verdict"] == "PASS" and r["rows"] == {"SHIPPED": "PASS", "PATCHED": "PASS"} and r["gates"]["G-M2_mesh_identity"] == "PASS"
+-         and r["gates"]["G9_toolchain"]["verdict"] == "PASS" and r["gates"]["G10_caps"]["verdict"] == "PASS" and r["gates"]["G12_placement"]["verdict"] == "PASS")
+-    unit("U2 clean fixture -> P1-P4, P6 HIT; P5 MISS (shape[6] clean by construction)",
+-         all(r["predictions"][k] == "HIT" for k in ("P1_cells_4032", "P2_CL_baseline_in_band", "P3_CD_baseline_in_band", "P4_patched_row_CD_PASS_ge4", "P6_total_core_min_band", "P6b_mesh_wall_le_120s")) and r["predictions"]["P5_shipped_shape6_outside_band_D_or_flipped"] == "MISS")
+-    unit("U19 grader-level plant SEEN on both F tables (rule 3)", r["controls"]["grader_plant_S"]["grader_plant_seen"] and r["controls"]["grader_plant_P"]["grader_plant_seen"] and r["controls"]["S"]["instrument_ctrl_zero"] == 0.0)
+-    r = grade(_fix(tmp, tw(err={"S": {("shape", 3): 7.0}})))
+-    unit("U3 PLANTED 7 % error on shipped shape[3] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL",
+-         r["rows"]["SHIPPED"] == "GATE FAIL" and r["verdict"] == "GATE FAIL" and r["gates"]["G5_SHIPPED"]["G5_CD"]["n_gate_fail"] == 1)
+-    r = grade(_fix(tmp, tw(flip={"S": {("shape", 6)}, "P": set()})))
+-    unit("U4 PLANTED sign flip on shipped shape[6] -> flip counted, SHIPPED GATE FAIL, P5 HIT, PATCHED PASS",
+-         r["gates"]["G5_SHIPPED"]["G5_CD"]["sign_flips"] == 1 and r["rows"]["SHIPPED"] == "GATE FAIL" and r["predictions"]["P5_shipped_shape6_outside_band_D_or_flipped"] == "HIT" and r["rows"]["PATCHED"] == "PASS")
+-    r = grade(_fix(tmp, tw(noplateau={"S": {("shape", 0)}, "P": set()})))
+-    c0 = [c for c in r["gates"]["G5_SHIPPED"]["G5_CD"]["components"] if c["idx"] == 0 and c["dv"] == "shape"][0]
+-    unit("U5 PLANTED no-plateau on one component -> that component NOT A RESULT, row still PASS on 4 graded",
+-         c0["verdict"] == "NOT A RESULT" and c0["reason"] == "NO_PLATEAU" and r["rows"]["SHIPPED"] == "PASS" and r["gates"]["G5_SHIPPED"]["G5_CD"]["n_graded"] == 4)
+-    r = grade(_fix(tmp, tw(noplateau={"P": {("shape", 0), ("shape", 3), ("shape", 6)}, "S": set()})))
+-    unit("U6 three no-plateau components on PATCHED -> 2 graded < 3 -> row NOT A RESULT, item NOT A RESULT",
+-         r["rows"]["PATCHED"] == "NOT A RESULT" and r["verdict"] == "NOT A RESULT")
+-    unit("U7 rc=1 on X-P -> REFUSAL", refused(_fix(tmp, tw(rc={"X-P": 1}, ke={"X-P": 1}))))
+-    unit("U8 OOMKilled=true on F-S -> REFUSAL", refused(_fix(tmp, tw(oom={"F-S": "true"}))))
+-    unit("U9 terminal marker absent in F-P log -> REFUSAL", refused(_fix(tmp, tw(terminal={"F-P": False}))))
+-    unit("U10 artefact OLDER than the age datum (X-S) -> REFUSAL (rule 4)", refused(_fix(tmp, tw(stale={"X-S"}))))
+-    unit("U11 instrument CTRL planted row broken -> REFUSAL (a reader not shown to see a non-zero)", refused(_fix(tmp, tw(ctrl_ok=False))))
+-    r = grade(_fix(tmp, tw(so={"X-P": SO_MD5["SHIPPED"]})))
+-    unit("U12 X-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL", r["gates"]["G9_toolchain"]["verdict"] == "GATE FAIL" and r["verdict"] == "GATE FAIL")
+-    r = grade(_fix(tmp, tw(cm={"F-S": 91.0})))
+-    unit("U13 F-S core_min 91.0 > cap 90.0 -> G10 GATE FAIL", r["gates"]["G10_caps"]["verdict"] == "GATE FAIL" and r["gates"]["G10_caps"]["per_arm"]["F-S"]["crossed"])
+-    r = grade(_fix(tmp, tw(cs={"X-S": "2,3"})))
+-    unit("U14 X-S on cpuset 2,3 -> G12 GATE FAIL", r["gates"]["G12_placement"]["verdict"] == "GATE FAIL")
+-    r = grade(_fix(tmp, tw(cells=4033)))
+-    unit("U15 cells 4033 -> G-M2 GATE FAIL, P1 MISS", r["gates"]["G-M2_mesh_identity"] == "GATE FAIL" and r["predictions"]["P1_cells_4032"] == "MISS")
+-    r = grade(_fix(tmp, tw(mpost="NOT_MEASURED", dl="NOT_MEASURED")))
+-    unit("U16 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)",
+-         r["verdict"] == "PASS" and r["not_measured"]["G1"].get("X-S") and "X-S" in r["not_measured"]["G12"])
+-    unit("U17 harness rc 0 vs kernel exit 1 disagreement -> REFUSAL", refused(_fix(tmp, tw(ke={"F-P": 1}))))
+-    unit("U18 ledger row absent, no inspect record -> REFUSAL", refused(_fix(tmp, tw(drop_row={"F-P"}))))
+-    r = grade(_fix(tmp, tw(drop_row={"F-P"}, inspect_file={"F-P"})))
+-    unit("U20 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS",
+-         r["verdict"] == "PASS" and r["completion"]["arms"]["F-P"]["source"] == "inspect_record" and "F-P" in r["not_measured"]["G10"])
+-    here = os.path.dirname(os.path.abspath(__file__))
+-    unit("U21 ast.Assert count = 0 in d16_grade.py and d16_xf.py", count_asserts(os.path.abspath(__file__)) == 0 and count_asserts(os.path.join(here, "d16_xf.py")) == 0)
+-    p = os.path.join(tmp, "planted_assert.py")
+-    open(p, "w").write("x = 1\nassert x == 1\n")
+-    unit("U22 the assert counter sees a planted assert (=1)", count_asserts(p) == 1)
+-    print("D16 GRADER SELFTEST units=%d expected=%d failures=%d python_O=%s" % (n, EXPECTED_UNITS, len(fails), not __debug__))
++    # the fixture's points.gz bytes must hash to the registered md5 for the clean case: patch the module constant
++    global POINTS_MD5
++    real_points_md5 = POINTS_MD5
++    POINTS_MD5 = hashlib.md5(b"points-fixture-bytes").hexdigest()
++    try:
++        r = grade(_fix(tmp))
++        unit("U1 clean fixture (both rows Optimal) -> item PASS, both rows PASS, G-M2/G-BASE/G9/G10/G12 PASS",
++             r["verdict"] == "PASS" and r["rows"] == {"SHIPPED": "PASS", "PATCHED": "PASS"} and r["gates"]["G-M2_mesh_identity"] == "PASS"
++             and r["gates"]["G-BASE"] == "PASS" and r["gates"]["G9_toolchain"]["verdict"] == "PASS" and r["gates"]["G10_caps"]["verdict"] == "PASS" and r["gates"]["G12_placement"]["verdict"] == "PASS")
++        unit("U2 clean fixture -> P1, P3, P5, P6, P7 HIT; P2 and P4 MISS (shipped clean by construction)",
++             all(r["predictions"][k] == "HIT" for k in ("P1_patched_exit_optimal_within_budget", "P3_patched_endpoint_FD_PASS_5of5", "P5_patched_drag_reduction_in_band", "P6_total_core_min_band", "P7_patched_majors_in_band"))
++             and r["predictions"]["P2_shipped_terminus_max_iter_exceeded"] == "MISS" and r["predictions"]["P4_shipped_endpoint_FD_GATE_FAIL"] == "MISS")
++        unit("U19 grader-level plant SEEN on both F tables (rule 3)", r["controls"]["grader_plant_S"]["grader_plant_seen"] and r["controls"]["grader_plant_P"]["grader_plant_seen"] and r["controls"]["S"]["instrument_ctrl_zero"] == 0.0)
++        r = grade(_fix(tmp, tw(err={"S": {("twist", 3): 7.0}})))
++        unit("U3 PLANTED 7 % error on shipped twist[3] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL, P4 HIT",
++             r["rows"]["SHIPPED"] == "GATE FAIL" and r["verdict"] == "GATE FAIL" and r["gates"]["SHIPPED"]["G5_CD"]["n_gate_fail"] == 1 and r["predictions"]["P4_shipped_endpoint_FD_GATE_FAIL"] == "HIT")
++        r = grade(_fix(tmp, tw(flip={"S": {("twist", 0)}, "P": set()})))
++        unit("U4 PLANTED sign flip on shipped twist[0] -> flip counted, SHIPPED GATE FAIL, P4 HIT, PATCHED PASS",
++             r["gates"]["SHIPPED"]["G5_CD"]["sign_flips"] == 1 and r["rows"]["SHIPPED"] == "GATE FAIL" and r["predictions"]["P4_shipped_endpoint_FD_GATE_FAIL"] == "HIT" and r["rows"]["PATCHED"] == "PASS")
++        r = grade(_fix(tmp, tw(noplateau={"S": {("twist", 1)}, "P": set()})))
++        c0 = [c for c in r["gates"]["SHIPPED"]["G5_CD"]["components"] if c["idx"] == 1 and c["dv"] == "twist"][0]
++        unit("U5 PLANTED no-plateau on one component -> that component NOT A RESULT, row still PASS on 4 graded",
++             c0["verdict"] == "NOT A RESULT" and c0["reason"] == "NO_PLATEAU" and r["rows"]["SHIPPED"] == "PASS" and r["gates"]["SHIPPED"]["G5_CD"]["n_graded"] == 4)
++        r = grade(_fix(tmp, tw(noplateau={"P": {("twist", 0), ("twist", 3), ("twist", 5)}, "S": set()})))
++        unit("U6 three no-plateau components on PATCHED -> 2 graded < 3 -> row NOT A RESULT, item NOT A RESULT",
++             r["rows"]["PATCHED"] == "NOT A RESULT" and r["verdict"] == "NOT A RESULT")
++        unit("U7 rc=1 on O-P -> REFUSAL", refused(_fix(tmp, tw(rc={"O-P": 1}, ke={"O-P": 1}))))
++        unit("U8 OOMKilled=true on F-S -> REFUSAL (G11 hard)", refused(_fix(tmp, tw(oom={"F-S": "true"}))))
++        unit("U9 terminal marker absent in F-P log -> REFUSAL", refused(_fix(tmp, tw(terminal={"F-P": False}))))
++        unit("U10 artefact OLDER than the age datum (O-S) -> REFUSAL (rule 4)", refused(_fix(tmp, tw(stale={"O-S"}))))
++        unit("U11 instrument CTRL planted row broken -> REFUSAL (a reader not shown to see a non-zero)", refused(_fix(tmp, tw(ctrl_ok=False))))
++        r = grade(_fix(tmp, tw(so={"O-P": SO_MD5["SHIPPED"]})))
++        unit("U12 O-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL", r["gates"]["G9_toolchain"]["verdict"] == "GATE FAIL" and r["verdict"] == "GATE FAIL")
++        r = grade(_fix(tmp, tw(cm={"O-P": 1001.0})))
++        unit("U13 O-P core_min 1001.0 > cap 1000.0 -> G10 GATE FAIL", r["gates"]["G10_caps"]["verdict"] == "GATE FAIL" and r["gates"]["G10_caps"]["per_arm"]["O-P"]["crossed"])
++        r = grade(_fix(tmp, tw(cs={"O-S": "8,10,11,13"})))
++        unit("U14 O-S on cpuset 8,10,11,13 (D5's) -> G12 GATE FAIL", r["gates"]["G12_placement"]["verdict"] == "GATE FAIL")
++        r = grade(_fix(tmp, tw(points={"F-S": b"other-mesh-bytes"})))
++        unit("U15 F-S points.gz with another md5 -> G-M2 GATE FAIL, item GATE FAIL", r["gates"]["G-M2_mesh_identity"] == "GATE FAIL" and r["verdict"] == "GATE FAIL")
++        r = grade(_fix(tmp, tw(mpost="NOT_MEASURED", dl="NOT_MEASURED")))
++        unit("U16 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)",
++             r["verdict"] == "PASS" and r["not_measured"]["G1"].get("O-S") and "O-S" in r["not_measured"]["G12"])
++        unit("U17 harness rc 0 vs kernel exit 1 disagreement -> REFUSAL", refused(_fix(tmp, tw(ke={"F-P": 1}))))
++        unit("U18 ledger row absent, no inspect record -> REFUSAL", refused(_fix(tmp, tw(drop_row={"F-P"}))))
++        r = grade(_fix(tmp, tw(drop_row={"F-P"}, inspect_file={"F-P"})))
++        unit("U20 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS",
++             r["verdict"] == "PASS" and r["completion"]["arms"]["F-P"]["source"] == "inspect_record" and "F-P" in r["not_measured"]["G10"])
++        here = os.path.dirname(os.path.abspath(__file__))
++        unit("U21 ast.Assert count = 0 in d8r_grade.py and d8r_of.py", count_asserts(os.path.abspath(__file__)) == 0 and count_asserts(os.path.join(here, "d8r_of.py")) == 0)
++        p = os.path.join(tmp, "planted_assert.py")
++        open(p, "w").write("x = 1\nassert x == 1\n")
++        unit("U22 the assert counter sees a planted assert (=1)", count_asserts(p) == 1)
++        # ---- the optimisation gates
++        r = grade(_fix(tmp, tw(exit={"S": EXIT_MAXITER}, n_iter={"S": 30})))
++        unit("U23 SHIPPED exit = max_iter exceeded, drop 1 % >= 10 eta -> SHIPPED GATE REACHED, P2 HIT, item GATE REACHED (PATCHED PASS)",
++             r["rows"]["SHIPPED"] == "GATE REACHED" and r["predictions"]["P2_shipped_terminus_max_iter_exceeded"] == "HIT" and r["verdict"] == "GATE REACHED" and r["rows"]["PATCHED"] == "PASS")
++        r = grade(_fix(tmp, tw(exit={"S": EXIT_MAXITER}, n_iter={"S": 30}, drop_pct={"S": 0.0001})))
++        unit("U24 SHIPPED exit = max_iter exceeded, drop 0.0001 % < 10 eta -> G-O NOT A RESULT, row NOT A RESULT, item NOT A RESULT",
++             r["gates"]["SHIPPED"]["G-O_terminus"]["verdict"] == "NOT A RESULT" and r["rows"]["SHIPPED"] == "NOT A RESULT" and r["verdict"] == "NOT A RESULT")
++        r = grade(_fix(tmp, tw(exit={"P": "EXIT: Restoration Failed!"})))
++        unit("U25 PATCHED exit = Restoration Failed -> G-O NOT A RESULT, P1 MISS, item NOT A RESULT",
++             r["gates"]["PATCHED"]["G-O_terminus"]["verdict"] == "NOT A RESULT" and r["predictions"]["P1_patched_exit_optimal_within_budget"] == "MISS" and r["verdict"] == "NOT A RESULT")
++        r = grade(_fix(tmp, tw(CL_final={"P": 0.51})))
++        unit("U26 PATCHED CL_final 0.51 (|dev| 1e-2 > 5e-3) -> G2 GATE FAIL, row GATE FAIL", r["gates"]["PATCHED"]["G2_CL"]["verdict"] == "GATE FAIL" and r["rows"]["PATCHED"] == "GATE FAIL")
++        r = grade(_fix(tmp, tw(drop_pct={"P": 6.0})))
++        unit("U27 PATCHED drag reduction 6 % outside [0.29, 5.0] -> G3 GATE FAIL, P5 MISS, row GATE FAIL (never a silent widen)",
++             r["gates"]["PATCHED"]["G3_drop"]["verdict"] == "GATE FAIL" and r["predictions"]["P5_patched_drag_reduction_in_band"] == "MISS" and r["rows"]["PATCHED"] == "GATE FAIL")
++        r = grade(_fix(tmp, tw(CD_cold=CD_COLD_REGISTERED + 2.0e-4)))
++        unit("U28 cold CD 2e-4 off the registered value (> 10 eta) -> G-BASE GATE FAIL, item GATE FAIL", r["gates"]["G-BASE"] == "GATE FAIL" and r["verdict"] == "GATE FAIL")
++        unit("U29 n_iter 31 > registered MAX_ITER 30 -> REFUSAL (instrument defect)", refused(_fix(tmp, tw(n_iter={"P": 31}))))
++        unit("U30 F arm whose endpoint md5 is not this row's O artefact -> REFUSAL", refused(_fix(tmp, tw(endpoint_ok=False))))
++        unit("U31 nprocs 1 in an artefact (registered 4) -> REFUSAL", refused(_fix(tmp, tw(nprocs=1))))
++    finally:
++        POINTS_MD5 = real_points_md5
++    print("D8R GRADER SELFTEST units=%d expected=%d failures=%d python_O=%s" % (n, EXPECTED_UNITS, len(fails), not __debug__))
+     if n != EXPECTED_UNITS or fails:
+         print("SELFTEST FAIL: %s" % (fails or "unit count %d != %d" % (n, EXPECTED_UNITS)))
+         return 2
+-    print("D16 GRADER SELFTEST PASS %d/%d (counted against the frozen EXPECTED_UNITS)" % (n, EXPECTED_UNITS))
++    print("D8R GRADER SELFTEST PASS %d/%d (counted against the frozen EXPECTED_UNITS)" % (n, EXPECTED_UNITS))
+     return 0
+ 
+ 
+@@ -698,10 +817,10 @@
+     if count_asserts(os.path.abspath(__file__)) != 0:
+         print("REFUSAL: this comparator carries an assert statement (L-332)"); return 2
+     if a.selftest:
+-        d = os.path.join(a.tmpdir, "d16_selftest_%d" % os.getpid()); os.makedirs(d, exist_ok=True)
++        d = os.path.join(a.tmpdir, "d8r_selftest_%d" % os.getpid()); os.makedirs(d, exist_ok=True)
+         return selftest(d)
+     if not a.root:
+-        print("usage: d16_grade.py --root <run root> [--out FILE] | --selftest"); return 64
++        print("usage: d8r_grade.py --root <run root> [--out FILE] | --selftest"); return 64
+     try:
+         r = grade(a.root)
+     except Refusal as e:
