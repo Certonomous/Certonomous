@@ -320,6 +320,9 @@ functions
 
 
 def _selftest():
+    if sys.flags.optimize:
+        print("REFUSE: foam_libs selftest does not run under python -O -- its checks would be stripped")
+        return 2
     import tempfile
     import traceback
 
@@ -449,6 +452,9 @@ def _selftest():
 
 def main(argv):
     if "--selftest" in argv:
+        if sys.flags.optimize:
+            print("REFUSE: foam_libs selftest does not run under python -O -- its checks would be stripped")
+            return 2
         return _selftest()
     if len(argv) < 3:
         sys.stderr.write(__doc__.split("CLI\n")[-1])
