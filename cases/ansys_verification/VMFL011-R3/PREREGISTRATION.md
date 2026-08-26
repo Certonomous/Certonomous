@@ -396,3 +396,47 @@ with the comparator's stdout/stderr and rc captured to `GRADING.txt` beside it.
 
 *Verdict vocabulary only (rule 1): PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED /
 PENDING. A GATE FAIL, a NOT A RESULT or a refusal is recorded honestly and never softened.*
+
+---
+
+## PRE-COMPUTE AMENDMENT 1 — 2026-08-26T22:40:23Z — the launcher smoke, registered BEFORE it runs
+
+**Lines whose number changed above this section: 0.** Version 1.1.
+
+**THE CONDITION, AND HOW IT WAS CHECKED.** This amendment is legal because **no compute has
+happened under this registration**: `verification/runs/ansys_verification/VMFL011-R3/` — the run
+directory this freeze names, and the one every gate artifact would live under — **does not
+exist** at **2026-08-26T22:40:23Z**. Checked in the same shell invocation that wrote this
+section: `test -e verification/runs/ansys_verification/VMFL011-R3` returns false, and the path is
+absent from `ls verification/runs/ansys_verification/`. No level directory, no `RUN_RC.L1`, no
+`LAUNCH_RECORD.txt`, no `STATUS.VMFL011-R3` exists anywhere.
+
+**IT ALTERS NO GATE, THRESHOLD, CAP OR LABEL.** The gate quantity, the band `BAND_RMS = 0.030`,
+the tier ceiling `GATE REACHED`, the cap of 50 core-min, `endTime` 20 000, `P_MIN`, the mesh
+family, the reference and the verdict path are untouched; the EMPTY 77-line gate diff published
+above still holds byte for byte.
+
+**WHAT IS REGISTERED.** A **launcher smoke** — `VMFL_SMOKE=1`, **L1 only**, `endTime` shortened
+to **20**, in a **scratchpad root that the launcher itself refuses to leave**. It exercises the
+launcher end to end (freeze check, the nine input-blob checks, the `--selftest` gate under both
+interpreters, the L-343 `USER` pin, the age guard, the cap arithmetic, `blockMesh`, the detached
+`timeout` wrapper and the `RUN_RC` write), **grades nothing**, writes nothing under
+`verification/runs/`, and **no gate, band, cap, ceiling or label depends on it**. Its cost is
+seconds and is reported with the run's calibration.
+
+**WHY IT IS BEING REGISTERED NOW RATHER THAN AT THE FREEZE, STATED PLAINLY AND NOT SOFTENED.**
+The R2 registered its smoke inside its freeze; this freeze did not, and that is an omission by
+the drafting lane, not a decision. Rather than run an unregistered smoke — which would be a
+departure from a frozen document — or drop a queue entry for a launcher whose argv path has been
+driven only as far as its usage guard, the smoke is registered here, before it runs, under the
+clause that permits exactly this. **The launcher's own `VMFL_SMOKE` guard already refuses any
+run root other than a scratch path**, so the registered scope is enforced in the executable path
+and not by this prose.
+
+**THE SPECIFIC RISK IT BUYS DOWN.** `run_vmfl011_r3.sh` is a line-for-line derivation of
+`run_vmfl011_r2.sh` (blob `b1d6a74a718e8e0dc8c5a76c0a07cf48006d2ab5`), which has already run
+this exact case to completion at register row #31 — but it carries one additive block that has
+never executed: the L-343 `USER` pin and the four infrastructure fields it writes to
+`LAUNCH_RECORD.txt`. **`VMFL064R2-ENTRY-DEF-1` is this team's own precedent for a launcher
+defect discovered at launch rather than before it**, and a smoke is the cheap way not to repeat
+it.
