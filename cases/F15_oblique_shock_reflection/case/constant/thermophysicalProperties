@@ -1,0 +1,23 @@
+FoamFile { version 2.0; format ascii; class dictionary; object thermophysicalProperties; }
+// The "normalised" INVISCID gas of the shipped OpenFOAM tutorial
+// compressible/rhoCentralFoam/forwardStep: a = 1 m/s at T = 1 K, gamma = 7/5.
+// mu = 0 makes this an EULER case, so rhoCentralFoam performs NO implicit
+// diffusion solve and the march is fully explicit -- which is why there is no
+// linear-solver residual to read and why rule 5 limb (1) is answered from a
+// whole-field steady-state monitor instead. Said in grade_f15.py::iterative_series.
+thermoType
+{
+    type            hePsiThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleInternalEnergy;
+}
+mixture
+{
+    specie          { molWeight  11640.3; }
+    thermodynamics  { Cp 2.5; Hf 0; }
+    transport       { mu 0; Pr 1; }
+}

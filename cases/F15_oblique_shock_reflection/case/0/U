@@ -1,0 +1,17 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// Boundary TYPES inherited verbatim from the shipped OpenFOAM v2606
+// tutorial compressible/rhoCentralFoam/obliqueShock, which is THIS CASE
+// (same M=2.9, same top state (2.61933 -0.50632 0)). VALUES here are the
+// exact oblique-shock solution recomputed at full double precision by
+// cases/F15_oblique_shock_reflection/exact_osr.py, whose four controls
+// must be green before the launcher will fire.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   uniform (2.9 0 0);
+boundaryField
+{
+    inlet  { type fixedValue; value uniform (2.9 0 0); }
+    top    { type fixedValue; value uniform (2.6193420994542 -0.506320255478835 0); }
+    outlet { type zeroGradient; }
+    bottom { type symmetryPlane; }
+    frontAndBack { type empty; }
+}

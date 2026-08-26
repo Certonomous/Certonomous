@@ -1,0 +1,59 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     rhoCentralFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         10;              // the shipped obliqueShock tutorial's own endTime
+deltaT          0.0025;
+writeControl    adjustable;
+writeInterval   2;               // fields five times; the ladder reads the sampled
+                                 // lines, not the field dumps
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+adjustTimeStep  yes;
+maxCo           0.2;             // tutorial value
+
+functions
+{
+    lineY05
+    {
+        type            sets;
+        libs            (sampling);
+        writeControl    adjustableRunTime;
+        writeInterval   0.05;
+        interpolationScheme cell;     // raw cell-centre values, no interpolation
+        setFormat       raw;
+        fields          (p);
+        sets { lineY05 { type midPoint; axis x; start (-2 0.5 0.05); end (2 0.5 0.05); } }
+    }
+    lineWall
+    {
+        type            sets;
+        libs            (sampling);
+        writeControl    adjustableRunTime;
+        writeInterval   0.05;
+        interpolationScheme cell;
+        setFormat       raw;
+        fields          (p);
+        sets { lineWall { type midPoint; axis x; start (-2 0.0001 0.05); end (2 0.0001 0.05); } }
+    }
+    pAvg
+    {
+        // The whole-field steady-state monitor that answers rule 5 limb (1).
+        // DISTINCT from the graded functionals above: an inviscid rhoCentralFoam
+        // run performs no linear solves and so has no solver residual to read.
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        writeControl    adjustableRunTime;
+        writeInterval   0.05;
+        writeFields     no;
+        log             no;
+        operation       volAverage;
+        fields          (p);
+    }
+}
