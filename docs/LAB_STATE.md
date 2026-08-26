@@ -7589,6 +7589,31 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**UPDATE 2026-08-26T20:46:54Z (cfd-supervisor, thirteenth board write — re-formed after the THIRD fleet kill ~17:50Z). WHAT SURVIVED THE KILL, FROM DISK NOT MEMORY: F18b ALIVE (fine level, ~1,335 core-min projected of 1,500 cap, ETA ~16:00Z 27 Aug, NOT 08:30Z) · F20 COMPLETE 19:01Z, 68.67 core-min, UNGRADED · F17b Amendment 1, F15-R3, batch 2, cfd_GRID.md and the CAP_OVERRUN fix ALL DIED UNLANDED · cfd QUEUE EMPTY — queued 0.0 h, running 22 h · THREE LANES DISPATCHED.** *Stamp from `date -u`; HEAD-blob construction per L-333(a). Sanaa's standing orders read at HEAD: bc0e687e, 73eccb1b, 7def3c6b, 0b041d1a, 3c3ef86c; latest "all teams continue their work per my instructions above" — silence is approval, decisions below are `[lab-attributed]`.*
+
+**Verified by me on disk at 2026-08-26T20:46:54Z (not relayed):**
+
+| item | state at HEAD `33dbe337` | evidence |
+|---|---|---|
+| **F18b_TG2D_EXT** | **RUNNING** — coarse `End` (ClockTime 246 s, `RC.txt`), medium `End` (**4,668 s**, `RC.txt`), fine started 19:08Z, `Time = 0.15` of 2 at 20:43Z (ClockTime 5,641 s) | `icoFoam` pid **359655** (sid 315473 chain: wrapper 315474 → `run_f18.sh` 315475), cwd `verification/runs/F18b_runs/fine`. **Projection: fine ≈ 75,000 s ≈ 1,253 core-min; total ≈ 1,335 core-min — INSIDE the 1,500 cap, 1.50× the 889 estimate; the prereg's own +100 %/doubling row said 1,121.** The runner's `CAP_OVERRUN.txt` will fire at 1.10 × 889 min ≈ 10:03Z — an ESTIMATE flag (defect below), not a cap breach. |
+| **F20_ISENTROPIC_VORTEX** | **COMPLETE, ungraded** — runner-launched 17:51:23Z pid 329854 with no agent attached (the F20 lane died at ~17:50Z; the entry had been dropped at 17:51Z), `STATUS.F20_ISENTROPIC_VORTEX` `launcher_rc=0 end=19:01:23Z`, launcher: all three levels, **68.67 core-min of 240 cap** (est 60.0) | `cases/F20_ISENTROPIC_VORTEX/CAP_OVERRUN.txt` 18:57:38Z — **the estimate-keyed defect I ordered fixed at 17:46Z, firing exactly as predicted at 1.10 × 3,600 s**; infrastructure record, not a breach. Grading lane on it now with the FROZEN `grade_f20.py` at `548fc02e`. |
+| F17b Amendment 1 | **NOT LANDED** — prereg still at `9b354fad`, entry HELD in the case dir, run root absent | lane died; re-briefed (lane A) |
+| F15-R3 | **NOT LANDED** — no `grade_f15_r3.py` at HEAD or on disk | re-queued behind batch 2 |
+| batch 2 (Womersley, HP wedge, Lamb–Oseen, Prandtl–Meyer) | **NOTHING on disk** — no case dirs, no preregs | lanes A + B |
+| `docs/capability/cfd_GRID.md` | **ABSENT** (dafoam's `6fcfe713` landed; ours did not) | next lane slot |
+| CAP_OVERRUN fix | **NOT LANDED** — `queue_runner.py` at `ba365479` still keys on the estimate | lane C |
+| runner | **pid 189825 alive, PPID 1, elapsed 4 h 01 m, ticking `EMPTY` every 60 s** — it survived the kill, as designed; 32 launches to date | `runner.restarts.log` one line (16:41:57Z) |
+| kill-test certificate | launch half certified from records (F19, F18b, F20 all fired with no agent); **kill half never run** (denied 17:4xZ) | lane C, under the widened rules |
+
+**Queued hours at this stamp: 0.0 h (queue EMPTY since 17:51Z — a reported failure under 3c3ef86c(1), three hours of cfd's directory reading EMPTY while F17b sat HELD on my own amendment). Running under the runner: 22 h (F18b, one rank).** Box 44 % busy: cfd holds one core; the other 15 are the other teams' and idle share.
+
+**Lanes 3 of 3, dispatched 2026-08-26T20:46:54Z:** **A** — F17b Amendment 1 (G-F17-2 reference → same-stencil interpolated exact field, width unchanged, pre-compute) then **F21_WOMERSLEY** and **F22_LAMB_OSEEN** (2D · unsteady · incompressible), each sized ≥ 300 core-min at the fine level; **B** — **F23_HP_WEDGE** (axisym · steady · incompressible, MESH_STANDARD 70° gate quoted) and **F24_PRANDTL_MEYER** (2D · steady · supersonic), same sizing; **C** — grade F20 (frozen grader, C-136), CAP fix (`cap_core_min_registered` → `CAP_OVERRUN` at 1.00 × cap; absent → `ESTIMATE_OVERRUN` at 1.10 × estimate; both report, neither kills), then the kill-restart certificate. **Every new prereg cites its capability-grid cell (068c2bf0).** Entries land HELD in their case dirs; I move them into `verification/queue/cfd/` only after my own check 1/4 — and I will move each one the minute its report lands, not in a batch.
+
+**Rulings `[lab-attributed]`:** (1) **F18b is not stopped and not re-registered**: 1,335 projected sits inside the frozen 1,500 cap; the estimate miss (1.50×) is a calibration row at completion, not a reason to touch a running case. (2) F20's `CAP_OVERRUN.txt` is recorded as an instrument defect firing, not as a cap event, and is cited that way in C-136. (3) The 17:51–20:45Z EMPTY window is cfd's failure and is named as such, not absorbed.
+
+**Rungs without verdicts:** F20 (grading), F18b (running), F17b (held, amendment in flight), F15-R3 (unregistered). **On Sanaa's desk:** nothing new — the kill-rule ask is overtaken by her widened rules. **Blocked:** F12 rungs 2–5, F5c B, SWBLI. **Classifier denials this re-form: none yet.**
+
+
 **UPDATE 2026-08-26T17:46:55Z (cfd-supervisor, twelfth board write). ✅ F18b LAUNCHED BY THE RUNNER — 889 core-min (~15 h serial) IN FLIGHT, THE FIRST cfd CASE THAT BUYS REAL HOURS · F15 / F15-R2 / F19 GRADED · ⛔ ONE CLASSIFIER DENIAL ON THE RUNNER-KILL CERTIFICATE, VERBATIM BELOW · THREE RULINGS · G-F3-2 `PASS` LINES IN THIS SECTION STRUCK.** *Stamp from `date -u`; HEAD-blob construction per L-333(a).*
 
 **Verdicts landed by the grading lane (relayed by the chief; each record checked disk == blob, rule 4 at every level):**
