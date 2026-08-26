@@ -1,6 +1,7 @@
 {
   "team": "ansys-verification",
   "case_id": "VMFL011-R3",
+  "host": "ip-172-31-43-247",
   "prereg_commit": "45c3e8a4ec3a805f98e7e2464cbbe770102c3f38",
   "prereg_path": "cases/ansys_verification/VMFL011-R3/PREREGISTRATION.md",
   "launch_cmd": [
@@ -34,5 +35,5 @@
     ],
     "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
   },
-  "_note": "ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD section 1). Presence in this directory causes nothing to happen. PREDICTED VERDICT: GATE FAIL -- attempt 1 published rms 0.0403/0.0348/0.0341 against the byte-identical 0.030 band, the R2 reproduced its L1 minimum to six decimals, and prereg line 9 says GATE FAIL in advance. This run buys a GRADED verdict where TWO frozen instruments produced no number; it cannot buy a credential (tier ceiling GATE REACHED, code-to-code reference). WRITTEN DOWN BEFORE THE RUN, in the pre-registration and repeated here: IF THIS ATTEMPT ALSO PRODUCES NO VERDICT, the honest next step is a DIAGNOSIS, NOT a fourth registration. The box was at load average ~15 of 16 when this entry was dropped, so it is expected to be HELD rather than launched, and that is correct."
+  "_note": "ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD section 1). Presence in this directory causes nothing to happen. PREDICTED VERDICT: GATE FAIL -- attempt 1 published rms 0.0403/0.0348/0.0341 against the byte-identical 0.030 band, the R2 reproduced its L1 minimum to six decimals, and prereg line 9 says GATE FAIL in advance. This run buys a GRADED verdict where TWO frozen instruments produced no number; it cannot buy a credential (tier ceiling GATE REACHED, code-to-code reference). WRITTEN DOWN BEFORE THE RUN, in the pre-registration and repeated here: IF THIS ATTEMPT ALSO PRODUCES NO VERDICT, the honest next step is a DIAGNOSIS, NOT a fourth registration. The box was at load average ~15 of 16 when this entry was dropped, so it is expected to be HELD rather than launched, and that is correct. HOST: this entry names the box it is for -- \"host\": \"ip-172-31-43-247\", read from `uname -n` in the invocation that wrote this field. It is a BOX-ONLY entry: nothing in it may be run on the GPU instance, whose case ids carry the VMFLGPU prefix and whose runs are priced in GPU-hours outside the 2026-08-21 blanket (CLAUDE.md rule 12). A queue entry that does not name its host can be picked up by the wrong runner, and the age guard is the LAST line of defence, not the first."
 }

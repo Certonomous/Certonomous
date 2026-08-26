@@ -1,6 +1,7 @@
 {
   "team": "ansys-verification",
   "case_id": "VMFL076-R2",
+  "host": "ip-172-31-43-247",
   "prereg_commit": "8667be7257b6223a4d6b922998a374c768bedd87",
   "prereg_path": "cases/ansys_verification/VMFL076-R2/PREREGISTRATION.md",
   "launch_cmd": [
@@ -32,5 +33,5 @@
     ],
     "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
   },
-  "_note": "ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD section 1). Presence in this directory causes nothing to happen. launch_cmd runs the registered triple with the ALL level, which re-invokes the launcher once per level, coarsest first, and STOPS the ladder on a non-zero rc -- a later level is never launched after an earlier one failed. NO VERDICT IS PREDICTED FOR THE TRIPLE: GATE REACHED is hoped for and explicitly NOT predicted; NOT A RESULT is a real and likely outcome because the coarser family may sit outside the asymptotic range in the OTHER direction (at 600 cells the leading-edge cell is 25 mm); GATE FAIL and a refusal are both live; PASS is impossible by construction (ceiling GATE REACHED, hard-coded). REGISTERED IN ADVANCE: if this triple is ALSO non-CONVERGING, the honest next step is a DIAGNOSIS OF THE GATE QUANTITY, not a third grid family. The box was at ~15 of 16 when this was dropped, so it is expected to be HELD rather than launched, and that is correct."
+  "_note": "ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD section 1). Presence in this directory causes nothing to happen. launch_cmd runs the registered triple with the ALL level, which re-invokes the launcher once per level, coarsest first, and STOPS the ladder on a non-zero rc -- a later level is never launched after an earlier one failed. NO VERDICT IS PREDICTED FOR THE TRIPLE: GATE REACHED is hoped for and explicitly NOT predicted; NOT A RESULT is a real and likely outcome because the coarser family may sit outside the asymptotic range in the OTHER direction (at 600 cells the leading-edge cell is 25 mm); GATE FAIL and a refusal are both live; PASS is impossible by construction (ceiling GATE REACHED, hard-coded). REGISTERED IN ADVANCE: if this triple is ALSO non-CONVERGING, the honest next step is a DIAGNOSIS OF THE GATE QUANTITY, not a third grid family. The box was at ~15 of 16 when this was dropped, so it is expected to be HELD rather than launched, and that is correct. HOST: this entry names the box it is for -- \"host\": \"ip-172-31-43-247\", read from `uname -n` in the invocation that wrote this field. It is a BOX-ONLY entry: nothing in it may be run on the GPU instance, whose case ids carry the VMFLGPU prefix and whose runs are priced in GPU-hours outside the 2026-08-21 blanket (CLAUDE.md rule 12). A queue entry that does not name its host can be picked up by the wrong runner, and the age guard is the LAST line of defence, not the first."
 }
