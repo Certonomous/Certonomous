@@ -162,3 +162,114 @@ condition that grading waits for `STATUS.F15` with `rc=0`. Not registered: any
 change to a gate, band, threshold, cap or label (none is permitted under L-342
 clause 4); any new compute; any change to `grade_f15.py`, `exact_osr.py`,
 `run_f15.sh` or the parent pre-registration.
+
+## ADDENDUM R3 — 2026-08-26T21:18:33Z
+
+**Team cfd, lab-lane on the cfd supervisor's ruling (board cd24ebea; the 17:46Z
+ruling (1) in LAB_STATE). Third comparator registration under L-342. ZERO
+COMPUTE. Lines above this heading changed by this addendum: 0** (the file is
+rebuilt from `git show HEAD:` and this section is appended at the foot).
+Frozen by the commit that carries this addendum together with
+`cases/F15_oblique_shock_reflection/grade_f15_r3.py` (blob `3cedc19978a34889081778e165cacf9474a6d3cb`).
+
+### R3.1 The defect this registration repairs (measured, RESULTS_R2.md §0(b))
+
+R2 refused at zero compute (`GRADE_F15_R2.err`, verbatim: *"REFUSED:
+.../coarse/postProcessing/lineWall/0.05/lineWall_p.xy: the wall pressure never
+crosses the half-rise value 1.824133; min 0.714286 max 0.714286. The gate quantity
+is ABSENT ..."*). `series_for` (`grade_f15_r2.py:832`) feeds `x_wall_from_xy`
+every sampled time from t = 0.05; the run is initialised uniform at region 1
+(`0/p internalField uniform 0.714285714285714`, `0/U (2.9 0 0)`) with the
+post-shock state imposed on `top`, so the wall line carries no crossing until the
+shock reaches it. The half-rise crossing detector is a steady-state instrument
+applied to pre-arrival samples — the third reader defect of this lineage, named
+in RESULTS_R2.md and repaired only here, in a new registration, never in R2.
+
+### R3.2 The repair: the series is windowed to t ≥ T_ARRIVAL, from the frozen geometry
+
+From `exact_osr.py` (frozen at `2aea29d9`): M₁ = u₁/a₁ = 2.9 (a₁ = 1), incident
+shock angle σ = 29° from the x-axis, domain X_MIN = −2, Y ∈ [0, 1], station
+x_w = X_MIN + (Y_MAX − Y_MIN)/tan σ = −0.195952244729 (prereg §3). The incident
+shock enters at the top-left corner (X_MIN, Y_MAX) and its foot sits at (x_w, 0).
+Path length along the shock line: L_s = (Y_MAX − Y_MIN)/sin σ = 1/sin 29° =
+2.062665. The disturbance that establishes the shock is carried along that line at
+the shock-tangential velocity, equal on both sides of the shock, u₁ cos σ =
+2.9 × cos 29° = 2.536451. Hence
+
+    T_ARRIVAL = L_s / (u₁ cos σ) = 1 / (u₁ sin σ cos σ) = 2 / (u₁ sin 2σ)
+              = 2 / (2.9 × sin 58°) = **0.813226**
+
+(`arrival_time(sol)`, computed from `EX.solve()` at every run; a literal appears
+nowhere in the grader). At SAMPLE_INTERVAL = 0.05 the **first admitted sample is
+t = 0.85**; the series then holds 184 of the 200 written samples, above Class C's
+100-sample floor, and Class C's last-60-sample window (t ∈ [7.05, 10]) and the graded
+value (the t = 10 sample) are untouched by the window. The window is applied in
+`series_for` for both gates so the two series are built from the same samples;
+G-F15-1's reader has no crossing detector, so for it the window only drops
+pre-arrival samples that neither the plateau test nor the graded value ever read.
+
+Two shorter kinematic bounds exist and are stated so the choice is on record, not
+hidden: pure free-stream convection of the inlet corner to the station,
+(x_w − X_MIN)/u₁ = 0.622; and the top-boundary-driven planar front descending to the
+wall as a moving shock at p₂/p₁ = 2.139 (M_s = 1.406, a₁ = 1), ≈ 0.711. Neither is the
+path of the incident shock; the registered window is the shock-path formula above.
+**Honest note on order of knowledge:** R2's record already states that the first
+sample with a crossing is t = 0.75. The formula was derived from the frozen geometry,
+not fitted to that observation; its consequence is that the windowed series starts at
+0.85 > 0.75. Had the formula given a window start ≤ 0.70, R3 would refuse exactly as
+R2 did, and that refusal would be recorded verbatim (§R3.5).
+
+### R3.3 Diff scope — `grade_f15_r3.py` against its R2 parent (blob `133820b3`), and nothing else
+
+| R2 lines | R3 content |
+|---|---|
+| 1–5 header | R3 header block (defect (iii), the formula, diff scope); R2 header retained verbatim below it |
+| 112–118 | `PHYSICS_CRITICAL` gains the window line; `T_ARRIVAL_NOTE` |
+| 832–847 | `arrival_time(sol)`; `series_for(..., t_min=None)` with the guard `if t < t_min - 1e-9: continue` |
+| before 617 | `control_window_guard_flips`, `GATE_BLOCK_NAMES`, `_gate_blocks`, `control_gate_blocks_identical_to_r2` |
+| 962–963 | the two controls appended to the controls list |
+| 988–992, 1002 | `rung` F15-OSR29-R3, parent/grandparent blobs, `t_arrival` in the JSON; default output `F15_R3_GRADED.json`; tally title |
+
+**Gates, bands, thresholds, cap and labels are byte-identical to R2 and to the
+grandparent.** Evidence in the grader itself: `control_gate_blocks_identical_to_r2`
+dumps the AST of 24 gate-bearing definitions (`N_CAPTURE_CELLS`, `END_TIME`,
+`SAMPLE_INTERVAL`, `CAP_CORE_MIN`, `RANKS`, `LEVELS`, `CELLS`, `DX`, `CLASS_C`,
+`DIM`, `VERDICTS`, `SETS`, `bands`, `smeared_profile`, `demonstrate`, `class_c`,
+`x_wall_from_xy`, `e1_from_xy`, `read_xy_p`, `grade_one`, `completion`,
+`iterative_series`, `plant_control_e1`, `plant_control_x_wall`) in both files and
+refuses unless the diff is **EMPTY** — at registration: `differing: []`, `diff:
+EMPTY`; driven: a copy of R2 with `CAP_CORE_MIN` 200.0 → 201.0 is seen to differ in
+exactly `["CAP_CORE_MIN"]`. Bands inherited unchanged: G-F15-1
+[9.711165159e−04, 7.768932127e−03]; G-F15-2 −0.195952244729 ± 0.02. Prediction
+p ≈ 1 inherited. Field-class split (L-342) retained; the window is PHYSICS_CRITICAL.
+
+### R3.4 Controls at registration (`python3 grade_f15_r3.py --selftest`, rc 0, 9 controls)
+
+- `PZ-F15-R3-WINDOW_GUARD_driven_both_ways`: synthetic `lineWall` series with a
+  no-crossing sample at t = 0.05 (R2's defect), a spurious crossing at x = +0.27 at
+  t = 0.5 (the shape R2 measured at t = 0.75), and the true crossing at x_w at
+  t = 0.95. Windowed: returns **one** sample, t = 0.95, x = −0.195952244729. Guard
+  mutated to a no-op (t_min = 0): with the no-crossing sample present the reader
+  **refuses (exit 2)** as R2 did; with it absent it returns the **spurious** crossing
+  first ([0.5, 0.95] → [+0.27, −0.1960]). The control flips on the guard alone.
+- `PZ-F15-R3-GATE_BLOCKS_ast_identical_to_R2_plus_planted_diff`: EMPTY, planted
+  cap change seen.
+- The seven R2/parent controls unchanged (paper agreement, Rankine–Hugoniot,
+  geometry, Class C four limbs, grade_ladder call-site AST census, real-log excerpt,
+  real-xy excerpt); planted-zero controls on both readers at grade time unchanged.
+- 0 `ast.Assert` nodes; `python3 -O` rc 2.
+
+### R3.5 What is registered, and what is not
+
+Registered: `grade_f15_r3.py` at the blob above; the command
+`python3 cases/F15_oblique_shock_reflection/grade_f15_r3.py --prereg-commit=<this sha>`
+on the preserved artefacts of run `2aea29d9` under `verification/runs/F15_runs/`
+(`STATUS.F15` rc=0 landed 17:35:22Z; rule 4 re-read in RESULTS_R2.md §2); outputs
+`GRADE_F15_R3.out`, `GRADE_F15_R3.err`, `F15_R3_GRADED.json`, record `RESULTS_R3.md`.
+Verdicts from the fixed vocabulary only. **If R3 refuses, the refusal is recorded
+verbatim and nothing is repaired inside R3.** Cost: **0 core-min, $0** (files already
+on disk; nothing launched); the run's own cost is C-133 and no new calibration row is
+owed unless `docs/COST_CALIBRATION.md`'s rules require one for a zero-compute grade.
+Not registered: any change to a gate, band, threshold, cap or label; any new compute;
+any change to `grade_f15.py`, `grade_f15_r2.py`, `exact_osr.py`, `run_f15.sh` or
+the lines above this heading.
