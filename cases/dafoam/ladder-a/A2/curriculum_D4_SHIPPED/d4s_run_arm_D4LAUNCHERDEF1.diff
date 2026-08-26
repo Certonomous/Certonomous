@@ -1,0 +1,270 @@
+D4-LAUNCHER-DEF-1 REPAIR -- LAUNCHER DIFF, for the supervisor's SUPERVISION_CHARTER
+section 3 check 1 (read AS A DIFF, personally, before it runs).
+
+  FROM  cases/dafoam/ladder-a/A2/curriculum_D4/d4_run_arm.sh          (FROZEN, NOT EDITED)
+  TO    cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/d4s_run_arm.sh (NEW FILE)
+
+WHY A NEW FILE AND NOT AN EDIT: the frozen launcher hardcodes BASE at the PATCHED
+item's run root with no override (:25), and stages by `sudo -n rm -rf "$WORK"` (:139)
+where WORK="$BASE/$ARM". There is NO argument, environment variable or working
+directory that redirects it. Firing the shipped row through it would have deleted
+CURRICULUM-D4-a2-wing-cdmin/O -- 5,085 files, 384 MB, OptView.hst and opt_IPOPT.txt,
+the artifacts D4's accepted GATE REACHED rests on. Eight launcher files in that
+directory carry the same hardcoded BASE. Rule 6 forbids editing them.
+
+WHAT CHANGED, IN FIVE PLACES:
+  1. THE RUN ROOT, AND THREE GUARDS THAT MAKE THE WRONG CONSTANT REFUSE
+       G-ROOT.1  BASE must equal the registered root, compared via realpath -m
+       G-ROOT.2  explicit forbidden-roots list naming D4/D7R/D12R/D12R2
+       G-ROOT.3  the ledger must carry no foreign ITEM= and no ROW=PATCHED row
+     Shown to fire against the REAL D4 root, three path spellings, with that root
+     measured unchanged afterwards. Negative control: passes on its own root.
+  2. G-ROW -- SHIPPED-ONLY. Refuses the patched digest outright (CHARTER sec.11:
+     the hash is the identity, so claimed row and run row must be the same hash).
+  3. THE ARM SET -- P1, P2, O, ACC, F3, with D4's own registered caps unchanged
+     (5.0 / 55.0 / 620.0 / 80.0 / 120.0) and the memory table extended for ACC.
+  4. THE LAUNCH -- `docker run -d`, and rc read from `docker inspect
+     .State.ExitCode`, the KERNEL'S record, with OOMKilled from the same inspect.
+     The frozen file took rc=$? from the CLI client and used the kernel's value
+     only for a ledger string no control flow consulted.
+     *** THE CAP EXPOSURE IS REGISTERED OPEN IN THE COMMENT AT THAT SITE. ***
+     -d does NOT fix the cap: dockerd already owned the container, and moving the
+     deadline from `timeout` into a polling loop moves it into the same shell.
+  5. A BACKTICK DEFECT FOUND IN THIS REPAIR'S OWN ABORT PATH AND FIXED BEFORE IT
+     RAN -- backticks inside a double-quoted echo are command-substituted, so the
+     guard's failure path would have executed a bare `rm -rf`. The selftest now
+     asserts zero backticks on any executable line.
+
+--- curriculum_D4/d4_run_arm.sh (FROZEN at HEAD)
++++ curriculum_D4_SHIPPED/d4s_run_arm.sh (NEW)
+@@ -22,7 +22,82 @@
+ # the arm and the KERNEL's verdict is read, not the harness's.
+ set -uo pipefail
+ 
+-BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin
++# ===========================================================================
++# D4-LAUNCHER-DEF-1 -- THE DEFECT THIS FILE EXISTS NOT TO REPEAT.
++#
++# `curriculum_D4/d4_run_arm.sh` hardcodes BASE at the PATCHED item's run root
++# (:25, no override), sets WORK="$BASE/$ARM" (:136) and runs an UNGUARDED
++# `sudo -n rm -rf "$WORK"` (:139) for every arm except F.  Firing the SHIPPED
++# row through it would have deleted
++#   /home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O
++# -- 5,085 files, 384 MB, holding OptView.hst and opt_IPOPT.txt: THE ARTIFACTS
++# D4's ACCEPTED `GATE REACHED` RESTS ON -- and appended its rows to the same
++# ledger (:282), leaving two items interleaved in one file so that NEITHER row
++# could be graded cleanly afterwards.  EIGHT launcher files in that directory
++# carry the same hardcoded BASE.
++#
++# THE REPAIR IS NOT "CHANGE THE CONSTANT".  A constant that is merely different
++# is one careless edit from being the same again.  The WRONG CONSTANT MUST
++# REFUSE, and the guard below is DRIVEN AGAINST THE REAL D4 ROOT in
++# `d4s_launcher_guard_selftest.sh` and shown to abort.  A guard not shown to
++# fire is ceremony -- and this is the guard standing between a re-fire and
++# 384 MB of irreplaceable graded evidence.
++# ===========================================================================
++ITEM=D4-SHIPPED
++REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin
++BASE="${BASE:-$REGISTERED_BASE}"
++
++# ---- G-ROOT.1 -- BASE must be THIS item's registered root, normalised, so a
++# ---- trailing slash, a `.`, a `..` or a symlink cannot walk around the check.
++BASE_REAL=$(realpath -m "$BASE")
++REG_REAL=$(realpath -m "$REGISTERED_BASE")
++if [ "$BASE_REAL" != "$REG_REAL" ]; then
++  echo "ABORT G-ROOT.1 BASE is not this item's registered run root."
++  echo "  given:      $BASE_REAL"
++  echo "  registered: $REG_REAL"
++  echo "  D4-LAUNCHER-DEF-1: a launcher pointed at another item's run root"
++  echo "  deletes that item's graded arms.  REFUSED before any staging."
++  exit 3
++fi
++
++# ---- G-ROOT.2 -- and NAME the roots that must never be written by this file,
++# ---- so the abort says WHOSE evidence it just protected rather than only that
++# ---- something did not match.  Explicit, because the specific message is what
++# ---- a future reader in a hurry actually acts on.
++FORBIDDEN_ROOTS="/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin
++/home/ubuntu/certonomous-runs/CURRICULUM-D7R-a3-m6-cdmin
++/home/ubuntu/certonomous-runs/CURRICULUM-D12R-cylinder-unsteady
++/home/ubuntu/certonomous-runs/CURRICULUM-D12R2-cylinder-unsteady"
++while IFS= read -r forb; do
++  [ -z "$forb" ] && continue
++  if [ "$BASE_REAL" = "$(realpath -m "$forb")" ]; then
++    echo "ABORT G-ROOT.2 BASE resolves to ANOTHER ITEM'S RUN ROOT: $forb"
++    echo "  That directory holds a graded row.  This launcher stages by"
++    echo "  That launcher stages by removing the arm directory, so writing"
++    echo "  there would destroy it.  REFUSED."
++    exit 3
++  fi
++done <<< "$FORBIDDEN_ROOTS"
++
++# ---- G-ROOT.3 -- the LEDGER must belong to this item and to no other.  A root
++# ---- can be correct and its ledger still be a foreign one moved in; the row
++# ---- format carries ROW=PATCHED|SHIPPED, so a PATCHED row in this item's
++# ---- ledger is proof the two have been interleaved.
++if [ -f "$BASE/ledger.txt" ]; then
++  FOREIGN_ITEM=$(grep -a "^ITEM=" "$BASE/ledger.txt" 2>/dev/null | grep -av "^ITEM=$ITEM$" | head -1)
++  if [ -n "$FOREIGN_ITEM" ]; then
++    echo "ABORT G-ROOT.3 the ledger at $BASE/ledger.txt carries another item: $FOREIGN_ITEM"
++    echo "  Appending here would interleave two items' rows in one file and"
++    echo "  neither row could be graded cleanly afterwards.  REFUSED."
++    exit 3
++  fi
++  if grep -aq "ROW=PATCHED" "$BASE/ledger.txt" 2>/dev/null; then
++    echo "ABORT G-ROOT.3 the ledger at $BASE/ledger.txt already carries PATCHED rows."
++    echo "  This launcher writes the SHIPPED row only.  REFUSED."
++    exit 3
++  fi
++fi
++echo "D4S_G_ROOT_PASS item=$ITEM base=$BASE_REAL ledger_clean=yes"
+ RANKS=4
+ 
+ # ---- REGISTERED CPU PLACEMENT (PREREGISTRATION.md §5b, verbatim) ---------
+@@ -55,17 +130,19 @@
+ #   F       120.0            12g
+ cap_core_min() {
+   case "$1" in
+-    P1) echo 5.0 ;;
+-    P2) echo 55.0 ;;
+-    O)  echo 620.0 ;;
+-    F)  echo 120.0 ;;
++    P1)  echo 5.0 ;;
++    P2)  echo 55.0 ;;
++    O)   echo 620.0 ;;
++    ACC) echo 80.0 ;;
++    F3)  echo 120.0 ;;
+     *)  echo "" ;;
+   esac
+ }
+ cap_memory() {
+   case "$1" in
+     P1) echo 4g ;;
+-    P2|O|F) echo 12g ;;
++    ACC) echo 8g ;;
++    P2|O|F3) echo 12g ;;
+     *) echo "" ;;
+   esac
+ }
+@@ -129,6 +206,17 @@
+   *) echo "ABORT image $IMG is not a registered row"; exit 4 ;;
+ esac
+ test "$GOT_DIGEST" = "$WANT" || { echo "ABORT digest mismatch $IMG got=$GOT_DIGEST want=$WANT"; exit 4; }
++
++# ---- G-ROW.  THIS ITEM BUYS THE SHIPPED ROW AND ONLY THE SHIPPED ROW. -----
++# DAFOAM_CHARTER.md §11 makes the HASH the identity, so the row a run CLAIMS
++# and the row it RAN must be the same hash or it does not run.  The patched
++# row is already bought (curriculum_D4); re-running it here would put a second,
++# younger record beside a graded one for the same question.
++test "$ROW" = "SHIPPED" || {
++  echo "ABORT G-ROW this item is registered SHIPPED-ONLY; got ROW=$ROW ($IMG)."
++  echo "  The PATCHED row is already bought at curriculum_D4 and is NOT re-bought here."
++  exit 4; }
++echo "D4S_G_ROW_PASS row=$ROW digest=$GOT_DIGEST"
+ echo "D4_IMAGE_OK row=$ROW image=$IMG digest=$GOT_DIGEST"
+ 
+ STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
+@@ -137,7 +225,7 @@
+ LOG="$BASE/${ARM}_${STAMP}.log"
+ 
+ # ---- stage a pristine copy of base/ for arms that need a cold case -------
+-if [ "$ARM" != "F" ]; then
++if [ "$ARM" != "F3" ]; then
+   sudo -n rm -rf "$WORK" 2>/dev/null
+   cp -a "$BASE/base" "$WORK" || { echo "ABORT stage copy"; exit 4; }
+   cp -a "$BASE/d4_opt_runScript.py" "$BASE/d4_fd_endpoint.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
+@@ -155,7 +243,7 @@
+   echo "$AGE_DATUM" > "$WORK/.d4_age_datum"
+   echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM"
+ else
+-  test -d "$WORK" || { echo "ABORT arm F expects an existing $WORK from arm O"; exit 5; }
++  test -d "$WORK" || { echo "ABORT arm F3 expects an existing $WORK from arm O"; exit 5; }
+   test -f "$WORK/OptView.hst" || { echo "ABORT arm F: no OptView.hst to read an endpoint from"; exit 5; }
+   cp -a "$BASE/d4_fd_endpoint.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage F instruments"; exit 4; }
+   rm -f "$WORK/d4_fd_endpoint.json" "$WORK/d4_fd_endpoint.jsonl" "$WORK/d4_endpoint_dvs.json"
+@@ -197,7 +285,8 @@
+ \" && cat d4_placement_rank*.json" ;;
+   P2) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_opt_runScript.py -task compute_totals" ;;
+   O)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_opt_runScript.py -task run_driver -optimizer IPOPT" ;;
+-  F)  CMD="python d4_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_fd_endpoint.py" ;;
++  ACC) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_opt_runScript.py -task compute_totals" ;;
++  F3) CMD="python d4_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_fd_endpoint.py" ;;
+ esac
+ 
+ CPUSAMPLE="$BASE/${ARM}_${STAMP}.cpu.jsonl"
+@@ -242,16 +331,68 @@
+ SAMPLER=$!
+ 
+ T0=$(date -u +%s)
+-timeout "$TMO" sudo -n docker run --name "$NAME" \
++# ===========================================================================
++# WHAT `-d` + THE POLLER ACTUALLY CLOSES, AND WHAT IT DOES NOT.  STATED HERE
++# BECAUSE A FROZEN DOCUMENT MUST NOT CARRY A FALSE LINE.
++#
++#   CLOSED -- rc CAPTURE.  `rc` is read from `docker inspect .State.ExitCode`,
++#   the KERNEL'S OWN RECORD, which is what curriculum_D4/PREREGISTRATION.md
++#   :256-257 registered and which only A3/curriculum_D7R/d7r_run_arm.sh ever
++#   implemented.  `.State.OOMKilled` comes from the SAME inspect.  NO --rm, so
++#   the record survives the container.  The frozen d4_run_arm.sh took `rc=$?`
++#   from the docker CLI client and used the kernel's value for a ledger STRING
++#   that no control flow consulted.
++#
++#   *** NOT CLOSED -- THE CAP DOES NOT SURVIVE SHELL DEATH.  REGISTERED OPEN. ***
++#   A foreground `docker run` client is NOT the container's parent -- dockerd
++#   is -- so containers ALREADY survived shell death and `-d` changes nothing
++#   there.  What `timeout` provided was the CAP, and `timeout` lives in the
++#   launching shell.  MOVING THE DEADLINE INTO THE POLLING LOOP BELOW MOVES IT
++#   INTO THE SAME SHELL.  On shell death the outcome is identical in both
++#   designs: THE CONTAINER RUNS ON, UNGUARDED, WITH NOTHING LEFT TO STOP IT.
++#   `-d` is an improvement on rc capture and on not blocking the shell.  IT IS
++#   NOT A CAP FIX and this file does not claim to be one.
++#   Closing it properly needs the deadline somewhere that survives the shell --
++#   inside the container's own entrypoint, or written to a file a later poller
++#   can pick up and enforce.  NOT BUILT HERE.  Named, and left open.
++# ===========================================================================
++sudo -n docker run -d --name "$NAME" \
+     --user 0:0 --cpus=$RANKS --cpuset-cpus=$CPUSET --memory=$MEM --memory-swap=$MEM --oom-score-adj=500 \
+     -v "$BASE":/mnt -w "/mnt/$ARM" "$IMG" bash -lc \
+     "source /home/dafoamuser/dafoam/loadDAFoam.sh && \
+-     echo D4_CONTAINER_UID: \$(id -u) && \
+-     python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"D4_IDWARP_IMPORTED_FROM:\",p); print(\"D4_IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' && \
+-     ( /usr/bin/time -v true >/dev/null 2>&1 && echo D4_USRBIN_TIME: present || echo D4_USRBIN_TIME: absent ) && \
+-     $CMD" \
+-    > "$LOG" 2>&1
+-rc=$?
++     echo D4S_CONTAINER_UID: \$(id -u) && \
++     python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"D4S_IDWARP_IMPORTED_FROM:\",p); print(\"D4S_IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' && \
++     $CMD" > /dev/null 2>&1 \
++  || { echo "ABORT could not start container"; exit 4; }
++
++# The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25), not a budget
++# rigor is trimmed to fit.  A crossing is written to the ledger and CONTINUES;
++# the supervisor decides.  CEILING = 4 x CAP is a hard stop so a genuine
++# runaway is still bounded -- WHILE THIS SHELL LIVES (see the open exposure).
++CEILING=$(python3 -c "print('%.1f' % (4.0*$CAP))")
++echo "D4S_RUNAWAY_GUARD arm=$ARM cap_core_min=$CAP ceiling_core_min=$CEILING mode=report_then_stop_at_ceiling"
++CAP_REPORTED=no; CEILING_HIT=no
++while true; do
++  RUNNING=$(sudo -n docker inspect --format '{{.State.Running}}' "$NAME" 2>/dev/null)
++  NOW=$(date -u +%s); EL=$((NOW-T0))
++  CM=$(python3 -c "print(round($EL*$RANKS/60.0,3))")
++  if [ "$RUNNING" != "true" ]; then break; fi
++  if [ "$CAP_REPORTED" = "no" ] && [ "$(python3 -c "print(1 if $CM > $CAP else 0)")" = "1" ]; then
++    CAP_REPORTED=yes
++    echo "D4S_CAP_CROSSED arm=$ARM core_min=$CM cap=$CAP ceiling=$CEILING action=REPORTED_RUN_CONTINUES supervisor_decides" | tee -a "$BASE/ledger.txt"
++  fi
++  if [ "$(python3 -c "print(1 if $CM > $CEILING else 0)")" = "1" ]; then
++    CEILING_HIT=yes
++    echo "D4S_CEILING_HIT arm=$ARM core_min=$CM ceiling=$CEILING action=HARD_STOP" | tee -a "$BASE/ledger.txt"
++    sudo -n docker stop -t 30 "$NAME" >/dev/null 2>&1
++    break
++  fi
++  sleep 10
++done
++sudo -n docker logs "$NAME" > "$LOG" 2>&1
++# THE KERNEL'S VERDICT, read BEFORE the container is removed.
++rc=$(sudo -n docker inspect --format '{{.State.ExitCode}}' "$NAME" 2>/dev/null)
++test -n "$rc" || rc=125
+ T1=$(date -u +%s)
+ WALL=$((T1-T0))
+ kill $SAMPLER 2>/dev/null; wait $SAMPLER 2>/dev/null
