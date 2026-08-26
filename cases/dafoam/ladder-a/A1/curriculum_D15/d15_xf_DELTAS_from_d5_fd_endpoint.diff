@@ -1,0 +1,432 @@
+--- ../../A2/curriculum_D5/d5_fd_endpoint.py	2026-08-26 17:09:49.491316809 +0000
++++ d15_xf.py	2026-08-26 20:57:03.496131975 +0000
+@@ -1,46 +1,37 @@
+ #!/usr/bin/env python
+-"""Curriculum D5 -- endpoint finite-difference spot-check producer, per density.
++"""Curriculum D15 -- NACA0012 SUBSONIC (DARhoSimpleFoam) baseline gradient instrument.
+ 
+-DERIVED FROM `curriculum_D4/d4_fd_endpoint.py` (md5 c6112b0ec3bfdb5287345e350500f64a)
+-with EXACTLY these registered deltas and no other:
+-  * PRODUCER is `d5_opt_runScript.py` (D4's runScript with the FFD path as an
+-    argument, PREREGISTRATION.md section 1) and PRODUCER_MD5 is its frozen md5.
+-    D4's instrument REFUSES any producer but its own, by md5, so it cannot be
+-    reused byte-for-byte; the refusal is kept, re-pointed.
+-  * OUT / JSONL are `d5_fd_endpoint.json` / `d5_fd_endpoint.jsonl`.
+-  * The docstring below and this header.  Every constant, the step ladder, the
+-    clearance rule, the five COMPONENTS and the emit/plan/FD logic are D4's bytes.
+-
+-The staged arm directory carries the density's FFD box at `FFD/wingFFD.xyz`
+-(the launcher's D5 delta), so the producer's `-ffd` default reads the right
+-density without this file naming one.
+-
+-DAFOAM_CHARTER.md section 2 and section 9: an adjoint gradient is not a result
+-until an FD table stands beside it, and for an OPTIMISATION that table is
+-measured AT THE FINAL DESIGN POINT, not at the baseline.
+-
+-Design rules this file obeys, all registered in PREREGISTRATION.md before it ran:
+-
+-  * The model definition is NOT copied.  This file reads the frozen producer,
+-    asserts its md5, splits it at the literal anchor line `# OpenMDAO setup`,
+-    and execs the header.  The daOptions, the Top class, the DVs and the
+-    constraints are therefore the producer's own bytes.
+-  * EVERY graded number is written to a FILE by rank 0 and is never recovered
+-    from stdout (MPI log splicing on this exact case is MEASURED, A2
+-    per_component_table RESULTS.md section 2.2, commit 79679a84).
+-  * The step is chosen by the mechanical rule of
+-    `cases/dafoam/ladder-a/A6/rung_n16_remaining_components/RESULTS.md` section 3.1
+-    from the stored |J_adj| and the MEASURED eta and from nothing else.  That
+-    rule carries its own registered limitation VERBATIM:
+-      "One item, five components, one case, one eta.  The rule has not been
+-       tried where the proxy |J_adj| is itself wrong -- which is the case it
+-       would be worst at, since it sizes the step from the very quantity under
+-       test."
+-    Inherited here unchanged.
+-  * The COMPONENTS are D4's five names.  In a 48- or 192-point box, `shape[46]`
+-    and `shape[18]` name DIFFERENT control points from D4's 96-point box; they
+-    are registered BY NAME, in advance, exactly as D4 section 6 registered its
+-    five, and PREREGISTRATION.md section 3 states the consequence.
++DERIVED FROM `curriculum_D5/d5_fd_endpoint.py` (md5 91b9f3526a39cb02eafbd5be504d7107)
++with EXACTLY these registered deltas and no other (d15_xf_DELTAS_from_d5_fd_endpoint.diff):
++  * PRODUCER is `d15_runScript.py` -- a BYTE COPY of the shipped tutorial
++    `/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/subsonic/runScript.py`
++    (md5 6537fa7641c4ccb20056f60f96f63b11) -- and PRODUCER_MD5 is that md5.
++    D4's instrument REFUSES any producer but its own, by md5; the refusal is
++    kept, re-pointed.
++  * TWO MODES, selected by `-mode X|F`.  X = the adjoint (compute_totals) of
++    CD AND CL w.r.t. `shape` and `patchV` at the tutorial's BASELINE design
++    (shape = 0, patchV = [U0, aoa0]), written to `d15_X.json`.  F = a CENTRAL
++    finite-difference table over the REGISTERED STEP SET (three steps per DV
++    kind, not the D4 clearance ladder) on the REGISTERED SUBSET of components,
++    written to `d15_F.json` / `d15_F.jsonl`.  The design point is the BASELINE,
++    not an optimiser endpoint: no endpoint file is read (D4's `d4_endpoint_dvs.json`
++    clause is removed), so no optimiser runs in this item.
++  * PLANTED-ZERO CONTROL COMPONENT `CTRL` (CLAUDE.md rule 3): a synthetic row
++    with CD_plus == CD_minus == CD_baseline (derivative EXACTLY 0.0, no solve)
++    and a PLANTED row with CD_plus = CD_baseline + PLANT (derivative EXACTLY
++    PLANT/(2 s)); both are written to the JSONL, READ BACK FROM DISK, and the
++    instrument EXITS 2 if the read-back does not see the plant.  A zero from a
++    reader not shown able to see a non-zero is not evidence.
++  * The two-primal eta measurement, the emit/fsync discipline and the MPI
++    rank-0 file rule are D5/D4's bytes.
++  * The toolchain identity is written INTO the artefact: `idwarp.__file__` and
++    the md5 of `libidwarp.so`, read in-process, beside the launcher's own
++    `D4S_IDWARP_SO_MD5:` print (G9 reads both; they must agree).
++
++DAFOAM_CHARTER.md section 2: an adjoint gradient is not a result until an FD
++table stands beside it -- here at the baseline, which is where the shipped
++A1 row was measured to FAIL (11.43 %, idx6 sign-flipped) and the patched A1
++row to PASS, so the same design point is where the two-row rule bites.
+ """
+ import hashlib
+ import json
+@@ -48,33 +39,35 @@
+ import sys
+ import time
+ 
+-PRODUCER = "d5_opt_runScript.py"
+-PRODUCER_MD5 = "fa1d91c82d11aacd0ae072652b346952"
++PRODUCER = "d15_runScript.py"
++PRODUCER_MD5 = "6537fa7641c4ccb20056f60f96f63b11"
+ ANCHOR = "# OpenMDAO setup"
++ITEM = "D15"
+ 
+-# ---- registered constants (frozen in curriculum_D4 PREREGISTRATION.md section 5 and 7) --------
+-CLEARANCE_FLOOR = 5.0        # C = |J|*s/eta must reach this for a step to be usable
+-RATIO_MIN = 2.0              # s_hi is the smallest rung with s_hi >= RATIO_MIN * s_lo
+-PLATEAU_TOL = 10.0           # percent; |d(s_hi)-d(s_lo)|/|d(s_hi)|
++# ---- registered constants (PREREGISTRATION.md section 3) --------------------
+ ETA_FLOOR = 1.0e-14          # a measured eta below this is replaced by this and FLAGGED
+-LADDER = {
+-    "shape":  [1.0e-3, 3.0e-3, 1.0e-2, 3.0e-2],
+-    "twist":  [1.0e-3, 3.0e-3, 1.0e-2, 3.0e-2, 1.0e-1, 3.0e-1],
+-    "patchV": [1.0e-3, 3.0e-3, 1.0e-2, 3.0e-2, 1.0e-1, 3.0e-1],
++STEPS = {
++    "shape":  [1.0e-2, 1.0e-3, 1.0e-4],     # registered step set, FFD y-displacement units
++    "patchV": [1.0e-1, 1.0e-2, 1.0e-3],     # registered step set, degrees of aoa
+ }
+-# The FIVE named components.  NAMED IN ADVANCE, in the pre-registration, with
+-# their reasons and their verdict mapping.  idx46 of `shape` is the
+-# idx46-class near-zero component (A1 idx6 / A5 idx16 / A2 idx46 family).
++# The REGISTERED SUBSET, named in advance: 5 physical components + the control.
++# shape[0] = first interior shape function (i=1, j=0); shape[3] = (i=2, j=1);
++# shape[6] = the LE thickness function (i=0) -- the A1 idx6-class component the
++# shipped A1 row sign-flipped at its baseline; shape[7] = the TE function;
++# patchV[1] = angle of attack (degrees).
+ COMPONENTS = [
+-    ("shape", 46),
+-    ("shape", 18),
+     ("shape", 0),
+-    ("twist", 0),
++    ("shape", 3),
++    ("shape", 6),
++    ("shape", 7),
+     ("patchV", 1),
+ ]
++CTRL_STEP = 1.0e-3
++PLANT = 1.234e-03            # rule 3
+ 
+-OUT = "d5_fd_endpoint.json"
+-JSONL = "d5_fd_endpoint.jsonl"
++OUT_X = "d15_X.json"
++OUT_F = "d15_F.json"
++JSONL_F = "d15_F.jsonl"
+ 
+ 
+ def md5_of(path):
+@@ -82,17 +75,39 @@
+         return hashlib.md5(fh.read()).hexdigest()
+ 
+ 
++def idwarp_identity():
++    try:
++        import idwarp
++        p = idwarp.__file__
++        so = os.path.join(os.path.dirname(p), "libidwarp.so")
++        return {"idwarp_file": p, "libidwarp_so_md5": md5_of(so)}
++    except Exception as exc:                                  # noqa: BLE001
++        return {"idwarp_file": None, "libidwarp_so_md5": None, "error": repr(exc)[:200]}
++
++
++def parse_mode(argv):
++    mode = None
++    for i, a in enumerate(argv):
++        if a == "-mode" and i + 1 < len(argv):
++            mode = argv[i + 1]
++    if mode not in ("X", "F"):
++        sys.stderr.write("D15_XF usage: d15_xf.py -mode X|F\n")
++        sys.exit(64)
++    return mode
++
++
+ def main():
++    mode = parse_mode(sys.argv)
+     got = md5_of(PRODUCER)
+     if got != PRODUCER_MD5:
+-        sys.stderr.write("D5_FD REFUSE producer md5 %s != frozen %s\n"
++        sys.stderr.write("D15_XF REFUSE producer md5 %s != frozen %s\n"
+                          % (got, PRODUCER_MD5))
+         sys.exit(2)
+ 
+     with open(PRODUCER) as fh:
+         src = fh.read()
+     if src.count(ANCHOR) != 1:
+-        sys.stderr.write("D5_FD REFUSE anchor %r appears %d times\n"
++        sys.stderr.write("D15_XF REFUSE anchor %r appears %d times\n"
+                          % (ANCHOR, src.count(ANCHOR)))
+         sys.exit(2)
+     header = src.split(ANCHOR)[0]
+@@ -100,7 +115,7 @@
+     # the producer header parses sys.argv; give it the registered task
+     saved_argv = list(sys.argv)
+     sys.argv = [PRODUCER, "-task", "run_model", "-optimizer", "IPOPT"]
+-    ns = {"__name__": "d5_frozen_header", "__file__": PRODUCER}
++    ns = {"__name__": "d15_frozen_header", "__file__": PRODUCER}
+     exec(compile(header, PRODUCER, "exec"), ns)
+     sys.argv = saved_argv
+ 
+@@ -109,31 +124,35 @@
+     import openmdao.api as om
+ 
+     rank = MPI.COMM_WORLD.rank
++    nprocs = MPI.COMM_WORLD.size
+     Top = ns["Top"]
++    jsonl = JSONL_F if mode == "F" else "d15_X.jsonl"
+ 
+     def emit(rec):
+         if rank != 0:
+             return
+-        with open(JSONL, "a") as fh:
++        with open(jsonl, "a") as fh:
+             fh.write(json.dumps(rec, sort_keys=True) + "\n")
+             fh.flush()
+             os.fsync(fh.fileno())
+ 
++    ident = idwarp_identity()
++    emit({"kind": "identity", "item": ITEM, "mode": mode, "nprocs": nprocs,
++          "producer_md5": got, "solverName": ns["daOptions"].get("solverName"),
++          "U0": ns.get("U0"), "aoa0": ns.get("aoa0"), "T0": ns.get("T0"),
++          "p0": ns.get("p0"), **ident})
++
+     prob = om.Problem()
+     prob.model = Top()
+     prob.setup(mode="rev")
+ 
+-    # ---- endpoint design variables, read from a FILE -----------------------
+-    with open("d4_endpoint_dvs.json") as fh:
+-        dvs = json.load(fh)
+-    for key in ("twist", "shape", "patchV"):
+-        if key not in dvs:
+-            sys.stderr.write("D5_FD REFUSE endpoint dv file missing %s\n" % key)
+-            sys.exit(2)
+-        prob.set_val(key, np.array(dvs[key], dtype=float))
+-    emit({"kind": "endpoint_dvs", "source": dvs.get("_source"),
+-          "n_twist": len(dvs["twist"]), "n_shape": len(dvs["shape"]),
+-          "n_patchV": len(dvs["patchV"])})
++    # ---- the BASELINE design: the producer's own defaults, read back ----------
++    base = {"shape": np.array(prob.get_val("shape"), dtype=float).copy(),
++            "patchV": np.array(prob.get_val("patchV"), dtype=float).copy()}
++    emit({"kind": "baseline_dvs", "n_shape": int(base["shape"].size),
++          "n_patchV": int(base["patchV"].size),
++          "shape": [repr(float(v)) for v in base["shape"]],
++          "patchV": [repr(float(v)) for v in base["patchV"]]})
+ 
+     CD = "scenario1.aero_post.CD"
+     CL = "scenario1.aero_post.CL"
+@@ -148,8 +167,35 @@
+         return cd, cl
+ 
+     cd0, cl0 = primal("baseline")
+-    cd0r, cl0r = primal("baseline_repeat")
+ 
++    if mode == "X":
++        t0 = time.time()
++        totals = prob.compute_totals(of=[CD, CL], wrt=["shape", "patchV"])
++        emit({"kind": "compute_totals", "wall_s": round(time.time() - t0, 3)})
++        jadj = {}
++        for of_name, of_key in ((CD, "CD"), (CL, "CL")):
++            jadj[of_key] = {}
++            for dv in ("shape", "patchV"):
++                arr = np.atleast_1d(np.array(totals[(of_name, dv)]).ravel())
++                jadj[of_key][dv] = [repr(float(v)) for v in arr]
++                emit({"kind": "adjoint", "of": of_key, "dv": dv, "n": int(arr.size),
++                      "values": jadj[of_key][dv]})
++        if rank == 0:
++            out = {"item": ITEM, "mode": "X", "producer_md5": got, "nprocs": nprocs,
++                   "identity": ident, "CD_baseline": repr(cd0), "CL_baseline": repr(cl0),
++                   "baseline_dvs": {"shape": [repr(float(v)) for v in base["shape"]],
++                                    "patchV": [repr(float(v)) for v in base["patchV"]]},
++                   "adjoint": jadj}
++            with open(OUT_X, "w") as fh:
++                json.dump(out, fh, indent=1, sort_keys=True)
++                fh.flush()
++                os.fsync(fh.fileno())
++            sys.stdout.write("D15_X_WRITTEN %s\n" % OUT_X)
++        MPI.COMM_WORLD.Barrier()
++        return
++
++    # ---- mode F: eta, then central differences at the REGISTERED steps ---------
++    cd0r, cl0r = primal("baseline_repeat")
+     eta_raw = abs(cd0 - cd0r)
+     eta_flagged = bool(eta_raw < ETA_FLOOR)
+     eta = ETA_FLOOR if eta_flagged else eta_raw
+@@ -158,108 +204,86 @@
+           "CD_repeat": repr(cd0r), "CL_baseline": repr(cl0),
+           "CL_repeat": repr(cl0r)})
+ 
+-    # ---- analytic (adjoint) gradient at the endpoint ------------------------
+-    t0 = time.time()
+-    totals = prob.compute_totals(of=[CD], wrt=["twist", "shape", "patchV"])
+-    emit({"kind": "compute_totals", "wall_s": round(time.time() - t0, 3)})
+-    jadj = {}
+-    for dv in ("twist", "shape", "patchV"):
+-        arr = np.atleast_1d(np.array(totals[(CD, dv)]).ravel())
+-        jadj[dv] = [float(v) for v in arr]
+-        emit({"kind": "adjoint", "dv": dv, "n": int(arr.size),
+-              "values": [repr(float(v)) for v in arr]})
+-
+-    # ---- mechanical step selection, from |J_adj| and eta and nothing else ---
+-    plan = []
+-    for dv, idx in COMPONENTS:
+-        if idx >= len(jadj[dv]):
+-            plan.append({"dv": dv, "idx": idx, "status": "ABSENT",
+-                         "n_available": len(jadj[dv])})
+-            continue
+-        j = abs(jadj[dv][idx])
+-        rungs = LADDER[dv]
+-        cl_pred = [(s, j * s / eta) for s in rungs]
+-        usable = [s for (s, c) in cl_pred if c >= CLEARANCE_FLOOR]
+-        if not usable:
+-            plan.append({"dv": dv, "idx": idx, "status": "NEAR_ZERO",
+-                         "J_adj": repr(jadj[dv][idx]),
+-                         "clearance_by_rung": [[s, c] for (s, c) in cl_pred],
+-                         "max_clearance": max(c for (_, c) in cl_pred)})
+-            continue
+-        s_lo = min(usable)
+-        hi = [s for s in rungs if s >= RATIO_MIN * s_lo]
+-        if not hi:
+-            plan.append({"dv": dv, "idx": idx, "status": "NO_S_HI",
+-                         "s_lo": s_lo, "J_adj": repr(jadj[dv][idx])})
+-            continue
+-        s_hi = min(hi)
+-        plan.append({"dv": dv, "idx": idx, "status": "PLANNED",
+-                     "s_lo": s_lo, "s_hi": s_hi,
+-                     "J_adj": repr(jadj[dv][idx]),
+-                     "C_lo": j * s_lo / eta, "C_hi": j * s_hi / eta})
+-    emit({"kind": "plan", "plan": plan, "clearance_floor": CLEARANCE_FLOOR,
+-          "ratio_min": RATIO_MIN, "ladder": LADDER})
+-
+-    # ---- central finite differences at the planned steps -------------------
+-    base = {"twist": np.array(dvs["twist"], dtype=float),
+-            "shape": np.array(dvs["shape"], dtype=float),
+-            "patchV": np.array(dvs["patchV"], dtype=float)}
+-
+     def set_perturbed(dv, idx, delta):
+-        for k in ("twist", "shape", "patchV"):
++        for k in ("shape", "patchV"):
+             prob.set_val(k, base[k].copy())
+         v = base[dv].copy()
+         v[idx] += delta
+         prob.set_val(dv, v)
+ 
+     rows = []
+-    for p in plan:
+-        if p["status"] != "PLANNED":
+-            rows.append(dict(p, fd={}))
++    for dv, idx in COMPONENTS:
++        if idx >= base[dv].size:
++            rows.append({"dv": dv, "idx": idx, "status": "ABSENT",
++                         "n_available": int(base[dv].size), "fd": {}})
+             continue
+-        dv, idx = p["dv"], p["idx"]
+         fd = {}
+-        for label in ("s_lo", "s_hi"):
+-            s = p[label]
++        for s in STEPS[dv]:
++            key = repr(s)
+             try:
+                 set_perturbed(dv, idx, +s)
+                 cdp, clp = primal("%s[%d]+%g" % (dv, idx, s))
+                 set_perturbed(dv, idx, -s)
+                 cdm, clm = primal("%s[%d]-%g" % (dv, idx, s))
+-                d = (cdp - cdm) / (2.0 * s)
+-                fd[label] = {"step": s, "d": repr(d), "CD_plus": repr(cdp),
+-                             "CD_minus": repr(cdm), "CL_plus": repr(clp),
+-                             "CL_minus": repr(clm), "ok": True}
++                fd[key] = {"step": s, "dCD": repr((cdp - cdm) / (2.0 * s)),
++                           "dCL": repr((clp - clm) / (2.0 * s)),
++                           "CD_plus": repr(cdp), "CD_minus": repr(cdm),
++                           "CL_plus": repr(clp), "CL_minus": repr(clm), "ok": True}
+             except Exception as exc:                      # noqa: BLE001
+-                fd[label] = {"step": s, "ok": False, "error": repr(exc)[:400]}
+-            emit({"kind": "fd_step", "dv": dv, "idx": idx, "which": label,
+-                  "row": fd[label]})
+-        rows.append(dict(p, fd=fd))
++                fd[key] = {"step": s, "ok": False, "error": repr(exc)[:400]}
++            emit({"kind": "fd_step", "dv": dv, "idx": idx, "step": s, "row": fd[key]})
++        rows.append({"dv": dv, "idx": idx, "status": "MEASURED", "fd": fd})
+     # restore
+-    for k in ("twist", "shape", "patchV"):
++    for k in ("shape", "patchV"):
+         prob.set_val(k, base[k].copy())
+ 
++    # ---- the PLANTED-ZERO CONTROL COMPONENT (rule 3): no solve, written, read back
++    ctrl = {"dv": "CTRL", "idx": 0, "status": "CONTROL", "fd": {
++        repr(CTRL_STEP): {"step": CTRL_STEP, "dCD": repr(0.0), "dCL": repr(0.0),
++                          "CD_plus": repr(cd0), "CD_minus": repr(cd0),
++                          "CL_plus": repr(cl0), "CL_minus": repr(cl0), "ok": True,
++                          "note": "synthetic: identical DVs on both sides -> derivative exactly 0"}},
++        "planted": {"step": CTRL_STEP, "plant": PLANT,
++                    "dCD": repr(PLANT / (2.0 * CTRL_STEP)),
++                    "CD_plus": repr(cd0 + PLANT), "CD_minus": repr(cd0), "ok": True,
++                    "note": "synthetic: CD_plus = CD_baseline + PLANT -> derivative exactly PLANT/(2 s)"}}
++    emit({"kind": "control", "row": ctrl})
++    rows.append(ctrl)
++
+     if rank == 0:
++        # READ BACK FROM DISK what was just emitted; refuse if the plant is invisible
++        seen_zero, seen_plant = None, None
++        with open(jsonl) as fh:
++            for line in fh:
++                rec = json.loads(line)
++                if rec.get("kind") == "control":
++                    r = rec["row"]
++                    seen_zero = float(r["fd"][repr(CTRL_STEP)]["dCD"])
++                    seen_plant = float(r["planted"]["dCD"])
++        want = PLANT / (2.0 * CTRL_STEP)
++        if seen_zero != 0.0 or seen_plant is None or abs(seen_plant - want) > 1e-12 * abs(want):
++            sys.stderr.write("D15_XF REFUSE planted-zero control not seen on read-back: zero=%r plant=%r want=%r\n"
++                             % (seen_zero, seen_plant, want))
++            sys.exit(2)
++        sys.stdout.write("D15_PLANTED_ZERO_CONTROL_SEEN zero=%r plant=%r\n" % (seen_zero, seen_plant))
+         out = {
+-            "producer_md5": got,
++            "item": ITEM, "mode": "F", "producer_md5": got, "nprocs": nprocs,
++            "identity": ident,
+             "components_requested": [[d, i] for (d, i) in COMPONENTS],
+             "n_components_requested": len(COMPONENTS),
++            "steps": STEPS, "ctrl_step": CTRL_STEP, "plant": PLANT,
+             "CD_baseline": repr(cd0), "CL_baseline": repr(cl0),
+             "CD_baseline_repeat": repr(cd0r), "CL_baseline_repeat": repr(cl0r),
+-            "eta_raw": repr(eta_raw), "eta_used": repr(eta),
+-            "eta_floored": eta_flagged,
+-            "clearance_floor": CLEARANCE_FLOOR, "ratio_min": RATIO_MIN,
+-            "plateau_tol_pct": PLATEAU_TOL, "ladder": LADDER,
+-            "adjoint": {k: [repr(v) for v in vs] for k, vs in jadj.items()},
+-            "rows": rows,
+-            "n_rows": len(rows),
++            "eta_raw": repr(eta_raw), "eta_used": repr(eta), "eta_floored": eta_flagged,
++            "baseline_dvs": {"shape": [repr(float(v)) for v in base["shape"]],
++                             "patchV": [repr(float(v)) for v in base["patchV"]]},
++            "rows": rows, "n_rows": len(rows),
+         }
+-        with open(OUT, "w") as fh:
++        with open(OUT_F, "w") as fh:
+             json.dump(out, fh, indent=1, sort_keys=True)
+             fh.flush()
+             os.fsync(fh.fileno())
+-        sys.stdout.write("D5_FD_ENDPOINT_WRITTEN %s n_rows=%d\n"
+-                         % (OUT, len(rows)))
++        sys.stdout.write("D15_F_WRITTEN %s n_rows=%d\n" % (OUT_F, len(rows)))
+     MPI.COMM_WORLD.Barrier()
+ 
+ 
