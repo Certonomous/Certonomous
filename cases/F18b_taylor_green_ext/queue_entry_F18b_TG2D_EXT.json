@@ -1,0 +1,32 @@
+{
+  "team": "cfd",
+  "case_id": "F18b_TG2D_EXT",
+  "prereg_commit": "fcf31542947920de394f27420bfc35ccbcedc98d",
+  "prereg_path": "verification/campaign/F18b_TG2D_EXT_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F18b_taylor_green_ext/run_f18.sh",
+    "--prereg-commit=fcf31542947920de394f27420bfc35ccbcedc98d"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/F18b_taylor_green_ext",
+  "ranks": 1,
+  "cost_core_min_estimate": 889.0,
+  "cost_basis": "derived, not measured on these levels: rate MEASURED on the byte-identical parent case F18 (verification/runs/F18_runs/{coarse,medium,fine}/log.icoFoam, ClockTime 1 / 18 / 246 s for 0.41 / 3.28 / 26.2 M cell-steps = 3.4 / 5.5 / 9.39 us per cell-step; DIC-PCG iterations 75 / 143 / 257 grow with N), applied at 9.39 us to the 256^2 level (the same grid and dt as F18's fine, 246 s) and grown +75 % then +80 % per doubling to 16.4 us at 512^2 (3444 s) and 29.6 us at 1024^2 (49670 s, ~13.8 h serial): 53360 s serial = 889 core-min (1121 core-min at the asymptotic +100 %/doubling); the dispatch's 5 us basis is superseded -- F18 itself overran its 5-us estimate 1.77x; registered CAP 1500 core-min (prereg section 8); dollars at the owner-stated $0.0513/core-h, reported-by-owner: $0.76 estimate, $1.28 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd lab-lane, 2026-08-26, for cfd-supervisor. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 (pre-registration committed before compute) is the supervisor's own and is NOT discharged by this file. HELD under the case directory; the supervisor drops it into verification/queue/cfd/ after check 1/4 -- this lane does not.",
+  "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
+  "lineage": "ladder EXTENSION of F18_TG2D (prereg c4f72b277d74ecce19c6f81d651038ab16c338af, completed 2026-08-26 at 4.42 core-min, graded PASS/PASS with Roache observed orders 1.29 / 0.96 -- pre-asymptotic coarse level); case definition, builder, io module and every gate block byte-identical to F18 (prereg section 1); model integrated on F18's 64^2 + 128^2 grids and extrapolated at p 1.9955 / 1.9957 (prereg section 4)",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F18b_runs -- ABSENT at registration (rule-2 absence condition, prereg section 9); the launcher creates it and REFUSES any pre-existing 0/ or numeric time directory under it.",
+  "cwd_note": "cwd is the CASE directory (the tracked template case/0 is not a direct child). The launcher uses absolute paths and ignores cwd. A queue runner's wrapper writes launcher.queue.out and STATUS.F18b_TG2D_EXT into cwd; both are INFRASTRUCTURE fields under L-342 and untracked.",
+  "levels": "coarse 256^2 x 400 steps / medium 512^2 x 800 / fine 1024^2 x 1600, dt 0.005 / 0.0025 / 0.00125 (Co 0.2), T = 2 s, all SERIAL 1 rank, decomposePar never invoked, decomposition seed none; projected serial 246 / 3444 / 49670 s; wall ~15 h at the estimate, ~25 h at the cap -- the serial fine level is flagged to the supervisor's desk in prereg section 8",
+  "memory_floor_note": "2.0 GB = icoFoam at 1,048,576 cells serial ESTIMATED at 1-2 GB (~1 kB/cell; not measured, F18's fine ran 65k cells) and the grader's model integration 1.18 GB RSS MEASURED; disk ~0.1 GB (fields at endTime only)",
+  "cap_core_min_registered": 1500.0,
+  "cap_behaviour": "checked incrementally after each level in ClockTime x ranks / 60 and PROJECTED before each level from the launcher's own box probe; a crossing HALTS at exit 3, unlaunched levels stay PENDING; the cap is never raised",
+  "registered_prediction": "both triples CONVERGING with Roache observed order rising toward 2 (model 1.996); G-F18-1 E2(T)_fine in [1.982864e-07, 1.784578e-06]; G-F18-2 box-mean KE(T) in [0.112331395429, 0.112333086630]; NO plateau gate (transient value at t = T), recorded ABSENT; F18's measured error trend extrapolated lands inside both bands (prereg section 5)",
+  "grade_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/cases/F18b_taylor_green_ext/grade_f18.py",
+    "--prereg-commit=fcf31542947920de394f27420bfc35ccbcedc98d"
+  ],
+  "verdict_state": "PENDING"
+}
