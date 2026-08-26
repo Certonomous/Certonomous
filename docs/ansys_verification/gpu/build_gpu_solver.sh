@@ -26,6 +26,18 @@
 
 set -o pipefail   # pipefail is safe and wanted; `set -e`/`set -u` deliberately NOT set.
 
+# PIN 2026-08-26T17:2xZ (supervisor, MEASURED on the first run, build_rc=1 at 17:15:07Z):
+# ONE Open MPI for the whole toolchain -- Ubuntu's 5.0.10 (/usr/bin/mpicc; the openfoam2606
+# package links WM_MPLIB=SYSTEMOPENMPI against it). The DLAMI's /etc/profile.d/dlami.sh exports
+# LD_LIBRARY_PATH=/opt/amazon/openmpi/lib:... and PATH=/opt/amazon/openmpi/bin:..., so a binary
+# compiled against Ubuntu's headers resolved libmpi.so.40 (SAME soname) to AWS Open MPI 4.1.7 at
+# run time: `ldd libpetsc.so` and `ldd simpleFoam` both showed /opt/amazon/openmpi/lib, and
+# PETSc `make check` died in MPI_Init ("opal_init failed"). With /usr/lib/x86_64-linux-gnu
+# first, ldd resolves libmpi.so.40 -> /usr/lib/x86_64-linux-gnu (libopen-pal.so.80, libpmix.so.2).
+# Every consumer (smoke test, case launchers) must source $BUILD_ROOT/env.sh (written at STEP 7).
+export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export PATH="/usr/bin:$PATH"
+
 # ----------------------------------------------------------------------------- paths
 BUILD_ROOT="${BUILD_ROOT:-$HOME/gpu_build}"
 LOG="$BUILD_ROOT/build.log"
@@ -212,8 +224,24 @@ MANIFEST="$BUILD_ROOT/TOOLCHAIN_MANIFEST.txt"
   echo "p4f_tag:   $PETSC4FOAM_TAG"
   echo "p4f_sha:   $(git -C "$BUILD_ROOT/petsc4Foam" rev-parse HEAD 2>/dev/null)"
   echo "libpetscFoam.so sha256: $(sha256sum "$FOAM_USER_LIBBIN/libpetscFoam.so" 2>/dev/null | awk '{print $1}')"
+  echo "mpicc:     $(command -v mpicc) -- $(mpicc --showme:version 2>/dev/null | head -1)"
+  echo "libmpi (petsc):      $(ldd "$PETSC_ARCH_PATH/lib/libpetsc.so" 2>/dev/null | awk '/libmpi\.so/{print $3}')"
+  echo "libmpi (petscFoam):  $(ldd "$FOAM_USER_LIBBIN/libpetscFoam.so" 2>/dev/null | awk '/libmpi\.so/{print $3}')"
+  echo "libmpi (simpleFoam): $(ldd "$(command -v simpleFoam)" 2>/dev/null | awk '/libmpi\.so/{print $3}')"
+  echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
 } > "$MANIFEST" 2>>"$LOG" || { log "ABORT: manifest write failed"; exit 1; }
-log "STEP 7: manifest at $MANIFEST"
+# The three libmpi lines above MUST agree (one MPI for the whole toolchain) -- refuse otherwise.
+NMPI="$(grep -E '^libmpi ' "$MANIFEST" | awk '{print $NF}' | sort -u | wc -l)"
+test "$NMPI" = "1" || { log "ABORT: mixed MPI runtimes in manifest ($NMPI distinct libmpi paths); see the 2026-08-26 pin"; exit 1; }
+# Environment every consumer sources (smoke test, case launchers): the pin, OpenFOAM, PETSc.
+{
+  echo "# written by build_gpu_solver.sh STEP 7 on $(date -u +%Y-%m-%dT%H:%M:%SZ); source, never execute"
+  echo "export LD_LIBRARY_PATH=\"/usr/lib/x86_64-linux-gnu\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}\""
+  echo "export PATH=\"/usr/bin:\$PATH\""
+  echo "export OF_BASHRC=\"$OF_BASHRC\""
+  echo "export PETSC_DIR=\"$PETSC_DIR\" PETSC_ARCH=\"$PETSC_ARCH\" PETSC_ARCH_PATH=\"$PETSC_ARCH_PATH\""
+} > "$BUILD_ROOT/env.sh" || { log "ABORT: cannot write $BUILD_ROOT/env.sh"; exit 1; }
+log "STEP 7: manifest at $MANIFEST; env at $BUILD_ROOT/env.sh"
 cat "$MANIFEST" | tee -a "$LOG"
 
 # ============================================================ STEP 8: smoke test
