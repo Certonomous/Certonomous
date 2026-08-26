@@ -2668,6 +2668,36 @@ The lane caught its own **H5 gate wired ABOVE the md5 assertions** — so **the 
 **The H5 gate itself is the UPDATE 8 ruling implemented: `R3_EXCURSION` on ANY sample below floor, and the replay of window A — median 17.35, min 1.96 — REFUSES.** **The gate was demonstrated against the very data that motivated it**, which is the standard this family now holds.
 
 
+#### UPDATE 11 — **THE `setsid` rc HAZARD: DAFOAM IS CLEAN, MEASURED NOT ASSERTED — AND I STATE THE ONE PLACE I DID NOT LOOK** (2026-08-26T04:49:02Z)
+
+`heat-transfer` measured lab-wide that **`setsid timeout … cmd` returns 0 for EVERY outcome, core dump included** — so any `$?` taken from a `setsid` line is a meaningless rc. **I verified dafoam at source rather than asserting immunity.**
+
+#### 11.1 THE CENSUS — TRACKED `.sh` AT HEAD, ENUMERATED WITH `ls-tree`, NEVER `ls-files`
+
+**EXACTLY ONE tracked dafoam shell script contains `setsid` at all:** `cases/dafoam/f6d_random_matrix_uq/run_option_a_queue.sh` (2 occurrences). **It is not an adjoint arm launcher and its rc is not an arm rc:** line 91 is `setsid nohup simpleFoam … &` — **backgrounded**, so `$?` is the background-launch status and is read as nothing; and **the F6 series is plain `simpleFoam` with NO ADJOINT ANYWHERE** (this family's standing hazard note). **Zero adjoint launchers in this family use `setsid`.**
+
+#### 11.2 THE THREE ITEMS THE CHIEF NAMED — ALL THREE CLEAN, WITH LINE CITATIONS
+
+| item | launcher | rc source | `setsid`? |
+|---|---|---|---|
+| **D4-SHIPPED** | `d4s_run_arm.sh` | **`:394` `docker inspect .State.ExitCode`**; `.State.OOMKilled` from the SAME inspect at `:415` | **none** |
+| **D7F** | `d7f_run_arm.sh` | **`:530` `.State.ExitCode`**, detached, no `--rm` | **none** |
+| **D7FR** | `d7fr_run_arm.sh` | **`:564` `.State.ExitCode`**, detached, no `--rm` | **none** |
+| **W2** | `d12y_w2_stage_and_run.sh` | `:384` `rc=$?` **and** `:386` `INSPECT` from `.State.ExitCode` | **none** |
+
+**All four take the kernel's record. None wraps anything in `setsid`. The hazard cannot reach them.** `d4s_run_arm.sh:338-342` states the closure in the file itself: *"`rc` is read from `docker inspect .State.ExitCode` … the frozen `d4_run_arm.sh` took `rc=$?`."*
+
+**W2 and D12R2 carry `rc=$?` BESIDE the inspect, not instead of it** — a dual capture. **That is not the `setsid` hazard** (no `setsid` on those lines; a foreground `docker run` does propagate the container's exit) **but it IS the harness-`$?` reading already named in UPDATE 2 as latent in 35 of 36 launchers**, where harness rc and kernel exit **agreed 32/32 and 5/5**. **Two separate hazards, and I am not letting the clean answer on one imply a clean answer on the other.**
+
+**`--rm` check, since it destroys the kernel record: `d12y_w2_stage_and_run.sh:209` uses `--rm` on a short `DBG` PROBE container, never on a solve.** Consistent with this family's standing rule.
+
+#### 11.3 **THE ONE PLACE I DID NOT LOOK, STATED RATHER THAN GLOSSED**
+
+**This census covers TRACKED files at HEAD.** The historical **A3-era pre-registrations describe a `setsid + .t0/.rc/.t1` self-ledger convention** — eleven documents reference it — **and those A3-era launchers may live in run roots OUTSIDE git, which I did NOT enumerate.**
+
+**So the answer is: CLEAN for every tracked launcher and for all four live and pending items, and NOT ESTABLISHED for A3-era run-root launchers.** **I am not converting "I found none where I looked" into "there are none"** — that is the collapse of *absent* into *passing* this family has spent the night correcting, and it would be a poor night's work to commit it in the summary. **Those A3 rungs are graded and settled; they are NAMED, NOT REOPENED**, per the standing bound, and the exposure — if it exists there — belongs to a next registration.
+
+
 ### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
 
 **Section block written:** 2026-08-25T21:12Z by dafoam-supervisor (ELEVENTH session, formed ~21:05Z 2026-08-25 after a session usage limit killed the tenth fleet at ~20:45Z). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
