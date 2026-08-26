@@ -2331,6 +2331,12 @@ Sanaa bought more usage; the fleet continues. The D4-SHIPPED lane's last words a
 
 **Idle compute, counted:** cores 5,6,7,9 have been idle since the chain's aggregate refusal at 16:37Z and F-P's completion freed the memory at ~16:44Z; the wait-and-retry re-fire ordered in UPDATE F never happened because the lane died. **The re-spawned lane's first act is the fire, before any writing.** Then Addendum 2b (arm-kind-aware completion), then the full grade on F3's landing with the two-row G5 table and the C-117 quote-and-strike.
 
+#### UPDATE J — **SANAA'S QUEUE-FIRST ORDER (`7def3c6b`) ADOPTED; THE HONEST NUMBER RIGHT NOW IS ZERO** (2026-08-26T16:46:23Z)
+
+Her words at `7def3c6b`: *"the launching and queue launching (gpu and cpu) are priority. I need this ran and launched ASAP from all teams that way when our credits run out i know that cases will continue running on aws."* **Deliverable, stated as a number and re-derived from disk at 2026-08-26T16:46:23Z: validator-accepted compute in `verification/queue/dafoam/` DROP PATH that runs with no agent alive = 0 entries, 0.0 core-hours.** `held/` = 3 entries (D12R phase 3/4, W2R phase 2 — preconditions the runner does not yet evaluate), `launched/` = 3 (already fired: D4-SHIPPED ACC→F3, D7FR F-S, F-P). **That zero is the deficit this family owes tonight and it is named as one.**
+
+**Reprioritised, effective now:** the W2R lane freezes **D5 → D6 → D14** on the `8b91be2b` launcher family and files each as a drop-path entry (frozen sha, ranks, costed core-minutes, `precondition_artifact`, `bc0e687e` cited) **ahead of the W2R phase-1 grade**, which follows on its landing; it also checks the runner's current schema at HEAD for `precondition_artifact` support and moves the held entries to the drop path if and only if the runner evaluates it. Target for the next report: **≥ 3 entries, ≈ 4,100 core-minutes ≈ 68 core-hours** (D5 1,378.3 + D6 1,694.7 + D14 to be costed) — a target, not a claim, until the validator has accepted them.
+
 #### 4. NEXT / QUEUE (so it never empties)
 
 After the first lane frees: **D5, D6 short-form pre-registrations** (same case, mesh and launcher as D4; only parametrisation or weights change; G-ROOT from birth, explicit cpuset, windowed H5, `rc` from inspect, no `--rm`, no bare `assert`); **D14** (pyHyp regeneration; `GENERATOR_FINDING_pyhyp_aspect_ratio.md` is a named contaminant whose check runs first); **D12R phase 3/4** from the validator-accepted entries once W2R is graded. Queue entries for each into `verification/queue/dafoam/` with frozen sha and cost.
