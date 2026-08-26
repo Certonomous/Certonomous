@@ -1443,3 +1443,11 @@ The critical-path wall for `F` becomes 38.5 h under Model B and 105.6 h under Mo
 **Document version 1.2 -> 1.3. Lines whose number changed above this section: 0.** Condition as AMENDMENT 1 (no run STATUS, no DONE, zero core-minutes; the false runner file excluded). Drafted by lane a442775b on the supervisor's triage; **the supervisor's read of the diff, required before it is believed, could not be obtained in-session (the lane's messages to the supervisor did not deliver), so the frozen `analyse_t5.py` (blob `17703b78`) is UNCHANGED.**
 
 **Proposed change**, held as `verification/runs/T-family/T5_runs/analyse_t5.A3_PROPOSED.py` (blob `9c2c1d44`): `YPLUS_WALLS` drops `cube_side_s`, which names a patch that does not exist on the registered half domain (§5.2, symmetry at `z/H = 0`). The set becomes the actual wall-patch set read from the built case's `constant/air/polyMesh/boundary` at `b98f3930`: `cube_front cube_top cube_rear cube_side_n floor roof`. Diff, changed lines only: line 48 `"cube_side_n", "cube_side_s", "floor", "roof")` -> `"cube_side_n", "floor", "roof")`, plus a six-line comment. No threshold, band or logic moves; selftest 16 arms, 0 FAILED under `python3` and `python3 -O`. **Until adopted, §16.3.1's "a wall not reported -> NOT A RESULT" fires on every level by construction.**
+
+---
+
+## AMENDMENT 4 — 2026-08-26 (PRE-FIRST-COMPUTE): the configuration contradiction, disclosed
+
+**Document version 1.3 -> 1.4. Lines whose number changed above this section: 0.** Condition as AMENDMENT 1. Ruled by the heat-transfer supervisor `[lab-attributed]`.
+
+`docs/campaigns/T-family/T5_CONFIGURATION_RULING.md` (2026-08-25) ruled T5 onto the Meinders **matrix** (`S_x/H = S_z/H = 4`, one periodic cube, `Re_H = 3854`, Figs 8.23/8.24/8.26). This file, frozen 2026-08-26 at `0fcbb92e`, registers the **single cube** at `Re_H = 4440` (Figs 5.45/5.37/5.39, channel with an X_2d precursor). The two documents contradict each other and neither is rewritten. **Ruling: the frozen single-cube registration stands for T5; the matrix becomes a separate rung, `T5m`, with its own pre-registration when written.** The ruling's binding constraints that survive here are the ones this file already carries independently: `r = 1.6` does not move, no dimensional local-`h` gate near an edge, two error channels never summed.
