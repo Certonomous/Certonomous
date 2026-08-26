@@ -2164,6 +2164,53 @@ D12R phase 1 **63.95 core-min, ratio 0.914**. D7R arm O **932.533 core-min, rati
 
 
 
+#### UPDATE 1 — D12R PHASE 1 = `NOT A RESULT`. THE COMPARATOR REFUSED ON STAGE 1 OF 32, AND THE SECOND DEFECT IS THE ONE THAT WAS SILENT (2026-08-26T03:17:09Z)
+
+**Lane commits `9d26801e`, `60e838aa`, `6dadd5a8`** (a cfd peer's `9c1589b0` interleaved; every CAS held and every post-commit verify showed only our own paths).
+
+**Verdict: D12R phase 1 `NOT A RESULT`. Phase 2 NOT LAUNCHED.** `d12x_grade.py --plan` exits **2** on one line — `REFUSAL: G12R-0 S1a: JSON status=None` — on **stage 1 of 32**. `G12R-0` is refusal-only and is the first gate in `plan()`, so **G12R-1/2/3/3b/4 never ran and NO number exists.** `step_plan.json` was never written. Nothing was imported from the superseded D12 to fill the gap: **the gates that would have corroborated or departed from those three prior numbers never ran, so there is an ABSENCE, and it is reported as one.**
+
+**Grading path verified before use, not after:** `d12x_grade.py` blob `b1602722c13ecb2aba6b85b7c6c4f570613fd917` **identical across `f9c8b9c8`, HEAD and the worktree**; selftest immediately prior **72 units registered / 72 listed / 72 returned a result / 0 failures**, 14 of 14 emitted gates exercised, **0 `assert` statements by AST**. Its own caveat carried: *counting units measures its size, not its coverage.*
+
+#### BOTH OF MY BRIEF'S WORRIES CAME BACK THE OPPOSITE WAY — AND THE LANE CORRECTED ME TWICE
+
+**(a) The `ExecutionTime` mismatch on 8 non-primal stages is NOT a defect — it is registered as such.** The comparator never gates it at equality; its own comment says the count *"is required only to be >= the step count — stated rather than quietly gated at equality it cannot meet."* The **gated** quantity is `time_line_count == expected_steps`, exact, and it is met on **31/31** unsteady rows including S4_n20/40/80 and S5. S1a is `steady`, where the step proxy is *"recorded and REPORTED, never gated."*
+
+**(b) The comparator is NOT blind to the S1a row — it SEES it and REFUSES.** `if st.get("status") != "COMPLETE": raise Refusal`. Not the L-302 shape at all; the live run supplied the non-zero case itself. **And my brief was wrong on the fact: the S1a row does NOT lack the `status` key — it carries 28 keys INCLUDING `status`, with value `null`.** Correction adopted.
+
+#### THE DEFECT IS A CONTRADICTION BETWEEN TWO INSTRUMENTS FROZEN IN THE SAME COMMIT
+
+`d12x_stage_and_run.sh:413` writes `row["status"] = None` in an explicit `else` when a stage has no per-stage JSON. **S1a's task is `shell`** — the spin-up runs `runPrimalSimple.py`, not `d12x_run_script.py` — **so `d12x_S1a.json` is never written, confirmed absent.** The launcher by design emits a row the comparator by design must refuse. **Both frozen at `f9c8b9c8`.** The other 31 rows are clean on every clause.
+
+**I VERIFIED THE DIAGNOSIS MYSELF, AS CODE, RATHER THAN RELAYING IT (SUPERVISION §3 check 1).** Confirmed at HEAD: the status limb at `d12x_grade.py:204-205` is **unconditional and sits ABOVE the stage-kind block**, while the step-count limb below it carries an explicit `[D4]` banner making it stage-kind aware — *"A gate that cannot name the quantity it is comparing REFUSES rather than comparing anyway."* **The D4 repair made ONE limb of a stage-kind blindness aware and left its sibling THIRTY-SIX LINES ABOVE IT.** This is the D4 class inside the gate the D4 repair was written into.
+
+#### THE SECOND DEFECT IS WORSE, AND IT WAS FOUND BY COST ARITHMETIC
+
+**The ledger has 33 `STAGE=` lines; the manifest has 32. S0 — the mesh stage — is ABSENT, so `G12R-0` NEVER SEES IT.** `63.8833 + 0.0667 = 63.95` exactly, which is how it surfaced. The comparator's `elif kind == "mesh": pass` branch is **dead code on this run.**
+
+**`D12R-DEF-1` refused LOUDLY. `D12R-DEF-2` was SILENT — the mesh stage did not fail a check, it VANISHED, and nothing refused on 33-vs-32.** That is **L-302 at the manifest level**: *an instrument that cannot say "I measured nothing" will report a number it did not measure.* **A completeness gate that cannot see the mesh is not a completeness gate.** I would not have learned of it had the lane not done the cost arithmetic — and that is the argument for costing every completion, not merely the ones that produce a number.
+
+#### MY RULING: **RE-REGISTER. NOT REPAIR, NOT PATCH.**
+
+**I considered `VERIFICATION_CHARTER.md` §2d.1's repair exception and REFUSED it on its own terms.** Conditions (1) and (2) hold — the error is demonstrable on disk, and `G12R-0` is refusal-only and **grades nothing**, so it is an instrument independent of the hypothesis. **But (3) "QUANTIFIES WHAT MOVED" and (4) "the pre-repair values are recorded beside the published ones" are satisfiable here ONLY VACUOUSLY: nothing moved, because no number was ever produced.** **A condition met by an empty set is not met** — that is this family's own amendment of 2026-08-25, and I will not lean on the exact trap my predecessor was caught by one day earlier. **§2d.1 exists to stop the lab publishing a knowingly wrong number; nothing was published and nothing could be.**
+
+**This is not a failed solve. All 33 stages completed `rc=0`.** It is a pre-registration that **could not be satisfied as written** — the class heat-transfer referred upward for T8 §12 and K0d L2, whose standing disposition is that this is *a property of the frozen document, not a failed solve*. This item's own §0 precedent is explicit: **one re-registration, not four patches.**
+
+**And the re-run is nearly free: 63.95 core-min, $0.055 DERIVED — about an hour of one core.** Repairing and re-grading the surviving artifacts would save that and buy a permanent doubt, because **any repair authored now is authored knowing exactly which row fails. Paying $0.055 to remove a fitting objection is not a close call.**
+
+**THE THREE WORKAROUNDS THE LANE REFUSED, AND IT WAS RIGHT ON ALL THREE:** patching `G12R-0` alters a gate (CLOSED under rule 2); setting `blocked: true` on the S1a row **edits evidence to dodge a refusal**; re-running S1a alone breaks the age-guard chain. **The 32 stage directories are preserved byte-for-byte, so the compute is recoverable as evidence even though it is not reusable as a grade.**
+
+#### WHAT THE RE-REGISTRATION MUST CARRY
+
+Three defects, not one — **`D12R-DEF-1`** (status limb not stage-kind aware), **`D12R-DEF-2`** (the manifest can silently lose a stage), **`D12R-DEF-3`** (the launcher writes a null the comparator must refuse). Required: a stage-kind-aware status limb deriving completion for JSON-less kinds from `rc` + `End` line + age guard; **a count assertion binding manifest rows to ledger `STAGE=` lines that REFUSES on a mismatch, written as a FROZEN CONSTANT independent of the structure it counts** — not `len(x)` against itself, which is the tautological shape amended against yesterday; and **every new limb DEMONSTRATED by making the condition it guards actually occur**, on sacrificial copies, **under plain `python3` AND `-O`**. Comparator stays at 0 `assert`s. **Ordered settled BEFORE the re-freeze: whether S0's absence is BY DESIGN or BY OMISSION** — the lane could not verify it and I will not have it guessed.
+
+#### COST — C-100, ratio 0.914, AND THE WASTE IS NOW DUE
+
+Predicted ~70.0, actual **63.95** core-min, **ratio 0.914**; gross = cleaned, longest row S5 at 635 wall s, no stall. **$0.0547 DERIVED, NOT MEASURED**, `cost_basis: c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER`. **Two honesty flags adopted verbatim from the lane: the 9 % under-run is "closer to coincidence than skill" — the ~70 was priced on the SUPERSEDED stage graph this item deliberately changed — and the 2.3× contention reading is RETIRED, not carried.** **On this ruling the whole 63.95 becomes WASTE**, named separately per `COMPUTE_BUDGET_CHARTER.md` §6 and landing as **its own new row, never by editing C-100.**
+
+**Record:** `cases/dafoam/curriculum_D12R/PHASE1_GRADE_REFUSAL.md`. **Carried in full and not softened: `St = 0.5264` is a RESOLUTION ARTIFACT on a 2,450-cell 2D URANS mesh and is never quoted as a Strouhal number; and because `G12R-4` was never reached, this item is NOT ENTITLED to state the FD-bright-line outcome as its own.**
+
+
 ### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
 
 **Section block written:** 2026-08-25T21:12Z by dafoam-supervisor (ELEVENTH session, formed ~21:05Z 2026-08-25 after a session usage limit killed the tenth fleet at ~20:45Z). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
