@@ -1,0 +1,60 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+
+// rhoCentralFoam -- density-based central-upwind (Kurganov-Tadmor) with vanLeer
+// reconstruction. This is this box's PROVEN compressible shock-capturing scheme set
+// (F3 supersonic suite, VMFL051, VMFL045 rows #5/#7), reused here as SETUP KNOWLEDGE
+// ONLY: no gate, band or reference value of those cases is reused and no file of
+// theirs is touched (PREREGISTRATION.md, "THE SUPERVISOR'S LADDER RULING").
+//
+// Expected order p_f ~ 1 (prereg line 10): the embedded transonic shock is a genuine
+// discontinuity, and a conservative shock-capturing scheme carries O(h) shock-POSITION
+// error which pollutes the integrated forces at first order.
+
+fluxScheme          Kurganov;
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+    div(tauMC)      Gauss linear;
+    div(phi,k)      Gauss limitedLinear 1;
+    div(phi,omega)  Gauss limitedLinear 1;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default          linear;
+    reconstruct(rho) vanLeer;
+    reconstruct(U)   vanLeerV;
+    reconstruct(T)   vanLeer;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+wallDist
+{
+    method          meshWave;
+}

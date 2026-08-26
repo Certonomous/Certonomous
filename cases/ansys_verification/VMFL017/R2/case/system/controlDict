@@ -1,0 +1,61 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+
+// VMFL017-R2. TRANSIENT explicit rhoCentralFoam. endTime is a PHYSICAL SETTLING TIME
+// in seconds, NOT an iteration count (PREREGISTRATION.md line 8/12). The value 0.05 s
+// is the value FROZEN IN THE COMPARATOR grade_vmfl017_r2.py (ENDTIME_PHYS = 0.05) and
+// is NOT alterable here; the comparator REFUSES a level whose last written time is not
+// within 1e-4 s of it. endTime is never silently reduced to fit a cap (prereg line 12).
+
+application     rhoCentralFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         0.05;
+
+deltaT          1e-9;
+adjustTimeStep  yes;
+maxCo           0.2;
+maxDeltaT       1e-5;
+
+// adjustableRunTime makes the solver land EXACTLY on the write times, so the last
+// written time is 0.05 exactly and the comparator's endTime check is met on an
+// adaptive-step solver.
+writeControl    adjustableRunTime;
+writeInterval   0.05;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  10;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    forceCoeffs1
+    {
+        type            forceCoeffs;
+        libs            (forces);
+        // ~500 samples over the run -> >= 20 in the comparator's final 20% window
+        // (grade_vmfl017_r2.py PLATEAU_MIN_SAMPLES = 20, WINDOW_FRAC = 0.20).
+        executeControl  runTime;
+        executeInterval 1e-4;
+        writeControl    runTime;
+        writeInterval   1e-4;
+        patches         (aerofoil);
+        rho             rho;
+        rhoInf          0.50823;
+        magUInf         253.4664;
+        lRef            1.0;
+        Aref            1.0;
+        CofR            (0.25 0 0);
+        dragDir         (0.9988146480 0.0486754445 0);
+        liftDir         (-0.0486754445 0.9988146480 0);
+        pitchAxis       (0 0 1);
+    }
+}
