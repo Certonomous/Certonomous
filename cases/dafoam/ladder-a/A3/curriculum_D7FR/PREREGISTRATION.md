@@ -670,3 +670,31 @@ Diff against the frozen blob `35f62221aa17` (`git diff --no-index`): **333 inser
 ### A2.5 The struck row
 
 **§14's `d7fr_grade.py` row is STRUCK, not rewritten.** At the freeze its md5 was `cda7c0492663a3926f2a023476ce9b83`; **at this addendum the repository copy is md5 `c451af9f2d2c496a1dd9f3231213884b`, blob `4df305e460e218bbb30485874bba3b741d1b0c68`**, and that is the grading path for `F-S` and `F-P`. The run-root copy remains at the frozen md5 for the launcher's :254 assertion and is NOT the grading instrument. Every other §14 row is unchanged.
+
+---
+
+## ADDENDUM 3 — 2026-08-26T16:40:09Z. **POST-COMPUTE.** THE AGE GUARD STOPS TESTING A STAGED INPUT AS AN OUTPUT, AND `G13` READS THE ADJOINT THIS ITEM ACTUALLY RUNS
+
+**Version 1.3. ALTERS NO BAND, THRESHOLD, CAP OR LABEL. Lines whose number changed above this section: 0.** Approved narrowly by dafoam-supervisor, ruling [lab-attributed] 2026-08-26, under Sanaa's rule `d4d0c29d`/L-342 **and** `VERIFICATION_CHARTER.md` §2d.1, whose four conditions are met **non-vacuously** here: (1) demonstrable on disk — `d7fr_grade_FS_interim.json` shows G1 failing on exactly one artefact, `X/OptView.hst`, `mtime 1787711453 < datum 1787719601`, and G13 `arm_absent_from_ledger` for an arm `O` this item never registered; (2) the independent instrument is **the launcher's own H4 record** for the arm — `D7FR_H4_PASS arm=X endpoint=D7R/O OptView.hst=ed90aa4f… opt_IPOPT.txt=175969fb…` in `X_attempt.log` (and the same line, same md5s, in `ACC_`/`F-S_`/`F-P_chain_launcher.out`); (3) what moves is the item verdict only — every gate number is unchanged; (4) **the pre-repair verdict is recorded beside the post-repair one**: pre-repair `NOT A RESULT` (`because = [G1 completion/age guard, G13 adjoint health (band F)]`, `d7fr_grade_FS_interim.json`, graded under Addendum 2's blob `4df305e4…`), post-repair verdict in `RESULTS_FS.md`/`RESULTS_FP.md` under this addendum's blob.
+
+### A3.1 A correction to the ruling's premise, stated before it is relied on
+
+The ruling said the staged files are *"recorded in H4's own ledger line."* **H4 writes no ledger line.** `ledger.txt` carries no `H4` token; the record is the `D7FR_H4_PASS …` line the launcher prints to its own stdout (`d7fr_run_arm.sh:361`), captured per arm in `<ARM>_attempt.log` or `<ARM>_chain_launcher.out`. The grader therefore reads the exemption list from **that** file, for **that** arm only (`_h4_staged_inputs`), and it is still a frozen record written by the frozen launcher before compute — the ruling's bound holds, at a different path.
+
+### A3.2 (a) G1 — the exemption, bounded to named files and verified by md5
+
+The age guard's artefact list is unchanged (`opt_IPOPT.txt`, `OptView.hst`, `d7_major_history.json`, `d7_endpoint_dvs.json`). For each, if the arm's own H4 line names it **with an md5**, the grader computes the file's md5: **match → `STAGED_INPUT_EXEMPT`**, recorded with the H4 source path and listed in the verdict line as a limitation; **mismatch → REFUSE** (`staged_input_md5_mismatch`). Unnamed files, and every produced artefact, are age-checked exactly as before; `_n_artifacts_checked` counts only age-checked artefacts and the L-302 zero-trip refusal stands. An H4 line for another arm exempts nothing.
+
+**THIS IS A RELAXATION ADOPTED POST-COMPUTE**, and it is said plainly: last night the supervisor refused to relax D7F's `G1` after compute (the D7F-DEF-1 re-registration instead). What differs now: **Sanaa's universal rule intervened** (`d4d0c29d`, 16:15Z today) and classes a provenance check tripping on a deliberately staged input as a bookkeeping failure; **§2d.1's conditions 3 and 4 are non-vacuous** here (numbers unchanged; both verdicts recorded); and **the scope is bounded by a frozen record** — two files, by name and md5, written before compute by the frozen launcher. The relaxation cannot reach a produced artefact, cannot be widened by editing a launcher output (a moved md5 refuses), and cannot turn a `GATE FAIL` into a `PASS`.
+
+### A3.3 (b) G13 — where this item's adjoint gradient actually comes from
+
+**In-item.** Each FD arm's `compute_totals` runs one adjoint and prints one `PetscConvergedReason` (measured: `F-S_20260826T160553Z_80216.log` — 1 line, non-negative; `ACC`/`X` — 0, they run no adjoint). `g13_in_item` reads band F from the FD arms present in the graded set (`F-S`, `F-P`), passes only if every present arm passes, and returns `NOT_MEASURED` (pass False, hard) when no FD arm is graded. Nothing is staged from D7R for this gate, so the ruling's second branch (cite D7R's measured G13) does not arise. `_map_verdict_core` is byte-unchanged; `G13` remains in its hard list.
+
+### A3.4 Driven, plain `python3` and `-O`
+
+`G1_A3_old_staged_file_UNNAMED_by_H4_fails_age_guard`; `G1_A3_staged_files_NAMED_by_H4_with_matching_md5_are_EXEMPT` (`_n_artifacts_checked` 2); `G1_A3_exemption_does_not_reach_PRODUCED_artefacts`; `G1_A3_named_staged_file_with_MOVED_md5_REFUSES`; `G1_A3_H4_line_for_ANOTHER_arm_exempts_nothing`; `G13_A3_in_item_reads_the_FD_arm_and_passes`; `G13_A3_no_FD_arm_is_NOT_MEASURED_not_health`; `G13_A3_a_MINUS9_in_an_FD_arm_fails_band_F`. **110 units, 110 passed, `UNEXERCISED=0`**, identical under `-O`; `ast.Assert` 0. Diff against Addendum 2's blob: 157 insertions, 1 deletion; hunks only in the new H4 helper, `g1_completion` (age loop), the new `g13_in_item`, `map_verdict` (limitation naming), one line in `grade()`, `selftest`.
+
+### A3.5 The struck row
+
+**Addendum 2's grader row is STRUCK, not rewritten:** `c451af9f2d2c496a1dd9f3231213884b` / blob `4df305e460e218bbb30485874bba3b741d1b0c68` → **md5 `b96f550daf1ac193364ac5ea1b42d279`, blob `265b9680233ae89efb537f092329c1520d2df23d`**, the grading path for the item verdict. The run-root copy stays at the frozen md5 for the launcher's `:254` assertion. Every other §14 row is unchanged.

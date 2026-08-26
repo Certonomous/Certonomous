@@ -508,6 +508,42 @@ KIND_ARTIFACTS = {
 }
 
 
+# ==================== ADDENDUM 3 -- STAGED INPUTS ARE NOT OUTPUTS =============
+# dafoam-supervisor ruling [lab-attributed] 2026-08-26, under d4d0c29d / L-342
+# and VERIFICATION_CHARTER sec.2d.1 (all four conditions met non-vacuously, see
+# PREREGISTRATION.md ADDENDUM 3).  The D7-port age guard tested a STAGED
+# REFERENCE INPUT (D7R arm O's OptView.hst / opt_IPOPT.txt, copied with its
+# mtime by the launcher's H4, d7fr_run_arm.sh:351-361) as if it were an output.
+# The exemption list is READ FROM THE FROZEN STAGE'S OWN RECORD -- the
+# `D7FR_H4_PASS arm=<arm> ... <file>=<md5>` line the launcher printed for THIS
+# arm -- and each named file is VERIFIED BY md5 against that record.  Never a
+# wildcard; a named file whose md5 moved REFUSES.  Every produced artefact is
+# still age-checked.
+H4_LINE = re.compile(r"^D7FR_H4_PASS\s+arm=(\S+)\s+(.*)$", re.M)
+
+
+def _h4_staged_inputs(base, work):
+    """-> ({filename: md5}, source_path) from this arm's own H4 record, or
+    ({}, None) when the arm printed no H4 line (then nothing is exempt)."""
+    arm = os.path.basename(os.path.normpath(work))
+    for cand in ("%s_attempt.log" % arm, "%s_chain_launcher.out" % arm):
+        p = os.path.join(base, cand)
+        if not os.path.isfile(p):
+            continue
+        for m in H4_LINE.finditer(open(p, errors="replace").read()):
+            if m.group(1) != arm:
+                continue
+            staged = {}
+            for tok in m.group(2).split():
+                if "=" in tok:
+                    k, v = tok.split("=", 1)
+                    if "." in k and re.fullmatch(r"[0-9a-f]{32}", v):
+                        staged[k] = v
+            if staged:
+                return staged, p
+    return {}, None
+
+
 def g1_completion(base, work, ledger, arms_expected, launcher=None,
                   inspector=None, containers=None):
     """rc == 0, the producer's own output FILE terminal, and THE AGE GUARD --
@@ -610,6 +646,9 @@ def g1_completion(base, work, ledger, arms_expected, launcher=None,
                               "fresh one"})
     datum = int(open(datum_path).read().strip())
     n_checked = 0
+    staged, h4_src = _h4_staged_inputs(base, work)
+    out["age_guard"]["_h4_record"] = h4_src
+    out["age_guard"]["_staged_inputs_exempt"] = []
     for name in ("opt_IPOPT.txt", "OptView.hst", "d7_major_history.json",
                  "d7_endpoint_dvs.json"):
         p = os.path.join(work, name)
@@ -619,6 +658,20 @@ def g1_completion(base, work, ledger, arms_expected, launcher=None,
             continue
         mt = int(os.stat(p).st_mtime)
         fresh = mt > datum
+        if name in staged:
+            # ADDENDUM 3: a STAGED INPUT must match the H4 record's md5; it is
+            # then EXEMPT from the newer-than-datum test (an inherited input
+            # must be OLD, launcher :348).  A mismatch is a REFUSAL.
+            got = md5_of(p)
+            if got != staged[name]:
+                refuse("G1", {"arm_work": work, "staged_input_md5_mismatch": name,
+                              "h4_record": staged[name], "on_disk": got,
+                              "h4_source": h4_src})
+            out["age_guard"][name] = {"mtime": mt, "datum": datum, "newer": fresh,
+                                      "STAGED_INPUT_EXEMPT": True,
+                                      "h4_md5": got, "h4_source": h4_src}
+            out["age_guard"]["_staged_inputs_exempt"].append(name)
+            continue
         out["age_guard"][name] = {"mtime": mt, "datum": datum, "newer": fresh}
         n_checked += 1
         if not fresh:
@@ -1257,6 +1310,28 @@ def g13_adjoint_health(base, ledger, arm="O"):
             "pass": bool(not neg)}
 
 
+def g13_in_item(base, ledger, arms_expected, fd_arms=("F-S", "F-P")):
+    """ADDENDUM 3.  This item computes its adjoint gradient IN-ITEM: each FD arm's
+    `compute_totals` runs one adjoint and prints one `PetscConvergedReason`.
+    Band F is therefore read from THOSE arms' logs.  There is no arm `O` in this
+    item; grading `O` here was a category error inherited from the D7 port.
+    Pass = every present FD arm passes; no FD arm present -> NOT_MEASURED."""
+    present = [a for a in fd_arms if a in arms_expected]
+    out = {"source": "in-item: compute_totals adjoint in each FD arm's log",
+           "fd_arms_graded": present, "arms": {}}
+    if not present:
+        out.update({"status": NOT_MEASURED, "pass": False,
+                    "note": "no FD arm in the graded set; band F has no source"})
+        return out
+    ok = True
+    for a in present:
+        r = g13_adjoint_health(base, ledger, a)
+        out["arms"][a] = r
+        ok = ok and bool(r.get("pass"))
+    out["pass"] = bool(ok)
+    return out
+
+
 # ============================== MAPPING ====================================
 def map_verdict(g):
     """ADDENDUM 2 (L-342, C3): a NOT_MEASURED gate status NEVER composes to
@@ -1280,6 +1355,13 @@ def map_verdict(g):
     for arm, d in (g.get("G12", {}).get("arms") or {}).items():
         if d.get("delivered_cores_mean") == NOT_MEASURED:
             nm.append("G12 arm %s: delivered_cores_mean NOT_MEASURED" % arm)
+    for arm, d in (g.get("G13", {}).get("arms") or {}).items():
+        if d.get("status") == NOT_MEASURED:
+            nm.append("G13 arm %s: zero PetscConvergedReason lines (hard)" % arm)
+    ex = (g.get("G1", {}).get("age_guard") or {}).get("_staged_inputs_exempt")
+    if ex:
+        nm.append("G1 age guard: staged inputs %s EXEMPT by H4 record (Addendum 3)"
+                  % ",".join(ex))
     v["not_measured"] = nm
     if nm:
         v["because"] = list(v.get("because", [])) + [
@@ -1409,7 +1491,7 @@ def grade(base, work, out_path, arms, cl_target_path, fd_paths, doc_path,
     g["G10"] = g10_caps(ledger, arms)
     g["G11"] = g11_oom(ledger, arms, base=base)
     g["G12"] = g12_placement(base, {a: os.path.join(base, a) for a in arms}, ledger)
-    g["G13"] = g13_adjoint_health(base, ledger, "O")
+    g["G13"] = g13_in_item(base, ledger, arms)          # ADDENDUM 3
 
     verdict = map_verdict(g)
     if verdict["verdict"] not in VOCAB:
@@ -2080,6 +2162,80 @@ def selftest():
         except Refuse as exc:
             _g10g = "ledger_field_unparseable" in str(exc)
         unit("G10_L342_present_GARBAGE_cap_field_REFUSES", True, bool(_g10g))
+        # ================= ADDENDUM 3 -- STAGED INPUTS, DRIVEN ================
+        bA = os.path.join(tmp, "b_a3"); wA = os.path.join(bA, "X"); os.makedirs(wA)
+        lpA = os.path.join(bA, "ledger.txt")
+        open(lpA, "w").write(
+            "ARM=X ROW=SHIPPED IMG=a DIGEST=d rc=0 wall_s=9 ranks=4 core_min=0.6 "
+            "cap_core_min=15.0 enforced_core_min=15.000000 "
+            "inspect(exit,oomkilled)=[0 false] log=XA.log\n")
+        open(os.path.join(bA, "XA.log"), "w").write("python arm\n")
+        open(os.path.join(bA, "XA.log.ok.S1"), "w").write("rc=0 stamp=S1 arm=X\n")
+        open(os.path.join(wA, ".d7_age_datum"), "w").write(str(now))
+        for nm in ("opt_IPOPT.txt", "OptView.hst", "d7_major_history.json",
+                   "d7_endpoint_dvs.json", "d7_endpoint_dvs_PHYSICAL.json"):
+            fp = os.path.join(wA, nm); open(fp, "w").write("x-" + nm)
+            os.utime(fp, (now + 500, now + 500))
+        # the two STAGED inputs are OLD, as H4 says an inherited input must be
+        for nm in ("opt_IPOPT.txt", "OptView.hst"):
+            os.utime(os.path.join(wA, nm), (now - 5000, now - 5000))
+        m_ov = md5_of(os.path.join(wA, "OptView.hst"))
+        m_ip = md5_of(os.path.join(wA, "opt_IPOPT.txt"))
+        # (i) NO H4 record -> the old staged files FAIL the age guard (unchanged)
+        rA0 = g1_completion(bA, wA, read_ledger(lpA), ["X"], lch)
+        unit("G1_A3_old_staged_file_UNNAMED_by_H4_fails_age_guard", True,
+             bool(not rA0["pass"] and rA0["age_guard"]["_h4_record"] is None
+                  and rA0["age_guard"]["_staged_inputs_exempt"] == []))
+        # (ii) H4 record names both with matching md5 -> EXEMPT, proceeds
+        open(os.path.join(bA, "X_attempt.log"), "w").write(
+            "D7FR_G_ROOT_PASS item=D7FR\nD7FR_H4_PASS arm=X endpoint=D7R/O "
+            "OptView.hst=%s opt_IPOPT.txt=%s\n" % (m_ov, m_ip))
+        rA1 = g1_completion(bA, wA, read_ledger(lpA), ["X"], lch)
+        unit("G1_A3_staged_files_NAMED_by_H4_with_matching_md5_are_EXEMPT", True,
+             bool(rA1["pass"]
+                  and sorted(rA1["age_guard"]["_staged_inputs_exempt"]) == ["OptView.hst", "opt_IPOPT.txt"]
+                  and rA1["age_guard"]["OptView.hst"]["STAGED_INPUT_EXEMPT"]
+                  and rA1["age_guard"]["_n_artifacts_checked"] == 2),
+             "exempt=%s checked=%s" % (rA1["age_guard"]["_staged_inputs_exempt"],
+                                       rA1["age_guard"]["_n_artifacts_checked"]))
+        # (iii) the produced artefacts are STILL age-checked: make one stale
+        os.utime(os.path.join(wA, "d7_major_history.json"), (now - 500, now - 500))
+        unit("G1_A3_exemption_does_not_reach_PRODUCED_artefacts", True,
+             bool(not g1_completion(bA, wA, read_ledger(lpA), ["X"], lch)["pass"]))
+        os.utime(os.path.join(wA, "d7_major_history.json"), (now + 500, now + 500))
+        # (iv) named but md5 MOVED -> REFUSE
+        open(os.path.join(bA, "X_attempt.log"), "w").write(
+            "D7FR_H4_PASS arm=X endpoint=D7R/O OptView.hst=%s opt_IPOPT.txt=%s\n"
+            % ("0" * 32, m_ip))
+        try:
+            g1_completion(bA, wA, read_ledger(lpA), ["X"], lch); _mm = False
+        except Refuse as exc:
+            _mm = "staged_input_md5_mismatch" in str(exc)
+        unit("G1_A3_named_staged_file_with_MOVED_md5_REFUSES", True, bool(_mm))
+        # (v) an H4 line for ANOTHER arm exempts nothing here
+        open(os.path.join(bA, "X_attempt.log"), "w").write(
+            "D7FR_H4_PASS arm=ACC endpoint=D7R/O OptView.hst=%s opt_IPOPT.txt=%s\n"
+            % (m_ov, m_ip))
+        unit("G1_A3_H4_line_for_ANOTHER_arm_exempts_nothing", True,
+             bool(not g1_completion(bA, wA, read_ledger(lpA), ["X"], lch)["pass"]))
+        # G13 in-item: read from the FD arms, never from an arm O
+        l13b = os.path.join(bA, "l13.txt")
+        open(l13b, "w").write(
+            "ARM=F-S ROW=SHIPPED IMG=a DIGEST=d rc=0 wall_s=1 ranks=4 core_min=1 "
+            "cap_core_min=750.0 enforced_core_min=750.000000 "
+            "inspect(exit,oomkilled)=[0 false] log=fs.log\n")
+        open(os.path.join(bA, "fs.log"), "w").write("PetscConvergedReason: 2\nEnd\n")
+        r13i = g13_in_item(bA, read_ledger(l13b), ["P1", "X", "ACC", "F-S"])
+        unit("G13_A3_in_item_reads_the_FD_arm_and_passes", True,
+             bool(r13i["pass"] and r13i["fd_arms_graded"] == ["F-S"]
+                  and r13i["arms"]["F-S"]["min_reason"] == 2))
+        r13n = g13_in_item(bA, read_ledger(l13b), ["P1", "X", "ACC"])
+        unit("G13_A3_no_FD_arm_is_NOT_MEASURED_not_health", True,
+             bool(not r13n["pass"] and r13n["status"] == NOT_MEASURED))
+        open(os.path.join(bA, "fs.log"), "w").write("PetscConvergedReason: -9\nEnd\n")
+        unit("G13_A3_a_MINUS9_in_an_FD_arm_fails_band_F", True,
+             bool(not g13_in_item(bA, read_ledger(l13b), ["F-S"])["pass"]))
+
         # C3: map_verdict NAMES every NOT_MEASURED limb in the verdict line
         _gm = json.loads(json.dumps(ok_g))
         _gm["G1"] = {"pass": True, "not_measured": [{"arm": "F-S", "fields": ["wall_s"],
