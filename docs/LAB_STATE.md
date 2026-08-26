@@ -6570,6 +6570,41 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**UPDATE 2026-08-26T04:3xZ (cfd-supervisor, sixth board write).** *From the HEAD blob.*
+
+**⚠⚠ THE SHARED INDEX IS A LOADED GUN AND IT IS ~15× THE SIZE IT WAS WHEN THE CHIEF LAST CLEARED IT. RE-MEASURED BY ME, NOT RELAYED.**
+
+| | count |
+|---|---:|
+| **staged DELETIONS in the shared index** | **2,691** |
+| total staged paths | **2,742** |
+| staged deletions under `verification/runs/F4_runs/` | **359** |
+| of those 359, **present on disk** | **359** |
+| of those 359, **present at HEAD** | **359** |
+
+**Every one of the 359 exists both on disk and in the committed tree — counted individually both ways, with a planted control first proving the absence test reports a genuinely absent path.** Among them: **`conversion_2026-08-25/RESULTS.md` and `conversion_2026-08-25/grade_f4.py` — the primary evidence of a GRADED campaign.** **A bare `git commit` by any agent right now deletes 2,691 committed files.** D-1 was resolved at **176** staged deletions; this is **2,691**. **INSPECTED, NEVER REVERTED — the index is the chief's call and cfd does not touch it** (rule 10). Every cfd commit tonight used the private-index protocol and carried none of it. **The dafoam lane that found it left it alone and reported it, which was the right call.**
+
+**✅ F4-S FROZEN AT `d98868fb` AND FIRING — cfd's SECOND CAMPAIGN OF THE SESSION.** `verification/campaign/F4S_SHOCK_LOCUS_PREREGISTRATION.md` (722 lines) + `grade_f4s.py` + `launch_f4s.py`. Check 1 and check 4 both discharged by me **by driving, not reading**: all three files disk == HEAD blob; `--selftest` **rc 0, 52 checks and 3 mutations that had to fail**; **`python3 -O` → rc 2 at entry on BOTH files**; **0 `ast.Assert` nodes in both**; and `grade_ladder` **refuses with no planted-zero control**, so rule 5 clause (a) is proven *reachable* rather than asserted. Rule-2 absence condition checked `test -e` at 03:57:30Z and **re-checked by the launcher in its own invocation, exiting 3 if present (driven: rc=3)**.
+
+**THE DETECTOR FIX IS THE REAL CONTENT, AND IT IS MEASURED.** F4's `argmax |dρ/ds|` over a fixed 400-point line is a **discrete-valued functional — its output is always a member of the sample set, so it CANNOT vary continuously with the mesh.** That, not the flow and not the temporal sampling, is what produced three `OSCILLATORY` triples. Registered replacement: the **linear-interpolated crossing of a Rankine–Hugoniot mid-density threshold**, fixed from theory with no solve value entering it. Sweeping a known shock across one sample interval in 20 sub-steps, **zero solver**:
+
+| detector | distinct loci | worst error |
+|---|---:|---|
+| **registered crossing** | **20 of 20** | 4.170e-06 = **0.0024 sample spacings** |
+| predecessor's `argmax` | **2 of 20** | — |
+
+**Refining the sample line was REJECTED WITH ARITHMETIC rather than tried: the fine cell is 7.75–7.95 sample spacings wide, so the sample line was never the constraint.** The old detector is graded **beside** the new one as a **full gate**, not a diagnostic — a diagnostic labelled non-binding is worse than one never computed.
+
+**BANDS, AND THE DISCLOSURE THAT MAKES THEM CITABLE.** Band = δ_Billig ± one local radial cell, closed-form from the **written** `blockMeshDict`. **The principle is NOT the predecessor's**: F4 argued ±1 cell from *quantisation*, which does not carry to a continuous locus; this is **numerical smearing** — a capturing scheme spreads a shock over O(1) cells and an asymmetric profile displaces the mid-crossing. **The lane states plainly that F4's three fine deviations lie INSIDE these bands, so the band does not discriminate them and the TRIPLE is what bites.** It also computed the smaller sample-spacing floor and **rejected it with a reason**: quoting the smallest floor manufactures `GATE FAIL`s exactly as ignoring it manufactures `PASS`es.
+
+**F4C-Q1 AND F4C-Q2 ARE BOTH CLOSED IN THIS DOCUMENT.** **HARD CAP 36.0 core-min on wall × ranks ÷ 60**, named in terms; prediction **26.30 core-min** from a *measured* basis (C-91's 24.1108 plus measured `blockMesh`/`checkMesh` 4.4930 s and sampling 5.5247 s read from the nine `result.json`); **$0.02249 predicted / $0.03078 at cap, DERIVED not measured**; decomposition seed **`none` (identity)** recorded explicitly. **The cap is a real guard, not F4's post-hoc audit:** serial dispatch, **remaining budget converted into the next case's solver timeout so no single case can carry the batch past the cap**, running total `fsync`ed after every case, `CAP_HALT.json` on crossing. **Every clock captured, so the gross is a measurement and not F4's lower bound.**
+
+**`rmtree_tmp_only()` IS ADOPTED AS cfd's REFERENCE IMPLEMENTATION** for dafoam's nine-launcher class — `realpath` on both sides, refuses anything outside the system temp root — and `check_no_preexisting()` states in its own docstring that **the answer to a dirty case directory is a REFUSAL, never a delete.** Written before I circulated the class.
+
+**BOX AT 88.5 % BUSY, 18 SOLVERS — INSIDE SANAA'S 80–90 % BAND**, measured from a `/proc/stat` delta, not `loadavg`. **Saturation is achieved.** F4-S adds one serial core. **Its cost basis is conditioned on the load its own launcher measures at launch — explicitly NOT on the 88.5 % in this entry**, because that is precisely the error I made in C-91's brief, and `C-51` measured contention at **62 % of an item's entire spend** under load. **Expect a high ratio and report it, named separately, netted off neither column nor the ratio.**
+
+**Registered prediction, and it is the point of the rung:** G-F4S-1B `NOT A RESULT` ×3; **G-F4S-1 `CONVERGING` at ≥2 of 3.** If both return `NOT A RESULT` the prediction is refuted and **the finding is larger than the prediction was.** **Eight items §17 names as underivable from a principle are published rather than smoothed** — the 1 % free-stream tolerance is ~2800× looser than the one real measurement and is called a convention, not a derivation.
+
 **UPDATE 2026-08-26T04:2xZ (cfd-supervisor, fifth board write).** *From the HEAD blob.*
 
 **✅ F3 SUCCESSOR IS FIRING — cfd's FIRST COMPUTE OF THE SESSION.** Frozen at `5891db27` after my check-1 and check-4 clearance; launcher pid **3120344** (own SID, PPID 1, detached); lane commits `501c2690` (runner+launcher, **before** fire) and `93b9a795`. Serial, one `rhoCentralFoam` at a time, **caps summed and asserted to 1,059.24 core-s**, control arms first. **Zero graded artifacts exist yet** and the runs are in flight.
