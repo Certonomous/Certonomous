@@ -1,0 +1,27 @@
+# unheated-upstream arm, registered DIAGNOSTIC_PREDICTION.md:786 (frozen 6a0d7f45d5bc19a3fa06fffac4a20c2a3ecbf82c)
+case D_Ts_Re25_U_m
+ladder D_Ts_Re25_U
+level m
+parent D_Ts_Re25_m
+solver buoyantBoussinesqSimpleFoam
+Re 25 -
+U_bulk 0.018749999999999999 m/s
+nu 1.5e-05 m2/s
+Pr 0.71 -
+D 0.02 m
+R_wall 0.0099904822 m
+x_inlet -0.2 m
+x_heat_start 0 m
+x_outlet 1 m
+nr 32 -
+nx 384 -
+nx_upstream 64 -
+nx_downstream 320 -
+cells 12288 -
+T_in 300 K
+T_wall_hot 310 K
+wall_upstream adiabatic
+endTime 40000 -
+writeInterval 2000 -
+inlet_scale_s 0.99983740985016645 -
+nProcs 1 -
