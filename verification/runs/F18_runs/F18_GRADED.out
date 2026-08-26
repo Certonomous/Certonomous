@@ -1,0 +1,10 @@
+F18 -- 2-D TAYLOR-GREEN VORTEX -- TALLY
+==============================================================================
+G-F18-1_E2_velocity_L2_at_T              PASS
+    finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.2894, GCI 221.4820 % = 2.4393e-05 absolute at Fs = 1.25
+G-F18-2_mean_kinetic_energy_at_T         PASS
+    finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 0.9638, GCI 0.0156 % = 1.74863e-05 absolute at Fs = 1.25
+==============================================================================
+cost actual: 4.417 core-min of cap 30.0 (ClockTime x ranks / 60; dollars derived, not measured)
+gated by: scripts/roache_triple.py::grade_ladder
+written: /home/ubuntu/Certonomous/verification/runs/F18_runs/F18_GRADED.json

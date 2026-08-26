@@ -1,0 +1,514 @@
+{
+  "rung": "F18-TG2D",
+  "prereg_commit": "c4f72b277d74ecce19c6f81d651038ab16c338af",
+  "prereg": "verification/campaign/F18_TG2D_PREREGISTRATION.md",
+  "assert_census": {
+    "files_checked": 4,
+    "assert_nodes": 0,
+    "planted_assert_seen": true
+  },
+  "controls": [
+    {
+      "control": "symbolic_substitution_into_unsteady_NS",
+      "residuals": {
+        "continuity": "0",
+        "x_momentum": "0",
+        "y_momentum": "0"
+      },
+      "passed": true
+    },
+    {
+      "control": "PZ-F18-DECAY_planted_2.3nu_must_be_nonzero",
+      "planted_factor": 1.15,
+      "residual_is_zero": false,
+      "passed": true
+    },
+    {
+      "control": "constant_ratio_refinement_h_and_dt",
+      "h_ratios": [
+        2.0,
+        2.0
+      ],
+      "dt_ratios": [
+        2.0,
+        2.0
+      ],
+      "courant": 0.20371832715762606,
+      "passed": true
+    },
+    {
+      "control": "model_forced_and_second_order",
+      "model_orders": {
+        "E2": 1.9955342677512102,
+        "KE": 1.9957054821629046
+      },
+      "ke_err_pred": [
+        7.130384689931365e-05,
+        1.787910390791757e-05,
+        4.483101129192938e-06
+      ],
+      "passed": true
+    },
+    {
+      "control": "PZ-F18-GRADE_LADDER_CALLSITE_ast_census_plus_grep_both_ways",
+      "ast_call_nodes": [
+        483
+      ],
+      "passed": true
+    },
+    {
+      "control": "solver_dictionaries_agree_with_registration",
+      "nu": 0.1,
+      "p_tol": 1e-09,
+      "endTime": 2.0,
+      "ddt": "backward",
+      "passed": true
+    },
+    {
+      "control": "reader_parses_real_solver_written_U_on_this_box",
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL019/L1_30/5/U",
+      "cells": 120,
+      "passed": true
+    },
+    {
+      "control": "PZ-F18-L342_infrastructure_vs_physics_fields_driven_both_ways",
+      "infrastructure_deleted": "verdict channel unchanged, cost claim refused, defect lines printed",
+      "physics_corrupted": "NOT A RESULT",
+      "passed": true
+    }
+  ],
+  "gate_demonstration": [
+    {
+      "gate": "G-F18-1_E2_velocity_L2_at_T",
+      "construction": "exact(T) + 1 x scaled model error field",
+      "value": 9.459007892715116e-06,
+      "band": [
+        3.1530026309049956e-06,
+        2.837702367814496e-05
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F18-2_mean_kinetic_energy_at_T",
+      "construction": "exact(T) + 1 x scaled model error field",
+      "value": 0.11233672452885002,
+      "band": [
+        0.11231879172591781,
+        0.11234569033269297
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F18-1_E2_velocity_L2_at_T",
+      "construction": "exact(T) + 40 x scaled model error field",
+      "value": 0.0003783603157085993,
+      "band": [
+        3.1530026309049956e-06,
+        2.837702367814496e-05
+      ],
+      "inside": false,
+      "intended": "outside"
+    },
+    {
+      "gate": "G-F18-2_mean_kinetic_energy_at_T",
+      "construction": "exact(T) + 40 x scaled model error field",
+      "value": 0.11251165079989743,
+      "band": [
+        0.11231879172591781,
+        0.11234569033269297
+      ],
+      "inside": false,
+      "intended": "outside"
+    }
+  ],
+  "write_path": "OpenFOAM ascii volVectorField `U` at endTime: `internalField nonuniform List<vector>` NEWLINE N NEWLINE `(` one `(ux uy uz)` per line `)`; pinned against REAL icoFoam output on this box, verification/runs/ansys_verification/VMFL019/L1_30/5/U, parsed at selftest.",
+  "cap_core_min": 30.0,
+  "field_classes": {
+    "PHYSICS_CRITICAL": [
+      "log.icoFoam `End` line and `Time =` count (fixed-deltaT identity)",
+      "RC.txt (solver rc, written by the launcher in the shell that ran the solver)",
+      "<endTime>/U and <endTime>/p present and NEWER than 0/U (age guard)",
+      "0/C cell centres",
+      "every time step's final p residual in log.icoFoam (rule 5 limb 1 census)"
+    ],
+    "INFRASTRUCTURE": [
+      "ClockTime in log.icoFoam (cost actual)",
+      "box_before.txt / box_after.txt",
+      "MESH_LINE.txt",
+      "STATUS.* / launcher.queue.out / LAUNCH_LOG rows written by a queue runner",
+      "calibration figures derived from any of the above"
+    ]
+  },
+  "cost_claim": {
+    "fields": "INFRASTRUCTURE",
+    "core_min_claim": 4.416666666666666,
+    "partial_sum_core_min": 4.416666666666666,
+    "cap_core_min": 30.0,
+    "defects": [],
+    "note": "ClockTime x ranks / 60; dollars at $0.0513/core-h DERIVED, NOT MEASURED"
+  },
+  "rows": [
+    {
+      "quantity": "G-F18-1_E2_velocity_L2_at_T",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 1.1013537990325513e-05,
+      "reference": 0.0,
+      "band": [
+        3.1530026309049956e-06,
+        2.837702367814496e-05
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 4096,
+          "value": 0.00010807857303132917
+        },
+        {
+          "name": "medium",
+          "cells": 16384,
+          "value": 3.9195865695751385e-05
+        },
+        {
+          "name": "fine",
+          "cells": 65536,
+          "value": 1.1013537990325513e-05
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 1.2893510716468013,
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.00010807857303132917,
+            3.9195865695751385e-05,
+            1.1013537990325513e-05
+          ],
+          "cells": [
+            4096,
+            16384,
+            65536
+          ],
+          "e21": 2.8182327705425874e-05,
+          "e32": 6.888270733557779e-05,
+          "GCI_pct": 221.48199149649548,
+          "GCI_abs": 2.4393003275196048e-05,
+          "richardson": -8.500864629831326e-06,
+          "richardson_parent_convention": 3.052794061048235e-05
+        }
+      ],
+      "orders": [
+        1.2893510716468013
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.0012230356092389478,
+        "read_back_delta": 0.0012230356092389468,
+        "reader_delta": 0.0012230356092389468,
+        "reader": "e2_from_files",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F18_runs/fine/2/U",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": null,
+      "verdict": "PASS",
+      "order": 1.2893510716468013,
+      "GCI_pct": 221.48199149649548,
+      "GCI_abs": 2.4393003275196048e-05,
+      "richardson": -8.500864629831326e-06,
+      "richardson_parent_convention": 3.052794061048235e-05,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.2894, GCI 221.4820 % = 2.4393e-05 absolute at Fs = 1.25",
+      "gate": "G-F18-1_E2_velocity_L2_at_T",
+      "band_principle": "discretisation-model prediction E2(T) = 9.459007893e-06 at h_fine = 0.0245437, dt = 0.005 (linearised discrete equations forced by the exact field's truncation residual, integrated with BDF2 at coarse and medium, fine extrapolated with the model order), times [1/3, 3]",
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 4096,
+          "value": 0.00010807857303132917,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F18_runs/coarse/2/U",
+          "h": 0.09817477042468103,
+          "dt": 0.02,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F18_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F18_runs/coarse/log.icoFoam",
+            "rc": "0",
+            "n_times": 100,
+            "latest": 2.0,
+            "dt": 0.02,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F18_runs/coarse/2",
+            "why": "rc 0; End; latest + dt > endTime; 100 `Time` lines == endTime/dt; U, p at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps and correctors",
+            "n_readings": 200,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99524160671e-10
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test"
+        },
+        {
+          "name": "medium",
+          "cells": 16384,
+          "value": 3.9195865695751385e-05,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F18_runs/medium/2/U",
+          "h": 0.04908738521234052,
+          "dt": 0.01,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F18_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F18_runs/medium/log.icoFoam",
+            "rc": "0",
+            "n_times": 200,
+            "latest": 2.0,
+            "dt": 0.01,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F18_runs/medium/2",
+            "why": "rc 0; End; latest + dt > endTime; 200 `Time` lines == endTime/dt; U, p at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps and correctors",
+            "n_readings": 400,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.96781199098e-10
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test"
+        },
+        {
+          "name": "fine",
+          "cells": 65536,
+          "value": 1.1013537990325513e-05,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F18_runs/fine/2/U",
+          "h": 0.02454369260617026,
+          "dt": 0.005,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F18_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F18_runs/fine/log.icoFoam",
+            "rc": "0",
+            "n_times": 400,
+            "latest": 2.0,
+            "dt": 0.005,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F18_runs/fine/2",
+            "why": "rc 0; End; latest + dt > endTime; 400 `Time` lines == endTime/dt; U, p at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps and correctors",
+            "n_readings": 800,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99963316897e-10
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test"
+        }
+      ],
+      "plateau_note": "ABSENT by construction (transient value at t = T); reported as absent, not as a pass",
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    },
+    {
+      "quantity": "G-F18-2_mean_kinetic_energy_at_T",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 0.11233745987903845,
+      "reference": 0.11233224102930539,
+      "band": [
+        0.11231879172591781,
+        0.11234569033269297
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 4096,
+          "value": 0.11237668607550994
+        },
+        {
+          "name": "medium",
+          "cells": 16384,
+          "value": 0.11235075507716163
+        },
+        {
+          "name": "fine",
+          "cells": 65536,
+          "value": 0.11233745987903845
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 0.9637724750948595,
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.11237668607550994,
+            0.11235075507716163,
+            0.11233745987903845
+          ],
+          "cells": [
+            4096,
+            16384,
+            65536
+          ],
+          "e21": 1.3295198123181029e-05,
+          "e32": 2.593099834830026e-05,
+          "GCI_pct": 0.015565830229138721,
+          "GCI_abs": 1.748625828849795e-05,
+          "richardson": 0.11232347087240765,
+          "richardson_parent_convention": 0.11235144888566925
+        }
+      ],
+      "orders": [
+        0.9637724750948595
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 7.613779998139059e-07,
+        "read_back_delta": 7.613779998139059e-07,
+        "reader_delta": 7.613779998139059e-07,
+        "reader": "ke_from_files",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F18_runs/fine/2/U",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": null,
+      "verdict": "PASS",
+      "order": 0.9637724750948595,
+      "GCI_pct": 0.015565830229138721,
+      "GCI_abs": 1.748625828849795e-05,
+      "richardson": 0.11232347087240765,
+      "richardson_parent_convention": 0.11235144888566925,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 0.9638, GCI 0.0156 % = 1.74863e-05 absolute at Fs = 1.25",
+      "gate": "G-F18-2_mean_kinetic_energy_at_T",
+      "band_principle": "exact box-mean kinetic energy at T = U0^2/4 e^{-4 nu T} = 0.112332241029305 +/- 3 x the model's predicted KE error (4.483101129e-06) = +/- 1.344930339e-05",
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 4096,
+          "value": 0.11237668607550994,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F18_runs/coarse/2/U",
+          "h": 0.09817477042468103,
+          "dt": 0.02,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F18_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F18_runs/coarse/log.icoFoam",
+            "rc": "0",
+            "n_times": 100,
+            "latest": 2.0,
+            "dt": 0.02,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F18_runs/coarse/2",
+            "why": "rc 0; End; latest + dt > endTime; 100 `Time` lines == endTime/dt; U, p at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps and correctors",
+            "n_readings": 200,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99524160671e-10
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test"
+        },
+        {
+          "name": "medium",
+          "cells": 16384,
+          "value": 0.11235075507716163,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F18_runs/medium/2/U",
+          "h": 0.04908738521234052,
+          "dt": 0.01,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F18_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F18_runs/medium/log.icoFoam",
+            "rc": "0",
+            "n_times": 200,
+            "latest": 2.0,
+            "dt": 0.01,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F18_runs/medium/2",
+            "why": "rc 0; End; latest + dt > endTime; 200 `Time` lines == endTime/dt; U, p at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps and correctors",
+            "n_readings": 400,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.96781199098e-10
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test"
+        },
+        {
+          "name": "fine",
+          "cells": 65536,
+          "value": 0.11233745987903845,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F18_runs/fine/2/U",
+          "h": 0.02454369260617026,
+          "dt": 0.005,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F18_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F18_runs/fine/log.icoFoam",
+            "rc": "0",
+            "n_times": 400,
+            "latest": 2.0,
+            "dt": 0.005,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F18_runs/fine/2",
+            "why": "rc 0; End; latest + dt > endTime; 400 `Time` lines == endTime/dt; U, p at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps and correctors",
+            "n_readings": 800,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99963316897e-10
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test"
+        }
+      ],
+      "plateau_note": "ABSENT by construction (transient value at t = T); reported as absent, not as a pass",
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    }
+  ]
+}
