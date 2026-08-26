@@ -250,3 +250,92 @@ executing agent produced itself.** That applies directly to B5 above: the
 Nusselt point estimate of 4.98 in this document is my own scaling estimate,
 it is labelled as such, and it is not a reference value and cannot grade
 anything.
+
+---
+
+## AMENDMENT A1 — 2026-08-26, **POST-COMPUTE. DISCLOSURE ONLY.** Document **v1.0 → v1.1**.
+
+**`lines whose number changed above this section: 0`** — **measured**, not claimed, by
+comparing every line above this section byte-for-byte against this file's blob at `HEAD`
+before the amendment was written. Nothing above has been edited, struck, reworded or
+renumbered. **No gate, threshold, cap, label or prediction is altered, and none could
+be:** this amendment adds no test, changes no instrument and moves no number. This
+document carried no explicit version string; it is named **v1.0** as it stood and this
+takes it to **v1.1**, with no earlier version implied.
+
+**Condition — POST-COMPUTE.** K0a and K0b have run and are reported in
+`THERMAL_K0_RESULTS.md`. `CLAUDE.md` rule 2 governs in its post-compute limb: changes
+land only as dated addenda that cannot alter a gate, threshold, cap or label. **This is
+such an addendum, and no verdict in this campaign is reopened.**
+
+### A1.1 The defect — `assert` is not a guard, because `python3 -O` deletes it
+
+`python3 -O` and `PYTHONOPTIMIZE=1` **remove every `assert` statement outright**, so a
+check written as one cannot carry a refusal, a guard, a control or a gate. Measured
+elsewhere in this lab, not hypothesised: `analyse_t8.py` under `-O` returns
+`GATE REACHED` where `CLAUDE.md` rule 5 forbids it, rc 0, no error; and a planted-control
+selftest under `-O` **printed `PLANTED CONTROL PASSED` on an estimator returning zeros**
+(L-332).
+
+### A1.2 What this campaign's analyser carries
+
+**`verification/runs/THERMAL_K0_runs/analyse.py` — TWO `ast.Assert` nodes, re-derived
+2026-08-26 by an AST parse of the blob at `HEAD` (never `grep`, so a docstring
+mentioning the word is not miscounted). Both are READER SHAPE CHECKS:**
+
+```
+67:        assert len(nums) == 3 * n, (len(nums), n)     # vector internalField
+69:    assert len(nums) == n, (len(nums), n)             # scalar internalField
+```
+
+They sit in `read_internal`, immediately after the regex at `:65` harvests every numeric
+token from an OpenFOAM `internalField` body. The header declares `n` values; the asserts
+require the parse to have found exactly `n` (or `3n` for a vector). **The very next line
+reshapes the flat list into triples on that assumption.**
+
+> **UNDER `-O`, A MIS-PARSE IS SILENTLY RESHAPED. A body that yields the wrong token
+> count does not raise — the list is sliced into triples anyway, every cell's value is
+> taken from the wrong offset, and the numbers that come out are the right SHAPE, the
+> right MAGNITUDE and the wrong VALUES.**
+
+**This is the truncating-reader class reached through the interpreter rather than
+through the regex.** The lab's method note is *"look at the bytes before believing the
+number"*; these two asserts are that rule, implemented — and `-O` removes exactly them
+while leaving every number they were protecting.
+
+`read_internal` feeds `cell_centres()` at `:71` and everything downstream of it. **It is
+the campaign's primary field reader.**
+
+### A1.3 §2d.1 is **NOT** invoked, and that is deliberate
+
+`VERIFICATION_CHARTER.md` §2d.1's conditions (3) *"QUANTIFIES WHAT MOVED"* and (4)
+*"the pre-repair values are recorded beside the published ones"* are **vacuous** for an
+`assert` → `sys.exit(2)` conversion, which **cannot move any number or any verdict**:
+under plain `python3` both forms refuse in exactly the same state, and the lab-wide
+bound of 2026-08-25T22:48Z measured that **no graded verdict on record was produced
+under `-O`** — no run script invokes it, `PYTHONOPTIMIZE` is unset on the host, and
+`__debug__ = True` was measured inside the DAFoam container too.
+
+> **INVOKING A NARROW EXCEPTION WHERE IT IS NOT NEEDED STRETCHES IT, AND A STRETCHED
+> EXCEPTION IS HOW THE NEXT REAL ONE GETS WAVED THROUGH.**
+
+### A1.4 What happens instead
+
+1. **`analyse.py` is NOT edited** and stays byte-identical to its blob at `HEAD`.
+2. **This amendment is the disclosure.**
+3. **The repaired form lands in the successor's instrument, never retrofitted here:**
+   the guard becomes `raise`/`sys.exit(2)`; the refusal is **DRIVEN under `python3 -O`
+   and shown to FIRE identically** against a sacrificial mutant (not *"the selftest
+   passes under `-O`"* — a passing selftest exercises the clean path, and the clean path
+   is the one an evaporated guard still walks); and a **statement-type check over the
+   instrument's own AST requiring ZERO `Assert` nodes** catches a revert without running
+   anything (`scripts/check_assert_guards.py --require-clean <path>`).
+4. **Specific to a READER:** the successor should **report the token count it found
+   beside the count the header declared**, whichever way they fall. A reader that is
+   silent when it agrees cannot be audited after the fact; one that prints
+   `declared n, parsed n` can.
+
+**Status `UNJUDGED` — not shown clean, not shown exposed. NO ROW IN THIS CAMPAIGN IS
+RE-GRADED ON THIS GROUND**, and the 2026-08-25T22:48Z bound is why. **Zero core-minutes:
+no solver ran for this amendment.** Nothing here has been sent, filed, submitted,
+uploaded, registered or posted outside this box (`CLAUDE.md` rule 7).
