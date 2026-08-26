@@ -1,0 +1,26 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T5_S_m",
+  "prereg_commit": "299296a29b30def2c9fec910b66a554b4f4f11cd",
+  "prereg_path": "docs/campaigns/T-family/T5_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/run_one_t5.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/S_m",
+    "--timeout",
+    "88020",
+    "--ranks",
+    "1",
+    "--solver",
+    "chtMultiRegionSimpleFoam",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/S_m",
+  "ranks": 1,
+  "cost_core_min_estimate": 489.0,
+  "cap_core_min_registered": 1467.0,
+  "cost_basis": "derived: Model B POINT 8.15 core-h x 60 = 489.0 core-min at ranks 1 (T5_PREREGISTRATION.md S11.1 row `S_m` 8.15 core-h; AMENDMENT 2 row `S_m` 489.0 / cap 1467.0 / timeout 88020 s); USD 0.4181 = 8.15 core-h x $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5)",
+  "memory_floor_gb": 2.0,
+  "memory_basis": "estimated, not measured: fluid-only medium level, fewer cells than the conjugate T5_CUBE_m (216214 air+epoxy), at ~1 GB per 100k cells with a 2 GB floor",
+  "enqueued_by": "NOT ENQUEUED -- draft held for the record; see T5_RESULTS.md"
+}
