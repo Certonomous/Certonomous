@@ -1,0 +1,101 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : blockMesh -case T15_UP_f
+Date   : Aug 26 2026
+Time   : 22:15:03
+Host   : ip-172-31-43-247
+PID    : 498075
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/T-family/T15_runs/T15_UP_f
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Creating block mesh from "system/blockMeshDict"
+Creating block edges
+No non-planar block faces defined
+Creating topology blocks
+
+Creating topology patches - from boundary section
+
+Creating block mesh topology
+--> FOAM Warning : 
+    From Foam::polyMesh::polyMesh(const Foam::IOobject&, Foam::pointField&&, const Foam::cellShapeList&, const Foam::faceListList&, const Foam::wordList&, const Foam::PtrList<Foam::dictionary>&, const Foam::word&, const Foam::word&, bool)
+    in file meshes/polyMesh/polyMeshFromShapeMesh.C at line 905
+    Found 1 undefined faces in mesh; adding to default patch defaultFaces
+
+Check topology
+
+	Basic statistics
+		Number of internal faces : 3
+		Number of boundary faces : 18
+		Number of defined boundary faces : 18
+		Number of undefined boundary faces : 0
+	Checking patch -> block consistency
+
+Creating block offsets
+Creating merge list (geometric search)...
+
+Creating polyMesh from blockMesh
+Creating patches
+Creating cells
+Creating points with scale (1 1 1)
+    Block 0 cell size :
+        i : 0.006249999999989672 .. 0.006249999999989666
+        j : 0.0125 .. 0.01250000000000018
+        k : 0 .. 0
+
+    Block 1 cell size :
+        i : 0.006250000000008658 .. 0.0062500000000087
+        j : 0.0125 .. 0.01250000000000018
+        k : 0.008723877474 .. 0.008723877474
+
+    Block 2 cell size :
+        i : 0.01249999999999219 .. 0.01249999999999224
+        j : 0.0125 .. 0.01250000000000018
+        k : 0.034895509892 .. 0.034895509892
+
+    Block 3 cell size :
+        i : 0.03749999999999362 .. 0.03749999999999384
+        j : 0.0125 .. 0.01250000000000018
+        k : 0.104686529676 .. 0.104686529676
+
+No patch pairs to merge
+
+Writing polyMesh with 0 cellZones
+----------------
+Mesh Information
+----------------
+  boundingBox: (0 -0.104686529677 0) (2.397715731796001 0.104686529677 8)
+  nPoints: 205761
+  nCells: 102400
+  nFaces: 409760
+  nInternalFaces: 204000
+----------------
+Patches
+----------------
+  patch 0 (start: 204000 size: 16) name: source
+  patch 1 (start: 204016 size: 144) name: floor
+  patch 2 (start: 204160 size: 160) name: outlet
+  patch 3 (start: 204320 size: 640) name: farfield
+  patch 4 (start: 204960 size: 102400) name: wedge_back
+  patch 5 (start: 307360 size: 102400) name: wedge_front
+  patch 6 (start: 409760 size: 0) name: defaultFaces
+
+End
+

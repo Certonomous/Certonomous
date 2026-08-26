@@ -1,0 +1,72 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | www.openfoam.com
+    \\  /    A nd           |
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     buoyantBoussinesqPimpleFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         240;
+deltaT          0.01;
+adjustTimeStep  no;
+
+writeControl    timeStep;
+writeInterval   6000;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  16;
+writeCompression off;
+timeFormat      general;
+timePrecision   8;
+runTimeModifiable false;
+
+functions
+{
+    axisProbes
+    {
+        type            probes;
+        libs            (sampling);
+        writeControl    timeStep;
+        writeInterval   10;
+        fields          (U T);
+        fixedLocations  true;
+        probeLocations
+        (
+        (0.0015625 0 2)
+        (0.0015625 0 3)
+        (0.0015625 0 4)
+        (0.0015625 0 5)
+        );
+    }
+
+    fieldAverage1
+    {
+        type            fieldAverage;
+        libs            (fieldFunctionObjects);
+        writeControl    writeTime;
+        timeStart       120;
+        restartOnRestart false;
+        restartOnOutput  false;
+        fields
+        (
+            U { mean on; prime2Mean on; base time; }
+            T { mean on; prime2Mean on; base time; }
+        );
+    }
+}
+
+// ************************************************************************* //

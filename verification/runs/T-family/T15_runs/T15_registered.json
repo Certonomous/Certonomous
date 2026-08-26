@@ -1,0 +1,160 @@
+{
+  "rung": "T15",
+  "title": "UNSTEADY axisymmetric turbulent plume on T8's fine mesh -- the T8 successor named by the record as its sharpest next test",
+  "parent": "T8 (NOT A RESULT, docs/campaigns/T-family/T8_VERDICT_2026-08-26.md); the discriminator named at docs/campaigns/T-family/T8_STEADINESS_MEASUREMENT_2026-08-26.md sections 6.2 and 7.4",
+  "capability_grid_cell": "natural convection (free plume) x turbulent (URANS kEpsilon) x 2D axisymmetric wedge (docs/capability/heat-transfer_GRID.md)",
+  "capability_ceiling": "CAN DO, CAVEATS -- ONE MESH. No Roache triple exists for this rung and none may be computed from it; no GCI, no Richardson extrapolate and no discretisation uncertainty is quoted on any row.",
+  "grid_triple": false,
+  "solver": "buoyantBoussinesqPimpleFoam",
+  "turbulence": "RAS kEpsilon (URANS), Prt 0.85",
+  "dimensionality": 2,
+  "ranks": 1,
+  "endTime_s": 240.0,
+  "deltaT_s": 0.01,
+  "n_steps": 24000,
+  "window_s": [120.0, 240.0],
+  "s1_station_z_m": 3.0,
+  "probe_r_m": 0.0015625,
+  "probe_interval_steps": 10,
+  "physics": {
+    "D_source_m": 0.2,
+    "b0_m": 0.1,
+    "R_domain_m": 2.4,
+    "H_domain_m": 8.0,
+    "w0_m_s": 0.6,
+    "gprime0_m_s2": 0.6912,
+    "dT0_K": 21.1376,
+    "F0_m4_s3": 0.013028813053,
+    "nu": 1.5e-05,
+    "beta": 0.003333333333,
+    "TRef": 300.0,
+    "Pr": 0.71,
+    "Prt": 0.85,
+    "alpha_nominal": 0.12,
+    "alpha_nominal_role": "sets the Gamma_0 = 1 pure-plume SOURCE condition and the closed form's virtual origin ONLY; it appears in no band and in no gate"
+  },
+  "cases": {
+    "T15_UP_f": {
+      "level": "f_unsteady_single",
+      "cells": 102400,
+      "nr_blocks": "16/48/64/32",
+      "nz": 640,
+      "endTime": 240.0,
+      "deltaT": 0.01,
+      "steps": 24000,
+      "cell_steps": 2457600000,
+      "point_core_min": 1307,
+      "cap_core_min": 2600,
+      "timeout_s": 156000,
+      "role": "the ONE registered level"
+    }
+  },
+  "roache_floors": {
+    "source": "scripts/roache_triple.py, imported by name (MESH_STANDARD.md section 10.5, chief ruling 01967a7b); the comparator defines none of them and REFUSES if these numbers differ from the import. They are EXERCISED in the comparator's selftest so the import is demonstrably live, and gci_equal is called on NO graded row of this one-mesh rung.",
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05,
+    "FS": 1.25
+  },
+  "graded_rows": {
+    "S1": {
+      "quantity": "sigma(w)/mean(w) of the axis-region probe at z = 3.0 m over the window [120, 240] s",
+      "reference": 0.0,
+      "band": [0.0, 0.02],
+      "grading": "SINGLE MESH -- band verdict only, no triple, no GCI",
+      "band_ground": "2 percent of the mean is the registered threshold separating a settled URANS field from a persistent fluctuation. A puffing plume mode carries 10-30 percent centreline velocity fluctuation; numerical residue of a settled field is below 0.5 percent. 2 percent sits an order of magnitude below the phenomenon and four times above the residue.",
+      "what_it_falsifies": "PASS (<= 0.02) falsifies the GENUINELY-UNSTEADY hypothesis as the explanation of T8's failure AT THIS RESOLUTION AND IN THIS AXISYMMETRIC GEOMETRY; GATE FAIL (> 0.02), read together with S2 >= 0.5, falsifies the settling prediction of the under-resolution/closure hypothesis."
+    },
+    "V1": {
+      "quantity": "n_w: OLS slope of ln(centreline time-mean w) on ln(z - z0), z/D in [10, 25], 31 stations",
+      "reference": -0.3333333333333333,
+      "band": [-0.3833333333333333, -0.2833333333333333],
+      "grading": "SINGLE MESH -- band verdict only, no triple, no GCI",
+      "band_ground": "+-0.05 absolute, the band T8 registered for the same quantity on the same geometry with the same closure and the same fit window (T8_PREREGISTRATION.md section 4). It is a MODELLING-tolerance band, not a numerical one, and it is NOT widened here: it separates a plume (-1/3) from a jet (-1) by 13.3 band widths and from a non-entraining column (0) by 6.67."
+    },
+    "V2": {
+      "quantity": "n_T: OLS slope of ln(centreline time-mean T - TRef) on ln(z - z0), same window and stations",
+      "reference": -1.6666666666666667,
+      "band": [-1.7166666666666666, -1.6166666666666667],
+      "grading": "SINGLE MESH -- band verdict only, no triple, no GCI",
+      "band_ground": "as V1: T8's registered +-0.05, unwidened."
+    },
+    "V3": {
+      "quantity": "db/dz: OLS slope of the top-hat radius b = Q/sqrt(pi M) on z from the MEASURED cell volumes, same window and stations",
+      "reference": 0.144,
+      "band": [0.132, 0.156],
+      "grading": "SINGLE MESH -- band verdict only, no triple, no GCI",
+      "band_ground": "MTT gives b = (6 alpha / 5) z exactly, so db/dz = 1.2 alpha. The band is 1.2 x the published pure-plume entrainment range alpha in [0.11, 0.13]: [0.132, 0.156]. This is an EMPIRICAL band, not an exact reference, and it is the row on which the kEpsilon round-jet/plane-jet anomaly is expected to show (T8_PREREGISTRATION.md section 2, prediction P1). The registered point 0.144 is 1.2 x alpha_nominal."
+    }
+  },
+  "controls": {
+    "C_CO": {
+      "what": "max Courant number over the REGISTERED WINDOW [120, 240] s <= 1.0; a fixed-step transient integrated above its registered Courant number is not the registered integration -> gate (1) NOT A RESULT on every row. The max over the WHOLE run (start-up included) is REPORTED and never gated: the start-up transient is discarded by construction.",
+      "max_window": 1.0
+    },
+    "C_STAT": {
+      "what": "STATIONARITY PRECONDITION. |OLS trend of the S1 probe series x window length| / |window mean| <= 0.05. A statistic taken on a series that is still moving is not a property of the run -- the failure T8_STEADINESS_MEASUREMENT_2026-08-26.md section 0 records twice. Exceeding it -> gate (1) NOT A RESULT on every row.",
+      "max_drift_frac": 0.05
+    },
+    "S2": {
+      "what": "PERSISTENCE, REPORTED AND NEVER GATED: sigma over the second half of the window divided by sigma over the first half. Registered reading, fixed before compute: >= 0.5 is a PERSISTENT fluctuation (consistent with genuine unsteadiness); < 0.5 is a DECAYING one (consistent with settling).",
+      "persistent_at_or_above": 0.5
+    },
+    "S3": {
+      "what": "the same fluctuation statistic on T at the same probe, REPORTED, never gated."
+    },
+    "C_BOUND": {
+      "what": "epsilon/k bounding events per timestep, REPORTED AND DELIBERATELY NEVER GATED: T8 bounded epsilon on every level from Time = 24, and gating the very phenomenon this rung is diagnosing would make the rung NOT A RESULT for its own subject."
+    },
+    "C_OP": {
+      "what": "operand identity (L-331): nu, beta, TRef, b0, w0, g'0 READ FROM THE CASE FILES; F0 recomputed from them must match CASE.txt to 1e-9; refuses otherwise."
+    },
+    "C_GEOM": {
+      "what": "MEASURED geometry only. Cell centres and cell volumes are read from 0/Cx, 0/Cz, 0/V that OpenFOAM wrote (the launcher runs writeCellCentres and writeCellVolumes before the solver). The axis value is the parabolic-with-zero-axis-slope extrapolation (f1 r2^2 - f2 r1^2)/(r2^2 - r1^2) at the MEASURED radii; the ONLY geometric fact asserted anywhere is the STRUCTURAL r2 > r1 > 0. The measured r2/r1 and the measured wedge-to-annulus SCALE are PRINTED and gated on nothing. T8 GROUND 2 (T8_VERDICT_2026-08-26.md section 4) is the whole reason."
+    },
+    "C_Z0": {
+      "what": "the virtual origin z0 is the x-intercept of the OLS line b(z) = s(z - z0) over the 31 stations -- T8's registered route (T8_PREREGISTRATION.md section 12 S4). The exponents refitted at z0 = 0, and the closed-form z0 = -b0/(6 alpha_nominal/5) = -0.694444 m, are both REPORTED. NOTE, recorded before compute: T8 section 12 S2's PROSE claim that a Gamma_0 = 1 source puts the virtual origin AT the source is arithmetically wrong for a source of finite radius; T8's own instrument refits z0 and is unaffected."
+    },
+    "C_PZ": {
+      "what": "planted-zero control per reader (rule 3, L-340), sized RELATIVE TO EACH READER'S OWN SCALE rather than to an absolute constant -- the lesson T8_STEADINESS_MEASUREMENT_2026-08-26.md section 7.2 paid for. POINT plant (2 cells) for the axis readers; ALL-CELL plant over the plume run for the integrating top-hat-radius reader; ALTERNATING +-plant over every window sample for the fluctuation reader S1, with a CONSTANT-offset arm that a working fluctuation reader must be near-blind to. Both arms, a measured detection ladder, and a refusal on a blind or noisy reader."
+    },
+    "C_REF": {
+      "what": "route B on mtt_t15.py before any comparison: the closed form satisfies the three MTT ODEs (h^2-falling residuals), the flux identities hold to 1e-14, the registered source sits ON the similarity solution, an independent RK4 integration reproduces it to 1e-9 and returns the exponents to 1e-9, and a 1 percent mutation of c_b or of an exponent is REFUSED."
+    }
+  },
+  "completion": {
+    "needed_fields": ["T", "U", "p_rgh", "alphat", "nut", "k", "epsilon", "UMean", "TMean", "UPrime2Mean", "TPrime2Mean"],
+    "infrastructure_fields": ["wall_s", "timeout_s", "ranks", "core_min", "capped", "checkmesh_rc", "solver", "solver_path", "note", "started_utc", "ended_utc"],
+    "note": "capped is an INFRASTRUCTURE field and never a completion conjunct (L-342). UMean/TMean/UPrime2Mean/TPrime2Mean are PHYSICS-CRITICAL: every graded V-row is built from the time-averaged field and an absent average is not a zero."
+  },
+  "predictions": {
+    "P1": "S1 PASS: sigma(w)/mean(w) <= 0.020 over [120, 240] s -- the URANS plume SETTLES. FALSIFIER: S1 > 0.020 together with S2 >= 0.5, a persistent fluctuation, which supports the genuinely-unsteady hypothesis instead.",
+    "P1_limit": "REGISTERED BEFORE COMPUTE, NOT DISCOVERED AFTER: a 5 degree axisymmetric wedge admits NO azimuthal mode, so a PASS on S1 excludes AXISYMMETRIC unsteadiness only. It cannot and does not exclude genuinely unsteady three-dimensional physics.",
+    "P2": "V1 PASS: n_w inside [-0.3833, -0.2833].",
+    "P3": "V2 PASS: n_T inside [-1.7167, -1.6167].",
+    "P4": "V3 GATE FAIL -- db/dz OUTSIDE [0.132, 0.156] -- while V1 and V2 PASS: T8's registered P1 (the kEpsilon round-jet anomaly biases the entrainment coefficient and not the exponents) confirmed on the unsteady formulation. FALSIFIER: V3 inside the band (P4 wrong, the anomaly did not bite here), or V1/V2 outside it (T8's P1 wrong).",
+    "P5": "max Courant number over the window <= 0.8 (MEASURED in the scratch probe: 1.053 at start-up, decaying through 0.72 by t = 0.12 s).",
+    "P6": "epsilon/k bounding occurs on at least 1 percent of steps -- T8 bounded epsilon on every level from Time = 24. REPORTED, never gated. FALSIFIER: zero bounding events, which would itself be the finding that the transient formulation removes the closure's unrealizability.",
+    "P7": "C_STAT drift <= 0.05: the run reaches statistical stationarity inside the registered 120 s discard. FALSIFIER: drift > 0.05 -> NOT A RESULT on every row and the registered finding is that the discard was too short."
+  },
+  "cost": {
+    "parent_rate_core_s_per_cell_iteration": 6.397e-06,
+    "parent_rate_source": "MEASURED, T8's fine level: verification/runs/T-family/T8_runs/STATUS.T8_MTT_f (rc 0, wall_s 13101, ranks 1, core_min 218.350) over 20 000 buoyantBoussinesqSimpleFoam iterations on 102 400 cells -> 0.655 core-s per iteration = 6.397e-06 core-s per cell-iteration",
+    "rate_scratch_measured_core_s_per_step": 3.267,
+    "rate_scratch_source": "MEASURED 2026-08-26T22:0xZ on a SCRATCH COPY of the registered T15_UP_f, run through run_one_t15.sh under the queue runner's setsid/nohup/cd form with the REGISTERED fvSolution (PCG/DIC): 20 timesteps, mean ExecutionTime delta over steps 6-20 = 3.267 core-s per step. Outside the repository; no registered case was touched.",
+    "pimple_over_simple_ratio_measured": 4.99,
+    "point_core_min": 1307,
+    "cap_core_min": 2600,
+    "timeout_s": 156000,
+    "usd_per_core_h": 0.0513,
+    "usd_point_derived": 1.117,
+    "usd_cap_derived": 2.223,
+    "usd_basis": "derived, not measured, from the owner-stated c7a.4xlarge rate $0.0513/core-h (COMPUTE_BUDGET_CHARTER section 5: the box cannot read its own billing)",
+    "note": "The cap is 1.99 x the POINT and is a hang guard; rule 12 stops the run at it and no new budget follows. A GAMG p_rgh solver was MEASURED 32 percent faster in the same scratch probe (2.35 core-s per step) and was DECLINED so that the only registered difference from T8 is the time derivative. Calibration row owed in docs/COST_CALIBRATION.md at completion."
+  },
+  "launcher": {
+    "file": "run_one_t15.sh",
+    "guard": "lineage-aware foreign-process scan (T10aR2 AMENDMENT 1, 9fa66065; the block copied from run_one_t14.sh:145-157)",
+    "queue_mode": "--no-detach",
+    "pre_solver_geometry": "postProcess -func writeCellCentres and -func writeCellVolumes into 0/, BEFORE 0/T is touched, so the comparator reads MEASURED cell centres and volumes and 0/T still dates the run"
+  }
+}

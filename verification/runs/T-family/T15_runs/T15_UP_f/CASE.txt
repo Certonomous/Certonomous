@@ -1,0 +1,36 @@
+# T15 unsteady MTT plume -- registered case constants (read by analyse_t15.py)
+case T15_UP_f
+level f_unsteady_single
+solver buoyantBoussinesqPimpleFoam
+D 0.2 m
+b0 0.1 m
+R_domain 2.4 m
+H_domain 8 m
+wedge_half_angle_deg 2.5 deg
+w0 0.6 m/s
+gprime0 0.6912 m/s2
+dT0 21.1376 K
+T_source 321.1376 K
+F0 0.013028813053 m4/s3
+TRef 300 K
+beta 0.00333333333333 1/K
+g 9.81 m/s2
+nu 1.5e-05 m2/s
+Pr 0.71 -
+Prt 0.85 -
+k0 0.00135 m2/s2
+epsilon0 0.0005821762699 m2/s3
+alpha_nominal 0.12 -
+nr_blocks 16/48/64/32 -
+nz 640 -
+n_cells_expected 102400 -
+endTime 240 s
+deltaT 0.01 s
+n_steps 24000 -
+writeInterval 6000 steps
+window_start 120 s
+probe_r 0.0015625 m
+probe_z 2/3/4/5 m
+s1_station_z 3 m
+probe_interval 10 steps
+nProcs 1 -
