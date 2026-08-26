@@ -81,3 +81,62 @@ whether the runs would be orphaned to `init` and survive anyway. **It does not c
 disposition** — a run whose survival depends on an unverified signal-delivery path is not a
 run you may rely on, and the fix is the same either way. Recorded as unmeasured rather than
 assumed in the convenient direction.
+
+---
+
+# AMENDMENT 1 — 2026-08-26T04:2xZ — **§1 IS WRONG FOR VMFL076, AND MY TEST WAS ITSELF AN INADEQUATE PROXY — THE SECOND ONE I USED TONIGHT**
+
+**Written by `ansys-verification-supervisor` personally.** The body above is **not edited**;
+it is corrected here, in the direction that makes me look worse.
+
+## What I claimed, and what is true
+
+I wrote that all three of tonight's runs *"sit inside their lanes' shell sessions and die with
+them."* **For VMFL076 that is FALSE**, and it is corroborated by two sources neither of which
+is the lane that told me:
+
+- `verification/runs/ansys_verification/VMFL076/L3/LAUNCH_RECORD.txt` records the launcher's
+  **`pid = 3066609`**, written at launch time.
+- **My own measurement at 03:40Z recorded the solver's `SID` as 3066609.**
+
+**The run's session id equals the launcher's pid — so the launcher IS that session's leader,
+and it was `setsid`'d** (`run_vmfl076.sh:5`: *"Each level is launched separately under
+`setsid`"*; the lane measured `ppid = 1`, `tty_nr = 0` on it while it lived). The solve was
+detached from the lane's shell (session 3113666) and from mine (3086237) the whole time.
+
+## The part that is mine to own
+
+**I tested the wrong process.** I asked *"is the `timeout` wrapper a session leader?"* — and
+when its `SID` did not equal its own `PID`, I concluded "not detached." **But a wrapper that
+is a non-leader member of an already-detached session is exactly what a correctly `setsid`'d
+launcher produces.** My test cannot distinguish "attached to the agent" from "detached, one
+level up", and it reported the second as the first.
+
+**THE VALID TEST — and it is a comparison, not a property of any single process:**
+**find the process whose PID equals the run's `SID`; the run is detached iff that leader is
+NOT in the agent's session** (in practice `ppid = 1`, `tty_nr = 0`). **Detachment is a
+relation between two sessions, never a property of one process.**
+
+**I ALREADY HAD THE DECIDING DATUM AND MISREAD IT.** I measured the run's `SID` as 3066609 and
+my own shell's as 3086237 **in the same output**. Two different sessions **is** the proof, and
+I looked straight at it while testing something else.
+
+**This is the second inadequate proxy I used tonight while correcting others for using
+inadequate proxies** — after the `RUN_RC` reference-count grep — and the fourth instrument
+error overall. **The monitor lane's `ppid` test and my `sid==pid` test failed the same way:
+both asked about one process where the question is about two.**
+
+## Corrected disposition, differentiated per case
+
+| case | detached? | evidence |
+|---|---|---|
+| **VMFL076** | **YES** | `LAUNCH_RECORD` pid 3066609 == independently measured run `SID`; launcher `ppid = 1` |
+| **VMFL004**, **VMFL002** | **NO `setsid` ANYWHERE** — claim STANDS | `grep -c setsid` = **0** in both launchers; no `LAUNCH_RECORD` to check against |
+| **VMFL011** | **YES, and by my correction** | `run_vmfl011.sh:112` now `exec setsid timeout ...`; the lane verified leader `SID == own PID` |
+
+**So the finding was WRONG for one case, STANDS for two, and produced a real repair in a
+fourth.** Recording it as a clean save would be as false as deleting it.
+
+**What does not change:** `setsid` on the inner `timeout` still adds isolation against a kill
+aimed at the launcher's own session, and remains the standard for successors. **What changes
+is the claim that these runs were unprotected — VMFL076's was not, and I said it was.**

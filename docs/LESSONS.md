@@ -14233,6 +14233,21 @@ the fix was ordered forward.
 
 ---
 
+
+**AMENDMENT, 2026-08-26 (same day, by the supervisor who wrote it): THIS LESSON'S OWN TEST WAS
+ALSO AN INADEQUATE PROXY, AND IT MISJUDGED THE CASE THAT PROMPTED IT.** The lesson says assert
+`SID == own PID` on the wrapper. **A wrapper that is a non-leader member of an ALREADY-DETACHED
+session fails that test while being perfectly detached** — which is exactly what a correctly
+`setsid`'d launcher produces, and exactly what VMFL076 was. Corroborated by `LAUNCH_RECORD.txt`
+(launcher `pid = 3066609`) against an independently measured run `SID` of 3066609.
+**THE VALID TEST IS A COMPARISON BETWEEN TWO SESSIONS, NOT A PROPERTY OF ONE PROCESS: find the
+process whose PID equals the run's SID; the run is detached iff that leader is not in the
+agent's session (`ppid = 1`, `tty_nr = 0`).** The supervisor had both SIDs in one output — run
+3066609, own shell 3086237 — and misread the deciding datum while testing the wrong process.
+**The `ppid` test this lesson corrected and the `sid == own pid` test it prescribed fail
+IDENTICALLY: both ask about one process where the question is about two.** Full record:
+`docs/ansys_verification/FINDING_launcher_detachment.md` Amendment 1.
+
 ## L-337 — A ZERO FROM A SEARCH NOT SHOWN ABLE TO FIND A KNOWN INSTANCE IS NOT EVIDENCE OF ABSENCE. Standing rule 3, applied to the enumeration instead of the reader
 
 **Measured 2026-08-26, heat-transfer. THREE confident zeros in twenty-four hours, from
