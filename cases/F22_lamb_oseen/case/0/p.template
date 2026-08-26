@@ -1,0 +1,14 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object p; }
+// F22 Lamb-Oseen -- internalField = EXACT kinematic pressure at t = 0 at the
+// built mesh's own cell centres; far-field fixedFluxPressure (the velocity is
+// fixed there, so the pressure gradient is set by the momentum balance).
+dimensions      [0 2 -2 0 0 0 0];
+internalField   nonuniform List<scalar> __INTERNALFIELD__;
+boundaryField
+{
+    left   { type fixedFluxPressure; value uniform 0; }
+    right  { type fixedFluxPressure; value uniform 0; }
+    bottom { type fixedFluxPressure; value uniform 0; }
+    top    { type fixedFluxPressure; value uniform 0; }
+    frontAndBack { type empty; }
+}

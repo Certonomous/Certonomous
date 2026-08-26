@@ -1,0 +1,14 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+solvers
+{
+    p      { solver PCG; preconditioner DIC; tolerance 1e-09; relTol 0; maxIter 5000; }   // maxIter explicit: DIC-PCG iterations grow with N per side (345 at 192^2 measured); the default 1000 would truncate a fine-level solve silently and the grader census would then read NOT A RESULT
+    pFinal { $p; relTol 0; }
+    U      { solver smoothSolver; smoother symGaussSeidel; tolerance 1e-12; relTol 0; }
+}
+PISO
+{
+    nCorrectors             2;
+    nNonOrthogonalCorrectors 0;
+    pRefCell                0;
+    pRefValue               0;
+}

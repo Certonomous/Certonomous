@@ -1,0 +1,17 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     icoFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         4;             // T = 4: t' = 6, core radius grows 0.283 -> 0.490, peak vorticity 2.653 -> 1.326
+deltaT          __DT__;        // FIXED; refines by 2 with h (Co ~ 0.14 at every level)
+writeControl    runTime;
+writeInterval   4;             // fields at endTime only: the gates read t = T
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   12;
+runTimeModifiable false;
+adjustTimeStep  no;

@@ -1,0 +1,16 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// F22 Lamb-Oseen -- internalField = EXACT solution at t = 0 at the built mesh's
+// own cell centres (from 0/C); far-field patches = the potential vortex
+// Gamma/(2 pi r) theta-hat at the mesh's own face centres (from 0/C's patch
+// values), equal to the exact velocity there to 5e-12 at every time; written by
+// build_f22.py, LAST of all.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   nonuniform List<vector> __INTERNALFIELD__;
+boundaryField
+{
+    left   { type fixedValue; value nonuniform List<vector> __LEFT__; }
+    right  { type fixedValue; value nonuniform List<vector> __RIGHT__; }
+    bottom { type fixedValue; value nonuniform List<vector> __BOTTOM__; }
+    top    { type fixedValue; value nonuniform List<vector> __TOP__; }
+    frontAndBack { type empty; }
+}
