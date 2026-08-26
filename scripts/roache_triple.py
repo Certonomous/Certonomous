@@ -99,22 +99,36 @@ THE FOUR THINGS THIS INSTRUMENT REFUSES TO DO, each paid for by a named failure.
    rule 4's discipline -- comparators refuse rather than degrade.
 
 4. IT WILL NOT QUOTE A GCI ON A NON-MONOTONE TRIPLE.  CLAUDE.md rule 5.  A GCI
-   is emitted only in the CONVERGING state, and an assertion in ``grade_ladder``
+   is emitted only in the CONVERGING state, and a structural check in ``_seal``
    re-checks that no GCI escaped beside a non-monotone triple.
+
+5. IT WILL NOT CALL A DEGENERATE TRIPLE CONVERGING.  When the two successive
+   differences are (nearly) equal, e21 ~ e32, the fitted order is a rounding
+   residual, |p| ~ 1e-15, and its SIGN is noise: the same triple lands as
+   DIVERGENT or STAGNANT depending on the last bit.  ansys-verification found the
+   same class independently (commit ``38b53598``; three of its five per-comparator
+   ``roache()`` functions called it CONVERGING with p = 3.2e-15 and quoted a GCI).
+   Here a triple with |p| < ``P_MIN`` = 0.05 is classified ``DEGENERATE`` before
+   any other test on p, is NOT A RESULT under rule 5 exactly as STAGNANT is, and
+   carries no GCI.  Driven in ``--selftest`` with (1.2, 1.1, 1.0) and its
+   +-1e-13 neighbours as positive controls; p = 1 and p = 2 ladders as negative
+   controls.  These guards ``raise``; none is an ``assert`` (the file carries no
+   ``ast.Assert`` node, and ``main`` refuses to run under ``python3 -O``).
 
 RULE 5, IN ORDER, AND ONLY IN THIS ORDER (CLAUDE.md rule 5; the wording is
 ``docs/campaigns/T-family/T1b_L4_AMENDMENT.md`` section 2):
 
   (a) any level not iteratively converged, or not plateaued  -> NOT A RESULT;
-  (b) the triple DIVERGENT / STAGNANT / OSCILLATORY / EXACT   -> NOT A RESULT,
-      with the value, EVERY triple and EVERY order printed beside it;
+  (b) the triple DIVERGENT / STAGNANT / OSCILLATORY / EXACT / DEGENERATE
+      -> NOT A RESULT, with the value, EVERY triple and EVERY order printed
+      beside it;
   (c) CONVERGING -> PASS inside the pre-registered band, else GATE FAIL, with
       the GCI printed at Fs = 1.25.
 
 THE GATE IS ONE-WAY.  It may turn a PASS or a GATE FAIL INTO a NOT A RESULT and
 may never do the reverse.  This is enforced structurally: the band verdict is
-computed FIRST and unconditionally, is reported beside the final verdict, and an
-assertion requires the final verdict to be either that band verdict or
+computed FIRST and unconditionally, is reported beside the final verdict, and
+``_seal`` raises unless the final verdict is either that band verdict or
 NOT A RESULT.
 
 WHAT THIS INSTRUMENT CANNOT SEE, stated because a check that overstates its
@@ -154,6 +168,9 @@ import tempfile
 FS = 1.25                       # Roache safety factor, three levels (T1c:44)
 PLANT = 1.234e-03               # planted-zero control perturbation (T3:81)
 STAGNANT_FLOOR = 0.5            # 0 < p < STAGNANT_FLOOR is STAGNANT (T1c:321)
+P_MIN = 0.05                    # |p| < P_MIN is DEGENERATE: e21 ~ e32, the fitted
+                                # order is rounding residual and its sign is noise
+                                # (ansys-verification 38b53598; docstring item 5)
 EQUAL_RATIO_TOL = 1.0e-9        # |r21 - r32| above this is NOT an equal ladder
 PLANT_READBACK_TOL = 1.0e-12    # the plant must land to this (T3:302)
 
@@ -163,7 +180,7 @@ VERDICTS = ("PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT",
             "BLOCKED", "PENDING")
 
 NOT_A_RESULT_STATES = ("DIVERGENT", "STAGNANT", "OSCILLATORY", "EXACT",
-                       "NO_ORDER")
+                       "DEGENERATE", "NO_ORDER")
 
 _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 T1C_PATH = os.path.join(_REPO, "verification", "runs", "T-family", "T1_runs",
@@ -192,7 +209,8 @@ def require_dim(dim):
         refuse(f"dimensionality must be the int 1, 2 or 3, got {dim!r}; "
                "an unstated dimensionality is refused, never defaulted "
                "(VERIFICATION_CHARTER.md 3.1 rule 1)")
-    assert dim in (1, 2, 3), f"dim must be in (1, 2, 3), got {dim!r}"
+    if dim not in (1, 2, 3):
+        refuse(f"dim must be in (1, 2, 3), got {dim!r}")
     return dim
 
 
@@ -223,8 +241,8 @@ def gci_equal(f_coarse, f_med, f_fine, r, dim, fs=FS):
     takes its ratio from the module constant ``R_REFINE``; here the ratio is an
     argument and ``dim`` travels with the answer.
 
-    Refuses to invent an order.  States: EXACT, OSCILLATORY, DIVERGENT,
-    STAGNANT, CONVERGING.
+    Refuses to invent an order.  States: EXACT, OSCILLATORY, DEGENERATE,
+    DIVERGENT, STAGNANT, CONVERGING.
 
     Richardson sign: see the module docstring, "THE ONE PLACE THIS PORT
     DELIBERATELY DIVERGES FROM ITS PARENTS".
@@ -241,6 +259,8 @@ def gci_equal(f_coarse, f_med, f_fine, r, dim, fs=FS):
     if e32 / e21 < 0.0:
         return dict(common, state="OSCILLATORY", ratio=e32 / e21)
     p = math.log(abs(e32 / e21)) / math.log(r)
+    if abs(p) < P_MIN:
+        return dict(common, state="DEGENERATE", order=p)
     if p <= 0.0:
         return dict(common, state="DIVERGENT", order=p)
     if p < STAGNANT_FLOOR:
@@ -286,6 +306,8 @@ def gci_unequal(f_coarse, f_med, f_fine, r21, r32, dim, fs=FS):
     if ratio < 0.0:
         return dict(common, state="OSCILLATORY", ratio=ratio)
     p = math.log(abs(ratio)) / math.log(r21)
+    if abs(p) < P_MIN:
+        return dict(common, state="DEGENERATE", order=p)
     if p <= 0.0:
         return dict(common, state="DIVERGENT", order=p)
     it = 0
@@ -303,6 +325,8 @@ def gci_unequal(f_coarse, f_med, f_fine, r21, r32, dim, fs=FS):
         else:
             return dict(common, state="NO_ORDER", order=p, iterations=it,
                         why="order iteration did not converge in 200 steps")
+    if abs(p) < P_MIN:
+        return dict(common, state="DEGENERATE", order=p, iterations=it)
     if p <= 0.0:
         return dict(common, state="DIVERGENT", order=p, iterations=it)
     if p < STAGNANT_FLOOR:
@@ -601,8 +625,11 @@ def grade_ladder(quantity, levels, dim, band, plant_control,
                       + (f", observed order {finest['order']:.4f}"
                          if "order" in finest else "")
                       + "; the value, every triple and every order are printed "
-                        "beside it, and NO GCI is quoted because the three "
-                        "values are not monotone")
+                        "beside it, and NO GCI is quoted because "
+                      + (f"|p| < P_MIN = {P_MIN}: e21 ~ e32 and the fitted "
+                         "order is rounding residual"
+                         if finest["state"] == "DEGENERATE" else
+                         "the three values are not monotone"))
         return _seal(row, bv)
 
     # ---- (c) CONVERGING: band, with the GCI printed -------------------------
@@ -627,15 +654,17 @@ def _triple_public(t):
 
 
 def _seal(row, bv):
-    """The two structural assertions that make the printed row trustworthy."""
+    """The structural checks that make the printed row trustworthy.  They
+    ``raise`` rather than ``assert`` so that ``-O`` cannot strip them."""
     # the gate is one-way: it may only turn PASS or GATE FAIL INTO NOT A RESULT.
-    assert row["verdict"] in (bv, "NOT A RESULT"), (
-        f"the gate moved {bv} to {row['verdict']}, which rule 5 forbids")
-    assert row["verdict"] in VERDICTS, f"verdict {row['verdict']!r} is not in the "\
-        "fixed vocabulary"
-    # no GCI beside a non-monotone triple, ever.
-    assert not ("GCI_pct" in row and not row["monotone"]), (
-        "a GCI was produced beside a non-monotone triple")
+    if row["verdict"] not in (bv, "NOT A RESULT"):
+        refuse(f"the gate moved {bv} to {row['verdict']}, which rule 5 forbids")
+    if row["verdict"] not in VERDICTS:
+        refuse(f"verdict {row['verdict']!r} is not in the fixed vocabulary")
+    # no GCI beside a non-monotone or non-CONVERGING triple, ever.
+    if "GCI_pct" in row and (not row["monotone"] or
+                             row["states"][-1] != "CONVERGING"):
+        refuse("a GCI was produced beside a non-monotone or non-CONVERGING triple")
     return row
 
 
@@ -671,6 +700,9 @@ def format_row(row):
     if not row["monotone"]:
         lines.append("    GCI NOT QUOTED: the three values are not monotone "
                      "(CLAUDE.md rule 5).")
+    elif row["states"][-1] == "DEGENERATE":
+        lines.append(f"    GCI NOT QUOTED: DEGENERATE triple, |p| < P_MIN = {P_MIN} "
+                     "-- e21 ~ e32, the fitted order is rounding residual.")
     lines.append(f"    band verdict (computed first, unconditionally): "
                  f"{row['band_verdict']}")
     lines.append(f"    VERDICT: {row['verdict']} -- {row['why']}")
@@ -935,6 +967,40 @@ def selftest():
             check(f"{label} row prints every triple and every order",
                   len(row["triples"]) == 1 and "state" in row["triples"][0])
 
+        # -- (vi-b) THE P_MIN FLOOR: a degenerate triple is refused, driven ----
+        print(f"(vi-b) DEGENERATE: |p| < P_MIN = {P_MIN} is NOT A RESULT, no GCI "
+              "(ansys-verification 38b53598, reached independently)")
+        for label, tr, cells in (
+                ("e21 == e32 exactly, equal ratio", (1.2, 1.1, 1.0),
+                 (2500, 6400, 16384)),
+                ("e21 == e32 exactly, unequal ratio", (1.2, 1.1, 1.0),
+                 (2500, 6000, 16384)),
+                ("e21 = e32 (1 + 1e-12), equal ratio", (1.2, 1.1 + 1e-13, 1.0),
+                 (2500, 6400, 16384)),
+                ("e21 = e32 (1 - 1e-12), equal ratio", (1.2, 1.1 - 1e-13, 1.0),
+                 (2500, 6400, 16384)),
+                ("ansys probe (1.0, 1.1, 1.2), unequal ratio", (1.0, 1.1, 1.2),
+                 (2500, 6000, 16384))):
+            levels = [dict(name=n, cells=c, value=v) for n, c, v in
+                      zip(("c", "m", "f"), cells, tr)]
+            row = grade_ladder(label, levels, 2, band_wide, pc,
+                               iterative_states=ok_state)
+            st, p = row["states"][-1], row["orders"][-1]
+            check(f"[{label}] -> DEGENERATE, NOT A RESULT, no GCI, band PASS kept",
+                  st == "DEGENERATE" and row["verdict"] == "NOT A RESULT" and
+                  row["band_verdict"] == "PASS" and "GCI_pct" not in row and
+                  "GCI_pct" not in row["triples"][-1] and abs(p) < P_MIN,
+                  f"state {st}, p = {p:.3e}, verdict {row['verdict']}")
+        for p_true in (1.0, 2.0):
+            lv_neg = _synthetic(p_true, 2)
+            row = grade_ladder(f"p = {p_true}", lv_neg, 2, band_wide, pc,
+                               iterative_states=ok_state)
+            check(f"negative control: a synthetic p = {p_true} ladder stays "
+                  "CONVERGING with a GCI",
+                  row["states"][-1] == "CONVERGING" and "GCI_pct" in row and
+                  abs(row["order"] - p_true) < 1e-9,
+                  f"p = {row['order']:.12f}, verdict {row['verdict']}")
+
         conv = _synthetic(2.0, 2)
         fine = conv[-1]["value"]
         row_pass = grade_ladder("converging", conv, 2,
@@ -1032,6 +1098,11 @@ def main(argv):
     ap.add_argument("--json-out", default=None)
     args = ap.parse_args(argv)
 
+    if sys.flags.optimize:
+        # every guard here raises, but the parents the selftest imports do not;
+        # a grader whose checks can be stripped is not a grader.
+        print("REFUSE: this instrument does not run under python -O")
+        return EXIT_REFUSE
     if args.selftest:
         return selftest()
     if not args.series:
