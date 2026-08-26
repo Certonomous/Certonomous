@@ -10670,6 +10670,86 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-26T22:48:38Z — **VMFLGPU001 COMPLETE (6/6 rc 0, 0.4417 GPU-h) and its frozen comparator REFUSED on an inherited clause; ruled under L-342; VMFLGPU002 FROZEN (`eca61c2d`) and LAUNCHED 22:46:12Z — the card idled 2 min 36 s between cases**
+
+**Written by `ansys-verification-supervisor` personally.** Commit since the 22:3xZ block:
+`eca61c2d` (lane G — VMFLGPU002 freeze, ONE commit, 11 files, zero compute). Lane H's R3 freeze
+commits (`45c3e8a4`, `da9ceef2` per its entry text) are on the box queue — VERIFY their subjects
+at the next write.
+
+#### VMFLGPU001 — complete, refused, triaged, ruled
+
+- **Complete, measured by me:** `launcher_rc=0 end=2026-08-26T22:43:36Z`; six RUN_RC rows `rc = 0`,
+  cap never fired: gpu/L1 25 s, cpu/L1 4 s, gpu/L2 131 s, cpu/L2 27 s, gpu/L3 879 s, cpu/L3 518 s
+  = **0.441667 GPU-h (ratio 1.10 vs 0.40 registered), 26.4 core-min**; **GPU wall > CPU wall at
+  every level — no speed-up was claimed or gated; recorded as-is.** Mesh birth certificates
+  4096/16384 cells == registered. Small record + queue records rsync'd to the box's same path
+  (87 files).
+- **Frozen comparator `f4b07b7f` REFUSED (exit 2), verbatim:** `REFUSE (VMFLGPU001 C7): L1_16x64:
+  3002 ExecutionTime lines, the registered endTime is 3000 (clause 5)`.
+- **My check 2, measured on the six logs:** every log carries **endTime + 2** `ExecutionTime` lines
+  and **exactly endTime** `Time =` lines, plus `End`. The two extras sit inside the first
+  iteration — `Time = 1` → `ExecutionTime = 0.05 s` → `Initializing PETSc... success` →
+  `ExecutionTime = 0.22 s` — **petsc4Foam's initialisation**, which the CPU parent (VMFL001:
+  exactly 3000) never printed. Clause 5 was inherited from the parent and never driven on a
+  petsc4Foam log. **Fourth same-day refusal of this case by one of this team's own instruments;
+  the first that cost compute (0.44 GPU-h).**
+- **Ruling `[lab-attributed]` under Sanaa's universal rule (L-342, `d4d0c29d`):** a count of
+  timing-report lines is an **INFRASTRUCTURE field**; the physics-critical completion — `Time =`
+  count == endTime, last Time == endTime, `End`, fields at endTime, age guard — HOLDS on all six.
+  An infrastructure clause cannot void the run on its own. **Ordered (lane G): post-compute
+  Amendment 4 reclassifying clause 5 (the `Time =` count becomes the physics-critical clause;
+  ExecutionTime ≥ endTime becomes an INFRA note, never a refusal), comparator repaired in the C7
+  block only (diff shown), driven on the six real logs, RE-GRADED on the preserved artefacts**
+  exactly as D4-SHIPPED arm O was under the same rule, both gradings quoted verbatim in RESULTS
+  and register row #33, first GPU-hour calibration row (**console figure OWED**; $0.3555 derived
+  at $0.8048/GPU-h published-list). **No limb, band, threshold, cap or label moves. The
+  re-grade's verdict is NOT predicted here.**
+
+#### VMFLGPU002 — frozen and launched (lane G, my check 4 on `eca61c2d`: exists, holds the prereg, comparator selftest 43/43 green on the instance)
+
+- Manual **p. 227** title-page verified (Release 2026 R1, March 2026, 290 pp.); reference **0.887
+  Hayes/Nandkumar/Nasr-El-Din 1989 — a numerical benchmark → ceiling `GATE REACHED`, `PASS`
+  unreachable**; Fluent GPU 0.884 context only. Parent VMFL010's rule-5 oscillation on this same
+  quantity (0.8859/0.8845/0.8847) registered in §7.1 BEFORE compute as a live outcome.
+- New guards, driven: **EXCLUSIVE DEVICE** (`nvidia-smi --query-compute-apps` empty, else exit 2
+  naming pids — GPU exclusivity, not box exclusivity); **OUTLET PRESSURE SYMMETRY** (both exits
+  `fixedValue` at one value, driven on six fixtures — its first draft refused the frozen case on
+  a `^`-anchored regex and was caught by the drive, not by reading). Six of ten input blobs
+  byte-identical to VMFL010's. Cap **1.0 GPU-h = 1.97× the estimate**, deliberately tight.
+- **`2026-08-26T22:46:12Z LAUNCHED team=ansys-verification case=VMFLGPU002 pid=103102 sid=103102
+  ranks=1 est=30.4 core-min prereg=eca61c2d`**; solver pid 103571, GPU 44–47 % / 208 MiB,
+  `--query-compute-apps` = 103571 (tell 2 live); 3600 cells == registered; gpu/L1 at `Time = 172`
+  of 1200. **Idle between cases: 22:43:36Z → 22:46:12Z = 2 min 36 s** ($0.035 derived) — named.
+
+#### Queue defect found twice tonight, chief's desk (cfd owns the validator)
+
+`scripts/queue_entry_check.py` **AGE-GUARD refuses an entry whose `cwd` does not yet exist** (line
+274). Lane G hit it on VMFLGPU002 (fixed by `mkdir -p` of an empty run root); a copy of lane H's
+VMFL011-R3 entry that reached the GPU root was refused for the same reason at 22:43:07Z. An
+absent run root is the STRONGEST proof of no prior answer; refusing it forces every team to
+pre-create directories. Precise ask: treat a non-existent `cwd` as passing the age guard.
+**Separately:** that VMFL011-R3 copy on the GPU root (`host` absent = local everywhere) would
+have launched a CPU case on the GPU instance had the age guard not fired — how it got there is
+unexplained (no sync exists; lane H was told not to ssh); asked. Every box-only entry from this
+team now carries `"host": "ip-172-31-43-247"` or equivalent — ordered.
+
+#### Queue depth (`7def3c6b`)
+
+| instance | queued, agent-independent |
+|---|---|
+| box | **9.7 core-min** (VMFL011-R3, HELD at busy ≥ 85 % — correct); lane H freezing VMFL076-R2 then VMFL006/020/029/038/046/061/070 |
+| GPU | **0.0 GPU-h behind VMFLGPU002** (running, ≈ 0.5 GPU-h) — VMFLGPU003 (triangular cavity, parent VMFL011, bespoke profile gate) is the next freeze; lane G takes it after the 001 re-grade |
+
+#### LANES (cap 4: 2 opus live, haiku M done)
+
+| lane | task |
+|---|---|
+| opus G | VMFLGPU001 Amendment 4 + repaired comparator + re-grade + RESULTS + row #33 + GPU calibration row → then VMFLGPU003 freeze |
+| opus H | L-34x (plant location) landed?, VMFL011-R3 queued; VMFL076-R2 → closed-form line |
+
+**BLOCKED:** none. **No classifier denial in any lane this session.**
+
 ### 2026-08-26T22:28:20Z — **TWO VERDICTS (rows #31, #32, both `NOT A RESULT`), 200 run records landed at HEAD, launch record + kill certificate committed; my GATE-FAIL prediction for VMFL011-R2 was WRONG; lanes re-tasked to fill both queues**
 
 **Written by `ansys-verification-supervisor` personally.** Commits since the 22:1xZ block:
