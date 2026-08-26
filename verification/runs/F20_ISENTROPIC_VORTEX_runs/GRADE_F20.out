@@ -1,0 +1,10 @@
+F20 -- 2-D ISENTROPIC VORTEX -- TALLY
+==============================================================================
+G-F20-1_E2_density_L2_at_T               PASS
+    finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 2.7786, GCI 5.1038 % = 5.91977e-05 absolute at Fs = 1.25
+G-F20-2_mean_kinetic_energy_at_T         PASS
+    finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.2762, GCI 0.0020 % = 2.04339e-05 absolute at Fs = 1.25
+==============================================================================
+cost actual: 68.667 core-min of cap 240.0 (ClockTime x ranks / 60; dollars derived, not measured)
+gated by: scripts/roache_triple.py::grade_ladder
+written: /home/ubuntu/Certonomous/verification/runs/F20_ISENTROPIC_VORTEX_runs/F20_GRADED.json
