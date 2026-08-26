@@ -138,3 +138,92 @@ HEAD). **No pre-registered amendment is therefore owed by this audit, and none w
    both ways under `python3` and `python3 -O` (L-332: no `assert` guards).
 
 ZERO COMPUTE. Nothing sent, filed or posted outside this box (rule 7).
+
+---
+
+## 5. SECOND PASS — 2026-08-26T22:08Z: the thirteen instruments frozen AFTER `6812b444`
+
+**Lines whose number changed above this section: 0.** Appended to a copy of the
+HEAD blob (the worktree copy was verified byte-identical to HEAD before the
+append, L-223 shape). Section 1's class table (PHYSICS-CRITICAL vs
+INFRASTRUCTURE) is carried unchanged and is the rule applied below.
+
+**Scope.** The first pass closed at `6812b444` (2026-08-26T16:35:13Z). Every
+grading instrument this team has frozen **since** that commit is read here, plus
+the two K0f instruments the first pass could only audit read-only, plus the one
+new launcher. Blobs were hashed on disk with `git hash-object` at the audit and
+are printed so a later reader can prove which bytes were read.
+
+**The L-342 question, asked of every row:** *can an ABSENT INFRASTRUCTURE field
+refuse a grade or produce a NOT A RESULT?* The rule is that it must not.
+
+### 5.1 Table
+
+| # | file | blob (hashed on disk at this audit) | frozen at | PHYSICS-CRITICAL fields it gates on | INFRASTRUCTURE fields it touches | can an ABSENT infra field refuse / force NOT A RESULT? | verdict |
+|---|---|---|---|---|---|---|---|
+| 57 | `T-family/T13_runs/analyse_t13.py` | `127ae6d3` | `0d2dc150` 20:55Z | `DONE.<case>` existence for all three levels (l.425 — "the whole rung is graded or none of it is"); `T13_registered.json` present and its floors EQUAL the imported `roache_triple` (l.86, l.90); case identity `Ra_L = 100` recomputed from the case files (l.145); `TRef` = antisymmetry point (l.148); `Ny` even and ≥ 10 N (l.150); single-block `blockMeshDict` form (l.127); ≥ 2 written times (l.439); latest time == `endTime` (l.441); field present and NON-UNIFORM at `endTime` (l.182, l.187); structural `internalField` location (l.188); cell count == mesh (l.219); `C_ORDER` hot-to-cold linear profile (l.451); planted-zero both arms (l.348, l.371, l.375) | none — no STATUS field is opened by this file. The only `capped=` string in it is a selftest fixture it *writes* (l.578) | **NO** — the file never reads a STATUS key, so no infrastructure absence has a path to a refusal | **CLEAN** |
+| 58 | `T-family/T13_runs/mark_done_t13.py` | `02f43ea7` | `0d2dc150` 20:55Z | `STATUS.<case>` EXISTENCE (l.72 — "an absent STATUS is not inferred from an End line (K0d L1)"); integer `rc=` (l.78); `rc == 0`; `log.solve` present; `End`; last time == `endTime`; `ExecutionTime` count == `endTime`; registered fields present at `endTime`; the age guard against the case's own `0/T` | `INFRA = ("wall_s","timeout_s","ranks","core_min","capped","checkmesh_rc","solver","solver_path","note","started_utc","ended_utc")` (l.49) | **NO** — l.80 `not_measured = [k for k in INFRA if k not in d]` is a *report* returned beside the failures, never a failure. `capped` is read only through `st.get()` (l.94) and only to LABEL an already-non-zero `rc` (CAPPED vs CRASH, l.96/l.100); absent it appends "capped witness NOT MEASURED, cap-stop vs crash undetermined" (l.103) to a label that a non-zero `rc` had already earned. Driven: selftest arm l.214 *"every infrastructure field absent (incl. capped) -> still DONE, NOT MEASURED disclosed"*, expected exit 0 with the marker written | **CLEAN** — this is the `mark_done_t3_rff.py` template correctly applied; the header (l.16–21) names the T11/T4 CONFLATING form and states it is not repeated |
+| 59 | `T-family/T14_runs/analyse_t14.py` | `386181db` | `5a870e54` 21:05Z | `DONE.<case>` for all three levels (l.239); `T14_registered.json` present and floors EQUAL the import (l.54, l.58); `CASE.txt` per level (l.66); value count == registered `N*N` (l.88); levels agree on `Bi`/`Fo_end` (l.245); `valueFraction == Bi/(Bi+2N)` (l.247, L-341); case files agree with registered physics (l.249); ladder is `r = 2` (l.253); a time directory beyond 0 (l.260); `T` readable (l.269 — "a missing number is not a zero"); derived reference == registered (l.291); planted-zero both arms (l.155–183) | none. The header states it in terms (l.15): *"(STATUS wall_s, capped, timeout_s, checkmesh_rc ...) are never read here"* | **NO.** The `f_CT` temporal-bias control is the model case: absent `DONE.<CT_CASE>` prints *"C-T temporal-bias control: NOT RUN — REPORTED as absent, never gated"* (l.309–317) and the graded rows proceed | **CLEAN** |
+| 60 | `T-family/T14_runs/mark_done_t14.py` | `680eddd3` | `5a870e54` 21:05Z | as #58: STATUS existence (l.58), integer `rc` (l.62), `rc == 0`, `log.solve`, `End`, last time == `endTime`, `ExecutionTime` count, fields at `endTime`, age guard vs `0/T` | `INFRA` tuple l.35 (same eleven keys) | **NO** — l.73–75 collects the missing keys into `notes` with the literal text *"INFRASTRUCTURE fields NOT MEASURED (L-342, reported, not refused)"*; `notes` never enters `fails`. `capped` labels a non-zero `rc` only (l.78–84) and prints `NOT MEASURED` when absent. Driven: selftest l.195 *"all INFRASTRUCTURE fields absent -> DONE with NOTE (L-342)"*, `EXIT_OK` | **CLEAN** |
+| 61 | `T-family/T9aR1b_runs/analyse_t9aR1b.py` | `fd6c43a0` | `3c39d08d` 21:18Z | `DONE.<case>` for all three levels (l.233); registered floors EQUAL the import (l.53, l.57); the exact plane-wall derivation agrees with T9a's registered `T_i1` and `q` to 1e-6 (l.67, l.69 — a referent cross-check, driven in the selftest at l.331 with a 1 mK plant); `CASE.txt` (l.76); a time directory beyond 0 (l.117); `T`/`DT` readable (l.121); cell count == registered layer counts (l.124); the `C_MAP` layer-conductivity map (l.128); `cells_per_layer` == registered (l.240); `CASE.txt` and `fvSchemes` on disk both record the HARMONIC scheme (l.242, l.245 — the whole point of the rung); planted-zero both arms (l.165, l.187, l.189) | none — no STATUS key is opened; header l.24 declares refusals are PHYSICS-CRITICAL only | **NO** | **CLEAN** |
+| 62 | `T-family/T9aR1b_runs/mark_done_t9aR1b.py` | `68c78731` | `3c39d08d` 21:18Z | as #60 | `INFRA` tuple l.35 | **NO** — identical construction to #60; selftest l.196 drives the all-infra-absent arm to `EXIT_OK` | **CLEAN** |
+| 63 | `T-family/T4b_runs/analyse_t4b.py` | `69abe6e5` | `91614764` 17:20Z | `DONE.<case>` all levels (l.478); registered `roache_floors` EQUAL `scripts/roache_triple.py` (l.78, exit 2 at l.80); a time directory beyond 0 (l.485); three independent control readers each return something on every level (l.522); sampling at each registered `r/D` (l.574, l.534); **three planted-zero controls with a BLIND comparator beside each** — y+ (l.356–372, incl. l.358 requiring the blind generic-`postProcess` path to return exactly 0), exit-line (l.394–432, plant AIMED at a located cell), flux (l.448–459) | none | **NO** | **CLEAN** |
+| 64 | `T-family/T4b_runs/mark_done_t4b.py` | `d5411c3f` | `91614764` 17:20Z | as #58 | `INFRA` tuple l.53 | **NO** — l.84 `not_measured`; `capped` via `st.get()` at l.98 labels a non-zero `rc` only (l.100/l.104/l.107). Driven: selftest l.217, exit 0. Header l.21–25 names the T11/T4 CONFLATING precedent explicitly and states `capped` is NOT a conjunct | **CLEAN** |
+| 65 | `T-family/T10aR2_runs/analyse_t10aR2.py` | `a252463b` | `fb4bf7e2` 17:20Z | `DONE.<case>` own three levels (l.259) **and** the frozen T10a levels (l.262) **and** the frozen T10a-R twin `2LI_f` (l.264) — three separate completion certificates, all physics; registered floors EQUAL `scripts/roache_triple.py` (l.108) and registered `Fs`/`r` EQUAL the frozen module (l.111); the frozen `analyse_t1c.gci` floor is `STAGNANT_FLOOR` (l.256); the exact theory agrees with itself (l.266); **iterative convergence per level before any triple is formed (l.280, D440)**; the planted-zero control (l.282); `R2_f` and `R_q` present the same patch order (l.306) | none | **NO** | **CLEAN** |
+| 66 | `T-family/T10aR2_runs/mark_done_t10aR2.py` | `4fbff6a7` | `fb4bf7e2` 17:20Z | as #58 | `INFRA` tuple l.53 | **NO** — construction identical to #64 (same file lineage); selftest l.217 drives the all-infra-absent arm to exit 0 | **CLEAN** |
+| 67 | `scripts/analyse_k0f.py` (= first-pass row #2) | `764dedc6` | `e7022828` **03:24Z — BEFORE `6812b444`** | ten `DONE` (l.1551); case dir (l.1682); `boundaryField` readable (l.687–692); spec / derivation | none | **NO** | **CLEAN — carried forward unchanged.** The on-disk blob `764dedc6` is byte-identical to the blob `K0f_PREREGISTRATION.md` §7.7 registers, so the file the first pass read is the file in force; no re-audit was owed and none of its bytes moved |
+| 68 | `scripts/mark_done_k0f.py` (= first-pass row #1) | `f01e3fce` | `e7022828` **03:24Z — BEFORE `6812b444`** | STATUS EXISTENCE (exit 2, l.149); STATUS `rc ≠ 0`; `End`; last time; per-closure fields; `ExecutionTime` count; age guard; the clause-7 launch guard. For an EXTENDED case (AMENDMENT 3): `STATUS.<case>.ext1` rc, `log.solve.ext1`, a `STATUS.<case>.ext2` FAILS the case, last time == `endTime + 20000`, 60 000 `ExecutionTime` lines over both logs, first extension `Time = 40001`, age datums `0/T` **and** `STATUS.<case>` | `wall=` and `checkMesh_rc=` appear in the STATUS format but are parsed only through `\brc=(\d+)` (l.152) and are never required | **NO** | **CLEAN — carried forward unchanged**, blob matches §7.7 |
+| 69 | `scripts/launch_k0f_ext1.sh` | `49ad67c0` | `c18ab05f` 21:11Z (registered at K0f AMENDMENT 3 §A3.3) | **This is a LAUNCHER, not a grader — it writes no verdict and cannot produce a NOT A RESULT.** Its pre-write refusals are: `--ranks ≠ 1` (l.61, the registered SERIAL form); no `log.solve` (l.66); no `STATUS.<case>` (l.67) or one not `rc=0` (l.68) — the *in-wrapper solver rc*, PHYSICS-CRITICAL by section 1's table; no `40000/` checkpoint (l.72); no `0/T` age datum (l.73); `controlDict` `endTime` ≠ 40000 or `stopAt` ≠ `endTime` (l.75, l.76); a time directory beyond 40 000 (l.77); G2 lineage-aware foreign process (l.96); unresolvable solver (l.121); failed `build_k0f.py --preflight` (l.123); every `controlDict` copy-edit grep post-checked with the snapshot restored on failure (l.128–131) | it WRITES `timeout_s= ranks= solver= solver_path= note= segment= restart_from= endTime_ext= controldict_restored= started_utc= ended_utc=` and hardcodes `checkMesh_rc=na` (l.105–112); it READS none of them back | **NO.** Two authorisation refusals — an existing `STATUS.<case>.ext1` (l.69), `.ext2` (l.70) or `log.solve.ext1` (l.71) — are gated on file EXISTENCE, and they refuse **to start a second extension §7.1 does not authorise**; they are one-way (a *present* file refuses, an *absent* one proceeds), so no ABSENCE can refuse anything | **CLEAN** |
+
+### 5.2 Counts, second pass
+
+| verdict | count | files |
+|---|---|---|
+| CLEAN | **13** | rows 57–69 |
+| CONFLATING | **0** | — |
+| N/A | **0** | — |
+
+**Running total over both passes: 69 numbered rows + 1 name-adjacent = 70;
+CLEAN 62, CONFLATING 5 (all first-pass, all class (i), all closed), N/A 2.**
+
+Files I could not classify: **none.** Every refusal site in all thirteen files
+was read in context, not by grep alone.
+
+### 5.3 Amendments owed by this pass: NONE
+
+The forward-only remedy §4 laid down is **met in full** by every instrument
+frozen since it was written:
+
+1. **Item 1 (`capped` labels, never voids).** All five new `mark_done_*.py`
+   read `capped` through `.get()` and only to separate CAPPED from CRASH on an
+   already-non-zero `rc`; four of the five (#58, #64, #66 and their headers)
+   name the T11/T4 CONFLATING finding by name and state they do not repeat it.
+2. **Item 2 (completion conjuncts are rule-4 clauses and nothing else).** No new
+   instrument makes `log.checkMesh` cell counts, `ExecutionTime` seconds, log
+   mtimes, `ranks`, `timeout_s` or `core_min` a conjunct. The `analyse_t8.py`
+   failure mode — `act = float(st["core_min"])` raising an uncaught `KeyError`
+   after the verdicts print and losing the exit code — **does not recur**: none
+   of the five new comparators opens a STATUS file at all.
+3. **Item 3 (labelled `INFRA` tuple + a selftest that drives both ways under
+   `python3` and `python3 -O`).** All five new `mark_done_*.py` carry a named
+   `INFRA` tuple and an explicit all-infrastructure-absent selftest arm asserting
+   **DONE**; the five new comparators carry `--selftest` arms driving each
+   refusal under both interpreters and carry **no `assert` statement** (L-332).
+
+**No `<script>.L342_PROPOSED.py` and no `.diff` was written, because no
+amendment is owed.** Proposing a change to a CLEAN frozen instrument would move
+a grading-path blob for nothing, which §7.7-style freezes exist to prevent.
+
+### 5.4 One finding recorded, outside the L-342 field-class question
+
+`verification/runs/T-family/T5_runs/digitise_t5.py` is in T5's §16.9 FREEZE SET
+at blob `e55d6208c511`. HEAD carries `e55d6208`; the **worktree copy on disk
+hashes `ea789ea6`** and `git diff HEAD --numstat` reports **+929 / −1 lines**.
+The frozen bytes are intact at HEAD and no T5 grade reads the digitiser today,
+so nothing is refused by it — but a freeze-set file whose worktree copy is 929
+lines ahead of its registered blob is somebody's uncommitted work sitting on a
+frozen path. **Inspected, not reverted** (rule 10). Reported to the supervisor
+for a landing decision; recorded here so the next reader of the freeze set is
+not surprised by a hash mismatch against the on-disk file.
+
+ZERO COMPUTE in this pass. Nothing sent, filed or posted outside this box (rule 7).
