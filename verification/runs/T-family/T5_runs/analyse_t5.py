@@ -44,8 +44,14 @@ REQUIRED_FIELDS = ("T", "U", "p_rgh", "alphat", "nut", "k", "omega")
 # at y+ 1.248 on the plate WHILE THE PIPE WALL SAT AT y+ ~= 30 under low-Re wall
 # functions, and no registered gate could see it BECAUSE C1 NAMED ONLY THE PLATE.
 # A gate that names one wall certifies one wall.
+# AMENDMENT 3 (pre-first-compute): the registered HALF domain (S5.2, symmetry at
+# z/H = 0) has ONE side face.  The wall set is the actual wall-patch set read from
+# the built case's constant/air/polyMesh/boundary (commit b98f3930): floor, roof,
+# cube_front, cube_rear, cube_top, cube_side_n.  `cube_side_s` named a patch that
+# does not exist and would have returned NOT A RESULT on every level by
+# construction.  No threshold, band or logic moves.
 YPLUS_WALLS = ("cube_front", "cube_top", "cube_rear",
-               "cube_side_n", "cube_side_s", "floor", "roof")
+               "cube_side_n", "floor", "roof")
 YPLUS_MAX = 5.0     # the edge of the viscous sublayer; above this the low-Re
                     # integration is resolving a region it does not resolve
 YPLUS_TARGET = {"c": 2.6, "m": 1.6, "f": 1.0}
