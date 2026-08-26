@@ -14070,3 +14070,79 @@ shown clean, not shown exposed.** The remedy belongs in the next registrations.
 > INSTRUMENT *AND THE DATA TOGETHER*, NEVER OF THE INSTRUMENT ALONE. Any control whose
 > magnitude is fixed before the data exists is asserting a sensitivity it has not
 > measured — and the assertion fails silently, in the direction of a pass.**
+
+---
+
+## L-335 — A COMMENT THAT NAMES A CLAUSE IS THE IMPLEMENTATION'S ALIBI, NOT ITS EVIDENCE
+
+**2026-08-26, dafoam lane, on the dafoam-supervisor's direction. Three independent instruments in
+one night. Executable check: `scripts/check_docstring_clauses.py`.**
+
+### The three instances
+
+| id | instrument | docstring names | code carries |
+|---|---|---|---|
+| **`D4-DEF-7`** | `cases/dafoam/ladder-a/A2/curriculum_D4/d4_grade.py:127` `g_completion` | `rc == 0`, a terminal statement from the producer's own log FILE, the age guard | **the age guard alone** |
+| **`D4-DEF-7` (2)** | `cases/dafoam/ladder-a/A2/curriculum_D4/d4_grade_SUPPLEMENT.py:135` `g_completion` | the **same three**, in a byte-identical docstring | **the same one** |
+| **`D7R-GRADER-DEF-7`** | `cases/dafoam/ladder-a/A3/curriculum_D7/d7_grade.py:224` `g1_completion` | the same three | **two** — `rc` and the age guard |
+
+**What it cost, measured not supposed:** D4 emitted `G1_completion_and_age = PASS` on a run whose
+**REQUIRED** arm `F` ledger row reads `rc=1` (`SUPERVISOR_D4_ACCEPTANCE_AND_D4DEF7.md`, ruling
+`d9f7daa3`).
+
+**THE SHARPEST FORM, and it is the one to remember.** In the whole 74,338-byte `d7_grade.py` the
+string `End` occurs **exactly once — inside the docstring that claims the check.** The clause
+existed in precisely one place in the file, and that place was prose.
+
+### The general form worth carrying
+
+> **WHERE A GATE'S DOCSTRING NAMES MORE CLAUSES THAN ITS CODE CARRIES, THE DOCSTRING IS THE ONLY
+> PLACE THE MISSING CLAUSE EXISTS — and every reader downstream takes the NAME for the CHECK.**
+> Two supervisors did. The failure is silent, survives review, and fails in the direction of a
+> pass, because a docstring is read as a specification and stored as a memory of having verified.
+
+A near relative of L-325's shape: an assertion about the instrument that was never measured
+**on** the instrument.
+
+### The executable check, and it was DEMONSTRATED, not asserted
+
+`scripts/check_docstring_clauses.py` AST-parses a target function, matches its docstring against a
+registry of clauses, and asks whether each **named** clause appears in an **executable** node of that
+function's own body — bare string-expression statements excluded, because a docstring is exactly what
+must not count as code. A clause named in prose and absent from the code is reported `ALIBI`.
+
+**It refuses (exit 2) rather than degrading:** on an absent file or function; on zero targets; and —
+L-302 — **on a docstring that names none of the registered clauses**, because a check with nothing to
+check is not a check.
+
+**MEASURED, on the three instruments above, at the commit that lands this lesson:**
+
+    d4_grade.py:g_completion             RC_ZERO ALIBI   LOG_TERMINAL ALIBI   AGE_GUARD OK
+    d4_grade_SUPPLEMENT.py:g_completion  RC_ZERO ALIBI   LOG_TERMINAL ALIBI   AGE_GUARD OK
+    d7_grade.py:g1_completion            RC_ZERO OK      LOG_TERMINAL ALIBI   AGE_GUARD OK
+    targets=3 alibis=5, exit 1
+
+**It reproduces all three defects that were found independently, and it DISCRIMINATES**: `RC_ZERO`
+reads `OK` for D7 and `ALIBI` for D4 — which is the independently established truth, since driving
+D7's ledger `rc` to 1 on a sacrificial fixture moved its verdict `GATE REACHED → NOT A RESULT`
+(`curriculum_D7R/RESULTS.md` §6) while D4's emitted `PASS` on `rc=1`.
+
+**And it was shown NOT to fire on a repair**: sacrificial copies of both graders, with the missing
+clauses added and nothing else changed, return `targets=2 alibis=0, exit 0`. **A check shown only to
+fire is half a check.**
+
+Its own selftest is **13 units, 13 passed**, each mutant asserting *that the mutation actually
+applied* before asserting that the detector fired — so no unit can pass vacuously. **`ast.Assert`
+nodes in the checker: 0**, and both the selftest and the demonstration are byte-identical under
+`python3 -O`.
+
+### THE CHECK'S OWN LIMIT, MEASURED WHILE DEMONSTRATING IT, AND IT IS NOT A FOOTNOTE
+
+**It verifies that an implementation is PRESENT, never that it is CORRECT.** This is not a caution
+written in advance — it was **measured on the repaired fixture**: the `LOG_TERMINAL` repair inserted
+into the sacrificial `d4_grade.py` was a loop over an **empty list**, code that can never read a log,
+and **the check accepted it and returned `OK`.**
+
+> **This check is a FLOOR, not a gate, and it is no substitute for reading the diff.** It closes the
+> case where a clause is *absent*. It is blind to the case where a clause is *vacuous* — which is
+> L-302's territory and T8's `analyse_t8.py:1329` tautology, and needs the other instrument.
