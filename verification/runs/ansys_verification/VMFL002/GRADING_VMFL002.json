@@ -1,0 +1,186 @@
+{
+  "bands": {
+    "dP_rel": 0.02,
+    "rise_rel": 0.02
+  },
+  "blocking": [],
+  "case": "VMFL002",
+  "ceiling_note": "Ceiling GATE REACHED per supervisor Ruling 1 (2026-08-26): the frozen gate compares to the manual PRINTED Target (1.000 Pa / 341.00 K, Table .02.1), i.e. to Ansys published reference number the lab does not itself evaluate -- reaching it is GATE REACHED, not an independent PASS.  The V/P CATEGORY is orthogonal and does NOT by itself cap below PASS (VMFL019 is category V and earned PASS); the cap here is the manual-number gate.  The lab own closed-form value (0.99724 Pa / 341.0638 K, prereg Corroboration) is used ONLY to corroborate the archive-sourced inlet, never as the gate; were the gate set against it, PASS would be reachable (cf. VMFL004).",
+  "deviation": {
+    "dP_rel": 0.0021399448627541506,
+    "rise_rel": 0.008662996076793661
+  },
+  "endTime": 5000,
+  "levels": {
+    "L1": {
+      "channels": {
+        "T_centre_outlet_K": 340.62382274609416,
+        "dP_Pa": 0.9994823510323004,
+        "p_inlet_kinematic": 7.387703089898e-05,
+        "p_outlet_kinematic": 0.0,
+        "rise_K": 40.62382274609416
+      },
+      "controls": {
+        "T_centre_outlet_K": {
+          "artifact": "verification/runs/ansys_verification/VMFL002/L1/postProcessing/outletT/5000/T_outletPatch.raw",
+          "baseline": 340.62382274609416,
+          "control": "PASS",
+          "delta_seen": 0.0005615069078999113,
+          "perturbed": 340.62438425300206,
+          "plant": 0.001234
+        },
+        "dP_Pa": {
+          "artifact": "verification/runs/ansys_verification/VMFL002/L1/postProcessing/pInlet/0/surfaceFieldValue.dat",
+          "baseline": 7.387703089898e-05,
+          "control": "PASS",
+          "delta_seen": 0.001234,
+          "perturbed": 0.00130787703089898,
+          "plant": 0.001234
+        }
+      },
+      "dir": "verification/runs/ansys_verification/VMFL002/L1",
+      "iterative_convergence": {
+        "final_initial_residuals": {
+          "Ux_initial": 8.66307039265e-13,
+          "Uy_initial": 3.76138532947e-09,
+          "p_initial": 2.15293337104e-12
+        },
+        "floor": 1e-07,
+        "note": "",
+        "ok": true
+      },
+      "state": "COMPLETE",
+      "strict_completion": {
+        "ok": true,
+        "reasons": []
+      }
+    },
+    "L2": {
+      "channels": {
+        "T_centre_outlet_K": 340.64154155434926,
+        "dP_Pa": 1.0015394305382628,
+        "p_inlet_kinematic": 7.402908053354e-05,
+        "p_outlet_kinematic": 0.0,
+        "rise_K": 40.64154155434926
+      },
+      "controls": {
+        "T_centre_outlet_K": {
+          "artifact": "verification/runs/ansys_verification/VMFL002/L2/postProcessing/outletT/5000/T_outletPatch.raw",
+          "baseline": 340.64154155434926,
+          "control": "PASS",
+          "delta_seen": 0.0005615069078999113,
+          "perturbed": 340.64210306125716,
+          "plant": 0.001234
+        },
+        "dP_Pa": {
+          "artifact": "verification/runs/ansys_verification/VMFL002/L2/postProcessing/pInlet/0/surfaceFieldValue.dat",
+          "baseline": 7.402908053354e-05,
+          "control": "PASS",
+          "delta_seen": 0.001234,
+          "perturbed": 0.0013080290805335402,
+          "plant": 0.001234
+        }
+      },
+      "dir": "verification/runs/ansys_verification/VMFL002/L2",
+      "iterative_convergence": {
+        "final_initial_residuals": {
+          "Ux_initial": 4.34397987643e-15,
+          "Uy_initial": 3.63412329535e-10,
+          "p_initial": 8.6156519849e-13
+        },
+        "floor": 1e-07,
+        "note": "",
+        "ok": true
+      },
+      "state": "COMPLETE",
+      "strict_completion": {
+        "ok": true,
+        "reasons": []
+      }
+    },
+    "L3": {
+      "channels": {
+        "T_centre_outlet_K": 340.64481716085146,
+        "dP_Pa": 1.0021399448627542,
+        "p_inlet_kinematic": 7.407346772583e-05,
+        "p_outlet_kinematic": 0.0,
+        "rise_K": 40.64481716085146
+      },
+      "controls": {
+        "T_centre_outlet_K": {
+          "artifact": "verification/runs/ansys_verification/VMFL002/L3/postProcessing/outletT/5000/T_outletPatch.raw",
+          "baseline": 340.64481716085146,
+          "control": "PASS",
+          "delta_seen": 0.0005615069079567547,
+          "perturbed": 340.6453786677594,
+          "plant": 0.001234
+        },
+        "dP_Pa": {
+          "artifact": "verification/runs/ansys_verification/VMFL002/L3/postProcessing/pInlet/0/surfaceFieldValue.dat",
+          "baseline": 7.407346772583e-05,
+          "control": "PASS",
+          "delta_seen": 0.001234,
+          "perturbed": 0.0013080734677258302,
+          "plant": 0.001234
+        }
+      },
+      "dir": "verification/runs/ansys_verification/VMFL002/L3",
+      "iterative_convergence": {
+        "final_initial_residuals": {
+          "Ux_initial": 1.85195457556e-15,
+          "Uy_initial": 1.91343358594e-10,
+          "p_initial": 7.58493544227e-13
+        },
+        "floor": 1e-07,
+        "note": "",
+        "ok": true
+      },
+      "state": "COMPLETE",
+      "strict_completion": {
+        "ok": true,
+        "reasons": []
+      }
+    }
+  },
+  "manual_page": 17,
+  "reference": {
+    "T_centre_outlet_K": 341.0,
+    "dP_Pa": 1.0,
+    "kind": "AN (closed form)",
+    "rise_K": 41.0,
+    "source": "Ansys Fluid Dynamics Verification Manual VM2026R1 p.17 Table .02.1 \"Target\""
+  },
+  "tier": "GATE REACHED",
+  "tier_ceiling": "GATE REACHED",
+  "triple_dP": {
+    "e21": 0.002057079505962345,
+    "e32": 0.0006005143244913747,
+    "f_coarse": 0.9994823510323004,
+    "f_extrapolated": 1.0023875255810817,
+    "f_fine": 1.0021399448627542,
+    "f_medium": 1.0015394305382628,
+    "gci_fine": 0.00030881505072796316,
+    "p": 1.776326989915658,
+    "r": 2.0,
+    "ratio": 0.29192567557588955,
+    "state": "CONVERGING"
+  },
+  "triple_rise": {
+    "e21": 0.017718808255096974,
+    "e32": 0.0032756065021999348,
+    "f_coarse": 40.62382274609416,
+    "f_extrapolated": 40.645560043083584,
+    "f_fine": 40.64481716085146,
+    "f_medium": 40.64154155434926,
+    "gci_fine": 2.284677001950738e-05,
+    "p": 2.435447611388541,
+    "r": 2.0,
+    "ratio": 0.18486607310385433,
+    "state": "CONVERGING"
+  },
+  "triple_states": [
+    "CONVERGING",
+    "CONVERGING"
+  ],
+  "verdict": "GATE REACHED"
+}

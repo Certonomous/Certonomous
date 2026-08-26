@@ -1,0 +1,141 @@
+{
+  "Uwall": 0.01,
+  "case": "VMFL019",
+  "comparator": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL019/grade_vmfl019.py",
+  "completion": {
+    "L1_30": {
+      "age_guard": "fields newer than 0/U",
+      "endTime": 5.0,
+      "expect_steps": 100,
+      "fields_at_endTime": [
+        "U",
+        "p"
+      ],
+      "levers": {
+        "mesh": {
+          "cells": 120,
+          "mesh_ok": true
+        },
+        "nu": 0.001
+      },
+      "n_exec": 100,
+      "rc": 0
+    },
+    "L2_60": {
+      "age_guard": "fields newer than 0/U",
+      "endTime": 5.0,
+      "expect_steps": 200,
+      "fields_at_endTime": [
+        "U",
+        "p"
+      ],
+      "levers": {
+        "mesh": {
+          "cells": 240,
+          "mesh_ok": true
+        },
+        "nu": 0.001
+      },
+      "n_exec": 200,
+      "rc": 0
+    },
+    "L3_120": {
+      "age_guard": "fields newer than 0/U",
+      "endTime": 5.0,
+      "expect_steps": 400,
+      "fields_at_endTime": [
+        "U",
+        "p"
+      ],
+      "levers": {
+        "mesh": {
+          "cells": 480,
+          "mesh_ok": true
+        },
+        "nu": 0.001
+      },
+      "n_exec": 400,
+      "rc": 0
+    }
+  },
+  "gate": {
+    "y=0.05": {
+      "analytic": 0.006170750774519737,
+      "lab": 0.00616765356837,
+      "ok": true,
+      "rel": 0.000501917232263947,
+      "state": "CONVERGING"
+    },
+    "y=0.10": {
+      "analytic": 0.0031731050786291404,
+      "lab": 0.00317007704028,
+      "ok": true,
+      "rel": 0.0009542824060678219,
+      "state": "CONVERGING"
+    }
+  },
+  "levels": {
+    "L1_30": {
+      "src": "L1_30/postProcessing/probesU/0/U",
+      "ux": [
+        0.00615750138722,
+        0.00316108837043
+      ]
+    },
+    "L2_60": {
+      "src": "L2_60/postProcessing/probesU/0/U",
+      "ux": [
+        0.00616441382001,
+        0.00316706434421
+      ]
+    },
+    "L3_120": {
+      "src": "L3_120/postProcessing/probesU/0/U",
+      "ux": [
+        0.00616765356837,
+        0.00317007704028
+      ]
+    }
+  },
+  "manual_page": "77",
+  "nu": 0.001,
+  "planted_zero": {
+    "file": "U",
+    "passed": true,
+    "planted": 0.001234,
+    "reader_delta": 0.0012339999999999999
+  },
+  "tend": 5.0,
+  "triples": {
+    "y=0.05": {
+      "R": 0.468684247416807,
+      "d21": -3.239748360000204e-06,
+      "d32": -6.912432789999562e-06,
+      "f_coarse": 0.00615750138722,
+      "f_extrapolated": 0.006170511415167397,
+      "f_fine": 0.00616765356837,
+      "f_med": 0.00616441382001,
+      "fs": 1.25,
+      "gci_fine": 0.0005792005755748898,
+      "p": 1.0933117885610704,
+      "ratio": 2.0,
+      "state": "CONVERGING"
+    },
+    "y=0.10": {
+      "R": 0.5041347537505133,
+      "d21": -3.01269606999997e-06,
+      "d32": -5.975973780000289e-06,
+      "f_coarse": 0.00316108837043,
+      "f_extrapolated": 0.003173139978856281,
+      "f_fine": 0.00317007704028,
+      "f_med": 0.00316706434421,
+      "fs": 1.25,
+      "gci_fine": 0.0012077539983106965,
+      "p": 0.9881186814342546,
+      "ratio": 2.0,
+      "state": "CONVERGING"
+    }
+  },
+  "verdict": "PASS",
+  "why": "both probes within 1.0% of the analytic erfc profile"
+}

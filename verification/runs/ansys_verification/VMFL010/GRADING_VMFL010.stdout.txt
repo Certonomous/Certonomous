@@ -1,0 +1,9 @@
+VMFL010  split(L1,L2,L3)=[0.8859493355955057, 0.8844529270402999, 0.8847487181565803]
+  NOT A RESULT  triple=OSCILLATORY  value=0.8847
+rc=0
+utc=2026-08-25T20:27:14Z
+grader=cases/ansys_verification/VMFL010/grade_vmfl010.py
+grader_blob=8bb2b2640428f6856c3e33432ca37f9d60dcd585
+prereg_blob=4d30fb4c80e6dc9c4cdedf893020d3092b632baa
+graded_by=ansys-lane-opus
+note=grader prints verdict to stdout only and writes no json; this file is the captured stdout, grader UNMODIFIED

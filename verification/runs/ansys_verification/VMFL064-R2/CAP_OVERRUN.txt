@@ -1,0 +1,1 @@
+2026-08-26T20:45:38Z CAP OVERRUN REPORTED, NOT ENFORCED: case VMFL064-R2 elapsed 10585 s > 1.10 x registered 324 s (5.4 core-min / 1 ranks). The run was NOT killed (caps report; COMPUTE_BUDGET_CHARTER).

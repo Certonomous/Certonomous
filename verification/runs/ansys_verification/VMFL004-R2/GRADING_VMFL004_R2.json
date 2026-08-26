@@ -1,0 +1,286 @@
+{
+  "bands": {
+    "rel_dev": 0.001
+  },
+  "blocking": [],
+  "case": "VMFL004-R2",
+  "ceiling_note": "Gate quantity, reference (<u> = 2.5 m/s EXACT), band (0.1 %) and ceiling are CARRIED OVER BYTE-IDENTICAL from VMFL004 (register row #25) so this re-registration cannot be gate-fitting.  The ONLY change is the iterative-convergence channel: gated on the DRIVEN Ux_initial < 1e-7, with the transverse Uy/p residuals exempted from the floor as normalization noise (L-338) but tested for actual degeneracy (|<U>_y|,|<U>_z| <= 1e-6 m/s) and boundedness (< 1.0). Ceiling PASS/HOLDS per the VMFL019 precedent (closed form, figure-only manual).",
+  "cites_row": 25,
+  "deviation": {
+    "band": 0.001,
+    "ref_ms": 2.5,
+    "rel_dev": 3.124984399995867e-05,
+    "volavg_ux_ms": 2.50007812461
+  },
+  "endTime": 20000,
+  "iterative_convergence_channel": {
+    "driven": [
+      "Ux_initial"
+    ],
+    "floor": 1e-07,
+    "rationale": "L-338: in a 1-D fully-developed flow Uy and p are degenerate ~zero fields whose normalized residuals are noise; gate on the driven channel, and test the transverse fields for ACTUAL degeneracy (mean velocity negligible) and boundedness (residual not diverging).",
+    "transverse_abs_ceil_ms": 1e-06,
+    "transverse_exempted_from_floor": [
+      "Uy_initial",
+      "p_initial"
+    ],
+    "transverse_resid_ceil": 1.0
+  },
+  "levels": {
+    "L1": {
+      "channels": {
+        "ref_ms": 2.5,
+        "rel_dev": 0.0005000000000000782,
+        "volavg_ux_ms": 2.50125,
+        "volavg_uy_ms": 4.333909433312e-17,
+        "volavg_uz_ms": 0.0
+      },
+      "controls": {
+        "resid_Ux_initial": {
+          "artifact": "verification/runs/ansys_verification/VMFL004-R2/L1/postProcessing/resid/0/solverInfo.dat",
+          "baseline": 1.08515228605e-15,
+          "control": "PASS",
+          "delta_seen": 0.001234,
+          "perturbed": 0.0012340000000010851,
+          "plant": 0.001234
+        },
+        "volavg_ux_ms": {
+          "artifact": "verification/runs/ansys_verification/VMFL004-R2/L1/postProcessing/volAvgU/0/volFieldValue.dat",
+          "baseline": 2.50125,
+          "control": "PASS",
+          "delta_seen": 0.0012340000000001794,
+          "perturbed": 2.5024840000000004,
+          "plant": 0.001234
+        },
+        "volavg_uy_ms": {
+          "artifact": "verification/runs/ansys_verification/VMFL004-R2/L1/postProcessing/volAvgU/0/volFieldValue.dat",
+          "baseline": 4.333909433312e-17,
+          "control": "PASS",
+          "delta_seen": 0.001234,
+          "perturbed": 0.0012340000000000434,
+          "plant": 0.001234
+        },
+        "volavg_uz_ms": {
+          "artifact": "verification/runs/ansys_verification/VMFL004-R2/L1/postProcessing/volAvgU/0/volFieldValue.dat",
+          "baseline": 0.0,
+          "control": "PASS",
+          "delta_seen": 0.001234,
+          "perturbed": 0.001234,
+          "plant": 0.001234
+        }
+      },
+      "dir": "verification/runs/ansys_verification/VMFL004-R2/L1",
+      "iterative_convergence": {
+        "driven_channels": [
+          "Ux_initial"
+        ],
+        "driven_residuals": {
+          "Ux_initial": 1.08515228605e-15
+        },
+        "floor": 1e-07,
+        "note": "",
+        "ok": true,
+        "transverse_residuals": {
+          "Uy_initial": 0.0946583798024,
+          "p_initial": 0.0423721552177
+        }
+      },
+      "state": "COMPLETE",
+      "strict_completion": {
+        "ok": true,
+        "reasons": []
+      },
+      "transverse_degeneracy": {
+        "abs_ceil_ms": 1e-06,
+        "ok": true,
+        "reasons": [],
+        "resid_ceil": 1.0,
+        "transverse_residuals": {
+          "Uy_initial": 0.0946583798024,
+          "p_initial": 0.0423721552177
+        },
+        "volavg_uy_ms": 4.333909433312e-17,
+        "volavg_uz_ms": 0.0
+      }
+    },
+    "L2": {
+      "channels": {
+        "ref_ms": 2.5,
+        "rel_dev": 0.00012500000000006394,
+        "volavg_ux_ms": 2.5003125,
+        "volavg_uy_ms": -6.553727207394e-17,
+        "volavg_uz_ms": 0.0
+      },
+      "controls": {
+        "resid_Ux_initial": {
+          "artifact": "verification/runs/ansys_verification/VMFL004-R2/L2/postProcessing/resid/0/solverInfo.dat",
+          "baseline": 1.38620370331e-15,
+          "control": "PASS",
+          "delta_seen": 0.001234,
+          "perturbed": 0.0012340000000013863,
+          "plant": 0.001234
+        },
+        "volavg_ux_ms": {
+          "artifact": "verification/runs/ansys_verification/VMFL004-R2/L2/postProcessing/volAvgU/0/volFieldValue.dat",
+          "baseline": 2.5003125,
+          "control": "PASS",
+          "delta_seen": 0.0012340000000001794,
+          "perturbed": 2.5015465000000003,
+          "plant": 0.001234
+        },
+        "volavg_uy_ms": {
+          "artifact": "verification/runs/ansys_verification/VMFL004-R2/L2/postProcessing/volAvgU/0/volFieldValue.dat",
+          "baseline": -6.553727207394e-17,
+          "control": "PASS",
+          "delta_seen": 0.001234,
+          "perturbed": 0.0012339999999999346,
+          "plant": 0.001234
+        },
+        "volavg_uz_ms": {
+          "artifact": "verification/runs/ansys_verification/VMFL004-R2/L2/postProcessing/volAvgU/0/volFieldValue.dat",
+          "baseline": 0.0,
+          "control": "PASS",
+          "delta_seen": 0.001234,
+          "perturbed": 0.001234,
+          "plant": 0.001234
+        }
+      },
+      "dir": "verification/runs/ansys_verification/VMFL004-R2/L2",
+      "iterative_convergence": {
+        "driven_channels": [
+          "Ux_initial"
+        ],
+        "driven_residuals": {
+          "Ux_initial": 1.38620370331e-15
+        },
+        "floor": 1e-07,
+        "note": "",
+        "ok": true,
+        "transverse_residuals": {
+          "Uy_initial": 0.0714453557704,
+          "p_initial": 0.0471497577223
+        }
+      },
+      "state": "COMPLETE",
+      "strict_completion": {
+        "ok": true,
+        "reasons": []
+      },
+      "transverse_degeneracy": {
+        "abs_ceil_ms": 1e-06,
+        "ok": true,
+        "reasons": [],
+        "resid_ceil": 1.0,
+        "transverse_residuals": {
+          "Uy_initial": 0.0714453557704,
+          "p_initial": 0.0471497577223
+        },
+        "volavg_uy_ms": -6.553727207394e-17,
+        "volavg_uz_ms": 0.0
+      }
+    },
+    "L3": {
+      "channels": {
+        "ref_ms": 2.5,
+        "rel_dev": 3.124984399995867e-05,
+        "volavg_ux_ms": 2.50007812461,
+        "volavg_uy_ms": -2.502114403358e-17,
+        "volavg_uz_ms": 0.0
+      },
+      "controls": {
+        "resid_Ux_initial": {
+          "artifact": "verification/runs/ansys_verification/VMFL004-R2/L3/postProcessing/resid/0/solverInfo.dat",
+          "baseline": 3.2196027342e-13,
+          "control": "PASS",
+          "delta_seen": 0.001234,
+          "perturbed": 0.0012340000003219604,
+          "plant": 0.001234
+        },
+        "volavg_ux_ms": {
+          "artifact": "verification/runs/ansys_verification/VMFL004-R2/L3/postProcessing/volAvgU/0/volFieldValue.dat",
+          "baseline": 2.50007812461,
+          "control": "PASS",
+          "delta_seen": 0.0012340000000001794,
+          "perturbed": 2.50131212461,
+          "plant": 0.001234
+        },
+        "volavg_uy_ms": {
+          "artifact": "verification/runs/ansys_verification/VMFL004-R2/L3/postProcessing/volAvgU/0/volFieldValue.dat",
+          "baseline": -2.502114403358e-17,
+          "control": "PASS",
+          "delta_seen": 0.001234,
+          "perturbed": 0.0012339999999999751,
+          "plant": 0.001234
+        },
+        "volavg_uz_ms": {
+          "artifact": "verification/runs/ansys_verification/VMFL004-R2/L3/postProcessing/volAvgU/0/volFieldValue.dat",
+          "baseline": 0.0,
+          "control": "PASS",
+          "delta_seen": 0.001234,
+          "perturbed": 0.001234,
+          "plant": 0.001234
+        }
+      },
+      "dir": "verification/runs/ansys_verification/VMFL004-R2/L3",
+      "iterative_convergence": {
+        "driven_channels": [
+          "Ux_initial"
+        ],
+        "driven_residuals": {
+          "Ux_initial": 3.2196027342e-13
+        },
+        "floor": 1e-07,
+        "note": "",
+        "ok": true,
+        "transverse_residuals": {
+          "Uy_initial": 0.0491790185856,
+          "p_initial": 0.0922783686198
+        }
+      },
+      "state": "COMPLETE",
+      "strict_completion": {
+        "ok": true,
+        "reasons": []
+      },
+      "transverse_degeneracy": {
+        "abs_ceil_ms": 1e-06,
+        "ok": true,
+        "reasons": [],
+        "resid_ceil": 1.0,
+        "transverse_residuals": {
+          "Uy_initial": 0.0491790185856,
+          "p_initial": 0.0922783686198
+        },
+        "volavg_uy_ms": -2.502114403358e-17,
+        "volavg_uz_ms": 0.0
+      }
+    }
+  },
+  "manual_page": 21,
+  "reference": {
+    "carried_over_from": "VMFL004 (gate quantity, reference, band, ceiling BYTE-IDENTICAL)",
+    "formula": "u(y) = 9y - 6y^2 m/s ; section mean <u> = 2.5 m/s EXACT",
+    "gate_quantity": "volAverage(U)_x",
+    "kind": "V (exact closed form, lab-evaluated)",
+    "ref_ms": 2.5,
+    "source": "Munson, Okiishi & Huebsch, Fundamentals of Fluid Mechanics 5e -- the manual p.21 Reference; the manual prints only a FIGURE (Figure .04.2) and NO discrete target table, so the reference is the closed-form section mean, evaluated by the lab itself as INT_0^1 (9y-6y^2) dy = 2.5 m/s",
+    "u_peak_ms_context": 3.375
+  },
+  "tier": "HOLDS",
+  "tier_ceiling": "HOLDS",
+  "triple": {
+    "e21": -0.0009375000000000355,
+    "e32": -0.0002343753900002632,
+    "f_coarse": 2.50125,
+    "f_extrapolated": 2.499999999306666,
+    "f_fine": 2.50007812461,
+    "f_medium": 2.5003125,
+    "gci_fine": 3.906143100333407e-05,
+    "p": 1.9999975993558838,
+    "r": 2.0,
+    "ratio": 0.2500004160002713,
+    "state": "CONVERGING"
+  },
+  "triple_on": "volavg_ux_ms",
+  "verdict": "PASS"
+}

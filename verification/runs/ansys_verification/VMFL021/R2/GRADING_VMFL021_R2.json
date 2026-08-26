@@ -1,0 +1,156 @@
+{
+  "A2_geom": 6.972459419812653e-07,
+  "V_theo": 706.9724181324191,
+  "ansys_context": {
+    "fluent_cd": 0.631
+  },
+  "case": "VMFL021-R2",
+  "comparator": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL021/R2/grade_vmfl021_r2.py",
+  "completion": {
+    "L1": {
+      "age_guard": "U newer than 0/U",
+      "endTime": 0.003,
+      "fields_at_endTime": [
+        "U",
+        "p_rgh",
+        "alpha.water"
+      ],
+      "n_exec": 2675,
+      "rc": 0
+    },
+    "L2": {
+      "age_guard": "U newer than 0/U",
+      "endTime": 0.003,
+      "fields_at_endTime": [
+        "U",
+        "p_rgh",
+        "alpha.water"
+      ],
+      "n_exec": 5839,
+      "rc": 0
+    },
+    "L3": {
+      "age_guard": "U newer than 0/U",
+      "endTime": 0.003,
+      "fields_at_endTime": [
+        "U",
+        "p_rgh",
+        "alpha.water"
+      ],
+      "n_exec": 12288,
+      "rc": 0
+    }
+  },
+  "gate": {
+    "cd_fine": 0.634868207596246,
+    "ok": true,
+    "rel": 0.023980979993945103,
+    "tol": 0.05
+  },
+  "levels": {
+    "L1": {
+      "a2_fo": 6.97245941e-07,
+      "cd": 0.6633908641354331,
+      "cov": 0.00016831219614343564,
+      "inlet_src": "L1/postProcessing/inletMassFlow/0/surfaceFieldValue.dat",
+      "n_window": 811,
+      "outlet_src": "L1/postProcessing/outletMassFlow/0/surfaceFieldValue.dat",
+      "plateaued": true,
+      "ptp": 3.408900000000082e-07,
+      "ptp_frac": 0.0010415410583167353,
+      "q_mean": 0.0003270076793329223,
+      "t_window": [
+        0.0021,
+        0.003
+      ],
+      "whole_range": 0.00032729386640881
+    },
+    "L2": {
+      "a2_fo": 6.97245941e-07,
+      "cd": 0.6414379125783805,
+      "cov": 0.001884942956184857,
+      "inlet_src": "L2/postProcessing/inletMassFlow/0/surfaceFieldValue.dat",
+      "n_window": 1791,
+      "outlet_src": "L2/postProcessing/outletMassFlow/0/surfaceFieldValue.dat",
+      "plateaued": true,
+      "ptp": 7.703039000000024e-06,
+      "ptp_frac": 0.024343575345918606,
+      "q_mean": 0.0003161863308168621,
+      "t_window": [
+        0.0021,
+        0.003
+      ],
+      "whole_range": 0.00031643005969916004
+    },
+    "L3": {
+      "a2_fo": 6.97245941e-07,
+      "cd": 0.634868207596246,
+      "cov": 3.4632076501745868e-06,
+      "inlet_src": "L3/postProcessing/inletMassFlow/0/surfaceFieldValue.dat",
+      "n_window": 3784,
+      "outlet_src": "L3/postProcessing/outletMassFlow/0/surfaceFieldValue.dat",
+      "plateaued": true,
+      "ptp": 6.686000000009646e-09,
+      "ptp_frac": 2.1364774338914763e-05,
+      "q_mean": 0.00031294790216754753,
+      "t_window": [
+        0.0021,
+        0.003
+      ],
+      "whole_range": 0.00031294503250762
+    }
+  },
+  "manual_page": "85",
+  "non_cavitating": [],
+  "not_plateaued": [],
+  "physics_check": {
+    "K": 1.0003659790720474,
+    "cc": 0.62,
+    "cd_from_correlation": 0.6201134431338309
+  },
+  "planted_zero": {
+    "file": "surfaceFieldValue.dat",
+    "passed": true,
+    "planted": 1.234e-06,
+    "reader_delta": 1.2340000000000766e-06
+  },
+  "reference": {
+    "cd_ref": 0.62,
+    "kind": "experimental/correlation",
+    "source": "Nurick 1976"
+  },
+  "regime_threshold": 0.99,
+  "regimes": {
+    "L1": {
+      "alpha_min": 0.063781158,
+      "cavitating": true,
+      "threshold": 0.99
+    },
+    "L2": {
+      "alpha_min": 0.0031411775,
+      "cavitating": true,
+      "threshold": 0.99
+    },
+    "L3": {
+      "alpha_min": 0.00012926868,
+      "cavitating": true,
+      "threshold": 0.99
+    }
+  },
+  "triple": {
+    "R": 0.29926294717413016,
+    "d21": 0.006569704982134494,
+    "d32": 0.02195295155705268,
+    "f_coarse": 0.6633908641354331,
+    "f_extrapolated": 0.6320624914334007,
+    "f_fine": 0.634868207596246,
+    "f_med": 0.6414379125783805,
+    "fs": 1.25,
+    "gci_fine": 0.005524209846379749,
+    "p": 1.74051443027548,
+    "ratio": 2.0,
+    "state": "CONVERGING"
+  },
+  "verdict": "GATE REACHED",
+  "why": "Cd_fine 0.6349 within 5% of Nurick 0.620 (rel 2.398%)"
+}

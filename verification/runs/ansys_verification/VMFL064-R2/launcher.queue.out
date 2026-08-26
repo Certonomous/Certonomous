@@ -1,0 +1,20 @@
+=== VMFL064-R2 launcher  utc=2026-08-26T20:45:43Z  run_root=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2
+  freeze OK  cases/ansys_verification/VMFL064-R2/PREREGISTRATION.md  abe17c3b990acd31bba12fde01aaf757c6ab398e
+  freeze OK  cases/ansys_verification/VMFL064-R2/grade_vmfl064_r2.py  e04fdf937d557b4919928ab72b9fe5eb42f8b49a
+  case inputs byte-identical to the attempt-1 family (9 files, blockMeshDict.template included)
+  controls OK: --selftest 37/37 PASS, identical under python3 and python3 -O
+  simpleFoam = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam
+--- L1  remaining 90 of 90 core-min  ranks 1  timeout 5400s
+  birth certificate: cells=3072 meshOK=True maxSkew=7.1054273576e-14 maxAR=9.61538461538
+  DETACH WARN (L1): wrapper pid=390529 SID=390179 -- not a session leader
+done L1: 1s = 0.0167 core-min (running total 0.0167 of 90), latest time dir /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2/L1/424
+--- L2  remaining 89.9833 of 90 core-min  ranks 1  timeout 5398s
+  birth certificate: cells=12288 meshOK=True maxSkew=1.42001995279e-13 maxAR=9.61538461538
+  DETACH WARN (L2): wrapper pid=390586 SID=390179 -- not a session leader
+done L2: 17s = 0.2833 core-min (running total 0.3 of 90), latest time dir /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2/L2/907
+--- L3  remaining 89.7 of 90 core-min  ranks 1  timeout 5382s
+  birth certificate: cells=49152 meshOK=True maxSkew=3.46971799191e-13 maxAR=9.61538461538
+  DETACH WARN (L3): wrapper pid=390833 SID=390179 -- not a session leader
+done L3: 300s = 5.0 core-min (running total 5.3 of 90), latest time dir /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2/L3/2152
+=== VMFL064-R2 launcher done, overall rc=0, total 5.3 core-min of 90
+grade with: python3 /home/ubuntu/Certonomous/cases/ansys_verification/VMFL064-R2/grade_vmfl064_r2.py --run-root /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2

@@ -1,0 +1,149 @@
+{
+  "alpha": 0.0001170000053714965,
+  "ansys_context": {
+    "fluent_p150": 318.41,
+    "fluent_wall": 392.95
+  },
+  "case": "VMFL050",
+  "comparator": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL050/grade_vmfl050.py",
+  "completion": {
+    "L1_75": {
+      "age_guard": "T newer than 0/T",
+      "endTime": 120.0,
+      "expect_steps": 60,
+      "fields_at_endTime": [
+        "T"
+      ],
+      "levers": {
+        "DT": 0.0001170000053714965,
+        "mesh": {
+          "cells": 75,
+          "mesh_ok": true
+        }
+      },
+      "n_exec": 60,
+      "rc": 0
+    },
+    "L2_150": {
+      "age_guard": "T newer than 0/T",
+      "endTime": 120.0,
+      "expect_steps": 120,
+      "fields_at_endTime": [
+        "T"
+      ],
+      "levers": {
+        "DT": 0.0001170000053714965,
+        "mesh": {
+          "cells": 150,
+          "mesh_ok": true
+        }
+      },
+      "n_exec": 120,
+      "rc": 0
+    },
+    "L3_300": {
+      "age_guard": "T newer than 0/T",
+      "endTime": 120.0,
+      "expect_steps": 240,
+      "fields_at_endTime": [
+        "T"
+      ],
+      "levers": {
+        "DT": 0.0001170000053714965,
+        "mesh": {
+          "cells": 300,
+          "mesh_ok": true
+        }
+      },
+      "n_exec": 240,
+      "rc": 0
+    }
+  },
+  "diagnostic": {
+    "exact_p150": 318.40595772210736,
+    "exact_wall": 393.02659961124937,
+    "rel_p150": 0.00017791783946200123,
+    "rel_wall": 0.0004928310973374854,
+    "tol": 0.01
+  },
+  "gate": {
+    "p150": {
+      "lab": 318.401437549,
+      "manual": 318.4,
+      "ok": true,
+      "rise_rel": 5.6596417322914864e-05
+    },
+    "tol": 0.01,
+    "wallT": {
+      "lab": 392.9773033924,
+      "manual": 393.0,
+      "ok": true,
+      "rise_rel": 0.000226966075999826
+    }
+  },
+  "levels": {
+    "L1_75": {
+      "p150": 318.416887752,
+      "probe_src": "L1_75/postProcessing/probe150/0/T",
+      "wallT": 392.8632486755,
+      "wall_src": "L1_75/postProcessing/wallT/0/surfaceFieldValue.dat"
+    },
+    "L2_150": {
+      "p150": 318.401750045,
+      "probe_src": "L2_150/postProcessing/probe150/0/T",
+      "wallT": 392.9336272322,
+      "wall_src": "L2_150/postProcessing/wallT/0/surfaceFieldValue.dat"
+    },
+    "L3_300": {
+      "p150": 318.401437549,
+      "probe_src": "L3_300/postProcessing/probe150/0/T",
+      "wallT": 392.9773033924,
+      "wall_src": "L3_300/postProcessing/wallT/0/surfaceFieldValue.dat"
+    }
+  },
+  "manual_page": "163",
+  "planted_zero": {
+    "p150": {
+      "file": "T",
+      "passed": true,
+      "planted": 1.234,
+      "reader_delta": 1.2339999999999804
+    },
+    "wallT": {
+      "file": "surfaceFieldValue.dat",
+      "passed": true,
+      "planted": 1.234,
+      "reader_delta": 1.2339999999999804
+    }
+  },
+  "triple_p150": {
+    "R": 0.020643549250366204,
+    "d21": 0.0003124959999922794,
+    "d32": 0.01513770700000805,
+    "f_coarse": 318.416887752,
+    "f_extrapolated": 318.4014309619942,
+    "f_fine": 318.401437549,
+    "f_med": 318.401750045,
+    "fs": 1.25,
+    "gci_fine": 2.585967338344446e-08,
+    "p": 5.5981651547842075,
+    "ratio": 2.0,
+    "state": "CONVERGING"
+  },
+  "triple_wallT": {
+    "R": 0.6205890294989396,
+    "d21": -0.04367616019999332,
+    "d32": -0.07037855670000681,
+    "f_coarse": 392.8632486755,
+    "f_extrapolated": 393.04874293415855,
+    "f_fine": 392.9773033924,
+    "f_med": 392.9336272322,
+    "fs": 1.25,
+    "gci_fine": 0.00022723812909111317,
+    "p": 0.6882899011263818,
+    "ratio": 2.0,
+    "state": "CONVERGING"
+  },
+  "verdict": "PASS",
+  "why": "both quantities within 1.0% of manual target on the rise"
+}

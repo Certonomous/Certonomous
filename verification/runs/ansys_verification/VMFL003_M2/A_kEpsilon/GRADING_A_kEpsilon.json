@@ -1,0 +1,211 @@
+{
+  "case": "VMFL003_M2",
+  "controls": {
+    "dp_and_rho": {
+      "base_pa": 20800.824488339003,
+      "expected_pa": 1.5116500000000002,
+      "planted_kinematic": 1.234,
+      "seen_pa": 1.5116500000003725
+    },
+    "f_dev": {
+      "base": 0.027147309071924,
+      "expected": 9.38e-06,
+      "planted_kinematic": 2.345,
+      "seen": 9.379999999992866e-06
+    },
+    "yplus": {
+      "base": 37.60014411059,
+      "planted": 7.77,
+      "seen": 7.770000000000003
+    }
+  },
+  "deviation_vs_colebrook": -0.045521993854448405,
+  "deviation_vs_target": -0.04337635723238579,
+  "diagnostics": {
+    "ansys_context": {
+      "CFX": {
+        "dev_vs_target": -0.0001839587932303164,
+        "pa": 21740.0
+      },
+      "Fluent": {
+        "dev_vs_target": -0.012141280353200883,
+        "pa": 21480.0
+      }
+    },
+    "diag_band_dp": 0.02,
+    "dp_colebrook_pa": 21792.879830032474,
+    "dp_diag_met": false,
+    "f_colebrook": 0.028464169573919965,
+    "f_dev_fine": 0.027147309071924,
+    "f_diag_met": false
+  },
+  "dp_fine_pa": 20800.824488339003,
+  "gate_band": 0.025,
+  "gate_verdict_before_rule5": "GATE FAIL",
+  "gci_quoted": false,
+  "holds_attainable": false,
+  "ladder": {
+    "levels": {
+      "D_500x3": {
+        "dp_pa": 20503.588088221,
+        "nr": 3,
+        "yplus_avg": 60.0218943089
+      },
+      "D_500x4": {
+        "dp_pa": 20691.574647723002,
+        "nr": 4,
+        "yplus_avg": 46.25466791415
+      },
+      "D_500x6": {
+        "dp_pa": 20863.12278215025,
+        "nr": 6,
+        "yplus_avg": 31.65935758383
+      },
+      "L2_500x5": {
+        "dp_pa": 20800.98580808675,
+        "nr": 5,
+        "yplus_avg": 37.60077854753
+      }
+    },
+    "spread_max": 0.05,
+    "spread_rel": 0.017356401434616447
+  },
+  "levels": {
+    "L1_250x5": {
+      "cells": 1250,
+      "completion": [
+        "C1 rc=0 OK",
+        "C2 End OK",
+        "C3 last time == endTime OK",
+        "C4 fields U p k epsilon nut OK",
+        "C5 ExecutionTime count == endTime OK",
+        "C6 age guard (strictest form) OK"
+      ],
+      "dp_pa": 20802.991897021253,
+      "dpdx_pa_per_m": 10397.741925281156,
+      "endTime": 15000,
+      "f_dev": 0.027161448294611996,
+      "f_dev_dev_vs_colebrook": -0.0457670572796747,
+      "final_initial_residuals": {
+        "Ux": 2.45051351809e-06,
+        "Uy": 0.000119571544892,
+        "Uz": 0.0522176400151,
+        "epsilon": 1.65066684199e-06,
+        "k": 2.04550927789e-06,
+        "p": 6.79789873059e-08
+      },
+      "nr": 5,
+      "nx": 250,
+      "plateau_ok": true,
+      "plateau_ptp_pa": 4.5778251660522074e-05,
+      "plateau_window": 3000,
+      "residuals_ok": false,
+      "yplus": {
+        "average": 37.60534067864,
+        "max": 37.78507933875,
+        "min": 29.45295481466,
+        "min_floor": 11.06,
+        "predicted": 40.835033970764385
+      },
+      "yplus_ok": true
+    },
+    "L2_500x5": {
+      "cells": 2500,
+      "completion": [
+        "C1 rc=0 OK",
+        "C2 End OK",
+        "C3 last time == endTime OK",
+        "C4 fields U p k epsilon nut OK",
+        "C5 ExecutionTime count == endTime OK",
+        "C6 age guard (strictest form) OK"
+      ],
+      "dp_pa": 20800.98580808675,
+      "dpdx_pa_per_m": 10392.329253994843,
+      "endTime": 18000,
+      "f_dev": 0.027147309071659995,
+      "f_dev_dev_vs_colebrook": -0.04626379486814647,
+      "final_initial_residuals": {
+        "Ux": 8.8822428897e-07,
+        "Uy": 0.000411535931074,
+        "Uz": 0.0538991786342,
+        "epsilon": 1.39422108619e-06,
+        "k": 1.18395333493e-06,
+        "p": 7.31600449245e-08
+      },
+      "nr": 5,
+      "nx": 500,
+      "plateau_ok": true,
+      "plateau_ptp_pa": 0.004650210252293618,
+      "plateau_window": 3600,
+      "residuals_ok": false,
+      "yplus": {
+        "average": 37.60077854753,
+        "max": 37.78745649691,
+        "min": 25.50293110388,
+        "min_floor": 11.06,
+        "predicted": 40.835033970764385
+      },
+      "yplus_ok": true
+    },
+    "L3_1000x5": {
+      "cells": 5000,
+      "completion": [
+        "C1 rc=0 OK",
+        "C2 End OK",
+        "C3 last time == endTime OK",
+        "C4 fields U p k epsilon nut OK",
+        "C5 ExecutionTime count == endTime OK",
+        "C6 age guard (strictest form) OK"
+      ],
+      "dp_pa": 20800.824488339003,
+      "dpdx_pa_per_m": 10392.329254095906,
+      "endTime": 22000,
+      "f_dev": 0.027147309071924,
+      "f_dev_dev_vs_colebrook": -0.046263794858871506,
+      "final_initial_residuals": {
+        "Ux": 4.62388004328e-09,
+        "Uy": 8.25472335771e-07,
+        "Uz": 0.0287923900773,
+        "epsilon": 2.49441968702e-08,
+        "k": 1.94204575216e-09,
+        "p": 2.38385596976e-10
+      },
+      "nr": 5,
+      "nx": 1000,
+      "plateau_ok": true,
+      "plateau_ptp_pa": 5.353249434847385e-06,
+      "plateau_window": 4400,
+      "residuals_ok": false,
+      "yplus": {
+        "average": 37.60014411059,
+        "max": 37.78825101727,
+        "min": 23.81247004664,
+        "min_floor": 11.06,
+        "predicted": 40.835033970764385
+      },
+      "yplus_ok": true
+    }
+  },
+  "not_a_result_reasons": [
+    "L1_250x5: final initial residuals not all below 1e-08 (p=6.7979e-08, Ux=2.45051e-06, k=2.04551e-06, epsilon=1.65067e-06)",
+    "L2_500x5: final initial residuals not all below 1e-08 (p=7.316e-08, Ux=8.88224e-07, k=1.18395e-06, epsilon=1.39422e-06)",
+    "L3_1000x5: final initial residuals not all below 1e-08 (p=2.38386e-10, Ux=4.62388e-09, k=1.94205e-09, epsilon=2.49442e-08)"
+  ],
+  "roache": {
+    "R": 0.08041505287766187,
+    "d21": -0.16131974774543778,
+    "d32": -2.0060889345040778,
+    "f_coarse": 20802.991897021253,
+    "f_extrap": null,
+    "f_fine": 20800.824488339003,
+    "f_med": 20800.98580808675,
+    "gci_fine": null,
+    "monotone": true,
+    "p": 3.6363906052952277,
+    "state": "CONVERGING"
+  },
+  "runroot": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL003_M2/A_kEpsilon",
+  "target_dp_pa": 21744.0,
+  "tier_ceiling": "GATE REACHED",
+  "verdict": "NOT A RESULT"
+}

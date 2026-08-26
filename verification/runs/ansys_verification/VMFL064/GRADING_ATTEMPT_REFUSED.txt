@@ -1,0 +1,16 @@
+# VMFL064 -- frozen comparator run, VERBATIM, 2026-08-26T16:15:08Z
+# comparator blob: 0be9126cd6a3e3c860b98854a4e21ba1102edfdc (verified equal to the on-disk file before this run)
+# prereg blob:     7b9fd0dcaa141cacf4e0f3dee5a6ceab0b9f48b5
+# invocation: python3 cases/ansys_verification/VMFL064/grade_vmfl064.py
+
+REFUSED (exit 2): L3: wall shear never changes sign -- no reattachment found
+==============================================================================
+VMFL064 -- Low Re flow in a channel with sudden asymmetric expansion
+Ansys FD Verification Manual 2026 R1, p. 195/196
+reference: LR/s = 5  (EXPERIMENTAL -- Armaly, Durst, Pereira &
+           Schoenung, JFM 127:473, 1983).  Ansys Fluent 4.91 = CONTEXT ONLY
+==============================================================================
+p-floor planted control OK (P_MIN = 0.05): (1.0,1.1,1.2) -> NOT A RESULT, no GCI
+  L1   LR/s = 4.714416   (LR = 0.023101 m; cross-check 0.023101 m, delta 2.42e-07, dx 1.56e-03)
+  L2   LR/s = 4.800738   (LR = 0.023524 m; cross-check 0.023524 m, delta 5.77e-08, dx 7.81e-04)
+exit_code = 2

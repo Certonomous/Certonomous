@@ -1,0 +1,140 @@
+{
+  "bands": {
+    "rel_dev": 0.001
+  },
+  "blocking": [
+    "L1: NOT iteratively converged (rule 5 step 1): final initial-residual above the frozen floor 1e-07",
+    "L2: NOT iteratively converged (rule 5 step 1): final initial-residual above the frozen floor 1e-07",
+    "L3: NOT iteratively converged (rule 5 step 1): final initial-residual above the frozen floor 1e-07"
+  ],
+  "case": "VMFL004",
+  "ceiling_note": "The reference is an EXACT closed form the lab evaluates ITSELF (section mean <u> = 2.5 m/s).  Per supervisor Ruling 2 (2026-08-26) and the VMFL019 precedent (closed form, figure-only manual -> verdict PASS), such a case carries a PASS/HOLDS ceiling; it is a category-V credential, not a GATE-REACHED cap.  The EXACT risk (central differencing is exact for the quadratic nodal field) is dodged by gating on the volAverage, whose midpoint-quadrature error is O(h^2) and non-zero -> CONVERGING; were that error below write precision the triple would read EXACT/STAGNANT -> NOT A RESULT, an honest predicted outcome.",
+  "endTime": 20000,
+  "levels": {
+    "L1": {
+      "channels": {
+        "ref_ms": 2.5,
+        "rel_dev": 0.0005000000000000782,
+        "volavg_ux_ms": 2.50125
+      },
+      "controls": {
+        "volavg_ux_ms": {
+          "artifact": "verification/runs/ansys_verification/VMFL004/L1/postProcessing/volAvgU/0/volFieldValue.dat",
+          "baseline": 2.50125,
+          "control": "PASS",
+          "delta_seen": 0.0012340000000001794,
+          "perturbed": 2.5024840000000004,
+          "plant": 0.001234
+        }
+      },
+      "dir": "verification/runs/ansys_verification/VMFL004/L1",
+      "iterative_convergence": {
+        "final_initial_residuals": {
+          "Ux_initial": 1.08515228605e-15,
+          "Uy_initial": 0.0946583798024,
+          "p_initial": 0.0423721552177
+        },
+        "floor": 1e-07,
+        "note": "final initial-residual above the frozen floor 1e-07",
+        "ok": false
+      },
+      "state": "COMPLETE",
+      "strict_completion": {
+        "ok": true,
+        "reasons": []
+      }
+    },
+    "L2": {
+      "channels": {
+        "ref_ms": 2.5,
+        "rel_dev": 0.00012500000000006394,
+        "volavg_ux_ms": 2.5003125
+      },
+      "controls": {
+        "volavg_ux_ms": {
+          "artifact": "verification/runs/ansys_verification/VMFL004/L2/postProcessing/volAvgU/0/volFieldValue.dat",
+          "baseline": 2.5003125,
+          "control": "PASS",
+          "delta_seen": 0.0012340000000001794,
+          "perturbed": 2.5015465000000003,
+          "plant": 0.001234
+        }
+      },
+      "dir": "verification/runs/ansys_verification/VMFL004/L2",
+      "iterative_convergence": {
+        "final_initial_residuals": {
+          "Ux_initial": 1.38620370331e-15,
+          "Uy_initial": 0.0714453557704,
+          "p_initial": 0.0471497577223
+        },
+        "floor": 1e-07,
+        "note": "final initial-residual above the frozen floor 1e-07",
+        "ok": false
+      },
+      "state": "COMPLETE",
+      "strict_completion": {
+        "ok": true,
+        "reasons": []
+      }
+    },
+    "L3": {
+      "channels": {
+        "ref_ms": 2.5,
+        "rel_dev": 3.124984399995867e-05,
+        "volavg_ux_ms": 2.50007812461
+      },
+      "controls": {
+        "volavg_ux_ms": {
+          "artifact": "verification/runs/ansys_verification/VMFL004/L3/postProcessing/volAvgU/0/volFieldValue.dat",
+          "baseline": 2.50007812461,
+          "control": "PASS",
+          "delta_seen": 0.0012340000000001794,
+          "perturbed": 2.50131212461,
+          "plant": 0.001234
+        }
+      },
+      "dir": "verification/runs/ansys_verification/VMFL004/L3",
+      "iterative_convergence": {
+        "final_initial_residuals": {
+          "Ux_initial": 3.2196027342e-13,
+          "Uy_initial": 0.0491790185856,
+          "p_initial": 0.0922783686198
+        },
+        "floor": 1e-07,
+        "note": "final initial-residual above the frozen floor 1e-07",
+        "ok": false
+      },
+      "state": "COMPLETE",
+      "strict_completion": {
+        "ok": true,
+        "reasons": []
+      }
+    }
+  },
+  "manual_page": 21,
+  "reference": {
+    "formula": "u(y) = 9y - 6y^2 m/s ; section mean <u> = 2.5 m/s EXACT",
+    "gate_quantity": "volAverage(U)_x",
+    "kind": "V (exact closed form, lab-evaluated)",
+    "ref_ms": 2.5,
+    "source": "Munson, Okiishi & Huebsch, Fundamentals of Fluid Mechanics 5e -- the manual p.21 Reference; the manual prints only a FIGURE (Figure .04.2) and NO discrete target table, so the reference is the closed-form section mean, evaluated by the lab itself as INT_0^1 (9y-6y^2) dy = 2.5 m/s",
+    "u_peak_ms_context": 3.375
+  },
+  "tier": "NOT HELD",
+  "tier_ceiling": "HOLDS",
+  "triple": {
+    "e21": -0.0009375000000000355,
+    "e32": -0.0002343753900002632,
+    "f_coarse": 2.50125,
+    "f_extrapolated": 2.499999999306666,
+    "f_fine": 2.50007812461,
+    "f_medium": 2.5003125,
+    "gci_fine": 3.906143100333407e-05,
+    "p": 1.9999975993558838,
+    "r": 2.0,
+    "ratio": 0.2500004160002713,
+    "state": "CONVERGING"
+  },
+  "triple_on": "volavg_ux_ms",
+  "verdict": "NOT A RESULT"
+}

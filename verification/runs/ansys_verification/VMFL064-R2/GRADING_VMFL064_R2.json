@@ -1,0 +1,213 @@
+{
+  "ansys_context_only": 4.91,
+  "case": "VMFL064-R2",
+  "comparator": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL064-R2/grade_vmfl064_r2.py",
+  "completion": {
+    "L1": {
+      "age_guard": "fields newer than 0/U",
+      "converged": true,
+      "core_min": 0.0167,
+      "endTime": 20000.0,
+      "end_line": 1,
+      "last_time": 424,
+      "level": "L1",
+      "level_dir": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2/L1",
+      "n_exec": 424,
+      "rc": 0,
+      "rc_source": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2/RUN_RC.L1",
+      "rc_status": "MEASURED",
+      "time_dir": "424",
+      "timeout_s": 5400.0,
+      "wall_s": 1.0
+    },
+    "L2": {
+      "age_guard": "fields newer than 0/U",
+      "converged": true,
+      "core_min": 0.2833,
+      "endTime": 20000.0,
+      "end_line": 1,
+      "last_time": 907,
+      "level": "L2",
+      "level_dir": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2/L2",
+      "n_exec": 907,
+      "rc": 0,
+      "rc_source": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2/RUN_RC.L2",
+      "rc_status": "MEASURED",
+      "time_dir": "907",
+      "timeout_s": 5398.0,
+      "wall_s": 17.0
+    },
+    "L3": {
+      "age_guard": "fields newer than 0/U",
+      "converged": true,
+      "core_min": 5.0,
+      "endTime": 20000.0,
+      "end_line": 1,
+      "last_time": 2152,
+      "level": "L3",
+      "level_dir": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2/L3",
+      "n_exec": 2152,
+      "rc": 0,
+      "rc_source": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2/RUN_RC.L3",
+      "rc_status": "MEASURED",
+      "time_dir": "2152",
+      "timeout_s": 5382.0,
+      "wall_s": 300.0
+    }
+  },
+  "corner_vortex_control": {
+    "passed": true,
+    "probes": {
+      "corner_vortex": {
+        "attempt1_LR": null,
+        "attempt1_exit_code": 2,
+        "attempt1_refused": true,
+        "dx": 0.0003906250000000001,
+        "r2_reader_LR": 0.029399034447666055,
+        "r2_reader_LR_over_s": 5.999802948503277,
+        "sign_changes": {
+          "neg_to_pos": 1,
+          "pos_to_neg": 1,
+          "starts_positive": true
+        },
+        "x_corner": 0.0007,
+        "x_star": 0.0294
+      },
+      "cross_instrument": {
+        "nearwall_u_LR": 0.029399034447666055
+      },
+      "single_bubble_agreement": {
+        "attempt1_LR": 0.0294,
+        "r2_reader_LR": 0.0294
+      },
+      "window_excludes_downstream_artefact": {
+        "LR_with_window": 0.029399034447666055,
+        "LR_without_window": 0.06503817085753369,
+        "planted_reversal_up_to_x": 0.0646484375
+      }
+    },
+    "x_win_hi": 0.05,
+    "x_win_lo": 0.0
+  },
+  "field_classes": {
+    "infrastructure": [
+      "RUN_RC.<level> rc / wall_s / core_min / timeout_s (launcher bookkeeping)",
+      "COST.txt (run-root cost roll-up)"
+    ],
+    "physics_critical": [
+      "log.simpleFoam (End line, exact name -- never a log* glob)",
+      "log.simpleFoam 'SIMPLE solution converged'",
+      "log.simpleFoam Time / ExecutionTime counts",
+      "system/controlDict endTime",
+      "<t>/U, <t>/p, <t>/wallShearStress, <t>/Cx, <t>/Cy",
+      "0/U (the age-guard datum)"
+    ]
+  },
+  "lab_value": 4.853055812119763,
+  "levels": {
+    "L1": {
+      "LR_crosscheck_m": 0.023100878151279893,
+      "LR_m": 0.023100636295714808,
+      "LR_over_s": 4.714415570554043,
+      "cell_dx_m": 0.0015624999999999999,
+      "corner_vortex_resolved": false,
+      "crosscheck_delta_m": 2.418555650855747e-07,
+      "n_wall_faces": 64,
+      "sign_changes_in_window": {
+        "neg_to_pos": 1,
+        "pos_to_neg": 0,
+        "starts_positive": false
+      },
+      "time_dir": "424"
+    },
+    "L2": {
+      "LR_crosscheck_m": 0.02352367363287837,
+      "LR_m": 0.02352361594322548,
+      "LR_over_s": 4.800737947597037,
+      "cell_dx_m": 0.0007812499999999999,
+      "corner_vortex_resolved": false,
+      "crosscheck_delta_m": 5.768965288810435e-08,
+      "n_wall_faces": 128,
+      "sign_changes_in_window": {
+        "neg_to_pos": 1,
+        "pos_to_neg": 0,
+        "starts_positive": false
+      },
+      "time_dir": "907"
+    },
+    "L3": {
+      "LR_crosscheck_m": 0.02377998764793633,
+      "LR_m": 0.02377997347938684,
+      "LR_over_s": 4.853055812119763,
+      "cell_dx_m": 0.00039062499999999997,
+      "corner_vortex_resolved": true,
+      "crosscheck_delta_m": 1.4168549489906868e-08,
+      "n_wall_faces": 256,
+      "sign_changes_in_window": {
+        "neg_to_pos": 1,
+        "pos_to_neg": 1,
+        "starts_positive": true
+      },
+      "time_dir": "2152"
+    }
+  },
+  "manual_page": "195/196",
+  "p_floor_control": {
+    "P_MIN": 0.05,
+    "passed": true,
+    "probes": {
+      "above_floor_p_0.5": {
+        "gci_fine": 0.1822724876749534,
+        "p": 0.49999999999999967,
+        "state": "CONVERGING",
+        "verdict": "GATE REACHED"
+      },
+      "below_floor_p_0.01": {
+        "gci_fine": null,
+        "p": 0.010000000000001699,
+        "state": "STAGNANT",
+        "verdict": "NOT A RESULT"
+      },
+      "equally_spaced_1.0_1.1_1.2": {
+        "gci_fine": null,
+        "p": 3.2034265038149143e-15,
+        "state": "STAGNANT",
+        "verdict": "NOT A RESULT"
+      }
+    }
+  },
+  "planted_zero": {
+    "file": "wallShearStress",
+    "passed": true,
+    "patch": "bottomWall",
+    "planted": 0.001234,
+    "reader_delta": 0.0012340000000004199
+  },
+  "reference": 5.0,
+  "reference_kind": "EXPERIMENTAL (Armaly et al. 1983)",
+  "rel_dev": 0.029388837576047423,
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2",
+  "s_step": 0.0049,
+  "search_window_m": [
+    0.0,
+    0.05
+  ],
+  "supersedes_row": "register row #29 (VMFL064, NOT A RESULT) -- NOT overwritten",
+  "tol": 0.1,
+  "triple": {
+    "R": 0.6060753458708406,
+    "d21": 0.08632237704299417,
+    "d32": 0.0523178645227258,
+    "f_coarse": 4.714415570554043,
+    "f_extrapolated": 4.9335498038094485,
+    "f_fine": 4.853055812119763,
+    "f_med": 4.800737947597037,
+    "fs": 1.25,
+    "gci_fine": 0.020732811141555427,
+    "p": 0.7224309375633954,
+    "ratio": 2.0,
+    "state": "CONVERGING"
+  },
+  "verdict": "GATE REACHED",
+  "why": "LR/s within 0.1 of the experimental reference, triple CONVERGING. Ceiling is GATE REACHED, not PASS: see PREREGISTRATION.md line 4."
+}
