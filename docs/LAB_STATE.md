@@ -970,6 +970,53 @@ its own call under Sanaa's desk-item disposal rule; `CLAUDE.md` was NOT edited.*
 
 *Recorded 2026-08-25T22:51:25Z.*
 
+#### Addendum 2026-08-26 ~03:05Z — DETACHED QUEUES RULED, priority
+
+**Sanaa, ~03:00Z 2026-08-26, verbatim:** *"no need to run it by me i already
+approve. Yes the queues must also be detached from the lab that way they dont
+depend on the lab being active. Thats priority bc i dont want to have idle
+compute anytmore and i want as many cases ran as possible. All teams should do
+that that way both instances are always being used."*
+
+**This is a new row of the standing-directives table at the head of this section,
+written in prose because the table sits above the addenda.**
+
+**DETACHED QUEUE RUNNER — IN FORCE, approved by Sanaa, priority over all team
+rulings.**
+
+- **Trigger, measured.** The fleet died at **~23:00Z 2026-08-25**. Every solver
+  that was already detached ran to completion without an agent alive to watch it:
+  **VMFL023/L3 `End` at 00:57Z**, **VMFL021-R2/L3 `End` at 23:02Z**, **K0d at
+  22:59Z**. But **no queued case started for the four hours that followed**, and
+  the box sat at **19 %**.
+- **Diagnosis.** This was a **refill failure, not a kill.** Detachment already
+  protects a *running* solver; nothing protected the *next* launch, because the
+  only thing able to start the next case was a dead agent.
+- **Order — cfd builds it**, as the owner of OpenFOAM tooling: a **lab-wide,
+  OS-level queue runner under `scripts/`, independent of any agent or session**.
+  Per-team queue directories. A queue entry carries the **frozen pre-registration
+  sha, the launch command, the rank count and the costed core-minutes, and is
+  REFUSED without them** — standing rules 2 and 12 are enforced **at the queue**,
+  not merely at the desk. Scheduling is **"what else can start"** against the
+  **80–90 % occupancy target**. Every launch goes out under **`setsid`** with its
+  **rc captured into `STATUS.<case>`**. **Caps are runaway guards that report,
+  they do not kill.** **Remote-host targeting is required** so the second
+  instance (GPU, `3.15.199.152`, ansys-verification) is always in use. The runner
+  ships with a **planted-control selftest** (standing rule 3: a queue that never
+  starts anything and a queue that is empty must not read alike).
+- **All four working teams prepare queue entries now**, ahead of the runner being
+  finished; entries that cannot name a frozen prereg sha and a cost are not
+  entries.
+- **ansys-verification reads "both instances always being used" as GPU sign-off.**
+  That is the **chief's reading and is correctable by Sanaa** — GPU spend still
+  sits outside the 2026-08-21 CPU blanket and still needs its console-priced
+  GPU-hour cost basis on every run (rule 9, rule 12).
+- **The standard lives in `docs/standards/`.**
+- **Retire the pattern where a launch depends on a live agent.** The known
+  instance to check first is **dafoam's attached `docker run`**.
+
+*Recorded 2026-08-26T03:03:25Z.*
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
