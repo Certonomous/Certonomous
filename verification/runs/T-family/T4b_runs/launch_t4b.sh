@@ -129,9 +129,29 @@ done < <(find "$CASE_DIR" -maxdepth 1 -mindepth 1 -type d -regextype posix-exten
 for f in U p_rgh T alphat nut k omega; do
     [ -f "$CASE_DIR/0.orig/$f" ] || { echo "REFUSE: 0.orig/$f missing -- the registered field set is incomplete" >&2; exit 2; }
 done
+# AMENDMENT 1 (2026-08-26, pre-first-compute): under the queue runner's launch form
+# `setsid nohup bash -c 'cd <cwd>; <argv> ...'` (scripts/queue_runner.py) the launcher's
+# OWN ANCESTOR -- the runner's wrapper shell -- holds the case directory as cwd, and the
+# guard below excluded only $$; measured on T10aR2: three zero-compute refusals, one per
+# level, and this file carried the same lines. This launcher's own lineage (itself, its
+# ancestors up to pid 1, its descendants) is excluded; ANY FOREIGN process is still refused.
+ppid_of() { sed 's/.*) //' "/proc/$1/stat" 2>/dev/null | awk '{print $2}'; }
+LINEAGE=" $$ "; a="$PPID"
+while [ -n "$a" ] && [ "$a" != "0" ] && [ "$a" != "1" ]; do LINEAGE="$LINEAGE$a "; a="$(ppid_of "$a")"; done
+own_lineage() {   # returns 0 when pid $1 is this shell, one of its ancestors, or one of its descendants
+    case "$LINEAGE" in *" $1 "*) return 0;; esac
+    a="$1"
+    while [ -n "$a" ] && [ "$a" != "0" ] && [ "$a" != "1" ]; do
+        [ "$a" = "$$" ] && return 0
+        a="$(ppid_of "$a")"
+    done
+    return 1
+}
 for p in /proc/[0-9]*; do
-    [ "$(readlink "$p/cwd" 2>/dev/null)" = "$CASE_DIR" ] && [ "${p#/proc/}" != "$$" ] && \
-        { echo "REFUSE: pid ${p#/proc/} is already running in $CASE" >&2; exit 2; }
+    q="${p#/proc/}"
+    [ "$(readlink "$p/cwd" 2>/dev/null)" = "$CASE_DIR" ] || continue
+    own_lineage "$q" && continue
+    echo "REFUSE: pid $q is already running in $CASE" >&2; exit 2
 done
 
 # --- 1b. provenance: no compressible-family token in an incompressible case --
