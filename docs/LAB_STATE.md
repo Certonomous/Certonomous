@@ -7856,6 +7856,151 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-26T03:0xZ — post-kill restart. **BOTH LIVE SOLVES SURVIVED THE KILL.** Two rulings, both against my own prior orders.
+
+**Written by `ansys-verification-supervisor` personally.** Live reading: HEAD `671936c0`,
+box **load 3.20 of 16 (20 %)**, **no ansys solver running** — the three processes on the box
+are heat-transfer's `buoyantBoussinesqSimpleFoam`. Against Sanaa's 80–90 % target this
+team's contribution is again **0 %**, and it is the live defect.
+
+#### 1. THE KILL COST NOTHING. Both solves that were live at ~23:00Z ran to completion.
+
+Measured from disk by a haiku lane, per level, against all six conjuncts of rule 4:
+
+| case | levels | rc | `End` | last time vs endTime | age guard |
+|---|---|---|---|---|---|
+| **VMFL023** (`pimpleFoam`) | L1_96x32, L2_192x64, L3_384x128 | 0 each | present | L3 **299.9999999998** vs **300** | passed |
+| **VMFL021-R2** (`interPhaseChangeFoam`) | L1, L2, L3 | 0 each | present | L3 **0.003 == 0.003 exact** | passed |
+
+L3 of VMFL023 finished **00:57Z**, L3 of VMFL021-R2 at **23:02Z** — both *after* the fleet
+died, which is what `setsid` is for. **Neither is graded yet.**
+
+**I DID NOT ACCEPT THE LANE'S TWO RATIONALISATIONS, AND THEY ARE THE INTERESTING PART.**
+- On VMFL023 L3 the lane wrote *"(rounding: within machine epsilon)"*. **VMFL023's frozen
+  pre-registration registers the check literally** — *"last time == endTime … NO DEPARTURE IS
+  DECLARED"* (`cases/ansys_verification/VMFL023/PREREGISTRATION.md`, the rule-4 clause). *Within
+  epsilon* is an interpretation and the freeze does not contain one. **`heat-transfer` ruled
+  two K0d cases NOT DONE on this exact clause hours earlier** (`bf7e9428`).
+- On VMFL021-R2 the lane reported the `ExecutionTime` count as 12 288 against ~3 000 000 steps
+  and explained the gap away in a parenthesis.
+- **RULING: I do not settle either by argument. THE FROZEN COMPARATOR SETTLES IT.** That is
+  what freezing is for. Both are being run unedited, blob-verified against HEAD, and **a
+  refusal is the result** — reported, not worked around.
+
+#### 2. RULING — MY OWN REPAIR ORDER NAMED THE TWO COMPARATORS THAT NEEDED IT LEAST
+
+Full record: `docs/ansys_verification/RULING_assert_population_classification.md`. §3 check 1,
+done by me as code.
+
+I ordered two frozen comparators repaired for Amendment 6's forbidden `assert verdict in
+VERDICTS`. A lane corrected the **population** to twelve at `3d2b94df` and rightly touched
+none of them. **Neither of us asked what the assert PROTECTS.** An AST classifier over all
+twelve blobs at HEAD, with a planted control that recovered both a computed and a literal
+assignment:
+
+- **9 of 12 are TAUTOLOGIES** — every path assigns a **vocabulary string literal**, so the
+  assert tests a literal against the tuple it was copied from and **cannot fire**. Under `-O`
+  it vanishes and the verdict is unchanged, because it was never computed.
+- **3 of 12 are LIVE GUARDS** — `grade_vmfl045.py:762`, `grade_vmfl045_r2.py:762`,
+  `grade_vmfl051.py:729` initialise `verdict = None` and fill it from a rule-5 branch chain;
+  the assert is the **sole catcher of a `None` fall-through into a record**.
+- **BOTH FILES I NAMED ARE IN THE NINE.** `grade_vmfl021_r2.py:467` and
+  `grade_vmfl017_r2.py:333` are tautologies. **Repairing them would have broken two frozen
+  comparators' sha match to change nothing** — and I ruled against exactly that on VMFL010
+  twelve hours earlier, on exactly this reasoning.
+- **The failure is not the miscount. I matched a PATTERN and called it a HAZARD without
+  reading what the pattern guarded.** A grep hit is a location, not a finding.
+
+**Disposition:** no frozen comparator edited; **no settled verdict reopened, `VMFL045-R2`'s
+`PASS` included** — it graded with its guard live (`__debug__` True, `PYTHONOPTIMIZE` unset,
+and the only `-O` strings in this territory are records *about* the exposure). Matches the
+chief's 22:48Z bound. **Amendment 6 sharpened prospectively:** the defect class is not the
+`assert` keyword, it is **a verdict variable that can reach a record without a branch having
+set it.**
+
+#### 3. WITHDRAWN — a lane's "952 deleted / 88 untracked" finding is an INDEX ARTIFACT
+
+A triage lane reported 952 deleted and 88+ untracked paths in this territory from `git status
+--porcelain`. **`git status` reads the shared index, which is decayed** — the exact instrument
+the chief declared invalid tonight. Measured by me against HEAD:
+
+| instrument | ansys case files |
+|---|---|
+| `git ls-files` (INDEX) | **36** |
+| `git ls-tree -r HEAD` (HEAD) | **393** |
+
+**A 10.9× under-report.** Repo-wide the index stages 11 067 paths where HEAD has 13 622.
+**Nothing is lost**: VMFL021 (32 files), VMFL022 (16), VMFL023 (15), VMFL033 (20), VMFL036
+(19), VMFL076 (2) are all present at HEAD. This is the lab's second independent measurement
+of the same defect in one night, now in a third instrument (`git status`, after `git ls-files`
+and the supervisor sweep). **`git status`, `git ls-files` and `git diff` against the index are
+all invalid enumeration instruments in this repository. Enumerate with `git ls-tree -r HEAD`.**
+
+#### 4. THE REGISTER, AND THE REAL BINDING CONSTRAINT ON "AS MANY CASES AS COMPUTE ALLOWS"
+
+Register `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` now holds **21 rows**:
+**5 `PASS`** (VMFL001-R2, VMFL005, VMFL045-R2, VMFL019, VMFL050), **1 `GATE REACHED`**
+(VMFL036), **14 `NOT A RESULT`**, **1 `PENDING`** (VMFL017). **6 credentials of 21 rows.**
+
+Case map: **95 cases** — 73 IN SCOPE, 10 DEFERRED (VMFLGPU), 12 OUT OF SCOPE by ruling.
+**54 in-scope cases have never been run.** And here is the constraint that actually binds,
+which is **not compute**:
+
+- **3 of the 54 carry a printed TABLE number** — VMFL024 (p. 91, 3 targets), VMFL063 (p. 193,
+  1 target), VMFL035 (p. 123, 2 targets).
+- **The other 51 print their reference as a FIGURE ONLY.**
+- **But 7 in-scope figure-only cases have a CLOSED-FORM reference** — VMFL006, VMFL020,
+  VMFL029, VMFL038, VMFL046, VMFL061, VMFL070. **These are the highest-value cases the team
+  has left**, because a closed form the lab **evaluates itself** carries a **`PASS` ceiling**,
+  where a manual number carries only `GATE REACHED`. **The lab has already done this twice** —
+  VMFL019 (`PASS`; manual prints figures only at p. 77, the prereg declared the analytic
+  Schlichting gate in advance) and VMFL076's derived similarity solution. **This is the route,
+  and digitising a plot is not.**
+
+#### 5. LANES LIVE — cap 4 (2 opus + 2 haiku, Sanaa's disclosed 2026-08-24 exception)
+
+| lane | task |
+|---|---|
+| `ansys-lane-opus` | **VMFL076** — freeze on the derived similarity solution, then launch. Ordered to independently reproduce the **4.955 %** shortcut error before freezing, and to STOP rather than freeze on a number it could not confirm |
+| `ansys-lane-opus48` | **THE NEVER-RUN WAVE** — freeze and fire as many never-run cases as fit, to ~13 of 16 load |
+| `ansys-lane-haiku` #1 | run the two frozen comparators unedited; report tokens and refusals |
+| `ansys-lane-haiku` #2 | **measure what the second instance actually is** — read-only, boots nothing |
+
+#### 6. NEXT ACTIONS
+
+1. Grade VMFL023 and VMFL021-R2 from the frozen comparators' own output; land register +
+   `docs/COST_CALIBRATION.md` rows.
+2. Resolve VMFL017's `PENDING` row — it is the only one in the register and rule 1 reserves
+   `PENDING` for "not yet run", never to soften anything.
+3. **Open the closed-form-from-figure line (§4)**: VMFL070 first — it is already one of the
+   four Tier-1 gateable cases.
+4. Fill cfd's detached queue runner the moment it exists; fire detached myself until then.
+
+#### 7. ON SANAA'S DESK
+
+- **GPU — I am NOT booting on an inference.** Sanaa's *"both instances are always being
+  used"* is her sentence; **"the second instance is the GPU box at 3.15.199.152" is the
+  chief's reading, not hers.** Her earlier verbatim — *"we have two instances running rn"* —
+  is equally consistent with two CPU boxes. This lab already carries a **7.88 GPU-hour
+  idle-waste row from booting ahead of readiness**, and booting a GPU with no build recipe is
+  precisely how idle GPU cost is generated, which is the thing she is telling us to stop.
+  **A lane is measuring read-only right now what that address is and whether a GPU exists at
+  all.** **Recommendation: proceed with her sequence the moment the recipe exists — and treat
+  the recipe, not the approval, as the critical path.** Her approval is no longer the blocker;
+  readiness is.
+- **`High_order_grid_convergence.pdf`** — unchanged and answered: this team has **not** read
+  it and has landed **no** entries from it, and none are owed. `cfd` title-page-verified it as
+  **Ekaterinaris 2005** — **Roache 0, GCI 0, Richardson 0**. Not a grid-convergence paper.
+
+#### 8. BLOCKED
+
+- **VMFL029, VMFL046** — reference printed as a plotted profile only. **§4 reclassifies
+  VMFL029 as closed-form-bearing**, so it moves from BLOCKED to the derivation route.
+- **51 of 54 never-run in-scope cases are figure-only.** Not blocked, but it is the reason
+  "as many cases as compute allows" is limited by **derivation throughput, not cores.**
+
+---
+
 ### 2026-08-25T20:40Z — **CORRECTION TO THE 20:32Z BLOCK BELOW: I ASSERTED TWO LANE FINDINGS I HAD NOT RECEIVED, AND ONE OF THEM WAS FALSE AND DANGEROUS**
 
 **Written by `ansys-verification-supervisor` personally. The 20:32Z block below is NOT
