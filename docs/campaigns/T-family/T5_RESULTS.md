@@ -221,3 +221,99 @@ complete, `analyse_t5.py --root T5_runs` grades the V and G rows; the P rows sta
 BLOCKED under §7.5(3) until the digitised reference is on disk, and §10's
 freeze-set drift on `digitise_t5.py` must be resolved before that reference is
 believed.
+
+---
+
+# APPENDED 2026-08-26T22:33Z — `P_m` (the `Pr_t` arm) DONE under the strict rule; the comparator's answer is unchanged and `P_m` is not in its listing at all
+
+**Lines whose number changed above this section: 0** (appended to a copy of the
+HEAD blob). **Rung verdict: still `PENDING`.**
+
+## 13. Completion — the strict rule, `P_m`
+
+Freeze re-checked on disk immediately before the comparator ran, as at §6:
+`mark_done_t5.py` `a74ce20d` and `analyse_t5.py` `9c2c1d44`, both disk == blob.
+
+`STATUS.P_m` (in-wrapper, frozen `run_one_t5.sh`, ranks 1):
+`rc=0 wall_s=4133 core_min=68.883 timeout_s=95472 capped=0 checkMesh_rc=0 note=clean`.
+
+| case | wall s | ExecutionTime s | `Time =` / `ExecutionTime` lines | last time | endTime | End | age guard | core-min | POINT | ratio | timeout s |
+|---|---:|---:|---:|---|---|---|---|---:|---:|---:|---:|
+| `P_m` | 4 133 | 4 102.99 | 5 000 / 5 000 | 5000 | 5000 | yes (1) | `5000/air/T` 22:32:37Z **newer than** `0/air/T` 21:23:42Z | **68.883** | 530.4 | **0.1299** | 95 472 |
+
+`python3 mark_done_t5.py P_m` → `DONE      P_m`, **rc 0**; marker: *"DONE P_m
+under the strict rule (rc=0, End, endTime, fields, age guard) at
+2026-08-26T22:32:48Z"*. Cap reached to 4.3 %; `capped=0`.
+
+**The arm's registered difference is present on disk and was read, not assumed:**
+`P_m/0.orig/air/alphat` carries `Prt 0.5;` against `T5_CUBE_m/0.orig/air/alphat`'s
+`Prt 0.85;` (§8 `DP`). Mesh identical to the conjugate medium case: 212 942 air +
+3 272 epoxy cells.
+
+## 14. The comparator, third run — same answer, and `P_m` does not appear in it
+
+`python3 analyse_t5.py --root .` (blob `9c2c1d44`), rc **0**, log
+`T5_runs/log.analyse_t5.20260826T223248Z.txt`, printed in full:
+
+```
+T5_CUBE_c: done=True -- all clauses hold
+T5_CUBE_m: done=True -- all clauses hold
+T5_CUBE_f: done=False -- no STATUS file: nothing ran, or the launcher died before writing one
+
+No case has run: no rows are graded and no verdict is written.
+```
+
+Recorded verbatim. **`T5_CUBE_f: done=False` is correct and is not a failure:**
+`T5_F` launched at 22:22:31Z and is running (`Time = 121` at 22:33Z); the frozen
+`run_one_t5.sh` writes `STATUS.<case>` only when the solver exits, so an in-flight
+case is indistinguishable from an unlaunched one to this reader. Both are
+`done=False`, and the comparator is right to treat them the same.
+
+**`P_m` is absent from the listing entirely, and that is by registration, not by
+omission.** `analyse_t5.py`'s `LEVELS = ("c", "m", "f")` (l.26) and its `--root`
+loop build the case name as `"T5_CUBE_" + lv`, so the comparator never looks at
+`P_m`, `L_m`, `H_c` or `S_m`. **The `DP` arm's own criterion — §8: `SEPARATED` if
+`P_m` moves any of G1a–G3a by more than that row's band (≈ 10.2 %), `NOT
+SEPARATED` otherwise — is computed from graded rows that do not yet exist**, so
+`P_m`'s verdict waits on the C/M/F triple exactly as the graded rows do. Its
+completion is recorded here; **no separation claim is made and none is available.**
+
+## 15. Cost — rule 12, `P_m`
+
+- **Predicted:** 530.4 core-min (AMENDMENT 2, Model B `P_m` 8.84 core-h × 60,
+  ranks 1); $0.4535 derived.
+- **Measured:** **68.883 core-min** = 4 133 wall s × 1 rank ÷ 60. **Gross =
+  cleaned.** Over 3 600 wall s by the letter and **not a stall**: monotone to
+  5000 == `endTime`, 5 000 `ExecutionTime` lines, one `End`, ExecutionTime
+  4 102.99 s = **99.27 %** of ClockTime.
+- **Ratio 0.1299.** **$0.0589 DERIVED, NOT MEASURED** at $0.0513/core-h.
+- **Attribution — the same mesh-scaling misprediction as `T5_CUBE_m` (C-143), and
+  a cleaner box.** Identical mesh to `T5_CUBE_m`, so the two are a like-for-like
+  pair: **3.795e-06 s per cell-iteration against `T5_CUBE_m`'s 4.154e-06**, an
+  8.6 % improvement explained by contention, not by `Pr_t` — `P_m` ran at 99.27 %
+  ExecutionTime/ClockTime against `T5_CUBE_m`'s 98.94 %, and `T5_CUBE_c`/`H_c`
+  earlier ran at 96.3 %/96.4 %. **The registered `Pr_t` change is a boundary
+  coefficient, not a work term, and it should not and did not move the cost.**
+- **WASTE: 0.000 core-min**, named separately.
+
+## 16. Rung state at 22:33Z
+
+| case | state | core-min |
+|---|---|---:|
+| `X_2d` | DONE, **UNGRADED BY REGISTRATION** (§9) | 5.217 |
+| `T5_CUBE_c` | DONE | 16.083 |
+| `H_c` | DONE — **blind control**, §3 | 16.567 |
+| `T5_CUBE_m` | DONE | 75.650 |
+| `P_m` | DONE — `DP` arm, verdict waits on the triple | 68.883 |
+| `L_m` | RUNNING (launched 22:20:21Z; `Time = 1162` at 22:33Z) | — |
+| `T5_CUBE_f` | RUNNING (launched 22:22:31Z; `Time = 121` at 22:33Z) | — |
+| `S_m` | **BLOCKED on the builder** — AMENDMENT 9 DRAFTED, not promoted (`T5_AMENDMENT9_DRAFT.md`) | 0.000 |
+
+**Graded-case total so far: 177.183 core-min** (excluding the ungraded precursor).
+
+**Early indication on the fine level, stated as an indication and not a result:**
+`T5_CUBE_f` reached `Time = 121` in ≈ 630 s of wall clock including its mesh
+build, i.e. of order 5 s per iteration. Carried forward at that rate the level
+would land near 430 core-min against its registered POINT of 2 308.2 — **above
+C-143's carry-forward prediction of 300–350 core-min**, which will be scored
+honestly against the measured figure when `STATUS.T5_CUBE_f` exists, not before.
