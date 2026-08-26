@@ -1,0 +1,38 @@
+  [OK ] W1 five rows W=2000 + ledger W_STEPS=2000 -> accepted, returns 2000
+  [OK ] W2 one row without a W key -> REFUSED
+  [OK ] W3 rows disagree (one at 300) -> REFUSED
+  [OK ] W4 ledger W_STEPS=900 against rows W=2000 -> REFUSED (the W2R defect shape)
+  [OK ] W5 ledger without a W_STEPS line -> REFUSED
+  [OK ] W6 two W_STEPS lines -> REFUSED
+  [OK ] W7 rows and ledger agree on 300 but 300 is not the registered W_PRIMARY -> REFUSED
+  [OK ] W8 envelope C_ENV/W at W=2000 = 4.4535e-04, used = max(exact 3.9589e-04, envelope) = 4.4535e-04 >= exact
+  [OK ] W9 at a near-degenerate W=891 the frozen g3 EXCLUDES the term (delta_window=None); W3-A1 recovers the exact spread 4.85e-05 from block_max-block_min and the envelope 1.00e-03 carries the floor -- NOT excluded
+  [OK ] W10 g4_delta_eff accepts the envelope-carried delta_window as dominant with the flag not applied
+  [OK ] W11 step sizing on the envelope at |g|=1.13984: h_min=0.03907 admissible=True (the registered P3 point)
+  [OK ] W12 the falsifier: |g|=0.85 -> h_min=0.05239 NOT admissible
+W3 SELFTEST units=12 failures=0 python_O=False
+W3 SELFTEST PASS 12/12
+w3 rc_plain=0
+  [OK ] W1 five rows W=2000 + ledger W_STEPS=2000 -> accepted, returns 2000
+  [OK ] W2 one row without a W key -> REFUSED
+  [OK ] W3 rows disagree (one at 300) -> REFUSED
+  [OK ] W4 ledger W_STEPS=900 against rows W=2000 -> REFUSED (the W2R defect shape)
+  [OK ] W5 ledger without a W_STEPS line -> REFUSED
+  [OK ] W6 two W_STEPS lines -> REFUSED
+  [OK ] W7 rows and ledger agree on 300 but 300 is not the registered W_PRIMARY -> REFUSED
+  [OK ] W8 envelope C_ENV/W at W=2000 = 4.4535e-04, used = max(exact 3.9589e-04, envelope) = 4.4535e-04 >= exact
+  [OK ] W9 at a near-degenerate W=891 the frozen g3 EXCLUDES the term (delta_window=None); W3-A1 recovers the exact spread 4.85e-05 from block_max-block_min and the envelope 1.00e-03 carries the floor -- NOT excluded
+  [OK ] W10 g4_delta_eff accepts the envelope-carried delta_window as dominant with the flag not applied
+  [OK ] W11 step sizing on the envelope at |g|=1.13984: h_min=0.03907 admissible=True (the registered P3 point)
+  [OK ] W12 the falsifier: |g|=0.85 -> h_min=0.05239 NOT admissible
+W3 SELFTEST units=12 failures=0 python_O=True
+W3 SELFTEST PASS 12/12
+w3 rc_O=0
+
+COUNTED EXIT: units REGISTERED (frozen constant) 82, units in the list 82, units that RETURNED A RESULT 82, failures 0
+ASSERT AUDIT: 0 `assert` statements in this file (must be 0 -- `-O` deletes them)
+orig rc_plain=0
+
+COUNTED EXIT: units REGISTERED (frozen constant) 82, units in the list 82, units that RETURNED A RESULT 82, failures 0
+ASSERT AUDIT: 0 `assert` statements in this file (must be 0 -- `-O` deletes them)
+orig rc_O=0

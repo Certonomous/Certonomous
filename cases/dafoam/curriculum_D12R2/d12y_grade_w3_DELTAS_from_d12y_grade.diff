@@ -1,0 +1,223 @@
+--- d12y_grade.py	2026-08-26 16:25:56.648751312 +0000
++++ d12y_grade_w3.py	2026-08-26 22:51:42.896622393 +0000
+@@ -34,8 +34,8 @@
+ 
+ # ---------------------------------------------------------------- registered constants
+ # Every one of these is fixed by PREREGISTRATION.md section 5 and is not a tunable.
+-W_PRIMARY          = 300        # timesteps, graded window
+-W_CONTINGENCY      = 900        # timesteps, fires only on the G12R-4 branch
++W_PRIMARY          = 2000       # timesteps, graded window -- W3 (W3_PREREGISTRATION.md sec.3); the W the plan step READS is the manifest's, refused if it is not this
++W_CONTINGENCY      = 2400       # timesteps, the W3 fallback variant (S2b lengthened to 4,800), NOT registered here
+ TRANSIENT_DISCARD  = 0          # [D1] the discard is now done BY CONSTRUCTION: S2a ENDS at
+                                 # the discard point so its FINAL write is complete, and S2b's
+                                 # series therefore starts already past the transient.  Every
+@@ -56,8 +56,8 @@
+ PLANT_FLOOR_REL    = 1.0e-9
+ JSON_LOG_TOL_REL   = 1.0e-12
+ HARNESS_FLOOR_LO   = 0.025      # VERIFICATION_CHARTER section 7 step 4, shape DV through IDWarp
+-CAP_CORE_MIN       = 600.0
+-CAP_S8_CORE_MIN    = 350.0
++CAP_CORE_MIN       = 900.0      # W3_PREREGISTRATION.md sec.4
++CAP_S8_CORE_MIN    = 400.0      # W3_PREREGISTRATION.md sec.4
+ 
+ # ---- [D12R2] REGISTERED BY THIS ITEM, FIXED BY PREREGISTRATION.md section 5 ---------
+ # THE TASK TAXONOMY.  Which tasks WRITE a per-stage JSON, and which carry their
+@@ -106,7 +106,8 @@
+ # the graded window W is an integer multiple of the shedding period -- not because the
+ # objective is noiseless, but because block averaging over whole periods cancels the
+ # phase spread it exists to measure.
+-WINDOW_DEGEN_TOL   = 0.05       # |W/P - round(W/P)| <= this  =>  DEGENERATE
++WINDOW_DEGEN_TOL   = 0.05       # |W/P - round(W/P)| <= this  =>  DEGENERATE (reported; NO LONGER EXCLUDES the term -- W3-A1)
++C_ENV              = 0.8907     # W3-A1: the measured 1/W envelope constant of delta_window on the retained S2b series, max(W*delta_window) = 0.89065 over W = 300..2100 at 1-step sampling (W3_PREREGISTRATION.md sec.2), rounded UP; delta_window_used = max(delta_window(W), C_ENV/W)
+ # PRE-COMPUTE PREDICTION, registered so G12R-1 tests it rather than confirming it:
+ # a circular cylinder sheds at St ~ 0.2; with D = 1.0 m and U0 = 10 m/s that is
+ # f ~ 2 Hz, T ~ 0.5 s, and at deltaT = 1e-2 the period is ~50 timesteps.  W = 300 is
+@@ -1954,6 +1955,110 @@
+     return d
+ 
+ 
++def _w_from_record(rows, ledger_path):
++    """W3-A2.  The window graded is the window that ran: every manifest row carries "W",
++    the rows agree, the ledger carries one W_STEPS=<n> line that agrees, and the value
++    is the registered W_PRIMARY.  Anything else REFUSES -- a comparator that can grade
++    the wrong window silently is the W2R-GRADER-DEF-1 defect."""
++    ws = set()
++    missing = [r.get("name") for r in rows if "W" not in r]
++    if missing:
++        raise Refusal("W3-A2: %d manifest row(s) carry no W key: %s" % (len(missing), missing[:6]))
++    for r in rows:
++        try:
++            ws.add(int(r["W"]))
++        except (TypeError, ValueError):
++            raise Refusal("W3-A2: row %r carries an unparseable W=%r" % (r.get("name"), r.get("W")))
++    if len(ws) != 1:
++        raise Refusal("W3-A2: manifest rows disagree on W: %s" % sorted(ws))
++    W_rows = ws.pop()
++    if not os.path.isfile(ledger_path):
++        raise Refusal("W3-A2: ledger absent at %s; W_STEPS cannot be cross-read" % ledger_path)
++    led = []
++    with open(ledger_path, errors="replace") as f:
++        for line in f:
++            m = re.match(r"^W_STEPS=(\d+)\b", line.strip())
++            if m:
++                led.append(int(m.group(1)))
++    if len(led) != 1:
++        raise Refusal("W3-A2: ledger carries %d W_STEPS= line(s), expected exactly 1: %s" % (len(led), led))
++    if led[0] != W_rows:
++        raise Refusal("W3-A2: ledger W_STEPS=%d disagrees with the manifest rows' W=%d" % (led[0], W_rows))
++    if W_rows != W_PRIMARY:
++        raise Refusal("W3-A2: the record's W=%d is not the registered W_PRIMARY=%d" % (W_rows, W_PRIMARY))
++    return W_rows
++
++
++def selftest_w3(tmpdir):
++    """Planted controls for the two W3 deltas, run under python3 and python3 -O.  Every
++    refusal is a raise; every success line is printed inside the branch that verified it."""
++    import tempfile
++    n = 0; bad = []
++    def unit(name, cond):
++        nonlocal n
++        n += 1
++        print("  [%s] %s" % ("OK " if cond else "BAD", name))
++        if not cond:
++            bad.append(name)
++    def refuses(rows, ledger_lines):
++        d = tempfile.mkdtemp(dir=tmpdir)
++        lp = os.path.join(d, "ledger.txt")
++        with open(lp, "w") as f:
++            f.write("\n".join(ledger_lines) + "\n")
++        try:
++            _w_from_record(rows, lp); return False
++        except Refusal:
++            return True
++    good = [{"name": "S%d" % i, "W": W_PRIMARY} for i in range(5)]
++    unit("W1 five rows W=%d + ledger W_STEPS=%d -> accepted, returns %d" % (W_PRIMARY, W_PRIMARY, W_PRIMARY),
++         not refuses(good, ["ITEM=X", "W_STEPS=%d deltaT=1e-2" % W_PRIMARY]) and
++         _w_from_record(good, _write_ledger(tmpdir, ["W_STEPS=%d deltaT=1e-2" % W_PRIMARY])) == W_PRIMARY)
++    unit("W2 one row without a W key -> REFUSED", refuses(good[:4] + [{"name": "S4"}], ["W_STEPS=%d" % W_PRIMARY]))
++    unit("W3 rows disagree (one at 300) -> REFUSED", refuses(good[:4] + [{"name": "S4", "W": 300}], ["W_STEPS=%d" % W_PRIMARY]))
++    unit("W4 ledger W_STEPS=900 against rows W=%d -> REFUSED (the W2R defect shape)" % W_PRIMARY, refuses(good, ["W_STEPS=900 deltaT=1e-2"]))
++    unit("W5 ledger without a W_STEPS line -> REFUSED", refuses(good, ["ITEM=X"]))
++    unit("W6 two W_STEPS lines -> REFUSED", refuses(good, ["W_STEPS=%d" % W_PRIMARY, "W_STEPS=%d" % W_PRIMARY]))
++    unit("W7 rows and ledger agree on 300 but 300 is not the registered W_PRIMARY -> REFUSED",
++         refuses([{"name": "S%d" % i, "W": 300} for i in range(5)], ["W_STEPS=300"]))
++    # ---- the envelope arithmetic on a synthetic periodic series (no run artefact needed)
++    import math
++    P = 18.9644; A = 0.06581
++    cd = [0.6563 + A * math.sin(2 * math.pi * i / P) for i in range(2400)]
++    g3 = g3_delta_window(cd, W_PRIMARY, period_steps=P)
++    env = C_ENV / float(W_PRIMARY)
++    used = max(g3["delta_window"], env)
++    unit("W8 envelope C_ENV/W at W=%d = %.4e, used = max(exact %.4e, envelope) = %.4e >= exact" % (W_PRIMARY, env, g3["delta_window"], used),
++         used >= g3["delta_window"] and used >= env and abs(env - C_ENV / W_PRIMARY) < 1e-18)
++    Wdeg = int(round(47 * P))   # ~891: a whole number of periods, the exact spread nearly cancels
++    g3d = g3_delta_window(cd, Wdeg, period_steps=P)
++    exactd = float(g3d["block_max"]) - float(g3d["block_min"])
++    usedd = max(exactd, C_ENV / Wdeg)
++    unit("W9 at a near-degenerate W=%d the frozen g3 EXCLUDES the term (delta_window=%r); W3-A1 recovers the exact spread %.2e from block_max-block_min and the envelope %.2e carries the floor -- NOT excluded" % (Wdeg, g3d["delta_window"], exactd, C_ENV / Wdeg),
++         g3d.get("degenerate") is True and g3d["delta_window"] is None and usedd == C_ENV / Wdeg and usedd > exactd)
++    ge = g4_delta_eff(0.0, usedd, 1.2e-6, window_degenerate=False)
++    unit("W10 g4_delta_eff accepts the envelope-carried delta_window as dominant with the flag not applied", ge["dominant_term"] == "delta_window" and ge["delta_eff"] == usedd)
++    hm = g4_step_sizing(C_ENV / W_PRIMARY, 1.13984)
++    unit("W11 step sizing on the envelope at |g|=1.13984: h_min=%.5f admissible=%s (the registered P3 point)" % (hm["h_min"], hm["verdict"] == "PASS"),
++         hm["verdict"] == "PASS" and abs(hm["h_min"] - 0.03907) < 5e-4)
++    hm2 = g4_step_sizing(C_ENV / W_PRIMARY, 0.85)
++    unit("W12 the falsifier: |g|=0.85 -> h_min=%.5f NOT admissible" % hm2["h_min"], hm2["verdict"] != "PASS")
++    print("W3 SELFTEST units=%d failures=%d python_O=%s" % (n, len(bad), not __debug__))
++    if n != 12 or bad:
++        print("W3 SELFTEST FAIL: %s" % (bad or "unit count"))
++        return 2
++    print("W3 SELFTEST PASS 12/12")
++    return 0
++
++
++def _write_ledger(tmpdir, lines):
++    import tempfile
++    d = tempfile.mkdtemp(dir=tmpdir)
++    lp = os.path.join(d, "ledger.txt")
++    with open(lp, "w") as f:
++        f.write("\n".join(lines) + "\n")
++    return lp
++
++
+ def plan(manifest_path, root, man_meta=None):
+     """--plan : phase 1 -> step_plan.json.  Computes delta_eff and the sweep RANGE."""
+     rows = [r for r in _read_manifest_rows(manifest_path) if not r.get("blocked")]
+@@ -1990,6 +2095,14 @@
+     s2 = byn.get("S2b")
+     if not s2:
+         raise Refusal("no S2b diagnostic stage in the manifest")
++    # ---- W3-A2: THE WINDOW IS READ FROM THE RUN'S OWN RECORD, NEVER FROM A CONSTANT.
++    # W2R-GRADER-DEF-1: the predecessor comparator passed the literal W_PRIMARY (300)
++    # here while the launcher ran W = 900, so h_min was sized on the wrong window.  The
++    # W3 launcher writes "W" into EVERY manifest row and "W_STEPS=<n>" into the ledger;
++    # this comparator reads both, REFUSES if any row lacks the key, if the rows disagree,
++    # if the ledger line is absent or disagrees, or if the value is not the registered
++    # W_PRIMARY -- and only then grades delta_window at that W.
++    W_used = _w_from_record(rows, os.path.join(root, "ledger.txt"))
+     # [D1] FIELD_B COMPLETENESS, verified comparator-side from the manifest the launcher
+     # wrote. The launcher refuses at stage time; this refuses at grade time. Both ask the
+     # SAME question -- "is this enough to start a solve?" -- which is the question the md5
+@@ -2010,7 +2123,23 @@
+     retained = cd[TRANSIENT_DISCARD:]
+     g1 = g1_limit_cycle(retained)
+     out["gates"].append(g1)
+-    g3 = g3_delta_window(retained, W_PRIMARY, period_steps=g1.get("period_steps"))
++    g3 = g3_delta_window(retained, W_used, period_steps=g1.get("period_steps"))
++    # ---- W3-A1: THE ENVELOPE SIZES THE STEP.  The exact sliding-block spread has deep
++    # minima near whole shedding periods that belong to the BASELINE geometry's period;
++    # the FD arms perturb the body by up to h_max and shift W/P by whole periods, so
++    # their window residual lands anywhere on the 1/W envelope.  delta_window_used is
++    # the LARGER of the measured spread and the envelope C_ENV/W; the degeneracy flag is
++    # reported and never excludes the term (a floor that can be cancelled by construction
++    # must not be allowed to vanish in the max).
++    # the frozen g3 returns delta_window = None when it flags degeneracy (its exclusion);
++    # the EXACT spread is always block_max - block_min, recovered here so the max() never
++    # meets a None (W3-A1 keeps the number the predecessor threw away).
++    g3["delta_window_exact"] = float(g3["block_max"]) - float(g3["block_min"])
++    g3["delta_window_envelope"] = C_ENV / float(W_used)
++    g3["delta_window"] = max(g3["delta_window_exact"], g3["delta_window_envelope"])
++    g3["envelope_note"] = ("W3-A1: delta_window_used = max(exact %.6e, envelope C_ENV/W = %.6e) = %.6e; "
++                           "the degeneracy flag (%r) is reported, not applied" %
++                           (g3["delta_window_exact"], g3["delta_window_envelope"], g3["delta_window"], g3.get("degenerate")))
+     out["gates"].append(g3)
+ 
+     # ---- G12R-2 delta_repeat --------------------------------------------------------
+@@ -2040,7 +2169,7 @@
+ 
+     # ---- delta_eff, and the step RANGE ---------------------------------------------
+     ge = g4_delta_eff(g2["delta_repeat"], g3["delta_window"], g3b["delta_pert"],
+-                      window_degenerate=g3.get("degenerate"))
++                      window_degenerate=False)   # W3-A1: never excluded; the flag is in g3 for the record
+     out["gates"].append(ge)
+     s5 = byn.get("S5")
+     if not s5 or not s5.get("dobj_dshape"):
+@@ -2054,6 +2183,9 @@
+              "h_max": H_MAX, "delta_eff": ge["delta_eff"],
+              "delta_terms": ge["terms"], "dominant_term": ge["dominant_term"],
+              "window_degenerate": g3.get("degenerate"),
++             "delta_window_exact": g3["delta_window_exact"],
++             "delta_window_envelope": g3["delta_window_envelope"],
++             "W": W_used, "C_ENV": C_ENV,
+              "period_steps": g1.get("period_steps"),
+              "g_component_0": g_comp}
+     with open(os.path.join(root, "step_plan.json"), "w") as f:
+@@ -2433,6 +2565,7 @@
+ def main():
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--selftest", action="store_true")
++    ap.add_argument("--selftest-w3", dest="selftest_w3", action="store_true")
+     ap.add_argument("--olimb", action="store_true")
+     ap.add_argument("--demo", action="store_true")
+     ap.add_argument("--demo-child", dest="demo_child", default=None)
+@@ -2460,6 +2593,10 @@
+         return _demo_child(a.demo_child)
+     if a.demo:
+         return demo(a.tmpdir, a.manifest)
++    if a.selftest_w3:
++        d = os.path.join(a.tmpdir, "d12y_w3_selftest")
++        os.makedirs(d, exist_ok=True)
++        return selftest_w3(d)
+     if a.selftest:
+         d = os.path.join(a.tmpdir, "d12r_selftest")
+         os.makedirs(d, exist_ok=True)

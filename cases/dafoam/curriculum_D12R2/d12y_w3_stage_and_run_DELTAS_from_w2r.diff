@@ -1,0 +1,157 @@
+--- d12y_w2r_stage_and_run.sh	2026-08-26 04:49:30.655509749 +0000
++++ d12y_w3_stage_and_run.sh	2026-08-26 22:54:08.553313423 +0000
+@@ -106,17 +106,17 @@
+ ID_SHIPPED="sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc"
+ ID_PATCHED="sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35"
+ 
+-BASE="${BASE:-/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W2R-cylinder-unsteady}"
++BASE="${BASE:-/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady}"
+ TUT="${TUT:-/home/ubuntu/dafoam-tutorials/Cylinder}"
+ SRC="${SRC:-/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2}"
+ RUNPY="$SRC/d12y_run_script.py"
+-GRADEPY="$SRC/d12y_grade.py"
++GRADEPY="$SRC/d12y_grade_w3.py"          # W3: the SUCCESSOR comparator (W3-A1/W3-A2), disclosed in W3_PREREGISTRATION.md sec.5
+ 
+ # §6 REGISTERED CAP.  [RULING-3.1 context] The launcher ASSERTS its own cap against
+ # the value the pre-registration names -- closing the defect D12-E' §6.1 disclosed,
+ # where a copied-forward launcher enforced a cap its pre-registration did not name.
+-CAP_CORE_MIN_REGISTERED="600.0"
+-CAP_S8_REGISTERED="350.0"
++CAP_CORE_MIN_REGISTERED="900.0"          # W3_PREREGISTRATION.md sec.4
++CAP_S8_REGISTERED="400.0"              # W3_PREREGISTRATION.md sec.4
+ CAP_CORE_MIN="${CAP_CORE_MIN:-600.0}"
+ CAP_S8="${CAP_S8:-350.0}"
+ MEMAVAIL_FLOOR_GIB="14.0"      # §G12R-8 registered floor
+@@ -128,13 +128,15 @@
+                                # 20g was refused: with a peer holding 12g it would put the
+                                # AGGREGATE at 32g against 30.64 GiB of physical memory.
+ MEM_LIMIT_GIB="8"              # the same number, for the aggregate arithmetic below
+-CPUSET_CPUS="${CPUSET_CPUS:-12}"   # W2 §4 REGISTERED EXPLICIT PIN.  np=1, so one core.
++CPUSET_CPUS="${CPUSET_CPUS:-1}"    # W3 sec.5 REGISTERED EXPLICIT PIN: core 1 (the supervisor's placement; W2R was 12).  np=1, so one core.
+                                # `--cpus=1` is a QUOTA, not a pin: it rations CPU time
+                                # without saying WHERE, so two containers can be handed the
+                                # same physical core and each still be "within quota".
+                                # A quota is not a placement, and only a placement is a fact.
+ 
+-W_STEPS=900                    # W2 §3 THE CONTINGENCY WINDOW.  Registered as `W2 = 900` in
++W_STEPS=2000                   # W3 sec.3 THE REGISTERED WINDOW (predicted first-admissible envelope W* = 1,563, band 1,425-1,875; 2,000 clears the pessimistic edge).
++#                              # (the W2 note below is the W2R launcher's, kept verbatim for the diff reader)
++# W_STEPS=900                  # W2 §3 THE CONTINGENCY WINDOW.  Registered as `W2 = 900` in
+                                # D12R's frozen §7 at f9c8b9c8 -- BEFORE any of the data that
+                                # now motivates running it.  THAT IS WHAT MAKES IT NOT A
+                                # CHOSEN WINDOW: a W picked after seeing which W yields a
+@@ -187,7 +189,7 @@
+ 
+ # A3 -- the instruments on disk ARE the committed blobs (CLAUDE.md rule 2's grading-path
+ # clause, EXECUTED and not asserted).  A mismatch aborts; it does not warn.
+-for f in "$RUNPY" "$GRADEPY" "$SRC/d12y_w2r_stage_and_run.sh"; do
++for f in "$RUNPY" "$GRADEPY" "$SRC/d12y_w3_stage_and_run.sh"; do
+   rel="${f#/home/ubuntu/Certonomous/}"
+   d=$(md5sum "$f" | cut -d' ' -f1)
+   b=$(cd /home/ubuntu/Certonomous && git show "HEAD:$rel" 2>/dev/null | md5sum | cut -d' ' -f1)
+@@ -201,7 +203,7 @@
+ # A "not found" from a predicate never shown able to find anything is not evidence.
+ PLANT_PROBE="d12y_run_script.py"      # known to exist; the planted control
+ missing=""
+-for want in d12y_run_script.py d12y_grade.py d12y_w2r_stage_and_run.sh; do
++for want in d12y_run_script.py d12y_grade_w3.py d12y_w3_stage_and_run.sh; do
+   if [ -f "$SRC/$want" ]; then found_any="$want"; else missing="$missing $want"; fi
+ done
+ [ -f "$SRC/$PLANT_PROBE" ] || { echo "ABORT: PLANTED CONTROL FAILED -- the predicate cannot see $PLANT_PROBE, which exists. A 'not found' from this loop would be meaningless."; exit 5; }
+@@ -231,7 +233,7 @@
+   mkdir -p "$ROOT" || { echo "ABORT: cannot mkdir $ROOT"; exit 1; }
+   chmod 777 "$ROOT"
+   : > "$MANIFEST"
+-  { echo "ITEM=CURRICULUM-D12R2W2R"; echo "ROW=$ROW"; echo "IMAGE=$IMG"; echo "IMAGE_ID=$GOT_ID";
++  { echo "ITEM=CURRICULUM-D12R2W3"; echo "ROW=$ROW"; echo "IMAGE=$IMG"; echo "IMAGE_ID=$GOT_ID";
+     echo "IMAGE_ASSERT_STATE=$DBG";
+     echo "NP=1 numberOfSubdomains=1"; echo "W_STEPS=$W_STEPS deltaT=$DELTAT";
+     echo "CAP_CORE_MIN=$CAP_CORE_MIN (registered $CAP_CORE_MIN_REGISTERED)";
+@@ -240,6 +242,23 @@
+     echo "STAMP=$STAMP"; echo "STARTED_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)"; } | tee -a "$LEDGER"
+ else
+   [ -d "$ROOT" ] || { echo "ABORT: phase $PHASE continues a run that does not exist: $ROOT"; exit 6; }
++  # ---- G-ROOT.5 (standing rule, UPDATE A): a LIVE arm is never re-staged.  run_stage
++  # ---- removes the stage directory before staging; a re-fire on a running root would
++  # ---- delete a directory a container is writing into.  Two live readings, before any
++  # ---- destructive act: (a) a RUNNING container with this item's prefix; (b) the driver
++  # ---- pidfile naming a LIVE pid that is not an ancestor of this process.
++  LIVE_W3=$(sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep '^d12y_w3_' | head -3 | tr '\n' ',' | sed 's/,$//')
++  if [ -n "$LIVE_W3" ]; then echo "ABORT G-ROOT.5 a RUNNING container carries this item's prefix: [$LIVE_W3]. REFUSED before any staging."; exit 3; fi
++  W3_PIDFILE="$ROOT/d12y_w3_driver.pid"
++  if [ -f "$W3_PIDFILE" ]; then
++    DPID=$(tr -dc '0-9' < "$W3_PIDFILE" | head -c 12)
++    if [ -n "$DPID" ] && kill -0 "$DPID" 2>/dev/null; then
++      ANC=no; p=$$
++      for _ in $(seq 1 64); do [ "$p" = "$DPID" ] && { ANC=yes; break; }; p=$(ps -o ppid= -p "$p" 2>/dev/null | tr -d ' '); { [ -z "$p" ] || [ "$p" = "0" ]; } && break; done
++      if [ "$ANC" = "no" ]; then echo "ABORT G-ROOT.5 driver pidfile $W3_PIDFILE names LIVE pid $DPID that is not an ancestor of this launcher. REFUSED."; exit 3; fi
++    fi
++  fi
++  echo "W3_G_ROOT5_PASS phase=$PHASE live_prefix_containers=none driver_pidfile=$([ -f "$W3_PIDFILE" ] && echo present_owner_is_ancestor_or_stale || echo absent)"
+   # recover cumulative spend from the ledger so the cap is CUMULATIVE ACROSS PHASES,
+   # not per-phase.  A per-phase cap is not the cap the pre-registration registers.
+   SPENT_CORE_MIN=$(awk -F'core_min=' '/^STAGE=/{split($2,a," "); s+=a[1]} END{printf "%.4f", s+0}' "$LEDGER")
+@@ -340,7 +359,10 @@
+     return 8
+   fi
+ 
+-  local D="$ROOT/$STAGE" LOG="$ROOT/${STAGE}_${STAMP}.log" NAME="d12y_${STAGE}_${STAMP}"
++  local D="$ROOT/$STAGE" LOG="$ROOT/${STAGE}_${STAMP}.log" NAME="d12y_w3_${STAGE}_${STAMP}"
++  # W3 sec.4: the per-stage wall bound scales with the window; S8 (the optimiser, one stage)
++  # gets 16,000 s = 266.7 core-min at np=1 (W2R's 7,200 x 2000/900), every other stage keeps 7,200 s.
++  local STAGE_TMO=7200; [ "${STAGE:0:2}" = "S8" ] && STAGE_TMO=16000
+   sudo -n rm -rf "$D" 2>/dev/null
+   cp -a "$ROOT/mesh" "$D" || { echo "ABORT: stage $STAGE copy failed"; return 4; }
+   [ "$CDICT" != "-" ] && { cp -a "$CDICT" "$D/system/controlDict" || { echo "ABORT: controlDict"; return 4; }; }
+@@ -413,7 +435,7 @@
+     CMD="mpirun --allow-run-as-root --bind-to none -np 1 python d12y_run_script.py --task=$TASK --dvIndex=$IDX --dvDelta=$DELTA --out=d12y_${STAGE}.json"
+   fi
+   T0=$(date -u +%s)
+-  timeout 7200 sudo -n docker run --name "$NAME" \
++  timeout $STAGE_TMO sudo -n docker run --name "$NAME" \
+       --user 0:0 --cpus=1 --cpuset-cpus="$CPUSET_CPUS" \
+       --memory=$MEM_LIMIT --memory-swap=$MEM_LIMIT --oom-score-adj=500 \
+       -v "$ROOT":/mnt -w "/mnt/$STAGE" "$IMG" bash -lc \
+@@ -437,7 +459,7 @@
+   # arguments back would witness the launcher's INTENT; reading the JSON witnesses
+   # what the run actually did.  Those are different claims and only the second one
+   # is evidence.
+-  MANIFEST="$MANIFEST" python3 - "$D" "$STAGE" "$TASK" "$IDX" "$DELTA" "$NSTEP" "$rc" "$INSPECT" \
++  MANIFEST="$MANIFEST" W_STEPS="$W_STEPS" python3 - "$D" "$STAGE" "$TASK" "$IDX" "$DELTA" "$NSTEP" "$rc" "$INSPECT" \
+       "$LOG" "$AGE_DATUM" "$MA" "$CM" "$WALL" "$ENDT" <<'PYEOF'
+ import json, os, re, sys
+ (D, stage, task, idx, delta, nstep, rc, inspect, log,
+@@ -588,6 +610,7 @@
+         row["age_guard_detail"] = "age guard could not be evaluated: %r" % (exc,)
+ 
+ row["coldstart_ok"] = True     # asserted by the shell before launch; false => no row
++row["W"] = int(os.environ["W_STEPS"])   # W3-A2: the window that ran, in EVERY manifest row; the successor comparator refuses without it
+ with open(os.environ["MANIFEST"], "a") as f:
+     f.write(json.dumps(row, sort_keys=True) + "\n")
+ print("STAGE=%s TASK=%s rc=%s wall_s=%s core_min=%s memavail=%s applied_index=%r "
+@@ -688,7 +711,7 @@
+   cp -a "$TUT"/system/fvSolution_pimple "$ROOT/mesh/system/fvSolution"
+   MA=$(memavail_gib)
+   T0=$(date -u +%s)
+-  timeout 900 sudo -n docker run --name "d12y_S0_${STAMP}" --user 0:0 --cpus=1 --cpuset-cpus="$CPUSET_CPUS" \
++  timeout 900 sudo -n docker run --name "d12y_w3_S0_${STAMP}" --user 0:0 --cpus=1 --cpuset-cpus="$CPUSET_CPUS" \
+       -v "$ROOT":/mnt -w /mnt/mesh "$IMG" bash -lc \
+       "source /home/dafoamuser/dafoam/loadDAFoam.sh && python genMesh.py && \
+        plot3dToFoam -noBlank volumeMesh.xyz && autoPatch 30 -overwrite && \
+@@ -714,7 +737,7 @@
+   # is written here, and G12R-0b now binds the two artifacts so this can never again be
+   # silent: the ledger line above and the row below must agree, with each other and
+   # with a count the pre-registration froze.
+-  MANIFEST="$MANIFEST" python3 - "$ROOT" "$((T1-T0))" "$SPENT_CORE_MIN" "$MA" "$T0" \
++  MANIFEST="$MANIFEST" W_STEPS="$W_STEPS" python3 - "$ROOT" "$((T1-T0))" "$SPENT_CORE_MIN" "$MA" "$T0" \
+       "$ROOT/S0_${STAMP}.log" <<'PYEOF'
+ import json, os, re, sys, gzip
+ root, wall, cm, ma, t0, log = sys.argv[1:7]
+@@ -787,6 +810,7 @@
+     row["age_guard_detail"] = "age guard could not be evaluated: %r" % (exc,)
+ 
+ row["coldstart_ok"] = True     # the run root was asserted absent at phase 1 (exit 6)
++row["W"] = int(os.environ["W_STEPS"])   # W3-A2: the window that ran, in EVERY manifest row; the successor comparator refuses without it
+ with open(os.environ["MANIFEST"], "a") as f:
+     f.write(json.dumps(row, sort_keys=True) + "\n")
+ print("S0_MANIFEST_ROW cells=%r check_ok=%r polyMesh=%d age_guard=%r"

@@ -1,0 +1,9 @@
+W3 G-ROOT.5 SELFTEST 2026-08-26T22:54:08Z driver_md5=5ed357e1f25b4f413d05f8b6a6680e75
+  [OK ] run root ABSENT before the test: /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady
+  [OK ] (a) live prefix container d12y_w3_selftest_20260826T225408Z -> rc=3, NOTHING RUN
+  [OK ] (b) live sibling driver pid 605946 -> rc=3, NOTHING RUN
+  [OK ] (c) stale pidfile ignored; existing root -> rc=6 (phase 1 requires an absent root), NOTHING RUN
+  [OK ] run root ABSENT after the test (freeze condition): test -e /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady -> false
+  [OK ] no d12y_w3_ container survives
+  [OK ] no step output was written (no leg reached the launcher)
+W3 G-ROOT5 SELFTEST pass=7 fail=0 2026-08-26T22:54:09Z
