@@ -191,8 +191,16 @@ if done_marker 05_petsc; then log "STEP 5 PETSc: SKIP (done)"; else
   mark 05_petsc
 fi
 export PETSC_DIR="$BUILD_ROOT/petsc" PETSC_ARCH="arch-cuda-opt"
-# What OpenFOAM's etc/config.sh/petsc and the petsc4Foam Allwmake read to find the library.
-export PETSC_ARCH_PATH="$PETSC_DIR/$PETSC_ARCH"
+# PIN 3 2026-08-26T17:3xZ (supervisor, MEASURED on attempt 2, ABORT at 17:30:33Z "libpetscFoam.so
+# not produced" after Allwmake printed "==> skip petsc (no header)"): wmake/scripts/have_petsc
+# honours an exported PETSC_ARCH_PATH and then looks for include/petsc.h UNDER IT; the arch
+# directory holds only petscconf.h. Its own header (lines 20-22, 81-82) says the prefix is
+# PETSC_DIR with PETSC_ARCH: headers in PETSC_DIR/include, library in PETSC_DIR/PETSC_ARCH/lib.
+# The attempt-1 value "$PETSC_DIR/$PETSC_ARCH" was therefore wrong. Runtime consumers
+# (simpleFoam loading libpetscFoam.so -> libpetsc.so) need the arch lib on the loader path too.
+export PETSC_ARCH_PATH="$PETSC_DIR"
+export LD_LIBRARY_PATH="$PETSC_DIR/$PETSC_ARCH/lib:$LD_LIBRARY_PATH"
+test -f "$PETSC_DIR/include/petsc.h" || { log "ABORT: $PETSC_DIR/include/petsc.h absent"; exit 1; }
 
 # ============================================================ STEP 6: petsc4Foam module
 if done_marker 06_petsc4foam; then log "STEP 6 petsc4Foam: SKIP (done)"; else
@@ -202,8 +210,12 @@ if done_marker 06_petsc4foam; then log "STEP 6 petsc4Foam: SKIP (done)"; else
       https://develop.openfoam.com/modules/external-solver.git petsc4Foam >> "$LOG" 2>&1 \
       || { log "ABORT: petsc4Foam clone (branch $PETSC4FOAM_TAG) failed"; exit 1; }
   cd petsc4Foam || { log "ABORT: cd petsc4Foam"; exit 1; }
-  ./Allwmake >> "$LOG" 2>&1 \
+  ./Allwmake > "$BUILD_ROOT/petsc4Foam.Allwmake.log" 2>&1
+  P4F_RC=$?; cat "$BUILD_ROOT/petsc4Foam.Allwmake.log" >> "$LOG"
+  test "$P4F_RC" = "0" \
       || { log "ABORT: petsc4Foam Allwmake failed against $OF_VERSION -- DO NOT fall back to a mismatched tag; report the compiler error above."; exit 1; }
+  grep -q "skip petsc" "$BUILD_ROOT/petsc4Foam.Allwmake.log" \
+      && { log "ABORT: petsc4Foam Allwmake SKIPPED petsc (have_petsc found no header at PETSC_ARCH_PATH=$PETSC_ARCH_PATH) -- PIN 3"; exit 1; }
   test -f "$FOAM_USER_LIBBIN/libpetscFoam.so" \
       || { log "ABORT: libpetscFoam.so not produced"; exit 1; }
   mark 06_petsc4foam
@@ -225,7 +237,7 @@ MANIFEST="$BUILD_ROOT/TOOLCHAIN_MANIFEST.txt"
   echo "p4f_sha:   $(git -C "$BUILD_ROOT/petsc4Foam" rev-parse HEAD 2>/dev/null)"
   echo "libpetscFoam.so sha256: $(sha256sum "$FOAM_USER_LIBBIN/libpetscFoam.so" 2>/dev/null | awk '{print $1}')"
   echo "mpicc:     $(command -v mpicc) -- $(mpicc --showme:version 2>/dev/null | head -1)"
-  echo "libmpi (petsc):      $(ldd "$PETSC_ARCH_PATH/lib/libpetsc.so" 2>/dev/null | awk '/libmpi\.so/{print $3}')"
+  echo "libmpi (petsc):      $(ldd "$PETSC_DIR/$PETSC_ARCH/lib/libpetsc.so" 2>/dev/null | awk '/libmpi\.so/{print $3}')"
   echo "libmpi (petscFoam):  $(ldd "$FOAM_USER_LIBBIN/libpetscFoam.so" 2>/dev/null | awk '/libmpi\.so/{print $3}')"
   echo "libmpi (simpleFoam): $(ldd "$(command -v simpleFoam)" 2>/dev/null | awk '/libmpi\.so/{print $3}')"
   echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
@@ -236,7 +248,7 @@ test "$NMPI" = "1" || { log "ABORT: mixed MPI runtimes in manifest ($NMPI distin
 # Environment every consumer sources (smoke test, case launchers): the pin, OpenFOAM, PETSc.
 {
   echo "# written by build_gpu_solver.sh STEP 7 on $(date -u +%Y-%m-%dT%H:%M:%SZ); source, never execute"
-  echo "export LD_LIBRARY_PATH=\"/usr/lib/x86_64-linux-gnu\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}\""
+  echo "export LD_LIBRARY_PATH=\"$PETSC_DIR/$PETSC_ARCH/lib:/usr/lib/x86_64-linux-gnu\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}\""
   echo "export PATH=\"/usr/bin:\$PATH\""
   echo "export OF_BASHRC=\"$OF_BASHRC\""
   echo "export PETSC_DIR=\"$PETSC_DIR\" PETSC_ARCH=\"$PETSC_ARCH\" PETSC_ARCH_PATH=\"$PETSC_ARCH_PATH\""
