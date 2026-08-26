@@ -1,0 +1,28 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+writeControl    runTime;
+writeInterval   __ENDTIME__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+
+functions
+{
+    // tau_w / rho on every wall. Written at write time, i.e. at the converged stop.
+    wallShearStress
+    {
+        type            wallShearStress;
+        libs            ("libfieldFunctionObjects.so");
+        patches         (bottomWall);
+        writeControl    writeTime;
+        executeControl  writeTime;
+    }
+}
