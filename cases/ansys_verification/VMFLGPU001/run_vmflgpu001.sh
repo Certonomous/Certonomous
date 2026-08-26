@@ -72,8 +72,29 @@ LEVELS="L1_16x64:16:16:3000 L2_32x128:32:32:3000 L3_64x256:64:64:6000"
 
 GPU_MAT="aijcusparse"; GPU_VEC="cuda"
 CPU_MAT="aij";         CPU_VEC="standard"
-GPU_PETSC_OPTIONS="-ksp_view -log_view -log_view_gpu_time"
-CPU_PETSC_OPTIONS="-ksp_view -log_view"
+# AMENDMENT 1 (PRE-COMPUTE, 2026-08-26T17:38Z).  These are the options THIS CASE
+# owns.  The FULL PETSC_OPTIONS handed to each solve is composed AFTER
+# $BUILD_ROOT/env.sh is sourced, as "$PETSC_OPTIONS_BASE <shared> <arm-specific>",
+# so the build's own base value is APPENDED TO, NEVER OVERWRITTEN.
+#
+# `-use_gpu_aware_mpi 0` is SHARED BY BOTH ARMS so that the two arms differ ONLY
+# in mat_type/vec_type -- which is the whole basis on which limb B is a statement
+# about WHERE the linear algebra ran and about nothing else.
+#
+# MEASURED on ip-172-31-44-162 at 17:33:50Z, in the smoke test's OWN GPU run:
+# simpleFoam printed "Initializing PETSc... success", ran 0.22 s, then
+#   [0]PETSC ERROR: PETSc is configured with GPU support, but your MPI is not
+#   GPU-aware. ... If you do not care, add option -use_gpu_aware_mpi 0
+# followed by MPI_ABORT errorcode 76.  PETSc REFUSES TO PROCEED rather than
+# quietly staging device buffers through the host.  Ubuntu's Open MPI 5.0.10 --
+# the ONE MPI the whole stack is now correctly pinned to -- is not built
+# --with-cuda.  THIS CASE RUNS AT ONE RANK, so the device-to-device MPI transfer
+# path the option governs is NEVER EXERCISED here: the option declines a
+# PERFORMANCE feature, not a correctness one, and it cannot move a number.
+# Without it every GPU solve would abort at rc 76 before writing a field.
+SHARED_PETSC_OPTIONS="-use_gpu_aware_mpi 0"
+GPU_OWN_PETSC_OPTIONS="-ksp_view -log_view -log_view_gpu_time"
+CPU_OWN_PETSC_OPTIONS="-ksp_view -log_view"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CASE_SRC="$SCRIPT_DIR/case"
@@ -222,6 +243,19 @@ source "$BUILD_ENV" || { echo "ABORT: sourcing $BUILD_ENV failed -- the MPI pin 
 # shellcheck disable=SC1090
 source "$OF_BASHRC" || { echo "ABORT: sourcing $OF_BASHRC failed"; exit 1; }
 test -n "$WM_PROJECT_VERSION" || { echo "ABORT: WM_PROJECT_VERSION empty after sourcing $OF_BASHRC"; exit 1; }
+
+# ---- compose PETSC_OPTIONS: APPEND to the build's base, never overwrite ------
+# env.sh may export a PETSC_OPTIONS the build proved the toolchain on.  Dropping
+# it would run the solver under options the smoke test never exercised, which is
+# precisely the "prove one thing, run another" shape this family exists to avoid.
+PETSC_OPTIONS_BASE="${PETSC_OPTIONS}"
+GPU_PETSC_OPTIONS="$PETSC_OPTIONS_BASE $SHARED_PETSC_OPTIONS $GPU_OWN_PETSC_OPTIONS"
+CPU_PETSC_OPTIONS="$PETSC_OPTIONS_BASE $SHARED_PETSC_OPTIONS $CPU_OWN_PETSC_OPTIONS"
+case "$GPU_PETSC_OPTIONS" in
+  *-use_gpu_aware_mpi*) ;;
+  *) echo "ABORT: -use_gpu_aware_mpi is missing from the composed GPU options; the measured 17:33:50Z MPI_ABORT (errorcode 76) would recur"; exit 1;;
+esac
+log "PETSC_OPTIONS composed: base='$PETSC_OPTIONS_BASE' ; gpu='$GPU_PETSC_OPTIONS' ; cpu='$CPU_PETSC_OPTIONS'"
 command -v simpleFoam >/dev/null || { echo "ABORT: simpleFoam not on PATH after sourcing $OF_BASHRC"; exit 1; }
 command -v blockMesh  >/dev/null || { echo "ABORT: blockMesh not on PATH"; exit 1; }
 command -v checkMesh  >/dev/null || { echo "ABORT: checkMesh not on PATH"; exit 1; }

@@ -793,3 +793,133 @@ against that list **with an explicit refusal, not an `assert`**, so the check su
 `python3 -O`. Whatever the answer, the row lands in
 `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md`; a `GATE FAIL` is a finding
 that is never removed, re-labelled or softened to `PENDING` (charter §6).
+
+
+---
+
+## AMENDMENT 1 (PRE-COMPUTE, 2026-08-26T17:40Z) — `-use_gpu_aware_mpi 0` in BOTH arms, and `PETSC_OPTIONS` composed by APPENDING to the build's own base
+
+**This amendment is legal because it is made BEFORE ANY COMPUTE OF THIS CASE**
+(CLAUDE.md rule 2; `VERIFICATION_CHARTER.md` §2b), on the same footing as the CPU
+parent's own pre-compute Amendment 1. It alters **no gate, no band, no threshold, no cap
+and no label**, and nothing above this section is edited (rule 6).
+**lines whose number changed above this section: 0.**
+
+**The condition, and it is a fact about the disk, not an intention.** No solver of this
+case has run. `verification/runs/ansys_verification/VMFLGPU001/` on the lab box contains
+**zero files** (`find … -mindepth 1 | wc -l` → `0`), and the run root on
+`ip-172-31-44-162` did not exist when this was written.
+
+### The defect, MEASURED on the instance, and not by this lane
+
+At **2026-08-26T17:33:50Z** the toolchain build reached its STEP 8 and the smoke test's
+**own GPU run** died. Read from `~/gpu_build/smoke/log.gpu.keep`:
+
+```
+Initializing PETSc... success
+ExecutionTime = 0.22 s  ClockTime = 0 s
+
+[0]PETSC ERROR: PETSc is configured with GPU support, but your MPI is not GPU-aware. …
+[0]PETSC ERROR: If you do not care, add option -use_gpu_aware_mpi 0. … OR add it to the env var PETSC_OPTIONS.
+[0]PETSC ERROR: For Open MPI, you need to configure it --with-cuda
+MPI_ABORT was invoked on rank 0 in communicator MPI_COMM_SELF   Errorcode: 76
+```
+
+`~/gpu_build/STATUS.build` reads `build_rc=1`; `~/gpu_build/STATUS.smoke` reads
+`smoke_rc=NOT-PROVEN build_rc=1`. **The GPU solver path is therefore UNPROVEN and this
+rung stays `PENDING`.**
+
+**PETSc refuses to proceed rather than quietly staging device buffers through the host.**
+The refusal concerns a *performance* path, not a *correctness* one — and **this case runs
+at ONE RANK**, so the device-to-device MPI transfer the option governs is **never
+exercised here**. Without the option all three GPU solves would abort at rc 76 before
+writing a field.
+
+**§4.2's one-MPI condition is SATISFIED on that instance and is NOT the cause of this
+failure.** The build's own manifest records `libmpi (petsc)`, `libmpi (petscFoam)` and
+`libmpi (simpleFoam)` all resolving to `/usr/lib/x86_64-linux-gnu/libmpi.so.40` — Ubuntu
+Open MPI 5.0.10 for the whole stack, with `mpicc` at `/usr/bin/mpicc`. **The MPI pin
+worked.** What that MPI is *not* is CUDA-aware, which is a different fact and is the one
+this amendment answers. Toolchain of record from that manifest: OpenFOAM v2606, PETSc
+`v3.24.6` sha `1467453aedb62826efc970ceafc4bd6dab8229ab`, petsc4Foam `main` sha
+`090b5a74521214664ea91bb4128c2f4ad62c761c`, `libpetscFoam.so` sha256
+`477b7ac2618c9e85338b8dea72ed0c5ec82edf82527ac62b3bc2a7e46363a705`, driver 595.91.07,
+CUDA 12.4.131, `sm_89`.
+
+### What CHANGED — the option, and how the option string is built
+
+**1. `-use_gpu_aware_mpi 0` is added to BOTH ARMS, not only the GPU arm.** This is the
+supervisor's registered form and it is the right one: **the two arms must differ ONLY in
+`mat_type`/`vec_type`**, because that identity is the entire basis on which limb B is a
+statement about *where the linear algebra ran* and about nothing else. An option present
+in one arm and absent from the other is a second difference, and a second difference is a
+second explanation for any disagreement. The forced-CPU arm never reaches PETSc's check,
+so carrying the option there costs nothing and buys the identity.
+
+**2. `PETSC_OPTIONS` is now COMPOSED BY APPENDING to the build's own base, never by
+overwriting it.** `$BUILD_ROOT/env.sh` exports the `PETSC_OPTIONS` the toolchain was
+*proven* under. The launcher sources `env.sh` (already required by §4), captures
+`PETSC_OPTIONS_BASE="${PETSC_OPTIONS}"`, and builds each arm's string as
+
+    "$PETSC_OPTIONS_BASE  -use_gpu_aware_mpi 0  <arm-specific>"
+
+with `<arm-specific>` = `-ksp_view -log_view -log_view_gpu_time` (GPU) or
+`-ksp_view -log_view` (CPU). **Overwriting the base would run the solver under options
+the smoke test never exercised — proving one thing and running another, which is the
+exact shape this family exists to refuse** (`PREREG_TEMPLATE` Amendment 5). A duplicate
+`-use_gpu_aware_mpi 0` (ours plus the base's) is harmless: PETSc takes the last, and both
+say the same thing. The launcher then **gates** on the composed string containing
+`-use_gpu_aware_mpi`, aborting if it does not, so the option cannot be lost by a future
+edit to `env.sh`. The composed strings are logged, and each arm's string is recorded
+verbatim in that arm's `RUN_RC.<level>.<arm>`.
+
+**Consequently the launcher blob sha changes**, and §12's row for it is superseded by
+this line (the §12 table itself is **not** edited — rule 6):
+
+| file | frozen sha (superseded) | sha frozen by THIS amendment |
+|---|---|---|
+| `cases/ansys_verification/VMFLGPU001/run_vmflgpu001.sh` | `a1995abc8b3b0b0a64d107a8ff70b34041397277` | **`1ffd0547ad6165237f80321dd60672e680d32a2e`** |
+
+### What did NOT change — and this is the evidentiary content of the freeze
+
+- **the three limbs and every band**: limb A's three tells and the forced-CPU
+  discriminator; limb B at **1e-4**; limb C at **0.02** against the lab-evaluated closed
+  form (§6);
+- **the reference and its four values** — 0.0151201 / 0.0105336 / 0.00718656 /
+  0.00454781 m/s (§3);
+- **the comparator**, `grade_vmflgpu001.py`, blob
+  **`f4b07b7fc59d9facd46ad91d3ad9848d33c4f098`** — not opened, not edited,
+  byte-identical, and it reads no PETSc option;
+- **the levels, the ratio r = 2, the per-level `endTime`s, and every case blob** in §12,
+  including `fvSolution.template`: **`mat_type`/`vec_type` remain the only substitution
+  that differs between the arms**;
+- **the caps** (2.0 GPU-h, 40 CPU-arm core-min) and the cost estimate of §11;
+- **P_MIN = 0.05**, the plateau clauses, the age guard, the planted-zero control and the
+  verdict vocabulary;
+- **the smoke gate**: the launcher still refuses (exit 2) unless `STATUS.smoke` reads
+  `smoke_rc=0`. **It reads `smoke_rc=NOT-PROVEN` at the time of writing, so this launcher
+  would refuse today — that is the guard working, not a problem to route around.**
+
+### The freeze check's OTHER arm was driven by this amendment, for free
+
+§13.2 recorded the launcher refusing because the pre-registration was *not committed*.
+Re-driven at **2026-08-26T17:39:55Z**, with the amended files on disk and the original
+freeze at `HEAD`, the launcher printed:
+
+```
+ABORT: cases/ansys_verification/VMFLGPU001/PREREGISTRATION.md on disk
+(2760a592ccebf9896050969ad8fe4ca36399b642) differs from HEAD (31dd44c6566e57bf500b4489284ec21cf164dbbe)
+```
+
+**Both arms of the launch-time freeze check are therefore driven and measured**: absent
+from `HEAD`, and present but different. Neither was assumed.
+
+### What this amendment does NOT establish
+
+**That the GPU path works.** It removes one measured, named abort. Whether the three
+tells then fire is exactly what the smoke test and limb A exist to decide, and neither
+has yet. **`docs/ansys_verification/gpu/smoke_test_gpu_path.sh` carries the same
+`GPU_ENV` string and hits the same abort until it is given the same option** — that file
+is the supervisor's and is being executed by the in-flight build, so it is **reported,
+not edited from here**. This rung remains **`PENDING`**, and launch authorisation remains
+the supervisor's own personal check 4.
