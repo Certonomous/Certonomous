@@ -1414,3 +1414,24 @@ posted anywhere outside this box (`CLAUDE.md` rule 7).**
 **What changes.** A NEW file `run_one_t5_x2d.sh` launches the X_2d precursor only. It is line-for-line the frozen `run_one_t5.sh` (blob `313df45c`, untouched) with the age-guard datum `0/**/T` replaced by **`0/**/U`**, because a `simpleFoam` precursor carries no `T`. Diff against the frozen file, changed lines only: `AGE_DATUM="$(find "$CASE_DIR/0" -name T ...)"` -> `-name U`; the refusal text `no 0/**/T` -> `no 0/**/U`; plus a header comment. Nothing else moves.
 
 **X_2d is UNGRADED.** It produces the inflow profile (§5.3) and the I1/I2 check rows; nothing a verdict depends on is readable from it (Charter §2d), so it may run before the reference values are fixed (§10's order concerns the graded cases).
+
+---
+
+## AMENDMENT 2 — 2026-08-26 (PRE-FIRST-COMPUTE): every 3-D case runs SERIAL; §11's `nProcs 4 / 8` superseded visibly
+
+**Document version 1.1 -> 1.2. Lines whose number changed above this section: 0.** Ruled by the heat-transfer supervisor `[lab-attributed]` (F15 Ruling 2: a ladder differs only in mesh), drafted by lane a442775b. **Condition:** as AMENDMENT 1 — no `STATUS.*` from a run, no `DONE.*`, zero core-minutes; the runner's false `X_2d/STATUS.T5_X_2d` remains in place, excluded. Housekeeping disclosed: `X_2d/0`, armed from `0.orig` by the refused launch and verified byte-identical to `0.orig` (`diff -r`), was removed so the case can be armed again; no solver output existed.
+
+**Superseded, not deleted** — §11: *"`nProcs = 4` for `C`, `M` and the arms; `nProcs = 8` for `F` if eight cores are free at launch, else 4"* and *"Parallel efficiency 0.85 assumed on 4 ranks (`scotch`)"*. The frozen launcher `run_one_t5.sh` (313df45c) runs the solver in its own foreground with no `mpirun`; `--ranks` scales only `timeout_s` and the `core_min` it writes, so a `--ranks 4` launch would record a fabricated four-fold cost for a one-core run.
+
+**Registered in their place.** `C`, `M`, `F`, `P_m`, `L_m`, `S_m`, `H_c` run at **ranks = 1**; core-minutes unchanged (Model B, §11.1); wall = core-minutes; `--timeout` = per-case guard (3× Model B, §11.3) × 60 / 1:
+
+| case | Model B core-min | cap 3× core-min | timeout s (ranks 1) |
+|---|---|---|---|
+| X_2d | 26.4 | 79.2 | 4752 |
+| T5_CUBE_c, H_c | 45.6 | 136.8 | 8208 |
+| T5_CUBE_m, P_m | 530.4 | 1591.2 | 95472 |
+| L_m | 371.4 | 1114.2 | 66852 |
+| S_m | 489.0 | 1467.0 | 88020 |
+| T5_CUBE_f | 2308.2 | 6924.6 | 415476 |
+
+The critical-path wall for `F` becomes 38.5 h under Model B and 105.6 h under Model A (against §11.1's 4.8 h / 13.2 h on 8 ranks). `CASE.txt` `registered_nProcs` lines and `build_t5.py`'s case table now say 1; `system/decomposeParDict` files are inert.

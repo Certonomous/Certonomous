@@ -556,13 +556,13 @@ def prepare_dir(case, force):
 
 CASES = {
     # name: (level, laminar, prt, interface_scheme, conjugate, nProcs_registered, model_b_core_h)
-    "T5_CUBE_c": (0, False, PRT_DEFAULT, "harmonic", True, 4, 0.76),
-    "T5_CUBE_m": (1, False, PRT_DEFAULT, "harmonic", True, 4, 8.84),
-    "T5_CUBE_f": (2, False, PRT_DEFAULT, "harmonic", True, 8, 38.47),
-    "P_m": (1, False, PRT_ARM, "harmonic", True, 4, 8.84),
-    "L_m": (1, True, PRT_DEFAULT, "harmonic", True, 4, 6.19),
-    "S_m": (1, False, PRT_DEFAULT, "harmonic", False, 4, 8.15),
-    "H_c": (0, False, PRT_DEFAULT, "linear", True, 4, 0.76),
+    "T5_CUBE_c": (0, False, PRT_DEFAULT, "harmonic", True, 1, 0.76),
+    "T5_CUBE_m": (1, False, PRT_DEFAULT, "harmonic", True, 1, 8.84),
+    "T5_CUBE_f": (2, False, PRT_DEFAULT, "harmonic", True, 1, 38.47),
+    "P_m": (1, False, PRT_ARM, "harmonic", True, 1, 8.84),
+    "L_m": (1, True, PRT_DEFAULT, "harmonic", True, 1, 6.19),
+    "S_m": (1, False, PRT_DEFAULT, "harmonic", False, 1, 8.15),
+    "H_c": (0, False, PRT_DEFAULT, "linear", True, 1, 0.76),
 }
 CUBE_FACES = ["cube_front", "cube_top", "cube_rear", "cube_side_n"]
 
