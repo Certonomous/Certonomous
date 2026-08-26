@@ -25,6 +25,10 @@ that actually consumes `0/`.
 
   ARM 1  no shell glob is used as a time-directory matcher
   ARM 2  the real solver reaches Time = 1 on the coarse case, in scratch
+  ARM 3  no OpenFOAM bashrc is sourced while `set -u` is in force (L-339):
+         the bashrc reads an unbound WM_PROJECT_DIR at its line 184, so the
+         launcher shell dies there SILENTLY -- F16 attempt 1, and F17 at
+         feab0ad7, both caught by a supervisor's read, not by this checker.
 
 Exit codes: 0 clean   1 a check failed   2 refusal
 
@@ -66,6 +70,13 @@ import os
 import re
 import subprocess
 import sys
+
+if not __debug__:
+    # L-332: every refusal below is a `return 2` / sys.exit, never an assert;
+    # the AST census in --selftest proves it.  -O is refused anyway so that the
+    # instrument's guarantees do not depend on an interpreter flag.
+    sys.stderr.write("REFUSE: check_launcher_can_launch.py must not run under python3 -O\n")
+    sys.exit(2)
 
 # `GLOB` STOOD HERE AND IS DELETED. It was DEAD CODE: nothing read it, and cfd
 # proved that by BLINDING IT AND OBSERVING NOTHING CHANGE -- a mutation test,
@@ -188,6 +199,69 @@ def scan_text(path, text):
     return hits
 
 
+BASHRC = re.compile(r"openfoam[^\s\"']*/etc/bashrc")
+ASSIGN = re.compile(r"^\s*(?:export\s+)?([A-Za-z_]\w*)=(.*)$")
+SOURCE = re.compile(r"^\s*(?:\.|source)\s+(\S+)")
+STMT_SPLIT = re.compile(r"\|\||&&|[;|&]")
+
+
+def _nounset_delta(stmt):
+    """`set` flags that turn nounset on (True) / off (False); None otherwise.
+    `set -- $L` is positional reset, not a flag."""
+    m = re.match(r"^\s*set\s+(.*)$", stmt)
+    if not m:
+        return None
+    toks, state, i = m.group(1).split(), None, 0
+    while i < len(toks):
+        t = toks[i]
+        if t == "--":
+            break
+        if t in ("-o", "+o") and i + 1 < len(toks):
+            if toks[i + 1] == "nounset":
+                state = (t == "-o")
+            i += 2
+            continue
+        if t[:1] in "-+" and "u" in t[1:] and not t.startswith("--"):
+            state = (t[0] == "-")
+        i += 1
+    return state
+
+
+def scan_nounset(path, text, _guard=True):
+    """ARM 3.  Walk the file IN ORDER, tracking whether `set -u` / `set -o
+    nounset` / a `bash -u` shebang is in force (`_guard`: the tracker; the
+    selftest mutates it to a no-op and the planted positive must then vanish).
+    A `.`/`source` of `openfoam*/etc/bashrc` -- literal, or a variable assigned
+    that path earlier in the file -- while nounset is in force is a hit.
+    Known limits, stated: line order stands in for control flow (a function
+    body or a subshell is read as if executed where it is written)."""
+    hits, nounset, since, vars_ = [], False, None, set()
+    lines = text.splitlines()
+    if lines and lines[0].startswith("#!") and re.search(r"\s-[a-zA-Z]*u", lines[0]):
+        nounset, since = bool(_guard), 1
+    for i, line in enumerate(lines, 1):
+        if line.strip().startswith("#"):
+            continue
+        line = re.sub(r"\s#.*$", "", line)
+        for stmt in STMT_SPLIT.split(line):
+            m = ASSIGN.match(stmt)
+            if m and BASHRC.search(m.group(2)):
+                vars_.add(m.group(1))
+            d = _nounset_delta(stmt)
+            if d is not None:
+                nounset, since = (d and bool(_guard)), (i if d else since)
+                continue
+            m = SOURCE.match(stmt)
+            if not m:
+                continue
+            target = m.group(1).strip("\"'")
+            v = re.fullmatch(r"\$\{?([A-Za-z_]\w*)\}?", target)
+            if BASHRC.search(target) or (v and v.group(1) in vars_):
+                if nounset:
+                    hits.append((i, line.rstrip(), target, since))
+    return hits
+
+
 def files_at_head(root, paths):
     if paths:
         return [(p, open(p).read()) for p in paths if os.path.isfile(p)]
@@ -263,6 +337,48 @@ def selftest():
               "non-zero cannot have its zero believed (standing rule 3). "
               "Refusing rather than reporting a clean sweep it has not earned.")
         return 2
+    # ---- ARM 3 fixtures: the real positive is the pre-amendment F16 launcher
+    # (cases/F16_stokes_second_problem/run_f16.sh at 2aea29d9~1, lines 17/25/148
+    # condensed); the real negatives are the amended F16 one-liner and F18.
+    F16_PRE = ('#!/usr/bin/env bash\nset -u\nset -o pipefail\n'
+               'FOAM_BASHRC="/usr/lib/openfoam/openfoam2606/etc/bashrc"\n'
+               'for L in "${LEVELS[@]}"; do\n  set -- $L\ndone\n'
+               '. "$FOAM_BASHRC" || { echo "ABORT: could not source $FOAM_BASHRC"; exit 1; }\n')
+    F16_AMENDED = F16_PRE.replace('\n. "$FOAM_BASHRC"', '\nset +u; . "$FOAM_BASHRC"').replace(
+        'exit 1; }\n', 'exit 1; }; set -u\n')
+    F18 = F16_PRE.replace('\n. "$FOAM_BASHRC"', '\nset +u\n. "$FOAM_BASHRC"') + 'set -u\n'
+    LIT = 'source /usr/lib/openfoam/openfoam2606/etc/bashrc >/dev/null 2>&1\n'
+    arm3 = (("ARM3 POSITIVE: pre-amendment F16 (2aea29d9~1)", F16_PRE, 1),
+            ("ARM3 negative: amended F16 one-liner", F16_AMENDED, 0),
+            ("ARM3 negative: F18 set +u / source / set -u", F18, 0),
+            ("ARM3 positive: bash -u shebang", "#!/bin/bash -u\n" + LIT, 1),
+            ("ARM3 positive: set -eu, literal path", "set -eu\n" + LIT, 1),
+            ("ARM3 positive: set -euo pipefail", "set -euo pipefail\n" + LIT, 1),
+            ("ARM3 positive: set -o nounset", "set -o nounset\n" + LIT, 1),
+            ("ARM3 negative: set -o pipefail only", "set -o pipefail\n" + LIT, 0),
+            ("ARM3 negative: source BEFORE set -u", LIT + "set -u\n", 0),
+            ("ARM3 negative: set -- is not set -u", 'set -- $L\n' + LIT, 0),
+            ("ARM3 negative: non-OpenFOAM file", "set -u\n. ./env.sh\n", 0),
+            ("ARM3 negative: commented-out source", "set -u\n# " + LIT, 0))
+    for label, text, want in arm3:
+        got = len(scan_nounset("x.sh", text))
+        good_ = (got == want)
+        ok &= good_
+        print("  %-46s expected %d found %d  %s" % (label, want, got, "OK" if good_ else "FAIL"))
+    # THE GUARD MUTATED TO A NO-OP MUST FLIP THE CONTROL (standing rule 3).
+    if len(scan_nounset("x.sh", F16_PRE, _guard=False)) != 0:
+        print("REFUSE: ARM 3's positive control survived its own guard being disabled; "
+              "the hit is not coming from the guard it is credited to.")
+        return 2
+    print("  ARM3 mutation control: tracker disabled -> positive vanishes  OK")
+    # L-332 census on this file itself; the counter is shown able to see one.
+    import ast
+    own = sum(1 for n in ast.walk(ast.parse(open(__file__).read())) if isinstance(n, ast.Assert))
+    planted = sum(1 for n in ast.walk(ast.parse("assert 1\n")) if isinstance(n, ast.Assert))
+    if own != 0 or planted != 1:
+        print("REFUSE: assert census: %d in this file (must be 0), planted seen %d (must be 1)" % (own, planted))
+        return 2
+    print("  assert census: 0 in this file; planted assert seen  OK")
     print("SELFTEST", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
@@ -365,9 +481,17 @@ def main():
             print("TIME-DIR-GLOB %s:%d   pattern %r matches BOTH a time dir and 0.orig"
                   % (path, line_no, seg))
             print("    %s" % line.strip()[:120])
-    print("scanned %d shell file(s): %d suspect time-directory glob(s)"
-          % (len(items), n))
-    return 1 if n else 0
+    n3 = 0
+    for path, text in items:
+        for line_no, line, target, since in scan_nounset(path, text):
+            n3 += 1
+            print("NOUNSET-SOURCE %s:%d   sources %s while set -u is in force (armed at line %s); "
+                  "the bashrc dies at its line 184 and so does this shell, silently (L-339)"
+                  % (path, line_no, target, since))
+            print("    %s" % line.strip()[:120])
+    print("scanned %d shell file(s): %d suspect time-directory glob(s), "
+          "%d bashrc source(s) under set -u" % (len(items), n, n3))
+    return 1 if (n or n3) else 0
 
 
 if __name__ == "__main__":
