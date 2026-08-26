@@ -214,3 +214,26 @@ not authorisation: `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own,
 **Predicted outcome, so it cannot be written afterwards:** P1–P7 as tabled; item `PASS` if P6, P2 and P3
 hold and no completion clause fails; the outcome this item is most exposed to is P7 (memory), registered
 above as a finding rather than a failure of the run.
+
+---
+
+# ADDENDUM 1 — 2026-08-26 — **PRE-COMPUTE** — `D5-DRIVER-DEF-1` inherited and corrected before this item ever fired
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.** `CLAUDE.md` rule 2, pre-first-compute.
+
+**THE CONDITION, AND HOW IT WAS CHECKED.** `test -e /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint`
+→ **false** (re-checked in the committing invocation, stamp in the commit message); `docker ps -a` carries no
+`d6_` name; the queue entry `D6_chain.json` was moved to `held/` at 17:45Z **before the runner's next tick**
+so that no fire could occur on the defective driver. **0 core-min; this item has never fired.**
+
+**WHAT MOVED, AND WHY.** D5's first runner fire (17:42:43Z) was refused at zero compute by the launcher's own
+G-ROOT.3, because D5's driver wrote its staging metadata on the ledger's `ITEM=` identity line (`D5-DRIVER-DEF-1`,
+D5 Addendum 2). `d6_chain_driver.sh` carried the same line by derivation. It now writes `ITEM=D6` alone on line
+1 and `STAGED stamp=… base_src=… permission=…` on line 2: md5 **`11dced563a8c4695a2144e6d46862735`** (was
+`860b9842…`; the delta is these two `echo` lines and four comment lines; `d6_chain_driver_DELTAS_from_d5.diff`
+added, 146 diff lines). The launcher (`98472772…`), the grader (`a76a7d5e…`), every gate, band, cap, label,
+cost and prediction are unchanged. The corrected form was shown to pass G-ROOT.3 on D5's staged root
+(D5 Addendum 2 control, 17:46:08Z, rc=4 at the digest check, nothing staged); D6's launcher carries the same
+G-ROOT.3 bytes.
+
+**Queue.** `D6_chain.json` returns to the drop path citing **the commit that lands this addendum** as `prereg_commit`.

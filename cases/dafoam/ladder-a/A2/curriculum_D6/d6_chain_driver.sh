@@ -43,7 +43,12 @@ if [ ! -d "$BASE" ]; then
   chmod 777 "$BASE" || { echo "ABORT chmod 777 $BASE (L-251)"; exit 4; }
   cp -a "$D4_BASE_SRC" "$BASE/base" || { echo "ABORT copy base/"; exit 4; }
   cp -a "$HERE/d6_opt_runScript.py" "$HERE/d6_fd_endpoint.py" "$HERE/d6_extract_endpoint.py" "$HERE/d6_ref_off.py" "$D4_CASE_DIR/d4_extract_endpoint.py" "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
-  echo "ITEM=D6 staged=$(date -u +%Y%m%dT%H%M%SZ) base_src=$D4_BASE_SRC permission=$PERMISSION" > "$BASE/ledger.txt"
+  # ADDENDUM 1 (D5-DRIVER-DEF-1, inherited): G-ROOT.3 accepts ONLY an exact
+  # `ITEM=D6` line; the `ITEM=D6 staged=...` form was refused by D5's launcher
+  # on its first runner fire (17:43:47Z, rc=3, zero compute).  Identity on its
+  # own line; staging metadata on a line that does not start with ITEM=.
+  echo "ITEM=D6" > "$BASE/ledger.txt"
+  echo "STAGED stamp=$(date -u +%Y%m%dT%H%M%SZ) base_src=$D4_BASE_SRC permission=$PERMISSION" >> "$BASE/ledger.txt"
   echo "D6_ROOT_STAGED base=$BASE stamp=$(date -u +%Y%m%dT%H%M%SZ) mode=$(stat -c '%a' "$BASE") permission=$PERMISSION"
 else
   echo "D6_ROOT_PRESENT base=$BASE (not re-staged)"
