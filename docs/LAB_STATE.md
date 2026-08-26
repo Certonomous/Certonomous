@@ -4455,6 +4455,35 @@ The lesson was written this session after two wrong enumerations. It now has fou
 
 **AND THE ROW I SHOULD HAVE LED WITH.** `VALIDATION_INVENTORY.md:247` already records that this rung's headline is a split — *"the case that shows recirculation is the one that fails the S13 convergence signature, and the case that passes S13 never closes its heat balance"* — with **D378** (every closure number produced through an uncalibrated code path) and **D379** (y+ below the wall-function band on every wall) filed against it. **The rung's real exposures were on the board the whole time, documented by the team that ran it, while I spent the hour manufacturing a registration defect that does not exist.**
 
+
+##### REFERENCES THE LADDER IS BLOCKED ON — **acquisition is hers alone**
+
+*For Sanaa. Written by the heat-transfer supervisor, 2026-08-26. **This is the answer to "if you have run all the cases I gave you, I will give you more": the problem is no longer cases and it is no longer compute — it is that SIX OF THE EIGHT remaining T-family rungs cannot be banded without a document that is not in the box.** Standing rules 7 and 8 put every acquisition outside any agent's reach: **no agent is attempting any of these, and none will.***
+
+**Citations below are quoted from what this lab's own records already state. Where a record gives no DOI, this table says so rather than supplying one — a citation written from memory is exactly the rule-15 failure this ladder's `P` column already suffers from.**
+
+| rung | what is blocked | reference, as the records state it | on disk |
+|---|---|---|---|
+| **K0f / K0d**, and **T7** (which generalises it) | the whole **turbulent mixed-convection** class; `P`, and therefore `HOLDS`, on every graded row | **Blay, Mergui & Niculae (1992)** — cavity, turbulent mixed convection. **No DOI on record.** | **NOT OBTAINED** |
+| **T2** — tube bank | the correlation's **stated validity range**. Its algebra is writable; **the range over which it is valid is not**, and a rung that cannot state that range cannot band anything. *(I re-tiered T2 `FORMULA` → `ACQUIRE` tonight for exactly this reason.)* | **Žukauskas**, tube-bank correlation — **no edition, volume or DOI on record.** | **zero files, in any spelling** |
+| **T6** — Rayleigh–Bénard | the `Nu`–`Ra` scaling band | **3–4 decades of published `Nu`–`Ra` scaling data.** No specific source named on record. Also flagged **transient, far over $25** | **zero data on disk** (four-axis sweep, live control) |
+| **T3** | its gate rows — **Sanaa's own H-1 directive names this one** | **Vogel & Eaton (1985)** | **NOT on disk** — repo-wide search, zero hits |
+| **T12** — Annex 20 | the isothermal limb | **Nielsen (1990)**; **Restivo, A. M. (1979)**, *Turbulent Flow in Ventilated Rooms*, PhD thesis, Imperial College, London | **`*restivo*` → 0 files** |
+| **T12** — Annex 20 | the **nonisothermal** limb | **Schwenke, H. (1975)**, *Über das Verhalten ebener horizontaler Zuluftstrahlen im begrenzten Raum*, Luft- und Kältetechnik, Nr. 5, Dresden | **`*schwenke*` → 0 files** |
+| **T8** — buoyant plume | the **room** data. The plume theory itself is closed form (**Morton–Taylor–Turner**) and is **not** blocked | stratified-room measurements; no specific source named on record | **not on disk** |
+| **T9b/c**, **T10b** | conjugate flat plate / cube; natural convection **+ radiation** | combined-mode and conjugate data; **no specific sources named on record** | **not on disk** |
+
+**WHAT IS NOT BLOCKED, so this reads as a request and not a complaint:**
+
+- **T5 — the primary is HELD.** Meinders 1998 TU Delft thesis, OPEN, **title-page verified**, sha256 `36c89a54…`, **stated uncertainty 5 %**. In pre-registration now. **It is one of the very few verified PDFs in this repository and one of the very few references anywhere in this family that states its own experimental uncertainty.**
+- **T11 — needs no paper at all.** Partial **`EXACT`**: it earns `V` against an **analytic** solution. **Started tonight on its own lane**, precisely because it is the one rung nothing outside the box can block.
+- **T4 — running**, on the ERCOFTAC case025 tabulated data already held.
+- **K0f — 1 running, 9 queued**, frozen and costed, waiting only on cores.
+
+**THE HONEST SHAPE OF THE NIGHT, stated plainly because a request should carry its own context.** Twelve hours ago this team's constraint was that **nine of twelve rungs had never been written down** — that was ours to fix and we have been fixing it. It is now **references**. **Pre-registration authorship was the bottleneck at 03:00Z; acquisition is the bottleneck at 07:00Z.** No amount of lane-hours moves the second one.
+
+**AND THE EXPOSURE THAT SITS UNDER ALL OF IT, unchanged and still VERIFY.** Reportedly only **three PDFs in the whole repository carry a rule-15 title-page verification.** **Ampofo**, **Betts / ERCOFTAC 079** and **Nielsen** carry none — **and every `P` column in this family rests on them.** A reference that is on disk but unverified is not the same as a reference held: **a manifest can be internally consistent and externally false** (L-144), which is why the table above reports what the records *state* rather than what they *imply*.
+
 ### SESSION certonomous-68 — THE BRIEF IS STALE ON THREE ITEMS THAT ARE ALREADY AT HEAD, AND THE SHARED INDEX WOULD DELETE 7 133 LINES OF THIS BOARD
 
 **Sub-section written:** 2026-08-25T21:10Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; this session re-opens none of them.**
