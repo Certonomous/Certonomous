@@ -1054,3 +1054,121 @@ for byte from `/home/ubuntu/gpu_build/STATUS.smoke` on the instance
 reproduced.
 
 **Gate, bands, thresholds, cap and label: unchanged character for character. lines whose number changed above this section: 0**
+
+---
+
+## AMENDMENT 3 (PRE-COMPUTE, 2026-08-26T22:14:52Z) — `USER` is exported before OpenFOAM's bashrc reads it, because cron does not set it and the bashrc DEFAULTS it; ZERO COMPUTE HAS RUN
+
+**Ordered by `ansys-verification-supervisor` `[lab-attributed]`, executed and driven by
+lane G (`ansys-lane-opus`).** Legal because it is made **BEFORE ANY COMPUTE of this case**
+(CLAUDE.md rule 2; `VERIFICATION_CHARTER.md` §2b). It alters **no gate, no band, no
+threshold, no cap and no label**, and nothing above this section is edited (rule 6).
+**lines whose number changed above this section: 0.**
+
+**The condition, checked over ssh at 2026-08-26T22:12:05Z and not taken on report.** The
+run root on `ip-172-31-44-162` holds **five files and no directory**:
+`STATUS.VMFLGPU001` (`launcher_rc=1 end=2026-08-26T22:10:08Z`), `launcher.queue.out`,
+`LAUNCH_RECORD.txt`, and attempt 1's two preserved files `STATUS.VMFLGPU001.attempt1` /
+`launcher.queue.out.attempt1`. **No `0/`, no time directory, no solver log, no
+`RUN_RC.*`, no `COST.txt`.** `nvidia-smi` read **0 %, 0 MiB of 23034 MiB** and
+`ps aux` showed **no `simpleFoam`, `blockMesh` or any Foam process**. **No compute of
+this case has occurred at either attempt.**
+
+### Amendment 2 worked; a SECOND, DIFFERENT guard then fired
+
+The relaunch at **2026-08-26T22:10:07Z** (pid 68138, `prereg=9010f176`) passed the gate
+Amendment 2 repaired and three more, in order, each printed inside the branch that
+verified it:
+
+```
+SMOKE GATE PASSED: /home/ubuntu/gpu_build/STATUS.smoke reads smoke_rc=0, /home/ubuntu/gpu_build/TOOLCHAIN_MANIFEST.txt exists, /home/ubuntu/gpu_build/env.sh exists
+CAP MECHANISM DRIVEN: timeout passes a child rc through (7) and reports an overrun as 124 on this host
+FREEZE VERIFIED: prereg 21fbdc99309807c61148e910c173f4b4b2bfa600 ; comparator f4b07b7fc59d9facd46ad91d3ad9848d33c4f098 ; HEAD 9010f176900917f3dc85ca0f18ea96ec65e0159a
+```
+
+**Amendment 2 is therefore MEASURED as correct, on the real file, in the real launch
+path** — not merely driven on fixtures. It then aborted at STEP 2a, at what were lines
+**269-270** of the Amendment-2 launcher, verbatim:
+
+```
+test -f "$FOAM_USER_LIBBIN/libpetscFoam.so" \
+    || { echo "ABORT: libpetscFoam.so not found in FOAM_USER_LIBBIN=$FOAM_USER_LIBBIN -- petsc4Foam is not built for this OpenFOAM"; exit 1; }
+```
+```
+ABORT: libpetscFoam.so not found in FOAM_USER_LIBBIN=/home/ubuntu/OpenFOAM/user-v2606/platforms/linux64GccDPInt32Opt/lib -- petsc4Foam is not built for this OpenFOAM
+```
+
+### The cause — an ENVIRONMENT defect, and the guard was RIGHT
+
+**This guard is not amended and not weakened.** It refused loudly and correctly: the
+`libpetscFoam.so` it was told to find genuinely was not at the path it was given. The
+defect is in the path, and the path came from the environment.
+
+- `libpetscFoam.so` **exists**, built 2026-08-26T17:33, at
+  `/home/ubuntu/OpenFOAM/**ubuntu**-v2606/platforms/linux64GccDPInt32Opt/lib/`, and its
+  sha256 is `477b7ac2618c9e85338b8dea72ed0c5ec82edf82527ac62b3bc2a7e46363a705` —
+  **character for character the value `TOOLCHAIN_MANIFEST.txt` records**. The toolchain
+  of record is intact; nothing was rebuilt.
+- `/usr/lib/openfoam/openfoam2606/etc/bashrc` **line 190**, read on the instance:
+  `export WM_PROJECT_USER_DIR="$HOME/$WM_PROJECT/${USER:-user}-$WM_PROJECT_VERSION"`.
+  With `USER` unset the `${USER:-user}` default expands to the **literal string
+  `user`**, producing a **phantom** `user-v2606` tree that has never existed on disk.
+- The queue runner is started by cron, and cron's environment has no `USER`. Read from
+  `/proc/65318/environ` of the live daemon, the complete key set was
+  **`HOME LANG LOGNAME OLDPWD PATH PWD SHELL SHLVL _`** — `LOGNAME=ubuntu` and
+  `HOME=/home/ubuntu` are present, **`USER` is absent**.
+- The smoke test passed at 17:41:33Z because `build_gpu_solver.sh` ran under an **ssh
+  session**, where `USER=ubuntu` is set by the login. **The proof and the launch ran in
+  two different environments, and only one of them could find the library.** That is the
+  "internally perfect, externally false" shape again, in a new place.
+
+### The change — two exported variables, before the bashrc, and three recorded fields
+
+Inserted immediately **after** `source "$BUILD_ENV"` and **before**
+`source "$OF_BASHRC"`, because the bashrc reads `USER` as it is sourced and setting it
+afterwards would be too late:
+
+```bash
+export USER="${USER:-${LOGNAME:-$(id -un)}}"
+export LOGNAME="${LOGNAME:-$USER}"
+```
+
+Both use `:-`, so **an environment that already sets `USER` is never overridden** — an
+interactive run is byte-for-byte unaffected. Three **INFRASTRUCTURE** fields (L-342 class:
+infrastructure, so a defect in them is a bookkeeping defect reported beside the verdict
+and can never produce `NOT A RESULT`) are appended to the run's `LAUNCH_RECORD.txt`:
+`launch_user`, `launch_id_un`, `foam_user_libbin` — so a reader can see which user dir
+a run actually resolved instead of inferring it.
+
+**The guard at former lines 269-270 is left exactly as it is.**
+
+### DRIVEN on the instance, three arms
+
+`bash -n` on the amended file returns **rc 0** both normally and under
+`env -i HOME=/home/ubuntu`. The environment behaviour was then reproduced on
+`ip-172-31-44-162` against the real `env.sh` and the real bashrc:
+
+| arm | environment | `FOAM_USER_LIBBIN` | `libpetscFoam.so` |
+|---|---|---|---|
+| **A** — before the fix | exactly the daemon's: `HOME`, `LOGNAME=ubuntu`, `PATH`, `LANG`, `SHELL`; **no `USER`** | `…/OpenFOAM/**user**-v2606/platforms/linux64GccDPInt32Opt/lib` | **NOT FOUND** — the 22:10:08Z abort, reproduced |
+| **B** — after the fix | same environment, plus the two lines above | `…/OpenFOAM/**ubuntu**-v2606/platforms/linux64GccDPInt32Opt/lib` | **FOUND** |
+| **C** — hardest case | `env -i` with **only** `HOME` and `PATH` — no `USER` *and* no `LOGNAME` | `…/OpenFOAM/**ubuntu**-v2606/…` via the `$(id -un)` fallback | **FOUND** |
+
+Arm A is the discriminator: without it, arm B would only show a path that happens to
+work, not a repair of a measured failure.
+
+**Blobs (`git hash-object`):**
+
+| file | blob before | blob frozen by THIS amendment |
+|---|---|---|
+| `cases/ansys_verification/VMFLGPU001/run_vmflgpu001.sh` | `87efc7c8aa2273b4af59f4a8ca6862a4f8ec166c` | **`fdfdc5307c6add00cc6c832fa83ccba7c69c8af4`** |
+
+**Line numbers inside the launcher DID move, and the count is stated rather than
+glossed.** The file grows **692 → 703** lines: 8 inserted at former line 243 and 3 at
+former line 346. **lines whose number changed inside `run_vmflgpu001.sh`: 450** (former
+243 to 692 inclusive). Two consequences, both checked: **Amendment 2's citation "line
+150" is still true** — the smoke gate is untouched at line 150, because both insertions
+are below it; and the `libpetscFoam.so` guard moves from **269-270 to 277-278**, which is
+why this section cites it by its former numbers *and* its text.
+
+**Gate, bands, thresholds, cap and label: unchanged character for character. lines whose number changed above this section: 0**

@@ -240,6 +240,14 @@ test -f "$OF_BASHRC" || { echo "ABORT: recorded OF_BASHRC ($OF_BASHRC) does not 
 # BEFORE the bashrc because the bashrc's own MPI selection reads PATH.
 # shellcheck disable=SC1090
 source "$BUILD_ENV" || { echo "ABORT: sourcing $BUILD_ENV failed -- the MPI pin is not in force and this launcher will not run the solver on an unpinned MPI"; exit 1; }
+# ---- USER: the bashrc DEFAULTS it, and cron does not set it -----------------
+# MEASURED 2026-08-26T22:10:08Z: under the cron-restarted queue runner (its environ
+# carries LOGNAME=ubuntu and HOME, and NO USER) $OF_BASHRC:190 sets
+# WM_PROJECT_USER_DIR="$HOME/$WM_PROJECT/${USER:-user}-$WM_PROJECT_VERSION", so
+# FOAM_USER_LIBBIN became the PHANTOM .../user-v2606/... and STEP 2a aborted -- while
+# petsc4Foam is built into .../ubuntu-v2606/... .  Set BEFORE the bashrc reads it.
+export USER="${USER:-${LOGNAME:-$(id -un)}}"
+export LOGNAME="${LOGNAME:-$USER}"
 # shellcheck disable=SC1090
 source "$OF_BASHRC" || { echo "ABORT: sourcing $OF_BASHRC failed"; exit 1; }
 test -n "$WM_PROJECT_VERSION" || { echo "ABORT: WM_PROJECT_VERSION empty after sourcing $OF_BASHRC"; exit 1; }
@@ -343,6 +351,9 @@ log "ENVIRONMENT VERIFIED: OpenFOAM $WM_PROJECT_VERSION from $OF_BASHRC ; PETSC_
   echo "ldd_libpetscFoam_libmpi = $(ldd "$P4F_SO" 2>/dev/null | grep -i 'libmpi' | tr -s ' ' | tr '\n' ';')"
   echo "status_smoke = $(tr '\n' ' ' < "$STATUS_SMOKE")"
   echo "toolchain_manifest_sha256 = $(sha256sum "$MANIFEST" 2>/dev/null | awk '{print $1}')"
+  echo "launch_user = $USER"
+  echo "launch_id_un = $(id -un)"
+  echo "foam_user_libbin = $FOAM_USER_LIBBIN"
 } >> "$RUN_ROOT/LAUNCH_RECORD.txt" || warn_infra "could not append the toolchain block to LAUNCH_RECORD.txt"
 # The manifest itself is COPIED into the run record: a proof whose toolchain is
 # named only by a file living outside the run is a proof a reader cannot check.
