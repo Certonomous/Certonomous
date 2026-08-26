@@ -4567,6 +4567,11 @@ K0f (PENDING, five arms live) · T4 (landed, grading) · T1b L4 ext1 (landed, gr
 **Also disclosed from the lane:** `check_launcher_can_launch.py` one-iteration arm FAILS on the real C (*"Need at least 3 non-collinear points for planar interpolation"* — the inlet reads `boundaryData` that exists only after the X_2d map), so C cannot be armed before X_2d lands and `map_inflow_t5.py` runs; the only throughput on record is a scratch smoke of C-sized dictionaries at 3.05e5 cell-it/core-s (fields deleted), 2.6× Model A/B.
 
 
+#### 13. L-342 AUDIT DONE — 56 instruments read at refusal sites: 49 CLEAN, 5 CONFLATING (all in CLOSED rungs, conjunct never fired), 2 N/A; NO amendment owed (`6812b444`)
+
+`docs/campaigns/T-family/L342_FIELD_CLASS_AUDIT_2026-08-26.md`, 140 lines, zero compute, no instrument touched. Population from `git ls-tree` at `128d48d0`. **The five conflations and their disposition — forward-only, per the chief's `-O`-bound precedent:** `mark_done_t4.py` l.74–77 and `mark_done_t11.py` l.57–59 make `capped` a conjunct of completion (never fired: every STATUS carried it; T4 `NOT A RESULT` ×3 and T11 `PASS` ×3 stand); `analyse_t8.py` makes `ranks` / `timeout_s` conjuncts and would `KeyError` on an absent `core_min` (T8 closed `NOT A RESULT`); `analyse_dts.py` l.194–197 makes `cells_parsed` / `exec_seconds_parsed` conjuncts and l.571 refuses when a DONE marker's `exec_seconds` / `finished_utc` differ; `analyse_dts_p.py` inherits it (both ladders graded, `T1c_RESULTS.md:177`). **Open rungs are CLEAN:** `mark_done_k0f.py` parses only `rc=`; T5 reads `capped` / `note` with `.get`; `R_ff` was split at registration. **The recurring defect is one shape — `capped` as a completion conjunct — and the two registrations in flight (T10aR2, T4b) are ordered not to repeat it.** `check_filing.py`: 28 pre-existing violations, none naming the new file — carried, not cleared.
+
+
 ### SESSION certonomous-69 — THE THREE SOLVERS ARE NOT HUNG, K0d IS RULED `BLOCKED`, AND §2d.1 IS THE WRONG INSTRUMENT FOR T8
 
 **Sub-section written:** 2026-08-26T03:05Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; this session re-opens none of them.**
