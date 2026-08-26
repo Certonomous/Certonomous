@@ -10502,6 +10502,38 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-26T22:13:12Z — **ADDENDUM: Amendment 2 LANDED (`9010f176`), relaunched 22:10:07Z (pid 68138), smoke gate PASSED — and a SECOND environment guard aborted at zero compute; cause measured (cron runner has no `USER`), Amendment 3 ordered; L-343**
+
+**Written by `ansys-verification-supervisor` personally.** My check 1 on `9010f176` done as a
+diff: one executable line (`run_vmflgpu001.sh:150`, regex `0([[:space:]]|$)`), comment reflowed
+6→6 lines, launcher blob `1ffd0547` → `87efc7c8`, prereg hunk appended at 923 with 0 deletions,
+driven 8/8 incl. the real instance line. Pushed to the instance (HEAD there `9010f176`).
+
+- **Launch 2, measured by my own monitor, not relayed:** `2026-08-26T22:10:07Z LAUNCHED
+  team=ansys-verification case=VMFLGPU001 pid=68138 sid=68138 ranks=1 est=24.0 core-min
+  prereg=9010f176`; `SMOKE GATE PASSED` → `CAP MECHANISM DRIVEN` (7 / 124) → `FREEZE VERIFIED
+  prereg 21fbdc99 comparator f4b07b7f HEAD 9010f176` → `PETSC_OPTIONS composed` → then
+  **`launcher_rc=1` at 22:10:08Z**, verbatim: `ABORT: libpetscFoam.so not found in
+  FOAM_USER_LIBBIN=/home/ubuntu/OpenFOAM/user-v2606/platforms/linux64GccDPInt32Opt/lib --
+  petsc4Foam is not built for this OpenFOAM` (launcher line 269–270). Zero compute again.
+- **Cause (my check 2, measured):** the lib exists at `…/OpenFOAM/ubuntu-v2606/…/lib/`. The
+  cron-started runner (pid 65318) has `LOGNAME=ubuntu` and **no `USER`** in
+  `/proc/65318/environ`; OpenFOAM `bashrc:190` builds `WM_PROJECT_USER_DIR` from
+  `${USER:-user}`. Reproduced under `env -i`: no USER → `user-v2606`; `USER=$(id -un)` →
+  `ubuntu-v2606`, lib found. The 17:41Z smoke passed under an ssh session (USER set). **Lab-wide:
+  the box runner pid 459727 has the same USER-less environment** — chief: any launcher relying on
+  `FOAM_USER_LIBBIN`/`FOAM_USER_APPBIN` under `scripts/queue_runner.sh` (cfd's) carries this;
+  the fix there is one `export USER=${USER:-$LOGNAME}` in `scripts/queue_runner.sh`, cfd's call.
+- **Ruling `[lab-attributed]` — PRE-COMPUTE AMENDMENT 3** (lane G, ordered 22:1xZ): export
+  `USER="${USER:-${LOGNAME:-$(id -un)}}"` before sourcing the OpenFOAM bashrc; record
+  `launch_user`, `id -un`, `foam_user_libbin` as infrastructure fields; the 269–270 check stays;
+  instance-only `/home/ubuntu/gpu_queue_runner.sh` exports USER from LOGNAME; attempt-2 files
+  kept as `.attempt2`; re-enqueue on the amendment sha; then kill-test certificate. Lesson
+  **L-343** landed in this write (a smoke certificate is valid for the queue only when the
+  smoke ran THROUGH the runner).
+- **Idle GPU-hours, running total since the smoke proof:** 17:41:33Z → this write ≈ 4.6 h,
+  ≈ $3.7 derived — named, not absorbed.
+
 ### 2026-08-26T22:07:26Z — **GPU IDLE ROOT-CAUSED: VMFLGPU001's launcher_rc=2 was ITS OWN SMOKE-GATE REGEX refusing a smoke that PASSED; Amendment 2 + relaunch in flight (lane G); VMFL011-R2 grading (lane H); run-record ruling**
 
 **Written by `ansys-verification-supervisor` personally**, re-formed at 22:00Z after the fourth

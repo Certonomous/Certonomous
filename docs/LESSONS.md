@@ -14667,3 +14667,52 @@ measurements disclosed in that pre-registration §0 and §1.3.
 **Rule (Sanaa, verbatim).** "a bookkeeping failure invalidates the bookkeeping, never the physics artifacts — and graders must separate physics-critical fields from infrastructure fields so a dead poller can never void a run again."
 
 **How to apply.** Graders declare two field classes; gates read physics fields only; infrastructure fields absent → NOT MEASURED, disclosed, grade proceeds. Bookkeeping that must survive agent death runs inside the detached wrapper/container, never in an attached poller. Repair of a conflating grader is a pre-registered amendment that touches no band, threshold or verdict logic.
+
+---
+
+## L-343 — A cron-started (agent-independent) runner carries no `USER`; OpenFOAM's bashrc then resolves `WM_PROJECT_USER_DIR` to the literal `user`, and every user-built library or app silently vanishes from the launched solver's path
+
+**Cost:** two zero-compute launcher aborts of VMFLGPU001 on the GPU instance and ≈ 4.5 idle
+GPU-hours between the smoke proof (17:41:33Z) and the third launch (2026-08-26; $0.8048/GPU-h
+published-list, derived). `ansys-verification`, supervisor's own triage.
+
+**What happened.** The detached queue runner on `ip-172-31-44-162` is started by cron
+(`@reboot` and `* * * * *`). Its environment, read from `/proc/<pid>/environ`, carries
+`LOGNAME=ubuntu`, `HOME=/home/ubuntu`, `SHELL=/bin/sh`, a minimal `PATH` — and **no
+`USER`**. `/usr/lib/openfoam/openfoam2606/etc/bashrc:190` reads
+`export WM_PROJECT_USER_DIR="$HOME/$WM_PROJECT/${USER:-user}-$WM_PROJECT_VERSION"`, so under the
+runner `FOAM_USER_LIBBIN` became `/home/ubuntu/OpenFOAM/user-v2606/platforms/…/lib` — a
+directory that does not exist — while `libpetscFoam.so` sat in `…/ubuntu-v2606/…/lib` where the
+build had put it. The launcher's own check refused loudly (`ABORT: libpetscFoam.so not found in
+FOAM_USER_LIBBIN=…/user-v2606/…`), which is the good failure. The smoke test had PASSED four
+hours earlier on the identical toolchain because it ran under an ssh session where
+`USER=ubuntu`. **The same instrument, proven interactively, failed under the runner, and nothing
+about the toolchain had changed — only the environment the launch inherited.** The lab box's
+cron-started runner has the same USER-less environment (measured, pid 459727): any launcher
+there that depends on `FOAM_USER_LIBBIN`/`FOAM_USER_APPBIN` (user-compiled libs, `libs (…)` in
+`controlDict`, custom apps) carries the same hazard.
+
+**Why the earlier guard did not catch it.** The MPI pin (`env.sh`) protected
+`LD_LIBRARY_PATH` and `PATH`; nobody had listed `USER` as an input the OpenFOAM bashrc reads.
+A proof obtained in one environment certifies the toolchain, not the launch path: **a smoke
+test that does not run under the same launcher, from the same runner, with the same
+inherited environment, has not exercised what the queue will exercise.**
+
+**The rule.** (1) A launcher that sources an OpenFOAM bashrc exports
+`USER="${USER:-${LOGNAME:-$(id -un)}}"` first, and RECORDS `USER`, `id -un` and
+`FOAM_USER_LIBBIN` in its launch record as infrastructure fields (L-342). (2) The runner
+wrapper started by cron exports `USER` from `LOGNAME` before launching the daemon.
+(3) A smoke test's certificate is valid for the queue only if the smoke was launched
+**through the queue runner** (entry → runner → detached wrapper), not from an interactive
+shell; until then the record says `smoke-proven (interactive)`.
+
+**Sibling of:** L-339 (a fix that appears applied and loads nothing — here an environment
+variable rather than `set -u`), the DLAMI mixed-MPI pin of the same case (same-soname shadowing),
+and Amendment 2 of this case (the smoke-gate regex refusing the wrapper's own STATUS grammar):
+three times in one day the GPU launcher was refused by a mismatch between two of this team's
+own instruments, and every one of them was invisible to a test that did not run the real path.
+
+**Provenance:** `cases/ansys_verification/VMFLGPU001/PREREGISTRATION.md` Amendments 2–3;
+`verification/runs/ansys_verification/VMFLGPU001/launcher.queue.out.attempt2` on the instance
+(abort quoted above); `/home/ubuntu/gpu_queue_runner.sh` (instance-only); the runner daemon's
+`/proc/65318/environ` read 2026-08-26T22:1xZ.
