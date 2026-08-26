@@ -1,0 +1,45 @@
+{
+  "team": "dafoam",
+  "case_id": "D12R_phase3",
+  "prereg_commit": "f9c8b9c840ea80f88c619e06801da96c7f42c266",
+  "prereg_path": "cases/dafoam/curriculum_D12R/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R/d12x_stage_and_run.sh",
+    "--phase", "3",
+    "--image", "shipped"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R",
+  "ranks": 1,
+  "cost_core_min_estimate": 13.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Core-minutes are DERIVED from this item's OWN phase-1 ledger: 21 stages of exactly 300 unsteady steps at np=1 measured mean 1.2984 core-min (max 2.4833), file /home/ubuntu/certonomous-runs/CURRICULUM-D12R-cylinder-unsteady/ledger.txt. Phase 3 runs 10 such stages (S6b_p, S6b_m, and S6c over 4 components x 2 signs) => 12.98 core-min. Dollars DERIVED, NOT MEASURED: 13.0 core-min = 0.2167 core-h = $0.0111.",
+  "memory_floor_gb": 14.0,
+  "enqueued_by": "dafoam lab-lane, 2026-08-26, for dafoam-supervisor. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 (pre-registration committed before compute) is the supervisor's own and is NOT discharged by this file.",
+
+  "_schema_note": "Fields above are cfd's required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are dafoam annotations the validator ignores.",
+
+  "cost_core_min_cap_registered": 600.0,
+  "cost_core_min_cap_scope": "CUMULATIVE ACROSS ALL PHASES of this item, from PREREGISTRATION.md section 8 (CAP_CORE_MIN=600.0). The launcher recovers cumulative spend from the ledger and evaluates the cap BEFORE every stage. Phase 1 has already consumed 63.95 core-min (PHASE1_COMPLETE line, run ledger). This is NOT a per-entry cap and must not be re-read as one.",
+  "cost_dollars_derived": 0.0111,
+  "cost_dollars_label": "DERIVED, NOT MEASURED",
+
+  "image_row": "shipped",
+  "image": "dafoam/opt-packages:latest",
+  "image_digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+  "container_memory_cap": "20g",
+  "container_memory_swap": "20g",
+  "cpuset": "NOT PINNED BY THIS LAUNCHER -- it passes --cpus=1 with no --cpuset-cpus. This is a KNOWN EXPOSURE, not an omission I am hiding: D13 measured (2026-08-25) that mpirun inside a --cpus=N container binds rank 0 to the FIRST CORE OF THE HOST TOPOLOGY, so concurrent containers collide there and throughput collapses as 1/N while the host reports itself idle. At np=1 the blast radius is one rank. The launcher is a FROZEN INSTRUMENT (md5 e7be9ea468c700e1c6e3463cf443c7a9 in PREREGISTRATION.md section 4, verified against the committed HEAD blob before every launch) so this is NOT repairable by editing it (standing rule 6); a repair is a new registered item.",
+
+  "detach_safe": "PARTIAL, AND STATED HONESTLY. The launcher runs `timeout 7200 sudo -n docker run --name ... ` in the FOREGROUND (d12x_stage_and_run.sh:325). The CONTAINER is a child of dockerd, not of this shell, so a SIGKILL to the shell does not stop it -- MEASURED: phase 1 outlived the ~23:00Z 2026-08-25 fleet kill and wrote PHASE1_COMPLETE at 23:49:35Z, 49 minutes later, with the launcher SHELL still alive to write it. What is NOT detach-safe is the CAP: `timeout` is a process in the launching shell, so if that shell dies the 7200 s wall guard dies with it and the container continues UNGUARDED. Any runner starting this argv must therefore supply its own outer guard.",
+  "rc_capture": "HARNESS `$?`, NOT THE KERNEL'S RECORD -- a REGISTERED-vs-IMPLEMENTED GAP, reported not concealed. d12x_stage_and_run.sh:330 sets `rc=$?` from the docker CLI client; :332 reads `docker inspect --format '{{.State.ExitCode}}|{{.State.OOMKilled}}'` and writes it to the ledger as an `inspect=[..]` STRING ONLY -- no control flow consults it. The two AGREED on all 32 phase-1 stages (harness=0 kernel=0 oom=false, 32/32), so no verdict on record rests on the wrong reading; the divergence case is exactly the timeout/kill the distinction was registered for. NOT repairable here: the launcher is frozen by md5.",
+
+  "preconditions": [
+    "PHASE 2 MUST HAVE COMPLETED. As of 2026-08-26 the run root's newest write is 23:49:35Z 2026-08-25 (PHASE1_COMPLETE); phase 2 had not started at that time.",
+    "The FROZEN COMPARATOR must have been run in --plan2 mode and written /home/ubuntu/certonomous-runs/CURRICULUM-D12R-cylinder-unsteady/step_plan2.json. The launcher ABORTS (exit 1) if it is absent.",
+    "h* and h_wrong are READ FROM step_plan2.json, chosen POSITIONALLY over the plateau WITHOUT READING THE ADJOINT [RULING-3.3]. If the comparator returns h*=None the launcher writes NO PLATEAU, does NOT launch, and the gradient is NOT A RESULT -- a registered outcome, not a failure.",
+    "The run root MUST already exist. Phase 1 refuses a pre-existing root; phases 2-4 REQUIRE it, because they continue a run they did not start. The queue AGE-GUARD is therefore pointed at the CASE directory, not the run root -- pointing it at the run root would refuse a legitimate continuation."
+  ],
+  "memory_hold": "HOLD, DO NOT LAUNCH, while /proc/meminfo MemAvailable < 14.0 GiB. 14.0 is this item's OWN registered floor (MEMAVAIL_FLOOR_GIB, PREREGISTRATION.md section 7 and the run manifest), and it is STRICTER than the dafoam family default of 6 GiB; the registered value governs. dafoam is the MEMORY-LIMITED family: a batch that OOMs is worse than a batch that queues.",
+  "verdict_state": "PENDING",
+  "not_claimed": "Nothing at np>1; nothing about reduceIO:False; no grid family, so standing rule 5 has no row to gate and NO GCI IS QUOTED; nothing about the physical accuracy of CD at Re_D=1.0e6 on 2,450 cells. The PATCHED row is UNBOUGHT (PREREGISTRATION.md section 9) and must be named as unbought in any record quoting a shipped number -- DAFOAM_CHARTER.md section 6 two-row rule."
+}
