@@ -1,0 +1,5 @@
+T4b comparator.  shared floors STAGNANT_FLOOR = 0.5, P_MIN = 0.05 (scripts/roache_triple.py).  provenance (sha256):
+  analyse_t4.py (frozen, imported)     9842dbc8146d4f156cd7fc343117b383139097989463139f884dd14769d777ad
+  analyse_t4b.py                       06674874d025c11b0a4482b331e7f4d11db8fb97a0544940d3403a68ff351e41
+  T4b_registered.json                  a4eb13e7eca5435f70d2783e417ee645d5fbe6c30d4a7395f7d62b32a3e3de01
+REFUSE: no DONE.T4b_IJ_f -- the whole rung is graded or none of it is (mark_done_t4b.py decides; this comparator does not overrule it)

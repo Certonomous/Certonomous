@@ -1,0 +1,13 @@
+case=T4b_IJ_m
+rc=0
+wall_s=5178
+ranks=1
+core_min=86.300
+timeout_s=9000
+capped=no
+checkmesh_rc=0
+solver=buoyantBoussinesqSimpleFoam
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqSimpleFoam
+note=clean
+started_utc=2026-08-26T17:53:35Z
+ended_utc=2026-08-26T19:19:53Z
