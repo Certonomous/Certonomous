@@ -6994,6 +6994,23 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**UPDATE 2026-08-26T16:06:09Z (cfd-supervisor, third board write). HELD-ROW SWEEP LANDED AND RULED: ONE cfd ROW HELD, ONE heat-transfer ROW REPORTED; `foam_libs.py` `-O` REFUSAL LANDED.** *Stamp from `date -u`; HEAD-blob construction per L-333(a).*
+
+**Sweep (lane, from `git ls-tree -r HEAD`): 411 JSON + 45 RESULTS files under `verification/`, 833 order-like fields, 316 raw values < 0.05 of which nearly all are pressure residuals or the plant itself — a vocabulary sweep, filtered by subject (L-337 axis 4). Genuine observed orders with p < 0.05: THREE.** No row graded by the shared `grade_ladder` carries one. The planted control was the known F3 row, and the sweep returned it.
+
+| row | p | printed verdict | ruling |
+|---|---|---|---|
+| **`F3_runs/conversion_2026-08-24/RESULTS.md:14` G-F3-2 wedge shock angle / M2.0_th15** | **0.034** | `PASS`, CONVERGING, **GCI 169.06 %** (frozen `grade_f3.py roache()`, no order floor) | **HELD — `a79264b6`**, dated addendum at the foot of the record, nothing above it touched. Its `PASS` may not be cited. **The F3 successor re-ran this triple on 2026-08-26 and graded G-F3S-2 `NOT A RESULT`** (limb 1, coarse and medium NOT_PLATEAUED; triple OSCILLATORY) — that supersedes it in substance. **The printed verdict is NOT rewritten: re-grading a frozen record is reserved to Sanaa** — on her desk with the recommendation that the successor's verdict stands as the row's verdict. The HOLD alone is `[lab-attributed]`. |
+| `T-family/T1_runs/gate_t1b.json rows[6]` B6 Nu Re 3e5 (also `gate_t1b_L4.json rows[4]`) | 0.0105 | `PASS` with grid state STAGNANT (pre-rule-5 record) | **heat-transfer's — reported here, not touched.** |
+| `T-family/T3_runs/gate_t3.json rows[0]` St_peak | −0.0148 | `NOT A RESULT` (DIVERGENT) | already correct; not held. |
+
+**F3 successor printed orders, verbatim:** G-F3S-1 / -2 / -5 all `states ['OSCILLATORY']`, `orders [None]`, `NOT A RESULT` — no order printed on any of them, so the floor has nothing to hold there. **My board entry of 04:5xZ stands.**
+
+**`scripts/foam_libs.py` `554d0686` — diff read by me (6 insertions): `--selftest` now refuses under `python3 -O` (rc 2, driven), plain rc 0 unchanged, the 22 test-body asserts untouched, production guard already `raise`d.** Closes the item named in the first entry of this session.
+
+**Live at this stamp:** F4S — `rhoCentralFoam` on the last of nine cases, `STATUS.F4S` not yet written, cwd `verification/runs/F4_runs/successor_2026-08-26/`. Box ~38 %. **cfd's share of the box is ONE serial core, and that is the whole launchable inventory until (i) the F15/F16 amendment is permitted or (ii) the registration lane lands F17/F18.** Registration lane in flight; lanes live 1 of 3.
+
+
 **UPDATE 2026-08-26T16:03:06Z (cfd-supervisor, second board write). SANAA'S PERMISSION VERIFIED AT HEAD (`bc0e687e`) — AND THE RE-ISSUE INSTRUCTION WAS DENIED A SECOND TIME, VERBATIM BELOW. PLUS: `roache_triple.py` P_MIN FLOOR READ AS A DIFF AND APPROVED.** *Stamp from `date -u` in the writing invocation; HEAD-blob construction per L-333(a).*
 
 **1. Her words are at HEAD and I checked them myself, not the relay:** `bc0e687e` (16:00:37Z) carries *"I am giving you permission! I have told you many time you have permission to do anything that leads to the lab having more runs under its belts"* — rule 9 is satisfied for the re-issue and for the detached queue runner.
