@@ -1,0 +1,163 @@
+46,47c46,47
+< ITEM=D4-SHIPPED
+< REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin
+---
+> ITEM=D5
+> REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density
+67a68,71
+> /home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin
+> /home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-R-a2-wing-cdmin
+> /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint
+> /home/ubuntu/certonomous-runs/CURRICULUM-D14-a2-wing-remesh
+94,96c98,100
+<   if grep -aq "ROW=PATCHED" "$BASE/ledger.txt" 2>/dev/null; then
+<     echo "ABORT G-ROOT.3 the ledger at $BASE/ledger.txt already carries PATCHED rows."
+<     echo "  This launcher writes the SHIPPED row only.  REFUSED."
+---
+>   if grep -aq "ROW=SHIPPED" "$BASE/ledger.txt" 2>/dev/null; then
+>     echo "ABORT G-ROOT.3 the ledger at $BASE/ledger.txt already carries SHIPPED rows."
+>     echo "  This launcher writes the PATCHED row only (D5 REGISTERED DELTA: the graded D4 row).  REFUSED."
+117c121,124
+< CPUSET=5,6,7,9
+---
+> # D5 REGISTERED DELTA (PREREGISTRATION.md section 5b): 8,10,11,13 -- DISJOINT from every
+> # live container cpuset read via docker inspect at freeze (W2R on 12), from the D4-SHIPPED
+> # registered set 5,6,7,9 (its chain may be re-fired there) and from D6's 2,3,4,14.
+> CPUSET=8,10,11,13
+130a138
+> # D5 REGISTERED CAP TABLE (PREREGISTRATION.md section 4): per density d in {48,192}
+133,137c141,143
+<     P1)  echo 5.0 ;;
+<     P2)  echo 55.0 ;;
+<     O)   echo 620.0 ;;
+<     ACC) echo 80.0 ;;
+<     F3)  echo 120.0 ;;
+---
+>     O48|O192)     echo 800.0 ;;
+>     ACC48|ACC192) echo 10.0 ;;
+>     F48|F192)     echo 120.0 ;;
+143,145c149,150
+<     P1) echo 4g ;;
+<     ACC) echo 8g ;;
+<     P2|O|F3) echo 12g ;;
+---
+>     ACC48|ACC192) echo 8g ;;
+>     O48|O192|F48|F192) echo 12g ;;
+159,160c164,167
+< MD5_RUNSCRIPT=2906d52a5dbed2bacbaeaf85a37d3fe8
+< MD5_FD=c6112b0ec3bfdb5287345e350500f64a
+---
+> MD5_RUNSCRIPT=fa1d91c82d11aacd0ae072652b346952
+> # D5 REGISTERED FFD MD5S (one per density; set at freeze from d5_gen_ffd.py output)
+> md5_ffd() { case "$1" in 48) echo 85a8bcd5d39f1b11a612ac0a39aee776 ;; 192) echo 8eb161df4c546d10d7fcb30132f58907 ;; *) echo "" ;; esac; }
+> MD5_FD=91b9f3526a39cb02eafbd5be504d7107   # d5_fd_endpoint.py (D5 REGISTERED DELTA: D4's FD instrument re-pointed at d5_opt_runScript.py)
+164,165c171,173
+< test -n "$ARM" || { echo "ABORT usage: d4_run_arm.sh <P1|P2|O|F> <image>"; exit 64; }
+< test -n "$IMG" || { echo "ABORT usage: d4_run_arm.sh <P1|P2|O|F> <image>"; exit 64; }
+---
+> test -n "$ARM" || { echo "ABORT usage: d5_run_arm.sh <O48|ACC48|F48|O192|ACC192|F192> <image>"; exit 64; }
+> test -n "$IMG" || { echo "ABORT usage: d5_run_arm.sh <O48|ACC48|F48|O192|ACC192|F192> <image>"; exit 64; }
+> DENS="${ARM//[A-Z]/}"; case "$DENS" in 48|192) ;; *) echo "ABORT arm $ARM carries no registered density (48|192)"; exit 64;; esac
+176c184
+< LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d4_${ARM}_" 2>/dev/null | grep "^d4_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+---
+> LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d5_${ARM}_" 2>/dev/null | grep "^d5_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+182c190
+< PIDFILE="$BASE/d4s_driver.pid"
+---
+> PIDFILE="$BASE/d5_driver.pid"
+231,232c239,240
+< echo "$MD5_RUNSCRIPT  $BASE/d4_opt_runScript.py"    | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
+< echo "$MD5_FD  $BASE/d4_fd_endpoint.py"             | md5sum -c - || { echo "ABORT fd md5"; exit 4; }
+---
+> echo "$MD5_RUNSCRIPT  $BASE/d5_opt_runScript.py"    | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
+> echo "$MD5_FD  $BASE/d5_fd_endpoint.py"             | md5sum -c - || { echo "ABORT fd md5"; exit 4; }
+250,252c258,260
+< test "$ROW" = "SHIPPED" || {
+<   echo "ABORT G-ROW this item is registered SHIPPED-ONLY; got ROW=$ROW ($IMG)."
+<   echo "  The PATCHED row is already bought at curriculum_D4 and is NOT re-bought here."
+---
+> test "$ROW" = "PATCHED" || {
+>   echo "ABORT G-ROW D5 is registered PATCHED-ONLY (the row D4 was GRADED on, C-97); got ROW=$ROW ($IMG)."
+>   echo "  The SHIPPED row is NOT bought here; a second row is a separate item."
+258c266
+< NAME="d4_${ARM}_${STAMP}"
+---
+> NAME="d5_${ARM}_${STAMP}"
+263c271
+< if [ "$ARM" != "F3" ]; then
+---
+> if [ "${ARM:0:1}" != "F" ]; then
+266c274,278
+<   cp -a "$BASE/d4_opt_runScript.py" "$BASE/d4_fd_endpoint.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
+---
+>   cp -a "$BASE/d5_opt_runScript.py" "$BASE/d5_fd_endpoint.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
+>   # D5 REGISTERED DELTA: the density's FFD box REPLACES base/FFD/wingFFD.xyz in the staged arm, md5-asserted
+>   echo "$(md5_ffd "$DENS")  $BASE/ffd/wingFFD_${DENS}.xyz" | md5sum -c - || { echo "ABORT FFD md5 for density $DENS"; exit 4; }
+>   cp -a "$BASE/ffd/wingFFD_${DENS}.xyz" "$WORK/FFD/wingFFD.xyz" || { echo "ABORT stage FFD"; exit 4; }
+>   echo "D5_FFD_STAGED arm=$ARM density=$DENS md5=$(md5sum "$WORK/FFD/wingFFD.xyz" | cut -d' ' -f1)"
+270c282
+<   for bad in "$WORK/reports" "$WORK/OptView.hst" "$WORK/opt_IPOPT.txt" "$WORK/dRdWColoring_4.bin" "$WORK/d4_fd_endpoint.json"; do
+---
+>   for bad in "$WORK/reports" "$WORK/OptView.hst" "$WORK/opt_IPOPT.txt" "$WORK/dRdWColoring_4.bin" "$WORK/d5_fd_endpoint.json"; do
+281c293,294
+<   test -d "$WORK" || { echo "ABORT arm F3 expects an existing $WORK from arm O"; exit 5; }
+---
+>   WORK="$BASE/O${DENS}"
+>   test -d "$WORK" || { echo "ABORT arm $ARM expects an existing $WORK from arm O${DENS}"; exit 5; }
+283,284c296,297
+<   cp -a "$BASE/d4_fd_endpoint.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage F instruments"; exit 4; }
+<   rm -f "$WORK/d4_fd_endpoint.json" "$WORK/d4_fd_endpoint.jsonl" "$WORK/d4_endpoint_dvs.json"
+---
+>   cp -a "$BASE/d5_fd_endpoint.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage F instruments"; exit 4; }
+>   rm -f "$WORK/d5_fd_endpoint.json" "$WORK/d5_fd_endpoint.jsonl" "$WORK/d4_endpoint_dvs.json" "$WORK/d4_major_history.json"
+288,324c301,303
+<   P1) CMD="rm -rf processor* ; decomposePar -force > d4_decomp_A.log 2>&1 && for p in processor*; do echo \"A \$p \$(head -20 \$p/constant/polyMesh/owner | grep -a note || true)\"; done > /dev/null ; python -c \"
+< import glob,gzip,io,os,json
+< def ncells(p):
+<     b=os.path.join(p,'constant','polyMesh','owner')
+<     op=gzip.open(b+'.gz','rt') if os.path.exists(b+'.gz') else open(b)
+<     with op as fh:
+<         for line in fh:
+<             if 'nCells' in line:
+<                 return int(line.split('nCells:')[1].split()[0])
+<     return -1
+< d={p:ncells(p) for p in sorted(glob.glob('processor*'))}
+< json.dump(d, open('d4_decomp_A.json','w'), indent=1, sort_keys=True)
+< print('DECOMP_A', json.dumps(d, sort_keys=True))
+< \" && rm -rf processor* && decomposePar -force > d4_decomp_B.log 2>&1 && python -c \"
+< import glob,gzip,json,os
+< def ncells(p):
+<     b=os.path.join(p,'constant','polyMesh','owner')
+<     op=gzip.open(b+'.gz','rt') if os.path.exists(b+'.gz') else open(b)
+<     with op as fh:
+<         for line in fh:
+<             if 'nCells' in line:
+<                 return int(line.split('nCells:')[1].split()[0])
+<     return -1
+< d={p:ncells(p) for p in sorted(glob.glob('processor*'))}
+< json.dump(d, open('d4_decomp_B.json','w'), indent=1, sort_keys=True)
+< print('DECOMP_B', json.dumps(d, sort_keys=True))
+< \" && grep -a 'method\|numberOfSubdomains' system/decomposeParDict && rm -f d4_placement_rank*.json && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings python -c \"
+< import json,os
+< from mpi4py import MPI
+< r=MPI.COMM_WORLD.rank
+< aff=sorted(os.sched_getaffinity(0))
+< json.dump({'rank':r,'affinity':aff,'n_cores':len(aff),'pid':os.getpid()}, open('d4_placement_rank%d.json'%r,'w'))
+< \" && cat d4_placement_rank*.json" ;;
+<   P2) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_opt_runScript.py -task compute_totals" ;;
+<   O)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_opt_runScript.py -task run_driver -optimizer IPOPT" ;;
+<   ACC) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_opt_runScript.py -task compute_totals" ;;
+<   F3) CMD="python d4_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d4_fd_endpoint.py" ;;
+---
+>   O48|O192)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d5_opt_runScript.py -task run_driver -optimizer IPOPT" ;;
+>   ACC48|ACC192) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d5_opt_runScript.py -task compute_totals" ;;
+>   F48|F192) CMD="python d4_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d5_fd_endpoint.py" ;;
+331c310
+< CMDFILE="$WORK/d4s_cmd.sh"
+---
+> CMDFILE="$WORK/d5_cmd.sh"
+414c393
+<      timeout -k 60 $TMO bash /mnt/$ARM/d4s_cmd.sh" > /dev/null 2>&1 \
+---
+>      timeout -k 60 $TMO bash /mnt/$ARM/d5_cmd.sh" > /dev/null 2>&1 \
