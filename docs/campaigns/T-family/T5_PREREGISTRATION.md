@@ -1451,3 +1451,14 @@ The critical-path wall for `F` becomes 38.5 h under Model B and 105.6 h under Mo
 **Document version 1.3 -> 1.4. Lines whose number changed above this section: 0.** Condition as AMENDMENT 1. Ruled by the heat-transfer supervisor `[lab-attributed]`.
 
 `docs/campaigns/T-family/T5_CONFIGURATION_RULING.md` (2026-08-25) ruled T5 onto the Meinders **matrix** (`S_x/H = S_z/H = 4`, one periodic cube, `Re_H = 3854`, Figs 8.23/8.24/8.26). This file, frozen 2026-08-26 at `0fcbb92e`, registers the **single cube** at `Re_H = 4440` (Figs 5.45/5.37/5.39, channel with an X_2d precursor). The two documents contradict each other and neither is rewritten. **Ruling: the frozen single-cube registration stands for T5; the matrix becomes a separate rung, `T5m`, with its own pre-registration when written.** The ruling's binding constraints that survive here are the ones this file already carries independently: `r = 1.6` does not move, no dimensional local-`h` gate near an edge, two error channels never summed.
+
+---
+
+## AMENDMENT 5 — 2026-08-26 (PRE-FIRST-COMPUTE): mesh quality — expectation, not precondition; the mismatch disclosed
+
+**Document version 1.4 -> 1.5. Lines whose number changed above this section: 0.** Condition as AMENDMENT 1. Ruled by the heat-transfer supervisor `[lab-attributed]`, established by lane a442775b from the frozen text, quoted:
+
+- §5.4: *"`checkMesh` birth certificate on every case (Charter §9). Near-wall aspect ratios of order 30–70 are **expected** on a wall-resolved 3D mesh and are **reported with their numbers, not hidden**. `check_t5_mesh.py` reads every `points` file and refuses before any solver runs; **its planted-positive test (an inverted grading) must FIRE** or the build stops."*
+- §15: *"`checkMesh` birth certificate per case (Charter §9), aspect ratios reported with their numbers."*
+
+**No clause registers "Mesh OK" or an aspect-ratio bound as a launch precondition.** The only registered mesh precondition is `check_t5_mesh.py` with its planted positive, and it passes on every built case (first layers 0.128 / 0.080 / 0.050 mm read back on all six named walls; planted inverted grading fires under both interpreters). **Disclosed against the expectation:** the built air regions report max aspect ratio **133.2 / 135.2 / 140.4** (c / m / f) and `checkMesh -allGeometry` flags small-determinant cells (**4406 / 15727 / 59818**, "Failed 1 mesh checks"); non-orthogonality 0, skewness ~1e-13; epoxy regions "Mesh OK". The aspect ratio is the near-wall cell (0.128 mm) against the streamwise/spanwise spacing of the block lattice; halving it would need a first layer of ~0.26 mm at level `c` (`y+` ≈ 5, the sublayer bound of §16.3.1, i.e. NOT A RESULT) or roughly 2× the tangential counts (≈ 4× the cells, outside §11's ladder). **The cases proceed as built; every `y+` is measured per wall and printed beside every row.**
