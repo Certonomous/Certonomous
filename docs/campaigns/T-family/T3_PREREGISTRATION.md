@@ -511,3 +511,136 @@ figure re-derived here.
 
 **The frozen text above is unchanged**, per rule 6 and Charter §2d: originals are
 struck, never rewritten, and nothing above this line was touched.
+
+---
+
+## AMENDMENT A2 — 2026-08-26, **POST-COMPUTE. DISCLOSURE ONLY.** Document **v1.0 → v1.1**.
+
+**`lines whose number changed above this section: 0`.** This amendment is appended
+at the foot. Nothing above it has been edited, struck, reworded or renumbered — the
+assertion is **measured**, by comparing every line above this section byte-for-byte
+against this file's blob at `HEAD` before the amendment was written. **No gate,
+threshold, cap or label is altered, and none could be:** this amendment adds no test,
+changes no instrument and moves no number.
+
+**Version convention, stated so it is not read as an invented history:** this document
+carried no explicit version string. It is named **v1.0** as it stood, and this
+amendment takes it to **v1.1**. No earlier version is claimed to have existed.
+
+**Condition — POST-COMPUTE.** This rung has graded and published. `CLAUDE.md` rule 2
+therefore governs in its post-compute limb: *"changes land only as dated addenda that
+cannot alter a gate, threshold, cap or label."* **This is such an addendum.** No
+original is struck and **no verdict in this rung is reopened.**
+
+### The defect — `assert` is not a guard, because `python3 -O` deletes it
+
+`python3 -O` and `PYTHONOPTIMIZE=1` **remove every `assert` statement outright.** A
+check written as an `assert` therefore cannot carry a refusal, a guard, a control or a
+gate: under one interpreter flag it is gone and the surrounding code walks on. Measured
+elsewhere in this lab, not hypothesised — `analyse_t8.py` under `-O` returns
+`GATE REACHED` where `CLAUDE.md` rule 5 forbids it, with no error and rc 0; and a
+planted-control selftest under `-O` **printed `PLANTED CONTROL PASSED` on an estimator
+returning zeros** (L-332).
+
+**This rung's exposure, re-derived 2026-08-26 by an AST parse of the blob at `HEAD`
+(never `grep`, so a docstring mentioning the word is not miscounted):**
+
+**`verification/runs/T-family/T3_runs/digitise_t3_secondary.py` — TWO `ast.Assert`
+nodes, and both are AXIS-CALIBRATION guards on the script that PRODUCES THE REFERENCE
+DATA:**
+
+```
+190:    assert abs(ax["yaxis_x"] - x_ticks_px[0]) < 4, "y-axis not at x/H = 0"
+191:    assert abs(ax["xaxis_y"] - y_ticks_px[-1]) < 4, "x-axis not at -0.002"
+```
+
+**This is the class that does NOT fit the usual severity ladder, and the classification
+is stated rather than assumed.** A build-time guard on a generated case is Class B —
+serious, but its failure surfaces downstream as a **broken or refused solve**. **A
+mis-calibrated digitiser surfaces as nothing at all.** It writes
+`T3_secondary_digitisation.json` — plausible numbers, correctly formatted, silently
+shifted — and a rung graded against it fails or passes for reasons that have nothing to
+do with the solver.
+
+The two guards check that the detected axis **lines** coincide with the first and last
+detected **ticks**, to within 4 pixels. They are the only cross-check between two
+independent detections (axis lines, tick positions); the linear fits at `:178-179` will
+happily fit a wrong tick set.
+
+> **A DIGITISER'S GUARDS PROTECT EVERY VERDICT EVER MEASURED AGAINST ITS OUTPUT, LONG
+> AFTER THE DIGITISER HAS STOPPED RUNNING. Under `-O` they are absent, and the JSON
+> looks exactly the same either way.**
+
+**`UNJUDGED`, not shown harmed** — and there is a mitigating fact worth recording rather
+than relying on: this script also writes an **overlay** and a **replot**
+(`:155`, `:611`), which a human can inspect. **That is a check on a reader's diligence,
+not a guard**, and it is not a substitute for one.
+
+### §2d.1 is **NOT** invoked, and that is deliberate
+
+`VERIFICATION_CHARTER.md` §2d.1 permits a grading-path change after first compute only
+when all four of its conditions hold, including (3) *"the record discloses it, names
+that instrument, and QUANTIFIES WHAT MOVED"* and (4) *"the pre-repair values are
+recorded beside the published ones."*
+
+**Conditions (3) and (4) are vacuous here, and that is the tell that §2d.1 is the wrong
+instrument.** Converting `assert X, msg` into `if not X: refuse(...)` **cannot move any
+number and cannot move any verdict on any run on record**: under plain `python3` both
+forms refuse in exactly the same state, and only the mechanism and the return code
+differ. The lab-wide bound of 2026-08-25T22:48Z measured that **no graded verdict on
+record was produced under `-O`** — no run script invokes it, `PYTHONOPTIMIZE` is unset
+on the host, and `__debug__ = True` was measured inside the DAFoam container too.
+**There is nothing to quantify and nothing to record beside.**
+
+> **INVOKING A NARROW EXCEPTION WHERE IT IS NOT NEEDED STRETCHES IT, AND A STRETCHED
+> EXCEPTION IS HOW THE NEXT REAL ONE GETS WAVED THROUGH.**
+
+§2d.1 was cut to fit a repair that moved every Nusselt number in a rung by 10–27 %.
+**Reaching for it to authorise a change that moves nothing teaches the lab that the
+exception is available for changes that are merely desirable.**
+
+### What happens instead
+
+1. **The instrument is NOT edited and stays byte-identical to its blob at `HEAD`**,
+   verified at this amendment.
+2. **This amendment is the disclosure**, so that a reader auditing the instrument does
+   not have to rediscover the exposure.
+3. **The repaired form lands in the SUCCESSOR's instrument and is never retrofitted
+   here.**
+
+### The form the successor must take — specified, not applied
+
+**Territory rule, adopted from cfd under the disposal rule: no `assert` in an
+instrument may carry a refusal, guard, control or gate.** The three-arm shape is cfd's
+already-registered one (`verification/campaign/CFD_ASSERT_RULE_REFINEMENT_2026-08-25.md`
+§1), adopted rather than invented:
+
+1. **The guard becomes `raise` or `sys.exit(2)`, never an `assert`**, and becomes the
+   **primary** runtime check rather than belt-and-braces beside a selftest. A selftest
+   is a **test, not a runtime guard** — it does not run during grading.
+2. **The refusal is DRIVEN under `python3 -O` and shown to FIRE identically**, against
+   a sacrificial mutant, on the guarded path. **Not "the selftest passes under `-O`"**:
+   a passing selftest exercises the clean path, and the clean path is the one an
+   evaporated guard still walks. **A mutation battery cannot see this hole unless the
+   battery is itself run under `-O`, because the battery and the hole live under
+   different flags.**
+3. **A statement-type check over the instrument's own AST requiring ZERO `Assert`
+   nodes**, catching a revert **without running anything**. Committed implementation:
+   `scripts/check_assert_guards.py --require-clean <path>`, whose own selftest plants an
+   `assert` into a sacrificial fixture and **refuses if the checker cannot see it**.
+
+**Specific to this rung:** a data-production script's guards should
+additionally **write their measured residuals INTO the output JSON** — the axis/tick
+offsets in pixels, and the linear-fit residuals already computed at `:178-179` and
+printed at `:186-187`. **A reference file that carries its own calibration evidence can
+be audited years later; one that does not requires re-running the digitiser to learn
+anything.**
+
+### Cost
+
+**Zero core-minutes.** No solver ran for this amendment. AST parsing on the login box.
+`docs/COST_CALIBRATION.md` gains no row: there is no compute to calibrate.
+
+**No verdict in this rung is reopened by this amendment. Nothing here has been sent,
+filed, submitted, uploaded, registered or posted anywhere outside this box
+(`CLAUDE.md` rule 7).**
