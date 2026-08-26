@@ -1,0 +1,5 @@
+PATHS RESOLVED against disk in this invocation: 10 files, 4 directories.
+INSTRUMENT GREEN: exact_stokes and grade_f16 selftests pass; grade_f16 exits 2 under -O.
+CAP AGREES between launcher and grader: 20 core-minutes.
+nu ON DISK AGREES with the nu the exact solution was derived from.
+/usr/lib/openfoam/openfoam2606/etc/bashrc: line 184: WM_PROJECT_DIR: unbound variable

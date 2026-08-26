@@ -1,0 +1,150 @@
+{
+  "rung": "F16-SL2",
+  "prereg_commit": "2aea29d97c74f54183c1d99a28d86568ee254815",
+  "prereg": "verification/campaign/F16_SL2_PREREGISTRATION.md",
+  "assert_census": {
+    "files_checked": 2,
+    "assert_nodes": 0
+  },
+  "controls": [
+    {
+      "control": "symbolic_substitution_into_full_NS",
+      "residuals": {
+        "continuity": "0",
+        "convection_x": "0",
+        "x_momentum": "0"
+      },
+      "passed": true
+    },
+    {
+      "control": "PZ-F16-EXPONENT_planted_1.37k_must_be_nonzero",
+      "planted_factor": 1.37,
+      "residual_is_zero": false,
+      "passed": true
+    },
+    {
+      "control": "truncation_floor_dominated_by_discretisation",
+      "domain_truncation_L2": 1.571441570540086e-07,
+      "finest_predicted_L2": 0.00012303531022431527,
+      "ratio": 782.9454975028406,
+      "passed": true
+    },
+    {
+      "control": "constant_ratio_refinement",
+      "dy_ratios": [
+        2.0,
+        2.0
+      ],
+      "dt_ratios": [
+        2.0,
+        2.0
+      ],
+      "passed": true
+    },
+    {
+      "control": "PZ-F16-CLASSC_four_limbs_each_shown_able_to_refuse",
+      "flat": "PLATEAUED",
+      "ramp": "NOT_PLATEAUED_TREND",
+      "step": "NOT_PLATEAUED_TREND",
+      "short_series": "exit 2",
+      "passed": true
+    },
+    {
+      "control": "PZ-F16-GRADE_LADDER_CALLSITE_ast_census_plus_grep_both_ways",
+      "ast_call_nodes": [
+        648
+      ],
+      "grep_lines": [
+        452,
+        648
+      ],
+      "negative_control": "miss on a file with no call",
+      "positive_control": "hit on a planted call",
+      "passed": true
+    },
+    {
+      "control": "solver_tolerance_agrees_with_fvSolution",
+      "registered": 1e-09,
+      "on_disk": 1e-09,
+      "passed": true
+    }
+  ],
+  "gate_demonstration": [
+    {
+      "gate": "G-F16-1_E2_velocity_profile_L2",
+      "construction": "exact + 1 x the predicted truncation amplitude profile",
+      "value": 0.00011932750290054176,
+      "band": [
+        4.1011770074771756e-05,
+        0.0003691059306729458
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F16-1_E2_velocity_profile_L2",
+      "construction": "exact + 40 x the predicted truncation amplitude profile",
+      "value": 0.004773100115668344,
+      "band": [
+        4.1011770074771756e-05,
+        0.0003691059306729458
+      ],
+      "inside": false,
+      "intended": "outside"
+    },
+    {
+      "gate": "G-F16-2_u_at_delta",
+      "construction": "exact + 1 x the predicted truncation amplitude profile",
+      "value": -0.3091260971225,
+      "band": [
+        -0.3102783901866502,
+        -0.3088413611195742
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F16-2_u_at_delta",
+      "construction": "exact + 40 x the predicted truncation amplitude profile",
+      "value": -0.299780846932,
+      "band": [
+        -0.3102783901866502,
+        -0.3088413611195742
+      ],
+      "inside": false,
+      "intended": "outside"
+    }
+  ],
+  "write_path": "OpenFOAM `sets` functionObject, `setFormat raw`, writing <case>/postProcessing/profile/<time>/profile_U.xy with THREE coordinate columns (x y z) followed by the three velocity components -- six columns. Layout pinned against REAL solver output already on this box: verification/runs/F6b_runs/coarse/postProcessing/singleGraph_x0/3418/line_k_nut_omega_p_U.xy carries 10 columns = 3 coordinates + four scalars + 3 U components, which is where the three-coordinate layout was measured rather than assumed.",
+  "cap_core_min": 20.0,
+  "rows": [
+    {
+      "gate": "G-F16-1_E2_velocity_profile_L2",
+      "verdict": "PENDING",
+      "note": "level 'coarse' is not complete: no `Time =` lines in the log",
+      "completion": {
+        "case": "/home/ubuntu/Certonomous/verification/runs/F16_runs/coarse",
+        "log": "/home/ubuntu/Certonomous/verification/runs/F16_runs/coarse/log.icoFoam",
+        "n_times": 0,
+        "latest": null,
+        "dt": 0.0025,
+        "done": false,
+        "why": "no `Time =` lines in the log"
+      }
+    },
+    {
+      "gate": "G-F16-2_u_at_delta",
+      "verdict": "PENDING",
+      "note": "level 'coarse' is not complete: no `Time =` lines in the log",
+      "completion": {
+        "case": "/home/ubuntu/Certonomous/verification/runs/F16_runs/coarse",
+        "log": "/home/ubuntu/Certonomous/verification/runs/F16_runs/coarse/log.icoFoam",
+        "n_times": 0,
+        "latest": null,
+        "dt": 0.0025,
+        "done": false,
+        "why": "no `Time =` lines in the log"
+      }
+    }
+  ]
+}

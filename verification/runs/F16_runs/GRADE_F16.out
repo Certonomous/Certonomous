@@ -1,0 +1,9 @@
+F16 -- STOKES' SECOND PROBLEM -- TALLY
+==============================================================================
+G-F16-1_E2_velocity_profile_L2           PENDING
+    level 'coarse' is not complete: no `Time =` lines in the log
+G-F16-2_u_at_delta                       PENDING
+    level 'coarse' is not complete: no `Time =` lines in the log
+==============================================================================
+gated by: scripts/roache_triple.py::grade_ladder
+written: /home/ubuntu/Certonomous/verification/runs/F16_runs/F16_GRADED.json

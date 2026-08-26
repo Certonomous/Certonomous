@@ -1,0 +1,23 @@
+PATHS RESOLVED against disk in this invocation: 10 files, 4 directories.
+INSTRUMENT GREEN: exact_stokes and grade_f16 selftests pass; grade_f16 exits 2 under -O.
+CAP AGREES between launcher and grader: 20 core-minutes.
+nu ON DISK AGREES with the nu the exact solution was derived from.
+level coarse: free cores 3.09, ranks 1 -> PROJECTED 0.16666666666666666 core-min (cumulative would be 0.16666666666666666 of 20)
+level coarse runs SERIAL on 1 rank: decomposePar NOT invoked. Decomposition seed: none (identity decomposition: every level runs SERIAL on 1 rank and decomposePar is NOT invoked at any level; there is no partition and no RNG)
+level coarse COMPLETE: ClockTime 3s x 1 ranks -> cumulative 0.05 core-min of 20
+  QUANTISATION: ClockTime has INTEGER-SECOND resolution, so this level's
+  actual carries +/- 0.008333333333333333 core-min of read-out quantisation alone.
+level medium: free cores 3.0, ranks 1 -> PROJECTED 0.3333333333333333 core-min (cumulative would be 0.3833333333333333 of 20)
+level medium runs SERIAL on 1 rank: decomposePar NOT invoked. Decomposition seed: none (identity decomposition: every level runs SERIAL on 1 rank and decomposePar is NOT invoked at any level; there is no partition and no RNG)
+level medium COMPLETE: ClockTime 7s x 1 ranks -> cumulative 0.16666666666666669 core-min of 20
+  QUANTISATION: ClockTime has INTEGER-SECOND resolution, so this level's
+  actual carries +/- 0.008333333333333333 core-min of read-out quantisation alone.
+level fine: free cores 3.0, ranks 1 -> PROJECTED 0.65 core-min (cumulative would be 0.8166666666666667 of 20)
+level fine runs SERIAL on 1 rank: decomposePar NOT invoked. Decomposition seed: none (identity decomposition: every level runs SERIAL on 1 rank and decomposePar is NOT invoked at any level; there is no partition and no RNG)
+level fine COMPLETE: ClockTime 15s x 1 ranks -> cumulative 0.4166666666666667 core-min of 20
+  QUANTISATION: ClockTime has INTEGER-SECOND resolution, so this level's
+  actual carries +/- 0.008333333333333333 core-min of read-out quantisation alone.
+
+ALL THREE LEVELS COMPLETE. Cumulative spend: 0.4166666666666667 core-min of 20.
+Grading is a SEPARATE invocation:
+  python3 /home/ubuntu/Certonomous/cases/F16_stokes_second_problem/grade_f16.py --prereg-commit=2aea29d97c74f54183c1d99a28d86568ee254815
