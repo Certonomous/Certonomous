@@ -58,10 +58,23 @@ TIMEOUT_S=$(( CAP_CORE_MIN * 60 / RANKS ))
 # A guard refuses a case where 0 or a numeric time directory already exists,
 # because such a case cannot be dated by its own 0/T and its age guard is
 # therefore unevaluable.  This fires BEFORE anything is written.
+# AMENDMENT 1, 2026-08-26: the two lines below USED to read
+#     for d in "$CDIR"/[0-9]*; do [ -d "$d" ] && die ...
+# and `[0-9]*` is a shell glob, which matches BOTH `0` and `0.orig`.  So on a
+# freshly built case this guard died on `0.orig` calling it a "time directory",
+# while the very next line REQUIRES that same `0.orig` to exist.  Two adjacent
+# guard lines imposed contradictory requirements on the same directory: the
+# launcher could not pass its own guard on any case its own builder produced.
+# Time directories are now matched by a REGEX-EQUIVALENT form with fullmatch
+# semantics -- `[0-9]+(\.[0-9]+)?` -- never a glob.  This is the third instance
+# of this defect class in the repository (THERMAL_K0_runs/run_cases.sh:70 and
+# K2e_runs/build_cases.py:76 are the prior two), which is why it is now an
+# executable check, scripts/check_time_dir_globs.py, and not a third lesson.
 [ -e "$CDIR/0" ] && die "G2: $CASE already has a 0/ directory; refusing (the age guard could not be evaluated)"
-for d in "$CDIR"/[0-9]*; do
-    [ -d "$d" ] && die "G2: $CASE already has time directory $(basename "$d"); refusing"
-done
+while IFS= read -r d; do
+    [ -n "$d" ] && die "G2: $CASE already has time directory $(basename "$d"); refusing"
+done < <(find "$CDIR" -maxdepth 1 -mindepth 1 -type d -regextype posix-extended \
+              -regex '.*/[0-9]+(\.[0-9]+)?' 2>/dev/null)
 [ -d "$CDIR/0.orig" ] || die "G2: $CASE has no 0.orig to arm from"
 
 # ---- G3  no other process may already be running in this case dir ----------

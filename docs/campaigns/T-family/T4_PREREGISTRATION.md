@@ -522,3 +522,129 @@ rung; it is cited by path and by the archive sha256 in §2.
 - It **does not** authorise any send. **SUBMISSIONS REMAIN PARKED** (rule 7), and
   nothing here has been sent, filed, uploaded, registered or posted outside this
   box.
+
+---
+
+## AMENDMENT 1 — 2026-08-26 — PRE-COMPUTE REPAIR OF A SELF-CONTRADICTORY LAUNCH GUARD
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.**
+Nothing above is edited; §§0–14 stand exactly as committed at `248ad27c`.
+**No gate, threshold, band, cap or label is created, moved or retired by this
+amendment**, and none could be: the defect repaired here governs *whether the
+launcher runs at all*, never *what it computes*.
+
+### A1.1 The defect, stated at its full strength
+
+The frozen `run_one_t4.sh` carried, two lines apart:
+
+- **:62** `for d in "$CDIR"/[0-9]*; do [ -d "$d" ] && die "...already has time directory..."`
+- **:65** `[ -d "$CDIR/0.orig" ] || die "...has no 0.orig to arm from"`
+
+`[0-9]*` is a **shell glob**, and it matches **both** `0` and `0.orig`. So on a
+freshly built case :62 died on `0.orig`, calling it a time directory — while
+:65, never reached, **requires that same `0.orig` to exist.**
+
+> **Two adjacent guard lines imposed contradictory requirements on the same
+> directory: :62 refused the exact state :65 demanded. The launcher could not
+> pass its own guard on any case its own builder produced.**
+
+That is the statement worth recording, and it is stronger than "a glob matched
+`0.orig`". The failure was **fail-safe** — it refused rather than corrupting —
+and it was found before any solver started.
+
+### A1.2 Why a pre-compute amendment and not a re-registration
+
+1. **The freeze binds at the first GRADED SOLVE, not at the first process.**
+   `VERIFICATION_CHARTER` §2d.1's operative form is *"a change on the grading
+   path made after the first graded solve"*. `blockMesh` produces no graded
+   value, no completion marker, no `log.solve` and no `STATUS`;
+   `check_comparator_freeze.py` compares against the first completion marker,
+   and there is none.
+2. **The decisive test is that the amendment CANNOT MOVE ANY NUMBER.** The
+   launcher refuses every case and has therefore produced no value and can
+   produce none. Changing a match idiom changes whether it runs, never what it
+   computes.
+3. **§2d.1 is NOT invoked, and deliberately so.** The same ruling declined to
+   invoke it for T8's `assert`→`exit 2` conversion on the ground that
+   *invoking a narrow exception where it is not needed stretches it*.
+   Consistency requires the same answer here: this is an ordinary pre-compute
+   amendment and needs no exception.
+4. **A re-registration would be the mirror error** — retiring a frozen document
+   over a one-line idiom that cannot affect a result would teach the lab that
+   re-registration is the answer to any defect, and the K0d record shows what
+   five amendments that never reach a fixed point cost.
+
+### A1.3 The condition, MEASURED, with an absence control on the reader itself
+
+Measured independently at source by the heat-transfer supervisor, and
+re-measured by this lane at **2026-08-26T03:44:21Z** immediately before the
+repair landed:
+
+| case | `constant/polyMesh` | `0.orig` | `0` | `log.solve` | `STATUS` | time dirs |
+|---|---|---|---|---|---|---|
+| `T4_IJ_c` | present | yes | **absent** | **absent** | **absent** | **none** |
+| `T4_IJ_m` | present | yes | **absent** | **absent** | **absent** | **none** |
+| `T4_IJ_f` | present | yes | **absent** | **absent** | **absent** | **none** |
+
+**THE ABSENCE CONTROL, because a zero from a search not shown able to find a
+known instance is not evidence of absence.** Standing rule 3, applied to a file
+search rather than a field reader. A `0/` directory was planted into
+`T4_IJ_c`, the enumeration re-run and observed to return it, and the plant
+removed — **the reader was shown able to see a positive before its zero was
+believed.** The supervisor applied the same control independently.
+
+**WHAT DID RUN, stated plainly rather than implying a pristine state.**
+`blockMesh` ran on all three levels with **rc 0**, producing **5 184 / 20 736 /
+82 944** cells, and `constant/polyMesh/owner` is present on all three. **The
+meshes stand and nothing is rebuilt** — `blockMesh` writes `constant/polyMesh`
+and never a time directory. **Solver core-minutes spent: zero.**
+
+### A1.4 The repair
+
+Time directories are matched by a **regex-equivalent form with fullmatch
+semantics** — `[0-9]+(\.[0-9]+)?` — never a shell glob:
+
+```
+find "$CDIR" -maxdepth 1 -mindepth 1 -type d -regextype posix-extended \
+     -regex '.*/[0-9]+(\.[0-9]+)?'
+```
+
+`find -regex` anchors the whole path, so `0.orig` cannot match. **Both
+directions were driven, not reasoned about:** on the case as built the guard
+**passes**; with a `1500/` directory planted it **fires**; with the plant
+removed it **passes** again.
+
+**§13 IS NOT REWRITTEN. The original is struck and superseded here** (rule 2:
+originals are struck, never rewritten). `run_one_t4.sh`'s entry in §13 read
+`6db90ff2753e5c2d`, 137 lines, and is **superseded by `d8549c6e4b662d98`,
+150 lines**, at the commit carrying this amendment. The other four
+freeze-set entries are unchanged and remain valid.
+
+### A1.5 The third instance makes it a check, not a lesson
+
+This is the **third** recorded instance of one defect class:
+
+1. `THERMAL_K0_runs/run_cases.sh:70` — a `rm -rf [0-9]*` trim written that way
+   *"deleted every case's initial conditions"*.
+2. `K2e_runs/build_cases.py:76` — the same collision, recorded again.
+3. this launcher.
+
+**A defect class that has bitten three times gets an executable check.**
+`scripts/check_time_dir_globs.py` is filed with this amendment, as a **shared**
+instrument for verification and cfd as well as heat-transfer; no team claims it.
+
+**It MEASURES rather than guesses.** Rather than judging a pattern by its shape,
+it drives each glob against `0.orig` and against a real time name with
+`fnmatch`, and flags only patterns that match **both**. That distinction is not
+cosmetic: the shape heuristic returned **61** hits, tightening `[0-9]+`
+(a regex quantifier — shell globs have no `+`) cut it to **17**, and the
+measured form returns **8**. `0.[0-9]*`, `[1-9]*` and `[0-9]*.[0-9]*` are
+excluded **by measurement**, and each is a selftest case. The selftest carries a
+**planted positive control** — the T4 defect verbatim — so the checker's zeros
+are evidence.
+
+**Python instruments are already clean** and are not the exposure:
+`re.fullmatch(r"[0-9]+(\.[0-9]+)?")` rejects `0.orig`, tested rather than read.
+The exposure is shell. Of the 8 measured hits, **7 lie outside this team's
+territory** (`F12_runs`, `F6b_runs`) and are **reported, not repaired** — they
+belong to cfd, and a lane does not edit another team's instruments.
