@@ -1,0 +1,20 @@
+=== VMFL011-R2 launcher  utc=2026-08-26T21:11:26Z  run_root=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2
+  freeze OK  cases/ansys_verification/VMFL011-R2/PREREGISTRATION.md  a8c9b6f30e4383e23594b4203eea3bd28ded0a2a
+  freeze OK  cases/ansys_verification/VMFL011-R2/grade_vmfl011_r2.py  45aa4613253d1d594b69b7f774e18cd7a312a20e
+  case inputs and reference byte-identical to the attempt-1 family (9 files)
+  controls OK: --selftest 33/33 PASS, byte-identical under python3 and python3 -O
+  simpleFoam = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam
+--- L1  remaining 50 of 50 core-min  ranks 1  timeout 3000s
+  birth certificate: cells=800 meshOK=True maxSkew=0.333333333333 maxAR=40.0
+  DETACH WARN (L1): wrapper pid=453293 SID=452950 -- not a session leader
+done L1: 17s = 0.2833 core-min (running total 0.2833 of 50), latest time dir /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2/L1/20000
+--- L2  remaining 49.7167 of 50 core-min  ranks 1  timeout 2983s
+  birth certificate: cells=3200 meshOK=True maxSkew=0.333333333333 maxAR=80.0
+  DETACH WARN (L2): wrapper pid=453428 SID=452950 -- not a session leader
+done L2: 63s = 1.05 core-min (running total 1.3333 of 50), latest time dir /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2/L2/20000
+--- L3  remaining 48.6667 of 50 core-min  ranks 1  timeout 2920s
+  birth certificate: cells=12800 meshOK=True maxSkew=0.333333333333 maxAR=160.0
+  DETACH WARN (L3): wrapper pid=454245 SID=452950 -- not a session leader
+done L3: 465s = 7.75 core-min (running total 9.0833 of 50), latest time dir /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2/L3/20000
+=== VMFL011-R2 launcher done, overall rc=0, total 9.0833 core-min of 50
+grade with: python3 /home/ubuntu/Certonomous/cases/ansys_verification/VMFL011-R2/grade_vmfl011_r2.py --run-root /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2

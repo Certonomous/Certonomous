@@ -1,0 +1,20 @@
+case = VMFL011-R2
+supersedes = register row #26 (VMFL011, NOT A RESULT) -- a NEW row, the old one is never overwritten
+launched_utc = 2026-08-26T21:11:27Z
+freeze_commit_head = 5cfa162e0b2cedfa9ec7e685cd043e2102fbc52a
+prereg = cases/ansys_verification/VMFL011-R2/PREREGISTRATION.md
+prereg_blob = a8c9b6f30e4383e23594b4203eea3bd28ded0a2a
+comparator = cases/ansys_verification/VMFL011-R2/grade_vmfl011_r2.py
+comparator_blob = 45aa4613253d1d594b69b7f774e18cd7a312a20e
+launcher_blob_on_disk = b1d6a74a718e8e0dc8c5a76c0a07cf48006d2ab5
+levels = L1 L2 L3
+ranks = 1
+cap_core_min = 50  (RUNNING TOTAL across levels, byte-identical to attempt 1)
+endTime = 20000
+smoke_mode = no
+solver_bin = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam
+level L1 : rc=0 wall_s=17 core_min=0.2833 total=0.2833 cap=50 timeout_s=3000 last_time=20000 End_lines=1 latest_time_dir=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2/L1/20000 field_newer_than_0_U=yes
+level L2 : rc=0 wall_s=63 core_min=1.05 total=1.3333 cap=50 timeout_s=2983 last_time=20000 End_lines=1 latest_time_dir=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2/L2/20000 field_newer_than_0_U=yes
+level L3 : rc=0 wall_s=465 core_min=7.75 total=9.0833 cap=50 timeout_s=2920 last_time=20000 End_lines=1 latest_time_dir=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2/L3/20000 field_newer_than_0_U=yes
+total_core_min = 9.0833
+finished_utc = 2026-08-26T21:20:33Z

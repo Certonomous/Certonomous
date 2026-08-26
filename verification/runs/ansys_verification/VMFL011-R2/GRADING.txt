@@ -1,0 +1,8 @@
+REFUSING (exit 2): planted-zero control FAILED for u_min_norm.
+  planted -0.1234 into /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2/L1/postProcessing/bisector/20000/bisect_U.xy, reader moved by only 0.
+  A reader not shown able to see a non-zero cannot certify a zero (CLAUDE.md rule 3).
+  L-340 REPAIR DRIVEN on the real attempt-1 L1 bytes: parent pair delta 3.677091e-07 < 1.234000e-04 (REFUSES); all-row at the parent magnitude delta 1.063654e-04 < 1.234000e-04 (REFUSES); sized plant 0.322114 -> delta 1.185698e-01 > 3.221137e-02 (PASSES), inside [8.052843e-02, 1.610569e-01]
+  OFF-PATH REFUSAL (parent pair), verbatim: REFUSING (exit 2): planted-zero control FAILED for parent pair (off-path probe). | planted 0.001234 into <scratch>/bisect_U.xy, reader moved by only 3.67709e-07. | A reader not shown able to see a non-zero cannot certify a zero (CLAUDE.md rule 3).
+  OFF-PATH REFUSAL (all-row unsized), verbatim: REFUSING (exit 2): planted-zero control FAILED for all-row unsized (off-path probe). | planted 0.001234 into <scratch>/bisect_U.xy, reader moved by only 0.000106365. | A reader not shown able to see a non-zero cannot certify a zero (CLAUDE.md rule 3).
+  OFF-PATH REFUSAL (adversarial fixed plant), verbatim: REFUSING (exit 2): planted-zero control FAILED for adversarial fixed plant. | planted 0.4 into <scratch>/adv.xy, reader moved by only 1.38778e-17. | A reader not shown able to see a non-zero cannot certify a zero (CLAUDE.md rule 3).
+rc = 2
