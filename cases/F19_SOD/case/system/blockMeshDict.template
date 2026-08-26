@@ -1,0 +1,20 @@
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// F19 Sod shock tube: x in [0, 1], ONE cell in y and z (extent W each: aspect
+// ratio 1 at coarse, 4 at fine).  The four y/z faces are `empty`: the flow is
+// x-only, so the removed components are identically zero (the OPPOSITE of
+// F16's defect, where the DRIVEN component was normal to an empty patch).
+scale   1;
+W       0.0025;
+vertices
+(
+    (0 0 0)  (1 0 0)  (1 $W 0)  (0 $W 0)
+    (0 0 $W) (1 0 $W) (1 $W $W) (0 $W $W)
+);
+blocks ( hex (0 1 2 3 4 5 6 7) (__N__ 1 1) simpleGrading (1 1 1) );
+edges ();
+boundary
+(
+    left    { type patch; faces ((0 4 7 3)); }
+    right   { type patch; faces ((1 2 6 5)); }
+    emptyYZ { type empty; faces ((0 1 5 4) (3 7 6 2) (0 3 2 1) (4 5 6 7)); }
+);

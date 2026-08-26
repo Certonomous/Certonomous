@@ -1,0 +1,11 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// F19 Sod -- internalField = (0 0 0) everywhere at t = 0, written by
+// build_f19.py LAST of all: the age guard dates every endTime field against it.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   nonuniform List<vector> __INTERNALFIELD__;
+boundaryField
+{
+    left    { type zeroGradient; }
+    right   { type zeroGradient; }
+    emptyYZ { type empty; }
+}

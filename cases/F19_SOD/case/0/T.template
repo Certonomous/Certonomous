@@ -1,0 +1,10 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object T; }
+// F19 Sod -- internalField = p/(rho R) with R = 1: T = 1 (left), 0.8 (right).
+dimensions      [0 0 0 1 0 0 0];
+internalField   nonuniform List<scalar> __INTERNALFIELD__;
+boundaryField
+{
+    left    { type zeroGradient; }
+    right   { type zeroGradient; }
+    emptyYZ { type empty; }
+}

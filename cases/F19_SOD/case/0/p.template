@@ -1,0 +1,11 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object p; }
+// F19 Sod -- internalField = exact p at t = 0 (1 for x < 0.5, 0.1 for x > 0.5)
+// at the built mesh's own cell centres (from 0/C), written by build_f19.py.
+dimensions      [1 -1 -2 0 0 0 0];
+internalField   nonuniform List<scalar> __INTERNALFIELD__;
+boundaryField
+{
+    left    { type zeroGradient; }
+    right   { type zeroGradient; }
+    emptyYZ { type empty; }
+}

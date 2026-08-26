@@ -1,0 +1,12 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+// As the shipped shockTube tutorial.  The case is INVISCID (mu = 0), so
+// rhoCentralFoam performs no U or e linear solve: rho, rhoU and rhoE are
+// explicit `diagonal` updates and no iterative residual exists (rule 5
+// limb 1 is a stability census in grade_f19.py, stated as such).
+solvers
+{
+    "(rho|rhoU|rhoE)" { solver diagonal; }
+    U  { solver smoothSolver; smoother GaussSeidel; nSweeps 2; tolerance 1e-09; relTol 0.01; }
+    e  { $U; tolerance 1e-10; relTol 0; }
+    h  { $U; tolerance 1e-10; relTol 0; }
+}
