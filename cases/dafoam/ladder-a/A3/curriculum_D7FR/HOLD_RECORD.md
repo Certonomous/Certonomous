@@ -115,3 +115,53 @@ about not doing that.**
 > valid command, the substitution would have succeeded and the file would have read plausibly and
 > been wrong.** Rewritten with a quoted heredoc; the timestamp is the only substitution, and it is
 > applied afterwards.
+
+---
+
+## 8. RELEASE CHECK — 2026-08-26T04:40:23Z. **THREE OF FOUR HOLD. CONDITION 4 FAILS, AND IT FAILS ON ITS OWN WORDS.**
+
+Run against the supervisor's four release conditions. **Still not fired.**
+
+| # | condition | reading | verdict |
+|---|---|---|---|
+| **1** | a windowed census, ≥45 samples over ≥60 s | **45 samples over 63.0 s** | **HOLDS** |
+| **2** | the **MINIMUM** over the window clears the arm's registered floor | **min 17.43 GiB** — median 17.52, max 17.58, `n_below_floor: 0` against **both** the 6.0 (`P1`) and 16.0 (`X`/`ACC`/`F-S`/`F-P`) floors; slope **+0.0036 GiB/min**, i.e. flat-to-rising. `H5` returns **CLEAR** | **HOLDS** |
+| **3** | aggregate of live caps **plus this arm's cap** under physical memory | live `d4_O` **12 GiB** + `P1` 4 = **16.0**; + `X`/`ACC`/`F-S`/`F-P` 12 = **24.0**; physical **30.64** | **HOLDS for every arm** |
+| **4** | **cpuset `2,3,4,6` clear of unpinned floaters** | **unpinned CONTAINERS: 0.** **Unpinned HOST-SIDE processes: 10 `buoyantBoussinesq*`, affinity `0-15` — every core, including all four of mine.** Separately, `d4_O` is **pinned and overlaps core 6** | **FAILS** |
+
+### 8.1 Why I am reading condition 4 as FAILED rather than as satisfied
+
+**The condition says "clear of unpinned floaters." It does not say "unpinned CONTAINERS."** Ten
+processes with affinity `0-15` are floaters over `2,3,4,6` by any reading of that sentence; they
+happen not to be containers, and **that distinction is mine to notice and not mine to apply.**
+
+> **This is the shape of every defect found tonight, and I am not going to add one: a plausible
+> narrow reading of a rule, adopted by the party the narrow reading benefits, at the moment it
+> benefits them.** I noticed the ambiguity **because** it stood between me and firing. That is the
+> worst possible provenance for a favourable interpretation, and it is exactly when rule 2's
+> discipline is worth most.
+
+**A conservative alternative existed and I considered it explicitly:** fire `P1` alone, on the
+grounds that its graded output — `scotch` decomposition determinism — is a **deterministic property
+that contention cannot corrupt**, its `delivered_cores_mean` reads `NOT_MEASURED` at 11 s anyway
+(measured on both D7R and D7F), and it therefore spends nothing the ambiguity could damage.
+**I still did not, because the instruction was "if any fails, hold and report which", and choosing
+which arms an ambiguous condition covers is the same act as resolving the ambiguity.**
+
+### 8.2 What is now the ONLY thing between this item and firing
+
+**Conditions 1, 2 and 3 hold cleanly and are no longer the constraint.** The memory oscillation that
+justified the original hold **has stopped**: minimum 17.43 GiB across 63 s against a worst-case
+earlier minimum of 1.96.
+
+**The single outstanding item is condition 4**, and it decomposes into two facts the supervisor may
+weigh differently:
+
+1. **10 unpinned host-side `buoyantBoussinesq*` processes** on `0-15` — **not containers, not
+   covered by any container cap or pin** (`MEMORY_CENSUS.md` §3). They are another family's, and
+   **this lane has not touched them and will not.**
+2. **`d4_O` pinned to `5,6,7,9`, overlapping core 6** — one of my four registered cores. Not a
+   floater; occupancy. Firing here would also put my container beside a live D4-SHIPPED arm and
+   **contaminate ITS calibration with mine.**
+
+**The hold stands until the supervisor rules on which of these condition 4 was written to exclude.**
