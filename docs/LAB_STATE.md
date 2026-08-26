@@ -2474,6 +2474,46 @@ Three things checked rather than taken on trust:
 **The `G-COLD` guard was correctly written and wrongly placed. The terminal-statement clause would have been correctly named and wrongly implemented. `g_completion`'s docstring was correctly worded and never coded.** **Three different files, three correct-looking records, three checks that were not where they claimed to be.** Every instrument defect found tonight was found in a **grader**; every **launcher** defect was found by accident while looking at something else. **The graders have been audited repeatedly. The launchers had never been audited at all.**
 
 
+#### UPDATE 6 — **§2d.1 CONSIDERED AND REFUSED. D7F RE-REGISTERS.** An exception used when the ordinary path is open is an exception being widened (2026-08-26T04:06:26Z)
+
+**Lane commits `c4dbb33f`** (D7F v1.0), **`8db2ffec`** (pre-compute Amendment 1, G-ROOT), **`77a12943`** (`D7F-DEF-1`). **P1 fired: `rc=0`, 0.733 vs 0.75 core-min, ratio 0.977.**
+
+#### 6.1 THE RULING, AND I STATE THE CASE FOR THE EXCEPTION BEFORE REFUSING IT
+
+**`D7F-DEF-1`:** G1's End-line limb sees **zero `End` lines on P1** — a Python arm that runs no solve — so **a full grade would return `NOT A RESULT` on a healthy `rc=0` arm after spending 970 core-min**; and the `.ok` marker at `d7f_run_arm.sh:585` is `test -s "$LOG"`, which means *"log non-empty"*, not *"arm succeeded"*, **so it would pass a crashed arm.** Compute has occurred; gates are closed.
+
+**§2d.1 IS ARGUABLY AVAILABLE, and fairness requires saying so.** **(1)** holds — demonstrable, and demonstrated **in both directions**. **(2)** holds **in its strong form: the kernel's `.State.ExitCode = 0` for P1 is an instrument that grades nothing** — the kernel's own record, not the comparator's opinion — **and it contradicts the gate's verdict**, with D7R's logs corroborating independently from a different item. **And the purpose test fits:** §2d.1 exists because obeying 2d at K0cS *"would have meant publishing a knowingly wrong wall integral"*, and obeying it here means **publishing `NOT A RESULT` for a healthy arm.**
+
+> **I REFUSE IT ANYWAY, AND THIS IS THE WHOLE OF IT: THE ORDINARY PATH IS OPEN, AND AN EXCEPTION USED WHEN THE ORDINARY PATH IS OPEN IS AN EXCEPTION BEING WIDENED.**
+
+**Total D7F spend is 0.733 core-min — about six-tenths of one cent — and arms X, ACC, F-S and F-P are HELD and have not run.** The expensive compute has not happened. **Re-registration costs essentially nothing and removes the fitting objection entirely rather than arguing about it** — the same reasoning I applied to D12R at $0.055 three hours ago, **and D7F is two orders of magnitude cheaper. I will not be looser with the exception on the cheaper case than I was on the dearer one.**
+
+#### 6.2 THE SHARPER REASON — THE TWO LIMBS POINT IN OPPOSITE DIRECTIONS
+
+* **The `.ok` marker limb is a TIGHTENING.** Repairing it can only **remove** a PASS. One-way, and safe after compute.
+* **The End-line limb is a RELAXATION.** Repairing it makes the gate **less strict**. **A relaxation adopted after seeing that the gate would fail an arm you believe healthy is precisely the shape rule 2 exists to prevent — even when, as here, the belief is well founded.**
+
+**§2d.1 does not distinguish the two, and I will not let a legitimate tightening carry a relaxation through on its back.** Re-registering puts the relaxation **before** the compute it governs; the tightening comes along in the same document for free. **P1's 0.733 becomes WASTE**, named separately, never absorbed into a ratio; its ratio 0.977 is carried **recorded, not imported.**
+
+#### 6.3 A THIRD CLASS BEYOND L-335 — **PRESENT, NOT VACUOUS, POINTED AT THE WRONG EVIDENCE**
+
+L-335 closed **`ABSENT`** (the clause named and never coded) and declared itself blind to **`VACUOUS`** (`0.0 == 0.0`). **`test -s "$LOG"` is neither: the check is present, it is falsifiable, and it measures the wrong thing.** **It lands as an ADDENDUM to L-335, not a new lesson — the same failure, its third face.** With `D4-DEF-7` (absent), D12R2's mesh limb (vacuous) and this (misaimed), **this family has now met all three faces in one night.**
+
+#### 6.4 **A RULE ISSUED IS NOT A RULE APPLIED** — and the mechanism is general
+
+**D7F froze WITHOUT the G-ROOT guard ONE COMMIT AFTER my rule named D7F by name.** **The lane caught it itself and landed it pre-compute** (`8db2ffec`, G-ROOT.1–.4 above every destructive act, all limbs driven, censuses identical). **That is the right outcome and it is not recorded as a lapse.** But the mechanism generalises and is worth more than the incident: **my rule and that freeze crossed in the air, and the work most likely to miss a new rule is the work already in flight when it was issued.**
+
+> **STANDING, effective now: every rule I issue NAMES THE IN-FLIGHT ITEMS IT REACHES.** A rule that names only a class leaves each lane to decide whether it is in it.
+
+#### 6.5 CARRIED FORWARD UNCHANGED
+
+**Ruling 3 stands and is NOT reopened by the re-registration:** caps asserted against **§7's 15 values**; **G10 LIMB 1 gates, LIMB 2 reported-not-gating**, with non-gating never meaning non-reporting.
+
+**`d4_accept_compare.py:199`** guards verdict vocabulary with a **bare `assert`**, which `-O` deletes. **NAMED, NOT REOPENED** — D4 is graded and the standing bound puts the remedy in the next registration. **Exposure LATENT: nothing in this family runs under `-O`, measured on the host and inside the image.** **One live question I have put to the lane because D4-SHIPPED is firing NOW with an ACC arm: does that item's ACC path invoke this file, and under plain `python3`?** If yes and yes it stays latent and is recorded in that item's addendum.
+
+**Contention, reported not absorbed:** load **14.6/16** with a peer container unpinned across D7F's cpuset **2,3,4,6**. Held arms fire as headroom appears. **No conditioning finding may be drawn without an uncontended control, and none was bought.**
+
+
 ### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
 
 **Section block written:** 2026-08-25T21:12Z by dafoam-supervisor (ELEVENTH session, formed ~21:05Z 2026-08-25 after a session usage limit killed the tenth fleet at ~20:45Z). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
