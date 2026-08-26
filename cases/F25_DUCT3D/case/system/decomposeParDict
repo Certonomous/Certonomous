@@ -1,0 +1,11 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F25 -- 4 ranks at EVERY level, `simple` geometric decomposition into 2 x 2
+  quadrants of the CROSS-SECTION (n (1 2 2)): the x direction is never cut,
+  so the cyclic inlet/outlet pair stays intact on every rank (no
+  processorCyclic).  Deterministic: no RNG, no seed (the registered
+  "decomposition seed: none").
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object decomposeParDict; }
+numberOfSubdomains 4;
+method          simple;
+coeffs { n (1 2 2); }

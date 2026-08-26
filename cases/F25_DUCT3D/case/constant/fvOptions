@@ -1,0 +1,19 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F25 -- the FIXED streamwise body force that drives the fully developed
+  square-duct flow: G = -dp/dx per unit mass (volumeMode specific), applied
+  to every cell.  Fixed (not an adaptive meanVelocityForce) so that the
+  discrete problem is LINEAR and the bulk velocity Ubar_h is a READ quantity
+  (f.Re = 2 D_h^2 G / (nu Ubar_h), exact 56.908 from the series), never an
+  imposed one.  Must equal exact_f25.G (checked by the launcher and the grader).
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object fvOptions; }
+momentumSource
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   all;
+    volumeMode      specific;
+    sources
+    {
+        U           ((0.2845 0 0) 0);
+    }
+}

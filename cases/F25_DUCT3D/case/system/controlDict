@@ -1,0 +1,24 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F25 -- square duct.  FIXED iteration count, NO residualControl: the run
+  goes to endTime so the grader's Class C plateau series is sampled uniformly
+  (40 checkpoints, every 100 iterations).  The iterative floor the grader
+  censuses (Ux initial residual <= 1e-8 over iterations 2801-4000) is DERIVED
+  in the pre-registration from the predicted fine-level error (L-346).
+  Lineage: F23 controlDict.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         4000;          // FIXED iteration count; must equal exact_f25.N_ITER
+deltaT          1;
+writeControl    timeStep;
+writeInterval   100;           // 40 checkpoints -> the Class C plateau series
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;

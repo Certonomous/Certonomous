@@ -1,0 +1,33 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F25 -- SQUARE DUCT, a genuine 3-D mesh: one hex block, x streamwise
+  [0, L] (CYCLIC inlet/outlet: fully developed), y and z across the section
+  [0, SIDE] with the wall on all four sides.  __NX__ x __NR__ x __NR__ CUBIC
+  cells, h = SIDE/__NR__ = L/__NX__ (checked by exact_f25 and build_f25);
+  every ladder level refines by exactly 2 in ALL THREE directions (r = 2 at
+  dim = 3).  Lineage: cases/F23_HP_WEDGE/case/system/blockMeshDict.template.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+scale   1;
+vertices
+(
+    (0       0        0       )   // 0
+    (__L__   0        0       )   // 1
+    (__L__   __SIDE__ 0       )   // 2
+    (0       __SIDE__ 0       )   // 3
+    (0       0        __SIDE__)   // 4
+    (__L__   0        __SIDE__)   // 5
+    (__L__   __SIDE__ __SIDE__)   // 6
+    (0       __SIDE__ __SIDE__)   // 7
+);
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (__NX__ __NR__ __NR__) simpleGrading (1 1 1)
+);
+edges ();
+boundary
+(
+    inlet   { type cyclic; neighbourPatch outlet; faces ((0 4 7 3)); }
+    outlet  { type cyclic; neighbourPatch inlet;  faces ((1 2 6 5)); }
+    wall    { type wall;   faces ((0 1 5 4) (3 7 6 2) (0 3 2 1) (4 5 6 7)); }
+);
+mergePatchPairs ();

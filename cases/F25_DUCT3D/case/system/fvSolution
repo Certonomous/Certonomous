@@ -1,0 +1,48 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F25 -- square duct.  SIMPLEC (`consistent yes`, U 0.95, p 1.0) -- CHOSEN
+  FROM MEASUREMENT, NOT INHERITED (L-346; prereg section 5.1): with the F23
+  form (SIMPLE, U 0.7 / p 0.3, central convection) fvMatrix::relax() enforces
+  diagonal dominance against the central-convection off-diagonals |phi| =
+  u h^2, which adds a pseudo-time term of step ~h/u (a CFL-1 march) and the
+  mean-flow mode then needs ~1,300 (8 cells/side) .. ~12,000 (64/side)
+  iterations to reach 1e-8 -- the fine level could NOT converge in 4,000.
+  With a diagonally dominant convection matrix (linearUpwind, fvSchemes) and
+  SIMPLEC at U 0.95 / p 1.0 the fine cross-section (64 x 64) measured
+  Ux <= 1e-8 by ~1,230 iterations (instrument arm, prereg section 5.1);
+  plain SIMPLE at U >= 0.95 or U = 1 diverges (p-U coupling).  The momentum
+  equation is a pure cross-section diffusion problem solved TIGHT by GAMG
+  each iteration (relTol 1e-3, tolerance 1e-12).  NO residualControl: the
+  run goes to endTime.  pRefCell/pRefValue pin the pressure level.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-10;
+        relTol          0.01;
+    }
+    U
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-12;
+        relTol          0.001;
+    }
+}
+SIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+    consistent      yes;         // SIMPLEC (registered; the grader refuses `no`)
+    pRefCell        0;
+    pRefValue       0;
+    // NO residualControl: the run goes to endTime and the grader's Class C
+    // gate decides whether it plateaued.
+}
+relaxationFactors
+{
+    fields    { p 1.0; }         // SIMPLEC: no pressure under-relaxation (registered)
+    equations { U 0.95; }        // registered; measured stable and converging (prereg section 5.1)
+}

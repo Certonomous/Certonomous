@@ -1,0 +1,11 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// F25 -- square duct.  internalField (0 0 0) everywhere, written LAST by
+// build_f25.py from the mesh's own cell count (the age guard's datum).
+dimensions      [0 1 -1 0 0 0 0];
+internalField   nonuniform List<vector> __INTERNALFIELD__;
+boundaryField
+{
+    inlet   { type cyclic; }
+    outlet  { type cyclic; }
+    wall    { type noSlip; }
+}
