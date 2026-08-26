@@ -114,7 +114,7 @@ def verdict_census(table_lines):
                 c["CAN DO, CAVEATS"] += 1
             elif re.match(r"CAN DO", t):
                 c["CAN DO"] += 1
-            elif re.match(r"CAN NOT DO\s*[—–-]+\s*not attempted", t) or re.match(r"CAN NOT DO.*not attempted", t) and "attempted" in t.split("—")[-1] if "—" in t else re.match(r"CAN NOT DO.*not attempted", t):
+            elif re.match(r"(CAN NOT DO\s*[—–-]*\s*)?not attempted", t, re.I):   # Sanaa's empty cell; cfd writes a bare "not attempted"
                 c["CAN NOT DO — not attempted"] += 1
             elif re.match(r"CAN NOT DO", t):
                 c["CAN NOT DO"] += 1
