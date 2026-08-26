@@ -119,12 +119,12 @@ log "=== START (run_root=$RUN_ROOT build_root=$BUILD_ROOT repo=$REPO) ==="
 #   this check settles before a single cell is meshed.  So the launcher refuses,
 #   here, at the top, having spent nothing:
 #
-#     * $BUILD_ROOT/STATUS.smoke must READ `smoke_rc=0`.  It is written by the
+#     * $BUILD_ROOT/STATUS.smoke must READ `smoke_rc=0` as its FIRST FIELD
+#       (the writer appends `end=` and `note=`).  It is written by the
 #       supervisor's build wrapper from the rc of build_gpu_solver.sh STEP 8,
 #       which is smoke_test_gpu_path.sh -- the script whose forced-CPU control
 #       IS the discriminator (SUPERVISOR_REVIEW.md lines 27-44).  A smoke test
-#       run WITHOUT that control certifies nothing, so `smoke_rc=0` is the only
-#       accepted value: absent, unreadable, or any other rc REFUSES.
+#       run WITHOUT it certifies nothing: absent, unreadable or rc != 0 REFUSE.
 #     * $BUILD_ROOT/TOOLCHAIN_MANIFEST.txt must EXIST.  It is build_gpu_solver.sh
 #       STEP 7's record of WHICH OpenFOAM, WHICH PETSc sha, WHICH petsc4Foam sha
 #       and WHICH libpetscFoam.so the proof was obtained against.  A proof whose
@@ -147,7 +147,7 @@ STATUS_SMOKE="$BUILD_ROOT/STATUS.smoke"
 MANIFEST="$BUILD_ROOT/TOOLCHAIN_MANIFEST.txt"
 test -f "$STATUS_SMOKE" \
     || { echo "REFUSE (exit 2): $STATUS_SMOKE is absent. The GPU solver path has not been PROVEN on this instance, so nothing this script could run would be evidence about it. Run build_gpu_solver.sh (its STEP 8 is smoke_test_gpu_path.sh) and try again."; exit 2; }
-grep -Eq '^[[:space:]]*smoke_rc[[:space:]]*=[[:space:]]*0[[:space:]]*$' "$STATUS_SMOKE" \
+grep -Eq '^[[:space:]]*smoke_rc[[:space:]]*=[[:space:]]*0([[:space:]]|$)' "$STATUS_SMOKE" \
     || { echo "REFUSE (exit 2): $STATUS_SMOKE does not read smoke_rc=0. Contents follow, and this script does not interpret them charitably:"; sed -e 's/^/    | /' "$STATUS_SMOKE"; exit 2; }
 test -f "$MANIFEST" \
     || { echo "REFUSE (exit 2): $MANIFEST is absent. A GPU-path proof whose toolchain cannot be NAMED (OpenFOAM, PETSc sha, petsc4Foam sha, libpetscFoam.so sha256) is not evidence about any particular toolchain."; exit 2; }

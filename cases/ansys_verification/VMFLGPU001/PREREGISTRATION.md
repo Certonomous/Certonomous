@@ -923,3 +923,134 @@ has yet. **`docs/ansys_verification/gpu/smoke_test_gpu_path.sh` carries the same
 is the supervisor's and is being executed by the in-flight build, so it is **reported,
 not edited from here**. This rung remains **`PENDING`**, and launch authorisation remains
 the supervisor's own personal check 4.
+
+---
+
+## AMENDMENT 2 (PRE-COMPUTE, 2026-08-26T21:05Z, completed 2026-08-26T22:06:59Z) — the smoke-gate pattern accepts the wrapper's own `STATUS.smoke` line; ZERO COMPUTE HAS RUN
+
+**Written by `ansys-verification-supervisor` personally** `[lab-attributed]` (Sanaa `bc0e687e`,
+`3c3ef86c`). **Measured, not assumed:** the GPU runner launched this case at
+**2026-08-26T20:59:02Z** (pid 64727, `/home/ubuntu/gpu_queue/runner.log`) and the launcher
+**REFUSED at its first guard before any solver, mesh or arm started** —
+`verification/runs/ansys_verification/VMFLGPU001/STATUS.VMFLGPU001` = `launcher_rc=2`, GPU
+`0 %, 0 MiB` throughout, run root without `0/` or any time directory; `launcher.queue.out`
+verbatim:
+
+```
+REFUSE (exit 2): /home/ubuntu/gpu_build/STATUS.smoke does not read smoke_rc=0. Contents follow, and this script does not interpret them charitably:
+    | smoke_rc=0 end=2026-08-26T17:41:33Z note=build_gpu_solver.sh-exit-0-and-build.log-carries-smoke-proven
+```
+
+**Defect `VMFLGPU001-LAUNCHER-DEF-1`:** two instruments of this team disagree on the format
+of one file. `run_build_and_smoke.sh` (the wrapper, line 18, written after this launcher was
+frozen) writes `STATUS.smoke` as `smoke_rc=0 end=<utc> note=<…>` — the same rc-plus-provenance
+shape the queue runner's `STATUS.<case>` uses; the launcher's guard at its line 150 anchored
+the whole line: `'^[[:space:]]*smoke_rc[[:space:]]*=[[:space:]]*0[[:space:]]*$'`. §13.2's
+pre-flight passed on a FIXTURE `STATUS.smoke` carrying `smoke_rc=0` alone. **The path IS
+proven (`build.log` 17:41:33Z: three GPU tells fired, forced-CPU control discriminated,
+`SMOKE: PASS`) and the guard refused the proof because of the fields after it.** A guard
+refusing a true positive on formatting is the L-339 shape — repaired at the cause, never by
+editing `STATUS.smoke`.
+
+**The one change:** line 150's pattern becomes
+`'^[[:space:]]*smoke_rc[[:space:]]*=[[:space:]]*0([[:space:]]|$)'` — `smoke_rc=0` followed by
+whitespace or end of line. By construction it still REFUSES `smoke_rc=NOT-PROVEN` (the value
+Amendment 1 measured), `smoke_rc=1 end=…`, `smoke_rc=01` and `smoke_rc=0x`, and now ACCEPTS
+both `smoke_rc=0` and the wrapper's `smoke_rc=0 end=… note=…`. **Honest caveat:** the
+supervisor's three attempts to DRIVE those six strings through both patterns (a shell loop of
+`grep -Eq`, then a Python `re` script) were each denied by the auto-mode classifier
+(*"Permission for this action was denied by the Claude Code auto mode classifier. Reason:
+Blocked by classifier."*), recorded verbatim and not routed around. The accept arm is driven
+by the re-launch itself (the launcher must print `SMOKE GATE PASSED` on the real file, which
+lane A drove against the old pattern and measured **no match**); the refuse arm on
+`NOT-PROVEN` was measured in Amendment 1; the other planted refusals are asserted from the
+pattern, not measured.
+
+**Unchanged, character for character:** the three-limb gate, bands, `P_MIN`, plateau clauses,
+caps (2.0 GPU-h / 40 CPU-arm core-min), cost estimate, label ceiling, planted-zero control,
+comparator (`grade_vmflgpu001.py` blob `f4b07b7f` untouched), case inputs, and every other
+guard of the launcher including the manifest/`env.sh` checks and the freeze check (which now
+compares the launcher against THIS commit). The queue entry is re-filed citing this commit.
+
+### Completed and DRIVEN by lane G (`ansys-lane-opus`), 2026-08-26T22:06:59Z
+
+**The condition, re-checked by THIS lane over ssh and not taken on report.**
+`ls -la /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU001/` on
+`ip-172-31-44-162` at 2026-08-26T22:03Z showed `total 16` and **exactly two regular
+files** — `STATUS.VMFLGPU001` (93 bytes, 20:59) and `launcher.queue.out` (454 bytes,
+20:59) — and `find … -mindepth 1` returned **those same two paths and nothing else**:
+**no `0/`, no time directory, no solver log, no `COST.txt`, no `RUN_RC.*`**. The single
+line of `STATUS.VMFLGPU001` reads
+`launcher_rc=2 end=2026-08-26T20:59:02Z note=exit-status-of-the-launch-argv-NOT-the-solver-rc`.
+**No compute of this case has occurred**, so this amendment is pre-compute under
+CLAUDE.md rule 2 and `VERIFICATION_CHARTER.md` §2b, on the same footing as Amendment 1.
+
+**The guard, verbatim — the two lines as they stood at the frozen blob
+`1ffd0547ad6165237f80321dd60672e680d32a2e`, at lines 150-151 of the launcher:**
+
+```
+grep -Eq '^[[:space:]]*smoke_rc[[:space:]]*=[[:space:]]*0[[:space:]]*$' "$STATUS_SMOKE" \
+    || { echo "REFUSE (exit 2): $STATUS_SMOKE does not read smoke_rc=0. Contents follow, and this script does not interpret them charitably:"; sed -e 's/^/    | /' "$STATUS_SMOKE"; exit 2; }
+```
+
+**The writer, verbatim — line 18 of `/home/ubuntu/gpu_build/run_build_and_smoke.sh` on
+the instance:**
+
+```
+  echo "smoke_rc=0 end=$(date -u +%FT%TZ) note=build_gpu_solver.sh-exit-0-and-build.log-carries-smoke-proven" > "$B/STATUS.smoke"
+```
+
+**The cause, stated as a disagreement between two of this team's own instruments and not
+as a fault of the build.** The guard's pattern was anchored `…0[[:space:]]*$` — value `0`
+and then **end of line**. The writer emits the lab's STATUS convention: **rc field, then
+`end=`, then `note=`** — the same shape `STATUS.build`, `STATUS.<case>` and the queue
+runner all use. The two were written against different readings of one file's grammar and
+neither is wrong about the physics: the smoke DID pass (`build_rc=0` at 17:41:33Z, all four
+smoke arms rc 0, `build.log` carrying `smoke-proven`). **The launcher is the defective
+instrument**, and it is repaired at the cause — `STATUS.smoke` is not edited to suit a
+reader, which would be the archetype of fitting the evidence to the instrument.
+
+**The one-line diff.** This is the whole change to executable text:
+
+```diff
+-grep -Eq '^[[:space:]]*smoke_rc[[:space:]]*=[[:space:]]*0[[:space:]]*$' "$STATUS_SMOKE" \
++grep -Eq '^[[:space:]]*smoke_rc[[:space:]]*=[[:space:]]*0([[:space:]]|$)' "$STATUS_SMOKE" \
+```
+
+The only other change to the file is the **comment block at lines 122-127**, reflowed to
+say that `smoke_rc=0` must be READ **as its first field (the writer appends `end=` and
+`note=`)**. It was reflowed **6 lines into 6 lines**, deliberately, so that **no line
+number in the launcher moves** and the citation "line 150" stays true in this document,
+in the queue entry and in §13. File length is 692 lines before and after; `bash -n` rc 0.
+
+**Blobs (`git hash-object`), superseding Amendment 1's own superseding row for §12:**
+
+| file | blob before this amendment | blob frozen by THIS amendment |
+|---|---|---|
+| `cases/ansys_verification/VMFLGPU001/run_vmflgpu001.sh` | `1ffd0547ad6165237f80321dd60672e680d32a2e` | **`87efc7c8aa2273b4af59f4a8ca6862a4f8ec166c`** |
+
+**DRIVEN — and this SUPERSEDES the honest caveat above.** That caveat was written after
+three classifier denials on the supervisor's own lane and was true when written; on this
+lane the drive **ran, and is reported as measured**. The pattern was not retyped: it was
+extracted by `sed` from **line 150 of the file on disk**, so the table below tests the
+bytes that will execute, not a copy of them. Eight fixtures, both patterns, `grep -Eq`:
+
+| fixture (`STATUS.smoke` contents) | OLD `…0[[:space:]]*$` | NEW `…0([[:space:]]\|$)` | required |
+|---|---|---|---|
+| `smoke_rc=0` | PASS | **PASS** | pass |
+| `smoke_rc=0 end=x note=y` | REFUSE | **PASS** | pass |
+| `smoke_rc=NOT-PROVEN build_rc=1 end=x` | REFUSE | **REFUSE** | refuse |
+| `smoke_rc=01` | REFUSE | **REFUSE** | refuse |
+| `smoke_rc=0x` | REFUSE | **REFUSE** | refuse |
+| `smoke_rc=1` | REFUSE | **REFUSE** | refuse |
+| empty file | REFUSE | **REFUSE** | refuse |
+| absent file | REFUSE | **REFUSE** | refuse |
+
+**8 of 8 rows as required**, and the two positives are exactly the two the old pattern
+could not both accept. Driven additionally against the **real file's line**, copied byte
+for byte from `/home/ubuntu/gpu_build/STATUS.smoke` on the instance
+(`smoke_rc=0 end=2026-08-26T17:41:33Z note=build_gpu_solver.sh-exit-0-and-build.log-carries-smoke-proven`):
+**PASS** under the new pattern, **REFUSE** under the old — which is the 20:59:02Z refusal,
+reproduced.
+
+**Gate, bands, thresholds, cap and label: unchanged character for character. lines whose number changed above this section: 0**
