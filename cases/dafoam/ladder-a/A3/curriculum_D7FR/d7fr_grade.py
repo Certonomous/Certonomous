@@ -311,6 +311,136 @@ def _f(rec, key, where, arm):
         refuse(where, {"arm": arm, "ledger_field_unparseable": key, "value": v})
 
 
+# ==================== ADDENDUM 2 (L-342) -- FIELD CLASSES ==================
+# Sanaa's universal rule, d4d0c29d / L-342: "a bookkeeping failure invalidates
+# the bookkeeping, never the physics artifacts -- and graders must separate
+# physics-critical fields from infrastructure fields so a dead poller can never
+# void a run again."  Approved as a pre-registered amendment by dafoam-supervisor
+# (ruling [lab-attributed], 2026-08-26, conditions C1-C3).  NO band, threshold,
+# cap or verdict rule moves.
+#
+# PHYSICS fields -- gates read these; absence REFUSES (unchanged behaviour).
+PHYSICS_FIELDS = ("rc", "inspect(exit,oomkilled)")
+# INFRASTRUCTURE fields -- absence -> NOT_MEASURED, DISCLOSED, grade proceeds.
+INFRA_FIELDS = ("wall_s", "core_min", "cap_core_min", "enforced_core_min",
+                "enforced_wall_s", "memavail_pre_GiB", "memavail_post_GiB",
+                "memavail_min_during", "delivered_cores_mean",
+                "siblings_pre", "siblings_post")
+NOT_MEASURED = "NOT_MEASURED"
+
+
+def _infra(rec, key, where, arm):
+    """C1: ABSENT (key missing or None) -> NOT_MEASURED and proceed.
+    PRESENT-BUT-UNPARSEABLE -> REFUSE naming the key and the value.  A present
+    garbage value is not an absence; collapsing the two is the absent/passing
+    collapse this family fights."""
+    if key not in INFRA_FIELDS:
+        refuse(where, {"arm": arm, "not_an_infrastructure_field": key,
+                       "note": "_infra may only be asked about INFRA_FIELDS; "
+                               "a physics field goes through _f and refuses"})
+    v = rec.get(key)
+    if v is None:
+        return NOT_MEASURED
+    try:
+        return float(str(v).strip("[]").split()[0])
+    except (ValueError, IndexError):
+        refuse(where, {"arm": arm, "ledger_field_unparseable": key, "value": v,
+                       "note": "PRESENT but unparseable is not ABSENT (C1)"})
+
+
+def _docker_inspect_container(name):
+    """The kernel's record, read live.  Returns None when docker cannot answer."""
+    import subprocess
+    try:
+        r = subprocess.run(["sudo", "-n", "docker", "inspect", "--format",
+                            "{{.State.ExitCode}} {{.State.OOMKilled}} "
+                            "{{.State.StartedAt}} {{.State.FinishedAt}}", name],
+                           capture_output=True, text=True, timeout=20)
+    except Exception:
+        return None
+    if r.returncode != 0:
+        return None
+    parts = r.stdout.split()
+    if len(parts) < 4:
+        return None
+    return {"exit": parts[0], "oomkilled": parts[1],
+            "started": parts[2], "finished": parts[3]}
+
+
+def _iso_to_epoch(s):
+    import datetime
+    s = s.strip()
+    if s.startswith("0001-"):
+        return None
+    s = re.sub(r"(\.\d{1,6})\d*Z$", r"\1Z", s)
+    for fmt in ("%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ"):
+        try:
+            return datetime.datetime.strptime(s, fmt).replace(
+                tzinfo=datetime.timezone.utc).timestamp()
+        except ValueError:
+            continue
+    return None
+
+
+def _rc_from_marker_or_container(base, arm, inspector=None, containers=None):
+    """C2.  The ledger row is BOOKKEEPING.  The kernel's record survives it in
+    two places, read in this order:
+      (1) the launcher's own marker `<ARM>_<stamp>.log.ok.<stamp>` /
+          `.fail.<stamp>`, whose rc IS `docker inspect .State.ExitCode`
+          (d7fr_run_arm.sh:564, :632-636) -- carries rc and the log name;
+      (2) the container `d7fr_<ARM_>_<stamp>` itself, if the launcher died
+          before removing it at :593 -- carries rc, the OOM bit, StartedAt and
+          FinishedAt, from which wall_s and core_min = wall_s x RANKS / 60.
+    Every recovered field records its `_source`.  Returns None when NEITHER
+    exists: only then is the arm absent.  `inspector`/`containers` are
+    injection points for the selftest; production uses docker."""
+    out = {"_source": {}}
+    tag = arm.replace("-", "_")
+    try:
+        names = sorted(os.listdir(base))
+    except OSError:
+        names = []
+    fails = [n for n in names if re.match(r"^%s_\S+\.log\.fail\." % re.escape(arm), n)]
+    oks = [n for n in names if re.match(r"^%s_\S+\.log\.ok\." % re.escape(arm), n)]
+    marker = (fails or oks or [None])[0]
+    if marker:
+        m = re.search(r"rc=(-?\d+)", open(os.path.join(base, marker),
+                                         errors="replace").read())
+        if m:
+            out["rc"] = m.group(1)
+            out["_source"]["rc"] = "marker:" + marker
+            out["log"] = marker.split(".log.")[0] + ".log"
+            out["_source"]["log"] = "marker:" + marker
+    if containers is None:
+        import subprocess
+        try:
+            r = subprocess.run(["sudo", "-n", "docker", "ps", "-a", "--format",
+                                "{{.Names}}"], capture_output=True, text=True,
+                               timeout=20)
+            containers = r.stdout.split() if r.returncode == 0 else []
+        except Exception:
+            containers = []
+    cands = [c for c in containers if c.startswith("d7fr_%s_" % tag)]
+    if cands:
+        insp = (inspector or _docker_inspect_container)(sorted(cands)[-1])
+        if insp:
+            out["container"] = sorted(cands)[-1]
+            if "rc" not in out:
+                out["rc"] = insp["exit"]
+                out["_source"]["rc"] = "docker_inspect:" + out["container"]
+            out["inspect(exit,oomkilled)"] = "[%s %s]" % (insp["exit"], insp["oomkilled"])
+            out["_source"]["inspect(exit,oomkilled)"] = "docker_inspect:" + out["container"]
+            t0, t1 = _iso_to_epoch(insp["started"]), _iso_to_epoch(insp["finished"])
+            if t0 is not None and t1 is not None and t1 >= t0:
+                out["wall_s"] = "%d" % int(round(t1 - t0))
+                out["core_min"] = "%.3f" % (int(round(t1 - t0)) * RANKS / 60.0)
+                out["_source"]["wall_s"] = "docker_inspect:StartedAt/FinishedAt"
+                out["_source"]["core_min"] = "derived:wall_s x RANKS / 60"
+    if "rc" not in out:
+        return None
+    return out
+
+
 # ================================ GATES ====================================
 # ==================== ARM KINDS, READ FROM THE LAUNCHER ====================
 # D7F-DEF-1.  A Python arm that runs no solve emits no `End` line BY DESIGN, so
@@ -378,7 +508,8 @@ KIND_ARTIFACTS = {
 }
 
 
-def g1_completion(base, work, ledger, arms_expected, launcher=None):
+def g1_completion(base, work, ledger, arms_expected, launcher=None,
+                  inspector=None, containers=None):
     """rc == 0, the producer's own output FILE terminal, and THE AGE GUARD --
     every graded artifact strictly newer than the case's own 0/U, whose mtime
     the launcher wrote to `.d7_age_datum` at stage time.
@@ -401,14 +532,30 @@ def g1_completion(base, work, ledger, arms_expected, launcher=None):
     ok = True
     for arm in arms_expected:
         if arm not in ledger["arms"]:
-            out["arms"][arm] = {"status": "arm_absent_from_ledger"}
-            ok = False
-            continue
-        rec = ledger["arms"][arm]
+            # ADDENDUM 2 (L-342, C2): a missing ROW is bookkeeping.  Ask the
+            # kernel's record before calling the arm absent.
+            fb = _rc_from_marker_or_container(base, arm, inspector=inspector,
+                                              containers=containers)
+            if fb is None:
+                out["arms"][arm] = {"status": "arm_absent_from_ledger"}
+                ok = False
+                continue
+            rec = dict(fb)
+            rec["_ledger_row"] = NOT_MEASURED
+        else:
+            rec = ledger["arms"][arm]
         rc = _f(rec, "rc", "G1", arm)
-        out["arms"][arm] = {"rc": rc, "wall_s": _f(rec, "wall_s", "G1", arm),
-                            "core_min": _f(rec, "core_min", "G1", arm),
-                            "inspect": rec.get("inspect(exit,oomkilled)")}
+        out["arms"][arm] = {"rc": rc, "wall_s": _infra(rec, "wall_s", "G1", arm),
+                            "core_min": _infra(rec, "core_min", "G1", arm),
+                            "inspect": rec.get("inspect(exit,oomkilled)"),
+                            "_source": rec.get("_source", {"rc": "ledger_row"}),
+                            "ledger_row": rec.get("_ledger_row", "PRESENT")}
+        if NOT_MEASURED in (out["arms"][arm]["wall_s"], out["arms"][arm]["core_min"]) \
+                or rec.get("_ledger_row") == NOT_MEASURED:
+            out.setdefault("not_measured", []).append(
+                {"arm": arm, "fields": [k for k in ("wall_s", "core_min")
+                                        if out["arms"][arm][k] == NOT_MEASURED],
+                 "ledger_row": rec.get("_ledger_row", "PRESENT")})
         if rc != 0:
             ok = False
         # ---- THE TERMINAL CLAUSE, ARM-KIND AWARE, D7F-DEF-1's repair -------
@@ -875,9 +1022,24 @@ def g10_caps(ledger, arms_expected):
                            "note": "an arm with no registered cap cannot be "
                                    "checked against one; LIMB 1 refuses rather "
                                    "than skipping the arm"})
-        enf = _f(rec, "enforced_core_min", "G10", arm)
-        cap = _f(rec, "cap_core_min", "G10", arm)
-        act = _f(rec, "core_min", "G10", arm)
+        enf = _infra(rec, "enforced_core_min", "G10", arm)
+        cap = _infra(rec, "cap_core_min", "G10", arm)
+        act = _infra(rec, "core_min", "G10", arm)
+        if NOT_MEASURED in (enf, cap, act):
+            # ADDENDUM 2 (L-342, C3): a bookkeeping gate reading absent
+            # bookkeeping is NOT_MEASURED -- DISCLOSED, NOT PASSED.  G10 is not
+            # in map_verdict's hard list, so this cannot void the item; it is
+            # named in the verdict line as a limitation.
+            out["arms"][arm] = {"status": NOT_MEASURED, "registered_cap": reg,
+                                "ledger_cap": cap, "enforced_core_min": enf,
+                                "actual_core_min": act,
+                                "LIMB1_cap_matches_registered": NOT_MEASURED,
+                                "LIMB2_actual_within_cap": NOT_MEASURED,
+                                "note": "ledger row incomplete; cap integrity "
+                                        "unverifiable from bookkeeping"}
+            out.setdefault("not_measured", []).append(arm)
+            ok = False
+            continue
         agree = abs(enf - reg) <= 0.02 and abs(cap - reg) <= 0.02
         within = act <= reg
         over = round(act - reg, 3) if not within else 0.0
@@ -905,7 +1067,12 @@ def g10_caps(ledger, arms_expected):
     # `actual_core_min`.  `.get` here is not laziness -- a KeyError would CRASH
     # the grader, and a crash produces no verdict at all, whereas an absent arm
     # must produce a REPORTED absence (check_grader_self_blindness ERROR 2).
+    # ADDENDUM 2 (L-342): a NOT_MEASURED actual is EXCLUDED from the total and
+    # the exclusion is named, never summed as zero.
+    out["total_excludes_NOT_MEASURED_arms"] = [
+        a for a in out["arms"] if out["arms"][a].get("actual_core_min") == NOT_MEASURED]
     total = sum(float(out["arms"][a].get("actual_core_min") or 0.0)
+                if out["arms"][a].get("actual_core_min") != NOT_MEASURED else 0.0
                 for a in out["arms"])
     out["total_actual_core_min"] = round(total, 3)
     out["item_predicted_core_min"] = ITEM_PREDICTED_CORE_MIN
@@ -932,7 +1099,7 @@ def g10_caps(ledger, arms_expected):
     return out
 
 
-def g11_oom(ledger, arms_expected):
+def g11_oom(ledger, arms_expected, base=None, inspector=None, containers=None):
     """DAFOAM_CHARTER.md sec.7: OOM-killed -> NOT A RESULT ABOUT CONVERGENCE,
     recorded as stopped by memory.  Read from `docker inspect`, THE KERNEL'S
     OWN RECORD, not from the harness's impression."""
@@ -947,6 +1114,16 @@ def g11_oom(ledger, arms_expected):
             n_absent += 1
             continue
         insp = (rec.get("inspect(exit,oomkilled)") or "").strip("[]")
+        src = "ledger_row"
+        if not insp and base is not None:
+            # ADDENDUM 2 (L-342): the OOM bit is PHYSICS (the kernel's record);
+            # when the ROW lacks it, read it from the container itself if it
+            # survives.  The marker carries no OOM bit, so only the container
+            # can supply it.  G11 STAYS HARD.
+            fb = _rc_from_marker_or_container(base, arm, inspector=inspector,
+                                              containers=containers) or {}
+            insp = (fb.get("inspect(exit,oomkilled)") or "").strip("[]")
+            src = fb.get("_source", {}).get("inspect(exit,oomkilled)", src)
         if not insp:
             # The kernel bit was never recorded.  An unread bit is NOT a
             # clean bit.  D7-GRADER-DEF-1 was this gate reading `None` as
@@ -956,7 +1133,7 @@ def g11_oom(ledger, arms_expected):
             n_absent += 1
             continue
         oom = "true" in insp.lower()
-        out["arms"][arm] = {"inspect": insp, "oom_killed": bool(oom)}
+        out["arms"][arm] = {"inspect": insp, "oom_killed": bool(oom), "_source": src}
         any_oom = any_oom or oom
         n_read += 1
     out["any_oom"] = bool(any_oom)
@@ -1082,6 +1259,35 @@ def g13_adjoint_health(base, ledger, arm="O"):
 
 # ============================== MAPPING ====================================
 def map_verdict(g):
+    """ADDENDUM 2 (L-342, C3): a NOT_MEASURED gate status NEVER composes to
+    PASS silently.  Every NOT_MEASURED limb is listed BY NAME in the verdict
+    line as a stated limitation.  The mapping itself is byte-unchanged in
+    `_map_verdict_core`."""
+    v = _map_verdict_core(g)
+    nm = []
+    if g.get("G1", {}).get("not_measured"):
+        for e in g["G1"]["not_measured"]:
+            nm.append("G1 arm %s: %s NOT_MEASURED%s" % (
+                e["arm"], ",".join(e["fields"]) or "(no infra field)",
+                " (ledger row absent; rc from the kernel's record)"
+                if e.get("ledger_row") == NOT_MEASURED else ""))
+    if g.get("G10", {}).get("not_measured"):
+        nm.append("G10 limb 1 NOT_MEASURED for arms %s (disclosed, not passed)"
+                  % ",".join(g["G10"]["not_measured"]))
+    if g.get("G11", {}).get("status") == NOT_MEASURED:
+        nm.append("G11 NOT_MEASURED (hard: the OOM bit was unreadable from row "
+                  "and container)")
+    for arm, d in (g.get("G12", {}).get("arms") or {}).items():
+        if d.get("delivered_cores_mean") == NOT_MEASURED:
+            nm.append("G12 arm %s: delivered_cores_mean NOT_MEASURED" % arm)
+    v["not_measured"] = nm
+    if nm:
+        v["because"] = list(v.get("because", [])) + [
+            "LIMITATIONS (L-342, infrastructure NOT_MEASURED): " + "; ".join(nm)]
+    return v
+
+
+def _map_verdict_core(g):
     """PREREGISTRATION.md sec.7, and DAFOAM_CHARTER.md sec.9.
 
     THE ONE-WAY RULE (CLAUDE.md rule 5, by analogy, and sec.7 G3): a gate can
@@ -1201,7 +1407,7 @@ def grade(base, work, out_path, arms, cl_target_path, fd_paths, doc_path,
                         else os.path.join(base, "P1"))
     g["G9"] = g9_toolchain(base, ledger, ["F-S", "F-P"])
     g["G10"] = g10_caps(ledger, arms)
-    g["G11"] = g11_oom(ledger, arms)
+    g["G11"] = g11_oom(ledger, arms, base=base)
     g["G12"] = g12_placement(base, {a: os.path.join(base, a) for a in arms}, ledger)
     g["G13"] = g13_adjoint_health(base, ledger, "O")
 
@@ -1780,6 +1986,118 @@ def selftest():
         unit("G11_OOMKilled_false_passes", True,
              bool(g11_oom(read_ledger(lp), ["O"])["pass"]))
 
+        # ================= ADDENDUM 2 (L-342) -- FIELD CLASSES, DRIVEN =========
+        # C1: ABSENT infra -> NOT_MEASURED and proceed; PRESENT garbage -> REFUSE.
+        _ra = {"rc": "0"}
+        unit("G1_L342_absent_infra_field_is_NOT_MEASURED_and_proceeds", True,
+             bool(_infra(_ra, "wall_s", "G1", "O") == NOT_MEASURED))
+        _rg = {"rc": "0", "wall_s": "abc"}
+        try:
+            _infra(_rg, "wall_s", "G1", "O"); _garb = False
+        except Refuse as exc:
+            _garb = ("ledger_field_unparseable" in str(exc) and "abc" in str(exc))
+        unit("G1_L342_present_GARBAGE_infra_field_REFUSES_naming_key_and_value",
+             True, bool(_garb))
+        try:
+            _infra(_ra, "rc", "G1", "O"); _phys = False
+        except Refuse as exc:
+            _phys = "not_an_infrastructure_field" in str(exc)
+        unit("G1_L342_physics_field_cannot_be_read_as_infra", True, bool(_phys))
+        # absent PHYSICS (rc) still REFUSES, unchanged
+        try:
+            _f({"wall_s": "1"}, "rc", "G1", "O"); _ap = False
+        except Refuse as exc:
+            _ap = "ledger_field_absent" in str(exc)
+        unit("G1_L342_absent_PHYSICS_rc_still_REFUSES", True, bool(_ap))
+        # a full G1 on a row lacking wall_s/core_min: proceeds, discloses
+        bL = os.path.join(tmp, "b_l342"); oL = os.path.join(bL, "O"); os.makedirs(oL)
+        lpL = os.path.join(bL, "ledger.txt")
+        open(lpL, "w").write(
+            "ARM=O ROW=SHIPPED IMG=a DIGEST=d rc=0 ranks=4 "
+            "inspect(exit,oomkilled)=[0 false] log=o.log\n")
+        open(os.path.join(bL, "o.log"), "w").write("Time = 1\nEnd\n")
+        open(os.path.join(bL, "o.log.ok.S9"), "w").write("rc=0 stamp=S9 arm=O\n")
+        open(os.path.join(oL, ".d7_age_datum"), "w").write(str(now))
+        for nm in ("opt_IPOPT.txt", "OptView.hst", "d7_major_history.json",
+                   "d7_endpoint_dvs.json"):
+            fp = os.path.join(oL, nm); open(fp, "w").write("x")
+            os.utime(fp, (now + 500, now + 500))
+        rL = g1_completion(bL, oL, read_ledger(lpL), ["O"], lch)
+        unit("G1_L342_row_lacking_wall_s_PROCEEDS_and_DISCLOSES", True,
+             bool(rL["pass"] and rL["arms"]["O"]["wall_s"] == NOT_MEASURED
+                  and rL["not_measured"][0]["fields"] == ["wall_s", "core_min"]),
+             "pass=%s not_measured=%s" % (rL["pass"], rL.get("not_measured")))
+        # rc=1 in the row -> G1 fails (unchanged)
+        open(lpL, "w").write(
+            "ARM=O ROW=SHIPPED IMG=a DIGEST=d rc=1 wall_s=1 ranks=4 core_min=0.1 "
+            "inspect(exit,oomkilled)=[1 false] log=o.log\n")
+        unit("G1_L342_rc_1_still_FAILS", True,
+             bool(not g1_completion(bL, oL, read_ledger(lpL), ["O"], lch)["pass"]))
+        # C2: ledger ROW ABSENT, marker present -> rc from the marker, graded
+        open(lpL, "w").write("ARM=X ROW=SHIPPED IMG=a DIGEST=d rc=0 wall_s=1 ranks=4 "
+                             "core_min=0.1 inspect(exit,oomkilled)=[0 false] log=x.log\n")
+        open(os.path.join(bL, "O_S9.log"), "w").write("Time = 1\nEnd\n")
+        os.remove(os.path.join(bL, "o.log.ok.S9"))
+        open(os.path.join(bL, "O_S9.log.ok.S9"), "w").write("rc=0 stamp=S9 arm=O\n")
+        rLb = g1_completion(bL, oL, read_ledger(lpL), ["O"], lch, containers=[])
+        unit("G1_L342_row_ABSENT_marker_present_grades_rc_from_marker", True,
+             bool(rLb["pass"] and rLb["arms"]["O"]["rc"] == 0.0
+                  and rLb["arms"]["O"]["_source"]["rc"].startswith("marker:")
+                  and rLb["arms"]["O"]["ledger_row"] == NOT_MEASURED
+                  and rLb["arms"]["O"]["wall_s"] == NOT_MEASURED),
+             "src=%s" % rLb["arms"]["O"].get("_source"))
+        # C2: container survives -> wall_s from StartedAt/FinishedAt, core_min derived
+        def _fake_inspect(name):
+            return {"exit": "0", "oomkilled": "false",
+                    "started": "2026-08-26T16:00:00.000000000Z",
+                    "finished": "2026-08-26T16:01:30.500000000Z"}
+        fb = _rc_from_marker_or_container(bL, "O", inspector=_fake_inspect,
+                                          containers=["d7fr_O_20260826T160000Z_1"])
+        unit("G1_L342_container_survives_wall_s_from_inspect_core_min_derived", True,
+             bool(fb["wall_s"] == "90" and fb["core_min"] == "%.3f" % (90 * RANKS / 60.0)
+                  and fb["_source"]["wall_s"].startswith("docker_inspect")
+                  and fb["inspect(exit,oomkilled)"] == "[0 false]"),
+             "fb=%s" % {k: fb[k] for k in ("wall_s", "core_min")})
+        unit("G1_L342_NEITHER_marker_nor_container_is_None", True,
+             bool(_rc_from_marker_or_container(bL, "F-P", containers=[]) is None))
+        # G11: row lacks the OOM bit, container has it -> read from the kernel
+        _r11c = g11_oom({"arms": {"O": {"rc": "0"}}}, ["O"], base=bL,
+                        inspector=_fake_inspect,
+                        containers=["d7fr_O_20260826T160000Z_1"])
+        unit("G11_L342_row_lacking_OOM_bit_reads_the_CONTAINER", True,
+             bool(_r11c["pass"] and _r11c["arms"]["O"]["_source"].startswith("docker_inspect")))
+        _r11d = g11_oom({"arms": {"O": {"rc": "0"}}}, ["O"], base=bL, containers=[])
+        unit("G11_L342_row_lacking_OOM_bit_and_no_container_stays_HARD", True,
+             bool(not _r11d["pass"] and _r11d["status"] == NOT_MEASURED))
+        # C3: G10 limb 1 NOT_MEASURED is disclosed, not passed
+        _r10n = g10_caps({"arms": {"F-S": {"rc": "0", "cap_core_min": "750.0"}}}, ["F-S"])
+        unit("G10_L342_absent_cap_fields_NOT_MEASURED_disclosed_not_passed", True,
+             bool(not _r10n["pass"] and _r10n["arms"]["F-S"]["status"] == NOT_MEASURED
+                  and _r10n["not_measured"] == ["F-S"]))
+        try:
+            g10_caps({"arms": {"F-S": {"rc": "0", "cap_core_min": "x", "enforced_core_min": "1",
+                                       "core_min": "1"}}}, ["F-S"]); _g10g = False
+        except Refuse as exc:
+            _g10g = "ledger_field_unparseable" in str(exc)
+        unit("G10_L342_present_GARBAGE_cap_field_REFUSES", True, bool(_g10g))
+        # C3: map_verdict NAMES every NOT_MEASURED limb in the verdict line
+        _gm = json.loads(json.dumps(ok_g))
+        _gm["G1"] = {"pass": True, "not_measured": [{"arm": "F-S", "fields": ["wall_s"],
+                                                     "ledger_row": "PRESENT"}]}
+        _gm["G10"] = {"pass": False, "not_measured": ["F-S"]}
+        _gm["G12"] = {"pass": False, "arms": {"F-S": {"delivered_cores_mean": NOT_MEASURED}}}
+        _vm = map_verdict(_gm)
+        # THE MAPPING IS BYTE-UNCHANGED: the wrapper must return exactly the
+        # core's verdict token and only ADD the named limitations.
+        unit("MAP_L342_NOT_MEASURED_limbs_are_NAMED_in_the_verdict_line", True,
+             bool(_vm["verdict"] == _map_verdict_core(_gm)["verdict"]
+                  and len(_vm["not_measured"]) == 3
+                  and any("LIMITATIONS" in b and "G10" in b and "G12" in b
+                          for b in _vm["because"])),
+             "not_measured=%d verdict=%s" % (len(_vm["not_measured"]), _vm["verdict"]))
+        unit("MAP_L342_clean_gates_carry_an_EMPTY_limitation_list", True,
+             bool(map_verdict(json.loads(json.dumps(ok_g)))["not_measured"] == []))
+
         # ---- G12: placement REFUSES BY COUNT, and needs DISTINCT cores -----
         b2 = os.path.join(tmp, "b2"); ow = os.path.join(b2, "O"); os.makedirs(ow)
         lp2 = os.path.join(b2, "ledger.txt")
@@ -1857,7 +2175,7 @@ def selftest():
     exercised = sorted({u["unit"].split("_")[0] for u in units}
                        - {"CLEAN", "EMPTY", "SHORT", "LONG", "REORDERED",
                           "KEY", "SIGN", "OFF", "NO", "CAPSTOP", "CONVERGED",
-                          "ADJOINT", "DECOMP"},
+                          "ADJOINT", "DECOMP", "MAP"},
                       key=lambda x: (len(x), x))
     # the map_verdict units exercise the mapping of G1/G8/G11/G13 hard-fails
     exercised = sorted(set(exercised) | {"G5", "G8", "G13"},

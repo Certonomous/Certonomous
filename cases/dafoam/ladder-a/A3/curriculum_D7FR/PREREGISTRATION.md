@@ -633,3 +633,40 @@ after it: two instruments asking the same question at different time scales.
 asserts it before every launch. Every other §14 row is unchanged.
 
 **STILL FROZEN. STILL NOTHING FIRED.**
+
+---
+
+## ADDENDUM 2 — 2026-08-26T16:31:03Z. **POST-COMPUTE.** `d7fr_grade.py` SEPARATES PHYSICS-CRITICAL FROM INFRASTRUCTURE FIELDS (Sanaa's universal rule, `d4d0c29d`, L-342)
+
+**Version 1.2. This addendum ALTERS NO GATE, THRESHOLD, CAP OR LABEL** (rule 2: after first compute, changes land only as dated addenda that cannot). **Lines whose number changed above this section: 0** — it is appended, and every §14 citation above it is untouched. Approved as a pre-registered amendment by dafoam-supervisor, ruling [lab-attributed] 2026-08-26, on conditions C1–C3, each DRIVEN in the selftest under plain `python3` and `-O`.
+
+### A2.1 The rule, and the condition under which this addendum is legal
+
+Sanaa, verbatim (`d4d0c29d`): *"a bookkeeping failure invalidates the bookkeeping, never the physics artifacts — and graders must separate physics-critical fields from infrastructure fields so a dead poller can never void a run again."* Addendum consequence 4 of that boarding: *"this rule licenses no change to bands, thresholds or verdict logic."* This addendum stays inside that licence: `_map_verdict_core` is the frozen `map_verdict` body byte-for-byte; every band, threshold and cap constant is unchanged; `assert_caps_against_document()` still reads 15 values, all agreeing.
+
+**Condition at this addendum:** arms `P1`, `X`, `ACC`, `F-S` complete (`ledger.txt`, rc = 0 each); `F-P` RUNNING under the launcher's md5 assertion of the **run-root** copy (`d7fr_run_arm.sh:254`, `cda7c0492663a3926f2a023476ce9b83`). **Nothing has been graded under either version of the grader** — `F-S` is HELD ungraded until this addendum lands (supervisor's order). The run-root copy is NOT touched; it exists for the launcher's assertion, and the grading path is the repository copy fixed below.
+
+### A2.2 Field classes, declared in the file (`PHYSICS_FIELDS`, `INFRA_FIELDS`)
+
+| class | fields | absent → |
+|---|---|---|
+| **PHYSICS** — gates read these | `rc`, `inspect(exit,oomkilled)` — the kernel's record | **REFUSE** (unchanged) |
+| **INFRASTRUCTURE** — disclosed | `wall_s`, `core_min`, `cap_core_min`, `enforced_core_min`, `enforced_wall_s`, `memavail_*`, `delivered_cores_mean`, `siblings_*` | **`NOT_MEASURED`**, named in the verdict line, grade proceeds |
+
+### A2.3 The three conditions, and where each is met
+
+| | condition | implementation | driven by |
+|---|---|---|---|
+| **C1** | ABSENT (key missing / None) → `NOT_MEASURED`; PRESENT-BUT-UNPARSEABLE → REFUSE naming key and value | `_infra()`; `_f()` unchanged for physics | `G1_L342_absent_infra_field_is_NOT_MEASURED_and_proceeds`, `G1_L342_present_GARBAGE_infra_field_REFUSES_naming_key_and_value`, `G10_L342_present_GARBAGE_cap_field_REFUSES`, `G1_L342_absent_PHYSICS_rc_still_REFUSES` |
+| **C2** | a missing ledger ROW is bookkeeping: rc from the launcher's own marker (`.ok/.fail`, itself `docker inspect`, launcher :564/:632-636) or from the surviving container; `wall_s` from `StartedAt/FinishedAt`, `core_min = wall_s × 4 / 60`, `_source` per field; `NOT_MEASURED` only when neither has it; arm absent only when neither exists | `_rc_from_marker_or_container()`; G1 fallback branch; G11 container fallback | `G1_L342_row_ABSENT_marker_present_grades_rc_from_marker`, `G1_L342_container_survives_wall_s_from_inspect_core_min_derived`, `G1_L342_NEITHER_marker_nor_container_is_None`, `G11_L342_row_lacking_OOM_bit_reads_the_CONTAINER`, `G11_L342_row_lacking_OOM_bit_and_no_container_stays_HARD` |
+| **C3** | `NOT_MEASURED` never composes to PASS silently: every such limb is NAMED in the verdict's `because` as a stated limitation; G11 stays hard; G10 limb 1 `NOT_MEASURED` is disclosed, not passed | `map_verdict()` wrapper around the byte-unchanged `_map_verdict_core()`; G10 `status: NOT_MEASURED`, `pass` False, listed | `MAP_L342_NOT_MEASURED_limbs_are_NAMED_in_the_verdict_line` (asserts the wrapper returns exactly the core's verdict token), `MAP_L342_clean_gates_carry_an_EMPTY_limitation_list`, `G10_L342_absent_cap_fields_NOT_MEASURED_disclosed_not_passed`, `G1_L342_row_lacking_wall_s_PROCEEDS_and_DISCLOSES`, `G1_L342_rc_1_still_FAILS` |
+
+One consequential line outside the §2 hunks, disclosed: G10's item total now EXCLUDES a `NOT_MEASURED` actual and names the exclusion (`total_excludes_NOT_MEASURED_arms`) instead of crashing on `float("NOT_MEASURED")` — found by the selftest, not by inspection.
+
+### A2.4 Measured at this addendum
+
+Diff against the frozen blob `35f62221aa17` (`git diff --no-index`): **333 insertions, 15 deletions**, hunks only in `_f` (insertion after it), `g1_completion`, `g10_caps`, `g11_oom`, `map_verdict`, `grade` (one line: `base=base` into G11), `selftest`. Selftest: **102 units, 102 passed, `UNEXERCISED=0`**, identical under `python3 -O`; `ast.Assert` nodes **0**.
+
+### A2.5 The struck row
+
+**§14's `d7fr_grade.py` row is STRUCK, not rewritten.** At the freeze its md5 was `cda7c0492663a3926f2a023476ce9b83`; **at this addendum the repository copy is md5 `c451af9f2d2c496a1dd9f3231213884b`, blob `4df305e460e218bbb30485874bba3b741d1b0c68`**, and that is the grading path for `F-S` and `F-P`. The run-root copy remains at the frozen md5 for the launcher's :254 assertion and is NOT the grading instrument. Every other §14 row is unchanged.
