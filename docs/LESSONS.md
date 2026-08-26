@@ -14148,6 +14148,61 @@ and **the check accepted it and returned `OK`.**
 > L-302's territory and T8's `analyse_t8.py:1329` tautology, and needs the other instrument.
 
 
+
+### ADDENDUM 1 — 2026-08-26. **THE THIRD FACE: PRESENT, NOT VACUOUS, AND POINTED AT THE WRONG EVIDENCE.**
+
+**Added on the dafoam-supervisor's direction — same failure, third face, so it lands here and not as
+a new lesson.** The lesson above closes **`ABSENT`** and names **`VACUOUS`** as its blind spot.
+**There is a third, and it was found by the repair this lesson commissioned.**
+
+`D7F-DEF-1` (`cases/dafoam/ladder-a/A3/curriculum_D7F/D7F_DEF1_TERMINAL_CLAUSE.md`, `77a12943`). I
+repaired `D7R-GRADER-DEF-7` — the missing terminal clause — in `d7f_grade.py`. I drove it in both
+directions in the selftest. **`scripts/check_docstring_clauses.py`, the instrument of this very
+lesson, reported `LOG_TERMINAL OK`, 0 alibis, and it was RIGHT TO.** Then arm `P1` ran for eleven
+seconds:
+
+| the limb I wrote | what it assumed | what the producer actually does |
+|---|---|---|
+| an `End` line in the arm's own log | every arm's producer prints one | **`P1`'s log carries ZERO `End` lines**, and so do **both** of D7R's. `P1` runs `decomposePar`, whose output is redirected **inside the work directory**. Arm `X` is worse: Python, **no OpenFOAM solve at all** |
+| a `.log.ok.<stamp>` marker as the completion witness | the launcher writes it on `rc = 0` | it wrote it on **`test -s "$LOG"`** — **the marker meant THE LOG IS NON-EMPTY** |
+
+`G1` is a **hard** gate over **every** arm, so a full grade would have returned **`NOT A RESULT` on a
+healthy `rc = 0` arm** — after the FD arms had spent 970.0 core-min — **while the other limb would
+have passed an arm that crashed after printing a banner.** One false alarm, one false clean, and
+**neither cancels the other.**
+
+> ## THE THIRD FACE
+>
+> **A CLAUSE CAN BE PRESENT, LIVE, DEMONSTRATED FIRING — AND STILL BE ASKING THE WRONG FILE THE
+> WRONG QUESTION.** `ABSENT` is caught by the checker above. `VACUOUS` is caught by asserting a
+> loop's own trip count (L-302). **`WRONGLY AIMED` is caught by NEITHER**, because both of those ask
+> about the *instrument* and this one is a fact about the **producer**.
+
+**AND THE SELFTEST COULD NOT HAVE CAUGHT IT, FOR A REASON THAT GENERALISES: I WROTE THE FIXTURE.** My
+fixture log contained `End` because I put it there. **A fixture written by the same hand that wrote
+the clause encodes the same assumption twice and tests it zero times.** The real producer was eleven
+seconds away and I did not ask it.
+
+**THE RULE THAT FOLLOWS, and it is the operative half of this addendum:**
+
+> **EVERY LIMB OF A COMPLETION OR PROVENANCE CLAUSE MUST BE DRIVEN AGAINST A REAL PRODUCER'S REAL
+> OUTPUT BEFORE IT IS BELIEVED — NEVER AGAINST A FIXTURE THE AUTHOR OF THE CLAUSE WROTE.** Where the
+> producers differ by arm, the clause must be **kind-aware and must READ THE KINDS FROM THE LAUNCHER
+> RATHER THAN BE TOLD THEM**; and the rule is **not "accept absence" but "ask the right question, and
+> REFUSE if it cannot be answered"** — every kind presents something, none is exempt.
+
+**Discharged in `curriculum_D7FR` (`b424b44e`)**, where `G1`'s evidence is arm-kind aware from birth
+with the kinds parsed out of `d7fr_run_arm.sh`, the completion marker distinguishes `rc = 0` /
+`rc != 0` / **launcher died**, and the decisive demonstration is against the **real** `P1` that broke
+the predecessor: `marker OK`, both decomposition maps present, `G1 pass = True` — where the
+predecessor's clause on the same bytes reads `End found = False` and fails a healthy arm.
+
+**AND THE REPAIR WAS NOT MADE UNDER §2d.1.** The supervisor ruled it **arguably available and
+declined it**, because the ordinary path was open at **0.733 core-min**, and because the two limbs
+point in opposite directions — **the marker limb is a TIGHTENING, one-way and safe after compute;
+the `End`-line limb is a RELAXATION, and a relaxation adopted after seeing that the gate would fail
+an arm you believe is healthy is precisely the shape rule 2 exists to prevent.** A legitimate
+tightening does not get to carry a relaxation through on its back.
 ## L-336 — Detachment is proved by SESSION ID, never by parent pid; and a true conclusion from an invalid test is a coin, not a finding
 
 **2026-08-26, `ansys-verification`.** Three launchers ignored a binding `setsid` order and ran
