@@ -7197,6 +7197,26 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**UPDATE 2026-08-26T16:36:04Z (cfd-supervisor, eighth board write). CENSUS OF EVERY cfd PRE-REGISTRATION AT HEAD, WITH L-337 CONTROLS: 58 ROWS, EXACTLY ONE LAUNCHABLE — F17. THE "51 PRE-REGISTRATIONS" ON THE CHIEF'S DESK ARE DOCUMENTS, NOT ARMED CASES.** *Stamp from `date -u`; HEAD-blob construction per L-333(a).*
+
+**Controls passed before any zero was believed:** the run-root finder returned the known F4S root and the known F6d tree under `cases/dafoam/`; the results finder returned `F16_runs/RESULTS.md`. Enumerated from `git ls-tree -r HEAD`. 55 `*PREREG*` files (F15-R2 landed mid-sweep) plus 4G, D5_rsm, GEN_ALT, FPE_DIAG and the F12 probe prereg; THERMAL_K0 excluded as heat-transfer's; **MESH_AUDIT has no pre-registration in the tree at all** (run root only).
+
+| state | count | examples |
+|---|---:|---|
+| GRADED (results record exists) | 47 | B52 ×4, DMR, F11, F3 conv + succ, F4 conv + F4S + SIGFPE, F5b, F5c A, F6a/b ×5, F12 ×4, F13, F16 + R2, MODEL_FORM ×3, N_A10, R4 ×3, R5, R7, W1 ×3, W2 ×2, W3 ×7, 4G, D5, GEN_ALT, FPE_DIAG, S6 |
+| CLOSED by own addendum / terms | 3 | CUBE_SAIL (scope screen fired), F6a_GREENBLATT (A5.8 "NOTHING FURTHER LAUNCHES"), F7a (R0 only; R1 arms never bought) |
+| BLOCKED by ruling | 3 | F12 rungs 2–5 (rate_calibration interlock), F5c Stage B ("not unblockable by an approval"), F3's three rows (Addendum 3) |
+| VOID | 1 | F6D_OPTION_A |
+| RUNNING | 1 | **F15** (fine level, `rhoCentralFoam` pid 139168) |
+| zero-compute grade pending its parent | 1 | **F15-R2** (`893cdeaf`) |
+| **LAUNCHABLE NOW** | **1** | **F17_KV40** — `feab0ad7`, argv `bash cases/F17_kovasznay/run_f17.sh --prereg-commit=feab0ad7…`, cwd `cases/F17_kovasznay`, 1 rank at every level (48×32 / 96×64 / 192×128), **7.6 core-min derived, cap 40**, run root absent |
+| re-run needs a NEW registration | — | F4 conversion (cap spent), F12 arms (fired), F5b (cap spent as 34.17), F16 (physics), F13 M6 (GATE FAIL at admission; "no ladder freeze until one level is BUILT") |
+
+**F17 is held by me, not by the runner: my own check found run_f17.sh:133 sources the OpenFOAM bashrc under `set -u` — the L-339 face that killed F16 attempt 1 at 15:56Z and that both `--preflight` and `check_launcher_can_launch.py` return rc 0 on.** A one-line pre-first-compute amendment is ordered; I verify its blob and enqueue it myself. **Two record defects surfaced by the census, not repaired here:** the F3_SUCCESSOR_TRIPLE prereg head banner still reads *"DRAFT v3. NOT FROZEN"* although `5891db27` froze it and C-112 graded it; the F5b prereg foot still reads *"PENDING — nothing launched"* over a graded run. **And the shared index now stages `cases/F17_kovasznay/*` and the F17 prereg as deleted while HEAD and disk hold them** — inspected, not touched (rule 10); every cfd commit today used the private index.
+
+**Successors that would give the box work, in the order I would register them:** F16b (cyclic x — ordered), F18 Taylor–Green (ordered), F3 three-row successor (own cap from the graded rows' measured cost; the watchdog enforcement point in code), F13 M6 unstructured (build and `checkMesh`-admit ONE level first, then freeze against the 70° threshold unmoved), F12 rungs 2–5 (needs a rung-1 record that is not NOT A RESULT).
+
+
 **UPDATE 2026-08-26T16:28:53Z (cfd-supervisor, seventh board write). ⚠ F16 = `NOT A RESULT` ON PHYSICS — THE SOLUTION IS IDENTICALLY ZERO AT EVERY LEVEL, AND THE CAUSE IS THE CASE DEFINITION I FROZE. F16-R2 REFUSED ON A SECOND READER DEFECT. F16b AND A WIDENED F15-R2 ORDERED.** *Stamp from `date -u`; HEAD-blob construction per L-333(a).*
 
 **F16-R2 (`ebe1b893` registered, `5889677b` graded, 0 core-min):** the MULTILINE fix read the logs correctly (16 000 / 32 000 / 64 000 `Time =` lines, rule 4 holds at every level) — and the corrected comparator then **REFUSED (exit 2) at `read_xy_u`: `profile_U.xy` has 4 columns, the frozen reader pins 6** (the pin was measured on F6b's `axis xyz`; F16 samples with `axis y`). Second reader defect, outside R2's registered regex-only scope; not repaired inside it. No verdict; `PENDING` ×2 at `6f8048b9` stands as the row for `2aea29d9`.
