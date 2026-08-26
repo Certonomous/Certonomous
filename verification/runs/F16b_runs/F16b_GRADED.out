@@ -1,0 +1,10 @@
+F16b -- STOKES' SECOND PROBLEM (cyclic x) -- TALLY
+==============================================================================
+G-F16-1_E2_velocity_profile_L2           PASS
+    finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 1, observed order 1.8252, GCI 137.1876 % = 0.000181075 absolute at Fs = 1.25
+G-F16-2_u_at_delta                       PASS
+    finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 1, observed order 1.9930, GCI 0.0673 % = 0.00020823 absolute at Fs = 1.25
+    BOOKKEEPING DEFECT: STATUS.F16b absent (infrastructure field; grade proceeds)
+==============================================================================
+gated by: scripts/roache_triple.py::grade_ladder
+written: /home/ubuntu/Certonomous/verification/runs/F16b_runs/F16b_GRADED.json

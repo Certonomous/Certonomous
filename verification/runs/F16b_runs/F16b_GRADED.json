@@ -1,0 +1,650 @@
+{
+  "rung": "F16b-SL2",
+  "parent_grader_blob": "8037cbefaca97bb7fad53be4f0c87b336871e6ac",
+  "prereg_commit": "cadb4887b505af082c63e977fd4fdf73e9878b46",
+  "prereg": "verification/campaign/F16b_SL2_PREREGISTRATION.md",
+  "field_classes": {
+    "physics_critical": [
+      "log.icoFoam `Time =` census (count == endTime/dt)",
+      "log.icoFoam `End` line",
+      "log.icoFoam per-step final p residual census",
+      "fields U, p at endTime and newer than 0/U (age guard)",
+      "postProcessing/profile/<t>/profile_U.xy phase-locked series"
+    ],
+    "infrastructure": [
+      "ClockTime / cost in core-minutes (CAP_CORE_MIN)",
+      "STATUS.F16 rc/end line written by the launcher",
+      "launcher.out running tally",
+      "RC.txt per level (the launcher's copy of the solver rc)"
+    ]
+  },
+  "infrastructure_census": {
+    "coarse": {
+      "clock_time_s": 7,
+      "core_min": 0.11666666666666667,
+      "rc_txt": "0"
+    },
+    "medium": {
+      "clock_time_s": 15,
+      "core_min": 0.25,
+      "rc_txt": "0"
+    },
+    "fine": {
+      "clock_time_s": 53,
+      "core_min": 0.8833333333333333,
+      "rc_txt": "0"
+    },
+    "status_file": null,
+    "total_core_min": 1.25,
+    "cap_core_min": 5.0
+  },
+  "bookkeeping_defects": [
+    "BOOKKEEPING DEFECT: STATUS.F16b absent (infrastructure field; grade proceeds)"
+  ],
+  "assert_census": {
+    "files_checked": 2,
+    "assert_nodes": 0
+  },
+  "controls": [
+    {
+      "control": "symbolic_substitution_into_full_NS",
+      "residuals": {
+        "continuity": "0",
+        "convection_x": "0",
+        "x_momentum": "0"
+      },
+      "passed": true
+    },
+    {
+      "control": "PZ-F16-EXPONENT_planted_1.37k_must_be_nonzero",
+      "planted_factor": 1.37,
+      "residual_is_zero": false,
+      "passed": true
+    },
+    {
+      "control": "truncation_floor_dominated_by_discretisation",
+      "domain_truncation_L2": 1.571441570540086e-07,
+      "finest_predicted_L2": 0.00012303531022431527,
+      "ratio": 782.9454975028406,
+      "passed": true
+    },
+    {
+      "control": "constant_ratio_refinement",
+      "dy_ratios": [
+        2.0,
+        2.0
+      ],
+      "dt_ratios": [
+        2.0,
+        2.0
+      ],
+      "passed": true
+    },
+    {
+      "control": "PZ-F16-CLASSC_four_limbs_each_shown_able_to_refuse",
+      "flat": "PLATEAUED",
+      "ramp": "NOT_PLATEAUED_TREND",
+      "step": "NOT_PLATEAUED_TREND",
+      "short_series": "exit 2",
+      "passed": true
+    },
+    {
+      "control": "PZ-F16-GRADE_LADDER_CALLSITE_ast_census_plus_grep_both_ways",
+      "ast_call_nodes": [
+        843
+      ],
+      "grep_lines": [
+        648,
+        843
+      ],
+      "negative_control": "miss on a file with no call",
+      "positive_control": "hit on a planted call",
+      "passed": true
+    },
+    {
+      "control": "solver_tolerance_agrees_with_fvSolution",
+      "registered": 1e-09,
+      "on_disk": 1e-09,
+      "passed": true
+    },
+    {
+      "control": "PZ-F16-R2-REAL_LOG_EXCERPT_completion_reader_driven_both_ways",
+      "excerpt_source": "verification/runs/F16_runs/coarse/log.icoFoam",
+      "planted_time_lines": 5,
+      "direct_count": 5,
+      "parent_form_without_MULTILINE_count": 0,
+      "completion_count": 5,
+      "latest": 40.0,
+      "positive_limb_reached": "fixed-deltaT identity fails: 5 `Time` lines, endTime/dt = 16000",
+      "negative_why": "no `Time =` lines in the log",
+      "passed": true
+    },
+    {
+      "control": "PZ-F16b-REAL_XY_read_xy_u_driven_both_ways",
+      "excerpt_source": "verification/runs/F16_runs/coarse/postProcessing/profile/40/profile_U.xy",
+      "rows": 56,
+      "y_first": 0.00125,
+      "y_last": 0.13875,
+      "negative": "6-column layout refused (exit 2)",
+      "passed": true
+    }
+  ],
+  "gate_demonstration": [
+    {
+      "gate": "G-F16-1_E2_velocity_profile_L2",
+      "construction": "exact + 1 x the predicted truncation amplitude profile",
+      "value": 0.00011932750290054176,
+      "band": [
+        4.1011770074771756e-05,
+        0.0003691059306729458
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F16-1_E2_velocity_profile_L2",
+      "construction": "exact + 40 x the predicted truncation amplitude profile",
+      "value": 0.004773100115668344,
+      "band": [
+        4.1011770074771756e-05,
+        0.0003691059306729458
+      ],
+      "inside": false,
+      "intended": "outside"
+    },
+    {
+      "gate": "G-F16-2_u_at_delta",
+      "construction": "exact + 1 x the predicted truncation amplitude profile",
+      "value": -0.3091260971225,
+      "band": [
+        -0.3102783901866502,
+        -0.3088413611195742
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F16-2_u_at_delta",
+      "construction": "exact + 40 x the predicted truncation amplitude profile",
+      "value": -0.299780846932,
+      "band": [
+        -0.3102783901866502,
+        -0.3088413611195742
+      ],
+      "inside": false,
+      "intended": "outside"
+    }
+  ],
+  "write_path": "OpenFOAM `sets` functionObject, `setFormat raw`, set `type midPoint; axis y`, writing <case>/postProcessing/profile/<time>/profile_U.xy with ONE coordinate column (y, because a single axis is named) followed by the three velocity components -- FOUR columns (y Ux Uy Uz). Layout MEASURED on real output of these same dictionaries: verification/runs/F16_runs/coarse/postProcessing/profile/40/profile_U.xy (4 columns, 56 rows). The six-column pin the F16 grader carried was measured on F6b's `axis xyz` sets and is the defect RESULTS_R2.md Finding A records.",
+  "cap_core_min": 5.0,
+  "rows": [
+    {
+      "quantity": "G-F16-1_E2_velocity_profile_L2",
+      "dim": 1,
+      "fs": 1.25,
+      "value": 0.00013199086071558964,
+      "reference": 0.0,
+      "band": [
+        4.1011770074771756e-05,
+        0.0003691059306729458
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 56,
+          "value": 0.0018062343652990368
+        },
+        {
+          "name": "medium",
+          "cells": 112,
+          "value": 0.0005004683812094284
+        },
+        {
+          "name": "fine",
+          "cells": 224,
+          "value": 0.00013199086071558964
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 1.8252478506664518,
+          "dim": 1,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.0018062343652990368,
+            0.0005004683812094284,
+            0.00013199086071558964
+          ],
+          "cells": [
+            56,
+            112,
+            224
+          ],
+          "e21": 0.00036847752049383876,
+          "e32": 0.0013057659840896084,
+          "GCI_pct": 137.18760582234552,
+          "GCI_abs": 0.00018107510172002422,
+          "richardson": -1.2869220660429722e-05,
+          "richardson_parent_convention": 0.00027685094209160897
+        }
+      ],
+      "orders": [
+        1.8252478506664518
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.001085208919701455,
+        "read_back_delta": 0.001085208919701455,
+        "reader_delta": 0.001085208919701455,
+        "reader": "e2_from_xy",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/fine/postProcessing/profile/40/profile_U.xy",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "PLATEAUED"
+      },
+      "verdict": "PASS",
+      "order": 1.8252478506664518,
+      "GCI_pct": 137.18760582234552,
+      "GCI_abs": 0.00018107510172002422,
+      "richardson": -1.2869220660429722e-05,
+      "richardson_parent_convention": 0.00027685094209160897,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 1, observed order 1.8252, GCI 137.1876 % = 0.000181075 absolute at Fs = 1.25",
+      "gate": "G-F16-1_E2_velocity_profile_L2",
+      "band_principle": "analytic second-order truncation prediction E2 = 1.230353102e-04 at dy_fine = 0.000625, times [1/3, 3]",
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 56,
+          "value": 0.0018062343652990368,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/coarse/postProcessing/profile/40/profile_U.xy",
+          "dy": 0.0025,
+          "dt": 0.0025,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/coarse/log.icoFoam",
+            "n_times": 16000,
+            "latest": 40.0,
+            "dt": 0.0025,
+            "done": true,
+            "why": "End present; latest + dt > endTime; 16000 `Time` lines == endTime/dt; U and p present at endTime and newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps",
+            "n_readings": 32000,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99952954902e-10
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "samples": 40,
+            "window": 12,
+            "window_span": 11.0,
+            "window_mean": 0.0018062343489716954,
+            "scale": 0.0018062343489716954,
+            "fitted_slope": 3.5120689718539633e-12,
+            "relative_drift_over_window": 2.138856384410337e-08,
+            "trend_tol": 0.0002,
+            "half_mean_first": 0.0018062343384340504,
+            "half_mean_second": 0.0018062343595093404,
+            "half_mean_split": 1.1668081698651097e-08,
+            "stat_tol": 0.0001,
+            "variance_ratio": 0.999999995839452,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          }
+        },
+        {
+          "name": "medium",
+          "cells": 112,
+          "value": 0.0005004683812094284,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/medium/postProcessing/profile/40/profile_U.xy",
+          "dy": 0.00125,
+          "dt": 0.00125,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/medium/log.icoFoam",
+            "n_times": 32000,
+            "latest": 40.0,
+            "dt": 0.00125,
+            "done": true,
+            "why": "End present; latest + dt > endTime; 32000 `Time` lines == endTime/dt; U and p present at endTime and newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps",
+            "n_readings": 64000,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99983126345e-10
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "samples": 40,
+            "window": 12,
+            "window_span": 11.0,
+            "window_mean": 0.0005004683759972239,
+            "scale": 0.0005004683759972239,
+            "fitted_slope": 9.890996211029315e-13,
+            "relative_drift_over_window": 2.173982683811494e-08,
+            "trend_tol": 0.0002,
+            "half_mean_first": 0.0005004683730383325,
+            "half_mean_second": 0.0005004683789561152,
+            "half_mean_split": 1.1824488683564435e-08,
+            "stat_tol": 0.0001,
+            "variance_ratio": 0.9999999999040344,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          }
+        },
+        {
+          "name": "fine",
+          "cells": 224,
+          "value": 0.00013199086071558964,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/fine/postProcessing/profile/40/profile_U.xy",
+          "dy": 0.000625,
+          "dt": 0.000625,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/fine/log.icoFoam",
+            "n_times": 64000,
+            "latest": 40.0,
+            "dt": 0.000625,
+            "done": true,
+            "why": "End present; latest + dt > endTime; 64000 `Time` lines == endTime/dt; U and p present at endTime and newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps",
+            "n_readings": 128000,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.9998731095e-10
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "samples": 40,
+            "window": 12,
+            "window_span": 11.0,
+            "window_mean": 0.00013199085591443686,
+            "scale": 0.00013199085591443686,
+            "fitted_slope": 8.77835260095077e-13,
+            "relative_drift_over_window": 7.315800624329216e-08,
+            "trend_tol": 0.0002,
+            "half_mean_first": 0.00013199085327870286,
+            "half_mean_second": 0.0001319908585501708,
+            "half_mean_split": 3.9938129838297286e-08,
+            "stat_tol": 0.0001,
+            "variance_ratio": 0.999999999992565,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          }
+        }
+      ],
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    },
+    {
+      "quantity": "G-F16-2_u_at_delta",
+      "dim": 1,
+      "fs": 1.25,
+      "value": -0.309394168503,
+      "reference": -0.3095598756531122,
+      "band": [
+        -0.3102783901866502,
+        -0.3088413611195742
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 56,
+          "value": -0.306921316248
+        },
+        {
+          "name": "medium",
+          "cells": 112,
+          "value": -0.30889766246350003
+        },
+        {
+          "name": "fine",
+          "cells": 224,
+          "value": -0.309394168503
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 1.9929525278562235,
+          "dim": 1,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            -0.306921316248,
+            -0.30889766246350003,
+            -0.309394168503
+          ],
+          "cells": [
+            56,
+            112,
+            224
+          ],
+          "e21": 0.0004965060394999665,
+          "e32": 0.0019763462155000244,
+          "GCI_pct": 0.06730264721903248,
+          "GCI_abs": 0.000208230465743833,
+          "richardson": -0.3095607528755951,
+          "richardson_parent_convention": -0.3092275841304049
+        }
+      ],
+      "orders": [
+        1.9929525278562235
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000000129,
+        "reader_delta": 0.0012340000000000129,
+        "reader": "u_at_delta_from_xy",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/fine/postProcessing/profile/40/profile_U.xy",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "PLATEAUED"
+      },
+      "verdict": "PASS",
+      "order": 1.9929525278562235,
+      "GCI_pct": 0.06730264721903248,
+      "GCI_abs": 0.000208230465743833,
+      "richardson": -0.3095607528755951,
+      "richardson_parent_convention": -0.3092275841304049,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 1, observed order 1.9930, GCI 0.0673 % = 0.00020823 absolute at Fs = 1.25",
+      "gate": "G-F16-2_u_at_delta",
+      "band_principle": "exact u(delta)/U0 = -0.309559875653112 +/- 3 x the analytic pointwise truncation amplitude at y = delta, = +/- 7.185145335e-04",
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 56,
+          "value": -0.306921316248,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/coarse/postProcessing/profile/40/profile_U.xy",
+          "dy": 0.0025,
+          "dt": 0.0025,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/coarse/log.icoFoam",
+            "n_times": 16000,
+            "latest": 40.0,
+            "dt": 0.0025,
+            "done": true,
+            "why": "End present; latest + dt > endTime; 16000 `Time` lines == endTime/dt; U and p present at endTime and newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps",
+            "n_readings": 32000,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99952954902e-10
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "samples": 40,
+            "window": 12,
+            "window_span": 11.0,
+            "window_mean": -0.306921317196125,
+            "scale": 0.306921317196125,
+            "fitted_slope": 2.2256119289050563e-10,
+            "relative_drift_over_window": 7.976549638717864e-09,
+            "trend_tol": 0.0002,
+            "half_mean_first": -0.30692131785425003,
+            "half_mean_second": -0.306921316538,
+            "half_mean_split": 4.288558596777977e-09,
+            "stat_tol": 0.0001,
+            "variance_ratio": 0.9999715809326799,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          }
+        },
+        {
+          "name": "medium",
+          "cells": 112,
+          "value": -0.30889766246350003,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/medium/postProcessing/profile/40/profile_U.xy",
+          "dy": 0.00125,
+          "dt": 0.00125,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/medium/log.icoFoam",
+            "n_times": 32000,
+            "latest": 40.0,
+            "dt": 0.00125,
+            "done": true,
+            "why": "End present; latest + dt > endTime; 32000 `Time` lines == endTime/dt; U and p present at endTime and newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps",
+            "n_readings": 64000,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99983126345e-10
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "samples": 40,
+            "window": 12,
+            "window_span": 11.0,
+            "window_mean": -0.30889766257725,
+            "scale": 0.30889766257725,
+            "fitted_slope": 2.690559876805725e-11,
+            "relative_drift_over_window": 9.581218063591362e-10,
+            "trend_tol": 0.0002,
+            "half_mean_first": -0.30889766265675,
+            "half_mean_second": -0.30889766249775,
+            "half_mean_split": 5.147335156971772e-10,
+            "stat_tol": 0.0001,
+            "variance_ratio": 0.9999995706418177,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          }
+        },
+        {
+          "name": "fine",
+          "cells": 224,
+          "value": -0.309394168503,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/fine/postProcessing/profile/40/profile_U.xy",
+          "dy": 0.000625,
+          "dt": 0.000625,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F16b_runs/fine/log.icoFoam",
+            "n_times": 64000,
+            "latest": 40.0,
+            "dt": 0.000625,
+            "done": true,
+            "why": "End present; latest + dt > endTime; 64000 `Time` lines == endTime/dt; U and p present at endTime and newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps",
+            "n_readings": 128000,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.9998731095e-10
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "samples": 40,
+            "window": 12,
+            "window_span": 11.0,
+            "window_mean": -0.30939416852020835,
+            "scale": 0.30939416852020835,
+            "fitted_slope": 4.361885693382438e-12,
+            "relative_drift_over_window": 1.5507966054012072e-10,
+            "trend_tol": 0.0002,
+            "half_mean_first": -0.309394168533,
+            "half_mean_second": -0.30939416850741663,
+            "half_mean_split": 8.268859390324147e-11,
+            "stat_tol": 0.0001,
+            "variance_ratio": 0.9999999858034936,
+            "var_ratio_band": [
+              0.2,
+              5.0
+            ]
+          }
+        }
+      ],
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    }
+  ]
+}
