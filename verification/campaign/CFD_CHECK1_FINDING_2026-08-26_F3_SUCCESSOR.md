@@ -142,3 +142,65 @@ fictitious measurement in the ledger. **The registered cap stands at 17.654 core
 expected 14.71, $0.0126 derived at $0.0513/core-h — derived, NOT measured.**
 
 *Nothing below this line existed when this document was committed.*
+
+---
+
+## CORRECTION 1 — 2026-08-26, by cfd-supervisor. The document this record names has been RENAMED, and all three defects are CLOSED.
+
+**Appended, not edited in place.** Lines whose number changed above this section: **0**.
+
+### 1. The filename this record cites is superseded
+
+This record cites `F3_SUCCESSOR_BANDONLY_PREREGISTRATION.md` throughout. **That file no longer
+exists under that name.** It was renamed at `5891db27` to:
+
+> `verification/campaign/F3_SUCCESSOR_TRIPLE_PREREGISTRATION.md`
+
+The rename was **required by this record's own ruling** — "rename the document pre-freeze;
+post-freeze rule 6 makes a wrong name permanent" — and it was carried out before the freeze,
+which is the only time it was free to do. **The lane flagged the stale citation rather than
+editing a supervisor's record, which was the correct call.** Every reference above to
+`…BANDONLY…` should be read as `…TRIPLE…`.
+
+### 2. All three defects are CLOSED, verified by DRIVING the instrument, not by reading it
+
+Re-checked personally at `5891db27`. The grading path is now
+`verification/runs/F3_runs/successor_triple_2026-08-26/grade_f3s.py`.
+
+| defect | closure, and how it was verified |
+|---|---|
+| **1** — grader refused every row the rung produces | `grade_successor.py` **retired from the graded path on its own face** (`:3`), and the new path grades triples |
+| **2** — nothing called `grade_ladder` | **`grade_f3s.py:434` calls `RT.grade_ladder`**, supplied `iterative_states` (`:439`) and `plateau_states` (`:440`) from `instrument.py` |
+| **3** — the `-O` commitment was prose | **`if not __debug__: sys.exit(2)`, the first statement after `import sys`, BEFORE `roache_triple` is imported.** Driven: `python3 -O` → **rc 2**; `PYTHONOPTIMIZE=1` → **rc 2**; plain `python3` → rc 0 |
+
+**The placement is what makes defect 3 genuinely closed**: the guard fires before the module
+whose asserts it compensates for is ever loaded.
+
+### 3. A defect the LANE found by mutating its own guard, recorded because it is the transferable one
+
+`scripts/roache_triple.py::refuse()` **raises `Refusal`; it does not exit.** `main()` did not
+catch it. **Every gate refusal would therefore have surfaced as an rc-1 traceback rather than
+an rc-2 refusal** — a refusal that does not look like a refusal, and so one that a reader or a
+harness would classify as a crash and re-run. Fixed at `grade_f3s.py:586` and re-driven.
+
+**It was found by mutation, not by reading.** That is the second instance tonight of a lane
+finding its own defect that way, and it is the discipline that earns belief in the rest of the
+report.
+
+### 4. One correction to THIS SUPERVISOR'S REASONING, not merely to the code
+
+This record argued that routing to `grade_ladder` was the fix and that full triples were what
+`887ddfaf` required. **The lane's sharper statement is correct and is adopted: full grid
+triples are NECESSARY for `887ddfaf` and NOT SUFFICIENT.** `grade_ladder` refuses below three
+levels, so a band-only rung can never satisfy the ruling — but running three levels does not
+satisfy it either unless the path actually **calls** `grade_ladder` with both state sets.
+**I had treated the necessary condition as the sufficient one.**
+
+### 5. Scope
+
+**Nothing above is regraded, and no verdict moves.** This correction records a rename, three
+closures and one correction to the supervisor's reasoning. **Zero compute; no
+`docs/COST_CALIBRATION.md` row is owed and none is written.** The freeze at `5891db27` and the
+launch authorisation that followed are recorded on `docs/LAB_STATE.md`, not here.
+
+*Correction 1 ends.*
