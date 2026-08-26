@@ -81,7 +81,21 @@ directory (rule 4).
 - Start: `setsid nohup python3 scripts/queue_runner.py --daemon > verification/queue/runner.out 2>&1 < /dev/null &`
 - Lock: `verification/queue/runner.pid` (refuses to start if that pid is alive).
 - Log: `verification/queue/runner.log` (one line per tick; `EMPTY`, `HELD`, `LAUNCHED`,
-  `REFUSED`, `SKIP`, `CAP-OVERRUN`, `ESTIMATE-OVERRUN` are the only event words).
+  `REFUSED`, `SKIP`, `CAP-OVERRUN`, `ESTIMATE-OVERRUN`, `START`, `EXIT` are the only event words).
+- **Exit path (added 2026-08-26T21:15Z, cfd supervisor's order after runner pid 189825 died
+  between 20:47:43Z and 20:48:01Z with no recorded reason):** the daemon handles SIGTERM,
+  SIGINT and SIGHUP and every way out of its loop writes one line
+  `EXIT reason=<signal name|ExceptionClass: msg|normal> pid=<pid>` to `runner.log` before the
+  process ends (a signal → rc 128+signum; an escaping exception → logged with its innermost
+  frame and RE-RAISED, never swallowed; `--once` → `normal`). A runner that leaves no `EXIT`
+  line was killed by something it could not handle (SIGKILL, OOM) — that absence is itself the
+  record. `--selftest` sends SIGTERM to a scratch-root daemon and requires the line (planted:
+  absent before the signal, present after). The per-entry `ERROR (tick, continuing)` line is
+  unchanged: one bad entry is logged and the queue goes on; it is not silent.
+- **Selftest under load (same date):** the box reading is injected in `--selftest`
+  (`tick(..., measure=fake)`), so its controls no longer read the live `/proc/stat` — control 5b
+  had failed on a box at ≥ 94 % busy and passed on re-run (the L-339 class). One control hands
+  in a 99 % reading and must be HELD, then a 10 % reading and must launch.
 - Options: `--busy-ceiling`, `--core-fraction`, `--interval`, `--root`, `--once`.
 - Stop: `kill $(cat verification/queue/runner.pid)` — launched solvers are in their own
   sessions and are unaffected.

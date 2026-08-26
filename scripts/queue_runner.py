@@ -38,7 +38,14 @@ is printed from inside the branch that verified it.  `--selftest` (standing rule
 drives three planted controls in a scratch queue root: a valid entry whose argv is
 `true` must produce exactly one launch and a STATUS reading rc=0; an EMPTY queue must
 produce zero launches and say EMPTY; an entry missing `prereg_commit` must be REFUSED
-and moved -- and the three outputs must not read alike.
+and moved -- and the three outputs must not read alike.  The box reading (busy %,
+MemAvailable) is INJECTED in the selftest (`tick(..., measure=fake)`), so no control
+depends on the live load; one control hands in a saturated reading and must be HELD.
+EXIT PATH (2026-08-26): SIGTERM/SIGINT/SIGHUP are handled and every way out of the
+daemon loop logs `EXIT reason=<signal name|ExceptionClass: msg|normal> pid=<pid>` to
+runner.log before the process ends; an escaping exception is logged and RE-RAISED,
+never swallowed.  `--selftest` sends SIGTERM to a scratch-root daemon and requires
+that line.
 
 USAGE
     python3 scripts/queue_runner.py --daemon            # loop forever, 60 s ticks
@@ -52,10 +59,12 @@ import argparse
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
 import time
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -76,6 +85,34 @@ class Refusal(RuntimeError):
 
 def refuse(msg: str) -> None:
     raise Refusal(msg)
+
+
+class Signalled(BaseException):
+    """Raised by the daemon's signal handlers so that the ONE exit path in main()
+    can log `EXIT reason=<signal name>` before the process ends. BaseException, not
+    Exception: the per-tick `except Exception` must never swallow a signal.
+    (2026-08-26: runner pid 189825 died between 20:47:43Z and 20:48:01Z with no
+    recorded reason; a daemon that exits without saying why is a finding.)"""
+
+    def __init__(self, signum: int):
+        super().__init__(signum)
+        self.signum = int(signum)
+        try:
+            self.name = signal.Signals(self.signum).name
+        except ValueError:
+            self.name = f"SIG{self.signum}"
+
+
+def _raise_signalled(signum, _frame) -> None:
+    raise Signalled(signum)
+
+
+def install_signal_handlers() -> tuple[str, ...]:
+    names = []
+    for s in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
+        signal.signal(s, _raise_signalled)
+        names.append(s.name)
+    return tuple(names)
 
 
 def utc() -> str:
@@ -278,17 +315,29 @@ def cap_watch(root: Path, log: Log, now: float | None = None) -> None:
                 log(f"{word} reported for {meta['case_id']} -> {flag}")
 
 
+def measure_box(busy_window: float) -> tuple[float, float]:
+    """The daemon's real reading: (busy %, MemAvailable GB) from /proc."""
+    return busy_percent(busy_window), mem_available_gb()
+
+
 def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
-         busy_window: float, rr_state: dict, launch_fn=launch) -> str:
-    """One scheduling pass. Returns one of EMPTY / HELD / LAUNCHED / REFUSED-ONLY."""
+         busy_window: float, rr_state: dict, launch_fn=launch, measure=None) -> str:
+    """One scheduling pass. Returns one of EMPTY / HELD / LAUNCHED / REFUSED-ONLY.
+
+    `measure` is injectable: a callable returning (busy_percent, mem_available_gb).
+    The daemon passes nothing and reads /proc; --selftest passes a fake returning
+    known values so its controls do not depend on the live box's load (2026-08-26:
+    control 5b failed on a box at >= 94 % busy and passed on re-run -- the L-339
+    class, a test users learn to re-run).
+    """
     cap_watch(root, log)
     queues = list_entries(root)
     total = sum(len(v) for v in queues.values())
     if total == 0:
         log("EMPTY: no entries in any team queue; nothing launched")
         return "EMPTY"
-    busy = busy_percent(busy_window)
-    mem = mem_available_gb()
+    busy, mem = measure_box(busy_window) if measure is None else measure()
+    busy, mem = float(busy), float(mem)
     ncpu = os.cpu_count() or 1
     busy_cores = busy / 100.0 * ncpu
     log(f"box busy={busy:.1f}% (~{busy_cores:.1f}/{ncpu} cores) MemAvailable={mem:.1f} GB; "
@@ -360,8 +409,17 @@ def selftest() -> int:
     log = Log(tmp / "runner.log", echo=False)
     rr: dict = {}
 
+    # The box reading is INJECTED for every control below: a quiet box (10 % busy,
+    # 100 GB free), so no control depends on the live load. Control 5c proves the
+    # injected value is the one consulted by handing in a saturated reading.
+    def quiet():
+        return 10.0, 100.0
+
+    def saturated():
+        return 99.0, 100.0
+
     # control 1: EMPTY queue -> zero launches, says EMPTY
-    r = tick(root, log, 85.0, 0.9, 0.2, rr)
+    r = tick(root, log, 85.0, 0.9, 0.2, rr, measure=quiet)
     empty_text = (tmp / "runner.log").read_text()
     check("empty queue -> EMPTY, no LAUNCH_LOG", r == "EMPTY" and not (root / "LAUNCH_LOG.tsv").exists())
 
@@ -374,7 +432,7 @@ def selftest() -> int:
                 cost_basis="derived, not measured: selftest placeholder", memory_floor_gb=0.5,
                 enqueued_by="queue_runner selftest")
     (root / "cfd" / "SELFTEST_OK.json").write_text(json.dumps(good))
-    r = tick(root, log, 100.0, 1.0, 0.2, rr)
+    r = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
     for _ in range(50):
         if (case_dir / "STATUS.SELFTEST_OK").exists():
             break
@@ -387,7 +445,7 @@ def selftest() -> int:
           not (root / "cfd" / "SELFTEST_OK.json").exists(),
           f"tick={r} launches={n_launch} status={st.strip()!r}")
     # a second tick must NOT relaunch it
-    r2 = tick(root, log, 100.0, 1.0, 0.2, rr)
+    r2 = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
     n_launch2 = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
     check("second tick does not relaunch a launched entry", r2 == "EMPTY" and n_launch2 == 1)
     rec = json.loads((root / "cfd" / "launched" / "SELFTEST_OK.json").read_text())
@@ -401,7 +459,7 @@ def selftest() -> int:
     bad.pop("prereg_commit")
     bad["case_id"] = "SELFTEST_BAD"
     (root / "cfd" / "SELFTEST_BAD.json").write_text(json.dumps(bad))
-    r3 = tick(root, log, 100.0, 1.0, 0.2, rr)
+    r3 = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
     n_launch3 = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
     check("entry missing prereg_commit -> REFUSED, moved to refused/, no launch",
           r3 == "REFUSED-ONLY" and n_launch3 == 1 and
@@ -413,7 +471,7 @@ def selftest() -> int:
     bad2["case_id"] = "SELFTEST_BADSHA"
     bad2["prereg_commit"] = qec.NONEXISTENT_SHA
     (root / "cfd" / "SELFTEST_BADSHA.json").write_text(json.dumps(bad2))
-    r4 = tick(root, log, 100.0, 1.0, 0.2, rr)
+    r4 = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
     check("entry with a nonexistent prereg sha -> REFUSED", r4 == "REFUSED-ONLY" and
           (root / "cfd" / "refused" / "SELFTEST_BADSHA.json").exists())
 
@@ -421,7 +479,7 @@ def selftest() -> int:
     good2 = dict(good)
     good2["case_id"] = "SELFTEST_HELD"
     (root / "cfd" / "SELFTEST_HELD.json").write_text(json.dumps(good2))
-    r5 = tick(root, log, 0.0, 1.0, 0.2, rr)   # ceiling 0 % -> everything is held
+    r5 = tick(root, log, 0.0, 1.0, 0.2, rr, measure=quiet)   # ceiling 0 % -> everything is held
     check("busy ceiling 0% -> HELD, entry stays queued", r5 == "HELD" and
           (root / "cfd" / "SELFTEST_HELD.json").exists())
 
@@ -433,11 +491,25 @@ def selftest() -> int:
     narrow_dir = tmp / "case_narrow"; narrow_dir.mkdir()
     narrow = dict(good); narrow["case_id"] = "SELFTEST_NARROW"; narrow["cwd"] = str(narrow_dir)
     (root / "cfd" / "SELFTEST_NARROW.json").write_text(json.dumps(narrow))
-    r5b = tick(root, log, 100.0, 1.0, 0.2, rr)
+    r5b = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
     check("held wide entry does not block the narrow entry behind it (first-fit over the queue)",
           r5b == "LAUNCHED" and (root / "cfd" / "launched" / "SELFTEST_NARROW.json").exists()
           and (root / "cfd" / "SELFTEST_WIDE.json").exists())
     (root / "cfd" / "SELFTEST_WIDE.json").unlink()
+    (root / "cfd" / "SELFTEST_HELD.json").write_text(json.dumps(good2))
+    # control 5c: the injected reading is the one consulted -- the SAME valid entry under
+    # a saturated fake (99 %) against the default 85 % ceiling must be HELD, and under
+    # the quiet fake must launch. The control flips on the injection alone.
+    r5c_held = tick(root, log, 85.0, 1.0, 0.2, rr, measure=saturated)
+    still_queued = (root / "cfd" / "SELFTEST_HELD.json").exists()
+    r5c_go = tick(root, log, 85.0, 1.0, 0.2, rr, measure=quiet)
+    held_log = (tmp / "runner.log").read_text()
+    check("injected busy reading governs: 99% fake -> HELD (entry stays), 10% fake -> LAUNCHED",
+          r5c_held == "HELD" and still_queued and r5c_go == "LAUNCHED" and
+          "busy 99.0% >= ceiling 85.0%" in held_log and
+          (root / "cfd" / "launched" / "SELFTEST_HELD.json").exists(),
+          f"held={r5c_held} go={r5c_go}")
+    n_launch_5c = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
     (root / "cfd" / "SELFTEST_HELD.json").write_text(json.dumps(good2))
     # control 6: remote host entry is skipped, not launched
     good3 = dict(good)
@@ -445,10 +517,10 @@ def selftest() -> int:
     good3["host"] = "3.15.199.152"
     (root / "cfd" / "SELFTEST_HELD.json").unlink()
     (root / "cfd" / "SELFTEST_REMOTE.json").write_text(json.dumps(good3))
-    r6 = tick(root, log, 100.0, 1.0, 0.2, rr)
+    r6 = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
     check("remote-host entry -> SKIP, stays queued, no launch", r6 == "HELD" and
           (root / "cfd" / "SELFTEST_REMOTE.json").exists() and
-          len((root / "LAUNCH_LOG.tsv").read_text().splitlines()) == 2)
+          len((root / "LAUNCH_LOG.tsv").read_text().splitlines()) == n_launch_5c)
 
     # control 7: cap watch keys on the registered CAP when the entry carries one --
     # CAP_OVERRUN.txt at 1.00 x cap x 60 / ranks, and NOT before; never ESTIMATE_OVERRUN.txt
@@ -501,6 +573,49 @@ def selftest() -> int:
     check("EMPTY and LAUNCHED outputs do not read alike",
           "EMPTY:" in empty_text and "LAUNCHED" not in empty_text and "LAUNCHED" in full_log)
 
+    # control 8: the exit path. A real --daemon subprocess on a SCRATCH root (its own
+    # pidfile, its own log; the live runner is untouched) is sent SIGTERM and must leave
+    # `EXIT reason=SIGTERM pid=<its pid>` in its runner.log and exit 128+15. The zero is
+    # planted: the EXIT line must be ABSENT before the signal and PRESENT after it.
+    droot = tmp / "daemon_root"
+    for t in TEAMS:
+        (droot / t).mkdir(parents=True)
+    dlog = droot / "runner.log"
+    proc = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), "--daemon",
+                             "--root", str(droot), "--interval", "0.2"],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    started = False
+    for _ in range(100):
+        if dlog.exists() and "START pid=" in dlog.read_text():
+            started = True
+            break
+        time.sleep(0.1)
+    before_exit = dlog.read_text() if dlog.exists() else ""
+    exit_absent_before = "EXIT reason=" not in before_exit
+    if started:
+        proc.send_signal(signal.SIGTERM)
+    try:
+        rc_d = proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        rc_d = None
+    after_exit = dlog.read_text() if dlog.exists() else ""
+    want = f"EXIT reason=SIGTERM pid={proc.pid}"
+    check("SIGTERM to a scratch-root daemon -> `EXIT reason=SIGTERM pid=<pid>` logged, rc 143; "
+          "line absent before the signal",
+          started and exit_absent_before and want in after_exit and rc_d == 143,
+          f"started={started} absent_before={exit_absent_before} rc={rc_d} "
+          f"tail={after_exit.strip().splitlines()[-1][-70:] if after_exit.strip() else ''!r}")
+    # control 8b: a normal --once exit logs `EXIT reason=normal` (the word set is closed)
+    oroot = tmp / "once_root"
+    for t in TEAMS:
+        (oroot / t).mkdir(parents=True)
+    po = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--once",
+                         "--root", str(oroot)], capture_output=True, text=True)
+    olog = (oroot / "runner.log").read_text() if (oroot / "runner.log").exists() else ""
+    check("--once exit logs `EXIT reason=normal pid=<pid>`, rc 0",
+          po.returncode == 0 and "EXIT reason=normal pid=" in olog and "EXIT reason=SIG" not in olog)
+
     shutil.rmtree(tmp)  # scratch root only, created by mkdtemp above
     n_fail = sum(1 for _, ok, _ in checks if not ok)
     if n_fail:
@@ -538,21 +653,39 @@ def main(argv: list[str]) -> int:
         refuse(f"queue root {root} is not a directory")
     log = Log(root / "runner.log", echo=True)
     acquire_lock(root / "runner.pid")
-    log(f"START pid={os.getpid()} sid={os.getsid(0)} root={root} ceiling={a.busy_ceiling}% "
+    pid = os.getpid()
+    handled = install_signal_handlers()
+    log(f"START pid={pid} sid={os.getsid(0)} root={root} ceiling={a.busy_ceiling}% "
         f"core_fraction={a.core_fraction} interval={a.interval}s HEAD="
         + subprocess.run(["git", "-C", str(REPO), "rev-parse", "--short", "HEAD"],
-                         capture_output=True, text=True).stdout.strip())
+                         capture_output=True, text=True).stdout.strip()
+        + f" exit_logging={'+'.join(handled)}+exception+normal")
     rr: dict = {}
-    while True:
-        try:
-            tick(root, log, a.busy_ceiling, a.core_fraction, 5.0, rr)
-        except Refusal as exc:
-            log(f"REFUSED (tick): {exc}")
-        except Exception as exc:  # the daemon must not die on one bad entry
-            log(f"ERROR (tick, continuing): {type(exc).__name__}: {exc}")
-        if a.once:
-            return 0
-        time.sleep(a.interval)
+    # THE ONE EXIT PATH. Every way out of the loop below logs `EXIT reason=... pid=...`
+    # before the process ends: a handled signal (by name), an escaping exception (class
+    # and message, plus the innermost frame), or a normal --once return. Nothing here
+    # catches-and-continues: an exception that escapes a tick is logged and RE-RAISED,
+    # so the process dies loudly and cron (queue_runner.sh) restarts it with a record.
+    try:
+        while True:
+            try:
+                tick(root, log, a.busy_ceiling, a.core_fraction, 5.0, rr)
+            except Refusal as exc:
+                log(f"REFUSED (tick): {exc}")
+            except Exception as exc:  # one bad ENTRY must not stop the queue; it is logged
+                log(f"ERROR (tick, continuing): {type(exc).__name__}: {exc}")
+            if a.once:
+                log(f"EXIT reason=normal pid={pid}")
+                return 0
+            time.sleep(a.interval)
+    except Signalled as sig:
+        log(f"EXIT reason={sig.name} pid={pid}")
+        return 128 + sig.signum
+    except BaseException as exc:
+        frames = traceback.extract_tb(exc.__traceback__)
+        where = f" at {frames[-1].filename}:{frames[-1].lineno}" if frames else ""
+        log(f"EXIT reason={type(exc).__name__}: {exc} pid={pid}{where}")
+        raise
 
 
 if __name__ == "__main__":
