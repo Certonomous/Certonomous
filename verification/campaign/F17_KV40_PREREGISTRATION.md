@@ -280,3 +280,39 @@ commit's full sha.
 - No turbulence claim; no claim about p (not graded); no re-grade of any row.
 - No amendment to any standard or charter.
 - **Nothing is sent, filed, uploaded or submitted** (rule 7).
+
+---
+
+## AMENDMENT 1 — 2026-08-26, PRE-FIRST-COMPUTE (version 1.0 → 1.1)
+
+**Lines whose number changed above this section: 0.** Appended at the foot;
+nothing above is edited, struck or renumbered. **This amendment changes NO
+gate, NO threshold, NO band, NO cap and NO label.** Legal under rule 2 §2b
+because no compute has occurred.
+
+**Condition, and how it was checked (in the writing invocation):**
+`test -e /home/ubuntu/Certonomous/verification/runs/F17_runs` → **ABSENT**;
+`find cases/F17_kovasznay -name RC.txt -o -name 'log.*'` → **0** files; no
+numeric time directory under the case tree.
+
+**The defect.** `run_f17.sh` line 20 sets `set -u`, which was still in force at
+the line that sources `/usr/lib/openfoam/openfoam2606/etc/bashrc`. That bashrc
+reads an unbound `WM_PROJECT_DIR` at its line 184; under `-u` the sourced script
+aborts and **the launcher shell dies at that line with no `ABORT` message** —
+after the instrument checks, before any level. **This is the face that killed
+F16 attempt 1 today** (`STATUS.F16.attempt1` rc = 1, 15:56:10Z; L-339).
+`--preflight` returns 0 because it exits before the source line;
+`check_launcher_can_launch.py` does not see this face. Found by the cfd
+supervisor's check-1 read of `feab0ad7`. Driven, not assumed:
+`bash -c 'set -u; . <bashrc>'` → `line 184: WM_PROJECT_DIR: unbound variable`;
+`bash -c 'set -u; set +u; . <bashrc> || exit 1; set -u; which simpleFoam
+blockMesh icoFoam'` → all three resolve, rc 0.
+
+**The repair.** `set +u` immediately before the source line and `set -u`
+immediately after it, with a dated comment in the launcher citing L-339 and
+F16 attempt 1. No other line of the launcher changes; the grader, the builder,
+the exact module and the case dictionaries are untouched.
+
+**Driven after the edit:** `check_launcher_can_launch.py --worktree` on the
+amended launcher → rc 0; `bash -n` parses; the launcher's `--preflight` path is
+unchanged.

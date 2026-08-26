@@ -129,8 +129,24 @@ fi
 git -C /home/ubuntu/Certonomous cat-file -e "${PREREG_COMMIT}^{commit}" 2>/dev/null \
   || { echo "ABORT: $PREREG_COMMIT is not a commit in this repository"; exit 1; }
 
+# --------------------------------------------------------------------------
+# AMENDMENT 1, 2026-08-26, PRE-FIRST-COMPUTE (rule 2 sec.2b; changes NO gate,
+# threshold, cap or label).  CONDITION, CHECKED IN THE WRITING INVOCATION:
+# `test -e verification/runs/F17_runs` -> ABSENT; no RC.txt, log.* or numeric
+# time directory under cases/F17_kovasznay/.  DEFECT: `set -u` (line 20) was
+# in force at this source line, and the OpenFOAM bashrc reads an unbound
+# WM_PROJECT_DIR at its line 184, so the launcher shell DIED HERE with no ABORT
+# line -- the face that killed F16 attempt 1 today (STATUS.F16.attempt1 rc=1
+# 15:56:10Z; L-339).  --preflight returns 0 because it stops before this line
+# and check_launcher_can_launch.py does not see this face.  Found by the cfd
+# supervisor's check-1 read of feab0ad7.  REPAIR: drop -u around the source
+# only, and restore it immediately after.  Driven: `set -u; set +u; . bashrc
+# || ABORT; set -u; which simpleFoam blockMesh` resolves both binaries.
+# --------------------------------------------------------------------------
+set +u
 # shellcheck disable=SC1090
 . "$FOAM_BASHRC" || { echo "ABORT: could not source $FOAM_BASHRC"; exit 1; }
+set -u
 command -v simpleFoam > /dev/null || { echo "ABORT: simpleFoam not on PATH after sourcing"; exit 1; }
 command -v blockMesh  > /dev/null || { echo "ABORT: blockMesh not on PATH after sourcing"; exit 1; }
 
