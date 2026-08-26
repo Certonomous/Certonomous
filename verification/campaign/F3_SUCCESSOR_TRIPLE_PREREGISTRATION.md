@@ -857,3 +857,49 @@ cap, `cap_respected: true`.**
 **Deliberately NOT repaired.** The runs are complete; changing the launcher now would alter an
 instrument after its compute, and it can no longer affect this rung's spend. **It is carried to
 the successor's launcher**, with the buffered-log gap already recorded in ADDENDUM 1 §7.
+
+---
+
+## CORRECTION ADDENDUM — 2026-08-26T16:37Z: the head banner "DRAFT v3. NOT FROZEN. NOT FIRED. ZERO COMPUTE." is SUPERSEDED. **v3.2 → v3.3.** Zero compute.
+
+**Lines whose number changed above this section: 0** — verified by `git diff` against the
+HEAD blob at commit time: additions only, all below the foot of ADDENDUM 2.
+
+**What is stale.** Line 3 of this document reads *"STATUS: DRAFT v3. NOT FROZEN. NOT FIRED.
+ZERO COMPUTE."*, and the paragraph under it says *"This document is not frozen and confers no
+authority to launch."* That banner was written into the v3 text **before** the commit that
+froze it, and the commit itself is what froze it — so the banner was true at the moment of
+authoring and false from the moment `5891db27` landed. Rule 6 forbids rewriting it; this
+addendum records why it no longer describes the document.
+
+**What is true, each fact read from the tree by this lane, 2026-08-26:**
+
+1. **Frozen at `5891db27`** — `git log`: `5891db27ff868bcf95e61c1e25c8e8338415df22`,
+   2026-08-26 03:39:53 +0000, subject *"cfd F3 SUCCESSOR v3: all three check-1 defects
+   CLOSED …"*; the blob at that commit carries this same banner on its line 3. Two dated
+   pre-grade addenda followed — ADDENDUM 1 at `382a526e` (v3 → v3.1) and ADDENDUM 2 at
+   `b468164c` (v3.1 → v3.2) — neither altering a gate, threshold, cap or label.
+2. **Fired 2026-08-26.** `docs/LAB_STATE.md:7460`: *"F3 SUCCESSOR IS FIRING — cfd's FIRST
+   COMPUTE OF THE SESSION. Frozen at `5891db27` … launcher pid 3120344 (own SID, PPID 1,
+   detached)"*. **The pid is verified only from LAB_STATE**; no file under the run root
+   records it, and this addendum does not claim otherwise.
+3. **Graded.** `verification/runs/F3_runs/successor_triple_2026-08-26/RESULTS.md` —
+   *"Graded 2026-08-26 … frozen at `5891db27` … THE TALLY: 0 PASS · 0 GATE FAIL · 3 NOT A
+   RESULT · 0 PENDING"*: G-F3S-1 (OSCILLATORY, limb 2), G-F3S-2 (limb 1, coarse and medium
+   NOT_PLATEAUED), G-F3S-5 (OSCILLATORY, limb 2). All three carried a band verdict of PASS
+   and all three were turned to `NOT A RESULT` by rule 5.
+4. **Costed and calibrated at C-112.** `docs/COST_CALIBRATION.md:188`, row `C-112`:
+   *"15.8298 core-min MEASURED — launcher envelope … cap_respected: true"* against
+   *"HARD CAP 17.6541"*, ratio **1.0760**, waste zero. RESULTS.md cost table agrees:
+   949.79 core-s = 15.8298 core-min of the 1,059.24 core-s (17.6541 core-min) cap.
+
+**Effect.** The banner's three claims — not frozen, not fired, zero compute — are each
+superseded: frozen at `5891db27`, fired 2026-08-26, 15.8298 core-min consumed and graded.
+The document's authority to launch was conferred by the freeze commit, not by any banner,
+and has been **spent**: no further compute may be launched under this registration.
+
+**Alters no gate, no threshold, no cap and no label.** Every number above is quoted from
+an artifact still on disk; none is re-derived here.
+
+*Correction addendum ends. Status: **FIRED and GRADED** — 0 PASS · 0 GATE FAIL · 3 NOT A
+RESULT, 15.8298 of 17.6541 core-min, calibration row C-112.*
