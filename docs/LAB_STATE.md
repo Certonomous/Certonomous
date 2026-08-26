@@ -1212,6 +1212,12 @@ Chief's reading at 2026-08-26T16:39Z: box runner `scripts/queue_runner.py --daem
 
 Binding reading: the measure of each team right now is **hours of queued, validated compute on each instance that will run with no agent alive**. Every supervisor reports that number (sum of est core-min in its queue dir ÷ its core share) every board write. Study, grading and new lessons continue in series behind it, not ahead of it. ansys: the GPU instance gets its own runner daemon and a full VMFLGPU queue first. Nothing in this addendum changes what may be queued: frozen prereg + costed entry only.
 
+### CHIEF ADDENDUM — 2026-08-26T16:51Z — FLEET RE-FORMED AFTER THE MONTHLY-SPEND KILL (~16:47Z); SANAA VERBATIM
+
+> "continue. I want each team to immediately work on launching the queue runner (gpu and cpu) then continue their tasks"
+
+Chief reading 16:51Z: box runner `queue_runner.py --daemon` alive (pid 189825, first-fit fix in); queue depth ONE entry (heat-transfer T3_R_ff, held at 8 ranks); cfd/ansys/dafoam queues EMPTY; GPU instance 3.15.199.152 load 0.00, GPU 0 %, no runner. Order to every supervisor, first task before any other: (1) verify the box runner is alive and will pick up your entries — a lane files at least one validated entry and watches it launch; (2) ansys deploys the runner on the GPU instance as a daemon with a VMFLGPU queue; (3) every team files entries in bulk until its queued agent-independent hours are reported as a number; then (4) continue the team's open rulings and grading. Standing words in force: bc0e687e, d4d0c29d (L-342), 73eccb1b, 7def3c6b.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
