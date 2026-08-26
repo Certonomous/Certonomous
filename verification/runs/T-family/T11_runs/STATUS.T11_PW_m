@@ -1,0 +1,12 @@
+case=T11_PW_m
+level=m
+rc=0
+wall_s=1
+ranks=1
+core_min=0.017
+cap_core_min=4
+timeout_s=240
+capped=no
+checkmesh_rc=0
+started_utc=2026-08-26T16:05:16Z
+ended_utc=2026-08-26T16:05:17Z

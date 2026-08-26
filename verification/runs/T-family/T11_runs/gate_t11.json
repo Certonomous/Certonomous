@@ -1,0 +1,115 @@
+{
+  "rung": "T11",
+  "scope": "SOLID-ONLY transient conduction; NOT conjugate",
+  "Bi": 1.0,
+  "Fo_end": 0.2,
+  "refinement_ratio": 2.0,
+  "factor_of_safety": 1.25,
+  "band_rel": 0.0001,
+  "planted_zero_control": {
+    "status": "PASS",
+    "plant": 0.001234,
+    "planted_line": 24,
+    "recovered": 0.0012339999999999574,
+    "negative_arm": 0.0,
+    "demonstrated_detection_floor": 1e-07,
+    "ladder": {
+      "1": 0.9999999999999999,
+      "0.1": 0.09999999999999998,
+      "0.01": 0.010000000000000009,
+      "0.001234": 0.0012339999999999574,
+      "0.0001": 9.999999999998899e-05,
+      "1e-05": 9.99999999995449e-06,
+      "1e-06": 1.0000000000287557e-06,
+      "1e-07": 9.999999994736442e-08
+    }
+  },
+  "time_integration": {
+    "c": {
+      "ok": true,
+      "worst_final_residual": 3.0076085371383e-17,
+      "why": ""
+    },
+    "m": {
+      "ok": true,
+      "worst_final_residual": 5.2840853485744e-17,
+      "why": ""
+    },
+    "f": {
+      "ok": true,
+      "worst_final_residual": 3.1929664295617e-16,
+      "why": ""
+    }
+  },
+  "rows": [
+    {
+      "row": "G1",
+      "quantity": "theta_mean (stored energy, mesh-independent)",
+      "reference": 0.8515954576872972,
+      "band": [
+        0.8515102981415285,
+        0.8516806172330659
+      ],
+      "value_fine": 0.8515962819831339,
+      "triple": {
+        "c": 0.8515991988287159,
+        "m": 0.851596865359188,
+        "f": 0.8515962819831339
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 1.999978553532639,
+      "gci": 2.8543827513702715e-07,
+      "richardson_REPORTED_ONLY": 0.8515964764456729,
+      "verdict": "PASS",
+      "note": "",
+      "rel_deviation": 9.6794297017203e-07,
+      "band_utilisation": 0.0096794297017203
+    },
+    {
+      "row": "G2",
+      "quantity": "theta at x*=0 (centreplane)",
+      "reference": 0.9506417785054656,
+      "band": [
+        0.9505467143276151,
+        0.9507368426833162
+      ],
+      "value_fine": 0.9506413850357001,
+      "triple": {
+        "c": 0.950657222528705,
+        "m": 0.95064455253811,
+        "f": 0.9506413850357001
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 1.9999978314420919,
+      "gci": 1.3883209133017805e-06,
+      "richardson_REPORTED_ONLY": 0.9506424408719528,
+      "verdict": "PASS",
+      "note": "",
+      "rel_deviation": -4.138990884303473e-07,
+      "band_utilisation": 0.004138990884303473
+    },
+    {
+      "row": "G3",
+      "quantity": "theta at x*=1 (convective face)",
+      "reference": 0.6433907844774379,
+      "band": [
+        0.6433264453989902,
+        0.6434551235558856
+      ],
+      "value_fine": 0.64339482846702,
+      "triple": {
+        "c": 0.6434213622161851,
+        "m": 0.6434001215615701,
+        "f": 0.64339482846702
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 2.0046448991354775,
+      "gci": 3.4131667352135954e-06,
+      "richardson_REPORTED_ONLY": 0.643396585278081,
+      "verdict": "PASS",
+      "note": "",
+      "rel_deviation": 6.285432865465419e-06,
+      "band_utilisation": 0.06285432865465419
+    }
+  ]
+}

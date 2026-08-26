@@ -1,0 +1,12 @@
+verifying the analytic reference before any comparison:
+  ROUTE B (independent): PDE 4.16e-07  insulated 2.72e-06  robin 4.89e-06  initial 4.88e-06  mean-vs-quadrature 2.48e-15 -- all within tolerance
+  self-consistency (NOT independence): Bi=1e-03 series=0.9951799148 lumped=0.9950124792 rel diff=1.68e-04
+  self-consistency (NOT independence): Bi=1e-04 series=0.9995167994 lumped=0.9995001250 rel diff=1.67e-05
+  level c: reached endTime and every step converged: True
+  level m: reached endTime and every step converged: True
+  level f: reached endTime and every step converged: True
+planted-zero control PASS: registered plant 0.001234 recovered 0.001234; negative arm 0; DEMONSTRATED detection floor 1e-07
+G1  fine=0.8515962820 ref=0.8515954577 rel dev=+9.679e-07  triple=CONVERGING  p=2.000 GCI=0.0000% -> PASS
+G2  fine=0.9506413850 ref=0.9506417785 rel dev=-4.139e-07  triple=CONVERGING  p=2.000 GCI=0.0001% -> PASS
+G3  fine=0.6433948285 ref=0.6433907845 rel dev=+6.285e-06  triple=CONVERGING  p=2.005 GCI=0.0003% -> PASS
+wrote /home/ubuntu/Certonomous/verification/runs/T-family/T11_runs/gate_t11.json
