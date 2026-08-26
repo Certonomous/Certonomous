@@ -52,7 +52,32 @@ while IFS= read -r d; do [ -n "$d" ] && { echo "REFUSE: G3: processor directory 
   < <(find "$CASE_DIR" -maxdepth 1 -mindepth 1 -type d -name 'processor[0-9]*' 2>/dev/null)
 [ -d "$CASE_DIR/0.orig" ] || { echo "REFUSE: no 0.orig to arm from" >&2; exit 2; }
 [ -f "$CASE_DIR/constant/polyMesh/points" ] || { echo "REFUSE: no mesh -- the birth certificate (check_t3_mesh.py R_ff) has not been issued" >&2; exit 2; }
-for p in /proc/[0-9]*; do [ "$(readlink "$p/cwd" 2>/dev/null)" = "$CASE_DIR" ] && { echo "REFUSE: G2: pid ${p#/proc/} already running in $CASE" >&2; exit 2; }; done
+# AMENDMENT 2 (2026-08-26, pre-first-compute): under the queue runner's launch form
+# `setsid nohup bash -c 'cd <cwd>; <argv> ...'` (scripts/queue_runner.py) the launcher's
+# OWN ANCESTOR -- the runner's wrapper shell -- holds the case directory as cwd, and the
+# G2 guard below refused ANY cwd-holder, its own lineage included; measured: one
+# zero-compute refusal (launcher.queue.out: "REFUSE: G2: pid 313462 already running in
+# R_ff").  Same repair as launch_t10aR2.sh (9fa66065) and launch_t4b.sh (51618879):
+# this launcher's own lineage (itself, its ancestors up to pid 1, its descendants) is
+# excluded from the scan; ANY FOREIGN process in the case directory is still refused.
+ppid_of() { sed 's/.*) //' "/proc/$1/stat" 2>/dev/null | awk '{print $2}'; }
+LINEAGE=" $$ "; a="$PPID"
+while [ -n "$a" ] && [ "$a" != "0" ] && [ "$a" != "1" ]; do LINEAGE="$LINEAGE$a "; a="$(ppid_of "$a")"; done
+own_lineage() {   # returns 0 when pid $1 is this shell, one of its ancestors, or one of its descendants
+    case "$LINEAGE" in *" $1 "*) return 0;; esac
+    a="$1"
+    while [ -n "$a" ] && [ "$a" != "0" ] && [ "$a" != "1" ]; do
+        [ "$a" = "$$" ] && return 0
+        a="$(ppid_of "$a")"
+    done
+    return 1
+}
+for p in /proc/[0-9]*; do
+    q="${p#/proc/}"
+    [ "$(readlink "$p/cwd" 2>/dev/null)" = "$CASE_DIR" ] || continue
+    own_lineage "$q" && continue
+    echo "REFUSE: G2: pid $q already running in $CASE" >&2; exit 2
+done
 
 if [ "$DETACH" = "1" ] && [ "${T3RFF_DETACHED:-}" != "1" ]; then
     T3RFF_DETACHED=1 exec setsid "$0" --case-dir "$CASE_DIR" --timeout "$TIMEOUT_S" --ranks "$RANKS" --no-detach \
