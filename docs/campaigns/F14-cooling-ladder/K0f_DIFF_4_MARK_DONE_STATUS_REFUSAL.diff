@@ -1,0 +1,146 @@
+--- a/scripts/mark_done_k0d.py  (HEAD blob 390eef28, mechanical renames applied)
++++ b/scripts/mark_done_k0f.py
+@@ -187,8 +187,25 @@
+     fails = []
+ 
+     # --- clause 1 -------------------------------------------------------
++    # AN ABSENT `STATUS` IS A REFUSAL, NOT A VERDICT (K0f section R6).
++    #
++    # At K0d commit bf7e9428 this clause was the ONLY one of seven that failed
++    # on `M1_c` and `M2_c`: End line, last time == endTime, every registered
++    # field present for the case's own closure, full ExecutionTime count and
++    # the age guard ALL passed, and the two cases are ungradeable anyway
++    # because the launcher never captured an rc.  The log's End line is what
++    # `rc=0` normally accompanies -- and that is an INFERENCE, not the
++    # measurement the clause requires.  Writing `rc=0` from it would be
++    # back-dating a measurement nobody took.
++    #
++    # So this is marked as a REFUSAL and carried out of `main()` as exit 2,
++    # DISTINCT from exit 1 "this case is not done".  The distinction is the
++    # point: NOT DONE is a fact about the case; a missing rc means the
++    # INSTRUMENT CANNOT EVALUATE THE CLAUSE AT ALL, and under a detached queue
++    # with nobody watching, the two must not read alike.
+     rc, note = status_rc(os.path.join(root, f"STATUS.{case}"))
+     if rc is None:
++        info["status_absent"] = True
+         return [note], info
+     if rc != 0:
+         fails.append(f"STATUS is {note!r}, not rc=0")
+@@ -316,9 +333,11 @@
+         return EXIT_OK
+ 
+     cases = a.cases or CASES
+-    ok, bad = [], {}
++    ok, bad, absent = [], {}, []
+     for c in cases:
+-        fails, _ = check(root, c)
++        fails, inf = check(root, c)
++        if inf.get("status_absent"):
++            absent.append(c)
+         (ok.append(c) if not fails else bad.setdefault(c, fails))
+     for c in ok:
+         marker = os.path.join(root, f"DONE.{c}")
+@@ -337,6 +356,19 @@
+         print(f"  NOT DONE  {c}")
+         for r in bad[c]:
+             print(f"            - {r}")
++    # EVERY case is reported first, THEN the refusal is raised: refusing on the
++    # first missing STATUS would hide the state of the other nine, and a
++    # refusal that destroys the report it was about to make is a worse
++    # instrument than the one it replaced.
++    if absent:
++        print()
++        print("REFUSE: no STATUS file for " + ", ".join(sorted(absent)) + ".")
++        print("  A missing rc is NOT a passing rc.  The completion rule is "
++              "all-or-nothing precisely so that it cannot be satisfied by a "
++              "plausible reconstruction, and this instrument INFERS NOTHING: "
++              "it reports that it cannot evaluate clause 1 and stops.")
++        print("  This is exit 2 (REFUSAL), not exit 1 (NOT DONE).")
++        return EXIT_REFUSE
+     return EXIT_OK if not bad else EXIT_NOTDONE
+ 
+ 
+@@ -345,7 +377,8 @@
+ # planted defect and able to STAY QUIET on the clean counterpart.  A clause
+ # never shown able to fire is not evidence (standing rule 3).
+ # --------------------------------------------------------------------------
+-def _synthetic(root, case, endtime=40000, fields=None, break_clause=None):
++def _synthetic(root, case, endtime=40000, fields=None, break_clause=None,
++               gzip_fields=False):
+     """Build a minimal on-disk case that satisfies every clause, then break
+     exactly one.  Times/paths are built numerically from `endtime`, never from
+     a shared format constant -- probe B of check_grader_self_blindness.py
+@@ -367,11 +400,22 @@
+     os.makedirs(tdir, exist_ok=True)
+     emit = [f for f in fields if not (break_clause == "clause4" and f == fields[-1])]
+     for f in emit:
+-        open(os.path.join(tdir, f), "w").write(f"{f} at {last}\n")
++        if gzip_fields:
++            # AMENDMENT 2 section A2.1c registers writeCompression = off, so
++            # this rung will not produce a gzipped field.  The branch is
++            # exercised ANYWAY: a branch kept alive in the code and dead in the
++            # test is a branch that will be believed the first time it is used,
++            # and `field_path` accepts either form deliberately.
++            import gzip as _gzip
++            with _gzip.open(os.path.join(tdir, f + ".gz"), "wt") as fh:
++                fh.write(f"{f} at {last}\n")
++        else:
++            open(os.path.join(tdir, f), "w").write(f"{f} at {last}\n")
+     if break_clause == "clause6":
+         old = os.path.getmtime(os.path.join(z, "T")) - 100
+         for f in emit:
+-            os.utime(os.path.join(tdir, f), (old, old))
++            os.utime(os.path.join(tdir, f + (".gz" if gzip_fields else "")),
++                     (old, old))
+     n_exec = int(endtime) if break_clause != "clause5" else int(endtime) - 1
+     body = "".join("ExecutionTime = %d s\n" % i for i in range(n_exec))
+     if break_clause != "clause2":
+@@ -449,6 +493,23 @@
+         check_("clause 7 FIRES when a numeric time dir already exists",
+                any("numeric time" in r for r in launch_guard(tmp, "I_hi")))
+ 
++        # --- THE TWO REGISTERED `.gz` ARMS (AMENDMENT 2 section A2.1c) ---
++        # Registered as REQUIRED, not optional, on a rung whose registration
++        # FORBIDS compression.  `field_path` accepts `T` or `T.gz`; that second
++        # branch had never been executed by any selftest in this family --
++        # eleven legacy mark_done_*.py scripts carry no `.gz` handling at all
++        # and fail safe only by coincidence.  Failing safe by coincidence is
++        # not the same as being correct.
++        _synthetic(tmp, "B_hi", break_clause=None, gzip_fields=True)
++        f, _ = check(tmp, "B_hi")
++        check_("GZIPPED clean case still satisfies all seven clauses",
++               not f, str(f))
++        _synthetic(tmp, "I_hi", break_clause="clause6", gzip_fields=True)
++        f, _ = check(tmp, "I_hi")
++        check_("GZIPPED stale case: the AGE GUARD still FIRES",
++               any("older" in r or "newer" in r or "0/T" in r for r in f),
++               str(f))
++
+         # the REFUSAL, exercised in a subprocess so exit 2 can be observed
+         import subprocess
+         r = subprocess.run([sys.executable, os.path.abspath(__file__),
+@@ -456,6 +517,24 @@
+                            capture_output=True, text=True)
+         check_("REFUSES (exit 2) on a case with no registered closure",
+                r.returncode == EXIT_REFUSE, f"rc={r.returncode}")
++
++        # THE bf7e9428 CONFIGURATION, DRIVEN: six clauses pass and the STATUS
++        # file is absent.  It must be exit 2 (REFUSAL), never exit 1
++        # (NOT DONE) and above all never exit 0.
++        _synthetic(tmp, "M2_m", break_clause=None)
++        os.remove(os.path.join(tmp, "STATUS.M2_m"))
++        r2 = subprocess.run([sys.executable, os.path.abspath(__file__),
++                             "--root", tmp, "M2_m"],
++                            capture_output=True, text=True)
++        check_("REFUSES (exit 2) on an ABSENT STATUS, never infers rc=0",
++               r2.returncode == EXIT_REFUSE and "no STATUS file" in r2.stdout,
++               f"rc={r2.returncode}")
++        # and the CLEAN counterpart of that same arm must NOT refuse
++        r3 = subprocess.run([sys.executable, os.path.abspath(__file__),
++                             "--root", tmp, "M1_m"],
++                            capture_output=True, text=True)
++        check_("...and STAYS QUIET when STATUS is present and reports rc=0",
++               r3.returncode == EXIT_OK, f"rc={r3.returncode}")
+     finally:
+         shutil.rmtree(tmp, ignore_errors=True)
+ 

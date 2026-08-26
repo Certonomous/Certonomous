@@ -1,0 +1,198 @@
+--- a/scripts/build_k0d.py  (HEAD blob 56f85e61, mechanical renames applied)
++++ b/scripts/build_k0f.py
+@@ -260,7 +260,7 @@
+ # --- the mesh family, superseded 4 + re-registration 5.1 -----------------
+ LEVELS = {
+     "L1": dict(Nx=160, nA=12, nB=138, nC=10, cells=25600, first_cell=1.101053e-03),
+-    "L2": dict(Nx=224, nA=17, nB=193, nC=14, cells=50176, first_cell=7.864662e-04),
++    "L2": dict(Nx=224, nA=18, nB=192, nC=14, cells=50176, first_cell=7.864662e-04),
+     "L3": dict(Nx=314, nA=24, nB=270, nC=20, cells=98596, first_cell=5.610459e-04),
+ }
+ 
+@@ -802,6 +802,165 @@
+     return foam_header(name, location) + body
+ 
+ 
++# --------------------------------------------------------------------------
++# THE CONSUMER-SIDE COMPLETENESS ASSERTION (K0f section 3A).
++#
++# THE DEFECT CLASS THIS CLOSES.  A launcher elsewhere in the lab hashed the
++# field directory it had staged and re-asserted that manifest faithfully before
++# all 23 stages, PASSING EVERY TIME -- while four fields were staged and eleven
++# were needed, and every stage died on `cannot find file 0/nut`.  Internally
++# perfect, externally false.  A comparator-side md5 of the same directory would
++# not have caught it either: BOTH READERS AGREE ON THE SAME WRONG FILES.
++#
++# The assertion below is against WHAT THE CONSUMER DEMANDS -- the fields the
++# SOLVER will look for -- never against a hash of what the producer wrote.
++#
++# AND THE ENUMERATION IS NOT TRIVIAL, WHICH IS WHY IT IS SPECIFIED RATHER THAN
++# LEFT TO AN IMPLEMENTER.  `fvSolution`'s registered solver regex is
++# "(U|T|k|omega|epsilon)(Final)?" and its relaxation regex is "(k|omega|epsilon)"
++# -- BOTH NAME `omega` AND `epsilon`, because one dictionary serves all three
++# closures.  A NAIVE ENUMERATION FROM `fvSolution` ALONE WOULD DEMAND `epsilon`
++# OF A kOmegaSST CASE AND REFUSE A CORRECT RUN.  The required set is therefore
++# the INTERSECTION of the dictionary's names with the closure declared in
++# `constant/turbulenceProperties`, reconciled against the registered
++# per-closure completion table.  `phi` is EXCLUDED: the solver generates it, it
++# is never staged in `0/`, and that is why `0/` correctly holds seven files
++# where the completion set names eight.
++#
++# IT RUNS BEFORE THE SOLVER STARTS.  Under a detached queue there is nobody to
++# diagnose a crash, so a pre-flight refusal is worth far more than a post-hoc
++# one.
++# --------------------------------------------------------------------------
++
++# The registered per-closure completion field set (re-registration section 7.2),
++# carried here so the reconciliation has something to reconcile AGAINST.
++COMPLETION_FIELDS = {
++    "kOmegaSST":   ("T", "U", "p_rgh", "alphat", "nut", "k", "omega", "phi"),
++    "RNGkEpsilon": ("T", "U", "p_rgh", "alphat", "nut", "k", "epsilon", "phi"),
++    "laminar":     ("T", "U", "p_rgh", "alphat", "phi"),
++}
++SOLVER_GENERATED = ("phi",)
++# THE FIELDS THAT CARRY A TRANSPORT EQUATION, and therefore the ONLY ones that
++# may be cross-checked against `fvSolution`.
++#
++# A FINDING AGAINST THIS FUNCTION'S OWN FIRST DRAFT, RECORDED RATHER THAN
++# QUIETLY CORRECTED.  This tuple first read ("k", "omega", "epsilon", "nut"),
++# and the assertion then REFUSED every correct turbulent case with "the
++# registered completion set names 'nut' but system/fvSolution never mentions
++# it".  IT WAS RIGHT TO REFUSE AND THE ENUMERATION WAS WRONG: `nut` and
++# `alphat` are CALCULATED fields -- staged in `0/` because the solver reads
++# them, never solved, so `fvSolution` correctly has no entry for either.  This
++# is section 3A's own warning arriving from the opposite direction: the naive
++# enumeration demands `epsilon` of a kOmegaSST case; the over-eager
++# reconciliation demands an `fvSolution` entry for a field that has no
++# equation.  BOTH ARE THE SAME MISTAKE -- reading one dictionary as though it
++# described the whole consumer.  The defect was caught by DRIVING the
++# assertion on all three closures BEFORE any launch, which is the only reason
++# it is a footnote here instead of a refused batch in a detached queue.
++SOLVED_CLOSURE_VARIABLES = ("k", "omega", "epsilon")
++CALCULATED_FIELDS = ("nut", "alphat")
++
++
++def declared_closure(case_dir):
++    """The closure the SOLVER will read, from constant/turbulenceProperties.
++
++    Read from the file on disk, never from this script's CASES table: the
++    table describes what was meant to be written and the file is what the
++    solver will actually consume.  Those are the two channels whose divergence
++    is this whole section's subject.
++    """
++    p = os.path.join(case_dir, "constant", "turbulenceProperties")
++    if not os.path.isfile(p):
++        return None, f"{p}: absent, so the closure cannot be read"
++    txt = open(p).read()
++    if re.search(r"\bsimulationType\s+laminar\s*;", txt):
++        return "laminar", "simulationType laminar"
++    m = re.search(r"\bRASModel\s+(\w+)\s*;", txt)
++    if not m:
++        return None, f"{p}: neither `simulationType laminar` nor `RASModel`"
++    return m.group(1), f"RASModel {m.group(1)}"
++
++
++def fvsolution_names(case_dir):
++    """Every field name `system/fvSolution` mentions, from BOTH its solver and
++    its relaxation entries.  This is the OVER-SET -- it names all three
++    closures' variables at once -- and is intersected, never used raw."""
++    p = os.path.join(case_dir, "system", "fvSolution")
++    if not os.path.isfile(p):
++        return None, f"{p}: absent"
++    txt = open(p).read()
++    names = set()
++    for m in re.finditer(r'"\(([^)]*)\)(?:\(Final\)\?)?"', txt):
++        for part in m.group(1).split("|"):
++            part = part.strip()
++            if part and not part.endswith("Final"):
++                names.add(part)
++    for m in re.finditer(r"^\s{8,}(\w+)\s+[0-9.]+\s*;", txt, re.M):
++        names.add(m.group(1))
++    return names, "read"
++
++
++def required_zero_fields(case_dir):
++    """The field set the SOLVER REQUIRES in `0/`, and the derivation with it.
++
++    (a) the closure is READ FROM `constant/turbulenceProperties`;
++    (b) `system/fvSolution`'s names are the over-set;
++    (c) the required set is the registered completion set for THAT closure,
++        MINUS the solver-generated fields;
++    (d) the two are RECONCILED: a closure variable that fvSolution does not
++        name, or a required field fvSolution names for a different closure,
++        is a finding and REFUSES.
++    """
++    closure, how = declared_closure(case_dir)
++    if closure is None:
++        return None, closure, how
++    if closure not in COMPLETION_FIELDS:
++        return None, closure, (
++            f"closure {closure!r} has NO REGISTERED COMPLETION FIELD SET. "
++            f"Re-registration section 7.2: no exemption and no field "
++            f"substitution may be inferred at grading time, and none is "
++            f"inferred at launch time either.")
++    names, note = fvsolution_names(case_dir)
++    if names is None:
++        return None, closure, note
++    required = [f for f in COMPLETION_FIELDS[closure]
++                if f not in SOLVER_GENERATED]
++    # (d) the reconciliation, in the direction that can actually bite
++    for f in required:
++        if f in SOLVED_CLOSURE_VARIABLES and f not in names:
++            return None, closure, (
++                f"the registered completion set for {closure} names {f!r} but "
++                f"system/fvSolution never mentions it, so the solver would "
++                f"have no entry for a field this rung grades.  Refusing "
++                f"rather than launching on a dictionary that disagrees with "
++                f"the registration.")
++    return required, closure, f"{how}; fvSolution names {sorted(names)}"
++
++
++def assert_zero_complete(case_dir, verbose=True):
++    """REFUSE (exit 2) if any field the solver requires is absent from `0/`."""
++    required, closure, note = required_zero_fields(case_dir)
++    if required is None:
++        refuse(f"{case_dir}: the required field set could not be enumerated. "
++               f"{note}")
++    zdir = os.path.join(case_dir, "0")
++    if not os.path.isdir(zdir):
++        refuse(f"{case_dir}: no 0/ directory, so no field is staged at all")
++    missing = [f for f in required
++               if not (os.path.isfile(os.path.join(zdir, f))
++                       or os.path.isfile(os.path.join(zdir, f + ".gz")))]
++    if missing:
++        refuse(f"{case_dir}: 0/ is MISSING {missing}, which the solver "
++               f"REQUIRES for closure {closure!r}.  The assertion is against "
++               f"what the CONSUMER demands, not against a hash of what the "
++               f"producer wrote -- a hash of the wrong files agrees with "
++               f"itself.  Refusing to launch.")
++    if verbose:
++        print(f"  PRE-FLIGHT OK  {os.path.basename(case_dir)}: closure "
++              f"{closure}, requires {required}, all present in 0/")
++    return required, closure
++
++
+ def write_case(root, case, gaps):
+     d = os.path.join(root, case)
+     if os.path.exists(d):
+@@ -830,10 +989,20 @@
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--root")
+     ap.add_argument("--selftest", action="store_true")
++    ap.add_argument("--preflight", metavar="CASE_DIR", default=None,
++                    help="the CONSUMER-SIDE COMPLETENESS ASSERTION (section "
++                         "3A): enumerate the field set the SOLVER requires and "
++                         "REFUSE (exit 2) if any is absent from 0/.  Run "
++                         "BEFORE the solver, by the launcher.")
+     ap.add_argument("cases", nargs="*")
+     a = ap.parse_args(argv)
+     if a.selftest:
+         return selftest()
++    if a.preflight:
++        if not os.path.isdir(a.preflight):
++            refuse(f"{a.preflight}: not a case directory")
++        assert_zero_complete(a.preflight)
++        return EXIT_OK
+ 
+     gaps = unresolved_gaps()
+     if gaps:

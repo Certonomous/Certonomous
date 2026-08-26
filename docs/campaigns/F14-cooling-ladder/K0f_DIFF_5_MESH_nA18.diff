@@ -1,0 +1,11 @@
+--- a/scripts/check_k0d_mesh.py  (HEAD blob 8e0d6c55, mechanical renames applied)
++++ b/scripts/check_k0f_mesh.py
+@@ -98,7 +98,7 @@
+     #        Nx    nA   nB   nC   Ny    cells   first wall cell (m)
+     "L1": dict(Nx=160, nA=12, nB=138, nC=10, Ny=160, cells=25600,
+                first_cell=1.101053e-03, inlet_min=10, outlet_min=12),
+-    "L2": dict(Nx=224, nA=17, nB=193, nC=14, Ny=224, cells=50176,
++    "L2": dict(Nx=224, nA=18, nB=192, nC=14, Ny=224, cells=50176,
+                first_cell=7.864662e-04, inlet_min=14, outlet_min=17),
+     "L3": dict(Nx=314, nA=24, nB=270, nC=20, Ny=314, cells=98596,
+                first_cell=5.610459e-04, inlet_min=20, outlet_min=24),

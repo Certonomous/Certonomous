@@ -1,0 +1,710 @@
+--- a/scripts/analyse_k0d.py  (HEAD blob f98febf5, mechanical renames applied)
++++ b/scripts/analyse_k0f.py
+@@ -512,8 +512,20 @@
+ def read_mesh(case_dir):
+     pm = os.path.join(case_dir, "constant", "polyMesh")
+     pts = read_points(pm)
++    zl = unique_axis(pts, 2)
++    # THE z EXTENT IS READ, NOT ASSUMED.  `cellPoint` interpolates in THREE
++    # dimensions: the distance from a mesh vertex at z = 0 to a cell centre at
++    # z = t/2 carries a t/2 term that is the same order as the in-plane
++    # spacing, so a 2D distance gives the wrong inverse-distance weights.
++    # AMENDMENT 2 section A2.1d registers ONE cell in z; assertion A1 is
++    # enforced here on the mesh actually read.
++    if len(zl) != 2:
++        refuse(f"{pm}: {len(zl)} z-planes, and the registration (AMENDMENT 2 "
++               f"section A2.1d, assertion A1) fixes EXACTLY ONE CELL IN z. "
++               f"Refusing rather than interpolating on a mesh the registration "
++               f"does not describe.")
+     return dict(x_lines=unique_axis(pts, 0), y_lines=unique_axis(pts, 1),
+-                path=pm)
++                z_lines=zl, thickness=zl[1] - zl[0], path=pm)
+ 
+ 
+ def build_index(mesh, n_field):
+@@ -554,7 +566,8 @@
+                 cell_of[(i, j)] = running + i
+             running += nx
+     return dict(nx=nx, ny=ny, cell_of=cell_of,
+-                x_lines=x_lines, y_lines=y_lines)
++                x_lines=x_lines, y_lines=y_lines,
++                z_lines=mesh["z_lines"], thickness=mesh["thickness"])
+ 
+ 
+ def _locate(lines, v):
+@@ -573,17 +586,235 @@
+     return lo
+ 
+ 
+-def sample_cell(idx, values, x, y):
++def sample_cell(idx, values, x, y, bvals=None):
+     """SCHEME `cell` (AMENDMENT 1 A1.3a, the CONTROL): piecewise-constant
+-    lookup in the containing cell."""
++    lookup in the containing cell.
++
++    `bvals` is accepted and DELIBERATELY UNUSED: OpenFOAM's `cell` scheme is a
++    cell lookup and takes no boundary value, so the control must NOT acquire
++    one.  It is in the signature only so the two schemes dispatch alike."""
+     i = _locate(idx["x_lines"], x)
+     j = _locate(idx["y_lines"], y)
+     return values[idx["cell_of"][(i, j)]]
+ 
+ 
+-def _vertex_value(idx, values, i, j):
+-    """Value at vertex (i, j), averaged over the cells sharing it -- what
+-    cellPoint does on a structured hex mesh."""
++def _boundary_entries(lines):
++    """Split a field file's `boundaryField { ... }` into {patch: body}.
++
++    Brace-counted, not regex-matched over the whole block: a regex that tries
++    to find the matching brace of a nested dictionary is the classic way to
++    stop one entry early and silently drop the rest.
++    """
++    start = None
++    for i, ln in enumerate(lines):
++        if ln.strip().startswith("boundaryField"):
++            start = i
++            break
++    if start is None:
++        return None
++    j = start
++    while j < len(lines) and "{" not in lines[j]:
++        j += 1
++    if j >= len(lines):
++        return None
++    depth, k, out, name = 0, j, {}, None
++    buf = []
++    while k < len(lines):
++        ln = lines[k]
++        opens, closes = ln.count("{"), ln.count("}")
++        if depth == 1 and name is None and ln.strip() and opens == 0 and closes == 0:
++            name = ln.strip()
++        if depth >= 2:
++            buf.append(ln)
++        depth += opens - closes
++        if depth == 1 and buf:
++            out[name] = "\n".join(buf)
++            buf, name = [], None
++        if depth <= 0 and k > j:
++            break
++        k += 1
++    return out
++
++
++def _patch_names_match(found):
++    """The registered patch set, asserted rather than assumed.
++
++    A field file naming a patch this reader does not know about means the
++    geometry moved under the reader, and the reader's vertex-to-patch map is
++    then wrong in a way no value comparison would reveal.  It REFUSES.
++    """
++    known = set(REGISTERED_PATCHES)
++    for name in found:
++        raw = name.strip().strip('"')
++        if raw.startswith("(") or "|" in raw:
++            for part in re.findall(r"[A-Za-z_][A-Za-z0-9_]*", raw):
++                if part not in known:
++                    return False, part
++        elif raw not in known:
++            return False, raw
++    return True, None
++
++
++def read_boundary_values(path, kind):
++    """PRODUCTION BOUNDARY READER.  {patch_name: float or (x,y,z)}.
++
++    THIS IS THE HALF OF THE READER THAT WAS MISSING, AND ITS ABSENCE IS THE
++    DEFECT THAT MADE EVERY K0d GRADED ROW `NOT A RESULT`.  OpenFOAM's
++    `cellPoint` (volPointInterpolation) OVERRIDES the point value on every
++    non-constraint patch with a value interpolated from that patch's own FACE
++    values; the K0d reader averaged interior cells only and so could not see a
++    boundary condition at all.  Measured on `M1_c` at the floor: OpenFOAM
++    308.150000 K -- exactly the registered fixedValue -- against 306.940157 K.
++
++    Resolution, per patch type, and nothing is inferred:
++      fixedValue / calculated / fixedFluxPressure  ->  the `value` entry
++      noSlip                                       ->  zero, by definition
++      zeroGradient                                 ->  the ADJACENT CELL value,
++                                                       signalled as None here
++                                                       and resolved by the
++                                                       caller, which is the only
++                                                       place the cell is known
++      anything else                                ->  REFUSE
++
++    A NONUNIFORM patch value REFUSES.  Neither `T` nor `U` -- the only fields
++    the registered extraction of A1.3a samples -- can carry one: their patch
++    entries are `fixedValue uniform`, `noSlip` and `zeroGradient`.  Guessing a
++    face ORDER for a nonuniform list is exactly the kind of assumption this
++    repair exists to remove, so it is refused instead of guessed.
++    """
++    ents = _boundary_entries(_read_lines(path))
++    if ents is None:
++        refuse(f"{path}: no boundaryField could be located.  The wall reader "
++               f"cannot be run without one, and falling back to an "
++               f"interior-only average is the DEFECT this reader repairs.")
++    ok, bad = _patch_names_match(ents)
++    if not ok:
++        refuse(f"{path}: boundaryField names patch {bad!r}, which is not in the "
++               f"registered patch set {sorted(REGISTERED_PATCHES)}.  The "
++               f"vertex-to-patch map is registered geometry; refusing rather "
++               f"than mapping a vertex onto a patch this reader cannot place.")
++    out = {}
++    for name, body in ents.items():
++        m = re.search(r"\btype\s+(\w+)\s*;", body)
++        if not m:
++            refuse(f"{path}: patch {name!r} states no type")
++        typ = m.group(1)
++        raw = name.strip().strip('"')
++        targets = ([p for p in re.findall(r"[A-Za-z_][A-Za-z0-9_]*", raw)]
++                   if (raw.startswith("(") or "|" in raw) else [raw])
++        if typ == "empty":
++            val = "EMPTY"
++        elif typ == "noSlip":
++            val = (0.0, 0.0, 0.0) if kind == "vector" else 0.0
++        elif typ == "zeroGradient":
++            val = None                      # resolved from the adjacent cell
++        else:
++            vm = re.search(r"\bvalue\s+uniform\s+(.+?);", body, re.S)
++            if not vm:
++                if re.search(r"\bvalue\s+nonuniform\b", body):
++                    refuse(f"{path}: patch {name!r} carries a NONUNIFORM value. "
++                           f"This reader refuses rather than guess the patch "
++                           f"face ORDER.  `T` and `U` -- the only fields the "
++                           f"registered A1.3a extraction samples -- cannot "
++                           f"carry one.")
++                refuse(f"{path}: patch {name!r} is type {typ!r} with no `value` "
++                       f"entry, so its face value cannot be read.  Refusing "
++                       f"rather than substituting an interior cell for a "
++                       f"boundary condition -- that substitution IS the K0d "
++                       f"defect.")
++            tok = vm.group(1).strip()
++            val = _parse_vector(tok) if kind == "vector" else _parse_scalar(tok)
++        for t in targets:
++            out[t] = val
++    missing = [p for p in REGISTERED_PATCHES if p not in out]
++    if missing:
++        refuse(f"{path}: boundaryField does not cover registered patches "
++               f"{missing}.  Refusing rather than leaving a wall unread.")
++    return out
++
++
++# --- the vertex-to-patch map, from REGISTERED geometry --------------------
++# section 1: inlet  x = 0,    y in [1.022, 1.040]
++#            outlet x = 1.04, y in [0, 0.024]
++# The rest of x = 0 is leftWall and the rest of x = 1.04 is rightWall;
++# y = 0 is floor and y = 1.04 is ceiling, both across the whole span.
++# `frontAndBack` is `empty` -- a CONSTRAINT patch, which volPointInterpolation
++# does NOT override -- and it never enters this 2D (i, j) map.
++REGISTERED_PATCHES = ("inlet", "outlet", "floor", "ceiling",
++                      "leftWall", "rightWall", "frontAndBack")
++INLET_Y = (1.022, 1.040)
++OUTLET_Y = (0.000, 0.024)
++
++
++def _row_patch(side, y_lo, y_hi):
++    """Patch owning the x-normal face spanning [y_lo, y_hi] on `side`."""
++    if side == "left":
++        return "inlet" if (y_lo >= INLET_Y[0] - 1e-9 and
++                           y_hi <= INLET_Y[1] + 1e-9) else "leftWall"
++    return "outlet" if (y_lo >= OUTLET_Y[0] - 1e-9 and
++                        y_hi <= OUTLET_Y[1] + 1e-9) else "rightWall"
++
++
++def boundary_faces_at_vertex(idx, i, j):
++    """Boundary faces sharing vertex (i, j), as (patch, cell_ij, half_extent).
++
++    `half_extent` is the distance from the vertex to that face's centre, which
++    is what volPointInterpolation's inverse-distance weighting uses.  On a
++    structured hex mesh a boundary face's centre sits at the midpoint of the
++    cell edge lying in the boundary, so the distance is half that edge.
++    """
++    nx, ny = idx["nx"], idx["ny"]
++    xl, yl = idx["x_lines"], idx["y_lines"]
++    faces = []
++    if j == 0 or j == ny:
++        patch = "floor" if j == 0 else "ceiling"
++        cj = 0 if j == 0 else ny - 1
++        for ci in (i - 1, i):
++            if 0 <= ci < nx:
++                faces.append((patch, (ci, cj), 0.5 * (xl[ci + 1] - xl[ci])))
++    if i == 0 or i == nx:
++        side = "left" if i == 0 else "right"
++        ci = 0 if i == 0 else nx - 1
++        for cj in (j - 1, j):
++            if 0 <= cj < ny:
++                faces.append((_row_patch(side, yl[cj], yl[cj + 1]),
++                              (ci, cj), 0.5 * (yl[cj + 1] - yl[cj])))
++    return faces
++
++
++def _vertex_value(idx, values, i, j, bvals=None):
++    """Value at vertex (i, j), as OpenFOAM's `cellPoint` computes it.
++
++    INTERIOR vertex: the average of the cells sharing it.
++    BOUNDARY vertex: OpenFOAM's volPointInterpolation OVERRIDES the point value
++    on every non-constraint patch with an inverse-distance interpolation of
++    that patch's FACE values.  It does NOT blend in the interior average, which
++    is why a `fixedValue` floor reads back as EXACTLY the registered BC.
++
++    THE K0d READER TOOK THE INTERIOR BRANCH EVERYWHERE.  That is the whole
++    defect: at the floor it returned 306.940157 K where OpenFOAM returns
++    308.150000 K, against a 2.00e-05 K registered criterion.
++
++    `bvals=None` selects the OLD interior-only behaviour and is retained for
++    ONE purpose: the selftest drives both branches and shows the repaired one
++    agrees with the boundary condition where the old one does not.  The graded
++    path never passes None -- `sample_line` REFUSES without boundary values.
++    """
++    if bvals is not None:
++        faces = boundary_faces_at_vertex(idx, i, j)
++        if faces:
++            acc = wsum = 0.0
++            for patch, (ci, cj), d in faces:
++                v = bvals.get(patch)
++                if v == "EMPTY":
++                    continue
++                if v is None:                       # zeroGradient
++                    v = values[idx["cell_of"][(ci, cj)]]
++                w = 1.0 / d if d > 0 else 0.0
++                acc += w * v
++                wsum += w
++            if wsum > 0:
++                return acc / wsum
+     acc, n = 0.0, 0
+     for di in (-1, 0):
+         for dj in (-1, 0):
+@@ -594,27 +825,170 @@
+     return acc / n if n else 0.0
+ 
+ 
+-def sample_cellpoint(idx, values, x, y):
+-    """SCHEME `cellPoint` (AMENDMENT 1 A1.3a, the GRADED scheme): bilinear
+-    interpolation from vertex values."""
+-    i = _locate(idx["x_lines"], x)
+-    j = _locate(idx["y_lines"], y)
+-    x0, x1 = idx["x_lines"][i], idx["x_lines"][i + 1]
+-    y0, y1 = idx["y_lines"][j], idx["y_lines"][j + 1]
+-    tx = 0.0 if x1 == x0 else min(1.0, max(0.0, (x - x0) / (x1 - x0)))
+-    ty = 0.0 if y1 == y0 else min(1.0, max(0.0, (y - y0) / (y1 - y0)))
+-    v00 = _vertex_value(idx, values, i, j)
+-    v10 = _vertex_value(idx, values, i + 1, j)
+-    v01 = _vertex_value(idx, values, i, j + 1)
+-    v11 = _vertex_value(idx, values, i + 1, j + 1)
+-    return ((1 - tx) * (1 - ty) * v00 + tx * (1 - ty) * v10 +
+-            (1 - tx) * ty * v01 + tx * ty * v11)
++# --------------------------------------------------------------------------
++# `cellPoint`, AS OPENFOAM ACTUALLY COMPUTES IT.
++#
++# THE K0d READER WAS NOT A `cellPoint` INTERPOLANT.  It was a bilinear blend of
++# four EQUALLY-weighted vertex averages, with no boundary value and no cell
++# value.  OpenFOAM's `interpolationCellPoint` is a different object in THREE
++# independent respects, and all three had to be repaired to reach the
++# registered 2.00e-05 K criterion.  Measured on the preserved `M1_c` at
++# endTime 40000, worst |diff| on the vertical mid-plane against OpenFOAM's own
++# `postProcess -func sample`:
++#
++#     K0d, as frozen                                    1.141331     K
++#     + boundary face values at wall vertices (1)       1.854106e-03 K
++#     + inverse-distance point weights in 3D    (2)  }
++#     + tet decomposition with the CELL value    (3)  }  3.988237e-08 K
++#
++# REPAIR (1) ALONE LEAVES THE READER 93x OUTSIDE ITS OWN CRITERION.  That is
++# recorded because the repair was ordered as one change and is three.
++#
++# The three mechanisms, each traced to the installed source at
++# /usr/lib/openfoam/openfoam2606/src/finiteVolume/lnInclude/ :
++#
++#  (1) volPointInterpolation OVERRIDES the point value on every non-constraint
++#      patch with its patch FACE values -- `_vertex_value` above.
++#  (2) volPointInterpolation weights cell values into a point by INVERSE
++#      DISTANCE from the cell CENTRES, in three dimensions.  The mesh is one
++#      cell thick, so every vertex sits a half-thickness in z away from every
++#      cell centre it draws on; at the registered t = 0.010 m that offset is
++#      the same order as the in-plane spacing and equal weighting is wrong by
++#      up to 1.4e-03 K in the graded near-wall rows.
++#  (3) interpolationCellPointI.H:
++#          t  = psi_[cell]*w[0]
++#            += psip_[faceVertices[0]]*w[1] + [1]*w[2] + [2]*w[3]
++#      -- a barycentric blend over a TETRAHEDRON whose fourth vertex is the
++#      CELL CENTRE, carrying the CELL value.  The tets come from
++#      polyMeshTetDecomposition: every face is fanned about its base point and
++#      each triangle closed to the cell centre.  A bilinear blend of vertex
++#      values contains no cell value at all, which is why the horizontal
++#      mid-plane -- graded in x across its whole length -- was the worse of
++#      the two sets at 1.774491e-02 K.
++# --------------------------------------------------------------------------
++# A hex cell's six faces, as local (a, b, c) vertex triples in (x, y, z).  The
++# fan is taken about each face's first listed vertex, which is what
++# polyMeshTetDecomposition does about a face's base point.
++HEX_FACES = (
++    ((0, 0, 0), (0, 1, 0), (0, 1, 1), (0, 0, 1)),   # x-
++    ((1, 0, 0), (1, 0, 1), (1, 1, 1), (1, 1, 0)),   # x+
++    ((0, 0, 0), (0, 0, 1), (1, 0, 1), (1, 0, 0)),   # y-
++    ((0, 1, 0), (1, 1, 0), (1, 1, 1), (0, 1, 1)),   # y+
++    ((0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)),   # z-
++    ((0, 0, 1), (0, 1, 1), (1, 1, 1), (1, 0, 1)),   # z+
++)
++BARY_TOL = 1e-9
++
++
++def cell_centre(idx, i, j):
++    xl, yl = idx["x_lines"], idx["y_lines"]
++    return (0.5 * (xl[i] + xl[i + 1]), 0.5 * (yl[j] + yl[j + 1]),
++            0.5 * idx["thickness"])
++
++
++def point_values(idx, values, bvals):
++    """`volPointInterpolation`: cell values carried to every mesh vertex.
++
++    Interior vertices: inverse-distance weighted from the CELL CENTRES, in
++    THREE dimensions.  Boundary vertices: the patch face values, which
++    OVERRIDE rather than blend -- which is why a `fixedValue` floor reads back
++    as EXACTLY the registered boundary condition.
++    """
++    if bvals is None:
++        refuse("point_values was called with no boundary values.  A cellPoint "
++               "point field that cannot see a boundary condition is the K0d "
++               "defect (1.141331 K at the floor against 2.00e-05 K).")
++    nx, ny = idx["nx"], idx["ny"]
++    xl, yl = idx["x_lines"], idx["y_lines"]
++    cof = idx["cell_of"]
++    psip = {}
++    for i in range(nx + 1):
++        for j in range(ny + 1):
++            if boundary_faces_at_vertex(idx, i, j):
++                psip[(i, j)] = _vertex_value(idx, values, i, j, bvals)
++                continue
++            acc = wsum = 0.0
++            px, py = xl[i], yl[j]
++            for di in (-1, 0):
++                for dj in (-1, 0):
++                    ci, cj = i + di, j + dj
++                    if 0 <= ci < nx and 0 <= cj < ny:
++                        cx, cy, cz = cell_centre(idx, ci, cj)
++                        d = math.sqrt((px - cx) ** 2 + (py - cy) ** 2 + cz * cz)
++                        w = 1.0 / d
++                        acc += w * values[cof[(ci, cj)]]
++                        wsum += w
++            psip[(i, j)] = acc / wsum if wsum else 0.0
++    return psip
++
++
++def _bary_tet(P, A_, B, C, D):
++    """Barycentric coordinates of P in the tet (A_, B, C, D), or None if the
++    tet is degenerate.  A_ is the CELL CENTRE, so the returned w[0] is the
++    weight OpenFOAM applies to the cell value."""
++    ax, ay, az = A_
++    c0 = (B[0] - ax, B[1] - ay, B[2] - az)
++    c1 = (C[0] - ax, C[1] - ay, C[2] - az)
++    c2 = (D[0] - ax, D[1] - ay, D[2] - az)
++    r = (P[0] - ax, P[1] - ay, P[2] - az)
++
++    def det3(u, v, w):
++        return (u[0] * (v[1] * w[2] - v[2] * w[1])
++                - v[0] * (u[1] * w[2] - u[2] * w[1])
++                + w[0] * (u[1] * v[2] - u[2] * v[1]))
++
++    det = det3(c0, c1, c2)
++    if abs(det) < 1e-30:
++        return None
++    w1 = det3(r, c1, c2) / det
++    w2 = det3(c0, r, c2) / det
++    w3 = det3(c0, c1, r) / det
++    return (1.0 - w1 - w2 - w3, w1, w2, w3)
++
++
++def sample_cellpoint(idx, values, x, y, bvals=None, psip=None):
++    """SCHEME `cellPoint` (AMENDMENT 1 section A1.3a, the GRADED scheme).
++
++    OpenFOAM's `interpolationCellPoint`: locate the tet of the containing
++    cell's decomposition that holds the sample point, then take the barycentric
++    blend of the CELL value and the three vertex values of that tet's face
++    triangle.  The sample plane is the mid-thickness cell-centre plane, z = t/2
++    (section A1.3a), which is read from the mesh and not assumed.
++    """
++    if psip is None:
++        psip = point_values(idx, values, bvals)
++    xl, yl, t = idx["x_lines"], idx["y_lines"], idx["thickness"]
++    i = _locate(xl, x)
++    j = _locate(yl, y)
++    P = (x, y, idx["z_lines"][0] + 0.5 * t)
++    C = cell_centre(idx, i, j)
++    cellv = values[idx["cell_of"][(i, j)]]
++
++    def coord(a, b, c):
++        return (xl[i + a], yl[j + b], idx["z_lines"][c])
++
++    for face in HEX_FACES:
++        for k in (1, 2):
++            tri = (face[0], face[k], face[k + 1])
++            pts = [coord(*v) for v in tri]
++            w = _bary_tet(P, C, pts[0], pts[1], pts[2])
++            if w is None:
++                continue
++            if all(v > -BARY_TOL for v in w):
++                return (w[0] * cellv
++                        + w[1] * psip[(i + tri[0][0], j + tri[0][1])]
++                        + w[2] * psip[(i + tri[1][0], j + tri[1][1])]
++                        + w[3] * psip[(i + tri[2][0], j + tri[2][1])])
++    refuse(f"cellPoint: the sample point ({x:.6f}, {y:.6f}) fell in no tet of "
++           f"cell ({i}, {j}).  Refusing rather than falling back to a scheme "
++           f"the registration does not name -- a silent fallback is how the "
++           f"K0d reader came to disagree with OpenFOAM unnoticed.")
+ 
+ 
+ SAMPLERS = {"cell": sample_cell, "cellPoint": sample_cellpoint}
+ 
+ 
+-def sample_line(idx, values, which, scheme):
++def sample_line(idx, values, which, scheme, bvals=None):
+     """The registered uniform sample set: 2081 points at 5.000e-04 m spacing.
+ 
+     vertical   set: (0.52, 0) -> (0.52, 1.04)
+@@ -623,7 +997,17 @@
+     if scheme not in SAMPLERS:
+         refuse(f"extraction scheme {scheme!r} is not registered; AMENDMENT 1 "
+                f"section A1.3a registers cellPoint (graded) and cell (control)")
++    if scheme == "cellPoint" and bvals is None:
++        refuse("sample_line was called on the GRADED `cellPoint` scheme with no "
++               "boundary values.  A cellPoint reader that cannot see a boundary "
++               "condition is the K0d defect that made every graded row NOT A "
++               "RESULT (measured: 1.209843 K at the floor against a 2.00e-05 K "
++               "criterion).  Refusing rather than reproducing it.")
+     f = SAMPLERS[scheme]
++    # The point field is built ONCE per line, not once per sample point: it is
++    # a property of (mesh, field, boundary values) and 2081 rebuilds of it
++    # would be the same answer 2081 times at (nx+1)(ny+1) cost each.
++    psip = point_values(idx, values, bvals) if scheme == "cellPoint" else None
+     out, coords = [], []
+     for n in range(N_POINTS):
+         s = n / (N_POINTS - 1)
+@@ -634,7 +1018,8 @@
+         else:
+             refuse(f"sample set {which!r} is not registered")
+         coords.append(s)
+-        out.append(f(idx, values, x, y))
++        out.append(f(idx, values, x, y, bvals, psip)
++                   if scheme == "cellPoint" else f(idx, values, x, y, bvals))
+     return coords, out
+ 
+ 
+@@ -846,6 +1231,25 @@
+ # refused -- never silently omitted (AMENDMENT 2 A2.3c item 5: a check omitted
+ # in silence reads as a check passed).
+ # --------------------------------------------------------------------------
++def _component(bvals, k):
++    """One component of a vector boundary map, preserving the two sentinels."""
++    return {p: (v if v in (None, "EMPTY") else v[k]) for p, v in bvals.items()}
++
++
++def _speed_boundary(bvals):
++    """|U| on each patch.  A zeroGradient patch stays None: its speed is the
++    ADJACENT CELL's speed, and only the sampler knows which cell that is --
++    taking the magnitude of a resolved component here would resolve it against
++    the wrong cell."""
++    out = {}
++    for p, v in bvals.items():
++        if v in (None, "EMPTY"):
++            out[p] = v
++        else:
++            out[p] = math.hypot(v[0], v[1])
++    return out
++
++
+ def load_case_fields(case_dir):
+     times = numeric_times(case_dir)
+     if not times:
+@@ -861,7 +1265,13 @@
+     if up is None:
+         refuse(f"{tdir}: no U field")
+     U = read_vector_field(up, idx["nx"] * idx["ny"])
+-    return dict(tdir=tdir, idx=idx, T=T, U=U, times=times)
++    # THE BOUNDARY HALF OF THE READER (K0f section V).  Loaded here, beside the
++    # internal field, so no caller can reach a graded number without it.
++    bT = read_boundary_values(tp, "scalar")
++    bU = read_boundary_values(up, "vector")
++    return dict(tdir=tdir, idx=idx, T=T, U=U, times=times,
++                bT=bT, bUx=_component(bU, 0), bUy=_component(bU, 1),
++                bSpeed=_speed_boundary(bU))
+ 
+ 
+ def extract_rows(cf, scheme=SCHEME_GRADED):
+@@ -871,11 +1281,11 @@
+     uy = [v[1] for v in cf["U"]]
+     speed = [math.hypot(v[0], v[1]) for v in cf["U"]]
+ 
+-    cv, Tv = sample_line(idx, cf["T"], "vertical", scheme)
+-    ch, Th = sample_line(idx, cf["T"], "horizontal", scheme)
+-    _, uxv = sample_line(idx, ux, "vertical", scheme)
+-    _, uyh = sample_line(idx, uy, "horizontal", scheme)
+-    _, spv = sample_line(idx, speed, "vertical", scheme)
++    cv, Tv = sample_line(idx, cf["T"], "vertical", scheme, cf["bT"])
++    ch, Th = sample_line(idx, cf["T"], "horizontal", scheme, cf["bT"])
++    _, uxv = sample_line(idx, ux, "vertical", scheme, cf["bUx"])
++    _, uyh = sample_line(idx, uy, "horizontal", scheme, cf["bUy"])
++    _, spv = sample_line(idx, speed, "vertical", scheme, cf["bSpeed"])
+ 
+     out = {
+         "G1": dict(kind="profile", coords=cv, vals=Tv),
+@@ -1179,6 +1589,54 @@
+     return roache(c["value"], m["value"], f["value"])
+ 
+ 
++def assert_extraction_equivalence(root, verbose=True):
++    """THE STANDING PRE-GRADING GATE (K0f section V, the tightening).
++
++    REFUSES (exit 2) unless `check_k0f_extraction_equivalence.py` PASSES on the
++    graded level IN THIS SAME INVOCATION.
++
++    WHY IT IS A STANDING GATE AND NOT A ONE-OFF.  AD1.1 registered the
++    equivalence check as something to be run once, after L1.  It was, and it
++    said DISAGREE, and every K0d graded row became NOT A RESULT.  The lesson is
++    not that the check was worth running once; it is that FOR THE WHOLE LIFE OF
++    K0d THE GRADED PATH RESTED ON AN EQUIVALENCE NOBODY HAD MEASURED.
++
++    A READER THAT HAS NEVER BEEN COMPARED AGAINST THE REFERENCE IMPLEMENTATION
++    IS A PLANTED ZERO WITH NO CONTROL.  So the comparison is not a milestone
++    that can be passed and left behind: it runs every time a number is graded,
++    against the level that produces it.
++    """
++    import subprocess
++    graded = os.path.join(root, GRADED_CASE)
++    checker = os.path.join(os.path.dirname(os.path.abspath(__file__)),
++                           "check_k0f_extraction_equivalence.py")
++    if not os.path.isfile(checker):
++        refuse(f"{checker} is ABSENT.  The pre-grading equivalence gate cannot "
++               f"be run, and a reader never compared against OpenFOAM's own "
++               f"sampler is a planted zero with no control.  Refusing rather "
++               f"than grading past a gate that is merely missing -- a check "
++               f"omitted in silence reads as a check passed.")
++    if verbose:
++        print("\nPRE-GRADING EQUIVALENCE GATE (K0f section V) on "
++              f"{GRADED_CASE}: running OpenFOAM's own postProcess -func sample "
++              "against this file's reader.")
++    r = subprocess.run([sys.executable, checker, "--case", graded],
++                       capture_output=True, text=True)
++    if verbose:
++        for ln in r.stdout.rstrip().split("\n"):
++            print("   | " + ln)
++    if r.returncode != 0:
++        refuse(f"THE PRE-GRADING EQUIVALENCE GATE DID NOT PASS on "
++               f"{GRADED_CASE} (exit {r.returncode}).  Under AD1.1 the "
++               f"comparator's reader is WRONG and EVERY GRADED ROW IS "
++               f"`NOT A RESULT`.  Refusing to grade.")
++    if verbose:
++        print("   GATE PASSED -- the reader reproduces OpenFOAM's cellPoint "
++              "within the registered criterion, ON THIS LEVEL, IN THIS "
++              "INVOCATION.")
++    return True
++
++
+ def analyse(root, verbose=True, expect_sha=None, scratch=None):
+     """Returns (exit_code, report dict).  Refuses rather than degrading."""
+     sha = own_blob_sha()
+@@ -1199,6 +1657,9 @@
+     if verbose:
+         print(f"\nALL {len(CASES)} DONE markers present.")
+ 
++    # THE PRE-GRADING EQUIVALENCE GATE, BEFORE ANY GRADED VALUE IS READ.
++    assert_extraction_equivalence(root, verbose=verbose)
++
+     # ---- THE THREE PLANTS, BEFORE ANYTHING THAT WILL BE GRADED IS READ -----
+     if verbose:
+         print("\nPLANTED-ZERO CONTROL (superseded 8.1) -- run BEFORE any graded "
+@@ -1369,6 +1830,44 @@
+     check_(name, False, "RETURNED INSTEAD OF REFUSING -- the probe is blind")
+ 
+ 
++# THE FIXTURE CARRIES A REGISTERED boundaryField.
++# It used to write `boundaryField { }` -- an empty block -- and the repaired
++# reader REFUSES that, correctly: a `cellPoint` reader with no boundary values
++# is the K0d defect, and a fixture that hands it none would test the very
++# blindness the repair removes.  The values are the registered ones (section 1):
++# floor 308.15 K, ceiling / leftWall / rightWall / inlet 288.15 K, outlet
++# zeroGradient; U noSlip at the four walls.
++_SYNTH_FLOOR_T, _SYNTH_COLD_T = 308.15, 288.15
++_SYNTH_BF_SCALAR = (
++    "\nboundaryField\n{\n"
++    + "".join("    %s\n    {\n        type            %s;\n%s    }\n"
++              % (nm, ty, ("        value           uniform %.10g;\n" % vv)
++                 if vv is not None else "")
++              for nm, ty, vv in (
++                  ("inlet", "fixedValue", _SYNTH_COLD_T),
++                  ("outlet", "zeroGradient", None),
++                  ("floor", "fixedValue", _SYNTH_FLOOR_T),
++                  ("ceiling", "fixedValue", _SYNTH_COLD_T),
++                  ("leftWall", "fixedValue", _SYNTH_COLD_T),
++                  ("rightWall", "fixedValue", _SYNTH_COLD_T),
++                  ("frontAndBack", "empty", None)))
++    + "}\n")
++_SYNTH_BF_VECTOR = (
++    "\nboundaryField\n{\n"
++    + "".join("    %s\n    {\n        type            %s;\n%s    }\n"
++              % (nm, ty, ("        value           uniform (%.10g 0 0);\n" % vv)
++                 if vv is not None else "")
++              for nm, ty, vv in (
++                  ("inlet", "fixedValue", U_IN),
++                  ("outlet", "zeroGradient", None),
++                  ("floor", "noSlip", None),
++                  ("ceiling", "noSlip", None),
++                  ("leftWall", "noSlip", None),
++                  ("rightWall", "noSlip", None),
++                  ("frontAndBack", "empty", None)))
++    + "}\n")
++
++
+ def _write_scalar(path, values, uniform=None):
+     with open(path, "w") as fh:
+         fh.write("FoamFile\n{\n    version 2.0;\n    format ascii;\n"
+@@ -1381,7 +1880,7 @@
+                      f"{len(values)}\n(\n")
+             fh.write("\n".join(repr(float(v)) for v in values))
+             fh.write("\n)\n;\n")
+-        fh.write("\nboundaryField\n{\n}\n")
++        fh.write(_SYNTH_BF_SCALAR)
+ 
+ 
+ def _write_vector(path, values):
+@@ -1393,7 +1892,7 @@
+                  f"{len(values)}\n(\n")
+         fh.write("\n".join(f"({float(a)!r} {float(b)!r} {float(c)!r})"
+                            for a, b, c in values))
+-        fh.write("\n)\n;\n\nboundaryField\n{\n}\n")
++        fh.write("\n)\n;\n" + _SYNTH_BF_VECTOR)
+ 
+ 
+ def _synth_mesh(case_dir, nx=4, na=2, nb=4, nc=2, t=0.010):
+@@ -1712,6 +2211,33 @@
+     check_("all ten graded rows are produced", all(r in rg for r in GRADED_ROWS),
+            ",".join(GRADED_ROWS))
+ 
++    print("\n-- THE WALL READER (K0f section V), BOTH BRANCHES DRIVEN --")
++    ix = cfx["idx"]
++    imid = _locate(ix["x_lines"], 0.5 * (ix["x_lines"][0] + ix["x_lines"][-1]))
++    v_new = _vertex_value(ix, cfx["T"], imid, 0, cfx["bT"])
++    v_old = _vertex_value(ix, cfx["T"], imid, 0, None)
++    check_("POSITIVE: at a FLOOR vertex the repaired reader returns EXACTLY "
++           "the registered fixedValue boundary condition",
++           abs(v_new - _SYNTH_FLOOR_T) < 1e-12,
++           f"{v_new:.6f} K vs BC {_SYNTH_FLOOR_T} K")
++    check_("NEGATIVE: the K0d interior-only branch CANNOT see that boundary "
++           "condition -- this is the defect, driven rather than described",
++           abs(v_old - _SYNTH_FLOOR_T) > 1e-6,
++           f"interior-only {v_old:.6f} K, off by {abs(v_old - _SYNTH_FLOOR_T):.6f} K")
++    check_("the boundary reader resolves every registered patch, and a "
++           "zeroGradient patch stays unresolved for the sampler",
++           set(cfx["bT"]) == set(REGISTERED_PATCHES)
++           and cfx["bT"]["outlet"] is None
++           and cfx["bT"]["frontAndBack"] == "EMPTY",
++           f"floor={cfx['bT']['floor']}, outlet={cfx['bT']['outlet']!r}")
++    expect_refuse("NEGATIVE: the GRADED cellPoint path REFUSES without boundary "
++                  "values -- it can never silently fall back to the K0d branch",
++                  sample_line, ix, cfx["T"], "vertical", "cellPoint")
++    check_("POSITIVE: the `cell` CONTROL takes no boundary value, so it is "
++           "unchanged by the repair",
++           sample_cell(ix, cfx["T"], 0.5, 0.0, cfx["bT"])
++           == sample_cell(ix, cfx["T"], 0.5, 0.0, None))
++
+     print("\n" + "=" * 74)
+     if _FAILS:
+         print(f"SELFTEST FAILED: {len(_FAILS)} check(s) did not hold")
