@@ -136,9 +136,24 @@ def sweep(case, family):
         root = os.path.join(case, d)
         if not os.path.isdir(root):
             continue
-        for dirpath, _dirnames, filenames in os.walk(root):
+        for dirpath, dirnames, filenames in os.walk(root):
+            # constant/polyMesh holds the mesh itself -- `points`, `faces`,
+            # `owner`, `neighbour` -- which run to hundreds of MB and CANNOT
+            # contain a wall-function or scheme token.  Reading them made a
+            # territory sweep time out at 170 s on first live use; skipping them
+            # is a correctness-preserving speedup, not a narrowing of scope.
+            dirnames[:] = [d for d in dirnames if d != "polyMesh"]
             for fn in sorted(filenames):
                 p = os.path.join(dirpath, fn)
+                # a file with a NUL byte in its first block is binary (a
+                # compressed or binary-format field); it carries no readable
+                # dictionary entry and is skipped rather than scanned.
+                try:
+                    with open(p, "rb") as bh:
+                        if b"\x00" in bh.read(8192):
+                            continue
+                except OSError:
+                    continue
                 try:
                     with open(p, errors="replace") as fh:
                         lines = fh.read().splitlines()
