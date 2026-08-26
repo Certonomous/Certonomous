@@ -1,0 +1,13 @@
+D12Y_PLAN_STEP SELFTEST 2026-08-26T17:26:19Z planstep_md5=166505aa974498d62c71487247ffd836 sacrificial_root=/home/ubuntu/certonomous-runs/_d12y_planstep_selftest_20260826T172619Z
+  [OK ] P0 bash -n clean
+  [OK ] P0 assert count in code lines = 0, planted positive = 1
+  [OK ] P1 witness absent -> 3 waits -> PHASE1_COMPLETE -> prefix clear -> blob asserted -> comparator ran, step_plan.json present, rc=0 labelled; STATUS == PLANSTEP log
+  [OK ] P1b comparator exit 2 (REFUSAL shape) -> rc=2, labelled COMPARATOR_EXIT
+  [OK ] P2 registered blob deliberately wrong -> rc=4 COMPARATOR_BLOB_DRIFT, nothing run
+  [OK ] P3 bound (3 s, poll 1 s) with PHASE3_COMPLETE absent -> rc=6, 3 WAIT lines, nothing run
+  [OK ] P4 live container d12yst_selftest_20260826T172619Z waited out (4 WAIT_PREFIX_CLEAR lines), then ran, rc=0 -- never refused
+  [OK ] P5 second plan step for case P5 -> rc=3 DUPLICATE_PLANSTEP_REFUSED while the first waits
+  [OK ] P6 missing --deadline-s -> 64; bad mode -> 64
+  [OK ] sacrificial root removed: /home/ubuntu/certonomous-runs/_d12y_planstep_selftest_20260826T172619Z
+  [OK ] no d12yst_ container survives
+D12Y_PLAN_STEP SELFTEST pass=11 fail=0 2026-08-26T17:26:34Z

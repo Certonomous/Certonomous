@@ -198,3 +198,51 @@ Phase 2: **30.0 core-min** (held entry's own arithmetic: at most 5 steps × 2 si
 | launcher bytes changed | **0** (md5 `736aa849…` stands) |
 | files added | 3 (`cases/dafoam/_common/` wrapper, selftest, evidence) |
 | lines whose number changed above this section | **0** |
+
+---
+
+## ADDENDUM 3 — 2026-08-26T17:27:31Z. THE COMPARATOR PLAN STEPS ARE REGISTERED AS LAUNCHABLE, AGENT-INDEPENDENT ARGVS — THE CHAIN phase → plan → phase CLOSES WITHOUT A LIVE AGENT. ALTERS NO GATE, THRESHOLD, CAP, LABEL OR COMPARATOR
+
+**Version 1.3. This addendum ALTERS NO GATE, THRESHOLD, CAP, LABEL OR COMPARATOR. Lines whose number changed above this section: 0.** Post-compute (phase 1 RUNNING at this write: 30 of 33 `STAGE=` lines, stage `S5` live). Supervisor's order `[lab-attributed]` 2026-08-26 ~17:20Z: *"close it agent-independently, registered, before you move to D14"*. Permission `bc0e687e`.
+
+### A3.1 The gap Addendum 2 left, stated plainly
+
+Addendum 2's wrappers wait for `step_plan{,2,3}.json`, but **the launcher never writes those files** — it writes `PHASE<n>_COMPLETE spent=…` to the ledger and prints the comparator argv as an instruction (`:903-906`, `:934-935`, `:973-976`). Until now only an agent typed it, so the chain was not closed without a live agent — the defect `7def3c6b` names. The Addendum 2 wrappers stay exactly as launched (blob `c331ea56`, three of them waiting detached: `W2R_phase2_wait` pid 250242 / sid 250242 launched 17:15:37Z, `W2R_phase3_wait` pid 251170 17:16:42Z, `W2R_phase4_wait` pid 251490 17:17:47Z); what is added is the producer of the artifact they wait for.
+
+**Struck, not rewritten:** A2.3's phrase "who writes it … a grading act issued by a lane" — the plan step is still the registered grading invocation, but from this addendum it is **issued by the queue runner through the driver below**, not by a lane.
+
+**A route not taken, recorded:** a `--precondition-grep PATH:REGEX` form for the wrapper was written and selftested (14 legs) but its installation over the LIVE wrapper file (two instances executing it) was **refused by the auto-mode classifier** — verbatim: *"Permission for this action was denied by the Claude Code auto mode classifier. Reason: Blocked by classifier."* — on `mv -f dafoam_wait_then_launch.sh.new dafoam_wait_then_launch.sh`. Not reworded, not routed around; the draft was removed; the wrapper blob `c331ea56` stands.
+
+### A3.2 The driver — one file, registered by blob
+
+**`cases/dafoam/curriculum_D12R2/d12y_plan_step.sh`, blob `c376481e5baa886eadd415bc553a87971bb62fcf`, md5 `166505aa974498d62c71487247ffd836`.** Usage `bash d12y_plan_step.sh {plan|plan2|plan3} --deadline-s N`. In order: (1) refuses a duplicate of itself (own pidfile `<root>/<case_id>.planstep.pid` names a live pid) — rc 3; (2) waits, bounded, poll 30 s, for the launcher's **own physics witness** in the ledger — `^PHASE1_COMPLETE spent=` for `plan`, `^PHASE2_COMPLETE spent=` for `plan2`, `^PHASE3_COMPLETE spent=` for `plan3` — every wait a line in `STATUS.<case_id>` and identically in `PLANSTEP.<case_id>.log`; at the bound rc 6 `BLOCKED`, nothing run; (3) then waits out, inside the same bound, any RUNNING container carrying `d12y_` (the launcher removes each stage's container before it writes the line, so this is normally immediate; a lingering one is **waited out, never refused** — a refusal would consume the queue entry); (4) asserts `d12y_grade.py` is the Addendum-1 comparator — blob `aecceb4e874eb6d306fb273d7408e762718c87a2`, md5 `02a9ab62fc26d963886ecd0ee97457ef` — rc 4 on drift, nothing run; (5) runs, unchanged, **the invocation the launcher itself prints** (`:905`, `:976`): `python3 <SRC>/d12y_grade.py --manifest <root>/manifest.jsonl --root <root> --<mode>`, in the foreground, and exits with the comparator's own rc, written to `STATUS.<case_id>` as `rc=<n> event=COMPARATOR_EXIT … NOT-a-solver-rc-L-342` (0 planned; 2 the comparator's registered `REFUSAL`; 3 usage). It computes nothing, chooses nothing and applies no threshold; no container; no `assert`. The `--root/--gradepy/--blob/--md5/--prefix` overrides exist only for the selftest; the queue entries pass none and the registered defaults govern.
+
+**Selftest** `d12y_plan_step_selftest.sh` (blob `57c88908c7f7d1452a309e048c2a68cfd01f5caf`), evidence `d12y_plan_step_selftest_evidence.txt`: **11 of 11** at 2026-08-26T17:26:34Z against a sacrificial root, a stand-in comparator and a sacrificial `sleep` container — witness absent → waits → `PHASE1_COMPLETE` appended → prefix clear → blob asserted → stand-in ran and wrote `step_plan.json`, rc 0 labelled; comparator rc 2 passed through; blob drift → rc 4 nothing run; bound → rc 6 with the series, nothing run; live prefixed container waited out (never refused) → rc 0; duplicate → rc 3; usage → rc 64; sacrificial root removed, no container survives.
+
+### A3.3 The closed chain, and each bound derived
+
+| entry (drop path) | argv | waits for | bound | derivation of the bound |
+|---|---|---|---|---|
+| `W2R_plan_wait` | `d12y_plan_step.sh plan --deadline-s 43200` | `^PHASE1_COMPLETE` in the ledger | 43,200 s | phase 1 started 16:00:35Z; its cap wall `CAP_CORE_MIN = 600.0` at np=1 = 36,000 s → ≤ 02:00Z 08-27; a bound launched ~17:30Z ends 05:30Z 08-27 > 02:00Z |
+| `W2R_phase2_wait` (Addendum 2, live) | wrapper → launcher `--phase 2` | `step_plan.json` | 43,200 s | as above; the plan step is seconds |
+| `W2R_plan2_wait` | `d12y_plan_step.sh plan2 --deadline-s 86400` | `^PHASE2_COMPLETE` | 86,400 s | + one cap wall (36,000 s) for phase 2 |
+| `W2R_phase3_wait` (live) | wrapper → `--phase 3` | `step_plan2.json` | 86,400 s | as above |
+| `W2R_plan3_wait` | `d12y_plan_step.sh plan3 --deadline-s 129600` | `^PHASE3_COMPLETE` | 129,600 s | + one more cap wall for phase 3 |
+| `W2R_phase4_wait` (live) | wrapper → `--phase 4` | `step_plan3.json` | 129,600 s | as above |
+
+Every registered no-launch branch is unchanged and reachable: `admissible:false` → phase 2 launches nothing and writes **no** `PHASE2_COMPLETE`… — *correction, read from the launcher*: the no-admissible-step branch exits at `:922` **before** `:934`, so `PHASE2_COMPLETE` is never written, `plan2` blocks at its bound (rc 6), and phases 3/4 block at theirs — **zero compute, every entry closed with a recorded reason**. That is the registered outcome when **P3 HITS**, which is this item's primary prediction.
+
+### A3.4 Cost of the plan steps — DERIVED, NOT MEASURED
+
+**1.0 core-min each, an upper reading**: no plan-mode timing exists on record (C-115 graded D12R2 phase 1 with this comparator and did not time it); the comparator is host-side python over 33 manifest rows and ≤ 40 JSON files, ranks 1. Dollars derived at $0.0513/core-h, reported-by-owner, not measured. Its first measured wall becomes the anchor for any later plan-step entry.
+
+### A3.5 What this addendum changes
+
+| | figure |
+|---|---|
+| gates, thresholds, caps, labels, comparators altered | **0** |
+| comparator bytes changed | **0** (blob `aecceb4e` asserted before every plan step) |
+| launcher bytes changed | **0** (md5 `736aa849…` stands) |
+| wrapper bytes changed | **0** (blob `c331ea56`; classifier denial recorded in A3.1) |
+| files added | 3 (`d12y_plan_step.sh`, its selftest, its evidence) |
+| lines whose number changed above this section | **0** |
