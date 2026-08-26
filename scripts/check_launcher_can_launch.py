@@ -67,13 +67,17 @@ import re
 import subprocess
 import sys
 
-# a bracket-glob starting at a digit class, in something that looks like a path
-# NOTE the tail is `*` ONLY.  `[0-9]+` is a REGEX quantifier -- shell globs
-# have no `+` -- so flagging it produced false positives on correctly-anchored
-# regexes (`grep -E '^[0-9]+$'`, `sed 's/[0-9]+(\.[0-9]+)?/'`, and the very
-# find -regex form that is the REPAIR).  Measured: 61 hits before this
-# restriction, and the difference was entirely regex, not globs.
-GLOB = re.compile(r"""(?P<pre>[\w"'$}./\]-]*/)?\[0-9\](?P<tail>\*)""")
+# `GLOB` STOOD HERE AND IS DELETED. It was DEAD CODE: nothing read it, and cfd
+# proved that by BLINDING IT AND OBSERVING NOTHING CHANGE -- a mutation test,
+# which is the right evidence and better than reading the call sites.
+# `SEG` below superseded it: SEG extracts the last path segment and
+# `glob_hits_0orig` then DRIVES that segment against `0.orig` with `fnmatch`,
+# which decides by measurement what GLOB's regex shape was trying to guess.
+#
+# IT IS DELETED RATHER THAN LEFT, and the comment it carried is why:
+# DEAD CODE CARRYING A LONG EXPLANATORY COMMENT IS WORSE THAN DEAD CODE WITHOUT
+# ONE -- the comment tells a maintainer the line is load-bearing at exactly the
+# moment the mutation test says it is not.
 PROC = re.compile(r"/proc/\[0-9\]")
 # a regex context: the glob sits inside a quoted regex or an re.* call
 REGEXY = re.compile(r"(re\.|regex|-regex|regextype|\bs/\^|\bsed\b|\bawk\b)")
@@ -117,10 +121,27 @@ def scan_text(path, text):
     Its selftest fixtures are LITERAL defective patterns held in string
     constants, so scanning its own source flags four of them.  Measured on a
     462-file corpus: including this file gives 11 hits of which 7 are real
-    (63.6 %); excluding it gives 7 of 7 (100 %).  NONE of the four is a launcher
-    defect -- they are the controls.  A tool that reports its own test data as
-    findings trains its readers to skim, which is exactly the failure L-339
-    records.
+    (PRECISION 63.6 %); excluding it gives 7 of 7 (PRECISION 100 %).  NONE of
+    the four is a launcher defect -- they are the controls.  A tool that reports
+    its own test data as findings trains its readers to skim, which is exactly
+    the failure L-339 records.
+
+    **RECALL IS UNMEASURED, AND IT CANNOT BE MEASURED WITH WHAT THIS LAB HAS.**
+    An earlier report of this tool claimed "recall 100 %".  THAT WAS WRONG and
+    it is withdrawn here rather than quietly dropped.  **Recall requires GROUND
+    TRUTH -- a known-complete list of every real defect in the corpus -- and no
+    such list exists.**  What was actually measured is the fraction of what was
+    FLAGGED that turned out real, which is precision.  Dividing found-by-found
+    is circular: it can only ever return 100 %.
+
+    What CAN be said, and is said instead: **one specific defect that the
+    pre-repair version missed** -- `run_controls.sh:141` -- **is now found**, and
+    it is pinned as a permanent selftest fixture below so it cannot be lost
+    again.  That is a named improvement on a known instance, NOT a rate.
+
+    **An unmeasured quantity named honestly is worth more than a
+    measured-sounding one that is unfounded** -- the same principle as
+    `cost_basis` saying *derived, not measured*.
 
     REGEXY IS APPLIED PER PIPELINE STAGE, NOT PER LINE, AND THAT IS THE
     REPAIR THAT MATTERS.
