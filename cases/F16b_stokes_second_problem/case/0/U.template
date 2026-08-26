@@ -1,0 +1,32 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+dimensions      [0 1 -1 0 0 0 0];
+// The internalField is REWRITTEN by run_f16.sh with the EXACT solution at t = 0,
+// cell centre by cell centre. Starting from rest would inject a startup
+// transient whose slowest mode decays at only nu*(pi/H)^2 = 0.158 1/s, which is
+// the same order as the discretisation error this case grades.
+internalField   nonuniform List<vector> __INTERNALFIELD__;
+boundaryField
+{
+    wall
+    {
+        // u_wall(t) = U0 * sin(omega t), U0 = 1 m/s, omega = 2*pi rad/s.
+        // Function1 `sine`: value = level + scale * amplitude * sin(2 pi f (t - t0)).
+        // Dictionary form checked against the shipped tutorial
+        // multiphase/potentialFreeSurfaceFoam/oscillatingBox/0.orig/U:47.
+        type            uniformFixedValue;
+        uniformValue
+        {
+            type        sine;
+            frequency   1;
+            amplitude   1;
+            scale       (1 0 0);
+            level       (0 0 0);
+            t0          0;
+        }
+        value           uniform (0 0 0);
+    }
+    top      { type fixedValue; value uniform (0 0 0); }
+    left     { type cyclic; }   // F16b: +/-x periodic, see blockMeshDict
+    right    { type cyclic; }
+    frontAndBack { type empty; }
+}

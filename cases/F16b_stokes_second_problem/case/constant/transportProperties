@@ -1,0 +1,5 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// nu = omega * delta^2 / 2 with omega = 2*pi rad/s and delta = 0.01 m.
+// Frozen in cases/F16_stokes_second_problem/exact_stokes.py; the launcher
+// re-derives it and REFUSES if this file disagrees.
+nu              3.14159265358979e-04;

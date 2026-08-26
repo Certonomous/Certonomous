@@ -1,0 +1,26 @@
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+scale   1;
+// A 1 x NY x 1 Cartesian column of height H = 0.14 m = 14 Stokes lengths.
+// UNIFORM spacing at every level, so the three meshes are geometrically similar.
+// A fixed-expansion-ratio graded ladder is NOT similar, and a Roache triple on
+// non-similar meshes is not a Roache triple (VERIFICATION_CHARTER 3.2).
+vertices
+(
+    (0    0    0)   (0.01 0    0)   (0.01 0.14 0)   (0    0.14 0)
+    (0    0    0.01)(0.01 0    0.01)(0.01 0.14 0.01)(0    0.14 0.01)
+);
+blocks ( hex (0 1 2 3 4 5 6 7) (1 __NY__ 1) simpleGrading (1 1 1) );
+edges ();
+boundary
+(
+    wall  { type wall;  faces ((0 1 5 4)); }
+    top   { type patch; faces ((3 7 6 2)); }
+    // F16b (2026-08-26): +/-x are a CYCLIC PAIR, not `empty`. In OpenFOAM an
+    // `empty` patch removes its normal direction from the solved set, so the
+    // wall-driven Ux was never solved in F16 (identically zero fields at every
+    // level; verification/runs/F16_runs/RESULTS_R2.md Finding B). One cell in
+    // x, periodic, makes x a solved direction with d/dx = 0 exactly.
+    left  { type cyclic; neighbourPatch right; faces ((0 4 7 3)); }
+    right { type cyclic; neighbourPatch left;  faces ((1 2 6 5)); }
+    frontAndBack { type empty; faces ((0 3 2 1) (4 5 6 7)); }
+);

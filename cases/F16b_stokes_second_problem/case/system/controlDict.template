@@ -1,0 +1,45 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     icoFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         40;            // 40 periods of 1 s
+deltaT          __DT__;        // FIXED: the fixed-deltaT completion identity applies
+writeControl    runTime;
+writeInterval   40;            // fields at endTime only: the ladder needs the
+                               // sampled profiles, not 40 field dumps per level
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+adjustTimeStep  no;
+
+functions
+{
+    profile
+    {
+        type            sets;
+        libs            (sampling);
+        writeControl    runTime;
+        writeInterval   1;      // ONE SAMPLE PER WHOLE PERIOD -> every sample is
+                                // phase-locked at omega*t = 0 (mod 2 pi), so the
+                                // plateau series measures period-to-period change
+                                // and not the oscillation itself
+        interpolationScheme cell;      // raw cell-centre values, no interpolation
+        setFormat       raw;
+        fields          (U);
+        sets
+        {
+            profile
+            {
+                type    midPoint;
+                axis    y;
+                start   (0.005 0     0.005);
+                end     (0.005 0.14  0.005);
+            }
+        }
+    }
+}
