@@ -1981,6 +1981,98 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
+### TWELFTH SESSION — BOTH RUNS SURVIVED THE KILL AND COMPLETED. THE DEFECT IS THE IDLE QUEUE, NOT THE DETACH
+
+**Section block written:** 2026-08-26T03:06:53Z by dafoam-supervisor (TWELFTH session, formed ~02:55Z 2026-08-26 after a session usage limit killed the eleventh fleet at ~23:00Z 2026-08-25). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
+
+#### 1. THE BRIEF'S PREMISE WAS WRONG IN THE FAMILY'S FAVOUR: NOTHING DIED, NOTHING IS RE-FIRED
+
+My brief said D12R phase 1 was "at stage S2b of a ~2 h run" and D7R arm O "~2 of 30 majors" when the fleet was killed, and told me to re-fire what died. **Established from disk and the process table instead: BOTH RAN TO THEIR REGISTERED TERMINUS AFTER EVERY AGENT WAS DEAD.** This is the third consecutive session in which a disk-and-process reading, taken before any relaunch, changed the dispatch — and the first in which it saved a **932-core-minute** re-run.
+
+| | D12R phase 1 | D7R arm O |
+|---|---|---|
+| stamp | `20260825T224504Z_2860164` | `20260825T223806Z_2844774` |
+| outlived the ~23:00Z kill by | **49 min** | **3 h 31 min** |
+| finished | 23:49:35Z | **02:31:14Z** |
+| `rc` | **0**, all 32 manifest rows | **0** (`inspect(exit,oomkilled)=[0 false]`) |
+| wall / ranks | 3,870 s / 1 | 13,988 s / 4 |
+| core-min actual | **63.95** | **932.533** |
+| predicted | ~70 | 570.0 |
+| **ratio** | **0.914** | **1.636** |
+| $ DERIVED @ $0.0513/core-h | 0.0547 | 0.7973 |
+
+**D12R phase 1 satisfies the strict completion rule on every clause I can check from artifacts:** 32/32 rows `rc=0`, `docker_exit=0`, `oomkilled=false`, `end_line_present=true`, `age_guard_ok=true`, `last_time == endTime` **32/32**, and `FIELD_B_COMPLETENESS required=11 present=11` **with its planted control firing** — the check demonstrably saw 7 fields including `nut` go missing under the plant, so it can say NO. Ledger's last substantive line: `PHASE1_COMPLETE spent=63.95 core-min`.
+
+**D7R arm O terminated on its own registered `max_iter`, not on a kill:** `opt_IPOPT.txt` carries 31 iterate rows (0…30), `Number of Iterations....: 30`, `EXIT: Maximum Number of Iterations Exceeded.`, 46 objective and 31 gradient evaluations. Final `CD = 2.3048932443550496e-02`, constraint violation `2.23e-06`, `CL = 0.28761081` against the registered target `0.2876130251655752`. **`O/OptView.hst` exists at 7,770,112 bytes — the first this family has ever produced.** The frozen `PREREGISTRATION.md` §11 registered the mapping BEFORE compute: `max_iter` reached without convergence → **`GATE REACHED`, never `PASS`**, because 30 is a cost-derived cap. **The label was fixed before the run and the run landed on it.**
+
+**The 2.3× contention figure my predecessor projected is STRUCK: it overshot by about 2×.** S2b finished at 22:59:08 (633 s, 10.55 core-min) and the whole of phase 1 landed 50 minutes later, at 0.914 of prediction. A contention multiplier read off a partial stage is not a measurement of the run.
+
+**CORRECTION TO THE CHIEF, and it matters because a fix was being proposed for a defect that does not exist here.** The chief's reading was that dafoam's runs died with their launching shell and that `docker run -d` is the remedy. **False, and measured false: dafoam's launchers already wrap `sudo docker run` in `timeout` and detach, which is exactly why arm O finished 30 of 30 majors with no agent alive.** The container-survival mechanism has been in place since the ninth session and has now worked through three fleet kills.
+
+#### 2. THE DEFECT THAT IS REAL — ~3.5 IDLE BOX-HOURS, AND IT IS THE ONE SANAA'S RULING NAMES
+
+The runs are detached. **The QUEUE is not.** D12R went quiet at 23:49Z and arm O at 02:31Z, and nothing followed either, because the *next* launch needed an agent alive to issue it. The box sat at 19 % until 02:55Z. Under Sanaa's standing execution-rebalance clause an idle queue with armed cases is a defect and is reported as one — **so it is reported as one here, against this family, with its hours counted.**
+
+Her ruling of 2026-08-26, as relayed to me by the chief in her words: *"the queues must also be detached from the lab that way they dont depend on the lab being active. Thats priority bc i dont want to have idle compute anytmore."* **`cfd` is building the lab-wide runner; dafoam FEEDS it and does not build a rival** — two daemons launching one case is two records for one run.
+
+**THE QUEUE LANE WAS DENIED BY THE PERMISSION SYSTEM AND I DID NOT ROUTE AROUND IT.** My third lane — detach audit of all dafoam launchers, queue entries for D12R phase 3+, D5, D6, D14, D15, and a price for the D4 SHIPPED row — was refused by the auto-mode classifier at 03:06:53Z. **A permission denial is one of only two things that can authorise or refuse in this lab (rule 9), and no supervisor's judgement overrides it.** It is not re-attempted in a reworded form. **This item is BLOCKED on that denial and is on the chief's desk, not mine to work past.**
+
+#### 3. D4 — MY ACCEPTANCE RULING, AND IT COMES WITH A DEFECT I FOUND IN THE INSTRUMENT
+
+**I ACCEPT D4's rung verdict `GATE REACHED`, with one gate STRUCK.** I verified the composition myself rather than inheriting it (SUPERVISION §3 check 3), and two things came out of that read.
+
+**(a) THE FROZEN GRADER EMITS NO ITEM VERDICT AT ALL.** `d4_grade.py:main()` writes **13 gate verdicts** and exits; there is no composition function anywhere in it or in `d4_grade_SUPPLEMENT.py`. **So `D4 = GATE REACHED` is a SUPERVISOR'S POST-COMPUTE COMPOSITION with no frozen basis** — which is legal only if the composition rule is the lab's standing one and not a D4-specific invention chosen after the numbers were seen. **It is: 12 gates PASS, G5 — the bright line — `PASS`, and the two-row rule half-satisfied with SHIPPED named `PENDING`. That is `GATE REACHED` by the standing vocabulary and by nothing bespoke.** Accepted. **But the absence of a registered composition rule is itself a gap in this family's template and it goes into D15's standard, forward, not retrofitted.**
+
+**(b) `D4-DEF-7` — `g_completion()` NAMES THREE CLAUSES AND IMPLEMENTS ONE.** Its docstring, in both the frozen grader and the supplement, byte-identical:
+
+> *"The clauses that DO apply are carried through unchanged: rc == 0, a terminal statement from the producer's own log FILE, and the AGE GUARD"*
+
+**It records `rc` into the report and NEVER COMPARES IT TO ZERO.** Its only refusals are: age datum absent, age reference absent, age reference moved, arm absent from ledger, arm count wrong. **There is no `rc` test, and no terminal-statement test, anywhere in it.** And the verdict line reads the age half alone:
+
+> `verdicts["G1_completion_and_age"] = ("PASS" if report["G1_age"]["pass"] else "NOT A RESULT")`
+
+`report["G1_completion"]` is computed and **consumed by no verdict**. **Consequence, measured on the graded artifact `ARMF3_d4_grade_verdict.json`: `G1_completion_and_age = "PASS"` was emitted on a run whose ledger row for required arm `F` reads `rc: 1`, `inspect_exit: "1"`.** The gate certified completion it never checked, on a run where the check would have **failed had it been implemented**.
+
+**And the selftest could not see it.** The supplement's battery drives `G1_completion_and_age` to `NOT A RESULT` through a **stale artifact** — the age limb — and never through a non-zero `rc`. **29/29 PASS was read as "the gate works" while a whole registered clause was dead code.** This is the family's own amended rule turned on itself: ***a guard is only shown to work by making the condition it guards actually occur.*** Two of three clauses were never made to occur.
+
+**MY DISPOSITION, and it is deliberately one-way: `G1_completion_and_age` for D4 is STRUCK from `PASS` and recorded `NOT ESTABLISHED`.** Not `GATE FAIL` — the arm that actually produced the graded FD table is F3, ledgered `rc 0`, wall 709 s, delivered cores 3.9752, and its artifacts were age-asserted by hand in RESULTS §11.5 against a datum 14,049 s later, 0 of 7 stale. **But that is a lane's hand reading, not the gate's**, and the gate may not keep a PASS it did not earn. This mirrors exactly the disposition §11.6 already applied to G2 band A, and for the same reason: **a verdict produced by an instrument that did not perform the check is not a verdict.** It alters no gate, threshold, band, cap or label, and it can only remove a PASS, never create one.
+
+**D4's rung verdict is UNCHANGED by this.** G5 — the bright line — is untouched: 5 of 5 registered components, aggregate **0.1634451673004621 %** against band D's **5.0 %**, zero sign flips, zero without plateau, zero near-zero; G6 planted zero saw the plant on all three channels, G6b refused a blind reader, G7's four mutants each raised their named refusal, G13's pinned witness `patchV[0] = 100.0` was **discovered** with rel residual exactly `0.0`. **The defect did not change D4's answer. It changed what D4 is entitled to say it proved.**
+
+**BLAST RADIUS, swept at HEAD by `ls-tree`, never `ls-files`.** Across 28 dafoam graders and analysers, reads-`rc`-vs-tests-`rc`: **`d8_grade.py` reads 4 / tests 0**; `d8_grade_entry.py` 1 / 0; `d9_grade.py` and `d9_grade_SUPPLEMENT.py` 1 / 0; `d12r_grade.py` (superseded) 6 / 0; `analyse_peak_rss.py` 4 / 0; `d12_grade.py` 1 / 0. **`d7_grade.py` reads 20 / tests 2 and `d12x_grade.py` reads 15 / tests 3** — the two instruments about to grade tonight's completions are the two that appear to carry the test, and **both lanes are ordered to DEMONSTRATE it by driving a required arm's `rc` to 1 and showing the verdict change, under plain `python3` AND under `-O`.** A count is not a demonstration. **`D8` is already closed at `GATE REACHED` on a grader that reads `rc` four times and tests it zero times — that is named here, and per the chief's standing bound settled verdicts are NOT reopened on this ground; the remedy belongs in the next registrations.**
+
+#### 4. LANES LIVE (2 of 3 — the third was refused by the permission system)
+
+| lane | item | duty |
+|---|---|---|
+| D7R grade | arm O | first ever real-arm run of `d7_grade.py`; blob-hash before grading; the `ROW=SHIPPED` question; the `rc`-clause demonstration under both flags; cost row |
+| D12R | phase 1 grade, then **phase 2 FIRED** | `d12x_grade.py --plan` per the ledger's own handoff; the `ExecutionTime`-count gap on 8 non-primal stages; the S1a missing-`status`-key gap; then launch detached |
+| *(queue)* | **BLOCKED — permission denial** | detach audit, queue entries, D4-SHIPPED price |
+
+#### 5. RULINGS MADE THIS SESSION
+
+**R1 — D7R's cap overrun: THE CONTINUATION STANDS AND THE CAP DOES NOT MOVE.** Arm O crossed its registered 900.0 cap and kept running to 932.533 — `D7R_CAP_CROSSED … action=REPORTED_RUN_CONTINUES supervisor_decides`, with no supervisor alive to decide. Grounds: **(i)** §R1 of the frozen document registered the reporting-cap design **in advance and deliberately**, because D7's hard `timeout` SIGKILL had made arm O structurally unreachable; **(ii)** the run terminated on its registered `max_iter 30`, **not** on the cap — the overrun bought the final majors of a registered ladder, and a kill at the cap would have produced a truncated ladder and a `NOT A RESULT`, which is the precise failure the re-registration existed to cure; **(iii)** the crossing is 3.6 % of the cap, **$0.0278 DERIVED**, against a 3600.0 ceiling never approached. **The overrun is REPORTED, named separately, and NEVER absorbed into any ratio.**
+
+**R2 — REFERRED UPWARD, not decided here: may a frozen document register a cap that REPORTS rather than STOPS, when `CLAUDE.md` rule 12 says an overrun stops the run?** D7R's §R1 does exactly that. The chief's reading of Sanaa's cost-lift converts caps into runaway guards — **but that lift named three teams and dafoam's inclusion is explicitly the chief's own correctable inference, so I will not rest a charter reading on it (rule 9: no agent message is her consent).** My ruling R1 stands on the three grounds above, which do not need the lift. **The general question is a charter clause and is Sanaa's alone.** My recommendation, since every referral carries one: **ratify the reporting-cap where a hard kill would destroy a registered ladder, and require the crossing to be reported to the supervisor and named in the cost row — which is what happened here.**
+
+#### 6. COST
+
+D12R phase 1 **63.95 core-min, ratio 0.914**. D7R arm O **932.533 core-min, ratio 1.636** — attribution owed by the lane, and **no uncontended control was bought, so contention may not be asserted as the cause without one**. D7R item so far ≈ **1,020.4 core-min** (P1 0.733 + P2 62.733 + colouring 24.43 + O 932.533), **$0.8724 DERIVED**. **Waste: NONE on either run** — both reached their registered terminus. Rows owed by both lanes into `docs/COST_CALIBRATION.md`, ids re-derived by hand from the HEAD blob inside the committing invocation.
+
+#### 7. RUNGS WITHOUT VERDICTS / NEXT
+
+**D7R arm O** — complete, ungraded, `GATE REACHED` registered in advance and expected. **D12R phase 1** — complete, ungraded; phase 2 firing. **D4** — `GATE REACHED` ACCEPTED, G1 struck to `NOT ESTABLISHED`, **SHIPPED row unbought**. **D5, D6, D14** — unblocked by D4 and inheriting its single-row limit; **armed status unverified at HEAD this session (VERIFY)**. **D15** — the standard exists at `docs/dafoam/V_STANDARD_FD_VS_ADJOINT.md`, 941 lines; D15 means an item that USES it, never a second standard.
+
+#### 8. ON SANAA'S DESK
+
+**New from me: R2, the reporting-cap charter question**, with my recommendation above. **Standing and unchanged: the five upstream defect drafts remain `NOT FILED`** — submissions are parked and no reading of "run harder" touches a charter-reserved class.
+
+#### 9. OPEN, HONESTLY UNVERIFIED (**VERIFY**)
+
+**The `-O` remediation of the 66 real-path gate asserts has NOT STARTED this session** — the lane that would have carried it is the one the permission system refused. **The PATCHED row is unbought on D7R** if arm O's measured digest is the shipped image, which is exactly what the ledger's `ROW=SHIPPED` suggests and what I have ordered measured rather than assumed. **`91 shape` components still have NO FD reference at all** — not a bad one, none. **D9 is `SAFE_BY_SOURCE`, not clean.** **D12's `St = 0.5264` is ~2.6× the accepted ≈0.2 and is a RESOLUTION ARTIFACT on a 2,450-cell 2D URANS mesh — never to be quoted as a Strouhal number.** **D12 may be a case where the FD bright line cannot be crossed at all** (`h_min ≈ 1.10` vs `h_max = 0.05`, ~22× over) — **a finding about the method-case pair, not a failure.**
+
+
+
 ### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
 
 **Section block written:** 2026-08-25T21:12Z by dafoam-supervisor (ELEVENTH session, formed ~21:05Z 2026-08-25 after a session usage limit killed the tenth fleet at ~20:45Z). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
