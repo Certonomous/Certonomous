@@ -38,8 +38,13 @@ OF_BASHRC="${OF_BASHRC:-/usr/lib/openfoam/${OF_VERSION}/etc/bashrc}"
 WORK="${WORK:-$HOME/gpu_build/smoke}"
 CASE="$WORK/VMFLGPU001_smoke"
 SMOKE_CASE_SRC="${SMOKE_CASE_SRC:-$HOME/gpu_build/smoke_case}"
-GPU_MAT="aijcusparse"; GPU_VEC="cuda";     GPU_ENV="-ksp_view -log_view -log_view_gpu_time"
-CPU_MAT="aij";         CPU_VEC="standard"; CPU_ENV="-ksp_view -log_view"
+# PIN 4 2026-08-26T17:3xZ (supervisor, MEASURED on build attempt 3, smoke rc=76 in 1 s): PETSc
+# refuses at PetscInitialize -- "PETSc is configured with GPU support, but your MPI is not
+# GPU-aware" -- and names the switch itself. Ubuntu's Open MPI 5.0.10 is not CUDA-aware; for a
+# single-rank solve no device buffer ever crosses MPI, so the option changes nothing physical.
+# It is part of BOTH arms so the forced-CPU control differs from the GPU arm ONLY in mat/vec type.
+GPU_MAT="aijcusparse"; GPU_VEC="cuda";     GPU_ENV="-use_gpu_aware_mpi 0 -ksp_view -log_view -log_view_gpu_time"
+CPU_MAT="aij";         CPU_VEC="standard"; CPU_ENV="-use_gpu_aware_mpi 0 -ksp_view -log_view"
 
 log() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] SMOKE: $*"; }
 

@@ -252,6 +252,8 @@ test "$NMPI" = "1" || { log "ABORT: mixed MPI runtimes in manifest ($NMPI distin
   echo "export PATH=\"/usr/bin:\$PATH\""
   echo "export OF_BASHRC=\"$OF_BASHRC\""
   echo "export PETSC_DIR=\"$PETSC_DIR\" PETSC_ARCH=\"$PETSC_ARCH\" PETSC_ARCH_PATH=\"$PETSC_ARCH_PATH\""
+  echo "# PIN 4: Ubuntu Open MPI is not CUDA-aware; single-rank solves need no GPU-aware MPI (PETSc names this switch)"
+  echo "export PETSC_OPTIONS=\"-use_gpu_aware_mpi 0\${PETSC_OPTIONS:+ \$PETSC_OPTIONS}\""
 } > "$BUILD_ROOT/env.sh" || { log "ABORT: cannot write $BUILD_ROOT/env.sh"; exit 1; }
 log "STEP 7: manifest at $MANIFEST; env at $BUILD_ROOT/env.sh"
 cat "$MANIFEST" | tee -a "$LOG"
