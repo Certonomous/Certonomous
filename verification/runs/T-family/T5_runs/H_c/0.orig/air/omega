@@ -1,0 +1,73 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class volScalarField;
+    location "0/air";
+    object omega;
+}
+
+dimensions [0 0 -1 0 0 0 0];
+
+internalField uniform 55.9957;
+
+boundaryField
+{
+    inlet
+    {
+        type timeVaryingMappedFixedValue;
+        setAverage off;
+        offset 0;
+        value uniform 55.9957;
+    }
+    outlet
+    {
+        type inletOutlet;
+        inletValue uniform 55.9957;
+        value uniform 55.9957;
+    }
+    symmetry
+    {
+        type symmetryPlane;
+    }
+    side
+    {
+        type zeroGradient;
+    }
+    floor
+    {
+        type omegaWallFunction;
+        blended true;
+        value uniform 55.9957;
+    }
+    roof
+    {
+        type omegaWallFunction;
+        blended true;
+        value uniform 55.9957;
+    }
+    cube_front
+    {
+        type omegaWallFunction;
+        blended true;
+        value uniform 55.9957;
+    }
+    cube_top
+    {
+        type omegaWallFunction;
+        blended true;
+        value uniform 55.9957;
+    }
+    cube_rear
+    {
+        type omegaWallFunction;
+        blended true;
+        value uniform 55.9957;
+    }
+    cube_side_n
+    {
+        type omegaWallFunction;
+        blended true;
+        value uniform 55.9957;
+    }
+}

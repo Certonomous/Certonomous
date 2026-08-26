@@ -1,0 +1,65 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class volScalarField;
+    location "0/epoxy";
+    object T;
+}
+
+dimensions [0 0 0 1 0 0 0];
+
+internalField uniform 348.15;
+
+boundaryField
+{
+    core
+    {
+        type fixedValue;
+        value uniform 348.15;
+    }
+    cube_bottom
+    {
+        type zeroGradient;
+    }
+    symmetry
+    {
+        type symmetryPlane;
+    }
+    cube_front
+    {
+        type compressible::turbulentTemperatureRadCoupledMixed;
+        Tnbr T;
+        kappaMethod solidThermo;
+        qrNbr none;
+        qr none;
+        value uniform 348.15;
+    }
+    cube_top
+    {
+        type compressible::turbulentTemperatureRadCoupledMixed;
+        Tnbr T;
+        kappaMethod solidThermo;
+        qrNbr none;
+        qr none;
+        value uniform 348.15;
+    }
+    cube_rear
+    {
+        type compressible::turbulentTemperatureRadCoupledMixed;
+        Tnbr T;
+        kappaMethod solidThermo;
+        qrNbr none;
+        qr none;
+        value uniform 348.15;
+    }
+    cube_side_n
+    {
+        type compressible::turbulentTemperatureRadCoupledMixed;
+        Tnbr T;
+        kappaMethod solidThermo;
+        qrNbr none;
+        qr none;
+        value uniform 348.15;
+    }
+}

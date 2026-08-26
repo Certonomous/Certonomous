@@ -1,0 +1,248 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh -allRegions -allTopology -allGeometry
+Date   : Aug 26 2026
+Time   : 16:26:13
+Host   : ip-172-31-43-247
+PID    : 148761
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/T5_CUBE_f
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Using all regions: (air epoxy)
+Create mesh air for time = 0
+Create mesh epoxy for time = 0
+
+Check mesh...
+    Enabling all (cell, face, edge, point) topology checks.
+    Enabling all geometry checks.
+
+Time = 0
+
+Mesh stats air
+    points:           913824
+    faces:            2677549
+    internal faces:   2614595
+    cells:            882024
+    faces per cell:   6
+    boundary patches: 10
+    point zones:      0
+    face zones:       4
+    cell zones:       2
+
+Overall number of cells of each type:
+    hexahedra:     882024
+    prisms:        0
+    wedges:        0
+    pyramids:      0
+    tet wedges:    0
+    tetrahedra:    0
+    polyhedra:     0
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Topological cell zip-up check OK.
+    Face-face connectivity OK.
+    Number of regions: 1 (OK).
+
+Checking patch topology for multiply connected surfaces...
+    Patch               Faces    Points     Surface topology  Bounding box
+    inlet               5133     5280     ok (non-closed singly connected)   (-0.12 0 0) (-0.12 0.051 0.075)
+    outlet              5133     5280     ok (non-closed singly connected)   (0.3 0 0) (0.3 0.051 0.075)
+    floor               9790     10044    ok (non-closed singly connected)   (-0.12 0 0) (0.3 0 0.075)
+    roof                10384    10620    ok (non-closed singly connected)   (-0.12 0.051 0) (0.3 0.051 0.075)
+    symmetry            14124    14424    ok (non-closed singly connected)   (-0.12 0 0) (0.3 0.051 0)
+    side                15312    15576    ok (non-closed singly connected)   (-0.12 0 0.075) (0.3 0.051 0.075)
+    cube_front          648      703      ok (non-closed singly connected)   (0 0 0) (0 0.015 0.0075)
+    cube_rear           648      703      ok (non-closed singly connected)   (0.015 0 0) (0.015 0.015 0.0075)
+    cube_top            594      646      ok (non-closed singly connected)   (0 0.015 0) (0.015 0.015 0.0075)
+    cube_side_n         1188     1258     ok (non-closed singly connected)   (0 0 0.0075) (0.015 0.015 0.0075)
+    ".*"                62954    62956    ok (closed singly connected)       (-0.12 0 0) (0.3 0.051 0.075)
+
+
+Checking faceZone topology for multiply connected surfaces...
+    FaceZone            Faces    Points   Surface topology                   Bounding box
+    cube_front          648      703      ok (non-closed singly connected)   (0 0 0) (0 0.015 0.0075)
+    cube_rear           648      703      ok (non-closed singly connected)   (0.015 0 0) (0.015 0.015 0.0075)
+    cube_top            594      646      ok (non-closed singly connected)   (0 0.015 0) (0.015 0.015 0.0075)
+    cube_side_n         1188     1258     ok (non-closed singly connected)   (0 0 0.0075) (0.015 0.015 0.0075)
+
+Checking basic cellZone addressing...
+    CellZone            Cells        Points       Volume       BoundingBox
+    air                 882024       913824       0.0016048125 (-0.12 0 0) (0.3 0.051 0.075)
+    epoxy               0            0            0            (1e+150 1e+150 1e+150) (-1e+150 -1e+150 -1e+150)
+
+Checking basic pointZone addressing...
+    No pointZones found.
+
+Checking geometry...
+    Overall domain bounding box (-0.12 0 0) (0.3 0.051 0.075)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (3.092854606e-18 -9.64620791e-15 5.124426194e-15) OK.
+    Max cell openness = 1.852207312e-16 OK.
+    Max aspect ratio = 140.3808367 OK.
+    Minimum face area = 2.499996834e-09. Maximum face area = 2.220868558e-05.  Face area magnitudes OK.
+    Min volume = 1.249999167e-13. Max volume = 6.280575864e-08.  Total volume = 0.0016048125.  Cell volumes OK.
+    Mesh non-orthogonality Max: 0 average: 0
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 7.237074726e-13 OK.
+    Coupled point location match (average 0) OK.
+    Face tets OK.
+    Min/max edge length = 4.999994e-05 0.00701904137 OK.
+    All angles in faces OK.
+    Face flatness (1 = flat, 0 = butterfly) : min = 1  average = 1
+    All face flatness OK.
+    Cell determinant (wellposedness) : minimum: 2.219520928e-07 average: 0.1878804497
+ ***Cells with small determinant (< 0.001) found, number of cells: 59818
+  <<Writing 59818 under-determined cells to set cellDeterminant
+    Concave cell check OK.
+    Face interpolation weight : minimum: 0.1428569959 average: 0.4731772181
+    Face interpolation weight check OK.
+    Face volume ratio : minimum: 0.1666664667 average: 0.9081284765
+    Face volume ratio check OK.
+AMI: Patch source faces: 648
+AMI: Patch target faces: 648
+AMI: Patch source sum(weights) min:1 max:1 average:1
+AMI: Patch target sum(weights) min:1 max:1 average:1
+AMI: Patch source faces: 648
+AMI: Patch target faces: 648
+AMI: Patch source sum(weights) min:1 max:1 average:1
+AMI: Patch target sum(weights) min:1 max:1 average:1
+AMI: Patch source faces: 594
+AMI: Patch target faces: 594
+AMI: Patch source sum(weights) min:1 max:1 average:1
+AMI: Patch target sum(weights) min:1 max:1 average:1
+AMI: Patch source faces: 1188
+AMI: Patch target faces: 1188
+AMI: Patch source sum(weights) min:1 max:1 average:1
+AMI: Patch target sum(weights) min:1 max:1 average:1
+
+Failed 1 mesh checks.
+
+Mesh stats epoxy
+    points:           17610
+    faces:            46549
+    internal faces:   40493
+    cells:            14507
+    faces per cell:   6
+    boundary patches: 7
+    point zones:      0
+    face zones:       4
+    cell zones:       2
+
+Overall number of cells of each type:
+    hexahedra:     14507
+    prisms:        0
+    wedges:        0
+    pyramids:      0
+    tet wedges:    0
+    tetrahedra:    0
+    polyhedra:     0
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Topological cell zip-up check OK.
+    Face-face connectivity OK.
+    Number of regions: 1 (OK).
+
+Checking patch topology for multiply connected surfaces...
+    Patch               Faces    Points     Surface topology  Bounding box
+    cube_bottom         594      646      ok (non-closed singly connected)   (0 0 0) (0.015 0 0.0075)
+    symmetry            659      774      ok (non-closed singly connected)   (0 0 0) (0.015 0.015 0)
+    core                1725     1772     ok (non-closed singly connected)   (0.0015 0.0015 0) (0.0135 0.0135 0.006)
+    cube_front          648      703      ok (non-closed singly connected)   (0 0 0) (0 0.015 0.0075)
+    cube_rear           648      703      ok (non-closed singly connected)   (0.015 0 0) (0.015 0.015 0.0075)
+    cube_top            594      646      ok (non-closed singly connected)   (0 0.015 0) (0.015 0.015 0.0075)
+    cube_side_n         1188     1258     ok (non-closed singly connected)   (0 0 0.0075) (0.015 0.015 0.0075)
+    ".*"                6056     6058     ok (closed singly connected)       (0 0 0) (0.015 0.015 0.0075)
+
+
+Checking faceZone topology for multiply connected surfaces...
+    FaceZone            Faces    Points   Surface topology                   Bounding box
+    cube_front          648      703      ok (non-closed singly connected)   (0 0 0) (0 0.015 0.0075)
+    cube_rear           648      703      ok (non-closed singly connected)   (0.015 0 0) (0.015 0.015 0.0075)
+    cube_top            594      646      ok (non-closed singly connected)   (0 0.015 0) (0.015 0.015 0.0075)
+    cube_side_n         1188     1258     ok (non-closed singly connected)   (0 0 0.0075) (0.015 0.015 0.0075)
+
+Checking basic cellZone addressing...
+    CellZone            Cells        Points       Volume       BoundingBox
+    air                 0            0            0            (1e+150 1e+150 1e+150) (-1e+150 -1e+150 -1e+150)
+    epoxy               14507        17610        8.235e-07    (0 0 0) (0.015 0.015 0.0075)
+
+Checking basic pointZone addressing...
+    No pointZones found.
+
+Checking geometry...
+    Overall domain bounding box (0 0 0) (0.015 0.015 0.0075)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (9.185325455e-17 1.85934605e-16 -7.922552089e-16) OK.
+    Max cell openness = 1.206040685e-16 OK.
+    Max aspect ratio = 10.43478335 OK.
+    Minimum face area = 1.4999999e-08. Maximum face area = 2.722117229e-07.  Face area magnitudes OK.
+    Min volume = 4.499999701e-12. Max volume = 8.166351687e-11.  Total volume = 8.235e-07.  Cell volumes OK.
+    Mesh non-orthogonality Max: 0 average: 0
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 5.182480205e-14 OK.
+    Coupled point location match (average 0) OK.
+    Face tets OK.
+    Min/max edge length = 4.999999668e-05 0.000521739133 OK.
+    All angles in faces OK.
+    Face flatness (1 = flat, 0 = butterfly) : min = 1  average = 1
+    All face flatness OK.
+    Cell determinant (wellposedness) : minimum: 0.006271163667 average: 0.6321740597
+    Cell determinant check OK.
+    Concave cell check OK.
+    Face interpolation weight : minimum: 0.3341195015 average: 0.4873343855
+    Face interpolation weight check OK.
+    Face volume ratio : minimum: 0.5017709668 average: 0.9586529084
+    Face volume ratio check OK.
+AMI: Patch source faces: 648
+AMI: Patch target faces: 648
+AMI: Patch source sum(weights) min:1 max:1 average:1
+AMI: Patch target sum(weights) min:1 max:1 average:1
+AMI: Patch source faces: 648
+AMI: Patch target faces: 648
+AMI: Patch source sum(weights) min:1 max:1 average:1
+AMI: Patch target sum(weights) min:1 max:1 average:1
+AMI: Patch source faces: 594
+AMI: Patch target faces: 594
+AMI: Patch source sum(weights) min:1 max:1 average:1
+AMI: Patch target sum(weights) min:1 max:1 average:1
+AMI: Patch source faces: 1188
+AMI: Patch target faces: 1188
+AMI: Patch source sum(weights) min:1 max:1 average:1
+AMI: Patch target sum(weights) min:1 max:1 average:1
+
+Mesh OK.
+
+End
+

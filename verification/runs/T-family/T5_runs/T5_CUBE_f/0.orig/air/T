@@ -1,0 +1,79 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class volScalarField;
+    location "0/air";
+    object T;
+}
+
+dimensions [0 0 0 1 0 0 0];
+
+internalField uniform 293.65;
+
+boundaryField
+{
+    inlet
+    {
+        type fixedValue;
+        value uniform 293.65;
+    }
+    outlet
+    {
+        type inletOutlet;
+        inletValue uniform 293.65;
+        value uniform 293.65;
+    }
+    symmetry
+    {
+        type symmetryPlane;
+    }
+    side
+    {
+        type zeroGradient;
+    }
+    floor
+    {
+        type zeroGradient;
+    }
+    roof
+    {
+        type zeroGradient;
+    }
+    cube_front
+    {
+        type compressible::turbulentTemperatureRadCoupledMixed;
+        Tnbr T;
+        kappaMethod fluidThermo;
+        qrNbr none;
+        qr none;
+        value uniform 293.65;
+    }
+    cube_top
+    {
+        type compressible::turbulentTemperatureRadCoupledMixed;
+        Tnbr T;
+        kappaMethod fluidThermo;
+        qrNbr none;
+        qr none;
+        value uniform 293.65;
+    }
+    cube_rear
+    {
+        type compressible::turbulentTemperatureRadCoupledMixed;
+        Tnbr T;
+        kappaMethod fluidThermo;
+        qrNbr none;
+        qr none;
+        value uniform 293.65;
+    }
+    cube_side_n
+    {
+        type compressible::turbulentTemperatureRadCoupledMixed;
+        Tnbr T;
+        kappaMethod fluidThermo;
+        qrNbr none;
+        qr none;
+        value uniform 293.65;
+    }
+}

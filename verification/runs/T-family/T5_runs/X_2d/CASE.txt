@@ -1,0 +1,11 @@
+case=X_2d
+role=precursor inflow (S5.3), touches no h
+solver=simpleFoam
+registration=T5_PREREGISTRATION.md@0fcbb92e
+registered_nProcs=1
+model_B_core_h=0.44
+per_case_guard_core_min_3xModelB=79.2
+nx=300
+ny=100
+first_layer_m=5e-05
+length_m=1.2

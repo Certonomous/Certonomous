@@ -1,0 +1,27 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class dictionary;
+    location "system/air";
+    object fvSolution;
+}
+
+solvers
+{
+    rho { solver PCG; preconditioner DIC; tolerance 1e-8; relTol 0; }
+    p_rgh { solver GAMG; smoother GaussSeidel; tolerance 1e-8; relTol 0.01; }
+    "(U|h|k|omega)" { solver PBiCGStab; preconditioner DILU; tolerance 1e-8; relTol 0.05; }
+}
+SIMPLE
+{
+    momentumPredictor yes;
+    nNonOrthogonalCorrectors 0;
+    pRefCell 0;
+    pRefValue 100000;
+}
+relaxationFactors
+{
+    fields { p_rgh 0.3; rho 1; }
+    equations { U 0.5; h 0.5; k 0.5; omega 0.5; }
+}

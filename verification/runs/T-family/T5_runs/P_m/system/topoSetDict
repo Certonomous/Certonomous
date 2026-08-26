@@ -1,0 +1,20 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class dictionary;
+    location "system";
+    object topoSetDict;
+}
+
+actions
+(
+    { name cube_frontSet; type faceSet; action new; source boxToFace; box (-1e-06 -1e-06 -1e-06) (1e-06 0.015001 0.007501); }
+    { name cube_front; type faceZoneSet; action new; source setToFaceZone; faceSet cube_frontSet; }
+    { name cube_rearSet; type faceSet; action new; source boxToFace; box (0.014999 -1e-06 -1e-06) (0.015001 0.015001 0.007501); }
+    { name cube_rear; type faceZoneSet; action new; source setToFaceZone; faceSet cube_rearSet; }
+    { name cube_topSet; type faceSet; action new; source boxToFace; box (-1e-06 0.014999 -1e-06) (0.015001 0.015001 0.007501); }
+    { name cube_top; type faceZoneSet; action new; source setToFaceZone; faceSet cube_topSet; }
+    { name cube_side_nSet; type faceSet; action new; source boxToFace; box (-1e-06 -1e-06 0.007499) (0.015001 0.015001 0.007501); }
+    { name cube_side_n; type faceZoneSet; action new; source setToFaceZone; faceSet cube_side_nSet; }
+);

@@ -1,0 +1,50 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class volScalarField;
+    location "0/epoxy";
+    object p;
+}
+
+dimensions [1 -1 -2 0 0 0 0];
+
+internalField uniform 100000;
+
+boundaryField
+{
+    core
+    {
+        type calculated;
+        value uniform 100000;
+    }
+    cube_bottom
+    {
+        type calculated;
+        value uniform 100000;
+    }
+    symmetry
+    {
+        type symmetryPlane;
+    }
+    cube_front
+    {
+        type calculated;
+        value uniform 100000;
+    }
+    cube_top
+    {
+        type calculated;
+        value uniform 100000;
+    }
+    cube_rear
+    {
+        type calculated;
+        value uniform 100000;
+    }
+    cube_side_n
+    {
+        type calculated;
+        value uniform 100000;
+    }
+}

@@ -1,0 +1,61 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class volVectorField;
+    location "0/air";
+    object U;
+}
+
+dimensions [0 1 -1 0 0 0 0];
+
+internalField uniform (4.47 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type timeVaryingMappedFixedValue;
+        setAverage off;
+        offset (0 0 0);
+        value uniform (4.47 0 0);
+    }
+    outlet
+    {
+        type inletOutlet;
+        inletValue uniform (0 0 0);
+        value uniform (4.47 0 0);
+    }
+    symmetry
+    {
+        type symmetryPlane;
+    }
+    side
+    {
+        type slip;
+    }
+    floor
+    {
+        type noSlip;
+    }
+    roof
+    {
+        type noSlip;
+    }
+    cube_front
+    {
+        type noSlip;
+    }
+    cube_top
+    {
+        type noSlip;
+    }
+    cube_rear
+    {
+        type noSlip;
+    }
+    cube_side_n
+    {
+        type noSlip;
+    }
+}

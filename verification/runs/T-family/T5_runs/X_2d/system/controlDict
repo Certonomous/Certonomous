@@ -1,0 +1,37 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class dictionary;
+    location "system";
+    object controlDict;
+}
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         5000;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   1000;
+purgeWrite      3;
+writeFormat     ascii;
+writePrecision  10;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    yPlus
+    {
+        type            yPlus;
+        libs            (fieldFunctionObjects);
+        writeControl    writeTime;
+        writeInterval   1000;
+    }
+}
+
+libs ( "libfieldFunctionObjects.so" );

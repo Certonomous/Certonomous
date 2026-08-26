@@ -1,0 +1,64 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class volScalarField;
+    location "0/air";
+    object p_rgh;
+}
+
+dimensions [1 -1 -2 0 0 0 0];
+
+internalField uniform 100000;
+
+boundaryField
+{
+    inlet
+    {
+        type fixedFluxPressure;
+        value uniform 100000;
+    }
+    outlet
+    {
+        type fixedValue;
+        value uniform 100000;
+    }
+    symmetry
+    {
+        type symmetryPlane;
+    }
+    side
+    {
+        type zeroGradient;
+    }
+    floor
+    {
+        type fixedFluxPressure;
+        value uniform 100000;
+    }
+    roof
+    {
+        type fixedFluxPressure;
+        value uniform 100000;
+    }
+    cube_front
+    {
+        type fixedFluxPressure;
+        value uniform 100000;
+    }
+    cube_top
+    {
+        type fixedFluxPressure;
+        value uniform 100000;
+    }
+    cube_rear
+    {
+        type fixedFluxPressure;
+        value uniform 100000;
+    }
+    cube_side_n
+    {
+        type fixedFluxPressure;
+        value uniform 100000;
+    }
+}
