@@ -45,6 +45,13 @@ BAND_REL = 1.0e-4          # +/- 0.01 % relative on the FINE level, registered.
                            # prediction that it passes is registered as P1.
 PLANT = 1.234e-03
 RESID_FLOOR = 1.0e-10      # max FINAL residual over all timesteps
+P_MIN = 0.5                # AMENDMENT 1 (supervisor ruling 2026-08-26). The minimum
+                           # observed order that counts as a demonstrated order:
+                           # T11's registered expectation is p in [1.5, 2.5], and at
+                           # r = 2 a p below 0.5 means adjacent-level errors differ by
+                           # less than 2**0.5 = 1.41x -- the "levels too close to
+                           # resolve an order" state T3 measured, from which a GCI is
+                           # a number that looks like a measurement. See classify().
 
 EXIT_OK, EXIT_REFUSE = 0, 2
 
@@ -195,6 +202,27 @@ def planted_zero_control(case_dir, time):
 
 # ------------------------------------------- rule 5: Roache triple gating
 def classify(triple):
+    """Classify a grid triple. AMENDMENT 1 adds the fifth degenerate case.
+
+    THE HOLE THIS CLOSES. The four rejections below -- EXACT, STAGNANT,
+    OSCILLATORY, DIVERGENT -- are all tests on the SIGN and ORDERING of the
+    error ratio. None of them tests the MAGNITUDE of the quantity the function
+    exists to produce. So a triple whose fine error is smaller than its medium
+    error by one part in 1e6 passes every one of them, is labelled CONVERGING,
+    and reports an observed order of p = 1.3e-06 -- no demonstrated convergence
+    whatsoever.
+
+    MEASURED ON THIS FILE BEFORE THE AMENDMENT, and the measurement corrects a
+    reasonable expectation: the accompanying GCI is NOT an absurd 1e15 that a
+    human would catch. At e32/e21 = 1 + 1e-6 the GCI is 1.407e-03 -- a tidy
+    0.14 % -- and at 1 + 1e-3 it is 1.25e-06, which looks EXCELLENT. The
+    degenerate case does not announce itself; on a case whose errors are already
+    small it produces a small, impressive-looking uncertainty. That is why the
+    floor has to be a gate and cannot be left to a reader noticing.
+
+    A classifier that computes a quantity from a ratio must gate on the
+    QUANTITY, not only on the sign and ordering of the ratio.
+    """
     f3, f2, f1 = triple
     e21, e32 = f1 - f2, f2 - f3
     if e21 == 0.0 and e32 == 0.0:
@@ -206,12 +234,21 @@ def classify(triple):
         return "OSCILLATORY", None
     if abs(e21) >= abs(e32):
         return "DIVERGENT", None
-    return "CONVERGING", math.log(abs(ratio)) / math.log(REFINEMENT)
+    p = math.log(abs(ratio)) / math.log(REFINEMENT)
+    if p < P_MIN:
+        # The order is RETURNED, not discarded, so it is printed beside the row
+        # exactly as rule 5 requires. Only the LABEL changes -- and it can only
+        # move a row INTO NOT A RESULT, never out of one.
+        return "NO_DEMONSTRATED_ORDER", p
+    return "CONVERGING", p
 
 
 def gci(triple, p):
+    """REFUSES below P_MIN. Rule 5 already forbids quoting a GCI when the three
+    values are not monotone; a GCI formed by dividing by (2**p - 1) with p ~ 0
+    is worse than unquotable -- it is a number that LOOKS like a measurement."""
     f3, f2, f1 = triple
-    if p is None or f1 == 0.0:
+    if p is None or p < P_MIN or f1 == 0.0:
         return None
     return FS * abs((f1 - f2) / f1) / (REFINEMENT ** p - 1.0)
 
@@ -221,8 +258,8 @@ def richardson(triple, p):
     analyse_t3.py:384 and analyse_t1c.py:337 carry the inverted
     f_fine + e21/den, established display-only lab-wide at 2f1d6cb7."""
     f3, f2, f1 = triple
-    if p is None:
-        return None
+    if p is None or p < P_MIN:
+        return None          # same divisor, same refusal
     return f1 - (f1 - f2) / (REFINEMENT ** p - 1.0)
 
 
@@ -232,6 +269,11 @@ def apply_gate(value, ref, triple, time_ok):
     if not time_ok:
         return "NOT A RESULT", state, p, None, ("gate (1): a level did not reach "
                                                 "endTime or a timestep did not converge")
+    if state == "NO_DEMONSTRATED_ORDER":
+        return ("NOT A RESULT", state, p, None,
+                "gate (2): observed order %.3e is below P_MIN=%.2f -- the triple "
+                "demonstrates no convergence, and rule 5 makes a triple that is "
+                "not CONVERGING NOT A RESULT whatever its value says" % (p, P_MIN))
     if state != "CONVERGING":
         return "NOT A RESULT", state, p, None, "gate (2): triple is %s" % state
     g = gci(triple, p)
@@ -261,10 +303,43 @@ def time_integration_ok(case_dir):
     return True, worst, ""
 
 
+def selftest():
+    """Drive the degenerate triple. A floor never shown to fire is untested."""
+    ok = True
+    base, f1 = 1e-9, 1.0
+    rows = [("ratio 1+1e-6  (p ~ 1.3e-06, NO convergence)", 1e-6, "NOT A RESULT"),
+            ("ratio 1+1e-3  (p ~ 1.4e-03, NO convergence)", 1e-3, "NOT A RESULT"),
+            ("ratio 1+0.1   (p ~ 0.138, below floor 0.5)", 1e-1, "NOT A RESULT"),
+            ("ratio 2**0.6  (p ~ 0.600, just above floor)", 2 ** 0.6 - 1.0, "PASS"),
+            ("healthy 2nd order (p = 2.000)", None, "PASS")]
+    for label, eps, want in rows:
+        if eps is None:
+            tri = (1.04, 1.01, 1.0025)
+            val, ref = 1.0025, 1.0025
+        else:
+            e21 = base; e32 = base * (1 + eps)
+            f2 = f1 + e21; f3 = f2 + e32
+            tri = (f3, f2, f1); val = ref = f1
+        v, st, p, g, _ = apply_gate(val, ref, tri, True)
+        # a NOT A RESULT row must carry NO GCI; a PASS row must carry one
+        good = (v == want) and ((g is None) if want == "NOT A RESULT" else (g is not None))
+        ok &= good
+        print("  %-46s p=%-11s GCI=%-10s -> %-13s %s"
+              % (label, ("%.3e" % p) if p is not None else "None",
+                 ("%.3e" % g) if g is not None else "REFUSED", v,
+                 "OK" if good else "FAIL"))
+    print("  P_MIN = %.2f" % P_MIN)
+    print("SELFTEST", "PASS" if ok else "FAIL")
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--json", default=os.path.join(HERE, "gate_t11.json"))
     a = ap.parse_args()
+    if a.selftest:
+        return selftest()
 
     for lv, case in CASES.items():
         if not os.path.isfile(os.path.join(HERE, "DONE.%s" % case)):

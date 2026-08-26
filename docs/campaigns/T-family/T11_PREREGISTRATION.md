@@ -404,3 +404,64 @@ the moment it binds.
 - It **does not** claim a capability. **No rung is a capability until it has
   reported.**
 - It **does not** authorise any send. **SUBMISSIONS REMAIN PARKED** (rule 7).
+
+---
+
+## AMENDMENT 1 — 2026-08-26 (PRE-FIRST-COMPUTE): observed-order floor P_MIN = 0.5
+
+**Document version 1.0 -> 1.1; 1.0 = the `ca9aad86` freeze.** (The frozen text
+carried no version line; this amendment is the first and declares the numbering.)
+
+**Condition (`CLAUDE.md` rule 2), and how it was checked.** A pre-registration may
+be amended only before its first compute. Checked on 2026-08-26, immediately
+before this commit: `ls verification/runs/T-family/T11_runs/` lists the six
+instruments and `__pycache__/` only — the run directories **`T11_PW_c`,
+`T11_PW_m` and `T11_PW_f` do not exist**, and there is no `log.solve`, no
+`STATUS.*` and no `DONE.*` anywhere under the tree; `mark_done_t11.py` reports
+`NOT DONE ... no case directory` for all three levels. **Zero core-minutes have
+been spent on this rung.** The diff of `analyse_t11.py` against the frozen blob
+was read personally by the heat-transfer supervisor (twice: at `P_MIN = 0.05`,
+then again at `0.5` after the selftest exposed the first value as too low —
+the ruling is recorded on the board) and cleared before anything was committed.
+
+**What changes — one file, `analyse_t11.py`, frozen blob `2d5934ba`'s sibling
+`d73290093940595d` (344 lines) -> git blob `ca391ddfca63550a4750c17e1d5ffaa7ecf1da0f`,
+sha256 first-16 `ccd39ef1505e763b`, 419 lines (+79 / -4).**
+
+1. **A fifth degenerate class in `classify()`: `NO_DEMONSTRATED_ORDER`.** The
+   four frozen rejections (`EXACT`, `STAGNANT`, `OSCILLATORY`, `DIVERGENT`) all
+   test the sign and ordering of the error ratio; none tests the magnitude of
+   the observed order itself. Measured on the frozen file: a triple whose fine
+   and medium errors differ by one part in 1e6 is `CONVERGING` with
+   `p = 1.3e-06` and a GCI of 1.407e-03 — a tidy 0.14 % that looks like a
+   measurement. Now: if `p < P_MIN` the triple is `NO_DEMONSTRATED_ORDER`; the
+   order is still returned and printed beside the row, as rule 5 requires.
+2. **`P_MIN = 0.5`, supervisor's ground.** T11's registered expectation is
+   `p` in `[1.5, 2.5]` (§11 P2, second-order scheme). At `r = 2`, `p < 0.5`
+   means adjacent-level errors differ by less than `2^0.5 = 1.41x` — the
+   "levels too close to resolve an order" state T3 measured — and a GCI formed
+   by dividing by `(2^p - 1)` there is a number that looks like a measurement.
+3. **The GCI and the Richardson extrapolate are REFUSED below `P_MIN`** (return
+   `None`; printed as `REFUSED`), in addition to the frozen refusal for a
+   non-monotone triple.
+4. **`apply_gate()` gate (2)** now also sends `NO_DEMONSTRATED_ORDER` to
+   `NOT A RESULT`, naming `p` and `P_MIN` in the reason.
+5. **`--selftest`** drives the degenerate triples through the same
+   `apply_gate()` that grades the rung: ratios `1+1e-6`, `1+1e-3`, `1+0.1`
+   (`p` = 1.3e-06, 1.4e-03, 0.138) must each be `NOT A RESULT` with no GCI;
+   `2^0.6` (`p` = 0.600, just above the floor) and a healthy second-order
+   triple (`p` = 2.000) must each be `PASS` with a GCI present. Prints
+   `SELFTEST PASS` / `FAIL`, exits 0 / 1. Run before this commit under both
+   `python3` and `python3 -O`: **PASS, rc = 0, identical output.** Forced
+   failure shown under `-O`: with `P_MIN` forced to 0.05 in-process, the
+   `1+0.1` row grades `PASS` with GCI 1.250e-08 and the selftest returns 1.
+   No `assert` statement was added (AST count 0).
+
+**Direction.** This amendment can only move rows **INTO** `NOT A RESULT`. No
+gate threshold, band, cap, timeout, rank count, reference value, or verdict
+label is loosened; every row that graded `NOT A RESULT` under the frozen file
+still does. §6.1's band, §10's costs and caps, and §11's predictions are
+untouched. The §12 freeze-set line for `analyse_t11.py` is superseded by the
+hashes above; the other five instruments are byte-identical to the freeze.
+
+**lines whose number changed above this section: 0**
