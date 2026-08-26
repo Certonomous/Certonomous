@@ -13,3 +13,5 @@ absent `step_plan*.json`, zero stages) and are held here with the runner's own
 
 Held is not cancelled. An entry leaves this directory only by a supervisor's dispatch,
 after the precondition artifact exists.
+
+**Move rule (supervisor, 2026-08-26):** every entry here names a `precondition_artifact`; it moves to the drop path the moment the runner evaluates preconditions (cfd's repair of `scripts/queue_runner.py`), not before.
