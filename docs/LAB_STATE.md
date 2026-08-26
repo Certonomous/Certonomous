@@ -4731,6 +4731,69 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+### 2026-08-26T20:5xZ — **RE-FORMED AFTER THE THIRD KILL (~17:50Z): GPU IDLE 3 h WITH THE PATH PROVEN — cause measured, lanes dispatched; VMFL064-R2 refiled and RUNNER-LAUNCHED**
+
+**Written by `ansys-verification-supervisor` personally**, re-formed 20:42Z. Authority: Sanaa
+verbatim `bc0e687e`, `73eccb1b`, `7def3c6b`, `0b041d1a`, `3c3ef86c`; silence is approval; every
+decision below is `[lab-attributed]`. Nothing here is from memory: each line was measured from
+disk or over ssh at 20:43–20:46Z.
+
+#### 1. What the dead session had actually landed (disk, not memory)
+
+- **PIN 5 landed at `54b830e9`** — attempt 4's PETSc event table proved the linear solve on the L4
+  (KSPSolve GPU %F 100). **Attempt 5 ran and the GPU path is PROVEN:** `~/gpu_build/STATUS.smoke` =
+  `smoke_rc=0 end=2026-08-26T17:41:33Z`, `STATUS.build` = `build_rc=0`, `build.log` last line
+  `build_gpu_solver.sh COMPLETE: GPU path built AND smoke-proven`. `env.sh` written by STEP 7
+  (PIN 4 `-use_gpu_aware_mpi 0` inside it).
+- **Amendment 1 `ce7f992d` and `held/VMFLGPU001.json` exist on BOTH boxes**, entry
+  `prereg_commit=ce7f992d1b6c…`. On the GPU box the object `ce7f992d` IS in the git store but the
+  **checkout is stale — `cases/ansys_verification/VMFLGPU001/` is absent on its disk**, so the
+  entry could not have launched even if released. The GPU checkout restore "with cd written first"
+  that my last words promised **did not land**.
+- **The GPU runner is alive and correctly built:** `queue_runner.py --daemon --root
+  /home/ubuntu/gpu_queue` pid **56967** since 17:35:56Z, cron `@reboot` + `* * * * *` →
+  `/home/ubuntu/gpu_queue_runner.sh` (own root so foreign teams' tracked entries can never launch
+  there — the 17:29–17:34Z heat-transfer mis-launches sit quarantined under
+  `gpu_queue/wrong_host_launches/`). Its log: `EMPTY` every minute since 17:43Z.
+- **Idle GPU-hours since the smoke proved: 17:41:33Z → 20:45Z = 3.06 h, $2.46 derived** at the
+  $0.8048/GPU-h published list (not a console reading) — **waste, named, not absorbed**
+  (COMPUTE_BUDGET §6). Cumulative GPU idle this campaign: 24.72 h (boot→build) + 3.06 h.
+  Cause: the sync/checkout on the GPU box never happened before the kill.
+
+#### 2. CPU — measured
+
+- **VMFL017-R2 is STILL RUNNING, not gradable yet:** `rhoCentralFoam` pid 257744 (launched by the
+  runner 17:18:52Z), **351 086 `Time =` lines, deltaT 1.836e-9 s, ExecutionTime 12 158 s** at
+  20:43Z; the `timeout 18000` fires at ~**22:18:53Z** → expected rc 124 at the 300 core-min cap,
+  launcher STOP, `NOT A RESULT` (registered in advance, 17:3xZ block §1). Grading after 22:19Z.
+- **VMFL064-R2 attempt 1 (runner launch 17:49:13Z, pid 326419) REFUSED AT ZERO COMPUTE by its own
+  launcher**: `launcher.queue.out.attempt1` = the usage line `run_vmfl064_r2.sh <run_root>
+  [levels...]`, `launcher_rc=1`. **Defect `VMFL064R2-ENTRY-DEF-1`: the queue entry's argv omitted
+  the launcher's required `<run_root>`** (`run_vmfl064_r2.sh:49`). The prereg and comparator are
+  untouched; the entry was the defect. **Refiled by me at 20:45:22Z** with the run_root appended
+  (attempt-1 STATUS kept as `STATUS.VMFL064-R2.attempt1-refused-no-run_root`), validator ACCEPTED,
+  **runner `LAUNCHED … pid=390178 sid=390178` at 20:45:43Z**. Lesson for LESSONS: every entry's
+  argv is driven once against the launcher's usage guard before it is dropped (VMFLGPU001's entry
+  already carries its run_root; checked).
+- Register at HEAD: 29 rows. Box runner alive pid 189825 (4 h). Box queue held one ansys entry for
+  18 s tonight; **CPU queued agent-independent hours at 20:46Z: VMFL064-R2 5.4 core-min ≈ 0.006 h
+  of a 16-core box** — the honest number, and the reason lane B exists.
+
+#### 3. LANES (cap 4: 2 opus + 2 haiku) dispatched 20:46Z
+
+| lane | task |
+|---|---|
+| opus A | push HEAD `33dbe337` to the GPU checkout, verify `ce7f992d` on disk, release `held/VMFLGPU001.json` to `/home/ubuntu/gpu_queue/ansys-verification/`, watch the launch, GPU runner kill-test certificate |
+| opus B | VMFL011-R2 (L-340 per-channel plant) and VMFL076-R2 re-registrations, frozen + entries at the drop path with run_root in the argv |
+| haiku C | CPU runner kill-test certificate → `verification/queue/ansys-verification/RUNNER_KILL_CERTIFICATE_2026-08-26.txt`; 25-min monitor |
+
+**NEXT:** VMFLGPU002–010 bulk freeze on the VMFLGPU001 template (DRAFT_PREREGISTRATIONS_VMFLGPU.md
+carries all ten; 002 is template-speed, 003–007 bespoke, 008–010 thin GPU coverage — flagged
+before GPU-hours) on the first free opus slot; VMFL017-R2 grade after 22:19Z; ansys_ROWS
+capability mapping (`068c2bf0`); L-342 audit of new freezes; the GPU instance is stopped only
+after all 10 have run and completed, and the stop is boarded.
+**BLOCKED:** none on permission tonight.
+
 ### SESSION certonomous-71 — RE-FORMED 16:52Z AFTER THE SECOND KILL: QUEUE-FILLING IS THE LANE, R_ff STAYS, T5 REFERENCE PATH RULED
 
 **Sub-section written:** 2026-08-26T17:02Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. Built from the HEAD blob per L-333 (staged blob = `git show $H:docs/LAB_STATE.md` plus this block); every block below is carried byte-for-byte.
