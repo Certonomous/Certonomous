@@ -443,3 +443,53 @@ the first row: **the refusal fires under `-O`.**
 5. **`D7R-GRADER-DEF-5`** — the `--selftest` exit contract the file documents is not the one it has.
 6. **The charter question on reporting-versus-stopping caps** is referred upward and is
    **unanswered here** (§3).
+
+---
+
+## ADDENDUM 1 — 2026-08-26. THE ANTECEDENT FAILS TWICE OVER, AND THE FAVOURABLE MISS IS THE INSTRUCTIVE PART.
+
+**Added on the dafoam-supervisor's direction after they verified band C and D7 §5 `G3` personally from the
+frozen blob and recorded the correction against themselves by name.** Nothing above this line is altered;
+this addendum adds no gate, moves no threshold and changes no verdict. **The verdict was already
+`NOT A RESULT` and remains `NOT A RESULT`.**
+
+### A1.1 The sentence this item exists to have written
+
+**The optimiser BEAT the registered band's upper bound — 30.402283 % against a 25 % ceiling — and the
+frozen rule therefore makes the rung `NOT A RESULT`.**
+
+**A band missed in the FAVOURABLE direction is still a miss.** D7 §4's own next sentence, frozen before
+any compute, reads *"it is frozen here, and a result outside it is reported as a MISS, never
+re-banded."* It was written by this lab, before this number existed, for exactly this moment, and it
+holds. **The temptation a re-band offers is not the temptation to fake a good result — it is the
+temptation to keep a good result. That is the harder one, and the rule was written against it.**
+
+### A1.2 The `GATE REACHED` antecedent fails on TWO independent limbs, not one
+
+D7 §5 `G3`: *"Cap-stop → `GATE REACHED` **if band C and band A both hold**, else `NOT A RESULT`. NEVER
+`PASS`."* Both conjuncts fail, for unrelated reasons:
+
+| limb | status | why |
+|---|---|---|
+| **band C** | **MISS** | **30.402283 %** against the frozen **[3 %, 25 %]** — measured from the real `O/opt_IPOPT.txt` through the frozen grader's own `read_ipopt` + `g4_drag` |
+| **band A** | **`UNSCORED`** | `O/d7_major_history.json` **does not exist** (`D7R-DEF-8`). Band A is a per-major test over the whole CL history and that history was never written. The final `inf_pr = 2.23e-06` at iterate 30 is **one row, not the band**, and is not scored as one |
+
+**Recorded so that nobody later reads the verdict as resting on a single arguable limb.** Were band C
+re-banded tomorrow — which it may not be — band A would still be `UNSCORED` and the antecedent would
+still fail. **The verdict does not depend on the band-C reading.**
+
+### A1.3 `D7R-DEF-8` and `D7R-DEF-9` are the finding of the night in this item, above the verdict
+
+The supervisor's ruling, recorded: the frozen launcher never runs the extractor for arm `O`, so two of
+the four required artifacts **cannot exist**; and even had it, `map_verdict` hard-fails `G6`/`G6b`/`G7`
+on absent FD artifacts. **D7R AS ARMED COULD NEVER HAVE PRODUCED ITS OWN REGISTERED CEILING OUTCOME.**
+
+**This is a property of the frozen document, not a failed solve**, it is the same class as D12R's
+comparator/launcher disagreement and heat-transfer's T8 §12 and K0d L2 — a pre-registration
+**unsatisfiable as written, found post-compute** — and **it does not reopen §11.**
+
+### A1.4 What is carried forward, and how
+
+To the successor item, as **RECORDED AND NOT IMPORTED** — a repeat is corroboration, a departure is a
+finding: arm `O`'s endpoint `CD = 2.3048932443550496e-02` at `CL = 0.28761081`; the **30.402283 %**;
+`patchV[0] = 29.160000000000004`; and the item's measured core-minutes.
