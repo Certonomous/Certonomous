@@ -424,3 +424,74 @@ cited under §2d.1, because there is no recorded value to cite.
 **No verdict in this rung is reopened by this amendment. Nothing here has been sent,
 filed, submitted, uploaded, registered or posted anywhere outside this box
 (`CLAUDE.md` rule 7).**
+
+---
+
+## AMENDMENT A3 — 2026-08-26, **POST-COMPUTE. DISCLOSURE ONLY.** Document **v1.1 → v1.2**.
+
+**`lines whose number changed above this section: 0`** — **measured** against this
+file's blob at `HEAD` before writing. **No gate, threshold, cap or label is altered.**
+
+### A3.1 Why a second amendment on the same day, and why HERE
+
+Amendment A2 (earlier today) disclosed the `-O` exposure of
+`K0b_D406_repair/analyse_k0b_mesh.py:270`. **There is a THIRD copy of that analyser, and
+it was missed by that amendment:**
+
+```
+verification/runs/F14-cooling-ladder/K0b_mesh_sensitivity/analyse_k0b_mesh.py:350
+    assert abs(nu_at_time(case, t, Th, Tc) - mean(nu_hot)) < 1e-12 * abs(mean(nu_hot))
+```
+
+**Same statement, same near-identity, different line number** — `:350` rather than
+`:270`, because that copy carries additional history handling above it.
+
+**This document is the right home for that disclosure, and the reason is checked rather
+than assumed.** §13 of this pre-registration names
+`verification/runs/F14-cooling-ladder/K0b_mesh_sensitivity/build_and_run.sh` by full
+path, and its cost table prices the `32x32` and `128x128` legs and an end-to-end
+`analyse_k0b_mesh.py` pass. **This registration is ABOUT that working tree.**
+
+**And it is NOT covered by `verification/campaign/THERMAL_K0_PREREGISTRATION.md`, which
+was proposed as its home — checked and rejected on the document's own text.** That
+pre-registration registers K0b at **exactly one mesh, `64 x 64 x 1 = 4096 cells`**, and
+its gate **B4** reads *"Imbalance < 0.5% of heat in, **on 4096 cells**"*. It contains no
+mesh-sensitivity, grid-refinement or multi-resolution arm of any kind. **The
+mesh-sensitivity work ran `32 x 32` and `128 x 128` — neither of them the registered
+mesh.** Its authorisation clause (*"K0a and K0b only"*) is about which RUNGS were
+authorised, not a licence to run a rung at unregistered resolutions.
+
+> **A REGISTRATION THAT FIXES ONE MESH DOES NOT SILENTLY AUTHORISE A LADDER OF THEM. The
+> scope clause names the rung; the body names the mesh; and the body is the part a
+> Roache ladder would have to contradict.**
+
+### A3.2 The exposure — the §2d.1 instrument class, again
+
+The assert is the **near-identity cross-check** between the grid-mapped Nusselt estimator
+and the x-fastest-ordering shortcut, required to agree to `1e-12` relative, inside the
+function that **returns the graded Nusselt dict**. `VERIFICATION_CHARTER.md` §2d.1
+condition (2) — *the load-bearing one, in the charter's own words* — requires a
+post-compute repair to be established by *"an instrument INDEPENDENT OF THE HYPOTHESIS —
+one that grades nothing, such as a near-identity, a guard or a control."*
+
+> **THE VERY INSTRUMENT CLASS THAT WOULD LICENSE A FUTURE REPAIR IS REMOVABLE BY AN
+> INTERPRETER FLAG — and here it is removable in THREE copies, of which the first
+> disclosure caught two.**
+
+### A3.3 Disposition
+
+**The instrument is NOT edited** and stays byte-identical to its blob at `HEAD`. §2d.1 is
+**NOT** invoked: an `assert` → `refuse()` conversion moves no number, so its conditions
+(3) and (4) are vacuous. The repaired form is the three-arm shape specified in Amendment
+A2 §5, and lands in the successor. **Status `UNJUDGED`; no row re-graded; zero
+core-minutes.** Nothing sent (`CLAUDE.md` rule 7).
+
+### A3.4 The method failure that produced the gap, recorded because it is the useful part
+
+A2 enumerated the analyser by **rung directory** (`K0b_D403_rerun`, `K0b_D406_repair`)
+and found two copies. **The third lives in a directory named for the STUDY, not the
+rung**, and an enumeration keyed on the rung names could not see it. **This is the same
+shape as the `git ls-files` defect and the `verification/campaign/` miss recorded the
+same day: three confident zeros, three different wrong enumerations.** The general
+repair is L-337's: **a zero from a search not shown able to find a known instance is
+not evidence of absence.**
