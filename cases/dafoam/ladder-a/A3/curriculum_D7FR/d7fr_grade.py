@@ -1339,6 +1339,11 @@ def map_verdict(g):
     line as a stated limitation.  The mapping itself is byte-unchanged in
     `_map_verdict_core`."""
     v = _map_verdict_core(g)
+    try:
+        v["pre_addendum4_composition_D7PORT"] = _map_verdict_core_D7PORT(g)
+    except KeyError as exc:
+        v["pre_addendum4_composition_D7PORT"] = {"verdict": "NOT_COMPUTABLE",
+                                                 "missing": str(exc)}
     nm = []
     if g.get("G1", {}).get("not_measured"):
         for e in g["G1"]["not_measured"]:
@@ -1369,8 +1374,108 @@ def map_verdict(g):
     return v
 
 
+SEC4_VERBATIM = ("PREREGISTRATION.md sec.4: \"It produces no drag reduction of its own, "
+                 "so there is nothing for band C to gate. The 30.402283 % is carried as a "
+                 "RECORDED D7R number, REPORTED AND NOT GATED. No gate in this item reads "
+                 "it, and no verdict of this item may be stated in terms of it. The bright "
+                 "line here is G5.\"")
+ROWS = ("SHIPPED", "PATCHED")
+_RANK = {"PASS": 0, "GATE REACHED": 1, "GATE FAIL": 2, "NOT A RESULT": 3}
+
+
 def _map_verdict_core(g):
-    """PREREGISTRATION.md sec.7, and DAFOAM_CHARTER.md sec.9.
+    """ADDENDUM 4 -- D7FR-GRADER-DEF-1 (composition).  dafoam-supervisor ruling
+    [lab-attributed] 2026-08-26: the D7-port composition gated the item on
+    G2/G3/G4 -- D7R arm O's optimisation bands -- which sec.4 of the frozen
+    document says NO gate in this item reads.  The document governs; deleting
+    gates the item never registered is not a relaxation.  The pre-repair
+    composition is KEPT as `_map_verdict_core_D7PORT` and recorded beside.
+
+    Composition: hard gates (G1, G8, G11, G13; G6/G6b/G7 PER ROW; G9 when two
+    rows) -> per-row verdict for SHIPPED (F-S) and PATCHED (F-P) from the G5
+    bright line -> the ITEM verdict stated only when BOTH rows are graded
+    (else PENDING); a shipped-vs-patched divergence is the FINDING the item
+    registers, reported, never a failure by itself.  G2/G3/G4 are REPORTED,
+    NOT GATED, quoting sec.4 verbatim.  ONE-WAY RULE kept: a gate can only turn
+    a PASS into GATE FAIL / NOT A RESULT, never the reverse."""
+    hard = []
+    if not g["G1"]["pass"]:
+        hard.append("G1 completion/age guard")
+    if not g["G8"]["pass"]:
+        hard.append("G8 decomposition determinism")
+    if not g["G11"]["pass"]:
+        hard.append("G11 OOMKilled")
+    if not g["G13"]["pass"]:
+        hard.append("G13 adjoint health (band F)")
+    g9 = g.get("G9") or {}
+    if g9.get("two_rows_present") and not g9.get("pass"):
+        hard.append("G9 two rows carry identical IDWarp .so md5")
+    rows = {}
+    for label in ROWS:
+        r5 = (g.get("G5") or {}).get(label)
+        if not r5 or r5.get("status") == "ABSENT":
+            rows[label] = {"verdict": "PENDING",
+                           "because": ["FD artefact for this row not graded"]}
+            continue
+        rh = []
+        for gk, name in (("G6", "planted zero"), ("G6b", "blind-reader negative control"),
+                         ("G7", "count control")):
+            rr = ((g.get(gk) or {}).get("rows") or {}).get(label) or {}
+            if not rr.get("pass"):
+                rh.append("%s %s" % (gk, name))
+        agg = r5.get("aggregate_worst_rel_err_pct")
+        flips = r5.get("sign_flips")
+        if rh:
+            rows[label] = {"verdict": "NOT A RESULT", "because": rh}
+        elif r5.get("pass"):
+            rows[label] = {"verdict": "PASS",
+                           "because": ["G5 bright line holds: %s, worst %s %%, sign flips %s"
+                                       % (r5.get("coverage"), agg, flips)]}
+        else:
+            rows[label] = {"verdict": "GATE FAIL",
+                           "because": ["G5 bright line MISSED: %s, worst %s %%, sign flips %s"
+                                       % (r5.get("coverage"), agg, flips)]}
+        rows[label]["aggregate_worst_rel_err_pct"] = agg
+        rows[label]["sign_flips"] = flips
+        rows[label]["per_component"] = [
+            {"component": c.get("component"), "rel_err_pct": c.get("rel_err_pct"),
+             "verdict": c.get("verdict")} for c in (r5.get("per_component") or [])]
+    reported = {"policy": "REPORTED, NOT GATED", "sec4": SEC4_VERBATIM}
+    for gk in ("G2", "G3", "G4"):
+        d = g.get(gk) or {}
+        reported[gk] = {k: d.get(k) for k in ("pass", "band_A_pass", "converged",
+                                             "exit_line", "reduction_pct", "band")
+                        if k in d}
+    out = {"rows": rows, "reported_not_gated": reported}
+    if hard:
+        out.update({"verdict": "NOT A RESULT", "because": hard})
+        return out
+    pending = [l for l in ROWS if rows[l]["verdict"] == "PENDING"]
+    if pending:
+        out.update({"verdict": "PENDING",
+                    "because": ["item verdict is stated only when BOTH rows are graded; "
+                                "PENDING row(s): %s" % ",".join(pending)]
+                               + ["%s row: %s" % (l, rows[l]["verdict"]) for l in ROWS]})
+        return out
+    vs = {l: rows[l]["verdict"] for l in ROWS}
+    worst = max(vs.values(), key=lambda v: _RANK[v])
+    finding = None
+    if vs["SHIPPED"] != vs["PATCHED"]:
+        finding = {"shipped_vs_patched_divergence": vs,
+                   "note": "the divergence IS the finding this item registers (sec.8 "
+                           "two-row rule); it is reported, never a failure by itself"}
+    out["finding"] = finding
+    out.update({"verdict": worst,
+                "because": ["SHIPPED row %s; PATCHED row %s" % (vs["SHIPPED"], vs["PATCHED"]),
+                            "G9 two distinct IDWarp .so md5s: %s" % g9.get("two_rows_distinct_so_md5")]
+                           + (["FINDING: shipped-vs-patched divergence"] if finding else [])})
+    return out
+
+
+def _map_verdict_core_D7PORT(g):
+    """PRE-ADDENDUM-4 COMPOSITION, KEPT AND RECORDED BESIDE (ruling condition:
+    the pre-repair verdict sits next to the post-repair one).  Not consulted
+    for the item verdict.  PREREGISTRATION.md sec.7, and DAFOAM_CHARTER.md sec.9.
 
     THE ONE-WAY RULE (CLAUDE.md rule 5, by analogy, and sec.7 G3): a gate can
     only turn a PASS or GATE REACHED **into** NOT A RESULT, never the reverse.
@@ -1710,13 +1815,13 @@ def selftest():
                                                     "Iterations Exceeded."},
             "G4": {"pass": True, "reduction_pct": 10.0, "band": [3.0, 25.0]},
             "G2": {"pass": True, "band_A_pass": True}}
-    v = map_verdict(ok_g)
+    v = _map_verdict_core_D7PORT(ok_g)      # the RECORDED pre-Addendum-4 mapping
     unit("CAPSTOP_never_PASS", True,
          bool(v["verdict"] == "GATE REACHED"), "got=%s" % v["verdict"])
 
     ok_g2 = json.loads(json.dumps(ok_g))
     ok_g2["G3"] = {"converged": True, "exit_line": CONVERGED_TOKEN}
-    v = map_verdict(ok_g2)
+    v = _map_verdict_core_D7PORT(ok_g2)     # the RECORDED pre-Addendum-4 mapping
     unit("CONVERGED_is_PASS_and_flagged_a_SURPRISE", True,
          bool(v["verdict"] == "PASS" and "SURPRISE" in v),
          "got=%s" % v["verdict"])
@@ -1732,6 +1837,60 @@ def selftest():
     v = map_verdict(ok_g4)
     unit("DECOMP_NONDETERMINISTIC_is_NOT_A_RESULT", True,
          bool(v["verdict"] == "NOT A RESULT"), "got=%s" % v["verdict"])
+
+    # ================= ADDENDUM 4 -- THE SEC.4 COMPOSITION, DRIVEN ==============
+    def _row(passed, worst=1.0):
+        return {"pass": passed, "coverage": "5 of 5", "aggregate_worst_rel_err_pct": worst,
+                "sign_flips": 0, "per_component": [{"component": "shape[0]",
+                                                     "rel_err_pct": worst,
+                                                     "verdict": "PASS" if passed else "GATE FAIL"}]}
+    def _two(ship=True, patch=True):
+        gg = json.loads(json.dumps(ok_g))
+        gg["G5"] = {"SHIPPED": _row(ship, 1.0), "PATCHED": _row(patch, 2.0)}
+        for k in ("G6", "G6b", "G7"):
+            gg[k] = {"pass": True, "rows": {"SHIPPED": {"pass": True}, "PATCHED": {"pass": True}}}
+        gg["G9"] = {"pass": True, "two_rows_present": True, "two_rows_distinct_so_md5": True}
+        return gg
+    v4 = map_verdict(_two())
+    unit("MAP_A4_both_rows_PASS_composes_PASS_with_G2G3G4_REPORTED_NOT_GATED", True,
+         bool(v4["verdict"] == "PASS" and v4["rows"]["SHIPPED"]["verdict"] == "PASS"
+              and v4["rows"]["PATCHED"]["verdict"] == "PASS"
+              and v4["reported_not_gated"]["policy"] == "REPORTED, NOT GATED"
+              and "sec.4" in v4["reported_not_gated"]["sec4"]
+              and v4["pre_addendum4_composition_D7PORT"]["verdict"] == "GATE REACHED"),
+         "got=%s pre=%s" % (v4["verdict"], v4["pre_addendum4_composition_D7PORT"]["verdict"]))
+    g4o = _two(); g4o["G4"] = {"pass": False, "reduction_pct": 30.4, "band": [3.0, 25.0]}
+    g4o["G2"] = {"pass": False, "band_A_pass": False}
+    v4o = map_verdict(g4o)
+    unit("MAP_A4_G2_G4_OUT_OF_BAND_leaves_verdict_UNCHANGED_and_REPORTS_the_number", True,
+         bool(v4o["verdict"] == "PASS"
+              and v4o["reported_not_gated"]["G4"]["reduction_pct"] == 30.4
+              and v4o["reported_not_gated"]["G4"]["pass"] is False
+              and v4o["pre_addendum4_composition_D7PORT"]["verdict"] == "NOT A RESULT"),
+         "got=%s pre=%s" % (v4o["verdict"], v4o["pre_addendum4_composition_D7PORT"]["verdict"]))
+    v4f = map_verdict(_two(ship=True, patch=False))
+    unit("MAP_A4_G5_FAIL_on_one_row_fails_the_item_and_NAMES_the_divergence", True,
+         bool(v4f["verdict"] == "GATE FAIL" and v4f["rows"]["PATCHED"]["verdict"] == "GATE FAIL"
+              and v4f["finding"]["shipped_vs_patched_divergence"] == {"SHIPPED": "PASS",
+                                                                      "PATCHED": "GATE FAIL"}),
+         "got=%s" % v4f["verdict"])
+    g9f = _two(); g9f["G9"] = {"pass": False, "two_rows_present": True, "two_rows_distinct_so_md5": False}
+    unit("MAP_A4_G9_FAIL_is_NOT_A_RESULT", True,
+         bool(map_verdict(g9f)["verdict"] == "NOT A RESULT"))
+    g1r = _two(); g1r["G5"]["PATCHED"] = {"status": "ABSENT", "pass": False}
+    g1r["G9"] = {"pass": False, "two_rows_present": False, "two_rows_distinct_so_md5": False}
+    v1r = map_verdict(g1r)
+    unit("MAP_A4_one_row_ABSENT_is_per_row_only_and_item_PENDING", True,
+         bool(v1r["verdict"] == "PENDING" and v1r["rows"]["SHIPPED"]["verdict"] == "PASS"
+              and v1r["rows"]["PATCHED"]["verdict"] == "PENDING"),
+         "got=%s" % v1r["verdict"])
+    g6f = _two(); g6f["G6"]["rows"]["SHIPPED"] = {"pass": False}
+    v6f = map_verdict(g6f)
+    unit("MAP_A4_planted_zero_FAIL_on_a_row_is_NOT_A_RESULT_for_that_row_and_the_item", True,
+         bool(v6f["verdict"] == "NOT A RESULT" and v6f["rows"]["SHIPPED"]["verdict"] == "NOT A RESULT"
+              and v6f["rows"]["PATCHED"]["verdict"] == "PASS"))
+    unit("MAP_A4_every_composed_token_is_in_the_fixed_vocabulary", True,
+         bool(all(x["verdict"] in VOCAB for x in (v4, v4o, v4f, v1r, v6f))))
 
     # G8 must refuse a partition that does not sum to the registered cell count.
     tmp = tempfile.mkdtemp(prefix="d7st8_")

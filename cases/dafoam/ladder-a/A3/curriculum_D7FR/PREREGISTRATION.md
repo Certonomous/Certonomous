@@ -698,3 +698,29 @@ The age guard's artefact list is unchanged (`opt_IPOPT.txt`, `OptView.hst`, `d7_
 ### A3.5 The struck row
 
 **Addendum 2's grader row is STRUCK, not rewritten:** `c451af9f2d2c496a1dd9f3231213884b` / blob `4df305e460e218bbb30485874bba3b741d1b0c68` → **md5 `b96f550daf1ac193364ac5ea1b42d279`, blob `265b9680233ae89efb537f092329c1520d2df23d`**, the grading path for the item verdict. The run-root copy stays at the frozen md5 for the launcher's `:254` assertion. Every other §14 row is unchanged.
+
+---
+
+## ADDENDUM 4 — 2026-08-26T16:45:27Z. **POST-COMPUTE.** `D7FR-GRADER-DEF-1` (COMPOSITION): THE ITEM VERDICT IS COMPOSED FROM THE GATES THIS DOCUMENT REGISTERS, AND `G2`/`G3`/`G4` ARE REPORTED, NOT GATED — AS §4 SAYS
+
+**Version 1.4. ALTERS NO BAND, THRESHOLD, CAP OR LABEL. Lines whose number changed above this section: 0.** Approved by dafoam-supervisor, ruling [lab-attributed] 2026-08-26, who read §4 at `b424b44e` personally.
+
+### A4.1 The defect, recorded as `D7FR-GRADER-DEF-1`
+
+§4 (lines 211–226, frozen at `b424b44e`): *"It produces no drag reduction of its own, so there is nothing for band C to gate. … The 30.402283 % is carried as a RECORDED D7R number, REPORTED AND NOT GATED. No gate in this item reads it, and no verdict of this item may be stated in terms of it. The bright line here is `G5`."* The ported grader's `map_verdict` nevertheless composed the item verdict from `G2`/`G3`/`G4` — D7R arm `O`'s CL bands, IPOPT exit and drag-reduction band — and returned **`NOT A RESULT`** on band C with every registered gate of this item passing (`d7fr_grade_FS_a3.json`). **The document is the registration; the grader is its instrument; where they disagree the document governs.** An instrument gating on quantities the document says no gate reads is the `D7R-GRADER-DEF-6` stale-inheritance class, now in the composition. **Removing it is not a relaxation: it deletes gates the item never registered.**
+
+### A4.2 The composition (`_map_verdict_core`), and what is kept beside it
+
+1. **Hard gates**, unchanged in identity: `G1`, `G8`, `G11`, `G13`, and `G9` when two rows are present → `NOT A RESULT`.
+2. **Per-row verdict** for **SHIPPED** (`F-S`) and **PATCHED** (`F-P`): `G6`/`G6b`/`G7` for that row fail → `NOT A RESULT`; `G5` holds (bands D and E, 5.0 % per component and aggregate, sign flips) → `PASS`; `G5` missed → `GATE FAIL`; FD artefact absent → `PENDING`.
+3. **The item verdict is stated only when BOTH rows are graded** (else `PENDING`, per-row verdicts shown). It is the worse of the two rows under the one-way rule; **a shipped-vs-patched divergence is named as the FINDING this item registers (§8's two-row rule), reported, never a failure by itself.**
+4. **`G2`/`G3`/`G4` are REPORTED, NOT GATED**, carried under `reported_not_gated` with §4 quoted verbatim.
+5. **The pre-Addendum-4 composition is KEPT** as `_map_verdict_core_D7PORT` and written into every verdict as `pre_addendum4_composition_D7PORT`, so the two compositions sit side by side in the record (§2d.1 condition 4). Pre-repair files: `d7fr_grade_FS_interim.json`, `d7fr_grade_FS_a3.json`.
+
+### A4.3 Driven, plain `python3` and `-O`
+
+`MAP_A4_both_rows_PASS_composes_PASS_with_G2G3G4_REPORTED_NOT_GATED` (pre-composition reads `GATE REACHED` on the same fixture); `MAP_A4_G2_G4_OUT_OF_BAND_leaves_verdict_UNCHANGED_and_REPORTS_the_number` (30.4 % reported, verdict unchanged; pre-composition `NOT A RESULT`); `MAP_A4_G5_FAIL_on_one_row_fails_the_item_and_NAMES_the_divergence`; `MAP_A4_G9_FAIL_is_NOT_A_RESULT`; `MAP_A4_one_row_ABSENT_is_per_row_only_and_item_PENDING`; `MAP_A4_planted_zero_FAIL_on_a_row_is_NOT_A_RESULT_for_that_row_and_the_item`; `MAP_A4_every_composed_token_is_in_the_fixed_vocabulary`. `CAPSTOP_never_PASS` and `CONVERGED_is_PASS_and_flagged_a_SURPRISE` now drive the RECORDED pre-composition explicitly. **117 units, 117 passed, `UNEXERCISED=0`**, identical under `-O`; `ast.Assert` 0. Diff against Addendum 3's blob: 162 insertions, 3 deletions; hunks only in `map_verdict`/`_map_verdict_core` and `selftest`.
+
+### A4.4 The struck row
+
+**Addendum 3's grader row is STRUCK, not rewritten:** `b96f550daf1ac193364ac5ea1b42d279` / blob `265b9680233ae89efb537f092329c1520d2df23d` → **md5 `4303704523de7e1c8fa6d6a34a858ded`, blob `1b810913de3a0d0d381988a26789ebf577b5c978`**, the grading path for the item verdict. The run-root copy stays at the frozen md5 (the launcher's `:254` assertion; every arm has now run under it). Every other §14 row is unchanged.
