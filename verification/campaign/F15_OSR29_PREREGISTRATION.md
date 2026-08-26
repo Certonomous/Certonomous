@@ -382,3 +382,46 @@ The v1.0 document carries **no version line in its header**. Bumping one would
 change the line numbers of every section above this point and **falsify the
 "lines whose number changed above this section: 0" assertion** this amendment is
 required to make. **The version is therefore declared here and only here.**
+
+---
+
+## AMENDMENT 2 — 2026-08-26 (pre-first-compute)
+
+**Version 1.1 → 1.2.** Pre-first-compute amendment under rule 2 §2b, permitted
+under Sanaa's boarded permission at bc0e687e ("anything that leads to the lab
+having more runs under its belts"). Lesson L-339.
+**lines whose number changed above this section: 0** — verified by `git diff`
+against the HEAD blob: this file's diff is append-only (this block, added at the
+foot; 0 deletions).
+
+**CONDITION, AND HOW IT WAS CHECKED.** `test -e` in the shell invocation that
+prepared this amendment, 2026-08-26, naming the directories:
+- `verification/runs/F15_runs` — absent (never fired)
+No solver has produced a time directory for this rung. **F16 attempt 1 evidence:**
+`verification/runs/F16_runs/STATUS.F16` read `rc=1 end=2026-08-26T15:56:10Z`
+and `launcher.out` ended `/usr/lib/openfoam/openfoam2606/etc/bashrc: line 184:
+WM_PROJECT_DIR: unbound variable` — the launcher died at zero compute inside the
+OpenFOAM source, before `blockMesh` or any solver ran (both files renamed to
+`launcher.attempt1.out` / `STATUS.F16.attempt1`, untracked, never deleted).
+
+**WHAT CHANGED — `cases/F15_oblique_shock_reflection/run_f15.sh` only.** `set -u` (in force from the top of the file)
+is lifted across the OpenFOAM source and restored immediately after, the form
+used at `scripts/launch_k0f.sh:158-169`:
+```
+-. "$FOAM_BASHRC" || { echo "ABORT: could not source $FOAM_BASHRC"; exit 1; }
++set +u; . "$FOAM_BASHRC" || { echo "ABORT: could not source $FOAM_BASHRC"; exit 1; }; set -u
+```
+plus a four-line dated comment above it. Launcher diff: **+5 / −1 lines**; the
+original line 153 becomes line 157. **No band, cap, threshold, verdict or
+label line was touched**, in the launcher or in this document.
+
+**CHECKED AFTER THE EDIT.** `bash cases/F15_oblique_shock_reflection/run_f15.sh --preflight` rc 0. Replicating the
+sequence `set -u; set +u; . $FOAM_BASHRC; set -u; which rhoCentralFoam blockMesh` resolves
+real binaries under `/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/`.
+`scripts/check_launcher_can_launch.py` rc 0 on the edited file — **and rc 0 on
+the frozen file that could not launch**, which is a finding against the checker,
+not a clearance of the file (L-339); the checker is not edited here.
+
+**THE `--prereg-commit` TO PASS AT LAUNCH IS THE SHA OF THIS COMMIT** — the
+commit that lands this block (`git log -1 --format=%H -- verification/campaign/F15_OSR29_PREREGISTRATION.md`); the graders
+record it verbatim.

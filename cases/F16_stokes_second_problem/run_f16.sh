@@ -144,8 +144,12 @@ fi
 git -C /home/ubuntu/Certonomous cat-file -e "${PREREG_COMMIT}^{commit}" 2>/dev/null \
   || { echo "ABORT: $PREREG_COMMIT is not a commit in this repository"; exit 1; }
 
+# AMENDMENT 2 (pre-first-compute), 2026-08-26: set -u lifted across the
+# OpenFOAM source. MEASURED: under set -u the bashrc aborts at line 184
+# WM_PROJECT_DIR unbound (F16 attempt 1, STATUS.F16 rc=1 at 15:56:10Z); L-339;
+# same form as scripts/launch_k0f.sh:158-169.
 # shellcheck disable=SC1090
-. "$FOAM_BASHRC" || { echo "ABORT: could not source $FOAM_BASHRC"; exit 1; }
+set +u; . "$FOAM_BASHRC" || { echo "ABORT: could not source $FOAM_BASHRC"; exit 1; }; set -u
 command -v icoFoam   > /dev/null || { echo "ABORT: icoFoam not on PATH after sourcing"; exit 1; }
 command -v blockMesh > /dev/null || { echo "ABORT: blockMesh not on PATH after sourcing"; exit 1; }
 

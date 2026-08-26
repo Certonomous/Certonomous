@@ -297,3 +297,48 @@ precisely because its estimate has no history behind it.
 - No re-grade of any existing row, in any team.
 - No amendment to any standard or charter.
 - **Nothing is sent, filed, uploaded or submitted** (rule 7).
+
+---
+
+## AMENDMENT 2 — 2026-08-26 (pre-first-compute)
+
+**Version 1.0 → 1.1.** Pre-first-compute amendment under rule 2 §2b, permitted
+under Sanaa's boarded permission at bc0e687e ("anything that leads to the lab
+having more runs under its belts"). Lesson L-339.
+**lines whose number changed above this section: 0** — verified by `git diff`
+against the HEAD blob: this file's diff is append-only (this block, added at the
+foot; 0 deletions).
+
+**CONDITION, AND HOW IT WAS CHECKED.** `test -e` in the shell invocation that
+prepared this amendment, 2026-08-26, naming the directories:
+- `verification/runs/F16_runs/coarse/0` — absent
+- `verification/runs/F16_runs/medium/0` — absent
+- `verification/runs/F16_runs/fine/0` — absent
+No solver has produced a time directory for this rung. **F16 attempt 1 evidence:**
+`verification/runs/F16_runs/STATUS.F16` read `rc=1 end=2026-08-26T15:56:10Z`
+and `launcher.out` ended `/usr/lib/openfoam/openfoam2606/etc/bashrc: line 184:
+WM_PROJECT_DIR: unbound variable` — the launcher died at zero compute inside the
+OpenFOAM source, before `blockMesh` or any solver ran (both files renamed to
+`launcher.attempt1.out` / `STATUS.F16.attempt1`, untracked, never deleted).
+
+**WHAT CHANGED — `cases/F16_stokes_second_problem/run_f16.sh` only.** `set -u` (in force from the top of the file)
+is lifted across the OpenFOAM source and restored immediately after, the form
+used at `scripts/launch_k0f.sh:158-169`:
+```
+-. "$FOAM_BASHRC" || { echo "ABORT: could not source $FOAM_BASHRC"; exit 1; }
++set +u; . "$FOAM_BASHRC" || { echo "ABORT: could not source $FOAM_BASHRC"; exit 1; }; set -u
+```
+plus a four-line dated comment above it. Launcher diff: **+5 / −1 lines**; the
+original line 148 becomes line 152. **No band, cap, threshold, verdict or
+label line was touched**, in the launcher or in this document.
+
+**CHECKED AFTER THE EDIT.** `bash cases/F16_stokes_second_problem/run_f16.sh --preflight` rc 0. Replicating the
+sequence `set -u; set +u; . $FOAM_BASHRC; set -u; which icoFoam blockMesh` resolves
+real binaries under `/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/`.
+`scripts/check_launcher_can_launch.py` rc 0 on the edited file — **and rc 0 on
+the frozen file that could not launch**, which is a finding against the checker,
+not a clearance of the file (L-339); the checker is not edited here.
+
+**THE `--prereg-commit` TO PASS AT LAUNCH IS THE SHA OF THIS COMMIT** — the
+commit that lands this block (`git log -1 --format=%H -- verification/campaign/F16_SL2_PREREGISTRATION.md`); the graders
+record it verbatim.
