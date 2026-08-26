@@ -148,3 +148,76 @@ Frozen by sha before any solver starts (rule 2). Drafted by `ansys-lane-opus48` 
 PENDING. A GATE FAIL or NOT A RESULT is recorded honestly, never softened. **This is a PREP
 registration: the case is frozen and smoke-tested, but the real levels are NOT launched until
 the supervisor clears it.***
+
+---
+
+## PRE-COMPUTE AMENDMENT 1 — 2026-08-26T16:05:19Z — observed-order floor `P_MIN = 0.05`
+
+**Author:** `ansys-lane-opus`. **Lines whose number changed above this section: 0** (this
+section is appended at the foot; nothing above it is edited — rule 6).
+
+**LEGALITY, WITH THE EVIDENCE, NOT THE CLAIM (rule 2).** Amendments are legal only *before
+first compute*, and the condition must state how it was checked. **Checked:** the run root
+`verification/runs/ansys_verification/VMFL064` **DOES NOT EXIST** at
+**2026-08-26T16:05:19Z** — `test -e` on that path returns false and it is absent from
+`ls verification/runs/ansys_verification/`, whose 25 sibling case directories are all other
+cases. No solver has been started for VMFL064, no level directory exists, no `RUN_RC.txt`
+exists, and `LAUNCH_RECORD.txt` (which the launcher writes *before* the first solver) does
+not exist either. **First compute has not happened, so this amendment is pre-compute.**
+
+**NOTHING GATED IS TOUCHED.** The gate quantity (LR/s on `bottomWall`), the threshold
+(`|LR/s − 5.0| / 5.0 ≤ 0.10`), the cap (**90 core-min**, RANKS = 1), the level family
+(L1/L2/L3, r = 2), the reference (5.0, EXPERIMENTAL) and the tier ceiling label
+(**`GATE REACHED`**) are **unchanged, character for character**. This amendment adds a
+**refusal**, and a refusal can only turn a would-be `GATE REACHED`/`GATE FAIL` into
+`NOT A RESULT` — never the reverse (rule 5's direction of travel).
+
+**WHAT IS ADDED.** `grade_vmfl064.py` gains an **observed-order floor `P_MIN = 0.05`**:
+a grid triple whose observed order `p` falls below it is **`NOT A RESULT`** and **NO GCI is
+printed**. Provenance: `docs/ansys_verification/FINDING_p_floor.md` §4, measured by this
+team's supervisor on 2026-08-26 — `R = e21/e32` near 1 is a *stagnant* family, and
+`ln(R)/ln(r)` of it returns a floating-point crumb (measured **3.2034e-15** in three of five
+probed comparators) that reads as a valid, very small observed order, from which a GCI would
+then be computed and quoted. **A GCI computed from a near-zero order is a number with no
+meaning, and printing one is worse than printing nothing.**
+
+**AND IT IS DRIVEN, NOT DECLARED** — a floor nobody tests is a floor nobody has. A **planted
+control**, `p_floor_control()`, feeds three constructed triples through the comparator's own
+`roache()` and its own (now single, shared) verdict path `verdict_for()`, and **REFUSES
+(exit 2)** if any is graded the wrong way:
+
+| probe | constructed | required |
+|---|---|---|
+| (a) equally spaced | `(1.0, 1.1, 1.2)` — the exact probe of FINDING_p_floor §2 | `NOT A RESULT`, **no GCI**, though the fine value sits inside the band |
+| (b) below the floor | `p = 0.01` genuinely computed (`d32/d21 = r^-0.01`) | `NOT A RESULT`, **no GCI** — this is the probe that drives the floor itself, since (a) is caught one step earlier by the ratio test |
+| (c) above the floor | `p = 0.5` | `CONVERGING`, **GCI quoted**, `GATE REACHED` — the floor must not swallow real results |
+
+The control runs in **`--selftest` AND in `main()`** before any level is read, so the frozen
+grading path exercises it on the real run. **NO `assert` carries it:** `python3 -O` strips
+`assert`, so every branch refuses with `SystemExit2` / `sys.exit(2)`.
+`grep -nE '^\s*assert ' grade_vmfl064.py` → **0**, unchanged from the freeze.
+
+**MEASURED, at this amendment (all four numbers re-measured here, none recalled):**
+- `--selftest`: **25/25 checks PASS, 0 FAIL, exit 0 — IDENTICAL under `python3` and
+  `python3 -O`**. Probe (a) reports `STAGNANT`, `gci = None`; (b) recovers `p = 0.01`;
+  (c) recovers `p = 0.5` with a GCI.
+- **The floor is load-bearing on the real defect:** with the floor removed, `(1.0, 1.1, 1.2)`
+  classifies **`CONVERGING` with `p = 3.20343e-15`** in this comparator — the FINDING's
+  number, reproduced here in this file's own code — and the GCI it would then have printed
+  is **4.69e+13 (i.e. 4.7e+15 %)**. Adding the floor is therefore a repair, not a
+  precaution.
+- `mutation_test_vmfl064.py`: **9/9 expectations held**, exit 0, against the amended
+  comparator (needles B and C untouched by this amendment).
+- Two further mutations were driven ad hoc to prove the NEW control is real (they are not
+  added to the frozen mutation file): defanging `if p < P_MIN` and zeroing `P_MIN` each make
+  `--selftest` **REFUSE with exit 2 under BOTH `python3` and `python3 -O`**, printing no
+  all-checks-passed line.
+
+**Comparator blob:** `dfb05817745d88eb9298e2d00543d23aeff2314b` (freeze `1dc0e4d5`) →
+**`0be9126cd6a3e3c860b98854a4e21ba1102edfdc`** (this amendment). The launcher's launch-time
+freeze check hashes the on-disk comparator against `HEAD` and **ABORTs** on any mismatch, so
+the run that follows is bound to the amended blob and to no other.
+
+**Authority for the compute that follows:** Sanaa's permission boarded verbatim at commit
+`bc0e687e` — *"anything that leads to the lab having more runs under its belts"*. RANKS = 1,
+cap **90 core-min**, unchanged.

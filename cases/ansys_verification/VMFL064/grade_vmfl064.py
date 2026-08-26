@@ -21,6 +21,13 @@ CONTROLS (CLAUDE.md rules 3, 4, 5):
                      grading a partial run.
   * Roache triple -- LR/s across the three levels; anything not CONVERGING is
                      NOT A RESULT whatever the value.
+  * OBSERVED-ORDER FLOOR (P_MIN, PRE-COMPUTE AMENDMENT 1) -- a triple whose
+                     observed order p falls below P_MIN is NOT A RESULT and NO
+                     GCI is printed. A near-1 error ratio is a STAGNANT family,
+                     and ln(R)/ln(r) of it is a floating-point crumb that reads
+                     as a valid, very small order. See
+                     docs/ansys_verification/FINDING_p_floor.md sec.4. Driven by
+                     a PLANTED CONTROL in the selftest AND in main().
   * CROSS-INSTRUMENT control -- LR is computed a SECOND, independent way (from the
                      sign change of near-wall streamwise velocity) and the two must
                      agree, else REFUSE. This exists because OpenFOAM's
@@ -44,6 +51,9 @@ ANSYS_LRS = 4.91            # context only, never the gate
 PLANT     = 1.234e-03       # planted-zero perturbation, m2/s2
 FS        = 1.25            # Roache safety factor
 RATIO     = 2.0             # grid refinement ratio
+# OBSERVED-ORDER FLOOR (PRE-COMPUTE AMENDMENT 1, 2026-08-26). An observed order
+# below this is NOT A RESULT and NO GCI is quoted. FINDING_p_floor.md sec.4.
+P_MIN     = 0.05
 
 # OpenFOAM reports wallShearStress as -(nHat & devTau). On the y = 0 wall with the
 # fluid above, the reported x-component therefore carries the OPPOSITE sign to the
@@ -276,9 +286,126 @@ def roache(f1, f2, f3, r=RATIO, fs=FS):
         out["state"] = "DIVERGENT"; out["p"] = None; out["gci_fine"] = None; return out
     p = math.log(abs(d21 / d32)) / math.log(r)
     out["p"] = p
+    # OBSERVED-ORDER FLOOR (PRE-COMPUTE AMENDMENT 1). R = d32/d21 near 1 is a
+    # STAGNANT family; ln(R)/ln(r) of it is a floating-point crumb that reads as a
+    # valid, very small observed order, and a GCI computed from it is a number
+    # with no meaning. Below the floor the triple is NOT A RESULT and NO GCI is
+    # produced. FINDING_p_floor.md sec.4.
+    if p < P_MIN:
+        out["state"] = "STAGNANT"
+        out["p_floor"] = P_MIN
+        out["p_below_floor"] = True
+        out["gci_fine"] = None
+        out["f_extrapolated"] = None
+        return out
     out["state"] = "CONVERGING"
     out["f_extrapolated"] = f3 + d32 / (r ** p - 1.0)
     out["gci_fine"] = fs * abs(d32 / f3) / (r ** p - 1.0)
+    return out
+
+
+# ------------------------------------------------- verdict (one path, shared) --
+def verdict_for(tri, inside):
+    """The ONE verdict path. main() grades through it and the planted p-floor
+    control below DRIVES it, so the control exercises the code that actually
+    decides, not a paraphrase of it. Vocabulary is fixed (CLAUDE.md rule 1)."""
+    if tri["state"] != "CONVERGING":
+        if tri.get("p_below_floor"):
+            return ("NOT A RESULT",
+                    "observed order p = %.6g is below the frozen floor P_MIN = %.3g; the "
+                    "triple is %s and NO GCI is quoted (FINDING_p_floor.md sec.4)"
+                    % (tri["p"], P_MIN, tri["state"]))
+        return ("NOT A RESULT",
+                "grid triple is %s, not CONVERGING (CLAUDE.md rule 5 step 2) -- "
+                "NOT A RESULT whatever the value" % tri["state"])
+    if inside:
+        return ("GATE REACHED",
+                "LR/s within %.3g of the experimental reference, triple CONVERGING. "
+                "Ceiling is GATE REACHED, not PASS: see PREREGISTRATION.md sec.9." % TOL)
+    return ("GATE FAIL", "LR/s outside the frozen %.3g band" % TOL)
+
+
+# ------------------------------------- PLANTED CONTROL for the p-floor (rule 3 form) --
+def p_floor_control():
+    """PLANTED CONTROL for the observed-order floor (PRE-COMPUTE AMENDMENT 1).
+
+    A floor nobody tests is a floor nobody has (FINDING_p_floor.md sec.4). This
+    control PLANTS three constructed triples into the comparator's OWN roache()
+    and OWN verdict_for(), and REFUSES (exit 2) if any is graded the wrong way:
+
+      (a) the equally spaced triple (1.0, 1.1, 1.2) -- d21 == d32 exactly, R = 1,
+          a family that is not converging at all. It must grade NOT A RESULT with
+          NO GCI, EVEN THOUGH the fine value would sit inside the band.
+      (b) a triple whose observed order is genuinely COMPUTED and lands below the
+          floor (p = 0.01). This is the probe that drives the floor itself, since
+          (a) is caught one step earlier by the ratio test -- a control that only
+          fed (a) would leave the floor untested.
+      (c) a triple with p = 0.5, comfortably ABOVE the floor: the floor must NOT
+          fire, and a GCI MUST be produced. A floor that swallows real results is
+          as bad as no floor.
+
+    NO `assert` ANYWHERE: `python3 -O` strips asserts, so every branch below
+    refuses with SystemExit2 (PREREGISTRATION.md sec.11).
+    """
+    def refuse(tag, detail):
+        raise SystemExit2("P-FLOOR PLANTED CONTROL FAILED [%s]: %s (P_MIN = %.3g, "
+                          "FINDING_p_floor.md sec.4)" % (tag, detail, P_MIN))
+
+    out = {"P_MIN": P_MIN, "probes": {}}
+
+    # (a) equally spaced -- the exact probe named in FINDING_p_floor.md sec.2
+    tri_a = roache(1.0, 1.1, 1.2)
+    v_a, _ = verdict_for(tri_a, True)
+    out["probes"]["equally_spaced_1.0_1.1_1.2"] = {
+        "state": tri_a["state"], "p": tri_a.get("p"), "gci_fine": tri_a.get("gci_fine"),
+        "verdict": v_a}
+    if v_a != "NOT A RESULT":
+        refuse("equally-spaced (1.0, 1.1, 1.2)",
+               "graded %r, expected NOT A RESULT; state %s" % (v_a, tri_a["state"]))
+    if tri_a.get("gci_fine") is not None:
+        refuse("equally-spaced (1.0, 1.1, 1.2)",
+               "a GCI was produced (%r) for a non-converging triple" % (tri_a["gci_fine"],))
+    if tri_a["state"] == "CONVERGING":
+        refuse("equally-spaced (1.0, 1.1, 1.2)",
+               "classified CONVERGING with p = %r -- the defect this floor exists for"
+               % (tri_a.get("p"),))
+
+    # (b) p genuinely computed and BELOW the floor: d32/d21 = r**-0.01 -> p = 0.01
+    p_lo = 0.01
+    tri_b = roache(1.0, 1.1, 1.1 + 0.1 * (RATIO ** (-p_lo)))
+    v_b, _ = verdict_for(tri_b, True)
+    out["probes"]["below_floor_p_0.01"] = {
+        "state": tri_b["state"], "p": tri_b.get("p"), "gci_fine": tri_b.get("gci_fine"),
+        "verdict": v_b}
+    if tri_b.get("p") is None or abs(tri_b["p"] - p_lo) > 1e-9:
+        refuse("below-floor probe", "constructed p = %.4g was not recovered (got %r)"
+               % (p_lo, tri_b.get("p")))
+    if not tri_b.get("p_below_floor"):
+        refuse("below-floor probe", "p = %r is under P_MIN and the floor did NOT fire"
+               % (tri_b.get("p"),))
+    if v_b != "NOT A RESULT":
+        refuse("below-floor probe", "graded %r, expected NOT A RESULT" % (v_b,))
+    if tri_b.get("gci_fine") is not None:
+        refuse("below-floor probe", "a GCI was produced (%r) below the floor"
+               % (tri_b["gci_fine"],))
+
+    # (c) p ABOVE the floor: the floor must not over-fire, and a GCI must exist.
+    p_hi = 0.5
+    tri_c = roache(1.0, 1.1, 1.1 + 0.1 * (RATIO ** (-p_hi)))
+    v_c, _ = verdict_for(tri_c, True)
+    out["probes"]["above_floor_p_0.5"] = {
+        "state": tri_c["state"], "p": tri_c.get("p"), "gci_fine": tri_c.get("gci_fine"),
+        "verdict": v_c}
+    if tri_c["state"] != "CONVERGING" or tri_c.get("p_below_floor"):
+        refuse("above-floor probe", "p = %r is above P_MIN and the floor fired anyway"
+               % (tri_c.get("p"),))
+    if tri_c.get("gci_fine") is None:
+        refuse("above-floor probe", "no GCI for a converging triple above the floor")
+    if v_c != "GATE REACHED":
+        refuse("above-floor probe", "graded %r, expected GATE REACHED inside the band"
+               % (v_c,))
+
+    out["passed"] = True
     return out
 
 
@@ -304,6 +431,23 @@ def selftest():
     chk(roache(1.0, 2.0, 4.0)["state"] == "DIVERGENT", "divergent -> DIVERGENT")
     chk(roache(1.0, 2.0, 1.5)["state"] == "OSCILLATORY", "oscillatory -> OSCILLATORY")
     chk(roache(2.0, 2.0, 2.0)["state"] == "EXACT", "identical -> EXACT")
+
+    print("--- selftest: PLANTED CONTROL -- the observed-order floor P_MIN = %.3g ---" % P_MIN)
+    # The control REFUSES (SystemExit2) on failure, so reaching the next line at all is
+    # the evidence; the chk() below records the three probes it drove.
+    pf = p_floor_control()
+    chk(pf["passed"] and pf["probes"]["equally_spaced_1.0_1.1_1.2"]["verdict"] == "NOT A RESULT",
+        "(1.0, 1.1, 1.2) -> NOT A RESULT, no GCI",
+        "%s / gci=%r" % (pf["probes"]["equally_spaced_1.0_1.1_1.2"]["state"],
+                         pf["probes"]["equally_spaced_1.0_1.1_1.2"]["gci_fine"]))
+    chk(pf["probes"]["below_floor_p_0.01"]["verdict"] == "NOT A RESULT"
+        and pf["probes"]["below_floor_p_0.01"]["gci_fine"] is None,
+        "p = 0.01 (below floor) -> NOT A RESULT, no GCI",
+        "p=%.4g" % pf["probes"]["below_floor_p_0.01"]["p"])
+    chk(pf["probes"]["above_floor_p_0.5"]["verdict"] == "GATE REACHED"
+        and pf["probes"]["above_floor_p_0.5"]["gci_fine"] is not None,
+        "p = 0.5 (above floor) -> floor does NOT over-fire, GCI quoted",
+        "p=%.4g" % pf["probes"]["above_floor_p_0.5"]["p"])
 
     print("--- selftest: the gate can FAIL and can PASS ---")
     chk(abs(5.0 - REF_LRS) / REF_LRS <= TOL, "exact reference is inside band")
@@ -430,6 +574,12 @@ def main():
     print("           Schoenung, JFM 127:473, 1983).  Ansys Fluent %.4g = CONTEXT ONLY" % ANSYS_LRS)
     print("=" * 78)
 
+    # PLANTED CONTROL for the observed-order floor, driven on the FROZEN grading path
+    # itself, before any level is read. It REFUSES (exit 2) rather than grading.
+    res["p_floor_control"] = p_floor_control()
+    print("p-floor planted control OK (P_MIN = %.3g): (1.0,1.1,1.2) -> %s, no GCI"
+          % (P_MIN, res["p_floor_control"]["probes"]["equally_spaced_1.0_1.1_1.2"]["verdict"]))
+
     lrs = []
     for lv in LEVELS:
         d = os.path.join(root, lv)
@@ -476,6 +626,10 @@ def main():
     if tri["state"] == "CONVERGING":
         print("  observed order p = %.4f   GCI_fine (Fs = %.2f) = %.4f %%"
               % (tri["p"], FS, 100.0 * tri["gci_fine"]))
+    elif tri.get("p_below_floor"):
+        print("  observed order p = %.6g is BELOW the frozen floor P_MIN = %.3g -- the triple "
+              "is reported\n  %s and NO GCI is quoted (FINDING_p_floor.md sec.4)."
+              % (tri["p"], P_MIN, tri["state"]))
     else:
         print("  observed order: undefined for a %s triple; NO GCI is quoted." % tri["state"])
 
@@ -483,17 +637,7 @@ def main():
     print("  lab LR/s = %.6f   reference %.4g   rel dev %.4f %%   %s"
           % (fine, REF_LRS, 100.0 * rel, "inside band" if inside else "OUTSIDE band"))
 
-    if tri["state"] != "CONVERGING":
-        verdict = "NOT A RESULT"
-        why = ("grid triple is %s, not CONVERGING (CLAUDE.md rule 5 step 2) -- "
-               "NOT A RESULT whatever the value" % tri["state"])
-    elif inside:
-        verdict = "GATE REACHED"
-        why = ("LR/s within %.3g of the experimental reference, triple CONVERGING. "
-               "Ceiling is GATE REACHED, not PASS: see PREREGISTRATION.md sec.9." % TOL)
-    else:
-        verdict = "GATE FAIL"
-        why = "LR/s outside the frozen %.3g band" % TOL
+    verdict, why = verdict_for(tri, inside)
 
     res["verdict"] = verdict
     res["why"] = why
