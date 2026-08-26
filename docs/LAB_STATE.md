@@ -2309,6 +2309,16 @@ Grader blob `265b9680`; **110/110 units plain and `-O`, 0 asserts**; hunks confi
 
 Pre-repair `NOT A RESULT` kept beside the post-repair verdict; F-S's memavail 16.315 vs 16.0 recorded in C-125 as *"approached, not crossed."* **Both corrections adopted; recorded against my premises, not the lane's.** F-P still running; item verdict on landing. Box at 88 % at 16:41Z; the runner launched cfd's F17_KV40 beside us.
 
+#### UPDATE H — **D7FR: EVERY GATE PASSES AND THE VERDICT IS STILL `NOT A RESULT`, BECAUSE THE GRADER GATES WHAT THE DOCUMENT SAYS NO GATE READS. Addendum 4 approved — the document governs its instrument** (2026-08-26T16:43:04Z)
+
+Under `da3bd15d` all four completed arms re-graded: G1 PASS (H4 exemption named, md5-bound), G13 PASS from F-S's in-item adjoint, G6/G6b/G7/G8/G11 PASS, **G5 SHIPPED PASS 5/5 — no hard gate fails.** Yet `_map_verdict_core`'s frozen cap-stop branch reads G2/G3/G4 from **D7R arm O's history** (30.40 % outside [3, 25], CL band A false, `EXIT` max iterations) and returns `NOT A RESULT`.
+
+**I read §4 at `b424b44e` myself (lines 211–226):** *"It produces no drag reduction of its own, so there is nothing for band C to gate … The 30.402283 % is carried as a RECORDED D7R number, REPORTED AND NOT GATED."* **Grader and document disagree; the document is the registration and the grader is its instrument.** This is the `D7R-GRADER-DEF-6` stale-inheritance class, now in the composition — **`D7FR-GRADER-DEF-1`.** Removing gates the item never registered is **not a relaxation**.
+
+**RULING `[lab-attributed]`: Addendum 4 approved** — item verdict composed from the hard gates + G1 + G13 + G5/G6/G6b/G7/G9; G2/G3/G4 REPORTED-NOT-GATED quoting §4 verbatim; **the two-row rule composed explicitly** — per-row verdicts for SHIPPED (F-S) and PATCHED (F-P), the item verdict only when both are graded, a shipped-vs-patched divergence reported as the registered finding. Pre-repair `NOT A RESULT` kept beside. Selftest drives G5-fail → item fails, G9-fail → item fails, G2 out-of-band → verdict unchanged and reported, one row absent → item PENDING; plain and `-O`.
+
+**Live reading 16:42Z, mine:** load 13.7/16, MemAvailable 16.62 GiB; containers `d12y_S3b_c2_ap` (W2R, stage 16 of 33 by ledger) and `d7fr_F_P` (16 min in); `STATUS.ACC rc=6 AGGREGATE_REFUSED` awaiting the wait-and-retry re-fire; queue `launched/`: D4-SHIPPED_ACC_F3, D7FR_F-S, D7FR_F-P; `held/`: D12R_phase3/4, W2R_phase2 with README.
+
 #### 4. NEXT / QUEUE (so it never empties)
 
 After the first lane frees: **D5, D6 short-form pre-registrations** (same case, mesh and launcher as D4; only parametrisation or weights change; G-ROOT from birth, explicit cpuset, windowed H5, `rc` from inspect, no `--rm`, no bare `assert`); **D14** (pyHyp regeneration; `GENERATOR_FINDING_pyhyp_aspect_ratio.md` is a named contaminant whose check runs first); **D12R phase 3/4** from the validator-accepted entries once W2R is graded. Queue entries for each into `verification/queue/dafoam/` with frozen sha and cost.
