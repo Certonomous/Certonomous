@@ -31,6 +31,15 @@ Conjugate = `chtMultiRegion*` (grep over the family's records: only T5 and its d
 
 ---
 
+## Why the family reads CAN DO 0 — and what moves it (dated section, 2026-08-26, verification-supervisor's ruling applied by lane `ht`; no other line of this file edited)
+
+1. **The zero is a statement about RECORDS AT HEAD, not about the physics.** Three cells — conduction·no-flow·2D (T9a), forced conv·laminar·axisym (T1c), radiation·no-flow·3D (T10a) — each hold `PASS` rows with CONVERGING triples, GCI bands and a pre-registration frozen before compute. But each strongest rung's own headline is `GATE FAIL` on one row (`T9a_RESULTS.md:13` "1 of 3 graded rows failed"; `T1c_RESULTS.md:6` "1 of 4 graded rows failed"; `T10a_RESULTS.md:32` "3 of 4 rows PASS and one …"), and the cell enters the record's headline. In Sanaa's words that is *"named items missing"* = `CAN DO, CAVEATS`.
+2. **T11 would carry `CAN DO` for conduction·2D on its own** — three rows `PASS` (p 2.000 / 2.000 / 2.005, GCI ~1e-6 on a ±1e-4 band), an exact analytic reference, a three-level family under a frozen pre-registration — **the moment heat-transfer commits `T11_RESULTS.md` and `gate_t11.json`.** At HEAD `git ls-tree` shows only `T11_PREREGISTRATION.md` and the instruments; the gate file lives on disk only. A ledger row (`docs/COST_CALIBRATION.md:194`, C-118) is not an evidence record under `VERIFICATION_CHARTER.md` §9.
+3. **K0f cannot move mixed conv·turbulent·2D:** its record at HEAD is `GATE REACHED` with **0 of 10** graded rows — every row `NOT A RESULT`, ground "level(s) NOT CONVERGED: L1, L2, L3"; column `P` unreached on Blay 1992 `NOT OBTAINED` (`docs/campaigns/F14-cooling-ladder/K0f_RESULTS.md:3`, `:48`, `:65` @ `db76091e`). The cell's "ten arms `PENDING`" wording below is superseded by this line.
+4. **The one-line fix per cell:** T9a — R1 hot-side interface `GATE FAIL` (−2.41 mK vs 0.92 mK) has its cause CONFIRMED as the interface scheme; a corrected re-run is a **new rung**, not a repair of this one. T1c — L0 constant-`Ts` `Nu` 0.0865 % against a 0.0301 % band (~2.9 bands out) needs a level pair that closes it, or a wider registered band grounded before compute. T10a — B1 ceiling 0.125 % against a 0.077 % band; T10aR ceiling refinement fired its own falsifier and T10aR2 ×3 sit at STATUS rc=0 ungraded — a graded T10aR2 that closes B1 is the move.
+
+---
+
 ## The table
 
 | cell | verdict |
@@ -86,10 +95,10 @@ Conjugate = `chtMultiRegion*` (grep over the family's records: only T5 and its d
 
 ## Footer — the planted control: every cited sha, resolved
 
-Run from the repository root; every line must read `ok`, and the count must equal the number of distinct shas cited above (37):
+Run from the repository root; every line must read `ok`, and the count must equal the number of distinct shas cited above (38):
 
 ```
-for s in 0cbaea26 6753e912 a74b2f61 b698dfc3 6becf266 f5f67de7 4b336fad 2d639d3b 65684e7c 2f1d6cb7 e6d53dbd ba023a53 71388f4e 17209b50 4e6ba646 7422591b 8590c96a 6d149d51 3d28328c f279aac5 a1fbe127 b845b603 c83d9501 cccf7a9f c557f847 878f1556 bff31cff 0686c7b2 5c3fe5a8 b70b49c6 1799861d 299296a2 0dfd9c64 31fd2268 b2a13fd6 6a9b8c41 8b407ea2; do printf '%s ' "$s"; git cat-file -e "$s^{commit}" 2>/dev/null && echo ok || echo MISSING; done
+for s in 0cbaea26 6753e912 a74b2f61 b698dfc3 6becf266 f5f67de7 4b336fad 2d639d3b 65684e7c 2f1d6cb7 e6d53dbd ba023a53 71388f4e 17209b50 4e6ba646 7422591b 8590c96a 6d149d51 3d28328c f279aac5 a1fbe127 b845b603 c83d9501 cccf7a9f c557f847 878f1556 bff31cff 0686c7b2 5c3fe5a8 b70b49c6 1799861d 299296a2 0dfd9c64 db76091e 31fd2268 b2a13fd6 6a9b8c41 8b407ea2; do printf '%s ' "$s"; git cat-file -e "$s^{commit}" 2>/dev/null && echo ok || echo MISSING; done
 ```
 
-(37 shas listed; 37 distinct commits — several records share a commit. A `MISSING` line is a defect in this file, not in the record.) Reading at write time, 2026-08-26: 37 ok, 0 MISSING, 37 distinct shas.
+(38 shas listed; 38 distinct commits — several records share a commit. A `MISSING` line is a defect in this file, not in the record.) Reading at write time, 2026-08-26: 38 ok, 0 MISSING, 38 distinct shas.
