@@ -1,0 +1,9 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbulenceProperties;
+}
+// Manual p.219: "Laminar steady flow."  Re_L = 9.0e4, below the ~5e5 transition.
+simulationType  laminar;

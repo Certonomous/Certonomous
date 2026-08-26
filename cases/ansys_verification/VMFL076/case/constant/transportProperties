@@ -1,0 +1,10 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// nu = mu/rho = 0.01/900 = 1/90000 s. VM2026R1 p.219 inputs, exactly.
+transportModel  Newtonian;
+nu              1.111111111111111e-05;
