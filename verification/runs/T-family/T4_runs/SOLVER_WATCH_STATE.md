@@ -33,6 +33,19 @@ without its neighbour count is not a contention measurement.
   busy cores: python3 scripts/compute_stage_count.py --cap 9 --ready 9
 ```
 
+> **READ THE NEWEST `log.solve*`, NOT `log.solve`.** A case that has taken its
+> registered continuation writes to **`log.solve.ext1`**, and `log.solve` then
+> freezes at the pre-extension time. **This was caught the hard way:** a watch
+> reading of `R_100k_x` gave `Time 80000` from `log.solve` while the case was
+> actually at **93169 of 94000** in `log.solve.ext1` — a stale number that would
+> have put the retirement moment ~13 000 iterations later than it is.
+> **The same reader that got this wrong is the one below**, so it is corrected
+> here rather than left for the next lane:
+> `ls -t <case>/log.solve* | head -1`.
+> K0f registers one +20 000 extension, so this exposure is live on both rungs.
+> It is the night's recurring defect once more: **reading the channel you were
+> thinking about rather than the one carrying the answer.**
+
 ## 2. THE PRE-RETIREMENT SNAPSHOT (the half that is already banked)
 
 **Taken 2026-08-26T04:20:46Z. Box: 13.17 of 16 cores busy, 6 solvers running.**
