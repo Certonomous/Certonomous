@@ -1,0 +1,13 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// F21 Womersley -- internalField = EXACT solution at t = 0 at the built mesh's
+// own cell centres (from 0/C), written by build_f21.py, LAST of all.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   nonuniform List<vector> __INTERNALFIELD__;
+boundaryField
+{
+    left   { type cyclic; }
+    right  { type cyclic; }
+    bottom { type noSlip; }
+    top    { type noSlip; }
+    frontAndBack { type empty; }
+}

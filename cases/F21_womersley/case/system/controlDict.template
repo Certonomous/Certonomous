@@ -1,0 +1,17 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     pimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         12.25;         // 12 periods of transient decay + T/4: the locked phase (centreline peak)
+deltaT          __DT__;        // FIXED; 96 / 192 / 384 steps per period, refines by 2 with h
+writeControl    runTime;
+writeInterval   0.25;          // quarter periods; the gates read t = 12.25 and the period check t = 11.25
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   12;
+runTimeModifiable false;
+adjustTimeStep  no;

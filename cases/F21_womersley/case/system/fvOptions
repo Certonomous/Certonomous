@@ -1,0 +1,17 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvOptions; }
+// F21 Womersley drive: uniform kinematic body force f(t) = A cos(omega t) x-hat,
+// A = 1, omega = 2 pi (frequency 1): the oscillating pressure gradient -dp/dx.
+womersleyDrive
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   all;
+    volumeMode      specific;       // per unit volume: an acceleration
+    sources
+    {
+        U
+        {
+            explicit { type cosine; frequency 1; amplitude 1; scale (1 0 0); level (0 0 0); }
+            implicit 0;
+        }
+    }
+}

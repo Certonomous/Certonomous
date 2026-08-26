@@ -1,0 +1,3 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+transportModel  Newtonian;
+nu              0.25132741228718347;   // 2 pi / 25: alpha = H sqrt(omega/nu) = 5 exactly; must equal exact_f21.NU
