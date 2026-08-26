@@ -1,0 +1,4 @@
+G1 T11_PW_f    t=2 n=400 worst_resid=3.193e-16 theta_mean=0.851596281983
+G1 T11_PW_f_CT t=2 n=400 worst_resid=4.420e-17 theta_mean=0.851595967066
+dG1 = -3.149174e-07  |dG1|/ref = 3.697970e-07  band(rel) = 1.0e-04  |dG1|/band = 0.0037  (P3 registered: < 0.10)
+exact theta_mean(Fo=0.200, Bi=1) = 0.851595457687 ; rel dev f=+9.679e-07 f_CT=+5.981e-07

@@ -1,0 +1,12 @@
+case=T11_PW_f_CT
+level=f_CT
+rc=0
+wall_s=3
+ranks=1
+core_min=0.050
+cap_core_min=8
+timeout_s=480
+capped=no
+checkmesh_rc=0
+started_utc=2026-08-26T16:12:46Z
+ended_utc=2026-08-26T16:12:49Z
