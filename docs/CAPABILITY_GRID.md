@@ -1,6 +1,6 @@
 # CAPABILITY GRID — Sanaa's taxonomy, assembled from the family tables at HEAD
 
-**Owner:** verification-supervisor. **Directive:** Sanaa's [SANAA-DIRECT] CAPABILITY GRID, boarded verbatim at commit `068c2bf0` (`docs/LAB_STATE.md`, CHIEF ADDENDUM 2026-08-26T17:35Z). **Assembled from HEAD `28583483`** on 2026-08-26T21:09Z by `scripts/assemble_capability_grid.py` (idempotent; reads only `git show HEAD:` blobs; zero compute). **FIRST DRAFT** — re-run when a family table lands.
+**Owner:** verification-supervisor. **Directive:** Sanaa's [SANAA-DIRECT] CAPABILITY GRID, boarded verbatim at commit `068c2bf0` (`docs/LAB_STATE.md`, CHIEF ADDENDUM 2026-08-26T17:35Z). **Assembled from HEAD `87afd1d6`** on 2026-08-26T21:21Z by `scripts/assemble_capability_grid.py` (idempotent; reads only `git show HEAD:` blobs; zero compute). **FIRST DRAFT** — re-run when a family table lands.
 
 **The verdict vocabulary (Sanaa's, exactly three):** `CAN DO — X cases` (ran successfully, metrics verified; strongest case cited by path + record sha + what was checked); `CAN DO, CAVEATS` (runs, credible results, named missing items each ≤ 1 line); `CAN NOT DO` (does not converge / does not reproduce literature / not enough compute / documented model defect — what was attempted, what would fix it; empty cell = `CAN NOT DO — not attempted`). One verdict per cell. The lab's fixed gate vocabulary (PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING) appears inside a cell as what the record says.
 
@@ -89,7 +89,7 @@
 
 ## heat-transfer
 
-**family table at HEAD: `7e2fc497`** (`docs/capability/heat-transfer_GRID.md`; every cell below is copied verbatim from that file — the family supervisor's words, not this script's).
+**family table at HEAD: `b082fa84`** (`docs/capability/heat-transfer_GRID.md`; every cell below is copied verbatim from that file — the family supervisor's words, not this script's).
 
 **Regime / mode per case, as derived by the family (their table):**
 
@@ -154,6 +154,40 @@
 | **radiation · turbulent · 3D** | CAN NOT DO — not attempted (no flow regime in this mode; T10b natural convection + radiation is ACQUIRE-blocked, never run) |
 
 **Census (36 cells), as corrected 2026-08-26 (Correction 1):** ~~CAN DO 3 · CAN DO, CAVEATS 2~~ **CAN DO 0** · **CAN DO, CAVEATS 5** (conduction·no-flow·2D; forced conv·laminar·axisym; radiation·no-flow·3D; natural conv·laminar·2D; mixed conv·turbulent·2D) · **CAN NOT DO, attempted 5** (forced conv·turbulent·2D; forced conv·turbulent·axisym; natural conv·turbulent·2D; natural conv·turbulent·axisym; conjugate·turbulent·3D) · **CAN NOT DO — not attempted 26** (of which 6 are the conduction/radiation "turbulent" cells that have no flow regime). **10 of 36 cells carry evidence.** Every `CAN DO, CAVEATS` cell with a `PASS` row rests on an EXACT / analytic reference; **no cell in this family reaches `CAN DO`, because no strongest case carries a rung-level `PASS` at HEAD** (the T11 `PASS` ×3 gate file is uncommitted); **no cell in this family closes a validation against experiment with a `PASS`** — the three experiment-backed loops that closed (K0cS, K0cT, K0cX) closed `GATE FAIL` with the error attributed to the closure model, and the two pending experiment loops (T5 Meinders, T4b ERCOFTAC case025) have no verdict. Checks never performed anywhere in the family, stated so the grid cannot imply them: ASME V&V 20 `u_val` was used once (K0cT) and nowhere else; no heat-transfer case has a partition/round-off reproducibility row; no 3D natural-convection or 3D forced-convection case has ever run. Sanaa's §5 internal-physicality check (heat-balance closure) exists as an instrument (KV1) and is applied in the K-family records.
+
+### heat-transfer family's corrections (appended below its footer at `b082fa84`; supersede the table above where they strike it; reproduced verbatim)
+
+### Heat-transfer supervisor corrections 2026-08-26T21:20:27Z [lab-attributed]
+
+**Applied by a heat-transfer lane on the supervisor's dispatch; every line above this section is untouched (the file was absent from the working tree at write time and was re-materialised from the HEAD blob `7e2fc497` before appending). Quote-and-strike only; no cell is rewritten. Verdict tally BEFORE this section: CAN DO 0 · CAN DO, CAVEATS 5 · CAN NOT DO, attempted 5 · not attempted 26. AFTER: unchanged — 0 / 5 / 5 / 26. Cells moved: 0. Caveat text corrected in 2 cells; 4 items of the dated "CAN DO 0" section superseded by records now at HEAD.**
+
+#### HT-1 — conduction · laminar (no flow) · 2D: the T11 caveat is stale, and T11 is 1-D evidence, not 2-D
+
+The cell reads *"~~T11 gate file uncommitted~~"* and item 2 of the dated section reads *"~~T11 would carry CAN DO for conduction·2D on its own … the moment heat-transfer commits T11_RESULTS.md and gate_t11.json … the gate file lives on disk only~~"*. **Superseded:** `docs/campaigns/T-family/T11_RESULTS.md` and `verification/runs/T-family/T11_runs/gate_t11.json` are at HEAD since `7b2a12f0` — "`PASS` ×3 (G1, G2, G3), every triple CONVERGING, planted-zero control PASS" (`T11_RESULTS.md:3`), p 2.000 / 2.000 / 2.005, GCI ≤ 3.41e-06 on a ±1e-04 band (`:24-26`), pre-registration frozen at `ca9aad86` before compute.
+
+**But the cell does not move to CAN DO on it.** T11 is a one-dimensional plane wall solved on a one-cell-wide OpenFOAM mesh (`T11_RESULTS.md:37`: "1-D plane wall solved on a 2-D OpenFOAM mesh"; `T11_PREREGISTRATION.md:61`). The taxonomy has no 1-D column; the honest statement is that T11 is **supporting evidence of 1-D transient conduction**, not evidence for the 2-D cell, and the 2-D evidence in this cell remains T9a (fin, 2-D) whose rung headline is GATE FAIL. The cell stays **CAN DO, CAVEATS**; its caveat list is corrected to: R1 interface `GATE FAIL` (−2.41 mK vs 0.92 mK band, cause named — see HT-4); R3/R4 `GATE REACHED` below the O(Bi) floor; T11 `PASS` ×3 is 1-D. **What would lift it:** a graded 2-D conduction rung — **T14** (2-D transient conduction in a square, product of T11's series, EXACT tier) is **PENDING**, frozen at `5a870e54` (`docs/campaigns/T-family/T14_PREREGISTRATION.md`), four entries in `verification/queue/heat-transfer/`.
+
+#### HT-2 — radiation · laminar (no flow) · 3D: T10aR2 is graded at HEAD and does NOT close B1
+
+Item 4 of the dated section reads *"~~T10aR2 ×3 sit at STATUS rc=0 ungraded — a graded T10aR2 that closes B1 is the move~~"*. **Superseded:** `docs/campaigns/T-family/T10aR2_RESULTS.md` is at HEAD since `122f6da3` — "2 PASS, 5 GATE FAIL, 2 NOT A RESULT against this arm's own registered rows … the B1 2LI c/m/f triple is OSCILLATORY" (`:3`), B1 ceiling −3268.222601 → −3268.384010 → −3268.097795 W/m², no band armed (`:40`); "the registered expectation 'the 2LI ladder is CONVERGING at p ≈ 1.48' is refuted by measurement". The cell stays **CAN DO, CAVEATS**; the caveat "B1 ceiling GATE FAIL" now carries: *its H-3(a) refinement arm T10aR2 returned OSCILLATORY on B1 (NOT A RESULT) and does not close it*. No further T10a-B1 registration is made by this family (a "T10a-B1b" would duplicate T10aR2).
+
+#### HT-3 — forced conv · laminar · axisym: "a wider registered band" is struck
+
+Item 4 reads for T1c *"~~needs a level pair that closes it, or a wider registered band grounded before compute~~"*. **Struck:** the supervisor's standing rule for successor rungs is *no band widening*. The record names **no cause** — `verification/runs/T-family/T1_runs/DIAGNOSTIC_PREDICTION.md:140`: "The T1c constant-`Ts` GATE FAIL therefore still has NO identified cause" — and specifies the next diagnostic as a Péclet-scaling sweep (Re 25/50/100/200/400 at the fine mesh, registered prediction: log–log slope −2 if axial conduction; `:166-190`). That arm is **not yet registered**; the cell stays **CAN DO, CAVEATS** and its fix line is: *register the Pe-sweep diagnostic arm (T1c-L0b); no band moves.*
+
+#### HT-4 — conduction · 2D, T9a R1: the corrected re-run is registered
+
+Item 4 reads for T9a *"a corrected re-run is a new rung, not a repair of this one"*. **Done:** **T9a-R1b** is frozen at `3c39d08d` (`docs/campaigns/T-family/T9aR1b_PREREGISTRATION.md`): the parent's three wall levels byte-for-byte from `0cbaea26`, one line moved (`Gauss linear corrected` → `Gauss harmonic corrected`), T9a's row rule unchanged with the EXACT case made operational as a 1e-06 K floor (900× tighter than the parent's 0.92 mK band), three entries in `verification/queue/heat-transfer/` — **PENDING**. The cell does not move until it is graded.
+
+#### HT-5 — natural conv · laminar · 2D: a PENDING EXACT-tier registration is on the queue
+
+**T13** (Batchelor vertical-slot conduction regime, `Ra_L` 100, `buoyantBoussinesqSimpleFoam`, laminar, 2-D, analytic reference, V-column only) is frozen at `0d2dc150` (`docs/campaigns/T-family/T13_PREREGISTRATION.md`), three entries enqueued, **PENDING**. The cell stays **CAN DO, CAVEATS** on K0c until T13 is graded; a T13 PASS with CONVERGING triples would be the first EXACT-tier evidence in this cell.
+
+#### HT-6 — sha audit of this file
+
+Every 8-hex commit sha cited above this section resolves under `git cat-file -e <sha>^{commit}` at HEAD (38 listed in the footer: 38 ok, 0 MISSING, re-run at write time). Two 8-hex tokens in the conjugate·turbulent·3D cell — `dc2b4f74` and `f4e5c350` — are **not commit shas** (they are the T5 A8 region-map identifiers quoted from the record) and are excluded from the count. This section adds six commit shas, each resolved at write time: `7b2a12f0`, `122f6da3`, `ca9aad86`, `5a870e54`, `3c39d08d`, `0d2dc150` (and re-cites `0cbaea26`, `7e2fc497`). **Distinct 8-hex commit shas cited in this file after this section (excluding the two region-map tokens): 53; 53 resolve, 0 unresolved (re-derived by grep + `git cat-file -e` at write time; the figure 46 first written here was a hand count and is corrected in the same day).**
+
+**Lines whose number changed above this section: 0.**
 
 ---
 
@@ -652,10 +686,10 @@ Reading at write time, 2026-08-26: 2 ok, 0 MISSING.
 
 ## Footer — merged planted control: every distinct sha cited by every source, resolved
 
-Run from the repository root; every line must read `ok`; 131 distinct shas across all sources:
+Run from the repository root; every line must read `ok`; 140 distinct shas across all sources:
 
 ```
-for s in 0686c7b2 068c2bf0 08aa454c 0cbaea26 0dfd9c64 0f56460d 11e6a187 14018d5b 15767999 1697ea49 16b81323 17209b50 1799861d 193b522c 2793f23e 288a5862 28a770a5 299296a2 2a93ff27 2aea29d9 2b50394a 2d639d3b 2dcea996 2e83a89b 2f1d6cb7 3053d9ec 311feb37 31fd2268 336a364d 33dbe337 35171866 3574cdcb 3663520c 3b9bcf31 3c21d87c 3d28328c 3f87e759 3f8c6b13 49c95cc7 4ad083fb 4b336fad 4bb0f6a1 4d9d902b 4e6ba646 4eae12f4 52a213ad 548fc02e 5889677b 5adb9c5d 5c3fe5a8 5d1718df 5d1f89cd 5e789196 60cfd4c8 61b47973 63c8d044 64b02355 64b367ef 65684e7c 65882eb3 66f42398 6753e912 6a0a1a99 6a9afa0a 6a9b8c41 6b8d6355 6becf266 6d149d51 6fcfe713 71388f4e 7422591b 8273e4ad 8590c96a 85e2230f 878f1556 8974eb75 8b407ea2 8f5bf878 959a31b1 9c241fe2 9c86962e a1ac1c21 a1fbe127 a74b2f61 a86357e6 aba61e53 b10260a0 b26b875c b2a13fd6 b698dfc3 b70b49c6 b840fcd5 b845b603 b8b5e2bf b8fe7eea ba023a53 bb5088c4 be35dcad bff31cff c487e3c7 c4f72b27 c557f847 c5d96403 c69ce11c c83d9501 ca6a3164 cadb4887 cb5b6eb8 cccf7a9f cffd90e7 d4308dde d846815c d98868fb d9fa4161 da65ae38 db76091e ddb99eca e6d53dbd eadbe157 ebb7da5a f018c8bf f279aac5 f3fad674 f4332fe3 f5a81a69 f5f67de7 f63d347e f746233a f8916f36 f9a59d47 fcf31542; do printf '%s ' "$s"; git cat-file -e "$s^{commit}" 2>/dev/null && echo ok || echo MISSING; done
+for s in 0686c7b2 068c2bf0 08aa454c 0cbaea26 0d2dc150 0dfd9c64 0f56460d 11e6a187 122f6da3 14018d5b 15767999 1697ea49 16b81323 17209b50 1799861d 193b522c 2793f23e 288a5862 28a770a5 299296a2 2a93ff27 2aea29d9 2b50394a 2d639d3b 2dcea996 2e83a89b 2f1d6cb7 3053d9ec 311feb37 31fd2268 336a364d 33dbe337 35171866 3574cdcb 3663520c 3b9bcf31 3c21d87c 3c39d08d 3d28328c 3f87e759 3f8c6b13 49c95cc7 4ad083fb 4b336fad 4bb0f6a1 4d9d902b 4e6ba646 4eae12f4 52a213ad 548fc02e 5889677b 5a870e54 5adb9c5d 5c3fe5a8 5d1718df 5d1f89cd 5e789196 60cfd4c8 61b47973 63c8d044 64b02355 64b367ef 65684e7c 65882eb3 66f42398 6753e912 6a0a1a99 6a9afa0a 6a9b8c41 6b8d6355 6becf266 6d149d51 6fcfe713 71388f4e 7422591b 7b2a12f0 7e2fc497 8273e4ad 8590c96a 85e2230f 878f1556 8974eb75 8b407ea2 8f5bf878 959a31b1 9c241fe2 9c86962e a1ac1c21 a1fbe127 a74b2f61 a86357e6 aba61e53 b10260a0 b26b875c b2a13fd6 b698dfc3 b70b49c6 b840fcd5 b845b603 b8b5e2bf b8fe7eea ba023a53 bb5088c4 be35dcad bff31cff c487e3c7 c4f72b27 c557f847 c5d96403 c69ce11c c83d9501 ca6a3164 ca9aad86 cadb4887 cb5b6eb8 cccf7a9f cffd90e7 d4308dde d846815c d98868fb d9fa4161 da65ae38 db76091e dc2b4f74 ddb99eca e6d53dbd eadbe157 ebb7da5a f018c8bf f279aac5 f3fad674 f4332fe3 f4e5c350 f5a81a69 f5f67de7 f63d347e f746233a f8916f36 f9a59d47 fcf31542; do printf '%s ' "$s"; git cat-file -e "$s^{commit}" 2>/dev/null && echo ok || echo MISSING; done
 ```
 
-Reading at assembly time (2026-08-26T21:09Z, HEAD `28583483`): **131 ok, 0 MISSING, 131 distinct shas.**
+Reading at assembly time (2026-08-26T21:21Z, HEAD `87afd1d6`): **138 ok, 2 MISSING, 140 distinct shas.** MISSING lines: dc2b4f74, f4e5c350

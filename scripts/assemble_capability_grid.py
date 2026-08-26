@@ -72,6 +72,19 @@ def split_authority(text):
     return text[:cut], text[cut:]
 
 
+CORR_RE = re.compile(r"^## .*(supervisor corrections|Correction \d+ — ).*$", re.M)
+
+
+def split_corrections(text):
+    """A family's corrections section appended BELOW its own footer supersedes what is above it.
+    Returns (text, corrections_or_None); the cut is the first corrections heading after the footer loop."""
+    m_loop = re.search(r"for s in [0-9a-f \n]+?; do", text)
+    if not m_loop:
+        return text, None
+    m = CORR_RE.search(text, m_loop.end())
+    return (text, None) if not m else (text[:m.start()], text[m.start():])
+
+
 def tables(text):
     """Every markdown table as a list of raw lines, in order."""
     out, cur = [], []
@@ -86,8 +99,8 @@ def tables(text):
 
 
 def census_line(text):
-    m = re.search(r"^\*\*Census[^*]*\*\*.*$", text, re.M)
-    return m.group(0) if m else "**Census:** (no census line found in source)"
+    ms = re.findall(r"^\*\*Census[^*]*\*\*.*$", text, re.M)
+    return ms[-1] if ms else "**Census:** (no census line found in source)"   # LAST: a later correction supersedes
 
 
 def footer_shas(text):
@@ -153,7 +166,13 @@ def family_block(label, fname, axes, cols):
                    f"prior draft, superseded by the family table above** (marker line: `{marker}`). "
                    f"Only the family's FIRST derivation table, FIRST cell table, FIRST census and FIRST "
                    f"footer are read here; the prior draft is neither counted nor reproduced.*")
+    text, corr = split_corrections(text)
+    corr_shas = footer_shas(corr) if corr else set()
     tbs = tables(text)
+    if corr:
+        rev = [tb for tb in tables(corr) if re.match(r"\|\s*cell\b", tb[0], re.I) and len(tb) >= 38]
+        if rev:   # the family's corrections carry a revised 36-row table: it replaces the draft table
+            tbs = tbs[:1] + rev[:1]
     if not tbs:
         out.append("\n(no markdown tables found in the family file)")
         return out, verdict_census([]), footer_shas(text), True
@@ -163,8 +182,12 @@ def family_block(label, fname, axes, cols):
     deriv = [tb for tb in tbs if tb is not cell_tbl and tbs.index(tb) < tbs.index(cell_tbl)]
     if deriv:
         out += ["", "**Regime / mode per case, as derived by the family (their table):**", "", *deriv[0], ""]
-    out += ["**The table:**", "", *cell_tbl, "", census_line(text), ""]
-    return out, verdict_census(cell_tbl), footer_shas(text), True
+    full = text + (corr or "")
+    out += ["**The table:**", "", *cell_tbl, "", census_line(full), ""]
+    if corr:
+        out += [f"### {label} family's corrections (appended below its footer at `{sha}`; supersede the table above where they strike it; reproduced verbatim)", "",
+                re.sub(r"^(#+) ", lambda m: "#" * (len(m.group(1)) + 1) + " ", corr.rstrip(), flags=re.M), ""]
+    return out, verdict_census(cell_tbl), footer_shas(text) | corr_shas | set(re.findall(r"`([0-9a-f]{8})`", corr or "")), True
 
 
 def main():
