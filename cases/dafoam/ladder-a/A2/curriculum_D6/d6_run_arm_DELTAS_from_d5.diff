@@ -1,0 +1,397 @@
+2c2
+< # Curriculum D4 arm launcher -- MACH wing constrained CD minimisation at fixed CL.
+---
+> # Curriculum D6 arm launcher -- multipoint cruise (CL 0.4/0.5/0.6) on D4's case.
+4,7c4,7
+< # Derived from `cases/dafoam/ladder-a/A1/curriculum_D2/d2_run_arm.sh` (this
+< # family's proven container pattern) with the registered changes: D4's own run
+< # root, np=4 instead of np=1, a per-arm CAP TABLE that is INTERNAL to this file,
+< # and a decomposition-determinism arm.
+---
+> # DERIVED from curriculum_D5/d5_run_arm.sh (itself the D4-SHIPPED Addendum-2
+> # launcher d4s_run_arm.sh @ 8b91be2b plus D5's registered deltas) with ONLY the
+> # registered deltas of D6 PREREGISTRATION.md section 7, recorded in
+> # d6_run_arm_DELTAS_from_d5.diff.  Everything else is the family's bytes.
+10,15c10,14
+< # today registered a 3.0 core-min cap and its launcher enforced 6.0 by
+< # copy-forward with no assertion.  Here the caps are NOT arguments.  They are
+< # constants in the table below, the table is reproduced verbatim in
+< # PREREGISTRATION.md §8, this file's md5 is frozen there, and the launcher
+< # ASSERTS that the wall timeout it is about to enforce equals CAP_CORE_MIN*60/4
+< # to the second.  A cap that disagrees aborts the arm before the container runs.
+---
+> # registered a 3.0 core-min cap and its launcher enforced 6.0 by copy-forward
+> # with no assertion.  Here the caps are NOT arguments.  They are constants in
+> # the table below, the table is reproduced verbatim in PREREGISTRATION.md
+> # section 4, this file's md5 is frozen there, and the launcher ASSERTS that the
+> # wall timeout it is about to enforce equals CAP_CORE_MIN*60/4 to the second.
+21,22c20,21
+< # 8.2: NO --rm, so `docker inspect .State.ExitCode/.State.OOMKilled` survives
+< # the arm and the KERNEL's verdict is read, not the harness's.
+---
+> # NO --rm, so `docker inspect .State.ExitCode/.State.OOMKilled` survives the
+> # arm and the KERNEL's verdict is read, not the harness's.
+27d25
+< #
+29,44c27,29
+< # (:25, no override), sets WORK="$BASE/$ARM" (:136) and runs an UNGUARDED
+< # `sudo -n rm -rf "$WORK"` (:139) for every arm except F.  Firing the SHIPPED
+< # row through it would have deleted
+< #   /home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O
+< # -- 5,085 files, 384 MB, holding OptView.hst and opt_IPOPT.txt: THE ARTIFACTS
+< # D4's ACCEPTED `GATE REACHED` RESTS ON -- and appended its rows to the same
+< # ledger (:282), leaving two items interleaved in one file so that NEITHER row
+< # could be graded cleanly afterwards.  EIGHT launcher files in that directory
+< # carry the same hardcoded BASE.
+< #
+< # THE REPAIR IS NOT "CHANGE THE CONSTANT".  A constant that is merely different
+< # is one careless edit from being the same again.  The WRONG CONSTANT MUST
+< # REFUSE, and the guard below is DRIVEN AGAINST THE REAL D4 ROOT in
+< # `d4s_launcher_guard_selftest.sh` and shown to abort.  A guard not shown to
+< # fire is ceremony -- and this is the guard standing between a re-fire and
+< # 384 MB of irreplaceable graded evidence.
+---
+> # and runs an UNGUARDED `sudo -n rm -rf "$WORK"` for every arm except F.
+> # THE REPAIR IS NOT "CHANGE THE CONSTANT".  The WRONG CONSTANT MUST REFUSE, and
+> # the guard below is DRIVEN in d6_groot5_selftest.sh and shown to abort.
+46,47c31,32
+< ITEM=D5
+< REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density
+---
+> ITEM=D6
+> REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint
+64,66c49
+< # ---- so the abort says WHOSE evidence it just protected rather than only that
+< # ---- something did not match.  Explicit, because the specific message is what
+< # ---- a future reader in a hurry actually acts on.
+---
+> # ---- so the abort says WHOSE evidence it just protected.
+70c53
+< /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint
+---
+> /home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density
+72a56
+> /home/ubuntu/certonomous-runs/CURRICULUM-D7FR-a3-m6-fd
+74c58,59
+< /home/ubuntu/certonomous-runs/CURRICULUM-D12R2-cylinder-unsteady"
+---
+> /home/ubuntu/certonomous-runs/CURRICULUM-D12R2-cylinder-unsteady
+> /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W2R-cylinder-unsteady"
+80,81c65
+<     echo "  That launcher stages by removing the arm directory, so writing"
+<     echo "  there would destroy it.  REFUSED."
+---
+>     echo "  removing the arm directory, so writing there would destroy it.  REFUSED."
+86,89c70
+< # ---- G-ROOT.3 -- the LEDGER must belong to this item and to no other.  A root
+< # ---- can be correct and its ledger still be a foreign one moved in; the row
+< # ---- format carries ROW=PATCHED|SHIPPED, so a PATCHED row in this item's
+< # ---- ledger is proof the two have been interleaved.
+---
+> # ---- G-ROOT.3 -- the LEDGER must belong to this item and to no other.
+94,95c75
+<     echo "  Appending here would interleave two items' rows in one file and"
+<     echo "  neither row could be graded cleanly afterwards.  REFUSED."
+---
+>     echo "  Appending here would interleave two items' rows in one file.  REFUSED."
+100c80
+<     echo "  This launcher writes the PATCHED row only (D5 REGISTERED DELTA: the graded D4 row).  REFUSED."
+---
+>     echo "  This launcher writes the PATCHED row only (D6 REGISTERED DELTA: the graded D4 row).  REFUSED."
+107c87
+< # ---- REGISTERED CPU PLACEMENT (PREREGISTRATION.md §5b, verbatim) ---------
+---
+> # ---- REGISTERED CPU PLACEMENT (PREREGISTRATION.md section 5b) --------------
+109,124c89,97
+< # HOST TOPOLOGY.  Concurrent containers then land on the same host core and
+< # throughput collapses as 1/N while the box reports itself idle -- MEASURED by
+< # the D13 lane 2026-08-25: affinity=0 on all three concurrent arms, 0.250 cores
+< # delivered against a 1.0-core quota, host 61 % idle, throughput moved 4x on a
+< # control that changed only the sibling count.  `--cpus=4` does NOT hand out
+< # four distinct cores.  So: PIN, and MEASURE the placement rather than infer it
+< # from the flag that was passed.
+< #
+< # Cores 5,6,7,9 were measured idle at freeze time (2026-08-25 ~17:45Z) and
+< # 5,6,7 sit OUTSIDE the host-affinity mask 8-15 of the only live sibling
+< # container (d8_opt, A6 CRM, 1.0-core quota).  Cores 1,2,3,4,8,12,14 carried
+< # native peer load and 0 is the default landing core the defect names.
+< # D5 REGISTERED DELTA (PREREGISTRATION.md section 5b): 8,10,11,13 -- DISJOINT from every
+< # live container cpuset read via docker inspect at freeze (W2R on 12), from the D4-SHIPPED
+< # registered set 5,6,7,9 (its chain may be re-fired there) and from D6's 2,3,4,14.
+< CPUSET=8,10,11,13
+---
+> # HOST TOPOLOGY; concurrent containers land on the same core (MEASURED by the
+> # D13 lane 2026-08-25).  So: PIN, and MEASURE the placement.
+> # D6 REGISTERED DELTA: 2,3,4,14 -- DISJOINT from every live container cpuset read
+> # via docker inspect at freeze (W2R on 12), from D5's 8,10,11,13, and from the
+> # D4-SHIPPED registered set 5,6,7,9 (its chain may be re-fired there).  D7FR's
+> # 2,3,4,6 is released: its F-S and F-P arms are complete (STATUS.F-P rc=0
+> # 16:43:35Z) and no D7FR arm is outstanding.  Core 0 is the default landing
+> # core the defect names and is not used.
+> CPUSET=2,3,4,14
+129c102
+<   sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d4_" | tr '\n' ',' | sed 's/,$//'
+---
+>   sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d6_" | tr '\n' ',' | sed 's/,$//'
+132,138c105,118
+< # ---- REGISTERED CAP TABLE (PREREGISTRATION.md §8, verbatim) ---------------
+< #   arm   core-min cap    memory cap
+< #   P1        5.0             4g
+< #   P2       55.0            12g
+< #   O       620.0            12g
+< #   F       120.0            12g
+< # D5 REGISTERED CAP TABLE (PREREGISTRATION.md section 4): per density d in {48,192}
+---
+> # ---- D6 REGISTERED CAP TABLE (PREREGISTRATION.md section 4) ----------------
+> #   arm      core-min cap   memory cap
+> #   O_mp        2000.0        20g
+> #   ACC_mp        30.0        20g   (three primals + three adjoints; 10.0 each)
+> #   F_mp         180.0        20g
+> #   REF_off       20.0        20g
+> # MEMORY, registered as an EXPOSURE: one DAFoam solver at np=4 on this case
+> # held ~11.7 GB host-side (D4) and 9.263 GiB peak container RSS (A3 rung 2);
+> # three solvers in one process share the interpreter and libraries but not
+> # their Jacobians.  20g is the largest cap the 30.6 GiB aggregate ceiling
+> # admits beside an 8g sibling; an OOM kill (rc=137) is a REGISTERED OUTCOME
+> # (P7), stops the chain at the first arm, and is a finding about multipoint
+> # feasibility at np=4 on this box, not a wasted run.  Never 8g: the D4-SHIPPED
+> # ACC arm was OOM-killed by its 8g cgroup (rc=137, 16:56:28Z 2026-08-26).
+141,143c121,124
+<     O48|O192)     echo 800.0 ;;
+<     ACC48|ACC192) echo 10.0 ;;
+<     F48|F192)     echo 120.0 ;;
+---
+>     O_mp)    echo 2000.0 ;;
+>     ACC_mp)  echo 30.0 ;;
+>     F_mp)    echo 180.0 ;;
+>     REF_off) echo 20.0 ;;
+148,151d128
+<   # D5 ADDENDUM 1 (pre-compute, 2026-08-26): EVERY arm 12g, never 8g -- the
+<   # D4-SHIPPED ACC arm (compute_totals, the same shape as ACC48/ACC192) was
+<   # OOM-killed by its 8g container cgroup (rc=137 at 16:56:28Z); the 8g row
+<   # in the table above is STRUCK by that addendum.
+153c130
+<     O48|O192|ACC48|ACC192|F48|F192) echo 12g ;;
+---
+>     O_mp|ACC_mp|F_mp|REF_off) echo 20g ;;
+158,162c135
+< # ---- REGISTERED TOOLCHAIN, BY DIGEST, never by tag (DAFOAM_CHARTER §11) ---
+< # PATCHED IDWarp : dafoam-idwarp-rot:v1
+< #   sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
+< # SHIPPED (stock): dafoam/opt-packages:latest
+< #   sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc
+---
+> # ---- REGISTERED TOOLCHAIN, BY DIGEST, never by tag (DAFOAM_CHARTER 11) -----
+166,171c139,149
+< # ---- FROZEN INSTRUMENT HASHES (PREREGISTRATION.md §9, verbatim) ----------
+< MD5_RUNSCRIPT=fa1d91c82d11aacd0ae072652b346952
+< # D5 REGISTERED FFD MD5S (one per density; set at freeze from d5_gen_ffd.py output)
+< md5_ffd() { case "$1" in 48) echo 85a8bcd5d39f1b11a612ac0a39aee776 ;; 192) echo 8eb161df4c546d10d7fcb30132f58907 ;; *) echo "" ;; esac; }
+< MD5_FD=91b9f3526a39cb02eafbd5be504d7107   # d5_fd_endpoint.py (D5 REGISTERED DELTA: D4's FD instrument re-pointed at d5_opt_runScript.py)
+< MD5_EXTRACT=ee7d3c99fd716da23779cb651961918e
+---
+> # ---- FROZEN INSTRUMENT HASHES (PREREGISTRATION.md section 7) ---------------
+> MD5_RUNSCRIPT=ae4b0305f0395b0047f1ce042d4956a5
+> MD5_FD=629bdef27a0dfb838f31ccdb5617aa3d
+> MD5_EXTRACT6=a8f96e92ec03cd6773c7d8f82406254e
+> MD5_REFOFF=674e460e81c316487397eda49370cef6
+> MD5_EXTRACT4=ee7d3c99fd716da23779cb651961918e
+> # D4's PATCHED optimiser history, staged READ-ONLY into REF_off/ as OptView.hst
+> # (D4's extractor reads that name); its md5 is asserted at staging and the
+> # grader exempts exactly this file, by md5, from the age guard (D7FR H4 form).
+> MD5_D4_HST=0d956d6ccbc010402915710f662d3b11
+> D4_HST_SRC=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O/OptView.hst
+174,187c152,160
+< test -n "$ARM" || { echo "ABORT usage: d5_run_arm.sh <O48|ACC48|F48|O192|ACC192|F192> <image>"; exit 64; }
+< test -n "$IMG" || { echo "ABORT usage: d5_run_arm.sh <O48|ACC48|F48|O192|ACC192|F192> <image>"; exit 64; }
+< DENS="${ARM//[A-Z]/}"; case "$DENS" in 48|192) ;; *) echo "ABORT arm $ARM carries no registered density (48|192)"; exit 64;; esac
+< 
+< # ---- G-ROOT.5 (ADDENDUM 2) -- A LIVE ARM IS NEVER RE-STAGED.  G-ROOT.1-.3
+< # ---- see only ledger rows; a queue-runner re-firing this launcher on a
+< # ---- RUNNING arm would pass them and reach `rm -rf "$WORK"` (the shape the
+< # ---- D7FR lane found at d7fr_run_arm.sh:319).  Two live readings, taken
+< # ---- BEFORE any destructive act:
+< # ----   (a) a RUNNING container carrying this item's prefix and this arm;
+< # ----   (b) a driver pidfile in the run root naming a LIVE pid that is not an
+< # ----       ancestor of this process (a second driver), or whose cwd is the
+< # ----       run root.  A stale pidfile (dead pid) does not block.
+< LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d5_${ARM}_" 2>/dev/null | grep "^d5_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+---
+> test -n "$ARM" || { echo "ABORT usage: d6_run_arm.sh <O_mp|ACC_mp|F_mp|REF_off> <image>"; exit 64; }
+> test -n "$IMG" || { echo "ABORT usage: d6_run_arm.sh <O_mp|ACC_mp|F_mp|REF_off> <image>"; exit 64; }
+> 
+> # ---- G-ROOT.5 -- A LIVE ARM IS NEVER RE-STAGED.  Two live readings, taken
+> # ---- BEFORE any destructive act: (a) a RUNNING container carrying this
+> # ---- item's prefix and this arm; (b) a driver pidfile in the run root naming
+> # ---- a LIVE pid that is not an ancestor of this process, or whose cwd is the
+> # ---- run root.  A stale pidfile (dead pid) does not block.
+> LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d6_${ARM}_" 2>/dev/null | grep "^d6_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+193c166
+< PIDFILE="$BASE/d5_driver.pid"
+---
+> PIDFILE="$BASE/d6_driver.pid"
+220,221c193
+< # against that cap by inverting the arithmetic.  There is no second number
+< # anywhere in this file that could drift from the first.
+---
+> # against that cap by inverting the arithmetic.
+242,244c214,218
+< echo "$MD5_RUNSCRIPT  $BASE/d5_opt_runScript.py"    | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
+< echo "$MD5_FD  $BASE/d5_fd_endpoint.py"             | md5sum -c - || { echo "ABORT fd md5"; exit 4; }
+< echo "$MD5_EXTRACT  $BASE/d4_extract_endpoint.py"   | md5sum -c - || { echo "ABORT extract md5"; exit 4; }
+---
+> echo "$MD5_RUNSCRIPT  $BASE/d6_opt_runScript.py"    | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
+> echo "$MD5_FD  $BASE/d6_fd_endpoint.py"             | md5sum -c - || { echo "ABORT fd md5"; exit 4; }
+> echo "$MD5_EXTRACT6  $BASE/d6_extract_endpoint.py"  | md5sum -c - || { echo "ABORT extract6 md5"; exit 4; }
+> echo "$MD5_REFOFF  $BASE/d6_ref_off.py"             | md5sum -c - || { echo "ABORT ref_off md5"; exit 4; }
+> echo "$MD5_EXTRACT4  $BASE/d4_extract_endpoint.py"  | md5sum -c - || { echo "ABORT extract4 md5"; exit 4; }
+256,260c230
+< # ---- G-ROW.  THIS ITEM BUYS THE SHIPPED ROW AND ONLY THE SHIPPED ROW. -----
+< # DAFOAM_CHARTER.md §11 makes the HASH the identity, so the row a run CLAIMS
+< # and the row it RAN must be the same hash or it does not run.  The patched
+< # row is already bought (curriculum_D4); re-running it here would put a second,
+< # younger record beside a graded one for the same question.
+---
+> # ---- G-ROW.  PATCHED ONLY -- the row D4 was graded on (C-97). -------------
+262c232
+<   echo "ABORT G-ROW D5 is registered PATCHED-ONLY (the row D4 was GRADED on, C-97); got ROW=$ROW ($IMG)."
+---
+>   echo "ABORT G-ROW D6 is registered PATCHED-ONLY (the row D4 was GRADED on, C-97); got ROW=$ROW ($IMG)."
+269c239
+< NAME="d5_${ARM}_${STAMP}"
+---
+> NAME="d6_${ARM}_${STAMP}"
+274c244,248
+< if [ "${ARM:0:1}" != "F" ]; then
+---
+> # D6 REGISTERED DELTA: the multipoint model owns THREE full case copies mp04/
+> # mp05/ mp06/ under the arm directory (one DAFoamBuilder run_directory each);
+> # the FFD (D4's 6x2x8) and the instruments sit at the arm directory, which is
+> # the container's working directory.
+> if [ "$ARM" != "F_mp" ]; then
+277,281c251,255
+<   cp -a "$BASE/d5_opt_runScript.py" "$BASE/d5_fd_endpoint.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
+<   # D5 REGISTERED DELTA: the density's FFD box REPLACES base/FFD/wingFFD.xyz in the staged arm, md5-asserted
+<   echo "$(md5_ffd "$DENS")  $BASE/ffd/wingFFD_${DENS}.xyz" | md5sum -c - || { echo "ABORT FFD md5 for density $DENS"; exit 4; }
+<   cp -a "$BASE/ffd/wingFFD_${DENS}.xyz" "$WORK/FFD/wingFFD.xyz" || { echo "ABORT stage FFD"; exit 4; }
+<   echo "D5_FFD_STAGED arm=$ARM density=$DENS md5=$(md5sum "$WORK/FFD/wingFFD.xyz" | cut -d' ' -f1)"
+---
+>   for mp in mp04 mp05 mp06; do
+>     cp -a "$BASE/base" "$WORK/$mp" || { echo "ABORT stage $mp copy"; exit 4; }
+>     test -n "$(ls -d "$WORK/$mp"/processor* 2>/dev/null)" && { echo "ABORT G-COLD $mp processor* present"; exit 5; }
+>   done
+>   cp -a "$BASE/d6_opt_runScript.py" "$BASE/d6_fd_endpoint.py" "$BASE/d6_extract_endpoint.py" "$BASE/d6_ref_off.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
+285c259
+<   for bad in "$WORK/reports" "$WORK/OptView.hst" "$WORK/opt_IPOPT.txt" "$WORK/dRdWColoring_4.bin" "$WORK/d5_fd_endpoint.json"; do
+---
+>   for bad in "$WORK/reports" "$WORK/OptView.hst" "$WORK/opt_IPOPT.txt" "$WORK/dRdWColoring_4.bin" "$WORK/d6_fd_endpoint.json" "$WORK/d6_ref_off.json"; do
+290a265,271
+>   if [ "$ARM" = "REF_off" ]; then
+>     # D6 REGISTERED DELTA: D4's PATCHED history staged READ-ONLY, md5-asserted,
+>     # BEFORE the datum so the age guard dates it as an input (exempt by md5).
+>     echo "$MD5_D4_HST  $D4_HST_SRC" | md5sum -c - || { echo "ABORT D4 OptView.hst md5 (source changed)"; exit 4; }
+>     cp "$D4_HST_SRC" "$WORK/OptView.hst" || { echo "ABORT stage D4 history"; exit 4; }
+>     echo "D6_D4_HST_STAGED arm=$ARM md5=$(md5sum "$WORK/OptView.hst" | cut -d' ' -f1) source=$D4_HST_SRC"
+>   fi
+296,300c277,281
+<   WORK="$BASE/O${DENS}"
+<   test -d "$WORK" || { echo "ABORT arm $ARM expects an existing $WORK from arm O${DENS}"; exit 5; }
+<   test -f "$WORK/OptView.hst" || { echo "ABORT arm F: no OptView.hst to read an endpoint from"; exit 5; }
+<   cp -a "$BASE/d5_fd_endpoint.py" "$BASE/d4_extract_endpoint.py" "$WORK/" || { echo "ABORT stage F instruments"; exit 4; }
+<   rm -f "$WORK/d5_fd_endpoint.json" "$WORK/d5_fd_endpoint.jsonl" "$WORK/d4_endpoint_dvs.json" "$WORK/d4_major_history.json"
+---
+>   WORK="$BASE/O_mp"
+>   test -d "$WORK" || { echo "ABORT arm $ARM expects an existing $WORK from arm O_mp"; exit 5; }
+>   test -f "$WORK/OptView.hst" || { echo "ABORT arm F_mp: no OptView.hst to read an endpoint from"; exit 5; }
+>   cp -a "$BASE/d6_fd_endpoint.py" "$BASE/d6_extract_endpoint.py" "$WORK/" || { echo "ABORT stage F instruments"; exit 4; }
+>   rm -f "$WORK/d6_fd_endpoint.json" "$WORK/d6_fd_endpoint.jsonl" "$WORK/d6_endpoint_dvs.json" "$WORK/d6_major_history.json"
+304,306c285,288
+<   O48|O192)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d5_opt_runScript.py -task run_driver -optimizer IPOPT" ;;
+<   ACC48|ACC192) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d5_opt_runScript.py -task compute_totals" ;;
+<   F48|F192) CMD="python d4_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d5_fd_endpoint.py" ;;
+---
+>   O_mp)    CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6_opt_runScript.py -task run_driver -optimizer IPOPT" ;;
+>   ACC_mp)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6_opt_runScript.py -task compute_totals" ;;
+>   F_mp)    CMD="python d6_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6_fd_endpoint.py" ;;
+>   REF_off) CMD="python d4_extract_endpoint.py && mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d6_ref_off.py" ;;
+309,313c291,295
+< # ---- ADDENDUM 2: the arm command goes to a FILE the container executes under
+< # ---- its OWN `timeout` at the registered cap wall (TMO), so the deadline is
+< # ---- INSIDE the container and survives every host shell.  `-k 60` escalates
+< # ---- TERM to KILL; the kernel exit code (124/137) is then the record.
+< CMDFILE="$WORK/d5_cmd.sh"
+---
+> # ---- the arm command goes to a FILE the container executes under its OWN
+> # ---- `timeout` at the registered cap wall (TMO), so the deadline is INSIDE
+> # ---- the container and survives every host shell.  `-k 60` escalates TERM to
+> # ---- KILL; the kernel exit code (124/137) is then the record.
+> CMDFILE="$WORK/d6_cmd.sh"
+317,321c299,300
+< # DELIVERED CORES ARE MEASURED, NOT INFERRED FROM THE QUOTA FLAG.  This sampler
+< # polls the container's own cgroup cpu.stat and writes cores-delivered to a
+< # FILE.  It is a passive reader: it starts nothing, kills nothing, and its
+< # failure cannot change a verdict -- an absent sample file is reported as
+< # NOT_MEASURED, never as a passing placement gate.
+---
+> # DELIVERED CORES ARE MEASURED, NOT INFERRED FROM THE QUOTA FLAG.  Passive
+> # reader; an absent sample file is reported as NOT_MEASURED, never as a pass.
+358,388c337,339
+< # ===========================================================================
+< # WHAT `-d` + THE POLLER ACTUALLY CLOSES, AND WHAT IT DOES NOT.  STATED HERE
+< # BECAUSE A FROZEN DOCUMENT MUST NOT CARRY A FALSE LINE.
+< #
+< #   CLOSED -- rc CAPTURE.  `rc` is read from `docker inspect .State.ExitCode`,
+< #   the KERNEL'S OWN RECORD, which is what curriculum_D4/PREREGISTRATION.md
+< #   :256-257 registered and which only A3/curriculum_D7R/d7r_run_arm.sh ever
+< #   implemented.  `.State.OOMKilled` comes from the SAME inspect.  NO --rm, so
+< #   the record survives the container.  The frozen d4_run_arm.sh took `rc=$?`
+< #   from the docker CLI client and used the kernel's value for a ledger STRING
+< #   that no control flow consulted.
+< #
+< #   *** NOT CLOSED -- THE CAP DOES NOT SURVIVE SHELL DEATH.  REGISTERED OPEN. ***
+< #   A foreground `docker run` client is NOT the container's parent -- dockerd
+< #   is -- so containers ALREADY survived shell death and `-d` changes nothing
+< #   there.  What `timeout` provided was the CAP, and `timeout` lives in the
+< #   launching shell.  MOVING THE DEADLINE INTO THE POLLING LOOP BELOW MOVES IT
+< #   INTO THE SAME SHELL.  On shell death the outcome is identical in both
+< #   designs: THE CONTAINER RUNS ON, UNGUARDED, WITH NOTHING LEFT TO STOP IT.
+< #   `-d` is an improvement on rc capture and on not blocking the shell.  IT IS
+< #   NOT A CAP FIX and this file does not claim to be one.
+< #   Closing it properly needs the deadline somewhere that survives the shell --
+< #   inside the container's own entrypoint, or written to a file a later poller
+< #   can pick up and enforce.  NOT BUILT HERE.  Named, and left open.
+< #
+< #   ADDENDUM 2 (2026-08-26, after arm O realised exactly this exposure): the
+< #   deadline NOW LIVES INSIDE THE CONTAINER -- `timeout -k 60 $TMO` wraps the
+< #   arm command file on the `docker run` line below -- and the bookkeeping
+< #   runs in d4s_chain_driver.sh, a `setsid nohup` session that outlives the
+< #   agent.  The text above is kept as the record of what was open and why.
+< # ===========================================================================
+---
+> # rc CAPTURE is CLOSED (docker inspect, no --rm); the CAP lives INSIDE the
+> # container (`timeout -k 60 $TMO` below) and survives shell death; the host
+> # bookkeeping runs in d6_chain_driver.sh, a setsid nohup session.
+391c342
+<     -v "$BASE":/mnt -w "/mnt/$ARM" "$IMG" bash -lc \
+---
+>     -v "$BASE":/mnt -w "/mnt/$(basename "$WORK")" "$IMG" bash -lc \
+396c347
+<      timeout -k 60 $TMO bash /mnt/$ARM/d5_cmd.sh" > /dev/null 2>&1 \
+---
+>      timeout -k 60 $TMO bash /mnt/$(basename "$WORK")/d6_cmd.sh" > /dev/null 2>&1 \
+399,402c350,351
+< # The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25), not a budget
+< # rigor is trimmed to fit.  A crossing is written to the ledger and CONTINUES;
+< # the supervisor decides.  CEILING = 4 x CAP is a hard stop so a genuine
+< # runaway is still bounded -- WHILE THIS SHELL LIVES (see the open exposure).
+---
+> # The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25).  A crossing is
+> # written to the ledger and CONTINUES; CEILING = 4 x CAP is a hard stop.
+445c394
+< # ---- the KERNEL's verdict, read BEFORE the container is removed (8.2) ----
+---
+> # ---- the KERNEL's verdict, read BEFORE the container is removed ----------
+455c404
+<   grep -a "D4S_CONTAINER_UID\|D4S_IDWARP_SO_MD5\|D4S_DEADLINE_IN_CONTAINER_S" "$LOG" | head -3   # ADDENDUM 2: the strings the container prints
+---
+>   grep -a "D4S_CONTAINER_UID\|D4S_IDWARP_SO_MD5\|D4S_DEADLINE_IN_CONTAINER_S" "$LOG" | head -3   # the strings the container prints

@@ -1,0 +1,75 @@
+# D6 grader selftest evidence -- 2026-08-26T17:38:29Z; grader md5 a76a7d5e298a6ba719143f14e10c89bf; selftest md5 3a8dbe54bea1371e15f509012ee42369
+## python3
+D6_GRADE REFUSE {"REFUSE": "ledger", "detail": {"note": "an ARM= line that does not parse is PRESENT-BUT-GARBAGE: refused, never skipped (absent != garbage)", "row_unparseable": "ARM=O_mp ROW=PATCHED IMG=dafoam-idwarp-rot:v1 DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 rc=0 wall_s=60 ranks=4 core_min=1.0 cap_core_min=2000.0 enforced_wall_s=30000 enforced_core_min=2000.0 memory=20g inspect(exit,oomkilled)=[0 false] memavail_pre_GiB=26.00 mema"}}
+D6_GRADE REFUSE {"REFUSE": "ledger", "detail": {"note": "an ARM= line that does not parse is PRESENT-BUT-GARBAGE: refused, never skipped (absent != garbage)", "row_unparseable": "ARM=O_mp ROW=PATCHED IMG=dafoam-idwarp-rot:v1 DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 rc=0 ranks=4 core_min=1.0 cap_core_min=2000.0 enforced_wall_s=30000 enforced_core_min=2000.0 memory=20g inspect(exit,oomkilled)=[0 false] memavail_pre_GiB=26.00 memavail_post_"}}
+D6_GRADE REFUSE {"REFUSE": "PLANTED_ZERO", "detail": {"expected_delta": 0.001234, "reader_blind": true, "seen_delta": 0.0}}
+D6_GRADE REFUSE {"REFUSE": "G-D6-3", "detail": {"d4_reference_changed": 0.021126978108239575, "path": "/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneQ1/d6st/plain/root_price/D4_O/opt_IPOPT.txt", "recorded": 0.021125978108239574}}
+D6_GRADE REFUSE {"REFUSE": "G1", "detail": {"harness": 0, "kernel": 137, "rc_disagreement": "O_mp"}}
+D6_GRADE REFUSE {"REFUSE": "G1", "detail": {"got": "16a21aee92aeccbca3ed7ab8a9865e37", "note": "REF_off's D4 history is a staged INPUT exempt from the age guard by md5 only; a moved md5 refuses", "registered": "61e7874b69e27eb07ed355e4f8c9f999", "staged_input_md5_moved": "/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneQ1/d6st/plain/root_hst/REF_off/OptView.hst"}}
+D6_GRADE REFUSE {"REFUSE": "G-D6-1", "detail": {"absent": "/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneQ1/d6st/plain/root_noref/REF_off/d6_ref_off.json"}}
+D6 GRADE SELFTEST under python3  grader_md5=a76a7d5e298a6ba719143f14e10c89bf
+  [OK ] L-332 grader carries 0 assert nodes and the counter sees a planted one 
+  [OK ] NOT_MEASURED infrastructure fields parse to None and are DISCLOSED 
+  [OK ] PRESENT-BUT-GARBAGE infrastructure value -> REFUSE 
+  [OK ] absent PHYSICS field (wall_s) -> REFUSE 
+  [OK ] CLEAN CONTROL -> item PASS; three per-point PASS; composite 21.9 % in band; price +3.0e-4 in band {"G-D6-1_cl04": "PASS", "G-D6-1_cl05": "PASS", "G-D6-1_cl06": "PASS", "G-D6-2_composite": "PASS", "G-D6-3_price": "PASS", "G-D6-4_fd": "PASS", "G10_caps": "PASS", "G12_placement": "PASS", "G1_completion": "PASS", "G9_toolchain": "PASS"}
+  [OK ] planted-zero control fired on the D4 reference reader 
+  [OK ] P1..P7 scored: P1 HIT, P2 HIT, P3 HIT, P4 HIT, P6 HIT, P7 HIT on the clean fixture {"P1": "HIT", "P2": "HIT", "P3": "HIT", "P4": "HIT", "P5": "HIT", "P6": "HIT", "P7": "HIT"}
+  [OK ] REF_off staged input OptView.hst age-exempt BY MD5 recorded in G1 
+  [OK ] CD_0.6(mp) > CD_0.6(REF_off) -> G-D6-1_cl06 GATE FAIL, cl04/cl05 PASS, item GATE FAIL, P6 MISS 
+  [OK ] composite reduction 5.8 % below 15 % -> G-D6-2 GATE FAIL, item GATE FAIL 
+  [OK ] GUARD MUTATION: reduction band widened -> same fixture PASS (refusal came from the band) 
+  [OK ] negative single-point price -> G-D6-3 NOT A RESULT, item NOT A RESULT, P3 NOT A RESULT 
+  [OK ] price +2.0e-3 > 1.0e-3 -> G-D6-3 GATE FAIL 
+  [OK ] a reader that cannot see the plant -> REFUSE (rule 3) 
+  [OK ] D4's O/opt_IPOPT.txt objective differs from the recorded CD_f -> REFUSE 
+  [OK ] O_mp kernel exit 137 OOMKilled true -> G1 NOT A RESULT, item NOT A RESULT, P7 MISS 
+  [OK ] harness rc=0 vs kernel exit 137 -> REFUSE 
+  [OK ] terminal statement not the LAST line on O_mp -> NOT A RESULT (positional) 
+  [OK ] SCRIPT arms without .ok markers -> NOT A RESULT; REF_off's terminal statement not composed 
+  [OK ] O_mp/opt_IPOPT.txt older than the datum -> age clause fails -> NOT A RESULT 
+  [OK ] REF_off/OptView.hst md5 moved from the registered D4 md5 -> REFUSE 
+  [OK ] 2 sign flips on the J table -> G-D6-4 NOT A RESULT, item NOT A RESULT 
+  [OK ] O_mp at 2100.0 > cap 2000.0 -> G10 GATE FAIL, item GATE FAIL, P5 MISS 
+  [OK ] cpuset 8,10,11,13 on one row -> G12 GATE FAIL; delivered NOT_MEASURED named, not failed 
+  [OK ] a NOT_MEASURED infrastructure field -> item PASS with O_mp:memavail_post_GiB NAMED 
+  [OK ] REF_off/d6_ref_off.json absent (a PHYSICS artefact) -> REFUSE 
+D6 GRADE SELFTEST pass=26 fail=0 under python3
+rc=0
+## python3 -O
+D6_GRADE REFUSE {"REFUSE": "ledger", "detail": {"note": "an ARM= line that does not parse is PRESENT-BUT-GARBAGE: refused, never skipped (absent != garbage)", "row_unparseable": "ARM=O_mp ROW=PATCHED IMG=dafoam-idwarp-rot:v1 DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 rc=0 wall_s=60 ranks=4 core_min=1.0 cap_core_min=2000.0 enforced_wall_s=30000 enforced_core_min=2000.0 memory=20g inspect(exit,oomkilled)=[0 false] memavail_pre_GiB=26.00 mema"}}
+D6_GRADE REFUSE {"REFUSE": "ledger", "detail": {"note": "an ARM= line that does not parse is PRESENT-BUT-GARBAGE: refused, never skipped (absent != garbage)", "row_unparseable": "ARM=O_mp ROW=PATCHED IMG=dafoam-idwarp-rot:v1 DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 rc=0 ranks=4 core_min=1.0 cap_core_min=2000.0 enforced_wall_s=30000 enforced_core_min=2000.0 memory=20g inspect(exit,oomkilled)=[0 false] memavail_pre_GiB=26.00 memavail_post_"}}
+D6_GRADE REFUSE {"REFUSE": "PLANTED_ZERO", "detail": {"expected_delta": 0.001234, "reader_blind": true, "seen_delta": 0.0}}
+D6_GRADE REFUSE {"REFUSE": "G-D6-3", "detail": {"d4_reference_changed": 0.021126978108239575, "path": "/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneQ1/d6st/opt/root_price/D4_O/opt_IPOPT.txt", "recorded": 0.021125978108239574}}
+D6_GRADE REFUSE {"REFUSE": "G1", "detail": {"harness": 0, "kernel": 137, "rc_disagreement": "O_mp"}}
+D6_GRADE REFUSE {"REFUSE": "G1", "detail": {"got": "16a21aee92aeccbca3ed7ab8a9865e37", "note": "REF_off's D4 history is a staged INPUT exempt from the age guard by md5 only; a moved md5 refuses", "registered": "61e7874b69e27eb07ed355e4f8c9f999", "staged_input_md5_moved": "/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneQ1/d6st/opt/root_hst/REF_off/OptView.hst"}}
+D6_GRADE REFUSE {"REFUSE": "G-D6-1", "detail": {"absent": "/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneQ1/d6st/opt/root_noref/REF_off/d6_ref_off.json"}}
+D6 GRADE SELFTEST under python3 -O  grader_md5=a76a7d5e298a6ba719143f14e10c89bf
+  [OK ] L-332 grader carries 0 assert nodes and the counter sees a planted one 
+  [OK ] NOT_MEASURED infrastructure fields parse to None and are DISCLOSED 
+  [OK ] PRESENT-BUT-GARBAGE infrastructure value -> REFUSE 
+  [OK ] absent PHYSICS field (wall_s) -> REFUSE 
+  [OK ] CLEAN CONTROL -> item PASS; three per-point PASS; composite 21.9 % in band; price +3.0e-4 in band {"G-D6-1_cl04": "PASS", "G-D6-1_cl05": "PASS", "G-D6-1_cl06": "PASS", "G-D6-2_composite": "PASS", "G-D6-3_price": "PASS", "G-D6-4_fd": "PASS", "G10_caps": "PASS", "G12_placement": "PASS", "G1_completion": "PASS", "G9_toolchain": "PASS"}
+  [OK ] planted-zero control fired on the D4 reference reader 
+  [OK ] P1..P7 scored: P1 HIT, P2 HIT, P3 HIT, P4 HIT, P6 HIT, P7 HIT on the clean fixture {"P1": "HIT", "P2": "HIT", "P3": "HIT", "P4": "HIT", "P5": "HIT", "P6": "HIT", "P7": "HIT"}
+  [OK ] REF_off staged input OptView.hst age-exempt BY MD5 recorded in G1 
+  [OK ] CD_0.6(mp) > CD_0.6(REF_off) -> G-D6-1_cl06 GATE FAIL, cl04/cl05 PASS, item GATE FAIL, P6 MISS 
+  [OK ] composite reduction 5.8 % below 15 % -> G-D6-2 GATE FAIL, item GATE FAIL 
+  [OK ] GUARD MUTATION: reduction band widened -> same fixture PASS (refusal came from the band) 
+  [OK ] negative single-point price -> G-D6-3 NOT A RESULT, item NOT A RESULT, P3 NOT A RESULT 
+  [OK ] price +2.0e-3 > 1.0e-3 -> G-D6-3 GATE FAIL 
+  [OK ] a reader that cannot see the plant -> REFUSE (rule 3) 
+  [OK ] D4's O/opt_IPOPT.txt objective differs from the recorded CD_f -> REFUSE 
+  [OK ] O_mp kernel exit 137 OOMKilled true -> G1 NOT A RESULT, item NOT A RESULT, P7 MISS 
+  [OK ] harness rc=0 vs kernel exit 137 -> REFUSE 
+  [OK ] terminal statement not the LAST line on O_mp -> NOT A RESULT (positional) 
+  [OK ] SCRIPT arms without .ok markers -> NOT A RESULT; REF_off's terminal statement not composed 
+  [OK ] O_mp/opt_IPOPT.txt older than the datum -> age clause fails -> NOT A RESULT 
+  [OK ] REF_off/OptView.hst md5 moved from the registered D4 md5 -> REFUSE 
+  [OK ] 2 sign flips on the J table -> G-D6-4 NOT A RESULT, item NOT A RESULT 
+  [OK ] O_mp at 2100.0 > cap 2000.0 -> G10 GATE FAIL, item GATE FAIL, P5 MISS 
+  [OK ] cpuset 8,10,11,13 on one row -> G12 GATE FAIL; delivered NOT_MEASURED named, not failed 
+  [OK ] a NOT_MEASURED infrastructure field -> item PASS with O_mp:memavail_post_GiB NAMED 
+  [OK ] REF_off/d6_ref_off.json absent (a PHYSICS artefact) -> REFUSE 
+D6 GRADE SELFTEST pass=26 fail=0 under python3 -O
+rc=0

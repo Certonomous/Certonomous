@@ -1,0 +1,15 @@
+D6 G-ROOT.5 SELFTEST 2026-08-26T17:38:56Z launcher_md5=98472772c9cdfd9007fcf6367b0a2a37
+  [OK ] G-ROOT.5 completes at :184, first destructive op at :249
+  [OK ] zero backticks on executable lines of the launcher
+  [OK ] no unfilled md5 placeholder in the launcher
+  [OK ] run root ABSENT before the test: /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint
+  [OK ] (a) live container d6_ACC_mp_selftest_20260826T173856Z -> rc=3: ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [d6_ACC_mp_selftest_20260826T173856Z]
+  [OK ] (b) live pid 305175 cwd=/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint -> rc=3: ABORT G-ROOT.5 driver pidfile /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint/d6_driver.pid names LIVE pid 305175 (ancestor_o
+  [OK ] (b2) stale pidfile ignored; launcher went on to abort at the L-251 mode check (rc=4) -- nothing staged
+  [OK ] (c) clear -> G-ROOT.5 passes; L-251 mode check aborts (rc=4) before any staging
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density -> rc=3 G-ROOT.1 REFUSED
+  [OK ] temporary run root still EMPTY after every invocation (0 entries)
+  [OK ] run root ABSENT after the test (freeze condition): test -e /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint -> false
+D6 G-ROOT5 SELFTEST pass=13 fail=0 2026-08-26T17:38:57Z

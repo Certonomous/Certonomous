@@ -1,0 +1,223 @@
+1a2,24
+> """Curriculum D6 -- multipoint cruise on D4's case: three CL targets, one geometry,
+> weighted composite objective.  DERIVED FROM curriculum_D4/d4_opt_runScript.py
+> (md5 2906d52a5dbed2bacbaeaf85a37d3fe8) with the REGISTERED DELTAS of
+> PREREGISTRATION.md section 1 and no other:
+>   * three ScenarioAerodynamic scenarios cl04 / cl05 / cl06 (CL targets 0.4 / 0.5 /
+>     0.6), each with its OWN DAFoamBuilder in its OWN run_directory mp04/ mp05/
+>     mp06/ (a full copy of the case, staged by the launcher), its own mesh and
+>     geometry components, its own patchV<k> (AoA) design variable and its own CL
+>     equality constraint;
+>   * ONE set of shape/twist design variables, connected to all three geometries;
+>     the geometric constraints (thickness, volume, LE/TE) are taken from the
+>     cl05 geometry only -- the three geometries are the same FFD on the same
+>     surface, so a second copy of each constraint would be the same constraint;
+>   * the objective is the composite J = 0.25*CD04 + 0.50*CD05 + 0.25*CD06
+>     (weights FROZEN in PREREGISTRATION.md section 1; a second weight set is a
+>     new item), formed by an ExecComp;
+>   * findFeasibleDesign solves the three CL targets on the three patchV DVs at
+>     once before run_driver (the DAFoam multipoint form).
+> daOptions, meshOptions, the DV bounds and scalers, IPOPT settings and the task
+> switch are D4's bytes.  The ANCHOR line `# OpenMDAO setup` is kept so that
+> d6_fd_endpoint.py and d6_ref_off.py exec the header exactly as D4's FD
+> instrument does.
+> """
+28d50
+< CL_target = 0.5
+32a55,60
+> # ---- D6 REGISTERED DELTA: the three points, their targets and their FROZEN weights
+> POINTS = ["cl04", "cl05", "cl06"]
+> CL_TARGETS = {"cl04": 0.4, "cl05": 0.5, "cl06": 0.6}
+> WEIGHTS = {"cl04": 0.25, "cl05": 0.50, "cl06": 0.25}
+> RUN_DIRS = {"cl04": "mp04", "cl05": "mp05", "cl06": "mp06"}
+> 
+88,94c116,124
+< # Mesh deformation setup
+< meshOptions = {
+<     "gridFile": os.getcwd(),
+<     "fileType": "OpenFOAM",
+<     # point and normal for the symmetry plane
+<     "symmetryPlanes": [[[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]]],
+< }
+---
+> 
+> def mesh_options_for(point):
+>     # Mesh deformation setup, per run directory (each point owns a full case copy)
+>     return {
+>         "gridFile": os.path.join(os.getcwd(), RUN_DIRS[point]),
+>         "fileType": "OpenFOAM",
+>         # point and normal for the symmetry plane
+>         "symmetryPlanes": [[[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]]],
+>     }
+101,104d130
+<         # create the builder to initialize the DASolvers
+<         dafoam_builder = DAFoamBuilder(daOptions, meshOptions, scenario="aerodynamic")
+<         dafoam_builder.initialize(self.comm)
+< 
+108,123c134,154
+<         # add the mesh component
+<         self.add_subsystem("mesh", dafoam_builder.get_mesh_coordinate_subsystem())
+< 
+<         # add the geometry component (FFD)
+<         self.add_subsystem("geometry", OM_DVGEOCOMP(file="FFD/wingFFD.xyz", type="ffd"))
+< 
+<         # add a scenario (flow condition) for optimization, we pass the builder
+<         # to the scenario to actually run the flow and adjoint
+<         self.mphys_add_scenario("scenario1", ScenarioAerodynamic(aero_builder=dafoam_builder))
+< 
+<         # need to manually connect the x_aero0 between the mesh and geometry components
+<         # here x_aero0 means the surface coordinates of structurally undeformed mesh
+<         self.connect("mesh.x_aero0", "geometry.x_aero_in")
+<         # need to manually connect the x_aero0 between the geometry component and the scenario1
+<         # scenario group
+<         self.connect("geometry.x_aero0", "scenario1.x_aero")
+---
+>         self.builders = {}
+>         for pt in POINTS:
+>             # one builder per point, in its own run directory
+>             b = DAFoamBuilder(daOptions, mesh_options_for(pt), scenario="aerodynamic",
+>                               run_directory=RUN_DIRS[pt])
+>             b.initialize(self.comm)
+>             self.builders[pt] = b
+>             # mesh and geometry (FFD) components for this point
+>             self.add_subsystem("mesh_" + pt, b.get_mesh_coordinate_subsystem())
+>             self.add_subsystem("geometry_" + pt, OM_DVGEOCOMP(file="FFD/wingFFD.xyz", type="ffd"))
+>             # the scenario (flow condition)
+>             self.mphys_add_scenario(pt, ScenarioAerodynamic(aero_builder=b))
+>             self.connect("mesh_%s.x_aero0" % pt, "geometry_%s.x_aero_in" % pt)
+>             self.connect("geometry_%s.x_aero0" % pt, "%s.x_aero" % pt)
+> 
+>         # the composite objective (weights FROZEN)
+>         self.add_subsystem("obj", om.ExecComp(
+>             "J = %r * CD04 + %r * CD05 + %r * CD06" % (WEIGHTS["cl04"], WEIGHTS["cl05"], WEIGHTS["cl06"])))
+>         self.connect("cl04.aero_post.CD", "obj.CD04")
+>         self.connect("cl05.aero_post.CD", "obj.CD05")
+>         self.connect("cl06.aero_post.CD", "obj.CD06")
+127,152c158,193
+<         # get the surface coordinates from the mesh component
+<         points = self.mesh.mphys_get_surface_mesh()
+< 
+<         # add pointset to the geometry component
+<         self.geometry.nom_add_discipline_coords("aero", points)
+< 
+<         # set the triangular points to the geometry component for geometric constraints
+<         tri_points = self.mesh.mphys_get_triangulated_surface()
+<         self.geometry.nom_setConstraintSurface(tri_points)
+< 
+<         # Create reference axis for the twist variable
+<         nRefAxPts = self.geometry.nom_addRefAxis(name="wingAxis", xFraction=0.25, alignIndex="k")
+< 
+<         # Set up global design variables. We dont change the root twist
+<         def twist(val, geo):
+<             for i in range(1, nRefAxPts):
+<                 geo.rot_z["wingAxis"].coef[i] = -val[i - 1]
+< 
+<         # add twist variable
+<         self.geometry.nom_addGlobalDV(dvName="twist", value=np.array([0] * (nRefAxPts - 1)), func=twist)
+< 
+<         # select the FFD points to move
+<         pts = self.geometry.DVGeo.getLocalIndex(0)
+<         indexList = pts[:, :, :].flatten()
+<         PS = geo_utils.PointSelect("list", indexList)
+<         nShapes = self.geometry.nom_addLocalDV(dvName="shape", pointSelect=PS)
+---
+>         nRefAxPts = None
+>         nShapes = None
+>         for pt in POINTS:
+>             mesh = getattr(self, "mesh_" + pt)
+>             geometry = getattr(self, "geometry_" + pt)
+>             # get the surface coordinates from the mesh component
+>             points = mesh.mphys_get_surface_mesh()
+>             # add pointset to the geometry component
+>             geometry.nom_add_discipline_coords("aero", points)
+>             # set the triangular points to the geometry component for geometric constraints
+>             tri_points = mesh.mphys_get_triangulated_surface()
+>             geometry.nom_setConstraintSurface(tri_points)
+>             # Create reference axis for the twist variable
+>             n = geometry.nom_addRefAxis(name="wingAxis", xFraction=0.25, alignIndex="k")
+>             if nRefAxPts is None:
+>                 nRefAxPts = n
+>             elif n != nRefAxPts:
+>                 raise RuntimeError("D6 REFUSE: ref-axis point count differs between points (%d vs %d)" % (n, nRefAxPts))
+> 
+>             # Set up global design variables. We dont change the root twist
+>             def twist(val, geo, _n=nRefAxPts):
+>                 for i in range(1, _n):
+>                     geo.rot_z["wingAxis"].coef[i] = -val[i - 1]
+> 
+>             # add twist variable
+>             geometry.nom_addGlobalDV(dvName="twist", value=np.array([0] * (nRefAxPts - 1)), func=twist)
+> 
+>             # select the FFD points to move
+>             pts = geometry.DVGeo.getLocalIndex(0)
+>             indexList = pts[:, :, :].flatten()
+>             PS = geo_utils.PointSelect("list", indexList)
+>             ns = geometry.nom_addLocalDV(dvName="shape", pointSelect=PS)
+>             if nShapes is None:
+>                 nShapes = ns
+>             elif ns != nShapes:
+>                 raise RuntimeError("D6 REFUSE: shape DV count differs between points (%d vs %d)" % (ns, nShapes))
+154c195
+<         # setup the volume and thickness constraints
+---
+>         # setup the volume and thickness constraints on the cl05 geometry (one geometry, one set)
+157,158c198,199
+<         self.geometry.nom_addThicknessConstraints2D("thickcon", leList, teList, nSpan=10, nChord=10)
+<         self.geometry.nom_addVolumeConstraint("volcon", leList, teList, nSpan=10, nChord=10)
+---
+>         self.geometry_cl05.nom_addThicknessConstraints2D("thickcon", leList, teList, nSpan=10, nChord=10)
+>         self.geometry_cl05.nom_addVolumeConstraint("volcon", leList, teList, nSpan=10, nChord=10)
+160,161c201,202
+<         self.geometry.nom_add_LETEConstraint("lecon", volID=0, faceID="iLow")
+<         self.geometry.nom_add_LETEConstraint("tecon", volID=0, faceID="iHigh")
+---
+>         self.geometry_cl05.nom_add_LETEConstraint("lecon", volID=0, faceID="iLow")
+>         self.geometry_cl05.nom_add_LETEConstraint("tecon", volID=0, faceID="iHigh")
+166,170c207,212
+<         self.dvs.add_output("patchV", val=np.array([U0, aoa0]))
+<         # manually connect the dvs output to the geometry and scenario1
+<         self.connect("twist", "geometry.twist")
+<         self.connect("shape", "geometry.shape")
+<         self.connect("patchV", "scenario1.patchV")
+---
+>         for pt in POINTS:
+>             self.dvs.add_output("patchV_" + pt, val=np.array([U0, aoa0]))
+>             # manually connect the dvs output to the geometry and the scenario
+>             self.connect("twist", "geometry_%s.twist" % pt)
+>             self.connect("shape", "geometry_%s.shape" % pt)
+>             self.connect("patchV_" + pt, "%s.patchV" % pt)
+175c217,218
+<         self.add_design_var("patchV", lower=[U0, 0.0], upper=[U0, 10.0], scaler=0.1)
+---
+>         for pt in POINTS:
+>             self.add_design_var("patchV_" + pt, lower=[U0, 0.0], upper=[U0, 10.0], scaler=0.1)
+178,183c221,227
+<         self.add_objective("scenario1.aero_post.CD", scaler=1.0)
+<         self.add_constraint("scenario1.aero_post.CL", equals=CL_target, scaler=1.0)
+<         self.add_constraint("geometry.thickcon", lower=0.5, upper=3.0, scaler=1.0)
+<         self.add_constraint("geometry.volcon", lower=1.0, scaler=1.0)
+<         self.add_constraint("geometry.tecon", equals=0.0, scaler=1.0, linear=True)
+<         self.add_constraint("geometry.lecon", equals=0.0, scaler=1.0, linear=True)
+---
+>         self.add_objective("obj.J", scaler=1.0)
+>         for pt in POINTS:
+>             self.add_constraint("%s.aero_post.CL" % pt, equals=CL_TARGETS[pt], scaler=1.0)
+>         self.add_constraint("geometry_cl05.thickcon", lower=0.5, upper=3.0, scaler=1.0)
+>         self.add_constraint("geometry_cl05.volcon", lower=1.0, scaler=1.0)
+>         self.add_constraint("geometry_cl05.tecon", equals=0.0, scaler=1.0, linear=True)
+>         self.add_constraint("geometry_cl05.lecon", equals=0.0, scaler=1.0, linear=True)
+192,193c236,237
+< # initialize the optimization function
+< optFuncs = OptFuncs(daOptions, prob)
+---
+> # initialize the optimization function (one daOptions per point, the multipoint form)
+> optFuncs = OptFuncs([daOptions] * len(POINTS), prob)
+240,241c284,288
+<     # solve CL
+<     optFuncs.findFeasibleDesign(["scenario1.aero_post.CL"], ["patchV"], targets=[CL_target], designVarsComp=[1])
+---
+>     # solve the three CL targets on the three patchV DVs at once
+>     optFuncs.findFeasibleDesign(["%s.aero_post.CL" % pt for pt in POINTS],
+>                                 ["patchV_" + pt for pt in POINTS],
+>                                 targets=[CL_TARGETS[pt] for pt in POINTS],
+>                                 designVarsComp=[1] * len(POINTS))
