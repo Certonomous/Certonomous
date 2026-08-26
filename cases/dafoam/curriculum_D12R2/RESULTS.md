@@ -70,20 +70,29 @@ and again the comparator distinguishes the claims: *"a component reporting 0.0 m
 WAS DETECTABLE AT THESE STEPS, which is not the same claim as no floor**."* `δ_pert` is taken as
 the **max** over components because `h*` must be admissible for all of them.
 
-### 2.2 A DISCREPANCY PRINTED UNDER A "DIAGNOSTIC ONLY" LABEL — FLAGGED, NOT WAVED THROUGH
+### 2.2 THE `g_implied` FIGURES — WHAT THEY ARE NOT, AND WHY THEY APPEAR IN NO TABLE
 
-`G12R-3b` prints `g_implied_DIAGNOSTIC_ONLY` per component: `1.2529, −0.1883, 0.4341, 1.4388`
-against the adjoint's `g_component_0 = 1.0304`. Component 0 differs by **21.6 %**, and component
-1 has **the opposite sign**.
+**PLACEMENT IS PART OF THE CLAIM, so this subsection carries no table, no row and no heading that
+could be lifted as a result.** The lab's standing hazard is that a printed discrepancy labelled
+*"diagnostic only"* is **worse than one never computed**: the label lives in prose, the number
+lives in a table, and the next reader quotes the number. **A label is not positional protection.**
+Accordingly every figure below sits inside the sentence that says what it is not.
 
-**The lab's own lesson is that a printed discrepancy labelled non-binding is worse than one never
-computed**, so it is named here rather than left in a JSON field. **On the evidence the label is
-correct, and the reason is measurable, not asserted:** those probes sit at `h = 1e-06` and
-`1e-05`, where the measured signals are `S_a ≈ 1.1e-06 … 4.2e-06` against `δ_eff = 1.80e-03` —
-**the noise floor is two to three orders of magnitude ABOVE the signal**, so `g_implied` there is
-noise, not a gradient. **That is exactly why no admissible step exists**, and the discrepancy is
-a symptom of the headline result rather than an unexplained conflict. **It is not evidence about
-the adjoint and must never be quoted as an adjoint-vs-FD comparison.**
+`G12R-3b` emits a per-component `g_implied_DIAGNOSTIC_ONLY`, and **not one of those four values is
+a gradient**: the `1.2529` on component 0 is not a 21.6 % disagreement with the adjoint's
+`1.0304`, the `−0.1883` on component 1 is not a sign flip against it, and the `0.4341` and
+`1.4388` on components 2 and 3 are not agreement or disagreement of any kind — **all four are
+noise, and the noise is measurable rather than asserted.** Those probes sit at `h = 1e-06` and
+`h = 1e-05`, where the measured signals are `S_a ≈ 1.1e-06 … 4.2e-06` against a floor of
+`δ_eff = 1.80e-03`: **the noise is two to three orders of magnitude ABOVE the signal**, so a
+finite difference there divides one noise sample by another.
+
+> **THESE FIGURES ARE A SYMPTOM OF THE `G12R-4` HEADLINE, AND ANY USE OF THEM AS AN
+> ADJOINT-VERSUS-FD COMPARISON IS A MISREADING.** They are exactly what "no admissible FD step
+> exists" looks like from inside: at a step small enough to be linear, the objective difference is
+> beneath the noise floor. **They are not evidence about the adjoint, they are not an FD table,
+> and they must never be quoted as either.** The one adjoint-versus-FD comparison this item could
+> have made is `G12R-6`, and **`G12R-6` DID NOT RUN.**
 
 ---
 
