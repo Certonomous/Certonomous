@@ -89,7 +89,7 @@ if [ ! -d "$BASE" ]; then
   mkdir -p "$BASE/base" || exit 4
   cp -a "$D8_BASE/0" "$D8_BASE/FFD" "$D8_BASE/constant" "$D8_BASE/system" "$D8_BASE/runScript.py" "$BASE/base/" || { echo "ABORT copy D8 base inputs"; exit 4; }
   cp -a "$HERE/d8r_decomposeParDict" "$BASE/base/system/decomposeParDict" || { echo "ABORT overlay decomposeParDict"; exit 4; }
-  cp -a "$HERE/d8r_runScript.py" "$HERE/d8r_xf.py" "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
+  cp -a "$HERE/d8r_runScript.py" "$HERE/d8r_of.py" "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
   # D5-DRIVER-DEF-1 corrected form, inherited: identity on its own line;
   # staging metadata on a line that does not start with ITEM=.
   echo "ITEM=D8R" > "$BASE/ledger.txt"
@@ -98,7 +98,7 @@ if [ ! -d "$BASE" ]; then
 else
   echo "D8R_ROOT_PRESENT base=$BASE (not re-staged)"
 fi
-{ echo "$MD5_RUNSCRIPT  $BASE/d8r_runScript.py"; echo "$MD5_XF  $BASE/d8r_xf.py"; echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict";
+{ echo "$MD5_RUNSCRIPT  $BASE/d8r_runScript.py"; echo "$MD5_XF  $BASE/d8r_of.py"; echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict";
   tut_md5_list "$BASE/base"; } | md5sum -c - || { echo "ABORT staged instrument/input md5"; exit 4; }
 test -f "$BASE/base/0/U" || { echo "ABORT staged base/ has no 0/U"; exit 4; }
 if [ -f "$PIDFILE" ]; then

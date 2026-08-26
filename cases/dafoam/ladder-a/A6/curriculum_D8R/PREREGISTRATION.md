@@ -115,3 +115,45 @@ D8 §12 verbatim (no A6 N=29, no 399,360-cell A3, no D16a; `twist` idx6 not repa
 ## 9. FREEZE, QUEUE, AND WHAT IS ON THE SUPERVISOR'S DESK
 
 **Committed BEFORE any container starts.** Grading path fixed at this commit: `d8r_grade.py` md5 `3f6eafac2ad4897417521d00c1cc5f3e`. **Queue entry `verification/queue/dafoam/D8R_chain.json`:** team `dafoam`, `prereg_commit` = the sha of the commit introducing this file, `launch_cmd` = `["bash", "<abs>/d8r_chain_driver.sh", "O-P", "F-P", "O-S", "F-S"]`, `cwd` = this directory, `ranks 4`, `cost_core_min_estimate 1038.0`, `cap_core_min_registered 2240.0`, `memory_floor_gb 18.0`, `cost_basis` derived / not measured, `permission bc0e687e`. Enqueueing is not authorisation (check 4 is the supervisor's). **The runner is the launch path and is HELD at its 85 % busy ceiling by other teams' load; nothing is launched by hand.** Filing check: `python3 scripts/check_filing.py` adds no violation under `cases/dafoam/` for this directory (§9 of D17 records the same reading). **On the supervisor's desk, a placement decision, not a physics one:** whether D8R stays a first-fit entry (it waits on its own aggregate guard beside D5 and may `BLOCK` at the 4 h bound, zero compute, to be re-filed) or is re-filed as a wait-wrapper behind D6's chain end (§5). **Predicted outcome:** PATCHED `PASS`, SHIPPED `GATE REACHED` / `GATE FAIL`, item **`GATE FAIL`**; the `3D · steady · transonic` optimisation cell moves from "0 converged, 2 cap-stopped" to `CAN DO, CAVEATS` with one converged, FD-verified endpoint on record.
+
+
+---
+
+# ADDENDUM 1 — 2026-08-26 — **PRE-COMPUTE** — `D8R-DRIVER-DEF-1`: the frozen chain driver copied and md5-asserted `d8r_xf.py` while the instrument is `d8r_of.py`; corrected, and a static names leg added that would have caught it
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.** Written 2026-08-26T22:52:12Z by dafoam `lab-lane` N2 on the supervisor's check-1 finding and order (`docs/LAB_STATE.md` `## dafoam`, FIFTEENTH session; `[lab-attributed]`); permission `bc0e687e`. `CLAUDE.md` rule 2, pre-first-compute: **no gate, threshold, band, cap, label, cost or prediction moves**; two executable lines of one instrument are corrected and one selftest is added. Zero compute.
+
+## A1.1 The defect, as found (the pre-repair fact)
+
+`d8r_chain_driver.sh` at the freeze (`357a2648`, md5 `34982b002393c5cd76a76bbef9d84748`) was derived from D17's driver by a prefix rename, and D17's instrument is `d17_xf.py`; the rename produced **`d8r_xf.py`** on the two lines that copy the instruments into the run root (`:92`) and md5-assert the staged copy (`:101`), while this item's instrument is **`d8r_of.py`** (the launcher names it correctly at `:266`, `:318`, `:341-342`; the driver's own `MD5_XF` pin is `d8r_of.py`'s md5). On the first fire the driver would have reached `cp -a "$HERE/d8r_runScript.py" "$HERE/d8r_xf.py" "$BASE/"`, `cp` would have failed on the absent file, and the chain would have stopped at **`ABORT copy instruments`, exit 4, zero compute** — an infrastructure abort before any container, the class of a launcher that refuses at zero compute (L-342). **Found by the supervisor's check 1, not by any selftest of this lane: `d8r_groot5_selftest.sh` exercises the launcher's guards and G-ROW and never reaches the driver's staging copy.** Named `D8R-DRIVER-DEF-1`.
+
+## A1.2 The correction — exactly two lines, shown as the diff
+
+```diff
+@@ -92 +92 @@
+-  cp -a "$HERE/d8r_runScript.py" "$HERE/d8r_xf.py" "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
++  cp -a "$HERE/d8r_runScript.py" "$HERE/d8r_of.py" "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
+@@ -101 +101 @@
+-{ echo "$MD5_RUNSCRIPT  $BASE/d8r_runScript.py"; echo "$MD5_XF  $BASE/d8r_xf.py"; echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict";
++{ echo "$MD5_RUNSCRIPT  $BASE/d8r_runScript.py"; echo "$MD5_XF  $BASE/d8r_of.py"; echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict";
+```
+
+| file | md5 before (`357a2648`) | md5 after (this commit) | change |
+|---|---|---|---|
+| `d8r_chain_driver.sh` | `34982b002393c5cd76a76bbef9d84748` | **`10f3ec100fa4e55feaae5ec59ba0527c`** | the two lines above; `MD5_LAUNCHER`, `MD5_GRADER`, `MD5_RUNSCRIPT`, `MD5_XF`, `MD5_DECOMP`, the 23 base-input md5s, G-CPUSET, `CHAIN_DONE`, every guard: untouched |
+| `d8r_chain_driver_DELTAS_from_d16.diff` | `2b9b0f27ffd0cf89e8c572c5f30bfda6` | **`4f4bb8b327ab0b44cc613e65cbd780f3`** | regenerated (`diff -u` against `curriculum_D16/d16_chain_driver.sh`), 256 lines |
+| `d8r_driver_names_selftest.sh` | — | **`0db8493fe4ce3317960d8bfe8b4aa709`** | NEW (A1.3) |
+| `d8r_driver_names_selftest_evidence.txt` | — | **`d7ff4b721e90d7ae3ab1ffcf177b91a0`** | NEW |
+| `d8r_run_arm.sh`, `d8r_of.py`, `d8r_grade.py`, `d8r_groot5_selftest.sh`, every other file of §7 | unchanged | unchanged | — |
+
+**§7's driver row (`a1ae0d4b…` at v1.0 — itself superseded before the freeze commit by the grader re-pin, `34982b00…` at `357a2648`) is superseded by this table; §7 is not edited (rule 6).** The driver is pinned nowhere else: the queue entry's `prereg_commit` names the commit, not a blob; the wrapper (A1.4) asserts no driver md5.
+
+## A1.3 The leg that catches this class — driven, with a planted control
+
+A scratch-root dry run of the staging block is not available (G-ROOT.1 refuses a root that is not the registered one, correctly), so the check is **static**: `d8r_driver_names_selftest.sh` (a) `bash -n`s the driver, (b) requires every `"$HERE/<file>"` the driver copies to exist in the case directory, (c) requires every `$BASE/d8r_<file>` the driver md5-asserts to be among the files it copies, (d) requires every `$BASE/d8r_*.py` the **launcher** md5-asserts to be among the files the driver copies, and (e) **plants** a scratch copy of the driver naming `d8r_bogus.py` and requires the leg to FAIL on it. **Evidence (`d8r_driver_names_selftest_evidence.txt`):** on the corrected driver **13/13**; on the frozen `357a2648` blob (the defect) the leg **FAILS** at (2)/(3) naming `d8r_xf.py` ABSENT — the reader is shown to see the non-zero; the planted `d8r_bogus.py` FAILS it too. The same static reading applied to D17's driver (`curriculum_D17_cone_supersonic/d17_chain_driver.sh`) names `d17_runScript.py` and `d17_xf.py`, both present — D17 does not carry the defect.
+
+## A1.4 Consequence for the queue, and the placement ruling this addendum accompanies
+
+The drop-path entry `verification/queue/dafoam/D8R_chain.json` (`prereg_commit 357a2648`) is **superseded**: the supervisor's ruling `[lab-attributed]` on §9's desk item is that D8R does **not** stay first-fit (beside D5 it would wait ≤ 4 h and BLOCK at zero compute; then D6's 20g excludes it again) and is re-filed as a **wait-wrapper behind D6's chain end** — `cases/dafoam/_common/dafoam_wait_then_launch.sh --case-id D8R_chain_wait --precondition /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint/CHAIN_DONE --prefix d8r_ --run-root <D8R root> --deadline-s 129600 --driver-pidfile d8r_driver.pid -- bash <abs>/d8r_chain_driver.sh O-P F-P O-S F-S`, `prereg_commit` = the commit that lands this addendum. D6's driver writes no `CHAIN_DONE` today (it appends `chain=COMPLETE` to a `STATUS.chain` that exists from chain start, so file-existence is not a usable precondition), so **D6 Addendum 3** (its own commit) first gives D6's driver the one-line EXIT trap of D5 Addendum 3 A3.5 / D17. **Bound 129,600 s = 36 h, derived:** D5 r3's remaining chain ≈ 3.4 h at 4 ranks (813 core-min) + D6's wrapper wait and its own H5/aggregate waits (≤ 4 h) + D6's ceiling wall 2,230 × 60 ÷ 4 = 33,450 s ≈ 9.3 h + launch latency (the runner's 85 % ceiling) ≪ 36 h; a D5 or D6 pre-chain abort writes no marker → this wrapper closes `rc=6 verdict=BLOCKED` at the bound, **zero compute**, a registered outcome. The superseded entry moves to `held/` as the record (nothing deleted); `held/README.md` says so.
+
+**Condition, and how it was checked:** `test -e /home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv` → **false** (2026-08-26T22:52:12Z); `sudo -n docker ps -a` carries no `d8r_` name; no `d8r_chain_driver` process exists; the drop-path entry `D8R_chain.json` has no `_launch` record and `verification/queue/dafoam/launched/` holds no `D8R*`. First compute on this item has not occurred.

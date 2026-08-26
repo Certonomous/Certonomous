@@ -1,0 +1,42 @@
+D8R DRIVER-NAMES SELFTEST EVIDENCE 2026-08-26T22:52:11Z
+== (A) the corrected driver (10f3ec100fa4e55feaae5ec59ba0527c)
+D8R DRIVER-NAMES SELFTEST 2026-08-26T22:52:11Z driver=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A6/curriculum_D8R/d8r_chain_driver.sh md5=10f3ec100fa4e55feaae5ec59ba0527c
+  [OK ] (1) bash -n d8r_chain_driver.sh
+  [OK ] (2) driver copies d8r_aggregate_memory.py -> exists in the case directory
+  [OK ] (2) driver copies d8r_cpuset_overlap.py -> exists in the case directory
+  [OK ] (2) driver copies d8r_decomposeParDict -> exists in the case directory
+  [OK ] (2) driver copies d8r_grade.py -> exists in the case directory
+  [OK ] (2) driver copies d8r_of.py -> exists in the case directory
+  [OK ] (2) driver copies d8r_runScript.py -> exists in the case directory
+  [OK ] (2) driver copies d8r_run_arm.sh -> exists in the case directory
+  [OK ] (3) driver md5-asserts d8r_of.py, which it also copies
+  [OK ] (3) driver md5-asserts d8r_runScript.py, which it also copies
+  [OK ] (4) launcher stages d8r_of.py, which the driver copies
+  [OK ] (4) launcher stages d8r_runScript.py, which the driver copies
+  [OK ] (5) PLANTED CONTROL: a driver naming d8r_bogus.py FAILS this leg (rc=1):   [BAD] (2) driver copies d8r_bogus.py -> ABSENT from the case directory
+D8R DRIVER-NAMES SELFTEST pass=13 fail=0 2026-08-26T22:52:12Z
+rc=0
+== (B) the FROZEN driver at 357a2648 (the defect), from the git blob
+D8R DRIVER-NAMES SELFTEST 2026-08-26T22:52:12Z driver=/tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d8r_driver_357a2648.sh md5=34982b002393c5cd76a76bbef9d84748
+  [OK ] (1) bash -n d8r_driver_357a2648.sh
+  [OK ] (2) driver copies d8r_aggregate_memory.py -> exists in the case directory
+  [OK ] (2) driver copies d8r_cpuset_overlap.py -> exists in the case directory
+  [OK ] (2) driver copies d8r_decomposeParDict -> exists in the case directory
+  [OK ] (2) driver copies d8r_grade.py -> exists in the case directory
+  [OK ] (2) driver copies d8r_runScript.py -> exists in the case directory
+  [OK ] (2) driver copies d8r_run_arm.sh -> exists in the case directory
+  [BAD] (2) driver copies d8r_xf.py -> ABSENT from the case directory
+  [OK ] (3) driver md5-asserts d8r_runScript.py, which it also copies
+  [OK ] (3) driver md5-asserts d8r_xf.py, which it also copies
+  [BAD] (4) launcher stages d8r_of.py but the driver NEVER copies it
+  [OK ] (4) launcher stages d8r_runScript.py, which the driver copies
+D8R DRIVER-NAMES SELFTEST pass=10 fail=2 2026-08-26T22:52:12Z
+rc=1
+== (C) D17's driver, the same static reading (control: no defect expected)
+  [OK ] D17 driver copies d17_aggregate_memory.py -> exists
+  [OK ] D17 driver copies d17_cpuset_overlap.py -> exists
+  [OK ] D17 driver copies d17_decomposeParDict -> exists
+  [OK ] D17 driver copies d17_grade.py -> exists
+  [OK ] D17 driver copies d17_runScript.py -> exists
+  [OK ] D17 driver copies d17_run_arm.sh -> exists
+  [OK ] D17 driver copies d17_xf.py -> exists
