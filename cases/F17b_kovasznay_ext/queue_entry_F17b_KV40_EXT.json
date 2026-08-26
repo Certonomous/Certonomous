@@ -1,0 +1,32 @@
+{
+  "team": "cfd",
+  "case_id": "F17b_KV40_EXT",
+  "prereg_commit": "9b354fadbc8bc7d678f23900d4c2e0cd7cb757fc",
+  "prereg_path": "verification/campaign/F17b_KV40_EXT_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F17b_kovasznay_ext/run_f17.sh",
+    "--prereg-commit=9b354fadbc8bc7d678f23900d4c2e0cd7cb757fc"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/F17b_kovasznay_ext",
+  "ranks": 1,
+  "cost_core_min_estimate": 32.1,
+  "cost_basis": "derived, not measured on these levels: rate MEASURED on the byte-identical parent case F17 (verification/runs/F17_runs/{coarse,medium,fine}/log.simpleFoam, ClockTime 3 / 11 / 58 s for 1536 / 6144 / 24576 cells x 4000 iterations = 0.49 / 0.45 / 0.59 us per cell-iteration), applied at 0.59 us to the 192x128 level (the same grid as F17's fine, 58 s) and grown +30 % per doubling (measured medium->fine growth +32 %) to 0.77 us at 384x256 (302 s) and 1.00 us at 768x512 (1568 s): 1928 s serial = 32.1 core-min; registered CAP 150 core-min (prereg section 8); dollars at the owner-stated $0.0513/core-h, reported-by-owner: $0.027 estimate, $0.128 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+  "memory_floor_gb": 3.0,
+  "enqueued_by": "cfd lab-lane, 2026-08-26, for cfd-supervisor. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 (pre-registration committed before compute) is the supervisor's own and is NOT discharged by this file. HELD under the case directory; the supervisor drops it into verification/queue/cfd/ after check 1/4 -- this lane does not.",
+  "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
+  "lineage": "ladder EXTENSION of F17_KV40 (prereg 4ad083fbd76d9e75bdf33963e5bfba787291e51d, graded PASS/PASS 2026-08-26 at 1.2 core-min); case definition, builder, io module and every gate block byte-identical to F17 (prereg section 1); model solved on 96x64 + 192x128 and extrapolated at order 2.002 (prereg section 4)",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F17b_runs -- ABSENT at registration (rule-2 absence condition, prereg section 9); the launcher creates it and REFUSES any pre-existing 0/ or numeric time directory under it.",
+  "cwd_note": "cwd is the CASE directory (the tracked template case/0 is not a direct child). The launcher uses absolute paths and ignores cwd. A queue runner's wrapper writes launcher.queue.out and STATUS.F17b_KV40_EXT into cwd; both are INFRASTRUCTURE fields under L-342 and untracked.",
+  "levels": "coarse 192x128 / medium 384x256 / fine 768x512, 4000 SIMPLE iterations each, all SERIAL 1 rank, decomposePar never invoked, decomposition seed none; projected serial 58 / 302 / 1568 s; wall ~32 min at the estimate, ~2.5 h at the cap",
+  "memory_floor_note": "3.0 GB = the grader's own sparse model solve at 192x128, 2.89 GB RSS MEASURED in the writing invocation; simpleFoam serial at 393k cells estimated < 1 GB; disk ~2.4 GB of checkpoints for the ladder",
+  "cap_core_min_registered": 150.0,
+  "cap_behaviour": "checked incrementally after each level in ClockTime x ranks / 60 and PROJECTED before each level from the launcher's own box probe; a crossing HALTS at exit 3, unlaunched levels stay PENDING; the cap is never raised",
+  "registered_prediction": "both triples CONVERGING with observed order p ~ 2 (model 2.002); G-F17-1 E2_fine in [2.299887e-06, 2.069898e-05]; G-F17-2 u(0.5,0)/U0 in [0.382362147, 0.382383493]; the probe-interpolation limit is quantified in prereg section 5.1 (both live predictions inside)",
+  "grade_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/cases/F17b_kovasznay_ext/grade_f17.py",
+    "--prereg-commit=9b354fadbc8bc7d678f23900d4c2e0cd7cb757fc"
+  ],
+  "verdict_state": "PENDING"
+}
