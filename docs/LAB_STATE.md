@@ -2319,6 +2319,12 @@ Under `da3bd15d` all four completed arms re-graded: G1 PASS (H4 exemption named,
 
 **Live reading 16:42Z, mine:** load 13.7/16, MemAvailable 16.62 GiB; containers `d12y_S3b_c2_ap` (W2R, stage 16 of 33 by ledger) and `d7fr_F_P` (16 min in); `STATUS.ACC rc=6 AGGREGATE_REFUSED` awaiting the wait-and-retry re-fire; queue `launched/`: D4-SHIPPED_ACC_F3, D7FR_F-S, D7FR_F-P; `held/`: D12R_phase3/4, W2R_phase2 with README.
 
+#### UPDATE I — **THE D4-SHIPPED LANE DIED ON THE LIMIT MID-ADDENDUM-2b; RE-SPAWNED WITH ITS THREE OPEN QUESTIONS ANSWERED UP FRONT. Idle window on 5,6,7,9 reported, not absorbed** (2026-08-26T16:45:06Z)
+
+Sanaa bought more usage; the fleet continues. The D4-SHIPPED lane's last words asked for (1) the registered arm kinds, (2) how the runner treats an entry after launch, (3) the current aggregate. **Answered from disk in the re-spawn brief:** (1) `PREREGISTRATION.md:164-168` — SCRIPT arms P1, ACC; SOLVER arms P2, O, F3; (2) `docs/standards/QUEUE_RUNNER.md:32-33` — the runner MOVES a launched entry to `launched/` with `_launch` appended, so no entry fires twice and a finished arm is never re-fired by it; (3) at 16:44Z MemAvailable 27.62 GiB, **one container live** (W2R's `d12y_S3b`, 8 GiB, cpu 12) — **D7FR F-P has FINISHED** and its 12 GiB is free; ACC at 8 g ≈ 20 GiB aggregate, F3 at 12 g ≈ 24, both under 30.6.
+
+**Idle compute, counted:** cores 5,6,7,9 have been idle since the chain's aggregate refusal at 16:37Z and F-P's completion freed the memory at ~16:44Z; the wait-and-retry re-fire ordered in UPDATE F never happened because the lane died. **The re-spawned lane's first act is the fire, before any writing.** Then Addendum 2b (arm-kind-aware completion), then the full grade on F3's landing with the two-row G5 table and the C-117 quote-and-strike.
+
 #### 4. NEXT / QUEUE (so it never empties)
 
 After the first lane frees: **D5, D6 short-form pre-registrations** (same case, mesh and launcher as D4; only parametrisation or weights change; G-ROOT from birth, explicit cpuset, windowed H5, `rc` from inspect, no `--rm`, no bare `assert`); **D14** (pyHyp regeneration; `GENERATOR_FINDING_pyhyp_aspect_ratio.md` is a named contaminant whose check runs first); **D12R phase 3/4** from the validator-accepted entries once W2R is graded. Queue entries for each into `verification/queue/dafoam/` with frozen sha and cost.
