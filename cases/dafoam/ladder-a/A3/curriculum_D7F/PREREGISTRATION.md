@@ -1,15 +1,20 @@
-# CURRICULUM D7F — PRE-REGISTRATION **v0.9 DRAFT. NOT FROZEN. NOTHING HAS FIRED.**
+# CURRICULUM D7F — PRE-REGISTRATION **v1.0. FROZEN. NOTHING HAS FIRED AT THIS COMMIT.**
 
 **A NEW ITEM. It gives A3 an FD table at arm `O`'s endpoint by applying D4's LANDED `D4-DEF-4`
 repair.** Date drafted: 2026-08-26. Lane: dafoam `lab-lane`, on the dafoam-supervisor's direction
 of 2026-08-26.
 
-> ## THIS DOCUMENT IS **NOT FROZEN** AND **NO CONTAINER HAS STARTED.**
+> ## FROZEN AT THIS COMMIT. **NO CONTAINER HAS EVER BEEN CREATED FOR THIS ITEM** (§12).
 >
-> It is committed **before** compute so the supervisor can read the plan and the instrument set as a
-> diff, which is their non-delegable check. **§13 names exactly what is missing, and the item may not
-> be frozen or fired until those items exist and this line is struck.** A lane does not freeze an
-> item whose `LIMIT 1` precondition instruments have not been written.
+> **v0.9 DRAFT was committed at `01e30d85` and is superseded by this version, not rewritten** — the
+> draft's §13 named five blockers and this version discharges them one by one in §13. The freeze is
+> this document's entire evidentiary content: it proves the gates, thresholds, caps and labels below
+> could not have been chosen to fit an answer, because at this commit there is no answer.
+>
+> **The whole grading path is frozen WITH the document, in the same commit** (§14): the grader, the
+> two repair instruments, the two acceptance instruments and the launcher, each by md5. **And the
+> grader CHECKS ITS OWN CAPS AGAINST §7 OF THIS FILE and refuses on any disagreement** — the repair
+> for `D7R-GRADER-DEF-6`, applied at its cause.
 
 ---
 
@@ -147,8 +152,12 @@ line that writes it. A freeze is not legal until every cell below is filled and 
 | `d7_endpoint_dvs_DRIVERSCALED.json` | `H3`, the record | **`X`** | `d7f_endpoint_physical.py` C4 |
 | `d7_endpoint_dvs_PHYSICAL.json` | `H3`, `d7_fd_endpoint.py` | **`X`** | `d7f_endpoint_physical.py` C8 |
 | `d7_endpoint_dvs.json` | `d7_fd_endpoint.py:134` | **`X`** | `d7f_endpoint_physical.py` C9 |
-| `d7_major_history.json` | `G2` bands A/B, `G4` cross-check | **`X`** | the **frozen** `d7_extract_endpoint.py`, invoked at C3 |
-| `opt_IPOPT.txt`, `OptView.hst` | `G1` age guard, `G3`, `G4` | **inherited from D7R arm `O`** — gate `H4`, §5 | staged, never re-run |
+| `d7_major_history.json` | `G2` bands A/B, `G4` cross-check | **`X`** | the **frozen** `d7_extract_endpoint.py`, invoked at C3 — **VERIFIED: `d7_extract_endpoint.py:21` writes it** |
+| `opt_IPOPT.txt`, `OptView.hst` | `G1` age guard, `G3`, `G4` | **inherited from D7R arm `O`** — gate `H4`, §5 | `d7f_run_arm.sh` `stage_endpoint()`, by md5 |
+| `_final_CD` / `_final_CL` in the DV artifact | **`ACC-1`'s target cross-check** | **`X`** | the **frozen** extractor's `out["_final_" + short]`, `d7_extract_endpoint.py:68`, carried through the wrapper's C8 `dict(scaled_doc)` |
+| `d7f_accept_primal.json` | `ACC-1` | **`ACC`** | `d7f_accept_primal.py`, rank 0, fsync |
+| `d7f_accept_verdict.json` | the `F-S`/`F-P` launch gate (`LIMIT 1`) | **`ACC`** | `d7f_accept_compare.py --out` |
+| `d7f_locus_gate.json` | `H3` | **`X`** | `d7f_endpoint_locus.py --gate` |
 | `d7_fd_endpoint.json` | `G5` (the bright line), `G6`, `G6b`, `G7` | **`F-S`, `F-P`** | `d7_fd_endpoint.py` |
 | `d7_decomp_A/B.json` | `G8` | **`P1`** | launcher `P1` branch |
 | `d7_placement_rank*.json` | `G12` | every arm | launcher, each branch |
@@ -161,7 +170,18 @@ md5s — becomes reachable for the first time in this family's A3 line**, becaus
 
 **FALSIFIER `F-SAT`, registered here:** if, at the moment of freezing, any cell of the table above
 is unfilled, **THE ITEM IS NOT FROZEN.** This is checked by re-reading the launcher, not by
-recalling it.
+recalling it. **DISCHARGED AT THIS COMMIT: every cell is filled and the launcher was re-read to fill
+it.**
+
+> **AND THE TABLE EARNED ITS KEEP BEFORE THE FREEZE, WHICH IS THE POINT OF HAVING IT.** While
+> filling the `_final_CD` row I could not find that string anywhere in `d7_extract_endpoint.py` and
+> was one step from recording that `ACC-1` could never grade — **the same `D7R-DEF-8` shape,
+> reproduced inside its own repair.** It resolves the safe way: line 68 builds the key by
+> *concatenation*, `out["_final_" + short]` for `short in ("CD", "CL")`, so a literal search for
+> `_final_CD` finds nothing while the key is written on every run. **D4's own landed acceptance
+> artifact carries `endpoint_final_CD_from_history: 0.021125978108239574`, which is D4's `CD_OPT` to
+> all digits — the chain is not merely plausible, it has run once.** Recorded because the near-miss
+> is the evidence that the table is a check and not a formality.
 
 ---
 
@@ -192,9 +212,24 @@ for band C to gate.**
 
 ## 5. GATES
 
-`G1`–`G13` are graded by the committed `../curriculum_D7/d7_grade.py`, md5
-**`10eb6d0928addc56272854f017e01538`** — **subject to §6's KNOWN LIMITATIONS, which are declared
-before compute rather than discovered after it.** Three gates are added:
+`G1`–`G13` are graded by **`d7f_grade.py`**, this item's own port, md5
+**`923662ef398ca229cc3734699670418a`** (§14) — **not** D7's blob, and §6 says exactly what changed
+and why. **`G10` IS SPLIT INTO TWO LIMBS AND THE SPLIT IS REGISTERED HERE, BEFORE COMPUTE:**
+
+| limb | what it checks | disposition |
+|---|---|---|
+| **`G10` LIMB 1** | **`enforced cap == REGISTERED cap`, per arm, READ BACK OUT OF THE LEDGER THE LAUNCHER WROTE**, never from the launcher's claim | **GATES.** It is an integrity check that the launcher enforced what this document registered — the `D7R-DEF-8` / D12R class, a launcher and a document disagreeing, which bit this family three times in one night. `g10_caps`'s `pass` is this limb **and this limb alone** |
+| **`G10` LIMB 2** | **`actual ≤ cap`** | **REPORTED, GATES NOTHING.** Under §7's reporting-cap design this limb **is** the runaway guard, and a runaway guard that hard-fails a grade contradicts its own purpose. Precedent for registering a reported-not-gating channel in advance: D4's `ACC-2` (*"REPORTED, GATES NOTHING, exactly as registered"*) and D12R2's steady-stage step proxy (*"recorded and REPORTED, never gated"*) |
+
+> **NON-GATING IS NOT NON-REPORTING, AND THAT IS THE HAZARD ATTACHED TO IT.** *A printed discrepancy
+> labelled "diagnostic only" is worse than one never computed.* **Every limb-2 crossing is reported
+> with its number in core-minutes AND in derived dollars, in the RESULTS headline and in the cost
+> calibration row — never in a footnote and never as a bare "within tolerance".** The grader emits it
+> under the key `LIMB2_REPORTED_NOT_GATING__CARRY_INTO_HEADLINE`, so a reader who lifts `G10`
+> cannot lift it without seeing the crossing and a lane that omits it has dropped a key whose own
+> name says it may not be dropped. **A quiet overrun is a defect.**
+
+Three gates are added:
 
 | gate | threshold | refusal |
 |---|---|---|
@@ -202,24 +237,38 @@ before compute rather than discovered after it.** Three gates are added:
 | **`H4`** | the `OptView.hst` and `opt_IPOPT.txt` arm `X` reads were produced by **D7R arm `O`**, identified by md5 against `CURRICULUM-D7R-a3-m6-cdmin/O/`, and are **strictly older** than this item's launch datum while every artifact **derived** from them is strictly newer | `ENDPOINT_PROVENANCE` — refuses an unattributed or re-run endpoint. **The age guard runs in BOTH directions here and that is deliberate: an inherited input must be OLD, a produced output must be NEW, and one rule cannot say both** |
 | **`ACC-1`** | **`LIMIT 1`.** One primal at the corrected physical design point reproduces arm `O`'s IPOPT objective `CD = 2.3048932443550496e-02` to **≤ 1e-3 relative** | the repair is **NOT FROZEN** and no FD number from it is graded. D4's own ACC-1 measured `2.34e-4` against this same band with a planted-zero control that PASSED |
 
-**`ACC-1` IS A PRECONDITION OF THE FREEZE, NOT A FOLLOW-UP.** Two controls that grade nothing say the
-corrected point is *self-consistent with the registration*. **Only a solve says it is the optimum.**
+**`ACC-1` IS A PRECONDITION OF THE FREEZE OF THE REPAIR, NOT A FOLLOW-UP.** Two controls that grade
+nothing say the corrected point is *self-consistent with the registration*. **Only a solve says it is
+the optimum.** **The launcher enforces it mechanically**: arms `F-S` and `F-P` refuse to start unless
+`ACC/d7f_accept_verdict.json` exists and reads `"verdict": "PASS"`.
+
+**GATE `H1` IS NOT CARRIED FORWARD, AND THAT IS A DISCLOSURE, NOT AN OMISSION.** D7R needed `H1`
+because a colouring cache built by one arm was inherited by another and the `.bin.info` sidecar could
+not refuse a foreign one. **This item inherits no colouring: `F-S` and `F-P` each BUILD FRESH, and
+§7 prices the build into BOTH of them at 24.2 core-min each.** The price of dropping the gate is
+24.2 core-min on arm `F-P`; the gain is one whole class of provenance risk removed. **A gate dropped
+is disclosed; a gate quietly omitted is a defect.**
 
 ---
 
-## 6. KNOWN INSTRUMENT LIMITATIONS, DECLARED BEFORE COMPUTE
+## 6. THE THREE INHERITED GRADER DEFECTS — **REPAIRED AT THEIR CAUSE, NOT DECLARED AWAY**
 
-**D7R §5 claimed gates were "inherited unchanged". That was true of the logic and FALSE of three
-thresholds, and this item does not repeat the claim.**
+**D7R §5 claimed its gates were "inherited unchanged". That was true of the logic and FALSE of three
+thresholds, and this item does not repeat the claim — it ports the instrument and fixes it.**
 
-| id | what | how this item handles it |
+**The v0.9 draft asked the supervisor to assent to declaring `G10` non-binding. THE SUPERVISOR
+REFUSED THE DECLARATION AS FRAMED AND WAS RIGHT TO** (ruling 3, 2026-08-26): *"declaring a gate
+non-binding because your instrument carries the wrong numbers is repairing the RECORD instead of the
+INSTRUMENT, and it would trade a five-minute fix for a permanent blind spot."* **This item is a new
+item porting a new instrument; no frozen file stood in the way; the remedy for a wrong constant is
+the right constant.**
+
+| id | what it was | what this item did |
 |---|---|---|
-| **`D7R-GRADER-DEF-6`** | the frozen grader hard-codes **D7's** `CAPS = {P1 8.0, P2 60.0, O 600.0, F-S 130.0, F-P 130.0}` and `ITEM_CEILING_CORE_MIN = 928.0` | **`G10` IS DECLARED NON-BINDING FOR THIS ITEM IN ADVANCE.** Its `cap_matches_registered` limb compares against D7's numbers and **will read false**; that reading is an instrument-provenance artifact and **is not a budget finding**. The binding caps are §7's, checked by the launcher against the ledger it wrote. `G10` is **not** a hard gate in `map_verdict`, so nothing rests on it |
-| **`D7R-GRADER-DEF-7`** | `g1_completion`'s docstring names three clauses and implements two — no terminal-log check exists in it | **`G1` is recorded `NOT ESTABLISHED` as named**, one-way (it may only remove a `PASS`). The terminal clause is enforced **by the launcher** — `rc`, an `End` line, and a `.log.ok.<stamp>` marker — and the record says which instrument did it. Detectable henceforth by `scripts/check_docstring_clauses.py` (**L-335**) |
-| **`D7R-GRADER-DEF-5`** | the `--selftest` exit contract the file documents ("exit 3, used by nothing else") is not the one it has: success returns **0**, the same code a clean grade returns | **the selftest's result is read from its STDOUT `D7_SELFTEST units=… passed=… failed=…` line and from the ABSENCE of an `--out` file, never from its exit code.** Registered here so no reader of this item's record infers a grade from an exit 0 |
-| **`D7R-DEF-8`** | the launcher/grader artifact mismatch | fixed by §3's table, checked cell by cell before the freeze |
-
----
+| **`D7R-GRADER-DEF-6`** | the ported grader hard-coded **D7's** `CAPS = {P1 8.0, P2 60.0, O 600.0, …}` and `ITEM_CEILING = 928.0` against D7R's registered 900.0 and none, so `g10_caps` read `overrun_core_min: 332.533` against a threshold that was never D7R's | **REPAIRED AT ITS CAUSE.** `d7f_grade.py` carries **this item's** `CAPS`, `CEILINGS` and `PREDICTED`, and `ITEM_CEILING_CORE_MIN` is **derived by `sum(CEILINGS.values())`, not typed.** And they are **CHECKED, NOT COPIED**: `assert_caps_against_document()` parses **§7 of this file** and REFUSES on any disagreement. **Measured at the freeze: 15 values checked (5 arms × cap, ceiling, prediction), all agreeing.** Driven both ways — moving one cap by 1.0 in a copy of this document makes it refuse and name the arm and the field; an unparseable document makes it refuse by count (L-302). An arm with no registered cap **refuses** rather than being skipped |
+| **`D7R-GRADER-DEF-7`** | `g1_completion`'s docstring named three clauses and implemented two; in that whole 74,338-byte file the string `End` occurred **exactly once — inside the docstring that claimed the check** | **REPAIRED.** The terminal clause is now executable: it reads the **producer's own log FILE** — not the ledger's summary of it — and requires an `End` line **and** the `.log.ok.<stamp>` marker. **Driven in both directions in the selftest**, each mutant first asserting *that the mutation applied* so no unit can pass vacuously: marker removed → fails; `End` removed → fails; log absent → fails and is **not read as clean**; restored → passes again, so the clause is not a one-way switch. **`scripts/check_docstring_clauses.py` (L-335) reports `d7f_grade.py:g1_completion` as `RC_ZERO OK / LOG_TERMINAL OK / AGE_GUARD OK`, 0 alibis — against `d7_grade.py:g1_completion`'s 1 alibi, run side by side** |
+| **`D7R-GRADER-DEF-5`** | the `--selftest` exit contract the file documents ("exit 3, used by nothing else") is not the one it has: success returns **0**, the same code a clean grade returns | **NOT repaired, and handled instead — because changing an exit contract is the kind of change that breaks a caller silently.** The selftest's result is read from its **stdout** `D7F_SELFTEST units=… passed=… failed=…` line and from the **absence** of an `--out` file, **never from its exit code**, and this record says so before compute so no reader of it infers a grade from an exit 0 |
+| **`D7F-ACC-DEF-1`** | **found while porting, and it is a `-O` exposure**: D4's landed `d4_accept_compare.py:199` guards its verdict vocabulary with a bare `assert verdict in VOCAB`, and **`python3 -O` deletes it** — so under `-O` nothing stands between that instrument and a token outside `CLAUDE.md` rule 1's fixed vocabulary | **REPAIRED IN THIS PORT ONLY.** `d7f_accept_compare.py` raises a real refusal instead. **D4's frozen file is NOT edited** and the finding is reported to the supervisor. `ast.Assert` nodes across all five of this item's new instruments: **0** |
 
 ## 7. ARMS, CAPS, CEILINGS AND COST — priced from **D7R's own measured arms**
 
@@ -311,6 +360,15 @@ are registered separately so neither is mistaken for the other.
 * **`F-P` blocked or `rc≠0`** → **not a two-row verdict**, said in the headline.
 * **The grader refuses again on real artifacts** → a finding **before** any regrade, and §3's table
   is what will have been wrong.
+* **`F-XCHK`, registered because it cannot be tested before compute.** `d7f_accept_compare.py`
+  cross-checks its typed `CD_OPT` against the `_final_CD` the frozen extractor selected, at `1e-15`
+  relative, and **refuses** on a mismatch — so a typo in the comparator cannot pass silently. **The
+  extractor takes the LAST row of `OptView.hst`, and D7R's arm `O` log prints CL values from
+  post-optimisation evaluations AFTER the IPOPT summary.** If the history's last row is one of those
+  rather than the final major, `_final_CD` will not equal `2.3048932443550496e-02` and **`ACC-1`
+  will refuse.** That refusal is **a finding about which row the extractor selects**, recorded
+  before any regrade, and **the tolerance is not widened to admit it.** It cannot be settled before
+  compute because reading `OptView.hst` requires `pyoptsparse`, which lives only in the container.
 
 ## 11. PREDICTIONS, REGISTERED BEFORE COMPUTE
 
@@ -323,33 +381,82 @@ are registered separately so neither is mistaken for the other.
 | `C5` | `G5` **PASSES** band D on at least 4 of 5 components. **Registered as UNLIKELY-to-be-clean on `shape[115]`**, which A3 rung 2 measured at `0.0172 % → 0.1586 %` and rung 1 at `0.9273 % → 0.3826 %` — **the same component has moved in opposite directions on two rungs of this ladder** |
 | `C6` | `F-S` and `F-P` return **DISTINCT** `.so` md5s and `G9` passes for the first time on this A3 line |
 
-## 12. CONDITION AT DRAFTING, AND HOW IT WAS CHECKED
+## 12. CONDITION AT THE FREEZE COMMIT, RE-TAKEN HERE AND NOT CARRIED FROM THE DRAFT
 
-| check | reading |
-|---|---|
-| run root `/home/ubuntu/certonomous-runs/CURRICULUM-D7F-*` | **does not exist** |
-| any `d7f_*` container | **none has ever been created** |
-| arm directories | **0** |
+**Re-taken at 2026-08-26T03:53:44Z, not copied from v0.9** — a condition check carried forward
+from a draft is a memory of a check, not a check.
+
+| check | command | reading |
+|---|---|---|
+| run root `/home/ubuntu/certonomous-runs/CURRICULUM-D7F-a3-m6-fd` | `ls -d …CURRICULUM-D7F* \| wc -l` | **0** — does not exist |
+| containers named `d7f_` | `sudo -n docker ps -a --filter name=d7f_` | **0** — none has ever been created |
+| arm directories `P1 X ACC F-S F-P` | — | **0 of 5** |
+| any `*.log` under the run root | — | **0**, there being no run root |
 
 ---
 
-## 13. WHAT IS MISSING BEFORE THIS MAY BE FROZEN OR FIRED — **THE HONEST LIST**
+## 13. THE FIVE v0.9 BLOCKERS, DISCHARGED ONE BY ONE
 
-**This document is `v0.9 DRAFT` and not `v1.0` because of exactly these, and a lane does not freeze
-past them:**
+| # | v0.9 blocker | disposition at this commit |
+|---|---|---|
+| 1 | `d7f_accept_primal.py` / `d7f_accept_compare.py` NOT WRITTEN — `LIMIT 1` is a precondition of the freeze | **WRITTEN AND DRIVEN.** Ports of D4's landed pair. The comparator was driven on four fixtures: a point 2.0e-4 from arm `O`'s objective → **`PASS`**; one 90 % away → **`GATE FAIL`**; D4's DV counts → **REFUSE `count`**; a falsified cross-check target → **REFUSE `target_crosscheck`**. Identical under `python3 -O`. **The planted-zero control PASSED on every graded fixture** — the reader is shown able to see a non-zero before any zero is believed (`CLAUDE.md` rule 3) |
+| 2 | `d7f_run_arm.sh` NOT WRITTEN | **WRITTEN**, `bash -n` clean, §3's table wired arm by arm, §7's caps in its own table, gate `H4` by md5, the cold guard extended to refuse a stale `d7_endpoint_dvs*.json` or acceptance artifact, and **`F-S`/`F-P` refusing to start unless `ACC-1` reads `PASS`** |
+| 3 | declaring `G10` non-binding needed the supervisor's assent | **THE DECLARATION WAS REFUSED AND SOMETHING BETTER WAS RULED.** `G10` is **SPLIT**: LIMB 1 gates, LIMB 2 is reported-not-gating (§5), and `D7R-GRADER-DEF-6` is repaired at its cause rather than declared around (§6) |
+| 4 | the reporting-cap charter question, unruled | **BOUNDED, NOT ANSWERED — see §13.1** |
+| 5 | §12's readings to be re-taken at the freeze | **RE-TAKEN ABOVE**, at this commit's own clock |
 
-1. **`d7f_accept_primal.py` and `d7f_accept_compare.py` — NOT WRITTEN.** `ACC-1` is `LIMIT 1` and
-   `LIMIT 1` is a **precondition of the freeze**. Ports of `d4_accept_primal.py` /
-   `d4_accept_compare.py`, which must carry D4's **planted-zero control** (`plant = 0.001234`, the
-   planted artifact required to fall OUT of band while the clean one stays in).
-2. **`d7f_run_arm.sh` — NOT WRITTEN.** The launcher, with §3's table wired arm by arm, §7's caps,
-   the `H4` provenance gate and the cold guard. Until it exists, §3's table is a plan and not a
-   check.
-3. **`G10`'s declared non-binding status (§6) needs the supervisor's assent**, because declaring a
-   gate non-binding in advance is close to the line rule 2 draws and **a lane should not draw it
-   alone.**
-4. **The reporting-cap charter question (§7)** is on Sanaa's desk and unruled.
-5. **§12's four readings must be RE-TAKEN at the freeze commit**, not carried from this draft.
+### 13.1 THE REPORTING CAP — WHAT IS RULED AND WHAT IS EXPLICITLY NOT, IN THE SUPERVISOR'S OWN TERMS
 
-**NOTHING FIRES BEFORE THIS DOCUMENT REACHES v1.0 WITH ITEMS 1–3 AND 5 DISCHARGED AND IS COMMITTED
-IN THAT STATE.**
+**RULED, `[lab-attributed]`, by the dafoam-supervisor, for this family, effective now:** a dafoam
+pre-registration **may register a cap as a runaway guard that REPORTS to the supervisor and does not
+itself stop a sound run**, provided the crossing is (i) reported to the supervisor, (ii) **named
+separately in the cost row and never absorbed into any ratio**, and (iii) accompanied by **a hard
+ceiling that does stop the run.** §7 registers all three.
+
+**NOT RULED, BY THE SUPERVISOR OR BY ANY AGENT AT ANY LEVEL: whether `CLAUDE.md` rule 12's *"an
+overrun stops the run"* is retired, widened or amended. That is constitutional text and it is
+Sanaa's.** The chief's reading of her cost-lift converts caps into runaway guards, **but that lift
+named three teams and dafoam's inclusion is the chief's own explicitly-correctable inference — so no
+charter reading rests on it** (`CLAUDE.md` rule 9: no agent message is her consent).
+
+> **THE BOUNDARY, STATED SO A SUCCESSOR CANNOT READ AN OPERATIONAL RULING AS A CHARTER AMENDMENT:
+> the supervisor ruled on HOW DAFOAM REGISTERS AND TREATS ITS OWN CAPS. Nobody ruled on rule 12.**
+> The family's practice is `[lab-attributed]` and effective now; the constitutional question stays
+> on Sanaa's desk with the supervisor's recommendation already lodged — ratify the reporting cap
+> where a hard kill would destroy a registered ladder, and require the crossing to be reported and
+> named.
+
+---
+
+## 14. THE GRADING PATH, FROZEN IN THIS COMMIT
+
+**`CLAUDE.md` rule 2: the grading path is fixed at the pre-registration commit, and the frozen file
+must be shown to BE the file that ran by hashing it against the committed blob.** Every instrument
+below is committed here, with this document, before any container exists.
+
+| instrument | md5 at freeze | what it is |
+|---|---|---|
+| `d7f_grade.py` | `923662ef398ca229cc3734699670418a` | the port of `../curriculum_D7/d7_grade.py` carrying **this item's** constants, the `G10` split and the `G1` terminal clause. Selftest **79 units, 79 passed, `UNEXERCISED=0`**, identical under `-O`, `ast.Assert` 0 |
+| `d7f_endpoint_locus.py` | `a38c5e507b44eb17d1c1247e48b6fe0a` | `CONTROL P` and `CONTROL B`, carried byte-for-byte from D4's landed instrument. Selftest **22/22**, identical under `-O` |
+| `d7f_endpoint_physical.py` | `7be14b7d5568a6e79afa3bdd7c612749` | the `D7-DEF-4` repair wrapper. **Edits zero frozen bytes** |
+| `d7f_accept_primal.py` | `65baf532bcc2fdbe6a20a92dcd1a596b` | `LIMIT 1`'s primal at the corrected point |
+| `d7f_accept_compare.py` | `a4b4eb3d81bf0e4ed9f20dd673b759df` | `ACC-1`, with the planted-zero control and the target cross-check |
+| `d7f_run_arm.sh` | `3510f4b18a330ece850834f5e935b9b3` | the launcher. Asserts **all six** instrument md5s plus the two endpoint md5s before every launch and aborts on a mismatch |
+
+**INHERITED AND ASSERTED, NEVER COPIED** — the launcher re-checks each against the committed blob
+before every launch:
+
+| inherited instrument | md5 | source |
+|---|---|---|
+| `d7_opt_runScript.py` | `e43902ed2cfc99022c6e21e075f88695` | `../curriculum_D7/` |
+| `d7_extract_endpoint.py` | `651d40c78cc52288a856934c108d1334` | `../curriculum_D7/` — **carries `D7-DEF-4`, and is corrected DOWNSTREAM, never edited** |
+| `d7_fd_endpoint.py` | `92b3fa8d20a41da029590ed3bdde4203` | `../curriculum_D7/` |
+
+**GATE `H4`'s endpoint identifiers**, from D7R arm `O`:
+
+| artifact | md5 |
+|---|---|
+| `OptView.hst` | `ed90aa4f0a38b2fadf93cdc0b601ec41` |
+| `opt_IPOPT.txt` | `175969fb3e4fa609af708f4f49aa4a6a` |
+
+**FROZEN. Nothing fires before this document and every instrument above are committed.**
