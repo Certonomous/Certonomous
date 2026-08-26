@@ -1,0 +1,5 @@
+T5_CUBE_c: done=True -- all clauses hold
+T5_CUBE_m: done=False -- no STATUS file: nothing ran, or the launcher died before writing one
+T5_CUBE_f: done=False -- no STATUS file: nothing ran, or the launcher died before writing one
+
+No case has run: no rows are graded and no verdict is written.

@@ -1,8 +1,8 @@
-case=T5_CUBE_c
+case=H_c
 rc=0
-wall_s=965
+wall_s=994
 ranks=1
-core_min=16.083
+core_min=16.567
 timeout_s=8208
 capped=0
 checkMesh_rc=0
