@@ -4534,6 +4534,24 @@ K0f (PENDING, five arms live) · T4 (landed, grading) · T1b L4 ext1 (landed, gr
 **Refill state at this write:** K0f five arms at ~10 000 / 40 000 (≈6 it/s, landing ≈17:45Z); load 10.9; 25 GB free; **the runner reports EMPTY since 16:22Z — waiting on this team's T5 entries (X_2d, C, H_c), which the T5 lane drops the moment its builder and checkers land.** T5 M / arms / F, `R_ff`, T10aR2, T4b are the next four entries in that order.
 
 
+#### 12. FOURTH ROUND — `R_ff` ENQUEUED (HELD by the band, correctly); T5 BUILT BUT NOT LAUNCHABLE AS FROZEN — five pre-compute rulings; a runner defect that fabricates `rc=0`
+
+**`R_ff` in the queue.** Check 4 performed by me on `32980e09` (AMENDMENT 1: grading path frozen — `analyse_t3_rff.py` blob `44e3e2b8`, `mark_done_t3_rff.py` `9436399f`, both verified at that sha; worktree identical). Entry `verification/queue/heat-transfer/T3_R_ff.json` ACCEPTED 16:29Z; runner **HELD** it at 16:30Z (*12.4 busy + 8 ranks > 0.9 × 16*) — the band doing its job; it fires when K0f's five retire (≈17:45Z).
+
+**T5 — `89d38653` / `b98f3930` / `c0da599a`: reference slot, 200-file instrument + case commit, launch record.** Built and checked: X_2d 30 000; C 52 684 air + 869 epoxy; M 212 942 + 3 272; F 882 024 + 14 507; H_c, P_m, L_m built; S_m refuses by design until M's surface T exists. All four owed instruments selftest under both interpreters, asserts CLEAN; provenance clean on 7/7. **Zero core-minutes on the rung.** The runner launched `T5_X_2d` at 16:28:57Z and **the frozen `run_one_t5.sh` refused at zero compute** (*"no 0/**/T, so the age guard has no datum"* — a simpleFoam precursor has no T). Correct refusal, not worked around.
+
+**MY TRIAGE, `[lab-attributed]`, all pre-first-compute and therefore legal under rule 2; every instrument diff comes to me before it is believed:**
+1. **The frozen digitiser REFUSED all three thesis figures** (5.45 p.160, 5.37 p.149, 5.39 p.151): closed box frames, inward ticks, line-connected series — its 0.2514 % control was an open-frame isolated-marker raster and does not transfer. **No value was eyeballed in; every graded row is BLOCKED under §7.5(3) until the reference exists.** Remedy: pre-compute amendment to `digitise_t5.py` with a closed-frame planted control and re-measured uncertainty, **by a lane other than the builder (§10 separation, which the T5 lane disclosed it did not meet)**; the reference JSON is committed before any GRADED case starts. X_2d is ungraded and may run first.
+2. **Launcher:** a NEW precursor wrapper with a `0/U` age datum (frozen file untouched); and **C/M/F/arms run SERIAL** — F15's decomposition-confound ruling; core-min unchanged, wall longer; the §11 nProcs lines superseded visibly.
+3. **`analyse_t5.py` `YPLUS_WALLS` names `cube_side_s`, absent on the registered half domain** — a y+ gate that returns `NOT A RESULT` by construction. Patch-name amendment, no threshold or logic moves; I read the diff.
+4. **`T5_CONFIGURATION_RULING.md` (matrix) contradicts the frozen registration (single cube).** The frozen file stands; the matrix becomes a separate rung. Disclosed, not rewritten.
+5. **Air regions fail checkMesh on small-determinant cells; aspect 133–140 against §5.4's expected 30–70.** Whether that is a registered precondition or an expectation is being established from the clause, not guessed; a precondition means a rebuild before launch.
+
+**FOR THE CHIEF AND cfd — a runner defect that fabricates the pass limb.** After the refused launch the runner wrote **`X_2d/STATUS.T5_X_2d: rc=0`** — it trusted the self-detaching parent's return code, the exact `setsid` trap this team measured at 04:05Z. **A STATUS with `rc=0` and no solver run is on disk.** Left in place (inspect, never revert), named as bookkeeping-only in T5's amendment, and `mark_done_t5.py` is being verified to return NOT DONE on it regardless of rc (L-342: physics fields absent). **Every team's queue entries are exposed to this until the runner captures rc from `STATUS.<case>` written inside the wrapper, never from the launcher's exit.**
+
+**Also disclosed from the lane:** `check_launcher_can_launch.py` one-iteration arm FAILS on the real C (*"Need at least 3 non-collinear points for planar interpolation"* — the inlet reads `boundaryData` that exists only after the X_2d map), so C cannot be armed before X_2d lands and `map_inflow_t5.py` runs; the only throughput on record is a scratch smoke of C-sized dictionaries at 3.05e5 cell-it/core-s (fields deleted), 2.6× Model A/B.
+
+
 ### SESSION certonomous-69 — THE THREE SOLVERS ARE NOT HUNG, K0d IS RULED `BLOCKED`, AND §2d.1 IS THE WRONG INSTRUMENT FOR T8
 
 **Sub-section written:** 2026-08-26T03:05Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; this session re-opens none of them.**
