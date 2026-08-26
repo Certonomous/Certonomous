@@ -4363,6 +4363,71 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+### SESSION certonomous-70 — RESUME AFTER THE 05:00Z FLEET DEATH AND A ~15:19Z BOX REBOOT: everything landed, the box is refilled, T11 is the family's first EXACT-tier PASS ×3
+
+**Sub-section written:** 2026-08-26T16:11:20Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. Built from the HEAD blob per L-333; every block below this one is carried byte-for-byte.
+
+#### 0. LIVE READING AT 15:53Z — MEASURED, NOT RELAYED
+
+**The box had REBOOTED (`uptime` 34 min at 15:53Z).** Every detached solver in this territory had already finished before it: **K0f M1_c/M1_m/M1_f/M2_c/M2_f** all `rc=0`, `End`, last time 40000 = `endTime`; **T4_IJ_c/m/f** `rc=0 capped=no` (wall 609 / 3 839 / 22 084 s, ended 04:06Z / 05:00Z / 10:04Z); **T1b L4 ext1 R_10k_x / R_100k_x / R_300k_x** `rc=0` (wall 52 469 / 46 325 / 70 388 s — all under the 1 100 core-min cap at ranks = 1). **T11 had never built a case; T5 had a frozen comparator and launcher but no builder.** Box at **0 % busy, 29 GB free**. Rule-4 check done by me: K0f, T4, T5, T11 and T1b-EXT2 pre-registrations and every instrument in their grading paths are at HEAD and byte-identical in the worktree (blobs 6f9a72b4 / 88db2d8b / 8ad8451e / 2d5934ba / 9d4beec4). The shared index still stages phantom deletions of these files; HEAD is intact; nothing was staged from it.
+
+#### 1. THE REFILL — K0f five remaining arms FIRED 15:57Z, citing Sanaa's launch authority at `bc0e687e`
+
+Governor `compute_stage_count.py --cap 9 --ready 5` → busy 2.16/16, **STAGE 5**. Fired via `scripts/launch_k0f.sh` (solver in the wrapper's foreground, rc captured in-wrapper into `STATUS.<case>`; caller rc never trusted), detachment verified by session id, each at ~100 % of one core:
+
+| case | start | timeout s | solver pid | sid | rate |
+|---|---|---:|---:|---:|---|
+| M2_m | 15:57:36Z | 51 161 | 12544 | 12274 | ~6.4 it/s |
+| B_hi | 15:57:41Z | 51 161 | 12823 | 12553 | ~5.8 |
+| I_hi | 15:57:46Z | 51 161 | 13146 | 12873 | ~6.2 |
+| M1_m_seed | 15:57:51Z | 51 161 | 13483 | 13187 | ~6.7 |
+| C_lam | 15:57:56Z | 38 370 | 13798 | 13528 | ~7.1 |
+
+At 40 000 iterations and ~6.4 it/s the L2 arms land ≈ **17:42Z**; C_lam earlier. Re-measured at this write: **11 solvers live, load 12.22** — the other teams have refilled alongside (box no longer ours to saturate; T5's launches now go through the governor per launch).
+
+#### 2. VERDICTS THIS SESSION
+
+**T11 — `PASS` ×3, EXACT tier, the first clean triple this family has produced.** Amendment 1 at `352aef0d` (pre-first-compute; **`P_MIN` RULED 0.5 by me, `[lab-attributed]`**, not the lane's 0.05 — ground: the registered expectation is p ∈ [1.5, 2.5] at r = 2, so p < 0.5 means adjacent-level errors differ by < 2^0.5 = 1.41×, the "levels too close to resolve an order" state T3 measured; the floor can only move a row INTO `NOT A RESULT`; I read the diff personally twice, blob `ca391ddf`). Launched citing `bc0e687e`, three levels DONE under the strict rule. G1 θ_mean **PASS p = 2.000, GCI 2.85e-07**; G2 x* = 0 **PASS p = 2.000, GCI 1.39e-06**; G3 x* = 1 **PASS p = 2.005, GCI 3.41e-06**; band ±1e-4, utilisation ≤ 6 %; planted-zero control PASS; P1, P2 scored right; the amendment fired on no row. **Cost 0.050 core-min, ratio 0.41 vs POINT 0.123 (overhead-dominated below ~1e3 cells), waste 0 — `C-118` at `6becf266`; $0.00004 derived, not measured.** Control **C-T (P3) is NOT DONE** — not a level the frozen launcher accepts; **launched now through a NEW wrapper under a disclosure-only post-compute amendment**, lane live. Tier: EXACT rungs carry no experimental band; what this earns is V on an analytic reference — the TIER-DEFINITION reading stays Sanaa's.
+
+**K0f — `PENDING`, and correctly so.** `mark_done_k0f.py`: **5/5 finished arms meet the strict completion rule** (DONE markers written 15:58:31Z as designed). `analyse_k0f.py` selftest PASS; the grade **REFUSED rc = 2**: *"5 of 10 DONE markers present; MISSING: M2_m, C_lam, B_hi, I_hi, M1_m_seed"* — the comparator refuses a partial rung (§7.5 / A1.2b). A refusal is the instrument working. **Actual cost of the five: 823.97 core-min vs POINT 507.37, ratio 1.62** (M1_c 1.29, M2_c 1.21, M1_m 1.48, M1_f 1.74, M2_f 1.78) — the fine arms overlapped foreign load before the reboot; contention named, not absorbed; the calibration row is owed at rung completion, not now.
+
+**T4, T1b L4 ext1 — grading lane live** (mark_done → frozen comparators → cost rows). Nothing believed until it returns.
+
+#### 3. K2b CLASS-READ FINDING — RULED `[lab-attributed]`
+
+The lane's end-to-end read (`K2b_CASE_COVERAGE_2026-08-26.md`) stands: **14 of 16 cases covered by name or class; `K2bU3_L050` and `K2bU3_L025` NOT COVERED by any registration.** My two rulings on its stated judgements: rows 13–14 (WSpalding/WLowRe) are COVERED — K2a §6 registers wall-function y+ as a per-case measured precondition and two arms discharge it; row 11 (C3b_noplant) is COVERED as entailed — rule 3 makes the twin part of the control. **Consequence for the two uncovered cases: they are unregistered exploratory compute. They may never serve as Control M, never enter a K2bU3 grading, and any verdict that cites them is `NOT A RESULT`. No retrospective freeze is written. If a coarsening ladder is wanted it is registered fresh as its own rung and re-run.** No K2b row is re-graded; `K2b_PILOT_RESULTS.md` is byte-unchanged; the rung's real exposures remain D378/D379.
+
+#### 4. A CROSS-TEAM INCONSISTENCY, FOR THE CHIEF, NOT SETTLED HERE
+
+cfd's `roache_triple.py` and ansys-verification's VMFL064 amendment (`a7c42398`) use **`P_MIN = 0.05`**; T5 registered 0.05 (float-noise floor); **T11 now uses 0.5.** My position: **the floor is rung-specific and derives from the registered expected order** (a fraction of p_expected — 1/3 here), not a lab constant; 0.05 catches only floating-point noise and admits a "converging" triple whose levels differ by 3.5 %. This is a threshold question across families — **ESCALATION_CHARTER puts it on the chief's desk; I have not touched anyone else's instrument.**
+
+#### 5. LANES LIVE — three, at the cap
+
+| lane | task |
+|---|---|
+| grading | T4 ×3 and T1b ext1 ×3: strict rule, frozen comparators, cost rows |
+| T5 | digitise Figs 5.45/5.37/5.39 (frozen digitiser), write the owed `build_t5.py` / `check_t5_mesh.py` / `launch_t5.sh` / `mark_done_t5.py`, build, provenance + launcher checks, then fire X_2d → C → H_c **through the governor per launch**; M/F wait for C's measured rate and my order |
+| C-T + R_ff | T11 control C-T; then the T3 fourth level `R_ff` **pre-registered, costed, frozen and built — NOT fired** until my order |
+
+#### 6. RUNGS WITHOUT VERDICTS
+
+K0f (PENDING, five arms live) · T4 (landed, grading) · T1b L4 ext1 (landed, grading; NOT A RESULT ×4 already stands from the pool grade — the extension's own registered path decides what moves) · T5 (building) · T11 C-T (P3 REPORTED, running) · T8 (successor unwritten; steady formulation under challenge) · T2/T6/T7/T12 (ACQUIRE-blocked, see the references table below).
+
+#### 7. NEXT ACTIONS
+
+1. Read the grading lane's return; commit the T4 and T1b verdicts here with numbers.
+2. When C_lam and the four L2 arms land (~17:45Z): `mark_done_k0f` on all ten, then the full grade; cost row.
+3. T5: fire M and the arms on C's measured rate; F on 8 ranks only if the governor allows.
+4. Fire T3 `R_ff` the moment K0f cores retire (its registration lane returns first).
+5. New registrations after that, in this order: H-3a T10a ceiling refinement (EXACT, cheap); a Morton–Taylor–Turner EXACT entry rung for T8; a second EXACT transient (T11b) — no paper can block any of them.
+
+#### 8. ON SANAA'S DESK — nothing blocking; the references table below is unchanged
+
+#### 9. BLOCKED
+
+`K0f` P/HOLDS on Blay 1992; T2/T3-P/T6/T12 on the references table. Nothing else.
+
+
 ### SESSION certonomous-69 — THE THREE SOLVERS ARE NOT HUNG, K0d IS RULED `BLOCKED`, AND §2d.1 IS THE WRONG INSTRUMENT FOR T8
 
 **Sub-section written:** 2026-08-26T03:05Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; this session re-opens none of them.**
