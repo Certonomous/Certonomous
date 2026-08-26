@@ -1297,3 +1297,209 @@ plainly rather than dressed as a tightening:
 *Amendment written by a heat-transfer lane on the heat-transfer supervisor's
 reversal of R7 and amendments to R3, R4 and R6, 2026-08-26, before first
 compute. Zero solver core-minutes. Zero verdicts assigned.*
+
+---
+
+# AMENDMENT 2 — 2026-08-26, BEFORE FIRST COMPUTE. Version 1.1 → 1.2.
+
+**lines whose number changed above this section: 0.** Appended at the foot;
+nothing above is edited (standing rule 6). **THE ASSERTION WAS VERIFIED, NOT
+TYPED:** the first **1 299** lines were compared byte-for-byte against the
+committed blob at the captured `HEAD` in this amendment's own committing shell
+invocation, and the comparison was clean.
+
+**IT REGISTERS THE REPAIR OF A GRADING-PATH INSTRUMENT — `launch_k0f.sh` — AND
+IT MOVES A BLOB SHA IN §7.7.** That is why it is an amendment and not a silent
+edit.
+
+## A2.0 The condition, and how it was checked — WITH A PLANTED POSITIVE
+
+Standing rule 2: before first compute, amendments are legal **and must state the
+condition and how it was checked.**
+
+**THE CONDITION: no K0f compute has run.** Attempt 1 fired seven cases and
+**every one died at `exec`**. Checked three independent ways, in the committing
+invocation:
+
+```
+  numeric time directories under K0f_runs      : 0
+  log.solve files containing a "Time = " line  : 0
+  STATUS files reporting wall=0                : 7 of 7   (rc=127 on every one)
+```
+
+**AND THE ZERO IS NOT BELIEVED UNTIL THE READER IS SHOWN ABLE TO SEE A
+NON-ZERO** (standing rule 3, L-337). **The identical three readers were pointed
+at `K0d_runs`, which really did run 40 000 iterations:**
+
+```
+  numeric time directories under K0d_runs      : 4        <- non-zero
+  log.solve files containing a "Time = " line  : 2        <- non-zero
+  last Time in K0d_runs/M1_c/log.solve         : 40000    <- the positive
+```
+
+**A condition statement whose reader cannot see a positive is not a condition
+statement; it is a formatting exercise.**
+
+## A2.1 §2d.1 IS NOT INVOKED, AND THAT IS THE SUPERVISOR'S RULING
+
+**This is a PRE-COMPUTE AMENDMENT.** The supervisor's test, applied for the
+third time tonight and answered consistently: **can the change move a number?**
+
+**It cannot.** Zero iterations ran; no graded value exists; no completion marker
+exists. **Sourcing an environment changes WHETHER THE SOLVER CAN BE FOUND, never
+WHAT IT COMPUTES.** `VERIFICATION_CHARTER` §2d.1 is a narrow exception for a
+grading-path change that **moves a number**, and **invoking it where it is not
+needed stretches it** — the same answer this supervisor gave for T8's
+`assert`→`exit 2` conversion and for T4's glob idiom.
+
+## A2.2 THE DEFECT, AND WHY EVERY ARM OF ITS SELFTEST PASSED
+
+**Attempt 1: seven cases fired, all seven `rc=127 wall=0 checkMesh_rc=na`**,
+`"timeout: failed to run command 'buoyantBoussinesqSimpleFoam': No such file or
+directory"`. **`launch_k0f.sh` sourced NO OpenFOAM environment** — `grep -c
+'etc/bashrc|WM_PROJECT'` returned **0**. A wrapper re-exec'd under `setsid`
+inherits no login shell.
+
+**IT IS AN EXEC FAILURE, NOT A SOLVE FAILURE.** Zero iterations on every arm.
+
+**AND THE rc CAPTURE WORKED — THIS IS ITS FIRST REAL FAILURE AND IT PASSED.**
+`rc=127` was captured truthfully and written atomically, and `checkMesh_rc=na`
+recorded honestly that `checkMesh` was equally unreachable **rather than
+inventing a pass.** The instrument reported its own environment's absence
+correctly; the environment was the defect.
+
+> **WHY NINE GREEN ARMS PROVED NOTHING: EVERY ARM INSTALLED A FAKE SOLVER ON
+> PATH. A LAUNCHER SELFTEST THAT SUPPLIES ITS OWN FIXTURES IS TESTING THE
+> LAUNCHER AGAINST ITSELF.** It proves the code paths and says nothing about the
+> one thing a launcher exists to do — **reach a real solver in a real
+> environment.**
+
+**IT IS THE SAME SHAPE AS THREE FAILURES ALREADY ON THIS RUNG'S RECORD**, and
+the repetition is the finding, not the instance: K0d's `blockMesh` readability
+arm passed while `0/U` was unreadable **because `blockMesh` never reads `0/`**;
+the `-O` lesson, where a passing selftest proves only the clean path **and the
+clean path is exactly the one an evaporated guard still walks**; and T4's
+launcher, which failed the same night on a shell glob matching `0.orig` **with a
+green selftest of its own**. **Two frozen launchers, two green selftests,
+neither able to launch a single real case.** Every one exercised the channel the
+author was thinking about rather than the channel that consumes the artifact.
+
+## A2.3 THE REPAIR, AND THE SECOND DEFECT THE NEW ARM CAUGHT BEFORE IT FIRED
+
+**REGISTERED, three parts, and the refusal is the point rather than the
+sourcing:**
+
+1. **`--foam-bashrc`**, default `/usr/lib/openfoam/openfoam2606/etc/bashrc`,
+   carried across the detaching re-exec. **An absent environment file REFUSES.**
+2. **The solver is RESOLVED and REFUSES if unresolvable** — `command -v` after
+   sourcing, and the run uses the **absolute** resolved path, recorded in STATUS
+   as `solver_path=`. **Sourcing alone would turn a loud 127 into a quiet
+   success-until-it-is-not.**
+3. **AN UNREACHABLE SOLVER WRITES NO STATUS.** Nothing ran, so there is no rc,
+   and inventing one is the back-dating this file exists to prevent. **`rc=127`
+   is a solver that ran and failed; an unresolvable solver never started, and
+   the two must not read alike.**
+
+### A2.3a THE NEGATIVE-CONTROL ARM CAUGHT A DEFECT IN THIS VERY REPAIR
+
+**REGISTERED AS REQUIRED: the launcher selftest carries an arm that resolves the
+REAL solver binary on the REAL PATH, with no fixture, and REFUSES if it cannot.**
+
+**ON ITS FIRST RUN IT FAILED — ON THE REPAIR ABOVE.** `launch_k0f.sh` sets
+`-u` at line 58, and **MEASURED ON THIS BOX** the OpenFOAM bashrc aborts under
+`set -u`:
+
+```
+  /usr/lib/openfoam/openfoam2606/etc/bashrc: line 184: WM_PROJECT_DIR: unbound variable
+```
+
+**So the first version of the repair sourced an environment that silently did
+not load, and the solver was still not on PATH.** `set -u` is now lifted across
+the source and restored immediately after.
+
+**THE ARM ORDERED AS A CONSEQUENCE OF ATTEMPT 1 CAUGHT THE DEFECT IN ATTEMPT
+1's OWN REPAIR, BEFORE ATTEMPT 2 FIRED.** That is the whole argument for it, and
+it cost nothing.
+
+**Selftest now 13 arms, 13 passing**, including: the real solver resolving to
+`/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqSimpleFoam`;
+the launcher reaching it with `rc != 127` and `solver_path` recorded; an
+unresolvable solver refusing with **no STATUS**; and an absent `--foam-bashrc`
+refusing.
+
+### A2.3b THE GRADING PATH MOVES, AND §7.7 IS AMENDED
+
+**`scripts/launch_k0f.sh` and `scripts/launch_k0f_selftest.sh` change; the other
+six instruments do not.** §7.7's two launcher rows are **STRUCK** and replaced
+by the blob shas committed with this amendment. **The six comparator and builder
+shas are unchanged and remain valid** — no reader, grader, mesh check or builder
+is touched, so **nothing that produces or judges a number moves.**
+
+## A2.4 CLAUSE 7 IS NOT WEAKENED; THE CASES ARE REBUILT
+
+**`mark_done_k0f.py` clause 7 refuses a relaunch because `0/` now exists on all
+ten. THE GUARD IS RIGHT.** A case whose `0/` predates its own launch cannot be
+dated by its own `0/T`, so its age guard is unevaluable. **Relaxing a refusal
+condition because the cases cannot satisfy it is the exact move forbidden for
+condition D: if anything moves, the cases move, never the guard.**
+
+**PRESERVED, THEN REBUILT**, on this team's own K0d precedent of keeping two
+failed build trees rather than deleting them:
+
+- **`verification/runs/F14-cooling-ladder/K0f_runs.attempt1_exec_127_FAILED`** —
+  ten case directories, **seven `rc=127` STATUS files**, seven `log.solve`.
+  **The STATUS files are evidence and are the record of what a correct rc
+  capture looks like on a real failure.** Nothing is deleted.
+- All ten cases are then rebuilt from `build_k0f.py` so each is armed fresh
+  immediately before its own solve.
+
+**THE TEN `polyMesh` TREES ARE UNAFFECTED** — `blockMesh` writes
+`constant/polyMesh`, never a time directory — **so the meshing is not repeated
+and §G.6's measured result stands: condition D passes on all six L2 cases at
+`nA = 18`, floor/ceiling/leftWall/rightWall all 7.864662e-04, 0.000 % off, and
+condition C reads block A `1920→4032, r = 1.4491` from the mesh.**
+
+**Meshing waste stays NAMED at ~0.2 core-min and is NEVER absorbed** into any
+actual/predicted ratio (`COMPUTE_BUDGET_CHARTER.md` §6). **Zero solver
+core-minutes were consumed by attempt 1** — `wall=0` on all seven.
+
+## A2.5 `FROZEN_TIMEOUT_S`'s L2 ROW — DISCLOSED, DELIBERATELY NOT REPAIRED
+
+**The frozen table enforces 51 161 s on the L2 row where the registered
+conversion `cap × 60 ÷ ranks` gives 51 162.0 s.** Inherited from K0d.
+
+| cap (core-min) | frozen table | `cap × 60 ÷ ranks` | delta |
+| ---: | ---: | ---: | ---: |
+| 435.00 | 26 100 | 26 100.0 | 0 |
+| **852.70** | **51 161** | **51 162.0** | **−1.0** |
+| 639.50 | 38 370 | 38 370.0 | 0 |
+| 1 675.50 | 100 530 | 100 530.0 | 0 |
+
+**THE DIRECTION IS THE RULING. One second TIGHTER can only stop a run EARLIER,
+never later.** It cannot cause an overrun; at worst it cap-stops one second
+early out of 51 161 (0.002 %). **A tightening is never the direction that needs
+repair**, and repairing it would move a grading-path blob for nothing.
+
+> **THIS IS RECORDED WITH ITS REASONING ATTACHED SPECIFICALLY SO THAT NOBODY
+> LATER "FIXES" IT INTO A LOOSENING.** An unexplained conservative number is
+> exactly the kind of thing a future tidy-up turns into a real defect.
+
+## A2.6 WHAT THIS AMENDMENT DID NOT DO
+
+- **It launched nothing.** Zero solver core-minutes at this write.
+- **It moved no band, threshold, cap or label.** POINT 925.90 and CEILING
+  2 750.70 stand, with the operative runaway guard at 2 748.64 (§A1.2a).
+- **It moved no refusal condition.** Condition D untouched; clause 7 untouched
+  and deliberately not weakened.
+- **It changed no reader, grader, builder or mesh check.** Six of eight §7.7
+  shas are unchanged.
+- **It deleted nothing.** Attempt 1's tree is preserved whole.
+- **It edited no peer's file.** A peer lane's uncommitted
+  `scripts/check_launcher_can_launch.py` was found at a path this lane had also
+  written; **it was inspected, verified intact, and left alone** (standing rule
+  10). This lane does not ship a duplicate of it.
+- **It sent nothing** (rule 7); **fetched nothing** (rule 8); **touched no
+  permission setting, `CLAUDE.md` or `.claude/` config** (rule 9).
+
+*Amendment written by a heat-transfer lane on the heat-transfer supervisor's
+triage ruling of 2026-08-26, before first compute. Zero solver core-minutes.*

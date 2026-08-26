@@ -69,6 +69,9 @@ usage: launch_k0f.sh --case-dir DIR --timeout SECONDS [--ranks N]
               timeout_s = cap_core_min * 60 / ranks   (K0d re-registration 8.1)
   --ranks     default 1; K0f is registered SERIAL (section 6)
   --solver    default buoyantBoussinesqSimpleFoam
+  --foam-bashrc  the OpenFOAM environment to source; default
+              /usr/lib/openfoam/openfoam2606/etc/bashrc.  Pass "none" ONLY in
+              a selftest whose solver is already on PATH.
   --no-detach run in the foreground (used by the selftest)
 U
     exit 2
@@ -76,12 +79,14 @@ U
 
 CASE_DIR=""; TIMEOUT_S=""; RANKS=1
 SOLVER="buoyantBoussinesqSimpleFoam"; DETACH=1
+FOAM_BASHRC="/usr/lib/openfoam/openfoam2606/etc/bashrc"
 while [ $# -gt 0 ]; do
     case "$1" in
         --case-dir) CASE_DIR="${2:-}"; shift 2 ;;
         --timeout)  TIMEOUT_S="${2:-}"; shift 2 ;;
         --ranks)    RANKS="${2:-}"; shift 2 ;;
         --solver)   SOLVER="${2:-}"; shift 2 ;;
+        --foam-bashrc) FOAM_BASHRC="${2:-}"; shift 2 ;;
         --no-detach) DETACH=0; shift ;;
         --selftest) exec "$SELF/launch_k0f_selftest.sh" ;;
         *) usage ;;
@@ -103,7 +108,8 @@ STATUS="$ROOT/STATUS.$CASE"
 # only way `$?` is the solver's status and not setsid's fabricated 0.
 if [ "$DETACH" = "1" ] && [ "${K0F_DETACHED:-}" != "1" ]; then
     K0F_DETACHED=1 exec setsid "$0" --case-dir "$CASE_DIR" --timeout "$TIMEOUT_S" \
-        --ranks "$RANKS" --solver "$SOLVER" --no-detach </dev/null \
+        --ranks "$RANKS" --solver "$SOLVER" --foam-bashrc "$FOAM_BASHRC" \
+        --no-detach </dev/null \
         >>"$CASE_DIR/log.launch" 2>&1 &
     echo "launched $CASE detached; STATUS will appear at $STATUS"
     exit 0
@@ -115,12 +121,58 @@ write_status() {   # rc wall checkmesh_rc note
     # STATUS at all -- which mark_done_k0f.py REFUSES on, rather than reading
     # a truncated rc as a passing one.
     tmp="$STATUS.tmp.$$"
-    printf 'rc=%s wall=%s checkMesh_rc=%s timeout_s=%s ranks=%s solver=%s case=%s note=%s\n' \
-        "$1" "$2" "$3" "$TIMEOUT_S" "$RANKS" "$SOLVER" "$CASE" "$4" > "$tmp"
+    printf 'rc=%s wall=%s checkMesh_rc=%s timeout_s=%s ranks=%s solver=%s solver_path=%s case=%s note=%s\n' \
+        "$1" "$2" "$3" "$TIMEOUT_S" "$RANKS" "$SOLVER" "${SOLVER_PATH:-unresolved}" "$CASE" "$4" > "$tmp"
     mv -f "$tmp" "$STATUS"
 }
 
 cd "$CASE_DIR" || { echo "REFUSE: cannot enter $CASE_DIR" >&2; exit 2; }
+
+# --- 0. THE SOLVER MUST BE REACHABLE, AND THIS IS CHECKED BEFORE ANYTHING -
+#
+# ATTEMPT 1 OF K0f DIED HERE, ON ALL SEVEN FIRED CASES: `rc=127 wall=0
+# checkMesh_rc=na`, "timeout: failed to run command
+# 'buoyantBoussinesqSimpleFoam': No such file or directory".  THIS FILE SOURCED
+# NO OpenFOAM ENVIRONMENT AT ALL.  A detached wrapper re-exec'd under `setsid`
+# inherits no login shell, so nothing had ever put the solver on PATH.
+#
+# WHY THE SELFTEST DID NOT CATCH IT, WHICH IS THE PART WORTH KEEPING:
+# every arm installed a FAKE SOLVER ON PATH and drove it to a real exit state.
+# That proved the rc plumbing -- and it did work: rc=127 was captured
+# truthfully and atomically, and `checkMesh_rc=na` recorded honestly that
+# `checkMesh` was equally unreachable rather than inventing a pass.  But A
+# LAUNCHER SELFTEST THAT SUPPLIES ITS OWN FIXTURES IS TESTING THE LAUNCHER
+# AGAINST ITSELF.  It proves the code paths and says nothing about the one
+# thing a launcher exists to do: REACH A REAL SOLVER IN A REAL ENVIRONMENT.
+# The negative-control arm in launch_k0f_selftest.sh resolves the REAL binary
+# on the REAL PATH, with no fixture, and is the arm that would have caught this.
+#
+# AND THE REFUSAL IS THE POINT, NOT THE SOURCING.  Sourcing alone would turn a
+# loud 127 into a quiet success-until-it-is-not.  An unreachable solver is a
+# case that CANNOT RUN, so it REFUSES (exit 2) and WRITES NO STATUS -- nothing
+# ran, there is no rc, and inventing one is the back-dating this file exists to
+# prevent.  rc=127 in a STATUS file is a solver that ran and failed; this is a
+# solver that never started, and the two must not read alike.
+if [ "$FOAM_BASHRC" != "none" ]; then
+    [ -f "$FOAM_BASHRC" ] || { echo "REFUSE: no OpenFOAM environment at $FOAM_BASHRC; refusing rather than launching into a shell where the solver cannot be found (K0f attempt 1: seven cases, rc=127, wall=0)" >&2; exit 2; }
+    # `set -u` MUST BE LIFTED ACROSS THE SOURCE, AND THIS IS NOT A STYLE POINT.
+    # MEASURED ON THIS BOX: under `set -u` the OpenFOAM bashrc ABORTS at
+    #     /usr/lib/openfoam/openfoam2606/etc/bashrc: line 184:
+    #     WM_PROJECT_DIR: unbound variable
+    # and the solver is then STILL not on PATH.  This file sets -u at the top,
+    # so the first version of this very repair WOULD HAVE FAILED THE SAME WAY
+    # -- the environment would silently not load and the launch would refuse
+    # again.  It was caught by the real-solver negative-control arm in
+    # launch_k0f_selftest.sh BEFORE the re-fire, which is exactly the arm's
+    # purpose.  -u is restored immediately after; the lift covers the source
+    # and nothing else.
+    set +u
+    # shellcheck disable=SC1090
+    . "$FOAM_BASHRC" >/dev/null 2>&1 || true
+    set -u
+fi
+SOLVER_PATH="$(command -v "$SOLVER" 2>/dev/null || true)"
+[ -n "$SOLVER_PATH" ] || { echo "REFUSE: solver '$SOLVER' is NOT RESOLVABLE after sourcing ${FOAM_BASHRC}. Nothing ran, so no STATUS is written and no rc is invented." >&2; exit 2; }
 
 # --- 1. THE CONSUMER-SIDE COMPLETENESS ASSERTION, BEFORE THE SOLVER -------
 # Under a detached queue there is nobody to diagnose a crash, so this refusal
@@ -151,7 +203,7 @@ touch "$CASE_DIR/0/T"
 
 # --- 4. THE SOLVER, IN THE FOREGROUND, rc CAPTURED FROM IT ---------------
 T0=$(date +%s)
-timeout "$TIMEOUT_S" "$SOLVER" -case "$CASE_DIR" > "$CASE_DIR/log.solve" 2>&1
+timeout "$TIMEOUT_S" "$SOLVER_PATH" -case "$CASE_DIR" > "$CASE_DIR/log.solve" 2>&1
 RC=$?
 T1=$(date +%s)
 WALL=$((T1 - T0))
