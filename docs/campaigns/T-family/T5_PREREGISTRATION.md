@@ -1402,3 +1402,15 @@ been built, and a builder frozen before it exists would be a freeze over nothing
 
 **`PENDING`. Nothing here has been sent, filed, submitted, uploaded, registered or
 posted anywhere outside this box (`CLAUDE.md` rule 7).**
+
+---
+
+## AMENDMENT 1 — 2026-08-26 (PRE-FIRST-COMPUTE): the precursor launcher `run_one_t5_x2d.sh`; X_2d registered UNGRADED
+
+**Document version 1.0 -> 1.1; 1.0 = the `0fcbb92e` freeze** (the frozen text carried no version line; this amendment declares the numbering). **Lines whose number changed above this section: 0.** Ruled by the heat-transfer supervisor `[lab-attributed]`, drafted by lane a442775b.
+
+**Condition (`CLAUDE.md` rule 2), and how it was checked.** `verification/runs/T-family/T5_runs/` holds **no `STATUS.*` from a run and no `DONE.*`** (`ls` at commit time: zero of each at the tree root). The one STATUS-shaped file in the tree, `X_2d/STATUS.T5_X_2d` (`rc=0 end=2026-08-26T16:28:57Z`), **is a FALSE file written by cfd's queue runner for a launch the frozen launcher REFUSED** (`X_2d/log.launch`: `REFUSE: no 0/**/T, so the age guard has no datum`); no solver started. It is **bookkeeping only, EXCLUDED from every completion judgement, left in place undeleted**. `mark_done_t5.py` driven against it returns `NOT DONE X_2d: ... no log.solve` (rc 1) and writes no marker; its rule requires `End`, last time = endTime, fields and the age guard regardless of `rc`. **Zero core-minutes have been spent on this rung.**
+
+**What changes.** A NEW file `run_one_t5_x2d.sh` launches the X_2d precursor only. It is line-for-line the frozen `run_one_t5.sh` (blob `313df45c`, untouched) with the age-guard datum `0/**/T` replaced by **`0/**/U`**, because a `simpleFoam` precursor carries no `T`. Diff against the frozen file, changed lines only: `AGE_DATUM="$(find "$CASE_DIR/0" -name T ...)"` -> `-name U`; the refusal text `no 0/**/T` -> `no 0/**/U`; plus a header comment. Nothing else moves.
+
+**X_2d is UNGRADED.** It produces the inflow profile (§5.3) and the I1/I2 check rows; nothing a verdict depends on is readable from it (Charter §2d), so it may run before the reference values are fixed (§10's order concerns the graded cases).
