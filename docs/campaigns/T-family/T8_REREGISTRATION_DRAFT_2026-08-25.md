@@ -818,3 +818,117 @@ also mean firing **against two open defects this lane has just measured** — §
 part 1's criterion (§4f.3) and the unchosen formulation (§4f.5). **A run
 registered on a defective precondition spends its compute buying an answer that
 cannot be read.** Cost is not the objection; **readability is.**
+
+---
+
+## 4g. 2026-08-26, LATER — THE SUPERVISOR AMENDS RULING A2 AND WITHDRAWS A3's ROUTE. Recorded as visible supersession.
+
+**Two of the supervisor's own rulings, corrected by the supervisor, the same day.
+Appended, not edited; §4c, §4f and everything above stand on the page as written.**
+
+### 4g.1 RULING — §4c part 1 is retired and the DIRECTIONAL form this territory already registered is adopted
+
+**Supervisor's ruling, 2026-08-26, superseding their own adoption of §4c part 1 "as
+drafted" earlier the same day.**
+
+> **The stationarity precondition of §4c part 1 is RETIRED. The registered form
+> `analyse_e4a2.py:300` — *"C1 sustained floor AND C2 NOT GROWING AND C3
+> graded-quantity stationarity"*, implemented at `:308` as `c2 = not cl["growing"]` —
+> is ADOPTED in its place.**
+
+**Why, in one measurement:** **level `c`, which never once reached the registered `1e-6`
+in 8,000 iterations and sat on a plateau four decades above it, PASSES §4c part 1.**
+A stationarity gate that admits a run which never converged is not a gate.
+
+**Both mechanisms, and they are properties of the criterion's FORM, not of any
+particular run:**
+
+1. **It is NON-DIRECTIONAL.** It asks whether the window mean *trends*, not whether it
+   *grows* — so it refuses a **decaying** series exactly as it refuses a wandering one,
+   **when decay is the thing we want.** `analyse_e4a2.py`'s `not growing` is directional
+   and does not have this failure.
+2. **It divides a TREND by a SPREAD.** As a series gets smoother the within-window
+   spread tends to zero while the trend does not, so **the test grows arbitrarily
+   sensitive precisely on the best-behaved runs** — backwards. `f`'s final within-window
+   sd is `1.155e-09`, three orders below its mean. `analyse_k0cx.py:644`'s peak-to-peak
+   amplitude over a registered window with a registered minimum sample count is the
+   other admissible route, and it does not divide by a spread either.
+
+### 4g.2 AND THE FINDING IS NOT THE DEFECT — IT IS WHERE THE CRITERION CAME FROM
+
+**The supervisor records this as the transferable part, in these terms:**
+
+> **§4c INVENTED A NEW CRITERION THE SAME DAY, STANDING NEXT TO A REGISTERED ONE THAT
+> WAS ALREADY CORRECT — and the invented one has a defect the registered one does not.**
+
+§4b.3 had ruled, **hours earlier and in this same document**, that the territory
+**adopts an existing registered shape rather than invents one**, and named
+`analyse_e4a2.py:300` and `analyse_k0cx.py:644` as the shapes to adopt. §4c then wrote a
+fresh criterion anyway.
+
+> **A RULE TO REUSE THE REGISTERED SHAPE IS WORTH NOTHING IF THE NEXT SECTION OF THE
+> SAME DOCUMENT INVENTS A NEW ONE. The registered shape's value is not that it is
+> older — it is that it has already survived the cases that would break a fresh one,
+> and a criterion written this afternoon has survived nothing.**
+
+**Ruling A2's `σ_self` repair is unaffected and STANDS**, and the measurement that
+justified it stands with it: on `c` the drafted two-window null is `2.661025e-06` and
+A2's max-pairwise null is `2.197400e-05` — **8.26× wider**, enough to flip a ramp
+verdict from FORBIDDEN to NEUTRAL on the same data.
+
+### 4g.3 RULING A3's ROUTE IS WITHDRAWN; ITS CONCLUSION STANDS ON A BETTER INSTRUMENT
+
+**A3 as ruled** said: *if level `f` fails stationarity, T8's registered steady
+formulation is under challenge.* **That inference is withdrawn** — it cannot rest on a
+test that refuses convergence and admits stalls (§4g.1).
+
+**The conclusion survives on a stronger measurement, and the supervisor adopts it in
+place of the route:**
+
+> **`f`'s `T` initial residual at `endTime` is `5.932e-07`, BELOW the registered `1e-6`
+> — while through the frozen comparator's own `check_iterative_convergence` the
+> temperature field is STILL MOVING `0.101 K` between checkpoints 18000 and 20000,
+> `rel = 1.640285e-02`. Optimistic by 1.7× on the residual; wrong by 16,400× on the
+> field.**
+>
+> **A residual-based convergence reading certifying a field that is still moving is a
+> better argument for challenging the formulation than any stationarity test, because
+> it does not depend on a criterion at all — it is two instruments disagreeing about
+> the same run by four decades.**
+
+`c`: `T` `9.113625e-02`, `U` `2.406859e-01`. `f`: `T` `1.640285e-02`, `U`
+`1.467659e-01`. **Rule 5 clause (1) fires on all three levels.**
+
+### 4g.4 REGISTERED BLOCKER ON THE SUCCESSOR — the `epsilon` bounding rate is not a footnote
+
+**Supervisor's ruling, 2026-08-26.** The `epsilon` bounding rate is **non-monotone in
+resolution**: `c` **3.8 %**, `m` **38.6 %**, `f` **8.4 %**. **The middle level is the
+only one that destroyed itself, and NEITHER live hypothesis explains that.**
+
+- *Unsteady physics* predicts agitation rising with resolution — it does not predict a
+  middle-level maximum.
+- *Unrealizable closure on coarse grids* predicts the rate falling with resolution — it
+  does not predict `c` being the tamest of the three.
+
+**The supervisor's own earlier "numerical diffusion damps the coarse grid" story is
+dead twice over: `c` did not converge, and it never explained the middle-level
+specificity.**
+
+> **REGISTERED AS A BLOCKER, NOT A FOOTNOTE: no successor may register a formulation
+> until the middle-level maximum is explained or explicitly registered as unexplained
+> with a named consequence.** A formulation chosen while the most striking feature of
+> the data is unexplained is a formulation chosen for the features that were convenient.
+
+### 4g.5 THE ORDER, ADOPTED
+
+1. **Repair the stationarity criterion** by adopting `analyse_e4a2.py:308`'s directional
+   form (§4g.1).
+2. **Register and run the UNSTEADY single-level discriminator** —
+   `buoyantBoussinesqPimpleFoam` on the fine mesh. **The only test that does not ask a
+   steady solver's residual anything.**
+3. **Only then choose the successor's formulation**, and only with §4g.4 discharged.
+
+**No fire order stands. Nothing is queued.** Firing requires a **committed and frozen**
+pre-registration (`CLAUDE.md` rule 2) and there is none; re-registration after first
+compute is **Sanaa's and the chief's**, per this document's own header; and **no agent
+message is Sanaa's consent** (rule 9).
