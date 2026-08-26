@@ -1,0 +1,4 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+
+transportModel  Newtonian;
+nu              0.01;       // = Ubar D / Re with Ubar = 1, D = 1, Re = 100; must equal exact_f23.NU (checked by the launcher and the grader)

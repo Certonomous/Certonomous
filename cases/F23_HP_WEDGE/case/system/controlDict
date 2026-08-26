@@ -1,0 +1,22 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F23 -- Hagen-Poiseuille wedge.  FIXED iteration count, NO residualControl:
+  the run goes to endTime so the grader's Class C plateau series is sampled
+  uniformly (40 checkpoints, every 100 iterations).  Lineage: F17 controlDict.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         4000;          // FIXED iteration count; must equal exact_f23.N_ITER
+deltaT          1;
+writeControl    timeStep;
+writeInterval   100;           // 40 checkpoints -> the Class C plateau series
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;

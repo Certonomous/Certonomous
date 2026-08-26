@@ -1,0 +1,20 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F23 -- the FIXED streamwise body force that drives the fully developed
+  flow: G = -dp/dx = 8 nu Ubar / R^2 per unit volume (volumeMode specific),
+  applied to every cell.  Fixed (not an adaptive meanVelocityForce) so that
+  the discrete problem is LINEAR and the bulk velocity Ubar_h is a READ
+  quantity (f.Re = 2 D^2 G / (nu Ubar_h), exact 64), never an imposed one.
+  Must equal exact_f23.G (checked by the launcher and the grader).
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object fvOptions; }
+
+momentumSource
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   all;
+    volumeMode      specific;
+    sources
+    {
+        U           ((0.32 0 0) 0);
+    }
+}

@@ -1,0 +1,17 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// F23 -- internalField = (0 0 0) everywhere at iteration 0 (the flow is DRIVEN
+// by the body force in constant/fvOptions from rest; nothing of the answer is
+// seeded), written by build_f23.py LAST of all: the age guard dates every
+// endTime field against it.
+
+dimensions      [0 1 -1 0 0 0 0];
+internalField   nonuniform List<vector> __INTERNALFIELD__;
+
+boundaryField
+{
+    inlet   { type cyclic; }
+    outlet  { type cyclic; }
+    wall    { type noSlip; }
+    wedge1  { type wedge; }
+    wedge2  { type wedge; }
+}
