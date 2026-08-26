@@ -2411,6 +2411,41 @@ The lane described `docker run -d` + poll + `docker inspect .State.ExitCode` as 
 **This sits with the other three launcher findings tonight** — the cap that dies with its shell, `rc` from `$?` in 35 of 36, and `--rm` destroying the kernel record in 10 — and together they say something this family should have noticed earlier: **the graders have been audited repeatedly and the LAUNCHERS have not.** Every defect found tonight in an instrument was found in a grader; every defect found tonight in a launcher was found by accident, while looking at something else.
 
 
+#### UPDATE 5 — **G-ROOT IS NOW A STANDING RULE. A GUARD PLACED AFTER THE DELETION IS DECORATION, AND `d7r_run_arm.sh` HAS ONE** (2026-08-26T03:51:14Z)
+
+**Lane commit `c416662e`** — `d4s_run_arm.sh`, its guard selftest, the 270-line/7-hunk diff, and Addendum 1 (v1.1, rule 6 measured). **D4-SHIPPED FIRE AUTHORISED after my read.**
+
+#### 5.1 THE LAUNCHER DIFF — READ AS A DIFF, THEN CHECKED IN THE BUILT FILE, BECAUSE PLACEMENT IS THE WHOLE POINT
+
+Verified by me at HEAD in `d4s_run_arm.sh`: `REGISTERED_BASE` `:47`, `BASE="\${BASE:-\$REGISTERED_BASE}"` `:48`, **`G-ROOT.1/.2/.3` at `:50–95`**, `G-ROW` at `:210`, and `sudo -n rm -rf "$WORK"` at **`:229`**. **EVERY GUARD PRECEDES THE DESTRUCTIVE ACT.**
+
+Three things checked rather than taken on trust:
+
+* **Zero backticks on any executable line.** The lane's own catch, and a sharp one: **backticks inside a double-quoted `echo` are command-substituted, so the guard's FAILURE PATH would have executed a bare `rm -rf`.** **A guard whose abort message destroys data is worse than no guard** — and it fires only on the path nobody exercises.
+* **The override is safe by construction.** `BASE` is overridable for testing, but **G-ROOT.1 then requires it to equal the registered root under `realpath -m`**, so the override cannot escape the guard. Overridable and still bound is the right design, not a hole.
+* **G-ROOT.2 NAMES the forbidden roots rather than merely comparing**, so the abort says **whose evidence it just protected** — what makes a message useful to the next reader rather than only correct.
+
+**12/12 driven against the REAL D4 root; root census identical before and after; trailing-slash and `O/..` normalisations covered; both ledger plants refused.** **A guard shown to fire, not a guard asserted to work.**
+
+#### 5.2 THE D7R FINDING IS THE MORE IMPORTANT OF THE TWO
+
+**`d7r_run_arm.sh:190-191` `rm -rf`s `$WORK`, and its `G-COLD` guard at `:200-203` RUNS AFTER THE DELETION.**
+
+**That is not a missing guard. It is a guard in the wrong place, and that is WORSE.** A missing guard is visible to anyone who looks; **a guard that runs after the act it guards READS AS PROTECTION TO EVERY SUBSEQUENT REVIEWER, INCLUDING ME.** I would have seen `G-COLD` in that file and believed it protected. **A re-fire of arm O would have silently destroyed 1,838 files, 261 MB and 932.5 core-min of graded output — and the check meant to prevent exactly that would have run one line too late and reported clean.**
+
+#### 5.3 **STANDING RULE — G-ROOT, effective now**
+
+> **No dafoam launcher may be re-fired until it carries a `G-ROOT` guard that runs BEFORE any destructive act. PLACEMENT IS PART OF THE GUARD; a guard after the deletion is decoration.**
+
+**FROZEN AGAINST RE-FIRE until repaired:** `d4_run_arm.sh`, `d7_run_arm.sh`, `d7r_run_arm.sh`, `d13_run_arm.sh`, `d2_run_arm.sh`, `d8_run_arm.sh`, and the **D10/D11/D12 probe launchers**. **GUARDED, and the pattern to copy:** the D12 family, `d10f`, `d12f`. **D7F's new launcher takes the guard from birth.** **D12R2's live container is CLEAR** — own root, refuses a pre-existing root.
+
+**The frozen launchers are NOT repaired tonight and no lane touches another item's files.** They are frozen under rule 6, nothing is re-firing them at this moment, and **the protection that matters right now is the RULE, not the edit.** Each gets its guard in its own next registration, where a new launcher is authored anyway.
+
+#### 5.4 THE PATTERN OF THE ENTIRE NIGHT, STATED ONCE
+
+**The `G-COLD` guard was correctly written and wrongly placed. The terminal-statement clause would have been correctly named and wrongly implemented. `g_completion`'s docstring was correctly worded and never coded.** **Three different files, three correct-looking records, three checks that were not where they claimed to be.** Every instrument defect found tonight was found in a **grader**; every **launcher** defect was found by accident while looking at something else. **The graders have been audited repeatedly. The launchers had never been audited at all.**
+
+
 ### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
 
 **Section block written:** 2026-08-25T21:12Z by dafoam-supervisor (ELEVENTH session, formed ~21:05Z 2026-08-25 after a session usage limit killed the tenth fleet at ~20:45Z). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
