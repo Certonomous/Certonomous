@@ -375,3 +375,107 @@ treatment differs from resolved by 15.19 % at 1e5 (exceeds the band) and
 5.53 % at 3e5 (inside by 0.22 pp), opposite signs; `C_lam` MET; rows B0, B2,
 B4 and B6 PASS on DIVERGENT or STAGNANT triples, reported as returned and
 flagged in §8.**
+
+---
+
+## 12. Addendum 2026-08-26 — L4 extension (EXT2) graded `[lab-attributed]`
+
+Dated addendum under the numbering of this file, the location
+`T1b_L4_AMENDMENT.md` §7 registers for the L4 analysis sequence. **Lines whose
+number changed above this section: 0.** Assembled 2026-08-26T16:11:10Z by a lab-lane on the
+heat-transfer supervisor's brief. Pre-registration
+`T1b_L4_EXT2_PREREGISTRATION.md` (HEAD blob `9d4beec4`); gates, bands and
+labels are those of `T1b_L4_AMENDMENT.md` (`ad7208b5`) and `T1b_band.json`,
+untouched. Graded artifact: `verification/runs/T-family/T1_runs/gate_t1b_L4.json`.
+
+### 12.1 Freeze
+
+`analyse_t1b_L4.py` blob `59c345bd` == HEAD; `mark_done_t1b_L4.py` `2055d35b`;
+`mark_done_t1b_ext1.py` `eb607a2c`; `planted_zero_control_t1b.py` `16660281` —
+all byte-identical to their committed blobs at grading time.
+`scripts/check_comparator_freeze.py` (selftest rc=0; whole-tree verdict FAIL,
+rc=3) reports `analyse_t1b_L4.py` **UNFROZEN**: its commit
+2026-08-21T18:14:22Z postdates the first scoped marker `DONE.R_10k_c` (mtime
+2026-08-21T16:35:58Z, MARKER-UNDATED, mtime basis), margin −5 904 s. This is the
+standing finding already on record for the pool grade (§8, the 2026-08-25
+ruling); the extension changes nothing about it and it is reported, not worked
+around. The checker's refusal is a finding of this record.
+
+### 12.2 Strict completion (rule 4, amendment §7 extended form)
+
+`mark_done_t1b_L4.py`: 4/4 x-level cases PASS (3 with ext1 included);
+`mark_done_t1b_ext1.py`: 19/19 PASS. Both instruments run without a `--help`
+switch and executed on invocation; they rewrote `DONE.R_{10k,100k,300k}_x` at
+16:00:23Z on this pass (`DONE.R_10k_x` text now reads "strict rule met,
+extension ext1 included"). Clauses re-derived read-only:
+
+| case | `STATUS` rc | `STATUS_ext1` rc / wall s | `End` orig / ext1 | ExecutionTime orig + ext1 = endTime | first ext1 Time | last time dir | fields (7) newer than `0/T` and `STATUS` |
+|---|---:|---|---|---|---|---|---|
+| `R_10k_x` | 0 | 0 / 52 469 | 1 / 1 | 20000 + 12000 = 32000 | 20001 | 32000 | yes (07:11:13Z vs 08-21 22:37:55Z, 08-23 03:19:42Z) |
+| `R_100k_x` | 0 | 0 / 46 325 | 1 / 1 | 80000 + 14000 = 94000 | 80001 | 94000 | yes (05:28:50Z vs 08-21 21:28:41Z, 08-25 07:23:55Z) |
+| `R_300k_x` | 0 | 0 / 70 388 | 1 / 1 | 80000 + 30000 = 110000 | 80001 | 110000 | yes (12:09:52Z vs 08-21 21:27:10Z, 08-24 20:11:05Z) |
+
+No cap was reached (caps 1 100 / 1 300 / 2 750 core-min, timeouts 66 000 /
+78 000 / 165 000 s; every wall below its timeout).
+
+### 12.3 Planted-zero control (rule 3, external instrument)
+
+`planted_zero_control_t1b.py` on `R_10k_x`, station 80 D, plant 1.234e-03 K:
+**PASSED** — arm 1 (`analyse_t1c.iterative_convergence`) negative CONVERGED
+between (30000, 32000) unmodified, positive recovered 1.234e-03 exactly and
+flipped to NOT_CONVERGED; arm 2 (`analyse_t1b.measure`) negative delta 0.0,
+positive moved Nu 32.2665 → 32.1385. Not a rung verdict.
+
+### 12.4 Grade — frozen comparator `analyse_t1b_L4.py`, rc=0
+
+| row | Re | Nu (c, m, f, x) | x state | reference ± band | deviation of x | (c,m,f) state, p | (m,f,x) state, p | GCI | verdict | guard |
+|---|---|---|---|---|---|---|---|---|---|---|
+| X0 | 1e4 | 30.119, 30.831, 31.619, 32.267 | **NOT_CONVERGED** | 30.907 ± 2.84 % | not computed (gated) | DIVERGENT, −0.219 | STAGNANT, +0.420 | n/a | **NOT A RESULT** | step (1) |
+| X1 | 3e4 | 69.103, 70.732, 72.480, 73.904 | CONVERGED | 73.684 ± 3.885 % | 0.299 % | DIVERGENT, −0.150 | STAGNANT, +0.435 | n/a | **NOT A RESULT** | step (2) |
+| X3 | 1e5 | 177.506, 181.582, 185.771, 189.207 | CONVERGED | 190.398 ± 5.334 % | 0.626 % | DIVERGENT, −0.059 | STAGNANT, +0.422 | n/a | **NOT A RESULT** | step (2) |
+| X5 | 3e5 | 430.220, 439.761, 449.255, 457.078 | CONVERGED | 456.723 ± 5.749 % | 0.078 % | STAGNANT, +0.010 | STAGNANT, +0.412 | n/a | **NOT A RESULT** | step (2) |
+
+Reported rows (never graded): X2 `f_x` 0.02338 vs Petukhov 0.02364 (1.08 %);
+X4 0.01767 vs 0.01799 (1.77 %); X6 0.01415 vs 0.01444 (1.96 %); all (m,f,x)
+STAGNANT. y+ at x: 0.392 / 0.388 / 0.387 / 0.386. Frozen (c,m,f) verdicts
+beside, for the record: PASS at 2.305 / 1.635 / 2.430 / 1.635 % on DIVERGENT /
+DIVERGENT / DIVERGENT / STAGNANT triples (§8 flaw, unchanged).
+Summary line as printed: "0 graded rows: 0 GATE FAIL, 4 NOT A RESULT".
+
+**What the extension changed:** `R_100k_x` and `R_300k_x` moved from
+NOT_CONVERGED (step (1), 2026-08-25) to CONVERGED and now fall at step (2) on a
+STAGNANT (m,f,x) triple; `R_10k_x` remains NOT_CONVERGED at 32000 (Nu moved
+32.577 → 32.267); `R_30k_x` was not extended. **The board's `NOT A RESULT` × 4
+stands. Zero graded rows, zero PASS, zero GATE FAIL, no GCI quotable.**
+
+### 12.5 Predictions of amendment §3, scored
+
+| Re | predicted Nu_x | actual | predicted f_x | actual | predicted y+_x | actual | grid prediction |
+|---|---|---|---|---|---|---|---|
+| 1e4 | 32.41 (outside band, away) | 32.267 (4.40 %, outside) | 0.03184 | 0.03171 | 0.38–0.39 | 0.392 | four NOT A RESULT — HELD |
+| 3e4 | 74.23 (inside, crossed) | 73.904 (inside, crossed) | 0.02348 | 0.02338 | 0.38–0.39 | 0.388 | HELD |
+| 1e5 | 189.96 (inside, below) | 189.207 (inside, below) | 0.01774 | 0.01767 | 0.38–0.39 | 0.387 | HELD |
+| 3e5 | 458.75 (inside, crossed) | 457.078 (inside, crossed) | 0.01420 | 0.01415 | 0.38–0.39 | 0.386 | HELD |
+
+Every registered prediction held in direction and landing; Nu_x within
+0.16–0.44 % of the predicted number at every Re. Under §3's own reading this
+is a statement about the ladder's direction, not about a limit.
+
+### 12.6 Cost (rule 12)
+
+Extension segment only, from `STATUS_ext1.<case>` wall × 1 rank ÷ 60:
+`R_10k_x` 874.483 (POINT 1 073.6, ratio 0.815), `R_100k_x` 772.083 (671.0,
+1.151), `R_300k_x` 1 173.133 (1 121.2, 1.046); **total 2 819.700 core-min
+MEASURED against POINT 2 865.8 — ratio 0.9839**; against CEILING 5 071.5,
+0.556; cap utilisation 79.5 / 59.4 / 42.7 %. **$2.4108 DERIVED, NOT
+MEASURED** at $0.0513/core-h. Realised 4.372 / 3.309 / 2.346 s per iteration
+against POINT 5.368 / 2.876 / 2.243. Contention, named: the arms ran beside up
+to nine foreign solvers; the 04:14–04:35Z memory incident slowed each by
+~1.19–1.22× (`T4_runs/MEMORY_INCIDENT_2026-08-26.md` §1; the supervisor's
+brief quotes 1.24–1.30×). Waste 0.000 core-min — nothing re-run, no cap
+crossed. Against the amendment's own §5 (registered endTimes, 205.4 core-h for
+the whole level): not comparable segment-for-segment; the EXT2 §9 POINT is the
+registered basis and is the one calibrated. All three walls exceed the §2
+3600-s stall trigger mechanically; each ended on its registered `endTime` with
+rc=0 and `End`, so cleaned is stated equal to gross with this departure named.
+Calibration row: `docs/COST_CALIBRATION.md`.
