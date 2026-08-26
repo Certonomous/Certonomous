@@ -465,3 +465,22 @@ untouched. The §12 freeze-set line for `analyse_t11.py` is superseded by the
 hashes above; the other five instruments are byte-identical to the freeze.
 
 **lines whose number changed above this section: 0**
+
+---
+
+## AMENDMENT 2 — 2026-08-26 (post-compute, disclosure only, v1.1 -> v1.2)
+
+Control **C-T** (§7 row `C-T`; prediction §11 P3) launched through
+`verification/runs/T-family/T11_runs/run_one_t11_ct.sh`, a **new file** modelled
+line-for-line on the frozen `run_one_t11.sh` (blob `249eb813`), because the frozen
+launcher accepts only levels `c|m|f` and rule 2 forbids editing it after first
+compute (the three graded levels ran 2026-08-26 16:05Z). Case `T11_PW_f_CT` =
+`T11_PW_f`'s `0.orig/`, `constant/transportProperties` and `system/` copied
+by hand (no time directories, no `polyMesh` — `blockMesh` is re-run by the
+wrapper), with `system/controlDict` `deltaT 0.0001 -> 0.00005` (20 000 -> 40 000
+steps); `endTime 2` and `writeInterval 0.5` (`writeControl runTime`) unchanged, so
+the written times are identical. Cap: the level-f figure, **8 core-min, 1 rank,
+timeout 480 s**. Result reported by a separate reader (`read_ct_t11.py`, prints
+G1 `theta_mean` for `T11_PW_f` and `T11_PW_f_CT`; writes no verdict). **No gate,
+threshold, cap or label moves.** **Lines whose number changed above this
+section: 0.**
