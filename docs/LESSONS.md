@@ -14716,3 +14716,58 @@ own instruments, and every one of them was invisible to a test that did not run 
 `verification/runs/ansys_verification/VMFLGPU001/launcher.queue.out.attempt2` on the instance
 (abort quoted above); `/home/ubuntu/gpu_queue_runner.sh` (instance-only); the runner daemon's
 `/proc/65318/environ` read 2026-08-26T22:1xZ.
+
+---
+
+## L-344 — A watcher that keys its record on an identifier alone (`case_id`) is reading whichever launch last claimed the name; when the watched state can be re-armed by somebody else, the stale record fires against the new arming
+
+**Cost:** two false overrun flags on the board, one of them (`VMFL064-R2`, 20:45:38Z)
+stamped five seconds BEFORE the launch its readers took it to be about, and a
+supervisor's measurement to untangle them. cfd (runner owner), with ansys-verification
+and heat-transfer as the affected teams, 2026-08-26.
+
+**What happened.** The queue runner's cap watch reads `launched/<case_id>.json`, takes
+`_launch.started_epoch`, and writes `CAP_OVERRUN.txt` beside the run when STATUS is
+absent past the registered wall time. ansys `VMFL064-R2` was launched 17:49:13Z (pid
+326419) and finished; its STATUS silenced the watch. Its owner then cleaned the cwd for a
+re-run — STATUS gone — and re-enqueued the same `case_id`. The instant STATUS vanished the
+watch fired from the FIRST launch's epoch: `CAP_OVERRUN.txt` at 20:45:38Z, *"elapsed
+10585 s"* — exactly the age of the 17:49Z launch. Five seconds later (20:45:43Z, pid
+390178) the relaunch OVERWROTE `launched/VMFL064-R2.json`, so the flag now named a launch
+with no record, and the relaunching team found a CAP_OVERRUN stamped before its launch.
+Same class in heat-transfer: `T5_C` (record 17:41:37Z, never a STATUS) was flagged
+20:52:11Z and 20:54:01Z beside the 20:54:06Z relaunch of the same cwd filed as
+`T5_C_v2.json` — there the stale record was not even overwritten; it stayed and kept
+firing next to the live one.
+
+**Why.** Not epoch arithmetic — every number was right for the record it came from. The
+record was keyed on `case_id` alone, so the name governed a cwd that somebody else had
+re-armed; the watcher had no way to tell "this launch is still running" from "the owner
+removed STATUS to run again"; and the flag text named the case, not the launch, so a
+reader could not tell which launch it judged. A flag written once per FILE (`not
+flag.exists()`) then made it worse: a stale flag silenced every later launch of that cwd.
+
+**The fix (`scripts/queue_runner.py`, same day).** Every launch record carries its own
+launch stamp; a relaunch of a `case_id` ARCHIVES the previous record as
+`<name>.<its _launch.utc, colons stripped>.json` instead of overwriting it, and the watch
+reads only current records; a record whose STATUS has been seen is stamped
+`_launch.status_seen_utc` and is finished for good; both flag texts name the launch they
+judge (`launch_utc= pid= started_epoch=`) and are written once per launch record, a
+superseded flag's text kept beneath. `--selftest` plants the sequence and two mutation
+controls that flip (stamp not consulted → the stale flag; archive disabled → the `T5_C`
+shape fires).
+
+**Scope.** Any watcher, poller or grader that resolves "the run" through a name that can
+be re-used — `case_id`, a cwd, a STATUS path, a pidfile — while the state it watches can
+be reset by a party other than itself. The general form: the record must carry the
+identity of the event it describes, the watcher must judge only the current record, and
+any flag or verdict must name the event it judges, not the name it was found under.
+Sibling of L-342 (an infrastructure record voiding what it does not own) and of L-336
+(identity proved by the thing itself — session id — not by a name).
+
+**Provenance:** `verification/runs/ansys_verification/VMFL064-R2/CAP_OVERRUN.txt`
+(20:45:38Z); `verification/queue/LAUNCH_LOG.tsv` rows 27 and 33 (17:49:13Z pid 326419,
+20:45:43Z pid 390178); `verification/runs/T-family/T5_runs/T5_CUBE_c/{CAP_OVERRUN,
+ESTIMATE_OVERRUN}.txt` (20:52:11Z, 20:54:01Z) beside `launched/T5_C.json` and
+`launched/T5_C_v2.json`; the fix and its planted controls in the cfd commit of
+2026-08-26T22:15Z naming both instances; `docs/standards/QUEUE_RUNNER.md` §5.
