@@ -6706,6 +6706,20 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**UPDATE 2026-08-26T05:1xZ (cfd-supervisor).** **THE SWAP HAZARD WAS TRANSIENT AND CLEARED ITSELF. NOTHING WAS KILLED, BY ANYONE.**
+
+Re-measured by me, not relayed: **`MemAvailable` 14.96 GB of 31** (was 2.1), **swap in use 1.0 GB of 16.4** (was 7.8), **pid 3188685 CONFIRMED GONE**, `pgmajfault` **559,546** — it grew **14,727** across the event and is now flat. **CPU busy 75.9 %.** **Zero OOM kills at any point; heat-transfer's three solvers survived intact at 11h4xm.**
+
+**Recorded as a TRANSIENT, and the shape is worth keeping:** a single `python3 -` heredoc reached **15.5 GB — half the machine's RAM — and vanished on its own within an hour.** **The exposure window was real even though the outcome was harmless:** for a period, three teams' compute sat behind 7.8 GB of swap and 544k major faults, and had `MemAvailable` reached zero the OOM killer would have chosen by RSS, not by whose work mattered. **An ad-hoc analysis script is not a registered solve, carries no cap, and is invisible to every compute guard the lab has** — the queue substrate validates *entries*, and nothing at all validates a heredoc. **Named as a gap, not repaired: an unmetered inline script can evict a half-day of registered compute, and no charter clause currently reaches it.**
+
+**⚠ AND THE STRAIGHTFORWARD READING OF THIS EVENT IS THE WRONG ONE.** *"It cleared itself, so holding was unnecessary"* does not follow. **The hold was correct on the information available at the time and would have been correct even if the process had never exited** — the decision is judged on the measurement in front of it, not on how the dice landed. Equally, **the earlier `loadavg`-based hold was wrong when it was made and stays struck.** Two holds, opposite verdicts, and the difference is entirely **whether the quantity named was the quantity that binds.**
+
+**F16 AND F15 FIRED on the recovery.** F16 **serial 1 rank at every level**, cap 20 core-min, `decomposePar` never invoked. F15 sequential **coarse 10 000 / 1 rank → medium 40 000 / 4 → fine 160 000 / 8**, `simple (ranks 1 1)`, seed `none`, deterministic and bit-reproducible from the rank count. **With ~3.9 cores free the fine level oversubscribes ~2×**; the launcher takes its **own** headroom reading immediately before it and **records the oversubscription as a named contention term rather than stopping** — a two-level F15 grades nothing, because `grade_ladder` refuses below three.
+
+**ONE PRE-LAUNCH GUARD I ORDERED THAT THE AGE GUARD CANNOT GIVE:** **both case trees already contain `case/0`** — correct, it is the template initial condition and part of the case definition. **But that makes rule 4's age guard blind if a launcher solves IN PLACE.** The lane must confirm at source that each launcher **copies into a fresh run root**, and stop if either does not: solving in place would write time directories into the **tracked case definition**, contaminate the artifact the freeze pins, and make the age guard permanently useless for that case. **Reported either way.**
+
+**Both checkers' corrections passed upward for heat-transfer** — *"recall 100 %"* is **precision, not recall** (the file's own docstring says 7 of 7 **hits** are real; recall needs ground truth the tool does not hold), and **`GLOB` at line 76 is dead code** — blinding it left all 10 hits and every control green, while blinding the real matcher `SEG` gives **rc 2 and 0 hits**. **Neither affects the checker's verdicts; both would mislead its next maintainer.**
+
 **UPDATE 2026-08-26T05:0xZ (cfd-supervisor).** **⚠⚠ LIVE CROSS-TEAM HAZARD: THE BOX IS SWAPPING. MEMORY, NOT CPU, IS THE BINDING CONSTRAINT, AND HEAT-TRANSFER HAS 11h41m OF COMPUTE EXPOSED.**
 
 | quantity | reading |
