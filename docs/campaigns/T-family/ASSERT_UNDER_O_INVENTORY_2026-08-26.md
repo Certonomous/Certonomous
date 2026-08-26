@@ -309,3 +309,120 @@ recorded as unregistered legacy is a **supervisor's call at minimum** and touche
 **Neither instrument is re-graded and no verdict resting on either is reopened** — the
 2026-08-25T22:48Z bound holds regardless of whether a registration exists to disclose
 against.
+
+---
+
+## 8. ⚠ CORRECTION TO §7.2 BY THE LANE THAT WROTE IT — **THE PREMISE WAS FALSE. ALL ELEVEN CLASS A INSTANCES HAVE A REGISTRATION.**
+
+**Recorded as visible supersession, not a silent edit. §7.2 stands on the page above as
+written; what follows overrides it.**
+
+### 8.1 What was wrong
+
+§7.2 reported that A9, A10 and A11 had **no registration to amend**, and stated *"there
+is no `K0b_MESH_SENSITIVITY_PREREGISTRATION.md` and **no THERMAL_K0 pre-registration of
+any kind**"*.
+
+**The second half is false.** **`verification/campaign/THERMAL_K0_PREREGISTRATION.md`
+exists at `HEAD`**, dated 2026-08-17, opening *"Written before any solver ran. Every
+number below the line 'PREDICTIONS' was recorded before `buoyantBoussinesqSimpleFoam`
+was invoked for the first time in this campaign."* It carries falsifiable prediction
+bands, gates B1–B4, controls C1–C3, a cost section, an explicit scope clause, and it
+flags its own unresolved label collision rather than papering over it. **It is a real
+prediction-first freeze and it is exactly the document §7.2 concluded did not exist.**
+
+**Why it was missed:** the search covered `docs/campaigns/` and `verification/runs/`.
+**`FILING_CHARTER` registers THREE homes for a pre-registration** —
+`verification/campaign/` (*"Grading records / pre-registrations"*),
+`docs/campaigns/<FAMILY>/`, or beside the case. **Two of three were searched and an
+absence was reported from all three.** At `HEAD`, `verification/campaign/` holds **49**
+pre-registrations — the largest single location in the repository, and the one omitted.
+
+**What it nearly cost:** a ruling was proposed that every THERMAL_K0 row without a freeze
+predating its compute becomes `NOT A RESULT` under rule 2. **The ground did not exist.**
+The ruling was not made, because the supervisor checked the premise before ruling.
+
+**Recorded as `L-337`** — *a zero from a search not shown able to find a known instance
+is not evidence of absence*, standing rule 3 applied to the enumeration instead of the
+reader. This is the **third** wrong enumeration in twenty-four hours, and the three were
+wrong on three independent axes: **source** (§1's `git ls-files`), **place** (this one),
+and **key** (§8.3 below).
+
+### 8.2 Corrected disposition — all eleven are disclosed
+
+| instance | instrument | record amended | commit |
+|---|---|---|---|
+| **A9** | `K0b_mesh_sensitivity/analyse_k0b_mesh.py:350` | `docs/campaigns/F14-cooling-ladder/K0b_D406_REPAIR_PREREGISTRATION.md` (Amendment A3) | `a69dc97c` |
+| **A10, A11** | `THERMAL_K0_runs/analyse.py:67`, `:69` | `verification/campaign/THERMAL_K0_PREREGISTRATION.md` (Amendment A1) | `8345bf71` |
+
+**A9's home is NOT `THERMAL_K0_PREREGISTRATION.md`, and that was checked on the
+document's own text rather than taken on authority.** That pre-registration registers
+K0b at **exactly one mesh, `64 x 64 x 1 = 4096 cells`**, and its gate **B4** reads
+*"Imbalance < 0.5% of heat in, **on 4096 cells**"*. It contains no mesh-sensitivity,
+grid-refinement or multi-resolution arm. **The mesh-sensitivity study ran `32 x 32` and
+`128 x 128` — neither the registered mesh.** Its scope clause (*"Authorized compute: K0a
+and K0b only"*) names which **rungs** were authorised; it is not a licence to run a rung
+at unregistered resolutions.
+
+> **A REGISTRATION THAT FIXES ONE MESH DOES NOT SILENTLY AUTHORISE A LADDER OF THEM. The
+> scope clause names the rung; the body names the mesh; and the body is the part a
+> Roache ladder would have to contradict.**
+
+A9's actual home was found by asking which pre-registration **names the mesh-sensitivity
+meshes**: `K0b_D403_RERUN_PREREGISTRATION.md` (*"Campaign F14, rung K0b,
+mesh-sensitivity re-run"*) and `K0b_D406_REPAIR_PREREGISTRATION.md`, whose §13 names
+`K0b_mesh_sensitivity/build_and_run.sh` by full path and whose cost table prices the
+`32x32` and `128x128` legs. **The disclosure went to D406, the one that names the
+working tree directly.**
+
+### 8.3 §2's population is confirmed and one enumeration key is corrected
+
+**The 35 / 17 / 115 figures are unaffected** — they were derived from
+`git ls-tree -r HEAD` over the five territory roots, which is the correct source, and
+`verification/campaign/` holds no `.py` files under those roots. **§7.2's error was in a
+follow-up search for RECORDS, not in the assert census.**
+
+**But §7.1's enumeration of `analyse_k0b_mesh.py` copies WAS keyed wrongly.** It
+enumerated by **rung-named directory** (`K0b_D403_rerun`, `K0b_D406_repair`) and found
+two. **The third copy lives in `K0b_mesh_sensitivity/` — a directory named for the STUDY,
+not the rung** — and was recorded at §3 as A9 but not reached by §7.1's amendment sweep.
+**A census keyed on a naming convention measures the convention, not the population.**
+
+### 8.4 THE K2b QUESTION, ANSWERED — compute EXISTS, and it is **NOT** a rule-2 finding
+
+`THERMAL_K0_PREREGISTRATION.md:10-11` reads: *"Authorized compute: K0a and K0b only.
+K2b, the rack-row module and any turbulent SST case are explicitly NOT authorized and
+were not run."* Asked whether any K2b or rack-row compute exists.
+
+**It exists, in quantity.** Under `verification/runs/F14-cooling-ladder/K2b_runs/`:
+**43 log files**, **106 non-zero time directories**, `COST.txt` in at least eight cases,
+and solver logs for **both** `buoyantBoussinesqPimpleFoam` (`K2bU3_L025`, `K2bU3_L050`)
+and `buoyantBoussinesqSimpleFoam` (`K2bP_C1_g0`, `K2bP_under`, and others).
+
+**And it is not a violation, because K2b has TWO prediction-first pre-registrations of
+its own:**
+
+- `docs/campaigns/F14-cooling-ladder/K2b_UNSTEADINESS_PREREGISTRATION.md` — *"Campaign
+  F14, rung K2b, unsteadiness diagnosis. Written 2026-08-18 BEFORE any diagnostic solver
+  ran… Authorisation: 45 core-minutes on the 2D module."*
+- `docs/campaigns/F14-cooling-ladder/K2b_3D_UNSTEADINESS_PREREGISTRATION.md` — *"Written
+  2026-08-18 BEFORE any 3D transient ran… Authorisation: ~11 core-minutes."*
+
+> **THE THERMAL_K0 CLAUSE SCOPES ITS OWN CAMPAIGN'S COMPUTE, NOT THE LAB'S FUTURE.** It
+> says what *that* campaign did not authorise for *itself* on 2026-08-17 and correctly
+> records that it did not run it. **Later K2b work under its own registration is not a
+> rule-2 breach of a document that never claimed jurisdiction over it.** Reading a
+> campaign's self-limitation as a standing lab-wide prohibition would make every
+> honest scope clause a liability.
+
+**THE HONEST LIMIT, AND IT IS NOT SMALL.** The two K2b registrations name `K2b` and
+`K2bP_under`; the tree on disk carries at least **twelve** distinct case names
+(`K2bU3_L025`, `K2bU3_L050`, `K2bU3_D`, `K2bU_trans`, `K2b3D_probe`, `K2bP_C1_g0`,
+`K2bP_C2_dT13`, `K2bP_C3_plant`, `K2bP_C3b_noplant`, `K2bP_WSpalding`, `K2bP_coarse`,
+`K2bP_URelax`). **Whether every one of those is inside one of the two registrations is a
+per-case check this lane has NOT done and does not assert.** What is established is that
+**the rung is registered**, not that every case under it is. **That check is named as
+outstanding rather than assumed — which is the whole point of §8.1.**
+
+**Nothing in §8 re-grades anything.** No THERMAL_K0 row, no K2b row and no K0b row is
+reopened; the 2026-08-25T22:48Z bound holds throughout.
