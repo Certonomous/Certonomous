@@ -1,5 +1,23 @@
 #!/usr/bin/env python3
 """
+**RETIRED FROM THE GRADED PATH — 2026-08-26, by cfd-supervisor's check-1 refusal.**
+
+This file graded BAND-ONLY rows. The successor now runs FULL GRID TRIPLES, and this
+grader's in-scope guard (see `main()`, "came back WITH a grid triple") refuses any row
+that carries one — it would have refused EVERY row the rung produces. It is retired
+rather than inverted: inverting it would keep a band-only instrument inside a
+triple-scoped rung.
+
+It also routed grading to `grade_f3.py`, which reimplements the Roache triple at
+:377-395 and supplies no iterative or plateau states, so rule 5 limb (1) was never
+asked -- the `ABSENT` defect ruled on at 887ddfaf.
+
+THE LIVE GRADING PATH IS:
+    verification/runs/F3_runs/successor_triple_2026-08-26/grade_f3s.py
+which calls scripts/roache_triple.py::grade_ladder directly with both state sets.
+
+Kept on disk as the record of the superseded design. NOT part of any live rung.
+
 F3 SUCCESSOR (band-only rows) — THE GRADING PATH, frozen with its pre-registration.
 
 WHAT THIS IS, AND WHAT IT DELIBERATELY IS NOT
@@ -304,7 +322,7 @@ def main():
     # ---- annotate, data-driven -------------------------------------------
     report = dict(
         rung="F3-SUCCESSOR-BANDONLY",
-        prereg="verification/campaign/F3_SUCCESSOR_BANDONLY_PREREGISTRATION.md",
+        prereg="verification/campaign/F3_SUCCESSOR_TRIPLE_PREREGISTRATION.md",
         prereg_commit=a.prereg_commit,
         frozen_bytes_asserted=frozen,
         grading_is_done_by="conversion_2026-08-24/grade_f3.py (BYTE-UNCHANGED, "

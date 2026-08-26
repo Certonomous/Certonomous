@@ -1,6 +1,6 @@
 # F3 SUCCESSOR — PRE-REGISTRATION
 
-## STATUS: **DRAFT v2. NOT FROZEN. NOT FIRED. ZERO COMPUTE.**
+## STATUS: **DRAFT v3. NOT FROZEN. NOT FIRED. ZERO COMPUTE.**
 
 **Drafted 2026-08-26 by a cfd lab-lane under cfd-supervisor.** No solver was started, no
 mesher was run, no case directory was created, and no file under this rung's run root was
@@ -24,7 +24,24 @@ named**. **Condition: no run directory under this rung's root exists.** Checked 
 | scope | 2 runs, fine level only, band-only rows | **8 runs: two full grid triples + two control runs** |
 | convergence | open item, three limbs referred | **Class C, MEASURED, all four elements live** |
 | grading | delegate to `grade_f3.py` byte-unchanged | **must call `grade_ladder`** — see Annex H |
-| cap | 7.630 core-min | **17.6541 core-min** |
+| cap | 7.630 core-min | 17.6541 core-min |
+
+**v2 → v3 (2026-08-26, same condition, re-checked: no run directory exists under this rung's
+root).** cfd-supervisor **REFUSED the v2 freeze on check 1**, on three defects found by reading
+the grading path. All three are closed here, and **the second one corrected my reasoning, not
+just my code**:
+
+| defect | status |
+|---|---|
+| 1 — `grade_successor.py:336` refuses any row **carrying** a triple; every row this rung produces carries one | **CLOSED** — that grader is **RETIRED from the graded path**, not inverted |
+| 2 — **nothing in the path called `grade_ladder`**; routing through `grade_f3.py` reaches its reimplemented triple at `:377-395` with no states | **CLOSED** — new path calls `grade_ladder` **directly** |
+| 3 — the `-O` commitment was **prose, not a guard** | **CLOSED** — hard `__debug__` refusal at entry, driven and mutated |
+
+**Defect 2 is the one worth recording as a reasoning error.** v2 escalated scope to full triples
+*so that* `grade_ladder` could be satisfied — and then never called it. **Full triples are
+NECESSARY for `887ddfaf` and they are NOT SUFFICIENT.** Satisfying the ruling is a property of
+the *grading path*, not of the run matrix; the extra 10.024 core-min would have bought a triple
+that nothing gated. The scope escalation stands, but it was never the fix.
 
 **Two things forced the change, and only the first was foreseen.** cfd-supervisor ruled limb
 (a) — re-author the runners so steadiness is measured. Then **Annex H**: `grade_ladder`
@@ -84,18 +101,49 @@ run full triples or it cannot produce a row.
    Expected **14.7117 core-min**; **$0.012579 expected / $0.015094 at cap, DERIVED at
    $0.0513/core-h, NOT MEASURED** — this box cannot read its own billing.
 
-9. **Grading path.** Frozen at this document's commit:
-   `verification/runs/F3_runs/successor_triple_2026-08-26/instrument.py` (the instrumented
-   runner and the Class C gate) plus the ladder grader that calls `grade_ladder`. **It must not
-   reimplement the triple** — that is the `ABSENT` defect `887ddfaf` forbids repeating, and
-   `grade_f3.py:377-395` is the instance being avoided. Band values and exact references are
-   **imported from `grade_f3.py`'s frozen constants**, so nothing is re-derived.
+9. **Grading path.** Frozen at this document's commit, both under
+   `verification/runs/F3_runs/successor_triple_2026-08-26/` — **one rung, one root**:
+   `instrument.py` (instrumented runner, iterative and plateau states, Class C) and
+   `grade_f3s.py` (the grader). **`grade_f3s.py` calls
+   `scripts/roache_triple.py::grade_ladder` DIRECTLY**, supplying `iterative_states` **and**
+   `plateau_states`. **`grade_f3.py::apply_gate` is never called** — it reimplements the triple
+   at `:377-395` and supplies no states, which is the `ABSENT` defect `887ddfaf` forbids
+   repeating. **`grade_successor.py` is RETIRED from the graded path** (Annex H).
+
+   **THE BANDS ARE INHERITED; THE VERDICT RULE IS NOT.** Reading a frozen band out of F3's
+   registration is not re-deriving it. Invoking F3's comparator to obtain a *verdict* is
+   inheriting the thing that bypasses rule 5. Each band and reference is quoted **with its line
+   number** (Annex A) and **cross-checked at run time** against `grade_f3.py`'s own constants —
+   two independent frozen copies that must agree, or nothing grades.
 
 10. **What this rung does NOT do.** **It cannot change F3's tally and must never be cited as
     doing so.** F3 is CLOSED at **5 PASS, 1 GATE FAIL, 1 NOT A RESULT, 3 PENDING**. Its three
     `PENDING` cells stay `PENDING`, and stay `BLOCKED` as a launch request. This rung produces
     **its own rows under its own registration**. No frozen F3 file is edited; F3's 39.5 core-min
     cap is untouched and spent.
+
+---
+
+## WHAT A `NOT A RESULT` ON THE DIAMOND WOULD MEAN — REGISTERED NOW, PROMINENTLY, SO IT CANNOT BE RE-READ LATER
+
+**The 2026-07-28 diamond M2.5 triple is NON-MONOTONE: 0.013428 → 0.013395 → 0.013406.** If this
+rung's triple reproduces that shape it grades **`OSCILLATORY`** under rule 5 limb (2) and the row
+is **`NOT A RESULT`**, whatever the value.
+
+**That outcome is the rung WORKING, and it is registered as such before compute.** A row that
+reads `NOT A RESULT` because the gate asked a question the old record never asked is a
+**successful conversion**: the 2026-07-28 `−0.18 %` deviation, which reads like a clean result,
+would be shown to rest on a triple that carries no discretization-error estimate at all. **Nobody
+may later read such a row as a failed rung, as wasted compute, or as a reason to revisit the
+gate.** The registration states now what the outcome will mean, so that it cannot be re-read
+after it is seen.
+
+The same applies to a `NOT A RESULT` from limb (1): a level that is not plateaued is a finding
+about the run, not a defect in the gate.
+
+**What would make this rung a failure, stated equally plainly:** a row graded on an instrument
+mismatch rather than on physics; a cap totalled only at the end; a band moved after a value was
+seen; or a `PASS` emitted by a path that never asked limb (1).
 
 ---
 
@@ -229,6 +277,11 @@ exactly. All **8,071** `Time =` blocks in
 **A residual gate here is a gate quantity that can never be non-zero** — the class that has now
 bitten VMFL059 and F12's `P4`. **No residual gate is registered.**
 
+**Both state sets are computed by `instrument.py` and passed into
+`grade_ladder(iterative_states=…, plateau_states=…)` by `grade_f3s.py`. They are not printed
+beside a verdict reached some other way — they are the gate's own limb (1) inputs, and if either
+is missing `grade_ladder` refuses.**
+
 ### D.2 `iterative_states` — a real check that CAN fail
 
 `diagonal` is a **direct** solver: per-step linear convergence holds by construction and the
@@ -313,8 +366,52 @@ registered now, and **it is not a reason to alter the gate.**
 
 **Flag-proof refusals.** No `assert` carries a refusal, guard, control or gate in this rung's
 path — `python3 -O` deletes every `assert`, so all refusals are `raise` / `sys.exit(2)`.
-**Measured by AST, not grep: `instrument.py` 0 `Assert` nodes; `grade_successor.py` 0;
-`grade_f3.py` 0.** `ast_no_asserts()` runs this census as a **launch precondition**.
+**Measured by AST, not grep: `grade_f3s.py` 0 `Assert` nodes; `instrument.py` 0.**
+`ast_no_asserts()` runs this census as a **launch precondition**.
+
+### F.1 THE `-O` REFUSAL IS A GUARD, NOT A SENTENCE
+
+v2 registered "this path must never run under `-O`" as prose. **A prose commitment is not a
+guard — it is the shape L-332 exists to refuse.** `grade_f3s.py` now refuses at entry, as its
+first statement after the `sys` import and **before any other import runs**:
+
+```python
+if not __debug__:
+    sys.stderr.write("REFUSED: this grading path must not run under `python3 -O`. ...")
+    sys.exit(2)
+```
+
+**Driven:** `python3 grade_f3s.py --selftest` → rc 0, `SELFTEST GREEN`;
+`python3 -O grade_f3s.py --selftest` → **rc 2**, refusal, nothing else executed. This converts
+four inherited asserts in a shared instrument this rung does not own
+(`roache_triple.py:195, 632, 634, 637`) into a flag-proof refusal at the boundary it does own —
+**without editing `roache_triple.py`, which is not this rung's to edit** and is referred to
+verification.
+
+### F.2 EVERY GUARD MUTATED TO A NO-OP, AND ITS REFUSAL REQUIRED TO **DISAPPEAR**
+
+A refusal that survives its own guard's removal is not coming from that guard. Each row: an
+input that makes the guard fire, then the guard neutered on a scratch copy and the same input
+re-run. **The real files were never modified.**
+
+| guard | intact | neutered |
+|---|---|---|
+| `-O` entry refusal | rc 2, refuses | **rc 0 — gone** |
+| frozen-bytes assertion (one sha corrupted) | rc 2, refuses | **rc 0 — gone** |
+| inherited-value cross-check (band planted at 99.0) | rc 2, refuses | **its message gone** — rc stays 2 because the *separate* cross-check control still catches the plant. Defence in depth, and reported as such rather than as one guard doing two jobs. |
+| planted-zero reader control (reader mutated to a constant) | rc 2, refuses | **gone** |
+| Class C element 4 (series starved to 3 samples) | rc 2, refuses | **rc 0 — gone** |
+
+### F.3 A DEFECT THE MUTATION RUN FOUND, AND IT WAS MINE
+
+Neutering the planted-zero control returned **rc 1, not rc 2**. Cause:
+`roache_triple.refuse()` **raises `Refusal`; it does not exit.** `main()` did not catch it, so
+**every gate refusal from the shared instrument would have surfaced as an uncaught traceback at
+rc 1** — not the rc 2 that standing rule 4 requires of a comparator that refuses rather than
+degrades. A launcher reading rc would have seen a crash where the instrument was in fact working
+correctly. **Now caught and converted to exit 2**, and re-driven: the same mutation returns a
+clean rc 2 with the instrument's own message. **This is what the mutation requirement is for**,
+and it would not have been found by reading.
 
 **DEFECT FOUND AND REPAIRED — the manufactured-certification shape.** `grade_successor.py`'s
 `--selftest` previously ran `controls = selftest_annotator()` and then printed `SELFTEST GREEN`
@@ -373,7 +470,59 @@ and supplies `iterative_states` and `plateau_states`, or refuses.*
 **Therefore a single-level rung cannot call `grade_ladder` at all, and cannot satisfy the
 ruling.** Limb (a) at one level per pair would not have cured this either: measuring steadiness
 supplies the *states*, but not the three *levels*. **The rung runs full triples, or it produces
-no row.** That is the reason for v2's scope, and it is a finding, not a preference.
+no row.**
+
+### H.1 BUT FULL TRIPLES ARE NECESSARY, **NOT SUFFICIENT** — and v2 confused the two
+
+v2 escalated to full triples *so that* `grade_ladder` could be satisfied, and **then routed
+grading through `grade_f3.py` anyway, which never calls it.** Measured, with a planted control
+returning a known hit so the reader is shown able to see the token: `grade_f3.py` returns
+**zero** occurrences of `grade_ladder`, `iterative_states` and `plateau_states`. Rows graded
+that way would have been **`ABSENT`** — rule 5 limb (1) never asked — the precise defect
+`887ddfaf` ruled on. **The extra 10.024 core-min would have bought a triple that nothing gated.**
+
+**Satisfying the ruling is a property of the GRADING PATH, not of the run matrix.** The scope
+escalation stands on its own merits; it was never the fix.
+
+### H.2 `grade_successor.py` IS RETIRED FROM THE GRADED PATH
+
+Its `:336` guard refuses any in-scope row **carrying** a triple — correct for a band-only rung,
+and it would have refused **every row this rung produces**: eight runs, 17.654 core-min, every
+row failing on an instrument mismatch rather than on physics. **That is the F11 `C4` shape.**
+It is **retired, not inverted** — inverting it to refuse rows *without* a triple would keep a
+band-only instrument inside a triple-scoped rung. It remains on disk as the record of the
+superseded design, marked retired on its face.
+
+### H.3 END-TO-END, DRIVEN BEFORE ANY COMPUTE
+
+`selftest_fixture.py` builds synthetic run trees in the real on-disk formats and drives the
+whole path, so a scenario reaching a verdict here reaches it for the same reasons on real
+output. **This is the F11 `C4` lesson applied: the instrument is driven before it is fired.**
+
+| scenario | G-F3S-1 | G-F3S-2 | G-F3S-5 |
+|---|---|---|---|
+| converging triple, inside band | `PASS` | `PASS` | `PASS` |
+| converging triple, outside band | `PASS`¹ | **`GATE FAIL`** | **`GATE FAIL`** |
+| oscillatory triple | **`NOT A RESULT`** | **`NOT A RESULT`** | **`NOT A RESULT`** |
+| one level **NOT plateaued** | **`NOT A RESULT`** | **`NOT A RESULT`** | **`NOT A RESULT`** |
+| one level **not iteratively converged** | **`NOT A RESULT`** | **`NOT A RESULT`** | **`NOT A RESULT`** |
+
+¹ that fixture puts the fine value at **exactly** +0.5 %, the band edge, and the band is
+inclusive — so `PASS` is correct. The failing direction for surface pressure is evidenced
+instead by F3's executed `NOT A RESULT` on wedge M2.0 (Annex E).
+
+**Rows 3–5 are the load-bearing ones: rule 5 limb (1) and limb (2) are both genuinely reached.**
+`why` on the plateau row reads *"levels coarse,fine,medium are not iteratively converged or not
+plateaued; no grid claim can be made from this triple"* — emitted by `grade_ladder`, not by this
+rung's code.
+
+### H.4 The inherited assert exposure, now guarded rather than merely registered
+
+`grade_ladder` reaches its gate through **four `assert` statements** —
+`roache_triple.py:195, 632, 634, 637` — carrying `require_dim` and the `_seal` invariants
+(verdict in the fixed vocabulary; verdict one-way against the band verdict; **no GCI quoted on a
+non-monotone triple**). `python3 -O` deletes all four. **Annex F.1's entry refusal is the
+guard.** Repairing the shared instrument is **not this rung's to do** and is not done here.
 
 **One consequence must be named rather than left to be discovered.** `grade_ladder` reaches its
 gate through **four `assert` statements** — `roache_triple.py:195, 632, 634, 637` — which carry
@@ -457,8 +606,15 @@ F3. **This rung creates many sampled times, and lexicographically "9.0" sorts af
    it cannot be until compute is authorised. If arm B differs from arm A, the rung stops.
 4. **The wedge M2.5 coarse cost is a TRANSFER, not a measurement** (Annex B).
 5. **Whether the four `assert`-carried gates in the shared `roache_triple.py` will be repaired.**
-   Not this rung's to fix; the exposure is registered in Annex H and inherited knowingly.
-6. **Whether any other campaign leans on band-only rows as credentials.** Not swept — escalated
+   Not this rung's to fix. The exposure is now **guarded** at this rung's boundary (Annex F.1)
+   rather than merely registered, but the shared instrument is still exposed for every other
+   caller, and that is referred to verification.
+6. **Whether the end-to-end behaviour will hold on real solver output.** Every scenario in
+   Annex H.3 ran on **synthetic** trees written in the real formats. That proves the instrument's
+   logic and its refusals; it does not prove the readers cope with every quirk of real
+   `postProcess` output. The planted-zero controls run on the real artifacts at grade time and
+   refuse if a reader cannot see its plant.
+7. **Whether any other campaign leans on band-only rows as credentials.** Not swept — escalated
    as cross-family in `BAND_ONLY_RULING_2026-08-25.md` §7 and still open.
 
 ---
