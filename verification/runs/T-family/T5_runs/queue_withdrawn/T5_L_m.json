@@ -1,0 +1,25 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T5_L_m",
+  "prereg_commit": "503a9a13b1cbdb94846b7264d70b7ac0c2a508d8",
+  "prereg_path": "docs/campaigns/T-family/T5_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/run_one_t5.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/L_m",
+    "--timeout",
+    "66852",
+    "--ranks",
+    "1",
+    "--solver",
+    "chtMultiRegionSimpleFoam",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/L_m",
+  "ranks": 1,
+  "cost_core_min_estimate": 371.4,
+  "cost_basis": "derived: Model B POINT 6.19 core-h x 60 = 371.4 core-min at ranks 1 (T5_PREREGISTRATION.md L_m laminar baseline, S11.1 row `L_m` 6.19 core-h; AMENDMENT 2 row `L_m` 371.4 / cap 1114.2 / timeout 66852 s); USD 0.3175 = 6.19 core-h x $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5)",
+  "memory_floor_gb": 2.2,
+  "memory_basis": "estimated, not measured: 216214 cells (air+epoxy, read from log.checkMesh) at ~1 GB per 100k cells with a 2 GB floor",
+  "enqueued_by": "heat-transfer-supervisor; check 4 performed personally on commit 503a9a13 at 2026-08-26T16:58Z; entry written by lane"
+}

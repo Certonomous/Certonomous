@@ -1,0 +1,11 @@
+case=T5_CUBE_c
+rc=1
+wall_s=0
+ranks=1
+core_min=0.000
+timeout_s=8208
+capped=0
+checkMesh_rc=0
+solver=chtMultiRegionSimpleFoam
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/chtMultiRegionSimpleFoam
+note=SOLVER_NONZERO_EXIT
