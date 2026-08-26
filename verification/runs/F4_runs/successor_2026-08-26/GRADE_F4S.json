@@ -1,0 +1,981 @@
+{
+  "root": "/home/ubuntu/Certonomous/verification/runs/F4_runs/successor_2026-08-26/runs",
+  "dim": 2,
+  "fs": 1.25,
+  "form": "equal",
+  "rho_inf": 1.4,
+  "npoints": 400,
+  "ds": 0.0017543859649122805,
+  "window": 8,
+  "min_window": 8,
+  "assert_nodes_in_grader": 0,
+  "controls": {
+    "P4": {
+      "flat": {
+        "n": 8,
+        "p2p": 9.999999999732445e-07,
+        "dr": 0.01,
+        "slope": 1.2698412698072945e-07,
+        "drift": 3.333333333244148e-07,
+        "increments_growing": false,
+        "half_gap": 0.0,
+        "sustained_ok": true,
+        "trend_ok": true,
+        "iterative": "CONVERGED",
+        "plateau": "PLATEAUED",
+        "mean": 0.4400005
+      },
+      "ramp": {
+        "n": 8,
+        "p2p": 0.14000000000000007,
+        "dr": 0.01,
+        "slope": 0.053333333333333365,
+        "drift": 0.14000000000000007,
+        "increments_growing": false,
+        "half_gap": 0.08000000000000007,
+        "sustained_ok": false,
+        "trend_ok": false,
+        "iterative": "NOT CONVERGED",
+        "plateau": "NOT PLATEAUED",
+        "mean": 0.51
+      },
+      "growing": {
+        "n": 8,
+        "p2p": 0.0029000000000000137,
+        "dr": 0.01,
+        "slope": 0.000217142857142854,
+        "drift": 0.0005699999999999917,
+        "increments_growing": true,
+        "half_gap": 9.499999999995623e-05,
+        "sustained_ok": true,
+        "trend_ok": false,
+        "iterative": "NOT CONVERGED",
+        "plateau": "PLATEAUED",
+        "mean": 0.4401275
+      },
+      "passed": true
+    },
+    "P5": {
+      "refusal": "Class C: 7 snapshots in the window, registered minimum 8.  One reading is not evidence of convergence and a short window is refused, never graded",
+      "n": 7,
+      "passed": true
+    },
+    "C1": {
+      "near": {
+        "t_last": 5.99984,
+        "gap_in_dt": 0.4,
+        "accepted": true,
+        "why": null
+      },
+      "early": {
+        "t_last": 5.9988,
+        "gap_in_dt": 3.0,
+        "accepted": false,
+        "why": "/tmp/f4s_C1_5cjgp1an/early: reach test FAILED -- t_last 5.9988 + dt_final 0.00039999999999995595 = 5.9992 <= endTime 6.0; the solver could have taken another step without passing endTime"
+      },
+      "passed": true
+    },
+    "P3": {
+      "M6.0": {
+        "refusal": "runs/cyl/M6.0/medium/system/blockMeshDict: written (100 41), registered (100, 40)",
+        "restored": true,
+        "passed": true
+      },
+      "M7.0": {
+        "refusal": "runs/cyl/M7.0/medium/system/blockMeshDict: written (100 41), registered (100, 40)",
+        "restored": true,
+        "passed": true
+      },
+      "M8.0": {
+        "refusal": "runs/cyl/M8.0/medium/system/blockMeshDict: written (100 41), registered (100, 40)",
+        "restored": true,
+        "passed": true
+      }
+    },
+    "P0": {
+      "M6.0": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000001794,
+        "reader_delta": 0.0012340000000001794,
+        "reader": "read_xy(rho column)",
+        "artifact": "runs/cyl/M6.0/fine/postProcessing/sampleDict/6.000009028713065/r0_T_p_rho.xy",
+        "level": "index 255"
+      },
+      "M7.0": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000001794,
+        "reader_delta": 0.0012340000000001794,
+        "reader": "read_xy(rho column)",
+        "artifact": "runs/cyl/M7.0/fine/postProcessing/sampleDict/5.999999353137987/r0_T_p_rho.xy",
+        "level": "index 244"
+      },
+      "M8.0": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000001794,
+        "reader_delta": 0.0012340000000001794,
+        "reader": "read_xy(rho column)",
+        "artifact": "runs/cyl/M8.0/fine/postProcessing/sampleDict/5.99992751891617/r0_T_p_rho.xy",
+        "level": "index 238"
+      }
+    },
+    "P1": {
+      "M6.0": [
+        {
+          "shift": 7,
+          "i_base": 255,
+          "i_planted": 262,
+          "index_delta": 7,
+          "w_base": 0.3374366059491713,
+          "w_planted": 0.3374366059491713,
+          "s_base": 0.4479604154071112,
+          "s_planted": 0.4602411154071112,
+          "passed": true
+        },
+        {
+          "shift": -11,
+          "i_base": 255,
+          "i_planted": 244,
+          "index_delta": -11,
+          "w_base": 0.3374366059491713,
+          "w_planted": 0.3374366059491713,
+          "s_base": 0.4479604154071112,
+          "s_planted": 0.42866217203274515,
+          "passed": true
+        }
+      ],
+      "M7.0": [
+        {
+          "shift": 7,
+          "i_base": 244,
+          "i_planted": 251,
+          "index_delta": 7,
+          "w_base": 0.9451970484128204,
+          "w_planted": 0.9451970484128204,
+          "s_base": 0.4297284147977945,
+          "s_planted": 0.4420091147977945,
+          "passed": true
+        },
+        {
+          "shift": -11,
+          "i_base": 244,
+          "i_planted": 233,
+          "index_delta": -11,
+          "w_base": 0.9451970484128204,
+          "w_planted": 0.9451970484128204,
+          "s_base": 0.4297284147977945,
+          "s_planted": 0.41043017424976497,
+          "passed": true
+        }
+      ],
+      "M8.0": [
+        {
+          "shift": 7,
+          "i_base": 238,
+          "i_planted": 245,
+          "index_delta": 7,
+          "w_base": 0.006219707072160857,
+          "w_planted": 0.006219707072160857,
+          "s_base": 0.4175547717918903,
+          "s_planted": 0.42983547179189036,
+          "passed": true
+        },
+        {
+          "shift": -11,
+          "i_base": 238,
+          "i_planted": 227,
+          "index_delta": -11,
+          "w_base": 0.006219707072160857,
+          "w_planted": 0.006219707072160857,
+          "s_base": 0.4175547717918903,
+          "s_planted": 0.39825652179189036,
+          "passed": true
+        }
+      ]
+    },
+    "P1b": {
+      "M6.0": {
+        "planted_index": 399,
+        "located_index": 399,
+        "distance": 0.7,
+        "passed": true
+      },
+      "M7.0": {
+        "planted_index": 399,
+        "located_index": 399,
+        "distance": 0.7,
+        "passed": true
+      },
+      "M8.0": {
+        "planted_index": 399,
+        "located_index": 399,
+        "distance": 0.7,
+        "passed": true
+      }
+    },
+    "P2": {
+      "M6.0": {
+        "before": 0.4479604154071112,
+        "during": 0.4479604154071112,
+        "after": 0.4479604154071112,
+        "restored": true,
+        "passed": true
+      },
+      "M7.0": {
+        "before": 0.4297284147977945,
+        "during": 0.4297284147977945,
+        "after": 0.4297284147977945,
+        "restored": true,
+        "passed": true
+      },
+      "M8.0": {
+        "before": 0.4175547717918903,
+        "during": 0.4175547717918903,
+        "after": 0.4175547717918903,
+        "restored": true,
+        "passed": true
+      }
+    }
+  },
+  "rows": [
+    {
+      "quantity": "G-F4S-1-M6.0",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 0.4464609762192218,
+      "reference": 0.43946566521114816,
+      "band": [
+        0.42551403932551807,
+        0.45341729109677825
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 1000,
+          "value": 0.45224180046254336
+        },
+        {
+          "name": "medium",
+          "cells": 4000,
+          "value": 0.44830139594060564
+        },
+        {
+          "name": "fine",
+          "cells": 16000,
+          "value": 0.4464609762192218
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 1.0983089232384085,
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.45224180046254336,
+            0.44830139594060564,
+            0.4464609762192218
+          ],
+          "cells": [
+            1000,
+            4000,
+            16000
+          ],
+          "e21": 0.0018404197213838236,
+          "e32": 0.003940404521937724,
+          "GCI_pct": 0.45158978945591727,
+          "GCI_abs": 0.0020161721825112167,
+          "richardson": 0.44484803847321286,
+          "richardson_parent_convention": 0.4480739139652308
+        }
+      ],
+      "orders": [
+        1.0983089232384085
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000001794,
+        "reader_delta": 0.0012340000000001794,
+        "reader": "read_xy(rho column)",
+        "artifact": "runs/cyl/M6.0/fine/postProcessing/sampleDict/6.000009028713065/r0_T_p_rho.xy",
+        "level": "index 255"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "PLATEAUED"
+      },
+      "verdict": "PASS",
+      "order": 1.0983089232384085,
+      "GCI_pct": 0.45158978945591727,
+      "GCI_abs": 0.0020161721825112167,
+      "richardson": 0.44484803847321286,
+      "richardson_parent_convention": 0.4480739139652308,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.0983, GCI 0.4516 % = 0.00201617 absolute at Fs = 1.25",
+      "gate": "G-F4S-1",
+      "mach": 6.0,
+      "band_pct_of_reference": 3.1746793868246335,
+      "deviation_pct": 1.591776459877167,
+      "similarity": {
+        "levels": {
+          "coarse": {
+            "ntheta": 50,
+            "nr": 20,
+            "cells": 1000,
+            "h1": 0.010215501862642999
+          },
+          "medium": {
+            "ntheta": 100,
+            "nr": 40,
+            "cells": 4000,
+            "h1": 0.005154018643353546
+          },
+          "fine": {
+            "ntheta": 200,
+            "nr": 80,
+            "cells": 16000,
+            "h1": 0.0025882583122920867
+          }
+        },
+        "r21": 2.0,
+        "r32": 2.0,
+        "h1_ratios": [
+          1.9820459663677346,
+          1.9913076754650876
+        ]
+      }
+    },
+    {
+      "quantity": "G-F4S-1B-M6.0",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 0.44539473875,
+      "reference": 0.43946566521114816,
+      "band": [
+        0.42551403932551807,
+        0.45341729109677825
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 1000,
+          "value": 0.4320175425
+        },
+        {
+          "name": "medium",
+          "cells": 4000,
+          "value": 0.437938595
+        },
+        {
+          "name": "fine",
+          "cells": 16000,
+          "value": 0.44539473875
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "DIVERGENT",
+          "order": -0.332576028845835,
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.4320175425,
+            0.437938595,
+            0.44539473875
+          ],
+          "cells": [
+            1000,
+            4000,
+            16000
+          ],
+          "e21": -0.007456143750000033,
+          "e32": -0.005921052499999968
+        }
+      ],
+      "orders": [
+        -0.332576028845835
+      ],
+      "states": [
+        "DIVERGENT"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000001794,
+        "reader_delta": 0.0012340000000001794,
+        "reader": "read_xy(rho column)",
+        "artifact": "runs/cyl/M6.0/fine/postProcessing/sampleDict/6.000009028713065/r0_T_p_rho.xy",
+        "level": "index 255"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "PLATEAUED"
+      },
+      "verdict": "NOT A RESULT",
+      "why": "finest triple ('coarse', 'medium', 'fine') is DIVERGENT at dim = 2, observed order -0.3326; the value, every triple and every order are printed beside it, and NO GCI is quoted because the three values are not monotone",
+      "gate": "G-F4S-1B",
+      "mach": 6.0,
+      "band_pct_of_reference": 3.1746793868246335,
+      "deviation_pct": 1.3491551236438786,
+      "similarity": {
+        "levels": {
+          "coarse": {
+            "ntheta": 50,
+            "nr": 20,
+            "cells": 1000,
+            "h1": 0.010215501862642999
+          },
+          "medium": {
+            "ntheta": 100,
+            "nr": 40,
+            "cells": 4000,
+            "h1": 0.005154018643353546
+          },
+          "fine": {
+            "ntheta": 200,
+            "nr": 80,
+            "cells": 16000,
+            "h1": 0.0025882583122920867
+          }
+        },
+        "r21": 2.0,
+        "r32": 2.0,
+        "h1_ratios": [
+          1.9820459663677346,
+          1.9913076754650876
+        ]
+      }
+    },
+    {
+      "quantity": "G-F4S-1-M7.0",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 0.42913188085639725,
+      "reference": 0.4245982772504153,
+      "band": [
+        0.4110090956234202,
+        0.43818745887741045
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 1000,
+          "value": 0.43752085926587864
+        },
+        {
+          "name": "medium",
+          "cells": 4000,
+          "value": 0.43185379359341924
+        },
+        {
+          "name": "fine",
+          "cells": 16000,
+          "value": 0.42913188085639725
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 1.057981105532655,
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.43752085926587864,
+            0.43185379359341924,
+            0.42913188085639725
+          ],
+          "cells": [
+            1000,
+            4000,
+            16000
+          ],
+          "e21": 0.002721912737021992,
+          "e32": 0.005667065672459393,
+          "GCI_pct": 0.7327566642089411,
+          "GCI_abs": 0.003144492455220424,
+          "richardson": 0.4266162868922209,
+          "richardson_parent_convention": 0.4316474748205736
+        }
+      ],
+      "orders": [
+        1.057981105532655
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000001794,
+        "reader_delta": 0.0012340000000001794,
+        "reader": "read_xy(rho column)",
+        "artifact": "runs/cyl/M7.0/fine/postProcessing/sampleDict/5.999999353137987/r0_T_p_rho.xy",
+        "level": "index 244"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "PLATEAUED"
+      },
+      "verdict": "PASS",
+      "order": 1.057981105532655,
+      "GCI_pct": 0.7327566642089411,
+      "GCI_abs": 0.003144492455220424,
+      "richardson": 0.4266162868922209,
+      "richardson_parent_convention": 0.4316474748205736,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.0580, GCI 0.7328 % = 0.00314449 absolute at Fs = 1.25",
+      "gate": "G-F4S-1",
+      "mach": 7.0,
+      "band_pct_of_reference": 3.2004796898835846,
+      "deviation_pct": 1.0677395196561632,
+      "similarity": {
+        "levels": {
+          "coarse": {
+            "ntheta": 50,
+            "nr": 20,
+            "cells": 1000,
+            "h1": 0.010215501862642999
+          },
+          "medium": {
+            "ntheta": 100,
+            "nr": 40,
+            "cells": 4000,
+            "h1": 0.005154018643353546
+          },
+          "fine": {
+            "ntheta": 200,
+            "nr": 80,
+            "cells": 16000,
+            "h1": 0.0025882583122920867
+          }
+        },
+        "r21": 2.0,
+        "r32": 2.0,
+        "h1_ratios": [
+          1.9820459663677346,
+          1.9913076754650876
+        ]
+      }
+    },
+    {
+      "quantity": "G-F4S-1B-M7.0",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 0.4320175425,
+      "reference": 0.4245982772504153,
+      "band": [
+        0.4110090956234202,
+        0.43818745887741045
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 1000,
+          "value": 0.43881578875
+        },
+        {
+          "name": "medium",
+          "cells": 4000,
+          "value": 0.43355263125
+        },
+        {
+          "name": "fine",
+          "cells": 16000,
+          "value": 0.4320175425
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 1.7776065017951055,
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.43881578875,
+            0.43355263125,
+            0.4320175425
+          ],
+          "cells": [
+            1000,
+            4000,
+            16000
+          ],
+          "e21": 0.0015350887499999688,
+          "e32": 0.005263157500000004,
+          "GCI_pct": 0.1828907311494458,
+          "GCI_abs": 0.0007901200421721179,
+          "richardson": 0.4313854464662623,
+          "richardson_parent_convention": 0.4326496385337377
+        }
+      ],
+      "orders": [
+        1.7776065017951055
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000001794,
+        "reader_delta": 0.0012340000000001794,
+        "reader": "read_xy(rho column)",
+        "artifact": "runs/cyl/M7.0/fine/postProcessing/sampleDict/5.999999353137987/r0_T_p_rho.xy",
+        "level": "index 244"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "PLATEAUED"
+      },
+      "verdict": "PASS",
+      "order": 1.7776065017951055,
+      "GCI_pct": 0.1828907311494458,
+      "GCI_abs": 0.0007901200421721179,
+      "richardson": 0.4313854464662623,
+      "richardson_parent_convention": 0.4326496385337377,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.7776, GCI 0.1829 % = 0.00079012 absolute at Fs = 1.25",
+      "gate": "G-F4S-1B",
+      "mach": 7.0,
+      "band_pct_of_reference": 3.2004796898835846,
+      "deviation_pct": 1.7473611286484412,
+      "similarity": {
+        "levels": {
+          "coarse": {
+            "ntheta": 50,
+            "nr": 20,
+            "cells": 1000,
+            "h1": 0.010215501862642999
+          },
+          "medium": {
+            "ntheta": 100,
+            "nr": 40,
+            "cells": 4000,
+            "h1": 0.005154018643353546
+          },
+          "fine": {
+            "ntheta": 200,
+            "nr": 80,
+            "cells": 16000,
+            "h1": 0.0025882583122920867
+          }
+        },
+        "r21": 2.0,
+        "r32": 2.0,
+        "h1_ratios": [
+          1.9820459663677346,
+          1.9913076754650876
+        ]
+      }
+    },
+    {
+      "quantity": "G-F4S-1-M8.0",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 0.41727642275592575,
+      "reference": 0.41521901145222184,
+      "band": [
+        0.4016298298252267,
+        0.42880819307921697
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 1000,
+          "value": 0.4259145252358528
+        },
+        {
+          "name": "medium",
+          "cells": 4000,
+          "value": 0.4185003822293432
+        },
+        {
+          "name": "fine",
+          "cells": 16000,
+          "value": 0.41727642275592575
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 2.5987241529429244,
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.4259145252358528,
+            0.4185003822293432,
+            0.41727642275592575
+          ],
+          "cells": [
+            1000,
+            4000,
+            16000
+          ],
+          "e21": 0.0012239594734174686,
+          "e32": 0.00741414300650961,
+          "GCI_pct": 0.0724964460585054,
+          "GCI_abs": 0.00030251057673811064,
+          "richardson": 0.41703441429453525,
+          "richardson_parent_convention": 0.41751843121731624
+        }
+      ],
+      "orders": [
+        2.5987241529429244
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000001794,
+        "reader_delta": 0.0012340000000001794,
+        "reader": "read_xy(rho column)",
+        "artifact": "runs/cyl/M8.0/fine/postProcessing/sampleDict/5.99992751891617/r0_T_p_rho.xy",
+        "level": "index 238"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "PLATEAUED"
+      },
+      "verdict": "PASS",
+      "order": 2.5987241529429244,
+      "GCI_pct": 0.0724964460585054,
+      "GCI_abs": 0.00030251057673811064,
+      "richardson": 0.41703441429453525,
+      "richardson_parent_convention": 0.41751843121731624,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 2.5987, GCI 0.0725 % = 0.000302511 absolute at Fs = 1.25",
+      "gate": "G-F4S-1",
+      "mach": 8.0,
+      "band_pct_of_reference": 3.272774427998176,
+      "deviation_pct": 0.4955002653920256,
+      "similarity": {
+        "levels": {
+          "coarse": {
+            "ntheta": 50,
+            "nr": 20,
+            "cells": 1000,
+            "h1": 0.010215501862642999
+          },
+          "medium": {
+            "ntheta": 100,
+            "nr": 40,
+            "cells": 4000,
+            "h1": 0.005154018643353546
+          },
+          "fine": {
+            "ntheta": 200,
+            "nr": 80,
+            "cells": 16000,
+            "h1": 0.0025882583122920867
+          }
+        },
+        "r21": 2.0,
+        "r32": 2.0,
+        "h1_ratios": [
+          1.9820459663677346,
+          1.9913076754650876
+        ]
+      }
+    },
+    {
+      "quantity": "G-F4S-1B-M8.0",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 0.41754385875,
+      "reference": 0.41521901145222184,
+      "band": [
+        0.4016298298252267,
+        0.42880819307921697
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 1000,
+          "value": 0.42324561375
+        },
+        {
+          "name": "medium",
+          "cells": 4000,
+          "value": 0.40592105625
+        },
+        {
+          "name": "fine",
+          "cells": 16000,
+          "value": 0.41754385875
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "OSCILLATORY",
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.42324561375,
+            0.40592105625,
+            0.41754385875
+          ],
+          "cells": [
+            1000,
+            4000,
+            16000
+          ],
+          "e21": -0.011622802499999974,
+          "e32": 0.017324557500000004
+        }
+      ],
+      "orders": [
+        null
+      ],
+      "states": [
+        "OSCILLATORY"
+      ],
+      "monotone": false,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000001794,
+        "reader_delta": 0.0012340000000001794,
+        "reader": "read_xy(rho column)",
+        "artifact": "runs/cyl/M8.0/fine/postProcessing/sampleDict/5.99992751891617/r0_T_p_rho.xy",
+        "level": "index 238"
+      },
+      "iterative_convergence": {
+        "coarse": "NOT CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "NOT PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "PLATEAUED"
+      },
+      "verdict": "NOT A RESULT",
+      "why": "levels coarse,coarse are not iteratively converged or not plateaued; no grid claim can be made from this triple",
+      "gate": "G-F4S-1B",
+      "mach": 8.0,
+      "band_pct_of_reference": 3.272774427998176,
+      "deviation_pct": 0.5599086828050185,
+      "similarity": {
+        "levels": {
+          "coarse": {
+            "ntheta": 50,
+            "nr": 20,
+            "cells": 1000,
+            "h1": 0.010215501862642999
+          },
+          "medium": {
+            "ntheta": 100,
+            "nr": 40,
+            "cells": 4000,
+            "h1": 0.005154018643353546
+          },
+          "fine": {
+            "ntheta": 200,
+            "nr": 80,
+            "cells": 16000,
+            "h1": 0.0025882583122920867
+          }
+        },
+        "r21": 2.0,
+        "r32": 2.0,
+        "h1_ratios": [
+          1.9820459663677346,
+          1.9913076754650876
+        ]
+      }
+    }
+  ]
+}

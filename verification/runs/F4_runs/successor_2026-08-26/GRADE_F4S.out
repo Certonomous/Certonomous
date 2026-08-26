@@ -1,0 +1,51 @@
+wrote GRADE_F4S.json
+root  /home/ubuntu/Certonomous/verification/runs/F4_runs/successor_2026-08-26/runs
+dim 2  Fs 1.25  form equal  window 8 (min 8)
+ast.Assert nodes in this grader: 0
+
+G-F4S-1-M6.0           0.452242 -> 0.448301 -> 0.446461
+   states ['CONVERGING']  orders [1.0983089232384085]
+   band (0.42551403932551807, 0.45341729109677825)  (+/- 3.1747 % of Billig)  deviation +1.5918 %
+   band_verdict (G-F4S-2 channel): PASS
+   VERDICT: PASS
+   observed order 1.0983  GCI 0.4516 % at Fs = 1.25
+   why: finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.0983, GCI 0.4516 % = 0.00201617 absolute at Fs = 1.25
+
+G-F4S-1B-M6.0          0.432018 -> 0.437939 -> 0.445395
+   states ['DIVERGENT']  orders [-0.332576028845835]
+   band (0.42551403932551807, 0.45341729109677825)  (+/- 3.1747 % of Billig)  deviation +1.3492 %
+   band_verdict (G-F4S-2 channel): PASS
+   VERDICT: NOT A RESULT
+   why: finest triple ('coarse', 'medium', 'fine') is DIVERGENT at dim = 2, observed order -0.3326; the value, every triple and every order are printed beside it, and NO GCI is quoted because the three values are not monotone
+
+G-F4S-1-M7.0           0.437521 -> 0.431854 -> 0.429132
+   states ['CONVERGING']  orders [1.057981105532655]
+   band (0.4110090956234202, 0.43818745887741045)  (+/- 3.2005 % of Billig)  deviation +1.0677 %
+   band_verdict (G-F4S-2 channel): PASS
+   VERDICT: PASS
+   observed order 1.0580  GCI 0.7328 % at Fs = 1.25
+   why: finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.0580, GCI 0.7328 % = 0.00314449 absolute at Fs = 1.25
+
+G-F4S-1B-M7.0          0.438816 -> 0.433553 -> 0.432018
+   states ['CONVERGING']  orders [1.7776065017951055]
+   band (0.4110090956234202, 0.43818745887741045)  (+/- 3.2005 % of Billig)  deviation +1.7474 %
+   band_verdict (G-F4S-2 channel): PASS
+   VERDICT: PASS
+   observed order 1.7776  GCI 0.1829 % at Fs = 1.25
+   why: finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.7776, GCI 0.1829 % = 0.00079012 absolute at Fs = 1.25
+
+G-F4S-1-M8.0           0.425915 -> 0.418500 -> 0.417276
+   states ['CONVERGING']  orders [2.5987241529429244]
+   band (0.4016298298252267, 0.42880819307921697)  (+/- 3.2728 % of Billig)  deviation +0.4955 %
+   band_verdict (G-F4S-2 channel): PASS
+   VERDICT: PASS
+   observed order 2.5987  GCI 0.0725 % at Fs = 1.25
+   why: finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 2.5987, GCI 0.0725 % = 0.000302511 absolute at Fs = 1.25
+
+G-F4S-1B-M8.0          0.423246 -> 0.405921 -> 0.417544
+   states ['OSCILLATORY']  orders [None]
+   band (0.4016298298252267, 0.42880819307921697)  (+/- 3.2728 % of Billig)  deviation +0.5599 %
+   band_verdict (G-F4S-2 channel): PASS
+   VERDICT: NOT A RESULT
+   why: levels coarse,coarse are not iteratively converged or not plateaued; no grid claim can be made from this triple
+

@@ -1,0 +1,288 @@
+{
+  "cap_core_min": 36.0,
+  "cap_quantity": "wall seconds x ranks / 60 (CLAUDE.md rule 12); ExecutionTime is NEVER compared to this cap",
+  "ranks": 1,
+  "decomposition_seed": "none (identity; decomposePar is NOT invoked; np = 1)",
+  "running_total_core_min": 16.175540618101756,
+  "cases": [
+    {
+      "M": 6.0,
+      "level": "coarse",
+      "rc": 0,
+      "sample_rc": 0,
+      "surfsample_rc": 0,
+      "stage": "complete",
+      "clocks": {
+        "blockMesh_s": 0.3897056579589844,
+        "checkMesh_s": 0.22149968147277832,
+        "solver_timeout_s": 1200.0,
+        "solver_s": 6.380239486694336,
+        "sample_s": 0.3567824363708496,
+        "surfsample_s": 0.25129222869873047
+      },
+      "window": [
+        "3.3748543386",
+        "3.7498543386",
+        "4.1248543386",
+        "4.4998543386",
+        "4.8748543386",
+        "5.2498543386",
+        "5.6248543386",
+        "5.9998543386"
+      ],
+      "wall_s_total": 8.247724533081055,
+      "core_min_wall": 0.1374620755513509,
+      "ranks": 1,
+      "decomposition_seed": "none (identity; decomposePar is NOT invoked; np = 1)",
+      "cap_remaining_core_min_before": 36.0
+    },
+    {
+      "M": 6.0,
+      "level": "medium",
+      "rc": 0,
+      "sample_rc": 0,
+      "surfsample_rc": 0,
+      "stage": "complete",
+      "clocks": {
+        "blockMesh_s": 0.231734037399292,
+        "checkMesh_s": 0.2415752410888672,
+        "solver_timeout_s": 1200.0,
+        "solver_s": 29.591867208480835,
+        "sample_s": 0.3537745475769043,
+        "surfsample_s": 0.2742934226989746
+      },
+      "window": [
+        "3.3747208398",
+        "3.74986113063",
+        "4.12484581566",
+        "4.500021059566",
+        "4.875160953713",
+        "5.2497540711011",
+        "5.62491082708963",
+        "6.000170662342686"
+      ],
+      "wall_s_total": 30.727981328964233,
+      "core_min_wall": 0.5121330221494039,
+      "ranks": 1,
+      "decomposition_seed": "none (identity; decomposePar is NOT invoked; np = 1)",
+      "cap_remaining_core_min_before": 35.86253792444865
+    },
+    {
+      "M": 6.0,
+      "level": "fine",
+      "rc": 0,
+      "sample_rc": 0,
+      "surfsample_rc": 0,
+      "stage": "complete",
+      "clocks": {
+        "blockMesh_s": 0.32368946075439453,
+        "checkMesh_s": 0.3449711799621582,
+        "solver_timeout_s": 1200.0,
+        "solver_s": 230.52772498130798,
+        "sample_s": 0.5411841869354248,
+        "surfsample_s": 0.37340617179870605
+      },
+      "window": [
+        "3.374928958",
+        "3.749949203",
+        "4.1249194558",
+        "4.49996769223",
+        "4.874962650875",
+        "5.2500829658116",
+        "5.62500670019305",
+        "6.000009028713065"
+      ],
+      "wall_s_total": 232.14539122581482,
+      "core_min_wall": 3.8690898537635805,
+      "ranks": 1,
+      "decomposition_seed": "none (identity; decomposePar is NOT invoked; np = 1)",
+      "cap_remaining_core_min_before": 35.350404902299246
+    },
+    {
+      "M": 7.0,
+      "level": "coarse",
+      "rc": 0,
+      "sample_rc": 0,
+      "surfsample_rc": 0,
+      "stage": "complete",
+      "clocks": {
+        "blockMesh_s": 0.20765924453735352,
+        "checkMesh_s": 0.21634864807128906,
+        "solver_timeout_s": 1200.0,
+        "solver_s": 6.568418979644775,
+        "sample_s": 0.3017604351043701,
+        "surfsample_s": 0.24155688285827637
+      },
+      "window": [
+        "3.3745943662",
+        "3.7499055832",
+        "4.12501742192",
+        "4.499678197337",
+        "4.8754245748256",
+        "5.25048595117369",
+        "5.62534769439274",
+        "6.000140535443495"
+      ],
+      "wall_s_total": 7.562207221984863,
+      "core_min_wall": 0.12603678703308105,
+      "ranks": 1,
+      "decomposition_seed": "none (identity; decomposePar is NOT invoked; np = 1)",
+      "cap_remaining_core_min_before": 31.481315048535663
+    },
+    {
+      "M": 7.0,
+      "level": "medium",
+      "rc": 0,
+      "sample_rc": 0,
+      "surfsample_rc": 0,
+      "stage": "complete",
+      "clocks": {
+        "blockMesh_s": 0.22263336181640625,
+        "checkMesh_s": 0.22858476638793945,
+        "solver_timeout_s": 1200.0,
+        "solver_s": 36.55018162727356,
+        "sample_s": 0.38490724563598633,
+        "surfsample_s": 0.3013315200805664
+      },
+      "window": [
+        "3.37521180505",
+        "3.749853755921",
+        "4.1249303355269",
+        "4.50007244242128",
+        "4.87481303453922",
+        "5.2500466486584",
+        "5.624896879341455",
+        "6.000241494438384"
+      ],
+      "wall_s_total": 37.7168550491333,
+      "core_min_wall": 0.6286142508188883,
+      "ranks": 1,
+      "decomposition_seed": "none (identity; decomposePar is NOT invoked; np = 1)",
+      "cap_remaining_core_min_before": 31.355278261502583
+    },
+    {
+      "M": 7.0,
+      "level": "fine",
+      "rc": 0,
+      "sample_rc": 0,
+      "surfsample_rc": 0,
+      "stage": "complete",
+      "clocks": {
+        "blockMesh_s": 0.34061598777770996,
+        "checkMesh_s": 0.3843097686767578,
+        "solver_timeout_s": 1200.0,
+        "solver_s": 277.816773891449,
+        "sample_s": 0.5582461357116699,
+        "surfsample_s": 0.38408875465393066
+      },
+      "window": [
+        "3.37494938074",
+        "3.749948451907",
+        "4.1249835197336",
+        "4.49992295059893",
+        "4.875023873016723",
+        "5.250120651518679",
+        "5.625095390816204",
+        "5.999999353137987"
+      ],
+      "wall_s_total": 279.5291795730591,
+      "core_min_wall": 4.658819659550985,
+      "ranks": 1,
+      "decomposition_seed": "none (identity; decomposePar is NOT invoked; np = 1)",
+      "cap_remaining_core_min_before": 30.726664010683695
+    },
+    {
+      "M": 8.0,
+      "level": "coarse",
+      "rc": 0,
+      "sample_rc": 0,
+      "surfsample_rc": 0,
+      "stage": "complete",
+      "clocks": {
+        "blockMesh_s": 0.21159744262695312,
+        "checkMesh_s": 0.22377371788024902,
+        "solver_timeout_s": 1200.0,
+        "solver_s": 7.943816661834717,
+        "sample_s": 0.3154776096343994,
+        "surfsample_s": 0.2525064945220947
+      },
+      "window": [
+        "3.37471150938",
+        "3.750132976583",
+        "4.1247622230396",
+        "4.4998649575574",
+        "4.87528462627043",
+        "5.250008512200934",
+        "5.624980188598264",
+        "5.999790920062758"
+      ],
+      "wall_s_total": 8.981602430343628,
+      "core_min_wall": 0.14969337383906048,
+      "ranks": 1,
+      "decomposition_seed": "none (identity; decomposePar is NOT invoked; np = 1)",
+      "cap_remaining_core_min_before": 26.067844351132713
+    },
+    {
+      "M": 8.0,
+      "level": "medium",
+      "rc": 0,
+      "sample_rc": 0,
+      "surfsample_rc": 0,
+      "stage": "complete",
+      "clocks": {
+        "blockMesh_s": 0.23691654205322266,
+        "checkMesh_s": 0.24673867225646973,
+        "solver_timeout_s": 1200.0,
+        "solver_s": 40.22752332687378,
+        "sample_s": 0.35996007919311523,
+        "surfsample_s": 0.2991008758544922
+      },
+      "window": [
+        "3.37490201284",
+        "3.750021372061",
+        "4.1249228853526",
+        "4.5001955042497",
+        "4.87519189406628",
+        "5.249882657329015",
+        "5.625002552475129",
+        "6.000109745318508"
+      ],
+      "wall_s_total": 41.4092538356781,
+      "core_min_wall": 0.690154230594635,
+      "ranks": 1,
+      "decomposition_seed": "none (identity; decomposePar is NOT invoked; np = 1)",
+      "cap_remaining_core_min_before": 25.91815097729365
+    },
+    {
+      "M": 8.0,
+      "level": "fine",
+      "rc": 0,
+      "sample_rc": 0,
+      "surfsample_rc": 0,
+      "stage": "complete",
+      "clocks": {
+        "blockMesh_s": 0.3234257698059082,
+        "checkMesh_s": 0.3588221073150635,
+        "solver_timeout_s": 1200.0,
+        "solver_s": 322.5389652252197,
+        "sample_s": 0.5548162460327148,
+        "surfsample_s": 0.38876891136169434
+      },
+      "window": [
+        "3.3751017731",
+        "3.74989501",
+        "4.12502887895",
+        "4.50002436611",
+        "4.875069785311",
+        "5.2500418299452",
+        "5.62502163617163",
+        "5.99992751891617"
+      ],
+      "wall_s_total": 324.21224188804626,
+      "core_min_wall": 5.403537364800771,
+      "ranks": 1,
+      "decomposition_seed": "none (identity; decomposePar is NOT invoked; np = 1)",
+      "cap_remaining_core_min_before": 25.227996746699013
+    }
+  ]
+}
