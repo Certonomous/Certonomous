@@ -1,0 +1,255 @@
+--- ../ladder-a/A1/curriculum_D16/d16_xf.py	2026-08-26 21:08:03.129156761 +0000
++++ d17_xf.py	2026-08-26 22:21:17.293449464 +0000
+@@ -1,22 +1,27 @@
+ #!/usr/bin/env python
+-"""Curriculum D16 -- NACA0012 TRANSONIC (DARhoSimpleCFoam) baseline gradient instrument.
++"""Curriculum D17 -- Cone_Supersonic 2D wedge (DAHisaFoam, M 1.96) baseline gradient instrument.
+ 
+-DERIVED FROM `curriculum_D15/d15_xf.py` (d16_xf_DELTAS_from_d15.diff: item, producer = the
+-TRANSONIC tutorial runScript.py, its md5, this header), itself derived from
+-`curriculum_D5/d5_fd_endpoint.py` (md5 91b9f3526a39cb02eafbd5be504d7107) with these deltas:
+-  * PRODUCER is `d16_runScript.py` -- a BYTE COPY of the shipped tutorial
+-    `/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/transonic/runScript.py`
+-    (md5 420cf2e79aaabe7d67b4701bbb99a314) -- and PRODUCER_MD5 is that md5.
++DERIVED FROM `curriculum_D16/d16_xf.py` (d17_xf_DELTAS_from_d16.diff: item, producer = the
++Cone_Supersonic tutorial runScript.py, its md5, the scenario name `cruise`, the DV set
++`shape` ONLY (the tutorial has no patchV), the registered components and this header),
++itself derived from `curriculum_D15/d15_xf.py` and `curriculum_D5/d5_fd_endpoint.py`
++(md5 91b9f3526a39cb02eafbd5be504d7107) with these deltas:
++  * PRODUCER is `d17_runScript.py` -- a BYTE COPY of the shipped tutorial
++    `/home/ubuntu/dafoam-tutorials/Cone_Supersonic/runScript.py`
++    (md5 8621862522cf2af72f381f0d97660b8a) -- and PRODUCER_MD5 is that md5.
+     D4's instrument REFUSES any producer but its own, by md5; the refusal is
+     kept, re-pointed.
+   * TWO MODES, selected by `-mode X|F`.  X = the adjoint (compute_totals) of
+-    CD AND CL w.r.t. `shape` and `patchV` at the tutorial's BASELINE design
+-    (shape = 0, patchV = [U0, aoa0]), written to `d16_X.json`.  F = a CENTRAL
+-    finite-difference table over the REGISTERED STEP SET (three steps per DV
+-    kind, not the D4 clearance ladder) on the REGISTERED SUBSET of components,
+-    written to `d16_F.json` / `d16_F.jsonl`.  The design point is the BASELINE,
+-    not an optimiser endpoint: no endpoint file is read (D4's `d4_endpoint_dvs.json`
+-    clause is removed), so no optimiser runs in this item.
++    CD AND CL w.r.t. `shape` at the tutorial's BASELINE design (shape = 0),
++    written to `d17_X.json`.  F = a CENTRAL finite-difference table over the
++    REGISTERED STEP SET (three steps) on the REGISTERED SUBSET of components,
++    written to `d17_F.json` / `d17_F.jsonl`.  The design point is the BASELINE,
++    not an optimiser endpoint: no endpoint file is read, so no optimiser runs.
++  * The tutorial's scenario is named `cruise` (D16's was `scenario1`); the
++    tutorial defines CL as a FUNCTION (not a constraint) and by the wedge's
++    y-symmetry CL and dCL/dshape are ZERO BY CONSTRUCTION -- so CL is written
++    to the artefacts as a SYMMETRY READING and is NOT graded (PREREGISTRATION.md
++    section 3; the grader composes G5 on CD only).
+   * PLANTED-ZERO CONTROL COMPONENT `CTRL` (CLAUDE.md rule 3): a synthetic row
+     with CD_plus == CD_minus == CD_baseline (derivative EXACTLY 0.0, no solve)
+     and a PLANTED row with CD_plus = CD_baseline + PLANT (derivative EXACTLY
+@@ -40,35 +45,37 @@
+ import sys
+ import time
+ 
+-PRODUCER = "d16_runScript.py"
+-PRODUCER_MD5 = "420cf2e79aaabe7d67b4701bbb99a314"
++PRODUCER = "d17_runScript.py"
++PRODUCER_MD5 = "8621862522cf2af72f381f0d97660b8a"
+ ANCHOR = "# OpenMDAO setup"
+-ITEM = "D16"
++ITEM = "D17"
++SCENARIO = "cruise"
+ 
+ # ---- registered constants (PREREGISTRATION.md section 3) --------------------
+ ETA_FLOOR = 1.0e-14          # a measured eta below this is replaced by this and FLAGGED
+ STEPS = {
+-    "shape":  [1.0e-2, 1.0e-3, 1.0e-4],     # registered step set, FFD y-displacement units
+-    "patchV": [1.0e-1, 1.0e-2, 1.0e-3],     # registered step set, degrees of aoa
++    "shape": [1.0e-2, 1.0e-3, 1.0e-4],     # registered step set, FFD y-displacement units (metres)
+ }
+ # The REGISTERED SUBSET, named in advance: 5 physical components + the control.
+-# shape[0] = first interior shape function (i=1, j=0); shape[3] = (i=2, j=1);
+-# shape[6] = the LE thickness function (i=0) -- the A1 idx6-class component the
+-# shipped A1 row sign-flipped at its baseline; shape[7] = the TE function;
+-# patchV[1] = angle of attack (degrees).
++# The tutorial's shape functions are indexed i = 1..6 along the FFD x-direction
++# (7 FFD stations at x = 0.99, 1.16, 1.33, 1.50, 1.67, 1.84, 2.01; i = 0 at the
++# nose is NOT a DV); each moves the j = 0 and j = 2 FFD rows in opposite y (a
++# thickness function).  shape[0] = i = 1, the first station aft of the nose
++# (the LE-class function, D15/D16's shape[6] analogue); shape[5] = i = 6, the
++# base station.
+ COMPONENTS = [
+     ("shape", 0),
++    ("shape", 1),
+     ("shape", 3),
+-    ("shape", 6),
+-    ("shape", 7),
+-    ("patchV", 1),
++    ("shape", 4),
++    ("shape", 5),
+ ]
+ CTRL_STEP = 1.0e-3
+ PLANT = 1.234e-03            # rule 3
+ 
+-OUT_X = "d16_X.json"
+-OUT_F = "d16_F.json"
+-JSONL_F = "d16_F.jsonl"
++OUT_X = "d17_X.json"
++OUT_F = "d17_F.json"
++JSONL_F = "d17_F.jsonl"
+ 
+ 
+ def md5_of(path):
+@@ -92,7 +99,7 @@
+         if a == "-mode" and i + 1 < len(argv):
+             mode = argv[i + 1]
+     if mode not in ("X", "F"):
+-        sys.stderr.write("D16_XF usage: d16_xf.py -mode X|F\n")
++        sys.stderr.write("D17_XF usage: d17_xf.py -mode X|F\n")
+         sys.exit(64)
+     return mode
+ 
+@@ -101,14 +108,14 @@
+     mode = parse_mode(sys.argv)
+     got = md5_of(PRODUCER)
+     if got != PRODUCER_MD5:
+-        sys.stderr.write("D16_XF REFUSE producer md5 %s != frozen %s\n"
++        sys.stderr.write("D17_XF REFUSE producer md5 %s != frozen %s\n"
+                          % (got, PRODUCER_MD5))
+         sys.exit(2)
+ 
+     with open(PRODUCER) as fh:
+         src = fh.read()
+     if src.count(ANCHOR) != 1:
+-        sys.stderr.write("D16_XF REFUSE anchor %r appears %d times\n"
++        sys.stderr.write("D17_XF REFUSE anchor %r appears %d times\n"
+                          % (ANCHOR, src.count(ANCHOR)))
+         sys.exit(2)
+     header = src.split(ANCHOR)[0]
+@@ -116,7 +123,7 @@
+     # the producer header parses sys.argv; give it the registered task
+     saved_argv = list(sys.argv)
+     sys.argv = [PRODUCER, "-task", "run_model", "-optimizer", "IPOPT"]
+-    ns = {"__name__": "d16_frozen_header", "__file__": PRODUCER}
++    ns = {"__name__": "d17_frozen_header", "__file__": PRODUCER}
+     exec(compile(header, PRODUCER, "exec"), ns)
+     sys.argv = saved_argv
+ 
+@@ -127,7 +134,7 @@
+     rank = MPI.COMM_WORLD.rank
+     nprocs = MPI.COMM_WORLD.size
+     Top = ns["Top"]
+-    jsonl = JSONL_F if mode == "F" else "d16_X.jsonl"
++    jsonl = JSONL_F if mode == "F" else "d17_X.jsonl"
+ 
+     def emit(rec):
+         if rank != 0:
+@@ -140,23 +147,20 @@
+     ident = idwarp_identity()
+     emit({"kind": "identity", "item": ITEM, "mode": mode, "nprocs": nprocs,
+           "producer_md5": got, "solverName": ns["daOptions"].get("solverName"),
+-          "U0": ns.get("U0"), "aoa0": ns.get("aoa0"), "T0": ns.get("T0"),
+-          "p0": ns.get("p0"), **ident})
++          "U0": ns.get("U0"), "T0": ns.get("T0"), "p0": ns.get("p0"), "A0": ns.get("A0"),
++          "scenario": SCENARIO, **ident})
+ 
+     prob = om.Problem()
+     prob.model = Top()
+     prob.setup(mode="rev")
+ 
+     # ---- the BASELINE design: the producer's own defaults, read back ----------
+-    base = {"shape": np.array(prob.get_val("shape"), dtype=float).copy(),
+-            "patchV": np.array(prob.get_val("patchV"), dtype=float).copy()}
++    base = {"shape": np.array(prob.get_val("shape"), dtype=float).copy()}
+     emit({"kind": "baseline_dvs", "n_shape": int(base["shape"].size),
+-          "n_patchV": int(base["patchV"].size),
+-          "shape": [repr(float(v)) for v in base["shape"]],
+-          "patchV": [repr(float(v)) for v in base["patchV"]]})
++          "shape": [repr(float(v)) for v in base["shape"]]})
+ 
+-    CD = "scenario1.aero_post.CD"
+-    CL = "scenario1.aero_post.CL"
++    CD = "%s.aero_post.CD" % SCENARIO
++    CL = "%s.aero_post.CL" % SCENARIO
+ 
+     def primal(tag):
+         t0 = time.time()
+@@ -171,12 +175,12 @@
+ 
+     if mode == "X":
+         t0 = time.time()
+-        totals = prob.compute_totals(of=[CD, CL], wrt=["shape", "patchV"])
++        totals = prob.compute_totals(of=[CD, CL], wrt=["shape"])
+         emit({"kind": "compute_totals", "wall_s": round(time.time() - t0, 3)})
+         jadj = {}
+         for of_name, of_key in ((CD, "CD"), (CL, "CL")):
+             jadj[of_key] = {}
+-            for dv in ("shape", "patchV"):
++            for dv in ("shape",):
+                 arr = np.atleast_1d(np.array(totals[(of_name, dv)]).ravel())
+                 jadj[of_key][dv] = [repr(float(v)) for v in arr]
+                 emit({"kind": "adjoint", "of": of_key, "dv": dv, "n": int(arr.size),
+@@ -184,14 +188,14 @@
+         if rank == 0:
+             out = {"item": ITEM, "mode": "X", "producer_md5": got, "nprocs": nprocs,
+                    "identity": ident, "CD_baseline": repr(cd0), "CL_baseline": repr(cl0),
+-                   "baseline_dvs": {"shape": [repr(float(v)) for v in base["shape"]],
+-                                    "patchV": [repr(float(v)) for v in base["patchV"]]},
++                   "CL_note": "symmetry reading: the wedge is y-symmetric at 0 deg, CL and dCL/dshape are zero by construction; NOT graded",
++                   "baseline_dvs": {"shape": [repr(float(v)) for v in base["shape"]]},
+                    "adjoint": jadj}
+             with open(OUT_X, "w") as fh:
+                 json.dump(out, fh, indent=1, sort_keys=True)
+                 fh.flush()
+                 os.fsync(fh.fileno())
+-            sys.stdout.write("D16_X_WRITTEN %s\n" % OUT_X)
++            sys.stdout.write("D17_X_WRITTEN %s\n" % OUT_X)
+         MPI.COMM_WORLD.Barrier()
+         return
+ 
+@@ -206,7 +210,7 @@
+           "CL_repeat": repr(cl0r)})
+ 
+     def set_perturbed(dv, idx, delta):
+-        for k in ("shape", "patchV"):
++        for k in ("shape",):
+             prob.set_val(k, base[k].copy())
+         v = base[dv].copy()
+         v[idx] += delta
+@@ -235,7 +239,7 @@
+             emit({"kind": "fd_step", "dv": dv, "idx": idx, "step": s, "row": fd[key]})
+         rows.append({"dv": dv, "idx": idx, "status": "MEASURED", "fd": fd})
+     # restore
+-    for k in ("shape", "patchV"):
++    for k in ("shape",):
+         prob.set_val(k, base[k].copy())
+ 
+     # ---- the PLANTED-ZERO CONTROL COMPONENT (rule 3): no solve, written, read back
+@@ -263,10 +267,10 @@
+                     seen_plant = float(r["planted"]["dCD"])
+         want = PLANT / (2.0 * CTRL_STEP)
+         if seen_zero != 0.0 or seen_plant is None or abs(seen_plant - want) > 1e-12 * abs(want):
+-            sys.stderr.write("D16_XF REFUSE planted-zero control not seen on read-back: zero=%r plant=%r want=%r\n"
++            sys.stderr.write("D17_XF REFUSE planted-zero control not seen on read-back: zero=%r plant=%r want=%r\n"
+                              % (seen_zero, seen_plant, want))
+             sys.exit(2)
+-        sys.stdout.write("D16_PLANTED_ZERO_CONTROL_SEEN zero=%r plant=%r\n" % (seen_zero, seen_plant))
++        sys.stdout.write("D17_PLANTED_ZERO_CONTROL_SEEN zero=%r plant=%r\n" % (seen_zero, seen_plant))
+         out = {
+             "item": ITEM, "mode": "F", "producer_md5": got, "nprocs": nprocs,
+             "identity": ident,
+@@ -275,16 +279,16 @@
+             "steps": STEPS, "ctrl_step": CTRL_STEP, "plant": PLANT,
+             "CD_baseline": repr(cd0), "CL_baseline": repr(cl0),
+             "CD_baseline_repeat": repr(cd0r), "CL_baseline_repeat": repr(cl0r),
++            "CL_note": "symmetry reading: the wedge is y-symmetric at 0 deg, CL and dCL/dshape are zero by construction; NOT graded",
+             "eta_raw": repr(eta_raw), "eta_used": repr(eta), "eta_floored": eta_flagged,
+-            "baseline_dvs": {"shape": [repr(float(v)) for v in base["shape"]],
+-                             "patchV": [repr(float(v)) for v in base["patchV"]]},
++            "baseline_dvs": {"shape": [repr(float(v)) for v in base["shape"]]},
+             "rows": rows, "n_rows": len(rows),
+         }
+         with open(OUT_F, "w") as fh:
+             json.dump(out, fh, indent=1, sort_keys=True)
+             fh.flush()
+             os.fsync(fh.fileno())
+-        sys.stdout.write("D16_F_WRITTEN %s n_rows=%d\n" % (OUT_F, len(rows)))
++        sys.stdout.write("D17_F_WRITTEN %s n_rows=%d\n" % (OUT_F, len(rows)))
+     MPI.COMM_WORLD.Barrier()
+ 
+ 

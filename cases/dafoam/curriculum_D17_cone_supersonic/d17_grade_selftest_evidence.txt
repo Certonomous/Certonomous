@@ -1,0 +1,57 @@
+D17 GRADER SELFTEST EVIDENCE 2026-08-26T22:26:24Z grader_md5=a940b0ee51c9102bb27dd6aa4516f366 xf_md5=37b0861594065fd3a292224e1446d25a
+== python3
+  [OK ] U1 clean fixture -> item PASS, both rows PASS, G-M2/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> P1-P4, P6 HIT; P5 MISS (shape[0] clean by construction)
+  [OK ] U19 grader-level plant SEEN on both F tables (rule 3)
+  [OK ] U3 PLANTED 7 % error on shipped shape[3] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL
+  [OK ] U4 PLANTED sign flip on shipped shape[0] -> flip counted, SHIPPED GATE FAIL, P5 HIT, PATCHED PASS
+  [OK ] U5 PLANTED no-plateau on one component -> that component NOT A RESULT, row still PASS on 4 graded
+  [OK ] U6 three no-plateau components on PATCHED -> 2 graded < 3 -> row NOT A RESULT, item NOT A RESULT
+  [OK ] U7 rc=1 on X-P -> REFUSAL
+  [OK ] U8 OOMKilled=true on F-S -> REFUSAL
+  [OK ] U9 terminal marker absent in F-P log -> REFUSAL
+  [OK ] U10 artefact OLDER than the age datum (X-S) -> REFUSAL (rule 4)
+  [OK ] U11 instrument CTRL planted row broken -> REFUSAL (a reader not shown to see a non-zero)
+  [OK ] U12 X-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL
+  [OK ] U13 F-S core_min 301.0 > cap 300.0 -> G10 GATE FAIL
+  [OK ] U14 X-S on cpuset 4,14 (D16's) -> G12 GATE FAIL
+  [OK ] U15 cells 40001 -> G-M2 GATE FAIL, P1 MISS
+  [OK ] U16 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)
+  [OK ] U17 harness rc 0 vs kernel exit 1 disagreement -> REFUSAL
+  [OK ] U18 ledger row absent, no inspect record -> REFUSAL
+  [OK ] U20 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS
+  [OK ] U21 ast.Assert count = 0 in d17_grade.py and d17_xf.py
+  [OK ] U22 the assert counter sees a planted assert (=1)
+D17 GRADER SELFTEST units=22 expected=22 failures=0 python_O=False
+D17 GRADER SELFTEST PASS 22/22 (counted against the frozen EXPECTED_UNITS)
+rc=0
+== python3 -O
+  [OK ] U1 clean fixture -> item PASS, both rows PASS, G-M2/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> P1-P4, P6 HIT; P5 MISS (shape[0] clean by construction)
+  [OK ] U19 grader-level plant SEEN on both F tables (rule 3)
+  [OK ] U3 PLANTED 7 % error on shipped shape[3] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL
+  [OK ] U4 PLANTED sign flip on shipped shape[0] -> flip counted, SHIPPED GATE FAIL, P5 HIT, PATCHED PASS
+  [OK ] U5 PLANTED no-plateau on one component -> that component NOT A RESULT, row still PASS on 4 graded
+  [OK ] U6 three no-plateau components on PATCHED -> 2 graded < 3 -> row NOT A RESULT, item NOT A RESULT
+  [OK ] U7 rc=1 on X-P -> REFUSAL
+  [OK ] U8 OOMKilled=true on F-S -> REFUSAL
+  [OK ] U9 terminal marker absent in F-P log -> REFUSAL
+  [OK ] U10 artefact OLDER than the age datum (X-S) -> REFUSAL (rule 4)
+  [OK ] U11 instrument CTRL planted row broken -> REFUSAL (a reader not shown to see a non-zero)
+  [OK ] U12 X-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL
+  [OK ] U13 F-S core_min 301.0 > cap 300.0 -> G10 GATE FAIL
+  [OK ] U14 X-S on cpuset 4,14 (D16's) -> G12 GATE FAIL
+  [OK ] U15 cells 40001 -> G-M2 GATE FAIL, P1 MISS
+  [OK ] U16 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)
+  [OK ] U17 harness rc 0 vs kernel exit 1 disagreement -> REFUSAL
+  [OK ] U18 ledger row absent, no inspect record -> REFUSAL
+  [OK ] U20 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS
+  [OK ] U21 ast.Assert count = 0 in d17_grade.py and d17_xf.py
+  [OK ] U22 the assert counter sees a planted assert (=1)
+D17 GRADER SELFTEST units=22 expected=22 failures=0 python_O=True
+D17 GRADER SELFTEST PASS 22/22 (counted against the frozen EXPECTED_UNITS)
+rc=0
+== instrument py_compile + ast.Assert
+d17_xf.py ast.Assert = 0
+d17_cpuset_overlap.py ast.Assert = 0
+d17_aggregate_memory.py ast.Assert = 0
