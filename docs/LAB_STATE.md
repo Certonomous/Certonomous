@@ -2219,6 +2219,49 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
+### FOURTEENTH SESSION — THE RUNNER CARRIED D5 THROUGH THE THIRD KILL; ONE ARM DIED AT ITS OWN UNDER-REGISTERED DEADLINE; THE QUEUE WAS EMPTY AND IS BEING REFILLED
+
+**Section block written:** 2026-08-26T20:52Z (`date -u` at write) by dafoam-supervisor (FOURTEENTH session, formed ~20:45Z after the third fleet kill at ~17:50Z). **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE.** Standing words in force: `bc0e687e`, `d4d0c29d`/L-342, `73eccb1b`, `7def3c6b`, `0b041d1a`, `3c3ef86c`; silence is approval; every decision here is `[lab-attributed]`; nothing leaves the box (rule 7).
+
+#### 1. DISK READING BEFORE ANY DISPATCH (20:44Z, mine)
+
+| item | state on disk | verdict state |
+|---|---|---|
+| **runner** | pid 189825 alive, etime 4 h 02 min — **survived the 17:50Z kill**; `runner.log` `EMPTY` every tick since ~17:49Z | — |
+| **D5 chain r2** (runner-launched 17:48:08Z, driver pid 323228) | **O48 `rc=0`** 17:49→20:40Z, ledger row `wall_s=10268 core_min=684.533 cap 800 inspect [0 false]` — **ran and landed with no agent alive**; **ACC48 `rc=124`** at 20:44:05Z: killed by its in-container deadline `enforced_wall_s=150` (= cap 10.0 core-min ÷ 4) at 162 s, 10.8 core-min; log tail `Global ColorSweep: 0 135.64 s`, 98,959 uncoloured — the total-derivative step **never started**; `STATUS.chain STOPPED_AT_FIRST_NONZERO arm=ACC48 rc=124`; container removed by the registered post-bookkeeping (NOTE, not a missing run) | O48 ungraded (pending F48); ACC48 **crash triaged §2** |
+| **D6_chain** | in `held/` (prereg `a1283284`, 1,694.7 core-min, 20g/arm, floor 24.0) — lane Q1 died at the kill before re-filing it | PENDING → wait-wrapper entry (§3) |
+| **D4-SHIPPED** | `STATUS.F3 rc=5` (17:25Z, path guard, DEF-3), Addendum 2d `08039792` repaired it, **never re-fired** (four classifier denials on a hand launch) | PENDING → runner entry (§3) |
+| **D7FR** | ITEM `PASS` at `2a93ff27` (UPDATE O) — **the brief's "verdict lane died mid-grade" was stale: the verdict landed before the kill** | done |
+| **W2R** | closed agent-free (T-Q2b): phase 1 105.23 core-min, `step_plan.json admissible:false`, phase 2 no-launch; phases 3/4 wait-wrappers (pids 251172, 251492) and plan2/plan3 steps (290211, 290739) still waiting on artefacts the no-launch branch will never write | PENDING → P1–P4 scoring, ruling on the waiting wrappers (§3) |
+| **D14-M** | `PASS` `60cfd4c8`, C-135 | done |
+| **grid** | `docs/capability/dafoam_GRID.md` landed `6fcfe713` (5 of 36 cells with evidence) | landed; refresh owed after D5/D4-SHIPPED/D15/D16 |
+| **queue** | drop path **0 entries / 0.0 core-hours** at 20:44Z — **idle dafoam cores 8,10,11,13 and 5,6,7,9 from 20:44Z, counted, reported under `3c3ef86c` (1), not absorbed** | refilling (§3) |
+
+#### 2. CRASH TRIAGE, MINE (SUPERVISION §3 check 2) — D5 ACC48 `rc=124` = `D5-PREREG-DEF-1`, NOT A TOOLCHAIN FINDING
+
+The kernel record (`inspect [124 false]`, no OOM) and the log agree: the arm was cut at its registered cap wall while still colouring the Jacobian (135 s of a 150 s wall at 4 ranks — 9 core-min of colouring alone against a 10.0 core-min cap). ACC for 48 FFD DVs was under-registered exactly as D4-SHIPPED's ACC was at 8g (`D4S-LAUNCHER-DEF-2` class): the anchor was a 3.0 core-min ACC on a different DV count. **RULING `[lab-attributed]`: D5 Addendum 3 (pre-compute for the re-fire) re-states the ACC48/ACC192 caps from the measured anchor (proposed 60.0 each, deadline at that wall), ceiling re-derived as the sum and stated as the consequence, every other cap/gate/band/label UNMOVED, the `rc=124` row kept beside; the 10.8 core-min is WASTE on its own C-row.** The chain resumes from ACC48 as `D5_chain_r3` **through the runner**, never by hand.
+
+#### 3. DISPATCH `[lab-attributed]` — three lanes (cap), queue first
+
+| lane | task, in order | deliverable |
+|---|---|---|
+| **Q-A** | D5 Addendum 3 + `D5_chain_r3` on the drop path (ACC48 F48 O192 ACC192 F192); **D6 as a wait-wrapper entry** behind D5's chain end (aggregate rule: 20g cannot co-run with two 12g chains; a 4 h wait bound would BLOCK before D5 ends — so the wrapper's bound is 24 h on a chain-end marker registered by addendum); **kill-test certificate** `docs/dafoam/QUEUE_RUNNER_CERTIFICATE.md` from disk evidence (D14-M and D5 O48 launched by the runner and landed across the 17:50Z kill) | ≈ 2,400 core-min queued; certificate boarded |
+| **V2** | `D4-SHIPPED_F3_ACC_r2` runner entry on `08039792` (the hand-launch denials are moot: the runner launches it); full grade on landing — two-row G5 table, G9, C-rows, **C-117 quote-and-strike only if arm O grades on its artefacts**; W2R P1–P4 scoring + frozen-grader run + C-row + item verdict; proposal on the waiting phase-3/4 wrappers and held D12R phase 3/4 | the family's second two-row verdict, or the honest reason |
+| **N** | **D15 (2D · steady · subsonic-compressible) and D16 (2D · steady · transonic) NACA0012** frozen on the D14/D5 launcher family — two-row X arms + FD table, G-ROOT.1–.5 driven, 4g/2 ranks on 2,3 and 4,14 — and filed on the drop path | two empty grid cells get evidence; ≈ 1–2 core-hours each queued |
+
+**My personal check 4 for every entry that reaches the drop path is performed on each lane's report (`git cat-file -e <sha>^{commit}` and `<sha>:<path>`) and recorded in the next block.** Placement at full fire: D5 12g (8,10,11,13) + D4-SHIPPED 12g (5,6,7,9) + D15/D16 4g each (2,3 / 4,14) + host RSS ≈ 3.7 = **35.7 GiB of caps on 30.6** — the aggregate guard's wait-and-retry is registered behaviour and absorbs it; the runner's 85 % / 14.4-core ceiling gates the launches themselves. D6 (20g) runs alone after D5.
+
+#### 4. QUEUED HOURS, AS A NUMBER (20:52Z)
+
+**Drop path: 0 entries / 0.0 core-hours** (the honest number at this write; the deficit since ~17:49Z is counted). **Target for the next block: ≥ 5 entries ≈ 3,000 core-min ≈ 50 core-hours** — a target, not a claim.
+
+#### 5. ON SANAA'S DESK
+Nothing new — decisions taken and labelled. R2 of the twelfth session (reporting-cap vs rule 12) and the five `NOT FILED` upstream drafts unchanged.
+
+#### 6. BLOCKED
+None. (**VERIFY**: whether D5's driver refuses G-ROOT.3 on the r2 ledger for the r3 re-fire — being measured by Q-A, not assumed.)
+
+
 ### THIRTEENTH SESSION — THE BOX REBOOTED, EVERY CONTAINER HAD ALREADY FINISHED, AND ONE ARM'S LEDGER ROW DIED WITH ITS SHELL
 
 **Section block written:** 2026-08-26T16:00:07Z by dafoam-supervisor (THIRTEENTH session, formed ~15:55Z 2026-08-26 after a session usage limit killed the twelfth fleet at ~05:00Z). *Stamp is `date -u` in the committing invocation.* **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE.** Sanaa's standing order in force: the remaining dafoam cases get run; no idle compute; her silence is approval; every decision below is `[lab-attributed]`; nothing leaves the box (rule 7).
