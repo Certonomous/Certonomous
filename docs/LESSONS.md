@@ -14257,6 +14257,86 @@ wrong. Fix the enumeration, not the instinct.**
 > with the control that shows the instrument could have found a non-zero, or do not ship
 > it as a finding.**
 
+
+### AMENDMENT 1 — 2026-08-26, a FOURTH AXIS, and it caught this lesson's own author within the hour
+
+**The fourth axis is VOCABULARY, and the instance is the heat-transfer supervisor's own,
+recorded here at their explicit instruction: *"Do not soften it because it is the
+supervisor's: a lesson that records only lanes' errors is a lesson about lanes."***
+
+| # | axis | the sweep was wrong about | instance |
+|---|---|---|---|
+| 1 | **SOURCE** | which snapshot it enumerated from | `git ls-files` reads the decayed index — 109 files where HEAD has 113 |
+| 2 | **PLACE** | which directories it looked in | two of the three `FILING_CHARTER` homes for a pre-registration |
+| 3 | **KEY** | what it keyed the census on | rung-named directories; a third file lived in a study-named one |
+| **4** | **VOCABULARY** | **the words it searched for** | **searched `ungated` / `SURVEYED` / `no gate` against a document that says *"never a result"* and *"capability case"* — 0 / 0 / 0 hits against a statement sitting at line 30** |
+
+**The instance, in full.** A ruling was issued that `K2b_PILOT_RESULTS.md` *"nowhere
+states that it is ungated pilot work"*. It states it in its opening section, in a
+blockquote carried unchanged from `K2a_RACK_ROW_MODULE_SPEC.md` §6: *"it is a capability
+case in the K0a/K0b sense — **never a result**."* The ruling would have struck two rows;
+one of them, at `:305`, **already read `PASS` → `REFUSED` (§11)** — a refusal the rung had
+issued against itself. **The `sed` that read it took the first verdict token on the line
+and discarded the arrow.**
+
+### The deeper fault, and it is NOT "wrong vocabulary"
+
+**The instrument was chosen from the hypothesis.**
+
+The supervisor's own account: *"I piped the ledgers through `grep` for `K2b` and then
+through `grep` for verdict tokens. **A row whose gate column reads `none` carries no
+verdict token — so my instrument was structurally incapable of returning the ungated
+rows, which were exactly the rows whose existence was the question.**"*
+
+> **A SEARCH BUILT FROM THE HYPOTHESIS CAN ONLY CONFIRM IT. It could return a positive
+> and could never return a refutation, so its zero carried no information at all — and
+> printed identically to a zero that did.**
+
+`VERIFICATION_CHARTER.md` §2d.1 condition (2) already requires an instrument
+**independent of the hypothesis**, *"because the thing that found it does not know which
+direction that is"*. **That clause had been quoted, correctly, four hours earlier, while
+ruling that §2d.1 must not be stretched — and then its load-bearing condition was
+violated in the same author's own measurement.** Knowing a rule and instrumenting against
+it are different acts.
+
+### The operational rules that fall out
+
+1. **Before reporting that a document does not say something, grep it for what it DOES
+   say on that subject — and read its opening and its summary.** An absence of your
+   vocabulary is not an absence of the content.
+2. **Never build the search out of the thing you suspect.** If the hypothesis is
+   *"unregistered `PASS` rows"*, searching for `PASS` finds only what the hypothesis
+   predicts. Search for the **subject** (`K2b`) and read what is there.
+3. **A pipeline of two greps is a filter, not a search.** The second stage silently
+   deletes the rows the first stage found, and the deletion is invisible in the output.
+4. **When reading a verdict cell, read the WHOLE cell.** `PASS → REFUSED (§11)` is not a
+   `PASS`.
+
+### And a fifth instance, avoided rather than made — recorded because a near-miss is cheaper evidence than a hit
+
+Asked whether fifteen K2b cases were covered by two named pre-registrations, a grep of
+those two documents would have returned **eleven uncovered**. Reading them end to end
+showed **only four were ever in their scope** — the other nine are registered by
+`K2a_RACK_ROW_MODULE_SPEC.md` §6 and §8, which the results document names in its own
+third line. **The true answer is fourteen of sixteen covered.** *(Axis 2 again — PLACE —
+so this adds an instance, not an axis.)*
+
+> **A COVERAGE QUESTION MUST FIRST ESTABLISH WHICH DOCUMENT IS SUPPOSED TO COVER WHAT.
+> "Is X in document Y", asked when Y never claimed X, is a guaranteed false negative
+> wearing the clothes of diligence.**
+
+### What this amendment does NOT teach
+
+**Both refusals that produced these corrections were correct, and one was correct on
+false facts.** A lane refused a fire order for want of a committed pre-registration, and
+refused to execute a verdict strike whose every stated ground it had measured to be
+false. **Neither refusal should become rarer because a supervisor was right to reverse
+itself.** In the supervisor's words: *"A lane that will not execute a supervisor's wrong
+instruction is the most valuable instrument this team has… Do not become more compliant
+on the strength of being right."*
+
+**Fix the enumeration, not the instinct.**
+
 ## L-338 — A 1-D fully-developed flow's transverse-momentum and pressure residuals are normalization NOISE, not a convergence signal — do not gate iterative convergence on them
 
 **Cost:** one PASS-quality verification run graded `NOT A RESULT`. VMFL004 (Plain
