@@ -1,0 +1,10 @@
+F17 -- KOVASZNAY FLOW -- TALLY
+==============================================================================
+G-F17-1_E2_velocity_L2                   PASS
+    finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 2.0990, GCI 117.4438 % = 0.000167139 absolute at Fs = 1.25
+G-F17-2_u_at_probe                       PASS
+    finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 2.0699, GCI 0.0236 % = 9.00854e-05 absolute at Fs = 1.25
+==============================================================================
+cost actual: 1.200 core-min of cap 40.0 (ClockTime x ranks / 60; dollars derived, not measured)
+gated by: scripts/roache_triple.py::grade_ladder
+written: /home/ubuntu/Certonomous/verification/runs/F17_runs/F17_GRADED.json
