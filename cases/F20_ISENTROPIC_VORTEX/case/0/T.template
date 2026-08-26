@@ -1,0 +1,13 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object T; }
+// F20 isentropic vortex -- internalField = exact T = 1 - (gamma-1) beta^2/(8 gamma pi^2) e^{1-r^2} at t = 0,
+// at the built mesh's own cell centres (from 0/C), written by build_f20.py.
+dimensions      [0 0 0 1 0 0 0];
+internalField   nonuniform List<scalar> __INTERNALFIELD__;
+boundaryField
+{
+    left   { type cyclic; }
+    right  { type cyclic; }
+    bottom { type cyclic; }
+    top    { type cyclic; }
+    frontAndBack { type empty; }
+}

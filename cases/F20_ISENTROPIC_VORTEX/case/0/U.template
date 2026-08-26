@@ -1,0 +1,13 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// F20 isentropic vortex -- internalField = exact (u, v, 0) at t = 0, written LAST: the age guard dates every endTime field against it,
+// at the built mesh's own cell centres (from 0/C), written by build_f20.py.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   nonuniform List<vector> __INTERNALFIELD__;
+boundaryField
+{
+    left   { type cyclic; }
+    right  { type cyclic; }
+    bottom { type cyclic; }
+    top    { type cyclic; }
+    frontAndBack { type empty; }
+}

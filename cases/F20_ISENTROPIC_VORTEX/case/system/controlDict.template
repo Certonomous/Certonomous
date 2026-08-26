@@ -1,0 +1,19 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     rhoCentralFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         10;            // one period: the vortex returns to (5, 5)
+deltaT          __DT__;        // FIXED; refines by 2 with h (dt/h = 0.032 at every level)
+writeControl    runTime;
+writeInterval   10;            // fields at endTime only: the gates read t = 10
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+adjustTimeStep  no;            // dt is registered, never adapted
+maxCo           0.2;
+maxDeltaT       1;
