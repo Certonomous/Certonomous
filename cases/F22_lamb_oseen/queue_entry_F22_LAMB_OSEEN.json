@@ -1,0 +1,30 @@
+{
+  "team": "cfd",
+  "case_id": "F22_LAMB_OSEEN",
+  "prereg_commit": "29a47d994c708fddd856506fdaeea6025b44a166",
+  "prereg_path": "verification/campaign/F22_LAMB_OSEEN_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F22_lamb_oseen/run_f22.sh",
+    "--prereg-commit=29a47d994c708fddd856506fdaeea6025b44a166"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/F22_lamb_oseen",
+  "ranks": 1,
+  "cost_core_min_estimate": 532.3,
+  "cost_basis": "derived, not measured on the medium and fine levels: 36864 / 147456 / 589824 cells x 400 / 800 / 1600 icoFoam steps at 10.00 / 17.5 / 31.5 us per cell-step; the base rate MEASURED on THIS case's coarse grid in a 24-step scratch smoke arm (ExecutionTime 8.85 s, box load 26.6 on 16 cores -- contended, conservative), grown +75 % then +80 % per doubling of N per side from F18's MEASURED icoFoam/DIC-PCG ClockTimes as registered by F18b (F18b_TG2D_EXT_PREREGISTRATION.md section 8; F21's 10.71 us pimpleFoam figure disclosed, not used) = 147 + 2064 + 29727 serial s = 532.3 core-min (2.5 / 34.4 / 495.5 per level; asymptotic +100 %/doubling bound 666); registered CAP 1100 core-min (prereg section 8); dollars at the owner-stated $0.0513/core-h, reported-by-owner: $0.46 estimate, $0.94 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd lab-lane, 2026-08-26, for cfd-supervisor. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is NOT discharged by this file. HELD under the case directory until the supervisor acknowledges the freeze sha and moves it into verification/queue/cfd/.",
+
+  "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
+  "capability_grid_cell_068c2bf0": "2D . unsteady . incompressible",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs -- ABSENT at registration (rule-2 absence condition, prereg section 9, 2026-08-26T22:21:28Z); the launcher creates it and REFUSES any pre-existing 0/, numeric time or processor* directory in the run root or a level directory.",
+  "cwd_note": "cwd is the CASE directory (no time directory as a direct child; case/0 holds U.template and p.template). The launcher uses absolute paths and ignores cwd. A queue runner's wrapper writes launcher.queue.out and STATUS.F22_LAMB_OSEEN into cwd; both are INFRASTRUCTURE fields under L-342 and untracked.",
+  "levels": "coarse 192^2 x 400 steps (dt 0.01) / medium 384^2 x 800 (dt 0.005) / fine 768^2 x 1600 (dt 0.0025), T_END 4, dim 2, r = 2 in h and dt; ALL SERIAL on 1 rank, decomposePar not invoked, decomposition seed none",
+  "cap_core_min_registered": 1100.0,
+  "cap_behaviour": "checked incrementally after each level in ClockTime x ranks / 60 and PROJECTED before each level from the launcher's own box probe; a crossing HALTS at exit 3; the cap is never raised",
+  "registered_prediction": "G-F22-1 E2 of the velocity field at T_END CONVERGING with observed order ~2 (model 2.020), fine value in [1.172716e-06, 1.055445e-05]; G-F22-2 peak vorticity at T_END through the same-stencil reference 1.3260569937248692 CONVERGING (model raw triple 2.116), fine value in [1.325715747, 1.326398241]; both model triples run through scripts/roache_triple.py at registration, both CONVERGING; no plateau (transient value at a fixed instant, recorded ABSENT); rule 5 limb 1 is a census over every time step's final p residual <= 1e-9",
+  "mesh_admission": "coarse level built and checkMesh'd on a scratch copy: 36864 cells, Mesh OK, max non-orthogonality 0 deg (gate 70), max skewness 6.8e-14 (gate 4), max aspect ratio 1.0 (advisory 1000)",
+  "smoke_arm": "24 real icoFoam steps at the coarse level in scratch: rc 0, Time = 0.24 written with 36864 entries, ExecutionTime 8.85 s (10.00 us/cell-step), Ux initial residual 1.2e-04 (non-zero: the fields move), p DIC-PCG 345 -> 256 iterations, every final p residual <= 9.8e-10; ARM 2 one-iteration PASS; not a level, not retained, not a result",
+  "grade_cmd": ["python3", "/home/ubuntu/Certonomous/cases/F22_lamb_oseen/grade_f22.py", "--prereg-commit=29a47d994c708fddd856506fdaeea6025b44a166"],
+  "verdict_state": "PENDING"
+}
