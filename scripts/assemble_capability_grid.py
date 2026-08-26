@@ -258,6 +258,9 @@ def main():
           "```", "",
           f"Reading at assembly time ({now}, HEAD `{H[:8]}`): **{ok} ok, {missing} MISSING, {len(shas)} distinct shas.**"
           + (" MISSING lines: " + ", ".join(l.split()[0] for l in lines if l.endswith("MISSING")) if missing else ""), ""]
+    bad = [lab for lab, (c, _) in census.items() if c["unclassified"]]
+    if bad:   # refuse to emit a grid with unclassified verdict cells; the census row must be 4-way exact
+        sys.exit(f"REFUSED: unclassified verdict cells in {bad} — fix the classifier, not the family file")
     open(f"{REPO}/{a.out}", "w").write("\n".join(L))
     print(f"wrote {a.out}: HEAD {H[:8]}, shas {ok} ok / {missing} MISSING", file=sys.stderr)
     for label, _, _, _ in FAMILIES:
