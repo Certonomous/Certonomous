@@ -189,3 +189,32 @@ proposed here and is **not** decided by this lane.
 Memorandum 02-27-1959 tabulates values differing from this similarity solution at
 Pr = 0.003. **The memorandum is not in the lab's archive.** The Blasius constants control
 this lab's ODE solver; they are not proof that the memorandum agrees.
+
+---
+
+## ADDENDUM 1 — 2026-08-26 — the contention measurement §5 asserted but did not show
+
+**Appended at the foot, not an edit above. Lines whose number changed above this section:
+0. No verdict, value, band, triple state, cap or label moves by anything below.**
+
+§5 attributed the 2.467× cost gap to mesh-size scaling and named contention as
+unseparated. **It did not print the measurement that excludes the coarse form of
+contention, and an attribution whose evidence is not on the page is an assertion.** The
+measurement, read from each level's own `log.simpleFoam` and `RUN_RC.txt`:
+
+| level | `ExecutionTime` [s] | `ClockTime` [s] | launcher `wall_s` | ClockTime/ExecutionTime | wall_s/ClockTime |
+|---|---|---|---|---|---|
+| L1 | 27.44 | 27 | 27 | 0.9840 | 1.0000 |
+| L2 | 203.26 | 203 | 203 | 0.9987 | 1.0000 |
+| L3 | 2697.44 | 2704 | 2704 | 1.0024 | 1.0000 |
+
+Box load average during L3 was 13–21 on 16 cores (this team's three levels plus three
+heat-transfer solvers). **Both ratios sit at 1.00 at every level: the solver process was
+never descheduled, and the launcher's wall equals the solver's own clock exactly.** So
+**the wall time is clean in the CPU-starvation sense, stated as a measurement rather than
+assumed by default** — and that is the honest limit of the claim. It **excludes CPU
+starvation only.** Memory-bandwidth contention slows a process without moving either
+ratio, so it and GAMG-per-cell growth remain the two live candidates for the L3 gap and
+**they are NOT separated here.** No uncontended control was bought, so none is inferred.
+The direction of the evidence still favours mesh-size scaling, because L1 ran under the
+same load and came in at 1.071×.
