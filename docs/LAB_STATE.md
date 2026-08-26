@@ -10470,6 +10470,90 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-26T22:07:26Z — **GPU IDLE ROOT-CAUSED: VMFLGPU001's launcher_rc=2 was ITS OWN SMOKE-GATE REGEX refusing a smoke that PASSED; Amendment 2 + relaunch in flight (lane G); VMFL011-R2 grading (lane H); run-record ruling**
+
+**Written by `ansys-verification-supervisor` personally**, re-formed at 22:00Z after the fourth
+fleet kill (~21:30Z, monthly spend limit). Authority: Sanaa verbatim `bc0e687e`, `73eccb1b`,
+`7def3c6b`, `0b041d1a`, `3c3ef86c`; silence is approval; every decision below is
+`[lab-attributed]`. Board built from the HEAD blob (L-333); worktree copy was 28 lines
+stale-behind HEAD at write time.
+
+#### 1. THE GPU GUARD, NAMED — my check 2, measured over ssh at 21:59:51Z, not relayed
+
+- **Instance:** `ip-172-31-44-162`, load 0.00, GPU 0 %, 0 MiB; repo HEAD there `bd922993`
+  (an ancestor of lab HEAD, 67 behind). **Live runner: pid 65318,
+  `queue_runner.py --daemon --root /home/ubuntu/gpu_queue`** (a previous incarnation moved the
+  queue root OUT of the repo tree; crontab `@reboot` + `* * * * *` → `/home/ubuntu/gpu_queue_runner.sh`;
+  the repo-tree `runner.pid` 22114 is dead and is NOT the live runner). Its log reads `EMPTY` every
+  minute since 20:59Z. Five heat-transfer entries that had launched there by host mistake earlier sit
+  in `/home/ubuntu/gpu_queue/wrong_host_launches/`.
+- **The launch:** `LAUNCHED team=ansys-verification case=VMFLGPU001 pid=64727 sid=64727` at
+  **20:59:02Z**; `STATUS.VMFLGPU001` = `launcher_rc=2 end=2026-08-26T20:59:02Z`. Run root holds
+  ONLY that STATUS and `launcher.queue.out` — **zero compute, no 0/, no time dir, no solver log.**
+- **The guard, verbatim from `launcher.queue.out`:**
+  > `REFUSE (exit 2): /home/ubuntu/gpu_build/STATUS.smoke does not read smoke_rc=0. Contents follow, and this script does not interpret them charitably:`
+  > `    | smoke_rc=0 end=2026-08-26T17:41:33Z note=build_gpu_solver.sh-exit-0-and-build.log-carries-smoke-proven`
+- **Cause (read as code, mine):** `cases/ansys_verification/VMFLGPU001/run_vmflgpu001.sh:150`
+  (blob `1ffd0547`): `grep -Eq '^[[:space:]]*smoke_rc[[:space:]]*=[[:space:]]*0[[:space:]]*$'` —
+  anchored at end-of-line, it accepts only a BARE `smoke_rc=0`. The writer,
+  `~/gpu_build/run_build_and_smoke.sh:18`, writes `smoke_rc=0 end=<utc> note=…` — the lab's own
+  STATUS grammar (rc field, then `end=`, then `note=`, the same grammar the runner uses for
+  `launcher_rc=`). **Two of this team's instruments disagreed on one line's grammar; the smoke
+  had PASSED (build_rc=0 17:41:33Z; four smoke arms rc=0, GPU arms `aijcusparse`/`cuda`).** The
+  launcher refused its own proof. A guard that cannot pass on the exact artifact it was written
+  to read was never driven against a real positive (L-339 class; the launcher's driven set at
+  freeze covered four NEGATIVES and no positive of the writer's actual output).
+- **Ruling `[lab-attributed]`: PRE-COMPUTE AMENDMENT 2** (rule 2 — condition: zero compute,
+  checked on the run root over ssh): line 150's regex becomes
+  `'^[[:space:]]*smoke_rc[[:space:]]*=[[:space:]]*0([[:space:]]|$)'` (value 0 as the FIRST
+  field), nothing else in the launcher changes, gate/bands/cap/label untouched, driven in scratch
+  against 2 positives and 6 negatives before commit; push to the instance; re-enqueue on the live
+  root `/home/ubuntu/gpu_queue/ansys-verification/` with `prereg_commit` = the amendment sha;
+  refused attempt's files renamed `.attempt1` (kept). **Lane G (opus) executing; it also does
+  the GPU-runner kill test with the case running (Sanaa `3c3ef86c` certificate).**
+- **Idle GPU-hours since the smoke passed (17:41:33Z) to this write: ≈ 4.4 h, ≈ $3.5 derived at
+  $0.8048/GPU-h published-list, NOT measured** — waste, named, not absorbed (COMPUTE_BUDGET §6).
+  Attribution: this team's launcher; four incarnations ordered to fix it died before doing so.
+
+#### 2. BOX — measured 22:05Z
+
+| item | state |
+|---|---|
+| **VMFL011-R2** | ran via the runner 21:11:26Z (pid 452949) → `launcher_rc=0` 21:20:33Z; L1–L3 RUN_RC present; **UNGRADED — lane H grading now** (frozen 9f9d6925; my prediction on record: GATE FAIL; the comparator decides) |
+| **VMFL017-R2** | `rhoCentralFoam` pid 257744 alive 4 h 46 m under `timeout 18000` from 17:18:53Z → **cap fires ≈ 22:18:53Z**, rc 124 expected, launcher STOPS, `NOT A RESULT` as registered; lane H grades it when STATUS lands |
+| **VMFL064-R2** | `GATE REACHED`, row #30 (`87afd1d6`, C-141) — done |
+| register | **30 rows at HEAD; 6 PASS of 30**; headline re-derived and struck-corrected at `87afd1d6` |
+| ansys queue on the box | **EMPTY — queued agent-independent hours: 0.0 h.** Box at load 15.3/16; runner HELD above 85 % anyway |
+| `docs/capability/ansys_ROWS.md` | **VERIFIED at HEAD: blob `fe6d8728` identical at `b847b97f`, HEAD and worktree.** Owes rows #30/#31 (lane H appends a dated section) |
+
+#### 3. RULING `[lab-attributed]` — the register's cited run records that do not resolve at HEAD
+
+Measured: 711 files under `verification/runs/ansys_verification/` at HEAD, 6 617 on disk, 0 at
+HEAD missing on disk. The chief's 117 = cited paths absent at HEAD (rows #20/#21/#29 cite
+`RUN_RC` paths that `git cat-file -e` cannot resolve). **Ruling:** a register row's cited artifact
+must resolve **at HEAD and on disk** (CLAUDE.md preamble, VERIFICATION_CHARTER:51). The
+small physics-critical records — `RUN_RC.*`, `STATUS.*`, `GRADING*`, `RESULTS*`, `COST`/
+`CONTENTION`/`LAUNCH_RECORD`, `launcher.queue.out`, `log.<solver>`/`log.blockMesh`/
+`log.checkMesh` per level, and the postProcessing files the comparator reads — are committed
+**in the grading commit** from now on; bulk fields, time dirs, `polyMesh`, `processor*` stay
+on disk only. The 117 (lane H re-counts and reports its own number) are landed in ONE explicit-
+path commit, no row edited. A cited path absent on BOTH HEAD and disk is a bookkeeping failure
+under L-342: the verdict stands, the row gets an appended correction (mine, after lane H lists them).
+
+#### 4. LANES (cap 4) / NEXT / BLOCKED
+
+| lane | task |
+|---|---|
+| opus G | VMFLGPU001 Amendment 2 → push → re-enqueue → LAUNCHED pid → GPU kill-test certificate → launch record commit |
+| opus H | VMFL011-R2 grade + row #31 + C-row; 117 records landed; VMFL017-R2 at cap → row #32; ansys_ROWS rows #30–#32 |
+
+**NEXT (in order, as opus slots free):** VMFLGPU002 (tee junction, TEMPLATE-SPEED, CPU parent
+VMFL010) frozen on the VMFLGPU001 template and enqueued on the GPU root; then 003–007 bespoke,
+008–010 partial-coverage (draft doc's honesty note governs the claim); on the box, VMFL076-R2
+and the closed-form line (VMFL006, 020, 029, 038, 046, 061, 070) — each enqueued the moment it
+freezes; the GPU is stopped only after all 10 VMFLGPU cases complete (`3c3ef86c`).
+**BLOCKED:** none on permission this session so far (no classifier denial yet at this write).
+
 ### 2026-08-26T17:3xZ — **FIRST ANSYS QUEUE LAUNCH (VMFL017-R2, 17:18:52Z); the GPU build FAILED ONCE, was TRIAGED TO THE ROOT and RELAUNCHED; register 28 -> 29**
 
 **Written by `ansys-verification-supervisor` personally.** Commits since the 17:1xZ block:
