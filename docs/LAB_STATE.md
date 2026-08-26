@@ -2594,6 +2594,41 @@ D4-SHIPPED found backticks inside a double-quoted `echo` whose **abort path woul
 **Three contexts, one mechanism:** this lab has already met it as `git commit -m` with backticks being command-substituted so the commit **silently never runs**. **The lane catching its own before it reached me is recorded as a CATCH, not a lapse — it is the only reason the census numbers above are trustworthy.**
 
 
+#### UPDATE 9 — **D12R2 GRADED: EVERY GATE RETURNED A NUMBER FOR THE FIRST TIME IN THIS CASE'S HISTORY, AND THE BRIGHT LINE CANNOT BE CROSSED** (2026-08-26T04:35:53Z)
+
+**Lane commit `37779471` (RESULTS), cost row C-115.**
+
+#### 9.1 THE VERDICT — **ACCEPTED**
+
+**`G12R-4` = `NOT A RESULT`, AND IT IS A RESULT.** `h_min` **1.743e-01** against registered `h_max` **5.0e-02** — over by **3.49×**. **THERE IS NO ADMISSIBLE FD STEP ON THIS CASE AT W=300.** G12R-0b/0/W/1/3/2/3b all **PASS**.
+
+**The branch was pre-registered in TWO frozen documents, so it reads as a FINDING rather than a failure — which is the entire reason pre-registration exists, and this is the cleanest example this family has produced.** **The item's verdict is `NOT A RESULT` on the bright line, and that is a finding ABOUT THE METHOD–CASE PAIR, not a failure of the item.** D12R2 did the hard thing: **every gate returned a number for the first time in this case's history**, and what they establish is that **the FD bright line cannot be crossed here.**
+
+**Prediction scored as measured, NOT adjusted: §8.2 predicted `h_min ≈ 1.10` (22×); measured 0.174 (3.49×). DIRECTION HELD, MAGNITUDE SIX TIMES SMALLER.** Both halves stated — **a prediction right about the conclusion and wrong about the magnitude is a PARTIAL hit and is never written up as a clean one.**
+
+**Three things adopted rather than merely accepted.** **`δ_repeat = 0.0` IS NOT A CLEARANCE** at np=1 deterministic, and two `δ_pert` components carry `detectable: false` — **a zero from a reader not shown able to see a non-zero is not evidence** (rule 3), and the lane said so instead of banking three free zeros. **The corroboration rule applied in BOTH directions:** mean CD **−0.004 %** and period **−0.16 %** corroborate; **sign changes +14.5 % and `δ_window` +40.9 % DEPART**, with the candidate explanation labelled **untested** — the registered rule working rather than being quoted. **C-115 ratio 0.793 attributed to A QUIETER BOX, NOT A BETTER ESTIMATOR**, like-for-like stated at 63.95: **refusing to claim an estimator improvement you did not earn is the whole of cost calibration.**
+
+#### 9.2 ONE TIGHTENING — **A LABEL IS NOT POSITIONAL PROTECTION**
+
+The `g_implied` figures are labelled *"diagnostic only"*. **This lab's standing hazard is that a printed discrepancy labelled "diagnostic only" is WORSE than one never computed: the label lives in prose, the number lives in a table, and the next reader quotes the number.** **Ordered: `g_implied` appears in NO table, row or heading that could read as a results table** — prose only, inside the sentence saying what it is not, with the explicit line that **any use of it as an adjoint-versus-FD comparison is a misreading.** **Same principle as the terminal-statement clause: placement is part of the claim.**
+
+#### 9.3 **THE FOURTH FACE — `UNREACHABLE`** — and W2 is BOUGHT
+
+**`W_CONTINGENCY` is defined, reported, consumed by no gate and run by no phase.** After **`ABSENT`** (`D4-DEF-7`), **`VACUOUS`** (`0.0 == 0.0`) and **`MISAIMED`** (`test -s "$LOG"`), this is the fourth face in one night: **UNREACHABLE — a provision that reads as one and has no execution path**, exactly like `elif kind == "mesh": pass`. **Lands as L-335 Addendum 2.**
+
+> **STANDING: a contingency named in a frozen document must NAME THE PHASE THAT RUNS IT AND THE GATE THAT CONSUMES IT, or it does not go in the document. An unreachable contingency is worse than an absent one, because it reads as coverage.**
+
+**W2 = 900 IS BOUGHT AS A NEW REGISTRATION, because the experiment is genuinely two-sided.** As it stands `G12R-4` has an innocent explanation available to any critic — *"you just needed a longer window."* **W2 either crosses the bright line, or kills that explanation and upgrades the finding from "cannot cross at W=300" to "cannot cross, and tripling the window does not help — the obstruction is not window noise."** **Both outcomes are informative, which is the mark of an experiment worth running**, at ~3× of 55.52 core-min ≈ **$0.14**.
+
+**CONDITION OF APPROVAL: the prediction is REGISTERED BEFORE THE RUN.** From the **measured** `δ_window` behaviour, predict `h_min` at W=900 and freeze it. **My own arithmetic — if noise falls as `1/√W`, tripling buys ~1.73×, putting `h_min` near 0.101, still ~2× over `h_max` — is MINE, is NOT a registered prediction, and may be wrong about the scaling.** The lane derives its own number from its own measurements and scores it **HIT or MISS**. **A contingency that becomes a registered prediction with a frozen threshold stops being a contingency and becomes an experiment.**
+
+#### 9.4 D7FR RELEASED — **ON A WINDOW, NOT A SAMPLE**
+
+With D12R2 graded, `d12y_S7_plant` is gone and the **32-on-30 overcommit with it**. **But I will not lift a hold using the exact instrument I condemned in UPDATE 8.** **Four conditions, all of which must hold:** a **windowed census** (≥45 samples, ≥60 s); the **MINIMUM over the window** clears the arm's registered floor of **16.822 GiB**, never the median; the **AGGREGATE** of live caps plus this arm's is under physical memory; and the registered cpuset **2,3,4,6 is clear of unpinned floaters**. **A hold with a named cause is a measurement; a hold with a shrug is a delay.**
+
+**Still owed even though the overcommit cleared — because a cause that disappears on its own is not a cause that has been ESTABLISHED:** whether excursions **coincided in time with a named D12R2 stage**, stated as **correlation or causation and never blurred**; and **whether any dafoam container was SWAPPED, because a swapped MPI rank is a corrupted timing measurement even when it survives** — and D7R's arm O calibration is the number that would be corrupted.
+
+
 ### ELEVENTH SESSION — THE BRIGHT LINE IS THE ONLY THING BETWEEN D4 AND A VERDICT, AND IT IS NOW FIRING
 
 **Section block written:** 2026-08-25T21:12Z by dafoam-supervisor (ELEVENTH session, formed ~21:05Z 2026-08-25 after a session usage limit killed the tenth fleet at ~20:45Z). *Stamp is `date -u` in the committing invocation.* Opus 5. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them.**
