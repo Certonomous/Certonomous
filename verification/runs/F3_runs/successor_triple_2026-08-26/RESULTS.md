@@ -118,7 +118,15 @@ build, `blockMesh`, `checkMesh` and `postProcess`, which `ExecutionTime` would a
   With the arithmetic proven identical, that difference is environment, not work. **Waste: zero**
   (all 8 runs rc 0, none re-run, none killed).
 
-**Estimate-versus-actual is recorded in `docs/COST_CALIBRATION.md`.**
+**Estimate-versus-actual is recorded in `docs/COST_CALIBRATION.md` as row `C-112`.**
+
+*Correction of record: this row was first committed as `C-98`, which was a COLLISION with an
+existing ansys-verification row. The id had been re-derived in-invocation from the HEAD blob's
+tail as the maximum, per rule 11 — but with a pattern (`^\| *C-[0-9]+`) blind to the ledger's
+dominant `| **C-NNN** |` format, so it saw 97 rows where 113 exist and reported a maximum 14
+short. **A maximum taken by a reader not shown able to match every row is not a maximum** —
+standing rule 3 applied to an id sweep. The corrected extractor takes the first table cell,
+strips bold and whitespace, and is planted in both formats before it is trusted.*
 
 ---
 
