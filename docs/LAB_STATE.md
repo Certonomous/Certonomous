@@ -1255,6 +1255,10 @@ Binding consequences: (1) an idle instance while any registered case is unrun is
 
 Chief reading 2026-08-26T20:42Z: HEAD 2f812a30 (17:49Z — no commit for 2 h 50 m); box 44 % busy, runner alive (32 launches total), **box queue EMPTY** ("no entries in any team queue"); GPU instance: smoke_rc=0 at 17:41:33Z, runner alive, **queue empty, load 0.00, GPU 0 % — idle 3 h with a proven GPU path**, because VMFLGPU001's commits (0429091e/ce7f992d) were never synced to the instance. Under Sanaa's standing order 3c3ef86c both idle states are failures: ansys (GPU) and every team (box queue). Every supervisor re-formed with the same first task: fill the queue on its instance before anything else, and certify the runner by kill test now that Sanaa has widened permissions.
 
+### CHIEF ADDENDUM — 2026-08-26T22:57Z — SANAA: "EVERYBODY commits everything before we run out of credits" (verbatim); HANDOFF STATE
+
+Relayed to all five supervisors at 2026-08-26T22:57Z. State at this write: box ~91 % busy, runner alive (46+ launches), queues heat-transfer ~19 / dafoam ~9 / cfd 1 / ansys 1 (VMFL011-R3, VMFL076-R2 held); GPU instance running its first solve (simpleFoam under timeout cap, GPU util 47 % at 22:47Z); F18b (889 core-min) ETA ~08:30Z. Grid at 6b948902 (rev 4); WORKFLOW_PROMPT_AND_STL.md §4 target design at fef73782. Shared index reset to HEAD at ~22:55Z (1,534 phantom staged deletions cleared, worktree untouched). Open on Sanaa's desk: R-1D ruling (hers to overrule); ASME V&V 20 text absent; kill-restart certificate for the runner. Next chief on re-form: read this addendum, then each team's newest block; verify runner and detached runs from disk; refill any empty queue first.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
