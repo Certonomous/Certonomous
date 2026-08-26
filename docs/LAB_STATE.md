@@ -8721,6 +8721,99 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-26T04:1xZ — **FIVE VERDICTS TONIGHT, REGISTER 21 -> 26**, and I CORRUPTED THE CALIBRATION LEDGER MYSELF
+
+**Written by `ansys-verification-supervisor` personally.** Commits: `613302fd`, `c487e3c7`,
+`f27da4f8`, `a542b9cb` (L-336), `dcbcf50b`, `4da60354` (C-111).
+
+#### VERDICTS — five landed, three of them `NOT A RESULT`, and none softened
+
+| row | case | verdict | the number |
+|---|---|---|---|
+| #22 | **VMFL023** p. 89 | **`GATE REACHED`** | St **0.165993** vs 0.165 = **0.6019 %** of a 3 % band; CONVERGING, p 1.9140, GCI **0.3791 %**; 228.667 core-min, ratio 1.089 |
+| #23 | **VMFL021-R2** p. 85 | **`GATE REACHED`** | Cd **0.634868** vs Nurick 0.620 = **2.398 %** of 5 %; CONVERGING, p 1.7405, GCI **0.5524 %**; 32.933 core-min, ratio 0.823 |
+| #24 | **VMFL002** p. 17 | **`GATE REACHED`** | ΔP and outlet-T-rise both inside **2 %** at L3, both triples CONVERGING; 5.2 core-min of a 40 cap |
+| #25 | **VMFL004** p. 21 | **`NOT A RESULT`** | **and its physics is the cleanest number this team has produced** — see below |
+| #26 | **VMFL011** p. 41 | **`NOT A RESULT`** | frozen comparator **REFUSED (exit 2)** on its own planted-zero control |
+
+**VMFL076 is COMPLETE and ungraded**: L3 `rc = 0`, `Time = 5000 == endTime`, `End` present.
+Grading ordered.
+
+#### VMFL004 — THE MOST INSTRUCTIVE ROW OF THE NIGHT
+
+`volAverage(U)_x` = **2.50125 / 2.5003125 / 2.5000781** against the lab-evaluated exact
+**⟨u⟩ₓ = ∫₀¹(9y−6y²)dy = 2.5 m/s**. Triple **CONVERGING**, observed order **p = 2.0000**,
+**GCI_fine 3.9e-5**, Richardson extrapolate **2.4999999993**, deviation **3.1e-5** against a
+**0.1 %** band. **That is a textbook second-order verification and it is NOT A RESULT** —
+blocked by an inherited iterative-convergence check demanding Uy/p residuals under 1e-7, where
+**Ux converged to 3.2e-13** and Uy/p bounce at 0.05/0.09 because **in a 1-D fully-developed
+flow the transverse residuals are normalisation noise: there is no transverse physics to
+converge.** The lane did **not** edit the frozen comparator (rule 2). **Correct.**
+The registered `EXACT`-collapse risk — central differencing being exact for a quadratic —
+**was predicted before compute and did not fire**, because the gate was placed on the
+`volAverage`. A risk named in advance and then measured is worth more than a clean result.
+
+**`VMFL004-R2` is dispatched, and I have bound its shape against the obvious abuse.** We
+already know the answer, so a re-registration whose gate we know will pass is **gate-fitting
+dressed as an R2**. **The gate quantity, reference, band and `PASS` ceiling are carried over
+BYTE-IDENTICAL; the ONLY change is the convergence channel**, justified on the physics of a
+1-D flow — an argument that stands independently of the answer. The lane is explicitly told
+that **concluding "do not re-register" is a real option that costs it nothing with me.**
+
+#### VMFL011 — A REFUSAL THAT DIAGNOSED ITS OWN CONTROL
+
+The comparator refused on `rms_vs_benchmark`: a point-plant into **1 of 401** samples moved the
+RMS by **3.68e-7**, under the `0.1 × plant` threshold. **This is a MIS-CALIBRATED CONTROL, not
+a blind reader** — an RMS over N points dilutes a single-point plant by ~**1/√N**. Landed as
+**L-340**. Underneath it sits a real open discrepancy: rms 0.0403/0.0348/0.0341 all exceed the
+3 % band, and the `u_min` triple is CONVERGING (p 1.60) but extrapolates **8.9 %** from the
+digitised Jyotsna–Vanka benchmark. **The refusal was right and the physics question stays open.**
+
+#### I CORRUPTED THE CALIBRATION LEDGER, AND RULE 11 DID NOT SAVE ME
+
+Commit `c487e3c7` issued **`C-104` twice and never issued `C-102`**. My code re-derived the
+tail maximum **correctly** (C-101), then applied three **ordered in-place** substitutions —
+`C-100→C-102`, `C-101→C-103`, `C-102→C-104`. **Step 1 rewrote row 1 as `C-102`; step 3 then
+matched BOTH row 3 and row 1, and renamed both to `C-104`. The rename collided with its own
+output.**
+
+**THE RULE: never renumber by ordered in-place substitution over a shared id namespace.**
+Allocate the id at write time per row, by a single substitution whose count you assert.
+**Rule 11's tail re-derivation was applied and was CORRECT — the failure was DOWNSTREAM of it,
+in the mechanism that applied the derived numbers. Re-deriving the maximum is necessary and
+not sufficient**, and I had believed it was both.
+
+Corrected at `4da60354` as row **C-111**, **appended not edited** — this ledger's append rule 1
+forbids editing a landed row. **The `C-104` pair stands in the table by design**, disambiguated
+by content: the VMFL023 row is to be cited as **C-102**.
+
+**Third instrument in one session here whose OUTPUT was wrong while its INPUT reasoning was
+right** — a `ppid` detachment test, a `RUN_RC` reference-count proxy, and this — **and the only
+one of the three that reached a committed record.**
+
+#### THE LAUNCHER GLOB, AND WHY NOTHING WAS EDITED
+
+`run_vmfl076.sh:92`'s `[0-9]*` was flagged lab-wide. Measured: **no trim exists on that line**
+(body is `echo` + `exit 2`; the only `rm -f` are :151/:155 deleting its own templates);
+**VMFL076 has no `0.orig` at all**; the guard sits **before** `mkdir -p $D` so all three levels
+traversed and passed it; and a false match **fails safe** — refuse to launch, never delete.
+**The intersection is empty and I checked rather than assumed it:** the three cases here that
+DO carry a `0.orig` — VMFL021, VMFL021/R2, VMFL022 — use no such glob. Dated addendum
+`dcbcf50b`; the frozen launcher is untouched.
+
+#### NEXT / BLOCKED
+
+- **VMFL076** — grade and land (ordered). Still owed by that lane: whether it independently
+  reproduced the **4.955 %** low-Pr shortcut error before freezing.
+- **VMFL004-R2** dispatched; **VMFL064** (p. 195, Armaly experimental, LR/s = 5.0) in prep,
+  **launch held** at 76 % load.
+- **VMFL017-R2** — registered, never fired. The register's only `PENDING`.
+- **Ten VMFLGPU pre-registrations — zero drafted.** Next free opus slot.
+- **BLOCKED: the GPU build, on a PERMISSION-SYSTEM DENIAL, not on Sanaa.** Card idle since
+  16:15:42Z, now ~12 h at 0 % utilisation. **I will not route around a live denial** (rule 9).
+
+---
+
 ### 2026-08-26T03:2xZ — **TWO VERDICTS LANDED** (register 21 -> 23 rows), and **THE GPU IS UP AND HAS BEEN IDLE 10.90 HOURS**
 
 **Written by `ansys-verification-supervisor` personally.** Commits this session:
