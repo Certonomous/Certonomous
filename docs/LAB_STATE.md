@@ -3574,6 +3574,172 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+### SESSION certonomous-69 — THE THREE SOLVERS ARE NOT HUNG, K0d IS RULED `BLOCKED`, AND §2d.1 IS THE WRONG INSTRUMENT FOR T8
+
+**Sub-section written:** 2026-08-26T03:05Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; this session re-opens none of them.**
+
+#### 0. SANAA'S DETACHED-QUEUE DIRECTIVE, 2026-08-26 — AND THIS TEAM ALREADY HOLDS THE DEFECT THAT WOULD HAVE SUNK IT
+
+Relayed by the chief as Sanaa's verbatim words: *"no need to run it by me i already approve. Yes the queues must also be detached from the lab that way they dont depend on the lab being active. Thats priority bc i dont want to have idle compute anytmore and i want as many cases ran as possible. All teams should do that that way both instances are always being used."*
+
+**Scope discipline under rule 9, stated so it is not stretched later: this is her approval of THE DETACHED QUEUE and of running more cases. It is not consent to a send (rule 7 — SUBMISSIONS REMAIN PARKED), not authority over a charter clause or gate threshold, and not authority over any permission setting, `CLAUDE.md` or `.claude/` config.** `cfd` is building the lab-wide runner: entries are a frozen prereg sha + launch command + ranks + costed core-minutes; it refuses uncosted or unregistered entries; `setsid` with rc captured into `STATUS.<case>`.
+
+**THE POINT THIS TEAM MUST MAKE LOUDLY, BECAUSE WE MEASURED IT SIX HOURS AGO AND IT IS THE QUEUE'S SINGLE POINT OF FAILURE.** `bf7e9428`: K0d's L1 launcher reached `endTime` on both cases and **both are `NOT DONE`, because the launcher never captured rc.** A detached runner is **strictly worse** on this axis than an agent-driven launch: with no agent watching, **the `STATUS` file is the ONLY evidence the run terminated cleanly**, and a launcher that does not write one produces cases that are complete on disk and ungradeable forever. **`STATUS.<case>` is not a convenience of the runner's design — it is the completion rule's `rc = 0` limb, and without it standing rule 4 cannot be evaluated at all.**
+
+**Two things this team asks the runner to carry, offered to `cfd` as findings rather than as instructions:**
+1. **`mark_done` must REFUSE (exit 2) on an ABSENT `STATUS` file, never infer, never default to pass.** A missing rc is not a passing rc. The K0d lane that refused to back-date `rc = 0` was right, and the runner must make that refusal cheap rather than punishing.
+2. **The rc must be captured from the SOLVER, not from the wrapper.** All three of this team's live arms run under `timeout`; `timeout`'s own exit status is 124 on expiry and otherwise the child's, so a naive `$?` conflates "solver failed" with "wall-clock expired" — **two states with opposite meanings for the completion rule.** Capture and record both.
+
+**MY IMMEDIATE RE-PRIORITISATION, ahead of my own rulings below:** every rung I can reach goes to a **launchable** state — frozen pre-registration committed, launcher that captures rc — so entries can be dropped in the moment the queue directory exists. **Until the runner exists I keep firing detached myself.** Box measured at **19 %** against her 80–90 % target.
+
+
+#### 1. TRIAGE OF THE THREE T1 SOLVERS — THE BRIEF'S HYPOTHESIS IS FALSE, AND THE REAL FINDING IS THE OPPOSITE ONE
+
+The resume brief said the three arms *"may be at endTime and hung on the timeout wrapper"*. **Measured by me at 02:55–02:56Z, not relayed: they are not at `endTime`, they are not hung, and all three are advancing.** Each `timeout` parent has a live child at **99.8 % CPU**, elapsed 10:19:12, and each log's last `Time =` line advanced between two reads seconds apart.
+
+| pid (child) | cwd under `verification/runs/T-family/T1_runs/` | last `Time =` | `endTime` | remaining |
+|---|---|---:|---:|---:|
+| `2203927` | `R_10k_x` | **28 019** | 32 000 | 3 981 |
+| `2203944` | `R_100k_x` | **91 377** | 94 000 | 2 623 |
+| `2203947` | `R_300k_x` | **95 579** | 110 000 | 14 421 |
+
+**WHERE THE BRIEF'S READING CAME FROM, so the error is not repeated:** its figures 80000 / 20000 / 80000 are **written time directories**, not log times. The written dirs are now `28000` / `90000` / `94000`. **A time directory lags the solver by up to `writeInterval` (2 000 here) and is not an instrument for liveness.** Read the log's last `Time =`, twice, and see it move.
+
+**THE FINDING THAT MATTERS, AND IT IS NOT THE ONE I WAS SENT TO CHECK.** `R_10k_x` has **slowed by about 7×**, and it slowed **while the box emptied**:
+
+- whole-run average: `ExecutionTime` 37 106 s at Time 28 019 = **1.324 s/iter**
+- rate measured at 20:27Z on the same arm (predecessor's board): **0.607 s/iter**
+- implied rate since: (37 106 − 13 835) / (28 019 − 22 786) = **4.447 s/iter**
+
+**Contention cannot explain it** — the box went from 16/16 busy to 19 %. A solve that gets slower as its neighbours retire is a finding about the solve, not about the box. The other two arms sit at **0.406** and **0.388 s/iter** whole-run, so the spread across three arms the board calls *"the same mesh level `x`"* is now **3.4×**, up from the 2.1× flagged VERIFY at 20:27Z. **Either the meshes are not the same level or something in `R_10k_x` is degrading.** Dispatched for read-only diagnosis: cell counts per arm, linear-solver iteration counts per step, restart check, and a recent-interval rate. **No running solver is touched, signalled or restarted.**
+
+**CONSEQUENCE I AM NOT SMOOTHING OVER:** at 4.447 s/iter the remaining 3 981 iterations cost **295 core-min**, projecting **~913 core-min total against a registered 1 100 core-min cap**. That is inside. **But the rate is still rising**, and rule 2 forbids raising a registered cap after first compute even though Sanaa has lifted cost constraints — so if it trips, the arm is `NOT A RESULT` under its own frozen §10. **My recommendation is unchanged from my predecessor's and I am re-affirming it rather than re-deriving it: no rescue amendment; a fresh, separately pre-registered re-run at a correctly sized cap.**
+
+**Compute burned by these three, measured from `ExecutionTime`, not estimated:** 37 106 + 37 108 + 37 108 s at `ranks = 1` = **1 855.4 core-min = 30.92 core-h**, derived **$1.586** at $0.0513/core-h — **DERIVED, NOT MEASURED** (`COMPUTE_BUDGET_CHARTER.md` §5; the box cannot read its own billing).
+
+#### 2. K0d IS RULED. THE RUNG IS `BLOCKED`; EVERY GRADED ROW IS `NOT A RESULT`; THE SUCCESSOR IS A NEW RUNG `K0e`
+
+**All three columns are closed and none was reached, so the verdict is `BLOCKED` and NOT `GATE REACHED`** — `GATE REACHED` asserts that a gate *was* reached, and naming an unreached column does not convert a rung that produced nothing into one that produced something.
+
+| column | ground | established by |
+|---|---|---|
+| **`P`** | Blay, Mergui & Niculae (1992) is `NOT OBTAINED`; every graded row `BLOCKED` under §7.4 order 4 | registered from the start |
+| **`G`** | L2 parity: §5 two-sided grading and §4 condition D cannot both hold at block-A count **17, odd** — floor cell 7.864662e-04 vs lip cell 7.004187e-04 | `check_k0d_mesh.py` |
+| **`V`** | the comparator's reader disagrees with OpenFOAM `cellPoint` at walls by **1.209843 K** against a **2.00e-05 K** registered criterion | `check_k0d_extraction_equivalence.py`, the §AD1.1 check registered **BEFORE compute** |
+
+**RULE 2 HAS BITTEN AND THAT IS WHY THIS IS A NEW RUNG, NOT A SIXTH AMENDMENT.** First compute occurred on K0d — L1 `M1_c`/`M2_c` reached `endTime` at 22:58:56Z (`bf7e9428`). Gates are therefore closed and no gate, threshold, cap or label of K0d may move. `K0d_REREGISTRATION.md` stays byte-unchanged (rule 6). **Five amendments that never reached a fixed point retired the first pre-registration; a sixth, seventh and eighth would repeat exactly that.** The successor is **`K0e`**, with its own pre-registration frozen by sha before any solver starts.
+
+**§AD1.1 EARNED ITS KEEP AND THE RECORD SHOULD SAY SO.** The wall-reader defect was caught by a check that was **registered before compute and whose failure consequence was pre-decided**. That is pre-registration doing the one thing it exists to do. The mechanism is not a tolerance question: `cellPoint` takes the **boundary face value** at a wall vertex; `_vertex_value()` averages **cell** values only. At the floor OpenFOAM returns **308.150000 K** — exactly the registered `fixedValue` BC — where the reader returns **306.940157 K**. **A reader that cannot see a boundary condition is not a reader that is slightly off.**
+
+**RECORDED SO IT CANNOT BE USED LATER TO NARROW THE CRITERION:** only **71 of 2 081** points exceeded, the median difference was **2.86e-06 K**, and **all thirteen registered graded stations agreed.** §AD1.1's criterion is written on **the sampled line**, not on the station subset, and re-reading it as "at the stations" after seeing which points failed is precisely what `VERIFICATION_CHARTER` §2d.1 forbids. It is material to the ruling; it excuses nothing.
+
+##### 2.1 `nA = 18` — I RE-DERIVED THE UNIQUENESS MYSELF RATHER THAN ACCEPT THE LANE'S TABLE
+
+**A derivation only one agent has done is not a derivation.** Independently, from the registered constants:
+
+- block-A cells: L1 = 12 × 160 = **1 920**; L2 = `nA` × 224; L3 = 24 × 314 = **7 536**
+- `r21 = sqrt(nA·224 / 1920)`, `r32 = sqrt(7536 / (nA·224))`
+- condition C `[1.35, 1.45]` on `r21` → `nA ≤ 18.021` and `nA ≥ 15.62`
+- condition C on `r32` → `nA ≥ 15.997` and `nA ≤ 18.455` — so **`nA = 16` gives `r32 = 1.45006`, ABOVE the ceiling, refused**
+- **condition C therefore admits exactly {17, 18}**; condition B forces `nA ≥ 17`; **condition D's parity requirement forces even**
+
+> **`nA = 18` IS THE UNIQUE SURVIVOR.** `r21 = 1.44914`, `r32 = 1.36713`. `nB` = 192, `nC` = 14, `Ny` = 224, total 50 176 unchanged, **`R21` and `R32` do not move.** The lane's table reproduces exactly on every row I checked.
+
+**THE MARGIN, AND I AM NOT BURYING IT:** `r21 = 1.44914` clears condition C's 1.45 ceiling by **0.00086 — 0.059 %**. **CONDITION D IS NOT TOUCHED. If anything moves, the mesh moves** — relaxing a refusal condition because a mesh cannot satisfy it is *"the numbers looked wrong, so the band was widened."*
+
+**ADDED BY ME, because otherwise a successor reads the thin margin as sloppiness in `K0e`:** `nA = 17` is the *centred* value (1.40831 / 1.40677) and `nA = 18` sits at the `r21` lip **because the registered L1 and L3 block-A counts of 12 and 24 were themselves chosen around an odd L2.** The thin margin is **inherited geometry**, not a poorly chosen replacement.
+
+**THE FAILURE DISPOSITION IS PRE-DECIDED AND REGISTERED BEFORE THE MESH IS BUILT** (draft §2.3, adopted verbatim): if condition C reads the rebuilt L2 mesh and `r21` lands **above** 1.45, the answer is **not** to widen condition C — it is that **no `nA` satisfies all four**, and the mesh family is re-chosen at a level above `nA`, which is a further re-registration. **A disposition written after seeing the failure is not a disposition; it is an accommodation.** A 0.06 % margin sits well inside the range where a rebuilt graded mesh could flip it — T8's `7/3` centroid flipped an assumed ratio at a comparable margin.
+
+##### 2.2 THE LAUNCHER rc-CAPTURE DEFECT — THE CAUSE OF `bf7e9428`, AND IT IS BEING SWEPT FAMILY-WIDE
+
+K0d's L1 launcher started the solver and **never captured its exit status**. No `STATUS` file exists, so the strict completion rule's `rc = 0` limb **cannot be evaluated**, and both cases are `NOT DONE` **despite reaching `endTime`**. **The lane that refused to back-date `rc = 0` was right, and I am recording that as correct conduct rather than letting a refusal look like a failure.** `K0e`'s launcher captures rc into a `STATUS` file written after the solver returns, and `mark_done` **REFUSES (exit 2) on an absent `STATUS` file** rather than inferring anything.
+
+**The same defect is now being audited across every launcher in this territory**, including `run_one_t1b_L4_ext1.sh` which is **running right now** on two of the three live arms. If that launcher does not capture rc, three solves 10.3 h in are heading for the same `NOT DONE` — and I need that answer while there is still time to act, not afterwards.
+
+**ALSO ADOPTED INTO `K0e`** — each tightens and none can loosen: the **consumer-side completeness assertion** (the required field set is the INTERSECTION of `fvSolution`'s regex names with the closure declared in `turbulenceProperties`, reconciled against §7.2, with `phi` excluded because the solver generates it — a naive enumeration from `fvSolution` alone would demand `epsilon` of a `kOmegaSST` case and refuse a correct run); the §AD1.1 equivalence check promoted to a **standing pre-grading gate**, `analyse_k0e.py` refusing unless it passed on the graded level in the same invocation; `mark_done`'s `.gz` branch **exercised in the selftest anyway** on a rung whose registration forbids compression; and no `assert` carrying a refusal, guard, control or gate in any `K0e` instrument.
+
+**`K0e` can earn `V` and `G`. It can never earn `P` and therefore never `HOLDS`; its best rung verdict is `GATE REACHED` NAMING `P`. That is not a reason to withhold the run — `V` and `G` are exactly the columns this lab is short of.** Obtaining Blay 1992 is outside the box, is Sanaa's alone (rules 7, 8), and is not being attempted. **L3 is NOT authorised by `K0e`:** two L3 caps at 1 675.50 core-min each exceed the whole 2 748.64 ceiling on their own.
+
+#### 3. T8 — I READ THE TWO ASSERTS MYSELF, AND §2d.1 IS THE WRONG INSTRUMENT. THIS IS A CORRECTION TO WHAT I WAS SENT TO DO
+
+I read `analyse_t8.py:1049-1056` and `:1322-1330` as source this session (SUPERVISION §3, non-delegable).
+
+- **`:1054` is a real guard that `-O` deletes.** It is the one-way rule-5 gate. Its own comment reads *"Structural, not careful"* — **an aspiration an `assert` cannot meet.**
+- **`:1329` IS A TAUTOLOGY AND WAS NEVER A GUARD UNDER ANY INTERPRETER.** The two lines immediately above set `rec["verdict"] = VERDICT_NAR`; the assert then tests `rec["verdict"] in (rec["band"], VERDICT_NAR)`. **`VERDICT_NAR` is always in that tuple. It cannot fail under plain `python3` either.** `rec["band"]` does exist (`:1031`), so it is not even a latent `KeyError` — **it is a no-op that reads as a check.** **The `-O` sweep counted it as one of the 35 at the wrong severity.** This is L-332's shape (*never put an unconditional success print after a check*) in its assertion form: **an assertion placed immediately after the assignment that satisfies it is a check of nothing.**
+
+**THEREFORE §2d.1 IS NOT INVOKED, AND THE REASONING IS THE RULING.** §2d.1 is a narrow exception for a grading-path change that **moves a number**; its four conditions include *quantifying what moved* and *recording pre-repair values beside the published ones*. Converting `assert X, msg` into `if not X: … sys.exit(2)` **cannot move any number or any verdict on any run on record**: under plain `python3` both forms refuse in identically the same state, only the mechanism and the rc differ, and the lab-wide bound of 22:48Z measured that **no graded verdict on record was produced under `-O`**. There is nothing to quantify and nothing to record beside. **Invoking a narrow exception where it is not needed stretches it, and a stretched exception is how the next real one gets waved through.**
+
+**What happens instead:** `analyse_t8.py` stays **byte-unchanged** at its frozen sha (draft §4e already had this right — I am confirming it, not overriding it); a **dated foot-amendment** discloses both defects at both line numbers with the version bump and `lines whose number changed above this section: 0`; and the repaired forms land in the **successor rung's new comparator**, never retrofitted here.
+
+##### 3.1 THE RAMP TEST — §4c ADOPTED, WITH ONE REPAIR THAT IS MINE
+
+Adopted as drafted: the **stationarity precondition that can REFUSE** (`NOT A RESULT`, never a pass, and never a longer run to reach stationarity); the **σ_self self-control as the null**; **window statistics, never instantaneous values**; and the **level registered before running** so it cannot be picked to make the test work. §4c's framing — that a ramp-vs-no-ramp comparison with no null is *"a planted zero with no control, applied to a time series"* — is right and stays.
+
+**MY REPAIR, AND IT IS NOT OPTIONAL: σ_self FROM TWO WINDOWS IS ONE SAMPLE OF A DIFFERENCE, NOT AN ESTIMATE OF ITS SPREAD.** As drafted, part 2 takes two disjoint windows, calls their single difference `σ_self`, and part 3 passes the ramp when its difference *"lies within σ_self"*. With n = 2 there is one number and **no distribution**: a ramp difference at 0.9 of that one number would be called neutral against a null with no width. **That is this team's own most-logged failure class — state what two things you are comparing and show they are comparable before reading the difference.**
+
+> **REGISTERED INSTEAD: σ_self is estimated from at least `K = 4` disjoint equal-length windows within the no-ramp run alone, and the neutrality criterion is the MAXIMUM PAIRWISE window-to-window difference across them** (a quantile only if the quantile is registered before running). **`K` and the window length are registered BEFORE the run** — choosing the window length that makes the answer come out is the same move as choosing the level that makes the test work, which §4c already forbids for the level. If the run is too short to yield `K = 4` disjoint stationary windows, the ramp test **cannot be run** and reports `NOT A RESULT`. **It does not get a shorter window to manufacture `K`.**
+
+##### 3.2 §4d IS NOT A FOOTNOTE — IT IS THE SAME MEASUREMENT AS §4c PART 1, AND IT IS ANSWERED FIRST
+
+`buoyantBoussinesqSimpleFoam` is a **steady** solver. One oscillating over more than two decades and never settling, with a second excursion forming at iteration 2600, is evidence **the case is not steady**. The draft treats stationarity as a gate and unsteadiness as an open possibility — **they are one measurement read two ways**, and they are registered as one:
+
+> **If level `f` fails stationarity, the finding is NOT merely "the ramp test cannot be run". It is that T8's REGISTERED STEADY FORMULATION IS UNDER CHALLENGE, reported as a CASE-SELECTION FINDING before any ramp verdict is written.** A ramp verdict on a case whose steady formulation is wrong is a verdict about nothing.
+
+**The case-selection call is mine** (`CASE_SELECTION_CHARTER`). **One part is not, and no lane decides it either:** H-2 places T8 in the DC spine (T3 → T5 → T8 → T12 → K2 rack row) **by Sanaa's directive of 2026-08-22**. Whether a mis-specified T8 **leaves or moves in that spine** is a change to her directive and goes to her desk with my recommendation.
+
+#### 4. THE `-O` REMEDIATION SEQUENCE — MY SEVERITY CLASSES, AND IT IS FORWARD-ONLY
+
+- **Class A — an evaporated assert can change a VERDICT.** Comparator gates, rule-5 one-way guards, planted-zero controls, completion-rule and age-guard limbs. `analyse_t8.py:1054` is the exemplar. **Highest severity: the output is a wrong ANSWER that looks graded.**
+- **Class B — an evaporated assert produces a SILENTLY WRONG ARTIFACT.** The 21 build-time guards on generated cases. The failure surfaces downstream as a broken or refused solve, not as a false verdict.
+- **Class C — genuine sanity checks.** The 2.
+- **Class D — TAUTOLOGIES, and this class is new because I found one.** `analyse_t8.py:1329`. **A tautological assertion is not a Class C sanity check; it is a non-check, and counting it as one flatters the population.**
+
+**HARD CONSTRAINT, from the chief's bound of 22:48Z, and it overrides any urge to be thorough:** the exposure is **LATENT, NOT LIVE** — no run script invokes `python3 -O`, `PYTHONOPTIMIZE` is unset on the host, and `__debug__ = True` was measured inside the DAFoam container too. **No graded verdict on record was produced under `-O`. EXISTING VERDICTS ARE NOT REOPENED. THE REMEDY BELONGS IN THE NEXT REGISTRATIONS.** A re-audit of settled verdicts on this ground is the meta-work Sanaa capped at 20 % and is **not authorised**. **No frozen file is edited.**
+
+**ENUMERATION HAZARD RE-STATED BECAUSE IT BIT THIS TEAM YESTERDAY:** `git ls-files` reads the **decayed shared index** and inherits its phantom deletions — the sweep that produced 33-in-16 saw **109 files where HEAD has 113**, and the four it could not see carried the two most serious asserts in the lab. **Enumerate with `git ls-tree -r HEAD --name-only`.**
+
+#### 5. LANES LIVE — THREE, AT THE CAP
+
+| lane | task | gate on me |
+|---|---|---|
+| K0e | land the new pre-registration, repair the wall reader, the rc-capturing launcher, the consumer-side completeness assertion, build meshes, **STOP** | **I read the wall-reader repair, the rc capture and the completeness assertion AS DIFFS before any output is believed or any solver starts** |
+| refill + launcher audit | Part 1 the fireable-rung enumeration (urgent, box at 19 %); Part 2 the rc-capture defect swept across every launcher in this territory incl. the live one; Part 3 the `R_10k_x` 7× slowdown, read-only | the refill fire order is mine; the cap disposition is mine |
+| T8 + `-O` | the §4c/§4d registration, the frozen-file foot-amendment, the Class-A-first inventory | A1–A3 are ruled; contradictions come to me |
+
+#### 6. RUNGS WITHOUT VERDICTS
+
+- **K0d** — **`BLOCKED`, ruled this session. Every graded row `NOT A RESULT`.** Compute spent on it: L1 `M1_c`/`M2_c` only, both `NOT DONE` on the launcher defect, not on their solve.
+- **K0e** — `PENDING`. Not written, therefore not frozen, therefore no compute.
+- **T1b L4 EXT2 ×3 live + 1** — `NOT A RESULT` ×4. **A `docs/COST_CALIBRATION.md` row is OWED at completion under rule 12 and is `PENDING`, not forgotten. Hazard for whoever writes it: `append_record.py` hands out colliding ids; derive the id tolerantly by hand inside the committing invocation and allocate it only at append time.** (C-99 landed for K0d at ratio 1.208.)
+- **T8** — `PENDING`; the frozen prereg stands, the successor is not written. **Its steady formulation is under challenge and that outranks its ramp question.**
+- **T5** — mine to promote; any **TIER-DEFINITION** interpretation stays reserved to Sanaa.
+- **T2** — mis-tiering under audit; my ruling, not yet made. **VERIFY — carried from a previous session, not re-checked by me.**
+- **T12** — possibly unblocked by a zero-compute title-page read. **VERIFY — carried, not re-checked by me.**
+
+#### 7. NEXT ACTIONS
+
+1. **Read the three K0e diffs personally, then give the fire order.** Nothing launches before that read.
+2. **Act on the launcher audit the moment it returns** — if `run_one_t1b_L4_ext1.sh` does not capture rc, three live solves are heading for `NOT DONE` and there is a window to act now that closes when they finish.
+3. **Fire the refill from the returned enumeration**, H-5 tier order behind the spine, and **tell the chief what I have run out of** rather than stretching a thin queue to look busy.
+4. Rule the `R_10k_x` cap disposition on the recent-rate number, not on the whole-run average.
+5. Rule T8's case-selection question on the stationarity measurement; refer the spine question to Sanaa.
+
+#### 8. ON SANAA'S DESK
+
+- **NEW — T8's place in the DC spine.** If the stationarity measurement shows the case is not steady, H-2's ordering is affected. **My recommendation: T8 does not leave the spine on suspicion; it is re-specified in place if and only if the measurement says so, and the spine order is otherwise untouched.**
+- **NEW — the K0d → K0e disposition.** **My recommendation: adopt. A new rung is cheaper and more honest than a sixth amendment, and rule 2 forbids the alternative anyway.**
+- The **four K0d registration-gap rulings** (`writeFormat ascii`, `writePrecision 16`, `writeCompression off`, `t = 0.010 m`) — carried into `K0e`; adopted by silence.
+- The **ceiling ruling** `I` = 11.50 → **2 748.64** core-min, superseding 2 749.14 **which is recorded as superseded rather than deleted**.
+- The **rule-2 boundary**: her cost directive relaxed rule 12's stop-on-budget clause; **it did not relax rule 2.** A registered cap may not be raised after first compute. **My recommendation: no rescue amendment; a fresh, separately pre-registered re-run at a correctly sized cap.**
+- **The largest open exposure, unchanged and VERIFY:** reportedly only three PDFs in the whole repository carry a rule-15 title-page verification, all in `docs/papers/forced_convection_heat_transfer/`; **Ampofo**, **Betts / ERCOFTAC 079** and **Nielsen** carry none — **and every `P` column in this family rests on them.**
+
+#### 9. BLOCKED
+
+- **`K0e`'s `P`, and therefore `HOLDS`** — until **Blay 1992** is obtained and title-page verified. Sanaa's alone; not being attempted. Unblocked by that paper landing in `docs/papers/` and by nothing else.
+- **Nothing else in this territory is blocked on Sanaa.** Whether the queue is thin is being measured rather than asserted; I will ask for more the moment the enumeration says it is empty.
+
+
 ### SESSION certonomous-68 — THE BRIEF IS STALE ON THREE ITEMS THAT ARE ALREADY AT HEAD, AND THE SHARED INDEX WOULD DELETE 7 133 LINES OF THIS BOARD
 
 **Sub-section written:** 2026-08-25T21:10Z by heat-transfer-supervisor, Fable. Stamp is `date -u` in the writing invocation. **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; this session re-opens none of them.**
