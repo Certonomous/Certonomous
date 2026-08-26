@@ -1,12 +1,12 @@
 {
   "team": "cfd",
   "case_id": "F17b_KV40_EXT",
-  "prereg_commit": "9b354fadbc8bc7d678f23900d4c2e0cd7cb757fc",
+  "prereg_commit": "61b47973bdec19aa061d11030967bd612038ba01",
   "prereg_path": "verification/campaign/F17b_KV40_EXT_PREREGISTRATION.md",
   "launch_cmd": [
     "bash",
     "/home/ubuntu/Certonomous/cases/F17b_kovasznay_ext/run_f17.sh",
-    "--prereg-commit=9b354fadbc8bc7d678f23900d4c2e0cd7cb757fc"
+    "--prereg-commit=61b47973bdec19aa061d11030967bd612038ba01"
   ],
   "cwd": "/home/ubuntu/Certonomous/cases/F17b_kovasznay_ext",
   "ranks": 1,
@@ -20,13 +20,14 @@
   "cwd_note": "cwd is the CASE directory (the tracked template case/0 is not a direct child). The launcher uses absolute paths and ignores cwd. A queue runner's wrapper writes launcher.queue.out and STATUS.F17b_KV40_EXT into cwd; both are INFRASTRUCTURE fields under L-342 and untracked.",
   "levels": "coarse 192x128 / medium 384x256 / fine 768x512, 4000 SIMPLE iterations each, all SERIAL 1 rank, decomposePar never invoked, decomposition seed none; projected serial 58 / 302 / 1568 s; wall ~32 min at the estimate, ~2.5 h at the cap",
   "memory_floor_note": "3.0 GB = the grader's own sparse model solve at 192x128, 2.89 GB RSS MEASURED in the writing invocation; simpleFoam serial at 393k cells estimated < 1 GB; disk ~2.4 GB of checkpoints for the ladder",
-  "cap_core_min_registered": 150.0,
+  "cap_core_min_registered": 150,
   "cap_behaviour": "checked incrementally after each level in ClockTime x ranks / 60 and PROJECTED before each level from the launcher's own box probe; a crossing HALTS at exit 3, unlaunched levels stay PENDING; the cap is never raised",
-  "registered_prediction": "both triples CONVERGING with observed order p ~ 2 (model 2.002); G-F17-1 E2_fine in [2.299887e-06, 2.069898e-05]; G-F17-2 u(0.5,0)/U0 in [0.382362147, 0.382383493]; the probe-interpolation limit is quantified in prereg section 5.1 (both live predictions inside)",
+  "registered_prediction": "both triples CONVERGING with observed order p ~ 2 (model 2.002); G-F17-1 E2_fine in [2.299887e-06, 2.069898e-05]; G-F17-2 u(0.5,0)/U0 in [0.382373500131, 0.382394846027] -- AMENDMENT 1 (pre-compute, commit 61b47973bdec19aa061d11030967bd612038ba01): reference is the exact field at the fine cell centres through the grader's own bilinear(), width unchanged; the frozen 9b354fad band was [0.382362147, 0.382383493] against the pointwise exact",
   "grade_cmd": [
     "python3",
     "/home/ubuntu/Certonomous/cases/F17b_kovasznay_ext/grade_f17.py",
-    "--prereg-commit=9b354fadbc8bc7d678f23900d4c2e0cd7cb757fc"
+    "--prereg-commit=61b47973bdec19aa061d11030967bd612038ba01"
   ],
-  "verdict_state": "PENDING"
+  "verdict_state": "PENDING",
+  "amendment_1": "commit 61b47973bdec19aa061d11030967bd612038ba01: G-F17-2 reference moved to the same-stencil interpolated exact field before first compute; run root verification/runs/F17b_runs ABSENT at 2026-08-26T20:48:05Z; band width, cap 150, estimate 32.1, launcher unchanged"
 }
