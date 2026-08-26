@@ -381,3 +381,107 @@ re-fire it. A fresh entry **`verification/queue/dafoam/D5_chain_r2.json`** (case
 same cost 1,378.3, `memory_floor_gb 16.0`) cites **the commit that lands this addendum** as `prereg_commit`.
 On the re-fire the driver finds the root present (`D5_ROOT_PRESENT`, stages nothing), asserts the staged
 md5s, and proceeds to O48; `STATUS.<arm>` files are re-opened at preflight.
+
+---
+
+# ADDENDUM 3 — 2026-08-26 — **PRE-COMPUTE for the r3 re-fire** — `D5-PREREG-DEF-1`: ACC48 was cut by its own under-registered deadline while still colouring; ACC48/ACC192 caps re-stated from the measured anchor; `CHAIN_DONE` marker registered
+
+**Version 1.2 → 1.3. Lines whose number changed above this section: 0.** Written 2026-08-26T20:54Z by dafoam `lab-lane` Q-A for `dafoam-supervisor` under the supervisor's FOURTEENTH-session triage and ruling (`docs/LAB_STATE.md` `## dafoam` §2, `[lab-attributed]`); permission for detached launches and queue entries `bc0e687e`; L-342 `d4d0c29d`. `CLAUDE.md` rule 2: first compute on this item HAS occurred (O48, ACC48), so this addendum **alters no gate, threshold, band or label**; it moves **two caps** under the supervisor's explicit ruling, states the consequence for the ceiling, and writes the pre-repair fact beside the correction. Rule 6: originals are struck, never rewritten.
+
+## A3.1 What happened, from disk (the pre-repair fact)
+
+The runner launched `D5_chain_r2` at **17:48:08Z** (`verification/queue/LAUNCH_LOG.tsv`, pid 323226, `prereg=a893355d`). The driver (pid 323228) ran with **no agent alive** through the ~17:50Z fleet kill:
+
+* **O48 `rc=0`**, 17:49:11Z → 20:40:20Z: ledger row `wall_s=10268 ranks=4 core_min=684.533 cap_core_min=800.0 enforced_wall_s=12000 memory=12g inspect(exit,oomkilled)=[0 false] cpuset=8,10,11,13 delivered_cores_mean=[3.9954 n=680]` (`ledger.txt`, `STATUS.O48 rc=0 stamp=20260826T204020Z`). P4's O48 band [450, 700] — 684.533 is inside it (scored at grading, not here).
+* **ACC48 `rc=124`**, 20:41:23Z → 20:44:05Z: the container was killed by the **in-container deadline `enforced_wall_s=150`** (= cap 10.0 core-min × 60 ÷ 4 ranks) at **162 s**; ledger `D4S_CAP_CROSSED arm=ACC48 core_min=10.133 cap=10.0 ceiling=40.0 action=REPORTED_RUN_CONTINUES` then the row `rc=124 wall_s=162 ranks=4 core_min=10.8 cap_core_min=10.0 enforced_wall_s=150 memory=12g inspect(exit,oomkilled)=[124 false]`. The log's last lines (`ACC48_20260826T204123Z_387321.log`): `ColorSweep: 961 134.67 s` / `number of uncolored: 0 0` / **`Global ColorSweep: 0 135.64 s` / `Number of Uncolored: 98959 4`** — the dRdW colouring's global phase had just begun; **the total-derivative step never started.** `STATUS.chain`: `chain=STOPPED_AT_FIRST_NONZERO arm=ACC48 rc=124 stamp=20260826T204405Z`. The container object is gone by the launcher's registered post-bookkeeping `docker rm` (a NOTE, not a missing run — the row was written from `docker inspect` first).
+* **The 10.8 core-min is WASTE**, its own figure, never absorbed: `docs/COST_CALIBRATION.md` C-row filed by this lane (id re-derived at commit). ACC48's `.ok` marker is a 0-byte `test -s log && touch` sentinel and is not success.
+* Preserved before the r3 driver re-opens the STATUS files at preflight: `STATUS.ACC48.deadline_20260826T204405Z` and `STATUS.chain.acc48_stop_20260826T204405Z` (byte copies, `cp -p`, in the run root — the D4-SHIPPED `STATUS.ACC.oom_…` form). Nothing else in the run root was touched by hand.
+
+## A3.2 The defect — `D5-PREREG-DEF-1`, in §4's ACC row; the `D4S-LAUNCHER-DEF-2` class
+
+§4 priced ACC48/ACC192 at **3.000 core-min each, cap 10.0, deadline 150 s**, anchored on "D4 ACC, C-94". As UPDATE N / C-132 established for the sibling item, D4's `ACC` (`acc_ledger.txt`, 45 s at 8g) was `d4_accept_primal.py` — a single acceptance primal — **not** `compute_totals`; the D5 ACC arms are registered as `-task compute_totals` on a cold staged copy (§2). A cold `compute_totals` at np=4 on this mesh must first colour the Jacobian: **135.64 s to the end of the local sweep at 4 ranks = 9.04 core-min against a 10.0 cap** before a single adjoint is solved. The registration was wrong about the program it priced; the launcher enforced exactly the cap it was given (`D4_CAP_ASSERT … registered_core_min=10.0 … enforced_wall_s=150`). **Nothing here is about the toolchain**: `inspect [124 false]`, no OOM, no host event, no agent (none alive 17:50Z–20:44Z).
+
+## A3.3 Re-stated ACC caps and prediction — from the measured anchor, stated as a consequence table
+
+| anchor | measured | what it bounds |
+|---|---|---|
+| D5 ACC48 r2 (this mesh, PATCHED, 12g, 4 ranks) | local colouring complete at **134.67 s**, global phase started at 135.64 s, killed at 162 s | colouring alone ≥ 9.0 core-min |
+| D4-SHIPPED ACC (`CURRICULUM-D4-SHIPPED-a2-wing-cdmin/ACC_20260826T164743Z_200655.log`, same mesh, SHIPPED, 8g, 4 ranks, C-132) | local sweep `ColorSweep: 0 40.39 s`; global colouring ends `Global ColorSweep: 1322 415.53 s`; adjoint converged; reached `Computing d[aero_residuals]/d[aero_vol_coords]^T * psi 509.76 s`; OOM-killed at 525 s (35.0 core-min) | `compute_totals` on this mesh takes **> 525 s = > 35.0 core-min** to reach the last product; the remainder (the `dRdXv^T·ψ` product and the FFD/mesh chain) is unmeasured on this mesh |
+| D5 O48 r2 | 100 majors in 10,268 s = **102.7 s per major** (primal + adjoint + total derivatives, colouring cached after the first major) | the post-colouring part of one `compute_totals` is of order one major ≈ 100–200 s |
+| D7FR ACC (A3, 42,120-cell ONERA M6, C-122) | 2.067 core-min (31 s × 4) | a different mesh and a different program (`LIMIT 1` primal); **not an anchor for this arm**, cited because the ruling names it |
+
+**Re-stated (struck → new):** ACC48 and ACC192 prediction **~~3.000~~ → 40.0 core-min each** (≈ 600 s wall at 4 ranks: ~415 s colouring + ~100–200 s adjoint and products), band **[35.0, 60.0]** each (lower bound = the D4-SHIPPED partial run that was killed before finishing); cap **~~10.0~~ → 60.0 core-min each**, **in-container deadline ~~150 s~~ → 900 s** (`timeout -k 60 900`, asserted by the launcher to 0.02 core-min); launcher runaway ceiling per arm 4 × 60.0 = 240.0 (report-then-stop, inherited). **Consequence for the item ceiling: `ITEM_CEILING_CORE_MIN` = sum of caps = 800 + 800 + 60 + 60 + 120 + 120 = ~~1,860.0~~ → 1,960.0**; item prediction ~~1,378.3~~ → **1,452.3 core-min** (638.9 × 2 + 40.0 × 2 + 47.267 × 2), of which 684.533 (O48) + 10.8 (ACC48 r2, waste) are already spent; **remaining arms' predictions: ACC48 40.0 + F48 47.267 + O192 638.9 + ACC192 40.0 + F192 47.267 = 813.434 core-min** (the r3 entry's cost). Dollars DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h: remaining $0.70, ceiling $1.68. **UNMOVED: O and F caps (800.0 / 120.0), every gate (G1, G-D5-1 band 3.0e-4, G-D5-P, G5d 5 %/10 %, G9, G10's per-row rule, G12), every band, every label, P1–P5, the five components, cpuset 8,10,11,13, 12g, the H5 floor 16.0, the aggregate ceiling 30.6, the wait-and-retry bound 14,400 s.** G10's item-sum clause reads the new ceiling because the ceiling is defined in §4 as the sum of caps and one addend moved.
+
+## A3.4 Instruments re-frozen at this commit — md5 before → after, and the diffs for the supervisor's own read (SUPERVISION §3 check 1)
+
+| file | md5 before (HEAD `a893355d`…`00afa47c`) | md5 after | change |
+|---|---|---|---|
+| `d5_run_arm.sh` | `50a976780e357998238ede3bbb8e5521` | `245341836829b1247b8d6efc794b7d08` | `cap_core_min()`: one `case` line (`10.0` → `60.0`) + seven comment lines; G-ROOT.1–.5, staging, deadline mechanics, cpuset, memory untouched |
+| `d5_chain_driver.sh` | `89c9b7e7e43e7dd12d1c551dadfa80c8` | `728c0b47df91755e4dd5a7a8f075c9ae` | `MD5_LAUNCHER` re-frozen; the EXIT trap additionally appends one `chain_done …` line to `<run root>/CHAIN_DONE` (fixed name, A3.5); six header comment lines |
+| `d5_grade.py` (the grading path) | `d50b55f498a0c16367562aa6d09ac380` | `c87c7a64657107dec4f5b7d1e634ffe6` | `CAPS` ACC 10.0 → 60.0, `ITEM_CEILING_CORE_MIN` 1860.0 → 1960.0, `PREDICTED_CORE_MIN` ACC 3.0 → 40.0, one docstring line, five comment lines; no gate function, band or composition rule touched |
+| `d5_grade_selftest.py` | `3a1b2bd93ab98f7899fe0ae7b084f44e` | unchanged | reads `G.CAPS` / `G.PREDICTED_CORE_MIN` from the grader, so its fixtures follow |
+| `d5_grade_selftest_evidence.txt` | re-driven 20:53Z | `5206a7176f5d7e8b8e8c0fab8d0ff2fa` | **26/26 under `python3` AND 26/26 under `python3 -O`**, `rc=0` both; AST assert count 0 in the grader, counter shown to count a planted one |
+| `d5_run_arm_DELTAS_from_d4s.diff`, `d5_chain_driver_DELTAS_from_d4s.diff` | regenerated | — | plain `diff` against the `8b91be2b` blobs: **175 / 171** lines (the launcher deltas file at v1.2 had been generated against a later D4-SHIPPED launcher state, not the `8b91be2b` blob its header names; regenerated here against the blob) |
+
+**`d5_run_arm.sh` diff (the cap rows), verbatim:**
+
+```diff
+@@ -137,9 +137,16 @@
+ #   F       120.0            12g
+ # D5 REGISTERED CAP TABLE (PREREGISTRATION.md section 4): per density d in {48,192}
+ cap_core_min() {
++  # D5 ADDENDUM 3 (pre-compute for the r3 re-fire, 2026-08-26): ACC48/ACC192
++  # 10.0 -> 60.0 core-min (deadline 150 s -> 900 s at 4 ranks).  ACC48 r2 was
++  # cut by its own in-container deadline at 162 s while still colouring the
++  # Jacobian (rc=124, 10.8 core-min WASTE, C-row in docs/COST_CALIBRATION.md):
++  # the 10.0 anchor (D4 ACC, C-94) priced a 45 s acceptance primal, not
++  # compute_totals on 48 FFD DVs (D5-PREREG-DEF-1, the D4S-LAUNCHER-DEF-2
++  # class).  The 10.0 row is STRUCK; every other cap is unmoved.
+   case "$1" in
+     O48|O192)     echo 800.0 ;;
+-    ACC48|ACC192) echo 10.0 ;;
++    ACC48|ACC192) echo 60.0 ;;
+     F48|F192)     echo 120.0 ;;
+     *)  echo "" ;;
+   esac
+```
+
+**`d5_chain_driver.sh` diff (executable lines only; the six header comment lines omitted here are in the blob):**
+
+```diff
+@@ -42,7 +48,7 @@
+-MD5_LAUNCHER=50a976780e357998238ede3bbb8e5521
++MD5_LAUNCHER=245341836829b1247b8d6efc794b7d08   # ADDENDUM 3: ACC cap row 10.0 -> 60.0 (was 50a97678...)
+@@ -80,7 +86,7 @@
+ echo "$$" > "$PIDFILE"
+-trap 'rm -f "$PIDFILE"' EXIT
++trap 'rm -f "$PIDFILE"; echo "chain_done stamp=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ arms=[$ARMS] last=[$(tail -n 1 "$STATUS" 2>/dev/null)] permission=$PERMISSION" >> "$BASE/CHAIN_DONE"' EXIT   # ADDENDUM 3 (6)
+```
+
+**`d5_grade.py` diff (constants only):**
+
+```diff
+@@ -65,10 +65,15 @@
+-CAPS = {"O48": 800.0, "O192": 800.0, "ACC48": 10.0, "ACC192": 10.0,
++CAPS = {"O48": 800.0, "O192": 800.0, "ACC48": 60.0, "ACC192": 60.0,
+         "F48": 120.0, "F192": 120.0}
+-ITEM_CEILING_CORE_MIN = 1860.0
+-PREDICTED_CORE_MIN = {"O48": 638.9, "O192": 638.9, "ACC48": 3.0, "ACC192": 3.0,
++ITEM_CEILING_CORE_MIN = 1960.0
++PREDICTED_CORE_MIN = {"O48": 638.9, "O192": 638.9, "ACC48": 40.0, "ACC192": 40.0,
+                       "F48": 47.267, "F192": 47.267}
+```
+
+(plus the docstring line `G10 … sum <= 1960.0 (Addendum 3; was 1860.0)` and five comment lines above `CAPS`).
+
+## A3.5 `CHAIN_DONE` — a fixed-name chain-end marker, registered so D6 can wait on it with no agent alive
+
+The driver wrote no terminal marker (its `STATUS.chain` last line is one of `chain=COMPLETE | STOPPED_AT_FIRST_NONZERO | STOPPED_H5 | BLOCKED_AGGREGATE | REFUSED_ALREADY_BOUGHT | ABORT`). D6 (20g per arm) cannot co-run with D5 (12g) beside D4-SHIPPED (12g) under the 30.6 GiB aggregate rule, and its own 4 h wait bound would BLOCK before this chain ends; so D6 is filed as a `dafoam_wait_then_launch.sh` entry (W2R Addendum 2, `331d1a2d`) whose precondition is **`/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/CHAIN_DONE`** (D6 Addendum 2). Registered semantics: the EXIT trap — armed immediately after the driver's pidfile is written, i.e. after the launcher-md5, root-staging, staged-md5 and second-driver checks — **appends** one line `chain_done stamp=<utc> pid=<pid> arms=[…] last=[<last STATUS.chain line>] permission=bc0e687e` to `CHAIN_DONE` on **every** exit of a started chain: `chain=COMPLETE`, a stop at the first non-zero rc, an H5 stop, an aggregate BLOCK, an `ALREADY_BOUGHT` refusal, a launcher-md5 abort mid-chain. **A pre-chain abort (exit 4 before the pidfile: launcher md5 drift, absent D4 base, staging or staged-md5 failure; exit 3 on a second live driver) writes NO marker** — the chain never started — and a D6 wrapper would then close at its 24 h bound with `rc=6 verdict=BLOCKED`, zero compute, which is the registered consequence, not a defect. The marker is append-only and the wrapper tests existence (`-e`), so a later re-fire of this chain does not remove it; a chain re-fired after D6 has already started is D6's G-ROOT.5 business (disjoint roots, disjoint cpusets) and no coupling exists.
+
+**Controls, zero compute, 20:53Z:** (i) the trap line, evaluated verbatim from the driver (`grep -m1 '^trap ' d5_chain_driver.sh`) in a scratch subshell that `exit 124`s after a `STOPPED_AT_FIRST_NONZERO` status line, wrote `chain_done stamp=20260826T205329Z pid=419023 arms=[ACC48 F48] last=[chain=STOPPED_AT_FIRST_NONZERO arm=ACC48 rc=124] permission=bc0e687e` and removed the pidfile (subshell rc 124 preserved); (ii) the launcher at the new md5 was invoked on the **real, staged r3 root** with a bogus image (`d5_run_arm.sh ACC48 no-such-image:selftest`, the Addendum 2 control form): `D4S_G_ROOT_PASS item=D5 … ledger_clean=yes` (**G-ROOT.3 accepts the r2 ledger** — `ITEM=D5` exact on line 1, the `STAGED`/`ARM=`/`D4S_*` lines carry no `ITEM=` prefix, no `ROW=SHIPPED`), `D4S_G_ROOT5_PASS arm=ACC48 live_same_arm_containers=none driver_pidfile=absent`, **`D4_CAP_ASSERT arm=ACC48 registered_core_min=60.0 ranks=4 enforced_wall_s=900 enforced_core_min=60.000000 memory=12g`**, the three staged-instrument md5s `OK`, then `ABORT cannot read digest of no-such-image:selftest` rc=4 **before any `rm -rf`/`cp -a`/`docker run`** (`ACC48/` mtime unchanged at 20:41:30Z; `docker ps -a` carries no `d5_` name). Output kept as `ADDENDUM3_cap_control_20260826T205329Z.out` in the run root. **`d5_groot5_selftest.sh` is NOT re-driven**: it refuses by design when the run root exists (`run root … already EXISTS — refusing to test over a real root`), and the root now exists; the G-ROOT.5 block (`d5_run_arm.sh:187-218` after this addendum's seven comment lines; `:180-211` at v1.2) is byte-identical to the 12/12-demonstrated blob (the diff above touches only `cap_core_min()`), and control (ii) exercised G-ROOT.1–.5 live on the real root.
+
+## A3.6 The r3 re-fire — what the driver will do, read from its code, not assumed
+
+Entry `verification/queue/dafoam/D5_chain_r3.json`: `bash d5_chain_driver.sh ACC48 F48 O192 ACC192 F192` (O48 omitted: an `rc=0` ledger row exists for it, so the driver's `ALREADY_BOUGHT` guard would refuse the chain at O48 with `rc=3`, zero compute, if it were listed — the guard is the reason the arm list changed, and it stays in force for every arm). On fire: root present → `D5_ROOT_PRESENT`, nothing re-staged; staged md5s asserted; `STATUS.ACC48` re-opened at preflight (r2's line preserved by copy, A3.1); H5 window; aggregate wait-and-retry (D4-SHIPPED's 12g chain on 5,6,7,9 fired by the runner at 20:50:06Z is a live sibling: 12 + 12 + host RSS ≈ 27 < 30.6 — passes; a third 12g sibling would wait); `ACC48/` is `rm -rf`'d and re-staged cold from `base/` by the launcher (r2's partial `ACC48/` holds no artefact — the colouring file was never written; its log and launch output live in the root and stay); then F48 in `O48/` (`OptView.hst` present from r2's O48), O192, ACC192, F192. `prereg_commit` = the commit that lands this addendum; `cost_core_min_estimate` 813.434; `memory_floor_gb` 16.0; `permission bc0e687e`. Enqueueing is not authorisation — `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own.
+
+**Condition, and how it was checked:** no `d5_` container exists (`sudo -n docker ps -a` 20:53Z: only `d4_F3_20260826T205120Z_411184`, another item's); no D5 driver is live (`d5_driver.pid` absent; `ps` shows no `d5_chain_driver`); the ledger carries exactly one `rc=0` row (O48) and one `rc=124` row (ACC48). First compute on ACC48 under the re-stated cap has not occurred.

@@ -24,7 +24,7 @@ WHAT IT GRADES (PREREGISTRATION.md sections 3 and 5):
   G9   toolchain: every ledger row carries the PATCHED digest, every log the
        PATCHED libidwarp.so md5 (D4S_IDWARP_SO_MD5:, the string the inherited
        launcher prints).
-  G10  caps: every row core_min <= its registered cap and the sum <= 1860.0;
+  G10  caps: every row core_min <= its registered cap and the sum <= 1960.0 (Addendum 3; was 1860.0);
        a crossing is GATE FAIL exactly as the frozen text says (report mode).
   G12  placement: cpuset == the registered 8,10,11,13 on every row; delivered
        cores >= 3.0 where MEASURED, NOT_MEASURED disclosed otherwise.
@@ -65,10 +65,15 @@ SOLVER_ARTEFACTS = {"O48": ["opt_IPOPT.txt", "OptView.hst"],
                     "F48": ["d5_fd_endpoint.json", "d4_endpoint_dvs.json"],
                     "F192": ["d5_fd_endpoint.json", "d4_endpoint_dvs.json"]}
 SCRIPT_ARTEFACTS = {"ACC48": [], "ACC192": []}   # compute_totals writes no file: the artefact is the log
-CAPS = {"O48": 800.0, "O192": 800.0, "ACC48": 10.0, "ACC192": 10.0,
+# D5 ADDENDUM 3 (2026-08-26, pre-compute for the r3 re-fire): ACC caps 10.0 -> 60.0
+# and their prediction 3.0 -> 40.0 (measured anchor: ACC48 r2 rc=124 at 162 s
+# still colouring; D4-SHIPPED ACC reached the total-derivative step at ~510 s
+# on the same mesh); ceiling = sum of caps = 1960.0.  Every other cap, band,
+# threshold and label unmoved.  Pre-addendum values: ACC 10.0 / 3.0, ceiling 1860.0.
+CAPS = {"O48": 800.0, "O192": 800.0, "ACC48": 60.0, "ACC192": 60.0,
         "F48": 120.0, "F192": 120.0}
-ITEM_CEILING_CORE_MIN = 1860.0
-PREDICTED_CORE_MIN = {"O48": 638.9, "O192": 638.9, "ACC48": 3.0, "ACC192": 3.0,
+ITEM_CEILING_CORE_MIN = 1960.0
+PREDICTED_CORE_MIN = {"O48": 638.9, "O192": 638.9, "ACC48": 40.0, "ACC192": 40.0,
                       "F48": 47.267, "F192": 47.267}
 CROSS_BAND_192 = 3.0e-4               # G-D5-1
 SIGN_FLIP_PATHOLOGY_N = 2             # G-D5-P

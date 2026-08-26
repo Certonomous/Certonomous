@@ -1,4 +1,4 @@
-2,17c2,31
+2,17c2,37
 < # D4-SHIPPED chain driver (PREREGISTRATION.md ADDENDUM 2).  Runs the named
 < # arms IN ORDER through the frozen launcher and STOPS AT THE FIRST NON-ZERO
 < # rc.  Started ONLY as
@@ -39,6 +39,12 @@
 > #   ADDENDUM 1 (pre-compute): every arm's memory cap is 12g, never 8g -- the
 > #       D4-SHIPPED ACC arm (the same compute_totals shape as ACC48/ACC192) was
 > #       OOM-killed by its 8g cgroup (rc=137, 16:56:28Z 2026-08-26).
+> #   ADDENDUM 3 (pre-compute for the r3 re-fire): (6) CHAIN_DONE -- the EXIT trap
+> #       appends one line to <root>/CHAIN_DONE (fixed name) whenever a STARTED
+> #       chain ends, success or stop, so a wait-wrapper (D6) can fire behind it
+> #       with no agent alive; a pre-chain abort (md5, staging, second driver)
+> #       exits before the trap is armed and writes NO marker.  (7) launcher md5
+> #       re-frozen after the ACC48/ACC192 cap row moved 10.0 -> 60.0.
 > # Runs the named arms IN ORDER through the frozen launcher and STOPS AT THE
 > # FIRST NON-ZERO rc.  Started ONLY detached (the queue runner's own form, or
 > #   setsid nohup bash d5_chain_driver.sh O48 ACC48 F48 O192 ACC192 F192 > <root>/chain_launch.out 2>&1 &
@@ -46,7 +52,7 @@
 > # Before each arm: launcher md5; the WINDOWED H5 gate (45 samples over 60 s,
 > # refuse on ANY sample below the floor); ALREADY_BOUGHT; AGGREGATE wait-and-retry.
 > # cwd is the CASE directory, never the run root (G-ROOT.5 b).
-21,23c35,39
+21,23c41,45
 < LAUNCHER="$HERE/d4s_run_arm.sh"
 < IMG=dafoam/opt-packages:latest
 < BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin
@@ -56,7 +62,7 @@
 > BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density
 > D4_BASE_SRC=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/base
 > D4_CASE_DIR="$HERE/../curriculum_D4"
-26,30c42,52
+26,30c48,58
 < # The launcher is FROZEN (Addendum 2 md5); asserted before EVERY arm so a
 < # mid-chain edit cannot change what the later arms run.
 < MD5_LAUNCHER=51987c2f5c583bc910ffe0f4415b09f5
@@ -66,7 +72,7 @@
 > AGG_POLL_S=30; AGG_BOUND_S=14400
 > # The launcher is FROZEN (PREREGISTRATION.md section 8 + Addendum 1 md5);
 > # asserted before EVERY arm so a mid-chain edit cannot change what runs.
-> MD5_LAUNCHER=50a976780e357998238ede3bbb8e5521
+> MD5_LAUNCHER=245341836829b1247b8d6efc794b7d08   # ADDENDUM 3: ACC cap row 10.0 -> 60.0 (was 50a97678...)
 > MD5_RUNSCRIPT=fa1d91c82d11aacd0ae072652b346952
 > MD5_FD=91b9f3526a39cb02eafbd5be504d7107
 > MD5_EXTRACT=ee7d3c99fd716da23779cb651961918e
@@ -74,7 +80,7 @@
 > MD5_FFD192=8eb161df4c546d10d7fcb30132f58907
 > test $# -ge 1 || { echo "ABORT usage: d5_chain_driver.sh <ARM...>"; exit 64; }
 > ARMS="$*"; STATUS="$BASE/STATUS.chain"; PIDFILE="$BASE/d5_driver.pid"
-31a54,75
+31a60,81
 > echo "$MD5_LAUNCHER  $LAUNCHER" | md5sum -c - || { echo "ABORT launcher md5 drifted before staging"; exit 4; }
 > # ---- (4) ROOT STAGING on the first fire only ------------------------------
 > if [ ! -d "$BASE" ]; then
@@ -97,17 +103,19 @@
 > fi
 > { echo "$MD5_RUNSCRIPT  $BASE/d5_opt_runScript.py"; echo "$MD5_FD  $BASE/d5_fd_endpoint.py"; echo "$MD5_EXTRACT  $BASE/d4_extract_endpoint.py"; echo "$MD5_FFD48  $BASE/ffd/wingFFD_48.xyz"; echo "$MD5_FFD192  $BASE/ffd/wingFFD_192.xyz"; } | md5sum -c - || { echo "ABORT staged instrument md5"; exit 4; }
 > test -f "$BASE/base/FFD/wingFFD.xyz" || { echo "ABORT staged base/ has no FFD/wingFFD.xyz"; exit 4; }
-40,41c84,85
+39,41c89,91
+< trap 'rm -f "$PIDFILE"' EXIT
 < echo "D4S_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] permission=$PERMISSION"
 < echo "chain=started arms=[$ARMS] pid=$$ stamp=$(date -u +%Y%m%dT%H%M%SZ) permission=$PERMISSION" > "$STATUS"
 ---
+> trap 'rm -f "$PIDFILE"; echo "chain_done stamp=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ arms=[$ARMS] last=[$(tail -n 1 "$STATUS" 2>/dev/null)] permission=$PERMISSION" >> "$BASE/CHAIN_DONE"' EXIT   # ADDENDUM 3 (6)
 > echo "D5_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] permission=$PERMISSION"
 > echo "chain=started arms=[$ARMS] pid=$$ stamp=$(date -u +%Y%m%dT%H%M%SZ) permission=$PERMISSION" >> "$STATUS"
-43c87
+43c93
 < cap_mem_gib() { case "$1" in P1) echo 4;; ACC) echo 8;; *) echo 12;; esac; }
 ---
 > cap_mem_gib() { echo 12; }   # ADDENDUM 1: every arm 12g
-45a90,99
+45a96,105
 >   # ---- (5) STATUS.<arm> is OPENED here (preflight line) and APPENDED from now
 >   # ---- on; the LAST line carries the rc.  Every AGGREGATE_WAIT is a line in it.
 >   echo "preflight arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ) driver_pid=$$ permission=$PERMISSION" > "$BASE/STATUS.$ARM"
@@ -118,15 +126,15 @@
 >     echo "rc=3 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=ALREADY_BOUGHT permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
 >     echo "chain=REFUSED_ALREADY_BOUGHT arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 3
 >   fi
-55c109
+55c115
 <   echo "D4S_H5_WINDOW arm=$ARM n=$N window_s=$H5_WINDOW_S floor_GiB=$H5_FLOOR_GIB min_GiB=$MIN max_GiB=$MAX samples_below_floor=$BELOW file=$(basename "$H5_FILE")"
 ---
 >   echo "D5_H5_WINDOW arm=$ARM n=$N window_s=$H5_WINDOW_S floor_GiB=$H5_FLOOR_GIB min_GiB=$MIN max_GiB=$MAX samples_below_floor=$BELOW file=$(basename "$H5_FILE")"
-58c112
+58c118
 <     echo "rc=6 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=H5_REFUSED below=$BELOW min_GiB=$MIN permission=$PERMISSION" > "$BASE/STATUS.$ARM"
 ---
 >     echo "rc=6 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=H5_REFUSED below=$BELOW min_GiB=$MIN permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
-61,69c115,132
+61,69c121,138
 <   # ---- AGGREGATE: live container caps + this cap + host non-container RSS
 <   AGG=$(python3 "$HERE/d4s_aggregate_memory.py" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
 <   echo "D4S_AGGREGATE arm=$ARM $AGG"
@@ -155,7 +163,7 @@
 >   done
 >   echo "D5_AGGREGATE arm=$ARM waited=$WAITED $AGG"
 >   echo "D5_DRIVER arm=$ARM begin=$(date -u +%Y%m%dT%H%M%SZ) ppid_now=$PPID permission=$PERMISSION"
-72,73c135,136
+72,73c141,142
 <   echo "D4S_DRIVER arm=$ARM end=$(date -u +%Y%m%dT%H%M%SZ) rc=$rc"
 <   echo "rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM source=launcher_exit=docker_inspect_ExitCode launch_out=${ARM}_launch.out h5_min_GiB=$MIN permission=$PERMISSION" > "$BASE/STATUS.$ARM"
 ---

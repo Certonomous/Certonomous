@@ -137,9 +137,16 @@ container_census() {
 #   F       120.0            12g
 # D5 REGISTERED CAP TABLE (PREREGISTRATION.md section 4): per density d in {48,192}
 cap_core_min() {
+  # D5 ADDENDUM 3 (pre-compute for the r3 re-fire, 2026-08-26): ACC48/ACC192
+  # 10.0 -> 60.0 core-min (deadline 150 s -> 900 s at 4 ranks).  ACC48 r2 was
+  # cut by its own in-container deadline at 162 s while still colouring the
+  # Jacobian (rc=124, 10.8 core-min WASTE, C-row in docs/COST_CALIBRATION.md):
+  # the 10.0 anchor (D4 ACC, C-94) priced a 45 s acceptance primal, not
+  # compute_totals on 48 FFD DVs (D5-PREREG-DEF-1, the D4S-LAUNCHER-DEF-2
+  # class).  The 10.0 row is STRUCK; every other cap is unmoved.
   case "$1" in
     O48|O192)     echo 800.0 ;;
-    ACC48|ACC192) echo 10.0 ;;
+    ACC48|ACC192) echo 60.0 ;;
     F48|F192)     echo 120.0 ;;
     *)  echo "" ;;
   esac

@@ -22,6 +22,12 @@
 #   ADDENDUM 1 (pre-compute): every arm's memory cap is 12g, never 8g -- the
 #       D4-SHIPPED ACC arm (the same compute_totals shape as ACC48/ACC192) was
 #       OOM-killed by its 8g cgroup (rc=137, 16:56:28Z 2026-08-26).
+#   ADDENDUM 3 (pre-compute for the r3 re-fire): (6) CHAIN_DONE -- the EXIT trap
+#       appends one line to <root>/CHAIN_DONE (fixed name) whenever a STARTED
+#       chain ends, success or stop, so a wait-wrapper (D6) can fire behind it
+#       with no agent alive; a pre-chain abort (md5, staging, second driver)
+#       exits before the trap is armed and writes NO marker.  (7) launcher md5
+#       re-frozen after the ACC48/ACC192 cap row moved 10.0 -> 60.0.
 # Runs the named arms IN ORDER through the frozen launcher and STOPS AT THE
 # FIRST NON-ZERO rc.  Started ONLY detached (the queue runner's own form, or
 #   setsid nohup bash d5_chain_driver.sh O48 ACC48 F48 O192 ACC192 F192 > <root>/chain_launch.out 2>&1 &
@@ -42,7 +48,7 @@ H5_FLOOR_GIB=16.0; H5_SAMPLES=45; H5_WINDOW_S=60; AGG_CEILING_GIB=30.6
 AGG_POLL_S=30; AGG_BOUND_S=14400
 # The launcher is FROZEN (PREREGISTRATION.md section 8 + Addendum 1 md5);
 # asserted before EVERY arm so a mid-chain edit cannot change what runs.
-MD5_LAUNCHER=50a976780e357998238ede3bbb8e5521
+MD5_LAUNCHER=245341836829b1247b8d6efc794b7d08   # ADDENDUM 3: ACC cap row 10.0 -> 60.0 (was 50a97678...)
 MD5_RUNSCRIPT=fa1d91c82d11aacd0ae072652b346952
 MD5_FD=91b9f3526a39cb02eafbd5be504d7107
 MD5_EXTRACT=ee7d3c99fd716da23779cb651961918e
@@ -80,7 +86,7 @@ if [ -f "$PIDFILE" ]; then
   fi
 fi
 echo "$$" > "$PIDFILE"
-trap 'rm -f "$PIDFILE"' EXIT
+trap 'rm -f "$PIDFILE"; echo "chain_done stamp=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ arms=[$ARMS] last=[$(tail -n 1 "$STATUS" 2>/dev/null)] permission=$PERMISSION" >> "$BASE/CHAIN_DONE"' EXIT   # ADDENDUM 3 (6)
 echo "D5_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] permission=$PERMISSION"
 echo "chain=started arms=[$ARMS] pid=$$ stamp=$(date -u +%Y%m%dT%H%M%SZ) permission=$PERMISSION" >> "$STATUS"
 mem_gib() { python3 -c "print('%.2f' % ($(awk '/MemAvailable/{print $2}' /proc/meminfo)/1048576.0))"; }
