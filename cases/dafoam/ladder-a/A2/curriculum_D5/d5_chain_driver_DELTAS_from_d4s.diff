@@ -74,7 +74,7 @@
 > MD5_FFD192=8eb161df4c546d10d7fcb30132f58907
 > test $# -ge 1 || { echo "ABORT usage: d5_chain_driver.sh <ARM...>"; exit 64; }
 > ARMS="$*"; STATUS="$BASE/STATUS.chain"; PIDFILE="$BASE/d5_driver.pid"
-31a54,70
+31a54,75
 > echo "$MD5_LAUNCHER  $LAUNCHER" | md5sum -c - || { echo "ABORT launcher md5 drifted before staging"; exit 4; }
 > # ---- (4) ROOT STAGING on the first fire only ------------------------------
 > if [ ! -d "$BASE" ]; then
@@ -85,24 +85,29 @@
 >   mkdir -p "$BASE/ffd" || exit 4
 >   cp -a "$HERE/ffd/wingFFD_48.xyz" "$HERE/ffd/wingFFD_192.xyz" "$BASE/ffd/" || { echo "ABORT copy ffd"; exit 4; }
 >   cp -a "$HERE/d5_opt_runScript.py" "$HERE/d5_fd_endpoint.py" "$D4_CASE_DIR/d4_extract_endpoint.py" "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
->   echo "ITEM=D5 staged=$(date -u +%Y%m%dT%H%M%SZ) base_src=$D4_BASE_SRC permission=$PERMISSION" > "$BASE/ledger.txt"
+>   # ADDENDUM 2 (D5-DRIVER-DEF-1): G-ROOT.3 accepts ONLY an exact `ITEM=D5` line;
+>   # the v1.1 form `ITEM=D5 staged=...` was refused by the launcher on the first
+>   # runner fire (17:43:47Z, rc=3, zero compute).  Identity on its own line;
+>   # staging metadata on a line that does not start with ITEM=.
+>   echo "ITEM=D5" > "$BASE/ledger.txt"
+>   echo "STAGED stamp=$(date -u +%Y%m%dT%H%M%SZ) base_src=$D4_BASE_SRC permission=$PERMISSION" >> "$BASE/ledger.txt"
 >   echo "D5_ROOT_STAGED base=$BASE stamp=$(date -u +%Y%m%dT%H%M%SZ) mode=$(stat -c '%a' "$BASE") permission=$PERMISSION"
 > else
 >   echo "D5_ROOT_PRESENT base=$BASE (not re-staged)"
 > fi
 > { echo "$MD5_RUNSCRIPT  $BASE/d5_opt_runScript.py"; echo "$MD5_FD  $BASE/d5_fd_endpoint.py"; echo "$MD5_EXTRACT  $BASE/d4_extract_endpoint.py"; echo "$MD5_FFD48  $BASE/ffd/wingFFD_48.xyz"; echo "$MD5_FFD192  $BASE/ffd/wingFFD_192.xyz"; } | md5sum -c - || { echo "ABORT staged instrument md5"; exit 4; }
 > test -f "$BASE/base/FFD/wingFFD.xyz" || { echo "ABORT staged base/ has no FFD/wingFFD.xyz"; exit 4; }
-40,41c79,80
+40,41c84,85
 < echo "D4S_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] permission=$PERMISSION"
 < echo "chain=started arms=[$ARMS] pid=$$ stamp=$(date -u +%Y%m%dT%H%M%SZ) permission=$PERMISSION" > "$STATUS"
 ---
 > echo "D5_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] permission=$PERMISSION"
 > echo "chain=started arms=[$ARMS] pid=$$ stamp=$(date -u +%Y%m%dT%H%M%SZ) permission=$PERMISSION" >> "$STATUS"
-43c82
+43c87
 < cap_mem_gib() { case "$1" in P1) echo 4;; ACC) echo 8;; *) echo 12;; esac; }
 ---
 > cap_mem_gib() { echo 12; }   # ADDENDUM 1: every arm 12g
-45a85,94
+45a90,99
 >   # ---- (5) STATUS.<arm> is OPENED here (preflight line) and APPENDED from now
 >   # ---- on; the LAST line carries the rc.  Every AGGREGATE_WAIT is a line in it.
 >   echo "preflight arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ) driver_pid=$$ permission=$PERMISSION" > "$BASE/STATUS.$ARM"
@@ -113,15 +118,15 @@
 >     echo "rc=3 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=ALREADY_BOUGHT permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
 >     echo "chain=REFUSED_ALREADY_BOUGHT arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; exit 3
 >   fi
-55c104
+55c109
 <   echo "D4S_H5_WINDOW arm=$ARM n=$N window_s=$H5_WINDOW_S floor_GiB=$H5_FLOOR_GIB min_GiB=$MIN max_GiB=$MAX samples_below_floor=$BELOW file=$(basename "$H5_FILE")"
 ---
 >   echo "D5_H5_WINDOW arm=$ARM n=$N window_s=$H5_WINDOW_S floor_GiB=$H5_FLOOR_GIB min_GiB=$MIN max_GiB=$MAX samples_below_floor=$BELOW file=$(basename "$H5_FILE")"
-58c107
+58c112
 <     echo "rc=6 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=H5_REFUSED below=$BELOW min_GiB=$MIN permission=$PERMISSION" > "$BASE/STATUS.$ARM"
 ---
 >     echo "rc=6 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=H5_REFUSED below=$BELOW min_GiB=$MIN permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
-61,69c110,127
+61,69c115,132
 <   # ---- AGGREGATE: live container caps + this cap + host non-container RSS
 <   AGG=$(python3 "$HERE/d4s_aggregate_memory.py" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
 <   echo "D4S_AGGREGATE arm=$ARM $AGG"
@@ -150,7 +155,7 @@
 >   done
 >   echo "D5_AGGREGATE arm=$ARM waited=$WAITED $AGG"
 >   echo "D5_DRIVER arm=$ARM begin=$(date -u +%Y%m%dT%H%M%SZ) ppid_now=$PPID permission=$PERMISSION"
-72,73c130,131
+72,73c135,136
 <   echo "D4S_DRIVER arm=$ARM end=$(date -u +%Y%m%dT%H%M%SZ) rc=$rc"
 <   echo "rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM source=launcher_exit=docker_inspect_ExitCode launch_out=${ARM}_launch.out h5_min_GiB=$MIN permission=$PERMISSION" > "$BASE/STATUS.$ARM"
 ---

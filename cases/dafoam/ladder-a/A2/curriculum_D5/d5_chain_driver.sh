@@ -61,7 +61,12 @@ if [ ! -d "$BASE" ]; then
   mkdir -p "$BASE/ffd" || exit 4
   cp -a "$HERE/ffd/wingFFD_48.xyz" "$HERE/ffd/wingFFD_192.xyz" "$BASE/ffd/" || { echo "ABORT copy ffd"; exit 4; }
   cp -a "$HERE/d5_opt_runScript.py" "$HERE/d5_fd_endpoint.py" "$D4_CASE_DIR/d4_extract_endpoint.py" "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
-  echo "ITEM=D5 staged=$(date -u +%Y%m%dT%H%M%SZ) base_src=$D4_BASE_SRC permission=$PERMISSION" > "$BASE/ledger.txt"
+  # ADDENDUM 2 (D5-DRIVER-DEF-1): G-ROOT.3 accepts ONLY an exact `ITEM=D5` line;
+  # the v1.1 form `ITEM=D5 staged=...` was refused by the launcher on the first
+  # runner fire (17:43:47Z, rc=3, zero compute).  Identity on its own line;
+  # staging metadata on a line that does not start with ITEM=.
+  echo "ITEM=D5" > "$BASE/ledger.txt"
+  echo "STAGED stamp=$(date -u +%Y%m%dT%H%M%SZ) base_src=$D4_BASE_SRC permission=$PERMISSION" >> "$BASE/ledger.txt"
   echo "D5_ROOT_STAGED base=$BASE stamp=$(date -u +%Y%m%dT%H%M%SZ) mode=$(stat -c '%a' "$BASE") permission=$PERMISSION"
 else
   echo "D5_ROOT_PRESENT base=$BASE (not re-staged)"

@@ -329,3 +329,55 @@ the harness's file tools, the md5s read with a bare `md5sum`, the selftests run 
 
 **The queue entry `verification/queue/dafoam/D5_chain.json` cites the commit that lands this addendum
 as `prereg_commit`**, so the sha the runner verifies is the sha at which every md5 above holds.
+
+---
+
+# ADDENDUM 2 — 2026-08-26 — **PRE-COMPUTE** — `D5-DRIVER-DEF-1`: G-ROOT.3 refused the driver's own staging line on the first runner fire
+
+**Version 1.1 → 1.2. Lines whose number changed above this section: 0.** `CLAUDE.md` rule 2, pre-first-compute.
+
+**WHAT HAPPENED, from disk.** `scripts/queue_runner.py` launched `D5_chain.json` at **17:42:43Z**
+(`runner.log`: `LAUNCHED team=dafoam case=D5_chain pid=311433 sid=311433 ranks=4 est=1378.3 core-min
+prereg=a1dcdb7d`; box 39.8 % busy). The driver (pid 311435, sid 311434) staged the run root (mode 777, base/,
+instruments, boxes — every md5 `OK`), passed H5 (45/45, min 26.84 GiB) and the aggregate (22.3 < 30.6, waited
+0 s), and called the launcher for O48, which **refused at G-ROOT.3, exit 3, before any staging**:
+`ABORT G-ROOT.3 the ledger … carries another item: ITEM=D5 staged=20260826T174243Z base_src=… permission=bc0e687e`
+(`O48_launch.out`). `STATUS.O48` last line `rc=3 … source=launcher_exit=docker_inspect_ExitCode`;
+`STATUS.chain` `chain=STOPPED_AT_FIRST_NONZERO arm=O48 rc=3`; the runner's `STATUS.D5_chain` `launcher_rc=3`
+(an infrastructure record, L-342). **No container started (`docker ps -a` carries no `d5_` name), no `O48/`
+exists, no `ARM=` row exists, 0 core-min.**
+
+**THE DEFECT — `D5-DRIVER-DEF-1`, in this lane's own registered delta (4), not in the inherited family.**
+The driver wrote the ledger's first line as `ITEM=D5 staged=… permission=…`; the inherited G-ROOT.3 excludes
+only an **exact** `ITEM=D5` line (`grep -av "^ITEM=$ITEM$"`), so the staging metadata on the same line made
+the item's own identity line read as a foreign item. **The guard did its job on the first line it was ever
+shown** — it is the correct instrument and is not changed. The D4-SHIPPED family never wrote an `ITEM=` line;
+the line is this item's addition and the defect is this item's.
+
+**THE CORRECTION — driver only; no gate, threshold, cap, label, band, cost or prediction moves.**
+`d5_chain_driver.sh` now writes `ITEM=D5` alone on line 1 and the staging metadata on a second line
+`STAGED stamp=… base_src=… permission=…` (no `ITEM=` prefix): md5 **`89c9b7e7e43e7dd12d1c551dadfa80c8`**
+(was `47e7767d…`; the delta is these two `echo` lines and four comment lines; `d5_chain_driver_DELTAS_from_d4s.diff`
+regenerated, 163 diff lines). The launcher is untouched (`50a97678…`). **The already-staged run root is kept**
+(re-staging would need the root removed; the staged files are md5-verified copies and nothing in them ran) and
+its ledger's first line was corrected by hand to the same two-line form, the second line carrying
+`corrected_by=laneQ1_ADDENDUM2` so the hand edit is visible in the record.
+
+**THE CONTROL — the corrected form is shown to pass G-ROOT.3 without staging anything.** At 17:46:08Z the
+launcher was invoked on the corrected root with a bogus image (`d5_run_arm.sh O48 no-such-image:selftest`):
+`D4S_G_ROOT_PASS item=D5 … ledger_clean=yes`, `D4S_G_ROOT5_PASS … driver_pidfile=absent`, cap assertion,
+host pre-read, the three staged-instrument md5s `OK`, then **`ABORT cannot read digest of no-such-image:selftest`,
+rc=4 — before the first `rm -rf`/`cp -a`/`docker run`**; `O48/` still absent; `docker ps -a` still carries no
+`d5_` name. Output kept in the run root as `ADDENDUM2_groot3_control_<stamp>.out`.
+
+**THE CONDITION, AND HOW IT WAS CHECKED.** The run root **exists** (staged 17:42:43Z by the runner's fire) and
+contains `base/`, `ffd/`, the three instruments, `ledger.txt` (two lines, no `ARM=` row), `STATUS.chain`,
+`STATUS.O48`, the H5 window and aggregate series files, `O48_launch.out` and the control output —
+**and no arm directory, no `.d4_age_datum`, no container record**: `ls O48` → absent, `docker ps -a | grep d5_`
+→ 0 lines, checked 17:46:08Z. First compute has not occurred.
+
+**Queue.** The runner moved the fired entry to `launched/D5_chain.json` (`_launch` pid 311433) and will not
+re-fire it. A fresh entry **`verification/queue/dafoam/D5_chain_r2.json`** (case_id `D5_chain_r2`, same argv,
+same cost 1,378.3, `memory_floor_gb 16.0`) cites **the commit that lands this addendum** as `prereg_commit`.
+On the re-fire the driver finds the root present (`D5_ROOT_PRESENT`, stages nothing), asserts the staged
+md5s, and proceeds to O48; `STATUS.<arm>` files are re-opened at preflight.
