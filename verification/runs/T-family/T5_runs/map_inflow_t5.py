@@ -7,10 +7,33 @@ theta(x) = int u/U_e (1 - u/U_e) dy over the floor half-channel with U_e = the
 centreline velocity, Re_theta = U_e theta / nu, and selects the mapping plane x_p
 such that Re_theta(x_p + 8 H) = 660 (S5.3: 8 H of further development inside the
 3-D domain, cube absent, reaches Re_theta = 660 at x = 0).  Writes
-constant/boundaryData/inlet/{points,0/U,0/k,0/omega} into every named 3-D case
-and appends the iteration to T5_INFLOW_LOG.md.  It touches no h.  No `assert`.
-REFUSES if X_2d is not DONE (marker), if 660 is outside the sampled range, or if
-the chosen plane sits within 2 H of the precursor inlet or outlet.
+constant/<fluidRegion>/boundaryData/inlet/{points,0/U,0/k,0/omega} into every
+named 3-D case and appends the iteration to T5_INFLOW_LOG.md.  It touches no h.
+No `assert`.  REFUSES if X_2d is not DONE (marker), if 660 is outside the
+sampled range, or if the chosen plane sits within 2 H of the precursor inlet or
+outlet.
+
+AMENDMENT 8 (2026-08-26, T5 lane, for the supervisor's after-the-fact read):
+  * PATH.  The reader of `timeVaryingMappedFixedValue` in openfoam-2606 is
+    PatchFunction1Types::MappedFile; it opens
+    time.constant()/mesh.dbDir()/"boundaryData"/<patch>/points
+    (src/meshTools/PatchFunction1/MappedFile/MappedFile.C:496-503), and for a
+    multi-region case mesh.dbDir() is the REGION NAME.  The previous version
+    wrote to constant/boundaryData/inlet, which the air-region reader never
+    opens; rawIOField then held 0 points and the solver FATALed with "Need at
+    least 3 non-collinear points for planar interpolation, but only had 0
+    points" (T5_CUBE_c, 17:41:39Z) -- the same text it gave at 16:27Z when no
+    boundaryData existed at all.  The fluid region is READ from
+    constant/regionProperties (exactly one fluid region, else REFUSE) and the
+    patch is required to exist in constant/<region>/polyMesh/boundary.
+  * EXTRUSION.  The y-profile is written at three z-stations spanning the
+    inlet patch width; the width is READ from the region's polyMesh/points
+    (streamed, min/max z only -- never loaded whole) with a 0.1 mm outward
+    margin so every patch face centre lies inside the triangulated hull.  The
+    previous version extruded to a hard-coded W = 0.075 with no margin.
+  * REFUSAL.  The points file is read back and REFUSED (exit 2) if the cloud is
+    collinear (no triple with a non-zero cross product) or its count differs.
+  Station selection, the 2 H guard and the mapping arithmetic are untouched.
 """
 import argparse
 import os
@@ -19,7 +42,9 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-H, D, NU, RE_TARGET, W = 0.015, 0.051, 1.510e-05, 660.0, 0.075
+H, D, NU, RE_TARGET = 0.015, 0.051, 1.510e-05, 660.0
+Z_MARGIN = 1.0e-4        # m, outward extrusion margin beyond the patch width (AMENDMENT 8)
+N_Z_STATIONS = 3
 FOAM_BASHRC = "/usr/lib/openfoam/openfoam2606/etc/bashrc"
 STATIONS_H = list(range(8, 76, 2))          # x/H stations sampled in the precursor
 
@@ -77,28 +102,105 @@ def re_theta(U):
     return ue * th / NU, ue, th
 
 
+def fluid_region(case):
+    """The single fluid region named in constant/regionProperties (AMENDMENT 8)."""
+    rp = os.path.join(case, "constant", "regionProperties")
+    if not os.path.isfile(rp):
+        refuse("%s: no constant/regionProperties; the region path of boundaryData cannot be established" % case)
+    m = re.search(r"fluid\s*\(([^)]*)\)", open(rp).read())
+    regs = m.group(1).split() if m else []
+    if len(regs) != 1:
+        refuse("%s: expected exactly one fluid region in regionProperties, found %s" % (case, regs))
+    return regs[0]
+
+
+def patch_exists(case, region, patch):
+    b = os.path.join(case, "constant", region, "polyMesh", "boundary")
+    if not os.path.isfile(b):
+        refuse("%s: no %s" % (case, b))
+    return re.search(r"^\s*%s\s*$" % re.escape(patch), open(b).read(), re.M) is not None
+
+
+def mesh_z_extent(case, region):
+    """min/max z of the region's polyMesh/points, STREAMED line by line -- the
+    file is never held in memory (solvers are live on this box)."""
+    p = os.path.join(case, "constant", region, "polyMesh", "points")
+    if not os.path.isfile(p):
+        refuse("%s: no %s" % (case, p))
+    zmin, zmax, n = None, None, 0
+    pat = re.compile(r"^\(\s*([-+0-9.eE]+)\s+([-+0-9.eE]+)\s+([-+0-9.eE]+)\s*\)\s*$")
+    with open(p) as fh:
+        for line in fh:
+            m = pat.match(line)
+            if not m:
+                continue
+            z = float(m.group(3)); n += 1
+            zmin = z if zmin is None or z < zmin else zmin
+            zmax = z if zmax is None or z > zmax else zmax
+    if n < 4 or zmax - zmin <= 0.0:
+        refuse("%s: mesh points give no z extent (n=%d, zmin=%s, zmax=%s)" % (case, n, zmin, zmax))
+    return zmin, zmax
+
+
+def read_back_points(path):
+    """Count and extents of a written points file, streamed; refuses on collinearity."""
+    pat = re.compile(r"^\(\s*([-+0-9.eE]+)\s+([-+0-9.eE]+)\s+([-+0-9.eE]+)\s*\)\s*$")
+    n, p0, p1, noncol = 0, None, None, False
+    ext = [None] * 6
+    with open(path) as fh:
+        for line in fh:
+            m = pat.match(line)
+            if not m:
+                continue
+            p = tuple(float(g) for g in m.groups()); n += 1
+            for i in range(3):
+                ext[2 * i] = p[i] if ext[2 * i] is None or p[i] < ext[2 * i] else ext[2 * i]
+                ext[2 * i + 1] = p[i] if ext[2 * i + 1] is None or p[i] > ext[2 * i + 1] else ext[2 * i + 1]
+            if p0 is None:
+                p0 = p
+            elif p1 is None and max(abs(p[i] - p0[i]) for i in range(3)) > 1e-12:
+                p1 = p
+            elif p1 is not None and not noncol:
+                a = [p1[i] - p0[i] for i in range(3)]; b = [p[i] - p0[i] for i in range(3)]
+                cx = (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
+                if max(abs(c) for c in cx) > 1e-14:
+                    noncol = True
+    return n, ext, noncol
+
+
 def write_boundary_data(case, U, KW, x_in):
-    bd = os.path.join(case, "constant", "boundaryData", "inlet")
+    region = fluid_region(case)
+    if not patch_exists(case, region, "inlet"):
+        refuse("%s: patch `inlet` is not in constant/%s/polyMesh/boundary" % (case, region))
+    zmin, zmax = mesh_z_extent(case, region)
+    z_lo, z_hi = zmin - Z_MARGIN, zmax + Z_MARGIN
+    z_st = [z_lo + (z_hi - z_lo) * i / (N_Z_STATIONS - 1) for i in range(N_Z_STATIONS)]
+    bd = os.path.join(case, "constant", region, "boundaryData", "inlet")
     os.makedirs(os.path.join(bd, "0"), exist_ok=True)
     pts = []
-    for z in (0.0, 0.5 * W, W):
+    for z in z_st:
         for r in U:
             pts.append((x_in, r[0], z))
     with open(os.path.join(bd, "points"), "w") as fh:
         fh.write("%d\n(\n%s\n)\n" % (len(pts), "\n".join("(%.9g %.9g %.9g)" % p for p in pts)))
     def fld(name, vals, vec):
         with open(os.path.join(bd, "0", name), "w") as fh:
-            fh.write("%d\n(\n" % (3 * len(vals)))
-            for _ in range(3):
+            fh.write("%d\n(\n" % (len(z_st) * len(vals)))
+            for _ in z_st:
                 for v in vals:
                     fh.write(("(%.9g %.9g %.9g)\n" % tuple(v)) if vec else ("%.9g\n" % v))
             fh.write(")\n")
     fld("U", [(r[1], 0.0, 0.0) for r in U], True)
     fld("k", [r[1] for r in KW], False)
     fld("omega", [r[2] for r in KW], False)
-    back = open(os.path.join(bd, "points")).read().count("(") - 1
+    back, ext, noncol = read_back_points(os.path.join(bd, "points"))
     if back != len(pts):
         refuse("%s: boundaryData points read back %d, wrote %d" % (case, back, len(pts)))
+    if not noncol:
+        refuse("%s: the written point cloud is COLLINEAR (%d points); planar interpolation needs 3 non-collinear points" % (case, back))
+    print("  %s: region %s, mesh z [%.6g, %.6g], %d points at %d z-stations %s, extents x [%.6g, %.6g] y [%.6g, %.6g] z [%.6g, %.6g], non-collinear"
+          % (os.path.relpath(bd, case), region, zmin, zmax, back, len(z_st), ["%.6g" % z for z in z_st],
+             ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]))
 
 
 def main():
