@@ -58,6 +58,20 @@ def last_commit(path):
     return r.stdout.strip() or None
 
 
+PRIOR_DRAFT = re.compile(r"^(## Verification supervisor's draft.*|# .*DRAFT.*)$", re.M)
+
+
+def split_authority(text):
+    """The family's own table is the authority: everything ABOVE the first retained
+    prior-draft marker (a second H1, or a '## Verification supervisor's draft' heading)."""
+    first_h1 = text.find("\n# ")
+    m = PRIOR_DRAFT.search(text, 1)
+    cut = m.start() if m else (first_h1 if first_h1 > 0 else -1)
+    if cut < 0:
+        return text, None
+    return text[:cut], text[cut:]
+
+
 def tables(text):
     """Every markdown table as a list of raw lines, in order."""
     out, cur = [], []
@@ -79,7 +93,8 @@ def census_line(text):
 def footer_shas(text):
     """shas listed in the source's own planted-control loop, plus every `@ `sha`` citation."""
     shas = set()
-    for m in re.finditer(r"for s in ([0-9a-f \n]+?); do", text):
+    m = re.search(r"for s in ([0-9a-f \n]+?); do", text)   # the FIRST footer loop only
+    if m:
         shas.update(SHA_RE.findall(m.group(1)))
     shas.update(re.findall(r"@ `([0-9a-f]{7,10})`", text))
     return shas
@@ -131,13 +146,21 @@ def family_block(label, fname, axes, cols):
     sha = last_commit(path)
     out.append(f"**family table at HEAD: `{sha}`** (`{path}`; every cell below is copied verbatim "
                f"from that file — the family supervisor's words, not this script's).")
+    text, prior = split_authority(text)
+    if prior is not None:
+        marker = prior.strip().splitlines()[0][:120]
+        out.append(f"\n*The family file also carries, below its own table, the **verification supervisor's "
+                   f"prior draft, superseded by the family table above** (marker line: `{marker}`). "
+                   f"Only the family's FIRST derivation table, FIRST cell table, FIRST census and FIRST "
+                   f"footer are read here; the prior draft is neither counted nor reproduced.*")
     tbs = tables(text)
     if not tbs:
         out.append("\n(no markdown tables found in the family file)")
         return out, verdict_census([]), footer_shas(text), True
     # derivation table = first table; cell table = the largest table by row count
-    cell_tbl = max(tbs, key=len)
-    deriv = [t for t in tbs if t is not cell_tbl]
+    cell_tbl = next((tb for tb in tbs if re.match(r"\|\s*cell\b", tb[0], re.I) and len(tb) >= 20), None) \
+        or max(tbs, key=len)
+    deriv = [tb for tb in tbs if tb is not cell_tbl and tbs.index(tb) < tbs.index(cell_tbl)]
     if deriv:
         out += ["", "**Regime / mode per case, as derived by the family (their table):**", "", *deriv[0], ""]
     out += ["**The table:**", "", *cell_tbl, "", census_line(text), ""]
