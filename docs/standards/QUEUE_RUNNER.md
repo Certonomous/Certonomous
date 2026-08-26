@@ -77,3 +77,26 @@ directory (rule 4).
 
 First live tick, 2026-08-26 16:10:12Z, pid 106422: launched dafoam `D12R_phase3`, then
 `D12R_phase4` one tick later.
+
+## Deploying the runner on a second instance (e.g. the GPU box, ansys-verification)
+
+The runner is host-generic: it reads `nproc`, `/proc/stat` and `/proc/meminfo`, and
+launches whatever argv an entry carries. To run it there:
+
+1. Have the repository (or at minimum `scripts/queue_runner.py`, `scripts/queue_runner.sh`,
+   `scripts/queue_entry_check.py` and a `verification/queue/<team>/` tree) checked out at
+   the same path, `/home/ubuntu/Certonomous`, with the same `git` history — the validator
+   resolves `prereg_commit` with `git cat-file` against that checkout, so a sha the remote
+   checkout does not have is REFUSED there (pull before enqueueing).
+2. Entries meant for that box carry `"host": "<its hostname or IP>"`; entries without
+   `host` are local everywhere. Each runner launches only entries whose `host` is empty,
+   `local`, or its own `uname -n`; the rest are `SKIP`ped with a logged reason. So the same
+   queue tree can be shared (e.g. rsync'd) between the two boxes without double launches,
+   provided every remote-only entry names its host.
+3. GPU cases: `ranks` counts CPU ranks for the ceiling; a GPU solver still names `ranks`
+   (1 if it drives one device) and states GPU-hours in `cost_basis` (rule 12 — GPU spend
+   sits outside the CPU blanket and is priced from the console).
+4. Install the same crontab lines (`@reboot` and `* * * * *` → `scripts/queue_runner.sh`)
+   under the account that owns the checkout; confirm with `crontab -l` and
+   `systemctl is-active cron`.
+5. Selftest there first: `python3 scripts/queue_runner.py --selftest` (scratch root only).
