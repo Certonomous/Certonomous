@@ -1,0 +1,55 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// VMFL064 - Low Re flow in a channel with sudden asymmetric expansion.
+// Geometry EXACTLY as VM2026R1 p.195: step s = 4.9 mm, inlet channel 5.2 mm,
+// inlet section 200 mm, downstream 100 mm. Origin at the step foot.
+// __NY__ / __NXU__ / __NXD__ substituted by run_vmfl064.sh per level.
+scale 1;
+
+// s = 0.0049, h_in = 0.0052, h_out = 0.0101, Lup = 0.200, Ldown = 0.100
+vertices
+(
+    (-0.200 0.0049 -0.0005)   //  0
+    ( 0.000 0.0049 -0.0005)   //  1
+    ( 0.100 0.0049 -0.0005)   //  2
+    (-0.200 0.0101 -0.0005)   //  3
+    ( 0.000 0.0101 -0.0005)   //  4
+    ( 0.100 0.0101 -0.0005)   //  5
+    ( 0.000 0.0000 -0.0005)   //  6
+    ( 0.100 0.0000 -0.0005)   //  7
+
+    (-0.200 0.0049  0.0005)   //  8
+    ( 0.000 0.0049  0.0005)   //  9
+    ( 0.100 0.0049  0.0005)   // 10
+    (-0.200 0.0101  0.0005)   // 11
+    ( 0.000 0.0101  0.0005)   // 12
+    ( 0.100 0.0101  0.0005)   // 13
+    ( 0.000 0.0000  0.0005)   // 14
+    ( 0.100 0.0000  0.0005)   // 15
+);
+
+blocks
+(
+    // A: upstream inlet channel  (y 0.0049 -> 0.0101)
+    hex ( 0  1  4  3  8  9 12 11) (__NXU__ __NY__ 1) simpleGrading (1 1 1)
+    // B: downstream, above step level (y 0.0049 -> 0.0101)
+    hex ( 1  2  5  4  9 10 13 12) (__NXD__ __NY__ 1) simpleGrading (1 1 1)
+    // C: downstream, below step level (y 0.0000 -> 0.0049)
+    hex ( 6  7  2  1 14 15 10  9) (__NXD__ __NY__ 1) simpleGrading (1 1 1)
+);
+
+boundary
+(
+    inlet      { type patch; faces ( ( 0  3 11  8) ); }
+    outlet     { type patch; faces ( ( 2  5 13 10) ( 7  2 10 15) ); }
+    // the wall the reattachment length is measured along: y = 0, x in [0, 0.1]
+    bottomWall { type wall;  faces ( ( 6  7 15 14) ); }
+    // vertical face of the step, x = 0, y in [0, 0.0049]
+    stepWall   { type wall;  faces ( ( 6  1  9 14) ); }
+    topWall    { type wall;  faces ( ( 3  4 12 11) ( 4  5 13 12) ); }
+    // floor of the inlet channel upstream of the step, y = 0.0049, x in [-0.2, 0]
+    upstreamWall { type wall; faces ( ( 0  1  9  8) ); }
+    frontAndBack { type empty; faces
+        ( ( 0  1  4  3) ( 1  2  5  4) ( 6  7  2  1)
+          ( 8 11 12  9) ( 9 12 13 10) (14  9 10 15) ); }
+);

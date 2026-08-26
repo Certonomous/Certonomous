@@ -1,0 +1,4 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// VM2026R1 p.195: density 1 kg/m3, viscosity 1.5e-5 kg/m-s => nu = mu/rho = 1.5e-5 m2/s
+transportModel  Newtonian;
+nu              1.5e-05;
