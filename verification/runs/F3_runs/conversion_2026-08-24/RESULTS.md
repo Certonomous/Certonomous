@@ -84,3 +84,17 @@ Rows: **C-66** (original), **C-68** (correction).
 
 `F3_CONVERSION_GRADED.json`, `F3_CONVERSION_RUN_LEDGER.json`, `RC.txt` (rc = 0),
 `WATCH_TERMINAL.txt`, `runs/<family>/<pair>/<level>/`. Solver logs gitignored, on disk.
+
+## ADDENDUM 2026-08-26 — G-F3-2 / M2.0_th15 HELD (cfd-supervisor ruling)
+
+Stamped `2026-08-26T16:05:15Z` (`date -u`). Appended at the foot; lines whose number changed above this section: 0.
+
+(a) The row at line 14 — `G-F3-2 wedge shock angle / M2.0_th15 | PASS | −1.435 % | ±2.0 % | CONVERGING, p = 0.034, GCI 169.06 %` — was graded by the frozen `grade_f3.py`, whose `roache()` carries no order floor: any positive p with monotone values is CONVERGING under it.
+
+(b) The shared instrument `scripts/roache_triple.py` now carries `P_MIN = 0.05` (commit c525c247). Under that floor |p| = 0.034 is classified `DEGENERATE`, a non-CONVERGING class → `NOT A RESULT`, and no GCI is quoted.
+
+(c) This record's own discussion (lines ~33-36 above) already said the grid gives the value no support — "a GCI of 169 % means the fine-grid value has effectively no grid support" — and required anyone citing the row to carry the GCI with it.
+
+(d) The F3 successor re-ran this triple on 2026-08-26 and graded G-F3S-2 `NOT A RESULT` (rule 5 limb (1): coarse and medium NOT_PLATEAUED; the triple OSCILLATORY) — see `verification/runs/F3_runs/successor_triple_2026-08-26/RESULTS.md:18`.
+
+(e) RULING: the row is **HELD** — its `PASS` may not be cited. The printed verdict at line 14 is NOT rewritten, because re-grading a frozen record is reserved to Sanaa (VERIFICATION_CHARTER; CLAUDE.md rule 2). It is placed on her desk with the recommendation that the successor's `NOT A RESULT` supersedes it. Decided `[lab-attributed]` under her silence-is-approval directive, as to the HOLD only.
