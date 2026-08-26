@@ -263,3 +263,47 @@ are the calibration row **`C-100`** in `docs/COST_CALIBRATION.md`.
 
 **cost_basis: c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED**
 (`COMPUTE_BUDGET_CHARTER.md` §5 — the box cannot read its own billing).
+
+---
+
+## 8. ADDENDUM, 2026-08-26 — A THIRD FINDING, SURFACED BY THE COST RECONCILIATION
+
+**Appended at the foot the same day, by the same lane. Sections 1-7 are byte-unchanged;
+lines whose number changed above this section: 0.**
+
+Reconciling `ledger.txt`'s `63.95` against the manifest rows' own `core_min` column left a
+**0.0667 core-min residue**. It is not rounding. It is a stage.
+
+| source | stages | core-min |
+|---|---|---|
+| `ledger.txt` `STAGE=` lines | **33** — `S0` first | 63.95 |
+| `manifest.jsonl` rows | **32** — begins at `S1a` | 63.8833 |
+| difference | **`S0`, `TASK=mesh`, `rc=0`, `wall_s=4`** (`ledger.txt:12`) | **0.0667** |
+
+`63.8833 + 0.0667 = 63.95` **exactly.** The residue is `S0` and nothing else.
+
+> **`S0` IS NOT IN THE MANIFEST, SO `G12R-0` NEVER SEES THE MESH STAGE.** The completion gate
+> grades **32 of the 33 stages the ledger records**, and the one it does not grade is the one
+> that builds the mesh every other stage rests on.
+
+**A correction to the brief this lane was given**, which stated that *"all ten registered phase-1
+stages (S0, S1a, S1b, S2a, S2b, S3, S3b, S4, S5, S7) are present as 32 manifest rows"*. **S0 is
+not among them.** Nine of the ten registered stage groups are; `S0` is recorded in the ledger
+only.
+
+**Why this is worth writing down rather than shrugging at.** `d12x_grade.py:251-252` carries a
+live branch for exactly this stage kind:
+
+    elif kind == "mesh":
+        pass
+
+**No manifest row on this run carries `stage_kind: "mesh"` — the branch is dead code here.** A
+reader of the comparator sees mesh stages handled and would reasonably conclude mesh stages are
+graded; **the manifest never presents one.** That is the same family as the gap this record
+opened with — *an instrument whose coverage reads wider than what it is actually handed* — and
+it is milder only because the branch would have passed anyway.
+
+**Scope, stated honestly.** This lane did **not** establish that `S0` is ungraded *by design*
+versus *by omission*, and did not read the launcher's manifest-append path to find out. **It is
+reported as measured and no further**, and it does **not** change §2's verdict: the refusal
+fires on `S1a`, and `S0`'s absence neither caused it nor would be cured by fixing it.
