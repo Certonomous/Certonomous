@@ -96,3 +96,74 @@ flowchart TD
 3. Its verdict is a fidelity chip, not the fixed gate vocabulary; its grid grading softens a non-monotone triple into a wider band where rule 5 says NOT A RESULT; its completion check is `rc == 0` alone, not rule 4's seven clauses.
 4. Every rule-bearing instrument exists — `queue_entry_check.py`, `queue_runner.py`, `mark_done_k0d.py`, `roache_triple.py`, `check_convergence.py` — but only on the hand-driven lab pipeline, and none of them can be reached from a prompt or an STL.
 5. The user-facing flow Sanaa is asking about is therefore two half-pipelines with a gap between them: the product half talks to a user and cannot certify; the lab half certifies and cannot talk to a user. Nothing in the repo bridges them, and this document does not propose how.
+
+---
+
+## §4 — TARGET workflow (design, not built): what SHOULD happen when a user gives a prompt and optionally an STL/OBJ
+
+*Chief synthesis, 2026-08-26, at Sanaa's request. Every stage below maps onto a lab rule that already exists (CLAUDE.md rule number in brackets) or onto an instrument that already exists on the hand-driven pipeline (§1–§2). Nothing here is a claim that the stage is built.*
+
+```mermaid
+flowchart TD
+  U[User prompt + optional STL/OBJ] --> IN[1 · INTAKE<br/>parse prompt → physics intent, quantities of interest, accuracy asked for, budget<br/>parse geometry → units, scale, watertightness, orientation, symmetry, reference dims]
+  IN --> GEOOK{geometry admissible?<br/>watertight · manifold · units resolved · bounding box sane}
+  GEOOK -- no --> RG[REFUSE with the defect named<br/>what to fix, no compute spent]
+  GEOOK -- yes --> CLASS[2 · CLASSIFY<br/>dimension × time × regime<br/>+ heat-transfer mode if thermal<br/>+ gradients/optimisation if design intent]
+  CLASS --> GRID{3 · CAPABILITY GRID lookup<br/>docs/CAPABILITY_GRID.md cell}
+  GRID -- CAN NOT DO --> RC[REFUSE or DOWNGRADE<br/>say why, name what the lab would need<br/>offer nearest CAN DO cell]
+  GRID -- CAN DO, CAVEATS --> CAV[carry the caveats into the certificate up front]
+  GRID -- CAN DO --> PRE
+  CAV --> PRE[4 · PRE-REGISTER  [rule 2]<br/>gates + thresholds + bands + labels<br/>reference class: exact / correlation / experiment / none<br/>predicted values, predicted order p<br/>cost in core-min + cap  [rule 12]<br/>frozen by sha BEFORE compute]
+  PRE --> COST{5 · COST GATE<br/>estimate vs cap vs user budget}
+  COST -- over --> RQ[report cost, stop or ask user]
+  COST -- ok --> MESH[6 · MESH LADDER  [MESH_STANDARD]<br/>three levels, refinement ratio ≥ 1.3<br/>checkMesh quality gates per level<br/>y+ target from the regime<br/>identical everything but mesh]
+  MESH --> Q[7 · QUEUE ENTRY<br/>queue_entry_check.py: prereg sha, cost, ranks, memory floor]
+  Q --> RUN[8 · DETACHED RUN<br/>queue_runner.py → setsid/docker -d<br/>rc captured inside wrapper → STATUS<br/>survives agent death · cap stops the run]
+  RUN --> DONE{9 · STRICT COMPLETION  [rule 4]<br/>rc 0 · End line · last time == endTime<br/>fields present · age guard · iteration count}
+  DONE -- any clause fails --> NR1[NOT A RESULT — crash is a finding<br/>triage before anything else]
+  DONE -- all hold --> PHYS[10 · INTERNAL PHYSICALITY  [grid §5]<br/>mass/energy balance closure %<br/>continuity RMS · boundedness · realisability<br/>iterative convergence to absolute bounds]
+  PHYS --> TRIPLE{11 · ROACHE TRIPLE  [rule 5]<br/>roache_triple.py: state, observed p, GCI Fs 1.25<br/>P_MIN floor · planted-zero control [rule 3]}
+  TRIPLE -- DIVERGENT / OSCILLATORY / STAGNANT / DEGENERATE --> NR2[NOT A RESULT<br/>values + both triples + orders printed beside it]
+  TRIPLE -- CONVERGING --> VER[12 · VERIFICATION metrics  [grid §1–§2]<br/>vs exact/analytic: L2, L∞, p_obs vs p_formal<br/>vs correlation: % deviation<br/>→ scores V, never P]
+  VER --> REF{reference on file?}
+  REF -- experiment --> VAL[13 · VALIDATION  [grid §3–§4]<br/>integral: % error · profiles: RMSE + fraction inside error bars<br/>fields: scaled MAE · structure: explicit topology checks<br/>ASME V&V 20: E vs u_val = f(u_num, u_input, u_exp)]
+  REF -- none --> NOREF[verification-only certificate<br/>P column PENDING, stated plainly]
+  VAL --> ADJ{design intent?}
+  NOREF --> ADJ
+  ADJ -- yes --> GRAD[14 · ADJOINT CHECKS  [grid §6]<br/>FD-vs-adjoint per DV · dot-product/duality<br/>np-invariance · complex-step when built<br/>optimiser convergence]
+  ADJ -- no --> VERD
+  GRAD --> VERD[15 · VERDICT in the fixed vocabulary  [rule 1]<br/>PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING<br/>per gate, with V / G / P columns]
+  VERD --> CAL[16 · COST CALIBRATION  [rule 12]<br/>actual vs predicted core-min, ratio, attribution<br/>row in COST_CALIBRATION.md]
+  CAL --> CERT[17 · CERTIFICATE to the user<br/>what was asked · cell · gates + verdicts + numbers + intervals<br/>caveats from step 3 · what was NOT checked · artefact paths + frozen sha]
+  CERT --> SEND{18 · anything leaves the box?  [rules 7, 8]}
+  SEND -- yes --> SANAA[Sanaa only]
+  SEND -- no --> USER[user reads on the box]
+  NR1 --> CERT
+  NR2 --> CERT
+```
+
+**The properties this design guarantees, and where each comes from**
+
+| property | stage | rule / instrument |
+|---|---|---|
+| the gate cannot be fitted to the answer | 4 before 8 | rule 2 freeze by sha; `check_comparator_freeze.py` |
+| a refusal is cheaper than a wrong answer | 1, 3, 5 | grid cell verdicts; cost gate |
+| a crash or a truncated run is never graded | 9 | rule 4 seven clauses; `mark_done_*.py` |
+| a non-converging ladder cannot PASS | 11 | rule 5; `roache_triple.py` P_MIN / DEGENERATE |
+| verification and validation are never conflated | 12 vs 13 | V/G/P columns; correlations score V never P |
+| scalar agreement cannot hide wrong structure | 13 | explicit topology checks (grid §3) |
+| a bookkeeping loss cannot void physics | 9–15 | L-342: physics-critical vs infrastructure fields |
+| the run outlives the agent | 8 | `queue_runner.py` + cron watchdog; rc in wrapper |
+| the lab learns from every run | 16 | `COST_CALIBRATION.md` row at every completion |
+| nothing leaves the box without Sanaa | 18 | rules 7, 8 |
+
+**The gap between §1–§2 (as built) and §4 (target), in one line each**
+
+- Stage 1 geometry admissibility: NOT BUILT (watertight hard-coded true).
+- Stage 2–3 classification + grid lookup: NOT BUILT; the grid exists as a document only.
+- Stage 4 pre-registration from a prompt: NOT BUILT; preregs are written by supervisors by hand.
+- Stages 7–11, 16: BUILT on the lab pipeline (`queue_entry_check.py`, `queue_runner.py`, `mark_done_*.py`, `roache_triple.py`, calibration ledger) but unreachable from a prompt.
+- Stages 12–15, 17: partially built (Eça–Hoekstra band, fidelity chip, certificate PDF) in the wrong vocabulary.
+- Stage 14 adjoint checks: instruments exist per case (D-family), no standard yet (grid §6 — ordered 2026-08-26).
+
+The build order that follows from this: (a) a prompt/geometry → cell classifier that reads `CAPABILITY_GRID.md`; (b) a pre-registration generator whose output is a frozen file the existing `queue_entry_check.py` accepts; (c) route the product path's solve through `queue_runner.py`; (d) replace the fidelity chip with the gate vocabulary and the Eça–Hoekstra fallback band with `roache_triple.py`. Each is one lane's work and each is testable against the cases already on disk.
