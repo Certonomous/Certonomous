@@ -1,0 +1,63 @@
+{
+  "team": "dafoam",
+  "case_id": "D17_chain",
+  "prereg_commit": "2d8796e3f95ddf725842b86fe89c52bcb63ced80",
+  "prereg_path": "cases/dafoam/curriculum_D17_cone_supersonic/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D17_cone_supersonic/d17_chain_driver.sh",
+    "MESH",
+    "X-S",
+    "F-S",
+    "X-P",
+    "F-P"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D17_cone_supersonic",
+  "ranks": 2,
+  "cost_core_min_estimate": 180.3,
+  "cap_core_min_registered": 785.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, not measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 180.3 core-min DERIVED from named anchors (PREREGISTRATION.md section 4: D7FR RESULTS.md:36 3.3 core-min/primal at 42,120 cells np=4 incl. colouring + one compute_totals, cell-scaled 0.950; C-76 D8 warm primal 0.748x; C-135 D14-M mesh 0.1833; C-31 D1-C' cold adjoint = mid-run + colouring; D5 Addendum 3 A3.3 colouring 9.0-27.7 core-min as the X-cap exposure), NOT measured; per-arm caps MESH 5.0, X-S/X-P 90.0, F-S/F-P 300.0; CEILING 785.0 core-min = sum of caps, each cap enforced as a deadline INSIDE its container (MESH 300 s at 1 rank; X 2,700 s and F 9,000 s at 2 ranks). Dollars derived, not measured: $0.1542 point, $0.6712 at the ceiling. Already spent and billed in section 4: 3.05 core-min of bash-only image-identity probes (no solver, no mesh).",
+  "memory_floor_gb": 12.0,
+  "enqueued_by": "dafoam-supervisor via lane N2 (lane's read: git cat-file -e on 2d8796e3^{commit} and on <sha>:cases/dafoam/curriculum_D17_cone_supersonic/PREREGISTRATION.md both present; the DELTAS diffs and selftest evidence are in the case directory for the supervisor's own check 1/4). ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus the optional cap_core_min_registered the runner's cap watch reads. Fields below are dafoam annotations the validator ignores.",
+  "capability_grid_cell": "2D . steady . supersonic -- gradients computed + FD-verified (today CAN NOT DO -- not attempted)",
+  "regime": "2D steady supersonic: DAHisaFoam (HiSA, JST, LUSGS-GMRES, 500 pseudo-steps), U0=680 m/s, T0=300 K -> M 1.958, aoa 0, INVISCID (mu 0, RASModel dummy), 2D wedge of half-angle 11.31 deg, 40,000 cells DERIVED (blockMesh 2 x 100x100x1, mirrored across y=0), symmetry planes z=0 / z=0.1 -- planar, not axisymmetric (no wedge patch)",
+  "precondition_artifact": "none -- independent of every other item; the driver's own guards (G-ROOT.1-.5, root staging on first fire only with 19 tutorial-input md5s, ALREADY_BOUGHT, instrument md5s, image digest per row, G-ROW, per-arm H5 window floor 12.0 GiB (X) / 8.0 (MESH, F), aggregate wait-and-retry, G-CPUSET wait-and-retry) are its preconditions and every one refuses before a core-second is spent.",
+  "images": {
+    "SHIPPED": "dafoam/opt-packages:latest sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc (MESH, X-S, F-S)",
+    "PATCHED": "dafoam-idwarp-rot:v1 sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 (X-P, F-P)"
+  },
+  "two_row_rule": "the DAFoam verdict is two rows or it is not a verdict (DAFOAM_CHARTER.md section 11; D7FR section 8): X and F are bought on both images on one mesh",
+  "container_memory_cap": "X-S/X-P 8g (they carry the adjoint; derived from A6's 9.787 GiB at 41,760 cells scaled to 5 states and a 2D stencil, PREREGISTRATION.md section 5); MESH/F-S/F-P 4g",
+  "cpuset": "12,15 -- REGISTERED (PREREGISTRATION.md section 5), the supervisor's FIFTEENTH-session placement; disjoint from D5 8,10,11,13, D4-SHIPPED 5,6,7,9, D15 2,3, D16 4,14, D6 2,3,4,14; OVERLAPS D8R's 0,1,12,15 (same dispatch) -- disclosed; G-CPUSET wait-and-retry in both drivers (poll 30 s, bound 14,400 s, BLOCK rc=6 at the bound, zero compute) so neither item's G12 delivered-cores floor is failed by the overlap",
+  "deadline_in_container_s": "MESH 300 s at 1 rank; X 2,700 s and F 9,000 s at 2 ranks",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D17-cone-supersonic (asserted absent at freeze, 22:05:56Z and 22:26:27Z; the driver creates it on the first fire and stages nothing on a second)",
+  "rc_capture": "INSIDE the detached driver: per arm the launcher reads rc = docker inspect .State.ExitCode (and OOMKilled) BEFORE docker rm (no --rm), writes the ledger row and <ARM>_<stamp>.inspect.txt, and the driver appends rc=<n> ... source=launcher_exit=docker_inspect_ExitCode to STATUS.<arm>; CHAIN_DONE receives one line on every exit of a started chain; at chain end the frozen grader d17_grade.py runs on the artefacts (its rc is INFRASTRUCTURE, L-342). Never the $? of the runner's setsid line; STATUS.D17_chain launcher_rc is the driver's exit, not the verdict.",
+  "guards_before_launch": "G-ROOT.1 registered root; G-ROOT.2 forbidden roots named (D4, D4-SHIPPED, D4-SHIPPED-R, D5, D6, D14, D14M, D7R, D7FR, D12R*, D13, D15, D16, D8, D8R, A2-mach-wing, the tutorial checkout, the repo); G-ROOT.3 ledger ITEM; G-ROOT.4 ALREADY_BOUGHT; G-ROOT.5 live d17_<ARM>_ container / live driver pid holding the root (both DRIVEN, d17_groot5_selftest_evidence.txt 18/18); G-ROW arm-suffix vs image row (driven); md5s of the producer, instrument, decomposeParDict and 19 tutorial inputs; image digest; H5 45 samples/60 s per-arm floor; aggregate caps + this cap + host RSS < 30.6 GiB wait-and-retry bounded 14,400 s; G-CPUSET overlap wait-and-retry bounded 14,400 s.",
+  "registered_exposures": "DAHisaFoam is a solver class this lab has never run: a primal that fails DAFoam's convergence guard exits X-S non-zero, the chain stops and the item is NOT A RESULT with at most one X cap spent (PREREGISTRATION.md section 3 (a)); the 40,000-cell count is derived from blockMeshDict + mirrorMeshDict, never measured -- a G-M2 mismatch is a defect of the derivation, disclosed as such.",
+  "permission_record": "Sanaa's verbatim permission boarded at bc0e687e.",
+  "verdict_state": "PENDING",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.<arm> rc lines written INSIDE the detached driver (source=launcher_exit=docker_inspect_ExitCode)",
+      "ledger.txt ARM= rows (rc, inspect(exit,oomkilled), DIGEST, cpuset, core_min)",
+      "<ARM>_<stamp>.inspect.txt kernel record",
+      "the arm's registered artefact and its .d17_age_datum age guard",
+      "D4S_IDWARP_SO_MD5: line in every arm log"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt (the runner's watch at cap_core_min_registered x 60 / ranks = 23,550 s; report-only)",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines",
+      "STATUS.<case_id> launcher_rc",
+      "CHAIN_DONE"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342, d4d0c29d)"
+  }
+}
