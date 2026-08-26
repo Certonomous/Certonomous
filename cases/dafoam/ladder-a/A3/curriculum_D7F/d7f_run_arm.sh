@@ -30,7 +30,63 @@
 #   65 = arithmetic 5 = gate refusal (cold-state, memory floor, missing input)
 set -uo pipefail
 
-BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D7F-a3-m6-fd
+REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D7F-a3-m6-fd
+BASE="${BASE:-$REGISTERED_BASE}"
+ITEM=D7F
+
+# =========================== G-ROOT ========================================
+# dafoam STANDING RULE G-ROOT (supervisor, 2026-08-26, commit 217d4666):
+# A GUARD PLACED AFTER THE DELETION IS DECORATION.  PLACEMENT IS PART OF THE
+# GUARD.  This block sits BEFORE every destructive act in this file -- the
+# `rm -rf "$WORK"` of the staging step below -- and the rule names D7F as
+# taking the guard FROM BIRTH.
+#
+# It is here because the predecessor this launcher was ported from,
+# `d7r_run_arm.sh`, has its G-COLD check FOURTEEN LINES AFTER its `rm -rf`, so a
+# re-fire of arm O would have destroyed 932.5 core-min of graded output while
+# reporting clean.  THE PORT INHERITED THAT PLACEMENT AND I DID NOT CATCH IT
+# UNTIL AFTER THE FREEZE; this is Amendment 1, pre-compute.
+#
+# G-ROOT.1 -- BASE must be THIS item's registered root, NORMALISED, so a
+#             trailing slash, a `.`, a `..` or a symlink cannot walk around it.
+BASE_REAL=$(realpath -m "$BASE")
+REG_REAL=$(realpath -m "$REGISTERED_BASE")
+if [ "$BASE_REAL" != "$REG_REAL" ]; then
+  echo "ABORT G-ROOT.1 BASE is not this item's registered run root."
+  echo "  given:      $BASE_REAL"
+  echo "  registered: $REG_REAL"
+  exit 3
+fi
+
+# G-ROOT.2 -- NAME the roots this file must never write, so the abort says
+#             WHOSE evidence it protected rather than only that something
+#             did not match.
+FORBIDDEN_ROOTS="/home/ubuntu/certonomous-runs/CURRICULUM-D7R-a3-m6-cdmin
+/home/ubuntu/certonomous-runs/CURRICULUM-D7-a3-m6-cdmin
+/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin
+/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin
+/home/ubuntu/certonomous-runs/CURRICULUM-D12R-cylinder-unsteady
+/home/ubuntu/certonomous-runs/CURRICULUM-D12R2-cylinder-unsteady"
+while IFS= read -r forb; do
+  [ -z "$forb" ] && continue
+  if [ "$BASE_REAL" = "$(realpath -m "$forb")" ]; then
+    echo "ABORT G-ROOT.2 BASE resolves to ANOTHER ITEM RUN ROOT: $forb"
+    echo "  That directory holds graded rows and this launcher stages by"
+    echo "  REMOVING the arm directory, so writing there would destroy them."
+    echo "  D7R arm O alone is 932.533 core-min of graded output.  REFUSED."
+    exit 3
+  fi
+done <<< "$FORBIDDEN_ROOTS"
+
+# G-ROOT.3 -- the ledger must belong to THIS item.  A root can be correct and
+#             its ledger a foreign one moved in.
+if [ -f "$BASE/ledger.txt" ]; then
+  if grep -aq "^D7R_\|^D7_CAP_ASSERT arm=O " "$BASE/ledger.txt" 2>/dev/null; then
+    echo "ABORT G-ROOT.3 the ledger at $BASE/ledger.txt carries another item rows."
+    exit 3
+  fi
+fi
+echo "D7F_G_ROOT_PASS item=$ITEM base=$BASE_REAL"
 RANKS=4
 
 # ---- REGISTERED CPU PLACEMENT (PREREGISTRATION.md sec.5) -----------------
@@ -133,6 +189,25 @@ test -n "$IMG" || { echo "ABORT usage: d7f_run_arm.sh <P1|X|ACC|F-S|F-P> <image>
 
 CAP=$(cap_core_min "$ARM")
 MEM=$(cap_memory "$ARM")
+
+# G-ROOT.4 -- THE ARM ITSELF.  A correct root still holds arms that already ran,
+# and the staging step below REMOVES this arm directory.  An arm with a ledger
+# row or a success marker has EVIDENCE, and this refuses to delete it.  It sits
+# HERE, above the `rm -rf`, and moving it below would make it decoration.
+if grep -aq "^ARM=$ARM " "$BASE/ledger.txt" 2>/dev/null; then
+  echo "ABORT G-ROOT.4 arm $ARM ALREADY HAS A LEDGER ROW in $BASE/ledger.txt."
+  echo "  Staging removes $WORK, which would destroy the output that row grades."
+  echo "  A re-fire is a NEW ITEM or an explicit supervisor decision, never a"
+  echo "  silent overwrite.  REFUSED before any deletion."
+  exit 3
+fi
+if ls "$BASE/${ARM}_"*.log.ok.* >/dev/null 2>&1; then
+  echo "ABORT G-ROOT.4 arm $ARM carries a SUCCESS MARKER in $BASE."
+  echo "  That arm completed.  REFUSED before any deletion."
+  exit 3
+fi
+echo "D7F_G_ROOT4_PASS arm=$ARM no_prior_row no_success_marker"
+
 test -n "$CAP" || { echo "ABORT unknown arm $ARM -- no registered cap"; exit 64; }
 test -n "$MEM" || { echo "ABORT unknown arm $ARM -- no registered memory cap"; exit 64; }
 
@@ -206,6 +281,7 @@ LOG="$BASE/${ARM}_${STAMP}.log"
 # ---- stage a pristine COLD copy of base/ ---------------------------------
 # THE CASE AND MESH ARE STAGED BY COPY AND NEVER EDITED IN PLACE
 # (PREREGISTRATION.md sec.1).
+
 sudo -n rm -rf "$WORK" 2>/dev/null
 rm -rf "$WORK" 2>/dev/null
 cp -a "$BASE/base" "$WORK" || { echo "ABORT stage copy"; exit 4; }

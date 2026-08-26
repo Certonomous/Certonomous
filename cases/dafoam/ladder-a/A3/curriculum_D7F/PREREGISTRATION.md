@@ -460,3 +460,74 @@ before every launch:
 | `opt_IPOPT.txt` | `175969fb3e4fa609af708f4f49aa4a6a` |
 
 **FROZEN. Nothing fires before this document and every instrument above are committed.**
+
+---
+
+## AMENDMENT 1 — 2026-08-26T03:58:27Z. **PRE-COMPUTE.** THE LAUNCHER TAKES THE `G-ROOT` GUARD, AND I INHERITED THE DEFECT THE RULE WAS ISSUED ABOUT.
+
+**`CLAUDE.md` rule 2: before first compute, amendments are legal AND MUST STATE THE CONDITION AND
+HOW IT WAS CHECKED.**
+
+### A1.1 The condition, and how it was checked — not asserted
+
+**NO COMPUTE HAS OCCURRED FOR THIS ITEM.** Checked at this amendment, by name and by command:
+
+| check | reading |
+|---|---|
+| `ls -d /home/ubuntu/certonomous-runs/CURRICULUM-D7F-a3-m6-fd` — **the run directory that does not exist** | **0** |
+| `sudo -n docker ps -a --filter name=d7f_` | **0** containers, none ever created |
+| arm directories `P1 X ACC F-S F-P` | **0 of 5**, there being no run root to hold them |
+
+**This amendment therefore adds a guard and moves NOTHING: no gate, no threshold, no cap, no label,
+and no arm.** §7's cap table is byte-unchanged, and `d7f_grade.py`'s
+`assert_caps_against_document()` still reads **15 values, all agreeing**.
+
+### A1.2 What was wrong, stated against myself
+
+**The dafoam standing rule `G-ROOT` was issued at `217d4666`, BEFORE this item's freeze commit
+`c4dbb33f`, and it names D7F: *"D7F takes the guard from birth."* I froze the launcher without it.**
+
+`d7f_run_arm.sh` is a port of `d7r_run_arm.sh`, and **it inherited the exact defect the rule was
+issued about**: `sudo -n rm -rf "$WORK"` with the `G-COLD` check **fourteen lines below it**.
+
+> **A GUARD PLACED AFTER THE DELETION IS DECORATION, AND IT IS WORSE THAN A MISSING ONE: a missing
+> guard is visible to anyone who looks, while a guard that runs after the act it guards READS AS
+> PROTECTION TO EVERY SUBSEQUENT REVIEWER.** I ported it, hashed it, `bash -n`-ed it, wrote a §3
+> table about which arm writes which artifact — and did not look at where the deletion sat. **The
+> supervisor found it in a peer's launcher and the rule caught mine.**
+
+### A1.3 What the guard is, and it was DRIVEN, not asserted
+
+**PLACEMENT IS PART OF THE GUARD**, so the placement is the first thing recorded:
+
+| line | what sits there |
+|---|---|
+| **50–89** | `G-ROOT.1` `.2` `.3` |
+| **193–209** | `G-ROOT.4` — at the first point `$ARM` is known |
+| **245** | the frozen-instrument md5 assertions |
+| **≈300** | `sudo -n rm -rf "$WORK"` — **the destructive act, below every guard above** |
+
+| limb | what it refuses | DRIVEN |
+|---|---|---|
+| `G-ROOT.1` | `BASE` that is not this item's registered root, under `realpath -m` | **fires** on D7R, D7, D4, D4-SHIPPED, D12R2 — **and on a trailing slash and on a `..` walk through this item's own root** |
+| `G-ROOT.2` | a `BASE` resolving to a NAMED forbidden root, so the abort says whose evidence it protected | **fires**, naming the root and quoting *"D7R arm O alone is 932.533 core-min of graded output"*. **UNREACHABLE while `G-ROOT.1` stands — it is defence in depth and it was driven in a sacrificial copy with `REGISTERED_BASE` overridden. That is stated rather than left as a claim that it "was demonstrated"** |
+| `G-ROOT.3` | a ledger carrying another item's rows | present; not driven, and said so |
+| `G-ROOT.4` | **an arm that ALREADY HAS a ledger row or a success marker** — the limb that protects THIS item from itself | **fires on both**, and **two CONTROLS show it does NOT fire when it should not**: a clean root passes it, and arm `X` is not blocked by `P1`'s row |
+
+**Census before and after driving all six refusal probes against the real roots:**
+D7R **2,194 files → 2,194**; D4 **21,004 → 21,004**. **Nothing was deleted.**
+*(D12R2 read 39,864 → 39,959 across the same window — **that is a peer's live container writing, not
+this guard**, and it is named rather than left to read as damage.)*
+
+**Backticks on executable lines: 0** — the D4-SHIPPED catch, because a backtick inside a
+double-quoted `echo` is command-substituted, so a guard's own FAILURE PATH can execute the thing it
+refuses, on the one path nobody exercises.
+
+### A1.4 The struck row
+
+**§14's `d7f_run_arm.sh` row is STRUCK, not rewritten** (`CLAUDE.md` rule 6). The launcher's md5 at
+the freeze was `3510f4b18a330ece850834f5e935b9b3`; **at this amendment it is
+`be99327e29e0dc6689fe57dd4053763b`**. Every other row of §14 is unchanged, and the five other instruments are
+byte-identical to the freeze.
+
+**STILL FROZEN. STILL NOTHING FIRED.**
