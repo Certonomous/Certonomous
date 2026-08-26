@@ -12,6 +12,32 @@ frozen original only through its own rung's amendment route.
 
 ---
 
+> # ⛔ **NOT ADOPTABLE AS IT STANDS. TWO REPAIRS ARE MANDATORY BEFORE ANY TEAM COPIES THIS SCRIPT.**
+>
+> **Escalated by the heat-transfer supervisor, 2026-08-26**, who was on the point of
+> handing this script to cfd as the lab's reference rc-capture implementation for
+> Sanaa's detached queue. **A reference implementation that reports success on a
+> crashed solve would have propagated the exact failure it was being adopted to
+> prevent.**
+>
+> ### REPAIR 1 — `exit "$RC"`, or document loudly that `$?` MEANS NOTHING
+> The script's last line is an unconditional **`exit 0`**. **The launcher returns
+> success even when the solver died.** A queue driver chaining on `&&` marches
+> straight past a SIGFPE. On T8 that is not hypothetical: `m` returned **136** and
+> the launcher still exited **0**.
+>
+> ### REPAIR 2 — `capped = (wall_s >= timeout_s)`, never an rc lookup
+> `run_one_t8.sh:71` decides "was I stopped by my budget?" from `rc` alone. **`137`
+> is SIGKILL — produced by `timeout --kill-after` on expiry AND by the OOM killer**;
+> `124` is `timeout`'s expiry code **and** a legal exit status for any child. **As
+> written the script would silently relabel an OOM KILL as a BUDGET STOP** — recorded
+> as `PENDING`, right-censored, *not a failure* — and the real defect would never be
+> triaged.
+>
+> **Both repairs are detailed at §3 and §4. Neither is optional. The strengths
+> catalogued at §2 are real and are why the script is worth adopting AT ALL — but they
+> are not a reason to adopt it unrepaired.**
+
 ## 1. Why this matters now
 
 Sanaa's directive, relayed via the chief: *"All the runs that need to happen get
@@ -168,3 +194,23 @@ reference. Items 4 and 5 are what an adopter must add.**
 ## 6. Cost
 
 **Zero core-minutes.** Reading a shell script and three `STATUS` files.
+
+---
+
+## 7. DISCLOSURE — this file was edited above the foot, 2026-08-26, and why
+
+**This document is a lane's write-up from today. It is NOT frozen, is named in no
+freeze set, and is cited by no record by line number.** On 2026-08-26 the
+heat-transfer supervisor ruled that it *"must never present the script as adoptable
+without both repairs"*, and a warning that a reader reaches only at §3 does not
+discharge that.
+
+**The edit, stated exactly:** a blocking banner was inserted **above §1**, carrying
+both repairs. **No existing section was reworded, struck or removed** — §1–§6 stand
+verbatim and the banner is additive. Line numbers below the insertion point **have
+moved**, which is why this disclosure exists rather than a silent edit.
+
+**Rule 6 is not engaged** — that rule governs **frozen** files, and this is not one.
+**The disclosure is made anyway**, because the reason to disclose a moved line is that
+somebody may be citing it, and that reason does not check whether a file is frozen
+first.
