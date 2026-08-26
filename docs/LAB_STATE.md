@@ -10593,6 +10593,85 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-26T22:28:20Z — **TWO VERDICTS (rows #31, #32, both `NOT A RESULT`), 200 run records landed at HEAD, launch record + kill certificate committed; my GATE-FAIL prediction for VMFL011-R2 was WRONG; lanes re-tasked to fill both queues**
+
+**Written by `ansys-verification-supervisor` personally.** Commits since the 22:1xZ block:
+`07f21ade` (lane G — VMFLGPU001 launch record + GPU runner kill-test certificate),
+`77096fe8` (lane H — VMFL011-R2 row #31 + C-144 + its 21 run records), `db2c7f9a` (lane H —
+200 run records), `fd975fcf` (lane H — VMFL017-R2 row #32 + C-149), `6389b9e8` (lane H —
+`ansys_ROWS.md` rows #31–#32, census 32 rows: PASS 6 / GATE REACHED 5 / NOT A RESULT 20 /
+PENDING 1; VMFL017-R2's cfd cell corrected steady → unsteady).
+
+#### VERDICTS — with their numbers, unsoftened
+
+| row | case | verdict | the number |
+|---|---|---|---|
+| **#31** | **VMFL011-R2** p. 41 | **`NOT A RESULT`** | frozen comparator (`45aa4613`, prereg `a8c9b6f3` at `9f9d6925`) **REFUSED exit 2 on the `u_min_norm` planted-zero**: *"planted -0.1234 into …/L1/postProcessing/bisector/20000/bisect_U.xy, reader moved by only 0"*. No value, no deviation, no triple, no p, no GCI. Strict completion HELD at all three levels (rc 0, `End`, `Time = 20000 == endTime`). **9.0833 core-min** (17 + 63 + 465 s), **$0.0078 derived**, ratio **1.094** vs 8.3 predicted, C-144 |
+| **#32** | **VMFL017-R2** p. 65 | **`NOT A RESULT`** | L1 `rc = 124` at its registered **300 core-min cap** (18 000 wall s, 486 748 steps, `Time = 8.89114e-04` s = **1.778 %** of endTime 0.05 s, Δt 1.85e-9 s), launcher STOP at line 279, comparator (`97c556f4`) REFUSED *"no End line in solver log"*. **All three §E pre-compute projections held** (physical time 0.988×, steps/s 0.976×, **16 871 core-min to endTime = 56× the cap** 1.010×); 98.68 % CPU-bound so contention is falsified as cause. **300.0 core-min, $0.2565 derived, ratio 1.000** — a cap, not a forecast; **300 core-min bought no graded number**, named separately, C-149 |
+
+**Credential count unmoved: 6 PASS of 32 run.** The headline's denominator (30) is now two behind
+by design (rule 6 — appended notes, not rewrites).
+
+#### VMFL011-R2 — a second L-340 failure mode, and my prediction was wrong
+
+I predicted **GATE FAIL** on this board at 22:0xZ. **The instrument refused before any band was
+read; the prediction was wrong and stands struck by this sentence.** Lane H's triage (my check 2
+read on its numbers): the L-340 repair itself WORKED — the per-channel-sized RMS plant moved the
+read by 1.186e-1 > threshold 3.22e-2. The refusal is on **plant LOCATION**: `_perturb` writes
+into the FIRST bisector row, which on the real profile is the collapsed-hex apex (y = −4 m) where
+`u ≡ 0`; a plant of −0.1234 there sits above `min(u) = −0.528988913215`, so a `min()` reader
+cannot move. **It was never caught at the freeze because both R1 and R2 refused inside the FIRST
+channel, so the second channel's control had never once executed on a real bisector file — a
+control standing behind another control's refusal is an untested control.** Lesson ordered
+(L-344, lane H). **Ruling `[lab-attributed]`: VMFL011-R3 is permitted with the gate section
+BYTE-IDENTICAL to R2 (diff shown EMPTY in the prereg — the R2 answer is on disk, so any gate change
+is gate-fitting); the only changes are the plant placed at the argmin row and all channel
+controls executing before any exit; driving a control on the R2 output is legitimate, setting a
+band from it is not.**
+
+#### RULINGS ON LANE H'S QUESTIONS `[lab-attributed]`
+
+1. **Run records: 200, not 117.** 90 distinct cited paths (brace-expanded); **27 did not
+   resolve at HEAD across rows #11 #12 #16 #18 #20 #21 #22 #26 #27 #28 #29 #30** (the chief's
+   three are in the set). 200 files of the small-record class landed (61.2 MB); 34 non-class
+   logs and 197 intermediate VMFL076 `sampleLine` times excluded by the stated boundary; 27
+   files > 5 MB stay on disk only (VMFL023 `log.pimpleFoam` 61 MB ×3, VMFL017-R2
+   `log.rhoCentralFoam` **504 MB**), every clause read from them independently at HEAD in a
+   `RUN_RC`/`LAUNCH_RECORD`. **Post-check: all 92 cited paths resolve at HEAD, 0 missing. Cited
+   paths absent on BOTH HEAD and disk: none** — no L-342 correction owed. The chief's 117 is
+   superseded by the measured 200. Boundary STANDS.
+2. RESULTS form: the VMFL011 form, not the morning-report headings. Accepted. Row #30 was already
+   mapped at `87afd1d6` (Correction 2); not duplicated. Accepted.
+
+#### GPU — lane G's launch record `07f21ade`, and one honest caveat it wrote itself
+
+Kill certificate: SIGTERM 22:17:32Z → cron restart pid 74823 at 22:18:02Z (**30 s**), `cron`
+active, `@reboot` + `* * * * *`; launcher pid 73133 alive through it, **gpu/L1 completed rc 0
+two seconds AFTER the kill and gpu/L2 STARTED while the daemon was dead** — that is the property
+the certificate exists to show. Lane G's caveat, kept: an earlier kill at 22:11:39Z (23 s
+restart) left no `EXIT` line because that daemon ran the pre-`29d1a3fe` runner; its
+"unaffected" arm is NOT MEASURED. Instance-only `gpu_queue_runner.sh` now exports `USER`
+(sha256 `4067be8b` → `eb6876c7`). No classifier denial in any lane this session.
+
+#### QUEUE DEPTH (Sanaa `7def3c6b`: the deliverable)
+
+| instance | queued agent-independent compute |
+|---|---|
+| box (`verification/queue/ansys-verification/`) | **0.0 core-min = 0.000 h of this team's 16-core share** — lane H now freezing VMFL011-R3, VMFL076-R2, then VMFL006/020/029/038/046/061/070, each dropped as it freezes |
+| GPU (`/home/ubuntu/gpu_queue/ansys-verification/`) | **0.0 GPU-h behind VMFLGPU001** (running, L3 arms) — lane G freezing VMFLGPU002 (tee junction, p. 227, parent VMFL010) with a new driven EXCLUSIVE-DEVICE guard (refuse if `nvidia-smi --query-compute-apps` is non-empty) |
+
+#### LANES (cap 4: 2 opus + 1 haiku live)
+
+| lane | task |
+|---|---|
+| opus G | VMFLGPU002 freeze → push → entry on the GPU root |
+| opus H | L-344 → VMFL011-R3 → VMFL076-R2 → closed-form line, entries dropped per freeze |
+| haiku M | VMFLGPU001: wait for STATUS, run the frozen comparator (`f4b07b7f` verified by hash first) into `GRADING.txt`, rsync the small record + queue records to the box's same path |
+
+**NEXT:** VMFLGPU001 RESULTS + register row #33 + GPU calibration row (first GPU-hour row: console
+figure still owed, published-list $0.8048/GPU-h derived) — opus, when a slot frees; VMFLGPU003–010.
+**BLOCKED:** none.
+
 ### 2026-08-26T22:18:46Z — **VMFLGPU001 IS RUNNING ON THE L4 (launch 3, 22:17:06Z, pid 73131, prereg `8d2b789e`); GPU runner KILL TEST measured: 30 s restart, solver unaffected**
 
 **Written by `ansys-verification-supervisor` personally; every number below is my own ssh read
