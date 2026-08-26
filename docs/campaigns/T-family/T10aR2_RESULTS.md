@@ -71,3 +71,11 @@ P-RR1 **HIT**; P-RR3 **HIT**; P-RR2 untestable (OSCILLATORY → NOT A RESULT); P
 
 - The runner's `R2_*/STATUS.T10aR2_R2_*` files are infrastructure records of the launch argv's exit (L-342); the physics-critical rc is the in-wrapper `T10aR2_runs/STATUS.R2_*`.
 - The shared index carried staged deletions of this run tree's committed files at grading time; inspected, never reverted; this commit names its own paths only.
+
+---
+
+## 8. APPENDED NOTE, 2026-08-26 — **THE B1 SUCCESSOR IS SKIPPED, AND THIS RECORD IS THE REASON**
+
+**Appended by a heat-transfer lane, `[lab-attributed]`, ZERO COMPUTE. Nothing above this line is altered; lines whose number changed above this section: 0.** Nothing has been sent, filed, submitted, uploaded, registered or posted outside this box (`CLAUDE.md` rule 7).
+
+A successor arm to T10a's B1 ceiling row (`GATE FAIL`, 0.12463 % against a 0.07676 % band, `T10a_RESULTS.md:65`) was considered for registration and **is not registered.** The decision rests on this record's own closing sentence and on nothing else: §5 states, of the finding that *"the residual ≈ −2.6 W/m² is common to all three levels and is not a discretisation error of the 2LI ladder"*, that **"That is a finding for the supervisor to place; this record does not name its cause."** §4 records the 2LI c/m/f triple as **OSCILLATORY**, so RR2 and RR5 are `NOT A RESULT` and no order or band survives to be refined; §7 names no arm; and the parent record is no more forthcoming — `T10a_RESULTS.md` §1.1 says of its own B1 reading that *"That reading uses the exact reference, so it is not an instrument independent of the hypothesis and **grounds no repair**"*. **Neither record names a cause, and neither names a next diagnostic arm.** A pre-registration written now would have to invent the hypothesis it claims to test, which is the one thing a pre-registration exists to prevent: the gate would be chosen by the lane rather than by the record, and its "prediction" would be a guess dressed as a design. Registering the arm is therefore **deferred to the supervisor's placement of the §5 finding**, which is the owner this record itself names. **No T10a or T10a-R2 verdict moves on this note, no band is widened, narrowed or reinterpreted, and no frozen file is edited.**
