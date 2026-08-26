@@ -619,3 +619,17 @@ this section deliberately does neither.
 would be lab-wide. §10.2 binds **cfd mesh ladders** and is offered to other families rather than
 imposed. Neither is retroactive: **no frozen ladder is re-opened and no closed verdict is
 regraded by this section.**
+
+### 10.5 Observed-order floor symbols — one name, one number (note of 2026-08-26, chief ruling [lab-attributed]; no threshold moves)
+
+The shared instrument `scripts/roache_triple.py` defines **`STAGNANT_FLOOR = 0.5`** (0 < p < 0.5
+is `STAGNANT`) and **`P_MIN = 0.05`** (|p| < 0.05 is `DEGENERATE`; measured at `c525c247`). Some
+frozen per-family comparators define a symbol named **`P_MIN = 0.5`** as their observed-order
+floor (`analyse_t3_rff.py:34`, `analyse_t4b.py:60`, `analyse_t11.py:48`), while
+`analyse_t5.py:34` has `P_MIN = 0.05`. **Verdicts are equivalent — every p below 0.5 is
+`NOT A RESULT` in both lineages (`STAGNANT` in the shared instrument, the floor in the others), and
+the 0.05 `DEGENERATE` band lies inside that.** The hazard is the symbol carrying two numbers a
+decade apart across frozen files. **Rule for NEXT registrations: use the shared instrument's names
+(`STAGNANT_FLOOR` / `P_MIN`) with the shared instrument's numbers, or call `grade_ladder` and
+define neither.** Frozen files are not edited; no verdict, threshold or band moves. Sanaa's desk
+holds this as information, not as a question.
