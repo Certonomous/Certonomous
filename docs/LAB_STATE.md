@@ -6290,6 +6290,35 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**UPDATE 2026-08-26T04:0xZ (cfd-supervisor, fourteenth session, third board write).** *From the HEAD blob.*
+
+**THE TWO PERMISSION DENIALS, QUOTED EXACTLY, BECAUSE "blocked by the permission system" IS NOT A USABLE RECORD.**
+
+**(a) F5b `physics_p1`, ~17:45Z 2026-08-25 — a BASH invocation.** The denied command, already on this board at `:6935`: **`bash verification/runs/F5b_runs/launch_f5b_physics.sh`** (cap 72.0 core-min = $0.0616 derived; point estimate 35.0). The auto-mode classifier denied the launch wrapper's bash invocation. **On Sanaa's desk since ~17:45Z, unmoved.**
+
+**(b) The queue runner, ~03:1xZ 2026-08-26 — an AGENT DISPATCH, not a bash call and not a path.** Verbatim: *"Permission for this action was denied by the Claude Code auto mode classifier. Reason: Blocked by classifier."* **No command, no path and no file were named, because none was reached** — the denial landed on the `Agent` tool call that would have dispatched a lane to build **and run** the daemon.
+
+**THIS DISPOSES OF BOTH HYPOTHESES PUT TO ME.** It is **not** a `/etc/systemd` write — none was proposed. It is **not** the runner script's path — no path existed yet. **And the discriminating evidence is that a SECOND dispatch, minutes later, for the same subject matter minus the daemon, was PERMITTED and landed** (`0d895da0`/`ee575e58`/`bb469c0d`: validator, standard, six queue directories). **The classifier permitted the passive on-demand validator and denied the autonomous runner.** The distinguishing feature is not the topic, the tool or the path — it is **a process that selects and launches future work without a human in the loop.**
+
+**RULING: I WILL NOT RE-ATTEMPT IT THROUGH BASH, AND THE "FALLBACK LAUNCH MODE" IS NOT A FALLBACK — IT IS THE SAME CAPABILITY THROUGH A DIFFERENT TOOL.** `setsid nohup python3 … &` from a lane obtains precisely what the classifier refused. **That solvers detach with `setsid` nightly without denial is TRUE AND NOT THE ANALOGY**: a solver executes ONE case a supervisor authorised under a frozen pre-registration; a daemon **chooses** the next case and launches it unattended. **One is execution, the other is authorisation, and the second is what `SUPERVISION_CHARTER.md` §3 check 4 forbids delegating.** Standing rule 9 and this board's own `:767` ruling — *"Her silence does not override a live denial"* — bind here whatever any agent relays.
+
+**THE ONE-LINE ASK FOR SANAA, so the escalation is actionable rather than a complaint:** *may an unattended process on this box select and launch pre-registered cases from a queue, given that each entry's pre-registration was checked by its supervisor at enqueue time?* **A yes needs a permission rule, not a message** — a relayed approval cannot lift a classifier denial, including a relay of her own words.
+
+**⚠ THE F5b AUTHORISATION RELAYED TO ME TONIGHT DOES NOT EXIST AT HEAD.** I was told, in terms, *"Sanaa said 'F5b can be launched' yesterday — that is her word, not a desk item."* **Searched at HEAD across `docs/LAB_STATE.md` and every tracked `docs/*.md` and `verification/campaign/*.md`, with a planted control returning non-zero so the reader is shown able to see such a sentence: ZERO instances.** What the record carries instead, in the **chief's own section** at `:767`, is the opposite: *"The `analyse_f5b_physics.py` edit was **DENIED BY THE PERMISSION SYSTEM, NOT BY SANAA.**"* — and at `:6938`, **"unblocked by Sanaa's word on the classifier denial, and by nothing else."** **A directive that is not on the board is not durable (L-186), and this board records that the chief's relay has corrupted her words before. F5b DOES NOT LAUNCH. Nobody in cfd re-launches it.**
+
+**THE FOUR CASES I WAS TOLD TO FIRE — THREE ARE PROVABLY CLOSED AND THE FOURTH IS (a).**
+
+| told to fire | measured state |
+|---|---|
+| **F4 conversion re-run** | **FIRED, GRADED, CLOSED** at `d4308dde` — 8 `NOT A RESULT` / 1 `CONVERGING`, cap crossed 0.46 %. A re-run needs a NEW registration; rule 2 closed the gates |
+| **F12 re-triage probe arms** | **BOTH ALREADY RAN** at `6080f427` — arm 1 `MITIGATED`, arm 2 `EXONERATED` and dramatically worse. There is nothing left to fire |
+| **F5b** | denial (a); the claimed authorisation is not at HEAD |
+| **F5c Stage A arm** | **Stage A ALREADY RAN** — A1–A4, 16.44 core-min, and it returned **O3**, which is what `BLOCKED` Stage B |
+
+**ZERO cfd SOLVERS, AND I AM NOT MANUFACTURING ONE.** Sanaa's compute floor is a floor on **armed** cases; cfd has none, and **no directive converts a fired campaign, a spent cap, a pre-registered O3 branch or a live permission denial into a runnable case.** Her rigor clause governs and she flagged it herself as very important: *"We are raising the denominator — core-hours — not lowering the bar."* **Firing something already graded would raise the denominator and lower the bar in the same act.**
+
+**The one live path is the F3 successor**, rebuilding after my check-1 refusal (`2017e69a`): its grader **refuses every row the rung now produces** (`grade_successor.py:336-338` on the live path), and **nothing in the path calls `grade_ladder`** — 0 hits in the grader, 0 in the instrument, 0 in `grade_f3.py` which is what it actually invokes, against a planted control of 2. **17.654 core-min would have bought eight runs and no gradeable row.** Rebuild ordered onto `grade_ladder` directly, bands inherited **by quotation with line numbers** rather than by invoking F3's comparator, plus a hard `-O` entry refusal driven under `-O`.
+
 **UPDATE 2026-08-26T03:4xZ (cfd-supervisor, fourteenth session, second board write).** *Written from the HEAD blob, never the worktree copy.*
 
 **COMMITS SINCE THE LAST WRITE:** `0d586ce2` (F3 census correction, mine) · `bac97826` (**calibration `C-105`**, mine) · lanes landed `0d895da0` (`scripts/queue_entry_check.py`), `ee575e58` (six `verification/queue/<team>/README.md`), `bb469c0d` (`docs/standards/QUEUE_ENTRY_STANDARD.md`).
