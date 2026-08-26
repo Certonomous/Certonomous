@@ -1,0 +1,163 @@
+{
+ "provenance": {
+  "citation": "Meinders, E.R. (1998), Experimental study of heat transfer in turbulent flows over wall-mounted cubes, TU Delft, ISBN 90-9012103-x",
+  "sha256": "36c89a548030eae2aac84f2453c7c531632998433da660f4b655624cff6514cb",
+  "title_verified_page1": true,
+  "digitised": false,
+  "digitiser": "lab-lane a442775b (heat-transfer), which is ALSO the lane that wrote build_t5.py -- the S10 separation (digitiser != builder) is NOT met and is disclosed",
+  "digitised_utc": "2026-08-26T16:27:46Z",
+  "page_offset_printed_to_pdf": 2,
+  "instrument": "digitise_t5.py blob e55d6208 (frozen 0fcbb92e), run unedited on 300-dpi pdftoppm crops of the printed figures",
+  "status": "THE FROZEN DIGITISER REFUSED ON ALL THREE REGISTERED FIGURES. Values are ABSENT BY THAT REFUSAL, not by design. Per S7.5 branch 3 every graded row is BLOCKED until a digitiser that can read these figures is registered. Nothing below was eyeballed into a value.",
+  "refusals": [
+   {
+    "figure": "5.45",
+    "page_printed": 160,
+    "page_pdf": 162,
+    "crop_px": "[300,320,1500,1120] of the 1925x2817 300-dpi render",
+    "xticks": "0,2000,4000,6000",
+    "yticks": "0,30,60,90",
+    "rc": 2,
+    "stderr": "REFUSED: the x-axis line at y=53 does not coincide with the last y tick at NONE (tolerance 6.0 px).",
+    "cause_read_from_page": "the printed figure is a CLOSED box frame with ticks pointing INWARD; the frozen instrument finds ticks outside an open L-frame (find_ticks searches below the x axis / left of the y axis) and its longest-inked-row axis finder picks the top frame line"
+   },
+   {
+    "figure": "5.37 (lower plot, path ABCD, T_co = 75 C series)",
+    "page_printed": 149,
+    "page_pdf": 151,
+    "crop_px": "[300,1500,1400,2000]",
+    "xticks": "0,1,2,3 (path corners A,B,C,D)",
+    "yticks": "40,50,60,70",
+    "rc": 2,
+    "stderr": "REFUSED: the y-axis line at x=1043 does not coincide with the first x tick at 1054.5 (tolerance 6.0 px). Either the frame or the tick set was misidentified, and both make every extracted value wrong.",
+    "cause_read_from_page": "closed box frame, inward ticks, and the five T_co series are LINE-CONNECTED symbol curves: a connected-component marker finder cannot separate a series from its line even if the frame were readable"
+   },
+   {
+    "figure": "5.39 (lower plot, h/h_tot along ABCD, Re_H = 4440 triangle series)",
+    "page_printed": 151,
+    "page_pdf": 153,
+    "crop_px": "[300,870,1380,1370]",
+    "xticks": "0,1,2,3",
+    "yticks": "0,1,2,3",
+    "rc": 2,
+    "stderr": "REFUSED: the y-axis line at x=404 does not coincide with the first x tick at NONE (tolerance 6.0 px). Either the frame or the tick set was misidentified, and both make every extracted value wrong.",
+    "cause_read_from_page": "as 5.37: closed frame, inward ticks, five overlapping line-connected series"
+   }
+  ],
+  "what_the_measured_control_covers": "S16.7's 0.2514 % of span is the error of an ISOLATED marker in an open-frame outward-tick raster; the real figures are not that raster (S16.7.1 named marker overlap; the frame/tick geometry was not named and is the reason for the refusals)"
+ },
+ "conditions": {
+  "Re_H": 4440.0,
+  "u_B_m_s": 4.47,
+  "H_m": 0.015,
+  "T_core_C": 75.0,
+  "T_in_C": 20.5
+ },
+ "rows": {
+  "G1a": {
+   "value": null,
+   "uncertainty": null,
+   "units": "W/m2K",
+   "figure": "5.45",
+   "page_printed": 160,
+   "page_pdf": 162,
+   "face": "front",
+   "digitisation_increment": null,
+   "increment_units": "W/m2K"
+  },
+  "G2a": {
+   "value": null,
+   "uncertainty": null,
+   "units": "W/m2K",
+   "figure": "5.45",
+   "page_printed": 160,
+   "page_pdf": 162,
+   "face": "top",
+   "digitisation_increment": null,
+   "increment_units": "W/m2K"
+  },
+  "G3a": {
+   "value": null,
+   "uncertainty": null,
+   "units": "W/m2K",
+   "figure": "5.45",
+   "page_printed": 160,
+   "page_pdf": 162,
+   "face": "rear",
+   "digitisation_increment": null,
+   "increment_units": "W/m2K"
+  },
+  "G1": {
+   "value": null,
+   "uncertainty": null,
+   "units": "W/m2K",
+   "figure": "5.39",
+   "page_printed": 151,
+   "page_pdf": 153,
+   "partition": "CD",
+   "digitisation_increment": null,
+   "increment_units": "h/h_tot",
+   "disposition": "REPORTED (S16.4)"
+  },
+  "G2": {
+   "value": null,
+   "figure": "5.39",
+   "page_printed": 151,
+   "page_pdf": 153,
+   "partition": "BC",
+   "disposition": "REPORTED (S16.4)"
+  },
+  "G3": {
+   "value": null,
+   "figure": "5.39",
+   "page_printed": 151,
+   "page_pdf": 153,
+   "partition": "AB",
+   "disposition": "REPORTED (S16.4)"
+  },
+  "G5a": {
+   "value": null,
+   "uncertainty": 0.4,
+   "units": "degC",
+   "figure": "5.37",
+   "page_printed": 149,
+   "page_pdf": 151,
+   "face": "front",
+   "digitisation_increment": null
+  },
+  "G5b": {
+   "value": null,
+   "uncertainty": 0.4,
+   "units": "degC",
+   "figure": "5.37",
+   "page_printed": 149,
+   "page_pdf": 151,
+   "face": "top",
+   "digitisation_increment": null
+  },
+  "G5c": {
+   "value": null,
+   "uncertainty": 0.4,
+   "units": "degC",
+   "figure": "5.37",
+   "page_printed": 149,
+   "page_pdf": 151,
+   "face": "rear",
+   "digitisation_increment": null
+  }
+ },
+ "reported": {
+  "G4_thesis_text": {
+   "x_R_over_H_low": 2.4,
+   "x_R_over_H_high": 2.5,
+   "page_printed": 137,
+   "page_pdf": 139,
+   "uncertainty_stated": false
+  },
+  "h_bar_cube": {
+   "value": null,
+   "units": "W/m2K",
+   "reconstructed_from": "figure 5.45, five faces -- NOT digitised (refusal above)"
+  }
+ }
+}
