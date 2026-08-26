@@ -1,6 +1,6 @@
 # CAPABILITY GRID — Sanaa's taxonomy, assembled from the family tables at HEAD
 
-**Owner:** verification-supervisor. **Directive:** Sanaa's [SANAA-DIRECT] CAPABILITY GRID, boarded verbatim at commit `068c2bf0` (`docs/LAB_STATE.md`, CHIEF ADDENDUM 2026-08-26T17:35Z). **Assembled from HEAD `b847b97f`** on 2026-08-26T20:58Z by `scripts/assemble_capability_grid.py` (idempotent; reads only `git show HEAD:` blobs; zero compute). **FIRST DRAFT** — re-run when a family table lands.
+**Owner:** verification-supervisor. **Directive:** Sanaa's [SANAA-DIRECT] CAPABILITY GRID, boarded verbatim at commit `068c2bf0` (`docs/LAB_STATE.md`, CHIEF ADDENDUM 2026-08-26T17:35Z). **Assembled from HEAD `6abb699e`** on 2026-08-26T21:01Z by `scripts/assemble_capability_grid.py` (idempotent; reads only `git show HEAD:` blobs; zero compute). **FIRST DRAFT** — re-run when a family table lands.
 
 **The verdict vocabulary (Sanaa's, exactly three):** `CAN DO — X cases` (ran successfully, metrics verified; strongest case cited by path + record sha + what was checked); `CAN DO, CAVEATS` (runs, credible results, named missing items each ≤ 1 line); `CAN NOT DO` (does not converge / does not reproduce literature / not enough compute / documented model defect — what was attempted, what would fix it; empty cell = `CAN NOT DO — not attempted`). One verdict per cell. The lab's fixed gate vocabulary (PASS / GATE REACHED / GATE FAIL / NOT A RESULT / BLOCKED / PENDING) appears inside a cell as what the record says.
 
@@ -86,7 +86,7 @@
 
 ## heat-transfer
 
-**family table at HEAD: `72ee4665`** (`docs/capability/heat-transfer_GRID.md`; every cell below is copied verbatim from that file — the family supervisor's words, not this script's).
+**family table at HEAD: `7e2fc497`** (`docs/capability/heat-transfer_GRID.md`; every cell below is copied verbatim from that file — the family supervisor's words, not this script's).
 
 **Regime / mode per case, as derived by the family (their table):**
 
@@ -649,10 +649,10 @@ Reading at write time, 2026-08-26: 2 ok, 0 MISSING.
 
 ## Footer — merged planted control: every distinct sha cited by every source, resolved
 
-Run from the repository root; every line must read `ok`; 122 distinct shas across all sources:
+Run from the repository root; every line must read `ok`; 123 distinct shas across all sources:
 
 ```
-for s in 0686c7b2 068c2bf0 08aa454c 0cbaea26 0dfd9c64 0f56460d 14018d5b 15767999 1697ea49 16b81323 17209b50 1799861d 193b522c 2793f23e 288a5862 299296a2 2a93ff27 2aea29d9 2b50394a 2d639d3b 2dcea996 2e83a89b 2f1d6cb7 3053d9ec 311feb37 31fd2268 336a364d 33dbe337 35171866 3574cdcb 3663520c 3b9bcf31 3c21d87c 3d28328c 3f87e759 3f8c6b13 49c95cc7 4ad083fb 4b336fad 4bb0f6a1 4d9d902b 4e6ba646 4eae12f4 52a213ad 548fc02e 5889677b 5adb9c5d 5c3fe5a8 5d1718df 5d1f89cd 5e789196 60cfd4c8 63c8d044 64b02355 64b367ef 65684e7c 65882eb3 66f42398 6753e912 6a0a1a99 6a9afa0a 6a9b8c41 6b8d6355 6becf266 6d149d51 6fcfe713 71388f4e 7422591b 8273e4ad 8590c96a 85e2230f 878f1556 8b407ea2 8f5bf878 959a31b1 9c241fe2 9c86962e a1ac1c21 a1fbe127 a74b2f61 a86357e6 aba61e53 b10260a0 b26b875c b2a13fd6 b698dfc3 b70b49c6 b840fcd5 b845b603 b8b5e2bf b8fe7eea ba023a53 bb5088c4 be35dcad bff31cff c487e3c7 c4f72b27 c557f847 c69ce11c c83d9501 ca6a3164 cadb4887 cb5b6eb8 cccf7a9f cffd90e7 d4308dde d846815c d98868fb da65ae38 ddb99eca e6d53dbd eadbe157 ebb7da5a f018c8bf f279aac5 f3fad674 f4332fe3 f5a81a69 f5f67de7 f746233a f8916f36 f9a59d47; do printf '%s ' "$s"; git cat-file -e "$s^{commit}" 2>/dev/null && echo ok || echo MISSING; done
+for s in 0686c7b2 068c2bf0 08aa454c 0cbaea26 0dfd9c64 0f56460d 14018d5b 15767999 1697ea49 16b81323 17209b50 1799861d 193b522c 2793f23e 288a5862 299296a2 2a93ff27 2aea29d9 2b50394a 2d639d3b 2dcea996 2e83a89b 2f1d6cb7 3053d9ec 311feb37 31fd2268 336a364d 33dbe337 35171866 3574cdcb 3663520c 3b9bcf31 3c21d87c 3d28328c 3f87e759 3f8c6b13 49c95cc7 4ad083fb 4b336fad 4bb0f6a1 4d9d902b 4e6ba646 4eae12f4 52a213ad 548fc02e 5889677b 5adb9c5d 5c3fe5a8 5d1718df 5d1f89cd 5e789196 60cfd4c8 63c8d044 64b02355 64b367ef 65684e7c 65882eb3 66f42398 6753e912 6a0a1a99 6a9afa0a 6a9b8c41 6b8d6355 6becf266 6d149d51 6fcfe713 71388f4e 7422591b 8273e4ad 8590c96a 85e2230f 878f1556 8b407ea2 8f5bf878 959a31b1 9c241fe2 9c86962e a1ac1c21 a1fbe127 a74b2f61 a86357e6 aba61e53 b10260a0 b26b875c b2a13fd6 b698dfc3 b70b49c6 b840fcd5 b845b603 b8b5e2bf b8fe7eea ba023a53 bb5088c4 be35dcad bff31cff c487e3c7 c4f72b27 c557f847 c69ce11c c83d9501 ca6a3164 cadb4887 cb5b6eb8 cccf7a9f cffd90e7 d4308dde d846815c d98868fb da65ae38 db76091e ddb99eca e6d53dbd eadbe157 ebb7da5a f018c8bf f279aac5 f3fad674 f4332fe3 f5a81a69 f5f67de7 f746233a f8916f36 f9a59d47; do printf '%s ' "$s"; git cat-file -e "$s^{commit}" 2>/dev/null && echo ok || echo MISSING; done
 ```
 
-Reading at assembly time (2026-08-26T20:58Z, HEAD `b847b97f`): **122 ok, 0 MISSING, 122 distinct shas.**
+Reading at assembly time (2026-08-26T21:01Z, HEAD `6abb699e`): **123 ok, 0 MISSING, 123 distinct shas.**
