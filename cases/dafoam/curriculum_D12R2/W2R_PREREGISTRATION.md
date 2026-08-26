@@ -135,3 +135,28 @@ a finding. **`St ≈ 0.5273` from the re-measured period is a RESOLUTION ARTIFAC
 it a **reproducible artifact**, not a measurement. **No grid family, so rule 5 has no row and NO
 GCI IS QUOTED.** **`G12R-6` runs only if `P3` MISSES**; if `P3` hits, no adjoint-versus-FD
 comparison is bought.
+
+---
+
+## ADDENDUM 1 — 2026-08-26T16:31:46Z. `d12y_grade.py` `G12R-0b`: AN ABSENT LEDGER IS BOOKKEEPING, NOT A VOID — THE REGISTERED COUNT STILL REFUSES (Sanaa's universal rule, `d4d0c29d`, L-342)
+
+**Version 1.1. This addendum ALTERS NO GATE, THRESHOLD, CAP OR LABEL. Lines whose number changed above this section: 0.** Approved as a pre-registered amendment by dafoam-supervisor, ruling [lab-attributed] 2026-08-26, condition **C4**, driven in the selftest under plain `python3` and `-O`. **Condition at this addendum:** W2R is RUNNING (`STATUS.W2R_phase2` in this directory; stages `d12y_S2b`/`S3*` live on cpu 12 today); **nothing has been graded** under either version.
+
+### A1.1 What changes, and what does not
+
+`G12R-0b` (`g0b_manifest_ledger_binding`) had FOUR refusals. **Three are unchanged**: a present ledger with zero `STAGE=` lines (rule 3 — the reader must be shown able to see a stage); a present ledger that DISAGREES with the manifest (the D12R2-DEF-2 / W2-DEF-1 catch); duplicate or nameless manifest rows. **One is split**: when the ledger — a host-side `tee -a`, `d12y_w2r_stage_and_run.sh:240` — is ABSENT:
+
+| manifest rows vs `EXPECTED_STAGE_ROWS_PHASE1 = 33` (frozen) | before | now |
+|---|---|---|
+| **≠ 33** | REFUSE | **REFUSE** (C4: *"the registered-count check REMAINS A REFUSAL when the ledger is absent"*), citing both numbers |
+| **= 33** | REFUSE | **`NOT_MEASURED`** for the binding limb only, `count_vs_registered: MATCH`, reason stated; the grade proceeds on the manifest's physics keys (`REQUIRED_ROW_KEYS`: `rc`, `oomkilled`, `end_line_present`, `last_time`, `endTime`, cold/age) and each stage's own log and JSON under `G12R-0` |
+
+`memavail_GiB` was already tolerant of absence (refuses only when PRESENT and below the 14.0 floor) and is untouched.
+
+### A1.2 Driven
+
+`U-16d` now carries: **leg 3** — absent ledger, 33 rows → `verdict == NOT_MEASURED`, `count_vs_registered == MATCH`, `n_rows == 33`; **leg 3b** — absent ledger, 32 rows (S0 dropped) → REFUSES, and the refusal text cites **33** and **32**. Legs 2, 4, 5 unchanged. Selftest: **82 registered, 82 in the list, 82 returned a result, 0 failures**, identical under `-O`; `ast.Assert` **0**. Diff against the frozen blob `3a76c8283b30`: **37 insertions, 7 deletions**, hunks only in `g0b_manifest_ledger_binding` and `selftest`.
+
+### A1.3 The struck line
+
+**§4's "THE COMPARATOR IS BYTE-UNCHANGED — `d12y_grade.py` md5 `33f7a006e15dce2988a63b2e937cf07b`" is STRUCK, not rewritten.** At this addendum `d12y_grade.py` is md5 `02a9ab62fc26d963886ecd0ee97457ef`, blob `aecceb4e874eb6d306fb273d7408e762718c87a2`, and that is the grading path for W2R. `d12y_run_script.py` and `d12y_w2r_stage_and_run.sh` are unchanged.

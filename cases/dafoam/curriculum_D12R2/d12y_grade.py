@@ -441,9 +441,24 @@ def g0b_manifest_ledger_binding(rows, ledger_path, expected_rows):
                       "a missing stage in a bare count" % ", ".join(dupes))
 
     if not os.path.isfile(ledger_path):
-        raise Refusal("G12R-0b: ledger %s is absent, so the manifest has NO SECOND "
-                      "WITNESS. A count that can only be checked against itself is not "
-                      "a check." % ledger_path)
+        # ADDENDUM 1 (L-342, d4d0c29d; dafoam-supervisor ruling C4, 2026-08-26).
+        # The ledger is a host-side `tee -a` (d12y_w2r_stage_and_run.sh:240): its
+        # ABSENCE is a bookkeeping failure and may not void the physics.  The
+        # manifest rows still carry REQUIRED_ROW_KEYS and every stage's own log and
+        # JSON are graded by G12R-0.  Only the manifest<->ledger BINDING limb becomes
+        # NOT_MEASURED.  THE REGISTERED-COUNT CHECK REMAINS A REFUSAL (C4): the frozen
+        # constant is what caught D12R2-DEF-2 and W2-DEF-1, and it needs no ledger.
+        if len(names_manifest) != expected_rows:
+            raise Refusal("G12R-0b: ledger %s is absent AND the manifest has %d rows "
+                          "against the REGISTERED %d. The count is checked against the "
+                          "frozen constant, ledger or no ledger, and it does not match."
+                          % (ledger_path, len(names_manifest), expected_rows))
+        return {"gate": "G12R-0b", "verdict": "NOT_MEASURED",
+                "reason": "ledger absent; manifest<->ledger binding unverifiable "
+                          "(bookkeeping, L-342); registered count MATCHES on the "
+                          "manifest alone",
+                "n_rows": len(names_manifest), "n_ledger_stage_lines": None,
+                "registered": expected_rows, "count_vs_registered": "MATCH"}
     names_ledger = []
     with open(ledger_path, errors="replace") as f:
         for line in f:
@@ -1752,10 +1767,25 @@ def selftest(tmpdir):
         _refuses(lambda: g0b_manifest_ledger_binding(rows, empty,
                                                      EXPECTED_STAGE_ROWS_PHASE1),
                  "G12R-0b read a ledger with zero STAGE= lines as evidence")
-        # leg 3: an absent ledger is a MISSING WITNESS, not a pass
+        # leg 3 (ADDENDUM 1, L-342): an absent ledger with the REGISTERED 33 rows is
+        # NOT_MEASURED -- bookkeeping, disclosed, the grade proceeds -- never PASS
+        r3 = g0b_manifest_ledger_binding(rows, os.path.join(d, "nope.txt"),
+                                         EXPECTED_STAGE_ROWS_PHASE1)
+        check(r3["verdict"] == "NOT_MEASURED" and r3["count_vs_registered"] == "MATCH"
+              and r3["n_rows"] == 33,
+              "G12R-0b did not return NOT_MEASURED on an absent ledger with 33 rows: %r" % r3)
+        # leg 3b (C4): an absent ledger with 32 rows STILL REFUSES on the frozen count
         _refuses(lambda: g0b_manifest_ledger_binding(
-            rows, os.path.join(d, "nope.txt"), EXPECTED_STAGE_ROWS_PHASE1),
-            "G12R-0b accepted an absent ledger")
+            [r for r in rows if r["name"] != "S0"], os.path.join(d, "nope.txt"),
+            EXPECTED_STAGE_ROWS_PHASE1),
+            "G12R-0b let an absent ledger waive the registered count (32 rows)")
+        try:
+            g0b_manifest_ledger_binding([r for r in rows if r["name"] != "S0"],
+                                        os.path.join(d, "nope.txt"),
+                                        EXPECTED_STAGE_ROWS_PHASE1)
+        except Refusal as exc:
+            check("33" in str(exc) and "32" in str(exc),
+                  "the absent-ledger count refusal did not cite 33 and 32: %s" % exc)
         # leg 4: duplicates can make a short manifest COUNT correctly
         dup = [r for r in rows if r["name"] != "S0"] + [{"name": "S5"}]
         check(len(dup) == 33, "the duplicate fixture is not 33 rows")
@@ -1849,7 +1879,7 @@ def selftest(tmpdir):
         ("U-16  [D12R2-DEF-2] G12R-0b passes a well-formed 33-stage pair", u16),
         ("U-16b [D12R2-DEF-2] G12R-0b REFUSES the dropped-S0 manifest, naming S0", u16b),
         ("U-16c [D12R2-DEF-2] G12R-0b refuses a self-consistent pair that both lost a stage", u16c),
-        ("U-16d [D12R2-DEF-2] G12R-0b refuses a blind/absent ledger, dupes and nameless rows", u16d),
+        ("U-16d [D12R2-DEF-2] G12R-0b refuses a blind ledger, dupes, nameless rows; absent ledger NOT_MEASURED at 33 rows, REFUSES at 32 (L-342)", u16d),
     ]
     for nm, fn in _UNIT_LIST:
         _u(nm, fn, R)
