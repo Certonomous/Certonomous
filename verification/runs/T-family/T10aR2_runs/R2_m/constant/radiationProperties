@@ -1,0 +1,29 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      radiationProperties;
+}
+
+// Every entry the model reads is written out; none is left to a default.
+radiation       on;
+
+radiationModel  viewFactor;
+
+viewFactorCoeffs
+{
+    smoothing           false;
+    constantEmissivity  true;
+    useDirectSolver     true;
+    nBands              1;
+}
+
+solverFreq      1;
+
+absorptionEmissionModel none;
+
+scatterModel    none;
+
+sootModel       none;

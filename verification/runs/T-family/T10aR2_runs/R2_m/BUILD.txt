@@ -1,0 +1,10 @@
+case            R2_m
+date            2026-08-26T16:27:36Z
+generator       viewFactorsGen  (nice 15)
+blockMesh_rc    0   wall 0.27 s
+checkMesh_rc    0   wall 0.29 s
+viewFactorsGen_rc  0   wall 27.79 s   maxRSS_kB 518888
+F_size          129652037 bytes
+gFF_size        27509427 bytes
+F_sha256        997aa5ff494da022daa4abb5ef54a76392f86b898a2434efd3970839bb63ed59
+loadavg_at_gen  12.62

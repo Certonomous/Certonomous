@@ -1,0 +1,50 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      boundaryRadiationProperties;
+}
+
+floor
+{
+    type            lookup;
+    emissivity      1;
+    absorptivity    1;
+}
+
+ceiling
+{
+    type            lookup;
+    emissivity      1;
+    absorptivity    1;
+}
+
+x0
+{
+    type            lookup;
+    emissivity      1;
+    absorptivity    1;
+}
+
+x1
+{
+    type            lookup;
+    emissivity      1;
+    absorptivity    1;
+}
+
+y0
+{
+    type            lookup;
+    emissivity      1;
+    absorptivity    1;
+}
+
+y1
+{
+    type            lookup;
+    emissivity      1;
+    absorptivity    1;
+}

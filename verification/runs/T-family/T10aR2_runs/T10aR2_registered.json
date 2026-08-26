@@ -1,0 +1,262 @@
+{
+ "rung": "T10aR2",
+ "parent": "T10a",
+ "tier": "EXACT-tier follow-through (refinement arm), as the parent T10a-R: every row is PASS or GATE FAIL against a prediction registered here; the reference is the sigma_OF exact enclosure flux of T10a; grades nothing against T10a's band",
+ "prior_arm": "T10a-R (R_x fourth level at 2AI; R_q distTol 80 at the f mesh only; R_s solver bundle). T10aR2 repeats none of them.",
+ "directive": "Sanaa H-3(a): T10a follow-through - the ceiling miss gets a refinement arm (discretization finding, cheap).",
+ "question": "With the view-factor generator on the 2LI contour integration at EVERY level (distTol 80, the R-q knob), is the c/m/f mesh ladder for the B1 ceiling flux CONVERGING, and does the remaining miss at f (0.07857 % measured on R_q) shrink with the mesh at the same first-order-like rate the 2AI ladder showed (level-error ratios 1.66 / 1.50)? The number: the level-error ratios |e_c|/|e_m| and |e_m|/|e_f| of the 2LI ladder, and the 2LI GCI band at f divided into the 0.07857 % miss.",
+ "scope": "the BOX only (1 x 1 x 0.5 m, six black patches). No spheres (H-3(b)). Grades NOTHING against T10a's band; T10a and T10a-R are closed and unchanged.",
+ "verdict_vocabulary": [
+  "PASS",
+  "GATE REACHED",
+  "GATE FAIL",
+  "NOT A RESULT",
+  "BLOCKED",
+  "PENDING"
+ ],
+ "grid": {
+  "Fs": 1.25,
+  "r": 1.6,
+  "built_ratios": [
+   1.625,
+   1.6154
+  ]
+ },
+ "roache_floors": {
+  "source": "scripts/roache_triple.py, imported by name (MESH_STANDARD.md section 10.5, chief ruling 01967a7b); the comparator REFUSES if these numbers differ from the import, and DRIVES the frozen analyse_t1c.gci at p = 0.49 / 0.51 to show its own floor is the same 0.5",
+  "STAGNANT_FLOOR": 0.5,
+  "P_MIN": 0.05,
+  "ground": "STAGNANT_FLOOR 0.5 = p_expected/3 with p_expected = 1.48 (RR2 point, the parent 2AI ladder order) at r = 1.6 (0.493, taken as the family value 0.5): below it adjacent-level errors differ by < 1.6^0.5 = 1.26x, the levels-too-close-to-resolve-an-order state; the frozen analyse_t1c.gci the parent used already carries this floor as its STAGNANT branch (p < 0.5), so the parent T10a-R semantics are unchanged (its RX2 p = 0.685 was CONVERGING and stays so). P_MIN 0.05 is the degenerate floor (|p| < 0.05: e21 ~ e32). Both states are NOT A RESULT; the floors can only move a row INTO NOT A RESULT."
+ },
+ "cases": {
+  "R2_c": {
+   "kind": "box",
+   "N": 16,
+   "faces": 1024,
+   "cells": 2048,
+   "level": "c",
+   "one_change_from": "B_c",
+   "GaussQuadTol": 0.01,
+   "distTol": 80,
+   "smoothing": false,
+   "T_uniform": null,
+   "role": "graded level c at 2LI",
+   "cap_core_min": 10,
+   "timeout_s": 600
+  },
+  "R2_m": {
+   "kind": "box",
+   "N": 26,
+   "faces": 2704,
+   "cells": 8788,
+   "level": "m",
+   "one_change_from": "B_m",
+   "GaussQuadTol": 0.01,
+   "distTol": 80,
+   "smoothing": false,
+   "T_uniform": null,
+   "role": "graded level m at 2LI",
+   "cap_core_min": 30,
+   "timeout_s": 1800
+  },
+  "R2_f": {
+   "kind": "box",
+   "N": 42,
+   "faces": 7056,
+   "cells": 37044,
+   "level": "f",
+   "one_change_from": "B_f",
+   "GaussQuadTol": 0.01,
+   "distTol": 80,
+   "smoothing": false,
+   "T_uniform": null,
+   "role": "graded level f at 2LI; identity twin of T10aR_runs/R_q",
+   "cap_core_min": 120,
+   "timeout_s": 7200
+  },
+  "note": "cell counts READ from the frozen build_t10a.box_block_mesh(N): N*N*(N/2). The ONE change from the frozen T10a level is viewFactorsDict distTol 8 -> 80; every other dictionary and 0.orig field is byte-identical (sha256, refused otherwise by build_t10aR2.verify)."
+ },
+ "parent_measured": {
+  "note": "quoted for the record; the comparator RE-MEASURES B_c/B_m/B_f from the frozen T10a trees and R_q from the frozen T10a-R tree at run time.",
+  "B1_2AI_c_m_f": [
+   -3275.664,
+   -3271.619602,
+   -3269.602153
+  ],
+  "B1_exact_sigmaOF": -3265.532221,
+  "B1_2AI_level_errors": [
+   -10.132,
+   -6.087,
+   -4.07
+  ],
+  "B1_2AI_level_error_ratios": [
+   1.664,
+   1.496
+  ],
+  "B1_2AI_p": 1.48,
+  "B1_2AI_band_pct": 0.07676,
+  "B1_2AI_dev_pct": 0.12463,
+  "B1_2LI_f_Rq": -3268.0977949,
+  "B1_2LI_f_dev_pct": 0.07857,
+  "B1_2LI_f_error": -2.5656,
+  "Rq_move_from_Bf_W_m2": 1.504358,
+  "Rq_F_sha256": "801700cf89dbd7b58af430bb7fb6a1ead258f775fbfc6562b19a1f31e0c37efd",
+  "Rq_rowsum_max_defect": 0.029235,
+  "Bf_rowsum_max_defect": 0.030375
+ },
+ "branches_registered_before_the_run": {
+  "H1": "the 2AI->2LI move is mesh-independent in W/m2 (+1.504 at every level): 2LI errors -8.628 / -4.583 / -2.566, ratios 1.883 / 1.786, p 1.4805, band 0.07673 %, dev/band 1.024",
+  "H2": "the 2AI->2LI move scales with the level error (x0.630 at every level): 2LI errors -6.385 / -3.836 / -2.566, ratios 1.664 / 1.495, p 1.482, band 0.0482 %, dev/band 1.63",
+  "registered_point": "H1; the intervals below contain H1 and exclude H2 on RR4, RR5 and RR6, so the measurement discriminates them and either outcome is reportable"
+ },
+ "rows": {
+  "RR1": {
+   "quantity": "IDENTITY (Charter 2a): max |qr(R2_f) - qr(R_q)| over every radiating face, W/m2",
+   "predict_point": 0.0,
+   "predict_interval": [
+    0.0,
+    0.0
+   ],
+   "identity": true,
+   "precondition": "sha256(R2_f/constant/F) == sha256(T10aR_runs/R_q/constant/F) == 801700cf...; if the generator is not deterministic the row is NOT A RESULT and the non-determinism reported",
+   "falsifier": "any nonzero difference given the precondition"
+  },
+  "RR2": {
+   "quantity": "observed p of the 2LI c/m/f triple for B1",
+   "predict_point": 1.48,
+   "predict_interval": [
+    1.0,
+    2.0
+   ],
+   "falsifier": "p outside [1.0, 2.0]; a non-CONVERGING triple is NOT A RESULT, no verdict"
+  },
+  "RR3": {
+   "quantity": "B1 deviation from exact at the 2LI f level, per cent",
+   "predict_point": 0.07857,
+   "predict_interval": [
+    0.078,
+    0.0792
+   ],
+   "falsifier": "outside the interval (given RR1 this is the R_q number; the row states the headline number, it does not test the physics)"
+  },
+  "RR4a": {
+   "quantity": "2LI level-error ratio |e_c| / |e_m| for B1",
+   "predict_point": 1.883,
+   "predict_interval": [
+    1.7,
+    2.1
+   ],
+   "falsifier": "outside [1.70, 2.10]; H2 gives 1.664"
+  },
+  "RR4b": {
+   "quantity": "2LI level-error ratio |e_m| / |e_f| for B1",
+   "predict_point": 1.786,
+   "predict_interval": [
+    1.7,
+    2.1
+   ],
+   "falsifier": "outside [1.70, 2.10]; H2 gives 1.495"
+  },
+  "RR5": {
+   "quantity": "dev / GCI band at the 2LI f level for B1",
+   "predict_point": 1.024,
+   "predict_interval": [
+    0.85,
+    1.3
+   ],
+   "falsifier": "> 1.30 (H2: the band-smaller-than-error pattern persists at the 2AI strength) or < 0.85 (the band covers the error, as at T10a-R's fourth level)"
+  },
+  "RR6a": {
+   "quantity": "2AI->2LI move of B1 at level c, W/m2 (R2_c vs frozen B_c)",
+   "predict_point": 1.504,
+   "predict_interval": [
+    1.0,
+    2.0
+   ],
+   "falsifier": "outside [1.0, 2.0]; H2 gives 3.75"
+  },
+  "RR6b": {
+   "quantity": "2AI->2LI move of B1 at level m, W/m2 (R2_m vs frozen B_m)",
+   "predict_point": 1.504,
+   "predict_interval": [
+    1.0,
+    2.0
+   ],
+   "falsifier": "outside [1.0, 2.0]; H2 gives 2.25"
+  },
+  "RR7": {
+   "quantity": "raw row-sum max defect of the written 2LI F, ratio level f / level c",
+   "predict_point": 1.0,
+   "predict_interval": [
+    0.7,
+    1.3
+   ],
+   "falsifier": "outside [0.7, 1.3] (the defect DOES move with the mesh under 2LI)"
+  }
+ },
+ "reported_not_graded": [
+  "B0, B2, B3 under the same 2LI ladder: triple state, p, band, dev/band, sign-corrected Richardson",
+  "closure_raw and |c_raw - c_F| per case (T10a guard 1e-2, VOID withdraws the case's rows)",
+  "row-sum defect per patch per level",
+  "Richardson corrected and shared forms side by side, graded on neither"
+ ],
+ "planted_control_value": 0.001234,
+ "convergence": "T10a section 5.5 rule via the frozen iterative_convergence: qr identical value for value between the last two written checkpoints (15 and 20); planted 1.234e-03 W/m2 recovered exactly as fl(old+plant)-old through the same reader on a scratch copy; an unconverged level -> refusal, no triple formed (D440)",
+ "cost": {
+  "usd_per_core_hour": 0.0513,
+  "basis": "T10a_RESULTS.md section 8 (B_c/B_m/B_f solve 1/13/389 s, serial, contended) and docs/COST_CALIBRATION.md row C-1 (T10a-R: R_q solve 2639 s and viewFactorsGen 221 s at distTol 80, n = 7056, under 12 concurrent solvers); T10aR_PREREGISTRATION.md section 4 probe (distTol 80 generation at N = 16: 6.89 s, N = 26: 35.59 s, contended ~3.1x)",
+  "ranks": 1,
+  "point_core_min": {
+   "gen_already_spent_at_build": 3.43,
+   "solve": 11.32,
+   "total_queued": 11.32
+  },
+  "ceiling_core_min": {
+   "solve": 44.63,
+   "total_queued": 44.63
+  },
+  "cap_core_min": {
+   "R2_c": 10,
+   "R2_m": 30,
+   "R2_f": 120,
+   "total": 160
+  },
+  "timeout_s": {
+   "R2_c": 600,
+   "R2_m": 1800,
+   "R2_f": 7200
+  },
+  "memory_floor_gb": 3.0,
+  "cost_basis": "derived, reported-by-owner rate, not measured",
+  "basis_measured_per_level": {
+   "note": "solve wall seconds from the parents STATUS files (serial, ranks 1): T10a B_c 1 s / B_m 13 s / B_f 389 s at 2AI (T10a_runs/STATUS.B_*), and T10a-R R_q 2639 s wall (ExecutionTime 664 s) for the IDENTICAL f-level 2LI case under 12 concurrent solvers at nice 15 (T10aR_runs/STATUS.R_q; COST_CALIBRATION C-1 gross ratio 2.77). The 2LI matrix does not change the dense-LU cost (same n); generation (viewFactorsGen) was already paid at build: 4.35 / 27.79 / 173.66 s = 3.43 core-min, disclosed in the pre-registration, no solver",
+   "point_core_min": {
+    "R2_c": 0.03,
+    "R2_m": 0.22,
+    "R2_f": 11.07,
+    "total": 11.32
+   },
+   "point_derivation": "R2_c: B_c 1 s -> 0.02 core-min (ExecutionTime 1.63 s -> 0.03); R2_m: B_m 13 s -> 0.22; R2_f: R_q ExecutionTime 664 s -> 11.07 (the identical case, CPU-seconds, contended)",
+   "ceiling_core_min": {
+    "R2_c": 0.05,
+    "R2_m": 0.6,
+    "R2_f": 43.98,
+    "total": 44.63
+   },
+   "ceiling_derivation": "C-1 gross/predicted ratio 2.77 applied to the T10a walls for c and m (1 x 2.77 = 2.8 s, 13 x 2.77 = 36 s), and the measured contended R_q wall 2639 s for f",
+   "cap_core_min": {
+    "R2_c": 10,
+    "R2_m": 30,
+    "R2_f": 120,
+    "total": 160
+   },
+   "cap_rule": "a runaway guard, not a budget: c 600 s (200x the ceiling; startup + reading an 18 MB F dominates a 1 s solve), m 1800 s (50x), f 7200 s (2.7x the contended R_q wall, 10.8x its CPU time); timeout_s = cap x 60 / 1",
+   "usd_derived": {
+    "point": 0.0097,
+    "ceiling": 0.0382,
+    "cap": 0.1368
+   },
+   "generation_spent_at_build_core_min": 3.43
+  }
+ }
+}

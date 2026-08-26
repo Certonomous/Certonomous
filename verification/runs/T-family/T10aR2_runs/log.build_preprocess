@@ -1,0 +1,38 @@
+T10aR2 builder.  frozen build_t10a imported from /home/ubuntu/Certonomous/verification/runs/T-family/T10a_runs
+  R2_c N= 16 cells=  2048 faces= 1024  parent B_c: 14 files byte-identical, 1 file changed on 1 line: 'distTol                 8;' -> 'distTol                 80;'
+  R2_m N= 26 cells=  8788 faces= 2704  parent B_m: 14 files byte-identical, 1 file changed on 1 line: 'distTol                 8;' -> 'distTol                 80;'
+  R2_f N= 42 cells= 37044 faces= 7056  parent B_f: 14 files byte-identical, 1 file changed on 1 line: 'distTol                 8;' -> 'distTol                 80;'
+  preprocessing R2_c
+    case            R2_c
+    date            2026-08-26T16:27:08Z
+    generator       viewFactorsGen  (nice 15)
+    blockMesh_rc    0   wall 0.25 s
+    checkMesh_rc    0   wall 0.24 s
+    viewFactorsGen_rc  0   wall 4.35 s   maxRSS_kB 101944
+    F_size          18383786 bytes
+    gFF_size        3356060 bytes
+    F_sha256        727039bea6460a635e9bbab31ed087ea37503e5255331ebae808bf0c9d583376
+    loadavg_at_gen  11.89
+  preprocessing R2_m
+    case            R2_m
+    date            2026-08-26T16:27:36Z
+    generator       viewFactorsGen  (nice 15)
+    blockMesh_rc    0   wall 0.27 s
+    checkMesh_rc    0   wall 0.29 s
+    viewFactorsGen_rc  0   wall 27.79 s   maxRSS_kB 518888
+    F_size          129652037 bytes
+    gFF_size        27509427 bytes
+    F_sha256        997aa5ff494da022daa4abb5ef54a76392f86b898a2434efd3970839bb63ed59
+    loadavg_at_gen  12.62
+  preprocessing R2_f
+    case            R2_f
+    date            2026-08-26T16:30:31Z
+    generator       viewFactorsGen  (nice 15)
+    blockMesh_rc    0   wall 0.39 s
+    checkMesh_rc    0   wall 0.42 s
+    viewFactorsGen_rc  0   wall 173.66 s   maxRSS_kB 2728816
+    F_size          885438151 bytes
+    gFF_size        196585865 bytes
+    F_sha256        801700cf89dbd7b58af430bb7fb6a1ead258f775fbfc6562b19a1f31e0c37efd
+    loadavg_at_gen  12.48
+built 3 case(s); no time directory in any of them; no solver was run.

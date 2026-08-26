@@ -1,0 +1,19 @@
+case              R2_c
+rung              T10aR2 (H-3(a): the 2LI ladder, second refinement arm on T10a's B1)
+level             c
+one change from   B_c: constant/viewFactorsDict distTol 8 -> 80
+solver            buoyantSimpleFoam (ESI v2606), laminar, g = (0 0 0), carrier fluid
+generator         viewFactorsGen (mesh-side preprocessing at build; wall time in BUILD.txt)
+Lx Ly Lz          1.0 1.0 0.5 m
+N per m           16   divisions (16 16 8)
+cells_from_dict   2048
+faces_from_dict   1024
+GaussQuadTol      0.01
+distTol           80
+smoothing         False
+patch             floor: T = 600.0 K, emissivity = 1.0
+patch             ceiling: T = 300.0 K, emissivity = 1.0
+patch             x0: T = 400.0 K, emissivity = 1.0
+patch             x1: T = 400.0 K, emissivity = 1.0
+patch             y0: T = 350.0 K, emissivity = 1.0
+patch             y1: T = 350.0 K, emissivity = 1.0

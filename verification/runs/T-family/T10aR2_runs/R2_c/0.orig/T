@@ -1,0 +1,20 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      T;
+}
+
+dimensions      [0 0 0 1 0 0 0];
+internalField   uniform 400;
+boundaryField
+{
+    floor { type fixedValue; value uniform 600; }
+    ceiling { type fixedValue; value uniform 300; }
+    x0 { type fixedValue; value uniform 400; }
+    x1 { type fixedValue; value uniform 400; }
+    y0 { type fixedValue; value uniform 350; }
+    y1 { type fixedValue; value uniform 350; }
+}

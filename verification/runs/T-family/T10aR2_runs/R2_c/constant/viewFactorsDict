@@ -1,0 +1,16 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      viewFactorsDict;
+}
+
+// viewFactorsGen (3D, 2AI/2LI).  The v2606 source defaults written out
+// explicitly; GaussQuadTol is 0.001 in the *_q quadrature-floor twins.
+writeViewFactorMatrix   true;
+GaussQuadTol            0.01;
+distTol                 80;
+alpha                   0.21;
+intTol                  0.01;

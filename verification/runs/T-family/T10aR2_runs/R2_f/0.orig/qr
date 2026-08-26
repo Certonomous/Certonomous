@@ -1,0 +1,50 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      qr;
+}
+
+dimensions      [1 0 -3 0 0 0 0];
+internalField   uniform 0;
+boundaryField
+{
+    floor
+    {
+        type            greyDiffusiveRadiationViewFactor;
+        qro             uniform 0;
+        value           uniform 0;
+    }
+    ceiling
+    {
+        type            greyDiffusiveRadiationViewFactor;
+        qro             uniform 0;
+        value           uniform 0;
+    }
+    x0
+    {
+        type            greyDiffusiveRadiationViewFactor;
+        qro             uniform 0;
+        value           uniform 0;
+    }
+    x1
+    {
+        type            greyDiffusiveRadiationViewFactor;
+        qro             uniform 0;
+        value           uniform 0;
+    }
+    y0
+    {
+        type            greyDiffusiveRadiationViewFactor;
+        qro             uniform 0;
+        value           uniform 0;
+    }
+    y1
+    {
+        type            greyDiffusiveRadiationViewFactor;
+        qro             uniform 0;
+        value           uniform 0;
+    }
+}
