@@ -1194,6 +1194,12 @@ written.*
 
 Scope, as stated by her: **anything that leads to the lab having more runs under its belt.** This authorises, in her own words: detached `setsid`/`nohup`/`docker run -d` launches of frozen cases; the detached queue-runner daemon; headroom watchers; use of the GPU instance. Every team re-issues its denied launches once, with this addendum's commit id cited in the launch record. If the auto-mode classifier denies again, that denial is a **system** event, not a lab one: record the exact denial text on the board and report it to the chief — do not route around it, the chief takes it back to Sanaa. Pre-registration, costing, rc-capture-in-wrapper and G-ROOT rules are unchanged: permission to launch is not permission to launch unfrozen.
 
+### CHIEF ADDENDUM — UNIVERSAL RULE FROM SANAA, HER WORDS VERBATIM (received 2026-08-26T16:15Z; rule 9 satisfied; in force lab-wide immediately)
+
+> "New universal rule for the lab : a bookkeeping failure invalidates the bookkeeping, never the physics artifacts — and graders must separate physics-critical fields from infrastructure fields so a dead poller can never void a run again."
+
+Consequences, binding on every team: (1) a run whose physics artefacts (solver logs, fields, histories, kernel/container record) are intact is GRADED on them; missing ledger/poller/host-side rows mark the INFRASTRUCTURE fields NOT MEASURED and cannot return NOT A RESULT on their own. (2) Every grader carries two labelled field classes — physics-critical (gates depend on them) and infrastructure (cost, memory, pids, timestamps) — and an absent infrastructure field never refuses a grade. (3) Existing graders that conflate them (d4s_grade.py LEDGER_RE is the named instance) are repaired by pre-registered amendment; D4-SHIPPED arm O is RE-GRADED on its preserved O/ artefacts under the repaired grader, C-117's WASTE label is struck by quote-and-strike when that grade lands. (4) Rule 2 is unchanged for physics fields: this rule licenses no change to bands, thresholds or verdict logic. Lesson L-342.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**

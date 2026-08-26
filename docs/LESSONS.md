@@ -14659,3 +14659,11 @@ convergence check the study performs on itself.**
 `verification/runs/T-family/T11_runs/build_t11.py` (`value_fraction()`,
 `check_levels()`); the 18 % figure and the 1.4e-05–4.9e-05 agreement are scratch
 measurements disclosed in that pre-registration §0 and §1.3.
+
+## L-342. A bookkeeping failure invalidates the bookkeeping, never the physics artefacts (2026-08-26T16:15Z, Sanaa's universal rule)
+
+**Instance.** D4-SHIPPED arm O: container exited 0 with intact artefacts after 731.7 core-min; the host-side poller that writes the ledger row died with the agent fleet; the frozen grader required a numeric live-only field in that row and refused the whole arm → NOT A RESULT, C-117 WASTE.
+
+**Rule (Sanaa, verbatim).** "a bookkeeping failure invalidates the bookkeeping, never the physics artifacts — and graders must separate physics-critical fields from infrastructure fields so a dead poller can never void a run again."
+
+**How to apply.** Graders declare two field classes; gates read physics fields only; infrastructure fields absent → NOT MEASURED, disclosed, grade proceeds. Bookkeeping that must survive agent death runs inside the detached wrapper/container, never in an attached poller. Repair of a conflating grader is a pre-registered amendment that touches no band, threshold or verdict logic.
