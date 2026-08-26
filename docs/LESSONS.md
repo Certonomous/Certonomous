@@ -14470,3 +14470,45 @@ genuine hit); `run_cases.sh:14` (the answer the lab already held);
 `docs/campaigns/F14-cooling-ladder/K0f_PREREGISTRATION.md` AMENDMENT 2 §A2.3a
 (the silent-load finding); `scripts/compute_stage_count.py` (the governor
 repair from the same session).
+
+## L-340 — A planted-zero control's `delta > 0.1·plant` threshold fits a POINT reader; an AVERAGING reader (RMS/mean over N points) dilutes a single-point plant by ~1/√N and the control refuses a working reader
+
+**Cost:** one completed 3-level verification run (VMFL011, triangular cavity, VM2026R1
+p.41) that could not be graded — the frozen comparator refused (exit 2) and the case is
+`NOT A RESULT`. `ansys-verification`, 2026-08-26.
+
+**What happened.** The planted-zero control (CLAUDE.md rule 3) copies the gate artifact,
+plants a known perturbation into ONE data row on disk, reads the gate quantity back, and
+refuses unless the read moved by more than `0.1·plant`. For VMFL011's `rms_vs_benchmark`
+channel — an RMS over **401** bisector sample points — a plant of 1.234e-3 into one row
+moved the RMS by only **3.68e-7**, far below the `0.1·plant = 1.234e-4` threshold, so the
+comparator refused. But the reader is **not blind**: the move was non-zero and is exactly
+the correct RMS sensitivity to a single-point perturbation.
+
+**Why.** An RMS (or mean) over N points responds to a single-point perturbation δ by
+~δ²/(2·RMS·N) (or δ/N for a mean) — i.e. it dilutes the plant by roughly 1/√N (or 1/N).
+The `0.1·plant` threshold silently assumes a **~1:1 plant→read mapping**, which holds for
+a **point reader** (e.g. `u_min`, which reads a single value) but is unreachable for an
+**averaging reader**. The same comparator's `u_min` channel would have passed the identical
+control; the `rms` channel could not.
+
+**The fix.** Size the plant, or the threshold, to the reader's sensitivity per channel:
+either plant into ALL points (so an averaged read moves by ~plant), or set the pass
+threshold from the reader's known response (e.g. `> 0.1·plant/√N` for an RMS over N), or
+plant a value that the specific reader provably converts to a supra-threshold move. Verify
+the plant sizing per channel BEFORE freezing — a control that a working reader cannot pass
+is not a rule-3 control, it is a guaranteed refusal.
+
+**Scope.** This affects any comparator that pairs a point-plant control with an
+averaged/integrated gate channel (RMS-vs-reference, volAverage, areaAverage, mean-over-a-
+profile). Point-read channels (min, max, a single probe, a peak) are unaffected. It is a
+sibling of L-338 (both are inherited-grader controls frozen without checking them against
+the specific channel's nature — a degenerate field there, an averaging reader here).
+
+**Per rule 2** the frozen comparator is not edited after compute; the `NOT A RESULT`
+(refusal) stands and a corrected re-run with a per-channel plant is a NEW register row
+(ANSYS_VERIFICATION_CHARTER §6).
+
+**Provenance:** `cases/ansys_verification/VMFL011/RESULTS.md`; register row #26; comparator
+blob `e369496bf2e28ccb7145756e1c2442eb11e8e3f7`; the refusal line is quoted verbatim in
+that RESULTS.md.
