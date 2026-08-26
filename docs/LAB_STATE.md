@@ -2244,6 +2244,21 @@ The chief relayed Sanaa's priority — more runs, no waste — questioning the 7
 
 **D5 (1,378.3 core-min, $1.18 DERIVED) and D6 (1,694.7, $1.45) AUTHORISED IN PRINCIPLE, D5 first**; the freeze is HELD until D4-SHIPPED's Addendum 2 lands its driver (cap inside the container, `setsid` bookkeeping surviving parent death, G-ROOT.5, H5 window) so D5/D6 copy one launcher family rather than registering the same defect three times.
 
+#### UPDATE C — **L-342 GRADER AMENDMENTS: BOTH APPROVED AFTER MY OWN DIFF READ, ON FOUR CONDITIONS — one of which stops a proposed diff from weakening the gate that caught two defects last night** (2026-08-26T16:22:47Z)
+
+**Lane commits `210256a1` (audit: 27 graders at HEAD, conflation in 10 — live `d7fr_grade.py` and `d12y_grade.py`, pending `d4s_grade.py`, 7 settled NAMED NOT REOPENED, 17 clean), `b7eb62da` (D12R phase 3/4 and W2R phase 2 moved to `verification/queue/dafoam/held/`; the drop path is empty).**
+
+I read both proposed diffs (§2 of `docs/dafoam/GRADER_FIELD_CLASS_AUDIT.md`) as diffs (SUPERVISION §3 check 1). **APPROVED `[lab-attributed]` under `d4d0c29d`/L-342, with conditions that must be landed and DRIVEN before F-S is graded:**
+
+* **C1** — `_infra` distinguishes **ABSENT** (→ `NOT_MEASURED`, proceed) from **PRESENT-BUT-UNPARSEABLE** (→ REFUSE, naming key and value). The proposed `except ValueError: return "NOT_MEASURED"` collapses the two — a garbage value is not an absence.
+* **C2** — `wall_s` and `core_min` are recoverable from the kernel record (inspect `StartedAt`/`FinishedAt` × ranks) when the row lacks them and the container survives; `NOT_MEASURED` only when neither exists; `_source` recorded per field.
+* **C3** — a `NOT_MEASURED` gate never composes to `PASS` silently: every such gate is named in the verdict line as a stated limitation; G11 (OOM, physics) stays hard.
+* **C4 — the one that matters most:** in `d12y_grade.py` the registered-count check (`manifest rows == 33`, a frozen constant) **REMAINS A REFUSAL when the ledger is absent**; only the manifest↔ledger binding limb becomes `NOT_MEASURED`. **As proposed, the diff reported `count_vs_registered: MISMATCH` without refusing — that would weaken G12R-0b, the gate that caught `D12R2-DEF-2` and `W2-DEF-1`, in the name of a rule about bookkeeping.** L-342 says a bookkeeping failure voids the bookkeeping; the registered stage count is a physics-completeness claim, not bookkeeping.
+
+Bands, thresholds, caps and verdict logic untouched; new blob hashes into D7FR Addendum 2 and W2R Addendum 1; selftests drive absent-infra, present-garbage, absent-physics, `rc=1`, and the 33-row/32-row absent-ledger pair, under plain `python3` and `-O`. **If the conditions cannot land before F-S lands (~18:07Z), the F-S grade is HELD — the run is unaffected, the grade waits.**
+
+**W2R phase 1 at 9 of 33 stages, ~2.8 core-min per W=900 stage, on trend for 121.35.** D5/D6 freeze remains HELD for the Addendum 2 launcher family.
+
 #### 4. NEXT / QUEUE (so it never empties)
 
 After the first lane frees: **D5, D6 short-form pre-registrations** (same case, mesh and launcher as D4; only parametrisation or weights change; G-ROOT from birth, explicit cpuset, windowed H5, `rc` from inspect, no `--rm`, no bare `assert`); **D14** (pyHyp regeneration; `GENERATOR_FINDING_pyhyp_aspect_ratio.md` is a named contaminant whose check runs first); **D12R phase 3/4** from the validator-accepted entries once W2R is graded. Queue entries for each into `verification/queue/dafoam/` with frozen sha and cost.
