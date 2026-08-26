@@ -13957,3 +13957,116 @@ looks wrong. `docs/DOCKET.md` and `docs/LESSONS.md` carry the same shape.
 "which files changed", then any file that more than one agent writes is a shared
 channel your commit will empty into its own name — and every guard you have will
 report clean.**
+
+---
+
+## L-334 — A MAX-NORM CHANGE GATE HAS A DETECTION FLOOR EQUAL TO ITS OWN CURRENT `dmax`. The planted control gets WEAKER exactly as the case gets WORSE
+
+**Measured 2026-08-26, heat-transfer, on `verification/runs/T-family/T8_runs/T8_MTT_f`
+through the frozen comparator's own `check_iterative_convergence`
+(`analyse_t8.py:506`). Standing rule 3 is quoted, not amended — extending a standing
+rule is reserved, and this lesson does not take it. No verdict is re-graded on this
+ground: the 2026-08-25T22:48Z bound holds and a re-audit is not authorised.**
+
+### What happened
+
+T8's level `f` was tested against its registered convergence gate — the lab's standard
+last-two-checkpoints relative change,
+
+```
+rel = max_cells |a − b| / (max(b) − min(b))
+```
+
+Before trusting the number, the reader was challenged the way rule 3 requires: a known
+amount was added to one cell of `20000/T` on a **scratch copy**, and the gate was
+re-run.
+
+| plant into one cell | `rel` returned | seen? |
+|---|---|---|
+| **`1.234e-03`** — the comparator's own registered `PLANT` | `1.640285227e-02` | **NO** |
+| `1.5e-01` | `1.640285227e-02` | **NO** |
+| `1.0` | `1.403697556e-01` | yes |
+| `10.0` | `6.386130489e-01` | yes |
+
+**The reader was not broken.** Cell 0's own baseline difference is `a − b = +8.368e-02`,
+so a `+1.0` plant predicts `dmax = |8.368e-02 − 1.0| = 9.163e-01`, and the measured
+`dmax` after the plant is **`9.163197745e-01`** — exact. `write_internal` round-trips
+to `5.7e-14` over all 102,400 cells, and an untouched copy returns the baseline `rel`
+bit-identically.
+
+**The plant was invisible because a maximum cannot see anything smaller than its
+maximum.** `f`'s field was moving by `dmax = 1.012e-01 K` between checkpoints anyway.
+The registered `PLANT` of `1.234e-03 K` is **82× below that floor**, so adding it to one
+cell could not change which cell held the max — and the `1.5e-01` plant *partially
+cancelled* cell 0's existing difference and still landed under the floor.
+
+### The mechanism, stated so it can be recognised elsewhere
+
+> **A gate whose statistic is a MAXIMUM over cells has a detection floor equal to that
+> maximum. A single-cell plant below the floor is invisible, and the gate reports the
+> identical number to twelve significant figures — no warning, no widening interval,
+> nothing that looks wrong.**
+
+### The inversion, which is the part that bites
+
+**The control's sensitivity is inversely proportional to how badly it is needed.**
+
+- On a **well-converged** field, `dmax → 0`, and any plant at all is trivially visible.
+  The control passes loudly on exactly the cases where nothing was wrong.
+- On a **badly unconverged** field, `dmax` is large and swamps the plant. The control
+  is blind on exactly the cases where a reader most needs checking.
+
+**A planted-zero control sized against a converged field is a control that works only
+when it does not matter.** And because it *does* fire on the healthy cases, a sweep of
+"do our controls work?" comes back green.
+
+### Why this is not a repeat of L-332 or of the truncating reader
+
+L-332 is a guard **removed by an interpreter flag**; the truncating reader is a
+**parser** dropping an exponent. Both are defects *in the instrument*. **This one is
+not a defect in the instrument at all** — the reader is exact, the arithmetic is exact,
+the norm is the lab's registered norm and is the right norm for the job. **The defect
+is in the CONSTANT chosen for the plant, relative to the data the gate meets.** A fixed
+absolute plant is a statement about sensitivity that the gate's own statistic may
+overrule at run time.
+
+### What to do instead
+
+1. **Size the plant RELATIVE to the gate's own statistic, at run time** — for a
+   max-norm gate, `plant = c · dmax` with `c > 1` registered, never an absolute
+   constant fixed before the data exists.
+2. **Report the detection floor beside the verdict.** `dmax` is already computed; print
+   it. A control that says *"I could have seen anything above 1.012e-01 K"* is honest;
+   one that says *"PLANT SEEN"* with no floor is not.
+3. **Escalate until the reader responds, and record the escalation.** A plant that is
+   not seen is not a failure to report — it is the measurement of the floor. Reporting
+   only the plant that worked hides the floor.
+4. **Prefer a bit-identity gate where the physics allows one.**
+   `T10a_runs/analyse_t10a.py:370-372` requires `dmax == 0.0` exactly. **A gate whose
+   threshold is zero has NO detection floor**, and any plant whatsoever is visible. It
+   is the safe shape and it is already in this territory.
+
+### Where else this shape lives — named, and NOT re-graded
+
+The identical `dmax / rng` max-norm change gate is carried by, at HEAD:
+
+- `verification/runs/T-family/T1_runs/analyse_t1c.py:227-228`
+- `verification/runs/T-family/T3_runs/analyse_t3.py:275,277`
+- `verification/runs/T-family/T8_runs/analyse_t8.py:514,545`
+- `verification/runs/T-family/T9a_runs/analyse_t9a.py:211-212`
+- `verification/runs/T-family/T9aH_runs/analyse_t9a.py:211-212`
+
+`verification/runs/T-family/T10a_runs/analyse_t10a.py:370-372` uses the **bit-identity**
+variant and is **NOT exposed** — its floor is zero by construction.
+
+**STRUCTURAL EXPOSURE IS NOT DEMONSTRATED HARM.** Nothing here shows that any graded
+rung is wrong, and no rung is re-graded on this ground. The correct status of the five
+exposed instruments is the same `UNJUDGED` the checkpoint-gate audit settled on: **not
+shown clean, not shown exposed.** The remedy belongs in the next registrations.
+
+### The general form worth carrying
+
+> **A CONTROL IS A CLAIM ABOUT SENSITIVITY, AND SENSITIVITY IS A PROPERTY OF THE
+> INSTRUMENT *AND THE DATA TOGETHER*, NEVER OF THE INSTRUMENT ALONE. Any control whose
+> magnitude is fixed before the data exists is asserting a sensitivity it has not
+> measured — and the assertion fails silently, in the direction of a pass.**
