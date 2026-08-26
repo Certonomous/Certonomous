@@ -35,7 +35,7 @@ FIO="$ROOT/foam_io_f25.py"
 RUN_ROOT="/home/ubuntu/Certonomous/verification/runs/F25_DUCT3D_runs"
 FOAM_BASHRC="/usr/lib/openfoam/openfoam2606/etc/bashrc"
 
-CAP_CORE_MIN=1400           # must equal grade_f25.py::CAP_CORE_MIN
+CAP_CORE_MIN=2000           # must equal grade_f25.py::CAP_CORE_MIN (AMENDMENT 1: was 1400)
 END_TIME=4000               # SIMPLE iterations; must equal controlDict endTime and exact_f25.N_ITER
 
 # name  nr  nx  ranks   (ranks must equal exact_f25.RANKS and decomposeParDict numberOfSubdomains)
@@ -52,7 +52,7 @@ LEVELS=("coarse 16 128 4" "medium 32 256 4" "fine 64 512 4")
 # the pre-level projected-cap check; the projection assumes ideal 4-rank
 # scaling and is checked against the cap with the same ClockTime x ranks / 60
 # rule afterwards.
-declare -A PROJ_CORE_S=( [coarse]=129 [medium]=2274 [fine]=39948 )
+declare -A PROJ_CORE_S=( [coarse]=246 [medium]=4324 [fine]=75997 )   # AMENDMENT 1: measured basis 2.44 us at 65k cells, +30 % per doubling (was 129 / 2274 / 39948 on the F23-derived curve)
 DECOMP_METHOD="simple n (1 2 2), 4 subdomains, 2 x 2 cross-section quadrants; x never cut"
 DECOMP_SEED="none (simple geometric decomposition from system/decomposeParDict; deterministic; no RNG)"
 

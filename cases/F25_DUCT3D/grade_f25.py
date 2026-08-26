@@ -85,7 +85,7 @@ UX_RES_TOL = 1.0e-8
 TRANSVERSE_FIELD_TOL = 1.0e-10          # x U_MAX, on max|Uy|, max|Uz| at endTime
 FLOOR_MARGIN = 0.1                      # L-346: window x UX_RES_TOL <= FLOOR_MARGIN x predicted fine error
 
-CAP_CORE_MIN = 1400.0                   # ClockTime s * ranks / 60, summed over levels
+CAP_CORE_MIN = 2000.0                   # ClockTime s * ranks / 60, summed over levels (AMENDMENT 1: was 1400)
 U_RELAX, P_RELAX = 0.95, 1.0            # SIMPLEC factors the iterative floor was MEASURED with (prereg 5.1)
 
 PHYSICS_CRITICAL = (

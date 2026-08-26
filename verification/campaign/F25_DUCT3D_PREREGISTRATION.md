@@ -422,3 +422,71 @@ into `verification/queue/cfd/`; enqueueing is not authorisation.
   the solution and the model contains none (§4, §5.1).
 - No re-grade of any row; no amendment to any standard, charter, F23 or F17b.
 - **Nothing is sent, filed, uploaded or submitted** (rule 7).
+
+---
+
+## AMENDMENT 1 — 2026-08-26T22:56:52Z (pre-compute)
+
+**Version 1.1. Lines whose number changed above this section: 0** (this block is
+appended at the foot; the frozen text at `fc4c479b` is untouched — disk blob
+`0d6ca000` == `HEAD:` blob at the writing invocation, 424 lines before this block).
+Decided and recorded `[lab-attributed]` on the cfd supervisor's ruling of
+2026-08-26 on §7: *"an estimate its own registration shows to be 1.9× low is not
+an estimate."*
+
+**Condition (rule 2 §2b): before first compute.** Checked in the writing
+invocation, `date -u` = 2026-08-26T22:56:52Z:
+
+- `test -e verification/runs/F25_DUCT3D_runs` → **ABSENT**.
+- `find cases/F25_DUCT3D -name RC.txt -o -name 'log.*' -o -name 'processor*'` → **0**.
+- `verification/queue/cfd/` holds no `F25*` entry and `launched/` holds none; the
+  entry was HELD in the case directory (§10) and never dropped.
+- Core-minutes spent on this case in the tree or any run root: **0** (the 7.0
+  core-min of scratch instrument arms of §5.1/§7 are unchanged and outside it).
+
+**What changes — the COST ESTIMATE and the CAP only.** §7 registered 706.0
+core-min on the dispatch's derived basis and disclosed, beside it, a measurement
+on this case that projected 1,343. The measurement is now the registered basis:
+
+| level | cells | doublings over 65,536 | rate (µs) | core-s | core-min | wall on 4 ranks |
+|---|---|---|---|---|---|---|
+| coarse | 32,768 | −1 | 1.877 | 246 | 4.1 | 1.0 min |
+| medium | 262,144 | +2 | 4.124 | 4,324 | 72.1 | 18 min |
+| fine | 2,097,152 | +5 | 9.060 | 75,997 | **1,266.6** | **5.28 h** |
+| **total** | | | | **80,567** | **1,342.8** | **≈ 5.6 h** |
+
+**Basis, stated exactly:** **2.44 µs per cell-iteration MEASURED on this case** —
+the 64 × 64 × 16 instrument arm, 65,536 cells, 4 ranks, ClockTime 40 s for 1000
+iterations, ExecutionTime/ClockTime 0.99, box load 15–17 of 16 (§5.1 table) —
+scaled to each level by **+30 % per doubling of the cell count** (F23 §7's growth
+term; MODELLED, not measured on these levels: the coarse level is one halving below
+the anchor, the fine level five doublings above it). `cost_basis: measured at 65k
+cells on this case; growth per level modelled; derived beyond the anchor,
+reported-by-owner dollars.` The §7 figure of 706.0 stands in the frozen text as
+what the dispatch's basis gave and is superseded by this row.
+
+| | registered at `fc4c479b` | this amendment |
+|---|---|---|
+| estimate | 706.0 core-min | **1,342.8 core-min** |
+| cap | 1,400 | **2,000** (1.49× the estimate; the cap is the runaway guard, not a target) |
+| launcher `PROJ_CORE_S` | 129 / 2274 / 39948 | **246 / 4324 / 75997** |
+| launcher / grader `CAP_CORE_MIN` | 1400 | **2000** — the agreement control is kept; `--preflight` re-run after the edit prints `CAP AGREES … 2000` |
+| dollars, DERIVED, NOT MEASURED, $0.0513/core-h | $0.60 / $1.20 at cap | **$1.15 estimate / $1.71 at cap** |
+
+**Unchanged:** the ladder (128 × 16 × 16 / 256 × 32 × 32 / 512 × 64 × 64 — the
+2.1 M-cell fine level IS the genuine 3-D triple the grid lacks), both gates, both
+bands, the exact reference, the iterative floor (§5.1), the census window, the
+Class C parameters, ranks, decomposition, every case dictionary, `exact_f25.py`,
+`build_f25.py`, `foam_io_f25.py`. Files changed by this amendment: `run_f25.sh`
+(two lines: `CAP_CORE_MIN`, `PROJ_CORE_S`) and `grade_f25.py` (one line:
+`CAP_CORE_MIN`); sha256 at this re-freeze, first 8 / last 4: `run_f25.sh`
+4fb36254…2920, `grade_f25.py` 31d87acb…52b4. Measured after the edit: `grade_f25.py
+--selftest` rc 0, `-O` rc 2, `--preflight` rc 0 with `CAP AGREES … 2000`,
+`check_launcher_can_launch.py --worktree` rc 0. Still under the $25
+pre-authorisation.
+
+**Queue entry:** `cases/F25_DUCT3D/queue_entry_F25_DUCT3D.json` is refreshed in
+the FOLLOWING commit so that `prereg_commit` and the launch argv's
+`--prereg-commit=` cite the sha of the commit carrying this amendment, with
+`cost_core_min_estimate` 1342.8 and `cap_core_min_registered` 2000. Nothing is
+sent, filed or submitted (rule 7).
