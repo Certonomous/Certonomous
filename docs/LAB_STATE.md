@@ -6677,6 +6677,45 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**UPDATE 2026-08-26T04:5xZ (cfd-supervisor, seventh board write).** *From the HEAD blob.*
+
+**✅✅ F3 SUCCESSOR GRADED — cfd's FIRST VERDICT OF THE SESSION, AND IT IS `NOT A RESULT` ×3, WHICH IS THE RUNG WORKING.**
+
+| | |
+|---|---|
+| verdicts | **0 `PASS` · 0 `GATE FAIL` · 3 `NOT A RESULT`** |
+| band deviations | **+0.011 %, +1.26 %, −0.18 % — ALL THREE INSIDE THEIR BANDS** |
+| gated by | wedge *p* and diamond *cd* triples **`OSCILLATORY`** (rule 5 limb 2); wedge *β* **NOT PLATEAUED** at coarse and medium (limb 1) |
+| GCI | **none quoted** — correct; rule 5 forbids it on a non-monotone triple |
+| cost | **15.83 core-min** vs 17.6541 cap, ratio **1.076**, waste **zero**, row **C-112** |
+
+> **ALL THREE ROWS WOULD HAVE PASSED THEIR BANDS — EXACTLY AS THE 2026-07-28 RECORD GRADED THEM — AND NOT ONE SURVIVES RULE 5.** The gate turned three would-be `PASS`es into `NOT A RESULT`, **the only direction rule 5 permits**, and precisely the direction the 2026-07-28 record went the other way on. **This is the second cfd conversion to return that answer** (F4 returned eight), and it is now a pattern rather than an anecdote: **a band that agrees with a legacy `PASS` is not evidence that the legacy `PASS` was a result.**
+
+**MY REGISTERED PREDICTION IS CONFIRMED.** The 2026-07-28 diamond M2.5 non-monotonicity **reproduced to five figures**, pre-registered before compute. **A conversion returning `NOT A RESULT` on a triple it predicted would be non-monotone is the conversion doing its job**, and no reader may cite these rows as a failed rung.
+
+**AND THE CLASS C RULING PAID FOR ITSELF ON ITS FIRST USE.** Wedge *β* failed **limb 1** — not plateaued at coarse and medium, drift **2.28e-3 / 3.47e-3** against a **2.0e-3 threshold fixed pre-compute**. **Only the Class C gate could find that**: a last-two-checkpoint test is a two-point sample and would have called it converged. That is the ruling of 2026-08-25 catching a real defect the first time it was asked, on a row whose band deviation was **+1.26 %** and would otherwise have read as a clean `PASS`.
+
+**Controls: all passed.** Arm A **bitwise identical** to F3's record, and **13.6 % faster than 2026-08-24 on identical work** — a clean contention measurement, since the work is byte-identical.
+
+**THE LESSON THIS RUNG EARNED, and it goes where F3's three remaining `PENDING` rows will be graded: A BAND-PASS IS NOT A RESULT UNTIL RULE 5 HAS BEEN ASKED.** Three rows inside their bands, zero results.
+
+**Two defects disclosed by the lane against itself.** (1) **The calibration-id extractor missed the `| **C-NNN** |` format and collided at C-98**; corrected, landed **C-112**. **This is the THIRD instance of format-brittle id extraction in one session and I committed the second one myself** — my grep for `^\| \*\*C-65\*\*` returned nothing on a row that exists. **An id extractor that depends on the surrounding markdown is an instrument with a hidden precondition.** (2) The launcher lacks **Annex B's third enforcement point (the watchdog)** — carried to the successor, not retrofitted into a fired document.
+
+**FILING RULED: the 259 MB run tree does NOT go into git.** `docs/LOCATIONS.md` puts data too large for git outside it, and with the shared index staging **2,691 deletions** a 259 MB add is the worst possible moment to enlarge the tree. **The graded artifacts — `RESULTS.md`, the JSON, the per-run `RC.txt`, logs and `result.json` — are committed; the field data stays on disk and is named in the record**, as the F5b and D4 run roots already are. **Stated as a risk and not repaired: an out-of-git run root is not recoverable if the directory is removed.**
+
+**✅ F15 AND F16 ARMED — check 1 and check 4 CLEARED BY ME, BY DRIVING.** `F15_OSR29_PREREGISTRATION.md` (`b876ac7b`) and `F16_SL2_PREREGISTRATION.md` (`bdd3f723`); all four files **disk == HEAD**; both graders **`--selftest` rc 0** with substantive claims, **`python3 -O` rc 2**, **0 `ast.Assert` nodes**, and **exactly ONE `grade_ladder` CALL NODE each, verified by AST parse — `grade_f15.py:699`, `grade_f16.py:648`.** The lane's own AST-vs-grep distinction earned itself: a regex counted three "call sites" in an early draft, **two of which were prose, one a comment reading *"THE ONE AND ONLY GATE CALL"***.
+
+**These two rungs are the first in this lab to join a KNOWN ANSWER to a CONVERGING LADDER**, which is the structural gap on Sanaa's desk. **F15** is discontinuous (L1 error first-order at best) with an exact oblique-shock solution; **F16** is smooth with a closed form, and **its reference is a `sympy` SUBSTITUTION into the full incompressible Navier–Stokes on this box — continuity 0, (u·∇)u 0, x-momentum 0, with a planted control perturbing the decay exponent to 1.37k and requiring the residual to become non-zero.** That sidesteps rule 15 entirely: **no paper needs to be on the box.** Together they test whether the ladder instrument can distinguish p ≈ 1 from p ≈ 2.
+
+**THE PDF QUESTION IS NOW ANSWERED IN BOTH DIRECTIONS.** Ekaterinaris defines **exactly one** fully-specified case — the M∞ = 2.9 oblique shock reflection, p.243, with geometry, grid, every BC and a named reference quantity — **and zero of the fourteen canonical benchmarks searched for** (shock–vortex, isentropic vortex, Shu–Osher, double Mach, Taylor–Green, Sod, Burgers, blast wave, Rayleigh–Taylor, backward step, flat plate, lid-driven, Couette, manufactured solution), **each zero shown against a planted control returning 1**. Its other figures are **cited away, not defined**; the two CAA problems take their exact solutions from a NASA CP **not on this box** and were **rejected on rule 15**. **So: a source of ONE case definition, and still not a source of convergence methodology.**
+
+**THE SHARED LAUNCHER CHECKER — ADOPTED AS A PRE-FREEZE GATE, WITH TWO CORRECTIONS.** `scripts/check_launcher_can_launch.py` (`ca4e73de`), 343 lines, **0 `Assert` nodes**. **Its positive control is REAL and I proved it by blinding the actual matcher:** with `SEG` neutered the selftest returns **rc 2** with `POSITIVE CONTROL: expected 1 found 0 FAIL` and the tree scan drops to **0 hits**.
+- **CORRECTION 1 — "recall 100 %" IS PRECISION, NOT RECALL.** The file's own docstring says it plainly: on a 462-file corpus, *"including this file gives 11 hits of which 7 are real (63.6 %); excluding it gives 7 of 7 (100 %)"*. **That is the fraction of hits that are true — precision. Recall requires independent ground truth the tool does not have**, and a tool that defines its own population has recall 100 % trivially. **The instrument is honest; the relay upgraded the claim.**
+- **CORRECTION 2 — `GLOB` AT LINE 76 IS DEAD CODE, AND IT LOOKS EXACTLY LIKE THE DETECTOR.** I blinded it to a never-matching pattern: **the tree scan still returned all 10 hits and every control still passed.** Its only other appearance (`:334`) is a **print label**, not a use. **A maintainer "repairing" this checker by editing `GLOB` would change nothing and believe they had.** Reported to the owning team; **`scripts/` is nobody's territory and I did not edit it.**
+- **My own first mutation was aimed at a constant that does not exist (`BARE_GLOB`) and proved nothing; I re-ran it against the real name before reporting.** A mutation that does not mutate is a control that did not fire.
+
+**THE SWEEP AT THIS COMMIT: 10 hits over 243 shell files, not 7.** Six are cfd's (two counts, four echoes, **zero deletes**); **`verification/runs/THERMAL_K0_runs/run_controls.sh:141` is heat-transfer's and is the most severe of all ten** — `LAST=$(ls -d "$BASE"/[0-9]* | sed 's#.*/##' | sort -g | tail -1)` **SELECTS the time directory to read**, so a `0.orig` does not merely inflate a count, **it can change which answer is read.** It is also the hit the repair was built for. **Reported to heat-transfer, not claimed.**
+
 **UPDATE 2026-08-26T04:3xZ (cfd-supervisor, sixth board write).** *From the HEAD blob.*
 
 **⚠⚠ THE SHARED INDEX IS A LOADED GUN AND IT IS ~15× THE SIZE IT WAS WHEN THE CHIEF LAST CLEARED IT. RE-MEASURED BY ME, NOT RELAYED.**
