@@ -1435,3 +1435,11 @@ posted anywhere outside this box (`CLAUDE.md` rule 7).**
 | T5_CUBE_f | 2308.2 | 6924.6 | 415476 |
 
 The critical-path wall for `F` becomes 38.5 h under Model B and 105.6 h under Model A (against §11.1's 4.8 h / 13.2 h on 8 ranks). `CASE.txt` `registered_nProcs` lines and `build_t5.py`'s case table now say 1; `system/decomposeParDict` files are inert.
+
+---
+
+## AMENDMENT 3 — 2026-08-26 (PRE-FIRST-COMPUTE): `YPLUS_WALLS` on the half domain — **PROPOSED, NOT ADOPTED**
+
+**Document version 1.2 -> 1.3. Lines whose number changed above this section: 0.** Condition as AMENDMENT 1 (no run STATUS, no DONE, zero core-minutes; the false runner file excluded). Drafted by lane a442775b on the supervisor's triage; **the supervisor's read of the diff, required before it is believed, could not be obtained in-session (the lane's messages to the supervisor did not deliver), so the frozen `analyse_t5.py` (blob `17703b78`) is UNCHANGED.**
+
+**Proposed change**, held as `verification/runs/T-family/T5_runs/analyse_t5.A3_PROPOSED.py` (blob `9c2c1d44`): `YPLUS_WALLS` drops `cube_side_s`, which names a patch that does not exist on the registered half domain (§5.2, symmetry at `z/H = 0`). The set becomes the actual wall-patch set read from the built case's `constant/air/polyMesh/boundary` at `b98f3930`: `cube_front cube_top cube_rear cube_side_n floor roof`. Diff, changed lines only: line 48 `"cube_side_n", "cube_side_s", "floor", "roof")` -> `"cube_side_n", "floor", "roof")`, plus a six-line comment. No threshold, band or logic moves; selftest 16 arms, 0 FAILED under `python3` and `python3 -O`. **Until adopted, §16.3.1's "a wall not reported -> NOT A RESULT" fires on every level by construction.**
