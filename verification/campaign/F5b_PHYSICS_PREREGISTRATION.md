@@ -1322,3 +1322,57 @@ on the defect this addendum repairs.
 *Addendum 2 ends. Status: `PENDING` — frozen, nothing launched, 0 core-minutes of solver
 compute consumed, launch APPROVED by Sanaa and held pending the supervisor's check-1 read
 of the wrapper diff.*
+
+---
+
+## CORRECTION ADDENDUM — 2026-08-26T16:37Z: the foot status "PENDING — frozen, nothing launched, 0 core-minutes" is SUPERSEDED. **v1.2 → v1.3.** Zero compute.
+
+**Lines whose number changed above this section: 0** — verified by `git diff` against the
+HEAD blob at commit time: additions only, all below the foot of Addendum 2. The launcher's
+pin is on the **frozen body** (the first 85,802 bytes, `c44b9130…8177b9df`), which this
+addendum does not touch.
+
+**What is stale.** Addendum 2's closing line reads *"Status: `PENDING` — frozen, nothing
+launched, 0 core-minutes of solver compute consumed, launch APPROVED by Sanaa and held
+pending the supervisor's check-1 read of the wrapper diff."* Line 3 of the head still reads
+*"Status: `PENDING` — DRAFT, NOT FROZEN, NOTHING LAUNCHED"*, and the draft's closing line
+(*"Draft ends. `PENDING` — not frozen, nothing launched, 0 core-minutes consumed."*) was
+already struck by Addendum 1 as to "not frozen". All were true when stamped; none has been
+true since 2026-08-25T16:14:24Z. Rule 6 forbids rewriting them; this addendum records why
+they no longer describe the document.
+
+**What is true, each fact read from the tree by this lane, 2026-08-26:**
+
+1. **Fired 2026-08-25.** `verification/runs/F5b_runs/physics_p1/RESULTS.md`: *"Launched
+   2026-08-25T16:14:24Z, serial (1 rank), completed 16:53:56Z."* Commit `53db1f7c`
+   (2026-08-25 16:23:57 +0000, *"F5b physics_p1 RUNNING: lane state to disk as the handoff
+   channel …"*) landed `physics_p1/LANE_STATE.md`, `watch_f5b.sh` and
+   `plant_rc_proxy_control.py` while the solver was in flight.
+2. **Graded `NOT A RESULT`.** RESULTS.md: *"VERDICT: `NOT A RESULT`. §7 outcome map row
+   3. Completion clauses 4 (fields present) and 6 (age guard) FAIL. The gate was NOT
+   evaluated and no partial `A_L` is quoted."* Single root cause: the frozen reader's
+   literal **`END_TIME_STR = "21.9440"`** looks for `case/21.9440/`; **OpenFOAM wrote
+   `case/21.944/`**, stripping the trailing zero. This document's own §5 clause 4 (line 759)
+   names `case/21.9440/`, so the registration and the reader shared the literal. Commit
+   `36cd64f7` (2026-08-25 16:58:57 +0000, *"F5b LANE_STATE updated to CLOSED: verdict NOT A
+   RESULT, calibration row C-65 landed …"*) closed the lane state.
+3. **Costed and calibrated at C-65.** `docs/COST_CALIBRATION.md:140`, row `C-65`:
+   *"39.426 core-min — MEASURED: `ExecutionTime` 2365.55 s × 1 rank ÷ 60 … 54.8 pct of cap,
+   NOT breached"* against predicted 35.0 (band 28.8–48.0) and cap 72.0; ratio **1.127**.
+   RESULTS.md agrees. Row `C-68` later annotates C-65's contention as under-counted
+   (bounded, not measured); it does not change the verdict or the core-minute figure.
+
+**Effect.** The foot's claims — nothing launched, 0 core-minutes — are each superseded:
+fired 2026-08-25T16:14:24Z, **39.426 core-min consumed**, graded **`NOT A RESULT`**.
+`PENDING` is a queue state for "not yet run" (rule 1) and no longer applies to this
+registration; the outcome-map row that applies is §7 row 3. The board row
+`PENDING: verification/campaign/F5b_PHYSICS_PREREGISTRATION.md` (line 842, outcome 8) is
+likewise superseded. The registration's authority to launch has been **spent**: any
+further F5b physics run is a new registration, carrying the three items RESULTS.md lists
+under "Carry-forward".
+
+**Alters no gate, no threshold, no cap and no label.** Every number above is quoted from
+an artifact still on disk; none is re-derived here.
+
+*Correction addendum ends. Status: **FIRED and GRADED `NOT A RESULT`** — completion clause
+4 (and 6) on the `21.9440`/`21.944` literal, 39.426 of 72.0 core-min, calibration row C-65.*
