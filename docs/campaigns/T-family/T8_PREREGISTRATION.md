@@ -628,3 +628,188 @@ The selftest and the mutation harness are sub-minute Python on the login box.
 **Still `PENDING`. No level has been fired. Nothing here has been sent, filed,
 submitted, uploaded, registered or posted anywhere outside this box
 (`CLAUDE.md` rule 7).**
+
+---
+
+## AMENDMENT A2 — 2026-08-26, **POST-COMPUTE. DISCLOSURE ONLY.** Document **v1.1 → v1.2**.
+
+**`lines whose number changed above this section: 0`.** This amendment is
+appended at the foot. Nothing in §0–§12 or in Amendment A1 has been edited,
+struck, reworded or renumbered. **No gate, threshold, cap or label is altered by
+this amendment, and none could be** — it adds no test, changes no instrument and
+moves no number. It is a **disclosure against a frozen file that stays frozen.**
+
+### A2.0 Condition, and how it was checked — this amendment is POST-COMPUTE
+
+Amendment A1 was pre-compute and said so. **A2 is not, and says so.** Checked
+2026-08-26 by direct listing of the registered run tree
+`verification/runs/T-family/T8_runs/`:
+
+- `T8_MTT_c` — **EXISTS**, `log.solve` present, last `Time = 8000`;
+- `T8_MTT_m` — **EXISTS**, `log.solve` present, no time directory written;
+- `T8_MTT_f` — **EXISTS**, `log.solve` present, last `Time = 20000`, `End`
+  line, `ExecutionTime = 13065.88 s`;
+- `STATUS.T8_MTT_c`, `STATUS.T8_MTT_m`, `STATUS.T8_MTT_f` all present.
+
+`CLAUDE.md` rule 2 therefore governs in its **post-compute** limb: *"After first
+compute gates are closed; changes land only as dated addenda that cannot alter a
+gate, threshold, cap or label."* **This is such an addendum.** The frozen
+document is not rewritten and no original is struck.
+
+**No verdict is reopened by this amendment, because T8 has never produced one.**
+The rung is `PENDING`: the §12 S3 extrapolation precondition `r₂ = 3·r₁` is
+false on the built mesh (`r₂/r₁ = 2.333313` measured), `resolve_planes` refuses,
+and no row has ever been graded.
+
+### A2.1 The defect — `assert` is not a guard, because `python3 -O` deletes it
+
+`python3 -O` and `PYTHONOPTIMIZE=1` **remove every `assert` statement outright.**
+A check written as an `assert` therefore cannot carry a refusal, a guard, a
+control or a gate: under one interpreter flag it is gone and the surrounding code
+walks on. `analyse_t8.py` carries **exactly two `ast.Assert` nodes in 2,025
+lines** — re-derived 2026-08-26 by an AST parse of the blob at `HEAD`, not by
+`grep`, so that a docstring mentioning the word is not miscounted (line 652 does,
+and is not an `Assert` node):
+
+```
+1054:    assert rec["verdict"] in (band, VERDICT_NAR), (        # in grade_row()
+1329:            assert rec["verdict"] in (rec["band"], VERDICT_NAR)   # in grade()
+```
+
+**Measured under `-O` against a sacrificial copy** (the frozen file itself was
+never touched): with `grade_row` mutated to emit a verdict `CLAUDE.md` rule 5
+forbids, plain `python3` raises `AssertionError` at rc 3, and **`python3 -O`
+returns `GATE REACHED` with no error and rc 0.** The control — the unmutated
+file — fires under neither, so the harness is not one that always fires. The
+file's `sys.exit(2)` refusals are **unaffected** by the flag, which is the whole
+argument for the replacement form.
+
+### A2.2 `:1054` is a real guard. **`:1329` IS A TAUTOLOGY AND WAS NEVER A GUARD UNDER ANY INTERPRETER.**
+
+This distinction is recorded because a sweep that counts both as "the one-way
+gate, twice" **counts one of them at the wrong severity**, and Amendment A1's
+successor documents must not inherit that reading.
+
+**`:1054` is the one-way gate.** It sits at the end of `grade_row()` after the
+three criteria have run, and tests the verdict against `band` — the band verdict
+computed **first and unconditionally** at `:1030`. `CLAUDE.md` rule 5 requires
+that the gate may only turn a `PASS` or `GATE FAIL` **into** `NOT A RESULT`,
+never the reverse, and at `:1054` that is a real, falsifiable test. **`-O`
+deletes it and the property becomes unprotected on the grading path.** Its own
+comment reads *"Structural, not careful"* — an aspiration an `assert` cannot
+meet, because a structural guarantee that an interpreter flag removes is not
+structural.
+
+**`:1329` tests nothing.** The two statements immediately above it are
+
+```
+1325:            rec["verdict"] = VERDICT_NAR
+1326-1328:       rec["why"] = ("control C1 failed: ...")
+1329:            assert rec["verdict"] in (rec["band"], VERDICT_NAR)
+```
+
+`rec["verdict"]` has just been **assigned** `VERDICT_NAR`, and `VERDICT_NAR` is a
+member of the tested tuple **unconditionally**. The assertion is satisfied by the
+assignment that precedes it. It **cannot fail under `python3 -O`, and it cannot
+fail under plain `python3` either.** Nor is it a latent `KeyError`: `rec["band"]`
+is set unconditionally at `:1031` before `grade_row` returns, so the tuple always
+builds.
+
+> **AN ASSERTION PLACED IMMEDIATELY AFTER THE ASSIGNMENT THAT SATISFIES IT IS A
+> CHECK OF NOTHING. It reads as protection, it occupies the place protection
+> would occupy, and it costs a reader the effort of believing it.**
+
+This is **L-332's shape in its assertion form.** L-332 says: *never put an
+unconditional success `print` after a check, because deleting the check leaves
+the claim.* Here there is no check to delete — **the claim was standing alone
+from the start.** The two failures are the same failure: **a statement whose
+position implies verification it does not perform.**
+
+**Consequence for any `-O` remediation census.** `analyse_t8.py`'s two asserts
+are **one Class-A guard and one non-check**, not two guards. A population count
+that classes `:1329` as a guard **overstates the guarded surface by one and
+understates the unguarded surface by one** — it flatters the file in both
+directions at once. A tautological assertion is **not** a sanity check; it is a
+separate class, and it must be counted separately or the population is flattered.
+
+### A2.3 §2d.1 IS **NOT** INVOKED, AND THAT IS DELIBERATE
+
+`VERIFICATION_CHARTER.md` §2d.1 permits a change **on the grading path** after
+first compute when all four of its conditions hold: (1) it repairs a demonstrable
+error; (2) the error was established by an instrument independent of the
+hypothesis; (3) the record discloses it, names that instrument and **quantifies
+what moved**; (4) **the pre-repair values are recorded beside the published
+ones.**
+
+**Conditions (3) and (4) are vacuous here, and that is the tell that §2d.1 is the
+wrong instrument.** Converting `assert X, msg` into `if not X: print(...);
+sys.exit(2)` **cannot move any number and cannot move any verdict on any run on
+record.** Under plain `python3` both forms refuse in exactly the same state; only
+the mechanism and the return code differ. And the lab-wide bound of
+2026-08-25T22:48Z measured that **no graded verdict on record was produced under
+`-O`**: no run script in the repository invokes `python3 -O`, `PYTHONOPTIMIZE` is
+unset on the host, and `__debug__ = True` was measured inside the DAFoam
+container as well. **There is nothing to quantify and nothing to record beside.**
+
+> **INVOKING A NARROW EXCEPTION WHERE IT IS NOT NEEDED STRETCHES IT, AND A
+> STRETCHED EXCEPTION IS HOW THE NEXT REAL ONE GETS WAVED THROUGH.**
+
+§2d.1 was cut to fit a case where obeying §2d would have meant publishing a
+knowingly wrong wall integral — a repair that moved every Nusselt number in a
+rung by 10–27 %. **Reaching for it to authorise a change that moves nothing
+teaches the lab that the exception is available for changes that are merely
+desirable.** It is not, and this rung will not be the precedent that says it is.
+
+### A2.4 What happens instead — and it is three things, in this order
+
+1. **`analyse_t8.py` STAYS BYTE-UNCHANGED at its frozen blob
+   `f04f9a674e03773b34ac0b511611414c33204773`.** Verified at this amendment:
+   the blob on disk and the blob at `HEAD` agree, and both equal the sha recorded
+   in §A1.4. **No frozen file is edited by this finding.** This confirms
+   §4e of `T8_REREGISTRATION_DRAFT_2026-08-25.md` rather than overriding it.
+2. **This amendment is the disclosure.** Both defects are named, at both line
+   numbers, with the `:1329` tautology recorded as a finding in its own right.
+3. **The repaired forms land in the SUCCESSOR rung's NEW comparator and are
+   never retrofitted here.** They are specified in §A2.5 so that the successor
+   cannot inherit the defect by copying this rung's shape.
+
+### A2.5 The form the successor's comparator must take — specified, not applied
+
+**Territory rule, adopted from cfd under the disposal rule: no `assert` in an
+instrument may carry a refusal, guard, control or gate.**
+
+1. **The one-way gate becomes `raise` or `sys.exit(2)`, never an `assert`**, and
+   it stops being belt-and-braces beside behavioural coverage: it becomes the
+   **primary** runtime check, with the coverage as a second arm rather than the
+   only one. §4e.4 of the re-registration draft establishes why the coverage
+   cannot substitute: lines 1659–1668 of this rung's comparator are `ok(...)`-
+   based and survive `-O`, **but they live inside `selftest()` and do not run
+   during grading.** A test is not a runtime guard.
+2. **Every registered refusal is DRIVEN under `python3 -O` and shown to fire
+   identically** — against a sacrificial mutant, on the guarded path. **Not "the
+   selftest passes under `-O`"**: a passing selftest exercises the clean path,
+   and the clean path is the one an evaporated guard still walks. A mutation
+   battery cannot see this hole unless the battery is itself run under `-O`,
+   because the battery and the hole live under different flags.
+3. **A statement-type check over the instrument's own AST requiring ZERO
+   `Assert` nodes**, so that a revert from `raise` back to `assert` is caught
+   **without running anything.** Arms 1 and 2 prove the refusals fire today;
+   only arm 3 catches the later edit, because a selftest exercising the clean
+   path passes either way. The committed implementation is
+   `scripts/check_assert_guards.py` (`--require-clean <path>`), whose own
+   selftest plants an `assert` into a sacrificial fixture and refuses if the
+   checker cannot see it.
+4. **`:1329`'s shape is forbidden outright**: no check may be placed immediately
+   after the assignment that satisfies it. Where a post-assignment invariant is
+   worth stating, it is stated as a **comment**, or it is written so that some
+   reachable state can violate it.
+
+### A2.6 Cost
+
+**Zero core-minutes.** No solver ran for this amendment; no compute of any kind
+was spent. The AST re-derivation and the `-O` drive are sub-second Python on the
+login box. `docs/COST_CALIBRATION.md` gains no row from this amendment because
+there is no compute to calibrate.
+
+**Still `PENDING`. Nothing here has been sent, filed, submitted, uploaded,
+registered or posted anywhere outside this box (`CLAUDE.md` rule 7).**
