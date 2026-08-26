@@ -1222,6 +1222,29 @@ Chief reading 16:51Z: box runner `queue_runner.py --daemon` alive (pid 189825, f
 
 Chief put to Sanaa: "On your desk: G-F3-2 re-grade (a PASS row now under the P_MIN floor — rewriting a frozen PASS is yours)." Sanaa: **"OK for this"**. Reading: the frozen PASS at G-F3-2/M2.0_th15 (p = 0.034, GCI 169 %, HELD at a79264b6) may be re-graded under the P_MIN = 0.05 DEGENERATE floor (c525c247) — as a dated addendum with the original struck, never rewritten (rule 6). cfd executes.
 
+### CHIEF ADDENDUM — 2026-08-26T17:35Z — [SANAA-DIRECT] CAPABILITY GRID, HER WORDS VERBATIM (rule 9). "THIS IS THE ULTIMATE GOAL FOR US."
+
+> [SANAA-DIRECT] CAPABILITY GRID:
+> Build docs/CAPABILITY_GRID.md in MY taxonomy, one table per family, cells = standard engineering classes:
+>
+> cfd: dimension (2D / axisym / 3D) × time (steady / unsteady) × regime (incompressible / subsonic-compressible / transonic / supersonic / hypersonic / multiphase-free-surface). One cell = e.g. "2D · steady · transonic."
+> heat-transfer: mode (conduction / forced conv / natural conv / mixed / conjugate / radiation) × laminar-vs-turbulent × dimension.
+> dafoam: same cfd classes, but the verdict is about gradients: "gradients computed + FD-verified," "optimization converged," per class.
+> Each cell gets exactly one verdict, in plain words:
+> CAN DO — X # of cases ran successfully, metrics verified; cite the strongest case + what was checked (gate/GCI/FD-match/heat balance,).
+> CAN DO, CAVEATS: runs and produces credible results, but named items missing ("no frozen prereg," "triple diverges," "single mesh only," "validation reference not obtained"). Caveats listed, ≤1 line each.
+> CAN NOT DO: X # of cases do not converge, or do not reproduce litterature (if result is available), or we dont have enough compute, or the defect is expected and a well documented thing due to the model itself not a lab's mistake (if thats the case, what was attempted / what would be the solution?)
+> ASME V&V-20 and verification standard books are already in the docs and standard folders, but adding on a little summary if these things don't already appear in our verification/ standards md files:
+>
+> 1. Verification metrics (right equations solved right): Error norms vs exact/analytic (L2, L∞), observed order of accuracy vs formal order, method of manufactured solutions. Correlation agreement (Colebrook, Dittus-Boelter, Zukauskas) — % deviation. Your ruling: these score V, never P.
+> 2. Grid/numerical convergence: Roache triple → GCI + observed order (your standard), iterative convergence (residuals + absolute solution/continuity bounds — your 10¹⁰⁵ lesson), partition/round-off reproducibility (your 2.2e-5 finding), seed spread.
+> 3. Validation vs experiment — by data type: Integral/single-value: Cd, Cl, Nusselt, f*Re, pressure drop, Strouhal, shock standoff, reattachment length — % error vs measurement. Profiles: velocity/temperature at published traverse stations — RMSE/MAE per profile, fraction of points inside experimental error bars. Fields: scaled MAE (the closure-challenge metric), correlation coefficient. Structure/topology: vortex count, separation/reattachment locations, stall angle, shock position — your round-5 lesson: scalar metrics can't see wrong structure; these must be explicit. Statistics (unsteady): means, RMS, spectra peaks, phase-averaged quantities.
+> 4. The formal standard tying it together: ASME V&V 20, High_order_grid_convergence.pdf, — validation uncertainty u_val combining numerical + input + experimental uncertainty; the comparison error E vs u_val is the defensible pass/fail (you've used it once, K0cT).
+> 5. Internal physicality (validity without a reference): mass/heat balance closure %, continuity RMS, realisability, boundedness, entropy conditions.
+> 6. Adjoint-specific: FD-vs-adjoint relative error per DV, dot-product/duality test, np-invariance, complex-step (when built) this is also for all the teams to understand that this is the ultimate goal for us.
+
+**Chief dispatch [lab-attributed]:** the verification supervisor OWNS `docs/CAPABILITY_GRID.md` and the metrics summary (§1–§6 above, only where absent from the standards/charters, with citations to the existing files). Each family supervisor (cfd, heat-transfer, dafoam) OWES its table as `docs/capability/<family>_GRID.md` — one verdict per cell in Sanaa's three-value vocabulary, every CAN DO citing a case still on disk with its record sha and what was checked; ansys-verification maps its VMFL register rows onto the cfd and heat-transfer classes as evidence. The verification supervisor assembles, audits the citations, and lands the grid. Queue depth stays the first priority; grid work runs in lanes beside it, not instead of it.
+
 ## closure
 
 **═══ CLOSURE IS AT REST. STOOD DOWN BY SANAA, 2026-08-25. THIS IS NOT A CRASH. ═══**
