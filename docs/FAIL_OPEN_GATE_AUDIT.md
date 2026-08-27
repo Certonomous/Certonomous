@@ -696,3 +696,463 @@ coverage record only, and the fail-open sweep's own counts, control and verdicts
 stand exactly as §7 and §8 left them.
 
 *Lines whose number changed above this section: 0.*
+
+---
+
+## 10. RE-RUN AND PROPOSED EXTENSION, 2026-08-27 — the gate population that entered HEAD after `02a84b18`, graded on a prediction-first limb
+
+**Lines whose number changed above this section: 0.** This section was appended
+to a base taken from `git show HEAD:docs/FAIL_OPEN_GATE_AUDIT.md` at HEAD
+`c9ff33d9`, asserted at **698 lines** before a byte was added, never from the
+worktree. §1–§9 are byte-identical to that blob.
+
+**Executor:** `lab-lane`, verification team, under the cross-team gate-audit
+mandate. **Compute: ZERO core-minutes.** **Read-and-record: no gate, script,
+pre-registration, comparator or verdict of any team was modified by this pass**,
+and nothing below re-grades any team's published result. Findings, not fixes.
+
+### 10.0 A finding before the audit: the worktree copy of THIS file was stale
+
+`docs/FAIL_OPEN_GATE_AUDIT.md` on disk at the start of this pass was **548
+lines** against HEAD's **698**, reported ` M` by `git status --porcelain`.
+`diff <(git show HEAD:…) <disk>` returns **150 HEAD-only lines and ZERO
+disk-only lines**: the worktree copy is a strict truncation that ends at §7's
+foot and is missing **§8 and §9 entirely**. It carries nothing HEAD does not.
+Per constitution rule 10 it was **inspected, not reverted**; the base for
+everything below is the HEAD blob, and writing this section restores §8 and §9
+to disk as a side effect of that choice. Recorded because an audit that had
+appended to the disk copy would have silently deleted two dated sections — the
+exact defect shape §6 exists to prevent.
+
+### 10.1 The instrument this section applies, and the part of it that does not reach
+
+**Restated from §1 and §105–§128, not reinvented.** The instrument of §1–§9 is a
+static AST scan of tracked Python. Its unit is a **SHAPE site**: an `except`
+handler whose body swallows. Its method is five steps — find the enclosing
+function `F`; ask whether `F` **emits a verdict**; compute **guard names** (every
+name the *choice* of verdict can depend on — `if`/ternary/`while`/`assert` tests
+and the status position of an emission, **never** a name that appears only in
+text); compute **swallow writes**; and **FLAG** when `F` emits a verdict and
+swallow-writes ∩ guard-names is empty.
+
+**Its verdict taxonomy for a gate, in its own words:**
+
+| the instrument's word | what it means there |
+|---|---|
+| **FLAGGED** | verdict emitted and the swallow cannot move it — *"this gate could not have failed"* in the shape sense. **§1: "A flag is a CANDIDATE, not a defect."** |
+| **Demonstrated defect** | injection fired and the published verdict was wrong. §3. Twelve of these. |
+| **Candidate** | plausible, **could not be made to fire**. §4. This is the instrument's *"cannot tell"*. |
+| **Out of scope / cleared** | the exception path cannot reach a published verdict — *"this gate discriminates"*. §5, split into **three** groups deliberately: cleared by static argument; **fired at and stayed clean**; and cleared by argument and **never fired at** — because *"could not make it fire"* and *"never fired at it"* look identical in the output. |
+| **UNPARSED** | the scan could not read the file. §2 keeps this row so an unreadable file is counted rather than absorbed. |
+| **Positive / negative control** | §1: *"A sweep that returns 'few or no fail-open gates' is worth nothing unless it was shown capable of finding one"* — and the negative control is what caught the instrument's own inverted first draft. |
+
+**This instrument does not reach a pre-registered numeric band, and §6 already
+says so.** §6's bullets state *"the scan reads Python only"*, that the dataflow
+is *"intraprocedural and name-based"*, and that *"green here is not coverage"*.
+Nothing in §1–§9 models a threshold, a band, a freeze timestamp or a comparator
+hash. The population this pass was asked to grade — pre-registered thresholds
+and graded verdict records — is a **different gate shape**, and applying the
+`except`-swallow taxonomy to it would be an unannounced widening.
+
+#### PROPOSED EXTENSION — attributed to this lane, NOT adopted, NOT a charter change
+
+> **The prediction-first limb.** Proposed 2026-08-27 by the verification
+> `lab-lane` that wrote §10. It is **a proposal on this page and nothing more**:
+> no supervisor has ruled on it, it gates nothing, no comparator consults it, and
+> retiring or adopting a standard is reserved to Sanaa (CLAUDE.md FIRST-ACTION
+> rule). §1–§9's counts, controls and verdicts are untouched by it.
+
+The limb keeps the existing taxonomy and re-points it at a pre-registration. Its
+unit is a **gate**: one pre-registered threshold with a band, a comparator and a
+graded value. Its question is the audit's own, transposed:
+
+> When this gate was evaluated, could it have returned anything other than the
+> outcome it returned?
+
+Five tests, each of which makes a gate a **FAIL-OPEN CANDIDATE** (≡ FLAGGED):
+
+- **(a) band unreachable** — the band is so wide no physically plausible result
+  lands outside it. Requires naming a value that *would* have failed and saying
+  whether it is reachable.
+- **(b) threshold set from a visible answer** — the freeze commit does not
+  precede the first artifact that could carry the answer. This is the method
+  `docs/COVERAGE_MATRIX.md:676` §3.6 executed by hand on two ansys rows
+  (`COVERAGE_MATRIX.md:681`, `:820`); §10.4 executes it across the population.
+- **(c) no numeric comparator** — a prose gate.
+- **(d) pass path and fail path reach the same recorded outcome.**
+- **(e) the comparator's refusal path is unreachable** on the data the case can
+  produce.
+
+A gate **DISCRIMINATES** (≡ §5 *cleared*) when a plausible alternative outcome
+would have failed it, and — §5's three-group discipline carried over verbatim —
+the clearance is labelled by **how** it was reached: **shown to fail on real
+data** (strongest), **driven through the frozen expression** (§3.6's method), or
+**cleared by argument, never fired at** (weakest). **NOT MEASURED** (≡ UNPARSED)
+is used wherever the artifact needed does not exist or could not be located, with
+the reason.
+
+#### The limb's positive control, first, because §1 gates everything after it
+
+§1's rule is that a method returning "no fail-opens" is worthless until shown
+able to return one — and that the *negative* control is what catches an inverted
+instrument. **Both fired on this pass, on the first execution of test (b), and
+the limb was wrong before it was right.**
+
+Test (b) was first run with the run-artifact defined as *the earliest file of any
+kind in the case's run directory*. It returned **nine negative skews** — nine
+gates apparently pre-registered *after* their own run artifacts existed:
+`VMFL003_M2` at **−666 s**, and eight T-family rungs from **−123 s** (`T14`) to
+**−11,231 s** (`T13`).
+
+**All nine are instrument false positives, and the disconfirming evidence is on
+disk.** The earliest artifacts are `constant/transportProperties`, `0/p`,
+`log.blockMesh`, `log.checkMesh.build`, `log.viewFactorsGen` — **case staging and
+mesh generation, which produce no gate value**. `T10aR2`'s own freeze commit
+`fb4bf7e2` says it in the subject line: *"PRE-REGISTERED and BUILT, NOT FIRED"*.
+Re-run against the **solver** artifact (`log.solve`, `log.*Foam*`, `log.launch`,
+`postProcessing/`), **every one of the nine is positive** — `VMFL003_M2` +546 s,
+`T13` +5,923 s, `T14` +23,780 s.
+
+**The control also indicts the method as §3.6 executed it.** §3.6's headline
+figure for VMFL005 — *"earliest run artifact 18:45:21.32Z"*, giving **+194 s** —
+is `verification/runs/ansys_verification/VMFL005/L1_100x10/0/p`, a **staged input
+file**, not solver output. On the solver reading VMFL005 is **+205 s**. The two
+readings agree on VMFL005 and disagree in sign on nine other rows, so **§3.6's
+figure as published is not a stable definition** and this section states which
+reading each number below uses. That correction is the extension's negative
+control doing its job, and it is reported rather than filtered.
+
+### 10.2 The population, by measurement
+
+**Frame:** `git log --name-only 02a84b18..HEAD` over four pathspecs —
+`'*PREREGISTRATION*.md'`, `'*RESULTS*.md'`, `'gate_*.json'`, and
+`verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` — deduplicated.
+**No `grep -r` anywhere in the population step (L-75):** `grep` in this
+environment execs `ugrep --ignore-files` and is blind to gitignored paths, so the
+denominator comes from git alone.
+
+| quantity | count |
+|---|---|
+| distinct tracked paths entering HEAD after `02a84b18` on those pathspecs | **236** |
+| …`PREREGISTRATION*.md` | **137** |
+| …`*RESULTS*.md` | **98** |
+| …the ansys register | **1** |
+| newly **added** after `02a84b18` | **218** |
+| **modified** (existed at `02a84b18`) | **18** |
+| absent at HEAD (added then deleted within the window) | **4** |
+| pre-registrations **present at HEAD** — the graded denominator | **133** |
+
+By territory: **dafoam 75**, `verification/` tree **63**, **ansys 61**,
+heat-transfer campaign prose **33**, closure **3**, `docs/ansys_verification` **1**.
+
+**A pathspec correction.** `'gate_*.json'` as written returns **zero** paths: a
+git pathspec glob is matched against the path from the repository root, so it
+only matches a file named `gate_*.json` *at the root*. The lab's gate JSON is
+`cases/dafoam/f6a_epistemic_band/**/gate_result_*.json` and
+`verification/runs/F14-cooling-ladder/K0cG_runs/gate_k0cg.json`. Corrected to
+`'*gate_*.json'`, **5** such paths entered HEAD in the window. They are counted
+here and **not graded**; see §10.9.
+
+The four deleted-within-window paths are
+`cases/dafoam/ladder-a/A2/curriculum_D5/PREREGISTRATION_DRAFT.md`,
+`…/curriculum_D6/PREREGISTRATION_DRAFT.md`,
+`verification/campaign/F3_SUCCESSOR_BANDONLY_PREREGISTRATION.md` and
+`verification/campaign/F6a_GREENBLATT_PREREGISTRATION_DRAFT.md`. Three are drafts
+by their own filename; none is graded here.
+
+### 10.3 THE GATES THAT ACTUALLY FAILED — at the front, because they are the proof the gates bite
+
+§1's logic applied to this population: a sweep reporting "the gates discriminate"
+is worth nothing without gates shown failing on real data. **They exist in
+quantity, across four teams, and several fail on margins too narrow for any wide
+band to explain.**
+
+**The ansys validation register, `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md`, 32 rows at HEAD:**
+
+| verdict | rows |
+|---|---|
+| `PASS` | **6** (rows 1-indexed 2, 3, 7, 13, 15, 28) |
+| `GATE REACHED` | **5** (20, 22, 23, 24, 30) |
+| `NOT A RESULT` | **20** |
+| `PENDING` | **1** (19) |
+
+**20 of 32 rows — 62.5 % — are `NOT A RESULT`, and 6 are `PASS`.** A register that
+could not fail does not look like this. Named instances, each with its
+discriminating fact:
+
+- **VMFL010** — `NOT A RESULT` on rule 5 step 2, and the row says the quiet part:
+  the L3 value is **0.26 % from the reference 0.887, well inside the frozen 3 %
+  band**, so a value-only reading calls it `GATE REACHED`. The `OSCILLATORY`
+  triple overrode a comfortable in-band number. **The gate refused a number that
+  would have passed.**
+- **VMFL059** — `NOT A RESULT` on an `EXACT` triple, with `rc = 0`, `End` present,
+  `last Time == endTime`, age guard passed and planted-zero passed on both
+  patches. The register states the cause is a **mis-specified gate quantity, not
+  a failed solve**. A clean solve was refused.
+- **VMFL003-M2 arms A and B** — the register records
+  **`gate_verdict_before_rule5` = `GATE FAIL`** on both, converted to
+  `NOT A RESULT` by rule 5's permitted direction. **A literal `GATE FAIL` on real
+  data, preserved in the record rather than absorbed.**
+- **VMFL011** and **VMFL011-R2** — `NOT A RESULT` because the **frozen comparator
+  refused (exit 2) on its own planted-zero control** (rule 3). R2's refusal text
+  is quoted verbatim in the register from
+  `verification/runs/ansys_verification/VMFL011-R2/GRADING.txt`. Test **(e)** is
+  answered on real data for these two: **the refusal path is not merely reachable,
+  it fired.**
+- **VMFL017-R2** — `NOT A RESULT`: the registered per-level cap fired (`rc = 124`)
+  and the comparator refused on strict completion (rule 4). The row adds *"not
+  softened by having been predicted"*.
+- **VMFL003-M2 arms C and D** — `NOT A RESULT`, LADDER INCOMPLETE: the frozen
+  `PER_ARM_CAP = 40` core-min fired at **39.93** and **39.99** of 40. **A cost cap
+  is a gate and it bit, to the second** (`ExecutionTime 1662.74 s` against a
+  wrapper `timeout 1663`). No fresh cap was granted.
+- **VMFL005**, the register's cleanest `PASS`, is where the *counterfactual* is on
+  record: **Ansys's own CFX value of 10.49 Pa `GATE FAIL`s the frozen 2 % band
+  (2.4414 %)**, and the pre-registration said so **before any number existed**
+  (`docs/COVERAGE_MATRIX.md:681`ff). A commercial code's own published number for
+  this exact case fails this gate.
+
+**Outside ansys, named with file:line:**
+
+- **`docs/campaigns/T-family/T1c_RESULTS.md:6`** — *"Rung verdict: GATE FAIL — 1
+  of 4 graded rows failed."* Row **L0** at `:14`: `Nu` (constant `Ts`)
+  **3.659958** against exact **3.6567934**, deviation **0.0865 %** against a
+  **GCI band of 0.0301 %** — **failed by 2.87×**. Rows L1 (`:15`, 0.0192 % vs
+  0.0236 %) and L2 (`:16`, 0.0381 % vs 0.0459 %) `PASS` on the same instrument.
+  **The band here is the computed GCI, not a chosen number**, and it separated
+  three rows from a fourth at the fourth decimal place. `:123` — *"The GATE FAIL
+  is real and is not excused."*
+- **`verification/campaign/F12_RESULTS.md:99`** — ADMISSION GATE A (mesh)
+  **`GATE FAIL` at all three levels**. Frozen threshold *max non-orthogonality
+  ≤ 70°*; measured **70.646 / 70.861 / 72.542** (`:112`–`:114`) from three real
+  `checkMesh` logs. **The coarse level failed by 0.65° — a 0.92 % overshoot.**
+  A gate that fails on a sub-1 % margin cannot be called unfailable. `F12`'s
+  headline at `:22` is **`GATE FAIL` / `NOT HELD`**.
+- **`docs/campaigns/T-family/T10aR2_RESULTS.md:3`** — *"2 PASS, 5 GATE FAIL, 2 NOT
+  A RESULT against this arm's own registered rows."* Rows `:47`, `:48`, `:50`,
+  `:51`: RR4a **1.883** and RR4b **1.786** against band **[1.70, 2.10]**;
+  RR6a/RR6b **1.504** against **[1.0, 2.0]** — and each row carries the value the
+  **competing hypothesis H2 predicts** (1.664 / 1.495 / 3.75 / 2.25). **This is
+  the discrimination test of `VERIFICATION_CHARTER.md` §2c executed inside the
+  results table**: the row separates H1 from H2 rather than from nothing, and
+  RR6a's *"move at c is 4.9× H1"* is what failed it.
+- **`cases/dafoam/ladder-a/A5/curriculum_D9/RESULTS.md:30`** — G9-3 `GATE FAIL`:
+  `driver_failed=True`, `driver_iter_count=47` against `maxit=20`. `:38` — the
+  gate *"maps driver failed to `GATE FAIL` irrespective of magnitude"*, i.e. **a
+  boolean gate with no band to widen.** `:189` records a second: 46.840 %
+  aggregate FD deviation **with two sign flips**.
+- **`cases/dafoam/ladder-a/A3/rung3_patched_idwarp_np4_attempt2/RESULTS.md`** —
+  headline `GATE FAIL`, 11 `GATE FAIL` tokens in the record.
+- **`docs/campaigns/T-family/T1b_RESULTS.md`** (6 `GATE FAIL`),
+  **`T10aR_RESULTS.md`** (18), **`T3_RESULTS.md`** (5),
+  **`docs/campaigns/F14-cooling-ladder/K0f_RESULTS.md:65`** (TALLY 0 of 10),
+  **`verification/runs/F3_runs/conversion_2026-08-24/RESULTS.md`** (3),
+  **`cases/dafoam/ladder-a/A1/curriculum_D2/RESULTS.md`** (9),
+  **`…/curriculum_D13/RESULTS.md`** (5) — counted, not individually adjudicated.
+
+**Headline verdicts across the 98 `*RESULTS*` records** (first `VERDICT`-line
+token per file, at HEAD, ansys excluded to avoid double-counting the register):
+`PASS` 15 · `NOT A RESULT` 13 · `GATE REACHED` 8 · `BLOCKED` 4 · `GATE FAIL` 3 ·
+`PENDING` 3 · **no parseable verdict line 27**. The last figure is itself a
+finding and is carried into §10.9.
+
+### 10.4 Test (b) executed across the population — the §3.6 skew method, on the solver reading
+
+**Method.** For each pre-registration: `T_p` = committer time of the commit that
+**first added** the path (`git log --diff-filter=A … | tail -1`). `T_r` = earliest
+mtime of a **solver** artifact in the case's run directory (`log.solve`,
+`log.*Foam*`, `log.launch`, `postProcessing/`). `skew = T_r − T_p`. A negative or
+near-zero skew is the finding.
+
+**ansys — 30 cases measured, `verification/runs/ansys_verification/<case>/`:**
+
+| skew band | cases |
+|---|---|
+| **negative** | **0** |
+| +9 s … +99 s | VMFL019 **+9**, VMFL076 **+19**, VMFL011 **+27**, VMFL002 **+41**, VMFL004-R2 **+67**, VMFL036 **+95** |
+| +100 s … +999 s | VMFL005 **+205**, VMFLGPU002 +233, VMFL051 +326, VMFL007 +348, VMFL045 +389, VMFL007_R2 +394, VMFL064-R2 (see below), VMFL011-R2 +419, VMFL023 +501, VMFL003_M2 **+546**, VMFL001 +628, VMFL033 +627, VMFL003 +922 |
+| ≥ +1,000 s | VMFL045-R2 +1,207, VMFL059 +1,913, VMFL011-R3 +2,381, VMFL076-R2 +2,806, VMFLGPU001 +17,124, VMFL064 +41,239, VMFL017 +69,238 |
+
+**T-family and F14 — 16 rungs measured:** T10aR **+299**, T10aR2 **+1,532**,
+T4b **+1,946**, T4 **+1,984**, T9aH **+1,298**, T8 **+4,301**, T13 **+5,923**,
+K0f **+6,710**, T10a **+7,742**, T3 **+12,181**, T14 **+23,780**, T15 **+37,429**,
+T11 **+41,330**, T9aR1b **+41,777**, T5 **+43,085**, K0d **+99,342**.
+**Negative: 0.**
+
+**VERDICT on test (b): DISCRIMINATES — shown on real artifacts, 46 of 46
+measurable gates.** No gate in the measured population has a pre-registration
+committed after the solver could have shown its answer. **This closes the open
+item at `docs/LAB_STATE.md:10405`** — *"Six of heat-transfer's seven `GATE
+REACHED` rows have NOT had their frozen-pre-registration condition individually
+verified… hash each prereg blob at HEAD and compare its commit time against the
+earliest run artifact, the way §3.6 did"* — **for the timestamp half only.** The
+**blob-hash half of that item is NOT closed here**: §10 measured commit times, not
+blob identity, and rule 2's demand that *"the frozen file IS the file that ran"*
+is a hash comparison this pass did not perform on any heat-transfer row.
+
+**The tightest margin in the population is VMFL019 at +9 s**, then VMFL076 at
++19 s and VMFL011 at +27 s. These are **positive and therefore not fail-open under
+(b)** — a first run of a case has no prior value to tune to, and 9 s is a
+plausible commit-then-launch interval. They are named because the limb's own
+threshold for "near-zero" should not be set after seeing them, and a supervisor
+may reasonably want the launch scripts for those three read.
+
+### 10.5 Test (c) — prose gates
+
+**133 pre-registrations present at HEAD were scanned for any numeric-threshold
+token** (`<`/`>`/`≤`/`≥`/`±` followed by a number, a percentage, a bracketed
+interval, or scientific notation). **132 carry at least one. The single exception
+is `cases/ansys_verification/_template/PREREGISTRATION_TEMPLATE.md`**, which is a
+template and grades nothing.
+
+**VERDICT on test (c): DISCRIMINATES — but cleared by argument, never fired at**
+(§5 Group 3, the weakest of the three). The test detects the **presence of a
+number**, not that the number is **the gate** or that a comparator reads it. A
+pre-registration carrying a numeric cost estimate and a prose gate passes this
+scan. **This is the limb's weakest limb and it is stated rather than glossed.**
+
+A related defect **is** on record in a sibling audit and is not re-derived here:
+`docs/COVERAGE_MATRIX.md` found cfd records grading in non-rule-1 vocabulary —
+`GEN_ALT` grades *"GENERATOR-OWNED"*, `W1_hump` *"OUTCOME ONE"*, `F8`
+*"NO VERDICT"* / *"NO MILESTONE"*. Those are pre-registered branch labels, which
+is legitimate design, but **a sweep for the lab's verdicts does not see them** —
+and neither does §10.3's headline scan, which is part of why 27 records returned
+no parseable verdict line.
+
+### 10.6 Test (a) — band width, sampled and not swept
+
+Not executed across the population; **NOT MEASURED** for 133 pre-registrations as
+a class. Four gates were read to source:
+
+| gate | band, quoted | measured | ratio band/measured | what would have failed |
+|---|---|---|---|---|
+| VMFL005 dP | 2 % relative, frozen | 0.4979 % | **4.0×** | 10.49 Pa (CFX's own value) → `GATE FAIL` at 2.4414 %; also 10.45, 5.0, 20.0, 0.0 |
+| VMFL064 `LR/s` | `\|LR/s − 5.0\|/5.0 ≤ 0.10` — `cases/ansys_verification/VMFL064-R2/PREREGISTRATION.md:53` | ~2.9 % (`:170`) | **3.4×** | `:57` records the band as *"deliberately looser"* than Fluent's own 1.8 %; `:180` names an inlet-profile change that would exceed it |
+| VMFL011 `rms_vs_benchmark` | `BAND_RMS = 0.030` at L3 — `cases/ansys_verification/VMFL011-R2/PREREGISTRATION.md:46` | 0.0341 (attempt 1) | **0.88× — the case MISSES its own band** | `:266`: *"attempt 1's 0.0341 is 14 % above the band"* |
+| T1c row L0 | GCI band 0.0301 % — `docs/campaigns/T-family/T1c_RESULTS.md:14` | 0.0865 % | **0.35× — failed** | the band is computed, not chosen |
+
+**VMFL005's 4.0× is the loosest of the four and it is still a discriminating
+gate**, because the counterfactual is not hypothetical: a commercial code's own
+published number for this case falls outside it. **No fail-open under (a) among
+the four read.** The other 129 are NOT MEASURED.
+
+### 10.7 Test (d) — do the pass path and the fail path reach the same outcome?
+
+The structural exposure in this lab is **rule 5's permitted conversion**: a
+`GATE FAIL` and a `PASS` both become `NOT A RESULT` when the triple is not
+`CONVERGING`. If the pre-conversion verdict is discarded, **a failing gate and a
+passing gate leave the same recorded trace** — test (d) exactly.
+
+**Measured:** `gate_verdict_before_rule5` appears in **12 tracked paths at HEAD**,
+and the graders that emit it are **two**: `cases/ansys_verification/VMFL003/grade_vmfl003.py`
+and `cases/ansys_verification/VMFL003_M2/grade_vmfl003_m2.py` (plus its `_omega`
+twin). It reaches
+`verification/runs/ansys_verification/VMFL003_M2/A_kEpsilon/GRADING_A_kEpsilon.json`,
+the register, `docs/CAPABILITY_GRID.md` and `docs/LAB_STATE.md`.
+
+**Finding — FAIL-OPEN CANDIDATE under (d), scoped to the records that lack it.**
+The ansys VMFL003 family preserves the distinction and is therefore **CLEARED —
+shown on real data** (arms A and B record `GATE FAIL` before conversion). **Every
+other `NOT A RESULT` in the population that arose from a rule-5 conversion does
+not record which verdict it converted**, so pass-path and fail-path are
+indistinguishable in the record for those rows. VMFL010 is the live illustration:
+its register row *does* state in prose that a value-only reading would have called
+it `GATE REACHED`, which is the same disclosure made by hand rather than by the
+comparator.
+
+**Proposed, attributed to this lane, not adopted:** a comparator that converts a
+verdict under rule 5 should emit the pre-conversion verdict beside it, as
+VMFL003's does. This is a **finding referred to each owning team**, not a fix, and
+not a charter amendment — rule 5 is unchanged and this section does not touch it.
+
+### 10.8 Test (f), proposed — the successor-rung exposure, and the lab passes it
+
+**Proposed by this lane as an addition to the limb**, because test (b) cannot see
+it. Test (b) asks whether the *case's own* run existed before the freeze. It
+returns a large positive skew for a **successor rung** (`-R2`, `-R3`, `_M2`) whose
+**predecessor's measured value was fully visible** when the successor's band was
+frozen. **A successor's band is the shape most exposed to being chosen to fit, and
+the skew test is blind to it by construction.**
+
+**Population:** 11 successor rungs in the ansys family alone — VMFL001-R2,
+VMFL003_M2, VMFL004-R2, VMFL007_R2, VMFL011-R2, VMFL011-R3, VMFL017/R2,
+VMFL021/R2, VMFL045/R2, VMFL064-R2, VMFL076-R2.
+
+**Measured on three, read to source — and all three are CLEARED, on the strongest
+available evidence:**
+
+- **VMFL011-R2** — `cases/ansys_verification/VMFL011-R2/PREREGISTRATION.md:46`:
+  *"BANDS (THE GATE): rms_vs_benchmark <= 0.030 at L3. BYTE-IDENTICAL to attempt 1
+  line 5."* `:244`–`:245`: *"The band could not have been chosen to fit, because
+  the band was not chosen… made before any VMFL011 number existed."* And `:266`
+  records that **attempt 1 missed that band by 14 %** — the team carried forward a
+  band it already knew the case fails. **That is the opposite of a fail-open, and
+  it is the model the extension should be calibrated on.**
+- **VMFL076-R2** — `PREREGISTRATION.md:66` and `:101`: bands, ceiling, reference,
+  quantities and ladder **CARRIED**, *"the same file"*. `:168` discloses the
+  predecessor's exact measured values (0.9006 % against the 3.00 % band;
+  5.397e-03 against 1.00e-02) **without moving either band**, and `:189` states
+  *"`GATE FAIL` is a real possible outcome"*.
+- **VMFL064-R2** — band `≤ 0.10` carried from run 1 (`:53`); `:170` names the
+  expected ~2.9 % **in advance**, *"predicting in advance rather than discovering
+  it"*; `:180` names a perturbation that would exceed the band.
+
+**VERDICT on test (f): DISCRIMINATES for the three read — cleared by byte-identical
+band carry-forward, verified against the predecessor's frozen text.** The other
+eight successors are **NOT MEASURED**. This is a genuinely positive finding about
+the ansys family's `§2c`/`§2d` discipline and it should not be flattened into the
+counts.
+
+### 10.9 Coverage limits — what §10 did not cover, stated rather than discovered later
+
+- **§10 grades gates, not code. §1–§9's counts, controls, defects, candidates and
+  clearances are untouched**, and the `except`-swallow scan was **not re-run** on
+  this pass. §7's 38 flags and §7.4's C8/C9 stand exactly as they were left.
+- **Nothing was injected, and nothing was driven through a frozen comparator by
+  this lane.** §3.6's driving of six values through VMFL005's gate expression is
+  **cited from `docs/COVERAGE_MATRIX.md:681`ff, not reproduced here.** Under §5's
+  three-group discipline every clearance in §10.5–§10.8 is therefore **Group 3 —
+  cleared by argument, never fired at** — except test (b) and test (e), which rest
+  on artifacts and refusals that actually exist on disk.
+- **Test (a) is NOT MEASURED for 129 of 133 pre-registrations.** No sweep of band
+  width against physically reachable values was performed. This is the largest
+  single gap in §10 and no count here should be read as covering it.
+- **Test (e) is NOT MEASURED as a sweep.** It is answered on real data only for
+  VMFL011 and VMFL011-R2 (planted-zero refusals that fired) and VMFL017-R2
+  (completion refusal that fired). Whether each *other* comparator's refusal path
+  is reachable on its own case's data was not established.
+- **The blob-hash half of rule 2 was not performed.** §10.4 compares commit
+  timestamps. It does **not** verify that the frozen pre-registration blob and the
+  frozen comparator blob are byte-identical to what ran — the check
+  `scripts/check_comparator_freeze.py` exists for, and the check §3.6 did perform
+  by hand for VMFL005 and VMFL001-R2. **`docs/LAB_STATE.md:10405`'s item is
+  therefore half-closed, not closed.**
+- **16 of 46 skew rows required a run directory this lane could locate by naming
+  convention.** `K0b_D403_RERUN`, `K0b_D406_REPAIR`, `T1b_L4_EXT2`,
+  `T1b_L4_PLANTED_ZERO_CONTROL` and `T3_R_FF` have pre-registrations in the
+  population and **no run directory found under the convention searched** — they
+  are **NOT MEASURED**, not cleared.
+- **dafoam's 75 population paths and closure's 3 were counted, not skew-tested.**
+  Their run roots are not under a convention this pass could enumerate from git
+  alone. Every dafoam verdict named in §10.3 is quoted from its record, and no
+  dafoam pre-registration timestamp was measured.
+- **The 5 `*gate_*.json` paths are counted and not graded.**
+- **27 of 98 `*RESULTS*` records returned no parseable verdict line** to the
+  vocabulary scan. Some of those are genuinely verdict-free lane notes; some
+  publish under branch labels the scan cannot see (§10.5). **The split between
+  those two was not measured**, and until it is, "27" is a scan limitation and not
+  a count of undeclared results.
+- **`grep -r` was used nowhere in the population step (L-75)**, but the frame is
+  **tracked files at HEAD only**. Untracked run outputs, gitignored case archives
+  and the out-of-git data roots (`/home/ubuntu/{closure-data,
+  closure-challenge-benchmark,certonomous-runs}/`) are **outside this frame
+  entirely**, and no count here says anything about them.
+- **mtimes are evidence about a filesystem, not a notarised clock.** A restored,
+  copied or `rsync`'d artifact carries a mtime that need not date the solve. §10.4
+  is as strong as that assumption, which the §10.1 control showed can mislead in
+  the fail-open direction if the artifact class is chosen carelessly.
+- **The proposed extension is a proposal.** It gates nothing, no comparator
+  consults it, no verdict in this repository depends on it, and adopting it is a
+  supervisor-and-Sanaa matter, not this lane's.
+
+*Lines whose number changed above this section: 0.*
