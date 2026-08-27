@@ -139,3 +139,41 @@ COUNTER SHOWN COUNTING: a sacrificial copy carrying ONE planted module-level ass
 assert statements in this file: 1 (must be 0)
 exit rc=1
   An assert audit that has never seen an assert is not evidence.
+
+================================================================================
+7.  APPENDED 2026-08-27 -- TWO CALIBRATIONS AGAINST THIS FILE'S OWN EVIDENCE
+    Sections 1-6 are BYTE-UNCHANGED; lines whose number changed above this
+    section: 0 (appended with >>, prefix proved by cmp in the commit invocation).
+    Raised by dafoam-supervisor on reading the units, and recorded here so the
+    next reader is not misled by a passing test.
+================================================================================
+
+7.1  THE TWO `limb in note` UNITS ARE WEAK, AND MUST NEVER BE CITED AS EVIDENCE
+     THAT THE SIX LIMBS WERE CHECKED.
+
+     Unit U-A1e and proof leg P0 both iterate EVIDENCE_TASK_LIMBS and require
+     each member to appear in the infrastructure note.  But the note is BUILT by
+     joining that same constant.  The test and the code under test read the same
+     tuple, so the units check THE SENTENCE, NOT THE LIMBS.
+
+     They are not vacuous -- they would catch the note-building line dropping the
+     join, or the constant being emptied -- so they are kept.  But a reader must
+     not take them as showing that rc, oomkilled, end_line_present,
+     last_time_equals_endTime, coldstart_ok and age_guard are each actually
+     enforced on an evidence-task row.
+
+     WHAT DOES SHOW THAT, and it is a different set of tests entirely: proof legs
+     P1-P6, which plant a real failure of EACH of those six limbs onto the
+     exempted S1a row and require a refusal ON THAT LIMB -- refusing for the
+     wrong reason is scored a failure -- and selftest units U-A1h..U-A1l, which
+     do the same on synthetic rows.  CITE P1-P6, NOT the `limb in note` units.
+
+7.2  THE INERT MUTANT OF SECTION 3 IS THE SAME CLASS OF ERROR, ONE LEVEL DOWN.
+
+     Section 3 records a mutant that changes a constant and no behaviour.  7.1
+     records units that check a string built from a constant rather than the
+     behaviour that constant names.  BOTH ARE THE SHAPE "THE TEST AND THE CODE
+     SHARE A SOURCE OF TRUTH", which is the tautology this comparator's
+     EXPECTED_UNITS constant was frozen to prevent (PREREGISTRATION.md sec.6
+     item 2).  It recurred twice in this amendment's own new code.  Recorded
+     rather than quietly fixed, because the frequency is the finding.

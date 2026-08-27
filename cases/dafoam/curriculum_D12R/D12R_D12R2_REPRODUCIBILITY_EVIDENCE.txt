@@ -1,0 +1,103 @@
+D12R vs D12R2 -- DID D12R2 ACTUALLY RE-SOLVE?  EVIDENCE FILE.  ZERO COMPUTE.
+Generated 2026-08-27T19:06:28Z by dafoam lab-lane B under dafoam-supervisor ORDER 2.
+SUBMISSIONS PARKED (CLAUDE.md rule 7).  Nothing here is filed, sent or posted.
+
+THE QUESTION.  The D12R phase-1 re-grade reproduces D12R2's published phase-1 gates
+to the last digit.  A byte-equal 2400-sample CD series is equally consistent with
+(a) two independent solves that are bit-deterministic and (b) output copied rather
+than recomputed.  In case (b) the agreement measures NOTHING.  The supervisor
+withheld the claim and required it defended from disk.  ASSUMED WRONG UNTIL DEFENDED.
+
+THE SUPERVISOR'S OWN OBSERVATION, CONFIRMED AND THEN LOCATED.
+  Both run roots' EARLIEST artefact does carry the identical mtime to the
+  nanosecond.  Located by 'find -printf %T@' sorted ascending:
+1785197697.9535520040 2026-07-28T00:14:57.953552     D12R  <root>/S1a/0_orig/U
+1785197697.9535520040 2026-07-28T00:14:57.953552     D12R2 <root>/S1a/0_orig/U
+  IT IS 0_orig/U -- THE STAGED BASE INPUT, copied into every stage of both runs
+  from one 2026-07-28 tutorial source.  It is an INPUT, not an output.  Identical
+  inputs are the CONDITION that makes a determinism comparison meaningful, not a
+  confound.  The confound would be identical OUTPUTS, and that is what is tested
+  below.
+
+================================================================================
+TEST 1.  IN-LOG TIMING WRITTEN BY THE RUNNING PROCESS ITSELF
+================================================================================
+DAFoam suppresses OpenFOAM's Date/Time/PID banner, so the in-log witness is the
+per-timestep 'ExecutionTime = .. s  ClockTime = .. s' line.  A COPIED log carries
+IDENTICAL values; a re-solved one cannot.
+  D12R  log: S2b_20260825T224504Z_2860164.log  (2811270 bytes, inode 5778555)
+  D12R2 log: S2b_20260826T033053Z_3069758.log  (2811288 bytes, inode 2429098)
+  total differing lines: 4806
+  differing line TYPES (numerals masked to N):
+       4800 ExecutionTime = N s  ClockTime = N s
+          2 Init solver done! ElapsedCpuTime N s
+          2 Init solver done! ElapsedClockTime N s
+          1 DNR_JSON_WRITTEN: /mnt/SNb/dNy_SNb.json
+          1 DNR_JSON_WRITTEN: /mnt/SNb/dNx_SNb.json
+  ALL 2400 ExecutionTime/ClockTime PAIRS DIFFER (4800 lines).  Samples:
+    D12R   step 1 / 1200 / 2400:
+      ExecutionTime = 1.6 s  ClockTime = 6 s
+      ExecutionTime = 268.91 s  ClockTime = 274 s
+      ExecutionTime = 510.84 s  ClockTime = 516 s
+    D12R2  step 1 / 1200 / 2400:
+      ExecutionTime = 1.05 s  ClockTime = 1 s
+      ExecutionTime = 209.32 s  ClockTime = 209 s
+      ExecutionTime = 417.68 s  ClockTime = 418 s
+  The only NON-timing difference is the output JSON filename (d12x_S2b.json vs
+  d12y_S2b.json) -- the two items' own instrument names.
+
+================================================================================
+TEST 2.  PER-STAGE WALL TIME, FROM EACH RUN'S OWN LEDGER
+================================================================================
+  D12R stages 33; D12R2 stages 33; common 33
+  stages whose wall_s is IDENTICAL: 1 of 33  (32 of 33 DIFFER)
+  total wall: D12R 3837 s vs D12R2 3331 s
+    S1b      D12R    49 s   D12R2    35 s
+    S2a      D12R   137 s   D12R2    59 s
+    S2b      D12R   633 s   D12R2   425 s
+    S3_r1    D12R   149 s   D12R2    64 s
+    S5       D12R   635 s   D12R2   654 s
+  coincidental match: S1a
+
+================================================================================
+TEST 3.  OUTPUT FIELD MTIMES AT endTime
+================================================================================
+  /home/ubuntu/certonomous-runs/CURRICULUM-D12R-cylinder-unsteady/S2b/24
+     2026-08-25T22:59:07Z  U.gz
+     2026-08-25T22:59:07Z  U_0.gz
+     2026-08-25T22:59:08Z  betaFINuTilda.gz
+  /home/ubuntu/certonomous-runs/CURRICULUM-D12R2-cylinder-unsteady/S2b/24
+     2026-08-26T03:39:48Z  U.gz
+     2026-08-26T03:39:48Z  U_0.gz
+     2026-08-26T03:39:48Z  betaFINuTilda.gz
+  Distinct by ~4 h 40 m.  D12R2's fields were written by D12R2.
+
+================================================================================
+TEST 4.  THE PHYSICS THAT IS IDENTICAL
+================================================================================
+  CD samples: D12R 2400, D12R2 2400
+  differing samples: 0
+  first  0.7046135686635184  vs  0.7046135686635184
+  last   0.5964273175034085  vs  0.5964273175034085
+
+================================================================================
+DETERMINATION
+================================================================================
+D12R2 GENUINELY RE-SOLVED.  Every timing witness written by the running process
+differs; only the physics is identical.  The reproducibility datum SURVIVES.
+
+SCOPE, STATED AS LIMITS AND NOT AS A HEADLINE:
+  * n = 2.  Two runs, one case (2,450-cell 2D URANS cylinder), one host, one
+    container image, np = 1.  It is NOT a general claim about DAFoam or OpenFOAM.
+  * NOTHING is established at np > 1, where MPI reduction order can vary run to
+    run; that is precisely where a determinism claim would matter most, and it is
+    UNTESTED here.
+  * The two runs share their staged INPUTS byte-for-byte.  That is the condition
+    of the test, and it also bounds it: this measures solver determinism, not
+    robustness to input perturbation.
+  * CONSEQUENCE FOR THIS FAMILY: G12R-2's delta_repeat = 0.0 at np=1 is corroborated
+    as a real property rather than an artefact of the three repeats sharing state.
+    It does NOT weaken the pre-registration's own registered caution that
+    delta_repeat = 0 is NOT a clearance for the FD step -- the noise that threatens
+    a time-averaged objective on a limit cycle is PHASE noise, measured by G12R-3,
+    and G12R-3 returned 1.7958e-03, not zero.

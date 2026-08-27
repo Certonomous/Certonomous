@@ -1,0 +1,152 @@
+{
+  "gates": [
+    {
+      "gate": "G12R-0",
+      "infrastructure_notes": [
+        "S1a: JSON status NOT MEASURED (INFRASTRUCTURE, L-342/R-RC) -- task='shell' invokes no run script and writes no per-stage JSON, so no status record exists to read. This is NOT a waiver of completion: the evidence is carried instead, and in full, by the rule-4 limbs rc, oomkilled, end_line_present, last_time_equals_endTime, coldstart_ok, age_guard, each of which refuses on its own below."
+      ],
+      "n_infrastructure_notes": 1,
+      "n_stages": 32,
+      "verdict": "PASS"
+    },
+    {
+      "gate": "G12R-W",
+      "n_stages_witnessed": 31,
+      "verdict": "PASS"
+    },
+    {
+      "gate": "G12R-1",
+      "mean": 0.6563231414421499,
+      "n_samples": 2400,
+      "p2p": 0.13162449949724853,
+      "p2p_rel": 0.2005483140637519,
+      "period_steps": 18.964426877470355,
+      "sign_changes": 253,
+      "verdict": "PASS"
+    },
+    {
+      "W": 300,
+      "block_max": 0.657035382134348,
+      "block_min": 0.6552395343117505,
+      "degeneracy_note": "W = 300 is 15.8191 shedding periods, not within 0.05 of a whole number, so delta_window is not cancelled by construction and stands on its own.",
+      "degenerate": false,
+      "delta_window": 0.0017958478225974517,
+      "delta_window_rel": 0.0027359804924328014,
+      "gate": "G12R-3",
+      "grand_mean": 0.6563818081175736,
+      "n_windows": 2101,
+      "period_measured_steps": 18.964426877470355,
+      "period_prediction_held": false,
+      "period_prediction_steps": 50.0,
+      "periods_per_window": 15.819091288036683,
+      "verdict": "PASS"
+    },
+    {
+      "delta_repeat": 0.0,
+      "delta_repeat_rel": 0.0,
+      "gate": "G12R-2",
+      "mean": 0.6544643208940448,
+      "n": 3,
+      "note": "delta_repeat == 0 is the EXPECTED reading at np=1 on a deterministic solver from a byte-identical field. IT IS NOT A CLEARANCE FOR THE FD STEP: the noise that threatens a time-averaged objective on a limit cycle is phase noise, measured by G12R-3.",
+      "values": [
+        0.6544643208940448,
+        0.6544643208940448,
+        0.6544643208940448
+      ],
+      "verdict": "PASS"
+    },
+    {
+      "delta_pert": 2.279666841643725e-06,
+      "gate": "G12R-3b",
+      "n_components": 4,
+      "note": "delta_pert is the MAX over components because h* must be admissible for all of them; a component reporting 0.0 means NO FLOOR WAS DETECTABLE AT THESE STEPS, which is not the same claim as no floor",
+      "per_component": [
+        {
+          "S_a": 2.215741671585114e-06,
+          "S_b": 2.4767335254027856e-05,
+          "component": 0,
+          "delta_pert": 0.0,
+          "detectable": false,
+          "g_implied_DIAGNOSTIC_ONLY": 1.2528663101357078,
+          "h_a": 1e-06,
+          "h_b": 1e-05,
+          "linearity_ratio": 11.17789838573989
+        },
+        {
+          "S_a": 4.182778575501089e-06,
+          "S_b": 7.937826054238428e-07,
+          "component": 1,
+          "delta_pert": 2.279666841643725e-06,
+          "detectable": true,
+          "g_implied_DIAGNOSTIC_ONLY": -0.18827755389318035,
+          "h_a": 1e-06,
+          "h_b": 1e-05,
+          "linearity_ratio": 0.18977399618356539
+        },
+        {
+          "S_a": 2.3202419685564024e-06,
+          "S_b": 1.0134345895362884e-05,
+          "component": 2,
+          "delta_pert": 7.260040994556189e-07,
+          "detectable": true,
+          "g_implied_DIAGNOSTIC_ONLY": 0.4341168848225823,
+          "h_a": 1e-06,
+          "h_b": 1e-05,
+          "linearity_ratio": 4.367796993892075
+        },
+        {
+          "S_a": 1.1140407456533552e-06,
+          "S_b": 2.7013253946828186e-05,
+          "component": 3,
+          "delta_pert": 0.0,
+          "detectable": false,
+          "g_implied_DIAGNOSTIC_ONLY": 1.4388451778430462,
+          "h_a": 1e-06,
+          "h_b": 1e-05,
+          "linearity_ratio": 24.24799456593092
+        }
+      ],
+      "verdict": "PASS"
+    },
+    {
+      "delta_eff": 0.0017958478225974517,
+      "dominant_term": "delta_window",
+      "excluded_by_name": [],
+      "gate": "G12R-4",
+      "terms": {
+        "delta_pert": 2.279666841643725e-06,
+        "delta_repeat": 0.0,
+        "delta_window": 0.0017958478225974517
+      },
+      "verdict": "PASS",
+      "window_degenerate": false
+    },
+    {
+      "delta_eff": 0.0017958478225974517,
+      "eps_noise_target": 0.01,
+      "g_component": 1.0304158599180422,
+      "gate": "G12R-4",
+      "h_max": 0.05,
+      "h_min": 0.1742837908900481,
+      "reason": "h_min 1.742838e-01 EXCEEDS h_max 5.000e-02: no admissible FD step exists at this window. This is a RESULT, not a failure -- the contingency window fires and the optimisation does not proceed on a gradient that cannot be verified.",
+      "steps": [],
+      "verdict": "NOT A RESULT"
+    }
+  ],
+  "step_plan": {
+    "admissible": false,
+    "delta_eff": 0.0017958478225974517,
+    "delta_terms": {
+      "delta_pert": 2.279666841643725e-06,
+      "delta_repeat": 0.0,
+      "delta_window": 0.0017958478225974517
+    },
+    "dominant_term": "delta_window",
+    "g_component_0": 1.0304158599180422,
+    "h_max": 0.05,
+    "h_min": 0.1742837908900481,
+    "period_steps": 18.964426877470355,
+    "steps": [],
+    "window_degenerate": false
+  }
+}
