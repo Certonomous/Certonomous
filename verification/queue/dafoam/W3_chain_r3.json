@@ -1,0 +1,74 @@
+{
+  "team": "dafoam",
+  "case_id": "W3_chain_r3",
+  "prereg_commit": "af44d244b72f0ca45797fb22034e4b7a1284a7b5",
+  "prereg_path": "cases/dafoam/curriculum_D12R2/W3_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/d12y_w3_chain_driver.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2",
+  "ranks": 1,
+  "cost_core_min_estimate": 563.3,
+  "cap_core_min_registered": 900.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, not measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 563.3 core-min DERIVED (W3_PREREGISTRATION.md section 4): phase 1 = 196.4 from the two measured phase-1 anchors (D12R2 55.5167 core-min at W=300, C-115; W2R 105.2334 at W=900: V = 74.575, F = 30.658 per the two-point linear model), phase 2 = 37.6 (6 stages x 6.26), phase 3 = 62.6 (10 x 6.26), phase 4 = S8 <= 266.7 which is the registered 16,000-s wall BOUND at np=1, not a prediction from a record (no S8 has ever run in this family); registered caps CAP_CORE_MIN 900.0 cumulative and CAP_S8 400.0, both asserted by the launcher before every stage. Dollars derived, not measured: $0.48 point, $0.77 at the cap.",
+  "memory_floor_gb": 14.0,
+  "enqueued_by": "dafoam-supervisor via lane B. Supervisor check 1 is owed on the two DELTAS diffs committed in the case directory (d12y_grade_w3_DELTAS_amendment2.diff, 489 lines; d12y_w3_stage_and_run_DELTAS_amendment2.diff, 35); check 4 is the supervisor's own on the sha. ENQUEUEING IS NOT AUTHORISATION.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus the optional cap_core_min_registered. Fields below are dafoam annotations the validator ignores.",
+  "capability_grid_cell": "2D . unsteady . incompressible -- gradients (CAN DO, CAVEATS -> CAN DO on G12R-6 PASS) and optimisation (CAN NOT DO -> attempted, S8 authorised only on an FD-verified gradient, G12R-11)",
+  "regime": "2D unsteady incompressible: DAPimpleFoam time-accurate unsteady adjoint, cylinder Re_D 1.0e6, 2,450 cells, np=1, W = 2,000 averaging window",
+  "one_driver_form": "ONE detached process runs --phase 1 -> --plan -> --phase 2 -> --plan2 -> --phase 3 -> --plan3 -> --phase 4 and STOPS at the first non-zero rc, recording every rc in STATUS.W3_chain; the runner evaluates no precondition and neither does the driver -- each later phase refuses for itself (absent step_plan*.json -> ABORT rc=1; admissible:false / h_star=None / optimisation_authorised!=True -> the registered no-launch branches exit 0 launching nothing; the comparator's plan modes exit 2 on a Refusal). No separate entries for phases 2-4, no wait-wrapper (the W2R lesson).",
+  "precondition_artifact": "none at enqueue -- phase 1 REQUIRES the run root /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady to be ABSENT. CHECKED not asserted at 2026-08-27T17:11:39Z: test -e -> FALSE, driven twice inside d12y_w3_groot5_selftest.sh, and no d12y_w3_ container has ever existed. W3 has spent 0 core-min.",
+  "successor_comparator": "d12y_grade_w3.py (md5 f3c1252c11fb94a3d4c580fdcbe7a62d) -- the frozen d12y_grade.py (02a9ab62..., blob aecceb4e...) is UNEDITED and cited; W3-A2 reads W from every manifest row and the ledger's W_STEPS line and refuses on any disagreement; W3-A1 sizes the step on max(delta_window exact, C_ENV/W = 0.8907/W). --selftest-w3 12/12 and the inherited --selftest PASS under python3 and -O.",
+  "images": {
+    "SHIPPED": "dafoam/opt-packages:latest sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc -- this entry buys the SHIPPED row (the launcher's default --image shipped); the PATCHED row (--image patched, <root>_p) is registered and NOT queued until the shipped row has a plan-step reading"
+  },
+  "container_memory_cap": "8g every stage (W2R's registered cap; D12R2 peak RSS 1.3461 GiB)",
+  "cpuset": "1 -- REGISTERED (W3_PREREGISTRATION.md section 5), the supervisor's placement for W3; W2R was 12",
+  "stage_wall_bounds_s": "7,200 every stage except S8 = 16,000 (266.7 core-min at np=1)",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady (must be ABSENT; created by phase 1)",
+  "rc_capture": "INSIDE the detached driver: each step's rc recorded in STATUS.W3_chain (cwd = the case directory); per stage the launcher reads docker inspect .State.ExitCode|OOMKilled before docker rm and writes the ledger STAGE= row and the manifest row (with the W key). STATUS.W3_chain launcher_rc from the runner is the driver's exit, not the verdict.",
+  "predictions": "P1 S2b bit-identical (delta_window_exact(2000) = 4.385710e-04); P2 |g(2000)| in [1.01, 1.37]; P3 PRIMARY BINARY admissible step EXISTS (h_min point 0.0391, falsified iff |g| < 0.8907); P4 phase-1 cost 196.4 +-15 %; P5 conditional: S8 authorised and reaches Optimal Solution Found. (PASS) or its registered terminus (GATE REACHED)",
+  "permission_record": "Sanaa's verbatim permission boarded at bc0e687e.",
+  "verdict_state": "PENDING",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.W3_chain (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "why_r2": "W3_chain.json was runner-fired 2026-08-27T03:43:17Z (pid 662453) and REFUSED at the launcher's A1 cap-agreement control at ZERO core-minutes: the operative cap defaults were the W3 DRAFT's (600.0 / 350.0) while the frozen registration named 900.0 / 400.0 (defect W3-LAUNCHER-DEF-1). The runner never re-fires a launched entry, so this is the re-fire entry against W3 AMENDMENT 1 (a6dcc964517464da2f603cad6202b6e19073643a), which repairs the launcher and NOT the registration -- no gate, threshold, cap, band, label, prediction, cost or cpuset moves, and CAP_CORE_MIN 900.0 / CAP_S8 400.0 are what section 4 registered on 2026-08-26 and remain. The amendment is legal under VERIFICATION_CHARTER section 2b because W3 has spent 0 core-min, and it states the condition and HOW IT WAS CHECKED (section 11.1): test -e on the run root is FALSE, driven twice inside the selftest.",
+  "instrument_md5s_at_this_commit": {
+    "d12y_grade_w3.py": "3b0a75079c932b41ec19477388498842 (was f3c1252c11fb94a3d4c580fdcbe7a62d) -- THE GRADING PATH, amended pre-compute under L-342/R-RC",
+    "d12y_w3_stage_and_run.sh": "20f8c0c51593576bddaa8a410659d997 (was 5563d8a8e22d28247233ca0e3aebfc2b) -- row[\"fatal_tokens\"] and the nine-pattern scan; NO cap, cpuset, memory, stage graph or W_STEPS value touched",
+    "d12y_w3_chain_driver.sh": "60b1edc17a1d041a78fe8e17cbbbaebf (was aaa5339db4abd9e0cf6c20701acefef4) -- BOTH pins re-pinned and asserted EQUAL to the files committed, because a stale pin is the D8R-DRIVER-DEF-1 death",
+    "d12y_w3_fatal_scan_control.sh": "new -- the R-RC-4 planted-failure proof"
+  },
+  "selftest_at_this_commit": "d12y_w3_groot5_selftest.sh pass=14 fail=0 at 2026-08-27T16:40:43Z, evidence committed beside it. Six cap-agreement legs, ALL ZERO COMPUTE, run AHEAD of the G-ROOT.5 legs: (d) planted CAP_CORE_MIN=600.0 -> exit 1 at A1; (e) planted CAP_S8=350.0 -> exit 1 at A1; (f) nothing planted -> A1 passes both limbs, refusal is A3 (exit 4), no cap abort; (g) operative defaults == *_REGISTERED constants; (h) *_REGISTERED == the caps section 4 registers; (i) PLANTED CONTROL -- a sacrificial copy carrying 600.0 makes (g) come out UNEQUAL, which is why (g) is evidence and not an assertion (rule 3). Plus two snapshot/restore legs closing W3-SELFTEST-DEF-1.",
+  "why_r3": "W3_chain_r2 reached the drop path at 562e5146 (16:43Z) and was WITHDRAWN to held/ at 16:46:37Z, BEFORE the runner fired it, on the supervisor's sequencing order: verification's L-342 audit (docs/L342_GRADER_AUDIT.md, 8fed44ed) found the frozen comparator conflated INFRASTRUCTURE and PHYSICS-CRITICAL fields. That comparator had NOT FIRED, so it was freely amendable pre-compute at zero cost -- and the window would have shut permanently the instant W3 launched. W3 AMENDMENT 2 (af44d244b72f0ca45797fb22034e4b7a1284a7b5) applies RULING R-RC IN FULL, as SANAA APPROVED IT on 2026-08-27 (standing directives section 0), plus the L-342 field-class split. Authority is a STANDING RULE ENFORCED (L-342 and R-RC, cited by name), NOT VERIFICATION_CHARTER section 2d.1's repair exception -- which is not needed, because W3 has spent 0 core-min and the ordinary pre-compute clause is wide open, and an exception used where the ordinary path is open is an exception being widened. No gate, threshold, cap, band, label or prediction moves.",
+  "grading_path_changes_at_this_commit": {
+    "ExecutionTime count below registered steps": "REFUSAL -> REPORTED as a bookkeeping defect (INFRASTRUCTURE, L-342). This is the clause that voided VMFLGPU001 on a GOOD run.",
+    "Time = count != registered steps": "REFUSAL, UNCHANGED -- the physics limb, and R14 of the new battery is the control that proves it was split off and not deleted.",
+    "rc RECORD absent from a manifest row": "REFUSAL -> NOT MEASURED with rc=0 INFERRED, fenced: granted ONLY when all four remaining rule-4 conditions hold, each named INDIVIDUALLY in the artefact, and ONLY when the fatal/signal log scan actually ran (R-RC-4). The inference is printed as an INFERENCE, never graded as a measurement -- CLAUDE.md rule 3 is untouched.",
+    "rc VALUE present and non-zero": "REFUSAL, UNCHANGED (R-RC-1, R-RC-3).",
+    "rc key present but None": "REFUSAL, NEW -- a record that exists and says nothing is not a licensed inference.",
+    "FOAM FATAL / signal token in the stage log": "REFUSAL, NEW (R-RC-4 strict half) -- fires REGARDLESS of rc, of the End line and of every other limb. The launcher now records fatal_tokens from the log text it already holds.",
+    "W3-A2 ledger ABSENT": "REFUSAL -> cross-read NOT MEASURED. The WINDOW is still gated: every row must carry W, the rows must agree, and the value must be the registered W_PRIMARY -- checked with no ledger, so a wrong window still cannot grade.",
+    "W3-A2 ledger PRESENT with !=1 W_STEPS line, or disagreeing": "REFUSAL, UNCHANGED -- present-and-wrong is R-RC-3s shape.",
+    "g0b ledger absent + manifest count != registered": "REFUSAL, UNCHANGED and deliberately so -- it fires on the count against a FROZEN CONSTANT the comparator types, which needs no ledger and which caught D12R2-DEF-2 and W2-DEF-1. The audit matched the line; reading it, the refusal is on the count."
+  },
+  "planted_failure_proofs_at_this_commit": "Sanaa's standing directives section 1: 'Every guard ships its planted-failure proof' (L-314). ALL ZERO COMPUTE, all re-driven in the commit invocation. --selftest-rrc 22/22 under python3 AND python3 -O: every permissive leg paired with the strict leg showing the same guard still refusing. R6 drives R-RC-2's fence ONCE PER CONDITION (rc absent + each of the four broken in turn must refuse ON THAT CONDITION, not on the missing record). R11 drives R-RC-4's fence (rc absent AND the scan never run must REFUSE). R14 is the control proving the physics limb was split off, not deleted. d12y_w3_fatal_scan_control.sh 12/12, EXTRACTING ITS PATTERNS FROM THE LAUNCHER rather than retyping them, refusing rather than reporting a clean zero if extraction finds fewer than five, driving all nine patterns individually, and showing innocuous prose containing 'signal'/'error'/'fatal'/'segment' NOT tripping it. Inherited battery 82/82 under both flags -- it FAILED 2/82 first, at U-01b and U-0d, both encoding the pre-amendment ExecutionTime behaviour; both were UPDATED to the new registered behaviour, not deleted, and U-0d now drives BOTH halves of the split. ast.Assert audit 0, with the counter SHOWN COUNTING a planted one. d12y_w3_groot5_selftest.sh 14/14 (Amendment 1's cap-agreement and snapshot/restore legs, re-driven against the re-pinned driver)."
+}
