@@ -1,0 +1,34 @@
+{
+ "team": "cfd",
+ "case_id": "F26D",
+ "prereg_commit": "ed09c9ef5f9ca20571105185e5210a1d60f8a231",
+ "prereg_path": "cases/F26_RINGLEB/PREREGISTRATION_F26D_2026-08-27.md",
+ "launch_cmd": [
+  "bash",
+  "/home/ubuntu/Certonomous/cases/F26_RINGLEB/run_f26d.sh",
+  "--prereg-commit=ed09c9ef5f9ca20571105185e5210a1d60f8a231"
+ ],
+ "cwd": "/home/ubuntu/Certonomous/cases/F26_RINGLEB",
+ "ranks": 1,
+ "cost_core_min_estimate": 6.8,
+ "cap_core_min_registered": 10.2,
+ "cost_basis": "derived, not measured: 3 arms x (96+384+1536+6144) cells x 4000 SIMPLE iterations = 97.92 M cell-iterations x 3.55 us/cell-iteration (rate read from ONE lab record of a DIFFERENT case, verification/runs/FPE_DIAG_runs/BL1/log.simpleFoam: 3520 cells, 2000 iterations, serial, ClockTime 25 s) = 347.6 s serial = 5.79 core-min, plus 12 mesh builds (blockMesh + checkMesh + postProcess) at ~5 s = 1.0 core-min; total 6.8 core-min, an UPPER estimate for the completing case since an arm that aborts costs less. Registered CAP 10.2 core-min = 1.5x (prereg section 6), checked after every run, a crossing HALTS at exit 3 and the cap is never raised. Dollars at the owner-stated $0.0513/core-h, reported-by-owner and NOT MEASURED: $0.0058 estimate, $0.0087 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5).",
+ "memory_floor_gb": 0.5,
+ "enqueued_by": "cfd lane G3, 2026-08-27, DRAFTED AND VALIDATED BUT NOT ENQUEUED. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 checks 1 and 4 are the supervisor's own and are NOT discharged by this file. Held under the case directory; it is the supervisor's to drop into verification/queue/cfd/ after those checks, as it was for F17c.",
+ "_schema_note": "Fields above are scripts/queue_entry_check.py REQUIRED_FIELDS. Fields below are cfd annotations the validator ignores.",
+ "run_root": "/home/ubuntu/Certonomous/verification/runs/F26D_runs -- ABSENT at registration, checked 2026-08-27T19:34:38Z (prereg section 8). The launcher creates it and REFUSES a pre-existing time or processor directory rather than deleting it.",
+ "arms": "A0 reference (band k=[0.5,0.8], mu=0); AV = A0 with THE ONE CHANGE mu 0 -> 1e-3; AM = A0 with THE ONE CHANGE band -> k=[0.277154,0.35], d(psi) matched to 0.7500. One change per run (Sanaa section 3); 3 arms x 4 levels 24x4 / 48x8 / 96x16 / 192x32, r = 2.000 exactly, all SERIAL.",
+ "what_it_is": "L0 DIAGNOSTIC EXTENSION, NOT A LADDER and NOT an L1-L7 repair. It does NOT rescope or unblock F26_RINGLEB, which stays BLOCKED, and the rescope cost is NOT established.",
+ "registered_prediction": "A0 COMPLETES L1 (96 cells) and L2 (384) and FAILS at L3 (1536), from the prior 600-864 cell threshold. If A0 completes L3 the arm is NOT A RESULT -- a registered refusal condition. Reading table (prereg section 4.2, all four rows reachable): AV fixes & AM does not -> C_mu; AM fixes & AV does not -> {C_kappa OR C_M}, not separated further; both fix -> AMBIGUOUS; neither fixes -> NONE of the three, cause is solver/BC/scheme.",
+ "separation_honestly_labelled": "PARTIAL. Separates C_mu from {C_kappa, C_M} cleanly by one knob, and {C_kappa OR C_M} jointly from 'none of the three'. DOES NOT separate C_kappa from C_M by any knob: measured at registration time, max Mach and max wall curvature are both strictly monotone in k and both peak at phi=0, so no K_MIN/K_MAX/PHI_END separates them. A secondary scale-invariance reading (curvature enters only as kappa*h, which refinement reduces) is registered AS SECONDARY and cannot carry a conclusion alone.",
+ "no_richardson": "NO Richardson extrapolation is performed: grade_f26d.py does not import roache_triple, computes no observed order and reports no GCI. Proved MECHANICALLY from the AST by control G7. The known absence of a minimum-r guard in scripts/roache_triple.py is verification's to fix and was NOT touched; r = 2.000 here and no claim depends on it.",
+ "grade_cmd": [
+  "python3",
+  "/home/ubuntu/Certonomous/cases/F26_RINGLEB/grade_f26d.py",
+  "--prereg-commit=ed09c9ef5f9ca20571105185e5210a1d60f8a231"
+ ],
+ "verdict_state": "PENDING",
+ "freeze_history": "ADDED at 6ab2e257774c727c11822271722a962b8bba1b72 (git log --diff-filter=A --format=%H -- the prereg path; exactly one adding commit, never from a commit subject), prereg blob 1ec23cbf7142. AMENDMENT 1, BEFORE FIRST COMPUTE and moving NO gate/threshold/cap/label, at ed09c9ef5f9ca20571105185e5210a1d60f8a231, prereg blob 3e6a6a38c393. --diff-filter=A STILL RETURNS THE ADDING COMMIT 6ab2e257774c727c11822271722a962b8bba1b72 AND DOES NOT MOVE, because the prereg was MODIFIED not added; THE SHA THE LAUNCHER AND GRADER MUST BE HANDED IS THE AMENDING COMMIT ed09c9ef5f9ca20571105185e5210a1d60f8a231, exactly as the F17 entry records for its own pre-compute amendment. Proved mechanically: grade_f26d.py --prereg-commit=6ab2e257774c727c11822271722a962b8bba1b72 REFUSES (blob 3e6a6a38c393 on disk != committed 1ec23cbf7142), and --prereg-commit=ed09c9ef5f9ca20571105185e5210a1d60f8a231 prints FREEZE VERIFIED.",
+ "amendment_1": "grade_f26d.py classified an ABSENT level as FAILED, so a cap halt would have been read as a physics failure at exactly the level where the money ran out and mapped onto a registered conclusion (demonstrated: it returned 'NONE of the three'). Fixed: UNRUN and BUILD_FAILED are their own states, N* comes from the first non-COMPLETED level, an infrastructure state gives UNDETERMINED and NOT A RESULT, and the cap halt is READ from run_f26d.sh's CAP_HALT.json rather than inferred. Unrun levels stay PENDING. Grader controls 8 -> 13, including the mutation G10 that reintroduces the defect and requires the new control to flip.",
+ "cap_behaviour": "10.2 core-min = 1.5 x the 6.8 estimate, registered in PREREGISTRATION_F26D section 6 and enforced by run_f26d.sh:19. Checked by the launcher after every run in ClockTime x ranks / 60; a crossing HALTS at exit 3 and later levels are left UNRUN. The cap is NEVER raised (rule 12: an overrun stops the run and does not get a new budget). AMENDMENT 1 adds that it does not get a CONCLUSION either: the launcher writes CAP_HALT.json and grade_f26d.py reads it, reporting NOT A RESULT rather than converting the halt into a threshold."
+}
