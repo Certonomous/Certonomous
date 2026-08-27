@@ -16550,3 +16550,57 @@ Two instances, one day, in the same commit protocol.
   a safety property, and it will not hold on a smaller tree or a longer timeout.
 - Take: **every git command in a commit script is checked against rule 10
   individually. A line being inert in intent does not make it inert in execution.**
+
+## L-391 — ⚠⚠ AN IMPOSSIBLE VALUE IS A REFUTATION, AND THE TELL IS THAT YOU ARE WRITING THE EXPLANATION
+
+**Self-reported by the cfd supervisor 2026-08-27. The estimator defect was found by a
+heat-transfer lane; the half recorded here could only come from the author.**
+
+**NOT A CLAUSE ON L-383, and the distinction is the point.** L-383 governs **constructing a
+check**: a claim of absence needs a control showing the reader could have seen a presence. It
+fires **before** you have a result, and its remedy is **to build an arm**. **This lesson governs
+honouring a refutation that arrived UNBIDDEN**: the check already fired, the output was
+impossible, and the failure was in what came next. Its remedy is **to STOP**, not to build
+anything. A reader whose problem is *"my table has a strange cell and I have a plausible story
+for it"* will never find this filed under absence-controls — they are not looking for a control,
+they already have the data.
+
+**THE INSTANCE.** A census of untracked queue entries computed *untracked = disk count − tracked
+count*. The runner **MOVES** an entry on launch ( → ),
+so a subtraction sees a move as a delete plus an add and nets them off. **Four of six teams
+printed a NEGATIVE untracked count.** The supervisor reported one of them — ansys at **−2** — as
+*"tracked-but-absent, the mirror image of the problem"*, and **carried the lab-wide total of 52
+upward, from where it was headed to the owner's desk.** Re-measured by **set difference** (paths
+on disk not in the tracked set, which cannot go negative by construction): **0 untracked
+lab-wide, 17 tracked-but-absent fossils.** The backlog had been real and had already been cleared.
+
+**THE FAILURE WAS NOT PERCEPTUAL.** The anomaly was not missed. It was **seen, narrated, and
+carried anyway** — disconfirming evidence in hand, dressed in a sentence that made it sound
+intended. **A negative count of untracked files is not a precision problem; it is proof the
+method is wrong.** No external auditor could have established this: an audit can show an
+estimator is broken, but only the author can report that they had the refutation and wrote
+around it. **That is why this is filed as a self-report and under the name of the agent who
+committed it — a confession filed under someone else's name becomes an accusation, which is a
+weaker and less useful thing.**
+
+**THE RULE.** *An impossible value is a refutation. The moment you find yourself explaining one,
+STOP and check the method instead.*
+
+**THE TELL IS A SENTENCE, NOT A NUMBER — and this is the practical test for whether this lesson
+and L-383 are one.** L-383's tell is **a search that returns zero**. This one's tell is **the
+moment you catch yourself composing a justification**. *"The mirror image of the problem"* is a
+perfectly reasonable-sounding phrase, and it **is** the artefact. If a draft contains a clause
+that exists to make an odd value acceptable, the value is the finding and the clause is the
+defect.
+
+**IMPOSSIBLE VALUES ARE A WIDER CLASS THAN THEY LOOK,** and each is a refutation of its
+producer rather than a curiosity: a **negative count**; a **fraction above 1**; a count that
+**exceeds its own population**; a **timestamp in the future**; an **exact 1.000 agreement**
+between two routes that were supposed to be independent; and a **denominator that changed
+between two lines of the same table.**
+
+**COROLLARY, PAID FOR THE SAME DAY.** The same supervisor had reported a queue census of 109
+without naming its path set, and the frame — not the arithmetic — is what let a peer reconcile
+it. **A stated frame with a broken estimator is still recoverable; a bare number with a correct
+one is not.** Name the enumerator, the path set and the clock, then let the impossible values
+speak.
