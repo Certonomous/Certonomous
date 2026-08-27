@@ -1,0 +1,652 @@
+#!/usr/bin/env python
+"""Curriculum SO-1b -- NACA0012 INCOMPRESSIBLE drag-min-at-fixed-lift, the
+OPTIMISATION RUNG of Sanaa's shape-optimisation ladder SO-1, on TWO TOOLCHAIN
+ROWS.
+
+DERIVED FROM `curriculum_SO1a/so1a_xf.py` (md5 f34bd5bf550786ff926aed81b342cced)
+with EXACTLY the registered deltas listed in PREREGISTRATION.md section 7 and
+recorded in `so1b_of_DELTAS_from_so1a_xf.diff`.  The producer, the anchor-split
+exec of its header, the emit/fsync discipline, the MPI rank-0 file rule, the
+eta measurement, the central-difference table, the CHARTER-4 trivial baseline
+and the CTRL planted-zero control with its disk read-back refusal are SO-1a's
+bytes, re-pointed.  WHAT IS NEW IS TWO MODES:
+
+  * MODE O -- THE OPTIMISATION.  `optFuncs.findFeasibleDesign` restores the CL
+    equality by angle of attack (the tutorial's own first line under
+    `run_driver`), then `prob.run_driver()` runs IPOPT.  The instrument records
+    the COLD baseline, the TRIMMED baseline, IPOPT's own `EXIT:` line verbatim,
+    its `Number of Iterations`, the final design vector, and the constraint
+    values at the optimum.  It NEVER decides whether the run converged --
+    `DAFOAM_CHARTER.md` section 9 gives that to the optimiser's own statement,
+    and the grader re-reads `opt_IPOPT.txt` independently and refuses if the two
+    channels disagree.
+
+  * MODE E -- THE ENDPOINT.  `DAFOAM_CHARTER.md` section 9, verbatim: "Every
+    optimisation reports a finite-difference check of the gradient AT ITS FINAL
+    DESIGN POINT, not only at the baseline."  Mode E re-solves at the optimum,
+    checks the CL equality and the 23 geometric constraint rows there, takes the
+    adjoint AND the central-difference table on the SAME five components SO-1a
+    registered at the BASELINE (so baseline and optimum are directly
+    comparable), buys the trivial baseline at the wrong step, and writes the
+    D7R ATTRIBUTION ARTEFACT.
+
+  * G-ROWX, NEW AND DRIVEN.  Mode E refuses an optimum produced on the OTHER
+    row's library: the O artefact carries the in-process `libidwarp.so` md5 of
+    the process that produced it, and mode E compares it with its own.  A row is
+    an image hash, never a directory name (`DAFOAM_CHARTER.md` section 6).
+
+  * THE D7R ATTRIBUTION DECOMPOSITION, five primals, registered before it runs.
+    Sanaa's directive of 2026-08-27T16:54Z section 4: "no improvement % quoted
+    before its mechanism is decomposed (shape vs AoA vs operating point)".  This
+    instrument buys the decomposition rather than asserting it:
+
+        A0  shape = 0,      aoa = aoa0      the tutorial's declared cold baseline
+        A   shape = 0,      aoa = aoa_T     the CL-TRIMMED baseline -- THE REFERENCE
+        B   shape = 0,      aoa = aoa*      AoA alone
+        C   shape = shape*, aoa = aoa_T     shape alone
+        D   shape = shape*, aoa = aoa*      the optimum (the re-solve)
+        C'  shape = shape*, re-trimmed to CL = CL_target   shape AT MATCHED LIFT
+
+    EVERY point records its CL beside its CD.  A channel's dCD is meaningless
+    without its dCL on a lift-constrained problem, and the gate requires both.
+    The OPERATING-POINT channel is ASSERTED IDENTICALLY ZERO, never assumed:
+    `patchV[0]` (|U|) is bounded lower == upper == U0 by the producer, so the
+    instrument compares `patchV*[0]` with `U0` exactly and records the result.
+
+  * NO `assert` STATEMENT CARRIES A GUARD, A REFUSAL, A CONTROL OR A GATE
+    (L-332): `python3 -O` deletes every assert.  Every refusal here is an
+    explicit `sys.exit`.  The grader counts `ast.Assert` in this file and
+    refuses on a non-zero count.
+"""
+
+import hashlib
+import json
+import os
+import re
+import sys
+import time
+
+PRODUCER = "so1b_runScript.py"
+PRODUCER_MD5 = "0557da51f6f179f6de865144343c499f"
+ANCHOR = "# OpenMDAO setup"
+ITEM = "SO1b"
+
+# ---- registered constants (PREREGISTRATION.md section 3) --------------------
+ETA_FLOOR = 1.0e-14
+STEPS = {
+    "shape":  [1.0e-2, 1.0e-3, 1.0e-4],
+    "patchV": [1.0e-1, 1.0e-2, 1.0e-3],
+}
+TB_STEPS = {
+    "shape":  [1.0e-8],
+    "patchV": [1.0e-6],
+}
+# THE SAME FIVE COMPONENTS SO-1a REGISTERED AT THE BASELINE.  That identity is
+# the point: it is what makes "verified at iteration 0" and "verified at the
+# optimum" the SAME measurement at two design points, which is the comparison
+# DAFOAM_CHARTER.md section 9 exists to demand.
+COMPONENTS = [
+    ("shape", 0),
+    ("shape", 3),
+    ("shape", 6),
+    ("shape", 7),
+    ("patchV", 1),
+]
+CTRL_STEP = 1.0e-3
+PLANT = 1.234e-03                       # rule 3
+
+# THE REGISTERED OPTIMISER SETTINGS.  NONCONVERGENCE_STANDARD.md (7ffd6c73)
+# anti-gaming clause, absolute: answer-changing choices are NEVER selected by
+# agreement with the reference, and optimiser settings enter that class the
+# moment they are chosen by looking at the answer.  They are therefore fixed
+# HERE, before any container starts, and they are the TUTORIAL'S OWN values
+# except MAX_ITER, which is lowered from the tutorial's 100 to a registered
+# bound that fits inside the core-minute cap (PREREGISTRATION.md section 4).
+OPTIMIZER = "IPOPT"
+MAX_ITER = 30
+OPT_SETTINGS = {
+    "tol": 1.0e-5,
+    "constr_viol_tol": 1.0e-5,
+    "max_iter": MAX_ITER,
+    "print_level": 5,
+    "output_file": "opt_IPOPT.txt",
+    "mu_strategy": "adaptive",
+    "limited_memory_max_history": 10,
+    "nlp_scaling_method": "none",
+    "alpha_for_y": "full",
+    "recalc_y": "yes",
+}
+
+OUT_O = "so1b_O.json"
+OUT_E = "so1b_E.json"
+OUT_ATTR = "attribution.json"
+JSONL_O = "so1b_O.jsonl"
+JSONL_E = "so1b_E.jsonl"
+IPOPT_FILE = "opt_IPOPT.txt"
+
+CONS_KEYS = ("geometry.thickcon", "geometry.volcon", "geometry.rcon")
+
+
+def md5_of(path):
+    with open(path, "rb") as fh:
+        return hashlib.md5(fh.read()).hexdigest()
+
+
+def idwarp_identity():
+    try:
+        import idwarp
+        p = idwarp.__file__
+        so = os.path.join(os.path.dirname(p), "libidwarp.so")
+        return {"idwarp_file": p, "libidwarp_so_md5": md5_of(so)}
+    except Exception as exc:                                  # noqa: BLE001
+        return {"idwarp_file": None, "libidwarp_so_md5": None, "error": repr(exc)[:200]}
+
+
+def case_write_compression():
+    """Read `writeCompression` from THE CASE'S OWN system/controlDict (AV-1/AV-2)."""
+    p = os.path.join("system", "controlDict")
+    try:
+        for line in open(p, errors="replace"):
+            s = line.strip()
+            if s.startswith("writeCompression"):
+                return {"write_compression": s.rstrip(";").split()[-1],
+                        "write_compression_source": os.path.abspath(p)}
+    except OSError as exc:                                    # noqa: BLE001
+        return {"write_compression": None, "write_compression_source": None,
+                "write_compression_error": repr(exc)[:200]}
+    return {"write_compression": None, "write_compression_source": os.path.abspath(p),
+            "write_compression_error": "key absent from controlDict"}
+
+
+def parse_args(argv):
+    mode, row = None, None
+    for i, a in enumerate(argv):
+        if a == "-mode" and i + 1 < len(argv):
+            mode = argv[i + 1]
+        if a == "-row" and i + 1 < len(argv):
+            row = argv[i + 1]
+    if mode not in ("O", "E"):
+        sys.stderr.write("SO1B_OF usage: so1b_of.py -mode O|E -row P|S\n")
+        sys.exit(64)
+    if row not in ("P", "S"):
+        sys.stderr.write("SO1B_OF usage: so1b_of.py -mode O|E -row P|S\n")
+        sys.exit(64)
+    return mode, row
+
+
+def read_ipopt(path):
+    """IPOPT's OWN statement, read from its OWN file, never inferred.
+
+    Returns the last `EXIT:` line verbatim and the last `Number of Iterations`
+    count.  An absent EXIT line is reported as absent -- DAFOAM_CHARTER.md
+    section 9 forbids using the word converged of a run whose optimiser printed
+    no convergence statement, so the absence is a recorded datum and never a
+    default.
+    """
+    out = {"ipopt_file": os.path.abspath(path), "exit_line": None,
+           "majors": None, "n_exit_lines": 0, "readable": False}
+    try:
+        with open(path, errors="replace") as fh:
+            txt = fh.read()
+    except OSError as exc:                                    # noqa: BLE001
+        out["error"] = repr(exc)[:200]
+        return out
+    out["readable"] = True
+    exits = re.findall(r"^(EXIT:.*)$", txt, re.M)
+    iters = re.findall(r"^Number of Iterations\.*:\s*(\d+)\s*$", txt, re.M)
+    out["n_exit_lines"] = len(exits)
+    if exits:
+        out["exit_line"] = exits[-1].strip()
+    if iters:
+        out["majors"] = int(iters[-1])
+    return out
+
+
+def main():
+    mode, row = parse_args(sys.argv)
+    got = md5_of(PRODUCER)
+    if got != PRODUCER_MD5:
+        sys.stderr.write("SO1B_OF REFUSE producer md5 %s != frozen %s\n"
+                         % (got, PRODUCER_MD5))
+        sys.exit(2)
+
+    with open(PRODUCER) as fh:
+        src = fh.read()
+    if src.count(ANCHOR) != 1:
+        sys.stderr.write("SO1B_OF REFUSE anchor %r appears %d times\n"
+                         % (ANCHOR, src.count(ANCHOR)))
+        sys.exit(2)
+    header = src.split(ANCHOR)[0]
+
+    saved_argv = list(sys.argv)
+    sys.argv = [PRODUCER, "-task", "run_model", "-optimizer", OPTIMIZER]
+    ns = {"__name__": "so1b_frozen_header", "__file__": PRODUCER}
+    exec(compile(header, PRODUCER, "exec"), ns)
+    sys.argv = saved_argv
+
+    from mpi4py import MPI
+    import numpy as np
+    import openmdao.api as om
+
+    rank = MPI.COMM_WORLD.rank
+    nprocs = MPI.COMM_WORLD.size
+    Top = ns["Top"]
+    OptFuncs = ns["OptFuncs"]
+    daOptions = ns["daOptions"]
+    U0 = float(ns["U0"])
+    aoa0 = float(ns["aoa0"])
+    CL_target = float(ns["CL_target"])
+    jsonl = JSONL_O if mode == "O" else JSONL_E
+
+    def emit(rec):
+        if rank != 0:
+            return
+        with open(jsonl, "a") as fh:
+            fh.write(json.dumps(rec, sort_keys=True) + "\n")
+            fh.flush()
+            os.fsync(fh.fileno())
+
+    ident = idwarp_identity()
+    ident.update(case_write_compression())
+    emit({"kind": "identity", "item": ITEM, "mode": mode, "row": row,
+          "nprocs": nprocs, "producer_md5": got,
+          "solverName": daOptions.get("solverName"),
+          "primalMinResTol": daOptions.get("primalMinResTol"),
+          "U0": U0, "aoa0": aoa0, "CL_target": CL_target, "p0": ns.get("p0"),
+          "optimizer": OPTIMIZER, "opt_settings": OPT_SETTINGS,
+          "max_iter_registered": MAX_ITER, **ident})
+
+    prob = om.Problem()
+    prob.model = Top()
+    prob.setup(mode="rev")
+
+    CD = "scenario1.aero_post.CD"
+    CL = "scenario1.aero_post.CL"
+
+    base = {"shape": np.array(prob.get_val("shape"), dtype=float).copy(),
+            "patchV": np.array(prob.get_val("patchV"), dtype=float).copy()}
+    emit({"kind": "baseline_dvs", "n_shape": int(base["shape"].size),
+          "n_patchV": int(base["patchV"].size),
+          "shape": [repr(float(v)) for v in base["shape"]],
+          "patchV": [repr(float(v)) for v in base["patchV"]]})
+
+    def vec(k):
+        return np.array(prob.get_val(k), dtype=float).copy()
+
+    def cons_now():
+        out = {}
+        for k in CONS_KEYS:
+            try:
+                out[k] = [repr(float(v)) for v in np.atleast_1d(np.array(prob.get_val(k)).ravel())]
+            except Exception as exc:                          # noqa: BLE001
+                out[k] = {"error": repr(exc)[:200]}
+        return out
+
+    def primal(tag):
+        t0 = time.time()
+        prob.run_model()
+        cd = float(prob.get_val(CD)[0])
+        cl = float(prob.get_val(CL)[0])
+        emit({"kind": "primal", "tag": tag, "CD": repr(cd), "CL": repr(cl),
+              "wall_s": round(time.time() - t0, 3)})
+        return cd, cl
+
+    # =====================================================================
+    # MODE O -- THE OPTIMISATION
+    # =====================================================================
+    if mode == "O":
+        cd_cold, cl_cold = primal("cold_baseline")
+        cons_cold = cons_now()
+        emit({"kind": "cold_baseline", "CD": repr(cd_cold), "CL": repr(cl_cold),
+              "patchV": [repr(float(v)) for v in vec("patchV")], "cons": cons_cold})
+
+        prob.driver = om.pyOptSparseDriver()
+        prob.driver.options["optimizer"] = OPTIMIZER
+        prob.driver.opt_settings = dict(OPT_SETTINGS)
+        prob.driver.options["debug_print"] = ["nl_cons", "objs", "desvars"]
+        prob.driver.options["print_opt_prob"] = True
+        prob.driver.hist_file = "OptView.hst"
+        optFuncs = OptFuncs(daOptions, prob)
+
+        # the tutorial's OWN first line under run_driver: restore the CL
+        # equality by ANGLE OF ATTACK.  This is the REGISTERED REFERENCE point
+        # for every improvement percentage this item will ever quote.
+        t_trim = time.time()
+        optFuncs.findFeasibleDesign([CL], ["patchV"], targets=[CL_target],
+                                    designVarsComp=[1])
+        cd_trim = float(prob.get_val(CD)[0])
+        cl_trim = float(prob.get_val(CL)[0])
+        pv_trim = vec("patchV")
+        emit({"kind": "trimmed_baseline", "CD": repr(cd_trim), "CL": repr(cl_trim),
+              "patchV": [repr(float(v)) for v in pv_trim],
+              "wall_s": round(time.time() - t_trim, 3),
+              "note": "THE REGISTERED REFERENCE for every improvement percentage"})
+
+        t0 = time.time()
+        prob.run_driver()
+        driver_wall = round(time.time() - t0, 2)
+        cd_opt = float(prob.get_val(CD)[0])
+        cl_opt = float(prob.get_val(CL)[0])
+        sh_opt, pv_opt = vec("shape"), vec("patchV")
+        cons_opt = cons_now()
+        ipopt = read_ipopt(IPOPT_FILE)
+        emit({"kind": "driver_done", "wall_s": driver_wall, "ipopt": ipopt,
+              "CD": repr(cd_opt), "CL": repr(cl_opt)})
+
+        if rank == 0:
+            out = {
+                "item": ITEM, "mode": "O", "row": row, "producer_md5": got,
+                "nprocs": nprocs, "identity": ident,
+                "optimizer": OPTIMIZER, "opt_settings": OPT_SETTINGS,
+                "max_iter_registered": MAX_ITER,
+                "CD_cold": repr(cd_cold), "CL_cold": repr(cl_cold),
+                "cons_cold": cons_cold,
+                "aoa0": repr(aoa0), "U0": repr(U0), "CL_target": repr(CL_target),
+                "CD_trimmed": repr(cd_trim), "CL_trimmed": repr(cl_trim),
+                "patchV_trimmed": [repr(float(v)) for v in pv_trim],
+                "CD_opt": repr(cd_opt), "CL_opt": repr(cl_opt),
+                "shape_opt": [repr(float(v)) for v in sh_opt],
+                "patchV_opt": [repr(float(v)) for v in pv_opt],
+                "cons_opt": cons_opt,
+                "driver_wall_s": driver_wall,
+                "ipopt": ipopt,
+                "note_section_9": (
+                    "DAFOAM_CHARTER.md section 9: PASS requires the OPTIMISER'S OWN "
+                    "convergence statement.  This instrument records that statement "
+                    "and never substitutes a judgement for it; the grader re-reads "
+                    "opt_IPOPT.txt independently and refuses if the two disagree."),
+            }
+            with open(OUT_O, "w") as fh:
+                json.dump(out, fh, indent=1, sort_keys=True)
+                fh.flush()
+                os.fsync(fh.fileno())
+            sys.stdout.write("SO1B_IPOPT_EXIT %s\n" % (ipopt.get("exit_line"),))
+            sys.stdout.write("SO1B_IPOPT_MAJORS %s\n" % (ipopt.get("majors"),))
+            sys.stdout.write("SO1B_O_WRITTEN %s\n" % OUT_O)
+        MPI.COMM_WORLD.Barrier()
+        return
+
+    # =====================================================================
+    # MODE E -- THE ENDPOINT: re-solve, constraints, attribution, FD, adjoint
+    # =====================================================================
+    opt_path = os.path.join("..", "O-%s" % row, OUT_O)
+    if not os.path.exists(opt_path):
+        sys.stderr.write("SO1B_OF REFUSE mode E: the O artefact for row %s is absent: %s\n"
+                         % (row, os.path.abspath(opt_path)))
+        sys.exit(2)
+    with open(opt_path) as fh:
+        O = json.load(fh)
+
+    # ---- G-ROWX: an optimum from the OTHER ROW'S LIBRARY is refused ---------
+    my_so = ident.get("libidwarp_so_md5")
+    o_so = (O.get("identity") or {}).get("libidwarp_so_md5")
+    if my_so is None or o_so is None or my_so != o_so:
+        sys.stderr.write(
+            "SO1B_OF REFUSE G-ROWX mode E row=%s: the O artefact was produced by "
+            "libidwarp.so md5 %r; this process carries %r.  A row is an image hash, "
+            "never a directory name (DAFOAM_CHARTER.md section 6).\n" % (row, o_so, my_so))
+        sys.exit(2)
+    sys.stdout.write("SO1B_G_ROWX_PASS row=%s libidwarp_so_md5=%s\n" % (row, my_so))
+
+    sh_star = np.array([float(v) for v in O["shape_opt"]], dtype=float)
+    pv_star = np.array([float(v) for v in O["patchV_opt"]], dtype=float)
+    pv_trim = np.array([float(v) for v in O["patchV_trimmed"]], dtype=float)
+    aoa_star = float(pv_star[1])
+    aoa_trim = float(pv_trim[1])
+    sh_zero = np.zeros_like(sh_star)
+    emit({"kind": "optimum_read", "from": os.path.abspath(opt_path),
+          "shape_opt": [repr(float(v)) for v in sh_star],
+          "patchV_opt": [repr(float(v)) for v in pv_star],
+          "patchV_trimmed": [repr(float(v)) for v in pv_trim],
+          "aoa0": repr(aoa0), "aoa_trimmed": repr(aoa_trim), "aoa_opt": repr(aoa_star)})
+
+    def set_design(sh, pv):
+        prob.set_val("shape", np.asarray(sh, dtype=float).copy())
+        prob.set_val("patchV", np.asarray(pv, dtype=float).copy())
+
+    def point(tag, sh, pv):
+        set_design(sh, pv)
+        cd, cl = primal(tag)
+        rec = {"tag": tag, "CD": repr(cd), "CL": repr(cl),
+               "shape": [repr(float(v)) for v in np.asarray(sh, dtype=float)],
+               "patchV": [repr(float(v)) for v in np.asarray(pv, dtype=float)],
+               "cons": cons_now()}
+        emit({"kind": "attribution_point", "row": rec})
+        return rec, cd, cl
+
+    # ---- THE D7R DECOMPOSITION, five registered points ----------------------
+    A0, cdA0, clA0 = point("A0_cold_shape0_aoa0", sh_zero, [U0, aoa0])
+    A, cdA, clA = point("A_trimmed_shape0_aoaT", sh_zero, [U0, aoa_trim])
+    B, cdB, clB = point("B_aoa_only_shape0_aoaStar", sh_zero, [U0, aoa_star])
+    C, cdC, clC = point("C_shape_only_shapeStar_aoaT", sh_star, [U0, aoa_trim])
+    D, cdD, clD = point("D_optimum_shapeStar_aoaStar", sh_star, [U0, aoa_star])
+    cons_D = D["cons"]
+
+    # ---- C': the shape channel AT MATCHED LIFT ------------------------------
+    # On a lift-constrained problem the angle of attack is a DEPENDENT variable,
+    # not a free channel.  C' re-trims the OPTIMUM SHAPE back to CL_target and
+    # is therefore the shape channel measured the way the constraint defines it.
+    # C' should coincide with D to within the optimiser's own feasibility
+    # tolerance; the difference is a CHECK ON THE OPTIMUM'S FEASIBILITY and is
+    # recorded as one.
+    Cprime = {"tag": "Cprime_shapeStar_retrimmed", "ok": False}
+    try:
+        set_design(sh_star, [U0, aoa_trim])
+        optFuncs_E = OptFuncs(daOptions, prob)
+        t_rt = time.time()
+        optFuncs_E.findFeasibleDesign([CL], ["patchV"], targets=[CL_target],
+                                      designVarsComp=[1])
+        cdCp = float(prob.get_val(CD)[0])
+        clCp = float(prob.get_val(CL)[0])
+        pvCp = vec("patchV")
+        Cprime = {"tag": "Cprime_shapeStar_retrimmed", "ok": True,
+                  "CD": repr(cdCp), "CL": repr(clCp),
+                  "shape": [repr(float(v)) for v in sh_star],
+                  "patchV": [repr(float(v)) for v in pvCp],
+                  "cons": cons_now(), "wall_s": round(time.time() - t_rt, 3)}
+    except Exception as exc:                                  # noqa: BLE001
+        Cprime = {"tag": "Cprime_shapeStar_retrimmed", "ok": False,
+                  "error": repr(exc)[:400]}
+    emit({"kind": "attribution_point", "row": Cprime})
+
+    # ---- the OPERATING-POINT channel, ASSERTED IDENTICALLY ZERO -------------
+    # `patchV[0]` is |U|, bounded lower == upper == U0 by the producer
+    # (so1b_runScript.py add_design_var("patchV", lower=[U0,0.0], upper=[U0,10.0])).
+    # The operating point therefore CANNOT move in this item.  That is checked
+    # against the number, not assumed from the bound.
+    u_opt = float(pv_star[0])
+    u_moved = bool(u_opt != U0)
+    op_channel = {"U0_registered": repr(U0), "U_at_optimum": repr(u_opt),
+                  "moved": u_moved, "dCD_operating_point": repr(0.0),
+                  "basis": ("|U| is bounded lower == upper == U0 by the producer, so the "
+                            "operating point cannot move; this is CHECKED against the "
+                            "optimum's own patchV[0], never assumed from the bound")}
+    emit({"kind": "operating_point_channel", "row": op_channel})
+
+    d_total = cdD - cdA
+    d_aoa = cdB - cdA
+    d_shape = cdC - cdA
+    d_inter = d_total - d_aoa - d_shape
+    d_trim = cdA - cdA0
+    attribution = {
+        "item": ITEM, "row": row,
+        "reference": {"name": "A_trimmed_shape0_aoaT", "CD": repr(cdA), "CL": repr(clA),
+                      "why": ("the CL-TRIMMED baseline is the reference because the cold "
+                              "baseline does not satisfy the equality constraint; measuring "
+                              "from the cold baseline would credit the optimiser with undoing "
+                              "a drag rise the trim itself caused (D1 measured that rise: "
+                              "CD_cold 0.020910510006792161 -> CD_feasible 0.020943920630946831)")},
+        "points": {"A0": A0, "A": A, "B": B, "C": C, "D": D, "Cprime": Cprime},
+        "naive_one_factor": {
+            "dCD_total": repr(d_total), "dCD_aoa": repr(d_aoa),
+            "dCD_shape": repr(d_shape), "dCD_interaction": repr(d_inter),
+            "dCL_aoa": repr(clB - clA), "dCL_shape": repr(clC - clA),
+            "dCL_total": repr(clD - clA),
+            "note": ("a channel's dCD is meaningless without its dCL on a lift-constrained "
+                     "problem: an AoA channel that appears to remove drag has shed the lift "
+                     "the constraint exists to hold"),
+        },
+        "matched_lift": {
+            "dCD_shape_matched": repr(cdD - cdA),
+            "dCD_aoa_matched": repr(0.0),
+            "basis": ("at fixed CL the angle of attack is a DEPENDENT variable determined by "
+                      "the shape, so the matched-lift decomposition has exactly one flow "
+                      "channel (shape) plus the trim; the naive AoA channel is an artefact of "
+                      "ignoring the constraint and is reported to show why"),
+            "feasibility_check_Cprime_vs_D": (
+                repr(float(Cprime["CD"]) - cdD) if Cprime.get("ok") else None),
+        },
+        "trim_channel": {"dCD_trim": repr(d_trim), "CD_cold": repr(cdA0),
+                         "CL_cold": repr(clA0), "CD_trimmed": repr(cdA),
+                         "note": "reported separately and NEVER netted into the improvement"},
+        "operating_point_channel": op_channel,
+        "improvement_percent_vs_reference": repr(-100.0 * d_total / cdA) if cdA != 0.0 else None,
+        "improvement_percent_vs_cold": (
+            repr(-100.0 * (cdD - cdA0) / cdA0) if cdA0 != 0.0 else None),
+        "gate_note": ("SO-1b G-D7R: no improvement percentage may be REPORTED unless this "
+                      "artefact exists, every point above carries a finite CD and CL, and the "
+                      "operating-point channel is asserted zero.  The grader suppresses the "
+                      "percentage otherwise -- the attribution is a GATE, not a caveat."),
+    }
+    if rank == 0:
+        with open(OUT_ATTR, "w") as fh:
+            json.dump(attribution, fh, indent=1, sort_keys=True)
+            fh.flush()
+            os.fsync(fh.fileno())
+        sys.stdout.write("SO1B_ATTRIBUTION_WRITTEN %s\n" % OUT_ATTR)
+
+    # ---- back to the OPTIMUM: everything below is measured AT x* ------------
+    set_design(sh_star, pv_star)
+    cd0, cl0 = primal("endpoint_baseline")
+    cd0r, cl0r = primal("endpoint_baseline_repeat")
+    eta_raw = abs(cd0 - cd0r)
+    eta_flagged = bool(eta_raw < ETA_FLOOR)
+    eta = ETA_FLOOR if eta_flagged else eta_raw
+    emit({"kind": "eta", "eta_raw": repr(eta_raw), "eta_used": repr(eta),
+          "eta_floored": eta_flagged, "CD_baseline": repr(cd0),
+          "CD_repeat": repr(cd0r), "CL_baseline": repr(cl0), "CL_repeat": repr(cl0r)})
+
+    # ---- THE ADJOINT AT THE FINAL DESIGN POINT (charter section 9) ----------
+    t0 = time.time()
+    totals = prob.compute_totals(of=[CD, CL], wrt=["shape", "patchV"])
+    emit({"kind": "compute_totals", "wall_s": round(time.time() - t0, 3),
+          "at": "FINAL_DESIGN_POINT"})
+    jadj = {}
+    for of_name, of_key in ((CD, "CD"), (CL, "CL")):
+        jadj[of_key] = {}
+        for dv in ("shape", "patchV"):
+            arr = np.atleast_1d(np.array(totals[(of_name, dv)]).ravel())
+            jadj[of_key][dv] = [repr(float(v)) for v in arr]
+            emit({"kind": "adjoint", "of": of_key, "dv": dv, "n": int(arr.size),
+                  "values": jadj[of_key][dv]})
+
+    # ---- the central-difference table AT THE OPTIMUM ------------------------
+    star = {"shape": sh_star.copy(), "patchV": pv_star.copy()}
+
+    def set_perturbed(dv, idx, delta):
+        for k in ("shape", "patchV"):
+            prob.set_val(k, star[k].copy())
+        v = star[dv].copy()
+        v[idx] += delta
+        prob.set_val(dv, v)
+
+    rows = []
+    for dv, idx in COMPONENTS:
+        if idx >= star[dv].size:
+            rows.append({"dv": dv, "idx": idx, "status": "ABSENT",
+                         "n_available": int(star[dv].size), "fd": {}})
+            continue
+        fd = {}
+        for s in STEPS[dv]:
+            key = repr(s)
+            try:
+                set_perturbed(dv, idx, +s)
+                cdp, clp = primal("%s[%d]+%g" % (dv, idx, s))
+                set_perturbed(dv, idx, -s)
+                cdm, clm = primal("%s[%d]-%g" % (dv, idx, s))
+                fd[key] = {"step": s, "dCD": repr((cdp - cdm) / (2.0 * s)),
+                           "dCL": repr((clp - clm) / (2.0 * s)),
+                           "CD_plus": repr(cdp), "CD_minus": repr(cdm),
+                           "CL_plus": repr(clp), "CL_minus": repr(clm), "ok": True}
+            except Exception as exc:                          # noqa: BLE001
+                fd[key] = {"step": s, "ok": False, "error": repr(exc)[:400]}
+            emit({"kind": "fd_step", "dv": dv, "idx": idx, "step": s, "row": fd[key]})
+        tb = {}
+        for s in TB_STEPS[dv]:
+            key = repr(s)
+            try:
+                set_perturbed(dv, idx, +s)
+                cdp, clp = primal("TB %s[%d]+%g" % (dv, idx, s))
+                set_perturbed(dv, idx, -s)
+                cdm, clm = primal("TB %s[%d]-%g" % (dv, idx, s))
+                tb[key] = {"step": s, "dCD": repr((cdp - cdm) / (2.0 * s)),
+                           "dCL": repr((clp - clm) / (2.0 * s)),
+                           "CD_plus": repr(cdp), "CD_minus": repr(cdm),
+                           "CL_plus": repr(clp), "CL_minus": repr(clm), "ok": True}
+            except Exception as exc:                          # noqa: BLE001
+                tb[key] = {"step": s, "ok": False, "error": repr(exc)[:400]}
+            emit({"kind": "tb_step", "dv": dv, "idx": idx, "step": s, "row": tb[key]})
+        rows.append({"dv": dv, "idx": idx, "status": "MEASURED", "fd": fd, "tb": tb})
+    for k in ("shape", "patchV"):
+        prob.set_val(k, star[k].copy())
+
+    # ---- THE PLANTED-ZERO CONTROL COMPONENT (rule 3) ------------------------
+    ctrl = {"dv": "CTRL", "idx": 0, "status": "CONTROL", "fd": {
+        repr(CTRL_STEP): {"step": CTRL_STEP, "dCD": repr(0.0), "dCL": repr(0.0),
+                          "CD_plus": repr(cd0), "CD_minus": repr(cd0),
+                          "CL_plus": repr(cl0), "CL_minus": repr(cl0), "ok": True,
+                          "note": "synthetic: identical DVs on both sides -> derivative exactly 0"}},
+        "planted": {"step": CTRL_STEP, "plant": PLANT,
+                    "dCD": repr(PLANT / (2.0 * CTRL_STEP)),
+                    "CD_plus": repr(cd0 + PLANT), "CD_minus": repr(cd0), "ok": True,
+                    "note": "synthetic: CD_plus = CD_baseline + PLANT -> derivative exactly PLANT/(2 s)"}}
+    emit({"kind": "control", "row": ctrl})
+    rows.append(ctrl)
+
+    if rank == 0:
+        seen_zero, seen_plant = None, None
+        with open(jsonl) as fh:
+            for line in fh:
+                rec = json.loads(line)
+                if rec.get("kind") == "control":
+                    r = rec["row"]
+                    seen_zero = float(r["fd"][repr(CTRL_STEP)]["dCD"])
+                    seen_plant = float(r["planted"]["dCD"])
+        want = PLANT / (2.0 * CTRL_STEP)
+        if seen_zero != 0.0 or seen_plant is None or abs(seen_plant - want) > 1e-12 * abs(want):
+            sys.stderr.write("SO1B_OF REFUSE planted-zero control not seen on read-back: "
+                             "zero=%r plant=%r want=%r\n" % (seen_zero, seen_plant, want))
+            sys.exit(2)
+        sys.stdout.write("SO1B_PLANTED_ZERO_CONTROL_SEEN zero=%r plant=%r\n"
+                         % (seen_zero, seen_plant))
+        out = {
+            "item": ITEM, "mode": "E", "row": row, "producer_md5": got,
+            "nprocs": nprocs, "identity": ident,
+            "optimum_from": os.path.abspath(opt_path),
+            "design_point": {"shape": [repr(float(v)) for v in sh_star],
+                             "patchV": [repr(float(v)) for v in pv_star]},
+            "components_requested": [[d, i] for (d, i) in COMPONENTS],
+            "n_components_requested": len(COMPONENTS),
+            "steps": STEPS, "tb_steps": TB_STEPS, "ctrl_step": CTRL_STEP, "plant": PLANT,
+            "CD_baseline": repr(cd0), "CL_baseline": repr(cl0),
+            "CD_baseline_repeat": repr(cd0r), "CL_baseline_repeat": repr(cl0r),
+            "eta_raw": repr(eta_raw), "eta_used": repr(eta), "eta_floored": eta_flagged,
+            "CL_target": repr(CL_target), "CL_residual": repr(abs(cl0 - CL_target)),
+            "cons_at_optimum": cons_D,
+            "adjoint": jadj,
+            "rows": rows, "n_rows": len(rows),
+            "attribution_file": os.path.abspath(OUT_ATTR),
+            "note_section_9": ("this table is the FINAL-DESIGN-POINT finite-difference check "
+                               "DAFOAM_CHARTER.md section 9 makes mandatory; it is measured on "
+                               "the SAME five components SO-1a registered at the baseline"),
+        }
+        with open(OUT_E, "w") as fh:
+            json.dump(out, fh, indent=1, sort_keys=True)
+            fh.flush()
+            os.fsync(fh.fileno())
+        sys.stdout.write("SO1B_E_WRITTEN %s n_rows=%d\n" % (OUT_E, len(rows)))
+    MPI.COMM_WORLD.Barrier()
+
+
+if __name__ == "__main__":
+    main()

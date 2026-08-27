@@ -1,0 +1,37 @@
+SO1b G-ROOT.5 SELFTEST 2026-08-27T19:33:00Z launcher_md5=e8b48ee0940a08e5170490da679a6b0c
+  [OK ] G-ROOT.5 completes at :323, first destructive op at :394
+  [OK ] zero backticks on executable lines of the launcher
+  [OK ] run root ABSENT before the test: /home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt
+  [OK ] (a) live container so1b_O-P_selftest_20260827T193300Z -> rc=3: ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [so1b_O-P_selftest_20260827T193300Z]
+  [OK ] (b) live pid 1326351 cwd=/home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt -> rc=3: ABORT G-ROOT.5 driver pidfile /home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt/so1b_driver.pid names LIVE pid 1326351 (
+  [OK ] (b2) stale pidfile ignored; launcher went on to abort at the L-251 mode check (rc=4) -- nothing staged
+  [OK ] (c) clear -> G-ROOT.5 passes; L-251 mode check aborts (rc=4) before any staging
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D15-a1-naca0012-subsonic -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D16-a1-naca0012-transonic -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D17-cone-supersonic -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-AV1-a1-naca0012-npinv -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (e1) O-P on the SHIPPED image -> rc=4 G-ROW REFUSED before any staging
+  [OK ] (e2) MESH on the PATCHED image -> rc=4 G-ROW REFUSED before any staging
+  [OK ] (e3) O-S on the SHIPPED image -> G-ROW passes, then the arm REFUSES (rc=5) for want of the MESH arm's output -- nothing staged
+  [OK ] (e3) no arm directory was created
+  [OK ] (e4) E-S with no O-S/so1b_O.json -> rc=5 G-EDEP REFUSED: ABORT G-EDEP arm E-S requires its own row's optimisation artefact: /home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca
+  [OK ] (e4) no arm directory was created
+  [OK ] (f1) plain 0/U present -> resolved 0/U
+  [OK ] (f2) only the COMPRESSED twin present (writeCompression on, np=1) -> resolved 0/U.gz, NOT a refusal -- this is exactly what killed AV-1 and AV-2
+  [OK ] (f3) DRIVEN CONTROL -- NEITHER registered name present -> NONE, and the launcher/grader REFUSE (so1b_grade.py U24 drives the grader side)
+  [OK ] (f4) the LAUNCHER itself carries the by-existence branch for the solver arms
+  [OK ] (f5) the LAUNCHER records the resolved datum NAME to .so1b_age_datum_ref
+  [OK ] (g0) the frozen pre-registration is present for the preflight to read: /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1b/PREREGISTRATION.md
+  [OK ] (g1) real launcher vs real pre-registration -> preflight PASSES: SO1B_G_CAP_PREREG_PASS arm=O-P prereg=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1b/PREREGISTRATION.md head_channel=NOT_MEASURED sum_of_caps=115.00000
+  [OK ] (g2a) the planted-cap mutant differs from the frozen launcher by exactly one constant (2 diff lines)
+  [OK ] (g2b) a launcher that would enforce 40.0 against a registered 25.0 -> rc=65 REFUSED before any container: ABORT G-CAP-PREREG arm O-P: this launcher would enforce 40.0 core-min; the frozen
+  [OK ] (g3) a CEILING that is not the sum of the registered caps -> rc=65 REFUSED: ABORT G-CAP-PREREG the registered CEILING 999.0 is not the sum of the registered caps (115.000000).
+  [OK ] (g4) a pre-registration carrying NO manifest line -> rc=65 REFUSED (a missing gate is never a passing gate)
+  [OK ] (g5) the pre-registration absent -> rc=65 REFUSED
+  [OK ] (g6) channel (b), the HEAD comparison, REPORTS its own state rather than assuming one: head_channel=NOT_MEASURED -- NOT_MEASURED is the correct reading BEFORE the freeze commit, when this file is not yet at HEAD; channel (a) binds regardless, and this is stated rather than papered over
+  [OK ] temporary run root EMPTY after every invocation and after the (e) copies were removed (0 entries)
+  [OK ] run root ABSENT after the test (freeze condition): test -e /home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt -> false
+  [OK ] no so1b_ container survives
+SO1b G-ROOT5 SELFTEST pass=35 fail=0 2026-08-27T19:33:06Z

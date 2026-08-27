@@ -1,0 +1,155 @@
+SO-1b GRADER SELFTEST EVIDENCE -- so1b_grade.py
+lane: dafoam lab-lane D.  Produced 2026-08-27T19:24:28Z, BEFORE the freeze commit and
+before any container of this item exists.  Nothing here is filed, sent or posted (rule 7).
+
+===== 1. python3, __pycache__ cleared first (L-333: a stale bytecode cache inverts a mutation test) =====
+  [OK ] U1 clean fixture -> item PASS; both rows PASS; G-M2/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> G-OPT PASS on both rows with the optimiser's OWN statement
+  [OK ] U3 clean fixture -> G-CL PASS, G-GEO PASS with 23 rows on both rows
+  [OK ] U4 clean fixture -> G-D7R PASS and the improvement percentage IS REPORTED (the POSITIVE control: suppression is not unconditional)
+  [OK ] U5 clean fixture -> the predictions anchored on D1/D13 measured values HIT
+  [OK ] U6 clean fixture -> PH HIT: the NAIVE AoA channel is larger than the naive shape channel, which is WHY the matched-lift decomposition exists
+  [OK ] U7 grader-level plant SEEN on both endpoint tables (rule 3)
+  [OK ] U8 the five rule-4 clauses are printed INDIVIDUALLY for every arm
+  [OK ] U9 PATCHED optimiser prints NO convergence statement but the REGISTERED intermediate threshold holds -> GATE REACHED, never PASS (section 9)
+  [OK ] U10 no convergence statement AND the intermediate threshold FAILS -> NOT A RESULT
+  [OK ] U11 optimiser stopped AT the registered iteration bound -> not PASS
+  [OK ] U12 opt_IPOPT.txt ABSENT -> NOT A RESULT, never a default to converged
+  [OK ] U13 the instrument's EXIT line disagrees with opt_IPOPT.txt -> REFUSAL
+  [OK ] U14 the instrument's major count disagrees with opt_IPOPT.txt -> REFUSAL
+  [OK ] U15 max_iter in the O artefact != the registered bound -> REFUSAL (G-ITER)
+  [OK ] U16 optimizer in the O artefact != the registered optimizer -> REFUSAL (G-OPT)
+  [OK ] U17 the re-solve at the optimum sheds lift (|CL-0.5| = 1.2e-3 > 1e-4) -> G-CL NOT A RESULT and the ROW is NOT A RESULT WHATEVER THE DRAG DID
+  [OK ] U18 a CL residual of 5e-5 is INSIDE the registered tolerance -> G-CL PASS (the gate is shown able to pass as well as to fail)
+  [OK ] U19 one thickness row below its registered floor -> G-GEO GATE FAIL
+  [OK ] U20 a whole constraint family absent at the optimum -> NOT A RESULT
+  [OK ] U21 a constraint family with the wrong ROW COUNT -> NOT A RESULT
+  [OK ] U22 attribution artefact ABSENT -> percentage SUPPRESSED and row NOT A RESULT
+  [OK ] U23 attribution missing ONE of the five registered points -> SUPPRESSED, NOT A RESULT
+  [OK ] U24 the OPERATING POINT moved, which this item asserts it cannot -> SUPPRESSED, NOT A RESULT, and the falsified assumption is named
+  [OK ] U25 PLANTED 7 % endpoint error on shipped shape[3] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL
+  [OK ] U26 PLANTED sign flip at the OPTIMUM on shipped shape[6] -> flip counted, SHIPPED GATE FAIL, PATCHED still PASS
+  [OK ] U27 the CONSTRAINT gradient fails ALONE at the optimum while the objective is clean -> the row falls on G5E_CL, which the objective could not have caught
+  [OK ] U28 PLANTED no-plateau -> that component NOT A RESULT, row still PASS on 4 graded
+  [OK ] U29 three no-plateau components -> 2 graded < 3 -> row NOT A RESULT
+  [OK ] U30 the WRONG step agrees on 5 of 5 at the optimum -> G-TB GATE FAIL and the row's endpoint verdict is WITHDRAWN to NOT A RESULT (charter section 4)
+  [OK ] U31 rc=1 on E-P -> REFUSAL
+  [OK ] U32 OOMKilled=true on O-S -> REFUSAL
+  [OK ] U33 terminal marker absent in E-S log -> REFUSAL
+  [OK ] U34 artefact OLDER than the age datum (O-P) -> REFUSAL (rule 4 age guard)
+  [OK ] U35 instrument CTRL planted row broken -> REFUSAL
+  [OK ] U36 FOAM FATAL ERROR in an arm log at rc=0 -> REFUSAL regardless of rc
+  [OK ] U37 a signal token in an arm log at rc=0 -> REFUSAL regardless of rc
+  [OK ] U38 ledger row absent for one arm -> REFUSAL
+  [OK ] U39 R-RC: rc RECORD absent while C2-C5 all hold -> C1 NOT MEASURED, the implied rc=0 printed as an INFERENCE, the verdict unchanged
+  [OK ] U40 R-RC: rc RECORD absent AND the terminal marker missing -> REFUSAL
+  [OK ] U41 R-RC: rc RECORD absent while the harness rc reads NON-ZERO -> REFUSAL (R-RC relaxes a missing record, never a positive reading of failure)
+  [OK ] U42 the datum resolves to the PLAIN name on every solver arm -> accepted, PK MISS
+  [OK ] U43 NEITHER 0/U nor 0/U.gz present -> REFUSAL (the only datum refusal)
+  [OK ] U44 a different cell count -> G-M2 GATE FAIL and PA MISS (a different mesh is a different item)
+  [OK ] U45 G-ROWX: the E arm of a row carrying the OTHER row's library md5 -> REFUSAL
+  [OK ] U46 O-S core_min 26.0 > its registered cap 25.0 -> G10 GATE FAIL
+  [OK ] U47 an arm off the registered cpuset -> G12 GATE FAIL
+  [OK ] U48 ZERO `assert` statements in this comparator AND in so1b_of.py (L-332)
+  [OK ] U49 the assert COUNTER is shown counting a planted assert (a counter never seen counting is not evidence)
+
+UNITS 49/49  FAILS 0
+rc=0
+
+===== 2. python3 -O (L-332: -O deletes every assert; a refusal written as one is an OFFER) =====
+  [OK ] U1 clean fixture -> item PASS; both rows PASS; G-M2/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> G-OPT PASS on both rows with the optimiser's OWN statement
+  [OK ] U3 clean fixture -> G-CL PASS, G-GEO PASS with 23 rows on both rows
+  [OK ] U4 clean fixture -> G-D7R PASS and the improvement percentage IS REPORTED (the POSITIVE control: suppression is not unconditional)
+  [OK ] U5 clean fixture -> the predictions anchored on D1/D13 measured values HIT
+  [OK ] U6 clean fixture -> PH HIT: the NAIVE AoA channel is larger than the naive shape channel, which is WHY the matched-lift decomposition exists
+  [OK ] U7 grader-level plant SEEN on both endpoint tables (rule 3)
+  [OK ] U8 the five rule-4 clauses are printed INDIVIDUALLY for every arm
+  [OK ] U9 PATCHED optimiser prints NO convergence statement but the REGISTERED intermediate threshold holds -> GATE REACHED, never PASS (section 9)
+  [OK ] U10 no convergence statement AND the intermediate threshold FAILS -> NOT A RESULT
+  [OK ] U11 optimiser stopped AT the registered iteration bound -> not PASS
+  [OK ] U12 opt_IPOPT.txt ABSENT -> NOT A RESULT, never a default to converged
+  [OK ] U13 the instrument's EXIT line disagrees with opt_IPOPT.txt -> REFUSAL
+  [OK ] U14 the instrument's major count disagrees with opt_IPOPT.txt -> REFUSAL
+  [OK ] U15 max_iter in the O artefact != the registered bound -> REFUSAL (G-ITER)
+  [OK ] U16 optimizer in the O artefact != the registered optimizer -> REFUSAL (G-OPT)
+  [OK ] U17 the re-solve at the optimum sheds lift (|CL-0.5| = 1.2e-3 > 1e-4) -> G-CL NOT A RESULT and the ROW is NOT A RESULT WHATEVER THE DRAG DID
+  [OK ] U18 a CL residual of 5e-5 is INSIDE the registered tolerance -> G-CL PASS (the gate is shown able to pass as well as to fail)
+  [OK ] U19 one thickness row below its registered floor -> G-GEO GATE FAIL
+  [OK ] U20 a whole constraint family absent at the optimum -> NOT A RESULT
+  [OK ] U21 a constraint family with the wrong ROW COUNT -> NOT A RESULT
+  [OK ] U22 attribution artefact ABSENT -> percentage SUPPRESSED and row NOT A RESULT
+  [OK ] U23 attribution missing ONE of the five registered points -> SUPPRESSED, NOT A RESULT
+  [OK ] U24 the OPERATING POINT moved, which this item asserts it cannot -> SUPPRESSED, NOT A RESULT, and the falsified assumption is named
+  [OK ] U25 PLANTED 7 % endpoint error on shipped shape[3] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL
+  [OK ] U26 PLANTED sign flip at the OPTIMUM on shipped shape[6] -> flip counted, SHIPPED GATE FAIL, PATCHED still PASS
+  [OK ] U27 the CONSTRAINT gradient fails ALONE at the optimum while the objective is clean -> the row falls on G5E_CL, which the objective could not have caught
+  [OK ] U28 PLANTED no-plateau -> that component NOT A RESULT, row still PASS on 4 graded
+  [OK ] U29 three no-plateau components -> 2 graded < 3 -> row NOT A RESULT
+  [OK ] U30 the WRONG step agrees on 5 of 5 at the optimum -> G-TB GATE FAIL and the row's endpoint verdict is WITHDRAWN to NOT A RESULT (charter section 4)
+  [OK ] U31 rc=1 on E-P -> REFUSAL
+  [OK ] U32 OOMKilled=true on O-S -> REFUSAL
+  [OK ] U33 terminal marker absent in E-S log -> REFUSAL
+  [OK ] U34 artefact OLDER than the age datum (O-P) -> REFUSAL (rule 4 age guard)
+  [OK ] U35 instrument CTRL planted row broken -> REFUSAL
+  [OK ] U36 FOAM FATAL ERROR in an arm log at rc=0 -> REFUSAL regardless of rc
+  [OK ] U37 a signal token in an arm log at rc=0 -> REFUSAL regardless of rc
+  [OK ] U38 ledger row absent for one arm -> REFUSAL
+  [OK ] U39 R-RC: rc RECORD absent while C2-C5 all hold -> C1 NOT MEASURED, the implied rc=0 printed as an INFERENCE, the verdict unchanged
+  [OK ] U40 R-RC: rc RECORD absent AND the terminal marker missing -> REFUSAL
+  [OK ] U41 R-RC: rc RECORD absent while the harness rc reads NON-ZERO -> REFUSAL (R-RC relaxes a missing record, never a positive reading of failure)
+  [OK ] U42 the datum resolves to the PLAIN name on every solver arm -> accepted, PK MISS
+  [OK ] U43 NEITHER 0/U nor 0/U.gz present -> REFUSAL (the only datum refusal)
+  [OK ] U44 a different cell count -> G-M2 GATE FAIL and PA MISS (a different mesh is a different item)
+  [OK ] U45 G-ROWX: the E arm of a row carrying the OTHER row's library md5 -> REFUSAL
+  [OK ] U46 O-S core_min 26.0 > its registered cap 25.0 -> G10 GATE FAIL
+  [OK ] U47 an arm off the registered cpuset -> G12 GATE FAIL
+  [OK ] U48 ZERO `assert` statements in this comparator AND in so1b_of.py (L-332)
+  [OK ] U49 the assert COUNTER is shown counting a planted assert (a counter never seen counting is not evidence)
+
+UNITS 49/49  FAILS 0
+rc=0
+
+===== 3. MUTATION CONTROLS -- every guard is shown ABLE TO FAIL =====
+A guard never seen to fail is not known to work.  Each mutation changes ONE branch or
+ONE constant in a COPY of the comparator (the frozen file is never edited) and the units
+that depend on it MUST flip.  The mutants run from /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneD, where so1b_of.py is symlinked
+so U48 still finds the instrument.
+
+--- 3a. CL_RESIDUAL_MAX 1.0e-4 -> 1.0e-2 (the post-optimum constraint check) ---
+  [BAD] U17 the re-solve at the optimum sheds lift (|CL-0.5| = 1.2e-3 > 1e-4) -> G-CL NOT A RESULT and the ROW is NOT A RESULT WHATEVER THE DRAG DID
+UNITS 48/49  FAILS 1
+  EXPECTED: U17 flips (G-CL stops catching a 1.2e-3 lift loss).  Nothing else.
+
+--- 3b. G-D7R, the INCOMPLETE-DECOMPOSITION branch: verdict NOT A RESULT -> PASS ---
+mutant written: /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneD/m2.py  (one anchor, one replacement)
+  [BAD] U23 attribution missing ONE of the five registered points -> SUPPRESSED, NOT A RESULT
+  [BAD] U24 the OPERATING POINT moved, which this item asserts it cannot -> SUPPRESSED, NOT A RESULT, and the falsified assumption is named
+UNITS 47/49  FAILS 2
+  EXPECTED: U23 and U24 flip.  U22 does NOT, and that is CORRECT: the ABSENT-artefact
+  case takes a DIFFERENT early-return branch, which 3c mutates separately.  Reporting
+  U22 as flipped here would have been the overclaim this section exists to prevent.
+
+--- 3c. G-D7R, the ABSENT-ARTEFACT branch: verdict NOT A RESULT -> PASS ---
+mutant written: /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneD/m3.py  (one anchor, one replacement)
+  [BAD] U22 attribution artefact ABSENT -> percentage SUPPRESSED and row NOT A RESULT
+UNITS 48/49  FAILS 1
+  EXPECTED: U22 flips.
+
+--- 3d. G-OPT: grant PASS without the optimiser's own convergence statement ---
+  FIRST ATTEMPT, RECORDED BECAUSE IT FAILED TO BE A MUTATION AT ALL: setting
+  conv = True alone flipped NO unit, because every fixture without an EXIT line also
+  sits AT the iteration bound, so the PASS branch (conv and not hit_bound) is still
+  never taken.  A mutation that changes no verdict proves nothing and is not counted.
+mutant written: /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneD/m4.py  (one anchor, one replacement)
+  [BAD] U9 PATCHED optimiser prints NO convergence statement but the REGISTERED intermediate threshold holds -> GATE REACHED, never PASS (section 9)
+  [BAD] U10 no convergence statement AND the intermediate threshold FAILS -> NOT A RESULT
+  [BAD] U11 optimiser stopped AT the registered iteration bound -> not PASS
+UNITS 46/49  FAILS 3
+  EXPECTED: U9, U10 and U11 flip -- section 9's 'never PASS' is what is being enforced.
+
+--- 3e. EXPECTED_UNITS is enforced: delete ONE unit and the suite refuses on the count ---
+mutant written: /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneD/m5.py  (one anchor, one replacement)
+UNITS 48/48  FAILS 0
+REFUSAL: unit count 48 != frozen EXPECTED_UNITS 49
+  rc=2 (must be 2)

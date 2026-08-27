@@ -1,0 +1,316 @@
+--- curriculum_SO1a/so1a_run_arm.sh	2026-08-27 17:19:53.173664361 +0000
++++ curriculum_SO1b/so1b_run_arm.sh	2026-08-27 19:28:05.219444967 +0000
+@@ -1,12 +1,12 @@
+ #!/usr/bin/env bash
+-# Curriculum SO-1a arm launcher -- NACA0012 INCOMPRESSIBLE (DASimpleFoam)
++# Curriculum SO-1b arm launcher -- NACA0012 INCOMPRESSIBLE (DASimpleFoam)
+ # drag-min-at-fixed-lift, the FD-VERIFIED GRADIENT RUNG of Sanaa's shape-
+ # optimisation ladder SO-1.  TWO ROWS (shipped + patched), adjoint X + central-FD
+ # table F on BOTH the objective CD and the equality constraint CL.
+ #
+ # DERIVED from `cases/dafoam/ladder-a/A1/curriculum_D15/d15_run_arm.sh`
+ # (md5 796a2de5b894e8fcdbfab99af6fbf09d) with the REGISTERED DELTAS listed in
+-# PREREGISTRATION.md section 7 and recorded in so1a_run_arm_DELTAS_from_d15.diff:
++# PREREGISTRATION.md section 7 and recorded in so1b_run_arm_DELTAS_from_d15.diff:
+ # item/root names; the INCOMPRESSIBLE tutorial as the source; forbidden roots
+ # extended with D15's, D16's, D17's, AV-1's and AV-2's; RANKS 1 ON EVERY ARM
+ # (DAFOAM_CHARTER.md section 5, serial before parallel); cpuset 9; the cap table;
+@@ -18,7 +18,7 @@
+ # artefact intact because a frozen grader pinned the datum to the NAME `0/U` while
+ # this tutorial's `writeCompression on` rewrites it as `0/U.gz` on a serial arm.
+ # This launcher resolves the datum over BOTH names and writes the one it used to
+-# `.so1a_age_datum_ref` beside the epoch, so the grader is not left inferring it.
++# `.so1b_age_datum_ref` beside the epoch, so the grader is not left inferring it.
+ #
+ # CAP DISCIPLINE (the failure this file exists not to repeat).  A peer lane
+ # today registered a 3.0 core-min cap and its launcher enforced 6.0 by
+@@ -57,8 +57,8 @@
+ # fire is ceremony -- and this is the guard standing between a re-fire and
+ # 384 MB of irreplaceable graded evidence.
+ # ===========================================================================
+-ITEM=SO1a
+-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient
++ITEM=SO1b
++REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt
+ BASE="${BASE:-$REGISTERED_BASE}"
+ 
+ # ---- G-ROOT.1 -- BASE must be THIS item's registered root, normalised, so a
+@@ -96,6 +96,7 @@
+ /home/ubuntu/certonomous-runs/CURRICULUM-D17-cone-supersonic
+ /home/ubuntu/certonomous-runs/CURRICULUM-AV1-a1-naca0012-npinv
+ /home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality
++/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient
+ /home/ubuntu/certonomous-runs/A2-mach-wing
+ /home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible
+ /home/ubuntu/dafoam-tutorials
+@@ -137,10 +138,10 @@
+ # four distinct cores.  So: PIN, and MEASURE the placement rather than infer it
+ # from the flag that was passed.
+ #
+-# SO-1a REGISTERED DELTA (PREREGISTRATION.md section 5): cpuset 9, ONE core,
++# SO-1b REGISTERED DELTA (PREREGISTRATION.md section 5): cpuset 9, ONE core,
+ # because every arm runs at np = 1.  DISCLOSED OVERLAP: 9 sits inside
+ # D4-SHIPPED's registered 5,6,7,9.  At np = 1 the grader's delivered-cores floor
+-# does not apply (so1a_grade.py g_placement: dl_ok is True when ARM_RANKS == 1),
++# does not apply (so1b_grade.py g_placement: dl_ok is True when ARM_RANKS == 1),
+ # so an overlap costs WALL TIME and cannot fail G12 -- it is reported as a cost
+ # exposure in PREREGISTRATION.md section 4, never silently re-pinned.
+ CPUSET=9
+@@ -148,27 +149,32 @@
+ # For containerised MPI the conditioning variable is CONCURRENT CONTAINERS, not
+ # loadavg -- `uptime` will lie.  Censused before and after every arm.
+ container_census() {
+-  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^so1a_" | tr '\n' ',' | sed 's/,$//'
++  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^so1b_" | tr '\n' ',' | sed 's/,$//'
+ }
+ 
+ # ---- REGISTERED CAP TABLE (PREREGISTRATION.md §4, verbatim) ---------------
+ #   arm    ranks  core-min cap   in-container wall   memory cap
+ #   MESH     1        5.0            300 s              4g
+-#   X-S      1       10.0            600 s              4g
+-#   X-P      1       10.0            600 s              4g
+-#   F-S      1       25.0           1500 s              4g
+-#   F-P      1       25.0           1500 s              4g
++#   O-P      1       25.0           1500 s              4g
++#   E-P      1       30.0           1800 s              4g
++#   O-S      1       25.0           1500 s              4g
++#   E-S      1       30.0           1800 s              4g
++# The O cap CONTAINS the registered iteration bound: C-71 measured D13's worst
++# start at 6.383 core-min over 9 majors on THIS problem = 0.709 core-min/major
++# INCLUDING its fixed setup, so 30 majors <= 21.3 core-min < 25.0.  A deadline
++# that cuts before the registered iteration bound is the D5-PREREG-DEF-1 /
++# D4S-LAUNCHER-DEF-2 defect class; it is named here and arithmetically excluded.
+ cap_core_min() {
+   case "$1" in
+     MESH)     echo 5.0 ;;
+-    X-S|X-P)  echo 10.0 ;;
+-    F-S|F-P)  echo 25.0 ;;
++    O-P|O-S)  echo 25.0 ;;
++    E-P|E-S)  echo 30.0 ;;
+     *)  echo "" ;;
+   esac
+ }
+ cap_memory() {
+   case "$1" in
+-    MESH|X-S|X-P|F-S|F-P) echo 4g ;;
++    MESH|O-P|O-S|E-P|E-S) echo 4g ;;
+     *) echo "" ;;
+   esac
+ }
+@@ -176,7 +182,7 @@
+ # parallel), and A4's 16,600x decomposition effect is removed from the chain.
+ ranks_of() {
+   case "$1" in
+-    MESH|X-S|X-P|F-S|F-P) echo 1 ;;
++    MESH|O-P|O-S|E-P|E-S) echo 1 ;;
+     *) echo "" ;;
+   esac
+ }
+@@ -190,15 +196,97 @@
+ IMG_SHIPPED_DIGEST=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc
+ 
+ # ---- FROZEN INSTRUMENT HASHES (PREREGISTRATION.md §7, verbatim) ----------
+-MD5_RUNSCRIPT=0557da51f6f179f6de865144343c499f   # so1a_runScript.py = byte copy of the shipped INCOMPRESSIBLE tutorial runScript.py
+-MD5_XF=f34bd5bf550786ff926aed81b342cced                                 # so1a_xf.py (set at freeze)
+-MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4      # so1a_decomposeParDict (numberOfSubdomains 1, scotch)
++MD5_RUNSCRIPT=0557da51f6f179f6de865144343c499f   # so1b_runScript.py = byte copy of the shipped INCOMPRESSIBLE tutorial runScript.py
++MD5_OF=0f14244bee5fafc698e80060782a7606                                 # so1b_of.py (set at freeze)
++MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4      # so1b_decomposeParDict (numberOfSubdomains 1, scotch)
+ 
+ ARM="${1:-}"; IMG="${2:-}"
+-test -n "$ARM" || { echo "ABORT usage: so1a_run_arm.sh <MESH|X-S|F-S|X-P|F-P> <image>"; exit 64; }
+-test -n "$IMG" || { echo "ABORT usage: so1a_run_arm.sh <MESH|X-S|F-S|X-P|F-P> <image>"; exit 64; }
++test -n "$ARM" || { echo "ABORT usage: so1b_run_arm.sh <MESH|O-P|E-P|O-S|E-S> <image>"; exit 64; }
++test -n "$IMG" || { echo "ABORT usage: so1b_run_arm.sh <MESH|O-P|E-P|O-S|E-S> <image>"; exit 64; }
+ RANKS=$(ranks_of "$ARM"); test -n "$RANKS" || { echo "ABORT arm $ARM carries no registered rank count"; exit 64; }
+ 
++# ===========================================================================
++# G-CAP-PREREG -- THE CAP-AGREEMENT PREFLIGHT.  NEW IN SO-1b.
++#
++# WHY IT EXISTS, from a MEASURED failure and not from a principle.  W3's
++# launcher carried a cap constant its frozen pre-registration did not name --
++# 600 against a registered 900 -- and the disagreement was caught before 563
++# core-min were spent; a SECOND stale constant sat behind the first.  The
++# existing D4_CAP_ASSERT below checks the launcher against ITSELF (it inverts
++# its own arithmetic) and therefore cannot see that kind of drift at all: two
++# numbers that agree with each other can both be wrong.
++#
++# THIS GUARD CHECKS THE LAUNCHER AGAINST THE FROZEN DOCUMENT, on two channels:
++#   (a) the CAP-MANIFEST line in the pre-registration ON DISK must name exactly
++#       the caps this file would enforce, and a CEILING equal to their sum;
++#   (b) the SAME line read from `git show HEAD:<path>` must be byte-identical
++#       to the one on disk, so a post-freeze worktree edit cannot move a cap
++#       under a launcher that is about to spend money on it.  Channel (b) is
++#       INFRASTRUCTURE (L-342): if git cannot be read it is recorded
++#       NOT_MEASURED and channel (a) still binds; it is never composed to a
++#       pass it did not earn.
++#
++# PLACEMENT IS THE POINT.  A guard placed after the destructive step is
++# decoration -- five defects in this family have had exactly that shape.  This
++# block runs BEFORE G-ROOT.5, before `sudo -n rm -rf "$WORK"` and before
++# `docker run`; the line numbers are printed by the selftest and quoted in
++# PREREGISTRATION.md section 7 so the ordering is evidence, not a claim.
++# ===========================================================================
++PREREG=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1b/PREREGISTRATION.md
++REPO=/home/ubuntu/Certonomous
++MANIFEST_TAG="SO1B-CAP-MANIFEST v1"
++test -f "$PREREG" || { echo "ABORT G-CAP-PREREG the frozen pre-registration is absent: $PREREG"; exit 65; }
++MAN_DISK=$(grep -a -m1 -F "$MANIFEST_TAG" "$PREREG" || true)
++test -n "$MAN_DISK" || { echo "ABORT G-CAP-PREREG the pre-registration names no $MANIFEST_TAG line"; exit 65; }
++MAN_HEAD=$(git -C "$REPO" show "HEAD:cases/dafoam/ladder-a/A1/curriculum_SO1b/PREREGISTRATION.md" 2>/dev/null | grep -a -m1 -F "$MANIFEST_TAG" || true)
++if [ -z "$MAN_HEAD" ]; then
++  MAN_HEAD_STATE=NOT_MEASURED
++else
++  if [ "$MAN_HEAD" != "$MAN_DISK" ]; then
++    echo "ABORT G-CAP-PREREG channel (b): the CAP-MANIFEST on disk differs from the one at HEAD."
++    echo "  disk: $MAN_DISK"
++    echo "  HEAD: $MAN_HEAD"
++    echo "  A frozen gate is never edited post-compute.  REFUSED before any container."
++    exit 65
++  fi
++  MAN_HEAD_STATE=AGREES
++fi
++CAP_SUM=0
++for _a in MESH O-P E-P O-S E-S; do
++  _mine=$(cap_core_min "$_a")
++  _theirs=$(printf '%s\n' "$MAN_DISK" | tr ' ' '\n' | sed -n "s/^${_a}=//p" | head -1)
++  test -n "$_theirs" || { echo "ABORT G-CAP-PREREG the CAP-MANIFEST names no cap for arm $_a"; exit 65; }
++  if [ "$(python3 -c "print(1 if abs(float('$_mine')-float('$_theirs'))>1e-9 else 0)")" = "1" ]; then
++    echo "ABORT G-CAP-PREREG arm $_a: this launcher would enforce $_mine core-min; the frozen"
++    echo "  pre-registration registers $_theirs.  The registered number wins and NOTHING RUNS."
++    exit 65
++  fi
++  CAP_SUM=$(python3 -c "print('%.6f' % ($CAP_SUM + float('$_mine')))")
++done
++CEIL_REG=$(printf '%s\n' "$MAN_DISK" | tr ' ' '\n' | sed -n 's/^CEILING=//p' | head -1)
++test -n "$CEIL_REG" || { echo "ABORT G-CAP-PREREG the CAP-MANIFEST names no CEILING"; exit 65; }
++if [ "$(python3 -c "print(1 if abs(float('$CAP_SUM')-float('$CEIL_REG'))>1e-9 else 0)")" = "1" ]; then
++  echo "ABORT G-CAP-PREREG the registered CEILING $CEIL_REG is not the sum of the registered caps ($CAP_SUM)."
++  exit 65
++fi
++echo "SO1B_G_CAP_PREREG_PASS arm=$ARM prereg=$PREREG head_channel=$MAN_HEAD_STATE sum_of_caps=$CAP_SUM ceiling=$CEIL_REG manifest=[$MAN_DISK]"
++
++# ---- G-EDEP -- AN E ARM WITHOUT ITS OWN ROW'S OPTIMUM IS REFUSED HERE, which
++# ---- is BEFORE G-ROOT.5, before `sudo -n rm -rf "$WORK"` and before the
++# ---- container.  E-P reads ../O-P/so1b_O.json and E-S reads ../O-S/so1b_O.json;
++# ---- the instrument then re-checks the LIBRARY HASH (G-ROWX), because a
++# ---- directory name is not a row (DAFOAM_CHARTER.md section 6).
++case "$ARM" in
++  E-P) NEEDO="$BASE/O-P/so1b_O.json" ;;
++  E-S) NEEDO="$BASE/O-S/so1b_O.json" ;;
++  *)   NEEDO="" ;;
++esac
++if [ -n "$NEEDO" ]; then
++  test -f "$NEEDO" || { echo "ABORT G-EDEP arm $ARM requires its own row's optimisation artefact: $NEEDO"; exit 5; }
++  echo "SO1B_G_EDEP_PASS arm=$ARM optimum_artefact=$NEEDO md5=$(md5sum "$NEEDO" | cut -d' ' -f1)"
++fi
++
++
+ # ---- G-ROOT.5 (ADDENDUM 2) -- A LIVE ARM IS NEVER RE-STAGED.  G-ROOT.1-.3
+ # ---- see only ledger rows; a queue-runner re-firing this launcher on a
+ # ---- RUNNING arm would pass them and reach `rm -rf "$WORK"` (the shape the
+@@ -208,13 +296,13 @@
+ # ----   (b) a driver pidfile in the run root naming a LIVE pid that is not an
+ # ----       ancestor of this process (a second driver), or whose cwd is the
+ # ----       run root.  A stale pidfile (dead pid) does not block.
+-LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^so1a_${ARM}_" 2>/dev/null | grep "^so1a_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
++LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^so1b_${ARM}_" 2>/dev/null | grep "^so1b_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+ if [ -n "$LIVE_SAME_ARM" ]; then
+   echo "ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [$LIVE_SAME_ARM]"
+   echo "  Re-staging would remove the live arm directory under it.  REFUSED."
+   exit 3
+ fi
+-PIDFILE="$BASE/so1a_driver.pid"
++PIDFILE="$BASE/so1b_driver.pid"
+ if [ -f "$PIDFILE" ]; then
+   DPID=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
+   if [ -n "$DPID" ] && kill -0 "$DPID" 2>/dev/null; then
+@@ -263,8 +351,8 @@
+ test "$(stat -c '%a' "$BASE")" = "777" || { echo "ABORT L-251 run root mode $(stat -c '%a' "$BASE")"; exit 4; }
+ 
+ # ---- staged-instrument identity, re-asserted before EVERY launch ---------
+-echo "$MD5_RUNSCRIPT  $BASE/so1a_runScript.py"       | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
+-echo "$MD5_XF  $BASE/so1a_xf.py"                     | md5sum -c - || { echo "ABORT xf md5"; exit 4; }
++echo "$MD5_RUNSCRIPT  $BASE/so1b_runScript.py"       | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
++echo "$MD5_OF  $BASE/so1b_of.py"                     | md5sum -c - || { echo "ABORT xf md5"; exit 4; }
+ echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict" | md5sum -c - || { echo "ABORT decomposeParDict md5"; exit 4; }
+ 
+ # ---- image identity by DIGEST, resolved from the local store -------------
+@@ -294,7 +382,7 @@
+ echo "D4_IMAGE_OK row=$ROW image=$IMG digest=$GOT_DIGEST"
+ 
+ STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
+-NAME="so1a_${ARM}_${STAMP}"
++NAME="so1b_${ARM}_${STAMP}"
+ WORK="$BASE/$ARM"
+ LOG="$BASE/${ARM}_${STAMP}.log"
+ 
+@@ -315,8 +403,8 @@
+   else echo "ABORT G-COLD neither 0.orig/U nor 0.orig/U.gz is present"; exit 5; fi
+   touch "$WORK/0.orig"/* || { echo "ABORT age-guard datum"; exit 5; }
+   AGE_DATUM=$(stat -c '%Y' "$WORK/$DATUM_NAME")
+-  echo "$AGE_DATUM" > "$WORK/.so1a_age_datum"
+-  echo "$DATUM_NAME" > "$WORK/.so1a_age_datum_ref"
++  echo "$AGE_DATUM" > "$WORK/.so1b_age_datum"
++  echo "$DATUM_NAME" > "$WORK/.so1b_age_datum_ref"
+   echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM datum_file=$DATUM_NAME resolved_by=EXISTENCE"
+ else
+   test -d "$BASE/MESH" || { echo "ABORT arm $ARM expects an existing MESH/ from arm MESH"; exit 5; }
+@@ -324,12 +412,12 @@
+   { [ -f "$BASE/MESH/0/U" ] || [ -f "$BASE/MESH/0/U.gz" ]; } || { echo "ABORT arm $ARM: MESH/ carries neither 0/U nor 0/U.gz"; exit 5; }
+   sudo -n rm -rf "$WORK" 2>/dev/null
+   cp -a "$BASE/MESH" "$WORK" || { echo "ABORT stage copy from MESH"; exit 4; }
+-  rm -f "$WORK/so1a_cmd.sh" "$WORK/checkMesh.log" "$WORK/logMeshGeneration.txt" "$WORK/volumeMesh.xyz" "$WORK/surfaceMesh.xyz" "$WORK/.so1a_age_datum" "$WORK/.so1a_age_datum_ref" 2>/dev/null
+-  cp -a "$BASE/so1a_runScript.py" "$BASE/so1a_xf.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
++  rm -f "$WORK/so1b_cmd.sh" "$WORK/checkMesh.log" "$WORK/logMeshGeneration.txt" "$WORK/volumeMesh.xyz" "$WORK/surfaceMesh.xyz" "$WORK/.so1b_age_datum" "$WORK/.so1b_age_datum_ref" 2>/dev/null
++  cp -a "$BASE/so1b_runScript.py" "$BASE/so1b_of.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
+   # COLD START, verified BEFORE the launch (D2 G8), and the AGE GUARD's datum:
+   # 0/ is touched LAST at stage time, so every artifact the run produces must
+   # be strictly newer than 0/U or it did not come from this run.
+-  for bad in "$WORK/reports" "$WORK/so1a_X.json" "$WORK/so1a_F.json" "$WORK/so1a_F.jsonl" "$WORK/so1a_X.jsonl" "$WORK/dRdWColoring_2.bin"; do
++  for bad in "$WORK/reports" "$WORK/so1b_O.json" "$WORK/so1b_E.json" "$WORK/so1b_O.jsonl" "$WORK/so1b_E.jsonl" "$WORK/attribution.json" "$WORK/opt_IPOPT.txt" "$WORK/OptView.hst" "$WORK/dRdWColoring_2.bin"; do
+     test -e "$bad" && { echo "ABORT G-COLD $bad exists"; exit 5; }
+   done
+   test -n "$(ls -d "$WORK"/processor* 2>/dev/null)" && { echo "ABORT G-COLD processor* present"; exit 5; }
+@@ -342,23 +430,25 @@
+   else echo "ABORT G-COLD neither 0/U nor 0/U.gz is present"; exit 5; fi
+   touch "$WORK/0"/* || { echo "ABORT age-guard datum"; exit 5; }
+   AGE_DATUM=$(stat -c '%Y' "$WORK/$DATUM_NAME")
+-  echo "$AGE_DATUM" > "$WORK/.so1a_age_datum"
+-  echo "$DATUM_NAME" > "$WORK/.so1a_age_datum_ref"
+-  echo "SO1A_WRITE_COMPRESSION $(grep -a writeCompression "$WORK/system/controlDict" 2>/dev/null | head -1 | tr -d ';')"
++  echo "$AGE_DATUM" > "$WORK/.so1b_age_datum"
++  echo "$DATUM_NAME" > "$WORK/.so1b_age_datum_ref"
++  echo "SO1B_WRITE_COMPRESSION $(grep -a writeCompression "$WORK/system/controlDict" 2>/dev/null | head -1 | tr -d ';')"
+   echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM datum_file=$DATUM_NAME resolved_by=EXISTENCE"
+ fi
+ 
+ case "$ARM" in
+-  MESH)     CMD="bash preProcessing.sh && checkMesh > checkMesh.log 2>&1; echo SO1A_CHECKMESH_RC \$?; sha256sum constant/polyMesh/points* ; grep -a 'cells:' checkMesh.log" ;;
+-  X-S|X-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python so1a_xf.py -mode X" ;;
+-  F-S|F-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python so1a_xf.py -mode F" ;;
++  MESH)     CMD="bash preProcessing.sh && checkMesh > checkMesh.log 2>&1; echo SO1B_CHECKMESH_RC \$?; sha256sum constant/polyMesh/points* ; grep -a 'cells:' checkMesh.log" ;;
++  O-P)      CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python so1b_of.py -mode O -row P" ;;
++  O-S)      CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python so1b_of.py -mode O -row S" ;;
++  E-P)      CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python so1b_of.py -mode E -row P" ;;
++  E-S)      CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python so1b_of.py -mode E -row S" ;;
+ esac
+ 
+ # ---- ADDENDUM 2: the arm command goes to a FILE the container executes under
+ # ---- its OWN `timeout` at the registered cap wall (TMO), so the deadline is
+ # ---- INSIDE the container and survives every host shell.  `-k 60` escalates
+ # ---- TERM to KILL; the kernel exit code (124/137) is then the record.
+-CMDFILE="$WORK/so1a_cmd.sh"
++CMDFILE="$WORK/so1b_cmd.sh"
+ printf '%s\n' "$CMD" > "$CMDFILE" || { echo "ABORT cmd file"; exit 4; }
+ echo "D4S_CMDFILE arm=$ARM md5=$(md5sum "$CMDFILE" | cut -d' ' -f1) deadline_in_container_s=$TMO"
+ CPUSAMPLE="$BASE/${ARM}_${STAMP}.cpu.jsonl"
+@@ -419,7 +509,7 @@
+      echo D4S_CONTAINER_UID: \$(id -u) && \
+      python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"D4S_IDWARP_IMPORTED_FROM:\",p); print(\"D4S_IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' && \
+      echo D4S_DEADLINE_IN_CONTAINER_S: $TMO && \
+-     timeout -k 60 $TMO bash /mnt/$ARM/so1a_cmd.sh" > /dev/null 2>&1 \
++     timeout -k 60 $TMO bash /mnt/$ARM/so1b_cmd.sh" > /dev/null 2>&1 \
+   || { echo "ABORT could not start container"; exit 4; }
+ 
+ # The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25), not a budget

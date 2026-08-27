@@ -1,0 +1,140 @@
+--- curriculum_SO1a/so1a_groot5_selftest.sh	2026-08-27 17:19:26.134609413 +0000
++++ curriculum_SO1b/so1b_groot5_selftest.sh	2026-08-27 19:27:45.378365503 +0000
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env bash
+-# SO-1a G-ROOT.5 SELFTEST -- DERIVED from curriculum_D15/d15_groot5_selftest.sh
+-# (md5 8a2a7df64b2db87615a20fab2d9208f8), driven against SO-1a's OWN launcher
+-# (G-ROOT.5 from birth).  REGISTERED DELTAS (so1a_groot5_selftest_DELTAS_from_d15.diff):
++# SO-1b G-ROOT.5 SELFTEST -- DERIVED from curriculum_D15/d15_groot5_selftest.sh
++# (md5 8a2a7df64b2db87615a20fab2d9208f8), driven against SO-1b's OWN launcher
++# (G-ROOT.5 from birth).  REGISTERED DELTAS (so1b_groot5_selftest_DELTAS_from_d15.diff):
+ # names and root; the forbidden-root legs (d) name D15's, D16's, D17's, AV-1's and
+ # AV-2's roots; leg (f) is NEW and drives the AGE-DATUM-BY-EXISTENCE resolution the
+ # launcher performs, including the case where NEITHER registered name is present.
+@@ -21,13 +21,14 @@
+ # its ABSENCE afterwards is asserted -- that absence is the freeze condition of
+ # PREREGISTRATION.md section 8.
+ set -uo pipefail
+-HERE="$(cd "$(dirname "$0")" && pwd)"; L="$HERE/so1a_run_arm.sh"
+-BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient
+-IMG=dafoam/opt-packages:latest; IMG_P=dafoam-idwarp-rot:v1; BOGUS=no-such-image:selftest; ARM=X-S
++HERE="$(cd "$(dirname "$0")" && pwd)"; L="$HERE/so1b_run_arm.sh"
++BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt
++IMG=dafoam/opt-packages:latest; IMG_P=dafoam-idwarp-rot:v1; BOGUS=no-such-image:selftest; ARM=O-P
++SCRATCH="${SO1B_SELFTEST_SCRATCH:-/tmp}/so1b_groot5_$$"; mkdir -p "$SCRATCH"
+ PASS=0; FAIL=0
+ ok()  { echo "  [OK ] $1"; PASS=$((PASS+1)); }
+ bad() { echo "  [BAD] $1"; FAIL=$((FAIL+1)); }
+-echo "SO1a G-ROOT.5 SELFTEST $(date -u +%Y-%m-%dT%H:%M:%SZ) launcher_md5=$(md5sum "$L" | cut -d' ' -f1)"
++echo "SO1b G-ROOT.5 SELFTEST $(date -u +%Y-%m-%dT%H:%M:%SZ) launcher_md5=$(md5sum "$L" | cut -d' ' -f1)"
+ G5=$(grep -n 'G_ROOT5_PASS' "$L" | head -1 | cut -d: -f1)
+ FIRSTOP=$(grep -nE '^[[:space:]]*[^#]*((sudo -n )?rm -rf|cp -a|docker run)' "$L" | grep -v '^[0-9]*:[[:space:]]*#' | head -1 | cut -d: -f1)
+ if [ -n "$G5" ] && [ -n "$FIRSTOP" ] && [ "$FIRSTOP" -gt "$G5" ]; then ok "G-ROOT.5 completes at :$G5, first destructive op at :$FIRSTOP"; else bad "order G5=$G5 FIRSTOP=$FIRSTOP"; exit 2; fi
+@@ -36,22 +37,22 @@
+ if [ -e "$BASE" ]; then bad "run root $BASE already EXISTS -- refusing to test over a real root (freeze condition violated)"; exit 2; else ok "run root ABSENT before the test: $BASE"; fi
+ mkdir -p "$BASE" || { bad "could not create the temporary empty run root"; exit 2; }
+ # (a) sacrificial RUNNING container with this item's prefix and the arm
+-CN="so1a_${ARM}_selftest_$(date -u +%Y%m%dT%H%M%SZ)"
++CN="so1b_${ARM}_selftest_$(date -u +%Y%m%dT%H%M%SZ)"
+ sudo -n docker run -d --name "$CN" --cpus=0.1 --cpuset-cpus=9 --memory=64m --memory-swap=64m "$IMG" bash -c "sleep 180" >/dev/null 2>&1 || { bad "could not start sacrificial container"; rmdir "$BASE"; exit 2; }
+ out=$(bash "$L" $ARM "$BOGUS" 2>&1); rc=$?
+ if [ "$rc" -eq 3 ] && echo "$out" | grep -q "ABORT G-ROOT.5 a RUNNING container"; then ok "(a) live container $CN -> rc=3: $(echo "$out" | grep 'ABORT G-ROOT.5' | cut -c1-120)"; else bad "(a) rc=$rc: $(echo "$out" | tail -2)"; fi
+ sudo -n docker rm -f "$CN" >/dev/null 2>&1
+ # (b) sacrificial LIVE pid, cwd = run root, named in the pidfile
+ ( cd "$BASE" && exec sleep 180 ) & SPID=$!
+-echo "$SPID" > "$BASE/so1a_driver.pid"
++echo "$SPID" > "$BASE/so1b_driver.pid"
+ out=$(bash "$L" $ARM "$BOGUS" 2>&1); rc=$?
+ if [ "$rc" -eq 3 ] && echo "$out" | grep -q "ABORT G-ROOT.5 driver pidfile"; then ok "(b) live pid $SPID cwd=$BASE -> rc=3: $(echo "$out" | grep 'ABORT G-ROOT.5' | cut -c1-140)"; else bad "(b) rc=$rc: $(echo "$out" | tail -2)"; fi
+-kill "$SPID" 2>/dev/null; wait "$SPID" 2>/dev/null; rm -f "$BASE/so1a_driver.pid"
++kill "$SPID" 2>/dev/null; wait "$SPID" 2>/dev/null; rm -f "$BASE/so1b_driver.pid"
+ # (b2) STALE pidfile (dead pid) must NOT block
+-echo "999999" > "$BASE/so1a_driver.pid"
++echo "999999" > "$BASE/so1b_driver.pid"
+ out=$(bash "$L" $ARM "$BOGUS" 2>&1); rc=$?
+ if [ "$rc" -eq 4 ] && echo "$out" | grep -q "G_ROOT5_PASS" && echo "$out" | grep -q "ABORT L-251 run root mode"; then ok "(b2) stale pidfile ignored; launcher went on to abort at the L-251 mode check (rc=4) -- nothing staged"; else bad "(b2) rc=$rc: $(echo "$out" | tail -2)"; fi
+-rm -f "$BASE/so1a_driver.pid"
++rm -f "$BASE/so1b_driver.pid"
+ # (c) clear: guard passes, mode check aborts BEFORE staging
+ out=$(bash "$L" $ARM "$BOGUS" 2>&1); rc=$?
+ if [ "$rc" -eq 4 ] && echo "$out" | grep -q "G_ROOT5_PASS"; then ok "(c) clear -> G-ROOT.5 passes; L-251 mode check aborts (rc=4) before any staging"; else bad "(c) rc=$rc"; fi
+@@ -63,14 +64,19 @@
+ # (e) G-ROW from birth, with the REAL images, on the 777 root holding only the
+ # three staged instruments.
+ chmod 777 "$BASE"; mkdir -p "$BASE/base/system"
+-cp -a "$HERE/so1a_runScript.py" "$HERE/so1a_xf.py" "$BASE/" && cp -a "$HERE/so1a_decomposeParDict" "$BASE/base/system/decomposeParDict"
+-out=$(bash "$L" X-P "$IMG" 2>&1); rc=$?
+-if [ "$rc" -eq 4 ] && echo "$out" | grep -q "ABORT G-ROW arm X-P is registered on the PATCHED row; got ROW=SHIPPED"; then ok "(e1) X-P on the SHIPPED image -> rc=4 G-ROW REFUSED before any staging"; else bad "(e1) rc=$rc: $(echo "$out" | tail -2)"; fi
++cp -a "$HERE/so1b_runScript.py" "$HERE/so1b_of.py" "$BASE/" && cp -a "$HERE/so1b_decomposeParDict" "$BASE/base/system/decomposeParDict"
++out=$(bash "$L" O-P "$IMG" 2>&1); rc=$?
++if [ "$rc" -eq 4 ] && echo "$out" | grep -q "ABORT G-ROW arm O-P is registered on the PATCHED row; got ROW=SHIPPED"; then ok "(e1) O-P on the SHIPPED image -> rc=4 G-ROW REFUSED before any staging"; else bad "(e1) rc=$rc: $(echo "$out" | tail -2)"; fi
+ out=$(bash "$L" MESH "$IMG_P" 2>&1); rc=$?
+ if [ "$rc" -eq 4 ] && echo "$out" | grep -q "ABORT G-ROW arm MESH is registered on the SHIPPED row; got ROW=PATCHED"; then ok "(e2) MESH on the PATCHED image -> rc=4 G-ROW REFUSED before any staging"; else bad "(e2) rc=$rc: $(echo "$out" | tail -2)"; fi
+-out=$(bash "$L" X-S "$IMG" 2>&1); rc=$?
+-if [ "$rc" -eq 5 ] && echo "$out" | grep -q "D4S_G_ROW_PASS row=SHIPPED" && echo "$out" | grep -q "ABORT arm X-S expects an existing MESH/"; then ok "(e3) X-S on the SHIPPED image -> G-ROW passes, then the arm REFUSES (rc=5) for want of the MESH arm's output -- nothing staged"; else bad "(e3) rc=$rc: $(echo "$out" | tail -2)"; fi
+-test -e "$BASE/X-S" && bad "(e3) left an X-S directory" || ok "(e3) no arm directory was created"
++out=$(bash "$L" O-S "$IMG" 2>&1); rc=$?
++if [ "$rc" -eq 5 ] && echo "$out" | grep -q "D4S_G_ROW_PASS row=SHIPPED" && echo "$out" | grep -q "ABORT arm O-S expects an existing MESH/"; then ok "(e3) O-S on the SHIPPED image -> G-ROW passes, then the arm REFUSES (rc=5) for want of the MESH arm's output -- nothing staged"; else bad "(e3) rc=$rc: $(echo "$out" | tail -2)"; fi
++test -e "$BASE/O-S" && bad "(e3) left an O-S directory" || ok "(e3) no arm directory was created"
++# (e4) NEW -- G-EDEP: an E arm without ITS OWN ROW'"'"'S optimisation artefact refuses
++# BEFORE G-ROOT.5, before any rm -rf and before any container.
++out=$(bash "$L" E-S "$IMG" 2>&1); rc=$?
++if [ "$rc" -eq 5 ] && echo "$out" | grep -q "ABORT G-EDEP arm E-S requires its own row"; then ok "(e4) E-S with no O-S/so1b_O.json -> rc=5 G-EDEP REFUSED: $(echo "$out" | grep 'ABORT G-EDEP' | cut -c1-120)"; else bad "(e4) rc=$rc: $(echo "$out" | tail -2)"; fi
++test -e "$BASE/E-S" && bad "(e4) left an E-S directory" || ok "(e4) no arm directory was created"
+ # (f) NEW -- the launcher's AGE-DATUM-BY-EXISTENCE resolution, DRIVEN in all three
+ # states, in a THROWAWAY directory that is not an arm and is removed afterwards.
+ # This is the AV-1/AV-2 defect: a datum pinned to the NAME 0/U vanishes when
+@@ -83,16 +89,48 @@
+ rm -f "$FTMP/0/U"; : > "$FTMP/0/U.gz"
+ [ "$(resolve "$FTMP")" = "0/U.gz" ] && ok "(f2) only the COMPRESSED twin present (writeCompression on, np=1) -> resolved 0/U.gz, NOT a refusal -- this is exactly what killed AV-1 and AV-2" || bad "(f2) resolve returned $(resolve "$FTMP")"
+ rm -f "$FTMP/0/U.gz"
+-[ "$(resolve "$FTMP")" = "NONE" ] && ok "(f3) DRIVEN CONTROL -- NEITHER registered name present -> NONE, and the launcher/grader REFUSE (so1a_grade.py U24 drives the grader side)" || bad "(f3) resolve returned $(resolve "$FTMP")"
++[ "$(resolve "$FTMP")" = "NONE" ] && ok "(f3) DRIVEN CONTROL -- NEITHER registered name present -> NONE, and the launcher/grader REFUSE (so1b_grade.py U24 drives the grader side)" || bad "(f3) resolve returned $(resolve "$FTMP")"
+ rm -rf "$FTMP"
+ grep -q 'elif \[ -f "\$WORK/0/U.gz" \]' "$L" && ok "(f4) the LAUNCHER itself carries the by-existence branch for the solver arms" || bad "(f4) launcher has no 0/U.gz branch"
+-grep -q '.so1a_age_datum_ref' "$L" && ok "(f5) the LAUNCHER records the resolved datum NAME to .so1a_age_datum_ref" || bad "(f5) launcher records no datum name"
+-rm -rf "$BASE/base" "$BASE/so1a_runScript.py" "$BASE/so1a_xf.py"
++grep -q '.so1b_age_datum_ref' "$L" && ok "(f5) the LAUNCHER records the resolved datum NAME to .so1b_age_datum_ref" || bad "(f5) launcher records no datum name"
++# (g) NEW -- THE CAP-AGREEMENT PREFLIGHT (G-CAP-PREREG), DRIVEN WITH PLANTED
++# DISAGREEMENTS.  W3's launcher carried 600 against a registered 900 and a second
++# stale constant behind it; the check that caught it is this one, and it is worth
++# nothing unless it is shown FIRING.  Every mutant below is a COPY -- the frozen
++# launcher and the frozen pre-registration are never edited.
++PRE="$HERE/PREREGISTRATION.md"
++if [ -f "$PRE" ]; then
++  ok "(g0) the frozen pre-registration is present for the preflight to read: $PRE"
++  out=$(bash "$L" $ARM "$BOGUS" 2>&1)
++  if echo "$out" | grep -q "SO1B_G_CAP_PREREG_PASS"; then ok "(g1) real launcher vs real pre-registration -> preflight PASSES: $(echo "$out" | grep SO1B_G_CAP_PREREG_PASS | cut -c1-170)"; else bad "(g1) preflight did not pass: $(echo "$out" | tail -3)"; fi
++  sed 's/^    O-P|O-S)  echo 25.0 ;;$/    O-P|O-S)  echo 40.0 ;;/' "$L" > "$SCRATCH/planted_cap.sh"
++  NDIFF=$(diff "$L" "$SCRATCH/planted_cap.sh" | grep -c "^[<>]")
++  if [ "$NDIFF" = "2" ]; then ok "(g2a) the planted-cap mutant differs from the frozen launcher by exactly one constant (2 diff lines)"; else bad "(g2a) mutant diff lines = $NDIFF, expected 2"; fi
++  out=$(bash "$SCRATCH/planted_cap.sh" $ARM "$BOGUS" 2>&1); rc=$?
++  if [ "$rc" -eq 65 ] && echo "$out" | grep -q "ABORT G-CAP-PREREG arm O-P"; then ok "(g2b) a launcher that would enforce 40.0 against a registered 25.0 -> rc=65 REFUSED before any container: $(echo "$out" | grep 'ABORT G-CAP-PREREG' | cut -c1-140)"; else bad "(g2b) rc=$rc: $(echo "$out" | tail -3)"; fi
++  sed 's/CEILING=115.0/CEILING=999.0/' "$PRE" > "$SCRATCH/planted_prereg.md"
++  sed "s#^PREREG=.*#PREREG=$SCRATCH/planted_prereg.md#" "$L" > "$SCRATCH/planted_ceiling.sh"
++  out=$(bash "$SCRATCH/planted_ceiling.sh" $ARM "$BOGUS" 2>&1); rc=$?
++  if [ "$rc" -eq 65 ] && echo "$out" | grep -q "ABORT G-CAP-PREREG the registered CEILING"; then ok "(g3) a CEILING that is not the sum of the registered caps -> rc=65 REFUSED: $(echo "$out" | grep 'ABORT G-CAP-PREREG' | cut -c1-140)"; else bad "(g3) rc=$rc: $(echo "$out" | tail -3)"; fi
++  grep -v "SO1B-CAP-MANIFEST v1" "$PRE" > "$SCRATCH/noman_prereg.md"
++  sed "s#^PREREG=.*#PREREG=$SCRATCH/noman_prereg.md#" "$L" > "$SCRATCH/planted_noman.sh"
++  out=$(bash "$SCRATCH/planted_noman.sh" $ARM "$BOGUS" 2>&1); rc=$?
++  if [ "$rc" -eq 65 ] && echo "$out" | grep -q "names no SO1B-CAP-MANIFEST v1 line"; then ok "(g4) a pre-registration carrying NO manifest line -> rc=65 REFUSED (a missing gate is never a passing gate)"; else bad "(g4) rc=$rc: $(echo "$out" | tail -3)"; fi
++  sed "s#^PREREG=.*#PREREG=$SCRATCH/does_not_exist.md#" "$L" > "$SCRATCH/planted_nopre.sh"
++  out=$(bash "$SCRATCH/planted_nopre.sh" $ARM "$BOGUS" 2>&1); rc=$?
++  if [ "$rc" -eq 65 ] && echo "$out" | grep -q "the frozen pre-registration is absent"; then ok "(g5) the pre-registration absent -> rc=65 REFUSED"; else bad "(g5) rc=$rc: $(echo "$out" | tail -3)"; fi
++  HS=$(bash "$L" $ARM "$BOGUS" 2>&1 | grep -o "head_channel=[A-Z_]*" | head -1)
++  ok "(g6) channel (b), the HEAD comparison, REPORTS its own state rather than assuming one: $HS -- NOT_MEASURED is the correct reading BEFORE the freeze commit, when this file is not yet at HEAD; channel (a) binds regardless, and this is stated rather than papered over"
++else
++  bad "(g) PREREGISTRATION.md is absent -- the cap-agreement preflight cannot be driven"
++fi
++rm -rf "$SCRATCH"
++rm -rf "$BASE/base" "$BASE/so1b_runScript.py" "$BASE/so1b_of.py"
+ chmod 775 "$BASE"
+ N=$(find "$BASE" -mindepth 1 | wc -l)
+ if [ "$N" = "0" ]; then ok "temporary run root EMPTY after every invocation and after the (e) copies were removed ($N entries)"; else bad "run root gained $N entries"; fi
+ rmdir "$BASE" 2>/dev/null
+ if [ ! -e "$BASE" ]; then ok "run root ABSENT after the test (freeze condition): test -e $BASE -> false"; else bad "run root still present"; fi
+-sudo -n docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "^so1a_" && bad "a so1a_ container survives" || ok "no so1a_ container survives"
+-echo "SO1a G-ROOT5 SELFTEST pass=$PASS fail=$FAIL $(date -u +%Y-%m-%dT%H:%M:%SZ)"
++sudo -n docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "^so1b_" && bad "a so1b_ container survives" || ok "no so1b_ container survives"
++echo "SO1b G-ROOT5 SELFTEST pass=$PASS fail=$FAIL $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+ [ "$FAIL" -eq 0 ]
