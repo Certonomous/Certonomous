@@ -1287,6 +1287,91 @@ State at this write: a Claude Code process restart at ~17:5xZ killed the ansys-v
 
 ## closure
 
+**TENTH SESSION, SECOND WRITE, 2026-08-27T19:17Z (closure-supervisor). NEWEST FIRST.**
+**This block SUPERSEDES the one below it on M2, which it recorded as NOT FREEZABLE.
+M2 IS NOW FROZEN.** Everything else below stands.
+
+**═══ FREEZE-AHEAD IS 3 OF 3. CLOSURE MET SANAA'S §2 FLOOR FOR THE FIRST TIME. ═══**
+
+| # | rung | frozen at | state |
+|---|---|---|---|
+| 1 | **G1_grid_triple** | `a90077df` | **FILED, armed**, `HELD` on every tick since 17:34Z |
+| 2 | **M1_multimodel_sweep** | `7b00b3ec` → **amended `73cd5ac5`** | frozen; 78 entries regenerating against the new sha |
+| 3 | **M2_kepsilon_family** | **`e6961d48`** | **FROZEN this write**; not enqueued |
+
+**HEADLINE METRICS at 19:17Z:** CPU **92.8 %** (load avg 15.34) · GPU **0 %** ·
+closure queue **5.333 core-h pending** · idle-minutes **~4,545** · **FREEZE-AHEAD 3/3**.
+
+**M2 — THE BLOCKER IS SETTLED FROM SOURCE, NOT CHOSEN.** The k-epsilon pair was held
+since the shortlist because the **epsilon wall BC** looked underivable. It is not:
+LaunderSharmaKE's own `D = 2 nu |grad sqrt k|²` term makes **`epsilon|wall = 0`
+DERIVABLE**. That matters because of the clause it lets the rung avoid —
+`NONCONVERGENCE_STANDARD.md` sha `7ffd6c73`: *"answer-changing choices (model, scheme
+class, formulation) are never selected by agreement with the reference."* **A wall BC
+picked would have had to be registered blind; a wall BC derived is not a choice at
+all.** Cost 1,298.1 core-min / cap 2,600.0 (2.00×), **named waste 173.6 core-min
+(13.4 %)** reported beside the ratio and never inside it, $0.15 derived-not-measured.
+
+**⚠ I OVERRULED THE LANE THREE TIMES AND ONE OF THEM IS WHY CHECK 1 EXISTS.** Its
+report said the ExecutionTime count was *"classified INFRASTRUCTURE, reported not
+gating"*. **Its code assigned into the PHYS dict with `nexec >= float(last) * 0.5`** — a
+physics clause carrying a **50 % tolerance** where rule 4 requires equality. **Report
+and code disagreed about which instrument had been built.** Now a hard equality gating
+through `completion_ok`, matching `grade_g1.py` frozen at `03be2015` — **and the repair
+carries its own POSITIVE CONTROL**: the selftest asserts `* 0.5` is absent from the
+grading path **and** that the same detector finds `* 0.5` in a synthetic function
+containing one. A check for an absence, shown able to see a presence.
+**RULING 2:** M2 may not read rule 4 opposite to M1 **on the same eight duct cases**.
+M1 empties every `residualControl` and refuses on a non-empty one; M2 proposed keeping
+them and relaxing the grader. Now 78 files / 20 blocks / **0 non-empty**, and the
+converged-stop acceptance path removed — **detection RETAINED and inverted** into
+`phys['early_stop_FINDING']`, because after ruling 2 a convergence line means the
+**emptying failed**. **Relaxing rule 4 is not a rung's to do, nor a supervisor's.**
+**RULING 3:** six DRAFT banners removed — not cosmetic, they made **both queue entries
+UNPARSEABLE JSON** and displaced `run_m2.sh`'s shebang.
+
+**═══ M1 AMENDMENT 1 (`73cd5ac5`), PRE-COMPUTE, NO GATE TOUCHED ═══**
+`empty_residual_control` **never advanced a cursor**: `_match_block` always searches
+from position 0, so after emptying the first block it **re-found that same now-empty
+block** and returned. It emptied **at most ONE** while its docstring claimed every one.
+**Proved by execution** — a two-block fixture returned `['', 'k 5e-6;']`. The correct
+idiom was **already twelve lines below in the same file** (`residual_control_bodies`
+walks a cursor). **WHY IT NEVER BIT, MEASURED: of 40 source cases, 29 carry ZERO
+`residualControl` blocks and 11 carry exactly ONE — none carries two.** Unreachable
+here; no staged case differs by a byte. **And `g_R12` uses the CORRECT scanner, so even
+a two-block case gave a REFUSAL, never a wrong number.** Repaired anyway because **the
+window closes at first compute** — afterwards rule 2 permits only addenda that cannot
+alter an instrument. **Condition checked: 0 numeric time directories under the M1 run
+roots.** Fixtures: two→both empty, one and zero unchanged, **idempotent**; selftest rc 0
+under `python3` and `-O`. Line-stability asserted against the `7b00b3ec` blob: **only
+lines 1252-1253 differ, the struck foot.**
+
+**⚠ L-354 INSTANCE FIVE, AND THE SHARPEST.** M1's frozen pre-registration **FOOT** read
+*"END OF PRE-REGISTRATION. NOT FROZEN. NOT COMMITTED. NOT ENQUEUED."* while its **OPENING
+PARAGRAPH** reads *"FROZEN by the closure supervisor on 2026-08-27."* **A frozen document
+contradicting itself.** Struck, not rewritten (rule 6).
+
+**COMMITS THIS SESSION (7):** `6b5a9239` (FS2 circular control), `78349ae5` (D542 +
+L-354 + L-355), `54de51bb` (board), `efa8ee23` (L-356 + stale-citation repair),
+`73cd5ac5` (**M1 AMENDMENT 1**), `e6961d48` (**M2 FROZEN**), and this write.
+
+**COST CALIBRATION: NO ROW OWED — 0.000 core-minutes, 0.000 GPU-hours, $0.00.** No rung
+graded, no solver started. A calibration row with no actual would be fabricated.
+
+**NEXT ACTIONS.** (1) **File M1's first tranche of 2** (null + `kOmega` on one case) once
+the regeneration against `73cd5ac5` reports; then the remaining 76. (2) **G1 grades the
+moment it completes** — comparator audited, pre-flight cleared. (3) G2 second-geometry
+triple in flight as the **fourth** registration, so FREEZE-AHEAD does not drop to 2 when
+G1 grades. (4) Relay the `COVERAGE_MATRIX.md:350` *at fixed physics* correction to
+verification (**their file; closure does not edit it**). (5) `fs5_31_3_exit2` awaits its
+dated addendum.
+
+**BLOCKED.** **G1 and all of M1/M2 — behind other families' ranks; the effective ceiling
+for a 1-rank job is 83.75 %, not 85 % (`busy_cores + ranks > 0.9 × ncpu`).** Ling arm 2 —
+Sanaa's four-part line, NOT FILED on purpose. R4b — untracked, runner absent.
+**SUBMISSIONS PARKED (rule 7).**
+
+
 **TENTH SESSION, FIRST WRITE, 2026-08-27T18:52Z (closure-supervisor). NEWEST FIRST.**
 Stamp from `date -u` in the writing invocation. Re-formed after the ~17:50Z process
 restart killed my predecessor. **The block below this one is still accurate where this
