@@ -1,0 +1,141 @@
+VMFLGPU007-R2 -- LIMB A READER REPAIR, DRIVEN ON THE REAL FROZEN BYTES
+written 2026-08-27T21:54:19Z by ansys-lane-opus (lane V).  NOTHING HERE IS A GRADE.
+
+The bytes driven on are R1's own solver logs, on disk at
+  /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU007/<arm>/<level>/log.buoyantSimpleFoam
+They are NOT re-graded; only limb A's reader is run against them, via
+  python3 grade_vmflgpu007_r2.py --drive-logview <arm_dir>
+which grades nothing and returns a verdict for nothing.
+
+sha256 of the six logs driven on:
+  gpu/L1   3d5c409e77a418e13d6bef0993bd330643bf81e8480812bdd47875304003bf33
+  gpu/L2   763b551b1a2bee166a962db1727fc38f149ed9ca28f41c25f80e5187306689a0
+  gpu/L3   28d233da7573d11aa9f9690d90d4cc54981f98cbab7a7429481ab4fb613b5975
+  cpu/L1   80933fb9a061c85dbb77e896ba66e12d81bd6cfc181b019bba89533fa2e23dac
+  cpu/L2   395bbf548045137fe0d9302daf3060da57f8e77a9b082d922e44f9305d386b77
+  cpu/L3   54e55eab0679a2c236b74ced6c3a9f4f3989a9102a67250de47c6bae3762fa74
+
+================ A. THE REPAIRED READER, ON EACH OF THE SIX ARMS ================
+---- gpu/L1 ----
+    log                = /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU007/gpu/L1/log.buoyantSimpleFoam
+    data columns       = 26
+    GPU %F column      = 25
+    CpuToGpu Count col = 21
+    MatMult/KSPSolve rows      = 13
+    GPU %F min / max   = 100 / 100
+    CpuToGpu Count by event = {'KSPSolve': 3601, 'MatMult': 7200}
+    CpuToGpu Count total    = 27606
+---- gpu/L2 ----
+    log                = /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU007/gpu/L2/log.buoyantSimpleFoam
+    data columns       = 26
+    GPU %F column      = 25
+    CpuToGpu Count col = 21
+    MatMult/KSPSolve rows      = 13
+    GPU %F min / max   = 100 / 100
+    CpuToGpu Count by event = {'KSPSolve': 5401, 'MatMult': 10800}
+    CpuToGpu Count total    = 41406
+---- gpu/L3 ----
+    log                = /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU007/gpu/L3/log.buoyantSimpleFoam
+    data columns       = 26
+    GPU %F column      = 25
+    CpuToGpu Count col = 21
+    MatMult/KSPSolve rows      = 13
+    GPU %F min / max   = 100 / 100
+    CpuToGpu Count by event = {'KSPSolve': 9001, 'MatMult': 18000}
+    CpuToGpu Count total    = 69006
+---- cpu/L1 ----
+    log                = /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU007/cpu/L1/log.buoyantSimpleFoam
+    data columns       = 26
+    GPU %F column      = 25
+    CpuToGpu Count col = 21
+    MatMult/KSPSolve rows      = 13
+    GPU %F min / max   = 0 / 0
+    CpuToGpu Count by event = {'KSPSolve': 0, 'MatMult': 0}
+    CpuToGpu Count total    = 0
+---- cpu/L2 ----
+    log                = /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU007/cpu/L2/log.buoyantSimpleFoam
+    data columns       = 26
+    GPU %F column      = 25
+    CpuToGpu Count col = 21
+    MatMult/KSPSolve rows      = 13
+    GPU %F min / max   = 0 / 0
+    CpuToGpu Count by event = {'KSPSolve': 0, 'MatMult': 0}
+    CpuToGpu Count total    = 0
+---- cpu/L3 ----
+    log                = /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU007/cpu/L3/log.buoyantSimpleFoam
+    data columns       = 26
+    GPU %F column      = 25
+    CpuToGpu Count col = 21
+    MatMult/KSPSolve rows      = 13
+    GPU %F min / max   = 0 / 0
+    CpuToGpu Count by event = {'KSPSolve': 0, 'MatMult': 0}
+    CpuToGpu Count total    = 0
+
+================ B. R1's FROZEN READER ON THE SAME BYTES ================
+R1 comparator blob at HEAD  = a4632b7ac2ef88fd98d14015b614ab4772ae71df
+R1 comparator hash on disk  = a4632b7ac2ef88fd98d14015b614ab4772ae71df   IDENTICAL -- these ARE the frozen bytes that graded R1
+R1's file is READ, never edited, and is executed from its bytes rather than
+imported, so no bytecode cache stands between the frozen blob and what runs.
+
+arm      | R1 gpu_pctf (claims 'GPU %F')  | R2 GPU %F min/max (by column) | R1 h2d
+----------------------------------------------------------------------------------------------------
+gpu/L1   | 210                            | 100 / 100                    | 0
+gpu/L2   | 672                            | 100 / 100                    | 0
+gpu/L3   | 2320                           | 100 / 100                    | 0
+cpu/L1   | 0                              | 0 / 0                        | 0
+cpu/L2   | 0                              | 0 / 0                        | 0
+cpu/L3   | 0                              | 0 / 0                        | 0
+
+WHAT R1's NUMBERS ACTUALLY ARE.  210 / 672 / 2320 on the GPU arms are the
+CpuToGpu SIZE IN MBYTES of the Main-Stage MatMult row, read here by column:
+   gpu/L1 Main-Stage MatMult:  CpuToGpu Count = 7200   CpuToGpu Size = 210 MB   GPU %F = 100   ->  R1 returned 210
+   gpu/L2 Main-Stage MatMult:  CpuToGpu Count = 10800   CpuToGpu Size = 672 MB   GPU %F = 100   ->  R1 returned 672
+   gpu/L3 Main-Stage MatMult:  CpuToGpu Count = 18000   CpuToGpu Size = 2320 MB   GPU %F = 100   ->  R1 returned 2320
+
+R1's floor is GPU_PCTF_MIN = 99.  210.0 >= 99.0, so R1's clause A3 PASSED --
+ON A MEGABYTE COUNT.  That is the SILENT FALSE PASS, and it is the dangerous
+half.  The values SCALE WITH MESH (210 -> 672 -> 2320), which a percentage
+cannot do; the TRUE GPU %F is 100 on every MatMult and KSPSolve row.
+
+R1's h2d is 0 on ALL SIX ARMS, the GPU arms included, because its regex
+   CpuToGpu (?:Count|- CopyTo)\s*[:=]?\s*(\d+)
+needs digits immediately after the optional colon, and the ONLY line in the
+whole file carrying that phrase is THE LEGEND:
+      '   CpuToGpu Count: total number of CPU to GPU copies per processor'
+whose colon is followed by descriptive text.  R1's clause A4 refuses on
+h2d <= 0, so A4 WAS UNPASSABLE ON ANY RUN, BY CONSTRUCTION: the instrument
+was frozen guaranteed to refuse there.  R2 reads 27606 / 41406 / 69006 on the
+same bytes, and 0 on all three forced-CPU arms.
+
+THE FORCED-CPU CONTROL READ 0/0 UNDER R1 TOO -- BUT ONLY BY COINCIDENCE.  Its
+trailing four tokens all happen to be zero on this build, so max() of them is
+0.  A control that is right by accident is not a control.
+
+================ C. THE NEW >100 GUARD, DRIVEN ON REAL BYTES ================
+The guard is driven on gpu/L1's VERBATIM log with ONE change: the GPU %F column
+of the Main-Stage MatMult row is set to 210 -- the exact value R1's reader
+returned and cleared its floor with.  Everything else is byte-for-byte the
+real log.  The plant is written to a scratch copy; the run tree is untouched.
+
+  BEFORE: MatMult            14400 1.0 3.7764e-01 1.0 4.64e+08 1.0 0.0e+00 0.0e+00 0.0e+00  0  2  0  0  0   6 95  0  0  0  1230    2950   7200 2.10e+02    0 0.0
+  AFTER : MatMult 14400 1.0 3.7764e-01 1.0 4.64e+08 1.0 0.0e+00 0.0e+00 0.0e+00 0 2 0 0 0 6 95 0 0 0 1230 2950 7200 2.10e+02 0 0.00e+00 210
+  rows planted = 1 (exactly one)
+
+  R2 REFUSED, and the TEXT is asserted, not merely the exception (L-357):
+     REFUSE (VMFLGPU007-R2 A1P): the -log_view table in /tmp/r2_pctf_guard_tlaadgta/gpu/L1/log.buoyantSimpleFoam reports GPU %F = 210 on MatMult, ABOVE 100. GPU %F IS A PERCENTAGE and cannot exceed 100: a reader returning this has read the WRONG COLUMN. R1 cleared its 99.0 floor with 210.0 -- the CpuToGpu SIZE IN MBYTES -- and reported a pass for the wrong reason. This refuses instead.
+     contains 'ABOVE 100' : True
+     contains 'A1P'       : True
+
+  And R1's frozen reader on the SAME planted bytes, for contrast:
+     R1 gpu_pctf = 210, h2d = 0   -- R1 clears its 99.0 floor and reports a PASS.
+
+================ D. WHAT THIS DRIVE DOES NOT DO ================
+It grades nothing, re-grades nothing and changes no verdict.  R1's row stands
+as NOT A RESULT on its supervisor's ruling: its plateau channel had not
+settled, and that refusal is independent of everything above.  R1's tree, its
+pre-registration and its comparator are untouched.
+
+NOTE ON THE PLANT IN SECTION C: the planted row is re-joined on single spaces.
+Column location is by INDEX within the row's numeric tokens and is therefore
+whitespace-independent; the two HEADER LINES, from which the indices are
+derived, are byte-for-byte the real ones and were not touched.

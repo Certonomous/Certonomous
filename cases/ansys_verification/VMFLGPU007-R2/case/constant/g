@@ -1,0 +1,11 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  ZERO GRAVITY, and it is a modelling statement, not a convenience: the manual
+  describes FORCED convection ("Incompressible, turbulent flow with heat
+  convection and reattachment") and gives no orientation and no buoyancy
+  parameter. With g = 0 the buoyant term vanishes identically, p_rgh == p, and
+  the temperature field is transported without feeding back into the momentum
+  equation -- which is what "fluid properties are considered constant" means.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class uniformDimensionedVectorField; object g; }
+dimensions [0 1 -2 0 0 0 0];
+value (0 0 0);

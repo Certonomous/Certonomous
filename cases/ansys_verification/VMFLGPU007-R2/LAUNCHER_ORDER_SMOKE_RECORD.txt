@@ -1,0 +1,121 @@
+VMFLGPU007-R2 -- LAUNCHER-ORDER SMOKE.  THE ORDERING IS DRIVEN, NOT READ.
+written 2026-08-27T22:08:58Z by ansys-lane-opus (lane V), pre-freeze.
+================================================================================
+TWO SMOKES, TWO DIFFERENT OBJECTS, and neither substitutes for the other:
+  * the READER smoke (READER_SMOKE_RECORD.txt) proves the COMPARATOR can read
+    what OpenFOAM writes;
+  * THIS smoke proves the LAUNCHER assembles a case OpenFOAM can run, and that
+    its freeze check cannot be pointed at the wrong tree.
+It was the gap between them that cost R1 its 20:21:35Z abort: R1's reader smoke
+ran in a directory staged BY HAND, so it never exercised the launcher's ordering.
+
+NO SOLVER STEP.  blockMesh and checkMesh only, on the LAB BOX, in SCRATCH --
+never verification/runs/.  Measured: 0 solver logs and 0 time directories beyond
+0/ were produced in either arm.  IT PRODUCES NO GRADED QUANTITY.
+
+THE ANTI-TRAP: THE BYTES ARE EXTRACTED, NEVER RETYPED.
+The case-assembly region was taken VERBATIM BY LINE RANGE from the shipped
+launcher and both extracted forms are hashed, so a reader can confirm they are
+the shipped bytes:
+
+  REPAIRED (R2's shipped order)  run_vmflgpu007_r2.sh lines 231-284   54 lines
+                                sha256 24d80237035de11931f35bd1d9d806d38579291cd8ffb998f282531a70db8235
+  DEFECT   (the SAME bytes, templating block relocated to AFTER blockMesh,
+            reproducing the pre-Amendment-2 order that killed R1's first drop)
+                                sha256 99fd8cf116ddc3ccec8a6785d32296d16d973568303eaa3c1fcea4881abb8b8b
+
+The harness supplies VARIABLES ONLY.  Measured on the harness file: 0 occurrences
+of mkdir, 0 of `cp -a`, 0 of checkMesh, 0 of __MATTYPE__, 0 of __ENDTIME__,
+0 of `rm -f`, and the single occurrence of "blockMesh" is its own PATH guard.
+EVERY ORDERING DECISION COMES FROM THE EXTRACTED BYTES.
+
+================================================================================
+PART 1 -- THE ORDERING.  THE FLIP IS EXACT.
+================================================================================
+DEFECT ORDERING                                                    REGION rc = 1
+    ABORT (L1/gpu): blockMesh failed; see <SCRATCH>/oDEF/gpu/L1/log.blockMesh
+  and log.blockMesh carries, verbatim at lines 31-32:
+    --> FOAM FATAL ERROR: (openfoam-2606)
+    cannot find file "<SCRATCH>/oDEF/gpu/L1/system/controlDict"
+  system/ afterwards:  blockMeshDict  controlDict.template  fvSchemes  fvSolution.template
+  -- the two templates never materialised, which is the defect in one line.
+
+REPAIRED ORDERING (R2's shipped bytes)                             REGION rc = 0
+  blockMesh:  End
+  checkMesh:  Mesh OK.       Max aspect ratio = 4.46428571429 OK.
+  BIRTH CERTIFICATE OK: 3648 cells == registered 3648
+  FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+  system/ afterwards:  blockMeshDict  controlDict  fvSchemes  fvSolution
+  controlDict carries the REGISTERED endTime:  endTime   3200;
+  -- the case directory is COMPLETE before the first utility runs.
+
+Same inputs, same OpenFOAM v2606, same scratch harness; only the ordering bytes
+differ.  A fix not shown to flip the failure it claims to fix is an assertion,
+not evidence (L-357).
+
+================================================================================
+PART 2 -- A DEFECT THIS SMOKE FOUND, WHICH NOTHING ELSE WOULD HAVE
+================================================================================
+The smoke would not run at all at first.  Triaged rather than worked around, and
+the cause is in the launcher's own environment step:
+
+  OpenFOAM v2606's etc/bashrc ends with
+      . "$WM_PROJECT_DIR/etc/config.sh/setup" "$@"
+  and that chain reaches, at etc/config.sh/setup line 205,
+      _foamEtc -config  paraview -- "$@"  # Pass through for evaluation
+  which SOURCES any positional argument that resolves to a *.sh file.
+
+MEASURED, driving it both ways on the lab box:
+  argument is a DIRECTORY      -> harmless; blockMesh stays on PATH
+  argument is a path to *.sh   -> THAT FILE IS EXECUTED INSIDE THE BASHRC, with
+                                  none of the calling script's variables set, and
+                                  PATH is left without FOAM_APPBIN
+The failure is silent in the worst way: with the customary
+`. "$OF_BASHRC" >/dev/null 2>&1` the sourced file's fd manipulation leaves the
+caller's stdout on /dev/null, so every later echo -- including the ABORT
+messages -- disappears.  That is how a 45-minute triage started from "blockMesh:
+command not found" in a log written by a script that printed nothing.
+
+THE LAUNCHER WAS NEVER EXPOSED, and the reason is luck rather than design: its
+only positional is RUN_ROOT, a DIRECTORY.  R1 ran to completion on the GPU
+instance for exactly that reason.  But it is a live path from an argument to code
+execution inside the launcher, and it costs one line to close.
+
+REPAIR, made PRE-FREEZE and disclosed here: `set --` immediately before the two
+environment sourcings (line 203 of run_vmflgpu007_r2.sh).  $1 is read once, at line
+86, long before; measured: 0 uses of $1, $@ or $* at script level after that.
+It moves no gate, band, threshold, cap, label, mesh count or endTime.
+
+================================================================================
+PART 3 -- THE FREEZE CHECK CANNOT BE POINTED AT ANOTHER TREE (R1 Amendment 1)
+================================================================================
+Driven, three arms, with a scratch BUILD_ROOT so the drive reaches STEP 1.
+NO RUN ROOT WAS CREATED BY ANY ARM (measured: 0).
+
+  A  from its own location, REPO unset
+       REPO DERIVED FROM SCRIPT_DIR: /home/ubuntu/Certonomous
+       ABORT (freeze d): cases/ansys_verification/VMFLGPU007-R2/PREREGISTRATION.md
+       is not committed at HEAD -- the freeze is the evidence
+     This is the correct answer TODAY: R2 is uncommitted, so the launcher
+     REFUSES TO RUN.  It cannot start before the supervisor's freeze commit.
+
+  B  the same launcher copied OUTSIDE $REPO/$CASE_REL_DIR
+       ABORT (freeze a): SCRIPT_DIR=<scratch>/wrongplace is NOT inside a git
+       worktree ... The repository is NEVER taken from the environment.
+
+  C  from its own location with a HOSTILE REPO in the environment
+       ABORT (freeze c): REPO=<scratch>/othertree resolves to <scratch>/othertree,
+       which is NOT the repository derived from this script's own location
+       (/home/ubuntu/Certonomous). The environment does not select the tree a
+       freeze is proved against.
+
+================================================================================
+WHAT THIS SMOKE DOES NOT SHOW
+================================================================================
+  * Nothing about the physics, the gate or any verdict; no solver ran.
+  * Only L1/gpu was meshed.  L2 and L3 were measured pre-freeze for R1 and their
+    cell counts are carried unchanged; the birth-certificate clause is the same
+    code for all three.
+  * It says nothing about the GPU instance's toolchain.  STEP 0's smoke gate is
+    what covers that, and it was satisfied here by a SCRATCH stub so the drive
+    could reach STEP 1.  On the instance the real STATUS.smoke governs.

@@ -1,0 +1,9 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  "The standard k-e model with standard wall functions is used for accounting
+  turbulence" -- manual p.244, quoted from the ANALYSIS ASSUMPTIONS block, which
+  is the part of that page that IS about this case (see PREREGISTRATION sec.2 on
+  the copied prose defect).
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object turbulenceProperties; }
+simulationType RAS;
+RAS { RASModel kEpsilon; turbulence on; printCoeffs on; }

@@ -1,0 +1,22 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }
+// SECOND ORDER WHERE IT IS THE GATE'S BUSINESS, bounded where a turbulence
+// quantity would otherwise go negative. Chosen on physics BEFORE any number
+// existed (PREREGISTRATION sec.9a) and never revisited against the reference.
+ddtSchemes      { default steadyState; }
+gradSchemes     { default Gauss linear; }
+divSchemes
+{
+    default         none;
+    div(phi,U)      bounded Gauss linearUpwind grad(U);
+    div(phi,e)      bounded Gauss limitedLinear 1;
+    div(phi,h)      bounded Gauss limitedLinear 1;
+    div(phi,K)      bounded Gauss limitedLinear 1;
+    div(phi,Ekp)    bounded Gauss limitedLinear 1;
+    div(phi,k)      bounded Gauss limitedLinear 1;
+    div(phi,epsilon) bounded Gauss limitedLinear 1;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+}
+laplacianSchemes{ default Gauss linear corrected; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default corrected; }
+wallDist        { method meshWave; }

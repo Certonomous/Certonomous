@@ -1,0 +1,142 @@
+written 2026-08-27T22:08:13Z by ansys-lane-opus (lane V), pre-freeze, zero compute.
+
+VMFLGPU007-R2 -- READER SMOKE.  EVERY READER DRIVEN ON VERBATIM EXTRACTED BYTES.
+==============================================================================
+The bytes are R1's OWN COMPLETED RUN on disk at
+  verification/runs/ansys_verification/VMFLGPU007/<arm>/<level>/
+288 files, of which 30 -- the whole postProcessing tree -- are GITIGNORED by
+.gitignore:67 `**/postProcessing/` and exist ON DISK ONLY.  They were read there.
+(MEASURED, correcting the count in the brief: 30 FILES; 96 is the files-plus-
+directories count under postProcessing.)
+
+NOTHING HERE IS A GRADE.  R1's row stands as NOT A RESULT and R2 re-grades
+nothing.  DELIBERATE OMISSION, stated so it is not read as an oversight: the
+GRADED SCALARS -- peak Nu and its x/H -- are NOT printed anywhere in this
+record.  A reader smoke has to show a reader returning a non-zero; it does not
+have to publish the number a refused row would have been graded on, and
+printing it would put a value from a NOT A RESULT row into circulation.
+What IS printed is row COUNTS, guard-channel values and control quantities.
+
+==============================================================================
+---- gpu/L1  (R1 ran this arm to endTime 1200) ----
+  completion      RETURNS  rc=0  'Time =' lines=1200  last=1200
+                           INFRA: 1202 ExecutionTime lines against 1200 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  plateau         REFUSED  the plateau window peak-to-peak is 0.0237893 K, above the registered 0.0001 K: the channel has not settled
+  logview_gpu     RETURNS  cols=26  GPU%F col=25  h2d col=21  rows=13  GPU%F 100..100  h2d by event {'KSPSolve': 3601, 'MatMult': 7200}  total 27606
+  yplus_band      RETURNS  gate patch 'heatedWall' average=36.5022 (band [11,300])  min=2.85267 max=47.5016  non-gate patches {'ductBottom': (38.37, 40.3, 39.56), 'stepFace': (1.35, 112.13, 68.37), 'topWall': (32.64, 39.88, 34.61)}
+  read_wall_T     RETURNS  96 rows (= NXD at this level), x/H 0.1562..29.8438
+  nusselt         RETURNS  96 derived Nu values, all finite and strictly positive: True
+  planted control FIRED    plant 0.001234 K at the ARGMAX row (index 14, x/H 4.5312); expected Nu move 0.007323928895, observed 0.007323928895, ratio 1.0000 (floor 0.1)
+  read_endtime    REFUSED  L1/gpu ran to endTime 1200, but the endTime REGISTERED for this level is 3200. R1 ran this case to 1200/1800/3000 and its plateau channel had not sett
+
+---- gpu/L2  (R1 ran this arm to endTime 1800) ----
+  completion      RETURNS  rc=0  'Time =' lines=1800  last=1800
+                           INFRA: 1802 ExecutionTime lines against 1800 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  plateau         REFUSED  the plateau window peak-to-peak is 0.012054 K, above the registered 0.0001 K: the channel has not settled
+  logview_gpu     RETURNS  cols=26  GPU%F col=25  h2d col=21  rows=13  GPU%F 100..100  h2d by event {'KSPSolve': 5401, 'MatMult': 10800}  total 41406
+  yplus_band      RETURNS  gate patch 'heatedWall' average=36.2845 (band [11,300])  min=1.7509 max=46.895  non-gate patches {'ductBottom': (38.33, 40.18, 39.52), 'stepFace': (1.66, 72.38, 38.31), 'topWall': (32.56, 39.8, 34.54)}
+  read_wall_T     RETURNS  144 rows (= NXD at this level), x/H 0.1042..29.8958
+  nusselt         RETURNS  144 derived Nu values, all finite and strictly positive: True
+  planted control FIRED    plant 0.001234 K at the ARGMAX row (index 22, x/H 4.6875); expected Nu move 0.00715950017, observed 0.00715950017, ratio 1.0000 (floor 0.1)
+  read_endtime    REFUSED  L2/gpu ran to endTime 1800, but the endTime REGISTERED for this level is 4400. R1 ran this case to 1200/1800/3000 and its plateau channel had not sett
+
+---- gpu/L3  (R1 ran this arm to endTime 3000) ----
+  completion      RETURNS  rc=0  'Time =' lines=3000  last=3000
+                           INFRA: 3002 ExecutionTime lines against 3000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  plateau         REFUSED  the plateau window peak-to-peak is 0.00358665 K, above the registered 0.0001 K: the channel has not settled
+  logview_gpu     RETURNS  cols=26  GPU%F col=25  h2d col=21  rows=13  GPU%F 100..100  h2d by event {'KSPSolve': 9001, 'MatMult': 18000}  total 69006
+  yplus_band      RETURNS  gate patch 'heatedWall' average=36.1575 (band [11,300])  min=2.64238 max=46.6418  non-gate patches {'ductBottom': (38.33, 40.15, 39.51), 'stepFace': (2.0, 46.36, 23.24), 'topWall': (32.51, 39.79, 34.51)}
+  read_wall_T     RETURNS  216 rows (= NXD at this level), x/H 0.0694..29.9306
+  nusselt         RETURNS  216 derived Nu values, all finite and strictly positive: True
+  planted control FIRED    plant 0.001234 K at the ARGMAX row (index 33, x/H 4.6528); expected Nu move 0.007078937304, observed 0.004530322151, ratio 0.6400 (floor 0.1)
+  read_endtime    REFUSED  L3/gpu ran to endTime 3000, but the endTime REGISTERED for this level is 6200. R1 ran this case to 1200/1800/3000 and its plateau channel had not sett
+
+---- cpu/L1  (R1 ran this arm to endTime 1200) ----
+  completion      RETURNS  rc=0  'Time =' lines=1200  last=1200
+                           INFRA: 1202 ExecutionTime lines against 1200 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  plateau         REFUSED  the plateau window peak-to-peak is 0.0238644 K, above the registered 0.0001 K: the channel has not settled
+  logview_gpu     RETURNS  cols=26  GPU%F col=25  h2d col=21  rows=13  GPU%F 0..0  h2d by event {'KSPSolve': 0, 'MatMult': 0}  total 0
+  yplus_band      RETURNS  gate patch 'heatedWall' average=36.5023 (band [11,300])  min=2.85267 max=47.5016  non-gate patches {'ductBottom': (38.37, 40.3, 39.56), 'stepFace': (1.35, 112.13, 68.37), 'topWall': (32.64, 39.88, 34.61)}
+  read_wall_T     RETURNS  96 rows (= NXD at this level), x/H 0.1562..29.8438
+  nusselt         RETURNS  96 derived Nu values, all finite and strictly positive: True
+  planted control FIRED    plant 0.001234 K at the ARGMAX row (index 14, x/H 4.5312); expected Nu move 0.007323998068, observed 0.007323998068, ratio 1.0000 (floor 0.1)
+  read_endtime    REFUSED  L1/cpu ran to endTime 1200, but the endTime REGISTERED for this level is 3200. R1 ran this case to 1200/1800/3000 and its plateau channel had not sett
+
+---- cpu/L2  (R1 ran this arm to endTime 1800) ----
+  completion      RETURNS  rc=0  'Time =' lines=1800  last=1800
+                           INFRA: 1802 ExecutionTime lines against 1800 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  plateau         REFUSED  the plateau window peak-to-peak is 0.0120592 K, above the registered 0.0001 K: the channel has not settled
+  logview_gpu     RETURNS  cols=26  GPU%F col=25  h2d col=21  rows=13  GPU%F 0..0  h2d by event {'KSPSolve': 0, 'MatMult': 0}  total 0
+  yplus_band      RETURNS  gate patch 'heatedWall' average=36.2844 (band [11,300])  min=1.7509 max=46.895  non-gate patches {'ductBottom': (38.33, 40.18, 39.52), 'stepFace': (1.66, 72.38, 38.31), 'topWall': (32.56, 39.8, 34.54)}
+  read_wall_T     RETURNS  144 rows (= NXD at this level), x/H 0.1042..29.8958
+  nusselt         RETURNS  144 derived Nu values, all finite and strictly positive: True
+  planted control FIRED    plant 0.001234 K at the ARGMAX row (index 22, x/H 4.6875); expected Nu move 0.00715949368, observed 0.00715949368, ratio 1.0000 (floor 0.1)
+  read_endtime    REFUSED  L2/cpu ran to endTime 1800, but the endTime REGISTERED for this level is 4400. R1 ran this case to 1200/1800/3000 and its plateau channel had not sett
+
+---- cpu/L3  (R1 ran this arm to endTime 3000) ----
+  completion      RETURNS  rc=0  'Time =' lines=3000  last=3000
+                           INFRA: 3002 ExecutionTime lines against 3000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  plateau         REFUSED  the plateau window peak-to-peak is 0.00358716 K, above the registered 0.0001 K: the channel has not settled
+  logview_gpu     RETURNS  cols=26  GPU%F col=25  h2d col=21  rows=13  GPU%F 0..0  h2d by event {'KSPSolve': 0, 'MatMult': 0}  total 0
+  yplus_band      RETURNS  gate patch 'heatedWall' average=36.1575 (band [11,300])  min=2.64238 max=46.6418  non-gate patches {'ductBottom': (38.33, 40.15, 39.51), 'stepFace': (2.0, 46.36, 23.24), 'topWall': (32.51, 39.79, 34.51)}
+  read_wall_T     RETURNS  216 rows (= NXD at this level), x/H 0.0694..29.9306
+  nusselt         RETURNS  216 derived Nu values, all finite and strictly positive: True
+  planted control FIRED    plant 0.001234 K at the ARGMAX row (index 33, x/H 4.6528); expected Nu move 0.0070789387, observed 0.0045304263, ratio 0.6400 (floor 0.1)
+  read_endtime    REFUSED  L3/cpu ran to endTime 3000, but the endTime REGISTERED for this level is 6200. R1 ran this case to 1200/1800/3000 and its plateau channel had not sett
+
+================================================================================
+WHAT THIS SMOKE ESTABLISHED, READER BY READER
+================================================================================
+RETURNS a value on real bytes, all six arms:
+  completion    rc=0, 'Time =' count == endTime, last == endTime, fields present,
+                age guard met.  The ExecutionTime count is endTime + 2 on every
+                arm and is reported as INFRASTRUCTURE (L-342), never refusing --
+                exactly as registered.
+  logview_gpu   26 data columns; GPU %F located at column 25 and CpuToGpu Count
+                at column 21 by TWO INDEPENDENT DERIVATIONS that agreed on every
+                arm.  GPU arms: GPU %F = 100 on all 13 MatMult/KSPSolve rows,
+                CpuToGpu Count 7200/10800/18000 on MatMult and 3601/5401/9001 on
+                KSPSolve.  Forced-CPU arms: 0 and 0.
+  yplus_band    gate patch heatedWall averages 36.5022 / 36.2845 / 36.1584,
+                INSIDE the frozen band [11.0, 300.0] and close to the 37.3
+                estimated pre-freeze from Dean's correlation.  THE BAND WAS NOT
+                CHOSEN FROM THESE NUMBERS: it is R1's, carried byte-identical,
+                and it would have been carried unchanged had they fallen outside.
+  read_wall_T   96 / 144 / 216 rows -- NXD at each level, exactly.
+  nusselt       96 / 144 / 216 derived Nu values, all finite and strictly
+                positive.  The graded scalars are deliberately not printed.
+
+FIRES on real bytes:
+  planted-zero  plant 1.234e-3 K at THE ARGMAX ROW (the row a max() reader
+                selects -- L-347), and the reader saw it on every arm.
+                gpu/L1 expected 0.007323928895, observed 0.007323928895
+                gpu/L2 expected 0.007159500170, observed 0.007159500170
+                gpu/L3 expected 0.007078937304, observed 0.004530322151
+                L3's ratio is 0.640, NOT a defect and NOT a refusal: on a denser
+                profile, raising T at the peak hands the max to the runner-up, so
+                the observed move is bounded by the gap to it.  `expect` is an
+                UPPER BOUND, which is why the clause is a FRACTION (floor 0.1)
+                and not an equality.  Recorded here so a later reader does not
+                mistake correct behaviour for a fault.
+
+REFUSES on real bytes, for the right reason, with the right text:
+  plateau       0.0237893 / 0.0120540 / 0.00358665 K (gpu) and 0.0238644 /
+                0.0120592 / 0.00358716 K (cpu) against the registered 1.0e-4 K.
+                THIS IS THE CLAUSE THAT REFUSED R1 AND IT IS CARRIED UNCHANGED.
+                Its refusal here is not a failure of the smoke: it is the reader
+                demonstrably parsing 1200/1800/3000 samples and computing a
+                non-zero from them.  It is shown RETURNING on a settled channel
+                by the comparator's own --selftest `control` arm.
+  read_endtime  clause E2 refuses all six arms, because R1 ran 1200/1800/3000 and
+                R2 registers 3200/4400/6200.  That refusal is the new clause
+                working: R1's comparator took whatever RUN_RC declared, so a run
+                at any endTime would have been graded.
+
+WHAT THIS SMOKE DOES NOT SHOW
+  * Nothing about the physics, the gate or any verdict.  No solver ran.
+  * It does not exercise the LAUNCHER's case-assembly ordering.  That is a
+    different object and it has its own record, LAUNCHER_ORDER_SMOKE_RECORD.txt.
+    The gap between the two is what cost R1 its 20:21:35Z abort.
+  * It cannot show `plateau` RETURNING on this case's real bytes, because no
+    settled real history of this case exists yet.  That is the whole reason R2
+    exists.

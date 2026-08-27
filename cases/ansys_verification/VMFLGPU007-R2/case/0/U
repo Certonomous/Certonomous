@@ -1,0 +1,18 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// Inlet is the MANUAL'S OWN fully-developed profile, mapped from
+// constant/boundaryData/inlet (101 points, x = -3.8 H) by
+// timeVaryingMappedFixedValue -- a DATA file, so there is NO RUNTIME
+// COMPILATION. VMFLGPU002 registered dynamicCode compilation on the instance as
+// a known risk; this case does not carry it.
+dimensions [0 1 -1 0 0 0 0];
+internalField uniform (2.8 0 0);
+boundaryField
+{
+    inlet   { type timeVaryingMappedFixedValue; setAverage false; offset (0 0 0); }
+    outlet  { type inletOutlet; inletValue uniform (0 0 0); value uniform (2.8 0 0); }
+    heatedWall { type noSlip; }
+    stepFace   { type noSlip; }
+    ductBottom { type noSlip; }
+    topWall    { type noSlip; }
+    frontAndBack { type empty; }
+}
