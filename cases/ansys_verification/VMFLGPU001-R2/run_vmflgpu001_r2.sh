@@ -100,15 +100,39 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CASE_SRC="$SCRIPT_DIR/case"
 RUN_ROOT="${1:?usage: run_vmflgpu001_r2.sh <run_root>}"
 BUILD_ROOT="${BUILD_ROOT:-$HOME/gpu_build}"
-REPO="${REPO:-$HOME/Certonomous}"
+# ---------------------------------------------------------------------------
+# AMENDMENT 1 (2026-08-27, PRE-COMPUTE; PREREGISTRATION.md Amendment 1).
+# THE REPOSITORY IS NOT ACCEPTED FROM THE ENVIRONMENT ANY MORE.  It is DERIVED
+# at STEP 1 from this script's OWN location, and the caller's REPO -- if it set
+# one -- is CHECKED against the derived value and never obeyed in its place.
+#
+# WHY, and it is the defect that idled the card on 2026-08-27:  the old line
+#     REPO="${REPO:-$HOME/Certonomous}"
+# made the tree the CASE INPUTS come from ($SCRIPT_DIR) and the tree the FREEZE
+# is proved against ($REPO) two INDEPENDENT paths.  Two failure modes follow,
+# and this lab has now seen both shapes:
+#   * the LOUD one, which fired: the runner invoked this script out of an
+#     isolated checkout with no REPO set, REPO fell back to the shared clone at
+#     an older HEAD, and the freeze check aborted at zero compute.  The guard
+#     worked; the invocation was wrong.
+#   * the SILENT one, which is worse and which is what clause (b) closes: point
+#     REPO at a repository that HAPPENS to carry the blobs and run this script
+#     out of a completely different tree, and "FREEZE VERIFIED" prints over
+#     inputs nothing verified.  A freeze check that can certify the wrong tree
+#     is not a freeze check.
+# ---------------------------------------------------------------------------
+REPO_ENV="${REPO-}"     # what the caller ASKED for, if anything: checked at STEP 1, never obeyed
+REPO=""                 # DERIVED at STEP 1 from SCRIPT_DIR.  Empty here ON PURPOSE.
+CASE_REL_DIR="cases/ansys_verification/VMFLGPU001-R2"
 PREREG_REL="cases/ansys_verification/VMFLGPU001-R2/PREREGISTRATION.md"
 GRADER_REL="cases/ansys_verification/VMFLGPU001-R2/grade_vmflgpu001_r2.py"
+LAUNCHER_REL="cases/ansys_verification/VMFLGPU001-R2/run_vmflgpu001_r2.sh"
 
 T_START=$(date +%s)
 log() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ${CASE_ID}: $*"; }
 warn_infra() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ${CASE_ID}: WARNING(INFRASTRUCTURE): $*"; }
 
-log "=== START (run_root=$RUN_ROOT build_root=$BUILD_ROOT repo=$REPO) ==="
+log "=== START (run_root=$RUN_ROOT build_root=$BUILD_ROOT repo=DERIVED-AT-STEP-1 repo_env=${REPO_ENV:-<unset>}) ==="
 
 # ---------------------------------------------------------------------------
 # STEP 0  THE SMOKE GATE -- REFUSES AT ZERO COMPUTE (exit 2)
@@ -196,33 +220,82 @@ log "CAP MECHANISM DRIVEN: timeout passes a child rc through (7) and reports an 
 #         script REFUSES to run where it cannot prove the freeze -- it does
 #         not "carry on without the check".
 # ---------------------------------------------------------------------------
-git -C "$REPO" rev-parse --show-toplevel >/dev/null 2>&1 \
-    || { echo "ABORT: no git repository at REPO=$REPO. The launch-time freeze check (PREREG_TEMPLATE Amendment 2) is NON-DROPPABLE: this script cannot prove the pre-registration and the comparator are the committed blobs, so it refuses to start a solver. Put a clone of Certonomous at \$REPO on this instance, or pass REPO=<path>."; exit 1; }
+# --- clause (a) -------------------------------------------------------------
+# THE REPOSITORY IS DERIVED FROM THE SCRIPT'S OWN LOCATION.  If this file is not
+# inside a git worktree there is no HEAD that could certify anything about it.
+SCRIPT_DIR_P="$(cd "$SCRIPT_DIR" 2>/dev/null && pwd -P)" \
+    || { echo "ABORT (freeze a): cannot resolve SCRIPT_DIR=$SCRIPT_DIR with 'cd && pwd -P'. The freeze check derives the repository from this script's own location and cannot proceed without it."; exit 1; }
+REPO_TOP="$(git -C "$SCRIPT_DIR_P" rev-parse --show-toplevel 2>/dev/null)" \
+    || { echo "ABORT (freeze a): SCRIPT_DIR=$SCRIPT_DIR_P is NOT inside a git worktree, so there is no HEAD that could certify the pre-registration, the comparator or this launcher. The launch-time freeze check (PREREG_TEMPLATE Amendment 2) is NON-DROPPABLE and the repository is NEVER taken from the environment: run this script out of a checkout of Certonomous whose HEAD carries the freeze."; exit 1; }
+test -n "$REPO_TOP" \
+    || { echo "ABORT (freeze a): 'git rev-parse --show-toplevel' at SCRIPT_DIR=$SCRIPT_DIR_P returned an EMPTY toplevel. Nothing can be certified against an unnamed repository."; exit 1; }
+REPO="$(cd "$REPO_TOP" 2>/dev/null && pwd -P)" \
+    || { echo "ABORT (freeze a): cannot resolve the derived toplevel $REPO_TOP with 'cd && pwd -P'."; exit 1; }
+
+# --- clause (b) -------------------------------------------------------------
+# THE CLAUSE THAT CLOSES THE SILENT DEFECT.  The case inputs this script uses
+# ($SCRIPT_DIR/case) and the blobs it certifies ($REPO/$CASE_REL_DIR/...) must
+# be THE SAME DIRECTORY, resolved physically.  If they are not, the certified
+# blobs belong to a different tree than the inputs and the check proves nothing
+# about what actually runs.
+EXPECT_DIR="$(cd "$REPO/$CASE_REL_DIR" 2>/dev/null && pwd -P)" \
+    || { echo "ABORT (freeze b): the derived repository $REPO has no directory $CASE_REL_DIR, so the tree this script was launched from is not a checkout of Certonomous carrying this case."; exit 1; }
+[ "$SCRIPT_DIR_P" = "$EXPECT_DIR" ] \
+    || { echo "ABORT (freeze b): SCRIPT_DIR=$SCRIPT_DIR_P is NOT $REPO/$CASE_REL_DIR (which resolves to $EXPECT_DIR). The case inputs and the blobs the freeze check would certify are IN DIFFERENT TREES, so a 'FREEZE VERIFIED' line here would certify files that are not the ones about to run. Launch this script by its path inside the checkout whose HEAD carries the freeze."; exit 1; }
+
+# --- clause (c) -------------------------------------------------------------
+# A caller's REPO is neither silently ignored nor silently honoured.  It is a
+# CLAIM about which tree this run is against, and a claim that disagrees with
+# the derived truth is a launch built on a misunderstanding: abort, say both.
+if [ -n "$REPO_ENV" ]; then
+  REPO_ENV_P="$(cd "$REPO_ENV" 2>/dev/null && pwd -P)" \
+      || { echo "ABORT (freeze c): REPO=$REPO_ENV was set in the environment but does not resolve to a directory. The repository is derived from this script's location ($REPO); an unresolvable REPO in the environment is a launch built on a misunderstanding and is not ignored."; exit 1; }
+  [ "$REPO_ENV_P" = "$REPO" ] \
+      || { echo "ABORT (freeze c): REPO=$REPO_ENV in the environment resolves to $REPO_ENV_P, which is NOT the repository derived from this script's own location ($REPO). The environment does not select the tree a freeze is proved against. Either launch this script from inside $REPO_ENV_P, or unset REPO."; exit 1; }
+fi
+log "REPO DERIVED FROM SCRIPT_DIR: $REPO (script_dir $SCRIPT_DIR_P == \$REPO/$CASE_REL_DIR; env REPO ${REPO_ENV:-<unset>})"
+
+# --- clause (d) -------------------------------------------------------------
+# THE THREE FROZEN PATHS, each committed at HEAD and each byte-identical on
+# disk.  THE LAUNCHER IS THE THIRD, ADDED BY AMENDMENT 1: a launcher that
+# verifies everything except itself is the same hole one level up, because the
+# guards below are exactly the bytes that would have been swapped.
 git -C "$REPO" cat-file -e "HEAD:$PREREG_REL" 2>/dev/null \
     || { echo "ABORT: $PREREG_REL is not committed at HEAD -- the freeze is the evidence"; exit 1; }
 git -C "$REPO" cat-file -e "HEAD:$GRADER_REL" 2>/dev/null \
     || { echo "ABORT: $GRADER_REL is not committed at HEAD"; exit 1; }
+git -C "$REPO" cat-file -e "HEAD:$LAUNCHER_REL" 2>/dev/null \
+    || { echo "ABORT (freeze d): $LAUNCHER_REL is not committed at HEAD. THIS script's own bytes are part of the freeze (Amendment 1): the guards above and the cap below are only evidence if they are the committed ones."; exit 1; }
 PREREG_HEAD="$(git -C "$REPO" rev-parse "HEAD:$PREREG_REL")" || { echo "ABORT: cannot resolve HEAD:$PREREG_REL"; exit 1; }
 GRADER_HEAD="$(git -C "$REPO" rev-parse "HEAD:$GRADER_REL")" || { echo "ABORT: cannot resolve HEAD:$GRADER_REL"; exit 1; }
+LAUNCHER_HEAD="$(git -C "$REPO" rev-parse "HEAD:$LAUNCHER_REL")" || { echo "ABORT (freeze d): cannot resolve HEAD:$LAUNCHER_REL"; exit 1; }
 PREREG_DISK="$(git -C "$REPO" hash-object "$REPO/$PREREG_REL")" || { echo "ABORT: cannot hash $PREREG_REL on disk"; exit 1; }
 GRADER_DISK="$(git -C "$REPO" hash-object "$REPO/$GRADER_REL")" || { echo "ABORT: cannot hash $GRADER_REL on disk"; exit 1; }
+LAUNCHER_DISK="$(git -C "$REPO" hash-object "$REPO/$LAUNCHER_REL")" || { echo "ABORT (freeze d): cannot hash $LAUNCHER_REL on disk"; exit 1; }
 [ "$PREREG_DISK" = "$PREREG_HEAD" ] || { echo "ABORT: $PREREG_REL on disk ($PREREG_DISK) differs from HEAD ($PREREG_HEAD)"; exit 1; }
 [ "$GRADER_DISK" = "$GRADER_HEAD" ] || { echo "ABORT: $GRADER_REL on disk ($GRADER_DISK) differs from HEAD ($GRADER_HEAD)"; exit 1; }
+[ "$LAUNCHER_DISK" = "$LAUNCHER_HEAD" ] || { echo "ABORT (freeze d): $LAUNCHER_REL on disk ($LAUNCHER_DISK) differs from HEAD ($LAUNCHER_HEAD). The script now executing is NOT the committed blob, so every guard it contains is unverified and no run it starts could be evidence."; exit 1; }
 HEAD_SHA="$(git -C "$REPO" rev-parse HEAD)" || { echo "ABORT: cannot resolve HEAD"; exit 1; }
 # Printed INSIDE the branch that verified it: deleting the checks deletes the claim
 # (PREREG_TEMPLATE Amendment 6a item 1).
-log "FREEZE VERIFIED: prereg $PREREG_HEAD ; comparator $GRADER_HEAD ; HEAD $HEAD_SHA"
+log "FREEZE VERIFIED: prereg $PREREG_HEAD ; comparator $GRADER_HEAD ; launcher $LAUNCHER_HEAD ; HEAD $HEAD_SHA"
 
 mkdir -p "$RUN_ROOT" || { echo "ABORT: cannot create $RUN_ROOT"; exit 1; }
 { echo "case_id = $CASE_ID"
   echo "launched_utc = $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "head = $HEAD_SHA"
+  echo "script_dir = $SCRIPT_DIR_P"
+  echo "repo_toplevel_derived = $REPO"
+  echo "repo_env_as_passed = ${REPO_ENV:-<unset>}"
   echo "prereg = $PREREG_REL"
   echo "prereg_sha_head = $PREREG_HEAD"
   echo "prereg_sha_disk = $PREREG_DISK"
   echo "comparator = $GRADER_REL"
   echo "comparator_sha_head = $GRADER_HEAD"
   echo "comparator_sha_disk = $GRADER_DISK"
+  echo "launcher = $LAUNCHER_REL"
+  echo "launcher_sha_head = $LAUNCHER_HEAD"
+  echo "launcher_sha_disk = $LAUNCHER_DISK"
   echo "host = $(hostname)"
 } > "$RUN_ROOT/LAUNCH_RECORD.txt" || { echo "ABORT: cannot write $RUN_ROOT/LAUNCH_RECORD.txt"; exit 1; }
 

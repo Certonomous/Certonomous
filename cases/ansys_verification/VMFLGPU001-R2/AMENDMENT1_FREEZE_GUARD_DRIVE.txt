@@ -1,0 +1,96 @@
+VMFLGPU001-R2 -- PRE-COMPUTE AMENDMENT 1: PLANTED-FAILURE DRIVE OF THE FOUR NEW FREEZE CLAUSES
+==============================================================================================
+Written by ansys-lane-opus (lane R2), 2026-08-27, and committed BESIDE THE CASE because the
+scratchpad is temp only and is never a handoff channel (L-186, L-351).
+
+WHY THIS FILE EXISTS.  Sanaa's section 1 rule: a guard nobody drove is decoration.  This team
+has already recorded one vacuous guard (the launcher's FIELD COMPLETENESS check, PREREGISTRATION.md
+Amendment 1 section 7).  Each of the four clauses Amendment 1 adds to run_vmflgpu001_r2.sh is
+therefore shown here to FLIP -- a planted failure that ABORTS -- beside a clean control that
+PASSES.  A clause that has never been seen to refuse is not known to be load-bearing.
+
+BYTES UNDER TEST -- the POST-amendment bytes, not a paraphrase:
+  PREREGISTRATION.md      blob c43d368736e08f903dff0e02bd15429b486030b5
+  grade_vmflgpu001_r2.py  blob 6a5d0fe7b68e5f184edb97114a2dae31dcf7512c   (UNCHANGED by Amendment 1)
+  run_vmflgpu001_r2.sh    blob dd657f9addb7f93bdf79768ab09bce2a0ead44bb   (was c75076be3aa1d83ea8e67145c25ad43141d926cb)
+
+HARNESS.  A disposable sandbox git repository was built holding exactly those bytes plus the
+frozen case/ inputs (taken with 'git show HEAD:<path>', not from the working tree), committed,
+and the launcher was executed out of it.  Sandbox HEAD: 3112f749a636ab6bb08979fef8164addb1ae0f6f.  The sandbox was under
+/tmp/.../scratchpad/ansys-lane-r2/sandbox and is disposable by design; nothing in this lab cites
+it, and this file is the record that survives.
+
+ZERO COMPUTE IN THE DRIVE.  BUILD_ROOT was a fixture carrying STATUS.smoke (smoke_rc=0),
+TOOLCHAIN_MANIFEST.txt and env.sh, and DELIBERATELY NO OF_BASHRC -- so the control passes the
+freeze check, writes LAUNCH_RECORD.txt, and stops at STEP 2's OF_BASHRC abort, which is the very
+next step after the freeze check.  No blockMesh, no simpleFoam, no solver of any kind ran, and
+no GPU was involved: the drive is CPU-only fixture work on the lab box.
+
+RESULT TABLE
+------------
+  arm       planted condition                                          rc   run root after
+  control   none (clean tree, REPO unset)                              1    LAUNCH_RECORD.txt written, nothing else
+  a         SCRIPT_DIR outside any git worktree                        1    ABSENT (never created)
+  b         inside a git repo CARRYING the blobs, at the WRONG subpath 1    ABSENT (never created)
+  c         clean tree, but REPO set in the environment to ANOTHER repo 1   ABSENT (never created)
+  d         launcher tampered on disk after the commit                 1    ABSENT (never created)
+
+  The control's rc is 1 because STEP 2 aborts on the deliberately absent OF_BASHRC; the freeze
+  check itself PASSED, which is what the FREEZE VERIFIED line below proves.  In every planted arm
+  the run root was NEVER CREATED, because 'mkdir -p "$RUN_ROOT"' sits AFTER the freeze check --
+  the same ordering that makes the 18:09:23Z abort unambiguously pre-compute.
+
+  Note on arm b: this is the LATENT defect firing.  The decoy repository CARRIES the three
+  correct blobs at cases/ansys_verification/VMFLGPU001-R2/ and its HEAD would satisfy every
+  pre-amendment check; the script was launched from a MIRROR of the case at a different subpath
+  inside that same repository.  Before Amendment 1 that invocation would have printed
+  FREEZE VERIFIED over inputs nothing verified.  It now aborts.
+
+VERBATIM OUTPUT
+---------------
+----- CONTROL: the freeze check PASSES (clause a, b, c and d all satisfied) -----
+[2026-08-27T18:41:06Z] VMFLGPU001-R2: === START (run_root=<SANDBOX>/rr_control build_root=<SANDBOX>/build_root repo=DERIVED-AT-STEP-1 repo_env=<unset>) ===
+[2026-08-27T18:41:06Z] VMFLGPU001-R2: SMOKE GATE PASSED: <SANDBOX>/build_root/STATUS.smoke reads smoke_rc=0, <SANDBOX>/build_root/TOOLCHAIN_MANIFEST.txt exists, <SANDBOX>/build_root/env.sh exists
+[2026-08-27T18:41:07Z] VMFLGPU001-R2: CAP MECHANISM DRIVEN: timeout passes a child rc through (7) and reports an overrun as 124 on this host
+[2026-08-27T18:41:07Z] VMFLGPU001-R2: REPO DERIVED FROM SCRIPT_DIR: <SANDBOX>/repo (script_dir <SANDBOX>/repo/cases/ansys_verification/VMFLGPU001-R2 == $REPO/cases/ansys_verification/VMFLGPU001-R2; env REPO <unset>)
+[2026-08-27T18:41:07Z] VMFLGPU001-R2: FREEZE VERIFIED: prereg c43d368736e08f903dff0e02bd15429b486030b5 ; comparator 6a5d0fe7b68e5f184edb97114a2dae31dcf7512c ; launcher dd657f9addb7f93bdf79768ab09bce2a0ead44bb ; HEAD 3112f749a636ab6bb08979fef8164addb1ae0f6f
+ABORT: <SANDBOX>/build_root/OF_BASHRC absent -- build_gpu_solver.sh records the OpenFOAM bashrc it actually used there (binary or source build); this script never guesses the path
+
+----- CONTROL: LAUNCH_RECORD.txt as written (the three shas AND the tree) -----
+case_id = VMFLGPU001-R2
+launched_utc = 2026-08-27T18:41:07Z
+head = 3112f749a636ab6bb08979fef8164addb1ae0f6f
+script_dir = <SANDBOX>/repo/cases/ansys_verification/VMFLGPU001-R2
+repo_toplevel_derived = <SANDBOX>/repo
+repo_env_as_passed = <unset>
+prereg = cases/ansys_verification/VMFLGPU001-R2/PREREGISTRATION.md
+prereg_sha_head = c43d368736e08f903dff0e02bd15429b486030b5
+prereg_sha_disk = c43d368736e08f903dff0e02bd15429b486030b5
+comparator = cases/ansys_verification/VMFLGPU001-R2/grade_vmflgpu001_r2.py
+comparator_sha_head = 6a5d0fe7b68e5f184edb97114a2dae31dcf7512c
+comparator_sha_disk = 6a5d0fe7b68e5f184edb97114a2dae31dcf7512c
+launcher = cases/ansys_verification/VMFLGPU001-R2/run_vmflgpu001_r2.sh
+launcher_sha_head = dd657f9addb7f93bdf79768ab09bce2a0ead44bb
+launcher_sha_disk = dd657f9addb7f93bdf79768ab09bce2a0ead44bb
+host = ip-172-31-43-247
+
+----- PLANTED FAILURE a: ABORT (exit 1) -----
+ABORT (freeze a): SCRIPT_DIR=<SANDBOX>/nogit/cases/ansys_verification/VMFLGPU001-R2 is NOT inside a git worktree, so there is no HEAD that could certify the pre-registration, the comparator or this launcher. The launch-time freeze check (PREREG_TEMPLATE Amendment 2) is NON-DROPPABLE and the repository is NEVER taken from the environment: run this script out of a checkout of Certonomous whose HEAD carries the freeze.
+
+----- PLANTED FAILURE b: ABORT (exit 1) -----
+ABORT (freeze b): SCRIPT_DIR=<SANDBOX>/decoy_repo/mirror/cases/ansys_verification/VMFLGPU001-R2 is NOT <SANDBOX>/decoy_repo/cases/ansys_verification/VMFLGPU001-R2 (which resolves to <SANDBOX>/decoy_repo/cases/ansys_verification/VMFLGPU001-R2). The case inputs and the blobs the freeze check would certify are IN DIFFERENT TREES, so a 'FREEZE VERIFIED' line here would certify files that are not the ones about to run. Launch this script by its path inside the checkout whose HEAD carries the freeze.
+
+----- PLANTED FAILURE c: ABORT (exit 1) -----
+ABORT (freeze c): REPO=<SANDBOX>/decoy_repo in the environment resolves to <SANDBOX>/decoy_repo, which is NOT the repository derived from this script's own location (<SANDBOX>/repo). The environment does not select the tree a freeze is proved against. Either launch this script from inside <SANDBOX>/decoy_repo, or unset REPO.
+
+----- PLANTED FAILURE d: ABORT (exit 1) -----
+ABORT (freeze d): cases/ansys_verification/VMFLGPU001-R2/run_vmflgpu001_r2.sh on disk (db138ed41d8ef751fa119840314da225829a27f8) differs from HEAD (dd657f9addb7f93bdf79768ab09bce2a0ead44bb). The script now executing is NOT the committed blob, so every guard it contains is unverified and no run it starts could be evidence.
+
+WHAT THIS DRIVE DOES NOT SHOW
+-----------------------------
+* Nothing about the physics, the gate, the comparator or any verdict.  No limb, band, threshold,
+  cap or label was exercised, and none was moved by Amendment 1.
+* Nothing about the GPU toolchain: the smoke gate ran against a FIXTURE STATUS.smoke, which is
+  why the fixture says so on its face.  On the instance the real STATUS.smoke governs.
+* It does not authorise a launch.  SUPERVISION_CHARTER section 3 check 4 -- the pre-registration
+  COMMITTED before compute -- is the supervisor's own and is not discharged by this file.
