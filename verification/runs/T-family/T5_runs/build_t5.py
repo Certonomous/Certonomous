@@ -618,11 +618,11 @@ def build_cube_case(root, name, force, mesh=True, inlet_mapped=True, t_surf=None
     if mesh:
         foam("blockMesh", case, "log.blockMesh")
         foam("topoSet", case, "log.topoSet")
+        foam("splitMeshRegions -cellZonesOnly -useFaceZones -overwrite", case, "log.splitMeshRegions")
         if conjugate:
-            foam("splitMeshRegions -cellZonesOnly -useFaceZones -overwrite", case, "log.splitMeshRegions")
+            rename_interface_patches(case)
         else:
-            refuse("S_m fluid-only meshing (remove epoxy cells) is not implemented until T5_CUBE_m has run")
-        rename_interface_patches(case)
+            strip_solid_region(case)
         foam("checkMesh -allRegions -allTopology -allGeometry", case, "log.checkMesh")
         # the epoxy region gets no turbulence: drop the split-copied dictionaries it must not carry
         for junk in ("constant/epoxy/turbulenceProperties", "0/air", "0/epoxy", "0", "postProcessing"):
@@ -652,6 +652,67 @@ def rename_interface_patches(case):
                 refuse("%s: patch %s absent after the interface rename" % (b, f))
             if (f + suffix) in back or (f + other_suffix) in back:
                 refuse("%s: an un-renamed interface patch name survives for %s" % (b, f))
+
+
+def strip_solid_region(case):
+    """AMENDMENT 9: the S8 `DS` constant-`T` arm `S_m` is FLUID ONLY.
+
+    `splitMeshRegions` has just cut the SAME two regions the conjugate cases
+    use, so the epoxy CELLS are already absent from `constant/air/polyMesh`.
+    This removes the solid region that was cut beside it and turns the four
+    air-side interface patches into plain walls, so the cube surface carries
+    the registered `fixedValue` `T` (`air_fields`'s existing non-conjugate
+    branch, unchanged) instead of a coupled condition.
+
+    Nothing else about the mesh moves: the same `blockMeshDict`, the same
+    `topoSet` faceZones, the same split, the same cell count on the fluid
+    side, and the same four patch NAMES the comparator's `YPLUS_WALLS` reads.
+    Verified by re-reading the bytes on disk; a surviving `mappedWall`, a
+    surviving sampling keyword, an un-renamed interface name or a surviving
+    epoxy region is a refusal, not a warning."""
+    b = os.path.join(case, "constant", "air", "polyMesh", "boundary")
+    txt = open(b).read()
+    for f in CUBE_FACES:
+        txt = txt.replace(f + "_air_to_epoxy", f)
+    # de-couple: inside a cube patch block only, mappedWall -> wall and the
+    # sampling keywords go, because they name a neighbour region that is gone.
+    DROP = ("sampleMode", "sampleRegion", "samplePatch", "offsetMode", "offset")
+    out, cur = [], None
+    for ln in txt.splitlines(True):
+        s = ln.strip()
+        if s in CUBE_FACES:
+            cur = s
+        elif cur is not None and s == "}":
+            cur = None
+        if cur is not None:
+            w = s.split()
+            if w[:2] == ["type", "mappedWall;"]:
+                ln = ln.replace("mappedWall", "wall")
+            elif w and w[0] in DROP:
+                continue
+        out.append(ln)
+    open(b, "w").write("".join(out))
+    for gone in ("constant/epoxy", "system/epoxy", "0.orig/epoxy", "0/epoxy",
+                 "constant/cellToRegion", "constant/air/cellToRegion"):
+        p = os.path.join(case, gone)
+        if os.path.isdir(p):
+            shutil.rmtree(p)
+        elif os.path.isfile(p):
+            os.unlink(p)
+    write(os.path.join(case, "constant/regionProperties"), region_properties(["air"]))
+    back = open(b).read()
+    for f in CUBE_FACES:
+        if not re.search(r"^\s*%s\s*$" % re.escape(f), back, re.M):
+            refuse("%s: patch %s absent after the fluid-only strip" % (b, f))
+        if (f + "_air_to_epoxy") in back:
+            refuse("%s: an un-renamed interface patch name survives for %s" % (b, f))
+    if "mappedWall" in back:
+        refuse("%s: a mappedWall patch survives on the fluid-only arm" % b)
+    for kw in ("sampleMode", "sampleRegion", "samplePatch"):
+        if kw in back:
+            refuse("%s: the sampling keyword %s survives on the fluid-only arm" % (b, kw))
+    if os.path.exists(os.path.join(case, "constant", "epoxy")):
+        refuse("%s: the epoxy region survives on the fluid-only arm" % case)
 
 
 def build_x2d(root, force, mesh=True):
