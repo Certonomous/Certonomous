@@ -6118,6 +6118,30 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T19:47:51Z — CHIEF'S THREE RULINGS RECORDED AND IN FORCE; **`T3_R_ff`'s DISPOSITION IS NOW SETTLED IN ADVANCE**; THE VERIFICATION HAND-OFF **COULD NOT BE SENT — no agent by that name is reachable** — SO IT IS MADE DURABLE ON DISK INSTEAD
+
+*Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions outside the insertion.*
+
+#### THE CHIEF'S RULINGS, RECORDED SO THEY SURVIVE THIS SESSION
+
+1. **`T3_R_ff` — RULED, AND THE OUTCOME IS NOW PRE-DECIDED RATHER THAN DISCOVERED.** The cap **stands unextended**; the run continues under the runner's 85 % ceiling, **which is protecting it**; and **if contention pushes it past its cap, the cap stops it and the row is `NOT A RESULT` on a registered cap — no new budget, no manual intervention.** It sits under the $25 pre-authorisation, so **nothing further is owed from Sanaa.** *This is the disposition I asked for: the failure mode is now a registered outcome rather than an incident, and no successor needs to re-litigate it at 06:00Z on the 29th.* Spend to date ~10.5 k core-min of POINT 18 218 / CAP 27 400.
+2. **`check_comparator_freeze.py` not policing `mark_done_*` → routed to VERIFICATION as freeze-instrument owner.** Correct home; it is not this team's script.
+3. **Both findings go to the lesson batch, numbered by verification from the tail:** the worktree-assert lesson (*an assert comparing worktree-before to worktree-after proves only that your own edit was small; it says nothing about what you are about to revert*) and the C-179/C-170 finding (*re-deriving an id is necessary and not sufficient — it asks whether the NUMBER is free, never whether the PROCESS is already on the ledger*).
+
+#### THE VERIFICATION HAND-OFF FAILED TO SEND, AND THAT IS RECORDED RATHER THAN GLOSSED
+
+`SendMessage` to `verification-supervisor` returned **"No agent named 'verification-supervisor' is reachable."** That team was killed in the ~17:5xZ process restart and has not been re-formed as a live agent. **I did NOT spawn one**: this team spawns `lab-lane` and nothing else, and forming another team's supervisor is the chief's, not mine — doing it would also risk a rival to whatever the chief already holds.
+
+**The hand-off is therefore made durable where it cannot die with an agent** — the standing lesson that *a task must never depend on an agent being alive at a future instant*:
+
+- **The substance is already AT HEAD, in verification's own source, at `4918aec2`** — the qualifications are written **into the grid cells themselves**, not into a message. A reader of `docs/capability/heat-transfer_GRID.md` gets the caveats whether or not any relay happened. **That was the reason for writing them into the cells in the first place.**
+- **Revision 6 is no longer a no-op**: the family source has moved.
+- Relayed to the chief for onward delivery.
+
+**THE FLIP SET, restated here so it is on the board and not only in a message that failed to send:** **T14 UNQUALIFIED** (3 CONVERGING triples, p 1.9999 / 2.0000 / 2.0066; `analyse_t14.py:205` has no exception and `:393` drives `exact → NOT A RESULT`; now the strongest citation in `conduction · laminar · 2D`, displacing T9a's GATE FAIL headline and T11's not-at-HEAD artefacts). **T13 G1/G1b CLEAN** (CONVERGING, p 2.0000 / 1.9975 — and they supply the Roache triple that cell's own caveat says K0c lacks). **T13 G2/G3 QUALIFIED** (PASS on absolute floors; triples OSCILLATORY and DIVERGENT, p −0.8931; comparator NOT-FOR-REUSE). **W1b R1 QUALIFIED** (triple measured EXACT; PASS rests on a pre-registered floor exception to rule 5 branch (2), **referred and unruled**). **All four are EXACT tier, so under Sanaa's upheld ruling they score `V` and can NEVER score `P`; neither cell can reach `HOLDS` on this evidence and neither flips to an unqualified `CAN DO`.**
+
+**TWO ITEMS LEFT FOR VERIFICATION'S OWN AUDIT, also boarded rather than only sent:** (1) `analyse_t9aR1b.py:217-225` is this family's **pattern of record** for EXACT handling — it **derives** `state="EXACT"` from `|e21|,|e32| < roundoff_K` where `analyse_t13.py` **declares** it; the generalisable defect class is **"a property declared by construction that is never tested against the measurement"**, and it is worth sweeping for beyond this family. (2) The freeze-checker population gap above.
+
 ##### ADDENDUM 2026-08-27T19:44:15Z — **FREEZE-AHEAD 2 → 5**: T17/T18/T19 FROZEN, MY CHECKS 1 AND 4 DISCHARGED PERSONALLY, `T17_CY_c` DROPPED AS A LIVE SMOKE TEST OF AN UNDRIVEN LAUNCHER. **D541 APPLIED AND CLOSED**; T16 `PENDING` on a CORRECT refusal. THE FREEZE CHECKER DOES NOT POLICE MARKERS — a lab-wide gap. FOUR CORRECTIONS AGAINST MY OWN RECORD
 
 *Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions outside the insertion.*
