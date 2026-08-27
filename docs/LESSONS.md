@@ -16147,3 +16147,141 @@ not "no gate has fired" — check the instrument the gate NAMES), `L-337`, `L-35
   one byte-prefix assertion of destroying `L-357` and `L-358`).
 - **No existing lesson is renumbered, re-titled or edited** — no line number above this
   batch moves (`L-356`).
+
+## L-373 — A COMMIT PROTOCOL THAT VERIFIES THE *UNCHANGED* REGION PROVES NOTHING ABOUT THE *ADDED* REGION, AND THE ADDED REGION IS THE ENTIRE CONTENT OF EVERY AMENDMENT
+
+Rule 10's private-index protocol carries four guards: a byte-exact prefix assertion,
+`git diff-tree --stat`, the CAS on the parent, and the mandated post-commit verify.
+**All four are checks on what was ALREADY THERE, plus the SIZE of what is new.**
+
+- Measured: an unquoted heredoc (`<<MD` not `<<'MD'`) command-substituted a backticked
+  span, and the token **`NOT MEASURED` — a verdict word — was deleted from two lines of
+  a committed audit section.** All four guards **ran and passed**; **none could
+  possibly have caught it.**
+- **The lab's existing note is that backticks in `git commit -m` are substituted and
+  the commit silently NEVER RUNS. This is the opposite and worse: the commit RAN, the
+  file landed, and the only casualty was text inside the document.** A failure that
+  stops the work announces itself; one that completes the work with a word removed
+  does not.
+- **Two `NOT: command not found` lines sat on stderr ABOVE four passing assertions.**
+  `L-360` says read the guard, not just the line it guards. **This adds: READ THE
+  STDERR ABOVE A PASSING GUARD — a guard that passes is the most effective place to
+  hide an error message.**
+- **Take: quoted heredoc delimiters for document text; a CONTENT assertion on the
+  ADDED region before `commit-tree`, carrying a verdict word first; a non-zero stderr
+  line aborts even when every explicit assertion passes.** The content assertion fired
+  on its own first live use two commits later — on a token split across a line wrap,
+  which is the benign case it must also survive.
+
+## L-374 — A SEARCH BUILT FROM A LIST OF FORMS CAN ONLY EVER FIND THE FORMS IT WAS WRITTEN FOR; WIDENING THE LIST REPEATS THE DEFECT AT A LARGER RADIUS
+
+A citation sweep looked for 8-hex git-blob and 16-hex sha256. It missed a correct
+12-hex citation. The correction **widened the list** — and the widened list still
+missed **`md5` entirely**, which is a live *registration* freeze form in this
+repository (`### 3.4 INSTRUMENTS, FROZEN BY MD5 AT THIS COMMIT`, 701 citations).
+
+- **First miss was LENGTH; second was ALGORITHM; there is no reason to think a third
+  axis does not exist.** A list-based search has one failure mode per axis and the
+  author cannot enumerate the axes.
+- **INVERT THE DIRECTION.** Do not search the corpus for known forms. Extract **every
+  candidate** from the corpus and test each against **the artefact** — is this hex run
+  a prefix of a digest of the bytes in question. **Length and decoration then stop
+  being assumptions of the search at all**, and only the algorithm set remains, which
+  is short and enumerable.
+- Measured consequence: prefix lengths actually in use are **6, 7, 8, 10, 12, 14, 15,
+  16, 17, 20, 24, 32, 40, 42, 64.** **The `>= 8` floor adopted as the fix was itself
+  wrong.**
+
+## L-375 — A RULE ENCODED IN A MODULE CANNOT REACH AN INSTRUMENT THAT DOES NOT IMPORT THE MODULE, AND THE CASE THAT MOTIVATES A RULE IS OFTEN EXACTLY SUCH AN INSTRUMENT
+
+A minimum-refinement-ratio clause was specified because one case ran at `r = 1.1429`,
+below any defensible floor. The clause would live in `roache_triple.py`.
+
+- **That case does not import `roache_triple.py`.** Its grader performs no Richardson
+  extrapolation and its row was downgraded **by hand**.
+- **So the clause would not have caught the case it was written for.** Measured across
+  111 graded rows: it flips **zero**, because every ladder in the lab was built at
+  `r >= 1.5964`.
+- **The general trap: a hand-ruling is evidence of an un-encoded rule ONLY where the
+  instrument could have applied it.** Where the instrument stands outside the module,
+  the hand-ruling was **the only mechanism available**, and encoding the rule retires
+  nothing. **Before encoding a rule from a precedent, check the precedent is inside
+  the population the encoding governs.**
+
+## L-376 — QUOTING AN INSTRUMENT'S OUTPUT INHERITS ITS DENOMINATOR, AND THE DENOMINATOR IS THE PART THAT DOES NOT APPEAR IN THE OUTPUT
+
+A filing gate reported `FAIL: 34 violations across 7 rules`. The figure was relayed as
+evidence of a standing failure. It is a **floor, not a count**: the gate enumerates via
+`git ls-tree -r HEAD`, and one papers directory carries a **tracked** `.gitignore` for
+`*.pdf`, so **35 PDFs on disk are 0 PDFs at HEAD** and two rules evaluate none of them.
+
+- **`L-92` is the same lesson about a COMMAND (`git ls-files` reads the index). This is
+  it about a SCRIPT.** An instrument's census is a design decision that its output does
+  not print.
+- **Ask what an instrument enumerated before quoting what it found.** A number with an
+  unstated denominator is not a measurement.
+- The instrument argued the point against itself: its root-files reader is documented
+  *"read from the disk. This deliberately does NOT ask git"*, and its own violation text
+  says *ignored means invisible to git, not filed*. **Rule 14 — a lesson is not applied
+  until EVERY call site asserts it.**
+
+## L-377 — A METRIC THAT MEASURES CO-LOCATION PENALISES CORRECT FILING AND UNDERSTATES ITS OWN BLAST RADIUS
+
+*"How many of these instruments have fired"* was answered by counting graders with a
+verdict file **in the same directory**. Measured: it undercounts by **at least 11**,
+because a whole family's graders live in `cases/` while their verdicts land in
+`verification/runs/` — **exactly as the filing charter requires.**
+
+- **The graders that obey the filing rule are the ones the metric cannot see.** A risk
+  estimate built on it was too small, in the direction that makes a change look safer
+  than it is.
+- **Take: when a metric pairs two artefacts, state whether it pairs them by LOCATION or
+  by IDENTITY, and prefer identity.** Location is a filing convention and conventions
+  are exactly what a good repository varies on purpose.
+
+## L-378 — A CITATION THAT CROSSES A TEAM BOUNDARY MUST NAME THE CONTENT IT EXPECTS TO FIND, NOT ONLY THE PATH AND THE LINE
+
+Measured in **both directions in one day**, neither instance careless:
+
+- This team cited a peer's grid file at two line numbers; **both returned EMPTY** at
+  HEAD, and the citation was withdrawn while the underlying observation was left
+  standing to be re-derived by content.
+- A peer cited this team's `COVERAGE_MATRIX.md:350` as carrying a sentence to correct;
+  **the sentence is absent from that file in any form**, and `:350` holds a *different
+  and sound* claim that the next reader was one step from editing.
+- A third instance the same hour: a manifest citing `queue_runner.py:461` where the
+  line is now `:682` — **moved 221 lines.**
+
+**The line number is the half that rots; the content is the half a reader can
+re-derive.** A cross-boundary citation carries a distinctive quoted phrase, so a reader
+who finds nothing at the line can still find the thing — or prove it is gone.
+
+## L-379 — RULE 10's `diff-tree --stat` ASSERTION IS BLIND TO AN EMPTY TREE, SO THE ONE DIFF THAT MUST NEVER COMMIT IS THE ONE THE GUARD CANNOT SEE
+
+An agent spliced a board section to disk in one invocation and committed in the next.
+In the gap, two peers' **correct** HEAD-blob write-backs replaced the worktree file,
+**reverting the uncommitted splice**. The commit landed **EMPTY**.
+
+- **`git diff-tree --stat` prints NOTHING for an empty diff**, which reads exactly like
+  a clean run; the mandated post-commit verify prints nothing either. **Both guards are
+  satisfied by the failure they exist to catch.**
+- Wider than `L-223`: `L-223` is about HEAD moving between two calls. **This is about
+  the WORKTREE moving between two calls, and the worktree movers were obeying the
+  protocol correctly.**
+- **Take: the assertion must require a NON-EMPTY, single-path diff before
+  `commit-tree`, not merely the absence of foreign paths.** An empty-commit guard
+  already exists elsewhere in this lab as precedent.
+
+## L-380 — A RULING WAS REQUESTED ON THREE VERDICTS THAT NEVER BREACHED ANYTHING, BECAUSE A MONITOR READ THE POINT ESTIMATE AS THE CAP
+
+Three completed runs carried `CAP_OVERRUN.txt` files. A standards ruling was sought on
+whether their verdicts survived. **Verified at source: none breached its registered cap
+— 0.35x estimate, 0.58x cap, 0.56x cap.** The files were written by a monitor that
+compared spend against the **point estimate** and labelled the result an overrun.
+
+- **Both available rulings would have been wrong.** *Verdicts survive* would have made
+  precedent on a phantom; *verdicts void* would have destroyed three good results.
+- **A ruling is a measurement of a situation, and the situation must be measured
+  first.** The evidence for a standards question is checked at source **before** the
+  question is answered, not after — **especially when the question arrives already
+  framed as a conflict between two rules.** A framing is not a finding.
