@@ -1,0 +1,14 @@
+# av2r_run_arm.sh DELTAS from AV2's file, AFTER the mechanical rename AV2->AV2R / av2->av2r.
+# The rename is a token substitution and is recorded separately in RENAME_MANIFEST.txt;
+# this diff therefore shows the SUBSTANTIVE successor delta and nothing else.
+--- RENAMED_ORIGINAL/av2r_run_arm.sh	2026-08-27 17:12:50.603101435 +0000
++++ SUCCESSOR/av2r_run_arm.sh	2026-08-27 17:11:18.824379818 +0000
+@@ -184,7 +184,7 @@
+ 
+ # ---- FROZEN INSTRUMENT HASHES (PREREGISTRATION.md §7, verbatim) ----------
+ MD5_RUNSCRIPT=0557da51f6f179f6de865144343c499f   # av2r_runScript.py = byte copy of the shipped INCOMPRESSIBLE tutorial runScript.py
+-MD5_XF=76bc93090062e0bf03de2344709e384f                            # av2r_xf.py (set at freeze)
++MD5_XF=32a755bc9fa84bc0e03ab02bb6ec3c3c                            # av2r_xf.py (set at freeze)
+ MD5_DECOMP_TUT=816f5ba44075fde47fa5db4269877bc8  # the tutorial's own decomposeParDict, unused at np = 1, asserted so the staged base is the tutorial's
+ 
+ ARM="${1:-}"; IMG="${2:-}"

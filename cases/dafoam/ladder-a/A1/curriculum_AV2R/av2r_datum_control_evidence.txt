@@ -1,0 +1,18 @@
+AV2R DATUM-RESOLUTION DRIVEN CONTROL -- generated 2026-08-27T17:11:53Z by dafoam lane C
+grader md5=8a2dcebd954f56d9970601fc7761787a   control md5=b272e8f48d9ca01e4261745ed8d28354
+This is a PRE-COMPUTE DIAGNOSTIC.  It grades nothing, reads no artefact and quotes no band.
+AV-1 and AV-2 remain NOT A RESULT on their own frozen comparators.
+
+== (1) driven against the REAL AV-2 run root, whose frozen comparator refused at G1 ==
+CONTROL grader=av2r_grade.py
+CONTROL root=/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality
+  MESH   resolved=0.orig/U     ref_mtime=1787786463 recorded=1787786463 datumfile_mtime=1787786463 self_delta=0 ref-datum=+0 writeCompression=on
+  X-S    resolved=0/U.gz       ref_mtime=1787786594 recorded=1787786539 datumfile_mtime=1787786539 self_delta=0 ref-datum=+55 writeCompression=on
+  FAD-S  resolved=0/U.gz       ref_mtime=1787787068 recorded=1787786666 datumfile_mtime=1787786666 self_delta=0 ref-datum=+402 writeCompression=on
+  X-P    resolved=0/U.gz       ref_mtime=1787787278 recorded=1787787227 datumfile_mtime=1787787227 self_delta=0 ref-datum=+51 writeCompression=on
+  FAD-P  resolved=0/U.gz       ref_mtime=1787787770 recorded=1787787353 datumfile_mtime=1787787353 self_delta=0 ref-datum=+417 writeCompression=on
+CONTROL resolved_by_name_plain=1 resolved_by_name_gz=4
+PLANTED CONTROL (neither candidate present, arm X-S): guard_fired=True key=True
+PLANTED CONTROL (0/U.gz planted): resolver returns 0/U.gz
+CONTROL OK: the resolver sees a planted non-zero AND refuses an absent one
+rc=0

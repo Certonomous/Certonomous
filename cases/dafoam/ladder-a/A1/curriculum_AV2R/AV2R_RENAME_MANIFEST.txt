@@ -1,0 +1,23 @@
+AV2R RENAME MANIFEST -- how the successor's files were derived, and from what
+generated 2026-08-27T17:13:12Z by dafoam lane C; source commit af44d244b72f0ca45797fb22034e4b7a1284a7b5
+
+STEP 1, MECHANICAL: every file below was read from the HEAD BLOB of
+  cases/dafoam/ladder-a/A1/curriculum_AV2/ (never from the working tree -- L-350)
+  and passed through exactly:   sed 's/AV2/AV2R/g; s/av2/av2r/g'
+  The substitution is applied in that order, so it cannot double-apply (AV2R contains
+  no bare AV2 that the second rule can reach, and hex digests contain no 'v').
+
+STEP 2, SUBSTANTIVE: only av*_grade.py received a code delta (the datum resolved by
+  EXISTENCE plus its driven controls), and av*_run_arm.sh / av*_chain_driver.sh
+  received the md5 pins that follow from it.  Both are in the *_DELTAS_from_* diffs.
+  av*_datum_control.py is NEW (a pre-compute diagnostic; it is not on the grading path).
+
+FILE                         HEAD_BLOB_MD5                      AFTER_RENAME_MD5                   FINAL_MD5                          STEP2
+av2r_aggregate_memory.py     709ab0b98ef0302a3a3a318588f9493f   709ab0b98ef0302a3a3a318588f9493f   709ab0b98ef0302a3a3a318588f9493f   none (rename only)
+av2r_chain_driver.sh         e487b2ecae292fe248d633714d239dd3   c4797a8f58b997ebdf993e15c12ce42c   19fdf1299113ab5172011fbfe7fe87ea   CHANGED -- see the DELTAS diff
+av2r_datum_control.py        (new file, no source)              (new file)                         b272e8f48d9ca01e4261745ed8d28354   NEW
+av2r_grade.py                4bde0ad7dbdd3e460dcef1fe6d063979   912bd0fbe9ecd28a15d9cdf21c8f22de   8a2dcebd954f56d9970601fc7761787a   CHANGED -- see the DELTAS diff
+av2r_groot5_selftest.sh      40c559060fdd75840a95bceeec56aedb   ce7df0e4e967dcdc0e9842d450b7829a   ce7df0e4e967dcdc0e9842d450b7829a   none (rename only)
+av2r_runScript.py            0557da51f6f179f6de865144343c499f   0557da51f6f179f6de865144343c499f   0557da51f6f179f6de865144343c499f   none (rename only)
+av2r_run_arm.sh              de540f10dd391f71606b157a11bc24f3   e8d7661eeef7de64a0b23ebc24990d34   5a157740ae39dc71d814f30a70ecd5ec   CHANGED -- see the DELTAS diff
+av2r_xf.py                   76bc93090062e0bf03de2344709e384f   32a755bc9fa84bc0e03ab02bb6ec3c3c   32a755bc9fa84bc0e03ab02bb6ec3c3c   none (rename only)

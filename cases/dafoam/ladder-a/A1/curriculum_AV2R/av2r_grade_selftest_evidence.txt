@@ -1,0 +1,44 @@
+AV2R GRADER SELFTEST EVIDENCE -- generated 2026-08-27T17:11:35Z by dafoam lane C
+file: av2r_grade.py md5=8a2dcebd954f56d9970601fc7761787a
+invocation: python3 av2r_grade.py --selftest   (then again under python3 -O)
+
+  [OK ] U1 clean fixture (eps 1e-7) -> item PASS, both rows PASS, G-M2/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> P1, P3, P4, P5, P6, P7 HIT; P2 MISS (shipped shape[6] clean by construction)
+  [OK ] U3 grader plant SEEN; sign-flipped X-S read as GATE FAIL on 5/5; silent-zero FAD-S plant REFUSED (rule 3 x3)
+  [OK ] U4 PLANTED eps 0.8 on shipped shape[6] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL, P2 HIT
+  [OK ] U5 PLANTED eps 2e-5 on patched shape[3] (> 1e-5) -> PATCHED GATE FAIL, P1 MISS
+  [OK ] U6 eps 8e-6 (inside 1e-5, outside P3's 1e-6) -> PASS, P3 MISS
+  [OK ] U7 PLANTED sign flip on patched patchV[1] -> eps 2 -> GATE FAIL
+  [OK ] U8 four shape components BLOCKED in forward mode on PATCHED (no add_dvgeo) -> row BLOCKED, item BLOCKED, P1 NOT_MEASURED
+  [OK ] U9 one component BLOCKED on SHIPPED -> row BLOCKED, transpose/silent controls reported as not readable, item BLOCKED
+  [OK ] U10 forward value exactly 0.0 on one shipped component (silent no-op) -> REFUSAL (v1.0a)
+  [OK ] U11 forward value exactly 1.0 (seed echo) -> REFUSAL
+  [OK ] U12 forward value equal to the function value (function echo) -> REFUSAL
+  [OK ] U13 gmresRelTol 1e-5 in the artefact (band is 10 x tolerance) -> REFUSAL
+  [OK ] U14 rc=1 on FAD-P -> REFUSAL
+  [OK ] U15 OOMKilled=true on X-S -> REFUSAL
+  [OK ] U16 terminal marker absent in FAD-S log -> REFUSAL
+  [OK ] U17 planted-control line absent in X-P log -> REFUSAL
+  [OK ] U18 artefact OLDER than the age datum (X-S) -> REFUSAL (rule 4)
+  [OK ] U19 FAD-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL
+  [OK ] U20 FAD-S core_min 26.0 > cap 25.0 -> G10 GATE FAIL
+  [OK ] U21 X-P on cpuset 4,14 -> G12 GATE FAIL
+  [OK ] U22 cells 4033 -> G-M2 GATE FAIL, P7 MISS
+  [OK ] U23 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)
+  [OK ] U24 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS
+  [OK ] U25 ast.Assert count = 0 in av2r_grade.py and av2r_xf.py, and the counter sees a planted assert (=1)
+  [OK ] UD1 datum resolved BY EXISTENCE: every solver arm carrying ONLY 0/U.gz still grades (the exact shape that refused AV-1 and AV-2 is repaired)
+  [OK ] UD2 the resolution is RECORDED and names 0/U.gz on every solver arm, with its candidate set
+  [OK ] UD3 writeCompression is READ from the arm's own system/controlDict and recorded ('on'), never gated
+  [OK ] UD4 DRIVEN CONTROL -- with NEITHER candidate on disk the guard STILL REFUSES; a guard relaxed without a control showing it can fire is a guard retired, not repaired
+  [OK ] UD5 ambiguity REFUSES: 0/U and 0/U.gz both present is two mtimes and no registered rule
+  [OK ] UD6 the datum file must date its own epoch: content back-dated 60 s against its own mtime REFUSES
+  [OK ] UD7 a resolved reference OLDER than the datum REFUSES (a staged field cannot predate its stage)
+AV2R GRADER SELFTEST units=32 expected=32 failures=0 python_O=False
+AV2R GRADER SELFTEST PASS 32/32 (counted against the frozen EXPECTED_UNITS)
+rc=0
+
+--- under python3 -O ---
+  [OK ] UD7 a resolved reference OLDER than the datum REFUSES (a staged field cannot predate its stage)
+AV2R GRADER SELFTEST units=32 expected=32 failures=0 python_O=True
+AV2R GRADER SELFTEST PASS 32/32 (counted against the frozen EXPECTED_UNITS)
