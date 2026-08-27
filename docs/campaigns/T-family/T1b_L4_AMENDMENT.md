@@ -421,3 +421,196 @@ before 2026-08-21 18:05 Z.
 | `launch_t1b_L4.sh`, `run_one_t1b_L4.sh` | G1-G3 launcher and detached runner, STATUS in pool format |
 | `R_10k_x/`, `R_30k_x/`, `R_100k_x/`, `R_300k_x/` | the four cases, meshed, unsolved |
 | `gate_t1b_L4.json` | written by the comparator at analysis time; does not exist yet |
+
+---
+
+## 11. AMENDMENT 1 — 2026-08-27 — SCOPE: the registered rule-5 gate reaches the pre-extension triple (c, m, f) `[lab-attributed]`
+
+**Version: 1.0 -> 1.1.** Dated amendment appended at the foot under `CLAUDE.md`
+standing rule 6. **Bytes above this section changed: 0** — the assertion is a
+BYTE-IDENTITY assertion, not a line count, and it was executed in the same
+shell invocation as the commit that lands this section:
+`diff <(git cat-file -p HEAD:docs/campaigns/T-family/T1b_L4_AMENDMENT.md) <(head -c <N> <file>)`
+returned empty, where `<N>` is the byte length of the HEAD blob. Sections 0-10
+are untouched; nothing in them is rewritten.
+
+### 11.1 What this amendment changes, and what it may not
+
+**It changes SCOPE and nothing else.** It states that the gate this document
+already registered in §2 — *a `Nu` row whose grid triple is not CONVERGING
+reports NOT A RESULT* — applies to the **pre-extension triple (c, m, f)** as
+well as to (m, f, x).
+
+**It is POST-COMPUTE and therefore may not, and does not:**
+
+| may not change | changed here |
+| --- | --- |
+| a gate | no — the gate is §2's, unchanged, and no second gate is created |
+| a threshold | no — `CONVERGING` at `p >= 0.5` is `analyse_t1c.gci()`'s, untouched |
+| a band | no — `T1b_band.json`, committed before any case existed, untouched |
+| a cap | no — no compute is authorised by this amendment; §11.4 is a reading |
+| a label | no — the verdict vocabulary is standing rule 1's, unchanged |
+| a value | no — every value is the frozen comparator's, reproduced exactly (§11.4) |
+
+### 11.2 THE SCOPE QUESTION, ANSWERED FROM THE REGISTRATION TEXT AND NOT FROM CONVENIENCE
+
+The question put was: does this document, as registered, ALREADY govern the
+pre-extension (c, m, f) triple, so that the instrument need only be RUN? **The
+honest answer read from this document's own text is NO, and the text says so
+twice, explicitly.**
+
+**First, §0 (lines 38-42) disclaims the re-grade in terms.** Quoted verbatim,
+and STRUCK by this amendment as to its second clause only:
+
+> ~~"**With respect to the frozen rung it is a 2b clause 2 addendum**: the
+> frozen comparator's four PASS verdicts on DIVERGENT or STAGNANT triples are
+> not edited, struck or re-graded; they are printed beside the amended
+> verdicts for the record (section 2)."~~
+
+**Second, §2 (lines 108-121) scopes the ordered evaluation to (m, f, x) at
+every one of its three steps** — *"any level of **(m, f, x)** NOT iteratively
+CONVERGED"*, *"the **(m, f, x)** triple not CONVERGING"*, *"the x-level `Nu`"*.
+The scope is explicit, deliberate and repeated.
+
+**So a scope amendment IS required, and this is it.** The original §0 sentence
+is struck, not rewritten: it remains legible above with its strike, and §2's
+(m, f, x) text is left exactly as registered.
+
+### 11.3 WHY A POST-COMPUTE SCOPE AMENDMENT IS LEGAL HERE, stated so it can be refused
+
+Three grounds, each checkable:
+
+1. **The gate is ONE-WAY, and this document already registered that it is.**
+   §2, lines 131-133, verbatim: *"It can only turn a PASS or a GATE FAIL into
+   NOT A RESULT; it cannot move a value, a reference or a band, and it cannot
+   make a value pass that the frozen rule, applied to that same value, would
+   fail."* The hazard standing rule 2 exists to prevent — a gate chosen to fit
+   the answer — **cannot occur through a one-way conservative gate**. Widening
+   its scope can only ever remove a PASS. It can never manufacture one.
+2. **Standing rule 5 binds regardless of this document.** `CLAUDE.md` rule 5 —
+   *"A row whose grid triple is not CONVERGING is NOT A RESULT, whatever its
+   value"* — binds every agent at every level *"whether or not a brief repeats
+   it"*, and its stated provenance is **this file and `analyse_t1b_L4.py`**.
+   This amendment therefore adds no obligation the lab did not already carry;
+   it names the instrument that discharges it.
+3. **The consequence was itself registered, dated, before this document
+   existed.** `T1b_RESULTS.md` §8 (line 316), dated 2026-08-20, docket D440:
+   *"Under that rule rows B0, B2, B4 and B6 would all read NOT A RESULT and the
+   graded-row count would drop from four to zero."* The corrected verdicts of
+   §11.4 are exactly that registered prediction, now produced by an instrument
+   instead of by hand. **Nothing about the answer was learned after the rule
+   was written down.**
+
+**What is NOT claimed.** This amendment does **not** claim the (c, m, f) gate
+was frozen prediction-first for rows B0-B7 in the sense of standing rule 2
+clause 1 — it was not; those rows had already computed when §8 was written.
+What is claimed is narrower and is the whole claim: **the verdict on those rows
+must come from an instrument that can express the gate, and the difference the
+instrument makes is one-way, pre-stated, and about the gate rather than the
+physics.** A supervisor who reads ground 1 as insufficient should refuse this
+amendment; the rows would then stand as `T1b_RESULTS.md` §8 already describes
+them — PASS as returned, with the defect disclosed but never gated.
+
+### 11.4 THE INSTRUMENT, AND WHAT IT RETURNED
+
+**No new gate was built and no solver ran.** `NONCONVERGENCE_STANDARD.md` L0:
+this is a reading. The driver is
+`verification/runs/T-family/T1_runs/analyse_t1b_cmf_gated.py`. It **imports**
+`analyse_t1b_L4.verdict_amended` unmodified — the gate registered in §2, whose
+branch (2) is at `analyse_t1b_L4.py:78-79` — and applies it to (c, m, f). It
+reimplements nothing: the measurement is `analyse_t1b.measure()` and
+`analyse_t1c.iterative_convergence()`, the band is `T1b_band.json`.
+
+**The frozen gate function was never scoped to (m, f, x) in code.** It is a
+pure function `verdict_amended(v1, v2, v3, reference, band)`, and **the frozen
+file's own selftest already calls it on the pre-extension triple** at
+`analyse_t1b_L4.py:144-151`, already asserting that the recorded T1b (c, m, f)
+triples at Re 1e4 and 3e5 return NOT A RESULT. This amendment extends to all
+four Reynolds numbers, from the fields on disk, what the frozen instrument
+already asserted for two from recorded constants.
+
+**Controls, all armed before any row was graded:**
+
+- **Freeze (rule 2).** `analyse_t1b.py` `17436d64`, `analyse_t1c.py`
+  `3d566802`, `analyse_t1b_L4.py` `59c345bd`, `planted_zero_control_t1b.py`
+  `16660281` — each verified byte-identical to its HEAD blob by the driver
+  itself, which REFUSES otherwise.
+- **Planted zero (rule 3).** `planted_zero_control_t1b.py` selftest 21/21,
+  including the blind-reader and noisy-reader refusals. The driver REFUSES if
+  it does not pass, because a NOT A RESULT that rests on branch (1) rests on
+  `iterative_convergence` being able to see a difference.
+- **Negative controls, re-run.** `analyse_t1b_L4.py --selftest` PASSED under
+  `python3` and under `python3 -O`, `__pycache__` cleared between runs.
+- **Planted-failure proof (L-314).** Branch (2) at `:78-79` was replaced
+  in-memory by the ungated `analyse_t1b.py:193` rule; the selftest then FAILED
+  (rc 1) and **exactly the four non-converging controls fired** — DIVERGENT,
+  STAGNANT, OSCILLATORY, EXACT. The frozen file was not touched.
+- **Reproduction.** Every re-measured fine `Nu` reproduced `gate_t1b.json`'s
+  recorded value at **relative difference 0.000e+00**; the driver refuses above
+  1e-6. **The values do not change. Only the verdicts do.**
+
+**The rows, as the instrument returns them** (artifact
+`verification/runs/T-family/T1_runs/gate_t1b_cmf_gated.json`; run rc 0):
+
+| row | `Re` | qty | value | dev | band | triple (c,m,f) MEASURED | `p` | GCI | triple (m,f,x) read from `gate_t1b_L4.json` | frozen returned | THIS GATE RETURNS |
+| --- | ---: | --- | ---: | ---: | ---: | --- | ---: | --- | --- | --- | --- |
+| B0 | 1e4 | `Nu` | 31.619 | 2.305 % | 2.844 % | **DIVERGENT** | −0.219 | n/a | STAGNANT p=+0.420, GCI n/a | PASS | **NOT A RESULT** |
+| B1 | 1e4 | `f` | 0.03106 | 1.34 % | — | **DIVERGENT** | −0.307 | n/a | not on disk (X0 was branch-1 NOT A RESULT, so no `f` row was emitted) | REPORTED | **REPORTED** |
+| B2 | 3e4 | `Nu` | 72.480 | 1.635 % | 3.885 % | **DIVERGENT** | −0.150 | n/a | STAGNANT p=+0.435, GCI n/a | PASS | **NOT A RESULT** |
+| B3 | 3e4 | `f` | 0.02290 | 3.11 % | — | **DIVERGENT** | −0.233 | n/a | STAGNANT p=+0.399, GCI n/a | REPORTED | **REPORTED** |
+| B4 | 1e5 | `Nu` | 185.771 | 2.430 % | 5.334 % | **DIVERGENT** | −0.059 | n/a | STAGNANT p=+0.422, GCI n/a | PASS | **NOT A RESULT** |
+| B5 | 1e5 | `f` | 0.01733 | 3.69 % | — | **DIVERGENT** | −0.132 | n/a | STAGNANT p=+0.387, GCI n/a | REPORTED | **REPORTED** |
+| B6 | 3e5 | `Nu` | 449.255 | 1.635 % | 5.749 % | **STAGNANT** | +0.010 | n/a | STAGNANT p=+0.412, GCI n/a | PASS | **NOT A RESULT** |
+| B7 | 3e5 | `f` | 0.01389 | 3.77 % | — | **DIVERGENT** | −0.057 | n/a | STAGNANT p=+0.379, GCI n/a | REPORTED | **REPORTED** |
+
+**Every level of every triple is CONVERGED and plateaued**, so no row reaches
+branch (1); all four `Nu` rows fall at **branch (2)**. Iterative-convergence
+state `CONVERGED` on all twelve cases; station spreads 0.004-0.072 against
+plateau limits of 0.2 x band.
+
+**GCI is printed as `n/a` WITH ITS REASON on every row, never suppressed.**
+`analyse_t1c.gci()` emits a `GCI_pct` only in the CONVERGING branch, and
+CONVERGING requires `e32/e21 > 0` — monotone by construction. Standing rule 5
+forbids quoting a GCI on a non-monotone triple; here the stronger condition
+bites, because **no triple on this rung is converging at all**, and a
+Richardson extrapolation off a DIVERGENT or STAGNANT triple is not an error
+bound. The driver prints, per row: *"GCI n/a: the triple is DIVERGENT at
+p = −0.219; a Richardson extrapolation off a non-converging triple is not an
+error bound, and rule 5 forbids quoting one."*
+
+### 11.5 A DEFECT IN THE FROZEN GATE'S PROSE, DISCLOSED AND NOT REPAIRED
+
+`verdict_amended`'s refusal string hard-codes the level names of the triple it
+was written for: it says *"grid triple (m,f,x) is DIVERGENT; the x value is
+2.305 % from the reference"*. Applied to (c, m, f) **the numbers are this row's
+and are right; the LABELS are the L4 triple's and are wrong.** The frozen file
+is not edited to fix it (rule 6). The driver instead prints a LABEL CAVEAT
+beneath every affected row and stores it in the JSON as `why_label_caveat`:
+read *"(m,f,x)"* as the triple actually passed, which is (c, m, f), and *"the x
+value"* as the FINE level. **This is a cosmetic defect in a frozen instrument's
+prose, reported rather than worked around.**
+
+### 11.6 Census, under D534
+
+Sanaa, 2026-08-27: **`REPORTED` is a ROW CLASS, not a verdict, and is excluded
+from every verdict census.** The census over rung T1b's pre-extension rows is
+therefore over the **four `Nu` rows B0/B2/B4/B6 only**:
+
+**0 graded, 0 PASS, 0 GATE FAIL, 4 NOT A RESULT.**
+**Excluded as REPORTED: B1, B3, B5, B7 (four friction rows), named here as
+D534 requires.**
+
+### 11.7 Cost (rule 12)
+
+**Zero solver core-minutes: no solver ran, no mesh was generated, no new field
+was written by any solve.** The reading's own cost, measured by
+`/usr/bin/time`: two grading passes at 59.30 s and 56.06 s wall, serial
+(`nProcs = 1`), plus the selftest and planted-failure passes — **1.93 core-min
+measured for the two graded passes**, ~2.5 core-min including controls
+(the controls' wall was not separately instrumented and is stated as an
+estimate, not a measurement). Derived dollars at the recorded
+$0.0513/core-h, c7a.4xlarge, **reported-by-owner, not measured**
+(`COMPUTE_BUDGET_CHARTER.md` §5): **$0.0017 derived**. There was no
+pre-registered estimate for a re-grade, so **the ratio actual/predicted is not
+defined and is stated absent rather than approximated**; no waste, no
+contention attribution.

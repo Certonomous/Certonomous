@@ -1,0 +1,1143 @@
+{
+ "band_source": "T1b_band.json (committed before any case existed)",
+ "cases": {
+  "R_100k_c": {
+   "Nu": 177.50617508630265,
+   "Nu_station_spread": 0.03219975994880997,
+   "Re": 99904.82220000001,
+   "alphaEff_factor": 1.0,
+   "case": "R_100k_c",
+   "f": 0.016524951708898082,
+   "iterative_convergence": {
+    "between": [
+     "18000",
+     "20000"
+    ],
+    "field_range": 0.10930120778039054,
+    "max_change": 0.0,
+    "relative": 0.0,
+    "state": "CONVERGED",
+    "tol": 1e-06
+   },
+   "stations": {
+    "60.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 177.53837484625146,
+     "R_wall": 0.09990482220000002,
+     "Re": 99904.82220000001,
+     "T_bulk": 300.0337292271925,
+     "T_wall": 300.0900014682145,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -2.326035203197421,
+     "f": 0.016524951708898082,
+     "first_cell_centre": 6.73974786453424e-05,
+     "station_xD": 59.856970547713956,
+     "time": "20000",
+     "u_tau": 0.34086810748908386,
+     "yplus": 1.5315767330249204
+    },
+    "70.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 177.53129124679378,
+     "R_wall": 0.09990482220000002,
+     "Re": 99904.82220000001,
+     "T_bulk": 300.0393528130485,
+     "T_wall": 300.0956272993649,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -2.326035203197421,
+     "f": 0.016524951708898082,
+     "first_cell_centre": 6.73974786453424e-05,
+     "station_xD": 69.86649739515777,
+     "time": "20000",
+     "u_tau": 0.34086810748908386,
+     "yplus": 1.5315767330249204
+    },
+    "80.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 177.50617508630265,
+     "R_wall": 0.09990482220000002,
+     "Re": 99904.82220000001,
+     "T_bulk": 300.0450166034109,
+     "T_wall": 300.1012990522617,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -2.326035203197421,
+     "f": 0.016524951708898082,
+     "first_cell_centre": 6.73974786453424e-05,
+     "station_xD": 79.87602424260156,
+     "time": "20000",
+     "u_tau": 0.34086810748908386,
+     "yplus": 1.5315767330249204
+    }
+   },
+   "yplus": 1.5315767330249204
+  },
+  "R_100k_f": {
+   "Nu": 185.7712874390343,
+   "Nu_station_spread": 0.02503505375068471,
+   "Re": 99904.82220000001,
+   "alphaEff_factor": 1.0,
+   "case": "R_100k_f",
+   "f": 0.0173284630890058,
+   "iterative_convergence": {
+    "between": [
+     "56000",
+     "58000"
+    ],
+    "field_range": 0.10885402792905552,
+    "max_change": 0.0,
+    "relative": 0.0,
+    "state": "CONVERGED",
+    "tol": 1e-06
+   },
+   "stations": {
+    "60.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 185.79632249278498,
+     "R_wall": 0.09990482220000002,
+     "Re": 99904.82220000001,
+     "T_bulk": 300.0337920007415,
+     "T_wall": 300.0875631523228,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -2.4391366384829425,
+     "f": 0.0173284630890058,
+     "first_cell_centre": 2.6330749401018427e-05,
+     "station_xD": 59.97896165616717,
+     "time": "58000",
+     "u_tau": 0.3490569525085728,
+     "yplus": 0.6127287428790948
+    },
+    "70.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 185.7761895273415,
+     "R_wall": 0.09990482220000002,
+     "Re": 99904.82220000001,
+     "T_bulk": 300.0394311789153,
+     "T_wall": 300.093208157792,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -2.4391366384829425,
+     "f": 0.0173284630890058,
+     "first_cell_centre": 2.6330749401032305e-05,
+     "station_xD": 69.98848850361098,
+     "time": "58000",
+     "u_tau": 0.3490569525085728,
+     "yplus": 0.6127287428794177
+    },
+    "80.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 185.7712874390343,
+     "R_wall": 0.09990482220000002,
+     "Re": 99904.82220000001,
+     "T_bulk": 300.04507043712147,
+     "T_wall": 300.0988488350522,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -2.4391366384829425,
+     "f": 0.0173284630890058,
+     "first_cell_centre": 2.6330749401032305e-05,
+     "station_xD": 79.99801535105478,
+     "time": "58000",
+     "u_tau": 0.3490569525085728,
+     "yplus": 0.6127287428794177
+    }
+   },
+   "yplus": 0.6127287428794177
+  },
+  "R_100k_m": {
+   "Nu": 181.58190137181415,
+   "Nu_station_spread": 0.02999274124252338,
+   "Re": 99904.82220000001,
+   "alphaEff_factor": 1.0,
+   "case": "R_100k_m",
+   "f": 0.0169142659221428,
+   "iterative_convergence": {
+    "between": [
+     "18000",
+     "20000"
+    ],
+    "field_range": 0.10930348947943003,
+    "max_change": 0.0,
+    "relative": 0.0,
+    "state": "CONVERGED",
+    "tol": 1e-06
+   },
+   "stations": {
+    "60.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 181.61189411305668,
+     "R_wall": 0.09990482220000002,
+     "Re": 99904.82220000001,
+     "T_bulk": 300.0337658116723,
+     "T_wall": 300.08877587733343,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -2.3808346713631714,
+     "f": 0.0169142659221428,
+     "first_cell_centre": 4.2126980951684434e-05,
+     "station_xD": 59.932041999069774,
+     "time": "20000",
+     "u_tau": 0.3448600183626199,
+     "yplus": 0.9685274283039755
+    },
+    "70.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 181.59049768853103,
+     "R_wall": 0.09990482220000002,
+     "Re": 99904.82220000001,
+     "T_bulk": 300.0394055393362,
+     "T_wall": 300.0944220867171,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -2.3808346713631714,
+     "f": 0.0169142659221428,
+     "first_cell_centre": 4.2126980951684434e-05,
+     "station_xD": 69.94156884651358,
+     "time": "20000",
+     "u_tau": 0.3448600183626199,
+     "yplus": 0.9685274283039755
+    },
+    "80.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 181.58190137181415,
+     "R_wall": 0.09990482220000002,
+     "Re": 99904.82220000001,
+     "T_bulk": 300.04504636209043,
+     "T_wall": 300.1000655140242,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -2.3808346713631714,
+     "f": 0.0169142659221428,
+     "first_cell_centre": 4.2126980951684434e-05,
+     "station_xD": 79.95109569395738,
+     "time": "20000",
+     "u_tau": 0.3448600183626199,
+     "yplus": 0.9685274283039755
+    }
+   },
+   "yplus": 0.9685274283039755
+  },
+  "R_10k_c": {
+   "Nu": 30.11918856210323,
+   "Nu_station_spread": 0.005974392286539398,
+   "Re": 9990.482220000002,
+   "alphaEff_factor": 1.0,
+   "case": "R_10k_c",
+   "f": 0.02960081041939812,
+   "iterative_convergence": {
+    "between": [
+     "18000",
+     "20000"
+    ],
+    "field_range": 0.8701499529577745,
+    "max_change": 0.0,
+    "relative": 0.0,
+    "state": "CONVERGED",
+    "tol": 1e-06
+   },
+   "stations": {
+    "60.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 30.12516295438977,
+     "R_wall": 0.09990482220000002,
+     "Re": 9990.482220000002,
+     "T_bulk": 300.3372765644334,
+     "T_wall": 300.6689090351067,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.041665796240492776,
+     "f": 0.02960081041939812,
+     "first_cell_centre": 0.0005087711976552167,
+     "station_xD": 59.856970547713956,
+     "time": "20000",
+     "u_tau": 0.04562134349856359,
+     "yplus": 1.547388371360282
+    },
+    "70.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 30.122508711372177,
+     "R_wall": 0.09990482220000002,
+     "Re": 9990.482220000002,
+     "T_bulk": 300.39355000690995,
+     "T_wall": 300.72521169935817,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.041665796240492776,
+     "f": 0.02960081041939812,
+     "first_cell_centre": 0.0005087711976552167,
+     "station_xD": 69.86649739515777,
+     "time": "20000",
+     "u_tau": 0.04562134349856359,
+     "yplus": 1.547388371360282
+    },
+    "80.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 30.11918856210323,
+     "R_wall": 0.09990482220000002,
+     "Re": 9990.482220000002,
+     "T_bulk": 300.45014479798175,
+     "T_wall": 300.7818430507219,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.041665796240492776,
+     "f": 0.02960081041939812,
+     "first_cell_centre": 0.0005087711976552167,
+     "station_xD": 79.87602424260156,
+     "time": "20000",
+     "u_tau": 0.04562134349856359,
+     "yplus": 1.547388371360282
+    }
+   },
+   "yplus": 1.547388371360282
+  },
+  "R_10k_f": {
+   "Nu": 31.619274287026204,
+   "Nu_station_spread": 0.003627561793813072,
+   "Re": 9990.482220000002,
+   "alphaEff_factor": 1.0,
+   "case": "R_10k_f",
+   "f": 0.031058414935741192,
+   "iterative_convergence": {
+    "between": [
+     "18000",
+     "20000"
+    ],
+    "field_range": 0.8699346253026761,
+    "max_change": 1.8209470908914227e-07,
+    "relative": 2.0931999232216572e-07,
+    "state": "CONVERGED",
+    "tol": 1e-06
+   },
+   "stations": {
+    "60.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 31.62194474581064,
+     "R_wall": 0.09990482220000002,
+     "Re": 9990.482220000002,
+     "T_bulk": 300.33792103021426,
+     "T_wall": 300.65385612846035,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.04371750536320562,
+     "f": 0.031058414935741192,
+     "first_cell_centre": 0.0001989465060732859,
+     "station_xD": 59.97896165616717,
+     "time": "20000",
+     "u_tau": 0.04673109029510549,
+     "yplus": 0.6197991426137651
+    },
+    "70.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 31.618317184016828,
+     "R_wall": 0.09990482220000002,
+     "Re": 9990.482220000002,
+     "T_bulk": 300.3943127466408,
+     "T_wall": 300.7102840920434,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.04371750536320562,
+     "f": 0.031058414935741192,
+     "first_cell_centre": 0.0001989465060732859,
+     "station_xD": 69.98848850361098,
+     "time": "20000",
+     "u_tau": 0.04673109029510549,
+     "yplus": 0.6197991426137651
+    },
+    "80.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 31.619274287026204,
+     "R_wall": 0.09990482220000002,
+     "Re": 9990.482220000002,
+     "T_bulk": 300.4507047519421,
+     "T_wall": 300.76666653301623,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.04371750536320562,
+     "f": 0.031058414935741192,
+     "first_cell_centre": 0.00019894650607329978,
+     "station_xD": 79.99801535105478,
+     "time": "20000",
+     "u_tau": 0.04673109029510549,
+     "yplus": 0.6197991426138083
+    }
+   },
+   "yplus": 0.6197991426138083
+  },
+  "R_10k_m": {
+   "Nu": 30.830685691432755,
+   "Nu_station_spread": 0.0045767123774425045,
+   "Re": 9990.482220000002,
+   "alphaEff_factor": 1.0,
+   "case": "R_10k_m",
+   "f": 0.030277086413285328,
+   "iterative_convergence": {
+    "between": [
+     "18000",
+     "20000"
+    ],
+    "field_range": 0.8720447386580759,
+    "max_change": 0.0,
+    "relative": 0.0,
+    "state": "CONVERGED",
+    "tol": 1e-06
+   },
+   "stations": {
+    "60.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 30.834964446009696,
+     "R_wall": 0.09990482220000002,
+     "Re": 9990.482220000002,
+     "T_bulk": 300.33765748879216,
+     "T_wall": 300.66165598853075,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.042617715372584374,
+     "f": 0.030277086413285328,
+     "first_cell_centre": 0.0003181867996908533,
+     "station_xD": 59.932041999069774,
+     "time": "20000",
+     "u_tau": 0.04613954527771296,
+     "yplus": 0.9787329500737806
+    },
+    "70.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 30.830387733632254,
+     "R_wall": 0.09990482220000002,
+     "Re": 9990.482220000002,
+     "T_bulk": 300.39405237494725,
+     "T_wall": 300.71809897164644,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.042617715372584374,
+     "f": 0.030277086413285328,
+     "first_cell_centre": 0.0003181867996908533,
+     "station_xD": 69.94156884651358,
+     "time": "20000",
+     "u_tau": 0.04613954527771296,
+     "yplus": 0.9787329500737806
+    },
+    "80.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 30.830685691432755,
+     "R_wall": 0.09990482220000002,
+     "Re": 9990.482220000002,
+     "T_bulk": 300.45045588085975,
+     "T_wall": 300.77449934586696,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.042617715372584374,
+     "f": 0.030277086413285328,
+     "first_cell_centre": 0.0003181867996908533,
+     "station_xD": 79.95109569395738,
+     "time": "20000",
+     "u_tau": 0.04613954527771296,
+     "yplus": 0.9787329500737806
+    }
+   },
+   "yplus": 0.9787329500737806
+  },
+  "R_300k_c": {
+   "Nu": 430.21972564101594,
+   "Nu_station_spread": 0.06859538127469023,
+   "Re": 299714.46660000004,
+   "alphaEff_factor": 1.0,
+   "case": "R_300k_c",
+   "f": 0.01327494094111021,
+   "iterative_convergence": {
+    "between": [
+     "18000",
+     "20000"
+    ],
+    "field_range": 0.04076405014006923,
+    "max_change": 0.0,
+    "relative": 0.0,
+    "state": "CONVERGED",
+    "tol": 1e-06
+   },
+   "stations": {
+    "60.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 430.28832102229063,
+     "R_wall": 0.09990482220000002,
+     "Re": 299714.46660000004,
+     "T_bulk": 300.01124338599334,
+     "T_wall": 300.0344614975058,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -16.817103277515873,
+     "f": 0.01327494094111021,
+     "first_cell_centre": 2.5084764915334068e-05,
+     "station_xD": 59.856970547713956,
+     "time": "20000",
+     "u_tau": 0.9165450651384417,
+     "yplus": 1.532754499553824
+    },
+    "70.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 430.28787346352027,
+     "R_wall": 0.09990482220000002,
+     "Re": 299714.46660000004,
+     "T_bulk": 300.0131171488037,
+     "T_wall": 300.0363352844662,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -16.817103277515873,
+     "f": 0.01327494094111021,
+     "first_cell_centre": 2.5084764915347946e-05,
+     "station_xD": 69.86649739515777,
+     "time": "20000",
+     "u_tau": 0.9165450651384417,
+     "yplus": 1.532754499554672
+    },
+    "80.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 430.21972564101594,
+     "R_wall": 0.09990482220000002,
+     "Re": 299714.46660000004,
+     "T_bulk": 300.0150059100319,
+     "T_wall": 300.038227723502,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -16.817103277515873,
+     "f": 0.01327494094111021,
+     "first_cell_centre": 2.5084764915347946e-05,
+     "station_xD": 79.87602424260156,
+     "time": "20000",
+     "u_tau": 0.9165450651384417,
+     "yplus": 1.532754499554672
+    }
+   },
+   "yplus": 1.532754499554672
+  },
+  "R_300k_f": {
+   "Nu": 449.25536045153825,
+   "Nu_station_spread": 0.06681408228899954,
+   "Re": 299714.46660000004,
+   "alphaEff_factor": 1.0,
+   "case": "R_300k_f",
+   "f": 0.013891662249002814,
+   "iterative_convergence": {
+    "between": [
+     "66000",
+     "68000"
+    ],
+    "field_range": 0.040545547801855264,
+    "max_change": 0.0,
+    "relative": 0.0,
+    "state": "CONVERGED",
+    "tol": 1e-06
+   },
+   "stations": {
+    "60.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 449.32217453382725,
+     "R_wall": 0.09990482220000002,
+     "Re": 299714.46660000004,
+     "T_bulk": 300.01126395731234,
+     "T_wall": 300.0334985203636,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -17.598384789372243,
+     "f": 0.013891662249002814,
+     "first_cell_centre": 9.799223396597667e-06,
+     "station_xD": 59.97896165616717,
+     "time": "68000",
+     "u_tau": 0.9375935962317092,
+     "yplus": 0.6125126069795941
+    },
+    "70.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 449.28178113006504,
+     "R_wall": 0.09990482220000002,
+     "Re": 299714.46660000004,
+     "T_bulk": 300.0131436858571,
+     "T_wall": 300.0353802479426,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -17.598384789372243,
+     "f": 0.013891662249002814,
+     "first_cell_centre": 9.799223396611545e-06,
+     "station_xD": 69.98848850361098,
+     "time": "68000",
+     "u_tau": 0.9375935962317092,
+     "yplus": 0.6125126069804615
+    },
+    "80.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 449.25536045153825,
+     "R_wall": 0.09990482220000002,
+     "Re": 299714.46660000004,
+     "T_bulk": 300.0150234547208,
+     "T_wall": 300.0372613245371,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -17.598384789372243,
+     "f": 0.013891662249002814,
+     "first_cell_centre": 9.799223396611545e-06,
+     "station_xD": 79.99801535105478,
+     "time": "68000",
+     "u_tau": 0.9375935962317092,
+     "yplus": 0.6125126069804615
+    }
+   },
+   "yplus": 0.6125126069804615
+  },
+  "R_300k_m": {
+   "Nu": 439.76092488588745,
+   "Nu_station_spread": 0.07208708225175542,
+   "Re": 299714.46660000004,
+   "alphaEff_factor": 1.0,
+   "case": "R_300k_m",
+   "f": 0.013579191019101966,
+   "iterative_convergence": {
+    "between": [
+     "18000",
+     "20000"
+    ],
+    "field_range": 0.04073114234830655,
+    "max_change": 1.9264803086116444e-09,
+    "relative": 4.729747798717804e-08,
+    "state": "CONVERGED",
+    "tol": 1e-06
+   },
+   "stations": {
+    "60.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 439.8330119681392,
+     "R_wall": 0.09990482220000002,
+     "Re": 299714.46660000004,
+     "T_bulk": 300.01125527394754,
+     "T_wall": 300.03396953583365,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -17.202536629459036,
+     "f": 0.013579191019101966,
+     "first_cell_centre": 1.5678464259594183e-05,
+     "station_xD": 59.932041999069774,
+     "time": "20000",
+     "u_tau": 0.9269887710633534,
+     "yplus": 0.9689173544107947
+    },
+    "70.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 439.7943725356899,
+     "R_wall": 0.09990482220000002,
+     "Re": 299714.46660000004,
+     "T_bulk": 300.01313523495566,
+     "T_wall": 300.0358514924703,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -17.202536629459036,
+     "f": 0.013579191019101966,
+     "first_cell_centre": 1.5678464259635816e-05,
+     "station_xD": 69.94156884651358,
+     "time": "20000",
+     "u_tau": 0.9269887710633534,
+     "yplus": 0.9689173544133677
+    },
+    "80.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 439.76092488588745,
+     "R_wall": 0.09990482220000002,
+     "Re": 299714.46660000004,
+     "T_bulk": 300.01501559515157,
+     "T_wall": 300.0377335804355,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -17.202536629459036,
+     "f": 0.013579191019101966,
+     "first_cell_centre": 1.5678464259635816e-05,
+     "station_xD": 79.95109569395738,
+     "time": "20000",
+     "u_tau": 0.9269887710633534,
+     "yplus": 0.9689173544133677
+    }
+   },
+   "yplus": 0.9689173544133677
+  },
+  "R_30k_c": {
+   "Nu": 69.10331862785435,
+   "Nu_station_spread": 0.014415640087818815,
+   "Re": 29971.44666000001,
+   "alphaEff_factor": 1.0,
+   "case": "R_30k_c",
+   "f": 0.021809805253504906,
+   "iterative_convergence": {
+    "between": [
+     "18000",
+     "20000"
+    ],
+    "field_range": 0.3227400291330582,
+    "max_change": 0.0,
+    "relative": 0.0,
+    "state": "CONVERGED",
+    "tol": 1e-06
+   },
+   "stations": {
+    "60.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 69.11773426794217,
+     "R_wall": 0.09990482220000002,
+     "Re": 29971.44666000001,
+     "T_bulk": 300.112427732048,
+     "T_wall": 300.2569706966838,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.27629331764094905,
+     "f": 0.021809805253504906,
+     "first_cell_centre": 0.00019591191343280856,
+     "station_xD": 59.856970547713956,
+     "time": "20000",
+     "u_tau": 0.11747985949507929,
+     "yplus": 1.534380270899899
+    },
+    "70.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 69.11262015164066,
+     "R_wall": 0.09990482220000002,
+     "Re": 29971.44666000001,
+     "T_bulk": 300.13118055805427,
+     "T_wall": 300.2757342184144,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.27629331764094905,
+     "f": 0.021809805253504906,
+     "first_cell_centre": 0.00019591191343279468,
+     "station_xD": 69.86649739515777,
+     "time": "20000",
+     "u_tau": 0.11747985949507929,
+     "yplus": 1.5343802708997905
+    },
+    "80.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 69.10331862785435,
+     "R_wall": 0.09990482220000002,
+     "Re": 29971.44666000001,
+     "T_bulk": 300.15005133350974,
+     "T_wall": 300.2946244512467,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.27629331764094905,
+     "f": 0.021809805253504906,
+     "first_cell_centre": 0.00019591191343279468,
+     "station_xD": 79.87602424260156,
+     "time": "20000",
+     "u_tau": 0.11747985949507929,
+     "yplus": 1.5343802708997905
+    }
+   },
+   "yplus": 1.5343802708997905
+  },
+  "R_30k_f": {
+   "Nu": 72.47979543281924,
+   "Nu_station_spread": 0.010318851003276563,
+   "Re": 29971.44666000001,
+   "alphaEff_factor": 1.0,
+   "case": "R_30k_f",
+   "f": 0.022904234543410004,
+   "iterative_convergence": {
+    "between": [
+     "38000",
+     "40000"
+    ],
+    "field_range": 0.32198380882130095,
+    "max_change": 0.0,
+    "relative": 0.0,
+    "state": "CONVERGED",
+    "tol": 1e-06
+   },
+   "stations": {
+    "60.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 72.49011428382252,
+     "R_wall": 0.09990482220000002,
+     "Re": 29971.44666000001,
+     "T_bulk": 300.112640335599,
+     "T_wall": 300.25045888256506,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.2901578843308655,
+     "f": 0.022904234543410004,
+     "first_cell_centre": 7.65586922887862e-05,
+     "station_xD": 59.97896165616717,
+     "time": "40000",
+     "u_tau": 0.12039138641116168,
+     "yplus": 0.6144671404314989
+    },
+    "70.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 72.4801243021791,
+     "R_wall": 0.09990482220000002,
+     "Re": 29971.44666000001,
+     "T_bulk": 300.1314375808895,
+     "T_wall": 300.26927512347356,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.2901578843308655,
+     "f": 0.022904234543410004,
+     "first_cell_centre": 7.65586922887862e-05,
+     "station_xD": 69.98848850361098,
+     "time": "40000",
+     "u_tau": 0.12039138641116168,
+     "yplus": 0.6144671404314989
+    },
+    "80.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 72.47979543281924,
+     "R_wall": 0.09990482220000002,
+     "Re": 29971.44666000001,
+     "T_bulk": 300.15023498338746,
+     "T_wall": 300.2880731513947,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.2901578843308655,
+     "f": 0.022904234543410004,
+     "first_cell_centre": 7.65586922887862e-05,
+     "station_xD": 79.99801535105478,
+     "time": "40000",
+     "u_tau": 0.12039138641116168,
+     "yplus": 0.6144671404314989
+    }
+   },
+   "yplus": 0.6144671404314989
+  },
+  "R_30k_m": {
+   "Nu": 70.7318927795818,
+   "Nu_station_spread": 0.012582204700407829,
+   "Re": 29971.44666000001,
+   "alphaEff_factor": 1.0,
+   "case": "R_30k_m",
+   "f": 0.02232705820297472,
+   "iterative_convergence": {
+    "between": [
+     "18000",
+     "20000"
+    ],
+    "field_range": 0.32309021158118867,
+    "max_change": 0.0,
+    "relative": 0.0,
+    "state": "CONVERGED",
+    "tol": 1e-06
+   },
+   "stations": {
+    "60.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 70.7444749842822,
+     "R_wall": 0.09990482220000002,
+     "Re": 29971.44666000001,
+     "T_bulk": 300.1125527014376,
+     "T_wall": 300.2537719588032,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.28284603701681854,
+     "f": 0.02232705820297472,
+     "first_cell_centre": 0.00012247508738615076,
+     "station_xD": 59.932041999069774,
+     "time": "20000",
+     "u_tau": 0.11886480353355211,
+     "yplus": 0.9705318133272957
+    },
+    "70.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 70.73380734023608,
+     "R_wall": 0.09990482220000002,
+     "Re": 29971.44666000001,
+     "T_bulk": 300.1313513115708,
+     "T_wall": 300.2725918667688,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.28284603701681854,
+     "f": 0.02232705820297472,
+     "first_cell_centre": 0.00012247508738615076,
+     "station_xD": 69.94156884651358,
+     "time": "20000",
+     "u_tau": 0.11886480353355211,
+     "yplus": 0.9705318133272957
+    },
+    "80.0": {
+     "D_used": 0.19980964440000004,
+     "Nu": 70.7318927795818,
+     "R_wall": 0.09990482220000002,
+     "Re": 29971.44666000001,
+     "T_bulk": 300.1501531468738,
+     "T_wall": 300.29139752515067,
+     "alphaEff_factor": 1.0,
+     "alphat_wall": 0.0,
+     "dpdx": -0.28284603701681854,
+     "f": 0.02232705820297472,
+     "first_cell_centre": 0.00012247508738616464,
+     "station_xD": 79.95109569395738,
+     "time": "20000",
+     "u_tau": 0.11886480353355211,
+     "yplus": 0.9705318133274057
+    }
+   },
+   "yplus": 0.9705318133274057
+  }
+ },
+ "driver": "analyse_t1b_cmf_gated.py",
+ "freeze": [
+  {
+   "head_blob": "17436d64",
+   "path": "verification/runs/T-family/T1_runs/analyse_t1b.py",
+   "worktree_blob": "17436d64"
+  },
+  {
+   "head_blob": "3d566802",
+   "path": "verification/runs/T-family/T1_runs/analyse_t1c.py",
+   "worktree_blob": "3d566802"
+  },
+  {
+   "head_blob": "59c345bd",
+   "path": "verification/runs/T-family/T1_runs/analyse_t1b_L4.py",
+   "worktree_blob": "59c345bd"
+  },
+  {
+   "head_blob": "16660281",
+   "path": "verification/runs/T-family/T1_runs/planted_zero_control_t1b.py",
+   "worktree_blob": "16660281"
+  }
+ ],
+ "frozen_comparator": "analyse_t1b.py, NOT edited and NOT re-run; its verdicts read from gate_t1b.json and printed beside",
+ "gate": "analyse_t1b_L4.verdict_amended, IMPORTED unmodified (lines 67-86; branch (2) at 78-79)",
+ "mfx_source": "gate_t1b_L4.json (read, not re-derived)",
+ "rows": [
+  {
+   "Re": 10000.0,
+   "band": 0.8789035978385069,
+   "band_pct": 2.843726812626115,
+   "branch": 2,
+   "deviation_pct": 2.3053931135659225,
+   "dittus_boelter": 31.78565574914168,
+   "frozen_verdict": "PASS",
+   "gci_withheld_reason": "GCI n/a: the triple is DIVERGENT at p = -0.219; a Richardson extrapolation off a non-converging triple is not an error bound, and rule 5 forbids quoting one",
+   "gnielinski": 30.027848553464665,
+   "grid_cmf": {
+    "order": -0.2188778351996693,
+    "state": "DIVERGENT"
+   },
+   "grid_mfx": {
+    "order": 0.4201587577362273,
+    "state": "STAGNANT"
+   },
+   "levels": {
+    "c": 30.11918856210323,
+    "f": 31.619274287026204,
+    "m": 30.830685691432755
+   },
+   "quantity": "Nu",
+   "reference": 30.906752151303174,
+   "row": "B0",
+   "value": 31.619274287026204,
+   "verdict": "NOT A RESULT",
+   "why": "grid triple (m,f,x) is DIVERGENT; the x value is 2.305 % from the reference against a band of 2.844 %, and that is a statement about the finest mesh built, not about a limit",
+   "why_label_caveat": "LABEL CAVEAT: the sentence above is verdict_amended's own frozen text, written for the (m,f,x) triple and NOT edited. Read '(m,f,x)' as the triple actually passed, which is (c,m,f), and 'the x value' as the FINE level. The state, the order and the deviation are this row's."
+  },
+  {
+   "Re": 10000.0,
+   "deviation_pct": 1.3385973992965505,
+   "frozen_verdict": "REPORTED",
+   "gci_withheld_reason": "GCI n/a: the triple is DIVERGENT at p = -0.307; a Richardson extrapolation off a non-converging triple is not an error bound, and rule 5 forbids quoting one",
+   "grid_cmf": {
+    "order": -0.3072198341801893,
+    "state": "DIVERGENT"
+   },
+   "grid_mfx": null,
+   "levels": {
+    "c": 0.02960081041939812,
+    "f": 0.031058414935741192,
+    "m": 0.030277086413285328
+   },
+   "quantity": "f",
+   "reference": 0.03147980275674669,
+   "row": "B1",
+   "row_class": "REPORTED",
+   "value": 0.031058414935741192,
+   "verdict": "REPORTED"
+  },
+  {
+   "Re": 30000.0,
+   "band": 2.8627359947561217,
+   "band_pct": 3.885138844529179,
+   "branch": 2,
+   "deviation_pct": 1.6346358185349155,
+   "dittus_boelter": 76.54700081291715,
+   "frozen_verdict": "PASS",
+   "gci_withheld_reason": "GCI n/a: the triple is DIVERGENT at p = -0.150; a Richardson extrapolation off a non-converging triple is not an error bound, and rule 5 forbids quoting one",
+   "gnielinski": 70.8215288234049,
+   "grid_cmf": {
+    "order": -0.15044927838403768,
+    "state": "DIVERGENT"
+   },
+   "grid_mfx": {
+    "order": 0.4350109054316978,
+    "state": "STAGNANT"
+   },
+   "levels": {
+    "c": 69.10331862785435,
+    "f": 72.47979543281924,
+    "m": 70.7318927795818
+   },
+   "quantity": "Nu",
+   "reference": 73.68426481816103,
+   "row": "B2",
+   "value": 72.47979543281924,
+   "verdict": "NOT A RESULT",
+   "why": "grid triple (m,f,x) is DIVERGENT; the x value is 1.635 % from the reference against a band of 3.885 %, and that is a statement about the finest mesh built, not about a limit",
+   "why_label_caveat": "LABEL CAVEAT: the sentence above is verdict_amended's own frozen text, written for the (m,f,x) triple and NOT edited. Read '(m,f,x)' as the triple actually passed, which is (c,m,f), and 'the x value' as the FINE level. The state, the order and the deviation are this row's."
+  },
+  {
+   "Re": 30000.0,
+   "deviation_pct": 3.108307286808498,
+   "frozen_verdict": "REPORTED",
+   "gci_withheld_reason": "GCI n/a: the triple is DIVERGENT at p = -0.233; a Richardson extrapolation off a non-converging triple is not an error bound, and rule 5 forbids quoting one",
+   "grid_cmf": {
+    "order": -0.23322334164945963,
+    "state": "DIVERGENT"
+   },
+   "grid_mfx": {
+    "order": 0.3991556126357956,
+    "state": "STAGNANT"
+   },
+   "levels": {
+    "c": 0.021809805253504906,
+    "f": 0.022904234543410004,
+    "m": 0.02232705820297472
+   },
+   "quantity": "f",
+   "reference": 0.02363900753721858,
+   "row": "B3",
+   "row_class": "REPORTED",
+   "value": 0.022904234543410004,
+   "verdict": "REPORTED"
+  },
+  {
+   "Re": 100000.0,
+   "band": 10.155576943496982,
+   "band_pct": 5.333857572986172,
+   "branch": 2,
+   "deviation_pct": 2.4302022560537817,
+   "dittus_boelter": 200.55392944040025,
+   "frozen_verdict": "PASS",
+   "gci_withheld_reason": "GCI n/a: the triple is DIVERGENT at p = -0.059; a Richardson extrapolation off a non-converging triple is not an error bound, and rule 5 forbids quoting one",
+   "gnielinski": 180.2427755534063,
+   "grid_cmf": {
+    "order": -0.05852133423078831,
+    "state": "DIVERGENT"
+   },
+   "grid_mfx": {
+    "order": 0.42175208173185064,
+    "state": "STAGNANT"
+   },
+   "levels": {
+    "c": 177.50617508630265,
+    "f": 185.7712874390343,
+    "m": 181.58190137181415
+   },
+   "quantity": "Nu",
+   "reference": 190.39835249690327,
+   "row": "B4",
+   "value": 185.7712874390343,
+   "verdict": "NOT A RESULT",
+   "why": "grid triple (m,f,x) is DIVERGENT; the x value is 2.430 % from the reference against a band of 5.334 %, and that is a statement about the finest mesh built, not about a limit",
+   "why_label_caveat": "LABEL CAVEAT: the sentence above is verdict_amended's own frozen text, written for the (m,f,x) triple and NOT edited. Read '(m,f,x)' as the triple actually passed, which is (c,m,f), and 'the x value' as the FINE level. The state, the order and the deviation are this row's."
+  },
+  {
+   "Re": 100000.0,
+   "deviation_pct": 3.688102708690971,
+   "frozen_verdict": "REPORTED",
+   "gci_withheld_reason": "GCI n/a: the triple is DIVERGENT at p = -0.132; a Richardson extrapolation off a non-converging triple is not an error bound, and rule 5 forbids quoting one",
+   "grid_cmf": {
+    "order": -0.1318188655655722,
+    "state": "DIVERGENT"
+   },
+   "grid_mfx": {
+    "order": 0.3874948657637207,
+    "state": "STAGNANT"
+   },
+   "levels": {
+    "c": 0.016524951708898082,
+    "f": 0.0173284630890058,
+    "m": 0.0169142659221428
+   },
+   "quantity": "f",
+   "reference": 0.017992027544212322,
+   "row": "B5",
+   "row_class": "REPORTED",
+   "value": 0.0173284630890058,
+   "verdict": "REPORTED"
+  },
+  {
+   "Re": 300000.0,
+   "band": 26.256112316273573,
+   "band_pct": 5.748806862085763,
+   "branch": 2,
+   "deviation_pct": 1.6350071982337655,
+   "dittus_boelter": 482.97892360841394,
+   "frozen_verdict": "PASS",
+   "gci_withheld_reason": "GCI n/a: the triple is STAGNANT at p = +0.010; a Richardson extrapolation off a non-converging triple is not an error bound, and rule 5 forbids quoting one",
+   "gnielinski": 430.4666989758668,
+   "grid_cmf": {
+    "order": 0.010453722472306812,
+    "state": "STAGNANT"
+   },
+   "grid_mfx": {
+    "order": 0.4120768371023329,
+    "state": "STAGNANT"
+   },
+   "levels": {
+    "c": 430.21972564101594,
+    "f": 449.25536045153825,
+    "m": 439.76092488588745
+   },
+   "quantity": "Nu",
+   "reference": 456.72281129214036,
+   "row": "B6",
+   "value": 449.25536045153825,
+   "verdict": "NOT A RESULT",
+   "why": "grid triple (m,f,x) is STAGNANT; the x value is 1.635 % from the reference against a band of 5.749 %, and that is a statement about the finest mesh built, not about a limit",
+   "why_label_caveat": "LABEL CAVEAT: the sentence above is verdict_amended's own frozen text, written for the (m,f,x) triple and NOT edited. Read '(m,f,x)' as the triple actually passed, which is (c,m,f), and 'the x value' as the FINE level. The state, the order and the deviation are this row's."
+  },
+  {
+   "Re": 300000.0,
+   "deviation_pct": 3.766564985746724,
+   "frozen_verdict": "REPORTED",
+   "gci_withheld_reason": "GCI n/a: the triple is DIVERGENT at p = -0.057; a Richardson extrapolation off a non-converging triple is not an error bound, and rule 5 forbids quoting one",
+   "grid_cmf": {
+    "order": -0.05672809900458216,
+    "state": "DIVERGENT"
+   },
+   "grid_mfx": {
+    "order": 0.37904780330935356,
+    "state": "STAGNANT"
+   },
+   "levels": {
+    "c": 0.01327494094111021,
+    "f": 0.013891662249002814,
+    "m": 0.013579191019101966
+   },
+   "quantity": "f",
+   "reference": 0.014435380226160793,
+   "row": "B7",
+   "row_class": "REPORTED",
+   "value": 0.013891662249002814,
+   "verdict": "REPORTED"
+  }
+ ],
+ "scope": "the PRE-EXTENSION triple (c, m, f), rows B0-B7 of T1b_RESULTS.md section 1",
+ "tally": {
+  "census_rows": 4,
+  "gate_fail": 0,
+  "graded": 0,
+  "not_a_result": 4,
+  "reported_excluded": [
+   "B1",
+   "B3",
+   "B5",
+   "B7"
+  ]
+ }
+}
