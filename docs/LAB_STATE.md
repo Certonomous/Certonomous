@@ -8418,6 +8418,214 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**NINTH SESSION, FIRST WRITE, 2026-08-27T@STAMP@ (closure-supervisor). NEWEST FIRST.**
+Stamp from `date -u` in the writing invocation. **Closure was RE-FORMED today after the
+deliberate 2026-08-25 stand-down.** The gap between that block and this one is a stand-down,
+not a fleet kill — the block below says so and it is still true. This block inserts at the head
+of the closure section, so every line below it moves down by this block's height; no executable
+check cites this file by line.
+
+**═══ THE HEADLINE, AND IT IS A REFUSAL: CLOSURE'S QUEUE IS STILL EMPTY, DELIBERATELY, AND
+EVERY RUNG'S REASON IS NAMED. ═══**
+
+The chief's order was to file every frozen, costed, launchable closure rung into
+`verification/queue/closure/` in bulk. **I filed NOTHING, because ZERO of closure's 18
+pre-registrations is both frozen and launchable on CPU today**, and filing today is not filing —
+**it is launching.**
+
+**⚠⚠ THE DROP PATH IS A LAUNCH BUTTON, NOT A LIST. D535 + L-348, commit `49e06519`.**
+`docs/standards/QUEUE_ENTRY_STANDARD.md:22` reads *"There is no daemon and there will be none
+under this standard"*, `:27-32` adds *"no `setsid`, no `nohup`, no watchdog, no restart logic, no
+cron, no timer"* and *"the validator never starts a solver"* — **v1.0, unamended, `bb469c0d`
+2026-08-26T03:14:35Z. `scripts/queue_runner.py` landed `29223b1b` THIRTEEN HOURS LATER**, on
+Sanaa's own order, and is a 60 s tick loop launching via `setsid nohup bash -c`
+(`:286-293`), cron-restarted every minute. **The stale clause is mirrored verbatim into all six
+`verification/queue/<team>/README.md` files — i.e. exactly where a supervisor decides whether
+filing is safe.** A supervisor following the standard by the book would have fired every entry
+it filed. dafoam already paid this: three entries launched-on-drop 2026-08-26, each aborting
+rc=1 (`verification/queue/dafoam/held/README.md`).
+
+**VERIFIED BY ME PERSONALLY, NOT RELAYED (§3 check 3) — AND THE RELAY HAD GONE STALE IN
+MINUTES.** A lane read pid 502797 alive and every recent tick `EMPTY`, concluding a drop fires
+on the next tick. **Four minutes later I re-measured: pid 502797 GONE; cron had restarted the
+runner as pid 856460 at 2026-08-27T16:26:01Z; box busy 95.5 %, ~15.3/16 cores, load average
+16.40; cfd's `F25_DUCT3D.json` logged `HELD` at the 85 % ceiling.** The conclusion inverted: a
+drop today does **not** fire immediately — it waits, **armed and unattended**, and fires
+whenever the box quiets. **I observed the cron restart in production**, which makes closure's
+agent-independence claim *measured*, not documented.
+
+**AND THE VALIDATOR CANNOT SEE A GPU.** `/bin/grep -i 'gpu|cuda|nvidia'` over
+`scripts/queue_entry_check.py` returns **ZERO hits**; `host` **omitted defaults to `"local"`**
+(`queue_runner.py:461`) — omission is the dangerous default on a safety field; and unknown keys
+are ignored (`:312-318`), so **`verdict_state: PENDING` or `NOT AUTHORISED` in `enqueued_by` is
+decoration the scheduler never reads.** **CONSEQUENCE I ACTED ON: LING ARM 2 WAS NOT FILED.**
+Filing it would have **fired** it and crossed Sanaa's FOUR-PART gate **by a file copy**. Only
+three things keep an entry inert: it is not in the drop path; its `host` names another box; or
+its own launcher refuses. **Referred, not repaired — amending a standard is Sanaa's alone.**
+
+**THE PER-RUNG REFUSAL TABLE — the chief asked for exactly this.** 18 pre-registration-shaped
+files on disk, 15 tracked at HEAD, 3 untracked; enumerator control fired both ways.
+
+| rung | why it CANNOT be queued today |
+|---|---|
+| **Ling arm 2** | The **only** frozen-and-unrun item in the family (`77f064a8`; run root `/home/ubuntu/closure-data/tbnn_gpu/arm2` **ABSENT**). **GPU**, no GPU attached to this box, outside the 2026-08-21 CPU blanket, and behind Sanaa's four-part gate. Its own `LAUNCH_CHECKLIST.md:3` reads `## NOT LAUNCHED` with two unresolved supervisor items. **NOT FILED, ON PURPOSE.** |
+| **R4b_pair_control** | **UNTRACKED at HEAD** — `PREREG-AT-COMMIT` has no sha to cite. Line 1 is its own `# DRAFT — NOT FROZEN, NOT COMMITTED, NO COMPUTE AUTHORISED`. **Second, independent refusal: the runner it names at L925, `run_r4b.sh`, DOES NOT EXIST on disk.** Otherwise the readiest item in the family (costed to 4 dp, cap 8.0 core-h, serial, run root absent). Still needs **Sanaa's direction on the increment** — its own §0.2 concedes it is the lab's ranking, not her choice. |
+| **Kaandorp aposteriori, NASA_hump_gate, R4, Xiao2016_EnKF** | **Already run and graded**, and their run roots hold **144 / 8 / 10 / 59 numeric time directories**. `AGE-GUARD` (check 4) refuses on the literal clause. Xiao's own prereg L210 says *"The blocker is not cost. It is §7."* |
+| **Kaandorp TBRF, Ling arm 1, R5C, SpaRTA, Wu2018 x3, FS5** | **Already run and graded** (GATE FAIL / PASS / NOT A RESULT / GATE REACHED). Re-enqueuing puts a run into a tree that already holds an answer. |
+| **FS1–FS4, FS6** | **No pre-registration exists at all.** Nothing to cite at `prereg_path`. FS5 is the only FS prereg and it declares **no solve** ("numpy and field reads only, no solver", L93). **There is no launchable FS rung.** |
+| **Bae2022 GPU, Sirignano2020 GPU** | Untracked drafts (no sha), GPU, and both record that their required inputs **do not exist on this box**. |
+| **`_common/uq_eigenspace/`** | **No pre-registration exists.** |
+
+**A STRUCTURAL FACT THAT DECIDES HOW EVERY FUTURE CLOSURE ENTRY IS WRITTEN.** Check 4 refuses a
+`cwd` that is **absent** as well as one holding an answer. Every closure OpenFOAM case builds
+its run directory at launch (`setup_case.py` does `shutil.copytree` into
+`/home/ubuntu/closure-data/...`), so **the run directory is by construction absent at enqueue
+time and can NEVER be a legal `cwd`.** The only legal `cwd` for this family is **the repository
+case directory the driver runs from**, and the argv is the driver script — never `simpleFoam`
+directly.
+
+**═══ WHAT I AM DOING ABOUT IT: FREEZING A RUNG TODAY — `G1_grid_triple`. ═══**
+The chief's instruction was to freeze the cheapest one if nothing is launchable. **I am freezing
+the one that closes closure's own worst gap.** Closure ruled `G = NO` on every matrix row and
+verification's independent audit agreed: `GCI`/`Roache`/`CONVERGING` appear in **zero** files in
+closure territory, because **266 `polyMesh` dirs, 40 geometries, ZERO at more than one cell
+count** — the disk cannot supply a *pair*.
+
+**THE DESIGN DECISION IS MINE AND I RECORD THE REASONING SO IT CAN BE ATTACKED.** A previous
+lane called the refined-level **LES reference-field interpolation** a blocker that "may
+dominate". **It is not a blocker for this rung: it bears on VALIDATION (`P`), not on GRID
+CONVERGENCE (`G`).** A Roache triple measures a fixed model's *numerical* solution against
+**itself at three resolutions** and needs **no truth data at all**. So: **shipped k-omega SST,
+one model, three meshes, no LES field, no ML, no correction.**
+- **Substrate `Parm_PH_29/alpha_10/alpha_10_9000_3036`** — the **only** closure geometry with a
+  parameterisable mesh dictionary. `CBFS`, `PH_Breuer` and every `DUCT` case ship as **frozen
+  `polyMesh` only** (`find` for `blockMeshDict*`/`*.m4`/`mesh*.py` returns empty in each).
+  `system/blockMeshDict:38-39` is two blocks `(120 65 1)` = **15,600 cells**, matching the
+  shipped owner note exactly.
+- **Levels** (shipped mesh as MEDIUM, so fine is 4x not 16x): 2x(60 33 1) = **3,960**;
+  2x(120 65 1) = **15,600**; 2x(240 130 1) = **62,400**.
+- **Cost on the MEASURED basis** — 4.138e-06 s/cell-iteration at 21,000 cells serial (five
+  capped CBFS rows, 13,033.59 s over 150,000 it = 0.0868906 s/it), corroborated at 3,025 /
+  8,748 / 15,600 / 21,000 cells; **4.5e-06 used as the conservative rate.** Projected
+  **≈ 3.1 core-h serial** at a 30,000-iteration cap — well inside charter §18's 487 core-h.
+- **THE CONTROL THAT IS CLOSURE'S OWN SCAR, now pre-registered:** the lab was nearly fooled by
+  `alpha_10_9000_{2024,3036,4048}` — three dirs that look like a refinement family and are not
+  (**all three `nCells 15600`**; the suffixes are GEOMETRY parameters, domain length 9.000 and
+  height 3.036, **not grid levels**). G1 registers a control asserting the three levels' `vertices`
+  blocks are **byte-identical** and differ **only** in the resolution literal, with the three
+  `nCells` distinct and in the registered ratio. **Refuse otherwise.**
+- **DISPATCH STATUS: the drafting brief is written and complete; the lane could NOT be spawned
+  because the session's concurrent-subagent limit was saturated.** It goes out the moment a slot
+  frees. **NOTHING OF G1 EXISTS ON DISK YET. VERIFY this before relying on it.**
+
+**═══ THE UNCOMMITTED KAANDORP FILE: DO NOT LAND IT. IT IS A PURE LOSS. ═══**
+The chief flagged `Kaandorp2020_TBRF/aposteriori/RESULTS.md` as uncommitted work to land if
+finished. **It is the opposite.** `git diff HEAD --numstat` = **0 insertions, 164 DELETIONS**;
+disk **933** lines against HEAD's **1,097**. **There is ZERO disk-only content.** The disk copy
+is missing the two 2026-08-24 addenda that exist at HEAD — the independent re-grade's four
+corrections of record, and the D492 verdict-surface ruling that puts the **§2d
+"freeze self-attested, no commit witness" label on ten duct rows**. **Committing it would
+silently delete a verdict surface.** **INSPECTED, NEVER REVERTED; left exactly as found**, as
+the 2026-08-25 block also ruled. **HEAD is the good copy.** ⚠ **Any future `git add` of this path
+deletes 164 committed lines.**
+
+**═══ TWO STANDING HAZARDS ON THIS BOARD ARE NOW CLEARED — MEASURED, NOT ASSUMED. ═══**
+- **The staged-as-deleted trap is GONE.** `NASA_hump_gate/` and `_common/uq_eigenspace/` are
+  **tracked at HEAD (8 files) AND present on disk**, and `git diff --cached` over closure
+  territory is **empty**. The chief's 16:17Z index reset cleared it. The standing "a blind
+  checkout would destroy R4 and the hump gate" warning **no longer describes the tree** — but
+  the rule stands: **inspect, never revert.**
+- **The stale shared ledgers are IN SYNC.** `docs/DOCKET.md`, `docs/LESSONS.md`,
+  `docs/COST_CALIBRATION.md` and `docs/LAB_STATE.md` are **byte-identical disk-vs-HEAD by
+  sha256**. The long-standing "building a row from disk deletes 27 rows" hazard is **not
+  currently live**. Closure still builds every append from the HEAD blob, because the condition
+  can return without warning.
+- **Rule 11 earned its keep AGAIN, twice in one invocation.** A first sweep for `D[0-9]+`
+  anywhere returned **901** — a number in prose, not a row id. The row-id column gives
+  **maximum D534 against a COUNT of 538**. **The count would have collided.** Lessons maximum
+  **L-347**, count 347. Ids were re-derived inside the committing invocation, not carried
+  forward.
+
+**═══ SUPERVISOR CHECK 1 DISCHARGED: THE THREE INSTRUMENT PATCHES, READ BY ME AS PATCHES. ═══**
+Carried since `66688b0c`, which recorded explicitly that **no supervisor had read the diffs as
+diffs** and that none could be applied until one did. **Done. Rulings:**
+- **`fs5_31_3_exit2_PROPOSED.diff` — APPROVED.** Three `assert`s → `sys.stderr.write` +
+  `sys.exit(2)`; all three negations verified correct; `carried = ""` **is** initialised at
+  `make_feature_library.py:170`, so the folded `if carried and AMEND_MARK not in ...` is safe.
+  **One residual defect DISCLOSED, which the patch neither introduces nor fixes:** that check
+  runs **after** `open(DST,"w").write(...)` — it is a **post-hoc detector, not a guard**; by the
+  time it fires the file is already overwritten.
+- **`fs2_report_d491_guard_PROPOSED.diff` — APPROVED IN PRINCIPLE, NOT AS WRITTEN.** It is the
+  right shape and closes a **latent automatic breach** (re-running `make_fs2_report.py` prints
+  the forbidden statistic into a committed record with nobody choosing to), and Guard 2 correctly
+  compares **CONTENT, not line count** — the 2026-08-22 rule-6 correction is an in-paragraph
+  insertion with a **zero line delta**, invisible to a size guard. **But its rule-3 control is
+  CIRCULAR:** `_plant` is rendered with `'.2e'` and `_FMTS` **contains** `.2e`, so the control
+  **fires by construction** and cannot detect a scanner blind to the report's *actual*
+  rendering path. **A control that cannot fail is not a control.** Fix required before it lands:
+  plant a line produced by the report's own formatting code path.
+- **`run_lane_banner_test_PROPOSED.diff` — NOT TO BE APPLIED TO THE FROZEN SCRIPT.** The bug it
+  names is **real and serious**: the old test matched `"Floating point exception"`, which is in
+  the `trapFpe` **banner every OpenFOAM log opens with**, so `diverged=True` on **every** row
+  including healthy ones — consistent with all six CBFS rows carrying `diverged=True` at
+  `FOAM FATAL` 0 and `Foam::sigFpe` 0. **Two grounds for refusing it in place:** (i) it
+  **NARROWS a safety predicate**, and its control is **two hand-written literal fixtures the
+  author chose to match** — it proves the two constants agree with each other, **not** that the
+  predicate can see a real diverged log from this lab; (ii) `run_lane.py` is certified
+  **byte-identical to HEAD** in a standing re-grade record, so editing it in place **falsifies
+  that record**. **Correct home: a SUCCESSOR comparator**, with the control taken from an
+  **actually-diverged OpenFOAM log on this box** — and **if no such log exists, that absence is
+  itself the finding.**
+
+**COST CALIBRATION (rule 12) — NO ROW IS OWED, AND THAT IS A RECORDED DECISION.** **Closure
+compute this session: 0.000 core-minutes, 0.000 GPU-hours, $0.00.** No rung graded, no case
+closed, no curriculum item finished. A finer per-rate calibration datum was measured in passing
+and is recorded here rather than as a duplicate row: the Kaandorp a-posteriori prereg registered
+**0.126 s/it on CBFS** against a measured **0.086891** (**0.690x, 45 % conservative**) and
+**0.004 s/it on `AR_1_Ret_360`** against a measured **0.010814** (**2.70x, optimistic**); whole
+lane **370.09 core-min = 6.168 core-h** against 7.1 registered, **41 % of the 15 core-h cap**.
+**That process completed in an earlier session and already carries row C-18; a second row would
+double-count it.**
+
+**QUEUED, VALIDATED, AGENT-INDEPENDENT COMPUTE (Sanaa's standing order, reported at every board
+write): 0.0 core-hours. Closure has never filed a queue entry.** Stated plainly because the
+order asks for a number and the honest number is zero. **The path to a non-zero number is G1's
+freeze, and it is one committed pre-registration away — projected ≈ 3.1 core-h.**
+
+**LIVE JOBS: NONE OF CLOSURE'S.** No closure solver, driver, monitor or GPU node;
+`find /home/ubuntu/closure-data -mmin -60 -type f` returns empty. The box is otherwise saturated
+(load 16.40/16): nine ranks of heat-transfer's `buoyantBoussinesqSimpleFoam` on `T3_runs/R_ff`
+and cfd's `icoFoam` on `F18b_runs/fine`. **Lanes: one live** (multi-model sweep feasibility, zero
+compute, commits nothing); two finished, neither committed anything.
+
+**COMMITS THIS SESSION:** `49e06519` (**D535 + L-348**, 60 insertions / 0 deletions, only the two
+ledger paths, post-commit verify clean).
+
+**NEXT ACTIONS, governing.** (1) **Spawn the G1 drafting lane the moment a subagent slot frees**;
+read the pre-registration and every instrument **personally as a diff**; **freeze it in a commit
+of its own with its sha256 in the message**; then and only then file the queue entry with the
+real `prereg_commit`. (2) **Re-measure box capacity in the same invocation that files** (L-348)
+— a HELD entry is still armed and is exactly the deliverable Sanaa asked for. (3) Rule on the
+multi-model sweep feasibility memo when the lane reports; it is the family's largest bulk-CPU
+candidate (**~50 core-h, 164 independent solves on meshes that already exist**) and would be
+real queue depth. (4) The two applicable instrument patches await their fixes above; **neither
+lands without a re-read.** (5) Arm 2 stays `PENDING` and **UNFIRED**.
+
+**ON SANAA'S DESK, unchanged and none of it unblocked by any agent message:** (1) confirm or
+correct the **four withdrawn attributions**, chief among them the GPU cost approval — one line
+restores all four; (2) confirm or correct the two 2026-08-24 R3 quotations, and say whether
+**§22.7 is marked closed in the charter itself** — a cold reader still finds it open; (3) her
+direction on the next R4 increment; (4) R6's phrasing; (5) per-item sign-off on GPU drafts 2–5.
+**NEW this session:** (6) **`QUEUE_ENTRY_STANDARD.md` says there is no daemon and there is one**
+— amending a standard is reserved to her (D535).
+
+**BLOCKED.** Arm 2 — on her four-part line. The next R4 increment — on a committed sha-frozen
+prereg **and** her direction, **and** a `run_r4b.sh` that does not exist. R6 — on her phrasing.
+GPU drafts 2–5 — on her per-item sign-off. G1's queue entry — on G1's own freeze, which is mine
+and is in progress. **SUBMISSIONS REMAIN PARKED (rule 7); the closure-challenge entry stays
+prepared and current and NOTHING IS SENT.**
+
+
 **UPDATE 2026-08-26T22:56:24Z (cfd-supervisor, twenty-first board write). ✅ cfd_GRID.md R-1D APPLIED IN PLACE + F3 SLAB CITATION CORRECTED (`abc00e4a`, 43/43 shas) · L-345 (`a5b73d41`) · ✅ F25_DUCT3D FROZEN (`fc4c479b` / entry `a2d6f33a`) BUT HELD BY ME FOR AMENDMENT 1: ITS OWN MEASUREMENT PROJECTS 1,343 core-min = 96 % OF ITS 1,400 CAP AGAINST A 706 ESTIMATE · ⚠ F23 WITHDRAWN FROM THE QUEUE PRE-COMPUTE (`b3afd87e`) UNDER L-346 — ITS SIMPLE + CENTRAL FORM MEASURED NON-CONVERGING AT FINE CROSS-SECTIONS BY F25's ARMS · cfd QUEUED 1,269.4 core-min = 21.2 core-h (F22 + F24).** *Stamp from `date -u`; HEAD-blob construction per L-333(a).*
 
 **Grid (`abc00e4a`, lane G):** R-1D applied into the table in place — 240 lines before and after above the one appended dated line; lines 12, 30, 48, 51, 54, 57, 89, 119, 122, 125, 237 touched; census recounted from the table **CAN DO 3 · CAN DO, CAVEATS 6 · CAN NOT DO 4 · not attempted 23**; footer control **43/43** shas resolve (F17b's `f2943b0b`, `f8d2d60c` added — cited beside F17 as NOT A RESULT evidence, F17 stays strongest). **The chief's revision-4 citation correction applied:** the F3 slab claim now cites `F3_SUCCESSOR_TRIPLE_PREREGISTRATION.md:81` ("single-cell-thick 2-D slabs") and `:205-206` at lines 30 and 237, replacing the `F3_CONVERSION_PREREGISTRATION.md:92-93` gate-row cite. **L-345** (`a5b73d41`): a gate quantity whose own registered model predicts a DEGENERATE triple is a registration defect — the F19 x_s model triple (0.850756 / 0.850649 / 0.850540) reads DEGENERATE, order −0.027, at zero compute; L-337 control on the grep (finds `^## L-340`).
