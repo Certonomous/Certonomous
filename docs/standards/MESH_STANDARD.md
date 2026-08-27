@@ -870,3 +870,354 @@ and **must say so in those words.** The survey's absence is a reportable state, 
 - §11 does not amend any charter, and does not edit
   `sdk/chief_engineer/mesh_certificate.py`; the four new certificate fields are named here and
   their implementation is a separate, disclosed change.
+
+---
+
+## 12. §11 IS CORRECTED IN SIX PLACES, MDS-1 IS STOOD UP, AND NO THRESHOLD IS SET — STILL (v1.7, 2026-08-27)
+
+**Appended at the foot under standing rule 6. Version 1.6 → 1.7. Lines whose number changed
+above this section: 0.** Nothing above is edited, struck or renumbered by this section; §11's
+original text stands as written and is corrected here, never rewritten there. *(Header
+discrepancy carried forward per §9 and §11: line 3 still reads `Version 1.2`; the authoritative
+version is the highest section version, now **v1.7**, and the header is deliberately not edited
+because editing it would move every line number above.)*
+
+**THIS SECTION SETS NO THRESHOLD AND MOVES NO GATE, NO BAND, NO CAP AND NO LABEL.** §3.1's 70°,
+§3.2's 4, §3.3's advisory at 1000 and its compound flag, §3.4's proposed 0.01 and §7.5's proposed
+α bracket are all untouched, and nothing is written to `docs/physics_rules.yaml` by this section.
+It corrects six factual claims in §11, discharges §11.5's anti-deferral clause, and files a
+distribution. **It issues no verdict word**, because there is no gate and no pre-registration
+behind a survey, and a `PASS` or `GATE FAIL` here would be the mesh-quality form of the thing
+§11.2 refuses.
+
+**All figures below were re-derived from the corpus on 2026-08-27, not taken on report.** The
+corpus is **live**: one log (`verification/runs/F17c_runs/coarse/log.checkMesh`) appeared between
+two enumerations taken minutes apart, so every count here is a snapshot with a date, not a
+constant.
+
+### 12.1 CORRECTION 1 — §11.5's OWN ENUMERATOR PRODUCES THE FALSE ZERO IT WARNS AGAINST
+
+§11.5 states its population was *"counted 2026-08-27 with `find . -name 'log.checkMesh*' -type f`"*
+and, three paragraphs later, instructs its own successor:
+
+> *"**MDS-1 enumerates with `find` and states its enumerator**, or its coverage figure is a false
+> zero of exactly the kind standing rule 3 exists to catch."*
+
+**It then produced one.** `-name 'log.checkMesh*'` matches a whole basename. It does not match the
+**stem-prefixed filename shape** `<stem>.log.checkMesh` — `rung6b.log.checkMesh`,
+`c3b.log.checkMesh`, `A3-vcoarse-smoke.log.checkMesh`. Measured 2026-08-27:
+
+| enumerator | logs seen (repository, F5b pruned) |
+|---|---|
+| §11.5's, verbatim | **918** |
+| both filename shapes | **1005** |
+| **invisible to §11.5** | **87** |
+
+The 87 are not scattered. **78 of them are the entire
+`verification/runs/MESH_AUDIT_runs/2026-08-08/` pool** — the retained-log corpus of the lab's own
+mesh birth-certificate audit, which is to say the single most relevant population §11 could have
+surveyed. The remainder: 5 in `verification/runs/B52_RUNG6_REPLICATE_runs/`, 3 in
+`verification/runs/R4_runs/`, 1 in `verification/campaign/DRAW_SCATTER_RETROFIT/`.
+
+**The lesson is not that a glob was wrong. It is that §11.5 wrote the warning, named the standing
+rule, and did not apply either to the line above it.** A guard stated in prose and not driven is
+not a guard. This is recorded here rather than softened because §11's own §11.2 argues that a
+wrong number in a standard is more expensive than a missing one, and §11.5 shipped four wrong
+ones (916, 761, 155, and 916-of-916) under exactly that heading.
+
+**STRICKEN, and replaced below:** §11.5's population table and its `TOTAL 916` row; the
+parenthetical *"counted 2026-08-27 with `find . -name 'log.checkMesh*' -type f` — measured, not
+estimated"*.
+
+**THE CORRECTED ENUMERATOR, AS A COMMAND.** MDS-1 and every successor use this, and state it:
+
+```bash
+find <root> -path '*/verification/runs/F5b_runs' -prune -o \
+     \( -name 'log.checkMesh*' -o -name '*.log.checkMesh*' \) -type f -print
+```
+
+**What it excludes, and why — stated, because an exclusion nobody states is a false zero with a
+reason:**
+
+- **`.git/`** — the object store is not a run record.
+- **`verification/runs/F5b_runs/`** — **QUARANTINED**, pending Sanaa's ruling on a permission
+  denial. It is **pruned by explicit path test on every candidate, counted, and never opened.**
+  The quarantine names that directory and F5b's *gate quantity*; mesh-quality fields in a
+  different tree are neither, so mesh certificates elsewhere remain readable. Pruned at this
+  measurement: **1 log**.
+- **Nothing else.** Dotted directories are entered (`find` enters them; a recursive `**` glob does
+  not, and `grep -r` in this environment honours ignore files — §11.5's two observations on this
+  are correct and are carried forward unchanged).
+
+### 12.2 CORRECTION 2 — §11.3's TWO LABEL FORMS ARE NOT EXHAUSTIVE
+
+§11.3 states that of the lab's logs *"761 ... and 155 ... the two sets are disjoint and
+exhaustive"*. **Disjoint is correct and is re-confirmed here: 0 logs carry both forms.**
+**Exhaustive is false.** Re-measured over the corrected 1006-log repository corpus:
+
+| aspect-ratio label | logs |
+|---|---|
+| `Max aspect ratio = <value> OK.` (the `=` form) | **838** |
+| `***High aspect ratio cells found, Max aspect ratio: <value>` (the `:` form) | **164** |
+| **NEITHER — no aspect-ratio field at all** | **4** |
+
+The four are runs that **stop before the aspect check ever executes**, all in
+`verification/runs/MESH_AUDIT_runs/2026-08-08/` (the `A3-onera-m6-sweep-n15_21840__…p0–p3` logs).
+A reader whose two branches are `=` and `:` has no third branch, and what it does with these four
+is undefined — the two available failure modes being to crash, or to silently record the last
+value it happened to hold.
+
+**The rule that follows: `ABSENT` IS A THIRD LABEL FORM AND IS RECORDED AS ONE.** A missing
+aspect field is reported as missing, with the log's path. It is never a `null` that a later reader
+mistakes for unmeasured, and never a number.
+
+**STRICKEN:** the words *"and exhaustive"* in §11.3, and the counts 761 / 155.
+
+### 12.3 CORRECTION 3 — THE CELL-VOLUME RATIO IS UNDEFINED PRECISELY WHERE THE MESH IS WORST
+
+§11.5 states the ratio *"is derivable with `min > 0` in **916 of 916**"*. **False.** Measured over
+the corrected corpus, **1000 of 1006** repository logs yield a ratio. Six do not:
+
+| why not | logs |
+|---|---|
+| no `Min volume = …` line printed at all | **4** |
+| `checkMesh` printed `***Zero or negative cell volume detected.` **instead** of the summary line | **2** |
+
+And the two are the worst meshes in the repository:
+
+| log | minimum negative volume | negative cells | max aspect ratio | `checkMesh` |
+|---|---|---|---|---|
+| `verification/runs/MESH_AUDIT_runs/2026-08-08/A3-onera-m6-adjoint-vcoarse__constant__polyMesh.log.checkMesh` | `-3.30275e-09` | 23 | `2.07741e+95` | `Failed 10 mesh checks.` |
+| `verification/runs/MESH_AUDIT_runs/2026-08-08/A3-vcoarse-smoke.log.checkMesh` | `-3.30275e-09` | 23 | `2.07741e+95` | `Failed 10 mesh checks.` |
+
+**A reader that divides `max / min` and keeps only the finite answers therefore drops the two
+meshes §11 most wants to see, and drops them silently, leaving a distribution that looks complete.**
+The survey would have reported the population of meshes that are *not* degenerate and called it the
+population.
+
+**THE RULE, FIXED HERE, BEFORE COLLECTION, WHICH IS THE ONLY TIME IT COUNTS.** A mesh whose minimum
+cell volume is **negative, zero, or unprinted**:
+
+1. is recorded with an explicit status — `MIN_NEGATIVE`, `MIN_ZERO`, `MIN_VOLUME_LINE_ABSENT` —
+   never a bare `null`;
+2. carries its negative value and its negative-cell count in the record;
+3. **is counted in the census and is never dropped from it**;
+4. is **excluded from ratio percentiles**, because `max/min` is not defined for it, **and the
+   exclusion is reported as a number beside the percentiles it was excluded from.**
+
+A percentile that silently excludes is a percentile of a different population.
+
+### 12.4 CORRECTION 4 — A CITED PATH IS EMPTY, AND THE LOGS ARE NOT LOST
+
+`verification/campaign/MESH_BIRTH_CERTIFICATE_AUDIT_2026-08-08.md:45` cites its 78 retained logs at
+`demo-output/website/campaign/MESH_AUDIT_runs/2026-08-08/`. **That directory does not exist**, and
+`demo-output/` holds **0** `log.checkMesh` files of either filename shape.
+
+**The logs are not lost.** All 78 are at
+**`verification/runs/MESH_AUDIT_runs/2026-08-08/`**, moved at commit `a1fbe127` (2026-08-18,
+MOVE_MAP batch 7). A reader following the audit document finds an empty path and would report the
+evidence absent — which is the same false zero as §12.1 arriving by a different road. The audit
+document is another team's frozen record and is **not edited by this section**; the redirection is
+recorded here, and at MDS-1's home, so a reader who lands on either finds it.
+
+### 12.5 CORRECTION 5 — THE ANTI-DEFERRAL CLAUSE WAS LIVE, AND IS DISCHARGED BY THIS SECTION
+
+§11.5 provides that a record citing §11 to say *"threshold deferred to MDS-1"* while
+`verification/runs/MDS1_runs/` does not exist *"is citing a survey that has not been started, and
+**must say so in those words**"*.
+
+**At the time this section was written that directory did not exist**, so the clause was live and
+every §11 citation was of an unstarted survey. **It exists now.** MDS-1's reader, its planted
+controls and its first distribution are filed at:
+
+- **`verification/runs/MDS1_runs/mds1_survey.py`** — the reader
+- **`verification/runs/MDS1_runs/MDS1_SURVEY.json`** — the distribution, with one record per log
+
+**Cost: ZERO new compute.** Both quantities are read back from `log.checkMesh` files already on
+disk, as §11.5 predicted. No solver, no mesher, no `checkMesh` invocation.
+
+**The reader's controls (standing rule 3), each driven in BOTH directions** — the perturbation
+must FIRE and its unperturbed twin must STAY SILENT, because a reader that reports the plant on
+every input passes a fire-only test and is worthless: a perturbed aspect value; a perturbed cell
+count; a removed log; the `:` label form read as a non-null value; a non-positive minimum volume
+reported rather than dropped; and the F5b quarantine pruned, counted and never opened. The reader
+**refuses (exit 2) rather than degrades** — under `python -O`, if any `assert` statement is found
+in its own source (required: **0** `ast.Assert` nodes, verified by the reader on itself at every
+run), on any unreadable input, on a corpus root that does not exist, on an unparsable value, and
+on any control that does not behave. **The controls run on every survey invocation, not only under
+`--selftest`.**
+
+**Recorded because it is the whole point of a driven control:** the quarantine control **fired on
+the first run of the reader and caught a real defect in the reader's own pruning** — the guard
+stopped at the quarantine's top directory and reported `0` for a populated tree. **The guard
+against false zeros was itself producing one, and prose would not have found it.**
+
+### 12.6 CORRECTION 6 — §11.1 UNDERSTATES ITS OWN EXHIBIT: A NULL IS A HOLE, A FALSE POSITIVE CLAIM IS WORSE
+
+§11.1 documents three `"max_aspect_ratio": null` entries in F12 attempt-2's
+`birth_certificates.json`. **It does not mention the prose twin, which is worse.**
+`verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/BIRTH_CERTIFICATES.md`, at lines
+**26, 50 and 74** — coarse, medium and fine — states **affirmatively**:
+
+> `| max aspect ratio | < 1000, not printed (advisory, not gated) |`
+
+Against the levels' own cited `log.checkMesh` files:
+
+| level | what the certificate asserts | what its own cited log says | line |
+|---|---|---|---|
+| coarse | `< 1000, not printed` | `Max aspect ratio = 805.199 OK.` — **printed** | 93 |
+| medium | `< 1000, not printed` | `***High aspect ratio cells found, Max aspect ratio: 2842.46, number of cells 34`; `Failed 1 mesh checks.` | 92 |
+| fine | `< 1000, not printed` | `***High aspect ratio cells found, Max aspect ratio: 1760.97, number of cells 31`; `Failed 1 mesh checks.` | 92 |
+
+**"Not printed" is false at all three levels. "< 1000" is additionally false at medium and fine, by
+factors of 2.8 and 1.8, in a mesh `checkMesh` failed.**
+
+**And the coarse row is the load-bearing one.** At coarse the claim is *half* true — the value
+really is below 1000 — so the row reads as a measurement that merely went unrecorded. **That false
+half is what makes the medium and fine rows read as measured rather than assumed.** Three identical
+rows, one of which happens to be numerically right, present as a field the builder checked and
+found unremarkable. The builder
+(`verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/build_ladder_attempt2.py`) contains
+**no occurrence of the string `aspect`**: nothing was checked at any level.
+
+**The transferable rule, and it is sharper than §11.4's:**
+
+> **A `null` is a hole and announces itself. A POSITIVE CLAIM REFUTED BY THE RECORD'S OWN CITED
+> LOG does not — it consumes the reader's attention and returns a false answer.** §11.4's planted
+> control requires a reader be shown able to read a non-null value. **This clause adds: a stated
+> value must be shown to have COME FROM the log the record cites, not from the writer's
+> expectation of it.** Where a certificate's prose twin and its JSON disagree, the disagreement is
+> itself a finding and neither is believed until the log is read.
+
+**Not retroactive** (§11.6): F12 is not regraded and no verdict of its moves. This is read as
+evidence of a reporting gap, exactly as §11.1 read the three nulls.
+
+### 12.7 A SEVENTH FINDING, NOT ON THE LIST: §11.5's POPULATION IGNORES THE OUT-OF-REPOSITORY CORPUS
+
+`CLAUDE.md` names `/home/ubuntu/{closure-data, closure-challenge-benchmark, certonomous-runs}/` as
+lab data, and states that *"nothing is invisible merely because it is big"*. §11.5's population
+counted the repository only. Measured 2026-08-27:
+
+| root | logs (both shapes) |
+|---|---|
+| `/home/ubuntu/certonomous-runs/` | **149** |
+| `/home/ubuntu/closure-data/` | **3** |
+| `/home/ubuntu/closure-challenge-benchmark/` | 0 |
+
+**152 logs, 13 % of the true population, outside §11.5's stated count** — and they are not
+redundant. **Three of the lab's five negative-minimum-volume meshes live there**
+(`/home/ubuntu/certonomous-runs/rae2822-meshcheck/{og-fine,og-medium,ogrid-coarse}/log.checkMesh`,
+minimum negative volumes `-1.504754644e-10`, `-1.9300131e-08`, `-7.410501977e-08`, one negative
+cell each, all `Failed 5 mesh checks.`), and **all three additionally carry no aspect-ratio field
+at all** — so they fall through §12.2's gap and §12.3's gap simultaneously. A survey that counted
+only the repository would have reported **two** degenerate meshes lab-wide instead of **five**.
+
+**These are other teams' records and are READ ONLY.** Nothing outside the repository is modified,
+moved or deleted by MDS-1, and nothing outside it is written by this section.
+
+### 12.8 THE FIRST MDS-1 DISTRIBUTION — REPORTED, WITH NO THRESHOLD PROPOSED
+
+Corpus: **1158 logs** (1006 repository + 152 out-of-repository), F5b pruned, both filename shapes,
+2026-08-27. Full record-per-log data at `verification/runs/MDS1_runs/MDS1_SURVEY.json`.
+
+**Max aspect ratio**, all logs carrying the field (n = 1151):
+
+| min | d1 | median | d8 | d9 / p90 | p95 | p99 | max |
+|---|---|---|---|---|---|---|---|
+| 1.0 | 1.0 | **8.84** | 408 | 5.93e+03 | 6.90e+04 | 2.07e+07 | **2.08e+95** |
+
+**Whole-mesh cell-volume ratio**, logs with a positive minimum (n = 1149; **9 excluded**, see
+§12.3):
+
+| min | d1 | median | d8 | d9 / p90 | p95 | p99 | max |
+|---|---|---|---|---|---|---|---|
+| 1.0 | 1.0 | **63.0** | 5.02e+05 | 1.28e+08 | 5.52e+09 | 1.38e+12 | **2.08e+17** |
+
+**Split on `geometric_directions`, because §11.4's 2-D caveat makes these two different
+statistics and they are never pooled into one judgement:**
+
+| split | logs | aspect median | aspect p95 | ratio n | ratio median | ratio p95 |
+|---|---|---|---|---|---|---|
+| 2-D | 738 | 16.0 | 2.14e+06 | 735 | 33.4 | 2.38e+10 |
+| 3-D | 375 | 4.73 | 6.75e+03 | 373 | 1.80e+04 | 5.52e+09 |
+| directions not printed | 45 | 1.0 | 1.0 | 41 | 1.25 | 1.27 |
+
+**Two observations from the distribution, stated as observations and not as arguments for a
+number:**
+
+- **`checkMesh` itself already draws the aspect line at 1000.** Exactly **180** logs carry
+  `aspect >= 1000` and exactly **180** carry `***High aspect ratio cells found` — the same 180.
+  The highest aspect ratio in any log ending `Mesh OK.` is **962.79**. §3.3's advisory at 1000 is
+  therefore not merely the lab's convention; it is the value `checkMesh`'s own
+  `aspectThreshold_` enforces, and a lab gate at 1000 would be a restatement rather than an
+  addition.
+- **The cell-volume ratio is genuinely ungated in both directions.** The largest ratio in a mesh
+  `checkMesh` declares **`Mesh OK.`** is **2.08e+17**. Seventeen orders of magnitude passes
+  every check the lab and `checkMesh` currently apply, which is what §11.1 meant by the volume
+  dimension being 0 % covered.
+
+**A CAVEAT ON THE CROSS-TABULATION, WHICH §11.5 ORDERED AND WHICH CANNOT YET DO WHAT IT WAS
+ORDERED TO DO.** §11.5 requires MDS-1 to cross-tabulate aspect ratio against non-orthogonality and
+skewness so §3.3's assertion — high aspect ratio is dangerous *in company*, harmless when aligned
+— can be **tested rather than inherited**. The cross-tabulation is filed. **It cannot test that
+assertion, and the reason is circularity:** the only outcome variable available in a
+`log.checkMesh` is `checkMesh`'s own verdict, and that verdict is **defined** to fail when aspect
+ratio exceeds 1000. Measured: **100 % (180 of 180)** of logs with `aspect >= 1000` are
+`Failed N mesh checks.` — which is arithmetic, not evidence. Against a genuinely independent
+outcome, meshes with `aspect < 1000` fail on other grounds at **9.6 %** (93 of 971), so the
+tabulation does carry signal about the *other* dimensions; it carries none about aspect ratio's.
+**§11.5's requirement 2 — a failure attributed to the dimension BY A MECHANISM — therefore remains
+unmet, and MDS-1 cannot meet it from retained logs alone.** Naming this now is cheaper than
+discovering it inside a threshold proposal.
+
+### 12.9 NO THRESHOLD IS SET. STILL. AND THE GROUND IS NOW WEAKER THAN IT WAS
+
+**§11.2's refusal is reaffirmed in full and none of the four conditions in §11.5 is waived.** The
+survey existing does not entitle anyone to a number; it satisfies **one** of four requirements.
+
+**The motivating case is weaker evidence than it was claimed to be, twice over, and this is
+recorded against the standard rather than left in a report:**
+
+1. **F12's Arm A exonerated the mesh** — §11.2 already discloses this, and discloses further that
+   Arm A's percentile figures live only as supervisor triage prose in `docs/LAB_STATE.md` with
+   **no artifact of their own** under `verification/runs/F12_runs/`. A threshold fitted to F12
+   would have gated against cells that had nothing to do with the failure.
+2. **§11's own characterisation of the F12 exhibit was incomplete** — §12.6 above. The record it
+   cited as three `null`s is in fact three affirmatively false rows, one of them half-true in the
+   way that makes the other two persuasive.
+3. **And the author of §11 has already withdrawn one of his own headline characterisations of the
+   occasion case.** That is disclosed here, in the standard, because a standard whose motivating
+   narrative has been partly retracted must say so where the standard is read, not where the
+   retraction was made.
+
+Add to that §12.8's finding that the cross-tabulation cannot test §3.3's mechanism claim from
+retained logs, and the position is: **the dimension is now measured across 1158 meshes and the
+mechanism is still unestablished.** §11.2's rule holds and is the reason this section stops here:
+
+> **A number that is WRONG in a standard is more expensive than a number that is MISSING from
+> one.** Measurement precedes the threshold; the threshold is argued from the distribution and
+> from a mechanism, never from the one case that made somebody look.
+
+**Collecting a survey and setting a gate are different acts, and only the first is performed
+here.** Anyone proposing a number cites §11.5's four requirements and answers all four, including
+requirement 3 — what the proposed threshold would have rejected in this surveyed population, **by
+name and count**, including how many currently-PASSing lab results it would retro-invalidate.
+That question is now answerable for the first time. It is not answered here.
+
+### 12.10 Scope of §12
+
+- §12 corrects **§11 only**, and by the striking-and-correcting form of standing rule 6: §11's
+  original text is not edited, and lines whose number changed above this section: **0**.
+- §12 **sets no threshold and moves no gate value.** §3's, §7's and §11's numbers are unchanged,
+  and nothing is written to `docs/physics_rules.yaml`.
+- §12 **issues no verdict word**, and MDS-1's reader issues none. There is no gate and no
+  pre-registration behind a survey.
+- **Not retroactive.** No frozen ladder is re-opened and no closed verdict is regraded — F12's,
+  the MESH_AUDIT corpus's and the out-of-repository records' included.
+- §12 does not edit `sdk/chief_engineer/mesh_certificate.py`, and does not edit any other team's
+  record — including `verification/campaign/MESH_BIRTH_CERTIFICATE_AUDIT_2026-08-08.md` (§12.4)
+  and `verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/BIRTH_CERTIFICATES.md` (§12.6),
+  both of which are reported and left untouched.
+- **Every count in §12 is a dated snapshot of a live corpus**, re-derivable with the §12.1
+  command. It is not a constant and a later re-measurement disagreeing with it is not a defect in
+  either.
