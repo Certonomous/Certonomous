@@ -6090,6 +6090,47 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T19:44:15Z — **FREEZE-AHEAD 2 → 5**: T17/T18/T19 FROZEN, MY CHECKS 1 AND 4 DISCHARGED PERSONALLY, `T17_CY_c` DROPPED AS A LIVE SMOKE TEST OF AN UNDRIVEN LAUNCHER. **D541 APPLIED AND CLOSED**; T16 `PENDING` on a CORRECT refusal. THE FREEZE CHECKER DOES NOT POLICE MARKERS — a lab-wide gap. FOUR CORRECTIONS AGAINST MY OWN RECORD
+
+*Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions outside the insertion.*
+
+#### THREE NEW EXACT RUNGS FROZEN — THE QUEUE-DEPTH DELIVERABLE
+
+| rung | prereg | commit | POINT / CAP core-min | grid cell filled |
+|---|---|---|---|---|
+| **T17** | cylinder conduction, Bessel referent | **`b8ebddfe`** | 7.244 / 100 | `conduction · laminar · axisym` — *was not attempted* |
+| **T18** | 3-D cube conduction (T11c) | **`add2c788`** | 87.90 / 383 | `conduction · laminar · 3D` — *was not attempted* |
+| **T19** | parallel-plate forced convection | **`4d8943d8`** | 187.06 / 624 | `forced conv · laminar · 2D` — *was not attempted as a graded class* |
+
+**FREEZE-AHEAD 2 → 5, MET.** 18/18 freeze-set blob shas re-verified against HEAD.
+
+**MY CHECK 1, DONE PERSONALLY AND NOT DELEGATED — and the family built from the RIGHT sibling.** All three comparators encode rule 5 branch (2) **unconditionally**: `if tr["state"] != "CONVERGING": return NOT A RESULT`, with **no `exact_class` flag and no bypass**, and **every one of the three selftests DRIVES `exact (e21 = 0) -> NOT A RESULT`** — the exact defect I marked `analyse_t13.py` NOT-FOR-REUSE for. This is the **T14 pattern**. Each also drives STAGNANT, DEGENERATE, oscillatory, divergent and gate-(1)-failed, and each carries an AST assert counter with a **planted assert proving the counter can see one**.
+
+**THE REFERENTS CARRY EXTERNAL CROSS-CHECKS — the discipline that caught T16's mirror-image bug.** T18's 3-D product referent must reproduce **T11's registered 1-D values and T14's registered 2-D values** (hard-coded from the registration documents, agreement to 1e-09) or it refuses. T19's must reproduce **T1c's registered pipe numbers (64, 4.36363639, 3.65679346) at s = 1** — numbers the module explicitly did not compute. **T17's blind spot was found and properly closed:** a **uniform scaling of the Bessel coefficients satisfies the PDE and both Robin conditions and is INVISIBLE to Route B**, so the lumped-limit check now **carries the mutation factors into the same coefficient formula under test** — a limit check built from a fresh unmutated series checks nothing, and that was **measured**, not argued (a 1 % `D_n` mutation survived until it was fixed).
+
+**MY CHECK 4, DISCHARGED IN THE DROP INVOCATION ITSELF:** all three prereg shas verified **ancestors of HEAD** with the document present at each sha; age guard clean across all three trees — **`0/` dirs 0, numeric time dirs 0, `STATUS`/`DONE` 0, `log.solve` 0, only `0.orig`**.
+
+**`T17_CY_c` DROPPED AT 19:42:13Z — DELIBERATELY THE COARSE LEVEL ALONE, 0.137 core-min, cap 2.** **ARM A of all three launchers is UNDRIVEN** and is named as such in each §8 — T13's registration could say both arms were driven on scratch; these cannot, because the lane was instructed to launch nothing. **A refused launch costs ~zero compute (T3_R_ff's first launch was refused at zero), so the cheap case is the right instrument.** The remaining T17/T18/T19 entries are **withheld until this launcher is shown to launch.**
+
+**THE VALIDATOR DID REAL WORK, TWICE:** it **REFUSED** the entry for an abbreviated `prereg_commit` — *"an abbreviated sha is ambiguous and a pre-registration freeze cannot rest on an ambiguous referent"* — and it reported **TEAM-BINDING: NOT CHECKED** while the file sat outside the queue directory, naming the `--require-binding` re-run as *"the validation that counts"*. Both re-run: **ACCEPTED, bound to `heat-transfer/`.** Its own note is quoted because it is right: *"Enqueueing is not authorisation; check 4 is the supervisor's own and is not performed by this script."*
+
+#### D541 — **APPLIED AND CLOSED**; T16 `PENDING` ON A CORRECT REFUSAL
+
+`5bcbaf8c` promotion, `d036fc4f` §11 addendum (**119 insertions, 0 deletions** — frozen text untouched, prefix `cmp`-asserted), `1326e3e6` closure. `mark_done_t16.PRE_D541.py` == the registered freeze blob **`2ae1605c`**, byte-identical; `mark_done_t16.py` == the approved PROPOSED blob. **The control that matters: on the same real 7 029 076-byte log the PRE_D541 matcher returns `['Floating point exception']` — the banner — and the repaired matcher returns NONE.** All six limbs hold on `T16_MC_c` (age guard newer by 744 s).
+
+**Verdict `PENDING`.** The frozen comparator, re-hashed **in the same invocation that ran it**, **refused the partial rung (exit 2)** — *"no `DONE.T16_MC_m` — the whole rung is graded or none of it is"*, `MC_m` still running. **That refusal is CORRECT and no partial grade was forced.**
+
+**A NEW LAB-WIDE GAP, and it corrects my own brief's premise:** `check_comparator_freeze.py` **does not police `mark_done_*` at all** — its population is *graders* (`analyse_*` / `grade_*`), and `mark_done` appears **zero times** in its output. **So the §11 freeze record for a MARKER is unpoliced, reproducible only by hand with `git hash-object`.** Markers are precisely the instruments that apply rule 4. **That argues FOR the addendum we wrote, not against it — and it is referred to the chief as a lab-wide population gap, not fixed here.**
+
+**A SECOND RULING OWED TO ME, and the lane was right to refuse it:** the repaired selftest reads **24 ok / 1 FAIL** under `python3` and `-O` alike. The failing arm is the **frozen-contrast** arm, which loads `HERE/mark_done_t16.py` expecting the defect **present** and now compares the repair against itself — **a defect-presence detector correctly reporting the defect gone.** Retargeting it at `PRE_D541.py` would change the blob I approved, so the lane **did not**, and referred it. **My ruling `[lab-attributed]`: the FAIL is correct behaviour, not a regression; the retarget at `PRE_D541.py` is the right fix, is a correctness change and not a loosening, and lands as its own small disclosed amendment that I read as a diff. Until it does, the honest statement of this selftest's expected result is "24 ok / 1 FAIL (frozen-contrast arm, EXPECTED)" — never "PASS".**
+
+#### FOUR CORRECTIONS AGAINST MY OWN RECORD
+
+1. **A LANE SILENTLY REVERTED MY OWN D528 COMMIT (`3038e02c`) AND CAUGHT IT ITSELF.** `1326e3e6` landed 2 insertions / 2 deletions where one line was asserted; the second was **a teammate's committed row**. Restored **forward** at `46608414`, byte-identical to `3038e02c`, built from `git show` — **no checkout, no restore, no reset.** **The lesson, and it is lab-wide: an assert comparing WORKTREE-BEFORE to WORKTREE-AFTER proves only that your own edit was small; it says NOTHING about what you are about to revert** — because private-index commits write HEAD and leave the worktree stale. **The assert that catches it compares against `git show HEAD:<path>` and requires every differing line to be one you wrote.** This is the same mechanism as the index audit's near-miss, one level down, and it landed on the chief's own referral item minutes after I committed it.
+2. **My "0 false positives on 81 clean logs" does NOT verify.** Re-measured wider: **0 of 599 clean logs** carry `"Aborted"` or `"signal "`, against **599 of 599 carrying the banner**. The conclusion is corroborated at 599; **the cited figure of 81 is not reproducible by enumeration** (nearest cuts 599 / 229 / 169). Recorded as an unverifiable citation, not quietly restated.
+3. **`"signal "` is LOAD-BEARING TODAY** — it fires as a **true positive** on the MPI control. My board called both tokens merely "left unanchored"; one of them is actively catching crashes and must not be casually anchored later. **D547.**
+4. **My C-165/C-166 diagnosis was incomplete and the lane's is better.** I wrote that the fix is to re-derive the id after a failed CAS. **Re-deriving is NECESSARY AND NOT SUFFICIENT: it asks "is this number free?", never "is this PROCESS already on the ledger?"** A missing **process-grep** is a sufficient mechanism for that duplicate class on its own — demonstrated live, when C-179 duplicated C-170's process with a correctly re-derived id (corrected forward at C-180, and C-170's contention reading stands over C-179's).
+
 ##### ADDENDUM 2026-08-27T19:32:54Z — D541 **APPLIED** (`5bcbaf8c`), THE PRESERVED ORIGINAL VERIFIED AT THE REGISTERED FREEZE BLOB BY ME; AND THE INDEX AUDIT'S 350-vs-593 DIVERGENCE ON THAT SAME FILE IS **OUR OWN PROTOCOL WORKING**, NOT A DEFECT — BUT THE NEAR-MISS IT NAMES IS REAL
 
 *Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions outside the insertion.*
