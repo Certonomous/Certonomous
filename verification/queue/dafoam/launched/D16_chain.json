@@ -1,0 +1,66 @@
+{
+  "team": "dafoam",
+  "case_id": "D16_chain",
+  "prereg_commit": "3ccb0c81bc2416c99e8fe5f072ba288793b79584",
+  "prereg_path": "cases/dafoam/ladder-a/A1/curriculum_D16/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_D16/d16_chain_driver.sh",
+    "MESH",
+    "X-S",
+    "F-S",
+    "X-P",
+    "F-P"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_D16",
+  "ranks": 2,
+  "cost_core_min_estimate": 40.3,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, not measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 40.3 core-min DERIVED from named anchors (PREREGISTRATION.md section 4: C-31 D1-C' 1.483 core-min primal+adjoint on this 4,032-cell mesh; C-71 D13 per-start 5.15-6.38 incl. an FD suite; C-24 D1; C-135 D14-M mesh 0.1833; D7FR RESULTS.md:36 transonic 3.3 core-min/primal at 42,120 cells, cell-scaled), NOT measured; per-arm caps MESH 5.0, X-S/X-P 30.0, F-S/F-P 90.0; CEILING 245.0 core-min = sum of caps, each cap enforced as a deadline INSIDE its container (MESH 300 s at 1 rank; X 900 s and F 2700 s at 2 ranks). Dollars derived, not measured: $0.0345 point, $0.2095 at the ceiling.",
+  "memory_floor_gb": 8.0,
+  "enqueued_by": "dafoam-supervisor via lane N (lane's read: git cat-file -e on 3ccb0c81^{commit} and on <sha>:cases/dafoam/ladder-a/A1/curriculum_D16/PREREGISTRATION.md both present; the DELTAS diffs and selftest evidence are in the case directory for the supervisor's own check 1/4). ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS. Fields below are dafoam annotations the validator ignores.",
+  "capability_grid_cell": "2D . steady . transonic -- gradients computed + FD-verified (today CAN NOT DO -- not attempted)",
+  "regime": "2D steady transonic: DARhoSimpleCFoam, transonicPCOption 1, U0=238 m/s, T0=300 K -> M 0.685, aoa 3 deg, SA, 4,032 cells (A1's mesh)",
+  "precondition_artifact": "none -- independent of every other item and of D15; the driver's own guards (G-ROOT.1-.5, A5 root staging on first fire only, ALREADY_BOUGHT, six tutorial-input md5s, instrument md5s, image digest per row, G-ROW, H5 window floor 8.0 GiB, aggregate wait-and-retry) are its preconditions and every one refuses before a core-second is spent.",
+  "images": {
+    "SHIPPED": "dafoam/opt-packages:latest sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc (MESH, X-S, F-S)",
+    "PATCHED": "dafoam-idwarp-rot:v1 sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 (X-P, F-P)"
+  },
+  "two_row_rule": "the DAFoam verdict is two rows or it is not a verdict (DAFOAM_CHARTER.md section 11; D7FR section 8): X and F are bought on both images on one mesh",
+  "container_memory_cap": "4g every arm",
+  "cpuset": "4,14 -- REGISTERED (PREREGISTRATION.md section 5), the supervisor's FOURTEENTH-session placement; disjoint from D5 8,10,11,13, D4-SHIPPED 5,6,7,9, W2R 12, D15 2,3; D6's held 2,3,4,14 collision disclosed",
+  "deadline_in_container_s": "MESH 300 s at 1 rank; X 900 s and F 2700 s at 2 ranks",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D16-a1-naca0012-transonic (asserted absent at freeze; the driver creates it on the first fire and stages nothing on a second)",
+  "rc_capture": "INSIDE the detached driver: per arm the launcher reads rc = docker inspect .State.ExitCode (and OOMKilled) BEFORE docker rm (no --rm), writes the ledger row and <ARM>_<stamp>.inspect.txt, and the driver appends rc=<n> ... source=launcher_exit=docker_inspect_ExitCode to STATUS.<arm>; at chain end the frozen grader d16_grade.py runs on the artefacts (its rc is INFRASTRUCTURE, L-342). Never the $? of the runner's setsid line; STATUS.D16_chain launcher_rc is the driver's exit, not the verdict.",
+  "guards_before_launch": "G-ROOT.1 registered root; G-ROOT.2 forbidden roots named (D4, D4-SHIPPED, D4-SHIPPED-R, D5, D6, D14, D14M, D7R, D7FR, D12R*, D13, D15, A2-mach-wing, the tutorial checkout, the repo); G-ROOT.3 ledger ITEM; G-ROOT.4 ALREADY_BOUGHT; G-ROOT.5 live d16_<ARM>_ container / live driver pid holding the root (both DRIVEN, d16_groot5_selftest_evidence.txt 18/18); G-ROW arm-suffix vs image row (driven); md5s of the producer, instrument, decomposeParDict and six tutorial inputs; image digest; H5 45 samples/60 s floor 8.0 GiB; aggregate caps+4g+host RSS < 30.6 GiB wait-and-retry bounded 14,400 s.",
+  "permission_record": "Sanaa's verbatim permission boarded at bc0e687e.",
+  "verdict_state": "PENDING",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.D16_chain (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-08-27T11:33:35Z",
+    "pid": 731626,
+    "sid": 731626,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_D16/STATUS.D16_chain",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_D16/launcher.queue.out",
+    "started_epoch": 1787830415.663829,
+    "status_seen_utc": "2026-08-27T11:47:36Z"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "team": "dafoam",
+  "case_id": "AV2_chain",
+  "prereg_commit": "3e2cbf74ac894a6efd6aff2413a35320a70ebe96",
+  "prereg_path": "cases/dafoam/ladder-a/A1/curriculum_AV2/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2/av2_chain_driver.sh",
+    "MESH",
+    "X-S",
+    "FAD-S",
+    "X-P",
+    "FAD-P"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2",
+  "ranks": 1,
+  "cost_core_min_estimate": 15.3,
+  "cap_core_min_registered": 75.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, not measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 15.3 core-min DERIVED from named anchors (PREREGISTRATION.md section 4: C-31 D1-C' 1.483 core-min primal+adjoint on this mesh at np=1; C-71 D13 warm primal ~0.14; C-135 D14-M mesh 0.1833; a forward-mode CoDiPack primal adopted at 3x a cold primal and graded by P5), NOT measured; per-arm caps MESH 5.0, X 10.0, FAD 25.0; CEILING 75.0 core-min = sum of caps, each cap enforced as a deadline INSIDE its container. Dollars derived, not measured: $0.0131 point, $0.0641 at the ceiling.",
+  "memory_floor_gb": 8.0,
+  "enqueued_by": "dafoam-supervisor via lane G (lane's read: git cat-file -e on the freeze sha and on <sha>:cases/dafoam/ladder-a/A1/curriculum_AV2/PREREGISTRATION.md both present; the DELTAS diffs and selftest evidence are in the case directory for the supervisor's own check 1/4). ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus the optional cap_core_min_registered. Fields below are dafoam annotations the validator ignores.",
+  "standard": "docs/dafoam/ADJOINT_VERIFICATION_STANDARD.md section 2 (dot-product/duality, total level, forward-AD vs reverse-AD; v1.0a forward-channel controls) -- the first measurement rung it calls for; Sanaa's 068c2bf0 sec.6",
+  "capability_grid_cell": "2D . steady . incompressible -- dot-product/duality evidence for the gradient column; the census line's 'never performed' moves only on a graded row; no FD verdict moves",
+  "regime": "2D steady incompressible: DASimpleFoam, U0=10 m/s, aoa 5.139 deg, SA, 4,032 cells (A1's mesh, the incompressible tutorial)",
+  "precondition_artifact": "none -- independent of every other item (AV1 included); the driver's own guards (G-ROOT.1-.5, root staging on first fire only, ALREADY_BOUGHT, tutorial-input md5s, instrument md5s, image digest per row, G-ROW, H5 window floor 8.0 GiB, aggregate wait-and-retry) are its preconditions and every one refuses before a core-second is spent.",
+  "images": {
+    "SHIPPED": "dafoam/opt-packages:latest sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc (MESH, X-S, FAD-S)",
+    "PATCHED": "dafoam-idwarp-rot:v1 sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 (X-P, FAD-P)"
+  },
+  "two_row_rule": "the DAFoam verdict is two rows or it is not a verdict (DAFOAM_CHARTER.md section 6): X and FAD are bought on both images on one mesh",
+  "container_memory_cap": "4g every arm",
+  "cpuset": "0,1 every arm, one rank -- REGISTERED (PREREGISTRATION.md section 5); co-tenancy with AV1's np<=2 arms disclosed, absorbed by the aggregate guard",
+  "deadline_in_container_s": "MESH 300 s; X 600 s; FAD 1500 s (all 1 rank)",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality (asserted absent at freeze 22:43:38Z and 22:43:42Z; the driver creates it on the first fire and stages nothing on a second)",
+  "rc_capture": "INSIDE the detached driver: per arm the launcher reads rc = docker inspect .State.ExitCode (and OOMKilled) BEFORE docker rm (no --rm), writes the ledger row and <ARM>_<stamp>.inspect.txt, and the driver appends rc=<n> ... source=launcher_exit=docker_inspect_ExitCode to STATUS.<arm>; at chain end the frozen grader av2_grade.py runs on the artefacts (its rc is INFRASTRUCTURE, L-342). STATUS.AV2_chain launcher_rc is the driver's exit, not the verdict.",
+  "registered_blocked_branch": "if libs/ADF does not import, no subsystem exposes add_dvgeo, or forward mode raises on this case, the FAD instrument writes the row blocked with the exception text, exits 0 with AV2_FAD_BLOCKED in the log, and the grader maps the row and the item to BLOCKED -- never PASS, never NOT A RESULT",
+  "permission_record": "Sanaa's verbatim permission boarded at bc0e687e.",
+  "verdict_state": "PENDING",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.AV2_chain (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-08-26T23:19:58Z",
+    "pid": 622367,
+    "sid": 622367,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2/STATUS.AV2_chain",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2/launcher.queue.out",
+    "started_epoch": 1787786398.673791,
+    "status_seen_utc": "2026-08-26T23:44:49Z"
+  }
+}

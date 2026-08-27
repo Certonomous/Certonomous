@@ -1,0 +1,58 @@
+{
+  "team": "dafoam",
+  "case_id": "D14M",
+  "prereg_commit": "dd6c808e35a9cf61291058c3ad15a9a7e590347c",
+  "prereg_path": "cases/dafoam/ladder-a/A2/curriculum_D14/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D14/d14m_driver.sh",
+    "MESH"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D14",
+  "ranks": 1,
+  "cost_core_min_estimate": 0.67,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, not measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 0.67 core-min derived from named anchors (PREREGISTRATION.md section 8): the baseline's own logMeshGeneration.txt (pyHyp cumulative CPU 4.2 s at level 39; OpenFOAM utilities ~3 s), D12R section 8's S0 mesh stage 0.05 core-min measured at 2,450 cells, container start ~10-20 s => 40 s wall x 1 rank; band [0.3, 2.0] core-min; CAP 15.0 core-min = the 900 s deadline INSIDE the container (what stops it); CEILING 30.0 report-only. Dollars derived, not measured: $0.0006 point, $0.0128 at cap.",
+  "memory_floor_gb": 14.0,
+  "enqueued_by": "dafoam-supervisor via lane Q2 (check 4: freeze commit dd6c808e35a9cf61291058c3ad15a9a7e590347c verified present -- git cat-file -e on the commit and on <sha>:cases/dafoam/ladder-a/A2/curriculum_D14/PREREGISTRATION.md). ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS. Fields below are dafoam annotations the validator ignores.",
+  "precondition_artifact": "none -- independent of every other item; the driver's own guards (G-ROOT.1-.5, A5 run-root-absent, G14-0 contaminant check with its planted control, md5s, image digest, H5 window, aggregate wait-and-retry) are its preconditions and every one refuses before a core-second is spent.",
+  "contaminant_gate": "G14-0 (d14m_contaminant_check.py, blob 521f6a47) RUNS FIRST: refuses rc 2 if the staged genWingMesh.py is not md5 dab5e959 or departs from N=39 s0=1e-3 marchDist=300 cMax=0.1 or activates any pyHyp smoothing key; the planted refinement (N doubled, s0 halved -- GENERATOR_FINDING_pyhyp_aspect_ratio.md's own recipe) must be REFUSED by the same reader before every launch.",
+  "image": "dafoam/opt-packages:latest",
+  "image_digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+  "image_row": "SHIPPED (the PATCHED row is not bought; mesh generation does not touch IDWarp)",
+  "container_memory_cap": "4g",
+  "cpuset": "14 -- REGISTERED (PREREGISTRATION.md section 3), disjoint from W2R 12, D4-SHIPPED 5,6,7,9, D7FR 2,3,4,6, D5 draft 8,10,11,13; not core 0",
+  "deadline_in_container_s": 900,
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D14M-a2-wing-remesh (asserted absent 2026-08-26T17:36:36Z; the driver refuses rc 6 if it exists)",
+  "rc_capture": "INSIDE the detached driver: rc = docker inspect .State.ExitCode read before any removal (no --rm, no docker rm), with OOMKilled and StartedAt/FinishedAt, written to <run root>/STATUS.MESH as rc=<n> stamp=<utc> arm=MESH source=docker_inspect_ExitCode ... and to the ARM=MESH ledger row; then the frozen comparator d14m_grade.py runs on the artifacts (its rc is INFRASTRUCTURE, L-342). Never the $? of the runner's setsid line; the runner's STATUS.D14M launcher_rc line is the driver's exit, not the verdict.",
+  "guards_before_launch": "G-ROOT.1 registered root; G-ROOT.2 forbidden roots named (A2-mach-wing, D4, D4-SHIPPED, D7FR, D12R*, the tutorial, the repo); A5 run root absent; G-ROOT.3 ledger ITEM; G-ROOT.4 ALREADY_BOUGHT; G-ROOT.5 live d14m_ container / live driver pid holding the root (both driven, selftest 16/16); G14-0; md5s of both python instruments, the aggregate script, the tarball and the generator; image digest; H5 45 samples/60 s floor 14.0 GiB; aggregate caps+4g+host RSS < 30.6 GiB wait-and-retry bounded 14,400 s.",
+  "permission_record": "Sanaa's verbatim permission boarded at bc0e687e.",
+  "verdict_state": "PENDING",
+  "_launch": {
+    "utc": "2026-08-26T17:40:32Z",
+    "pid": 307428,
+    "sid": 307428,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D14/STATUS.D14M",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D14/launcher.queue.out",
+    "started_epoch": 1787766032.9748316,
+    "status_seen_utc": "2026-08-26T22:17:01Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.D14M (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

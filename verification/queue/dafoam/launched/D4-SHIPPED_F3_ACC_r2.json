@@ -1,0 +1,72 @@
+{
+  "team": "dafoam",
+  "case_id": "D4-SHIPPED_F3_ACC_r2",
+  "prereg_commit": "08039792c82414f02b64bcb33d62a5189f07d2b1",
+  "prereg_path": "cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/d4s_chain_driver.sh",
+    "F3",
+    "ACC"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED",
+  "ranks": 4,
+  "cost_core_min_estimate": 50.267,
+  "cost_basis": "derived, not measured: F3 47.267 + ACC 3.000 = 50.267 core-min, both re-stated UNCHANGED by Addendum 2d at PREREGISTRATION.md:588 ('Predicted F3 47.267 core-min (D4's measured F3), ACC 3.000 (D4's measured acceptance primal) -- both unchanged') and first registered at PREREGISTRATION.md:453 (A2.4); ACC's provenance corrected at :548 (A2c.2: D4's acc_ledger.txt ARM=ACC rc=0 wall_s=45 core_min=3.0). Dollars DERIVED, NOT MEASURED at the owner-stated c7a.4xlarge $0.0513/core-h, reported-by-owner -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5): 50.267 core-min = 0.8378 core-h = $0.0430. Caps UNMOVED: F3 120.0 (12g, deadline 1800 s in-container), ACC 80.0 (12g under Addendum 2c, deadline 1200 s in-container), ceiling 880.0. Arms P1, P2, O are NOT re-run; O's 731.667 core-min is graded from its preserved artefacts (L-342). Already spent on this item's endpoint arms and NOT part of this estimate: ACC 35.0 core-min WASTE (C-132, rc=137 OOM at 8g, 16:56:28Z) and the 17:24Z F3 guard refusal (0 core-min).",
+  "memory_floor_gb": 16.0,
+  "enqueued_by": "dafoam lab-lane V2 for dafoam-supervisor, 2026-08-26, on the supervisor's brief (check 4 on 08039792 recorded PASS at LAB_STATE UPDATE O). ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own.",
+  "permission": "bc0e687e (Sanaa's words: detached launches of frozen cases; queue entries); L-342 at d4d0c29d; queue-first 7def3c6b / 73eccb1b / 0b041d1a",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus permission. The rest are dafoam annotations the validator ignores.",
+  "why_r2": "launched/D4-SHIPPED_ACC_F3.json records the chain's earlier history: aggregate refusal 16:37:31Z (0 core-min), ACC rc=137 OOM at 8g 16:56:28Z (35.0 core-min WASTE, D4S-LAUNCHER-DEF-2), F3 rc=5 at the launcher's work-directory guard 17:25:12Z (0 core-min, D4S-LAUNCHER-DEF-3). Addendum 2d (08039792) repaired the path (d4s_stage_endpoint_arm.sh 662569d5, launcher 506c99e6, driver 01ddb189, grader f825c2cd) and registered the chain order F3 ACC. Four direct launches of this chain were denied by the auto-mode classifier (UPDATE O / T-4); this entry is the lab's launch path of record -- the runner fires it. The runner never re-fires a launched entry, hence a new case_id.",
+  "chain_order": "F3 then ACC, registered at PREREGISTRATION.md:592 (A2d.3): the bright-line arm first, the acceptance record second; F3 consumes nothing ACC writes.",
+  "image_row": "SHIPPED",
+  "image": "dafoam/opt-packages:latest",
+  "image_digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+  "container_memory_caps": {
+    "F3": "12g",
+    "ACC": "12g (Addendum 2c: 8g -> 12g after the rc=137 cgroup OOM; the 80.0 core-min cap unmoved)"
+  },
+  "cpuset": "5,6,7,9 -- REGISTERED (PREREGISTRATION.md section 5b), NOT MOVABLE; idle since 16:56:28Z",
+  "rc_capture": "INSIDE the chain driver: rc per arm is the frozen launcher's exit = docker inspect .State.ExitCode read before docker rm (docker run -d, no --rm); appended to STATUS.<arm> in the run root as rc=<n> stamp=<utc> arm=<arm> source=launcher_exit=docker_inspect_ExitCode ...; STATUS.chain carries the chain state. Never the $? of a setsid/timeout line; the runner's own STATUS.D4-SHIPPED_F3_ACC_r2 launcher_rc is an INFRASTRUCTURE record (L-342).",
+  "guards_before_each_arm": "launcher md5 asserted (506c99e6); STATUS.<arm> opened at preflight; Addendum 2d staging of F3/ and ACC/ as age-guarded copies of O/ (refuses an existing destination); windowed H5 (45 samples / 60 s, refuse on ANY sample < 16.0 GiB); ALREADY_BOUGHT (rc=0 ledger row); aggregate memory (live caps + 12 GiB + host non-container RSS < 30.6 GiB) WAIT-AND-RETRY (poll 30 s, bound 14,400 s, each wait a line in STATUS.<arm> and <ARM>_aggregate_series.txt, refuse-and-BLOCK at the bound); then the launcher's G-ROOT.1-.3, G-ROOT.5 (live same-arm container; driver pidfile naming a LIVE pid -- a stale pidfile naming a dead pid passes by the guard's own text, d4s_run_arm.sh:175; at enqueue d4s_driver.pid is ABSENT, pids 199389 and 280579 dead), cap assertion, staged-instrument md5s, digest-only image identity, G-ROW, G-COLD.",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin -- PRESENT; O/ read-only evidence; ACC_oom_compute_totals_20260826T164743Z/ moved aside (evidence); no F3/ or ACC/ directory at enqueue; no d4_ container running (sudo -n docker ps at enqueue: none)",
+  "preserved_before_this_fire": [
+    "STATUS.ACC.oom_20260826T165628Z (rc=137)",
+    "STATUS.F3.guard_20260826T172512Z (rc=5, identical to STATUS.F3 at enqueue)",
+    "STATUS.chain.acc_stop_20260826T165628Z",
+    "STATUS.chain.f3_guard_20260826T172512Z (copied by lane V2 at enqueue; the driver rewrites STATUS.chain at start)"
+  ],
+  "status_files": [
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin/STATUS.chain",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin/STATUS.F3",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin/STATUS.ACC"
+  ],
+  "grading_path": "cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/d4s_grade.py md5 f825c2cd81631b83b7d0954981540c15 (Addendum 2d; 37/37 plain and -O), invocation registered at PREREGISTRATION.md:588: --work <root>/F3 --arms P1,P2,O,F3 --launcher d4s_run_arm.sh; ACC is a REPORTED acceptance record via d4_accept_compare.py, outside the graded arm list",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.D4-SHIPPED_F3_ACC_r2 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-08-26T20:50:06Z",
+    "pid": 404839,
+    "sid": 404839,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/STATUS.D4-SHIPPED_F3_ACC_r2",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/launcher.queue.out",
+    "started_epoch": 1787777406.1722157,
+    "status_seen_utc": "2026-08-26T22:17:01Z"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "team": "dafoam",
+  "case_id": "D4S_F3S_chain",
+  "prereg_commit": "8dfb4598c2810f136d6d2fb69983fe77e2455a7d",
+  "prereg_path": "cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED_F3S/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED_F3S/d4s_f3s_chain_driver.sh",
+    "F-S",
+    "F-P"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED_F3S",
+  "ranks": 4,
+  "cost_core_min_estimate": 94.534,
+  "cap_core_min_registered": 240.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, not measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 94.534 core-min DERIVED as 2 x curriculum_D4's MEASURED PATCHED F3 arm (47.267 core-min, CURRICULUM-D4-a2-wing-cdmin/f3_ledger.txt, 709 s x 4 ranks), NOT measured for the SHIPPED endpoint (never completed; PREREGISTRATION.md section 4 caveat, P4 the falsifier); per-arm caps F-S 120.0 / F-P 120.0 enforced as a deadline INSIDE each container (1800 s at 4 ranks); CEILING 240.0 core-min = sum of caps. Dollars derived, not measured: $0.0808 point, $0.2052 at the ceiling.",
+  "memory_floor_gb": 16.0,
+  "enqueued_by": "dafoam-supervisor via lane V2 (lane's read: git cat-file -e on 8dfb4598c2810f136d6d2fb69983fe77e2455a7d^{commit} and on <sha>:cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED_F3S/PREREGISTRATION.md both present; the DELTAS diffs and selftest evidence are in the case directory for the supervisor's own check 1/4). ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus the optional cap_core_min_registered. Fields below are dafoam annotations the validator ignores.",
+  "item": "D4S-F3S -- the two-row endpoint FD table on D4's MACH wing under ONE stationarity acceptance rule (D4S-PREREG-DEF-1 answered as ordered: a criterion, not a threshold; applied to BOTH rows)",
+  "precondition_artifact": "none -- the sources are two GRADED, read-only arm-O trees (D4-SHIPPED O/ and D4 O/, censused intact by the stager); the driver's own guards (G-ROOT.1-.5, ALREADY_BOUGHT, instrument md5s, image digest per row, G-ROW by arm suffix, H5 window floor 16.0 GiB, aggregate wait-and-retry bounded 14,400 s) are its preconditions and every one refuses before a core-second is spent; the stager refuses an existing destination.",
+  "images": {
+    "SHIPPED": "dafoam/opt-packages:latest sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc (F-S)",
+    "PATCHED": "dafoam-idwarp-rot:v1 sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 (F-P)"
+  },
+  "two_row_rule": "the DAFoam verdict is two rows or it is not a verdict (DAFOAM_CHARTER.md section 6/11): both endpoint FD tables under one acceptance rule",
+  "container_memory_cap": "12g every arm",
+  "cpuset": "5,6,7,9 -- REGISTERED (PREREGISTRATION.md section 4); D4-SHIPPED's placement, freed by its chain end",
+  "deadline_in_container_s": "1800 s at 4 ranks per arm (= cap 120.0 core-min)",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3S-a2-wing-cdmin (asserted absent at freeze; the driver creates it on the first fire and stages nothing over a present arm)",
+  "rc_capture": "INSIDE the detached driver: per arm the launcher reads rc = docker inspect .State.ExitCode (and OOMKilled) BEFORE docker rm (no --rm), writes the ledger row, and the driver appends rc=<n> ... source=launcher_exit=docker_inspect_ExitCode to STATUS.<arm>; at chain end the frozen grader d4s_f3s_grade.py runs on the artefacts (its rc is INFRASTRUCTURE, L-342). Never the $? of the runner's setsid line; STATUS.D4S_F3S_chain launcher_rc is the driver's exit, not the verdict.",
+  "permission_record": "Sanaa's verbatim permission boarded at bc0e687e.",
+  "verdict_state": "PENDING",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.D4S_F3S_chain (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-08-27T13:47:58Z",
+    "pid": 786577,
+    "sid": 786577,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED_F3S/STATUS.D4S_F3S_chain",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED_F3S/launcher.queue.out",
+    "started_epoch": 1787838478.8896601,
+    "status_seen_utc": "2026-08-27T14:09:54Z"
+  }
+}

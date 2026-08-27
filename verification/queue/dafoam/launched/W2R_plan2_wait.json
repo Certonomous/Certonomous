@@ -1,0 +1,55 @@
+{
+  "team": "dafoam",
+  "case_id": "W2R_plan2_wait",
+  "prereg_commit": "5d1f89cd4a9d0088da9fbf9e14d13a8fc4d1cecb",
+  "prereg_path": "cases/dafoam/curriculum_D12R2/W2R_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/d12y_plan_step.sh",
+    "plan2",
+    "--deadline-s",
+    "86400",
+    "--case-id",
+    "W2R_plan2_wait"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2",
+  "ranks": 1,
+  "cost_core_min_estimate": 1.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, not measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 1.0 core-min is a derived UPPER READING for the host-side comparator in --plan2 mode (ADDENDUM 3 section A3.4). ZERO SOLVER COMPUTE. Dollars derived, not measured: $0.0009. If phase 2 fired its registered no-admissible-step branch (P3 HIT) PHASE2_COMPLETE is never written and this entry BLOCKS at its bound (rc 6) with 0.0 spent -- a registered outcome.",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "dafoam-supervisor via lane Q2 (check 4: addendum commit 5d1f89cd4a9d0088da9fbf9e14d13a8fc4d1cecb verified present -- git cat-file -e on the commit and on <sha>:cases/dafoam/curriculum_D12R2/W2R_PREREGISTRATION.md; ADDENDUM 3 section A3.3 names this entry). ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS. Fields below are dafoam annotations the validator ignores.",
+  "precondition_artifact": "/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W2R-cylinder-unsteady/ledger.txt line matching ^PHASE2_COMPLETE spent= (launcher :934)",
+  "precondition_evaluated_by": "THE LAUNCH ARGV ITSELF: d12y_plan_step.sh (blob c376481e, ADDENDUM 3 at 5d1f89cd) -- bounded wait 86,400 s, prefix wait-out, comparator blob aecceb4e asserted, then `python3 d12y_grade.py --manifest <root>/manifest.jsonl --root <root> --plan2` (h* chosen POSITIONALLY over the plateau, never reading the adjoint). Produces step_plan2.json, which W2R_phase3_wait (live, pid 251170) is waiting for.",
+  "deadline_derivation": "43,200 s (plan) + one cap wall of 36,000 s for phase 2 + margin = 86,400 s (ADDENDUM 3 A3.3).",
+  "rc_capture": "inside the driver: rc=<n> event=COMPARATOR_EXIT ... NOT-a-solver-rc-L-342 in STATUS.W2R_plan2_wait and PLANSTEP.W2R_plan2_wait.log.",
+  "permission_record": "Sanaa's verbatim permission boarded at bc0e687e.",
+  "verdict_state": "PENDING",
+  "_launch": {
+    "utc": "2026-08-26T17:29:42Z",
+    "pid": 290209,
+    "sid": 290209,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/STATUS.W2R_plan2_wait",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/launcher.queue.out",
+    "started_epoch": 1787765382.8420484,
+    "status_seen_utc": "2026-08-26T22:17:01Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.W2R_plan2_wait (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

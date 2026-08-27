@@ -1,0 +1,72 @@
+{
+  "team": "dafoam",
+  "case_id": "D5_chain_r3",
+  "prereg_commit": "b5b428bc5cf8f51718481e6fbae52dc05665b1c4",
+  "prereg_path": "cases/dafoam/ladder-a/A2/curriculum_D5/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D5/d5_chain_driver.sh",
+    "ACC48",
+    "F48",
+    "O192",
+    "ACC192",
+    "F192"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D5",
+  "ranks": 4,
+  "cost_core_min_estimate": 813.434,
+  "cost_basis": "derived: the REMAINING arms' predictions under D5 ADDENDUM 3 -- ACC48 40.0 + F48 47.267 + O192 638.9 + ACC192 40.0 + F192 47.267 = 813.434 core-min (O48 is bought: rc=0, 684.533 core-min measured; ACC48 r2 rc=124 10.8 core-min is WASTE, its own C-row); $0.70 at the owner-stated c7a.4xlarge $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER.md section 5). Caps per arm O 800.0 / ACC 60.0 (Addendum 3; was 10.0) / F 120.0, ceiling 1960.0 = sum of caps (was 1860.0); deadline INSIDE each container at its cap wall (ACC 900 s); PREREGISTRATION.md section 4 as amended by Addendum 3 (b5b428bc), Addendum 1 (every arm 12g) a1dcdb7d, Addendum 2 (D5-DRIVER-DEF-1) a893355d, freeze c5c25189.",
+  "memory_floor_gb": 16.0,
+  "enqueued_by": "dafoam-supervisor via lane Q-A (supervisor check 4 discharged at enqueue on the lane's report: freeze/addendum commit b5b428bc5cf8f51718481e6fbae52dc05665b1c4 verified present and holding prereg_path)",
+  "precondition_artifact": "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/ledger.txt with the exact ITEM=D5 first line, one ARM=O48 rc=0 row (bought) and one ARM=ACC48 rc=124 row (r2, waste); /home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/O48/OptView.hst (consumed by F48); /home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O/opt_IPOPT.txt (density 96, consumed by the grader). INFORMATIONAL: the runner ignores this field; the driver evaluates its own preconditions (root present -> not re-staged; staged md5s; H5 window; aggregate wait-and-retry; the launcher's G-ROOT.1-.5; ALREADY_BOUGHT) before any container starts -- all demonstrated on this root at zero compute in Addendum 3 A3.5 (G-ROOT PASS, G-ROOT.5 PASS, D4_CAP_ASSERT 60.0/900 s).",
+  "permission": "bc0e687e",
+  "_schema_note": "Fields above precondition_artifact are the validator's REQUIRED_FIELDS. The rest are dafoam annotations the validator ignores.",
+  "why_r3": "r2 (launched/D5_chain_r2.json, runner-fired 17:48:08Z pid 323226) ran O48 to rc=0 (684.533 core-min, 17:49-20:40Z, no agent alive) and ACC48 to rc=124 at 20:44:05Z -- killed by the in-container deadline of its under-registered 10.0 core-min cap (150 s at 4 ranks) at 162 s while still colouring the Jacobian: D5-PREREG-DEF-1 (D4S-LAUNCHER-DEF-2 class), triaged by the supervisor from the kernel record and log. The runner never re-fires a launched entry, so this is the re-fire entry on Addendum 3 (launcher md5 245341836829b1247b8d6efc794b7d08, driver 728c0b47df91755e4dd5a7a8f075c9ae, grader c87c7a64657107dec4f5b7d1e634ffe6). O48 is omitted from the arm list because the driver's ALREADY_BOUGHT guard refuses (rc=3) any arm with an rc=0 ledger row.",
+  "image_row": "PATCHED",
+  "image": "dafoam-idwarp-rot:v1",
+  "image_digest": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35",
+  "container_memory_caps": "12g on every arm (Addendum 1)",
+  "cpuset": "8,10,11,13 -- REGISTERED (PREREGISTRATION.md section 5b); disjoint from D4-SHIPPED's 5,6,7,9 (its F3/ACC chain runner-fired 20:50:06Z, live at enqueue), from D6's 2,3,4,14 and from W2R's 12",
+  "aggregate_at_enqueue": "D4-SHIPPED 12g live + this 12g + host non-container RSS ~3 GiB = ~27 GiB < 30.6 -> the driver's aggregate guard passes without waiting; a third 12g sibling would make it wait-and-retry (poll 30 s, bound 14,400 s)",
+  "rc_capture": "INSIDE the chain driver: rc per arm is the frozen launcher's exit = docker inspect .State.ExitCode read before docker rm (no --rm); appended to STATUS.<arm> in the run root as rc=<n> stamp=<utc> arm=<arm> source=launcher_exit=docker_inspect_ExitCode ...; STATUS.chain carries the chain state; CHAIN_DONE (fixed name, Addendum 3 A3.5) receives one appended line when the started chain ends, success or stop. Never the $? of a setsid/timeout line; the runner's own STATUS.D5_chain_r3 launcher_rc is an INFRASTRUCTURE record (L-342).",
+  "guards_before_each_arm": "launcher md5 asserted (245341836829b1247b8d6efc794b7d08); windowed H5 (45 samples / 60 s, refuse on ANY sample < 16.0 GiB); ALREADY_BOUGHT; aggregate memory (live caps + 12 GiB + host non-container RSS < 30.6 GiB) in the WAIT-AND-RETRY form; then the launcher's G-ROOT.1-.3, G-ROOT.5, cap assertion (ACC 60.0 core-min = 900 s at 4 ranks), staged-instrument md5s, digest-only image identity, G-ROW (PATCHED only), G-COLD.",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density -- PRESENT (staged 17:42:43Z; O48/ complete; ACC48/ partial from r2, re-staged cold by the launcher; r2 STATUS files preserved as STATUS.ACC48.deadline_20260826T204405Z and STATUS.chain.acc48_stop_20260826T204405Z)",
+  "status_files": [
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.chain",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.ACC48",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.F48",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.O192",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.ACC192",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.F192",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/CHAIN_DONE"
+  ],
+  "grading_path": "cases/dafoam/ladder-a/A2/curriculum_D5/d5_grade.py md5 c87c7a64657107dec4f5b7d1e634ffe6 (Addendum 3: ACC caps 60.0, ceiling 1960.0; 26/26 under python3 and python3 -O)",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.D5_chain_r3 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-08-27T13:37:08Z",
+    "pid": 776691,
+    "sid": 776691,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D5/STATUS.D5_chain_r3",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D5/launcher.queue.out",
+    "started_epoch": 1787837828.703142,
+    "status_seen_utc": "2026-08-27T13:48:58Z"
+  }
+}

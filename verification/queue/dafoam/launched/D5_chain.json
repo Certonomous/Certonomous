@@ -1,0 +1,70 @@
+{
+  "team": "dafoam",
+  "case_id": "D5_chain",
+  "prereg_commit": "a1dcdb7d797743eb68aa2aacd92e4ebf831a32c5",
+  "prereg_path": "cases/dafoam/ladder-a/A2/curriculum_D5/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D5/d5_chain_driver.sh",
+    "O48",
+    "ACC48",
+    "F48",
+    "O192",
+    "ACC192",
+    "F192"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D5",
+  "ranks": 4,
+  "cost_core_min_estimate": 1378.3,
+  "cost_basis": "derived: O48 638.9 + O192 638.9 (6.389 core-min/major, D4 PATCHED 511.133/80, x 100 majors) + ACC48/ACC192 3.0 each + F48/F192 47.267 each = 1378.3 core-min; $1.18 at the owner-stated c7a.4xlarge $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER.md section 5). Caps per arm O 800.0 / ACC 10.0 / F 120.0, ceiling 1860.0 = sum of caps; deadline INSIDE each container at its cap wall; PREREGISTRATION.md section 4, frozen c5c25189, Addendum 1 (every arm 12g) a1dcdb7d.",
+  "memory_floor_gb": 16.0,
+  "enqueued_by": "dafoam-supervisor via lane Q1 (supervisor check 4 discharged at enqueue: freeze commit a1dcdb7d797743eb68aa2aacd92e4ebf831a32c5 verified present)",
+  "precondition_artifact": "/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/base/FFD/wingFFD.xyz (md5 f9435ee2ef54df0b08feae6e5127125d, D4's PATCHED base/ that the driver stages read-only) and /home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O/opt_IPOPT.txt (density 96, consumed by the grader). INFORMATIONAL: the runner ignores this field; the driver evaluates its own preconditions (H5 window, aggregate wait-and-retry, G-ROOT.1-.5, ALREADY_BOUGHT) before any container starts.",
+  "permission": "bc0e687e",
+  "_schema_note": "Fields above precondition_artifact are the validator's REQUIRED_FIELDS. The rest are dafoam annotations the validator ignores.",
+  "image_row": "PATCHED",
+  "image": "dafoam-idwarp-rot:v1",
+  "image_digest": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35",
+  "container_memory_caps": "12g on every arm (Addendum 1: the D4-SHIPPED ACC arm was OOM-killed by its 8g cgroup, rc=137 16:56:28Z)",
+  "cpuset": "8,10,11,13 -- REGISTERED (PREREGISTRATION.md section 5b), disjoint from every live container cpuset at freeze (W2R on 12), from D4-SHIPPED's 5,6,7,9 and from D6's 2,3,4,14",
+  "rc_capture": "INSIDE the chain driver: rc per arm is the frozen launcher's exit = docker inspect .State.ExitCode read before docker rm (no --rm); appended to STATUS.<arm> in the run root as rc=<n> stamp=<utc> arm=<arm> source=launcher_exit=docker_inspect_ExitCode ...; STATUS.chain carries the chain state. Never the $? of a setsid/timeout line; the runner's own STATUS.D5_chain launcher_rc is an INFRASTRUCTURE record (L-342).",
+  "guards_before_each_arm": "launcher md5 asserted; windowed H5 (45 samples / 60 s, refuse on ANY sample < 16.0 GiB); ALREADY_BOUGHT; aggregate memory (live caps + 12 GiB + host non-container RSS < 30.6 GiB) in the WAIT-AND-RETRY form (poll 30 s, bounded 4 h, each wait a line in STATUS.<arm>, refuse-and-BLOCK at the bound with the series file); then the launcher's G-ROOT.1-.3, G-ROOT.5 (DEMONSTRATED 12/12 against a sacrificial container and a live pid, d5_groot5_selftest_evidence.txt), cap assertion, staged-instrument md5s, digest-only image identity, G-ROW (PATCHED only), G-COLD.",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density -- ABSENT at freeze (the freeze condition); created by the driver on first fire (mode 777, L-251)",
+  "status_files": [
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.chain",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.O48",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.ACC48",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.F48",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.O192",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.ACC192",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.F192"
+  ],
+  "grading_path": "cases/dafoam/ladder-a/A2/curriculum_D5/d5_grade.py md5 d50b55f498a0c16367562aa6d09ac380 (L-342 field classes, arm-kind-aware completion; 26/26 under python3 and python3 -O)",
+  "_launch": {
+    "utc": "2026-08-26T17:42:43Z",
+    "pid": 311433,
+    "sid": 311433,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D5/STATUS.D5_chain",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D5/launcher.queue.out",
+    "started_epoch": 1787766163.0067165,
+    "status_seen_utc": "2026-08-26T22:17:01Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.D5_chain (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
