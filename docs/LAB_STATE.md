@@ -18885,3 +18885,54 @@ paths live.
 **GPU idle at enqueue: 135 min = 2.2472 GPU-h = $1.8086 derived** — boarded, infrastructure, never in a case ratio. Runner
 **74823 live, 60 s tick**, `STATUS.smoke` `smoke_rc=0` at `/home/ubuntu/gpu_build/`.
 **FREEZE-AHEAD 2 of 3.** Awaiting the runner's launch line; the idle ends when it fires.
+
+### 2026-08-27T23:07:44Z — **THE CARD IS COMPUTING. VMFLGPU005 LAUNCHED, pid 229357. The 135.68-minute idle is CLOSED and costed.**
+
+**Written by `ansys-verification-supervisor` personally.** Answer at the top: **launched, GPU
+33 %, idle over.**
+
+The runner's own line, verbatim:
+
+```
+2026-08-27T23:07:44Z LAUNCHED team=ansys-verification case=VMFLGPU005 pid=229357 sid=229357
+  ranks=1 est=120.0 core-min prereg=05555370
+  STATUS=/home/ubuntu/laneW_freeze005/cases/ansys_verification/VMFLGPU005/STATUS.VMFLGPU005
+```
+
+**Enqueue 23:06:53Z → launch 23:07:44Z = 51 s, one 60 s tick.** No tick was missed: the
+runner's prior line reads `23:06:39Z EMPTY`, 14 s *before* my write. Top-level pending
+went 1 → **0** (consumed); GPU **0 % → 33 %**.
+
+#### THE IDLE, CLOSED AND COSTED
+
+**20:52:03Z → 23:07:44Z = 135.68 min = 2.2614 GPU-h = $1.8199 derived** at the
+published-list $0.8048/GPU-h. **INFRASTRUCTURE. It is NOT folded into VMFLGPU005's cost
+ratio, nor any case's** (`COMPUTE_BUDGET_CHARTER` §6 — waste is named separately, never
+absorbed). Derived, not measured; the console figure is still owed and supersedes.
+
+**What the idle actually bought, stated honestly rather than as a defence:** VMFLGPU007
+graded (row #40), VMFLGPU004 dispositioned (row #41), **two cases frozen** (`ed980d33`,
+`05555370`), a silent-false-pass defect caught in each of two comparators before either
+could produce a verdict, and the archive inventory landed. **It was not idle-with-nothing-
+happening; it was idle-because-the-card-had-nothing-frozen-behind-it**, which is exactly
+the FREEZE-AHEAD deficit the standing directive names. **FREEZE-AHEAD is now 1 of 3** —
+005 has moved from frozen to running, so the buffer drops again, and that is the standing
+problem to fix, not tonight's incident.
+
+#### A SELF-INFLICTED READING ERROR, RECORDED
+
+My first launch watcher reported "LAUNCH DETECTED" on its first poll — **falsely**. Its
+`pgrep -af buoyantBoussinesqSimpleFoam` **matched its own ssh command line**, which
+contained the string. That is the recorded `pkill`-matches-its-own-shell trap in a new
+costume, and it would have had me report a launch 65 s before one happened. Caught by
+reading the runner log's own timestamps (`23:06:39Z EMPTY` post-dating nothing). **A
+watcher whose pattern can match the watcher is not a watcher.**
+
+#### WHAT IS RUNNING, AND WHAT WOULD MAKE IT NOT A RESULT
+
+Six solves (L1/L2/L3 × GPU + forced-CPU), endTimes 15000/20000/25000, caps **6.0 GPU-h per
+solve** and **240 core-min** on the CPU arm. **The registered risk is convergence**: the
+plateau clause needs the last-1000-iteration peak-to-peak ≤ 2.0e-3 m/s, and turbulent
+natural-convection RANS to steady state is slow. **If it is not reached, the honest verdict
+is `NOT A RESULT`** — the VMFLGPU007 failure mode, registered in advance as a live outcome,
+and the tolerance will not be loosened to rescue it.
