@@ -1294,6 +1294,140 @@ Chief rulings 2026-08-27 (all recorded in the session log at the time; consolida
 
 ## closure
 
+**ELEVENTH SESSION, FIRST WRITE, 2026-08-27T21:33Z (closure-supervisor). NEWEST FIRST.**
+Re-formed after the MONTHLY SPEND LIMIT killed the fleet at ~20:35Z. Stamp from `date -u`
+in the writing invocation. **The block below is still accurate where this one is silent.**
+This one SUPERSEDES it on the queue reading, on FREEZE-AHEAD, and on what is landed.
+
+**═══ CLOSURE IS FREEZE-AHEAD 4 AND HAS RUN ZERO SECONDS OF PHYSICS IN FOUR HOURS.
+NOT ONE OF ITS THREE ARMED ENTRIES HAS LAUNCHED SINCE 17:28Z. ═══**
+
+**HEADLINE METRICS, measured at 21:27-21:33Z:** **CPU 88.5 %** of 16 cores (load avg
+22.40) · **GPU 0 %**, none attached to this box · **closure queue 3 pending / 0
+running** / 21.63 core-h frozen and armed · **G1 HELD on 208 CONSECUTIVE TICKS,
+17:26:48Z → 21:27:11Z = 4 h 00 m unbroken** · **FREEZE-AHEAD 4 of 3.**
+
+**⚠ I CORRECT THE READING I WAS HANDED, AND THE CORRECTION MATTERS.** The chief's
+21:22Z reading was *"3 pending / 1 launched / 0 held"*. **Measured: 3 pending, ALL
+HELD, and ZERO running.** The file in `verification/queue/closure/launched/` is
+`G1_grid_triple.json` — the record of the **DEAD 17:28:58Z first launch** (pid 1109265,
+`launcher_rc=1`, died in its environment step in under a second), **not** a live job.
+`launched/` is a directory of records, not a census of processes; reading it as one
+turns a four-hour stall into an apparent success. **Nothing closure owns is executing.**
+
+**═══ CHECK 4, DONE PERSONALLY, ON BOTH REGISTRATIONS THAT LANDED WHILE I WAS DEAD ═══**
+Both were frozen by my predecessor after this board's last write, so neither had been
+checked by a supervisor at HEAD. Both now have been, by me, clause by clause.
+
+| # | rung | frozen at | disk == freeze == HEAD | run root | state |
+|---|---|---|---|---|---|
+| 1 | **G1_grid_triple** | `03be2015` → amended `a90077df` | — | `/home/ubuntu/closure-data/g1`, **0 time dirs** | FILED, **HELD 4 h** |
+| 2 | **M1_multimodel_sweep** | `7b00b3ec` → amended `73cd5ac5` | 78 entries at `c575bcb8` | 78 roots, **0 numeric time dirs, 78 staged `0.orig/`** | 2 of 78 filed, **HELD** |
+| 3 | **M2_kepsilon_family** | **`e6961d48`** | **6 files, ALL THREE DIGESTS EQUAL** | not created | frozen, **0 entries exist** |
+| 4 | **G2_grid_triple_duct** | **`71654cec`** | **5 files, ALL THREE DIGESTS EQUAL** | **`/home/ubuntu/closure-data/g2` ABSENT** | frozen, **not enqueued** |
+
+**M2 (`e6961d48`), all six files — `PREREGISTRATION.md`, `grade_m2.py`, `run_m2.sh`,
+`stage_m2.py` and the two draft entries — hash identically on disk, at the freeze
+commit, and at HEAD. One digest, three sources, six times.** `PREREGISTRATION.md` =
+`8286d454ad6d67e3…`. **G2 (`71654cec`), all five files likewise** —
+`PREREGISTRATION.md` = `f56a52678c8c…`, `build_g2.py` = `d23fbf64bff7…`,
+`grade_g2.py` = `96edc6c1513c…`, `run_g2.sh` = `e5d3ac80a087…`,
+`QUEUE_ENTRY_DRAFT.json` = `160bcb49e04b…`.
+**THE AGE-GUARD IS CLEAN EVERYWHERE, MEASURED NOT ASSUMED:** g1 holds **zero** numeric
+time directories (only `CHAIN.log`, `STATUS.G1_grid_triple`, `launcher.queue.out`, all
+stamped 17:28 by the dead launch, and `grade_g1.py` has **zero** references to any of
+those three names, so they cannot contaminate a verdict); the 78 M1 roots hold **zero**
+numeric time directories against **78** staged `0.orig/`.
+
+**⚠ G2 CANNOT BE FILED YET AND THE REASON IS NOT COSMETIC.** Its `cwd`
+`/home/ubuntu/closure-data/g2` **does not exist**. The runner launches as
+`cd <cwd> && <argv> > <cwd>/launcher.queue.out` and writes `<cwd>/STATUS.<case_id>`
+(`queue_runner.py:280-281`), so a missing `cwd` is a launch that dies the way G1's first
+one did — **outside its own error handling**, which is precisely the failure this family
+already paid for once (D540, L-353). A lane is building G2's real entry and M2's entry
+set now; **I file, the lane does not.**
+
+**═══ THE STAGED-DELETION ALARM: I MEASURED IT, THE CHIEF EXPLAINED IT, AND THE
+EXPLANATION BEATS MY FRAMING ═══**
+I found all five G2 files **staged-as-DELETED in the SHARED index** while present on
+disk **byte-identical to HEAD**, and I reported it as a live hazard. **The chief's
+21:28Z broadcast supplies the cause and I adopt it over my own wording:** the shared
+index is **LAGGING HEAD** (last written 19:33Z) because every peer commits through a
+private index and none of them writes the shared one. **Nobody deleted anything.**
+Verification's audit `0f8f39fd` reached the same finding independently; the chief reset
+the index to HEAD at 21:28Z and it lags again within minutes.
+**WHAT THIS CHANGES FOR ME, CONCRETELY:** `git status` is **not** a landedness test in
+this repository and I will not use it as one — `git cat-file -e HEAD:<path>` is, and my
+own check above is the stronger form of it, having compared the **disk bytes** against
+`git show HEAD:<path>` file by file. **All five G2 files and all six M2 files are at
+HEAD, on disk, identical.** Nothing of closure's is missing.
+**AND THE DANGEROUS INSTRUCTION IS THE ONE THAT LOOKS LIKE THE FIX:** `git checkout --`
+and `git restore` restore from the **stale INDEX**, so the obvious response to a
+deletion alarm is the thing that would actually perform the deletion. Inspect, never
+revert — and here, do not even inspect with `git status`.
+
+**═══ WHY CLOSURE IS IDLE, NAMED FROM `/proc`, NOT FROM COMPLAINT ═══**
+**13 of 16 cores** are held by **two families' long runs**, each identified by reading
+its `cwd` rather than inferring from a command name:
+· **8 × `buoyantBoussinesqSimpleFoam`, elapsed 1 d 00 h 36 m**, cwd
+`verification/runs/T-family/T3_runs/R_ff` — **~11,800 core-min consumed**, and the
+chief's `a2263f90` list already carries a *T3_R_ff cap* ruling.
+· **1 × `buoyantBoussinesqPimpleFoam`, elapsed 12 h 30 m**, cwd
+`verification/runs/T-family/T15_runs/T15_UP_f`.
+· **4 × `d6_opt_runScript.py` (IPOPT), elapsed 7 h 18 m** — dafoam `D6_chain_wait`,
+launched 13:49:03Z at **est 1,694.7 core-min / 4 ranks = 7.06 h wall**. **It is now
+PAST its own registered estimate.** Rule 12: an overrun stops the run, it does not get a
+new budget. **Not closure's to enforce and I am not touching another family's run** —
+the number is on the board so the decision is taken by someone entitled to take it.
+**AND THE FLEET-WIDE FACT THAT SUBSUMES ALL OF IT: the runner has launched NOTHING, FOR
+ANY TEAM, SINCE 17:42:51Z — 3 h 45 m.** The runner is alive and ticking (last tick
+21:27:11Z); it is the 85 % ceiling that is closed. Closure's jobs are **1 rank each**
+and would still be held at 85 %, because `busy_cores + ranks > 0.9 × ncpu` gives
+14.16 + 1 > 14.4 independently. **This is a scheduling decision above closure's level
+and it is escalated, not decided.**
+
+**COST (rule 12): 0.000 core-minutes, 0.000 GPU-hours, $0.00 this session. NO
+CALIBRATION ROW IS OWED, and that is a recorded decision, not an omission** — no rung
+graded, no case closed, no solver started. A calibration row with no actual is a
+fabricated row.
+
+**LANES: 2 live of 3** (the third refused on the FLEET-WIDE 20-subagent cap, not
+closure's cap of 3): M2 + G2 queue entries (build and verify, **DO NOT FILE**); closure
+untracked-disk inventory with rule-15 title-page verification of `docs/papers/closure/_DUPLICATES/`
+and the R4b missing-runner question. Deferred for the cap: the `fs5_31_3_exit2` dated addendum.
+
+**NEXT ACTIONS.** (1) File G2 and M2's entries after my own check 4 on each — **G2 needs
+its `cwd` created first**. (2) **Grade G1 the moment it completes** — comparator audited
+(disk sha256 `253d5942…6bb0` == the `03be2015` blob), pre-flight cleared; nothing grades
+a completed run automatically, `run_g1.sh` ends by NAMING the grader. (3) Grade the
+2-row M1 tranche as an **INFRASTRUCTURE check, labelled one** — two rows are not a
+partial verdict; M1 grades only when all 78 complete. (4) `fs5_31_3_exit2` dated
+addendum. (5) Relay the `COVERAGE_MATRIX.md` *at fixed physics* correction to
+verification (**their file; closure does not edit it**).
+
+**NO EVIDENCE ROWS ARE OFFERED TO VERIFICATION'S GRID THIS SESSION, AND THAT IS THE
+HONEST ANSWER, NOT AN OMISSION.** I was asked to offer closure's `G`-column rows when
+G1/G2 grade real solves. **Neither has run a second of physics.** Closure's `G = NO` on
+every row stands unchanged and unchangeable until a triple actually solves. Offering a
+row now would be offering a registration as if it were a result — the exact bright line
+the charter draws.
+
+**ON SANAA'S DESK,** unchanged, and no agent message unblocks any of it: (1) the **four
+withdrawn attributions**, chief among them the GPU cost approval — one line restores all
+four, and until it exists closure's GPU arms stay parked while the GPU sits at 0 %;
+(2) the two 2026-08-24 R3 quotations, and whether **§22.7 is marked closed in the
+charter itself**; (3) direction on the next R4 increment; (4) R6's phrasing; (5) per-item
+sign-off on GPU drafts 2-5; (6) **D535** — `QUEUE_ENTRY_STANDARD.md` says there is no
+daemon and D535 measured one; amending a standard is hers.
+
+**BLOCKED.** **All three armed entries — behind heat-transfer's 9 ranks and dafoam's 4;
+chief's call, not mine.** G2/M2 — not yet enqueued, mine to fix and in flight. Ling arm 2
+— on Sanaa's four-part line and **NOT FILED ON PURPOSE**: the validator has zero hits for
+gpu/cuda/nvidia and an omitted `host` defaults to `"local"`, so filing it would **fire it
+on the CPU box**. R4b — untracked and its named runner `run_r4b.sh` does not exist.
+**SUBMISSIONS REMAIN PARKED (rule 7); nothing is sent, by me or by any lane.**
+
+
 **TENTH SESSION, THIRD WRITE, 2026-08-27T19:24Z (closure-supervisor). NEWEST FIRST.**
 **Supersedes the block below on the queue and on M1's next action.** Everything else stands.
 
