@@ -11253,6 +11253,178 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-27T17:2xZ — **THE CARD IS COMPUTING. VMFLGPU003 FROZEN (`fc8bef51`) AND RUNNING; ROW 33 IS A VERDICT; AND MY OWN QUEUE INSTRUCTION WAS WRONG — MY LANE CAUGHT IT**
+
+**Written by `ansys-verification-supervisor` personally.** Commits since the 16:5xZ block:
+`51e7b54e` (lane H — VMFLGPU002 post-compute Amendment 5), the VMFLGPU001 register row,
+`fc8bef51` (lane G — VMFLGPU003 freeze).
+
+#### THE IDLE IS CLOSED
+
+**VMFLGPU003 launched 17:17:18Z and the card was measured busy at 17:17:27Z** — `simpleFoam`
+pid 158058, GPU 50 % / 206 MiB, `gpu/L1_20x40` building, `gpusample.txt` being written so limb
+A's tell2 has real bytes rather than an empty file to read later. **Idle closed at 17.62 h,
+$14.18 derived** at the published-list $0.8048/GPU-h (console figure owed). Named, not absorbed.
+
+**The cap is real, not written down.** The solver runs inside `timeout -k 30 5397`; 5397 s =
+1.4992 h = the registered `CAP_GPU_H = 1.5`. **The runaway guard is wired into the launcher and
+the kernel enforces it.** Est 0.70 GPU-h against that cap (2.1× headroom, sized from the
+measured 0.4417 and 0.89694 GPU-h of 001 and 002).
+
+#### VERDICT — ROW 33
+
+**VMFLGPU001 → `NOT A RESULT`.** Instrument refused at the frozen plateau clause I5, exactly as
+ruled, unsoftened. **0.4417 GPU-h, $0.3555 derived.** Its **CONVERGING** triple — R = 0.248,
+p ≈ 2.01, **0.0446 %** against the exact Taylor-Couette closed form — is recorded as **CONTEXT
+and explicitly not the verdict. The physics looks strong and the lab is not claiming it.**
+
+**Census at HEAD, derived by me:** 33 rows, ids contiguous. **PASS 6 / GATE REACHED 5 / NOT A
+RESULT 21 / PENDING 1.** Credentials unmoved at 6. Row 34 (VMFLGPU002) still owed by lane H.
+
+#### MY OWN INSTRUCTION WAS WRONG, AND THE LANE THAT CAUGHT IT WAS RIGHT TO SAY SO
+
+I told the chief and both lanes that the GPU instance **had no `pending/` directory** and that
+*"an entry dropped where there is no pending directory is never seen"*. **That is backwards.**
+I read `scripts/queue_runner.py` at HEAD myself: `list_entries()` does `d = root / team` then
+**`d.glob("*.json")` — NON-RECURSIVE** — and the string `pending` **appears nowhere in the
+runner**. Entries live at **`root/<team>/*.json` directly**; `launched/`, `refused/` and `held/`
+are places the runner **moves things to**, outputs and not inputs. **An entry in `pending/` is
+the one that would never be seen. My instruction would have hidden VMFLGPU003.**
+
+Lane G created the empty `pending/` as told, **dropped into the team directory instead on its
+own measurement, and the entry launched in 20 seconds** — that is why the card is busy. It then
+reported the contradiction in writing rather than quietly routing around me.
+
+**I swept every team queue before alarming anyone; the damage is contained.** Visible-to-runner
+counts at the box: cfd 3, heat-transfer 4, dafoam 2, closure 1, ansys-verification 0,
+verification 0; **`pending/` empty for all six — nobody has a stranded entry.** The one-line
+correction, carried to the chief: **drop at `verification/queue/<team>/<name>.json`, never in a
+subdirectory.**
+
+#### A GUARD THAT COULD NOT FAIL — recorded, and never to be cited
+
+VMFLGPU003's **`FIELD COMPLETENESS` guard printed `required={}`**: its `fvSolution` key parser
+cannot see `p`/`U` through the nested `petsc { options { … } }` blocks, **so it has never gated
+anything. VMFLGPU002 carries the same nested blocks and its copy was equally vacuous.** It gates
+no verdict, so nothing is invalidated — but **a guard that cannot fail is not a guard, it is
+decoration that makes a record look better audited than it is**, and it **must never be cited as
+evidence for either case**. Ordered repaired in VMFLGPU007 with a mutation that removes a
+required solver entry and MUST fail. Same class as Sanaa's §1 planted-failure-proof rule: a
+guard nobody drove.
+
+#### THE INSTANCE'S SHARED CLONE IS PERMANENTLY DIRTY — someone should own that
+
+`push-to-checkout` refused lane G's push (*"Working directory has unstaged changes"*, 16 dirty
+lines, **one of them the runner's own move of `VMFL011-R3.json`**). **Restoring that file to
+satisfy the push would have RE-DROPPED A CPU CASE ONTO THE GPU QUEUE.** The lane declined to
+force it and pushed to a non-checked-out branch `laneG-vmflgpu003`, running the launcher from an
+isolated repo `/home/ubuntu/laneG_freeze` whose HEAD **is** `fc8bef51`, sharing the object store
+by `alternates`. Shared clone HEAD unchanged at `8dfb4598`, dirty count still 16, no
+pull/fetch/checkout there. **The freeze check still matched all three blobs, so the evidence
+chain holds.** Right judgment under a real constraint; the constraint is a defect.
+
+#### THE REMAINING GPU CASES — a structural fact that changes the plan
+
+**None of VMFLGPU004–010 has an existing CPU parent case directory.** VMFLGPU003 was the last
+one that did. **Every remaining GPU case is a fresh build** — that is the honest reason 004+
+will not come as fast as 003 did, and it belongs in any estimate of "all ten".
+
+- **VMFLGPU004 DEFERRED ON EVIDENCE.** `laplacianFoam` in v2606 solves a **scalar** Laplace
+  equation only (confirmed on the box), so the anisotropic **tensor** conductivity the case needs
+  has no solver in this lab. Worse, lane G found **the manual's `Reference` field on p. 233 is
+  literally empty**, and the conductivity tensor and user-defined wall profile are not printed —
+  **it cannot be gated honestly from the manual alone.** Not freezable; no lane spent on it.
+- **THIRD FREEZE IS VMFLGPU007, NOT 005** — my ruling, overruling a haiku's recommendation after
+  reading both drafts. Both are experimental-reference and therefore **PASS-capable**, which
+  alone beats 004/008/009/010 (all ceiling-capped at `GATE REACHED`). The tiebreaker is each
+  draft's own risk line: **005 risks NOT RUNNING AT ALL** (stiff buoyant Poisson on cuSPARSE CG,
+  *"the AmgX escalation may be needed"* — we have not built AmgX); **007 risks running fine and
+  missing its band for a known reason** (classic k-ε reattachment under-prediction), and its
+  draft already prescribes the honest report — a limb C miss with limb B holding is a **MODEL**
+  miss, the GPU path still verified because limb B is the object under test. **A risk of not
+  running beats a risk of a reportable miss.** 005 stays staged as fourth.
+
+#### CENSUS VERIFY MARKS — STRUCK, on my own measurement
+
+`find cases/ansys_verification -name 'grade_*.py'` (excluding `__pycache__`) gives **37**,
+matching verification's 37 exactly; **36 committed at HEAD**. My three-way dispute is closed.
+One residual I do not claim: I count **32** graders whose text contains an `ExecutionTime`
+clause against verification's **30 CONFLATED** — consistent rather than contradictory, since
+mentioning is not conflating. **Verification owns the classification and I defer to its 30.**
+
+**Register machine-readability accepted as MINE.** That a census needs two special-case rules —
+rows match `^\| \*\*N\*\* \|` (bold bare numbers, no `#`), and you must take the FIRST verdict
+token per line because **rows 7 and 21 carry unescaped `|` inside prose and shift every
+downstream field** — means the register is not machine-readable, and **a credential ledger
+nobody can parse is one nobody can audit.** Owed: a one-row-per-line machine file plus a
+validator reconciling it against the prose register so the two cannot silently diverge. Queued
+behind the GPU.
+
+#### HEADLINE METRICS (Sanaa §2) and the NEXT failure if I do not close it
+
+| metric | value |
+|---|---|
+| CPU (box) | ~117 %, oversubscribed |
+| GPU | **50 %, computing VMFLGPU003** |
+| queue depth, this team | GPU **0 visible / 1 running**; box **0 visible** (6 cases measured ready, ≈ 205 core-min) |
+| idle-minutes, GPU | **0**, counting from 17:17:27Z |
+| **FREEZE-AHEAD** | **1 of the required 3** |
+
+**`pending` IS EMPTY BEHIND 003 AND ITS ESTIMATE IS 0.70 GPU-h, SO THE CARD GOES DARK AROUND
+18:00Z** unless VMFLGPU007 or VMFLGPU001-R2 is frozen and dropped first. **That is exactly the
+pattern that produced the 17.6-hour hole.** I am treating **18:00Z as the deadline that
+matters, not 003's completion**, and both lanes are told: if the deadline is not reachable
+without cutting a guard, say so and cut nothing — **a freeze that refuses at a guard costs a
+GPU-hour and yields no verdict, and this family has done that four times.**
+
+#### LANES (cap 4: 2 opus + 2 haiku)
+
+| lane | task | state |
+|---|---|---|
+| opus G | VMFLGPU003 delivered; **resumed onto VMFLGPU007** (p.243, Vogel & Eaton 1985, PASS-capable) + repair the vacuous field-completeness guard | live |
+| opus H (4.8) | row 33 landed; **row 34 + both GPU calibration rows, then VMFLGPU001-R2** | live |
+| haiku M/N/Q/R/S/T/U | GPU recon, box recon, queue candidates, grader census, queue forensics, drop pre-flight, 004/005 staging | all done |
+
+**BLOCKED:** none. **No classifier denial in any lane this session.**
+
+#### DEFECT D-ANSYS-GPUCLONE — the GPU instance's shared clone is permanently dirty. **MINE, ruled by the chief 17:22Z, and here is the fix I intend**
+
+**The mechanism, measured.** `/home/ubuntu/gpu_queue/ansys-verification` on the instance is a
+**symlink into a git checkout** (that instance's own `Certonomous` clone). The runner's normal
+operation — moving an entry from the team directory into `launched/` or `refused/` — therefore
+**writes inside a git working tree**, and every launch permanently dirties it. At this write the
+clone carries **16 dirty lines, one of them the runner's own move of `VMFL011-R3.json`**. That
+dirt is what made `push-to-checkout` refuse lane G's push, and **the "obvious" repair — restoring
+`VMFL011-R3.json` — would have RE-DROPPED A CPU CASE ONTO THE GPU QUEUE.** A defect whose
+obvious fix causes a worse fault is one to design out, not to clean up.
+
+**THE FIX I INTEND, and the reasoning so it can be overruled on its merits:** *the runner's
+state must not live inside a git working tree.* Make `/home/ubuntu/gpu_queue/<team>/` a **plain
+directory outside any checkout** — delete the symlink, not the clone — and have entries
+**copied** in rather than symlinked. The repository's `verification/queue/` stays the canonical,
+committed record of what was enqueued; the runner's own bookkeeping (moves into `launched/`,
+`refused/`) then happens where git does not look. **Queue state is runtime state and git is for
+the record; conflating them is the whole bug.** The alternative the chief named — a clone
+nothing writes into — is the same principle from the other end and would also work; I prefer
+the symlink removal because it is one command, reversible, and touches no history.
+
+**UNTIL THIS IS RULED AND IMPLEMENTED: no `pull`, `fetch` or `checkout` on that clone**, by any
+lane, for any reason. Lane G's isolated-repo route (`/home/ubuntu/laneG_freeze`, HEAD ==
+`fc8bef51`, object store shared by `alternates`) is the sanctioned way to get a freeze onto the
+instance meanwhile, and it preserves the evidence chain — the freeze check matched all three
+blobs. **Not yet done, and named as not done.**
+
+#### OWED, WRITTEN DOWN SO IT IS NOT LOST
+
+1. **A dated addendum to BOTH the VMFLGPU002 and VMFLGPU003 records** stating that the
+   `FIELD COMPLETENESS` guard passed vacuously (`required={}`) and **is not evidence for either
+   case** — chief's instruction 17:22Z, no gate touched, append-only.
+2. **The register machine-readability artifact** — one row per line plus a validator reconciling
+   it against the prose register.
+3. **Row 34** (VMFLGPU002) and **both GPU calibration rows**, with the 17.62 h idle named
+   separately as waste and never absorbed into a ratio.
+4. **`docs/COST_CALIBRATION.md` row for VMFLGPU003** at grading, not before.
+
 ### 2026-08-27T16:5xZ — **THREE COMMITS, TWO LESSONS, THREE GATE RULINGS ON THE GPU CASES — AND THE CARD IS STILL IDLE PAST 17 HOURS, WHICH IS THIS TEAM'S FAILURE**
 
 **Written by `ansys-verification-supervisor` personally.** Commits since the 16:3xZ block:
