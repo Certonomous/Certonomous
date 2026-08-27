@@ -324,3 +324,96 @@ until the supervisor's check 1/4; the supervisor, not this lane, moves it into
   prints the all-cell vs station bulk-velocity difference as a diagnostic, ungated).
 - No re-grade of VMFL005; no amendment to any standard, charter or to N-AV9.
 - **Nothing is sent, filed, uploaded or submitted** (rule 7).
+
+---
+
+## AMENDMENT 1 — 2026-08-27T17:01:05Z (pre-compute) — the L-349 pre-spend projector
+
+**Version 1.1. Lines whose number changed above this section: 0** (this block is
+appended at the foot; the 326 lines above it are byte-identical to their state at
+freeze, asserted by diffing this file against its HEAD blob over lines 1-326).
+This is F23's first amendment; it is the SAME change that lands on F25 as that
+case's Amendment 2, and both are the remedy for **L-349** (`68ff1acf`).
+
+**Condition, and how it was checked.** F23 is **pre-compute**:
+`test -e /home/ubuntu/Certonomous/verification/runs/F23_HP_WEDGE_runs` -> **ABSENT at
+2026-08-27T17:01:05Z**. Zero core-minutes have been spent in any run root and no `LAUNCHED` line
+exists. Rule 2 therefore still permits an amendment, and this one is nevertheless
+written as a dated addendum with the original text struck nowhere and rewritten
+nowhere (rule 6).
+
+**What is amended: the PRE-SPEND projector only.** The launcher projected each level
+as a FROZEN constant times `max(1.0, ranks / max(free, 0.5))`, with `free` probed
+inside the launcher at the moment the level starts. The runner fires at an 85 % busy
+ceiling, so `free` pins at the 0.5 floor and the multiplier pins at **8.0x** for a
+4-rank entry — where F24's completed levels measured **1.86x**, an overstatement of
+about 4.3x. **F23 carries a second and sharper reason than F25 does.** Its frozen
+`PROJ_CORE_S` is not a measurement of F23 at all: `run_f23.sh:42-47` records it as
+DERIVED from F17's measured rate on a **different case** and says in terms *"NOT
+MEASURED on this case"*. So the old projection was a **borrowed curve times a guessed
+multiplier**, and C-152/C-153 is exactly that failure — F21 and F22 each measured
+their own base rate correctly and each still missed, by importing another case's
+growth exponent. The first completed level replaces both with something F23 did.
+
+**The replacement**, in `cases/F23_HP_WEDGE/proj_f23.py` (new file, 354 lines, zero
+compute, reads no clock, no `/proc` and no disk — every input is handed in). It is
+the same module as F25's, transformed only in its ladder constants (`DIM = 2`, cells
+`nr × nx`, so the count quadruples per level where F25's octuples;
+`FROZEN_CORE_S` 583 / 3940 / 26640; cap 1100):
+
+- **No level measured yet** (first level only): frozen constant ×
+  `clamp(ranks / max(free, 0.5), 1.0, CONT_MAX)`, **CONT_MAX = 2.0**.
+- **One level measured:** `rate = core_s / cell_iters` from that level — it
+  **already carries the load it ran under**, so no contention factor is applied on
+  top — × the next level's cell-iterations ×
+  `D = clamp(frozen_rate[next]/frozen_rate[measured], 1.0, 2.5)`.
+- **Two or more measured:** the same with `D = clamp(rate[last]/rate[prev], 1.0,
+  2.5)` — this case's OWN measured drift, superseding the borrowed F17 curve.
+
+**The clamps' honest status.** Floor 1.0: an improving rate is never extrapolated
+(F24 measured 2.519 then 1.674 core-µs per cell-iteration as overheads amortised;
+that saturates). Ceiling 2.5: covers every per-doubling ratio the lab has measured
+(2.36, 2.23 on F22 row C-153; 2.10, 2.13 on F21 row C-152) and still bounds a
+runaway. **CONT_MAX = 2.0 rests on ONE measured point — F24's 1.86x at `free = 0.5`
+— which is itself an upper bound on contention alone, since it also carries base-rate
+misprediction. One point is not a law and this addendum does not dress it as one.**
+The projector is a runaway guard; the **actual**-spend check is the budget.
+
+**What this amendment does NOT change.** The registered **CAP stays 1100 core-min** —
+launcher and grader both, verified equal at preflight, which still prints
+`CAP AGREES between launcher and grader: 1100 core-minutes.` The **post-level
+incremental check on ACTUAL spend is byte-identical to its HEAD blob** (asserted by
+`diff` over the block, this session): `ClockTime × ranks / 60`, summed, HALT at
+exit 3 on a crossing, cap never raised (rule 12). **No gate, threshold, band, label,
+ladder, iterative floor, rank count, decomposition or case dictionary is touched.**
+`exact_f23.py`, `build_f23.py`, `foam_io_f23.py` and `grade_f23.py` are unmodified.
+
+**Effect on this case, driven not asserted.** Replaying the registered ladder with
+every level at its frozen rate, the new projector gives coarse **19.4**, medium
+**65.7** (cumulative 75.4), fine **443.8** (cumulative **519.2** of 1100) — **HALT=0
+at every level, the ladder proceeds**, against an actual cumulative spend of 519.4
+core-min if the frozen rates hold. The old form on the same ladder gave fine 3552.0,
+cumulative **3627.4 of 1100 -> HALT=1**: F23 would have halted before its fine level
+just as F24 did.
+
+**Files changed by this amendment:** `run_f23.sh` (projector call site, the
+`MEASURED` accumulator, and the `proj_f23.py` selftest gate; the actual-spend check
+untouched) and the new `proj_f23.py`. sha256 at this re-freeze, first 8 / last 4:
+`run_f23.sh` `526a57cb…8561`, `proj_f23.py` `48474f83…bc03`.
+
+**Measured after the edit:** `proj_f23.py --selftest` rc **0**, **9 controls, 0
+failures**, every box reading **INJECTED** (L-339); `python3 -O proj_f23.py` rc **2**;
+`ast.Assert` count **0**; `grade_f23.py` `grade_ladder` call nodes **1**
+(unchanged); `run_f23.sh --preflight` rc **0**;
+`check_launcher_can_launch.py --worktree` rc **0**. **The halt path was driven both
+ways through the launcher's own bytes** — the parse-and-branch block extracted
+verbatim from `run_f23.sh` and executed with an **injected** `PROJ_OUT`: `HALT=1`
+-> **rc 3** with `HALT BEFORE SPENDING`, `HALT=0` -> **rc 0** falling through to the
+launch path. No box was probed in any control.
+
+**Queue entry:** `cases/F23_HP_WEDGE/queue_entry_F23_HP_WEDGE.json` is refreshed in
+the FOLLOWING commit so `prereg_commit` and the launch argv's `--prereg-commit=`
+cite the sha of the commit carrying this amendment, with `cap_core_min_registered`
+1100. It is **HELD in the case directory**; moving it into `verification/queue/cfd/`
+is the supervisor's act after their own check 1/4. Nothing is sent, filed, uploaded
+or submitted (rule 7).
