@@ -41,8 +41,33 @@ HEAD `bc0e687e`; permission rules added by her 2026-08-26 (`Bash(setsid *)`,
    - the field is absent → `ESTIMATE_OVERRUN.txt` at **1.10 × `cost_core_min_estimate` × 60 /
      ranks** seconds, and its text says it is an **ESTIMATE overrun, not a cap**.
    Both files say REPORTED, NOT ENFORCED; the runner log line is `CAP-OVERRUN` or
-   `ESTIMATE-OVERRUN`; a STATUS file silences both. **Caps report; they never kill**
-   (`COMPUTE_BUDGET_CHARTER.md`). `scripts/queue_entry_check.py` accepts the optional field
+   `ESTIMATE-OVERRUN`; a STATUS file silences both.
+   - **MISCITATION STRUCK, 2026-08-27 (cfd lane R, on a heat-transfer escalation relayed by
+     the chief).** This paragraph previously read **"Caps report; they never kill
+     (`COMPUTE_BUDGET_CHARTER.md`)"**, and `queue_runner.py` wrote the same parenthetical into
+     every flag file. That **attributed to the charter a permission the charter does not
+     grant**. `COMPUTE_BUDGET_CHARTER.md:197` says the **opposite**, verbatim: *"A budget
+     overrun stops the run. It does not get a new budget."* `CLAUDE.md` rule 12 repeats it.
+     Every `cap` occurrence in that charter was enumerated (lines 138, 165, 180, 190, 260,
+     282, 285 on a case-insensitive match — **seven, not four**; 138/190/260 are "capability",
+     "Capacity", "capture" and not budget caps at all) and **none carves out a report-only
+     cap**. The charter's single *"Not enforced mechanically"* line (`:363`) names its own
+     three subjects — the measured-versus-estimated `cost_basis` discipline, the waste split,
+     and the estimate-versus-actual grading — and calls them *"review disciplines"*. **It does
+     not mention caps.**
+   - **What is true:** this runner **does not kill on a cap**, and a reader must know that.
+     It is a property of **the runner as built**, not a permission. Runner-side enforcement is
+     pre-registered at `docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md` (**D539**) and is
+     **ADVISORY, INERT and OFF**. **Switching it on is Sanaa's decision alone** — it kills
+     running solvers, and no agent's message is her consent (rule 9).
+   - **Legacy flag files predate the 17:46Z branch split and are NOT cap breaches.** Every
+     `CAP_OVERRUN.txt` on disk at 2026-08-27 (F20, F18, F16b, D14M, T5_CUBE_c, T4b_IJ_m,
+     VMFL064-R2) carries the pre-fix wording **"> 1.10 x registered"** — the **1.10 estimate**
+     trigger — written into a file named `CAP_OVERRUN.txt`. The post-fix cap branch writes
+     **"1.00 x registered CAP"**. **No registered-cap breach has ever been recorded by this
+     runner.** A flag saying `1.10 x` is an estimate overrun whatever the filename says, and
+     its elapsed/registered ratio must never be quoted as *"N × its cap"*.
+   `scripts/queue_entry_check.py` accepts the optional field
    unchanged (measured: F20's entry carrying it → `ACCEPTED`, rc 0). Both cases are planted
    controls in `--selftest` (cap file at the cap time and not at cap − 1 s; estimate file
    at 1.10 × estimate and not before; the same record with the cap field stripped flips
@@ -85,7 +110,8 @@ HEAD `bc0e687e`; permission rules added by her 2026-08-26 (`Bash(setsid *)`,
   its own `step_plan2.json` guard is what stands between them).
 - Never dispatches off-box: `host` ≠ this box → `SKIP` with a logged reason.
 - Never kills, never deletes, never edits/stages/commits in git, never runs under
-  `python3 -O` (refuses, rc 2), carries no `assert`.
+  `python3 -O` (refuses, rc 2), carries no `assert`. **The not-killing is the runner as
+  built, not a charter permission — see §5; the charter says an overrun stops the run.**
 - Never lets a superseded launch record judge a cwd (added 2026-08-26T22:15Z, after
   `VMFL064-R2` and `T5_C`): a relaunch of a `case_id` archives the previous record instead of
   overwriting it, a record whose STATUS has been seen is finished for good, and every overrun

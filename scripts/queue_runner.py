@@ -13,8 +13,17 @@ teams, oldest entry first within a team.
 
 WHAT IT NEVER DOES.  It never kills anything: a cap is a runaway guard that REPORTS
 (CAP_OVERRUN.txt beside the run at 1.00 x the entry's `cap_core_min_registered`, or
-ESTIMATE_OVERRUN.txt at 1.10 x the estimate when no cap is registered) and never terminates
-(COMPUTE_BUDGET_CHARTER).  It never
+ESTIMATE_OVERRUN.txt at 1.10 x the estimate when no cap is registered) and never terminates.
+THAT NON-ENFORCEMENT IS A PROPERTY OF THIS RUNNER AS BUILT, NOT A PERMISSION ANY CHARTER
+GRANTS.  COMPUTE_BUDGET_CHARTER.md:197 says the OPPOSITE -- "A budget overrun stops the run.
+It does not get a new budget." -- and CLAUDE.md rule 12 repeats it; no clause of that charter
+carves out a report-only cap.  (Its single "Not enforced mechanically" line, :363, governs the
+measured-versus-estimated `cost_basis` discipline, the waste split and the estimate-versus-actual
+grading -- three REVIEW disciplines, not caps.)  The earlier text here read "never terminates
+(COMPUTE_BUDGET_CHARTER)", which cited the charter as authority for the opposite of what it
+says; struck 2026-08-27.  Runner-side cap enforcement is pre-registered at
+docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md (D539) and is ADVISORY, INERT and OFF;
+switching it on is Sanaa's decision alone.  It never
 deletes anything: a refused entry is MOVED to <team>/refused/ with its reasons beside it.
 It never edits, stages or commits in git; the only git it runs is the validator's
 read-only allowlist.  It never dispatches to another host: an entry carrying `host`
@@ -545,7 +554,11 @@ def cap_watch(root: Path, log: Log, now: float | None = None, retire_seen: bool 
         1.00 x cap x 60 / ranks seconds elapsed, and NOT before;
       * no such field  ->  `ESTIMATE_OVERRUN.txt` at 1.10 x cost_core_min_estimate x 60 /
         ranks, whose text says it is an ESTIMATE overrun and not a cap.
-    Both say REPORTED NOT ENFORCED; neither kills (COMPUTE_BUDGET_CHARTER).  `now` is
+    Both say REPORTED NOT ENFORCED; neither kills.  That non-enforcement is a property of
+    this function AS BUILT, NOT a permission the charter grants: COMPUTE_BUDGET_CHARTER.md:197
+    says "A budget overrun stops the run. It does not get a new budget."  Enforcement is
+    pre-registered at docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md (D539), ADVISORY and
+    OFF.  `now` is
     injectable so --selftest can drive the clock; the daemon passes nothing.
 
     WHICH LAUNCH A FLAG IS ABOUT (2026-08-26, after VMFL064-R2 and T5_C):
@@ -600,7 +613,14 @@ def cap_watch(root: Path, log: Log, now: float | None = None, retire_seen: bool 
                         f"[{ident}] "
                         f"elapsed {elapsed:.0f} s > 1.00 x registered CAP {allowed_wall:.0f} s "
                         f"({cap} core-min cap / {ranks} ranks; estimate {est} core-min). "
-                        f"The run was NOT killed (caps report; COMPUTE_BUDGET_CHARTER).\n")
+                        f"The run was NOT killed. THAT IS A PROPERTY OF THIS RUNNER AS "
+                        f"BUILT, NOT A PERMISSION ANY CHARTER GRANTS: "
+                        f"COMPUTE_BUDGET_CHARTER.md:197 says the OPPOSITE -- \"A budget "
+                        f"overrun stops the run. It does not get a new budget.\" -- and "
+                        f"CLAUDE.md rule 12 repeats it. No clause of that charter carves out "
+                        f"a report-only cap. Runner-side cap enforcement is pre-registered at "
+                        f"docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md (D539) and is "
+                        f"ADVISORY, INERT and OFF; switching it on is Sanaa's alone.\n")
                 word = "CAP-OVERRUN"
             else:
                 allowed_wall = est * 60.0 / ranks * 1.10
@@ -610,8 +630,16 @@ def cap_watch(root: Path, log: Log, now: float | None = None, retire_seen: bool 
                         f"[{ident}] carries no "
                         f"cap_core_min_registered, so the only registered figure is the estimate; "
                         f"elapsed {elapsed:.0f} s > 1.10 x estimate {allowed_wall/1.1:.0f} s "
-                        f"({est} core-min / {ranks} ranks). No cap was crossed by this record. "
-                        f"The run was NOT killed (caps report; COMPUTE_BUDGET_CHARTER).\n")
+                        f"({est} core-min / {ranks} ranks). No cap was crossed by this record, "
+                        f"and RECORDING THIS IN ANY LEDGER AS A CAP BREACH WOULD BE FALSE: there "
+                        f"is no registered cap here to breach, and the ratio above is an ESTIMATE "
+                        f"ratio -- it must never be quoted as \"N x its cap\". There being no cap, "
+                        f"there is nothing here to enforce and the run was NOT killed. Separately: "
+                        f"this runner does not enforce a REGISTERED cap either, and that too is a "
+                        f"property of the runner AS BUILT, NOT a permission any charter grants -- "
+                        f"COMPUTE_BUDGET_CHARTER.md:197 says \"A budget overrun stops the run. It "
+                        f"does not get a new budget.\" Enforcement is pre-registered at "
+                        f"docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md (D539), ADVISORY and OFF.\n")
                 word = "ESTIMATE-OVERRUN"
             if elapsed <= allowed_wall:
                 continue
