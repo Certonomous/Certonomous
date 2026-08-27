@@ -4758,3 +4758,42 @@ sharp trailing edges, sharp leading edges, knife-edged fins, closed-out wing tip
 `te_study/worst_nonortho.py` and `topology_study/outer_face_geom.py` (both carrying the two
 planted controls — agreement with `checkMesh` to `< 0.05°`, worst seen `0.00005°`, and a point
 displacement that must move the angle).
+
+## N-AV13. VMFL007-R2 — ONE CASE at ONE rheology index (power-law n = 0.4): only the DIC-preconditioned linear-solver arms stayed bounded; four of six diverged. A single-case SCREENING OBSERVATION, explicitly NOT a law
+
+**Scope first, because this fact's whole value is in what it does NOT claim.** This is **one case,
+one rheology index, one geometry, one solver family.** No claim is made about other power-law
+indices `n`, other geometries, other physics, or other linear solvers / preconditioners. It is a
+screening result for a future VMFL007-R3 triple, not a numerics law about DIC.
+
+**The case.** VMFL007-R2 (VM2026R1 p. 29) — fully developed laminar flow of a **power-law** fluid,
+**index `n = 0.4`**, `k = 0.01` kinematic, reproduced in **OpenFOAM v2606** `simpleFoam` +
+`viscosityModels::powerLaw` + `laminar { model Stokes; }` on a one-cell-thick **1° axisymmetric
+wedge**, **endTime 10000 SIMPLE iterations**, single grid. Built under Sanaa's rule 2 as a
+**six-arm linear-solver / preconditioner slate** to screen which pairs are stable before a triple
+is built; every arm holds `p relTol 0.01`, `U relTol 0.1`, `tolerance 1e-12` identical, so the
+**only** variable across arms is the solver/preconditioner pair:
+
+| arm | linear solver / preconditioner | outcome at endTime (pInlet flux, physical ≈ 60.52 m²/s²) |
+|---|---|---|
+| A1 | GAMG / GaussSeidel (control, byte-identical to run 1's frozen `fvSolution`) | **DIVERGED — 9.45e+144** |
+| A2 | GAMG / DICGaussSeidel | **DIVERGED — 4.82e+148** |
+| A3 | **PCG / DIC** | **bounded — last 71.9** |
+| A4 | PCG / GAMGprecon | **DIVERGED — 2.91e+135** |
+| A5 | **PBiCGStab / DIC** | **bounded — last 63.3** |
+| A6 | smoothSolver / symGaussSeidel | **DIVERGED — 1.59e+161** |
+
+**On this case the DIC preconditioner is the discriminating factor** between the two arms that
+stayed bounded and the four that diverged. **Whether that generalises is untested and unclaimed.**
+
+**Consequence for the verdict:** A1's divergence to pInlet **9.45e+144** is exactly what made the
+frozen comparator **refuse at its planted-zero control** — a 1.234e-3 plant added to a ~7.1e+73
+value is lost to floating point, so a reader shown unable to see a known non-zero cannot certify a
+zero (CLAUDE.md rule 3). The refusal is a correct reading of a diverged control arm, not a reader
+defect, and the case is **register row #37 `NOT A RESULT`** (single-grid slate, rule 5 ceiling).
+
+**Provenance.** `cases/ansys_verification/VMFL007_R2/` (RESULTS.md, PREREGISTRATION.md §7);
+`verification/runs/ansys_verification/VMFL007_R2/` (six arm dirs, COST.txt). Comparator
+`grade_vmfl007_r2.py` blob `0d29d3b8`. Observed by `ansys-lane-opus48` (lane B) 2026-08-27; landed
+on the supervisor's Ruling 2 of the same day, scoped hard as a single-case observation. Companion
+to **N-AV12** (VMFL007 run 1: a normalised residual is blind to coherent divergence).
