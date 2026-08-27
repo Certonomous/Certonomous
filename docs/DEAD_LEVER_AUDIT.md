@@ -949,3 +949,91 @@ still bypass that hook, and both remain as §2 left them.
 | residuals now permanently unattributable | **2** |
 | resets today | **5** | 
 | unattributed residuals those resets destroyed the evidence for | **5** |
+
+### §3.5 — CORRECTION, SELF-INFLICTED, FOUND THREE MINUTES AFTER COMMIT: MY OWN COMMIT PROTOCOL DELETED A VERDICT WORD AND EVERY GUARD I RAN PASSED
+
+**Appended, append-only. Lines 919 and 935 are NOT edited — they are struck here
+and restored here, so no line above changes number and the defect stays on the
+record.**
+
+**§3.5.1 — WHAT IS WRONG, exactly.**
+
+Two spans in §3 were destroyed at write time. Both lost the same token, and the
+token is a **verdict word**:
+
+- **Line 919** stands as *"the question §2.7 already recorded as , and the reset
+  guarantees it stays that way."*
+  **It should read** *"the question §2.7 already recorded as `NOT MEASURED`, and
+  the reset guarantees it stays that way."*
+- **Line 935** stands as *"they are \*\* and now unmeasurable\*\*, and that is the
+  whole point of §3.3."*
+  **It should read** *"they are `NOT MEASURED` and now unmeasurable, and that is
+  the whole point of §3.3."*
+
+**No figure, no verdict and no recommendation in §3 changes.** The 234 / 237 /
+residual 3, the 6 observations, the 4 exact and the 98.7 % all stand as
+committed and were unaffected.
+
+**§3.5.2 — THE MECHANISM, which is a variant this lab has not recorded.**
+
+The section was written through a heredoc whose delimiter was **unquoted**
+(`<<MD` rather than `<<'MD'`). Backticks inside an unquoted heredoc are
+**command-substituted**. Every other backticked span in §3 had been escaped;
+these two had not. The shell attempted to execute `NOT MEASURED` as a command,
+twice, and **substituted its empty output into the document.**
+
+**The lab's existing note is that backticks in `git commit -m` are
+command-substituted and the commit SILENTLY NEVER RUNS. This is the opposite and
+worse failure: the commit RAN, the file landed, and the only casualty was TEXT
+INSIDE THE DOCUMENT.** A failure that stops the work announces itself; a failure
+that completes the work with a word removed does not.
+
+**§3.5.3 — THE FINDING, AND IT IS ABOUT MY PROTOCOL RATHER THAN ABOUT BACKTICKS.**
+
+**Every guard in the rule-10 private-index protocol ran and every one passed:**
+the byte-exact PREFIX assertion (`PREFIX ASSERT OK`), `git diff-tree --stat`
+showing only my path, the CAS on the parent, and the mandated post-commit
+`git diff HEAD~1 HEAD --stat`. **None of them could possibly have caught this.**
+
+> **The protocol verifies that I did not damage what was already there, and the
+> SIZE of what I added. It verifies NOTHING about whether what I added says what
+> I meant.**
+
+The prefix assertion is exactly and only a check on the **unchanged** region.
+**The appended region is unverified by construction** — and the appended region
+is the entire content of every amendment, addendum and audit section this team
+ships.
+
+**The failure was visible and was nearly read past.** Two lines of
+`NOT: command not found` were printed to stderr **above** a run of four passing
+assertions. **`L-360` says read the guard and not just the line it guards; this
+adds: read the STDERR above a passing guard, because a guard that passes is the
+most effective place to hide an error message.**
+
+**§3.5.4 — THE RULE TAKEN, applied to this team's own commits from here.**
+
+1. **A heredoc writing document text uses a QUOTED delimiter** — `<<'MD'` — and
+   a variable that must expand is spliced afterwards, never by unquoting the
+   whole document.
+2. **The private-index protocol gains a CONTENT assertion on the ADDED region**:
+   a set of tokens the new text must contain is asserted present in the built
+   blob **before** `commit-tree`, not merely that the old text is intact.
+   **A verdict word is the first thing that set should carry**, because a
+   missing verdict word is the one deletion that changes what a record says
+   without changing whether it parses.
+3. **A non-zero stderr line anywhere in a commit invocation aborts it**, even
+   when every explicit assertion passes.
+
+**Recommended to the chief for lab-wide adoption, NOT imposed** — the
+private-index protocol is `CLAUDE.md` rule 10 and its wording is Sanaa's.
+
+| §3.5 | figure |
+| --- | --- |
+| spans destroyed | **2** |
+| distinct token lost | **1**, and it is a verdict word — `NOT MEASURED` |
+| figures, verdicts or recommendations changed | **0** |
+| guards in the protocol that ran | **4** |
+| guards that passed | **4** |
+| guards CAPABLE of catching it | **0** |
+| minutes between commit and discovery | **~3** |
+| lines whose number changed above this section | **0** |
