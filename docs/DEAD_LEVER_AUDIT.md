@@ -1289,3 +1289,137 @@ cell is **genuine and not an extraction artefact.**
 independently re-read pp. 233–234; the six absences are **ansys's readings,
 audited for METHOD and internal consistency, and their method is what is
 ratified here.** The `PASS` count is unaffected and **stays at 6.**
+
+## §6 — THE GLOB SWEEP INVERTS ITS OWN PREMISE: the shape we went looking for is nearly ABSENT from committed code, and the defect that IS pervasive wears a different coat (2026-08-27)
+
+**Appended, append-only; nothing above rewritten. Zero solver core-minutes;
+read-only at HEAD. Two claims verified personally at source before boarding, and
+one of the lane's framings did not survive.**
+
+### §6.1 THE HEADLINE, AND IT IS NOT WHAT THE REFERRAL EXPECTED
+
+**`grep <glob> | tail -1` for a `Time =` reading exists in EXACTLY ONE committed
+instrument.** An independent targeted cross-check confirms it: every F-series runner
+F15–F26 already reads **one named file**.
+
+> **THE DEFECT heat-transfer AND cfd MEASURED LIVES IN INTERACTIVE HABIT, NOT IN THE
+> COMMITTED INSTRUMENTS.** That is worth knowing precisely because it is the opposite
+> of what a three-team alarm implied, **and it means the `MONITOR_STANDARD` clause is
+> mostly PROPHYLACTIC rather than remedial.**
+
+**What IS pervasive is the same defect wearing a different coat: A MULTI-MEMBER SET
+REDUCED TO ONE MEMBER BY AN ORDERING THAT IS NOT THE ORDERING THE PHYSICS MEANS.**
+Not a race — a **stable wrong answer**, which is the more dangerous pole
+(§5, and `MONITOR_STANDARD`'s `--sort` trap).
+
+| | count |
+| --- | --- |
+| files at HEAD | 16,756 |
+| instrument files swept (ext ∪ shebang ∪ mode 755) | **1,590** |
+| sites reviewed | **284** |
+| **DANGEROUS** — value reaches a verdict or a completion decision | **18** (7 files) |
+| DEGRADED — display, ETA, progress | 12 (6 files) |
+| UNDECIDED | 4 (+3 cardinality questions) |
+| SAFE, with a stated reason | 250 |
+
+### §6.2 THE WORST FINDING: A READER DEFECT THAT WOULD PUBLISH AS A PHYSICS CLAIM — VERIFIED PERSONALLY
+
+`so1c_chain_driver.sh:206` runs `grep -ah … "$SO1B_BASE"/MESH_*.log | head -4` — **the
+one true ugrep multi-file read in the lab — and it is verdict-bearing.** It writes the
+**reference side** of `G-MESHID`.
+
+**Read at source:** `so1c_grade.py:925` is
+`out["verdict"] = "PASS" if set(mine) == set(ref) else "GATE FAIL"`, and the GATE FAIL
+reason string is **`MESH_REGENERATION_IS_NOT_DETERMINISTIC`**. The function's own
+docstring says an inequality *"IS A MESH-REGENERATION-DETERMINISM finding."*
+
+> **SO A DEFECT IN THE READER WOULD BE PUBLISHED AS A PHYSICS FINDING ABOUT MESH
+> NON-DETERMINISM.** §5's stuck-guard class exactly: **a parser artefact wearing a
+> conclusion.** And the prose is pre-written, so the false finding arrives
+> *fluent*.
+
+**AND BOTH SIDES OF THE COMPARISON ARE DEFECTIVE.** The `mine` side at
+`so1c_grade.py:907-908` is `for cand in sorted(glob.glob(...)): mine_src = cand` —
+**for-last-wins over a LEXICOGRAPHIC sort.** So the check compares a
+**nondeterministically-selected reference** against a **lexicographically-last own
+value**, and calls disagreement a property of the mesh generator. **For dafoam.**
+
+### §6.3 A DETERMINISM VERDICT THAT CAN PASS WITHOUT TESTING ANYTHING
+
+`scripts/verify_warm_replay.sh:305` and `:341` set **both** `before` and `after` from
+`ls "$OUTDIR/$act"/transcript.* | head -1`. If the replay writes a **new** transcript
+name, `head -1` returns the same old file twice, the diff is empty, and the verdict is
+**a false `IDENTICAL`**. Multi-member is not speculation — `audit_transcripts.sh:128`
+states `transcript.txt` and `transcript.md` can coexist, and `ls` sorts
+lexicographically so `.md` wins deterministically. **For cfd.**
+
+### §6.4 A DEFECT THE LAB ALREADY DIAGNOSED, WROTE DOWN VERBATIM, AND LEFT STANDING
+
+`F3_runs/successor_triple_2026-08-26/instrument.py:145-152` names it exactly:
+*"F3's runners use `sorted(glob.glob(...))[-1]` — a LEXICOGRAPHIC sort … `9.0` sorts
+after `10.0` and the LATEST time is silently the WRONG one."* **It was re-authored
+correctly THERE and the ORIGINALS ARE UNREPAIRED AT HEAD** —
+`run_wedge_case.py:94,:131`, `run_cone_case.py:92,:121`, `DPW8_V2_runs/run_case.py:90`.
+
+**Beside each sits a worse, UNFLAGGED twin:** `glob.glob(...)[0]` — **unsorted, index
+0, no cardinality guard** — feeding `p_wall_mean` and `beta_computed_deg`. The
+`or glob.glob("*p*.raw")` fallback **is itself an admission the set can hold
+several.** **A diagnosis recorded in a successor and not propagated to its parents is
+a dead lever with a paper trail. For cfd.**
+
+### §6.5 ⚠ A CORRECTION TO THE SWEEP'S OWN FRAMING, MADE BY MY CHECK
+
+The lane reported `VMFL021`/`VMFL022` as *"the two members that skipped the house
+guard"*, the family pattern being `if len(...) != 1: refuse(...)`.
+
+**Measured myself: `VMFL011` carries the SAME SHAPE** —
+`sorted(glob.glob(.../postProcessing/resid/*/solverInfo.dat))` — and my guard-count
+pattern returns **0** for it as it does for 021 and 022.
+
+> **So "only two skipped it" is NOT SUPPORTED. At least THREE graders carry a
+> `sorted(glob.glob(...))` over function-object start-time directories with only a
+> not-empty guard.** Whether the rest of the family guards cardinality **in a form my
+> pattern missed is `NOT MEASURED`** — and that is the coverage-as-census question
+> again, so the candidate set is **wider than reported, not narrower.** **For
+> ansys-verification to resolve on its own files.**
+
+### §6.6 WHAT IS SAFE, AND THE MOST IMPORTANT ROW IS A NEGATIVE RESULT
+
+- **`mark_done_*.py` (24 files) ARE SAFE BY CONSTRUCTION** —
+  `sorted(float(x) for x in os.listdir(...))` sorts **numerically after float
+  conversion**, fully overriding `listdir`'s arbitrary order. **`CLAUDE.md` rule 4's
+  completion rule IS NOT EXPOSED.** **This independently confirms heat-transfer's own
+  controlled audit by a different method, and it is the finding that most needed to
+  be false and is not.**
+- **`scripts/queue_runner.py` is CLEAN, and it was READ rather than inferred.** All
+  four glob sites feed **full iteration**; the cap/overrun decision runs off a
+  **named** status file plus epoch arithmetic, with no log read and no `Time =` in
+  1,455 lines.
+- **The ansys VM graders are the lab's REFERENCE IMPLEMENTATION** — cardinality-1
+  refuse, and VMFL076 takes its last time from `re.findall` over **one** file's text
+  in **document order**. **The correct pattern is already written down inside this
+  lab.**
+
+### §6.7 PRIOR ART THE REMEDY MUST FOLLOW
+
+`sdk/scripts/replay_monitor_rules.py:94-106` already fixed this class and recorded the
+doctrine: *"**The fix is not a wider glob.** A list of patterns is the same defect
+with more entries (`L-49`)."* Its repair derives the corpus **from content** — an
+`Exec :` banner — not from a filename pattern. **Same principle as the `-J1`
+refutation: ordering a bad set is not a fix, because the SET is the defect.**
+
+### §6.8 WHAT THE SWEEP COULD NOT DO, STATED PLAINLY
+
+- **21 sites were read in full; the other 250 were classified by STRUCTURAL FAMILY
+  MEMBERSHIP**, verified against one exemplar per family. **That is the honest
+  residual and it is not small.**
+- **The sweep MISSED `so1c_grade.py:907`** — the `mine` side of §6.2's own headline
+  finding — **and it was found by reading, not by a hit.** The six `[0]`-index twins
+  in §6.4 likewise.
+- **The detector FAILED THREE OF FOUR PLANT LIMBS before repair**, including one
+  false positive on a safe named-file read. **It was fixed only because the plant
+  existed.** After repair all three positive limbs fired and the safe limb stayed
+  silent. **This is the clearest case this lab has yet produced for `L-363`: the
+  plant was not decoration, it was the only thing that found the reader broken.**
+- Three cardinality questions **modulate severity but not existence** — each settled
+  by one `ls | wc -l` on a live run root, **not enumerated here** (zero-compute).
