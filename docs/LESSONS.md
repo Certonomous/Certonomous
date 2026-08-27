@@ -15838,3 +15838,312 @@ ALMOST DESTROYED TWO OF THE LESSONS ABOVE.**
   rule 11 now recommended to Sanaa alongside this team's Addendum 7 wording.
 - **No existing lesson is renumbered, re-titled or edited** — no line number above this
   batch moves (`L-356`).
+
+---
+
+## L-365 — A CONTROL PROVES A POSITIVE BRANCH BY THE **ORDER OF REFUSALS**, NEVER BY EXECUTING THE PROTECTED PATH. A control that can start the thing it is controlling is not a control
+
+To show a guard chain's *positive* branch, a lane invoked the real driver with no arm
+argument under a 25 s wrapper. Every guard passed — correctly — and the driver then did
+what it is built to do: **it launched the registered arm.**
+
+- **Cost, named and not absorbed** (`COMPUTE_BUDGET_CHARTER` §6): the arm container
+  lived ≤ 25 s at 4 declared ranks ≈ **1.7 core-min**, with `mpirun` failing to start
+  a single rank, so the solver work in it was **zero**; two diagnostic containers added
+  ≈ **4.0 core-min**. **Total ≈ 5.7 core-min of INSTRUMENT time**, wall-derived. It
+  bought no `@value`, no verdict and no graded artefact, and it is charged against no
+  registered measurement.
+- **The repair is structural, not procedural.** The positive branch is now evidenced by
+  **which guard the probe refuses at**: a probe that refuses at `G-ROOT` has, by
+  construction, already passed `G-FREEZE`, `G-PATH` and `G-FIXTURE`, and the driver
+  prints each as it passes. The record then carries the refusal text *and* the earlier
+  guards' passing lines, with `containers before=N after=N` proving zero were created.
+- **The general form: a control must not be able to start the thing it is controlling.**
+  If the only way to reach a guard's pass is to run past it, the pass is not evidence —
+  it is the run.
+- This is the **positive** twin of `L-347`'s negative clause (*a control standing behind
+  another control's refusal has never run at all*): there, being behind a refusal makes a
+  control worthless; here, being behind a refusal is exactly what makes it *sound*. The
+  discriminator is whether the thing behind the refusal is the **control** or the
+  **claim**.
+
+*Provenance:* dafoam, 2026-08-27T18:55:35Z, `cases/dafoam/curriculum_FADR/PREREGISTRATION.md`
+AMENDMENT 2 §2.1 (the incident, owned by the lane that caused it) and the
+ORDER-OF-REFUSALS evidence in `cases/dafoam/curriculum_FADR/fadr_driver_guard_evidence_postfreeze.txt`,
+re-driven at each of AMENDMENT 3 and AMENDMENT 4 with `containers before=16 after=16`.
+Related: `L-347`, `L-320`, `L-357`.
+
+---
+
+## L-366 — A MUTANT THAT CHANGES NO VERDICT IS NOT EVIDENCE, AND THE DEFECT IS ALWAYS ONE OF THREE INERTNESS MECHANISMS — REPORT AN INERT MUTATION AS PROVING NOTHING RATHER THAN COUNTING IT
+
+`L-106` already requires a mutation to BITE and `L-364` requires a verdict to be shown
+able to MOVE. What was missing was the **diagnosis**: why a mutation that looks
+load-bearing is inert. Three independent instances landed in one day, and they exhaust
+the shapes seen so far.
+
+- **Mechanism 1 — the mutant widens an UNREACHABLE branch.** An `--olimb` mutant
+  widened a tuple no input can select. The code changed; no execution path did.
+- **Mechanism 2 — the assertion is TAUTOLOGICAL.** Two units of the form
+  `limb in note` search a string that the same code builds by joining the very constant
+  it then checks for. Such a unit passes for every implementation, correct or not, and
+  cannot fail.
+- **Mechanism 3 — every FIXTURE SITS AT THE BOUND.** A `conv = True` flip moved no unit
+  because each no-EXIT fixture already sat at the bound where both branches agree. The
+  mutation is live and the *corpus* is degenerate.
+- **The reporting rule.** An inert mutation must be reported as **proving nothing** —
+  never counted into a mutation-coverage total. A tally that includes inert mutants
+  reads as strength and *is* the absence of it, and it is the shape a reviewer is least
+  able to challenge, because the count is real.
+- **The check that separates them, cheaply:** before believing a mutant, name the input
+  that reaches the mutated line, and name the fixture whose verdict the mutation is
+  expected to flip. If neither can be named, the mutant is inert.
+
+*Provenance:* dafoam, 2026-08-27, three instances in one session; relayed through the
+family board. Sharpens `L-106` (a control must be a mutation that BITES) and `L-364`
+(show the verdict MOVES); related `L-320` (a negative control that leaves the
+load-bearing branch intact reports GREEN throughout), `L-321`.
+
+---
+
+## L-367 — SUPPRESSING `stderr` ON A `git` COMMAND HIDES EXACTLY THE CLASS OF EVENT YOU MOST NEED TO SEE
+
+An outbound **authenticated connection to `origin`** from a repository ruled permanently
+private was invisible at the moment it happened, because the command's output was
+discarded. It was found afterwards, from `.git/FETCH_HEAD` and a packfile on disk, not
+from anything anyone saw.
+
+- **`git` says almost everything interesting on `stderr`** — progress, transfer counts,
+  ref advertisements, refusals, hook output, authentication. `stdout` carries the
+  ordinary answer. So `2>/dev/null` on a `git` invocation is precisely a filter that
+  keeps the routine and drops the alarming.
+- **The habit that hid it is worth more than the incident.** The incident was one
+  reflexive command; the habit is in every script that quiets git "to keep the log
+  clean", and it silences the one channel that would have named a network operation.
+- **Standing consequence in this family:** never suppress `stderr` on a `git` command,
+  and never on the wrapper that runs it.
+- **The wider class:** `2>/dev/null` on any command whose failure mode is *doing
+  something* rather than *returning non-zero*. Compare the already-measured
+  `peak_rss_GiB` misparse, where `2>/dev/null` hid a missing file and an uninitialised
+  `awk` variable published `11` against a true `0.5973 GiB`.
+
+*Provenance:* dafoam, 2026-08-27T18:55:17Z, `docs/LAB_STATE.md` `## dafoam` UPDATE S-17d
+(the incident, self-reported by the lane before anyone could find it) and its promotion
+at the same section — *"the habit that HID it is worth more than the incident"*. The
+misparse instance: `curriculum_D3_attempt2/RESULTS.md:76`. Related: `L-263` (a refusal
+piped through `tail` is an approval), `L-357`.
+
+---
+
+## L-368 — LANDED-NESS IS A QUESTION ABOUT `HEAD`, AND `git status` ANSWERS A QUESTION ABOUT THE **INDEX**. ONLY `git cat-file -e HEAD:<path>` ANSWERS IT — AND `git diff --numstat` WITHOUT `HEAD` COMPARES AGAINST THE STALE SHARED INDEX
+
+This lab's own family of index lessons — `L-92` (`git ls-files` reads the index),
+`L-294` (frame the corpus on `git ls-tree <rev>`), `L-350` (the private-index amendment
+workflow leaves the worktree permanently behind `HEAD`, so `git status` advertises
+correct history as uncommitted work) — did not stop the error, because none of them
+names the *question a supervisor actually asks*: **did my work land?**
+
+- **Measured cost: a supervisor made this error THREE TIMES IN ONE SESSION**, once
+  inside the very brief whose own hazard list warned against it. Under the
+  private-index protocol the worktree and the shared index both diverge from `HEAD` by
+  design, so `git status` is not merely unreliable here — it is **systematically wrong
+  in the direction that matters**, reporting landed work as pending and pending work as
+  landed.
+- **The instrument:** `git cat-file -e HEAD:<path>` for existence, `git show HEAD:<path>`
+  for content, `git log -1 --format=%H -- <path>` for the landing commit. Every one of
+  them names a revision. **An instrument that does not name a revision is not answering
+  a question about the repository.**
+- **The corollary, and it has its own measurement:** `git diff --numstat -- <path>`
+  with no revision argument diffs the worktree against the **index**, not against
+  `HEAD`. On this tree it **inflated a 23-line diff to 325 lines**. Write
+  `git diff HEAD --numstat -- <path>`.
+- **The general form:** every `git` porcelain command has a default comparison base, and
+  on a tree where peers commit through private indexes the default base is the one
+  object nobody's work is stored in. **Name the revision, always.**
+
+*Provenance:* dafoam, 2026-08-27, the supervisor's three repeats in one session,
+self-reported. Family: `L-92`, `L-294`, `L-350`, `L-122`, `L-307`, `L-253`.
+
+---
+
+## L-369 — A RULING THAT PLACES OR MOVES A FILE IS NOT FINAL UNTIL THE CODE THAT WRITES, WIPES OR GLOBS THAT LOCATION HAS BEEN READ
+
+A supervisor ruling ordered prior evidence archived **into the arm directory**. The arm
+directory is `$WORK`, and the launcher's staging block runs
+`sudo -n rm -rf "$WORK"` at the head of the next fire for every arm that needs a cold
+case. **The ruling would have performed exactly the deletion it existed to prevent**,
+and it would have done so on the *next* launch, not at the moment of the ruling — so
+nothing at ruling time would have looked wrong.
+
+- **A placement decision is a code question wearing a prose costume.** "Archive it
+  beside the run" is not a filing preference; it is an assertion about what the launcher
+  does to that path, and only the launcher can settle it.
+- **Three code behaviours must be read before any placement is final:** what **writes**
+  there (will it collide or be overwritten), what **wipes** there (`rm -rf`, a
+  cold-start guard, a stage-copy), and what **globs** there (a `[0-9]*` or `*` pattern
+  that will now match the archive and feed it to a reader as data — see `L-339`).
+- **The timing is what makes it dangerous.** A wipe at the head of the *next* fire is
+  invisible to every check performed when the ruling is made. The archive sits there,
+  correct, for as long as nobody re-fires.
+- **The safe placement** is a directory the launcher neither stages into nor removes —
+  in this family, the item root beside the ledger, never the arm directory.
+
+*Provenance:* dafoam, 2026-08-27; the wipe site is
+`cases/dafoam/ladder-a/A2/curriculum_D6/d6_run_arm.sh:249`
+(`sudo -n rm -rf "$WORK"`), and the same file's header block `D4-LAUNCHER-DEF-1`
+(`:24-30`) records that D4's launcher ran an **unguarded** form of it for every arm
+except F. Related: `L-348` (a drop path a document calls passive is a launch button
+until the code says so), `L-259`, `L-339`.
+
+---
+
+## L-370 — AN INSTRUMENT md5 IN A FROZEN §7 IS SUPERSEDED BY ITS ADDENDUM TRAIL, AND A FREEZE CHECK THAT DOES NOT FOLLOW THE TRAIL IS VOID IN **BOTH** DIRECTIONS
+
+Rule 2 freezes the grading path at the pre-registration commit and rule 6 forbids
+editing a frozen file — so a legal pre-compute repair lands as a **dated addendum**
+carrying a NEW md5, and the §7 table's original value is left standing and struck. A
+checker that reads the first md5 it finds is therefore reading a value the registration
+has already retired.
+
+- **Void in both directions.** Against a repaired instrument it reports **false drift**
+  — a `GATE FAIL` manufactured by the checker. Against an instrument that really did
+  drift *to* a value some earlier addendum happened to carry, it reports **false
+  clean**. Neither error announces itself.
+- **Sized, not asserted: 20 superseded md5s across 14 registrations** would report false
+  drift to a naive checker, and **three of them sit on live drop-path entries** —
+  `FADR:373`, `W3:131`, `D5:235` — so a freeze check reading the first md5 it finds
+  fails on a **queued** entry the moment it looks.
+- **It fired again the same week.** D6's §7 (`:169`) registers
+  `860b984244e628279e6400b2743321fc` for `d6_chain_driver.sh`; Addendum 2 moved it to
+  `63458a97…` and **Addendum 3 (`:313`) moved it to `b4ddca654d8d5165a13447df4d0c1469`**,
+  which is the value on disk. A §7-only check would have reported a **false `GATE FAIL`
+  on a running item**.
+- **The instrument rule:** resolve an instrument's registered md5 by reading the
+  registration **to its end** and taking the LAST value bound to that filename, then
+  hash disk against that. State which addendum supplied it. A check that cannot name the
+  addendum it used has not followed the trail.
+- **A second bucket of 6** — where the disk md5 appears nowhere later — was reported as
+  **candidates for a human read, NOT findings**, with a known parsing artefact named
+  inside it. **Reporting the limit of a method beside its output is worth more than six
+  confident rows.**
+
+*Provenance:* dafoam, 2026-08-27, `docs/LAB_STATE.md` `## dafoam` (the sizing: *"20
+superseded md5s in 14 registrations"*, the three drop-path entries, and the six-row
+human-read bucket); the D6 instance at
+`cases/dafoam/ladder-a/A2/curriculum_D6/PREREGISTRATION.md:169` (§7) superseded through
+Addendum 2 (`:299`) to Addendum 3 (`:313`). Related: `L-354` (a freeze updates the sha
+and never the text that says NOT FROZEN), `L-356`, `L-362`.
+
+---
+
+## L-371 — A CAP ENFORCED IN ONE TIME FRAME AND GRADED IN ANOTHER IS A GATE THAT ANY ARM OBEYING ITS OWN DEADLINE MUST FAIL — AND AN ASSERT THAT RE-CHECKS THE CAP BY INVERTING ITS OWN ARITHMETIC WITHIN ONE FRAME CANNOT SEE IT
+
+D6's arm cap is enforced **inside the container** and measured **on the host**, and the
+two brackets are not the same interval.
+
+- **Enforcement frame.** `d6_run_arm.sh:347` runs `timeout -k 60 $TMO bash …/d6_cmd.sh`
+  as the container's command. The clock starts when that `timeout` starts.
+- **Grading frame.** `T0` is taken at `:336`, **before** `docker run -d` at `:340`.
+  The container's `bash -lc` preamble — `source loadDAFoam.sh`, an `id -u` echo, a
+  python `import idwarp` plus an md5 of `libidwarp.so`, and the deadline echo (`:343-346`)
+  — all run **outside** the `timeout`. `T1` at `:376` is taken after a poll loop with
+  `sleep 10` granularity (`:370`) **and after `docker logs` (`:372`) and two
+  `docker inspect` calls (`:356`, `:374`)** have run. `WALL = T1-T0` (`:377`) and
+  `CORE_MIN = WALL*RANKS/60` (`:399`) are what reach the grader.
+- **The consequence is arithmetic, not bad luck.** `d6_grade.py:502` computes
+  `within_cap = core_min <= cap`. Since the host-frame `WALL` strictly **exceeds** the
+  container-frame `TMO` by the preamble plus the poll lag plus the log dump, **an arm
+  that is stopped by its own registered deadline records a wall ABOVE its cap and trips
+  its own cap gate.** The `GATE FAIL` is manufactured by the measurement frame; the run
+  obeyed its registration exactly.
+- **AND THE ASSERT THAT WAS MEANT TO CATCH IT CANNOT.** `d6_run_arm.sh:194-202`
+  (`D4_CAP_ASSERT`) derives `TMO = round(CAP*60/RANKS)` and then re-checks it as
+  `BACKCHECK = TMO*RANKS/60`, aborting if `|CAP-BACKCHECK| > 0.02`. Its own comment says
+  it *"is then re-checked against that cap by inverting the arithmetic."* **Inverting one
+  frame's arithmetic proves only that the arithmetic inverts. Two numbers that agree with
+  each other can both be wrong about a third.** The assert passes on every run and has
+  never had the ability to see this defect.
+- **The missing check, stated so it can be registered:** assert the **grader's** wall
+  against the **enforced** wall, across frames —
+  `WALL - TMO <= budgeted_frame_slack`, with the slack itself registered and derived
+  from the preamble cost, the poll granularity and the log-dump cost. A cross-frame
+  check is the only kind that can fail.
+- **This is a REGISTRATION defect, not a run finding.** Gates close at first compute
+  (rule 2), so it is **not repaired in flight**: it is disclosed as a named limitation on
+  the record and re-registered in the successor. A cap gate whose failure is guaranteed
+  by construction must be registered as **reported-not-gated**, or its threshold must
+  carry the frame slack explicitly — the same shape as `L-345`.
+
+*Provenance:* dafoam D6 `O_mp`, 2026-08-27, ruled `D6-CAP-FRAME-1` by the dafoam
+supervisor. Code read directly:
+`cases/dafoam/ladder-a/A2/curriculum_D6/d6_run_arm.sh:194-202, :336, :340, :343-347,
+:356, :370, :372, :374, :376-377, :399` and
+`cases/dafoam/ladder-a/A2/curriculum_D6/d6_grade.py:502`. Related: `L-51` (a search has
+a method and a FRAME), `L-331` (show the two things are comparable before reading the
+difference), `L-345`, `L-335`.
+
+---
+
+## L-372 — AN ENUMERATION THAT TERMINATES ON THE FIRST BLOCKING CONDITION VALIDATES ONLY ITS FIRST ENTRY, AND A CURSOR THAT ADVANCES ONLY ON SUCCESS NEVER MOVES PAST IT — THE COST IS DELAYED DISCOVERY, NOT A WRONG LAUNCH, AND IT MUST BE STATED THAT WAY
+
+Read off `scripts/queue_runner.py` at HEAD, 2026-08-27, and stated at exactly the
+strength the code supports.
+
+- **Two limbs of one loop disagree about how to decline an entry.** The busy-ceiling
+  limb `return`s (`:689-691`, `return "HELD"`); the adjacent core-fraction limb
+  `continue`s (`:692-697`), carrying a comment that explains why — *"first-fit over the
+  WHOLE queue: a held wide entry must not block a narrow one behind it"*. The
+  `MemAvailable` and GPU limbs `continue` too. The busy-ceiling limb is the only one
+  that ends the scan.
+- **The round-robin cursor advances only on a successful launch**:
+  `rr_state["cursor"] = (TEAMS.index(team) + 1) % len(TEAMS)` at `:720`, immediately
+  before `return "LAUNCHED"` at `:721`. With no launch, the next tick starts at the same
+  team, and — because the busy-ceiling limb returns — ends at the same entry.
+- **Measured effect: six of dafoam's eight queued entries had never been evaluated at
+  all** under a sustained over-ceiling box. Since `qec.validate()` runs inside the loop
+  (`:675`), an entry never reached is an entry never **validated**, and its validation
+  state was simply unknown. It was resolved by running the runner's own validator over
+  the eight directly: **8 accept / 0 refuse.**
+- **STATE THE STRENGTH HONESTLY: this changes NO launch outcome.** `busy` is sampled
+  once per tick, so on an over-ceiling tick nothing could launch regardless of how far
+  the scan walked. **The cost is when a defect SURFACES, not whether a wrong thing runs**
+  — a malformed entry would announce itself only once the box freed, at the moment
+  compute became available, instead of now while a repair is free.
+- **The general form, which is the reusable part:** a loop that both **enumerates** and
+  **acts** has two exit disciplines, and they are not interchangeable. Terminating on a
+  condition that is a property of the **box** (busy, memory) rather than of the **entry**
+  collapses the enumeration to its first element. If validation rides inside such a
+  loop, validation coverage silently becomes a function of box load.
+- **Not written as a runner bug.** `scripts/queue_runner.py` is not this family's file;
+  the reading is escalated to the chief, and the family records only what it measured.
+
+*Provenance:* dafoam, 2026-08-27; `scripts/queue_runner.py:675, :689-691, :692-697,
+:720-721` read at HEAD by the reporting lane. Related: `L-329` ("no solver has run" is
+not "no gate has fired" — check the instrument the gate NAMES), `L-337`, `L-353`.
+
+---
+
+**BATCH NOTE, 2026-08-27, dafoam lane J — TWO CANDIDATES REFUSED AS DUPLICATES.**
+
+- **"A correct refusal that looks like a bug invites a fix that installs a real defect"
+  — REFUSED, it is `L-361`**, landed earlier the same day and carrying the *same
+  incident* (the re-fire `G1` refusal, and `docs/dafoam/REFIRE_RUNBOOK.md` as its
+  answer). Recorded here because the candidate reached a second lane's brief **after**
+  the lesson existed, which is the `L-92` failure mode from the previous batch note:
+  the lesson existed, was correct, and was not consulted.
+- **"A screen that flags everything is not a screen" — REFUSED, it is `L-339`**, whose
+  general form already requires a check's precision to be **stated as a number on a real
+  corpus** and treats a high false-positive rate as **disqualifying, not cosmetic**. The
+  2026-08-27 instance is a **new instance of `L-339`, not a new lesson**: the
+  discriminator *"does the selftest fixture CREATE the file rather than STAGE it"* has a
+  measured **100 % false-positive rate** in this family, because every grader here
+  creates its fixtures — which is `L-288` (*a comparator selftest that builds its own
+  fixture verifies the comparator's BELIEF about the writer, never the writer*). The
+  working discriminator is **does this item's own run script PRODUCE the file**. Both
+  facts are family knowledge, filed against `L-339` and `L-288`; neither is a new number.
+- **Numbering:** the maximum existing number was re-derived from
+  `git show HEAD:docs/LESSONS.md` — never the worktree copy — **inside the committing
+  shell invocation** (rule 11, and the previous batch note's near-miss, which came within
+  one byte-prefix assertion of destroying `L-357` and `L-358`).
+- **No existing lesson is renumbered, re-titled or edited** — no line number above this
+  batch moves (`L-356`).
