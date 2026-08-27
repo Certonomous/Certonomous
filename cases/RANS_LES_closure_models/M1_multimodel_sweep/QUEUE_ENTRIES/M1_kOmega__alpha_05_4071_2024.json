@@ -1,0 +1,33 @@
+{
+  "_m1_notes": {
+    "age_guard_state": "0.orig present after staging; NO 0/ and NO numeric time directory",
+    "cells": 15600,
+    "iterations": 20000,
+    "memory_floor_basis": "ESTIMATED, not measured -- no resident-set size was measured for these cases",
+    "rule5": "standing rule 5 does not apply: one mesh per case, no grid triple, no GCI",
+    "status_written_at_exit": "run_m1.sh writes STATUS (rc, wall_s, core_min, timestamps) atomically at exit; rc is captured INSIDE the wrapper"
+  },
+  "cap_core_min_registered": 25.022,
+  "case_id": "M1_kOmega__alpha_05_4071_2024",
+  "cost_basis": "derived: 15600 cells x 20000 iterations x 3.30 us per cell-iteration (MEASURED on this box on these meshes, Kaandorp2020_TBRF/aposteriori/RESULTS.md:393-396) / 60 = 17.160 core-min at ranks 1; $0.0147 at the owner-stated $0.0513/core-h, reported-by-owner and DERIVED, not measured (COMPUTE_BUDGET_CHARTER section 5: this box cannot read its own billing)",
+  "cost_core_min_estimate": 17.16,
+  "cwd": "/home/ubuntu/closure-data/multimodel_sweep/kOmega/alpha_05_4071_2024",
+  "enqueued_by": "closure-supervisor (SUPERVISION_CHARTER sec.3 check 4 performed personally 2026-08-27: prereg committed at 73cd5ac578c4916a07ae05a9618e166832fdef75 before any compute, disk sha256 e15d0df3ee960b907b50a978db864cd1a112cd4723274f7bd2876df643d87572 equals the committed blob, all 78 run roots hold zero time directories and zero field files)",
+  "launch_cmd": [
+    "/bin/bash",
+    "/home/ubuntu/Certonomous/cases/RANS_LES_closure_models/M1_multimodel_sweep/run_m1.sh",
+    "--case-dir",
+    "/home/ubuntu/closure-data/multimodel_sweep/kOmega/alpha_05_4071_2024",
+    "--arm",
+    "kOmega",
+    "--timeout-s",
+    "1502",
+    "--cap-core-min",
+    "25.022"
+  ],
+  "memory_floor_gb": 1.0,
+  "prereg_commit": "73cd5ac578c4916a07ae05a9618e166832fdef75",
+  "prereg_path": "cases/RANS_LES_closure_models/M1_multimodel_sweep/PREREGISTRATION.md",
+  "ranks": 1,
+  "team": "closure"
+}
