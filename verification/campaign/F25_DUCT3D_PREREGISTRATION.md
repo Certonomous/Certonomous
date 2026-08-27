@@ -490,3 +490,95 @@ the FOLLOWING commit so that `prereg_commit` and the launch argv's
 `--prereg-commit=` cite the sha of the commit carrying this amendment, with
 `cost_core_min_estimate` 1342.8 and `cap_core_min_registered` 2000. Nothing is
 sent, filed or submitted (rule 7).
+
+---
+
+## AMENDMENT 2 — 2026-08-27T17:00:07Z (pre-compute) — the L-349 pre-spend projector
+
+**Version 1.2. Lines whose number changed above this section: 0** (this block is
+appended at the foot; the 492 lines above it are byte-identical to their state at
+Amendment 1, asserted by diffing this file against its HEAD blob over lines 1-492).
+
+**Condition, and how it was checked.** F25 is **pre-compute**:
+`test -e /home/ubuntu/Certonomous/verification/runs/F25_DUCT3D_runs` -> **ABSENT at
+2026-08-27T17:00:07Z**. Zero core-minutes have been spent in any run root and no `LAUNCHED` line
+exists. Rule 2 therefore still permits an amendment, and this one is nevertheless
+written as a dated addendum with the original text struck nowhere and rewritten
+nowhere (rule 6).
+
+**What is amended: the PRE-SPEND projector only.** The defect is **L-349**
+(`68ff1acf`). The launcher projected each level as a FROZEN constant times a
+contention multiplier `max(1.0, ranks / max(free, 0.5))`, with `free` probed
+inside the launcher at the moment the level starts. The queue runner fires at an
+85 % busy ceiling, so `free` pins at the 0.5 floor and the multiplier pins at
+**8.0x** for a 4-rank entry. F24's two completed levels refute that magnitude from
+its own logs: the measured effect at `free = 0.5` was **1.86x** where the formula
+applied **8.0x**, overstated about 4.3x. Worse than the magnitude is the shape — a
+registered ladder whose fine level runs or not according to instantaneous box load
+is **not reproducible**, and under the standing directive to keep the box busy the
+guard converts a full box into a refusing box.
+
+**The replacement**, in `cases/F25_DUCT3D/proj_f25.py` (new file, 341 lines, zero
+compute, reads no clock, no `/proc` and no disk — every input is handed in):
+
+- **No level measured yet** (the first level only): the frozen constant times
+  `CONT = clamp(ranks / max(free, 0.5), 1.0, CONT_MAX)`, **CONT_MAX = 2.0**.
+- **One level measured:** `rate = core_s / cell_iters` from that level — a rate that
+  **already carries the load it ran under**, so no contention factor is applied on top
+  (that would double-count) — times the next level's cell-iterations, times
+  `D = clamp(frozen_rate[next] / frozen_rate[measured], 1.0, 2.5)`.
+- **Two or more levels measured:** the same, with `D = clamp(rate[last] / rate[prev],
+  1.0, 2.5)` — **this case's own measured drift**, which supersedes the frozen model
+  (C-152/C-153: F21 and F22 each measured their own base rate correctly and each still
+  missed, by importing another case's growth exponent).
+
+**The two clamps, and the honest status of their magnitudes.** The floor 1.0 means an
+*improving* rate is never extrapolated: F24 measured 2.519 then 1.674 core-µs per
+cell-iteration as fixed overheads amortised, and that improvement saturates. The
+ceiling 2.5 covers every per-doubling rate ratio the lab has measured (2.36 and 2.23
+on F22 row C-153; 2.10 and 2.13 on F21 row C-152) and still bounds a runaway.
+**CONT_MAX = 2.0 rests on ONE measured point — F24's 1.86x at `free = 0.5` — and that
+point is an upper bound on contention alone, because it also carries base-rate
+misprediction. One point is not a law, and this addendum does not dress it as one.**
+The projector is a runaway guard; the **actual**-spend check is the budget.
+
+**What this amendment does NOT change.** The registered **CAP stays 2000 core-min** —
+launcher and grader both, verified equal at preflight, which still prints
+`CAP AGREES between launcher and grader: 2000 core-minutes.` The **post-level
+incremental check on ACTUAL spend is byte-identical to its HEAD blob** (asserted by
+`diff` over the block, this session): `ClockTime × ranks / 60`, summed, HALT at
+exit 3 on a crossing, cap never raised (rule 12). The halt on a projected crossing
+still exits 3 with unlaunched levels PENDING. **No gate, threshold, band, label,
+ladder, iterative floor, census window, Class C parameter, rank count, decomposition
+or case dictionary is touched.** `exact_f25.py`, `build_f25.py`, `foam_io_f25.py`
+and `grade_f25.py` are unmodified.
+
+**Effect on this case, driven not asserted.** Replaying the registered ladder with
+every level running at its Amendment 1 rate, the new projector gives coarse **8.2**,
+medium **72.1** (cumulative 76.2), fine **1266.7** (cumulative **1342.9** of 2000) —
+**HALT=0 at every level, the ladder proceeds**, and the cumulative projection
+reproduces Amendment 1's own registered estimate of 1342.8 core-min to 0.1. The old
+form on the same ladder gave fine 10132.9, cumulative **10209.1 of 2000 -> HALT=1**.
+
+**Files changed by this amendment:** `run_f25.sh` (projector call site, the
+`MEASURED` accumulator, and the `proj_f25.py` selftest gate; the actual-spend check
+untouched) and the new `proj_f25.py`. sha256 at this re-freeze, first 8 / last 4:
+`run_f25.sh` `1b42e8ed…e328`, `proj_f25.py` `770f259b…48b9`.
+
+**Measured after the edit:** `proj_f25.py --selftest` rc **0**, **9 controls, 0
+failures**, every box reading **INJECTED** (L-339: no control reads live `/proc`);
+`python3 -O proj_f25.py` rc **2**; `ast.Assert` count **0**; `grade_f25.py`
+`grade_ladder` call nodes **1** (unchanged); `grade_f25.py --selftest` rc 0 and
+`-O` rc 2 (unchanged); `run_f25.sh --preflight` rc **0**;
+`check_launcher_can_launch.py --worktree` rc **0**. **The halt path was driven both
+ways through the launcher's own bytes** — the parse-and-branch block extracted
+verbatim from `run_f25.sh` and executed with an **injected** `PROJ_OUT`: `HALT=1`
+-> **rc 3** with `HALT BEFORE SPENDING`, `HALT=0` -> **rc 0** falling through to the
+launch path. No box was probed in any control.
+
+**Queue entry:** `cases/F25_DUCT3D/queue_entry_F25_DUCT3D.json` is refreshed in the
+FOLLOWING commit so `prereg_commit` and the launch argv's `--prereg-commit=` cite
+the sha of the commit carrying this amendment, `cost_core_min_estimate` 1342.8,
+`cap_core_min_registered` 2000. It is **HELD in the case directory**; moving it into
+`verification/queue/cfd/` is the supervisor's act after their own check 1/4.
+Nothing is sent, filed, uploaded or submitted (rule 7).

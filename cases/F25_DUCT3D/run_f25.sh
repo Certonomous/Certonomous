@@ -31,6 +31,7 @@ CASE_SRC="$ROOT/case"
 EXACT="$ROOT/exact_f25.py"
 BUILD="$ROOT/build_f25.py"
 GRADER="$ROOT/grade_f25.py"
+PROJ_MOD="$ROOT/proj_f25.py"   # AMENDMENT 2: the pre-spend projector, with its own planted controls
 FIO="$ROOT/foam_io_f25.py"
 RUN_ROOT="/home/ubuntu/Certonomous/verification/runs/F25_DUCT3D_runs"
 FOAM_BASHRC="/usr/lib/openfoam/openfoam2606/etc/bashrc"
@@ -116,7 +117,11 @@ python3 "$GRADER" --selftest > /dev/null 2>&1 \
   || { echo "ABORT: grade_f25.py --selftest did not pass; the grading path is not established"; exit 1; }
 python3 -O "$GRADER" --selftest > /dev/null 2>&1
 [ $? -eq 2 ] || { echo "ABORT: grade_f25.py did not exit 2 under python3 -O; the -O refusal is not armed"; exit 1; }
-say "INSTRUMENT GREEN: exact_f25 and grade_f25 selftests pass; grade_f25 exits 2 under -O."
+python3 "$PROJ_MOD" --selftest > /dev/null 2>&1 \
+  || { echo "ABORT: proj_f25.py --selftest did not pass; the pre-spend projector is not established and NOTHING may be launched behind it"; exit 1; }
+python3 -O "$PROJ_MOD" --selftest > /dev/null 2>&1
+[ $? -eq 2 ] || { echo "ABORT: proj_f25.py did not exit 2 under -O"; exit 1; }
+say "INSTRUMENT GREEN: exact_f25, grade_f25 and proj_f25 selftests pass; grade_f25 and proj_f25 exit 2 under -O."
 
 CAP_GRADER=$(grep -E '^CAP_CORE_MIN' "$GRADER" | head -1 | sed -E 's/^CAP_CORE_MIN[[:space:]]*=[[:space:]]*([0-9.]+).*/\1/')
 python3 -c "import sys; sys.exit(0 if abs(float('$CAP_GRADER') - $CAP_CORE_MIN) < 1e-9 else 1)" \
@@ -180,6 +185,7 @@ command -v mpirun        > /dev/null || { echo "ABORT: mpirun not on PATH after 
 [ -e "$RUN_ROOT" ] && refuse_if_answered "$RUN_ROOT"
 mkdir -p "$RUN_ROOT" || { echo "ABORT: cannot create $RUN_ROOT"; exit 1; }
 SPENT=0
+MEASURED=""            # AMENDMENT 2: "<level>:<core_seconds>,..." for levels COMPLETED in this invocation
 
 for L in "${LEVELS[@]}"; do
   set -- $L
@@ -191,9 +197,21 @@ for L in "${LEVELS[@]}"; do
 
   # ---- PROBE THIS BOX, IN THIS INVOCATION. Never a relayed figure. ------
   FREE=$(probe_box "$NAME-pre" "$CD/box_before.txt")
-  PROJ=$(python3 -c "r=$RANKS; f=$FREE; print(${PROJ_CORE_S[$NAME]} / 60.0 * max(1.0, r / max(f, 0.5)))")
-  say "level $NAME: free cores $FREE, ranks $RANKS -> PROJECTED $PROJ core-min (cumulative would be $(python3 -c "print($SPENT + $PROJ)") of $CAP_CORE_MIN)"
-  python3 -c "import sys; sys.exit(0 if $SPENT + $PROJ <= $CAP_CORE_MIN else 1)" || {
+  # ---- PRE-SPEND PROJECTION (AMENDMENT 2): from THIS CASE'S OWN completed
+  # levels, not from a frozen constant times a guessed contention multiplier.
+  # The frozen constant is the fall-back for the FIRST level only.  Every input
+  # is handed to the module; the module reads no clock, no /proc and no disk.
+  PROJ_OUT=$(python3 "$PROJ_MOD" --level "$NAME" --spent "$SPENT" --free "$FREE" \
+                    --ranks "$RANKS" --measured "$MEASURED" --cap "$CAP_CORE_MIN") \
+    || { echo "ABORT: proj_f25.py refused at level $NAME; an unchecked projection is not a projection"; exit 1; }
+  PROJ=$(printf '%s\n' "$PROJ_OUT" | sed -n 's/^PROJ_CORE_MIN=//p')
+  CUM=$(printf '%s\n' "$PROJ_OUT" | sed -n 's/^CUMULATIVE=//p')
+  HALT=$(printf '%s\n' "$PROJ_OUT" | sed -n 's/^HALT=//p')
+  BASIS=$(printf '%s\n' "$PROJ_OUT" | sed -n 's/^BASIS=//p')
+  [ -n "$PROJ" ] && [ -n "$HALT" ] || { echo "ABORT: proj_f25.py did not print PROJ_CORE_MIN/HALT"; exit 1; }
+  say "level $NAME: free cores $FREE, ranks $RANKS -> PROJECTED $PROJ core-min (cumulative would be $CUM of $CAP_CORE_MIN)"
+  say "  projection basis: $BASIS"
+  [ "$HALT" = "0" ] || {
     echo "HALT BEFORE SPENDING: level $NAME is PROJECTED to cross the registered"
     echo "      cap of $CAP_CORE_MIN core-min. The cap is NOT raised. Levels not"
     echo "      launched stay PENDING (CLAUDE.md rule 12)."
@@ -224,6 +242,8 @@ for L in "${LEVELS[@]}"; do
   CLOCK=$(grep "ClockTime = " "$CD/log.simpleFoam" | tail -1 | sed 's/.*ClockTime = \([0-9][0-9]*\) s.*/\1/')
   [ -n "$CLOCK" ] || { echo "ABORT: no ClockTime in $CD/log.simpleFoam; the cap cannot be checked and an unchecked cap is not a cap"; exit 1; }
   SPENT=$(python3 -c "print($SPENT + $CLOCK * $RANKS / 60.0)")
+  # AMENDMENT 2: this level's MEASURED core-seconds feed the next level's projection.
+  MEASURED="${MEASURED:+$MEASURED,}$NAME:$(python3 -c "print($CLOCK * $RANKS)")"
   say "level $NAME COMPLETE: ClockTime ${CLOCK}s x $RANKS ranks -> cumulative $SPENT core-min of $CAP_CORE_MIN"
   say "  QUANTISATION: ClockTime has INTEGER-SECOND resolution: +/- $(python3 -c "print(0.5*$RANKS/60.0)") core-min per level."
   python3 -c "import sys; sys.exit(0 if $SPENT <= $CAP_CORE_MIN else 1)" || {
