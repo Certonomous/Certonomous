@@ -1,0 +1,40 @@
+W3 AMENDMENT 2 -- R-RC BATTERY EVIDENCE  2026-08-27T17:08:39Z
+grader   md5 = 3b0a75079c932b41ec19477388498842   (was f3c1252c11fb94a3d4c580fdcbe7a62d)
+launcher md5 = 20f8c0c51593576bddaa8a410659d997   (was 5563d8a8e22d28247233ca0e3aebfc2b)
+driver   md5 = 60b1edc17a1d041a78fe8e17cbbbaebf   (was aaa5339db4abd9e0cf6c20701acefef4)
+
+=== python3  d12y_grade_w3.py --selftest-rrc ===
+R-RC SELFTEST units=22 failures=0 python_O=False
+R-RC SELFTEST PASS 22/22
+    rc=0
+=== python3  d12y_grade_w3.py --selftest-w3 ===
+W3 SELFTEST units=12 failures=0 python_O=False
+W3 SELFTEST PASS 12/12
+    rc=0
+=== python3  d12y_grade_w3.py --selftest ===
+SELFTEST UNITS: 82, failures: 0
+COUNTED EXIT: units REGISTERED (frozen constant) 82, units in the list 82, units that RETURNED A RESULT 82, failures 0
+ASSERT AUDIT: 0 `assert` statements in this file (must be 0 -- `-O` deletes them)
+    rc=0
+=== python3 -O d12y_grade_w3.py --selftest-rrc ===
+R-RC SELFTEST units=22 failures=0 python_O=True
+R-RC SELFTEST PASS 22/22
+    rc=0
+=== python3 -O d12y_grade_w3.py --selftest-w3 ===
+W3 SELFTEST units=12 failures=0 python_O=True
+W3 SELFTEST PASS 12/12
+    rc=0
+=== python3 -O d12y_grade_w3.py --selftest ===
+SELFTEST UNITS: 82, failures: 0
+COUNTED EXIT: units REGISTERED (frozen constant) 82, units in the list 82, units that RETURNED A RESULT 82, failures 0
+ASSERT AUDIT: 0 `assert` statements in this file (must be 0 -- `-O` deletes them)
+    rc=0
+
+=== ASSERT-AUDIT PLANTED CONTROL (the counter shown COUNTING one) ===
+  clean file  : assert statements in this file: 0 (must be 0)
+  PLANTED copy: assert statements in this file: 1 (must be 0)
+
+=== R-RC-4 FATAL-SCAN CONTROL (patterns extracted FROM THE LAUNCHER) ===
+  [OK ] (b) PLANTED 'MPI_ABORT'                -> CAUGHT hits=['MPI_ABORT']
+  [OK ] (c) PLANTED innocuous prose ('signal', 'error', 'fatal', 'segment') -> no tokens the patterns are ANCHORED, not substrings
+W3 FATAL-SCAN CONTROL pass=12 fail=0

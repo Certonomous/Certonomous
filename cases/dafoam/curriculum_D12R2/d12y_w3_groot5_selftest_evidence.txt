@@ -1,4 +1,4 @@
-W3 G-ROOT.5 SELFTEST 2026-08-27T16:40:41Z driver_md5=aaa5339db4abd9e0cf6c20701acefef4
+W3 G-ROOT.5 SELFTEST 2026-08-27T17:11:37Z driver_md5=60b1edc17a1d041a78fe8e17cbbbaebf
   pre-existing artefacts SNAPSHOTTED: STATUS.W3_chain=present W3_*.out=[/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/W3_phase1.out ]
   [OK ] run root ABSENT before the test: /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady
   [OK ] (d) PLANTED CAP_CORE_MIN=600.0 -> exit 1, A1 REFUSED, NOTHING RUN
@@ -8,11 +8,11 @@ W3 G-ROOT.5 SELFTEST 2026-08-27T16:40:41Z driver_md5=aaa5339db4abd9e0cf6c20701ac
   [OK ] (g) launcher OPERATIVE defaults == its *_REGISTERED constants (900.0 / 400.0)
   [OK ] (h) launcher *_REGISTERED constants == the FROZEN pre-registration's caps (900.0 / 400.0)
   [OK ] (i) PLANTED CONTROL: mutated copy reads operative=600.0 vs registered=900.0 -- the (g) reader CAN see a disagreement
-  [OK ] (a) live prefix container d12y_w3_selftest_20260827T164041Z -> rc=3, NOTHING RUN
-  [OK ] (b) live sibling driver pid 907901 -> rc=3, NOTHING RUN
+  [OK ] (a) live prefix container d12y_w3_selftest_20260827T171138Z -> rc=3, NOTHING RUN
+  [OK ] (b) live sibling driver pid 1015523 -> rc=3, NOTHING RUN
   [OK ] (c) stale pidfile ignored; existing root -> rc=6 (phase 1 requires an absent root), NOTHING RUN
   [OK ] run root ABSENT after the test (freeze condition): test -e /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady -> false
   [OK ] no d12y_w3_ container survives
   [OK ] no NEW step output was written (no leg reached the launcher); pre-existing [/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/W3_phase1.out ] PRESERVED
   [OK ] pre-existing STATUS.W3_chain RESTORED byte-for-byte
-W3 G-ROOT5 SELFTEST pass=14 fail=0 2026-08-27T16:40:43Z
+W3 G-ROOT5 SELFTEST pass=14 fail=0 2026-08-27T17:11:39Z

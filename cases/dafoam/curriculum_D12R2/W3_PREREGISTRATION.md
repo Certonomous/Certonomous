@@ -205,3 +205,109 @@ A control not shown able to fire is not a control (`CLAUDE.md` rule 3). Six legs
 | defects named and repaired | **2** (`W3-LAUNCHER-DEF-1`, `W3-SELFTEST-DEF-1`) |
 | selftest legs added, all driven | **6 + 2** (cap agreement; snapshot/restore) |
 | selftest result | **pass=14 fail=0** |
+
+---
+
+## 12. AMENDMENT 2 — 2026-08-27, PRE-COMPUTE. Ruling R-RC applied in full, and the L-342 field-class split. No gate, threshold, cap, band or label moves.
+
+**Version 1.1 → 1.2.** Dated **2026-08-27**. Lane: dafoam `lab-lane` (B). Supervisor: `dafoam-supervisor` (`[lab-attributed]`). **Lines whose number changed above this section: 0 — proved on BYTES**, not on a line count: the HEAD blob of this file is asserted a byte-exact PREFIX of the amended file in the commit invocation. Sections 1–11 stand.
+
+### 12.1 Authority — a standing rule enforced, not an exception granted
+
+**This amendment's authority is `L-342` and ruling `R-RC`, and it is deliberately NOT `VERIFICATION_CHARTER.md` §2d.1.**
+
+`L-342` is Sanaa's own universal rule: *a bookkeeping failure invalidates the bookkeeping, never the physics artifacts — and graders must separate physics-critical fields from infrastructure fields so a dead poller can never void a run again.* `R-RC` was **APPROVED BY SANAA HERSELF** on 2026-08-27, in her standing directives §0 (`etc/sessions/2026-08-27T1654Z_sanaa_standing_directives.md`), verbatim:
+
+> **R-RC: APPROVED — rc value is physics, rc record is infrastructure; absent record -> NOT MEASURED only when the other four rule-4 conditions hold.**
+
+§2d.1 is the four-condition **repair exception to the post-compute freeze**, and it is not reached here for two independent reasons. First, **W3 has spent 0 core-min and its comparator has never fired**, so the ordinary pre-compute amendment clause (§2b, rule 2) is wide open and an exception used where the ordinary path is open is an exception being widened. Second, and the one that matters: **a comparator that refuses on a launcher-written record is in breach of a standing rule, and bringing it into compliance is the freeze's own terms being enforced, not a discretionary departure from them.**
+
+**§2b's condition, stated AND CHECKED** — re-driven at 17:08:59Z, not carried over from Amendment 1: `test -e /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady` is **false**, driven twice inside `d12y_w3_groot5_selftest.sh` (`pass=14 fail=0`); no `d12y_w3_` container has ever existed; no ledger or manifest exists; `W3_phase1.out` records the one launch, which spent nothing. **There is no answer to tune to.**
+
+**Sanaa can overrule any of this.**
+
+### 12.2 What moves, and what deliberately does not
+
+| clause | before | after | class |
+| --- | --- | --- | --- |
+| `g0_completion` `ExecutionTime` count below registered steps (`:375-377`) | **REFUSAL** | **REPORTED** as a bookkeeping defect beside the verdict | INFRASTRUCTURE |
+| `g0_completion` `Time =` count != registered steps | REFUSAL | **REFUSAL, unchanged** | PHYSICS |
+| `rc` **record** absent from the manifest row | refused via `REQUIRED_ROW_KEYS` | **`NOT MEASURED`, `rc=0` INFERRED**, fenced (§12.3) | INFRASTRUCTURE |
+| `rc` **value** present and non-zero | REFUSAL | **REFUSAL, unchanged** (R-RC-1, R-RC-3) | PHYSICS |
+| `rc` key present but `None` | — | **REFUSAL, new** | PHYSICS |
+| `FOAM FATAL` / signal token in the stage log | **not checked at all** | **REFUSAL, new — regardless of rc and of every other limb** (R-RC-4) | PHYSICS |
+| `W3-A2` ledger **absent** (`:1976`) | REFUSAL | **cross-read `NOT MEASURED`**; the window itself still gated | INFRASTRUCTURE |
+| `W3-A2` ledger **present** with ≠ 1 `W_STEPS` line, or disagreeing | REFUSAL | **REFUSAL, unchanged** — present-and-wrong is R-RC-3's shape | PHYSICS |
+| `g0b` ledger absent + manifest count ≠ registered (`:453`) | REFUSAL | **REFUSAL, unchanged — see §12.5** | PHYSICS |
+
+**Unmoved:** `CAP_CORE_MIN = 900.0`, `CAP_S8 = 400.0`, `W_STEPS 2000`, `MEM_LIMIT 8g`, `MEMAVAIL_FLOOR_GIB 14.0`, `CPUSET_CPUS 1`, band D, `h_max 0.05`, `C_ENV`, `W_PRIMARY`, every gate `G12R-0`…`G12R-11`/`G12R-W`, P1–P5, the 563.3 core-min estimate, the S8 wall bound, and every band, threshold and label in §§3–8.
+
+### 12.3 R-RC-2's fence, and why the permissive half is safe
+
+An absent rc record yields `NOT MEASURED` **only when all four remaining rule-4 conditions hold**, and each is **named individually in the artefact** — `end_line_present`, `last_time_equals_endTime`, `registered_fields_present`, `age_guard`. "All four held" without naming them is the self-assessment shape this lab amended against. If any one fails, **its own limb refuses first** and the ordinary refusal stands; the absent record buys nothing.
+
+**`rc = 0` is INFERRED and printed as an inference, never graded as a measurement.** `CLAUDE.md` rule 3 is untouched by R-RC. The artefact carries the words `INFERRED, NOT MEASURED` and `NOT graded as a measurement`, and a top-level `rc_note` flags the whole result so a reader cannot take the grade without the caveat.
+
+**R-RC-4 is the fence, and it is load-bearing.** The one shape that can pass all four conditions and still deserve refusal is a solver returning non-zero **after** writing every field and the `End` line. So the launcher — which already holds the whole log text — now records `fatal_tokens`, and the grader refuses on any hit **regardless of rc**. Where the record is absent **and** the scan never ran, the grader **REFUSES**: in the ruling's own words, *without that limb the inference is not safe and R-RC-2 does not apply.* `None` (no log read) and `[]` (scanned, clean) are different values and the grader treats them so.
+
+### 12.4 Planted-failure proofs — Sanaa's §1, L-314 standard, all zero compute
+
+> *"Every guard ships its planted-failure proof."*
+
+**`--selftest-rrc`: 22/22 under `python3` AND `python3 -O`** (`d12y_grade_w3_rrc_evidence.txt`). Every permissive leg is paired with the strict leg that shows the same guard still refusing — *a guard shown only to pass is not shown to be a guard*:
+
+| leg | planted | required | got |
+| --- | --- | --- | --- |
+| R1 | nothing (positive control) | PASS, 0 infrastructure defects | `[OK ]` |
+| R2–R5 | rc record absent, four conditions hold | PASS; artefact says `INFERRED, NOT MEASURED`; all four named individually; `rc_note` flags it | `[OK ]` ×4 |
+| R6 ×4 | rc absent **+ each condition broken in turn** | REFUSE **on that condition**, not on the missing record | `[OK ]` ×4 |
+| R7 | rc present = 1 | REFUSE (R-RC-3) | `[OK ]` |
+| R8 | rc key present but `None` | REFUSE — a record that exists and says nothing is not a licensed inference | `[OK ]` |
+| R9, R10 | `FOAM FATAL ERROR`; `Segmentation fault`, with rc=0 and every limb perfect | REFUSE (R-RC-4 strict half) | `[OK ]` ×2 |
+| R11 | rc absent **and** the scan never ran | REFUSE — the inference is fenced, not granted | `[OK ]` |
+| R12 | scan absent but rc measured 0 | PASS with the gap reported | `[OK ]` |
+| R13 | ExecutionTime 3 vs 300, `Time =` correct | PASS with a bookkeeping defect | `[OK ]` |
+| **R14** | **`Time =` 299 vs 300** | **STILL REFUSE — the control that proves the physics limb was SPLIT OFF, not deleted** | `[OK ]` |
+| R15 | W3-A2 ledger absent, rows agree at `W_PRIMARY` | return the window, cross-read `NOT MEASURED` | `[OK ]` |
+| R16, R17 | ledger absent + W ≠ `W_PRIMARY`; ledger absent + a row with no `W` | REFUSE — the window is physics and is not waived with the ledger | `[OK ]` ×2 |
+| R18, R19 | ledger present with two `W_STEPS` lines; ledger present and disagreeing | STILL REFUSE (the `W2R-GRADER-DEF-1` shape) | `[OK ]` ×2 |
+
+**`d12y_w3_fatal_scan_control.sh`: 12/12.** The patterns are **extracted from `d12y_w3_stage_and_run.sh` itself, never retyped** — a control carrying its own copy tests the copy and keeps passing after the launcher drifts — and the control **REFUSES** rather than reporting a clean zero if the extraction finds fewer than five patterns. Legs: a clean log yields nothing (the reader is not trigger-happy); **all nine patterns planted individually** with a leg asserting no launcher pattern is left undriven; and innocuous prose containing *signal*, *error*, *fatal* and *segment* yields nothing — the patterns are anchored, not substrings, because a scanner that refuses good runs is the `VMFLGPU001` failure running backwards.
+
+**The inherited battery: 82/82, 0 failures, under both flags** — and it **failed 2/82 first**, at `U-01b` and `U-0d`, both on the ExecutionTime clause. Recorded rather than tidied: those two units encoded the pre-amendment behaviour and were **updated to the new registered behaviour, not deleted**. `U-0d` now drives **both halves of the split**, and its second half — a short `Time =` count still refusing — is the control that proves the physics limb was separated rather than removed. `U-01b` loses `execution_time_count` from the rule-4 refusal matrix and **gains the two guards this amendment creates** (`rc=None`, `fatal_tokens=[...]`), so the inherited battery exercises them too. The registered unit count stays **82**.
+
+**`ast.Assert` count 0, with the counter shown COUNTING one**: the clean file audits to `0`; a sacrificial copy carrying one planted module-level `assert` audits to `1`. An assert audit that has never seen an assert is not evidence.
+
+### 12.5 What was audited and deliberately NOT changed — the honest half
+
+The `L-342` audit (`8fed44ed`) listed four ledger sites in this file: `:453`, `:1976`, `:1984`, `:1986`. **Only `:1976` is a conflation. The other three are correct as they stand and repairing them would have been a permissive widening `R-RC` does not license.**
+
+- **`:453` is already compliant.** Its `ADDENDUM 1` block already returns `NOT_MEASURED` on an absent ledger; the refusal beside it fires on `len(names_manifest) != expected_rows` — **the count against a frozen constant this file types, which needs no ledger** and which caught `D12R2-DEF-2` and `W2-DEF-1`. The audit matched the line; reading it, the refusal is on the count, not on the ledger's absence.
+- **`:1984` and `:1986` fire on a ledger that is PRESENT and ambiguous or PRESENT and disagreeing.** That is `R-RC-3`'s shape — present-and-wrong refuses — and two `W_STEPS` lines is a real ambiguity about which window ran.
+
+**A second honest correction.** The `A3` instrument-freeze check was suspected of comparing empty against empty on an absent instrument. **Measured: it does not** — the on-disk md5 is the empty string while the HEAD-blob md5 is `d41d8cd9…` (the md5 of empty input), so they differ and it refuses. Recorded so nobody re-derives it.
+
+### 12.6 Instruments re-frozen at this commit
+
+| file | md5 at v1.1 | md5 at v1.2 | change |
+| --- | --- | --- | --- |
+| `d12y_grade_w3.py` | `f3c1252c11fb94a3d4c580fdcbe7a62d` | `3b0a75079c932b41ec19477388498842` | the R-RC branch, the R-RC-4 limb, the infrastructure channel, the `W3-A2` ledger split, `selftest_rrc` (22 legs), and the two inherited units. `d12y_grade_w3_DELTAS_amendment2.diff`, 489 lines |
+| `d12y_w3_stage_and_run.sh` | `5563d8a8e22d28247233ca0e3aebfc2b` | `20f8c0c51593576bddaa8a410659d997` | `row["fatal_tokens"]` and the nine-pattern scan. `d12y_w3_stage_and_run_DELTAS_amendment2.diff`, 35 lines. **No cap, cpuset, memory, stage graph or `W_STEPS` value is touched** |
+| `d12y_w3_chain_driver.sh` | `aaa5339db4abd9e0cf6c20701acefef4` | `60b1edc17a1d041a78fe8e17cbbbaebf` | `MD5_LAUNCHER` and `MD5_GRADER` re-pinned. The driver asserts both at `:34`/`:38` before every step; **pin == actual is asserted in the commit invocation**, because a stale pin here is the `D8R-DRIVER-DEF-1` death |
+| `d12y_w3_fatal_scan_control.sh` | — | new | §12.4's twelve legs |
+
+The launcher's `A3` asserts every instrument against the **committed HEAD blob** before staging, so none of this runs until it is committed — the freeze is executed, not asserted.
+
+### 12.7 Re-file
+
+`W3_chain_r2.json` was withdrawn to `held/` at 16:46:37Z **before the runner fired it**, precisely to keep this window open. The successor is **`W3_chain_r3.json`**, identical in every registered field, with `prereg_commit` set to the commit carrying this amendment. **Enqueueing is not authorisation.**
+
+| what this amendment did | figure |
+| --- | --- |
+| gates, thresholds, caps, bands, labels or predictions altered | **0** |
+| core-minutes spent by W3 before this amendment | **0** |
+| refusal clauses reclassified INFRASTRUCTURE | **3** |
+| refusal clauses ADDED (both physics) | **2** (`rc` present-but-`None`; `FOAM FATAL`/signal) |
+| audited clauses examined and deliberately left strict | **3** (`:453`, `:1984`, `:1986`) |
+| planted-failure legs driven | **22 + 12 + 82**, all passing under `python3` and `python3 -O` |
+| lines whose number changed above this section | **0**, proved on bytes |

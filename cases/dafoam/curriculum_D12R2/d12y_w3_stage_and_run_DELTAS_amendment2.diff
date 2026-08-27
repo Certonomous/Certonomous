@@ -1,0 +1,35 @@
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/dafoam-lane-B/l.head	2026-08-27 17:11:39.971674629 +0000
++++ d12y_w3_stage_and_run.sh	2026-08-27 17:00:59.733095356 +0000
+@@ -538,6 +538,15 @@
+ row["time_line_count"] = 0
+ row["execution_time_count"] = 0
+ row["obj_from_log"] = None
++# ---- W3 AMENDMENT 2 (2026-08-27), R-RC-4 (Sanaa APPROVED R-RC, standing directives sec.0,
++# ---- etc/sessions/2026-08-27T1654Z_sanaa_standing_directives.md): the ONE shape that can pass
++# ---- all four remaining rule-4 conditions and still deserve refusal is a solver that returns
++# ---- NON-ZERO AFTER writing every field and the End line -- a post-solve function object or a
++# ---- cleanup step failing.  The grader may only INFER rc=0 from an absent rc record if it can
++# ---- also see that shape, so the launcher -- which already holds the whole log text -- records
++# ---- the fatal/signal tokens it finds.  None means NO LOG WAS READ (scan NOT MEASURED); a list,
++# ---- possibly empty, means the scan RAN.  The two are different and the grader treats them so.
++row["fatal_tokens"] = None
+ if os.path.isfile(log):
+     with open(log, errors="replace") as f:
+         txt = f.read()
+@@ -550,6 +559,16 @@
+         except ValueError:
+             pass
+     row["execution_time_count"] = len(re.findall(r"ExecutionTime", txt))
++    # R-RC-4 STRICT LIMB.  Anchored patterns, not a loose substring: "signal" alone would match
++    # OpenFOAM prose.  Every token here is one OpenFOAM or the kernel emits ONLY on a real fault.
++    _FATAL = [r"FOAM FATAL ERROR", r"FOAM FATAL IO ERROR",
++              r"Segmentation fault", r"signal \(11\)", r"signal \(8\)", r"signal \(6\)",
++              r"Floating point exception", r"^\s*\[\d+\]\s+#\d+\s", r"MPI_ABORT"]
++    _hits = []
++    for _pat in _FATAL:
++        if re.search(_pat, txt, re.M):
++            _hits.append(_pat)
++    row["fatal_tokens"] = _hits
+     # ---- [D3] THE ANCHORED OBJECTIVE READER -----------------------------------
+     # The superseded launcher used a LOOSE findall on `average:` and took the last.
+     # The solver prints `average:` on BOTH lines every timestep:

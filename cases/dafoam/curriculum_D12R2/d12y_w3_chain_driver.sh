@@ -28,8 +28,12 @@ PERMISSION=bc0e687e
 # W3 AMENDMENT 1 (2026-08-27), W3-LAUNCHER-DEF-1: launcher md5 fc7585cf... -> 5563d8a8...
 # (two operative cap DEFAULTS corrected to the values the frozen registration already
 # named; no gate, threshold, cap, band or label moves -- 900.0/400.0 is what sec.4 says).
-MD5_LAUNCHER=5563d8a8e22d28247233ca0e3aebfc2b
-MD5_GRADER=f3c1252c11fb94a3d4c580fdcbe7a62d
+# W3 AMENDMENT 2 (2026-08-27), R-RC-4: launcher 5563d8a8... -> 20f8c0c51593576bddaa8a410659d997 (the fatal/signal log scan).
+MD5_LAUNCHER=20f8c0c51593576bddaa8a410659d997
+# W3 AMENDMENT 2 (2026-08-27), RULING R-RC (Sanaa APPROVED, standing directives sec.0):
+# comparator f3c1252c... -> 3b0a75079c932b41ec19477388498842. The driver asserts this at :38 before every step;
+# a stale pin here is the D8R-DRIVER-DEF-1 death and the assertion below is what catches it.
+MD5_GRADER=3b0a75079c932b41ec19477388498842
 STATUS="$HERE/STATUS.W3_chain"
 utc () { date -u +%Y-%m-%dT%H:%M:%SZ; }
 rec () { echo "stamp=$(utc) driver=d12y_w3_chain_driver.sh $*" | tee -a "$STATUS"; }

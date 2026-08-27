@@ -1,0 +1,489 @@
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/dafoam-lane-B/g.head	2026-08-27 17:11:39.967674605 +0000
++++ d12y_grade_w3.py	2026-08-27 17:06:46.429352486 +0000
+@@ -80,10 +80,32 @@
+ # Keys every manifest row must CARRY, present, whatever its task.  Absence is refused
+ # BY NAME rather than read through `.get()` as a falsy pass -- L-302 at the row level:
+ # an instrument that cannot say "this row never told me" will grade a row it did not read.
+-REQUIRED_ROW_KEYS = ("name", "task", "stage_kind", "rc", "oomkilled",
++REQUIRED_ROW_KEYS = ("name", "task", "stage_kind", "oomkilled",
+                      "end_line_present", "last_time", "endTime",
+                      "coldstart_ok", "age_guard_ok")
+ 
++# ---- W3 AMENDMENT 2 (2026-08-27) -- RULING R-RC, APPROVED BY SANAA HERSELF -----------
++# Her standing directives sec.0 (etc/sessions/2026-08-27T1654Z_sanaa_standing_directives.md),
++# verbatim: "R-RC: APPROVED -- rc value is physics, rc record is infrastructure; absent
++# record -> NOT MEASURED only when the other four rule-4 conditions hold."
++#
++# `rc` LEAVES the tuple above and is handled below.  THIS IS NOT A WEAKENING OF L-302.
++# L-302 says an instrument that cannot say "this row never told me" will grade a row it
++# did not read -- and the R-RC path SAYS IT, loudly, in the artefact, by name.  What
++# changes is the CONSEQUENCE of the row not telling: under L-342 a launcher-written
++# record's absence is a BOOKKEEPING failure and may not void physics the solver's own
++# artifacts still attest.  The rc VALUE remains physics-critical and rule 4 is unchanged:
++# a PRESENT non-zero rc still refuses, and so does a present-but-unreadable one.
++RRC_DEFERRED_KEYS = ("rc",)
++
++# R-RC-2's fence, named here so it cannot drift: these are the FOUR remaining rule-4
++# conditions, ALL of which must hold before an absent rc record may be read as NOT
++# MEASURED.  Each is evaluated by its own limb in g0_completion and each is reported
++# INDIVIDUALLY BY NAME in the artefact -- "all four held" without naming them is the
++# self-assessment shape this lab amended against.
++RRC_FOUR_CONDITIONS = ("end_line_present", "last_time_equals_endTime",
++                       "registered_fields_present", "age_guard")
++
+ # A MESH STAGE HAS NO TIME.  `last time == endTime` on a mesh row can only ever be
+ # 0.0 == 0.0, AND A LIMB THAT CANNOT FAIL IS NOT A LIMB -- it is the vacuous shape this
+ # lab amended against, wearing the costume of a check.  So a mesh stage is required to
+@@ -230,6 +252,12 @@
+     """G12R-0 -- REFUSAL only.  Every clause of CLAUDE.md rule 4 this instrument carries."""
+     if not stages:
+         raise Refusal("G12R-0: no stages in the manifest")
++    # W3 AMENDMENT 2: the INFRASTRUCTURE channel.  L-342 splits a grader's readings into
++    # physics-critical (may produce NOT A RESULT) and infrastructure (a BOOKKEEPING DEFECT
++    # reported BESIDE the verdict, voiding only the cost claim).  A defect that is real and
++    # merely not fatal must still be VISIBLE, or the split becomes a way to make findings
++    # disappear -- which is the failure L-342 exists to prevent, running the other way.
++    _infra = []
+     for st in stages:
+         nm = st.get("name", "<unnamed>")
+         # ---- [D12R2-DEF-1] PRESENCE BEFORE VALUE, AND IT MUST BE FIRST -------------
+@@ -252,8 +280,35 @@
+                           "does not carry a limb cannot be said to have passed it, and "
+                           "this gate will not read an absent key as a satisfied one "
+                           "(L-302 at the row level)." % (nm, ", ".join(missing)))
+-        if st.get("rc") != 0:
+-            raise Refusal("G12R-0 %s: rc=%r" % (nm, st.get("rc")))
++        # ---- W3 AMENDMENT 2 -- R-RC, and the FATAL limb that fences it ------------
++        # R-RC-4 FIRST, and it refuses REGARDLESS of rc, of the End line and of every
++        # other limb: a solver that printed a fatal or took a signal did not complete,
++        # whatever else the record says.  This is the STRICT half of R-RC and it needed
++        # nobody's approval -- a tightening never does.
++        ft = st.get("fatal_tokens")
++        if isinstance(ft, list) and ft:
++            raise Refusal("G12R-0 %s: the stage log carries FATAL/SIGNAL token(s) %s. "
++                          "R-RC-4: a solver that printed a fatal or took a signal has not "
++                          "completed, End line notwithstanding, and this REFUSES whatever "
++                          "rc says." % (nm, ", ".join(repr(t) for t in ft)))
++        rc_present = "rc" in st
++        rc_inferred = False
++        if rc_present:
++            # R-RC-1 and R-RC-3: the VALUE is physics.  Rule 4 is untouched here.
++            if st.get("rc") is None:
++                raise Refusal("G12R-0 %s: the row CARRIES an `rc` key whose value is None. "
++                              "R-RC-2 licenses an ABSENT record, not a present one the "
++                              "launcher wrote and failed to fill -- that is a record that "
++                              "exists and says nothing, and it is not an inference this "
++                              "gate is entitled to make." % nm)
++            if st.get("rc") != 0:
++                raise Refusal("G12R-0 %s: rc=%r" % (nm, st.get("rc")))
++        else:
++            # R-RC-2: DEFER.  The decision cannot be taken here, because it depends on the
++            # four conditions evaluated further down.  Nothing is waived at this point --
++            # if any of the four fails, its own limb refuses first and the ordinary
++            # refusal stands, exactly as R-RC-2 requires.
++            rc_inferred = True
+         if str(st.get("oomkilled", "")).lower() != "false":
+             raise Refusal("G12R-0 %s: OOMKilled=%r" % (nm, st.get("oomkilled")))
+         # ---- [D12R2-DEF-1] THE STATUS LIMB IS TASK-AWARE, AND THAT IS THE REPAIR --
+@@ -340,6 +395,47 @@
+                           "Every field at endTime must be newer than the case's own 0/U "
+                           "datum (CLAUDE.md rule 4)."
+                           % (nm, ag, st.get("age_guard_detail", "<no detail recorded>")))
++        # ---- W3 AMENDMENT 2 -- R-RC-2 RESOLUTION POINT ---------------------------
++        # Reached ONLY if every one of the four remaining rule-4 conditions has held,
++        # because each refuses above on its own failure.  Their names are recorded
++        # individually so the artefact carries WHICH conditions were relied on, never a
++        # bare "all four held".
++        if rc_inferred:
++            if not isinstance(ft, list):
++                # R-RC-4's fence, in the words of the ruling: "Without that limb the
++                # inference is not safe and R-RC-2 does not apply."  An unrun fatal scan
++                # is not a clean one, and this is the one place absence must still refuse.
++                raise Refusal("G12R-0 %s: the rc RECORD is absent, so R-RC-2 would infer "
++                              "rc=0 -- but `fatal_tokens` is %r, meaning the log was never "
++                              "scanned for a FATAL or signal token. R-RC-4 makes that scan "
++                              "the fence on the inference: without it the inference is not "
++                              "safe and R-RC-2 DOES NOT APPLY. Refusing rather than "
++                              "inferring." % (nm, ft))
++            _held = {"end_line_present": bool(st.get("end_line_present")),
++                     "last_time_equals_endTime": (st.get("task") == "mesh")
++                                                 or (st.get("last_time") is not None
++                                                     and st.get("endTime") is not None),
++                     "registered_fields_present": True,
++                     "age_guard": st.get("age_guard_ok") is True}
++            _absent = [k for k in RRC_FOUR_CONDITIONS if not _held.get(k)]
++            if _absent:
++                raise Refusal("G12R-0 %s: the rc record is absent and R-RC-2's fence is "
++                              "NOT satisfied -- %s did not hold. The absent record does "
++                              "not buy a pass; the ordinary refusal stands."
++                              % (nm, ", ".join(_absent)))
++            _infra.append(
++                "%s: rc RECORD ABSENT -> rc NOT MEASURED (INFRASTRUCTURE, L-342/R-RC-1). "
++                "rc=0 is INFERRED, NOT MEASURED, and is NOT graded as a measurement "
++                "(CLAUDE.md rule 3 is untouched by R-RC). The inference rests on all four "
++                "remaining rule-4 conditions, each held and named: %s; and on R-RC-4's "
++                "fence, the log scanned for FATAL/signal tokens with %d found."
++                % (nm, ", ".join("%s=held" % k for k in RRC_FOUR_CONDITIONS), len(ft)))
++        elif not isinstance(ft, list):
++            # rc WAS measured, so the fence is not load-bearing here; the missing scan is
++            # a bookkeeping gap, reported and not refused (L-342).
++            _infra.append("%s: fatal/signal log scan NOT MEASURED (fatal_tokens=%r); rc was "
++                          "MEASURED = 0, so R-RC-4's fence is not load-bearing on this row."
++                          % (nm, ft))
+         # THE STEP COUNT.  rule 4's "ExecutionTime count == endTime" limb, in the form
+         # this solver carries it: the primal writes one `Time = ` line per timestep, so
+         # that count must EQUAL the registered number of steps.  `ExecutionTime` lines are
+@@ -371,10 +467,20 @@
+             if tlc != exp:
+                 raise Refusal("G12R-0 %s: primal wrote %r `Time =` lines, registered %d "
+                               "steps (rule 4's step-count limb)" % (nm, tlc, exp))
++            # ---- W3 AMENDMENT 2 -- L-342: THIS CLAUSE WAS CONFLATED AND IS NOW SPLIT.
++            # `ExecutionTime` is the SOLVER'S OWN TIMING PRINT, governed by build and by
++            # what else the solver does after the step loop -- it is the same clause that
++            # voided VMFLGPU001 on a GOOD RUN because petsc4Foam prints endTime+2, and it
++            # was reclassified INFRASTRUCTURE there (59110074, and again at 21fa2387).
++            # THE PHYSICS LIMB IS THE `Time =` COUNT ABOVE and it still REFUSES: that is
++            # the count of steps the solver actually took. This one is REPORTED.
+             etc = st.get("execution_time_count")
+             if etc is None or etc < exp:
+-                raise Refusal("G12R-0 %s: ExecutionTime count %r is below the %d "
+-                              "registered steps" % (nm, etc, exp))
++                _infra.append("%s: ExecutionTime count %r is below the %d registered steps "
++                              "-- BOOKKEEPING DEFECT, reported beside the verdict and NOT a "
++                              "refusal (L-342). The physics step count `Time =` = %r == %d "
++                              "PASSED, and it is the limb rule 4 is about."
++                              % (nm, etc, exp, st.get("time_line_count"), exp))
+         # ---- [D3] THE STRUCTURAL WITNESS THAT THE OBJECTIVE READER READ `CD` ------
+         # CD is positive-definite for this flow and CL oscillates about zero, so a CD
+         # series with ZERO negatives is a POSITIVE demonstration that the reader read CD.
+@@ -404,7 +510,13 @@
+         if ma is not None and float(ma) < MEMAVAIL_FLOOR_GIB:
+             raise Refusal("G12R-0 %s: launched at MemAvailable %.4f GiB, below the "
+                           "registered %.1f GiB floor" % (nm, float(ma), MEMAVAIL_FLOOR_GIB))
+-    return {"gate": "G12R-0", "verdict": "PASS", "n_stages": len(stages)}
++    return {"gate": "G12R-0", "verdict": "PASS", "n_stages": len(stages),
++            "infrastructure_defects": list(_infra),
++            "n_infrastructure_defects": len(_infra),
++            "rc_note": ("every stage carried a MEASURED rc" if not any(
++                        "rc RECORD ABSENT" in m for m in _infra)
++                        else "AT LEAST ONE STAGE'S rc IS INFERRED, NOT MEASURED -- see "
++                             "infrastructure_defects")}
+ 
+ 
+ def g0b_manifest_ledger_binding(rows, ledger_path, expected_rows):
+@@ -1057,6 +1169,10 @@
+               "age_guard_ok": True, "age_guard_detail": "all fields newer than 0/U",
+               "expected_steps": 300, "time_line_count": 300,
+               "execution_time_count": 300,
++              # W3 AMENDMENT 2: the amended launcher writes this on every row (a list when
++              # the log was scanned, None when no log was read). The fixture models a real
++              # row, so it carries the scanned-and-clean value.
++              "fatal_tokens": [],
+               # added with the D12R repairs; a fixture missing a limb is a stage missing
+               # evidence, and the gate correctly refused these the moment they landed
+               "stage_kind": "unsteady", "dv_units": "dimensionless driver units",
+@@ -1075,7 +1191,17 @@
+                          ("memavail_GiB", 3.0), ("obj_from_log", 1.5),
+                          # the two limbs added under RULING 5
+                          ("age_guard_ok", False), ("age_guard_ok", None),
+-                         ("time_line_count", 299), ("execution_time_count", 3)]:
++                         ("time_line_count", 299),
++                         # W3 AMENDMENT 2 (2026-08-27), L-342: `execution_time_count` LEAVES
++                         # this matrix. It is the SOLVER'S TIMING PRINT -- the clause that
++                         # voided VMFLGPU001 on a good run -- and is now INFRASTRUCTURE,
++                         # reported beside the verdict. Its new behaviour is driven by U-0d
++                         # below, in BOTH directions. The PHYSICS limb `time_line_count`
++                         # stays here, one line up, and still refuses.
++                         # The two guards this amendment CREATES join the matrix in its
++                         # place, so the inherited battery exercises them as well:
++                         ("rc", None),                              # R-RC: present-but-unfilled
++                         ("fatal_tokens", ["FOAM FATAL ERROR"])]:   # R-RC-4 strict half
+             try:
+                 g0_completion([base_stage(**{mut: val})])
+                 raise AssertionError("G12R-0 did NOT refuse on mutation %s=%r" % (mut, val))
+@@ -1293,7 +1419,9 @@
+                "expected_steps": 300, "time_line_count": 300,
+                "execution_time_count": 600, "memavail_GiB": 20.0,
+                "stage_kind": "unsteady", "dv_units": "dimensionless driver units",
+-               "n_cd_lines": 300, "n_cd_negative": 0, "n_cl_lines": 300}
++               "n_cd_lines": 300, "n_cd_negative": 0, "n_cl_lines": 300,
++               # W3 AMENDMENT 2: written by the amended launcher on every row.
++               "fatal_tokens": []}
+         row.update(kw)
+         return row
+     def uD4_steady():
+@@ -1351,8 +1479,23 @@
+         _refuses(lambda: g0_completion([_g0row(time_line_count=299)]),
+                  "primal wrote 299 Time lines against 300 registered steps")
+     def u0_exectime():
+-        _refuses(lambda: g0_completion([_g0row(execution_time_count=12)]),
+-                 "ExecutionTime count below the registered step count")
++        # ---- W3 AMENDMENT 2 (2026-08-27), L-342. This unit previously required a REFUSAL
++        # on a short `ExecutionTime` count. That clause is the one that voided VMFLGPU001
++        # on a GOOD run (petsc4Foam prints endTime+2) and was reclassified INFRASTRUCTURE
++        # there; the same reclassification lands here BEFORE this comparator has ever
++        # fired. The unit is not deleted and is not weakened -- IT NOW DRIVES BOTH HALVES
++        # OF THE SPLIT, and the second half is the control that proves the physics limb was
++        # separated rather than removed. A unit that only checked the permissive half would
++        # be a way to make a real check disappear behind an amendment.
++        r = g0_completion([_g0row(execution_time_count=12)])
++        check(r["verdict"] == "PASS", r)
++        check(r["n_infrastructure_defects"] == 1, r)
++        check("ExecutionTime count" in " ".join(r["infrastructure_defects"]), r)
++        check("BOOKKEEPING DEFECT" in " ".join(r["infrastructure_defects"]), r)
++        # ...AND THE PHYSICS LIMB STILL REFUSES. Same row, same shortfall, the count that
++        # actually measures steps taken.
++        _refuses(lambda: g0_completion([_g0row(time_line_count=12)]),
++                 "`Time =` count below the registered step count")
+ 
+     def u06():
+         exercised.add("G12R-3")
+@@ -1800,7 +1943,7 @@
+ 
+     _UNIT_LIST = [
+         ("U-01  G12R-0 accepts a complete stage", u01),
+-        ("U-01b G12R-0 refuses all 13 rule-4 mutations", u01b),
++        ("U-01b G12R-0 refuses all 14 rule-4 mutations", u01b),
+         ("U-01c G12R-0 refuses an empty stage list", u01c),
+         ("U-02  series reader reads a real log shape", u02),
+         ("U-02b series reader refuses a zero-sample log", u02b),
+@@ -1842,7 +1985,7 @@
+         ("U-0a  G12R-0 AGE GUARD refuses a stale field", u0_age),
+         ("U-0b  G12R-0 refuses an UNEVALUATED age guard", u0_age_unevaluated),
+         ("U-0c  G12R-0 refuses a short primal step count", u0_steps),
+-        ("U-0d  G12R-0 refuses a short ExecutionTime count", u0_exectime),
++        ("U-0d  G12R-0 REPORTS a short ExecutionTime (L-342 infrastructure) and STILL REFUSES a short `Time =` count", u0_exectime),
+         ("U-06  G12R-3 window spread", u06),
+         ("U-06c G12R-3 W a multiple of the period => delta_window EXACTLY 0", u06c),
+         ("U-06b G12R-3 refuses a single-window series", u06b),
+@@ -1955,7 +2098,7 @@
+     return d
+ 
+ 
+-def _w_from_record(rows, ledger_path):
++def _w_from_record(rows, ledger_path, infra=None):
+     """W3-A2.  The window graded is the window that ran: every manifest row carries "W",
+     the rows agree, the ledger carries one W_STEPS=<n> line that agrees, and the value
+     is the registered W_PRIMARY.  Anything else REFUSES -- a comparator that can grade
+@@ -1973,7 +2116,35 @@
+         raise Refusal("W3-A2: manifest rows disagree on W: %s" % sorted(ws))
+     W_rows = ws.pop()
+     if not os.path.isfile(ledger_path):
+-        raise Refusal("W3-A2: ledger absent at %s; W_STEPS cannot be cross-read" % ledger_path)
++        # ---- W3 AMENDMENT 2 (2026-08-27) -- L-342 / R-RC applied to the SECOND WITNESS.
++        # The ledger is a host-side `tee -a` written by the LAUNCHER, not by the solver:
++        # its ABSENCE is a bookkeeping failure of exactly the class L-342 names, and the
++        # same reasoning g0b_manifest_ledger_binding already carries at its own ADDENDUM 1.
++        # THE WINDOW ITSELF IS PHYSICS AND IS NOT WAIVED. What is lost is only the
++        # CROSS-READ -- the corroboration between two artifacts. The window still has to
++        # come from the record and still has to be the registered one, and those fences
++        # are the reason this is safe:
++        #   (i)  every manifest row carries `W`        -- refused above, unchanged
++        #   (ii) the rows AGREE on one value           -- refused above, unchanged
++        #   (iii) that value IS the registered W_PRIMARY -- refused HERE, before returning
++        # A wrong window therefore still cannot grade, which is the W2R-GRADER-DEF-1
++        # defect this gate exists to prevent. Only the corroboration becomes NOT MEASURED.
++        if W_rows != W_PRIMARY:
++            raise Refusal("W3-A2: the ledger is absent AND the manifest rows' W=%d is not "
++                          "the registered W_PRIMARY=%d. The absent ledger buys nothing "
++                          "here: the window is PHYSICS and the registered value is checked "
++                          "against a constant this file types, ledger or no ledger."
++                          % (W_rows, W_PRIMARY))
++        _note = ("W3-A2: ledger absent at %s -- the manifest<->ledger W CROSS-READ is NOT "
++                 "MEASURED (INFRASTRUCTURE, L-342). The window is NOT waived: all %d rows "
++                 "carry W, they agree on %d, and %d IS the registered W_PRIMARY, each "
++                 "checked. Corroboration lost; the value stands."
++                 % (ledger_path, len(rows), W_rows, W_rows))
++        if infra is not None:
++            infra.append(_note)
++        else:
++            sys.stderr.write("INFRASTRUCTURE DEFECT (reported, not fatal): %s\n" % _note)
++        return W_rows
+     led = []
+     with open(ledger_path, errors="replace") as f:
+         for line in f:
+@@ -1989,6 +2160,164 @@
+     return W_rows
+ 
+ 
++def selftest_rrc(tmpdir):
++    """W3 AMENDMENT 2 -- THE PLANTED-FAILURE PROOFS for every guard this amendment creates
++    or modifies (Sanaa's standing directives sec.1: "Every guard ships its planted-failure
++    proof", L-314 standard).  NOTHING HERE IS ASSERTED; every leg PLANTS a condition and
++    DRIVES the guard, and each permissive leg is paired with the strict leg that shows the
++    same guard still refusing.  A guard shown only to pass is not shown to be a guard.
++    Uses no `assert` (python3 -O strips those); every check is an explicit conditional."""
++    import tempfile, copy
++    n = 0; bad = []
++    def unit(name, cond):
++        nonlocal n
++        n += 1
++        print("  [%s] %s" % ("OK " if cond else "BAD", name))
++        if not cond:
++            bad.append(name)
++    def row(**kw):
++        r = {"name": "S5", "task": "compute_totals", "stage_kind": "unsteady",
++             "rc": 0, "oomkilled": "false", "status": "COMPLETE",
++             "end_line_present": True, "last_time": 3.0, "endTime": 3.0,
++             "coldstart_ok": True, "age_guard_ok": True, "age_guard_detail": "ok",
++             "expected_steps": 300, "time_line_count": 300, "execution_time_count": 300,
++             "fatal_tokens": []}
++        for k, v in kw.items():
++            if v is _DROP:
++                r.pop(k, None)
++            else:
++                r[k] = v
++        return r
++    def grade(r):
++        """returns (ok, result_or_message)"""
++        try:
++            return True, g0_completion([copy.deepcopy(r)])
++        except Refusal as e:
++            return False, str(e)
++
++    # ---- 1. POSITIVE CONTROL: the gate can PASS.  A battery of refusals alone proves
++    # ---- only that the gate refuses everything.
++    ok, res = grade(row())
++    unit("R1 baseline row, rc MEASURED = 0 -> PASS, 0 infrastructure defects, rc_note says MEASURED",
++         ok and res.get("verdict") == "PASS" and res.get("n_infrastructure_defects") == 0
++         and "MEASURED rc" in res.get("rc_note", ""))
++
++    # ---- 2. R-RC-2 GRANT.  The rc RECORD is absent and all four remaining rule-4
++    # ---- conditions hold.  Must PASS, and the artefact must say INFERRED, not measured.
++    ok, res = grade(row(rc=_DROP))
++    msg = " ".join(res.get("infrastructure_defects", [])) if ok else ""
++    unit("R2 rc RECORD ABSENT + all four rule-4 conditions hold -> PASS, rc NOT MEASURED",
++         ok and res.get("verdict") == "PASS" and res.get("n_infrastructure_defects") == 1
++         and "rc RECORD ABSENT" in msg)
++    unit("R3 the inference is PRINTED AS AN INFERENCE, never as a measurement (rule 3 untouched)",
++         ok and "INFERRED, NOT MEASURED" in msg and "NOT graded as a measurement" in msg)
++    unit("R4 all FOUR conditions are named INDIVIDUALLY in the artefact, not summarised",
++         ok and all(("%s=held" % c) in msg for c in RRC_FOUR_CONDITIONS))
++    unit("R5 the top-level rc_note flags the row as inferred so a reader cannot miss it",
++         ok and "INFERRED, NOT MEASURED" in res.get("rc_note", ""))
++
++    # ---- 3. R-RC-2's FENCE, DRIVEN ONCE PER CONDITION.  Absent record + ONE condition
++    # ---- broken must REFUSE -- and refuse on THAT CONDITION, not on the missing record.
++    for cname, kw, want in [
++            ("end line", {"end_line_present": False}, "no End line"),
++            ("last time == endTime", {"last_time": 2.99}, "last time"),
++            ("registered fields present (the task's own completion evidence)",
++             {"status": "STARTED"}, "not 'COMPLETE'"),
++            ("age guard", {"age_guard_ok": False}, "AGE GUARD")]:
++        kw2 = dict(kw); kw2["rc"] = _DROP
++        ok, m = grade(row(**kw2))
++        unit("R6 PLANTED rc record absent + %s BROKEN -> REFUSED on that condition, "
++             "not on the missing record" % cname,
++             (not ok) and want in m and "R-RC-2" not in m)
++
++    # ---- 4. R-RC-1 / R-RC-3: the rc VALUE is physics and rule 4 is UNCHANGED.
++    ok, m = grade(row(rc=1))
++    unit("R7 PLANTED rc PRESENT and NON-ZERO -> REFUSED (R-RC-3, rule 4 unchanged)",
++         (not ok) and "rc=1" in m)
++    ok, m = grade(row(rc=None))
++    unit("R8 PLANTED rc key PRESENT but None -> REFUSED. R-RC-2 licenses an ABSENT record, "
++         "not one the launcher wrote and failed to fill", (not ok) and "value is None" in m)
++
++    # ---- 5. R-RC-4, THE STRICT HALF.  Refuses REGARDLESS -- rc=0, End line, every other
++    # ---- limb perfect.  This is the shape R-RC-4 names: non-zero AFTER a complete run.
++    ok, m = grade(row(fatal_tokens=["FOAM FATAL ERROR"]))
++    unit("R9 PLANTED `FOAM FATAL ERROR` token with rc=0 and ALL limbs otherwise perfect "
++         "-> REFUSED (R-RC-4 strict half)", (not ok) and "FATAL/SIGNAL token" in m)
++    ok, m = grade(row(fatal_tokens=["Segmentation fault"]))
++    unit("R10 PLANTED signal token likewise -> REFUSED", (not ok) and "FATAL/SIGNAL token" in m)
++
++    # ---- 6. R-RC-4's FENCE ON THE INFERENCE: "Without that limb the inference is not
++    # ---- safe and R-RC-2 does not apply."  An UNRUN scan is not a clean one.
++    ok, m = grade(row(rc=_DROP, fatal_tokens=None))
++    unit("R11 PLANTED rc record absent AND the fatal scan NEVER RAN -> REFUSED; the "
++         "inference is fenced, not granted", (not ok) and "R-RC-4" in m and "DOES NOT APPLY" in m)
++    ok, res = grade(row(fatal_tokens=None))
++    unit("R12 fatal scan absent but rc MEASURED = 0 -> PASSES with the gap REPORTED; the "
++         "fence is not load-bearing when rc was measured",
++         ok and res.get("n_infrastructure_defects") == 1
++         and "NOT MEASURED" in " ".join(res.get("infrastructure_defects", [])))
++
++    # ---- 7. L-342 SPLIT AT THE ExecutionTime CLAUSE.  The permissive leg AND the strict
++    # ---- leg that proves the physics limb was SPLIT OFF, not deleted.
++    ok, res = grade(row(execution_time_count=3))
++    unit("R13 PLANTED ExecutionTime count 3 against 300 registered steps, `Time =` count "
++         "CORRECT -> PASS with a BOOKKEEPING DEFECT reported (was a refusal before L-342)",
++         ok and res.get("n_infrastructure_defects") == 1
++         and "ExecutionTime count" in " ".join(res.get("infrastructure_defects", [])))
++    ok, m = grade(row(time_line_count=299))
++    unit("R14 PLANTED `Time =` count 299 against 300 -> STILL REFUSED. The PHYSICS limb "
++         "was split off, not deleted -- this is the control that proves it",
++         (not ok) and "`Time =` lines" in m)
++
++    # ---- 8. W3-A2: the ledger cross-read.  Permissive leg, then three strict legs.
++    def wgrade(rows, ledger_lines):
++        d = tempfile.mkdtemp(dir=tmpdir)
++        lp = os.path.join(d, "ledger.txt")
++        if ledger_lines is not None:
++            with open(lp, "w") as f:
++                f.write("\n".join(ledger_lines) + "\n")
++        inf = []
++        try:
++            return True, _w_from_record(rows, lp, infra=inf), inf
++        except Refusal as e:
++            return False, str(e), inf
++    good = [{"name": "S%d" % i, "W": W_PRIMARY} for i in range(5)]
++    ok, v, inf = wgrade(good, None)
++    unit("R15 PLANTED ledger ABSENT, rows all carry W=%d and agree -> returns %d with the "
++         "lost CROSS-READ reported as INFRASTRUCTURE (was a refusal before L-342)"
++         % (W_PRIMARY, W_PRIMARY),
++         ok and v == W_PRIMARY and len(inf) == 1 and "NOT MEASURED" in inf[0])
++    ok, m, _ = wgrade([{"name": "S%d" % i, "W": 300} for i in range(5)], None)
++    unit("R16 PLANTED ledger ABSENT and rows agree on 300 != registered W_PRIMARY -> "
++         "REFUSED. The WINDOW is physics and is not waived with the ledger",
++         (not ok) and "not the registered W_PRIMARY" in m)
++    ok, m, _ = wgrade(good[:4] + [{"name": "S4"}], None)
++    unit("R17 PLANTED ledger ABSENT and one row carries NO W key -> REFUSED",
++         (not ok) and "carry no W key" in m)
++    ok, m, _ = wgrade(good, ["W_STEPS=%d" % W_PRIMARY, "W_STEPS=%d" % W_PRIMARY])
++    unit("R18 PLANTED ledger PRESENT with TWO W_STEPS lines -> STILL REFUSED. A record "
++         "that is present and AMBIGUOUS is R-RC-3's shape, not R-RC-2's",
++         (not ok) and "W_STEPS= line(s)" in m)
++    ok, m, _ = wgrade(good, ["W_STEPS=900"])
++    unit("R19 PLANTED ledger PRESENT and DISAGREEING with the rows -> STILL REFUSED "
++         "(the W2R-GRADER-DEF-1 defect shape)", (not ok) and "disagrees with the manifest" in m)
++
++    print("R-RC SELFTEST units=%d failures=%d python_O=%s" % (n, len(bad), not __debug__))
++    if n != 22 or bad:
++        print("R-RC SELFTEST FAIL: %s" % (bad or ("unit count %d != 22" % n)))
++        return 2
++    print("R-RC SELFTEST PASS 22/22")
++    return 0
++
++
++class _DropSentinel(object):
++    def __repr__(self):
++        return "<DROP>"
++
++
++_DROP = _DropSentinel()
++
++
+ def selftest_w3(tmpdir):
+     """Planted controls for the two W3 deltas, run under python3 and python3 -O.  Every
+     refusal is a raise; every success line is printed inside the branch that verified it."""
+@@ -2566,6 +2895,7 @@
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--selftest", action="store_true")
+     ap.add_argument("--selftest-w3", dest="selftest_w3", action="store_true")
++    ap.add_argument("--selftest-rrc", dest="selftest_rrc", action="store_true")
+     ap.add_argument("--olimb", action="store_true")
+     ap.add_argument("--demo", action="store_true")
+     ap.add_argument("--demo-child", dest="demo_child", default=None)
+@@ -2593,6 +2923,11 @@
+         return _demo_child(a.demo_child)
+     if a.demo:
+         return demo(a.tmpdir, a.manifest)
++    if getattr(a, "selftest_rrc", False):
++        d = os.path.join(a.tmpdir, "d12y_rrc_selftest")
++        if not os.path.isdir(d):
++            os.makedirs(d)
++        return selftest_rrc(d)
+     if a.selftest_w3:
+         d = os.path.join(a.tmpdir, "d12y_w3_selftest")
+         os.makedirs(d, exist_ok=True)

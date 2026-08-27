@@ -1,0 +1,14 @@
+EXTRACTED 9 fatal/signal patterns FROM THE LAUNCHER: ['FOAM FATAL ERROR', 'FOAM FATAL IO ERROR', 'Segmentation fault', 'signal \\(11\\)', 'signal \\(8\\)', 'signal \\(6\\)', 'Floating point exception', '^\\s*\\[\\d+\\]\\s+#\\d+\\s', 'MPI_ABORT']
+  [OK ] (a) CLEAN log -> no tokens (the reader is not trigger-happy)
+  [OK ] (b0) every launcher pattern has a planted fixture here 
+  [OK ] (b) PLANTED 'FOAM FATAL ERROR'         -> CAUGHT hits=['FOAM FATAL ERROR']
+  [OK ] (b) PLANTED 'FOAM FATAL IO ERROR'      -> CAUGHT hits=['FOAM FATAL IO ERROR']
+  [OK ] (b) PLANTED 'Segmentation fault'       -> CAUGHT hits=['Segmentation fault']
+  [OK ] (b) PLANTED 'signal \\(11\\)'          -> CAUGHT hits=['signal \\(11\\)']
+  [OK ] (b) PLANTED 'signal \\(8\\)'           -> CAUGHT hits=['signal \\(8\\)']
+  [OK ] (b) PLANTED 'signal \\(6\\)'           -> CAUGHT hits=['signal \\(6\\)']
+  [OK ] (b) PLANTED 'Floating point exception' -> CAUGHT hits=['Floating point exception']
+  [OK ] (b) PLANTED '^\\s*\\[\\d+\\]\\s+#\\d+\\s' -> CAUGHT hits=['^\\s*\\[\\d+\\]\\s+#\\d+\\s']
+  [OK ] (b) PLANTED 'MPI_ABORT'                -> CAUGHT hits=['MPI_ABORT']
+  [OK ] (c) PLANTED innocuous prose ('signal', 'error', 'fatal', 'segment') -> no tokens the patterns are ANCHORED, not substrings
+W3 FATAL-SCAN CONTROL pass=12 fail=0
