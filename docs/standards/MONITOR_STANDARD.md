@@ -1804,3 +1804,76 @@ it never asked.**
   **numerically sorted time directories**.
 - **Repository-wide sweep IN FLIGHT**, classifying hits by whether the value reaches
   a **verdict or a completion decision** versus a display.
+
+---
+
+## Amendment (2026-08-27) — A RESOURCE GATE DECLARES ITS SAMPLING DISCIPLINE, AND A FLOOR THAT THE BOX CANNOT MEET NEEDS ITS REFUSAL OUTCOME **REGISTERED**, NOT DECIDED ON THE NIGHT
+
+**Appended, append-only; no line above changed number. Raised by dafoam via the
+chief; verified here at source. Zero compute.**
+
+### 1. THE MEASUREMENT
+
+Two gates guard the **same resource at different levels, with different sampling
+disciplines**, and neither declares which it uses:
+
+- **`scripts/queue_runner.py:722-724`** — verified: `if mem < floor: log(…); continue`.
+  **ONE sample of `MemAvailable`, then skip the entry.**
+- **A driver's H5 gate** — a **45-sample / 60-second window** against a registered
+  floor.
+
+> **"`MemAvailable` is below the floor" is a DIFFERENT PROPOSITION at one sample than
+> over sixty seconds.** `MemAvailable` moves as page cache is reclaimed and as peers
+> allocate and free; **a single sample can hold a run on a transient that a window
+> would not see, and a window can admit a run that a single sample would refuse.**
+> Neither is wrong; **an undeclared choice between them is.**
+
+### 2. THE CLAUSE
+
+> **A resource gate DECLARES ITS SAMPLING DISCIPLINE on its face: single-sample, or
+> windowed with its sample count and duration.** A gate whose discipline is
+> undeclared cannot be reproduced, and its HOLD cannot be distinguished from a
+> transient.
+>
+> **AND WHERE TWO GATES GUARD ONE RESOURCE AT DIFFERENT LEVELS, THE REGISTRATION
+> NAMES WHICH GOVERNS.** Two gates that can disagree — the outer holding while the
+> inner would pass — produce a contradiction **no reader of either record can see**,
+> because each looks internally consistent.
+
+### 3. ⚠ AND THE HARDER HALF: A FLOOR THE BOX CANNOT MEET
+
+D8R registers a **18.0 GiB** floor; the box's `MemAvailable` is **16.0 GiB**. **The
+gate can therefore never pass on this machine as configured.**
+
+> **A registration whose floor sits above the box's capacity must REGISTER ITS
+> REFUSAL OUTCOME — hold indefinitely, refuse as `BLOCKED`, or fail the rung — BEFORE
+> COMPUTE. It must not be decided on the night.**
+
+**THE GROUND IS RULE 2, NOT OPERATIONS.** An unregistered refusal outcome means the
+*consequence* of the gate is chosen **after** its state is known, by whoever happens
+to be awake. **That is precisely the defect the pre-registration freeze exists to
+prevent, wearing operational clothes:** the gate was frozen and **what to do when it
+fires was not.**
+
+**AND IT IS THE `L-380` SHAPE:** faced with an unregistered outcome at 2 a.m., both
+available answers — *hold and lose the night*, or *lower the floor and run* — are
+defensible, **and the second silently rewrites a registered threshold after seeing
+the box.** **Registering the outcome removes the choice, which is the point.**
+
+**NOT RULED HERE: whether D8R should hold, be `BLOCKED`, or re-register a lower floor
+is dafoam's, and lowering a registered floor after seeing the box would need its own
+pre-compute amendment with the condition stated.** This clause says only that the
+outcome must be **on the record before the gate fires.**
+
+### 4. CONTROLS
+
+| control | required |
+| --- | --- |
+| a gate declaring **single-sample** | HOLD reproduces on a re-read taken in the same second; a HOLD is **not** claimed to survive a window |
+| a gate declaring a **window** | the window is **driven** — n samples over the stated duration, and a single unlucky sample must **not** decide it |
+| a floor **above** the box's capacity | the registered refusal outcome is **present in the registration** and the gate's fire path **reaches it** |
+| **two gates on one resource** | the record names **which governs**, and a case is driven where they **disagree** |
+
+**The last row is the one that will be skipped.** Two gates that agree on every case
+anyone tries are indistinguishable from one gate; **only the disagreeing case shows
+which is in force.**
