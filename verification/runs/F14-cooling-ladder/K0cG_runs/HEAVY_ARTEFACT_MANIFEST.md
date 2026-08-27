@@ -157,3 +157,57 @@ it is not repeated.
 
 *Nothing here was sent, filed, uploaded, posted or registered outside this box
 (`CLAUDE.md` rule 7).*
+
+---
+
+## AMENDMENT 2 — 2026-08-27, the remaining `log.*` paths, under the live pre-commit guard
+
+*Appended, not rewritten. **Lines whose number changed above this section: 0.***
+
+AMENDMENT 1 untracked the six `log.solve` and `.attempt1_stale/`. It left every
+OTHER `log.*` at HEAD, because that lane's brief listed those as KEEP. That
+keep-list is **superseded** by `scripts/check_commit_size.py` (`aac938dd`), which
+implements Sanaa's §1 and whose LOGS rule is **categorical and not exemptible**:
+
+> *"LOGS: ... logs stay out of git ... a manifest explains bulk, it does not make a
+> solver log a repository artifact. File the log by digest outside git."*
+
+The guard matches `log.*`, `*/log.*` and `*.log` (`check_commit_size.py:87`), so
+`LAUNCH.log`, `log.blockMesh`, `log.cellCentres`, `log.checkMesh` and
+`log.solve.tail` all qualify. **A manifest never exempts a log** — `05241ab2`
+carried two valid manifests and still refuses under LOGS. So they are untracked
+here and filed by digest, which is what the guard asks for.
+
+**Untracked by this amendment (working tree NOT touched;
+`git update-index --force-remove` only), all confirmed on disk afterwards:**
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `K0cG_runs/CRASHED_ATTEMPT_1/LAUNCH.log` | 36 | `d622e0e73136d9d41f8e10f87f7022a8d1a9dab445021b450fc99fce0631fca5` |
+| `K0cG_runs/CRASHED_ATTEMPT_1/S_KE_x/log.checkMesh` | 4109 | `a47b1984e9696cf11faccf623f12491de3a904c2b517d6351ab2feeb8d6c96a5` |
+| `K0cG_runs/CRASHED_ATTEMPT_1/S_KE_x/log.solve.tail` | 4272 | `8411601610e9bb7f30b493ae034c8c0f726d30f24dbd235dbf03c3f06c7d5051` |
+| `K0cG_runs/CRASHED_ATTEMPT_1/S_SST_x/log.checkMesh` | 4110 | `e9de75faba0707491de5d18a49d70aceffa52adc842f2ab50034c21f06a2ce89` |
+| `K0cG_runs/CRASHED_ATTEMPT_1/S_SST_x/log.solve.tail` | 5240 | `d372c5cda2530dae9ece27439a5ce6cdb520466981a8da3a32077dac20337588` |
+| `K0cG_runs/LAUNCH.log` | 88 | `3089cb4f51f9dddf4aadf06befdabd66912d7b258598ad4bc660129411d83c5f` |
+| `K0cG_runs/S_KE_x/log.blockMesh` | 2820 | `81ba0c422f50a5b64a78b477dce7413536106ead2129837a60cda41e6302cc37` |
+| `K0cG_runs/S_KE_x/log.cellCentres` | 1847 | `8cc70d75d65e50e1cc7f62c563c639281cfc019c55866e5d088f2fcad04f01db` |
+| `K0cG_runs/S_KE_x/log.checkMesh` | 4109 | `7b15bc4e0869995d0d873fbc6bee12d34550f573f2c4a3ea058697fcfee4ed15` |
+| `K0cG_runs/S_SST_x/log.blockMesh` | 2821 | `88a46b1074f6066c07e0e36f355f8620ba4cf04a944d07bc614c79d76325009e` |
+| `K0cG_runs/S_SST_x/log.cellCentres` | 1848 | `68c5a339f05e35a21c028f2ee3786cf607affe5621eeaf4851904356e2e559aa` |
+| `K0cG_runs/S_SST_x/log.checkMesh` | 4110 | `b49b69a711653442483b2f6e1a31da14b3bee04985bf74204587ec454bf11f77` |
+
+**12 paths, 35410 bytes, all ON DISK and NOT AT HEAD.**
+
+### One consequence, flagged for the supervisor rather than absorbed
+
+`log.checkMesh` is the **mesh birth certificate** (`VERIFICATION_CHARTER` §9;
+`MESH_STANDARD.md`). It is now filed by digest rather than held at HEAD. The
+digest above is what a later reader checks it against, and the file is unchanged
+on disk — but a reader who expected to `git show` it will not find it there.
+That is a consequence of the categorical LOGS rule, not a lane's judgement call,
+and it is stated here rather than discovered later. Whether the birth
+certificate should be exempted is the supervisor's and Sanaa's call, not this
+lane's; nothing here retires, widens or amends a standard.
+
+*Nothing here was sent, filed, uploaded, posted or registered outside this box
+(`CLAUDE.md` rule 7).*

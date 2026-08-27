@@ -149,3 +149,50 @@ sibling's is the error that let 56 MB land in `05241ab2`, and it is not repeated
 
 *Nothing here was sent, filed, uploaded, posted or registered outside this box
 (`CLAUDE.md` rule 7).*
+
+---
+
+## AMENDMENT 2 — 2026-08-27, the remaining `log.*` paths, under the live pre-commit guard
+
+*Appended, not rewritten. **Lines whose number changed above this section: 0.***
+
+AMENDMENT 1 untracked the six `log.solve` and `.attempt1_stale/`. It left every
+OTHER `log.*` at HEAD, because that lane's brief listed those as KEEP. That
+keep-list is **superseded** by `scripts/check_commit_size.py` (`aac938dd`), which
+implements Sanaa's §1 and whose LOGS rule is **categorical and not exemptible**:
+
+> *"LOGS: ... logs stay out of git ... a manifest explains bulk, it does not make a
+> solver log a repository artifact. File the log by digest outside git."*
+
+The guard matches `log.*`, `*/log.*` and `*.log` (`check_commit_size.py:87`), so
+`LAUNCH.log`, `log.blockMesh`, `log.cellCentres`, `log.checkMesh` and
+`log.solve.tail` all qualify. **A manifest never exempts a log** — `05241ab2`
+carried two valid manifests and still refuses under LOGS. So they are untracked
+here and filed by digest, which is what the guard asks for.
+
+**Untracked by this amendment (working tree NOT touched;
+`git update-index --force-remove` only), all confirmed on disk afterwards:**
+
+| Path | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `K0cP_runs/LAUNCH.log` | 52 | `3dc00198a20db8029d9c21d0c5b9e1030fdc00a1b2640f1ae1401be263737edc` |
+| `K0cP_runs/P021_sq_c/log.cellCentres` | 1849 | `44d980752651573bfe2c7ce5076a575011cf533aebb00597f807f9e47fa7703f` |
+| `K0cP_runs/P021_sq_f/log.cellCentres` | 1849 | `1ddf35b1803bba8ef9e969d2891fe10d91b9c5700d7add4cefd205e64c70a772` |
+| `K0cP_runs/P102_sq_c/log.cellCentres` | 1849 | `38e1c008795c890915de6c2bed0864eca30991d7c50b411739f43416cb0e9af5` |
+| `K0cP_runs/P102_sq_f/log.cellCentres` | 1849 | `1ce778835a0db44ce9709592e5b5e35ceadefbecdb787abe0c3f1161b210339f` |
+
+**5 paths, 7448 bytes, all ON DISK and NOT AT HEAD.**
+
+### One consequence, flagged for the supervisor rather than absorbed
+
+`log.checkMesh` is the **mesh birth certificate** (`VERIFICATION_CHARTER` §9;
+`MESH_STANDARD.md`). It is now filed by digest rather than held at HEAD. The
+digest above is what a later reader checks it against, and the file is unchanged
+on disk — but a reader who expected to `git show` it will not find it there.
+That is a consequence of the categorical LOGS rule, not a lane's judgement call,
+and it is stated here rather than discovered later. Whether the birth
+certificate should be exempted is the supervisor's and Sanaa's call, not this
+lane's; nothing here retires, widens or amends a standard.
+
+*Nothing here was sent, filed, uploaded, posted or registered outside this box
+(`CLAUDE.md` rule 7).*
