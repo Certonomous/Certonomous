@@ -174,3 +174,184 @@ the defect F26_RINGLEB refused to commit and this document refuses too.**
 No mechanism is claimed. No fix is proposed. No F12 gate is read, and the
 interlock is not touched. **Nothing is sent, filed, uploaded or submitted**
 (rule 7).
+
+---
+
+## AMENDMENT 1 (PRE-COMPUTE) — 2026-08-27 — THE INSTRUMENT SECTION 8 REQUIRES, AND THE GRADING PATH FIXED BY BLOB
+
+**Version 1.0 → 1.1.** `lines whose number changed above this section: 0`
+— proven, not asserted: `md5sum <(head -176 <this file>)` reads
+`b2ea4c3a6ee0f1f87012694f70ba5480` both before and after this append, and the
+frozen body's sha256 is unchanged at
+`ac6a74e3259eac7e779f970315bc16411b0e8b0a981e372e822689dbfe806788`
+(blob `2bb885c6c969f70e21551ec479a0742ae9f953eb`, frozen at `86af0a31`).
+Nothing above line 176 was edited. This amendment is APPENDED at the foot.
+
+### A1.1 What this amendment does, and the four things it does not
+
+Section 8 said plainly that the launcher and the reader were **NOT WRITTEN**,
+and that *"a second commit must add the instrument and fix its blobs before
+anything runs"*. **This is that second commit.** Section 8 is a sequencing
+instruction, not a hold, and the cfd supervisor read it and ruled so before
+this work began.
+
+**THIS AMENDMENT MOVES NO GATE, NO THRESHOLD, NO BAND, NO CAP AND NO LABEL.**
+PE1–PE6 stand exactly as frozen, digit for digit. **PE7 still registers no
+prediction.** The registered estimate stays 0.0795 core-min and the registered
+cap stays 0.50 core-min, enforced as a 30 wall-second `timeout` per arm.
+C1–C6 stand as frozen. **F12 rung 1 stands `NOT A RESULT`; rungs 2–5 stand
+`BLOCKED`;** rung 2's `rate_calibration_gate()` interlock is not invoked, not
+imported, not read around and not edited by the instrument this amendment
+fixes. **THE SEVEN OPEN MECHANISMS F12's TRIAGE NAMES REMAIN LISTED, UNCHANGED
+AND UNNARROWED** — this arm distinguishes none of them, prunes none, merges
+none, and the existence of an instrument implies none.
+
+### A1.2 THE GRADING PATH, FIXED BY BLOB (rule 2)
+
+Rule 2 fixes the grading path at the pre-registration commit and requires that
+the frozen file **is** the file that ran, checkable by hash. The two files
+below are the whole grading path. Nothing else reads, scores or grades Arm E.
+
+| role | path | hash |
+|---|---|---|
+| launcher | `verification/runs/F12_runs/first_pressure_solve_instrument_2026-08-27/run_arms_e.sh` | launcher git-blob `26f270a7609994b81d1e8cecb49abf9c347e9c76` |
+| launcher | (same file) | launcher sha256 `90adab6da8f97ab67e1dcba42748a2a7d95745051460e2ac152c0d524b14fa95` |
+| reader | `verification/runs/F12_runs/first_pressure_solve_instrument_2026-08-27/readers/analyse_first_pressure_solve.py` | reader git-blob `0124cd44c2dbed20b502f4199173f89e44455acb` |
+| reader | (same file) | reader sha256 `578df8fdbaf70f5fe23f44bcb9ab2ec43797766bba9e89fc60c5e89543717885` |
+
+The check closes in **both** directions and neither half is optional. A file
+cannot contain its own hash, so the pin lives here and the check lives in the
+launcher: before it builds anything the launcher hashes itself and the reader,
+requires each hash to appear **in this document**, and separately requires each
+to equal `HEAD:<path>`. A launcher edited after this commit fails its own
+first gate.
+
+### A1.3 THE PRE-COMPUTE CONDITION, AND HOW IT WAS CHECKED
+
+Amendments before first compute are legal under rule 2 **and must state the
+condition and how it was checked**. Checked in this writing invocation, at
+**2026-08-27T21:39:54Z**, by `os.path.exists`, `os.path.lexists` and a prefix glob — three
+readers, not one:
+
+```
+/home/ubuntu/Certonomous/verification/runs/F12_runs/first_pressure_solve_2026-08-27 :: os.path.exists=False os.path.lexists=False glob=[]
+/home/ubuntu/certonomous-runs/F12_first_pressure_solve_2026-08-27 :: os.path.exists=False os.path.lexists=False glob=[]
+```
+
+**Both are ABSENT. 0.000 core-min have been spent on Arm E.** Section 7's
+statement of the same condition at 2026-08-27T19:52:47Z is unchanged and is not
+restated as current; this is a second, independently timestamped check.
+
+The instrument written by this commit lives at
+`verification/runs/F12_runs/first_pressure_solve_instrument_2026-08-27/` — a
+**deliberately different path** from the run directory section 7 names. Section
+7's path `verification/runs/F12_runs/first_pressure_solve_2026-08-27` is
+created **only by the launcher, at the moment compute begins**, and the
+launcher refuses to start if it already exists. That makes section 7's absence
+condition a real invariant rather than a form of words: **if that path exists,
+compute has happened.** Writing the instrument did not consume it.
+
+### A1.4 E2 IS AN INSTRUMENT, AND THAT IS ENFORCED STRUCTURALLY
+
+Section 2 registers E2's configuration as a **measurement instrument that may
+never be carried into any graded run**. That is now enforced by construction,
+not by prose:
+
+1. E2's case tree is built **only** under a path carrying the token
+   `E2_INSTRUMENT_NEVER_GRADE`; the launcher refuses to write E2 anywhere else.
+2. A `DO_NOT_GRADE_INSTRUMENT_ONLY.txt` marker is written into E2's case root
+   and copied into its evidence directory **before the solver is allowed to
+   start**.
+3. The reader re-checks both at grading time and **refuses (exit 2)** if either
+   is missing — so an E2 laundered into a graded-looking tree cannot be scored
+   by this instrument at all.
+
+The marker is a separate file, never a comment inside `fvSolution` or
+`controlDict`: section 2 requires that **nothing else differs from E1**, and
+control C5 requires E2's `fvSolution` to differ in exactly the two lines
+`pMinFactor` and `pMaxFactor`. A banner inside either dictionary would have
+broken the very identity the freeze asks to be proven.
+
+### A1.5 WHAT THE INSTRUMENT ENFORCES THAT THE FREEZE ALREADY REQUIRED
+
+No new requirement is created here; each item below is a mechanisation of a
+clause already frozen above, or of a CLAUDE.md standing rule.
+
+- **Byte identity is proven per file by sha256, never asserted** — the 18
+  dictionaries of C5, plus the four `polyMesh` files of C4, hashed on both
+  sides in the launching invocation and written to
+  `evidence/<arm>/case_identity_18.txt` and `evidence/mesh_identity.txt`.
+- **E2's lever is proven to be exactly two deleted lines** — the whole
+  `fvSolution` diff is written to disk and required to be 2 deletions and 0
+  additions, and those two lines are required to be `pMinFactor` and
+  `pMaxFactor` by literal match.
+- **CLAUDE.md rule 4, the strict completion rule, all-or-nothing, including the
+  age guard** — `rc = 0`; an `End` line; last time == `endTime` (1); the
+  fields section 2 names (`p U T rho phi`) present at time 1;
+  `ExecutionTime` count == `endTime`; and **every field at `endTime` newer
+  than the case's own `0/T`**, which the launcher touches **last** at launch
+  so that it dates the run. The reader checks completion **before any
+  prediction is scored** and refuses on any failing limb. The launcher refuses
+  a case where `0/` or a time directory already exists.
+- **Rule 3, the planted zero, run on each arm's own written field** — a known
+  value is planted into a **copy on disk** and read back **through the real
+  reader**, required at the **exact** planted cell index, with a negative arm
+  on the unplanted original. **The reader refuses (exit 2); it does not warn.**
+- **The reader carries no `assert`** — `ast.Assert` count 0 — because
+  assertions vanish under `python3 -O`; under `-O` it bails with rc 2 at
+  module entry rather than run with a check silently disabled.
+- **No word of the fixed verdict vocabulary is emitted**, in keeping with the
+  freeze's opening: this arm grades nothing. A registered prediction is
+  reported `HELD` or `NOT HELD`; a control is reported `FIRED` or
+  `DID NOT FIRE`.
+
+### A1.6 THE CAP IS A HANG DETECTOR, NOT A BUDGET TRACKER
+
+Restated here **without moving it**, because it is the number most likely to be
+misread by a later auditor. The registered cap is **0.50 core-min** against a
+registered estimate of **0.0795 core-min** — a ratio of **6.3×** — and section
+6 already says why: `ClockTime` has integer-second resolution, so quantisation
+alone is ±0.0167 core-min per arm, **42 % of the whole estimate**, and a 1.5×
+cap on a five-second arm would abort on rounding. The cap is set from the
+wall-clock envelope, never from the estimate. **The 6.3× is quantisation, not
+slack, and it is not sloppy costing.** Both the launcher and the reader carry
+that sentence in a banner a reader cannot miss. The cap is **never raised**; a
+kill leaves an incomplete arm and an incomplete arm is refused.
+
+Dollars remain **DERIVED, NOT MEASURED** (/bin/bash.0513/core-h, c7a.4xlarge,
+reported-by-owner; the box cannot read its own billing,
+`COMPUTE_BUDGET_CHARTER.md` §5).
+
+### A1.7 SELFTEST — every control driven BOTH ways
+
+`analyse_first_pressure_solve.py --selftest <workdir>` builds synthetic
+fixtures on disk and drives **every registered prediction and every registered
+control to a failing value as well as a passing one, through the real reader**
+— a control that can only pass is not a control. **30 of 30, rc 0.** The
+strict-completion limbs and the age guard are each driven to a refusal
+individually; the missing-input and empty-input paths are driven to refusals;
+the cap watch is driven over and under; and the result is checked to contain no
+verdict-vocabulary word.
+
+Two readings of the freeze were needed and are disclosed rather than silently
+taken:
+
+1. **C1 names no particular cell index** — it requires the plant to return "at
+   the exact planted cell index". The reader pins cell **12345** and holds
+   itself to exactness at it. No threshold moved; a choice the freeze left open
+   is recorded.
+2. **C2 makes the 6,914 count a control limb as well as prediction PE2.** Read
+   literally — and it is read literally here — a measured count other than
+   6,914 is a control that **did not fire**, so the reader exits 2 and every
+   number is withdrawn, rather than exiting 1 with PE2 `NOT HELD`. This is
+   the same logic PE1 already carries ("the arm is then not rung 1 and nothing
+   it says transfers"). **Nothing was relaxed to avoid this**; it is stated so
+   that an rc of 2 on a count miss is read as the freeze intending it, not as a
+   defect.
+
+### A1.8 NOT REGISTERED, NOT SENT
+
+No mechanism is claimed. No fix is proposed. No F12 gate is read. The interlock
+is not touched. **Nothing is sent, filed, uploaded or submitted** (rule 7).
+**No launch is authorised by this amendment** — it fixes the grading path and
+nothing more; the launch decision belongs to the cfd supervisor.
