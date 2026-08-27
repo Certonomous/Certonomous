@@ -6,7 +6,7 @@
 # same directory as the things it lists and can be edited in the same breath as them, so it is
 # a record, never a pin. Rationale: PREREGISTRATION.md AMENDMENT 3 section 3.1.
 # Rows below are md5 at the time of writing. Evidence rows change whenever a control is
-1dba7c892541a762183000c9152d90b1  PREREGISTRATION.md
+1fb3ce550a494b8c156d65f98074b529  PREREGISTRATION.md
 db35550e97f391e156d531a985268ad5  fadr_chain_driver.sh
 c8fbc151be74b97fb92313974371b28d  fadr_grade.py
 9a3ec810ddf771257f9ce4bbb33fb334  fadr_fetch_fixture.sh

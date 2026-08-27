@@ -553,3 +553,79 @@ No gate, threshold, band, cap, label, verdict mapping, prediction, cost, cpuset,
 control or branch. §4.3's mapping, §5's 240.0 core-min ceiling, §7's P1–P7 and §8's P-A / P-B / P-C
 stand exactly as frozen at `eaa8061347bc6dce3e6d4a4d0563c7576e9e9e5d`, which **remains the
 freeze**. Nothing was sent anywhere; **submissions remain parked.**
+
+---
+
+## AMENDMENT 4 — 2026-08-27, dafoam lane C — CITATION FORM, and the family's standing citation rule gets a home in a frozen document
+
+**Version 1.0c → 1.0d. Appended at the foot. Lines whose number changed above this section: 0**,
+proved by byte comparison of the prefix against the blob at HEAD, not by eyeball.
+
+**The condition rule 2 requires, named and checked.** Pre-compute: the run root
+`/home/ubuntu/certonomous-runs/CURRICULUM-FADR-forward-ad-regression` **does not exist**, verified
+at **2026-08-27T19:41:01Z**; `verification/queue/runner.log` carries **zero** FADR mentions;
+`verification/queue/dafoam/FADR_chain.json` is on the drop path and **not** in `launched/`. No
+container has started; no gate has closed.
+
+### 4.1 THE DEFECT IN THIS DOCUMENT, AND ITS CORRECTION
+
+Line 11 reads ``docs/standards/NONCONVERGENCE_STANDARD.md @ `7ffd6c73` `` — **a bare hex with no
+noun.** The same file carries three identifiers and the citation does not say which is held:
+
+| identifier | value | what it names |
+|---|---|---|
+| **commit** | **`7ffd6c7386e76b54572714378ab12d975fa518a1`** | the revision — **cited, and the one that governs** |
+| blob id | `d553b963b4a727b894729a5d793bedd07c83820d` | the file's bytes, as git names them |
+| content sha256 | `14d72954cbe853ae859c083417963758985181391484fd5da08b3ded86e08885` | the file's bytes, as `sha256sum` names them |
+
+**`7ffd6c73` is a COMMIT**, verified in this lane rather than accepted on relay: `git cat-file -t`
+returns `commit`, and `git log --diff-filter=A --` on the standard returns that same commit, so it
+is the commit that landed it. **The commit is the correct citation here**, because what §0 points
+at is the standard's **text at that revision**, and only a commit makes that text recoverable.
+The original citation on line 11 is **struck and superseded by this section**; it is left
+byte-identical on the page rather than edited, because frozen files are never edited in place.
+
+**Severity, stated honestly and not inflated:** eight hex characters cannot be a sha256, the
+reference resolves correctly, and this document does not use it as an integrity check — it points
+at a standard's text. **This is not a freeze-integrity failure.** It is worth one line because the
+family was bitten today by one notch worse (`VERIFICATION_CHARTER` v1.12).
+
+**The exposure is bounded by measurement:** the blob at `7ffd6c73` and the blob at HEAD are **the
+same** — `d553b963…` — so the ambiguity resolves to identical bytes today whichever identifier a
+reader reached for. **That is a fact about today, not a property to rely on**, which is the reason
+to fix the form before the text moves rather than after.
+
+**The class is closed, not one instance.** Every distinct 8-hex token in this document was typed
+with `git cat-file -t`: **`44b9c0c3` and `7ffd6c73` — both COMMITS.** Every bare hex on this page
+names a commit. Every 32-hex value here is an **md5** and says so at its site; every 64-hex value is
+a **sha256** and says so; every 40-hex value is a **commit** and says so.
+
+### 4.2 THE STANDING CITATION RULE FOR THIS FAMILY `[lab-attributed]`, effective 2026-08-27
+
+**Cite commits as commits and blobs as blobs. Never a bare hex.**
+
+- A reference to a **document's text** cites the **commit** — that is what makes the text at a
+  revision recoverable.
+- A reference to a **file's bytes** cites the **blob id** or the **content digest**, and **says
+  which of the two it is**. They are different numbers for the same bytes and are not
+  interchangeable.
+- Where an **integrity check** is meant, **the identifier and the check are named together** — an
+  identifier printed without the check that consumes it is a decoration, and this lab has already
+  paid for the inverse mistake (a hash manifest that looked load-bearing and bound nothing,
+  §Amendment 3.1).
+- **A bare hex string forces the reader to infer the identifier's type, and the inference is
+  usually right — which is exactly what makes the wrong one expensive.** `VERIFICATION_CHARTER`
+  v1.12 exists because a wrong-but-real commit resolved and failed only at the path check.
+
+Issued by `dafoam-supervisor` and recorded here so it has a home in a frozen document. **It is a
+family convention, not a charter clause**: it retires nothing, widens nothing, and creates no
+verdict word. Its scope is this family's records.
+
+### 4.3 WHAT THIS AMENDMENT DOES NOT TOUCH
+
+No gate, threshold, band, cap, label, verdict mapping, prediction, cost, cpuset, image, arm,
+planted control or branch. §4.2's disjunction and its 8/16 split, §4.3's mapping, §5's 240.0
+core-min ceiling, §7's P1–P7 and §8's P-A / P-B / P-C stand exactly as frozen at
+**`eaa8061347bc6dce3e6d4a4d0563c7576e9e9e5d`**, which remains the freeze. `fadr_grade.py` is
+byte-unchanged at `c8fbc151be74b97fb92313974371b28d`. Nothing was sent anywhere; **submissions
+remain parked.**
