@@ -15593,3 +15593,92 @@ L-350 (working tree behind HEAD), L-351 (the scratchpad shared fleet-wide),
 L-354 (the draft banner outlives the draft).
 
 ---
+
+## L-357 — a non-zero exit is not evidence that a guard fired; only the REFUSAL MESSAGE is, and a planted-failure proof that asserts merely `rc != 0` certifies nothing about the guard it claims to have driven
+
+Found by lane **R2** while driving **VMFLGPU007**'s mesh generator. A
+planted-failure arm exited **rc 1** and read as a clean refusal — the guard was
+meant to reject a bad mesh and the process did stop non-zero, so at a glance the
+control had fired. **It had not.** The `rc 1` came from a **`NameError` crash
+upstream of the guard**: the code raised before the guard's branch was ever
+reached, and the proof that "the guard fires" was in truth a proof that "some
+line, somewhere, threw."
+
+**The mechanism, and why it is structural.** A non-zero exit is the UNION of every
+way a program can fail — a raised guard, an unrelated exception, a typo, an
+`ImportError`, an `-O` that deleted the `assert` carrying the refusal (L-332). A
+test that asserts only `rc != 0` cannot tell a fired control from a crash that
+happened to reach the same exit code, so it certifies **nothing** about the
+specific control it names. The green is real; what it is green ABOUT is not what
+the author thinks.
+
+**The rule.** Every planted-failure proof must assert the **expected refusal
+TEXT** — the clause id and message the guard emits — not merely a non-zero exit;
+and the clean control must assert the **expected PASS text**, not merely `rc ==
+0`. A control is believed only when the run is shown to have taken the control's
+OWN branch, identified by what that branch prints.
+
+**This is CLAUDE.md rule 3 stated for exit codes.** Rule 3's planted-zero control
+refuses when a reader cannot be shown able to see a non-zero: *a zero from a
+reader not shown able to see a non-zero is not evidence.* The same holds for a
+guard: **a refusal from a path not shown able to reach the guard is not evidence
+the guard works.** Drive the guard's failing branch and read back its message; a
+control nobody drove — or drove without reading what fired — is not a control.
+
+**The sibling class already on record: a guard that CANNOT fail.** The FIELD
+COMPLETENESS check that prints `required={}` (three of them shipped in this
+family) is the same disease from the other side — a control whose condition is
+vacuous, so it passes unconditionally and drives nothing. A guard that cannot
+fail and a "failure" that was never the guard are the same defect: **a control
+nobody drove, dressed as one that ran.** Neither is evidence; both must be driven
+against a known-bad and a known-good input, and the output read, before either
+counts.
+
+*Provenance:* lane R2, VMFLGPU007 mesh generator, 2026-08-27; siblings — the
+`required={}` FIELD COMPLETENESS guard (VMFLGPU001-R2 Amendment 1, recorded as
+NOT EVIDENCE); CLAUDE.md rule 3 (planted-zero); L-332 (`-O` deletes asserts, so a
+refusal must not ride an `assert`); L-353 (a hazard in one lane's head is not a
+guard).
+
+---
+
+## L-358 — `checkMesh` OK is not model-valid: a mesh can pass every quality gate and still be wrong for the turbulence model, so wall-function RANS acceptance must include a y+ check — on the ATTACHED region only
+
+Found by lane **R2** on **VMFLGPU007**. The first three-level mesh family reported
+**`Mesh OK`** at every level — non-orthogonality, skewness, aspect ratio, volume,
+every `checkMesh` gate passed. The mesh was nonetheless **wrong for the model**:
+first-cell height **H1 = 0.03** put the wall-adjacent centroid at **y+ ≈ 16**, in
+the **buffer layer** (5 ≲ y+ ≲ 30), where standard wall functions are invalid —
+they assume the cell centre sits in the log layer. The family was rebuilt at
+**H1 = 0.07** for **y+ ≈ 37**, inside the log-law range.
+
+**The mechanism.** `checkMesh` measures **geometric** quality — the properties a
+discretisation needs to be well-posed. It knows nothing about the **physics
+model** laid on top of that mesh. Wall functions add a modelling constraint that
+lives entirely in the first-cell height, a quantity every `checkMesh` gate is
+blind to: a perfectly orthogonal, perfectly non-skewed cell can still place its
+centroid in the buffer layer. **Geometric acceptance and model validity are
+different questions, and passing the first says nothing about the second.**
+
+**The rule.** Mesh acceptance for a **wall-function RANS** case must include a
+**y+ check against the model's valid range** (log-layer, ~30 ≲ y+ ≲ 300 for
+standard wall functions), not merely `checkMesh`. The y+ gate is a first-class
+acceptance criterion beside the geometric ones, computed after a converged (or
+converging) field exists.
+
+**The subtlety that must not be missed — the check is on the ATTACHED region
+only.** y+ is proportional to wall shear stress, and **wall shear VANISHES at
+separation and reattachment points**, so y+ → 0 there for a completely correct
+mesh. A y+ FLOOR demanded **everywhere** would refuse every correct
+backward-facing-step, bluff-body or airfoil-with-separation mesh — it would flag
+the physics as a mesh defect. The floor is therefore registered on the **attached
+boundary region only**; the separation/reattachment neighbourhood is excluded by
+construction, not by a magic threshold. A y+ gate that does not carve out the
+detached region is itself a false guard (see L-357).
+
+*Provenance:* lane R2, VMFLGPU007, 2026-08-27; standard wall-function log-layer
+validity (Launder–Spalding); the separation/reattachment exclusion is why the
+floor is region-scoped. General to any wall-function RANS case, not
+Ansys-specific.
+
+---
