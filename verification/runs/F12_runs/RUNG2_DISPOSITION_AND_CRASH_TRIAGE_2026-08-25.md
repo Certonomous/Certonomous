@@ -231,3 +231,75 @@ Full verification and the probe that found it: the field-localisation registrati
 `verification/campaign/F12_FIELD_LOCALISATION_PREREGISTRATION.md`, frozen `56d72ac3`, blob
 sha256 `bca4074a7de26f478115a1efc1706c9cba6daedab8174cf72c202566d534b667` — **recomputed by me
 from the commit object, not accepted from the lane.**
+
+---
+
+## AMENDMENT 2 — 2026-08-27 — **§3.2's "DIVERGING" IS STRUCK AS A TREND CLAIM. NO CHANNEL WAS DIVERGING.**
+
+**Measured and appended by cfd lane R2 at the cfd supervisor's direction. This
+amendment corrects a FACTUAL CHARACTERISATION and issues NO triage conclusion:
+crash triage is a `SUPERVISION_CHARTER.md` §3 check reserved to the supervisor
+personally, and nothing here substitutes for it.** Zero core-minutes; no solver
+started, no case dictionary touched. **Lines whose number changed above this
+section: 0** — verified mechanically, not asserted (the pre-append file's 12,674
+bytes are the byte-exact prefix of this one). The original text above is
+preserved exactly as written, not rewritten (standing rule 6).
+
+### WHAT IS STRUCK
+
+§3.2 reads, and this sentence is **withdrawn**:
+
+> **Read that plainly: rung 1 was DIVERGING, from about iteration 5, and it
+> never converged at any point in its life.** It did not descend and then blow
+> up. It never descended.
+
+### WHAT SURVIVES — all three of §3.2's MEASUREMENTS are correct and are re-verified here
+
+Re-derived by this lane from `attempt2_coarse_workshop_M0.734_a2.79/log.rhoSimpleFoam`:
+
+| §3.2's figure | re-measured | agrees |
+|---|---|---|
+| first-solve `p` never below `9.5548e-03`, at iteration 5 | **9.554816e−03 at iteration 5** | yes |
+| median q4/q3 = 1.399 | **1.3986** | yes |
+| "RISING at the abort" (endpoint to endpoint) | 9.554816e−03 → 2.117489e−01 = **22.2×** | yes |
+
+**The numbers were never the problem. The word "DIVERGING" is.**
+
+### WHY IT IS WRONG — the full census §3.2 did not have
+
+§3.2 read **one** channel's **two** endpoints. All six solved channels, mean
+initial residual by window over all 148 iterations:
+
+| channel | it 20–60 | it 60–100 | it 100–140 | it 141–148 | trend |
+|---|---|---|---|---|---|
+| Ux | 5.478e−02 | 4.202e−02 | 2.276e−02 | 2.414e−02 | **falling** |
+| Uy | 5.078e−02 | 3.486e−02 | 2.135e−02 | 2.072e−02 | **falling** |
+| e | 1.393e−01 | 9.182e−02 | 7.818e−02 | 8.203e−02 | falling → flat |
+| p | 1.574e−01 | 1.568e−01 | 1.390e−01 | 2.478e−01 | **flat** |
+| k | 1.568e−03 | 6.527e−05 | 2.917e−05 | 2.185e−05 | **falling 2 orders** |
+| omega | 5.081e−05 | 4.888e−05 | 9.857e−06 | 9.107e−06 | **falling** |
+
+**No channel's residual grows.** At the abort iteration Ux = 1.85e−02,
+Uy = 1.88e−02, e = 8.15e−02 — indistinguishable from iteration 100. And the p
+channel §3.2 read is **not monotone**: over iterations 20–147 it sits in
+[6.924e−02, 5.033e−01], mean 1.569e−01, with **65 increases in 127 steps
+(51 %)**. Its quartile medians run 7.838e−02 / 1.322e−01 / 1.075e−01 /
+1.503e−01 — **q2 above q3, q3 below q4** — so the 1.399 rise sits inside a
+wander, and median(q4)/median(q2) is only **1.137**. The correct word for the
+residual history is **PLATEAU WITH OSCILLATION**, not divergence.
+
+### WHAT THE ERROR COST, STATED PLAINLY
+
+**This sentence is why rung 1's crash was read as a divergence for two days.**
+A diverging run and a run whose residuals plateau while its *state* leaves the
+physical domain are different diseases with different treatments: the first
+points at relaxation, linear solvers and schemes (L1–L3 of
+`docs/standards/NONCONVERGENCE_STANDARD.md`); the second points at
+admissibility and formulation (L5, L7). Every probe commissioned by §3.4 and
+after was aimed by the first reading. **The probes themselves are sound and
+none of their measurements is disturbed by this amendment** — it is the
+direction of the search that was set by a word the evidence did not support.
+
+**A generalisable form, offered and not adopted:** a trend claim over a
+148-point series was made from two of its points, on one of six channels. The
+census that refutes it costs one pass over a log already on disk.
