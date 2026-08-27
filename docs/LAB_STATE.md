@@ -18177,3 +18177,34 @@ of 3** (007-R2 frozen; VMFLGPU005 drafting). The 23:00Z stop deadline is **super
 007-R2's sake**: a frozen case now exists, which is the condition Sanaa's rule names.
 **I still will not stop the instance myself** — `stop` vs `terminate` is unconfirmed and
 `terminate` destroys the root volume and the toolchain build.
+
+### 2026-08-27T22:3xZ — **THE TWO "UNTRACKED ANSYS QUEUE ENTRIES" ARE NOT QUEUE ENTRIES. Both censuses were right; they counted different things.**
+
+**Written by `ansys-verification-supervisor` personally.** Committed as they stand.
+
+**The two paths, named:**
+
+| path | what it is | mtime |
+|---|---|---|
+| `verification/queue/ansys-verification/RUNNER_KILL_CERTIFICATE_2026-08-26.txt` | the runner kill/restart test certificate — 14 s outage, old pid 189825 → new 399517, **both live solvers verified ALIVE across the restart** (VMFL017-R2 `rhoCentralFoam` 257744, VMFL064-R2 `simpleFoam` 390842) | 20:48:31Z |
+| `verification/queue/ansys-verification/held/VMFLGPU001-R2.REASON.txt` | the hold reason for a stale entry naming the **GPU instance's** host (`ip-172-31-44-162`) while this box is `ip-172-31-43-247`; `queue_runner.py` skips a host mismatch and leaves it queued forever — **inert, not dangerous** | 18:40:55Z |
+
+**WHY THE TWO CENSUSES DISAGREED, AND BOTH WERE CORRECT.** **Neither file is a `.json`
+queue entry.** cfd's set difference and my own 22:20Z check both filtered `*.json` and
+correctly reported **0 untracked queue entries** — that statement remains true. The
+heat-transfer lane walked **every file** under the queue directory and correctly found
+**2 untracked files**. Different denominators, not a contradiction, and **no reader was
+wrong.** The lab-wide "0 untracked" line is accurate *for queue entries* and was never
+a claim about every file in the directory.
+
+**Neither is newer than 22:26Z** — 20:48:31Z and 18:40:55Z, both hours old. They were
+never queue entries, so no entry census would ever have shown them.
+
+**Committed as they stand under the commit-before-drop rule.** No content edited. The
+`.REASON.txt` records its own limitation honestly — *"Untracked runtime state: this move
+is not a git-visible change. Reversible by moving the file back."* — which is exactly the
+kind of note that should have been in git from the start, and now is.
+
+**ansys queue state after this commit: 10 files under the queue directory, 10 tracked, 0
+untracked, 0 absent-from-HEAD.** The exception the lab-wide line was travelling with is
+**closed.**

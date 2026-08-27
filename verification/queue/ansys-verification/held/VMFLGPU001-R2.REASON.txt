@@ -1,0 +1,5 @@
+HELD 2026-08-27 by ansys-verification-supervisor.
+This entry names host ip-172-31-44-162 (the GPU instance). This box is ip-172-31-43-247.
+queue_runner.py skips a host mismatch and leaves the entry queued forever; it is inert, not dangerous.
+The live VMFLGPU001-R2 entry belongs on the GPU instance, not here. This copy is a stale drafting leftover.
+Untracked runtime state: this move is not a git-visible change. Reversible by moving the file back.

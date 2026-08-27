@@ -1,0 +1,19 @@
+RUNNER KILL TEST CERTIFICATE - 2026-08-26
+
+Kill time (UTC): 2026-08-26T20:47:47Z
+Restart time (UTC): 2026-08-26T20:48:01Z
+Elapsed time: 14 seconds
+Old runner PID: 189825
+New runner PID: 399517
+
+Solver survival verification:
+- VMFL017-R2 rhoCentralFoam process 257744: ALIVE after restart
+- VMFL064-R2 simpleFoam process 390842: ALIVE after restart
+
+Crontab restart mechanism:
+@reboot /bin/bash /home/ubuntu/Certonomous/scripts/queue_runner.sh
+* * * * * /bin/bash /home/ubuntu/Certonomous/scripts/queue_runner.sh
+
+Cron service status: active
+
+New daemon tick verified: 2026-08-26T20:48:01Z START pid=399517 sid=399517 (from runner.log)
