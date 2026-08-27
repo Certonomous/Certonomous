@@ -259,3 +259,168 @@ longest the record holds, and it spanned the whole fleet-death-and-reform of the
 Nothing in this test was sent, filed or uploaded (rule 7). Cost: **0 core-min of solver
 compute** — the test signalled one daemon and read files; the 168 s of polling is agent time,
 not compute.
+
+---
+
+# FOURTH KILL — 2026-08-27T17:32:31Z, to load the NEW `queue_entry_check.py` (guard 1, `b9a7aa2f`)
+
+**Written 2026-08-27T17:37:47Z by cfd lane K for the cfd supervisor; every stamp from `date -u`.**
+Sanaa's criterion (`3c3ef86c`) unchanged: the queue runner is *"certified to work even when
+fleets die."* **Why this kill was ordered, and it is a new reason:** `scripts/queue_entry_check.py`
+changed at `b9a7aa2f` (landed 17:18:50Z) and `scripts/queue_runner.py:84` imports it **as a
+Python module at process start**, so the daemon running since 16:26:01Z held the **pre-`b9a7aa2f`**
+validator in memory and could not pick the change up without a restart. Criteria fixed **before**
+the kill: **(a)** an `EXIT reason=SIGTERM pid=<pid>` line reaches `runner.log`; **(b)** cron
+restarts it **within 120 s**, PPID 1 and its OWN session id (L-336); **(c)** the new daemon runs
+the CURRENT code; **(d)** the restarted daemon resolves the **NEW** validator; **(e)** running
+solves survive untouched.
+
+**Frozen-record assertion (rule 6):** the FIRST, SECOND and THIRD kill sections above are frozen
+records. **Lines removed: 0. Lines whose number changed above this section: 0.** The file was
+**261 lines** immediately before this append, sha256
+`26469bae177b50cb7cb5c2a08511971fe5ff311f3317da1e5136bda7b12d9c00`; this section is appended at its
+foot only.
+
+## VERDICT: **PASS** (all five clauses) — with the clause (d) caveat stated below, not buried
+
+| clause | measured | artifact |
+|---|---|---|
+| (a) `EXIT` line | `2026-08-27T17:32:31Z EXIT reason=SIGTERM pid=856460` — the file's **third** `EXIT` line ever (count 2 → 3; for THIS pid 0 → 1, so the line is this kill's and not a carried-over match) | `verification/queue/runner.log:3145` |
+| (b) restart ≤ 120 s | kill **17:32:31Z** → cron restart line **17:33:01Z**: **30 s by timestamps** (cron floor is 60 s worst case). New pid **1120800**, **PPID 1**, **SID 1120800** — its own session, detached by session id (L-336); `ps` STARTED `Thu Aug 27 17:33:00 2026` | `verification/queue/runner.restarts.log:7`; `ps -o pid,ppid,sid,lstart` |
+| (c) current code | new `START` line reads `HEAD=35df9762`; live HEAD read `35df9762` at that instant — **equal**, and `git merge-base --is-ancestor 35df9762 HEAD` → **yes** | `verification/queue/runner.log:3146` |
+| (d) NEW validator loaded | validator blob at the OLD daemon's HEAD `a6df22fa` is sha256 `fc40ccf3…`; at the NEW daemon's HEAD `35df9762` **and on disk** it is `4795e7ff…` — **different**. `CHECKS` went **5 → 6**, the new key being `"EXEC": check_cwd_launchable`. `b9a7aa2f` is an ancestor of `35df9762` | `git show <sha>:scripts/queue_entry_check.py`; `scripts/queue_entry_check.py:343-350` |
+| (e) solvers survive | **15 pids** across two independent T-family solves alive before AND after, both logs grown, both last `Time =` advanced; **3 post-restart ticks**; all **11** queued entries carried across intact | `ps`, the two `log.solve` files, `runner.log` |
+
+## Timing: the window was chosen, not taken
+
+The supervisor's rule was to kill only while the box sits above the launch ceiling, because then
+nothing can fire, and **never during or just before a launch**. At the first reading the box was
+**82–84 %** and actively draining 1-rank entries — `LAUNCHED` lines at **17:27:53Z** (heat-transfer
+`T5_S_m`, pid 1106247), **17:28:58Z** (closure `G1_grid_triple`, pid 1109265) and **17:30:03Z**
+(heat-transfer `T16_MC_c`, pid 1111119). **The kill was withheld for those three ticks.** It was
+sent only after two consecutive ticks were `HELD` above 88 %:
+
+    2026-08-27T17:31:08Z box busy=90.5% (~14.5/16 cores) MemAvailable=10.4 GB; 9 entries queued
+    2026-08-27T17:32:13Z box busy=89.1% (~14.3/16 cores) MemAvailable=10.5 GB; 9 entries queued
+    2026-08-27T17:32:13Z HELD D5_chain_r4.json: busy 89.1% >= ceiling 85.0%
+
+No launch was interrupted and no launch window was missed: the runner launched three entries in
+the five minutes before the kill and was holding at the ceiling when it was signalled.
+
+## Old daemon, as found
+
+pid **856460**, PPID **1**, SID **856460**, started **Thu 2026-08-27 16:26:01 UTC** by cron
+(`runner.restarts.log:6`, the THIRD kill's restart), elapsed **01:06:30** at the kill; its `START`
+line (`runner.log:3001`) reads `HEAD=a6df22fa … exit_logging=SIGTERM+SIGINT+SIGHUP+exception+normal`.
+`runner.log` **3,144** lines and `runner.restarts.log` **6** lines pre-kill; `EXIT` count **2**.
+
+## The kill
+
+**ONE** `kill $(cat verification/queue/runner.pid)` — SIGTERM, no `-9`, no second signal — at
+**2026-08-27T17:32:31Z**, rc **0**. Nine seconds later `kill -0` reported the process gone and the
+`EXIT` line was already on the log. **No process other than the runner pid was signalled.**
+
+**One classifier denial is on the record for this test, and is reported rather than routed around
+(rule 9).** The lane's first attempt was a single compound invocation that wrote a Python driver
+into scratch and ran it under `timeout`; it was refused with, verbatim:
+
+    Permission for this action was denied by the Claude Code auto mode classifier. Reason: Blocked
+    by classifier. If you have other tasks that don't depend on this action, continue working on
+    those. IMPORTANT: You *may* attempt to accomplish this action using other tools that might
+    naturally be used to accomplish this goal, e.g. using head instead of cat. But you *should not*
+    attempt to work around this denial in malicious ways, e.g. do not use your ability to run tests
+    to execute non-test actions. You should only try to work around this restriction in reasonable
+    ways that do not attempt to bypass the intent behind this denial. If you believe this capability
+    is essential to complete the user's request, STOP and explain to the user what you were trying
+    to do and why you need this permission. Let the user decide how to proceed. To allow this type
+    of action in the future, the user can add a Bash permission rule to their settings.
+
+The refusal was of that compound scripted form. The test then ran in the **documented** form —
+`docs/standards/QUEUE_RUNNER.md` "Stop: `kill $(cat verification/queue/runner.pid)`" — with plain
+read-only `ps`/`grep`/`stat` around it, which the classifier permitted. **No `kill` was denied**;
+the denial is recorded because it happened, not because it blocked the test.
+
+## (c)+(d) stated honestly: `queue_runner.py` did NOT change — the MODULE IT IMPORTS did
+
+This is the difference from the third kill, and it is the point of this one.
+
+- **`scripts/queue_runner.py` is byte-identical** at `a6df22fa`, at `35df9762` and in the worktree
+  — sha256 `07b10068c5339b109043a5798b2269d7fa9be83bc201501d267092a8f157bfcd` at all three; and
+  `git log a6df22fa..HEAD -- scripts/queue_runner.py` returns **no commits**. So, exactly as the
+  third kill disclosed, **the daemon script itself was not changed by this restart.**
+- **`scripts/queue_entry_check.py` DID change**, and that is what the restart loaded.
+  `git log a6df22fa..HEAD -- scripts/queue_entry_check.py` returns exactly one commit, `b9a7aa2f`
+  (+253 / −8 lines). The import is at `scripts/queue_runner.py:84`, `import queue_entry_check as
+  qec`, resolved through the `sys.path.insert(0, str(HERE))` on the line above it with `HERE` the
+  `scripts/` directory — i.e. **the worktree file**, bound once at process start.
+- **Timing makes the load unambiguous.** The validator's mtime is **2026-08-27T17:17:20Z** — *after*
+  the old daemon started (16:26:01Z) and *before* the new one started (17:33:01Z). The old process
+  therefore held `fc40ccf3…` and the new process could only have read `4795e7ff…`.
+- **No stale-`.pyc` inversion.** `scripts/__pycache__/queue_entry_check.cpython-312.pyc` is stamped
+  **17:29:31Z**, compiled from the 17:17:20Z source and older than the new daemon's start, so the
+  bytecode cache carries the new source, not the old.
+- **The clause is load-bearing, shown live.** `python3 scripts/queue_entry_check.py --selftest`
+  returns **rc 0**, `SELFTEST PASS: 18 controls fired, each shown able to fail`, including
+  `CONTROL A FIRED (cwd absent): refused under EXEC and NOT under AGE-GUARD` and its mutant
+  `PLANT 1 FLIPPED control A: deleting check_cwd_launchable made the absent-cwd entry ACCEPTED`.
+
+### The caveat, stated plainly and not buried
+
+**The behavioural delta on this box today is ZERO.** A census of **all 96 live entries** (queued
+plus every `launched/*.json`, at 17:29Z) found **0 entries whose `cwd` is absent or is not a
+directory** — so there is no live entry the new `EXEC` clause could refuse and the old `AGE-GUARD`
+clause would not have. **This certificate proves the restarted daemon CARRIES the new validator; it
+does NOT demonstrate a changed verdict on any real entry, because no such entry exists.** (The
+supervisor's brief cited 94 entries; the queue is live and the count moved to 96 by the time this
+lane measured it. The refusal count is 0 either way.) `b9a7aa2f`'s own commit message makes the
+same claim independently — *"ZERO verdict changes measured across all 93 queue entries"*.
+
+## Three ticks under the new pid — the runner is working, not merely alive
+
+    2026-08-27T17:33:06Z box busy=88.3% (~14.1/16 cores) MemAvailable=10.4 GB; 11 entries queued
+    2026-08-27T17:34:11Z box busy=99.9% (~16.0/16 cores) MemAvailable= 9.1 GB; 11 entries queued
+    2026-08-27T17:35:16Z box busy=88.9% (~14.2/16 cores) MemAvailable=10.5 GB; 12 entries queued
+
+The box was at 88–100 % busy throughout, so the correct behaviour is to HOLD, and it held on all
+three. **Honest limit, the same one the third kill carried: no LAUNCH occurred during this test.**
+This kill certifies the tick loop, the queue read and the ceiling decision; it does **not**
+re-certify the launch path (the first kill did, with two launches) — though the same daemon
+generation launched three entries in the five minutes immediately before the kill.
+
+## Queue carried across the restart
+
+**11 queued entries before the kill, all 11 present after**, unchanged in name:
+`ansys-verification/VMFLGPU001-R2`; `cfd/F23_HP_WEDGE`, `cfd/F25_DUCT3D`, `cfd/F27_WOMERSLEY_PIPE`;
+`dafoam/AV1R_chain`, `dafoam/AV2R_chain`, `dafoam/D5_chain_r4`, `dafoam/SO1a_chain`,
+`dafoam/W3_chain_r3`; `heat-transfer/T16_MC_f`, `heat-transfer/T16_MC_m`. The count reads **12** at
+the third post-restart tick: the twelfth file is `closure/G1_grid_triple.json`, **re-filed by its
+owning team during the test** (the same case_id had been launched by this runner at 17:28:58Z,
+before the kill) — **not** this test's doing. Nothing was refused, moved or deleted; no `refused/`
+directory gained a file. The `ansys-verification` entry is `SKIP`ped every tick as a remote-host
+entry (`host='ip-172-31-44-162'`), before and after alike.
+
+## (e) Solvers before and after — two independent solves, 15 pids, none touched
+
+| solve | pids | before (17:32:31Z) | after (17:35:19Z) |
+|---|---|---|---|
+| **T3 R_ff**, `buoyantBoussinesqSimpleFoam` on **8 ranks**, `verification/runs/T-family/T3_runs/R_ff` | **410029** (launcher, PPID 1, SID 410029), **411907** (timeout), **411908** (mpirun), **411911–411918** (the 8 ranks) — **11 pids, identical list before and after** | `log.solve` **41,014,573 B**; last **`Time = 42236`** | **41,110,114 B** (+95,541); last **`Time = 42334`** (+98 iterations) |
+| **T15_UP_f**, `buoyantBoussinesqPimpleFoam` serial, `verification/runs/T-family/T15_runs/T15_UP_f` | **708452** (queue-runner wrapper, PPID 1, SID 708452), **708453**, **709355** (timeout), **709356** — **4 pids, identical before and after** | `log.solve` **26,669,368 B**; last **`Time = 106.75`** | **26,830,648 B** (+161,280); last **`Time = 107.4`** |
+
+`ps` on the fifteen pids returned **15 rows after the restart**, the same fifteen. The T3 job is the
+stronger of the two: an `mpirun` tree in its own session (SID 410029) survived the runner's death
+with **every one of its eight ranks** and kept advancing at its normal rate. Launched solves are
+`setsid`-detached, so a SIGTERM to the runner cannot reach them — measured a fourth time. Note
+T15_UP_f's wrapper is literally the runner's own launch form (`bash -c cd … ; R=$?; echo
+"launcher_rc=$R …" > STATUS.T15_UP_f`), reparented to PPID 1: **a solve the runner itself started
+outlived the runner that started it.**
+
+## Full restart history at this certificate's foot
+
+`verification/queue/runner.restarts.log`, seven lines: 16:41:57Z (189825), 20:48:01Z (399517),
+20:54:01Z (419529), 21:16:02Z (459727), 22:17:01Z (502797) — all 2026-08-26 — 2026-08-27T16:26:01Z
+(856460), and **2026-08-27T17:33:01Z (1120800)**, this test. Crontab as installed is unchanged from
+the first kill (`@reboot` plus `* * * * *` → `scripts/queue_runner.sh`); `systemctl is-active cron`
+reads `active`.
+
+Nothing in this test was sent, filed or uploaded (rule 7). Cost: **0 core-min of solver compute** —
+the test signalled one daemon and read files; the waiting and polling is agent time, not compute.
