@@ -5608,6 +5608,65 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T18:41:26Z — SESSION certonomous-75: THE T13 "EXACT-CLASS" FLAG IS A BLANKET BYPASS OF RULE 5 BRANCH (2), NOT AN EXACT EXCEPTION — VERDICTS STAND ON THE FLOOR, NOT ON THE BYPASS; THE rule-4/L-342 DESK ITEM IS WITHDRAWN AS FRAMED (there is no contradiction, and the live item is a DIFFERENT one); T14 IS THE ONLY UNQUALIFIED GRID FLIP
+
+*Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions on both regions outside the insertion (content, never a line count — chief's stop-order clause 3).*
+
+**RE-FORMED 18:30Z after the ~18:25Z session-limit kill.** Board read in full from the `cbcb1127` blob; chief section read in full; live process reading taken from `ps` and `/proc` in this session, not relayed.
+
+#### CHECK 3, MINE, AND IT REVERSED ITSELF TWICE BEFORE IT SETTLED — DO NOT SHORTEN THIS BLOCK
+
+**T13's four PASS rows were about to go up as capability-grid flips. I read the gate artifact and the comparator myself first, and what I found is not what the board said.**
+
+`analyse_t13.py:405` reads `if not exact_class and tr["state"] != "CONVERGING":`. The per-row `exact_class` flag is a literal `True` in the `specs` tuple at `:488` and **is never confronted with the triple state that was actually measured**. It therefore bypasses **the whole of rule 5 branch (2)** — DIVERGENT, STAGNANT, OSCILLATORY *and* EXACT — not the EXACT state its own docstring argues for. In `gate_t13.json` the two exact-class rows came out **G2 `OSCILLATORY`** and **G3 `DIVERGENT`, p = −0.8931**, both **`PASS`**. That is the `gate_t1b.json` shape found and repaired earlier today, in a comparator frozen yesterday.
+
+**Then I read the values, and they reverse it.** G2 c/m/f = **4.103e-12 / 3.354e-12 / 6.263e-11** against a registered floor of **1e-6** — five orders below. G3 = **4.880e-11 / 1.014e-10 / 1.990e-10** against a floor of **2e-4** — six orders below. **The discretisation error genuinely is zero at round-off, so the registration's premise — "the linear T lies in the null space of the scheme's truncation error" — is CONFIRMED by the measurement, not falsified.** The OSCILLATORY and DIVERGENT labels are the classifier reading round-off noise; **G3's p = −0.893 is a slope fitted through numbers that are all 1e-10**. No GCI is quoted for either row, which is correct.
+
+**SO THE VERDICTS STAND AND THE CODE IS STILL DEFECTIVE, and the distinction is the whole finding. What makes G2/G3 safe is the ABSOLUTE FLOOR, not the bypass.** Nothing checks that the values are at round-off before gate (2) is skipped, so the same flag would have passed a genuinely divergent row carrying an O(1) error just as silently. **The sibling comparator frozen 23 minutes later gets this right:** `analyse_t9aR1b.py:217-225` **DERIVES** `state="EXACT"` from `|e21|,|e32| < roundoff_K` — it **measures** exactness where T13 **declares** it. The correct construction already exists in this family and T13 did not use it.
+
+**RULE 2 IS CLEAN AND I STATE IT IN THE EXCEPTION'S FAVOUR.** Freeze `0d2dc150` 2026-08-26T20:55Z against first compute `T13_VS_c` 22:34:29Z; freeze `3c39d08d` 21:18Z against `W1b_c` 2026-08-27T08:54:19Z. Both exceptions were frozen **before** compute and neither was chosen to fit an answer.
+
+**MY RULING `[lab-attributed]`: NO RETROFIT.** Unlike T1b, **no value and no verdict here is wrong** — the repair belongs in the NEXT registration, not as an amendment into a frozen document. What is owed instead is **disclosure**: a reader opening `gate_t13.json` sees `DIVERGENT … PASS` and must not have to reconstruct why that is not the T1b defect. Dated disclosure ordered into the T13 results record, append-only, with the triple values and the floors printed so the five-to-six order margin is visible without trusting me. Docket row ordered: **an exact-class row must REFUSE unless its measured triple is at or below the registered round-off floor; a declaration of exactness-by-construction that is never tested against the measurement is a bypass, not an exception.**
+
+#### THE DESK ITEM MY PREDECESSOR PUT UP IS WRONG AS FRAMED, AND I WITHDRAW IT IN THAT FORM
+
+The board says *"rule 5's EXACT clause met a registered-floor exception TWICE today (T13 G2/G3, W1b R1)"*. **Accurate for W1b** — its triple **is** measured EXACT (e21 −2.842e-13, e32 3.240e-12; dev **2.899e-12 K** against a **1e-6 K** floor, 900x tighter than T9a's 0.9 mK band). **Not accurate for T13**, whose triples are OSCILLATORY and DIVERGENT. **They are two different questions, and the argument that rescues an EXACT row — no order is claimable from three identical values, so grade the floor — does not on its face rescue a DIVERGENT one.** W1b's remains referred and unruled; T13's is answered above and is a code defect, not a rule question.
+
+#### THE rule-4 vs L-342 CONTRADICTION — WITHDRAWN. THERE IS NO CONTRADICTION, AND THE LIVE ITEM IS A DIFFERENT ONE
+
+Read by me at `mark_done_t14.py:14-17` and `mark_done_t9aR1b.py:14-17`. Both markers **already** classify explicitly: **PHYSICS-CRITICAL** = rc, `End`, last time, field present, **ExecutionTime count**, the age guard; **INFRASTRUCTURE** = `wall_s`, `timeout_s`, `ranks`, `core_min`, `capped`, `checkmesh_rc`, `solver`, `solver_path`, `note`, `started_utc`, `ended_utc`, with an absent infrastructure field reported **NOT MEASURED** and never voiding a run (`:75`).
+
+**The two rules do not collide, and the reason is in L-342's own words:** it names *"solver logs, fields, histories"* as **physics artefacts**, and marks only *"ledger/poller/host-side rows"* as infrastructure. **The `ExecutionTime` count is read FROM THE SOLVER LOG.** It is therefore a physics-critical reading, not a bookkeeping one, and CLAUDE.md rule 4 and L-342 agree. **No amendment is owed on this ground and none is being written.** This item comes OFF Sanaa's desk rather than staying on it.
+
+**WHAT IS LIVE INSTEAD, and it is genuinely different:** both markers **REFUSE** when `STATUS` carries no integer rc (`:62-63`). That is **STRICTER than Sanaa's R-RC ruling** of 2026-08-27 §0 — rc *value* physics, rc *record* infrastructure, an absent record being NOT MEASURED provided the other four rule-4 conditions hold. **The direction is conservative: the marker refuses a run her ruling would let be graded.** So **no verdict on record is wrong because of it and no re-grade is owed.** The markers are frozen; the repair is **forward-only, in the next registration.**
+
+#### THE CAPABILITY-GRID FLIP SET — CORRECTED BEFORE IT LEFT THIS TEAM
+
+| rung | rows | flip status |
+|---|---|---|
+| **T14** | G1/G2/G3, all `CONVERGING`, p **1.9999 / 2.0000 / 2.0066**, GCI 2.3e-4 / 1.1e-3 / 1.9e-3 % | **UNQUALIFIED FLIP.** `analyse_t14.py:205` carries **no exception at all** and its selftest at `:393` drives `exact (e21 = 0) -> NOT A RESULT`. Rule 5 fully encoded. |
+| **T13 G1, G1b** | both `CONVERGING`, p **2.0000 / 1.9975** | **CLEAN** — non-exact-class rows through the full gate. |
+| **T13 G2, G3** | `OSCILLATORY` / `DIVERGENT` | **HELD BACK.** PASS on an absolute floor with an unguarded bypass. Not sent as a flip. |
+| **W1b R1** | `EXACT`, dev 2.899e-12 K vs 1e-6 K | **HELD BACK** pending the EXACT-clause ruling. |
+
+**"T13 PASS 4/4, T14 PASS 3/3, W1b PASS 1/1, all flips" would have been an over-claim on a family whose grid reads 0 CAN DO.** The direction-of-error prior held again: every one of these ran flattering.
+
+#### LIVE, MEASURED THIS SESSION FROM `ps` AND `/proc`, NOT RELAYED
+
+`T3_R_ff` pid **411907**, 8 ranks, `verification/runs/T-family/T3_runs/R_ff`. `T15_UP_f` pid **709355**. `T16_MC_m` pid **1139565**, launched 17:42Z. **10 of 16 cores.** Runner daemon pid **1120800** alive. **`T5_S_m` (pid was 1106247) and `T16_MC_c` (pid was 1111119) have LEFT THE PROCESS TABLE** — a process leaving the table is **not** evidence of completion, and both are with the grading lane to be established from artifacts against all six limbs.
+
+#### LANES — THREE, AT THE CAP
+
+(1) disk/queue/completion census; (2) grading — T5_S_m, T16_MC_c, then the T13 disclosure and docket; (3) new exact-solution registrations for FREEZE-AHEAD and queue depth. **The registration lane is the one that matters most:** the territory has run essentially everything it has frozen, so depth now comes ONLY from new pre-registrations, and it is steered to closed-form rungs that carry no ACQUIRE dependency (T6/T7/T9b/c/T12 all do, and a registration written against a reference we do not hold is a registration against remembered numbers).
+
+#### ON SANAA'S DESK — ONE ITEM REMOVED, ONE CORRECTED, THE REST CARRIED
+
+**REMOVED:** the rule-4/L-342 contradiction — there is none. **CORRECTED:** the EXACT-clause exception is W1b's question only, not T13's. **Carried unchanged:** the LOGS exemption follow-through; the two duplicate ledger pairs C-165/C-166 (the fix is to re-derive the id after a failed CAS before retrying, which nobody does); the T5 A10 driver's independence, §10's ordering broken and unrepairable for that artefact; T1b's docket entry, highest read D537; D389's S13 normalisation (~24x looser than it reads on an absolute temperature — re-grades the whole thermal corpus, not to be settled unilaterally); K2a; D495; the T10a upstream draft, **filing is hers**. Vogel & Eaton 1985 and Blay 1992 both **NOT OBTAINED**.
+
+#### BLOCKED
+
+T5 verdicts, on the AMENDMENT 10 driver. Queue depth, on the new registrations in flight. **Referred to the chief, not decided here:** the launcher's in-place overwrite of richer diagnostics (lab-wide, not thermal); `QUEUE_ENTRY_STANDARD.md`'s stale passivity text; the `.git` growth ruling. **VERIFY** — the queue depth, FREEZE-AHEAD count and completed-but-ungraded census in this session are with the census lane and are NOT confirmed by me at this write.
+
 ##### ADDENDUM 2026-08-27T17:44:18Z — **HOLD IN FORCE: NO FURTHER UNTRACKING OF `log.*` UNDER `verification/runs/` UNTIL SANAA RULES**, AND NO REVERSAL OF THE 43 EITHER; T5b RELEASED AFTER MY CHECK 4 (`40f3d39c`); FREEZE-AHEAD 3 of 3 MET
 
 *Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions on both regions outside the insertion.*
