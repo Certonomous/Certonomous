@@ -1,0 +1,57 @@
+{
+  "team": "dafoam",
+  "case_id": "D4S_F3SR_chain",
+  "prereg_commit": "ed9cda9080080b1f5f450ee3202a6d64ddb76d49",
+  "prereg_path": "cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED_F3SR/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED_F3SR/d4s_f3sr_chain_driver.sh",
+    "F-S",
+    "F-P"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED_F3SR",
+  "ranks": 4,
+  "cost_core_min_estimate": 75.862,
+  "cap_core_min_registered": 240.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, not measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 75.862 core-min DERIVED from the TWO-TERM anchor MEASURED on D4S-F3S's own two arms: wall_s = OVERHEAD_S + N_PRIMALS x RATE_S_PER_PRIMAL, with F-S 577 s = 114.273 + 22 x 21.033 and F-P 561 s = 115.789 + 22 x 20.237 (per-primal wall_s from the instrument's own d4s_f3s_fd_endpoint.jsonl, 22 rows per arm; totals from that root's ledger.txt); pooled OVERHEAD 115.0 s, RATE 20.635 s/primal, N 22, ranks 4 -> 568.97 s -> 37.931 core-min per arm, 2 arms. THE ANCHOR IS NAMED BECAUSE THE PREDECESSOR'S WAS WRONG: D4S-F3S priced 47.267/arm from D4's whole F3 ARM TOTAL (709 s x 4), which carries 32.2 s/primal of fixed overhead, and MISSED P4 at 0.814/0.791; the error was the anchor, not the rate. Contention was measured at 3.9802/3.9561 delivered cores of 4 and runs in the OPPOSITE direction to the underspend, so it is recorded and NOT claimed as an explanation. Per-arm caps F-S 120.0 / F-P 120.0 UNCHANGED from D4S-F3S; the enforced in-container deadline is 1710 s, SHORTENED by the registered 90 s frame allowance so the graded host bracket cannot exceed the cap when the deadline fires (D4S-F3S-CAP-DEF-1); (1710 + 90) x 4 / 60 = 120.000000. CEILING 240.0 core-min = sum of caps. Dollars derived, not measured: $0.0649 point, $0.2052 at the ceiling.",
+  "memory_floor_gb": 16.0,
+  "enqueued_by": "DRAFT ONLY -- NOT ENQUEUED. Prepared by dafoam lane I and left in the case directory. The freeze sha goes to the dafoam-supervisor before this entry is placed in verification/queue/dafoam/. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is not delegable.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus the optional cap_core_min_registered. Fields below are dafoam annotations the validator ignores.",
+  "item": "D4S-F3SR -- the two-row endpoint FD table on D4's MACH wing under ONE stationarity acceptance rule, with the age clause (D4S-F3S-AGE-DEF-1) and the cap frame (D4S-F3S-CAP-DEF-1) repaired",
+  "prereg_commit_note": "This field cites the FREEZE ALONE. There are no addenda; if any are ever added, this field does NOT move -- a prereg_commit pointing at an addendum demotes the field from evidence to bookkeeping.",
+  "precondition_artifact": "none -- the sources are two GRADED, read-only arm-O trees (D4-SHIPPED O/ and D4 O/, censused intact by the stager, both roots on the launcher's FORBIDDEN list along with D4S-F3S's own root). The driver's guards (G-ROOT.1-.5, ALREADY_BOUGHT, launcher AND STAGER md5s, image digest per row, G-ROW by arm suffix, H5 window floor 16.0 GiB, aggregate wait-and-retry bounded 14,400 s) are its preconditions and every one refuses before a core-second is spent; the stager refuses an existing destination.",
+  "images": {
+    "SHIPPED": "dafoam/opt-packages:latest sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc (F-S) -- digest re-verified LIVE against docker image inspect at the freeze",
+    "PATCHED": "dafoam-idwarp-rot:v1 sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 (F-P) -- digest re-verified LIVE against docker image inspect at the freeze"
+  },
+  "two_row_rule": "the DAFoam verdict is two rows or it is not a verdict (DAFOAM_CHARTER.md section 6): both endpoint FD tables under one acceptance rule, both image digests carried, the two libidwarp.so md5s asserted DISTINCT at G9",
+  "container_memory_cap": "12g every arm",
+  "cpuset": "5,6,7,9 -- REGISTERED (PREREGISTRATION.md section 4)",
+  "deadline_in_container_s": "1710 s at 4 ranks per arm; cap 120.0 core-min UNCHANGED; frame allowance 90 s registered and asserted by inversion",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3SR-a2-wing-cdmin (asserted ABSENT at the freeze by THREE checks, including the frozen stager and the frozen launcher EXECUTED and refusing; the driver creates it on the first fire and stages nothing over a present arm)",
+  "scheduling_note": "AT THE FREEZE, MemAvailable read 11.06 GiB, BELOW the driver's registered H5 floor of 16.0 GiB, because another item's arm was live on the box. The H5 window would REFUSE this item at that moment, correctly. This is a scheduling fact, not a defect, and it is not a reason to move the floor.",
+  "rc_capture": "INSIDE the detached driver: per arm the launcher reads rc = docker inspect .State.ExitCode (and OOMKilled, and now .State.StartedAt/.State.FinishedAt for the container's own clock) BEFORE docker rm (no --rm), writes the ledger row, and the driver appends rc=<n> ... source=launcher_exit=docker_inspect_ExitCode to STATUS.<arm>; at chain end the frozen grader d4s_f3sr_grade.py runs on the artefacts (its rc is INFRASTRUCTURE, L-342). Never the $? of the runner's setsid line.",
+  "verdict_state": "PENDING",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.D4S_F3SR_chain (rc inside the detached wrapper)",
+      "the age datum, its sentinel and the staged-input manifest",
+      "the case's own log End line, endTime fields and age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "container_wall_s",
+      "frame_allowance_s",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342). container_wall_s absent -> G10's frame limbs report NOT_MEASURED and the gate rests on the HOST bracket alone, which is the STRICTER reading."
+  }
+}
