@@ -6494,6 +6494,80 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T21:39:22Z — **TEAM RE-FORMED AFTER THE 20:35Z SPEND-LIMIT KILL; POST-KILL DISK RESIDUE IS EMPTY; A LAB-WIDE CAP-ENFORCEMENT MISCITATION CONFIRMED AT SOURCE; AND THE FAMILY GRID ON DISK IS TWO COMMITS BEHIND HEAD**
+
+*Content dictated by the heat-transfer supervisor; splice and citation checks by a heat-transfer lane. Stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY asserted outside the insertion.*
+
+**Re-formed 21:2xZ with three lanes.** HEAD moved `7126b0a5` → `1920ff55` → `f82dff96` → `87013378` during the session; peers are committing again, so every reading below carries its own stamp.
+
+#### POST-KILL RESIDUE IS **EMPTY**
+
+**196 staged deletions at 21:24Z, 0 at 21:30Z** after the chief's index reset. All 196 were verified **present on disk AND byte-identical to HEAD** — corroborated on **content**, by hashing each path's disk bytes against `git rev-parse HEAD:<path>`, not merely on existence. This was **index lag, not evidence loss**.
+
+**The near-miss measure, which is what makes the hazard legible:** that index carried staged deletions for the **complete T17/T18/T19 instrument set** — 3 pre-registrations, 3 comparators, 3 `mark_done_*` markers, 3 `registered.json` — **plus `DONE.T16_MC_c` and `STATUS.T16_MC_c`**. A bare `git commit` of that index would have deleted the lot. This is standing rule 10's "stale in the reverting direction", measured on our own territory.
+
+#### THREE `MM` PHANTOMS CLEARED — **NO RULE-6 INCIDENT**
+
+`K0d_REREGISTRATION.md`, `K0f_PREREGISTRATION.md` and `T9aD_PREREGISTRATION.md` are all **byte-identical to HEAD** on disk. The index was merely holding each file's **pre-addendum blob**; all three `MM` markings vanished on the index reset. No frozen artifact was edited.
+
+#### THE FAMILY GRID IS **STALE ON DISK**, AND IT IS THE ONLY ONE OF THE THREE
+
+`docs/capability/heat-transfer_GRID.md` — disk blob `250764d1` vs **HEAD `210e5ff1`**, disk mtime **2026-08-26 22:55:26Z**, and the disk bytes are **byte-identical to the version at commit `f0b3971a`**. Checked alongside: **`cfd_GRID.md` and `dafoam_GRID.md` both MATCH HEAD.** Ours is the only stale one.
+
+The worktree is **two commits behind**, missing `4918aec2` (T14 and W1b land, conduction·laminar·2D 2 → 4; T13 lands, natural conv·laminar·2D 1 → 2) and `b340e2bf` (the §2g amendment, 4 → 3, and the supervisor's own withdrawal). **A reader of the disk gets "CAN DO, CAVEATS — 2 cases" and "1 graded case"** — the pre-27th state, with **T14, T13 and the withdrawal all absent**.
+
+**HEAD IS CORRECT.** The exposure is to any **reader-of-disk**, including an assembler building revision 7. **Mechanism:** the private-index protocol writes HEAD and leaves the worktree stale. **Remedy is a FORWARD restore from `git show HEAD:<path>`** (the `46608414` precedent) — **never** `git checkout --` or `git restore`, which read the stale index and would reinstate the withdrawn claim.
+
+**The supervisor attempted that restore and the auto-mode classifier DENIED the write. The supervisor did NOT route around the denial and did NOT delegate it to a lane, because handing a lane an action denied to the supervisor is permission laundering under standing rule 9.** **ON SANAA'S DESK.**
+
+#### CAP ENFORCEMENT — A **MISCITATION IN A SHARED INSTRUMENT**, CONFIRMED AT SOURCE
+
+- `docs/charters/COMPUTE_BUDGET_CHARTER.md:197` reads, verbatim: **"A budget overrun stops the run. It does not get a new budget."**
+- The charter contains only **four** occurrences of "cap" — `:165`, `:180`, `:282`, `:285` — and **not one establishes caps as report-only**. There is no carve-out.
+- The emitter is **`scripts/queue_runner.py:596-604`** — the **lab-wide** runner, not this team's script. On a registered cap it computes `allowed_wall = cap*60/ranks*1.00`, writes `CAP_OVERRUN.txt`, and **does not kill**.
+- Therefore the parenthetical **"(caps report; COMPUTE_BUDGET_CHARTER)"** attributes to the charter **a permission the charter does not grant**.
+- **The sharp form: a cap is enforced ONLY where the launcher happens to wrap the solver in a `timeout` sized to it. Enforcement is INCIDENTAL TO THE LAUNCHER, never systematic.** `T3_R_ff` is safe for exactly that reason — its timeout **is** its cap (205,500 s = 27,400×60÷8) — so the chief's cap-stop ruling on it holds.
+
+**The three cap overruns on our territory**, all of which ran on and carry `DONE` markers:
+
+| case | elapsed | registered cap | ratio |
+|---|---|---|---|
+| `T5_CUBE_c` | 11,433 s | 2,736 s | **4.2×** |
+| `T4b_IJ_m` | 4,985 s | 4,479 s | 1.11× |
+| `T4b_IJ_c` | 790 s | 710 s | 1.11× |
+
+The eight budget-overrun records the runner wrote and nobody landed are now **at HEAD** (`6cce8a64`, 8 files, 8 insertions, **0 deletions**), so the ruling is made against a committed record.
+
+**The PHYSICS question is NOT ruled here.** Sanaa's 2026-08-26 universal rule — **bookkeeping never voids physics** — is the clause that will govern it. But the **budget governance and the miscitation are broken regardless of how the physics falls.** **ESCALATED TO THE CHIEF, cross-team. `queue_runner.py` is untouched by us** — it is not this team's instrument.
+
+#### T16
+
+`T16_MC_m` **COMPLETED 21:26:20Z**: rc=0, `End` line, **13,405 wall s, 1 rank, 223.417 core-min**, `capped=no`, `DONE` marker recording the strict rule met on the **physics-critical conjuncts P1–P5**. Its 20:09Z record is an **estimate** overrun, reported not enforced — charter-correct, since an estimate is not a cap.
+
+**T16 REMAINS `PENDING`** — the rung needs `MC_f`, and the frozen comparator **correctly refuses a partial rung**.
+
+#### RUNNER CEILING — CORRECTED READING
+
+`scripts/queue_runner.py:689-691`: the busy-ceiling condition at `:689` logs `HELD` and `return "HELD"` at `:691` — which **aborts the WHOLE TICK**, at whichever entry the round-robin cursor reached first. Contrast the **core-fraction check immediately below**, which logs and **continues to the next entry** (first-fit over the whole queue).
+
+So the ceiling is a **GLOBAL STOP**, and **`T17_CY_c` is NOT individually held**; the log names closure's `G1_grid_triple.json` only because **the cursor landed there**. **Behaviour correct, REPORTING misleading** — the same "two things reported as one" class this family has been finding all day.
+
+*(Lane's citation note: the supervisor's dictation cited `:689` for `return "HELD"`; on the file at HEAD the condition is at `:689` and the `return` at `:691`. Range corrected here; the reading is unchanged.)*
+
+#### LOG HOLD — **INTACT**
+
+Under `verification/runs/T-family/`: **1,082 `log.*` on disk, 446 tracked at HEAD, 446 tracked in index, 0 tracked-at-HEAD missing from disk.** **Index == HEAD at 446 is the decisive number: no killed lane staged a log untracking mid-action.** The 43 reconcile exactly against `e9498de7` (26 paths) and `a75eebbd` (17 paths), both landed **before** the kill, with **no third untracking and no re-add**.
+
+#### FILING
+
+**One violation in territory, and it is PRE-EXISTING, not killed-lane debris** — `docs/campaigns/T-family/THERMAL_SATURATION_QUEUE_2026-08-25b.md` is not `<RUNG>_<PURPOSE>.md` (`R7-CAMPAIGN-RECORD`); tracked at HEAD blob `78e7a2cb`, mtime 08-25.
+
+#### **VERIFY**
+
+**The supervisor did NOT personally re-derive the 1,082 / 446 / 446 log census or the 13,151-file untracked expansion.** Both are the lane's readings and are marked **VERIFY** accordingly. The lane's own stated uncertainties stand: **no consumer was traced** for `.completion_watch/mark_done.txt` or `L4_CALIBRATION_DRAFT.md`, and **T3/T15 spend is measured but ungraded** against their pre-registrations, because the lane read no pre-registration for either.
+
+---
+
 ##### ADDENDUM 2026-08-27T20:28:10Z — **W1b's FLOOR EXCEPTION REFUSED BY VERIFICATION §2g; GRID AMENDED (`b340e2bf`, blob 0a2a30f4 → 210e5ff1), REVISION 6 RELEASED.** THE CELL GOES 4 CASES → 3, AND **I WITHDRAW MY OWN CLAIM THAT W1b RETIRED T9a's R1 GATE FAIL**
 
 *Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions outside the insertion.*
