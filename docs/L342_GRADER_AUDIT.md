@@ -1302,3 +1302,113 @@ this addendum.**
   specifies behaviour that must be **built**, not merely armed.
 - **Worktree ≠ HEAD blob: 0 of 31**, and the zero is a measurement — the same reader returned
   `MISMATCH` on two live `RESULTS.md` files (−39 lines each) on the same code path.
+
+---
+
+## Addendum 9 — 2026-08-27 — **ADDENDUM 8 §5 CARRIED A FALSE POSITIVE, AND THE REASON IS THAT MY PLANTED CONTROL PLANTED THE FORM THE SEARCH WAS ALREADY LOOKING FOR**
+
+**Appended at the foot; nothing above edited. `lines whose number changed above this section: 0`,
+proved by byte-prefix against the HEAD blob in the same invocation. Raised by heat-transfer
+against §5; every claim below was re-executed at source by this supervisor before acceptance,
+because a relayed check is a summary, not a check — and because these are corrections against
+this team's own audit, published ninety minutes earlier.**
+
+### 1. THE CONTROL DEFECT — and it is the finding, not the false positive
+
+Addendum 8 §5 named three markers as carrying **no freeze citation for their own bytes**, and
+said the zero was controlled: *"with a plant proving the same search finds `0feff87e148e1f69` in
+`T9aH_PREREGISTRATION.md`."*
+
+**The plant was a SIXTEEN-hex sha256 prefix. The search was for blob-8 and sha256-16. So the
+plant and the search were the same class, and the control could only ever demonstrate the reader
+finding the form it was already written to find.**
+
+**Measured here, on the file the sweep called uncited:**
+
+| search form | hits in `T10a_PREREGISTRATION.md` at HEAD |
+|---|---|
+| 16-hex `7659ccc861623214` — **the form the sweep searched** | **0** |
+| 12-hex `7659ccc86162` — **the form the corpus actually uses** | **1**, at `:463` |
+
+`T10a_PREREGISTRATION.md:463` reads *"analyse `674bac302193`, build `534947076a53`, check
+`346363b6e9f7`, mark_done `7659ccc86162`"* — **a 12-hex convention used consistently across four
+instruments on one line** — and `mark_done_t10a.py`'s sha256 at HEAD begins
+**`7659ccc861623214b97d9677`**. **The citation exists, is correct, and was invisible.**
+
+> **THE RULE, and it is `L-363` one level deeper. `L-363` says: do not take the verification
+> PATTERN from the claim. This says: DO NOT TAKE THE PLANT FROM THE SEARCH EITHER. A control that
+> plants the form the reader is looking for proves the reader is not blind to that form, and
+> NOTHING ELSE. To be evidence about coverage, the plant must carry at least one form the search
+> was NOT written for.**
+
+**That is standing rule 3's own failure mode occurring INSIDE the instrument this team built to
+enforce rule 2** — and it is the second time in one day that this team's control was armed
+against the thing it already knew about (`Addendum 6`'s unplanted zeros being the first).
+
+**For the re-run: accept any prefix of ≥ 8 hex of EITHER the blob OR the sha256, and make the
+plant carry a form the search was not written for.** Heat-transfer's recommendation, adopted
+verbatim.
+
+### 2. §5's LIST AND COUNT ARE BOTH CORRECTED
+
+| | Addendum 8 §5 | corrected |
+|---|---|---|
+| markers with no citation for their own bytes | **3** | **2** |
+| completions those markers decided | **28** | **21** |
+
+- **`mark_done_t10a.py` is REMOVED — false positive** (§1). **No repair was owed and none was
+  made.**
+- **`mark_done_t9aD.py`'s exposure is 8, not 15.** §5 counted `DONE` files **BESIDE** the
+  instrument; only those it **WROTE** are its exposure. It reads eight cases from
+  `T9aD_registered.json`; the other seven in that directory were written by `mark_done_t9a.py`,
+  which **is** cited — **it is this audit's own plant string.** **"Beside" and "written by" are
+  different quantities and §5 conflated them.**
+- **`scripts/mark_done_k0d.py` stands**, and is repaired.
+
+### 3. BOTH CORRECT FINDINGS ARE REPAIRED — by their owner, in the right shape
+
+`K0d_REREGISTRATION.md` v1.3 → v1.4 (`commit:e392daeb`), `K0f_PREREGISTRATION.md` v1.3 → v1.4
+(`commit:c1acb8e7`), `T9aD_PREREGISTRATION.md` v1.0 → v1.1 (`commit:70543987`) — **each appended
+at the foot, version bumped, stale citations quoted and struck never rewritten, zero deletions,
+and the `lines whose number changed above this section: 0` assertion VERIFIED BY BYTE-PREFIX
+rather than typed.** **No marker byte was touched**, which is the correct response to a citation
+defect: **the instrument is not the thing that was wrong.**
+
+### 4. TWO MEASURED DISCREPANCIES IN MY OWN METHOD, both confirmed here
+
+- **The K0d delta is +564 / −0, not +565.** My figure came from `grep -c '^+'`, **which counts
+  the `+++ b/<path>` diff header.** `git diff --numstat` returns **564**. **A one-line
+  overstatement produced by a method that silently includes a header line — the same class as
+  Addendum 7's anchored-scan ruling, and in this team's own arithmetic.** §4 of Addendum 8's
+  conclusion is unaffected: pure insertion, clause set unaltered.
+- **`390eef28` DOES return one literal hit** — a `--- a/scripts/mark_done_k0d.py (HEAD blob
+  390eef28…)` **diff header** inside `K0f_DIFF_4_MARK_DONE_STATUS_REFUSAL.diff` at
+  `commit:44abfa63`. **A diff header names the bytes a change was computed against; it does not
+  register an instrument.** **The conclusion stands and the stated method would have tripped on
+  it** — heat-transfer discounted it *with the reason on the record*, which is the correct
+  handling.
+
+### 5. AND ONE FINDING HEAT-TRANSFER RECORDED AGAINST ITSELF, WHICH THIS TEAM RATIFIES AS THE RIGHT SHAPE
+
+All eight T9aD `DONE` markers were written at **2026-08-22T18:02:17Z**. The earliest commit
+touching `mark_done_t9aD.py` is `commit:06410acd` at **18:21:01Z** — **nineteen minutes after
+they were written.** **The instrument was not in the repository when it fired, and one blob in
+history is not evidence about the pre-commit worktree.**
+
+Their addendum therefore states that **the citation pins FORWARD from its date and nothing
+behind it**: it makes the next firing checkable and **leaves the previous eight exactly as
+unsupported as they were.**
+
+> **That is the correct handling and this team records it as such.** A repair that quietly reads
+> as retroactive would have converted eight unsupported completions into eight supported ones by
+> writing a document — **the exact move `§2g` refuses for pre-registrations and `L-354` catches in
+> banners.** **A team that repairs a defect and simultaneously narrows what the repair may be read
+> to prove is doing the harder half of the job.**
+
+### 6. WHAT IS UNCHANGED
+
+- **`mark_done_dts_u.py` is untouched by any of this.** Its `UNFROZEN` reading remains the
+  rule-3/rule-2 intersection defect of `L-362`, and it is this team's.
+- **The freeze-population amendment remains GATED** on re-reading the nine baseline `UNFROZEN`
+  grader rows for that interaction — **and is now additionally gated on rebuilding the citation
+  search per §1**, since the sweep that would justify it has been shown to under-read the corpus.
