@@ -793,3 +793,71 @@ condition and how it was checked** -- for this rung, that the run root
 where it makes the file deliberately unparseable as a second, independent block
 on any accidental launch. **The supervisor strips line 1 of the JSON at freeze
 time**, together with replacing `prereg_commit`.
+
+---
+
+## AMENDMENT 1 — 2026-08-27, closure supervisor: the driver's environment step, repaired PRE-COMPUTE
+
+**Appended at the foot. Lines whose number changed above this section: 0** — the
+795-line body above is byte-for-byte the text frozen at `03be2015`,
+sha256 `d61a6704cd2ea64cca4eba8da11557487727a1ef9f48648987978b223ca49a3f`, re-hashed in the same shell invocation as this append.
+**No gate, threshold, band, cap or label is altered by this amendment.** §5's
+bands, §5.4's verdict mapping, §5.5's falsifier, §7's ESTIMATE 320.0 and CAP
+600.0 core-min all stand exactly as frozen.
+
+### The condition under which this amendment is legal, and how it was checked
+
+Standing rule 2 permits amendment **before first compute** and requires the
+condition to be stated and checked. **Checked in the invocation that wrote this
+section, on the run root itself:**
+
+| probe | count |
+|---|---|
+| staged levels `g1/L1`, `g1/L2`, `g1/L3` | **0** |
+| `log.run` anywhere under the run root | **0** |
+| numeric time directories anywhere under the run root | **0** |
+| field files (`U`, `p`, `k`, `omega`) anywhere under the run root | **0** |
+
+The run root holds exactly three files — `CHAIN.log`, `STATUS.G1_grid_triple`,
+`launcher.queue.out` — and **all three are INFRASTRUCTURE records under L-342**.
+**No solver ran. No mesh was built. No field was written. No gate fired and no
+number exists that any band could have been fitted to.**
+
+### What happened
+
+The runner launched G1 at **2026-08-27T17:28:58Z**, pid 1109265, against this
+pre-registration at `03be2015` (`verification/queue/LAUNCH_LOG.tsv`). The driver
+wrote its `CHAIN START` line and **exited rc 1 within the same second**, with
+**no `CHAIN ABORT` line** — that is, it terminated *outside its own error
+handling*, which is what made the failure worth triaging rather than retrying.
+
+**Cause, established by reproduction with a fired control, not by inspection:**
+
+* `bash -c 'set -u; source /usr/lib/openfoam/openfoam2606/etc/bashrc'` →
+  **`bashrc: line 184: WM_PROJECT_DIR: unbound variable`**, and the shell
+  **terminates immediately**. Under `set -u` a non-interactive shell treats an
+  unbound expansion as fatal, so the shell died *before* `die` could log.
+* **Control:** the identical source **without** `set -u` returns **0** with
+  `simpleFoam` on `PATH`.
+
+The original line also redirected the source to `/dev/null 2>&1`, so **the single
+message that named the cause was discarded** — the failure presented as a silent
+rc 1. That is the same shape as a zero from a reader that was never shown able to
+see a non-zero: a diagnostic thrown away is a diagnostic that cannot testify.
+
+### The repair, and its scope
+
+`run_g1.sh` only. Nounset is lifted **for the source alone** and restored
+immediately after; the source's own output is **kept in `log.foamenv`** instead of
+being discarded; and its rc is logged as **INFRASTRUCTURE**, explicitly *not* as a
+gate — the binding checks remain the two `command -v` tests that follow, which
+`die` on failure exactly as frozen. Five functional lines. The supervisor read the
+patch **as a patch** (`SUPERVISION_CHARTER.md` §3 check 1) before it landed.
+
+### What this amendment does NOT do
+
+It re-grades nothing, because nothing was graded. It relaxes no threshold. It does
+not touch `build_g1.py` or `grade_g1.py`, whose sha256 stand as frozen at
+`03be2015`. **A launcher that never reached physics is an infrastructure failure,
+and L-342 is explicit that a bookkeeping failure invalidates the bookkeeping and
+never the physics — here there is no physics yet to protect.**

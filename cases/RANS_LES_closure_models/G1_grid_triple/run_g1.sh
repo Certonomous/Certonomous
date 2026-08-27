@@ -37,8 +37,21 @@ log "CHAIN START  cap=${CAP_CORE_MIN} core-min (${CAP_S} s at ranks=1)"
 
 # --- 0. environment -------------------------------------------------------
 [ -r "${FOAM_BASHRC}" ] || die "OpenFOAM bashrc not readable at ${FOAM_BASHRC}"
+# AMENDMENT 1, 2026-08-27: `set -u` above makes sourcing this bashrc FATAL and
+# SILENT -- it reads WM_PROJECT_DIR unbound at its line 184, which under `set -u`
+# in a non-interactive shell terminates the shell immediately, before `die` can
+# run and therefore with NO `CHAIN ABORT` line. The original also sent the error
+# to /dev/null, so the one message that named the cause was discarded. Measured:
+# `bash -c 'set -u; source <bashrc>'` dies at line 184; the identical source
+# WITHOUT `set -u` returns 0 with simpleFoam on PATH. Nounset is therefore lifted
+# for the source alone and restored immediately, and the source's own diagnostics
+# are KEPT in a log instead of being thrown away.
 # shellcheck disable=SC1090
-source "${FOAM_BASHRC}" >/dev/null 2>&1
+set +u
+source "${FOAM_BASHRC}" > "${RUN_ROOT}/log.foamenv" 2>&1
+FOAMENV_RC=$?
+set -u
+log "FOAMENV rc=${FOAMENV_RC} (INFRASTRUCTURE: recorded; the binding check is the two command -v tests below)"
 command -v blockMesh  >/dev/null 2>&1 || die "blockMesh not on PATH after sourcing the OpenFOAM environment"
 command -v simpleFoam >/dev/null 2>&1 || die "simpleFoam not on PATH after sourcing the OpenFOAM environment"
 log "ENV OK  $(simpleFoam -help 2>&1 | head -1 | tr -d '\r')"
