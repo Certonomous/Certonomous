@@ -1560,3 +1560,135 @@ It moved no gate, band, threshold, floor, control, cap, label, closure, field se
 ### A3.7 — 21:14Z, before any extension launched: the queue entries carry `--no-detach`
 
 **Lines whose number changed above this section: 0.** The ten entries were withdrawn from the queue at 21:12Z (the runner had not reached them: no `K0f_EXT` line in `runner.log`), rewritten with `--no-detach` appended to `launch_cmd`, re-validated (10 ACCEPTED) and re-dropped at 21:14:39Z with `M2_f` oldest. Reason, the supervisor's `[lab-attributed]`: under the detaching form the launch argv returns at once and the runner's `STATUS.<case_id>` is written before the solver ends, so its cap watch is blind; with `--no-detach` the wrapper runs in the foreground of the runner's own `setsid nohup bash -c` session, the solver still runs in the wrapper's foreground under `timeout` (rc capture unchanged, A3.3 arm (b) was driven in exactly this form), and the runner's record is written at the real end. Nothing else in A3.3–A3.5 moves.
+
+---
+
+# ADDENDUM 1 — 2026-08-27T20:12:13Z. **POST-COMPUTE. CITATION SURGERY ONLY.** Version 1.3 → 1.4.
+
+**`lines whose number changed above this section: 0`.** This addendum is appended at the
+foot; nothing above it is edited, struck, reworded or renumbered (standing rule 6). **The
+assertion was VERIFIED, not typed:** in the single shell invocation that wrote this
+addendum, the bytes of this file above this section were compared byte-for-byte against
+this path's committed blob at `HEAD` and the comparison was clean.
+
+**Condition — POST-COMPUTE.** `K0f` has run and graded; ten `DONE.*` markers stand under
+`verification/runs/F14-cooling-ladder/K0f_runs/`. `CLAUDE.md` rule 2 therefore governs in
+its post-compute limb: *"changes land only as dated addenda that cannot alter a gate,
+threshold, cap or label."* **This is such an addendum.** No verdict is reopened, no
+original above is struck, **no instrument byte is touched** — `scripts/mark_done_k0f.py`
+is byte-identical to its `HEAD` blob before and after.
+
+**Origin.** `docs/L342_GRADER_AUDIT.md` Addendum 8 (`commit:b85111d1`) §4, which ruled
+that what is owed is *"a dated addendum on each marker disclosing that its registration
+moved to v1.3 and re-citing `blob:fb45b298`"*.
+
+## AD1.1 THE STALE CITATION — QUOTED AND STRUCK, NOT REWRITTEN
+
+`scripts/mark_done_k0f.py` lines 4–6 read, verbatim:
+
+    Written 2026-08-25 from the FROZEN registration and from nothing else:
+      docs/campaigns/F14-cooling-ladder/K0d_REREGISTRATION.md   (v1.1, blob 36b302f1)
+      docs/campaigns/F14-cooling-ladder/K0d_PREREGISTRATION.md  (v1.5, blob e629f5c4, superseded but adopted by citation)
+
+**~~`K0d_REREGISTRATION.md` (v1.1, blob `36b302f1`)~~ — STRUCK as the OPERATIVE citation,
+2026-08-27.** The line stands unaltered in the instrument; it is struck **here**, as a
+statement of which revision of the adopted K0d registration is operative. **It is not
+rewritten and the instrument is not edited.**
+
+**The operative K0d registration is `blob:fb45b298eb884510b4434397abffa5fc82e75011`** —
+version 1.3 at the moment of the audit, and 1.4 with that document's own Addendum 2
+appended on the same date as this one.
+
+**This document already said so, and the instrument did not.** §1 of this
+pre-registration, at line 68, adopts *"`K0d_REREGISTRATION.md` (v1.3, the frozen
+operative K0d document)"*. **The stale reading lived only in the instrument header, and
+the divergence between an instrument's own header and the registration it belongs to is
+precisely what the audit's sweep exists to find.**
+
+## AD1.2 WHAT THE MOVE DECIDES — measured on this rung's own artifacts
+
+The v1.1 → v1.3 delta is **pure insertion** — 564 insertions, 0 deletions, with v1.1 a
+verified **byte-prefix** of v1.3 (first 51,689 bytes byte-identical). *(The audit states
++565 / −0; the measured insertion count is 564 and the discrepancy is disclosed rather
+than reconciled silently. The deletion count, the load-bearing half, agrees at zero.)*
+**Every clause the instrument was written from survives verbatim; no clause was added,
+removed or reworded.**
+
+**But the inserted lines are not cosmetic.** They register `writeFormat = ascii`,
+`writePrecision = 16` and `writeCompression = off`, and **clause 4 of the strict
+completion rule looks for the registered fields under their PLAIN names**: with
+compression on, OpenFOAM writes `T` as `T.gz`, a plain field-presence check finds
+nothing, and **a genuinely complete run would be refused**. So the amendments registered
+settings this instrument silently depends on.
+
+**Checked personally by the heat-transfer supervisor, on this rung:** `K0f`'s
+`controlDict` carries `writeFormat ascii;` and `writeCompression off;`, and the `endTime`
+directories hold plain `T U alphat k nut omega p p_rgh phi` (`M1_c`) and
+`T U alphat epsilon k nut p p_rgh phi` (`M2_f`) — **plain `T`, not `T.gz`**, and the
+**per-closure** field tuples the K0d repair required (`omega` on the `kOmegaSST` arm,
+`epsilon` on the `RNGkEpsilon` arm). **The condition the amendments register is the
+condition that actually held when this rung ran.**
+
+**RULING CARRIED, not re-taken: the instrument's BEHAVIOUR is right and only its CITATION
+was stale.**
+
+## AD1.3 THE INSTRUMENT'S OWN BYTES WERE ALREADY CITED — no repair owed, and the timing is measured
+
+`L342_GRADER_AUDIT.md` Addendum 8 §5 lists three instruments with no freeze citation for
+their own bytes. **`scripts/mark_done_k0f.py` is correctly NOT among them**, and this
+addendum records the confirmation rather than leaving it to inference:
+
+- **This document's frozen instrument table (line 690) records
+  `scripts/mark_done_k0f.py` → `f01e3fce18c982bdd14038598a0f10c33465d924`.**
+- **That sha still matches.** `git hash-object` on disk and `git rev-parse HEAD:<path>`
+  both return `f01e3fce18c982bdd14038598a0f10c33465d924`, taken in the invocation that
+  wrote this line. Its sha256 is
+  `3b22de06d51ec2f3aa69c8ae230a4ce1884006d1bd4620134ad83122d4e4157f`.
+- **The path has exactly ONE blob in its whole committed history** — `commit:e7022828`,
+  2026-08-26 03:24:48Z. It has never been rewritten.
+- **The citation PREDATES the first firing, measured rather than assumed.** The sha
+  entered this document at `commit:1592d586`, 2026-08-26 03:30:13Z. The **oldest**
+  `DONE.*` marker under `K0f_runs/` is `DONE.M1_c` at 2026-08-26T15:58:31Z and the
+  newest is `DONE.M1_m_seed` at 2026-08-26T20:50:34Z — **the earliest completion marker
+  is ~12.5 h after the instrument's bytes were pinned.**
+
+**So for this rung, which bytes decided the ten completions IS on the record.** That is
+the condition the sibling repairs could not meet, and it is stated here so the contrast
+is visible rather than implied.
+
+## AD1.4 ⚠ WHAT THIS ADDENDUM DOES **NOT** ESTABLISH
+
+**Correcting a citation forward does not reach backwards into what an author read.**
+Striking the `v1.1 / 36b302f1` line and re-citing `fb45b298` records which registration
+revision is **operative from this date**. It does **not** establish that the author of
+`scripts/mark_done_k0f.py` read v1.3 on 2026-08-25. **Which revision of
+`K0d_REREGISTRATION.md` was in front of that author is `NOT MEASURED` and is not
+recoverable from this record** — the instrument's own header is the only surviving
+statement of it, and that header says v1.1.
+
+**What carries the weight is the byte-prefix result, not this addendum.** v1.1 is a
+verified byte-prefix of v1.3, so every clause the header claims to have been written from
+exists verbatim in the operative document. **That is an argument about the text, not
+about the author's reading**, and it is the whole of what is being claimed. Nothing here
+should be read as evidence that the ten completions were graded against v1.3's registered
+`controlDict` options *because the instrument's author knew of them*; the artifacts in
+§AD1.2 are the evidence that the options in fact held, and the author's knowledge is not
+in evidence and is not claimed.
+
+## AD1.5 WHAT THIS ADDENDUM DID NOT DO — each stated explicitly
+
+- **No instrument byte changed.** `scripts/mark_done_k0f.py` is byte-identical to its
+  `HEAD` blob, before and after; nothing in it was staged, edited or reverted.
+- **No frozen line above was edited.** Byte-prefix verified against the `HEAD` blob.
+- **No gate, threshold, band, floor, control, cap, label or cost basis moved**, and none
+  could: this addendum adds no test and computes no number a verdict depends on.
+- **No verdict is reopened, no case re-graded, no case re-run.**
+- **NOTHING WAS LAUNCHED.** No case directory, no mesh, no solver, no pid, no queue
+  entry. **Zero core-minutes.**
+- **Nothing was sent** (standing rule 7). Submissions remain **PARKED**.
+- **No permission setting, `CLAUDE.md` or `.claude/` configuration was touched**
+  (standing rule 9). No agent message was treated as Sanaa's consent.
+
+*Addendum written by a heat-transfer lane on the heat-transfer supervisor's
+citation-repair brief, from `docs/L342_GRADER_AUDIT.md` Addendum 8 (`commit:b85111d1`) §4,
+2026-08-27T20:12:13Z. Zero core-minutes.*
