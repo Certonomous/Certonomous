@@ -1,0 +1,20 @@
+verifying the analytic reference before any comparison:
+  exact_t13.verify: phi'' = xi - 1/2 (worst 2.6e-10); phi(0)=phi(1)=0; int phi = -2.0e-19; A==B to 2.9e-17; xi* = 0.2113248654, phi_max = 8.0187537387e-03; antisymmetric
+  exact_t13.selfcheck_readers: lagrange4 and cubic_max_location exact on the analytic cubic at N = 20/40/80
+operands (L-331), read from each case's own files:
+  T13_VS_c: N=20 Ny=320 dx=1.0000e-03 nu=1.5000e-05 Pr=0.71 beta=3.333333e-03 TRef=300.0000 T_hot=300.0605698411 T_cold=299.9394301589 g=9.810 Ra_L=100.0000000000 u_ref=1.05633803e-01 times=['9000', '10000']
+  T13_VS_c gate (1): C_CONV ok (worst final-10% initial residuals {'Uy': '1.00e-12', 'T': '9.88e-13', 'p_rgh': '1.16e-10'}; Ux REPORTED 3.15e-11) | C_PLAT ok (3.266e-12) | W0 ok (2.467e-12) | W1 ok (6.738e-07: {'-4L': 'v 4.8e-07 T 5.8e-07', '-2L': 'v 9.3e-10 T 1.2e-09', '-1L': 'v 4.1e-11 T 5.0e-11', '+1L': 'v 5.3e-11 T 6.3e-11', '+2L': 'v 1.1e-09 T 1.4e-09', '+4L': 'v 5.6e-07 T 6.7e-07'})
+  T13_VS_m: N=40 Ny=640 dx=5.0000e-04 nu=1.5000e-05 Pr=0.71 beta=3.333333e-03 TRef=300.0000 T_hot=300.0605698411 T_cold=299.9394301589 g=9.810 Ra_L=100.0000000000 u_ref=1.05633803e-01 times=['18000', '20000']
+  T13_VS_m gate (1): C_CONV ok (worst final-10% initial residuals {'Uy': '1.75e-13', 'T': '9.99e-13', 'p_rgh': '1.96e-10'}; Ux REPORTED 3.77e-12) | C_PLAT ok (1.115e-11) | W0 ok (1.877e-12) | W1 ok (6.203e-07: {'-4L': 'v 4.5e-07 T 5.7e-07', '-2L': 'v 8.7e-10 T 1.1e-09', '-1L': 'v 3.8e-11 T 5.7e-11', '+1L': 'v 4.0e-11 T 5.3e-11', '+2L': 'v 9.5e-10 T 1.2e-09', '+4L': 'v 4.9e-07 T 6.2e-07'})
+  T13_VS_f: N=80 Ny=1280 dx=2.5000e-04 nu=1.5000e-05 Pr=0.71 beta=3.333333e-03 TRef=300.0000 T_hot=300.0605698411 T_cold=299.9394301589 g=9.810 Ra_L=100.0000000000 u_ref=1.05633803e-01 times=['36000', '40000']
+  T13_VS_f gate (1): C_CONV ok (worst final-10% initial residuals {'Uy': '3.03e-12', 'T': '4.35e-12', 'p_rgh': '1.95e-09'}; Ux REPORTED 1.01e-11) | C_PLAT ok (7.542e-11) | W0 ok (1.877e-12) | W1 ok (6.014e-07: {'-4L': 'v 4.5e-07 T 5.8e-07', '-2L': 'v 8.4e-10 T 1.1e-09', '-1L': 'v 2.8e-11 T 3.4e-11', '+1L': 'v 3.9e-11 T 6.2e-11', '+2L': 'v 8.9e-10 T 1.2e-09', '+4L': 'v 4.7e-07 T 6.0e-07'})
+planted-zero control G1 PASS: plant 0.0001304 in U (1 cell(s)), recovered 0.0008214, demonstrated detection floor 1e-07 x scale
+planted-zero control G1b PASS: plant 0.0001304 in U (1 cell(s)), recovered 0.007591, demonstrated detection floor 1e-07 x scale
+planted-zero control G2 PASS: plant 0.0001495 in T (80 cell(s)), recovered 0.001234, demonstrated detection floor 1e-07 x scale
+planted-zero control G3 PASS: plant 0.0001495 in T (1 cell(s)), recovered 0.1974, demonstrated detection floor 1e-07 x scale
+planted-zero control W1_max PASS: plant 0.0001304 in U (1 cell(s)), recovered 0.1539, demonstrated detection floor 1e-07 x scale
+G1  fine=8.0243919252e-03 ref=8.0187537387e-03 dev=+5.638e-06 (rel +7.031e-04) band=[8.006726e-03, 8.030782e-03] triple=(8.10896472e-03, 8.04130648e-03, 8.02439193e-03) CONVERGING p=2.0000 GCI=8.7829e-02% -> PASS
+G1b fine=2.1125721509e-01 ref=2.1132486541e-01 dev=-6.765e-05 (rel -3.201e-04) band=[2.111749e-01, 2.114749e-01] triple=(2.10244356e-01, 2.11054359e-01, 2.11257215e-01) CONVERGING p=1.9975 GCI=4.0103e-02% -> PASS
+G2  fine=6.2626329931e-11 ref=0.0000000000e+00 dev=+6.263e-11 band=[-1.000000e-06, 1.000000e-06] triple=(4.10282040e-12, 3.35431783e-12, 6.26263299e-11) OSCILLATORY p=n/a GCI=REFUSED -> PASS
+G3  fine=1.9895718406e-10 ref=0.0000000000e+00 dev=+1.990e-10 band=[-2.000000e-04, 2.000000e-04] triple=(4.88008522e-11, 1.01355591e-10, 1.98957184e-10) DIVERGENT p=-0.8931 GCI=REFUSED -> PASS
+wrote /home/ubuntu/Certonomous/verification/runs/T-family/T13_runs/gate_t13.json
