@@ -2127,3 +2127,61 @@ setting, is what keeps the screen clean.
 | standing conventions added | 1 |
 | clauses altered, widened or narrowed | 0 |
 | lines whose number changed above this section | 0 |
+
+---
+
+## Amendment — v1.11, 2026-08-27 — the NON-CONVERGENCE LADDER is lab law and lives in its own standard
+
+**Nothing above is edited, struck, widened or narrowed. This amendment ADDS a cross-citation and
+creates no clause of its own.**
+
+Sanaa issued the **L0–L7 non-convergence ladder with an absolute anti-gaming clause** on
+2026-08-27T16:54Z as §3 of her standing directives, captured verbatim at
+`etc/sessions/2026-08-27T1654Z_sanaa_standing_directives.md` and boarded at `55b95ba9`. **It is
+lab law and binds every team.**
+
+**The standard text is `docs/standards/NONCONVERGENCE_STANDARD.md`** — her ladder verbatim in its
+§1, this team's operationalisation `[lab-attributed]` in its §2, and F23 as the recorded L3
+withdrawal precedent in its §2.2. **This charter does not restate the ladder**, because a clause
+restated in two files diverges (`L-185`/`L-205`); it cites it.
+
+**Four points of contact with clauses already in this charter, none of them changed:**
+
+1. **§2b/§2d are untouched by the ladder.** Every level's arm is a run: frozen by sha before it
+   starts, with its own cap. **No level of the ladder is a repair exception**, and §2d.1's
+   four-condition exception remains the only route to a frozen comparator — reaching the
+   comparator, never the gate, the threshold, the cap or the label. Sanaa's own clause says it:
+   *"Frozen gates never edited post-compute."*
+2. **§2c (discrimination) is what an arm changing two dials fails.** Her *"one change per run"* is
+   a discrimination requirement, not a tidiness preference.
+3. **The Roache ladder (standing rule 5) constrains L4.** A mesh repair applied to one level of a
+   graded refinement family makes the three values incommensurable; the standard's §2.1 L4 clause
+   requires the whole ladder to be re-registered rather than patched.
+4. **§16 (negative verdicts) is where converged-but-wrong lands.** Her *"Converged-but-wrong = NOT
+   HELD with diagnosis, never a parameter hunt"* is reported under this charter's existing
+   negative-verdict discipline; the gate verdict is `GATE FAIL` and `NOT HELD` is its coverage
+   tier. **No new verdict word is created** — standing rule 1's vocabulary is unchanged.
+
+**Three desk rulings APPROVED by Sanaa in the same directive** (her §0, verbatim in the capture
+file), recorded here because two of them are this charter's business:
+
+- **R-RC — APPROVED.** *"rc value is physics, rc record is infrastructure; absent record -> NOT
+  MEASURED only when the other four rule-4 conditions hold."* The ruling as issued is
+  `docs/L342_GRADER_AUDIT.md` §2, including limb R-RC-4 (a grader inferring rc must also refuse on
+  a `FOAM FATAL` / signal token).
+- **D534 — APPROVED.** *"REPORTED is a row class, not a verdict; excluded from censuses."*
+- **R-1D — APPROVED.** *"1-D cases count as CAVEATS in the 2D row."*
+
+**One standing citation obligation, from her §0 and binding until the text lands:** ASME V&V 20's
+own text is **not on the box**; the lab holds only `docs/papers/verification_validation/
+dowding_2016_asme_vv.{pdf,txt}`. Her words: *"until it lands, every V&V-20 practice cites Dowding
+2016 as secondary, stated as such."* **`docs/NUMERICS_KNOWLEDGE.md:118` is HERS to correct and no
+agent touches it** — she stated she would correct it today.
+
+| amendment record | v1.11 |
+|---|---|
+| clauses added | 0 |
+| cross-citations added | 1 (`docs/standards/NONCONVERGENCE_STANDARD.md`) |
+| desk rulings recorded as APPROVED | 3 (R-RC, D534, R-1D) |
+| clauses altered, widened or narrowed | 0 |
+| lines whose number changed above this section | 0 |
