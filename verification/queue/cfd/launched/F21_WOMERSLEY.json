@@ -1,0 +1,62 @@
+{
+  "team": "cfd",
+  "case_id": "F21_WOMERSLEY",
+  "prereg_commit": "448756a540b86dc4dc94ed094cc93db3284e5928",
+  "prereg_path": "verification/campaign/F21_WOMERSLEY_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F21_womersley/run_f21.sh",
+    "--prereg-commit=448756a540b86dc4dc94ed094cc93db3284e5928"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/F21_womersley",
+  "ranks": 1,
+  "cost_core_min_estimate": 713.0,
+  "cost_basis": "derived, not measured on the medium and fine levels: base rate 10.71 us per cell-step MEASURED on this case's coarse grid (128^2) in a 24-step scratch smoke probe (ExecutionTime 4.21 s; DIC-PCG ~238 iterations per p solve) -- 2.0x the F18 icoFoam basis the dispatch named (5.47 us at 128^2, verification/runs/F18_runs/*/log.icoFoam); grown per doubling by F18's MEASURED +72 % / +75 % to 18.42 us at 256^2 and 32.24 us at 512^2; times cell-steps 19.3 M / 154.1 M / 1233.1 M = 206 / 2839 / 39752 s serial = 713 core-min (11.9 h wall serial); registered CAP 1500 core-min (prereg section 8); dollars at the owner-stated $0.0513/core-h, reported-by-owner: $0.61 estimate, $1.28 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "cfd lab-lane, 2026-08-26, for cfd-supervisor. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 (pre-registration committed before compute) is the supervisor's own and is NOT discharged by this file. HELD under the case directory; the supervisor drops it into verification/queue/cfd/ after check 1/4 -- this lane does not.",
+  "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
+  "capability_grid_cell_068c2bf0": "2D . unsteady . incompressible",
+  "case": "pulsatile Womersley laminar channel flow, alpha = H sqrt(omega/nu) = 5 exactly (nu = 2 pi/25, omega = 2 pi, H = 1), x cyclic (LX = 2), no-slip walls, uniform cosine body-force drive by fvOptions vectorSemiImplicitSource; pimpleFoam PISO mode, laminar, backward; exact IC; gates at the locked phase t = 12.25 T (12 periods of transient decay + T/4, the centreline peak)",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F21_runs -- ABSENT at registration (rule-2 absence condition, prereg section 9, 2026-08-26T21:03:51Z); the launcher creates it and REFUSES any pre-existing 0/ or numeric time directory under it.",
+  "cwd_note": "cwd is the CASE directory (the tracked template case/0 is not a direct child). The launcher uses absolute paths and ignores cwd. A queue runner's wrapper writes launcher.queue.out and STATUS.F21_WOMERSLEY into cwd; both are INFRASTRUCTURE fields under L-342 and untracked.",
+  "levels": "coarse 128^2 x 1176 steps / medium 256^2 x 2352 / fine 512^2 x 4704 (96 / 192 / 384 steps per period, Co 0.11), all SERIAL 1 rank, decomposePar never invoked, decomposition seed none; projected serial 206 / 2839 / 39752 s; wall ~11.9 h at the estimate, ~25 h at the cap",
+  "memory_floor_note": "1.0 GB = 89 MB RSS MEASURED at 16k cells in the smoke probe, ~1 kB/cell ESTIMATED at 262k cells; disk ~2.8 GB for the ladder (49 quarter-period writes at each level)",
+  "cap_core_min_registered": 1500.0,
+  "cap_behaviour": "checked incrementally after each level in ClockTime x ranks / 60 and PROJECTED before each level from the launcher's own box probe; a crossing HALTS at exit 3, unlaunched levels stay PENDING; the cap is never raised",
+  "registered_prediction": "both triples CONVERGING with observed order p ~ 2 (model 2.0035 / 1.9976); G-F21-1 E2_fine in [2.571078e-05, 2.313970e-04]; G-F21-2 centreline u/U_ref in [1.053476994120, 1.054131256385] (reference 1.053804125252 = exact field through the grader's own bilinear stencil at the fine cell centres); periodicity ||U(12.25)-U(11.25)||/U_ref <= 1e-5 at every level (model predicts 4e-8 worst); iterative census p <= 1e-9, Ux <= 1e-12 every step",
+  "smoke_arm": "one real pimpleFoam step on a scratch build of the coarse level: rc 0, Solving for Ux initial residual 0.171425730435 (non-zero), End written, U at the first time directory with 16384 entries; scripts/check_launcher_can_launch.py ARM 2 PASS (rc 0) at timePrecision 12; ARM 1 + ARM 3 rc 0",
+  "grade_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/cases/F21_womersley/grade_f21.py",
+    "--prereg-commit=448756a540b86dc4dc94ed094cc93db3284e5928"
+  ],
+  "verdict_state": "PENDING",
+  "_launch": {
+    "utc": "2026-08-26T21:51:52Z",
+    "pid": 479138,
+    "sid": 479138,
+    "status_file": "/home/ubuntu/Certonomous/cases/F21_womersley/STATUS.F21_WOMERSLEY",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/F21_womersley/launcher.queue.out",
+    "started_epoch": 1787781112.7329547,
+    "status_seen_utc": "2026-08-27T13:37:03Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F21_WOMERSLEY (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

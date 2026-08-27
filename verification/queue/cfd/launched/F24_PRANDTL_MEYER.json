@@ -14,7 +14,6 @@
   "cost_basis": "derived, not measured: 45000 / 180000 / 720000 cells x 15000 / 30000 / 60000 fixed rhoCentralFoam steps at 0.72 / 0.90 / 0.90 us per cell-step, the rate DERIVED from F15's MEASURED serial rhoCentralFoam record of a DIFFERENT case (verification/runs/F15_runs/{coarse,medium,fine}/log.rhoCentralFoam: 0.736 / 0.698 / 0.710 us per cell-step at 10k / 40k / 160k cells, COST_CALIBRATION C-133) with F20's carry-forward of 0.9 us above ~200k cells (C-136) = 486 + 4860 + 38880 core-s = 737.1 core-min (8.1 / 81.0 / 648.0 per level; 590 at a flat 0.72), ideal 4-rank scaling assumed for the wall projection (~3.1 h on 4 ranks); registered CAP 1450 core-min (prereg section 8); dollars at the owner-stated $0.0513/core-h, reported-by-owner: $0.63 estimate, $1.24 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
   "memory_floor_gb": 2.0,
   "enqueued_by": "cfd lab-lane, 2026-08-26, for cfd-supervisor. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is NOT discharged by this file. HELD under the case directory until the supervisor acknowledges the freeze sha and moves it into verification/queue/cfd/.",
-
   "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
   "capability_grid_cell_068c2bf0": "2D . steady . supersonic",
   "run_root": "/home/ubuntu/Certonomous/verification/runs/F24_PRANDTL_MEYER_runs -- ABSENT at registration (rule-2 absence condition, prereg section 9, 2026-08-26T22:43:41Z); the launcher creates it and REFUSES any pre-existing 0/, numeric time or processor* directory in the run root or a level directory; the grader never creates it.",
@@ -25,6 +24,38 @@
   "registered_prediction": "G-F24-1 p2/p1 box mean (window mean) GATED-ABSOLUTE: fine value in [0.392679994, 0.393455596] (exact 0.393067795), NO order claim, ladder triple state not predicted (sub-ladder OSCILLATORY; rule 5 may return NOT A RESULT); G-F24-2 fan-line L2 of p on the window-mean field GATED-EXTRAPOLATED: CONVERGING with observed order ~0.9 (sub-ladder 0.848), fine value in [4.503115e-04, 4.052804e-03] (prediction 1.350935e-03); R-F24-M box Mach REPORTED-NOT-GATED (no verdict); plateau = the level's Class C + residual on the p/p1 box series; limb (iii) a per-step Courant census <= 0.35",
   "mesh_admission": "coarse level built and checkMesh'd on a scratch copy: 45000 cells (75+225)x150, Mesh OK, max non-orthogonality 15.0 deg (gate 70; the sheared block), max skewness 0.268 (gate 4), max aspect ratio 1.27 (advisory 1000); decomposePar 4 x 11250",
   "smoke_arm": "10 real rhoCentralFoam steps on 4 ranks at the coarse level in scratch: rc 0, Time = 0.002666666667 in every rank (45000 p entries), max |p - p1| = 0.30 (non-zero: the corner moves the field), Courant max 0.133, ExecutionTime 0.49 s; sub-ladder h = 1/16, 1/32, 1/64 run serially to t = 4 (1.08 core-min) for the bands; ARM 2 one-iteration PASS; not a level, not retained, not a result",
-  "grade_cmd": ["python3", "/home/ubuntu/Certonomous/cases/F24_PRANDTL_MEYER/grade_f24.py", "--prereg-commit=260ff3c13e6877183a508c34ecd8e12886ed9a45"],
-  "verdict_state": "PENDING"
+  "grade_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/cases/F24_PRANDTL_MEYER/grade_f24.py",
+    "--prereg-commit=260ff3c13e6877183a508c34ecd8e12886ed9a45"
+  ],
+  "verdict_state": "PENDING",
+  "_launch": {
+    "utc": "2026-08-27T13:59:54Z",
+    "pid": 798550,
+    "sid": 798550,
+    "status_file": "/home/ubuntu/Certonomous/cases/F24_PRANDTL_MEYER/STATUS.F24_PRANDTL_MEYER",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/F24_PRANDTL_MEYER/launcher.queue.out",
+    "started_epoch": 1787839194.080536,
+    "status_seen_utc": "2026-08-27T14:45:54Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F24_PRANDTL_MEYER (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
 }

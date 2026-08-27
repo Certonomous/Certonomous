@@ -1,0 +1,57 @@
+{
+  "team": "cfd",
+  "case_id": "F17_KV40",
+  "prereg_commit": "4ad083fbd76d9e75bdf33963e5bfba787291e51d",
+  "prereg_path": "verification/campaign/F17_KV40_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F17_kovasznay/run_f17.sh",
+    "--prereg-commit=4ad083fbd76d9e75bdf33963e5bfba787291e51d"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/F17_kovasznay",
+  "ranks": 1,
+  "cost_core_min_estimate": 7.6,
+  "cost_basis": "derived, not measured: 129.0 M cell-iterations x 3.55 us/cell-iteration (rate read from ONE lab record of a DIFFERENT case, verification/runs/FPE_DIAG_runs/BL1/log.simpleFoam: 3520 cells, 2000 iterations, serial, ClockTime 25 s) = 458 s serial = 7.6 core-min; registered CAP 40 core-min (prereg section 8); dollars at the owner-stated $0.0513/core-h, reported-by-owner: $0.0065 estimate, $0.034 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "cfd-supervisor 2026-08-26, checks 1 and 4 discharged personally at 4ad083fb (blobs disk==HEAD, run root absent, selftest rc0/-O rc2, preflight rc0, source form driven); permission bc0e687e",
+  "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F17_runs -- ABSENT at registration (rule-2 absence condition, prereg section 9); the launcher creates it and REFUSES any pre-existing 0/ or numeric time directory under it.",
+  "cwd_note": "cwd is the CASE directory (holds no time directory; the tracked template case/0 is not a direct child). The launcher uses absolute paths and ignores cwd. A queue runner's wrapper writes launcher.queue.out and STATUS.F17_KV40 into cwd; both are INFRASTRUCTURE fields under L-342 and untracked.",
+  "levels": "coarse 48x32 / medium 96x64 / fine 192x128, all SERIAL 1 rank, decomposePar never invoked, decomposition seed none",
+  "cap_core_min_registered": 40.0,
+  "cap_behaviour": "checked incrementally after each level in ClockTime x ranks / 60 and PROJECTED before each level from the launcher's own box probe; a crossing HALTS at exit 3, unlaunched levels stay PENDING; the cap is never raised",
+  "registered_prediction": "both triples CONVERGING with observed order p ~ 2 (model 2.01/2.00); G-F17-1 E2_fine in [3.690e-05, 3.321e-04]; G-F17-2 u(0.5,0)/U0 in [0.382202, 0.382544]",
+  "grade_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/cases/F17_kovasznay/grade_f17.py",
+    "--prereg-commit=feab0ad7f2e8ec7d63ba6d04f1844a05fd9d0404"
+  ],
+  "verdict_state": "PENDING",
+  "_launch": {
+    "utc": "2026-08-26T16:40:52Z",
+    "pid": 184408,
+    "sid": 184408,
+    "status_file": "/home/ubuntu/Certonomous/cases/F17_kovasznay/STATUS.F17_KV40",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/F17_kovasznay/launcher.queue.out",
+    "started_epoch": 1787762452.179108,
+    "status_seen_utc": "2026-08-26T22:17:01Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F17_KV40 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "team": "cfd",
+  "case_id": "F18_TG2D",
+  "prereg_commit": "c4f72b277d74ecce19c6f81d651038ab16c338af",
+  "prereg_path": "verification/campaign/F18_TG2D_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F18_taylor_green/run_f18.sh",
+    "--prereg-commit=c4f72b277d74ecce19c6f81d651038ab16c338af"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/F18_taylor_green",
+  "ranks": 1,
+  "cost_core_min_estimate": 2.5,
+  "cost_basis": "derived, not measured: 29.9 M cell-steps x 5 us/cell-step (rate DERIVED from ONE lab record of a DIFFERENT case, verification/runs/ansys_verification/VMFL019/L1_30/log.icoFoam: 480 cells x 400 steps, ExecutionTime 0.38 s = 2 us/cell-step overhead-dominated; 5 us allows PCG growth) = 150 s serial = 2.5 core-min; registered CAP 30 core-min (prereg section 8); dollars at the owner-stated $0.0513/core-h, reported-by-owner: $0.002 estimate, $0.026 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "cfd lab-lane, 2026-08-26, for cfd-supervisor. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is NOT discharged by this file. Held under the case directory until the supervisor acknowledges the freeze sha.",
+  "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F18_runs -- ABSENT at registration (rule-2 absence condition, prereg section 9); the launcher creates it and REFUSES any pre-existing 0/ or numeric time directory under it.",
+  "cwd_note": "cwd is the CASE directory (no time directory as a direct child). The launcher uses absolute paths and ignores cwd. A queue runner's wrapper writes launcher.queue.out and STATUS.F18_TG2D into cwd; both are INFRASTRUCTURE fields under L-342 and untracked.",
+  "levels": "coarse 64^2 / medium 128^2 / fine 256^2, dt 0.02 / 0.01 / 0.005 (Co 0.2), T = 2 s, all SERIAL 1 rank, decomposePar never invoked, decomposition seed none",
+  "cap_core_min_registered": 30.0,
+  "cap_behaviour": "checked incrementally after each level in ClockTime x ranks / 60 and PROJECTED before each level; a crossing HALTS at exit 3; the cap is never raised",
+  "registered_prediction": "both triples CONVERGING with observed order p ~ 2 (model 1.996); G-F18-1 E2(T)_fine in [3.153e-06, 2.838e-05]; G-F18-2 box-mean KE(T) in [0.112318792, 0.112345690]; NO plateau gate (transient value at t = T), recorded ABSENT",
+  "grade_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/cases/F18_taylor_green/grade_f18.py",
+    "--prereg-commit=c4f72b277d74ecce19c6f81d651038ab16c338af"
+  ],
+  "verdict_state": "PENDING",
+  "_launch": {
+    "utc": "2026-08-26T16:56:07Z",
+    "pid": 206200,
+    "sid": 206200,
+    "status_file": "/home/ubuntu/Certonomous/cases/F18_taylor_green/STATUS.F18_TG2D",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/F18_taylor_green/launcher.queue.out",
+    "started_epoch": 1787763367.3202496,
+    "status_seen_utc": "2026-08-26T22:17:01Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F18_TG2D (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

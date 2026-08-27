@@ -1,0 +1,44 @@
+{
+  "team": "cfd",
+  "case_id": "F16b_SL2",
+  "prereg_commit": "cadb4887b505af082c63e977fd4fdf73e9878b46",
+  "prereg_path": "verification/campaign/F16b_SL2_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F16b_stokes_second_problem/run_f16b.sh",
+    "--prereg-commit=cadb4887b505af082c63e977fd4fdf73e9878b46"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/F16b_stokes_second_problem",
+  "ranks": 1,
+  "cost_core_min_estimate": 0.5,
+  "cost_basis": "derived from F16's MEASURED ClockTimes (3+7+15 s serial, C-123) x ~1.2 for the added Ux solve = ~0.5 core-min; cap 5; $0.00043 at $0.0513/core-h derived, not measured for this run",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "cfd-supervisor 2026-08-26, checks 1 and 4 discharged personally at cadb4887 (0 asserts, one grade_ladder call, MULTILINE TIME_RE, 4-column pin, cyclic +/-x, set +u source form, selftest rc0/-O rc2, preflight rc0, run root absent); permission bc0e687e",
+  "_launch": {
+    "utc": "2026-08-26T16:42:02Z",
+    "pid": 189904,
+    "sid": 189904,
+    "status_file": "/home/ubuntu/Certonomous/cases/F16b_stokes_second_problem/STATUS.F16b_SL2",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/F16b_stokes_second_problem/launcher.queue.out",
+    "started_epoch": 1787762522.1815293,
+    "status_seen_utc": "2026-08-26T22:17:01Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F16b_SL2 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
