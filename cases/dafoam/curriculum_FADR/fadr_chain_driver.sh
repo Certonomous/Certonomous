@@ -128,6 +128,16 @@ MD5EOF
   # upstream's reg_file_comp REWRITES the file it compares.
   cat > "${A}/fadr_cmd.sh" <<CMDEOF
 set -u
+# AMENDMENT 2 (v1.0b, 2026-08-27, PRE-COMPUTE): the container's default user is
+# uid 0 (measured), and \`bash -lc\` as root does NOT source DAFoam's environment
+# -- it lives in dafoamuser's tree.  Without it \$WM_PROJECT is unset and \`python\`
+# is not on PATH, and mpirun dies with "Executable: python ... 4 total processes
+# failed to start".  MEASURED both ways on cpuset 5,6,7: without the source, 4/4
+# ranks fail to start; with it, 4 of 4 ranks come up.  This is a PRECONDITION of
+# the shipped recipe, not an addition to it -- tests/Allrun:3-6 refuses outright
+# when \$WM_PROJECT is unset.  It changes no numerical setting.
+source /home/dafoamuser/dafoam/loadDAFoam.sh >/dev/null 2>&1
+[ -n "\${WM_PROJECT:-}" ] || { echo "WM_PROJECT unset after sourcing loadDAFoam.sh"; exit 29; }
 cd /mnt/${ARM} || exit 30
 tar -xzf /fixture/reg_test_files-main.tar.gz -C . || exit 31
 cp -a /home/dafoamuser/dafoam/repos/dafoam/tests ./tests || exit 32

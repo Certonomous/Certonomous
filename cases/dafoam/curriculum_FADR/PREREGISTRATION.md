@@ -385,3 +385,79 @@ guard that has never been shown able to fire is not known to work — and a guar
 **wrong reason** is worse than one that does not fire at all, because it answers with a finding
 (`P-C`, "the fixture is wrong") that is false. The control did not merely pass; **it disagreed with
 the guard, and the guard lost.**
+
+---
+
+## AMENDMENT 2 — 2026-08-27, dafoam lane C — PRE-COMPUTE INSTRUMENT REPAIR, **and an incident this lane caused, owned here**
+
+**Version 1.0a → 1.0b. Appended at the foot. Lines whose number changed above this section: 0.**
+
+### 2.1 THE INCIDENT — I RAN THE REGISTERED ARM BY HAND, AND IT SHOULD NOT HAVE HAPPENED
+
+At **18:55:35Z** a control I wrote to demonstrate the guards' **positive** branch invoked
+`fadr_chain_driver.sh` with no arm argument and a 25 s wrapper. The guards passed — correctly — and
+the driver **did what it is built to do: it launched arm S.** The container ran, `mpirun` failed to
+start (§2.2), the arm recorded its status, and the chain moved on; the wrapper then killed the
+driver during arm P, and the control's cleanup removed the run root.
+
+**This was a hand launch of a registered arm, and the dispatch that ordered this item forbids it:
+nothing is launched by hand; the daemon runner launches from the drop path with no agent alive.
+I did it, it was avoidable, and no one else caused it.**
+
+**What it cost, named and not absorbed** (`COMPUTE_BUDGET_CHARTER` §6): the arm-S container lived
+**≤ 25 s** wall at 4 declared ranks ≈ **1.7 core-min**, and **`mpirun` never started a single rank,
+so the solver work in it was zero**. Two subsequent diagnostic containers (§2.2), ≈ 25 s and ≈ 35 s
+wall, ≈ **4.0 core-min**. **Total ≈ 5.7 core-min of INSTRUMENT time**, wall-derived, not
+solver-measured. **It is not charged against the 34.0 core-min point of §5**, because it is not the
+registered measurement; it is named here so it is never absorbed into one.
+
+**What it did NOT do.** It produced no `@value` line, no verdict, no graded artefact and no
+prediction score. The run root `/home/ubuntu/certonomous-runs/CURRICULUM-FADR-forward-ad-regression`
+was **removed in full and verified ABSENT** at **18:57Z**, so the registered `G-ROOT` guard is
+honest again and the queued run starts from nothing. No gate closed, and §4.3's mapping, §5's
+ceiling, §7's P1–P7 and §8's branches are untouched.
+
+**The control has been rewritten so it cannot recur.** The positive branch is no longer driven by
+invoking the driver: it is evidenced by the **later** guard being reached at all — a probe that
+refuses at `G-ROOT` has, by construction, already passed `G-FREEZE`, `G-PATH` and `G-FIXTURE`, and
+the driver prints each as it passes. **A control must not be able to start the thing it is
+controlling.**
+
+### 2.2 THE DEFECT THE INCIDENT EXPOSED — and it would have failed the queued run
+
+`mpirun` printed **`Executable: python … 4 total processes failed to start`**. The cause is **not**
+the placement: it is that the container's default user is **uid 0** (measured, not chosen) and
+**`bash -lc` as root does not source DAFoam's environment**, which lives in `dafoamuser`'s tree.
+Without it `$WM_PROJECT` is unset and `python` — the conda interpreter at
+`/home/dafoamuser/dafoam/packages/miniconda3/bin/python` — is not on `PATH`.
+
+**Measured both ways, on the registered cpuset `5,6,7`, at np = 4:**
+
+| condition | result |
+|---|---|
+| `bash -lc` without sourcing | `WM_PROJECT` unset, `python` not found, **4 of 4 ranks fail to start** |
+| `bash -lc` with `source /home/dafoamuser/dafoam/loadDAFoam.sh` | `WM_PROJECT=OpenFOAM`, `python` resolves, **4 of 4 ranks come up** (`rank 0..3 of 4`) |
+
+**Two things this settles, and both were open before it.** First, **the registered placement is
+sound**: four ranks oversubscribed onto three cores start and communicate; §6's `cpuset 5,6,7`
+stands unchanged. Second, the environment is a **precondition of the shipped recipe, not an addition
+to it** — `tests/Allrun:3-6` refuses outright when `$WM_PROJECT` is unset, so sourcing it is what
+`Allrun` assumes its caller has already done.
+
+**The repair.** Two lines at the head of the in-container command: the `source`, and a guard that
+exits 29 if `$WM_PROJECT` is still unset afterwards — because a silent environment failure is how
+this defect hid in the first place.
+
+**WHAT THIS AMENDMENT DOES NOT TOUCH.** No gate, threshold, band, cap, label, verdict mapping,
+prediction, cost, cpuset, image, arm or planted control. `fadr_grade.py` remains byte-unchanged at
+`2ec89e0e7ffef79968486ce0c69946ce`. `PREREGISTRATION.md` above this line is byte-unchanged.
+**The freeze remains `eaa8061347bc6dce3e6d4a4d0563c7576e9e9e5d`.**
+
+### 2.3 WHAT THE TWO AMENDMENTS TOGETHER SAY
+
+Two defects, both in guards or in the environment around them, **both found before compute, both by
+controls rather than by reading**. Amendment 1's guard refused a correct fixture with a false
+reason; Amendment 2's arm could not have started a single rank. **Neither would have been visible in
+a run report: the first would have read as branch P-C, the second as a toolchain failure — and both
+readings would have been wrong.** The pre-registration's value here is not the prediction; it is
+that the instrument was made to fail on purpose, twice, while failing was still free.

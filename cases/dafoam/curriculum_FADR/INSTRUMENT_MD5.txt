@@ -1,5 +1,5 @@
-078367c9eae6b1be47bf46714d49ecf8  PREREGISTRATION.md
-fd8bb49aa04979bfa4dac9ce1e230c12  fadr_chain_driver.sh
+1035960ad40f0f83832d90c1110bb211  PREREGISTRATION.md
+db35550e97f391e156d531a985268ad5  fadr_chain_driver.sh
 2ec89e0e7ffef79968486ce0c69946ce  fadr_grade.py
 9a3ec810ddf771257f9ce4bbb33fb334  fadr_fetch_fixture.sh
 5d9c8c4761eb296d9a3657ad986eeb48  fadr_grade_selftest_evidence.txt
