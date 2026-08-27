@@ -615,3 +615,113 @@ an override, the block was faithful on every lever checkable in this run.
    finding is a lower bound on how many runs now carry the readback.
 4. **The in-container DAFoam build** is still not on this host, and this pass made
    no claim about dead *code*.
+
+---
+
+## DATED SECTION, 2026-08-27 — THE SHARED GIT INDEX IS NOT BEING CORRUPTED BY A WRITER. IT GOES STALE **BECAUSE THE PRIVATE-INDEX PROTOCOL IS WORKING.** THE COUNTS ARE A CLOCK, AND THE RESET IS A LEVER THAT CANNOT BE A CONTROL.
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section:
+0`, proved by a byte-prefix check against the HEAD blob in the same invocation. Referred by the
+chief after five resets of `.git/index` in one day — 16:17Z (216 phantom staged deletions),
+17:22Z (401), 18:30Z (65), 18:48Z (2), 19:12Z (67) — every "deleted" path present on disk and
+at HEAD, with the hypothesis that a peer process writes the index. Measured here, live.**
+
+### 1. THE MECHANISM, CAUGHT IN THE ACT
+
+At **19:16:38Z** closure landed `e6961d48` ("M2 FROZEN"), which **added six files** under
+`cases/RANS_LES_closure_models/M2_kepsilon_family/`. Immediately after, `git diff --cached
+--name-status HEAD` reported **exactly those six as staged deletions**, all six present on disk
+**and** at HEAD. Four minutes earlier the count had been **zero**.
+
+**The prediction that settles it**, tested against the chief's own 19:12Z reset baseline
+`4918aec2`:
+
+| quantity | value |
+|---|---|
+| files **ADDED** between `4918aec2` and HEAD | **6** |
+| phantom staged **deletions** in the shared index | **6** |
+| the two **SETS**, sorted and diffed | **IDENTICAL** |
+| phantom **ADDITIONS** in the shared index | **0** |
+
+**That last row is the control, and it is what makes this a measurement rather than a story.**
+An index somebody **staged into** would carry `A` rows. An index that is merely **OLDER than
+HEAD** carries **only `D` rows**. There are no `A` rows.
+
+**THE PRIVATE-INDEX PROTOCOL ADVANCES `refs/heads/main` AND NEVER TOUCHES `.git/index`.** That
+is by design — `git commit-tree` writes a commit from a tree, and `update-ref` moves the branch;
+neither has any reason to update a file the protocol deliberately avoids. **So the instant any
+agent lands a private-index commit that ADDS a path, `.git/index` is behind HEAD by exactly
+those paths, and git faithfully reports them as staged deletions.**
+
+**NO WRITER IS REQUIRED. The index goes stale BECAUSE THE PROTOCOL IS WORKING CORRECTLY.**
+
+### 2. THE COUNTS ARE A CLOCK, NOT AN ALARM
+
+**216 / 401 / 65 / 2 / 67 are not five intrusions. They are the number of files the fleet
+added since the previous reset.** They grow with the lab's productivity and drop to zero when
+somebody resets. **The 401 at 17:22Z is not a worse attack than the 2 at 18:48Z; it is a longer
+interval.** Reading them as a severity scale inverts what they measure.
+
+### 3. THE `mtime` OBSERVATION IS EXPLAINED, AND IT IS BENIGN
+
+A cfd lane saw `.git/index`'s mtime move **right after its own private-index commit** and
+inferred a peer writer. **`git status`, `git diff` and `git diff --cached` all REFRESH the
+index's cached stat data and rewrite the file** — including in the post-commit verify that rule
+10 **mandates**. That moves the mtime and changes **no tree**.
+
+> **INDEX MTIME MOVEMENT IS NOT TREE STALENESS.** They have different causes, different
+> frequencies and different consequences, and the report conflated them. The lane's observation
+> is real; its inference does not follow.
+
+### 4. THE DEAD-LEVER FINDING — the reset cannot be a control
+
+Under this audit's own thesis (`L-40`, *the switch you set is not the switch that ran*):
+
+**Resetting the index is not useless — it genuinely reduces BLAST RADIUS.** If a forbidden bare
+`git commit` fired while the index was stale by 401 paths, 401 files die; at 0, none do. **That
+is a real benefit and it is not withdrawn here.**
+
+**But it cannot be a CONTROL, because the condition it clears re-arms within seconds.** Measured
+today: **zero to six in under four minutes**, from ordinary fleet traffic. A control that the
+system defeats on its own, without adversity, at the rate of normal work, is a **lever that
+looks like a switch** — and after five pulls in one day the residual risk is unchanged in kind.
+**The exposure is not that the index is stale. It is that a command rule 10 absolutely forbids
+would SUCCEED if anyone ran it.** Staleness only sets the price.
+
+### 5. RECOMMENDATIONS — a config change, so RECOMMENDED AND NOT MADE
+
+1. **STOP RESETTING ON A SCHEDULE.** It costs chief attention five times a day, and — worse —
+   it **reports as handled a thing that is not addressed.** Reset when a specific action needs a
+   clean index, not because the number grew.
+2. **`core.indexFile` pointed elsewhere — DECLINED ON THE MERITS, not deferred.** It renames the
+   shared index and changes nothing: the new file goes stale by the identical mechanism, and a
+   bare `git commit` commits *it*. It moves the gun; it does not unload it.
+3. **Making `.git/index` READ-ONLY is the right SHAPE, and it is Sanaa's call.** Its virtue is
+   precise: it **converts a rule agents can violate into a mechanism they cannot** — a bare
+   `git commit` would *fail* rather than silently revert peers' work. **It is recommended, not
+   taken**, and it must not be adopted on this section alone. **Per `VERIFICATION_CHARTER` v1.13
+   and Sanaa's §1, it ships only with a planted-failure proof**, demonstrated in a throwaway
+   clone: (a) `git commit` **fails** with the index read-only; (b) the private-index protocol
+   still completes end to end; (c) `git status` / `git diff` still work; (d) nothing in the
+   lab's routine tooling breaks. **A guard adopted without that proof is the shape this lab
+   keeps publishing findings about.**
+
+### 6. WHAT IS **NOT** ESTABLISHED, stated so the clean explanation is not over-read
+
+- **Whether a script ALSO writes the shared index is `NOT MEASURED`.** The structural mechanism
+  accounts for **100 % of the deletion signature**, so no additional writer is *needed* to
+  explain anything — **but "not needed" is not "not present".** A per-script census of every
+  tracked `git add` / `read-tree` / `update-index` call site, classified guarded or unguarded,
+  is in flight and is **not** reported here.
+- **Whether the installed `.git/hooks/pre-commit` (the D242 index guard) already REFUSES a bare
+  commit is `NOT MEASURED` here.** If it does, the exposure in §4 is smaller than the referral
+  assumed, and recommendation 3 becomes belt-and-braces rather than the primary control. **That
+  is being tested in a throwaway clone and the answer will change the weight of §5, so it is
+  named rather than assumed in either direction.**
+- **One precondition IS established by execution, and it matters for a different reason:** shell
+  environment **does not persist between an agent's Bash invocations** (an `export` in one call
+  was unset in the next, tested directly). **So an agent that splits the private-index protocol
+  across two calls runs its git commands against the SHARED index.** `CLAUDE.md` rule 10 already
+  requires one invocation — but for a **different stated reason** (HEAD moving between calls,
+  `L-223`). **The environment-loss consequence is a second, unstated reason for the same rule,
+  and it is the more immediate one.** Recommended for the rule's next restatement.
