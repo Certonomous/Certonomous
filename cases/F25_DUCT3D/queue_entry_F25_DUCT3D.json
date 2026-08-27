@@ -1,31 +1,36 @@
 {
   "team": "cfd",
   "case_id": "F25_DUCT3D",
-  "prereg_commit": "bbbcdf71696a663d25f8805e1a6fa517bc98136f",
+  "prereg_commit": "12def6b59d624816fd25f8cef68ff96a4982e8a8",
   "prereg_path": "verification/campaign/F25_DUCT3D_PREREGISTRATION.md",
   "launch_cmd": [
     "bash",
     "/home/ubuntu/Certonomous/cases/F25_DUCT3D/run_f25.sh",
-    "--prereg-commit=bbbcdf71696a663d25f8805e1a6fa517bc98136f"
+    "--prereg-commit=12def6b59d624816fd25f8cef68ff96a4982e8a8"
   ],
   "cwd": "/home/ubuntu/Certonomous/cases/F25_DUCT3D",
   "ranks": 4,
   "cost_core_min_estimate": 1342.8,
   "cost_basis": "measured at 65k cells on this case, growth per level modelled, derived beyond the anchor (AMENDMENT 1 at bbbcdf71): 2.44 us per cell-iteration MEASURED on the 64x64x16 instrument arm (65,536 cells, 4 ranks, ClockTime 40 s for 1000 iterations, ExecutionTime/ClockTime 0.99, box load 15-17 of 16; prereg section 5.1) scaled +30 % per doubling of the cell count (F23 section 7 growth term, MODELLED) to 1.88 / 4.12 / 9.06 us at 32768 / 262144 / 2097152 cells x 4000 SIMPLEC iterations = 246 + 4324 + 75997 core-s = 1342.8 core-min (4.1 / 72.1 / 1266.6 per level), ideal 4-rank scaling assumed for the wall projection (~5.6 h on 4 ranks); the dispatch-basis figure 706.0 (F23 curve x 1.5 face factor) stands in the frozen section 7 and is superseded; registered CAP 2000 core-min (1.49x the estimate; the runaway guard, not a target); dollars DERIVED, not measured, at the owner-stated $0.0513/core-h, reported-by-owner: $1.15 estimate, $1.71 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
   "memory_floor_gb": 6.0,
-  "enqueued_by": "cfd lab-lane, 2026-08-26, for cfd-supervisor. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is NOT discharged by this file. HELD under the case directory until the supervisor acknowledges the freeze sha and moves it into verification/queue/cfd/.",
-
+  "enqueued_by": "cfd lab-lane C, 2026-08-27T17:03:24Z, for cfd-supervisor, on the L-349 projector re-freeze 12def6b5. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is NOT discharged by this file. HELD under the case directory; moving it into verification/queue/cfd/ is the supervisor's act.",
   "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
   "capability_grid_cell_068c2bf0": "3D . steady . incompressible",
-  "run_root": "/home/ubuntu/Certonomous/verification/runs/F25_DUCT3D_runs -- ABSENT at registration (rule-2 absence condition, prereg section 8, 2026-08-26T22:33:36Z); the launcher creates it and REFUSES any pre-existing 0/, numeric time or processor* directory in the run root or a level directory.",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F25_DUCT3D_runs -- ABSENT re-checked by test -e at 2026-08-27T17:03:24Z (rule-2 absence condition); the launcher creates it and REFUSES any pre-existing 0/, numeric time or processor* directory in the run root or a level directory; the grader never creates it.",
   "cwd_note": "cwd is the CASE directory (no time directory as a direct child; case/0 holds p and U.template). The launcher uses absolute paths and ignores cwd. A queue runner's wrapper writes launcher.queue.out and STATUS.F25_DUCT3D into cwd; both are INFRASTRUCTURE fields under L-342 and untracked.",
   "levels": "coarse 128x16x16 / medium 256x32x32 / fine 512x64x64 cubic cells (dim 3, r = 2 in x, y and z exactly), 4000 iterations each, ALL on 4 ranks via decomposePar simple n (1 2 2) then mpirun -np 4 simpleFoam -parallel; never reconstructed (grader reads processor*/); decomposition seed none (deterministic geometric)",
   "cap_core_min_registered": 2000.0,
   "amendment_1": "pre-compute, cost/cap only: estimate 706.0 -> 1342.8 core-min on the measured basis, cap 1400 -> 2000; ladder, gates, bands, floor, dictionaries unchanged; run root ABSENT at the amendment",
-  "cap_behaviour": "checked incrementally after each level in ClockTime x ranks / 60 and PROJECTED before each level; a crossing HALTS at exit 3; the cap is never raised",
+  "cap_behaviour": "PRE-SPEND PROJECTION IS AMENDED (L-349): the next level is projected from THIS CASE'S OWN COMPLETED LEVELS -- measured core-seconds / cell-iterations from the last finished level, which ALREADY carries the load it ran under so no contention factor is applied on top -- times the next level's cell-iterations times a rate-drift factor clamped to [1.0, 2.5]. The frozen constant is the fallback for the FIRST level only, times a contention factor clamped at CONT_MAX 2.0 (was an unbounded ranks/max(free,0.5) that pinned at 8.0x on a busy box). The POST-LEVEL check on ACTUAL spend is byte-identical to its pre-amendment form: ClockTime x ranks / 60, summed, HALT exit 3 on a crossing, cap NEVER raised (rule 12).",
   "registered_prediction": "G-F25-1 normalised-profile E2n CONVERGING with observed order ~2 (model 1.962 / 1.989; model triple through roache_triple at dim 3: CONVERGING p 1.953), fine value in [2.473836489e-04, 2.226452840e-03]; G-F25-2 f.Re CONVERGING (model orders 1.976 / 1.993; model triple CONVERGING p 1.970), fine value in [56.747596130, 57.069018948] (exact series 56.908307539); Class C plateau on the graded quantity (40 checkpoints, window 12); rule 5 limb 1 is a Ux initial-residual census (<= 1e-8 over iterations 2801-4000, the floor DERIVED from the predicted fine-level error per L-346: window x tol = 1.2e-5 <= 0.1 x 7.42e-4) plus a transverse-field floor; Uy/Uz/p residuals printed, excluded at freeze (N-AV8); iterations to 1e-8 measured 82 / 171 / 430 / ~1230 at 8 / 16 / 32 / 64 cells per side on the registered SIMPLEC form (prereg section 5.1)",
   "mesh_admission": "coarse level built and checkMesh'd on a scratch copy: 32768 cells, Mesh OK, max non-orthogonality 0 deg (gate 70, MESH_STANDARD 3.1), max skewness 0 (gate 4, 3.2), max aspect ratio 1 (advisory 1000, 3.3); builder cross-checks 0/C and 0/V against the cubic model geometry to 1e-9",
   "smoke_arm": "one real simpleFoam iteration on 4 ranks at the coarse level (32768 cells) in scratch on the registered dictionaries: rc 0, Ux initial residual 1 -> 2.95e-04 in 5 GAMG iterations, max|Ux| after one iteration 3.365e-01 (non-zero: the driven component moves); plus 7.0 core-min of scratch instrument arms (prereg section 5.1 / 7) that found the F23 solver form non-converging at the fine cross-section and measured the registered form's floor -- none a level, none retained",
-  "grade_cmd": ["python3", "/home/ubuntu/Certonomous/cases/F25_DUCT3D/grade_f25.py", "--prereg-commit=bbbcdf71696a663d25f8805e1a6fa517bc98136f"],
-  "verdict_state": "PENDING"
+  "grade_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/cases/F25_DUCT3D/grade_f25.py",
+    "--prereg-commit=12def6b59d624816fd25f8cef68ff96a4982e8a8"
+  ],
+  "verdict_state": "PENDING",
+  "amendment_2": "pre-compute, PRE-SPEND PROJECTOR ONLY (L-349, re-freeze 12def6b5): new proj_f25.py; cap UNMOVED at 2000; post-level ACTUAL-spend check byte-identical to its HEAD blob; no gate, band, label, ladder, floor or dictionary touched; estimate UNCHANGED at 1342.8. Replay at the registered rates now projects coarse 8.2 / medium 72.1 / fine 1266.7, cumulative 1342.9 of 2000, HALT=0 at every level -- the old form projected fine 10132.9, cumulative 10209.1, HALT=1. Run root ABSENT at the amendment.",
+  "projector_effect_at_registered_rates": "fine level projects 1266.7 core-min, cumulative 1342.9 of 2000 -> PROCEEDS (old form: 10209.1 -> HALT)"
 }
