@@ -1,0 +1,59 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T5_S_m",
+  "prereg_commit": "ad663118e746ede1d3bfc76f281a6dcf4efa7bd7",
+  "prereg_path": "docs/campaigns/T-family/T5_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/run_one_t5.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/S_m",
+    "--timeout",
+    "88020",
+    "--ranks",
+    "1",
+    "--solver",
+    "chtMultiRegionSimpleFoam",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/S_m",
+  "ranks": 1,
+  "cost_core_min_estimate": 489.0,
+  "cap_core_min_registered": 1467.0,
+  "cost_basis": "derived: Model B POINT 8.15 core-h x 60 = 489.0 core-min at ranks 1 (T5_PREREGISTRATION.md S11.1 row `S_m` 8.15 core-h; AMENDMENT 2 row `S_m` 489.0 / cap 1467.0 / timeout 88020 s; AMENDMENT 9(h) restates 489.0 POINT / 1467.0 cap and the argv used here); USD 0.4181 = 8.15 core-h x the owner-stated $0.0513/core-h, reported-by-owner, not measured -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+  "memory_floor_gb": 2.0,
+  "memory_basis": "estimated, not measured: fluid-only medium level, 212942 air cells (S_m/log.checkMesh), fewer than the conjugate T5_CUBE_m (212942 air + 3272 epoxy), at ~1 GB per 100k cells with a 2 GB floor",
+  "enqueued_by": "heat-transfer lane 2 (queue refill) on behalf of heat-transfer-supervisor; SUPERVISION_CHARTER section 3 check 4 is the SUPERVISOR'S OWN and is NOT performed by this lane -- this file is a validated proposal, not an authorisation",
+  "_provenance": {
+    "supersedes_draft": "verification/runs/T-family/T5_runs/queue_drafts/T5_S_m_BLOCKED.json (held, prereg_commit 299296a2 = AMENDMENT 8, which did not yet carry the S_m meshing branch)",
+    "prereg_commit_subject": "heat-transfer LAND (killed-lane recovery 1/6): T5_PREREGISTRATION.md AMENDMENT 9, version 1.8 -> 1.9",
+    "amendment": "AMENDMENT 9 (2026-08-26), PRE-FIRST-COMPUTE FOR S_m: implements the S8 DS fluid-only meshing branch, promotes build_t5.py c7b7063d -> 9d7be1cb, builds S_m and fixes this argv (9(h)) and this cost (9(h))",
+    "argv_authority": "AMENDMENT 6(b), restated at AMENDMENT 9(h)",
+    "case_verified_on_disk_by_this_lane": {
+      "cells": 212942,
+      "cells_source": "verification/runs/T-family/T5_runs/S_m/log.checkMesh",
+      "age_guard": "0.orig present; NO 0/ and NO numeric time directory",
+      "epoxy_residue_files": 0,
+      "build_t5_py_blob": "9d7be1cb9b5e206c9bccbe610f7b24427b7f8e99",
+      "run_one_t5_sh_blob": "313df45c85b3de916ccf75a1ae38398656b7baa9"
+    }
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T5_S_m (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
