@@ -137,12 +137,38 @@ def repo_root(start: Path) -> Path:
 
 
 # --------------------------------------------------------------------------
-# The six checks. Each returns a list of failure strings, each string opening
+# The seven checks. Each returns a list of failure strings, each string opening
 # with the NAME of the check that failed, so a refusal always names its cause.
 # They are registered in CHECKS so --selftest can mutate one at a time.
+#
+# EVERY check takes (entry, root, entry_path). `entry_path` is the path the
+# entry was READ FROM, and it is a REQUIRED argument of validate() -- never a
+# defaulted one. docs/standards/QUEUE_ENTRY_TEAM_BINDING.md sec.5 P2: a caller
+# that cannot supply it must fail LOUDLY, because a check that silently passes
+# when its input is missing is a zero from a reader not shown able to see a
+# non-zero (standing rule 3). Six of the seven ignore it.
 # --------------------------------------------------------------------------
 
-def check_schema(entry: dict, root: Path) -> list[str]:
+
+def containing_team_dir(entry_path) -> str | None:
+    """The team drop directory an entry FILE sits in, or None when it is not in
+    one at all.
+
+    Recognises exactly `.../verification/queue/<team>/<file>.json` for a `<team>`
+    in TEAMS -- the same six directories `queue_runner.list_entries()` globs
+    (queue_runner.py:387-395). Anything else -- a draft beside its case, a copy
+    in a scratch tree, a `held/` subdirectory -- returns None, which is NOT a
+    failure: see check_team_binding and binding_note.
+    """
+    if entry_path is None:
+        return None
+    parent = Path(entry_path).resolve().parent
+    if (parent.name in TEAMS and parent.parent.name == "queue"
+            and parent.parent.parent.name == "verification"):
+        return parent.name
+    return None
+
+def check_schema(entry: dict, root: Path, entry_path=None) -> list[str]:
     """1. Schema complete, types correct."""
     fail: list[str] = []
     for field in REQUIRED_FIELDS:
@@ -218,7 +244,7 @@ def check_schema(entry: dict, root: Path) -> list[str]:
     return fail
 
 
-def check_commit_exists(entry: dict, root: Path) -> list[str]:
+def check_commit_exists(entry: dict, root: Path, entry_path=None) -> list[str]:
     """2. The pre-registration commit must EXIST."""
     sha = entry.get("prereg_commit")
     if not isinstance(sha, str) or not FULL_SHA.match(sha):
@@ -232,7 +258,7 @@ def check_commit_exists(entry: dict, root: Path) -> list[str]:
     return []
 
 
-def check_prereg_at_commit(entry: dict, root: Path) -> list[str]:
+def check_prereg_at_commit(entry: dict, root: Path, entry_path=None) -> list[str]:
     """3. The pre-registration must exist AT that commit.
 
     A sha with no document at it is the laundering shape: a real-looking freeze
@@ -256,7 +282,7 @@ def check_prereg_at_commit(entry: dict, root: Path) -> list[str]:
     return []
 
 
-def check_age_guard(entry: dict, root: Path) -> list[str]:
+def check_age_guard(entry: dict, root: Path, entry_path=None) -> list[str]:
     """4. Standing rule 4's age guard, applied BEFORE the launch, not after.
 
     A run must never be launched into a tree that already holds an answer: the
@@ -301,7 +327,7 @@ def check_age_guard(entry: dict, root: Path) -> list[str]:
     return []
 
 
-def check_cwd_launchable(entry: dict, root: Path) -> list[str]:
+def check_cwd_launchable(entry: dict, root: Path, entry_path=None) -> list[str]:
     """5. R-AGE-CWD clause 2: an absent cwd cannot be EXECUTED in.
 
     This is a launchability finding, not an age finding, and it carries its own
@@ -330,7 +356,7 @@ def check_cwd_launchable(entry: dict, root: Path) -> list[str]:
     ]
 
 
-def check_ranks(entry: dict, root: Path) -> list[str]:
+def check_ranks(entry: dict, root: Path, entry_path=None) -> list[str]:
     """6. ranks >= 1."""
     r = entry.get("ranks")
     if isinstance(r, bool) or not isinstance(r, int):
@@ -340,6 +366,51 @@ def check_ranks(entry: dict, root: Path) -> list[str]:
     return []
 
 
+def check_team_binding(entry: dict, root: Path, entry_path=None) -> list[str]:
+    """7. TEAM-BINDING -- an entry's `team` MUST equal the team directory it sits
+    in. Specified BEFORE this code existed:
+    docs/standards/QUEUE_ENTRY_TEAM_BINDING.md, frozen b23b5638 (amended
+    2026-08-27, v1.1).
+
+    WHY. scripts/queue_runner.py does not read `team` when deciding what to
+    launch: list_entries() at :387-395 iterates BY DIRECTORY, and tick() carries
+    that directory's name into the round-robin cursor, the LAUNCH_LOG.tsv row and
+    the <team>/launched/ destination. check_schema only asks whether `team` is one
+    of the six, never WHICH one. So an entry declaring one team while sitting in
+    another's drop path launches and is recorded as the DIRECTORY's -- corrupting
+    verdict ownership and per-team queue depth, and a metric that can be silently
+    wrong is worse than one that is absent.
+
+    THIS CLAUSE REFUSES EXACTLY ONE THING: an entry that contradicts its OWN
+    declared `team` field. It reads no other field, consults nothing outside the
+    file's own path, and has no other way to return a failure.
+
+    Two non-refusals, both deliberate:
+      * `team` missing or out of roster -> [] . That is SCHEMA's refusal
+        (:154-155) and must not be reported twice (spec sec.5 P3).
+      * the file is not in a team drop directory -> [] . An UNCHECKED condition,
+        not a satisfied one; binding_note() reports it as NOT CHECKED, and
+        --require-binding turns it into a refusal. Refusing here would force every
+        lane to copy into the drop path BEFORE validating -- i.e. to validate only
+        once the launch is already armed -- inverting the safe order and
+        contradicting check-4-before-the-drop (spec sec.5 P6, cfd-supervisor
+        2026-08-27).
+    """
+    team = entry.get("team")
+    if not isinstance(team, str) or team not in TEAMS:
+        return []
+    where = containing_team_dir(entry_path)
+    if where is None or where == team:
+        return []
+    return [
+        f"TEAM-BINDING: entry declares team {team!r} but sits in "
+        f"verification/queue/{where}/. The runner launches BY DIRECTORY "
+        f"(queue_runner.py:387-395) and would record this run as {where!r}'s, so "
+        f"the entry contradicts itself. Fix: set team to {where!r}, or move the "
+        f"file to verification/queue/{team}/."
+    ]
+
+
 CHECKS: dict[str, object] = {
     "SCHEMA": check_schema,
     "COMMIT-EXISTS": check_commit_exists,
@@ -347,7 +418,48 @@ CHECKS: dict[str, object] = {
     "AGE-GUARD": check_age_guard,
     "EXEC": check_cwd_launchable,
     "RANKS": check_ranks,
+    "TEAM-BINDING": check_team_binding,
 }
+
+
+def require_binding_clause(entry: dict, entry_path) -> list[str]:
+    """--require-binding ONLY. Module-level and named so --selftest can replace it
+    via globals() and show control C11 flip (the same shape queue_runner.py uses
+    for its GPU clause). Returns a refusal ONLY when the file is not in a team
+    drop directory; it can refuse for no other reason."""
+    if containing_team_dir(entry_path) is not None:
+        return []
+    return [
+        f"REQUIRE-BINDING: --require-binding was given and {entry_path} is not in "
+        f"verification/queue/<team>/, so TEAM-BINDING could NOT be checked. This "
+        f"refusal is the ABSENCE of a check, not a failed one. Validate the QUEUED "
+        f"copy in place -- that is the validation that counts."
+    ]
+
+
+def binding_note(entry: dict, entry_path) -> str:
+    """One line for a bound entry; a block for an unbound one.
+
+    The two are deliberately DIFFERENT SHAPES. `NOT BOUND` would describe the
+    entry's state; `NOT CHECKED` describes the limit of our knowledge, and the
+    planted-zero principle is about knowledge (cfd-supervisor, 2026-08-27,
+    adopting the lane's wording over his own)."""
+    where = containing_team_dir(entry_path)
+    if where is not None:
+        return f"TEAM-BINDING: bound to {where}/"
+    team = entry.get("team")
+    team_s = team if isinstance(team, str) and team in TEAMS else "<unset>"
+    name = Path(entry_path).name if entry_path is not None else "<no path>"
+    return (
+        f"TEAM-BINDING: NOT CHECKED -- {entry_path} is outside "
+        f"verification/queue/<team>/.\n"
+        f"    This is an UNCHECKED condition, not a passing one. The entry declares\n"
+        f"    team={team_s!r}; nothing here has compared that to a queue directory,\n"
+        f"    because this file is not in one. It is checked when the QUEUED copy is\n"
+        f"    validated in place:\n"
+        f"        queue_entry_check.py --require-binding verification/queue/{team_s}/{name}\n"
+        f"    -- that run is the validation that counts."
+    )
 
 
 # --------------------------------------------------------------------------
@@ -358,12 +470,12 @@ CHECKS: dict[str, object] = {
 # one-off override and never reach a live entry.
 # --------------------------------------------------------------------------
 
-def _mutant_noop(entry: dict, root: Path) -> list[str]:
+def _mutant_noop(entry: dict, root: Path, entry_path=None) -> list[str]:
     """A clause deleted outright."""
     return []
 
 
-def _mutant_age_guard_without_scan(entry: dict, root: Path) -> list[str]:
+def _mutant_age_guard_without_scan(entry: dict, root: Path, entry_path=None) -> list[str]:
     """check_age_guard with its TIME-DIRECTORY SCAN removed, nothing else."""
     cwd = entry.get("cwd")
     if not isinstance(cwd, str) or not cwd.startswith("/"):
@@ -373,7 +485,7 @@ def _mutant_age_guard_without_scan(entry: dict, root: Path) -> list[str]:
     return []  # the scan that would have run here is the planted deletion
 
 
-def _mutant_age_guard_pointed_at_absence(entry: dict, root: Path) -> list[str]:
+def _mutant_age_guard_pointed_at_absence(entry: dict, root: Path, entry_path=None) -> list[str]:
     """The PRE-RULING defect, reintroduced verbatim: AGE-GUARD refusing on
     absence with the wording R-AGE-CWD found to state the opposite of the
     truth. Present so the selftest can show the defect is catchable, never so
@@ -386,15 +498,24 @@ def _mutant_age_guard_pointed_at_absence(entry: dict, root: Path) -> list[str]:
             f"AGE-GUARD: cwd {cwd} does not exist as a directory, so it cannot "
             f"be shown free of a prior answer."
         ]
-    return check_age_guard(entry, root)
+    return check_age_guard(entry, root, entry_path)
 
 
-def validate(entry: dict, root: Path, checks: dict | None = None) -> list[str]:
-    """Run every registered check. Returns the list of failure strings."""
+def validate(entry: dict, root: Path, entry_path, checks: dict | None = None,
+             require_binding: bool = False) -> list[str]:
+    """Run every registered check. Returns the list of failure strings.
+
+    `entry_path` is POSITIONAL AND REQUIRED, by spec sec.5 P2: a caller that cannot
+    say where the entry came from raises TypeError here, loudly, rather than
+    silently skipping TEAM-BINDING. It is never given a default. Pass None only
+    where there genuinely is no file (a dict built in a control), and understand
+    that None means TEAM-BINDING is NOT CHECKED for that call."""
     active = CHECKS if checks is None else checks
     fail: list[str] = []
     for fn in active.values():
-        fail.extend(fn(entry, root))
+        fail.extend(fn(entry, root, entry_path))
+    if require_binding:
+        fail.extend(require_binding_clause(entry, entry_path))
     return fail
 
 
@@ -577,7 +698,7 @@ def selftest() -> int:
         ]
 
         for name, entry, owner in controls:
-            fails = validate(entry, root)
+            fails = validate(entry, root, None)
             fired = [f for f in fails if f.startswith(owner + ":")]
             if not fired:
                 problems.append(
@@ -587,8 +708,8 @@ def selftest() -> int:
                 continue
             # Mutate the owning guard to a no-op and require the control to FLIP.
             mutated = dict(CHECKS)
-            mutated[owner] = lambda e, r: []
-            after = [f for f in validate(entry, root, mutated) if f.startswith(owner + ":")]
+            mutated[owner] = lambda e, r, p: []
+            after = [f for f in validate(entry, root, None, mutated) if f.startswith(owner + ":")]
             if after:
                 problems.append(
                     f"CONTROL DID NOT FLIP ({name}): {owner} was mutated to a "
@@ -603,7 +724,7 @@ def selftest() -> int:
 
         # --- the positive control: a valid entry must be ACCEPTED ----------
         valid = _base_entry(head, live_prereg, str(clean))
-        fails = validate(valid, root)
+        fails = validate(valid, root, None)
         if fails:
             problems.append(
                 f"CONTROL FAILED (valid entry): a well-formed entry was refused "
@@ -636,7 +757,7 @@ def selftest() -> int:
         if absent.exists():
             problems.append("CONTROL FAILED (A setup): the absent cwd exists")
 
-        fa = validate(entry_a, root)
+        fa = validate(entry_a, root, None)
         ca = _clauses(fa)
         if "EXEC" not in ca:
             problems.append(
@@ -650,7 +771,7 @@ def selftest() -> int:
                 "CONTROL A FIRED (cwd absent): refused under EXEC and NOT under "
                 "AGE-GUARD, naming queue_runner.py:286/:293 and FileNotFoundError.")
 
-        fb = validate(entry_b, root)
+        fb = validate(entry_b, root, None)
         cb = _clauses(fb)
         if "AGE-GUARD" not in cb:
             problems.append(
@@ -663,7 +784,7 @@ def selftest() -> int:
                 "CONTROL B FIRED (cwd exists and holds 0.1/): refused under "
                 "AGE-GUARD and NOT under EXEC.")
 
-        fc = validate(entry_c, root)
+        fc = validate(entry_c, root, None)
         if fc:
             problems.append(f"CONTROL C FAILED (cwd exists, clean): expected ACCEPTED, got {fc}")
         else:
@@ -671,7 +792,7 @@ def selftest() -> int:
 
         # --- planted failure 1: delete check_cwd_launchable -> A ACCEPTS ---
         m1 = dict(CHECKS); m1["EXEC"] = _mutant_noop
-        f1 = validate(entry_a, root, m1)
+        f1 = validate(entry_a, root, None, m1)
         if f1:
             problems.append(
                 f"PLANT 1 DID NOT FLIP: with check_cwd_launchable deleted, control A "
@@ -683,7 +804,7 @@ def selftest() -> int:
 
         # --- planted failure 2: delete the time-dir scan -> B ACCEPTS ------
         m2 = dict(CHECKS); m2["AGE-GUARD"] = _mutant_age_guard_without_scan
-        f2 = validate(entry_b, root, m2)
+        f2 = validate(entry_b, root, None, m2)
         if f2:
             problems.append(
                 f"PLANT 2 DID NOT FLIP: with the time-directory scan deleted, control B "
@@ -697,7 +818,7 @@ def selftest() -> int:
         #     under AGE-GUARD. This is the DEFECT R-AGE-CWD removes, shown
         #     reintroducible and shown caught.
         m3 = dict(CHECKS); m3["AGE-GUARD"] = _mutant_age_guard_pointed_at_absence
-        f3 = validate(entry_a, root, m3)
+        f3 = validate(entry_a, root, None, m3)
         if "AGE-GUARD" not in _clauses(f3):
             problems.append(
                 f"PLANT 3 DID NOT FLIP: the pre-ruling defect was reintroduced and "
@@ -709,7 +830,7 @@ def selftest() -> int:
                 "reintroduced the pre-ruling AGE-GUARD refusal and the control saw "
                 "it, so a regression to that defect is detectable, not silent.")
         # And the shipped code must NOT be the mutant.
-        if "AGE-GUARD" in _clauses(validate(entry_a, root)):
+        if "AGE-GUARD" in _clauses(validate(entry_a, root, None)):
             problems.append(
                 "PLANT 3 RESIDUE: the SHIPPED code still refuses an absent cwd under "
                 "AGE-GUARD. The mutant was not confined to the selftest.")
@@ -770,6 +891,257 @@ def selftest() -> int:
                 "it, and the output carries a greppable 'REFUSED' + 'EXEC:' line. The "
                 "refusal survives the exact shell shape that swallowed it above.")
 
+        # ==================================================================
+        # TEAM-BINDING controls C1-C12.
+        # docs/standards/QUEUE_ENTRY_TEAM_BINDING.md sec.6, spec frozen b23b5638,
+        # amended v1.1 2026-08-27. Written BEFORE this code existed so the code
+        # could not be shaped to pass its own test. Nothing real is touched: the
+        # whole scratch queue tree lives under the TemporaryDirectory above.
+        # ==================================================================
+        qroot = Path(td) / "verification" / "queue"
+        for _t in TEAMS:
+            (qroot / _t).mkdir(parents=True, exist_ok=True)
+        drafts = Path(td) / "queue_drafts"
+        drafts.mkdir(exist_ok=True)
+
+        def _write(where: Path, name: str, ent: dict) -> Path:
+            p = where / name
+            p.write_text(json.dumps(ent))
+            return p
+
+        base_ok = _base_entry(head, live_prereg, str(clean))
+
+        # --- C1: MATCH ACCEPTED ------------------------------------------
+        c1_entry = {**base_ok, "team": "cfd"}
+        c1_path = _write(qroot / "cfd", "C1_MATCH.json", c1_entry)
+        c1 = validate(c1_entry, root, c1_path)
+        if _clauses(c1) & {"TEAM-BINDING"}:
+            problems.append(
+                f"C1 FAILED (match accepted): a cfd entry in cfd/ drew a TEAM-BINDING "
+                f"refusal. Got {c1}. A check that refuses everything is not a check.")
+        elif c1:
+            problems.append(f"C1 FAILED (match accepted): unexpected refusals {c1}")
+        else:
+            lines.append("C1 FIRED (match accepted): team='cfd' in verification/queue/cfd/ "
+                         "-> zero refusals, no TEAM-BINDING clause.")
+
+        # --- C2: MISMATCH REFUSED -- THE MANDATORY PLANTED FAILURE --------
+        c2_entry = {**base_ok, "team": "closure"}
+        c2_path = _write(qroot / "cfd", "C2_MISMATCH.json", c2_entry)
+        c2 = validate(c2_entry, root, c2_path)
+        c2_fired = [f for f in c2 if f.startswith("TEAM-BINDING:")]
+        c2_names_both = bool(c2_fired) and "'closure'" in c2_fired[0] and "queue/cfd/" in c2_fired[0]
+        if not c2_fired:
+            problems.append(
+                f"C2 FAILED (planted mismatch): team='closure' sitting in cfd/ was NOT "
+                f"refused. Got {c2 or 'NO REFUSAL AT ALL'}.")
+        elif not c2_names_both:
+            problems.append(
+                f"C2 FAILED (planted mismatch): refused, but the message does not name "
+                f"BOTH the declared team and the directory. Got {c2_fired[0]!r}")
+        else:
+            lines.append("C2 FIRED (planted mismatch): team='closure' in "
+                         "verification/queue/cfd/ REFUSED under TEAM-BINDING, message "
+                         "naming both the declared team and the directory.")
+
+        # --- C3: MUTATION OF C2 -- the check no-opped, C2 must FLIP -------
+        m_bind = dict(CHECKS); m_bind["TEAM-BINDING"] = _mutant_noop
+        c3 = [f for f in validate(c2_entry, root, c2_path, m_bind) if f.startswith("TEAM-BINDING:")]
+        if c3:
+            problems.append(
+                f"C3 DID NOT FLIP: check_team_binding was mutated to a no-op and C2's "
+                f"refusal PERSISTED ({c3}). C2 is not coming from the clause it is "
+                f"credited to, so C2 tested nothing.")
+        else:
+            lines.append("C3 FLIPPED C2: with check_team_binding no-opped the mismatch "
+                         "was ACCEPTED -- C2's refusal comes from that clause and no other.")
+
+        # --- C4: a caller that cannot supply the path FAILS LOUDLY -------
+        c4_raised = ""
+        try:
+            validate(c1_entry, root)          # entry_path omitted: must not be silent
+        except TypeError as exc:
+            c4_raised = str(exc)
+        if not c4_raised:
+            problems.append(
+                "C4 FAILED (blind reader): validate() accepted a call with NO entry_path "
+                "and did not raise. A check that silently passes when its input is "
+                "missing is a zero from a reader not shown able to see a non-zero.")
+        else:
+            lines.append("C4 FIRED (blind reader): validate() with no entry_path raised "
+                         "TypeError loudly rather than skipping TEAM-BINDING.")
+
+        # --- C5: MUTATION OF C4 -- give the path a skipping default ------
+        def _mutant_validate_optional_path(entry, root_, entry_path=None, checks=None,
+                                           require_binding=False):
+            """The defect C4 exists to prevent, reintroduced: entry_path defaulted, so
+            an omitting caller silently skips TEAM-BINDING instead of failing."""
+            return validate(entry, root_, entry_path, checks, require_binding)
+
+        c5_raised = ""
+        c5_out = None
+        try:
+            c5_out = _mutant_validate_optional_path(c2_entry, root)
+        except TypeError as exc:
+            c5_raised = str(exc)
+        if c5_raised:
+            problems.append(
+                f"C5 DID NOT FLIP: even with entry_path defaulted the call still raised "
+                f"({c5_raised}), so C4 was not testing the required-ness of the argument.")
+        elif [f for f in (c5_out or []) if f.startswith("TEAM-BINDING:")]:
+            problems.append(
+                "C5 DID NOT FLIP: the defaulted-path mutant still produced a TEAM-BINDING "
+                "refusal, so the silent-skip defect was not reproduced.")
+        else:
+            lines.append("C5 FLIPPED C4: with entry_path defaulted, the very entry C2 "
+                         "refuses validated CLEAN and silently -- that is the defect C4 "
+                         "prevents, shown reproducible.")
+
+        # --- C6: NO DOUBLE REPORT ----------------------------------------
+        c6_entry = {k: v for k, v in base_ok.items() if k != "team"}
+        c6_path = _write(qroot / "cfd", "C6_NOTEAM.json", c6_entry)
+        c6 = validate(c6_entry, root, c6_path)
+        c6_team_fails = [f for f in c6 if "team" in f]
+        c6_bind = [f for f in c6 if f.startswith("TEAM-BINDING:")]
+        if len(c6_team_fails) != 1 or c6_bind:
+            problems.append(
+                f"C6 FAILED (no double report): a missing `team` produced "
+                f"{len(c6_team_fails)} team failure(s) and {len(c6_bind)} TEAM-BINDING "
+                f"failure(s); expected exactly 1 and 0. Got {c6}")
+        else:
+            lines.append("C6 FIRED (no double report): a missing `team` is refused ONCE, "
+                         "by SCHEMA, and TEAM-BINDING stays silent.")
+
+        # --- C7: NOT CHECKED IS PRINTED, and is not a refusal ------------
+        c7_path = _write(drafts, "C7_DRAFT.json", c1_entry)
+        c7 = validate(c1_entry, root, c7_path)
+        c7_note = binding_note(c1_entry, c7_path)
+        if c7:
+            problems.append(
+                f"C7 FAILED (draft outside the queue): a valid draft was REFUSED ({c7}). "
+                f"Refusing here would force lanes to copy into the drop path BEFORE "
+                f"validating -- i.e. to validate after the launch is armed.")
+        elif "NOT CHECKED" not in c7_note:
+            problems.append(
+                f"C7 FAILED (draft outside the queue): accepted, but the verdict does not "
+                f"say NOT CHECKED. Got {c7_note!r}")
+        else:
+            lines.append("C7 FIRED (draft outside the queue): ACCEPTED with no refusal, "
+                         "and the verdict carries the NOT CHECKED block naming what was "
+                         "not checked and where it will be.")
+
+        # --- C8: MUTATION OF C7 -- suppress the note; C7 must FLIP -------
+        def _mutant_binding_note_silent(entry, entry_path):
+            """The defect: an unchecked condition reported as nothing at all."""
+            return ""
+
+        c8_note = _mutant_binding_note_silent(c1_entry, c7_path)
+        if "NOT CHECKED" in c8_note:
+            problems.append(
+                "C8 DID NOT FLIP: the suppressed note still contained NOT CHECKED, so C7 "
+                "was not reading the note.")
+        else:
+            lines.append("C8 FLIPPED C7: with binding_note suppressed the unbound entry "
+                         "reads exactly like a bound one -- C7 is reading the note itself, "
+                         "not merely the absence of a refusal.")
+
+        # --- C9: END TO END THROUGH ONE REAL tick() OF THE DAEMON --------
+        # queue_runner is imported HERE, not at module scope: queue_runner imports
+        # this module, and the runner's own selftest must stay untouched.
+        # The scratch root must carry the SPEC'S OWN PATH SHAPE --
+        # <...>/verification/queue/<team>/ -- because that shape is what
+        # containing_team_dir() recognises (sec.1 of the spec). Measured while
+        # writing this control: a root NOT of that shape leaves TEAM-BINDING
+        # unbound, and the first draft of C9 used one and watched the mismatched
+        # entry LAUNCH. That is the control doing its job, and it is why the
+        # shape is asserted here rather than assumed.
+        c9_dir = Path(td) / "c9" / "verification" / "queue"
+        for _t in TEAMS:
+            (c9_dir / _t).mkdir(parents=True, exist_ok=True)
+        c9_path = _write(c9_dir / "cfd", "C9_MISMATCH.json", {**base_ok, "team": "dafoam"})
+        if containing_team_dir(c9_path) != "cfd":
+            problems.append(
+                f"C9 PRECONDITION FAILED: the scratch root is not the shape the check "
+                f"recognises (containing_team_dir -> {containing_team_dir(c9_path)!r}). "
+                f"The control would pass vacuously.")
+        try:
+            sys.path.insert(0, str(Path(__file__).resolve().parent))
+            import queue_runner as _qr
+            _log = _qr.Log(c9_dir / "runner.log", echo=False)
+            _verdict = _qr.tick(c9_dir, _log, 100.0, 1.0, 0.2, {},
+                                measure=lambda: (0.0, 9_999.0))
+            moved = (c9_dir / "cfd" / "refused" / "C9_MISMATCH.json").exists()
+            reason = (c9_dir / "cfd" / "refused" / "C9_MISMATCH.REFUSED.txt")
+            named = reason.exists() and "TEAM-BINDING" in reason.read_text()
+            launched_any = any((c9_dir / _t / "launched").exists() for _t in TEAMS)
+            still_there = c9_path.exists()
+            if _verdict != "REFUSED-ONLY" or not moved or not named or launched_any or still_there:
+                problems.append(
+                    f"C9 FAILED (end to end): tick returned {_verdict!r}, moved={moved}, "
+                    f"reason_names_clause={named}, any_launched_dir={launched_any}, "
+                    f"still_in_drop_path={still_there}. Expected REFUSED-ONLY, moved to "
+                    f"refused/ with the clause named, and NOTHING launched.")
+            else:
+                lines.append(
+                    "C9 FIRED (end to end): one real queue_runner.tick() over a scratch "
+                    "root moved the mismatched entry to cfd/refused/ with "
+                    "C9_MISMATCH.REFUSED.txt naming TEAM-BINDING, returned REFUSED-ONLY, "
+                    "and created no launched/ directory anywhere -- nothing was launched.")
+        except Exception as exc:                      # a control that cannot run is a FAIL
+            problems.append(f"C9 FAILED (end to end): {type(exc).__name__}: {exc}")
+
+        # --- C10: the instrument still carries zero asserts ---------------
+        c10 = count_assert_nodes(Path(__file__).read_text())
+        if c10 != 0:
+            problems.append(
+                f"C10 FAILED: {c10} `assert` node(s) in this file. Under python3 -O every "
+                f"one of them vanishes, so a refusal written as one is a refusal OFFER.")
+        else:
+            lines.append("C10 FIRED: zero `ast.Assert` nodes after the change -- every "
+                         "refusal added here is a return into the failure list (L-332).")
+
+        # --- C11: --require-binding, and its planted failure --------------
+        c11_off = validate(c1_entry, root, c7_path, require_binding=False)
+        c11_on = validate(c1_entry, root, c7_path, require_binding=True)
+        c11_fired = [f for f in c11_on if f.startswith("REQUIRE-BINDING:")]
+        if c11_off:
+            problems.append(
+                f"C11 FAILED: WITHOUT the flag the unbound draft was refused ({c11_off}). "
+                f"The draft workflow must be untouched by default.")
+        elif not c11_fired:
+            problems.append(
+                f"C11 FAILED: WITH --require-binding the unbound draft was NOT refused. "
+                f"Got {c11_on or 'NO REFUSAL AT ALL'}. Printed-never-silent alone is "
+                f"reading-dependent; the flag is what makes it machine-checkable.")
+        else:
+            lines.append("C11 FIRED (planted, --require-binding): the same unbound draft "
+                         "is ACCEPTED without the flag and REFUSED with it, the refusal "
+                         "saying it is the ABSENCE of a check and not a failed one.")
+
+        # --- C12: MUTATION OF C11 -- disable the flag's effect ------------
+        _real_clause = require_binding_clause
+        try:
+            globals()["require_binding_clause"] = lambda entry, entry_path: []
+            c12 = [f for f in validate(c1_entry, root, c7_path, require_binding=True)
+                   if f.startswith("REQUIRE-BINDING:")]
+        finally:
+            globals()["require_binding_clause"] = _real_clause
+        if c12:
+            problems.append(
+                f"C12 DID NOT FLIP: require_binding_clause was replaced by a no-op and the "
+                f"refusal PERSISTED ({c12}), so C11 is not testing the flag.")
+        else:
+            lines.append("C12 FLIPPED C11: with require_binding_clause no-opped the flag "
+                         "stopped refusing -- C11's refusal comes from that clause alone.")
+
+        # A last standing check: nothing above may have reached outside td.
+        if list(Path("/home/ubuntu/Certonomous/verification/queue/cfd").glob("C*_*.json")):
+            problems.append(
+                "CONTROL HYGIENE FAILED: a control artefact was written into the REAL cfd "
+                "drop path. The drop path is a launch button; a test file there is a launch.")
+        else:
+            lines.append("CONTROL HYGIENE: no control artefact reached the real drop path.")
+
     return _selftest_verdict(lines, problems)
 
 
@@ -802,6 +1174,11 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--dir", help="validate every *.json in this directory")
     ap.add_argument("--selftest", action="store_true",
                     help="run the planted controls and the AST self-check")
+    ap.add_argument("--require-binding", action="store_true",
+                    help="REFUSE an entry that is not in verification/queue/<team>/, "
+                         "so TEAM-BINDING cannot go unchecked. Use this on the QUEUED "
+                         "copy, in the team directory, after the copy: that run is the "
+                         "validation that counts (cfd-supervisor, 2026-08-27).")
     args = ap.parse_args(argv)
 
     if args.selftest:
@@ -831,7 +1208,8 @@ def main(argv: list[str]) -> int:
     for path in paths:
         entry, fails = load_entry(path)
         if entry is not None:
-            fails = validate(entry, root)
+            fails = validate(entry, root, path,
+                             require_binding=args.require_binding)
         if fails:
             refused += 1
             print(f"REFUSED {path}")
@@ -842,6 +1220,10 @@ def main(argv: list[str]) -> int:
             # without removing this claim.
             print(f"ACCEPTED {path}  team={entry['team']} case={entry['case_id']} "
                   f"ranks={entry['ranks']} est={entry['cost_core_min_estimate']} core-min")
+            # Printed on EVERY acceptance, bound or not. An unbound entry says
+            # NOT CHECKED in a different SHAPE from a bound one, because an
+            # unchecked condition must never report like a satisfied one.
+            print("    " + binding_note(entry, path))
             print("    NOTE: acceptance is a mechanical guard only. Enqueueing is "
                   "not authorisation; SUPERVISION_CHARTER section 3 check 4 is "
                   "the supervisor's own and is not performed by this script.")

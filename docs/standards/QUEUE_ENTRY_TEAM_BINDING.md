@@ -181,3 +181,89 @@ not a count that is zero now: the drop path is live and every team can write to 
 - It does **not** change `scripts/queue_runner.py`.
 - It does **not** touch any other team's queue directory, README or entries.
 - It sends nothing anywhere (`CLAUDE.md` rule 7).
+
+---
+
+## AMENDMENT 1 — 2026-08-27, v1.0 → v1.1. Approved by the cfd-supervisor, all four items.
+
+**Appended, never rewritten (`CLAUDE.md` rule 6). Lines whose number changed above this
+section: 0.** The header above still reads *"No code exists yet"*; that was true at the
+freeze `b23b5638` and is superseded here — the code lands in the same commit as this
+amendment.
+
+**The rule-2 condition, and how it was checked.** Amendments before first compute are legal
+and must name the condition. **Nothing has run off this spec.** No entry was validated by it,
+no solver launched under it, and at the moment of amending, the implementation did not exist
+— which is itself the evidence: **the falsification was found BY implementing, before any
+code was committed.** Verified by the cfd-supervisor personally, not relayed.
+
+### 1. §4 corrected — one argument at `queue_runner.py:635`, and nothing else
+
+**STRUCK from §4:**
+> ~~"no change to `queue_runner.py` is required or permitted by this spec."~~
+
+That sentence is **false and was falsified by its own implementation.** §5 P2 requires
+`entry_path` to be a required parameter of `validate()`; the daemon is a caller and is the
+only party that knows the path; therefore the daemon must pass it. Three escapes were
+examined and each rejected for cause: deriving the path in `load_entry()` (both callers
+overwrite its failure list — §3); a module-level "last loaded path" (binds the wrong path the
+moment two files are validated); and defaulting `entry_path` to `None` (the silent skip P2
+exists to forbid, and it would leave the **daemon** — the one caller that can still be wrong
+— as the only caller never checked).
+
+**REPLACED BY, and this is the whole of the permitted edit:** the runner's **behaviour,
+mechanism and refusal routing are unchanged**. The single permitted change to
+`scripts/queue_runner.py` is **at the `qec.validate()` call, passing the entry path as one
+additional argument** — no new branch, no new state, no new call, no other line. Any further
+edit to that file is outside this spec and requires its own amendment. *(An amendment that
+widens beyond the defect that forced it is how a freeze becomes decorative.)*
+
+### 2. `--require-binding` added
+
+Printed-never-silent is honoured by a human reading a line. `--require-binding` makes the
+same condition machine-checkable:
+
+- **Without the flag:** unchanged — rc 0, `NOT CHECKED` printed. The draft workflow is
+  untouched.
+- **With the flag:** an entry not in a team drop directory is **REFUSED**, non-zero rc.
+- **The cfd enqueue procedure uses `--require-binding` on the QUEUED copy, in the team
+  directory, after the copy — that run is the validation that counts.** The pre-drop check on
+  the case copy remains a draft check and says in terms that it did not check binding.
+
+Two controls added: **C11** (unbound entry refused with the flag, accepted without it) and
+**C12** (its mutation — the clause no-opped, which must make C11 fail).
+
+### 3. C7's expected string: `NOT BOUND` → `NOT CHECKED`
+
+**`NOT BOUND` describes the entry's state; `NOT CHECKED` describes the limit of our
+knowledge** — and the planted-zero principle is about knowledge, not state. A reader seeing
+`NOT BOUND` may reasonably conclude the tool looked and found no binding required. A reader
+seeing `NOT CHECKED` cannot. The indented block naming what was not checked, and where it
+will be, is kept.
+
+### 4. §5 P6 ruled IN, on the supervisor's reasoning, which supersedes the lane's
+
+The lane's argument was that the daemon never reaches the unbound branch. **The governing
+reason is stronger and is recorded as the ruling:** if the CLI refused on a path outside the
+six team directories, it would force every lane to **copy first and validate after** — that
+is, to validate only once the launch is already armed. That inverts the safe order and
+directly contradicts the check-4-before-the-drop wording adopted into the team READMEs. **A
+refusal there would turn a safety improvement into a safety regression.** So: rc 0, no
+refusal, outside the six directories — with `NOT CHECKED` printed loudly and
+`--require-binding` available to make it bite.
+
+### 5. FOUND WHILE IMPLEMENTING, recorded because a control caught it
+
+`containing_team_dir()` recognises the path shape §1 specifies — `.../verification/queue/
+<team>/`. **A queue root of any other shape is therefore UNBOUND, silently.** This was not
+reasoned: the first draft of control **C9** used a scratch root named `c9root/cfd/`, and the
+mismatched entry **LAUNCHED**. C9 now asserts the recognised shape as a precondition so it
+cannot pass vacuously.
+
+**Production is unaffected** — `queue_runner.DEFAULT_ROOT` is
+`<repo>/verification/queue` and cron passes no `--root`, so every live tick is bound. **The
+gap is real but confined to a non-default `--root`**, which today only the runner's own
+selftest uses. **Not fixed here, because fixing it means relaxing §1's path shape, which is a
+change to the invariant and not to its implementation.** Referred to the cfd-supervisor as a
+follow-up: either bind on `parent.name in TEAMS` alone, or have the runner tell the validator
+what its root is.

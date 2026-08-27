@@ -632,7 +632,12 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
         for path in queues[team]:
             entry, fails = qec.load_entry(path)
             if entry is not None:
-                fails = qec.validate(entry, REPO)
+                # QUEUE_ENTRY_TEAM_BINDING.md v1.1 amendment 1: ONE ARGUMENT, and
+                # nothing else in this file. `path` is the drop-path file this entry
+                # was globbed from, and validate() requires it -- a caller that cannot
+                # say where the entry came from must fail loudly, not skip the check.
+                # Behaviour, mechanism and refusal routing below are unchanged.
+                fails = qec.validate(entry, REPO, path)
             if fails:
                 move_refused(path, fails, log)
                 any_refused = True

@@ -235,3 +235,26 @@ here, not invented here.
 * `docs/LESSONS.md` L-332 — no `assert` carries a guard.
 * Implementation: `scripts/queue_entry_check.py`; per-team READMEs at
   `verification/queue/<team>/README.md`.
+
+---
+
+## CROSS-REFERENCE — 2026-08-27 (a POINTER, not an amendment)
+
+**No clause of this standard is edited, retired or widened by this note, and none above it
+has moved: lines whose number changed above this section: 0.** Amending this document is
+**reserved to Sanaa** (`CLAUDE.md`, FIRST-ACTION RULE). This is a signpost so a reader of the
+entry contract finds a validator behaviour that is not described above.
+
+- **`docs/standards/QUEUE_ENTRY_TEAM_BINDING.md`** (spec, frozen `b23b5638`, amended v1.1
+  2026-08-27) and **`docs/standards/QUEUE_ENTRY_VALIDATOR_RULINGS.md` → R-TEAM-BINDING**
+  (cfd-supervisor, `[lab-attributed]`, **Sanaa may overrule**): `scripts/queue_entry_check.py`
+  now also refuses an entry whose `team` field disagrees with the team directory it sits in,
+  and — under the opt-in flag `--require-binding` only — an entry whose location makes that
+  check impossible. Both are **tooling-correctness clauses**: they refuse an entry that
+  contradicts **its own declared field**, add a refusal reason to a mechanism the runner
+  already has, and create no new gate on lab process.
+- **A correction of fact readers of §-whatever should know:** this standard's description of
+  the queue as passive was overtaken on 2026-08-26 by `scripts/queue_runner.py`. See
+  **L-348 / D535** and the per-team `verification/queue/<team>/README.md` corrections. That
+  discrepancy is **referred, not repaired here** — it is a clause of this standard, and
+  clauses are Sanaa's.

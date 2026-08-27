@@ -81,3 +81,87 @@ today:** `set -e` is NOT in force in the agent Bash context. An assertion inside
 heredoc raises and **the surrounding shell continues** — at `da7e1477` a cfd assertion aborted
 and the commit landed anyway. The selftest must therefore **return a checked exit code**, and
 any caller must test it explicitly; a selftest whose failure is only printed is not a gate.
+
+---
+
+## R-TEAM-BINDING — 2026-08-27, cfd-supervisor. `[lab-attributed]` — **Sanaa may overrule.**
+
+**An entry's `team` field MUST equal the team directory it sits in.** A mismatch is a
+`TEAM-BINDING` validation failure, and therefore — correctly — a `refused/` outcome.
+
+### Why this lands by the RULINGS route and not as an amendment to the standard
+
+**This is a tooling-correctness clause.** It moves no gate, threshold, cap or label. It
+refuses **only an entry that contradicts its own declared `team` field** — an entry
+inconsistent with itself. It creates **no new gate on lab process**, and the runner already
+moves refused entries to `refused/`, so this adds a **refusal reason to a mechanism that
+already exists**, not a new mechanism. The `EXEC` clause (R-AGE-CWD above) landed by exactly
+this route and is the live precedent.
+
+`docs/standards/QUEUE_ENTRY_STANDARD.md` is **Sanaa's** and is **not edited**: it receives a
+dated **cross-reference pointer** at its foot and nothing else. **D539's posture is unchanged
+by this ruling** — adding a gate on lab process is reserved to Sanaa, and this is not one; a
+measured rate is never an authorisation (`CLAUDE.md` rule 9).
+
+### The defect, measured
+
+`queue_runner.list_entries()` (`:387-395`) iterates **by directory** and never reads `team`;
+`tick()` carries that directory's name into the round-robin cursor, the `LAUNCH_LOG.tsv` row
+and the `<team>/launched/` destination. `check_schema` (`queue_entry_check.py:154-155`) asks
+only whether `team` is one of the six, never **which** one. So an entry declaring one team in
+another team's drop path launches and is recorded as the **directory's** — corrupting verdict
+ownership and per-team queue depth. **A metric that can be silently wrong is worse than one
+that is absent.**
+
+### The two refusals this adds, and there are no others
+
+| clause | refuses | never refuses |
+|---|---|---|
+| `TEAM-BINDING` | an entry whose `team` differs from its containing team directory | a missing/out-of-roster `team` (SCHEMA's, once); a file outside the six directories |
+| `REQUIRE-BINDING` | **only under `--require-binding`:** a file outside the six directories, i.e. one where binding could not be checked | anything when the flag is absent |
+
+`check_team_binding()` has three `return` statements, one of which is a refusal.
+`require_binding_clause()` has two, one of which is a refusal. **Those two are the entire
+refusal surface of this change** — enumerated from the AST, not read off the source.
+
+### `NOT CHECKED`, not `NOT BOUND`
+
+Outside the six directories the verdict prints a `TEAM-BINDING: NOT CHECKED` block naming
+what was not checked and where it will be, in a **different shape** from the one-line
+`TEAM-BINDING: bound to <team>/` a bound entry gets. **`NOT BOUND` would describe the
+entry's state; `NOT CHECKED` describes the limit of our knowledge**, and the planted-zero
+principle is about knowledge. It is not a refusal, because refusing there would force every
+lane to copy into the drop path **before** validating — to validate only once the launch is
+armed — which inverts the safe order and contradicts check-4-before-the-drop.
+`--require-binding` is what makes it bite, and the enqueue procedure runs it **on the queued
+copy, in place, after the copy**.
+
+### Controls — C1–C12, spec `docs/standards/QUEUE_ENTRY_TEAM_BINDING.md` (frozen `b23b5638`, v1.1)
+
+| # | control | planted failure it rests on |
+|---|---|---|
+| C1 | a matching entry draws no `TEAM-BINDING` | — (guards a check that refuses everything) |
+| **C2** | **mismatch REFUSED, message naming both sides** | **the plant itself** |
+| **C3** | **the clause no-opped → C2 must FLIP to accepted** | **C2 is worthless without it** |
+| C4 | `validate()` with no `entry_path` raises loudly | — |
+| C5 | the path defaulted → C4 flips, the mismatch validates clean and silently | the silent-skip defect, reproduced |
+| C6 | a missing `team` refuses **once**, by SCHEMA | — |
+| C7 | a draft outside the queue is accepted **and** says `NOT CHECKED` | — |
+| C8 | the note suppressed → C7 flips | proves C7 read the note, not the absence of a refusal |
+| C9 | one real `queue_runner.tick()`: moved to `refused/`, clause named, **nothing launched** | asserts the recognised path shape first, so it cannot pass vacuously |
+| C10 | zero `ast.Assert` nodes after the change (L-332) | — |
+| **C11** | **unbound entry accepted without `--require-binding`, REFUSED with it** | **the flag's plant** |
+| **C12** | **the clause no-opped → C11 must FLIP** | **C11 is worthless without it** |
+
+Plus a hygiene control: no control artefact may reach the real drop path — *the drop path is
+a launch button, and a test file there is a launch.*
+
+**Measured before the code existed and re-measured at landing:** entries in all six drop
+paths carrying a `team` that disagrees with their directory — **zero**, and zero across the
+`launched/` records. The clause is **preventive**; it invalidates no existing verdict.
+
+**Known limit, recorded rather than hidden:** the clause recognises the path shape
+`.../verification/queue/<team>/`. A runner started with a **non-default `--root`** is
+therefore unbound and silently so. Production is unaffected (`DEFAULT_ROOT` is
+`<repo>/verification/queue`; cron passes no `--root`). Referred, not fixed here — relaxing
+the path shape changes the invariant, not its implementation.
