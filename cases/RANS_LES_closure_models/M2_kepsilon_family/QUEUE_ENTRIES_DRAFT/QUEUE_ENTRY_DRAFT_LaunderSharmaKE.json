@@ -1,0 +1,32 @@
+{
+  "team": "closure",
+  "case_id": "M2_kepsilon_family__LaunderSharmaKE",
+  "prereg_commit": "PENDING_SUPERVISOR_FREEZE",
+  "prereg_path": "cases/RANS_LES_closure_models/M2_kepsilon_family/PREREGISTRATION.md",
+  "launch_cmd": [
+    "/bin/bash",
+    "/home/ubuntu/Certonomous/cases/RANS_LES_closure_models/M2_kepsilon_family/run_m2.sh",
+    "LaunderSharmaKE",
+    "/home/ubuntu/closure-data/m2_kepsilon_family"
+  ],
+  "cwd": "/home/ubuntu/closure-data",
+  "cwd_note": "The queue runner's inner command is `cd '<cwd>' && <argv>`; a cwd that does not exist makes cd fail, && short-circuit, and the launcher never run (launcher_rc=1, zero compute, no STATUS from run_m2.sh). The registered RUN ROOT /home/ubuntu/closure-data/m2_kepsilon_family is passed as argv[2] and is created by run_m2.sh with mkdir -p, so it stays ABSENT until launch and PREREGISTRATION.md section 2b amendments stay legal until then. cwd is therefore its existing PARENT. Measured 2026-08-27: the parent exists, the run root does not.",
+  "ranks": 1,
+  "arm": "LaunderSharmaKE",
+  "n_cases": 39,
+  "endTime": 20000,
+  "epsilon_wall_bc": "fixedValue uniform 0 -- the transported variable is the MODIFIED dissipation epsilonTilda (LaunderSharmaKE.C:254 defines D = 2*nu*|grad sqrt k|^2; :292 makes the k-sink (epsilon_+D)/k_), and eps_true|wall = D|wall exactly, so epsilonTilda|wall = 0. Derived from source, not invented.",
+  "declared_model_form": "This is the arm that makes the k-epsilon family a fair comparator rather than a straw man: it is the physically apt low-Reynolds member for a wall-resolved mesh.",
+  "cost_core_min_estimate": 649.0,
+  "cost_basis": "derived from a MEASURED rate: 590026 cells (measured from each case's constant/polyMesh/owner nCells note) x 20000 iterations = 1.180052e10 cell-iterations at 3.30e-06 s per cell-iteration serial, measured on this box (cases/RANS_LES_closure_models/Kaandorp2020_TBRF/aposteriori/RESULTS.md:393-396, envelope 2.39e-06 to 4.01e-06) = 38941 s wall at ranks 1 = 649.0 core-min for this arm. HONEST GAP: that rate is a k-omega-family measurement transferred to a k-epsilon family, and LaunderSharmaKE additionally evaluates fvc::magSqrGradGrad(U) and fvc::grad(sqrt(k)) every iteration (LaunderSharmaKE.C:253-254), work no measurement on this box covers. Dollars: 10.817 core-h x $0.0513/core-h = $0.555, DERIVED and reported-by-owner, NOT measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5).",
+  "cap_core_min_registered": 1300.0,
+  "cap_basis": "2.00x the estimate for this arm; the rung cap across both arms is 2600.0 core-min. The envelope top alone is 1.215x; the remaining margin covers the unmeasured per-iteration cost of the k-epsilon models on this box. The cap is a RUNAWAY GUARD, not a target. An overrun STOPS the run and does not get a new budget (standing rule 12). run_m2.sh carries CAP_CORE_MIN=2600.0 and CAP_CORE_MIN_ARM=1300.0, grade_m2.py carries cap_core_min_registered = 2600.0, and preflight prints CAP AGREES so a launcher/grader disagreement is caught before compute.",
+  "memory_floor_gb": 1.0,
+  "memory_floor_basis": "ALLOWANCE, not a measurement. Largest case 31819 cells; field arithmetic gives a few tens of MB of solution data. simpleFoam's own footprint was NOT measured -- the drafting lane is forbidden to launch a solver. run_m2.sh captures real MaxRSS per case-arm with /usr/bin/time -v into mem_time.txt, which turns this allowance into a reading for the next registration.",
+  "uses_gpu": false,
+  "grading_path": "cases/RANS_LES_closure_models/M2_kepsilon_family/grade_m2.py",
+  "grading_note": "Standing rule 5 does NOT apply: one mesh per case, no grid triple, and no GCI is computed or quoted anywhere in this rung.",
+  "depends_on": "None for its PRIMARY gate, which is reference-free (the wall treatment against an analytic expression from OpenFOAM source). Its SECONDARY readings against reference data are REPORTED only and become defensible only if and when M1_multimodel_sweep's kOmegaSST_null arm (gate G2) has passed.",
+  "environment_note": "run_m2.sh sources /usr/lib/openfoam/openfoam2606/etc/bashrc ITSELF, with nounset lifted for the source alone and restored immediately, and keeps the source diagnostics in _logs/log.foamenv (L-353 / D540; PREREGISTRATION.md section 13 AMENDMENT 3). Measured 2026-08-27: the live queue-runner daemon (pid 1120800) has no WM_PROJECT_DIR and no openfoam on PATH, and passes its own environment through unchanged, so a launcher that does not source would refuse at preflight and never run.",
+  "enqueued_by": "closure-supervisor (DRAFT -- NOT YET ENQUEUED; SUPERVISION_CHARTER.md section 3 check 4 has not been performed on this entry, and this lane may not perform it)"
+}
