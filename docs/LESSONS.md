@@ -16414,6 +16414,19 @@ mechanism of rule 9's permission laundering running through *facts* instead of a
 and the same cure applies: **an approval is only as wide as what was approved, and a figure
 is only as verified as where it was measured.**
 
+**ADDENDUM 2026-08-27 (cfd, at the heat-transfer supervisor's request) — A BY-HAND CLAIM AND A
+SCRIPTED CLAIM NEED DIFFERENT CONTROLS, AND THE BARE ASSERTION IS ACCEPTABLE IN NEITHER.**
+For a **scripted** claim the control is **the plant**: the reader must be shown to fire. For a
+**by-hand** claim the control is **the named citation** — `F25_DUCT3D_PREREGISTRATION.md:473`
+makes the assertion falsifiable by a third party in one command, which is what a plant buys for
+an instrument. What is unacceptable in **either** mode is *"I checked and it matches"*, which is
+the human form of a validator returning rc 0 from a reader never shown able to return anything
+else. Measured instance: a cfd supervisor reported five queue entries as matching their
+registrations having verified only that the **field was present**, then re-drove the comparison
+through four arms — untouched silent, planted ×2.0 fires, planted null warns rather than refuses,
+and a **near-miss ×1.02 fires**. That fourth arm is the one that matters: **a control which only
+catches a doubling passes the two-percent slip a human transcribing "1,100" actually makes.**
+
 ## L-384 — A STAMP THAT ERRS IN ONLY ONE DIRECTION IS NOT A MISTAKE, IT IS A LEAK: citing `ended_utc` as first compute always enlarges the legal amendment window
 
 Standing rule 2 closes a registration's gates at first compute, so **the legality of
