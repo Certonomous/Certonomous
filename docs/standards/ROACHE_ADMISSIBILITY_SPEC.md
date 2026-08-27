@@ -281,3 +281,216 @@ conditions and v1.13's re-measurement, not as a tidy-up.
   this team's D538 standard in the "shown able to change an outcome" sense and not in the
   "boundary exercised" sense. **Reporting which of the two was met, rather than claiming the
   stronger one, is the behaviour this spec's §5 is asking for.**
+
+---
+
+## Amendment 2 (2026-08-27) — THE FLIP COUNT IS MEASURED, AND IT CHANGES THE CASE. Clause A flips **0**; clause B flips **1** substantively and **0** on this spec's own literal wording; and **the case clause A was written for is not in the population it would govern**
+
+**Appended, append-only. Nothing above is rewritten. STATUS IS UNCHANGED: SPEC,
+NOT ADOPTED. `scripts/roache_triple.py` is untouched — byte-identical, never
+opened for write. Zero compute; read-only analysis of committed blobs, so
+core-minutes are `NOT MEASURED` and no calibration row is manufactured.**
+
+**§A2.1 — THE POPULATION.**
+
+**111 graded `CONVERGING` rows across 52 records** at HEAD (43 machine records,
+9 markdown-only). Membership: one quantity graded to a Roache/GCI triple whose
+recorded state is `CONVERGING`; prose about the state machine, selftest plants
+and duplicated echoes excluded. **Cross-checked by a deliberately DIFFERENT rule**
+(leaf string equality anywhere in any tracked JSON), reconciled per record by
+observed-order identity: **43 of 43 records covered**, one order value the census
+sees that the schema map does not, and it is a **deliberate exclusion** (a
+`p_floor_control` probe, not a graded row). **Counting the acknowledged duplicate
+triples once each would put the population at 106; both figures are printed rather
+than one chosen.**
+
+**§A2.2 — CLAUSE A FLIPS ZERO ROWS, UNSCOPED AND SCOPED.**
+
+**Only four refinement ratios exist anywhere in this lab: 1.5964, 1.5986, 1.6000,
+2.0000.** `min(r21, r32) >= 1.5964` on **all 111 rows**. **So the unscoped count
+and the Amendment-1-scoped count are BOTH zero — there is no careless reader's
+number here to be embarrassed by.**
+
+The scope split is measured anyway, because it governs the **next** row: **29
+rows** come from an instrument where **`r` is COMPUTED from cell counts at grading
+time** and are the only rows clause A could ever reach; **82** come from a
+**frozen constant** — `R_REFINE = 1.6`, `REFINEMENT = 2.0`, `RATIO = 2.0` in every
+ansys grader, and a bare literal `r21 = 1.6` at `analyse_k0cg.py:72`. **Closure's
+A1.2 objection holds across the whole lab, not just G1.**
+
+Supporting check the count depends on: for the **28** rows carrying both `cells`
+and an integer `dim`, `r21`/`r32` were **re-derived from the cell counts** and
+compared with the recorded values — **0 mismatches. The recorded `r` is not lying
+anywhere it can be checked.**
+
+**§A2.3 — ⚠⚠ AND HERE IS THE FINDING THAT CHANGES THE CASE: CLAUSE A WOULD NOT
+HAVE REACHED THE CASE IT WAS WRITTEN FOR.**
+
+This spec was written on the F26 referral — `r21 = 1.1429`, `r32 = 1.1250`, the
+only sub-1.3 ladder anyone has named. **F26 IS NOT IN THE POPULATION.**
+`cases/F26_RINGLEB/grade_f26d.py` **deliberately does not import
+`roache_triple`**, performs **no Richardson extrapolation**, and **its row was
+downgraded BY HAND.**
+
+> **A clause encoded in `roache_triple.py` cannot reach an instrument that does
+> not import `roache_triple.py`.** Clause A **catches nothing that is already on
+> disk**, and it would **not** have caught the case that motivated it. Its whole
+> value is prospective — it binds ladders **not yet built**.
+
+**This is a correction against this spec's own §5.** That section argued the lab
+*"already ruled this way once, by hand, and never encoded it"*, filing F26
+alongside F20 as an instance of a hand-ruling that belonged in the instrument.
+**For F20 that is true and is now measured (§A2.4). For F26 it is FALSE:** the
+hand-ruling was not an un-encoded rule, it was **the only mechanism available**,
+because that grader stands outside the module by design. **Encoding clause A
+would not have retired that hand-ruling and will not retire the next one.**
+
+**§A2.4 — CLAUSE B: ONE FLIP SUBSTANTIVELY, ZERO ON THIS SPEC'S OWN WORDING.**
+
+**The one flip is `F20_GRADED.json :: G-F20-1_E2_density_L2_at_T`** — Richardson
+extrapolate **1.112516e-03** against that row's **own** `GCI_abs` of
+**5.919774e-05**, i.e. **18.79× the uncertainty the instrument claims for it.**
+**The case §5 cites as the hand-ruled precedent is now the measured flip, and it
+is the only one.**
+
+**The denominator is 10 rows — 9 % of the population** (F15, F16b, F17, F17b,
+F18, F18b, F19, F20, F22, F24): an exact/manufactured reference (recorded as
+exactly `0.0`) on an error-norm gate. **But "1 of 10" understates the risk in one
+direction: `F15 G-F15-1_E1_pressure_L1_y0.5` sits at 0.918×, and a 9 % move in
+either quantity flips it.** **Adopting clause B is one row today and a second that
+is one re-grade away.**
+
+**AND ON THIS SPEC'S OWN LITERAL SCOPE LIMIT IT FIRES ON ZERO.** §3 binds clause B
+only where the registration **DECLARES** the reference class. **Exactly 5 of 111
+rows carry a declared class (4.5 %)** — `gate_t13.json` rows 0/1
+(`exact_class: false`), `VMFL045-R2` (`reference_class`), `VMFL064-R2`
+(`reference_kind: EXPERIMENTAL`), and `VMFLGPU001-R2` in prose. **None declares an
+exact class on an error norm.** **62 rows carry no reference-class information of
+any kind.**
+
+> **So clause B as written is NEAR-INERT, and its real cost is a REGISTRATION
+> BURDEN rather than a flip count.** The single F20 flip exists only on a
+> **substantive** reading — inferring the class from `reference == 0.0` on a gate
+> whose name says `E2_..._L2`. **That inference is the sweep's, not a
+> declaration**, and this spec is the wrong place to smuggle it in.
+
+**§A2.5 — OVERLAP 0, UNION 1.** The clauses are **disjoint on this corpus**, which
+is what makes them genuinely separable — §3's separability claim **survives contact
+with the data.**
+
+**§A2.6 — THE CONSTRAINT NUMBERS VERIFIED, AND THE BLAST RADIUS IS LARGER THAN
+THIS SPEC STATED.**
+
+**183 / 36 / 9 all reproduce** at `aaf0bed6`, by independent method: mentions
+**184 tracked files, one of which is this spec → 183 non-spec**, correct;
+**real importers 36**, counted by parsing every `.py` blob with `ast` and
+accepting only genuine `Import`/`ImportFrom` nodes — **a regex gives 39–45
+because it catches an AST-probe string literal and a docstring in
+`cases/F26_RINGLEB/grade_f26d.py` saying the file does NOT import it**; **36 of 36
+still tracked at HEAD.** At current HEAD mentions are **197** and real importers
+**39** — T17/T18/T19 joined since.
+
+**THE CORRECTION: the "9 have FIRED" figure UNDERCOUNTS, because it measures
+CO-LOCATION.** It counts a `gate_*.json` or `RESULTS*.md` sitting in the grader's
+own directory. **The F-family graders live in `cases/F1x_*/` while their verdicts
+land in `verification/runs/F1x_runs/` — exactly as `FILING_CHARTER` requires.**
+Counting graders that have actually produced a committed verdict adds **at least
+11 more.** **A metric that penalises correct filing is the wrong metric, and it
+made this spec understate its own risk.**
+
+**§A2.7 — RULING ON THE TWO RICHARDSON KEYS: THE HAZARD IS LATENT IN THE CODE AND
+LIVE IN THE RECORDS. NO MODULE CHANGE.**
+
+Measured across all 36 frozen importers with `ast`, separating reads from writes:
+**8 files mention either key; 7 READ `richardson`; 2 READ
+`richardson_parent_convention`; 2 read BOTH; ZERO read ONLY the parent key; 29 of
+36 read neither.** **Both parent-key readers use it only inside a selftest
+identity assertion or an explicitly labelled display print** —
+`grade_f11.py:1463` reads both **solely** to assert `richardson + parent =
+2·f_fine`, and `analyse_t8.py:1096` **prints** the parent value labelled *"shown
+so a reader comparing a published thermal number knows which is which"*, while
+`:1668` asserts the parent form returns **1.02 and NAMES IT WRONG.**
+
+**No caller uses the parent value as the extrapolate, and no exact-reference logic
+reads it. Nothing is currently wrong by `r^p`.**
+
+**THE RULING, and it has three parts:**
+
+1. **THE PARENT KEY IS NOT REMOVED.** `analyse_t8.py:1668` is a **working
+   detector of the parents' sign defect** — the capability D530 exists to
+   preserve. **Deleting the key deletes the detector.** Confirmed by measurement,
+   not asserted.
+2. **NO MODULE CHANGE NOW.** 36 frozen importers at the spec's commit, **39 at
+   HEAD**, and §A2.6 shows the fired set is **larger** than this spec claimed.
+   **A freeze whose meaning can be altered by editing a module it imports is not
+   a freeze**, and that argument got stronger, not weaker.
+3. **THE FIX BELONGS WHERE THE EXPOSURE IS, AND IT IS NOT THE CALLERS.** Both keys
+   are published as **PEER KEYS in ten committed grading records**
+   (`F11_CONVERSION_GRADE.json`, `F15_R3_GRADED.json`, F16b, F17, F17b, F18, F18b,
+   F19, F20, F22, `GRADE_F4S.json`) and quoted in `docs/COVERAGE_MATRIX.md`,
+   `docs/LAB_STATE.md` and `verification/campaign/F11_CONVERSION_PREREGISTRATION.md`.
+   **The next reader to take the wrong key is a human or a downstream script
+   reading JSON — not one of the 36 importers.** Those records are **frozen and
+   are NOT rewritten**; what is owed is a **dated addendum naming which key is the
+   extrapolate**, by each record's owning team. **FORWARD RULE, for new records
+   only: publish ONE extrapolate under an unambiguous key and nest the parent
+   value under a diagnostic sub-object — never as a peer.**
+
+**AND ONE THING A MODULE-LEVEL FIX WOULD NOT REACH AT ALL:**
+`analyse_t8.py:836-841` **reimplements both keys itself** and imports the module
+at `:1729` for cross-check only. **A fix in `roache_triple.py` would leave that
+file exactly as it is** — which is a further argument that the module is not where
+this defect lives.
+
+**§A2.8 — THE SWEEP'S OWN CONTROL, AND IT CAUGHT A REAL BLIND SPOT IN ITSELF.**
+
+Four plants, derived from the artefact **schema** and not from the search: **P1**
+(r ≈ 1.10, exact reference, coherent power law) **fired on BOTH** clauses, clause
+B at 72.80×; **P2** (r = 1.5000, exact reference, extrapolate exactly 0) **flagged
+NEITHER while still appearing in the clause-B denominator** — *the control that
+matters, because without it "zero clause-A flips" is indistinguishable from a
+reader that cannot flag anything*; **P3** (`ratio = 1.1` in the ansys
+frozen-constant schema) **fired unscoped and NOT scoped**, proving the Amendment-1
+scope filter **discriminates and is not decorative**; **P4** (planted under a key
+the schema map does not list) **was missed by the row table and CAUGHT by the
+reconciliation control**, exactly as registered.
+
+**AND THE PLANTS EARNED THEIR KEEP BEFORE BEING PLANTED.** While the sweep was
+being built, the `K0cG` reader **silently returned nothing** — `gate_k0cg.json`
+stores quantities under **flat `"model/quantity"` keys**, not the nested dict the
+schema map assumed, and an `isinstance` guard **skipped all five rows without
+error.** The structural cross-census caught it; **the population went 106 → 111.**
+**The defect class this entire exercise is about, found inside the instrument
+built to measure it.**
+
+**§A2.9 — WHAT IS NOT MEASURED.**
+
+**F24's clause-B status is `UNDECIDED`, not clear** — the artefact records neither
+`richardson` nor `GCI_abs` for that sub-ladder. **`dim` is unrecoverable from the
+record on 26 T-family rows** and was marked `UNDECIDED`, never guessed; immaterial
+here because their `r` is a registered constant, **but it means those records
+could not survive a clause-A audit on their own contents.** The markdown-only
+ansys rows were **transcribed, not re-derived.** **F26's error norms were not
+re-measured** and no claim is made about the `9.1e-02`. **And the zero-flip result
+is a property of THIS CORPUS, not of the clauses** — every ladder in this lab was
+built at `r >= 1.5964`.
+
+| Amendment 2 | figure |
+| --- | --- |
+| graded `CONVERGING` rows swept | **111** (106 if duplicate triples counted once) |
+| distinct refinement ratios in the entire lab | **4** — 1.5964, 1.5986, 1.6000, 2.0000 |
+| **clause A flips, unscoped** | **0** |
+| **clause A flips, Amendment-1 scoped** | **0** |
+| rows clause A could ever reach (`r` computed at grading) | **29 of 111** |
+| **is the case clause A was written for in the population?** | **NO — F26 does not import the module** |
+| **clause B flips, substantive reading** | **1** — F20 at **18.79×** its own `GCI_abs` |
+| **clause B flips, this spec's LITERAL wording** | **0** |
+| rows with an exact/manufactured reference on an error norm | **10 (9 %)** |
+| nearest un-flipped row | **F15 at 0.918× — a 9 % move flips it** |
+| rows DECLARING a reference class | **5 of 111 (4.5 %)** |
+| overlap / union | **0 / 1** |
+| real importers, `ast`-verified | **36** at `aaf0bed6`, **39** at HEAD |
+| graders that have FIRED | **larger than the stated 9** — co-location undercounts by **>= 11** |
+| callers reading ONLY the parent Richardson key | **0 — the hazard is LATENT** |
+| committed records publishing both keys as PEERS | **10 — the hazard is LIVE HERE** |
+| status | **SPEC, NOT ADOPTED — unchanged** |
