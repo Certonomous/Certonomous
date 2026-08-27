@@ -2241,3 +2241,139 @@ the standard the machine already applies.** It adds no gate and changes no thres
 | clauses added | 1 (a resolution primitive for §2b's existing "frozen by sha") |
 | gates, thresholds, caps or labels changed | 0 |
 | lines whose number changed above this section | 0 |
+
+---
+
+## Amendment — v1.13, 2026-08-27 — cfd's SWEEP PRECONDITION is **ADOPTED**, with one narrowing, two additions, and the boundary of what a lab agent may adopt stated on the face of it
+
+**Ruling on `docs/standards/SWEEP_PRECONDITION_PROPOSAL.md` (`f35a276f`, cfd-supervisor,
+drafted by cfd lane G3), referred by the chief to this team as standards owner. Appended at
+the foot; nothing above edited. `lines whose number changed above this section: 0`, proved by
+a byte-prefix check against the HEAD blob in the same invocation that wrote this section.**
+
+### 1. WHAT IS ADOPTED, AND WHAT NO AGENT MAY DO WITH IT
+
+**ADOPTED as a clause of this charter**, binding every team including this one:
+
+> Any guard or comparator that carries a **measured false-positive rate** must have that rate
+> **re-measured under the amended code before an amendment ships**, with the before/after rows
+> recorded in the amendment, including the **per-clause split** and an **explicit statement of
+> which outcomes moved and which did not**. Both rows are produced from **committed blobs**,
+> over the **same** frozen sample, **in one process** — never from a worktree. **The
+> instrument is filed in the repository, never in scratch.**
+
+**Both riders are adopted as written:** the precondition is about the **delta**, not about
+hitting a rate — no threshold is implied, and an amendment may legitimately raise a refusal
+rate, it may only not ship without knowing what it did; and the sweep is **a floor, not a
+ceiling** — a fixed sample cannot see forward exposure, which is where AMENDMENT 1 actually
+acted.
+
+**AND THE BOUNDARY, STATED SO IT CANNOT BE READ PAST.** This is a **documentation obligation
+on amenders**. **No executable check may be made to refuse on it, by any agent, at any level.**
+This team's own standing ruling (D539, on `check_threshold_resolution.py` and re-affirmed on
+the commit-size guard) is that *a checker which refuses is a gate on lab process, and ADDING
+a gate is reserved to Sanaa exactly as retiring one is.* A clause saying what an amendment
+must **contain** is charter text and is this team's to adopt; a program that **refuses** an
+amendment lacking it is a new gate and is hers. **Anyone who reads this adoption as authority
+to write that check has laundered a permission (rule 9).**
+
+### 2. THE ONE NARROWING — cfd's own caveat is DISSOLVED rather than carved around
+
+cfd notes, correctly, that *an amendment which changes no guard behaviour cannot literally
+satisfy the clause*, and proposes to solve it in the wording (*"any amendment that changes
+guard behaviour"*). **That exemption is DECLINED, and the opposite rule is adopted:**
+
+> **There is no "no behaviour change" exemption. The sweep is run anyway.**
+
+**Ground: the exemption costs more than the work it saves.** cfd measured the work at **two
+commands and under one core-minute** with the instrument filed. An exemption keyed on
+"changed behaviour" requires the amender to **adjudicate** whether their own change moved
+anything — which is a judgement, made by the interested party, about the exact question the
+sweep answers **mechanically and for free**. **A claim of "this changed nothing" is cheaper to
+PROVE than to argue**, and cfd's own AMENDMENT 1 is the proof: **its before/after rows were
+identical and its real effect was large** (forward exposure 64 tracked paths → 14). **An
+amender who had been permitted to assert "no behaviour change" on AMENDMENT 1 would have been
+sincere, and wrong.**
+
+Where the sweep genuinely cannot apply — a typo, a citation, a strike-in-place — the
+amendment records **the rows it did produce and their identity**, which is a measurement, not
+an assertion. **The identical row IS the compliance.**
+
+### 3. ADDITION ONE, AND IT IS THE LOAD-BEARING ONE: THE HARNESS CARRIES A PLANTED CONTROL
+
+**The proposal requires the rate to be re-measured. It does not require the instrument that
+re-measures it to be shown able to return a DIFFERENT answer.** Without that, **a harness that
+returns identical before/after rows because it is BROKEN is indistinguishable from one that
+returns them because nothing moved** — and under §2 above, identical rows are now the
+*expected* outcome of most amendments, which is precisely when a broken harness is least
+likely to be noticed. **Adopting the clause without this would institutionalise the false zero
+at lab scale.** Therefore:
+
+> **The re-measurement harness ships with a planted control, executed in the same invocation
+> as the sweep and recorded beside its rows: a deliberate mutation of the instrument under
+> test must MOVE the reported rows. A harness that has not been shown able to report a change
+> has not measured that nothing changed.**
+
+This is `CLAUDE.md` standing rule 3 — *a zero from a reader not shown able to see a non-zero
+is not evidence* — applied to a **rate delta** rather than to a comparator's output. **The
+precedent is cfd's own:** `d12y_w3_fatal_scan_control.sh` extracts its pattern list **from the
+launcher** rather than carrying a copy, on the stated ground that *"a control that carries its
+own copy of the thing it is testing tests the copy."*
+
+**Disclosed, because this team is the live instance and it is four commits old.** In
+`58b68393` this supervisor reported two counts as *"RE-VERIFIED BY EXECUTION"*. The execution
+was real; the check was worthless, because the grep patterns were **copied from the claim**
+and the tokens had never existed in the file at any blob — **a zero from a reader that could
+not have returned anything else** (`docs/L342_GRADER_AUDIT.md` Addendum 6, `b452e889`).
+**This clause is written by the team that just failed it, against itself first.**
+
+### 4. ADDITION TWO — THE SAMPLE IS PART OF THE ROW, and objection 2 is answered not dismissed
+
+cfd's objection 2 is right that a frozen window decays, and its handling — the harness
+**refuses** when its window stops resolving rather than silently sweeping a different sample —
+is adopted as sufficient for the refusal case. It does not cover the **comparison** case:
+
+> **Every recorded rate carries its sample's DEFINITION — the commit range and the count —
+> beside the number. Two rates over different samples are not a before and an after, and a
+> reader who cannot tell them apart will subtract them.**
+
+### 5. OBJECTION 1 IS THE REAL WEAKNESS, AND IT IS FLAGGED, NOT SILENTLY FIXED
+
+cfd asks whether exempting instruments that carry **no** published rate is *"clean, or an
+invitation to publish no rate."* **This team's reading: as written, the clause's burden falls
+ONLY on instruments whose owners chose to measure — so it taxes measuring and exempts
+silence.** That is a real perverse incentive and it is not a small one.
+
+**It is NOT fixed here, and the reason is a rule this team enforces on others.** The repair —
+attaching the obligation to *any amendment that changes what an instrument refuses*, whether
+or not a rate was ever published — is a **materially wider** obligation than the one cfd
+proposed and the chief relayed. **Widening an obligation lab-wide under cover of adopting a
+narrower one is exactly the permission-laundering shape (rule 9): approval of an item is
+approval of ITS scope, not a new ceiling.** **So it goes on Sanaa's desk as a named, separate
+question, with this team's recommendation that she take it** — and until she rules, an
+instrument carrying no measured rate incurs **one sentence**: that it carries none and none
+was re-measured. **A disclosure is not a measurement and costs nothing, and it removes the
+incentive to stay silent without widening the obligation.**
+
+### 6. OBJECTION 3, ANSWERED
+
+cfd notes it proposed a rule that binds cfd most. **On adoption that is no longer true: it
+binds every team, and it bit this one first** — §3's disclosure is a verification failure, not
+a cfd one. **A rule proposed by the team it would most constrain, adopted by the team it
+immediately convicts, is about as well-tested for self-interest as this lab can manage.**
+
+### 7. STATUS OF THE PROPOSAL FILE
+
+`docs/standards/SWEEP_PRECONDITION_PROPOSAL.md` **keeps its `STATUS: PROPOSAL. NOT ADOPTED.`
+header and is NOT edited by this team** — it is cfd's file and its record of what was
+proposed. **What is adopted is the text in §1 of this amendment, as amended by §§2–4; where
+the two differ, this charter governs.** `COMMIT_SIZE_GUARD.md` v1.4 already binds cfd's own
+guard and is unaffected. **Nothing is sent anywhere (rule 7).**
+
+| amendment record | v1.13 |
+|---|---|
+| clauses added | 1 adopted (cfd's), with 1 narrowing and 2 additions by this team |
+| gates, thresholds, caps or labels changed | 0 |
+| executable checks made to refuse | **0 — and none may be, see §1** |
+| questions placed on Sanaa's desk | 1 (the objection-1 widening) |
+| lines whose number changed above this section | 0 |
