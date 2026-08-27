@@ -638,3 +638,75 @@ lane's and remains unconfirmed by me**, as Addendum 2 §6 already states.
 **This is the third correction this team has published against its own work today** — the control
 under-read at `2b24b477`, the coverage-as-census defect in Addendum 1, and this one. **The pattern
 is the finding, and this team is not exempt from the scepticism it applies to others.**
+
+---
+
+## Addendum 4 — 2026-08-27 — §1's SECOND URGENT ROW IS **RESOLVED**, NOT MERELY RE-CITED; AND EVERY CITATION IN THIS AUDIT MOVES TO `sha:path:line`
+
+**Raised by a dafoam lane: this audit's five citations to `d12y_grade_w3.py` had drifted. Checked
+at source, and the drift is the smaller half of the story. Appended at the foot; nothing above
+edited. `lines whose number changed above this section: 0`.**
+
+### 1. The drift is real — the five citations are dead
+
+`docs/L342_GRADER_AUDIT.md` §1 and §3.4 cite `cases/dafoam/curriculum_D12R2/d12y_grade_w3.py` at
+`:376`, `:453`, `:1976`, `:1984`, `:1986`. **W3 Amendment 2 (`af44d244`, 10 paths,
++1,134 / −20) inserted well over a hundred lines above them.** At the current blob those line
+numbers land on unrelated text — `:376` is now the string `"that cannot be read is not a mesh."`,
+`:453` a `kind not in ("steady", "unsteady", "mesh")` guard. **Every one of the five is wrong.**
+
+### 2. But the clauses are not moved — THEY ARE GONE, because dafoam FIXED them
+
+**Measured against the current blob `7f7bf3e452deea52aa623a32fb5ed965b63af51c`, not inferred:**
+
+| what §1/§3.4 flagged | count at blob `7f7bf3e452de` |
+|---|---|
+| `refuse("ledger", …)` sites | **0** |
+| `ExecutionTime` line-count refusal sites (`n_exec != …`) | **0** |
+
+**`af44d244` is titled *"W3 AMENDMENT 2 (pre-compute, 0 core-min): RULING R-RC applied IN FULL as
+Sanaa approved it, plus the L-342 field-…"* — and it was legal: the amendment is pre-compute, at
+zero core-minutes, exactly the window §1 said was open and closing.** What replaced the refusals,
+verified in the blob:
+
+- **`cases/dafoam/curriculum_D12R2/d12y_grade_w3.py`@`7f7bf3e452de`:87-102** — R-RC quoted from Sanaa's own approval, then
+  `RRC_FOUR_CONDITIONS = ("end_line_present", "last_time_equals_endTime", "registered_fields_present", "age_guard")`,
+  with the comment *"R-RC-2's fence, named here so it cannot drift … each is reported INDIVIDUALLY
+  BY NAME in the artefact — 'all four held' without naming them is the self-assessment shape this
+  lab amended against."*
+- **`:427-428`** — *"rc RECORD ABSENT -> rc NOT MEASURED (INFRASTRUCTURE, L-342/R-RC-1). rc=0 is
+  INFERRED, NOT MEASURED, and is NOT graded as a measurement."*
+- **`:255-259`** — the L-342 INFRASTRUCTURE channel, with the guard against the split becoming *"a
+  way to make findings disappear — which is the failure L-342 exists to prevent, running the other
+  way."*
+- **`:285-291`** — **R-RC-4's limb**, the one this team invented and Sanaa approved: *"a solver that
+  printed a fatal or took a signal has not completed."*
+- **`d12y_w3_fatal_scan_control.sh`** — R-RC-4's **planted-failure proof**, and it is better than
+  the limb required: it **extracts the fatal/signal pattern list FROM THE LAUNCHER** rather than
+  carrying its own copy (*"a control that carries its own copy of the thing it is testing tests the
+  copy"*) and **REFUSES rather than reporting a clean zero on an empty population.**
+
+**§1's second urgent row is therefore CLOSED. The live-hazard list drops from two rows to ONE —
+`VMFLGPU002/grade_vmflgpu002.py`, still frozen, still fired, still needing §2d.1.** dafoam took the
+cheap pre-compute route while the window was open, which is precisely what §1 asked for.
+
+**Noted because it is the same doctrine travelling: the repair also refuses a vacuous limb** —
+*"A MESH STAGE HAS NO TIME … a limb that cannot fail is not a limb"* — which is the anti-vacuity
+ground this team ruled `EMPTY` on at **D538** the same afternoon, arrived at independently.
+
+### 3. CONVENTION ADOPTED — every citation in this audit is `sha:path:line`
+
+**A bare `path:line` is a citation with a silent expiry date.** From this addendum forward, every
+file citation in this audit carries the sha it was read at, so an amendment cannot shift the
+reference without the shift being visible: **`<sha>:<path>:<line>`**, resolvable by
+`git show <sha>:<path> | sed -n '<line>p'`.
+
+**The existing tables are NOT retro-fitted, and that is a deliberate choice with a stated cost.**
+Rewriting ~110 rows would edit text above a dated addendum, which rule 6 forbids, and would risk
+introducing errors into rows that are currently correct. **Instead: every bare `path:line` in §3 and
+Addenda 1–3 is to be read as *at the blob current when that section was written*, and re-derived by
+content — not by line number — before it is relied on.** The audit's own history is the warning:
+this is the second citation-class defect it has published against itself, after the
+extractor-for-comparator error of Addendum 3.
+
+**`sha:path:line` applies immediately to Addendum 4 and to every future addendum.**
