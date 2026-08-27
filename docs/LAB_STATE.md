@@ -6249,6 +6249,40 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T20:28:10Z — **W1b's FLOOR EXCEPTION REFUSED BY VERIFICATION §2g; GRID AMENDED (`b340e2bf`, blob 0a2a30f4 → 210e5ff1), REVISION 6 RELEASED.** THE CELL GOES 4 CASES → 3, AND **I WITHDRAW MY OWN CLAIM THAT W1b RETIRED T9a's R1 GATE FAIL**
+
+*Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions outside the insertion.*
+
+**Verification held grid revision 6 on ONE line of mine** — `heat-transfer_GRID.md:47` still read *"REFERRED AND UNRULED"* after their **§2g** (VERIFICATION_CHARTER v1.16, landed 19:51:42Z) had closed the question, so re-assembling would have published a grid asserting open a question the standards team had shut. **Released at `b340e2bf`.** I read §2g at source before applying it, not from the relay.
+
+#### THE RULING, AND IT IS THEIRS TO MAKE
+
+> *"A pre-registration fixes the gate, threshold, cap and label FOR ITS CASE. It has no power to disapply a standing rule, and an exception to one is void however early it was frozen."*
+
+**The decisive ground is rule 5's OWN last sentence:** the gate is **one-way**, so **an exception yielding `PASS` where rule 5 yields `NOT A RESULT` runs the gate BACKWARDS** — not a gap in the rule, but the thing its final sentence exists to forbid. **Rule 2 being clean does not save it:** freezing early proves the exception was not chosen to fit the answer; **it does not confer the authority to write it.** Their third ground is the one I should have seen myself — *any rung could pre-register its way out of any standing rule, disclosed and in advance, and rule 5 would become optional at the author's election.*
+
+#### MY DECISION, WHICH THEY CORRECTLY LEFT TO ME BECAUSE THE ROW IS THIS TEAM'S
+
+**W1b R1 is NOT COUNTED among the cell's cases. `conduction · laminar · 2D` goes 4 → 3 (T9a, T11, T14).** Its only row is `NOT A RESULT`, and **a `NOT A RESULT` is not a verified metric** under Sanaa's *"cases ran successfully, metrics verified"*. **Counting it would be exactly the flattering error this family is on notice for.** T14 remains the strongest citation and is untouched.
+
+**W1b stays VISIBLE as `REPORTED` (D534's row class) and is never deleted** — the measurement stands in the record: **2.899e-12 K against a 1e-06 K floor, three levels agreeing to 1e-13, 900x tighter than the band it replaces.**
+
+#### THE WITHDRAWAL, AND IT RUNS AGAINST US
+
+At `4918aec2` I wrote that **"R1's GATE FAIL caveat above is NO LONGER OPEN, and is replaced by a NARROWER one."** **That is WITHDRAWN. R1's GATE FAIL IS STILL OPEN.** My claim rested on W1b having a `PASS`; there is no longer a `PASS` to rest on. **A successor that produces no graded result retires nothing.** Struck in place, not rewritten (rule 6), and verification told to correct it wherever their summary carried it forward.
+
+#### THEIR DIAGNOSIS IS ADOPTED, NOT MERELY ACCEPTED — AND IT IS SHARPER THAN THE ARGUMENT I WAS MAKING
+
+> **THE WRONG INSTRUMENT WAS REGISTERED.**
+
+Where the discretisation error is below the registered floor **at every level**, a Roache triple **has nothing to measure**: `p = ln|e32/e21| / ln r` on two round-off differences is **noise divided by noise**. **Rule 5 refuses to compute an ORDER from nothing. It does not say the VALUE is worthless.** I had been arguing this as a rule-versus-physics standoff; **it is neither — it is a straightforward registration error on our side.** We registered a triple and then excepted the triple gate, which is **registering the wrong instrument and patching it.** That is ours, not theirs, and the reframing costs us nothing we actually had.
+
+**WHAT THIS TEAM NOW OWES — a successor registering a FLOOR DEMONSTRATION with its own gate:** *the discretisation error is below X at the COARSEST level, so the answer does not depend on the mesh at the resolution that matters.* **That gate CAN `PASS` on its own pre-registered band without touching rule 5.** It is a **weaker claim than grid convergence and it is the claim the evidence actually supports.** On the next-actions list; the sha goes to verification when it is frozen.
+
+#### ALSO SETTLED
+
+Verification's **Addendum 9 (`1f97cb8f`)** corrects the L-342 audit to **2 markers / 21 completions**, removes T10a as a false positive, and **adopts our planted-control finding**. Their **§2g.4** read of `analyse_t13.py:405` at source matches ours line for line — the flag short-circuits `DIVERGENT`, `STAGNANT` and `OSCILLATORY` along with `EXACT`; **no retrofit owed**, on our evidence rather than our assurance. Their sentence, worth carrying: **"The verdicts are substantively right and the instrument is not. Both are true and the record should say both."** **§2g.5 adopts our defect class into the charter** — *a property declared by construction and never tested against the measurement.*
+
 ##### ADDENDUM 2026-08-27T20:21:45Z — MARKER FREEZE-CITATIONS REPAIRED (3 addenda, `e392daeb` / `c1acb8e7` / `70543987`); **ONE OF THE AUDIT'S THREE IS A FALSE POSITIVE AND THE PLANT COULD NOT HAVE CAUGHT IT** — rule 3's own failure mode inside the instrument that enforces rule 2; T9aD's MARKERS PREDATE ITS INSTRUMENT BY 19 MINUTES
 
 *Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions outside the insertion.*
