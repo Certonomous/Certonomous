@@ -199,3 +199,88 @@ set those numbers** — that is a new registration, not a lane's call.
 - The earlier refusal log is **retained, not deleted** (§2).
 - No frozen file edited (rule 6). **Nothing sent, filed, uploaded, posted or
   registered outside this box** (rule 7).
+
+---
+
+# ADDENDUM 1 — 2026-08-27: the superseded `PENDING` record, PRESERVED, and its live projection SCORED
+
+**Disclosure first, because it is a process failure and not a finding.** The
+sections above were written with `cat >`, which **truncated a pre-existing
+46-line `T4b_RESULTS.md`** rather than appending to it. The prior file is
+recoverable at `git show 27e64502^:docs/campaigns/T-family/T4b_RESULTS.md` and
+its substance is preserved below.
+
+**The overwrite was what the displaced file itself prescribed** — its §4 read:
+*"then this file is rewritten with the graded rows, and the rule-12 calibration
+row lands in `docs/COST_CALIBRATION.md`. No cost row is written for a rung that
+has not completed."* **That is exactly what happened.** But the file was
+overwritten *before* it was read, so the correctness was luck rather than
+judgement, and one genuinely useful measurement was displaced. It is restored
+here. **No gate, band, threshold, cap, label or verdict moves in this addendum.**
+
+## A1.1 What the superseded record was
+
+A **`PENDING`** record, written 2026-08-26T21:00:22Z on the heat-transfer
+supervisor's order `[lab-attributed]`, while `T4b_IJ_f` was still live. Its
+verdict line was `PENDING: verification/runs/T-family/T4b_runs/T4b_IJ_f (LIVE)`
+— the reserved display form — and it quoted the comparator's refusal verbatim
+and stated *"Nothing was forced. No graded number exists for this rung yet and
+none is quoted here."* **It was correct in every particular**, including its
+hashes (`mark_done_t4b.py` `d5411c3f`, `analyse_t4b.py` `69abe6e5`) and its
+two-of-three completion table, all of which the graded record above reproduces.
+
+**One disclosure of its own is carried forward** because it is a real usability
+finding about the frozen instrument: the lane's first invocation used the short
+case names `IJ_c`/`IJ_m` and **was refused** — *"REFUSE: 'IJ_c' is not one of the
+registered T4b cases: T4b_IJ_c T4b_IJ_m T4b_IJ_f"* — and the registered names
+were then used. **The instrument refused a plausible-looking wrong input rather
+than guessing what was meant.**
+
+## A1.2 THE LIVE PROJECTION, NOW SCOREABLE — and it over-predicted by 1.26×
+
+The displaced record carried a monitor line read from `T4b_IJ_f/log.solve` at
+2026-08-26T21:00:22Z, with `T4b_IJ_f` at `Time = 9371`:
+
+```
+rate=0.8412 it/s  projected_total_wall=47551s of timeout 51600 (0.922)
+projected_core_min=792.5 vs POINT 429.41 (1.846)
+```
+
+It was labelled honestly at the time — *"No ETA is a measurement; the rate is the
+log's mean to now."* **Scored against the completed run:**
+
+| quantity | projected at 21:00Z | realised | projection / realised |
+| --- | ---: | ---: | ---: |
+| total wall | 47 551 s | **37 756 s** | **1.259×** |
+| core-minutes | 792.5 | **629.267** | **1.259×** |
+| ratio to POINT | 1.846 | **1.465** | — |
+| mean rate | 0.8412 it/s (to 21:00Z) | **1.0594 it/s** (whole run) | **0.794×** |
+
+**The projection was 26 % pessimistic, and the entire discrepancy is one number:
+the solver ran 1.26× FASTER over the remainder than it had up to 21:00Z.** The
+run started at 17:54Z into a box the T4b pre-registration itself describes as
+*"12–13 of 16 cores busy"*; it finished at 04:24Z into a much emptier one. **This
+is a direct, quantified measurement of contention on this box — 21 % of the
+solver's throughput — obtained for free from a monitor line that already
+existed.**
+
+**Carry forward, and it is the transferable part: a mid-run ETA extrapolated from
+the mean rate SO FAR is systematically pessimistic on a contended box, because
+the contention that depressed the early mean does not persist.** The honest form
+is to project from a **recent-window** rate as well as the cumulative mean and
+report both as a bracket. The 21:00Z line's own caveat — *"the rate is the log's
+mean to now"* — was the correct disclosure, and this addendum is what that
+disclosure was for.
+
+**The projection also correctly predicted the outcome that mattered**: it said
+the run would finish inside the 51 600 s timeout (0.922 of it), and it did, at
+0.732. **A pessimistic projection that still clears the cap is a safe projection**,
+and no action was taken on the 1.846 figure.
+
+## A1.3 What this addendum does not do
+
+It moves no gate, band, threshold, floor, control, cap or label; it changes no
+verdict — the rung remains **`NOT A RESULT`**; it edits no frozen file; and it
+adds no calibration row (the rung's row is `C-165`, and this projection scoring
+belongs to that row's subject, not to a new one). **Nothing was sent, filed,
+uploaded, posted or registered outside this box** (rule 7).
