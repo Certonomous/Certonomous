@@ -17456,3 +17456,211 @@ L1 and L2 both `rc=0` with `endtime_field_dir=0.003, endtime_ok=1`, so attempt 1
 and `f8871113` (VMFL017-R2, `rhoCentralFoam`, `NOT YET RUN` — its case inputs, launcher and
 Amendment-3 item-6 smoke test are the registered remaining gate, honestly disclosed as not
 committed because the box was at capacity).
+
+### 2026-08-27T21:4xZ — **VMFLGPU007 GRADED: `NOT A RESULT` ON A PHYSICS REFUSAL THAT STANDS. Two reader defects found and DELIBERATELY not repaired. VMFLGPU004 → `BLOCKED`, the register's first. And the "FLUENT archives are closed" belief is WRONG.**
+
+**Written by `ansys-verification-supervisor` personally**, re-formed 21:2xZ after the monthly
+spend limit killed my predecessor at ~20:35Z.
+
+**Last commit: `5d458096`** — VMFLGPU007 graded; register rows #40 and #41; calibration C-182.
+
+#### THE VERDICT — row #40, `NOT A RESULT`, and it is a PHYSICS refusal, not a reader defect
+
+The frozen comparator **REFUSED (exit 2)** at plateau clause **`IG3`**:
+
+> `REFUSE (VMFLGPU007 IG3): the plateau window peak-to-peak is 0.0237893 K, above the registered 0.0001 K: the channel has not settled`
+
+The clause reads `wallTmin` over the last 200 SIMPLE iterations against `PLATEAU_PTP_TOL = 1.0e-4` K.
+**All six arms miss, monotonically:** L1 0.0237893 / 0.0238644 (238×), L2 0.0120540 / 0.0120592
+(121×), L3 0.00358665 / 0.00358716 (36×). The wall-temperature channel is **still travelling at
+`endTime` on every arm**. §7 predicted the shape before the run: *"There is NO `residualControl`,
+so the run always reaches `endTime` and 'it ran to endTime' is NOT convergence."*
+
+**Strict completion (rule 4) HOLDS at all six solves.** rc = 0, End line, last time == endTime,
+`Time =` count == endTime, fields present, age guard met. ExecutionTime count endTime + 2, already
+classified INFRASTRUCTURE by the frozen comparator (L-342). **The solver did not fail. The run
+completed cleanly and the gate refused it anyway** — which is the distinction this register exists
+to keep.
+
+**No gate number is quoted.** The refusal precedes limbs A, B and C, the y+ report, the plant line
+and the mesh-sensitivity spread. Peak Nu and the deviations were **not** computed by hand.
+**No GCI, no observed order, no R** — this case registers no Roache triple (a **LIMITATION, NOT AN
+EXEMPTION** from rule 5).
+
+#### THE CHIEF ASKED WHICH KIND OF REFUSAL THIS IS. ANSWER: PHYSICS, AND IT STANDS.
+
+A §2d.1 reader amendment plus a zero-compute re-grade — the VMFLGPU002 Amendment-5 route — **would
+not change this verdict.** The defects I found are in **limb A**, a clause `IG3` refuses *before*.
+Repair limb A and `IG3` still fires on the same numbers. **So there is nothing to re-grade and no
+amendment is being sought.**
+
+**And I would refuse one even if it were closer.** Repairing an instrument post-compute on a case
+that has already refused, when the only possible effect is a more favourable verdict, is the line
+this family declined to cross on VMFLGPU001's `I5`. The repairs go **forward**, into R2.
+
+#### THE DEFECTS — read by me out of the frozen file, not taken on a lane's report (§3 check 1)
+
+**`logview_gpu()` (`grade_vmflgpu007.py:457`) is wrong in BOTH channels.**
+
+1. `gpu_pctf` is `max()` of the **last four numeric tokens** of a `MatMult`/`KSPSolve` row. Real
+   trailing columns are `GPU Mflop/s | CpuToGpu Count | CpuToGpu Size | GpuToCpu Count | GpuToCpu
+   Size | GPU %F`, so that `max()` returns **the CpuToGpu size in Mbytes** whenever it exceeds 100 —
+   measured **210.0 / 672.0 / 2320.0**, figures that scale with the mesh and **exceed 100, which a
+   percentage cannot**. True GPU %F is 100. **Clause A3's floor of 99.0 was cleared BY A MEGABYTE
+   COUNT — a SILENT FALSE PASS**, and the dangerous half.
+2. `h2d` is **never read at all** — the regex only ever matches the **legend** line, whose colon is
+   followed by text, not digits. So `h2d` is always 0 and **clause A4 is UNPASSABLE ON ANY RUN, by
+   construction.** True counts: 7200 (`MatMult`), 3601 (`KSPSolve`).
+3. The forced-CPU control reads `0.0 / 0` correctly **but by coincidence** — its trailing four
+   tokens happen to be all zero.
+
+**Third occurrence in this family of a fixture-shaped parser meeting real output** (007 Amendment 1's
+y+ reader; VMFLGPU002 Amendment 5's limb-A tell; this). **Why every smoke missed it:** *no smoke of
+this family has ever produced a real PETSc `-log_view` table*, so this reader was only ever
+exercised on its absent-table path. **A reader smoke that cannot generate the artifact it parses
+does not test that reader.** That sentence is the standing lesson and it is now in both successor
+briefs.
+
+#### ROW #41 — VMFLGPU004 → `BLOCKED`. The register's FIRST `BLOCKED` row.
+
+Not gateable from the manual. **Six absences, read from the PDF pages 233–234 themselves under rule
+15, never from the sidecar** (an empty sidecar field is equally consistent with an extraction
+failure, so the sidecar could not settle it): the `Reference` cell is **genuinely empty** (proved not
+an artefact — VMFLGPU005 on the next page prints its citation normally); conductivity is the single
+word "Anisotropic" with **no matrix components**, and the tensor **is** the physics; the wall profile
+has no formula or numbers; the Results Comparison is a **figure only, no numeric target**; the third
+dimension is unstated; the 100 K / 200 K walls are unlabelled. **Runnable on this toolchain — blocked
+on EVIDENCE, not capability.** Zero compute, zero dollars.
+
+**Explicitly out of scope, and recorded so nobody does it later:** a lab-constructed
+anisotropic-conduction case against an exact rotated-tensor solution would be good physics but **a
+different registered object**, and may not be filed under VMFLGPU004's name.
+
+#### A STANDING FAMILY BELIEF IS WRONG, AND I VERIFIED THE CORRECTION MYSELF
+
+This board has carried *"the archive route is OPEN for CFX cases and CLOSED for FLUENT cases"*
+because 77 of 123 archives are `.cas.h5` and this box has no HDF5 tooling. **Too strong.** The
+`.wbpz` **is an ordinary ZIP**. Inside `VMFL052_WB.wbpz` (FLUENT, 5,676,218 bytes), verified by me:
+`import_files/VMFL052_natural-exp1.csv` (460 B, 19 rows) and `-exp2.csv` (474 B, 20 rows) — **the
+digitised reference profiles, plain text** — plus `VMFL052_natural.cas` (1,256,582 B), a **legacy
+plain `.cas`, not `.cas.h5`**.
+
+**Accurate statement going forward:** the `.cas.h5` *solution* files remain unreadable here, but the
+ZIP wrapper's `import_files/` can carry plain-text reference data needing no HDF5 at all. **A haiku
+lane is sweeping all 123 archives for the pattern.** If it repeats, it bites directly into the 51
+PROFILE cases this board calls *"the structural blocker on this ladder."*
+
+#### CALIBRATION C-182 — a large over-estimate, and the cause is a transferred cost model
+
+| | predicted | actual | ratio |
+|---|---|---|---|
+| GPU | 0.70 GPU-h | **0.306944** | **0.4385×** |
+| CPU | 55 core-min | **6.2333** | **0.1133×** |
+
+Caps 1.5 GPU-h (20.5 % used) and 90 core-min (6.9 %) — **neither fired.** **$0.2523 derived**
+($0.2470 + $0.0053), **not measured** (§5); console figure owed. **WASTE 0.000 for the run.**
+
+**Attribution: MISPREDICTION — an INVALID TRANSFER OF A COST MODEL BETWEEN CASES.** VMFLGPU002's
+per-iteration model (`simpleFoam`, isothermal tee-junction) was applied to `buoyantSimpleFoam` on a
+coupled system. Two compounding errors: magnitude, and **the DIRECTION of the GPU/CPU ratio, which
+was wrong rather than merely inaccurate** — assumed CPU at 1.31× the GPU arm; **measured, the CPU
+arms were FASTER at every level** (20 vs 90, 68 vs 187, 286 vs 449 s), near 0.6×. Corroborates row
+#39: **at these mesh sizes the GPU path is a correctness vehicle, not a speedup.**
+
+**Standing lesson for estimates:** a per-iteration cost model is specific to a solver **and** a mesh
+family and may not cross either boundary; the GPU/CPU ratio is **measured per case, never assumed**,
+and must not be assumed to favour the GPU at small mesh sizes.
+
+#### A DEFECT THAT WOULD HAVE DESTROYED FIVE VERDICTS, CAUGHT BEFORE WRITING
+
+**Four files in my territory were BEHIND HEAD on disk** (L-350; USING_THIS_LAB §8.5 step 3). Each a
+**pure lag — 0 lines added, N removed, HEAD strictly a superset**, so nothing was lost and nothing
+was reverted:
+
+- **`ANSYS_VALIDATION_REGISTER.md` was MISSING ROWS 35–39 ENTIRELY.** Appending row 40 to the disk
+  copy and committing would have **deleted five verdicts from HEAD**, including the family's only
+  recent `GATE REACHED` (#39) and `GATE FAIL` (#38). This is `c46309f5`'s "lost nine files" in a new
+  shape.
+- `VMFLGPU002/RESULTS.md` and `VMFLGPU003/RESULTS.md` — each missing a 39-line dated addendum.
+- `docs/COST_CALIBRATION.md` — missing 4 lines.
+
+All four written out from HEAD and **hash-verified equal before any append.** **A supervisor must
+verify disk == HEAD for every file it is about to append to, before appending.**
+
+**Related, and recorded rather than silently occupied: register row #39 cites `calibration C-181`,
+and C-181 DOES NOT EXIST in `docs/COST_CALIBRATION.md` at HEAD.** I took **C-182** and **left 181
+empty** for row #39's owed row rather than renumbering row #39 or occupying its number, either of
+which would have masked the gap. **Row #39's calibration row is outstanding.**
+
+#### GPU — IDLE, COSTED, AND MY DECISION WITH ITS DEADLINE
+
+**Idle since 20:52:03Z. At 21:43:20Z that is 51.28 min = 0.8547 GPU-h = $0.6879 derived** at the
+published-list $0.8048/GPU-h. **Boarded as INFRASTRUCTURE and NOT folded into any case's cost ratio**
+(`COMPUTE_BUDGET_CHARTER` §6). **FREEZE-AHEAD is 0 of the required 3** — the standing directive's
+floor, and I am below it.
+
+**MY DECISION [lab-attributed]: the instance STAYS UP until 23:00Z, then stops if nothing is frozen.**
+Sanaa's ruling is *"instance stays up when a frozen case is within ~2 h, else you stop it."* Nothing
+is frozen **now**; two independent candidates are in active drafting with freeze ETAs inside the
+window (VMFLGPU007-R2 and VMFLGPU005). **I read "a frozen case within ~2 h" as covering a case
+actively being frozen with an ETA in the window, and I am stating that reading openly rather than
+relying on it silently — if the intent was stricter, the instance stops on her word.** The deadline
+is hard and the accruing cost is on this board so the call is auditable.
+
+#### RUNGS WITHOUT VERDICTS
+
+**VMFLGPU005** — feasibility **ANSWERED YES, measured not recalled** (below); drafting.
+**VMFLGPU007-R2** — designing. **VMFLGPU006** (Goldman stator, NASA TM X-3224 — a real reference),
+**VMFLGPU008/009/010** — untouched. **VMFLGPU004** now has a final disposition (`BLOCKED`), so the
+"all 10" count stands at **6 of 10 dispositioned** (001, 001-R2, 002, 003, 004, 007).
+
+#### VMFLGPU005 FEASIBILITY — the answer the chief asked for, MEASURED
+
+**YES, and not degraded.** PETSc **v3.24.6**, `arch-cuda-opt`, configured `--with-cuda
+--with-cuda-arch=89 --with-cudac=/usr/bin/nvcc --with-precision=double --download-fblaslapack
+--with-mpi-dir=/usr`; `PETSC_HAVE_CUDA 1`; CUDA 12.4, L4 sm_89. **The recipe planned
+`--download-hypre --download-amgx`; the build that shipped has NEITHER** — a divergence worth
+knowing. **AmgX is ABSENT and is NOT needed:** PETSc's own **GAMG works on the GPU**, driven on a
+40,000-unknown Poisson probe with GPU %F = 100 on `KSPSolve`. **The stall risk is real and GAMG
+retires it: same system, CG + Jacobi took 327 iterations; CG + GAMG took 9.** petsc4Foam supports a
+per-field prefix (`eqn_p_rgh_`), so `p_rgh` takes CG + GAMG on the GPU while `U`/`T` take lighter
+PCs. Needs `-use_gpu_aware_mpi 0` (this MPI is not GPU-aware; at one rank that declines a
+performance feature, not a correctness one). **Honest limit: the real stiff-cavity `p_rgh` matrix was
+not run — this certifies the TOOLCHAIN, not an iteration count on the real matrix.**
+
+**And VMFLGPU005 has the strongest reference provenance in this family so far:** Betts & Bokhari 2000
+is **on the box and title-page verified under rule 15**, and it pins the ΔT = 19.6 °C / Ra_W =
+0.86×10⁶ configuration the manual's 307.85 − 288.25 K matches.
+
+**BUT THE TIER IS NOT YET SETTLED AND I HAVE NOT LET IT SLIDE.** The manual prints **no numeric table**
+— two figures only. Gating on the **paper's own data** = experimental, **PASS-capable**. Gating on the
+**archive CSV** = Ansys's digitisation of the paper's figure, **doubly indirect**, which this family
+already ruled buys neither V nor P (VMFL011), ceiling `GATE REACHED`. **The lane is reading the paper
+to establish which case we are in before drafting the gate.** Either is acceptable; **misdescribing
+which one we are in is not.**
+
+#### NEXT ACTIONS
+
+Settle VMFLGPU005's reference tier (a/b), then freeze it. Land VMFLGPU007-R2's design — longer
+`endTime` chosen **from tonight's measured settling data** (legitimate: `endTime` is a cost
+parameter) with **`PLATEAU_PTP_TOL` NOT moved** (illegitimate: that is choosing the gate to fit the
+answer, in the favourable direction). Read the archive sweep. Then VMFLGPU006.
+
+#### ON SANAA'S DESK
+
+Per-item **GPU cost sign-off** (GPU spend sits outside the 2026-08-21 blanket). Confirmation that the
+instance's shutdown behaviour reads **`stop`, not `terminate`** — `terminate` destroys the root volume
+and the AMI work. The **console GPU figure**, which supersedes every derived dollar on this board.
+Both of the first two predate this session.
+
+#### BLOCKED
+
+**VMFLGPU004** — permanently, unless a reference and inputs appear from outside the manual.
+**FREEZE-AHEAD 0 of 3** — on lane throughput, not on any external blocker.
+
+#### VERIFY
+
+The **archive sweep is running and its result is NOT yet in hand** — the "FLUENT route may be open"
+correction is proven on **one** archive (VMFL052) and must not be generalised to 77 until the sweep
+lands. **Row #39's missing C-181** is measured but its cause is unestablished. **VMFLGPU005's real
+`p_rgh` matrix has not been run through GAMG.**
