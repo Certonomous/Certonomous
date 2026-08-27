@@ -56,6 +56,21 @@ seen is stamped `_launch.status_seen_utc` and never fires again; (3) every flag 
 the launch it judges (`launch_utc= pid= started_epoch=`) and is written at most once per
 launch record.  `--selftest` plants the sequence and both mutations (each must flip).
 
+GPU EXCLUSIVITY (2026-08-27, frozen spec docs/standards/RUNNER_GPU_CLAUSE.md at 0699cb6b,
+written BEFORE this code; raised by ansys-verification from the GPU instance).  On a host
+that HAS a device, an entry declaring `gpu: exclusive` is not launched while nvidia-smi
+reports any compute app or while a queue-launched solver is still alive.  A RESOURCE-BUSY
+CONDITION IS A WAIT, NEVER A CONSUMPTION: the clause lands on the HELD side, beside the 85 %
+ceiling, and an entry is NEVER moved to refused/ because a device was busy -- refused/ means
+the entry is INVALID, a permanent property of the file.  It FAILS CLOSED: a probe that
+errors, times out or does not parse is HELD under the distinct reason GPU-PROBE-FAILED,
+never launched, because a zero from a reader not shown able to see a non-zero is not
+evidence.  On a host with no device the clause is INERT AND SAYS SO in the tick log, so its
+silence when absent is distinguishable from its silence when passing.  The device reading is
+INJECTED in --selftest (`tick(..., gpu_probe=fake)`) exactly as the box reading is; six
+controls and four planted failures, the mandatory one implementing the clause as a REFUSAL
+so control 1 must fail.
+
 USAGE
     python3 scripts/queue_runner.py --daemon            # loop forever, 60 s ticks
     python3 scripts/queue_runner.py --once              # one tick, then exit
@@ -174,6 +189,161 @@ def mem_available_gb() -> float:
                 return int(line.split()[1]) / (1024.0 * 1024.0)
     refuse("MemAvailable not found in /proc/meminfo")
     return 0.0  # unreachable; keeps the type checker honest
+
+
+# ------------------------------------------------------------------------------ gpu
+# THE GPU-EXCLUSIVITY CLAUSE.  Frozen spec: docs/standards/RUNNER_GPU_CLAUSE.md, committed
+# at 0699cb6b BEFORE this code existed, so the clause could not be shaped to pass its own
+# test.  Raised by ansys-verification from the GPU instance, 2026-08-27.
+#
+# THE CENTRAL RULE, and it is the whole finding: A RESOURCE-BUSY CONDITION IS A WAIT, NEVER
+# A CONSUMPTION.  move_refused() consumes an entry into <team>/refused/ because the entry is
+# INVALID -- a permanent property of the file.  A busy device is a TRANSIENT property of the
+# box, so this clause lands exactly where the 85 % busy ceiling lands: HELD, the entry left
+# where it was, retried next tick.  Neither function below moves, renames, unlinks or writes
+# any queue file, and neither is given a way to reach move_refused: gpu_clause() returns a
+# DECISION and is never handed a path at all; gpu_gate_action() is handed a path only to name
+# it in a log line.  A queue that consumed work on a transient condition would lose a frozen,
+# costed registration silently -- the most expensive failure this runner can have.
+#
+# FAIL CLOSED, and this is the clause's planted zero.  A probe that fails, times out or
+# cannot be parsed on a host that HAS a device is HELD under the DISTINCT reason
+# GPU-PROBE-FAILED, never launched: a zero from a reader not shown able to see a non-zero is
+# not evidence (standing rule 3).
+GPU_EXCLUSIVE = "exclusive"
+GPU_PROBE_TIMEOUT_S = 10.0
+
+
+def probe_gpu(timeout_s: float = GPU_PROBE_TIMEOUT_S) -> dict:
+    """The daemon's real device reading: {"state", "gpus", "compute_apps", "detail"}, where
+    `state` is one of
+
+      "no-device"    -- nvidia-smi is not on PATH, or it ran, parsed, and reported 0 GPUs.
+                        That is this CPU box, and the clause is INERT on it.
+      "ok"           -- >= 1 device AND a compute-app count that PARSED as integers.
+      "probe-failed" -- everything else: non-zero rc, timeout, OSError, or output that does
+                        not parse.  A driver printing "[Not Supported]" for the compute-app
+                        query lands HERE; it is never read as "zero compute apps".
+
+    Injectable at the tick() call site exactly as the box reading is, and for the same
+    reason: a selftest that shelled out to a live nvidia-smi would be load-flaky and users
+    learn to re-run such a test until it passes (the L-339 class).
+    """
+    exe = shutil.which("nvidia-smi")
+    if exe is None:
+        return dict(state="no-device", gpus=0, compute_apps=0,
+                    detail="nvidia-smi is not on PATH")
+    try:
+        g = subprocess.run([exe, "--query-gpu=index", "--format=csv,noheader"],
+                           capture_output=True, text=True, timeout=timeout_s)
+        if g.returncode != 0:
+            return dict(state="probe-failed", gpus=-1, compute_apps=-1,
+                        detail=f"nvidia-smi --query-gpu rc={g.returncode}: "
+                               f"{g.stderr.strip()[:200]!r}")
+        gpu_lines = [ln for ln in g.stdout.splitlines() if ln.strip()]
+        for ln in gpu_lines:
+            int(ln.split(",")[0].strip())        # unparseable -> ValueError -> fail closed
+        if not gpu_lines:
+            return dict(state="no-device", gpus=0, compute_apps=0,
+                        detail="nvidia-smi is present but reports 0 GPUs")
+        a = subprocess.run([exe, "--query-compute-apps=pid", "--format=csv,noheader"],
+                           capture_output=True, text=True, timeout=timeout_s)
+        if a.returncode != 0:
+            return dict(state="probe-failed", gpus=len(gpu_lines), compute_apps=-1,
+                        detail=f"nvidia-smi --query-compute-apps rc={a.returncode}: "
+                               f"{a.stderr.strip()[:200]!r}")
+        app_lines = [ln for ln in a.stdout.splitlines() if ln.strip()]
+        for ln in app_lines:
+            int(ln.split(",")[0].strip())        # "[Not Supported]" -> ValueError, not zero
+        return dict(state="ok", gpus=len(gpu_lines), compute_apps=len(app_lines),
+                    detail=f"{len(gpu_lines)} device(s), {len(app_lines)} compute app(s)")
+    except (subprocess.TimeoutExpired, OSError, ValueError, IndexError) as exc:
+        return dict(state="probe-failed", gpus=-1, compute_apps=-1,
+                    detail=f"{type(exc).__name__}: {exc}")
+
+
+def live_queue_launches(root: Path) -> list[str]:
+    """This runner's OWN launch tracking -- not `ps`, which cannot tell this runner's solver
+    from anybody else's process.  A launch is believed still running while its record is
+    CURRENT (never one retired by ARCHIVED_RE), carries `_launch.started_epoch`, has no
+    STATUS file on disk, and has not been stamped `_launch.status_seen_utc`.  That is the
+    same liveness cap_watch already uses, reused rather than re-derived.
+
+    HONEST LIMIT: a wrapper killed with SIGKILL never writes STATUS, so such a launch reads
+    as live until somebody clears the record, and the clause then WAITS indefinitely.  That
+    is the fail-closed direction: a wait costs one tick and the entry keeps its place;
+    launching onto a busy device costs the run the case exists to measure.
+    """
+    live: list[str] = []
+    for team in TEAMS:
+        d = root / team / "launched"
+        if not d.is_dir():
+            continue
+        for p in sorted(d.glob("*.json")):
+            if not is_current_record(p):
+                continue
+            try:
+                meta = json.loads(p.read_text())
+            except (OSError, json.JSONDecodeError):
+                continue
+            li = meta.get("_launch") or {}
+            if "started_epoch" not in li or "status_seen_utc" in li:
+                continue
+            if Path(str(li.get("status_file", "/nonexistent"))).exists():
+                continue
+            live.append(f"{meta.get('case_id', p.stem)}(pid={li.get('pid', 'unknown')})")
+    return live
+
+
+def gpu_clause(entry: dict, reading: dict, live: list[str]) -> tuple[str, str]:
+    """The clause itself.  Returns (verdict, message) and NOTHING ELSE happens here:
+
+        "PASS"  -- the entry declares no `gpu: exclusive`, or the device is clear.
+        "INERT" -- this host has no device.  The clause changed no decision, and the caller
+                   still LOGS it, because a clause that is quiet when absent is
+                   indistinguishable from a clause that is quiet when passing.
+        "HOLD"  -- GPU-BUSY or GPU-PROBE-FAILED.  The caller waits.  It does not refuse.
+
+    This function is never given a path and so is structurally incapable of consuming an
+    entry.  --selftest replaces this module global with mutants (clause disabled; a failed
+    probe read as free; fires with no device) and each mutant must flip its control.
+    """
+    if str(entry.get("gpu", "")).strip().lower() != GPU_EXCLUSIVE:
+        return "PASS", "entry declares no `gpu: exclusive`; the clause does not apply to it"
+    state = str(reading.get("state", ""))
+    if state == "no-device":
+        return "INERT", (f"INERT: this host has no GPU device "
+                         f"({reading.get('detail', '')}); the clause was EVALUATED and "
+                         f"changed no launch decision")
+    if state != "ok":
+        return "HOLD", (f"GPU-PROBE-FAILED: the device query yielded no reading "
+                        f"({reading.get('detail', '')}). A failed probe is NEVER read as an "
+                        f"idle GPU (standing rule 3). HELD -- the entry stays queued and is "
+                        f"retried next tick; it is NOT refused")
+    apps = int(reading.get("compute_apps", 0))
+    if apps > 0:
+        return "HOLD", (f"GPU-BUSY: nvidia-smi reports {apps} compute app(s) on "
+                        f"{reading.get('gpus')} device(s). HELD -- the entry stays queued "
+                        f"and is retried next tick; it is NOT refused")
+    if live:
+        return "HOLD", (f"GPU-BUSY: a queue-launched solver is still alive "
+                        f"({', '.join(live)}). HELD -- the entry stays queued and is "
+                        f"retried next tick; it is NOT refused")
+    return "PASS", (f"clear: 0 compute apps on {reading.get('gpus')} device(s), no live "
+                    f"queue-launched solver")
+
+
+def gpu_gate_action(path: Path, message: str, log: Log) -> str:
+    """What the runner DOES when the clause holds: it logs, and it WAITS.  It does not move
+    the entry, does not write anything beside it, and does not call move_refused -- after
+    this returns, the entry file is byte-for-byte where it was.
+
+    --selftest's MANDATORY mutation replaces THIS function with one that consumes the entry
+    into refused/, and control 1 must then FAIL.  That mutant lives in the selftest and
+    nowhere else; no production path from here reaches move_refused.
+    """
+    log(f"HELD {path.name}: {message}")
+    return "HOLD"
 
 
 # ---------------------------------------------------------------------------- lock
@@ -424,7 +594,8 @@ def measure_box(busy_window: float) -> tuple[float, float]:
 
 
 def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
-         busy_window: float, rr_state: dict, launch_fn=launch, measure=None) -> str:
+         busy_window: float, rr_state: dict, launch_fn=launch, measure=None,
+         gpu_probe=None) -> str:
     """One scheduling pass. Returns one of EMPTY / HELD / LAUNCHED / REFUSED-ONLY.
 
     `measure` is injectable: a callable returning (busy_percent, mem_available_gb).
@@ -432,6 +603,12 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
     known values so its controls do not depend on the live box's load (2026-08-26:
     control 5b failed on a box at >= 94 % busy and passed on re-run -- the L-339
     class, a test users learn to re-run).
+
+    `gpu_probe` is injectable for the same reason and returns what probe_gpu() returns.
+    The daemon passes nothing and reads the real device; on this CPU box that reading is
+    "no-device" and the GPU-exclusivity clause is inert.  It is consulted AT MOST ONCE per
+    tick and ONLY for an entry that declares `gpu: exclusive`, so no other entry's launch
+    decision can change and a GPU-less host pays nothing for the clause.
     """
     cap_watch(root, log)
     queues = list_entries(root)
@@ -449,6 +626,8 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
     start = rr_state.get("cursor", 0) % max(1, len(order))
     order = order[start:] + order[:start]
     any_refused = False
+    gpu_reading: dict | None = None      # probed at most once per tick, lazily
+    gpu_live: list[str] = []
     for team in order:
         for path in queues[team]:
             entry, fails = qec.load_entry(path)
@@ -477,6 +656,24 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
             if mem < floor:
                 log(f"HELD {path.name}: MemAvailable {mem:.1f} GB < registered floor {floor} GB")
                 continue
+            if str(entry.get("gpu", "")).strip().lower() == GPU_EXCLUSIVE:
+                # THE GPU-EXCLUSIVITY CLAUSE (docs/standards/RUNNER_GPU_CLAUSE.md, 0699cb6b).
+                # It sits immediately above the ONLY launch site in this function, so "no
+                # path launches onto a busy device" is read off these six lines.  Its two
+                # outcomes are `continue` -- a WAIT, first-fit like the core-fraction and
+                # MemAvailable holds just above, so a non-GPU entry queued behind it still
+                # launches -- and fall-through.  There is NO path from here to move_refused(): the
+                # entry file is not touched, not moved and not written to.
+                if gpu_reading is None:
+                    gpu_reading = (probe_gpu if gpu_probe is None else gpu_probe)()
+                    gpu_live = live_queue_launches(root)
+                gpu_verdict, gpu_message = gpu_clause(entry, gpu_reading, gpu_live)
+                if gpu_verdict == "HOLD":
+                    gpu_gate_action(path, gpu_message, log)
+                    continue
+                # INERT and PASS are both LOGGED: a clause that is quiet when absent is
+                # indistinguishable from a clause that is quiet when passing.
+                log(f"GPU-CLAUSE {path.name}: {gpu_verdict} -- {gpu_message}")
             launch_fn(entry, path, root, log)
             rr_state["cursor"] = (TEAMS.index(team) + 1) % len(TEAMS)
             return "LAUNCHED"
@@ -835,6 +1032,225 @@ def selftest() -> int:
     olog = (oroot / "runner.log").read_text() if (oroot / "runner.log").exists() else ""
     check("--once exit logs `EXIT reason=normal pid=<pid>`, rc 0",
           po.returncode == 0 and "EXIT reason=normal pid=" in olog and "EXIT reason=SIG" not in olog)
+
+    # ---------------------------------------------------------------- GPU-clause controls
+    # docs/standards/RUNNER_GPU_CLAUSE.md section 4, frozen at 0699cb6b BEFORE this code.
+    # Six controls and four planted failures. Every device reading below is INJECTED --
+    # nothing here shells out to a live nvidia-smi (L-339), and nothing here touches a real
+    # queue: these controls run in their own scratch root so the accumulated launched/
+    # records of the controls above cannot make a launch read as "live".
+    groot = tmp / "gpu_queue"
+    for t in TEAMS:
+        (groot / t).mkdir(parents=True)
+    glog = Log(tmp / "gpu_runner.log", echo=False)
+    grr: dict = {}
+
+    def gpu_busy_reading():
+        return dict(state="ok", gpus=1, compute_apps=1,
+                    detail="INJECTED: 1 compute app on 1 device")
+
+    def gpu_idle_reading():
+        return dict(state="ok", gpus=1, compute_apps=0,
+                    detail="INJECTED: 0 compute apps on 1 device")
+
+    def gpu_absent_reading():
+        return dict(state="no-device", gpus=0, compute_apps=0,
+                    detail="INJECTED: nvidia-smi is not on PATH")
+
+    def gpu_broken_reading():
+        return dict(state="probe-failed", gpus=-1, compute_apps=-1,
+                    detail="INJECTED: TimeoutExpired: nvidia-smi did not return")
+
+    def gpu_entry(name: str, exclusive: bool = True) -> tuple[Path, Path]:
+        cdir = tmp / ("gpu_case_" + name)
+        cdir.mkdir()
+        e = dict(team="cfd", case_id=name, prereg_commit=head, prereg_path="CLAUDE.md",
+                 launch_cmd=["true"], cwd=str(cdir), ranks=1, cost_core_min_estimate=0.01,
+                 cost_basis="derived, not measured: selftest placeholder",
+                 memory_floor_gb=0.5, enqueued_by="queue_runner selftest")
+        if exclusive:
+            e["gpu"] = "exclusive"
+        p = groot / "cfd" / (name + ".json")
+        p.write_text(json.dumps(e))
+        return p, cdir
+
+    def gpu_wait_status(cdir: Path, name: str) -> None:
+        for _ in range(50):
+            if (cdir / f"STATUS.{name}").exists():
+                return
+            time.sleep(0.1)
+
+    def gpu_log_since(mark: int) -> str:
+        return (tmp / "gpu_runner.log").read_text()[mark:]
+
+    def gpu_refused_dir_empty() -> bool:
+        d = groot / "cfd" / "refused"
+        return (not d.exists()) or not any(d.iterdir())
+
+    # control 1: GPU host, `gpu: exclusive`, ONE compute app -> HELD GPU-BUSY, and the entry
+    # file is STILL AT ITS ORIGINAL PATH. This is the control the mandatory mutation flips.
+    p1, _c1 = gpu_entry("GPU_BUSY_1")
+    m = len((tmp / "gpu_runner.log").read_text()) if (tmp / "gpu_runner.log").exists() else 0
+    g1 = tick(groot, glog, 100.0, 1.0, 0.2, grr, measure=quiet, gpu_probe=gpu_busy_reading)
+    g1log = gpu_log_since(m)
+    check("GPU control 1: device busy (1 compute app) -> HELD GPU-BUSY, entry STILL QUEUED "
+          "at its original path, refused/ untouched",
+          g1 == "HELD" and p1.exists() and "GPU-BUSY" in g1log and
+          "1 compute app(s)" in g1log and gpu_refused_dir_empty() and
+          not (groot / "cfd" / "launched" / "GPU_BUSY_1.json").exists(),
+          f"tick={g1} entry_still_there={p1.exists()} refused_empty={gpu_refused_dir_empty()}")
+    p1.unlink()
+
+    # control 2: GPU host, `gpu: exclusive`, zero compute apps, no live queue-launched
+    # solver -> LAUNCHED.
+    p2, c2 = gpu_entry("GPU_CLEAR_2")
+    m = len((tmp / "gpu_runner.log").read_text())
+    g2 = tick(groot, glog, 100.0, 1.0, 0.2, grr, measure=quiet, gpu_probe=gpu_idle_reading)
+    gpu_wait_status(c2, "GPU_CLEAR_2")
+    check("GPU control 2: device clear and no live queue launch -> LAUNCHED",
+          g2 == "LAUNCHED" and not p2.exists() and
+          (groot / "cfd" / "launched" / "GPU_CLEAR_2.json").exists() and
+          "PASS" in gpu_log_since(m), f"tick={g2}")
+
+    # control 3: GPU host, `gpu: exclusive`, zero compute apps but a LIVE queue-launched
+    # solver -> HELD GPU-BUSY, entry stays. The liveness comes from the runner's own launch
+    # record (current, started_epoch present, STATUS absent, never stamped), not from ps.
+    live_rec = groot / "cfd" / "launched" / "GPU_LIVE_SOLVER.json"
+    live_rec.write_text(json.dumps(dict(
+        team="cfd", case_id="GPU_LIVE_SOLVER", ranks=1, cost_core_min_estimate=1.0e6,
+        cwd=str(tmp), _launch=dict(utc=utc(), pid=os.getpid(), sid=-1,
+                                   status_file=str(tmp / "STATUS.NEVER_APPEARS"),
+                                   started_epoch=time.time()))) + "\n")
+    p3, _c3 = gpu_entry("GPU_LIVEBLOCK_3")
+    m = len((tmp / "gpu_runner.log").read_text())
+    g3 = tick(groot, glog, 100.0, 1.0, 0.2, grr, measure=quiet, gpu_probe=gpu_idle_reading)
+    g3log = gpu_log_since(m)
+    check("GPU control 3: device idle but a queue-launched solver is alive -> HELD GPU-BUSY, "
+          "entry stays queued",
+          g3 == "HELD" and p3.exists() and "GPU-BUSY" in g3log and
+          "GPU_LIVE_SOLVER" in g3log and gpu_refused_dir_empty(),
+          f"tick={g3} entry_still_there={p3.exists()}")
+    p3.unlink()
+    live_rec.unlink()
+
+    # control 4: GPU host, an entry with NO `gpu` field -> the clause is not consulted at
+    # all and the busiest possible device cannot change its decision.
+    p4, c4 = gpu_entry("GPU_UNDECLARED_4", exclusive=False)
+    g4 = tick(groot, glog, 100.0, 1.0, 0.2, grr, measure=quiet, gpu_probe=gpu_busy_reading)
+    gpu_wait_status(c4, "GPU_UNDECLARED_4")
+    check("GPU control 4: entry with no `gpu` field is unaffected by a busy device -> LAUNCHED",
+          g4 == "LAUNCHED" and not p4.exists() and
+          (groot / "cfd" / "launched" / "GPU_UNDECLARED_4.json").exists(), f"tick={g4}")
+
+    # control 5: NON-GPU host (this box) -> the clause is INERT and SAYS SO. It changes no
+    # decision, and its silence when absent is distinguishable from its silence when passing.
+    p5, c5 = gpu_entry("GPU_INERT_5")
+    m = len((tmp / "gpu_runner.log").read_text())
+    g5 = tick(groot, glog, 100.0, 1.0, 0.2, grr, measure=quiet, gpu_probe=gpu_absent_reading)
+    g5log = gpu_log_since(m)
+    gpu_wait_status(c5, "GPU_INERT_5")
+    check("GPU control 5: host with no device -> clause INERT, says so in the tick log, and "
+          "changes no launch decision",
+          g5 == "LAUNCHED" and not p5.exists() and "INERT" in g5log and
+          "GPU_INERT_5.json" in g5log and "no GPU device" in g5log,
+          f"tick={g5} inert_logged={'INERT' in g5log}")
+
+    # control 6: the device query FAILS on a host that has a device -> HELD under the
+    # DISTINCT reason GPU-PROBE-FAILED. Never LAUNCHED, and never refused.
+    p6, _c6 = gpu_entry("GPU_PROBEFAIL_6")
+    m = len((tmp / "gpu_runner.log").read_text())
+    g6 = tick(groot, glog, 100.0, 1.0, 0.2, grr, measure=quiet, gpu_probe=gpu_broken_reading)
+    g6log = gpu_log_since(m)
+    check("GPU control 6: device query fails -> HELD GPU-PROBE-FAILED (a distinct reason), "
+          "entry stays queued, refused/ untouched",
+          g6 == "HELD" and p6.exists() and "GPU-PROBE-FAILED" in g6log and
+          "GPU-BUSY" not in g6log and gpu_refused_dir_empty(),
+          f"tick={g6} entry_still_there={p6.exists()}")
+    p6.unlink()
+
+    # ---- L-314 planted failures. Each must FLIP its control, proving the clause is
+    # load-bearing and reachable rather than decorative. The mutants are installed by
+    # swapping the module global and are removed again in the `finally`.
+    real_clause, real_action = gpu_clause, gpu_gate_action
+
+    # PLANT 1: disable the clause -> control 1 LAUNCHES.
+    pm1, cm1 = gpu_entry("GPU_MUT1_DISABLED")
+    try:
+        globals()["gpu_clause"] = lambda entry, reading, live: ("PASS", "MUTANT: clause disabled")
+        m1r = tick(groot, glog, 100.0, 1.0, 0.2, grr, measure=quiet, gpu_probe=gpu_busy_reading)
+    finally:
+        globals()["gpu_clause"] = real_clause
+    gpu_wait_status(cm1, "GPU_MUT1_DISABLED")
+    check("GPU plant 1 FLIPS control 1: with the clause disabled the busy-device entry "
+          "LAUNCHES -- so the clause, not something else, is what held it",
+          m1r == "LAUNCHED" and not pm1.exists(), f"tick={m1r}")
+
+    # PLANT 2, THE MANDATORY ONE (spec section 4): implement the clause as a REFUSAL instead
+    # of a hold. Control 1's entry must then leave the queue for refused/ and control 1 must
+    # FAIL. This is the exact defect ansys reported; without this control the "WAIT, never
+    # consume" rule is an untested claim rather than a guarantee.
+    pm2, _cm2 = gpu_entry("GPU_MUT2_REFUSES")
+
+    def _mutant_consumes(path, message, log):
+        move_refused(path, ["MUTANT: GPU busy treated as an INVALID entry"], log)
+        return "HOLD"
+
+    try:
+        globals()["gpu_gate_action"] = _mutant_consumes
+        m2r = tick(groot, glog, 100.0, 1.0, 0.2, grr, measure=quiet, gpu_probe=gpu_busy_reading)
+    finally:
+        globals()["gpu_gate_action"] = real_action
+    control1_condition_under_mutation = pm2.exists()      # control 1 asserts this is True
+    check("GPU plant 2 (MANDATORY) FLIPS control 1: implemented as a REFUSAL the entry is "
+          "CONSUMED into refused/ and control 1's `entry still queued` condition is FALSE",
+          control1_condition_under_mutation is False and
+          (groot / "cfd" / "refused" / "GPU_MUT2_REFUSES.json").exists() and
+          m2r == "HELD",
+          f"entry_still_queued={control1_condition_under_mutation} -> control 1 FAILS; "
+          f"consumed_to_refused="
+          f"{(groot / 'cfd' / 'refused' / 'GPU_MUT2_REFUSES.json').exists()}")
+    # the unmutated runner leaves refused/ empty; clear the mutant's deposit so the later
+    # controls' refused-empty reading stays a reading and not an inherited state
+    for leftover in sorted((groot / "cfd" / "refused").iterdir()):
+        leftover.unlink()
+
+    # PLANT 3: read a failed probe as "GPU free" -> control 6 LAUNCHES.
+    pm3, cm3 = gpu_entry("GPU_MUT3_PROBE_FREE")
+
+    def _mutant_probe_free(entry, reading, live):
+        v, msg = real_clause(entry, reading, live)
+        if v == "HOLD" and "GPU-PROBE-FAILED" in msg:
+            return "PASS", "MUTANT: a failed probe read as an idle GPU"
+        return v, msg
+
+    try:
+        globals()["gpu_clause"] = _mutant_probe_free
+        m3r = tick(groot, glog, 100.0, 1.0, 0.2, grr, measure=quiet, gpu_probe=gpu_broken_reading)
+    finally:
+        globals()["gpu_clause"] = real_clause
+    gpu_wait_status(cm3, "GPU_MUT3_PROBE_FREE")
+    check("GPU plant 3 FLIPS control 6: reading a failed probe as `GPU free` LAUNCHES the "
+          "entry -- so fail-closed is what held it, not an accident of the reading",
+          m3r == "LAUNCHED" and not pm3.exists(), f"tick={m3r}")
+
+    # PLANT 4: make the clause fire on a host with NO device -> control 5 HOLDS.
+    pm4, _cm4 = gpu_entry("GPU_MUT4_FIRES_INERT")
+
+    def _mutant_fires_inert(entry, reading, live):
+        v, msg = real_clause(entry, reading, live)
+        if v == "INERT":
+            return "HOLD", "MUTANT: GPU-BUSY claimed on a host with no device"
+        return v, msg
+
+    try:
+        globals()["gpu_clause"] = _mutant_fires_inert
+        m4r = tick(groot, glog, 100.0, 1.0, 0.2, grr, measure=quiet, gpu_probe=gpu_absent_reading)
+    finally:
+        globals()["gpu_clause"] = real_clause
+    check("GPU plant 4 FLIPS control 5: a clause that fires with no device HOLDS the entry "
+          "-- so the inert reading is what let control 5 through",
+          m4r == "HELD" and pm4.exists(), f"tick={m4r} entry_still_there={pm4.exists()}")
+    pm4.unlink()
 
     shutil.rmtree(tmp)  # scratch root only, created by mkdtemp above
     n_fail = sum(1 for _, ok, _ in checks if not ok)
