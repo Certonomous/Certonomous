@@ -1,0 +1,25 @@
+# T5b REGISTERED CAPS -- core-minutes, ranks 1.  FROZEN WITH THE REGISTRATION.
+#
+# `run_one_t5b.sh` REFUSES unless its --cap-core-min equals the row here for the
+# case.  An argv cannot widen a cap.  This file is the reason
+# T5_CUBE_c/CAP_OVERRUN.txt ("REPORTED, NOT ENFORCED ... The run was NOT killed")
+# cannot recur on this rung.
+#
+# BASIS -- MEASURED, on T5's OWN triple, same mesh, same solver, same endTime,
+# same ranks, from verification/runs/T-family/T5_runs/STATUS.T5_CUBE_{c,m,f}
+# (all rc=0, capped=0):
+#     c  965 s   52,684 cells    16.083 core-min   3.664e-06 s/cell-iteration
+#     m 4539 s  212,942 cells    75.650 core-min   4.263e-06 s/cell-iteration
+#     f 19150 s 882,024 cells   319.167 core-min   4.342e-06 s/cell-iteration
+# POINT = measured x 1.02.  The 2 % is an ALLOWANCE for the repaired function
+# objects' extra field writes (5 per case per object); it is NOT measured -- at
+# the 20-iteration probe scale the effect is smaller than the contention noise
+# on an 88 %-busy box, so it is declared as an allowance and not dressed up.
+# CAP = 2.0 x POINT.  The 2.0 is CONTENTION HEADROOM on a saturated box, not
+# model uncertainty: the POINT is a same-case measurement whose expected
+# actual/predicted ratio is 1.00.  The cap is a runaway guard, never a target.
+#
+# case=cap_core_min
+T5_CUBE_c=32.8
+T5_CUBE_m=154.4
+T5_CUBE_f=651.2
