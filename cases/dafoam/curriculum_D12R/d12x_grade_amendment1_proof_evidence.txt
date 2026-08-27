@@ -1,0 +1,141 @@
+D12R AMENDMENT 1 -- PLANTED-FAILURE PROOF AND FLAG LIMB.  EVIDENCE FILE.
+Generated 2026-08-27T18:47:20Z by dafoam lab-lane B. ZERO COMPUTE.
+Authority: L-342 (Sanaa, 2026-08-26) and ruling R-RC (Sanaa, 2026-08-27 standing
+directives sec.0).  NOT VERIFICATION_CHARTER.md 2d.1.
+Run root graded from (READ-ONLY): /home/ubuntu/certonomous-runs/CURRICULUM-D12R-cylinder-unsteady
+SUBMISSIONS PARKED -- nothing here is filed, sent or posted (CLAUDE.md rule 7).
+
+python3: Python 3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]
+__pycache__ cleared before EVERY invocation below (stale-bytecode inversion).
+
+================================================================================
+1.  THE PLANTED-FAILURE PROOF, UNDER python3
+================================================================================
+==============================================================================
+D12R AMENDMENT 1 -- PLANTED-FAILURE PROOF (L-342 / R-RC; rule 3 / L-314)
+root: /home/ubuntu/certonomous-runs/CURRICULUM-D12R-cylinder-unsteady
+==============================================================================
+  [OK ] P0  the PRESERVED manifest grades, with the unread record NAMED
+  [OK ] P1  PLANTED rc NON-ZERO on the exempted shell row -> MUST STILL REFUSE
+  [OK ] P2  PLANTED no End line on the exempted shell row -> MUST STILL REFUSE
+  [OK ] P3  PLANTED last time != endTime on the exempted shell row -> MUST STILL REFUSE
+  [OK ] P4  PLANTED AGE GUARD failed on the exempted shell row -> MUST STILL REFUSE
+  [OK ] P5  PLANTED OOMKilled on the exempted shell row -> MUST STILL REFUSE
+  [OK ] P6  PLANTED cold-start failed on the exempted shell row -> MUST STILL REFUSE
+  [OK ] P7  PLANTED short `Time =` count on S2b -> MUST STILL REFUSE
+  [OK ] P8  PLANTED rc=137 on S5 -> MUST STILL REFUSE
+  [OK ] P9  PLANTED status=None on a JSON task (S1b) -> MUST STILL REFUSE
+  [OK ] P10 PLANTED status key DELETED on a JSON task -> MUST STILL REFUSE
+  [OK ] P11 PLANTED status=COMPLETE on the SHELL row -> MUST REFUSE
+  [OK ] P12 PLANTED task=mesh/sweep/None -> MUST REFUSE on the taxonomy limb
+  [OK ] P13 the plant reader is shown able to see BOTH a plant and its absence
+
+AMEND1 PROOF legs=14 ok=14 failures=0 python_O=False
+ONE permissive leg (P0). THIRTEEN strict legs (P1-P13). A guard shown only to
+pass is not shown to be a guard.
+exit rc=0
+
+================================================================================
+2.  THE SAME PROOF, UNDER python3 -O
+================================================================================
+==============================================================================
+D12R AMENDMENT 1 -- PLANTED-FAILURE PROOF (L-342 / R-RC; rule 3 / L-314)
+root: /home/ubuntu/certonomous-runs/CURRICULUM-D12R-cylinder-unsteady
+==============================================================================
+  [OK ] P0  the PRESERVED manifest grades, with the unread record NAMED
+  [OK ] P1  PLANTED rc NON-ZERO on the exempted shell row -> MUST STILL REFUSE
+  [OK ] P2  PLANTED no End line on the exempted shell row -> MUST STILL REFUSE
+  [OK ] P3  PLANTED last time != endTime on the exempted shell row -> MUST STILL REFUSE
+  [OK ] P4  PLANTED AGE GUARD failed on the exempted shell row -> MUST STILL REFUSE
+  [OK ] P5  PLANTED OOMKilled on the exempted shell row -> MUST STILL REFUSE
+  [OK ] P6  PLANTED cold-start failed on the exempted shell row -> MUST STILL REFUSE
+  [OK ] P7  PLANTED short `Time =` count on S2b -> MUST STILL REFUSE
+  [OK ] P8  PLANTED rc=137 on S5 -> MUST STILL REFUSE
+  [OK ] P9  PLANTED status=None on a JSON task (S1b) -> MUST STILL REFUSE
+  [OK ] P10 PLANTED status key DELETED on a JSON task -> MUST STILL REFUSE
+  [OK ] P11 PLANTED status=COMPLETE on the SHELL row -> MUST REFUSE
+  [OK ] P12 PLANTED task=mesh/sweep/None -> MUST REFUSE on the taxonomy limb
+  [OK ] P13 the plant reader is shown able to see BOTH a plant and its absence
+
+AMEND1 PROOF legs=14 ok=14 failures=0 python_O=True
+ONE permissive leg (P0). THIRTEEN strict legs (P1-P13). A guard shown only to
+pass is not shown to be a guard.
+exit rc=0
+
+================================================================================
+3.  THE PROOF IS SHOWN ABLE TO FAIL -- A PROOF THAT CANNOT FAIL IS NOT A PROOF
+================================================================================
+MUTANT L: the evidence-task leak guard removed
+          'if st.get("status") is not None:'  ->  'if False:'
+  This is the mutation that would let a shell row carrying a status be graded
+  through -- the launcher/gate disagreement the amendment refuses on.  Leg P11
+  must catch it, under BOTH flags.
+  [BAD] P11 PLANTED status=COMPLETE on the SHELL row -> MUST REFUSE
+  *** P11 PLANTED status=COMPLETE on the SHELL row -> MUST REFUSE: DID NOT REFUSE: a status planted onto the shell row -- the launcher and this gate then disagree about what kind of stage it is
+AMEND1 PROOF legs=14 ok=13 failures=1 python_O=False
+  python3  -> exit rc=1
+  [BAD] P11 PLANTED status=COMPLETE on the SHELL row -> MUST REFUSE
+  *** P11 PLANTED status=COMPLETE on the SHELL row -> MUST REFUSE: DID NOT REFUSE: a status planted onto the shell row -- the launcher and this gate then disagree about what kind of stage it is
+AMEND1 PROOF legs=14 ok=13 failures=1 python_O=True
+  python3 -O -> exit rc=1
+
+MUTANT W (RECORDED AS INERT, AND THAT IS THE FINDING):
+          'EVIDENCE_TASKS = ("shell",)' -> '("shell","run_model","compute_totals","opt")'
+  This was the FIRST mutant this lane built for the olimb.  It changes a constant
+  and changes NO behaviour, because 'if task in JSON_TASKS' is tested FIRST, so a
+  task in both tuples still takes the strict branch.  Driven, not read:
+AMEND1 PROOF legs=14 ok=14 failures=0 python_O=False
+  python3  -> exit rc=0  (0 = NOT caught, because there is nothing to catch)
+AMEND1 PROOF legs=14 ok=14 failures=0 python_O=True
+  python3 -O -> exit rc=0  (0 = NOT caught, because there is nothing to catch)
+  A MUTANT THAT CHANGES NO BEHAVIOUR IS NOT A MUTANT.  It is REPLACED in --olimb
+  by M-C below, not quietly dropped, and it is recorded here because it was found
+  by DRIVING it rather than by reading it.
+
+================================================================================
+4.  THE INHERITED BATTERY, BOTH FLAGS
+================================================================================
+--- python3  d12x_grade.py --selftest ---
+SELFTEST UNITS: 84, failures: 0
+GATES EMITTED BUT NEVER EXERCISED (0): (none)
+COUNTED EXIT: units REGISTERED (frozen constant) 84, units in the list 84, units that RETURNED A RESULT 84, failures 0
+ASSERT AUDIT: 0 `assert` statements in this file (must be 0 -- `-O` deletes them)
+  exit rc=0
+--- python3 -O d12x_grade.py --selftest ---
+SELFTEST UNITS: 84, failures: 0
+GATES EMITTED BUT NEVER EXERCISED (0): (none)
+COUNTED EXIT: units REGISTERED (frozen constant) 84, units in the list 84, units that RETURNED A RESULT 84, failures 0
+ASSERT AUDIT: 0 `assert` statements in this file (must be 0 -- `-O` deletes them)
+  exit rc=0
+
+================================================================================
+5.  THE -O LIMB WITH FOUR MUTANTS (--olimb)
+================================================================================
+==========================================================================
+`python3 -O` LIMB -- a battery is flag-proof only if it still CATCHES under -O
+==========================================================================
+  control unmutated                             rc=0  OK
+  control unmutated                          -O rc=0  OK
+  M-A gate mutant (PASS band 0.05->0.50)        rc=1  OK
+  M-A gate mutant (PASS band 0.05->0.50)     -O rc=1  OK
+  M-C [AMD1] the JSON-task status demand removed    rc=1  OK
+  M-C [AMD1] the JSON-task status demand removed -O rc=1  OK
+  M-B one check() reverted to `assert`          rc=1  OK
+  M-B one check() reverted to `assert`       -O rc=1  OK
+
+  M-A is behavioural; M-B is STATEMENT TYPE. M-B is the one that matters here:
+  reverting a single check() to an assert is what a future edit actually looks
+  like, and under -O that assert VANISHES -- so only an AST audit can see it.
+
+  -O LIMB PASSES
+exit rc=0
+
+================================================================================
+6.  ASSERT AUDIT (AST, on statement type)
+================================================================================
+assert statements in this file: 0 (must be 0)
+exit rc=0
+COUNTER SHOWN COUNTING: a sacrificial copy carrying ONE planted module-level assert:
+assert statements in this file: 1 (must be 0)
+exit rc=1
+  An assert audit that has never seen an assert is not evidence.

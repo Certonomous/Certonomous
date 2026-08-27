@@ -1,0 +1,545 @@
+diff --git a/cases/dafoam/curriculum_D12R/d12x_grade.py b/cases/dafoam/curriculum_D12R/d12x_grade.py
+index b1602722..3659e32f 100644
+--- a/cases/dafoam/curriculum_D12R/d12x_grade.py
++++ b/cases/dafoam/curriculum_D12R/d12x_grade.py
+@@ -58,6 +58,63 @@ HARNESS_FLOOR_LO   = 0.025      # VERIFICATION_CHARTER section 7 step 4, shape D
+ CAP_CORE_MIN       = 600.0
+ CAP_S8_CORE_MIN    = 350.0
+ 
++# =============================================================================
++# D12R AMENDMENT 1 (2026-08-27) -- THE L-342 FIELD-CLASS SPLIT AT THE STATUS LIMB
++# =============================================================================
++# AUTHORITY: `L-342` and ruling `R-RC`.  DELIBERATELY NOT `VERIFICATION_CHARTER.md`
++# section 2d.1 -- this family has refused 2d.1 four times on the ground that an
++# exception used where the ordinary path is open is an exception being widened, and
++# invoking it here would be a fifth widening.
++#
++# `L-342` is Sanaa's own universal rule (2026-08-26T16:15Z), verbatim: "a bookkeeping
++# failure invalidates the bookkeeping, never the physics artifacts -- and graders must
++# separate physics-critical fields from infrastructure fields so a dead poller can never
++# void a run again."  Its own application clause names this repair by name: "Repair of a
++# conflating grader is a pre-registered amendment that touches no band, threshold or
++# verdict logic."
++#
++# `R-RC` was APPROVED BY SANAA HERSELF on 2026-08-27, standing directives section 0
++# (`etc/sessions/2026-08-27T1654Z_sanaa_standing_directives.md`), verbatim:
++#     "R-RC: APPROVED -- rc value is physics, rc record is infrastructure; absent
++#      record -> NOT MEASURED only when the other four rule-4 conditions hold."
++#
++# WHAT THIS AMENDMENT IS.  `status` is written by `d12x_run_script.py:188` as the LAST
++# statement before it dumps its JSON: it means "this driver script reached its end", and
++# NOTHING ELSE.  It carries no threshold and no physical quantity.  The frozen launcher
++# `d12x_stage_and_run.sh:413` writes `row["status"] = None` in an explicit `else` branch
++# for a stage that has no per-stage JSON -- the DESIGNED path for `task = shell`, which
++# never invokes the run script at all.  THE LAUNCHER WRITES THE NULL AND THIS GRADER
++# REFUSED ON IT, voiding thirty-two stages that are every one of them physically
++# complete.  That is bookkeeping voiding physics, which L-342 forbids.
++#
++# WHAT THIS AMENDMENT IS NOT.  THE RULE IS NOT "ACCEPT None".  The task decides WHICH
++# EVIDENCE OF COMPLETION IS ADMISSIBLE, and every task must present some.  A JSON-writing
++# task whose status is anything but "COMPLETE" -- absent, None, or a wrong string --
++# STILL REFUSES, unchanged.  An evidence task that nonetheless carries a status REFUSES
++# too, because the launcher and this gate then disagree about what kind of stage it is,
++# and a disagreement between two instruments about what a stage IS is never graded
++# through.  An UNKNOWN task REFUSES.  Every other limb of rule 4 is untouched.
++#
++# PRECEDENT, NOT INVENTION.  The successor comparator
++# `cases/dafoam/curriculum_D12R2/d12y_grade_w3.py` already carries exactly this repair as
++# `[D12R2-DEF-1] THE STATUS LIMB IS TASK-AWARE` (W3 AMENDMENT 2, `af44d244`).  This is a
++# BACK-PORT of a shipped, selftested design onto the row the chief ruled re-gradeable.
++#
++# ONE DELIBERATE NARROWING AGAINST THAT PRECEDENT.  D12R2's `EVIDENCE_TASKS` carries
++# `"mesh"` as well, because ITS launcher writes `mesh_check_ok`, `mesh_n_cells` and
++# `mesh_polymesh_files` and its gate demands all three.  THIS launcher writes none of
++# them.  Admitting `mesh` here would grade a mesh stage on evidence that does not exist,
++# so `mesh` is left OUT of the taxonomy and a mesh row REFUSES on the taxonomy limb.
++# That is STRICTER than the precedent and deliberately so.
++JSON_TASKS     = ("run_model", "compute_totals", "opt")
++EVIDENCE_TASKS = ("shell",)
++
++# The rule-4 limbs that carry the completion evidence for an EVIDENCE task, named here
++# individually so the artefact can print them.  "All of them held" without naming them is
++# the self-assessment shape this lab amended against.
++EVIDENCE_TASK_LIMBS = ("rc", "oomkilled", "end_line_present", "last_time_equals_endTime",
++                       "coldstart_ok", "age_guard")
++
+ # ---- ADDED 2026-08-25 under SUPERVISOR_D12_RULINGS.md, before first compute -------
+ # RULING 4 (delta_pert).  Two probe steps A DECADE APART, frozen.  delta_pert is
+ # MEASURED FOR THIS CONFIGURATION and is NEVER imported from D12-F': the floor is
+@@ -195,14 +252,64 @@ def g0_completion(stages):
+     """G12R-0 -- REFUSAL only.  Every clause of CLAUDE.md rule 4 this instrument carries."""
+     if not stages:
+         raise Refusal("G12R-0: no stages in the manifest")
++    # ---- D12R AMENDMENT 1 -- THE INFRASTRUCTURE CHANNEL ------------------------
++    # L-342 splits a grader's readings into physics-critical (may produce NOT A RESULT)
++    # and infrastructure (a BOOKKEEPING NOTE reported BESIDE the verdict).  A reading
++    # that is real and merely not fatal must still be VISIBLE, or the split becomes a way
++    # to make findings disappear -- which is the failure L-342 exists to prevent, running
++    # the other way.  Every entry here is echoed into the gate's own returned dict.
++    _infra = []
+     for st in stages:
+         nm = st.get("name", "<unnamed>")
+         if st.get("rc") != 0:
+             raise Refusal("G12R-0 %s: rc=%r" % (nm, st.get("rc")))
+         if str(st.get("oomkilled", "")).lower() != "false":
+             raise Refusal("G12R-0 %s: OOMKilled=%r" % (nm, st.get("oomkilled")))
+-        if st.get("status") != "COMPLETE":
+-            raise Refusal("G12R-0 %s: JSON status=%r" % (nm, st.get("status")))
++        # ---- D12R AMENDMENT 1 -- THE STATUS LIMB IS TASK-AWARE, AND THAT IS THE
++        # ---- REPAIR.  L-342 / R-RC.  See the amendment header at the top of this file.
++        #
++        # THIS ROW IS WHERE D12R PHASE 1 DIED, and the way it died is the lesson: this
++        # limb was UNCONDITIONAL while its SIBLING step-count limb thirty-six lines below
++        # carried an explicit [D4] stage-kind repair.  THE SAME BLINDNESS WAS FIXED IN ONE
++        # LIMB AND LEFT IN THE OTHER, in the same function, in the same commit.  Demanding
++        # a per-stage JSON of a `shell` stage asks a `run_model` question of a stage that
++        # is not one -- the same shape as reading CL where the objective is CD.
++        task = st.get("task")
++        if task not in JSON_TASKS + EVIDENCE_TASKS:
++            raise Refusal("G12R-0 %s: task=%r is not in the registered taxonomy %r. A "
++                          "completion gate that does not know what the stage was ASKED "
++                          "TO DO cannot know what evidence of completion to demand, and "
++                          "REFUSES rather than guessing."
++                          % (nm, task, JSON_TASKS + EVIDENCE_TASKS))
++        if task in JSON_TASKS:
++            # These invoke `d12x_run_script.py`, which writes the per-stage JSON.  A
++            # missing, None or non-COMPLETE status here is EXACTLY the original refusal,
++            # PRESERVED BYTE-FOR-BYTE IN EFFECT: the repair widens the question asked, it
++            # does not weaken the answer demanded.
++            if st.get("status") != "COMPLETE":
++                raise Refusal("G12R-0 %s: task=%r WRITES a per-stage JSON and its JSON "
++                              "status=%r, not 'COMPLETE'."
++                              % (nm, task, st.get("status")))
++        else:
++            # These write NO per-stage JSON, by the frozen launcher's own `else` branch.
++            # THIS BRANCH IS NOT A WAIVER -- it refuses too, on the opposite reading: a
++            # status here means the launcher's model of the stage and this gate's
++            # disagree, and a disagreement between two instruments about what a stage IS
++            # is never graded through.
++            if st.get("status") is not None:
++                raise Refusal("G12R-0 %s: task=%r writes no per-stage JSON, yet the row "
++                              "carries status=%r. The launcher and this gate disagree "
++                              "about what kind of stage this is."
++                              % (nm, task, st.get("status")))
++            # VISIBILITY (L-342, and the reason the split is not a hiding place).  The
++            # reading that was NOT taken is named, with the limbs that carry the
++            # completion evidence in its place named INDIVIDUALLY.
++            _infra.append(
++                "%s: JSON status NOT MEASURED (INFRASTRUCTURE, L-342/R-RC) -- task=%r "
++                "invokes no run script and writes no per-stage JSON, so no status record "
++                "exists to read. This is NOT a waiver of completion: the evidence is "
++                "carried instead, and in full, by the rule-4 limbs %s, each of which "
++                "refuses on its own below." % (nm, task, ", ".join(EVIDENCE_TASK_LIMBS)))
+         if not st.get("end_line_present"):
+             raise Refusal("G12R-0 %s: no End line in its own log" % nm)
+         lt, et = st.get("last_time"), st.get("endTime")
+@@ -288,7 +395,12 @@ def g0_completion(stages):
+         if ma is not None and float(ma) < MEMAVAIL_FLOOR_GIB:
+             raise Refusal("G12R-0 %s: launched at MemAvailable %.4f GiB, below the "
+                           "registered %.1f GiB floor" % (nm, float(ma), MEMAVAIL_FLOOR_GIB))
+-    return {"gate": "G12R-0", "verdict": "PASS", "n_stages": len(stages)}
++    # D12R AMENDMENT 1: the infrastructure channel travels WITH the verdict, never
++    # instead of it.  A caller that prints the verdict and drops these keys is the
++    # failure L-342 runs backwards into.
++    return {"gate": "G12R-0", "verdict": "PASS", "n_stages": len(stages),
++            "infrastructure_notes": list(_infra),
++            "n_infrastructure_notes": len(_infra)}
+ 
+ 
+ def g_where(stage, reg_index, reg_delta, nshapes=None, require_units=False):
+@@ -817,7 +929,9 @@ def check(cond, msg="unit check failed"):
+ #
+ # Frozen here instead.  A unit that VANISHES from the list now fails LOUDLY against a
+ # number that does not move with it, which is the only way the count means anything.
+-EXPECTED_UNITS = 72
++_DELETE = object()   # D12R AMENDMENT 1: sentinel meaning "remove this key entirely"
++
++EXPECTED_UNITS = 84      # 72 at the freeze + 12 added by D12R AMENDMENT 1 (2026-08-27)
+ 
+ 
+ # ---------------------------------------------------------------- selftest
+@@ -846,7 +960,14 @@ def selftest(tmpdir):
+         # moment those limbs were added.  That refusal is the gate working: a fixture
+         # missing a limb is a stage missing evidence, and rule 4 does not accept absence
+         # of a check as a pass.  The fields are added; the gate is unchanged.
++        # D12R AMENDMENT 1 (2026-08-27) adds `task` for the same reason and by the same
++        # rule as RULING 5 added the two limbs above: a fixture missing a limb is a stage
++        # missing evidence, and G12R-0 correctly REFUSED this fixture the moment the
++        # task-aware status limb landed. THE FIELD IS ADDED; THE GATE IS NOT WEAKENED --
++        # `run_model` is a JSON task, so this fixture still drives the ORIGINAL,
++        # UNCHANGED status refusal, and `u01b` below now drives the taxonomy limb too.
+         st = {"name": "s", "rc": 0, "oomkilled": "false", "status": "COMPLETE",
++              "task": "run_model",
+               "end_line_present": True, "last_time": 3.0, "endTime": 3.0,
+               "coldstart_ok": True, "field_b_md5_ok": True,
+               "obj": 1.0, "obj_from_log": 1.0, "memavail_GiB": 25.0,
+@@ -871,7 +992,12 @@ def selftest(tmpdir):
+                          ("memavail_GiB", 3.0), ("obj_from_log", 1.5),
+                          # the two limbs added under RULING 5
+                          ("age_guard_ok", False), ("age_guard_ok", None),
+-                         ("time_line_count", 299), ("execution_time_count", 3)]:
++                         ("time_line_count", 299), ("execution_time_count", 3),
++                         # D12R AMENDMENT 1: the inherited refusal matrix drives the new
++                         # taxonomy limb and the two new status legs, so the amendment's
++                         # guards are load-bearing HERE too and not only in their own
++                         # units.  `status=None` on a JSON task is the D12R refusal itself.
++                         ("task", "sweep"), ("task", None), ("status", None)]:
+             try:
+                 g0_completion([base_stage(**{mut: val})])
+                 raise AssertionError("G12R-0 did NOT refuse on mutation %s=%r" % (mut, val))
+@@ -1082,7 +1208,11 @@ def selftest(tmpdir):
+                  "a DEGENERATE delta_window as the dominant term")
+ 
+     def _g0row(**kw):
++        # D12R AMENDMENT 1: every row now declares its TASK, because the status limb is
++        # task-aware.  The default is a JSON task, so every inherited unit below drives
++        # the ORIGINAL, UNCHANGED refusal path.
+         row = {"name": "S5", "rc": 0, "oomkilled": "false", "status": "COMPLETE",
++               "task": "run_model",
+                "end_line_present": True, "last_time": 3.0, "endTime": 3.0,
+                "coldstart_ok": True, "age_guard_ok": True, "age_guard_detail": "ok",
+                "expected_steps": 300, "time_line_count": 300,
+@@ -1149,6 +1279,74 @@ def selftest(tmpdir):
+         _refuses(lambda: g0_completion([_g0row(execution_time_count=12)]),
+                  "ExecutionTime count below the registered step count")
+ 
++    # ---- D12R AMENDMENT 1 (2026-08-27) -- L-342 / R-RC, THE TASK-AWARE STATUS LIMB ----
++    # Every PERMISSIVE leg below is paired with the STRICT leg that shows the SAME guard
++    # still refusing.  A guard shown only to pass is not shown to be a guard.
++    def _shellrow(**kw):
++        r = _g0row(name="S1a", task="shell", status=None, stage_kind="steady",
++                   expected_steps=500, time_line_count=6, execution_time_count=7,
++                   endTime=500.0, last_time=500.0, n_cd_lines=0, n_cd_negative=0)
++        r.update(kw)
++        return r
++    def uA1_json_complete():
++        exercised.add("G12R-0")
++        r = g0_completion([_g0row()])
++        check(r["verdict"] == "PASS", r)
++        check(r["n_infrastructure_notes"] == 0, r)
++    def uA1_json_none_still_refuses():
++        # THE ORIGINAL REFUSAL, PRESERVED.  A JSON task whose status is None is exactly
++        # the record the launcher wrote and failed to fill, and it is NOT licensed.
++        _refuses(lambda: g0_completion([_g0row(status=None)]),
++                 "a JSON-writing task whose status is None -- the original refusal, kept")
++    def uA1_json_absent_still_refuses():
++        row = _g0row()
++        del row["status"]
++        _refuses(lambda: g0_completion([row]),
++                 "a JSON-writing task carrying NO status key at all")
++    def uA1_json_started_still_refuses():
++        _refuses(lambda: g0_completion([_g0row(status="STARTED")]),
++                 "a JSON-writing task that started and never reached COMPLETE")
++    def uA1_shell_grades_with_a_visible_note():
++        r = g0_completion([_shellrow()])
++        check(r["verdict"] == "PASS", r)
++        check(r["n_infrastructure_notes"] == 1, r)
++        note = " ".join(r["infrastructure_notes"])
++        check("S1a" in note, note)
++        check("NOT MEASURED" in note, note)
++        check("INFRASTRUCTURE" in note, note)
++        check("L-342/R-RC" in note, note)
++        # the limbs that carry the evidence instead are named INDIVIDUALLY, not summarised
++        for limb in EVIDENCE_TASK_LIMBS:
++            check(limb in note, "limb %r not named in the artefact" % limb)
++    def uA1_shell_with_a_status_refuses():
++        _refuses(lambda: g0_completion([_shellrow(status="COMPLETE")]),
++                 "an evidence task carrying a status -- launcher and gate disagree "
++                 "about what kind of stage this is")
++    def uA1_unknown_task_refuses():
++        for bad in (None, "mesh", "sweep", ""):
++            _refuses(lambda b=bad: g0_completion([_shellrow(task=b)]),
++                     "task=%r, which is not in the registered taxonomy" % (bad,))
++    def uA1_shell_rc_nonzero_refuses():
++        _refuses(lambda: g0_completion([_shellrow(rc=1)]),
++                 "an exempted-status shell stage whose rc is NON-ZERO -- the rc VALUE is "
++                 "physics and R-RC leaves rule 4 untouched")
++    def uA1_shell_no_end_line_refuses():
++        _refuses(lambda: g0_completion([_shellrow(end_line_present=False)]),
++                 "an exempted-status shell stage with no End line")
++    def uA1_shell_last_time_refuses():
++        _refuses(lambda: g0_completion([_shellrow(last_time=499.0)]),
++                 "an exempted-status shell stage whose last time != endTime")
++    def uA1_shell_age_guard_refuses():
++        _refuses(lambda: g0_completion([_shellrow(age_guard_ok=False,
++                                                 age_guard_detail="STALE: U,p")]),
++                 "an exempted-status shell stage whose AGE GUARD failed -- the exemption "
++                 "buys NOTHING; every other limb refuses on its own")
++    def uA1_shell_oom_and_coldstart_refuse():
++        _refuses(lambda: g0_completion([_shellrow(oomkilled="true")]),
++                 "an exempted-status shell stage that was OOMKilled")
++        _refuses(lambda: g0_completion([_shellrow(coldstart_ok=False)]),
++                 "an exempted-status shell stage whose cold-start assertion failed")
++
+     def u06():
+         exercised.add("G12R-3")
+         # REPAIRED 2026-08-25 (before first compute).  The original fixture used W = 2 on a
+@@ -1411,6 +1609,18 @@ def selftest(tmpdir):
+         ("U-0b  G12R-0 refuses an UNEVALUATED age guard", u0_age_unevaluated),
+         ("U-0c  G12R-0 refuses a short primal step count", u0_steps),
+         ("U-0d  G12R-0 refuses a short ExecutionTime count", u0_exectime),
++        ("U-A1a [AMD1] G12R-0 a JSON task with status COMPLETE passes, 0 infra notes", uA1_json_complete),
++        ("U-A1b [AMD1] G12R-0 STILL REFUSES a JSON task with status None (original refusal kept)", uA1_json_none_still_refuses),
++        ("U-A1c [AMD1] G12R-0 STILL REFUSES a JSON task with NO status key", uA1_json_absent_still_refuses),
++        ("U-A1d [AMD1] G12R-0 STILL REFUSES a JSON task stuck at STARTED", uA1_json_started_still_refuses),
++        ("U-A1e [AMD1] G12R-0 grades a shell task and NAMES the unread record + every substitute limb", uA1_shell_grades_with_a_visible_note),
++        ("U-A1f [AMD1] G12R-0 REFUSES an evidence task that carries a status (instrument disagreement)", uA1_shell_with_a_status_refuses),
++        ("U-A1g [AMD1] G12R-0 REFUSES an unknown task (None, mesh, sweep, empty)", uA1_unknown_task_refuses),
++        ("U-A1h [AMD1] the exemption buys nothing: shell + rc=1 STILL REFUSES", uA1_shell_rc_nonzero_refuses),
++        ("U-A1i [AMD1] the exemption buys nothing: shell + no End line STILL REFUSES", uA1_shell_no_end_line_refuses),
++        ("U-A1j [AMD1] the exemption buys nothing: shell + last_time != endTime STILL REFUSES", uA1_shell_last_time_refuses),
++        ("U-A1k [AMD1] the exemption buys nothing: shell + AGE GUARD failed STILL REFUSES", uA1_shell_age_guard_refuses),
++        ("U-A1l [AMD1] the exemption buys nothing: shell + OOMKilled / cold-start STILL REFUSE", uA1_shell_oom_and_coldstart_refuse),
+         ("U-06  G12R-3 window spread", u06),
+         ("U-06c G12R-3 W a multiple of the period => delta_window EXACTLY 0", u06c),
+         ("U-06b G12R-3 refuses a single-window series", u06b),
+@@ -1769,6 +1979,31 @@ def olimb(tmpdir):
+         rc, _ = run(ma, flag)
+         results.append(("M-A gate mutant (PASS band 0.05->0.50)", "-O" if flag else "  ", rc, rc != 0))
+ 
++    # ---- M-C: D12R AMENDMENT 1's OWN GATE MUTANT.  The one way this amendment could
++    # ---- go wrong is a PERMISSIVE WIDENING: make the JSON-task branch stop demanding
++    # ---- "COMPLETE", and every status refusal in this file silently evaporates.  The
++    # ---- battery must catch that under BOTH flags, or the amendment shipped an
++    # ---- untested guard.
++    #
++    # A MEASURED NOTE, recorded because it was found by driving the mutant rather than
++    # by reading it.  The FIRST M-C built here widened `EVIDENCE_TASKS` to hold every
++    # task -- and it is INERT, because `if task in JSON_TASKS` is tested FIRST, so a task
++    # in both tuples still takes the strict branch.  A mutant that changes a constant and
++    # not a behaviour is not a mutant, and a battery "catching" it would have proved
++    # nothing.  The inert mutant is recorded in the amendment's evidence file and
++    # REPLACED here, not quietly dropped.
++    mc = os.path.join(tmpdir, "mutant_status_permissive.py")
++    s4, n = _re.subn(r'^(\s*)if st\.get\("status"\) != "COMPLETE":$',
++                     r'\g<1>if False:', src, count=1, flags=_re.M)
++    if n != 1:
++        raise Refusal("--olimb could not build the AMENDMENT 1 permissive mutant; the "
++                      "target line moved")
++    open(mc, "w").write(s4)
++    for flag in (False, True):
++        rc, _ = run(mc, flag)
++        results.append(("M-C [AMD1] the JSON-task status demand removed",
++                        "-O" if flag else "  ", rc, rc != 0))
++
+     # ---- M-B: a STATEMENT-TYPE mutant -- one check() reverted to an assert ----
+     mb = os.path.join(tmpdir, "mutant_assert.py")
+     s3, n = _re.subn(r"^(\s*)check\((.+), (.+)\)$", r"\g<1>assert \g<2>, \g<3>", src,
+@@ -1797,10 +2032,201 @@ def olimb(tmpdir):
+     return 0 if ok else 1
+ 
+ 
++def amend1_proof(root, tmpdir):
++    """--amend1-proof : THE PLANTED-FAILURE PROOF FOR D12R AMENDMENT 1 (rule 3 / L-314).
++
++    Sanaa's standing directives section 1: "Every guard ships its planted-failure proof."
++
++    THE OBVIOUS TEST IS WORTHLESS.  Showing the amended gate grades the real manifest
++    proves only that it can say YES.  A reader never shown able to say NO is not a
++    reader.  So every leg here plants a KNOWN defect into a COPY of the real manifest,
++    WRITES IT TO DISK, READS IT BACK, and asserts BOTH that the plant survived the round
++    trip AND that the gate reacted to it.  The permissive legs are outnumbered by the
++    strict ones on purpose.
++
++    ZERO COMPUTE.  Nothing is solved, nothing is re-run, and the real manifest is opened
++    READ-ONLY -- every mutation is written into `tmpdir`.
++    """
++    src = os.path.join(root, "manifest.jsonl")
++    if not os.path.isfile(src):
++        raise Refusal("--amend1-proof needs the preserved manifest at %s" % src)
++    base = _read_manifest_rows(src)
++    os.makedirs(tmpdir, exist_ok=True)
++    n_ok, bad, legs = 0, [], []
++
++    def _write(name, rows):
++        pth = os.path.join(tmpdir, name)
++        with open(pth, "w") as f:
++            for r in rows:
++                f.write(json.dumps(r, sort_keys=True) + "\n")
++        return pth
++
++    def _plant(stage, **kw):
++        """Copy the real rows, mutate ONE named stage, write, read back, PROVE the plant
++        is on disk.  A plant that never reached the file would make every refusal below
++        a false positive."""
++        rows = [dict(r) for r in base]
++        hit = 0
++        for r in rows:
++            if r.get("name") == stage:
++                for k, v in kw.items():
++                    if v is _DELETE:
++                        r.pop(k, None)
++                    else:
++                        r[k] = v
++                hit += 1
++        if hit != 1:
++            raise Refusal("plant targeted %d rows named %r, expected exactly 1"
++                          % (hit, stage))
++        pth = _write("planted_%s_%s.jsonl" % (stage, "_".join(sorted(kw))), rows)
++        back = _read_manifest_rows(pth)
++        got = [r for r in back if r.get("name") == stage][0]
++        for k, v in kw.items():
++            if v is _DELETE:
++                if k in got:
++                    raise Refusal("PLANT NOT READ BACK: %r survived deletion on %s"
++                                  % (k, stage))
++            elif got.get(k) != v:
++                raise Refusal("PLANT NOT READ BACK from disk: %s.%s is %r, planted %r"
++                              % (stage, k, got.get(k), v))
++        return back
++
++    def leg(name, fn):
++        try:
++            fn()
++            legs.append((name, "OK "))
++            return True
++        except SelfTestFailure as e:
++            legs.append((name, "BAD"))
++            bad.append((name, str(e)))
++            return False
++
++    def _must_refuse(rows, want, what):
++        try:
++            g0_completion(rows)
++        except Refusal as e:
++            if want not in str(e):
++                raise SelfTestFailure("refused, but on the WRONG limb: %s" % e)
++            return
++        raise SelfTestFailure("DID NOT REFUSE: %s" % what)
++
++    # ---- P0.  THE LICENSED CASE, UNMODIFIED.  This is the only permissive leg on the
++    # ---- real artefacts, and it is stated first so the strict legs below are read as
++    # ---- what fences it.
++    def p0():
++        r = g0_completion(base)
++        check(r["verdict"] == "PASS", r)
++        check(r["n_infrastructure_notes"] == 1, r)
++        note = " ".join(r["infrastructure_notes"])
++        check("S1a" in note and "NOT MEASURED" in note and "L-342/R-RC" in note, note)
++        for limb in EVIDENCE_TASK_LIMBS:
++            check(limb in note, "limb %r not named" % limb)
++    n_ok += leg("P0  the PRESERVED manifest grades, with the unread record NAMED", p0)
++
++    # ---- P1..P6.  GENUINELY ABSENT PHYSICS, PLANTED ON THE EXEMPTED ROW ITSELF.
++    # ---- If the exemption were a hole, these would walk through it.  Each must refuse
++    # ---- ON ITS OWN LIMB -- refusing for the wrong reason is recorded as a failure.
++    for nm_, kw, want, label in (
++            ("P1", {"rc": 1}, "rc=1", "rc NON-ZERO on the exempted shell row"),
++            ("P2", {"end_line_present": False}, "no End line",
++             "no End line on the exempted shell row"),
++            ("P3", {"last_time": 499.0}, "last time",
++             "last time != endTime on the exempted shell row"),
++            ("P4", {"age_guard_ok": False, "age_guard_detail": "STALE: U.gz"},
++             "AGE GUARD", "AGE GUARD failed on the exempted shell row"),
++            ("P5", {"oomkilled": "true"}, "OOMKilled",
++             "OOMKilled on the exempted shell row"),
++            ("P6", {"coldstart_ok": False}, "cold-start",
++             "cold-start failed on the exempted shell row")):
++        def _mk(kw=kw, want=want, label=label):
++            def f():
++                rows = _plant("S1a", **kw)
++                _must_refuse(rows, want, label)
++            return f
++        n_ok += leg("%s  PLANTED %s -> MUST STILL REFUSE" % (nm_, label), _mk())
++
++    # ---- P7, P8.  A PLANTED PHYSICS DEFECT ON A NON-EXEMPTED ROW, to show the
++    # ---- exemption did not leak sideways into the other 31 rows.
++    def p7():
++        rows = _plant("S2b", time_line_count=2399)
++        _must_refuse(rows, "`Time =` lines", "a short primal step count on S2b")
++    n_ok += leg("P7  PLANTED short `Time =` count on S2b -> MUST STILL REFUSE", p7)
++
++    def p8():
++        rows = _plant("S5", rc=137)
++        _must_refuse(rows, "rc=137", "rc=137 on S5")
++    n_ok += leg("P8  PLANTED rc=137 on S5 -> MUST STILL REFUSE", p8)
++
++    # ---- P9..P11.  THE STATUS LIMB'S OWN STRICT HALF.  The amendment's whole claim is
++    # ---- that it widened the QUESTION and not the ANSWER; these are that claim, driven.
++    def p9():
++        rows = _plant("S1b", status=None)
++        _must_refuse(rows, "JSON status=None",
++                     "status=None on a JSON-WRITING task -- the D12R refusal itself")
++    n_ok += leg("P9  PLANTED status=None on a JSON task (S1b) -> MUST STILL REFUSE", p9)
++
++    def p10():
++        rows = _plant("S1b", status=_DELETE)
++        _must_refuse(rows, "JSON status=None",
++                     "the status key DELETED from a JSON-writing task")
++    n_ok += leg("P10 PLANTED status key DELETED on a JSON task -> MUST STILL REFUSE", p10)
++
++    def p11():
++        rows = _plant("S1a", status="COMPLETE")
++        _must_refuse(rows, "disagree",
++                     "a status planted onto the shell row -- the launcher and this gate "
++                     "then disagree about what kind of stage it is")
++    n_ok += leg("P11 PLANTED status=COMPLETE on the SHELL row -> MUST REFUSE", p11)
++
++    # ---- P12.  THE TAXONOMY LIMB.  An unregistered task is not silently exempted.
++    def p12():
++        for t in ("mesh", "sweep", None):
++            rows = _plant("S1a", task=t)
++            _must_refuse(rows, "registered taxonomy", "task=%r" % (t,))
++    n_ok += leg("P12 PLANTED task=mesh/sweep/None -> MUST REFUSE on the taxonomy limb", p12)
++
++    # ---- P13.  THE PLANT ITSELF IS SHOWN TO BE VISIBLE.  Rule 3: a reader not shown
++    # ---- able to see a non-zero cannot certify a zero.  `_plant` re-reads every value
++    # ---- from disk; this leg proves that re-read can FAIL, by asking it to confirm a
++    # ---- value that was never planted.
++    def p13():
++        try:
++            rows = [dict(r) for r in base]
++            pth = _write("plant_control.jsonl", rows)
++            back = _read_manifest_rows(pth)
++            got = [r for r in back if r.get("name") == "S1a"][0]
++            if got.get("rc") == 1:
++                raise SelfTestFailure("control corrupt")
++        except SelfTestFailure:
++            raise
++        # and the positive half: a planted value IS seen
++        rows = _plant("S1a", rc=1)
++        got = [r for r in rows if r.get("name") == "S1a"][0]
++        check(got["rc"] == 1, got)
++    n_ok += leg("P13 the plant reader is shown able to see BOTH a plant and its absence", p13)
++
++    print("=" * 78)
++    print("D12R AMENDMENT 1 -- PLANTED-FAILURE PROOF (L-342 / R-RC; rule 3 / L-314)")
++    print("root: %s" % root)
++    print("=" * 78)
++    for name, st in legs:
++        print("  [%s] %s" % (st, name))
++    for name, msg in bad:
++        print("  *** %s: %s" % (name, msg))
++    print("")
++    print("AMEND1 PROOF legs=%d ok=%d failures=%d python_O=%s"
++          % (len(legs), n_ok, len(bad), not __debug__))
++    print("ONE permissive leg (P0). THIRTEEN strict legs (P1-P13). A guard shown only to")
++    print("pass is not shown to be a guard.")
++    return 0 if not bad else 1
++
++
+ def main():
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--selftest", action="store_true")
+     ap.add_argument("--olimb", action="store_true")
++    ap.add_argument("--amend1-proof", dest="amend1_proof", action="store_true",
++                    help="D12R AMENDMENT 1's planted-failure proof; needs --root")
+     ap.add_argument("--assert-audit", dest="assert_audit", action="store_true")
+     ap.add_argument("--plan3", action="store_true")
+     ap.add_argument("--plan", action="store_true")
+@@ -1821,6 +2247,15 @@ def main():
+         return 0 if n == 0 else 1
+     if a.olimb:
+         return olimb(os.path.join(a.tmpdir, "d12x_olimb"))
++    if a.amend1_proof:
++        if not a.root:
++            print("REFUSAL: --amend1-proof needs --root", file=sys.stderr)
++            return 3
++        try:
++            return amend1_proof(a.root, os.path.join(a.tmpdir, "d12x_amend1_proof"))
++        except Refusal as e:
++            print("REFUSAL: %s" % e, file=sys.stderr)
++            return 2
+     if a.selftest:
+         d = os.path.join(a.tmpdir, "d12r_selftest")
+         os.makedirs(d, exist_ok=True)
