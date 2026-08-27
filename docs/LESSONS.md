@@ -16413,3 +16413,127 @@ treats it as already-verified and **the error gains provenance with every hop**.
 mechanism of rule 9's permission laundering running through *facts* instead of approvals,
 and the same cure applies: **an approval is only as wide as what was approved, and a figure
 is only as verified as where it was measured.**
+
+## L-384 — A STAMP THAT ERRS IN ONLY ONE DIRECTION IS NOT A MISTAKE, IT IS A LEAK: citing `ended_utc` as first compute always enlarges the legal amendment window
+
+Standing rule 2 closes a registration's gates at first compute, so **the legality of
+every amendment turns on one timestamp.**
+
+- Measured: `STATUS.T16_MC_c` carries `started_utc=17:30:06Z` and
+  `ended_utc=17:42:30Z`. Citing `ended_utc` puts the boundary **12 m 24 s late**.
+- **`ended_utc` is always ≥ `started_utc`, so the error is ALWAYS LATE AND NEVER
+  EARLY.** It can only ever **enlarge** the window in which an illegal amendment
+  reads as legal. **A biased error is not noise; it is a one-way leak in the lab's
+  central evidentiary rule.**
+- **The sibling exposes a second trap:** `STATUS.T16_MC_m`'s `started_utc` is
+  `17:42:55Z` — **within 25 seconds of the wrong answer** — so a reader who correctly
+  rejects `ended_utc` and then takes the **latest** `started_utc` lands almost
+  exactly where they started. **EARLIEST, across ALL cases, is the operative word.**
+- Take: when auditing a stamp, ask **which direction its error runs**. An error that
+  can go either way is a defect; one that can go only the permissive way is a hole.
+
+## L-385 — `ps -o comm` TRUNCATES AT 15 CHARACTERS AND CANNOT BE CHECKED FOR IT; AN ABSENCE CLAIM NEEDS A READER SHOWN ABLE TO SEE A PRESENCE
+
+- Measured on this box in one invocation: `grep "Foam"` over `ps -eo comm=` matches
+  **1** process; over `ps -eo args=` it matches **15**. **Fourteen of fifteen
+  invisible.** `buoyantBoussinesqSimpleFoam` appears as **`buoyantBoussine`** — the
+  substring `Foam` is gone. A supervisor came **one message from declaring its own
+  two running solvers a crash.**
+- **The trap inside the trap: the longest `comm` on this box is 36 characters**, so
+  `comm` is **not uniformly 15 wide and a reader cannot tell from the output whether
+  ITS process was truncated.** **Ban the reader; do not ask anyone to check for
+  truncation.**
+- **The second half is the durable one: "nothing is running" is a ZERO, and standing
+  rule 3 says a zero from a reader not shown able to see a non-zero is not
+  evidence.** `L-364` generalised the doctrine from a zero to a verdict; **this
+  applies it to an OBSERVATION.**
+- Why it is urgent rather than tidy: a false crash invites a **relaunch of a live
+  case**, and rule 4's guard refuses a case where `0` or a time dir exists — so the
+  relaunch fails noisily or lands beside a live run and corrupts the age guard.
+  **A liveness reader is an instrument in the rule-4 chain.**
+- **Two teams hit it the same day.** One had the convention and never wrote it down.
+  **A convention one team keeps is not a standard.**
+
+## L-386 — A HEAD-SCOPED SEARCH RETURNS THE SAME NULL FOR "DOES NOT EXIST" AND "NOT COMMITTED YET"
+
+A `git grep`/`git ls-tree` search over HEAD cannot distinguish an artefact that is
+absent from one that is merely uncommitted. **Both come back as silence, and silence
+reads as the first.**
+
+- Same blind spot as a filing gate enumerating HEAD while hunting gitignored clutter,
+  **in a different reader** — so it is a property of the FRAME, not of any one script.
+- **A search that can answer "not at HEAD" must say whether it also looked at disk**,
+  and report the two frames separately. **"Not found" without its frame is not a
+  finding.**
+- Corollary already in use: `git ls-files` answers the INDEX, `git ls-tree -r HEAD`
+  answers the REPOSITORY, and `find` answers the DISK. **Three different questions;
+  one of them is usually the one you meant.**
+
+## L-387 — A CENSUS OVER A TREE WHERE FILES MOVE IS A SET DIFFERENCE, NEVER A SUBTRACTION OF COUNTS — AND A NEGATIVE COUNT IS THE METHOD REFUTING ITSELF
+
+The queue runner **moves** an entry at launch. A move is a delete plus an add, so
+subtracting totals **nets it to zero** and can go negative.
+
+- Measured at `2026-08-27T22:25:34Z`: disk **121**, HEAD **138**; **set difference**
+  gives untracked **0** and move-fossils **17**; **naive subtraction gives −17.**
+- **A negative count is not a small error — it is a proof of invalidity, available
+  free, and it should be treated as a standing assertion:** any census that can
+  return a negative has the wrong method, whatever number it returns on a good day.
+- **A census names its ENUMERATOR, its PATH SET and its CLOCK**, and compares sets
+  with `comm`, never totals with arithmetic.
+
+## L-388 — TWO HONEST CENSUSES FOUR MINUTES APART DIFFERED BY 69: A CENSUS WITHOUT ITS CLOCK IS NOT A MEASUREMENT
+
+The chief measured **69** untracked queue entries at `22:21:53Z`. This team measured
+**0** at `22:25:34Z`. **Neither is wrong** — in **3 m 41 s** the teams committed
+their queue files under a ruling issued minutes earlier.
+
+- **The disagreement is not error; it is the quantity moving**, and only the two
+  readings **together** support the finding that matters — *compliance is already
+  substantially achieved.* Either alone supports nothing.
+- **Frame-stating is a requirement of a census, not a courtesy**, exactly as a time
+  stamp is a measurement and not prose.
+- **Generalises past queues:** any census of a quantity the fleet is actively
+  changing is a **rate problem, not a count problem**, and a single reading of it is
+  a snapshot presented as a state.
+
+## L-389 — A REGISTRATION CANNOT CLAIM THE BENEFIT OF A CLAUSE THAT DID NOT EXIST WHEN IT FROZE, AND A LANE REFUSING A SUPERVISOR ON CHARTER GROUNDS IS THE CONTROL WORKING
+
+A clause let a floor demonstration `PASS` where five conditions were **declared in
+the registration before compute**. A rung frozen **25 h 06 m earlier** was ordered —
+**by the chief, endorsed by its own supervisor** — to cite it. **The lane REFUSED on
+the clause's chapeau, and the lane was right.**
+
+- **The symmetric ground: a pre-registration cannot EXCEPT a standing rule, and
+  equally cannot retroactively CLAIM THE BENEFIT of a later one.** Both fall out of
+  rule 2's single evidentiary claim — the freeze proves the gate was not chosen to
+  fit the answer. **A rung citing a clause that postdates its freeze is choosing its
+  gate after seeing its answer, with extra steps.**
+- **Rule 9 has a mirror image here:** no instruction from a supervisor or the chief
+  converts a frozen registration into one that declared what it did not declare.
+- **Both supervisors were wrong, including the clause's own author, who failed to
+  write the non-retroactivity down.** **The only barrier that operated was a lane
+  reading the chapeau.**
+
+## L-390 — REMOVING A FAILURE MODE BEATS SEQUENCING AROUND IT, AND A PLACEHOLDER LINE IS NOT AN INERT LINE
+
+Two instances, one day, in the same commit protocol.
+
+- **Sequencing:** a commit message passed with `-F <file>` can vanish before
+  `commit-tree`, producing an empty sha and a silent no-op. The first remedy was to
+  **write the file before any assertion** — which closes the observed instances and
+  **keeps the failure mode, moving it**, since the artefact is still losable (a
+  shared scratchpad, a full disk, an interrupted write). **Passing the message on
+  STDIN means the artefact does not exist**, and no assertion can be upstream of
+  something with no independent existence.
+- **Placeholders:** a stray `git add -A` — written as a meaningless placeholder —
+  sat **above** the `export GIT_INDEX_FILE` line in a commit script and therefore ran
+  against the **shared index**. **`export GIT_INDEX_FILE` protects only what comes
+  AFTER it.** Measured afterwards: staged additions **0**, index mtime **21 minutes
+  older than the command**. **It was killed by a 120-second tool timeout while still
+  walking the tree.**
+- **THAT IS LUCK, NOT A CONTROL, AND MUST BE RECORDED AS LUCK.** A repository large
+  enough that a forbidden command cannot finish in two minutes is a coincidence, not
+  a safety property, and it will not hold on a smaller tree or a longer timeout.
+- Take: **every git command in a commit script is checked against rule 10
+  individually. A line being inert in intent does not make it inert in execution.**
