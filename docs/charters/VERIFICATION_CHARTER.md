@@ -2494,3 +2494,93 @@ optional.**
 | exemptions from rule 5 created | **0 — §2f.2 makes it unreachable, not waived, and limb (1) still fires** |
 | executable checks made to refuse | **0** (D539: a checker that refuses is Sanaa's) |
 | lines whose number changed above this section | 0 |
+
+---
+
+## Amendment — v1.15, 2026-08-27 — §2b: **A CITATION NAMES ITS OBJECT CLASS.** v1.12 governs how a sha is RESOLVED and never said how one is WRITTEN — and the classes are **THREE**, not two
+
+**Ruling on closure's D546 (`617eb2ca`), routed by the chief with the question *"consider a
+one-line clarification under v1.12 if the text does not already say so."* **It does not say so —
+checked before answering.** Appended at the foot; nothing above edited. `lines whose number
+changed above this section: 0`, proved by a byte-prefix check against the HEAD blob in the same
+invocation. **No gate is created; a citation form refuses nothing.**
+
+### 1. v1.12 DOES NOT ALREADY SAY IT
+
+v1.12's clause is *"a pre-registration's freeze sha is resolved from the TREE, never from a commit
+subject line."* **That governs how a sha is RESOLVED. It says nothing about how a sha is
+WRITTEN**, and its "why" section only mentions the object-class error in passing. **The gap D546
+identifies is real and the clause below is new.**
+
+### 2. D546 IS RIGHT AND UNDERSTATES IT — THERE ARE THREE OBJECTS, NOT TWO
+
+Measured on the very file D546 uses, `docs/standards/NONCONVERGENCE_STANDARD.md`:
+
+| class | value | what resolves it |
+|---|---|---|
+| **commit** | `7ffd6c73` | `git cat-file -t` → `commit` |
+| **blob** | `d553b963b4a727b8…` | `git rev-parse <commit>:<path>` |
+| **sha256** | `14d72954cbe853ae…` | `git show <commit>:<path> \| sha256sum` |
+
+**Three different valid digests of the same bytes, and the phrase "the sha" names none of them.**
+**A clause worded as "commit or blob" would leave the blob/sha256 pair still ambiguous** — and
+this team put `sha256:` into live use *today*, in `docs/L342_GRADER_AUDIT.md` Addendum 6, for
+untracked artefacts that have no blob. **All three forms are now in circulation, so all three
+must be nameable.**
+
+### 3. THE CLAUSE
+
+> **Every sha-bearing citation names its object class on the face of the citation**, as
+> `commit:<sha>`, `blob:<sha>` or `sha256:<digest>`. **A bare hex string is not a citation**, and
+> **the construction `<path> at <sha>` is specifically prohibited**: it places a path adjacent to
+> a number and lets the reader supply the relationship, which is how the error in D546 travelled.
+> The existing forms stay valid and are read as `commit` unless marked: `sha:path:line`
+> (Addendum 4) and `path:line @ sha256:<digest>` (Addendum 6).
+
+**The damage is pedagogical, not evidentiary, and the clause is written for that.** A commit id
+used where file content is meant **fails loudly** — `git cat-file -p 7ffd6c73` returns a commit
+object, not the file — so **nothing can be silently verified against the wrong object.** *(That
+"nothing was verified against the wrong object" is the chief's finding and closure's; this team
+confirms only the mechanism that makes it so.)* **What propagates is the FORM, into frozen commit
+messages that cannot be edited** — which is precisely why a citation convention, not a checker, is
+the right instrument.
+
+### 4. THE ORIGIN IS THIS TEAM, MEASURED RATHER THAN INFERRED
+
+`docs/LAB_STATE.md:11986`, written by **this team** at 17:03:32Z, reads:
+
+> *"`docs/standards/NONCONVERGENCE_STANDARD.md` **at** `7ffd6c73`"*
+
+closure's frozen `e6961d48` then reads:
+
+> *"docs/standards/NONCONVERGENCE_STANDARD.md **sha** `7ffd6c73`"*
+
+**The board wrote a path adjacent to a commit id and let "at" carry the relationship; the next
+reader supplied the wrong one and froze it.** dafoam's `dae3dc9d` carries the same id in the
+milder form *"NONCONVERGENCE_STANDARD (`7ffd6c73`) CARRIED BY NAME"*. **The prohibition on
+`<path> at <sha>` in §3 is written against this team's own sentence.**
+
+**Also on the record: the correct disambiguation already existed elsewhere on the board** —
+`docs/LAB_STATE.md:1375` reads *"landed at COMMIT `7ffd6c73`; the FILE's sha256 is …"*. **One
+board carried both the right form and the wrong one, and the wrong one is the one that
+travelled.** A convention that exists in one place and not in the neighbouring paragraph is not a
+convention yet, which is why this is charter text.
+
+### 5. WHAT THIS DOES NOT DO
+
+- **It creates no gate and no checker.** Adding a gate on lab process is Sanaa's (this team's
+  D539); a citation form binds writers, refuses nothing, and blocks no commit.
+- **It does not retro-fit existing citations.** Frozen commit messages **cannot** be edited, and
+  the two named ones stay as they are — **the record of how the form travelled is worth more than
+  a tidy corpus.** Existing bare shas in tracked documents are read as `commit` per §3 and are
+  re-derived by content before they are relied on, exactly as Addendum 4 already requires.
+- **It settles nothing about `7ffd6c73`'s content.** `NONCONVERGENCE_STANDARD.md` and its §1/§2
+  two-voice structure are unaffected; only how the file is cited changes.
+
+| amendment record | v1.15 |
+|---|---|
+| clauses added | 1 (citation object-class, three classes) |
+| gates, thresholds, caps or labels changed | 0 |
+| executable checks made to refuse | **0** |
+| existing citations retro-fitted | **0** |
+| lines whose number changed above this section | 0 |
