@@ -166,3 +166,80 @@ in this territory — and one is about to.**
 belief). No ledger row is written from this census; a breach row, had there been one,
 would need the supervisor's ruling first. No legacy case is re-registered: rule 12
 binds from registration forward.*
+
+---
+
+# ADDENDUM 1 — 2026-08-27. Supervisor rulings; two defects the next auditor inherits.
+
+**No count, class, verdict or figure in §1–§6 changes.** The body above already
+carries the corrected **252**, the A/B/C counts **42 / 122 / 36**, and the
+*"pre-cap vocabulary as much as a pre-cap era"* headline; that was verified against
+this file's HEAD blob before this addendum was written, rather than assumed.
+**Lines whose number changed above this section: 0**, verified by byte-prefix in the
+commit's own invocation.
+
+## A1.1 The headline is adopted, and the earlier figure is withdrawn
+
+The supervisor predicted class C would be small and class A the core of the finding,
+**and recorded that he was wrong by a wide margin.** The governance gap is
+**A = 42**, not 200 and not the ~208 first reported upward — an overstatement of
+**4.8×**. That figure is withdrawn here so a later reader cannot cite it. A census
+whose own headline overstates the gap flatters nobody and is still wrong.
+
+`T10a_PREREGISTRATION.md:375` — *"prediction by more than 10× is stopped and
+investigated, not waited out"* — is the stop threshold neither the lane nor the
+supervisor had seen, and it covers **13 cases on its own**.
+
+## A1.2 Two defects that corrupted the first pass — inherit these before re-running
+
+Both were found by **reading the residual class-A membership instead of trusting the
+count.** That is the method; the counts themselves looked entirely plausible while
+both defects were live.
+
+**1. Segments were maxed, not summed — the more dangerous of the two.** A cap binds
+**cumulative** spend, so a base run and a registered extension must be **added**.
+Taking the maximum understated `K0f/M1_f` as 290.800 core-min when it is
+290.800 + 167.133 = **457.933**. On this corpus nothing was near a cap either way, so
+the error changed no verdict — **but on a corpus where something was, this defect
+hides a real breach and reports a clean census.**
+
+**2. Aliases were counted as cases — the more generalisable.** Some rungs record one
+run **twice**: at rung level as `STATUS.<case>`, and again inside the case directory
+under the launcher's internal id (`T5_C`, `K0f_EXT_M1_c`). The alias copies carry no
+cost. **A single defect corrupts numerator and denominator in opposite directions:**
+it inflated the total by 18 *and* dropped ten real K0f and eight real T5 cases into
+"no budget instrument at all". The first draft's A = 70 was wrong for that reason.
+
+> **Standing rule for any future census over this corpus: DE-ALIAS FIRST, and SUM
+> SEGMENTS, before any count is read.** `cap_census_audit.py` does both; a
+> hand-rolled sweep will do neither.
+
+A third, smaller defect is recorded for the same reason: ten K0f citation line numbers
+were off by one (fixed at `9c4ed59a`). It was caught by **generating** the
+side-by-side evidence from the module and re-reading each cited line **from disk**,
+rather than typing it. A landed instrument whose citation points one line off its
+number is the `CAP_OVERRUN.txt` failure in miniature — which is why this census exists.
+
+## A1.3 The prose-only caps are now machine-readable
+
+The 28 caps that existed only as prose have been transcribed into sidecars beside
+their runs, each stating **that the prose is authoritative and the sidecar is a
+derived transcription — if they ever disagree, the prose wins**:
+
+| rung | sidecar | entries |
+|---|---|---|
+| K0f | `verification/runs/F14-cooling-ladder/K0f_runs/K0f_CAPS_TRANSCRIBED_2026-08-27.json` | 10, `scope: case` |
+| T5 | `verification/runs/T-family/T5_runs/T5_CAPS_TRANSCRIBED_2026-08-27.json` | 8, `scope: case` |
+| T9aH | `verification/runs/T-family/T9aH_runs/T9aH_CAPS_TRANSCRIBED_2026-08-27.json` | **1, `scope: rung`** |
+
+**T9aH is transcribed at RUNG scope and was neither split nor dropped.** Its 5.00
+core-min is registered directly under `REGISTERED TOTAL PREDICTION`, so it governs the
+rung total; dividing it across ten cases would be a guess, and a guessed cap is worse
+than a missing one. Dropping it, which this lane first proposed, would have left a
+rung that *is* budgeted indistinguishable from one with no budget instrument at all —
+the exact confusion this census exists to remove. **No count in §3 or §4 moves:** K0f
+and T5 were already counted capped through the same prose figures, and T9aH remains
+class C.
+
+*Ruled by the heat-transfer supervisor `[lab-attributed]` 2026-08-27; drafted by a lab
+lane. Sidecars at `e31d3d77`, `d57fa35e`, `2a90d2c8`.*
