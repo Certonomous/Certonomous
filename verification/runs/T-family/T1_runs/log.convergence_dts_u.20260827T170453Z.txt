@@ -1,0 +1,35 @@
+T1c-U (unheated upstream arm) -- COMPLETION AND THE REGISTERED CONVERGENCE CRITERION
+read 20260827T170453Z by a heat-transfer lane.  THIS RUNG IS REGISTERED 'DIAGNOSTIC, NOT GRADED'.
+instrument: analyse_t1c.iterative_convergence, git blob 3d56680271d5fabb30e60cdc2eb1a6551196711d
+            byte-identical to the blob at registration commit 6a0d7f45 (2026-08-21)
+criterion (DTS_U_registered.json .convergence): last two written checkpoints,
+            max_cells |a-b| / (max(b)-min(b)) <= 1e-6 on T and U
+
+case               fld         between        max|d|        range     relative  state
+D_Ts_Re25_U_c        T    38000->40000  0.000000e+00 1.053948e+01 0.000000e+00  CONVERGED
+D_Ts_Re25_U_c        U    38000->40000  6.245005e-16 3.790076e-02 1.647726e-14  CONVERGED
+D_Ts_Re25_U_m        T    38000->40000  0.000000e+00 1.005179e+01 0.000000e+00  CONVERGED
+D_Ts_Re25_U_m        U    38000->40000  2.445547e-16 3.770229e-02 6.486469e-15  CONVERGED
+D_Ts_Re25_U_f        T    38000->40000  0.000000e+00 1.000000e+01 0.000000e+00  CONVERGED
+D_Ts_Re25_U_f        U    38000->40000  2.463307e-15 3.758990e-02 6.553109e-14  CONVERGED
+L_Ts_U_c             T    38000->40000  0.000000e+00 1.156339e+01 0.000000e+00  CONVERGED
+L_Ts_U_c             U    38000->40000  2.095546e-15 1.502527e-01 1.394681e-14  CONVERGED
+L_Ts_U_m             T    38000->40000  0.000000e+00 1.080945e+01 0.000000e+00  CONVERGED
+L_Ts_U_m             U    38000->40000  1.720846e-15 1.502898e-01 1.145019e-14  CONVERGED
+L_Ts_U_f             T    38000->40000  0.000000e+00 1.020762e+01 0.000000e+00  CONVERGED
+L_Ts_U_f             U    38000->40000  1.720846e-15 1.501948e-01 1.145743e-14  CONVERGED
+
+PLANTED CONTROL (rule 3), plant BY LINE INDEX into a SCRATCH COPY, read back through
+the same frozen reader; the live cases were not written to:
+  D_Ts_Re25_U_c/40000/T line 23: 300.0000000000005 -> 301.234 (+1.234 K)
+    -> state=NOT_CONVERGED  max_change=1.234000  relative=1.170835e-01   READER SEES THE PLANT
+  L_Ts_U_f/40000/T      line 23: 300.0000000000001 -> 301.234 (+1.234 K)
+    -> state=NOT_CONVERGED  max_change=1.234000  relative=1.208901e-01   READER SEES THE PLANT
+  The T zeros above are therefore evidence and not a blind reader.
+
+NO COMPARATOR IS REGISTERED FOR THESE ARMS.  DTS_U_registered.json carries no
+'comparator', 'graded_rows', 'bands', 'grading' or 'falsifier' key, and analyse_dts.py's
+LADDERS list covers only the parent D_Ts ladders.  The diagnostic comparison the
+2026-08-21 text registered is therefore NOT AVAILABLE from a frozen instrument, and
+none was written here: building a reader after seeing the fields is what
+pre-registration exists to prevent.

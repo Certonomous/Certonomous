@@ -1,0 +1,13 @@
+case=D_Ts_Re25_U_f
+rc=0
+wall_s=6543
+ranks=1
+core_min=109.050
+timeout_s=16200
+capped=no
+checkmesh_rc=0
+solver=buoyantBoussinesqSimpleFoam
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqSimpleFoam
+note=clean
+started_utc=2026-08-27T09:12:45Z
+ended_utc=2026-08-27T11:01:48Z
