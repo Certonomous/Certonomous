@@ -46,3 +46,18 @@ units: 8 seen, 0 failed
 run root after all controls: ABSENT
 containers before=16 after=16
 no container was created by any control: CONFIRMED
+
+=== RE-VERIFICATION after AMENDMENT 3 -- 2026-08-27T19:12:35Z ===
+The grader changed at AMENDMENT 3 (bfd6b5d8), so G-PATH must be re-driven against the NEW
+amendment commit: an instrument whose blob no longer matches disk is exactly what G-PATH is
+for, and a repoint that was not re-driven is a repoint that was not checked.
+Driven by the ORDER-OF-REFUSALS method (AMENDMENT 3 section 3.2) -- the G-ROOT probe below
+reaches G-ROOT, which by construction means G-FREEZE, G-PATH and G-FIXTURE all PASSED.
+NO container is started by it.
+  SEEN   G-ROOT reached against bfd6b5d8035b119eec53a5a356575393a0806b12: rc=2
+           [2026-08-27T19:12:35Z] G-PATH: 4 instruments hashed against the freeze blob, all identical
+           [2026-08-27T19:12:35Z] G-FIXTURE: sha256 0154df31254d596d8bb36dff7d289e35e2791b9a1c6d4607164fbe0bb3937fa3 matches the recorded provenance; top-level name confirmed
+           REFUSAL: arm directory /home/ubuntu/certonomous-runs/CURRICULUM-FADR-forward-ad-regression/S ALREADY EXISTS -- refusing to
+                write into a directory that may hold another run's answer
+  containers before=16 after=16 -> ZERO created, CONFIRMED
+  run root after: ABSENT
