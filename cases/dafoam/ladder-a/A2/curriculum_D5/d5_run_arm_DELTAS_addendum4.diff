@@ -1,0 +1,40 @@
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/dafoam-lane-B/d5ra.head	2026-08-27 16:45:55.716296439 +0000
++++ d5_run_arm.sh	2026-08-27 16:44:22.656966329 +0000
+@@ -307,6 +307,22 @@
+   rm -f "$WORK/d5_fd_endpoint.json" "$WORK/d5_fd_endpoint.jsonl" "$WORK/d4_endpoint_dvs.json" "$WORK/d4_major_history.json"
+ fi
+ 
++# ---- D5 ADDENDUM 4 (2026-08-27), D5-LAUNCHER-DEF-1 -------------------------------
++# THE CONTAINER'S WORKING DIRECTORY IS $WORK, NEVER $ARM.  For O/ACC arms the two
++# coincide, because WORK="$BASE/$ARM" at :277.  For an F arm they DO NOT: PREREGISTRATION.md
++# sec.2 REGISTERS the F arm's run directory as `O<density>/` -- "F runs in the O directory,
++# the frozen F3 path" -- and the else-branch above reassigns WORK="$BASE/O${DENS}"
++# accordingly.  The container line then used `-w /mnt/$ARM` and `bash /mnt/$ARM/d5_cmd.sh`,
++# i.e. /mnt/F48, a directory THIS LAUNCHER NEVER CREATES (the cold-stage block is guarded
++# by `[ "${ARM:0:1}" != "F" ]`).  Docker created it, empty and root-owned, through the
++# `-v "$BASE":/mnt` bind, and the arm command file -- correctly written to O48/ and its md5
++# correctly printed -- was not in it.  rc=127, 0.733 core-min, 2026-08-27T13:48:25Z.
++# The registration was right and the launcher was wrong; the launcher is what changed.
++WORKNAME="$(basename "$WORK")"
++[ "$WORK" = "$BASE/$WORKNAME" ] || { echo "ABORT D5-LAUNCHER-DEF-1 WORK=$WORK is not directly under BASE=$BASE, so /mnt/$WORKNAME is not its path inside the container"; exit 4; }
++[ -d "$WORK" ] || { echo "ABORT D5-LAUNCHER-DEF-1 WORK=$WORK does not exist on the host; the container would CREATE it empty and the arm command file would not be in it"; exit 4; }
++echo "D5_WORKDIR arm=$ARM host_workdir=$WORK container_workdir=/mnt/$WORKNAME cmdfile=$WORK/d5_cmd.sh"
++
+ case "$ARM" in
+   O48|O192)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d5_opt_runScript.py -task run_driver -optimizer IPOPT" ;;
+   ACC48|ACC192) CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d5_opt_runScript.py -task compute_totals" ;;
+@@ -395,12 +411,12 @@
+ # ===========================================================================
+ sudo -n docker run -d --name "$NAME" \
+     --user 0:0 --cpus=$RANKS --cpuset-cpus=$CPUSET --memory=$MEM --memory-swap=$MEM --oom-score-adj=500 \
+-    -v "$BASE":/mnt -w "/mnt/$ARM" "$IMG" bash -lc \
++    -v "$BASE":/mnt -w "/mnt/$WORKNAME" "$IMG" bash -lc \
+     "source /home/dafoamuser/dafoam/loadDAFoam.sh && \
+      echo D4S_CONTAINER_UID: \$(id -u) && \
+      python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"D4S_IDWARP_IMPORTED_FROM:\",p); print(\"D4S_IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' && \
+      echo D4S_DEADLINE_IN_CONTAINER_S: $TMO && \
+-     timeout -k 60 $TMO bash /mnt/$ARM/d5_cmd.sh" > /dev/null 2>&1 \
++     timeout -k 60 $TMO bash /mnt/$WORKNAME/d5_cmd.sh" > /dev/null 2>&1 \
+   || { echo "ABORT could not start container"; exit 4; }
+ 
+ # The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25), not a budget

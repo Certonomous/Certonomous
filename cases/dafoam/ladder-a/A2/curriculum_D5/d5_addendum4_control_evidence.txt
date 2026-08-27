@@ -1,0 +1,14 @@
+D5 ADDENDUM 4 CONTROLS 2026-08-27T16:45:20Z launcher_md5=8fb1a94c8deeb5d2ea596b05a452dac0
+  [OK ] (1) ARM=F48 -> WORK=/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/O48, WORKNAME=O48 -- the directory sec.2 REGISTERS
+  [OK ] (2a) PLANTED WORK=$BASE/sub/dir -> guard REFUSES (not directly under BASE)
+  [OK ] (2b) PLANTED WORK absent on the host -> guard REFUSES (the rc=127 shape)
+  [OK ] (2c) REGISTERED WORK=$BASE/O48 -> guard PASSES (it does not refuse everything)
+  [OK ] (3) zero EXECUTABLE lines carry /mnt/$ARM (the defect's path)
+  [OK ] (3b) both container paths now read /mnt/$WORKNAME
+  [OK ] (4) PLANTED CONTROL: the defect restored in a copy makes (3)'s reader count 1 -- the reader CAN see it
+  [OK ] (5) launcher on the real root, arm F48 -> exit 4 at the image digest read, NOTHING STAGED
+  [OK ] (5b) G-ROOT.1-.3 PASS on the real r3 ledger
+  [OK ] (5c) F48 cap assert UNMOVED: 120.0 core-min / 1800 s -- this addendum moves no cap
+  [OK ] (5d) ledger.txt md5 UNCHANGED across the control
+  [OK ] (5e) O48/ mtime UNCHANGED -- no staging, no rm -rf
+D5 ADDENDUM 4 CONTROLS pass=12 fail=0 2026-08-27T16:45:21Z

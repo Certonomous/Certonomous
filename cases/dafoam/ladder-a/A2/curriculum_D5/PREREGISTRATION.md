@@ -485,3 +485,124 @@ The driver wrote no terminal marker (its `STATUS.chain` last line is one of `cha
 Entry `verification/queue/dafoam/D5_chain_r3.json`: `bash d5_chain_driver.sh ACC48 F48 O192 ACC192 F192` (O48 omitted: an `rc=0` ledger row exists for it, so the driver's `ALREADY_BOUGHT` guard would refuse the chain at O48 with `rc=3`, zero compute, if it were listed — the guard is the reason the arm list changed, and it stays in force for every arm). On fire: root present → `D5_ROOT_PRESENT`, nothing re-staged; staged md5s asserted; `STATUS.ACC48` re-opened at preflight (r2's line preserved by copy, A3.1); H5 window; aggregate wait-and-retry (D4-SHIPPED's 12g chain on 5,6,7,9 fired by the runner at 20:50:06Z is a live sibling: 12 + 12 + host RSS ≈ 27 < 30.6 — passes; a third 12g sibling would wait); `ACC48/` is `rm -rf`'d and re-staged cold from `base/` by the launcher (r2's partial `ACC48/` holds no artefact — the colouring file was never written; its log and launch output live in the root and stay); then F48 in `O48/` (`OptView.hst` present from r2's O48), O192, ACC192, F192. `prereg_commit` = the commit that lands this addendum; `cost_core_min_estimate` 813.434; `memory_floor_gb` 16.0; `permission bc0e687e`. Enqueueing is not authorisation — `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own.
 
 **Condition, and how it was checked:** no `d5_` container exists (`sudo -n docker ps -a` 20:53Z: only `d4_F3_20260826T205120Z_411184`, another item's); no D5 driver is live (`d5_driver.pid` absent; `ps` shows no `d5_chain_driver`); the ledger carries exactly one `rc=0` row (O48) and one `rc=124` row (ACC48). First compute on ACC48 under the re-stated cap has not occurred.
+
+---
+
+# ADDENDUM 4 — 2026-08-27 — **POST-COMPUTE** — `D5-LAUNCHER-DEF-1`: the container ran the F arm in a directory the launcher never creates. ACC48 is BOUGHT and its Addendum-3 repair is a prediction HIT.
+
+**Version 1.3 → 1.4. Lines whose number changed above this section: 0** — proved on BYTES, not on a line count: the HEAD blob of this file is a byte-exact PREFIX of the amended file, asserted in the commit invocation. Written 2026-08-27 by dafoam `lab-lane` B for `dafoam-supervisor`; ruling `[lab-attributed]`; permission `bc0e687e`. **First compute on this item HAS occurred, so under `CLAUDE.md` rule 2 and `VERIFICATION_CHARTER.md` §2b GATES ARE CLOSED: this addendum alters NO gate, NO threshold, NO cap, NO band, NO label, NO prediction, NO cpuset and NO cost.** It repairs one launcher path defect, records one arm bought, books one waste row, and re-pins two md5s. Rule 6: originals are struck, never rewritten.
+
+## A4.1 What happened on the r3 chain, from disk
+
+`STATUS.chain` and `ledger.txt` in `/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density`:
+
+* **`ACC48` `rc=0`**, 13:38:12Z → 13:47:09Z. Ledger row: `wall_s=537 ranks=4 core_min=35.8 cap_core_min=60.0 enforced_wall_s=900 enforced_core_min=60.000000 memory=12g inspect(exit,oomkilled)=[0 false] memavail_pre_GiB=27.48 memavail_post_GiB=27.30 cpuset=8,10,11,13 delivered_cores_mean=[3.9889 n=35 max_nr_throttled=2568]`. **BOUGHT**, on the artefacts, at 4 ranks on the registered cpuset with no OOM and no sibling on its cores.
+* **`F48` `rc=127`**, 13:48:14Z → 13:48:25Z, `wall_s=11`, **0.733 core-min**, `inspect [127 false]`. `chain=STOPPED_AT_FIRST_NONZERO arm=F48`.
+* **`CHAIN_DONE`** written 13:48:25Z by the driver's EXIT trap. **Registered behaviour** (A3.5: the trap fires on every exit of a STARTED chain; a pre-chain abort writes none). It is a serialisation token for the memory ceiling, not a data dependency, and D6's wait-wrapper released on it at 13:49Z correctly. **D6 is not contaminated by F48's failure.**
+
+**The queue entry's `launcher_rc=127` is the exit of the LAUNCH ARGV, not of the chain**, and is an INFRASTRUCTURE field under L-342. The chain's own record is `STATUS.chain`, and it says the chain bought one arm and stopped at the second.
+
+## A4.2 The Addendum-3 cap repair is VALIDATED BY MEASUREMENT — a pre-registered prediction HIT
+
+Addendum 3 diagnosed `D5-PREREG-DEF-1` (ACC48 killed at `rc=124` / 10.8 core-min by its own under-registered 10.0 cap while still colouring the Jacobian) and **re-registered, before the re-fire and with no answer in hand**: prediction **40.0** core-min, band **[35.0, 60.0]**, cap **60.0**, in-container deadline **900 s**.
+
+**Measured on the re-fire: 35.8 core-min.** That is **INSIDE the registered band, at its lower edge**, and the ratio actual/predicted is **0.895**. The lower bound of that band was set from the D4-SHIPPED partial run that was killed before finishing — the re-fire landing just above it is the band behaving exactly as its own stated derivation said it would. A repair that re-priced a rung from a measured anchor, froze the band before the re-fire, and then landed inside it is the shape this lab is trying to produce. Booked as its own row in `docs/COST_CALIBRATION.md`.
+
+## A4.3 The defect — `D5-LAUNCHER-DEF-1`, and it is a WORK-versus-ARM divergence
+
+**Established from disk, not inferred.** The container log `F48_20260827T134814Z_789173.log` (369 bytes, read whole) ends:
+
+> `bash: /mnt/F48/d5_cmd.sh: No such file or directory`
+
+and `F48_launch.out` printed, seconds earlier, `D4S_CMDFILE arm=F48 md5=4d1276845bb3a20bb2ba31f335c1094f`.
+
+**The file never vanished. It was never in `F48/`.** In `d5_run_arm.sh` at the Version 1.3 blob:
+
+* `:277` `WORK="$BASE/$ARM"`, then `:281` guards the cold-stage block with `[ "${ARM:0:1}" != "F" ]`, so **an F arm is never staged and `$BASE/F48` is never created by this launcher**;
+* `:303` the else branch **REASSIGNS** `WORK="$BASE/O${DENS}"` — which is what **§2 of this pre-registration REGISTERS**: the F48 row's run directory is `O48/`, *"F runs in the O directory, the frozen F3 path"*;
+* `:320` `CMDFILE="$WORK/d5_cmd.sh"` therefore wrote to **`O48/d5_cmd.sh`**, correctly, and printed its md5, correctly;
+* `:398`/`:403` the container line used **`$ARM`, not `$WORK`**: `-w "/mnt/F48"` and `bash /mnt/F48/d5_cmd.sh`.
+
+Docker created `/mnt/F48` as the container's working directory, as root (`--user 0:0`, `D4S_CONTAINER_UID: 0`), and the `-v "$BASE":/mnt` bind propagated that `mkdir` to the host. **That is the whole mechanism**, and it is confirmed positively rather than by absence:
+
+| the claim | the reading on disk |
+| --- | --- |
+| the command file was written, and to `O48/` | `$BASE/O48/d5_cmd.sh`, 138 bytes, mtime **13:48**, md5 **`4d1276845bb3a20bb2ba31f335c1094f`** — byte-for-byte the md5 the launcher printed for `arm=F48` |
+| `$BASE/F48/` was created by the CONTAINER, not the launcher | `drwxr-xr-x 2 **root root**`, empty (`.` and `..` only), mtime 13:48; the launcher runs as `ubuntu` and its only `mkdir`-equivalent for an arm is the `cp -a` in the block F arms skip |
+| `$BASE/F48/` never existed before | F48 had never run: `STATUS.chain` shows chain 1 stopped at O48, chain 2 at ACC48; staging never creates it |
+| **nothing removed anything** | the file the launcher wrote is **still on disk, intact, with the matching md5**. A removal hypothesis has to explain a file that was never deleted |
+
+**The sibling is ruled out on evidence, not assumed innocent.** `ledger.txt` records `siblings_pre=[av1_X2-P_20260827T134811Z_788560]` and `siblings_post=[...]` — the same container, live across F48's whole 11 seconds. It is the ansys-verification `AV1_chain` item (`verification/queue/dafoam/launched/AV1_chain.json`), it holds no reference to `CURRICULUM-D5` anywhere in `cases/ansys_verification/` or `verification/runs/ansys_verification/`, and — decisively — **the causal chain is complete without it**: the exec path pointed at a directory this launcher never writes into, and the file it did write is intact. There is no deletion for a concurrent process to have performed.
+
+**This defect could only ever bite an F arm**, because for every other arm `WORK` is exactly `$BASE/$ARM` and the two spellings coincide. That is why O48 (`rc=0`, 684.533 core-min) and both ACC48 fires reached their commands.
+
+## A4.4 The repair, and the guard that makes the class impossible
+
+The container's working directory is now **derived from `$WORK`**, which is the launcher's own single source of truth for where an arm runs:
+
+```
+WORKNAME="$(basename "$WORK")"
+[ "$WORK" = "$BASE/$WORKNAME" ] || ABORT   # /mnt/$WORKNAME is not $WORK's path in the container
+[ -d "$WORK" ]                || ABORT   # the container would CREATE it empty -- the rc=127 shape
+echo "D5_WORKDIR arm=$ARM host_workdir=$WORK container_workdir=/mnt/$WORKNAME cmdfile=$WORK/d5_cmd.sh"
+```
+
+and `-w "/mnt/$WORKNAME"` / `bash /mnt/$WORKNAME/d5_cmd.sh` replace the two `$ARM` spellings. **The second guard is the one that matters**: it refuses precisely the condition that produced `rc=127` — a container working directory that nothing on the host created — *before* the container starts, instead of after 11 seconds and 0.733 core-min. The `D5_WORKDIR` line puts the host path, the container path and the command-file path in the launch output so a reader can see all three agree without running anything.
+
+**Nothing else in the file is touched**: staging, G-ROOT.1–.5, G-COLD, the age-guard datum, the cap assertion, the deadline mechanics, the cpuset, the memory caps, the runaway guard, the CPU sampler and the ledger row format are byte-identical. The full diff is `d5_run_arm_DELTAS_addendum4.diff` (40 lines) for the supervisor's own read under `SUPERVISION_CHARTER.md` §3 check 1.
+
+**The stray `$BASE/F48/` is LEFT IN PLACE**, empty and root-owned. It is the physical evidence of the defect and deleting it would destroy the record; it is inert (the `ALREADY_BOUGHT` guard reads the ledger, and `G-COLD` applies only to non-F arms).
+
+## A4.5 Controls — twelve, all at ZERO compute
+
+`d5_addendum4_control.sh`, evidence `d5_addendum4_control_evidence.txt`, **pass=12 fail=0**, 2026-08-27T16:45:20–16:45:21Z. Controls (1) and (2) drive lines lifted **verbatim from the launcher** in a scratch subshell — the technique Addendum 3's control (i) used on the EXIT trap.
+
+| # | what is planted | what must happen | reading |
+| --- | --- | --- | --- |
+| 1 | `ARM=F48` through the launcher's own F-branch line | `WORK` = `$BASE/O48`, `WORKNAME` = `O48` — **the directory §2 registers** | `[OK ]` |
+| 2a | `WORK=$BASE/sub/dir` | guard refuses: not directly under `BASE` | `[OK ]` |
+| 2b | `WORK` directly under `BASE` but **ABSENT** — **the exact `rc=127` shape** | guard refuses before any container | `[OK ]` |
+| 2c | the registered `WORK=$BASE/O48` | guard **PASSES** — a guard that refuses everything is not a guard | `[OK ]` |
+| 3 | nothing | **zero EXECUTABLE lines** carry `/mnt/$ARM` (the one remaining occurrence is inside the comment naming the defect) | `[OK ]` |
+| 3b | nothing | both container paths read `/mnt/$WORKNAME` | `[OK ]` |
+| 4 | **PLANTED CONTROL on (3)'s reader** — a sacrificial copy with `-w "/mnt/$ARM"` restored | the reader must **count it** | `[OK ]`, count 1 |
+| 5 | the real launcher, arm **F48**, on the **real r3 run root**, with a bogus image (the Addendum 2/3 control form) | exit 4 at the image digest read, **before any `rm -rf`, `cp -a` or `docker run`** | `[OK ]` |
+| 5b | — | `D4S_G_ROOT_PASS item=D5` — G-ROOT.1–.3 accept the r3 ledger unchanged | `[OK ]` |
+| 5c | — | `D4_CAP_ASSERT arm=F48 registered_core_min=120.0 ranks=4 enforced_wall_s=1800` — **the F cap has not moved** | `[OK ]` |
+| 5d | — | `ledger.txt` md5 **unchanged** across the control | `[OK ]` |
+| 5e | — | `O48/` mtime **unchanged** — no staging, no `rm -rf` | `[OK ]` |
+
+Control 4 is why control 3 is evidence and not an assertion (`CLAUDE.md` rule 3). Control 5c is the reading that proves this addendum moves no cap, taken from the launcher itself rather than from this document's own prose.
+
+## A4.6 Instruments re-frozen at this commit
+
+| file | md5 before | md5 after | what changed |
+| --- | --- | --- | --- |
+| `d5_run_arm.sh` | `245341836829b1247b8d6efc794b7d08` | `8fb1a94c8deeb5d2ea596b05a452dac0` | `WORKNAME` + two guards + one `D5_WORKDIR` line + an 11-line comment; the two container paths `$ARM` → `$WORKNAME`. **Nothing else** — `d5_run_arm_DELTAS_addendum4.diff`, 40 lines, two hunks |
+| `d5_chain_driver.sh` | `728c0b47df91755e4dd5a7a8f075c9ae` | `cf0bb2083eebf3333453f5a564189c89` | `MD5_LAUNCHER` re-pinned to the line above. The driver asserts it before staging **and before every arm** (`:60`, `:95`), so a stale pin is the `D8R-DRIVER-DEF-1` death; pin == actual is asserted in the commit invocation |
+| `d5_grade.py` (**the grading path**) | `c87c7a64657107dec4f5b7d1e634ffe6` | **UNCHANGED** | the comparator is not touched by this addendum. `CAPS`, `ITEM_CEILING_CORE_MIN` 1,960.0, `PREDICTED_CORE_MIN`, every gate function, band and composition rule stand as frozen at Addendum 3 |
+| `d5_addendum4_control.sh` | — | new | the twelve controls above |
+
+## A4.7 The r4 re-fire
+
+**Arms: `F48 O192 ACC192 F192`.** `ACC48` is **omitted because it is BOUGHT**: the driver's `ALREADY_BOUGHT` guard (`d5_chain_driver.sh:101`) refuses any arm carrying an `rc=0` ledger row and would stop the chain at `rc=3` and **zero compute** if it were listed. `O48` is omitted for the same reason, as in r3.
+
+**Cost, remaining arms, from Addendum 3 §A3.4's frozen per-arm predictions — nothing re-priced here:** F48 47.267 + O192 638.9 + ACC192 40.0 + F192 47.267 = **773.434 core-min**. This is **40.0 lower than r3's 813.434**, and the difference is exactly ACC48's prediction, now bought. Dollars **DERIVED, NOT MEASURED**, at the owner-stated `c7a.4xlarge` $0.0513/core-h: **$0.66**. Caps unmoved (O 800.0 / ACC 60.0 / F 120.0), item ceiling unmoved at 1,960.0.
+
+`prereg_commit` = the commit landing this addendum; `memory_floor_gb` 16.0; `ranks` 4; `permission bc0e687e`. **Enqueueing is not authorisation** — `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own.
+
+## A4.8 Calibration rows due at this completion (`CLAUDE.md` rule 12)
+
+| row | predicted | actual | ratio | attribution |
+| --- | --- | --- | --- | --- |
+| ACC48 (r3), **bought** | 40.0 core-min (Addendum 3, band [35.0, 60.0]) | **35.8** | **0.895** | misprediction, **inside the registered band at its lower edge** — the Addendum-3 repair validated. Not contention: `delivered_cores_mean` 3.9889 of 4 on the registered cpuset, no OOM |
+| F48 (r3), **WASTE** | 47.267 core-min | **0.733** spent, **nothing bought** | — | **waste, named separately and never absorbed into any ratio** (`COMPUTE_BUDGET_CHARTER.md` §6). Cause `D5-LAUNCHER-DEF-1`, this addendum. Not a stall (11 s, far under the 3,600 s rule) and not contention |
+
+| what this addendum did | figure |
+| --- | --- |
+| gates, thresholds, caps, bands, labels, predictions, cpusets or costs altered | **0** |
+| defects named and repaired | **1** (`D5-LAUNCHER-DEF-1`) |
+| arms bought | **1** (ACC48, 35.8 core-min) |
+| core-minutes booked as waste | **0.733** |
+| controls driven, all zero compute | **12**, `pass=12 fail=0` |
+| lines whose number changed above this section | **0**, proved on bytes |
