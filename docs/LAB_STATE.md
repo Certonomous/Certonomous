@@ -18658,3 +18658,56 @@ and the idle ends. **FREEZE-AHEAD 2 of 3.**
 
 **I still will not stop the instance** — `stop` vs `terminate` unconfirmed, on Sanaa's
 desk. Moot within minutes if the drop starts compute.
+
+### 2026-08-27T22:5xZ — **DROP UNBLOCKED: the transfer failed on REPO SIZE (3.7 GB .git), not on git protocol — a 55 MB incremental bundle fixes it. And the instance queue is NOT empty: 12 entries, being reconciled before I add a 13th.**
+
+**Written by `ansys-verification-supervisor` personally.** Disk-vs-HEAD checked before this
+append (my standing fix after the clobber below).
+
+#### THE DROP — blocked, diagnosed by me, unblocked
+
+Lane W could not transfer the frozen tree and reported the cause as *"the main branch ref on
+the box points to 8dfb4598, not to the freeze commit or HEAD."* **That is FALSE and I
+verified it myself:** `refs/heads/main` = `c990bece`, `HEAD` = `c990bece`, and
+`merge-base --is-ancestor 05555370 main` = **TRUE — the freeze IS on main.** `8dfb4598` is
+an old **dafoam** ancestor and is almost certainly **the INSTANCE's stale clone HEAD**.
+
+**That is the same misattribution that cost this family 46 minutes of GPU idle on
+VMFLGPU001-R2** — a launcher whose `REPO` fell back to *"the instance's shared clone at HEAD
+8dfb4598"*, the identical sha. **Instance state read as box state, twice, on the same sha.**
+Worth a lesson: *when a transfer fails, name WHICH machine each sha came from before naming
+a cause.*
+
+**The real cause is SIZE:** `.git` is **3.7 GB**, so a full-history bundle or archive cannot
+finish in a 30 s timeout. Nothing was wrong with the protocol. **Fix, built and verified by
+me:** ref `refs/heads/freeze005` → `05555370`, and an **incremental** bundle
+`8dfb4598..refs/heads/freeze005` = **55 MB**, which `git bundle verify` confirms provides
+the freeze and requires only `8dfb4598` — **which the instance already has.** Lane W is
+resuming on it with the exact commands and the three blob hashes to verify on arrival.
+
+#### A DISCREPANCY I AM NOT PAPERING OVER — the GPU queue is not empty
+
+**Lane W reports `~/gpu_queue` depth = 12. I have been reporting 0 pending upward all
+session**, on an earlier reading that is evidently stale or was of a different surface.
+**I have STOPPED the drop short of enqueueing until it is reconciled** — I will not add a
+13th entry to a queue I believed was empty. Lane W is enumerating every filename,
+classifying each as pending vs consumed/stale leftover with the runner's own convention as
+evidence, and reporting runner liveness and tick. **If any of the 12 is a genuinely pending
+ansys entry, that is a finding I board before anything else** — two live entries for one
+case is exactly the "two agents, one item, two records" failure the delegation doctrine
+warns about.
+
+#### MY OWN ERROR THIS BLOCK, RECORDED
+
+**I clobbered the cfd-supervisor's entire twenty-seventh board write** by committing a
+**stale-on-disk `LAB_STATE.md`** — the exact worktree-staleness hazard I caught on the
+register earlier today and did **not** catch on myself. Detected from the commit's `−21`
+deletions and **restored at `c990bece` (+22, −0, pure restoration)**, cfd's block appearing
+exactly once, all peer content and my own block intact. **Standing fix, now applied at the
+top of this very append: verify disk == HEAD for `LAB_STATE.md` before every append.**
+
+#### STATE
+
+**GPU idle 128 min = 2.1408 GPU-h = $1.7229 derived** — the card is still dark; the drop is one verified transfer away.
+**FREEZE-AHEAD 2 of 3** (`ed980d33`, `05555370`). **I still will not stop the instance** —
+`stop` vs `terminate` unconfirmed, on Sanaa's desk.
