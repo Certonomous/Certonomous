@@ -15682,3 +15682,159 @@ floor is region-scoped. General to any wall-function RANS case, not
 Ansys-specific.
 
 ---
+
+---
+
+## L-359 — a launcher stamp that is chronological ACROSS seconds and arbitrary WITHIN one is not an ordering key, and `sorted(...)[-1]` over it is one same-second collision from a wrong answer
+
+The shared launcher stamp format is `%Y%m%dT%H%M%SZ_$$`. Lexical sort orders it
+correctly **between** seconds and **arbitrarily within** one: the tiebreak is the PID,
+PIDs are not monotonic, and they **wrap**. The format is a *label*, not an ordering key.
+
+- **Never use these stamps to pick "the latest".** `sorted(stamps)[-1]` is correct
+  until two launches land in the same second, and then it is silently wrong — no
+  error, no refusal, a different directory chosen.
+- **Order by something that IS ordered**: the commit that recorded the run, an
+  explicit sequence number, or a written `finished_utc` — and say in the code which.
+- **The format is lab-wide and shared**, so any consumer of any team's launcher
+  stamps inherits this.
+
+*Provenance:* dafoam, 2026-08-27, board `commit:787db192` and its lane F refutation;
+relayed by the chief. Related: L-356 — both treat a convenient token as a stable id.
+
+---
+
+## L-360 — READ THE GUARD, NOT JUST THE LINE IT GUARDS: five instances in one day of an alarm raised from a partial read and then dressed in a mechanism
+
+A supervisor read `cands[0]` and raised an out-of-range alarm without reading the
+`len(cands) != 1` refusal **one line above**, which makes the indexing unreachable
+when it would be unsafe.
+
+- **An alarm about a line is not an alarm until the lines that guard it have been
+  read.** The unit of review is the *guarded block*, never the expression.
+- **The tell is a mechanism supplied by the reader.** In all five instances the claim
+  arrived with a plausible story about how the defect would bite, and the story was
+  constructed from the partial read rather than found in the code. **A mechanism the
+  reader invented is evidence about the reader.**
+- **Five instances in one day across teams** makes this a review-practice defect, not
+  an individual lapse.
+
+*Provenance:* dafoam, 2026-08-27, board `commit:787db192`; relayed by the chief.
+Related: L-320.
+
+---
+
+## L-361 — a CORRECT refusal that looks like a bug invites a fix, and the obvious fix installs exactly the defect the guard was preventing
+
+A frozen G1 comparator refused a re-fire. The refusal was correct — the guard exists
+so a rung cannot be graded twice over a directory that already holds a result — and it
+*presents* as an instrument that will not run.
+
+- **The dangerous moment is the minute AFTER the refusal**, when the quickest way
+  forward is to loosen the assertion that just fired.
+- **Loosening a guard to clear your own path is the guard working and you removing
+  it.** The refusal is evidence the guard is load-bearing, not that it is wrong.
+- **The runbook answer is ARCHIVE, NOT DELETE, under supervisor authority** — move the
+  prior result aside with a record of why and re-run into a clean directory.
+  **Never relax the assertion.**
+- A guard whose correct behaviour is indistinguishable from a bug **should say so in
+  its refusal text** and name the archive route.
+
+*Provenance:* dafoam, 2026-08-27, the re-fire G1 refusal; relayed by the chief.
+Related: L-247, L-357 (only the refusal message is evidence a guard fired).
+
+---
+
+## L-362 — TWO CORRECT RULES CAN MANUFACTURE A FALSE POSITIVE AT THEIR INTERSECTION: obeying the planted-control rule makes an instrument LOOK unfrozen
+
+`CLAUDE.md` rule 3 requires a comparator to plant the failure it must refuse. Planting
+it necessarily puts the refused name **into the source**. The freeze checker's scope
+rule then reads that string constant as a case the instrument grades, and dates its
+freeze from a foreign artefact.
+
+- Measured: `mark_done_dts_u.py` reads **`UNFROZEN` by −623,814 s** solely because
+  `run(tmp, ["L_Ts_c"])` sits in its own selftest as the planted **negative** control,
+  the next line printing *"a PARENT case name → REFUSE"*. The scope rule excludes
+  docstrings and prose but **admits a string constant in a call argument**.
+- **So the more faithfully an instrument obeys rule 3, the more likely rule 2's
+  checker flags it.** Neither rule is wrong; neither instrument is defective.
+- **When two of this lab's own rules disagree, the defect is at the INTERSECTION and
+  belongs to neither owner** — it will not be found by auditing either rule alone, nor
+  fixed by whoever is blamed for the flagged file.
+- **A scope rule over source text must exclude the region where controls live**, or it
+  reads a comparator's refusals as its claims.
+- **The population is `NOT MEASURED`**; standing freeze violations must be re-read for
+  this before any is believed.
+
+*Provenance:* verification, 2026-08-27, `docs/L342_GRADER_AUDIT.md` Addendum 8
+(`commit:b85111d1`).
+
+---
+
+## L-363 — WHEN VERIFYING A REPORTED COUNT, DERIVE THE PATTERN FROM THE ARTEFACT, NEVER FROM THE CLAIM — and report a zero beside the non-zero the same reader CAN see
+
+A supervisor "re-verified by execution" two reported counts of **0** by running the
+**claim's own grep patterns**. Both returned 0 at every blob **because neither string
+had ever existed in that file** — the idioms belonged to a different family. The
+execution was real and the check was worthless.
+
+- **A verification that adopts the claim's instrument is transcription with a shell
+  prompt in front of it**: the claim supplies the number *and* the means of confirming it.
+- **Every reported zero carries the non-zero the same reader can return.** One grep for
+  the file's actual idiom returned **6**, at both blobs, and would have caught it at once.
+- This is standing rule 3 — *a zero from a reader not shown able to see a non-zero is
+  not evidence* — **applied to an audit rather than to a comparator.**
+- Same defect, different coat: comparing two expressions by **shape** without checking
+  their **operands**. Measured the same day — two files whose `e21` differ in sign
+  compute the identical Richardson value, and reading the formulas said they diverged.
+
+*Provenance:* verification, 2026-08-27, `docs/L342_GRADER_AUDIT.md` Addendum 6
+(`commit:b452e889`) and `docs/standards/ROACHE_ADMISSIBILITY_SPEC.md` Amendment 1
+(`commit:94bc5692`) — both corrections against this team's own published work.
+
+---
+
+## L-364 — THE PLANTED-ZERO DOCTRINE GENERALISES FROM A ZERO TO A VERDICT: show the verdict MOVES, or a `NOT A RESULT` is indistinguishable from a constant
+
+Rule 3 makes a comparator prove it can see a non-zero before its zero is believed. The
+same argument applies to a **verdict**: a grader emitting `NOT A RESULT` has proved
+nothing unless it has been shown able to emit something else **on the same data**.
+
+- The pattern of record: take the **recorded** triple, plant into the coarse level
+  until it turns `CONVERGING`, and require the verdict to move `NOT A RESULT` →
+  `PASS`, then a further plant to `GATE FAIL`. **Verified: it moved across all three.**
+- **A grader that could only ever emit `NOT A RESULT` passes a naive review and fails
+  this**, and a repair driver whose refusals are all anyone sees is where that goes
+  unnoticed.
+- Now charter law for re-measurement harnesses (`VERIFICATION_CHARTER` v1.13 §3): *a
+  harness that has not been shown able to report a change has not measured that
+  nothing changed.*
+
+*Provenance:* heat-transfer's T1b repair driver, ARM 2, audited by verification
+2026-08-27 (`docs/L342_GRADER_AUDIT.md` Addendum 5, `commit:a9632c6f`).
+
+---
+
+**BATCH NOTE, 2026-08-27 — TWO CANDIDATES REFUSED AS DUPLICATES, AND A NEAR-MISS THAT
+ALMOST DESTROYED TWO OF THE LESSONS ABOVE.**
+
+- **`git ls-files` reads the INDEX, not the repository — REFUSED, it is `L-92`**, which
+  already carries the measurement (2,597 index entries against 2,658 in the committed
+  tree). **This team nevertheless briefed a sweep with "3 untracked instruments" derived
+  from `git ls-files`, four hours after itself documenting the stale-index mechanism.
+  The true count was 0.** The lesson existed, was correct, and was not consulted.
+- **A conjunctive clearance must evidence each conjunct separately — REFUSED, it is
+  `L-320`.** The 2026-08-27 instance (a trace concluding *"carry `GCI_pct = None` **and**
+  read `NOT A RESULT`"*, where only the first limb held for one file) is a **new instance
+  of `L-320`, not a new lesson**.
+- **⚠ THE NEAR-MISS, recorded because it is the sharpest instance of the day.** This
+  batch was first numbered **L-357…L-362** from a maximum re-derived **in the committing
+  invocation, exactly as rule 11 requires — but read from the WORKTREE copy, which was
+  89 lines BEHIND HEAD.** `L-357` and `L-358` already existed at HEAD
+  (`commit:e3a12000`, ansys-verification). **A byte-prefix assertion aborted the write;
+  without it the commit would have carried a pure-deletion diff of 90 lines and
+  destroyed both.** **Rule 11's re-derivation must read `git show HEAD:docs/LESSONS.md`,
+  never the worktree copy** — an instance of `L-350`, and an operational sharpening of
+  rule 11 now recommended to Sanaa alongside this team's Addendum 7 wording.
+- **No existing lesson is renumbered, re-titled or edited** — no line number above this
+  batch moves (`L-356`).
