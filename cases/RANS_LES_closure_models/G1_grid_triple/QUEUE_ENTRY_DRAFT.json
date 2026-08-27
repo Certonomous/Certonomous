@@ -1,0 +1,19 @@
+# DRAFT -- NOT FROZEN, NOT COMMITTED, NO COMPUTE AUTHORISED
+{
+  "team": "closure",
+  "case_id": "G1_grid_triple",
+  "prereg_commit": "PENDING_SUPERVISOR_FREEZE",
+  "prereg_path": "cases/RANS_LES_closure_models/G1_grid_triple/PREREGISTRATION.md",
+  "launch_cmd": [
+    "/bin/bash",
+    "/home/ubuntu/Certonomous/cases/RANS_LES_closure_models/G1_grid_triple/run_g1.sh"
+  ],
+  "cwd": "/home/ubuntu/closure-data/g1",
+  "ranks": 1,
+  "cost_core_min_estimate": 320.0,
+  "cost_basis": "derived: 4.2240e9 cell-iterations at 4.5e-06 s per cell-iteration serial (conservative, 8.7 percent above the highest of five measurements on this box: 4.138e-06 at 21000 cells, 5 capped CBFS rows, 13033.59 s over 150000 iterations) = 19008 s wall at ranks 1 = 316.80 core-min, plus 1.99 s of blockMesh and checkMesh MEASURED and 60 s of postProcess estimated; registered 320.0 core-min. $0.274 at the owner-stated $0.0513/core-h is derived, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5: this box cannot read its own billing).",
+  "memory_floor_gb": 1.0,
+  "memory_floor_basis": "ALLOWANCE, not a measurement. Derived field and mesh arithmetic gives circa 55 MB of solution data at the finest level (61440 cells); measured anchors taken with /usr/bin/time -v at that level are blockMesh MaxRSS 123644 kB and checkMesh MaxRSS 177692 kB. simpleFoam's own footprint was NOT measured, the drafting lane being forbidden to launch a solver. 1.0 GB is roughly 3x the resulting estimate. run_g1.sh captures the real MaxRSS per level into mem_time.txt, which converts this allowance into a reading for the next pre-registration.",
+  "cap_core_min_registered": 600.0,
+  "enqueued_by": "closure-supervisor (DRAFT -- NOT YET ENQUEUED; SUPERVISION_CHARTER section 3 check 4 has not been performed on this entry)"
+}
