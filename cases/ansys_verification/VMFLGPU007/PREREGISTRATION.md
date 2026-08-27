@@ -322,3 +322,132 @@ correct — limb C is a comparison against experiment under a model the manual c
 **Enqueueing is not authorisation** (`QUEUE_ENTRY_STANDARD.md` §1). `SUPERVISION_CHARTER` §3
 check 4 — the pre-registration **committed** before compute — is the supervisor's own and is not
 discharged by this document.
+
+---
+
+## PRE-COMPUTE AMENDMENT 1 — 2026-08-27 — a GRADING-PATH READER repair, found by a smoke before any GPU compute
+
+**Version 1.1.** Appended at the foot. **Nothing above this section is rewritten, edited or
+struck.** **Lines whose number changed above this section: 0**, verified by hashing the frozen
+blob `2992b343624e3f3c73a73bb69d847265e03c9013` as an exact byte prefix of this file, not
+merely asserted. Drafted by `ansys-lane-opus` (lane R2) on the supervisor's ruling to take the
+smoke before the drop.
+
+**THIS AMENDMENT MOVES NO LIMB, NO BAND, NO THRESHOLD, NO CAP AND NO LABEL.** The y+ band is
+still `11.0 ≤ y+ ≤ 300.0`, character for character. Limb A's `GPU_PCTF_MIN = 99.0`, limb B's
+`1e-4`, limb C's `0.20` and `1.5`, the reference `64.8530` at `5.8209`, the ceiling
+`GATE REACHED`, the caps `1.5 GPU-h` / `90 core-min`, the mesh family, the endTimes and the
+verdict vocabulary are all untouched. **One reader is repaired.**
+
+| file | blob BEFORE | blob AFTER |
+|---|---|---|
+| `grade_vmflgpu007.py` | `71d05b259e2446aeec04abbe22db1b93d167c39b` | **`a4632b7ac2ef88fd98d14015b614ab4772ae71df`** |
+| `run_vmflgpu007.sh` | `8747b42cc882167d56b0f316d583b31841ad7426` | **UNCHANGED** |
+| `field_completeness.py` | `195fcc0009e46d092dd836a6cbe189927f3268e7` | **UNCHANGED** |
+| `resolve_blockmesh.py` | `76ee0d3ac1c4c18529492155192f052f045ab7de` | **UNCHANGED** |
+
+### 1. THE CONDITION: no compute, and how it was checked
+
+**No solver of VMFLGPU007 has run.** On the **lab box**,
+`verification/runs/ansys_verification/VMFLGPU007` **does not exist** — `ls` returns *"No such
+file or directory"*. On the **GPU instance** the directory **exists and is EMPTY**:
+`find <run root> -mindepth 1` returns **0 entries**. It was created, after the freeze commit,
+**solely** so that `scripts/queue_entry_check.py`'s EXEC clause is satisfiable — that clause
+refuses an entry whose `cwd` does not exist, because `queue_runner.py` chdirs into it.
+**Creating an empty directory is not compute**, and the pre-compute condition was established
+and recorded at the freeze commit `84a4d83a`, when the directory did not exist on either box.
+**Zero GPU-seconds have been spent on this case.**
+
+### 2. What the smoke was, and that nothing from it is a result
+
+A **5-iteration, CPU-only** run of this case's L1 mesh, on the **lab box**, in a **scratch**
+directory —
+`/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/ansys-lane-r2/smoke`
+— **never the run root**, which is what rule 4's age guard requires. Its **only** purpose was to
+confirm the **actual on-disk names and shapes** the function objects write on this build. It
+used `PCG`/`PBiCGStab` rather than the frozen `petsc` solver blocks, because **the lab box
+has no petsc4Foam** and the linear algebra is not what a reader-path check tests.
+
+**It produces NO graded quantity and NOTHING from it is ever cited as a result.** The peak Nu it
+happens to yield (131.35 at x/H 0.156, after five iterations of an unconverged field) is not a
+number about this case and appears here only to be disowned.
+
+### 3. What the smoke CONFIRMED — the reader paths are real
+
+```
+postProcessing/wallT/5/T_heatedWall.raw          header "# x y z  T", 96 rows
+postProcessing/wallTmin/0/surfaceFieldValue.dat  header "# Region type : patch heatedWall"
+postProcessing/yPlusFO/0/yPlus.dat               header "# Time patch min max average"
+postProcessing/wallFlux/0/wallHeatFlux.dat
+postProcessing/resid/0/solverInfo.dat
+log.buoyantSimpleFoam                            End line present, rc = 0
+```
+
+Every one matches the frozen comparator's globs. **Driven, not eyeballed** — the frozen readers
+were executed against this real output: `read_wall_T` returned **96 rows** (= NXD, the heated
+wall's face count) with the correct `x y z T` column order; the **planted-zero control FIRED ON
+REAL SOLVER OUTPUT**, expected Nu move `0.02997040931279571` against observed
+`0.029970409313051505`; `plateau` refused for the **right reason** (5 samples < the registered
+200), which proves it found and parsed the file; and `logview_gpu` refused with *"no PETSc
+-log_view table"*, correct on a box with no PETSc and a live demonstration that an absent table
+is never read as a zero.
+
+### 4. THE DEFECT the smoke found, which would have cost the entire run
+
+The frozen `yplus_band()` ingested **every numeric token of every row** — `min`, `max` **and**
+`average`, for **every patch** — and took the 75th percentile of the pool, calling it *"the
+attached-region y+"*. **Measured on the real output:** the pool was **12 numbers from 4 patch
+rows**, and its 75th percentile was **626.3 — which is `stepFace`'s AVERAGE.**
+
+| patch | min | max | average |
+|---|---|---|---|
+| **`heatedWall` (the gate patch)** | **20.31** | **106.48** | **33.44** |
+| `stepFace` | 106.5 | 1089.8 | 626.3 |
+| `ductBottom` | 37.08 | 705.9 | 193.9 |
+| `topWall` | 28.83 | 48.44 | 33.45 |
+
+`stepFace` is the vertical step face — a 1H wall inside the recirculation zone, **neither the
+gate patch nor the attached region** — and its y+ spans 106–1090 **by the physics of the flow,
+not by any mesh defect**. **The frozen comparator would therefore have REFUSED A HEALTHY RUN at
+clause Y3 after 0.70 GPU-h had been spent, and produced no verdict** — the identical loss this
+family has already taken four times. **Three errors compounded:** it pooled four patches instead
+of selecting the gate patch; it pooled three different *statistics* as though they were samples
+of one distribution; and the percentile presupposed **per-face** data that the `yPlus` function
+object never writes.
+
+### 5. THE REPAIR — which number is read, and nothing else
+
+Select the **gate patch** `heatedWall` — the wall Vogel & Eaton measured and the wall limb C is
+computed on — and read its **`average`**, a statistic the file actually contains. Its `min`
+and `max` are **reported and never gated**, because y+ → 0 at separation and reattachment where
+the wall shear vanishes by definition. **The other patches are reported and never gated**: the
+band is a statement about the gate patch. A y+ record with **no row for the gate patch** now
+**refuses** (clause Y4) rather than substituting another wall. `YPLUS_QUANTILE = 0.75` is
+retired because it presupposed data that does not exist; **the band it was applied to is
+unchanged.**
+
+**Measured on the same real output, the repaired reader PASSES**: gate patch average **33.4397**,
+inside the frozen band **[11.0, 300.0]**, min 20.31 / max 106.48 reported. **That figure is
+close to the 37.3 estimated pre-freeze from Dean's correlation — the independent check that the
+MESH was right all along and only the READER was wrong.** No mesh, no band and no constant
+needed to change.
+
+### 6. The fixture was wrong too, and that is why the selftest had passed
+
+The comparator's y+ fixture wrote a **single-column, single-patch** file that OpenFOAM does not
+produce. **A selftest that only ever sees a shape the author invented cannot discover that the
+real shape differs** — which is exactly the limit named in §12 of the freeze as the largest
+residual risk. The fixture now writes the **real** multi-patch, five-column shape **carrying the
+real out-of-band values the smoke measured**, so the trap is reproduced in the selftest. A new
+arm, `y_nongate_patches_do_not_gate`, asserts that a clean run **still passes** with
+`stepFace` at 626.3 — the regression this amendment fixes. Selftest is now **28/28** under
+`python3` **and** `python3 -O`, still **zero `ast.Assert` nodes**.
+
+### 7. What this amendment does NOT do
+
+- It does not touch the launcher, the field-completeness guard or the mesh generator.
+- It does not add any new gated quantity. `wallHeatFlux` is written by the case and is
+  available on disk, but it is **not** part of the frozen grading path and is **not** wired in
+  here: adding a new refusal path after the freeze is not a reader repair, and it is not done.
+- It does not re-open any gate, and it does not authorise a launch.
+  `SUPERVISION_CHARTER` §3 check 4 remains the supervisor's own.

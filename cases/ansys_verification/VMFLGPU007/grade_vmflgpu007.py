@@ -126,7 +126,11 @@ H1_WALL = 0.07         # m, identical at every level -- see the NO GCI block abo
 # attached flow, and the near-zero minimum is REPORTED, never gated.
 YPLUS_MIN_ATTACHED = 11.0    # below this the log law is not available at all
 YPLUS_MAX_ATTACHED = 300.0
-YPLUS_QUANTILE = 0.75
+YPLUS_GATE_PATCH = "heatedWall"
+# AMENDMENT 1 (pre-compute): the band above is UNCHANGED.  What changed is WHICH
+# NUMBER is read -- see the amendment note on yplus_band() below.  The former
+# YPLUS_QUANTILE = 0.75 is retired because it presupposed a PER-FACE y+ sample
+# distribution, and the `yPlus` function object does not write one.
 
 # ------------------------------------------------------------ PLANTED CONTROL
 PLANT = 1.234e-3       # K, planted into a COPY of the wall-temperature reader
@@ -524,6 +528,38 @@ def limb_C(peak_nu, peak_xh):
 # y+ BAND -- REGISTERED ON THE ATTACHED REGION ONLY.
 # ==========================================================================
 def yplus_band(case_dir, level, clause="Y"):
+    """y+ on THE GATE PATCH, against the registered attached-region band.
+
+    PRE-COMPUTE AMENDMENT 1 (2026-08-27) -- A GRADING-PATH READER REPAIR ONLY.
+    NO limb, band, threshold, cap or label moves: the band is still
+    [11.0, 300.0], exactly as frozen.  What is repaired is WHICH NUMBER the
+    reader takes, and the defect was found by a 5-iteration CPU smoke BEFORE any
+    GPU compute.
+
+    THE DEFECT.  The frozen reader ingested EVERY numeric token of EVERY row --
+    that is `min`, `max` AND `average`, for EVERY patch -- and took the 75th
+    percentile of the pool, calling it "the attached-region y+".  MEASURED on
+    real solver output from this case's own L1 mesh: the pool was 12 numbers
+    from 4 patch rows, and its 75th percentile was 626.3, which is `stepFace`'s
+    AVERAGE.  `stepFace` is the vertical step face -- a 1H wall inside the
+    recirculation zone, neither the gate patch nor the attached region -- and
+    its y+ spans 106..1090 by the physics of the flow, not by any mesh defect.
+    The frozen reader would therefore have REFUSED A HEALTHY RUN at clause Y3
+    after 0.70 GPU-h had been spent.  Three separate errors compounded: it
+    pooled four patches instead of selecting the gate patch; it pooled three
+    different STATISTICS as though they were samples of one distribution; and
+    the percentile presupposed per-face data this function object never writes.
+
+    THE REPAIR.  Select the GATE PATCH -- `heatedWall`, the wall Vogel & Eaton
+    measured and the wall limb C is computed on -- and read its `average`, a
+    statistic the file actually contains.  Its `min` and `max` are REPORTED
+    beside it and never gated, because y+ -> 0 at separation and reattachment
+    where the wall shear vanishes BY DEFINITION.  MEASURED on the same real
+    output, the gate patch reads min 20.31, max 106.48, average 33.44 -- inside
+    the frozen band and close to the 37.3 estimated pre-freeze from Dean's
+    correlation, which is the independent check that the MESH was right all
+    along and only the READER was wrong.
+    """
     base = os.path.join(case_dir, "postProcessing", "yPlusFO")
     if not os.path.isdir(base):
         refuse(clause + "1", "no y+ record at %s. The manual specifies STANDARD "
@@ -531,33 +567,44 @@ def yplus_band(case_dir, level, clause="Y"):
                              "condition of this case, and it cannot be checked "
                              "without this channel." % base)
     path = one_match(os.path.join(base, "*", "*.dat"), clause + "1", "the y+ record")
-    vals = []
+    per_patch = {}
     for line in open(path):
         s = line.strip()
         if not s or s.startswith("#"):
             continue
         p = s.split()
-        for tok in p[1:]:
-            try:
-                vals.append(float(tok))
-            except ValueError:
-                pass
-    if not vals:
-        refuse(clause + "2", "the y+ record %s parsed to zero values" % path)
-    vals.sort()
-    q = vals[min(len(vals) - 1, int(YPLUS_QUANTILE * len(vals)))]
-    lo, hi = vals[0], vals[-1]
-    if q < YPLUS_MIN_ATTACHED or q > YPLUS_MAX_ATTACHED:
-        refuse(clause + "3", "%s: the attached-region y+ (upper-quartile "
-                             "representative) is %.4g, outside the registered "
-                             "band [%.4g, %.4g]. Standard wall functions assume "
-                             "the log layer and this mesh does not deliver it."
-                             % (level, q, YPLUS_MIN_ATTACHED, YPLUS_MAX_ATTACHED))
-    # The minimum is REPORTED, never gated: y+ -> 0 at separation and
-    # reattachment because the wall shear vanishes there BY DEFINITION.
-    return dict(attached_q=q, min=lo, max=hi,
-                note=("y+ min %.4g is at separation/reattachment where wall "
-                      "shear vanishes by definition -- REPORTED, NOT GATED" % lo))
+        if len(p) < 5:
+            continue
+        try:
+            per_patch[p[1]] = (float(p[2]), float(p[3]), float(p[4]))
+        except ValueError:
+            continue
+    if not per_patch:
+        refuse(clause + "2", "the y+ record %s parsed to zero patch rows. A "
+                             "reader that returns nothing has not measured a "
+                             "null result, it has failed." % path)
+    if YPLUS_GATE_PATCH not in per_patch:
+        refuse(clause + "4", "the y+ record %s carries no row for the GATE PATCH "
+                             "%r; it names %s. The band is a statement about the "
+                             "wall the gate is computed on, and this comparator "
+                             "does not substitute another wall for it."
+                             % (path, YPLUS_GATE_PATCH, sorted(per_patch)))
+    lo, hi, av = per_patch[YPLUS_GATE_PATCH]
+    if av < YPLUS_MIN_ATTACHED or av > YPLUS_MAX_ATTACHED:
+        refuse(clause + "3", "%s: y+ on the GATE PATCH %r averages %.4g, outside "
+                             "the registered band [%.4g, %.4g]. Standard wall "
+                             "functions assume the log layer and this mesh does "
+                             "not deliver it."
+                             % (level, YPLUS_GATE_PATCH, av, YPLUS_MIN_ATTACHED,
+                                YPLUS_MAX_ATTACHED))
+    return dict(gate_patch=YPLUS_GATE_PATCH, average=av, min=lo, max=hi,
+                other_patches={k: v for k, v in per_patch.items()
+                               if k != YPLUS_GATE_PATCH},
+                note=("y+ min %.4g on the gate patch is at separation/"
+                      "reattachment where wall shear vanishes by definition -- "
+                      "REPORTED, NOT GATED. Other patches are reported and never "
+                      "gated: the band is a statement about the gate patch."
+                      % lo))
 
 
 # ==========================================================================
@@ -668,7 +715,7 @@ def grade(run_root):
              "| limb B rel=%.3e %s | y+(attached)=%.3g [min %.3g reported, not "
              "gated] | plant %s"
              % (level, cells, pg, xg, pc, xc, relB,
-                "HOLDS" if heldB else "MISSES", yp["attached_q"], yp["min"],
+                "HOLDS" if heldB else "MISSES", yp["average"], yp["min"],
                 "fired" if controls[level]["observed"] > 0 else "DID NOT FIRE"))
 
     # THE BIRTH CERTIFICATE, against the MEASURED pre-freeze counts.
@@ -769,7 +816,8 @@ def _write(path, text):
 def _make_arm(root, level, arm, endtime, peak_nu, *, rc=0, end_line=True,
               n_times=None, last_time=None, drop_field=None, stale=False,
               plateau_n=600, plateau_flat=True, alive=True, logview=True,
-              gpu_pctf=None, h2d=None, yplus=37.0, rows=None, extra_raw=False,
+              gpu_pctf=None, h2d=None, yplus=33.44, rows=None, extra_raw=False,
+              drop_yplus_gate=False,
               no_endtime=False):
     d = os.path.join(root, arm, level)
     os.makedirs(d, exist_ok=True)
@@ -834,8 +882,19 @@ def _make_arm(root, level, arm, endtime, peak_nu, *, rc=0, end_line=True,
            "# it min(T)\n" + "\n".join("%d %.10g" % (i, v) for i, v in enumerate(vals)) + "\n")
 
     # y+
+    # THE REAL SHAPE, taken from a 5-iteration smoke of this case on this build:
+    # one row per PATCH with columns Time, patch, min, max, average.  The three
+    # non-gate patches carry the real out-of-band values the smoke measured, so
+    # the fixture reproduces the trap the frozen reader fell into.
+    yp_rows = [("heatedWall", yplus * 0.6, yplus * 3.2, yplus),
+               ("stepFace", 106.5, 1089.8, 626.3),
+               ("ductBottom", 37.08, 705.9, 193.9),
+               ("topWall", 28.83, 48.44, 33.45)]
+    if drop_yplus_gate:
+        yp_rows = [r for r in yp_rows if r[0] != YPLUS_GATE_PATCH]
     _write(os.path.join(d, "postProcessing", "yPlusFO", "0", "yPlus.dat"),
-           "# t min max avg\n0 0.01 %g %g\n" % (yplus, yplus))
+           "# y+ ()\n# Time\tpatch\tmin\tmax\taverage\n"
+           + "".join("5\t%s\t%.12e\t%.12e\t%.12e\n" % r for r in yp_rows))
 
     if not no_endtime:
         _write(os.path.join(root, "RUN_RC.%s.%s" % (level, arm)),
@@ -935,6 +994,14 @@ def selftest():
     # ---- y+ ----------------------------------------------------------------
     run("y3_band", "refuse", "outside the registered band",
         lambda d: _make_run(d, L1_gpu=dict(yplus=4.0)))
+    run("y4_gate_patch_missing", "refuse", "carries no row for the GATE PATCH",
+        lambda d: _make_run(d, L1_gpu=dict(drop_yplus_gate=True)))
+    # THE REGRESSION THIS AMENDMENT FIXES: the three non-gate patches carry the
+    # real, wildly out-of-band values the smoke measured (stepFace 106..1090).
+    # The control MUST still pass, because the band is a statement about the
+    # GATE PATCH. Under the frozen reader this arm refused at Y3 on 626.3.
+    run("y_nongate_patches_do_not_gate", "verdict", "GATE REACHED",
+        lambda d: _make_run(d))
 
     # ---- READERS -----------------------------------------------------------
     run("r_ambiguous", "refuse", "files match",

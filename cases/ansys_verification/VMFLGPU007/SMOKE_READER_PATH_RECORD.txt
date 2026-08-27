@@ -1,0 +1,56 @@
+VMFLGPU007 -- 5-ITERATION READER-PATH SMOKE, 2026-08-27, lane R2
+===============================================================
+CPU-only, 5 iterations, on the LAB BOX, in SCRATCH -- NEVER the run root.
+ONLY purpose: confirm the ACTUAL on-disk names and shapes the function objects write.
+IT PRODUCES NO GRADED QUANTITY AND NOTHING FROM IT IS EVER CITED AS A RESULT.
+It used PCG/PBiCGStab, not the frozen petsc blocks: the lab box has no petsc4Foam and
+the linear algebra is not what a reader-path check tests.
+
+MESH: Mesh OK. cells 3648 (== registered L1 birth-certificate target 3648)
+FIELD COMPLETENESS: required={T, U, epsilon, k, p_rgh}
+SOLVER: rc=0, End line present
+
+ACTUAL reader paths written by this build:
+  postProcessing/resid/0/solverInfo.dat
+  postProcessing/wallFlux/0/wallHeatFlux.dat
+  postProcessing/wallT/5/T_heatedWall.raw
+  postProcessing/wallTmin/0/surfaceFieldValue.dat
+  postProcessing/yPlusFO/0/yPlus.dat
+
+HEADERS AS WRITTEN:
+  --- postProcessing/wallT/5/T_heatedWall.raw
+     # T  FACE_DATA 96
+     # x y z  T
+  --- postProcessing/wallTmin/0/surfaceFieldValue.dat
+     # Region type :     patch heatedWall
+     # Faces             : 96
+  --- postProcessing/yPlusFO/0/yPlus.dat
+     # y+ ()             
+     # Time              	patch               	min                 	max                 	average             
+
+THE y+ RECORD IN FULL -- the file that exposed the reader defect:
+  # y+ ()             
+  # Time              	patch               	min                 	max                 	average             
+  5                   	heatedWall	2.030589078351e+01	1.064753862237e+02	3.343967604534e+01
+  5                   	stepFace	1.064753862237e+02	1.089826326732e+03	6.263346476443e+02
+  5                   	ductBottom	3.707923411480e+01	7.059205111937e+02	1.939192178695e+02
+  5                   	topWall	2.882618892282e+01	4.844414754875e+01	3.344927241200e+01
+
+FROZEN READERS DRIVEN ON THIS REAL OUTPUT (before the amendment):
+  read_wall_T           OK      96 rows, x/H 0.1562..29.8438, correct x y z T column order
+  planted-zero control  OK      FIRED ON REAL OUTPUT: expected 0.02997040931279571, observed 0.029970409313051505
+  plateau               REFUSE  'has 5 samples, fewer than the registered minimum 200' -- the RIGHT reason; it found and parsed the file
+  logview_gpu           REFUSE  'no PETSc -log_view table' -- correct on a box with no PETSc; an absent table is never read as a zero
+  yplus_band            REFUSE  'the attached-region y+ (upper-quartile representative) is 626.3, outside [11, 300]'  <-- THE DEFECT
+
+THE DEFECT: the frozen reader pooled min, max AND average of ALL FOUR patches (12
+numbers) and took the 75th percentile = 626.3, which is stepFace's AVERAGE. stepFace is
+the vertical step face inside the recirculation zone -- neither the gate patch nor the
+attached region -- and its y+ spans 106..1090 BY THE PHYSICS, not by any mesh defect.
+IT WOULD HAVE REFUSED A HEALTHY RUN AFTER 0.70 GPU-h, FOR NO VERDICT.
+
+AFTER the pre-compute amendment (reader repair only, band unchanged):
+  yplus_band            PASS    gate patch heatedWall average 33.4397 in band [11, 300];
+                                min 20.3059 / max 106.4754 reported, not gated.
+  33.44 against the 37.3 estimated pre-freeze from Dean's correlation -- the MESH was
+  right all along and only the READER was wrong.
