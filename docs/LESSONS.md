@@ -14984,3 +14984,62 @@ register row #31; calibration row `C-144`; pre-registration
 `e369496bf2e28ccb7145756e1c2442eb11e8e3f7` (register row #26, L-340).
 
 ---
+
+## L-348 — a drop path a document calls passive is a launch button until the code says so
+
+**One line:** *when two documents describe one mechanism and one was overtaken, the code
+and the crontab govern — and a standard that was superseded but never amended is more
+dangerous than no standard, because it is read, and it reassures.*
+
+Closure was ordered to file its first queue entries in bulk. The standard it was pointed
+at, and the `README.md` sitting in its own drop path, both say the queue is a passive list
+that causes nothing to happen. Both are stale by thirteen hours. **A supervisor discharging
+standing rule 2 and `SUPERVISION_CHARTER.md` §3 check 4 exactly by the book — read the
+standard, then file — would have fired every entry it filed.**
+
+**Three limbs, each measured, not reasoned.**
+
+1. **Inertness cannot rest on an annotation.** `scripts/queue_entry_check.py:312-318` runs
+   five checks and no more, and every unrecognised key is ignored. A `verdict_state:
+   PENDING`, a `NOT AUTHORISED` inside `enqueued_by`, a `# DO NOT RUN` — none is read by
+   the scheduler. Exactly three things keep an entry inert: it is **not in the drop path**
+   (a `held/` subdirectory, which works only because the scan is `d.glob("*.json")` at
+   `scripts/queue_runner.py:223` and not `rglob` — one character); its **`host`** names
+   another box (`:461-465`); or **its own launcher refuses for itself**. And `host`
+   **omitted defaults to `"local"`** — *omission is the dangerous default*, which is the
+   wrong way round for a safety field. There is no GPU field at all, so a GPU entry with
+   `ranks: 1` is the **narrowest** thing in the queue and the easiest to launch.
+
+2. **A capacity reading has a shelf life, and an inherited one is not current.** A lane
+   reported — correctly at its moment — that the runner was pid 502797 and that recent
+   ticks read `EMPTY: no entries in any team queue`, so a drop would fire on the next tick.
+   **Re-measured by the supervisor about four minutes later, both halves had moved:** pid
+   502797 was **gone** (`ps -p 502797` returned a header and no row), cron had restarted
+   the runner as **pid 856460 at 2026-08-27T16:26:01Z**, and the box read **busy 95.5 %,
+   ~15.3/16 cores, load average 16.40**, with cfd's `F25_DUCT3D.json` logged `HELD` against
+   the 85 % ceiling. **The operational conclusion inverted**: a drop today does *not* fire
+   on the next tick — it waits, armed and unattended, and fires whenever the box quiets.
+   Supervisor check 3 caught this only because the claim was re-derived rather than
+   relayed, and the relay had gone stale **in minutes**.
+
+3. **The restart was observed in production, which is better evidence than the log.** The
+   supervisor did not merely read that cron restarts the runner; it happened during the
+   check, 92 s before the reading, and `verification/queue/runner.restarts.log` gained the
+   row while it was being read. **Agent-independence of queued compute is therefore
+   measured here, not documented** — which is exactly the claim Sanaa's 2026-08-26 order
+   asks each team to be able to make about its queue.
+
+**The durable rule:** before filing into any drop path, establish **from the code** what
+mere presence in it causes, and **re-measure capacity in the same invocation that files**.
+Inherit neither fact from a report, however recent. And when a safety property depends on
+a field being present, remember that the schema's default is what governs the entry
+somebody writes in a hurry.
+
+**Provenance:** docket **D535**; `docs/standards/QUEUE_ENTRY_STANDARD.md:22,27-32` (stale,
+unamended, `bb469c0d`); `docs/standards/QUEUE_RUNNER.md:4` (the superseding order,
+`bc0e687e`); `scripts/queue_runner.py:223,286-293,461-465,890-900`;
+`scripts/queue_entry_check.py:272-276,312-318`; `verification/queue/LAUNCH_LOG.tsv` (85
+rows, closure 0); `verification/queue/runner.restarts.log`;
+`verification/queue/dafoam/held/README.md` (the three 2026-08-26 launch-on-drop fires).
+
+---
