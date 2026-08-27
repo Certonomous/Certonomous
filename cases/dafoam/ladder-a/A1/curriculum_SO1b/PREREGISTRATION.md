@@ -294,3 +294,31 @@ Every anchor is a MEASURED core-minute figure from a named `docs/COST_CALIBRATIO
 **ENQUEUEING IS NOT AUTHORISATION**: `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own, discharged on the sha, and is not discharged by this document or by the queue entry.
 
 **Predicted outcome, so it cannot be written afterwards:** P-A through P-K and P-mesh **HIT** → **PATCHED row `PASS`, SHIPPED row `GATE FAIL`, item `GATE FAIL`**, with the A1 shipped optimum bought for the first time, the final-design-point FD check discharged on both rows, and the D7R attribution decomposed rather than asserted.
+
+---
+
+## ADDENDUM 1 — 2026-08-27, CITATION FORM. **The document is v1.1.** No gate, threshold, cap, band, label, prediction or instrument moves.
+
+**`lines whose number changed above this section: 0`** — and that is not a claim, it is a byte comparison: the 296 lines / 52,405 bytes above this rule are **byte-identical** to the blob at the freeze commit `ea9ef8b688bdd37d536b5deee0f14820d0bd7cdf`, asserted in the same shell invocation that wrote this section. Nothing above was struck, rewritten or renumbered. The header still reads **Version 1.0. FROZEN.** deliberately: that line is a true statement about the frozen document, and rewriting it would be exactly the edit rule 6 forbids. The version bump is carried here.
+
+**THE CORRECTION.** The supervisor's standing rule for this family, `[lab-attributed]`, effective 2026-08-27: **cite commits as commits and blobs as blobs, never a bare hex.** A reference to a document's *text* cites the commit; a reference to a file's *bytes* cites the blob id or content digest, and says which; where an integrity check is meant, the identifier and the check are named together.
+
+`docs/standards/NONCONVERGENCE_STANDARD.md` has **three** identifiers and a bare 8-hex in parentheses does not say which is held: commit **`7ffd6c73`**, git blob id **`d553b963…`**, content sha256 **`14d72954cbe853ae…`**. §3g of this document above already carries the correct form — *"(commit `7ffd6c73`)"* — and is unchanged.
+
+**FIVE SITES IN THIS ITEM CARRY THE BARE FORM. NONE IS CORRECTED IN PLACE, AND EACH IS NAMED HERE INSTEAD:**
+
+| file | line | text as frozen |
+|---|---|---|
+| `so1b_grade.py` | **:139** | `# NONCONVERGENCE_STANDARD.md (7ffd6c73) anti-gaming clause, ABSOLUTE:` |
+| `so1b_of.py` | **:98** | `# THE REGISTERED OPTIMISER SETTINGS.  NONCONVERGENCE_STANDARD.md (7ffd6c73)` |
+| `so1b_grade_DELTAS_from_so1a_grade.diff` | **:75** | the same line, as a diff hunk |
+| `so1b_of_DELTAS_from_so1a_xf.diff` | **:159** | the same line, as a diff hunk |
+| `verification/queue/dafoam/SO1b_chain_wait.json` | **:44** | `"optimiser_registered_up_front": "NONCONVERGENCE_STANDARD.md (7ffd6c73) …"` |
+
+**The fifth site was not in the supervisor's list of four and is added here** — the sweep was run over the whole case directory *and* the queue entry rather than over the files named, which is why it was found. **In every one of the five the identifier is a comment or an annotation: none is read by any executable path, and none is an integrity check.** The correct reading of each is **commit `7ffd6c73`**.
+
+**NOTHING IS AT RISK, AND THIS IS NOT CALLED A FREEZE-INTEGRITY FAILURE.** An 8-hex string cannot be a sha256; every one of the five references resolves correctly (`git cat-file -t 7ffd6c73` → `commit`, and `7ffd6c73:docs/standards/NONCONVERGENCE_STANDARD.md` is present); and no gate, no cap and no verdict depends on any of them. The damage is that a future reader meets an ambiguous identifier in an instrument, which is the place they are most likely to trust it.
+
+**WHY THE INSTRUMENTS ARE NOT AMENDED, THOUGH THE FAMILY HAS PRECEDENT FOR DOING IT.** This item has spent **0 core-min** and started no arm container, so a pre-compute amendment to a frozen instrument is legal and the family has taken that route twice (`W3 AMENDMENT 1/2`, a comparator amended pre-compute at zero cost; `D8R ADDENDUM 1`, a driver defect repaired post-freeze and the entry re-filed). **It is declined here for the same reason SO-1a was not amended an hour ago, and consistency is the point.** Correcting a comment would force: four files re-edited, three md5s re-pinned in `so1b_chain_driver.sh`, both selftest suites re-driven (49 grader units × 2 interpreters, 35 launcher legs), two DELTAS files regenerated, a new freeze commit, a re-derived freeze sha and a repointed queue entry — **while `SO1b_chain_wait.json` sits live in the daemon runner's drop path**. Every re-freeze is an opportunity to introduce a defect, and the churn is being spent on prose that no executable path reads. **A dated addendum is the cheaper and safer instrument, and rule 6 is the mechanism written for exactly this.**
+
+**WHAT THIS ADDENDUM CANNOT AND DOES NOT DO.** It moves no gate, threshold, cap, band, label or prediction; it changes no instrument, so **no instrument md5 in §7 changes and the queue entry needs no repoint** — the eight §7 hashes were re-verified against disk in the invocation that wrote this section and all eight AGREE. It does not touch **line 6**, so the `G-CAP-PREREG` cap manifest is byte-unchanged on disk and at `HEAD`, and both channels of that guard read exactly as they did at the freeze. It rewrites no history: the freeze commit's message stands as written.
