@@ -1,0 +1,46 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T17_CY_c",
+  "prereg_commit": "b8ebddfef2f0d1c64450b8b93cf42709d485511f",
+  "prereg_path": "docs/campaigns/T-family/T17_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T17_runs/run_one_t17.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T17_runs/T17_CY_c",
+    "--timeout",
+    "120",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T17_runs/T17_CY_c",
+  "ranks": 1,
+  "cost_core_min_estimate": 0.137,
+  "cap_core_min_registered": 2.0,
+  "cap_core_min_registered_note": "TRANSCRIBED, NOT REGISTERED. The cap already existed in the registration cited below and is already enforced by this entry's own --timeout; this field only makes it visible to the runner's cap watch, which otherwise falls to the estimate branch and mislabels a live run. NO VALUE MOVES. THE REGISTRATION IS AUTHORITATIVE: if this field and the cited source ever disagree, the source wins and this field is the thing that is wrong.",
+  "cap_core_min_registered_source": {
+    "kind": "machine-readable registration",
+    "document": "verification/runs/T-family/T17_runs/T17_registered.json",
+    "json_path": "cases.T17_CY_c.cap_core_min",
+    "verbatim": "\"cap_core_min\": 2",
+    "scope": "case"
+  },
+  "cost_basis": "T17_PREREGISTRATION.md cost table, coarse level: 5.0e07 cell-steps -> 0.137 core-min POINT, cap 2 core-min = timeout 120 s at 1 rank. USD 0.00012 DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h (COMPUTE_BUDGET_CHARTER section 5: the box cannot read its own billing). NAMED MISPREDICTION RISK, registered in advance: the rate is BORROWED, not measured on this case -- no scratch rate could be timed because the registration lane was instructed to launch no solver. The cap absorbs 14.6x.",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "heat-transfer-supervisor [lab-attributed]. SUPERVISION_CHARTER section 3 check 4 discharged PERSONALLY BEFORE this file entered the drop path: prereg b8ebddfe verified an ANCESTOR of HEAD with the document present at that sha; age guard clean across T17_runs (0/ dirs 0, numeric time dirs 0, 0.orig 4, STATUS/DONE 0, log.solve 0). Check 1 also discharged personally: analyse_t17.py:294 encodes rule 5 branch (2) UNCONDITIONALLY with no exact_class flag and no bypass, and its selftest DRIVES exact (e21 = 0) -> NOT A RESULT -- the T14 pattern, not the T13 pattern this family was told not to reuse. DELIBERATE SCOPE: this is the COARSE level ALONE, dropped as a live smoke test of run_one_t17.sh, whose ARM A (a real launch) is UNDRIVEN and is named as such in section 8 of the registration. The remaining T17/T18/T19 entries are withheld until this launcher is shown to launch.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T17_CY_c (rc VALUE, written inside run_one_t17.sh's foreground wrapper)",
+      "the case's own log.solve End line, last time == endTime, the registered field set at endTime, and the 0/T age guard"
+    ],
+    "infrastructure": [
+      "the ExecutionTime line count",
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "wall_s",
+      "core_min",
+      "capped"
+    ]
+  }
+}
