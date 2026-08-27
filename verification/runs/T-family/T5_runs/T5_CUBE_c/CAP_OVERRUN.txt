@@ -1,0 +1,1 @@
+2026-08-26T20:52:11Z CAP OVERRUN REPORTED, NOT ENFORCED: case T5_C elapsed 11433 s > 1.10 x registered 2736 s (45.6 core-min / 1 ranks). The run was NOT killed (caps report; COMPUTE_BUDGET_CHARTER).

@@ -1,0 +1,1 @@
+2026-08-26T19:16:38Z CAP OVERRUN REPORTED, NOT ENFORCED: case T4b_IJ_m elapsed 4985 s > 1.10 x registered 4479 s (74.65 core-min / 1 ranks). The run was NOT killed (caps report; COMPUTE_BUDGET_CHARTER).

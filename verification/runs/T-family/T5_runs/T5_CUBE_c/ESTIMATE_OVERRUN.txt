@@ -1,0 +1,1 @@
+2026-08-26T20:54:01Z ESTIMATE OVERRUN REPORTED, NOT ENFORCED -- THIS IS AN ESTIMATE OVERRUN, NOT A CAP: the entry for case T5_C carries no cap_core_min_registered, so the only registered figure is the estimate; elapsed 11543 s > 1.10 x estimate 2736 s (45.6 core-min / 1 ranks). No cap was crossed by this record. The run was NOT killed (caps report; COMPUTE_BUDGET_CHARTER).
