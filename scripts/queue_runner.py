@@ -630,16 +630,13 @@ def cap_watch(root: Path, log: Log, now: float | None = None, retire_seen: bool 
                         f"[{ident}] carries no "
                         f"cap_core_min_registered, so the only registered figure is the estimate; "
                         f"elapsed {elapsed:.0f} s > 1.10 x estimate {allowed_wall/1.1:.0f} s "
-                        f"({est} core-min / {ranks} ranks). No cap was crossed by this record, "
-                        f"and RECORDING THIS IN ANY LEDGER AS A CAP BREACH WOULD BE FALSE: there "
-                        f"is no registered cap here to breach, and the ratio above is an ESTIMATE "
-                        f"ratio -- it must never be quoted as \"N x its cap\". There being no cap, "
-                        f"there is nothing here to enforce and the run was NOT killed. Separately: "
-                        f"this runner does not enforce a REGISTERED cap either, and that too is a "
-                        f"property of the runner AS BUILT, NOT a permission any charter grants -- "
-                        f"COMPUTE_BUDGET_CHARTER.md:197 says \"A budget overrun stops the run. It "
-                        f"does not get a new budget.\" Enforcement is pre-registered at "
-                        f"docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md (D539), ADVISORY and OFF.\n")
+                        f"({est} core-min / {ranks} ranks). No cap was crossed by this record. "
+                        f"There being no registered cap, there is nothing here to enforce and the "
+                        f"run was NOT killed. (This runner does not enforce a REGISTERED cap "
+                        f"either; that is a property of the runner AS BUILT, not a permission any "
+                        f"charter grants -- COMPUTE_BUDGET_CHARTER.md:197 says an overrun stops "
+                        f"the run. Enforcement is pre-registered at "
+                        f"docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md, D539, ADVISORY, OFF.)\n")
                 word = "ESTIMATE-OVERRUN"
             if elapsed <= allowed_wall:
                 continue

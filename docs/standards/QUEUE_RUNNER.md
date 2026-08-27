@@ -60,13 +60,34 @@ HEAD `bc0e687e`; permission rules added by her 2026-08-26 (`Bash(setsid *)`,
      pre-registered at `docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md` (**D539**) and is
      **ADVISORY, INERT and OFF**. **Switching it on is Sanaa's decision alone** — it kills
      running solvers, and no agent's message is her consent (rule 9).
-   - **Legacy flag files predate the 17:46Z branch split and are NOT cap breaches.** Every
-     `CAP_OVERRUN.txt` on disk at 2026-08-27 (F20, F18, F16b, D14M, T5_CUBE_c, T4b_IJ_m,
-     VMFL064-R2) carries the pre-fix wording **"> 1.10 x registered"** — the **1.10 estimate**
-     trigger — written into a file named `CAP_OVERRUN.txt`. The post-fix cap branch writes
-     **"1.00 x registered CAP"**. **No registered-cap breach has ever been recorded by this
-     runner.** A flag saying `1.10 x` is an estimate overrun whatever the filename says, and
-     its elapsed/registered ratio must never be quoted as *"N × its cap"*.
+   - **Enforcement today is an accident, and that is the structural fact worth stating.** A
+     case is stopped at its cap only where **its own launcher happens to wrap the solver in a
+     `timeout` sized to the cap** — `T3_R_ff` does; `T4b`'s launcher does (`--timeout` must
+     equal the registered cap, `T4b_PREREGISTRATION.md:464`). Where a launcher does not, nothing
+     stops the run. **A budget rule enforced by whichever launcher happened to be written
+     carefully is not a policy; it is an accident of authorship.**
+   - **The legacy `CAP_OVERRUN.txt` files on disk are FOSSILS of a defect already repaired at
+     HEAD, and NOT cap breaches. Do not edit, delete or "correct" them** — they are the record
+     of the defect and of its repair. The field-selection defect (reading the point **estimate**
+     as if it were the cap) was fixed by **`117bf190`**, and the re-armed-cwd artefact by
+     **`257d1116`**. Every `CAP_OVERRUN.txt` predating those (F20, F18, F16b, D14M, T5_CUBE_c,
+     T4b_IJ_m, VMFL064-R2) carries the pre-fix wording **"> 1.10 x registered"** — the estimate
+     trigger — inside a file named `CAP_OVERRUN.txt`; the post-fix cap branch writes **"1.00 x
+     registered CAP"**. **Measured, by heat-transfer and cfd independently at their own sources,
+     2026-08-27: T4b_IJ_c 14.1 core-min against a cap of 25 (0.56×); T4b_IJ_m 86.3 against 150
+     (0.58×); T5_CUBE_c 16.1 against an estimate of 45.6 — an underspend, whose 11,433 s spanned
+     a crashed attempt corrected at `C-148`; F16b 25.7 % of cap, F18 19.8 %, F20 29.2 %. No cap
+     was approached anywhere, let alone crossed. NO REGISTERED-CAP BREACH HAS EVER BEEN RECORDED
+     BY THIS RUNNER.** A flag saying `1.10 x` is an estimate overrun whatever its filename says,
+     and its elapsed/registered ratio must never be quoted as *"N × its cap"*.
+   - **A cap in a pre-registration is not a cap the runner can see.** `cap_core_min_registered`
+     is an **optional** entry field and is frequently omitted even where the case's
+     pre-registration does register caps: `T4b_PREREGISTRATION.md:464` registers caps of
+     **25 / 150 / 860** core-min, while the launched entry `T4b_IJ_m_v2.json` carries
+     `cap_core_min_registered: null`. For such entries the runner has **no cap to key on**, falls
+     to the estimate branch, and would remain inert even under the enforcement clause of
+     `RUNNER_CAP_ENFORCEMENT_CLAUSE.md`. **Coverage is a property of what entries declare, not of
+     what the runner can do.**
    `scripts/queue_entry_check.py` accepts the optional field
    unchanged (measured: F20's entry carrying it → `ACCEPTED`, rc 0). Both cases are planted
    controls in `--selftest` (cap file at the cap time and not at cap − 1 s; estimate file
