@@ -1,0 +1,10 @@
+case            P_Ts_f
+date            2026-08-27T19:26:48Z
+blockMesh_rc    0   wall 0.582 s
+checkMesh_rc    0   wall 0.755 s
+checkMesh       cells:            38400
+checkMesh       Max aspect ratio = 10.00000000000166 OK.
+checkMesh       Min volume = 6.249999999998949e-10. Max volume = 6.250000000000978e-10.  Total volume = 2.39999999999899e-05.  Cell volumes OK.
+checkMesh       Mesh non-orthogonality Max: 0 average: 0
+checkMesh       Max skewness = 5.329071088498308e-13 OK.
+checkMesh       Mesh OK.

@@ -1,0 +1,152 @@
+{
+  "rung": "T19",
+  "title": "Fully developed laminar forced convection between parallel plates, EXACT tier (the planar partner of T1c)",
+  "capability_grid_cell": "forced convection x laminar x 2D -- reads `CAN NOT DO -- not attempted as a graded heat-transfer class` at HEAD cbcb1127 (docs/capability/heat-transfer_GRID.md:53). The cell's own note names what does NOT count toward it: K0e is a specification at zero compute, E4a2 backs a flow boundary condition rather than a heat-transfer quantity, and KV1 validated an instrument and grades no case. T19 is the first graded heat-transfer case proposed for it.",
+  "ceiling": "GATE REACHED at best. Every reference here is a closed form or a quantity this rung's own module derives from the governing equations, so under the upheld V/P ruling it scores V and NEVER P; it can never reach HOLDS. Stated here so a reader does not discover it at grading.",
+  "solver": "buoyantBoussinesqSimpleFoam",
+  "turbulence": "simulationType laminar, beta = 0, g = (0 0 0). With beta = 0 the momentum equation is decoupled from T and the solver is a pure incompressible forced-convection solver -- T1c's registered configuration (build_t1c.py:219, 'ZERO GRAVITY IS THE POINT').",
+  "dimensionality": 2,
+  "ranks": 1,
+  "decomposition_seed": "serial, 1 rank, no decomposition",
+  "physics": {
+    "b_gap_m": 0.02,
+    "Dh_m": 0.04,
+    "L_m": 1.2,
+    "x_station_m": 0.8,
+    "x_plus": 0.28169014084507044,
+    "nu_m2_s": 1.5e-05,
+    "Pr": 0.71,
+    "Re_Dh": 100.0,
+    "U0_m_s": 0.0375,
+    "T_in_K": 300.0,
+    "T_wall_K": 400.0,
+    "dTdn_wall_K_m": 500.0,
+    "referent": "exact_t19.py solves the GENERIC duct (geometry index s: 0 plates, 1 pipe) and is CHECKED at s = 1 against T1c's registered pipe numbers f.Re = 64, Nu_q = 48/11 and Nu_Ts = 3.6567934, which this module did not compute. Measured agreement: 64.00000000, 4.36363639, 3.65679346."
+  },
+  "cases": {
+    "P_q_c":  {"level": "c", "arm": "uniform wall heat flux", "nx": 120, "ny": 20, "cells": 2400,
+               "endTime": 30000, "deltaT": 1, "writeInterval": 2000,
+               "point_core_min": 2.952, "cap_core_min": 12, "timeout_s": 720,
+               "ranks": 1, "decomposition_seed": "serial, 1 rank, no decomposition", "role": "graded level"},
+    "P_q_m":  {"level": "m", "arm": "uniform wall heat flux", "nx": 240, "ny": 40, "cells": 9600,
+               "endTime": 30000, "deltaT": 1, "writeInterval": 2000,
+               "point_core_min": 12.624, "cap_core_min": 50, "timeout_s": 3000,
+               "ranks": 1, "decomposition_seed": "serial, 1 rank, no decomposition", "role": "graded level"},
+    "P_q_f":  {"level": "f", "arm": "uniform wall heat flux", "nx": 480, "ny": 80, "cells": 38400,
+               "endTime": 30000, "deltaT": 1, "writeInterval": 2000,
+               "point_core_min": 77.952, "cap_core_min": 250, "timeout_s": 15000,
+               "ranks": 1, "decomposition_seed": "serial, 1 rank, no decomposition",
+               "role": "graded level -- THE GRADED VALUE IS THIS LEVEL'S, never the Richardson extrapolate"},
+    "P_Ts_c": {"level": "c", "arm": "uniform wall temperature", "nx": 120, "ny": 20, "cells": 2400,
+               "endTime": 30000, "deltaT": 1, "writeInterval": 2000,
+               "point_core_min": 2.952, "cap_core_min": 12, "timeout_s": 720,
+               "ranks": 1, "decomposition_seed": "serial, 1 rank, no decomposition", "role": "graded level"},
+    "P_Ts_m": {"level": "m", "arm": "uniform wall temperature", "nx": 240, "ny": 40, "cells": 9600,
+               "endTime": 30000, "deltaT": 1, "writeInterval": 2000,
+               "point_core_min": 12.624, "cap_core_min": 50, "timeout_s": 3000,
+               "ranks": 1, "decomposition_seed": "serial, 1 rank, no decomposition", "role": "graded level"},
+    "P_Ts_f": {"level": "f", "arm": "uniform wall temperature", "nx": 480, "ny": 80, "cells": 38400,
+               "endTime": 30000, "deltaT": 1, "writeInterval": 2000,
+               "point_core_min": 77.952, "cap_core_min": 250, "timeout_s": 15000,
+               "ranks": 1, "decomposition_seed": "serial, 1 rank, no decomposition",
+               "role": "graded level -- THE GRADED VALUE IS THIS LEVEL'S, never the Richardson extrapolate"}
+  },
+  "refinement_ratio": 2.0,
+  "factor_of_safety": 1.25,
+  "dim": 2,
+  "roache_floors": {
+    "source": "scripts/roache_triple.py, imported by name (MESH_STANDARD.md section 10.5, chief ruling 01967a7b); the comparator defines neither and REFUSES if these numbers differ from the import",
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05
+  },
+  "graded_rows": {
+    "G1": {
+      "quantity": "f.Re at the registered station, from the AXIAL PRESSURE GRADIENT between the two columns straddling it (second order in dy). The first-order wall-shear route is computed too and is REPORTED, never graded.",
+      "reference": 96.0,
+      "band_rel": 0.0008,
+      "predicted_rel_deviation": -0.000312,
+      "arm": "P_q_* (the hydrodynamics is identical in both arms; the Ts arm's value is the C_ID identity control)",
+      "grading": "Roache triple, rule 5; FINE value graded, extrapolate reported beside it",
+      "band_ground": "MEASURED PRECEDENT, not optimism. T1c graded the same quantity on the same solver at the same Re and Pr and its fine level landed 0.0192 percent low against the exact 64 (T1c_RESULTS.md:15-17, 63.98771). T1c's fine mesh carried 51 cells across the pipe RADIUS; this ladder's fine level carries 40 across the half-gap, so the second-order scaling (51/40)^2 = 1.626 gives a predicted -3.12e-04 here. The band 8.0e-04 clears the fine level by 2.6x and is FAILED by the medium level (predicted -1.25e-03) and by the coarse level (-5.0e-03) -- the band discriminates the ladder."
+    },
+    "G2": {
+      "quantity": "Nu for uniform wall heat flux at the registered station, q\"Dh/(k(T_w - T_m)), with T_w reconstructed from the cell value and the imposed gradient by the same discrete relation OpenFOAM uses (T_w = T_cell + gradient*dy/2) and T_m the mass-flux-weighted bulk mean",
+      "reference": 8.2352942009,
+      "band_rel": 0.0016,
+      "predicted_rel_deviation": 0.000619,
+      "arm": "P_q_*",
+      "band_ground": "TWO components. (a) READER, computed by applying this comparator's own station reader to the EXACT fully developed profile at each level's cell centres: +1.1204e-03 (ny=20), +2.9636e-04 (ny=40), +7.6101e-05 (ny=80), clean O(1/ny^2). (b) TOTAL from the measured precedent: T1c's uniform-flux Nu landed +0.0381 percent high at its fine level (T1c_RESULTS.md:15, 4.365298 vs 48/11), which scaled by (51/40)^2 gives +6.19e-04 here and CONTAINS the reader component rather than adding to it. PREDICTED FINE DEVIATION +6.19e-04. The band 1.6e-03 clears the fine level by 2.6x and is FAILED by the medium level (+2.5e-03) and the coarse level (+9.9e-03). The closed form 140/17 = 8.2352941176 is checked against the quadrature inside the module (agreement 1.0e-08 relative) but is not the referent; the quadrature is."
+    },
+    "G3": {
+      "quantity": "Nu for uniform wall temperature at the registered station, q\"Dh/(k(T_w - T_m)) with T_w the imposed 400 K and q\" reconstructed from the near-wall cell by the same discrete relation",
+      "reference": 7.5407008741,
+      "band_rel": 0.0035,
+      "predicted_rel_deviation": 0.00141,
+      "arm": "P_Ts_*",
+      "band_ground": "READER on the exact eigenfunction: +1.1898e-03 (ny=20), +3.0506e-04 (ny=40), +7.7200e-05 (ny=80). TOTAL from the measured precedent, AND THE PRECEDENT IS A FAILURE: T1c's constant-Ts row is the one that GATE FAILED, at +0.0865 percent against a 0.0301 percent band (T1c_RESULTS.md:14, 'The GATE FAIL is real and is not excused', :123). Scaling that MEASURED 8.65e-04 by (51/40)^2 gives +1.41e-03 here. The band 3.5e-03 is armed from the failure, not from the hope: it clears the predicted fine level by 2.5x and is FAILED by the medium level (+5.6e-03) and the coarse level (+2.3e-02). If T19's fine level lands near 8.65e-04 rather than 1.41e-03 it still PASSES, and that would say the extra resolution T1c had was not what mattered."
+    }
+  },
+  "controls": {
+    "C_PLATEAU": {
+      "what": "GATE (1). The graded quantities are recomputed at the PREVIOUS write (28000) and must have moved by no more than the floor, relatively, by the last write (30000). AN ABSOLUTE RESIDUAL FLOOR IS DELIBERATELY NOT THE GATE, and the reason is on the record: T1c ran this solver for these 30 000 iterations and 'the solver's own residualControl never tripped on any of the six cases and the offending case's T residual was an unremarkable 4e-05, so this was caught by comparing written fields, not by reading residuals' (build_t1c.py:57-63). Gating on a residual T1c never reached would manufacture a NOT A RESULT out of a healthy run (the T3 failure shape). The residuals ARE read and are REPORTED beside the verdict.",
+      "floor": 1e-06
+    },
+    "C_SYM": {
+      "what": "GATE (1). No symmetry plane is imposed -- the full gap is meshed and both walls carry the same condition -- so the mid-plane symmetry of the answer is a WITNESS rather than an assumption. C_SYM is max |T_j - T_(ny-1-j)| and max |u_j - u_(ny-1-j)| over the station columns.",
+      "floor_T": 1e-06,
+      "floor_U": 1e-09,
+      "floor_ground": "T is O(300-400 K) and u is O(0.04 m/s), so 1e-06 K and 1e-09 m/s are both about 3e-09 and 2.5e-08 relative. Both are far above SIMPLE round-off and far below any real asymmetry."
+    },
+    "C_MASS": {
+      "what": "GATE (1). The bulk velocity read at the station must equal the registered inlet U0: |ubar/U0 - 1| <= the floor. This is a conservation check on the reader AND on the solve, and it is the check that would catch a cell-ordering error in the reader (a transposed index would not conserve mass).",
+      "floor": 1e-06
+    },
+    "C_ID": {
+      "what": "GATE (1). beta = 0 makes the momentum equation independent of T, so the two arms have IDENTICAL hydrodynamics: f.Re read from P_Ts_* and from P_q_* must agree to the floor at every level. A difference means the arms are not the cases they are registered to be.",
+      "floor": 1e-06
+    },
+    "C_REF": {
+      "what": "Route B on the referent: the velocity profile satisfies its own ODE and the no-slip wall; its bulk mean is 1 (the NORMALISATION control -- a uniform scaling of the velocity satisfies both the ODE and the wall condition and is invisible to them, and is caught here; a 1e-06 mutation is REFUSED); the uniform-T eigenvalue route is second order in its own ODE mesh (measured ratio 4.000) and is Richardson extrapolated; and the s = 1 CROSS-CHECK against T1c's three registered pipe numbers to 1e-07 relative."
+    },
+    "C_PZ": {
+      "what": "planted-zero control (rule 3, L-340) on TWO readers on the fine q case: the Nu reader through a plant into T in the SINGLE NEAR-WALL CELL of the downstream station column, and the f.Re reader through a plant into p_rgh across that column. THE NU PLANT IS ONE CELL AND NOT THE WHOLE COLUMN FOR A MEASURED REASON: Nu is built from (T_wall - T_bulk), so a UNIFORM plant across the column shifts the wall value and the bulk mean equally and is invisible -- driven, and it moved the read by 1.9e-13, i.e. round-off. The one-cell plant moves it by 2.09e-03 absolute on a Nu of 8.24. Both arms; measured detection ladder. SIZING IS STATED RATHER THAN INHERITED: T14's rule 'the read must move by at least 0.1 x the plant' transfers only when the read carries the plant's units, and these readers return a Nusselt number and f.Re while the plant is a temperature or a kinematic pressure. The transferable requirement, and the one registered here, is that the REGISTERED plant 1.234e-03 must be VISIBLE (a non-zero move) and the demonstrated detection floor must be at or below it."
+    },
+    "C_PROV": {
+      "what": "scripts/check_case_provenance.py must return rc = 0 on every built case. It DID refuse the first draft of this case template, for the compressible scheme spelling div(((rho*nuEff)*dev2(T(grad(U))))) -- the T4 defect -- which was removed before the build. Driven, not assumed."
+    }
+  },
+  "predictions": {
+    "P1": "G1, G2, G3 all PASS at the fine level, at the predicted deviations -3.12e-04 / +6.19e-04 / +1.41e-03. CAN LOSE, and G3 is the one most likely to: its prediction is a scaled version of the only row in T1c that GATE FAILED.",
+    "P2": "all three triples CONVERGING with observed order p in [1.6, 2.4]. CAN LOSE.",
+    "P3": "C_ID holds at better than 1e-12, not merely better than the 1e-06 floor: with beta = 0 the two arms should produce bit-identical velocity and pressure fields, because the T equation does not feed back. If they differ at all above round-off, something in the registered configuration couples them and this registration is wrong about the solver. CAN LOSE.",
+    "P4": "The wall-to-wall Nusselt asymmetry (REPORTED, never gated) is below 1e-08 relative on every level.",
+    "P5": "The REPORTED first-order wall-shear route for f.Re misses 96 by roughly 1/(2 ny) -- about 2.5 percent at ny = 20 and 0.6 percent at ny = 80 -- while the GRADED pressure route is second order. If the two routes agree to second order instead, the wall-shear route is not what this registration thinks it is. CAN LOSE; nothing is gated on it."
+  },
+  "cost": {
+    "unit": "core-minutes (wall s x ranks / 60)",
+    "rate_core_s_per_cell_iteration": "2.46e-06 at 2 400 cells, 2.63e-06 at 9 600, 4.06e-06 at 38 400",
+    "rate_provenance": "MEASURED, ON THE SAME SOLVER, AND THIS IS THE STRONGEST OF THE THREE RATES IN THIS REGISTRATION SET. Taken from T1c's own completed runs at HEAD: verification/runs/T-family/T1_runs/L_q_c (4 000 cells, 30 000 iterations, ExecutionTime 294.89 s -> 2.457e-06 core-s per cell-iteration), L_q_m (10 240 cells, 809.07 s -> 2.633e-06), L_q_f (26 112 cells, 3162.26 s -> 4.037e-06) and L_Ts_f (26 112 cells, 3176.51 s -> 4.055e-06). Same solver (buoyantBoussinesqSimpleFoam), same closure (laminar), same schemes family, same iteration count (30 000), same box, serial. The rate RISES with mesh size, and this registration uses the size-matched value at each level rather than a single number.",
+    "misprediction_risk": "NAMED. The fine level here is 38 400 cells against the 26 112 the top rate was measured on, so the borrow crosses a 1.47x mesh jump in the direction where the rate has been observed to rise. A rate borrowed across a mesh jump made T1b L4 miss by 31.4 percent; the same shape is possible here and the expected direction is UNDER-prediction. The caps sit at 3.2x to 4.1x the point to absorb it, and an overrun STOPS the run (rule 12). NOT borrowed across a solver family: the failure shape the brief names -- a transient PIMPLE rate carried into a steady SIMPLE run -- does not apply, because the measured case IS a steady SIMPLE-family laminar forced-convection run.",
+    "point_total_core_min": 187.056,
+    "cap_total_core_min": 624,
+    "usd_per_core_h": 0.0513,
+    "point_total_usd_derived": 0.1599,
+    "cap_total_usd_derived": 0.5335,
+    "usd_basis": "DERIVED, NOT MEASURED. The box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5); the rate is owner-stated 2026-08-21/22.",
+    "long_run_declared_in_advance": "The two fine cases are predicted at about 4 680 wall seconds each, which is ABOVE the 3 600 wall-second marker rule 12 uses to flag a stalled row. They are not stalls: the length is predicted here, before compute, and follows from 38 400 cells x 30 000 SIMPLE iterations at a measured rate. A spend report on this rung must not classify those two rows as stalls on the wall-clock marker alone.",
+    "calibration": "a row in docs/COST_CALIBRATION.md is owed at completion, stating actual/predicted per level and attributing the gap (rule 12)"
+  },
+  "completion": {
+    "rule": "CLAUDE.md rule 4, all-or-nothing: rc=0 in the wrapper-written STATUS; an End line; last written time == endTime (30000); every registered field present at that time; ExecutionTime line count == endTime/deltaT = 30000; every field at endTime NEWER than the case's own 0/T (age guard)",
+    "needed_fields": ["T", "U", "p_rgh", "alphat"],
+    "field_tuple_check": "CHECKED EXPLICITLY AGAINST THE CLOSURE THIS RUNG REGISTERS, not copied from T1b. The registered closure is `simulationType laminar`, which instantiates no turbulence model and writes NO nut, NO k, NO omega and NO epsilon. T1b's thermal-family tuple `T U p_rgh alphat nut k omega` would therefore make completion IMPOSSIBLE here -- the exact defect that cost K0d its 829 core-minute rung. The four fields registered are the four this case's 0.orig carries and the four the solver writes at endTime; verified against T1c's own completed run, whose 30000/ directory holds T, U, alphat, p_rgh (plus p and phi, which the solver derives and which are NOT registered as conjuncts).",
+    "infrastructure_fields": ["wall_s", "timeout_s", "ranks", "core_min", "capped", "checkmesh_rc", "solver", "solver_path", "note", "started_utc", "ended_utc"],
+    "note": "capped is an INFRASTRUCTURE field and never a completion conjunct (L-342)"
+  },
+  "launcher": {
+    "file": "run_one_t19.sh",
+    "descends_from": "run_one_t14.sh with the rung name, case set, solver, field set and registered-JSON path changed",
+    "guard": "lineage-aware foreign-process scan (T10aR2 AMENDMENT 1, 9fa66065); NOT YET DRIVEN on either arm -- the lane that wrote this registration was instructed to launch no solver, so ARM A (a real launch) is UNDRIVEN and is named as such",
+    "queue_mode": "--no-detach"
+  }
+}
