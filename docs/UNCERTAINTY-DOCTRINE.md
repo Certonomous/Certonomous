@@ -113,3 +113,46 @@ the total which the act's own channel table reports unquantified.
   allowed for the numerical procedure).
 - Every new computed-uncertainty pattern gets a lesson entry so the team
   converges on automatic computation for all future cases.
+
+---
+
+## Dated note — 2026-08-27 — EVERY V&V-20 CITATION IN THIS FILE IS SECONDARY, AND SAYS SO FROM NOW ON
+
+**Appended at the foot. Nothing above is edited, struck or renumbered — other records cite this
+file by line. `lines whose number changed above this section: 0`.**
+
+**Sanaa's standing directive, 2026-08-27T16:54Z §0**, captured verbatim at
+`etc/sessions/2026-08-27T1654Z_sanaa_standing_directives.md` (boarded `55b95ba9`), her words:
+
+> *"the standard's own text gets acquired this week (MIT library route first) — until it lands,
+> every V&V-20 practice cites Dowding 2016 as secondary, stated as such."*
+
+**The measured fact this rests on: ASME V&V 20-2009's own text is NOT ON THIS BOX.** `git ls-tree`
+and a raw `find` over `docs/papers/` return exactly two matching artefacts —
+`docs/papers/verification_validation/dowding_2016_asme_vv.pdf` and its `.txt` sidecar. **That is a
+paper *about* the standard, not the standard.**
+
+**Therefore, governing every V&V-20 reference above and every use made of them:**
+
+- **`:3-4`** — the Sources line reads *"ASME V&V 20-2009 (Dowding overview, Paper2.pdf)"*. **Read
+  it as: Dowding 2016, a SECONDARY source describing ASME V&V 20-2009. The primary standard was
+  not consulted, because the lab does not hold it.**
+- **`:30-31`** — *"per V&V-20 the model error E = S - D is characterized within `[E - u_val,
+  E + u_val]`, `u_val^2 = u_num^2 + u_input^2 + u_D^2`"*. **This formulation is taken from Dowding
+  2016 and is SECONDARY. It has not been checked against the standard's own text.** The lab may
+  use it — Sanaa's directive authorises exactly that — but **no claim of conformance to ASME
+  V&V 20 may be made on it**, and any external-facing statement must say "following Dowding
+  (2016)'s account of ASME V&V 20-2009", never "per ASME V&V 20".
+- **`:17`** and **`:81`** — the LHS/variance-propagation reference and *"V&V 20 treats independent
+  channels that way"* are secondary on the same ground.
+
+**What clears this note:** the standard's own text landing under
+`docs/papers/verification_validation/` with a title-page verification (`L-144` — never by filename
+or hash), after which each line above is re-checked against it and the note is superseded by a
+dated successor. **Until then a `u_val` computed by this doctrine is a lab quantity computed by a
+published recipe, not a certified ASME V&V 20 validation uncertainty**, and this file will not be
+cited as though it were.
+
+**Not touched by this note: `docs/NUMERICS_KNOWLEDGE.md:118`**, whose *"Previously paywalled — now
+supplied"* heading is false for this entry. **Sanaa stated she will correct it herself today and
+no agent touches it.**
