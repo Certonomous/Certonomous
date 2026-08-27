@@ -117,8 +117,14 @@ GRADEPY="$SRC/d12y_grade_w3.py"          # W3: the SUCCESSOR comparator (W3-A1/W
 # where a copied-forward launcher enforced a cap its pre-registration did not name.
 CAP_CORE_MIN_REGISTERED="900.0"          # W3_PREREGISTRATION.md sec.4
 CAP_S8_REGISTERED="400.0"              # W3_PREREGISTRATION.md sec.4
-CAP_CORE_MIN="${CAP_CORE_MIN:-600.0}"
-CAP_S8="${CAP_S8:-350.0}"
+# W3 AMENDMENT 1 (2026-08-27), defect W3-LAUNCHER-DEF-1: these two OPERATIVE defaults
+# were carried over from the W3 DRAFT (600.0 / 350.0) while the *_REGISTERED constants
+# above already carried the FROZEN values (900.0 / 400.0).  The A1 agreement control
+# below caught the disagreement and REFUSED the launch at ZERO core-minutes.  The
+# registered cap does NOT move: 900.0 / 400.0 is what W3_PREREGISTRATION.md sec.4 names
+# and always named.  Only the launcher was wrong, and the launcher is what changed.
+CAP_CORE_MIN="${CAP_CORE_MIN:-900.0}"
+CAP_S8="${CAP_S8:-400.0}"
 MEMAVAIL_FLOOR_GIB="14.0"      # §G12R-8 registered floor
 MEM_LIMIT="8g"                 # W2 §4 registered per-container limit.  MEASURED BASIS:
                                # D12R2 phase 1 peak RSS was 1.3461 GiB (S5, the adjoint),

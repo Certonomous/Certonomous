@@ -1,0 +1,9 @@
+launcher_rc=1 end=2026-08-27T03:43:17Z note=exit-status-of-the-launch-argv-NOT-the-solver-rc
+RECONSTRUCTED-NOT-THE-ORIGINAL 2026-08-27T16:37Z dafoam lane B: the 93-byte file the queue
+runner wrote here at 03:43:17Z was DELETED at 16:35:49Z by d12y_w3_groot5_selftest.sh's
+end-of-run `rm -f STATUS.W3_chain` (defect W3-SELFTEST-DEF-1, repaired in W3 AMENDMENT 1).
+The line above is a reconstruction of the runner's own fixed format. It is attested, not
+invented: the LAUNCH by verification/queue/runner.log:1249 and verification/queue/
+LAUNCH_LOG.tsv:53 (03:43:17Z pid 662453 sid 662453 ranks 1 est 563.3 prereg eb1eb97d), and
+rc=1 by W3_phase1.out, which survives intact at its 03:43 mtime and carries the launcher's
+own ABORT line. 0 core-min were spent, so no verdict rests on this file.

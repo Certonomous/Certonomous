@@ -25,7 +25,10 @@ LAUNCHER="$HERE/d12y_w3_stage_and_run.sh"
 GRADEPY="$HERE/d12y_grade_w3.py"
 ROOT=/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady
 PERMISSION=bc0e687e
-MD5_LAUNCHER=fc7585cf27736593bf3df198e5d73836
+# W3 AMENDMENT 1 (2026-08-27), W3-LAUNCHER-DEF-1: launcher md5 fc7585cf... -> 5563d8a8...
+# (two operative cap DEFAULTS corrected to the values the frozen registration already
+# named; no gate, threshold, cap, band or label moves -- 900.0/400.0 is what sec.4 says).
+MD5_LAUNCHER=5563d8a8e22d28247233ca0e3aebfc2b
 MD5_GRADER=f3c1252c11fb94a3d4c580fdcbe7a62d
 STATUS="$HERE/STATUS.W3_chain"
 utc () { date -u +%Y-%m-%dT%H:%M:%SZ; }

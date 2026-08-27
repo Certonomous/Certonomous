@@ -121,3 +121,87 @@ Nothing about the PATCHED row until it is re-fired (`--image patched`, `<root>_p
 ## 10. FREEZE AND QUEUE
 
 **Committed BEFORE any container starts** (rule 2). The grading path is fixed at this commit: `d12y_grade_w3.py` md5 `f3c1252c11fb94a3d4c580fdcbe7a62d`, asserted by the launcher against the HEAD blob before staging and by the driver before each step. **Queue entry `verification/queue/dafoam/W3_chain.json`:** team `dafoam`, `prereg_commit` = the sha of the commit introducing this file, `launch_cmd` = `["bash", "<abs>/d12y_w3_chain_driver.sh"]`, `cwd` = this directory, `ranks 1`, `cost_core_min_estimate 563.3`, `cap_core_min_registered 900.0`, `memory_floor_gb 14.0`, `cost_basis` derived / not measured, `permission bc0e687e`. Enqueueing is not authorisation: `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own, discharged on the sha. **Predicted outcome:** P1–P4 HIT, phase 2 fires at `[0.004, 0.04, 0.05]`, `G12R-6` graded for the first time on an unsteady objective in this family; P5 undetermined by design.
+
+---
+
+## 11. AMENDMENT 1 — 2026-08-27, PRE-COMPUTE. Two launcher defects; the registered caps do not move.
+
+**Version 1.1.** Dated **2026-08-27**. Lane: dafoam `lab-lane` (B). Supervisor: `dafoam-supervisor` (ruling `[lab-attributed]`; check 1 discharged — the supervisor read `d12y_w3_stage_and_run.sh` and `d12y_w3_chain_driver.sh` as diffs against HEAD personally and recomputed the driver's launcher pin before approving). **Lines whose number changed above this section: 0. Bytes changed above this section: 0** — this amendment is appended at the foot and nothing above it, including the Version 1.0 line at `:3`, is edited. Sections 1–10 stand as frozen.
+
+**Nothing this amendment touches is a gate, a threshold, a cap, a band, a label, a prediction, a cost or a cpuset.** `CAP_CORE_MIN = 900.0` and `CAP_S8 = 400.0` are what §4 registered on 2026-08-26 and are what they remain; `W_STEPS 2000`, `MEM_LIMIT 8g`, `MEMAVAIL_FLOOR_GIB 14.0`, `CPUSET_CPUS 1`, band D, `h_max 0.05`, every gate `G12R-0`…`G12R-11`/`G12R-W`, P1–P5, the 563.3 core-min estimate and the S8 wall bound are all unchanged. **The comparator `d12y_grade_w3.py` is UNTOUCHED**, md5 `f3c1252c11fb94a3d4c580fdcbe7a62d` on disk and at HEAD — W3's evidentiary value is that the successor comparator was frozen before the answer was known, and this amendment does not reach it.
+
+### 11.1 The §2b condition, stated AND CHECKED
+
+`VERIFICATION_CHARTER.md` §2b makes a pre-registration amendment legal **only while there is no answer to tune to**, and requires the condition to be *stated and how it was checked*, not asserted. **Checked, not assumed, at 2026-08-27T16:35–16:37Z, three ways:**
+
+| the condition | how it was checked | reading |
+| --- | --- | --- |
+| the run root does not exist | `test -e /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady` | **false** — driven twice inside `d12y_w3_groot5_selftest.sh` (its opening leg, and again as the closing freeze condition after the temporary root is removed); both `[OK ]` in `d12y_w3_groot5_selftest_evidence.txt` |
+| no W3 container has ever run | `docker ps -a --format '{{.Names}}' \| grep '^d12y_w3_'` | **no `d12y_w3_` container survives** — `[OK ]`, same evidence file |
+| no W3 stage has been recorded | no `ledger.txt` and no `manifest.jsonl` exist, because the root that would hold them does not exist | follows from row 1 |
+| the one launch that happened spent nothing | `W3_phase1.out`, 63 bytes, mtime 03:43 — the launcher's `A1` `ABORT` line, emitted **before** `A2`'s image read and therefore before any container | **0 core-min**; `verification/queue/runner.log:1249` and `verification/queue/LAUNCH_LOG.tsv:53` carry the launch (03:43:17Z, pid 662453, ranks 1) |
+
+**There is no answer to tune to, because W3 has produced no answer of any kind.**
+
+### 11.2 `W3-LAUNCHER-DEF-1` — the operative cap defaults were the draft's
+
+`d12y_w3_stage_and_run.sh` carried the frozen values in its `*_REGISTERED` constants (`:117-118`, `"900.0"` / `"400.0"`) and the **W3 draft's** values in the two OPERATIVE defaults immediately below them (`600.0` / `350.0`, carried over from `W3_PREREGISTRATION_DRAFT.md`). The launcher's own `A1` agreement control — the control written for exactly this class after `D12-E'` §6.1 — compared them and **refused**, at `A1`, before `A2` read an image digest:
+
+> `ABORT: CAP_CORE_MIN is 600.0, the pre-registration names 900.0`
+
+That single line is the whole of `W3_phase1.out` and the whole of the 03:43:17Z launch. **The control did its job and cost nothing.** The repair moves the two OPERATIVE defaults to the values the document already named. **The registered cap does not move, because 900.0 is already what is registered** — the frozen document governs its instrument, and here the instrument was wrong.
+
+**A second stale default was masked by the first.** `A1` tests the cumulative cap before the S8 sub-cap, so the first `ABORT` hid that the S8 operative default was also the draft's (`350.0` against a registered `400.0`). Repairing only the reported line would have produced a second identical refusal on the next launch. Both are repaired together; the S8 sub-cap value registered in §4 is unchanged.
+
+### 11.3 `W3-SELFTEST-DEF-1` — the selftest destroyed the evidence of `W3-LAUNCHER-DEF-1`
+
+`d12y_w3_groot5_selftest.sh` was written and driven 7/7 on 2026-08-26T22:54:09Z, **before any W3 launch existed**. It therefore treated *any* `STATUS.W3_chain` and *any* `W3_*.out` as its own leakage: it `rm -f`-ed the first at its foot and scored the second by absolute count. Run at **2026-08-27T16:35:49Z** it consequently **deleted `STATUS.W3_chain`**, the 93-byte file the queue runner wrote at the 03:43:17Z launch, and mis-scored the surviving `W3_phase1.out` as leakage.
+
+**Disclosed, not tidied.** The deleted file was untracked and never at HEAD, so it is not recoverable byte-for-byte. Everything it carried is independently attested and nothing rests on it: the launch by `verification/queue/runner.log:1249` and `verification/queue/LAUNCH_LOG.tsv:53`, and `rc=1` by `W3_phase1.out`, which survives intact at its 03:43 mtime. **0 core-min were spent, so no verdict, cost or prediction depends on it.** `STATUS.W3_chain` now on disk is a **labelled reconstruction** of the runner's fixed format and says so in its own second line; it is not presented as the original.
+
+The repair: the selftest **snapshots** `STATUS.W3_chain` and the set of `W3_*.out` before its first leg, restores the former byte-for-byte at the end, and scores only files it **added**. Both new legs are driven and both pass.
+
+### 11.4 The cap-agreement legs, driven with a planted disagreement shown to FAIL
+
+A control not shown able to fire is not a control (`CLAUDE.md` rule 3). Six legs added to `d12y_w3_groot5_selftest.sh`, all **zero compute** — `(d)`/`(e)`/`(f)` refuse inside the launcher's `A1`/`A3`, both of which run before `A6` starts any container, and `(g)`/`(h)`/`(i)` are text reads. They run **ahead of** the G-ROOT.5 legs, so a cap failure stops the selftest before a single container is started.
+
+| leg | what is planted | what must happen | reading 16:37:15Z |
+| --- | --- | --- | --- |
+| (d) | `CAP_CORE_MIN=600.0` — the draft's value | launcher exits 1 at `A1` with the exact registered-vs-operative message | **`[OK ]`** |
+| (e) | `CAP_S8=350.0` — the draft's value | launcher exits 1 at `A1` on the S8 limb; **this also proves the cumulative limb PASSES at its registered default**, since otherwise this leg would abort on that message instead | **`[OK ]`** |
+| (f) | nothing planted; `SRC` pointed at an absent directory | `A1` passes BOTH limbs and the refusal is `A3` (exit 4, instrument-freeze), with no `ABORT: CAP_` line anywhere in the output | **`[OK ]`** |
+| (g) | nothing | the launcher's OPERATIVE defaults equal its own `*_REGISTERED` constants — **the drift reading that would have caught this defect at freeze time** | **`[OK ]` 900.0 / 400.0** |
+| (h) | nothing | those constants equal the caps **this document** names, at every place it names them, refusing on any internal disagreement — *the document governs its instrument* | **`[OK ]` 900.0 / 400.0** |
+| (i) | a sacrificial copy of the launcher with `600.0` restored | leg (g)'s reader must come out **UNEQUAL** on it | **`[OK ]`** — operative 600.0 vs registered 900.0 |
+
+**Leg (i) is the planted control on the new reader** and is the reason (g)'s pass is evidence rather than an assertion. **Full selftest: `pass=14 fail=0`**, `d12y_w3_groot5_selftest_evidence.txt`, 2026-08-27T16:37:15–16:37:16Z. A6's throwaway container is never reached by any cap leg; the only container the selftest starts is leg (a)'s registered sacrificial `sleep`.
+
+**A second honest correction, and the control caught its own author.** Leg (h)'s reader was first written to scan the WHOLE document, and on its next run it **REFUSED** — because this amendment's own leg table quotes the planted draft values as legs (d)/(e) plant them, and a document-wide scan cannot tell a value a document QUOTES from one it REGISTERS. The reader was scoped to the frozen §4 registration line by that row's literal label (the row beginning `Caps, registered and asserted …`), refusing if the anchor is missing, DUPLICATED, or does not carry both caps exactly once. It then refused a second time — because this very paragraph had reproduced the anchor verbatim, making it appear twice. That refusal is the reader working: two rows both claiming to register the cap is an ambiguity, not a detail, and the reader is right to decline to pick one. The prose was truncated; §4 still stands untouched. **§4 was not edited to make the reader pass** — that would be repairing a document on the authority of an instrument, which is backwards. The instrument was wrong about where registration lives, and the instrument is what changed.
+
+**An honest correction recorded rather than dropped.** Leg (f) was first written to expect `A4`'s planted-instrument control (exit 5) and **measured** `A3` (exit 4) instead: with an absent instrument the on-disk md5 is the empty string while the HEAD-blob md5 is `d41d8cd9…` (the md5 of empty input), so `A3` does **not** compare empty against empty and does **not** silently pass on a missing file. The leg was corrected to its measured refusal. `A3` is sound; the concern that prompted the check was unfounded and is recorded so nobody re-derives it.
+
+### 11.5 The instruments, re-pinned
+
+`d12y_grade_w3.py` is deliberately absent from this table: it did not change.
+
+| file | md5 at Version 1.0 | md5 at Version 1.1 | what changed |
+| --- | --- | --- | --- |
+| `d12y_w3_stage_and_run.sh` | `fc7585cf27736593bf3df198e5d73836` | `5563d8a8e22d28247233ca0e3aebfc2b` | the two OPERATIVE cap defaults, and a six-line comment naming the defect. Nothing else — a `diff` against the Version 1.0 file is 2 changed lines plus that comment |
+| `d12y_w3_chain_driver.sh` | `5ed357e1f25b4f413d05f8b6a6680e75` | `aaa5339db4abd9e0cf6c20701acefef4` | `MD5_LAUNCHER` re-pinned to the line above, plus a three-line comment. The driver's own `md5sum -c` at `:34` would otherwise refuse, which is the check `D8R-DRIVER-DEF-1` failed |
+| `d12y_w3_groot5_selftest.sh` | `c277331b…` (Version 1.0 table) | `c8ae8b5bce24e37b970ba8c90637ae91` | §11.3's snapshot/restore and §11.4's six legs |
+| `d12y_grade_w3.py` | `f3c1252c11fb94a3d4c580fdcbe7a62d` | **unchanged** | — |
+
+`A3` in the launcher asserts every instrument's md5 against the **committed HEAD blob** before staging, and the driver asserts the launcher's and the comparator's before each step, so **none of the above can run until it is committed** — the freeze is executed, not asserted.
+
+### 11.6 Re-file
+
+`verification/queue/dafoam/W3_chain.json` was launched at 03:43:17Z and the runner never re-fires a launched entry. The re-file is **`W3_chain_r2.json`**, identical in every registered field — same `launch_cmd`, `cwd`, `ranks 1`, `cost_core_min_estimate 563.3`, `cap_core_min_registered 900.0`, `memory_floor_gb 14.0`, `cost_basis`, `permission bc0e687e` — with `prereg_commit` set to the sha of the commit carrying **this amendment**, since that is the commit at which the instruments that will run exist. **Enqueueing is not authorisation**: `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own.
+
+| what this amendment did | figure |
+| --- | --- |
+| gates, thresholds, caps, bands, labels or predictions altered | **0** |
+| core-minutes spent by W3 before this amendment | **0** |
+| lines whose number changed above this section | **0** |
+| defects named and repaired | **2** (`W3-LAUNCHER-DEF-1`, `W3-SELFTEST-DEF-1`) |
+| selftest legs added, all driven | **6 + 2** (cap agreement; snapshot/restore) |
+| selftest result | **pass=14 fail=0** |
