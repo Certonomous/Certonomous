@@ -1,0 +1,661 @@
+#!/usr/bin/env python3
+"""Selftest for d6r_grade.py.  Run under BOTH `python3` and `python3 -O`; every
+refusal must STILL FIRE under -O.  Fixtures under argv[1]; nothing touches the
+registered run root, D4's run root, or docker.  Guards are shown to be the one
+credited by mutating the owning constant and watching the control flip."""
+import hashlib
+import json
+import os
+import shutil
+import sys
+import time
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import d6r_grade as G   # noqa: E402
+
+PASS = 0
+FAIL = 0
+
+
+def ok(name, cond, extra=""):
+    global PASS, FAIL
+    if cond:
+        PASS += 1
+        print("  [OK ] %s %s" % (name, extra))
+    else:
+        FAIL += 1
+        print("  [BAD] %s %s" % (name, extra))
+
+
+def refused(fn, *a, **k):
+    try:
+        fn(*a, **k)
+    except G.Refuse as exc:
+        return True, str(exc)
+    return False, None
+
+
+ROW = ("ARM={arm} ROW=PATCHED IMG=dafoam-idwarp-rot:v1 DIGEST={dig} rc={rc} wall_s={wall} "
+       "ranks=4 core_min={cm} cap_core_min={cap} enforced_wall_s={tmo} enforced_core_min={cap} "
+       "memory=20g inspect(exit,oomkilled)=[{ke} {oom}] container_wall_s={cw} frame_allowance_s={fa} "
+       "memavail_pre_GiB={mpre} memavail_post_GiB={mpost} "
+       "cpuset={cs} delivered_cores_mean=[{dl}] siblings_pre=[] siblings_post=[] log={log}\n")
+
+
+def row(arm, rc=0, ke=None, oom="false", cm=1.0, cap=None, mpre="26.00", mpost="26.00",
+        dl="3.9900 n=10 max_nr_throttled=0", log=None, cs=G.CPUSET_REGISTERED, dig=G.IMG_PATCHED_DIGEST,
+        wall=60, cw=None, fa=None, tmo=None):
+    return ROW.format(arm=arm, rc=rc, ke=(rc if ke is None else ke), oom=oom, cm=cm,
+                      cap=(G.CAPS[arm] if cap is None else cap), mpre=mpre, mpost=mpost, dl=dl,
+                      log=(log or "%s_x.log" % arm), cs=cs, dig=dig, wall=wall,
+                      cw=(wall - 5 if cw is None else cw), fa=(G.FRAME_ALLOWANCE_S if fa is None else fa),
+                      tmo=(G.TMO_REGISTERED_S[arm] if tmo is None else tmo))
+
+
+IPOPT_TMPL = ("Number of Iterations....: {n}\n\n"
+              "Objective...............:   {v:.16e}    {v:.16e}\n\n{exit}\n")
+
+
+def ipopt_table(n, inf_du_first=1.0e-2, inf_du_last=1.0e-6, cutbacks=0, restoration=0):
+    """A synthetic IPOPT major table.  inf_du walks GEOMETRICALLY from first to
+    last, so a DECREASING tail is the default and a stall has to be asked for."""
+    out = ["iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls"]
+    for i in range(n + 1):
+        f = (i / float(n)) if n else 1.0
+        v = inf_du_first * ((inf_du_last / inf_du_first) ** f)
+        suffix = "r" if (restoration and n - i < restoration) else ""
+        out.append("  %2d%s 2.2380567e-02 1.72e-04 %.2e  -4.9 5.38e-01    -  9.24e-01 2.50e-01h  3"
+                   % (i, suffix, v))
+    out += ["Warning: Cutting back alpha due to evaluation error"] * cutbacks
+    return "\n".join(out) + "\n"
+
+
+def write_ipopt(path, v, n=80, exit_="EXIT: Optimal Solution Found.",
+                inf_du_first=1.0e-2, inf_du_last=1.0e-6, cutbacks=0, restoration=0):
+    open(path, "w").write(ipopt_table(n, inf_du_first, inf_du_last, cutbacks, restoration)
+                          + "\n" + IPOPT_TMPL.format(n=n, v=v, exit=exit_))
+
+
+def write_fd(path, flips=0, rel=1.0):
+    rows = []
+    for i, (dv, idx) in enumerate(G.COMPONENTS_REGISTERED):
+        j = 1.0e-3 * (i + 1)
+        d = j * (1.0 + rel / 100.0)
+        if i < flips:
+            d = -d
+        rows.append({"dv": dv, "idx": idx, "status": "PLANNED", "s_lo": 1e-3, "s_hi": 3e-3, "J_adj": repr(j),
+                     "fd": {"s_lo": {"ok": True, "d": repr(d * 1.001)}, "s_hi": {"ok": True, "d": repr(d)}}})
+    json.dump({"components_requested": G.COMPONENTS_REGISTERED, "rows": rows}, open(path, "w"))
+
+
+def build_base(root, cd_mp, cd_ref, j0=2.60e-2, jf=2.03e-2, n_major=80, flips=0, rc=None, oom=None,
+               terminal_last=True, script_ok=True, stale=False, cm=None, hst_md5_ok=True,
+               arms=None, chain_outcome="COMPLETE", chain_stop_arm=None, chain_stop_rc=None,
+               chain_status=True, exit_="EXIT: Optimal Solution Found.", cutbacks=0, restoration=0,
+               inf_du_first=1.0e-2, inf_du_last=1.0e-6, cw=None, wall=None, fa=None, dup=None):
+    """`arms` = the arms that actually RAN (a chain stop leaves the rest with no
+    ledger row and no products).  `chain_outcome` is what the DRIVER wrote."""
+    if os.path.isdir(root):
+        shutil.rmtree(root)
+    os.makedirs(root)
+    d4o = os.path.join(root, "D4_O")
+    os.makedirs(d4o)
+    write_ipopt(os.path.join(d4o, "opt_IPOPT.txt"), G.CD_F_D4_RECORDED)
+    datum = int(time.time()) - 100
+    ran = list(G.ARMS_REQUIRED) if arms is None else list(arms)
+    if chain_status:
+        st = open(os.path.join(root, "STATUS.chain"), "w")
+        st.write("chain=started arms=[%s] pid=1 stamp=fix permission=bc0e687e\n"
+                 % " ".join(G.ARMS_REQUIRED))
+        for a in ran:
+            st.write("arm=%s rc=%d stamp=fix\n" % (a, (rc or {}).get(a, 0)))
+        if chain_outcome == "STOPPED_AT_FIRST_NONZERO":
+            sa = chain_stop_arm or ran[-1]
+            notrun = [x for x in G.ARMS_REQUIRED if G.ARMS_REQUIRED.index(x) > G.ARMS_REQUIRED.index(sa)]
+            st.write("chain=STOPPED_AT_FIRST_NONZERO arm=%s rc=%d order=[%s] not_run=[%s] stamp=fix\n"
+                     % (sa, (chain_stop_rc if chain_stop_rc is not None else 124),
+                        " ".join(G.ARMS_REQUIRED), " ".join(notrun)))
+        else:
+            st.write("chain=%s stamp=fix\n" % chain_outcome)
+        st.close()
+    led = open(os.path.join(root, "ledger.txt"), "w")
+    led.write("ITEM=D6R staged=fixture\n")
+    for arm in ran:
+        adir = os.path.join(root, G.ARM_DIR[arm])
+        os.makedirs(os.path.join(adir, "0"), exist_ok=True)
+        u = os.path.join(adir, "0", "U")
+        open(u, "w").write("U\n")
+        os.utime(u, (datum, datum))
+        open(os.path.join(adir, ".d4_age_datum"), "w").write(str(datum))
+        log = "%s_fix.log" % arm
+        body = "start\nD4S_IDWARP_SO_MD5: %s\nFinalising parallel run\n" % G.IDWARP_SO_MD5_PATCHED
+        if not terminal_last and arm == "O_mp":
+            body += "mpirun detected abort\n"
+        open(os.path.join(root, log), "w").write(body)
+        if not (arm in ("ACC_mp", "REF_off") and not script_ok):
+            open(os.path.join(root, log + ".ok.fix"), "w").write("")
+        a_rc = (rc or {}).get(arm, 0)
+        a_oom = (oom or {}).get(arm, "false")
+        kw = {}
+        if wall and arm in wall:
+            kw["wall"] = wall[arm]
+        if cw and arm in cw:
+            kw["cw"] = cw[arm]
+        if fa and arm in fa:
+            kw["fa"] = fa[arm]
+        led.write(row(arm, rc=a_rc, oom=a_oom, cm=(cm or {}).get(arm, G.PREDICTED_CORE_MIN[arm]),
+                      log=log, **kw))
+        if dup and arm == dup:
+            led.write(row(arm, rc=a_rc, oom=a_oom, cm=1.0, log=log, **kw))
+    led.close()
+    omp = os.path.join(root, "O_mp")
+    if "O_mp" not in ran:
+        return d4o
+    write_ipopt(os.path.join(omp, "opt_IPOPT.txt"), jf, n=n_major, exit_=exit_,
+                inf_du_first=inf_du_first, inf_du_last=inf_du_last,
+                cutbacks=cutbacks, restoration=restoration)
+    open(os.path.join(omp, "OptView.hst"), "w").write("h")
+    open(os.path.join(omp, "d6r_endpoint_dvs.json"), "w").write("{}")
+    hist = {"J": [j0] + [jf] * (n_major - 1)}
+    for pt in G.POINTS:
+        hist["CD_" + pt] = [cd_mp[pt] * 1.3] + [cd_mp[pt]] * (n_major - 1)
+        hist["CL_" + pt] = [0.4 if pt == "cl04" else (0.5 if pt == "cl05" else 0.6)] * n_major
+    json.dump(hist, open(os.path.join(omp, "d6r_major_history.json"), "w"))
+    write_fd(os.path.join(omp, "d6r_fd_endpoint.json"), flips=flips)
+    if "F_mp" not in ran:
+        for f in ("d6r_fd_endpoint.json", "d6r_endpoint_dvs.json", "d6r_major_history.json"):
+            fp = os.path.join(omp, f)
+            if os.path.isfile(fp):
+                os.remove(fp)
+    if "REF_off" in ran:
+        ref = os.path.join(root, "REF_off")
+        hst_txt = "D4 history fixture\n" if hst_md5_ok else "moved history\n"
+        open(os.path.join(ref, "OptView.hst"), "w").write(hst_txt)
+        json.dump({"points": {pt: {"CD": repr(cd_ref[pt]), "CL": repr(0.5)} for pt in G.POINTS},
+                   "consistency_CD_cl05_minus_D4_CD_f": "0.0"},
+                  open(os.path.join(ref, "d6r_ref_off.json"), "w"))
+    now = time.time()
+    for dp, dn, fn in os.walk(root):
+        for f in fn:
+            p = os.path.join(dp, f)
+            if not (f == "U" and os.path.basename(dp) == "0"):
+                os.utime(p, (now, now))
+    if stale:
+        p = os.path.join(omp, "opt_IPOPT.txt")
+        os.utime(p, (datum - 5, datum - 5))
+    return d4o
+
+
+CLEAN_MP = {"cl04": 1.80e-2, "cl05": G.CD_F_D4_RECORDED + 3.0e-4, "cl06": 2.60e-2}
+CLEAN_REF = {"cl04": 1.82e-2, "cl05": G.CD_F_D4_RECORDED + 3.1e-4, "cl06": 2.68e-2}
+
+
+def cen_of(root):
+    rows = G.read_ledger(os.path.join(root, "ledger.txt"))
+    rba = {r["ARM"]: r for r in rows}
+    return G.arm_census(root, rba, list(G.ARMS_REQUIRED))
+
+
+def main():
+    scratch = sys.argv[1]
+    os.makedirs(scratch, exist_ok=True)
+    mode = "python3 -O" if not __debug__ else "python3"
+    print("D6R GRADE SELFTEST under %s  grader_md5=%s" % (mode, G.md5_of(G.__file__)))
+    G.MD5_D4_HST = hashlib.md5(b"D4 history fixture\n").hexdigest()   # fixture's staged-input md5
+
+    # =====================================================================
+    # 0. INHERITED CLAUSES -- unchanged from D6 and re-driven, not assumed
+    # =====================================================================
+    r = G.self_assert_check()
+    ok("0a L-332 grader carries 0 assert nodes and the counter SEES a planted one",
+       r["assert_nodes"] == 0 and r["counter_sees_planted"] == 1,
+       "assert_nodes=%s planted=%s" % (r["assert_nodes"], r["counter_sees_planted"]))
+
+    p = os.path.join(scratch, "led_nm.txt")
+    open(p, "w").write(row("O_mp", mpre="NOT_MEASURED", dl="NOT_MEASURED"))
+    rows = G.read_ledger(p)
+    ok("0b NOT_MEASURED infrastructure fields parse to None and are DISCLOSED",
+       rows[0]["memavail_pre_GiB"] is None and "delivered" in rows[0]["infra_not_measured"])
+    p = os.path.join(scratch, "led_garbage.txt")
+    open(p, "w").write(row("O_mp", mpost="xyz"))
+    rf, msg = refused(G.read_ledger, p)
+    ok("0c PRESENT-BUT-GARBAGE infrastructure value -> REFUSE", rf and "row_unparseable" in msg)
+    p = os.path.join(scratch, "led_nophys.txt")
+    open(p, "w").write(row("O_mp").replace(" wall_s=60", ""))
+    rf, msg = refused(G.read_ledger, p)
+    ok("0d absent PHYSICS field (wall_s) -> REFUSE", rf and "row_unparseable" in msg)
+    p = os.path.join(scratch, "led_nocw.txt")
+    open(p, "w").write(row("O_mp").replace(" container_wall_s=55", ""))
+    rows = G.read_ledger(p)
+    ok("0e an OLD-FORMAT row with no container clock still PARSES; the field is NOT_MEASURED",
+       rows[0]["container_wall_s"] is None and "container_wall_s" in rows[0]["infra_not_measured"])
+
+    # =====================================================================
+    # 1. THE CLEAN CONTROL
+    # =====================================================================
+    root = os.path.join(scratch, "root_clean")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF)
+    res = G.grade(root, d4o)
+    ok("1a CLEAN CONTROL -> item PASS; three per-point PASS; composite in band; price in band",
+       res["verdict"] == "PASS" and res["per_point_verdicts"] == {"cl04": "PASS", "cl05": "PASS", "cl06": "PASS"}
+       and res["gates"]["G-D6R-2_composite"] == "PASS" and res["gates"]["G-D6R-3_price"] == "PASS",
+       json.dumps(res["gates"], sort_keys=True))
+    ok("1b planted-zero control FIRED on the D4 reference reader (rule 3)",
+       abs(res["G-D6R-3"]["planted_control"]["seen_delta"] - G.PLANT) < 1e-12)
+    ok("1c all four arms RAN, none NOT_RUN, chain COMPLETE, P8 HIT",
+       res["arms_ran"] == list(G.ARMS_REQUIRED) and res["arms_not_run"] == []
+       and res["predictions"]["P8"]["score"] == "HIT")
+    ok("1d P1 MISSES ON A CONVERGING FIXTURE -- P1 predicts NON-convergence, so a HIT here would "
+       "mean the prediction cannot be falsified.  P2,P3,P4,P5,P6,P7,P8 HIT.",
+       res["predictions"]["P1"]["score"] == "MISS" and res["optimiser_outcome"] == "CONVERGED"
+       and all(res["predictions"][k]["score"] == "HIT" for k in ("P2", "P3", "P4", "P5", "P6", "P7", "P8")),
+       json.dumps({k: v["score"] for k, v in res["predictions"].items()}))
+    ok("1e REF_off staged input OptView.hst age-exempt BY MD5 and RECORDED in G1",
+       res["G1"]["staged_inputs"]["REF_off"]["age_exempt_by_md5"] is True)
+    ok("1f ARM_DIR is ASSERTED against the launcher's own bytes, not merely stated",
+       res["arm_dir_mapping"]["checked"] is True
+       and res["arm_dir_mapping"]["ARM_DIR"]["F_mp"] == "O_mp"
+       and res["arm_dir_mapping"]["F_mp_workdir_line_found"] == G.LAUNCHER_F_MP_WORKDIR_LINE,
+       res["arm_dir_mapping"].get("md5", "")[:8])
+
+    # =====================================================================
+    # 2. D6-GRADER-DEF-1 -- A REGISTERED CHAIN STOP IS GRADED, NOT REFUSED
+    # =====================================================================
+    root = os.path.join(scratch, "root_stop_O")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, arms=["O_mp"], rc={"O_mp": 124},
+                     chain_outcome="STOPPED_AT_FIRST_NONZERO", chain_stop_arm="O_mp",
+                     chain_stop_rc=124, exit_="EXIT: Maximum Number of Iterations Exceeded.",
+                     cw={"O_mp": G.TMO_REGISTERED_S["O_mp"]}, wall={"O_mp": G.TMO_REGISTERED_S["O_mp"] + 8},
+                     cm={"O_mp": 2894.5})
+    res = G.grade(root, d4o)
+    ok("2a THE DEFECT'S OWN FIXTURE: chain stops at O_mp rc=124 and the grader RETURNS A VERDICT "
+       "instead of refusing.  D6's grader refused here with arm_absent_from_ledger.",
+       res["verdict"] == "NOT A RESULT" and res["arms_ran"] == ["O_mp"])
+    ok("2b the three arms that did NOT run are NAMED, with their reason, in the artefact",
+       sorted(res["arms_not_run"]) == ["ACC_mp", "F_mp", "REF_off"]
+       and all(res["arm_census"][a]["reason"] == "REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO"
+               and res["arm_census"][a]["stop_arm"] == "O_mp" and res["arm_census"][a]["stop_rc"] == 124
+               for a in ("ACC_mp", "F_mp", "REF_off")),
+       json.dumps({a: res["arm_census"][a]["reason"] for a in res["arms_not_run"]}))
+    ok("2c A GATE WITH NO INPUT IS NOT A RESULT -- NEVER GATE FAIL.  Nothing was measured to fail.",
+       res["gates"]["G-D6R-1_cl04"] == "NOT A RESULT" and res["gates"]["G-D6R-2_composite"] == "NOT A RESULT"
+       and res["gates"]["G-D6R-4_fd"] == "NOT A RESULT"
+       and res["G-D6R-2"]["reason"] == G.NOT_RUN_SENTINEL
+       and res["G-D6R-2"]["producing_arm"] == "F_mp",
+       json.dumps(res["gates"], sort_keys=True))
+    ok("2d THE ARM THAT DID RUN IS STILL GRADED ON ITS OWN LIMBS -- G10, G9, G12 read O_mp",
+       res["G10"]["per_arm"]["O_mp"]["within_cap"] is True
+       and res["G9"]["arms_graded"] == ["O_mp"]
+       and res["G12"]["arms_graded"] == ["O_mp"]
+       and res["G9"]["arms_not_graded_because_they_did_not_run"] == ["ACC_mp", "F_mp", "REF_off"])
+    ok("2e the arms that did not run bought 0 core-min and are named as such at G10",
+       res["G10"]["arms_not_run_bought_zero"] == ["ACC_mp", "F_mp", "REF_off"]
+       and abs(res["G10"]["total_core_min"] - 2894.5) < 1e-6)
+    ok("2f P8 MISSES on a stopped chain -- the repair's own falsifier is falsifiable",
+       res["predictions"]["P8"]["score"] == "MISS")
+
+    root = os.path.join(scratch, "root_stop_ACC")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, arms=["O_mp", "ACC_mp"], rc={"ACC_mp": 137},
+                     oom={"ACC_mp": "true"}, chain_outcome="STOPPED_AT_FIRST_NONZERO",
+                     chain_stop_arm="ACC_mp", chain_stop_rc=137,
+                     exit_="EXIT: Maximum Number of Iterations Exceeded.")
+    res = G.grade(root, d4o)
+    ok("2g A STOP LATER IN THE CHAIN grades BOTH arms that ran and names only the two that did not",
+       res["arms_ran"] == ["O_mp", "ACC_mp"] and sorted(res["arms_not_run"]) == ["F_mp", "REF_off"]
+       and res["verdict"] == "NOT A RESULT" and res["predictions"]["P7"]["score"] == "MISS")
+
+    # ---- THE GUARD IS NOT LOOSENED -------------------------------------
+    root = os.path.join(scratch, "root_unexplained")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, arms=["O_mp"], chain_outcome="COMPLETE")
+    rf, msg = refused(G.grade, root, d4o)
+    ok("2h AN UNEXPLAINED ABSENCE STILL REFUSES: chain says COMPLETE but three arms have no row",
+       rf and "arm_absent_from_ledger" in msg and "NOT accounted for" in msg)
+    root = os.path.join(scratch, "root_nostatus")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, arms=["O_mp"], chain_status=False)
+    rf, msg = refused(G.grade, root, d4o)
+    ok("2i NO STATUS.chain AT ALL -> REFUSE (the explanation must exist, not be assumed)", rf)
+    root = os.path.join(scratch, "root_order")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF)
+    sp = os.path.join(root, "STATUS.chain")
+    _t = open(sp).read()
+    open(sp, "w").write(_t.replace("arms=[O_mp ACC_mp F_mp REF_off]", "arms=[O_mp F_mp]"))
+    rf, msg = refused(G.grade, root, d4o)
+    ok("2j the driver ran a DIFFERENT arm list than the registered one -> REFUSE",
+       rf and "chain_order_not_the_registered_order" in msg)
+    root = os.path.join(scratch, "root_prodran")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF)
+    os.remove(os.path.join(root, "REF_off", "d6r_ref_off.json"))
+    rf, msg = refused(G.grade, root, d4o)
+    ok("2k AN ABSENT PRODUCT WHOSE PRODUCER *DID* RUN STILL REFUSES -- D6's behaviour, preserved",
+       rf and "absent" in msg and "producing_arm" in msg)
+    root = os.path.join(scratch, "root_dup")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, dup="O_mp")
+    rf, msg = refused(G.grade, root, d4o)
+    ok("2l STRENGTHENING: two ledger rows for one arm -> REFUSE (D6 silently kept the last)",
+       rf and "duplicate_arm_row" in msg)
+
+    # ---- ARM_DIR assertion is real ---------------------------------------
+    old_line = G.LAUNCHER_F_MP_WORKDIR_LINE
+    G.LAUNCHER_F_MP_WORKDIR_LINE = 'WORK="$BASE/NOT_THE_REGISTERED_DIR"'
+    rf, msg = refused(G.launcher_mapping_check)
+    G.LAUNCHER_F_MP_WORKDIR_LINE = old_line
+    ok("2m GUARD MUTATION: point ARM_DIR's assertion at a line the launcher does NOT carry -> REFUSE",
+       rf and "launcher_does_not_set_F_mp_workdir" in msg)
+
+    # =====================================================================
+    # 3. D6-GRADER-DEF-2 -- docker_logs() COULD NEVER RETURN.  IT NOW DOES.
+    # =====================================================================
+    import subprocess as SP
+    try:
+        SP.run(["echo", "x"], capture_output=True, text=True, stderr=SP.STDOUT)
+        d6_form_raises = False
+        d6_form_err = None
+    except ValueError as exc:
+        d6_form_raises = True
+        d6_form_err = str(exc)
+    ok("3a THE PREDECESSOR'S EXACT ARGUMENT COMBINATION RAISES -- the defect, reproduced",
+       d6_form_raises and "capture_output" in (d6_form_err or ""), d6_form_err)
+    out = G.docker_logs("d6r_selftest_container_that_does_not_exist")
+    ok("3b THE REPAIRED docker_logs() RETURNS A STRING (it is DRIVEN, not merely read)",
+       isinstance(out, str), "returned %d chars, type=%s" % (len(out), type(out).__name__))
+    ok("3c and its stderr is MERGED into the returned text, which is what the caller needs",
+       ("No such container" in out) or ("Error" in out) or (out == ""),
+       repr(out[:80]))
+
+    # =====================================================================
+    # 4. D6-CAP-FRAME-1 (L-371) -- ENFORCED AND GRADED ON CLOCKS THAT AGREE
+    # =====================================================================
+    ok("4a THE CAP IS THE REGISTERED ONE AND (deadline + allowance) INVERTS TO IT",
+       all(abs((G.TMO_REGISTERED_S[a] + G.FRAME_ALLOWANCE_S) * G.RANKS / 60.0 - G.CAPS[a]) <= 0.02
+           for a in G.CAPS) and G.FRAME_ALLOWANCE_S == 90 and G.KILL_GRACE_S == 60,
+       json.dumps({a: G.TMO_REGISTERED_S[a] for a in sorted(G.CAPS)}))
+    hit_cw = G.TMO_REGISTERED_S["O_mp"]
+    hit_wall = hit_cw + 8            # D6's OWN MEASURED frame gap
+    hit_cm = round(hit_wall * G.RANKS / 60.0, 3)
+    root = os.path.join(scratch, "root_frame_ok")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, cw={"O_mp": hit_cw}, wall={"O_mp": hit_wall},
+                     cm={"O_mp": hit_cm})
+    res = G.grade(root, d4o)
+    ok("4b AT THE REPAIRED DEADLINE the host bracket is WITHIN the cap and every frame limb passes",
+       res["gates"]["G10_caps"] == "PASS" and res["G10"]["per_arm"]["O_mp"]["within_cap"] is True
+       and res["G10"]["per_arm"]["O_mp"]["deadline_frame_pass"] is True
+       and res["G10"]["per_arm"]["O_mp"]["frame_gap_within_allowance"] is True
+       and res["G10"]["per_arm"]["O_mp"]["frame_gap_s"] == 8,
+       "host_wall=%d cw=%d core_min=%.3f cap=%.1f" % (hit_wall, hit_cw, hit_cm, G.CAPS["O_mp"]))
+    old_wall = int(round(G.CAPS["O_mp"] * 60.0 / G.RANKS)) + 8   # D6's UNREPAIRED deadline + the same gap
+    old_cm = round(old_wall * G.RANKS / 60.0, 3)
+    ok("4c UNDER THE PREDECESSOR'S DEADLINE THE SAME ARM WOULD HAVE EXCEEDED ITS OWN CAP "
+       "BY OBEYING IT -- exactly what D6 recorded (2000.533 vs 2000.0)",
+       old_cm > G.CAPS["O_mp"] and hit_cm <= G.CAPS["O_mp"],
+       "predecessor=%.3f repaired=%.3f cap=%.1f" % (old_cm, hit_cm, G.CAPS["O_mp"]))
+    ok("4d THE CAP DID NOT MOVE TO ABSORB THE GAP -- the DEADLINE moved down by the allowance",
+       int(round(G.CAPS["O_mp"] * 60.0 / G.RANKS)) - G.TMO_REGISTERED_S["O_mp"] == G.FRAME_ALLOWANCE_S)
+    root = os.path.join(scratch, "root_frame_over")
+    over_cw = G.TMO_REGISTERED_S["O_mp"] + G.KILL_GRACE_S + 30
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, cw={"O_mp": over_cw},
+                     wall={"O_mp": over_cw + 5}, cm={"O_mp": 100.0})
+    res = G.grade(root, d4o)
+    ok("4e A CONTAINER THAT OUTLIVED ITS DEADLINE + KILL GRACE -> G10 GATE FAIL EVEN THOUGH THE "
+       "HOST BRACKET IS INSIDE THE CAP.  One frame cannot excuse the other.",
+       res["gates"]["G10_caps"] == "GATE FAIL"
+       and res["G10"]["per_arm"]["O_mp"]["within_cap"] is True
+       and res["G10"]["per_arm"]["O_mp"]["deadline_frame_pass"] is False)
+    root = os.path.join(scratch, "root_frame_gap")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, cw={"O_mp": 10}, wall={"O_mp": 10 + 45}, cm={"O_mp": 100.0})
+    res = G.grade(root, d4o)
+    ok("4f A FRAME GAP ABOVE allowance - kill grace (45 s > 30 s) -> G10 GATE FAIL",
+       res["gates"]["G10_caps"] == "GATE FAIL"
+       and res["G10"]["per_arm"]["O_mp"]["frame_gap_within_allowance"] is False)
+    root = os.path.join(scratch, "root_frame_fa")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, fa={"O_mp": 30})
+    res = G.grade(root, d4o)
+    ok("4g THE LEDGER'S OWN frame_allowance_s IS CROSS-PINNED: 30 != registered 90 -> G10 GATE FAIL",
+       res["gates"]["G10_caps"] == "GATE FAIL"
+       and res["G10"]["per_arm"]["O_mp"]["frame_allowance_matches_registered"] is False)
+    root = os.path.join(scratch, "root_frame_nm")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF)
+    lp = os.path.join(root, "ledger.txt")
+    _t = open(lp).read()
+    open(lp, "w").write(_t.replace(" container_wall_s=55", ""))
+    res = G.grade(root, d4o)
+    ok("4h AN ABSENT CONTAINER CLOCK IS INFRASTRUCTURE: frame limbs NOT_MEASURED, the gate falls "
+       "back to the HOST bracket alone -- the STRICTER reading, never a rescue",
+       res["G10"]["per_arm"]["O_mp"]["frame_limbs_binding"] is False
+       and res["G10"]["per_arm"]["O_mp"]["container_wall_s"] == G.NOT_MEASURED
+       and res["gates"]["G10_caps"] == "PASS"
+       and "container_wall_s" in res["not_measured_named"].get("O_mp", []))
+    root = os.path.join(scratch, "root_cap_over")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, cm={"O_mp": 2900.1})
+    res = G.grade(root, d4o)
+    ok("4i O_mp at 2900.1 > cap 2900.0 -> G10 GATE FAIL, item GATE FAIL, P5 MISS",
+       res["gates"]["G10_caps"] == "GATE FAIL" and res["verdict"] == "GATE FAIL"
+       and res["predictions"]["P5"]["score"] == "MISS")
+
+    # =====================================================================
+    # 5. G-D6R-OPT -- A STALL IS NOT A CAP HIT
+    # =====================================================================
+    root = os.path.join(scratch, "root_itercap")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, n_major=80,
+                     exit_="EXIT: Maximum Number of Iterations Exceeded.")
+    res = G.grade(root, d4o)
+    ok("5a ITERATION_CAP with the registered intermediate threshold met -> item GATE REACHED, "
+       "NEVER PASS (DAFOAM_CHARTER section 9)",
+       res["optimiser_outcome"] == "ITERATION_CAP" and res["verdict"] == "GATE REACHED"
+       and res["gates"]["G-D6R-OPT_optimiser"] == "GATE REACHED"
+       and res["predictions"]["P1"]["score"] == "HIT")
+    root = os.path.join(scratch, "root_itercap_oob")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, n_major=80, j0=2.60e-2, jf=2.45e-2,
+                     exit_="EXIT: Maximum Number of Iterations Exceeded.")
+    res = G.grade(root, d4o)
+    ok("5b ITERATION_CAP with the intermediate threshold MISSED -> GATE FAIL, not GATE REACHED",
+       res["optimiser_outcome"] == "ITERATION_CAP" and res["verdict"] == "GATE FAIL")
+    root = os.path.join(scratch, "root_stall")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, n_major=80,
+                     exit_="EXIT: Maximum Number of Iterations Exceeded.",
+                     cutbacks=548, restoration=7, inf_du_first=1.0e-4, inf_du_last=1.2e-3)
+    res = G.grade(root, d4o)
+    ok("5c A STALL AND AN ITERATION CAP ON THE SAME LOG -> STALLED, NOT ITERATION_CAP.  "
+       "The registered order puts the more informative label first.",
+       res["optimiser_outcome"] == "STALLED" and res["verdict"] == "NOT A RESULT"
+       and res["G-D6R-OPT"]["S1_line_search_failing"] is True
+       and res["G-D6R-OPT"]["S2_dual_infeasibility_not_decreasing"] is True,
+       "cutbacks/major=%.2f inf_du_last=%s tail=%s"
+       % (res["G-D6R-OPT"]["cutbacks_per_major"], res["G-D6R-OPT"]["inf_du_last"],
+          res["G-D6R-OPT"]["inf_du_at_tail_start"]))
+    ok("5d the stall is DISTINGUISHABLE: every indicator is printed beside the verdict",
+       res["G-D6R-OPT"]["cutbacks"] == 548 and res["G-D6R-OPT"]["n_restoration_majors"] == 7
+       and res["G-D6R-OPT"]["n_major"] == 80)
+    old_thr = G.STALL_CUTBACKS_PER_MAJOR
+    G.STALL_CUTBACKS_PER_MAJOR = 1.0e9
+    res2 = G.grade(root, d4o)
+    G.STALL_CUTBACKS_PER_MAJOR = old_thr
+    ok("5e GUARD MUTATION: raise the cutback threshold out of reach -> the SAME log reads "
+       "ITERATION_CAP, so the STALLED label came from the threshold and not from the EXIT line",
+       res2["optimiser_outcome"] == "ITERATION_CAP" and res2["verdict"] == "GATE REACHED")
+    root = os.path.join(scratch, "root_deadline")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, arms=["O_mp"], rc={"O_mp": 124},
+                     chain_outcome="STOPPED_AT_FIRST_NONZERO", chain_stop_arm="O_mp", chain_stop_rc=124,
+                     cutbacks=548, restoration=7, inf_du_first=1.0e-4, inf_du_last=1.2e-3,
+                     exit_="EXIT: Maximum Number of Iterations Exceeded.",
+                     cw={"O_mp": G.TMO_REGISTERED_S["O_mp"]},
+                     wall={"O_mp": G.TMO_REGISTERED_S["O_mp"] + 8}, cm={"O_mp": 2894.5})
+    res = G.grade(root, d4o)
+    ok("5f A DEADLINE OUTRANKS A STALL: the container clock reached the registered deadline, so "
+       "the outcome is DEADLINE and the endpoint is NOT a design point the optimiser chose",
+       res["optimiser_outcome"] == "DEADLINE" and res["verdict"] == "NOT A RESULT"
+       and res["G-D6R-OPT"]["deadline_fired"] is True)
+    root = os.path.join(scratch, "root_unclass")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, exit_="EXIT: Restoration Failed!")
+    res = G.grade(root, d4o)
+    ok("5g AN EXIT LINE OUTSIDE THE REGISTERED LADDER -> UNCLASSIFIED, NOT A RESULT, line quoted",
+       res["optimiser_outcome"] == "UNCLASSIFIED" and res["verdict"] == "NOT A RESULT"
+       and res["G-D6R-OPT"]["exit_line"] == "EXIT: Restoration Failed!")
+
+    # ---- DRIVEN ON D6's REAL LOG, READ-ONLY, ZERO COMPUTE ---------------
+    real = "/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint/O_mp_20260827T140924Z_805560.log"
+    if os.path.isfile(real):
+        txt = open(real, errors="replace").read()
+        majors = [(int(m.group("n")), bool(m.group("rest")), float(m.group("inf_du")))
+                  for m in G.MAJOR_ROW_RE.finditer(txt)]
+        cb = txt.count(G.CUTBACK_TOKEN)
+        nmaj = majors[-1][0] if majors else 0
+        nres = sum(1 for _, r_, _ in majors if r_)
+        cpm = cb / float(nmaj) if nmaj else 0.0
+        tail = int(round(G.STALL_TAIL_FRACTION * nmaj))
+        du_tail = next((v for n_, _, v in majors if n_ >= tail), None)
+        ok("5h THE CLASSIFIER DRIVEN ON D6'S ACTUAL 10.7 MB LOG (read-only) READS A STALL",
+           nmaj == 64 and nres == 7 and cpm >= G.STALL_CUTBACKS_PER_MAJOR
+           and majors[-1][2] >= du_tail,
+           "n_major=%d restoration=%d cutbacks=%d (%.2f/major) inf_du 64=%.2e vs %d=%.2e"
+           % (nmaj, nres, cb, cpm, majors[-1][2], tail, du_tail))
+    else:
+        ok("5h D6's log is not on disk; the classifier could not be driven on real bytes",
+           False, "MISSING: " + real)
+
+    # =====================================================================
+    # 6. THE INHERITED GATES -- re-driven, unchanged
+    # =====================================================================
+    mp = dict(CLEAN_MP)
+    mp["cl06"] = 2.70e-2
+    root = os.path.join(scratch, "root_point")
+    d4o = build_base(root, mp, CLEAN_REF)
+    res = G.grade(root, d4o)
+    ok("6a CD_0.6(mp) > CD_0.6(REF_off) -> cl06 GATE FAIL, cl04/cl05 PASS, item GATE FAIL, P6 MISS",
+       res["per_point_verdicts"] == {"cl04": "PASS", "cl05": "PASS", "cl06": "GATE FAIL"}
+       and res["verdict"] == "GATE FAIL" and res["predictions"]["P6"]["score"] == "MISS")
+    root3 = os.path.join(scratch, "root_comp")
+    d4o = build_base(root3, CLEAN_MP, CLEAN_REF, j0=2.60e-2, jf=2.45e-2)
+    res = G.grade(root3, d4o)
+    ok("6b composite reduction 5.8 % below 15 % -> G-D6R-2 GATE FAIL, item GATE FAIL",
+       res["gates"]["G-D6R-2_composite"] == "GATE FAIL" and res["verdict"] == "GATE FAIL")
+    cen3 = cen_of(root3)
+    gc = G.g_composite(G.read_history(root3, cen3), cen3, band=(0.0, 100.0))
+    ok("6c GUARD MUTATION: widen the reduction band -> the SAME fixture PASSES (the refusal was "
+       "the band, not the fixture)", gc["verdict"] == "PASS")
+    mp = dict(CLEAN_MP)
+    mp["cl05"] = G.CD_F_D4_RECORDED - 1.0e-5
+    ref = dict(CLEAN_REF)
+    ref["cl05"] = mp["cl05"] + 1e-6
+    root4 = os.path.join(scratch, "root_neg")
+    d4o = build_base(root4, mp, ref)
+    res = G.grade(root4, d4o)
+    ok("6d negative single-point price -> G-D6R-3 NOT A RESULT, item NOT A RESULT, P3 NOT A RESULT",
+       res["gates"]["G-D6R-3_price"] == "NOT A RESULT" and res["verdict"] == "NOT A RESULT"
+       and res["predictions"]["P3"]["score"] == "NOT A RESULT")
+    mp = dict(CLEAN_MP)
+    mp["cl05"] = G.CD_F_D4_RECORDED + 2.0e-3
+    ref = dict(CLEAN_REF)
+    ref["cl05"] = mp["cl05"] + 1e-6
+    root5 = os.path.join(scratch, "root_price")
+    d4o = build_base(root5, mp, ref)
+    res = G.grade(root5, d4o)
+    ok("6e price +2.0e-3 > 1.0e-3 -> G-D6R-3 GATE FAIL", res["gates"]["G-D6R-3_price"] == "GATE FAIL")
+
+    def blind(path, where="x"):
+        return {"objective": G.CD_F_D4_RECORDED, "exit": "EXIT: Optimal Solution Found.", "n_iter": 80,
+                "optimal": True, "objective_scaled": 0.0, "path": path}
+    rf, msg = refused(G.planted_zero_control, os.path.join(d4o, "opt_IPOPT.txt"),
+                      os.path.join(scratch, "ctrl"), reader=blind)
+    ok("6f A READER THAT CANNOT SEE THE PLANT -> REFUSE (rule 3)", rf and "reader_blind" in msg)
+    write_ipopt(os.path.join(d4o, "opt_IPOPT.txt"), G.CD_F_D4_RECORDED + 1e-6)
+    rf, msg = refused(G.grade, root5, d4o)
+    ok("6g D4's O/opt_IPOPT.txt objective differs from the recorded CD_f -> REFUSE",
+       rf and "d4_reference_changed" in msg)
+
+    root6 = os.path.join(scratch, "root_oom")
+    d4o = build_base(root6, CLEAN_MP, CLEAN_REF, rc={"O_mp": 137}, oom={"O_mp": "true"})
+    res = G.grade(root6, d4o)
+    ok("6h O_mp kernel exit 137 OOMKilled true -> G1 NOT A RESULT, item NOT A RESULT, P7 MISS",
+       res["verdict"] == "NOT A RESULT" and res["predictions"]["P7"]["score"] == "MISS")
+    p = os.path.join(root6, "ledger.txt")
+    _t = open(p).read()
+    open(p, "w").write(_t.replace("rc=137 ", "rc=0 ", 1))
+    rf, msg = refused(G.grade, root6, d4o)
+    ok("6i harness rc=0 vs kernel exit 137 -> REFUSE", rf and "rc_disagreement" in msg)
+
+    root7 = os.path.join(scratch, "root_term")
+    d4o = build_base(root7, CLEAN_MP, CLEAN_REF, terminal_last=False)
+    res = G.grade(root7, d4o)
+    ok("6j terminal statement not the LAST line on O_mp -> NOT A RESULT (positional)",
+       res["verdict"] == "NOT A RESULT" and any(t["arm"] == "O_mp" for t in res["G1"]["terminal_failures"]))
+    root8 = os.path.join(scratch, "root_script")
+    d4o = build_base(root8, CLEAN_MP, CLEAN_REF, script_ok=False)
+    res = G.grade(root8, d4o)
+    ok("6k SCRIPT arms without .ok markers -> NOT A RESULT; terminal statement not composed",
+       res["verdict"] == "NOT A RESULT"
+       and "terminal_statement_INFORMATIONAL_not_composed" in res["G1"]["arms"]["REF_off"]["terminal_detail"])
+    root9 = os.path.join(scratch, "root_stale")
+    d4o = build_base(root9, CLEAN_MP, CLEAN_REF, stale=True)
+    res = G.grade(root9, d4o)
+    ok("6l O_mp/opt_IPOPT.txt older than the datum -> age clause fails -> NOT A RESULT",
+       res["verdict"] == "NOT A RESULT" and any(t["arm"] == "O_mp" for t in res["G1"]["age_failures"]))
+    root10 = os.path.join(scratch, "root_hst")
+    d4o = build_base(root10, CLEAN_MP, CLEAN_REF, hst_md5_ok=False)
+    rf, msg = refused(G.grade, root10, d4o)
+    ok("6m REF_off/OptView.hst md5 moved from the registered D4 md5 -> REFUSE",
+       rf and "staged_input_md5_moved" in msg)
+    root11 = os.path.join(scratch, "root_flip")
+    d4o = build_base(root11, CLEAN_MP, CLEAN_REF, flips=2)
+    res = G.grade(root11, d4o)
+    ok("6n 2 sign flips on the J table -> G-D6R-4 NOT A RESULT, item NOT A RESULT",
+       res["gates"]["G-D6R-4_fd"] == "NOT A RESULT" and res["verdict"] == "NOT A RESULT")
+    root13 = os.path.join(scratch, "root_cs")
+    d4o = build_base(root13, CLEAN_MP, CLEAN_REF)
+    p = os.path.join(root13, "ledger.txt")
+    _t = open(p).read()
+    open(p, "w").write(_t.replace("cpuset=2,3,4,14", "cpuset=8,10,11,13", 1)
+                       .replace("delivered_cores_mean=[3.9900 n=10 max_nr_throttled=0]",
+                                "delivered_cores_mean=[NOT_MEASURED]", 1))
+    res = G.grade(root13, d4o)
+    ok("6o cpuset 8,10,11,13 on one row -> G12 GATE FAIL; delivered NOT_MEASURED NAMED, not failed",
+       res["gates"]["G12_placement"] == "GATE FAIL" and len(res["G12"]["delivered_not_measured"]) == 1)
+    root14 = os.path.join(scratch, "root_nm")
+    d4o = build_base(root14, CLEAN_MP, CLEAN_REF)
+    p = os.path.join(root14, "ledger.txt")
+    _t = open(p).read()
+    open(p, "w").write(_t.replace("memavail_post_GiB=26.00", "memavail_post_GiB=NOT_MEASURED", 1))
+    res = G.grade(root14, d4o)
+    ok("6p a NOT_MEASURED infrastructure field -> item PASS with O_mp:memavail_post_GiB NAMED",
+       res["verdict"] == "PASS" and "memavail_post_GiB" in res["not_measured_named"].get("O_mp", []))
+
+    root = os.path.join(scratch, "root_shipped")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF)
+    p = os.path.join(root, "ledger.txt")
+    _t = open(p).read()
+    open(p, "w").write(_t.replace(G.IMG_PATCHED_DIGEST,
+                                  "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc", 1))
+    res = G.grade(root, d4o)
+    ok("6q TWO ROWS (DAFOAM_CHARTER section 6): the SHIPPED digest on a row of this PATCHED-ONLY "
+       "item -> G9 GATE FAIL.  The SHIPPED row is named UNBOUGHT, never silently substituted.",
+       res["gates"]["G9_toolchain"] == "GATE FAIL"
+       and res["G9"]["per_arm"]["O_mp"]["digest_ok"] is False)
+    root = os.path.join(scratch, "root_somd5")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF)
+    lg = os.path.join(root, "O_mp_fix.log")
+    _t = open(lg).read()
+    open(lg, "w").write(_t.replace(G.IDWARP_SO_MD5_PATCHED, "0" * 32))
+    res = G.grade(root, d4o)
+    ok("6r the PATCHED libidwarp.so md5 must appear in EVERY log (a version string is not an "
+       "identity) -> a moved md5 gives G9 GATE FAIL",
+       res["gates"]["G9_toolchain"] == "GATE FAIL"
+       and res["G9"]["per_arm"]["O_mp"]["so_md5_ok"] is False)
+
+    # =====================================================================
+    # 7. VOCABULARY
+    # =====================================================================
+    root = os.path.join(scratch, "root_vocab")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF)
+    res = G.grade(root, d4o)
+    ok("7a every verdict this grader emits is inside the fixed six-token vocabulary",
+       res["verdict"] in G.VOCAB and all(v in G.VOCAB for v in res["gates"].values())
+       and all(v in G.VOCAB for v in res["per_point_verdicts"].values()))
+
+    for d in os.listdir(scratch):
+        pass
+    print("D6R GRADE SELFTEST pass=%d fail=%d under %s" % (PASS, FAIL, mode))
+    return 0 if FAIL == 0 else 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

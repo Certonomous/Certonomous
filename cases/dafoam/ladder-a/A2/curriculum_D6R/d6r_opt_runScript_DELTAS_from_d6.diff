@@ -1,0 +1,20 @@
+--- curriculum_D6/d6_opt_runScript.py	2026-08-26 17:27:43.121446601 +0000
++++ curriculum_D6R/d6r_opt_runScript.py	2026-08-27 22:46:12.261775391 +0000
+@@ -19,7 +19,7 @@
+     once before run_driver (the DAFoam multipoint form).
+ daOptions, meshOptions, the DV bounds and scalers, IPOPT settings and the task
+ switch are D4's bytes.  The ANCHOR line `# OpenMDAO setup` is kept so that
+-d6_fd_endpoint.py and d6_ref_off.py exec the header exactly as D4's FD
++d6r_fd_endpoint.py and d6r_ref_off.py exec the header exactly as D4's FD
+ instrument does.
+ """
+ import os
+@@ -256,7 +256,7 @@
+     prob.driver.opt_settings = {
+         "tol": 1.0e-5,
+         "constr_viol_tol": 1.0e-5,
+-        "max_iter": 100,
++        "max_iter": 80,
+         "print_level": 5,
+         "output_file": "opt_IPOPT.txt",
+         "mu_strategy": "adaptive",

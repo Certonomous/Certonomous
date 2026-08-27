@@ -1,0 +1,23 @@
+D6R G-ROOT.5 SELFTEST 2026-08-27T23:02:34Z launcher_md5=243f0f631719edf7ae354410276b3cfd
+  containers_before=16
+  [OK ] G-ROOT.5 completes at :222, first destructive op at :311
+  [OK ] the CAP FRAME assertion at :251 also precedes the first destructive op at :311
+  [OK ] zero backticks on executable lines of the launcher
+  [OK ] no unfilled md5 placeholder in the launcher
+  [OK ] run root ABSENT before the test: /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
+  [OK ] (a0) PLANTED POSITIVE FOR THE READER: docker ps returns 1 live container(s) [d8r_O-P_20260827T223101Z_1595223] -- the reader is NOT blind
+  [OK ] (a1) planted live container [d6r_ACC_mp_planted_20260827T000000Z_999999] -> rc=3: ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [d6r_ACC_mp_planted_20260827T00
+  [OK ] (a2) NEGATIVE CONTROL: an UNRELATED live container does NOT fire the clause; control reaches the L-251 abort (rc=4), nothing staged
+  [OK ] (b) live HOST pid 1639517 cwd=/home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint -> rc=3: ABORT G-ROOT.5 driver pidfile /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/d6r_driver.pid names LIVE pid 163951
+  [OK ] (b2) stale pidfile ignored; launcher went on to abort at the L-251 mode check (rc=4) -- nothing staged
+  [OK ] (c) clear -> G-ROOT.5 passes; L-251 mode check aborts (rc=4) before any staging
+  [OK ] (c2) the CAP FRAME line is emitted BEFORE the abort: ACC_mp deadline 360 s + 90 s allowance INVERTS to the registered 30.0 core-min
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv -> rc=3 G-ROOT.1 REFUSED
+  [OK ] temporary run root still EMPTY after every invocation (0 entries)
+  [OK ] run root ABSENT after the test (freeze condition): test -e /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint -> false
+  [OK ] ZERO CONTAINERS CREATED: 16 before, 16 after
+D6R G-ROOT5 SELFTEST pass=20 fail=0 2026-08-27T23:02:36Z
